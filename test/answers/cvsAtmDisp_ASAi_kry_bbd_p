@@ -8,17 +8,17 @@ Domain:
    0.000000 < x < 20.000000   mx = 20  npe_x = 2 
    0.000000 < y < 20.000000   my = 40  npe_y = 2 
 
-Begin forward integration... done.   G = 3.723818e+03
+Begin forward integration... done.   G = 2.522277e+03
 
 Final Statistics.. 
 
 lenrw   =   8746     leniw =    212
 llrw    =   8656     lliw  =     80
-nst     =    104
-nfe     =    109     nfel  =    126
-nni     =    105     nli   =    126
-nsetups =     16     netf  =      0
-npe     =      2     nps   =    215
+nst     =     99
+nfe     =    106     nfel  =    122
+nni     =    102     nli   =    122
+nsetups =     14     netf  =      0
+npe     =      2     nps   =    203
 ncfn    =      0     ncfl  =      0
 
 Begin backward integration... done.
@@ -27,10 +27,10 @@ Final Statistics..
 
 lenrw   =  17316     leniw =    212
 llrw    =   8656     lliw  =     80
-nst     =     79
-nfe     =     95     nfel  =    144
-nni     =     91     nli   =    144
-nsetups =     17     netf  =      1
-npe     =      2     nps   =    227
+nst     =     94
+nfe     =    117     nfel  =    160
+nni     =    113     nli   =    160
+nsetups =     20     netf  =      2
+npe     =      2     nps   =    253
 ncfn    =      0     ncfl  =      0
 

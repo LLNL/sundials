@@ -1,37 +1,36 @@
 
 Parallel Krylov adjoint sensitivity analysis example
-3D Advection diffusion PDE with homogeneous Neumann B.C.
+2D Advection diffusion PDE with homogeneous Neumann B.C.
 Computes gradient of G = int_t_Omega ( c_i^2 ) dt dOmega
 with respect to the source values at each grid point.
 
 Domain:
    0.000000 < x < 20.000000   mx = 20  npe_x = 2 
    0.000000 < y < 20.000000   my = 40  npe_y = 2 
-   0.000000 < z < 20.000000   mz = 20  npe_z = 1 
 
-Begin forward integration... done.   G = 8.232843e+03
+Begin forward integration... done.   G = 2.522277e+03
 
 Final Statistics.. 
 
-lenrw   = 180946     leniw =    212
-llrw    = 180856     lliw  =     80
-nst     =    118
-nfe     =    125     nfel  =    141
-nni     =    121     nli   =    141
-nsetups =     17     netf  =      0
-npe     =      2     nps   =    234
+lenrw   =   8746     leniw =    212
+llrw    =   8656     lliw  =     80
+nst     =     99
+nfe     =    106     nfel  =    122
+nni     =    102     nli   =    122
+nsetups =     14     netf  =      0
+npe     =      2     nps   =    203
 ncfn    =      0     ncfl  =      0
 
 Begin backward integration... done.
 
 Final Statistics.. 
 
-lenrw   = 361716     leniw =    212
-llrw    = 180856     lliw  =     80
-nst     =     70
-nfe     =     80     nfel  =    133
-nni     =     76     nli   =    133
-nsetups =     15     netf  =      0
-npe     =      2     nps   =    204
+lenrw   =  17316     leniw =    212
+llrw    =   8656     lliw  =     80
+nst     =     94
+nfe     =    117     nfel  =    160
+nni     =    113     nli   =    160
+nsetups =     20     netf  =      2
+npe     =      2     nps   =    253
 ncfn    =      0     ncfl  =      0
 
