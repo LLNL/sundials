@@ -335,8 +335,8 @@ void PrintMat(DlsMat A)
     a = A->cols;
     printf("\n");
     for (i=0; i < A->N; i++) {
-      start = MAX(0,i-A->ml);
-      finish = MIN(A->N-1,i+A->mu);
+      start = SUN_MAX(0,i-A->ml);
+      finish = SUN_MIN(A->N-1,i+A->mu);
       for (j=0; j < start; j++) printf("%12s  ","");
       for (j=start; j <= finish; j++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)

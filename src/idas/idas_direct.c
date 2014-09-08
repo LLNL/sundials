@@ -395,7 +395,7 @@ int idaDlsDenseDQJac(long int N, realtype tt, realtype c_j,
     adjustments using yp_j and ewt_j if this is small, and a further
     adjustment to give it the same sign as hh*yp_j. */
 
-    inc = MAX( srur * MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewt_data[j] );
+    inc = SUN_MAX( srur * SUN_MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewt_data[j] );
 
     if (hh*ypj < ZERO) inc = -inc;
     inc = (yj + inc) - yj;
@@ -499,7 +499,7 @@ int idaDlsBandDQJac(long int N, long int mupper, long int mlower,
 
   srur = RSqrt(uround);
   width = mlower + mupper + 1;
-  ngroups = MIN(width, N);
+  ngroups = SUN_MIN(width, N);
 
   /* Loop over column groups. */
   for (group=1; group <= ngroups; group++) {
@@ -515,7 +515,7 @@ int idaDlsBandDQJac(long int N, long int mupper, long int mlower,
         adjustments using ypj and ewtj if this is small, and a further
         adjustment to give it the same sign as hh*ypj. */
 
-        inc = MAX( srur * MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewtj );
+        inc = SUN_MAX( srur * SUN_MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewtj );
 
         if (hh*ypj < ZERO) inc = -inc;
         inc = (yj + inc) - yj;
@@ -553,7 +553,7 @@ int idaDlsBandDQJac(long int N, long int mupper, long int mlower,
       
       /* Set increment inc exactly as above. */
 
-      inc = MAX( srur * MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewtj );
+      inc = SUN_MAX( srur * SUN_MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewtj );
       if (hh*ypj < ZERO) inc = -inc;
       inc = (yj + inc) - yj;
       if (constraints != NULL) {
@@ -565,8 +565,8 @@ int idaDlsBandDQJac(long int N, long int mupper, long int mlower,
       /* Load the difference quotient Jacobian elements for column j. */
 
       inc_inv = ONE/inc;
-      i1 = MAX(0, j-mupper);
-      i2 = MIN(j+mlower,N-1);
+      i1 = SUN_MAX(0, j-mupper);
+      i2 = SUN_MIN(j+mlower,N-1);
       
       for (i=i1; i<=i2; i++) 
             BAND_COL_ELEM(col_j,i,j) = inc_inv*(rtemp_data[i]-r_data[i]);

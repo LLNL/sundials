@@ -1161,7 +1161,7 @@ static int Precondbd(realtype tt, N_Vector cc,
       ratesxy = IJ_Vptr(rates,ix,jy);
 
       for (js = 0; js < ns; js++) {
-        inc = sqru*(MAX(ABS(cxy[js]), MAX(hh*ABS(cpxy[js]), ONE/ewtxy[js])));
+        inc = sqru*(SUN_MAX(ABS(cxy[js]), SUN_MAX(hh*ABS(cpxy[js]), ONE/ewtxy[js])));
         cctemp = cxy[js];  /* Save the (js,ix,jy) element of cc. */
         cxy[js] += inc;    /* Perturb the (js,ix,jy) element of cc. */
         fac = -ONE/inc;

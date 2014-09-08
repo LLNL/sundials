@@ -177,7 +177,7 @@ int CVBand(void *cvode_mem, long int N, long int mupper, long int mlower)
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
-  smu = MIN(N-1, mu + ml);
+  smu = SUN_MIN(N-1, mu + ml);
 
   /* Allocate memory for M, savedJ, and pivot arrays */
   M = NULL;

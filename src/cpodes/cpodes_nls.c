@@ -203,7 +203,7 @@ int cpNls(CPodeMem cp_mem, int nflag, realtype saved_t, int *ncfPtr)
   }
 
   /* Reduce step size; return to reattempt the step */
-  eta = MAX(ETACF, hmin / ABS(h));
+  eta = SUN_MAX(ETACF, hmin / ABS(h));
   cpRescale(cp_mem);
 
   return(PREDICT_AGAIN);
@@ -276,8 +276,8 @@ static int cpNlsFunctionalExpl(CPodeMem cp_mem)
     
     /* Test for convergence.  If m > 0, an estimate of the convergence
        rate constant is stored in crate, and used in the test.        */
-    if (m > 0) crate = MAX(NLS_CRDOWN * crate, del / delp);
-    dcon = del * MIN(ONE, crate) / tq[4];
+    if (m > 0) crate = SUN_MAX(NLS_CRDOWN * crate, del / delp);
+    dcon = del * SUN_MIN(ONE, crate) / tq[4];
     if (dcon <= ONE) {
       acnrm = (m == 0) ? del : N_VWrmsNorm(acor, ewt);
       return(CP_SUCCESS);  /* Convergence achieved */
@@ -490,9 +490,9 @@ static int cpNewtonIterationExpl(CPodeMem cp_mem)
     /* Test for convergence.  If m > 0, an estimate of the convergence
        rate constant is stored in crate, and used in the test.        */
     if (m > 0) {
-      crate = MAX(NLS_CRDOWN * crate, del/delp);
+      crate = SUN_MAX(NLS_CRDOWN * crate, del/delp);
     }
-    dcon = del * MIN(ONE, crate) / tq[4];
+    dcon = del * SUN_MIN(ONE, crate) / tq[4];
 
 #ifdef CPODES_DEBUG
     printf("            Convergence test  dcon = %lg\n", dcon);
@@ -609,8 +609,8 @@ static int cpNlsFunctionalImpl(CPodeMem cp_mem)
     
     /* Test for convergence.  If m > 0, an estimate of the convergence
        rate constant is stored in crate, and used in the test.        */
-    if (m > 0) crate = MAX(NLS_CRDOWN * crate, del / delp);
-    dcon = del * MIN(ONE, crate) / tq[4];
+    if (m > 0) crate = SUN_MAX(NLS_CRDOWN * crate, del / delp);
+    dcon = del * SUN_MIN(ONE, crate) / tq[4];
     if (dcon <= ONE) {
       acnrm = (m == 0) ? del : N_VWrmsNorm(acor, ewt);
       return(CP_SUCCESS);  /* Convergence achieved */
@@ -782,8 +782,8 @@ static int cpNewtonIterationImpl(CPodeMem cp_mem)
 
     /* Test for convergence.  If m > 0, an estimate of the convergence
        rate constant is stored in crate, and used in the test.        */
-    if (m > 0) crate = MAX(NLS_CRDOWN * crate, del/delp);
-    dcon = del * MIN(ONE, crate) / tq[4];    
+    if (m > 0) crate = SUN_MAX(NLS_CRDOWN * crate, del/delp);
+    dcon = del * SUN_MIN(ONE, crate) / tq[4];
     if (dcon <= ONE) {
       acnrm = (m==0) ? del : N_VWrmsNorm(acor, ewt);
       return(CP_SUCCESS);

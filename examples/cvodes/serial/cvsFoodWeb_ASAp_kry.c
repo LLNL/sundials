@@ -475,7 +475,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
         /* Generate the jth column as a difference quotient */
         jj = if0 + j; 
         save = cdata[jj];
-        r = MAX(srur*ABS(save),r0/rewtdata[jj]);
+        r = SUN_MAX(srur*ABS(save),r0/rewtdata[jj]);
         cdata[jj] += r;
         fac = -gamma/r;
         fblock (t, cdata, jx, jy, f1, wdata);
@@ -680,7 +680,7 @@ static int PrecondB(realtype t, N_Vector c,
         /* Generate the jth column as a difference quotient */
         jj = if0 + j; 
         save = cdata[jj];
-        r = MAX(srur*ABS(save),r0/rewtdata[jj]);
+        r = SUN_MAX(srur*ABS(save),r0/rewtdata[jj]);
         cdata[jj] += r;
         fac = gamma/r;
         fblock (t, cdata, jx, jy, f1, wdata);

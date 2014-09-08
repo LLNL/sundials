@@ -43,12 +43,12 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-#ifndef MIN
-#define MIN(A, B) ((A) < (B) ? (A) : (B))
+#ifndef SUN_MIN
+#define SUN_MIN(A, B) ((A) < (B) ? (A) : (B))
 #endif
 
-#ifndef MAX
-#define MAX(A, B) ((A) > (B) ? (A) : (B))
+#ifndef SUN_MAX
+#define SUN_MAX(A, B) ((A) > (B) ? (A) : (B))
 #endif
 
 #ifndef SQR

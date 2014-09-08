@@ -226,7 +226,7 @@ int cpRcheck1(CPodeMem cp_mem)
    * y'(t0+smallh) = zn[1] 
    */
 
-  hratio = MAX(ttol/ABS(h), PT1);
+  hratio = SUN_MAX(ttol/ABS(h), PT1);
   smallh = hratio*h;
   tlo += smallh;
   N_VLinearSum(ONE, zn[0], hratio, zn[1], y);

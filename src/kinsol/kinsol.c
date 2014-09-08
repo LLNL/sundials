@@ -611,7 +611,7 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
 
     if (inexact_ls) {
       eps = (eta + uround) * fnorm;
-      if(!noMinEps) eps = MAX(epsmin, eps);
+      if(!noMinEps) eps = SUN_MAX(epsmin, eps);
     }
 
     repeat_nni:
@@ -1535,7 +1535,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
     rlprev = rl;
     f1nprv = (*f1normp);
     pt1trl = POINT1 * rl;
-    rl = MAX(pt1trl, rltmp);
+    rl = SUN_MAX(pt1trl, rltmp);
     nbktrk_l++;
 
     /* Update unew and re-evaluate function */
@@ -1575,7 +1575,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
         rlprev = rl;
         f1nprv = *f1normp;
-        rl = MIN((TWO * rl), rlmax);
+        rl = SUN_MIN((TWO * rl), rlmax);
         nbktrk_l++;
 
         N_VLinearSum(ONE, uu, rl, pp, unew);
@@ -1598,7 +1598,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
     if ((rl < ONE) || ((rl > ONE) && (*f1normp > alpha_cond))) {
 
-      rllo = MIN(rl, rlprev);
+      rllo = SUN_MIN(rl, rlprev);
       rldiff = ABS(rlprev - rl);
 
       do {
@@ -1802,8 +1802,8 @@ static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int sflag)
 
       /* If indicated, estimate new OMEGA value */
       if (eval_omega) {
-        omexp = MAX(ZERO,(fnorm/fnormtol)-ONE);
-        omega = (omexp > TWELVE)? omega_max : MIN(omega_min*EXP(omexp), omega_max);
+        omexp = SUN_MAX(ZERO,(fnorm/fnormtol)-ONE);
+        omega = (omexp > TWELVE)? omega_max : SUN_MIN(omega_min*EXP(omexp), omega_max);
       }   
       /* Check if making satisfactory progress */
 
@@ -1891,9 +1891,9 @@ static void KINForcingTerm(KINMem kin_mem, realtype fnormp)
   /* apply safeguards */
  
   if(eta_safe < POINT1) eta_safe = ZERO;
-  eta = MAX(eta, eta_safe); 
-  eta = MAX(eta, eta_min); 
-  eta = MIN(eta, eta_max); 
+  eta = SUN_MAX(eta, eta_safe);
+  eta = SUN_MAX(eta, eta_min);
+  eta = SUN_MIN(eta, eta_max);
 
   return; 
 }
@@ -2192,7 +2192,7 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R, realtype *g
     /* Update the forcing term for the inexact linear solves */
     if (inexact_ls) {
       eps = (eta + uround) * fnorm;
-      if(!noMinEps) eps = MAX(epsmin, eps);
+      if(!noMinEps) eps = SUN_MAX(epsmin, eps);
     }
 
     /* evaluate g = uu - L^{-1}func(u) and return if failed.  

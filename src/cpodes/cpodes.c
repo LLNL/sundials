@@ -2230,7 +2230,7 @@ static int cpHin(CPodeMem cp_mem, realtype tout)
   if ((tdiff = tout-tn) == ZERO) return(CP_TOO_CLOSE);
   sign = (tdiff > ZERO) ? 1 : -1;
   tdist = ABS(tdiff);
-  tround = uround * MAX(ABS(tn), ABS(tout));
+  tround = uround * SUN_MAX(ABS(tn), ABS(tout));
   if (tdist < TWO*tround) return(CP_TOO_CLOSE);
   
   /* Set lower and upper bounds on h0*/
@@ -2986,7 +2986,7 @@ static int cpQuadNls(CPodeMem cp_mem, realtype saved_t, int *ncfPtr)
     return(CP_REPTD_QUADFUNC_ERR);    
 
   /* Reduce step size; return to reattempt the step */
-  eta = MAX(ETACF, hmin / ABS(h));
+  eta = SUN_MAX(ETACF, hmin / ABS(h));
   cpRescale(cp_mem);
 
   return(PREDICT_AGAIN);
@@ -3524,15 +3524,15 @@ static int cpDoErrorTest(CPodeMem cp_mem, realtype saved_t, realtype acor_norm,
   /* Set h ratio eta from dsm, rescale, and return for retry of step */
   if (*nefPtr <= MXNEF1) {
     eta = ONE / (RPowerR(BIAS2*dsm,ONE/L) + ADDON);
-    eta = MAX(ETAMIN, MAX(eta, hmin / ABS(h)));
-    if (*nefPtr >= SMALL_NEF) eta = MIN(eta, ETAMXF);
+    eta = SUN_MAX(ETAMIN, SUN_MAX(eta, hmin / ABS(h)));
+    if (*nefPtr >= SMALL_NEF) eta = SUN_MIN(eta, ETAMXF);
     cpRescale(cp_mem);
     return(PREDICT_AGAIN);
   }
   
   /* After MXNEF1 failures, force an order reduction and retry step */
   if (q > 1) {
-    eta = MAX(ETAMIN, hmin / ABS(h));
+    eta = SUN_MAX(ETAMIN, hmin / ABS(h));
     cpAdjustOrder(cp_mem,-1);
     L = q;
     q--;
@@ -3542,7 +3542,7 @@ static int cpDoErrorTest(CPodeMem cp_mem, realtype saved_t, realtype acor_norm,
   }
 
   /* If already at order 1, restart: reload zn from scratch */
-  eta = MAX(ETAMIN, hmin / ABS(h));
+  eta = SUN_MAX(ETAMIN, hmin / ABS(h));
   h *= eta;
   next_h = h;
   hscale = h;
@@ -3613,7 +3613,7 @@ static void cpPrepareNextStep(CPodeMem cp_mem, realtype dsm)
 {
   /* If etamax = 1, defer step size or order changes */
   if (etamax == ONE) {
-    qwait = MAX(qwait, 2);
+    qwait = SUN_MAX(qwait, 2);
     qprime = q;
     hprime = h;
     eta = ONE;
@@ -3657,8 +3657,8 @@ static void cpSetEta(CPodeMem cp_mem)
     hprime = h;
   } else {
     /* Limit eta by etamax and hmax, then set hprime */
-    eta = MIN(eta, etamax);
-    eta /= MAX(ONE, ABS(h)*hmax_inv*eta);
+    eta = SUN_MIN(eta, etamax);
+    eta /= SUN_MAX(ONE, ABS(h)*hmax_inv*eta);
     hprime = h * eta;
     if (qprime < q) nscon = 0;
   }
@@ -3727,7 +3727,7 @@ static void cpChooseEta(CPodeMem cp_mem)
 {
   realtype etam;
   
-  etam = MAX(etaqm1, MAX(etaq, etaqp1));
+  etam = SUN_MAX(etaqm1, SUN_MAX(etaq, etaqp1));
   
   if (etam < THRESH) {
     eta = ONE;
@@ -3889,8 +3889,8 @@ void cpBDFStab(CPodeMem cp_mem)
            Reduce new order.                     */
         qprime = q-1;
         eta = etaqm1; 
-        eta = MIN(eta,etamax);
-        eta = eta/MAX(ONE,ABS(h)*hmax_inv*eta);
+        eta = SUN_MIN(eta,etamax);
+        eta = eta/SUN_MAX(ONE,ABS(h)*hmax_inv*eta);
         hprime = h*eta;
         nor = nor + 1;
       }
@@ -3976,8 +3976,8 @@ static int cpSLdet(CPodeMem cp_mem)
     smaxk = ZERO;
     
     for (i=1; i<=5; i++) {
-      smink = MIN(smink,ssdat[i][k]);
-      smaxk = MAX(smaxk,ssdat[i][k]);
+      smink = SUN_MIN(smink,ssdat[i][k]);
+      smaxk = SUN_MAX(smaxk,ssdat[i][k]);
     }
     
     if (smink < TINY*smaxk) {
@@ -4013,8 +4013,8 @@ static int cpSLdet(CPodeMem cp_mem)
      Return a kflag = 1 if this procedure works. If three root 
      differ more than vrrt2, return error kflag = -3.    */
   
-  vmin = MIN(vrat[1],MIN(vrat[2],vrat[3]));
-  vmax = MAX(vrat[1],MAX(vrat[2],vrat[3]));
+  vmin = SUN_MIN(vrat[1],SUN_MIN(vrat[2],vrat[3]));
+  vmax = SUN_MAX(vrat[1],SUN_MAX(vrat[2],vrat[3]));
   
   if(vmin < vrrtol*vrrtol) {
     if (vmax > vrrt2*vrrt2) {
@@ -4026,7 +4026,7 @@ static int cpSLdet(CPodeMem cp_mem)
       drrmax = ZERO;
       for(k = 1;k<=3;k++) {
         adrr = ABS(rav[k] - rr);
-        drrmax = MAX(drrmax, adrr);
+        drrmax = SUN_MAX(drrmax, adrr);
       }
       if (drrmax > vrrt2) {
         kflag = -3;    

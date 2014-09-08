@@ -2281,7 +2281,7 @@ static void *N_VMinQuotient_PT(void *thread_data)
   for (i = start; i < end; i++) {
     if (dd[i] == ZERO)
       continue;
-    local_min = MIN(local_min, nd[i]/dd[i]);
+    local_min = SUN_MIN(local_min, nd[i]/dd[i]);
   }
 
   /* update global min */

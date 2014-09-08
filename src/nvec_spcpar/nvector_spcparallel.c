@@ -1598,7 +1598,7 @@ realtype N_VMinQuotient_SpcParallel(N_Vector x, N_Vector y)
             loc = Zblock + Yblock + Xblock + is;
             if (yd[loc] == ZERO) continue;
             else {
-              if (!notEvenOnce) min = MIN(min, xd[loc] / yd[loc]);
+              if (!notEvenOnce) min = SUN_MIN(min, xd[loc] / yd[loc]);
               else {
                 min = xd[loc] / yd[loc] ;
                 notEvenOnce = FALSE;

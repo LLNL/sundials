@@ -128,7 +128,7 @@ int ARKBand(void *arkode_mem, long int N, long int mupper, long int mlower)
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
-  arkdls_mem->d_smu = MIN(N-1, arkdls_mem->d_mu + arkdls_mem->d_ml);
+  arkdls_mem->d_smu = SUN_MIN(N-1, arkdls_mem->d_mu + arkdls_mem->d_ml);
 
   /* Allocate memory for M, savedJ, and pivot arrays */
   arkdls_mem->d_M = NULL;
@@ -446,7 +446,7 @@ int ARKMassBand(void *arkode_mem, long int N, long int mupper,
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
-  arkdls_mem->d_smu = MIN(N-1, arkdls_mem->d_mu + arkdls_mem->d_ml);
+  arkdls_mem->d_smu = SUN_MIN(N-1, arkdls_mem->d_mu + arkdls_mem->d_ml);
 
   /* Allocate memory for M, M_lu, and pivot arrays */
   arkdls_mem->d_M = NULL;

@@ -140,8 +140,8 @@ int CPBandPrecInit(void *cpode_mem, int N, int mu, int ml)
   /* Load pointers and bandwidths into pdata block. */
   pdata->cpode_mem = cpode_mem;
   pdata->N = N;
-  pdata->mu = mup = MIN(N-1, MAX(0,mu));
-  pdata->ml = mlp = MIN(N-1, MAX(0,ml));
+  pdata->mu = mup = SUN_MIN(N-1, SUN_MAX(0,mu));
+  pdata->ml = mlp = SUN_MIN(N-1, SUN_MAX(0,ml));
 
   /* Initialize nfeBP counter */
   pdata->nfeBP = 0;
@@ -156,7 +156,7 @@ int CPBandPrecInit(void *cpode_mem, int N, int mu, int ml)
   }
 
   /* Allocate memory for banded preconditioner. */
-  storagemu = MIN(N-1, mup+mlp);
+  storagemu = SUN_MIN(N-1, mup+mlp);
   pdata->savedP = NULL;
   pdata->savedP = NewBandMat(N, mup, mlp, storagemu);
   if (pdata->savedP == NULL) {
@@ -224,7 +224,7 @@ int CPBandPrecGetWorkSpace(void *cpode_mem, long int *lenrwBP, long int *leniwBP
   N   = pdata->N;
   mu  = pdata->mu;
   ml  = pdata->ml;
-  smu = MIN( N-1, mu + ml);
+  smu = SUN_MIN( N-1, mu + ml);
 
   *leniwBP = pdata->N;
   *lenrwBP = N * ( 2*ml + smu + mu + 2 );
@@ -584,14 +584,14 @@ static int cpBandPDQJacExpl(CPBandPrecData pdata,
 
   /* Set bandwidth and number of column groups for band differencing. */
   width = ml + mu + 1;
-  ngroups = MIN(width, N);
+  ngroups = SUN_MIN(width, N);
 
   /* Loop over column groups. */
   for (group = 1; group <= ngroups; group++) {
     
     /* Increment all y_j in group. */
     for(j = group-1; j < N; j += width) {
-      inc = MAX(srur*ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUN_MAX(srur*ABS(y_data[j]), minInc/ewt_data[j]);
       ytemp_data[j] += inc;
     }
 
@@ -605,10 +605,10 @@ static int cpBandPDQJacExpl(CPBandPrecData pdata,
     for (j = group-1; j < N; j += width) {
       ytemp_data[j] = y_data[j];
       col_j = BAND_COL(savedJ,j);
-      inc = MAX(srur*ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUN_MAX(srur*ABS(y_data[j]), minInc/ewt_data[j]);
       inc_inv = ONE/inc;
-      i1 = MAX(0, j-mu);
-      i2 = MIN(j+ml, N-1);
+      i1 = SUN_MAX(0, j-mu);
+      i2 = SUN_MIN(j+ml, N-1);
       for (i=i1; i <= i2; i++)
         BAND_COL_ELEM(col_j,i,j) = inc_inv * (ftemp_data[i] - fy_data[i]);
     }
@@ -662,7 +662,7 @@ static int cpBandPDQJacImpl(CPBandPrecData pdata,
   /* Compute miscellaneous values for the Jacobian computation. */
   srur = RSqrt(uround);
   width = ml + mu + 1;
-  ngroups = MIN(width, N);
+  ngroups = SUN_MIN(width, N);
 
   /* Loop over column groups. */
   for (group=1; group <= ngroups; group++) {
@@ -676,7 +676,7 @@ static int cpBandPDQJacImpl(CPBandPrecData pdata,
         /* Set increment inc to yj based on sqrt(uround)*abs(yj), with
            adjustments using ypj and ewtj if this is small, and a further
            adjustment to give it the same sign as h*ypj. */
-        inc = MAX( srur * MAX( ABS(yj), ABS(h*ypj) ) , ONE/ewtj );
+        inc = SUN_MAX( srur * SUN_MAX( ABS(yj), ABS(h*ypj) ) , ONE/ewtj );
 
         if (h*ypj < ZERO) inc = -inc;
         inc = (yj + inc) - yj;
@@ -701,14 +701,14 @@ static int cpBandPDQJacImpl(CPBandPrecData pdata,
       ewtj = ewt_data[j];
       
       /* Set increment inc exactly as above. */
-      inc = MAX( srur * MAX( ABS(yj), ABS(h*ypj) ) , ONE/ewtj );
+      inc = SUN_MAX( srur * SUN_MAX( ABS(yj), ABS(h*ypj) ) , ONE/ewtj );
       if (h*ypj < ZERO) inc = -inc;
       inc = (yj + inc) - yj;
       
       /* Load the difference quotient Jacobian elements for column j. */
       inc_inv = ONE/inc;
-      i1 = MAX(0, j-mu);
-      i2 = MIN(j+ml,N-1);
+      i1 = SUN_MAX(0, j-mu);
+      i2 = SUN_MIN(j+ml,N-1);
       for (i=i1; i<=i2; i++) 
         BAND_COL_ELEM(col_j,i,j) = inc_inv*(ftemp_data[i]-r_data[i]);
     }

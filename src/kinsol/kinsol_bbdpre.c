@@ -136,16 +136,16 @@ int KINBBDPrecInit(void *kinmem, long int Nlocal,
   pdata->kin_mem = kinmem;
   pdata->gloc = gloc;
   pdata->gcomm = gcomm;
-  pdata->mudq = MIN(Nlocal-1, MAX(0, mudq));
-  pdata->mldq = MIN(Nlocal-1, MAX(0, mldq));
-  muk = MIN(Nlocal-1, MAX(0,mukeep));
-  mlk = MIN(Nlocal-1, MAX(0,mlkeep));
+  pdata->mudq = SUN_MIN(Nlocal-1, SUN_MAX(0, mudq));
+  pdata->mldq = SUN_MIN(Nlocal-1, SUN_MAX(0, mldq));
+  muk = SUN_MIN(Nlocal-1, SUN_MAX(0,mukeep));
+  mlk = SUN_MIN(Nlocal-1, SUN_MAX(0,mlkeep));
   pdata->mukeep = muk;
   pdata->mlkeep = mlk;
 
   /* allocate memory for preconditioner matrix */
 
-  storage_mu = MIN(Nlocal-1, muk+mlk);
+  storage_mu = SUN_MIN(Nlocal-1, muk+mlk);
   pdata->PP = NULL;
   pdata->PP = NewBandMat(Nlocal, muk, mlk, storage_mu);
   if (pdata->PP == NULL) {
@@ -362,7 +362,7 @@ static int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
     return(-1);
   }
 
-  nge += (1 + MIN(mldq+mudq+1, Nlocal));
+  nge += (1 + SUN_MIN(mldq+mudq+1, Nlocal));
 
   /* do LU factorization of P in place (in PP) */
 
@@ -502,7 +502,7 @@ static int KBBDDQJac(KBBDPrecData pdata,
   /* set bandwidth and number of column groups for band differencing */
 
   width = mldq + mudq + 1;
-  ngroups = MIN(width, Nlocal);
+  ngroups = SUN_MIN(width, Nlocal);
 
   /* loop over groups */
   
@@ -511,7 +511,7 @@ static int KBBDDQJac(KBBDPrecData pdata,
     /* increment all u_j in group */
 
     for(j = group - 1; j < Nlocal; j += width) {
-      inc = rel_uu * MAX(ABS(udata[j]), (ONE / uscdata[j]));
+      inc = rel_uu * SUN_MAX(ABS(udata[j]), (ONE / uscdata[j]));
       utempdata[j] += inc;
     }
   
@@ -525,10 +525,10 @@ static int KBBDDQJac(KBBDPrecData pdata,
     for (j = group - 1; j < Nlocal; j += width) {
       utempdata[j] = udata[j];
       col_j = BAND_COL(PP,j);
-      inc = rel_uu * MAX(ABS(udata[j]) , (ONE / uscdata[j]));
+      inc = rel_uu * SUN_MAX(ABS(udata[j]) , (ONE / uscdata[j]));
       inc_inv = ONE / inc;
-      i1 = MAX(0, (j - mukeep));
-      i2 = MIN((j + mlkeep), (Nlocal - 1));
+      i1 = SUN_MAX(0, (j - mukeep));
+      i2 = SUN_MIN((j + mlkeep), (Nlocal - 1));
       for (i = i1; i <= i2; i++)
 	BAND_COL_ELEM(col_j, i, j) = inc_inv * (gtempdata[i] - gudata[i]);
     }

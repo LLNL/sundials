@@ -1458,7 +1458,7 @@ realtype N_VMinQuotient_Parallel_Grid(N_Vector num, N_Vector denom)
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, num) {
       if (dd[i] == ZERO) continue;
       else {
-	if (!notEvenOnce) min = MIN(min, nd[i]/dd[i]);
+	if (!notEvenOnce) min = SUN_MIN(min, nd[i]/dd[i]);
 	else {
 	  min = nd[i]/dd[i];
 	  notEvenOnce = FALSE;
@@ -1470,7 +1470,7 @@ realtype N_VMinQuotient_Parallel_Grid(N_Vector num, N_Vector denom)
     NV_CLOOP_PG(i0, i1, i2, i3, i4, i5, i, num) {
       if (dd[i] == ZERO) continue;
       else {
-	if (!notEvenOnce) min = MIN(min, nd[i]/dd[i]);
+	if (!notEvenOnce) min = SUN_MIN(min, nd[i]/dd[i]);
 	else {
 	  min = nd[i]/dd[i];
 	  notEvenOnce = FALSE;

@@ -180,7 +180,7 @@ int KINBand(void *kinmem, long int N, long int mupper, long int mlower)
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
-  smu = MIN(N-1, mu + ml);
+  smu = SUN_MIN(N-1, mu + ml);
 
   /* Allocate memory for J and pivot array */
   J = NULL;

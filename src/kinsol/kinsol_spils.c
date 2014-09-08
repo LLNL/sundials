@@ -605,7 +605,7 @@ int KINSpilsDQJtimes(N_Vector v, N_Vector Jv,
  
   /*  this expression for sigma is from p. 469, Brown and Saad paper */
 
-  sigma = sign*sqrt_relfunc*MAX(ABS(sutsv),sq1norm)/vtv; 
+  sigma = sign*sqrt_relfunc*SUN_MAX(ABS(sutsv),sq1norm)/vtv;
 
   sigma_inv = ONE/sigma;
 

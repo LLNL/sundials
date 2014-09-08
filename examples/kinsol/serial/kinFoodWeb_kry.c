@@ -385,7 +385,7 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
       for (j = 0; j < NUM_SPECIES; j++) {
         
         csave = cxy[j];  /* Save the j,jx,jy element of cc */
-        r = MAX(sqruround*ABS(csave), r0/scxy[j]);
+        r = SUN_MAX(sqruround*ABS(csave), r0/scxy[j]);
         cxy[j] += r; /* Perturb the j,jx,jy element of cc */
         fac = ONE/r;
         

@@ -49,7 +49,7 @@ int ModifiedGS(N_Vector *v, realtype **h, int k, int p,
   
   vk_norm = RSqrt(N_VDotProd(v[k],v[k]));
   k_minus_1 = k - 1;
-  i0 = MAX(k-p, 0);
+  i0 = SUN_MAX(k-p, 0);
   
   /* Perform modified Gram-Schmidt */
   
@@ -111,7 +111,7 @@ int ClassicalGS(N_Vector *v, realtype **h, int k, int p,
 
   vk_norm = RSqrt(N_VDotProd(v[k], v[k]));
 
-  i0 = MAX(k-p, 0);
+  i0 = SUN_MAX(k-p, 0);
   for (i=i0; i < k; i++) {
     h[i][k_minus_1] = N_VDotProd(v[i], v[k]);
   }

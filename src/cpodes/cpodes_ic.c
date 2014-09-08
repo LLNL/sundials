@@ -527,10 +527,10 @@ static int cpicProjNonlinear(CPodeMem cp_mem)
     cmax = N_VMaxNorm(ctemp);
 
     /* Estimated convergence rate */
-    if (m > 0) crate = MAX(PRJ_CRDOWN * crate, pnorm/pnorm_p);
+    if (m > 0) crate = SUN_MAX(PRJ_CRDOWN * crate, pnorm/pnorm_p);
 
     /* Convergence test based on pnorm and crate */
-    pcon = pnorm * MIN(ONE, crate) / icprj_convcoef;
+    pcon = pnorm * SUN_MIN(ONE, crate) / icprj_convcoef;
 
 #ifdef CPODES_DEBUG
     printf("  Stop test quantities:\n");

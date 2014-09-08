@@ -838,7 +838,7 @@ realtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom)
   for (i = 0; i < N; i++) {
     if (dd[i] == ZERO) continue;
     else {
-      if (!notEvenOnce) min = MIN(min, nd[i]/dd[i]);
+      if (!notEvenOnce) min = SUN_MIN(min, nd[i]/dd[i]);
       else {
 	min = nd[i]/dd[i];
         notEvenOnce = FALSE;

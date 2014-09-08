@@ -127,15 +127,15 @@ int IDABBDPrecInit(void *ida_mem, long int Nlocal,
   pdata->ida_mem = IDA_mem;
   pdata->glocal = Gres;
   pdata->gcomm = Gcomm;
-  pdata->mudq = MIN(Nlocal-1, MAX(0, mudq));
-  pdata->mldq = MIN(Nlocal-1, MAX(0, mldq));
-  muk = MIN(Nlocal-1, MAX(0, mukeep));
-  mlk = MIN(Nlocal-1, MAX(0, mlkeep));
+  pdata->mudq = SUN_MIN(Nlocal-1, SUN_MAX(0, mudq));
+  pdata->mldq = SUN_MIN(Nlocal-1, SUN_MAX(0, mldq));
+  muk = SUN_MIN(Nlocal-1, SUN_MAX(0, mukeep));
+  mlk = SUN_MIN(Nlocal-1, SUN_MAX(0, mlkeep));
   pdata->mukeep = muk;
   pdata->mlkeep = mlk;
 
   /* Set extended upper half-bandwidth for PP (required for pivoting). */
-  storage_mu = MIN(Nlocal-1, muk+mlk);
+  storage_mu = SUN_MIN(Nlocal-1, muk+mlk);
 
   /* Allocate memory for preconditioner matrix. */
   pdata->PP = NULL;
@@ -223,8 +223,8 @@ int IDABBDPrecReInit(void *ida_mem,
 
   /* Load half-bandwidths. */
   Nlocal = pdata->n_local;
-  pdata->mudq = MIN(Nlocal-1, MAX(0, mudq));
-  pdata->mldq = MIN(Nlocal-1, MAX(0, mldq));
+  pdata->mudq = SUN_MIN(Nlocal-1, SUN_MAX(0, mudq));
+  pdata->mldq = SUN_MIN(Nlocal-1, SUN_MAX(0, mldq));
 
   /* Set rel_yy based on input value dq_rel_yy (0 implies default). */
   pdata->rel_yy = (dq_rel_yy > ZERO) ? dq_rel_yy : RSqrt(uround); 
@@ -521,7 +521,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   /* Set bandwidth and number of column groups for band differencing. */
 
   width = mldq + mudq + 1;
-  ngroups = MIN(width, Nlocal);
+  ngroups = SUN_MIN(width, Nlocal);
 
   /* Loop over groups. */
   for(group = 1; group <= ngroups; group++) {
@@ -535,7 +535,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
       /* Set increment inc to yj based on rel_yy*abs(yj), with
          adjustments using ypj and ewtj if this is small, and a further
          adjustment to give it the same sign as hh*ypj. */
-      inc = rel_yy*MAX(ABS(yj), MAX( ABS(hh*ypj), ONE/ewtj));
+      inc = rel_yy*SUN_MAX(ABS(yj), SUN_MAX( ABS(hh*ypj), ONE/ewtj));
       if (hh*ypj < ZERO) inc = -inc;
       inc = (yj + inc) - yj;
       
@@ -565,7 +565,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
       ewtj = ewtdata[j];
 
       /* Set increment inc as before .*/
-      inc = rel_yy*MAX(ABS(yj), MAX( ABS(hh*ypj), ONE/ewtj));
+      inc = rel_yy*SUN_MAX(ABS(yj), SUN_MAX( ABS(hh*ypj), ONE/ewtj));
       if (hh*ypj < ZERO) inc = -inc;
       inc = (yj + inc) - yj;
       if (constraints != NULL) {
@@ -577,8 +577,8 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
       /* Form difference quotients and load into PP. */
       inc_inv = ONE/inc;
       col_j = BAND_COL(PP,j);
-      i1 = MAX(0, j-mukeep);
-      i2 = MIN(j+mlkeep, Nlocal-1);
+      i1 = SUN_MAX(0, j-mukeep);
+      i2 = SUN_MIN(j+mlkeep, Nlocal-1);
       for(i = i1; i <= i2; i++) BAND_COL_ELEM(col_j,i,j) =
                                   inc_inv * (gtempdata[i] - grefdata[i]);
     }

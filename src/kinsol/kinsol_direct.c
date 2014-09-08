@@ -391,7 +391,7 @@ int kinDlsDenseDQJac(long int N,
     ujsaved = u_data[j];
     ujscale = ONE/uscale_data[j];
     sign = (ujsaved >= ZERO) ? ONE : -ONE;
-    inc = sqrt_relfunc*MAX(ABS(ujsaved), ujscale)*sign;
+    inc = sqrt_relfunc*SUN_MAX(ABS(ujsaved), ujscale)*sign;
     u_data[j] += inc;
 
     retval = func(u, ftemp, user_data);
@@ -462,13 +462,13 @@ int kinDlsBandDQJac(long int N, long int mupper, long int mlower,
 
   /* Set bandwidth and number of column groups for band differencing */
   width = mlower + mupper + 1;
-  ngroups = MIN(width, N);
+  ngroups = SUN_MIN(width, N);
   
   for (group=1; group <= ngroups; group++) {
     
     /* Increment all utemp components in group */
     for(j=group-1; j < N; j+=width) {
-      inc = sqrt_relfunc*MAX(ABS(u_data[j]), ONE/ABS(uscale_data[j]));
+      inc = sqrt_relfunc*SUN_MAX(ABS(u_data[j]), ONE/ABS(uscale_data[j]));
       utemp_data[j] += inc;
     }
 
@@ -480,10 +480,10 @@ int kinDlsBandDQJac(long int N, long int mupper, long int mlower,
     for (j=group-1; j < N; j+=width) {
       utemp_data[j] = u_data[j];
       col_j = BAND_COL(Jac,j);
-      inc = sqrt_relfunc*MAX(ABS(u_data[j]), ONE/ABS(uscale_data[j]));
+      inc = sqrt_relfunc*SUN_MAX(ABS(u_data[j]), ONE/ABS(uscale_data[j]));
       inc_inv = ONE/inc;
-      i1 = MAX(0, j-mupper);
-      i2 = MIN(j+mlower, N-1);
+      i1 = SUN_MAX(0, j-mupper);
+      i2 = SUN_MIN(j+mlower, N-1);
       for (i=i1; i <= i2; i++)
         BAND_COL_ELEM(col_j,i,j) = inc_inv * (futemp_data[i] - fu_data[i]);
     }

@@ -3416,7 +3416,7 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
   /* Allocate phi[0] ... phi[maxord].  Make sure phi[2] and phi[3] are
   allocated (for use as temporary vectors), regardless of maxord.       */
 
-  maxcol = MAX(maxord,3);
+  maxcol = SUN_MAX(maxord,3);
   for (j=0; j <= maxcol; j++) {
     phi[j] = N_VClone(tmpl);
     if (phi[j] == NULL) {
@@ -3455,7 +3455,7 @@ static void IDAFreeVectors(IDAMem IDA_mem)
   N_VDestroy(delta);   delta = NULL;
   N_VDestroy(tempv1); tempv1 = NULL;
   N_VDestroy(tempv2); tempv2 = NULL;
-  maxcol = MAX(IDA_mem->ida_maxord_alloc,3);
+  maxcol = SUN_MAX(IDA_mem->ida_maxord_alloc,3);
   for(j=0; j <= maxcol; j++) { N_VDestroy(phi[j]); phi[j] = NULL;}
 
   lrw -= (maxcol + 6)*lrw1;
@@ -3642,7 +3642,7 @@ static booleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
   /*  Make sure phiS[2], phiS[3] and phiS[4] are
       allocated (for use as temporary vectors), regardless of maxord.*/
 
-  maxcol = MAX(maxord,4);
+  maxcol = SUN_MAX(maxord,4);
   for (j=0; j <= maxcol; j++) {
     phiS[j] = N_VCloneVectorArray(Ns, tmpl);
     if (phiS[j] == NULL) {
@@ -3712,7 +3712,7 @@ static void IDASensFreeVectors(IDAMem IDA_mem)
   N_VDestroyVectorArray(ewtS, Ns);
   N_VDestroy(tmpS3);
 
-  maxcol = MAX(IDA_mem->ida_maxord_alloc, 4);
+  maxcol = SUN_MAX(IDA_mem->ida_maxord_alloc, 4);
   for (j=0; j<=maxcol; j++) 
     N_VDestroyVectorArray(phiS[j], Ns);
 
@@ -3785,7 +3785,7 @@ static booleantype IDAQuadSensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
     N_VDestroyVectorArray(eeQS, Ns);
   }
 
-  maxcol = MAX(maxord,4);
+  maxcol = SUN_MAX(maxord,4);
   /* Allocate phiQS */
   for (j=0; j<=maxcol; j++) {
     phiQS[j] = N_VCloneVectorArray(Ns, tmpl);
@@ -3818,7 +3818,7 @@ static void IDAQuadSensFreeVectors(IDAMem IDA_mem)
 {
   int j, maxcol;
 
-  maxcol = MAX(maxord, 4);
+  maxcol = SUN_MAX(maxord, 4);
 
   N_VDestroyVectorArray(yyQS, Ns);
   N_VDestroyVectorArray(ewtQS, Ns);
@@ -4940,7 +4940,7 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
   /* Set coefficients for the current stepsize h */
 
   if (hh != hused || kk != kused) ns = 0;
-  ns = MIN(ns+1,kused+2);
+  ns = SUN_MIN(ns+1,kused+2);
   if (kk+1 >= ns) {
     beta[0] = ONE;
     alpha[0] = ONE;
@@ -4973,7 +4973,7 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
   /* compute variable stepsize error coefficient ck */
 
   *ck = ABS(alpha[kk] + alphas - alpha0);
-  *ck = MAX(*ck, alpha[kk]);
+  *ck = SUN_MAX(*ck, alpha[kk]);
 
  /* change phi to phi-star  */
 
@@ -5133,7 +5133,7 @@ static int IDANls(IDAMem IDA_mem)
         N_VLinearSum(ONE, phi[0], -ONE, yy, tempv1);
         N_VProd(mm, tempv1, tempv1);
         rr = PT9*N_VMinQuotient(phi[0], tempv1);
-        rr = MAX(rr,PT1);
+        rr = SUN_MAX(rr,PT1);
         return(IDA_CONSTR_RECVR);
       }
     }
@@ -5608,7 +5608,7 @@ static int IDATestError(IDAMem IDA_mem, realtype ck,
 
       /* Reduce order if errors are reduced */
 
-      if (MAX(terr_km1, terr_km2) <= terr_k)  knew = kk - 1; 
+      if (SUN_MAX(terr_km1, terr_km2) <= terr_k)  knew = kk - 1;
 
     } else {
 
@@ -5635,7 +5635,7 @@ static int IDATestError(IDAMem IDA_mem, realtype ck,
  * and performs the local error test. 
  *
  * IDAQuadTestError returns the updated local error estimate at orders k, 
- * k-1, and k-2. These are norms of type MAX(|err|,|errQ|).
+ * k-1, and k-2. These are norms of type SUN_MAX(|err|,|errQ|).
  *
  * The return flag can be either IDA_SUCCESS or ERROR_TEST_FAIL.
  */
@@ -5688,7 +5688,7 @@ static int IDAQuadTestError(IDAMem IDA_mem, realtype ck,
         terr_km2 = (kk-1) * (*err_km2);
 
         /* Decrease order if errors are reduced */
-        if (MAX(terr_km1, terr_km2) <= terr_k)  knew = kk - 1; 
+        if (SUN_MAX(terr_km1, terr_km2) <= terr_k)  knew = kk - 1;
       
       } else {
         
@@ -5715,7 +5715,7 @@ static int IDAQuadTestError(IDAMem IDA_mem, realtype ck,
  * and performs the local error test. (Used only in staggered approach).
  *
  * IDASensTestError returns the updated local error estimate at orders k, 
- * k-1, and k-2. These are norms of type MAX(|err|,|errQ|,|errS|).
+ * k-1, and k-2. These are norms of type SUN_MAX(|err|,|errQ|,|errS|).
  *
  * The return flag can be either IDA_SUCCESS or ERROR_TEST_FAIL.
  */
@@ -5771,7 +5771,7 @@ static int IDASensTestError(IDAMem IDA_mem, realtype ck,
         terr_km2 = (kk-1) * (*err_km2);
 
         /* Decrease order if errors are reduced */
-        if (MAX(terr_km1, terr_km2) <= terr_k)  knew = kk - 1; 
+        if (SUN_MAX(terr_km1, terr_km2) <= terr_k)  knew = kk - 1;
       
       } else {
         
@@ -5800,7 +5800,7 @@ static int IDASensTestError(IDAMem IDA_mem, realtype ck,
  *
  * IDAQuadSensTestError returns the updated local error estimate at 
  * orders k, k-1, and k-2. These are norms of type 
- * MAX(|err|,|errQ|,|errS|,|errQS|).
+ * SUN_MAX(|err|,|errQ|,|errS|,|errQS|).
  *
  * The return flag can be either IDA_SUCCESS or ERROR_TEST_FAIL.
  */
@@ -5857,7 +5857,7 @@ static int IDAQuadSensTestError(IDAMem IDA_mem, realtype ck,
         terr_km2 = (kk-1) * (*err_km2);
 
         /* Decrease order if errors are reduced */
-        if (MAX(terr_km1, terr_km2) <= terr_k)  knew = kk - 1;
+        if (SUN_MAX(terr_km1, terr_km2) <= terr_k)  knew = kk - 1;
 
       } else {
         /* Decrease order to 1 if errors are reduced by at least 1/2 */
@@ -6009,7 +6009,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
 
       kk = knew;      
       rr = PT9 * RPowerR( TWO * err_knew + PT0001,(-ONE/(kk+1)) );
-      rr = MAX(QUARTER, MIN(PT9,rr));
+      rr = SUN_MAX(QUARTER, SUN_MIN(PT9,rr));
       hh *=rr;
       return(PREDICT_AGAIN);
       
@@ -6164,7 +6164,7 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
       else                                   {action = RAISE;    goto takeaction;}
     } else {
       terr_km1 = kk * err_km1;
-      if (terr_km1 <= MIN(terr_k, terr_kp1)) {action = LOWER;    goto takeaction;}
+      if (terr_km1 <= SUN_MIN(terr_k, terr_kp1)) {action = LOWER;    goto takeaction;}
       else if (terr_kp1  >= terr_k)          {action = MAINTAIN; goto takeaction;}
       else                                   {action = RAISE;    goto takeaction;}
     }
@@ -6187,7 +6187,7 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
       hnew = TWO * hh;
       if( (tmp = ABS(hnew)*hmax_inv) > ONE ) hnew /= tmp;
     } else if (rr <= ONE ) { 
-      rr = MAX(HALF, MIN(PT9,rr));
+      rr = SUN_MAX(HALF, SUN_MIN(PT9,rr));
       hnew = hh * rr;
     }
     
@@ -6418,7 +6418,7 @@ static int IDARcheck1(IDAMem IDA_mem)
   if (!zroot) return(IDA_SUCCESS);
 
   /* Some g_i is zero at t0; look at g at t0+(small increment). */
-  hratio = MAX(ttol/ABS(hh), PT1);
+  hratio = SUN_MAX(ttol/ABS(hh), PT1);
   smallh = hratio*hh;
   tplus = tlo + smallh;
   N_VLinearSum(ONE, phi[0], smallh, phi[1], yy);
@@ -6867,7 +6867,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
   IDA_mem = (IDAMem) user_dataS;
 
   /* Set base perturbation del */
-  del  = RSqrt(MAX(rtol, uround));
+  del  = RSqrt(SUN_MAX(rtol, uround));
   rdel = ONE/del;
 
   pbari = pbar[is];
@@ -6879,7 +6879,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
   Delp  = pbari * del;
   rDelp = ONE/Delp;
   norms = N_VWrmsNorm(yyS, ewt) * pbari;
-  rDely = MAX(norms, rdel) / pbari;
+  rDely = SUN_MAX(norms, rdel) / pbari;
   Dely  = ONE/rDely;
 
   if (DQrhomax == ZERO) {
@@ -6888,7 +6888,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
   } else {
     /* switch between simultaneous/separate DQ */
     ratio = Dely * rDelp;
-    if ( MAX(ONE/ratio, ratio) <= DQrhomax ) 
+    if ( SUN_MAX(ONE/ratio, ratio) <= DQrhomax )
       method = (DQtype==IDA_CENTERED) ? CENTERED1 : FORWARD1;
     else
       method = (DQtype==IDA_CENTERED) ? CENTERED2 : FORWARD2;
@@ -6898,7 +6898,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
 
   case CENTERED1:
 
-    Del = MIN(Dely, Delp);
+    Del = SUN_MIN(Dely, Delp);
     r2Del = HALF/Del;
 
     /* Forward perturb y, y' and parameter */
@@ -6978,7 +6978,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
 
   case FORWARD1:
 
-    Del = MIN(Dely, Delp);
+    Del = SUN_MIN(Dely, Delp);
     rDel = ONE/Del;
 
     /* Forward perturb y, y' and parameter */
@@ -7082,7 +7082,7 @@ static int IDAQuadSensRhs1InternalDQ(IDAMem IDA_mem, int is, realtype t,
   realtype Del , r2Del ;
   realtype norms;
 
-  del = RSqrt(MAX(rtol, uround));
+  del = RSqrt(SUN_MAX(rtol, uround));
   rdel = ONE/del;
   
   pbari = pbar[is];
@@ -7094,7 +7094,7 @@ static int IDAQuadSensRhs1InternalDQ(IDAMem IDA_mem, int is, realtype t,
   Delp  = pbari * del;
   rDelp = ONE/Delp;
   norms   = N_VWrmsNorm(yyS, ewt) * pbari;
-  rDely = MAX(norms, rdel) / pbari;
+  rDely = SUN_MAX(norms, rdel) / pbari;
   Dely  = ONE/rDely;
   
   method = (DQtype==IDA_CENTERED) ? CENTERED1 : FORWARD1;
@@ -7103,7 +7103,7 @@ static int IDAQuadSensRhs1InternalDQ(IDAMem IDA_mem, int is, realtype t,
 
   case CENTERED1:
     
-    Del = MIN(Dely, Delp);
+    Del = SUN_MIN(Dely, Delp);
     r2Del = HALF/Del;
     
     N_VLinearSum(ONE, yy, Del, yyS, yytmp);
@@ -7129,7 +7129,7 @@ static int IDAQuadSensRhs1InternalDQ(IDAMem IDA_mem, int is, realtype t,
 
   case FORWARD1:
     
-    Del = MIN(Dely, Delp);
+    Del = SUN_MIN(Dely, Delp);
     rdel = ONE/Del;
     
     N_VLinearSum(ONE, yy, Del, yyS, yytmp);

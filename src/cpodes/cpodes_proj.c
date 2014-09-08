@@ -242,7 +242,7 @@ int cpDoProjection(CPodeMem cp_mem, realtype saved_t, int *npfPtr)
   }
 
   /* Reduce step size; return to reattempt the step */
-  eta = MAX(ETAPR, hmin / ABS(h));
+  eta = SUN_MAX(ETAPR, hmin / ABS(h));
   cpRescale(cp_mem);
 
   return(PREDICT_AGAIN);
@@ -486,8 +486,8 @@ static int cpProjNonlinearIteration(CPodeMem cp_mem)
 
     /* Test for convergence.  If m > 0, an estimate of the convergence
        rate constant is stored in crateP, and used in the test.        */
-    if (m > 0) crateP = MAX(PRJ_CRDOWN * crateP, del/delp);
-    dcon = del * MIN(ONE, crateP) / prjcoef;
+    if (m > 0) crateP = SUN_MAX(PRJ_CRDOWN * crateP, del/delp);
+    dcon = del * SUN_MIN(ONE, crateP) / prjcoef;
 
 #ifdef CPODES_DEBUG
     printf("            Convergence test  dcon = %lg\n", dcon);

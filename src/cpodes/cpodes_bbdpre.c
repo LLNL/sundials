@@ -160,11 +160,11 @@ int CPBBDPrecInit(void *cpode_mem, int Nlocal,
 
   pdata->cfn = cfn;
 
-  pdata->mudq = MIN(Nlocal-1, MAX(0,mudq));
-  pdata->mldq = MIN(Nlocal-1, MAX(0,mldq));
+  pdata->mudq = SUN_MIN(Nlocal-1, SUN_MAX(0,mudq));
+  pdata->mldq = SUN_MIN(Nlocal-1, SUN_MAX(0,mldq));
 
-  muk = MIN(Nlocal-1, MAX(0,mukeep));
-  mlk = MIN(Nlocal-1, MAX(0,mlkeep));
+  muk = SUN_MIN(Nlocal-1, SUN_MAX(0,mukeep));
+  mlk = SUN_MIN(Nlocal-1, SUN_MAX(0,mlkeep));
   pdata->mukeep = muk;
   pdata->mlkeep = mlk;
 
@@ -177,7 +177,7 @@ int CPBBDPrecInit(void *cpode_mem, int Nlocal,
   }
 
   /* Allocate memory for preconditioner matrix */
-  storage_mu = MIN(Nlocal-1, muk + mlk);
+  storage_mu = SUN_MIN(Nlocal-1, muk + mlk);
   pdata->savedP = NULL;
   pdata->savedP = NewBandMat(Nlocal, muk, mlk, storage_mu);
   if (pdata->savedP == NULL) {
@@ -271,8 +271,8 @@ int CPBBDPrecReInit(void *cpode_mem, int mudq, int mldq, realtype dqrely)
 
   /* Load half-bandwidths */
   Nlocal = pdata->n_local;
-  pdata->mudq = MIN(Nlocal-1, MAX(0,mudq));
-  pdata->mldq = MIN(Nlocal-1, MAX(0,mldq));
+  pdata->mudq = SUN_MIN(Nlocal-1, SUN_MAX(0,mudq));
+  pdata->mldq = SUN_MIN(Nlocal-1, SUN_MAX(0,mldq));
 
   /* Set pdata->dqrely based on input dqrely (0 implies default). */
   pdata->dqrely = (dqrely > ZERO) ? dqrely : RSqrt(uround);
@@ -717,14 +717,14 @@ static int cpBBDDQJacExpl(CPBBDPrecData pdata, realtype t,
 
   /* Set bandwidth and number of column groups for band differencing */
   width = mldq + mudq + 1;
-  ngroups = MIN(width, Nlocal);
+  ngroups = SUN_MIN(width, Nlocal);
 
   /* Loop over groups */  
   for (group=1; group <= ngroups; group++) {
     
     /* Increment all y_j in group */
     for(j=group-1; j < Nlocal; j+=width) {
-      inc = MAX(dqrely*ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUN_MAX(dqrely*ABS(y_data[j]), minInc/ewt_data[j]);
       ytemp_data[j] += inc;
     }
 
@@ -737,10 +737,10 @@ static int cpBBDDQJacExpl(CPBBDPrecData pdata, realtype t,
     for (j=group-1; j < Nlocal; j+=width) {
       ytemp_data[j] = y_data[j];
       col_j = BAND_COL(savedJ,j);
-      inc = MAX(dqrely*ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUN_MAX(dqrely*ABS(y_data[j]), minInc/ewt_data[j]);
       inc_inv = ONE/inc;
-      i1 = MAX(0, j-mukeep);
-      i2 = MIN(j+mlkeep, Nlocal-1);
+      i1 = SUN_MAX(0, j-mukeep);
+      i2 = SUN_MIN(j+mlkeep, Nlocal-1);
       for (i=i1; i <= i2; i++)
         BAND_COL_ELEM(col_j,i,j) =
           inc_inv * (gtemp_data[i] - gy_data[i]);
@@ -811,7 +811,7 @@ static int cpBBDDQJacImpl(CPBBDPrecData pdata, realtype t, realtype gamma,
 
   /* Set bandwidth and number of column groups for band differencing. */
   width = mldq + mudq + 1;
-  ngroups = MIN(width, Nlocal);
+  ngroups = SUN_MIN(width, Nlocal);
 
   /* Loop over groups. */
   for(group = 1; group <= ngroups; group++) {
@@ -825,7 +825,7 @@ static int cpBBDDQJacImpl(CPBBDPrecData pdata, realtype t, realtype gamma,
       /* Set increment inc to yj based on rel_yy*abs(yj), with
          adjustments using ypj and ewtj if this is small, and a further
          adjustment to give it the same sign as hh*ypj. */
-      inc = dqrely*MAX(ABS(yj), MAX( ABS(h*ypj), ONE/ewtj));
+      inc = dqrely*SUN_MAX(ABS(yj), SUN_MAX( ABS(h*ypj), ONE/ewtj));
       if (h*ypj < ZERO) inc = -inc;
       inc = (yj + inc) - yj;
       
@@ -847,15 +847,15 @@ static int cpBBDDQJacImpl(CPBBDPrecData pdata, realtype t, realtype gamma,
       ewtj = ewtdata[j];
 
       /* Set increment inc as before .*/
-      inc = dqrely*MAX(ABS(yj), MAX( ABS(h*ypj), ONE/ewtj));
+      inc = dqrely*SUN_MAX(ABS(yj), SUN_MAX( ABS(h*ypj), ONE/ewtj));
       if (h*ypj < ZERO) inc = -inc;
       inc = (yj + inc) - yj;
 
       /* Form difference quotients and load into savedP. */
       inc_inv = ONE/inc;
       col_j = BAND_COL(savedP,j);
-      i1 = MAX(0, j-mukeep);
-      i2 = MIN(j+mlkeep, Nlocal-1);
+      i1 = SUN_MAX(0, j-mukeep);
+      i2 = SUN_MIN(j+mlkeep, Nlocal-1);
       for(i = i1; i <= i2; i++) 
         BAND_COL_ELEM(col_j,i,j) = inc_inv * (gtempdata[i] - grefdata[i]);
     }

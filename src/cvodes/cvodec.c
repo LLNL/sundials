@@ -429,7 +429,7 @@ void CVBandCSJac(long int N, long int mupper,
 
   /* Set bandwidth and number of column groups */
   width = mlower + mupper + 1;
-  ngroups = MIN(width, N);
+  ngroups = SUN_MIN(width, N);
 
   for (group=1; group <= ngroups; group++) {
 
@@ -446,8 +446,8 @@ void CVBandCSJac(long int N, long int mupper,
     for (j=group-1; j < N; j+=width) {
       ydata_im[j] = ZERO;
       col_j = BAND_COL(J,j);
-      i1 = MAX(0, j-mupper);
-      i2 = MIN(j+mlower, N-1);
+      i1 = SUN_MAX(0, j-mupper);
+      i2 = SUN_MIN(j+mlower, N-1);
       for (i=i1; i <= i2; i++)
         BAND_COL_ELEM(col_j,i,j) = fdata_im[i]/del_cs;
     }
