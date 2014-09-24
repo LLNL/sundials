@@ -3870,7 +3870,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
 
   /* Test for more vector operations, depending on options */
   if (suppressalg)
-    if (yy->ops->nvwrmsnormmask == NULL) {
+    if (phi[0]->ops->nvwrmsnormmask == NULL) {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup", MSG_BAD_NVECTOR);
       return(IDA_ILL_INPUT);
   }
