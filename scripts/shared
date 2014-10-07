@@ -33,21 +33,18 @@ $tar $tarfile $distrobase/config/mod_c.m4
 $tar $tarfile $distrobase/config/mod_fortran.m4
 $tar $tarfile $distrobase/config/cust_general.m4
 
-$tar $tarfile $distrobase/config/CheckFortranFunctionExists.cmake
 $tar $tarfile $distrobase/config/SundialsAddTest.cmake
 $tar $tarfile $distrobase/config/SundialsFortran.cmake
 $tar $tarfile $distrobase/config/SundialsFortran90.cmake
 $tar $tarfile $distrobase/config/SundialsCXX.cmake
 $tar $tarfile $distrobase/config/SundialsLapack.cmake
 $tar $tarfile $distrobase/config/SundialsKLU.cmake
-$tar $tarfile $distrobase/config/SundialsSUPERLUMT.cmake
+$tar $tarfile $distrobase/config/SundialsSuperLUMT.cmake
 $tar $tarfile $distrobase/config/SundialsKLU.cmake
 $tar $tarfile $distrobase/config/SundialsMPIC.cmake
 $tar $tarfile $distrobase/config/SundialsMPICXX.cmake
 $tar $tarfile $distrobase/config/SundialsMPIF.cmake
 $tar $tarfile $distrobase/config/SundialsMPIF90.cmake
-$tar $tarfile $distrobase/config/FindLAPACK.cmake
-$tar $tarfile $distrobase/config/FindBLAS.cmake
 $tar $tarfile $distrobase/config/FindMPI.cmake
 $tar $tarfile $distrobase/config/FindKLU.cmake
 $tar $tarfile $distrobase/config/FindSUPERLUMT.cmake
