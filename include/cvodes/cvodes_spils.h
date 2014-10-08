@@ -395,12 +395,30 @@ SUNDIALS_EXPORT char *CVSpilsGetReturnFlagName(long int flag);
  */
 
 typedef int (*CVSpilsPrecSetupFnB)(realtype t, N_Vector y,
-				   N_Vector yB, N_Vector fyB,
-				   booleantype jokB,
-				   booleantype *jcurPtrB, realtype gammaB,
-				   void *user_dataB,
-				   N_Vector tmp1B, N_Vector tmp2B,
-				   N_Vector tmp3B);
+                                   N_Vector yB, N_Vector fyB,
+                                   booleantype jokB,
+                                   booleantype *jcurPtrB, realtype gammaB,
+                                   void *user_dataB,
+                                   N_Vector tmp1B, N_Vector tmp2B,
+                                   N_Vector tmp3B);
+
+
+/*
+ * -----------------------------------------------------------------
+ * Type : CVSpilsPrecSetupFnBS
+ * -----------------------------------------------------------------
+ * A function PrecSetupBS for the adjoint (backward) problem must have 
+ * the prototype given below.
+ * -----------------------------------------------------------------
+ */
+
+typedef int (*CVSpilsPrecSetupFnBS)(realtype t, N_Vector y, N_Vector *yS,
+                                    N_Vector yB, N_Vector fyB,
+                                    booleantype jokB,
+                                    booleantype *jcurPtrB, realtype gammaB,
+                                    void *user_dataB,
+                                    N_Vector tmp1B, N_Vector tmp2B,
+                                    N_Vector tmp3B);
 
 
 /*
@@ -413,10 +431,25 @@ typedef int (*CVSpilsPrecSetupFnB)(realtype t, N_Vector y,
  */
 
 typedef int (*CVSpilsPrecSolveFnB)(realtype t, N_Vector y,
-				   N_Vector yB, N_Vector fyB,
-				   N_Vector rB, N_Vector zB,
-				   realtype gammaB, realtype deltaB,
-				   int lrB, void *user_dataB, N_Vector tmpB);
+                                   N_Vector yB, N_Vector fyB,
+                                   N_Vector rB, N_Vector zB,
+                                   realtype gammaB, realtype deltaB,
+                                   int lrB, void *user_dataB, N_Vector tmpB);
+
+/*
+ * -----------------------------------------------------------------
+ * Type : CVSpilsPrecSolveFnBS
+ * -----------------------------------------------------------------
+ * A function PrecSolveBS for the adjoint (backward) problem  must 
+ * have the prototype given below.
+ * -----------------------------------------------------------------
+ */
+
+typedef int (*CVSpilsPrecSolveFnBS)(realtype t, N_Vector y, N_Vector *yS,
+                                    N_Vector yB, N_Vector fyB,
+                                    N_Vector rB, N_Vector zB,
+                                    realtype gammaB, realtype deltaB,
+                                    int lrB, void *user_dataB, N_Vector tmpB);
 
 /*
  * -----------------------------------------------------------------
@@ -428,8 +461,22 @@ typedef int (*CVSpilsPrecSolveFnB)(realtype t, N_Vector y,
  */
 
 typedef int (*CVSpilsJacTimesVecFnB)(N_Vector vB, N_Vector JvB, realtype t,
-				     N_Vector y, N_Vector yB, N_Vector fyB,
-				     void *jac_dataB, N_Vector tmpB);
+                                     N_Vector y, N_Vector yB, N_Vector fyB,
+                                     void *jac_dataB, N_Vector tmpB);
+
+/*
+ * -----------------------------------------------------------------
+ * Type : CVSpilsJacTimesVecFnBS
+ * -----------------------------------------------------------------
+ * A function jtimesBS for the adjoint (backward) problem must have 
+ * the prototype given below.
+ * -----------------------------------------------------------------
+ */
+
+typedef int (*CVSpilsJacTimesVecFnBS)(N_Vector vB, N_Vector JvB,
+                                      realtype t, N_Vector y, N_Vector *yS,
+                                      N_Vector yB, N_Vector fyB,
+                                      void *jac_dataB, N_Vector tmpB);
 
 /*
  * -----------------------------------------------------------------
@@ -441,11 +488,18 @@ SUNDIALS_EXPORT int CVSpilsSetPrecTypeB(void *cvode_mem, int which, int pretypeB
 SUNDIALS_EXPORT int CVSpilsSetGSTypeB(void *cvode_mem, int which, int gstypeB);
 SUNDIALS_EXPORT int CVSpilsSetEpsLinB(void *cvode_mem, int which, realtype eplifacB);
 SUNDIALS_EXPORT int CVSpilsSetMaxlB(void *cvode_mem, int which, int maxlB);
+
 SUNDIALS_EXPORT int CVSpilsSetPreconditionerB(void *cvode_mem, int which, 
                                               CVSpilsPrecSetupFnB psetB,
 					      CVSpilsPrecSolveFnB psolveB);
+SUNDIALS_EXPORT int CVSpilsSetPreconditionerBS(void *cvode_mem, int which, 
+                                               CVSpilsPrecSetupFnBS psetBS,
+					       CVSpilsPrecSolveFnBS psolveBS);
+
 SUNDIALS_EXPORT int CVSpilsSetJacTimesVecFnB(void *cvode_mem, int which, 
                                              CVSpilsJacTimesVecFnB jtvB);
+SUNDIALS_EXPORT int CVSpilsSetJacTimesVecFnBS(void *cvode_mem, int which, 
+                                              CVSpilsJacTimesVecFnBS jtvBS);
 
 
 #ifdef __cplusplus
