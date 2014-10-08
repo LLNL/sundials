@@ -257,7 +257,7 @@ int main(int argc, char *argv[])
   CInit(c, wdata);
 
   /* Call CVodeCreate/CVodeInit for forward run */
-  printf("\nCreate and allocate CVODE memory for forward run\n");
+  printf("\nCreate and allocate CVODES memory for forward run\n");
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
   wdata->cvode_mem = cvode_mem; /* Used in Precond */
