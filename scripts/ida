@@ -85,12 +85,14 @@ $tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_bnd.c
 $tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_bnd.out
 $tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_kry.c
 $tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_kry.out
+$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_klu.c
+$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_klu.out
 $tar $tarfile $distrobase/examples/ida/serial/idaKrylovDemo_ls.c
 $tar $tarfile $distrobase/examples/ida/serial/idaKrylovDemo_ls.out
 $tar $tarfile $distrobase/examples/ida/serial/idaRoberts_dns.c
 $tar $tarfile $distrobase/examples/ida/serial/idaRoberts_dns.out
-# SGS what is out file? 
 $tar $tarfile $distrobase/examples/ida/serial/idaRoberts_klu.c
+$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_klu.out
 $tar $tarfile $distrobase/examples/ida/serial/idaSlCrank_dns.c
 $tar $tarfile $distrobase/examples/ida/serial/idaSlCrank_dns.out
 
