@@ -14,9 +14,6 @@
 
 QUIET =
 
-# make sure doc/texi2dvi in PATH
-export PATH := ../:$(PATH)
-
 SHARED_DOC = ../sundials
 
 HTML_DIR = ../../html/documentation
@@ -46,6 +43,7 @@ sun_org.tex \
 types.tex \
 ug.tex \
 biblio.bib \
+texi2dvi 
 #ug_html.tex \
 #processHTML
 
@@ -72,6 +70,7 @@ kin_ex_codes.tex
 EX_SHARED_FILES = \
 ug.tex \
 biblio.bib \
+texi2dvi \
 #ug_html.tex \
 #processHTML
 

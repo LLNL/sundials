@@ -14,9 +14,6 @@
 
 QUIET =
 
-# make sure doc/texi2dvi in PATH
-export PATH := ../:$(PATH)
-
 SHARED_DOC = ../sundials
 
 HTML_DIR = ../../html/documentation
@@ -32,7 +29,7 @@ cv_nvec.tex \
 cv_org.tex \
 cv_newlinsolv.tex \
 cv_linsolv.tex \
-cv_constants.tex
+cv_constants.tex \
 
 UG_SHARED_FILES = \
 install.tex \
@@ -46,6 +43,7 @@ sun_org.tex \
 types.tex \
 ug.tex \
 biblio.bib \
+texi2dvi 
 #ug_html.tex \
 #processHTML
 
@@ -74,6 +72,7 @@ cv_ex_tests.tex
 EX_SHARED_FILES = \
 ug.tex \
 biblio.bib \
+texi2dvi
 #ug_html.tex \
 #processHTML
 
