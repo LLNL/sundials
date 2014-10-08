@@ -111,3 +111,28 @@ $tar $tarfile $distrobase/examples/idas/parallel/idasHeat2D_kry_bbd_p.out
 $tar $tarfile $distrobase/examples/idas/parallel/idasHeat2D_kry_p.c
 $tar $tarfile $distrobase/examples/idas/parallel/idasHeat2D_kry_p.out
 
+echo "   --- Add regression test files to $tarfile"
+$tar $tarfile $distrobase/test/answers/idasAkzoNob_ASAi_dns
+$tar $tarfile $distrobase/test/answers/idasAkzoNob_dns
+$tar $tarfile $distrobase/test/answers/idasBruss_ASAp_kry_bbd_p
+$tar $tarfile $distrobase/test/answers/idasBruss_FSA_kry_bbd_p
+$tar $tarfile $distrobase/test/answers/idasBruss_kry_bbd_p
+$tar $tarfile $distrobase/test/answers/idasFoodWeb_bnd
+$tar $tarfile $distrobase/test/answers/idasFoodWeb_kry_bbd_p
+$tar $tarfile $distrobase/test/answers/idasFoodWeb_kry_p
+$tar $tarfile $distrobase/test/answers/idasHeat2D_bnd
+$tar $tarfile $distrobase/test/answers/idasHeat2D_FSA_kry_bbd_p
+$tar $tarfile $distrobase/test/answers/idasHeat2D_FSA_kry_bbd_p_-sensi_stg_t
+$tar $tarfile $distrobase/test/answers/idasHeat2D_kry
+$tar $tarfile $distrobase/test/answers/idasHeat2D_kry_bbd_p
+$tar $tarfile $distrobase/test/answers/idasHeat2D_kry_p
+$tar $tarfile $distrobase/test/answers/idasHessian_ASA_FSA
+$tar $tarfile $distrobase/test/answers/idasKrylovDemo_ls
+$tar $tarfile $distrobase/test/answers/idaSlCrank_dns
+$tar $tarfile $distrobase/test/answers/idasRoberts_ASAi_dns
+$tar $tarfile $distrobase/test/answers/idasRoberts_dns
+$tar $tarfile $distrobase/test/answers/idasRoberts_FSA_dns_-sensi_stg_t
+$tar $tarfile $distrobase/test/answers/idasRoberts_klu
+$tar $tarfile $distrobase/test/answers/idasRoberts_sps
+$tar $tarfile $distrobase/test/answers/idasSlCrank_dns
+$tar $tarfile $distrobase/test/answers/idasSlCrank_FSA_dns

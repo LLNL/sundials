@@ -163,7 +163,24 @@ $tar $tarfile $distrobase/examples/templates/makefile_openmp_C_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_pthreads_C_ex.in
 
 echo "   --- Add regression test files to $tarfile"
-# SGS TODO this should maybe be split up?
-$tar $tarfile $distrobase/test/answers
 $tar $tarfile $distrobase/test/testRunner
+$tar $tarfile $distrobase/test/answers/test_nvector_mpi
+$tar $tarfile $distrobase/test/answers/test_nvector_mpi_1000_0
+$tar $tarfile $distrobase/test/answers/test_nvector_mpi_4
+$tar $tarfile $distrobase/test/answers/test_nvector_mpi_4_1000_0
+$tar $tarfile $distrobase/test/answers/test_nvector_openmp_10000_1_0
+$tar $tarfile $distrobase/test/answers/test_nvector_openmp_10000_2_0
+$tar $tarfile $distrobase/test/answers/test_nvector_openmp_10000_4_0
+$tar $tarfile $distrobase/test/answers/test_nvector_openmp_1000_1_0
+$tar $tarfile $distrobase/test/answers/test_nvector_openmp_1000_2_0
+$tar $tarfile $distrobase/test/answers/test_nvector_openmp_1000_4_0
+$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_10000_1_0
+$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_10000_2_0
+$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_10000_4_0
+$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_1000_1_0
+$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_1000_2_0
+$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_1000_4_0
+$tar $tarfile $distrobase/test/answers/test_nvector_serial_1000_0
+$tar $tarfile $distrobase/test/answers/test_nvector_serial_10000_0
+
 

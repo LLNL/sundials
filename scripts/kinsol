@@ -114,3 +114,16 @@ $tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.f
 $tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.out
 
+echo "   --- Add regression test files to $tarfile"
+$tar $tarfile $distrobase/test/answers/fkinDiagon_kry
+$tar $tarfile $distrobase/test/answers/fkinDiagon_kry_p
+$tar $tarfile $distrobase/test/answers/kinFerTron_dns
+$tar $tarfile $distrobase/test/answers/kinFoodWeb_kry
+$tar $tarfile $distrobase/test/answers/kinFoodWeb_kry_bbd_p
+$tar $tarfile $distrobase/test/answers/kinFoodWeb_kry_p
+$tar $tarfile $distrobase/test/answers/kinKrylovDemo_ls
+$tar $tarfile $distrobase/test/answers/kinLaplace_bnd
+$tar $tarfile $distrobase/test/answers/kinLaplace_picard_bnd
+$tar $tarfile $distrobase/test/answers/kinRoberts_fp
+$tar $tarfile $distrobase/test/answers/kinRoboKin_dns
+$tar $tarfile $distrobase/test/answers/kinRoboKin_slu

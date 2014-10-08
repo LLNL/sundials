@@ -118,3 +118,21 @@ $tar $tarfile $distrobase/examples/ida/fcmix_parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/ida/fcmix_parallel/fidaHeat2D_kry_bbd_p.f
 $tar $tarfile $distrobase/examples/ida/fcmix_parallel/fidaHeat2D_kry_bbd_p.out
 
+echo "   --- Add regression test files to $tarfile"
+$tar $tarfile $distrobase/test/answers/fidaHeat2D_kry_bbd_p
+$tar $tarfile $distrobase/test/answers/fidaRoberts_dns
+$tar $tarfile $distrobase/test/answers/fidaRoberts_dns_openmp
+$tar $tarfile $distrobase/test/answers/fidaRoberts_dns_pthreads
+$tar $tarfile $distrobase/test/answers/idaFoodWeb_bnd
+$tar $tarfile $distrobase/test/answers/idaFoodWeb_kry_bbd_p
+$tar $tarfile $distrobase/test/answers/idaFoodWeb_kry_p
+$tar $tarfile $distrobase/test/answers/idaHeat2D_bnd
+$tar $tarfile $distrobase/test/answers/idaHeat2D_klu
+$tar $tarfile $distrobase/test/answers/idaHeat2D_kry
+$tar $tarfile $distrobase/test/answers/idaHeat2D_kry_bbd_p
+$tar $tarfile $distrobase/test/answers/idaHeat2D_kry_p
+$tar $tarfile $distrobase/test/answers/idaHeat2D_sps
+$tar $tarfile $distrobase/test/answers/idaKrylovDemo_ls
+$tar $tarfile $distrobase/test/answers/idaRoberts_dns
+$tar $tarfile $distrobase/test/answers/idaRoberts_klu
+$tar $tarfile $distrobase/test/answers/idaRoberts_sps
