@@ -1,5 +1,5 @@
 
-Create and allocate CVODE memory for forward run
+Create and allocate CVODES memory for forward run
 
 Allocate global memory
 
