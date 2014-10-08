@@ -148,8 +148,11 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 typedef struct CVSpilsMemRecB {
 
   CVSpilsJacTimesVecFnB s_jtimesB;
+  CVSpilsJacTimesVecFnBS s_jtimesBS;
   CVSpilsPrecSetupFnB s_psetB;
+  CVSpilsPrecSetupFnBS s_psetBS;
   CVSpilsPrecSolveFnB s_psolveB;
+  CVSpilsPrecSolveFnBS s_psolveBS;
   void *s_P_dataB;
 
 } *CVSpilsMemB;
