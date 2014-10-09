@@ -1,4 +1,4 @@
-Modifications to SUNDIALS after 22 March 2012 Release - as of 1 Sept. 2014
+Modifications to SUNDIALS after 22 March 2012 Release - as of 8 Oct. 2014
 
 Note: Some of these modifications are actually accessible by the
 public by way of updates to the website after 3/22/12.
@@ -183,3 +183,9 @@ public by way of updates to the website after 3/22/12.
 
 48. Corrected legality test of tstop on first call (4 solvers).
 
+49. Corrected error in cvsAtmDisp_ASAi_kry_bbd_p.c (#define L).
+
+50. Corrected bug in IDASpilsSetJacTimesVecFnB() in idas_spils.c (memory arg.).
+
+51. Added options in CVODES for the user's pset, psolve, jtv functions for
+    the backward problem to depend on the forward sensitivities.
