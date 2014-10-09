@@ -1343,6 +1343,49 @@ problem through the following functions:
    in the preconditioner.
 }
 %%
+\ucfunction{CVSpilsSetPreconditionerBS}
+{
+  flag = CVSpilsSetPreconditionerBS(cvode\_mem, which, psetupBS, psolveBS);
+}
+{
+  The function \ID{CVSpilsSetPrecSolveFnBS} specifies the preconditioner
+  setup and solve functions for the backward integration, in the case
+  where the backward problem depends on the forward sensitivities.
+}
+{
+  \begin{args}[psetupBS]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory block.
+  \item[which] (\id{int})
+    the identifier of the backward problem.
+  \item[psetupBS] (\id{CVSpilsPrecSetupFnBS})
+    user-defined preconditioner setup function.
+  \item[psolveBS] (\id{CVSpilsPrecSolveFnBS})
+    user-defined preconditioner solve function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[CVSPILS\_ILL\_INPUT]
+  \item[\Id{CVSPILS\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{CVSPILS\_MEM\_NULL}]
+    \id{cvode\_mem} was \id{NULL}.
+  \item[\Id{CVSPILS\_LMEM\_NULL}]
+    The {\cvspils} linear solver has not been initialized.
+  \item[\Id{CVSPILS\_NO\_ADJ}]
+    The function \id{CVodeAdjInit} has not been previously called.
+  \item[\Id{CVSPILS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+   The function types \id{CVSpilsPrecSolveFnBS} and \id{CVSpilsPrecSetupFnBS} are
+   described in \S\ref{ss:psolve_b} and \S\ref{ss:psetup_b}, resp.
+   The \id{psetupBS} argument may be \id{NULL} if no setup operation is involved
+   in the preconditioner.
+}
+%%
 \index{preconditioning!user-supplied|)}
 %%
 \index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
@@ -1383,6 +1426,43 @@ problem through the following functions:
   The function type \id{CVSpilsJacTimesVecFnB} is described in \S\ref{ss:jtimesv_b}.
 }
 %%
+\ucfunction{CVSpilsSetJacTimesVecFnBS}
+{
+  flag = CVSpilsSetJacTimesVecFnBS(cvode\_mem, which, jtvBS);
+}
+{
+  The function \ID{CVSpilsSetJacTimesFnBS} specifies the Jacobian-vector 
+  product function to be used, in the case where the backward problem
+  depends on the forward sensitivities.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory block.
+  \item[which] (\id{int})
+    the identifier of the backward problem.
+  \item[jtvBS] (\id{CVSpilsJacTimesVecFnBS})
+    user-defined Jacobian-vector product function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[CVSPILS\_ILL\_INPUT]
+  \item[\Id{CVSPILS\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{CVSPILS\_MEM\_NULL}]
+    \id{cvode\_mem} was \id{NULL}.
+  \item[\Id{CVSPILS\_LMEM\_NULL}]
+    The {\cvspils} linear solver has not been initialized.
+  \item[\Id{CVSPILS\_NO\_ADJ}]
+    The function \id{CVodeAdjInit} has not been previously called.
+  \item[\Id{CVSPILS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+  The function type \id{CVSpilsJacTimesVecFnBS} is described in \S\ref{ss:jtimesv_b}.
+}
 %%
 \ucfunction{CVSpilsSetGSTypeB}
 {
@@ -2564,7 +2644,7 @@ through a call to \id{CVSlsSetSparseJacFnB} or \id{CVSlsSetSparseJacFnBS}
 \index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
 If one of the Krylov iterative linear solvers {\spgmr}, {\spbcg}, or {\sptfqmr}
 is selected (\id{CVodeSp*B} is called in step \ref{i:lin_solverB} of \S\ref{ss:skeleton_adj}), 
-the user may provide a function of type \ID{CVSpilsJacTimesVecFnB} in the following form:
+the user may provide a function of one of the following two types:
 %%
 \usfunction{CVSpilsJacTimesVecFnB}
 {
@@ -2614,6 +2694,55 @@ the user may provide a function of type \ID{CVSpilsJacTimesVecFnB} in the follow
   If the backward problem is the adjoint of ${\dot y} = f(t, y)$, then this 
   function is to compute $-(\dfdyI)^T v_B$.
 }
+\usfunction{CVSpilsJacTimesVecFnBS}
+{
+  typedef int (*CVSpilsJacTimesVecFn&BS)(N\_Vector vB, N\_Vector JvB, \\
+                                    &realtype t, N\_Vector y, N\_Vector *yS,\\
+                                    &N\_Vector yB, N\_Vector fyB,\\
+                                    &void *user\_dataB, N\_Vector tmpB);
+}
+{
+  This function computes the action of the Jacobian \id{JB} for
+  the backward problem on a given vector \id{vB}, in the case where
+  the backward problem depends on the forward sensitivities.
+}
+{
+  \begin{args}[user\_dataB]
+  \item[vB]
+    is the vector by which the Jacobian must be multiplied to the right.
+  \item[JvB]
+    is the computed output vector \id{JB*vB}.
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the forward solution vector.
+  \item[yS]
+    is a pointer to an array containing the forward sensitivity vectors.
+  \item[yB]
+    is the current value of the backward dependent variable vector.
+  \item[fyB]
+    is the current value of the backward right-hand side function $f_B$.
+  \item[user\_dataB]
+    is a pointer to user data -- the same as passed to \id{CVodeSetUserDataB}.
+  \item[tmpB]
+    is a pointer to memory allocated for a variable of type \id{N\_Vector} which
+    can be used by \id{CVSpilsJacTimesVecFn} as temporary storage or work space.
+  \end{args}
+}
+{  
+  The return value of a function of type \id{CVSpilsJtimesFnBS} should be
+  $0$ if successful or nonzero if an error was encountered, in which case
+  the integration is halted.
+}
+{
+  A user-supplied Jacobian-vector product function must load the vector \id{JvB}
+  with the product of the Jacobian of the backward problem 
+  at the point (\id{t},\id{y}, \id{yB}) and the vector \id{vB}. 
+  Here, \id{y} is the solution of the original IVP at time \id{t} and 
+  \id{yB} is the solution of the backward problem at the same time.  
+  The rest of the arguments are equivalent to those passed to a function of type
+  \id{CVSpilsJacTimesVecFn} (see \S\ref{ss:jtimesFn}).
+ }
 
 %%-------------------------------------------------------------------------------------
 \subsection{Preconditioning for the backward problem
@@ -2629,7 +2758,7 @@ Here $P$ should approximate (at least crudely) the Newton matrix
 $M_B = I - \gamma_B J_B$, where $J_B = \partial f_B/ \partial y_B$.  If
 preconditioning is done on both sides, the product of the two
 preconditioner matrices should approximate $M_B$.
-This function must be of type \ID{CVSpilsPrecSolveFnB} defined by
+This function must be of one of the following two types:
 %%
 \usfunction{CVSpilsPrecSolveFnB}
 {
@@ -2676,6 +2805,55 @@ This function must be of type \ID{CVSpilsPrecSolveFnB} defined by
   negative for an unrecoverable error (in which case the integration is halted).
 }
 {}
+%
+\usfunction{CVSpilsPrecSolveFnBS}
+{
+  typedef int (*CVSpilsPrecSolveFnBS)(&realtype t, N\_Vector y, N\_Vector *yS,\\
+                                      &N\_Vector yB, N\_Vector fyB, \\
+                                      &N\_Vector rvecB, N\_Vector zvecB, \\
+                                      &realtype gammaB, realtype deltaB, \\
+                                      &void *user\_dataB, N\_Vector tmpB);
+}
+{
+  This function solves the preconditioning system $Pz = r$ for the backward problem,
+  in the case where the backward problem depends on the forward sensitivities.
+}
+{  
+  \begin{args}[user\_dataB]
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the forward solution vector.
+  \item[yS]
+    is a pointer to an array containing the forward sensitivity vectors.
+  \item[yB]
+    is the current value of the backward dependent variable vector.
+  \item[fyB]
+    is the current value of the backward right-hand side function $f_B$.
+  \item[rvecB]
+    is the right-hand side vector $r$ of the linear system to be solved.
+  \item[zvecB]
+    is the computed output vector.
+  \item[gammaB]
+    is the scalar appearing in the Newton matrix, $M_B = I - \gamma_B J_B$.
+  \item[deltaB]
+    is an input tolerance to be used if an iterative method 
+    is employed in the solution.
+  \item[user\_dataB]
+    is a pointer to user data --- the same as the \id{user\_dataB}      
+    parameter passed to \id{CVodeSetUserDataB}.
+  \item[tmpB]
+    is a pointer to memory allocated for a variable of type    
+    \id{N\_Vector} which can be used for work space.
+  \end{args}
+}
+{
+  The return value of a preconditioner solve function for the backward
+  problem should be $0$ if successful, 
+  positive for a recoverable error (in which case the step will be retried), or
+  negative for an unrecoverable error (in which case the integration is halted).
+}
+{}
 
 %%-------------------------------------------------------------------------------------
 \subsection{Preconditioning for the backward problem
@@ -2686,7 +2864,7 @@ This function must be of type \ID{CVSpilsPrecSolveFnB} defined by
 \index{CVSPTFQMR@{\cvsptfqmr} linear solver!preconditioner setup function}
 If the user's preconditioner requires that any Jacobian-related data
 be preprocessed or evaluated, then this needs to be done in a
-user-supplied {\C} function of type \ID{CVSpilsPrecSetupFnB} defined by
+user-supplied {\C} function of one of the following two types:
 %%
 \usfunction{CVSpilsPrecSetupFnB}
 {
@@ -2739,7 +2917,60 @@ user-supplied {\C} function of type \ID{CVSpilsPrecSetupFnB} defined by
 }
 {}
 
+\usfunction{CVSpilsPrecSetupFnBS}
+{
+  typedef int (*CVSpilsPrecSetupFn&BS)(realtype t, N\_Vector y, N\_Vector *yS,\\
+                                     &N\_Vector yB, N\_Vector fyB, \\ 
+                                     &booleantype jokB, booleantype *jcurPtrB,\\
+                                     &realtype gammaB, void *user\_dataB,\\
+                                     &N\_Vector tmp1B, N\_Vector tmp2B, \\
+                                     &N\_Vector tmp3B);
+}
+{
+  This function preprocesses and/or evaluates Jacobian-related data needed
+  by the preconditioner for the backward problem, in the case where the
+  backward problem depends on the forward sensitivities.
 
+}
+{
+  The arguments of a \id{CVSpilsPrecSetupFnBS} are as follows:
+  \begin{args}[user\_dataB]
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the forward solution vector.
+  \item[yS]
+    is a pointer to an array containing the forward sensitivity vectors.
+  \item[yB]
+    is the current value of the backward dependent variable vector.
+  \item[fyB]
+    is the current value of the backward right-hand side function $f_B$.
+  \item[jokB]
+    is an input flag indicating whether Jacobian-related
+    data needs to be recomputed (\id{jokB}=\id{FALSE}) or information saved 
+    from a previous invokation can be safely used (\id{jokB}=\id{TRUE}).
+  \item[jcurPtr]
+    is an output flag which must be set to \id{TRUE} if Jacobian-relatd data 
+    was recomputed or \id{FALSE} otherwise.
+  \item[gammaB]
+    is the scalar appearing in the Newton matrix.
+  \item[user\_dataB]
+    is a pointer to user data --- the same as the \id{user\_dataB}
+    parameter passed to \id{CVodeSetUserDataB}.
+  \item[tmp1B]
+  \item[tmp2B]
+  \item[tmp3B]
+    are pointers to memory allocated for vectors which can be used           
+    as temporary storage or work space.    
+  \end{args}
+}
+{
+  The return value of a preconditioner setup function for the backward
+  problem should be $0$ if successful, 
+  positive for a recoverable error (in which case the step will be retried),     
+  or negative for an unrecoverable error (in which case the integration is halted).
+}
+{}
 %%
 %%-------------------------------------------------------------------
 %%-------------------------------------------------------------------
