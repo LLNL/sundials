@@ -356,6 +356,22 @@ typedef int (*IDASpilsPrecSetupFnB)(realtype tt,
 
 /*
  * -----------------------------------------------------------------
+ * Type : IDASpilsPrecSetupFnBS
+ * -----------------------------------------------------------------
+ * A function PrecSetupBS for the adjoint (backward) problem must have 
+ * the prototype given below.
+ * -----------------------------------------------------------------
+ */
+typedef int (*IDASpilsPrecSetupFnBS)(realtype tt,
+                                     N_Vector yy, N_Vector yp,
+                                     N_Vector *yyS, N_Vector *ypS,
+                                     N_Vector yyB, N_Vector ypB, N_Vector rrB,
+                                     realtype c_jB, void *user_dataB,
+                                     N_Vector tmp1B, N_Vector tmp2B,
+                                     N_Vector tmp3B);
+
+/*
+ * -----------------------------------------------------------------
  * Type : IDASpilsPrecSolveFnB
  * -----------------------------------------------------------------
  * A function PrecSolveB for the adjoint (backward) problem  must 
@@ -369,6 +385,23 @@ typedef int (*IDASpilsPrecSolveFnB)(realtype tt,
 				    N_Vector rvecB, N_Vector zvecB,
 				    realtype c_jB, realtype deltaB,
 				    void *user_dataB, N_Vector tmpB);
+
+/*
+ * -----------------------------------------------------------------
+ * Type : IDASpilsPrecSolveFnBS
+ * -----------------------------------------------------------------
+ * A function PrecSolveBS for the adjoint (backward) problem  must 
+ * have the prototype given below.
+ * -----------------------------------------------------------------
+ */
+
+typedef int (*IDASpilsPrecSolveFnBS)(realtype tt,
+                                     N_Vector yy, N_Vector yp,
+                                     N_Vector *yyS, N_Vector *ypS,
+                                     N_Vector yyB, N_Vector ypB, N_Vector rrB,
+                                     N_Vector rvecB, N_Vector zvecB,
+                                     realtype c_jB, realtype deltaB,
+                                     void *user_dataB, N_Vector tmpB);
 
 /*
  * -----------------------------------------------------------------
@@ -388,26 +421,45 @@ typedef int (*IDASpilsJacTimesVecFnB)(realtype t,
 
 /*
  * -----------------------------------------------------------------
+ * Type : IDASpilsJacTimesVecFnBS
+ * -----------------------------------------------------------------
+ * A function jtimesBS for the adjoint (backward) problem must have 
+ * the prototype given below.
+ * -----------------------------------------------------------------
+ */
+
+typedef int (*IDASpilsJacTimesVecFnBS)(realtype t,
+                                       N_Vector yy, N_Vector yp,
+                                       N_Vector *yyS, N_Vector *ypS,
+                                       N_Vector yyB, N_Vector ypB, N_Vector rrB,
+                                       N_Vector vB, N_Vector JvB, 
+                                       realtype c_jB, void *user_dataB, 
+                                       N_Vector tmp1B, N_Vector tmp2B);
+
+/*
+ * -----------------------------------------------------------------
  * Functions
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT int IDASpilsSetGSTypeB(void *ida_mem, int which, int gstypeB);
-
 SUNDIALS_EXPORT int IDASpilsSetMaxRestartsB(void *ida_mem, int which, int maxrsB);
-
 SUNDIALS_EXPORT int IDASpilsSetEpsLinB(void *ida_mem, int which, realtype eplifacB);
-
 SUNDIALS_EXPORT int IDASpilsSetMaxlB(void *ida_mem, int which, int maxlB);
-
 SUNDIALS_EXPORT int IDASpilsSetIncrementFactorB(void *ida_mem, int which, 
                                                 realtype dqincfacB);
 
 SUNDIALS_EXPORT int IDASpilsSetPreconditionerB(void *ida_mem, int which,
                                                IDASpilsPrecSetupFnB psetB,
 					       IDASpilsPrecSolveFnB psolveB);
+SUNDIALS_EXPORT int IDASpilsSetPreconditionerBS(void *ida_mem, int which,
+                                                IDASpilsPrecSetupFnBS psetBS,
+                                                IDASpilsPrecSolveFnBS psolveBS);
+
 SUNDIALS_EXPORT int IDASpilsSetJacTimesVecFnB(void *ida_mem, int which,
                                               IDASpilsJacTimesVecFnB jtvB);
+SUNDIALS_EXPORT int IDASpilsSetJacTimesVecFnBS(void *ida_mem, int which,
+                                               IDASpilsJacTimesVecFnBS jtvBS);
 
 
 
