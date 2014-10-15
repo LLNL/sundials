@@ -202,8 +202,11 @@ int IDASpilsDQJtimes(realtype tt,
 typedef struct IDASpilsMemRecB {
 
   IDASpilsJacTimesVecFnB s_jtimesB;
+  IDASpilsJacTimesVecFnBS s_jtimesBS;
   IDASpilsPrecSetupFnB s_psetB;
+  IDASpilsPrecSetupFnBS s_psetBS;
   IDASpilsPrecSolveFnB s_psolveB;
+  IDASpilsPrecSolveFnBS s_psolveBS;
   void *s_P_dataB;
 
 } *IDASpilsMemB;
