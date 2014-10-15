@@ -915,9 +915,9 @@ static int idaDlsDenseJacBSWrapper(long int NeqB, realtype tt, realtype c_jB,
   /* Get forward solution from interpolation. */
   if( noInterp == FALSE) {
     if (interpSensi)
-      flag = IDAADJ_mem->ia_getY(ida_mem, tt, yyTmp, ypTmp, yySTmp, ypSTmp);
+      flag = IDAADJ_mem->ia_getY(IDA_mem, tt, yyTmp, ypTmp, yySTmp, ypSTmp);
     else
-      flag = IDAADJ_mem->ia_getY(ida_mem, tt, yyTmp, ypTmp, NULL, NULL);
+      flag = IDAADJ_mem->ia_getY(IDA_mem, tt, yyTmp, ypTmp, NULL, NULL);
   
     if (flag != IDA_SUCCESS) {
       IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASDLS", "idaDlsDenseJacBSWrapper", MSGD_BAD_T);
@@ -1014,9 +1014,9 @@ static int idaDlsBandJacBSWrapper(long int NeqB, long int mupperB, long int mlow
   /* Get forward solution from interpolation. */
   if( noInterp == FALSE) {
     if (interpSensi)
-      flag = IDAADJ_mem->ia_getY(ida_mem, tt, yyTmp, ypTmp, yySTmp, ypSTmp);
+      flag = IDAADJ_mem->ia_getY(IDA_mem, tt, yyTmp, ypTmp, yySTmp, ypSTmp);
     else
-      flag = IDAADJ_mem->ia_getY(ida_mem, tt, yyTmp, ypTmp, NULL, NULL);
+      flag = IDAADJ_mem->ia_getY(IDA_mem, tt, yyTmp, ypTmp, NULL, NULL);
   
     if (flag != IDA_SUCCESS) {
       IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASDLS", "idaDlsBandJacBSWrapper", MSGD_BAD_T);
