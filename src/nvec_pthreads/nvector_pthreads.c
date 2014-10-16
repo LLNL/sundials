@@ -1488,7 +1488,7 @@ static void *N_VWrmsNorm_PT(void *thread_data)
   /* compute wrms norm */
   local_sum = ZERO;
   for (i = start; i < end; i++)
-    local_sum += SQR(xd[i] * wd[i]);
+    local_sum += SUN_SQR(xd[i] * wd[i]);
 
   /* update global sum */
   pthread_mutex_lock(global_mutex);
@@ -1589,7 +1589,7 @@ static void *N_VWrmsNormMask_PT(void *thread_data)
   local_sum = ZERO;
   for (i = start; i < end; i++) {
     if (idd[i] > ZERO)
-      local_sum += SQR(xd[i]*wd[i]);
+      local_sum += SUN_SQR(xd[i]*wd[i]);
   }
 
   /* update global sum */
@@ -1790,7 +1790,7 @@ static void *N_VWL2Norm_PT(void *thread_data)
   /* compute WL2 norm */
   local_sum = ZERO;
   for (i = start; i < end; i++)
-    local_sum += SQR(xd[i]*wd[i]);
+    local_sum += SUN_SQR(xd[i]*wd[i]);
 
   /* update global sum */
   pthread_mutex_lock(global_mutex);

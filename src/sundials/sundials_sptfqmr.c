@@ -341,24 +341,24 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
       if (m == 0) {
 	temp_val = RSqrt(N_VDotProd(r_[1], r_[1]));
 	omega = RSqrt(RSqrt(N_VDotProd(r_[0], r_[0]))*temp_val);
-	N_VLinearSum(ONE, u_, SQR(v_bar)*eta/alpha, d_, d_);
+	N_VLinearSum(ONE, u_, SUN_SQR(v_bar)*eta/alpha, d_, d_);
       }
       else {
 	omega = temp_val;
-	N_VLinearSum(ONE, q_, SQR(v_bar)*eta/alpha, d_, d_);
+	N_VLinearSum(ONE, q_, SUN_SQR(v_bar)*eta/alpha, d_, d_);
       }
 
       /* v_bar = omega/tau */
       v_bar = omega/tau;
 
       /* c = (1+v_bar^2)^(-1/2) */
-      c = ONE / RSqrt(ONE+SQR(v_bar));
+      c = ONE / RSqrt(ONE+SUN_SQR(v_bar));
 
       /* tau = tau*v_bar*c */
       tau = tau*v_bar*c;
 
       /* eta = c^2*alpha */
-      eta = SQR(c)*alpha;
+      eta = SUN_SQR(c)*alpha;
 
       /* x = x+eta*d_ */
       N_VLinearSum(ONE, x, eta, d_, x);
@@ -447,7 +447,7 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
     N_VLinearSum(ONE, r_[1], beta, q_, u_);
 
     /* p_ = u_+beta*(q_+beta*p_) */
-    N_VLinearSum(beta, q_, SQR(beta), p_, p_);
+    N_VLinearSum(beta, q_, SUN_SQR(beta), p_, p_);
     N_VLinearSum(ONE, u_, ONE, p_, p_);
 
     /* v_ = A*p_ */

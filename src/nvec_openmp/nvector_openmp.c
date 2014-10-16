@@ -786,7 +786,7 @@ realtype N_VWrmsNorm_OpenMP(N_Vector x, N_Vector w)
 #pragma omp parallel for default(none) private(i) shared(N,xd,wd) \
   reduction(+:sum) schedule(static) num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++) {
-    sum += SQR(xd[i]*wd[i]);
+    sum += SUN_SQR(xd[i]*wd[i]);
   }
 
   return(RSqrt(sum/N));
@@ -814,7 +814,7 @@ realtype N_VWrmsNormMask_OpenMP(N_Vector x, N_Vector w, N_Vector id)
   reduction(+:sum) schedule(static) num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++) {
     if (idd[i] > ZERO) {
-      sum += SQR(xd[i]*wd[i]);
+      sum += SUN_SQR(xd[i]*wd[i]);
     }
   }
 
@@ -878,7 +878,7 @@ realtype N_VWL2Norm_OpenMP(N_Vector x, N_Vector w)
 #pragma omp parallel for default(none) private(i) shared(N,xd,wd) \
   reduction(+:sum) schedule(static) num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++) {
-    sum += SQR(xd[i]*wd[i]);
+    sum += SUN_SQR(xd[i]*wd[i]);
   }
 
   return(RSqrt(sum));

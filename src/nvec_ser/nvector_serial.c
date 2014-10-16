@@ -664,7 +664,7 @@ realtype N_VWrmsNorm_Serial(N_Vector x, N_Vector w)
 
   for (i = 0; i < N; i++) {
     prodi = xd[i]*wd[i];
-    sum += SQR(prodi);
+    sum += SUN_SQR(prodi);
   }
 
   return(RSqrt(sum/N));
@@ -686,7 +686,7 @@ realtype N_VWrmsNormMask_Serial(N_Vector x, N_Vector w, N_Vector id)
   for (i = 0; i < N; i++) {
     if (idd[i] > ZERO) {
       prodi = xd[i]*wd[i];
-      sum += SQR(prodi);
+      sum += SUN_SQR(prodi);
     }
   }
 
@@ -726,7 +726,7 @@ realtype N_VWL2Norm_Serial(N_Vector x, N_Vector w)
 
   for (i = 0; i < N; i++) {
     prodi = xd[i]*wd[i];
-    sum += SQR(prodi);
+    sum += SUN_SQR(prodi);
   }
 
   return(RSqrt(sum));

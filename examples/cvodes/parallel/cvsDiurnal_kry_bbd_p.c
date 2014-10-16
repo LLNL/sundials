@@ -60,7 +60,7 @@
 #include <cvodes/cvodes_bbdpre.h>     /* prototypes for CVBBDPRE module */
 #include <nvector/nvector_parallel.h> /* definition N_Vector and macro NV_DATA_P */
 #include <sundials/sundials_types.h>  /* definitions of realtype, booleantype */
-#include <sundials/sundials_math.h>   /* definition of macros SQR and EXP */
+#include <sundials/sundials_math.h>   /* definition of macros SUN_SQR and EXP */
 
 #include <mpi.h>                      /* MPI constants and types */
 
@@ -309,9 +309,9 @@ static void InitUserData(int my_pe, long int local_N, MPI_Comm comm,
   data->om = PI/HALFDAY;
   data->dx = (XMAX-XMIN)/((realtype)(MX-1));
   data->dy = (YMAX-YMIN)/((realtype)(MY-1));
-  data->hdco = KH/SQR(data->dx);
+  data->hdco = KH/SUN_SQR(data->dx);
   data->haco = VEL/(RCONST(2.0)*data->dx);
-  data->vdco = (RCONST(1.0)/SQR(data->dy))*KV0;
+  data->vdco = (RCONST(1.0)/SUN_SQR(data->dy))*KV0;
 
   /* Set machine-related constants */
   data->comm = comm;
@@ -356,13 +356,13 @@ static void SetInitialProfiles(N_Vector u, UserData data)
   for (ly = 0; ly < MYSUB; ly++) {
     jy = ly + isuby*MYSUB;
     y = YMIN + jy*dy;
-    cy = SQR(RCONST(0.1)*(y - ymid));
-    cy = RCONST(1.0) - cy + RCONST(0.5)*SQR(cy);
+    cy = SUN_SQR(RCONST(0.1)*(y - ymid));
+    cy = RCONST(1.0) - cy + RCONST(0.5)*SUN_SQR(cy);
     for (lx = 0; lx < MXSUB; lx++) {
       jx = lx + isubx*MXSUB;
       x = XMIN + jx*dx;
-      cx = SQR(RCONST(0.1)*(x - xmid));
-      cx = RCONST(1.0) - cx + RCONST(0.5)*SQR(cx);
+      cx = SUN_SQR(RCONST(0.1)*(x - xmid));
+      cx = RCONST(1.0) - cx + RCONST(0.5)*SUN_SQR(cx);
       uarray[offset  ] = C1_SCALE*cx*cy; 
       uarray[offset+1] = C2_SCALE*cx*cy;
       offset = offset + 2;

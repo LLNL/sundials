@@ -95,7 +95,7 @@
 #include <nvector/nvector_serial.h>  /* serial N_Vector types, fct. and macros */
 #include <sundials/sundials_dense.h> /* use generic DENSE solver in preconditioning */
 #include <sundials/sundials_types.h> /* definition of realtype */
-#include <sundials/sundials_math.h>  /* contains the macros ABS and SQR */
+#include <sundials/sundials_math.h>  /* contains the macros ABS and SUN_SQR */
 
 /* Constants */
 
@@ -373,8 +373,8 @@ static void InitUserData(WebData wdata)
   dx = wdata->dx = DX;
   dy = wdata->dy = DY;
   for (i = 0; i < ns; i++) {
-    cox[i] = diff[i]/SQR(dx);
-    coy[i] = diff[i]/SQR(dy);
+    cox[i] = diff[i]/SUN_SQR(dx);
+    coy[i] = diff[i]/SUN_SQR(dy);
   }
 
   /* Set remaining method parameters */
@@ -432,15 +432,15 @@ static void CInit(N_Vector c, WebData wdata)
   dx = wdata->dx;
   dy = wdata->dy;
 
-  x_factor = RCONST(4.0)/SQR(AX);
-  y_factor = RCONST(4.0)/SQR(AY);
+  x_factor = RCONST(4.0)/SUN_SQR(AX);
+  y_factor = RCONST(4.0)/SUN_SQR(AY);
   for (jy = 0; jy < MY; jy++) {
     y = jy*dy;
-    argy = SQR(y_factor*y*(AY-y)); 
+    argy = SUN_SQR(y_factor*y*(AY-y));
     iyoff = mxns*jy;
     for (jx = 0; jx < MX; jx++) {
       x = jx*dx;
-      argx = SQR(x_factor*x*(AX-x));
+      argx = SUN_SQR(x_factor*x*(AX-x));
       ioff = iyoff + ns*jx;
       for (i = 1; i <= ns; i++) {
         ici = ioff + i-1;

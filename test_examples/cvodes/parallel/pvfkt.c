@@ -59,7 +59,7 @@
 #include <cvodes/cvodes_spgmr.h>      /* use CVSPGMR linear solver each internal step  */
 #include <nvector/nvector_parallel.h> /* definitions of type N_Vector, macro NV_DATA_P */
 #include <sundials/sundials_dense.h>  /* use generic DENSE solver in preconditioning   */
-#include <sundials/sundials_math.h>   /* contains SQR macro                            */
+#include <sundials/sundials_math.h>   /* contains SUN_SQR macro                            */
 #include <sundials/sundials_types.h>  /* definitions of realtype and booleantype       */
 
 #include <mpi.h>
@@ -613,8 +613,8 @@ static void SetInitialProfiles(N_Vector u, UserData data)
     for (lx = 0; lx < MXSUB; lx++) {
       jx = lx + isubx*MXSUB;
       x = XMIN + jx*dx;
-      cx = SQR(RCONST(0.1)*(x - xmid));
-      cx = RCONST(1.0) - cx + RCONST(0.5)*SQR(cx);
+      cx = SUN_SQR(RCONST(0.1)*(x - xmid));
+      cx = RCONST(1.0) - cx + RCONST(0.5)*SUN_SQR(cx);
       udata[offset  ] = C1_SCALE*cx*cy;
       udata[offset+1] = C2_SCALE*cx*cy;
       offset = offset + 2;
@@ -1134,8 +1134,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   delx = data->dx;
   dely = data->dy;
   
-  verdco =  KV/SQR(dely);
-  hordco  = KH/SQR(delx);
+  verdco =  KV/SUN_SQR(dely);
+  hordco  = KH/SUN_SQR(delx);
   horaco  = VEL/(RCONST(2.0)*delx);
 
   /* Copy local segment of u vector into the working array uext */
@@ -1308,8 +1308,8 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
     delx = data->dx;
     dely = data->dy;
     
-    verdco  = KV/SQR(dely);
-    hordco  = KH/SQR(delx);
+    verdco  = KV/SUN_SQR(dely);
+    hordco  = KH/SUN_SQR(delx);
     horaco  = VEL/(RCONST(2.0)*delx);
     
     /* Compute 2x2 diagonal Jacobian blocks (using q4 values

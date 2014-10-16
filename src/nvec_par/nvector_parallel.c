@@ -711,7 +711,7 @@ realtype N_VWrmsNorm_Parallel(N_Vector x, N_Vector w)
 
   for (i = 0; i < N; i++) {
     prodi = xd[i]*wd[i];
-    sum += SQR(prodi);
+    sum += SUN_SQR(prodi);
   }
 
   gsum = VAllReduce_Parallel(sum, 1, comm);
@@ -738,7 +738,7 @@ realtype N_VWrmsNormMask_Parallel(N_Vector x, N_Vector w, N_Vector id)
   for (i = 0; i < N; i++) {
     if (idd[i] > ZERO) {
       prodi = xd[i]*wd[i];
-      sum += SQR(prodi);
+      sum += SUN_SQR(prodi);
     }
   }
 
@@ -793,7 +793,7 @@ realtype N_VWL2Norm_Parallel(N_Vector x, N_Vector w)
 
   for (i = 0; i < N; i++) {
     prodi = xd[i]*wd[i];
-    sum += SQR(prodi);
+    sum += SUN_SQR(prodi);
   }
 
   gsum = VAllReduce_Parallel(sum, 1, comm);

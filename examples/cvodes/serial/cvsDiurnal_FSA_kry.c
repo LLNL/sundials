@@ -57,7 +57,7 @@
 #include <nvector/nvector_serial.h>   /* definitions N_Vector, macro NV_DATA_S */
 #include <sundials/sundials_dense.h>  /* use generic DENSE solver for prec. */
 #include <sundials/sundials_types.h>  /* definition of realtype */
-#include <sundials/sundials_math.h>   /* contains macros SQR and EXP */
+#include <sundials/sundials_math.h>   /* contains macros SUN_SQR and EXP */
 
 /* Problem Constants */
 
@@ -665,9 +665,9 @@ static void InitUserData(UserData data)
   data->om = PI/HALFDAY;
   data->dx = (XMAX-XMIN)/(MX-1);
   data->dz = (ZMAX-ZMIN)/(MZ-1);
-  data->hdco = KH/SQR(data->dx);
+  data->hdco = KH/SUN_SQR(data->dx);
   data->haco = VEL/(RCONST(2.0)*data->dx);
-  data->vdco = (ONE/SQR(data->dz))*KV0;
+  data->vdco = (ONE/SUN_SQR(data->dz))*KV0;
 
   data->p[0] = Q1;
   data->p[1] = Q2;
@@ -718,12 +718,12 @@ static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz)
 
   for (jz=0; jz < MZ; jz++) {
     z = ZMIN + jz*dz;
-    cz = SQR(RCONST(0.1)*(z - ZMID));
-    cz = ONE - cz + RCONST(0.5)*SQR(cz);
+    cz = SUN_SQR(RCONST(0.1)*(z - ZMID));
+    cz = ONE - cz + RCONST(0.5)*SUN_SQR(cz);
     for (jx=0; jx < MX; jx++) {
       x = XMIN + jx*dx;
-      cx = SQR(RCONST(0.1)*(x - XMID));
-      cx = ONE - cx + RCONST(0.5)*SQR(cx);
+      cx = SUN_SQR(RCONST(0.1)*(x - XMID));
+      cx = ONE - cx + RCONST(0.5)*SUN_SQR(cx);
       IJKth(ydata,1,jx,jz) = C1_SCALE*cx*cz; 
       IJKth(ydata,2,jx,jz) = C2_SCALE*cx*cz;
     }

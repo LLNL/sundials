@@ -64,7 +64,7 @@
 #include <cvodes/cvodes_diag.h>        /* use CVDIAG linear solver */
 #include <nvector/nvector_serial.h>  /* serial N_Vector types, fct. and macros */
 #include <sundials/sundials_types.h> /* definition of realtype */
-#include <sundials/sundials_math.h>  /* contains the macros ABS, SQR, and EXP*/
+#include <sundials/sundials_math.h>  /* contains the macros ABS, SUN_SQR, and EXP*/
 
 /* Shared Problem Constants */
 
@@ -325,7 +325,7 @@ static int f1(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   y1 = NV_Ith_S(y,1);
 
   NV_Ith_S(ydot,0) = y1;
-  NV_Ith_S(ydot,1) = (ONE - SQR(y0))* P1_ETA * y1 - y0;
+  NV_Ith_S(ydot,1) = (ONE - SUN_SQR(y0))* P1_ETA * y1 - y0;
 
   return(0);
 } 
@@ -342,7 +342,7 @@ static int Jac1(long int N, realtype tn,
 
   DENSE_ELEM(J,0,1) = ONE;
   DENSE_ELEM(J,1,0) = -TWO * P1_ETA * y0 * y1 - ONE;
-  DENSE_ELEM(J,1,1) = P1_ETA * (ONE - SQR(y0));
+  DENSE_ELEM(J,1,1) = P1_ETA * (ONE - SUN_SQR(y0));
 
   return(0);
 }

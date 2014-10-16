@@ -1124,13 +1124,13 @@ realtype N_VWrmsNorm_Parallel_Grid(N_Vector x, N_Vector w)
   if (NV_FORDER_PG(x)) {
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
       prodi = xd[i]*wd[i];
-      sum += SQR(prodi);
+      sum += SUN_SQR(prodi);
     }
     NV_LOOPEND_PG();
   } else {
     NV_CLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
       prodi = xd[i]*wd[i];
-      sum += SQR(prodi);
+      sum += SUN_SQR(prodi);
     }
     NV_LOOPEND_PG();
   }
@@ -1170,7 +1170,7 @@ realtype N_VWrmsNormMask_Parallel_Grid(N_Vector x, N_Vector w, N_Vector id)
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
       if (idd[i] > ZERO) {
 	prodi = xd[i]*wd[i];
-	sum += SQR(prodi);
+	sum += SUN_SQR(prodi);
       }
     }
     NV_LOOPEND_PG();
@@ -1178,7 +1178,7 @@ realtype N_VWrmsNormMask_Parallel_Grid(N_Vector x, N_Vector w, N_Vector id)
     NV_CLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
       if (idd[i] > ZERO) {
 	prodi = xd[i]*wd[i];
-	sum += SQR(prodi);
+	sum += SUN_SQR(prodi);
       }
     }
     NV_LOOPEND_PG();
@@ -1251,13 +1251,13 @@ realtype N_VWL2Norm_Parallel_Grid(N_Vector x, N_Vector w)
   if (NV_FORDER_PG(x)) {
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
       prodi = xd[i]*wd[i];
-      sum += SQR(prodi);
+      sum += SUN_SQR(prodi);
     }
     NV_LOOPEND_PG();
   } else {
     NV_CLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
       prodi = xd[i]*wd[i];
-      sum += SQR(prodi);
+      sum += SUN_SQR(prodi);
     }
     NV_LOOPEND_PG();
   }

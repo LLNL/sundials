@@ -51,8 +51,8 @@ extern "C" {
 #define SUN_MAX(A, B) ((A) > (B) ? (A) : (B))
 #endif
 
-#ifndef SQR
-#define SQR(A) ((A)*(A))
+#ifndef SUN_SQR
+#define SUN_SQR(A) ((A)*(A))
 #endif
 
 #ifndef ABS

@@ -54,7 +54,7 @@
 #include <cvodes/cvodes_spgmr.h>      /* use CVSPGMR linear solver each internal step  */
 #include <nvector/nvector_parallel.h> /* definitions of type N_Vector, macro NV_DATA_P */
 #include <sundials/sundials_dense.h>  /* use generic DENSE solver in preconditioning   */
-#include <sundials/sundials_math.h>   /* contains SQR macro                            */
+#include <sundials/sundials_math.h>   /* contains SUN_SQR macro                            */
 #include <sundials/sundials_types.h>  /* definitions of realtype and booleantype       */
 
 #include <mpi.h>
@@ -422,9 +422,9 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
   data->om = PI/HALFDAY;
   data->dx = (XMAX-XMIN)/((realtype)(MX-1));
   data->dy = (YMAX-YMIN)/((realtype)(MY-1));
-  data->hdco = KH/SQR(data->dx);
+  data->hdco = KH/SUN_SQR(data->dx);
   data->haco = VEL/(RCONST(2.0)*data->dx);
-  data->vdco = (RCONST(1.0)/SQR(data->dy))*KV0;
+  data->vdco = (RCONST(1.0)/SUN_SQR(data->dy))*KV0;
 
   /* Set machine-related constants */
   data->comm = comm;
@@ -488,8 +488,8 @@ static void SetInitialProfiles(N_Vector u, UserData data)
     for (lx = 0; lx < MXSUB; lx++) {
       jx = lx + isubx*MXSUB;
       x = XMIN + jx*dx;
-      cx = SQR(RCONST(0.1)*(x - xmid));
-      cx = RCONST(1.0) - cx + RCONST(0.5)*SQR(cx);
+      cx = SUN_SQR(RCONST(0.1)*(x - xmid));
+      cx = RCONST(1.0) - cx + RCONST(0.5)*SUN_SQR(cx);
       udata[offset  ] = C1_SCALE*cx*cy;
       udata[offset+1] = C2_SCALE*cx*cy;
       offset = offset + 2;

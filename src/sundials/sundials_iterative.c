@@ -79,11 +79,11 @@ int ModifiedGS(N_Vector *v, realtype **h, int k, int p,
     if ((temp + new_product) == temp) continue;
     h[i][k_minus_1] += new_product;
     N_VLinearSum(ONE, v[k],-new_product, v[i], v[k]);
-    new_norm_2 += SQR(new_product);
+    new_norm_2 += SUN_SQR(new_product);
   }
 
   if (new_norm_2 != ZERO) {
-    new_product = SQR(*new_vk_norm) - new_norm_2;
+    new_product = SUN_SQR(*new_vk_norm) - new_norm_2;
     *new_vk_norm = (new_product > ZERO) ? RSqrt(new_product) : ZERO;
   }
 
@@ -192,11 +192,11 @@ int QRfact(int n, realtype **h, realtype *q, int job)
 	s = ZERO;
       } else if (ABS(temp2) >= ABS(temp1)) {
 	temp3 = temp1/temp2;
-	s = -ONE/RSqrt(ONE+SQR(temp3));
+	s = -ONE/RSqrt(ONE+SUN_SQR(temp3));
 	c = -s*temp3;
       } else {
 	temp3 = temp2/temp1;
-	c = ONE/RSqrt(ONE+SQR(temp3));
+	c = ONE/RSqrt(ONE+SUN_SQR(temp3));
 	s = -c*temp3;
       }
       q[q_ptr] = c;
@@ -235,11 +235,11 @@ int QRfact(int n, realtype **h, realtype *q, int job)
       s = ZERO;
     } else if (ABS(temp2) >= ABS(temp1)) {
       temp3 = temp1/temp2;
-      s = -ONE/RSqrt(ONE+SQR(temp3));
+      s = -ONE/RSqrt(ONE+SUN_SQR(temp3));
       c = -s*temp3;
     } else {
       temp3 = temp2/temp1;
-      c = ONE/RSqrt(ONE+SQR(temp3));
+      c = ONE/RSqrt(ONE+SUN_SQR(temp3));
       s = -c*temp3;
     }
     q_ptr = 2*n_minus_1;
