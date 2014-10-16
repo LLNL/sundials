@@ -1484,8 +1484,52 @@ problem through the following functions:
    The \id{psetupB} argument may be \id{NULL} if no setup operation is involved
    in the preconditioner.
 }
+
+\ucfunction{IDASpilsSetPreconditionerBS}
+{
+  flag = IDASpilsSetPreconditionerBS(ida\_mem, which, psetupBS, psolveBS);
+}
+{
+  The function \ID{IDASpilsSetPrecSolveFnBS} specifies the preconditioner
+  setup and solve functions for the backward integration, in the case
+  where the backward problem depends on the forward sensitivities.
+}
+{
+  \begin{args}[psetupBS]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[which] (\id{int})
+    the identifier of the backward problem.
+  \item[psetupBS] (\id{IDASpilsPrecSetupFnBS})
+    user-defined preconditioner setup function.
+  \item[psolveBS] (\id{IDASpilsPrecSolveFnBS})
+    user-defined preconditioner solve function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDASPILS\_ILL\_INPUT]
+  \item[\Id{IDASPILS\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{IDASPILS\_MEM\_NULL}]
+    The \id{ida\_mem} memory block pointer was \id{NULL}.
+  \item[\Id{IDASPILS\_LMEM\_NULL}]
+    The {\idaspils} linear solver has not been initialized.
+  \item[\Id{IDASPILS\_NO\_ADJ}]
+    The function \id{IDAAdjInit} has not been previously called.
+  \item[\Id{IDASPILS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+   The function types \id{IDASpilsPrecSolveFnBS} and \id{IDASpilsPrecSetupFnBS} are
+   described in \S\ref{ss:psolve_b} and \S\ref{ss:psetup_b}, respectively.
+   The \id{psetupBS} argument may be \id{NULL} if no setup operation is involved
+   in the preconditioner.
+}
 %%
 \index{preconditioning!user-supplied|)}
+%%
 %%
 \index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
 \ucfunction{IDASpilsSetJacTimesVecFnB}
@@ -1493,7 +1537,7 @@ problem through the following functions:
   flag = IDASpilsSetJacTimesVecFnB(ida\_mem, which, jtvB);
 }
 {
-  The function \ID{IDASpilsSetJacTimesFnB} specifies the Jacobian-vector 
+  The function \ID{IDASpilsSetJacTimesVecFnB} specifies the Jacobian-vector 
   product function to be used.
 }
 {
@@ -1523,6 +1567,45 @@ problem through the following functions:
 }
 {
   The function type \id{IDASpilsJacTimesVecFnB} is described in
+  \S\ref{ss:jactimesvec_b}.
+}
+%%
+\ucfunction{IDASpilsSetJacTimesVecFnBS}
+{
+  flag = IDASpilsSetJacTimesVecFnBS(ida\_mem, which, jtvBS);
+}
+{
+  The function \ID{IDASpilsSetJacTimesVecFnBS} specifies the Jacobian-vector 
+  product function to be used, in the case where the backward problem depends
+  on the forward sensitivities.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[which] (\id{int})
+    the identifier of the backward problem.
+  \item[jtvBS] (\id{IDASpilsJacTimesVecFnBS})
+    user-defined Jacobian-vector product function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDASPILS\_ILL\_INPUT]
+  \item[\Id{IDASPILS\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{IDASPILS\_MEM\_NULL}]
+    The \id{ida\_mem} memory block pointer was \id{NULL}.
+  \item[\Id{IDASPILS\_LMEM\_NULL}]
+    The {\idaspils} linear solver has not been initialized.
+  \item[\Id{IDASPILS\_NO\_ADJ}]
+    The function \id{IDAAdjInit} has not been previously called.
+  \item[\Id{IDASPILS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+  The function type \id{IDASpilsJacTimesVecFnBS} is described in
   \S\ref{ss:jactimesvec_b}.
 }
 %%
@@ -2821,13 +2904,13 @@ through a call to \id{IDASlsSetSparseJacFnB} or \id{IDASlsSetSparseJacFnBS}
 \index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
 If one of the Krylov iterative linear solvers {\spgmr}, {\spbcg}, or {\sptfqmr}
 is selected (\id{IDASp*B} is called in step \ref{i:lin_solverB} of \S\ref{ss:skeleton_adj}), 
-the user may provide a function of type \ID{IDASpilsJacTimesVecFnB} in the following form:
+the user may provide a function of one of the following two forms:
 %%
 \usfunction{IDASpilsJacTimesVecFnB}
 {
   typedef int (*IDASpilsJacTimesVecFnB)(&realtype t, \\
                                         &N\_Vector yy, N\_Vector yp, \\
-                                        &N\_Vector yyB, N\_Vector yyB, \\
+                                        &N\_Vector yyB, N\_Vector ypB, \\
                                         &N\_Vector resvalB, \\
                                         &N\_Vector vB, N\_Vector JvB, \\
                                         &realtype cjB, void *user\_dataB, \\
@@ -2845,7 +2928,7 @@ the user may provide a function of type \ID{IDASpilsJacTimesVecFnB} in the follo
     is the current value of the forward solution vector.
   \item[yp]
     is the current value of the forward solution derivative vector.
-  \item[yB]
+  \item[yyB]
     is the current value of the backward dependent variable vector.
   \item[ypB]
     is the current value of the backward dependent derivative vector.
@@ -2875,13 +2958,80 @@ the user may provide a function of type \ID{IDASpilsJacTimesVecFnB} in the follo
 {
   A user-supplied Jacobian-vector product function must load the vector \id{JvB}
   with the product of the Jacobian of the backward problem 
-  at the point (\id{t},\id{y}, \id{yB}) and the vector \id{vB}. 
+  at the point (\id{t}, \id{y}, \id{yB}) and the vector \id{vB}. 
   Here, \id{y} is the solution of the original IVP at time \id{t} and 
   \id{yB} is the solution of the backward problem at the same time.  
   The rest of the arguments are equivalent to those passed to a function of type
   \id{IDASpilsJacTimesVecFn} (see \S\ref{ss:jtimesFn}).
   If the backward problem is the adjoint of ${\dot y} = f(t, y)$, then this 
   function is to compute $-(\dfdyI)^T v_B$.
+}
+
+\usfunction{IDASpilsJacTimesVecFnBS}
+{
+  typedef int (*IDASpilsJacTimesVecFnBS)(&realtype t, \\
+                                        &N\_Vector yy, N\_Vector yp, \\
+                                        &N\_Vector *yyS, N\_Vector *ypS, \\
+                                        &N\_Vector yyB, N\_Vector ypB, \\
+                                        &N\_Vector resvalB, \\
+                                        &N\_Vector vB, N\_Vector JvB, \\
+                                        &realtype cjB, void *user\_dataB, \\
+                                        &N\_Vector tmp1B, N\_Vector tmp2B);
+}
+{
+  This function computes the action of the backward problem Jacobian \id{JB}
+  on a given vector \id{vB}, in the case where the backward problem depends
+  on the forward sensitivities.
+}
+{
+  \begin{args}[user\_dataB]
+  \item[t]
+    is the current value of the independent variable.
+  \item[yy]
+    is the current value of the forward solution vector.
+  \item[yp]
+    is the current value of the forward solution derivative vector.
+  \item[yyS]
+    a pointer to an array of \id{Ns} vectors containing the sensitivities of 
+    the forward solution.
+  \item[ypS]
+    a pointer to an array of \id{Ns} vectors containing the derivatives of 
+    the forward sensitivities.
+  \item[yyB]
+    is the current value of the backward dependent variable vector.
+  \item[ypB]
+    is the current value of the backward dependent derivative vector.
+  \item[resvalB]
+    is the current value of the residual for the backward problem.
+  \item[vB]
+    is the vector by which the Jacobian must be multiplied.
+  \item[JvB]
+      is the computed output vector, \id{JB*vB}.
+  \item[cjB]
+    is the scalar in the system Jacobian, proportional to the inverse of the
+    step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
+  \item[user\_dataB]
+    is a pointer to user data --- the same as the \id{user\_dataB}      
+    parameter passed to \id{IDASetUserDataB}.
+  \item[tmp1B]
+  \item[tmp2B]
+    are pointers to memory allocated for variables of type \id{N\_Vector} which
+    can be used by \id{IDASpilsJacTimesVecFn} as temporary storage or work space.
+  \end{args}
+}
+{  
+  The return value of a function of type \id{IDASpilsJtimesFnBS} should be
+  $0$ if successful or nonzero if an error was encountered, in which case
+  the integration is halted.
+}
+{
+  A user-supplied Jacobian-vector product function must load the vector \id{JvB}
+  with the product of the Jacobian of the backward problem 
+  at the point (\id{t}, \id{y}, \id{yB}) and the vector \id{vB}. 
+  Here, \id{y} is the solution of the original IVP at time \id{t} and 
+  \id{yB} is the solution of the backward problem at the same time.  
+  The rest of the arguments are equivalent to those passed to a function of type
+  \id{IDASpilsJacTimesVecFn} (see \S\ref{ss:jtimesFn}).
 }
 
 %%-------------------------------------------------------------------------------------
@@ -2894,13 +3044,13 @@ the user may provide a function of type \ID{IDASpilsJacTimesVecFnB} in the follo
 If preconditioning is used during integration of the backward problem, 
 then the user must provide a {\C} function to solve the linear system 
 $Pz = r$, where $P$ is a left preconditioner matrix.
-This function must be of type \ID{IDASpilsPrecSolveFnB} defined by
+This function have one of the two following forms:
 %%
 \usfunction{IDASpilsPrecSolveFnB}
 {
   typedef int (*IDASpilsPrecSolveFnB)(&realtype t, \\
                                      &N\_Vector yy, N\_Vector yp, \\
-                                     &N\_Vector yB, N\_Vector ypB, \\
+                                     &N\_Vector yyB, N\_Vector ypB, \\
                                      &N\_Vector resvalB, \\
                                      &N\_Vector rvecB, N\_Vector zvecB, \\
                                      &realtype cjB, realtype deltaB, \\
@@ -2917,7 +3067,67 @@ This function must be of type \ID{IDASpilsPrecSolveFnB} defined by
     is the current value of the forward solution vector.
   \item[yp]
     is the current value of the forward solution derivative vector.
-  \item[yB]
+  \item[yyB]
+    is the current value of the backward dependent variable vector.
+  \item[ypB]
+    is the current value of the backward dependent derivative vector.
+  \item[resvalB]
+    is the current value of the residual for the backward problem.
+  \item[rvecB]
+    is the right-hand side vector $r$ of the linear system to be solved.
+  \item[zvecB]
+    is the computed output vector.
+  \item[cjB]
+    is the scalar in the system Jacobian, proportional to the inverse of the
+    step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
+  \item[deltaB]
+    is an input tolerance to be used if an iterative method 
+    is employed in the solution.
+  \item[user\_dataB]
+    is a pointer to user data --- the same as the \id{user\_dataB}      
+    parameter passed to the function \id{IDASetUserDataB}.
+  \item[tmpB]
+    is a pointer to memory allocated for a variable of type    
+    \id{N\_Vector} which can be used for work space.
+  \end{args}
+}
+{
+  The return value of a preconditioner solve function for the backward
+  problem should be $0$ if successful, 
+  positive for a recoverable error (in which case the step will be retried), or
+  negative for an unrecoverable error (in which case the integration is halted).
+}
+{}
+
+\usfunction{IDASpilsPrecSolveFnBS}
+{
+  typedef int (*IDASpilsPrecSolveFnBS)(&realtype t, \\
+                                     &N\_Vector yy, N\_Vector yp, \\
+                                     &N\_Vector *yyS, N\_Vector *ypS, \\
+                                     &N\_Vector yyB, N\_Vector ypB, \\
+                                     &N\_Vector resvalB, \\
+                                     &N\_Vector rvecB, N\_Vector zvecB, \\
+                                     &realtype cjB, realtype deltaB, \\
+                                     &void *user\_dataB, N\_Vector tmpB);
+}
+{
+  This function solves the preconditioning system $Pz = r$ for the backward problem.
+}
+{  
+  \begin{args}[user\_dataB]
+  \item[t]
+    is the current value of the independent variable.
+  \item[yy]
+    is the current value of the forward solution vector.
+  \item[yp]
+    is the current value of the forward solution derivative vector.
+  \item[yyS]
+    a pointer to an array of \id{Ns} vectors containing the sensitivities of 
+    the forward solution.
+  \item[ypS]
+    a pointer to an array of \id{Ns} vectors containing the derivatives of 
+    the forward sensitivities.
+   \item[yyB]
     is the current value of the backward dependent variable vector.
   \item[ypB]
     is the current value of the backward dependent derivative vector.
@@ -2958,13 +3168,13 @@ This function must be of type \ID{IDASpilsPrecSolveFnB} defined by
 \index{IDASPTFQMR@{\idasptfqmr} linear solver!preconditioner setup function}
 If the user's preconditioner requires that any Jacobian-related data
 be preprocessed or evaluated, then this needs to be done in a
-user-supplied {\C} function of type \ID{IDASpilsPrecSetupFnB} defined by
+user-supplied {\C} function of one of the following two types:
 %%
 \usfunction{IDASpilsPrecSetupFnB}
 {
   typedef int (*IDASpilsPrecSetupFnB)(&realtype t, \\
                                      &N\_Vector yy, N\_Vector yp,  \\
-                                     &N\_Vector yB, N\_Vector ypB, \\ 
+                                     &N\_Vector yyB, N\_Vector ypB, \\ 
                                      &N\_Vector resvalB, \\
                                      &realtype cjB, void *user\_dataB,\\
                                      &N\_Vector tmp1B, N\_Vector tmp2B, \\
@@ -2983,6 +3193,63 @@ user-supplied {\C} function of type \ID{IDASpilsPrecSetupFnB} defined by
     is the current value of the forward solution vector.
   \item[yp]
     is the current value of the forward solution vector.
+  \item[yfB]
+    is the current value of the backward dependent variable vector.
+  \item[ypB]
+    is the current value of the backward dependent derivative vector.
+  \item[resvalB]
+    is the current value of the residual for the backward problem.
+  \item[cjB]
+    is the scalar in the system Jacobian, proportional to the inverse of the
+    step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
+  \item[user\_dataB]
+    is a pointer to user data --- the same as the \id{user\_dataB}
+    parameter passed to the function \id{IDASetUserDataB}.
+  \item[tmp1B]
+  \item[tmp2B]
+  \item[tmp3B]
+    are pointers to memory allocated for vectors which can be used           
+    as temporary storage or work space.    
+  \end{args}
+}
+{
+  The return value of a preconditioner setup function for the backward
+  problem should be $0$ if successful, 
+  positive for a recoverable error (in which case the step will be retried),     
+  or negative for an unrecoverable error (in which case the integration is halted).
+}
+{}
+\usfunction{IDASpilsPrecSetupFnBS}
+{
+  typedef int (*IDASpilsPrecSetupFnBS)(&realtype t, \\
+                                     &N\_Vector yy, N\_Vector yp,  \\
+                                     &N\_Vector *yyS, N\_Vector *ypS,  \\
+                                     &N\_Vector yB, N\_Vector ypB, \\ 
+                                     &N\_Vector resvalB, \\
+                                     &realtype cjB, void *user\_dataB,\\
+                                     &N\_Vector tmp1B, N\_Vector tmp2B, \\
+                                     &N\_Vector tmp3B);
+}
+{
+  This function preprocesses and/or evaluates Jacobian-related data needed
+  by the preconditioner for the backward problem, in the case where the
+  backward problem depends on the forward sensitivities.
+}
+{
+  The arguments of an \id{IDASpilsPrecSetupFnBS} are as follows:
+  \begin{args}[user\_dataB]
+  \item[t]
+    is the current value of the independent variable.
+  \item[yy]
+    is the current value of the forward solution vector.
+  \item[yp]
+    is the current value of the forward solution vector.
+  \item[yyS]
+    a pointer to an array of \id{Ns} vectors containing the sensitivities of 
+    the forward solution.
+  \item[ypS]
+    a pointer to an array of \id{Ns} vectors containing the derivatives of 
+    the forward sensitivities.
   \item[yB]
     is the current value of the backward dependent variable vector.
   \item[ypB]
