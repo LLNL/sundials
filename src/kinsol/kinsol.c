@@ -1803,7 +1803,7 @@ static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int sflag)
       /* If indicated, estimate new OMEGA value */
       if (eval_omega) {
         omexp = SUN_MAX(ZERO,(fnorm/fnormtol)-ONE);
-        omega = (omexp > TWELVE)? omega_max : SUN_MIN(omega_min*EXP(omexp), omega_max);
+        omega = (omexp > TWELVE)? omega_max : SUN_MIN(omega_min*SUN_EXP(omexp), omega_max);
       }   
       /* Check if making satisfactory progress */
 

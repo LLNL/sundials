@@ -585,7 +585,7 @@ static realtype MaxError(N_Vector y, realtype t)
   if (t == ZERO) return(ZERO);
 
   ydata = NV_DATA_S(y);
-  if (t <= THIRTY) ex = EXP(-TWO*t); 
+  if (t <= THIRTY) ex = SUN_EXP(-TWO*t);
   
   for (j = 0; j < P2_MESHY; j++) {
     ifact_inv = ONE;

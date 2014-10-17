@@ -515,7 +515,7 @@ static void SetIC(N_Vector u, realtype dx, long int my_length, long int my_base)
   for (i=1; i<=my_length; i++) {
     iglobal = my_base + i;
     x = iglobal*dx;
-    udata[i-1] = x*(XMAX - x)*EXP(TWO*x);
+    udata[i-1] = x*(XMAX - x)*SUN_EXP(TWO*x);
   }  
 }
 

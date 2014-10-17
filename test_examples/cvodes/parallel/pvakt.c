@@ -498,14 +498,14 @@ static void SetSource(ProblemData d)
         x[2] = xmin[2] + (m_start[2]+i[2]) * dx[2];
         
         g = G1_AMPL 
-          * EXP( -SUN_SQR(G1_X-x[0])/SUN_SQR(G1_SIGMA) )
-          * EXP( -SUN_SQR(G1_Y-x[1])/SUN_SQR(G1_SIGMA) )
-          * EXP( -SUN_SQR(G1_Z-x[2])/SUN_SQR(G1_SIGMA) );
+          * SUN_EXP( -SUN_SQR(G1_X-x[0])/SUN_SQR(G1_SIGMA) )
+          * SUN_EXP( -SUN_SQR(G1_Y-x[1])/SUN_SQR(G1_SIGMA) )
+          * SUN_EXP( -SUN_SQR(G1_Z-x[2])/SUN_SQR(G1_SIGMA) );
         
         g += G2_AMPL 
-          * EXP( -SUN_SQR(G2_X-x[0])/SUN_SQR(G2_SIGMA) )
-          * EXP( -SUN_SQR(G2_Y-x[1])/SUN_SQR(G2_SIGMA) )
-          * EXP( -SUN_SQR(G2_Z-x[2])/SUN_SQR(G2_SIGMA) );
+          * SUN_EXP( -SUN_SQR(G2_X-x[0])/SUN_SQR(G2_SIGMA) )
+          * SUN_EXP( -SUN_SQR(G2_Y-x[1])/SUN_SQR(G2_SIGMA) )
+          * SUN_EXP( -SUN_SQR(G2_Z-x[2])/SUN_SQR(G2_SIGMA) );
         
         if( g < G_MIN ) g = ZERO;
 

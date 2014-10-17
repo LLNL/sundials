@@ -466,8 +466,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
   s = sin(data->om*t);
   if (s > ZERO) {
-    q3 = EXP(-A3/s);
-    data->q4 = EXP(-A4/s);
+    q3 = SUN_EXP(-A3/s);
+    data->q4 = SUN_EXP(-A4/s);
   } else {
       q3 = ZERO;
       data->q4 = ZERO;
@@ -489,8 +489,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
     ydn = YMIN + (jy - RCONST(0.5))*dely;
     yup = ydn + dely;
-    cydn = verdco*EXP(RCONST(0.2)*ydn);
-    cyup = verdco*EXP(RCONST(0.2)*yup);
+    cydn = verdco*SUN_EXP(RCONST(0.2)*ydn);
+    cyup = verdco*SUN_EXP(RCONST(0.2)*yup);
     idn = (jy == 0) ? 1 : -1;
     iup = (jy == MY-1) ? -1 : 1;
     for (jx=0; jx < MX; jx++) {
@@ -565,7 +565,7 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
   s = sin(data->om*t);
   if (s > ZERO) {
-    data->q4 = EXP(-A4/s);
+    data->q4 = SUN_EXP(-A4/s);
   } else {
     data->q4 = ZERO;
   }
@@ -587,8 +587,8 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
     ydn = YMIN + (jy - RCONST(0.5))*dely;
     yup = ydn + dely;
 
-    cydn = verdco*EXP(RCONST(0.2)*ydn);
-    cyup = verdco*EXP(RCONST(0.2)*yup);
+    cydn = verdco*SUN_EXP(RCONST(0.2)*ydn);
+    cyup = verdco*SUN_EXP(RCONST(0.2)*yup);
 
     idn = (jy == 0) ? 1 : -1;
     iup = (jy == MY-1) ? -1 : 1;
@@ -736,8 +736,8 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
     for (jy=0; jy < MY; jy++) {
       ydn = YMIN + (jy - RCONST(0.5))*dely;
       yup = ydn + dely;
-      cydn = verdco*EXP(RCONST(0.2)*ydn);
-      cyup = verdco*EXP(RCONST(0.2)*yup);
+      cydn = verdco*SUN_EXP(RCONST(0.2)*ydn);
+      cyup = verdco*SUN_EXP(RCONST(0.2)*yup);
       diag = -(cydn + cyup + TWO*hordco);
       for (jx=0; jx < MX; jx++) {
         c1 = IJKth(udata,1,jx,jy);

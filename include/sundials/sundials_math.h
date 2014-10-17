@@ -63,8 +63,8 @@ extern "C" {
 #define SQRT RSqrt
 #endif
 
-#ifndef EXP
-#define EXP RExp
+#ifndef SUN_EXP
+#define SUN_EXP RExp
 #endif
 
 /*

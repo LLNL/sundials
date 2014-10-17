@@ -738,8 +738,8 @@ static int flocal(long int Nlocal, realtype t, N_Vector u,
 
   s = sin((data->om)*t);
   if (s > ZERO) {
-    q3 = EXP(-A3/s);
-    q4coef = EXP(-A4/s);
+    q3 = SUN_EXP(-A3/s);
+    q4coef = SUN_EXP(-A4/s);
   } else {
     q3 = ZERO;
     q4coef = ZERO;
@@ -755,8 +755,8 @@ static int flocal(long int Nlocal, realtype t, N_Vector u,
     /* Set vertical diffusion coefficients at jy +- 1/2 */
     ydn = YMIN + (jy - RCONST(0.5))*dely;
     yup = ydn + dely;
-    cydn = verdco*EXP(RCONST(0.2)*ydn);
-    cyup = verdco*EXP(RCONST(0.2)*yup);
+    cydn = verdco*SUN_EXP(RCONST(0.2)*ydn);
+    cyup = verdco*SUN_EXP(RCONST(0.2)*yup);
     for (lx = 0; lx < MXSUB; lx++) {
 
       /* Extract c1 and c2, and set kinetic rate terms */

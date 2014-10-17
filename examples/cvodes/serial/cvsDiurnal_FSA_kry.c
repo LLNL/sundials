@@ -352,8 +352,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
   s = sin(data->om*t);
   if (s > ZERO) {
-    q3 = EXP(-A3/s);
-    data->q4 = EXP(-A4/s);
+    q3 = SUN_EXP(-A3/s);
+    data->q4 = SUN_EXP(-A4/s);
   } else {
     q3 = ZERO;
     data->q4 = ZERO;
@@ -375,8 +375,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
     zdn = ZMIN + (jz - RCONST(0.5))*delz;
     zup = zdn + delz;
-    czdn = verdco*EXP(RCONST(0.2)*zdn);
-    czup = verdco*EXP(RCONST(0.2)*zup);
+    czdn = verdco*SUN_EXP(RCONST(0.2)*zdn);
+    czup = verdco*SUN_EXP(RCONST(0.2)*zup);
     idn = (jz == 0) ? 1 : -1;
     iup = (jz == MZ-1) ? -1 : 1;
     for (jx=0; jx < MX; jx++) {
@@ -485,8 +485,8 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
     for (jz=0; jz < MZ; jz++) {
       zdn = ZMIN + (jz - RCONST(0.5))*delz;
       zup = zdn + delz;
-      czdn = verdco*EXP(RCONST(0.2)*zdn);
-      czup = verdco*EXP(RCONST(0.2)*zup);
+      czdn = verdco*SUN_EXP(RCONST(0.2)*zdn);
+      czup = verdco*SUN_EXP(RCONST(0.2)*zup);
       diag = -(czdn + czup + RCONST(2.0)*hordco);
       for (jx=0; jx < MX; jx++) {
         c1 = IJKth(ydata,1,jx,jz);

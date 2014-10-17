@@ -461,8 +461,8 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
       jy = ly + isuby*MYSUB;
       ydn = YMIN + (jy - RCONST(0.5))*dely;
       yup = ydn + dely;
-      cydn = verdco*EXP(RCONST(0.2)*ydn);
-      cyup = verdco*EXP(RCONST(0.2)*yup);
+      cydn = verdco*SUN_EXP(RCONST(0.2)*ydn);
+      cyup = verdco*SUN_EXP(RCONST(0.2)*yup);
       diag = -(cydn + cyup + RCONST(2.0)*hordco);
       for (lx = 0; lx < MXSUB; lx++) {
         jx = lx + isubx*MXSUB;
@@ -973,8 +973,8 @@ static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data
   data block for use by preconditioner evaluation routine */
   s = sin((data->om)*t);
   if (s > ZERO) {
-    q3 = EXP(-A3/s);
-    q4coef = EXP(-A4/s);
+    q3 = SUN_EXP(-A3/s);
+    q4coef = SUN_EXP(-A4/s);
   } else {
     q3 = ZERO;
     q4coef = ZERO;
@@ -988,8 +988,8 @@ static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data
     /* Set vertical diffusion coefficients at jy +- 1/2 */
     ydn = YMIN + (jy - .5)*dely;
     yup = ydn + dely;
-    cydn = verdco*EXP(RCONST(0.2)*ydn);
-    cyup = verdco*EXP(RCONST(0.2)*yup);
+    cydn = verdco*SUN_EXP(RCONST(0.2)*ydn);
+    cyup = verdco*SUN_EXP(RCONST(0.2)*yup);
     for (lx = 0; lx < MXSUB; lx++) {
       jx = lx + isubx*MXSUB;
 
