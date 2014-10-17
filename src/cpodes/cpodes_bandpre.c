@@ -580,7 +580,7 @@ static int cpBandPDQJacExpl(CPBandPrecData pdata,
   srur = RSqrt(uround);
   fnorm = N_VWrmsNorm(fy, ewt);
   minInc = (fnorm != ZERO) ?
-           (MIN_INC_MULT * ABS(h) * uround * N * fnorm) : ONE;
+           (MIN_INC_MULT * SUN_ABS(h) * uround * N * fnorm) : ONE;
 
   /* Set bandwidth and number of column groups for band differencing. */
   width = ml + mu + 1;
@@ -591,7 +591,7 @@ static int cpBandPDQJacExpl(CPBandPrecData pdata,
     
     /* Increment all y_j in group. */
     for(j = group-1; j < N; j += width) {
-      inc = SUN_MAX(srur*ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUN_MAX(srur*SUN_ABS(y_data[j]), minInc/ewt_data[j]);
       ytemp_data[j] += inc;
     }
 
@@ -605,7 +605,7 @@ static int cpBandPDQJacExpl(CPBandPrecData pdata,
     for (j = group-1; j < N; j += width) {
       ytemp_data[j] = y_data[j];
       col_j = BAND_COL(savedJ,j);
-      inc = SUN_MAX(srur*ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUN_MAX(srur*SUN_ABS(y_data[j]), minInc/ewt_data[j]);
       inc_inv = ONE/inc;
       i1 = SUN_MAX(0, j-mu);
       i2 = SUN_MIN(j+ml, N-1);
@@ -676,7 +676,7 @@ static int cpBandPDQJacImpl(CPBandPrecData pdata,
         /* Set increment inc to yj based on sqrt(uround)*abs(yj), with
            adjustments using ypj and ewtj if this is small, and a further
            adjustment to give it the same sign as h*ypj. */
-        inc = SUN_MAX( srur * SUN_MAX( ABS(yj), ABS(h*ypj) ) , ONE/ewtj );
+        inc = SUN_MAX( srur * SUN_MAX( SUN_ABS(yj), SUN_ABS(h*ypj) ) , ONE/ewtj );
 
         if (h*ypj < ZERO) inc = -inc;
         inc = (yj + inc) - yj;
@@ -701,7 +701,7 @@ static int cpBandPDQJacImpl(CPBandPrecData pdata,
       ewtj = ewt_data[j];
       
       /* Set increment inc exactly as above. */
-      inc = SUN_MAX( srur * SUN_MAX( ABS(yj), ABS(h*ypj) ) , ONE/ewtj );
+      inc = SUN_MAX( srur * SUN_MAX( SUN_ABS(yj), SUN_ABS(h*ypj) ) , ONE/ewtj );
       if (h*ypj < ZERO) inc = -inc;
       inc = (yj + inc) - yj;
       

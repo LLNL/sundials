@@ -256,7 +256,7 @@ static int ARKSptfqmrSetup(ARKodeMem ark_mem, int convfail,
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-  dgamma = ABS((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
+  dgamma = SUN_ABS((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
   jbad = (ark_mem->ark_nst == 0) || 
     (ark_mem->ark_nst > arkspils_mem->s_nstlpre + ARKSPILS_MSBPRE) ||
     ((convfail == ARK_FAIL_BAD_J) && (dgamma < ARKSPILS_DGMAX)) ||

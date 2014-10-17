@@ -511,7 +511,7 @@ static int KBBDDQJac(KBBDPrecData pdata,
     /* increment all u_j in group */
 
     for(j = group - 1; j < Nlocal; j += width) {
-      inc = rel_uu * SUN_MAX(ABS(udata[j]), (ONE / uscdata[j]));
+      inc = rel_uu * SUN_MAX(SUN_ABS(udata[j]), (ONE / uscdata[j]));
       utempdata[j] += inc;
     }
   
@@ -525,7 +525,7 @@ static int KBBDDQJac(KBBDPrecData pdata,
     for (j = group - 1; j < Nlocal; j += width) {
       utempdata[j] = udata[j];
       col_j = BAND_COL(PP,j);
-      inc = rel_uu * SUN_MAX(ABS(udata[j]) , (ONE / uscdata[j]));
+      inc = rel_uu * SUN_MAX(SUN_ABS(udata[j]) , (ONE / uscdata[j]));
       inc_inv = ONE / inc;
       i1 = SUN_MAX(0, (j - mukeep));
       i2 = SUN_MIN((j + mlkeep), (Nlocal - 1));

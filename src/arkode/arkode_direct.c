@@ -479,7 +479,7 @@ int arkDlsDenseDQJac(long int N, realtype t, N_Vector y,
   /* fnorm = N_VWrmsNorm(fy, ark_mem->ark_ewt); */
   fnorm = N_VWrmsNorm(fy, ark_mem->ark_rwt);
   minInc = (fnorm != ZERO) ?
-           (MIN_INC_MULT * ABS(ark_mem->ark_h) * ark_mem->ark_uround * N * fnorm) : ONE;
+           (MIN_INC_MULT * SUN_ABS(ark_mem->ark_h) * ark_mem->ark_uround * N * fnorm) : ONE;
 
   for (j = 0; j < N; j++) {
 
@@ -487,7 +487,7 @@ int arkDlsDenseDQJac(long int N, realtype t, N_Vector y,
     N_VSetArrayPointer(DENSE_COL(Jac,j), jthCol);
 
     yjsaved = y_data[j];
-    inc = SUN_MAX(srur*ABS(yjsaved), minInc/ewt_data[j]);
+    inc = SUN_MAX(srur*SUN_ABS(yjsaved), minInc/ewt_data[j]);
     y_data[j] += inc;
 
     retval = ark_mem->ark_fi(t, y, ftemp, ark_mem->ark_user_data);
@@ -556,7 +556,7 @@ int arkDlsBandDQJac(long int N, long int mupper, long int mlower,
   /* fnorm = N_VWrmsNorm(fy, ark_mem->ark_ewt); */
   fnorm = N_VWrmsNorm(fy, ark_mem->ark_rwt);
   minInc = (fnorm != ZERO) ?
-           (MIN_INC_MULT * ABS(ark_mem->ark_h) * ark_mem->ark_uround * N * fnorm) : ONE;
+           (MIN_INC_MULT * SUN_ABS(ark_mem->ark_h) * ark_mem->ark_uround * N * fnorm) : ONE;
 
   /* Set bandwidth and number of column groups for band differencing */
   width = mlower + mupper + 1;
@@ -567,7 +567,7 @@ int arkDlsBandDQJac(long int N, long int mupper, long int mlower,
     
     /* Increment all y_j in group */
     for(j=group-1; j < N; j+=width) {
-      inc = SUN_MAX(srur*ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUN_MAX(srur*SUN_ABS(y_data[j]), minInc/ewt_data[j]);
       ytemp_data[j] += inc;
     }
 
@@ -581,7 +581,7 @@ int arkDlsBandDQJac(long int N, long int mupper, long int mlower,
     for (j=group-1; j < N; j+=width) {
       ytemp_data[j] = y_data[j];
       col_j = BAND_COL(Jac,j);
-      inc = SUN_MAX(srur*ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUN_MAX(srur*SUN_ABS(y_data[j]), minInc/ewt_data[j]);
       inc_inv = ONE/inc;
       i1 = SUN_MAX(0, j-mupper);
       i2 = SUN_MIN(j+mlower, N-1);

@@ -100,11 +100,11 @@ long int bandGBTRF(realtype **a, long int n, long int mu, long int ml, long int 
     /* find l = pivot row number */
 
     l=k;
-    max = ABS(*diag_k);
+    max = SUN_ABS(*diag_k);
     for (i=k+1, kptr=sub_diag_k; i <= last_row_k; i++, kptr++) { 
-      if (ABS(*kptr) > max) {
+      if (SUN_ABS(*kptr) > max) {
 	l=i;
-	max = ABS(*kptr);
+	max = SUN_ABS(*kptr);
       }
     }
     storage_l = ROW(l, k, smu);

@@ -350,7 +350,7 @@ int cvDlsDenseDQJac(long int N, realtype t,
   srur = RSqrt(uround);
   fnorm = N_VWrmsNorm(fy, ewt);
   minInc = (fnorm != ZERO) ?
-           (MIN_INC_MULT * ABS(h) * uround * N * fnorm) : ONE;
+           (MIN_INC_MULT * SUN_ABS(h) * uround * N * fnorm) : ONE;
 
   for (j = 0; j < N; j++) {
 
@@ -359,7 +359,7 @@ int cvDlsDenseDQJac(long int N, realtype t,
     N_VSetArrayPointer(DENSE_COL(Jac,j), jthCol);
 
     yjsaved = y_data[j];
-    inc = SUN_MAX(srur*ABS(yjsaved), minInc/ewt_data[j]);
+    inc = SUN_MAX(srur*SUN_ABS(yjsaved), minInc/ewt_data[j]);
     y_data[j] += inc;
 
     retval = f(t, y, ftemp, user_data);
@@ -429,7 +429,7 @@ int cvDlsBandDQJac(long int N, long int mupper, long int mlower,
   srur = RSqrt(uround);
   fnorm = N_VWrmsNorm(fy, ewt);
   minInc = (fnorm != ZERO) ?
-           (MIN_INC_MULT * ABS(h) * uround * N * fnorm) : ONE;
+           (MIN_INC_MULT * SUN_ABS(h) * uround * N * fnorm) : ONE;
 
   /* Set bandwidth and number of column groups for band differencing */
   width = mlower + mupper + 1;
@@ -440,7 +440,7 @@ int cvDlsBandDQJac(long int N, long int mupper, long int mlower,
     
     /* Increment all y_j in group */
     for(j=group-1; j < N; j+=width) {
-      inc = SUN_MAX(srur*ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUN_MAX(srur*SUN_ABS(y_data[j]), minInc/ewt_data[j]);
       ytemp_data[j] += inc;
     }
 
@@ -454,7 +454,7 @@ int cvDlsBandDQJac(long int N, long int mupper, long int mlower,
     for (j=group-1; j < N; j+=width) {
       ytemp_data[j] = y_data[j];
       col_j = BAND_COL(Jac,j);
-      inc = SUN_MAX(srur*ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUN_MAX(srur*SUN_ABS(y_data[j]), minInc/ewt_data[j]);
       inc_inv = ONE/inc;
       i1 = SUN_MAX(0, j-mupper);
       i2 = SUN_MIN(j+mlower, N-1);

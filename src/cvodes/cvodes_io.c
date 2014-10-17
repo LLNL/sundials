@@ -650,7 +650,7 @@ int CVodeSetSensParams(void *cvode_mem, realtype *p, realtype *pbar, int *plist)
         cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetSensParams", MSGCV_BAD_PBAR);
         return(CV_ILL_INPUT);
       }
-      cv_mem->cv_pbar[is] = ABS(pbar[is]);
+      cv_mem->cv_pbar[is] = SUN_ABS(pbar[is]);
     }
   else
     for (is=0; is<Ns; is++)

@@ -540,7 +540,7 @@ int cpDlsDenseDQJacExpl(int N, realtype t,
   srur = RSqrt(uround);
   fnorm = N_VWrmsNorm(fy, ewt);
   minInc = (fnorm != ZERO) ?
-           (MIN_INC_MULT * ABS(h) * uround * N * fnorm) : ONE;
+           (MIN_INC_MULT * SUN_ABS(h) * uround * N * fnorm) : ONE;
 
   for (j = 0; j < N; j++) {
 
@@ -549,7 +549,7 @@ int cpDlsDenseDQJacExpl(int N, realtype t,
     N_VSetArrayPointer(DENSE_COL(Jac,j), jthCol);
 
     yjsaved = y_data[j];
-    inc = SUN_MAX(srur*ABS(yjsaved), minInc/ewt_data[j]);
+    inc = SUN_MAX(srur*SUN_ABS(yjsaved), minInc/ewt_data[j]);
     y_data[j] += inc;
 
     retval = fe(t, y, ftemp, user_data);
@@ -630,7 +630,7 @@ int cpDlsDenseDQJacImpl(int N, realtype t, realtype gm,
     /* Set increment inc to y_j based on sqrt(uround)*abs(y_j), with
     adjustments using yp_j and ewt_j if this is small, and a further
     adjustment to give it the same sign as h*yp_j. */
-    inc = SUN_MAX( srur * SUN_MAX( ABS(yj), ABS(h*ypj) ) , ONE/ewt_data[j] );
+    inc = SUN_MAX( srur * SUN_MAX( SUN_ABS(yj), SUN_ABS(h*ypj) ) , ONE/ewt_data[j] );
     if (h*ypj < ZERO) inc = -inc;
     inc = (yj + inc) - yj;
 
@@ -713,7 +713,7 @@ int cpDlsBandDQJacExpl(int N, int mupper, int mlower,
   srur = RSqrt(uround);
   fnorm = N_VWrmsNorm(fy, ewt);
   minInc = (fnorm != ZERO) ?
-           (MIN_INC_MULT * ABS(h) * uround * N * fnorm) : ONE;
+           (MIN_INC_MULT * SUN_ABS(h) * uround * N * fnorm) : ONE;
 
   /* Set bandwidth and number of column groups for band differencing */
   width = mlower + mupper + 1;
@@ -724,7 +724,7 @@ int cpDlsBandDQJacExpl(int N, int mupper, int mlower,
     
     /* Increment all y_j in group */
     for(j=group-1; j < N; j+=width) {
-      inc = SUN_MAX(srur*ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUN_MAX(srur*SUN_ABS(y_data[j]), minInc/ewt_data[j]);
       ytemp_data[j] += inc;
     }
 
@@ -738,7 +738,7 @@ int cpDlsBandDQJacExpl(int N, int mupper, int mlower,
     for (j=group-1; j < N; j+=width) {
       ytemp_data[j] = y_data[j];
       col_j = BAND_COL(Jac,j);
-      inc = SUN_MAX(srur*ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUN_MAX(srur*SUN_ABS(y_data[j]), minInc/ewt_data[j]);
       inc_inv = ONE/inc;
       i1 = SUN_MAX(0, j-mupper);
       i2 = SUN_MIN(j+mlower, N-1);
@@ -810,7 +810,7 @@ int cpDlsBandDQJacImpl(int N, int mupper, int mlower,
         /* Set increment inc to yj based on sqrt(uround)*abs(yj), with
            adjustments using ypj and ewtj if this is small, and a further
            adjustment to give it the same sign as h*ypj. */
-        inc = SUN_MAX( srur * SUN_MAX( ABS(yj), ABS(h*ypj) ) , ONE/ewtj );
+        inc = SUN_MAX( srur * SUN_MAX( SUN_ABS(yj), SUN_ABS(h*ypj) ) , ONE/ewtj );
 
         if (h*ypj < ZERO) inc = -inc;
         inc = (yj + inc) - yj;
@@ -835,7 +835,7 @@ int cpDlsBandDQJacImpl(int N, int mupper, int mlower,
       ewtj = ewt_data[j];
       
       /* Set increment inc exactly as above. */
-      inc = SUN_MAX( srur * SUN_MAX( ABS(yj), ABS(h*ypj) ) , ONE/ewtj );
+      inc = SUN_MAX( srur * SUN_MAX( SUN_ABS(yj), SUN_ABS(h*ypj) ) , ONE/ewtj );
       if (h*ypj < ZERO) inc = -inc;
       inc = (yj + inc) - yj;
       
@@ -913,7 +913,7 @@ int cpDlsDenseProjDQJac(int Nc, int Ny, realtype t,
 
     /* Set increment inc to y_j based on sqrt(uround)*abs(y_j), 
        with an adjustment using ewt_j if this is small */
-    inc = SUN_MAX( srur * ABS(yj) , ONE/ewt_data[j] );
+    inc = SUN_MAX( srur * SUN_ABS(yj) , ONE/ewt_data[j] );
     inc = (yj + inc) - yj;
 
     /* Increment y_j, call cfun, and break on error return. */

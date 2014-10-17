@@ -535,15 +535,15 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
       /* Set increment inc to yj based on rel_yy*abs(yj), with
          adjustments using ypj and ewtj if this is small, and a further
          adjustment to give it the same sign as hh*ypj. */
-      inc = rel_yy*SUN_MAX(ABS(yj), SUN_MAX( ABS(hh*ypj), ONE/ewtj));
+      inc = rel_yy*SUN_MAX(SUN_ABS(yj), SUN_MAX( SUN_ABS(hh*ypj), ONE/ewtj));
       if (hh*ypj < ZERO) inc = -inc;
       inc = (yj + inc) - yj;
       
       /* Adjust sign(inc) again if yj has an inequality constraint. */
       if (constraints != NULL) {
         conj = cnsdata[j];
-        if (ABS(conj) == ONE)      {if ((yj+inc)*conj <  ZERO) inc = -inc;}
-        else if (ABS(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
+        if (SUN_ABS(conj) == ONE)      {if ((yj+inc)*conj <  ZERO) inc = -inc;}
+        else if (SUN_ABS(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
       }
 
       /* Increment yj and ypj. */
@@ -565,13 +565,13 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
       ewtj = ewtdata[j];
 
       /* Set increment inc as before .*/
-      inc = rel_yy*SUN_MAX(ABS(yj), SUN_MAX( ABS(hh*ypj), ONE/ewtj));
+      inc = rel_yy*SUN_MAX(SUN_ABS(yj), SUN_MAX( SUN_ABS(hh*ypj), ONE/ewtj));
       if (hh*ypj < ZERO) inc = -inc;
       inc = (yj + inc) - yj;
       if (constraints != NULL) {
         conj = cnsdata[j];
-        if (ABS(conj) == ONE)      {if ((yj+inc)*conj <  ZERO) inc = -inc;}
-        else if (ABS(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
+        if (SUN_ABS(conj) == ONE)      {if ((yj+inc)*conj <  ZERO) inc = -inc;}
+        else if (SUN_ABS(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
       }
 
       /* Form difference quotients and load into PP. */

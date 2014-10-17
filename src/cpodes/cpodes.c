@@ -1276,9 +1276,9 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
         return(istate);
       }
     }
-    rh = ABS(h)*hmax_inv;
+    rh = SUN_ABS(h)*hmax_inv;
     if (rh > ONE) h /= rh;
-    if (ABS(h) < hmin) h *= hmin/ABS(h);
+    if (SUN_ABS(h) < hmin) h *= hmin/SUN_ABS(h);
 
     /* Check for approach to tstop */
     if (tstopset) {
@@ -1326,7 +1326,7 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
     /* Estimate an infinitesimal time interval to be used as
        a roundoff for time quantities (based on current time 
        and step size) */
-    troundoff = FUZZ_FACTOR*uround*(ABS(tn) + ABS(h));
+    troundoff = FUZZ_FACTOR*uround*(SUN_ABS(tn) + SUN_ABS(h));
 
     /* First, check for a root in the last step taken, other than the
        last root found, if any.  If task = CP_ONE_STEP and y(tn) was not
@@ -1347,7 +1347,7 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
 
       /* If tn is distinct from tretlast (within roundoff),
          check remaining interval for roots */
-      if ( ABS(tn - tretlast) > troundoff ) {
+      if ( SUN_ABS(tn - tretlast) > troundoff ) {
 
         retval = cpRcheck3(cp_mem);
 
@@ -1383,7 +1383,7 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
     }
 
     /* In CP_ONE_STEP mode, test if tn was returned */
-    if ( task == CP_ONE_STEP && ABS(tn - tretlast) > troundoff ) {
+    if ( task == CP_ONE_STEP && SUN_ABS(tn - tretlast) > troundoff ) {
       tretlast = *tret = tn;
       cpGetSolution(cp_mem, tn, yout, ypout);
       return(CP_SUCCESS);
@@ -1392,7 +1392,7 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
     /* Test for tn at tstop or near tstop */
     if ( tstopset ) {
 
-      if ( ABS(tn - tstop) <= troundoff) {
+      if ( SUN_ABS(tn - tstop) <= troundoff) {
         ier =  cpGetSolution(cp_mem, tstop, yout, ypout);
         if (ier != CP_SUCCESS) {
           cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPode", MSGCP_BAD_TSTOP, tn);
@@ -1538,8 +1538,8 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
     /* Check if tn is at tstop or near tstop */
     if ( tstopset ) {
 
-      troundoff = FUZZ_FACTOR*uround*(ABS(tn) + ABS(h));
-      if ( ABS(tn - tstop) <= troundoff) {
+      troundoff = FUZZ_FACTOR*uround*(SUN_ABS(tn) + SUN_ABS(h));
+      if ( SUN_ABS(tn - tstop) <= troundoff) {
         (void) cpGetSolution(cp_mem, tstop, yout, ypout);
         tretlast = *tret = tstop;
         tstopset = FALSE;
@@ -1611,7 +1611,7 @@ int CPodeGetDky(void *cpode_mem, realtype t, int k, N_Vector dky)
   }
   
   /* Allow for some slack */
-  tfuzz = FUZZ_FACTOR * uround * (ABS(tn) + ABS(hu));
+  tfuzz = FUZZ_FACTOR * uround * (SUN_ABS(tn) + SUN_ABS(hu));
   if (hu < ZERO) tfuzz = -tfuzz;
   tp = tn - hu - tfuzz;
   tn1 = tn + tfuzz;
@@ -1695,7 +1695,7 @@ int CPodeGetQuadDky(void *cpode_mem, realtype t, int k, N_Vector dkyQ)
   }
   
   /* Allow for some slack */
-  tfuzz = FUZZ_FACTOR * uround * (ABS(tn) + ABS(hu));
+  tfuzz = FUZZ_FACTOR * uround * (SUN_ABS(tn) + SUN_ABS(hu));
   if (hu < ZERO) tfuzz = -tfuzz;
   tp = tn - hu - tfuzz;
   tn1 = tn + tfuzz;
@@ -2229,8 +2229,8 @@ static int cpHin(CPodeMem cp_mem, realtype tout)
   /* If tout is too close to tn, give up */
   if ((tdiff = tout-tn) == ZERO) return(CP_TOO_CLOSE);
   sign = (tdiff > ZERO) ? 1 : -1;
-  tdist = ABS(tdiff);
-  tround = uround * SUN_MAX(ABS(tn), ABS(tout));
+  tdist = SUN_ABS(tdiff);
+  tround = uround * SUN_MAX(SUN_ABS(tn), SUN_ABS(tout));
   if (tdist < TWO*tround) return(CP_TOO_CLOSE);
   
   /* Set lower and upper bounds on h0*/
@@ -2781,7 +2781,7 @@ int cpGetSolution(void *cpode_mem, realtype t, N_Vector yret, N_Vector ypret)
   cp_mem = (CPodeMem) cpode_mem;
 
   /* Allow for some slack */
-  tfuzz = FUZZ_FACTOR * uround * (ABS(tn) + ABS(hu));
+  tfuzz = FUZZ_FACTOR * uround * (SUN_ABS(tn) + SUN_ABS(hu));
   if (hu < ZERO) tfuzz = -tfuzz;
   tp = tn - hu - tfuzz;
   tn1 = tn + tfuzz;
@@ -2982,11 +2982,11 @@ static int cpQuadNls(CPodeMem cp_mem, realtype saved_t, int *ncfPtr)
 
   /* If we had maxncf failures or |h| = hmin, 
      return CP_REPTD_QUADFUNC_ERR. */
-  if ((ABS(h) <= hmin*ONEPSM) || (*ncfPtr == maxncf))
+  if ((SUN_ABS(h) <= hmin*ONEPSM) || (*ncfPtr == maxncf))
     return(CP_REPTD_QUADFUNC_ERR);    
 
   /* Reduce step size; return to reattempt the step */
-  eta = SUN_MAX(ETACF, hmin / ABS(h));
+  eta = SUN_MAX(ETACF, hmin / SUN_ABS(h));
   cpRescale(cp_mem);
 
   return(PREDICT_AGAIN);
@@ -3443,20 +3443,20 @@ static void cpSetTqBDF(CPodeMem cp_mem, realtype hsum, realtype alpha0,
   
   A1 = ONE - alpha0_hat + alpha0;
   A2 = ONE + q * A1;
-  tq[2] = ABS(alpha0 * (A2 / A1));
-  tq[5] = ABS((A2) / (l[q] * xi_inv/xistar_inv));
+  tq[2] = SUN_ABS(alpha0 * (A2 / A1));
+  tq[5] = SUN_ABS((A2) / (l[q] * xi_inv/xistar_inv));
   if (qwait == 1) {
     C = xistar_inv / l[q];
     A3 = alpha0 + ONE / q;
     A4 = alpha0_hat + xi_inv;
     CPrime = A3 / (ONE - A4 + A3);
-    tq[1] = ABS(CPrime / C);
+    tq[1] = SUN_ABS(CPrime / C);
     hsum += tau[q];
     xi_inv = h / hsum;
     A5 = alpha0 - (ONE / (q+1));
     A6 = alpha0_hat - xi_inv;
     CPrimePrime = A2 / (ONE - A6 + A5);
-    tq[3] = ABS(CPrimePrime * xi_inv * (q+2) * A5);
+    tq[3] = SUN_ABS(CPrimePrime * xi_inv * (q+2) * A5);
   }
   tq[4] = nlscoef * tq[2];
 }
@@ -3481,7 +3481,7 @@ static void cpSetTqBDF(CPodeMem cp_mem, realtype hsum, realtype alpha0,
  *
  * If the test fails, we undo the step just taken (call cpRestore) and 
  *
- *   - if maxnef error test failures have occurred or if ABS(h) = hmin,
+ *   - if maxnef error test failures have occurred or if SUN_ABS(h) = hmin,
  *     we return CP_ERR_FAILURE.
  *
  *   - if more than MXNEF1 error test failures have occurred, an order
@@ -3516,7 +3516,7 @@ static int cpDoErrorTest(CPodeMem cp_mem, realtype saved_t, realtype acor_norm,
   cpRestore(cp_mem, saved_t);
 
   /* At maxnef failures or |h| = hmin, return CP_ERR_FAILURE */
-  if ((ABS(h) <= hmin*ONEPSM) || (*nefPtr == maxnef)) return(CP_ERR_FAILURE);
+  if ((SUN_ABS(h) <= hmin*ONEPSM) || (*nefPtr == maxnef)) return(CP_ERR_FAILURE);
 
   /* Set etamax = 1 to prevent step size increase at end of this step */
   etamax = ONE;
@@ -3524,7 +3524,7 @@ static int cpDoErrorTest(CPodeMem cp_mem, realtype saved_t, realtype acor_norm,
   /* Set h ratio eta from dsm, rescale, and return for retry of step */
   if (*nefPtr <= MXNEF1) {
     eta = ONE / (RPowerR(BIAS2*dsm,ONE/L) + ADDON);
-    eta = SUN_MAX(ETAMIN, SUN_MAX(eta, hmin / ABS(h)));
+    eta = SUN_MAX(ETAMIN, SUN_MAX(eta, hmin / SUN_ABS(h)));
     if (*nefPtr >= SMALL_NEF) eta = SUN_MIN(eta, ETAMXF);
     cpRescale(cp_mem);
     return(PREDICT_AGAIN);
@@ -3532,7 +3532,7 @@ static int cpDoErrorTest(CPodeMem cp_mem, realtype saved_t, realtype acor_norm,
   
   /* After MXNEF1 failures, force an order reduction and retry step */
   if (q > 1) {
-    eta = SUN_MAX(ETAMIN, hmin / ABS(h));
+    eta = SUN_MAX(ETAMIN, hmin / SUN_ABS(h));
     cpAdjustOrder(cp_mem,-1);
     L = q;
     q--;
@@ -3542,7 +3542,7 @@ static int cpDoErrorTest(CPodeMem cp_mem, realtype saved_t, realtype acor_norm,
   }
 
   /* If already at order 1, restart: reload zn from scratch */
-  eta = SUN_MAX(ETAMIN, hmin / ABS(h));
+  eta = SUN_MAX(ETAMIN, hmin / SUN_ABS(h));
   h *= eta;
   next_h = h;
   hscale = h;
@@ -3658,7 +3658,7 @@ static void cpSetEta(CPodeMem cp_mem)
   } else {
     /* Limit eta by etamax and hmax, then set hprime */
     eta = SUN_MIN(eta, etamax);
-    eta /= SUN_MAX(ONE, ABS(h)*hmax_inv*eta);
+    eta /= SUN_MAX(ONE, SUN_ABS(h)*hmax_inv*eta);
     hprime = h * eta;
     if (qprime < q) nscon = 0;
   }
@@ -3890,7 +3890,7 @@ void cpBDFStab(CPodeMem cp_mem)
         qprime = q-1;
         eta = etaqm1; 
         eta = SUN_MIN(eta,etamax);
-        eta = eta/SUN_MAX(ONE,ABS(h)*hmax_inv*eta);
+        eta = eta/SUN_MAX(ONE,SUN_ABS(h)*hmax_inv*eta);
         hprime = h*eta;
         nor = nor + 1;
       }
@@ -3995,7 +3995,7 @@ static int cpSLdet(CPodeMem cp_mem)
       sumrsq = sumrsq + rat[i][k]*rat[i][k];
     } 
     rav[k] = PT25 * sumrat;
-    vrat[k] = ABS(PT25*sumrsq - rav[k]*rav[k]);
+    vrat[k] = SUN_ABS(PT25*sumrsq - rav[k]*rav[k]);
     
     qc[5][k] = ssdat[1][k]*ssdat[3][k] - ssdat[2][k]*ssdat[2][k];
     qc[4][k] = ssdat[2][k]*ssdat[3][k] - ssdat[1][k]*ssdat[4][k];
@@ -4025,7 +4025,7 @@ static int cpSLdet(CPodeMem cp_mem)
       
       drrmax = ZERO;
       for(k = 1;k<=3;k++) {
-        adrr = ABS(rav[k] - rr);
+        adrr = SUN_ABS(rav[k] - rr);
         drrmax = SUN_MAX(drrmax, adrr);
       }
       if (drrmax > vrrt2) {
@@ -4041,7 +4041,7 @@ static int cpSLdet(CPodeMem cp_mem)
 
     /* use the quartics to get rr. */
     
-    if (ABS(qco[1][1]) < TINY*ssmax[1]) {
+    if (SUN_ABS(qco[1][1]) < TINY*ssmax[1]) {
       kflag = -4;    
       return(kflag);
     }
@@ -4058,7 +4058,7 @@ static int cpSLdet(CPodeMem cp_mem)
     }
     qco[1][3] = ZERO;
     
-    if (ABS(qco[2][2]) < TINY*ssmax[2]) {
+    if (SUN_ABS(qco[2][2]) < TINY*ssmax[2]) {
       kflag = -4;    
       return(kflag);
     }
@@ -4068,7 +4068,7 @@ static int cpSLdet(CPodeMem cp_mem)
       qco[i][3] = qco[i][3] - tem*qco[i][2];
     }
     
-    if (ABS(qco[4][3]) < TINY*ssmax[3]) {
+    if (SUN_ABS(qco[4][3]) < TINY*ssmax[3]) {
       kflag = -4;    
       return(kflag);
     }
@@ -4086,7 +4086,7 @@ static int cpSLdet(CPodeMem cp_mem)
     
     sqmax = ZERO;
     for(k=1; k<=3; k++) {
-      saqk = ABS(qkr[k])/ssmax[k];
+      saqk = SUN_ABS(qkr[k])/ssmax[k];
       if (saqk > sqmax) sqmax = saqk;
     } 
     
@@ -4103,7 +4103,7 @@ static int cpSLdet(CPodeMem cp_mem)
         for(k=1; k<=3; k++) {
           qp = qc[4][k] + rr*rr*(THREE*qc[2][k] + rr*FOUR*qc[1][k]);
           drr[k] = ZERO;
-          if (ABS(qp) > TINY*ssmax[k]) drr[k] = -qkr[k]/qp;
+          if (SUN_ABS(qp) > TINY*ssmax[k]) drr[k] = -qkr[k]/qp;
           rrc[k] = rr + drr[k];
         } 
         
@@ -4113,7 +4113,7 @@ static int cpSLdet(CPodeMem cp_mem)
           for(j=1; j<=3; j++) {
             qjk[j][k] = qc[5][j] + s*(qc[4][j] + 
                                       s*s*(qc[2][j] + s*qc[1][j]));
-            saqj = ABS(qjk[j][k])/ssmax[j];
+            saqj = SUN_ABS(qjk[j][k])/ssmax[j];
             if (saqj > sqmaxk) sqmaxk = saqj;
           } 
           sqmx[k] = sqmaxk;
@@ -4162,7 +4162,7 @@ static int cpSLdet(CPodeMem cp_mem)
     rd2b = rd1b - rd1c;
     rd3a = rd2a - rd2b;
     
-    if (ABS(rd1b) < TINY*smax[k]) {
+    if (SUN_ABS(rd1b) < TINY*smax[k]) {
       kflag = -7;
       return(kflag);
     }
@@ -4188,14 +4188,14 @@ static int cpSLdet(CPodeMem cp_mem)
   bb = ratp*ratm - ONE - qfac1*ratp;
   tem = ONE - qfac2*bb;
   
-  if (ABS(tem) < TINY) {
+  if (SUN_ABS(tem) < TINY) {
     kflag = -8;
     return(kflag);
   }
   
   rrb = ONE/tem;
   
-  if (ABS(rrb - rr) > rrtol) {
+  if (SUN_ABS(rrb - rr) > rrtol) {
     kflag = -9;
     return(kflag);
   }
@@ -4225,9 +4225,9 @@ static int cpSLdet(CPodeMem cp_mem)
  * This routine is responsible for setting the error weight vector ewt,
  * according to tol_type, as follows:
  *
- * (1) ewt[i] = 1 / (reltol * ABS(ycur[i]) + *abstol), i=0,...,neq-1
+ * (1) ewt[i] = 1 / (reltol * SUN_ABS(ycur[i]) + *abstol), i=0,...,neq-1
  *     if tol_type = CP_SS
- * (2) ewt[i] = 1 / (reltol * ABS(ycur[i]) + abstol[i]), i=0,...,neq-1
+ * (2) ewt[i] = 1 / (reltol * SUN_ABS(ycur[i]) + abstol[i]), i=0,...,neq-1
  *     if tol_type = CP_SV
  *
  * cpEwtSet returns 0 if ewt is successfully set as above to a

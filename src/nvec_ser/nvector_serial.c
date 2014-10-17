@@ -575,7 +575,7 @@ void N_VAbs_Serial(N_Vector x, N_Vector z)
   zd = NV_DATA_S(z);
 
   for (i = 0; i < N; i++)
-    zd[i] = ABS(xd[i]);
+    zd[i] = SUN_ABS(xd[i]);
 
   return;
 }
@@ -644,7 +644,7 @@ realtype N_VMaxNorm_Serial(N_Vector x)
   xd = NV_DATA_S(x);
 
   for (i = 0; i < N; i++) {
-    if (ABS(xd[i]) > max) max = ABS(xd[i]);
+    if (SUN_ABS(xd[i]) > max) max = SUN_ABS(xd[i]);
   }
 
   return(max);
@@ -744,7 +744,7 @@ realtype N_VL1Norm_Serial(N_Vector x)
   xd = NV_DATA_S(x);
   
   for (i = 0; i<N; i++)  
-    sum += ABS(xd[i]);
+    sum += SUN_ABS(xd[i]);
 
   return(sum);
 }
@@ -761,7 +761,7 @@ void N_VCompare_Serial(realtype c, N_Vector x, N_Vector z)
   zd = NV_DATA_S(z);
 
   for (i = 0; i < N; i++) {
-    zd[i] = (ABS(xd[i]) >= c) ? ONE : ZERO;
+    zd[i] = (SUN_ABS(xd[i]) >= c) ? ONE : ZERO;
   }
 
   return;

@@ -147,7 +147,7 @@ static realtype MaxError(N_Vector y, realtype t)
     for (i = 0; i < MESHX; i++) {
       k = i + j * MESHX;
       yt = RPowerI(t,i+j) * ex * ifact_inv * jfact_inv;
-      er = ABS(ydata[k] - yt);
+      er = SUN_ABS(ydata[k] - yt);
       if (er > maxError) maxError = er;
       ifact_inv /= (i+1);
     }

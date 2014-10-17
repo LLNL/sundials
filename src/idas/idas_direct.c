@@ -395,7 +395,7 @@ int idaDlsDenseDQJac(long int N, realtype tt, realtype c_j,
     adjustments using yp_j and ewt_j if this is small, and a further
     adjustment to give it the same sign as hh*yp_j. */
 
-    inc = SUN_MAX( srur * SUN_MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewt_data[j] );
+    inc = SUN_MAX( srur * SUN_MAX( SUN_ABS(yj), SUN_ABS(hh*ypj) ) , ONE/ewt_data[j] );
 
     if (hh*ypj < ZERO) inc = -inc;
     inc = (yj + inc) - yj;
@@ -403,8 +403,8 @@ int idaDlsDenseDQJac(long int N, realtype tt, realtype c_j,
     /* Adjust sign(inc) again if y_j has an inequality constraint. */
     if (constraints != NULL) {
       conj = cns_data[j];
-      if (ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
-      else if (ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
+      if (SUN_ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
+      else if (SUN_ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
     }
 
     /* Increment y_j and yp_j, call res, and break on error return. */
@@ -515,7 +515,7 @@ int idaDlsBandDQJac(long int N, long int mupper, long int mlower,
         adjustments using ypj and ewtj if this is small, and a further
         adjustment to give it the same sign as hh*ypj. */
 
-        inc = SUN_MAX( srur * SUN_MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewtj );
+        inc = SUN_MAX( srur * SUN_MAX( SUN_ABS(yj), SUN_ABS(hh*ypj) ) , ONE/ewtj );
 
         if (hh*ypj < ZERO) inc = -inc;
         inc = (yj + inc) - yj;
@@ -524,8 +524,8 @@ int idaDlsBandDQJac(long int N, long int mupper, long int mlower,
 
         if (constraints != NULL) {
           conj = cns_data[j];
-          if (ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
-          else if (ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
+          if (SUN_ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
+          else if (SUN_ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
         }
 
         /* Increment yj and ypj. */
@@ -553,13 +553,13 @@ int idaDlsBandDQJac(long int N, long int mupper, long int mlower,
       
       /* Set increment inc exactly as above. */
 
-      inc = SUN_MAX( srur * SUN_MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewtj );
+      inc = SUN_MAX( srur * SUN_MAX( SUN_ABS(yj), SUN_ABS(hh*ypj) ) , ONE/ewtj );
       if (hh*ypj < ZERO) inc = -inc;
       inc = (yj + inc) - yj;
       if (constraints != NULL) {
         conj = cns_data[j];
-        if (ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
-        else if (ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
+        if (SUN_ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
+        else if (SUN_ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
       }
       
       /* Load the difference quotient Jacobian elements for column j. */

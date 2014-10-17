@@ -55,8 +55,8 @@ extern "C" {
 #define SUN_SQR(A) ((A)*(A))
 #endif
 
-#ifndef ABS
-#define ABS RAbs
+#ifndef SUN_ABS
+#define SUN_ABS RAbs
 #endif
 
 #ifndef SQRT

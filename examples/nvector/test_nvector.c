@@ -53,9 +53,9 @@
 
 /* NAN and floating point "equality" check, failure update macro */
 #if __STDC_VERSION__ >= 199901L
-#define FNEQ(a,b) (isnan(a) ? 1 : ( ABS((a)-(b))/ABS(b) > 1.0e-15 ))
+#define FNEQ(a,b) (isnan(a) ? 1 : ( SUN_ABS((a)-(b))/SUN_ABS(b) > 1.0e-15 ))
 #else
-#define FNEQ(a,b) (( ABS((a)-(b))/ABS(b) > 1.0e-15 ))
+#define FNEQ(a,b) (( SUN_ABS((a)-(b))/SUN_ABS(b) > 1.0e-15 ))
 #endif
 
 

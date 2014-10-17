@@ -235,14 +235,14 @@ int cpDoProjection(CPodeMem cp_mem, realtype saved_t, int *npfPtr)
   
   /* If we had maxnpf failures or |h| = hmin, 
      return CP_PROJ_FAILURE or CP_REPTD_CNSTRFUNC_ERR or CP_REPTD_PROJFUNC_ERR. */
-  if ((ABS(h) <= hmin*ONEPSM) || (*npfPtr == maxnpf)) {
+  if ((SUN_ABS(h) <= hmin*ONEPSM) || (*npfPtr == maxnpf)) {
     if (flag == CONV_FAIL)       return(CP_PROJ_FAILURE);
     if (flag == CNSTRFUNC_RECVR) return(CP_REPTD_CNSTRFUNC_ERR);    
     if (flag == PROJFUNC_RECVR)  return(CP_REPTD_PROJFUNC_ERR);    
   }
 
   /* Reduce step size; return to reattempt the step */
-  eta = SUN_MAX(ETAPR, hmin / ABS(h));
+  eta = SUN_MAX(ETAPR, hmin / SUN_ABS(h));
   cpRescale(cp_mem);
 
   return(PREDICT_AGAIN);

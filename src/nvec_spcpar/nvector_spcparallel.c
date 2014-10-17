@@ -912,7 +912,7 @@ void N_VAbs_SpcParallel(N_Vector x, N_Vector z)
           Xblock = i * Ns;
           for (is=0; is<Ns; is++) {
             loc = Zblock + Yblock + Xblock + is;
-            zd[loc] = ABS(xd[loc]);
+            zd[loc] = SUN_ABS(xd[loc]);
           }
         }
       }
@@ -1098,7 +1098,7 @@ realtype N_VMaxNorm_SpcParallel(N_Vector x)
           Xblock = i * Ns;
           for (is=0; is<Ns; is++) {
             loc = Zblock + Yblock + Xblock + is;
-            if (ABS(xd[loc]) > max) max = ABS(xd[loc]);
+            if (SUN_ABS(xd[loc]) > max) max = SUN_ABS(xd[loc]);
           }
         }
       }
@@ -1366,7 +1366,7 @@ realtype N_VL1Norm_SpcParallel(N_Vector x)
           Xblock = i * Ns;
           for (is=0; is<Ns; is++) {
             loc = Zblock + Yblock + Xblock + is;
-            sum += ABS(xd[loc]);
+            sum += SUN_ABS(xd[loc]);
           }
         }
       }
@@ -1414,7 +1414,7 @@ void N_VCompare_SpcParallel(realtype c, N_Vector x, N_Vector z)
           Xblock = i * Ns;
           for (is=0; is<Ns; is++) {
             loc = Zblock + Yblock + Xblock + is;
-            zd[loc] = (ABS(xd[loc]) >= c) ? ONE : ZERO;
+            zd[loc] = (SUN_ABS(xd[loc]) >= c) ? ONE : ZERO;
           }
         }
       }

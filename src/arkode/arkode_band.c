@@ -216,7 +216,7 @@ static int arkBandSetup(ARKodeMem ark_mem, int convfail,
   arkdls_mem = (ARKDlsMem) ark_mem->ark_lmem;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-  dgamma = ABS((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
+  dgamma = SUN_ABS((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
   jbad = (ark_mem->ark_nst == 0) || 
     (ark_mem->ark_nst > arkdls_mem->d_nstlj + ARKD_MSBJ) ||
     ((convfail == ARK_FAIL_BAD_J) && (dgamma < ARKD_DGMAX)) ||

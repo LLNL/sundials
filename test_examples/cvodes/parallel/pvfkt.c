@@ -295,7 +295,7 @@ int main(int argc, char *argv[])
 
     pbar = (realtype *) malloc(NS*sizeof(realtype));
     if (check_flag((void *)pbar, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
-    for (is=0; is<NS; is++) pbar[is] = ABS(data->p[plist[is]-1]);
+    for (is=0; is<NS; is++) pbar[is] = SUN_ABS(data->p[plist[is]-1]);
 
     uS = N_VCloneVectorArray_Parallel(NS, u);
     if (check_flag((void *)uS, "N_VCloneVectorArray", 0, my_pe)) MPI_Abort(comm, 1);

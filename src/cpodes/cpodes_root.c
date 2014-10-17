@@ -198,7 +198,7 @@ int cpRcheck1(CPodeMem cp_mem)
   for (i = 0; i < nrtfn; i++) iroots[i] = 0;
 
   tlo = tn;
-  ttol = (ABS(tn) + ABS(h))*uround*FUZZ_FACTOR;
+  ttol = (SUN_ABS(tn) + SUN_ABS(h))*uround*FUZZ_FACTOR;
 
   /*
    * Evaluate g at initial t and check for zero values. 
@@ -212,7 +212,7 @@ int cpRcheck1(CPodeMem cp_mem)
 
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
-    if (ABS(glo[i]) == ZERO) {
+    if (SUN_ABS(glo[i]) == ZERO) {
       zroot = TRUE;
       gactive[i] = FALSE;
     }
@@ -226,7 +226,7 @@ int cpRcheck1(CPodeMem cp_mem)
    * y'(t0+smallh) = zn[1] 
    */
 
-  hratio = SUN_MAX(ttol/ABS(h), PT1);
+  hratio = SUN_MAX(ttol/SUN_ABS(h), PT1);
   smallh = hratio*h;
   tlo += smallh;
   N_VLinearSum(ONE, zn[0], hratio, zn[1], y);
@@ -240,7 +240,7 @@ int cpRcheck1(CPodeMem cp_mem)
    */
 
   for (i = 0; i < nrtfn; i++) {
-    if (!gactive[i] && ABS(glo[i]) != ZERO) {
+    if (!gactive[i] && SUN_ABS(glo[i]) != ZERO) {
       gactive[i] = TRUE;
     }
   }
@@ -291,7 +291,7 @@ int cpRcheck2(CPodeMem cp_mem)
   for (i = 0; i < nrtfn; i++) iroots[i] = 0;
   for (i = 0; i < nrtfn; i++) {
     if (!gactive[i]) continue;
-    if (ABS(glo[i]) == ZERO) {
+    if (SUN_ABS(glo[i]) == ZERO) {
       zroot = TRUE;
       iroots[i] = 1;
     }
@@ -302,7 +302,7 @@ int cpRcheck2(CPodeMem cp_mem)
   /* One or more g_i has a zero at tlo.
    * Evaluate g(tlo+smallh). */
 
-  ttol = (ABS(tn) + ABS(h))*uround*FUZZ_FACTOR;
+  ttol = (SUN_ABS(tn) + SUN_ABS(h))*uround*FUZZ_FACTOR;
   smallh = (h > ZERO) ? ttol : -ttol;
   tlo += smallh;
   if ( (tlo - tn)*h >= ZERO) {
@@ -321,7 +321,7 @@ int cpRcheck2(CPodeMem cp_mem)
 
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
-    if (ABS(glo[i]) == ZERO) {
+    if (SUN_ABS(glo[i]) == ZERO) {
       if (!gactive[i]) continue;
       if (iroots[i] == 1) { iroots[i] = 0; gactive[i] = FALSE; }
       else                { iroots[i] = 1; zroot = TRUE; }
@@ -370,7 +370,7 @@ int cpRcheck3(CPodeMem cp_mem)
   if (retval != 0) return(CP_RTFUNC_FAIL);
 
   /* Call cpRootfind to search (tlo,thi) for roots. */
-  ttol = (ABS(tn) + ABS(h))*uround*FUZZ_FACTOR;
+  ttol = (SUN_ABS(tn) + SUN_ABS(h))*uround*FUZZ_FACTOR;
   ier = cpRootfind(cp_mem, ttol);
 
   /* If the root function g failed, return now */
@@ -435,7 +435,7 @@ int cpRcheck3(CPodeMem cp_mem)
  *            When a root at trout is found, it is located only to
  *            within a tolerance of ttol.  Typically, ttol should
  *            be set to a value on the order of
- *               100 * UROUND * max (ABS(tlo), ABS(thi))
+ *               100 * UROUND * max (SUN_ABS(tlo), SUN_ABS(thi))
  *            where UROUND is the unit roundoff of the machine.
  *
  * tlo, thi = endpoints of the interval in which roots are sought.
@@ -537,13 +537,13 @@ static int cpRootfind(CPodeMem cp_mem, realtype ttol)
     /* If tmid is too close to tlo or thi, adjust it inward,
      * by a fractional distance that is between 0.1 and 0.5. */
 
-    if (ABS(tmid - tlo) < HALF*ttol) {
-      fracint = ABS(thi - tlo)/ttol;
+    if (SUN_ABS(tmid - tlo) < HALF*ttol) {
+      fracint = SUN_ABS(thi - tlo)/ttol;
       fracsub = (fracint > FIVE) ? PT1 : HALF/fracint;
       tmid = tlo + fracsub*(thi - tlo);
     }
-    if (ABS(thi - tmid) < HALF*ttol) {
-      fracint = ABS(thi - tlo)/ttol;
+    if (SUN_ABS(thi - tmid) < HALF*ttol) {
+      fracint = SUN_ABS(thi - tlo)/ttol;
       fracsub = (fracint > FIVE) ? PT1 : HALF/fracint;
       tmid = thi - fracsub*(thi - tlo);
     }
@@ -594,7 +594,7 @@ static int cpRootfind(CPodeMem cp_mem, realtype ttol)
     if (zroot) {
 
       for (i = 0; i < nrtfn; i++) ghi[i] = grout[i];
-      if (ABS(thi - tlo) <= ttol) break;
+      if (SUN_ABS(thi - tlo) <= ttol) break;
 
       side = 1;
       if (sideprev == 1) alpha = alpha*HALF;
@@ -617,7 +617,7 @@ static int cpRootfind(CPodeMem cp_mem, realtype ttol)
 
     for (i = 0; i < nrtfn; i++) glo[i] = grout[i];
 
-    if (ABS(thi - tlo) <= ttol) break;
+    if (SUN_ABS(thi - tlo) <= ttol) break;
 
     tmid = thi;
   

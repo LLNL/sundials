@@ -1352,8 +1352,8 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
   /* Check if tBout is legal */
 
   if ( (sign*(tBout-tinitial) < ZERO) || (sign*(tfinal-tBout) < ZERO) ) {
-    tfuzz = HUNDRED*uround*(ABS(tinitial) + ABS(tfinal));
-    if ( (sign*(tBout-tinitial) < ZERO) && (ABS(tBout-tinitial) < tfuzz) ) {
+    tfuzz = HUNDRED*uround*(SUN_ABS(tinitial) + SUN_ABS(tfinal));
+    if ( (sign*(tBout-tinitial) < ZERO) && (SUN_ABS(tBout-tinitial) < tfuzz) ) {
       tBout = tinitial;
     } else {
       cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeB", MSGCV_BAD_TBOUT);
@@ -2231,7 +2231,7 @@ static int CVAfindIndex(CVodeMem cv_mem, realtype t,
 
     if ( *indx == 0 ) {
       /* t is beyond leftmost limit. Is it too far? */  
-      if ( ABS(t - dt_mem[0]->t) > FUZZ_FACTOR * uround ) {
+      if ( SUN_ABS(t - dt_mem[0]->t) > FUZZ_FACTOR * uround ) {
         return(CV_GETY_BADT);
       }
     }
@@ -2832,7 +2832,7 @@ static int CVApolynomialGetY(CVodeMem cv_mem, realtype t,
 
   /* Scaling factor */
 
-  dt = ABS(dt_mem[indx]->t - dt_mem[indx-1]->t);
+  dt = SUN_ABS(dt_mem[indx]->t - dt_mem[indx-1]->t);
 
   /* Find the direction of the forward integration */
 

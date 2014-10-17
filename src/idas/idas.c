@@ -2249,12 +2249,12 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
        check for approach to tstop, and scale phi[1], phiQ[1], and phiS[1] by hh.
        Also check for zeros of root function g at and near t0.    */
 
-    tdist = ABS(tout - tn);
+    tdist = SUN_ABS(tout - tn);
     if (tdist == ZERO) {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve", MSG_TOO_CLOSE);
       return(IDA_ILL_INPUT);
     }
-    troundoff = TWO*uround*(ABS(tn) + ABS(tout));    
+    troundoff = TWO*uround*(SUN_ABS(tn) + SUN_ABS(tout));
     if (tdist < troundoff) {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve", MSG_TOO_CLOSE);
       return(IDA_ILL_INPUT);
@@ -2280,7 +2280,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
       if (tout < tn) hh = -hh;
     }
 
-    rh = ABS(hh)*hmax_inv;
+    rh = SUN_ABS(hh)*hmax_inv;
     if (rh > ONE) hh /= rh;
 
     if (tstopset) {
@@ -2356,8 +2356,8 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 
       /* If tn is distinct from tretlast (within roundoff),
          check remaining interval for roots */
-      troundoff = HUNDRED*uround*(ABS(tn) + ABS(hh));
-      if ( ABS(tn - tretlast) > troundoff ) {
+      troundoff = HUNDRED*uround*(SUN_ABS(tn) + SUN_ABS(hh));
+      if ( SUN_ABS(tn - tretlast) > troundoff ) {
         ier = IDARcheck3(IDA_mem);
         if (ier == IDA_SUCCESS) {     /* no root found */
           irfnd = 0;
@@ -2488,8 +2488,8 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 
     /* If tstop is set and was reached, reset tn = tstop */
     if (tstopset) {
-      troundoff = HUNDRED*uround*(ABS(tn) + ABS(hh));
-      if (ABS(tn - tstop) <= troundoff) tn = tstop;
+      troundoff = HUNDRED*uround*(SUN_ABS(tn) + SUN_ABS(hh));
+      if (SUN_ABS(tn - tstop) <= troundoff) tn = tstop;
     }
 
     /* After successful step, check for stop conditions; continue or break. */
@@ -2592,7 +2592,7 @@ int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky)
 
   /* Check t for legality.  Here tn - hused is t_{n-1}. */
 
-  tfuzz = HUNDRED * uround * (ABS(tn) + ABS(hh));
+  tfuzz = HUNDRED * uround * (SUN_ABS(tn) + SUN_ABS(hh));
   if (hh < ZERO) tfuzz = - tfuzz;
   tp = tn - hused - tfuzz;
   if ((t - tp)*hh < ZERO) {
@@ -2931,7 +2931,7 @@ int IDAGetSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyS)
 
   /* Check t for legality.  Here tn - hused is t_{n-1}. */
  
-  tfuzz = HUNDRED * uround * (ABS(tn) + ABS(hh));
+  tfuzz = HUNDRED * uround * (SUN_ABS(tn) + SUN_ABS(hh));
   if (hh < ZERO) tfuzz = - tfuzz;
   tp = tn - hused - tfuzz;
   if ((t - tp)*hh < ZERO) {
@@ -3163,7 +3163,7 @@ int IDAGetQuadSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyQS)
 
   /* Check t for legality.  Here tn - hused is t_{n-1}. */
  
-  tfuzz = HUNDRED * uround * (ABS(tn) + ABS(hh));
+  tfuzz = HUNDRED * uround * (SUN_ABS(tn) + SUN_ABS(hh));
   if (hh < ZERO) tfuzz = - tfuzz;
   tp = tn - hused - tfuzz;
   if ((t - tp)*hh < ZERO) {
@@ -4043,9 +4043,9 @@ int IDAInitialSetup(IDAMem IDA_mem)
  *
  * This routine is responsible for loading the error weight vector
  * ewt, according to itol, as follows:
- * (1) ewt[i] = 1 / (rtol * ABS(ycur[i]) + atol), i=0,...,Neq-1
+ * (1) ewt[i] = 1 / (rtol * SUN_ABS(ycur[i]) + atol), i=0,...,Neq-1
  *     if itol = IDA_SS
- * (2) ewt[i] = 1 / (rtol * ABS(ycur[i]) + atol[i]), i=0,...,Neq-1
+ * (2) ewt[i] = 1 / (rtol * SUN_ABS(ycur[i]) + atol[i]), i=0,...,Neq-1
  *     if itol = IDA_SV
  *
  *  IDAEwtSet returns 0 if ewt is successfully set as above to a
@@ -4421,8 +4421,8 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
     }
 
     if (tstopset) {
-      troundoff = HUNDRED*uround*(ABS(tn) + ABS(hh));
-      if (ABS(tn - tstop) <= troundoff) {
+      troundoff = HUNDRED*uround*(SUN_ABS(tn) + SUN_ABS(hh));
+      if (SUN_ABS(tn - tstop) <= troundoff) {
         ier = IDAGetSolution(IDA_mem, tstop, yret, ypret);
         if (ier != IDA_SUCCESS) {
           IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_BAD_TSTOP, tstop, tn);
@@ -4456,8 +4456,8 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
     }
 
     if (tstopset) {
-      troundoff = HUNDRED*uround*(ABS(tn) + ABS(hh));
-      if (ABS(tn - tstop) <= troundoff) {
+      troundoff = HUNDRED*uround*(SUN_ABS(tn) + SUN_ABS(hh));
+      if (SUN_ABS(tn - tstop) <= troundoff) {
         ier = IDAGetSolution(IDA_mem, tstop, yret, ypret);
         if (ier != IDA_SUCCESS) {
           IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_BAD_TSTOP, tstop, tn);
@@ -4517,8 +4517,8 @@ static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
 
       if (tstopset) {
         /* Test for tn at tstop and for tn near tstop */
-        troundoff = HUNDRED*uround*(ABS(tn) + ABS(hh));
-        if (ABS(tn - tstop) <= troundoff) {
+        troundoff = HUNDRED*uround*(SUN_ABS(tn) + SUN_ABS(hh));
+        if (SUN_ABS(tn - tstop) <= troundoff) {
           ier = IDAGetSolution(IDA_mem, tstop, yret, ypret);
           *tret = tretlast = tstop;
           tstopset = FALSE;
@@ -4534,8 +4534,8 @@ static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
 
       if (tstopset) {
         /* Test for tn at tstop and for tn near tstop */
-        troundoff = HUNDRED*uround*(ABS(tn) + ABS(hh));
-        if (ABS(tn - tstop) <= troundoff) {
+        troundoff = HUNDRED*uround*(SUN_ABS(tn) + SUN_ABS(hh));
+        if (SUN_ABS(tn - tstop) <= troundoff) {
           ier = IDAGetSolution(IDA_mem, tstop, yret, ypret);
           *tret = tretlast = tstop;
           tstopset = FALSE;
@@ -4890,7 +4890,7 @@ int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
 
   /* Check t for legality.  Here tn - hused is t_{n-1}. */
  
-  tfuzz = HUNDRED * uround * (ABS(tn) + ABS(hh));
+  tfuzz = HUNDRED * uround * (SUN_ABS(tn) + SUN_ABS(hh));
   if (hh < ZERO) tfuzz = - tfuzz;
   tp = tn - hused - tfuzz;
   if ((t - tp)*hh < ZERO) {
@@ -4972,7 +4972,7 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
   
   /* compute variable stepsize error coefficient ck */
 
-  *ck = ABS(alpha[kk] + alphas - alpha0);
+  *ck = SUN_ABS(alpha[kk] + alphas - alpha0);
   *ck = SUN_MAX(*ck, alpha[kk]);
 
  /* change phi to phi-star  */
@@ -6113,7 +6113,7 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
     if(nst > 1) {
       kk++;
       hnew = TWO * hh;
-      if( (tmp = ABS(hnew)*hmax_inv) > ONE ) hnew /= tmp;
+      if( (tmp = SUN_ABS(hnew)*hmax_inv) > ONE ) hnew /= tmp;
       hh = hnew;
     }
 
@@ -6185,7 +6185,7 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
     
     if (rr >= TWO) {
       hnew = TWO * hh;
-      if( (tmp = ABS(hnew)*hmax_inv) > ONE ) hnew /= tmp;
+      if( (tmp = SUN_ABS(hnew)*hmax_inv) > ONE ) hnew /= tmp;
     } else if (rr <= ONE ) { 
       rr = SUN_MAX(HALF, SUN_MIN(PT9,rr));
       hnew = hh * rr;
@@ -6401,7 +6401,7 @@ static int IDARcheck1(IDAMem IDA_mem)
 
   for (i = 0; i < nrtfn; i++) iroots[i] = 0;
   tlo = tn;
-  ttol = (ABS(tn) + ABS(hh))*uround*HUNDRED;
+  ttol = (SUN_ABS(tn) + SUN_ABS(hh))*uround*HUNDRED;
 
   /* Evaluate g at initial t and check for zero values. */
   retval = gfun (tlo, phi[0], phi[1], glo, user_data);
@@ -6410,7 +6410,7 @@ static int IDARcheck1(IDAMem IDA_mem)
 
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
-    if (ABS(glo[i]) == ZERO) {
+    if (SUN_ABS(glo[i]) == ZERO) {
       zroot = TRUE;
       gactive[i] = FALSE;
     }
@@ -6418,7 +6418,7 @@ static int IDARcheck1(IDAMem IDA_mem)
   if (!zroot) return(IDA_SUCCESS);
 
   /* Some g_i is zero at t0; look at g at t0+(small increment). */
-  hratio = SUN_MAX(ttol/ABS(hh), PT1);
+  hratio = SUN_MAX(ttol/SUN_ABS(hh), PT1);
   smallh = hratio*hh;
   tplus = tlo + smallh;
   N_VLinearSum(ONE, phi[0], smallh, phi[1], yy);
@@ -6429,7 +6429,7 @@ static int IDARcheck1(IDAMem IDA_mem)
   /* We check now only the components of g which were exactly 0.0 at t0
    * to see if we can 'activate' them. */
   for (i = 0; i < nrtfn; i++) {
-    if (!gactive[i] && ABS(ghi[i]) != ZERO) {
+    if (!gactive[i] && SUN_ABS(ghi[i]) != ZERO) {
       gactive[i] = TRUE;
       glo[i] = ghi[i];
     }
@@ -6475,7 +6475,7 @@ static int IDARcheck2(IDAMem IDA_mem)
   for (i = 0; i < nrtfn; i++) iroots[i] = 0;
   for (i = 0; i < nrtfn; i++) {
     if (!gactive[i]) continue;
-    if (ABS(glo[i]) == ZERO) {
+    if (SUN_ABS(glo[i]) == ZERO) {
       zroot = TRUE;
       iroots[i] = 1;
     }
@@ -6483,7 +6483,7 @@ static int IDARcheck2(IDAMem IDA_mem)
   if (!zroot) return(IDA_SUCCESS);
 
   /* One or more g_i has a zero at tlo.  Check g at tlo+smallh. */
-  ttol = (ABS(tn) + ABS(hh))*uround*HUNDRED;
+  ttol = (SUN_ABS(tn) + SUN_ABS(hh))*uround*HUNDRED;
   smallh = (hh > ZERO) ? ttol : -ttol;
   tplus = tlo + smallh;
   if ( (tplus - tn)*hh >= ZERO) {
@@ -6501,7 +6501,7 @@ static int IDARcheck2(IDAMem IDA_mem)
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
     if (!gactive[i]) continue;
-    if (ABS(ghi[i]) == ZERO) {
+    if (SUN_ABS(ghi[i]) == ZERO) {
       if (iroots[i] == 1) return(CLOSERT);
       zroot = TRUE;
       iroots[i] = 1;
@@ -6545,7 +6545,7 @@ static int IDARcheck3(IDAMem IDA_mem)
   nge++;
   if (retval != 0) return(IDA_RTFUNC_FAIL);
 
-  ttol = (ABS(tn) + ABS(hh))*uround*HUNDRED;
+  ttol = (SUN_ABS(tn) + SUN_ABS(hh))*uround*HUNDRED;
   ier = IDARootfind(IDA_mem);
   if (ier == IDA_RTFUNC_FAIL) return(IDA_RTFUNC_FAIL);
   for(i=0; i<nrtfn; i++) {
@@ -6604,7 +6604,7 @@ static int IDARcheck3(IDAMem IDA_mem)
  *            When a root at trout is found, it is located only to
  *            within a tolerance of ttol.  Typically, ttol should
  *            be set to a value on the order of
- *               100 * UROUND * max (ABS(tlo), ABS(thi))
+ *               100 * UROUND * max (SUN_ABS(tlo), SUN_ABS(thi))
  *            where UROUND is the unit roundoff of the machine.
  *
  * tlo, thi = endpoints of the interval in which roots are sought.
@@ -6654,13 +6654,13 @@ static int IDARootfind(IDAMem IDA_mem)
   sgnchg = FALSE;
   for (i = 0;  i < nrtfn; i++) {
     if(!gactive[i]) continue;
-    if (ABS(ghi[i]) == ZERO) {
+    if (SUN_ABS(ghi[i]) == ZERO) {
       if(rootdir[i]*glo[i] <= ZERO) {
         zroot = TRUE;
       }
     } else {
       if ( (glo[i]*ghi[i] < ZERO) && (rootdir[i]*glo[i] <= ZERO) ) {
-        gfrac = ABS(ghi[i]/(ghi[i] - glo[i]));
+        gfrac = SUN_ABS(ghi[i]/(ghi[i] - glo[i]));
         if (gfrac > maxfrac) {
           sgnchg = TRUE;
           maxfrac = gfrac;
@@ -6679,7 +6679,7 @@ static int IDARootfind(IDAMem IDA_mem)
     for (i = 0; i < nrtfn; i++) {
       iroots[i] = 0;
       if(!gactive[i]) continue;
-      if ( (ABS(ghi[i]) == ZERO) && (rootdir[i]*glo[i] <= ZERO) )
+      if ( (SUN_ABS(ghi[i]) == ZERO) && (rootdir[i]*glo[i] <= ZERO) )
         iroots[i] = glo[i] > 0 ? -1:1;
     }
     return(RTFOUND);
@@ -6694,7 +6694,7 @@ static int IDARootfind(IDAMem IDA_mem)
   loop {                                    /* Looping point */
 
     /* If interval size is already less than tolerance ttol, break. */
-      if (ABS(thi - tlo) <= ttol) break;
+      if (SUN_ABS(thi - tlo) <= ttol) break;
 
     /* Set weight alph.
        On the first two passes, set alph = 1.  Thereafter, reset alph
@@ -6716,13 +6716,13 @@ static int IDARootfind(IDAMem IDA_mem)
        If tmid is too close to tlo or thi, adjust it inward,
        by a fractional distance that is between 0.1 and 0.5.  */
     tmid = thi - (thi - tlo)*ghi[imax]/(ghi[imax] - alph*glo[imax]);
-    if (ABS(tmid - tlo) < HALF*ttol) {
-      fracint = ABS(thi - tlo)/ttol;
+    if (SUN_ABS(tmid - tlo) < HALF*ttol) {
+      fracint = SUN_ABS(thi - tlo)/ttol;
       fracsub = (fracint > FIVE) ? PT1 : HALF/fracint;
       tmid = tlo + fracsub*(thi - tlo);
     }
-    if (ABS(thi - tmid) < HALF*ttol) {
-      fracint = ABS(thi - tlo)/ttol;
+    if (SUN_ABS(thi - tmid) < HALF*ttol) {
+      fracint = SUN_ABS(thi - tlo)/ttol;
       fracsub = (fracint > FIVE) ? PT1 : HALF/fracint;
       tmid = thi - fracsub*(thi - tlo);
     }
@@ -6740,11 +6740,11 @@ static int IDARootfind(IDAMem IDA_mem)
     sideprev = side;
     for (i = 0;  i < nrtfn; i++) {
       if(!gactive[i]) continue;
-      if (ABS(grout[i]) == ZERO) {
+      if (SUN_ABS(grout[i]) == ZERO) {
         if(rootdir[i]*glo[i] <= ZERO) zroot = TRUE;
       } else {
         if ( (glo[i]*grout[i] < ZERO) && (rootdir[i]*glo[i] <= ZERO) ) {
-          gfrac = ABS(grout[i]/(grout[i] - glo[i]));
+          gfrac = SUN_ABS(grout[i]/(grout[i] - glo[i]));
           if (gfrac > maxfrac) {
             sgnchg = TRUE;
             maxfrac = gfrac;
@@ -6759,7 +6759,7 @@ static int IDARootfind(IDAMem IDA_mem)
       for (i = 0; i < nrtfn; i++) ghi[i] = grout[i];
       side = 1;
       /* Stop at root thi if converged; otherwise loop. */
-      if (ABS(thi - tlo) <= ttol) break;
+      if (SUN_ABS(thi - tlo) <= ttol) break;
       continue;  /* Return to looping point. */
     }
 
@@ -6776,7 +6776,7 @@ static int IDARootfind(IDAMem IDA_mem)
     for (i = 0; i < nrtfn; i++) glo[i] = grout[i];
     side = 2;
     /* Stop at root thi if converged; otherwise loop back. */
-    if (ABS(thi - tlo) <= ttol) break;
+    if (SUN_ABS(thi - tlo) <= ttol) break;
 
   } /* End of root-search loop */
 
@@ -6786,7 +6786,7 @@ static int IDARootfind(IDAMem IDA_mem)
     grout[i] = ghi[i];
     iroots[i] = 0;
     if(!gactive[i]) continue;
-    if ( (ABS(ghi[i]) == ZERO) && (rootdir[i]*glo[i] <= ZERO) ) 
+    if ( (SUN_ABS(ghi[i]) == ZERO) && (rootdir[i]*glo[i] <= ZERO) )
       iroots[i] = glo[i] > 0 ? -1:1;
     if ( (glo[i]*ghi[i] < ZERO) && (rootdir[i]*glo[i] <= ZERO) ) 
       iroots[i] = glo[i] > 0 ? -1:1;

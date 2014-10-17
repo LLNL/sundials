@@ -494,7 +494,7 @@ static void PrintOutput(N_Vector uB, UserData data)
   for(j=1; j<= MY; j++) {
     for(i=1; i<=MX; i++) {
       uBij = IJth(uBdata, i, j);
-      if (ABS(uBij) > uBmax) {
+      if (SUN_ABS(uBij) > uBmax) {
         uBmax = uBij;
         x = i*dx;
         y = j*dy;

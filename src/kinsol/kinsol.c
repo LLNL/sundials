@@ -1366,7 +1366,7 @@ static int KINFullNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
  *  rlmin = --------------------------
  *          ||           pp         ||
  *          || -------------------- ||_L-infinity
- *          || (1/uscale + ABS(uu)) ||
+ *          || (1/uscale + SUN_ABS(uu)) ||
  *
  *
  * If the system function fails unrecoverably at any time, KINLineSearch 
@@ -1522,7 +1522,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
       rl_b *= tmp1;
       disc = (rl_b * rl_b) - (THREE * rl_a * slpi);
 
-      if (ABS(rl_a) < uround) {        /* cubic is actually just a quadratic (rl_a ~ 0) */
+      if (SUN_ABS(rl_a) < uround) {        /* cubic is actually just a quadratic (rl_a ~ 0) */
         rltmp = -slpi / (TWO * rl_b);
       } else {                         /* real cubic */
         rltmp = (-rl_b + RSqrt(disc)) / (THREE * rl_a);
@@ -1599,7 +1599,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
     if ((rl < ONE) || ((rl > ONE) && (*f1normp > alpha_cond))) {
 
       rllo = SUN_MIN(rl, rlprev);
-      rldiff = ABS(rlprev - rl);
+      rldiff = SUN_ABS(rlprev - rl);
 
       do {
 
@@ -1688,7 +1688,7 @@ static int KINConstraint(KINMem kin_mem)
 
   if(N_VConstrMask(constraints, vtemp1, vtemp2)) return(KIN_SUCCESS);
 
-  /* vtemp1[i] = ABS(pp[i]) */
+  /* vtemp1[i] = SUN_ABS(pp[i]) */
 
   N_VAbs(pp, vtemp1);
 
@@ -1878,7 +1878,7 @@ static void KINForcingTerm(KINMem kin_mem, realtype fnormp)
     /* form the safeguarded for choice #1 */ 
 
     eta_safe = RPowerR(eta, ealpha); 
-    eta = ABS(fnormp - linmodel_norm) / fnorm; 
+    eta = SUN_ABS(fnormp - linmodel_norm) / fnorm;
   }
 
   /* choice #2 forcing term */

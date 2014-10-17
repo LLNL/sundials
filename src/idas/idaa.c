@@ -1514,8 +1514,8 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
 
   /* Check if tBout is legal */
   if ( (sign*(tBout-tinitial) < ZERO) || (sign*(tfinal-tBout) < ZERO) ) {
-    tfuzz = HUNDRED*uround*(ABS(tinitial) + ABS(tfinal));
-    if ( (sign*(tBout-tinitial) < ZERO) && (ABS(tBout-tinitial) < tfuzz) ) {
+    tfuzz = HUNDRED*uround*(SUN_ABS(tinitial) + SUN_ABS(tfinal));
+    if ( (sign*(tBout-tinitial) < ZERO) && (SUN_ABS(tBout-tinitial) < tfuzz) ) {
       tBout = tinitial;
     } else {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASolveB", MSGAM_BAD_TBOUT);
@@ -2896,7 +2896,7 @@ static int IDAApolynomialGetY(IDAMem IDA_mem, realtype t,
   }
 
   /* Scaling factor */
-  delt = ABS(dt_mem[indx]->t - dt_mem[indx-1]->t);
+  delt = SUN_ABS(dt_mem[indx]->t - dt_mem[indx-1]->t);
 
   /* Find the direction of the forward integration */
   dir = (tfinal - tinitial > ZERO) ? 1 : -1;
@@ -3157,7 +3157,7 @@ static int IDAAfindIndex(IDAMem ida_mem, realtype t,
 
     if ( *indx == 0 ) {
       /* t is beyond leftmost limit. Is it too far? */  
-      if ( ABS(t - dt_mem[0]->t) > FUZZ_FACTOR * uround ) {
+      if ( SUN_ABS(t - dt_mem[0]->t) > FUZZ_FACTOR * uround ) {
         return(IDA_GETY_BADT);
       }
     }

@@ -613,7 +613,7 @@ static int arkLapackDenseSetup(ARKodeMem ark_mem, int convfail,
   lenmat = arkdls_mem->d_M->ldata ;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-  dgamma = ABS((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
+  dgamma = SUN_ABS((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
   jbad = (ark_mem->ark_nst == 0) || 
     (ark_mem->ark_nst > arkdls_mem->d_nstlj + ARKD_MSBJ) ||
     ((convfail == ARK_FAIL_BAD_J) && (dgamma < ARKD_DGMAX)) ||
@@ -951,7 +951,7 @@ static int arkLapackBandSetup(ARKodeMem ark_mem, int convfail,
   ldmat = arkdls_mem->d_M->ldim;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-  dgamma = ABS((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
+  dgamma = SUN_ABS((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
   jbad = (ark_mem->ark_nst == 0) || 
     (ark_mem->ark_nst > arkdls_mem->d_nstlj + ARKD_MSBJ) ||
     ((convfail == ARK_FAIL_BAD_J) && (dgamma < ARKD_DGMAX)) ||

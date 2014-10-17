@@ -109,7 +109,7 @@ void GetSol(void *cpode_mem, N_Vector yy0, realtype tol,
 
   x  = Ith(yy,1);
   y  = Ith(yy,2);
-  g = ABS(x*x + y*y - 1.0);
+  g = SUN_ABS(x*x + y*y - 1.0);
 
   N_VLinearSum(1.0, yy, -1.0, yref, yy);
 

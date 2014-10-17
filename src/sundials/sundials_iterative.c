@@ -190,7 +190,7 @@ int QRfact(int n, realtype **h, realtype *q, int job)
       if( temp2 == ZERO) {
 	c = ONE;
 	s = ZERO;
-      } else if (ABS(temp2) >= ABS(temp1)) {
+      } else if (SUN_ABS(temp2) >= SUN_ABS(temp1)) {
 	temp3 = temp1/temp2;
 	s = -ONE/RSqrt(ONE+SUN_SQR(temp3));
 	c = -s*temp3;
@@ -233,7 +233,7 @@ int QRfact(int n, realtype **h, realtype *q, int job)
     if (temp2 == ZERO) {
       c = ONE;
       s = ZERO;
-    } else if (ABS(temp2) >= ABS(temp1)) {
+    } else if (SUN_ABS(temp2) >= SUN_ABS(temp1)) {
       temp3 = temp1/temp2;
       s = -ONE/RSqrt(ONE+SUN_SQR(temp3));
       c = -s*temp3;

@@ -343,7 +343,7 @@ static int cpSpbcgSetup(CPodeMem cp_mem, int convfail,
   case CP_EXPL:
 
     /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-    dgamma = ABS((gamma/gammap) - ONE);
+    dgamma = SUN_ABS((gamma/gammap) - ONE);
     jbad = (nst == 0) || (nst > nstlpre + CPSPILS_MSBPRE) ||
       ((convfail == CP_FAIL_BAD_J) && (dgamma < CPSPILS_DGMAX)) ||
       (convfail == CP_FAIL_OTHER);

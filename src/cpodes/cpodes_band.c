@@ -305,7 +305,7 @@ static int cpBandSetup(CPodeMem cp_mem, int convfail,
   case CP_EXPL:
 
     /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-    dgamma = ABS((gamma/gammap) - ONE);
+    dgamma = SUN_ABS((gamma/gammap) - ONE);
     jbad = (nst == 0) || (nst > nstlj + CPD_MSBJ) ||
       ((convfail == CP_FAIL_BAD_J) && (dgamma < CPD_DGMAX)) ||
       (convfail == CP_FAIL_OTHER);

@@ -638,7 +638,7 @@ void N_VScale_OpenMP(realtype c, N_Vector x, N_Vector z)
 
 
 /* ----------------------------------------------------------------------------
- * Compute absolute value of vector components z[i] = ABS(x[i])
+ * Compute absolute value of vector components z[i] = SUN_ABS(x[i])
  */
 
 void N_VAbs_OpenMP(N_Vector x, N_Vector z)
@@ -654,7 +654,7 @@ void N_VAbs_OpenMP(N_Vector x, N_Vector z)
 
 #pragma omp parallel for schedule(static) num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++)
-    zd[i] = ABS(xd[i]);
+    zd[i] = SUN_ABS(xd[i]);
 
   return;
 }
@@ -755,7 +755,7 @@ realtype N_VMaxNorm_OpenMP(N_Vector x)
     tmax = ZERO;
 #pragma omp for schedule(static)
     for (i = 0; i < N; i++) {
-      if (ABS(xd[i]) > tmax) tmax = ABS(xd[i]);
+      if (SUN_ABS(xd[i]) > tmax) tmax = SUN_ABS(xd[i]);
     }
 #pragma omp critical 
     {
@@ -903,7 +903,7 @@ realtype N_VL1Norm_OpenMP(N_Vector x)
 #pragma omp parallel for default(none) private(i) shared(N,xd) \
   reduction(+:sum) schedule(static) num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i<N; i++)  
-    sum += ABS(xd[i]);
+    sum += SUN_ABS(xd[i]);
 
   return(sum);
 }
@@ -927,7 +927,7 @@ void N_VCompare_OpenMP(realtype c, N_Vector x, N_Vector z)
 #pragma omp parallel for default(none) private(i) shared(N,c,xd,zd) schedule(static) \
    num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++) {
-    zd[i] = (ABS(xd[i]) >= c) ? ONE : ZERO;
+    zd[i] = (SUN_ABS(xd[i]) >= c) ? ONE : ZERO;
   }
 
   return;

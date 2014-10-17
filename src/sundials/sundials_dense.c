@@ -96,7 +96,7 @@ long int denseGETRF(realtype **a, long int m, long int n, long int *p)
     /* find l = pivot row number */
     l=k;
     for (i=k+1; i < m; i++)
-      if (ABS(col_k[i]) > ABS(col_k[l])) l=i;
+      if (SUN_ABS(col_k[i]) > SUN_ABS(col_k[l])) l=i;
     p[k] = l;
 
     /* check for zero pivot element */

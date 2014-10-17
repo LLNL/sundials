@@ -975,7 +975,7 @@ void N_VAbs_Parallel_Grid(N_Vector x, N_Vector z)
   N  = NV_DATALEN_PG(x);
   xd = NV_DATA_PG(x);
   zd = NV_DATA_PG(z);
-  for (i=0; i<N; i++)   zd[i] = ABS(xd[i]);
+  for (i=0; i<N; i++)   zd[i] = SUN_ABS(xd[i]);
 
   return;
 }
@@ -1085,12 +1085,12 @@ realtype N_VMaxNorm_Parallel_Grid(N_Vector x)
   max = ZERO;
   if (NV_FORDER_PG(x)) {
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
-      if (ABS(xd[i]) > max) max = ABS(xd[i]);
+      if (SUN_ABS(xd[i]) > max) max = SUN_ABS(xd[i]);
     }
     NV_LOOPEND_PG();
   } else {
     NV_CLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
-      if (ABS(xd[i]) > max) max = ABS(xd[i]);
+      if (SUN_ABS(xd[i]) > max) max = SUN_ABS(xd[i]);
     }
     NV_LOOPEND_PG();
   }
@@ -1283,12 +1283,12 @@ realtype N_VL1Norm_Parallel_Grid(N_Vector x)
   /* iterate over active values to compute norm */
   if (NV_FORDER_PG(x)) {
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
-      sum += ABS(xd[i]);
+      sum += SUN_ABS(xd[i]);
     }
     NV_LOOPEND_PG();
   } else {
     NV_CLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
-      sum += ABS(xd[i]);
+      sum += SUN_ABS(xd[i]);
     }
     NV_LOOPEND_PG();
   }
@@ -1319,7 +1319,7 @@ void N_VCompare_Parallel_Grid(realtype c, N_Vector x, N_Vector z)
   /* perform operation on full domain (including grids) */
   N = NV_DATALEN_PG(x);
   for (i=0; i<N; i++) 
-    zd[i] = (ABS(xd[i]) >= c) ? ONE : ZERO;
+    zd[i] = (SUN_ABS(xd[i]) >= c) ? ONE : ZERO;
 
   return;
 }

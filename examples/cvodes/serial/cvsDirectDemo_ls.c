@@ -208,7 +208,7 @@ static int Problem1(void)
         break;
       }
       if (iout%2 == 0) {
-        er = ABS(NV_Ith_S(y,0)) / abstol;
+        er = SUN_ABS(NV_Ith_S(y,0)) / abstol;
         if (er > ero) ero = er;
         if (er > P1_TOL_FACTOR) {
           nerr++;
@@ -261,7 +261,7 @@ static int Problem1(void)
         break;
       }
       if (iout%2 == 0) {
-        er = ABS(NV_Ith_S(y,0)) / abstol;
+        er = SUN_ABS(NV_Ith_S(y,0)) / abstol;
         if (er > ero) ero = er;
         if (er > P1_TOL_FACTOR) {
           nerr++;
@@ -592,7 +592,7 @@ static realtype MaxError(N_Vector y, realtype t)
     for (i = 0; i < P2_MESHX; i++) {
       k = i + j * P2_MESHX;
       yt = RPowerI(t,i+j) * ex * ifact_inv * jfact_inv;
-      er = ABS(ydata[k] - yt);
+      er = SUN_ABS(ydata[k] - yt);
       if (er > maxError) maxError = er;
       ifact_inv /= (i+1);
     }

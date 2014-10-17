@@ -612,7 +612,7 @@ void N_VAbs_Parallel(N_Vector x, N_Vector z)
   zd = NV_DATA_P(z);
 
   for (i = 0; i < N; i++)
-    zd[i] = ABS(xd[i]);
+    zd[i] = SUN_ABS(xd[i]);
 
   return;
 }
@@ -686,7 +686,7 @@ realtype N_VMaxNorm_Parallel(N_Vector x)
   max = ZERO;
 
   for (i = 0; i < N; i++) {
-    if (ABS(xd[i]) > max) max = ABS(xd[i]);
+    if (SUN_ABS(xd[i]) > max) max = SUN_ABS(xd[i]);
   }
    
   gmax = VAllReduce_Parallel(max, 2, comm);
@@ -815,7 +815,7 @@ realtype N_VL1Norm_Parallel(N_Vector x)
   comm = NV_COMM_P(x);
 
   for (i = 0; i<N; i++) 
-    sum += ABS(xd[i]);
+    sum += SUN_ABS(xd[i]);
 
   gsum = VAllReduce_Parallel(sum, 1, comm);
 
@@ -834,7 +834,7 @@ void N_VCompare_Parallel(realtype c, N_Vector x, N_Vector z)
   zd = NV_DATA_P(z);
 
   for (i = 0; i < N; i++) {
-    zd[i] = (ABS(xd[i]) >= c) ? ONE : ZERO;
+    zd[i] = (SUN_ABS(xd[i]) >= c) ? ONE : ZERO;
   }
 
   return;

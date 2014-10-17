@@ -713,7 +713,7 @@ static int cpBBDDQJacExpl(CPBBDPrecData pdata, realtype t,
   /* Set minimum increment based on uround and norm of g */
   gnorm = N_VWrmsNorm(gy, ewt);
   minInc = (gnorm != ZERO) ?
-           (MIN_INC_MULT * ABS(h) * uround * Nlocal * gnorm) : ONE;
+           (MIN_INC_MULT * SUN_ABS(h) * uround * Nlocal * gnorm) : ONE;
 
   /* Set bandwidth and number of column groups for band differencing */
   width = mldq + mudq + 1;
@@ -724,7 +724,7 @@ static int cpBBDDQJacExpl(CPBBDPrecData pdata, realtype t,
     
     /* Increment all y_j in group */
     for(j=group-1; j < Nlocal; j+=width) {
-      inc = SUN_MAX(dqrely*ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUN_MAX(dqrely*SUN_ABS(y_data[j]), minInc/ewt_data[j]);
       ytemp_data[j] += inc;
     }
 
@@ -737,7 +737,7 @@ static int cpBBDDQJacExpl(CPBBDPrecData pdata, realtype t,
     for (j=group-1; j < Nlocal; j+=width) {
       ytemp_data[j] = y_data[j];
       col_j = BAND_COL(savedJ,j);
-      inc = SUN_MAX(dqrely*ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUN_MAX(dqrely*SUN_ABS(y_data[j]), minInc/ewt_data[j]);
       inc_inv = ONE/inc;
       i1 = SUN_MAX(0, j-mukeep);
       i2 = SUN_MIN(j+mlkeep, Nlocal-1);
@@ -825,7 +825,7 @@ static int cpBBDDQJacImpl(CPBBDPrecData pdata, realtype t, realtype gamma,
       /* Set increment inc to yj based on rel_yy*abs(yj), with
          adjustments using ypj and ewtj if this is small, and a further
          adjustment to give it the same sign as hh*ypj. */
-      inc = dqrely*SUN_MAX(ABS(yj), SUN_MAX( ABS(h*ypj), ONE/ewtj));
+      inc = dqrely*SUN_MAX(SUN_ABS(yj), SUN_MAX( SUN_ABS(h*ypj), ONE/ewtj));
       if (h*ypj < ZERO) inc = -inc;
       inc = (yj + inc) - yj;
       
@@ -847,7 +847,7 @@ static int cpBBDDQJacImpl(CPBBDPrecData pdata, realtype t, realtype gamma,
       ewtj = ewtdata[j];
 
       /* Set increment inc as before .*/
-      inc = dqrely*SUN_MAX(ABS(yj), SUN_MAX( ABS(h*ypj), ONE/ewtj));
+      inc = dqrely*SUN_MAX(SUN_ABS(yj), SUN_MAX( SUN_ABS(h*ypj), ONE/ewtj));
       if (h*ypj < ZERO) inc = -inc;
       inc = (yj + inc) - yj;
 

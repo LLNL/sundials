@@ -476,7 +476,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
 
   fac = N_VWrmsNorm (fc, rewt);
   N = NEQ+1;
-  r0 = RCONST(1000.0)*ABS(gamma)*uround*N*fac;
+  r0 = RCONST(1000.0)*SUN_ABS(gamma)*uround*N*fac;
   if (r0 == ZERO) r0 = ONE;
 
   for (igy = 0; igy < ngy; igy++) {
@@ -491,7 +491,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
         /* Generate the jth column as a difference quotient */
         jj = if0 + j; 
         save = cdata[jj];
-        r = SUN_MAX(srur*ABS(save),r0/rewtdata[jj]);
+        r = SUN_MAX(srur*SUN_ABS(save),r0/rewtdata[jj]);
         cdata[jj] += r;
         fac = -gamma/r;
         fblock (t, cdata, jx, jy, f1, wdata);
@@ -693,7 +693,7 @@ static int PrecondB(realtype t, N_Vector c,
   f1 = NV_DATA_S(vtemp1);
   fac = N_VWrmsNorm (fcB, rewt);
   N = NEQ;
-  r0 = RCONST(1000.0)*ABS(gamma)*uround*N*fac;
+  r0 = RCONST(1000.0)*SUN_ABS(gamma)*uround*N*fac;
   if (r0 == ZERO) r0 = ONE;
 
   for (igy = 0; igy < ngy; igy++) {
@@ -708,7 +708,7 @@ static int PrecondB(realtype t, N_Vector c,
         /* Generate the jth column as a difference quotient */
         jj = if0 + j; 
         save = cdata[jj];
-        r = SUN_MAX(srur*ABS(save),r0/rewtdata[jj]);
+        r = SUN_MAX(srur*SUN_ABS(save),r0/rewtdata[jj]);
         cdata[jj] += r;
         fac = gamma/r;
         fblock (t, cdata, jx, jy, f1, wdata);
@@ -1220,7 +1220,7 @@ static void PrintOutput(N_Vector cB, int ns, int mxns, WebData wdata)
     for (jy=MY-1; jy >= 0; jy--) {
       for (jx=0; jx < MX; jx++) {
         cij = cdata[(i-1) + jx*ns + jy*mxns];
-        if (ABS(cij) > cmax) {
+        if (SUN_ABS(cij) > cmax) {
           cmax = cij;
           x = jx * wdata->dx;
           y = jy * wdata->dy;

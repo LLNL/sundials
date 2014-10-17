@@ -715,7 +715,7 @@ static int cpLapackDenseSetup(CPodeMem cp_mem, int convfail,
   case CP_EXPL:
 
     /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-    dgamma = ABS((gamma/gammap) - ONE);
+    dgamma = SUN_ABS((gamma/gammap) - ONE);
     jbad = (nst == 0) || (nst > nstlj + CPD_MSBJ) ||
       ((convfail == CP_FAIL_BAD_J) && (dgamma < CPD_DGMAX)) ||
       (convfail == CP_FAIL_OTHER);
@@ -905,7 +905,7 @@ static int cpLapackBandSetup(CPodeMem cp_mem, int convfail,
   case CP_EXPL:
 
     /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-    dgamma = ABS((gamma/gammap) - ONE);
+    dgamma = SUN_ABS((gamma/gammap) - ONE);
     jbad = (nst == 0) || (nst > nstlj + CPD_MSBJ) ||
       ((convfail == CP_FAIL_BAD_J) && (dgamma < CPD_DGMAX)) ||
       (convfail == CP_FAIL_OTHER);
@@ -1175,10 +1175,10 @@ static int cpLapackDenseProjSetup(CPodeMem cp_mem, N_Vector y, N_Vector cy,
      * After the QR factorization, the diagonal elements of R should 
      * be in decreasing order of their absolute values.
      */
-    rim1 = ABS(G->data[0]);
+    rim1 = SUN_ABS(G->data[0]);
     for (i=1, nr=1; i<nc; i++, nr++) {
       col_i = G->cols[i];
-      ri = ABS(col_i[i]);
+      ri = SUN_ABS(col_i[i]);
       if (ri < 100*uround) break;
       if (ri/rim1 < RPowerR(uround, THREE/FOUR)) break;
     }
