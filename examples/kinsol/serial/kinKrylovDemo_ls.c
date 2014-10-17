@@ -626,7 +626,7 @@ static void InitUserData(UserData data)
   data->dx = (data->ax)/(MX-1);
   data->dy = (data->ay)/(MY-1);
   data->uround = UNIT_ROUNDOFF;
-  data->sqruround = SQRT(data->uround);
+  data->sqruround = SUN_SQRT(data->uround);
 
   /* Set up the coefficients a and b plus others found in the equations */
   np = data->np;

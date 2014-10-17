@@ -1139,7 +1139,7 @@ static int Precondbd(realtype tt, N_Vector cc,
 
   webdata = (UserData)user_data;
   uround = UNIT_ROUNDOFF;
-  sqru = SQRT(uround); 
+  sqru = SUN_SQRT(uround);
   thispe = webdata->thispe;
 
   mem = webdata->ida_mem;

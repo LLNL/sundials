@@ -59,8 +59,8 @@ extern "C" {
 #define SUN_ABS RAbs
 #endif
 
-#ifndef SQRT
-#define SQRT RSqrt
+#ifndef SUN_SQRT
+#define SUN_SQRT RSqrt
 #endif
 
 #ifndef SUN_EXP
