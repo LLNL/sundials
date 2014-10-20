@@ -1,4 +1,4 @@
-Modifications to SUNDIALS after 22 March 2012 Release - as of 8 Oct. 2014
+Modifications to SUNDIALS after 22 March 2012 Release - as of 20 Oct. 2014
 
 Note: Some of these modifications are actually accessible by the
 public by way of updates to the website after 3/22/12.
@@ -189,3 +189,9 @@ public by way of updates to the website after 3/22/12.
 
 51. Added options in CVODES for the user's pset, psolve, jtv functions for
     the backward problem to depend on the forward sensitivities.
+
+52. Added options in IDAS for the user's pset, psolve, jtv functions for
+    the backward problem to depend on the forward sensitivities.
+
+53. Changed macro names MIN, MAX, ABS, SQR, SQRT, EXP to SUN_MIN, etc.
+
