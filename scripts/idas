@@ -28,7 +28,6 @@ $tar $tarfile $distrobase/include/idas/idas_sptfqmr.h
 $tar $tarfile $distrobase/include/idas/idas_spils.h
 $tar $tarfile $distrobase/include/idas/idas_bbdpre.h
 $tar $tarfile $distrobase/include/idas/idas_superlumt.h
-$tar $tarfile $distrobase/include/idas/idas_sparse.h
 $tar $tarfile $distrobase/include/idas/idas_klu.h
 
 $tar $tarfile $distrobase/src/idas/LICENSE

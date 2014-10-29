@@ -26,6 +26,7 @@ $tar $tarfile $distrobase/include/cvodes/cvodes_spgmr.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_spbcgs.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_sptfqmr.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_spils.h
+$tar $tarfile $distrobase/include/cvodes/cvodes_sparse.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_bandpre.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_bbdpre.h
 
@@ -44,6 +45,7 @@ $tar $tarfile $distrobase/src/cvodes/cvodes_band.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_lapack.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_diag.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_spils.c
+$tar $tarfile $distrobase/src/cvodes/cvodes_sparse.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_spgmr.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_spbcgs.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_sptfqmr.c
@@ -53,6 +55,7 @@ $tar $tarfile $distrobase/src/cvodes/cvodes_impl.h
 $tar $tarfile $distrobase/src/cvodes/cvodes_direct_impl.h
 $tar $tarfile $distrobase/src/cvodes/cvodes_diag_impl.h
 $tar $tarfile $distrobase/src/cvodes/cvodes_spils_impl.h
+$tar $tarfile $distrobase/src/cvodes/cvodes_sparse_impl.h
 $tar $tarfile $distrobase/src/cvodes/cvodes_bandpre_impl.h
 $tar $tarfile $distrobase/src/cvodes/cvodes_bbdpre_impl.h
 
