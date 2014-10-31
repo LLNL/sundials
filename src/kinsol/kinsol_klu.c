@@ -127,8 +127,6 @@ int KINKLU(void *kin_mem_v, int n, int nnz)
 
   /* Allocate structures for KLU */
 
-  /* DO I ALLOCATE COMMON????*/
-
   klu_data->s_Symbolic = (klu_symbolic *)malloc(sizeof(klu_symbolic));
   klu_data->s_Numeric = (klu_numeric *)malloc(sizeof(klu_numeric));
 
@@ -153,6 +151,85 @@ int KINKLU(void *kin_mem_v, int n, int nnz)
   kinsls_mem->s_last_flag = KINSLS_SUCCESS;
 
   return(KINSLS_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * KINKLUReInit
+ * -----------------------------------------------------------------
+ * This routine reinitializes memory and flags for a new factorization 
+ * (symbolic and numeric) to be conducted at the next solver setup
+ * call.  This routine is useful in the cases where the number of nonzeroes 
+ * has changed or if the structure of the linear system has changed
+ * which would require a new symbolic (and numeric factorization).
+ *
+ * The reinit_type argumenmt governs the level of reinitialization:
+ *
+ * reinit_type = 1: The Jacobian matrix will be destroyed and 
+ *                  a new one will be allocated based on the nnz
+ *                  value passed to this call. New symbolic and
+ *                  numeric factorizations will be completed at the next
+ *                  solver setup.
+ *
+ * reinit_type = 2: Only symbolic and numeric factorizations will be 
+ *                  completed.  It is assumed that the Jacobian size
+ *                  has not exceeded the size of nnz given in the prior
+ *                  call to KINKLU.
+ *
+ * This routine assumes no other changes to solver use are necessary.
+ *
+ * The return value is KINSLS_SUCCESS = 0, KINSLS_LMEM_FAIL = -1,
+ * or KINSLS_ILL_INPUT = -2.
+ *
+ * -----------------------------------------------------------------
+ */
+
+int KINKLUReInit(void *kin_mem_v, int n, int nnz, int reinit_type)
+{
+  KINMem kin_mem;
+  KINSlsMem kinsls_mem;
+  KLUData klu_data;
+  KINSlsSparseJacFn jaceval;
+  SlsMat JacMat;
+  void *jacdata;
+  int retval;
+
+  /* Return immediately if kin_mem is NULL. */
+  if (kin_mem == NULL) {
+    KINProcessError(NULL, KINSLS_MEM_NULL, "KINSLS", "KINKLUReInit", 
+		    MSGSP_KINMEM_NULL);
+    return(KINSLS_MEM_NULL);
+  }
+  kin_mem = (KINMem) kin_mem_v;
+  kinsls_mem = (KINSlsMem) (kin_mem->kin_lmem);
+  klu_data = (KLUData) kinsls_mem->s_solver_data;
+
+  jaceval = kinsls_mem->s_jaceval;
+  jacdata = kinsls_mem->s_jacdata;
+  JacMat = kinsls_mem->s_JacMat;
+
+
+  if (reinit_type == 1) {
+
+    /* Destroy previous Jacobian information */
+    if (kinsls_mem->s_JacMat) {
+      DestroySparseMat(kinsls_mem->s_JacMat);
+    }
+
+    /* Allocate memory for the sparse Jacobian */
+    kinsls_mem->s_JacMat = NewSparseMat(n, n, nnz);
+    if (kinsls_mem->s_JacMat == NULL) {
+      KINProcessError(kin_mem, KINSLS_MEM_FAIL, "KINSLS", "KINKLU", 
+		    MSGSP_MEM_FAIL);
+      return(KINSLS_MEM_FAIL);
+    }
+  }
+
+  kinsls_mem->s_first_factorize = 1;
+
+  kinsls_mem->s_last_flag = KINSLS_SUCCESS;
+
+  return(0);
 }
 
 /*
@@ -248,24 +325,65 @@ static int kinKLUSetup(KINMem kin_mem)
       return(KINSLS_PACKAGE_FAIL);
     }
 
+    /* ------------------------------------------------------------
+       Compute the LU factorization of the Jacobian.
+       ------------------------------------------------------------*/
+    klu_data->s_Numeric = klu_factor(JacMat->colptrs, JacMat->rowvals, 
+				     JacMat->data, klu_data->s_Symbolic, 
+				     &(klu_data->s_Common));
+
+    if (klu_data->s_Numeric == NULL) {
+      KINProcessError(kin_mem, KINSLS_PACKAGE_FAIL, "KINSLS", "kinKLUSetup", 
+		      MSGSP_PACKAGE_FAIL);
+      return(KINSLS_PACKAGE_FAIL);
+    }
+
     kinsls_mem->s_first_factorize = 0;
+
   }
   else {
-    klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+    
+    retval = klu_refactor(JacMat->colptrs, JacMat->rowvals, JacMat->data, 
+			klu_data->s_Symbolic, klu_data->s_Numeric,
+			&(klu_data->s_Common));
+    if (retval == 0) {
+      KINProcessError(kin_mem, KINSLS_PACKAGE_FAIL, "KINSLS", "kinKLUSetup", 
+		      MSGSP_PACKAGE_FAIL);
+      return(KINSLS_PACKAGE_FAIL);
+    }
+
+    /*-----------------------------------------------------------
+      Check if the pivots are getting too small.  If so, delete
+      the prior numeric factorization and recompute it.
+      -----------------------------------------------------------*/
+    
+    retval = klu_rgrowth(JacMat->colptrs, JacMat->rowvals, JacMat->data, 
+			klu_data->s_Symbolic, klu_data->s_Numeric,
+			&(klu_data->s_Common));
+    if (retval == 0) {
+      KINProcessError(kin_mem, KINSLS_PACKAGE_FAIL, "KINSLS", "kinKLUSetup", 
+		      MSGSP_PACKAGE_FAIL);
+      return(KINSLS_PACKAGE_FAIL);
+    }
+
+# if 1
+    if ( (klu_data->s_Common.rgrowth)  < SUN_SQRT((kin_mem->kin_uround)) ) {
+      klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+
+      klu_data->s_Numeric = klu_factor(JacMat->colptrs, JacMat->rowvals, 
+				     JacMat->data, klu_data->s_Symbolic, 
+				       &(klu_data->s_Common));
+
+      if (klu_data->s_Numeric == NULL) {
+	KINProcessError(kin_mem, KINSLS_PACKAGE_FAIL, "KINSLS", "kinKLUSetup", 
+			MSGSP_PACKAGE_FAIL);
+	return(KINSLS_PACKAGE_FAIL);
+      }
+    }
+#endif 
+
   }
 
-  /* ------------------------------------------------------------
-     Compute the LU factorization of the Jacobian.
-     ------------------------------------------------------------*/
-  klu_data->s_Numeric = klu_factor(JacMat->colptrs, JacMat->rowvals, 
-				   JacMat->data, klu_data->s_Symbolic, 
-				   &(klu_data->s_Common));
-
-  if (klu_data->s_Numeric == NULL) {
-    KINProcessError(kin_mem, KINSLS_PACKAGE_FAIL, "KINSLS", "kinKLUSetup", 
-		    MSGSP_PACKAGE_FAIL);
-    return(KINSLS_PACKAGE_FAIL);
-  }
 
   kinsls_mem->s_last_flag = KINSLS_SUCCESS;
 
