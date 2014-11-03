@@ -32,6 +32,7 @@
 
 #define ONE          RCONST(1.0)
 #define TWO          RCONST(2.0)
+#define TWOTHIRDS    RCONST(0.6666666666666667)
 
 /* KINKLU linit, lsetup, lsolve, and lfree routines */
  
@@ -276,7 +277,10 @@ static int kinKLUSetup(KINMem kin_mem)
   KLUData klu_data;
   SlsMat JacMat;
   void *jacdata;
-  
+  realtype uround, uround_twothirds;
+
+  uround = RPowerR(kin_mem->kin_uround,TWOTHIRDS);
+
   kinsls_mem = (KINSlsMem) (kin_mem->kin_lmem);
 
   klu_data = (KLUData) kinsls_mem->s_solver_data;
@@ -353,13 +357,13 @@ static int kinKLUSetup(KINMem kin_mem)
     }
 
     /*-----------------------------------------------------------
-      Check if the pivots are getting too small.  If so, delete
+      Check if a cheap estimate of the reciprocal of the condition 
+      number is getting too small.  If so, delete
       the prior numeric factorization and recompute it.
       -----------------------------------------------------------*/
     
-    retval = klu_rgrowth(JacMat->colptrs, JacMat->rowvals, JacMat->data, 
-			klu_data->s_Symbolic, klu_data->s_Numeric,
-			&(klu_data->s_Common));
+    retval = klu_rcond(klu_data->s_Symbolic, klu_data->s_Numeric,
+		       &(klu_data->s_Common));
     if (retval == 0) {
       KINProcessError(kin_mem, KINSLS_PACKAGE_FAIL, "KINSLS", "kinKLUSetup", 
 		      MSGSP_PACKAGE_FAIL);
@@ -367,23 +371,41 @@ static int kinKLUSetup(KINMem kin_mem)
     }
 
 # if 1
-    if ( (klu_data->s_Common.rgrowth)  < SUN_SQRT((kin_mem->kin_uround)) ) {
-      klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
-
-      klu_data->s_Numeric = klu_factor(JacMat->colptrs, JacMat->rowvals, 
-				     JacMat->data, klu_data->s_Symbolic, 
-				       &(klu_data->s_Common));
-
-      if (klu_data->s_Numeric == NULL) {
+    if ( (klu_data->s_Common.rcond)  < uround_twothirds ) {
+      
+      /* Condition number may be getting large.  
+	 Compute more accurate estimate */
+      retval = klu_condest(JacMat->colptrs, JacMat->data, 
+			   klu_data->s_Symbolic, klu_data->s_Numeric,
+			   &(klu_data->s_Common));
+      if (retval == 0) {
 	KINProcessError(kin_mem, KINSLS_PACKAGE_FAIL, "KINSLS", "kinKLUSetup", 
 			MSGSP_PACKAGE_FAIL);
 	return(KINSLS_PACKAGE_FAIL);
+      }
+      
+      if ( (klu_data->s_Common.condest) > 
+	   (1.0/uround_twothirds) ) {
+
+	/* More accurate estimate also says condition number is 
+	   large, so recompute the numeric factorization */
+
+	klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+	
+	klu_data->s_Numeric = klu_factor(JacMat->colptrs, JacMat->rowvals, 
+					 JacMat->data, klu_data->s_Symbolic, 
+					 &(klu_data->s_Common));
+
+	if (klu_data->s_Numeric == NULL) {
+	  KINProcessError(kin_mem, KINSLS_PACKAGE_FAIL, "KINSLS", 
+			  "kinKLUSetup", MSGSP_PACKAGE_FAIL);
+	  return(KINSLS_PACKAGE_FAIL);
+	}
       }
     }
 #endif 
 
   }
-
 
   kinsls_mem->s_last_flag = KINSLS_SUCCESS;
 
