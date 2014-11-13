@@ -212,7 +212,7 @@ int CPBBDPrecInit(void *cpode_mem, int Nlocal,
   pdata->tmp4 = tmp4;
 
   /* Set pdata->dqrely based on input dqrely (0 implies default). */
-  pdata->dqrely = (dqrely > ZERO) ? dqrely : RSqrt(uround);
+  pdata->dqrely = (dqrely > ZERO) ? dqrely : SUN_SQRT(uround);
 
   /* Store Nlocal to be used in cpBBDPrecSetupExpl and cpBBDPrecSetupImpl */
   pdata->n_local = Nlocal;
@@ -275,7 +275,7 @@ int CPBBDPrecReInit(void *cpode_mem, int mudq, int mldq, realtype dqrely)
   pdata->mldq = SUN_MIN(Nlocal-1, SUN_MAX(0,mldq));
 
   /* Set pdata->dqrely based on input dqrely (0 implies default). */
-  pdata->dqrely = (dqrely > ZERO) ? dqrely : RSqrt(uround);
+  pdata->dqrely = (dqrely > ZERO) ? dqrely : SUN_SQRT(uround);
 
   /* Re-initialize nge */
   pdata->nge = 0;

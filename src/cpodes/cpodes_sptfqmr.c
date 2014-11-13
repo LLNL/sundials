@@ -214,7 +214,7 @@ int CPSptfqmr(void *cpode_mem, int pretype, int maxl)
 
   /* Compute sqrtN from a dot product */
   N_VConst(ONE, ytemp);
-  sqrtN = RSqrt(N_VDotProd(ytemp, ytemp));
+  sqrtN = SUN_SQRT(N_VDotProd(ytemp, ytemp));
 
   /* Attach SPTFQMR memory to spils memory structure */
   spils_mem = (void *) sptfqmr_mem;

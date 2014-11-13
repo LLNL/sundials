@@ -2238,7 +2238,7 @@ static int cpHin(CPodeMem cp_mem, realtype tout)
   hub = cpUpperBoundH0(cp_mem, tdist);
 
   /* Compute geometric mean of lower and upper bounds */
-  hg  = RSqrt(hlb*hub);
+  hg  = SUN_SQRT(hlb*hub);
 
   /* If the bounds cross each other, use hg as initial step size */
   if (hub < hlb) {
@@ -2364,7 +2364,7 @@ static int cpHinExpl(CPodeMem cp_mem, realtype hlb, realtype hub, int sign, real
   booleantype hgOK, hnewOK;
 
   /* Initial estimate = geometric mean of computed bounds */
-  hg = RSqrt(hlb*hub);
+  hg = SUN_SQRT(hlb*hub);
 
   /* Outer loop */
 
@@ -2409,7 +2409,7 @@ static int cpHinExpl(CPodeMem cp_mem, realtype hlb, realtype hub, int sign, real
     if ( (hnewOK) || (count1 == H_MAXITERS))  {hnew = hg; break;}
 
     /* Propose new step size */
-    hnew = (yppnorm*hub*hub > TWO) ? RSqrt(TWO/yppnorm) : RSqrt(hg*hub);
+    hnew = (yppnorm*hub*hub > TWO) ? SUN_SQRT(TWO/yppnorm) : SUN_SQRT(hg*hub);
     hrat = hnew/hg;
     
     /* Accept hnew if it does not differ from hg by more than a factor of 2 */

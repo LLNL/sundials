@@ -537,7 +537,7 @@ int cpDlsDenseDQJacExpl(int N, realtype t,
   y_data   = N_VGetArrayPointer(y);
 
   /* Set minimum increment based on uround and norm of f */
-  srur = RSqrt(uround);
+  srur = SUN_SQRT(uround);
   fnorm = N_VWrmsNorm(fy, ewt);
   minInc = (fnorm != ZERO) ?
            (MIN_INC_MULT * SUN_ABS(h) * uround * N * fnorm) : ONE;
@@ -616,7 +616,7 @@ int cpDlsDenseDQJacImpl(int N, realtype t, realtype gm,
   yp_data  = N_VGetArrayPointer(yp);
 
   /* Set minimum increment based on uround and norm of f */
-  srur = RSqrt(uround);
+  srur = SUN_SQRT(uround);
 
   /* Generate each column of the Jacobian M = F_y' + gamma * F_y
      as delta(F)/delta(y_j). */
@@ -710,7 +710,7 @@ int cpDlsBandDQJacExpl(int N, int mupper, int mlower,
   N_VScale(ONE, y, ytemp);
 
   /* Set minimum increment based on uround and norm of f */
-  srur = RSqrt(uround);
+  srur = SUN_SQRT(uround);
   fnorm = N_VWrmsNorm(fy, ewt);
   minInc = (fnorm != ZERO) ?
            (MIN_INC_MULT * SUN_ABS(h) * uround * N * fnorm) : ONE;
@@ -794,7 +794,7 @@ int cpDlsBandDQJacImpl(int N, int mupper, int mlower,
   N_VScale(ONE, yp, yptemp);
 
   /* Compute miscellaneous values for the Jacobian computation. */
-  srur = RSqrt(uround);
+  srur = SUN_SQRT(uround);
   width = mlower + mupper + 1;
   ngroups = SUN_MIN(width, N);
 
@@ -903,7 +903,7 @@ int cpDlsDenseProjDQJac(int Nc, int Ny, realtype t,
   jthCol_data = N_VGetArrayPointer(jthCol);
 
   /* Set minimum increment based on uround and norm of f */
-  srur = RSqrt(uround);
+  srur = SUN_SQRT(uround);
 
   /* Generate each column of the Jacobian G = dc/dy as delta(c)/delta(y_j). */
   for (j = 0; j < Ny; j++) {

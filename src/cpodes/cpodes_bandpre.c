@@ -577,7 +577,7 @@ static int cpBandPDQJacExpl(CPBandPrecData pdata,
   N_VScale(ONE, y, ytemp);
 
   /* Set minimum increment based on uround and norm of f. */
-  srur = RSqrt(uround);
+  srur = SUN_SQRT(uround);
   fnorm = N_VWrmsNorm(fy, ewt);
   minInc = (fnorm != ZERO) ?
            (MIN_INC_MULT * SUN_ABS(h) * uround * N * fnorm) : ONE;
@@ -660,7 +660,7 @@ static int cpBandPDQJacImpl(CPBandPrecData pdata,
   N_VScale(ONE, yp, yptemp);
 
   /* Compute miscellaneous values for the Jacobian computation. */
-  srur = RSqrt(uround);
+  srur = SUN_SQRT(uround);
   width = ml + mu + 1;
   ngroups = SUN_MIN(width, N);
 
