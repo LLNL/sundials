@@ -789,7 +789,7 @@ realtype N_VWrmsNorm_OpenMP(N_Vector x, N_Vector w)
     sum += SUN_SQR(xd[i]*wd[i]);
   }
 
-  return(RSqrt(sum/N));
+  return(SUN_SQRT(sum/N));
 }
 
 
@@ -818,7 +818,7 @@ realtype N_VWrmsNormMask_OpenMP(N_Vector x, N_Vector w, N_Vector id)
     }
   }
 
-  return(RSqrt(sum / N));
+  return(SUN_SQRT(sum / N));
 }
 
 
@@ -881,7 +881,7 @@ realtype N_VWL2Norm_OpenMP(N_Vector x, N_Vector w)
     sum += SUN_SQR(xd[i]*wd[i]);
   }
 
-  return(RSqrt(sum));
+  return(SUN_SQRT(sum));
 }
 
 

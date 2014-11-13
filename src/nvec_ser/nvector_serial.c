@@ -667,7 +667,7 @@ realtype N_VWrmsNorm_Serial(N_Vector x, N_Vector w)
     sum += SUN_SQR(prodi);
   }
 
-  return(RSqrt(sum/N));
+  return(SUN_SQRT(sum/N));
 }
 
 realtype N_VWrmsNormMask_Serial(N_Vector x, N_Vector w, N_Vector id)
@@ -690,7 +690,7 @@ realtype N_VWrmsNormMask_Serial(N_Vector x, N_Vector w, N_Vector id)
     }
   }
 
-  return(RSqrt(sum / N));
+  return(SUN_SQRT(sum / N));
 }
 
 realtype N_VMin_Serial(N_Vector x)
@@ -729,7 +729,7 @@ realtype N_VWL2Norm_Serial(N_Vector x, N_Vector w)
     sum += SUN_SQR(prodi);
   }
 
-  return(RSqrt(sum));
+  return(SUN_SQRT(sum));
 }
 
 realtype N_VL1Norm_Serial(N_Vector x)

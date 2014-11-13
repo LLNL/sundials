@@ -1139,7 +1139,7 @@ realtype N_VWrmsNorm_Parallel_Grid(N_Vector x, N_Vector w)
   comm = NV_COMM_PG(x);
   gsum = VAllReduce_Parallel_Grid(sum, 1, comm);
 
-  return(RSqrt(gsum/NV_GLOBLENGTH_PG(x)));
+  return(SUN_SQRT(gsum/NV_GLOBLENGTH_PG(x)));
 }
 
 realtype N_VWrmsNormMask_Parallel_Grid(N_Vector x, N_Vector w, N_Vector id)
@@ -1188,7 +1188,7 @@ realtype N_VWrmsNormMask_Parallel_Grid(N_Vector x, N_Vector w, N_Vector id)
   comm = NV_COMM_PG(x);
   gsum = VAllReduce_Parallel_Grid(sum, 1, comm);
 
-  return(RSqrt(gsum/NV_GLOBLENGTH_PG(x)));
+  return(SUN_SQRT(gsum/NV_GLOBLENGTH_PG(x)));
 }
 
 realtype N_VMin_Parallel_Grid(N_Vector x)
@@ -1266,7 +1266,7 @@ realtype N_VWL2Norm_Parallel_Grid(N_Vector x, N_Vector w)
   comm = NV_COMM_PG(x);
   gsum = VAllReduce_Parallel_Grid(sum, 1, comm);
 
-  return(RSqrt(gsum));
+  return(SUN_SQRT(gsum));
 }
 
 realtype N_VL1Norm_Parallel_Grid(N_Vector x)

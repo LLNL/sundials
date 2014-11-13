@@ -1165,7 +1165,7 @@ realtype N_VWrmsNorm_SpcParallel(N_Vector x, N_Vector w)
   MPI_Allreduce(&sum, &gsum, 1, SPVEC_REAL_MPI_TYPE, MPI_SUM, comm);
 
   /* scale correctly and return */
-  return(RSqrt(gsum / Nglobal));
+  return(SUN_SQRT(gsum / Nglobal));
 }
 
 /* 
@@ -1222,7 +1222,7 @@ realtype N_VWrmsNormMask_SpcParallel(N_Vector x, N_Vector w, N_Vector id)
   MPI_Allreduce(&sum, &gsum, 1, SPVEC_REAL_MPI_TYPE, MPI_SUM, comm);
 
   /* scale result and return */
-  return(RSqrt(gsum / Nglobal));
+  return(SUN_SQRT(gsum / Nglobal));
 }
 
 /* 
@@ -1326,7 +1326,7 @@ realtype N_VWL2Norm_SpcParallel(N_Vector x, N_Vector w)
   gsum = ZERO;
   MPI_Allreduce(&sum, &gsum, 1, SPVEC_REAL_MPI_TYPE, MPI_SUM, comm);
 
-  return(RSqrt(gsum));
+  return(SUN_SQRT(gsum));
 }
 
 /* 
