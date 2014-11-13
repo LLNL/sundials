@@ -205,7 +205,7 @@ int SpfgmrSolve(SpfgmrMem mem, void *A_data, N_Vector x,
   }
 
   /* Set r_norm = beta to L2 norm of V[0] = s1 r_0, and return if small */
-  *res_norm = r_norm = beta = RSqrt(N_VDotProd(V[0], V[0])); 
+  *res_norm = r_norm = beta = SUN_SQRT(N_VDotProd(V[0], V[0]));
   if (r_norm <= delta)
     return(SPFGMR_SUCCESS);
 
