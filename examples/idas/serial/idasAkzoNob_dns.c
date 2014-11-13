@@ -238,11 +238,11 @@ static int res(realtype t, N_Vector yy, N_Vector yd, N_Vector res, void *userdat
   yd4 = Ith(yd,4);
   yd5 = Ith(yd,5);
 
-  r1 = k1 * RPowerI(y1,4) * RSqrt(y2);
+  r1 = k1 * RPowerI(y1,4) * SUN_SQRT(y2);
   r2 = k2 * y3 * y4;
   r3 = k2/K * y1 * y5;
   r4 = k3 * y1 * y4 * y4;
-  r5 = k4 * y6 * y6 * RSqrt(y2);
+  r5 = k4 * y6 * y6 * SUN_SQRT(y2);
   Fin = klA * ( pCO2/H - y2 );
 
   Ith(res,1) = yd1 + TWO*r1 - r2 + r3 + r4;
