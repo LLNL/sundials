@@ -181,7 +181,7 @@ int KINBBDPrecInit(void *kinmem, long int Nlocal,
   /* set rel_uu based on input value dq_rel_uu */
 
   if (dq_rel_uu > ZERO) pdata->rel_uu = dq_rel_uu;
-  else pdata->rel_uu = RSqrt(uround);  /* using dq_rel_uu = 0.0 means use default */
+  else pdata->rel_uu = SUN_SQRT(uround);  /* using dq_rel_uu = 0.0 means use default */
 
   /* store Nlocal to be used by the preconditioner routines */
 

@@ -667,9 +667,9 @@ int KINSetRelErrFunc(void *kinmem, realtype relfunc)
 
   if (relfunc == ZERO) {
     uround = kin_mem->kin_uround;
-    kin_mem->kin_sqrt_relfunc = RSqrt(uround);
+    kin_mem->kin_sqrt_relfunc = SUN_SQRT(uround);
   } else {
-    kin_mem->kin_sqrt_relfunc = RSqrt(relfunc);
+    kin_mem->kin_sqrt_relfunc = SUN_SQRT(relfunc);
   }
 
   return(KIN_SUCCESS);

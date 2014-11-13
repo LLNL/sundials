@@ -274,7 +274,7 @@ void *KINCreate(void)
   kin_mem->kin_sthrsh           = TWO;
   kin_mem->kin_noMinEps         = FALSE;
   kin_mem->kin_mxnstepin        = ZERO;
-  kin_mem->kin_sqrt_relfunc     = RSqrt(uround);
+  kin_mem->kin_sqrt_relfunc     = SUN_SQRT(uround);
   kin_mem->kin_scsteptol        = RPowerR(uround,TWOTHIRDS);
   kin_mem->kin_fnormtol         = RPowerR(uround,ONETHIRD);
   kin_mem->kin_etaflag          = KIN_ETACHOICE1;
@@ -1112,7 +1112,7 @@ static int KINSolInit(KINMem kin_mem)
 
     /* this value is always used for choice #1 */
 
-    if (etaflag == KIN_ETACHOICE1) ealpha = (ONE + RSqrt(FIVE)) * HALF;
+    if (etaflag == KIN_ETACHOICE1) ealpha = (ONE + SUN_SQRT(FIVE)) * HALF;
 
     /* initial value for eta set to 0.5 for other than the 
        KIN_ETACONSTANT option */
@@ -1525,7 +1525,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
       if (SUN_ABS(rl_a) < uround) {        /* cubic is actually just a quadratic (rl_a ~ 0) */
         rltmp = -slpi / (TWO * rl_b);
       } else {                         /* real cubic */
-        rltmp = (-rl_b + RSqrt(disc)) / (THREE * rl_a);
+        rltmp = (-rl_b + SUN_SQRT(disc)) / (THREE * rl_a);
       }
     }
       if (rltmp > (HALF * rl)) rltmp = HALF * rl;
@@ -1873,7 +1873,7 @@ static void KINForcingTerm(KINMem kin_mem, realtype fnormp)
 
     /* compute the norm of f + Jp , scaled L2 norm */
 
-    linmodel_norm = RSqrt((fnorm * fnorm) + (TWO * sFdotJp) + (sJpnorm * sJpnorm));
+    linmodel_norm = SUN_SQRT((fnorm * fnorm) + (TWO * sFdotJp) + (sJpnorm * sJpnorm));
 
     /* form the safeguarded for choice #1 */ 
 
