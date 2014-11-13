@@ -475,7 +475,7 @@ int arkDlsDenseDQJac(long int N, realtype t, N_Vector y,
   y_data   = N_VGetArrayPointer(y);
 
   /* Set minimum increment based on uround and norm of f */
-  srur = RSqrt(ark_mem->ark_uround);
+  srur = SUN_SQRT(ark_mem->ark_uround);
   /* fnorm = N_VWrmsNorm(fy, ark_mem->ark_ewt); */
   fnorm = N_VWrmsNorm(fy, ark_mem->ark_rwt);
   minInc = (fnorm != ZERO) ?
@@ -552,7 +552,7 @@ int arkDlsBandDQJac(long int N, long int mupper, long int mlower,
   N_VScale(ONE, y, ytemp);
 
   /* Set minimum increment based on uround and norm of f */
-  srur = RSqrt(ark_mem->ark_uround);
+  srur = SUN_SQRT(ark_mem->ark_uround);
   /* fnorm = N_VWrmsNorm(fy, ark_mem->ark_ewt); */
   fnorm = N_VWrmsNorm(fy, ark_mem->ark_rwt);
   minInc = (fnorm != ZERO) ?

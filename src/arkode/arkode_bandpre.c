@@ -402,7 +402,7 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
   N_VScale(ONE, y, ytemp);
 
   /* Set minimum increment based on uround and norm of f. */
-  srur = RSqrt(ark_mem->ark_uround);
+  srur = SUN_SQRT(ark_mem->ark_uround);
   /* fnorm = N_VWrmsNorm(fy, ark_mem->ark_ewt); */
   fnorm = N_VWrmsNorm(fy, ark_mem->ark_rwt);
   minInc = (fnorm != ZERO) ?

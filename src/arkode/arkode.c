@@ -3287,7 +3287,7 @@ static int arkHin(ARKodeMem ark_mem, realtype tout)
   hlb = H0_LBFACTOR * tround;
   hub = arkUpperBoundH0(ark_mem, tdist);
 
-  hg  = RSqrt(hlb*hub);
+  hg  = SUN_SQRT(hlb*hub);
 
   if (hub < hlb) {
     if (sign == -1) ark_mem->ark_h = -hg;
@@ -3331,7 +3331,7 @@ static int arkHin(ARKodeMem ark_mem, realtype tout)
     if ( (hnewOK) || (count1 == H0_ITERS))  {hnew = hg; break;}
 
     /* Propose new step size */
-    hnew = (yddnrm*hub*hub > TWO) ? RSqrt(TWO/yddnrm) : RSqrt(hg*hub);
+    hnew = (yddnrm*hub*hub > TWO) ? SUN_SQRT(TWO/yddnrm) : SUN_SQRT(hg*hub);
     hrat = hnew/hg;
     
     /* Accept hnew if it does not differ from hg by more than a factor of 2 */
@@ -4983,7 +4983,7 @@ static int arkAndersenAcc(ARKodeMem ark_mem, N_Vector gval,
   } else {
     if (iter == 1) {
       N_VScale(ONE, df[i_pt], qtmp[i_pt]);
-      R[0] = RSqrt(N_VDotProd(df[i_pt], df[i_pt])); 
+      R[0] = SUN_SQRT(N_VDotProd(df[i_pt], df[i_pt])); 
       alfa = ONE/R[0];
       N_VScale(alfa, df[i_pt], Q[i_pt]);
       ipt_map[0] = 0;
@@ -4994,7 +4994,7 @@ static int arkAndersenAcc(ARKodeMem ark_mem, N_Vector gval,
 	R[(iter-1)*maa+j] = N_VDotProd(Q[j], qtmp[i_pt]);
 	N_VLinearSum(ONE, qtmp[i_pt], -R[(iter-1)*maa+j], Q[j], qtmp[i_pt]);
       }
-      R[(iter-1)*maa+iter-1] = RSqrt(N_VDotProd(qtmp[i_pt], qtmp[i_pt])); 
+      R[(iter-1)*maa+iter-1] = SUN_SQRT(N_VDotProd(qtmp[i_pt], qtmp[i_pt])); 
       if (R[(iter-1)*maa+iter-1] == ZERO) {
 	N_VScale(ZERO, qtmp[i_pt], Q[i_pt]);
       } else {
@@ -5012,7 +5012,7 @@ static int arkAndersenAcc(ARKodeMem ark_mem, N_Vector gval,
 	N_VScale(ONE, df[i], qtmp[i]);
       for (i=0; i<maa; i++) {
 	imap = ipt_map[i];
-	R[i*maa+i] = RSqrt(N_VDotProd(qtmp[imap], qtmp[imap]));
+	R[i*maa+i] = SUN_SQRT(N_VDotProd(qtmp[imap], qtmp[imap]));
 	if (R[i*maa+i] == ZERO) {
 	  N_VScale(ZERO, qtmp[imap], Q[imap]);
 	} else {

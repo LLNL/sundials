@@ -73,7 +73,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
   realtype three = RCONST(3.0);
   realtype four = RCONST(4.0);
   realtype six = RCONST(6.0);
-  realtype sqrt2 = RSqrt(two);
+  realtype sqrt2 = SUN_SQRT(two);
 
   /* initialize output tables to zero */
   for (i=0; i<ARK_S_MAX; i++) {

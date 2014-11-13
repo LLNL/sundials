@@ -157,7 +157,7 @@ int ARKSpbcg(void *arkode_mem, int pretype, int maxl)
 
   /* Compute sqrtN from a dot product */
   N_VConst(ONE, arkspils_mem->s_ytemp);
-  arkspils_mem->s_sqrtN = RSqrt(N_VDotProd(arkspils_mem->s_ytemp, 
+  arkspils_mem->s_sqrtN = SUN_SQRT(N_VDotProd(arkspils_mem->s_ytemp, 
 					   arkspils_mem->s_ytemp));
 
   /* Call SpbcgMalloc to allocate workspace for Spbcg */
@@ -544,7 +544,7 @@ int ARKMassSpbcg(void *arkode_mem, int pretype, int maxl,
 
   /* Compute sqrtN from a dot product */
   N_VConst(ONE, arkspils_mem->s_ytemp);
-  arkspils_mem->s_sqrtN = RSqrt(N_VDotProd(arkspils_mem->s_ytemp, 
+  arkspils_mem->s_sqrtN = SUN_SQRT(N_VDotProd(arkspils_mem->s_ytemp, 
 					   arkspils_mem->s_ytemp));
 
   /* Call SpbcgMalloc to allocate workspace for Spbcg */

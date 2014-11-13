@@ -157,7 +157,7 @@ int ARKPcg(void *arkode_mem, int pretype, int maxl)
 
   /* Compute sqrtN from a dot product */
   N_VConst(ONE, arkspils_mem->s_ytemp);
-  arkspils_mem->s_sqrtN = RSqrt(N_VDotProd(arkspils_mem->s_ytemp, 
+  arkspils_mem->s_sqrtN = SUN_SQRT(N_VDotProd(arkspils_mem->s_ytemp, 
 					   arkspils_mem->s_ytemp));
 
   /* Call PcgMalloc to allocate workspace for Pcg */
@@ -540,7 +540,7 @@ int ARKMassPcg(void *arkode_mem, int pretype, int maxl,
 
   /* Compute sqrtN from a dot product */
   N_VConst(ONE, arkspils_mem->s_ytemp);
-  arkspils_mem->s_sqrtN = RSqrt(N_VDotProd(arkspils_mem->s_ytemp, 
+  arkspils_mem->s_sqrtN = SUN_SQRT(N_VDotProd(arkspils_mem->s_ytemp, 
 					   arkspils_mem->s_ytemp));
 
   /* Call PcgMalloc to allocate workspace for Pcg */
