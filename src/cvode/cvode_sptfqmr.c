@@ -196,7 +196,7 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl)
 
   /* Compute sqrtN from a dot product */
   N_VConst(ONE, ytemp);
-  sqrtN = RSqrt(N_VDotProd(ytemp, ytemp));
+  sqrtN = SUN_SQRT(N_VDotProd(ytemp, ytemp));
 
   /* Call SptfqmrMalloc to allocate workspace for Sptfqmr */
   sptfqmr_mem = NULL;

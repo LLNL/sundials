@@ -1833,7 +1833,7 @@ static int cvHin(CVodeMem cv_mem, realtype tout)
   hlb = HLB_FACTOR * tround;
   hub = cvUpperBoundH0(cv_mem, tdist);
 
-  hg  = RSqrt(hlb*hub);
+  hg  = SUN_SQRT(hlb*hub);
 
   if (hub < hlb) {
     if (sign == -1) h = -hg;
@@ -1881,7 +1881,7 @@ static int cvHin(CVodeMem cv_mem, realtype tout)
     if ( (hnewOK) || (count1 == MAX_ITERS))  {hnew = hg; break;}
 
     /* Propose new step size */
-    hnew = (yddnrm*hub*hub > TWO) ? RSqrt(TWO/yddnrm) : RSqrt(hg*hub);
+    hnew = (yddnrm*hub*hub > TWO) ? SUN_SQRT(TWO/yddnrm) : SUN_SQRT(hg*hub);
     hrat = hnew/hg;
     
     /* Accept hnew if it does not differ from hg by more than a factor of 2 */

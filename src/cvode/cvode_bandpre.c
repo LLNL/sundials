@@ -442,7 +442,7 @@ static int CVBandPDQJac(CVBandPrecData pdata,
   N_VScale(ONE, y, ytemp);
 
   /* Set minimum increment based on uround and norm of f. */
-  srur = RSqrt(uround);
+  srur = SUN_SQRT(uround);
   fnorm = N_VWrmsNorm(fy, ewt);
   minInc = (fnorm != ZERO) ?
            (MIN_INC_MULT * SUN_ABS(h) * uround * N * fnorm) : ONE;
