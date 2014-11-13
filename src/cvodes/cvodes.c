@@ -4300,7 +4300,7 @@ static int cvHin(CVodeMem cv_mem, realtype tout)
   hlb = HLB_FACTOR * tround;
   hub = cvUpperBoundH0(cv_mem, tdist);
 
-  hg  = RSqrt(hlb*hub);
+  hg  = SUN_SQRT(hlb*hub);
 
   if (hub < hlb) {
     if (sign == -1) h = -hg;
@@ -4351,7 +4351,7 @@ static int cvHin(CVodeMem cv_mem, realtype tout)
     if ( (hnewOK) || (count1 == MAX_ITERS))  {hnew = hg; break;}
 
     /* Propose new step size */
-    hnew = (yddnrm*hub*hub > TWO) ? RSqrt(TWO/yddnrm) : RSqrt(hg*hub);
+    hnew = (yddnrm*hub*hub > TWO) ? SUN_SQRT(TWO/yddnrm) : SUN_SQRT(hg*hub);
     hrat = hnew/hg;
     
     /* Accept hnew if it does not differ from hg by more than a factor of 2 */
@@ -8659,7 +8659,7 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
   /* cvode_mem is passed here as user data */
   cv_mem = (CVodeMem) cvode_mem;
 
-  delta = RSqrt(SUN_MAX(reltol, uround));
+  delta = SUN_SQRT(SUN_MAX(reltol, uround));
   rdelta = ONE/delta;
   
   pbari = pbar[is];
@@ -8839,7 +8839,7 @@ static int cvQuadSensRhs1InternalDQ(CVodeMem cv_mem, int is, realtype t,
   realtype Delta , rDelta , r2Delta ;
   realtype norms;
 
-  delta = RSqrt(SUN_MAX(reltol, uround));
+  delta = SUN_SQRT(SUN_MAX(reltol, uround));
   rdelta = ONE/delta;
   
   pbari = pbar[is];

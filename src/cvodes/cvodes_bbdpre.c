@@ -165,7 +165,7 @@ int CVBBDPrecInit(void *cvode_mem, long int Nlocal,
   }
 
   /* Set pdata->dqrely based on input dqrely (0 implies default). */
-  pdata->dqrely = (dqrely > ZERO) ? dqrely : RSqrt(uround);
+  pdata->dqrely = (dqrely > ZERO) ? dqrely : SUN_SQRT(uround);
 
   /* Store Nlocal to be used in CVBBDPrecSetup */
   pdata->n_local = Nlocal;
@@ -223,7 +223,7 @@ int CVBBDPrecReInit(void *cvode_mem,
   pdata->mldq = SUN_MIN(Nlocal-1, SUN_MAX(0,mldq));
 
   /* Set pdata->dqrely based on input dqrely (0 implies default). */
-  pdata->dqrely = (dqrely > ZERO) ? dqrely : RSqrt(uround);
+  pdata->dqrely = (dqrely > ZERO) ? dqrely : SUN_SQRT(uround);
 
   /* Re-initialize nge */
   pdata->nge = 0;

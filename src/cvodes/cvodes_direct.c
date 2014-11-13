@@ -377,7 +377,7 @@ int cvDlsDenseDQJac(long int N, realtype t,
   y_data   = N_VGetArrayPointer(y);
 
   /* Set minimum increment based on uround and norm of f */
-  srur = RSqrt(uround);
+  srur = SUN_SQRT(uround);
   fnorm = N_VWrmsNorm(fy, ewt);
   minInc = (fnorm != ZERO) ?
            (MIN_INC_MULT * SUN_ABS(h) * uround * N * fnorm) : ONE;
@@ -456,7 +456,7 @@ int cvDlsBandDQJac(long int N, long int mupper, long int mlower,
   N_VScale(ONE, y, ytemp);
 
   /* Set minimum increment based on uround and norm of f */
-  srur = RSqrt(uround);
+  srur = SUN_SQRT(uround);
   fnorm = N_VWrmsNorm(fy, ewt);
   minInc = (fnorm != ZERO) ?
            (MIN_INC_MULT * SUN_ABS(h) * uround * N * fnorm) : ONE;
