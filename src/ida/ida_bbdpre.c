@@ -169,7 +169,7 @@ int IDABBDPrecInit(void *ida_mem, long int Nlocal,
   pdata->tempv4 = tempv4;
   
   /* Set rel_yy based on input value dq_rel_yy (0 implies default). */
-  pdata->rel_yy = (dq_rel_yy > ZERO) ? dq_rel_yy : RSqrt(uround); 
+  pdata->rel_yy = (dq_rel_yy > ZERO) ? dq_rel_yy : SUN_SQRT(uround); 
 
   /* Store Nlocal to be used in IDABBDPrecSetup */
   pdata->n_local = Nlocal;
@@ -227,7 +227,7 @@ int IDABBDPrecReInit(void *ida_mem,
   pdata->mldq = SUN_MIN(Nlocal-1, SUN_MAX(0, mldq));
 
   /* Set rel_yy based on input value dq_rel_yy (0 implies default). */
-  pdata->rel_yy = (dq_rel_yy > ZERO) ? dq_rel_yy : RSqrt(uround); 
+  pdata->rel_yy = (dq_rel_yy > ZERO) ? dq_rel_yy : SUN_SQRT(uround); 
 
   /* Re-initialize nge */
   pdata->nge = 0;

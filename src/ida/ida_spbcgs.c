@@ -221,7 +221,7 @@ int IDASpbcg(void *ida_mem, int maxl)
 
   /* Compute sqrtN from a dot product */
   N_VConst(ONE, ytemp);
-  sqrtN = RSqrt(N_VDotProd(ytemp, ytemp));
+  sqrtN = SUN_SQRT(N_VDotProd(ytemp, ytemp));
 
   /* Call SpbcgMalloc to allocate workspace for Spbcg */
   spbcg_mem = NULL;

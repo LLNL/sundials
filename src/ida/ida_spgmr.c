@@ -223,7 +223,7 @@ int IDASpgmr(void *ida_mem, int maxl)
 
   /* Compute sqrtN from a dot product */
   N_VConst(ONE, ytemp);
-  sqrtN = RSqrt( N_VDotProd(ytemp, ytemp) );
+  sqrtN = SUN_SQRT( N_VDotProd(ytemp, ytemp) );
 
   /* Call SpgmrMalloc to allocate workspace for Spgmr */
   spgmr_mem = NULL;
