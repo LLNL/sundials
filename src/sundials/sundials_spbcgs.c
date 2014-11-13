@@ -208,7 +208,7 @@ int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
   /* Set r_norm to L2 norm of r_star = sb P1_inv r_0, and
      return if small */
 
-  *res_norm = r_norm = rho = RSqrt(beta_denom);
+  *res_norm = r_norm = rho = SUN_SQRT(beta_denom);
   if (r_norm <= delta) return(SPBCG_SUCCESS);
 
   /* Copy r_star to r and p */
@@ -321,7 +321,7 @@ int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
 
     /* Set rho = norm(r) and check convergence */
 
-    *res_norm = rho = RSqrt(N_VDotProd(r, r));
+    *res_norm = rho = SUN_SQRT(N_VDotProd(r, r));
     if (rho <= delta) {
       converged = TRUE;
       break;

@@ -57,7 +57,7 @@ realtype RPowerR(realtype base, realtype exponent)
 #endif
 }
 
-realtype RSqrt(realtype x)
+realtype SUN_SQRT(realtype x)
 {
   if (x <= ZERO) return(ZERO);
 
@@ -72,7 +72,7 @@ realtype RSqrt(realtype x)
 #endif
 }
 
-realtype RAbs(realtype x)
+realtype SUN_ABS(realtype x)
 {
 #if defined(SUNDIALS_USE_GENERIC_MATH)
   return((realtype) fabs((double) x));
@@ -85,7 +85,7 @@ realtype RAbs(realtype x)
 #endif
 }
 
-realtype RExp(realtype x)
+realtype SUN_EXP(realtype x)
 {
 #if defined(SUNDIALS_USE_GENERIC_MATH)
   return((realtype) exp((double) x));
