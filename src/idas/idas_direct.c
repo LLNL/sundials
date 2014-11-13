@@ -380,7 +380,7 @@ int idaDlsDenseDQJac(long int N, realtype tt, realtype c_j,
   yp_data  = N_VGetArrayPointer(yp);
   if(constraints!=NULL) cns_data = N_VGetArrayPointer(constraints);
 
-  srur = RSqrt(uround);
+  srur = SUN_SQRT(uround);
 
   for (j=0; j < N; j++) {
 
@@ -497,7 +497,7 @@ int idaDlsBandDQJac(long int N, long int mupper, long int mlower,
 
   /* Compute miscellaneous values for the Jacobian computation. */
 
-  srur = RSqrt(uround);
+  srur = SUN_SQRT(uround);
   width = mlower + mupper + 1;
   ngroups = SUN_MIN(width, N);
 

@@ -6867,7 +6867,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
   IDA_mem = (IDAMem) user_dataS;
 
   /* Set base perturbation del */
-  del  = RSqrt(SUN_MAX(rtol, uround));
+  del  = SUN_SQRT(SUN_MAX(rtol, uround));
   rdel = ONE/del;
 
   pbari = pbar[is];
@@ -7082,7 +7082,7 @@ static int IDAQuadSensRhs1InternalDQ(IDAMem IDA_mem, int is, realtype t,
   realtype Del , r2Del ;
   realtype norms;
 
-  del = RSqrt(SUN_MAX(rtol, uround));
+  del = SUN_SQRT(SUN_MAX(rtol, uround));
   rdel = ONE/del;
   
   pbari = pbar[is];
