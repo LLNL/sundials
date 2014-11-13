@@ -55,17 +55,6 @@ extern "C" {
 #define SUN_SQR(A) ((A)*(A))
 #endif
 
-#ifndef SUN_ABS
-#define SUN_ABS RAbs
-#endif
-
-#ifndef SUN_SQRT
-#define SUN_SQRT RSqrt
-#endif
-
-#ifndef SUN_EXP
-#define SUN_EXP RExp
-#endif
 
 /*
  * -----------------------------------------------------------------
@@ -99,43 +88,43 @@ SUNDIALS_EXPORT realtype RPowerR(realtype base, realtype exponent);
 
 /*
  * -----------------------------------------------------------------
- * Function : RSqrt
+ * Function : SUN_SQRT
  * -----------------------------------------------------------------
  * Usage : realtype sqrt_x;
- *         sqrt_x = RSqrt(x);
+ *         sqrt_x = SUN_SQRT(x);
  * -----------------------------------------------------------------
- * RSqrt(x) returns the square root of x. If x < ZERO, then RSqrt
- * returns ZERO.
+ * SUN_SQRT(x) returns the square root of x. If x < ZERO, then
+ * SUN_SQRT returns ZERO.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT realtype RSqrt(realtype x);
+SUNDIALS_EXPORT realtype SUN_SQRT(realtype x);
 
 /*
  * -----------------------------------------------------------------
- * Function : RAbs (a.k.a. ABS)
+ * Function : SUN_ABS
  * -----------------------------------------------------------------
  * Usage : realtype abs_x;
- *         abs_x = RAbs(x);
+ *         abs_x = SUN_ABS(x);
  * -----------------------------------------------------------------
- * RAbs(x) returns the absolute value of x.
+ * SUN_ABS(x) returns the absolute value of x.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT realtype RAbs(realtype x);
+SUNDIALS_EXPORT realtype SUN_ABS(realtype x);
 
 /*
  * -----------------------------------------------------------------
- * Function : RExp (a.k.a. EXP)
+ * Function : SUN_EXP
  * -----------------------------------------------------------------
  * Usage : realtype exp_x;
- *         exp_x = RExp(x);
+ *         exp_x = SUN_EXP(x);
  * -----------------------------------------------------------------
- * RExp(x) returns e^x (base-e exponential function).
+ * SUN_EXP(x) returns e^x (base-e exponential function).
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT realtype RExp(realtype x);
+SUNDIALS_EXPORT realtype SUN_EXP(realtype x);
 
 #ifdef __cplusplus
 }
