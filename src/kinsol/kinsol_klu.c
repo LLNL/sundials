@@ -308,7 +308,10 @@ static int kinKLUSetup(KINMem kin_mem)
     kinsls_mem->s_last_flag = KINSLS_JACFUNC_UNRECVR;
     return(KINSLS_JACFUNC_UNRECVR);
   }
-  if (retval > 0) {
+  if (retval == 1) {
+    kinsls_mem->s_first_factorize = 1;
+  }
+  if (retval > 1) {
     kinsls_mem->s_last_flag = KINSLS_JACFUNC_RECVR;
     return(+1);
   }
