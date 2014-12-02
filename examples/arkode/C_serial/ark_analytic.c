@@ -95,6 +95,10 @@ int main()
   flag = ARKDlsSetDenseJacFn(arkode_mem, Jac);            /* Set Jacobian routine */
   if (check_flag(&flag, "ARKDlsSetDenseJacFn", 1)) return 1;
 
+  /* Specify linearly implicit problem */
+  flag = ARKodeSetLinear(arkode_mem);
+  if (check_flag(&flag, "ARKodeSetLinear", 1)) return 1;
+
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt","w");
   fprintf(UFID,"# t u\n");

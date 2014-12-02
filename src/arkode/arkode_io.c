@@ -475,7 +475,8 @@ int ARKodeSetDenseOrder(void *arkode_mem, int dord)
  Specifies that the implicit portion of the problem is linear, 
  and to tighten the linear solver tolerances while taking only 
  one Newton iteration.  Not useful when used in combination with
- the fixed-point solver.
+ the fixed-point solver.  Automatically tightens DeltaGammaMax 
+ to ensure that step size changes cause Jacobian recomputation.
 ---------------------------------------------------------------*/
 int ARKodeSetLinear(void *arkode_mem)
 {
@@ -488,6 +489,7 @@ int ARKodeSetLinear(void *arkode_mem)
 
   ark_mem = (ARKodeMem) arkode_mem;
   ark_mem->ark_linear = TRUE;
+  ark_mem->ark_dgmax = RCONST(100.0)*UNIT_ROUNDOFF;
 
   return(ARK_SUCCESS);
 }
@@ -497,7 +499,8 @@ int ARKodeSetLinear(void *arkode_mem)
  ARKodeSetNonlinear:
 
  Specifies that the implicit portion of the problem is nonlinear.
- Used to undo a previous call to ARKodeSetLinear.
+ Used to undo a previous call to ARKodeSetLinear.  Automatically
+ loosens DeltaGammaMax back to default value.
 ---------------------------------------------------------------*/
 int ARKodeSetNonlinear(void *arkode_mem)
 {
@@ -510,6 +513,7 @@ int ARKodeSetNonlinear(void *arkode_mem)
 
   ark_mem = (ARKodeMem) arkode_mem;
   ark_mem->ark_linear = FALSE;
+  ark_mem->ark_dgmax = DGMAX;
 
   return(ARK_SUCCESS);
 }

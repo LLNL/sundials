@@ -116,6 +116,10 @@ int main() {
   flag = ARKSpilsSetJacTimesVecFn(arkode_mem, Jac);       /* Set the Jacobian routine */
   if (check_flag(&flag, "ARKSpilsSetJacTimesVecFn", 1)) return 1;
 
+  /* Specify linearly implicit problem */
+  flag = ARKodeSetLinear(arkode_mem);
+  if (check_flag(&flag, "ARKodeSetLinear", 1)) return 1;
+
   /* output mesh to disk */
   FID=fopen("heat_mesh.txt","w");
   for (i=0; i<N; i++)  fprintf(FID,"  %.16e\n", udata->dx*i);

@@ -221,7 +221,8 @@ contains
     integer, intent(out) :: ierr
     integer :: reqSW, reqSE, reqSS, reqSN, reqRW, reqRE, reqRS, reqRN;
     integer :: stat(MPI_STATUS_SIZE)
-    integer :: i, ipW, ipE, ipS, ipN
+    integer*8 :: i
+    integer :: ipW, ipE, ipS, ipN
     integer :: coords(2), dims(2), periods(2), nbcoords(2)
     
     ! internals
@@ -581,6 +582,13 @@ program driver
   call FARKSpilsSetPrec(1, flag)                     ! Enable preconditioning
   if (flag < 0) then
      write(0,*) "Error in FARKSpilsSetPrec = ", flag
+     call MPI_Finalize(flag)
+  end if
+
+  ! specify that the problem is linearly implicit
+  call FARKSetIin("LINEAR", 1, flag)
+  if (flag < 0) then
+     write(0,*) "Error in FARKSetIin = ", flag
      call MPI_Finalize(flag)
   end if
 

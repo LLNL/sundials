@@ -71,7 +71,7 @@ static int arkNlsAccelFP(ARKodeMem ark_mem, int nflag);
 static int arkAndersenAcc(ARKodeMem ark_mem, N_Vector gval, 
 			  N_Vector fv, N_Vector x, N_Vector xold, 
 			  int iter, realtype *R, realtype *gamma);
-/* static int arkLs(ARKodeMem ark_mem, int nflag); */
+static int arkLs(ARKodeMem ark_mem, int nflag);
 static int arkHandleNFlag(ARKodeMem ark_mem, int *nflagPtr, 
 			  realtype saved_t, int *ncfPtr);
 
@@ -4501,17 +4501,27 @@ static int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
 
  This routine attempts to solve the nonlinear system associated
  with a single implicit step of the linear multistep method.
- It calls either arkNlsAccelFP or arkNlsNewton to do the work.
+ It calls one of arkNlsAccelFP, arkLs or arkNlsNewton to do the 
+ work.
 
  Upon a successful solve, the solution is held in ark_mem->ark_y.
 ---------------------------------------------------------------*/
 static int arkNls(ARKodeMem ark_mem, int nflag)
 {
-  if (ark_mem->ark_use_fp) {
+
+  /* call the appropriate solver */
+
+  /*   fixed point */
+  if (ark_mem->ark_use_fp)
     return(arkNlsAccelFP(ark_mem, nflag));
-  } else {
-    return(arkNlsNewton(ark_mem, nflag));
-  }
+
+  /*   linearly implicit (one Newton iteration) */
+  if (ark_mem->ark_linear)
+    return(arkLs(ark_mem, nflag));
+  
+  /*   Newton */
+  return(arkNlsNewton(ark_mem, nflag));
+
 }
 
 
@@ -5074,10 +5084,96 @@ static int arkAndersenAcc(ARKodeMem ark_mem, N_Vector gval,
 
    RHSFUNC_RECVR     --> predict again or stop if too many
 ---------------------------------------------------------------*/
-/* static int arkLs(ARKodeMem ark_mem, int nflag) */
-/* { */
-/*   return(ARK_SUCCESS); */
-/* } */
+static int arkLs(ARKodeMem ark_mem, int nflag)
+{
+  N_Vector vtemp1, vtemp2, vtemp3, b;
+  int convfail, retval, ier;
+  booleantype callSetup;
+  realtype del;
+  
+  vtemp1 = ark_mem->ark_acor;  /* rename acor as vtemp1 for readability  */
+  vtemp2 = ark_mem->ark_y;     /* rename y as vtemp2 for readability     */
+  vtemp3 = ark_mem->ark_tempv; /* rename tempv as vtemp3 for readability */
+  b      = ark_mem->ark_tempv; /* also rename tempv as b for readability */
+
+  /* Set flag convfail, input to lsetup for its evaluation decision */
+  convfail = (nflag == FIRST_CALL) ? ARK_NO_FAILURES : ARK_FAIL_OTHER;
+
+  /* Decide whether or not to call setup routine (if one exists) */
+  if (ark_mem->ark_setupNonNull) {      
+    callSetup = (ark_mem->ark_firststage) || 
+      (SUNRabs(ark_mem->ark_gamrat-ONE) > ark_mem->ark_dgmax);
+  } else {  
+    callSetup = FALSE;
+  }
+  
+  /* update implicit RHS, store in ark_mem->ark_ftemp */
+  if (!ark_mem->ark_explicit) {
+    retval = ark_mem->ark_fi(ark_mem->ark_tn, ark_mem->ark_ycur, 
+			     ark_mem->ark_ftemp, ark_mem->ark_user_data);
+    ark_mem->ark_nfi++; 
+    if (retval < 0) return(ARK_RHSFUNC_FAIL);
+    if (retval > 0) return(RHSFUNC_RECVR);
+  }
+  
+  /* update system matrix if necessary */
+  if (callSetup) {
+
+    /* Solver diagnostics reporting */
+    if (ark_mem->ark_report)  fprintf(ark_mem->ark_diagfp, "  lsetup\n");
+
+    ier = ark_mem->ark_lsetup(ark_mem, convfail, ark_mem->ark_ycur, 
+			      ark_mem->ark_ftemp, &ark_mem->ark_jcur, 
+			      vtemp1, vtemp2, vtemp3);
+    ark_mem->ark_nsetups++;
+    callSetup = FALSE;
+    ark_mem->ark_firststage = FALSE;
+    ark_mem->ark_gamrat = ark_mem->ark_crate = ONE; 
+    ark_mem->ark_gammap = ark_mem->ark_gamma;
+    ark_mem->ark_nstlp  = ark_mem->ark_nst;
+
+    /* Return if lsetup failed */
+    if (ier < 0) return(ARK_LSETUP_FAIL);
+    if (ier > 0) return(CONV_FAIL);
+  }
+
+  /* Set acor to zero and load prediction into y vector */
+  N_VConst(ZERO, ark_mem->ark_acor);
+  N_VScale(ONE, ark_mem->ark_ycur, ark_mem->ark_y);
+  
+
+  /* Do a single Newton iteration */
+
+  /*   Initialize temporary variables for use in iteration */
+  ark_mem->ark_mnewt = 0;
+  del = ZERO;
+
+  /*   Set the local truncation error estimate to force an "accurate" linear solve */
+  ark_mem->ark_eLTE = ark_mem->ark_nlscoef * RCONST(0.1);
+
+  /*   Evaluate the nonlinear system residual, put result into b */
+  retval = arkNlsResid(ark_mem, ark_mem->ark_acor, ark_mem->ark_ftemp, b);
+  if (retval != ARK_SUCCESS)  return (ARK_RHSFUNC_FAIL);
+
+  /*   Call the lsolve function */
+  retval = ark_mem->ark_lsolve(ark_mem, b, ark_mem->ark_rwt, 
+			       ark_mem->ark_y, ark_mem->ark_ftemp); 
+  ark_mem->ark_nni++;
+  if (retval != 0)  return (ARK_LSOLVE_FAIL);
+    
+  /*   Get WRMS norm of correction; add correction to acor and y */
+  del = N_VWrmsNorm(b, ark_mem->ark_ewt);
+  N_VLinearSum(ONE, ark_mem->ark_acor, ONE, b, ark_mem->ark_acor);
+  N_VLinearSum(ONE, ark_mem->ark_ycur, ONE, ark_mem->ark_acor, ark_mem->ark_y);
+
+  /*   Solver diagnostics reporting */
+  if (ark_mem->ark_report) 
+    fprintf(ark_mem->ark_diagfp, "    newt  %i  %19.16g  %19.16g\n", 0, del, 0.0);
+
+  /* clean up and return */ 
+  ark_mem->ark_jcur = FALSE;
+  return (ARK_SUCCESS);
+}
 
 
 /*---------------------------------------------------------------
