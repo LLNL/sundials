@@ -3,6 +3,7 @@
 \documentclass[letterpaper,10pt,english]{sphinxmanual}
 \usepackage[utf8]{inputenc}
 \DeclareUnicodeCharacter{00A0}{\nobreakspace}
+\usepackage{cmap}
 \usepackage[T1]{fontenc}
 \usepackage{babel}
 \usepackage{times}
@@ -402,7 +403,7 @@ These default to the {\hyperref[Butcher:butcher-sdirk-2-1]{\emph{SDIRK-2-1-2}}},
 \section{Nonlinear solver methods}
 \label{Mathematics:nonlinear-solver-methods}\label{Mathematics:mathematics-nonlinear}
 For both the DIRK and ARK methods corresponding to \eqref{Mathematics-IVP} and
-\eqref{Mathematics-IVP_implicit}, a nonlinear system
+\eqref{Mathematics-IVP_implicit}, an implicit system
 \phantomsection\label{Mathematics:equation-Residual}\begin{gather}
 \begin{split}G(z_i) \equiv M z_i - h_n A^I_{i,i} f_I(t_{n,i}, z_i) - a_i = 0\end{split}\label{Mathematics-Residual}\\\begin{split}\end{split}\notag
 \end{gather}
@@ -418,10 +419,15 @@ for the ARK methods, or
 \begin{split}a_i \equiv M y_{n-1} + h_n \sum_{j=0}^{i-1}
    A^I_{i,j} f_I(t_{n,j}, z_j)\end{split}\notag\\\begin{split}\end{split}\notag
 \end{gather}
-for the DIRK methods.  For these nonlinear systems, ARKode allows a
-choice of solution strategy.
+for the DIRK methods.  Here, if $f_I(t,y)$ depends nonlinearly
+on $y$ then \eqref{Mathematics-Residual} corresponds to a nonlinear system of
+equations; if $f_I(t,y)$ depends linearly on $y$ then this
+is a linear system of equations.
 
-The default solver choice is a variant of \index{Newton's method}Newton's method,
+For systems of either type, ARKode allows a choice of solution
+strategy. The default solver choice is a variant of \index{Newton's
+method}Newton's
+method,
 \phantomsection\label{Mathematics:equation-Newton_iteration}\begin{gather}
 \begin{split}z_i^{(m+1)} = z_i^{(m)} + \delta^{(m+1)},\end{split}\label{Mathematics-Newton_iteration}\\\begin{split}\end{split}\notag
 \end{gather}
@@ -449,6 +455,12 @@ solution of a linear system at each iteration, instead opting for
 solution of a low-dimensional least-squares solution to construct the
 nonlinear update.  For details on how this iteration is performed, we
 refer the reader to the reference {\hyperref[References:wn2011]{{[}WN2011{]}}}.
+
+Finally, if the user specifies that $f_I(t,y)$ depends linearly
+on $y$ (via a call to {\hyperref[c_interface/User_callable:ARKodeSetLinear]{\code{ARKodeSetLinear()}}}, or the
+\emph{LINEAR} argument to {\hyperref[f_interface/Usage:f/_/FARKSETIIN]{\code{FARKSETIIN()}}}), and if the
+Newton-based nonlinear solver is chosen, then the problem
+\eqref{Mathematics-Residual} will be solved using only a single Newton iteration.
 
 The optimal solver (Newton vs fixed-point) is highly
 problem-dependent.  Since fixed-point solvers do not require
@@ -630,10 +642,14 @@ update satisfies $\left|\gamma/\bar{\gamma} - 1\right| > 0.2$
 argument to {\hyperref[f_interface/Usage:f/_/FARKSETRIN]{\code{FARKSETRIN()}}},
 
 \item {} 
-when a non-fatal convergence failure just occurred, or
+when a non-fatal convergence failure just occurred,
 
 \item {} 
-when an error test failure just occurred.
+when an error test failure just occurred, or
+
+\item {} 
+if the problem is linearly implicit and $\gamma$ has
+changed by a factor larger than 100 times machine epsilon.
 
 \end{itemize}
 
@@ -656,7 +672,11 @@ value $\bar{\gamma}$ of $\gamma$ at the last update
 satisfies $\left|\gamma/\bar{\gamma} - 1\right| > 0.2$,
 
 \item {} 
-a convergence failure occurred that forced a step size reduction.
+a convergence failure occurred that forced a step size reduction, or
+
+\item {} 
+if the problem is linearly implicit and $\gamma$ has
+changed by a factor larger than 100 times machine epsilon.
 
 \end{itemize}
 
@@ -779,13 +799,17 @@ on in the next section).  In an attempt to ensure that the linear
 iteration errors do not interfere with the nonlinear solution error
 and local time integration error controls, we require that the norm of
 the preconditioned linear residual satisfies
-\begin{gather}
-\begin{split}\|r\| \le 0.05\epsilon.\end{split}\notag
+\phantomsection\label{Mathematics:equation-LinearTolerance}\begin{gather}
+\begin{split}\|r\| \le 0.05\epsilon.\end{split}\label{Mathematics-LinearTolerance}\\\begin{split}\end{split}\notag
 \end{gather}
 Here $\epsilon$ is the same value as that used above for the
 nonlinear error control.  The value 0.05 may be modified by the user
-through the {\hyperref[c_interface/User_callable:ARKSpilsSetEpsLin]{\code{ARKSpilsSetEpsLin()}}} function; it cannot
-currently be modified from Fortran applications.
+through the {\hyperref[c_interface/User_callable:ARKSpilsSetEpsLin]{\code{ARKSpilsSetEpsLin()}}} function.  Fortran users may
+adjust this value using the \emph{DELT} argument to the functions
+{\hyperref[f_interface/Usage:f/_/FARKSPGMR]{\code{FARKSPGMR()}}}, {\hyperref[f_interface/Usage:f/_/FARKSPBCG]{\code{FARKSPBCG()}}}, {\hyperref[f_interface/Usage:f/_/FARKSPTFQMR]{\code{FARKSPTFQMR()}}},
+{\hyperref[f_interface/Usage:f/_/FARKSPFGMR]{\code{FARKSPFGMR()}}} or {\hyperref[f_interface/Usage:f/_/FARKPCG]{\code{FARKPCG()}}}.  We note that for
+linearly implicit problems the same tolerance \eqref{Mathematics-LinearTolerance}
+is used for the single Newton iteration.
 
 
 \section{Preconditioning}
@@ -4197,11 +4221,11 @@ arguments for negative values will catch all errors.
 \label{c_interface/User_callable:cinterface-arkodeinputtable}\label{c_interface/User_callable:optional-inputs-for-arkode}
 \begin{tabulary}{\linewidth}{|L|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 Optional input
-} & \textbf{
+} & \textbf{\relax 
 Function name
-} & \textbf{
+} & \textbf{\relax 
 Default
 }\\\hline
 
@@ -4908,11 +4932,11 @@ specify the linear solver.
 \label{c_interface/User_callable:optional-inputs-for-ivp-method-selection}\label{c_interface/User_callable:cinterface-arkodemethodinputtable}
 \begin{tabulary}{\linewidth}{|L|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 Optional input
-} & \textbf{
+} & \textbf{\relax 
 Function name
-} & \textbf{
+} & \textbf{\relax 
 Default
 }\\\hline
 
@@ -5445,11 +5469,11 @@ the code, is provided in the section {\hyperref[Mathematics:mathematics-adaptivi
 
 \begin{tabulary}{\linewidth}{|L|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 Optional input
-} & \textbf{
+} & \textbf{\relax 
 Function name
-} & \textbf{
+} & \textbf{\relax 
 Default
 }\\\hline
 
@@ -6002,11 +6026,11 @@ provided in the section {\hyperref[Mathematics:mathematics-nonlinear]{\emph{Nonl
 
 \begin{tabulary}{\linewidth}{|L|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 Optional input
-} & \textbf{
+} & \textbf{\relax 
 Function name
-} & \textbf{
+} & \textbf{\relax 
 Default
 }\\\hline
 
@@ -6195,8 +6219,12 @@ Specifies that the implicit portion of the problem is linear.
 \end{description}
 
 \textbf{Notes:} Tightens the linear solver tolerances and takes only a
-single Newton iteration.  Only useful when used in combination with
-the modified Newton iteration (not the fixed-point solver).
+single Newton iteration.  Calls {\hyperref[c_interface/User_callable:ARKodeSetDeltaGammaMax]{\code{ARKodeSetDeltaGammaMax()}}}
+to enforce Jacobian recomputation when the step size ratio changes
+by more than 100 times the unit roundoff (since nonlinear
+convergence is not tested).  Only applicable when used in
+combination with the modified Newton iteration (not the fixed-point
+solver).
 
 \end{fulllineitems}
 
@@ -6227,7 +6255,10 @@ Specifies that the implicit portion of the problem is nonlinear.
 \end{description}
 
 \textbf{Notes:} This is the default behavior of ARKode, so the function
-is primarily useful to undo a previous call to {\hyperref[c_interface/User_callable:ARKodeSetLinear]{\code{ARKodeSetLinear()}}}.
+is primarily useful to undo a previous call to
+{\hyperref[c_interface/User_callable:ARKodeSetLinear]{\code{ARKodeSetLinear()}}}.  Calls
+{\hyperref[c_interface/User_callable:ARKodeSetDeltaGammaMax]{\code{ARKodeSetDeltaGammaMax()}}} to reset the step size ratio
+threshold to the default value.
 
 \end{fulllineitems}
 
@@ -6548,11 +6579,11 @@ is provided in the section {\hyperref[Mathematics:mathematics-linear]{\emph{Line
 \label{c_interface/User_callable:table-optional-inputs-for-arkdls}
 \begin{tabulary}{\linewidth}{|L|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 Optional input
-} & \textbf{
+} & \textbf{\relax 
 Function name
-} & \textbf{
+} & \textbf{\relax 
 Default
 }\\\hline
 
@@ -6816,11 +6847,11 @@ is provided in the section {\hyperref[Mathematics:mathematics-linear]{\emph{Line
 \label{c_interface/User_callable:table-optional-inputs-for-arksls}
 \begin{tabulary}{\linewidth}{|L|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 Optional input
-} & \textbf{
+} & \textbf{\relax 
 Function name
-} & \textbf{
+} & \textbf{\relax 
 Default
 }\\\hline
 
@@ -7207,11 +7238,11 @@ time.
 \label{c_interface/User_callable:cinterface-arkspilsinputtable}\label{c_interface/User_callable:table-optional-inputs-for-arkspils}
 \begin{tabulary}{\linewidth}{|L|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 Optional input
-} & \textbf{
+} & \textbf{\relax 
 Function name
-} & \textbf{
+} & \textbf{\relax 
 Default
 }\\\hline
 
@@ -7856,11 +7887,11 @@ described in the section {\hyperref[Mathematics:mathematics-rootfinding]{\emph{R
 
 \begin{tabulary}{\linewidth}{|L|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 Optional input
-} & \textbf{
+} & \textbf{\relax 
 Function name
-} & \textbf{
+} & \textbf{\relax 
 Default
 }\\\hline
 
@@ -8119,9 +8150,9 @@ particular problem of interest.
 \label{c_interface/User_callable:main-solver-optional-output-functions}\label{c_interface/User_callable:cinterface-arkodemainoutputs}
 \begin{tabulary}{\linewidth}{|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 Optional output
-} & \textbf{
+} & \textbf{\relax 
 Function name
 }\\\hline
 
@@ -8788,9 +8819,9 @@ the corresponding constant.
 \label{c_interface/User_callable:cinterface-arkodeimplicitsolveroutputs}\label{c_interface/User_callable:implicit-solver-optional-output-functions}
 \begin{tabulary}{\linewidth}{|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 Optional output
-} & \textbf{
+} & \textbf{\relax 
 Function name
 }\\\hline
 
@@ -8972,9 +9003,9 @@ Returns all of the nonlinear solver statistics in a single call.
 \label{c_interface/User_callable:rootfinding-optional-output-functions}\label{c_interface/User_callable:cinterface-arkoderootoutputs}
 \begin{tabulary}{\linewidth}{|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 Optional output
-} & \textbf{
+} & \textbf{\relax 
 Function name
 }\\\hline
 
@@ -9074,9 +9105,9 @@ Linear Solver) or MLS (for Mass Linear Solver) has been added here
 
 \begin{tabulary}{\linewidth}{|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 Optional output
-} & \textbf{
+} & \textbf{\relax 
 Function name
 }\\\hline
 
@@ -9424,9 +9455,9 @@ Solver) has been added here (e.g. \emph{lenrwLS}).
 
 \begin{tabulary}{\linewidth}{|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 Optional output
-} & \textbf{
+} & \textbf{\relax 
 Function name
 }\\\hline
 
@@ -9621,9 +9652,9 @@ or MLS (for Mass Linear Solver) has been added here (e.g. \emph{lenrwLS}).
 
 \begin{tabulary}{\linewidth}{|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 Optional output
-} & \textbf{
+} & \textbf{\relax 
 Function name
 }\\\hline
 
@@ -12919,10 +12950,10 @@ may do nothing):
 
 \begin{tabulary}{\linewidth}{|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 FARKODE routine
 (FORTRAN, user-supplied)
-} & \textbf{
+} & \textbf{\relax 
 ARKode interface
 function type
 }\\\hline
@@ -12947,13 +12978,13 @@ which is required whenever a sparse matrix solver is used:
 
 \begin{tabulary}{\linewidth}{|L|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 FARKODE routine
 (FORTRAN, user-supplied)
-} & \textbf{
+} & \textbf{\relax 
 ARKode interface
 function type
-} & \textbf{
+} & \textbf{\relax 
 FARKODE ``activation'' routine
 }\\\hline
 
@@ -13427,9 +13458,9 @@ is set (see {\hyperref[f_interface/Usage:finterface-iinoptiontable]{\emph{Table:
 \label{f_interface/Usage:table-keys-for-setting-farkode-integer-optional-inputs}\label{f_interface/Usage:finterface-iinoptiontable}
 \begin{tabulary}{\linewidth}{|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 Key
-} & \textbf{
+} & \textbf{\relax 
 ARKode routine
 }\\\hline
 
@@ -13568,9 +13599,9 @@ is set (see {\hyperref[f_interface/Usage:finterface-rinoptiontable]{\emph{Table:
 \label{f_interface/Usage:finterface-rinoptiontable}\label{f_interface/Usage:table-keys-for-setting-farkode-real-optional-inputs}
 \begin{tabulary}{\linewidth}{|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 Key
-} & \textbf{
+} & \textbf{\relax 
 ARKode routine
 }\\\hline
 
@@ -15276,11 +15307,11 @@ the sections {\hyperref[c_interface/User_callable:cinterface-optionalinputs]{\em
 \label{f_interface/Optional_output:table-optional-farkode-integer-outputs}\label{f_interface/Optional_output:finterface-iouttable}
 \begin{tabulary}{\linewidth}{|L|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 \emph{IOUT} Index
-} & \textbf{
+} & \textbf{\relax 
 Optional output
-} & \textbf{
+} & \textbf{\relax 
 ARKode function
 }\\\hline
 
@@ -15382,11 +15413,11 @@ NGE
 \label{f_interface/Optional_output:table-optional-farkode-real-outputs}\label{f_interface/Optional_output:finterface-routtable}
 \begin{tabulary}{\linewidth}{|L|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 \emph{ROUT} Index
-} & \textbf{
+} & \textbf{\relax 
 Optional output
-} & \textbf{
+} & \textbf{\relax 
 ARKode function
 }\\\hline
 
@@ -15439,11 +15470,11 @@ UROUND
 \label{f_interface/Optional_output:table-optional-arkdense-and-arkband-outputs}\label{f_interface/Optional_output:finterface-dlsiouttable}
 \begin{tabulary}{\linewidth}{|L|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 \emph{IOUT} Index
-} & \textbf{
+} & \textbf{\relax 
 Optional output
-} & \textbf{
+} & \textbf{\relax 
 ARKode function
 }\\\hline
 
@@ -15489,11 +15520,11 @@ NJE
 \label{f_interface/Optional_output:finterface-slsiouttable}\label{f_interface/Optional_output:table-optional-arkklu-and-arksuperlumt-outputs}
 \begin{tabulary}{\linewidth}{|L|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 \emph{IOUT} Index
-} & \textbf{
+} & \textbf{\relax 
 Optional output
-} & \textbf{
+} & \textbf{\relax 
 ARKode function
 }\\\hline
 
@@ -15518,11 +15549,11 @@ NJE
 \label{f_interface/Optional_output:table-optional-arkspgmr-arkspbcg-arksptfqmr-arkspfgmr-and-arkpcg-outputs}\label{f_interface/Optional_output:finterface-spilsiouttable}
 \begin{tabulary}{\linewidth}{|L|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 \emph{IOUT} Index
-} & \textbf{
+} & \textbf{\relax 
 Optional output
-} & \textbf{
+} & \textbf{\relax 
 ARKode function
 }\\\hline
 
@@ -16000,13 +16031,13 @@ calls it (and its type within ARKBBDPRE or ARKode).
 
 \begin{tabulary}{\linewidth}{|L|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 FARKBBD routine
 (FORTRAN, user-supplied)
-} & \textbf{
+} & \textbf{\relax 
 ARKode routine
 (C, interface)
-} & \textbf{
+} & \textbf{\relax 
 ARKode interface
 function type
 }\\\hline
@@ -17313,21 +17344,21 @@ ARKSUPERLUMT.
 
 \begin{tabulary}{\linewidth}{|L|L|L|L|L|L|L|L|}
 \hline
-\textbf{
+\textbf{\relax 
 Routine
-} & \textbf{
+} & \textbf{\relax 
 ARKode
-} & \textbf{
+} & \textbf{\relax 
 ARKDLS
-} & \textbf{
+} & \textbf{\relax 
 ARKSLS
-} & \textbf{
+} & \textbf{\relax 
 ARKSPILS
-} & \textbf{
+} & \textbf{\relax 
 ARKBANDPRE
-} & \textbf{
+} & \textbf{\relax 
 ARKBBDPRE
-} & \textbf{
+} & \textbf{\relax 
 FARKODE
 }\\\hline
 
@@ -18232,9 +18263,8 @@ themselves (see the section {\hyperref[Install:installation]{\emph{ARKode Instal
 
 The \code{sundials\_types.h} header file defines the SUNDIALS \code{realtype}
 and \code{booleantype} types and the macro \code{RCONST}, while the
-\code{sundials\_math.h} header file is needed for the macros \code{SUN\_MIN},
-\code{SUN\_MAX}, and \code{SUN\_SQR}, and the functions \code{SUN\_ABS},
-\code{SUN\_SQRT}, and \code{SUN\_EXP}.
+\code{sundials\_math.h} header file is needed for the macros \code{SUNMIN}
+and \code{SUNMAX}, and the function \code{SUNRabs}.
 
 The files listed above for either module can be extracted from the
 SUNDIALS \code{srcdir} and compiled by themselves into a separate library
@@ -19128,9 +19158,8 @@ itself (see the section {\hyperref[Install:installation]{\emph{ARKode Installati
 
 The \code{sundials\_types.h} header file defines the SUNDIALS \code{realtype}
 and \code{booleantype} types and the macro \code{RCONST}, while the
-\code{sundials\_math.h} header file is needed for the macros \code{SUN\_MIN},
-\code{SUN\_MAX}, and \code{SUN\_SQR}, and the functions \code{SUN\_ABS},
-\code{SUN\_SQRT}, and \code{SUN\_EXP}.
+\code{sundials\_math.h} header file is needed for the macros \code{SUNMIN} and
+\code{SUNMAX}, and the function \code{SUNRabs}.
 
 The files listed above for either module can be extracted from the
 SUNDIALS \code{srcdir} and compiled by themselves into a separate library
@@ -19465,9 +19494,8 @@ Only two of the preprocessing directives in the header file
 
 The \code{sundials\_types.h} header file defines the SUNDIALS \code{realtype}
 and \code{booleantype} types and the macro \code{RCONST}, while the
-\code{sundials\_math.h} header file is needed for the macros \code{SUN\_MIN},
-\code{SUN\_MAX}, and \code{SUN\_SQR}, and the functions \code{SUN\_ABS},
-\code{SUN\_SQRT}, and \code{SUN\_EXP}.
+\code{sundials\_math.h} header file is needed for the macros \code{SUNMIN},
+\code{SUNMAX}, and \code{SUNSQR}, and the functions \code{SUNRabs} and \code{SUNRsqrt}.
 
 The generic NVECTOR files, \code{sundials\_nvector.h} and
 \code{sundials\_nvector.c} are needed for the definition of the generic
