@@ -130,7 +130,7 @@ int main()
   /* Initial guess */
 
   N_VConst_Serial(ONE, y);
-  for(i = 1; i <= NVAR; i++) Ith(y,i) = SUN_SQRT(TWO)/TWO;
+  for(i = 1; i <= NVAR; i++) Ith(y,i) = SUNRsqrt(TWO)/TWO;
 
   printf("Initial guess:\n");
   PrintOutput(y);

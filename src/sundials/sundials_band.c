@@ -95,16 +95,16 @@ long int bandGBTRF(realtype **a, long int n, long int mu, long int ml, long int 
     col_k     = a[k];
     diag_k    = col_k + smu;
     sub_diag_k = diag_k + 1;
-    last_row_k = SUN_MIN(n-1,k+ml);
+    last_row_k = SUNMIN(n-1,k+ml);
 
     /* find l = pivot row number */
 
     l=k;
-    max = SUN_ABS(*diag_k);
+    max = SUNRabs(*diag_k);
     for (i=k+1, kptr=sub_diag_k; i <= last_row_k; i++, kptr++) { 
-      if (SUN_ABS(*kptr) > max) {
+      if (SUNRabs(*kptr) > max) {
 	l=i;
-	max = SUN_ABS(*kptr);
+	max = SUNRabs(*kptr);
       }
     }
     storage_l = ROW(l, k, smu);
@@ -126,18 +126,18 @@ long int bandGBTRF(realtype **a, long int n, long int mu, long int ml, long int 
     /* column k by -1.0 / a(k,k). After the above swap, */
     /* a(k,k) holds the pivot element. This scaling     */
     /* stores the pivot row multipliers -a(i,k)/a(k,k)  */
-    /* in a(i,k), i=k+1, ..., SUN_MIN(n-1,k+ml).            */
+    /* in a(i,k), i=k+1, ..., SUNMIN(n-1,k+ml).            */
     
     mult = -ONE / (*diag_k);
     for (i=k+1, kptr = sub_diag_k; i <= last_row_k; i++, kptr++)
       (*kptr) *= mult;
 
-    /* row_i = row_i - [a(i,k)/a(k,k)] row_k, i=k+1, ..., SUN_MIN(n-1,k+ml) */
+    /* row_i = row_i - [a(i,k)/a(k,k)] row_k, i=k+1, ..., SUNMIN(n-1,k+ml) */
     /* row k is the pivot row after swapping with row l.                */
     /* The computation is done one column at a time,                    */
-    /* column j=k+1, ..., SUN_MIN(k+smu,n-1).                               */
+    /* column j=k+1, ..., SUNMIN(k+smu,n-1).                               */
     
-    last_col_k = SUN_MIN(k+smu,n-1);
+    last_col_k = SUNMIN(k+smu,n-1);
     for (j=k+1; j <= last_col_k; j++) {
       
       col_j = a[j];
@@ -189,7 +189,7 @@ void bandGBTRS(realtype **a, long int n, long int smu, long int ml, long int *p,
       b[k] = mult;
     }
     diag_k = a[k]+smu;
-    last_row_k = SUN_MIN(n-1,k+ml);
+    last_row_k = SUNMIN(n-1,k+ml);
     for (i=k+1; i <= last_row_k; i++)
       b[i] += mult * diag_k[i-k];
   }
@@ -198,7 +198,7 @@ void bandGBTRS(realtype **a, long int n, long int smu, long int ml, long int *p,
   
   for (k=n-1; k >= 0; k--) {
     diag_k = a[k]+smu;
-    first_row_k = SUN_MAX(0,k-smu);
+    first_row_k = SUNMAX(0,k-smu);
     b[k] /= (*diag_k);
     mult = -b[k];
     for (i=first_row_k; i <= k-1; i++)

@@ -279,7 +279,7 @@ static int kinKLUSetup(KINMem kin_mem)
   void *jacdata;
   realtype uround, uround_twothirds;
 
-  uround = RPowerR(kin_mem->kin_uround,TWOTHIRDS);
+  uround = SUNRpowerR(kin_mem->kin_uround,TWOTHIRDS);
 
   kinsls_mem = (KINSlsMem) (kin_mem->kin_lmem);
 

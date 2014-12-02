@@ -88,8 +88,8 @@ int ARKBandPrecInit(void *arkode_mem, long int N,
   /* Load pointers and bandwidths into pdata block. */
   pdata->arkode_mem = arkode_mem;
   pdata->N = N;
-  pdata->mu = mup = SUN_MIN(N-1, SUN_MAX(0,mu));
-  pdata->ml = mlp = SUN_MIN(N-1, SUN_MAX(0,ml));
+  pdata->mu = mup = SUNMIN(N-1, SUNMAX(0,mu));
+  pdata->ml = mlp = SUNMIN(N-1, SUNMAX(0,ml));
 
   /* Initialize nfeBP counter */
   pdata->nfeBP = 0;
@@ -104,7 +104,7 @@ int ARKBandPrecInit(void *arkode_mem, long int N,
   }
 
   /* Allocate memory for banded preconditioner. */
-  storagemu = SUN_MIN(N-1, mup+mlp);
+  storagemu = SUNMIN(N-1, mup+mlp);
   pdata->savedP = NULL;
   pdata->savedP = NewBandMat(N, mup, mlp, storagemu);
   if (pdata->savedP == NULL) {
@@ -167,7 +167,7 @@ int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP, long int *leniw
   N   = pdata->N;
   mu  = pdata->mu;
   ml  = pdata->ml;
-  smu = SUN_MIN( N-1, mu + ml);
+  smu = SUNMIN( N-1, mu + ml);
 
   *leniwBP = pdata->N;
   *lenrwBP = N * ( 2*ml + smu + mu + 2 );
@@ -402,21 +402,21 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
   N_VScale(ONE, y, ytemp);
 
   /* Set minimum increment based on uround and norm of f. */
-  srur = SUN_SQRT(ark_mem->ark_uround);
+  srur = SUNRsqrt(ark_mem->ark_uround);
   /* fnorm = N_VWrmsNorm(fy, ark_mem->ark_ewt); */
   fnorm = N_VWrmsNorm(fy, ark_mem->ark_rwt);
   minInc = (fnorm != ZERO) ?
-    (MIN_INC_MULT * SUN_ABS(ark_mem->ark_h) * ark_mem->ark_uround * pdata->N * fnorm) : ONE;
+    (MIN_INC_MULT * SUNRabs(ark_mem->ark_h) * ark_mem->ark_uround * pdata->N * fnorm) : ONE;
 
   /* Set bandwidth and number of column groups for band differencing. */
   width = pdata->ml + pdata->mu + 1;
-  ngroups = SUN_MIN(width, pdata->N);
+  ngroups = SUNMIN(width, pdata->N);
   
   for (group = 1; group <= ngroups; group++) {
     
     /* Increment all y_j in group. */
     for(j = group-1; j < pdata->N; j += width) {
-      inc = SUN_MAX(srur*SUN_ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUNMAX(srur*SUNRabs(y_data[j]), minInc/ewt_data[j]);
       ytemp_data[j] += inc;
     }
 
@@ -429,10 +429,10 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
     for (j = group-1; j < pdata->N; j += width) {
       ytemp_data[j] = y_data[j];
       col_j = BAND_COL(pdata->savedJ,j);
-      inc = SUN_MAX(srur*SUN_ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUNMAX(srur*SUNRabs(y_data[j]), minInc/ewt_data[j]);
       inc_inv = ONE/inc;
-      i1 = SUN_MAX(0, j-pdata->mu);
-      i2 = SUN_MIN(j+pdata->ml, pdata->N-1);
+      i1 = SUNMAX(0, j-pdata->mu);
+      i2 = SUNMIN(j+pdata->ml, pdata->N-1);
       for (i=i1; i <= i2; i++)
         BAND_COL_ELEM(col_j,i,j) =
           inc_inv * (ftemp_data[i] - fy_data[i]);

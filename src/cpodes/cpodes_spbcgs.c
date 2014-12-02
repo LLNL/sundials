@@ -217,7 +217,7 @@ int CPSpbcg(void *cpode_mem, int pretype, int maxl)
 
   /* Compute sqrtN from a dot product */
   N_VConst(ONE, ytemp);
-  sqrtN = SUN_SQRT(N_VDotProd(ytemp, ytemp));
+  sqrtN = SUNRsqrt(N_VDotProd(ytemp, ytemp));
   
   /* Attach SPBCG memory to spils memory structure */
   spils_mem = (void *) spbcg_mem;
@@ -343,7 +343,7 @@ static int cpSpbcgSetup(CPodeMem cp_mem, int convfail,
   case CP_EXPL:
 
     /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-    dgamma = SUN_ABS((gamma/gammap) - ONE);
+    dgamma = SUNRabs((gamma/gammap) - ONE);
     jbad = (nst == 0) || (nst > nstlpre + CPSPILS_MSBPRE) ||
       ((convfail == CP_FAIL_BAD_J) && (dgamma < CPSPILS_DGMAX)) ||
       (convfail == CP_FAIL_OTHER);

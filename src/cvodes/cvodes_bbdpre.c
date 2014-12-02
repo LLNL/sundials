@@ -128,10 +128,10 @@ int CVBBDPrecInit(void *cvode_mem, long int Nlocal,
   pdata->cvode_mem = cvode_mem;
   pdata->gloc = gloc;
   pdata->cfn = cfn;
-  pdata->mudq = SUN_MIN(Nlocal-1, SUN_MAX(0,mudq));
-  pdata->mldq = SUN_MIN(Nlocal-1, SUN_MAX(0,mldq));
-  muk = SUN_MIN(Nlocal-1, SUN_MAX(0,mukeep));
-  mlk = SUN_MIN(Nlocal-1, SUN_MAX(0,mlkeep));
+  pdata->mudq = SUNMIN(Nlocal-1, SUNMAX(0,mudq));
+  pdata->mldq = SUNMIN(Nlocal-1, SUNMAX(0,mldq));
+  muk = SUNMIN(Nlocal-1, SUNMAX(0,mukeep));
+  mlk = SUNMIN(Nlocal-1, SUNMAX(0,mlkeep));
   pdata->mukeep = muk;
   pdata->mlkeep = mlk;
 
@@ -144,7 +144,7 @@ int CVBBDPrecInit(void *cvode_mem, long int Nlocal,
   }
 
   /* Allocate memory for preconditioner matrix */
-  storage_mu = SUN_MIN(Nlocal-1, muk + mlk);
+  storage_mu = SUNMIN(Nlocal-1, muk + mlk);
   pdata->savedP = NULL;
   pdata->savedP = NewBandMat(Nlocal, muk, mlk, storage_mu);
   if (pdata->savedP == NULL) {
@@ -165,7 +165,7 @@ int CVBBDPrecInit(void *cvode_mem, long int Nlocal,
   }
 
   /* Set pdata->dqrely based on input dqrely (0 implies default). */
-  pdata->dqrely = (dqrely > ZERO) ? dqrely : SUN_SQRT(uround);
+  pdata->dqrely = (dqrely > ZERO) ? dqrely : SUNRsqrt(uround);
 
   /* Store Nlocal to be used in CVBBDPrecSetup */
   pdata->n_local = Nlocal;
@@ -219,11 +219,11 @@ int CVBBDPrecReInit(void *cvode_mem,
 
   /* Load half-bandwidths */
   Nlocal = pdata->n_local;
-  pdata->mudq = SUN_MIN(Nlocal-1, SUN_MAX(0,mudq));
-  pdata->mldq = SUN_MIN(Nlocal-1, SUN_MAX(0,mldq));
+  pdata->mudq = SUNMIN(Nlocal-1, SUNMAX(0,mudq));
+  pdata->mldq = SUNMIN(Nlocal-1, SUNMAX(0,mldq));
 
   /* Set pdata->dqrely based on input dqrely (0 implies default). */
-  pdata->dqrely = (dqrely > ZERO) ? dqrely : SUN_SQRT(uround);
+  pdata->dqrely = (dqrely > ZERO) ? dqrely : SUNRsqrt(uround);
 
   /* Re-initialize nge */
   pdata->nge = 0;
@@ -529,18 +529,18 @@ static int cvBBDDQJac(CVBBDPrecData pdata, realtype t,
   /* Set minimum increment based on uround and norm of g */
   gnorm = N_VWrmsNorm(gy, ewt);
   minInc = (gnorm != ZERO) ?
-           (MIN_INC_MULT * SUN_ABS(h) * uround * Nlocal * gnorm) : ONE;
+           (MIN_INC_MULT * SUNRabs(h) * uround * Nlocal * gnorm) : ONE;
 
   /* Set bandwidth and number of column groups for band differencing */
   width = mldq + mudq + 1;
-  ngroups = SUN_MIN(width, Nlocal);
+  ngroups = SUNMIN(width, Nlocal);
 
   /* Loop over groups */  
   for (group=1; group <= ngroups; group++) {
     
     /* Increment all y_j in group */
     for(j=group-1; j < Nlocal; j+=width) {
-      inc = SUN_MAX(dqrely*SUN_ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUNMAX(dqrely*SUNRabs(y_data[j]), minInc/ewt_data[j]);
       ytemp_data[j] += inc;
     }
 
@@ -553,10 +553,10 @@ static int cvBBDDQJac(CVBBDPrecData pdata, realtype t,
     for (j=group-1; j < Nlocal; j+=width) {
       ytemp_data[j] = y_data[j];
       col_j = BAND_COL(savedJ,j);
-      inc = SUN_MAX(dqrely*SUN_ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUNMAX(dqrely*SUNRabs(y_data[j]), minInc/ewt_data[j]);
       inc_inv = ONE/inc;
-      i1 = SUN_MAX(0, j-mukeep);
-      i2 = SUN_MIN(j+mlkeep, Nlocal-1);
+      i1 = SUNMAX(0, j-mukeep);
+      i2 = SUNMIN(j+mlkeep, Nlocal-1);
       for (i=i1; i <= i2; i++)
         BAND_COL_ELEM(col_j,i,j) =
           inc_inv * (gtemp_data[i] - gy_data[i]);

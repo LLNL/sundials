@@ -912,7 +912,7 @@ void N_VAbs_SpcParallel(N_Vector x, N_Vector z)
           Xblock = i * Ns;
           for (is=0; is<Ns; is++) {
             loc = Zblock + Yblock + Xblock + is;
-            zd[loc] = SUN_ABS(xd[loc]);
+            zd[loc] = SUNRabs(xd[loc]);
           }
         }
       }
@@ -1098,7 +1098,7 @@ realtype N_VMaxNorm_SpcParallel(N_Vector x)
           Xblock = i * Ns;
           for (is=0; is<Ns; is++) {
             loc = Zblock + Yblock + Xblock + is;
-            if (SUN_ABS(xd[loc]) > max) max = SUN_ABS(xd[loc]);
+            if (SUNRabs(xd[loc]) > max) max = SUNRabs(xd[loc]);
           }
         }
       }
@@ -1165,7 +1165,7 @@ realtype N_VWrmsNorm_SpcParallel(N_Vector x, N_Vector w)
   MPI_Allreduce(&sum, &gsum, 1, SPVEC_REAL_MPI_TYPE, MPI_SUM, comm);
 
   /* scale correctly and return */
-  return(SUN_SQRT(gsum / Nglobal));
+  return(SUNRsqrt(gsum / Nglobal));
 }
 
 /* 
@@ -1222,7 +1222,7 @@ realtype N_VWrmsNormMask_SpcParallel(N_Vector x, N_Vector w, N_Vector id)
   MPI_Allreduce(&sum, &gsum, 1, SPVEC_REAL_MPI_TYPE, MPI_SUM, comm);
 
   /* scale result and return */
-  return(SUN_SQRT(gsum / Nglobal));
+  return(SUNRsqrt(gsum / Nglobal));
 }
 
 /* 
@@ -1326,7 +1326,7 @@ realtype N_VWL2Norm_SpcParallel(N_Vector x, N_Vector w)
   gsum = ZERO;
   MPI_Allreduce(&sum, &gsum, 1, SPVEC_REAL_MPI_TYPE, MPI_SUM, comm);
 
-  return(SUN_SQRT(gsum));
+  return(SUNRsqrt(gsum));
 }
 
 /* 
@@ -1366,7 +1366,7 @@ realtype N_VL1Norm_SpcParallel(N_Vector x)
           Xblock = i * Ns;
           for (is=0; is<Ns; is++) {
             loc = Zblock + Yblock + Xblock + is;
-            sum += SUN_ABS(xd[loc]);
+            sum += SUNRabs(xd[loc]);
           }
         }
       }
@@ -1414,7 +1414,7 @@ void N_VCompare_SpcParallel(realtype c, N_Vector x, N_Vector z)
           Xblock = i * Ns;
           for (is=0; is<Ns; is++) {
             loc = Zblock + Yblock + Xblock + is;
-            zd[loc] = (SUN_ABS(xd[loc]) >= c) ? ONE : ZERO;
+            zd[loc] = (SUNRabs(xd[loc]) >= c) ? ONE : ZERO;
           }
         }
       }
@@ -1598,7 +1598,7 @@ realtype N_VMinQuotient_SpcParallel(N_Vector x, N_Vector y)
             loc = Zblock + Yblock + Xblock + is;
             if (yd[loc] == ZERO) continue;
             else {
-              if (!notEvenOnce) min = SUN_MIN(min, xd[loc] / yd[loc]);
+              if (!notEvenOnce) min = SUNMIN(min, xd[loc] / yd[loc]);
               else {
                 min = xd[loc] / yd[loc] ;
                 notEvenOnce = FALSE;

@@ -975,7 +975,7 @@ void N_VAbs_Parallel_Grid(N_Vector x, N_Vector z)
   N  = NV_DATALEN_PG(x);
   xd = NV_DATA_PG(x);
   zd = NV_DATA_PG(z);
-  for (i=0; i<N; i++)   zd[i] = SUN_ABS(xd[i]);
+  for (i=0; i<N; i++)   zd[i] = SUNRabs(xd[i]);
 
   return;
 }
@@ -1085,12 +1085,12 @@ realtype N_VMaxNorm_Parallel_Grid(N_Vector x)
   max = ZERO;
   if (NV_FORDER_PG(x)) {
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
-      if (SUN_ABS(xd[i]) > max) max = SUN_ABS(xd[i]);
+      if (SUNRabs(xd[i]) > max) max = SUNRabs(xd[i]);
     }
     NV_LOOPEND_PG();
   } else {
     NV_CLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
-      if (SUN_ABS(xd[i]) > max) max = SUN_ABS(xd[i]);
+      if (SUNRabs(xd[i]) > max) max = SUNRabs(xd[i]);
     }
     NV_LOOPEND_PG();
   }
@@ -1124,13 +1124,13 @@ realtype N_VWrmsNorm_Parallel_Grid(N_Vector x, N_Vector w)
   if (NV_FORDER_PG(x)) {
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
       prodi = xd[i]*wd[i];
-      sum += SUN_SQR(prodi);
+      sum += SUNSQR(prodi);
     }
     NV_LOOPEND_PG();
   } else {
     NV_CLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
       prodi = xd[i]*wd[i];
-      sum += SUN_SQR(prodi);
+      sum += SUNSQR(prodi);
     }
     NV_LOOPEND_PG();
   }
@@ -1139,7 +1139,7 @@ realtype N_VWrmsNorm_Parallel_Grid(N_Vector x, N_Vector w)
   comm = NV_COMM_PG(x);
   gsum = VAllReduce_Parallel_Grid(sum, 1, comm);
 
-  return(SUN_SQRT(gsum/NV_GLOBLENGTH_PG(x)));
+  return(SUNRsqrt(gsum/NV_GLOBLENGTH_PG(x)));
 }
 
 realtype N_VWrmsNormMask_Parallel_Grid(N_Vector x, N_Vector w, N_Vector id)
@@ -1170,7 +1170,7 @@ realtype N_VWrmsNormMask_Parallel_Grid(N_Vector x, N_Vector w, N_Vector id)
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
       if (idd[i] > ZERO) {
 	prodi = xd[i]*wd[i];
-	sum += SUN_SQR(prodi);
+	sum += SUNSQR(prodi);
       }
     }
     NV_LOOPEND_PG();
@@ -1178,7 +1178,7 @@ realtype N_VWrmsNormMask_Parallel_Grid(N_Vector x, N_Vector w, N_Vector id)
     NV_CLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
       if (idd[i] > ZERO) {
 	prodi = xd[i]*wd[i];
-	sum += SUN_SQR(prodi);
+	sum += SUNSQR(prodi);
       }
     }
     NV_LOOPEND_PG();
@@ -1188,7 +1188,7 @@ realtype N_VWrmsNormMask_Parallel_Grid(N_Vector x, N_Vector w, N_Vector id)
   comm = NV_COMM_PG(x);
   gsum = VAllReduce_Parallel_Grid(sum, 1, comm);
 
-  return(SUN_SQRT(gsum/NV_GLOBLENGTH_PG(x)));
+  return(SUNRsqrt(gsum/NV_GLOBLENGTH_PG(x)));
 }
 
 realtype N_VMin_Parallel_Grid(N_Vector x)
@@ -1251,13 +1251,13 @@ realtype N_VWL2Norm_Parallel_Grid(N_Vector x, N_Vector w)
   if (NV_FORDER_PG(x)) {
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
       prodi = xd[i]*wd[i];
-      sum += SUN_SQR(prodi);
+      sum += SUNSQR(prodi);
     }
     NV_LOOPEND_PG();
   } else {
     NV_CLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
       prodi = xd[i]*wd[i];
-      sum += SUN_SQR(prodi);
+      sum += SUNSQR(prodi);
     }
     NV_LOOPEND_PG();
   }
@@ -1266,7 +1266,7 @@ realtype N_VWL2Norm_Parallel_Grid(N_Vector x, N_Vector w)
   comm = NV_COMM_PG(x);
   gsum = VAllReduce_Parallel_Grid(sum, 1, comm);
 
-  return(SUN_SQRT(gsum));
+  return(SUNRsqrt(gsum));
 }
 
 realtype N_VL1Norm_Parallel_Grid(N_Vector x)
@@ -1283,12 +1283,12 @@ realtype N_VL1Norm_Parallel_Grid(N_Vector x)
   /* iterate over active values to compute norm */
   if (NV_FORDER_PG(x)) {
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
-      sum += SUN_ABS(xd[i]);
+      sum += SUNRabs(xd[i]);
     }
     NV_LOOPEND_PG();
   } else {
     NV_CLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
-      sum += SUN_ABS(xd[i]);
+      sum += SUNRabs(xd[i]);
     }
     NV_LOOPEND_PG();
   }
@@ -1319,7 +1319,7 @@ void N_VCompare_Parallel_Grid(realtype c, N_Vector x, N_Vector z)
   /* perform operation on full domain (including grids) */
   N = NV_DATALEN_PG(x);
   for (i=0; i<N; i++) 
-    zd[i] = (SUN_ABS(xd[i]) >= c) ? ONE : ZERO;
+    zd[i] = (SUNRabs(xd[i]) >= c) ? ONE : ZERO;
 
   return;
 }
@@ -1458,7 +1458,7 @@ realtype N_VMinQuotient_Parallel_Grid(N_Vector num, N_Vector denom)
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, num) {
       if (dd[i] == ZERO) continue;
       else {
-	if (!notEvenOnce) min = SUN_MIN(min, nd[i]/dd[i]);
+	if (!notEvenOnce) min = SUNMIN(min, nd[i]/dd[i]);
 	else {
 	  min = nd[i]/dd[i];
 	  notEvenOnce = FALSE;
@@ -1470,7 +1470,7 @@ realtype N_VMinQuotient_Parallel_Grid(N_Vector num, N_Vector denom)
     NV_CLOOP_PG(i0, i1, i2, i3, i4, i5, i, num) {
       if (dd[i] == ZERO) continue;
       else {
-	if (!notEvenOnce) min = SUN_MIN(min, nd[i]/dd[i]);
+	if (!notEvenOnce) min = SUNMIN(min, nd[i]/dd[i]);
 	else {
 	  min = nd[i]/dd[i];
 	  notEvenOnce = FALSE;

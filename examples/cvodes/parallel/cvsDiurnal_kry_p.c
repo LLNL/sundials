@@ -57,7 +57,7 @@
 #include <nvector/nvector_parallel.h>  /* definition N_Vector and macro NV_DATA_P  */
 #include <sundials/sundials_dense.h>   /* prototypes for small dense matrix fcts. */
 #include <sundials/sundials_types.h>   /* definitions of realtype, booleantype */
-#include <sundials/sundials_math.h>    /* definition of macros SUN_SQR and EXP */
+#include <sundials/sundials_math.h>    /* definition of macros SUNSQR and EXP */
 
 #include <mpi.h>                       /* MPI constants and types */
 
@@ -294,9 +294,9 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
   data->om = PI/HALFDAY;
   data->dx = (XMAX-XMIN)/((realtype)(MX-1));
   data->dy = (YMAX-YMIN)/((realtype)(MY-1));
-  data->hdco = KH/SUN_SQR(data->dx);
+  data->hdco = KH/SUNSQR(data->dx);
   data->haco = VEL/(RCONST(2.0)*data->dx);
-  data->vdco = (RCONST(1.0)/SUN_SQR(data->dy))*KV0;
+  data->vdco = (RCONST(1.0)/SUNSQR(data->dy))*KV0;
 
   /* Set machine-related constants */
   data->comm = comm;
@@ -364,13 +364,13 @@ static void SetInitialProfiles(N_Vector u, UserData data)
   for (ly = 0; ly < MYSUB; ly++) {
     jy = ly + isuby*MYSUB;
     y = YMIN + jy*dy;
-    cy = SUN_SQR(RCONST(0.1)*(y - ymid));
-    cy = RCONST(1.0) - cy + RCONST(0.5)*SUN_SQR(cy);
+    cy = SUNSQR(RCONST(0.1)*(y - ymid));
+    cy = RCONST(1.0) - cy + RCONST(0.5)*SUNSQR(cy);
     for (lx = 0; lx < MXSUB; lx++) {
       jx = lx + isubx*MXSUB;
       x = XMIN + jx*dx;
-      cx = SUN_SQR(RCONST(0.1)*(x - xmid));
-      cx = RCONST(1.0) - cx + RCONST(0.5)*SUN_SQR(cx);
+      cx = SUNSQR(RCONST(0.1)*(x - xmid));
+      cx = RCONST(1.0) - cx + RCONST(0.5)*SUNSQR(cx);
       udata[offset  ] = C1_SCALE*cx*cy; 
       udata[offset+1] = C2_SCALE*cx*cy;
       offset = offset + 2;
@@ -727,8 +727,8 @@ static void fcalc(realtype t, realtype udata[],
   data block for use by preconditioner evaluation routine */
   s = sin((data->om)*t);
   if (s > RCONST(0.0)) {
-    q3 = SUN_EXP(-A3/s);
-    q4coef = SUN_EXP(-A4/s);
+    q3 = SUNRexp(-A3/s);
+    q4coef = SUNRexp(-A4/s);
   } else {
     q3 = RCONST(0.0);
     q4coef = RCONST(0.0);
@@ -743,8 +743,8 @@ static void fcalc(realtype t, realtype udata[],
     /* Set vertical diffusion coefficients at jy +- 1/2 */
     ydn = YMIN + (jy - RCONST(0.5))*dely;
     yup = ydn + dely;
-    cydn = verdco*SUN_EXP(RCONST(0.2)*ydn);
-    cyup = verdco*SUN_EXP(RCONST(0.2)*yup);
+    cydn = verdco*SUNRexp(RCONST(0.2)*ydn);
+    cyup = verdco*SUNRexp(RCONST(0.2)*yup);
     for (lx = 0; lx < MXSUB; lx++) {
 
       jx = lx + isubx*MXSUB;
@@ -861,8 +861,8 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
       jy = ly + isuby*MYSUB;
       ydn = YMIN + (jy - RCONST(0.5))*dely;
       yup = ydn + dely;
-      cydn = verdco*SUN_EXP(RCONST(0.2)*ydn);
-      cyup = verdco*SUN_EXP(RCONST(0.2)*yup);
+      cydn = verdco*SUNRexp(RCONST(0.2)*ydn);
+      cyup = verdco*SUNRexp(RCONST(0.2)*yup);
       diag = -(cydn + cyup + RCONST(2.0)*hordco);
       for (lx = 0; lx < MXSUB; lx++) {
         jx = lx + isubx*MXSUB;

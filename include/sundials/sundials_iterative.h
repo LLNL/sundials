@@ -126,7 +126,7 @@ typedef int (*PSolveFn)(void *P_data, N_Vector r, N_Vector z, int lr);
  * This matrix must be allocated row-wise so that the (i,j)th     
  * entry is h[i][j]. The inner products (v[i],v[k]),              
  * i=i0, i0+1, ..., k-1, are stored at h[i][k-1]. Here            
- * i0=SUN_MAX(0,k-p).
+ * i0=SUNMAX(0,k-p).
  *                                                                
  * k is the index of the vector in the v array that needs to be   
  * orthogonalized against previous vectors in the v array.        

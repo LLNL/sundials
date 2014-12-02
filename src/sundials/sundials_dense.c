@@ -96,7 +96,7 @@ long int denseGETRF(realtype **a, long int m, long int n, long int *p)
     /* find l = pivot row number */
     l=k;
     for (i=k+1; i < m; i++)
-      if (SUN_ABS(col_k[i]) > SUN_ABS(col_k[l])) l=i;
+      if (SUNRabs(col_k[i]) > SUNRabs(col_k[l])) l=i;
     p[k] = l;
 
     /* check for zero pivot element */
@@ -203,7 +203,7 @@ long int densePOTRF(realtype **a, long int m)
 
     a_diag = a_col_j[j];
     if (a_diag <= ZERO) return(j+1);
-    a_diag = SUN_SQRT(a_diag);
+    a_diag = SUNRsqrt(a_diag);
 
     for(i=j; i<m; i++) a_col_j[i] /= a_diag;
     
@@ -280,7 +280,7 @@ int denseGEQRF(realtype **a, long int m, long int n, realtype *beta, realtype *v
     }
 
     if(s != ZERO) {
-      mu = SUN_SQRT(ajj*ajj+s);
+      mu = SUNRsqrt(ajj*ajj+s);
       v1 = (ajj <= ZERO) ? ajj-mu : -s/(ajj+mu);
       v1_2 = v1*v1;
       beta[j] = TWO * v1_2 / (s + v1_2);

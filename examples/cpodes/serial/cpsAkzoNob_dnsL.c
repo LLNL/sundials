@@ -168,11 +168,11 @@ static int f(realtype t, N_Vector yy, N_Vector yd, void *f_data)
   y6 = NV_Ith_S(yy,5);
 
 
-  r1 = k1 * RPowerI(y1,4) * SUN_SQRT(y2);
+  r1 = k1 * SUNRpowerI(y1,4) * SUNRsqrt(y2);
   r2 = k2 * y3 * y4;
   r3 = k2/K * y1 * y5;
   r4 = k3 * y1 * y4 * y4;
-  r5 = k4 * y6 * y6 * SUN_SQRT(y2);
+  r5 = k4 * y6 * y6 * SUNRsqrt(y2);
   Fin = klA * ( pCO2/H - y2 );
 
   NV_Ith_S(yd,0) = f1 = -TWO*r1 + r2 - r3 - r4;

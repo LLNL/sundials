@@ -537,10 +537,10 @@ int cpDlsDenseDQJacExpl(int N, realtype t,
   y_data   = N_VGetArrayPointer(y);
 
   /* Set minimum increment based on uround and norm of f */
-  srur = SUN_SQRT(uround);
+  srur = SUNRsqrt(uround);
   fnorm = N_VWrmsNorm(fy, ewt);
   minInc = (fnorm != ZERO) ?
-           (MIN_INC_MULT * SUN_ABS(h) * uround * N * fnorm) : ONE;
+           (MIN_INC_MULT * SUNRabs(h) * uround * N * fnorm) : ONE;
 
   for (j = 0; j < N; j++) {
 
@@ -549,7 +549,7 @@ int cpDlsDenseDQJacExpl(int N, realtype t,
     N_VSetArrayPointer(DENSE_COL(Jac,j), jthCol);
 
     yjsaved = y_data[j];
-    inc = SUN_MAX(srur*SUN_ABS(yjsaved), minInc/ewt_data[j]);
+    inc = SUNMAX(srur*SUNRabs(yjsaved), minInc/ewt_data[j]);
     y_data[j] += inc;
 
     retval = fe(t, y, ftemp, user_data);
@@ -616,7 +616,7 @@ int cpDlsDenseDQJacImpl(int N, realtype t, realtype gm,
   yp_data  = N_VGetArrayPointer(yp);
 
   /* Set minimum increment based on uround and norm of f */
-  srur = SUN_SQRT(uround);
+  srur = SUNRsqrt(uround);
 
   /* Generate each column of the Jacobian M = F_y' + gamma * F_y
      as delta(F)/delta(y_j). */
@@ -630,7 +630,7 @@ int cpDlsDenseDQJacImpl(int N, realtype t, realtype gm,
     /* Set increment inc to y_j based on sqrt(uround)*abs(y_j), with
     adjustments using yp_j and ewt_j if this is small, and a further
     adjustment to give it the same sign as h*yp_j. */
-    inc = SUN_MAX( srur * SUN_MAX( SUN_ABS(yj), SUN_ABS(h*ypj) ) , ONE/ewt_data[j] );
+    inc = SUNMAX( srur * SUNMAX( SUNRabs(yj), SUNRabs(h*ypj) ) , ONE/ewt_data[j] );
     if (h*ypj < ZERO) inc = -inc;
     inc = (yj + inc) - yj;
 
@@ -710,21 +710,21 @@ int cpDlsBandDQJacExpl(int N, int mupper, int mlower,
   N_VScale(ONE, y, ytemp);
 
   /* Set minimum increment based on uround and norm of f */
-  srur = SUN_SQRT(uround);
+  srur = SUNRsqrt(uround);
   fnorm = N_VWrmsNorm(fy, ewt);
   minInc = (fnorm != ZERO) ?
-           (MIN_INC_MULT * SUN_ABS(h) * uround * N * fnorm) : ONE;
+           (MIN_INC_MULT * SUNRabs(h) * uround * N * fnorm) : ONE;
 
   /* Set bandwidth and number of column groups for band differencing */
   width = mlower + mupper + 1;
-  ngroups = SUN_MIN(width, N);
+  ngroups = SUNMIN(width, N);
 
   /* Loop over column groups. */
   for (group=1; group <= ngroups; group++) {
     
     /* Increment all y_j in group */
     for(j=group-1; j < N; j+=width) {
-      inc = SUN_MAX(srur*SUN_ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUNMAX(srur*SUNRabs(y_data[j]), minInc/ewt_data[j]);
       ytemp_data[j] += inc;
     }
 
@@ -738,10 +738,10 @@ int cpDlsBandDQJacExpl(int N, int mupper, int mlower,
     for (j=group-1; j < N; j+=width) {
       ytemp_data[j] = y_data[j];
       col_j = BAND_COL(Jac,j);
-      inc = SUN_MAX(srur*SUN_ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUNMAX(srur*SUNRabs(y_data[j]), minInc/ewt_data[j]);
       inc_inv = ONE/inc;
-      i1 = SUN_MAX(0, j-mupper);
-      i2 = SUN_MIN(j+mlower, N-1);
+      i1 = SUNMAX(0, j-mupper);
+      i2 = SUNMIN(j+mlower, N-1);
       for (i=i1; i <= i2; i++)
         BAND_COL_ELEM(col_j,i,j) = inc_inv * (ftemp_data[i] - fy_data[i]);
     }
@@ -794,9 +794,9 @@ int cpDlsBandDQJacImpl(int N, int mupper, int mlower,
   N_VScale(ONE, yp, yptemp);
 
   /* Compute miscellaneous values for the Jacobian computation. */
-  srur = SUN_SQRT(uround);
+  srur = SUNRsqrt(uround);
   width = mlower + mupper + 1;
-  ngroups = SUN_MIN(width, N);
+  ngroups = SUNMIN(width, N);
 
   /* Loop over column groups. */
   for (group=1; group <= ngroups; group++) {
@@ -810,7 +810,7 @@ int cpDlsBandDQJacImpl(int N, int mupper, int mlower,
         /* Set increment inc to yj based on sqrt(uround)*abs(yj), with
            adjustments using ypj and ewtj if this is small, and a further
            adjustment to give it the same sign as h*ypj. */
-        inc = SUN_MAX( srur * SUN_MAX( SUN_ABS(yj), SUN_ABS(h*ypj) ) , ONE/ewtj );
+        inc = SUNMAX( srur * SUNMAX( SUNRabs(yj), SUNRabs(h*ypj) ) , ONE/ewtj );
 
         if (h*ypj < ZERO) inc = -inc;
         inc = (yj + inc) - yj;
@@ -835,14 +835,14 @@ int cpDlsBandDQJacImpl(int N, int mupper, int mlower,
       ewtj = ewt_data[j];
       
       /* Set increment inc exactly as above. */
-      inc = SUN_MAX( srur * SUN_MAX( SUN_ABS(yj), SUN_ABS(h*ypj) ) , ONE/ewtj );
+      inc = SUNMAX( srur * SUNMAX( SUNRabs(yj), SUNRabs(h*ypj) ) , ONE/ewtj );
       if (h*ypj < ZERO) inc = -inc;
       inc = (yj + inc) - yj;
       
       /* Load the difference quotient Jacobian elements for column j. */
       inc_inv = ONE/inc;
-      i1 = SUN_MAX(0, j-mupper);
-      i2 = SUN_MIN(j+mlower,N-1);
+      i1 = SUNMAX(0, j-mupper);
+      i2 = SUNMIN(j+mlower,N-1);
       for (i=i1; i<=i2; i++) 
         BAND_COL_ELEM(col_j,i,j) = inc_inv*(ftemp_data[i]-r_data[i]);
     }
@@ -903,7 +903,7 @@ int cpDlsDenseProjDQJac(int Nc, int Ny, realtype t,
   jthCol_data = N_VGetArrayPointer(jthCol);
 
   /* Set minimum increment based on uround and norm of f */
-  srur = SUN_SQRT(uround);
+  srur = SUNRsqrt(uround);
 
   /* Generate each column of the Jacobian G = dc/dy as delta(c)/delta(y_j). */
   for (j = 0; j < Ny; j++) {
@@ -913,7 +913,7 @@ int cpDlsDenseProjDQJac(int Nc, int Ny, realtype t,
 
     /* Set increment inc to y_j based on sqrt(uround)*abs(y_j), 
        with an adjustment using ewt_j if this is small */
-    inc = SUN_MAX( srur * SUN_ABS(yj) , ONE/ewt_data[j] );
+    inc = SUNMAX( srur * SUNRabs(yj) , ONE/ewt_data[j] );
     inc = (yj + inc) - yj;
 
     /* Increment y_j, call cfun, and break on error return. */

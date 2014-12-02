@@ -398,7 +398,7 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
   lenmat = M->ldata;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-  dgamma = SUN_ABS((gamma/gammap) - ONE);
+  dgamma = SUNRabs((gamma/gammap) - ONE);
   jbad = (nst == 0) || (nst > nstlj + CVD_MSBJ) ||
     ((convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
     (convfail == CV_FAIL_OTHER);
@@ -554,7 +554,7 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
   ldmat = M->ldim;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-  dgamma = SUN_ABS((gamma/gammap) - ONE);
+  dgamma = SUNRabs((gamma/gammap) - ONE);
   jbad = (nst == 0) || (nst > nstlj + CVD_MSBJ) ||
     ((convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
     (convfail == CV_FAIL_OTHER);

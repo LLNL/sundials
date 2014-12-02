@@ -259,7 +259,7 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
 
   /* Compute norm of initial residual (r_0) to see if we really need
      to do anything */
-  *res_norm = r_init_norm = SUN_SQRT(rho[0]);
+  *res_norm = r_init_norm = SUNRsqrt(rho[0]);
   if (r_init_norm <= delta) return(SPTFQMR_SUCCESS);
 
   /* Set v_ = A*r_0 (preconditioned and scaled) */
@@ -339,33 +339,33 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
        *       if the inner loop is executed twice
        */
       if (m == 0) {
-	temp_val = SUN_SQRT(N_VDotProd(r_[1], r_[1]));
-	omega = SUN_SQRT(SUN_SQRT(N_VDotProd(r_[0], r_[0]))*temp_val);
-	N_VLinearSum(ONE, u_, SUN_SQR(v_bar)*eta/alpha, d_, d_);
+	temp_val = SUNRsqrt(N_VDotProd(r_[1], r_[1]));
+	omega = SUNRsqrt(SUNRsqrt(N_VDotProd(r_[0], r_[0]))*temp_val);
+	N_VLinearSum(ONE, u_, SUNSQR(v_bar)*eta/alpha, d_, d_);
       }
       else {
 	omega = temp_val;
-	N_VLinearSum(ONE, q_, SUN_SQR(v_bar)*eta/alpha, d_, d_);
+	N_VLinearSum(ONE, q_, SUNSQR(v_bar)*eta/alpha, d_, d_);
       }
 
       /* v_bar = omega/tau */
       v_bar = omega/tau;
 
       /* c = (1+v_bar^2)^(-1/2) */
-      c = ONE / SUN_SQRT(ONE+SUN_SQR(v_bar));
+      c = ONE / SUNRsqrt(ONE+SUNSQR(v_bar));
 
       /* tau = tau*v_bar*c */
       tau = tau*v_bar*c;
 
       /* eta = c^2*alpha */
-      eta = SUN_SQR(c)*alpha;
+      eta = SUNSQR(c)*alpha;
 
       /* x = x+eta*d_ */
       N_VLinearSum(ONE, x, eta, d_, x);
 
       /* Check for convergence... */
       /* NOTE: just use approximation to norm of residual, if possible */
-      *res_norm = r_curr_norm = tau*SUN_SQRT(m+1);
+      *res_norm = r_curr_norm = tau*SUNRsqrt(m+1);
 
       /* Exit inner loop if iteration has converged based upon approximation
 	 to norm of current residual */
@@ -421,7 +421,7 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
 	  if (scale_b) N_VProd(sb, vtemp3, vtemp3);
 	}
 	N_VLinearSum(ONE, vtemp3, -ONE, vtemp2, vtemp1);
-	*res_norm = r_curr_norm = SUN_SQRT(N_VDotProd(vtemp1, vtemp1));
+	*res_norm = r_curr_norm = SUNRsqrt(N_VDotProd(vtemp1, vtemp1));
 
 	/* Exit inner loop if inequality condition is satisfied 
 	   (meaning exit if we have converged) */
@@ -447,7 +447,7 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
     N_VLinearSum(ONE, r_[1], beta, q_, u_);
 
     /* p_ = u_+beta*(q_+beta*p_) */
-    N_VLinearSum(beta, q_, SUN_SQR(beta), p_, p_);
+    N_VLinearSum(beta, q_, SUNSQR(beta), p_, p_);
     N_VLinearSum(ONE, u_, ONE, p_, p_);
 
     /* v_ = A*p_ */

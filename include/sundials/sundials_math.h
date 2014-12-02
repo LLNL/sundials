@@ -43,88 +43,88 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-#ifndef SUN_MIN
-#define SUN_MIN(A, B) ((A) < (B) ? (A) : (B))
+#ifndef SUNMIN
+#define SUNMIN(A, B) ((A) < (B) ? (A) : (B))
 #endif
 
-#ifndef SUN_MAX
-#define SUN_MAX(A, B) ((A) > (B) ? (A) : (B))
+#ifndef SUNMAX
+#define SUNMAX(A, B) ((A) > (B) ? (A) : (B))
 #endif
 
-#ifndef SUN_SQR
-#define SUN_SQR(A) ((A)*(A))
+#ifndef SUNSQR
+#define SUNSQR(A) ((A)*(A))
 #endif
 
 
 /*
  * -----------------------------------------------------------------
- * Function : RPowerI
+ * Function : SUNRpowerI
  * -----------------------------------------------------------------
  * Usage : int exponent;
  *         realtype base, ans;
- *         ans = RPowerI(base,exponent);
+ *         ans = SUNRpowerI(base,exponent);
  * -----------------------------------------------------------------
- * RPowerI returns the value of base^exponent, where base is of type
+ * SUNRpowerI returns the value of base^exponent, where base is of type
  * realtype and exponent is of type int.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT realtype RPowerI(realtype base, int exponent);
+SUNDIALS_EXPORT realtype SUNRpowerI(realtype base, int exponent);
 
 /*
  * -----------------------------------------------------------------
- * Function : RPowerR
+ * Function : SUNRpowerR
  * -----------------------------------------------------------------
  * Usage : realtype base, exponent, ans;
- *         ans = RPowerR(base,exponent);
+ *         ans = SUNRpowerR(base,exponent);
  * -----------------------------------------------------------------
- * RPowerR returns the value of base^exponent, where both base and
- * exponent are of type realtype. If base < ZERO, then RPowerR
+ * SUNRpowerR returns the value of base^exponent, where both base and
+ * exponent are of type realtype. If base < ZERO, then SUNRpowerR
  * returns ZERO.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT realtype RPowerR(realtype base, realtype exponent);
+SUNDIALS_EXPORT realtype SUNRpowerR(realtype base, realtype exponent);
 
 /*
  * -----------------------------------------------------------------
- * Function : SUN_SQRT
+ * Function : SUNRsqrt
  * -----------------------------------------------------------------
  * Usage : realtype sqrt_x;
- *         sqrt_x = SUN_SQRT(x);
+ *         sqrt_x = SUNRsqrt(x);
  * -----------------------------------------------------------------
- * SUN_SQRT(x) returns the square root of x. If x < ZERO, then
- * SUN_SQRT returns ZERO.
+ * SUNRsqrt(x) returns the square root of x. If x < ZERO, then
+ * SUNRsqrt returns ZERO.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT realtype SUN_SQRT(realtype x);
+SUNDIALS_EXPORT realtype SUNRsqrt(realtype x);
 
 /*
  * -----------------------------------------------------------------
- * Function : SUN_ABS
+ * Function : SUNRabs
  * -----------------------------------------------------------------
  * Usage : realtype abs_x;
- *         abs_x = SUN_ABS(x);
+ *         abs_x = SUNRabs(x);
  * -----------------------------------------------------------------
- * SUN_ABS(x) returns the absolute value of x.
+ * SUNRabs(x) returns the absolute value of x.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT realtype SUN_ABS(realtype x);
+SUNDIALS_EXPORT realtype SUNRabs(realtype x);
 
 /*
  * -----------------------------------------------------------------
- * Function : SUN_EXP
+ * Function : SUNRexp
  * -----------------------------------------------------------------
  * Usage : realtype exp_x;
- *         exp_x = SUN_EXP(x);
+ *         exp_x = SUNRexp(x);
  * -----------------------------------------------------------------
- * SUN_EXP(x) returns e^x (base-e exponential function).
+ * SUNRexp(x) returns e^x (base-e exponential function).
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT realtype SUN_EXP(realtype x);
+SUNDIALS_EXPORT realtype SUNRexp(realtype x);
 
 #ifdef __cplusplus
 }

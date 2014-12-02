@@ -235,7 +235,7 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
   /* Set r_norm = beta to L2 norm of V[0] = s1 P1_inv r_0, and
      return if small.  */
 
-  *res_norm = r_norm = beta = SUN_SQRT(N_VDotProd(V[0], V[0])); 
+  *res_norm = r_norm = beta = SUNRsqrt(N_VDotProd(V[0], V[0])); 
   if (r_norm <= delta)
     return(SPGMR_SUCCESS);
 
@@ -332,7 +332,7 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
       /*  Update residual norm estimate; break if convergence test passes. */
       
       rotation_product *= givens[2*l+1];
-      *res_norm = rho = SUN_ABS(rotation_product*r_norm);
+      *res_norm = rho = SUNRabs(rotation_product*r_norm);
       
       if (rho <= delta) { converged = TRUE; break; }
       
@@ -395,7 +395,7 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
     r_norm *= s_product;
     for (i = 0; i <= krydim; i++)
       yg[i] *= r_norm;
-    r_norm = SUN_ABS(r_norm);
+    r_norm = SUNRabs(r_norm);
     
     /* Multiply yg by V_(krydim+1) to get last residual vector; restart. */
     N_VScale(yg[0], V[0], V[0]);

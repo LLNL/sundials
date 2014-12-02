@@ -196,7 +196,7 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl)
 
   /* Compute sqrtN from a dot product */
   N_VConst(ONE, ytemp);
-  sqrtN = SUN_SQRT(N_VDotProd(ytemp, ytemp));
+  sqrtN = SUNRsqrt(N_VDotProd(ytemp, ytemp));
 
   /* Call SptfqmrMalloc to allocate workspace for Sptfqmr */
   sptfqmr_mem = NULL;
@@ -300,7 +300,7 @@ static int CVSptfqmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   cvspils_mem = (CVSpilsMem) lmem;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-  dgamma = SUN_ABS((gamma/gammap) - ONE);
+  dgamma = SUNRabs((gamma/gammap) - ONE);
   jbad = (nst == 0) || (nst > nstlpre + CVSPILS_MSBPRE) ||
       ((convfail == CV_FAIL_BAD_J) && (dgamma < CVSPILS_DGMAX)) ||
       (convfail == CV_FAIL_OTHER);

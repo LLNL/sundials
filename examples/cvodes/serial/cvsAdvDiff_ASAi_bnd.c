@@ -468,7 +468,7 @@ static void SetIC(N_Vector u, UserData data)
     y = j*dy;
     for (i=1; i <= MX; i++) {
       x = i*dx;
-      IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*SUN_EXP(RCONST(5.0)*x*y);
+      IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*SUNRexp(RCONST(5.0)*x*y);
     }
   }  
 
@@ -494,7 +494,7 @@ static void PrintOutput(N_Vector uB, UserData data)
   for(j=1; j<= MY; j++) {
     for(i=1; i<=MX; i++) {
       uBij = IJth(uBdata, i, j);
-      if (SUN_ABS(uBij) > uBmax) {
+      if (SUNRabs(uBij) > uBmax) {
         uBmax = uBij;
         x = i*dx;
         y = j*dy;

@@ -220,7 +220,7 @@ int IDASptfqmr(void *ida_mem, int maxl)
 
   /* Compute sqrtN from a dot product */
   N_VConst(ONE, ytemp);
-  sqrtN = SUN_SQRT(N_VDotProd(ytemp, ytemp));
+  sqrtN = SUNRsqrt(N_VDotProd(ytemp, ytemp));
 
   /* Call SptfqmrMalloc to allocate workspace for Sptfqmr */
   sptfqmr_mem = NULL;

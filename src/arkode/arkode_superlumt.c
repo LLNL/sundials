@@ -298,7 +298,7 @@ static int arkSuperLUMTSetup(ARKodeMem ark_mem, int convfail,
   }
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-  dgamma = SUN_ABS((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
+  dgamma = SUNRabs((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
   jbad = (ark_mem->ark_nst == 0) || 
     (ark_mem->ark_nst > arksls_mem->s_nstlj + ARKS_MSBJ) ||
     ((convfail == ARK_FAIL_BAD_J) && (dgamma < ARKS_DGMAX)) ||

@@ -53,9 +53,9 @@
 
 /* NAN and floating point "equality" check, failure update macro */
 #if __STDC_VERSION__ >= 199901L
-#define FNEQ(a,b) (isnan(a) ? 1 : ( SUN_ABS((a)-(b))/SUN_ABS(b) > 1.0e-15 ))
+#define FNEQ(a,b) (isnan(a) ? 1 : ( SUNRabs((a)-(b))/SUNRabs(b) > 1.0e-15 ))
 #else
-#define FNEQ(a,b) (( SUN_ABS((a)-(b))/SUN_ABS(b) > 1.0e-15 ))
+#define FNEQ(a,b) (( SUNRabs((a)-(b))/SUNRabs(b) > 1.0e-15 ))
 #endif
 
 
@@ -1503,7 +1503,7 @@ int Test_N_VWL2Norm(N_Vector X, N_Vector W,
   stop_time = get_time(); 
 
   /* ans should equal 1/4 * sqrt(global_length) */
-  failure = (ans < ZERO) ? 1 : FNEQ(ans, HALF*HALF*SUN_SQRT((realtype) global_length));
+  failure = (ans < ZERO) ? 1 : FNEQ(ans, HALF*HALF*SUNRsqrt((realtype) global_length));
 
   if (failure) {
     printf(">>> FAILED test -- N_VWL2Norm, Proc %d \n", myid);

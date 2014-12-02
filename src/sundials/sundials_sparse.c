@@ -333,7 +333,7 @@ void AddIdentitySparseMat(SlsMat A)
   /* determine if A already contains values on the diagonal (hence 
      memory allocation necessary)*/
   newmat=0;
-  for (j=0; j < SUN_MIN(A->N,A->M); j++) {
+  for (j=0; j < SUNMIN(A->N,A->M); j++) {
     /* scan column of A, searching for diagonal value */
     found = 0;
     for (i=A->colptrs[j]; i<A->colptrs[j+1]; i++)
@@ -354,7 +354,7 @@ void AddIdentitySparseMat(SlsMat A)
   if (!newmat) {
 
     /* iterate through columns, adding 1.0 to diagonal */
-    for (j=0; j < SUN_MIN(A->N,A->M); j++)
+    for (j=0; j < SUNMIN(A->N,A->M); j++)
       for (i=A->colptrs[j]; i<A->colptrs[j+1]; i++)
 	if (A->rowvals[i] == j) 
 	  A->data[i] += ONE;
@@ -367,7 +367,7 @@ void AddIdentitySparseMat(SlsMat A)
     x = (realtype *) malloc(A->M * sizeof(realtype));
 
     /* create new matrix for sum (overestimate nnz as sum of each) */
-    C = NewSparseMat(A->M, A->N, (A->colptrs[A->N]) + SUN_MIN(A->M, A->N));
+    C = NewSparseMat(A->M, A->N, (A->colptrs[A->N]) + SUNMIN(A->M, A->N));
 
     /* access data from CSR structures (return if failure) */
     Cp = Ci = Ap = Ai = NULL;

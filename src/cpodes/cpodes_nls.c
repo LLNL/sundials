@@ -197,13 +197,13 @@ int cpNls(CPodeMem cp_mem, int nflag, realtype saved_t, int *ncfPtr)
 
   /* If we had maxncf failures or |h| = hmin, 
      return CP_CONV_FAILURE or CP_REPTD_ODEFUNC_ERR. */
-  if ((SUN_ABS(h) <= hmin*ONEPSM) || (*ncfPtr == maxncf)) {
+  if ((SUNRabs(h) <= hmin*ONEPSM) || (*ncfPtr == maxncf)) {
     if (flag == CONV_FAIL)     return(CP_CONV_FAILURE);
     if (flag == ODEFUNC_RECVR) return(CP_REPTD_ODEFUNC_ERR);    
   }
 
   /* Reduce step size; return to reattempt the step */
-  eta = SUN_MAX(ETACF, hmin / SUN_ABS(h));
+  eta = SUNMAX(ETACF, hmin / SUNRabs(h));
   cpRescale(cp_mem);
 
   return(PREDICT_AGAIN);
@@ -276,8 +276,8 @@ static int cpNlsFunctionalExpl(CPodeMem cp_mem)
     
     /* Test for convergence.  If m > 0, an estimate of the convergence
        rate constant is stored in crate, and used in the test.        */
-    if (m > 0) crate = SUN_MAX(NLS_CRDOWN * crate, del / delp);
-    dcon = del * SUN_MIN(ONE, crate) / tq[4];
+    if (m > 0) crate = SUNMAX(NLS_CRDOWN * crate, del / delp);
+    dcon = del * SUNMIN(ONE, crate) / tq[4];
     if (dcon <= ONE) {
       acnrm = (m == 0) ? del : N_VWrmsNorm(acor, ewt);
       return(CP_SUCCESS);  /* Convergence achieved */
@@ -341,7 +341,7 @@ static int cpNlsNewtonExpl(CPodeMem cp_mem, int nflag)
   /* Decide whether or not to call setup routine (if one exists) */
   if (lsetup_exists) {      
     callSetup = (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
-      (nst == 0) || (nst >= nstlset + NLS_MSBLS) || (SUN_ABS(gamrat-ONE) > DGMAX);
+      (nst == 0) || (nst >= nstlset + NLS_MSBLS) || (SUNRabs(gamrat-ONE) > DGMAX);
   } else {  
     crate = ONE;
     callSetup = FALSE;
@@ -490,9 +490,9 @@ static int cpNewtonIterationExpl(CPodeMem cp_mem)
     /* Test for convergence.  If m > 0, an estimate of the convergence
        rate constant is stored in crate, and used in the test.        */
     if (m > 0) {
-      crate = SUN_MAX(NLS_CRDOWN * crate, del/delp);
+      crate = SUNMAX(NLS_CRDOWN * crate, del/delp);
     }
-    dcon = del * SUN_MIN(ONE, crate) / tq[4];
+    dcon = del * SUNMIN(ONE, crate) / tq[4];
 
 #ifdef CPODES_DEBUG
     printf("            Convergence test  dcon = %lg\n", dcon);
@@ -609,8 +609,8 @@ static int cpNlsFunctionalImpl(CPodeMem cp_mem)
     
     /* Test for convergence.  If m > 0, an estimate of the convergence
        rate constant is stored in crate, and used in the test.        */
-    if (m > 0) crate = SUN_MAX(NLS_CRDOWN * crate, del / delp);
-    dcon = del * SUN_MIN(ONE, crate) / tq[4];
+    if (m > 0) crate = SUNMAX(NLS_CRDOWN * crate, del / delp);
+    dcon = del * SUNMIN(ONE, crate) / tq[4];
     if (dcon <= ONE) {
       acnrm = (m == 0) ? del : N_VWrmsNorm(acor, ewt);
       return(CP_SUCCESS);  /* Convergence achieved */
@@ -680,7 +680,7 @@ static int cpNlsNewtonImpl(CPodeMem cp_mem, int nflag)
    *   - enough steps passed from last evaluation
    */
   if (lsetup_exists) {
-    callSetup = (nst == 0) || (SUN_ABS(gamrat-ONE) > DGMAX) || (nst >= nstlset + NLS_MSBLS);
+    callSetup = (nst == 0) || (SUNRabs(gamrat-ONE) > DGMAX) || (nst >= nstlset + NLS_MSBLS);
   } else {
     callSetup = FALSE;
     crate = ONE;
@@ -782,8 +782,8 @@ static int cpNewtonIterationImpl(CPodeMem cp_mem)
 
     /* Test for convergence.  If m > 0, an estimate of the convergence
        rate constant is stored in crate, and used in the test.        */
-    if (m > 0) crate = SUN_MAX(NLS_CRDOWN * crate, del/delp);
-    dcon = del * SUN_MIN(ONE, crate) / tq[4];
+    if (m > 0) crate = SUNMAX(NLS_CRDOWN * crate, del/delp);
+    dcon = del * SUNMIN(ONE, crate) / tq[4];
     if (dcon <= ONE) {
       acnrm = (m==0) ? del : N_VWrmsNorm(acor, ewt);
       return(CP_SUCCESS);

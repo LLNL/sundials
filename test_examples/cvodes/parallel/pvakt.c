@@ -498,14 +498,14 @@ static void SetSource(ProblemData d)
         x[2] = xmin[2] + (m_start[2]+i[2]) * dx[2];
         
         g = G1_AMPL 
-          * SUN_EXP( -SUN_SQR(G1_X-x[0])/SUN_SQR(G1_SIGMA) )
-          * SUN_EXP( -SUN_SQR(G1_Y-x[1])/SUN_SQR(G1_SIGMA) )
-          * SUN_EXP( -SUN_SQR(G1_Z-x[2])/SUN_SQR(G1_SIGMA) );
+          * SUNRexp( -SUNSQR(G1_X-x[0])/SUNSQR(G1_SIGMA) )
+          * SUNRexp( -SUNSQR(G1_Y-x[1])/SUNSQR(G1_SIGMA) )
+          * SUNRexp( -SUNSQR(G1_Z-x[2])/SUNSQR(G1_SIGMA) );
         
         g += G2_AMPL 
-          * SUN_EXP( -SUN_SQR(G2_X-x[0])/SUN_SQR(G2_SIGMA) )
-          * SUN_EXP( -SUN_SQR(G2_Y-x[1])/SUN_SQR(G2_SIGMA) )
-          * SUN_EXP( -SUN_SQR(G2_Z-x[2])/SUN_SQR(G2_SIGMA) );
+          * SUNRexp( -SUNSQR(G2_X-x[0])/SUNSQR(G2_SIGMA) )
+          * SUNRexp( -SUNSQR(G2_Y-x[1])/SUNSQR(G2_SIGMA) )
+          * SUNRexp( -SUNSQR(G2_Z-x[2])/SUNSQR(G2_SIGMA) );
         
         if( g < G_MIN ) g = ZERO;
 
@@ -719,7 +719,7 @@ static int f_local(int Nlocal, realtype t, N_Vector y,
             cl[dim] = cr[dim];
 
           adv[dim]  = v[dim] * (cr[dim]-cl[dim]) / (TWO*dx[dim]);
-          diff[dim] = DIFF_COEF * (cr[dim]-TWO*c+cl[dim]) / SUN_SQR(dx[dim]);
+          diff[dim] = DIFF_COEF * (cr[dim]-TWO*c+cl[dim]) / SUNSQR(dx[dim]);
 
           IJth(dydata, i) += (diff[dim] - adv[dim]);
         } 
@@ -855,7 +855,7 @@ static int fB_local(int NlocalB, realtype t,
 	      cl[dim] = cr[dim]+(TWO*dx[dim]*v[dim]/DIFF_COEF)*c;
 		  
           adv[dim]  = v[dim] * (cr[dim]-cl[dim]) / (TWO*dx[dim]);
-          diff[dim] = DIFF_COEF * (cr[dim]-TWO*c+cl[dim]) / SUN_SQR(dx[dim]);
+          diff[dim] = DIFF_COEF * (cr[dim]-TWO*c+cl[dim]) / SUNSQR(dx[dim]);
           
           IJth(dyBdata, i) -= (diff[dim] + adv[dim]);
         } 

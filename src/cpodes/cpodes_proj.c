@@ -235,14 +235,14 @@ int cpDoProjection(CPodeMem cp_mem, realtype saved_t, int *npfPtr)
   
   /* If we had maxnpf failures or |h| = hmin, 
      return CP_PROJ_FAILURE or CP_REPTD_CNSTRFUNC_ERR or CP_REPTD_PROJFUNC_ERR. */
-  if ((SUN_ABS(h) <= hmin*ONEPSM) || (*npfPtr == maxnpf)) {
+  if ((SUNRabs(h) <= hmin*ONEPSM) || (*npfPtr == maxnpf)) {
     if (flag == CONV_FAIL)       return(CP_PROJ_FAILURE);
     if (flag == CNSTRFUNC_RECVR) return(CP_REPTD_CNSTRFUNC_ERR);    
     if (flag == PROJFUNC_RECVR)  return(CP_REPTD_PROJFUNC_ERR);    
   }
 
   /* Reduce step size; return to reattempt the step */
-  eta = SUN_MAX(ETAPR, hmin / SUN_ABS(h));
+  eta = SUNMAX(ETAPR, hmin / SUNRabs(h));
   cpRescale(cp_mem);
 
   return(PREDICT_AGAIN);
@@ -486,8 +486,8 @@ static int cpProjNonlinearIteration(CPodeMem cp_mem)
 
     /* Test for convergence.  If m > 0, an estimate of the convergence
        rate constant is stored in crateP, and used in the test.        */
-    if (m > 0) crateP = SUN_MAX(PRJ_CRDOWN * crateP, del/delp);
-    dcon = del * SUN_MIN(ONE, crateP) / prjcoef;
+    if (m > 0) crateP = SUNMAX(PRJ_CRDOWN * crateP, del/delp);
+    dcon = del * SUNMIN(ONE, crateP) / prjcoef;
 
 #ifdef CPODES_DEBUG
     printf("            Convergence test  dcon = %lg\n", dcon);

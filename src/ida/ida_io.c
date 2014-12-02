@@ -128,7 +128,7 @@ int IDASetMaxOrd(void *ida_mem, int maxord)
     return(IDA_ILL_INPUT);
   }  
 
-  IDA_mem->ida_maxord = SUN_MIN(maxord,MAXORD_DEFAULT);
+  IDA_mem->ida_maxord = SUNMIN(maxord,MAXORD_DEFAULT);
 
   return(IDA_SUCCESS);
 }

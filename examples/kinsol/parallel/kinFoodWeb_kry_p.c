@@ -400,7 +400,7 @@ static int Precondbd(N_Vector cc, N_Vector cscale,
       for (j = 0; j < NUM_SPECIES; j++) {
         
         csave = cxy[j];  /* Save the j,jx,jy element of cc */
-        r = SUN_MAX(sqruround*SUN_ABS(csave), r0/scxy[j]);
+        r = SUNMAX(sqruround*SUNRabs(csave), r0/scxy[j]);
         cxy[j] += r; /* Perturb the j,jx,jy element of cc */
         fac = ONE/r;
         
@@ -550,7 +550,7 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
   data->dx = (data->ax)/(MX-1);
   data->dy = (data->ay)/(MY-1);
   data->uround = UNIT_ROUNDOFF;
-  data->sqruround = SUN_SQRT(data->uround);
+  data->sqruround = SUNRsqrt(data->uround);
   data->my_pe = my_pe;
   data->comm = comm;
   data->isuby = my_pe/NPEX;

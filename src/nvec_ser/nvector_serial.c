@@ -575,7 +575,7 @@ void N_VAbs_Serial(N_Vector x, N_Vector z)
   zd = NV_DATA_S(z);
 
   for (i = 0; i < N; i++)
-    zd[i] = SUN_ABS(xd[i]);
+    zd[i] = SUNRabs(xd[i]);
 
   return;
 }
@@ -644,7 +644,7 @@ realtype N_VMaxNorm_Serial(N_Vector x)
   xd = NV_DATA_S(x);
 
   for (i = 0; i < N; i++) {
-    if (SUN_ABS(xd[i]) > max) max = SUN_ABS(xd[i]);
+    if (SUNRabs(xd[i]) > max) max = SUNRabs(xd[i]);
   }
 
   return(max);
@@ -664,10 +664,10 @@ realtype N_VWrmsNorm_Serial(N_Vector x, N_Vector w)
 
   for (i = 0; i < N; i++) {
     prodi = xd[i]*wd[i];
-    sum += SUN_SQR(prodi);
+    sum += SUNSQR(prodi);
   }
 
-  return(SUN_SQRT(sum/N));
+  return(SUNRsqrt(sum/N));
 }
 
 realtype N_VWrmsNormMask_Serial(N_Vector x, N_Vector w, N_Vector id)
@@ -686,11 +686,11 @@ realtype N_VWrmsNormMask_Serial(N_Vector x, N_Vector w, N_Vector id)
   for (i = 0; i < N; i++) {
     if (idd[i] > ZERO) {
       prodi = xd[i]*wd[i];
-      sum += SUN_SQR(prodi);
+      sum += SUNSQR(prodi);
     }
   }
 
-  return(SUN_SQRT(sum / N));
+  return(SUNRsqrt(sum / N));
 }
 
 realtype N_VMin_Serial(N_Vector x)
@@ -726,10 +726,10 @@ realtype N_VWL2Norm_Serial(N_Vector x, N_Vector w)
 
   for (i = 0; i < N; i++) {
     prodi = xd[i]*wd[i];
-    sum += SUN_SQR(prodi);
+    sum += SUNSQR(prodi);
   }
 
-  return(SUN_SQRT(sum));
+  return(SUNRsqrt(sum));
 }
 
 realtype N_VL1Norm_Serial(N_Vector x)
@@ -744,7 +744,7 @@ realtype N_VL1Norm_Serial(N_Vector x)
   xd = NV_DATA_S(x);
   
   for (i = 0; i<N; i++)  
-    sum += SUN_ABS(xd[i]);
+    sum += SUNRabs(xd[i]);
 
   return(sum);
 }
@@ -761,7 +761,7 @@ void N_VCompare_Serial(realtype c, N_Vector x, N_Vector z)
   zd = NV_DATA_S(z);
 
   for (i = 0; i < N; i++) {
-    zd[i] = (SUN_ABS(xd[i]) >= c) ? ONE : ZERO;
+    zd[i] = (SUNRabs(xd[i]) >= c) ? ONE : ZERO;
   }
 
   return;
@@ -838,7 +838,7 @@ realtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom)
   for (i = 0; i < N; i++) {
     if (dd[i] == ZERO) continue;
     else {
-      if (!notEvenOnce) min = SUN_MIN(min, nd[i]/dd[i]);
+      if (!notEvenOnce) min = SUNMIN(min, nd[i]/dd[i]);
       else {
 	min = nd[i]/dd[i];
         notEvenOnce = FALSE;

@@ -202,7 +202,7 @@ static void SetIC(N_Vector u, realtype dx, long int my_length,
   for (i=1; i<=my_length; i++) {
     iglobal = my_base + i;
     x = iglobal*dx;
-    udata[i-1] = x*(XMAX - x)*SUN_EXP(RCONST(2.0)*x);
+    udata[i-1] = x*(XMAX - x)*SUNRexp(RCONST(2.0)*x);
   }  
 }
 

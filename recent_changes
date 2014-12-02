@@ -193,5 +193,5 @@ public by way of updates to the website after 3/22/12.
 52. Added options in IDAS for the user's pset, psolve, jtv functions for
     the backward problem to depend on the forward sensitivities.
 
-53. Changed macro names MIN, MAX, ABS, SQR, SQRT, EXP to SUN_MIN, etc.
+53. Changed macro names MIN, MAX, ABS, SQR, SQRT, EXP to SUNMIN, etc.
 

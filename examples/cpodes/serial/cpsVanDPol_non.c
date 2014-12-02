@@ -106,7 +106,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   y1 = NV_Ith_S(y,1);
 
   NV_Ith_S(ydot,0) = y1;
-  NV_Ith_S(ydot,1) = (ONE - SUN_SQR(y0))* P1_ETA * y1 - y0;
+  NV_Ith_S(ydot,1) = (ONE - SUNSQR(y0))* P1_ETA * y1 - y0;
 
   return(0);
 } 

@@ -95,10 +95,10 @@ int ARKBBDPrecInit(void *arkode_mem, long int Nlocal,
   pdata->arkode_mem = arkode_mem;
   pdata->gloc = gloc;
   pdata->cfn = cfn;
-  pdata->mudq = SUN_MIN(Nlocal-1, SUN_MAX(0,mudq));
-  pdata->mldq = SUN_MIN(Nlocal-1, SUN_MAX(0,mldq));
-  muk = SUN_MIN(Nlocal-1, SUN_MAX(0,mukeep));
-  mlk = SUN_MIN(Nlocal-1, SUN_MAX(0,mlkeep));
+  pdata->mudq = SUNMIN(Nlocal-1, SUNMAX(0,mudq));
+  pdata->mldq = SUNMIN(Nlocal-1, SUNMAX(0,mldq));
+  muk = SUNMIN(Nlocal-1, SUNMAX(0,mukeep));
+  mlk = SUNMIN(Nlocal-1, SUNMAX(0,mlkeep));
   pdata->mukeep = muk;
   pdata->mlkeep = mlk;
 
@@ -112,7 +112,7 @@ int ARKBBDPrecInit(void *arkode_mem, long int Nlocal,
   }
 
   /* Allocate memory for preconditioner matrix */
-  storage_mu = SUN_MIN(Nlocal-1, muk + mlk);
+  storage_mu = SUNMIN(Nlocal-1, muk + mlk);
   pdata->savedP = NULL;
   pdata->savedP = NewBandMat(Nlocal, muk, mlk, storage_mu);
   if (pdata->savedP == NULL) {
@@ -135,7 +135,7 @@ int ARKBBDPrecInit(void *arkode_mem, long int Nlocal,
   }
 
   /* Set pdata->dqrely based on input dqrely (0 implies default). */
-  pdata->dqrely = (dqrely > ZERO) ? dqrely : SUN_SQRT(ark_mem->ark_uround);
+  pdata->dqrely = (dqrely > ZERO) ? dqrely : SUNRsqrt(ark_mem->ark_uround);
 
   /* Store Nlocal to be used in ARKBBDPrecSetup */
   pdata->n_local = Nlocal;
@@ -193,11 +193,11 @@ int ARKBBDPrecReInit(void *arkode_mem, long int mudq,
 
   /* Load half-bandwidths */
   Nlocal = pdata->n_local;
-  pdata->mudq = SUN_MIN(Nlocal-1, SUN_MAX(0,mudq));
-  pdata->mldq = SUN_MIN(Nlocal-1, SUN_MAX(0,mldq));
+  pdata->mudq = SUNMIN(Nlocal-1, SUNMAX(0,mudq));
+  pdata->mldq = SUNMIN(Nlocal-1, SUNMAX(0,mldq));
 
   /* Set pdata->dqrely based on input dqrely (0 implies default). */
-  pdata->dqrely = (dqrely > ZERO) ? dqrely : SUN_SQRT(ark_mem->ark_uround);
+  pdata->dqrely = (dqrely > ZERO) ? dqrely : SUNRsqrt(ark_mem->ark_uround);
 
   /* Re-initialize nge */
   pdata->nge = 0;
@@ -484,19 +484,19 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
   /* Set minimum increment based on uround and norm of g */
   /* gnorm = N_VWrmsNorm(gy, ark_mem->ark_ewt); */
   gnorm = N_VWrmsNorm(gy, ark_mem->ark_rwt);
-  minInc = (gnorm != ZERO) ? (MIN_INC_MULT * SUN_ABS(ark_mem->ark_h) *
+  minInc = (gnorm != ZERO) ? (MIN_INC_MULT * SUNRabs(ark_mem->ark_h) *
 			      ark_mem->ark_uround * pdata->n_local * gnorm) : ONE;
 
   /* Set bandwidth and number of column groups for band differencing */
   width = pdata->mldq + pdata->mudq + 1;
-  ngroups = SUN_MIN(width, pdata->n_local);
+  ngroups = SUNMIN(width, pdata->n_local);
 
   /* Loop over groups */  
   for (group=1; group <= ngroups; group++) {
     
     /* Increment all y_j in group */
     for(j=group-1; j < pdata->n_local; j+=width) {
-      inc = SUN_MAX(pdata->dqrely*SUN_ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUNMAX(pdata->dqrely*SUNRabs(y_data[j]), minInc/ewt_data[j]);
       ytemp_data[j] += inc;
     }
 
@@ -510,10 +510,10 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
     for (j=group-1; j < pdata->n_local; j+=width) {
       ytemp_data[j] = y_data[j];
       col_j = BAND_COL(pdata->savedJ,j);
-      inc = SUN_MAX(pdata->dqrely*SUN_ABS(y_data[j]), minInc/ewt_data[j]);
+      inc = SUNMAX(pdata->dqrely*SUNRabs(y_data[j]), minInc/ewt_data[j]);
       inc_inv = ONE/inc;
-      i1 = SUN_MAX(0, j-pdata->mukeep);
-      i2 = SUN_MIN(j+pdata->mlkeep, pdata->n_local-1);
+      i1 = SUNMAX(0, j-pdata->mukeep);
+      i2 = SUNMIN(j+pdata->mlkeep, pdata->n_local-1);
       for (i=i1; i <= i2; i++)
         BAND_COL_ELEM(col_j,i,j) =
           inc_inv * (gtemp_data[i] - gy_data[i]);

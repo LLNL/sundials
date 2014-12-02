@@ -205,7 +205,7 @@ int SpfgmrSolve(SpfgmrMem mem, void *A_data, N_Vector x,
   }
 
   /* Set r_norm = beta to L2 norm of V[0] = s1 r_0, and return if small */
-  *res_norm = r_norm = beta = SUN_SQRT(N_VDotProd(V[0], V[0]));
+  *res_norm = r_norm = beta = SUNRsqrt(N_VDotProd(V[0], V[0]));
   if (r_norm <= delta)
     return(SPFGMR_SUCCESS);
 
@@ -273,7 +273,7 @@ int SpfgmrSolve(SpfgmrMem mem, void *A_data, N_Vector x,
       
       /* Update residual norm estimate; break if convergence test passes. */
       rotation_product *= givens[2*l+1];
-      *res_norm = rho = SUN_ABS(rotation_product*r_norm);
+      *res_norm = rho = SUNRabs(rotation_product*r_norm);
       if (rho <= delta) { converged = TRUE; break; }
       
       /* Normalize V[l+1] with norm value from the Gram-Schmidt routine. */
@@ -313,7 +313,7 @@ int SpfgmrSolve(SpfgmrMem mem, void *A_data, N_Vector x,
     r_norm *= s_product;
     for (i=0; i<=krydim; i++)
       yg[i] *= r_norm;
-    r_norm = SUN_ABS(r_norm);
+    r_norm = SUNRabs(r_norm);
     
     /* Multiply yg by V_(krydim+1) to get last residual vector; restart. */
     N_VScale(yg[0], V[0], V[0]);

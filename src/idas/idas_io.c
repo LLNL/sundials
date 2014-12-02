@@ -127,7 +127,7 @@ int IDASetMaxOrd(void *ida_mem, int maxord)
     return(IDA_ILL_INPUT);
   }  
 
-  IDA_mem->ida_maxord = SUN_MIN(maxord,MAXORD_DEFAULT);
+  IDA_mem->ida_maxord = SUNMIN(maxord,MAXORD_DEFAULT);
 
   return(IDA_SUCCESS);
 }
@@ -755,7 +755,7 @@ int IDASetSensParams(void *ida_mem, realtype *p, realtype *pbar, int *plist)
         IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetSensParams", MSG_BAD_PBAR);
         return(IDA_ILL_INPUT);
       }
-      IDA_mem->ida_pbar[is] = SUN_ABS(pbar[is]);
+      IDA_mem->ida_pbar[is] = SUNRabs(pbar[is]);
     }
   else
     for (is=0; is<Ns; is++)

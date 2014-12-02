@@ -140,14 +140,14 @@ static realtype MaxError(N_Vector y, realtype t)
   if (t == ZERO) return(ZERO);
 
   ydata = NV_DATA_S(y);
-  if (t <= THIRTY) ex = SUN_EXP(-TWO*t);
+  if (t <= THIRTY) ex = SUNRexp(-TWO*t);
   
   for (j = 0; j < MESHY; j++) {
     ifact_inv = ONE;
     for (i = 0; i < MESHX; i++) {
       k = i + j * MESHX;
-      yt = RPowerI(t,i+j) * ex * ifact_inv * jfact_inv;
-      er = SUN_ABS(ydata[k] - yt);
+      yt = SUNRpowerI(t,i+j) * ex * ifact_inv * jfact_inv;
+      er = SUNRabs(ydata[k] - yt);
       if (er > maxError) maxError = er;
       ifact_inv /= (i+1);
     }

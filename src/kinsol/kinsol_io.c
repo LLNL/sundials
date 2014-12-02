@@ -667,9 +667,9 @@ int KINSetRelErrFunc(void *kinmem, realtype relfunc)
 
   if (relfunc == ZERO) {
     uround = kin_mem->kin_uround;
-    kin_mem->kin_sqrt_relfunc = SUN_SQRT(uround);
+    kin_mem->kin_sqrt_relfunc = SUNRsqrt(uround);
   } else {
-    kin_mem->kin_sqrt_relfunc = SUN_SQRT(relfunc);
+    kin_mem->kin_sqrt_relfunc = SUNRsqrt(relfunc);
   }
 
   return(KIN_SUCCESS);
@@ -700,7 +700,7 @@ int KINSetFuncNormTol(void *kinmem, realtype fnormtol)
 
   if (fnormtol == ZERO) {
     uround = kin_mem->kin_uround;
-    kin_mem->kin_fnormtol = RPowerR(uround,ONETHIRD);
+    kin_mem->kin_fnormtol = SUNRpowerR(uround,ONETHIRD);
   } else {
     kin_mem->kin_fnormtol = fnormtol;
   }
@@ -733,7 +733,7 @@ int KINSetScaledStepTol(void *kinmem, realtype scsteptol)
 
   if (scsteptol == ZERO) {
     uround = kin_mem->kin_uround;
-    kin_mem->kin_scsteptol = RPowerR(uround,TWOTHIRDS);
+    kin_mem->kin_scsteptol = SUNRpowerR(uround,TWOTHIRDS);
   } else {
     kin_mem->kin_scsteptol = scsteptol;
   }

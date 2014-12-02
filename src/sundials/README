@@ -13,7 +13,7 @@ in this module:
 - generic NVECTOR module
 - generic linear solver modules (band, dense, lapack, sparse, pcg, spfgmr, spgmr, spbcg, sptfqmr)
 - definitions of SUNDIALS types (realtype, booleantype)
-- common math functions (RpowerI, RPowerR, SUN_SQRT, SUN_ABS,...)
+- common math functions (RpowerI, SUNRpowerR, SUNRsqrt, SUNRabs,...)
 
 
 A. Documentation

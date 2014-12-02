@@ -47,9 +47,9 @@ int ModifiedGS(N_Vector *v, realtype **h, int k, int p,
   int  i, k_minus_1, i0;
   realtype new_norm_2, new_product, vk_norm, temp;
   
-  vk_norm = SUN_SQRT(N_VDotProd(v[k],v[k]));
+  vk_norm = SUNRsqrt(N_VDotProd(v[k],v[k]));
   k_minus_1 = k - 1;
-  i0 = SUN_MAX(k-p, 0);
+  i0 = SUNMAX(k-p, 0);
   
   /* Perform modified Gram-Schmidt */
   
@@ -60,7 +60,7 @@ int ModifiedGS(N_Vector *v, realtype **h, int k, int p,
 
   /* Compute the norm of the new vector at v[k] */
 
-  *new_vk_norm = SUN_SQRT(N_VDotProd(v[k], v[k]));
+  *new_vk_norm = SUNRsqrt(N_VDotProd(v[k], v[k]));
 
   /* If the norm of the new vector at v[k] is less than
      FACTOR (== 1000) times unit roundoff times the norm of the
@@ -79,12 +79,12 @@ int ModifiedGS(N_Vector *v, realtype **h, int k, int p,
     if ((temp + new_product) == temp) continue;
     h[i][k_minus_1] += new_product;
     N_VLinearSum(ONE, v[k],-new_product, v[i], v[k]);
-    new_norm_2 += SUN_SQR(new_product);
+    new_norm_2 += SUNSQR(new_product);
   }
 
   if (new_norm_2 != ZERO) {
-    new_product = SUN_SQR(*new_vk_norm) - new_norm_2;
-    *new_vk_norm = (new_product > ZERO) ? SUN_SQRT(new_product) : ZERO;
+    new_product = SUNSQR(*new_vk_norm) - new_norm_2;
+    *new_vk_norm = (new_product > ZERO) ? SUNRsqrt(new_product) : ZERO;
   }
 
   return(0);
@@ -109,9 +109,9 @@ int ClassicalGS(N_Vector *v, realtype **h, int k, int p,
   
   /* Perform Classical Gram-Schmidt */
 
-  vk_norm = SUN_SQRT(N_VDotProd(v[k], v[k]));
+  vk_norm = SUNRsqrt(N_VDotProd(v[k], v[k]));
 
-  i0 = SUN_MAX(k-p, 0);
+  i0 = SUNMAX(k-p, 0);
   for (i=i0; i < k; i++) {
     h[i][k_minus_1] = N_VDotProd(v[i], v[k]);
   }
@@ -122,7 +122,7 @@ int ClassicalGS(N_Vector *v, realtype **h, int k, int p,
 
   /* Compute the norm of the new vector at v[k] */
 
-  *new_vk_norm = SUN_SQRT(N_VDotProd(v[k], v[k]));
+  *new_vk_norm = SUNRsqrt(N_VDotProd(v[k], v[k]));
 
   /* Reorthogonalize if necessary */
 
@@ -142,7 +142,7 @@ int ClassicalGS(N_Vector *v, realtype **h, int k, int p,
     }
     N_VLinearSum(ONE, v[k], -ONE, temp, v[k]);
 
-    *new_vk_norm = SUN_SQRT(N_VDotProd(v[k],v[k]));
+    *new_vk_norm = SUNRsqrt(N_VDotProd(v[k],v[k]));
   }
 
   return(0);
@@ -190,13 +190,13 @@ int QRfact(int n, realtype **h, realtype *q, int job)
       if( temp2 == ZERO) {
 	c = ONE;
 	s = ZERO;
-      } else if (SUN_ABS(temp2) >= SUN_ABS(temp1)) {
+      } else if (SUNRabs(temp2) >= SUNRabs(temp1)) {
 	temp3 = temp1/temp2;
-	s = -ONE/SUN_SQRT(ONE+SUN_SQR(temp3));
+	s = -ONE/SUNRsqrt(ONE+SUNSQR(temp3));
 	c = -s*temp3;
       } else {
 	temp3 = temp2/temp1;
-	c = ONE/SUN_SQRT(ONE+SUN_SQR(temp3));
+	c = ONE/SUNRsqrt(ONE+SUNSQR(temp3));
 	s = -c*temp3;
       }
       q[q_ptr] = c;
@@ -233,13 +233,13 @@ int QRfact(int n, realtype **h, realtype *q, int job)
     if (temp2 == ZERO) {
       c = ONE;
       s = ZERO;
-    } else if (SUN_ABS(temp2) >= SUN_ABS(temp1)) {
+    } else if (SUNRabs(temp2) >= SUNRabs(temp1)) {
       temp3 = temp1/temp2;
-      s = -ONE/SUN_SQRT(ONE+SUN_SQR(temp3));
+      s = -ONE/SUNRsqrt(ONE+SUNSQR(temp3));
       c = -s*temp3;
     } else {
       temp3 = temp2/temp1;
-      c = ONE/SUN_SQRT(ONE+SUN_SQR(temp3));
+      c = ONE/SUNRsqrt(ONE+SUNSQR(temp3));
       s = -c*temp3;
     }
     q_ptr = 2*n_minus_1;

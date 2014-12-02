@@ -185,7 +185,7 @@ int CPBand(void *cpode_mem, int N, int mupper, int mlower)
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
-  smu = SUN_MIN(N-1, mu + ml);
+  smu = SUNMIN(N-1, mu + ml);
 
   /* Allocate memory for M, savedJ, and pivot arrays */
   M = NULL;
@@ -305,7 +305,7 @@ static int cpBandSetup(CPodeMem cp_mem, int convfail,
   case CP_EXPL:
 
     /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-    dgamma = SUN_ABS((gamma/gammap) - ONE);
+    dgamma = SUNRabs((gamma/gammap) - ONE);
     jbad = (nst == 0) || (nst > nstlj + CPD_MSBJ) ||
       ((convfail == CP_FAIL_BAD_J) && (dgamma < CPD_DGMAX)) ||
       (convfail == CP_FAIL_OTHER);

@@ -362,7 +362,7 @@ static void SetIC(N_Vector u, realtype dx)
   /* Load initial profile into u vector */
   for (i=0; i<NEQ; i++) {
     x = (i+1)*dx;
-    udata[i] = x*(XMAX - x)*SUN_EXP(RCONST(2.0)*x);
+    udata[i] = x*(XMAX - x)*SUNRexp(RCONST(2.0)*x);
   }  
 }
 

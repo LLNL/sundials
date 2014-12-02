@@ -283,7 +283,7 @@ int ARKLapackBand(void *arkode_mem, int N, int mupper, int mlower)
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
-  arkdls_mem->d_smu = SUN_MIN(arkdls_mem->d_n-1,
+  arkdls_mem->d_smu = SUNMIN(arkdls_mem->d_n-1,
 			  arkdls_mem->d_mu + arkdls_mem->d_ml);
 
   /* Allocate memory for M, pivot array, and savedJ */
@@ -526,7 +526,7 @@ int ARKMassLapackBand(void *arkode_mem, int N, int mupper,
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
-  arkdls_mem->d_smu = SUN_MIN(arkdls_mem->d_n-1,
+  arkdls_mem->d_smu = SUNMIN(arkdls_mem->d_n-1,
 			  arkdls_mem->d_mu + arkdls_mem->d_ml);
 
   /* Allocate memory for M and pivot array */
@@ -613,7 +613,7 @@ static int arkLapackDenseSetup(ARKodeMem ark_mem, int convfail,
   lenmat = arkdls_mem->d_M->ldata ;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-  dgamma = SUN_ABS((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
+  dgamma = SUNRabs((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
   jbad = (ark_mem->ark_nst == 0) || 
     (ark_mem->ark_nst > arkdls_mem->d_nstlj + ARKD_MSBJ) ||
     ((convfail == ARK_FAIL_BAD_J) && (dgamma < ARKD_DGMAX)) ||
@@ -951,7 +951,7 @@ static int arkLapackBandSetup(ARKodeMem ark_mem, int convfail,
   ldmat = arkdls_mem->d_M->ldim;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-  dgamma = SUN_ABS((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
+  dgamma = SUNRabs((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
   jbad = (ark_mem->ark_nst == 0) || 
     (ark_mem->ark_nst > arkdls_mem->d_nstlj + ARKD_MSBJ) ||
     ((convfail == ARK_FAIL_BAD_J) && (dgamma < ARKD_DGMAX)) ||

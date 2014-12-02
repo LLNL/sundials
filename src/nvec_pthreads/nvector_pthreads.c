@@ -967,7 +967,7 @@ static void *N_VScale_PT(void *thread_data)
 
 
 /* ----------------------------------------------------------------------------
- * Compute absolute value of vector components z[i] = SUN_ABS(x[i])
+ * Compute absolute value of vector components z[i] = SUNRabs(x[i])
  */
 
 void N_VAbs_Pthreads(N_Vector x, N_Vector z)
@@ -1038,7 +1038,7 @@ static void *N_VAbs_PT(void *thread_data)
 
   /* compute absolute value of components */
   for (i = start; i < end; i++)
-    zd[i] = SUN_ABS(xd[i]);
+    zd[i] = SUNRabs(xd[i]);
 
   /* exit */
   pthread_exit(NULL);
@@ -1388,7 +1388,7 @@ static void *N_VMaxNorm_PT(void *thread_data)
   /* find local max */
   local_max = ZERO;
   for (i = start; i < end; i++)
-    if (SUN_ABS(xd[i]) > local_max) local_max = SUN_ABS(xd[i]);
+    if (SUNRabs(xd[i]) > local_max) local_max = SUNRabs(xd[i]);
 
   /* update global max */
   pthread_mutex_lock(global_mutex);
@@ -1457,7 +1457,7 @@ realtype N_VWrmsNorm_Pthreads(N_Vector x, N_Vector w)
   free(threads);
   free(thread_data);
   
-  return(SUN_SQRT(sum/N));
+  return(SUNRsqrt(sum/N));
 }
 
 
@@ -1488,7 +1488,7 @@ static void *N_VWrmsNorm_PT(void *thread_data)
   /* compute wrms norm */
   local_sum = ZERO;
   for (i = start; i < end; i++)
-    local_sum += SUN_SQR(xd[i] * wd[i]);
+    local_sum += SUNSQR(xd[i] * wd[i]);
 
   /* update global sum */
   pthread_mutex_lock(global_mutex);
@@ -1556,7 +1556,7 @@ realtype N_VWrmsNormMask_Pthreads(N_Vector x, N_Vector w, N_Vector id)
   free(threads);
   free(thread_data);
   
-  return(SUN_SQRT(sum/N));
+  return(SUNRsqrt(sum/N));
 }
 
 
@@ -1589,7 +1589,7 @@ static void *N_VWrmsNormMask_PT(void *thread_data)
   local_sum = ZERO;
   for (i = start; i < end; i++) {
     if (idd[i] > ZERO)
-      local_sum += SUN_SQR(xd[i]*wd[i]);
+      local_sum += SUNSQR(xd[i]*wd[i]);
   }
 
   /* update global sum */
@@ -1759,7 +1759,7 @@ realtype N_VWL2Norm_Pthreads(N_Vector x, N_Vector w)
   free(threads);
   free(thread_data);
     
-  return(SUN_SQRT(sum));
+  return(SUNRsqrt(sum));
 }
 
 
@@ -1790,7 +1790,7 @@ static void *N_VWL2Norm_PT(void *thread_data)
   /* compute WL2 norm */
   local_sum = ZERO;
   for (i = start; i < end; i++)
-    local_sum += SUN_SQR(xd[i]*wd[i]);
+    local_sum += SUNSQR(xd[i]*wd[i]);
 
   /* update global sum */
   pthread_mutex_lock(global_mutex);
@@ -1886,7 +1886,7 @@ static void *N_VL1Norm_PT(void *thread_data)
   /* compute L1 norm */
   local_sum = ZERO;
   for (i = start; i < end; i++)
-    local_sum += SUN_ABS(xd[i]);
+    local_sum += SUNRabs(xd[i]);
 
   /* update global sum */
   pthread_mutex_lock(global_mutex);
@@ -1972,7 +1972,7 @@ static void *N_VCompare_PT(void *thread_data)
 
   /* compare component to scaler */
   for (i = start; i < end; i++)
-    zd[i] = (SUN_ABS(xd[i]) >= c) ? ONE : ZERO;
+    zd[i] = (SUNRabs(xd[i]) >= c) ? ONE : ZERO;
 
   /* exit */
   pthread_exit(NULL);
@@ -2281,7 +2281,7 @@ static void *N_VMinQuotient_PT(void *thread_data)
   for (i = start; i < end; i++) {
     if (dd[i] == ZERO)
       continue;
-    local_min = SUN_MIN(local_min, nd[i]/dd[i]);
+    local_min = SUNMIN(local_min, nd[i]/dd[i]);
   }
 
   /* update global min */
