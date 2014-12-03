@@ -42,9 +42,9 @@ the two implementations provided with {\idas}: steps marked {\p} correspond to
 {\nvecp}, steps marked {\omp} correspond to {\nvecopenmp}, steps
 +marked {\pt} correspond to {\nvecpthreads}, while steps marked {\s}
 correspond to {\nvecs}. 
-Steps that are unchanged from the skeleton program presented in
-\S\ref{s:forward_usage} are grayed out.
-
+Steps that are unchanged from the skeleton programs presented in
+\S\ref{ss:skeleton_sim}, \S\ref{s:forward_usage}, and \S\ref{s:forward_quad_usage},
+are grayed out.
 
 \index{User main program!Adjoint sensitivity analysis}
 \begin{Steps}
@@ -90,6 +90,13 @@ Steps that are unchanged from the skeleton program presented in
   \textcolor{gray}{\bf Set linear solver optional inputs for the forward problem}
 
 \item
+  \textcolor{gray}{\bf Initialize quadrature problem or problems for forward
+   problems, using \id{IDAQuadInit} and/or \id{IDAQuadSensInit}.}
+
+\item
+  \textcolor{gray}{\bf Initialize forward sensitivity problem}
+
+\item
   {\bf Allocate space for the adjoint computation}
 
   Call \Id{IDAAdjInit}\id{()} to allocate memory for the 
@@ -118,7 +125,7 @@ Steps that are unchanged from the skeleton program presented in
    {\omp, \pt} set \id{num\_threads}
 
 \item
-  {\bf Set final values for the backward problem}
+  {\bf Set initial values for the backward problem}
 
   Set the endpoint time \id{tB0} $= T$ and the corresponding vectors \id{yB0}
   and \id{ypB0} at which the backward problem starts.
@@ -171,7 +178,7 @@ Steps that are unchanged from the skeleton program presented in
   for the backward problem by calling the appropriate wrapper
   function: \id{IDADenseB}, \id{IDABandB}, \id{IDALapackDenseB}, \id{IDALapackBandB},
   \id{IDAKLUB}, \id{IDASuperLUMTB}, \id{IDASpgmrB}, \id{IDASpbcgB}, or
-  \id{IDASptfqmr} (see \S\ref{sss:lin_solv_b}).  
+  \id{IDASptfqmrB} (see \S\ref{sss:lin_solv_b}).  
   Note that it is not required to use the same linear solver module for both the forward 
   and the backward problems; for example, the forward problem could be solved
   with the {\idadense} linear solver and the backward problem with {\idaspgmr}.

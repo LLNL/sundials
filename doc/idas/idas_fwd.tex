@@ -76,6 +76,9 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
 
+\item
+  \textcolor{gray}{\bf Initialize quadrature problem, if not sensitivity-dependent}
+
 \item \label{i:fwd_start}
   {\bf Define the sensitivity problem}
 
@@ -1450,6 +1453,7 @@ of type \ID{IDASensResFn} defined by:
 %%
 %%===================================================================================
 \section{Integration of quadrature equations depending on forward sensitivities}
+\label{s:forward_quad_usage}
 %%===================================================================================
 %%
 
@@ -1486,6 +1490,9 @@ this situation. Steps that are unchanged from the skeleton program presented in
 
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
+
+\item
+  \textcolor{gray}{\bf Initialize sensitivity-independent quadrature problem}
 
 \item\label{i:quad_sens_sens_def}
   \textcolor{gray}{\bf Define the sensitivity problem}
