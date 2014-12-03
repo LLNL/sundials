@@ -461,6 +461,10 @@ on $y$ (via a call to {\hyperref[c_interface/User_callable:ARKodeSetLinear]{\cod
 \emph{LINEAR} argument to {\hyperref[f_interface/Usage:f/_/FARKSETIIN]{\code{FARKSETIIN()}}}), and if the
 Newton-based nonlinear solver is chosen, then the problem
 \eqref{Mathematics-Residual} will be solved using only a single Newton iteration.
+In this case, an additional argument to the respective function
+denotes whether this Jacobian is time-dependent or not, indicating
+whether the Jacobian or preconditioner needs to be recomputed at each
+step.
 
 The optimal solver (Newton vs fixed-point) is highly
 problem-dependent.  Since fixed-point solvers do not require
@@ -6195,12 +6199,18 @@ is primarily useful to undo a previous call to {\hyperref[c_interface/User_calla
 \index{ARKodeSetLinear (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_callable:ARKodeSetLinear}\pysiglinewithargsret{int \bfcode{ARKodeSetLinear}}{void*\emph{ arkode\_mem}}{}
+\phantomsection\label{c_interface/User_callable:ARKodeSetLinear}\pysiglinewithargsret{int \bfcode{ARKodeSetLinear}}{void*\emph{ arkode\_mem}, int\emph{ timedepend}}{}
 Specifies that the implicit portion of the problem is linear.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
 \emph{arkode\_mem} -- pointer to the ARKode memory block.
+
+\item {} 
+\emph{timedepend} -- flag denoting whether the Jacobian of
+$f_I(t,y)$ is time-dependent (1) or not (0).
+Alternately, when using an iterative linear solver this flag
+denotes time dependence of the preconditioner.
 
 \end{itemize}
 

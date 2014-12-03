@@ -116,8 +116,8 @@ int main() {
   flag = ARKSpilsSetJacTimesVecFn(arkode_mem, Jac);       /* Set the Jacobian routine */
   if (check_flag(&flag, "ARKSpilsSetJacTimesVecFn", 1)) return 1;
 
-  /* Specify linearly implicit problem */
-  flag = ARKodeSetLinear(arkode_mem);
+  /* Specify linearly implicit RHS, with non-time-dependent Jacobian */
+  flag = ARKodeSetLinear(arkode_mem, 0);
   if (check_flag(&flag, "ARKodeSetLinear", 1)) return 1;
 
   /* output mesh to disk */

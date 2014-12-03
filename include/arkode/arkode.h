@@ -628,7 +628,7 @@ SUNDIALS_EXPORT int ARKodeSetDiagnostics(void *arkode_mem,
 					 FILE *diagfp);
 SUNDIALS_EXPORT int ARKodeSetOrder(void *arkode_mem, int maxord);
 SUNDIALS_EXPORT int ARKodeSetDenseOrder(void *arkode_mem, int dord);
-SUNDIALS_EXPORT int ARKodeSetLinear(void *arkode_mem);
+SUNDIALS_EXPORT int ARKodeSetLinear(void *arkode_mem, int timedepend);
 SUNDIALS_EXPORT int ARKodeSetNonlinear(void *arkode_mem);
 SUNDIALS_EXPORT int ARKodeSetFixedPoint(void *arkode_mem, long int fp_m);
 SUNDIALS_EXPORT int ARKodeSetNewton(void *arkode_mem);

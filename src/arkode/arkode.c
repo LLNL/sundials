@@ -2149,6 +2149,7 @@ static void arkPrintMem(ARKodeMem ark_mem)
   /* output boolean quantities */
   printf("ark_user_efun = %i\n", ark_mem->ark_user_efun);
   printf("ark_user_linear = %i\n", ark_mem->ark_linear);
+  printf("ark_user_linear_timedep = %i\n", ark_mem->ark_linear_timedep);
   printf("ark_user_explicit = %i\n", ark_mem->ark_explicit);
   printf("ark_user_implicit = %i\n", ark_mem->ark_implicit);
   printf("ark_tstopset = %i\n", ark_mem->ark_tstopset);
@@ -5064,11 +5065,11 @@ static int arkAndersenAcc(ARKodeMem ark_mem, N_Vector gval,
  with a single implicit step of the ARK method.  This should 
  only be called if the user has specified that the implicit 
  problem is linear.  In this routine, we assume that the problem 
- depends linearly on the solution, and that linear dependence 
- does not change as a function of time.  It therefore calls
- lsetup on only changes to gamma.  It then calls the 
- user-specified linear solver (with a tight tolerance) to compute 
- the time-evolved solution.  
+ depends linearly on the solution.  Additionally, if the Jacobian
+ is not time dependent we only call lsetup on changes to gamma; 
+ otherwise we call lsetup at every call.  In all cases, we then 
+ call the user-specified linear solver (with a tight tolerance) 
+ to compute the time-evolved solution.  
 
  Upon entry, the predicted solution is held in ark_mem->ark_ycur.
 
@@ -5101,7 +5102,7 @@ static int arkLs(ARKodeMem ark_mem, int nflag)
 
   /* Decide whether or not to call setup routine (if one exists) */
   if (ark_mem->ark_setupNonNull) {      
-    callSetup = (ark_mem->ark_firststage) || 
+    callSetup = (ark_mem->ark_firststage) || (ark_mem->ark_linear_timedep) || 
       (SUNRabs(ark_mem->ark_gamrat-ONE) > ark_mem->ark_dgmax);
   } else {  
     callSetup = FALSE;

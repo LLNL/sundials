@@ -326,7 +326,7 @@ void FARK_SETIIN(char key_name[], long int *ival, int *ier)
   else if (!strncmp(key_name, "DENSE_ORDER", 11)) 
     *ier = ARKodeSetDenseOrder(ARK_arkodemem, (int) *ival);
   else if (!strncmp(key_name, "LINEAR", 6)) 
-    *ier = ARKodeSetLinear(ARK_arkodemem);
+    *ier = ARKodeSetLinear(ARK_arkodemem, (int) *ival);
   else if (!strncmp(key_name, "NONLINEAR", 9)) 
     *ier = ARKodeSetNonlinear(ARK_arkodemem);
   else if (!strncmp(key_name, "FIXEDPOINT", 10)) 

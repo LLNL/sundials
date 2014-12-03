@@ -585,8 +585,8 @@ program driver
      call MPI_Finalize(flag)
   end if
 
-  ! specify that the problem is linearly implicit
-  call FARKSetIin("LINEAR", 1, flag)
+  ! specify that the problem is linearly implicit, but that Jacobian does not depend on time
+  call FARKSetIin("LINEAR", 0, flag)
   if (flag < 0) then
      write(0,*) "Error in FARKSetIin = ", flag
      call MPI_Finalize(flag)

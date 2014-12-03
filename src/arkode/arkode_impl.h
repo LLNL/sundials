@@ -225,9 +225,10 @@ typedef struct ARKodeMemRec {
   booleantype  ark_user_rfun;  /* TRUE if user sets rfun                */
   ARKRwtFn     ark_rfun;       /* function to set rwt                   */
   void        *ark_r_data;     /* user pointer passed to rfun           */
-  booleantype  ark_linear;     /* TRUE if implicit problem is linear    */
-  booleantype  ark_explicit;   /* TRUE if implicit problem is disabled  */
-  booleantype  ark_implicit;   /* TRUE if explicit problem is disabled  */
+  booleantype  ark_linear;     /* TRUE if fi is linear                  */
+  booleantype  ark_linear_timedep;  /* TRUE if dfi/dy depends on t      */
+  booleantype  ark_explicit;   /* TRUE if fi is disabled                */
+  booleantype  ark_implicit;   /* TRUE if fe is disabled                */
 
   /*-----------------
     Stored RHS arrays

@@ -74,6 +74,7 @@ int ARKodeSetDefaults(void *arkode_mem)
   ark_mem->ark_rfun             = arkRwtSet;      /* built-in rwt function */
   ark_mem->ark_e_data           = NULL;           /* rwt function data */
   ark_mem->ark_linear           = FALSE;          /* nonlinear problem */
+  ark_mem->ark_linear_timedep   = TRUE;           /* dfi/dy depends on t */
   ark_mem->ark_explicit         = FALSE;          /* fi(t,y) will be used */
   ark_mem->ark_implicit         = FALSE;          /* fe(t,y) will be used */
   ark_mem->ark_ehfun            = arkErrHandler;  /* default error handler fn */
@@ -477,8 +478,14 @@ int ARKodeSetDenseOrder(void *arkode_mem, int dord)
  one Newton iteration.  Not useful when used in combination with
  the fixed-point solver.  Automatically tightens DeltaGammaMax 
  to ensure that step size changes cause Jacobian recomputation.
+
+ The argument should be 1 or 0, where 1 indicates that the 
+ Jacobian of fi with respect to y depends on time, and
+ 0 indicates that it is not time dependent.  Alternately, when 
+ using an iterative linear solver this flag denotes time 
+ dependence of the preconditioner. 
 ---------------------------------------------------------------*/
-int ARKodeSetLinear(void *arkode_mem)
+int ARKodeSetLinear(void *arkode_mem, int timedepend)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -489,6 +496,7 @@ int ARKodeSetLinear(void *arkode_mem)
 
   ark_mem = (ARKodeMem) arkode_mem;
   ark_mem->ark_linear = TRUE;
+  ark_mem->ark_linear_timedep = (timedepend == 1);
   ark_mem->ark_dgmax = RCONST(100.0)*UNIT_ROUNDOFF;
 
   return(ARK_SUCCESS);
@@ -513,6 +521,7 @@ int ARKodeSetNonlinear(void *arkode_mem)
 
   ark_mem = (ARKodeMem) arkode_mem;
   ark_mem->ark_linear = FALSE;
+  ark_mem->ark_linear_timedep = TRUE;
   ark_mem->ark_dgmax = DGMAX;
 
   return(ARK_SUCCESS);
@@ -2679,7 +2688,13 @@ int ARKodeWriteParameters(void *arkode_mem, FILE *fp)
   fprintf(fp, "ARKode solver parameters:\n");
   fprintf(fp, "  Method order %i\n",ark_mem->ark_q);
   fprintf(fp, "  Dense output order %i\n",ark_mem->ark_dense_q);
-  if (ark_mem->ark_linear)  fprintf(fp, "  Linear problem\n");
+  if (ark_mem->ark_linear) 
+    fprintf(fp, "  Linear implicit problem");
+    if (ark_mem->ark_linear_timedep) {
+      fprintf(fp, " (time-dependent Jacobian)\n");
+    } else {
+      fprintf(fp, " (time-independent Jacobian)\n");
+    }
   if (ark_mem->ark_explicit) {
     fprintf(fp, "  Explicit integrator\n");
   } else if (ark_mem->ark_implicit) {
