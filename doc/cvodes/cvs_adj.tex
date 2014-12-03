@@ -42,8 +42,9 @@ two implementations provided with {\cvodes}: steps marked {\p} correspond to
 {\nvecp}, steps marked {\omp} correspond to {\nvecopenmp}, steps
 marked {\pt} correspond to {\nvecpthreads}, while steps marked {\s}
 correspond to {\nvecs}. 
-Steps that are unchanged from the skeleton program presented in
-\S\ref{ss:skeleton_sim} are grayed out.
+Steps that are unchanged from the skeleton programs presented in
+\S\ref{ss:skeleton_sim}, \S\ref{s:forward_usage}, and \S\ref{s:forward_quad_usage},
+are grayed out.
 
 \index{User main program!Adjoint sensitivity analysis}
 \begin{Steps}
@@ -87,6 +88,13 @@ Steps that are unchanged from the skeleton program presented in
 
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs for the forward problem}
+
+\item
+  \textcolor{gray}{\bf Initialize quadrature problem or problems for forward
+    problems, using \id{CVodeQuadInit} and/or \id{CVodeQuadSensInit}.}
+
+\item
+  \textcolor{gray}{\bf Initialize forward sensitivity problem}
 
 \item
   {\bf Allocate space for the adjoint computation}

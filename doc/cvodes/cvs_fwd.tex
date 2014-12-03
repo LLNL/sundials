@@ -76,6 +76,9 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
 
+\item
+  \textcolor{gray}{\bf Initialize quadrature problem, if not sensitivity-dependent}
+
 \item \label{i:fwd_start}
   {\bf Define the sensitivity problem}
 
@@ -1632,7 +1635,7 @@ this situation. Steps that are unchanged from the skeleton program presented in
 \S\ref{s:forward_usage} are grayed out.
 
 \index{User main program!integration of sensitivitiy-dependent quadratures}
-\begin{Steps}
+\begin{Steps}\label{s:forward_quad_usage}
   
 \item 
   \textcolor{gray}{\bf {\p} Initialize MPI}
@@ -1657,6 +1660,9 @@ this situation. Steps that are unchanged from the skeleton program presented in
 
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
+
+\item
+  \textcolor{gray}{\bf Initialize sensitivity-independent quadrature problem}
 
 \item\label{i:quad_sens_sens_def}
   \textcolor{gray}{\bf Define the sensitivity problem}
