@@ -42,8 +42,7 @@ extern "C" {
  NOTE: The KLU linear solver assumes a serial implementation  
        of the NVECTOR package. Therefore, ARKKLU will first
        test for a compatible N_Vector internal representation
-       by checking that the functions N_VGetArrayPointer and
-       N_VSetArrayPointer exist.
+       by checking that the function N_VGetArrayPointer exists.
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKKLU(void *arkode_mem, int n, int nnz); 
 
@@ -72,8 +71,7 @@ SUNDIALS_EXPORT int ARKKLU(void *arkode_mem, int n, int nnz);
  NOTE: The KLU linear solver assumes a serial implementation  
        of the NVECTOR package. Therefore, ARKKLU will first
        test for a compatible N_Vector internal representation
-       by checking that the functions N_VGetArrayPointer and
-       N_VSetArrayPointer exist.
+       by checking that the function N_VGetArrayPointer exists.
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKMassKLU(void *arkode_mem, int n, int nnz,
 			       ARKSlsSparseMassFn smass); 

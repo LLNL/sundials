@@ -84,6 +84,11 @@ void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
     printf("Error: setarraypointer vector operation is not implemented.\n\n");
     return;
   }
+  if(F2C_ARKODE_vec->ops->nvcloneempty == NULL) {
+    *ier = -1;
+    printf("Error: cloneempty vector operation is not implemented.\n\n");
+    return;
+  }
 
   /* Initialize all pointers to NULL */
   ARK_arkodemem = NULL;

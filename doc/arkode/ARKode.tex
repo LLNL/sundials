@@ -17352,6 +17352,15 @@ for ARKDENSE and ARKBAND; ARKSPILS stands for ARKSPGMR, ARKSPBCG,
 ARKSPTFQMR, ARKSPFGMR and ARKPCG; and ARKSLS stands for ARKKLU and
 ARKSUPERLUMT.
 
+At this point, we should emphasize that the user does not need to know
+anything about ARKode's usage of vector functions in order to use
+ARKode.  Instead, this information is provided primarily for users
+interested in constructing a custom \code{N\_Vector} module.  We note that
+a number of \code{N\_Vector} functions from the section
+{\hyperref[nvectors/index:nvectors-description]{\emph{Description of the NVECTOR Modules}}} are not listed in the above table.
+Therefore a user-supplied \code{N\_Vector} module for ARKode could safely
+omit these functions from their implementation.
+
 \begin{tabulary}{\linewidth}{|L|L|L|L|L|L|L|L|}
 \hline
 \textbf{\relax 
@@ -17375,19 +17384,25 @@ FARKODE
 N\_VAbs
  & 
 X
- &  &  &  &  &  & \\\hline
+ &  &  &  &  &  & 
+X
+\\\hline
 
 N\_VAddConst
  & 
 X
- &  &  &  &  &  & \\\hline
+ &  &  &  &  &  & 
+X
+\\\hline
 
 N\_VClone
  & 
 X
  &  &  & 
 X
- &  &  & \\\hline
+ &  &  & 
+X
+\\\hline
 
 N\_VCloneEmpty
  &  &  &  &  &  &  & 
@@ -17403,7 +17418,9 @@ X
 X
  & 
 X
- &  &  & \\\hline
+ &  &  & 
+X
+\\\hline
 
 N\_VDestroy
  & 
@@ -17419,14 +17436,18 @@ N\_VDiv
 X
  &  &  & 
 X
- &  &  & \\\hline
+ &  &  & 
+X
+\\\hline
 
 N\_VDotProd
  & 
-X
+X$^{\text{(a)}}$
  &  &  & 
 X
- &  &  & \\\hline
+ &  &  & 
+X$^{\text{(a)}}$
+\\\hline
 
 N\_VGetArrayPointer
  &  & 
@@ -17444,7 +17465,9 @@ X
 N\_VInv
  & 
 X
- &  &  &  &  &  & \\\hline
+ &  &  &  &  &  & 
+X
+\\\hline
 
 N\_VLinearSum
  & 
@@ -17453,12 +17476,16 @@ X
 X
  &  & 
 X
- &  &  & \\\hline
+ &  &  & 
+X
+\\\hline
 
 N\_VMaxNorm
  & 
 X
- &  &  &  &  &  & \\\hline
+ &  &  &  &  &  & 
+X
+\\\hline
 
 N\_VMin
  & 
@@ -17485,7 +17512,9 @@ X
 X
  & 
 X
- & \\\hline
+ & 
+X
+\\\hline
 
 N\_VSetArrayPointer
  &  & 
@@ -17496,8 +17525,10 @@ X
 
 N\_VSpace
  & 
-X
- &  &  &  &  &  & \\\hline
+X$^{\text{(b)}}$
+ &  &  &  &  &  & 
+X$^{\text{(b)}}$
+\\\hline
 
 N\_VWrmsNorm
  & 
@@ -17510,21 +17541,24 @@ X
 X
  & 
 X
- & \\\hline
+ & 
+X
+\\\hline
 \end{tabulary}
 
+\begin{enumerate}
+\item {} 
+The {\hyperref[nvectors/index:N_VDotProd]{\code{N\_VDotProd()}}} function is only used by the main
+ARKode integrator module when the fixed-point nonlinear solver is
+specified; when solving an explicit problem or when using a Newton
+solver with direct or sparse linear solver, it need not be
+supplied by the \code{N\_Vector} implementation.
 
-At this point, we should emphasize that the ARKode user does not need
-to know anything about the usage of vector functions by the ARKode
-code modules in order to use ARKode.  Instead, this information is
-provided primarily for users interested in constructing a custom
-\code{N\_Vector} module.  We note that a number of \code{N\_Vector} functions
-from the section {\hyperref[nvectors/index:nvectors-description]{\emph{Description of the NVECTOR Modules}}} are not listed in the
-above table.  Therefore a user-supplied \code{N\_Vector} module for ARKode
-could safely omit these functions from their implementation.
-Furthermore, since the {\hyperref[nvectors/index:N_VSpace]{\code{N\_VSpace()}}} function is only
-informational, while it should be supplied, the return values may be
-arbitrary.
+\item {} 
+The {\hyperref[nvectors/index:N_VSpace]{\code{N\_VSpace()}}} function is only informational, and need
+not be supplied by the \code{N\_Vector} implementation.
+
+\end{enumerate}
 
 
 \section{Description of the NVECTOR Modules}

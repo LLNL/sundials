@@ -44,8 +44,8 @@ extern "C" {
  NOTE: The ARKSUPERLUMT linear solver assumes a serial 
        implementation of the NVECTOR package. Therefore, 
        ARKSuperLUMT will first test for a compatible N_Vector
-       internal representation by checking that the functions
-       N_VGetArrayPointer and N_VSetArrayPointer exist.
+       internal representation by checking that the function
+       N_VGetArrayPointer exists.
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKSuperLUMT(void *arkode_mem, 
 				 int num_threads,
@@ -79,7 +79,7 @@ SUNDIALS_EXPORT int ARKSuperLUMT(void *arkode_mem,
        implementation of the NVECTOR package. Therefore, 
        ARKMassSuperLUMT will first test for a compatible 
        N_Vector internal representation by checking that the 
-       functions N_VGetArrayPointer and N_VSetArrayPointer exist.
+       function N_VGetArrayPointer exists.
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKMassSuperLUMT(void *arkode_mem, 
 				     int num_threads,

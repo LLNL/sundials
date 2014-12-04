@@ -2383,7 +2383,6 @@ static booleantype arkCheckNvector(N_Vector tmpl)  /* to be updated?? */
       (tmpl->ops->nvdestroy   == NULL) ||
       (tmpl->ops->nvlinearsum == NULL) ||
       (tmpl->ops->nvconst     == NULL) ||
-      (tmpl->ops->nvprod      == NULL) ||
       (tmpl->ops->nvdiv       == NULL) ||
       (tmpl->ops->nvscale     == NULL) ||
       (tmpl->ops->nvabs       == NULL) ||
@@ -2722,6 +2721,13 @@ static void arkFreeVectors(ARKodeMem ark_mem)
 static int arkAllocFPData(ARKodeMem ark_mem)
 {
   long int maa = ark_mem->ark_fp_m;
+
+  /* ensure that DotProd function is defined */
+  if (ark_mem->ark_ewt->ops->nvdotprod == NULL) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
+		    "arkAllocFPData", MSGARK_BAD_NVECTOR);
+    return(ARK_ILL_INPUT);
+  }
 
   /* Allocate ark_fp_fval if needed */
   if (ark_mem->ark_fp_fval == NULL) {

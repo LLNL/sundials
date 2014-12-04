@@ -74,8 +74,9 @@ int ARKSpbcg(void *arkode_mem, int pretype, int maxl)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  /* Check if N_VDotProd is present */
-  if (ark_mem->ark_tempv->ops->nvdotprod == NULL) {
+  /* Check if N_VDotProd and N_VProd are present */
+  if ((ark_mem->ark_tempv->ops->nvdotprod == NULL) ||
+      (ark_mem->ark_tempv->ops->nvprod == NULL)) {
     arkProcessError(ark_mem, ARKSPILS_ILL_INPUT, "ARKSPBCG", 
 		    "ARKSpbcg", MSGS_BAD_NVECTOR);
     return(ARKSPILS_ILL_INPUT);
