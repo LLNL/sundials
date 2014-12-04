@@ -34,9 +34,11 @@ program) as an application of {\cvodes}. The user program is to have these
 steps in the order indicated, unless otherwise noted.
 For the sake of brevity, we defer many of the details to the later sections.
 As in \S\ref{ss:skeleton_sim}, most steps are independent of the {\nvector}
-implementation used; where this is not the case, usage specifications are given for the
-two implementations provided with {\cvodes}: steps marked {\p} correspond to 
-{\nvecp}, while steps marked {\s} correspond to {\nvecs}.
+implementation used; where this is not the case, usage specifications are given
+for the four implementations provided with {\cvodes}:
+steps marked {\p} correspond to {\nvecp}, steps marked
+{\omp} correspond to {\nvecopenmp}, steps marked {\pt} correspond to
+{\nvecpthreads}, while steps marked {\s} correspond to {\nvecs}.
 Differences between the user main program in \S\ref{ss:skeleton_sim} and
 the one below start only at step (\ref{i:fwd_start}).
 Steps that are unchanged from the skeleton program presented in
@@ -148,6 +150,10 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
 
   {\s} \id{yS0 = N\_VCloneVectorArray\_Serial(Ns, y0);}
 
+  {\omp} \id{yS0 = N\_VCloneVectorArray\_OpenMP(Ns, y0);}
+
+  {\pt} \id{yS0 = N\_VCloneVectorArray\_Pthreads(Ns, y0);}
+
   {\p} \id{yS0 = N\_VCloneVectorArray\_Parallel(Ns, y0);}
 
   Here the argument \id{y0} serves only to provide the \id{N\_Vector} type for cloning.
@@ -157,6 +163,10 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
 
   {\s} \id{NV\_DATA\_S(yS0[i])}
 
+  {\omp} \id{NV\_DATA\_OMP(yS0[i])}
+
+  {\pt} \id{NV\_DATA\_PT(yS0[i])}
+
   {\p} \id{NV\_DATA\_P(yS0[i])}
 
   Alternatively, if the initial values for the sensitivity variables
@@ -165,12 +175,20 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
 
   {\s} \id{yS0 = N\_VCloneEmptyVectorArray\_Serial(Ns, y0);}
 
+  {\omp} \id{yS0 = N\_VCloneEmptyVectorArray\_OpenMP(Ns, y0);}
+
+  {\pt} \id{yS0 = N\_VCloneEmptyVectorArray\_Pthreads(Ns, y0);}
+
   {\p} \id{yS0 = N\_VCloneEmptyVectorArray\_Parallel(Ns, y0);}
 
   and then attach the \id{realtype} array \id{yS0[i]} containing the
   initial values of the $i$-th sensitivity vector using
 
   {\s} \id{N\_VSetArrayPointer\_Serial(yS0\_i, yS0[i]);}
+  
+  {\omp} \id{N\_VSetArrayPointer\_OpenMP(yS0\_i, yS0[i]);}
+  
+  {\pt} \id{N\_VSetArrayPointer\_Pthreads(yS0\_i, yS0[i]);}
   
   {\p} \id{N\_VSetArrayPointer\_Parallel(yS0\_i, yS0[i]);}
 
@@ -221,6 +239,10 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
   Upon completion of the integration, deallocate memory for the vectors \id{yS0}:
 
   {\s} \id{N\_VDestroyVectorArray\_Serial(yS0, Ns);}
+
+  {\omp} \id{N\_VDestroyVectorArray\_OpenMP(yS0, Ns);}
+
+  {\pt} \id{N\_VDestroyVectorArray\_Pthreads(yS0, Ns);}
 
   {\p} \id{N\_VDestroyVectorArray\_Parallel(yS0, Ns);}
 
