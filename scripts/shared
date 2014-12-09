@@ -123,12 +123,16 @@ echo "   --- Add nvecopenmp module to $tarfile"
 $tar $tarfile $distrobase/src/nvec_openmp/README
 $tar $tarfile $distrobase/src/nvec_openmp/CMakeLists.txt
 $tar $tarfile $distrobase/src/nvec_openmp/nvector_openmp.c
+$tar $tarfile $distrobase/src/nvec_openmp/fnvector_openmp.c
+$tar $tarfile $distrobase/src/nvec_openmp/fnvector_openmp.h
 
 echo "   --- Add nvecpthreads module to $tarfile"
 
 $tar $tarfile $distrobase/src/nvec_pthreads/README
 $tar $tarfile $distrobase/src/nvec_pthreads/CMakeLists.txt
 $tar $tarfile $distrobase/src/nvec_pthreads/nvector_pthreads.c
+$tar $tarfile $distrobase/src/nvec_pthreads/fnvector_pthreads.c
+$tar $tarfile $distrobase/src/nvec_pthreads/fnvector_pthreads.h
 
 echo "   --- Add nvector examples to $tarfile"
 

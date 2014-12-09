@@ -91,6 +91,8 @@ $tar $tarfile $distrobase/examples/kinsol/serial/kinLaplace_picard_bnd.c
 $tar $tarfile $distrobase/examples/kinsol/serial/kinLaplace_picard_bnd.out
 $tar $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_dns.c
 $tar $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_dns.out
+$tar $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_slu.c
+$tar $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_slu.out
 $tar $tarfile $distrobase/examples/kinsol/serial/kinRoberts_fp.c
 $tar $tarfile $distrobase/examples/kinsol/serial/kinRoberts_fp.out
 
