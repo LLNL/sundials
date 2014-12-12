@@ -1135,6 +1135,8 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
   if (nst == 0) {
 
+    tretlast = *tret = tn;
+
     ier = cvInitialSetup(cv_mem);
     if (ier!= CV_SUCCESS) return(ier);
     
