@@ -1,4 +1,4 @@
-Unresolved User Complaints as of 5 November 2014
+Unresolved User Complaints as of 12 December 2014
 
 * Jourdan, 3/29/10. Problems with FCVODE -- related to N type.
   May be OK now, or may still be a problem on 64-bit machines.
@@ -94,15 +94,11 @@ Unresolved User Complaints as of 5 November 2014
 * Combourieu, 7/19/13. Says CVODE solution changes significantly when tout
   spacing is reduced.  Awaiting diagnostics.
 
-* Bruckner, 11/26/13.  Question re linesearch restart in KINSOL.  Partial answer sent.
+* Bruckner, 11/26/13.  Query re KINSOL linesearch restart.  Partial answer sent.
 
-* Carbajal, 11/29/13.  Tropuble activating BLAS/LAPACK.  Partial answer sent.
+* Carbajal, 11/29/13.  Trouble activating BLAS/LAPACK.  Partial answer sent.
 
-* Schwarz, 5/26/14. CVDiag crashes in a parallel application.
-
-* Karim, 5/15/14.  Question about BDF/GMRES.
-
-* Oxberry, 6/8/14. Bug in idasRoberts_ASAi_dns.c
+* Schwarz, 5/6/14. CVDiag crashes in a parallel application.
 
 * Oxberry, 6/8/14. Question about posting of bug-fixes.
 
@@ -110,9 +106,11 @@ Unresolved User Complaints as of 5 November 2014
 
 * Oxberry, 6/13/14. Bug in fkinDiagon_kry_p.c
 
-* Kantil, 6/14/14. Question on KINSOL usage.
+* Kantli, 6/14/14. Question on KINSOL usage.
 
 * Raj, 8/20/14. Problem installing in serial.
 
 * Nakhimovski, 9/18/14.  Infinite loop can occur in KINSOL; gives fix.
+
+* Zhao, 12/5/14. CVode bug -- returned tret sometimes beyond tout.
 
