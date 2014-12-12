@@ -1770,8 +1770,12 @@ steps \ref{i:quad_sens_sens_def} and \ref{i:quad_sens_cvode_solve}.
 \subsection{Sensitivity-dependent quadrature initialization and deallocation}% functions}
 \label{ss:quad_sens_init}
 
-The function \id{CVodeQuadSensInit} activates integration of quadrature equations depending
-on sensitivities and allocates internal memory related to these calculations.
+The function \id{CVodeQuadSensInit} activates integration of quadrature
+equations depending on sensitivities and allocates internal memory
+related to these calculations.  If \id{rhsQS} is input as \id{NULL},
+then {\cvodes} uses an internal function that computes difference quotient
+approximations to the functions $\bar{q}_i = q_y s_i + q_{p_i}$, in the
+notation of (\ref{e:QUAD}).
 The form of the call to this function is as follows:
 %%
 \ucfunction{CVodeQuadSensInit}
