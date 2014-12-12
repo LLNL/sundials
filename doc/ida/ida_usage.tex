@@ -3260,7 +3260,8 @@ These optional output functions are described next.
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[hlast] (\id{realtype})
-    step size taken on the last internal step.
+    step size taken on the last internal step by {\ida}, or last artificial
+    step size used in \id{IDACalcIC}, whichever was called last.
   \end{args}
 }
 {
