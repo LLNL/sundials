@@ -489,12 +489,12 @@ In many applications, and most notably during the backward integration phase
 of an adjoint sensitivity analysis run (see \S\ref{ss:adj_sensi}) it is of
 interest to compute integral quantities of the form
 \begin{equation}\label{e:QUAD}
-  z(t) = \int_{t_0}^t q(\tau, y(\tau), p) \, d\tau \, .
+  z(t) = \int_{t_0}^t q(\tau, y(\tau), \dot{y}(\tau), p) \, d\tau \, .
 \end{equation}
 The most effective approach to compute $z(t)$ is to extend the original problem
 with the additional ODEs (obtained by applying Leibnitz's differentiation rule):
 \begin{equation}
-  \dot z = q(t,y,p) \, , \quad z(t_0) = 0 \, .
+  \dot z = q(t,y,\dot{y},p) \, , \quad z(t_0) = 0 \, .
 \end{equation}
 Note that this is equivalent to using a quadrature method based on the underlying
 linear multistep polynomial representation for $y(t)$.
@@ -512,7 +512,7 @@ the correction step of the LMM. Instead, ``corrected'' values $z_n$ are computed
 explicitly as
 \begin{equation*}
   z_n = \frac{1}{\alpha_{n,0}} \left(
-    h_n q(t_n, y_n, p) - \sum_{i=1}^q \alpha_{n,i} z_{n-i}
+    h_n q(t_n, y_n, \dot{y}_n, p) - \sum_{i=1}^q \alpha_{n,i} z_{n-i}
     \right) \, ,
 \end{equation*}
 once the new approximation $y_n$ is available.
@@ -753,17 +753,17 @@ integrals depending on both the states $y$ of (\ref{e:DAE_p}) and the
 state sensitivities $s_i$ of (\ref{e:sens_eqns}) can be evaluated. In other
 words, {\idas} provides support for computing integrals of the form:
 \begin{equation*}
- \bar z(t) = \int_{t_0}^t \bar q(\tau, y(\tau), s_1(\tau), \ldots, s_{N_p}(\tau),p) \, d\tau \, .
+ \bar z(t) = \int_{t_0}^t \bar q(\tau, y(\tau), \dot{y}(\tau), s_1(\tau), \ldots,
+              s_{N_p}(\tau),p) \, d\tau \, .
 \end{equation*}
 
 If the sensitivities of the quadrature variables $z$ of (\ref{e:QUAD}) are
 desired, these can then be computed by using:
 \begin{equation*}
-  \bar q_i = q_y s_i + q_{p_i} \, , \quad i = 1,\ldots,N_p \, ,
+  \bar q_i = q_y s_i + q_{\dot{y}} \dot{s}_i + q_{p_i} \, , \quad i = 1,\ldots,N_p \, ,
 \end{equation*}
-as integrands for $\bar z$,
-where $q_y$ and $q_p$ are the partial derivatives of the integrand function
-$q$ of (\ref{e:QUAD}).
+as integrands for $\bar z$, where $q_y$, $q_{\dot{y}}$, and $q_p$ are the partial
+derivatives of the integrand function $q$ of (\ref{e:QUAD}).
 
 As with the quadrature variables $z$, the new variables $\bar z$ are also excluded
 from any nonlinear solver phase and ``corrected'' values $\bar z_n$ are obtained
