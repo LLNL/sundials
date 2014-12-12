@@ -1601,6 +1601,10 @@ can be set, anywhere between steps \ref{i:quad_sens_sens_def} and
 
 The function \id{IDAQuadSensInit} activates integration of quadrature equations depending
 on sensitivities and allocates internal memory related to these calculations.
+If \id{rhsQS} is input as \id{NULL}, then {\idas} uses an internal function that
+computes difference quotient approximations to the functions
+$\bar q_i = (\partial q / \partial y) s_i + (\partial q / \partial \dot{y}) \dot{s}_i +
+ \partial q / \partial p_i$, in the notation of (\ref{e:QUAD}).
 The form of the call to this function is as follows:
 %%
 \ucfunction{IDAQuadSensInit}
@@ -2253,10 +2257,11 @@ performance information related to quadrature integration.
 
 \index{right-hand side function!sensitivity-dependent quadrature equations}
 For the integration of sensitivity-dependent quadrature equations, the user must provide
-a function that defines the right-hand side of the sensitivity quadrature equations.  
+a function that defines the right-hand side of the sensitivity quadrature equations.
 For sensitivities of quadratures (\ref{e:QUAD}) with integrands $q$, the appropriate
 right-hand side functions are given by
-$\bar q_i = (\partial q / \partial y) s_i + \partial q / \partial p_i$.
+$\bar q_i = (\partial q / \partial y) s_i + (\partial q / \partial \dot{y}) \dot{s}_i +
+ \partial q / \partial p_i$.
 This user function must be of type \Id{IDAQuadSensRhsFn}, defined as follows:
 \usfunction{IDAQuadSensRhsFn}
 {
@@ -2285,7 +2290,7 @@ This user function must be of type \Id{IDAQuadSensRhsFn}, defined as follows:
     dependent sensitivity vectors $s_i$.
   \item[ypS] 
     is an array of \id{Ns} variables of type \id{N\_Vector} containing the
-    dependent sensitivity vectors $\dot{s}_i$.
+    dependent sensitivity derivatives $\dot{s}_i$.
   \item[rrQ]
     is the current value of the quadrature right-hand side $q$.
   \item[rhsvalQS]
