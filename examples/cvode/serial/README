@@ -5,7 +5,6 @@ List of serial CVODE examples
   cvDirectDemo_ls    : demonstration program for direct methods
   cvDiurnal_kry_bp   : Krylov example with banded preconditioner
   cvDiurnal_kry      : Krylov example
-  cvHeat2D_klu.c     : Heat equation example with KLU sparse linear solver
   cvKrylovDemo_ls    : demonstration program with 3 Krylov solvers
   cvKrylovDemo_prec  : demonstration program for Krylov methods
   cvRoberts_dns      : dense example
