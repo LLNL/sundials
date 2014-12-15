@@ -84,7 +84,7 @@ Approved for public release; further dissemination unlimited
 
 \expandafter\def\csname PYG@tok@gd\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.63,0.00,0.00}{##1}}}
 \expandafter\def\csname PYG@tok@gu\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.50,0.00,0.50}{##1}}}
-\expandafter\def\csname PYG@tok@gt\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.25,0.82}{##1}}}
+\expandafter\def\csname PYG@tok@gt\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.27,0.87}{##1}}}
 \expandafter\def\csname PYG@tok@gs\endcsname{\let\PYG@bf=\textbf}
 \expandafter\def\csname PYG@tok@gr\endcsname{\def\PYG@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
 \expandafter\def\csname PYG@tok@cm\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
@@ -95,7 +95,7 @@ Approved for public release; further dissemination unlimited
 \expandafter\def\csname PYG@tok@ge\endcsname{\let\PYG@it=\textit}
 \expandafter\def\csname PYG@tok@vc\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
 \expandafter\def\csname PYG@tok@il\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\expandafter\def\csname PYG@tok@go\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.19,0.19,0.19}{##1}}}
+\expandafter\def\csname PYG@tok@go\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.20,0.20,0.20}{##1}}}
 \expandafter\def\csname PYG@tok@cp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@gi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.63,0.00}{##1}}}
 \expandafter\def\csname PYG@tok@gh\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
@@ -154,6 +154,9 @@ Approved for public release; further dissemination unlimited
 \def\PYGZsh{\char`\#}
 \def\PYGZpc{\char`\%}
 \def\PYGZdl{\char`\$}
+\def\PYGZhy{\char`\-}
+\def\PYGZsq{\char`\'}
+\def\PYGZdq{\char`\"}
 \def\PYGZti{\char`\~}
 % for compatibility with earlier versions
 \def\PYGZat{@}
@@ -4040,7 +4043,7 @@ Integrates the ODE over an interval in $t$.
 \emph{yout} -- the computed solution vector
 
 \item {} 
-\emph{tret} -- the time reached by the solver (output)
+\emph{tret} -- the time corresponding to \emph{yout} (output)
 
 \item {} 
 \emph{itask} -- a flag indicating the job of the solver for the next
@@ -4157,21 +4160,20 @@ failed.
 
 \end{description}
 
-\textbf{Notes:} The input vector \emph{yout} can be the same as the vector
-\emph{y0} of initial conditions that was passed to {\hyperref[c_interface/User_callable:ARKodeInit]{\code{ARKodeInit()}}}.
+\textbf{Notes:} The input vector \emph{yout} can use the same memory as the
+vector \emph{y0} of initial conditions that was passed to
+{\hyperref[c_interface/User_callable:ARKodeInit]{\code{ARKodeInit()}}}.
 
 In \emph{ARK\_ONE\_STEP} mode, \emph{tout} is used only on the first call, and
 only to get the direction and a rough scale of the independent
-variable.
-
-All failure return values are negative and so testing the return
-argument for negative values will trap all ARKode failures.
+variable. All failure return values are negative and so testing the
+return argument for negative values will trap all ARKode failures.
 
 On any error return in which one or more internal steps were taken
 by ARKode, the returned values of \emph{tret} and \emph{yout} correspond to
-the farthest point reached in the integration. On all other error
-returns, \emph{tret} and \emph{yout} are left unchanged from the previous
-ARKode return.
+the farthest point reached in the integration.  On all other error
+returns, \emph{tret} and \emph{yout} are left unchanged from those provided
+to the routine.
 
 \end{fulllineitems}
 
@@ -14952,8 +14954,8 @@ routines for reporting on solver statistics.
 which a solution is desired.
 
 \item {} 
-\emph{T} (\code{realtype}, output) -- current value of independent
-variable reached by the solver.
+\emph{T} (\code{realtype}, output) -- value of independent variable
+that corresponds to the output \emph{Y}
 
 \item {} 
 \emph{Y} (\code{realtype}, output) -- array containing dependent state
@@ -14963,7 +14965,7 @@ variables on output.
 \emph{ITASK} (\code{int}, input) -- task indicator :
 \begin{itemize}
 \item {} 
-1 = normal mode (overshoot \emph{TOUT} and interpolate)
+1 = normal mode (overshoot \emph{TOUT} and interpolate the solution)
 
 \item {} 
 2 = one-step mode (return after each internal step taken)
@@ -15006,6 +15008,10 @@ values -1, ..., -10 are failure modes (see {\hyperref[c_interface/User_callable:
 The current values of the optional outputs are immediately
 available in \emph{IOUT} and \emph{ROUT} upon return from this function (see
 {\hyperref[f_interface/Optional_output:finterface-iouttable]{\emph{Table: Optional FARKODE integer outputs}}} and {\hyperref[f_interface/Optional_output:finterface-routtable]{\emph{Table: Optional FARKODE real outputs}}}).
+
+A full description of error flags and output behavior of the solver
+(values filled in for \emph{T} and \emph{Y}) is provided in the description
+of {\hyperref[c_interface/User_callable:ARKode]{\code{ARKode()}}}.
 
 \end{fulllineitems}
 
@@ -16439,7 +16445,7 @@ pointer to the serial \code{N\_Vector} \emph{content} structure.
 Implementation:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}CONTENT\PYGZus{}S(v) ( (N\PYGZus{}VectorContent\PYGZus{}Serial)(v-\PYGZgt{}content) )}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}CONTENT\PYGZus{}S(v) ( (N\PYGZus{}VectorContent\PYGZus{}Serial)(v\PYGZhy{}\PYGZgt{}content) )}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -16453,7 +16459,7 @@ Access the \emph{own\_data} component of the serial \code{N\_Vector} \emph{v}.
 Implementation:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}OWN\PYGZus{}DATA\PYGZus{}S(v) ( NV\PYGZus{}CONTENT\PYGZus{}S(v)-\PYGZgt{}own\PYGZus{}data )}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}OWN\PYGZus{}DATA\PYGZus{}S(v) ( NV\PYGZus{}CONTENT\PYGZus{}S(v)\PYGZhy{}\PYGZgt{}own\PYGZus{}data )}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -16472,7 +16478,7 @@ array of \code{v} to be \code{v\_data} by storing the pointer \code{v\_data}.
 Implementation:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}DATA\PYGZus{}S(v) ( NV\PYGZus{}CONTENT\PYGZus{}S(v)-\PYGZgt{}data )}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}DATA\PYGZus{}S(v) ( NV\PYGZus{}CONTENT\PYGZus{}S(v)\PYGZhy{}\PYGZgt{}data )}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -16490,7 +16496,7 @@ len\_v} sets the \emph{length} of \code{v} to be \code{len\_v}.
 Implementation:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}LENGTH\PYGZus{}S(v) ( NV\PYGZus{}CONTENT\PYGZus{}S(v)-\PYGZgt{}length )}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}LENGTH\PYGZus{}S(v) ( NV\PYGZus{}CONTENT\PYGZus{}S(v)\PYGZhy{}\PYGZgt{}length )}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -16656,7 +16662,7 @@ N\_VectorParallelContent}.
 Implementation:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}CONTENT\PYGZus{}P(v) ( (N\PYGZus{}VectorContent\PYGZus{}Parallel)(v-\PYGZgt{}content) )}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}CONTENT\PYGZus{}P(v) ( (N\PYGZus{}VectorContent\PYGZus{}Parallel)(v\PYGZhy{}\PYGZgt{}content) )}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -16670,7 +16676,7 @@ Access the \emph{own\_data} component of the parallel \code{N\_Vector} \emph{v}.
 Implementation:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}OWN\PYGZus{}DATA\PYGZus{}P(v)   ( NV\PYGZus{}CONTENT\PYGZus{}P(v)-\PYGZgt{}own\PYGZus{}data )}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}OWN\PYGZus{}DATA\PYGZus{}P(v)   ( NV\PYGZus{}CONTENT\PYGZus{}P(v)\PYGZhy{}\PYGZgt{}own\PYGZus{}data )}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -16690,7 +16696,7 @@ The assignment \code{NV\_DATA\_P(v) = v\_data} sets the component array of
 Implementation:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}DATA\PYGZus{}P(v)       ( NV\PYGZus{}CONTENT\PYGZus{}P(v)-\PYGZgt{}data )}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}DATA\PYGZus{}P(v)       ( NV\PYGZus{}CONTENT\PYGZus{}P(v)\PYGZhy{}\PYGZgt{}data )}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -16708,7 +16714,7 @@ The call \code{NV\_LOCLENGTH\_P(v) = llen\_v} sets the \emph{local\_length} of
 Implementation:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}LOCLENGTH\PYGZus{}P(v)  ( NV\PYGZus{}CONTENT\PYGZus{}P(v)-\PYGZgt{}local\PYGZus{}length )}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}LOCLENGTH\PYGZus{}P(v)  ( NV\PYGZus{}CONTENT\PYGZus{}P(v)\PYGZhy{}\PYGZgt{}local\PYGZus{}length )}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -16726,7 +16732,7 @@ of \code{v} to be \code{glen\_v}.
 Implementation:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}GLOBLENGTH\PYGZus{}P(v) ( NV\PYGZus{}CONTENT\PYGZus{}P(v)-\PYGZgt{}global\PYGZus{}length )}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}GLOBLENGTH\PYGZus{}P(v) ( NV\PYGZus{}CONTENT\PYGZus{}P(v)\PYGZhy{}\PYGZgt{}global\PYGZus{}length )}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -16741,7 +16747,7 @@ parallel \code{N\_Vector} \emph{v}.
 Implementation:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}COMM\PYGZus{}P(v) ( NV\PYGZus{}CONTENT\PYGZus{}P(v)-\PYGZgt{}comm )}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}COMM\PYGZus{}P(v) ( NV\PYGZus{}CONTENT\PYGZus{}P(v)\PYGZhy{}\PYGZgt{}comm )}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -16905,7 +16911,7 @@ a pointer to the OpenMP \code{N\_Vector} content structure.
 Implementation:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}CONTENT\PYGZus{}OMP(v) ( (N\PYGZus{}VectorContent\PYGZus{}OpenMP)(v-\PYGZgt{}content) )}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}CONTENT\PYGZus{}OMP(v) ( (N\PYGZus{}VectorContent\PYGZus{}OpenMP)(v\PYGZhy{}\PYGZgt{}content) )}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -16919,7 +16925,7 @@ Access the \emph{own\_data} component of the OpenMP \code{N\_Vector} \emph{v}.
 Implementation:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}OWN\PYGZus{}DATA\PYGZus{}OMP(v) ( NV\PYGZus{}CONTENT\PYGZus{}OMP(v)-\PYGZgt{}own\PYGZus{}data )}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}OWN\PYGZus{}DATA\PYGZus{}OMP(v) ( NV\PYGZus{}CONTENT\PYGZus{}OMP(v)\PYGZhy{}\PYGZgt{}own\PYGZus{}data )}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -16938,7 +16944,7 @@ array of \code{v} to be \code{v\_data} by storing the pointer \code{v\_data}.
 Implementation:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}DATA\PYGZus{}OMP(v) ( NV\PYGZus{}CONTENT\PYGZus{}OMP(v)-\PYGZgt{}data )}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}DATA\PYGZus{}OMP(v) ( NV\PYGZus{}CONTENT\PYGZus{}OMP(v)\PYGZhy{}\PYGZgt{}data )}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -16956,7 +16962,7 @@ len\_v} sets the \emph{length} of \code{v} to be \code{len\_v}.
 Implementation:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}LENGTH\PYGZus{}OMP(v) ( NV\PYGZus{}CONTENT\PYGZus{}OMP(v)-\PYGZgt{}length )}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}LENGTH\PYGZus{}OMP(v) ( NV\PYGZus{}CONTENT\PYGZus{}OMP(v)\PYGZhy{}\PYGZgt{}length )}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -16975,7 +16981,7 @@ the call \code{NV\_NUM\_THREADS\_OMP(v) = num\_threads\_v} sets the
 Implementation:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}NUM\PYGZus{}THREADS\PYGZus{}OMP(v) ( NV\PYGZus{}CONTENT\PYGZus{}OMP(v)-\PYGZgt{}num\PYGZus{}threads )}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}NUM\PYGZus{}THREADS\PYGZus{}OMP(v) ( NV\PYGZus{}CONTENT\PYGZus{}OMP(v)\PYGZhy{}\PYGZgt{}num\PYGZus{}threads )}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -17139,7 +17145,7 @@ a pointer to the Pthreads \code{N\_Vector} content structure.
 Implementation:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}CONTENT\PYGZus{}PT(v) ( (N\PYGZus{}VectorContent\PYGZus{}Pthreads)(v-\PYGZgt{}content) )}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}CONTENT\PYGZus{}PT(v) ( (N\PYGZus{}VectorContent\PYGZus{}Pthreads)(v\PYGZhy{}\PYGZgt{}content) )}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -17153,7 +17159,7 @@ Access the \emph{own\_data} component of the Pthreads \code{N\_Vector} \emph{v}.
 Implementation:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}OWN\PYGZus{}DATA\PYGZus{}PT(v) ( NV\PYGZus{}CONTENT\PYGZus{}PT(v)-\PYGZgt{}own\PYGZus{}data )}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}OWN\PYGZus{}DATA\PYGZus{}PT(v) ( NV\PYGZus{}CONTENT\PYGZus{}PT(v)\PYGZhy{}\PYGZgt{}own\PYGZus{}data )}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -17172,7 +17178,7 @@ array of \code{v} to be \code{v\_data} by storing the pointer \code{v\_data}.
 Implementation:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}DATA\PYGZus{}PT(v) ( NV\PYGZus{}CONTENT\PYGZus{}PT(v)-\PYGZgt{}data )}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}DATA\PYGZus{}PT(v) ( NV\PYGZus{}CONTENT\PYGZus{}PT(v)\PYGZhy{}\PYGZgt{}data )}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -17190,7 +17196,7 @@ len\_v} sets the \emph{length} of \code{v} to be \code{len\_v}.
 Implementation:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}LENGTH\PYGZus{}PT(v) ( NV\PYGZus{}CONTENT\PYGZus{}PT(v)-\PYGZgt{}length )}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}LENGTH\PYGZus{}PT(v) ( NV\PYGZus{}CONTENT\PYGZus{}PT(v)\PYGZhy{}\PYGZgt{}length )}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -17209,7 +17215,7 @@ the call \code{NV\_NUM\_THREADS\_PT(v) = num\_threads\_v} sets the
 Implementation:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}NUM\PYGZus{}THREADS\PYGZus{}PT(v) ( NV\PYGZus{}CONTENT\PYGZus{}PT(v)-\PYGZgt{}num\PYGZus{}threads )}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}NUM\PYGZus{}THREADS\PYGZus{}PT(v) ( NV\PYGZus{}CONTENT\PYGZus{}PT(v)\PYGZhy{}\PYGZgt{}num\PYGZus{}threads )}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -17632,7 +17638,7 @@ module, namely \code{N\_VScale}, which performs the scaling of a vector
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{k+kt}{void} \PYG{n+nf}{N\PYGZus{}VScale}\PYG{p}{(}\PYG{n}{realtype} \PYG{n}{c}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{n}{x}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{n}{z}\PYG{p}{)} \PYG{p}{\PYGZob{}}
-   \PYG{n}{z}\PYG{o}{-}\PYG{o}{\PYGZgt{}}\PYG{n}{ops}\PYG{o}{-}\PYG{o}{\PYGZgt{}}\PYG{n}{nvscale}\PYG{p}{(}\PYG{n}{c}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{z}\PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZgt{}}\PYG{n}{ops}\PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZgt{}}\PYG{n}{nvscale}\PYG{p}{(}\PYG{n}{c}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}
 \end{Verbatim}
 
@@ -17645,8 +17651,8 @@ functions create (by cloning) an array of \emph{count} variables of type
 prototypes are:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n}{N\PYGZus{}VCloneVectorArray}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{count}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
-\PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n}{N\PYGZus{}VCloneEmptyVectorArray}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{count}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n+nf}{N\PYGZus{}VCloneVectorArray}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{count}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n+nf}{N\PYGZus{}VCloneEmptyVectorArray}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{count}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
 
 and their definitions are based on the implementation-specific
@@ -17656,7 +17662,7 @@ Similarly, an array of variables of type \code{N\_Vector} can be destroyed
 by calling \code{N\_VDestroyVectorArray}, whose prototype is
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k+kt}{void} \PYG{n}{N\PYGZus{}VDestroyVectorArray}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n}{vs}\PYG{p}{,} \PYG{k+kt}{int} \PYG{n}{count}\PYG{p}{)}\PYG{p}{;}
+\PYG{k+kt}{void} \PYG{n+nf}{N\PYGZus{}VDestroyVectorArray}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n}{vs}\PYG{p}{,} \PYG{k+kt}{int} \PYG{n}{count}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
 
 and whose definition is based on the implementation-specific
@@ -20252,7 +20258,7 @@ one of: \code{sundials}, \code{arkode}, \code{cvode}, \code{cvodes}, \code{ida},
 installation, first uncompress and expand the sources, by issuing
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} tar -zxf SOLVER-X.Y.Z.tar.gz
+\PYGZpc{} tar \PYGZhy{}zxf SOLVER\PYGZhy{}X.Y.Z.tar.gz
 \end{Verbatim}
 
 This will extract source files under a directory \code{SOLVER-X.Y.Z.}
@@ -20486,7 +20492,7 @@ from the BUILDDIR enter the \code{cmake-gui} command and point to the
 SOURCEDIR:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }cmake-gui \PYG{o}{(}...\PYG{o}{)}/SOURCEDIR
+\PYG{n+nv}{\PYGZdl{} }cmake\PYGZhy{}gui \PYG{o}{(}...\PYG{o}{)}/SOURCEDIR
 \end{Verbatim}
 
 The default curses configuration screen is shown in
@@ -20520,7 +20526,7 @@ on this system.  Back at the command prompt, you can now type:
 or for a faster parallel build (e.g. using 4 threads), you can type
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }make -j 4
+\PYG{n+nv}{\PYGZdl{} }make \PYGZhy{}j 4
 \end{Verbatim}
 
 To install SUNDIALS in the installation directory specified in the configuration, simply run:
@@ -20555,8 +20561,8 @@ CMake variable settings with the \code{cmake} command.  The following
 will build the same configuration as shown above:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }cmake -DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/usr/casc/sundials/installdir \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{}  -DEXAMPLES\PYGZus{}INSTALL\PYGZus{}PATH\PYG{o}{=}/usr/casc/sundials/installdir \PYG{l+s+se}{\PYGZbs{}}
+\PYG{n+nv}{\PYGZdl{} }cmake \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/usr/casc/sundials/installdir \PYG{l+s+se}{\PYGZbs{}}
+\PYGZgt{}  \PYGZhy{}DEXAMPLES\PYGZus{}INSTALL\PYGZus{}PATH\PYG{o}{=}/usr/casc/sundials/installdir \PYG{l+s+se}{\PYGZbs{}}
 \PYGZgt{}  ../sourcedir
 \PYG{n+nv}{\PYGZdl{} }make
 \PYG{n+nv}{\PYGZdl{} }make \PYG{n+nb}{test}
@@ -21061,7 +21067,7 @@ CMake scripts), is provided below.
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{c+cm}{/* SUNDIALS configuration header file */}
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define SUNDIALS\PYGZus{}PACKAGE\PYGZus{}VERSION "2.6.0"}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define SUNDIALS\PYGZus{}PACKAGE\PYGZus{}VERSION \PYGZdq{}2.6.0\PYGZdq{}}
 
 \PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define SUNDIALS\PYGZus{}F77\PYGZus{}FUNC(name,NAME) name \PYGZsh{}\PYGZsh{} \PYGZus{}}
 
@@ -21204,7 +21210,7 @@ SUNDIALS on a LINUX/UNIX system to the system-level directory
 \code{/opt/sundials-2.6.0} could be accomplished using
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }cmake -DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/opt/sundials-2.6.0
+\PYG{n+nv}{\PYGZdl{} }cmake \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/opt/sundials\PYGZhy{}2.6.0
 \end{Verbatim}
 
 Although all installed libraries reside under \code{LIBDIR}, the public
@@ -22023,7 +22029,7 @@ their methods.  For each of the methods below, we follow a uniform
 naming convention:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-NAME-S-P-Q
+NAME\PYGZhy{}S\PYGZhy{}P\PYGZhy{}Q
 \end{Verbatim}
 
 where here
