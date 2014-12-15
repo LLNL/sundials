@@ -50,12 +50,9 @@ extern "C" {
 
 void FCV_DENSESETJAC(int *flag, int *ier)
 {
-  CVodeMem cv_mem;
-
   if (*flag == 0) {
     *ier = CVDlsSetDenseJacFn(CV_cvodemem, NULL);
   } else {
-    cv_mem = (CVodeMem) CV_cvodemem;
     *ier = CVDlsSetDenseJacFn(CV_cvodemem, FCVDenseJac);
   }
 }

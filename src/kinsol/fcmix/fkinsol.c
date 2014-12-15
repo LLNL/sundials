@@ -279,7 +279,6 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
               realtype *uscale , realtype *fscale, int *ier)
 
 {
-  int lsflag;
   N_Vector uuvec, uscalevec, fscalevec;
 
   *ier = 0;

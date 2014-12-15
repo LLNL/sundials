@@ -236,10 +236,7 @@ int KINSptfqmr(void *kinmem, int maxl)
 static int KINSptfqmrInit(KINMem kin_mem)
 {
   KINSpilsMem kinspils_mem;
-  SptfqmrMem sptfqmr_mem;
-
   kinspils_mem = (KINSpilsMem) lmem;
-  sptfqmr_mem = (SptfqmrMem) spils_mem;
 
   /* initialize counters */
 

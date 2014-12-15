@@ -50,12 +50,9 @@ extern "C" {
 
 void FCV_BANDSETJAC(int *flag, int *ier)
 {
-  CVodeMem cv_mem;
-
   if (*flag == 0) {
     *ier = CVDlsSetBandJacFn(CV_cvodemem, NULL);
   } else {
-    cv_mem = (CVodeMem) CV_cvodemem;
     *ier = CVDlsSetBandJacFn(CV_cvodemem, FCVBandJac);
   }
 }

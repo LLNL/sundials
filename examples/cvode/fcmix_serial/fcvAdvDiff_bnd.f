@@ -170,7 +170,7 @@ C
 C Compute max-norm of array U
       IMPLICIT NONE
 C
-      INTEGER I, N
+      INTEGER*8 I, N
       DOUBLE PRECISION U(*), UNORM, TEMP
 C
       TEMP = 0.0D0

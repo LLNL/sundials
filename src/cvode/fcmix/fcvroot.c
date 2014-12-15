@@ -46,9 +46,6 @@ extern "C" {
 
 void FCV_ROOTINIT(int *nrtfn, int *ier)
 {
-  CVodeMem cv_mem;
-  
-  cv_mem = (CVodeMem) CV_cvodemem;
   *ier = CVodeRootInit(CV_cvodemem, *nrtfn, (CVRootFn) FCVrootfunc);
   CV_nrtfn = *nrtfn;
 

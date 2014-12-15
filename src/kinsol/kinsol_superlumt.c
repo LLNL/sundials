@@ -76,7 +76,7 @@ int KINSuperLUMT(void *kin_mem_v, int num_threads, int n, int nnz)
   SuperMatrix *B;
 
   /* Return immediately if kin_mem is NULL. */
-  if (kin_mem == NULL) {
+  if (kin_mem_v == NULL) {
     KINProcessError(NULL, KINSLS_MEM_NULL, "KINSLS", "KINSuperLUMT", 
 		    MSGSP_KINMEM_NULL);
     return(KINSLS_MEM_NULL);

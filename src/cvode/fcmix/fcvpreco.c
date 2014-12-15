@@ -61,12 +61,9 @@ extern "C" {
 
 void FCV_SPILSSETPREC(int *flag, int *ier)
 {
-  CVodeMem cv_mem;
-
   if (*flag == 0) {
     *ier = CVSpilsSetPreconditioner(CV_cvodemem, NULL, NULL);
   } else {
-    cv_mem = (CVodeMem) CV_cvodemem;
     *ier = CVSpilsSetPreconditioner(CV_cvodemem, FCVPSet, FCVPSol);
   }
 }

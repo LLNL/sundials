@@ -74,7 +74,7 @@ int KINKLU(void *kin_mem_v, int n, int nnz)
   int flag;
 
   /* Return immediately if kin_mem is NULL. */
-  if (kin_mem == NULL) {
+  if (kin_mem_v == NULL) {
     KINProcessError(NULL, KINSLS_MEM_NULL, "KINSLS", "KINKLU", 
 		    MSGSP_KINMEM_NULL);
     return(KINSLS_MEM_NULL);
@@ -196,7 +196,7 @@ int KINKLUReInit(void *kin_mem_v, int n, int nnz, int reinit_type)
   int retval;
 
   /* Return immediately if kin_mem is NULL. */
-  if (kin_mem == NULL) {
+  if (kin_mem_v == NULL) {
     KINProcessError(NULL, KINSLS_MEM_NULL, "KINSLS", "KINKLUReInit", 
 		    MSGSP_KINMEM_NULL);
     return(KINSLS_MEM_NULL);
@@ -279,7 +279,7 @@ static int kinKLUSetup(KINMem kin_mem)
   void *jacdata;
   realtype uround, uround_twothirds;
 
-  uround = SUNRpowerR(kin_mem->kin_uround,TWOTHIRDS);
+  uround_twothirds = SUNRpowerR(kin_mem->kin_uround,TWOTHIRDS);
 
   kinsls_mem = (KINSlsMem) (kin_mem->kin_lmem);
 

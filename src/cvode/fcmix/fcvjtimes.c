@@ -54,12 +54,9 @@ extern "C" {
 
 void FCV_SPILSSETJAC(int *flag, int *ier)
 {
-  CVodeMem cv_mem;
-
   if (*flag == 0) {
     *ier = CVSpilsSetJacTimesVecFn(CV_cvodemem, NULL);
   } else {
-    cv_mem = (CVodeMem) CV_cvodemem;
     *ier = CVSpilsSetJacTimesVecFn(CV_cvodemem, FCVJtimes);
   }
 }

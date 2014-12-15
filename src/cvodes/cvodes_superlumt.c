@@ -87,7 +87,6 @@ int CVSuperLUMT(void *cvode_mem, int num_threads, int n, int nnz)
   CVSlsMem cvsls_mem;
   SLUMTData slumt_data;
   int *perm_c, *perm_r;
-  int flag;
   int nrhs, panel_size, relax;
   double *bd;
   SuperMatrix *B;
@@ -269,7 +268,6 @@ static int cvSuperLUMTSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   int retval, info;
   int nprocs, panel_size, relax, permc_spec, lwork;
   int *perm_r, *perm_c;
-  long int retfac;
   long int nst, nstlj;
   realtype tn, gamma, gammap, dgamma;
   double diag_pivot_thresh, drop_tol;
@@ -425,7 +423,7 @@ static int cvSuperLUMTSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 static int cvSuperLUMTSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 			    N_Vector ycur, N_Vector fcur)
 {
-  int info, trans, flag, lmm;
+  int info, trans, lmm;
   int *perm_r, *perm_c;
   realtype gamrat;
   CVSlsMem cvsls_mem;

@@ -212,6 +212,8 @@ C Problem constants
       NEQ = 2 * MM
       Q1 = 1.63D-16
       Q2 = 4.66D-16
+      Q3 = 0.D0
+      Q4 = 0.D0
       A3 = 22.62D0
       A4 = 7.601D0
       OM = PI / HALFDA

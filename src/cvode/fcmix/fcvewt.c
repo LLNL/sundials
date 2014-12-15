@@ -48,10 +48,7 @@ extern "C" {
 
 void FCV_EWTSET(int *flag, int *ier)
 {
-  CVodeMem cv_mem;
-
   if (*flag != 0) {
-    cv_mem = (CVodeMem) CV_cvodemem;
     *ier = CVodeWFtolerances(CV_cvodemem, FCVEwtSet);
   }
 }

@@ -258,10 +258,9 @@ static int IDASuperLUMTSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 			     N_Vector rrp, N_Vector tmp1, N_Vector tmp2,
 			     N_Vector tmp3)
 {
-  int retval, last_flag, info;
+  int retval, info;
   int nprocs, panel_size, relax, permc_spec, lwork;
   int *perm_r, *perm_c;
-  long int retfac;
   realtype tn, cj;
   double diag_pivot_thresh, drop_tol;
   fact_t fact;
@@ -283,7 +282,6 @@ static int IDASuperLUMTSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 
   slumt_data = (SLUMTData) idasls_mem->s_solver_data;
 
-  last_flag = idasls_mem->s_last_flag;
   jaceval = idasls_mem->s_jaceval;
   jacdata = idasls_mem->s_jacdata;
   JacMat = idasls_mem->s_JacMat;
