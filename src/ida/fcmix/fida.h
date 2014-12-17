@@ -565,6 +565,7 @@ extern "C" {
 #define FIDA_PSOL           SUNDIALS_F77_FUNC(fidapsol, FIDAPSOL)
 #define FIDA_JTIMES         SUNDIALS_F77_FUNC(fidajtimes, FIDAJTIMES)
 #define FIDA_EWT            SUNDIALS_F77_FUNC(fidaewt, FIDAEWT)
+#define FIDA_EWTSET         SUNDIALS_F77_FUNC(fidaewtset, FIDAEWTSET)
 #define FIDA_GETDKY         SUNDIALS_F77_FUNC(fidagetdky, FIDAGETDKY)
 #define FIDA_GETERRWEIGHTS  SUNDIALS_F77_FUNC(fidageterrweights, FIDAGETERRWEIGHTS)
 #define FIDA_GETESTLOCALERR SUNDIALS_F77_FUNC(fidagetestlocalerr, FIDAGETESTLOCALERR)
