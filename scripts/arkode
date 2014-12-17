@@ -90,6 +90,12 @@ $tar $tarfile $distrobase/src/arkode/fcmix/farksuperlumt.c
 
 echo "   --- Add arkode examples to $tarfile"
 
+$tar $tarfile $distrobase/examples/arkode/C_openmp/CMakeLists.txt
+$tar $tarfile $distrobase/examples/arkode/C_openmp/README
+$tar $tarfile $distrobase/examples/arkode/C_openmp/ark_brusselator1D_omp.c
+$tar $tarfile $distrobase/examples/arkode/C_openmp/ark_brusselator1D_omp.out
+$tar $tarfile $distrobase/examples/arkode/C_openmp/plot_brusselator1D.py
+
 $tar $tarfile $distrobase/examples/arkode/CXX_parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/arkode/CXX_parallel/Makefile.in
 $tar $tarfile $distrobase/examples/arkode/CXX_parallel/README
@@ -123,6 +129,8 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_FEM_slu.c
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_FEM_slu.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_klu.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_klu.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_fp.c
