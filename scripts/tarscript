@@ -43,11 +43,11 @@ function print_usage
 # VERSION NUMBERS
 #---------------------------------------------------------
 
-SUN_VER="2.5.0"
-CV_VER="2.7.0"
-CVS_VER="2.7.0"
-IDA_VER="2.7.0"
-IDAS_VER="1.1.0"
+SUN_VER="2.6.0"
+CV_VER="2.8.0"
+CVS_VER="2.8.0"
+IDA_VER="2.8.0"
+IDAS_VER="1.2.0"
 KIN_VER="2.8.0"
 ARK_VER="1.0.0"
 
