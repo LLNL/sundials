@@ -1,4 +1,4 @@
-To Do List for SUNDIALS, as of 11/6/13
+To Do List for SUNDIALS, as of 12/17/2014
 
 (*** items must be completed before KINSOL and ARKode can be released.)
 
@@ -12,17 +12,15 @@ To Do List for SUNDIALS, as of 11/6/13
 
 ***(Carol) Document sparse solvers
 
-***(Carol) IM release of KINSOL and ARKode
+***(Carol/Eddy) IM release of KINSOL and ARKode...in progress 12/17/14
 
-***(Carol) Update tarscripts
+***(Carol/Eddy) Update tarscripts
 
 ***(Carol) Update xfig diagrams
 
 ***(Carol) Update recent revisions - all to comment
 
 ***(Carol, Steve) Note on Windows build
-
-***(Dan) Add documentation for ARKode into SUNDIALS distribution
 
 ***(Eddy) Update options for cmake.  Remove autoconf documentation in 
 manuals and INSTALL_NOTES (anywhere else?)
@@ -37,15 +35,6 @@ manuals and INSTALL_NOTES (anywhere else?)
 	   Need to document.
 
 ***(Steve) Document KLU build options
-
-***(Steve) Change header info for all files
-
-	   Script was run which fixes most file headers.
-
-	   Following should find all files that still need to be updated.
-
-	   grep Regents $(find . -type f) | grep -v 2013 | grep -v .svn | grep -v .hg | awk ' BEGIN {FS=":"} {print $1}'
-
 
 (Alan, Carol) Verify output of examples used in new testing system 
 are indeed correct.
@@ -63,7 +52,6 @@ and even between systems.  Maybe try abstol = 10^-6?
 
 (Carol) Examples of pcg and FGMRES for all solvers
 
-(Eddy) More rigorous build system testing - please elaborate
 (Eddy) Remove autoconf from build system
 
 (Eddy) Make build system handling of examples consistent.  Right now, distclean
@@ -75,7 +63,35 @@ directory, but the executables are not copied there.
 (Steve) Look into whether there is any issue with MPI and differing parallel
 results in consecutively run parallel examples.
 
+***(Eddy) Remove autotools build files from installation
 
+***(Eddy) NVector test examples are not installed correctly. They contain multiple .c source
+   files that need to be installed and accounted for in installed Makefile.
+   
+*** (Eddy) Document NVector use in install guide
+
+*** (Eddy) C++ conditional statements in wrong place with respect to #include lines
+
+*** (Eddy) Nightly build should compile with '-Wall' and '-ansi -pendantic' to force ISO 90 behavior.
+    Plus all errors/warnings should be fixed
+    
+*** (Alan) Identify any outstanding user issues.
+
+*** (Alan) Create individual user guide skeleton code example to show only one flavor of p, t, o, s and
+    infer the others. Main skeleton should continue to show all four.
+    
+*** (Alan) Create cvDiag example with MPI
+
+*** (Eddy) Document CMake support is for LINUX Makefile system only (although can be used to configure other systems)
+
+*** (Eddy) Documentation figures need square/round edges as specified in the text
+
+*** (Eddy) Remove old auto test code from current ongoing versions in repo
+
+*** (Eddy) Ida figure should show Nvector (as does in Main).  All individual solver figures
+    to be updated in same way as Ida
+    
+*** (All) Test, test, test
 -------------------------------------------------------------------------
 
 Deferred to after release (11/6/13)
@@ -83,14 +99,8 @@ Deferred to after release (11/6/13)
 Update all Matlab interfaces
 
 (LEB, 7/30/13) When running tests (i.e. testRunner) the 'output' 
-directory is built
-within the source tree - don't want anything in source tree.  The output
-should be built in the 'Testing' directory relative to the directory in
-which 'make test' is run.
-
-Extend testrunner to test more than one configuratino of 
-SUNDIALS - individual solver builds, w/ and w/out SuperLU_MT and/or KLU,
-etc.
+directory is built within the source tree - don't want anything in source tree.  The output
+should be built in the 'Testing' directory relative to the directory in which 'make test' is run.
 
 Enhancement to testing.  The ordering of tests would be better if core
 features where tested before biggger tests.  For example nvector tests
@@ -103,11 +113,34 @@ possible to forget to include a header file for in the tarscript.
 Perhaps entire test suite could be setup to build against the install
 directory or development directory?
 
+*** Attach nightly build log file to log file to email sent to developers
+
+*** Nightly build should build all libraries (SuperLU_MT, LAPACK etc) and test all examples - will
+    require multiple build capability since not all libraries can be built simultaneously.
+
+*** Nightly build should run regression tests with valgrind
+
+*** Determine tool / method for either documenting in LaTex and converting to HTML (preferred)
+    or document HTML 'markup' and convert to LaTex etc.
+    
+*** Refactor duplicated code from ida/idas and cvode/cvodes into common module
+
+*** Need hybrid mpi/openmp example
+
+*** Look into issue tracking system open to developers and users
+
+*** Nightly build should use tarscript(s) to install/test
+
+*** Generate 'local' set of tolerances to enable 'tighter' nightly testing.
+    Perhaps enable this as a feature for users to generate tolerances.
+    
 -------------------------------------------------------------------------
 -------------------------------------------------------------------------
 
 Completed Tasks
 
+
+***(Dan) Add documentation for ARKode into SUNDIALS distribution
 
 ***(Carol) Add error flag checks for KLU
 
@@ -127,3 +160,10 @@ their own vector kernel is correct.  (Of course, ours should pass these
 tests!)
 
 (Dan, Eddy) Need to add ARKode to SUNDIALS' automated testing infrastructure.
+
+***(Steve) Change header info for all files
+       Script was run which fixes most file headers.
+       Following should find all files that still need to be updated.
+       grep Regents $(find . -type f) | grep -v 2013 | grep -v .svn | grep -v .hg | awk ' BEGIN {FS=":"} {print $1}'
+
+
