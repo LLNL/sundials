@@ -1,4 +1,4 @@
-Unresolved User Complaints as of 12 December 2014
+Unresolved User Complaints as of 17 December 2014
 
 * Jourdan, 3/29/10. Problems with FCVODE -- related to N type.
   May be OK now, or may still be a problem on 64-bit machines.
@@ -104,13 +104,9 @@ Unresolved User Complaints as of 12 December 2014
 
 * Oxberry, 6/8/14. List of patches he has generated.
 
-* Oxberry, 6/13/14. Bug in fkinDiagon_kry_p.c
-
 * Kantli, 6/14/14. Question on KINSOL usage.
 
 * Raj, 8/20/14. Problem installing in serial.
 
 * Nakhimovski, 9/18/14.  Infinite loop can occur in KINSOL; gives fix.
-
-* Zhao, 12/5/14. CVode bug -- returned tret sometimes beyond tout.
 
