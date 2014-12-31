@@ -80,7 +80,7 @@ solved exactly, thus resulting in a Modified Newton method (the Jacobian matrix
 is normally out of date; see below\footnote{{\kinsol} allows the user to enforce 
 a Jacobian evaluation at each iteration thus allowing for an Exact Newton iteration.}). 
 %%
-Note that the direct linear solvers (dense, band and sparse) can only
+Note that the direct linear solvers (dense, band, and sparse) can only
 be used with the serial and threaded vector representations.
 
 On the other hand, when using any of the iterative linear solvers
@@ -353,7 +353,11 @@ A test for convergence is made before the iteration continues.
 
 %% PICARD ITERATION
 
-The Picard iteration, as implemented in {\kinsol}, is given by:
+For Picard iteration, as implemented in {\kinsol}, we consider a special form
+of the nonlinear function $F$, such that $F(u) = Lu - N(u)$, where $L$ is a constant
+nonsingular matrix and $N$ is (in general) nonlinear.  Then the fixed-point
+function $G$ is defined as $G(u) = u - L^{-1}F(u)$.
+The Picard iteration is given by:
 
 \vspace{1ex}
 \index{Picard iteration!definition}
@@ -361,17 +365,15 @@ The Picard iteration, as implemented in {\kinsol}, is given by:
    \item Set $u_0 = $ an initial guess
    \item For $n = 0, 1, 2,...$ until convergence do:
       \begin{itemize}
-          \item[(a)] Set $u_{n+1} = u_n - L^{-1}F(u_n)$.
+          \item[(a)] Set $u_{n+1} = G(u_n) = u_n - L^{-1}F(u_n)$.
           \item[(b)] Test $F(u_{n+1})$ for convergence.
       \end{itemize}
 \end{enumerate}
-Here, $u_n$ is the $n$th iterate to $u$, and we consider a special form of the 
-nonlinear function, $F$ such that
-$F(u) = Lu - N(u)$, where $L$ is a linear, nonsingular matrix and $N$ is nonlinear.
+Here, $u_n$ is the $n$th iterate to $u$.
 Within each iteration, the Picard step is computed then added to $u_n$ to produce 
 the new iterate.  Next, the nonlinear residual
 function is evaluated at the new iterate, and convergence is checked.
-Noting that $L^{-1}Nu = u - L^{-1}F(u)$, the above iteration can be written in the same form
+Noting that $L^{-1}N(u) = u - L^{-1}F(u)$, the above iteration can be written in the same form
 as a Newton iteration except that here, $L$ is in the role of the Jacobian.
 Within {\kinsol}, however, we leave this in a fixed-point form as above. 
 For more information, see p. 182 of \cite{Ortega-Rheinbolt00}.
@@ -395,13 +397,14 @@ Anderson acceleration can be formulated as follows:
           \item[(a)] Set $m_n = \min\{m,n\}$
           \item[(b)] Set $F_{n} = (f_{n-m_n}, \ldots, f_n)$, where $f_i=G(u_i)-u_i$
           \item[(c)] Determine $\alpha^{(n)} = (\alpha_0^{(n)}, \ldots, \alpha_{m_n}^{(n)})$ that solves 
-	$\min_\alpha  \| F_n \alpha \|_2$ such that $\sum_{i=0}^{m_n} \alpha_i = 1$
-          \item[(d)] Set $u_{n+1} = \sum_{i=0}^{m_n} \alpha_i^{(n)} G(u_{n-m_k+i})$
+          $\min_\alpha  \| F_n \alpha^T \|_2$ such that $\sum_{i=0}^{m_n} \alpha_i = 1$
+          \item[(d)] Set $u_{n+1} = \sum_{i=0}^{m_n} \alpha_i^{(n)} G(u_{n-m_n+i})$
           \item[(e)] Test for convergence
       \end{itemize}
 \end{enumerate}
 
-It has been implemented in {\kinsol} by turning the constrained linear least-squares problem in Step (c) into an unconstrained one leading to the algorithm given below:
+It has been implemented in {\kinsol} by turning the constrained linear least-squares
+problem in Step (c) into an unconstrained one leading to the algorithm given below:
 
 \vspace{1ex}
 \index{Anderson acceleration UA!definition}
@@ -411,23 +414,26 @@ It has been implemented in {\kinsol} by turning the constrained linear least-squ
    \item For $n = 0, 1, 2,...$ until convergence do:
       \begin{itemize}
           \item[(a)] Set $m_n = \min\{m,n\}$
-          \item[(b)] Set $\Delta F_{n} = (\Delta f_{n-m_n}, \ldots, \Delta f_n)$, where $\Delta f_i = f_{i+1} - f_i$ and $f_i=G(u_i)-u_i$
-          \item[(c)] Determine $\gamma^{(n)} = (\gamma_0^{(n)}, \ldots, \gamma_{m_n-1}^{(n)})$ that solves 
-	$\min_\gamma  \| f_n - \Delta F_n \gamma \|_2$ 
-          \item[(d)] Set $u_{n+1} = G(u_n)-\sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta g(u_{n-m_k+i})$ with $\Delta g_i = G(u_{i+1}) - G(u_i)$
+          \item[(b)] Set $\Delta F_{n} = (\Delta f_{n-m_n}, \ldots, \Delta f_{n-1})$,
+                where $\Delta f_i = f_{i+1} - f_i$ and $f_i=G(u_i)-u_i$
+          \item[(c)] Determine $\gamma^{(n)} = (\gamma_0^{(n)}, \ldots, \gamma_{m_n-1}^{(n)})$
+                that solves $\min_\gamma  \| f_n - \Delta F_n \gamma^T \|_2$ 
+          \item[(d)] Set $u_{n+1} = G(u_n)-\sum_{i=0}^{m_n-1} \gamma_i^{(n)}
+               \Delta g_{n-m_n+i}$ with $\Delta g_i = G(u_{i+1}) - G(u_i)$
           \item[(e)] Test for convergence
       \end{itemize}
 \end{enumerate}
 
-The least-squares problem in (c) is solved by applying a QR factorization to $\Delta F_n = Q_n R_n$ and solving $R_n \gamma = Q_n^T f_n$.
+The least-squares problem in (c) is solved by applying a QR factorization to
+$\Delta F_n = Q_n R_n$ and solving $R_n \gamma = Q_n^T f_n$.
 
 
 \subsubsection*{Fixed-point - Anderson Acceleration Stopping Criterion}
 
 The default stopping criterion is 
-\[ \|G(u_n) - u\|_{D_F,\infty} < \mbox{\sc gtol} \, , \]
-where $D_F$ is a user-defined diagonal identity matrix that can be the identity 
-or a scaling matrix that is chosen so that the components of $D_F (G(u)-u)$ have 
+\[ \|G(u_n) - u_n \|_{D_F,\infty} < \mbox{\sc gtol} \, , \]
+where $D_F$ is a user-defined diagonal matrix that can be the identity 
+or a scaling matrix chosen so that the components of $D_F (G(u)-u)$ have 
 roughly the same order of magnitude.
 It is also possible for the user to set the stopping criterion via the user 
 supplied problem-defining function and calling \ID{KINSetAAStopCrit}.  
@@ -439,8 +445,8 @@ convergence is checked after the acceleration is applied.
 
 The default stopping criterion is 
 \[ \|F(u_n)\|_{D_F,\infty} < \mbox{\sc ftol} \, , \]
-where $D_F$ is a user-defined diagonal identity matrix that can be the identity 
-or a scaling matrix that is chosen so that the components of $D_F F(u)$ have 
+where $D_F$ is a user-defined diagonal matrix that can be the identity 
+or a scaling matrix chosen so that the components of $D_F F(u)$ have 
 roughly the same order of magnitude.
 It is also possible for the user to set the stopping criterion via the user 
 supplied problem-defining function and calling \ID{KINSetAAStopCrit}.  
