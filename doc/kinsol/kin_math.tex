@@ -431,7 +431,7 @@ $\Delta F_n = Q_n R_n$ and solving $R_n \gamma = Q_n^T f_n$.
 \subsubsection*{Fixed-point - Anderson Acceleration Stopping Criterion}
 
 The default stopping criterion is 
-\[ \|G(u_n) - u_n \|_{D_F,\infty} < \mbox{\sc gtol} \, , \]
+\[ \|G(u_{n+1}) - u_{n+1} \|_{D_F,\infty} < \mbox{\sc gtol} \, , \]
 where $D_F$ is a user-defined diagonal matrix that can be the identity 
 or a scaling matrix chosen so that the components of $D_F (G(u)-u)$ have 
 roughly the same order of magnitude.
@@ -444,7 +444,7 @@ convergence is checked after the acceleration is applied.
 \subsubsection*{Picard - Anderson Acceleration Stopping Criterion}
 
 The default stopping criterion is 
-\[ \|F(u_n)\|_{D_F,\infty} < \mbox{\sc ftol} \, , \]
+\[ \|F(u_{n+1})\|_{D_F,\infty} < \mbox{\sc ftol} \, , \]
 where $D_F$ is a user-defined diagonal matrix that can be the identity 
 or a scaling matrix chosen so that the components of $D_F F(u)$ have 
 roughly the same order of magnitude.
