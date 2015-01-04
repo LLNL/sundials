@@ -444,8 +444,8 @@ It is newly rewritten in the C language, based on the previous Fortran package
 NKSOL of Brown and Saad.  
 <br><br>
 KINSOL employs the <I>Inexact Newton</I> method. As this solver is intended
-mainly for large systems, three iterative methods are provided 
-to solve the resulting linear systems -- GMRES, Bi-CGStab, and TFQMR.
+mainly for large systems, four iterative methods are provided 
+to solve the resulting linear systems -- GMRES, Bi-CGStab, TFQMR, and FGMRES.
 These are Krylov methods, implemented with scaling and preconditioning,
 and can be used with both serial and parallel versions of the NVECTOR module.
 <br><br>
