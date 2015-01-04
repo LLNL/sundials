@@ -107,6 +107,20 @@ dense or banded Jacobian:  With a call to \id{IDADlsSetDenseJacFnBS} or
 function of type \id{IDADls***JacFnBS}, for the case where the backward
 problem depends on the forward sensitivities.
 
+A minor bug was fixed regarding the testing of the input \id{tstop} on
+the first call to \id{IDASolve}.
+
+For the Adjoint Sensitivity Analysis case in which the backward problem
+depends on the forward sensitivities, options have been added to allow
+for user-supplied \id{pset}, \id{psolve}, and \id{jtimes} functions.
+
+In order to avoid possible name conflicts, the mathematical macro
+and function names \id{MIN}, \id{MAX}, \id{SQR}, \id{RAbs}, \id{RSqrt},
+\id{RExp}, \id{RPowerI}, and \id{RPowerR} were changed to
+\id{SUNMIN}, \id{SUNMAX}, \id{SUNSQR}, \id{SUNRabs}, \id{SUNRsqrt},
+\id{SUNRexp}, \id{SRpowerI}, and \id{SUNRpowerR}, respectively.
+These names occur in both the solver and example programs.
+
 In the User Guide, a paragraph was added in Section 6.2.1 on
 \id{IDAAdjReInit}, and a paragraph was added in Section 6.2.9 on
 \id{IDAGetAdjY}.

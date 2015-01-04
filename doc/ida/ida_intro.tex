@@ -78,6 +78,16 @@ root-search loop if the initial interval size is below the tolerance
 In \id{IDALapackBand}, the line \id{smu = MIN(N-1,mu+ml)} was changed to
 \id{smu = mu + ml} to correct an illegal input error for \id{DGBTRF/DGBTRS}.
 
+A minor bug was fixed regarding the testing of the input \id{tstop} on
+the first call to \id{IDASolve}.
+
+In order to avoid possible name conflicts, the mathematical macro
+and function names \id{MIN}, \id{MAX}, \id{SQR}, \id{RAbs}, \id{RSqrt},
+\id{RExp}, \id{RPowerI}, and \id{RPowerR} were changed to
+\id{SUNMIN}, \id{SUNMAX}, \id{SUNSQR}, \id{SUNRabs}, \id{SUNRsqrt},
+\id{SUNRexp}, \id{SRpowerI}, and \id{SUNRpowerR}, respectively.
+These names occur in both the solver and in various example programs.
+
 In the FIDA optional input routines \id{FIDASETIIN}, \id{FIDASETRIN},
 and \id{FIDASETVIN}, the optional fourth argument \id{key\_length} was
 removed, with hardcoded key string lengths passed to all \id{strncmp}

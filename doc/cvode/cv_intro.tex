@@ -115,6 +115,17 @@ for private functions in {\cvode} and {\cvodes}, the names of 48
 private functions were changed from \id{CV**} to \id{cv**}, and a few
 other names were also changed.
 
+Two minor bugs were fixed regarding the testing of input on the first
+call to \id{CVode} -- one involving \id{tstop} and one involving the
+initialization of \id{*tret}.
+
+In order to avoid possible name conflicts, the mathematical macro
+and function names \id{MIN}, \id{MAX}, \id{SQR}, \id{RAbs}, \id{RSqrt},
+\id{RExp}, \id{RPowerI}, and \id{RPowerR} were changed to
+\id{SUNMIN}, \id{SUNMAX}, \id{SUNSQR}, \id{SUNRabs}, \id{SUNRsqrt},
+\id{SUNRexp}, \id{SRpowerI}, and \id{SUNRpowerR}, respectively.
+These names occur in both the solver and in various example programs.
+
 In the FCVODE optional input routines \id{FCVSETIIN} and \id{FCVSETRIN},
 the optional fourth argument \id{key\_length} was removed, with
 hardcoded key string lengths passed to all \id{strncmp} tests.

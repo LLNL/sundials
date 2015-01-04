@@ -148,6 +148,21 @@ In the User Guide, a paragraph was added in Section 6.2.1 on
 \id{CVodeGetAdjY}.  In the example \id{cvsRoberts\_ASAi\_dns}, the output
 was revised to include the use of \id{CVodeGetAdjY}.
 
+Two minor bugs were fixed regarding the testing of input on the first
+call to \id{CVode} -- one involving \id{tstop} and one involving the
+initialization of \id{*tret}.
+
+For the Adjoint Sensitivity Analysis case in which the backward problem
+depends on the forward sensitivities, options have been added to allow
+for user-supplied \id{pset}, \id{psolve}, and \id{jtimes} functions.
+
+In order to avoid possible name conflicts, the mathematical macro
+and function names \id{MIN}, \id{MAX}, \id{SQR}, \id{RAbs}, \id{RSqrt},
+\id{RExp}, \id{RPowerI}, and \id{RPowerR} were changed to
+\id{SUNMIN}, \id{SUNMAX}, \id{SUNSQR}, \id{SUNRabs}, \id{SUNRsqrt},
+\id{SUNRexp}, \id{SRpowerI}, and \id{SUNRpowerR}, respectively.
+These names occur in both the solver and example programs.
+
 In the example \id{cvsHessian\_ASA\_FSA}, an error was corrected in the
 function \id{fB2}: \id{y2} in place of \id{y3} in the third term of
 \id{Ith(yBdot,6)}.
