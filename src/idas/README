@@ -98,6 +98,9 @@ v. 1.1.0 (Mar. 2012) ---> v. 1.2.0 (??? 2014)
      IDADlsSetBandJacFnBS, the user can specify a user-supplied Jacobian
      function of type IDADls***JacFnBS, for the case where the backward
      problem depends on the forward sensitivities.
+   - For the Adjoint Sensitivity Analysis case in which the backward problem
+     depends on the forward sensitivities, options have been added to allow
+     for user-supplied set, psolve, and jtimes functions.
 
 - Bug fixes
    - In IDARootfind, a minor bug was corrected, where the input
@@ -106,11 +109,20 @@ v. 1.1.0 (Mar. 2012) ---> v. 1.2.0 (??? 2014)
      ttol.
    - In IDALapackBand, the line smu = MIN(N-1,mu+ml) was changed to
      smu = mu + ml to correct an illegal input error for DGBTRF/DGBTRS.
+   - A minor bug was fixed regarding the testing of the input tstop on the
+     first call to IDASolve..
 
 - Changes to user interface
    - In the User Guide, a paragraph was added in Section 6.2.1 on
      IDAAdjReInit, and a paragraph was added in Section 6.2.9 on
      IDAGetAdjY.
+
+- Other
+   - In order to avoid possible name conflicts, the mathematical macro and
+     function names MIN, MAX, SQR, RAbs, RSqrt, RExp, RPowerI, and RPowerR
+     were changed to SUNMIN, SUNMAX, SUNSQR, SUNRabs, SUNRsqrt, SUNRexp,
+     SRpowerI, and SUNRpowerR, respectively.  These names occur in both the
+     solver and in various example programs.
 
 v. 1.0.0 (May 2009) ---> v. 1.1.0 (Mar. 2012)
 ---------------------------------------------

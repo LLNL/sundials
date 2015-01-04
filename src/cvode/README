@@ -112,11 +112,21 @@ v. 2.7.0 (Mar. 2012) ---> v. 2.8.0 (??? 2014)
      ttol.
    - In CVLapackBand, the line smu = MIN(N-1,mu+ml) was changed to
      smu = mu + ml to correct an illegal input error for DGBTRF/DGBTRS.
+   - Two minor bugs were fixed regarding the testing of input on the first
+     call to CVode -- one involving tstop and one involving the
+     initialization of *tret.
 
 - Changes to user interface
-  - In the FCVODE optional input routines FCVSETIIN and FCVSETRIN,
-    the optional fourth argument key_length was removed, with
-    hardcoded key string lengths passed to all strncmp tests.
+   - In the FCVODE optional input routines FCVSETIIN and FCVSETRIN,
+     the optional fourth argument key_length was removed, with
+     hardcoded key string lengths passed to all strncmp tests.
+
+- Other
+   - In order to avoid possible name conflicts, the mathematical macro and
+     function names MIN, MAX, SQR, RAbs, RSqrt, RExp, RPowerI, and RPowerR
+     were changed to SUNMIN, SUNMAX, SUNSQR, SUNRabs, SUNRsqrt, SUNRexp,
+     SRpowerI, and SUNRpowerR, respectively.  These names occur in both the
+     solver and in various example programs.
 
 v. 2.6.0 (May 2009) ---> v. 2.7.0 (Mar. 2012)
 ---------------------------------------------

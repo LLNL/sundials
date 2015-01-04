@@ -108,6 +108,9 @@ v. 2.7.0 (Mar. 2012) ---> v. 2.8.0 (??? 2014)
      CVDlsSetBandJacFnBS, the user can specify a user-supplied Jacobian
      function of type CVDls***JacFnBS, for the case where the backward
      problem depends on the forward sensitivities.
+   - For the Adjoint Sensitivity Analysis case in which the backward problem
+     depends on the forward sensitivities, options have been added to allow
+     for user-supplied pset, psolve, and jtimes functions.
 
 - Bug fixes
    - In cvRootfind, a minor bug was corrected, where the input
@@ -118,11 +121,22 @@ v. 2.7.0 (Mar. 2012) ---> v. 2.8.0 (??? 2014)
      smu = mu + ml to correct an illegal input error for DGBTRF/DGBTRS.
    - In CVodeQuadSensInit, the line cv_mem->cv_fQS_data = ...
      was corrected (missing Q).
+   - Two minor bugs were fixed regarding the testing of input on the first
+     call to CVode -- one involving tstop and one involving the
+     initialization of *tret.
+   - The initialization nefQS = 0 was added.
 
 - Changes to user interface
    - In the User Guide, a paragraph was added in Section 6.2.1 on
      CVodeAdjReInit, and a paragraph was added in Section 6.2.9 on
      CVodeGetAdjY.
+
+- Other
+   - In order to avoid possible name conflicts, the mathematical macro and
+     function names MIN, MAX, SQR, RAbs, RSqrt, RExp, RPowerI, and RPowerR
+     were changed to SUNMIN, SUNMAX, SUNSQR, SUNRabs, SUNRsqrt, SUNRexp,
+     SRpowerI, and SUNRpowerR, respectively.  These names occur in both the
+     solver and in various example programs.
 
 v. 2.6.0 (May 2009) ---> v. 2.7.0 (Mar. 2012)
 ---------------------------------------------

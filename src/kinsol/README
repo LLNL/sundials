@@ -16,10 +16,9 @@ parallel versions, communication between processes is done
 with MPI, with OpenMP, or with Pthreads.
 
 When used with the serial NVECTOR module, KINSOL provides both direct (dense 
-and band) and preconditioned Krylov (iterative) linear solvers. Four different
+and band) and preconditioned Krylov (iterative) linear solvers. Three different
 iterative solvers are available: scaled preconditioned GMRES (SPGMR), scaled 
-preconditioned BiCGStab (SPBCG), scaled preconditioned TFQMR (SPTFQMR), and
-scaled preconditioned Flexible GMRES (SPFGMR). 
+preconditioned BiCGStab (SPBCG), and scaled preconditioned TFQMR (SPTFQMR). 
 When used with the parallel NVECTOR module, KINSOL provides a
 preconditioner module called KINBBDPRE, which provides a
 band-block-diagonal preconditioner for use with the Krylov linear
@@ -107,14 +106,13 @@ v. 2.7.0 (Mar. 2012) ---> v. 2.8.0 (??? 2014)
      (KINSol argument strategy).  One is fixed-point iteration,
      and the other is Picard iteration.  Both can be accelerated by use
      of the Anderson acceleration method.
-   - Three additions were made to the linear system solvers that are
+   - Two major additions were made to the linear system solvers that are
      availble for use with the KINSOL solver.  In the serial case, an
      interface to the KLU sparse direct solver was added.
      For the parallel case, an interface to SuperLU_MT (the multi-threaded
      version of SuperLU) was added as a thread-parallel sparse direct solver option.
      As part of these additions, a sparse matrix (CSC format) structure 
-     was added to KINSOL.  Finally, a variation of GMRES called Flexible GMRES
-     was added.
+     was added to KINSOL.
    - Two new NVECTOR modules have been added for parallel computing
      environments --- one for openMP, denoted NVECTOR_OPENMP,
      and one for Pthreads, denoted NVECTOR_PTHREADS.
@@ -136,6 +134,13 @@ v. 2.7.0 (Mar. 2012) ---> v. 2.8.0 (??? 2014)
    - In the FKINSOL optional input routines FKINSETIIN, FKINSETRIN, and
      FKINSETVIN, the optional fourth argument key_length was removed,
      with hardcoded key string lengths passed to all strncmp tests.
+
+- Other
+   - In order to avoid possible name conflicts, the mathematical macro and
+     function names MIN, MAX, SQR, RAbs, RSqrt, RExp, RPowerI, and RPowerR
+     were changed to SUNMIN, SUNMAX, SUNSQR, SUNRabs, SUNRsqrt, SUNRexp,
+     SRpowerI, and SUNRpowerR, respectively.  These names occur in both the
+     solver and in various example programs.
 
 v. 2.6.0 (May 2009) ---> v. 2.7.0 (Mar. 2012)
 ---------------------------------------------
