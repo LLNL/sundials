@@ -489,7 +489,6 @@ static void PrintIntro2(void)
 #else
   printf(" itol = %s, reltol = %.2g, abstol = %.2g", "CV_SS", RTOL, ATOL);
 #endif
-  printf("\n      t        max.err      qu     hu \n");
 }
 
 static void PrintHeader2(void)
