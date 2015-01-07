@@ -1,28 +1,18 @@
                      SUNDIALS Installation Instructions
-                        Release 2.5.0, March 2012  
+                        Release 2.6.0, ??? 2015  
 
 
-These are generic installation instructions. For complete installation instructions, 
-consult the user guide for any of the SUNDIALS solvers.
+These are generic installation instructions. For complete installation
+instructions, consult the user guide for any of the SUNDIALS solvers.
 
 Contents:
 
 [A] Preliminaries
     A.1. Libraries and exported headers
-[B] autotools-based installation
-    B.1. Basic Installation
-    B.2. Installation names
-    B.3. Compilers and Options
-       B.3.1. General options
-       B.3.2. Options for Fortran support
-       B.3.3. Options for Blas/Lapack support
-       B.3.4. Options for MPI support
-       B.3.5. Options for library support
-       B.3.6. Environment variables
-    B.4. Configuration examples
-[C] CMake-based installation
-    C.1. Prerequisites
-    C.2. Configuration and build
+[B] CMake-based installation
+    B.1. Prerequisites
+    B.2. Configuration and build under Unix
+    B.3. Configuration and build under Windows
 
 ================
 A. Preliminaries
@@ -52,8 +42,8 @@ In the remainder of this chapter, we make the following distinctions:
   is the directory under which SUNDIALS is built; i.e., the directory from within 
   which the configure or ccmake command is issued. 
 
-  NOTE: When using the autoconf configure script, this directory can be the same 
-  as 'srcdir'. However, when using ccmake, insource builds are prohibited.
+  NOTE: When using ccmake, these two directories must be different.
+  Insource builds are prohibited.
 
 'instdir'
 
@@ -66,14 +56,9 @@ In the remainder of this chapter, we make the following distinctions:
   NOTE: The installation directory 'instdir' should NOT be the same as the source 
         directory 'srcdir'.
 
-
-SUNDIALS provides two build alternatives:
-1) autotools-based build system. This options, suitable for *nix systems 
-   (Linux, Unix, Mac OS X, cygwin, mingw, etc.) is based on running a 'configure'
-   shell script which generates all required makefiles. 
-2) CMake-based build system. This option is available on a variety of platforms 
-   (*nix, Windows, Mac OS, etc) but relies on additional software (freely
-   available CMake).
+SUNDIALS provides only a CMake-based build system. This option is
+available on a variety of platforms (*nix, Windows, Mac OS, etc) but
+relies on additional software (freely available CMake).
 
 
 -----------------------------------
@@ -169,6 +154,131 @@ KINSOL module
                 kinsol/kinsol_bbdpre.h  kinsol/kinsol_impl.h
 
 
+
+
+===========================
+B. CMake-based installation
+===========================
+
+Using CMake as a build system for the SUNDIALS libraries has the advantage 
+that GUI based build configuration is possible. Also build files for Windows 
+development environments can be easily generated. On the Windows platform 
+compilers such as the Borland C++ compiler or Visual C++ compiler are natively 
+supported. 
+
+The installation options are very similar to the options mentioned above. 
+
+------------------
+B.1. Prerequisites
+------------------
+
+You may need to get CMake if it isn't available on your system
+already.  In order to use the CMake build system, version 2.8.1 or
+greater is required. Python is optional for running the test suite.
+Note that Python is NOT needed for compiling libraries or running
+examples, it is only used by our automated regression test suite (make
+test).  We have have used Python 2.7.x versions.  We have not used the
+Python 3.x.
+
+If you are running a Linux distribution, chances are CMake and Python
+are both available using the standard package managers for the
+distribution.
+
+CMake is available from download it from:
+
+    http://www.cmake.org
+
+Python is available from:
+
+    http://www.python.org/
+
+
+---------------------------------------
+B.2. Configuration and build under Unix
+---------------------------------------
+
+We assume here a Unix system. For other systems, the required steps
+are very similar and are explained in more detail in the SUNDIALS user
+guides.  The installation steps are as follows:
+
+- uncompress solver-x.y.z.tar.gz to obtain 'srcdir'
+- create the directories 'builddir' and 'instdir'
+- change directory to 'builddir'
+- run ccmake with 'srcdir' as an argument
+
+You should now see the ccmake curses interface. Press 'c' to configure
+your build with the default options. (If you don't have curses on your
+system and cannot use ccmake, you can configure cmake with command
+line options very similar to ./configure of the autotools. You can
+read about this on the cmake webpage.)
+
+In the dialog you can adjust the build options. For details see the
+options above in the autotools section. To adjust advanced options
+press 't' to show all the options and settings CMake offers.
+
+After adjusting some options, for instance enabling the examples by
+turning ENABLE_EXAMPLES to ON, you need to press 'c' again. Depending
+on the options, you will see new options at the top of the list,
+marked with a star. After adjusting the new options, press 'c'
+again. Once all options have been set, you can press 'g' to generate
+the make files.
+
+Run make to build and install using the Makefile that CMake generates.
+
+Example sequence of commands for building (replace tarfile name and
+directories for the version you downloaded):
+
+    tar zxf sundials-2.5.0.tar.gz
+    mkdir build			# build directory
+    mkdir ~/sundials_install    # installation directory
+    cd build
+    ccmake ../sundials-2.5.0
+    # configure options as needed.
+    make
+    make install
+
+Optionally you may run the test suite to verify the installation:
+
+    make test    
+
+Problems have been found when trying to reset the C/C++ compiler path
+from within the CMake ccmake tool.  Older versions of ccmake will go
+into infinte loops.  One work-around for this is to set the compiler
+before launching ccmake.  For example:
+
+CC=gcc CXX=g++ ccmake <path to sundials source dir>
+
+------------------------------------------
+B.3. Configuration and build under Windows
+------------------------------------------
+
+We are principally run with Unix/Linux; we try to maintain
+compatibility with Windows as much as resources allow.
+
+We have tested under Windows using Visual Studio 2012 with no Fortran
+enabled.  Note that CMake refers to Visual Studio 2012 by the version
+number 11.  We chose "Visual Studio 11" for the generator for the
+project.
+
+We encountered problems linking example applications if both static
+and shared library support are selected.  If problems are encountered
+choose one or the other.
+
+For Windows we have tested using the WinPython 2.7.x distribution:
+
+http://code.google.com/p/winpython/
+
+However we are using basic Python so any 2.7.x based distribution
+should work.  Again, Python is only needed for running the test suite,
+e.g. building the "RUN_TESTS" target from the solution explorer.
+
+Note we had to manually set the path to the python.exe file in the
+Advanced options in CMake for the PYTHON_EXECUTABLE variable; CMake
+did not automatically find the Python installation.
+
+
+
+=== OLD Autotools Section ===========================================
 
 ===============================
 B. autotools-based installation
@@ -511,125 +621,4 @@ can link with the appropriate MPI library.
                  --with-mpi-root=/usr/apps/mpich/1.2.4 \
                  --with-mpi-libs=-lmpich
 
-
-
-===========================
-C. CMake-based installation
-===========================
-
-Using CMake as a build system for the SUNDIALS libraries has the advantage 
-that GUI based build configuration is possible. Also build files for Windows 
-development environments can be easily generated. On the Windows platform 
-compilers such as the Borland C++ compiler or Visual C++ compiler are natively 
-supported. 
-
-The installation options are very similar to the options mentioned above. 
-
-------------------
-C.1. Prerequisites
-------------------
-
-You may need to get CMake if it isn't available on your system
-already.  In order to use the CMake build system, version 2.8.1 or
-greater is required. Python is optional for running the test suite.
-Note that Python is NOT needed for compiling libraries or running
-examples, it is only used by our automated regression test suite (make
-test).  We have have used Python 2.7.x versions.  We have not used the
-Python 3.x.
-
-If you are running a Linux distribution, chances are CMake and Python
-are both available using the standard package managers for the
-distribution.
-
-CMake is available from download it from:
-
-    http://www.cmake.org
-
-Python is available from:
-
-    http://www.python.org/
-
-
-----------------------------
-C.2. Configuration and build under Unix.
-----------------------------
-
-We assume here a Unix system. For other systems, the required steps
-are very similar and are explained in more detail in the SUNDIALS user
-guides.  The installation steps are as follows:
-
-- uncompress solver-x.y.z.tar.gz to obtain 'srcdir'
-- create the directories 'builddir' and 'instdir'
-- change directory to 'builddir'
-- run ccmake with 'srcdir' as an argument
-
-You should now see the ccmake curses interface. Press 'c' to configure
-your build with the default options. (If you don't have curses on your
-system and cannot use ccmake, you can configure cmake with command
-line options very similar to ./configure of the autotools. You can
-read about this on the cmake webpage.)
-
-In the dialog you can adjust the build options. For details see the
-options above in the autotools section. To adjust advanced options
-press 't' to show all the options and settings CMake offers.
-
-After adjusting some options, for instance enabling the examples by
-turning ENABLE_EXAMPLES to ON, you need to press 'c' again. Depending
-on the options, you will see new options at the top of the list,
-marked with a star. After adjusting the new options, press 'c'
-again. Once all options have been set, you can press 'g' to generate
-the make files.
-
-Run make to build and install using the Makefile that CMake generates.
-
-Example sequence of commands for building (replace tarfile name and
-directories for the version you downloaded):
-
-    tar zxf sundials-2.5.0.tar.gz
-    mkdir build			# build directory
-    mkdir ~/sundials_install    # installation directory
-    cd build
-    ccmake ../sundials-2.5.0
-    # configure options as needed.
-    make
-    make install
-
-Optionally you may run the test suite to verify the installation:
-
-    make test    
-
-Problems have been found when trying to reset the C/C++ compiler path
-from within the CMake ccmake tool.  Older versions of ccmake will go
-into infinte loops.  One work-around for this is to set the compiler
-before launching ccmake.  For example:
-
-CC=gcc CXX=g++ ccmake <path to sundials source dir>
-
-----------------------------
-C.3. Configuration and build under Windows.
-----------------------------
-
-We are principally run with Unix/Linux; we try to maintain
-compatibility with Windows as much as resources allow.
-
-We have tested under Windows using Visual Studio 2012 with no Fortran
-enabled.  Note that CMake refers to Visual Studio 2012 by the version
-number 11.  We chose "Visual Studio 11" for the generator for the
-project.
-
-We encountered problems linking example applications if both static
-and shared library support are selected.  If problems are encountered
-choose one or the other.
-
-For Windows we have tested using the WinPython 2.7.x distribution:
-
-http://code.google.com/p/winpython/
-
-However we are using basic Python so any 2.7.x based distribution
-should work.  Again, Python is only needed for running the test suite,
-e.g. building the "RUN_TESTS" target from the solution explorer.
-
-Note we had to manually set the path to the python.exe file in the
-Advanced options in CMake for the PYTHON_EXECUTABLE variable; CMake
-did not automatically find the Python installation.
 
