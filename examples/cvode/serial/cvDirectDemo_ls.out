@@ -3,7 +3,7 @@ Demonstration program for CVODE package - direct linear solvers
 
 Problem 1: Van der Pol oscillator
  xdotdot - 3*(1 - x^2)*xdot + x = 0, x(0) = 2, xdot(0) = 0
- neq = 2,  itol = CV_SS,  reltol = 0,  abstol = 1e-06
+ neq = 2,  reltol = 0,  abstol = 1e-06
 
 -------------------------------------------------------------
 
