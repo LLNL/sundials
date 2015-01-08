@@ -249,8 +249,6 @@ triangular matrix derived from 2-D advection PDE
 
  neq = 25, ml = 5, mu = 0
  itol = CV_SS, reltol = 0, abstol = 1e-06
-      t        max.err      qu     hu 
-
 
 -------------------------------------------------------------
 
