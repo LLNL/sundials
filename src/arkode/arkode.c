@@ -3115,6 +3115,57 @@ static int arkInitialSetup(ARKodeMem ark_mem)
     return(ARK_MEM_FAIL);
   }
 
+  /* Check if lsolve function exists and call linit (if it exists) */
+  if (!ark_mem->ark_explicit && !ark_mem->ark_use_fp) {
+    if (ark_mem->ark_lsolve == NULL) {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
+		      "arkInitialSetup", MSGARK_LSOLVE_NULL);
+      return(ARK_ILL_INPUT);
+    }
+    if (ark_mem->ark_linit != NULL) {
+      ier = ark_mem->ark_linit(ark_mem);
+      if (ier != 0) {
+	arkProcessError(ark_mem, ARK_LINIT_FAIL, "ARKODE", 
+			"arkInitialSetup", MSGARK_LINIT_FAIL);
+	return(ARK_LINIT_FAIL);
+      }
+    }
+  }
+
+  /* Call minit (if it exists) */
+  if (ark_mem->ark_minit != NULL) {
+    ier = ark_mem->ark_minit(ark_mem);
+    if (ier != 0) {
+      arkProcessError(ark_mem, ARK_MASSINIT_FAIL, "ARKODE", 
+		      "arkInitialSetup", MSGARK_MASSINIT_FAIL);
+      return(ARK_MASSINIT_FAIL);
+    }
+  }
+  
+  /* Call msetup (it necessary) */
+  if (ark_mem->ark_mass_matrix && ark_mem->ark_MassSetupNonNull) {
+    ier = ark_mem->ark_msetup(ark_mem, ark_mem->ark_ewt, 
+			      ark_mem->ark_acor, ark_mem->ark_sdata);
+    if (ier != 0) {
+      arkProcessError(ark_mem, ARK_MASSSETUP_FAIL, "ARKODE", 
+		      "arkInitialSetup", MSGARK_MASSSETUP_FAIL);
+      return(ARK_MASSSETUP_FAIL);
+    }
+  }
+
+  /* Check for consistency between linear system modules 
+     (if lsolve is direct, msolve needs to match) */
+  if (ark_mem->ark_mass_matrix) {  /* M != I */
+    if (ark_mem->ark_lsolve_type != 0) { /* non-iterative */
+      if (ark_mem->ark_lsolve_type != ark_mem->ark_msolve_type) {
+	arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
+			"arkInitialSetup", 
+			"Incompatible linear and mass matrix solvers");
+	return(ARK_MEM_FAIL);
+      }
+    }
+  }
+
   /* Set data for efun (if left unspecified) */
   if (ark_mem->ark_user_efun) 
     ark_mem->ark_e_data = ark_mem->ark_user_data;
@@ -3159,46 +3210,6 @@ static int arkInitialSetup(ARKodeMem ark_mem)
     }
   }
 
-  /* Check if lsolve function exists and call linit (if it exists) */
-  if (!ark_mem->ark_explicit && !ark_mem->ark_use_fp) {
-    if (ark_mem->ark_lsolve == NULL) {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
-		      "arkInitialSetup", MSGARK_LSOLVE_NULL);
-      return(ARK_ILL_INPUT);
-    }
-    if (ark_mem->ark_linit != NULL) {
-      ier = ark_mem->ark_linit(ark_mem);
-      if (ier != 0) {
-	arkProcessError(ark_mem, ARK_LINIT_FAIL, "ARKODE", 
-			"arkInitialSetup", MSGARK_LINIT_FAIL);
-	return(ARK_LINIT_FAIL);
-      }
-    }
-  }
-
-  /* Call minit (if it exists) */
-  if (ark_mem->ark_minit != NULL) {
-    ier = ark_mem->ark_minit(ark_mem);
-    if (ier != 0) {
-      arkProcessError(ark_mem, ARK_MASSINIT_FAIL, "ARKODE", 
-		      "arkInitialSetup", MSGARK_MASSINIT_FAIL);
-      return(ARK_MASSINIT_FAIL);
-    }
-  }
-
-  /* Check for consistency between linear system modules 
-     (if lsolve is direct, msolve needs to match) */
-  if (ark_mem->ark_mass_matrix) {  /* M != I */
-    if (ark_mem->ark_lsolve_type != 0) { /* non-iterative */
-      if (ark_mem->ark_lsolve_type != ark_mem->ark_msolve_type) {
-	arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
-			"arkInitialSetup", 
-			"Incompatible linear and mass matrix solvers");
-	return(ARK_MEM_FAIL);
-      }
-    }
-  }
-
   /* Allocate fixed-point solver memory */
   if (ark_mem->ark_use_fp) {
     ier = arkAllocFPData(ark_mem);
@@ -3219,7 +3230,6 @@ static int arkInitialSetup(ARKodeMem ark_mem)
   if (ark_mem->ark_mass_matrix) {
     N_VScale(ark_mem->ark_h, ark_mem->ark_fnew, ark_mem->ark_fnew);   /* scale RHS */
     ier = ark_mem->ark_msolve(ark_mem, ark_mem->ark_fnew, ark_mem->ark_rwt); 
-    /* ier = ark_mem->ark_msolve(ark_mem, ark_mem->ark_fnew, ark_mem->ark_ewt);  */
     N_VScale(ONE/ark_mem->ark_h, ark_mem->ark_fnew, ark_mem->ark_fnew);   /* scale result */
     ark_mem->ark_mass_solves++;
     if (ier != ARK_SUCCESS) {

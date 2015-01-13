@@ -164,6 +164,7 @@ int main(int argc, char *argv[]) {
   udata = (UserData) malloc(sizeof(*udata));
   udata->x = NULL;
   udata->tmp = NULL;
+  udata->R = NULL;
   if (check_flag((void *)udata, "malloc", 2)) return 1;
 
   /* store the inputs in the UserData structure */

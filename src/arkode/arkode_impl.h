@@ -773,6 +773,7 @@ void arkProcessError(ARKodeMem ark_mem, int error_code,
 #define MSGARK_MISSING_F      "Cannot specify that method is ImEx without providing function pointers to fi(t,y) and fe(t,y)."
 #define MSGARK_RESIZE_FAIL    "Error in user-supplied resize() function."
 #define MSGARK_MASSINIT_FAIL  "The mass matrix solver's init routine failed."
+#define MSGARK_MASSSETUP_FAIL "The mass matrix solver's setup routine failed."
 #define MSGARK_MASSSOLVE_NULL "The mass matrix solver's solve routine is NULL."
 #define MSGARK_MASSSOLVE_FAIL "The mass matrix solver failed."
 #define MSGARK_MASSFREE_FAIL  "The mass matrixsolver's free routine failed."

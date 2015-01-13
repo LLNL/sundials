@@ -185,6 +185,10 @@ int IDASuperLUMT(void *ida_mem, int num_threads, int n, int nnz)
   slumt_data->s_AC = (SuperMatrix *)malloc(sizeof(SuperMatrix));
   slumt_data->s_L = (SuperMatrix *)malloc(sizeof(SuperMatrix));
   slumt_data->s_U = (SuperMatrix *)malloc(sizeof(SuperMatrix));
+  slumt_data->s_A->Store  = NULL;
+  slumt_data->s_AC->Store = NULL;
+  slumt_data->s_L->Store  = NULL;
+  slumt_data->s_U->Store  = NULL;
   slumt_data->superlumt_options = (superlumt_options_t *)malloc(sizeof(superlumt_options_t));
 
   dCreate_CompCol_Matrix(slumt_data->s_A, idasls_mem->s_JacMat->M, idasls_mem->s_JacMat->N, 
@@ -200,6 +204,7 @@ int IDASuperLUMT(void *ida_mem, int num_threads, int n, int nnz)
   nrhs = 1;
   bd = NULL;
   B = (SuperMatrix *)malloc(sizeof(SuperMatrix));
+  B->Store = NULL;
   dCreate_Dense_Matrix(B, n, nrhs, bd, n, 
 		       SLU_DN, SLU_D, SLU_GE);
   slumt_data->s_B = B;
@@ -437,7 +442,6 @@ static int IDASuperLUMTSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 
 static int IDASuperLUMTFree(IDAMem IDA_mem)
 {
-  int lwork = 0;
   IDASlsMem idasls_mem;
   SLUMTData slumt_data;
   
@@ -450,10 +454,8 @@ static int IDASuperLUMTFree(IDAMem IDA_mem)
   free(slumt_data->perm_r);
   free(slumt_data->perm_c);
   free(slumt_data->superlumt_options);
-  if ( lwork >= 0 ) {
-    Destroy_SuperNode_SCP( (slumt_data->s_L) );
-    Destroy_CompCol_NCP( (slumt_data->s_U) );
-  } 
+  Destroy_SuperNode_SCP( (slumt_data->s_L) );
+  Destroy_CompCol_NCP( (slumt_data->s_U) );
   StatFree( (slumt_data->Gstat) );
   free(slumt_data->Gstat);
   
