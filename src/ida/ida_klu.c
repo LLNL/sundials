@@ -31,6 +31,7 @@
 
 #define ONE          RCONST(1.0)
 #define TWO          RCONST(2.0)
+#define TWOTHIRDS    RCONST(0.6666666666666667)
 
 /* IDAKLU linit, lsetup, lsolve, and lfree routines */
  
@@ -163,6 +164,85 @@ int IDAKLU(void *ida_mem, int n, int nnz)
 
 /*
  * -----------------------------------------------------------------
+ * IDAKLUReInit
+ * -----------------------------------------------------------------
+ * This routine reinitializes memory and flags for a new factorization 
+ * (symbolic and numeric) to be conducted at the next solver setup
+ * call.  This routine is useful in the cases where the number of nonzeroes 
+ * has changed or if the structure of the linear system has changed
+ * which would require a new symbolic (and numeric factorization).
+ *
+ * The reinit_type argumenmt governs the level of reinitialization:
+ *
+ * reinit_type = 1: The Jacobian matrix will be destroyed and 
+ *                  a new one will be allocated based on the nnz
+ *                  value passed to this call. New symbolic and
+ *                  numeric factorizations will be completed at the next
+ *                  solver setup.
+ *
+ * reinit_type = 2: Only symbolic and numeric factorizations will be 
+ *                  completed.  It is assumed that the Jacobian size
+ *                  has not exceeded the size of nnz given in the prior
+ *                  call to IDAKLU.
+ *
+ * This routine assumes no other changes to solver use are necessary.
+ *
+ * The return value is IDASLS_SUCCESS = 0, IDASLS_LMEM_FAIL = -1,
+ * or IDASLS_ILL_INPUT = -2.
+ *
+ * -----------------------------------------------------------------
+ */
+
+int IDAKLUReInit(void *ida_mem_v, int n, int nnz, int reinit_type)
+{
+  IDAMem ida_mem;
+  IDASlsMem idasls_mem;
+  KLUData klu_data;
+  IDASlsSparseJacFn jaceval;
+  SlsMat JacMat;
+  void *jacdata;
+  int retval;
+
+  /* Return immediately if ida_mem is NULL. */
+  if (ida_mem_v == NULL) {
+    IDAProcessError(NULL, IDASLS_MEM_NULL, "IDASLS", "IDAKLUReInit", 
+		    MSGSP_IDAMEM_NULL);
+    return(IDASLS_MEM_NULL);
+  }
+  ida_mem = (IDAMem) ida_mem_v;
+  idasls_mem = (IDASlsMem) (ida_mem->ida_lmem);
+  klu_data = (KLUData) idasls_mem->s_solver_data;
+
+  jaceval = idasls_mem->s_jaceval;
+  jacdata = idasls_mem->s_jacdata;
+  JacMat = idasls_mem->s_JacMat;
+
+
+  if (reinit_type == 1) {
+
+    /* Destroy previous Jacobian information */
+    if (idasls_mem->s_JacMat) {
+      DestroySparseMat(idasls_mem->s_JacMat);
+    }
+
+    /* Allocate memory for the sparse Jacobian */
+    idasls_mem->s_JacMat = NewSparseMat(n, n, nnz);
+    if (idasls_mem->s_JacMat == NULL) {
+      IDAProcessError(ida_mem, IDASLS_MEM_FAIL, "IDASLS", "IDAKLU", 
+		    MSGSP_MEM_FAIL);
+      return(IDASLS_MEM_FAIL);
+    }
+  }
+
+  idasls_mem->s_first_factorize = 1;
+
+  idasls_mem->s_last_flag = IDASLS_SUCCESS;
+
+  return(0);
+}
+
+/*
+ * -----------------------------------------------------------------
  * IDAKLU interface functions
  * -----------------------------------------------------------------
  */
@@ -209,6 +289,10 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   SlsMat JacMat;
   void *jacdata;
   
+  realtype uround, uround_twothirds;
+
+  uround_twothirds = SUNRpowerR(IDA_mem->ida_uround,TWOTHIRDS);
+
   idasls_mem = (IDASlsMem) (IDA_mem->ida_lmem);
   tn = IDA_mem->ida_tn; 
   cj = IDA_mem->ida_cj;
@@ -258,25 +342,82 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 		      MSGSP_PACKAGE_FAIL);
       return(IDASLS_PACKAGE_FAIL);
     }
+
+    /* ------------------------------------------------------------
+       Compute the LU factorization of  the Jacobian.
+       ------------------------------------------------------------*/
+    klu_data->s_Numeric = klu_factor(JacMat->colptrs, JacMat->rowvals, JacMat->data, 
+				     klu_data->s_Symbolic, &(klu_data->s_Common));
+
+    if (klu_data->s_Numeric == NULL) {
+      IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASLS", "IDAKLUSetup", 
+		      MSGSP_PACKAGE_FAIL);
+      return(IDASLS_PACKAGE_FAIL);
+    }
+
     idasls_mem->s_first_factorize = 0;
   }
   else {
-    klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+
+    retval = klu_refactor(JacMat->colptrs, JacMat->rowvals, JacMat->data, 
+			  klu_data->s_Symbolic, klu_data->s_Numeric,
+			  &(klu_data->s_Common));
+    if (retval == 0) {
+      IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASLS", "idaKLUSetup", 
+		      MSGSP_PACKAGE_FAIL);
+      return(IDASLS_PACKAGE_FAIL);
+    }
+    
+    /*-----------------------------------------------------------
+      Check if a cheap estimate of the reciprocal of the condition 
+      number is getting too small.  If so, delete
+      the prior numeric factorization and recompute it.
+      -----------------------------------------------------------*/
+    
+    retval = klu_rcond(klu_data->s_Symbolic, klu_data->s_Numeric,
+		       &(klu_data->s_Common));
+    if (retval == 0) {
+      IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASLS", "idaKLUSetup", 
+		      MSGSP_PACKAGE_FAIL);
+      return(IDASLS_PACKAGE_FAIL);
+    }
+
+# if 1
+    if ( (klu_data->s_Common.rcond)  < uround_twothirds ) {
+      
+      /* Condition number may be getting large.  
+	 Compute more accurate estimate */
+      retval = klu_condest(JacMat->colptrs, JacMat->data, 
+			   klu_data->s_Symbolic, klu_data->s_Numeric,
+			   &(klu_data->s_Common));
+      if (retval == 0) {
+	IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASLS", "idaKLUSetup", 
+			MSGSP_PACKAGE_FAIL);
+	return(IDASLS_PACKAGE_FAIL);
+      }
+      
+      if ( (klu_data->s_Common.condest) > 
+	   (1.0/uround_twothirds) ) {
+
+	/* More accurate estimate also says condition number is 
+	   large, so recompute the numeric factorization */
+
+	klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+	
+	klu_data->s_Numeric = klu_factor(JacMat->colptrs, JacMat->rowvals, 
+					 JacMat->data, klu_data->s_Symbolic, 
+					 &(klu_data->s_Common));
+
+	if (klu_data->s_Numeric == NULL) {
+	  IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASLS", 
+			  "IDAKLUSetup", MSGSP_PACKAGE_FAIL);
+	  return(IDASLS_PACKAGE_FAIL);
+	}
+      }
+    }
+#endif 
+
   }
-
-
-  /* ------------------------------------------------------------
-     Compute the LU factorization of  the Jacobian.
-     ------------------------------------------------------------*/
-  klu_data->s_Numeric = klu_factor(JacMat->colptrs, JacMat->rowvals, JacMat->data, 
-				   klu_data->s_Symbolic, &(klu_data->s_Common));
-
-  if (klu_data->s_Numeric == NULL) {
-    IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASLS", "IDAKLUSetup", 
-		    MSGSP_PACKAGE_FAIL);
-    return(IDASLS_PACKAGE_FAIL);
-  }
-
 
   idasls_mem->s_last_flag = IDASLS_SUCCESS;
 

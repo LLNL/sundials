@@ -57,6 +57,40 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
+ * IDAKLUReInit
+ * -----------------------------------------------------------------
+ * This routine reinitializes memory and flags for a new factorization 
+ * (symbolic and numeric) to be conducted at the next solver setup
+ * call.  This routine is useful in the cases where the number of nonzeroes 
+ * has changed or if the structure of the linear system has changed
+ * which would require a new symbolic (and numeric factorization).
+ *
+ * The reinit_type argumenmt governs the level of reinitialization:
+ *
+ * reinit_type = 1: The Jacobian matrix will be destroyed and 
+ *                  a new one will be allocated based on the nnz
+ *                  value passed to this call. New symbolic and
+ *                  numeric factorizations will be completed at the next
+ *                  solver setup.
+ *
+ * reinit_type = 2: Only symbolic and numeric factorizations will be 
+ *                  completed.  It is assumed that the Jacobian size
+ *                  has not exceeded the size of nnz given in the prior
+ *                  call to IDAKLU.
+ *
+ * This routine assumes no other changes to solver use are necessary.
+ *
+ * The return value is IDASLS_SUCCESS = 0, IDASLS_LMEM_FAIL = -1,
+ * or IDASLS_ILL_INPUT = -2.
+ *
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int IDAKLUReInit(void *ida_mem_v, int n, int nnz, 
+				 int reinit_type);
+
+/*
+ * -----------------------------------------------------------------
  * Function: IDAKLUB
  * -----------------------------------------------------------------
  * IDAKLUB links the main IDAS integrator with the IDAKLU
