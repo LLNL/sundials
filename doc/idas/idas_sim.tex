@@ -1968,6 +1968,8 @@ flag = IDASetConstraints(ida\_mem, constraints);
 {
   The presence of a non-\id{NULL} constraints vector that is not $0.0$ in
   all components will cause constraint checking to be performed.
+  However, a call with $0.0$ in all components of \id{constraints} will 
+  result in an illegal input return.
 }
 \index{optional input!solver|)}
 
@@ -4412,6 +4414,8 @@ will be reused for the new problem.
 
 If there are changes to the linear solver specifications, make the
 appropriate \id{IDA***} calls, as described in \S\ref{sss:lin_solv_init}.
+If there are changes to any optional inputs, make the appropriate
+\id{IDASet***} calls, as described in \S\ref{ss:optional_input}.
 
 %%
 %%
