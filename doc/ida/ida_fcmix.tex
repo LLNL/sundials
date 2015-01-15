@@ -673,10 +673,8 @@ apply to {\nvecp}.
   \id{Y} is an array containing the computed solution vector $y$ on output.
   \id{YP} is an array containing the computed solution vector $\dot{y}$ on output.
   \id{ITASK} is a task indicator and should be set to $1$ for normal mode 
-  (overshoot \id{TOUT} and interpolate), to $2$ for one-step mode 
-  (return after each internal step taken), to $3$ for normal mode with
-  the additional \id{tstop} constraint, or to $4$ for one-step mode 
-  with the additional constraint \id{tstop}.
+  (overshoot \id{TOUT} and interpolate), or to $2$ for one-step mode 
+  (return after each internal step taken).
   \id{IER} is a completion flag and will be set to a positive value upon
   successful return or to a negative value if an error occurred. These values
   correspond to the \id{IDASolve} returns (see \S\ref{sss:idasolve} and \S\ref{s:ida_out_constants}).
