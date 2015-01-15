@@ -1658,7 +1658,7 @@ static void IDAFreeVectors(IDAMem IDA_mem)
  * It performs all checks on optional inputs and inputs to 
  * IDAInit/IDAReInit that could not be done before.
  *
- * If no merror is encountered, IDAInitialSetup returns IDA_SUCCESS. 
+ * If no error is encountered, IDAInitialSetup returns IDA_SUCCESS. 
  * Otherwise, it returns an error flag and reported to the error 
  * handler function.
  */
