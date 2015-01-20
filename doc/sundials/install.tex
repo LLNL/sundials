@@ -181,15 +181,18 @@ To install {\sundials} in the installation directory specified in the configurat
 %%
 \subsubsection*{Testing Installation}
 The distribution of {\sundials} includes several examples corresponding to the solvers to be
-installed. Also included in the source bundle is a {\em testRunner} configured by CMake
-to test these included examples.
+installed. Also included in the source bundle is a test script: \id{testRunner}, configured by CMake
+to test the included examples.
 To run the tests, enter:
 
 \begin{verbatim}
   % make test
 \end{verbatim}
-The output of {\em testRunner} should look similar to the screens in figure
-\ref{f:testrunner}. 
+The output of \id{testRunner} should look similar to the screens in figure
+\ref{f:testrunner}. The success of each test is based on a line-by-line comparison of expected output files, bundled with the source code, with
+the output of the newly compiled examples. The file compare does allow some differences in rounding for float values.\\\\
+NOTE: Some tests may {\em fail} due to differences in machine architecture, compiler versions, third party libraries etc.{\warn}
+ 
 
 %%
 %% Building from the command line
