@@ -121,7 +121,7 @@ Using CMake with the GUI follows this general process:
 \item New values are denoted with an asterisk
 \item To set a variable, move the cursor to the variable and press enter
   \begin{itemize}
-  \item If it is a boolean (ON/OFF) it will flip the value
+  \item If it is a boolean (ON/OFF) it will toggle the value
   \item If it is string or file, it will allow editing of the string
   \item For file and directories, the \id{<tab>} key can be used to complete 
   \end{itemize}
@@ -141,12 +141,12 @@ the ccmake command and point to the {\em sourcedir}:
 
 The default configuration screen is shown in Figure
 \ref{f:ccmakedefault}. 
-\begin{figure}
+\begin{figure}[!ht]
 {\centerline{\psfig{figure=ccmakedefault.eps,width=\textwidth}}}
-%\includegraphics[width=\textwidth]{ccmakeempty.png}
 \caption [Initial {\em ccmake} configuration screen]
 {Default configuration screen. Note: Initial screen is empty.
-Press 'c' to get this initial default configuration.}
+To get this default configuration, press 'c' repeatedly (accepting default values denoted with asterisk)
+until the 'g' option is available.}
 \label{f:ccmakedefault}
 \end{figure}
 
@@ -154,7 +154,7 @@ The default {\em instdir} for both {\sundials} and corresponding examples
 can be changed by setting the \id{CMAKE\_INSTALL\_PREFIX} and
 the \id{EXAMPLES\_INSTALL\_PATH} as shown in figure
 \ref{f:ccmakeprefix}. 
-\begin{figure}
+\begin{figure}[!ht]
 {\centerline{\psfig{figure=ccmakeprefix.eps,width=\textwidth}}}
 \caption [Changing the {\em instdir}]
 {Changing the {\em instdir} for {\sundials} and
@@ -164,7 +164,7 @@ corresponding {\id examples} }
 
 Pressing the (\id{g} key) will generate makefiles including all dependencies
 and all rules to build {\sundials} on this system. 
-Back at the command prompt, you can now type:
+Back at the command prompt, you can now run:
 
 \begin{verbatim}
   % make
@@ -176,23 +176,20 @@ To install {\sundials} in the installation directory specified in the configurat
   % make install
 \end{verbatim}
 
+%%
+%% TestRunner
+%%
+\subsubsection*{Testing Installation}
 The distribution of {\sundials} includes several examples corresponding to the solvers to be
 installed. Also included in the source bundle is a {\em testRunner} configured by CMake
-to test these included examples:
+to test these included examples.
+To run the tests, enter:
 
 \begin{verbatim}
   % make test
 \end{verbatim}
-
-The output of {\em testRunner} should look similar to figure
-\ref{f:cmaketest}. 
-\begin{figure}
-%{\centerline{\psfig{figure=cmaketest.eps,width=\textwidth}}}
-%\caption [Running {\em testRunner}]
-%{Invoking {\em testRunner} with {\id make test} to execute all configured
-%{\id examples} }
-\label{f:cmaketest}
-\end{figure}
+The output of {\em testRunner} should look similar to the screens in figure
+\ref{f:testrunner}. 
 
 %%
 %% Building from the command line
@@ -200,7 +197,7 @@ The output of {\em testRunner} should look similar to figure
 \subsubsection*{Building from the command line}
 
 Using CMake from the command line is simply a matter of specifying CMake variable settings
-with the {\id cmake} command.  The following will build the same configuration as shown above:  
+with the {\id cmake} command.  The following will build the default configuration:  
 
 \begin{verbatim}
    % cmake -DCMAKE_INSTALL_PREFIX=/usr/casc/sundials/installdir \
@@ -209,6 +206,17 @@ with the {\id cmake} command.  The following will build the same configuration a
    % make
    % make test
 \end{verbatim}
+
+\begin{figure}[!ht]
+{\centerline{\psfig{figure=testrunnertop.eps,width=\textwidth}}}
+\vspace{3 mm}
+{\centerline{\psfig{figure=testrunnerbot.eps,width=\textwidth}}}
+\caption [Running {\em testRunner}]
+{Invoking {\em testRunner} with {\id make test} to execute all configured
+{\id examples} }
+\label{f:testrunner}
+\end{figure}
+
 
 
 \subsection{Configuration options}
