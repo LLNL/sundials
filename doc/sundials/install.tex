@@ -24,11 +24,11 @@ Before providing detailed explanations on the installation procedure, we begin w
     directory containing the {\sundials} sources.
   \item[{\em builddir}]
     is the (temporary) directory under which {\sundials} is built.
-  \item[{\em instdir}]
+  \item[{\em installdir}]
     is the directory under which the {\sundials} exported header files
     and libraries will be installed. Typically, header files are exported under a directory
-    {\em instdir}\id{/include} while libraries are installed under {\em instdir}\id{/lib},
-    with {\em instdir} specified at configuration time.
+    {\em installdir}\id{/include} while libraries are installed under {\em installdir}\id{/lib},
+    with {\em installdir} specified at configuration time.
   \end{description}
 
 \item For {\sundials} CMake-based installation, in-source builds are prohibited; in other words, the
@@ -37,11 +37,11 @@ Before providing detailed explanations on the installation procedure, we begin w
   prevents ``polluting'' the source tree and allows efficient builds
   for different configurations and/or options.
 
-\item {\warn}The installation directory {\em instdir} can {\bf not} be the same as
+\item {\warn}The installation directory {\em installdir} can {\bf not} be the same as
   the source directory {\em srcdir}.
 
 \item By default, only the libraries and header files are exported to the installation
-  directory {\em instdir}.  If enabled by the user (with the
+  directory {\em installdir}.  If enabled by the user (with the
   appropriate toggle for CMake), the
   examples distributed with {\sundials} will be built together with
   the solver libraries but the installation step will result in
@@ -95,9 +95,9 @@ difficult to clean-up the source tree after an in-source build).
 \subsection{Configuring, building, and installing on Unix-like systems}
 
 The default CMake configuration will build all included solvers and associated examples
-and will only build static libraries. The {\em instdir} defaults to /usr/local and can be changed
+and will build static and shared libraries. The {\em installdir} defaults to /usr/local and can be changed
 by setting the \id{CMAKE\_INSTALL\_PREFIX} variable.
-Support for FORTRAN, shared libraries and all other options are disabled.
+Support for FORTRAN and all other options are disabled.
 
 CMake can be used from the command line with the \id{cmake} command, or from a Curses based GUI
 by using the \id{ccmake} command. Examples for using both methods will be presented.
@@ -105,7 +105,7 @@ For the examples shown it is assumed that there is a top level {\sundials} direc
 with appropriate source, build and install directories:
 
 \begin{verbatim}
-   % mkdir (...)sundials/instdir
+   % mkdir (...)sundials/installdir
    % mkdir (...)sundials/builddir
    % cd (...)sundials/builddir
 \end{verbatim}
@@ -150,14 +150,14 @@ until the 'g' option is available.}
 \label{f:ccmakedefault}
 \end{figure}
 
-The default {\em instdir} for both {\sundials} and corresponding examples
+The default {\em installdir} for both {\sundials} and corresponding examples
 can be changed by setting the \id{CMAKE\_INSTALL\_PREFIX} and
 the \id{EXAMPLES\_INSTALL\_PATH} as shown in figure
 \ref{f:ccmakeprefix}. 
 \begin{figure}[!ht]
 {\centerline{\psfig{figure=ccmakeprefix.eps,width=\textwidth}}}
-\caption [Changing the {\em instdir}]
-{Changing the {\em instdir} for {\sundials} and
+\caption [Changing the {\em installdir}]
+{Changing the {\em installdir} for {\sundials} and
 corresponding {\id examples} }
 \label{f:ccmakeprefix}
 \end{figure}
@@ -230,6 +230,10 @@ a typical configuration on a Linux system and are provided as illustration only.
 Some of them will be different on different systems.
 
 \begin{description}
+\item[\id{BUILD\_ARKODE}] - 
+  Build the ARKODE library 
+  \\
+  Default: ON
 \item[\id{BUILD\_CVODE}] - 
   Build the CVODE library 
   \\
@@ -266,7 +270,7 @@ Some of them will be different on different systems.
 \item[\id{CMAKE\_C\_COMPILER}] - 
   C compiler
   \\
-  Default: /usr/bin/gcc 
+  Default: /usr/bin/cc 
 \item[\id{CMAKE\_C\_FLAGS}] -  
   Flags for C compiler
   \\
@@ -283,15 +287,10 @@ Some of them will be different on different systems.
   Flags used by the compiler during release builds
   \\
   Default: -O3 -DNDEBUG 
-\item[\id{CMAKE\_BACKWARDS\_COMPATIBILITY}] - 
-  For backwards compatibility, what version of CMake commands and
-  syntax should this version of CMake allow.
-  \\
-  Default: 2.4
 \item[\id{CMAKE\_Fortran\_COMPILER}] - 
   Fortran compiler
   \\
-  Default: /usr/bin/g77
+  Default: /usr/bin/gfortran
   \\
   Note: Fortran support (and all related options) are triggered only if
   either Fortran-C support is enabled (\id{FCMIX\_ENABLE} is ON) or
@@ -324,21 +323,8 @@ Some of them will be different on different systems.
 \item[\id{EXAMPLES\_ENABLE}] -   
   Build the {\sundials} examples
   \\
-  Default: OFF
-  \\
-  Note: setting this option to ON will trigger additional options
-  related to how and where example programs will be installed.
-\item[\id{EXAMPLES\_GENERATE\_MAKEFILES}] - 
-  Create Makefiles for building the examples
-  \\
   Default: ON
   \\
-  Note: This option is triggered only if enabling the building and installing of
-  the example programs (i.e., both \id{EXAMPLES\_ENABLE} and \id{EXAMPLEs\_INSTALL}
-  are set to ON) and if configuration is done on a Unix-like system. If enabled,
-  makefiles for the compilation of the example programs (using the installed
-  {\sundials} libraries) will be automatically generated and exported to the directory
-  specified by \id{EXAMPLES\_INSTALL\_PATH}.
 \item[\id{EXAMPLES\_INSTALL}] - 
   Install example files
   \\
@@ -350,8 +336,10 @@ Some of them will be different on different systems.
   for all {\sundials} modules that are currently enabled will be exported to
   the directory specified by \id{EXAMPLES\_INSTALL\_PATH}. A CMake configuration
   script will also be automatically generated and exported to the same directory.
-  Additionally, if the configuration is done under a Unix-like system, an additional
-  option (\id{EXAMPLES\_GENERATE\_MAKEFILES}) will be triggered.
+  Additionally, if the configuration is done under a Unix-like system, makefiles
+  for the compilation of the example programs (using the installed {\sundials} libraries)
+  will be automatically generated and exported to the directory
+  specified by \id{EXAMPLES\_INSTALL\_PATH}.
 \item[\id{EXAMPLES\_INSTALL\_PATH}] - 
   Output directory for installing example files
   \\
@@ -359,14 +347,11 @@ Some of them will be different on different systems.
   \\
   Note: The actual default value for this option will an \id{examples}
   subdirectory created under \id{CMAKE\_INSTALL\_PREFIX}.
-\item[\id{EXAMPLES\_USE\_STATIC\_LIBS}] - 
-  Link examples using the static libraries
-  \\
-  Default: OFF
-  \\
-  Note: This option is triggered only if building shared
-  libraries is enabled (\id{BUILD\_SHARED\_LIBS} is ON).
 \item[\id{FCMIX\_ENABLE}] - 
+  Enable Fortran-C support   
+  \\
+  Default: OFF 
+\item[\id{KLU\_ENABLE}] - 
   Enable Fortran-C support   
   \\
   Default: OFF 
@@ -381,10 +366,9 @@ Some of them will be different on different systems.
   Lapack (and Blas) libraries
   \\
   Default: /usr/lib/liblapack.so;/usr/lib/libblas.so
-\item[\id{LAPACK\_LINKER\_FLAGS}] - 
-  Lapack (and Blas) required linker flags
   \\
-  Default: -lg2c
+  Note: CMake will search for these libraries in your \id{LD\_LIBRARY\_PATH} prior
+  to searching default system paths.
 \item[\id{MPI\_ENABLE}] -  
   Enable MPI support
   \\
@@ -395,43 +379,30 @@ Some of them will be different on different systems.
 \item[\id{MPI\_MPICC}] - 
   \id{mpicc} program
   \\
-  Default: /home/radu/apps/mpich1/gcc/bin/mpicc
+  Default: 
+\item[\id{MPI\_RUN\_COMMAND}] -  
+  Specify run command for MPI  
   \\
-  Note: This option is triggered only if using MPI compiler scripts
-  (\id{MPI\_USE\_MPISCRIPTS} is ON).
+  Default: mpirun 
+  \\
+  Note: This can either be set to \id{mpirun} for OpenMPI or \id{srun} if jobs are
+  managed by \id{SLURM} - Simple Linux Utility for Resource Management as exists on
+  LLNL's high performance computing clusters. 
 \item[\id{MPI\_MPIF77}] - 
   \id{mpif77} program
   \\
-  Default: /home/radu/apps/mpich1/gcc/bin/mpif77
+  Default: 
   \\
   Note: This option is triggered only if using MPI compiler scripts
   (\id{MPI\_USE\_MPISCRIPTS} is ON) and Fortran-C support is enabled
   (\id{FCMIx\_ENABLE} is ON).
-\item[\id{MPI\_INCLUDE\_PATH}] - 
-  Path to MPI header files
-  \\
-  Default: /home/radu/apps/mpich1/gcc/include
-  \\
-  Note: This option is triggered only if not using MPI compiler scripts
-  (\id{MPI\_USE\_MPISCRIPTS} is ON).
-\item[\id{MPI\_LIBRARIES}] - 
-  MPI libraries
-  \\
-  Default: /home/radu/apps/mpich1/gcc/lib/libmpich.a
-  \\
-  Note: This option is triggered only if not using MPI compiler scripts
-  (\id{MPI\_USE\_MPISCRIPTS} is ON).
-\item[\id{MPI\_USE\_MPISCRIPTS}] - 
-  Use MPI compiler scripts
-  \\
-  Default: ON
 \item[\id{OPENMP\_ENABLE}] -  
   Enable OpenMP support
   \\
   Default: OFF 
   \\
   Turn on support for the OpenMP based nvector.
-\item[\id{PTHREADS\_ENABLE}] -  
+\item[\id{PTHREAD\_ENABLE}] -  
   Enable Pthreads support
   \\
   Default: OFF 
@@ -441,6 +412,14 @@ Some of them will be different on different systems.
   Precision used in {\sundials}, options are: double, single or extended
   \\
   Default: double 
+\item[\id{SUPERLUMT\_ENABLE}] - 
+  Enable SUPERLU\_MT support   
+  \\
+  Default: OFF 
+\item[\id{TESTRUNNER}] - 
+  Location of \id{testRunner} script   
+  \\
+  Default: \id{sourcedir}/\id{testRunner} 
 \item[\id{USE\_GENERIC\_MATH}] -   
   Use generic (stdc) math libraries
   \\
