@@ -11,7 +11,7 @@ To begin the installation, first uncompress and expand the sources, by issuing
 \end{verbatim}
 This will extract source files under a directory {\em solver}\id{-x.y.z}.
 
-Starting with version \id{2.8.0} of {\sundials}, CMake is the only supported method
+Starting with version \id{2.6.0} of {\sundials}, CMake is the only supported method
 of installation.
 Before providing detailed explanations on the installation procedure, we begin with a few common observations:
 %%
@@ -69,7 +69,7 @@ Before providing detailed explanations on the installation procedure, we begin w
 %%===============================================================================
 
 CMake-based installation provides a platform-independent build system. CMake can generate
-Unix/Linux Makefiles, as well as KDevelop, Visual Studio, and 
+Unix and Linux Makefiles, as well as KDevelop, Visual Studio, and 
 (Apple) XCode project files from the same configuration file.
 In addition, CMake also provides a GUI front end and which allows an interactive build and
 installation process.
@@ -99,7 +99,7 @@ and will build static and shared libraries. The {\em installdir} defaults to /us
 by setting the \id{CMAKE\_INSTALL\_PREFIX} variable.
 Support for FORTRAN and all other options are disabled.
 
-CMake can be used from the command line with the \id{cmake} command, or from a Curses based GUI
+CMake can be used from the command line with the \id{cmake} command, or from a \id{urses}-based GUI
 by using the \id{ccmake} command. Examples for using both methods will be presented.
 For the examples shown it is assumed that there is a top level {\sundials} directory
 with appropriate source, build and install directories:
@@ -921,8 +921,7 @@ files under {\em includedir}. The default values for these directories are
 {\em instdir}\id{/lib} and {\em instdir}\id{/include},
 respectively, but can be changed using the configure script options
 \id{--prefix}, \id{--exec-prefix}, \id{--includedir} and \id{--libdir} 
-(see \S\ref{s:autotool_inst}) or the appropriate CMake options
-(see \S\ref{s:cmake_inst}). For example, a global installation
+(see the appropriate CMake options).  For example, a global installation
 of {\sundials} on a {\sc *NIX} system could be accomplished using
 \begin{verbatim}
    % configure --prefix=/opt/sundials-2.1.1
