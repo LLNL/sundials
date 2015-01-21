@@ -1,3 +1,0 @@
-MPI_VERSION="mpich"
-MPI_DIR="/usr/apps/mpich/1.2.4"
-MPI_COMMAND="mpirun -machinefile ~/sundials/autotest/local_system.host -np 4"
