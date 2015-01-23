@@ -28,6 +28,7 @@ $tar $tarfile $distrobase/include/ida/ida_spils.h
 $tar $tarfile $distrobase/include/ida/ida_bbdpre.h
 $tar $tarfile $distrobase/include/ida/ida_sparse.h
 $tar $tarfile $distrobase/include/ida/ida_klu.h
+$tar $tarfile $distrobase/include/ida/ida_superlumt.h
 
 $tar $tarfile $distrobase/src/ida/LICENSE
 $tar $tarfile $distrobase/src/ida/README
@@ -46,6 +47,7 @@ $tar $tarfile $distrobase/src/ida/ida_spils.c
 $tar $tarfile $distrobase/src/ida/ida_spgmr.c
 $tar $tarfile $distrobase/src/ida/ida_spbcgs.c
 $tar $tarfile $distrobase/src/ida/ida_sptfqmr.c
+$tar $tarfile $distrobase/src/ida/ida_superlumt.c
 $tar $tarfile $distrobase/src/ida/ida_bbdpre.c
 $tar $tarfile $distrobase/src/ida/ida_impl.h
 $tar $tarfile $distrobase/src/ida/ida_direct_impl.h
@@ -93,6 +95,8 @@ $tar $tarfile $distrobase/examples/ida/serial/idaRoberts_dns.c
 $tar $tarfile $distrobase/examples/ida/serial/idaRoberts_dns.out
 $tar $tarfile $distrobase/examples/ida/serial/idaRoberts_klu.c
 $tar $tarfile $distrobase/examples/ida/serial/idaRoberts_klu.out
+$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_sps.c
+$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_sps.out
 $tar $tarfile $distrobase/examples/ida/serial/idaSlCrank_dns.c
 $tar $tarfile $distrobase/examples/ida/serial/idaSlCrank_dns.out
 
@@ -119,6 +123,16 @@ $tar $tarfile $distrobase/examples/ida/fcmix_parallel/Makefile.in
 $tar $tarfile $distrobase/examples/ida/fcmix_parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/ida/fcmix_parallel/fidaHeat2D_kry_bbd_p.f
 $tar $tarfile $distrobase/examples/ida/fcmix_parallel/fidaHeat2D_kry_bbd_p.out
+
+$tar $tarfile $distrobase/examples/ida/fcmix_openmp/README
+$tar $tarfile $distrobase/examples/ida/fcmix_openmp/CMakeLists.txt
+$tar $tarfile $distrobase/examples/ida/fcmix_openmp/fidaRoberts_dns_openmp.f
+$tar $tarfile $distrobase/examples/ida/fcmix_openmp/fidaRoberts_dns_openmp.out
+
+$tar $tarfile $distrobase/examples/ida/fcmix_pthreads/README
+$tar $tarfile $distrobase/examples/ida/fcmix_pthreads/CMakeLists.txt
+$tar $tarfile $distrobase/examples/ida/fcmix_pthreads/fidaRoberts_dns_pthreads.f
+$tar $tarfile $distrobase/examples/ida/fcmix_pthreads/fidaRoberts_dns_pthreads.out
 
 echo "   --- Add regression test files to $tarfile"
 $tar $tarfile $distrobase/test/answers/fidaHeat2D_kry_bbd_p

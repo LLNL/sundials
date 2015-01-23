@@ -20,6 +20,7 @@ $tar $tarfile $distrobase/include/cvode/cvode.h
 $tar $tarfile $distrobase/include/cvode/cvode_direct.h
 $tar $tarfile $distrobase/include/cvode/cvode_dense.h
 $tar $tarfile $distrobase/include/cvode/cvode_band.h
+$tar $tarfile $distrobase/include/cvode/cvode_klu.h
 $tar $tarfile $distrobase/include/cvode/cvode_lapack.h
 $tar $tarfile $distrobase/include/cvode/cvode_diag.h
 $tar $tarfile $distrobase/include/cvode/cvode_spgmr.h
@@ -29,6 +30,7 @@ $tar $tarfile $distrobase/include/cvode/cvode_spils.h
 $tar $tarfile $distrobase/include/cvode/cvode_bandpre.h
 $tar $tarfile $distrobase/include/cvode/cvode_bbdpre.h
 $tar $tarfile $distrobase/include/cvode/cvode_sparse.h
+$tar $tarfile $distrobase/include/cvode/cvode_superlumt.h
 
 $tar $tarfile $distrobase/src/cvode/LICENSE
 $tar $tarfile $distrobase/src/cvode/README
@@ -37,6 +39,7 @@ $tar $tarfile $distrobase/src/cvode/CMakeLists.txt
 
 $tar $tarfile $distrobase/src/cvode/cvode.c
 $tar $tarfile $distrobase/src/cvode/cvode_io.c
+$tar $tarfile $distrobase/src/cvode/cvode_klu.c
 $tar $tarfile $distrobase/src/cvode/cvode_direct.c
 $tar $tarfile $distrobase/src/cvode/cvode_dense.c
 $tar $tarfile $distrobase/src/cvode/cvode_band.c
@@ -47,6 +50,7 @@ $tar $tarfile $distrobase/src/cvode/cvode_spgmr.c
 $tar $tarfile $distrobase/src/cvode/cvode_spbcgs.c
 $tar $tarfile $distrobase/src/cvode/cvode_sptfqmr.c
 $tar $tarfile $distrobase/src/cvode/cvode_sparse.c
+$tar $tarfile $distrobase/src/cvode/cvode_superlumt.c
 $tar $tarfile $distrobase/src/cvode/cvode_bandpre.c
 $tar $tarfile $distrobase/src/cvode/cvode_bbdpre.c
 $tar $tarfile $distrobase/src/cvode/cvode_impl.h
@@ -104,6 +108,10 @@ $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dnsL.out
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns.out
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns_uw.c
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns_uw.out
+$tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_klu.c
+$tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_klu.out
+$tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_sps.c
+$tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_sps.out
 
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/README
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/Makefile.in

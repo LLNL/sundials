@@ -156,7 +156,9 @@ $tar $tarfile $distrobase/examples/templates/cmakelists_serial_C_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_F77_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_CXX_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_openmp_C_ex.in
+$tar $tarfile $distrobase/examples/templates/cmakelists_openmp_F77_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_pthreads_C_ex.in
+$tar $tarfile $distrobase/examples/templates/cmakelists_pthreads_F77_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_F90_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_parallel_F90_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_C_ex.in
@@ -166,7 +168,9 @@ $tar $tarfile $distrobase/examples/templates/makefile_serial_C_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_serial_F77_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_serial_CXX_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_openmp_C_ex.in
+$tar $tarfile $distrobase/examples/templates/makefile_openmp_F77_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_pthreads_C_ex.in
+$tar $tarfile $distrobase/examples/templates/makefile_pthreads_F77_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_serial_F90_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_F90_ex.in
 

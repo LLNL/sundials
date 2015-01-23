@@ -33,7 +33,7 @@ SET(IDA_examples
 
 SET(IDA_examples_SUPERLUMT
   idaRoberts_sps
-  idaHeat2D_sps
+  #idaHeat2D_sps ... not ready yet ... incorrect answer.
   )
 
 SET(IDA_examples_KLU

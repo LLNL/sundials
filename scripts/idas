@@ -50,6 +50,7 @@ $tar $tarfile $distrobase/src/idas/idas_spils.c
 $tar $tarfile $distrobase/src/idas/idas_spgmr.c
 $tar $tarfile $distrobase/src/idas/idas_spbcgs.c
 $tar $tarfile $distrobase/src/idas/idas_sptfqmr.c
+$tar $tarfile $distrobase/src/idas/idas_superlumt.c
 $tar $tarfile $distrobase/src/idas/idas_bbdpre.c
 $tar $tarfile $distrobase/src/idas/idas_impl.h
 $tar $tarfile $distrobase/src/idas/idas_direct_impl.h
@@ -78,13 +79,14 @@ $tar $tarfile $distrobase/examples/idas/serial/idasKrylovDemo_ls.c
 $tar $tarfile $distrobase/examples/idas/serial/idasKrylovDemo_ls.out
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_dns.c
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_dns.out
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_sps.c
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_dns.c
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_dns.out
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_dns.c
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_dns.out
-# SGS what is out file? 
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_klu.c
+$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_klu.out
+$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_sps.c
+$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_sps.out
 $tar $tarfile $distrobase/examples/idas/serial/idasSlCrank_dns.c
 $tar $tarfile $distrobase/examples/idas/serial/idasSlCrank_dns.out
 $tar $tarfile $distrobase/examples/idas/serial/idasSlCrank_FSA_dns.c

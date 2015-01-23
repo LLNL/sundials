@@ -147,6 +147,7 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson_root.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson_root.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/bruss_plots.m
 $tar $tarfile $distrobase/examples/arkode/C_serial/plot_brusselator1D.py
+$tar $tarfile $distrobase/examples/arkode/C_serial/plot_brusselator1D_FEM.py
 $tar $tarfile $distrobase/examples/arkode/C_serial/plot_heat1D.py
 $tar $tarfile $distrobase/examples/arkode/C_serial/plot_heat1D_adapt.py
 $tar $tarfile $distrobase/examples/arkode/C_serial/plot_sol.py
