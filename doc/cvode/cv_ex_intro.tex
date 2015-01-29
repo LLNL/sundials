@@ -118,13 +118,16 @@ following ten serial examples (using the {\nvecs} module):
 
 \vspace{0.2in}\noindent
 Supplied in the {\em srcdir}\id{/examples/cvode/parallel} directory are
-the following three parallel examples (using the {\nvecp} module):
+the following four parallel examples (using the {\nvecp} module):
 \begin{itemize}
 \item \id{cvAdvDiff\_non\_p}
   solves the semi-discrete form of a 1-D advection-diffusion equation.
   \newline
   This program solves the problem with the option for nonstiff systems,
   i.e. Adams method and functional iteration.
+\item \id{cvAdvDiff\_diag\_p}
+  solves the same problem as \id{cvAdvDiff\_non\_p}, with the Adams method,
+  but with Newton iteration and the \id{CVDiag} linear solver.
 \item \id{cvDiurnal\_kry\_p}
   is a parallel implementation of \id{cvDiurnal\_kry}.
 \item \id{cvDiurnal\_kry\_bbd\_p}
