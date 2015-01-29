@@ -20,6 +20,7 @@
 # Add variable CVODE_examples with the names of the parallel CVODE examples
 # "name\;nodes\;tasks"
 SET(CVODE_examples
+  "cvAdvDiff_diag_p\;2\;2"
   "cvAdvDiff_non_p\;2\;2"
   "cvDiurnal_kry_bbd_p\;2\;4"
   "cvDiurnal_kry_p\;2\;4"
