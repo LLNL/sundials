@@ -6,18 +6,18 @@
  Diagonal linear solver CVDiag 
 
 At t = 0.00  max.norm(u) =  1.569909e+01  nst =   0 
-At t = 0.50  max.norm(u) =  3.052882e+00  nst = 134 
-At t = 1.00  max.norm(u) =  8.753460e-01  nst = 186 
-At t = 1.50  max.norm(u) =  2.494183e-01  nst = 244 
-At t = 2.00  max.norm(u) =  7.115570e-02  nst = 292 
-At t = 2.50  max.norm(u) =  2.032087e-02  nst = 350 
-At t = 3.00  max.norm(u) =  5.950657e-03  nst = 365 
-At t = 3.50  max.norm(u) =  1.711861e-03  nst = 389 
-At t = 4.00  max.norm(u) =  4.885349e-04  nst = 418 
-At t = 4.50  max.norm(u) =  4.526065e-05  nst = 430 
-At t = 5.00  max.norm(u) =  1.151217e-04  nst = 453 
+At t = 0.50  max.norm(u) =  3.052962e+00  nst = 143 
+At t = 1.00  max.norm(u) =  8.747271e-01  nst = 202 
+At t = 1.50  max.norm(u) =  2.494167e-01  nst = 282 
+At t = 2.00  max.norm(u) =  7.082911e-02  nst = 327 
+At t = 2.50  max.norm(u) =  2.042025e-02  nst = 377 
+At t = 3.00  max.norm(u) =  5.964897e-03  nst = 418 
+At t = 3.50  max.norm(u) =  1.962584e-03  nst = 445 
+At t = 4.00  max.norm(u) =  5.827188e-04  nst = 464 
+At t = 4.50  max.norm(u) =  1.501144e-04  nst = 480 
+At t = 5.00  max.norm(u) =  4.800542e-05  nst = 497 
 
 Final Statistics: 
 
-nst = 453     nfe  = 836     nni = 832     ncfn = 38      netf = 14
+nst = 497     nfe  = 967     nni = 963     ncfn = 26      netf = 24
  
