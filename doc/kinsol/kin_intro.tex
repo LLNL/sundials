@@ -10,7 +10,8 @@ of these with sensitivity analysis capabilities.
 %
 {\kinsol}\index{KINSOL@{\kinsol}!brief description of} is a
 general-purpose nonlinear system solver based on Newton-Krylov
-solver technology.
+solver technology.  A fixed point iteration is also included with the release
+of {\kinsol} v.2.8.0.
 
 %---------------------------------
 \section{Historical Background}\label{ss:history}
@@ -41,9 +42,10 @@ system methods and tolerances, and has a more modular design to provide
 flexibility for future enhancements.
 \index{KINSOL@{\kinsol}!relationship to NKSOL}
 
-At present, {\kinsol} contains three Krylov methods: the GMRES
-(Generalized Minimal RESidual)~\cite{SaSc:86}, Bi-CGStab
-(Bi-Conjugate Gradient Stabilized)~\cite{Van:92}, and TFQMR
+At present, {\kinsol} contains four Krylov methods: the GMRES
+(Generalized Minimal RESidual)~\cite{SaSc:86}, 
+FGMRES (Flexible Generalized Minimal RESidual)~\cite{Saa:93},
+Bi-CGStab (Bi-Conjugate Gradient Stabilized)~\cite{Van:92}, and TFQMR
 (Transpose-Free Quasi-Minimal Residual)~\cite{Fre:93} linear
 iterative methods. As Krylov methods, these require almost no
 matrix storage as compared to direct methods. However, the
@@ -61,29 +63,35 @@ while that number for GMRES depends on the desired Krylov
 subspace size.
 
 For the sake of completeness in functionality, direct linear
-systems are now included in {\kinsol}.  These include methods
+systems are included in {\kinsol}.  These include methods
 for both dense and banded linear systems, with Jacobians that
 are either user-supplied or generated internally by difference
-quotients.
+quotients.  {\kinsol} also includes interfaces to the sparse 
+driect solvers KLU~\cite{DaPa:10,KLU_site}, 
+and the threaded sparse direct solver,
+SuperLU\_MT~\cite{Li:05,DGL:99,SuperLUMT_site}.
 
 In the process of translating NKSOL into {\C}, the overall
 {\kinsol} organization has been changed considerably. One key
 feature of the {\kinsol} organization is that a separate module
 devoted to vector operations has been created.  This module
 facilitated extension to multiprosessor environments with minimal
-impact on the rest of the solver. The new vector module design is
+impact on the rest of the solver. The vector module design is
 shared across the {\sundials} suite. This {\nvector} module is
 written in terms of abstract vector operations with the actual
 routines attached by a particular implementation (such as serial
-or parallel) of {\nvector}. This allows writing the {\sundials}
+or parallel) of {\nvector}. This abstraction allows writing the {\sundials}
 solvers in a manner independent of the actual {\nvector}
 implementation (which can be user-supplied), as well as allowing
 more than one {\nvector} module linked into an executable file.
+{\sundials} (and thus {\kinsol}) is supplied with serial, 
+MPI-parallel, and both openMP and pthreads thread-parallel
+{\nvector} implementations.
 
 \index{KINSOL@{\kinsol}!motivation for writing in C|(} There are
 several motivations for choosing the {\C} language for {\kinsol}.
 First, a general movement away from {\F} and toward {\C} in
-scientific computing is apparent. Second, the pointer, structure,
+scientific computing was apparent. Second, the pointer, structure,
 and dynamic memory allocation features in C are extremely useful
 in software of this complexity, with the great variety of method
 options offered. Finally, we prefer {\C} over {\CPP} for {\kinsol}
@@ -140,7 +148,7 @@ and a comment was added about the type match.  All other integer
 declarations are just \id{INTEGER}.  Corresponding minor corrections were
 made to the user guide.
 
-Two new {\nvector} modules have been added for parallel computing
+Two new {\nvector} modules have been added for thread-parallel computing
 environments --- one for openMP, denoted \id{NVECTOR\_OPENMP},
 and one for Pthreads, denoted \id{NVECTOR\_PTHREADS}.
 
@@ -302,10 +310,13 @@ The structure of this document is as follows:
   use of {\kinsol} with {\F} applications.
 \item
   Chapter \ref{s:nvector} gives a brief overview of the generic {\nvector} module
-  shared among the various components of {\sundials}, and details on the two
+  shared among the various components of {\sundials}, and details on the four 
   {\nvector} implementations provided with {\sundials}: a serial implementation
-  (\S\ref{ss:nvec_ser}) and a parallel implementation based on {\mpi} \index{MPI}
-  (\S\ref{ss:nvec_par}).
+  (\S\ref{ss:nvec_ser}), a distributed memory parallel implementation 
+  based on {\mpi} \index{MPI}
+  (\S\ref{ss:nvec_par}), and two thread-parallel implementations 
+  based on openMP \index{openMP} (\S\ref{ss:nvec_openmp}) 
+  and Pthreads \index{Pthreads} (\S\ref{ss:nvec_pthreads}), respectively.
 \item
   Chapter \ref{s:new_linsolv} describes the interfaces to the linear solver
   modules, so that a user can provide his/her own such module.
