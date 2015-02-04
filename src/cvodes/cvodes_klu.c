@@ -31,6 +31,7 @@
 
 #define ONE          RCONST(1.0)
 #define TWO          RCONST(2.0)
+#define TWOTHIRDS    RCONST(0.6666666666666667)
 
 /* CVKLU linit, lsetup, lsolve, and lfree routines */
  
@@ -182,6 +183,85 @@ int CVKLU(void *cvode_mem, int n, int nnz)
 
 /*
  * -----------------------------------------------------------------
+ * CVKLUReInit
+ * -----------------------------------------------------------------
+ * This routine reinitializes memory and flags for a new factorization 
+ * (symbolic and numeric) to be conducted at the next solver setup
+ * call.  This routine is useful in the cases where the number of nonzeroes 
+ * has changed or if the structure of the linear system has changed
+ * which would require a new symbolic (and numeric factorization).
+ *
+ * The reinit_type argumenmt governs the level of reinitialization:
+ *
+ * reinit_type = 1: The Jacobian matrix will be destroyed and 
+ *                  a new one will be allocated based on the nnz
+ *                  value passed to this call. New symbolic and
+ *                  numeric factorizations will be completed at the next
+ *                  solver setup.
+ *
+ * reinit_type = 2: Only symbolic and numeric factorizations will be 
+ *                  completed.  It is assumed that the Jacobian size
+ *                  has not exceeded the size of nnz given in the prior
+ *                  call to CVKLU.
+ *
+ * This routine assumes no other changes to solver use are necessary.
+ *
+ * The return value is CVSLS_SUCCESS = 0, CVSLS_LMEM_FAIL = -1,
+ * or CVSLS_ILL_INPUT = -2.
+ *
+ * -----------------------------------------------------------------
+ */
+
+int CVKLUReInit(void *cvode_mem, int n, int nnz, int reinit_type)
+{
+  CVodeMem cv_mem;
+  CVSlsMem cvsls_mem;
+  KLUData klu_data;
+  CVSlsSparseJacFn jaceval;
+  SlsMat JacMat;
+  void *jacdata;
+  int retval;
+
+  /* Return immediately if cv_mem is NULL. */
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CVSLS_MEM_NULL, "CVSLS", "cvKLU", 
+		    MSGSP_CVMEM_NULL);
+    return(CVSLS_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+  cvsls_mem = (CVSlsMem) (cv_mem->cv_lmem);
+  klu_data = (KLUData) cvsls_mem->s_solver_data;
+
+  jaceval = cvsls_mem->s_jaceval;
+  jacdata = cvsls_mem->s_jacdata;
+  JacMat = cvsls_mem->s_JacMat;
+
+
+  if (reinit_type == 1) {
+
+    /* Destroy previous Jacobian information */
+    if (cvsls_mem->s_JacMat) {
+      DestroySparseMat(cvsls_mem->s_JacMat);
+    }
+
+    /* Allocate memory for the sparse Jacobian */
+    cvsls_mem->s_JacMat = NewSparseMat(n, n, nnz);
+    if (cvsls_mem->s_JacMat == NULL) {
+      cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "CVKLU", 
+		    MSGSP_MEM_FAIL);
+      return(CVSLS_MEM_FAIL);
+    }
+  }
+
+  cvsls_mem->s_first_factorize = 1;
+
+  cvsls_mem->s_last_flag = CVSLS_SUCCESS;
+
+  return(0);
+}
+
+/*
+ * -----------------------------------------------------------------
  * CVKLU interface functions
  * -----------------------------------------------------------------
  */
@@ -231,6 +311,8 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   SlsMat JacMat, savedJ;
   void *jacdata;
   
+  realtype uround, uround_twothirds;
+
   cvsls_mem = (CVSlsMem) (cv_mem->cv_lmem);
   tn = cv_mem->cv_tn; 
   gamma = cv_mem->cv_gamma;
@@ -303,29 +385,82 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 		      MSGSP_PACKAGE_FAIL);
       return(CVSLS_PACKAGE_FAIL);
     }
+    /* ------------------------------------------------------------
+       Compute the LU factorization of  the Jacobian.
+       ------------------------------------------------------------*/
+    klu_data->s_Numeric = klu_factor(JacMat->colptrs, JacMat->rowvals, 
+				     JacMat->data, 
+				     klu_data->s_Symbolic, &(klu_data->s_Common));
+    
+    if (klu_data->s_Numeric == NULL) {
+      cvProcessError(cv_mem, CVSLS_PACKAGE_FAIL, "CVSLS", "CVKLUSetup", 
+		     MSGSP_PACKAGE_FAIL);
+      return(CVSLS_PACKAGE_FAIL);
+    }
 
     cvsls_mem->s_first_factorize = 0;
   }
   else {
-    klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+    
+    retval = klu_refactor(JacMat->colptrs, JacMat->rowvals, JacMat->data, 
+			  klu_data->s_Symbolic, klu_data->s_Numeric,
+			  &(klu_data->s_Common));
+    if (retval == 0) {
+      cvProcessError(cv_mem, CVSLS_PACKAGE_FAIL, "CVSLS", "cvKLUSetup", 
+		     MSGSP_PACKAGE_FAIL);
+      return(CVSLS_PACKAGE_FAIL);
+    }
+    
+    /*-----------------------------------------------------------
+      Check if a cheap estimate of the reciprocal of the condition 
+      number is getting too small.  If so, delete
+      the prior numeric factorization and recompute it.
+      -----------------------------------------------------------*/
+    
+    retval = klu_rcond(klu_data->s_Symbolic, klu_data->s_Numeric,
+		       &(klu_data->s_Common));
+    if (retval == 0) {
+      cvProcessError(cv_mem, CVSLS_PACKAGE_FAIL, "CVSLS", "CVKLUSetup", 
+		     MSGSP_PACKAGE_FAIL);
+      return(CVSLS_PACKAGE_FAIL);
+    }
+    
+    if ( (klu_data->s_Common.rcond)  < uround_twothirds ) {
+      
+      /* Condition number may be getting large.  
+	 Compute more accurate estimate */
+      retval = klu_condest(JacMat->colptrs, JacMat->data, 
+			   klu_data->s_Symbolic, klu_data->s_Numeric,
+			   &(klu_data->s_Common));
+      if (retval == 0) {
+	cvProcessError(cv_mem, CVSLS_PACKAGE_FAIL, "CVSLS", "CVKLUSetup", 
+		       MSGSP_PACKAGE_FAIL);
+	return(CVSLS_PACKAGE_FAIL);
+      }
+      
+      if ( (klu_data->s_Common.condest) > 
+	   (1.0/uround_twothirds) ) {
+	
+	/* More accurate estimate also says condition number is 
+	   large, so recompute the numeric factorization */
+	
+	klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+	
+	klu_data->s_Numeric = klu_factor(JacMat->colptrs, JacMat->rowvals, 
+					 JacMat->data, klu_data->s_Symbolic, 
+					 &(klu_data->s_Common));
+	
+	if (klu_data->s_Numeric == NULL) {
+	  cvProcessError(cv_mem, CVSLS_PACKAGE_FAIL, "CVSLS", "CVKLUSetup", 
+			 MSGSP_PACKAGE_FAIL);
+	  return(CVSLS_PACKAGE_FAIL);
+	}
+      }
+    }
   }
-
-
-  /* ------------------------------------------------------------
-     Compute the LU factorization of  the Jacobian.
-     ------------------------------------------------------------*/
-  klu_data->s_Numeric = klu_factor(JacMat->colptrs, JacMat->rowvals, 
-				   JacMat->data, 
-				   klu_data->s_Symbolic, &(klu_data->s_Common));
-
-  if (klu_data->s_Numeric == NULL) {
-    cvProcessError(cv_mem, CVSLS_PACKAGE_FAIL, "CVSLS", "CVKLUSetup", 
-		    MSGSP_PACKAGE_FAIL);
-    return(CVSLS_PACKAGE_FAIL);
-  }
-
+  
   cvsls_mem->s_last_flag = CVSLS_SUCCESS;
-
+  
   return(0);
 }
 
