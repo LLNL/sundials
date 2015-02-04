@@ -21,6 +21,7 @@
 /* Constants */
 #define ONE RCONST(1.0)
 #define TWO RCONST(2.0)
+#define TWOTHIRDS    RCONST(0.6666666666666667)
 
 /* ARKKLU linit, lsetup, lsolve, and lfree routines */
 static int arkKLUInit(ARKodeMem ark_mem);
@@ -207,6 +208,77 @@ int ARKKLU(void *arkode_mem, int n, int nnz)
 }
 
 
+/*
+ * -----------------------------------------------------------------
+ * ARKKLUReInit
+ * -----------------------------------------------------------------
+ * This routine reinitializes memory and flags for a new factorization 
+ * (symbolic and numeric) to be conducted at the next solver setup
+ * call.  This routine is useful in the cases where the number of nonzeroes 
+ * has changed or if the structure of the linear system has changed
+ * which would require a new symbolic (and numeric factorization).
+ *
+ * The reinit_type argumenmt governs the level of reinitialization:
+ *
+ * reinit_type = 1: The Jacobian matrix will be destroyed and 
+ *                  a new one will be allocated based on the nnz
+ *                  value passed to this call. New symbolic and
+ *                  numeric factorizations will be completed at the next
+ *                  solver setup.
+ *
+ * reinit_type = 2: Only symbolic and numeric factorizations will be 
+ *                  completed.  It is assumed that the Jacobian size
+ *                  has not exceeded the size of nnz given in the prior
+ *                  call to CVKLU.
+ *
+ * This routine assumes no other changes to solver use are necessary.
+ *
+ * The return value is ARKSLS_SUCCESS = 0, ARKSLS_LMEM_FAIL = -1,
+ * or ARKSLS_ILL_INPUT = -2.
+ *
+ * -----------------------------------------------------------------
+ */
+
+int ARKKLUReInit(void *arkode_mem, int n, int nnz, int reinit_type)
+{
+  ARKodeMem ark_mem;
+  ARKSlsMem arksls_mem;
+  KLUData klu_data;
+  int retval;
+
+  /* Return immediately if arkode_mem is NULL. */
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARKSLS_MEM_NULL, "ARKSLS", "ARKKLU", 
+		    MSGSP_ARKMEM_NULL);
+    return(ARKSLS_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  arksls_mem = (ARKSlsMem) (ark_mem->ark_lmem);
+  klu_data = (KLUData) arksls_mem->s_solver_data;
+
+  if (reinit_type == 1) {
+
+    /* Destroy previous Jacobian information */
+    if (arksls_mem->s_A) {
+      DestroySparseMat(arksls_mem->s_A);
+    }
+
+    /* Allocate memory for the sparse Jacobian */
+    arksls_mem->s_A = NewSparseMat(n, n, nnz);
+    if (arksls_mem->s_A == NULL) {
+      arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", "ARKKLU", 
+		    MSGSP_MEM_FAIL);
+      return(ARKSLS_MEM_FAIL);
+    }
+  }
+
+  arksls_mem->s_first_factorize = 1;
+
+  arksls_mem->s_last_flag = ARKSLS_SUCCESS;
+
+  return(0);
+}
+
 /*---------------------------------------------------------------
  arkKLUInit:
 
@@ -251,6 +323,8 @@ static int arkKLUSetup(ARKodeMem ark_mem, int convfail,
   ARKSlsMassMem arksls_mass_mem;
   KLUData klu_data;
   int retval;
+
+  realtype uround, uround_twothirds;
   
   arksls_mem = (ARKSlsMem) ark_mem->ark_lmem;
   klu_data = (KLUData) arksls_mem->s_solver_data;
@@ -355,29 +429,90 @@ static int arkKLUSetup(ARKodeMem ark_mem, int convfail,
 		      "ARKKLUSetup", MSGSP_PACKAGE_FAIL);
       return(ARKSLS_PACKAGE_FAIL);
     }
-    
+
+    /* ------------------------------------------------------------
+       Compute the LU factorization of  the Jacobian.
+       ------------------------------------------------------------*/
+    klu_data->s_Numeric = klu_factor(arksls_mem->s_A->colptrs, 
+				     arksls_mem->s_A->rowvals, 
+				     arksls_mem->s_A->data, 
+				     klu_data->s_Symbolic, 
+				     &(klu_data->s_Common));
+    if (klu_data->s_Numeric == NULL) {
+      arkProcessError(ark_mem, ARKSLS_PACKAGE_FAIL, "ARKSLS", 
+		      "ARKKLUSetup", MSGSP_PACKAGE_FAIL);
+      return(ARKSLS_PACKAGE_FAIL);
+    }
+
     arksls_mem->s_first_factorize = 0;
   }
   else {
-    klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+
+    retval = klu_refactor(arksls_mem->s_A->colptrs, 
+			  arksls_mem->s_A->rowvals, 
+			  arksls_mem->s_A->data, 
+			  klu_data->s_Symbolic, klu_data->s_Numeric,
+			  &(klu_data->s_Common));
+    if (retval == 0) {
+      arkProcessError(ark_mem, ARKSLS_PACKAGE_FAIL, "ARKSLS", 
+		      "ARKKLUSetup", MSGSP_PACKAGE_FAIL);
+      return(ARKSLS_PACKAGE_FAIL);
+    }
+    
+    /*-----------------------------------------------------------
+      Check if a cheap estimate of the reciprocal of the condition 
+      number is getting too small.  If so, delete
+      the prior numeric factorization and recompute it.
+      -----------------------------------------------------------*/
+    
+    retval = klu_rcond(klu_data->s_Symbolic, klu_data->s_Numeric,
+		       &(klu_data->s_Common));
+    if (retval == 0) {
+      arkProcessError(ark_mem, ARKSLS_PACKAGE_FAIL, "ARKSLS", 
+		      "ARKKLUSetup", MSGSP_PACKAGE_FAIL);
+      return(ARKSLS_PACKAGE_FAIL);
+    }
+
+    if ( (klu_data->s_Common.rcond)  < uround_twothirds ) {
+      
+      /* Condition number may be getting large.  
+	 Compute more accurate estimate */
+      retval = klu_condest(arksls_mem->s_A->colptrs, 
+			   arksls_mem->s_A->data, 
+			   klu_data->s_Symbolic, klu_data->s_Numeric,
+			   &(klu_data->s_Common));
+      if (retval == 0) {
+	arkProcessError(ark_mem, ARKSLS_PACKAGE_FAIL, "ARKSLS", 
+			"ARKKLUSetup", MSGSP_PACKAGE_FAIL);
+	return(ARKSLS_PACKAGE_FAIL);
+      }
+      
+      if ( (klu_data->s_Common.condest) > 
+	   (1.0/uround_twothirds) ) {
+
+	/* More accurate estimate also says condition number is 
+	   large, so recompute the numeric factorization */
+
+	klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+	
+	klu_data->s_Numeric = klu_factor(arksls_mem->s_A->colptrs, 
+					 arksls_mem->s_A->rowvals, 
+					 arksls_mem->s_A->data,
+					 klu_data->s_Symbolic, 
+					 &(klu_data->s_Common));
+
+	if (klu_data->s_Numeric == NULL) {
+	  arkProcessError(ark_mem, ARKSLS_PACKAGE_FAIL, "ARKSLS", 
+			  "ARKKLUSetup", MSGSP_PACKAGE_FAIL);
+	  return(ARKSLS_PACKAGE_FAIL);
+	}
+      }
+    }
   }
 
-  /* Compute the LU factorization of the Jacobian. */
-  klu_data->s_Numeric = klu_factor(arksls_mem->s_A->colptrs, 
-				   arksls_mem->s_A->rowvals, 
-				   arksls_mem->s_A->data, 
-				   klu_data->s_Symbolic, 
-				   &(klu_data->s_Common));
-  if (klu_data->s_Numeric == NULL) {
-    arkProcessError(ark_mem, ARKSLS_PACKAGE_FAIL, "ARKSLS", 
-		    "ARKKLUSetup", MSGSP_PACKAGE_FAIL);
-    return(ARKSLS_PACKAGE_FAIL);
-  }
-  
   arksls_mem->s_last_flag = ARKSLS_SUCCESS;
   return(0);
 }
-
 
 /*---------------------------------------------------------------
  arkKLUSolve:
@@ -621,6 +756,77 @@ int ARKMassKLU(void *arkode_mem, int n, int nnz,
 }
 
 
+/*
+ * -----------------------------------------------------------------
+ * ARKMassKLUReInit
+ * -----------------------------------------------------------------
+ * This routine reinitializes memory and flags for a new factorization 
+ * (symbolic and numeric) to be conducted at the next solver setup
+ * call.  This routine is useful in the cases where the number of nonzeroes 
+ * has changed or if the structure of the linear system has changed
+ * which would require a new symbolic (and numeric factorization).
+ *
+ * The reinit_type argumenmt governs the level of reinitialization:
+ *
+ * reinit_type = 1: The Jacobian matrix will be destroyed and 
+ *                  a new one will be allocated based on the nnz
+ *                  value passed to this call. New symbolic and
+ *                  numeric factorizations will be completed at the next
+ *                  solver setup.
+ *
+ * reinit_type = 2: Only symbolic and numeric factorizations will be 
+ *                  completed.  It is assumed that the Jacobian size
+ *                  has not exceeded the size of nnz given in the prior
+ *                  call to CVKLU.
+ *
+ * This routine assumes no other changes to solver use are necessary.
+ *
+ * The return value is ARKSLS_SUCCESS = 0, ARKSLS_LMEM_FAIL = -1,
+ * or ARKSLS_ILL_INPUT = -2.
+ *
+ * -----------------------------------------------------------------
+ */
+
+int ARKMassKLUReInit(void *arkode_mem, int n, int nnz, int reinit_type)
+{
+  ARKodeMem ark_mem;
+  ARKSlsMassMem arksls_mem;
+  KLUData klu_data;
+  int retval;
+
+  /* Return immediately if arkode_mem is NULL. */
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARKSLS_MEM_NULL, "ARKSLS", "ARKMassKLU", 
+		    MSGSP_ARKMEM_NULL);
+    return(ARKSLS_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  arksls_mem = (ARKSlsMassMem) (ark_mem->ark_mass_mem);
+  klu_data = (KLUData) arksls_mem->s_solver_data;
+
+  if (reinit_type == 1) {
+
+    /* Destroy previous Jacobian information */
+    if (arksls_mem->s_M) {
+      DestroySparseMat(arksls_mem->s_M);
+    }
+
+    /* Allocate memory for the sparse Jacobian */
+    arksls_mem->s_M = NewSparseMat(n, n, nnz);
+    if (arksls_mem->s_M == NULL) {
+      arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", "ARKMassKLU", 
+		    MSGSP_MEM_FAIL);
+      return(ARKSLS_MEM_FAIL);
+    }
+  }
+
+  arksls_mem->s_first_factorize = 1;
+
+  arksls_mem->s_last_flag = ARKSLS_SUCCESS;
+
+  return(0);
+}
+
 /*---------------------------------------------------------------
  arkMassKLUInit:
 
@@ -661,6 +867,8 @@ static int arkMassKLUSetup(ARKodeMem ark_mem, N_Vector vtemp1,
   ARKSlsMassMem arksls_mem;
   KLUData klu_data;
   int retval;
+  
+  realtype uround, uround_twothirds;
   
   arksls_mem = (ARKSlsMassMem) ark_mem->ark_mass_mem;
   klu_data = (KLUData) arksls_mem->s_solver_data;
@@ -709,26 +917,90 @@ static int arkMassKLUSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 		      "ARKMassKLUSetup", MSGSP_PACKAGE_FAIL);
       return(ARKSLS_PACKAGE_FAIL);
     }
+
+    /* ------------------------------------------------------------
+       Compute the LU factorization of  the Jacobian.
+       ------------------------------------------------------------*/
+    klu_data->s_Numeric = klu_factor(arksls_mem->s_M_lu->colptrs, 
+				     arksls_mem->s_M_lu->rowvals, 
+				     arksls_mem->s_M_lu->data, 
+				     klu_data->s_Symbolic, 
+				     &(klu_data->s_Common));
+    if (klu_data->s_Numeric == NULL) {
+      arkProcessError(ark_mem, ARKSLS_PACKAGE_FAIL, "ARKSLS", 
+		      "ARKMassKLUSetup", MSGSP_PACKAGE_FAIL);
+      return(ARKSLS_PACKAGE_FAIL);
+    }
     
     arksls_mem->s_first_factorize = 0;
   }
-  
-  /* Compute the LU factorization of the mass matrix. */
-  klu_data->s_Numeric = klu_factor(arksls_mem->s_M_lu->colptrs, 
-				   arksls_mem->s_M_lu->rowvals, 
-				   arksls_mem->s_M_lu->data, 
-				   klu_data->s_Symbolic, 
-				   &(klu_data->s_Common));
-  if (klu_data->s_Numeric == NULL) {
-    arkProcessError(ark_mem, ARKSLS_PACKAGE_FAIL, "ARKSLS", 
-		    "ARKMassKLUSetup", MSGSP_PACKAGE_FAIL);
-    return(ARKSLS_PACKAGE_FAIL);
+  else {
+
+    retval = klu_refactor(arksls_mem->s_M_lu->colptrs, 
+			  arksls_mem->s_M_lu->rowvals, 
+			  arksls_mem->s_M_lu->data,
+			  klu_data->s_Symbolic, klu_data->s_Numeric,
+			  &(klu_data->s_Common));
+    if (retval == 0) {
+      arkProcessError(ark_mem, ARKSLS_PACKAGE_FAIL, "ARKSLS", 
+		      "ARKMassKLUSetup", MSGSP_PACKAGE_FAIL);
+      return(ARKSLS_PACKAGE_FAIL);
+    }
+    
+    /*-----------------------------------------------------------
+      Check if a cheap estimate of the reciprocal of the condition 
+      number is getting too small.  If so, delete
+      the prior numeric factorization and recompute it.
+      -----------------------------------------------------------*/
+    
+    retval = klu_rcond(klu_data->s_Symbolic, klu_data->s_Numeric,
+		       &(klu_data->s_Common));
+    if (retval == 0) {
+      arkProcessError(ark_mem, ARKSLS_PACKAGE_FAIL, "ARKSLS", 
+		      "ARKMassKLUSetup", MSGSP_PACKAGE_FAIL);
+      return(ARKSLS_PACKAGE_FAIL);
+    }
+
+    if ( (klu_data->s_Common.rcond)  < uround_twothirds ) {
+      
+      /* Condition number may be getting large.  
+	 Compute more accurate estimate */
+      retval = klu_condest(arksls_mem->s_M_lu->colptrs, 
+			   arksls_mem->s_M_lu->data,
+			   klu_data->s_Symbolic, klu_data->s_Numeric,
+			   &(klu_data->s_Common));
+      if (retval == 0) {
+	arkProcessError(ark_mem, ARKSLS_PACKAGE_FAIL, "ARKSLS", 
+			"ARKMassKLUSetup", MSGSP_PACKAGE_FAIL);
+	return(ARKSLS_PACKAGE_FAIL);
+      }
+      
+      if ( (klu_data->s_Common.condest) > 
+	   (1.0/uround_twothirds) ) {
+
+	/* More accurate estimate also says condition number is 
+	   large, so recompute the numeric factorization */
+
+	klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+	
+	klu_data->s_Numeric = klu_factor(arksls_mem->s_M_lu->colptrs, 
+					 arksls_mem->s_M_lu->rowvals, 
+					 arksls_mem->s_M_lu->data, 
+					 klu_data->s_Symbolic, 
+					 &(klu_data->s_Common));
+
+	if (klu_data->s_Numeric == NULL) {
+	  arkProcessError(ark_mem, ARKSLS_PACKAGE_FAIL, "ARKSLS", 
+			  "ARKMassKLUSetup", MSGSP_PACKAGE_FAIL);
+	  return(ARKSLS_PACKAGE_FAIL);
+	}
+      }
+    }
   }
 
   arksls_mem->s_last_flag = ARKSLS_SUCCESS;
   return(0);
 }
-
 
 /*---------------------------------------------------------------
  arkMassKLUSolve:
