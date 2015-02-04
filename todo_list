@@ -1,40 +1,30 @@
-To Do List for SUNDIALS, as of 12/17/2014
+To Do List for SUNDIALS, as of 02/04/2015
 
 (*** items must be completed before KINSOL and ARKode can be released.)
 
 ***(Alan) Pull recent revisions into user guides and READMEs as appropriate
 
-***(Carol) SuperLU_MT for all solvers
-
-***(Carol, Steve) KLU for all solvers
-
-***(Carol) pcg and FGMRES for all solvers, documentation
-
 ***(Carol) Document sparse solvers
-
-***(Carol/Eddy) IM release of KINSOL and ARKode...in progress 12/17/14
 
 ***(Carol/Eddy) Update tarscripts
 
-***(Carol) Update xfig diagrams
+***(Carol) Update xfig diagrams - Alan to review
 
 ***(Carol) Update recent revisions - all to comment
 
-***(Carol, Steve) Note on Windows build
+***(Eddy) Note on Windows build
 
 ***(Eddy) Update options for cmake.  Remove autoconf documentation in 
 manuals and INSTALL_NOTES (anywhere else?)
 
-***(Eddy) Add last modified date to each file from SVN
+***(Steve, Eddy) Finalize pthreads implementation and document performance concerns.
 
-***(Steve) Finalize pthreads implementation and document performance concerns.
-
-***(Steve) Write and test openMP and pThreads with Fortran and document
+***(Steve, Eddy) Write and test openMP and pThreads with Fortran and document
 
 	   Tests written.
 	   Need to document.
 
-***(Steve) Document KLU build options
+***(Steve, Eddy) Document KLU build options
 
 (Alan, Carol) Verify output of examples used in new testing system 
 are indeed correct.
@@ -42,13 +32,33 @@ As part of this we probably should tighten absolute tolerances on Krylov
 example codes as there is a good bit of variation on consecutive parallel runs
 and even between systems.  Maybe try abstol = 10^-6?
 
+(Eddy) Try newest SuperLU_MT to see if print messages still there.
+
+(Alan) Doc. of fnvinits_openmp & fnvinits_pthreads missing in F/C chapters
+
+(Eddy) Add 3D test case to cvsAtmDisp_ASAi_kry_bbd_p
+
+(Eddy) Doc of NVECTOR tests in Installation chapter.
+
+(Carol) Nakhimovski claims pos. inf. loop in KINSOL
+
+(Carol) User Kantli has question on KINSOL use
+
+(All) Look at looser tolerance on automated testing
+
+(Eddy) INSTALL_NOTES and READMEs need to be update.
+
+(Carol) README_DEV needs work?
+
+(?) Tar-file sizes in download.html
+
+(Eddy) Preprocessing of FORTRAN examples -- what does this do?  Fixes INTEGER decl's?
+
 (Alan, Carol) Review vector documentation
 
 (Alan) Review header info for all files
 
 (Alan) Review build documentation.
-
-(Alan) Review new xfig diagrams
 
 (Carol) Examples of pcg and FGMRES for all solvers
 
@@ -96,6 +106,8 @@ results in consecutively run parallel examples.
 
 Deferred to after release (11/6/13)
   
+***(Carol) pcg and FGMRES for all solvers, documentation
+
 Update all Matlab interfaces
 
 (LEB, 7/30/13) When running tests (i.e. testRunner) the 'output' 
@@ -112,6 +124,8 @@ link to the installed library for an example program.  Currently it is
 possible to forget to include a header file for in the tarscript.
 Perhaps entire test suite could be setup to build against the install
 directory or development directory?
+
+Add SuperLU_MT test cases to nightly build (requires multiple compilations)
 
 *** Attach nightly build log file to log file to email sent to developers
 
@@ -139,6 +153,15 @@ directory or development directory?
 
 Completed Tasks
 
+(Alan) New CVODE example: cvAdvDiff_diag_p using CVDiag in parallel
+
+***(Carol/Eddy) IM release of KINSOL and ARKode...in progress 12/17/14
+
+***(Eddy) Add last modified date to each file from SVN
+
+***(Carol) SuperLU_MT for all solvers
+
+***(Carol, Steve) KLU for all solvers
 
 ***(Dan) Add documentation for ARKode into SUNDIALS distribution
 
