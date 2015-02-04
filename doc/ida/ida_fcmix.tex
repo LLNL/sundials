@@ -22,6 +22,10 @@ are as follows:
   \begin{itemize}
   \item \id{FNVINITS} (defined by {\nvecs}) 
     interfaces to \id{N\_VNewEmpty\_Serial}.
+  \item \id{FNVINITS\_OPENMP} (defined by {\nvecopenmp}) 
+    interfaces to \id{N\_VNewEmpty\_OpenMP}.
+  \item \id{FNVINITS\_PTHREADS} (defined by {\nvecpthreads}) 
+    interfaces to \id{N\_VNewEmpty\_Pthreads}.
   \item \id{FNVINITP} (defined by {\nvecp}) 
     interfaces to \id{N\_VNewEmpty\_Parallel}.
   \end{itemize}
@@ -161,9 +165,10 @@ function called by an interface function.
 The usage of {\fida} for rootfinding, and usage of {\fida} with
 preconditioner modules, are each described in later sections.
 
-Steps marked {\s} in the instructions below apply to the serial
-{\nvector} implementation ({\nvecs}) only, while those marked {\p}
-apply to {\nvecp}.
+In the instructions below, steps marked {\s} apply to the NVECTOR
+module {\nvecs}, steps marked {\omp} apply to {\nvecopenmp}, steps
+marked {\pt} apply to {\nvecpthreads}, while steps marked {\p} apply
+to {\nvecp},
 
 \index{User main program!FIDA@{\fida} usage}
 \begin{Steps}
@@ -198,14 +203,42 @@ apply to {\nvecp}.
   \id{NEQ} is the size of vectors, and
   \id{IER} is a return flag, which is set to $0$ on success and $-1$ 
   if a failure occurred.
+
+  {\omp} To initialize the {\nvecopenmp} {\nvector} module, the user must make the
+  following call:
+  \index{FNVINITS\_OPENMP@\texttt{FNVINITS\_OPENMP}}
+\begin{verbatim}
+      CALL FNVINITS_OPENMP(KEY, NEQ, NUMTHREADS, IER)
+\end{verbatim}
+  where 
+  \id{KEY} is the solver id (\id{KEY} = 2 for {\ida}),
+  \id{NEQ} is the size of vectors,
+  \id{NUMTHREADS} is the number of threads, and
+  \id{IER} is a return completion flag which is $0$ on success and $-1$ 
+  if a failure occurred.
   
+  {\pt} To initialize the {\nvecpthreads} {\nvector} module, the user must make the
+  following call:
+  \index{FNVINITS\_PTHREADS@\texttt{FNVINITS\_PTHREADS}}
+\begin{verbatim}
+      CALL FNVINITS_PTHREADS(KEY, NEQ, NUMTHREADS, IER)
+\end{verbatim}
+  where 
+  \id{KEY} is the solver id (\id{KEY} = 2 for {\ida}),
+  \id{NEQ} is the size of vectors,
+  \id{NUMTHREADS} is the number of threads, and
+  \id{IER} is a return completion flag which is $0$ on success and $-1$ 
+  if a failure occurred.
+
   {\p} To initialize the parallel vector module, the user must make the
   following call:
   \index{FNVINITP@\texttt{FNVINITP}}
 \begin{verbatim}
       CALL FNVINITP (COMM, KEY, NLOCAL, NGLOBAL, IER)
 \end{verbatim}
-  in which the arguments are: \id{COMM} = {\mpi} communicator, \id{KEY} = 2,
+  in which the arguments are:
+  \id{COMM} = {\mpi} communicator,
+  \id{KEY} = 2 for {\ida},
   \id{NLOCAL} = the local size of all vectors on this processor, and
   \id{NGLOBAL} = the system size (and the global size of vectors, equal to the
   sum of all values of \id{NLOCAL}). The return flag \id{IER} is
