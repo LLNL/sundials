@@ -59,6 +59,8 @@ UG_CMAKE_FIGURES = \
 ccmakedefault.eps \
 ccmakeempty.eps \
 ccmakeprefix.eps \
+testrunnertop.eps\
+testrunnerbot.eps\
 cmaketest.eps
 
 EX_FILES = \
