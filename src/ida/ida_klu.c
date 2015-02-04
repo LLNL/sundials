@@ -382,7 +382,6 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
       return(IDASLS_PACKAGE_FAIL);
     }
 
-# if 1
     if ( (klu_data->s_Common.rcond)  < uround_twothirds ) {
       
       /* Condition number may be getting large.  
@@ -415,8 +414,6 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 	}
       }
     }
-#endif 
-
   }
 
   idasls_mem->s_last_flag = IDASLS_SUCCESS;
