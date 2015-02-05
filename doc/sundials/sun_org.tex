@@ -30,16 +30,16 @@ the basic functionality of each:
 \begin{itemize}
 
 \item {\cvode},  
-  a solver for stiff and nonstiff ODE systems $dy/dt = f(t,y)$;
+  a solver for stiff and nonstiff ODE systems $dy/dt = f(t,y)$ based on BDF methods;
 
 \item {\cvodes},
   a solver for stiff and nonstiff ODE systems with sensitivity analysis capabilities;
 
 \item {\arkode},
-  a solver for ODE systems based on additive Runge-Kutta methods;
+  a solver for ODE systems $M dy/dt = f(t,y)$ based on additive Runge-Kutta methods;
 
 \item {\ida},
-  a solver for differential-algebraic systems $F(t,y,\dot{y}) = 0$;
+  a solver for differential-algebraic systems $F(t,y,\dot{y}) = 0$ based on BDF methods;
 
 \item {\idas},
   a solver for differential-algebraic systems

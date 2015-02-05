@@ -22,8 +22,11 @@ band or direct sparse linear solvers since these linear solver modules
 need to form the complete 
 system Jacobian. The following {\kinsol} modules can only be used with
 {\nvecs}, {\nvecopenmp} or {\nvecpthreads}:
-{\kindense}, {\kinband}, {\kinklu} and {\kinsuperlumt}. The
-preconditioner module {\kinbbdpre} can only be used with {\nvecp}.
+{\kindense}, {\kinband}, {\kinklu} and {\kinsuperlumt}. 
+It is not recommended to use a threaded vector module with SuperLU\_MT
+unless it is the {\nvecopenmp} module, and SuperLU\_MT is also compiled
+with openMP.
+The preconditioner module {\kinbbdpre} can only be used with {\nvecp}.
 
 {\kinsol} uses various constants for both input and output. These are
 defined as needed in this chapter, but for convenience are also listed
@@ -43,7 +46,7 @@ appropriate locations for the library and header files required by
 {\kinsol}.  The relevant library files are
 \begin{itemize}
 \item {\em libdir}\id{/libsundials\_kinsol.}{\em lib},
-\item {\em libdir}\id{/libsundials\_nvec*.}{\em lib} (one or two files),
+\item {\em libdir}\id{/libsundials\_nvec*.}{\em lib} (one to four files),
 \end{itemize}
 where the file extension .{\em lib} is typically \id{.so} for shared libraries
 and \id{.a} for static libraries. The relevant header files are located in
@@ -89,10 +92,14 @@ the corresponding header files are:
 \item \Id{nvector\_serial.h}, 
   which defines the serial implementation, {\nvecs};
 \item \Id{nvector\_parallel.h}, 
-  which defines the parallel {\mpi} implementation, {\nvecp}.
+  which defines the parallel {\mpi} implementation, {\nvecp},
+\item \Id{nvector\_openmp.h},
+  which defines the shared memory parallel openMP implementation,
+\item \Id{nvector\_pthreads.h},
+  which defines the shared memory parallel Pthreads implementation.
 \end{itemize}
 %
-Note that both of these files include in turn the header file \Id{sundials\_nvector.h}, which 
+Note that these files include in turn the header file \Id{sundials\_nvector.h}, which 
 defines the abstract \Id{N\_Vector} type. 
 
 Finally, a linear solver module header file is required. 

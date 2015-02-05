@@ -18,7 +18,7 @@ of this structure is not necessary for its use.
 
 The overall organization of the {\kinsol} package is shown in Figure
 \ref{f:kinorg}.
-\begin{figure}
+\begin{figure}[htb]
 {\centerline{\psfig{figure=kinorg.eps,width=\textwidth}}}
 \caption [Overall structure diagram of the KINSOL package]
 {Overall structure diagram of the {\kinsol} package.
@@ -26,7 +26,8 @@ The overall organization of the {\kinsol} package is shown in Figure
   generic solver and auxiliary modules are in rectangular boxes.
   Grayed boxes refer to the encompassing {\sundials} structure.
   Note that the direct linear solvers using Lapack implementations are not 
-  explicitly represented.}
+  explicitly represented.  Note also that the KLU and SuperLU\_MT support is through
+  to packages.  Users will need to download and compile those packages independently.}
 \label{f:kinorg}
 \end{figure}
 The central solver module, implemented in the files
@@ -49,10 +50,13 @@ dense, banded, or sparse matrices and includes:
   (using either an internal implementation or Blas/Lapack); 
 \item {\kinklu}: LU factorization and backsolving with
   compressed-sparse-column (CSC) matrices using the KLU linear solver
-  library \cite{KLU_site};
+  library \cite{DaPa:10,KLU_site} (KLU to be downloaded and compiled by user independent 
+  of {\kinsol});
 \item {\kinsuperlumt}: LU factorization and backsolving with
   compressed-sparse-column (CSC) matrices using the threaded
-  SuperLU\_MT linear solver library \cite{SuperLUMT_site}.
+  SuperLU\_MT linear solver library \cite{Li:05,DGL:99,SuperLUMT_site} 
+  (SuperLU\_MT to be downloaded and compiled by user independent 
+  of {\kinsol}).
 \end{itemize}
 The {\em spils} family of linear solvers providess scaled preconditioned
 iterative linear solvers and includes:
@@ -62,7 +66,9 @@ iterative linear solvers and includes:
 \item {\kinsptfqmr}: scaled preconditioned TFQMR method.
 \end{itemize}
 The set of linear solver modules distributed with {\kinsol} is intended to be expanded in the
-future as new algorithms are developed.
+future as new algorithms are developed.  Note that users wishing to employ KLU or 
+SuperLU\_MT will need to download and install these libraries independent of {\sundials}.
+{\sundials} provides only the interfaces between itself and these libraries.
 \index{KINSOL@{\kinsol} linear solvers!list of|)}
 
 In the case of the direct methods {\kindense} and {\kinband} the
@@ -87,7 +93,7 @@ memory allocation and initialization, (2) setup of the matrix data
 involved, (3) solution of the system, and (4) freeing of memory.
 The setup and solution phases are separate because the evaluation of
 Jacobians and preconditioners is done only periodically during the
-integration, as required to achieve convergence. The call list within
+solution, as required to achieve convergence. The call list within
 the central {\kinsol} module to each of the associated functions is
 fixed, thus allowing the central module to be completely independent
 of the linear system method.
@@ -100,12 +106,12 @@ interface built on top of a generic linear system solver ({\dense}
 etc.).  The interface deals with the use of the particular method in
 the {\kinsol} context, whereas the generic solver is independent of
 the context.  While some of the generic linear system solvers
-({\dense}, {\band}, {\spgmr}, {\spbcg}, and {\sptfqmr}) were written
+({\dense}, {\band}, {\spgmr}, {\spfgmr}, {\spbcg}, and {\sptfqmr}) were written
 with {\sundials} in mind, they are intended to be usable anywhere as
 general-purpose solvers.  This separation also allows for any generic
 solver to be replaced by an improved version, with no necessity to
 revise the {\kinsol} package elsewhere. 
-\index{generic linear solvers!use in {\kinsol}|)}.
+\index{generic linear solvers!use in {\kinsol}|)}
 
 {\kinsol} also provides a preconditioner module called {\kinbbdpre} for use
 with any of the Krylov iterative liear solvers. It works in conjunction
@@ -115,8 +121,8 @@ further described in \S\ref{sss:kinbbdpre}.
 
 All state information used by {\kinsol} to solve a given problem is saved
 in a structure, and a pointer to that structure is returned to the
-user.  There is no global data in the {\kinsol} package, and so in this
-respect it is reentrant. State information specific to the linear
+user.  There is no global data in the {\kinsol} package, and so, in this
+respect, it is reentrant. State information specific to the linear
 solver is saved in a separate structure, a pointer to which resides in
 the {\kinsol} memory structure. The reentrancy of {\kinsol} was motivated
 by the anticipated multi-computer extension.
