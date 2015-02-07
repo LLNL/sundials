@@ -54,11 +54,9 @@ else (SUPERLUMT_LIBRARIES)
     FIND_LIBRARY( SUPERLUMT_LIBRARIES ${PRE}superlu_mt_${POST} ${SUPERLUMT_LIBRARY_DIR} NO_DEFAULT_PATH)
     mark_as_advanced(SUPERLUMT_LIBRARIES)
     
-    #print_warning("FindSUPERLUMT.cmake SUPERLUMT_LIBRARIES" "${SUPERLUMT_LIBRARIES}")
 endif (SUPERLUMT_LIBRARIES)
-#print_warning("FindSUPERLUMT.cmake SUPERLUMT_LIBRARIES" "${SUPERLUMT_LIBRARIES}")
 
-# add threading library (pthread or gomp)
+# add threading library (pthread or openmp)
 unset(SUPERLUMT_THREAD_LIBRARY CACHE)
 If(SUPERLUMT_THREAD_TYPE_UPPER STREQUAL "PTHREAD")
   # add pthread to libraries
@@ -68,14 +66,17 @@ If(SUPERLUMT_THREAD_TYPE_UPPER STREQUAL "PTHREAD")
       "$ENV{ProgramFiles}/SUPERLUMT/Lib"
       )
   # add to SUPERLUMT_LIBRARIES
-ELSE(SUPERLUMT_THREAD_TYPE_UPPER STREQUAL "PTHREAD")
-  # add pthread to libraries
-  find_library(SUPERLUMT_THREAD_LIBRARY
-      NAMES gomp
-      PATHS /usr/lib /usr/local/lib
-      "$ENV{ProgramFiles}/SUPERLUMT/Lib"
-      )
-ENDIF(SUPERLUMT_THREAD_TYPE_UPPER STREQUAL "PTHREAD")
+ELSE(SUPERLUMT_THREAD_TYPE_UPPER STREQUAL "OPENMP")
+  # add openmp to libraries
+  find_package( OpenMP REQUIRED)
+  if(OPENMP_FOUND)
+    #message( "OPENMP FOUND" )
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+  endif()  
+  
+ENDIF()
 mark_as_advanced(SUPERLUMT_THREAD_LIBRARY)
 
 # add to SUPERLUMT_LIBRARIES
