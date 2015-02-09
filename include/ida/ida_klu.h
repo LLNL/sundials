@@ -80,8 +80,8 @@ extern "C" {
  *
  * This routine assumes no other changes to solver use are necessary.
  *
- * The return value is IDASLS_SUCCESS = 0, IDASLS_LMEM_FAIL = -1,
- * or IDASLS_ILL_INPUT = -2.
+ * The return value is IDASLS_SUCCESS = 0, IDASLS_MEM_NULL = -1, 
+ * IDASLS_LMEM_NULL = -2, IDASLS_ILL_INPUT = -3, or IDASLS_MEM_FAIL = -4.
  *
  * -----------------------------------------------------------------
  */

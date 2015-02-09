@@ -102,8 +102,8 @@ SUNDIALS_EXPORT int ARKMassKLU(void *arkode_mem, int n, int nnz,
  *
  * This routine assumes no other changes to solver use are necessary.
  *
- * The return value is ARKSLS_SUCCESS = 0, ARKSLS_LMEM_FAIL = -1,
- * or ARKSLS_ILL_INPUT = -2.
+ * The return value is ARKSLS_SUCCESS = 0, ARKSLS_MEM_NULL = -1, 
+ * ARKSLS_LMEM_NULL = -2, ARKSLS_ILL_INPUT = -3, or ARKSLS_MEM_FAIL = -4.
  *
  * -----------------------------------------------------------------
  */
@@ -137,8 +137,8 @@ SUNDIALS_EXPORT int ARKMassKLU(void *arkode_mem, int n, int nnz,
  *
  * This routine assumes no other changes to solver use are necessary.
  *
- * The return value is ARKSLS_SUCCESS = 0, ARKSLS_LMEM_FAIL = -1,
- * or ARKSLS_ILL_INPUT = -2.
+ * The return value is ARKSLS_SUCCESS = 0, ARKSLS_MEM_NULL = -1, 
+ * ARKSLS_MASSMEM_NULL = -8, ARKSLS_ILL_INPUT = -3, or ARKSLS_MEM_FAIL = -4.
  *
  * -----------------------------------------------------------------
  */

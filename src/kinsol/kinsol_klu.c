@@ -179,8 +179,8 @@ int KINKLU(void *kin_mem_v, int n, int nnz)
  *
  * This routine assumes no other changes to solver use are necessary.
  *
- * The return value is KINSLS_SUCCESS = 0, KINSLS_LMEM_FAIL = -1,
- * or KINSLS_ILL_INPUT = -2.
+ * The return value is KINSLS_SUCCESS = 0, KINSLS_MEM_NULL = -1, 
+ * KINSLS_LMEM_NULL = -2, KINSLS_ILL_INPUT = -3, or KINSLS_MEM_FAIL = -4.
  *
  * -----------------------------------------------------------------
  */
@@ -190,9 +190,7 @@ int KINKLUReInit(void *kin_mem_v, int n, int nnz, int reinit_type)
   KINMem kin_mem;
   KINSlsMem kinsls_mem;
   KLUData klu_data;
-  KINSlsSparseJacFn jaceval;
   SlsMat JacMat;
-  void *jacdata;
   int retval;
 
   /* Return immediately if kin_mem is NULL. */
@@ -202,13 +200,24 @@ int KINKLUReInit(void *kin_mem_v, int n, int nnz, int reinit_type)
     return(KINSLS_MEM_NULL);
   }
   kin_mem = (KINMem) kin_mem_v;
+
+  /* Return immediately if kin_lmem is NULL. */
+  if (kin_mem->kin_lmem == NULL) {
+    KINProcessError(NULL, KINSLS_LMEM_NULL, "KINSLS", "KINKLUReInit", 
+		    MSGSP_LMEM_NULL);
+    return(KINSLS_LMEM_NULL);
+  }
   kinsls_mem = (KINSlsMem) (kin_mem->kin_lmem);
   klu_data = (KLUData) kinsls_mem->s_solver_data;
 
-  jaceval = kinsls_mem->s_jaceval;
-  jacdata = kinsls_mem->s_jacdata;
-  JacMat = kinsls_mem->s_JacMat;
+  /* Return if reinit_type is not valid */
+  if ((reinit_type != 1) && (reinit_type != 2)) {
+    KINProcessError(NULL, KINSLS_ILL_INPUT, "KINSLS", "KINKLUReInit", 
+		    MSGSP_ILL_INPUT);
+    return(KINSLS_ILL_INPUT);
+  }
 
+  JacMat = kinsls_mem->s_JacMat;
 
   if (reinit_type == 1) {
 

@@ -126,6 +126,9 @@ The header files corresponding to the various linear solver options in
 \item \Id{kinsol\_spgmr.h}, 
   which is used with the Krylov solver {\spgmr};
 
+\item \Id{kinsol\_spfgmr.h}, 
+  which is used with the Krylov solver {\spfgmr};
+
 \item \Id{kinsol\_spbcgs.h}, 
   which is used with the Krylov solver {\spbcg};
 
@@ -167,7 +170,7 @@ access to the underlying generic dense linear solver.
 The following is a skeleton of the user's main program (or calling
 program) for the solution of a nonlinear problem. 
 Some steps are independent of the {\nvector} implementation used; 
-where this is not the case, usage specifications are given for the two implementations 
+where this is not the case, usage specifications are given for the implementations 
 provided with {\kinsol}: Steps marked {\p} correspond to 
 {\nvecp}, steps marked {\omp} correspond to {\nvecopenmp}, steps
 marked {\pt} correspond to {\nvecpthreads}, while steps marked {\s}
@@ -284,6 +287,8 @@ correspond to {\nvecs}.
 
   \id{ier = }\Id{KINSpgmr}\id{(...);}
   
+  \id{ier = }\Id{KINSpfgmr}\id{(...);}
+  
   \id{ier = }\Id{KINSpbcg}\id{(...);}
   
   \id{ier = }\Id{KINSptfqmr}\id{(...);}
@@ -389,7 +394,7 @@ flag = KINInit(kin\_mem, func, tmpl);
     pointer to the {\kinsol} memory block returned by \id{KINCreate}.
   \item[func] (\Id{KINSysFn})
     is the {\C} function which computes the system function $F$ 
-    (or $G(u)$ for fixed-point iteration and Anderson acceleration) in the nonlinear
+    (or $G(u)$ for fixed-point iteration) in the nonlinear
     problem.  This function has the form \id{func(u, fval, user\_data)}. 
     (For full details see \S\ref{ss:sysFn}.)
   \item[tmpl] (\id{N\_Vector})
@@ -439,10 +444,10 @@ flag = KINInit(kin\_mem, func, tmpl);
 
 \subsection{Linear solver specification functions}\label{sss:lin_solv_init}
 
-As previously explained, Newton iteration requires the solution of
-linear systems of the form $J\delta = -F$. There are seven {\kinsol} linear
+As previously explained, Newton and Picard iterations require the solution of
+linear systems of the form $J\delta = -F$. There are several {\kinsol} linear
 solvers currently available for this task: {\kindense}, {\kinband},
-{\kinklu}, {\kinsuperlumt}, {\kinspgmr}, {\kinspbcg}, and {\kinsptfqmr}.
+{\kinklu}, {\kinsuperlumt}, {\kinspgmr}, {\kinspfgmr}, {\kinspbcg}, and {\kinsptfqmr}.
 
 The first two linear solvers are direct and derive their names from the
 type of approximation used for the Jacobian $J = \partial{F}/\partial{u}$;
@@ -454,7 +459,8 @@ implementations.  Together, these linear solvers are referred to as
 
 The second two linear solvers are sparse direct solvers based on
 Gaussian elimination, and require user-supplied routines to construct
-the Jacobian $J = \partial{F}/\partial{u}$ in compressed-sparse-column
+the linear system matrix (in the case of Newton's method, this is the 
+Jacobian $J = \partial{F}/\partial{u}$) in compressed-sparse-column
 format. The {\sundials} suite does not include internal
 implementations of these solver libraries, instead requiring
 compilation of {\sundials} to link with existing installations of
@@ -462,9 +468,10 @@ these libraries (if either is missing, {\sundials} will install
 without the corresponding interface routines).  Together, these linear
 solvers are referred to as {\kinsls} (from Sparse Linear Solvers). 
 
-The remaining three {\kinsol} linear solvers --- {\kinspgmr}, {\kinspbcg},
+The remaining {\kinsol} linear solvers --- {\kinspgmr}, {\kinspfgmr}, {\kinspbcg},
 and {\kinsptfqmr} --- are Krylov iterative solvers, which use scaled
-preconditioned GMRES, scaled preconditioned Bi-CGStab, and scaled
+preconditioned GMRES, scaled preconditioned Flexible GMRES,
+scaled preconditioned Bi-CGStab, and scaled
 preconditioned TFQMR, respectively.  Together, they are referred to as
 {\kinspils} (from Scaled Preconditioned Iterative Linear Solvers).
 
@@ -479,7 +486,7 @@ Jacobian matrix $J$.
 To specify a {\kinsol} linear solver, after the call to \id{KINCreate}
 but before any calls to \id{KINSol}, the user's program must call one of
 the functions \Id{KINDense}/\Id{KINLapackDense}, \Id{KINBand}/\Id{KINLapackBand},
-\Id{KINKLU}, \Id{KINSuperLUMT}, \Id{KINSpgmr}, \Id{KINSpbcg}, or
+\Id{KINKLU}, \Id{KINSuperLUMT}, \Id{KINSpgmr}, \Id{KINSpfgmr}, \Id{KINSpbcg}, or
 \Id{KINSptfqmr}, as documented below. 
 The first argument passed to these functions is the {\kinsol}
 memory pointer returned by \id{KINCreate}. A call to one of these
@@ -494,10 +501,10 @@ solver, as specified below.
 \index{KINSOL@{\kinsol} linear solvers!selecting one|)}
 
 \index{KINSOL@{\kinsol} linear solvers!built on generic solvers|)}
-In each case the linear solver module used by {\kinsol} is actually
+In each case, the linear solver module used by {\kinsol} is actually
 built on top of a generic linear system solver, which may be of
 interest in itself. These generic solvers, denoted {\dense}, {\band},
-{\klu}, {\superlumt}, {\spgmr}, {\spbcg}, and {\sptfqmr},
+{\klu}, {\superlumt}, {\spgmr}, {\spfgmr}, {\spbcg}, and {\sptfqmr},
 are described separately in Chapter \ref{s:gen_linsolv}.
 \index{KINSOL@{\kinsol} linear solvers!built on generic solvers|)}
 %%
@@ -658,7 +665,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 }
 {
   The function \ID{KINKLU} selects the {\kinklu} linear solver and indicates
-  the use of the internal sparse-direct linear algebra functions. 
+  the use of sparse-direct linear algebra functions. 
 
   The user's main program must include the \id{kinsol\_klu.h} header file.
 }
@@ -705,7 +712,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 }
 {
   The function \ID{KINSuperLUMT} selects the {\kinsuperlumt} linear solver and indicates
-  the use of the internal sparse-direct linear algebra functions.
+  the use of sparse-direct linear algebra functions.
 
   The user's main program must include the \id{kinsol\_superlumt.h} header file.
 }
@@ -714,7 +721,8 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[num\_threads] (\id{int})
-    the number of threads to use when factoring/solving the linear systems.
+    the number of threads to use when factoring the linear systems.  
+    Note that SuperLU\_MT is thread-parallel only in the factorization routine.
   \item[N] (\id{int})
     problem dimension.
   \item[NNZ] (\id{int})
@@ -732,6 +740,8 @@ are described separately in Chapter \ref{s:gen_linsolv}.
     The {\kinsuperlumt} solver is not compatible with the current {\nvector} module.
   \item[\Id{KINSLS\_MEM\_FAIL}]
     A memory allocation request failed.
+  \item[\Id{KINSLS\_PACKAGE\_FAIL}]
+    A call to the SuperLU\_MT library returned a failure flag.
   \end{args}
 }
 {
@@ -739,6 +749,14 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   implementations of the {\nvector} module.  Of the {\nvector} modules
   provided with {\sundials}, only {\nvecs}, {\nvecopenmp} and
   {\nvecpthreads} are compatible, while {\nvecp} is not.
+  
+  {\warn}Performance will significantly degrade if the user applies the SuperLU\_MT
+  package compiled with PThreads while using the {\nvecopenmp} module.
+  If a user wants to use a threaded vector kernel with this thread-parallel
+  solver, then SuperLU\_MT should be compiled with openMP and the {\nvecopenmp}
+  module should be used.  Also, note that the expected benefit of using the threaded
+  vector kernel is minimal compared to the potential benefit of the threaded solver,
+  unless very long (greater than 100,000 entries) vectors are used.
 }
 %%
 %%
@@ -753,6 +771,43 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   The function \ID{KINSpgmr} selects the {\kinspgmr} linear solver.
 
   The user's main program must include the \id{kinsol\_spgmr.h} header file.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[maxl] (\id{int})
+    maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
+    default value \id{KINSPILS\_MAXL}$=5$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[KINSPILS\_ILL\_INPUT]
+  \item[\Id{KINSPILS\_SUCCESS}] 
+    The {\kinspgmr} initialization was successful.
+  \item[\Id{KINSPILS\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KINSPILS\_ILL\_INPUT}]
+    The {\nvector} module used does not implement a required operation.
+  \item[\Id{KINSPILS\_MEM\_FAIL}]
+    A memory allocation request failed.
+  \end{args}
+}
+{}
+%%
+%%
+%%
+\index{KINSOL@{\kinsol} linear solvers!KINSPFGMR@{\kinspfgmr}}
+\index{KINSPFGMR@{\kinspfgmr} linear solver!selection of}
+\ucfunction{KINSpfgmr}
+{
+  flag = KINSpfgmr(kin\_mem, maxl);
+}
+{
+  The function \ID{KINSpfgmr} selects the {\kinspfgmr} linear solver.
+
+  The user's main program must include the \id{kinsol\_spfgmr.h} header file.
 }
 {
   \begin{args}[kin\_mem]
@@ -1067,8 +1122,8 @@ Band Jacobian function  & \id{KINDlsSetBandJacFn} & DQ \\
 \multicolumn{3}{|c|}{\bf KINSLS linear solvers} \\
 \hline
 Sparse Jacobian function & \id{KINSlsSetSparseJacFn} &  none \\
-Sparse matrix ordering algorithm & \id{KINKLUSetOrdering} &  \id{COLAMD} \\
-Sparse matrix ordering algorithm & \id{KINSuperLUMTSetOrdering} &  \id{COLAMD} \\
+Sparse matrix ordering algorithm & \id{KINKLUSetOrdering} &  1 for \id{COLAMD} \\
+Sparse matrix ordering algorithm & \id{KINSuperLUMTSetOrdering} &  3 for \id{COLAMD} \\
 \hline
 \multicolumn{3}{|c|}{\bf KINSPILS linear solvers} \\
 \hline
@@ -1326,7 +1381,7 @@ flag = KINSetUserData(kin\_mem, user\_data);
   If specified, the pointer to \id{user\_data} is passed to all user-supplied 
   functions that have it as an argument. Otherwise, a \id{NULL} pointer is passed.
 
-  If \id{user\_data} is needed in user preconditioner functions, the call to
+  {\warn}If \id{user\_data} is needed in user preconditioner functions, the call to
   \id{KINSetUserData} must be made {\it before} the call to specify the
   linear solver.
 }
@@ -1931,7 +1986,7 @@ flag = KINSetSysFunc(kin\_mem, func);
 }
 {
   The function \ID{KINSetSysFunc} specifies the user-provided function
-  that evaluates the nonlinear system function $F(u)$.
+  that evaluates the nonlinear system function $F(u)$ or $G(u)$.
 }
 {
   \begin{args}[kin\_mem]
@@ -1939,7 +1994,7 @@ flag = KINSetSysFunc(kin\_mem, func);
     pointer to the {\kinsol} memory block.
   \item[func] (\id{KINSysFn})
     user-supplied function that evaluates $F(u)$ (or $G(u)$ for fixed-point 
-    iteration and Anderson acceleration).
+    iteration).
   \end{args}
 }
 {
@@ -1989,10 +2044,12 @@ flag = KINSetMAA(kin\_mem, maa);
   \end{args}
 }
 {
-  This function sets the subspace size, which needs to be $>= 0$ for Anderson
-  Acceleration.  It also allocates additional memory necessary for Anderson Acceleration.
+  This function sets the subspace size, which needs to be $> 0$ if Anderson
+  Acceleration is to be used.  
+  It also allocates additional memory necessary for Anderson Acceleration.
 
-  The default value of \id{maa} is 0, indicating no acceleration.
+  The default value of \id{maa} is 0, indicating no acceleration.  The value of \id{maa}
+  should always be less than \id{mxiter}.
 
   If the user calls the function KINSetNumMaxIters, that call should be made
   before the call to KINSetMAA, as the latter uses the value of \id{mxiter}. 
@@ -2003,7 +2060,7 @@ flag = KINSetMAA(kin\_mem, maa);
 \index{optional input!solver|)}
 
 %%==============================================================================
-\subsubsection{Direct linear solvers optional input functions}\label{sss:optin_dls}
+\subsubsection{Dense direct linear solver optional input functions}\label{sss:optin_dls}
 %%==============================================================================
 \index{optional input!dense linear solver|(}
 \index{KINDENSE@{\kindense} linear solver!optional input|(}
@@ -2022,7 +2079,7 @@ The {\kindense} solver passes the pointer \id{user\_data}
 to the dense Jacobian function. This allows the user to
 create an arbitrary structure with relevant problem data and access it
 during the execution of the user-supplied Jacobian function, without
-using global data in the program.  The pointer \id{use\_data} may be
+using global data in the program.  The pointer \id{user\_data} may be
 specified through \id{KINSetUserData}.
 %%
 \index{Jacobian approximation function!dense!user-supplied}
@@ -2062,7 +2119,7 @@ specified through \id{KINSetUserData}.
 %%
 %%
 The \index{KINBAND@{\kinband} linear solver!Jacobian approximation used by}
-{\kindense} solver needs a function to compute a banded approximation to
+{\kinband} solver needs a function to compute a banded approximation to
 the Jacobian matrix $J(u)$.  This function must be of type \id{KINDlsBandJacFn}. 
 The user can supply his/her own banded Jacobian approximation function, 
 or use the default internal difference quotient approximation
@@ -2126,7 +2183,7 @@ specified through \id{KINSetUserData}.
 \index{KINSUPERLUMT@{\kinsuperlumt} linear solver!optional input|(}
 The \index{KINKLU@{\kinklu} linear solver!Jacobian approximation used by}
 \index{KINSUPERLUMT@{\kinsuperlumt} linear solver!Jacobian approximation used by}
-{\kinklu} and {\kinsuperlumt} solvers need a function to compute a
+{\kinklu} and {\kinsuperlumt} solvers require a function to compute a
 compressed-sparse-column approximation to the Jacobian matrix $J(u)$.
 This function must be of type \id{KINSlsSparseJacFn}.  The user must
 supply a custom sparse Jacobian function since a difference-quotient
@@ -2134,11 +2191,11 @@ approximation would not leverage the underlying sparse matrix
 structure of the problem.  To specify a user-supplied Jacobian
 function \id{sjac}, {\kinklu} and {\kinsuperlumt} provide the function
 \id{KINSlsSetSparseJacFn}. The {\kinklu} and {\kinsuperlumt} solvers
-passes the pointer \id{user\_data} to the sparse Jacobian
-function. This allows the user to create an arbitrary structure with
+pass the pointer \id{user\_data} to the sparse Jacobian
+function. This mechanism allows the user to create an arbitrary structure with
 relevant problem data and access it during the execution of the
 user-supplied Jacobian function, without using global data in the
-program.  The pointer \id{use\_data} may be specified through
+program.  The pointer \id{user\_data} may be specified through
 \id{KINSetUserData}.
 %%
 \index{Jacobian approximation function!sparse!user-supplied}
@@ -2172,6 +2229,67 @@ program.  The pointer \id{use\_data} may be specified through
 {
   The function type \id{KINSlsSparseJacFn} is described in \S\ref{ss:sjacFn}.
 }
+%
+%
+\index{KINKLU@{\kinklu} linear solver!reinitialization}
+When using a spasre dircet solver, there 
+may be instances when the number of state variables does not 
+change, but the number of nonzeroes in the Jacobian does change.  
+For the {\kinklu} solver, we provide a reinitialization.
+This reinitialization routine reinitializes the Jacobian matrix
+memory for eth new number fo nnozeroes and sets flags for a new factorization 
+(symbolic and numeric) to be conducted at the next solver setup
+call.  This routine is useful in the cases where the number of nonzeroes 
+has changed or if the structure of the linear system has changed
+which would require a new symbolic (and numeric factorization).
+%%
+\ucfunction{KINKLUReInit}
+{
+  flag = KINKLUReInit(kin\_mem, n, nnz, reinit\_type);
+}
+{
+  The function \ID{KINKLUReInit} reinitializes Jacobian matrix memory and flags for
+  new symbolic and numeric KLU factorizations.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[n] (\id{int})
+    number of state variables in the system.
+  \item[nnz] (\id{int})
+    number of nonzeroes in the Jacobian matrix.
+  \item[reinit\_type] (\id{int})
+    type of reinitialization:
+    \begin{itemize}
+    \item[1]  The Jacobian matrix will be destroyed and a new one will 
+      be allocated based on the \id{nnz} value passed to this call. New symbolic and
+      numeric factorizations will be completed at the next
+      solver setup.
+    \item[2]  Only symbolic and numeric factorizations will be completed.  
+      It is assumed that the Jacobian size has not exceeded the size of 
+      \id{nnz} given in the prior call to {\kinklu}.
+    \end{itemize}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KINSLS\_MEM\_FAIL]
+  \item[\Id{KINSLS\_SUCCESS}] 
+    The reinitialization succeeded.
+  \item[\Id{KINSLS\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KINSLS\_LMEM\_NULL}]
+    The {\kinklu} linear solver has not been initialized.
+  \item[\Id{KINSLS\_ILL\_INPUT}]
+    The given \id{reinit\_type} has an illegal value.
+  \item[\Id{KINSLS\_MEM\_FAIL}]
+    A memory allocation failed.
+  \end{args}
+}
+{
+  The default value for \id{reinit\_type} is $2$.
+}
 %%
 %%
 \index{KINKLU@{\kinklu} linear solver!matrix reordering algorithm specification}
@@ -2182,6 +2300,8 @@ decomposition internal to the solver.  The approximate minimal degree
 ordering for nonsymmetric matrices given by the \id{COLAMD} algorithm
 is the default algorithm used within both solvers, but alternate
 orderings may be chosen through one of the following two functions.
+The input values to these functinos are the numeric values used in the respective
+packages, and the user-supplied value will be passed directly to the package.
 %%
 \ucfunction{KINKLUSetOrdering}
 {
@@ -2216,7 +2336,7 @@ orderings may be chosen through one of the following two functions.
   \end{args}
 }
 {
-  The default ordering choice is \id{COLAMD}.
+  The default ordering choice is $1$ for \id{COLAMD}.
 }
 %%
 %%
@@ -2254,7 +2374,7 @@ orderings may be chosen through one of the following two functions.
   \end{args}
 }
 {
-  The default ordering choice is \id{COLAMD}.
+  The default ordering choice is $3$ for \id{COLAMD}.
 }
 %%
 %%

@@ -187,9 +187,8 @@ int IDAKLU(void *ida_mem, int n, int nnz)
  *
  * This routine assumes no other changes to solver use are necessary.
  *
- * The return value is IDASLS_SUCCESS = 0, IDASLS_LMEM_FAIL = -1,
- * or IDASLS_ILL_INPUT = -2.
- *
+ * The return value is IDASLS_SUCCESS = 0, IDASLS_MEM_NULL = -1, 
+ * IDASLS_LMEM_NULL = -2, IDASLS_ILL_INPUT = -3, or IDASLS_MEM_FAIL = -4.
  * -----------------------------------------------------------------
  */
 
@@ -198,9 +197,7 @@ int IDAKLUReInit(void *ida_mem_v, int n, int nnz, int reinit_type)
   IDAMem ida_mem;
   IDASlsMem idasls_mem;
   KLUData klu_data;
-  IDASlsSparseJacFn jaceval;
   SlsMat JacMat;
-  void *jacdata;
   int retval;
 
   /* Return immediately if ida_mem is NULL. */
@@ -210,11 +207,24 @@ int IDAKLUReInit(void *ida_mem_v, int n, int nnz, int reinit_type)
     return(IDASLS_MEM_NULL);
   }
   ida_mem = (IDAMem) ida_mem_v;
+
+  /* Return immediately if ark_lmem is NULL. */
+  if (ida_mem->ida_lmem == NULL) {
+    IDAProcessError(NULL, IDASLS_LMEM_NULL, "IDASLS", "IDAKLUReInit", 
+		    MSGSP_LMEM_NULL);
+    return(IDASLS_LMEM_NULL);
+  }
+
   idasls_mem = (IDASlsMem) (ida_mem->ida_lmem);
   klu_data = (KLUData) idasls_mem->s_solver_data;
 
-  jaceval = idasls_mem->s_jaceval;
-  jacdata = idasls_mem->s_jacdata;
+  /* Return if reinit_type is not valid */
+  if ((reinit_type != 1) && (reinit_type != 2)) {
+    IDAProcessError(NULL, IDASLS_ILL_INPUT, "IDASLS", "IDAKLUReInit", 
+		    MSGSP_ILL_INPUT);
+    return(IDASLS_ILL_INPUT);
+  }
+
   JacMat = idasls_mem->s_JacMat;
 
 

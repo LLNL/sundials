@@ -74,7 +74,7 @@ typedef struct KINSlsMemRec {
  * =================================================================
  */
 
-#define MSGSP_KINMEM_NULL "Integrator memory is NULL."
+#define MSGSP_KINMEM_NULL "Solver memory is NULL."
 #define MSGSP_BAD_NVECTOR "A required vector operation is not implemented."
 #define MSGSP_MEM_FAIL "A memory request failed."
 #define MSGSP_LMEM_NULL "Linear solver memory is NULL."

@@ -80,8 +80,8 @@ extern "C" {
  *
  * This routine assumes no other changes to solver use are necessary.
  *
- * The return value is CVSLS_SUCCESS = 0, CVSLS_LMEM_FAIL = -1,
- * or CVSLS_ILL_INPUT = -2.
+ * The return value is CVSLS_SUCCESS = 0, CVSLS_MEM_NULL = -1,
+ * CVSLS_LMEM_NULL = -2, CVSLS_ILL_INPUT = -3, or CVSLS_MEM_FAIL = -4.
  *
  * -----------------------------------------------------------------
  */

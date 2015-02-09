@@ -194,9 +194,8 @@ int CVKLU(void *cvode_mem, int n, int nnz)
  *
  * This routine assumes no other changes to solver use are necessary.
  *
- * The return value is CVSLS_SUCCESS = 0, CVSLS_LMEM_FAIL = -1,
- * or CVSLS_ILL_INPUT = -2.
- *
+ * The return value is CVSLS_SUCCESS = 0, CVSLS_MEM_NULL = -1,
+ * CVSLS_LMEM_NULL = -2, CVSLS_ILL_INPUT = -3, or CVSLS_MEM_FAIL = -4.
  * -----------------------------------------------------------------
  */
 
@@ -205,25 +204,34 @@ int CVKLUReInit(void *cvode_mem, int n, int nnz, int reinit_type)
   CVodeMem cv_mem;
   CVSlsMem cvsls_mem;
   KLUData klu_data;
-  CVSlsSparseJacFn jaceval;
   SlsMat JacMat;
-  void *jacdata;
   int retval;
 
   /* Return immediately if cv_mem is NULL. */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVSLS_MEM_NULL, "CVSLS", "cvKLU", 
+    cvProcessError(NULL, CVSLS_MEM_NULL, "CVSLS", "CVKLUReInit", 
 		    MSGSP_CVMEM_NULL);
     return(CVSLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  /* Return immediately if cv_lmem is NULL. */
+  if (cv_mem->cv_lmem == NULL) {
+    cvProcessError(NULL, CVSLS_LMEM_NULL, "CVSLS", "CVKLUReInit", 
+		    MSGSP_LMEM_NULL);
+    return(CVSLS_LMEM_NULL);
+  }
   cvsls_mem = (CVSlsMem) (cv_mem->cv_lmem);
   klu_data = (KLUData) cvsls_mem->s_solver_data;
 
-  jaceval = cvsls_mem->s_jaceval;
-  jacdata = cvsls_mem->s_jacdata;
-  JacMat = cvsls_mem->s_JacMat;
+  /* Return if reinit_type is not valid */
+  if ((reinit_type != 1) && (reinit_type != 2)) {
+    cvProcessError(NULL, CVSLS_ILL_INPUT, "CVSLS", "CVKLUReInit", 
+		    MSGSP_ILL_INPUT);
+    return(CVSLS_ILL_INPUT);
+  }
 
+  JacMat = cvsls_mem->s_JacMat;
 
   if (reinit_type == 1) {
 

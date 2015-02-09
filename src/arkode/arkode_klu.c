@@ -233,8 +233,8 @@ int ARKKLU(void *arkode_mem, int n, int nnz)
  *
  * This routine assumes no other changes to solver use are necessary.
  *
- * The return value is ARKSLS_SUCCESS = 0, ARKSLS_LMEM_FAIL = -1,
- * or ARKSLS_ILL_INPUT = -2.
+ * The return value is ARKSLS_SUCCESS = 0, ARKSLS_MEM_NULL = -1, 
+ * ARKSLS_LMEM_NULL = -2, ARKSLS_ILL_INPUT = -3, or ARKSLS_MEM_FAIL = -4.
  *
  * -----------------------------------------------------------------
  */
@@ -248,13 +248,28 @@ int ARKKLUReInit(void *arkode_mem, int n, int nnz, int reinit_type)
 
   /* Return immediately if arkode_mem is NULL. */
   if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARKSLS_MEM_NULL, "ARKSLS", "ARKKLU", 
+    arkProcessError(NULL, ARKSLS_MEM_NULL, "ARKSLS", "ARKKLUReInit", 
 		    MSGSP_ARKMEM_NULL);
     return(ARKSLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
+
+  /* Return immediately if ark_lmem is NULL. */
+  if (ark_mem->ark_lmem == NULL) {
+    arkProcessError(NULL, ARKSLS_LMEM_NULL, "ARKSLS", "ARKKLUReInit", 
+		    MSGSP_LMEM_NULL);
+    return(ARKSLS_LMEM_NULL);
+  }
+
   arksls_mem = (ARKSlsMem) (ark_mem->ark_lmem);
   klu_data = (KLUData) arksls_mem->s_solver_data;
+
+  /* Return if reinit_type is not valid */
+  if ((reinit_type != 1) && (reinit_type != 2)) {
+    arkProcessError(NULL, ARKSLS_ILL_INPUT, "ARKSLS", "ARKKLUReInit", 
+		    MSGSP_ILL_INPUT);
+    return(ARKSLS_ILL_INPUT);
+  }
 
   if (reinit_type == 1) {
 
@@ -781,8 +796,8 @@ int ARKMassKLU(void *arkode_mem, int n, int nnz,
  *
  * This routine assumes no other changes to solver use are necessary.
  *
- * The return value is ARKSLS_SUCCESS = 0, ARKSLS_LMEM_FAIL = -1,
- * or ARKSLS_ILL_INPUT = -2.
+ * The return value is ARKSLS_SUCCESS = 0, ARKSLS_MEM_NULL = -1, 
+ * ARKSLS_MASSMEM_NULL = -8, ARKSLS_ILL_INPUT = -3, or ARKSLS_MEM_FAIL = -4.
  *
  * -----------------------------------------------------------------
  */
@@ -796,13 +811,28 @@ int ARKMassKLUReInit(void *arkode_mem, int n, int nnz, int reinit_type)
 
   /* Return immediately if arkode_mem is NULL. */
   if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARKSLS_MEM_NULL, "ARKSLS", "ARKMassKLU", 
+    arkProcessError(NULL, ARKSLS_MEM_NULL, "ARKSLS", "ARKMassKLUReInit", 
 		    MSGSP_ARKMEM_NULL);
     return(ARKSLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
+
+  /* Return immediately if ark_lmem is NULL. */
+  if (ark_mem->ark_mass_mem == NULL) {
+    arkProcessError(NULL, ARKSLS_MASSMEM_NULL, "ARKSLS", "ARKMassKLUReInit", 
+		    MSGSP_MASSMEM_NULL);
+    return(ARKSLS_MASSMEM_NULL);
+  }
+
   arksls_mem = (ARKSlsMassMem) (ark_mem->ark_mass_mem);
   klu_data = (KLUData) arksls_mem->s_solver_data;
+
+  /* Return if reinit_type is not valid */
+  if ((reinit_type != 1) && (reinit_type != 2)) {
+    arkProcessError(NULL, ARKSLS_ILL_INPUT, "ARKSLS", "ARKMassKLUReInit", 
+		    MSGSP_ILL_INPUT);
+    return(ARKSLS_ILL_INPUT);
+  }
 
   if (reinit_type == 1) {
 

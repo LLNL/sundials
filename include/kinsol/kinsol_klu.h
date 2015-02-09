@@ -80,8 +80,8 @@ extern "C" {
  *
  * This routine assumes no other changes to solver use are necessary.
  *
- * The return value is KINSLS_SUCCESS = 0, KINSLS_LMEM_FAIL = -1,
- * or KINSLS_ILL_INPUT = -2.
+ * The return value is KINSLS_SUCCESS = 0, KINSLS_MEM_NULL = -1, 
+ * KINSLS_LMEM_NULL = -2, KINSLS_ILL_INPUT = -3, or KINSLS_MEM_FAIL = -4.
  * -----------------------------------------------------------------
  */
 
