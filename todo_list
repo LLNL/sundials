@@ -1,18 +1,18 @@
-To Do List for SUNDIALS, as of 02/04/2015
+To Do List for SUNDIALS, as of 02/11/2015
 
 (*** items must be completed before KINSOL and ARKode can be released.)
 
-***(Alan) Pull recent revisions into user guides and READMEs as appropriate
+*** (Carol) Create Install_Notes from existing tex files.
+
+*** (Carol) Bring back MIN/MAX paragraph in KINSOL manual.
 
 ***(Carol) Document sparse solvers
 
 ***(Carol/Eddy) Update tarscripts
 
-***(Carol) Update xfig diagrams - Alan to review
-
 ***(Carol) Update recent revisions - all to comment
 
-***(Eddy) Note on Windows build
+***(Eddy) Document Windows build - install guide
 
 ***(Eddy) Update options for cmake.  Remove autoconf documentation in 
 manuals and INSTALL_NOTES (anywhere else?)
@@ -20,39 +20,36 @@ manuals and INSTALL_NOTES (anywhere else?)
 ***(Steve, Eddy) Finalize pthreads implementation and document performance concerns.
 
 ***(Steve, Eddy) Write and test openMP and pThreads with Fortran and document
-
-	   Tests written.
-	   Need to document.
+	- Tests written.
+	- Need to document.
 
 ***(Steve, Eddy) Document KLU build options
 
-(Alan, Carol) Verify output of examples used in new testing system 
-are indeed correct.
-As part of this we probably should tighten absolute tolerances on Krylov
-example codes as there is a good bit of variation on consecutive parallel runs
-and even between systems.  Maybe try abstol = 10^-6?
+***(Alan, Carol) Verify output of examples used in new testing system 
+	are indeed correct.
+	As part of this we probably should tighten absolute tolerances on Krylov
+	example codes as there is a good bit of variation on consecutive parallel runs
+	and even between systems.  Maybe try abstol = 10^-6?
 
-(Eddy) Try newest SuperLU_MT to see if print messages still there.
+***(Eddy) Try newest SuperLU_MT to see if print messages still there.
+	v2.3 Compile errors, 2.4 released...need to test.
+	- OpenMP works?
+	- colamd.c consistent with KLU?
 
-(Alan) Doc. of fnvinits_openmp & fnvinits_pthreads missing in F/C chapters
+***(Eddy) Add 3D test case to cvsAtmDisp_ASAi_kry_bbd_p
 
-(Eddy) Add 3D test case to cvsAtmDisp_ASAi_kry_bbd_p
+***(Eddy) Doc of NVECTOR tests in Installation chapter.
 
-(Eddy) Doc of NVECTOR tests in Installation chapter.
+***(Carol) Nakhimovski claims posible infinite loop in KINSOL
 
-(Carol) Nakhimovski claims pos. inf. loop in KINSOL
+***(Carol) User Kantli has question on KINSOL use
 
-(Carol) User Kantli has question on KINSOL use
-
-(All) Look at looser tolerance on automated testing
+***(Eddy) Document how users can use testRunner (copy output to answer) and 
+	Modify testRunner to catch nan and inf and *****'s 
 
 (Eddy) INSTALL_NOTES and READMEs need to be update.
 
-(Carol) README_DEV needs work?
-
 (?) Tar-file sizes in download.html
-
-(Eddy) Preprocessing of FORTRAN examples -- what does this do?  Fixes INTEGER decl's?
 
 (Alan, Carol) Review vector documentation
 
@@ -60,18 +57,11 @@ and even between systems.  Maybe try abstol = 10^-6?
 
 (Alan) Review build documentation.
 
-(Carol) Examples of pcg and FGMRES for all solvers
-
 (Eddy) Remove autoconf from build system
 
 (Eddy) Make build system handling of examples consistent.  Right now, distclean
 does not remove compiled examples.  Also, the install builds an examples
 directory, but the executables are not copied there.
-
-(Eddy) C++ example for each solver
-
-(Steve) Look into whether there is any issue with MPI and differing parallel
-results in consecutively run parallel examples.
 
 ***(Eddy) Remove autotools build files from installation
 
@@ -86,26 +76,27 @@ results in consecutively run parallel examples.
     Plus all errors/warnings should be fixed
     
 *** (Alan) Identify any outstanding user issues.
+	 - Check on all Oxberry submitted patches.
 
-*** (Alan) Create individual user guide skeleton code example to show only one flavor of p, t, o, s and
-    infer the others. Main skeleton should continue to show all four.
-    
-*** (Alan) Create cvDiag example with MPI
+***(Carol/Eddy) IM release of KINSOL and ARKode...in progress 12/17/14
+	- KINSOL complete 1/5/15.  LLNL-CODE-665877
+	- ARKode ...waiting for release #
 
-*** (Eddy) Document CMake support is for LINUX Makefile system only (although can be used to configure other systems)
-
-*** (Eddy) Documentation figures need square/round edges as specified in the text
-
-*** (Eddy) Remove old auto test code from current ongoing versions in repo
-
-*** (Eddy) Ida figure should show Nvector (as does in Main).  All individual solver figures
-    to be updated in same way as Ida
-    
 *** (All) Test, test, test
 -------------------------------------------------------------------------
 
 Deferred to after release (11/6/13)
   
+(Eddy) C++ example for each solver
+
+(Carol) Examples of pcg and FGMRES for all solvers
+
+(Eddy) Preprocessing of FORTRAN examples -- what does this do?  Fixes INTEGER decl's?
+
+(Carol) README_DEV needs work?
+
+(All) Look at looser tolerance on automated testing. Purpose?
+
 ***(Carol) pcg and FGMRES for all solvers, documentation
 
 Update all Matlab interfaces
@@ -139,6 +130,8 @@ Add SuperLU_MT test cases to nightly build (requires multiple compilations)
     
 *** Refactor duplicated code from ida/idas and cvode/cvodes into common module
 
+*** Refactor documentation to pull common material into single tex file.
+
 *** Need hybrid mpi/openmp example
 
 *** Look into issue tracking system open to developers and users
@@ -153,9 +146,30 @@ Add SuperLU_MT test cases to nightly build (requires multiple compilations)
 
 Completed Tasks
 
-(Alan) New CVODE example: cvAdvDiff_diag_p using CVDiag in parallel
+*** (Alan) Create individual user guide skeleton code example to show only one flavor of p, t, o, s and
+    infer the others. Main skeleton should continue to show all four.
+    
+*** (Alan) Create cvDiag example with MPI
 
-***(Carol/Eddy) IM release of KINSOL and ARKode...in progress 12/17/14
+*** (Eddy) Document CMake support is for LINUX Makefile system only (although can be used to configure other systems)
+
+*** (Eddy) Documentation figures need square/round edges as specified in the text
+
+*** (Eddy) Remove old auto test code from current ongoing versions in repo
+
+*** (Eddy) Ida figure should show Nvector (as does in Main).  All individual solver figures
+    to be updated in same way as Ida
+    
+(Steve) Look into whether there is any issue with MPI and differing parallel
+results in consecutively run parallel examples.
+
+(Alan) Doc. of fnvinits_openmp & fnvinits_pthreads missing in F/C chapters
+
+***(Carol) Update xfig diagrams - Alan to review
+
+***(Alan) Pull recent revisions into user guides and READMEs as appropriate
+
+(Alan) New CVODE example: cvAdvDiff_diag_p using CVDiag in parallel
 
 ***(Eddy) Add last modified date to each file from SVN
 
