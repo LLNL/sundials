@@ -1,8 +1,8 @@
 %===================================================================================
 \chapter{Providing Alternate Linear Solver Modules}\label{s:new_linsolv}
 %===================================================================================
-The central {\kinsol} module interfaces with the linear solver module 
-to be used by way of calls to four functions.  These are denoted here by 
+The central {\kinsol} module interfaces with a linear solver module 
+by way of calls to four functions.  These are denoted here by 
 \id{linit}, \id{lsetup}, \id{lsolve}, and \id{lfree}.
 Briefly, their purposes are as follows:
 %%
@@ -49,7 +49,7 @@ We encourage the use of performance counters in connection with the various
 operations involved with the linear solver.  Such counters would be
 members of the linear solver memory block, would be initialized in the
 \id{linit} function, and would be incremented by the \id{lsetup} and
-\id{lsolve} functions.  Then user-callable functions would be needed to
+\id{lsolve} functions.  Then, user-callable functions would be needed to
 obtain the values of these counters.
 
 For consistency with the existing {\kinsol} linear solver modules, we
@@ -159,8 +159,8 @@ The type definition of \id{lsolve} is
 {
   The \id{lsolve} function must solve the linear system $A x = b$, where $A$ is
   either the Jacobian $J = \partial F / \partial u$ (evaluated at the current
-  iterate), or the approximate Jacobian $L$ in the case of Picard iteration.
-  The right-hand side vector $b$ is input. 
+  iterate), or the approximate Jacobian, $L$, in the case of Picard iteration.
+  The right-hand side vector, $b$, is input. 
 }
 {
   \begin{args}[N\_Vector]
@@ -176,13 +176,15 @@ The type definition of \id{lsolve} is
     is a pointer to a real scalar to be computed by \id{lsolve}.  The returned
     value \id{sJpnorm} should be equal to $\|D_F Jp\|_2$, the scaled $L_2$
     norm of the product $Jp$, where $p~(= x)$ is the computed solution of the
-    linear system $J p = b$, and the scaling is that given by $D_F$.
+    linear system $J p = b$, and the scaling is that given by $D_F$.  
+    This value is not needed in all cases.  See below.
   \item[sFdotJp]
     is a pointer to a real scalar to be computed by \id{lsolve}.  The returned
     value  \id{sFdotJp} should be equal to $(D_F F)\cdot(D_F Jp)$, the
     dot product of the scaled $F$ vector and the scaled vector $J p$, where
     $p~(= x)$ is the computed solution of the linear system $J p = b$,
     and the scaling is that given by $D_F$.
+    This value is not needed in all cases.  See below.
   \end{args}
 }
 {
@@ -211,8 +213,8 @@ In the case of a direct solver, \id{sJpnorm} can be ignored, and
 in which $Jp$ is taken to be equal to the input right-hand side $b$,
 and \id{f\_scale} and \id{fval} $(= F(u))$ are taken from \id{kin\_mem}.
 
-In the case of an iterative solver, the two terms \id{sJpnorm} and
-\id{sFdotJp} can be computed with lines of the form
+In the case of an iterative solver, the two terms, \id{sJpnorm} and
+\id{sFdotJp}, can be computed with lines of the form
 \vspace{-.1in}
   \begin{verbatim}
   ret = KINSpilsAtimes(kin_mem, x, b);

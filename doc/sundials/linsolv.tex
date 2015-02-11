@@ -16,28 +16,31 @@ The {\em dls} family contains the following two generic linear solvers:
 Note that this family also includes the Blas/Lapack linear solvers (dense and band) 
 available to the {\sundials} solvers, but these are not discussed here.
 
-The {\em sls} family contains the following two sparse direct linear solvers:
+The {\em sls} family contains a sparse matrix package and interfaces between
+it and two sparse direct solver packages:
 \begin{itemize}
 \item The {\klu} package, a linear solver for compressed-sparse-column
-  matrices, \cite{KLU_site}.
+  matrices, \cite{KLU_site,DaPa:10}.
 \item The {\superlumt} package, a threaded linear solver for
-  compressed-sparse-column matrices, \cite{SuperLUMT_site}.
+  compressed-sparse-column matrices, \cite{SuperLUMT_site,Li:05,DGL:99}.
 \end{itemize}
 
-The {\em spils} family contains the following three generic linear solvers:
+The {\em spils} family contains the following generic linear solvers:
 \begin{itemize}
 \item The {\spgmr} package, a solver for the scaled preconditioned GMRES method.
+\item The {\spfgmr} package, a solver for the scaled preconditioned Flexible GMRES method.
 \item The {\spbcg} package, a solver for the scaled preconditioned Bi-CGStab method.
 \item The {\sptfqmr} package, a solver for the scaled preconditioned TFQMR method.
 \end{itemize}
 
 For reasons related to installation, the names of the files involved
-in these generic solvers begin with the prefix \id{sundials\_}.  But
-despite this, each of the solvers is in fact generic, in that it is
-usable completely independently of {\sundials}.
+in these packages begin with the prefix \id{sundials\_}.  But
+despite this, each of the {\em dls} and {\em spils} solvers is in fact generic, 
+in that it is usable completely independently of {\sundials}.
 
 For the sake of space, the functions for the \id{dense} and \id{band} modules
-that work with a matrix type and the functions in the {\spgmr}, {\spbcg}, and {\sptfqmr}
+that work with a matrix type and the functions in the {\spgmr}, 
+{\spfgmr}, {\spbcg}, and {\sptfqmr}
 modules are only summarized briefly, since they are less likely to be of direct use
 in connection with a {\sundials} solver.  However, the functions for dense matrices 
 treated as simple arrays and sparse matrices are fully described,
@@ -57,18 +60,18 @@ The files comprising the {\dense} generic linear solver, and their locations
 in the {\sundials} {\em srcdir}, are as follows:
 \begin{itemize}
 \item header files (located in {\em srcdir}\id{/include/sundials})\\
-  \id{sundials\_direct.h} \id{sundials\_dense.h} \\
-  \id{sundials\_types.h} \id{sundials\_math.h}  \id{sundials\_config.h}
+  \id{sundials\_direct.h}, \id{sundials\_dense.h}, \\
+  \id{sundials\_types.h}, \id{sundials\_math.h},  \id{sundials\_config.h}
 \item source files (located in {\em srcdir}\id{/src/sundials})\\
-  \id{sundials\_direct.c} \id{sundials\_dense.c} \id{sundials\_math.c}
+  \id{sundials\_direct.c}, \id{sundials\_dense.c}, \id{sundials\_math.c}
 \end{itemize}
 The files comprising the {\band} generic linear solver are as follows:
 \begin{itemize}
 \item header files (located in {\em srcdir}\id{/include/sundials})\\
-  \id{sundials\_direct.h} \id{sundials\_band.h} \\
-  \id{sundials\_types.h} \id{sundials\_math.h}  \id{sundials\_config.h}
+  \id{sundials\_direct.h}, \id{sundials\_band.h}, \\
+  \id{sundials\_types.h}, \id{sundials\_math.h},  \id{sundials\_config.h}
 \item source files (located in {\em srcdir}\id{/src/sundials})\\
-  \id{sundials\_direct.c} \id{sundials\_band.c} \id{sundials\_math.c}
+  \id{sundials\_direct.c}, \id{sundials\_band.c}, \id{sundials\_math.c}
 \end{itemize}
 %%
 Only two of the preprocessing directives in the header file \id{sundials\_config.h} 
@@ -509,22 +512,25 @@ The following functions for small band matrices are available in the
 
 
 % ====================================================================================
-\section{The SLS modules: KLU and SUPERLUMT}\label{s:sls}
+\section{The SLS module}\label{s:sls}
 % ====================================================================================
 
 \index{generic linear solvers!SLS@{\sls}}
 \index{generic linear solvers!KLU@{\klu}}
 \index{generic linear solvers!SUPERLUMT@{\superlumt}}
+{\sundials} provides a compressed-sparse-column matrix type and sparse
+matrix support functions.  In addition, {\sundials} provides interfaces
+to the publically available KLU and SuperLU\_MT sparse direct solver packages.
 The files comprising the {\sls} matrix module, used in the {\klu} and
 {\superlumt} linear solver packages, and their locations
 in the {\sundials} {\em srcdir}, are as follows:
 \begin{itemize}
 \item header files (located in {\em srcdir}\id{/include/sundials})\\
-  \id{sundials\_sparse.h} \id{sundials\_klu\_impl.h} \\
-  \id{sundials\_superlumt\_impl.h} \id{sundials\_types.h} \\
-  \id{sundials\_math.h}  \id{sundials\_config.h}
+  \id{sundials\_sparse.h}, \id{sundials\_klu\_impl.h}, \\
+  \id{sundials\_superlumt\_impl.h}, \id{sundials\_types.h}, \\
+  \id{sundials\_math.h},  \id{sundials\_config.h}
 \item source files (located in {\em srcdir}\id{/src/sundials})\\
-  \id{sundials\_sparse.c} \id{sundials\_math.c}
+  \id{sundials\_sparse.c}, \id{sundials\_math.c}
 \end{itemize}
 %%
 Only two of the preprocessing directives in the header file \id{sundials\_config.h} 
@@ -584,6 +590,7 @@ sparse matrix of type \id{SlsMat} need not be square.
     arrays, e.g. if {\id colptr[3]=7}, then the first nonzero entry in
     the fourth column of the matrix is located in {\id data[7]}, and
     is located in row {\id rowvals[7]} of the matrix.  The last entry
+    contains the total number of nonzero values in the matrix and hence
     points one past the end of the active data in the {\id data} and
     {\id rowvals} arrays.
 \end{description}
@@ -617,6 +624,10 @@ or
 \end{verbatim}
 where the first has no unused space, and the second has additional
 storage (the entries marked with \texttt{*} may contain any values).
+Note in both cases that the final value in \id{colptrs} is $8$.  The work 
+associated with operations on the sparse matrix is proportional to this
+value and so one should use the best understanding of the
+number fo nonzeroes here.
 %%
 %%
 %%
@@ -632,7 +643,7 @@ storage (the entries marked with \texttt{*} may contain any values).
   corresponding to the row index (zero-based) of each nonzero value.
   The entries in \id{data} contain the values of the nonzero entries,
   with the row $i$, column $j$ entry of \id{A} (again, zero-based)
-  denoted as \id{A(i,j)}.  The \id{colprts} array contains $N+1$
+  denoted as \id{A(i,j)}.  The \id{colptrs} array contains $N+1$
   entries; the first $N$ denote the starting index of each column
   within the \id{rowvals} and \id{data} arrays, while the final entry
   points one past the final nonzero entry.  Here, although \id{NNZ}
@@ -679,14 +690,14 @@ type \id{SlsMat}.  For full details, see the header file \id{sundials\_sparse.h}
 
 \item \ID{ScaleSparseMat}
   \par \id{ScaleSparseMat(c, A)} scales every element in the
-  \id{SlsMat} \id{A} by the scalar \id{c}.
+  \id{SlsMat} \id{A} by the \id{realtype} scalar \id{c}.
 
 \item \ID{AddIdentitySparseMat}
   \par \id{AddIdentitySparseMat(A)} increments the \id{SlsMat} \id{A}
   by the identity matrix.  If \id{A} is not square, only the existing
   diagonal values are incremented.  Resizes the \id{data} and
-  \id{rowvals} arrays of \id{A} upon completion to exactly match the
-  nonzero storage for the result.
+  \id{rowvals} arrays of \id{A} to allow for new 
+  nonzero entries on the diagonal.
 
 \item \ID{SlsAddMat}
   \par \id{SlsAddMat(A, B)} adds two \id{SlsMat} matrices \id{A} and
@@ -722,7 +733,29 @@ type \id{SlsMat}.  For full details, see the header file \id{sundials\_sparse.h}
 % ------------------------------------------------------------------------------
 
 {\klu} is a sparse matrix factorization and solver library written by Tim
-Davis \cite{KLU_site}.  In order to use {\klu}-enabled {\sundials} solvers, it is
+Davis \cite{KLU_site,DaPa:10}.  
+{\klu} has a symbolic factorization routine that computes the permutation of 
+the linear system matrix to block triangular form and the permutations that will 
+pre-order the diagonal blocks (the only ones that need to be factored) to reduce 
+fill-in (using AMD, COLAMD, CHOLAMD, natural, or an ordering given by the user).  
+Note that SUNDIALS uses the COLAMD ordering by default with {\klu}.
+
+{\klu} breaks the factorization into two separate parts.  The first is a symbolic
+factorization and teh second is a numeric 
+factorization that returns the factored matrix along with final pivot information.  
+{\klu} also has a refactor routine that can be called instead of the numeric 
+factorization.  This routine will reuse the pivot information.  This routine 
+also returns diagnostic information that a user can examine to determine if 
+numerical stability is being lost and a full numerical factorization should 
+be done instead of the refactor.  
+
+The {\klu} interface in {\sundials} will perform the symbolic factorization once.
+It then calls the numerical factorization once and will call the refactor routine
+until estimates of the numerical conditioning suggest a new factorization 
+should be completed.  The {\klu} interface also has a \id{ReInit} routine that 
+can be used to force a full refactorization at the next solver setup call.
+
+In order to use the {\sundials} interface to {\klu}, it is
 assumed that {\klu} has been installed on the system prior to
 installation of {\sundials}, and that {\sundials} has been configured
 appropriately to link with {\klu} (see Appendix \ref{c:install} for details).
@@ -739,8 +772,13 @@ and \ref{ss:nvec_pthreads} for details).
 % ------------------------------------------------------------------------------
 
 {\superlumt} is a threaded sparse matrix factorization and solver
-library written by X. Sherry Li \cite{SuperLUMT_site}.  In order to use 
-{\superlumt}-enabled {\sundials} solvers, it is assumed that {\superlumt}
+library written by X. Sherry Li \cite{SuperLUMT_site,Li:05,DGL:99}.  
+The package performs matrix factorization using threads to enhance efficiency
+in shared memory paralell environments.  It should be noted that threads are
+only used in the factorization step.
+
+In order to use 
+the {\sundials} interface to {\superlumt}, it is assumed that {\superlumt}
 has been installed on the system prior to installation of {\sundials}, and
 that {\sundials} has been configured appropriately to link with
 {\superlumt} (see Appendix \ref{c:install} for details).
@@ -756,13 +794,13 @@ and \ref{ss:nvec_pthreads} for details).
 
 
 % ====================================================================================
-\section{The SPILS modules: SPGMR, SPBCG, and SPTFQMR}\label{s:spils}
+\section{The SPILS modules: SPGMR, SPFGMR, SPBCG, and SPTFQMR}\label{s:spils}
 % ====================================================================================
 
-{\warn}A linear solver module from the {\em spils} family can only be used in conjunction 
-with an actual {\nvector} implementation library, such as the {\nvecs} or {\nvecp} provided 
-with {\sundials}.
-
+The {\em spils} modules contain implementations of some of the most commonly
+use scaled preconditioned Krylov solvers.
+A linear solver module from the {\em spils} family can only be used 
+in conjunction with any {\nvector} implementation library.
 
 % ------------------------------------------------------------------------------
 \subsection{The SPGMR module}\label{ss:spgmr}
@@ -775,7 +813,7 @@ The {\spgmr} package, in the files \id{sundials\_spgmr.h} and
 preconditioned GMRES\index{GMRES method} method.  A separate code
 module, implemented in \id{sundials\_iterative.(h,c)}, contains
 auxiliary functions that support {\spgmr}, as well as the other Krylov
-solvers in {\sundials} ({\spbcg} and {\sptfqmr}).
+solvers in {\sundials} ({\spfgmr}, {\spbcg}, and {\sptfqmr}).
 For full details, including usage instructions, see the header
 files \id{sundials\_spgmr.h} and \id{sundials\_iterative.h}.
 \index{SPGMR@{\spgmr} generic linear solver!description of|)}
@@ -784,10 +822,10 @@ The files comprising the {\spgmr} generic linear solver, and their locations
 in the {\sundials} {\em srcdir}, are as follows:
 \begin{itemize}
 \item header files (located in {\em srcdir}\id{/include/sundials})\\
-  \id{sundials\_spgmr.h} \id{sundials\_iterative.h} \id{sundials\_nvector.h} \\
-  \id{sundials\_types.h} \id{sundials\_math.h}  \id{sundials\_config.h}
+  \id{sundials\_spgmr.h}, \id{sundials\_iterative.h}, \id{sundials\_nvector.h}, \\
+  \id{sundials\_types.h}, \id{sundials\_math.h},  \id{sundials\_config.h}
 \item source files (located in {\em srcdir}\id{/src/sundials})\\
-  \id{sundials\_spgmr.c} \id{sundials\_iterative.c} \id{sundials\_nvector.c}
+  \id{sundials\_spgmr.c}, \id{sundials\_iterative.c}, \id{sundials\_nvector.c}
 \end{itemize}
 Only two of the preprocessing directives in the header file \id{sundials\_config.h} 
 are required to use the {\spgmr} package by itself (see \S\ref{ss:no_config} for details):
@@ -835,6 +873,32 @@ The following functions are available in the support package
        matrix factored by \id{QRfact}.
 \end{itemize}
 \index{SPGMR@{\spgmr} generic linear solver!support functions|)}
+
+
+% ------------------------------------------------------------------------------
+\subsection{The SPFGMR module}\label{ss:spfgmr}
+% ------------------------------------------------------------------------------
+
+\index{generic linear solvers!SPFGMR@{\spfgmr}}
+\index{SPFGMR@{\spfgmr} generic linear solver!description of|(}
+The {\spfgmr} package, in the files \id{sundials\_spfgmr.h} and
+\id{sundials\_spfgmr.c}, includes an implementation of the scaled
+preconditioned Flexible GMRES\index{FGMRES method} method.
+For full details, including usage instructions, see the file \id{sundials\_spfgmr.h}.
+\index{SPFGMR@{\spfgmr} generic linear solver!description of|)}
+
+The files needed to use the {\spfgmr} module by itself are the same as for the
+{\spgmr} module, but with \id{sundials\_spfgmr.(h,c)} in place of
+\id{sundials\_spgmr.(h,c)}.
+
+\index{SPFGMR@{\spfgmr} generic linear solver!functions|(}
+The following functions are available in the {\spfgmr} package:  
+\begin{itemize}
+\item \id{SpfgmrMalloc}: allocation of memory for \id{SpfgmrSolve};
+\item \id{SpfgmrSolve}: solution of $Ax = b$ by the {\spfgmr} method;
+\item \id{SpfgmrFree}: free memory allocated by \id{SpfgmrMalloc}.
+\end{itemize}
+\index{SPFGMR@{\spfgmr} generic linear solver!functions|)}
 
 
 % ------------------------------------------------------------------------------

@@ -5,10 +5,9 @@
 The OpenMP implementation of the {\nvector} module provided with {\sundials},
 {\nvecopenmp}, defines the {\em content} field of \id{N\_Vector} to be a structure 
 containing the length of the vector, a pointer to the beginning of a contiguous 
-data array, and a boolean flag {\em own\_data} which specifies the ownership 
-of {\em data}.  Operations on the vector are threaded using OpenMP, 
-the number of threads used is based on the supplied argument in 
-the vector constructor.
+data array, a boolean flag {\em own\_data} which specifies the ownership 
+of {\em data}, and the number fo threads.  
+Operations on the vector are threaded using OpenMP.
 %%
 \begin{verbatim} 
 struct _N_VectorContent_OpenMP {
@@ -22,7 +21,7 @@ struct _N_VectorContent_OpenMP {
 %%--------------------------------------------
 %%
 The following six macros are provided to access the content of an {\nvecopenmp}
-vector. The suffix \id{\_OMP} in the names denotes OpenMP version.
+vector. The suffix \id{\_OMP} in the names denotes the OpenMP version.
 %%
 \begin{itemize}
 

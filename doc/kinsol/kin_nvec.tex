@@ -9,7 +9,7 @@
 \input{nvec_serial}
 
 %---------------------------------------------------------------------------
-\section{The NVECTOR\_PARALLEL implementation}\label{ss:nvec_par}
+\section{The NVECTOR\_PARALLEL MPI implementation}\label{ss:nvec_par}
 \input{nvec_parallel}
 
 %---------------------------------------------------------------------------
@@ -24,14 +24,14 @@
 \section{NVECTOR functions used by KINSOL}
 
 In Table \ref{t:nvecuse} below, we list the vector functions in the 
-{\nvector} module within the {\kinsol} package.
+{\nvector} module used within the {\kinsol} package.
 The table also shows, for each function, which of the code modules uses
 the function. The {\kinsol} column shows function usage within the main
 solver module, while the remaining five columns show function
 usage within each of the seven {\kinsol} linear solvers, 
 the {\kinbbdpre} preconditioner module, and the {\fkinsol} module.
 Here {\kindls} stands for {\kindense} and {\kinband}; {\kinspils} stands
-for {\kinspgmr}, {\kinspbcg}, and {\kinsptfqmr}; and {\kinsls}
+for {\kinspgmr}, {\kinspfgmr}, {\kinspbcg}, and {\kinsptfqmr}; and {\kinsls}
 stands for {\kinklu} and {\kinsuperlumt}.
 
 There is one subtlety in the {\kinspils} column hidden by the table, explained
@@ -43,8 +43,9 @@ files \id{sundials\_spgmr.c} and \id{sundials\_iterative.c} for the generic
 \id{N\_VDiv} and \id{N\_VProd} are not called within the interface file
 \id{kinsol\_spgmr.c}, they are called within the implementation file
 \id{sundials\_spgmr.c}, and so are required by the {\kinspgmr} solver module.
-Analogous statements apply to the {\kinspbcg} and {\kinsptfqmr} modules,
-except that they do not use \id{sundials\_iterative.c}.
+Analogous statements apply to the 
+{\kinspfgmr}, {\kinspbcg} and {\kinsptfqmr} modules,
+except that the latter two do not use \id{sundials\_iterative.c}.
 This issue does not arise for the direct {\kinsol} linear solvers because
 the generic {\dense} and {\band} solvers (used in the implementation of
 {\kindense} and {\kinband}) do not make calls to any vector functions.

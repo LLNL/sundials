@@ -6,9 +6,9 @@ The Pthreads implementation of the {\nvector} module provided with {\sundials},
 {\nvecpthreads}, defines the {\em content} field of \id{N\_Vector} to be a structure 
 containing the length of the vector, a pointer to the beginning of a contiguous 
 data array, and a boolean flag {\em own\_data} which specifies the ownership 
-of {\em data}.  Operations on the vector are threaded using POSIX threads 
-(Pthreads), the number of threads used is based on the supplied argument in 
-the vector constructor.
+of {\em data}, and the number of threads.  
+Operations on the vector are threaded using POSIX threads 
+(Pthreads).
 %%
 \begin{verbatim} 
 struct _N_VectorContent_Pthreads {
@@ -22,7 +22,7 @@ struct _N_VectorContent_Pthreads {
 %%--------------------------------------------
 %%
 The following six macros are provided to access the content of an {\nvecpthreads}
-vector. The suffix \id{\_PT} in the names denotes Pthreads version.
+vector. The suffix \id{\_PT} in the names denotes the Pthreads version.
 %%
 \begin{itemize}
 

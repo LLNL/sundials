@@ -822,7 +822,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KINSPILS\_ILL\_INPUT]
   \item[\Id{KINSPILS\_SUCCESS}] 
-    The {\kinspgmr} initialization was successful.
+    The {\kinspfgmr} initialization was successful.
   \item[\Id{KINSPILS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
   \item[\Id{KINSPILS\_ILL\_INPUT}]
@@ -1134,7 +1134,7 @@ Jacobian-times-vector function and data & \id{KINSpilsSetJacTimesVecFn} & intern
 \hline
 \multicolumn{3}{l}{}\\
 \multicolumn{3}{l}{${}^{*}$ Only for the {\kindls} linear solvers} \\
-\multicolumn{3}{l}{${}^{**}$ Only for {\kinspgmr}}\\
+\multicolumn{3}{l}{${}^{**}$ Only for {\kinspgmr} and {\kinspfgmr}}\\
 \end{tabular}
 \end{table}
 
@@ -2387,6 +2387,7 @@ packages, and the user-supplied value will be passed directly to the package.
 %%==============================================================================
 \index{optional input!iterative linear solver|(}
 \index{KINSPGMR@{\kinspgmr} linear solver!optional input|(}
+\index{KINSPFGMR@{\kinspfgmr} linear solver!optional input|(}
 \index{KINSPBCG@{\kinspbcg} linear solver!optional input|(}
 \index{KINSPTFQMR@{\kinsptfqmr} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
@@ -2394,6 +2395,7 @@ If any preconditioning is to be done with one of the {\kinspils} linear
 solvers, then the user must supply a preconditioner solve function \id{psolve}
 and specify its name in a call to \id{KINSpilsSetPreconditioner}.
 \index{KINSPGMR@{\kinspgmr} linear solver!preconditioner solve function}
+\index{KINSPFGMR@{\kinspfgmr} linear solver!preconditioner solve function}
 \index{KINSPBCG@{\kinspbcg} linear solver!preconditioner solve function}
 \index{KINSPTFQMR@{\kinsptfqmr} linear solver!preconditioner solve function}
 %%
@@ -2404,6 +2406,7 @@ fully specified in \S\ref{ss:user_fct_sol}.
 If used, the \id{psetup} function should also be specified in the call to
 \id{KINSpilsSetPreconditioner}.
 \index{KINSPGMR@{\kinspgmr} linear solver!preconditioner setup function}
+\index{KINSPFGMR@{\kinspfgmr} linear solver!preconditioner setup function}
 \index{KINSPBCG@{\kinspbcg} linear solver!preconditioner setup function}
 \index{KINSPTFQMR@{\kinsptfqmr} linear solver!preconditioner setup function}
 %%
@@ -2415,6 +2418,7 @@ the execution of the user-supplied preconditioner functions without using
 global data in the program.
 
 \index{KINSPGMR@{\kinspgmr} linear solver!Jacobian approximation used by}
+\index{KINSPFGMR@{\kinspfgmr} linear solver!Jacobian approximation used by}
 \index{KINSPBCG@{\kinspbcg} linear solver!Jacobian approximation used by}
 \index{KINSPTFQMR@{\kinsptfqmr} linear solver!Jacobian approximation used by}
 Ther {\kinspils} solvers require a function to compute an approximation to the
@@ -2538,11 +2542,13 @@ each time it is called.
 {
   The default value is $0$ (meaning no restarts).
 
-  {\warn}This option is available only for the {\kinspgmr} linear solver.
+  {\warn}This option is available only for the {\kinspgmr} and {\kinspfgmr} 
+  linear solvers.
 }
 %%
 \index{KINSPTFQMR@{\kinsptfqmr} linear solver!optional input|)}
 \index{KINSPBCG@{\kinspbcg} linear solver!optional input|)}
+\index{KINSPFGMR@{\kinspfgmr} linear solver!optional input|)}
 \index{KINSPGMR@{\kinspgmr} linear solver!optional input|)}
 \index{optional input!iterative linear solver|)}
 
@@ -2834,7 +2840,8 @@ These optional output functions are described next.
 \index{optional output!solver|)}
 
 %%==============================================================================
-\subsubsection{Direct linear solvers optional output functions}\label{sss:optout_dense}
+\subsubsection{Dense direct linear solvers optional output functions}
+\label{sss:optout_dense}
 %%==============================================================================
 \index{optional output!dense linear solver|(}
 \index{KINDENSE@{\kindense} linear solver!optional output|(}
@@ -2997,7 +3004,8 @@ and last return value from a {\kindls} function.
 \index{optional output!band linear solver|)}
 
 %%==============================================================================
-\subsubsection{Sparse linear solvers optional output functions}\label{sss:optout_sls}
+\subsubsection{Sparse direct linear solvers optional output functions}
+\label{sss:optout_sls}
 %%==============================================================================
 \index{optional output!sparse linear solver|(}
 \index{KINKLU@{\kinklu} linear solver!optional output|(}
@@ -3095,6 +3103,7 @@ number of calls to the Jacobian routine and last return value from a
 %%==============================================================================
 \index{optional output!iterative linear solver|(}
 \index{KINSPGMR@{\kinspgmr} linear solver!optional output|(} 
+\index{KINSPFGMR@{\kinspfgmr} linear solver!optional output|(} 
 \index{KINSPBCG@{\kinspbcg} linear solver!optional output|(} 
 \index{KINSPTFQMR@{\kinsptfqmr} linear solver!optional output|(} 
 The following optional outputs are available from the {\kinspils}
@@ -3107,9 +3116,11 @@ return value from a linear solver function.
 %%
 %%
 \index{KINSPGMR@{\kinspgmr} linear solver!memory requirements} 
+\index{KINSPFGMR@{\kinspfgmr} linear solver!memory requirements} 
 \index{KINSPBCG@{\kinspbcg} linear solver!memory requirements} 
 \index{KINSPTFQMR@{\kinsptfqmr} linear solver!memory requirements} 
 \index{memory requirements!KINSPGMR@{\kinspgmr} linear solver}
+\index{memory requirements!KINSPFGMR@{\kinspfgmr} linear solver}
 \ucfunction{KINSpilsGetWorkSpace}
 {
   flag = KINSpilsGetWorkSpace(kin\_mem, \&lenrwLS, \&leniwLS);
@@ -3136,13 +3147,14 @@ return value from a linear solver function.
   \item[\Id{KINSPILS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
   \item[\Id{KINSPILS\_LMEM\_NULL}]
-    The {\kinspgmr} linear solver has not been initialized.
+    The linear solver has not been initialized.
   \end{args}
 }
 {
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
-  the actual size of the real workspace, in\id{realtype} words, is roughly:\\
+  the actual size of the real workspace, in \id{realtype} words, is roughly:\\
   (\id{maxl}$+ 3)*N +$ \id{maxl} $*($ \id{maxl}$ + 4) + 1$ for {\kinspgmr},\\
+  (2\id{maxl}$+ 3)*N +$ \id{maxl} $*($ \id{maxl}$ + 4) + 1$ for {\kinspfgmr},\\
   $7*N$  for {\kinspbcg}, and \\
   $11*N$ for {\kinsptfqmr}.
 
@@ -3367,8 +3379,8 @@ return value from a linear solver function.
 {
   If the {\kinspils} setup function failed (\id{KINSOL} returned
   \id{KIN\_LSETUP\_FAIL}), \id{lsflag} will be
-  \id{SPGMR\_PSET\_FAIL\_UNREC}, \id{SPBCG\_PSET\_FAIL\_UNREC}, or
-  \id{SPTFQMR\_PSET\_FAIL\_UNREC}.
+  \id{SPGMR\_PSET\_FAIL\_UNREC}, \id{SPFGMR\_PSET\_FAIL\_UNREC}, 
+  \id{SPBCG\_PSET\_FAIL\_UNREC}, or \id{SPTFQMR\_PSET\_FAIL\_UNREC}.
 
   If the {\kinspgmr} solve function failed (\id{KINSol} returned
   \id{KIN\_LSOLVE\_FAIL}), \id{lsflag} contains the error return flag from
@@ -3380,6 +3392,18 @@ return value from a linear solver function.
   function \id{psolve} failed unrecoverably;
   \id{SPGMR\_GS\_FAIL}, indicating a failure in the Gram-Schmidt procedure; 
   or \id{SPGMR\_QRSOL\_FAIL}, indicating that the matrix $R$ was found to be
+  singular during the QR solve phase.
+
+  If the {\kinspfgmr} solve function failed (\id{KINSol} returned
+  \id{KIN\_LSOLVE\_FAIL}), \id{lsflag} contains the error return flag from
+  \id{SpfgmrSolve} and will be one of:
+  \id{SPFGMR\_MEM\_NULL}, indicating that the {\spfgmr} memory is \id{NULL};
+  \id{SPFGMR\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the 
+  Jacobian-times-vector function;
+  \id{SPFGMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
+  function \id{psolve} failed unrecoverably;
+  \id{SPFGMR\_GS\_FAIL}, indicating a failure in the Gram-Schmidt procedure; 
+  or \id{SPFGMR\_QRSOL\_FAIL}, indicating that the matrix $R$ was found to be
   singular during the QR solve phase.
 
   If the {\kinspbcg} solve function failed (\id{KINSol} returned
@@ -3404,6 +3428,7 @@ return value from a linear solver function.
 %%
 \index{KINSPTFQMR@{\kinsptfqmr} linear solver!optional output|)} 
 \index{KINSPBCG@{\kinspbcg} linear solver!optional output|)} 
+\index{KINSPFGMR@{\kinspfgmr} linear solver!optional output|)} 
 \index{KINSPGMR@{\kinspgmr} linear solver!optional output|)} 
 \index{optional output!iterative linear solver|)}
 
@@ -3840,6 +3865,7 @@ supplied, the default is a difference quotient approximation of these products.
 %%==============================================================================
 \index{preconditioning!user-supplied}
 \index{KINSPGMR@{\kinspgmr} linear solver!preconditioner solve function}
+\index{KINSPFGMR@{\kinspfgmr} linear solver!preconditioner solve function}
 \index{KINSPBCG@{\kinspbcg} linear solver!preconditioner solve function}
 \index{KINSPTFQMR@{\kinsptfqmr} linear solver!preconditioner solve function}
 
@@ -3900,6 +3926,7 @@ This function must be of type \ID{KINSpilsPrecSolveFn}, defined as follows:
 %%==============================================================================
 \index{preconditioning!user-supplied}
 \index{KINSPGMR@{\kinspgmr} linear solver!preconditioner setup function}
+\index{KINSPFGMR@{\kinspfgmr} linear solver!preconditioner setup function}
 \index{KINSPBCG@{\kinspbcg} linear solver!preconditioner setup function}
 \index{KINSPTFQMR@{\kinsptfqmr} linear solver!preconditioner setup function}
 
@@ -4133,6 +4160,8 @@ program presented in \S\ref{s:skeleton_sol} are grayed out.
   {\bf Attach iterative linear solver, one of:}
 
   \id{flag = KINSpgmr(kin\_mem, maxl);}
+
+  \id{flag = KINSpfgmr(kin\_mem, maxl);}
 
   \id{flag = KINSpbcg(kin\_mem, maxl);}
 

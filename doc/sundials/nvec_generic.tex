@@ -152,7 +152,7 @@ It does not copy the vector, but rather allocates storage for the new vector.
 \id{N\_VCloneEmpty} & \id{v = N\_VCloneEmpty(w);} \\ 
 & Creates a new \id{N\_Vector} of the same type as an existing vector \id{w} and sets the
 {\em ops} field.
-It does not allocate storage for the data array.
+It does not allocate storage for data.
 \\[2mm]
 %%
 \id{N\_VDestroy} & \id{N\_VDestroy(v);} \\
@@ -189,13 +189,13 @@ parallel environment.
 \\[2mm]
 %%
 \id{N\_VLinearSum} & \id{N\_VLinearSum(a, x, b, y, z);} \\
-& Performs the operation $z = a x + b y$, where $a$ and $b$ are scalars
-and $x$ and $y$ are of type \id{N\_Vector}:
+& Performs the operation $z = a x + b y$, where $a$ and $b$ are \id{realtype} 
+scalars and $x$ and $y$ are of type \id{N\_Vector}:
 $z_i = a x_i + b y_i, \: i=0,\ldots,n-1$.
 \\[2mm]
 %%
 \id{N\_VConst} & \id{N\_VConst(c, z);} \\
-& Sets all components of the \id{N\_Vector} \id{z} to \id{c}:
+& Sets all components of the \id{N\_Vector} \id{z} to \id{realtype} \id{c}:
 $z_i = c,\: i=0,\ldots,n-1$.
 \\[2mm]
 %%
@@ -214,8 +214,8 @@ guaranteed to have all nonzero components.
 \\[2mm]
 %%
 \id{N\_VScale} & \id{N\_VScale(c, x, z);} \\
-& Scales the \id{N\_Vector} \id{x} by the scalar \id{c} and returns
-the result in \id{z}:
+& Scales the \id{N\_Vector} \id{x} by the \id{realtype} scalar \id{c} 
+and returns the result in \id{z}:
 $z_i = c x_i , \: i=0,\ldots,n-1$.
 \\[2mm]
 %%
@@ -234,8 +234,8 @@ may not check for division by $0$. It should be called only with an
 \\[2mm]
 %%
 \id{N\_VAddConst} & \id{N\_VAddConst(x, b, z);} \\
-& Adds the scalar \id{b} to all components of \id{x} and returns the
-result in the \id{N\_Vector} \id{z}:
+& Adds the \id{realtype} scalar \id{b} to all components of \id{x} 
+and returns the result in the \id{N\_Vector} \id{z}:
 $z_i = x_i + b , \: i=0,\ldots,n-1$.
 \\[2mm]
 %%
@@ -251,13 +251,14 @@ $m = \max_{i} | x_i |$.
 %%
 \id{N\_VWrmsNorm} & \id{m = N\_VWrmsNorm(x, w)} \\
 & Returns the weighted root-mean-square norm of the \id{N\_Vector} \id{x} with
-weight vector \id{w}:
+\id{realtype} weight vector \id{w}:
 $m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i)^2 \right) / n}$.
 \\[2mm]
 %%
 \id{N\_VWrmsNormMask} & \id{m = N\_VWrmsNormMask(x, w, id);} \\
 & Returns the weighted root mean square norm of the \id{N\_Vector} \id{x} with
-weight vector \id{w} built using only the elements of \id{x} corresponding to
+\id{realtype} weight vector \id{w} built using only 
+the elements of \id{x} corresponding to
 nonzero elements of the \id{N\_Vector} \id{id}:\\
 &$m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i \text{sign}(id_i))^2 \right) / n}$.
 \\[2mm]
@@ -269,7 +270,7 @@ $m = \min_i x_i $.
 %%
 \id{N\_VWL2Norm} & \id{m = N\_VWL2Norm(x, w);} \\
 & Returns the weighted Euclidean $\ell_2$ norm of the \id{N\_Vector} \id{x}
-with weight vector \id{w}: 
+with \id{realtype} weight vector \id{w}: 
 $m = \sqrt{\sum_{i=0}^{n-1} (x_i w_i)^2}$.
 \\[2mm]
 %%
@@ -279,8 +280,8 @@ $m = \sum_{i=0}^{n-1} | x_i |$.
 \\[2mm]
 %%
 \id{N\_VCompare} & \id{N\_VCompare(c, x, z);} \\
-& Compares the components of the \id{N\_Vector} \id{x} to the scalar
-\id{c} and returns an \id{N\_Vector} \id{z} such that:
+& Compares the components of the \id{N\_Vector} \id{x} to the \id{realtype}
+scalar \id{c} and returns an \id{N\_Vector} \id{z} such that:
 $z_i = 1.0$ if $| x_i | \ge c$ and $z_i = 0.0$ otherwise.
 \\[2mm]
 %%
@@ -289,7 +290,8 @@ $z_i = 1.0$ if $| x_i | \ge c$ and $z_i = 0.0$ otherwise.
 of the components of the \id{N\_Vector} \id{x}, with prior testing
 for zero values:
 $z_i = 1.0 /  x_i  , \: i=0,\ldots,n-1$.
-This routine returns \id{TRUE} if all components of \id{x} are
+This routine returns a boolean assigned to \id{TRUE} if all 
+components of \id{x} are
 nonzero (successful inversion) and returns \id{FALSE} otherwise.  
 \\[2mm]
 %%
@@ -300,8 +302,8 @@ $x_i \ge 0$ if $c_i=1$,
 $x_i \le 0$ if $c_i=-1$,
 $x_i < 0$ if $c_i=-2$.
 There is no constraint on $x_i$ if $c_i=0$.
-This routine returns \id{FALSE} if any element failed
-the constraint test, \id{TRUE} if all passed.  It also sets a
+This routine returns a boolean assigned to \id{FALSE} if any element failed
+the constraint test and assigned to \id{TRUE} if all passed.  It also sets a
 mask vector \id{m}, with elements equal to $1.0$ where the constraint 
 test failed, and $0.0$ where the test passed.
 This routine is used only for constraint checking.
