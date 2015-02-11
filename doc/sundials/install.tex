@@ -99,7 +99,7 @@ and will build static and shared libraries. The {\em installdir} defaults to /us
 by setting the \id{CMAKE\_INSTALL\_PREFIX} variable.
 Support for FORTRAN and all other options are disabled.
 
-CMake can be used from the command line with the \id{cmake} command, or from a \id{urses}-based GUI
+CMake can be used from the command line with the \id{cmake} command, or from a \id{curses}-based GUI
 by using the \id{ccmake} command. Examples for using both methods will be presented.
 For the examples shown it is assumed that there is a top level {\sundials} directory
 with appropriate source, build and install directories:
@@ -222,7 +222,7 @@ with the {\id cmake} command.  The following will build the default configuratio
 
 
 
-\subsection{Configuration options}
+\subsection{Configuration options (Unix/Linux)}\label{ss:configuration_options_nix}
 
 A complete list of all available options for a CMake-based {\sundials}
 configuration is provide below. Note that the default values shown are for 
@@ -442,7 +442,7 @@ target. To install {\sundials}, simply run the \id{INSTALL} target within the bu
 
 %===============================================================================
 
-\subsection{Configuration options}\label{ss:configuration_options}
+\subsection{Configuration options (Windows)}\label{ss:configuration_options_w}
 
 The installation procedure given above will generally work without modification;
 however, if the system includes multiple {\mpi} implementations, then certain
