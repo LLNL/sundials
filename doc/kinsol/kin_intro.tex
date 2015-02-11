@@ -85,7 +85,7 @@ solvers in a manner independent of the actual {\nvector}
 implementation (which can be user-supplied), as well as allowing
 more than one {\nvector} module linked into an executable file.
 {\sundials} (and thus {\kinsol}) is supplied with serial, 
-MPI-parallel, and both openMP and pthreads thread-parallel
+MPI-parallel, and both openMP and Pthreads thread-parallel
 {\nvector} implementations.
 
 \index{KINSOL@{\kinsol}!motivation for writing in C|(} There are
@@ -134,6 +134,13 @@ was fixed in function \id{kinDlsBandDQJac}.
 
 In \id{KINLapackBand}, the line \id{smu = MIN(N-1,mu+ml)} was changed to
 \id{smu = mu + ml} to correct an illegal input error for \id{DGBTRF/DGBTRS}.
+
+In order to avoid possible name conflicts, the mathematical macro
+and function names \id{MIN}, \id{MAX}, \id{SQR}, \id{RAbs}, \id{RSqrt},
+\id{RExp}, \id{RPowerI}, and \id{RPowerR} were changed to
+\id{SUNMIN}, \id{SUNMAX}, \id{SUNSQR}, \id{SUNRabs}, \id{SUNRsqrt},
+\id{SUNRexp}, \id{SRpowerI}, and \id{SUNRpowerR}, respectively.
+These names occur in both the solver and in various example programs.
 
 In the FKINSOL module, an incorrect return value \id{ier} in \id{FKINfunc}
 was fixed.
