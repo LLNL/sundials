@@ -86,6 +86,10 @@ directory, but the executables are not copied there.
 -------------------------------------------------------------------------
 
 Deferred to after release (11/6/13)
+
+
+(Carol) Add check on Jacobian eval to flag a reinit of the linear solver.  
+	Needed in sparse direct cases.  Others???
   
 (Eddy) C++ example for each solver
 
