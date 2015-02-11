@@ -39,6 +39,7 @@ nvec_parallel.tex \
 nvec_serial.tex \
 nvec_openmp.tex \
 nvec_pthreads.tex \
+spils_constants.tex \
 sun_org.tex \
 types.tex \
 ug.tex \
