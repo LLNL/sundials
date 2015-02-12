@@ -1,7 +1,6 @@
  
 3-species kinetics problem
 
-.. Use approximate minimum degree column ordering.
 At t = 2.6391e-01      y =  9.899653e-01    3.470564e-05    1.000000e-02
     rootsfound[] =   0   1
 At t = 4.0000e-01      y =  9.851641e-01    3.386242e-05    1.480205e-02

@@ -8,8 +8,6 @@
 
         t      ||u||_rms   ||v||_rms   ||w||_rms
    ----------------------------------------------
-.. Use approximate minimum degree column ordering.
-.. Use approximate minimum degree column ordering.
     0.100000    0.637854    3.356025    1.999989
     0.200000    0.643035    3.345751    1.999989
     0.300000    0.648532    3.334867    1.999989

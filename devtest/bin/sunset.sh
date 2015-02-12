@@ -15,6 +15,9 @@ source /usr/casc/sundials/apps/rh6/lapack/3.5.0/setup.sh
 # openmpi
 source /usr/casc/sundials/apps/rh6/openmpi/1.4.5/setup.sh
 
+# SuperLU_MT
+source /usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_2.4/setup.sh
+
 # variable used by Arkode OpenMP examples
 export OMP_NUM_THREADS=4
 
