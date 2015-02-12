@@ -3378,7 +3378,7 @@ return value from a linear solver function.
 }
 {
   If the {\kinspils} setup function failed (\id{KINSOL} returned
-  \id{KIN\_LSETUP\_FAIL}), \id{lsflag} will be
+  \id{KIN\_LSETUP\_FAIL}), \id{lsflag} will be set to
   \id{SPGMR\_PSET\_FAIL\_UNREC}, \id{SPFGMR\_PSET\_FAIL\_UNREC}, 
   \id{SPBCG\_PSET\_FAIL\_UNREC}, or \id{SPTFQMR\_PSET\_FAIL\_UNREC}.
 
@@ -3389,22 +3389,23 @@ return value from a linear solver function.
   \id{SPGMR\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the 
   Jacobian-times-vector function;
   \id{SPGMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
-  function \id{psolve} failed unrecoverably;
+  function, \id{psolve}, failed unrecoverably;
   \id{SPGMR\_GS\_FAIL}, indicating a failure in the Gram-Schmidt procedure; 
   or \id{SPGMR\_QRSOL\_FAIL}, indicating that the matrix $R$ was found to be
   singular during the QR solve phase.
 
   If the {\kinspfgmr} solve function failed (\id{KINSol} returned
   \id{KIN\_LSOLVE\_FAIL}), \id{lsflag} contains the error return flag from
-  \id{SpfgmrSolve} and will be one of:
-  \id{SPFGMR\_MEM\_NULL}, indicating that the {\spfgmr} memory is \id{NULL};
-  \id{SPFGMR\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the 
-  Jacobian-times-vector function;
-  \id{SPFGMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
-  function \id{psolve} failed unrecoverably;
-  \id{SPFGMR\_GS\_FAIL}, indicating a failure in the Gram-Schmidt procedure; 
-  or \id{SPFGMR\_QRSOL\_FAIL}, indicating that the matrix $R$ was found to be
-  singular during the QR solve phase.
+  \id{SpfgmrSolve} and will be a similar value to one of the return codes for 
+  {\kinspgmr}.
+%  \id{SPFGMR\_MEM\_NULL}, indicating that the {\spfgmr} memory is \id{NULL};
+%  \id{SPFGMR\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the 
+%  Jacobian matrix-vector multiply function;
+%  \id{SPFGMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
+%  function, \id{psolve}, failed unrecoverably;
+%  \id{SPFGMR\_GS\_FAIL}, indicating a failure in the Gram-Schmidt procedure; 
+%  or \id{SPFGMR\_QRSOL\_FAIL}, indicating that the matrix $R$ was found to be
+%  singular during the QR solve phase.
 
   If the {\kinspbcg} solve function failed (\id{KINSol} returned
   \id{KIN\_LSOLVE\_FAIL}), \id{lsflag} contains the error return flag from
@@ -3413,7 +3414,7 @@ return value from a linear solver function.
   \id{SPBCG\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the 
   Jacobian-times-vector function; or
   \id{SPBCG\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
-  function \id{psolve} failed unrecoverably.
+  function, \id{psolve}, failed unrecoverably.
 
   If the {\kinsptfqmr} solve function failed (\id{KINSol} returned
   \id{KIN\_LSOLVE\_FAIL}), \id{lsflag} contains the error return flag from
@@ -3422,7 +3423,7 @@ return value from a linear solver function.
   \id{SPTFQMR\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the 
   $J*v$ function; or 
   \id{SPTFQMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
-  function \id{psolve} failed unrecoverably.
+  function, \id{psolve}, failed unrecoverably.
 }
 %%
 %%
@@ -3633,7 +3634,10 @@ of \S\ref{s:skeleton_sol}), the user may provide a function of type
 
   If the user's \id{KINDlsDenseJacFn} function uses difference quotient
   approximations, it may need to access quantities not in the call
-  list. To obtain these, use the \id{KINGet*} functions described in
+  list. 
+  To obtain these, the user will need to add the \id{kin\_mem} 
+  structure to their \id{user\_data} and 
+  use the \id{KINGet*} functions described in
   \S\ref{sss:output_main}. The unit roundoff can be accessed
   as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 
@@ -3727,7 +3731,9 @@ of \S\ref{s:skeleton_sol}), the user may provide a function of type
   and \id{BAND\_COL\_ELEM} are documented in \S\ref{ss:band}.
 
   If the user's \id{KINDlsBandJacFn} function uses difference quotient approximations,
-  it may need to access quantities not in the call list. To obtain these, use the
+  it may need to access quantities not in the call list. 
+  To obtain these, the user will need to add the \id{kin\_mem} 
+  structure to their \id{user\_data} and use the
   \id{KINGet*} functions described in \S\ref{sss:output_main}. The unit roundoff
   can be accessed as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 
@@ -3988,7 +3994,9 @@ typedef int (*KINSpilsPrecSetupFn)(&N\_Vector u, N\_Vector uscale, \\
   Newton iteration.
  
   If the user's \id{KINSpilsPrecSetupFn} function uses difference quotient approximations,
-  it may need to access quantities not in the call list. To obtain these, use the
+  it may need to access quantities not in the call list.
+  To obtain these, the user will need to add the \id{kin\_mem} 
+  structure to their \id{user\_data} and use the
   \id{KINGet*} functions described in \S\ref{sss:output_main}. The unit roundoff
   can be accessed as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 

@@ -468,7 +468,7 @@ int SlsAddMat(SlsMat A, SlsMat B)
 
   /* ensure that matrix dimensions agree */
   if ((A->M != B->M) || (A->N != B->N))
-    return(1);
+    return(-1);
 
   /* create work arrays for row indices and nonzero column values */
   w = (int *) malloc(A->M * sizeof(int));
@@ -531,23 +531,23 @@ int SlsAddMat(SlsMat A, SlsMat B)
     Cp = Ci = Ap = Ai = Bp = Bi = NULL;
     Cx = Ax = Bx = NULL;
     if (C->colptrs)  Cp = C->colptrs;
-    else  return(1);
+    else  return(-1);
     if (C->rowvals)  Ci = C->rowvals;
-    else  return(1);
+    else  return(-1);
     if (C->data)     Cx = C->data;
-    else  return(1);
+    else  return(-1);
     if (A->colptrs)  Ap = A->colptrs;
-    else  return(1);
+    else  return(-1);
     if (A->rowvals)  Ai = A->rowvals;
-    else  return(1);
+    else  return(-1);
     if (A->data)     Ax = A->data;
-    else  return(1);
+    else  return(-1);
     if (B->colptrs)  Bp = B->colptrs;
-    else  return(1);
+    else  return(-1);
     if (B->rowvals)  Bi = B->rowvals;
-    else  return(1);
+    else  return(-1);
     if (B->data)     Bx = B->data;
-    else  return(1);
+    else  return(-1);
 
     /* initialize total nonzero count */
     nz = 0;
@@ -648,15 +648,15 @@ int SlsMatvec(SlsMat A, realtype *x, realtype *y)
 
   /* access data from CSR structure (return if failure) */
   if (A->colptrs)  Ap = A->colptrs;
-  else  return(1);
+  else  return(-1);
   if (A->rowvals)  Ai = A->rowvals;
-  else  return(1);
+  else  return(-1);
   if (A->data)     Ax = A->data;
-  else  return(1);
+  else  return(-1);
 
   /* ensure that vectors are non-NULL */
   if ((x == NULL) || (y == NULL))
-    return(1);
+    return(-1);
 
   /* initialize result */
   for (i=0; i<A->M; i++)

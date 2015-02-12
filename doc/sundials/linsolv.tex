@@ -704,7 +704,7 @@ type \id{SlsMat}.  For full details, see the header file \id{sundials\_sparse.h}
   \id{B}, placing the result back in \id{A}.  Resizes the \id{data}
   and \id{rowvals} arrays of \id{A} upon completion to exactly match
   the nonzero storage for the result.  Upon successful completion, the
-  return value is zero; otherwise 1 is returned.
+  return value is zero; otherwise -1 is returned.
 
 \item \ID{ReallocSparseMat}
   \par \id{ReallocSparseMat(A)} eliminates unused storage in the
@@ -717,7 +717,7 @@ type \id{SlsMat}.  For full details, see the header file \id{sundials\_sparse.h}
    is a sparse matrix of dimension $M\times N$, then it is assumed
    that \id{x} is a \id{realtype} array of  length $N$, and \id{y} is a
    \id{realtype} array of length $M$. Upon successful completion, the
-   return value is zero; otherwise 1 is returned.
+   return value is zero; otherwise -1 is returned.
 
 \item \ID{PrintSparseMat}
   \par \id{PrintSparseMat(A)} Prints the \id{SlsMat} matrix \id{A} to
