@@ -225,6 +225,8 @@ int KINSetMAA(void *kinmem, long int maa)
  * -----------------------------------------------------------------
  */
 
+/*  CSW: This function is currently not supported.
+
 int KINSetAAStopCrit(void *kinmem, booleantype setstop)
 {
   KINMem kin_mem;
@@ -239,6 +241,7 @@ int KINSetAAStopCrit(void *kinmem, booleantype setstop)
 
   return(KIN_SUCCESS);
 }
+*/
 
 /*
  * -----------------------------------------------------------------
