@@ -529,6 +529,7 @@ static int arkKLUSetup(ARKodeMem ark_mem, int convfail,
   return(0);
 }
 
+
 /*---------------------------------------------------------------
  arkKLUSolve:
 
@@ -1031,6 +1032,7 @@ static int arkMassKLUSetup(ARKodeMem ark_mem, N_Vector vtemp1,
   arksls_mem->s_last_flag = ARKSLS_SUCCESS;
   return(0);
 }
+
 
 /*---------------------------------------------------------------
  arkMassKLUSolve:

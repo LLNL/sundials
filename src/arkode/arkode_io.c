@@ -2688,13 +2688,14 @@ int ARKodeWriteParameters(void *arkode_mem, FILE *fp)
   fprintf(fp, "ARKode solver parameters:\n");
   fprintf(fp, "  Method order %i\n",ark_mem->ark_q);
   fprintf(fp, "  Dense output order %i\n",ark_mem->ark_dense_q);
-  if (ark_mem->ark_linear) 
+  if (ark_mem->ark_linear) {
     fprintf(fp, "  Linear implicit problem");
     if (ark_mem->ark_linear_timedep) {
       fprintf(fp, " (time-dependent Jacobian)\n");
     } else {
       fprintf(fp, " (time-independent Jacobian)\n");
     }
+  }
   if (ark_mem->ark_explicit) {
     fprintf(fp, "  Explicit integrator\n");
   } else if (ark_mem->ark_implicit) {
