@@ -43,8 +43,6 @@ Methodist University, and shall not be used for advertising or product
 endorsement purposes.
 
 \vskip2\baselineskip
-%\noindent This work was performed under the auspices of the U.S. Department of Energy by Lawrence 
-%Livermore National Laboratory under Contract DE-AC52-07NA27344.
 \vfill
 \begin{center}
 Approved for public release; further dissemination unlimited
@@ -52,18 +50,24 @@ Approved for public release; further dissemination unlimited
 \clearpage
 }
 
-\title{User Documentation for ARKode}
-\author{Daniel R. Reynolds\\
-  {\em Department of Mathematics}\\
-  {\em Southern Methodist University}
+\title{User Documentation for ARKode v1.0.0\\
+       (SUNDIALS v2.6.0)}
+\author{
+  Daniel R. Reynolds$^1$, David J. Gardner$^2$, \\
+  Alan C. Hindmarsh$^2$, Carol S. Woodward$^2$ \\
+  and Jean M. Sexton$^1$, \\\\
+  {\em $^1$Department of Mathematics}\\
+  {\em Southern Methodist University} \\\\
+  {\em $^2$Center for Applied Scientific Computing}\\
+  {\em Lawrence Livermore National Laboratory}
 }
 \date{
   \today
   \vfill
-  {\centerline{\includegraphics[width=0.5\textwidth]{doc_logo.pdf}}}
+  {\centerline{\includegraphics[width=0.45\textwidth]{doc_logo.pdf}}}
   \vfill
+  {\centerline{UCRL-XX-XXXXXX}}
 }
-\release{1.0}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -1559,19 +1563,19 @@ available, and the basic functionality of each:
 \begin{itemize}
 \item {} 
 CVODE, a linear multistep solver for stiff and nonstiff ODE systems
-$\dot{y} = f(t,y)$;
+$\dot{y} = f(t,y)$ based on Adams and BDF methods;
 
 \item {} 
 CVODES, a linear multistep solver for stiff and nonstiff ODEs with
 sensitivity analysis capabilities;
 
 \item {} 
-ARKode, a Runge-Kutta solver for stiff, nonstiff and multi-rate ODE systems
-$M \dot{y} = f_E(t,y) + f_I(t,y)$;
+ARKode, a solver for ODE systems $M \dot{y} = f_E(t,y) + f_I(t,y)$
+based on additive Runge-Kutta methods;
 
 \item {} 
 IDA, a linear multistep solver for differential-algebraic systems
-$F(t,y,\dot{y}) = 0$;
+$F(t,y,\dot{y}) = 0$ based on BDF methods;
 
 \item {} 
 IDAS, a linear multistep solver for differential-algebraic systems with sensitivity
@@ -1585,14 +1589,18 @@ KINSOL, a solver for nonlinear algebraic systems $F(u) = 0$.
 \centering
 \capstart
 
-\includegraphics{sunorg1.png}
+\scalebox{0.750000}{\includegraphics{sunorg1.png}}
 \caption{\emph{SUNDIALS organization}: High-level diagram of the SUNDIALS structure (note that none of the
-Lapack or sparse linear solver modules are represented).}\label{Organization:sunorg1}\end{figure}
+Lapack or sparse linear solver modules are represented).}{\small 
+$^*$ only applies to ARKode.
+
+$^{**}$ only applies to ARKode and KINSOL.
+}\label{Organization:sunorg1}\end{figure}
 \begin{figure}[htbp]
 \centering
 \capstart
 
-\includegraphics{sunorg2.png}
+\scalebox{0.750000}{\includegraphics{sunorg2.png}}
 \caption{\emph{SUNDIALS tree}: Directory structure of the source tree.}\label{Organization:sunorg2}\end{figure}
 
 
@@ -1843,7 +1851,7 @@ floating-point data.  The type ``\index{realtype}realtype'' can be set to
 \code{float}, \code{double}, or \code{long double}, depending on how SUNDIALS
 was installed (with the default being \code{double}). The user can change
 the precision of the SUNDIALS solvers' floating-point arithmetic at the
-configuration stage (see the section {\hyperref[Install:installation]{\emph{ARKode Installation Procedure}}}).
+configuration stage (see the section {\hyperref[Install:installation-cmake-options]{\emph{Configuration options (Unix/Linux)}}}).
 
 Additionally, based on the current precision, \code{sundials\_types.h}
 defines the values \index{BIG\_REAL}BIG\_REAL to be the largest value
@@ -13081,14 +13089,12 @@ $M\ne I$ is only provided in the C/C++ interface to ARKode,
 although support within the Fortran interface is planned for the near
 future.
 
-In the instructions below, steps marked {[}\textbf{S}{]} apply to the serial
-NVECTOR implementation (NVECTOR\_SERIAL) only, steps marked {[}\textbf{O}{]}
-apply to the OpenMP NVECTOR implementation (NVECTOR\_OPENMP) only,
-steps marked {[}\textbf{T}{]} apply to the Pthreads NVECTOR implementation
-(NVECTOR\_PTHREADS) only, while those marked with a {[}\textbf{P}{]} apply to
-NVECTOR\_PARALLEL.  Some steps will be marked with a combination of the
-above, e.g.  {[}\textbf{S}, \textbf{O}, \textbf{T}{]}.  Steps not marked apply to all
-supplied NVECTOR implementations.
+In the instructions below, steps marked {[}\textbf{S}{]} apply to the NVECTOR
+implementation NVECTOR\_SERIAL, steps marked {[}\textbf{O}{]} apply to
+NVECTOR\_OPENMP, steps marked {[}\textbf{T}{]} apply to NVECTOR\_PTHREADS, while
+steps marked {[}\textbf{P}{]} apply to NVECTOR\_PARALLEL.  Some steps will be
+marked with a combination of the above, e.g.  {[}\textbf{S}, \textbf{O}, \textbf{T}{]}.
+Steps not marked apply to all supplied NVECTOR implementations.
 
 
 \subsubsection{Right-hand side specification}
@@ -13179,7 +13185,7 @@ remain empty.
 \subsubsection{NVECTOR module initialization}
 \label{f_interface/Usage:nvector-module-initialization}\label{f_interface/Usage:finterface-nvector}
 {[}\textbf{S}{]} To initialize the serial NVECTOR module, the user must
-call the following function with the argument \emph{KEY} = 4.
+make the following call:
 \index{FNVINITS() (fortran subroutine)|textbf}
 
 \begin{fulllineitems}
@@ -13188,14 +13194,14 @@ Initializes the Fortran interface to the serial NVECTOR module.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
-\emph{KEY} (\code{int}, input) -- integer flag denoting which solver
-is to be used (1 is CVODE, 2 is IDA, 3 is KINSOL and 4 is ARKode).
+\emph{KEY} (\code{int}, input) -- the solver id (\emph{KEY} = 4 for ARKode).
 
 \item {} 
 \emph{NEQ} (\code{long int}, input) -- size of the ODE system.
 
 \item {} 
-\emph{IER} (\code{int}, output) -- return flag (0 success, $\ne 0$ failure).
+\emph{IER} (\code{int}, output) -- return flag (0 success, -1 if a
+failure occurred).
 
 \end{itemize}
 
@@ -13204,8 +13210,8 @@ is to be used (1 is CVODE, 2 is IDA, 3 is KINSOL and 4 is ARKode).
 \end{fulllineitems}
 
 
-{[}\textbf{O}{]} To initialize the OpenMP NVECTOR module, the user must
-call the following function with the argument \emph{KEY} = 4.
+{[}\textbf{O}{]} To initialize the NVECTOR\_OPENMP NVECTOR module, the user must
+make the following call:
 \index{FNVINITS\_OPENMP() (fortran subroutine)|textbf}
 
 \begin{fulllineitems}
@@ -13214,8 +13220,7 @@ Initializes the Fortran interface to the OpenMP NVECTOR module.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
-\emph{KEY} (\code{int}, input) -- integer flag denoting which solver
-is to be used (1 is CVODE, 2 is IDA, 3 is KINSOL and 4 is ARKode).
+\emph{KEY} (\code{int}, input) -- the solver id (\emph{KEY} = 4 for ARKode).
 
 \item {} 
 \emph{NEQ} (\code{long int}, input) -- size of the ODE system.
@@ -13225,7 +13230,8 @@ is to be used (1 is CVODE, 2 is IDA, 3 is KINSOL and 4 is ARKode).
 parallelized regions.
 
 \item {} 
-\emph{IER} (\code{int}, output) -- return flag (0 success, $\ne 0$ failure).
+\emph{IER} (\code{int}, output) -- return flag (0 success, -1 if a
+failure occurred).
 
 \end{itemize}
 
@@ -13235,7 +13241,7 @@ parallelized regions.
 
 
 {[}\textbf{T}{]} To initialize the Pthreads NVECTOR module, the user must
-call the following function with the argument \emph{KEY} = 4.
+make hte following call.
 \index{FNVINITS\_PTHREADS() (fortran subroutine)|textbf}
 
 \begin{fulllineitems}
@@ -13244,8 +13250,7 @@ Initializes the Fortran interface to the Pthreads NVECTOR module.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
-\emph{KEY} (\code{int}, input) -- integer flag denoting which solver
-is to be used (1 is CVODE, 2 is IDA, 3 is KINSOL and 4 is ARKode).
+\emph{KEY} (\code{int}, input) -- the solver id (\emph{KEY} = 4 for ARKode).
 
 \item {} 
 \emph{NEQ} (\code{long int}, input) -- size of the ODE system.
@@ -13255,7 +13260,8 @@ is to be used (1 is CVODE, 2 is IDA, 3 is KINSOL and 4 is ARKode).
 parallelized regions.
 
 \item {} 
-\emph{IER} (\code{int}, output) -- return flag (0 success, $\ne 0$ failure).
+\emph{IER} (\code{int}, output) -- return flag (0 success, -1 if a
+failure occurred).
 
 \end{itemize}
 
@@ -13265,7 +13271,7 @@ parallelized regions.
 
 
 {[}\textbf{P}{]} To initialize the parallel NVECTOR module, the user must
-call the following function with the argument \emph{KEY} = 4.
+make the following call:
 \index{FNVINITP() (fortran subroutine)|textbf}
 
 \begin{fulllineitems}
@@ -13277,8 +13283,7 @@ Initializes the Fortran interface to the parallel NVECTOR module.
 \emph{COMM} (\code{int}, input) -- the MPI communicator.
 
 \item {} 
-\emph{KEY} (\code{int}, input) -- integer flag denoting which solver is to be
-used (1 is CVODE, 2 is IDA, 3 is KINSOL and 4 is ARKode).
+\emph{KEY} (\code{int}, input) -- the solver id (\emph{KEY} = 4 for ARKode).
 
 \item {} 
 \emph{NLOCAL} (\code{long int}, input) -- local vector size on this processor.
@@ -13288,7 +13293,8 @@ used (1 is CVODE, 2 is IDA, 3 is KINSOL and 4 is ARKode).
 and the global size of vectors (the sum of all values of \emph{NLOCAL}).
 
 \item {} 
-\emph{IER} (\code{int}, output) -- return flag (0 success, $\ne 0$ failure).
+\emph{IER} (\code{int}, output) -- return flag (0 success, -1 if a
+failure occurred).
 
 \end{itemize}
 
@@ -14965,7 +14971,7 @@ variables on output.
 \emph{ITASK} (\code{int}, input) -- task indicator :
 \begin{itemize}
 \item {} 
-1 = normal mode (overshoot \emph{TOUT} and interpolate the solution)
+1 = normal mode (overshoot \emph{TOUT} and interpolate)
 
 \item {} 
 2 = one-step mode (return after each internal step taken)
@@ -16430,7 +16436,7 @@ flag \emph{own\_data} which specifies the ownership of data.
 \end{Verbatim}
 
 The following five macros are provided to access the content of an
-NVECTOR\_SERIAL vector. The suffix \code{\_S} in the names denotes serial
+NVECTOR\_SERIAL vector. The suffix \code{\_S} in the names denotes the serial
 version.
 \index{NV\_CONTENT\_S (C macro)}
 
@@ -16646,8 +16652,8 @@ ownership of the data array \emph{data}.
 \end{Verbatim}
 
 The following seven macros are provided to access the content of a
-NVECTOR\_PARALLEL vector. The suffix \code{\_P} in the names denotes
-parallel version.
+NVECTOR\_PARALLEL vector. The suffix \code{\_P} in the names denotes the
+distributed memory parallel version.
 \index{NV\_CONTENT\_P (C macro)}
 
 \begin{fulllineitems}
@@ -16882,10 +16888,10 @@ internal representations.
 The OpenMP implementation of the NVECTOR module provided with SUNDIALS,
 NVECTOR\_OPENMP, defines the \emph{content} field of \code{N\_Vector} to be a structure
 containing the length of the vector, a pointer to the beginning of a contiguous
-data array, and a boolean flag \emph{own\_data} which specifies the ownership
-of \emph{data}.  Operations on the vector are threaded using OpenMP,
-the number of threads used is based on the supplied argument in
-the vector constructor.
+data array, a boolean flag \emph{own\_data} which specifies the ownership of
+\emph{data}, and the number of threads.  Operations on the vector are
+threaded using OpenMP, the number of threads used is based on the
+supplied argument in the vector constructor.
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}OpenMP} \PYG{p}{\PYGZob{}}
@@ -16897,7 +16903,7 @@ the vector constructor.
 \end{Verbatim}
 
 The following six macros are provided to access the content of an NVECTOR\_OPENMP
-vector. The suffix \code{\_OMP} in the names denotes OpenMP version.
+vector. The suffix \code{\_OMP} in the names denotes the OpenMP version.
 \index{NV\_CONTENT\_OMP (C macro)}
 
 \begin{fulllineitems}
@@ -17116,10 +17122,10 @@ internal representations.
 The Pthreads implementation of the NVECTOR module provided with SUNDIALS,
 NVECTOR\_PTHREADS, defines the \emph{content} field of \code{N\_Vector} to be a structure
 containing the length of the vector, a pointer to the beginning of a contiguous
-data array, and a boolean flag \emph{own\_data} which specifies the ownership
-of \emph{data}.  Operations on the vector are threaded using POSIX threads (Pthreads),
-the number of threads used is based on the supplied argument in
-the vector constructor.
+data array, a boolean flag \emph{own\_data} which specifies the ownership
+of \emph{data}, and the number of threads.  Operations on the vector are
+threaded using POSIX threads (Pthreads), the number of threads used is
+based on the supplied argument in the vector constructor.
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}Pthreads} \PYG{p}{\PYGZob{}}
@@ -17131,7 +17137,7 @@ the vector constructor.
 \end{Verbatim}
 
 The following six macros are provided to access the content of an NVECTOR\_PTHREADS
-vector. The suffix \code{\_PT} in the names denotes Pthreads version.
+vector. The suffix \code{\_PT} in the names denotes the Pthreads version.
 \index{NV\_CONTENT\_PT (C macro)}
 
 \begin{fulllineitems}
@@ -17728,7 +17734,7 @@ Usage:
 \phantomsection\label{nvectors/index:N_VCloneEmpty}\pysiglinewithargsret{N\_Vector \bfcode{N\_VCloneEmpty}}{N\_Vector\emph{ w}}{}
 Creates a new \code{N\_Vector} of the same type as an existing vector
 \emph{w} and sets the \emph{ops} field.  It does not allocate storage for the
-new vector's data array.
+new vector's data.
 
 Usage:
 
@@ -17816,7 +17822,7 @@ Usage:
 \begin{fulllineitems}
 \phantomsection\label{nvectors/index:N_VLinearSum}\pysiglinewithargsret{void \bfcode{N\_VLinearSum}}{realtype\emph{ a}, N\_Vector\emph{ x}, realtype\emph{ b}, N\_Vector\emph{ y}, N\_Vector\emph{ z}}{}
 Performs the operation \emph{z = ax + by}, where \emph{a} and \emph{b} are
-scalars and \emph{x} and \emph{y} are of type \code{N\_Vector}:
+\code{realtype} scalars and \emph{x} and \emph{y} are of type \code{N\_Vector}:
 \begin{gather}
 \begin{split}z_i = a x_i + b y_i, \quad i=1,\ldots,n.\end{split}\notag\\\begin{split}\end{split}\notag
 \end{gather}
@@ -17832,8 +17838,7 @@ Usage:
 
 \begin{fulllineitems}
 \phantomsection\label{nvectors/index:N_VConst}\pysiglinewithargsret{void \bfcode{N\_VConst}}{realtype\emph{ c}, N\_Vector\emph{ z}}{}
-Sets all components of the \code{N\_Vector} \emph{z} to the scalar value
-\emph{c}:
+Sets all components of the \code{N\_Vector} \emph{z} to \code{realtype} \emph{c}:
 \begin{gather}
 \begin{split}z_i = c, \quad i=1,\ldots,n.\end{split}\notag\\\begin{split}\end{split}\notag
 \end{gather}
@@ -17886,8 +17891,8 @@ Usage:
 
 \begin{fulllineitems}
 \phantomsection\label{nvectors/index:N_VScale}\pysiglinewithargsret{void \bfcode{N\_VScale}}{realtype\emph{ c}, N\_Vector\emph{ x}, N\_Vector\emph{ z}}{}
-Scales the \code{N\_Vector} \emph{x} by the scalar \emph{c} and returns the
-result in \emph{z}:
+Scales the \code{N\_Vector} \emph{x} by the \code{realtype} scalar \emph{c} and
+returns the result in \emph{z}:
 \begin{gather}
 \begin{split}z_i = c x_i, \quad i=1,\ldots,n.\end{split}\notag\\\begin{split}\end{split}\notag
 \end{gather}
@@ -17940,8 +17945,8 @@ Usage:
 
 \begin{fulllineitems}
 \phantomsection\label{nvectors/index:N_VAddConst}\pysiglinewithargsret{void \bfcode{N\_VAddConst}}{N\_Vector\emph{ x}, realtype\emph{ b}, N\_Vector\emph{ z}}{}
-Adds the scalar \emph{b} to all components of \emph{x} and returns the
-result in the \code{N\_Vector} \emph{z}:
+Adds the \code{realtype} scalar \emph{b} to all components of \emph{x} and
+returns the result in the \code{N\_Vector} \emph{z}:
 \begin{gather}
 \begin{split}z_i = x_i+b, \quad i=1,\ldots,n.\end{split}\notag\\\begin{split}\end{split}\notag
 \end{gather}
@@ -17991,7 +17996,7 @@ Usage:
 \begin{fulllineitems}
 \phantomsection\label{nvectors/index:N_VWrmsNorm}\pysiglinewithargsret{realtype \bfcode{N\_VWrmsNorm}}{N\_Vector\emph{ x}, N\_Vector\emph{ w}}{}
 Returns the weighted root-mean-square norm of the \code{N\_Vector} \emph{x}
-with (positive) weight vector \emph{w}:
+with (positive) \code{realtype} weight vector \emph{w}:
 \begin{gather}
 \begin{split}m = \left( \frac1n \sum_{i=1}^{n} \left(x_i w_i\right)^2\right)^{1/2}.\end{split}\notag\\\begin{split}\end{split}\notag
 \end{gather}
@@ -18008,8 +18013,9 @@ Usage:
 \begin{fulllineitems}
 \phantomsection\label{nvectors/index:N_VWrmsNormMask}\pysiglinewithargsret{realtype \bfcode{N\_VWrmsNormMask}}{N\_Vector\emph{ x}, N\_Vector\emph{ w}, N\_Vector\emph{ id}}{}
 Returns the weighted root mean square norm of the \code{N\_Vector} \emph{x}
-with (positive) weight vector \emph{w} built using only the elements of \emph{x}
-corresponding to nonzero elements of the \code{N\_Vector} \emph{id}:
+with (positive) \code{realtype} weight vector \emph{w} built using only the
+elements of \emph{x} corresponding to nonzero elements of the
+\code{N\_Vector} \emph{id}:
 \begin{gather}
 \begin{split}m = \left( \frac1n \sum_{i=1}^{n} \left(x_i w_i \text{sign}(id_i)\right)^2 \right)^{1/2}.\end{split}\notag\\\begin{split}\end{split}\notag
 \end{gather}
@@ -18040,7 +18046,7 @@ Usage:
 \begin{fulllineitems}
 \phantomsection\label{nvectors/index:N_VWl2Norm}\pysiglinewithargsret{realtype \bfcode{N\_VWl2Norm}}{N\_Vector\emph{ x}, N\_Vector\emph{ w}}{}
 Returns the weighted Euclidean $l_2$ norm of the \code{N\_Vector}
-\emph{x} with weight vector \emph{w}:
+\emph{x} with \code{realtype} weight vector \emph{w}:
 \begin{gather}
 \begin{split}m = \left(\sum_{i=1}^{n}\left(x_i w_i\right)^2\right)^{1/2}.\end{split}\notag\\\begin{split}\end{split}\notag
 \end{gather}
@@ -18072,8 +18078,9 @@ Usage:
 
 \begin{fulllineitems}
 \phantomsection\label{nvectors/index:N_VCompare}\pysiglinewithargsret{void \bfcode{N\_VCompare}}{realtype\emph{ c}, N\_Vector\emph{ x}, N\_Vector\emph{ z}}{}
-Compares the components of the \code{N\_Vector} \emph{x} to the scalar \emph{c}
-and returns an \code{N\_Vector} \emph{z} such that for all $1\le i\le n$,
+Compares the components of the \code{N\_Vector} \emph{x} to the \code{realtype}
+scalar \emph{c} and returns an \code{N\_Vector} \emph{z} such that for all
+$1\le i\le n$,
 \begin{gather}
 \begin{split}z_i = \begin{cases} 1.0 &\quad\text{if}\; |x_i| \ge c,\\
                     0.0 &\quad\text{otherwise}\end{cases}.\end{split}\notag\\\begin{split}\end{split}\notag
@@ -18096,8 +18103,9 @@ zero values:
 \begin{gather}
 \begin{split}z_i = 1.0/x_i, \quad i=1,\ldots,n.\end{split}\notag\\\begin{split}\end{split}\notag
 \end{gather}
-This routine returns \code{TRUE} if all components of \emph{x} are nonzero
-(successful inversion) and returns \code{FALSE} otherwise.
+This routine returns a boolean assigned to \code{TRUE} if all
+components of \emph{x} are nonzero (successful inversion) and returns
+\code{FALSE} otherwise.
 
 Usage:
 
@@ -18120,11 +18128,11 @@ x_i < 0 \;\text{if}\; c_i = -2, \\
 x_i \le 0 \;\text{if}\; c_i = -1.\end{split}\notag\\\begin{split}\end{split}\notag
 \end{gather}
 There is no constraint on $x_i$ if $c_i = 0$. This
-routine returns \code{FALSE} if any element failed the constraint test,
-\code{TRUE} if all passed. It also sets a mask vector \emph{m}, with
-elements equal to 1.0 where the constraint test failed, and 0.0
-where the test passed. This routine is used only for constraint
-checking.
+routine returns a boolean assigned to \code{FALSE} if any element
+failed the constraint test and assigned to \code{TRUE} if all
+passed. It also sets a mask vector \emph{m}, with elements equal to 1.0
+where the constraint test failed, and 0.0 where the test
+passed. This routine is used only for constraint checking.
 
 Usage:
 
@@ -18190,16 +18198,16 @@ We further note that this family also includes the BLAS/LAPACK linear
 solvers (dense and band) available to the SUNDIALS solvers, but these
 are not discussed here.
 
-The {\hyperref[linear_solvers/SLS:linearsolvers-sls]{\emph{SLS}}} family contains the following two
-sparse direct linear solvers:
+The {\hyperref[linear_solvers/SLS:linearsolvers-sls]{\emph{SLS}}} family contains a sparse matrix
+package and interfaces between it and two sparse direct solver packages:
 \begin{itemize}
 \item {} 
 The KLU package, a linear solver for compressed-sparse-column
-matrices, {\hyperref[References:klu]{{[}KLU{]}}}.
+matrices, {\hyperref[References:klu]{{[}KLU{]}}}, {\hyperref[References:dp2010]{{[}DP2010{]}}}.
 
 \item {} 
 The SUPERLUMT package, a threaded linear solver for
-compressed-sparse-column matrices, {\hyperref[References:superlumt]{{[}SuperLUMT{]}}}.
+compressed-sparse-column matrices, {\hyperref[References:superlumt]{{[}SuperLUMT{]}}}, {\hyperref[References:l2005]{{[}L2005{]}}}, {\hyperref[References:dgl1999]{{[}DGL1999{]}}}.
 
 \end{itemize}
 
@@ -18211,6 +18219,10 @@ The SPGMR package, a solver for the scaled preconditioned GMRES
 method.
 
 \item {} 
+The SPFGMR package, a solver for the scaled preconditioned Flexible
+GMRES method.
+
+\item {} 
 The SPBCG package, a solver for the scaled preconditioned Bi-CGStab
 method.
 
@@ -18219,23 +18231,19 @@ The SPTFQMR package, a solver for the scaled preconditioned TFQMR
 method.
 
 \item {} 
-The SPFGMR package, a solver for the scaled preconditioned Flexible
-GMRES method.
-
-\item {} 
 The PCG package, a solver for the preconditioned conjugate gradient
 method.
 
 \end{itemize}
 
 For reasons related to installation, the names of the files involved
-in these generic solvers begin with the prefix SUNDIALS. But despite
+in these packages begin with teh prefix \code{sundials\_}.  But despite
 this, each of the DLS and SPILS solvers is in fact generic, in that
-they are usable completely independently of SUNDIALS.
+it is usable completely independently of SUNDIALS.
 
 For the sake of space, the functions for the DENSE, BAND modules
-that work with a matrix type and the functions in the SPGMR, SPBCG,
-SPTFQMR, SPFGMR and PCG modules are only summarized briefly, since
+that work with a matrix type and the functions in the SPGMR, SPFGMR,
+SPBCG, SPTFQMR and PCG modules are only summarized briefly, since
 they are less likely to be of direct use in connection with a SUNDIALS
 solver.  However, the functions for dense matrices treated as simple
 arrays and sparse matrices are fully described, because we anticipate
@@ -19164,10 +19172,14 @@ $x$ and $y$ have length $n$.
 
 
 
-\section{The SLS modules: KLU and SUPERLUMT}
-\label{linear_solvers/SLS::doc}\label{linear_solvers/SLS:the-sls-modules-klu-and-superlumt}\label{linear_solvers/SLS:linearsolvers-sls}
-The files comprising the SPARSE linear solver package, and their
-locations in the SUNDIALS \code{srcdir}, are as follows:
+\section{The SLS modules}
+\label{linear_solvers/SLS:the-sls-modules}\label{linear_solvers/SLS::doc}\label{linear_solvers/SLS:linearsolvers-sls}
+SUNDIALS provides a compressed-sparse-column matrix type and sparse
+matrix support functions.  In addition, SUNDIALS provides interfaces
+to the publicly available KLU and SuperLU\_MT sparse direct solver
+packages.  The files comprising the SLS matrix module, used in the KLU
+and SUPERLUMT linear solver packages, and their locations in the
+SUNDIALS \code{srcdir}, are as follows:
 \begin{itemize}
 \item {} 
 header files (located in \code{srcdir/include/sundials}):
@@ -19271,8 +19283,9 @@ length \textbf{N+1}).  Each entry provides the index of the first column
 entry into the \textbf{data} and \textbf{rowvals} arrays, e.g. if
 \textbf{colptr{[}3{]}=7}, then the first nonzero entry in the fourth column
 of the matrix is located in \textbf{data{[}7{]}}, and is located in row
-\textbf{rowvals{[}7{]}} of the matrix.  The last entry points just past the
-end of the active data in \textbf{data} and \textbf{rowvals}.
+\textbf{rowvals{[}7{]}} of the matrix.  The last entry contains the total
+number of nonzero values in the matrix and hence points just past
+the end of the active data in \textbf{data} and \textbf{rowvals}.
 
 \end{description}\end{quote}
 \begin{figure}[htbp]
@@ -19288,7 +19301,7 @@ nonzero entries (the allocated length of both \code{data} and
 \code{0} to \code{M-1}, corresponding to the row index (zero-based) of
 each nonzero value.  The entries in \code{data} contain the values of
 the nonzero entries, with the row \code{i}, column \code{j} entry of
-\code{A} (again, zero-based) denoted as \code{A(i,j)}.  The \code{colprts}
+\code{A} (again, zero-based) denoted as \code{A(i,j)}.  The \code{colptrs}
 array contains \code{N+1} entries; the first \code{N} denote the starting
 index of each column within the \code{rowvals} and \code{data} arrays,
 while the final entry points one past the final nonzero entry.
@@ -19329,7 +19342,11 @@ or
 \end{Verbatim}
 
 where the first has no unused space, and the second has additional
-storage (the entries marked with \code{*} may contain any values).
+storage (the entries marked with \code{*} may contain any values).  Note
+in both cases that the final value in \code{colptrs} is \code{8}.  The work
+associated with operations on the sparse matrix is proportional to
+this value and so one should use the best understanding of the number
+of nonzeros here.
 
 
 \subsection{Functions in the SPARSE module}
@@ -19385,7 +19402,8 @@ storage, its data arrays are reallocated to match those from \emph{A}.
 
 \begin{fulllineitems}
 \phantomsection\label{linear_solvers/SLS:ScaleSparseMat}\pysiglinewithargsret{void \bfcode{ScaleSparseMat}}{realtype\emph{ c}, {\hyperref[linear_solvers/SLS:SlsMat]{SlsMat}}\emph{ A}}{}
-Scales a sparse matrix by a scalar.
+Scales every element in the sparse matrix A by the by the
+scalar c.
 
 \end{fulllineitems}
 
@@ -19395,8 +19413,8 @@ Scales a sparse matrix by a scalar.
 \phantomsection\label{linear_solvers/SLS:AddIdentitySparseMat}\pysiglinewithargsret{void \bfcode{AddIdentitySparseMat}}{{\hyperref[linear_solvers/SLS:SlsMat]{SlsMat}}\emph{ A}}{}
 Increments a sparse matrix by the identity matrix.  If \emph{A} is not
 square, only the existing diagonal values are incremented.  Resizes
-the data arrays of \emph{A} upon completion to exactly match the
-nonzero storage for the result.
+the \code{data} and \code{rowvals} arrays of \emph{A} to allow for new nonzero
+entries on the diagonal.
 
 \end{fulllineitems}
 
@@ -19407,7 +19425,7 @@ nonzero storage for the result.
 Adds two sparse matrices: $A = A+B$.  Resizes the data arrays
 of \emph{A} upon completion to exactly match the nonzero storage for
 the result.  Upon successful completion, the return value is zero;
-otherwise 1 is returned.
+otherwise -1 is returned.
 
 \end{fulllineitems}
 
@@ -19429,7 +19447,7 @@ Computes the sparse matrix-vector product, $y=Ax$.  If \emph{A}
 is a sparse matrix of dimension $M\times N$, then it is assumed that \emph{x}
 is a \code{realtype} array of  length $N$, and \emph{y} is a
 \code{realtype} array of length $M$. Upon successful completion, the
-return value is zero; otherwise 1 is returned.
+return value is zero; otherwise -1 is returned.
 
 \end{fulllineitems}
 
@@ -19446,7 +19464,31 @@ Prints a {\hyperref[linear_solvers/SLS:SlsMat]{\code{SlsMat}}} matrix to standar
 \subsection{The KLU solver}
 \label{linear_solvers/SLS:the-klu-solver}
 KLU is a sparse matrix factorization and solver library written by Tim
-Davis {\hyperref[References:klu]{{[}KLU{]}}}.  In order to use KLU-enabled SUNDIALS solvers, it is
+Davis ({\hyperref[References:klu]{{[}KLU{]}}}, {\hyperref[References:dp2010]{{[}DP2010{]}}}).   KLU has a symbolic factorization routine
+that computes the permutation of the linear system matrix to block
+triangular form and the permutations that will pre-order the diagonal
+blocks (the only ones that need to be factored) to reduce fill-in
+(using AMD, COLAMD, CHOLAMD, natural, or an ordering given by the
+user).  Note that SUNDIALS uses the COLAMD ordering by default with
+KLU.
+
+KLU breaks the factorization into two separate parts.  The first is a
+symbolic factorization and the second is a numeric factorization that
+returns the factored matrix along with final pivot information.  KLU
+also has a refactor routine that can be called instead of the numeric
+factorization.  This routine will reuse the pivot information.  This
+routine also returns diagnostic information that a user can examine to
+determine if numerical stability is being lost and a full numerical
+factorization should be done instead of the refactor.
+
+The KLU interface in SUNDIALS will perform the symbolic factorization
+once.  It then calls the numerical factorization once and will call
+the refactor routine until estimates of the numerical conditioning
+suggest a new factorization should be completed.  The KLU interface
+also has a \code{ReInit} routine that can be used to force a full
+refactorization at the next solver setup call.
+
+In order to use the SUNDIALS interface to KLU, it is
 assumed that KLU has been installed on the system prior to
 installation of SUNDIALS, and that SUNDIALS has been configured
 appropriately to link with KLU (see {\hyperref[Install:installation]{\emph{ARKode Installation Procedure}}} for details).
@@ -19460,11 +19502,15 @@ calculations employing SUNDIALS' serial or shared-memory parallel
 \subsection{The SuperLU\_MT solver}
 \label{linear_solvers/SLS:the-superlu-mt-solver}
 SuperLU\_MT is a threaded sparse matrix factorization and solver
-library written by X. Sherry Li {\hyperref[References:superlumt]{{[}SuperLUMT{]}}}.  In order to use
-SuperLU\_MT enabled SUNDIALS solvers, it is assumed that SuperLU\_MT has
-been installed on the system prior to installation of SUNDIALS, and
-that SUNDIALS has been configured appropriately to link with
-SuperLU\_MT (see {\hyperref[Install:installation]{\emph{ARKode Installation Procedure}}} for details).
+library written by X. Sherry Li ({\hyperref[References:superlumt]{{[}SuperLUMT{]}}}, {\hyperref[References:l2005]{{[}L2005{]}}}, {\hyperref[References:dgl1999]{{[}DGL1999{]}}}).
+The package performs matrix factorization using threads to enhance
+efficiency in shared memory parallel environments.  It should be noted
+that threads are only used in the factorization step.
+
+In order to use the SUNDIALS interface to SuperLU\_MT, it is assumed
+that SuperLU\_MT has been installed on the system prior to installation
+of SUNDIALS, and that SUNDIALS has been configured appropriately to
+link with SuperLU\_MT (see {\hyperref[Install:installation]{\emph{ARKode Installation Procedure}}} for details).
 
 Designed for serial and threaded calculations only, SuperLU\_MT is
 supported for calculations employing SUNDIALS' serial or shared-memory
@@ -19472,20 +19518,21 @@ parallel \code{N\_Vector} modules (see {\hyperref[nvectors/NVector_Serial:nvecto
 {\hyperref[nvectors/NVector_OpenMP:nvectors-openmp]{\emph{The NVECTOR\_OPENMP Module}}} and {\hyperref[nvectors/NVector_Pthreads:nvectors-pthreads]{\emph{The NVECTOR\_PTHREADS Module}}}).
 
 
-\section{The SPILS modules: SPGMR, SPBCG, SPTFQMR, SPFGMR and PCG}
-\label{linear_solvers/SPILS:the-spils-modules-spgmr-spbcg-sptfqmr-spfgmr-and-pcg}\label{linear_solvers/SPILS:linearsolvers-spils}\label{linear_solvers/SPILS::doc}
+\section{The SPILS modules: SPGMR, SPFGMR, SPBCG, SPTFQMR and PCG}
+\label{linear_solvers/SPILS:the-spils-modules-spgmr-spfgmr-spbcg-sptfqmr-and-pcg}\label{linear_solvers/SPILS:linearsolvers-spils}\label{linear_solvers/SPILS::doc}
+The SPILS modules contain implementations of some of the most commonly
+use scaled preconditioned Krylov solvers.
+
 Due to their reliance on only general vector operations (without need
 to directly access data), the iterative linear solvers in the SPILS
-family can be used with a relatively complete NVECTOR implementation
+family can be used with any relatively complete NVECTOR implementation
 (see the section {\hyperref[nvectors/ARKode_requirements:nvectors-arkode]{\emph{NVECTOR functions required by ARKode}}} for a complete listing).
 We note that while all of the vector modules provided with SUNDIALS
-({\hyperref[nvectors/NVector_Serial:nvectors-nvserial]{\emph{NVECTOR\_SERIAL}}}, {\hyperref[nvectors/NVector_OpenMP:nvectors-openmp]{\emph{NVECTOR\_OPENMP}}}, {\hyperref[nvectors/NVector_Pthreads:nvectors-pthreads]{\emph{NVECTOR\_PTHREADS}}}, and
-{\hyperref[nvectors/NVector_Parallel:nvectors-nvparallel]{\emph{NVECTOR\_PARALLEL}}} )
-meet these criteria, these criteria may also be easily met
-through a user-supplied vector implementation.
+meet these criteria, they may also be easily met through a
+user-supplied vector implementation.
 
 In the subsections below, we discuss the iterative linear solvers
-accessible to ARKode, SPGMR, SPBCG, SPTFQMR, SPFGMR and PCG.  Due to
+accessible to ARKode: SPGMR, SPFGMR, SPBCG, SPTFQMR and PCG.  Due to
 the similarities between these modules, we provide a more complete
 description of only the SPGMR interface, and for the remaining solvers
 only discuss the salient differences.
@@ -19498,7 +19545,7 @@ The SPGMR package, in the files \code{sundials\_spgmr.h} and
 preconditioned GMRES method.  A separate code module, implemented in
 \code{sundials\_iterative.h} and \code{sundials\_iterative.c}, contains
 auxiliary functions that support SPGMR, as well as the other Krylov
-solvers in SUNDIALS (SPBCG, SPTFQMR, SPFGMR and PCG).  For full
+solvers in SUNDIALS (SPFGMR, SPBCG, SPTFQMR and PCG).  For full
 details, including usage instructions, see the header files
 \code{sundials\_spgmr.h} and \code{sundials\_iterative.h}.
 
@@ -19594,6 +19641,32 @@ factored by \code{QRfact}.
 \end{itemize}
 
 
+\subsection{The SPFGMR module}
+\label{linear_solvers/SPILS:the-spfgmr-module}
+The SPFGMR package, in the files \code{sundials\_spfgmr.h} and
+\code{sundials\_spfgmr.c}, includes an implementation of the scaled
+preconditioned Flexible Generalized Minimum Residual method
+{\hyperref[References:s1993]{{[}S1993{]}}}. For full details, including usage instructions, see the file
+\code{sundials\_spfgmr.h}.
+
+The files needed to use the SPFGMR module by itself are the same as for
+the SPGMR module, but with \code{sundials\_spfgmr.(h,c)} in place of
+\code{sundials\_spgmr.(h,c)}.
+
+The following functions are available in the SPFGMR package:
+\begin{itemize}
+\item {} 
+\code{SpfgmrMalloc}: allocates memory for \code{SpfgmrSolve};
+
+\item {} 
+\code{SpfgmrSolve}: solves $Ax = b$ using the SPFGMR method;
+
+\item {} 
+\code{SpfgmrFree}: frees memory allocated by \code{SpfgmrMalloc}.
+
+\end{itemize}
+
+
 \subsection{The SPBCG module}
 \label{linear_solvers/SPILS:the-spbcg-module}
 The SPBCG package, in the files \code{sundials\_spbcgs.h} and
@@ -19602,9 +19675,8 @@ preconditioned Bi-CGStab method. For full details, including usage
 instructions, see the file \code{sundials\_spbcgs.h}.
 
 The files needed to use the SPBCG module by itself are the same as for
-the SPGMR module, but with \code{sundials\_spbcgs.h} and
-\code{sundials\_spbcgs.c} in place of \code{sundials\_spgmr.h} and
-\code{sundials\_spgmr.c}.
+the SPGMR module, but with \code{sundials\_spbcgs.(h,c)} in place of
+\code{sundials\_spgmr.(h,c)}.
 
 The following functions are available in the SPBCG package:
 \begin{itemize}
@@ -19628,9 +19700,8 @@ preconditioned TFQMR method. For full details, including usage
 instructions, see the file \code{sundials\_sptfqmr.h}.
 
 The files needed to use the SPTFQMR module by itself are the same as
-for the SPGMR module, but with \code{sundials\_sptfqmr.h} and
-\code{sundials\_sptfqmr.c} in place of \code{sundials\_spgmr.h} and
-\code{sundials\_spgmr.c}.
+for the SPGMR module, but with \code{sundials\_sptfqmr.(h,c)} in place of
+\code{sundials\_spgmr.(h,c)}.
 
 The following functions are available in the SPTFQMR package:
 \begin{itemize}
@@ -19642,33 +19713,6 @@ The following functions are available in the SPTFQMR package:
 
 \item {} 
 \code{SptfqmrFree}: frees memory allocated by \code{SptfqmrMalloc}.
-
-\end{itemize}
-
-
-\subsection{The SPFGMR module}
-\label{linear_solvers/SPILS:the-spfgmr-module}
-The SPFGMR package, in the files \code{sundials\_spfgmr.h} and
-\code{sundials\_spfgmr.c}, includes an implementation of the scaled
-preconditioned Flexible Generalized Minimum Residual method. For full
-details, including usage instructions, see the file
-\code{sundials\_spfgmr.h}.
-
-The files needed to use the SPFGMR module by itself are the same as for
-the SPGMR module, but with \code{sundials\_spfgmr.h} and
-\code{sundials\_spfgmr.c} in place of \code{sundials\_spgmr.h} and
-\code{sundials\_spgmr.c}.
-
-The following functions are available in the SPFGMR package:
-\begin{itemize}
-\item {} 
-\code{SpfgmrMalloc}: allocates memory for \code{SpfgmrSolve};
-
-\item {} 
-\code{SpfgmrSolve}: solves $Ax = b$ using the SPFGMR method;
-
-\item {} 
-\code{SpfgmrFree}: frees memory allocated by \code{SpfgmrMalloc}.
 
 \end{itemize}
 
@@ -19686,9 +19730,8 @@ scaling is allowed for systems using this solver.  For full details,
 including usage instructions, see the file \code{sundials\_pcg.h}.
 
 The files needed to use the PCG module by itself are the same as for
-the SPGMR module, but with \code{sundials\_pcg.h} and
-\code{sundials\_pcs.c} in place of \code{sundials\_spgmr.h} and
-\code{sundials\_spgmr.c}.
+the SPGMR module, but with \code{sundials\_pcg.(h,c)} in place of
+\code{sundials\_spgmr.(h,c)}.
 
 The following functions are available in the PCG package:
 \begin{itemize}
@@ -20209,10 +20252,10 @@ completed and the mass matrix solver is no longer needed.
 
 \chapter{ARKode Installation Procedure}
 \label{Install:installation}\label{Install:arkode-installation-procedure}\label{Install::doc}
-The installation of ARKode is accomplished by installing the SUNDIALS
-suite as a whole, according to the instructions that follow.  The
-installation procedure remains the same, whether or not the downloaded
-file contains solvers other than ARKode. \footnote{
+The installation of any SUNDIALS package is accomplished by installing
+the SUNDIALS suite as a whole, according to the instructions that
+follow.  The same procedure applies whether or not the downloaded
+file contains one or all solvers in SUNDIALS. \footnote{
 Files for the serial, threaded and parallel versions of
 ARKode are included in the distribution. For users in a
 serial or threaded computing environment, the files specific
@@ -20263,7 +20306,7 @@ installation, first uncompress and expand the sources, by issuing
 
 This will extract source files under a directory \code{SOLVER-X.Y.Z.}
 
-Starting with version 2.6.0 of SUNDIALS, CMake is the only supported
+Starting with version 2.8.0 of SUNDIALS, CMake is the only supported
 method of installation.  Before providing detailed explanations on the
 installation procedure, we begin with a few common observations:
 \begin{itemize}
@@ -20278,11 +20321,11 @@ directory containing the SUNDIALS sources.
 \item[{\code{BUILDDIR}}] \leavevmode
 is the (temporary) directory under which SUNDIALS is built.
 
-\item[{\code{INSTDIR}}] \leavevmode
+\item[{\code{INSTALLDIR}}] \leavevmode
 is the directory under which the SUNDIALS exported
 header files and libraries will be installed. Typically, header
-files are exported under a directory \code{INSTDIR/include} while
-libraries are installed under \code{INSTDIR/lib}, with \code{INSTDIR}
+files are exported under a directory \code{INSTALLDIR/include} while
+libraries are installed under \code{INSTALLDIR/lib}, with \code{INSTALLDIR}
 specified at configuration time.
 
 \end{description}
@@ -20295,12 +20338,12 @@ prevents ``polluting'' the source tree and allows efficient builds for
 different configurations and/or options.
 
 \item {} 
-The installation directory \code{INSTDIR} can not be the same as
+The installation directory \code{INSTALLDIR} can not be the same as
 the source directory \code{SRCDIR}.
 
 \item {} 
 By default, only the libraries and header files are exported to the
-installation directory \code{INSTDIR}.  If enabled by the user (with the
+installation directory \code{INSTALLDIR}.  If enabled by the user (with the
 appropriate toggle for CMake), the
 examples distributed with SUNDIALS will be built together with the
 solver libraries.  This installation will result in exporting (by
@@ -20343,7 +20386,7 @@ following subsections:
 \section{CMake-based installation}
 \label{Install:installation-cmake}\label{Install:cmake-based-installation}
 CMake-based installation provides a platform-independent build system.
-CMake can generate Unix/Linux Makefiles, as well as KDevelop, Visual
+CMake can generate Unix and Linux Makefiles, as well as KDevelop, Visual
 Studio, and (Apple) XCode project files from the same configuration
 file.  In addition, CMake provides a GUI front end which allows an
 interactive build and installation process.
@@ -20375,10 +20418,10 @@ after an in-source build).
 \subsection{Configuring, building, and installing on Unix-like systems}
 \label{Install:installation-cmake-unix}\label{Install:index-0}\label{Install:configuring-building-and-installing-on-unix-like-systems}
 The default CMake configuration will build all included solvers and
-associated examples and will only build static libraries.  The INSTDIR
-defaults to \code{/usr/local} and can be changed by setting the
-\code{CMAKE\_INSTALL\_PREFIX} variable.  Support for FORTRAN, shared
-libraries and all other options are disabled.
+associated examples and will build static and shared libraries.  The
+INSTALLDIR defaults to \code{/usr/local} and can be changed by setting the
+\code{CMAKE\_INSTALL\_PREFIX} variable.  Support for FORTRAN and all other
+options are disabled.
 
 CMake can be used from the command line with the \code{cmake} command, or
 from a Curses based GUI by using the \code{ccmake} command, or from a
@@ -20388,7 +20431,7 @@ examples shown it is assumed that there is a top level SUNDIALS
 directory with appropriate source, build and install directories:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }mkdir \PYG{o}{(}...\PYG{o}{)}/INSTDIR
+\PYG{n+nv}{\PYGZdl{} }mkdir \PYG{o}{(}...\PYG{o}{)}/INSTALLDIR
 \PYG{n+nv}{\PYGZdl{} }mkdir \PYG{o}{(}...\PYG{o}{)}/BUILDDIR
 \PYG{n+nv}{\PYGZdl{} }\PYG{n+nb}{cd} \PYG{o}{(}...\PYG{o}{)}/BUILDDIR
 \end{Verbatim}
@@ -20410,7 +20453,7 @@ New values are denoted with an asterisk
 To set a variable, move the cursor to the variable and press enter
 \begin{itemize}
 \item {} 
-If it is a boolean (\code{ON/OFF}) it will flip the value
+If it is a boolean (\code{ON/OFF}) it will toggle the value
 
 \item {} 
 If it is string or file, it will allow editing of the string
@@ -20503,9 +20546,11 @@ the following figure.
 
 \scalebox{0.750000}{\includegraphics{ccmakedefault.png}}
 \caption{Default configuration screen. Note: Initial screen is empty.
-Press `c' to get this initial default configuration.}\label{Install:ccmakedefault}\end{figure}
+To get this default configuration, press `c' repeatedly (accepting
+default values denoted with asterisk) until the `g' option is
+available.}\label{Install:ccmakedefault}\end{figure}
 
-The default INSTDIR for both SUNDIALS and corresponding examples
+The default INSTALLDIR for both SUNDIALS and corresponding examples
 can be changed by setting the \code{CMAKE\_INSTALL\_PREFIX} and
 the \code{EXAMPLES\_INSTALL\_PATH} as shown in the following figure.
 \begin{figure}[htbp]
@@ -20513,17 +20558,17 @@ the \code{EXAMPLES\_INSTALL\_PATH} as shown in the following figure.
 \capstart
 
 \scalebox{0.750000}{\includegraphics{ccmakeprefix.png}}
-\caption{Changing the INSTDIR for SUNDIALS and corresponding EXAMPLES.}\label{Install:ccmakeprefix}\end{figure}
+\caption{Changing the INSTALLDIR for SUNDIALS and corresponding EXAMPLES.}\label{Install:ccmakeprefix}\end{figure}
 
 Pressing the \code{g} key or clicking \code{generate} will generate
 makefiles including all dependencies and all rules to build SUNDIALS
-on this system.  Back at the command prompt, you can now type:
+on this system.  Back at the command prompt, you can now run:
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{n+nv}{\PYGZdl{} }make
 \end{Verbatim}
 
-or for a faster parallel build (e.g. using 4 threads), you can type
+or for a faster parallel build (e.g. using 4 threads), you can run
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{n+nv}{\PYGZdl{} }make \PYGZhy{}j 4
@@ -20535,30 +20580,39 @@ To install SUNDIALS in the installation directory specified in the configuration
 \PYG{n+nv}{\PYGZdl{} }make install
 \end{Verbatim}
 
+\index{TestRunner}
+
+\subsubsection{Testing Installation}
+\label{Install:testing-installation}\label{Install:index-3}
 The distribution of SUNDIALS includes several examples corresponding
 to the solvers to be installed.  Also included in the source bundle is
-a \emph{testRunner} configured by CMake to test these included examples:
+a test script: \code{testRunner}, configured by CMake to test the
+included examples.  To run the tests, enter:
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{n+nv}{\PYGZdl{} }make \PYG{n+nb}{test}
 \end{Verbatim}
 
-The output of \emph{testRunner} should look similar to the following figure
-\begin{figure}[htbp]
-\centering
-\capstart
+The output of \code{testRunner} should look similar to the screens in
+figure {\hyperref[Install:cmaketest]{\emph{below}}}.  The success of each
+test is based on a line-by-line comparison of expected output files,
+bundled with the source code, with the output of the newly compiled
+examples. The file compare does allow some differences in rounding for
+float values.
 
-\scalebox{0.750000}{\includegraphics{cmaketest.png}}
-\caption{Invoking \emph{testRunner} with \code{make test} to execute all configured
-EXAMPLES.}\label{Install:cmaketest}\end{figure}
+\begin{notice}{note}{Note:}
+Some tests may \emph{fail} due to differences in machine
+architecture, compiler versions, third party libraries
+etc.
+\end{notice}
 
 \index{cmake}
 
 \subsubsection{Building from the command line}
-\label{Install:building-from-the-command-line}\label{Install:index-3}
+\label{Install:index-4}\label{Install:building-from-the-command-line}
 Using CMake from the command line is simply a matter of specifying
 CMake variable settings with the \code{cmake} command.  The following
-will build the same configuration as shown above:
+will build the default configuration:
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{n+nv}{\PYGZdl{} }cmake \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/usr/casc/sundials/installdir \PYG{l+s+se}{\PYGZbs{}}
@@ -20567,10 +20621,22 @@ will build the same configuration as shown above:
 \PYG{n+nv}{\PYGZdl{} }make
 \PYG{n+nv}{\PYGZdl{} }make \PYG{n+nb}{test}
 \end{Verbatim}
+\begin{figure}[htbp]
+\centering
+
+\scalebox{0.750000}{\includegraphics{testrunnertop.png}}
+\label{Install:cmaketest}\end{figure}
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\scalebox{0.750000}{\includegraphics{testrunnerbot.png}}
+\caption{Invoking \emph{testRunner} with \code{make test} to execute all configured
+EXAMPLES.}\end{figure}
 
 
-\subsection{Configuration options}
-\label{Install:installation-cmake-options}\label{Install:configuration-options}
+\subsection{Configuration options (Unix/Linux)}
+\label{Install:installation-cmake-options}\label{Install:configuration-options-unix-linux}
 A complete list of all available options for a CMake-based SUNDIALS
 configuration is provide below.  Note that the default values shown
 are for a typical configuration on a Linux system and are provided as
@@ -20658,7 +20724,7 @@ Default: \code{-O2 -g}
 \item[{\index{CMAKE\_C\_COMPILER (CMake option)}CMAKE\_C\_COMPILER}] \leavevmode
 C compiler
 
-Default: \code{/usr/bin/gcc}
+Default: \code{/usr/bin/cc}
 
 \item[{\index{CMAKE\_C\_FLAGS (CMake option)}CMAKE\_C\_FLAGS}] \leavevmode
 Flags for C compiler
@@ -20688,13 +20754,6 @@ Flags used by the C compiler during release builds (with
 debugging enabled)
 
 Default: \code{-O2 -g}
-
-\item[{\index{CMAKE\_BACKWARDS\_COMPATIBILITY (CMake option)}CMAKE\_BACKWARDS\_COMPATIBILITY}] \leavevmode
-For backwards compatibility, what
-version of CMake commands and syntax should this version of CMake
-allow.
-
-Default: \code{2.4}
 
 \item[{\index{CMAKE\_Fortran\_COMPILER (CMake option)}CMAKE\_Fortran\_COMPILER}] \leavevmode
 Fortran compiler
@@ -20757,27 +20816,7 @@ Default: \code{OFF}
 \item[{\index{EXAMPLES\_ENABLE (CMake option)}EXAMPLES\_ENABLE}] \leavevmode
 Build the SUNDIALS examples
 
-Default: \code{OFF}
-
-\begin{notice}{note}{Note:}
-setting this option to \code{ON} will trigger additional options
-related to how and where example programs will be installed.
-\end{notice}
-
-\item[{\index{EXAMPLES\_GENERATE\_MAKEFILES (CMake option)}EXAMPLES\_GENERATE\_MAKEFILES}] \leavevmode
-Create Makefiles for building the examples
-
 Default: \code{ON}
-
-\begin{notice}{note}{Note:}
-This option is triggered only if enabling the building and
-installing of the example programs (i.e., both \code{EXAMPLES\_ENABLE}
-and \code{EXAMPLEs\_INSTALL} are set to \code{ON}) and if configuration is
-done on a Unix-like system. If enabled, makefiles for the
-compilation of the example programs (using the installed SUNDIALS
-libraries) will be automatically generated and exported to the
-directory specified by \code{EXAMPLES\_INSTALL\_PATH}.
-\end{notice}
 
 \item[{\index{EXAMPLES\_INSTALL (CMake option)}EXAMPLES\_INSTALL}] \leavevmode
 Install example files
@@ -20793,8 +20832,10 @@ enabled will be exported to the directory specified by
 \code{EXAMPLES\_INSTALL\_PATH}. A CMake configuration script will also
 be automatically generated and exported to the same
 directory. Additionally, if the configuration is done under a
-Unix-like system, an additional option
-(\code{EXAMPLES\_GENERATE\_MAKEFILES}) will be triggered.
+Unix-like system, makefiles for the compilation of the
+example programs (using the installed SUNDIALS libraries)
+will be automatically generated and exported to the
+directory specified by \code{EXAMPLES\_INSTALL\_PATH}.
 \end{notice}
 
 \item[{\index{EXAMPLES\_INSTALL\_PATH (CMake option)}EXAMPLES\_INSTALL\_PATH}] \leavevmode
@@ -20808,23 +20849,18 @@ The actual default value for this option will be an
 \code{examples} subdirectory created under \code{CMAKE\_INSTALL\_PREFIX}.
 \end{notice}
 
-\item[{\index{EXAMPLES\_USE\_STATIC\_LIBS (CMake option)}EXAMPLES\_USE\_STATIC\_LIBS}] \leavevmode
-Link examples using the static libraries
+\item[{\index{FCMIX\_ENABLE (CMake option)}FCMIX\_ENABLE}] \leavevmode
+Enable Fortran-C support
 
 Default: \code{OFF}
-
-\begin{notice}{note}{Note:}
-This option is triggered only if building shared libraries is
-enabled (\code{BUILD\_SHARED\_LIBS} is \code{ON}).
-\end{notice}
 
 \item[{\index{F90\_ENABLE (CMake option)}F90\_ENABLE}] \leavevmode
 Flag to enable Fortran 90 ARKode examples (if examples are enabled)
 
 Default: \code{OFF}
 
-\item[{\index{FCMIX\_ENABLE (CMake option)}FCMIX\_ENABLE}] \leavevmode
-Enable Fortran-C support
+\item[{\index{F90\_ENABLE (CMake option)}KLU\_ENABLE}] \leavevmode
+Enable KLU support
 
 Default: \code{OFF}
 
@@ -20843,10 +20879,11 @@ LAPACK (and BLAS) libraries
 
 Default: \code{/usr/lib/liblapack.so;/usr/lib/libblas.so}
 
-\item[{\index{LAPACK\_LINKER\_FLAGS (CMake option)}LAPACK\_LINKER\_FLAGS}] \leavevmode
-LAPACK (and BLAS) required linker flags
-
-Default: \code{-lg2c}
+\begin{notice}{note}{Note:}
+CMake will search for these libraries in your
+\code{LD\_LIBRARY\_PATH} prior to searching default system
+paths.
+\end{notice}
 
 \item[{\index{MPI\_ENABLE (CMake option)}MPI\_ENABLE}] \leavevmode
 Enable MPI support
@@ -20861,7 +20898,7 @@ options related to MPI.
 \item[{\index{MPI\_MPICC (CMake option)}MPI\_MPICC}] \leavevmode
 \code{mpicc} program
 
-Default: \code{/home/radu/apps/mpich1/gcc/bin/mpicc}
+Default:
 
 \begin{notice}{note}{Note:}
 This option is triggered only if using MPI compiler scripts
@@ -20882,7 +20919,7 @@ This option is triggered only if using MPI compiler scripts
 \item[{\index{MPI\_MPIF77 (CMake option)}MPI\_MPIF77}] \leavevmode
 \code{mpif77} program
 
-Default: \code{/home/radu/apps/mpich1/gcc/bin/mpif77}
+Default:
 
 \begin{notice}{note}{Note:}
 This option is triggered only if using MPI compiler scripts
@@ -20902,37 +20939,12 @@ This option is triggered only if using MPI compiler scripts
 (\code{F90\_ENABLE} is \code{ON}).
 \end{notice}
 
-\item[{\index{MPI\_INCLUDE\_PATH (CMake option)}MPI\_INCLUDE\_PATH}] \leavevmode
-Path to MPI header files
-
-Default: \code{/home/radu/apps/mpich1/gcc/include}
-
-\begin{notice}{note}{Note:}
-This option is triggered only if not using MPI compiler
-scripts (\code{MPI\_USE\_MPISCRIPTS} is \code{OFF}).
-\end{notice}
-
-\item[{\index{MPI\_LIBRARIES (CMake option)}MPI\_LIBRARIES}] \leavevmode
-MPI libraries
-
-Default: \code{/home/radu/apps/mpich1/gcc/lib/libmpich.a}
-
-\begin{notice}{note}{Note:}
-This option is triggered only if not using MPI compiler
-scripts (\code{MPI\_USE\_MPISCRIPTS} is \code{OFF}).
-\end{notice}
-
-\item[{\index{MPI\_USE\_MPISCRIPTS (CMake option)}MPI\_USE\_MPISCRIPTS}] \leavevmode
-Use MPI compiler scripts
-
-Default: \code{ON}
-
 \item[{\index{OPENMP\_ENABLE (CMake option)}OPENMP\_ENABLE}] \leavevmode
 Turn on support for the OpenMP based NVector
 
 Default: \code{OFF}
 
-\item[{\index{PTHREADS\_ENABLE (CMake option)}PTHREADS\_ENABLE}] \leavevmode
+\item[{\index{PTHREAD\_ENABLE (CMake option)}PTHREAD\_ENABLE}] \leavevmode
 Turn on support for the Pthreads based NVector
 
 Default: \code{OFF}
@@ -20942,6 +20954,16 @@ Precision used in SUNDIALS, options are: \code{double}, \code{single} or
 \code{extended}
 
 Default: \code{double}
+
+\item[{\index{SUPERLUMT\_ENABLE (CMake option)}SUPERLUMT\_ENABLE}] \leavevmode
+Enable SUPERLU\_MT support
+
+Default: \code{OFF}
+
+\item[{\index{TESTRUNNER (CMake option)}TESTRUNNER}] \leavevmode
+Location of \code{testRunner} script
+
+Default: \code{sourcedir/testRunner}
 
 \item[{\index{USE\_GENERIC\_MATH (CMake option)}USE\_GENERIC\_MATH}] \leavevmode
 Use generic (\code{stdc}) math libraries
@@ -21203,8 +21225,8 @@ Using the standard SUNDIALS build system, the command
 
 will install the libraries under \code{LIBDIR} and the public header
 files under \code{INCLUDEDIR}. The default values for these directories
-are \code{INSTDIR/lib} and \code{INSTDIR/include}, respectively, where
-INSTDIR is given by the CMake configuration option
+are \code{INSTALLDIR/lib} and \code{INSTALLDIR/include}, respectively, where
+INSTALLDIR is given by the CMake configuration option
 \code{CMAKE\_INSTALL\_PREFIX}. For example, a global installation of
 SUNDIALS on a LINUX/UNIX system to the system-level directory
 \code{/opt/sundials-2.6.0} could be accomplished using
@@ -21765,8 +21787,8 @@ A memory allocation request failed in the mass matrix solver.
 \end{description}
 
 
-\subsection{ARKSPGMR generic linear solver module}
-\label{Constants:arkspgmr-generic-linear-solver-module}\begin{description}
+\subsection{SPGMR generic linear solver module}
+\label{Constants:spgmr-generic-linear-solver-module}\begin{description}
 \item[{\index{SPGMR\_SUCCESS}SPGMR\_SUCCESS  (0):}] \leavevmode
 Converged.
 
@@ -21790,7 +21812,7 @@ The Jacobian-times-vector function
 failed recoverably.
 
 \item[{\index{SPGMR\_PSET\_FAIL\_REC}SPGMR\_PSET\_FAIL\_REC  (6):}] \leavevmode
-The preconditioner setup function failed
+The preconditioner setup routine failed
 recoverably.
 
 \item[{\index{SPGMR\_MEM\_NULL}SPGMR\_MEM\_NULL  (-1):}] \leavevmode
@@ -21812,98 +21834,14 @@ The matrix $R$ was found to be
 singular during the QR solve phase.
 
 \item[{\index{SPGMR\_PSET\_FAIL\_UNREC}SPGMR\_PSET\_FAIL\_UNREC  (-6):}] \leavevmode
-The preconditioner setup function
+The preconditioner setup routine
 failed unrecoverably.
 
 \end{description}
 
 
-\subsection{ARKSPBCG generic linear solver module}
-\label{Constants:arkspbcg-generic-linear-solver-module}\begin{description}
-\item[{\index{SPBCG\_SUCCESS}SPBCG\_SUCCESS  (0):}] \leavevmode
-Converged.
-
-\item[{\index{SPBCG\_RES\_REDUCED}SPBCG\_RES\_REDUCED  (1):}] \leavevmode
-No convergence, but the residual norm
-was reduced.
-
-\item[{\index{SPBCG\_CONV\_FAIL}SPBCG\_CONV\_FAIL  (2):}] \leavevmode
-Failure to converge.
-
-\item[{\index{SPBCG\_PSOLVE\_FAIL\_REC}SPBCG\_PSOLVE\_FAIL\_REC  (3):}] \leavevmode
-The preconditioner solve function
-failed recoverably.
-
-\item[{\index{SPBCG\_ATIMES\_FAIL\_REC}SPBCG\_ATIMES\_FAIL\_REC  (4):}] \leavevmode
-The Jacobian-times-vector function
-failed recoverably.
-
-\item[{\index{SPBCG\_PSET\_FAIL\_REC}SPBCG\_PSET\_FAIL\_REC  (5):}] \leavevmode
-The preconditioner setup function
-failed recoverably.
-
-\item[{\index{SPBCG\_MEM\_NULL}SPBCG\_MEM\_NULL  (-1):}] \leavevmode
-The SPBCG memory is \code{NULL}
-
-\item[{\index{SPBCG\_ATIMES\_FAIL\_UNREC}SPBCG\_ATIMES\_FAIL\_UNREC  (-2):}] \leavevmode
-The Jacobian-times-vector function
-failed unrecoverably.
-
-\item[{\index{SPBCG\_PSOLVE\_FAIL\_UNREC}SPBCG\_PSOLVE\_FAIL\_UNREC  (-3):}] \leavevmode
-The preconditioner solve function
-failed unrecoverably.
-
-\item[{\index{SPBCG\_PSET\_FAIL\_UNREC}SPBCG\_PSET\_FAIL\_UNREC  (-4):}] \leavevmode
-The preconditioner setup function
-failed unrecoverably.
-
-\end{description}
-
-
-\subsection{ARKSPTFQMR generic linear solver module}
-\label{Constants:arksptfqmr-generic-linear-solver-module}\begin{description}
-\item[{\index{SPTFQMR\_SUCCESS}SPTFQMR\_SUCCESS  (0):}] \leavevmode
-Converged.
-
-\item[{\index{SPTFQMR\_RES\_REDUCED}SPTFQMR\_RES\_REDUCED  (1):}] \leavevmode
-No convergence, but the residual norm
-was reduced.
-
-\item[{\index{SPTFQMR\_CONV\_FAIL}SPTFQMR\_CONV\_FAIL  (2):}] \leavevmode
-Failure to converge.
-
-\item[{\index{SPTFQMR\_PSOLVE\_FAIL\_REC}SPTFQMR\_PSOLVE\_FAIL\_REC  (3):}] \leavevmode
-The preconditioner solve function
-failed recoverably.
-
-\item[{\index{SPTFQMR\_ATIMES\_FAIL\_REC}SPTFQMR\_ATIMES\_FAIL\_REC  (4):}] \leavevmode
-The Jacobian-times-vector function
-failed recoverably.
-
-\item[{\index{SPTFQMR\_PSET\_FAIL\_REC}SPTFQMR\_PSET\_FAIL\_REC  (5):}] \leavevmode
-The preconditioner setup function
-failed recoverably.
-
-\item[{\index{SPTFQMR\_MEM\_NULL}SPTFQMR\_MEM\_NULL  (-1):}] \leavevmode
-The SPTFQMR memory is \code{NULL}
-
-\item[{\index{SPTFQMR\_ATIMES\_FAIL\_UNREC}SPTFQMR\_ATIMES\_FAIL\_UNREC  (-2):}] \leavevmode
-The Jacobian-times-vector
-function failed.
-
-\item[{\index{SPTFQMR\_PSOLVE\_FAIL\_UNREC}SPTFQMR\_PSOLVE\_FAIL\_UNREC  (-3):}] \leavevmode
-The preconditioner solve function
-failed unrecoverably.
-
-\item[{\index{SPTFQMR\_PSET\_FAIL\_UNREC}SPTFQMR\_PSET\_FAIL\_UNREC  (-4):}] \leavevmode
-The preconditioner setup function
-failed unrecoverably.
-
-\end{description}
-
-
-\subsection{ARKSPFGMR generic linear solver module}
-\label{Constants:arkspfgmr-generic-linear-solver-module}\begin{description}
+\subsection{SPFGMR generic linear solver module (only available in KINSOL and ARKODE)}
+\label{Constants:spfgmr-generic-linear-solver-module-only-available-in-kinsol-and-arkode}\begin{description}
 \item[{\index{SPFGMR\_SUCCESS}SPFGMR\_SUCCESS  (0):}] \leavevmode
 Converged.
 
@@ -21927,7 +21865,7 @@ The Jacobian-times-vector function
 failed recoverably.
 
 \item[{\index{SPFGMR\_PSET\_FAIL\_REC}SPFGMR\_PSET\_FAIL\_REC  (6):}] \leavevmode
-The preconditioner setup function failed
+The preconditioner setup routine failed
 recoverably.
 
 \item[{\index{SPFGMR\_MEM\_NULL}SPFGMR\_MEM\_NULL  (-1):}] \leavevmode
@@ -21949,14 +21887,98 @@ The matrix $R$ was found to be
 singular during the QR solve phase.
 
 \item[{\index{SPFGMR\_PSET\_FAIL\_UNREC}SPFGMR\_PSET\_FAIL\_UNREC  (-6):}] \leavevmode
-The preconditioner setup function
+The preconditioner setup routine
 failed unrecoverably.
 
 \end{description}
 
 
-\subsection{ARKPCG generic linear solver module}
-\label{Constants:arkpcg-generic-linear-solver-module}\begin{description}
+\subsection{SPBCG generic linear solver module}
+\label{Constants:spbcg-generic-linear-solver-module}\begin{description}
+\item[{\index{SPBCG\_SUCCESS}SPBCG\_SUCCESS  (0):}] \leavevmode
+Converged.
+
+\item[{\index{SPBCG\_RES\_REDUCED}SPBCG\_RES\_REDUCED  (1):}] \leavevmode
+No convergence, but the residual norm
+was reduced.
+
+\item[{\index{SPBCG\_CONV\_FAIL}SPBCG\_CONV\_FAIL  (2):}] \leavevmode
+Failure to converge.
+
+\item[{\index{SPBCG\_PSOLVE\_FAIL\_REC}SPBCG\_PSOLVE\_FAIL\_REC  (3):}] \leavevmode
+The preconditioner solve function
+failed recoverably.
+
+\item[{\index{SPBCG\_ATIMES\_FAIL\_REC}SPBCG\_ATIMES\_FAIL\_REC  (4):}] \leavevmode
+The Jacobian-times-vector function
+failed recoverably.
+
+\item[{\index{SPBCG\_PSET\_FAIL\_REC}SPBCG\_PSET\_FAIL\_REC  (5):}] \leavevmode
+The preconditioner setup routine
+failed recoverably.
+
+\item[{\index{SPBCG\_MEM\_NULL}SPBCG\_MEM\_NULL  (-1):}] \leavevmode
+The SPBCG memory is \code{NULL}
+
+\item[{\index{SPBCG\_ATIMES\_FAIL\_UNREC}SPBCG\_ATIMES\_FAIL\_UNREC  (-2):}] \leavevmode
+The Jacobian-times-vector function
+failed unrecoverably.
+
+\item[{\index{SPBCG\_PSOLVE\_FAIL\_UNREC}SPBCG\_PSOLVE\_FAIL\_UNREC  (-3):}] \leavevmode
+The preconditioner solve function
+failed unrecoverably.
+
+\item[{\index{SPBCG\_PSET\_FAIL\_UNREC}SPBCG\_PSET\_FAIL\_UNREC  (-4):}] \leavevmode
+The preconditioner setup routine
+failed unrecoverably.
+
+\end{description}
+
+
+\subsection{SPTFQMR generic linear solver module}
+\label{Constants:sptfqmr-generic-linear-solver-module}\begin{description}
+\item[{\index{SPTFQMR\_SUCCESS}SPTFQMR\_SUCCESS  (0):}] \leavevmode
+Converged.
+
+\item[{\index{SPTFQMR\_RES\_REDUCED}SPTFQMR\_RES\_REDUCED  (1):}] \leavevmode
+No convergence, but the residual norm
+was reduced.
+
+\item[{\index{SPTFQMR\_CONV\_FAIL}SPTFQMR\_CONV\_FAIL  (2):}] \leavevmode
+Failure to converge.
+
+\item[{\index{SPTFQMR\_PSOLVE\_FAIL\_REC}SPTFQMR\_PSOLVE\_FAIL\_REC  (3):}] \leavevmode
+The preconditioner solve function
+failed recoverably.
+
+\item[{\index{SPTFQMR\_ATIMES\_FAIL\_REC}SPTFQMR\_ATIMES\_FAIL\_REC  (4):}] \leavevmode
+The Jacobian-times-vector function
+failed recoverably.
+
+\item[{\index{SPTFQMR\_PSET\_FAIL\_REC}SPTFQMR\_PSET\_FAIL\_REC  (5):}] \leavevmode
+The preconditioner setup routine
+failed recoverably.
+
+\item[{\index{SPTFQMR\_MEM\_NULL}SPTFQMR\_MEM\_NULL  (-1):}] \leavevmode
+The SPTFQMR memory is \code{NULL}
+
+\item[{\index{SPTFQMR\_ATIMES\_FAIL\_UNREC}SPTFQMR\_ATIMES\_FAIL\_UNREC  (-2):}] \leavevmode
+The Jacobian-times-vector
+function failed.
+
+\item[{\index{SPTFQMR\_PSOLVE\_FAIL\_UNREC}SPTFQMR\_PSOLVE\_FAIL\_UNREC  (-3):}] \leavevmode
+The preconditioner solve function
+failed unrecoverably.
+
+\item[{\index{SPTFQMR\_PSET\_FAIL\_UNREC}SPTFQMR\_PSET\_FAIL\_UNREC  (-4):}] \leavevmode
+The preconditioner setup routine
+failed unrecoverably.
+
+\end{description}
+
+
+\subsection{PCG generic linear solver module (only available in ARKODE)}
+\label{Constants:pcg-generic-linear-solver-module-only-available-in-arkode}\begin{description}
 \item[{\index{PCG\_SUCCESS}PCG\_SUCCESS  (0):}] \leavevmode
 Converged.
 
@@ -21976,7 +21998,7 @@ The Jacobian-times-vector function
 failed recoverably.
 
 \item[{\index{PCG\_PSET\_FAIL\_REC}PCG\_PSET\_FAIL\_REC  (5):}] \leavevmode
-The preconditioner setup function
+The preconditioner setup routine
 failed recoverably.
 
 \item[{\index{PCG\_MEM\_NULL}PCG\_MEM\_NULL  (-1):}] \leavevmode
@@ -21991,7 +22013,7 @@ The preconditioner solve function
 failed unrecoverably.
 
 \item[{\index{PCG\_PSET\_FAIL\_UNREC}PCG\_PSET\_FAIL\_UNREC  (-4):}] \leavevmode
-The preconditioner setup function
+The preconditioner setup routine
 failed unrecoverably.
 
 \end{description}
@@ -22748,6 +22770,17 @@ in the Stiff ODE Setting.  In J.R. Cash and I. Gladwell,
 editors, \emph{Computational Ordinary Differential Equations},
 pp. 323-356, Oxford University Press, 1992.
 }
+\bibitem[DP2010]{DP2010}{\phantomsection\label{References:dp2010} 
+T. Davis and E. Palamadai Natarajan.  Algortithm 907: KLU,
+a direct sparse solver for circuit simulation
+problems. \emph{ACM Trans. Math. Soft.}, 37, 2010.
+}
+\bibitem[DGL1999]{DGL1999}{\phantomsection\label{References:dgl1999} 
+J.W. Demmel, J.R. Gilbert and X.S. Li. An Asynchronous
+Parallel Supernodal Algorithm for Sparse Gaussian
+Elimination. \emph{SIAM J. Matrix Analysis and Applications},
+20:915-952, 1999.
+}
 \bibitem[G1991]{G1991}{\phantomsection\label{References:g1991} 
 K. Gustafsson.  Control theoretic techniques for stepsize
 selection in explicit Runge-Kutta methods. \emph{ACM
@@ -22785,12 +22818,21 @@ schemes for convection-diffusion-reaction
 equations. \emph{Appl. Numer. Math.}, 44:139-181, 2003.
 }
 \bibitem[KLU]{KLU}{\phantomsection\label{References:klu} 
-\href{https://www.cise.ufl.edu/research/sparse/klu/}{KLU Sparse Matrix Factorization Library}.
+\href{http://faculty.cse.tamu.edu/davis/suitesparse.html}{KLU Sparse Matrix Factorization Library}.
+}
+\bibitem[L2005]{L2005}{\phantomsection\label{References:l2005} 
+X.S. Li. An Overview of SuperLU: Algorithms,
+Implementation, and User Interface. \emph{ACM
+Trans. Math. Soft.}, 31:302-325, 2005.
 }
 \bibitem[R2013]{R2013}{\phantomsection\label{References:r2013} 
 D.R. Reynolds. ARKode Example Documentation. Technical
 Report, Southern Methodist University Center for Scientific
 Computation, 2013.
+}
+\bibitem[S1993]{S1993}{\phantomsection\label{References:s1993} 
+Y. Saad. A flexible inner-outer preconditioned GMRES
+algorithm.  \emph{SIAM J. Sci. Comput.}, 14:461-469, 1993.
 }
 \bibitem[S1998]{S1998}{\phantomsection\label{References:s1998} 
 G. Soderlind. The automatic control of numerical

@@ -5,7 +5,7 @@
 The Pthreads implementation of the {\nvector} module provided with {\sundials},
 {\nvecpthreads}, defines the {\em content} field of \id{N\_Vector} to be a structure 
 containing the length of the vector, a pointer to the beginning of a contiguous 
-data array, and a boolean flag {\em own\_data} which specifies the ownership 
+data array, a boolean flag {\em own\_data} which specifies the ownership 
 of {\em data}, and the number of threads.  
 Operations on the vector are threaded using POSIX threads 
 (Pthreads).

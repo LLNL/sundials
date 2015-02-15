@@ -627,7 +627,7 @@ storage (the entries marked with \texttt{*} may contain any values).
 Note in both cases that the final value in \id{colptrs} is $8$.  The work 
 associated with operations on the sparse matrix is proportional to this
 value and so one should use the best understanding of the
-number fo nonzeroes here.
+number of nonzeroes here.
 %%
 %%
 %%
@@ -741,7 +741,7 @@ fill-in (using AMD, COLAMD, CHOLAMD, natural, or an ordering given by the user).
 Note that SUNDIALS uses the COLAMD ordering by default with {\klu}.
 
 {\klu} breaks the factorization into two separate parts.  The first is a symbolic
-factorization and teh second is a numeric 
+factorization and the second is a numeric 
 factorization that returns the factored matrix along with final pivot information.  
 {\klu} also has a refactor routine that can be called instead of the numeric 
 factorization.  This routine will reuse the pivot information.  This routine 
@@ -774,7 +774,7 @@ and \ref{ss:nvec_pthreads} for details).
 {\superlumt} is a threaded sparse matrix factorization and solver
 library written by X. Sherry Li \cite{SuperLUMT_site,Li:05,DGL:99}.  
 The package performs matrix factorization using threads to enhance efficiency
-in shared memory paralell environments.  It should be noted that threads are
+in shared memory parallel environments.  It should be noted that threads are
 only used in the factorization step.
 
 In order to use 
