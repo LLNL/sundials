@@ -366,13 +366,14 @@ static int arkSuperLUMTSetup(ARKodeMem ark_mem, int convfail,
     
     /* add to A */
     retval = SlsAddMat(arksls_mem->s_A, arksls_mass_mem->s_M);
-    if (retval != 0) {
+    if (retval < 0) {
       arkProcessError(ark_mem, ARKSLS_PACKAGE_FAIL, "ARKSLS", 
 		      "arkSuperLUMTSetup",  
 		      "Error in adding mass matrix to Jacobian");
       arksls_mem->s_last_flag = ARKSLS_PACKAGE_FAIL;
-      return(-1);
+      return(retval);
     }
+    if (retval > 0)  return(retval);
     
   } else {
     AddIdentitySparseMat(arksls_mem->s_A);
