@@ -24,12 +24,12 @@
 #ifndef _FNVECTOR_PTHREADS_H
 #define _FNVECTOR_PTHREADS_H
 
+#include <nvector/nvector_pthreads.h>
+#include <sundials/sundials_fnvector.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <nvector/nvector_pthreads.h>  
-#include <sundials/sundials_fnvector.h>
 
 #if defined(SUNDIALS_F77_FUNC)
 #define FNV_INITS_PTHREADS    SUNDIALS_F77_FUNC(fnvinits_pthreads, FNVINITS_PTHREADS)

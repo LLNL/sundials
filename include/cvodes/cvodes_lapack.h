@@ -22,12 +22,12 @@
 #ifndef _CVSLAPACK_H
 #define _CVSLAPACK_H
 
+#include <cvodes/cvodes_direct.h>
+#include <sundials/sundials_lapack.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <cvodes/cvodes_direct.h>
-#include <sundials/sundials_lapack.h>
 
 /*
  * -----------------------------------------------------------------

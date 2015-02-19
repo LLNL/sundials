@@ -23,12 +23,12 @@
 #ifndef _IDASSPILS_IMPL_H
 #define _IDASSPILS_IMPL_H
 
+#include <idas/idas_spils.h>
+#include "idas_impl.h"
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <idas/idas_spils.h>
-#include "idas_impl.h"
 
 /* Types of iterative linear solvers */
 

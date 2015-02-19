@@ -30,12 +30,12 @@
 #ifndef _IDASBAND_H
 #define _IDASBAND_H
 
+#include <idas/idas_direct.h>
+#include <sundials/sundials_band.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <idas/idas_direct.h>
-#include <sundials/sundials_band.h>
 
 /*
  * -----------------------------------------------------------------

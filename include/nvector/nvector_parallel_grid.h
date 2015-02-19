@@ -42,13 +42,12 @@
 #ifndef _NVECTOR_PARALLEL_GRID_H
 #define _NVECTOR_PARALLEL_GRID_H
 
+#include <mpi.h>
+#include <sundials/sundials_nvector.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <mpi.h>
-
-#include <sundials/sundials_nvector.h>
 
 
 /*

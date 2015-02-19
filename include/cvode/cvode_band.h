@@ -23,13 +23,13 @@
 #ifndef _CVBAND_H
 #define _CVBAND_H
 
+#include <cvode/cvode_direct.h>
+#include <sundials/sundials_band.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-#include <cvode/cvode_direct.h>
-#include <sundials/sundials_band.h>
- 
 /*
  * -----------------------------------------------------------------
  * Function : CVBand

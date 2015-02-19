@@ -23,13 +23,13 @@
 #ifndef _KINBBDPRE_IMPL_H
 #define _KINBBDPRE_IMPL_H
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
-extern "C" {
-#endif
-
 #include <kinsol/kinsol_bbdpre.h>
 #include <sundials/sundials_band.h>
 #include "kinsol_impl.h"
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 /*
  * -----------------------------------------------------------------

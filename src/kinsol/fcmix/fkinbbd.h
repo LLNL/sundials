@@ -247,18 +247,17 @@
 #ifndef _FKINBBD_H
 #define _FKINBBD_H
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
-extern "C" {
-#endif
-
 /*
  * -----------------------------------------------------------------
  * header files
  * -----------------------------------------------------------------
  */
-
 #include <sundials/sundials_nvector.h> /* definition of type N_Vector */
 #include <sundials/sundials_types.h>   /* definition of type realtype */
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 /*
  * -----------------------------------------------------------------

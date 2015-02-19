@@ -75,11 +75,11 @@
 #ifndef _SPGMR_H
 #define _SPGMR_H
 
+#include <sundials/sundials_iterative.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <sundials/sundials_iterative.h>
 
 /*
  * -----------------------------------------------------------------

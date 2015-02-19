@@ -22,12 +22,12 @@
 #ifndef _CPBBDPRE_IMPL_H
 #define _CPBBDPRE_IMPL_H
 
+#include <cpodes/cpodes_bbdpre.h>
+#include <sundials/sundials_band.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <cpodes/cpodes_bbdpre.h>
-#include <sundials/sundials_band.h>
 
 /*
  * -----------------------------------------------------------------

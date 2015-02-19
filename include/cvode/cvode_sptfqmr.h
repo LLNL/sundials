@@ -23,12 +23,12 @@
 #ifndef _CVSPTFQMR_H
 #define _CVSPTFQMR_H
 
+#include <cvode/cvode_spils.h>
+#include <sundials/sundials_sptfqmr.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <cvode/cvode_spils.h>
-#include <sundials/sundials_sptfqmr.h>
 
 /*
  * -----------------------------------------------------------------

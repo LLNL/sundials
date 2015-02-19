@@ -22,12 +22,12 @@
 #ifndef _IDADLS_H
 #define _IDADLS_H
 
+#include <sundials/sundials_direct.h>
+#include <sundials/sundials_nvector.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <sundials/sundials_direct.h>
-#include <sundials/sundials_nvector.h>
 
 /*
  * =================================================================

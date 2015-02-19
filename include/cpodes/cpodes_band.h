@@ -22,12 +22,12 @@
 #ifndef _CPBAND_H
 #define _CPBAND_H
 
+#include <cpodes/cpodes_direct.h>
+#include <sundials/sundials_band.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <cpodes/cpodes_direct.h>
-#include <sundials/sundials_band.h>
 
 /*
  * -----------------------------------------------------------------

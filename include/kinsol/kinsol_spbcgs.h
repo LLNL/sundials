@@ -23,12 +23,12 @@
 #ifndef _KINSPBCG_H
 #define _KINSPBCG_H
 
+#include <kinsol/kinsol_spils.h>
+#include <sundials/sundials_spbcgs.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <kinsol/kinsol_spils.h>
-#include <sundials/sundials_spbcgs.h>
 
 /*
  * -----------------------------------------------------------------

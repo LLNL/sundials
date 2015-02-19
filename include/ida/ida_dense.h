@@ -22,12 +22,12 @@
 #ifndef _IDADENSE_H
 #define _IDADENSE_H
 
+#include <ida/ida_direct.h>
+#include <sundials/sundials_dense.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <ida/ida_direct.h>
-#include <sundials/sundials_dense.h>
 
 /*
  * -----------------------------------------------------------------

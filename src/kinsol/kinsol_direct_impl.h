@@ -22,11 +22,11 @@
 #ifndef _KINDLS_IMPL_H
 #define _KINDLS_IMPL_H
 
+#include <kinsol/kinsol_direct.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <kinsol/kinsol_direct.h>
 
 
 /*

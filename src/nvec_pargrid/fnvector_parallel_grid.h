@@ -13,12 +13,12 @@
 #ifndef _FNVECTOR_PARALLEL_GRID_H
 #define _FNVECTOR_PARALLEL_GRID_H
 
+#include <nvector/nvector_parallel_grid.h>
+#include <sundials/sundials_fnvector.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <nvector/nvector_parallel_grid.h>  
-#include <sundials/sundials_fnvector.h>
 
 #if defined(SUNDIALS_F77_FUNC)
 #define FNV_INITP    SUNDIALS_F77_FUNC(fnvinitp, FNVINITP)

@@ -11,13 +11,13 @@
 #ifndef _ARKBAND_H
 #define _ARKBAND_H
 
+#include <arkode/arkode_direct.h>
+#include <sundials/sundials_band.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-#include <arkode/arkode_direct.h>
-#include <sundials/sundials_band.h>
- 
 /*---------------------------------------------------------------
  ARKBand:
 

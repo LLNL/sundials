@@ -11,13 +11,12 @@
 #ifndef _ARKODE_IMPL_H
 #define _ARKODE_IMPL_H
 
+#include <stdarg.h>
+#include <arkode/arkode.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <stdarg.h>
-
-#include <arkode/arkode.h>
 
 
 /*===============================================================

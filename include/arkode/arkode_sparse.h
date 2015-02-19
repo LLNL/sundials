@@ -11,12 +11,12 @@
 #ifndef _ARKSPARSE_H
 #define _ARKSPARSE_H
 
+#include <sundials/sundials_sparse.h>
+#include <sundials/sundials_nvector.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <sundials/sundials_sparse.h>
-#include <sundials/sundials_nvector.h>
 
 
 /*===============================================================

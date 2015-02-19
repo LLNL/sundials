@@ -24,12 +24,12 @@
 #ifndef _FNVECTOR_SERIAL_H
 #define _FNVECTOR_SERIAL_H
 
+#include <nvector/nvector_serial.h>
+#include <sundials/sundials_fnvector.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <nvector/nvector_serial.h>  
-#include <sundials/sundials_fnvector.h>
 
 #if defined(SUNDIALS_F77_FUNC)
 #define FNV_INITS    SUNDIALS_F77_FUNC(fnvinits, FNVINITS)

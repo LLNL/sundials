@@ -101,14 +101,13 @@
 #ifndef _FIDAROOT_H
 #define _FIDAROOT_H
 
+/* header files */
+#include <sundials/sundials_nvector.h> /* definition of type N_Vector          */
+#include <sundials/sundials_types.h>   /* definition of SUNDIALS type realtype */
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-/* header files */
-
-#include <sundials/sundials_nvector.h> /* definition of type N_Vector          */
-#include <sundials/sundials_types.h>   /* definition of SUNDIALS type realtype */
 
 /* Definitions of interface function names */
 

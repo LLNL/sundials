@@ -20,13 +20,6 @@
  * -----------------------------------------------------------------
  */
 
-#ifdef __cplusplus     /* wrapper to enable C++ usage */
-extern "C" {
-#endif
-  
-#ifndef _cvodec_h
-#define _cvodec_h
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -37,6 +30,13 @@ extern "C" {
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
+
+#ifdef __cplusplus     /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+
+#ifndef _cvodec_h
+#define _cvodec_h
 
 /*----------------------------------------------------------------*
  *                                                                *

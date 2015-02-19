@@ -76,11 +76,11 @@
 #ifndef _SPTFQMR_H
 #define _SPTFQMR_H
 
+#include <sundials/sundials_iterative.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <sundials/sundials_iterative.h>
 
 /*
  * -----------------------------------------------------------------

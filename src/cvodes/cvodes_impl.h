@@ -22,15 +22,15 @@
 #ifndef _CVODES_IMPL_H
 #define _CVODES_IMPL_H
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
-extern "C" {
-#endif
-
 #include <stdarg.h>
 
 #include <cvodes/cvodes.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 /* 
  * =================================================================

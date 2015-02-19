@@ -12,13 +12,13 @@
 #ifndef _ARKPCG_H
 #define _ARKPCG_H
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
-extern "C" {
-#endif
-
 #include <arkode/arkode.h>
 #include <arkode/arkode_spils.h>
 #include <sundials/sundials_pcg.h>
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 /*---------------------------------------------------------------
  ARKPcg:

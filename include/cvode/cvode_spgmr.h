@@ -24,12 +24,12 @@
 #ifndef _CVSPGMR_H
 #define _CVSPGMR_H
 
+#include <cvode/cvode_spils.h>
+#include <sundials/sundials_spgmr.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <cvode/cvode_spils.h>
-#include <sundials/sundials_spgmr.h>
 
 /*
  * -----------------------------------------------------------------

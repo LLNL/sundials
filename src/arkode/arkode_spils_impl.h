@@ -12,12 +12,12 @@
 #ifndef _ARKSPILS_IMPL_H
 #define _ARKSPILS_IMPL_H
 
+#include <arkode/arkode_spils.h>
+#include "arkode_impl.h"
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <arkode/arkode_spils.h>
-#include "arkode_impl.h"
 
 
 /* Types of iterative linear solvers */

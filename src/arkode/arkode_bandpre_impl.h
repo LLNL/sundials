@@ -11,13 +11,13 @@
 #ifndef _ARKBANDPRE_IMPL_H
 #define _ARKBANDPRE_IMPL_H
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
-extern "C" {
-#endif
-
 #include <arkode/arkode_bandpre.h>
 #include <sundials/sundials_band.h>
 #include <sundials/sundials_direct.h>
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 /*---------------------------------------------------------------
  Type: ARKBandPrecData

@@ -11,12 +11,12 @@
 #ifndef _ARKLAPACK_H
 #define _ARKLAPACK_H
 
+#include <arkode/arkode_direct.h>
+#include <sundials/sundials_lapack.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <arkode/arkode_direct.h>
-#include <sundials/sundials_lapack.h>
 
 
 /*===============================================================

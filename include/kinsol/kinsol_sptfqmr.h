@@ -23,12 +23,12 @@
 #ifndef _KINSPTFQMR_H
 #define _KINSPTFQMR_H
 
+#include <kinsol/kinsol_spils.h>
+#include <sundials/sundials_sptfqmr.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <kinsol/kinsol_spils.h>
-#include <sundials/sundials_sptfqmr.h>
 
 /*
  * -----------------------------------------------------------------

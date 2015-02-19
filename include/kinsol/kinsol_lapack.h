@@ -22,12 +22,12 @@
 #ifndef _KINLAPACK_H
 #define _KINLAPACK_H
 
+#include <kinsol/kinsol_direct.h>
+#include <sundials/sundials_lapack.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <kinsol/kinsol_direct.h>
-#include <sundials/sundials_lapack.h>
 
 /*
  * =================================================================

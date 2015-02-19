@@ -20,13 +20,12 @@
 #ifndef _NVECTOR_SPCPARALLEL_H
 #define _NVECTOR_SPCPARALLEL_H
 
+#include <mpi.h>
+#include <sundials/sundials_nvector.h>
+
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <mpi.h>
-
-#include <sundials/sundials_nvector.h>
 
 /*
  * -----------------------------------------------------------------

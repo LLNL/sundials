@@ -69,11 +69,11 @@
 #ifndef _ARKBANDPRE_H
 #define _ARKBANDPRE_H
 
+#include <sundials/sundials_nvector.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <sundials/sundials_nvector.h>
 
 
 /*---------------------------------------------------------------

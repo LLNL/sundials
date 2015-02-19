@@ -24,11 +24,11 @@
 #ifndef _SUNDIALS_DIRECT_H
 #define _SUNDIALS_DIRECT_H
 
+#include <sundials/sundials_types.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <sundials/sundials_types.h>
 
 /*
  * =================================================================

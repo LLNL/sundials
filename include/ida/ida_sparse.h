@@ -22,12 +22,12 @@
 #ifndef _IDASPARSE_H
 #define _IDASPARSE_H
 
+#include <sundials/sundials_sparse.h>
+#include <sundials/sundials_nvector.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <sundials/sundials_sparse.h>
-#include <sundials/sundials_nvector.h>
 
 /*
  * =================================================================

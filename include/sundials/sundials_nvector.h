@@ -48,11 +48,11 @@
 #ifndef _NVECTOR_H
 #define _NVECTOR_H
 
+#include <sundials/sundials_types.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <sundials/sundials_types.h>
 
 /*
  * -----------------------------------------------------------------

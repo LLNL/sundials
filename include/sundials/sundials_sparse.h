@@ -16,12 +16,12 @@
 #ifndef _SUNDIALS_SPARSE_H
 #define _SUNDIALS_SPARSE_H
 
+#include <sundials/sundials_types.h>
+#include <sundials/sundials_direct.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_direct.h>
 
 /*
  * ==================================================================

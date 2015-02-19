@@ -22,11 +22,11 @@
 #ifndef _IDASDLS_IMPL_H
 #define _IDASDLS_IMPL_H
 
+#include <idas/idas_direct.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <idas/idas_direct.h>
 
 /*
  * =================================================================

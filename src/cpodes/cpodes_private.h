@@ -22,12 +22,12 @@
 #ifndef _CPODES_PRIVATE_H
 #define _CPODES_PRIVATE_H
 
+#include <stdarg.h>
+#include "cpodes_impl.h"
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <stdarg.h>
-#include "cpodes_impl.h"
 
 /*
  * =================================================================

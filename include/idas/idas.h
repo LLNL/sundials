@@ -33,12 +33,12 @@
 #ifndef _IDAS_H
 #define _IDAS_H
 
+#include <stdio.h>
+#include <sundials/sundials_nvector.h>
+
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <stdio.h>
-#include <sundials/sundials_nvector.h>
 
 /* * =================================================================
  *              I D A S     C O N S T A N T S

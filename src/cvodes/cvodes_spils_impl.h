@@ -23,12 +23,12 @@
 #ifndef _CVSSPILS_IMPL_H
 #define _CVSSPILS_IMPL_H
 
+#include <cvodes/cvodes_spils.h>
+#include "cvodes_impl.h"
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <cvodes/cvodes_spils.h>
-#include "cvodes_impl.h"
 
 /*
  * =================================================================

@@ -12,11 +12,11 @@
 #ifndef _PCG_H
 #define _PCG_H
 
+#include <sundials/sundials_iterative.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <sundials/sundials_iterative.h>
 
 /*---------------------------------------------------------------
  Types: struct PcgMemRec and struct *PcgMem

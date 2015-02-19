@@ -23,12 +23,12 @@
 #ifndef _IDASPGMR_H
 #define _IDASPGMR_H
 
+#include <ida/ida_spils.h>
+#include <sundials/sundials_spgmr.h>
+
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <ida/ida_spils.h>
-#include <sundials/sundials_spgmr.h>
 
 /*
  * -----------------------------------------------------------------

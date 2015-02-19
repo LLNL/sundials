@@ -23,11 +23,11 @@
 #ifndef _SPBCG_H
 #define _SPBCG_H
 
+#include <sundials/sundials_iterative.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <sundials/sundials_iterative.h>
 
 /*
  * -----------------------------------------------------------------

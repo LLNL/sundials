@@ -23,12 +23,12 @@
 #ifndef _CPSPBCG_H
 #define _CPSPBCG_H
 
+#include <cpodes/cpodes_spils.h>
+#include <sundials/sundials_spbcgs.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <cpodes/cpodes_spils.h>
-#include <sundials/sundials_spbcgs.h>
 
 /*
  * -----------------------------------------------------------------

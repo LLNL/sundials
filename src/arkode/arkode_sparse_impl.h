@@ -12,11 +12,11 @@
 #ifndef _ARKSPARSE_IMPL_H
 #define _ARKSPARSE_IMPL_H
 
+#include "arkode/arkode_sparse.h"
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include "arkode/arkode_sparse.h"
 
 /*---------------------------------------------------------------
  ARKSLS solver constants:

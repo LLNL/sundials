@@ -22,12 +22,12 @@
 #ifndef _CPLAPACK_H
 #define _CPLAPACK_H
 
+#include <cpodes/cpodes_direct.h>
+#include <sundials/sundials_lapack.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <cpodes/cpodes_direct.h>
-#include <sundials/sundials_lapack.h>
 
 /*
  * =================================================================

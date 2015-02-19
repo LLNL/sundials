@@ -24,12 +24,12 @@
 #ifndef _FNVECTOR_SPCPARALLEL_H
 #define _FNVECTOR_SPCPARALLEL_H
 
+#include <nvector/nvector_spcparallel.h>
+#include <sundials/sundials_fnvector.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <nvector/nvector_spcparallel.h>  
-#include <sundials/sundials_fnvector.h>
 
 #if defined(F77_FUNC)
 

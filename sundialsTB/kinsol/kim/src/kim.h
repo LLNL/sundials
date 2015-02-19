@@ -22,10 +22,6 @@
 #ifndef _KIM_H
 #define _KIM_H
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
-extern "C" {
-#endif
-  
 #include <string.h>
 #include <stdlib.h>
 #include "mex.h"
@@ -36,6 +32,10 @@ extern "C" {
 #include <kinsol/kinsol_spbcgs.h>
 #include <kinsol/kinsol_sptfqmr.h>
 #include <kinsol/kinsol_bbdpre.h>
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 /*
  * ---------------------------------------------------------------------------------

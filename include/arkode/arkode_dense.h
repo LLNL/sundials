@@ -11,12 +11,12 @@
 #ifndef _ARKDENSE_H
 #define _ARKDENSE_H
 
+#include <arkode/arkode_direct.h>
+#include <sundials/sundials_dense.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <arkode/arkode_direct.h>
-#include <sundials/sundials_dense.h>
 
 
 /*---------------------------------------------------------------

@@ -29,11 +29,11 @@
 #ifndef _SUNDIALS_DENSE_H
 #define _SUNDIALS_DENSE_H
 
+#include <sundials/sundials_direct.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <sundials/sundials_direct.h>
 
 /*
  * -----------------------------------------------------------------

@@ -22,11 +22,11 @@
 #ifndef _CPDLS_IMPL_H
 #define _CPDLS_IMPL_H
 
+#include <cpodes/cpodes_direct.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <cpodes/cpodes_direct.h>
 
 /*
  * -----------------------------------------------------------------

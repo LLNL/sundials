@@ -22,10 +22,6 @@
 #ifndef _IDM_H
 #define _IDM_H
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
-extern "C" {
-#endif
-  
 #include <string.h>
 #include <stdlib.h>
 #include "mex.h"
@@ -36,6 +32,10 @@ extern "C" {
 #include <idas/idas_spbcgs.h>
 #include <idas/idas_sptfqmr.h>
 #include <idas/idas_bbdpre.h>
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 /*
  * ---------------------------------------------------------------------------------

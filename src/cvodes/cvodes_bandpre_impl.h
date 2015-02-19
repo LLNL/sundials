@@ -22,13 +22,13 @@
 #ifndef _CVSBANDPRE_IMPL_H
 #define _CVSBANDPRE_IMPL_H
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
-extern "C" {
-#endif
-
 #include <cvodes/cvodes_bandpre.h>
 #include <sundials/sundials_band.h>
 #include <sundials/sundials_direct.h>
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 /*
  * -----------------------------------------------------------------

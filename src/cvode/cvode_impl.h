@@ -23,13 +23,12 @@
 #ifndef _CVODE_IMPL_H
 #define _CVODE_IMPL_H
 
+#include <stdarg.h>
+#include <cvode/cvode.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <stdarg.h>
-
-#include <cvode/cvode.h>
 
 /*
  * =================================================================

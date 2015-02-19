@@ -99,13 +99,12 @@
 #ifndef _FARKROOT_H
 #define _FARKROOT_H
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
-extern "C" {
-#endif
-
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
 
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 /* Definitions of interface function names */
 #if defined(SUNDIALS_F77_FUNC)

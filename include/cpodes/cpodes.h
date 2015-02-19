@@ -34,12 +34,12 @@
 #ifndef _CPODES_H
 #define _CPODES_H
 
+#include <stdio.h>
+#include <sundials/sundials_nvector.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <stdio.h>
-#include <sundials/sundials_nvector.h>
 
 /*
  * =================================================================

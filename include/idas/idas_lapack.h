@@ -22,12 +22,12 @@
 #ifndef _IDALAPACK_H
 #define _IDALAPACK_H
 
+#include <idas/idas_direct.h>
+#include <sundials/sundials_lapack.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <idas/idas_direct.h>
-#include <sundials/sundials_lapack.h>
 
 /*
  * -----------------------------------------------------------------

@@ -24,12 +24,12 @@
 #ifndef _KINSPGMR_H
 #define _KINSPGMR_H
 
+#include <kinsol/kinsol_spils.h>
+#include <sundials/sundials_spgmr.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <kinsol/kinsol_spils.h>
-#include <sundials/sundials_spgmr.h>
 
 /*
  * -----------------------------------------------------------------

@@ -22,12 +22,12 @@
 #ifndef _KINBAND_H
 #define _KINBAND_H
 
+#include <kinsol/kinsol_direct.h>
+#include <sundials/sundials_band.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <kinsol/kinsol_direct.h>
-#include <sundials/sundials_band.h>
 
 /*
  * -----------------------------------------------------------------

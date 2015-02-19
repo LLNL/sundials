@@ -277,14 +277,13 @@
 #ifndef _FCVBBD_H
 #define _FCVBBD_H
 
+/* header files  */
+#include <sundials/sundials_nvector.h> /* definition of type N_Vector */
+#include <sundials/sundials_types.h>   /* definition of type realtype */
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-/* header files  */
-
-#include <sundials/sundials_nvector.h> /* definition of type N_Vector */
-#include <sundials/sundials_types.h>   /* definition of type realtype */
 
 /* Definitions of interface function names */
 

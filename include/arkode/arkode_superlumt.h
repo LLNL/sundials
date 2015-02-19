@@ -11,12 +11,12 @@
 #ifndef _ARKSUPERLUMT_H
 #define _ARKSUPERLUMT_H
 
+#include "arkode/arkode_sparse.h"
+#include "sundials/sundials_sparse.h"
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include "arkode/arkode_sparse.h"
-#include "sundials/sundials_sparse.h"
 
 
 /*---------------------------------------------------------------

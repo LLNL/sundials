@@ -22,12 +22,12 @@
 #ifndef _CVSDENSE_H
 #define _CVSDENSE_H
 
+#include <cvodes/cvodes_direct.h>
+#include <sundials/sundials_dense.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <cvodes/cvodes_direct.h>
-#include <sundials/sundials_dense.h>
 
 /*
  * -----------------------------------------------------------------

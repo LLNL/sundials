@@ -24,13 +24,13 @@
 #ifndef _FNVECTOR_H
 #define _FNVECTOR_H
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
-extern "C" {
-#endif
-
 #ifndef _SUNDIALS_CONFIG_H
 #define _SUNDIALS_CONFIG_H
 #include <sundials/sundials_config.h>
+#endif
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
 #endif
 
 /* SUNDIALS solver IDs */

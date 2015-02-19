@@ -12,13 +12,13 @@
 #ifndef _ARKSPTFQMR_H
 #define _ARKSPTFQMR_H
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
-extern "C" {
-#endif
-
 #include <arkode/arkode.h>
 #include <arkode/arkode_spils.h>
 #include <sundials/sundials_sptfqmr.h>
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 /*---------------------------------------------------------------
  ARKSptfqmr:

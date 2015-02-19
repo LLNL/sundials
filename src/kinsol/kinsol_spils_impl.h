@@ -23,12 +23,12 @@
 #ifndef _KINSPILS_IMPL_H
 #define _KINSPILS_IMPL_H
 
+#include <kinsol/kinsol_spils.h>
+#include "kinsol_impl.h"
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <kinsol/kinsol_spils.h>
-#include "kinsol_impl.h"
 
 /* Types of iterative linear solvers */
 

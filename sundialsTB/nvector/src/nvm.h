@@ -22,12 +22,12 @@
 #ifndef _NVM_H
 #define _NVM_H
 
+#include <sundials/sundials_nvector.h>
+#include "mex.h"
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <sundials/sundials_nvector.h>
-#include "mex.h"
 
   /*
    * ------------------

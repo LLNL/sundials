@@ -108,11 +108,11 @@
 #ifndef _IDABBDPRE_H
 #define _IDABBDPRE_H
 
+#include <sundials/sundials_nvector.h>
+
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <sundials/sundials_nvector.h>
 
 /*
  * -----------------------------------------------------------------

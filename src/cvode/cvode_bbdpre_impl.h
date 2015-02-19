@@ -23,12 +23,12 @@
 #ifndef _CVBBDPRE_IMPL_H
 #define _CVBBDPRE_IMPL_H
 
+#include <cvode/cvode_bbdpre.h>
+#include <sundials/sundials_band.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <cvode/cvode_bbdpre.h>
-#include <sundials/sundials_band.h>
 
 /*
  * -----------------------------------------------------------------

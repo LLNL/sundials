@@ -11,11 +11,11 @@
 #ifndef _ARKDLS_IMPL_H
 #define _ARKDLS_IMPL_H
 
+#include <arkode/arkode_direct.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <arkode/arkode_direct.h>
 
 /*---------------------------------------------------------------
  ARKDLS solver constants:

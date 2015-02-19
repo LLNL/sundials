@@ -22,10 +22,6 @@
 #ifndef _CVM_H
 #define _CVM_H
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
-extern "C" {
-#endif
-
 #include <string.h>
 #include <stdlib.h>
 #include "mex.h"
@@ -38,6 +34,10 @@ extern "C" {
 #include <cvodes/cvodes_sptfqmr.h>
 #include <cvodes/cvodes_bandpre.h>
 #include <cvodes/cvodes_bbdpre.h>
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 /*
  * ---------------------------------------------------------------------------------

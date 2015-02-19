@@ -25,12 +25,12 @@
 #ifndef _IDASBBDPRE_IMPL_H
 #define _IDASBBDPRE_IMPL_H
 
+#include <idas/idas_bbdpre.h>
+#include <sundials/sundials_band.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <idas/idas_bbdpre.h>
-#include <sundials/sundials_band.h>
 
 /*
  * -----------------------------------------------------------------

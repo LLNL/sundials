@@ -25,11 +25,11 @@
 #ifndef _SUNDIALSMATH_H
 #define _SUNDIALSMATH_H
 
+#include <sundials/sundials_types.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <sundials/sundials_types.h>
 
 /*
  * -----------------------------------------------------------------

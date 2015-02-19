@@ -29,12 +29,12 @@
 #ifndef _CVSSPBCG_H
 #define _CVSSPBCG_H
 
+#include <cvodes/cvodes_spils.h>
+#include <sundials/sundials_spbcgs.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <cvodes/cvodes_spils.h>
-#include <sundials/sundials_spbcgs.h>
 
 /* 
  * -----------------------------------------------------------------

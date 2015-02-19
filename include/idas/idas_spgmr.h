@@ -29,12 +29,12 @@
 #ifndef _IDASSPGMR_H
 #define _IDASSPGMR_H
 
+#include <idas/idas_spils.h>
+#include <sundials/sundials_spgmr.h>
+
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <idas/idas_spils.h>
-#include <sundials/sundials_spgmr.h>
 
 /* 
  * -----------------------------------------------------------------

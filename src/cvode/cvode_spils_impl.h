@@ -23,12 +23,12 @@
 #ifndef _CVSPILS_IMPL_H
 #define _CVSPILS_IMPL_H
 
+#include <cvode/cvode_spils.h>
+#include "cvode_impl.h"
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <cvode/cvode_spils.h>
-#include "cvode_impl.h"
 
 /* Types of iterative linear solvers */
 

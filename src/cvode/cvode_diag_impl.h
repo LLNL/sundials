@@ -23,11 +23,11 @@
 #ifndef _CVDIAG_IMPL_H
 #define _CVDIAG_IMPL_H
 
+#include <cvode/cvode_diag.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <cvode/cvode_diag.h>
 
 /*
  * -----------------------------------------------------------------

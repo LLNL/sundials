@@ -23,12 +23,12 @@
 #ifndef _CPSPTFQMR_H
 #define _CPSPTFQMR_H
 
+#include <cpodes/cpodes_spils.h>
+#include <sundials/sundials_sptfqmr.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <cpodes/cpodes_spils.h>
-#include <sundials/sundials_sptfqmr.h>
 
 /*
  * -----------------------------------------------------------------

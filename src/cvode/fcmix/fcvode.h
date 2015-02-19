@@ -552,16 +552,15 @@
 #ifndef _FCVODE_H
 #define _FCVODE_H
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
-extern "C" {
-#endif
-
 /* header files  */
-
 #include <cvode/cvode.h>
 #include <sundials/sundials_direct.h>  /* definition of type DlsMat   */
 #include <sundials/sundials_nvector.h> /* definition of type N_Vector */
 #include <sundials/sundials_types.h>   /* definition of type realtype */
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 /* Definitions of interface function names */
 

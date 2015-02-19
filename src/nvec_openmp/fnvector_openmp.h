@@ -24,12 +24,12 @@
 #ifndef _FNVECTOR_OPENMP_H
 #define _FNVECTOR_OPENMP_H
 
+#include <nvector/nvector_openmp.h>
+#include <sundials/sundials_fnvector.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <nvector/nvector_openmp.h>  
-#include <sundials/sundials_fnvector.h>
 
 #if defined(SUNDIALS_F77_FUNC)
 #define FNV_INITS_OPENMP    SUNDIALS_F77_FUNC(fnvinits_openmp, FNVINITS_OPENMP)

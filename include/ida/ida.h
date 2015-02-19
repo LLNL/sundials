@@ -32,13 +32,12 @@
 #ifndef _IDA_H
 #define _IDA_H
 
+#include <stdio.h>
+#include <sundials/sundials_nvector.h>
+
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <stdio.h>
-
-#include <sundials/sundials_nvector.h>
 
 /*
  * =================================================================

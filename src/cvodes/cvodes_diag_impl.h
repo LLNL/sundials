@@ -22,11 +22,11 @@
 #ifndef _CVSDIAG_IMPL_H
 #define _CVSDIAG_IMPL_H
 
+#include <cvodes/cvodes_diag.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <cvodes/cvodes_diag.h>
 
 /*
  * -----------------------------------------------------------------

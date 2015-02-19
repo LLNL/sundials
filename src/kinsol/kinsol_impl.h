@@ -23,13 +23,13 @@
 #ifndef _KINSOL_IMPL_H
 #define _KINSOL_IMPL_H
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
-extern "C" {
-#endif
-
 #include <stdarg.h>
 
 #include <kinsol/kinsol.h>
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 /*
  * =================================================================
