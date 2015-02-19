@@ -25,7 +25,10 @@ The overall organization of the {\cvode} package is shown in Figure
   Modules specific to {\cvode} are distinguished by rounded boxes, while 
   generic solver and auxiliary modules are in rectangular boxes. 
   Note that the direct linear solvers using Lapack implementations are not 
-  explicitly represented.}
+  explicitly represented.
+  Note also that the KLU and SuperLU\_MT support 
+  is through interfaces
+  to packages.  Users will need to download and compile those packages independently.}
 \label{f:cvorg}
 \end{figure}
 The central integration module, implemented in the files \id{cvode.h},
@@ -50,10 +53,13 @@ dense, banded, or sparse matrices, and includes:
   (using either an internal implementation or Blas/Lapack); 
 \item {\cvklu}: LU factorization and backsolving with
   compressed-sparse-column (CSC) matrices using the KLU linear solver
-  library \cite{KLU_site};
+  library \cite{DaPa:10,KLU_site} (KLU to be downloaded and compiled by user independent 
+  of {\cvode});
 \item {\cvsuperlumt}: LU factorization and backsolving with
   compressed-sparse-column (CSC) matrices using the threaded
-  SuperLU\_MT linear solver library \cite{SuperLUMT_site}.
+  SuperLU\_MT linear solver library \cite{Li:05,DGL:99,SuperLUMT_site} 
+  (SuperLU\_MT to be downloaded and compiled by user independent 
+  of {\cvode}).
 \end{itemize}
 The {\em spils} family of linear solvers provides scaled preconditioned
 iterative linear solvers and includes:
@@ -69,6 +75,9 @@ Additionally, {\cvode} includes:
 \end{itemize}
 The set of linear solver modules distributed with {\cvode} is intended to be expanded in the
 future as new algorithms are developed.
+Note that users wishing to employ KLU or 
+SuperLU\_MT will need to download and install these libraries independent of {\sundials}.
+{\sundials} provides only the interfaces between itself and these libraries.
 \index{CVODE@{\cvode} linear solvers!list of|)} 
 
 In the case of the direct methods {\cvdense} and {\cvband} the package
@@ -116,7 +125,7 @@ independent of the context.  While some of the generic linear system solvers
 {\sundials} in mind, they are intended to be usable anywhere as general-purpose
 solvers.  This separation also allows for any generic solver to be replaced by
 an improved version, with no necessity to revise the {\cvode} package elsewhere.
-\index{generic linear solvers!use in {\cvode}|)}.
+\index{generic linear solvers!use in {\cvode}|)}
 
 {\cvode} also provides two preconditioner modules, for use with any of
 the Krylov iterative linear solvers. The first one, {\cvbandpre},
@@ -129,8 +138,8 @@ matrix with each block being a band matrix.
 
 All state information used by {\cvode} to solve a given problem is saved
 in a structure, and a pointer to that structure is returned to the
-user.  There is no global data in the {\cvode} package, and so in this
-respect it is reentrant. State information specific to the linear
+user.  There is no global data in the {\cvode} package, and so, in this
+respect, it is reentrant. State information specific to the linear
 solver is saved in a separate structure, a pointer to which resides in
 the {\cvode} memory structure. The reentrancy of {\cvode} was motivated
 by the anticipated multicomputer extension, but is also essential

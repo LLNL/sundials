@@ -2,6 +2,14 @@
 %% OpenMP nvector implementation
 %%
 
+In situations where a user has a multi-core processing unit
+capable of running multiple parallel threads with shared memory, 
+{\sundials} provides implementations of {\nvector} using
+openMP, {\nvecopenmp}, and pThreads, {\nvecpthreads}.  
+Testing has shown that vectors should be of length at least $100,000$ 
+before the overhead associated with creating and using the threads is
+made up by the parallelism in the vector calculations. 
+
 The OpenMP implementation of the {\nvector} module provided with {\sundials},
 {\nvecopenmp}, defines the {\em content} field of \id{N\_Vector} to be a structure 
 containing the length of the vector, a pointer to the beginning of a contiguous 

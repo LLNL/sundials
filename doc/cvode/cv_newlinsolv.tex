@@ -1,8 +1,8 @@
 %===================================================================================
 \chapter{Providing Alternate Linear Solver Modules}\label{s:new_linsolv}
 %===================================================================================
-The central {\cvode} module interfaces with the linear solver module to be
-used by way of calls to four functions.  These are denoted here by 
+The central {\cvode} module interfaces with a linear solver module 
+by way of calls to four functions.  These are denoted here by 
 \id{linit}, \id{lsetup}, \id{lsolve}, and \id{lfree}.
 Briefly, their purposes are as follows:
 %%
@@ -48,7 +48,7 @@ We encourage the use of performance counters in connection with the various
 operations involved with the linear solver.  Such counters would be
 members of the linear solver memory block, would be initialized in the
 \id{linit} function, and would be incremented by the \id{lsetup} and
-\id{lsolve} functions.  Then user-callable functions would be needed to
+\id{lsolve} functions.  Then, user-callable functions would be needed to
 obtain the values of these counters.
 
 For consistency with the existing {\cvode} linear solver modules, we
@@ -201,9 +201,9 @@ The type definition of \id{lsolve} is
 }
 {
   The function \id{lsolve} must solve the linear system $M x = b$, where         
-  $M$ is some approximation to the Newton matrix $I - \gamma J$, where
+  $M$ is some approximation to the Newton matrix, $I - \gamma J$, where
   $J = (\dfdyI)(t_n, y_{cur})$ (see Eq.(\ref{e:Newtonmat})),
-  and the right-hand side vector $b$ is input.
+  and the right-hand side vector, $b$, is input.
   Here $\gamma$ is available as \id{cv\_mem->cv\_gamma}.
 
   \id{lsolve} is called once per Newton iteration, hence possibly

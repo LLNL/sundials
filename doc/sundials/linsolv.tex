@@ -1,8 +1,15 @@
-These generic linear solver modules in {\sundials} are organized in
-three families of solvers, the {\em dls} family, which includes direct
+%===================================================================================
+\chapter{Geeral Use Linear Solver Components in SUNDIALS}\label{s:gen_linsolv}
+%===================================================================================
+In this chapter, we describe seven generic linear solver code modules that 
+are included in {\sundials}, 
+but which are of potential use as generic packages in
+themselves, either in conjunction with the use of {\sundials} or separately.
+
+These generic modules in {\sundials} are organized in
+three families, the {\em dls} family, which includes direct
 linear solvers appropriate for sequential computations; the {\em sls}
-family, which includes direct linear solvers for sparse matrices in
-serial or shared-memory computations; and the {\em spils}
+family, which includes sparse matrices; and the {\em spils}
 family, which includes scaled preconditioned iterative (Krylov) linear solvers.
 The solvers in each family share common data structures and functions.
 

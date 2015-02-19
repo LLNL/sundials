@@ -22,6 +22,9 @@ need to form the complete system Jacobian.  The {\cvdense}
 and {\cvband} modules (using either the internal implementation or
 Lapack), as well as the {\cvklu}, {\cvsuperlumt} and {\cvbandpre}
 modules can only be used with {\nvecs}, {\nvecopenmp} and {\nvecpthreads}. 
+It is not recommended to use a threaded vector module with SuperLU\_MT
+unless it is the {\nvecopenmp} module and SuperLU\_MT is also compiled
+with openMP.
 Also, the preconditioner module {\cvbbdpre} can only be used with {\nvecp}.  
 
 {\cvodes} uses various constants for both input and output.  These are
@@ -42,7 +45,7 @@ appropriate locations for the library and header files required by
 {\cvodes}.  The relevant library files are
 \begin{itemize}
 \item {\em libdir}\id{/libsundials\_cvodes.}{\em lib},
-\item {\em libdir}\id{/libsundials\_nvec*.}{\em lib} (one or two files),
+\item {\em libdir}\id{/libsundials\_nvec*.}{\em lib} (one to four files),
 \end{itemize}
 where the file extension .{\em lib} is typically \id{.so} for shared libraries
 and \id{.a} for static libraries. The relevant header files are located in
@@ -87,7 +90,7 @@ and the constants \id{FALSE} and \id{TRUE}.
 
 The calling program must also include an {\nvector} implementation header file
 (see Chapter \ref{s:nvector} for details).
-For the two {\nvector} implementations that are included in the {\cvodes} package,
+For the {\nvector} implementations that are included in the {\cvodes} package,
 the corresponding header files are:
 %%
 \begin{itemize}
@@ -95,6 +98,10 @@ the corresponding header files are:
   which defines the serial implementation {\nvecs};
 \item \Id{nvector\_parallel.h}, 
   which defines the parallel ({\mpi}) implementation, {\nvecp}.
+\item \Id{nvector\_openmp.h},
+  which defines the shared memory parallel openMP implementation,
+\item \Id{nvector\_pthreads.h},
+  which defines the shared memory parallel Pthreads implementation.
 \end{itemize}
 %%
 Note that both these files in turn include the header file \Id{sundials\_nvector.h} which 
@@ -928,7 +935,7 @@ and {\sptfqmr}, are described separately in Chapter \ref{s:gen_linsolv}.
 }
 {
   The function \ID{CVKLU} selects the {\cvklu} linear solver and indicates
-  the use of the internal sparse-direct linear algebra functions.
+  the use of sparse-direct linear algebra functions.
 
   The user's main program must include the \id{cvodes\_klu.h} header file.
 }
@@ -972,7 +979,7 @@ and {\sptfqmr}, are described separately in Chapter \ref{s:gen_linsolv}.
 }
 {
   The function \ID{CVSuperLUMT} selects the {\cvsuperlumt} linear
-  solver and indicates the use of the internal sparse-direct linear
+  solver and indicates the use of sparse-direct linear
   algebra functions.
 
   The user's main program must include the \id{cvodes\_superlumt.h} header file.
@@ -983,6 +990,7 @@ and {\sptfqmr}, are described separately in Chapter \ref{s:gen_linsolv}.
     pointer to the {\cvodes} memory block.
   \item[num\_threads] (\id{int})
     the number of threads to use when factoring/solving the linear systems.
+    Note that SuperLU\_MT is thread-parallel only in the factorization routine.
   \item[N] (\id{int})
     problem dimension.
   \item[NNZ] (\id{int})
@@ -1000,6 +1008,8 @@ and {\sptfqmr}, are described separately in Chapter \ref{s:gen_linsolv}.
     The {\cvsuperlumt} solver is not compatible with the current {\nvector} module.
   \item[\Id{CVSLS\_MEM\_FAIL}]
     A memory allocation request failed.
+  \item[\Id{CVSLS\_PACKAGE\_FAIL}]
+    A call to the SuperLU\_MT library returned a failure flag.
   \end{args}
 }
 {
@@ -1007,6 +1017,14 @@ and {\sptfqmr}, are described separately in Chapter \ref{s:gen_linsolv}.
   implementations of the {\nvector} module. 
   Of the {\nvector} modules provided with {\sundials}, only {\nvecs},
   {\nvecopenmp} and {\nvecpthreads} are compatible.
+
+  {\warn}Performance will significantly degrade if the user applies the SuperLU\_MT
+  package compiled with PThreads while using the {\nvecopenmp} module.
+  If a user wants to use a threaded vector kernel with this thread-parallel
+  solver, then SuperLU\_MT should be compiled with openMP and the {\nvecopenmp}
+  module should be used.  Also, note that the expected benefit of using the threaded
+  vector kernel is minimal compared to the potential benefit of the threaded solver,
+  unless very long (greater than 100,000 entries) vectors are used.
 }
 %%
 %%
@@ -1386,8 +1404,8 @@ Band Jacobian function & \id{CVDlsSetBandJacFn} & DQ\\
 \multicolumn{3}{|c|}{\bf CVSLS linear solvers} \\
 \hline
 Sparse Jacobian function & \id{CVSlsSetSparseJacFn} & none\\
-Sparse matrix ordering algorithm & \id{CVKLUSetOrdering} & \id{COLAMD} \\
-Sparse matrix ordering algorithm & \id{CVSuperLUMTSetOrdering} & \id{COLAMD} \\
+Sparse matrix ordering algorithm & \id{CVKLUSetOrdering} & 1 for \id{COLAMD} \\
+Sparse matrix ordering algorithm & \id{CVSuperLUMTSetOrdering} & 3 for \id{COLAMD} \\
 \hline
 \multicolumn{3}{|c|}{\bf CVSPILS linear solvers} \\
 \hline
@@ -1516,7 +1534,7 @@ flag = CVodeSetErrHandlerFn(cvode\_mem, ehfun, eh\_data);
   If specified, the pointer to \id{user\_data} is passed to all user-supplied 
   functions that have it as an argument. Otherwise, a \id{NULL} pointer is passed.
 
-  If \id{user\_data} is needed in user preconditioner functions, the call to
+  {\warn}If \id{user\_data} is needed in user preconditioner functions, the call to
   \id{CVodeSetUserData} must be made {\it before} the call to specify the
   linear solver.
 }
@@ -1953,7 +1971,7 @@ flag = CVodeSetIterType(cvode\_mem, iter);
 
 
 %%==============================================================================
-\subsubsection{Direct linear solvers optional input functions}\label{sss:optin_dls}
+\subsubsection{Dense direct linear solvers optional input functions}\label{sss:optin_dls}
 %%==============================================================================
 \index{optional input!dense linear solver|(}
 \index{optional input!band linear solver|(}
@@ -2068,14 +2086,14 @@ The pointer \id{user\_data} may be specified through \id{CVodeSetUserData}.
 \index{optional input!dense linear solver|)}
 
 %%==============================================================================
-\subsubsection{Sparse linear solvers optional input functions}\label{sss:optin_sls}
+\subsubsection{Sparse direct linear solvers optional input functions}\label{sss:optin_sls}
 %%==============================================================================
 \index{optional input!sparse linear solver|(}
 \index{CVKLU@{\cvklu} linear solver!optional input|(}
 \index{CVSUPERLUMT@{\cvsuperlumt} linear solver!optional input|(}
 The \index{CVKLU@{\cvklu} linear solver!Jacobian approximation used by}
 \index{CVSUPERLUMT@{\cvsuperlumt} linear solver!Jacobian approximation used by}
-{\cvklu} and {\cvsuperlumt} solvers need a function to compute a
+{\cvklu} and {\cvsuperlumt} solvers require a function to compute a
 compressed-sparse-column approximation to the Jacobian matrix
 $J(t,y)$.  This function must be of type \id{CVSlsSparseJacFn}.  
 The user must supply a custom sparse Jacobian function since a
@@ -2084,7 +2102,7 @@ sparse matrix structure of the problem.  To specify a user-supplied
 Jacobian function \id{sjac}, {\cvklu} and {\cvsuperlumt} provide the
 function \id{CVSlsSetSparseJacFn}.  The {\cvklu} and {\cvsuperlumt}
 solvers pass the pointer \id{user\_data} to the sparse Jacobian
-function. This allows the user to create an arbitrary structure with
+function. This mechanism allows the user to create an arbitrary structure with
 relevant problem data and access it during the execution of the
 user-supplied Jacobian function, without using global data in the program.  
 The pointer \id{user\_data} may be specified through \id{CVodeSetUserData}.
@@ -2122,6 +2140,67 @@ The pointer \id{user\_data} may be specified through \id{CVodeSetUserData}.
 }
 %%
 %%
+\index{CVKLU@{\cvklu} linear solver!reinitialization}
+When using a spasre dircet solver, there 
+may be instances when the number of state variables does not 
+change, but the number of nonzeroes in the Jacobian does change.  
+For the {\cvklu} solver, we provide a reinitialization.
+This reinitialization routine reinitializes the Jacobian matrix
+memory for eth new number fo nnozeroes and sets flags for a new factorization 
+(symbolic and numeric) to be conducted at the next solver setup
+call.  This routine is useful in the cases where the number of nonzeroes 
+has changed or if the structure of the linear system has changed
+which would require a new symbolic (and numeric factorization).
+%%
+\ucfunction{CVKLUReInit}
+{
+  flag = CVKLUReInit(cv\_mem, n, nnz, reinit\_type);
+}
+{
+  The function \ID{CVKLUReInit} reinitializes Jacobian matrix memory and flags for
+  new symbolic and numeric KLU factorizations.
+}
+{
+  \begin{args}[cv\_mem]
+  \item[cv\_mem] (\id{void *})
+    pointer to the {\cvodes} memory block.
+  \item[n] (\id{int})
+    number of state variables in the system.
+  \item[nnz] (\id{int})
+    number of nonzeroes in the Jacobian matrix.
+  \item[reinit\_type] (\id{int})
+    type of reinitialization:
+    \begin{itemize}
+    \item[1]  The Jacobian matrix will be destroyed and a new one will 
+      be allocated based on the \id{nnz} value passed to this call. New symbolic and
+      numeric factorizations will be completed at the next
+      solver setup.
+    \item[2]  Only symbolic and numeric factorizations will be completed.  
+      It is assumed that the Jacobian size has not exceeded the size of 
+      \id{nnz} given in the prior call to {\cvklu}.
+    \end{itemize}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVSLS\_MEM\_FAIL]
+  \item[\Id{CVSLS\_SUCCESS}] 
+    The reinitialization succeeded.
+  \item[\Id{CVSLS\_MEM\_NULL}]
+    The \id{cv\_mem} pointer is \id{NULL}.
+  \item[\Id{CVSLS\_LMEM\_NULL}]
+    The {\cvklu} linear solver has not been initialized.
+  \item[\Id{CVSLS\_ILL\_INPUT}]
+    The given \id{reinit\_type} has an illegal value.
+  \item[\Id{CVSLS\_MEM\_FAIL}]
+    A memory allocation failed.
+  \end{args}
+}
+{
+  The default value for \id{reinit\_type} is $2$.
+}
+%%
+%%
 \index{CVKLU@{\cvklu} linear solver!matrix reordering algorithm specification}
 \index{CVSUPERLUMT@{\cvsuperlumt} linear solver!matrix reordering algorithm specification}
 Both the {\cvklu} and {\cvsuperlumt} solvers can apply reordering
@@ -2130,6 +2209,8 @@ decomposition internal to the solver.  The approximate minimal degree
 ordering for nonsymmetric matrices given by the \id{COLAMD} algorithm
 is the default algorithm used within both solvers, but alternate
 orderings may be chosen through one of the following two functions.
+The input values to these functinos are the numeric values used in the respective
+packages, and the user-supplied value will be passed directly to the package.
 %%
 \ucfunction{CVKLUSetOrdering}
 {
@@ -2164,7 +2245,7 @@ orderings may be chosen through one of the following two functions.
   \end{args}
 }
 {
-  The default ordering choice is \id{COLAMD}.
+  The default ordering choice is 1 for \id{COLAMD}.
 }
 %%
 %%
@@ -2202,12 +2283,12 @@ orderings may be chosen through one of the following two functions.
   \end{args}
 }
 {
-  The default ordering choice is \id{COLAMD}.
+  The default ordering choice is 3 for \id{COLAMD}.
 }
 %%
 %%
 \index{CVSUPERLUMT@{\cvsuperlumt} linear solver!optional input|)}
-\index{CVKLU@{\cvklu} linear solver!optional input|)}
+\index{CVKLU@{\cvklu linear solver!optional input|)}
 \index{optional input!sparse linear solver|)}
 
 
@@ -3467,7 +3548,7 @@ There are two optional output functions associated with rootfinding.
 {}
 
 %%==============================================================================
-\subsubsection{Direct linear solvers optional output functions}\label{sss:optout_dls}
+\subsubsection{Dense direct linear solvers optional output functions}\label{sss:optout_dls}
 %%==============================================================================
 \index{optional output!dense linear solver|(}
 \index{CVDENSE@{\cvdense} linear solver!optional output|(}
@@ -3795,7 +3876,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 
 
 %%==============================================================================
-\subsubsection{Sparse linear solvers optional output functions}\label{sss:optout_sls}
+\subsubsection{Sparse direct linear solvers optional output functions}\label{sss:optout_sls}
 %%==============================================================================
 \index{optional output!sparse linear solver|(}
 \index{CVKLU@{\cvklu} linear solver!optional output|(}
@@ -4574,7 +4655,9 @@ the user may provide a function of type \Id{CVDlsDenseJacFn} defined by:
   If the user's \id{CVDenseJacFn} function uses difference quotient
   approximations, then it may need to access quantities not in the argument
   list. These include the current step size, the error weights, etc.
-  To obtain these, use the \id{CVodeGet*} functions described in
+  To obtain these, the user will need to add the \id{cvode\_mem} 
+  structure to their \id{user\_data} and use the \id{CVodeGet*} 
+  functions described in  
   \S\ref{sss:optout_main}. The unit roundoff can be accessed
   as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 
@@ -4678,8 +4761,11 @@ the user may provide a function of type \Id{CVDlsBandJacFn} defined as follows:
 
   If the user's \id{CVBandJacFn} function uses difference quotient approximations, then
   it may need to access quantities not in the argument list. These include the current
-  step size, the error weights, etc. To obtain these, use the \id{CVodeGet*}
-  functions described in \S\ref{sss:optout_main}. The unit roundoff can be
+  step size, the error weights, etc. 
+  To obtain these, the user will need to add the \id{cvode\_mem} 
+  structure to their \id{user\_data} and use the \id{CVodeGet*} 
+  functions described in  
+  \S\ref{sss:optout_main}. The unit roundoff can be
   accessed as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 
   For the sake of uniformity, the arguments \id{N}, \id{mlower}, and \id{mupper} are
@@ -4757,8 +4843,10 @@ function of type \Id{CVSlsSparseJacFn} defined by:
   If the user's \id{CVSlsSparseJacFn} function uses difference quotient
   approximations to set the specific nonzero matrix entries, then it
   may need to access quantities not in the argument list. These
-  include the current step size, the error weights, etc.  To obtain
-  these, use the \id{CVodeGet*} functions described in
+  include the current step size, the error weights, etc.  
+  To obtain these, the user will need to add the \id{cvode\_mem} 
+  structure to their \id{user\_data} and use the \id{CVodeGet*} 
+  functions described in  
   \S\ref{sss:optout_main}. The unit roundoff can be accessed as
   \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}. 
 }
@@ -4815,7 +4903,9 @@ the default is a difference quotient approximation to these products.
   If the user's \id{CVSpilsJacTimesVecFn} function uses difference quotient
   approximations, it may need to access quantities not in the argument
   list. These include the current step size, the error weights, etc.
-  To obtain these, use the \id{CVodeGet*} functions described in
+  To obtain these, the user will need to add the \id{cvode\_mem} 
+  structure to their \id{user\_data} and use the \id{CVodeGet*} 
+  functions described in  
   \S\ref{sss:optout_main}. The unit roundoff can be accessed
   as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 }
@@ -4975,7 +5065,9 @@ user-supplied {\C} function of type \Id{CVSpilsPrecSetupFn}, defined as follows:
   If the user's \id{CVSpilsPrecSetupFn} function uses difference quotient
   approximations, it may need to access quantities not in the call
   list. These include the current step size, the error weights, etc.
-  To obtain these, use the \id{CVodeGet*} functions described in
+  To obtain these, the user will need to add the \id{cvode\_mem} 
+  structure to their \id{user\_data} and use the \id{CVodeGet*} 
+  functions described in  
   \S\ref{sss:optout_main}. The unit roundoff can be accessed
   as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 }

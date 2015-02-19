@@ -65,19 +65,22 @@ to {\vode}, {\vodpk}|)}
 the functionality of {\cvode} and {\pvode} has been combined into one
 single code, simply called {\cvode}. Development of the new version of
 {\cvode} was concurrent with a redesign of the vector operations
-module across the {\sundials} suite. The key feature of the new
+module across the {\sundials} suite. The key feature of the
 {\nvector} module is that it is written in terms of abstract vector
 operations with the actual vector kernels attached by a particular
 implementation (such as serial or parallel) of {\nvector}. This allows
 writing the {\sundials} solvers in a manner independent of the actual
 {\nvector} implementation (which can be user-supplied), as well as
 allowing more than one {\nvector} module linked into an executable file.
+{\sundials} (and thus {\cvode}) is supplied with serial, 
+MPI-parallel, and both openMP and Pthreads thread-parallel
+{\nvector} implementations.
 \index{CVODE@{\cvode}!relationship to {\cvode}, {\pvode}|)}
 
 \index{CVODE@{\cvode}!motivation for writing in C|(}
 There are several motivations for choosing the {\C} language for {\cvode}.
 First, a general movement away from {\F} and toward {\C} in scientific
-computing is apparent.  Second, the pointer, structure, and dynamic
+computing was apparent.  Second, the pointer, structure, and dynamic
 memory allocation features in C are extremely useful in software of
 this complexity, with the great variety of method options offered.
 Finally, we prefer {\C} over {\CPP} for {\cvode} because of the wider
@@ -139,7 +142,7 @@ and a comment was added about the type match.  All other integer
 declarations are just \id{INTEGER}.  Corresponding minor corrections were
 made to the user guide.
 
-Two new {\nvector} modules have been added for parallel computing
+Two new {\nvector} modules have been added for thread-parallel computing
 environments --- one for openMP, denoted \id{NVECTOR\_OPENMP},
 and one for Pthreads, denoted \id{NVECTOR\_PTHREADS}.
 
@@ -306,10 +309,14 @@ The structure of this document is as follows:
 \item
   Chapter \ref{s:nvector} gives a brief overview of the generic
   {\nvector} module shared among the various components of
-  {\sundials}, and details on the two {\nvector} implementations
-  provided with {\sundials}: a serial implementation
-  (\S\ref{ss:nvec_ser}) and a parallel implementation based on
-  MPI\index{MPI} (\S\ref{ss:nvec_par}).
+  {\sundials}, and details on the {\nvector} implementations
+  provided with {\sundials}: 
+  a serial implementation
+  (\S\ref{ss:nvec_ser}), a distributed memory parallel implementation 
+  based on {\mpi} \index{MPI}
+  (\S\ref{ss:nvec_par}), and two thread-parallel implementations 
+  based on openMP \index{openMP} (\S\ref{ss:nvec_openmp}) 
+  and Pthreads \index{Pthreads} (\S\ref{ss:nvec_pthreads}), respectively.
 \item
   Chapter \ref{s:new_linsolv} describes the interfaces to the linear
   solver modules, so that a user can provide his/her own such module.
