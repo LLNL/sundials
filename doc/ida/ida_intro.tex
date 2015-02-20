@@ -46,7 +46,7 @@ number for GMRES depends on the desired Krylov subspace size.
 \index{IDA@{\ida}!motivation for writing in C|(}
 There are several motivations for choosing the {\C} language for {\ida}.
 First, a general movement away from {\F} and toward {\C} in scientific
-computing is apparent.  Second, the pointer, structure, and dynamic
+computing was apparent.  Second, the pointer, structure, and dynamic
 memory allocation features in {\C} are extremely useful in software of
 this complexity, with the great variety of method options offered.
 Finally, we prefer {\C} over {\CPP} for {\ida} because of the wider
@@ -99,7 +99,7 @@ and a comment was added about the type match.  All other integer
 declarations are just \id{INTEGER}.  Corresponding minor corrections were
 made to the user guide.
 
-Two new {\nvector} modules have been added for parallel computing
+Two new {\nvector} modules have been added for thread-parallel computing
 environments --- one for openMP, denoted \id{NVECTOR\_OPENMP},
 and one for Pthreads, denoted \id{NVECTOR\_PTHREADS}.
 
@@ -271,9 +271,14 @@ The structure of this document is as follows:
   for the use of {\ida} with {\F} applications.
 \item
   Chapter \ref{s:nvector} gives a brief overview of the generic {\nvector} module 
-  shared among the various components of {\sundials}, as well as details on the two
-  {\nvector} implementations provided with {\sundials}: a serial implementation
-  (\S\ref{ss:nvec_ser}) and a parallel MPI implementation (\S\ref{ss:nvec_par}).
+  shared among the various components of {\sundials}, as well as details on the 
+  {\nvector} implementations provided with {\sundials}: 
+  a serial implementation
+  (\S\ref{ss:nvec_ser}), a distributed memory parallel implementation 
+  based on {\mpi} \index{MPI}
+  (\S\ref{ss:nvec_par}), and two thread-parallel implementations 
+  based on openMP \index{openMP} (\S\ref{ss:nvec_openmp}) 
+  and Pthreads \index{Pthreads} (\S\ref{ss:nvec_pthreads}), respectively.
 \item
   Chapter \ref{s:new_linsolv} describes the interfaces to the linear solver
   modules, so that a user can provide his/her own such module.

@@ -25,7 +25,10 @@ The overall organization of the {\ida} package is shown in Figure
   Modules specific to {\ida} are distinguished by rounded boxes, while 
   generic solver and auxiliary modules are in square boxes.
   Note that the direct linear solvers using Lapack implementations are not 
-  explicitly represented.}
+  explicitly represented.
+  Note also that the KLU and SuperLU\_MT support 
+  is through interfaces
+  to packages.  Users will need to download and compile those packages independently.}
 \label{f:idaorg}
 \end{figure}
 The central integration module, implemented in the files \id{ida.h},
@@ -50,10 +53,13 @@ dense, banded, or sparse matrices and includes:
   (using either an internal implementation or Blas/Lapack); 
 \item {\idaklu}: LU factorization and backsolving with
   compressed-sparse-column (CSC) matrices using the KLU linear solver
-  library \cite{KLU_site};
+  library \cite{DaPa:10,KLU_site} (KLU to be downloaded and compiled by user independent 
+  of {\ida});
 \item {\idasuperlumt}: LU factorization and backsolving with
   compressed-sparse-column (CSC) matrices using the threaded
-  SuperLU\_MT linear solver library \cite{SuperLUMT_site}.
+  SuperLU\_MT linear solver library \cite{Li:05,DGL:99,SuperLUMT_site} 
+  (SuperLU\_MT to be downloaded and compiled by user independent 
+  of {\ida}).
 \end{itemize}
 The {\em spils} family of linear solvers provides scaled preconditioned
 iterative linear solvers and includes:
@@ -64,6 +70,9 @@ iterative linear solvers and includes:
 \end{itemize}
 The set of linear solver modules distributed with {\ida} is intended to be expanded in the
 future as new algorithms are developed.
+Note that users wishing to employ KLU or 
+SuperLU\_MT will need to download and install these libraries independent of {\sundials}.
+{\sundials} provides only the interfaces between itself and these libraries.
 \index{IDA@{\ida} linear solvers!list of|)} 
 
 In the case of the direct methods {\idadense} and {\idaband}, the
@@ -122,8 +131,8 @@ block-diagonal matrix with each block being a band matrix.
 
 All state information used by {\ida} to solve a given problem is saved
 in a structure, and a pointer to that structure is returned to the
-user.  There is no global data in the {\ida} package, and so in this
-respect it is reentrant. State information specific to the linear
+user.  There is no global data in the {\ida} package, and so, in this
+respect, it is reentrant. State information specific to the linear
 solver is saved in a separate structure, a pointer to which resides in
 the {\ida} memory structure. The reentrancy of {\ida} was motivated
 by the situation where two or more problems are solved by

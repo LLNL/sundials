@@ -68,7 +68,7 @@ original IVP (in particular the adjoint system).
 \index{IDAS@{\idas}!motivation for writing in C|(}
 There are several motivations for choosing the {\C} language for {\idas}.
 First, a general movement away from {\F} and toward {\C} in scientific
-computing is apparent.  Second, the pointer, structure, and dynamic
+computing was apparent.  Second, the pointer, structure, and dynamic
 memory allocation features in {\C} are extremely useful in software of
 this complexity, with the great variety of method options offered.
 Finally, we prefer {\C} over {\CPP} for {\idas} because of the wider
@@ -126,6 +126,56 @@ In the User Guide, a paragraph was added in Section 6.2.1 on
 \id{IDAGetAdjY}.
 
 Two new {\nvector} modules have been added for parallel computing
+environments --- one for openMP, denoted \id{NVECTOR\_OPENMP},
+and one for Pthreads, denoted \id{NVECTOR\_PTHREADS}.
+
+With this version of {\sundials}, support and documentation of the
+Autotools mode of installation is being dropped, in favor of the
+CMake mode, which is considered more widely portable.
+
+\subsection*{Changes in v1.2.0}
+
+Two major additions were made to the linear system solvers that are
+available for use with the {\idas} solver.  First, in the serial case,
+an interface to the sparse direct solver KLU was added.
+Second, an interface to SuperLU\_MT, the multi-threaded version of
+SuperLU, was added as a thread-parallel sparse direct solver option,
+to be used with the serial version of the NVECTOR module.
+As part of these additions, a sparse matrix (CSC format) structure 
+was added to {\idas}.
+
+Otherwise, only relatively minor modifications were made to {\idas}:
+
+In \id{IDARootfind}, a minor bug was corrected, where the input
+array \id{rootdir} was ignored, and a line was added to break out of
+root-search loop if the initial interval size is below the tolerance
+\id{ttol}.
+
+In \id{IDALapackBand}, the line \id{smu = MIN(N-1,mu+ml)} was changed to
+\id{smu = mu + ml} to correct an illegal input error for \id{DGBTRF/DGBTRS}.
+
+A minor bug was fixed regarding the testing of the input \id{tstop} on
+the first call to \id{IDASolve}.
+
+In order to avoid possible name conflicts, the mathematical macro
+and function names \id{MIN}, \id{MAX}, \id{SQR}, \id{RAbs}, \id{RSqrt},
+\id{RExp}, \id{RPowerI}, and \id{RPowerR} were changed to
+\id{SUNMIN}, \id{SUNMAX}, \id{SUNSQR}, \id{SUNRabs}, \id{SUNRsqrt},
+\id{SUNRexp}, \id{SRpowerI}, and \id{SUNRpowerR}, respectively.
+These names occur in both the solver and in various example programs.
+
+In the FIDA optional input routines \id{FIDASETIIN}, \id{FIDASETRIN},
+and \id{FIDASETVIN}, the optional fourth argument \id{key\_length} was
+removed, with hardcoded key string lengths passed to all \id{strncmp}
+tests.
+
+In all FIDA examples, integer declarations were revised so that
+those which must match a C type \id{long int} are declared \id{INTEGER*8},
+and a comment was added about the type match.  All other integer
+declarations are just \id{INTEGER}.  Corresponding minor corrections were
+made to the user guide.
+
+Two new {\nvector} modules have been added for thread-parallel computing
 environments --- one for openMP, denoted \id{NVECTOR\_OPENMP},
 and one for Pthreads, denoted \id{NVECTOR\_PTHREADS}.
 
@@ -207,10 +257,14 @@ The structure of this document is as follows:
 \item
   Chapter \ref{s:nvector} gives a brief overview of the generic
   {\nvector} module shared amongst the various components of
-  {\sundials}, as well as details on the two {\nvector}
-  implementations provided with {\sundials}: a serial implementation
-  (\S\ref{ss:nvec_ser}) and a parallel implementation based on
-  {\mpi}\index{MPI} (\S\ref{ss:nvec_par}).
+  {\sundials}, as well as details on the {\nvector}
+  implementations provided with {\sundials}: 
+  a serial implementation
+  (\S\ref{ss:nvec_ser}), a distributed memory parallel implementation 
+  based on {\mpi} \index{MPI}
+  (\S\ref{ss:nvec_par}), and two thread-parallel implementations 
+  based on openMP \index{openMP} (\S\ref{ss:nvec_openmp}) 
+  and Pthreads \index{Pthreads} (\S\ref{ss:nvec_pthreads}), respectively.
 \item
   Chapter \ref{s:new_linsolv} describes the specifications of linear
   solver modules as supplied by the user.

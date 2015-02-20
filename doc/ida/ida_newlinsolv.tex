@@ -1,8 +1,8 @@
 %===================================================================================
 \chapter{Providing Alternate Linear Solver Modules}\label{s:new_linsolv}
 %===================================================================================
-The central {\ida} module interfaces with the linear solver module to be
-used by way of calls to five functions.  These are denoted here by 
+The central {\ida} module interfaces with a linear solver module 
+by way of calls to five functions.  These are denoted here by 
 \id{linit}, \id{lsetup}, \id{lsolve}, \id{lperf}, and \id{lfree}.
 Briefly, their purposes are as follows:
 %%
@@ -49,7 +49,7 @@ We encourage the use of performance counters in connection with the various
 operations involved with the linear solver.  Such counters would be
 members of the linear solver memory block, would be initialized in the
 \id{linit} function, and would be incremented by the \id{lsetup} and
-\id{lsolve} functions.  Then user-callable functions would be needed to
+\id{lsolve} functions.  Then, user-callable functions would be needed to
 obtain the values of these counters.
 
 For consistency with the existing {\ida} linear solver modules, we
@@ -170,11 +170,11 @@ The type definition of \id{lsolve} is
                 &N\_Vector ycur, N\_Vector ypcur, N\_Vector rescur);  
 }
 {
-  The \id{lsolve} function must solve the linear system $M x = b$, where         
-  $M$ is some approximation to the system Jacobian
+  The \id{lsolve} function must solve the linear system, $M x = b$, where         
+  $M$ is some approximation to the system Jacobian,
   $J = \partial F / \partial y + cj ~ \partial F / \partial \dot{y}$  
   (see Eqn. (\ref{e:DAE_Jacobian}), in which $\alpha = cj$),
-  and the right-hand side vector $b$ is input. 
+  and the right-hand side vector, $b$, is input. 
   Here $cj$ is available as \id{IDA\_mem->ida\_cj}.
 
   \id{lsolve} is called once per Newton iteration, hence possibly
