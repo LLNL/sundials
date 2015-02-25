@@ -23,9 +23,9 @@ are as follows:
   \begin{itemize}
   \item \id{FNVINITS} (defined by {\nvecs}) 
     interfaces to \id{N\_VNewEmpty\_Serial}.
-  \item \id{FNVINITS\_OPENMP} (defined by {\nvecopenmp}) 
+  \item \id{FNVINITOMP} (defined by {\nvecopenmp}) 
     interfaces to \id{N\_VNewEmpty\_OpenMP}.
-  \item \id{FNVINITS\_PTHREADS} (defined by {\nvecpthreads}) 
+  \item \id{FNVINITPTS} (defined by {\nvecpthreads}) 
     interfaces to \id{N\_VNewEmpty\_Pthreads}.
   \item \id{FNVINITP} (defined by {\nvecp}) 
     interfaces to \id{N\_VNewEmpty\_Parallel}.
@@ -185,9 +185,9 @@ to {\nvecp},
 
   {\omp} To initialize the {\nvecopenmp} {\nvector} module, the user must make the
   following call:
-  \index{FNVINITS\_OPENMP@\texttt{FNVINITS\_OPENMP}}
+  \index{FNVINITOMP@\texttt{FNVINITOMP}}
 \begin{verbatim}
-      CALL FNVINITS_OPENMP(KEY, NEQ, NUMTHREADS, IER)
+      CALL FNVINITOMP(KEY, NEQ, NUMTHREADS, IER)
 \end{verbatim}
   where 
   \id{KEY} is the solver id (\id{KEY} = 3 for {\kinsol}),
@@ -198,9 +198,9 @@ to {\nvecp},
   
   {\pt} To initialize the {\nvecpthreads} {\nvector} module, the user must make the
   following call:
-  \index{FNVINITS\_PTHREADS@\texttt{FNVINITS\_PTHREADS}}
+  \index{FNVINITPTS@\texttt{FNVINITPTS}}
 \begin{verbatim}
-      CALL FNVINITS_PTHREADS(KEY, NEQ, NUMTHREADS, IER)
+      CALL FNVINITPTS(KEY, NEQ, NUMTHREADS, IER)
 \end{verbatim}
   where 
   \id{KEY} is the solver id (\id{KEY} = 3 for {\kinsol}),
