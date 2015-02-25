@@ -29,7 +29,7 @@ cvs_fwd.tex \
 cvs_adj.tex \
 cvs_nvec.tex \
 cvs_newlinsolv.tex \
-cvs_linsolv.tex \
+#cvs_linsolv.tex \
 cvs_constants.tex
 
 UG_SHARED_FILES = \

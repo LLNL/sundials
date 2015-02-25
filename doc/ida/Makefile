@@ -28,7 +28,7 @@ ida_fcmix.tex \
 ida_nvec.tex \
 ida_org.tex \
 ida_newlinsolv.tex \
-ida_linsolv.tex \
+#ida_linsolv.tex \
 ida_constants.tex
 
 UG_SHARED_FILES = \

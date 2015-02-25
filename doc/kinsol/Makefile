@@ -28,7 +28,7 @@ kin_fcmix.tex \
 kin_nvec.tex \
 kin_org.tex \
 kin_newlinsolv.tex \
-kin_linsolv.tex \
+#kin_linsolv.tex \
 kin_constants.tex
 
 UG_SHARED_FILES = \

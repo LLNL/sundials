@@ -29,7 +29,7 @@ idas_adj.tex \
 idas_nvec.tex \
 idas_org.tex \
 idas_newlinsolv.tex \
-idas_linsolv.tex \
+#idas_linsolv.tex \
 idas_constants.tex
 
 UG_SHARED_FILES = \
