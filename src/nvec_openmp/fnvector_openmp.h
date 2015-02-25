@@ -32,24 +32,24 @@ extern "C" {
 #endif
 
 #if defined(SUNDIALS_F77_FUNC)
-#define FNV_INITS_OPENMP    SUNDIALS_F77_FUNC(fnvinits_openmp, FNVINITS_OPENMP)
+#define FNV_INITOMP    SUNDIALS_F77_FUNC(fnvinitomp, FNVINITOMP)
 #else
-#define FNV_INITS_OPENMP    fnvinits_openmp_
+#define FNV_INITOMP    fnvinitomp_
 #endif
 
 #if defined(SUNDIALS_F77_FUNC_)
 
-#define FNV_INITS_OPENMP_Q  SUNDIALS_F77_FUNC_(fnvinits_openmp_q, FNVINITS_OPENMP_Q)
-#define FNV_INITS_OPENMP_S  SUNDIALS_F77_FUNC_(fnvinits_openmp_s, FNVINITS_OPENMP_S)
-#define FNV_INITS_OPENMP_B  SUNDIALS_F77_FUNC_(fnvinits_openmp_b, FNVINITS_OPENMP_B)
-#define FNV_INITS_OPENMP_QB SUNDIALS_F77_FUNC_(fnvinits_openmp_qb, FNVINITS_OPENMP_QB)
+#define FNV_INITOMP_Q  SUNDIALS_F77_FUNC_(fnvinitomp_q, FNVINITOMP_Q)
+#define FNV_INITOMP_S  SUNDIALS_F77_FUNC_(fnvinitomp_s, FNVINITOMP_S)
+#define FNV_INITOMP_B  SUNDIALS_F77_FUNC_(fnvinitomp_b, FNVINITOMP_B)
+#define FNV_INITOMP_QB SUNDIALS_F77_FUNC_(fnvinitomp_qb, FNVINITOMP_QB)
 
 #else
 
-#define FNV_INITS_OPENMP_Q  fnvinits_openmp_q_
-#define FNV_INITS_OPENMP_S  fnvinits_openmp_s_
-#define FNV_INITS_OPENMP_B  fnvinits_openmp_b_
-#define FNV_INITS_OPENMP_QB fnvinits_openmp_qb_
+#define FNV_INITOMP_Q  fnvinitomp_q_
+#define FNV_INITOMP_S  fnvinitomp_s_
+#define FNV_INITOMP_B  fnvinitomp_b_
+#define FNV_INITOMP_QB fnvinitomp_qb_
 
 #endif
 
@@ -74,19 +74,19 @@ extern N_Vector F2C_ARKODE_vec;
 /* 
  * Prototypes of exported functions 
  *
- * FNV_INITS_OPENMP    - initializes openmp vector operations for main problem
- * FNV_INITS_OPENMP_Q  - initializes openmp vector operations for quadratures
- * FNV_INITS_OPENMP_S  - initializes openmp vector operations for sensitivities
- * FNV_INITS_OPENMP_B  - initializes openmp vector operations for adjoint problem
- * FNV_INITS_OPENMP_QB - initializes openmp vector operations for adjoint quadratures
+ * FNV_INITOMP    - initializes openmp vector operations for main problem
+ * FNV_INITOMP_Q  - initializes openmp vector operations for quadratures
+ * FNV_INITOMP_S  - initializes openmp vector operations for sensitivities
+ * FNV_INITOMP_B  - initializes openmp vector operations for adjoint problem
+ * FNV_INITOMP_QB - initializes openmp vector operations for adjoint quadratures
  *
  */
 
-void FNV_INITS_OPENMP(int *code, long int *neq, int *num_threads, int *ier);
-void FNV_INITS_OPENMP_Q(int *code, long int *Nq, int *num_threads, int *ier);
-void FNV_INITS_OPENMP_S(int *code, int *Ns, int *ier);
-void FNV_INITS_OPENMP_B(int *code, long int *NB, int *num_threads, int *ier);
-void FNV_INITS_OPENMP_QB(int *code, long int *NqB, int *num_threads, int *ier);
+void FNV_INITOMP(int *code, long int *neq, int *num_threads, int *ier);
+void FNV_INITOMP_Q(int *code, long int *Nq, int *num_threads, int *ier);
+void FNV_INITOMP_S(int *code, int *Ns, int *ier);
+void FNV_INITOMP_B(int *code, long int *NB, int *num_threads, int *ier);
+void FNV_INITOMP_QB(int *code, long int *NqB, int *num_threads, int *ier);
 
 #ifdef __cplusplus
 }

@@ -32,24 +32,24 @@ extern "C" {
 #endif
 
 #if defined(SUNDIALS_F77_FUNC)
-#define FNV_INITS_PTHREADS    SUNDIALS_F77_FUNC(fnvinits_pthreads, FNVINITS_PTHREADS)
+#define FNV_INITPTS    SUNDIALS_F77_FUNC(fnvinitpts, FNVINITPTS)
 #else
-#define FNV_INITS_PTHREADS    fnvinits_pthreads_
+#define FNV_INITPTS    fnvinitpts_
 #endif
 
 #if defined(SUNDIALS_F77_FUNC_)
 
-#define FNV_INITS_PTHREADS_Q  SUNDIALS_F77_FUNC_(fnvinits_pthreads_q, FNVINITS_PTHREADS_Q)
-#define FNV_INITS_PTHREADS_S  SUNDIALS_F77_FUNC_(fnvinits_pthreads_s, FNVINITS_PTHREADS_S)
-#define FNV_INITS_PTHREADS_B  SUNDIALS_F77_FUNC_(fnvinits_pthreads_b, FNVINITS_PTHREADS_B)
-#define FNV_INITS_PTHREADS_QB SUNDIALS_F77_FUNC_(fnvinits_pthreads_qb, FNVINITS_PTHREADS_QB)
+#define FNV_INITPTS_Q  SUNDIALS_F77_FUNC_(fnvinitpts_q, FNVINITPTS_Q)
+#define FNV_INITPTS_S  SUNDIALS_F77_FUNC_(fnvinitpts_s, FNVINITPTS_S)
+#define FNV_INITPTS_B  SUNDIALS_F77_FUNC_(fnvinitpts_b, FNVINITPTS_B)
+#define FNV_INITPTS_QB SUNDIALS_F77_FUNC_(fnvinitpts_qb, FNVINITPTS_QB)
 
 #else
 
-#define FNV_INITS_PTHREADS_Q  fnvinits_pthreads_q_
-#define FNV_INITS_PTHREADS_S  fnvinits_pthreads_s_
-#define FNV_INITS_PTHREADS_B  fnvinits_pthreads_b_
-#define FNV_INITS_PTHREADS_QB fnvinits_pthreads_qb_
+#define FNV_INITPTS_Q  fnvinitpts_q_
+#define FNV_INITPTS_S  fnvinitpts_s_
+#define FNV_INITPTS_B  fnvinitpts_b_
+#define FNV_INITPTS_QB fnvinitpts_qb_
 
 #endif
 
@@ -74,19 +74,19 @@ extern N_Vector F2C_ARKODE_vec;
 /* 
  * Prototypes of exported functions 
  *
- * FNV_INITS_PTHREADS    - initializes pthreads vector operations for main problem
- * FNV_INITS_PTHREADS_Q  - initializes pthreads vector operations for quadratures
- * FNV_INITS_PTHREADS_S  - initializes pthreads vector operations for sensitivities
- * FNV_INITS_PTHREADS_B  - initializes pthreads vector operations for adjoint problem
- * FNV_INITS_PTHREADS_QB - initializes pthreads vector operations for adjoint quadratures
+ * FNV_INITPTS    - initializes pthreads vector operations for main problem
+ * FNV_INITPTS_Q  - initializes pthreads vector operations for quadratures
+ * FNV_INITPTS_S  - initializes pthreads vector operations for sensitivities
+ * FNV_INITPTS_B  - initializes pthreads vector operations for adjoint problem
+ * FNV_INITPTS_QB - initializes pthreads vector operations for adjoint quadratures
  *
  */
 
-void FNV_INITS_PTHREADS(int *code, long int *neq, int *num_threads, int *ier);
-void FNV_INITS_PTHREADS_Q(int *code, long int *Nq, int *num_threads, int *ier);
-void FNV_INITS_PTHREADS_S(int *code, int *Ns, int *ier);
-void FNV_INITS_PTHREADS_B(int *code, long int *NB, int *num_threads, int *ier);
-void FNV_INITS_PTHREADS_QB(int *code, long int *NqB, int *num_threads, int *ier);
+void FNV_INITPTS(int *code, long int *neq, int *num_threads, int *ier);
+void FNV_INITPTS_Q(int *code, long int *Nq, int *num_threads, int *ier);
+void FNV_INITPTS_S(int *code, int *Ns, int *ier);
+void FNV_INITPTS_B(int *code, long int *NB, int *num_threads, int *ier);
+void FNV_INITPTS_QB(int *code, long int *NqB, int *num_threads, int *ier);
 
 #ifdef __cplusplus
 }
