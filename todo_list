@@ -1,16 +1,20 @@
-To Do List for SUNDIALS, as of 02/11/2015
+To Do List for SUNDIALS, as of 02/25/2015
 
 (*** items must be completed before KINSOL and ARKode can be released.)
 
-*** (Carol) Create Install_Notes from existing tex files.
+*** () Change FORTRAN vector init/reint names
 
-*** (Carol) Bring back MIN/MAX paragraph in KINSOL manual.
+*** () Release numbers updated in documentation (new for KINSOL and ARKode)
+
+*** (Carol) Update FORTRAN Interfaces (cvode ida kinsol)
+
+*** () Update Confluence Pages "Recent Changes"
+
+*** (Carol) Create Install_Notes from existing tex files.
 
 ***(Carol) Document sparse solvers
 
 ***(Carol/Eddy) Update tarscripts
-
-***(Carol) Update recent revisions - all to comment
 
 ***(Eddy) Document Windows build - install guide
 
@@ -25,18 +29,10 @@ manuals and INSTALL_NOTES (anywhere else?)
 
 ***(Steve, Eddy) Document KLU build options
 
-***(Alan, Carol) Verify output of examples used in new testing system 
-	are indeed correct.
-	As part of this we probably should tighten absolute tolerances on Krylov
-	example codes as there is a good bit of variation on consecutive parallel runs
-	and even between systems.  Maybe try abstol = 10^-6?
-
 ***(Eddy) Try newest SuperLU_MT to see if print messages still there.
 	v2.3 Compile errors, 2.4 released...need to test.
 	- OpenMP works?
 	- colamd.c consistent with KLU?
-
-***(Eddy) Add 3D test case to cvsAtmDisp_ASAi_kry_bbd_p
 
 ***(Eddy) Doc of NVECTOR tests in Installation chapter.
 
@@ -44,16 +40,11 @@ manuals and INSTALL_NOTES (anywhere else?)
 
 ***(Carol) User Kantli has question on KINSOL use
 
-***(Eddy) Document how users can use testRunner (copy output to answer) and 
-	Modify testRunner to catch nan and inf and *****'s 
+***(Eddy) Document how users can use testRunner (copy output to answer) 
 
-(Eddy) INSTALL_NOTES and READMEs need to be update.
+(Eddy) READMEs need to be updated.
 
 (?) Tar-file sizes in download.html
-
-(Alan, Carol) Review vector documentation
-
-(Alan) Review header info for all files
 
 (Alan) Review build documentation.
 
@@ -78,15 +69,16 @@ directory, but the executables are not copied there.
 *** (Alan) Identify any outstanding user issues.
 	 - Check on all Oxberry submitted patches.
 
-***(Carol/Eddy) IM release of KINSOL and ARKode...in progress 12/17/14
-	- KINSOL complete 1/5/15.  LLNL-CODE-665877
-	- ARKode ...waiting for release #
-
 *** (All) Test, test, test
 -------------------------------------------------------------------------
 
 Deferred to after release (11/6/13)
 
+(Alan) Review header info for all files
+
+(Eddy) Modify testRunner to catch nan and inf and *****'s 
+
+(Eddy) Add 3D test case to cvsAtmDisp_ASAi_kry_bbd_p
 
 (Carol) Add check on Jacobian eval to flag a reinit of the linear solver.  
 	Needed in sparse direct cases.  Others???
@@ -149,6 +141,22 @@ Add SuperLU_MT test cases to nightly build (requires multiple compilations)
 -------------------------------------------------------------------------
 
 Completed Tasks
+
+***(Carol/Eddy) IM release of KINSOL and ARKode...in progress 12/17/14
+	- KINSOL complete 1/5/15.  LLNL-CODE-665877
+	- ARKode ...waiting for release #
+
+(Alan, Carol) Review vector documentation
+
+***(Alan, Carol) Verify output of examples used in new testing system 
+	are indeed correct.
+	As part of this we probably should tighten absolute tolerances on Krylov
+	example codes as there is a good bit of variation on consecutive parallel runs
+	and even between systems.  Maybe try abstol = 10^-6?
+
+***(Carol) Update recent revisions - all to comment
+
+*** (Carol) Bring back MIN/MAX paragraph in KINSOL manual.
 
 *** (Alan) Create individual user guide skeleton code example to show only one flavor of p, t, o, s and
     infer the others. Main skeleton should continue to show all four.
