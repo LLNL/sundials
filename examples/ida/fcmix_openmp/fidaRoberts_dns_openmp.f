@@ -63,7 +63,7 @@ c
 c
 c Initialize IDA vector environment
 c
-      call fnvinits_openmp(2, neq, nthreads, ier)
+      call fnvinitomp(2, neq, nthreads, ier)
       if (ier .ne. 0) then
          write(6,10) ier
  10      format(///' SUNDIALS_ERROR: FNVINITS returned IER = ', i5)
