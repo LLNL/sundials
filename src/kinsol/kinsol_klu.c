@@ -191,7 +191,6 @@ int KINKLUReInit(void *kin_mem_v, int n, int nnz, int reinit_type)
   KINSlsMem kinsls_mem;
   KLUData klu_data;
   SlsMat JacMat;
-  int retval;
 
   /* Return immediately if kin_mem is NULL. */
   if (kin_mem_v == NULL) {
@@ -286,7 +285,7 @@ static int kinKLUSetup(KINMem kin_mem)
   KLUData klu_data;
   SlsMat JacMat;
   void *jacdata;
-  realtype uround, uround_twothirds;
+  realtype uround_twothirds;
 
   uround_twothirds = SUNRpowerR(kin_mem->kin_uround,TWOTHIRDS);
 

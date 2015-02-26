@@ -244,7 +244,6 @@ int ARKKLUReInit(void *arkode_mem, int n, int nnz, int reinit_type)
   ARKodeMem ark_mem;
   ARKSlsMem arksls_mem;
   KLUData klu_data;
-  int retval;
 
   /* Return immediately if arkode_mem is NULL. */
   if (arkode_mem == NULL) {
@@ -339,8 +338,10 @@ static int arkKLUSetup(ARKodeMem ark_mem, int convfail,
   KLUData klu_data;
   int retval;
 
-  realtype uround, uround_twothirds;
+  realtype uround_twothirds;
   
+  uround_twothirds = SUNRpowerR(ark_mem->ark_uround,TWOTHIRDS);
+
   arksls_mem = (ARKSlsMem) ark_mem->ark_lmem;
   klu_data = (KLUData) arksls_mem->s_solver_data;
   
@@ -809,7 +810,6 @@ int ARKMassKLUReInit(void *arkode_mem, int n, int nnz, int reinit_type)
   ARKodeMem ark_mem;
   ARKSlsMassMem arksls_mem;
   KLUData klu_data;
-  int retval;
 
   /* Return immediately if arkode_mem is NULL. */
   if (arkode_mem == NULL) {
@@ -900,8 +900,10 @@ static int arkMassKLUSetup(ARKodeMem ark_mem, N_Vector vtemp1,
   KLUData klu_data;
   int retval;
   
-  realtype uround, uround_twothirds;
+  realtype uround_twothirds;
   
+  uround_twothirds = SUNRpowerR(ark_mem->ark_uround,TWOTHIRDS);
+
   arksls_mem = (ARKSlsMassMem) ark_mem->ark_mass_mem;
   klu_data = (KLUData) arksls_mem->s_solver_data;
   

@@ -212,7 +212,6 @@ int IDAKLUReInit(void *ida_mem_v, int n, int nnz, int reinit_type)
   IDASlsMem idasls_mem;
   KLUData klu_data;
   SlsMat JacMat;
-  int retval;
 
   /* Return immediately if ida_mem is NULL. */
   if (ida_mem_v == NULL) {
@@ -313,7 +312,7 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   SlsMat JacMat;
   void *jacdata;
   
-  realtype uround, uround_twothirds;
+  realtype uround_twothirds;
 
   uround_twothirds = SUNRpowerR(IDA_mem->ida_uround,TWOTHIRDS);
 

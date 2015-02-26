@@ -217,10 +217,7 @@ int CVKLUReInit(void *cvode_mem, int n, int nnz, int reinit_type)
   CVodeMem cv_mem;
   CVSlsMem cvsls_mem;
   KLUData klu_data;
-  CVSlsSparseJacFn jaceval;
   SlsMat JacMat;
-  void *jacdata;
-  int retval;
 
   /* Return immediately if cv_mem is NULL. */
   if (cvode_mem == NULL) {
@@ -322,7 +319,9 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   SlsMat JacMat, savedJ;
   void *jacdata;
   
-  realtype uround, uround_twothirds;
+  realtype uround_twothirds;
+
+  uround_twothirds = SUNRpowerR(cv_mem->cv_uround,TWOTHIRDS);
 
   cvsls_mem = (CVSlsMem) (cv_mem->cv_lmem);
   tn = cv_mem->cv_tn; 

@@ -3,8 +3,7 @@
  * $Revision$
  * $Date$
  * -----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh,
- *                Chris Nguyen, Radu Serban @ LLNL
+ * Programmer(s): Chris Nguyen @ LLNL
  * -----------------------------------------------------------------
  * Example problem for IDA: 2D heat equation, serial, sparse. 
  * Based on idaHeat2D_bnd.c and idaRoberts_klu.c
@@ -96,7 +95,7 @@ int main(void)
   UserData data;
   N_Vector uu, up, constraints, id, res;  /* uu is u, up is du/dt */
   int ier, iout;
-  long int mu, ml, netf, ncfn;
+  long int netf, ncfn;
   realtype rtol, atol, t0, t1, tout, tret;
 
   int nnz; /* number of non-zeroes  */
@@ -266,9 +265,10 @@ int jacHeat3(realtype tt,  realtype cj,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   realtype *yval;
-  yval = NV_DATA_S(yy);
   realtype dx =  ONE/(MGRID - ONE);
   realtype beta = RCONST(4.0)/(dx*dx) + cj;
+
+  yval = NV_DATA_S(yy);
 
   SlsSetToZero(JacMat); /* initialize Jacobian matrix */
 
@@ -327,10 +327,11 @@ int jacHeat(realtype tt,  realtype cj,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   realtype *yval;
-  yval = NV_DATA_S(yy);
   realtype dx =  ONE/(MGRID - ONE);
   realtype beta = RCONST(4.0)/(dx*dx) + cj;
   int i,j, repeat=0;
+
+  yval = NV_DATA_S(yy);
 
   SlsSetToZero(JacMat); /* initialize Jacobian matrix  */
 
@@ -668,7 +669,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
 {
   int ier;
   realtype umax, hused;
-  long int nst, nni, nje, nre, nreLS;
+  long int nst, nni, nje, nre;
   int kused;
 
   umax = N_VMaxNorm(uu);
