@@ -76,7 +76,6 @@ int CVSuperLUMT(void *cvode_mem, int num_threads, int n, int nnz)
   CVSlsMem cvsls_mem;
   SLUMTData slumt_data;
   int *perm_c, *perm_r;
-  int flag;
   int nrhs, panel_size, relax;
   double *bd;
   SuperMatrix *B;
