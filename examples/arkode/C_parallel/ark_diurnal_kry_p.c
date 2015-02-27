@@ -398,10 +398,10 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
     printf("At bottom left:  c1, c2 = %12.3Le %12.3Le \n", udata[0], udata[1]);
     printf("At top right:    c1, c2 = %12.3Le %12.3Le \n\n", tempu[0], tempu[1]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("t = %.2le   no. steps = %ld   stepsize = %.2le\n",
+    printf("t = %.2e   no. steps = %ld   stepsize = %.2e\n",
            t, nst, hu);
-    printf("At bottom left:  c1, c2 = %12.3le %12.3le \n", udata[0], udata[1]);
-    printf("At top right:    c1, c2 = %12.3le %12.3le \n\n", tempu[0], tempu[1]);
+    printf("At bottom left:  c1, c2 = %12.3e %12.3e \n", udata[0], udata[1]);
+    printf("At top right:    c1, c2 = %12.3e %12.3e \n\n", tempu[0], tempu[1]);
 #else
     printf("t = %.2e   no. steps = %ld   stepsize = %.2e\n",
            t, nst, hu);

@@ -35,6 +35,7 @@
 #include <math.h>
 
 #include <cvode/cvode.h>              /* prototypes for CVODE fcts. */
+#include <cvode/cvode_diag.h>         /* prototypes for CVODE diagonal solver */
 #include <nvector/nvector_parallel.h> /* definition of N_Vector and macros */
 #include <sundials/sundials_types.h>  /* definition of realtype */
 #include <sundials/sundials_math.h>   /* definition of EXP */
@@ -228,7 +229,7 @@ static void PrintData(realtype t, realtype umax, long int nst)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %4.2Lf  max.norm(u) =%14.6Le  nst =%4ld \n", t, umax, nst);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("At t = %4.2f  max.norm(u) =%14.6le  nst =%4ld \n", t, umax, nst);
+  printf("At t = %4.2f  max.norm(u) =%14.6e  nst =%4ld \n", t, umax, nst);
 #else
   printf("At t = %4.2f  max.norm(u) =%14.6e  nst =%4ld \n", t, umax, nst);
 #endif

@@ -289,7 +289,7 @@ void N_VPrint_Parallel(N_Vector x)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%Lg\n", xd[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("%lg\n", xd[i]);
+    printf("%g\n", xd[i]);
 #else
     printf("%g\n", xd[i]);
 #endif

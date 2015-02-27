@@ -673,7 +673,7 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
   printf("Tolerance parameters:  fnormtol = %Lg   scsteptol = %Lg\n",
          fnormtol, scsteptol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("Tolerance parameters:  fnormtol = %lg   scsteptol = %lg\n",
+  printf("Tolerance parameters:  fnormtol = %g   scsteptol = %g\n",
          fnormtol, scsteptol);
 #else
   printf("Tolerance parameters:  fnormtol = %g   scsteptol = %g\n",
@@ -686,7 +686,7 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
          PREYIN,PREYIN,PREYIN,
          PREDIN,PREDIN,PREDIN);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("At all mesh points:  %lg %lg %lg   %lg %lg %lg\n", 
+  printf("At all mesh points:  %g %g %g   %g %g %g\n", 
          PREYIN,PREYIN,PREYIN,
          PREDIN,PREDIN,PREDIN);
 #else
@@ -732,7 +732,7 @@ static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc)
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
       printf(" %Lg",ct[is]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-      printf(" %lg",ct[is]);
+      printf(" %g",ct[is]);
 #else
       printf(" %g",ct[is]);
 #endif
@@ -744,7 +744,7 @@ static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc)
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
       printf(" %Lg",tempc[is]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-      printf(" %lg",tempc[is]);
+      printf(" %g",tempc[is]);
 #else
       printf(" %g",tempc[is]);
 #endif

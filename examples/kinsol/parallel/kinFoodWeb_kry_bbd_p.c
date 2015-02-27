@@ -705,15 +705,15 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
     printf("Linear solver is SPGMR with maxl = %d, maxlrst = %d\n",
            maxl, maxlrst);
     printf("Preconditioning uses band-block-diagonal matrix from KINBBDPRE\n");
-    printf("  Difference quotient half-bandwidths: mudq = %d, mldq = %d\n",
+    printf("  Difference quotient half-bandwidths: mudq = %ld, mldq = %ld\n",
 	   mudq, mldq);
-    printf("  Retained band block half-bandwidths: mukeep = %d, mlkeep = %d\n",
+    printf("  Retained band block half-bandwidths: mukeep = %ld, mlkeep = %ld\n",
 	   mukeep, mlkeep);
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
     printf("Tolerance parameters:  fnormtol = %Lg   scsteptol = %Lg\n",
            fnormtol, scsteptol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("Tolerance parameters:  fnormtol = %lg   scsteptol = %lg\n",
+    printf("Tolerance parameters:  fnormtol = %g   scsteptol = %g\n",
            fnormtol, scsteptol);
 #else
     printf("Tolerance parameters:  fnormtol = %g   scsteptol = %g\n",
@@ -725,7 +725,7 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
     printf("At all mesh points:  %Lg %Lg %Lg   %Lg %Lg %Lg\n",
            PREYIN,PREYIN,PREYIN, PREDIN,PREDIN,PREDIN);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("At all mesh points:  %lg %lg %lg   %lg %lg %lg\n",
+    printf("At all mesh points:  %g %g %g   %g %g %g\n",
            PREYIN,PREYIN,PREYIN, PREDIN,PREDIN,PREDIN);
 #else
     printf("At all mesh points:  %g %g %g   %g %g %g\n", PREYIN,PREYIN,PREYIN,
@@ -769,7 +769,7 @@ static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc)
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
       printf(" %Lg",ct[is]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-      printf(" %lg",ct[is]);
+      printf(" %g",ct[is]);
 #else
       printf(" %g",ct[is]);
 #endif
@@ -781,7 +781,7 @@ static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc)
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
       printf(" %Lg",tempc[is]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-      printf(" %lg",tempc[is]);
+      printf(" %g",tempc[is]);
 #else
       printf(" %g",tempc[is]);
 #endif
