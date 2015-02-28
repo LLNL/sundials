@@ -265,7 +265,7 @@ static int KINSptfqmrInit(KINMem kin_mem)
   }
 
   if ( (strategy == KIN_PICARD) && jtimesDQ ) {
-    KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSpgmrInit", 
+    KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSptfqmrInit", 
 		    MSG_NOL_FAIL);
     return(KIN_ILL_INPUT);
   }

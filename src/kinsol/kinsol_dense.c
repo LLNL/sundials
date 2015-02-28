@@ -228,7 +228,7 @@ static int kinDenseInit(KINMem kin_mem)
   }
   
   if ( (strategy == KIN_PICARD) && jacDQ ) {
-    KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSpgmrInit", 
+    KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINDenseInit", 
 		    MSG_NOL_FAIL);
     return(KIN_ILL_INPUT);
   }
