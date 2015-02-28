@@ -37,6 +37,7 @@
 #include <kinsol/kinsol_sptfqmr.h> /* prototypes of KINSPTFQMR interface routines */
 #include <kinsol/kinsol_spbcgs.h>  /* prototypes of KINSPBCG interface routines   */
 #include <kinsol/kinsol_spgmr.h>   /* prototypes of KINSPGMR interface routines   */
+#include <kinsol/kinsol_spfgmr.h>  /* prototypes of KINSPFGMR interface routines  */
 
 /*
  * ----------------------------------------------------------------
@@ -271,6 +272,19 @@ void FKIN_SPGMR(int *maxl, int *maxlrst, int *ier)
 
 /*
  * ----------------------------------------------------------------
+ * Function : FKIN_SPFGMR
+ * ----------------------------------------------------------------
+ */
+
+void FKIN_SPFGMR(int *maxl, int *maxlrst, int *ier)
+{
+  *ier = KINSpfgmr(KIN_kinmem, *maxl);
+  KINSpilsSetMaxRestarts(KIN_kinmem, *maxlrst);
+  KIN_ls = KIN_LS_SPFGMR;
+}
+
+/*
+ * ----------------------------------------------------------------
  * Function : FKIN_SOL
  * ----------------------------------------------------------------
  */
@@ -337,6 +351,7 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
     KINDlsGetNumJacEvals(KIN_kinmem, &KIN_iout[10]);            /* NJE */    
   case KIN_LS_SPTFQMR:
   case KIN_LS_SPBCG:
+  case KIN_LS_SPFGMR:
   case KIN_LS_SPGMR:
     KINSpilsGetWorkSpace(KIN_kinmem, &KIN_iout[6], &KIN_iout[7]); /* LRW & LIW */
     KINSpilsGetLastFlag(KIN_kinmem, &KIN_iout[8]);                /* LSTF */

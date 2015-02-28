@@ -29,7 +29,8 @@
  use of the KINSOL solver with the KINBBDPRE preconditioner module, for the
  solution of nonlinear systems in a mixed Fortran/C setting. The combination
  of KINSOL and KINBBDPRE solves systems f(u) = 0 with the SPGMR (scaled
- preconditioned GMRES), SPBCG (scaled preconditioned Bi-CGSTAB), or SPTFQMR
+ preconditioned GMRES), SPFGMR (scaled preconditioned flexible GMRES), 
+ SPBCG (scaled preconditioned Bi-CGSTAB), or SPTFQMR
  (scaled preconditioned TFQMR) method for the linear systems that arise, and
  with a preconditioner that is block-diagonal with banded blocks. While KINSOL
  and KINBBDPRE are written in C, it is assumed here that the user's calling
@@ -42,6 +43,7 @@
    FKINBBDSPTFQMR: interfaces with KINSptfqmr
    FKINBBDSPBCG : interfaces with KINSpbcg
    FKINBBDSPGMR : interfaces with KINSpgmr
+   FKINBBDSPFGMR : interfaces with KINSpfgmr
    FKINBBDOPT : accesses optional outputs
    FKINBBDFREE : interfaces to KINBBDPrecFree
 
@@ -184,9 +186,10 @@
 
        Note: See printed message for details in case of failure.
 
- (4.3) Attach one of the 3 SPILS linear solvers. Make one of the 
+ (4.3) Attach one of the SPILS linear solvers. Make one of the 
        following calls (see fkinsol.h) for more details.
           CALL FKINSPGMR (MAXL, MAXLRST, IER)
+          CALL FKINSPFGMR (MAXL, MAXLRST, IER)
           CALL FKINSPBCG (MAXL, IER)
           CALL FKINSPTFQMR (MAXL, IER)
 

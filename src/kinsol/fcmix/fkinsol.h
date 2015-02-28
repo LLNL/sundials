@@ -43,6 +43,7 @@
    FKINDENSE interfaces to KINDense
    FKINSPTFQMR interfaces to KINSptfqmr
    FKINSPGMR interfaces to KINSpgmr
+   FKINSPFGMR interfaces to KINSpfgmr
    FKINSPBCG interfaces to KINSpbcg
    FKINSOL interfaces to KINSol and KINGet* functions
    FKINFREE interfaces to KINFree
@@ -281,17 +282,18 @@
 
        Note: See printed message for details in case of failure.
 
- (6.5) SPGMR treatment of the linear systems:
+ (6.5) SPGMR and SPFGMR treatment of the linear systems:
 
-       For the Scaled Preconditioned GMRES solution of the linear systems,
-       the user must make the call:
+       For the Scaled Preconditioned GMRES or Scaled Preconditioned Flexible 
+       GMRES solution of the linear systems, the user must make one of the calls:
 
          CALL FKINSPGMR(MAXL, MAXLRST, IER)
+         CALL FKINSPFGMR(MAXL, MAXLRST, IER)
 
        In the above routine, the arguments are as follows:
          MAXL     = maximum Krylov subspace dimension; 0 indicates default.
          MAXLRST  = maximum number of linear system restarts; 0 indicates
-                    default (SPGMR only).
+                    default (SPGMR and SPFGMR only).
          IER      = return completion flag.  Values are 0 = succes, and
                     -1 = failure.
 
@@ -387,7 +389,7 @@
        FNORM  = ROUT(1) = final scaled norm of f(u)
        STEPL  = ROUT(2) = scaled last step length
 
-     The following optional outputs are specific to the SPGMR/SPBCG/SPTFQMR
+     The following optional outputs are specific to the SPGMR/SPFGMR/SPBCG/SPTFQMR
      module:
 
        LRW    = IOUT( 7) = real workspace size for the linear solver module
@@ -450,6 +452,7 @@ extern "C" {
 #define FKIN_SPTFQMR        SUNDIALS_F77_FUNC(fkinsptfqmr, FKINSPTFQMR)
 #define FKIN_SPBCG          SUNDIALS_F77_FUNC(fkinspbcg, FKINSPBCG)
 #define FKIN_SPGMR          SUNDIALS_F77_FUNC(fkinspgmr, FKINSPGMR)
+#define FKIN_SPFGMR         SUNDIALS_F77_FUNC(fkinspfgmr, FKINSPFGMR)
 #define FKIN_SPILSSETJAC    SUNDIALS_F77_FUNC(fkinspilssetjac, FKINSPILSSETJAC)
 #define FKIN_SPILSSETPREC   SUNDIALS_F77_FUNC(fkinspilssetprec, FKINSPILSSETPREC)
 #define FKIN_SOL            SUNDIALS_F77_FUNC(fkinsol, FKINSOL)
@@ -478,6 +481,7 @@ extern "C" {
 #define FKIN_SPTFQMR        fkinsptfqmr_
 #define FKIN_SPBCG          fkinspbcg_
 #define FKIN_SPGMR          fkinspgmr_
+#define FKIN_SPFGMR         fkinspgmr_
 #define FKIN_SPILSSETJAC    fkinspilssetjac_
 #define FKIN_SPILSSETPREC   fkinspilssetprec_
 #define FKIN_SOL            fkinsol_
@@ -517,6 +521,7 @@ void FKIN_LAPACKBANDSETJAC(int *flag, int *ier);
 void FKIN_SPTFQMR(int *maxl, int *ier);
 void FKIN_SPBCG(int *maxl, int *ier);
 void FKIN_SPGMR(int *maxl, int *maxlrst, int *ier);
+void FKIN_SPFGMR(int *maxl, int *maxlrst, int *ier);
 
 void FKIN_SPILSSETJAC(int *flag, int *ier);
 void FKIN_SPILSSETPREC(int *flag, int *ier);
@@ -583,9 +588,9 @@ extern int KIN_ls;
 
 /* Linear solver IDs */
 
-enum { KIN_LS_SPGMR = 1, KIN_LS_SPBCG = 2, KIN_LS_SPTFQMR = 3, 
-       KIN_LS_DENSE = 4, KIN_LS_BAND  = 5,
-       KIN_LS_LAPACKDENSE = 6, KIN_LS_LAPACKBAND = 7 };
+  enum { KIN_LS_SPGMR = 1, KIN_LS_SPFGMR = 2, KIN_LS_SPBCG = 3, KIN_LS_SPTFQMR = 4, 
+	 KIN_LS_DENSE = 5, KIN_LS_BAND  = 6,
+	 KIN_LS_LAPACKDENSE = 7, KIN_LS_LAPACKBAND = 8 };
 
 #ifdef __cplusplus
 }
