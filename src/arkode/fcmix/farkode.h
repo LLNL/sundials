@@ -56,6 +56,7 @@
    FARKLAPACKBANDSETJAC       ARKDlsSetBandJacFn
 
    FARKKLU                    ARKKLU
+   FARKKLUReinit              ARKKLUReinit
    FARKSUPERLUMT              ARKSuperLUMT
 
    FARKSPGMR                  ARKSpgmr and ARKSpilsSet*
@@ -257,7 +258,7 @@
  (4s) User-supplied sparse Jacobian approximation routine: FARKSPJAC
 
      Required when using the ARKKLU or ARKSuperLUMT linear solvers, the 
-     user may supply a routine that computes a compressed-sparse-column 
+     user must supply a routine that computes a compressed-sparse-column 
      approximation of the system Jacobian J = dfi(t,y)/dy.  If supplied, 
      it must have the following form:
 
@@ -269,7 +270,7 @@
      with storage for NNZ nonzeros, stored in the arrays JDATA (nonzero
      values), JRVALS (row indices for each nonzero), JCOLPTRS (indices 
      for start of each column), with the Jacobian matrix at the current
-     (t,y) in CSC form.
+     (t,y) in CSC form (see sundials_sparse.h for more information).
 
      The arguments are:
          T    -- current time [realtype, input]
@@ -402,7 +403,8 @@
 
  -----------------------------------------------------------------------------
 
- (9) Initialization:  FNVINITS / FNVINITP, FARKMALLOC, FARKREINIT, FARKRESIZE
+ (9) Initialization:  FNVINITS/FNVINITP/FNVINITOMP/FNVINITPTS, 
+                      FARKMALLOC, FARKREINIT, FARKRESIZE
  
  (9.1s) To initialize the serial vector specification, the user must make the
      following call:
@@ -416,8 +418,8 @@
 	          0 = success, 
 		 -1 = failure.
  
- (9.1p) To initialize the parallel machine environment, the user must make 
-     the following call:
+ (9.1p) To initialize the distributed memory parallel machine environment, 
+        the user must make the following call:
 
         CALL FNVINITP(COMM, 4, NLOCAL, NGLOBAL, IER)
 
@@ -434,6 +436,26 @@
      MPI_COMM_WORLD.  If not, this routine initializes MPI and sets the
      communicator equal to MPI_COMM_WORLD.
  
+ (9.1omp) To initialize the openMP threaded vector kernel, 
+          the user must make the following call:
+
+          CALL FNVINITOMP (3, NEQ, NUM_THREADS, IER)
+
+        The arguments are:
+          NEQ = size of vectors
+          NUM_THREADS = number of threads
+          IER = return completion flag. Values are 0 = success, -1 = failure.
+
+ (9.1pts) To initialize the Pthreads threaded vector kernel, 
+          the user must make the following call:
+
+          CALL FNVINITOMP (3, NEQ, NUM_THREADS, IER)
+
+        The arguments are:
+          NEQ = size of vectors
+          NUM_THREADS = number of threads
+          IER = return completion flag. Values are 0 = success, -1 = failure.
+
  (9.2) To set various problem and solution parameters and allocate
      internal memory, make the following call:
 
@@ -786,11 +808,13 @@
 
      The user must make the call
 
-       CALL FARKKLU(NEQ, NNZ, IER)
+       CALL FARKKLU(NEQ, NNZ, ORDERING, IER)
 
      The arguments are:
         NEQ = the problem size [int; input]
         NNZ = the maximum number of nonzeros [int; input]
+	ORDERING = the matrix ordering desired, possible values
+	   come from the KLU package (0 = AMD, 1 = COLAMD) [int; input]
 	IER = error return flag [int, output]: 
 	         0 = success, 
 		 negative = error.
@@ -808,12 +832,18 @@
 
      The user must make the call
 
-       CALL FARKSUPERLUMT(NTHREADS, NEQ, NNZ, IER)
+       CALL FARKSUPERLUMT(NTHREADS, NEQ, NNZ, ORDERING, IER)
 
      The arguments are:
         NTHREADS = desired number of threads to use [int; input]
         NEQ = the problem size [int; input]
         NNZ = the maximum number of nonzeros [int; input]
+	ORDERING = the matrix ordering desired, possible values
+	   come from the SuperLU_MT package [int; input]
+           0 = Natural
+           1 = Minimum degree on A^T A
+           2 = Minimum degree on A^T + A
+           3 = COLAMD
 	IER = error return flag [int, output]: 
 	         0 = success, 
 		 negative = error.
@@ -1259,6 +1289,7 @@ extern "C" {
 #define FARK_LAPACKBAND          SUNDIALS_F77_FUNC(farklapackband,          FARKLAPACKBAND)
 #define FARK_LAPACKBANDSETJAC    SUNDIALS_F77_FUNC(farklapackbandsetjac,    FARKLAPACKBANDSETJAC)
 #define FARK_KLU                 SUNDIALS_F77_FUNC(farkklu,                 FARKKLU)
+#define FARK_KLUREINIT           SUNDIALS_F77_FUNC(farkklureinit,           FARKKLUREINIT)
 #define FARK_SUPERLUMT           SUNDIALS_F77_FUNC(farksuperlumt,           FARKSUPERLUMT)
 #define FARK_SPTFQMR             SUNDIALS_F77_FUNC(farksptfqmr,             FARKSPTFQMR)
 #define FARK_SPTFQMRREINIT       SUNDIALS_F77_FUNC(farksptfqmrreinit,       FARKSPTFQMRREINIT)
@@ -1315,6 +1346,7 @@ extern "C" {
 #define FARK_LAPACKBAND          farklapackband_
 #define FARK_LAPACKBANDSETJAC    farklapackbandsetjac_
 #define FARK_KLU                 farkklu_
+#define FARK_KLUReinit           farkklureinit_
 #define FARK_SUPERLUMT           farksuperlumt_
 #define FARK_SPTFQMR             farksptfqmr_
 #define FARK_SPTFQMRREINIT       farksptfqmrreinit_
@@ -1398,8 +1430,9 @@ extern "C" {
   void FARK_LAPACKBAND(int *neq, int *mupper, int *mlower, int *ier);
   void FARK_LAPACKBANDSETJAC(int *flag, int *ier);
 
-  void FARK_KLU(int *neq, int *nnz, int *ier);
-  void FARK_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ier);
+  void FARK_KLU(int *neq, int *nnz, int *ordering, int *ier);
+  void FARK_KLUReinit(int *neq, int *nnz, int *reinit_type, int *ier);
+  void FARK_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier);
 
   void FARK_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
   void FARK_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier);

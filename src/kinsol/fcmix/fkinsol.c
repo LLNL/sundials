@@ -34,6 +34,8 @@
 
 #include <kinsol/kinsol_band.h>    /* prototypes of KINBAND interface routines    */
 #include <kinsol/kinsol_dense.h>   /* prototypes of KINDENSE interface routines   */
+#include <kinsol/kinsol_klu.h>     /* prototypes of KINKLU interface routines     */
+#include <kinsol/kinsol_superlumt.h> /* prototypes of KINKLU interface routines     */
 #include <kinsol/kinsol_sptfqmr.h> /* prototypes of KINSPTFQMR interface routines */
 #include <kinsol/kinsol_spbcgs.h>  /* prototypes of KINSPBCG interface routines   */
 #include <kinsol/kinsol_spgmr.h>   /* prototypes of KINSPGMR interface routines   */
@@ -349,6 +351,11 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
     KINDlsGetLastFlag(KIN_kinmem, &KIN_iout[8]);                /* LSTF */
     KINDlsGetNumFuncEvals(KIN_kinmem, &KIN_iout[9]);            /* NFE */
     KINDlsGetNumJacEvals(KIN_kinmem, &KIN_iout[10]);            /* NJE */    
+  case KIN_LS_KLU:
+  case KIN_LS_SUPERLUMT:
+    KINSlsGetLastFlag(KIN_kinmem, &KIN_iout[8]);                /* LSTF  */
+    KINSlsGetNumJacEvals(KIN_kinmem, &KIN_iout[10]);            /* NJE   */
+    break;
   case KIN_LS_SPTFQMR:
   case KIN_LS_SPBCG:
   case KIN_LS_SPFGMR:

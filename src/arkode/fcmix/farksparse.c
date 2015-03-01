@@ -37,7 +37,7 @@ extern void FARK_SPJAC(realtype *T, realtype *Y,
 
 /*=============================================================*/
 
-/* C interface to user-supplied Fortran routine FARKDJAC; see 
+/* C interface to user-supplied Fortran routine FARKSPJAC; see 
    farkode.h for additional information  */
 int FARKSparseJac(realtype t, N_Vector y, N_Vector fy, 
 		  SlsMat J, void *user_data, N_Vector vtemp1, 
