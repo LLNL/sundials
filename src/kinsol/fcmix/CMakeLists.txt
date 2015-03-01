@@ -16,6 +16,24 @@ ELSE(LAPACK_FOUND)
   SET(fkinsol_BL_SOURCES "")
 ENDIF(LAPACK_FOUND)
 
+IF(KLU_FOUND OR SUPERLUMT_FOUND)
+  SET(fkinsol_SPARSE_SOURCES fkinsparse.c)
+ELSE(SPARSE_FOUND)
+  SET(fkinsol_SPARSE_SOURCES "")
+ENDIF(KLU_FOUND OR SUPERLUMT_FOUND)
+ 
+IF(KLU_FOUND)
+  SET(fkinsol_KLU_SOURCES fkinklu.c)
+ELSE(KLU_FOUND)
+  SET(fkinsol_KLU_SOURCES "")
+ENDIF(KLU_FOUND)
+ 
+IF(SUPERLUMT_FOUND)
+  SET(fkinsol_SUPERLUMT_SOURCES fkinsuperlumt.c)
+ELSE(SUPERLUMT_FOUND)
+  SET(fkinsol_SUPERLUMT_SOURCES "")
+ENDIF(SUPERLUMT_FOUND)
+
 # Add source directories to include directories for access to
 # implementation only header files (both for fkinsol and kinsol)
 INCLUDE_DIRECTORIES(.)
@@ -29,7 +47,7 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 # coming from inexistent user-provided functions)
 
 # Add the build target for the FKINSOL library
-ADD_LIBRARY(sundials_fkinsol_static STATIC ${fkinsol_SOURCES} ${fkinsol_BL_SOURCES})
+ADD_LIBRARY(sundials_fkinsol_static STATIC ${fkinsol_SOURCES} ${fkinsol_BL_SOURCES} ${fkinsol_SPARSE_SOURCES} ${fkinsol_KLU_SOURCES} ${fkinsol_SUPERLUMT_SOURCES})
 
 # Set the library name and make sure it is not deleted
 SET_TARGET_PROPERTIES(sundials_fkinsol_static
