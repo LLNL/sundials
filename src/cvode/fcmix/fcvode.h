@@ -39,6 +39,8 @@
  * 
  *   FNVINITS and FNVINITP interface to N_VNew_Serial and
  *               N_VNew_Parallel, respectively
+ *   FNVINITOMP               N_VNew_OpenMP
+ *   FNVINITPTS               N_VNew_Pthreads
  * 
  *   FCVMALLOC  interfaces to CVodeCreate, CVodeSetUserData, and CVodeInit
  * 
@@ -261,7 +263,7 @@
  (9.1omp) To initialize the openMP threaded vector kernel, 
           the user must make the following call:
 
-          CALL FNVINITOMP (3, NEQ, NUM_THREADS, IER)
+          CALL FNVINITOMP (1, NEQ, NUM_THREADS, IER)
 
         The arguments are:
           NEQ = size of vectors
@@ -271,7 +273,7 @@
  (9.1pts) To initialize the Pthreads threaded vector kernel, 
           the user must make the following call:
 
-          CALL FNVINITOMP (3, NEQ, NUM_THREADS, IER)
+          CALL FNVINITOMP (1, NEQ, NUM_THREADS, IER)
 
         The arguments are:
           NEQ = size of vectors
@@ -465,7 +467,7 @@
      refactorization or if the number of nonzeros in the Jacobian matrix changes, the
      user should make the call
 
-       CALL FCVKLUReinit(NEQ, NNZ, REINIT_TYPE)
+       CALL FCVKLUREINIT(NEQ, NNZ, REINIT_TYPE)
 
      The arguments are:
         NEQ = the problem size [int; input]
@@ -759,7 +761,7 @@ extern "C" {
 #define FCV_LAPACKBAND     fcvlapackband_
 #define FCV_LAPACKBANDSETJAC    fcvlapackbandsetjac_
 #define FCV_KLU            fcvklu_
-#define FCV_KLUReinit      fcvklureinit_
+#define FCV_KLUREINIT      fcvklureinit_
 #define FCV_SUPERLUMT      fcvsuperlumt_
 #define FCV_SPTFQMR        fcvsptfqmr_
 #define FCV_SPTFQMRREINIT  fcvsptfqmrreinit_
@@ -824,7 +826,7 @@ extern "C" {
   void FCV_LAPACKBANDSETJAC(int *flag, int *ier);
 
   void FCV_KLU(int *neq, int *nnz, int *ordering, int *ier);
-  void FCV_KLUReinit(int *neq, int *nnz, int *reinit_type, int *ier);
+  void FCV_KLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier);
   void FCV_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier);
 
   void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);

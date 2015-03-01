@@ -330,6 +330,20 @@
 	         0 = success, 
 		 negative = error.
  
+     The KINSOL KLU solver will reuse much of the factorization information from one
+     nonlinear iteration to the next.  If at any time the user wants to force a full
+     refactorization or if the number of nonzeros in the Jacobian matrix changes, the
+     user should make the call
+
+       CALL FKINKLUREINIT(NEQ, NNZ, REINIT_TYPE)
+
+     The arguments are:
+        NEQ = the problem size [int; input]
+        NNZ = the maximum number of nonzeros [int; input]
+	REINIT_TYPE = 1 or 2.  For a value of 1, the matrix will be destroyed and 
+          a new one will be allocated with NNZ nonzeros.  For a value of 2, 
+	  only symbolic and numeric factorizations will be completed. 
+ 
      When using FKINKLU, the user is required to supply the FKINSPJAC 
      routine for the evaluation of the sparse approximation to the 
      Jacobian, as discussed above with the other user-supplied routines.
@@ -359,6 +373,9 @@
 	         0 = success, 
 		 negative = error.
  
+     At this time, there is no reinitialization capability for the SUNDIALS 
+     interfaces to the SuperLUMT solver.
+
      When using FKINSUPERLUMT, the user is required to supply the FKINSPJAC 
      routine for the evaluation of the sparse approximation to the 
      Jacobian, as discussed above with the other user-supplied routines.
@@ -640,7 +657,7 @@ void FKIN_LAPACKBAND(int *neq, int *mupper, int *mlower, int *ier);
 void FKIN_LAPACKBANDSETJAC(int *flag, int *ier);
 
 void FKIN_KLU(int *neq, int *nnz, int *ordering, int *ier);
-void FKIN_KLUReinit(int *neq, int *nnz, int *reinit_type, int *ier);
+void FKIN_KLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier);
 void FKIN_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier);
 
 void FKIN_SPTFQMR(int *maxl, int *ier);

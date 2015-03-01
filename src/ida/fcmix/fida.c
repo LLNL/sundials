@@ -31,6 +31,8 @@
 
 #include <ida/ida_band.h>    /* prototypes for IDABAND interface routines      */
 #include <ida/ida_dense.h>   /* prototypes for IDADENSE interface routines     */
+#include <ida/ida_klu.h>     /* prototypes for IDAKLU interface routines       */
+#include <ida/ida_superlumt.h> /* prototypes for IDASUPERLUMT interface routines */
 #include <ida/ida_sptfqmr.h> /* prototypes for IDASPTFQMR interface routines   */
 #include <ida/ida_spbcgs.h>  /* prototypes for IDASPBCG interface routines     */
 #include <ida/ida_spgmr.h>   /* prototypes for IDASPGMR interface routines     */
@@ -633,6 +635,11 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
     IDADlsGetLastFlag(IDA_idamem, &IDA_iout[14]);                   /* LSTF */
     IDADlsGetNumResEvals(IDA_idamem, &IDA_iout[15]);                /* NRE */
     IDADlsGetNumJacEvals(IDA_idamem, &IDA_iout[16]);                /* NJE */
+    break;
+  case IDA_LS_KLU:
+  case IDA_LS_SUPERLUMT:
+    IDASlsGetLastFlag(IDA_idamem, &IDA_iout[14]);                  /* LSTF  */
+    IDASlsGetNumJacEvals(IDA_idamem, &IDA_iout[16]);               /* NJE   */
     break;
   case IDA_LS_SPGMR:
   case IDA_LS_SPBCG:

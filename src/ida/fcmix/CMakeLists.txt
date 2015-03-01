@@ -18,6 +18,24 @@ ELSE(LAPACK_FOUND)
   SET(fida_BL_SOURCES "")
 ENDIF(LAPACK_FOUND)
 
+IF(KLU_FOUND OR SUPERLUMT_FOUND)
+  SET(fida_SPARSE_SOURCES fidasparse.c)
+ELSE(SPARSE_FOUND)
+  SET(fida_SPARSE_SOURCES "")
+ENDIF(KLU_FOUND OR SUPERLUMT_FOUND)
+ 
+IF(KLU_FOUND)
+  SET(fida_KLU_SOURCES fidaklu.c)
+ELSE(KLU_FOUND)
+  SET(fida_KLU_SOURCES "")
+ENDIF(KLU_FOUND)
+ 
+IF(SUPERLUMT_FOUND)
+  SET(fida_SUPERLUMT_SOURCES fidasuperlumt.c)
+ELSE(SUPERLUMT_FOUND)
+  SET(fida_SUPERLUMT_SOURCES "")
+ENDIF(SUPERLUMT_FOUND)
+
 # Add source directories to include directories for access to
 # implementation only header files (both for fida and ida)
 INCLUDE_DIRECTORIES(.)
@@ -31,7 +49,7 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 # coming from inexistent user-provided functions)
 
 # Add the build target for the FIDA library
-ADD_LIBRARY(sundials_fida_static STATIC ${fida_SOURCES} ${fida_BL_SOURCES})
+ADD_LIBRARY(sundials_fida_static STATIC ${fida_SOURCES} ${fida_BL_SOURCES} ${fida_SPARSE_SOURCES} ${fida_KLU_SOURCES} ${fida_SUPERLUMT_SOURCES})
 
 # Set the library name and make sure it is not deleted
 SET_TARGET_PROPERTIES(sundials_fida_static

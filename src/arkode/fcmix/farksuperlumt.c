@@ -18,9 +18,10 @@
 
 /* Fortran interface to C routine ARKSuperLUMT; see farkode.h for 
    further details */
-void FARK_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ier)
+void FARK_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier)
 {
   *ier = ARKSuperLUMT(ARK_arkodemem, *nthreads, *neq, *nnz);
+  ARKSuperLUMTSetOrdering(ARK_arkodemem, *ordering);
   ARK_ls = ARK_LS_SUPERLUMT;
   return;
 }

@@ -38,6 +38,8 @@
  *
  *   FNVINITS* and FNVINITP*  interface to N_VNew_Serial and
  *                            N_VNew_Parallel, respectively
+ *   FNVINITOMP               N_VNew_OpenMP
+ *   FNVINITPTS               N_VNew_Pthreads
  *
  *   FIDAMALLOC  interfaces to IDACreate and IDAInit
  *
@@ -56,6 +58,10 @@
  *
  *   FIDABAND        interfaces to IDABand
  *   FIDABANDSETJAC  interfaces to IDABandSetJacFn
+ *
+ *   FIDAKLU         interfaces to IDAKLU
+ *   FIDAKLUReinit   interfaces to IDAKLUReinit
+ *   FIDASUPERLUMT   interfaces to IDASuperLUMT
  *
  *   FIDASPTFQMR/FIDASPTFQMRREINIT  interface to IDASptfqmr and IDASptfqmrSet*
  *   FIDASPBCG/FIDASPBCGREINIT      interface to IDASpbcg and IDASpbcgSet*
@@ -81,6 +87,7 @@
  *   FIDAPSOL   is called by the interface fn. FIDAPSol of type IDASpilsPrecSolveFn
  *   FIDAPSET   is called by the interface fn. FIDAPSet of type IDASpilsPrecSetupFn
  *   FIDAJTIMES is called by interface fn. FIDAJtimes of type IDASpilsJacTimesVecFn
+ *   FIDASPJAC  is called by interface fn. FIDASparseJac of type IDASlsSparseJacFn
  *   FIDAEWT    is called by interface fn. FIDAEwtSet of type IDAEwtFn
  * In contrast to the case of direct use of IDA, the names of all user-supplied
  * routines here are fixed, in order to maximize portability for the resulting
@@ -160,7 +167,50 @@
  * successful, and nonzero otherwise.
  * IPAR and RPAR are user (integer and real) arrays passed to FIDAMALLOC.
  *
- * (5) Optional user-supplied error weight vector routine: FIDAEWT
+ (5s) User-supplied sparse Jacobian approximation routine: FIDASPJAC
+
+     Required when using the IDAKLU or IDASuperLUMT linear solvers, the 
+     user must supply a routine that computes a compressed-sparse-column 
+     approximation of the system Jacobian J = dF/dy' + c_j*dF/dy.           
+     If supplied, it must have the following form:
+
+       SUBROUTINE FIDASPJAC(T, CJ, Y, YP, R, N, NNZ, JDATA, JRVALS, 
+      &                    JCPTRS, H, IPAR, RPAR, WK1, WK2, WK3, IER)
+
+     It must load the N by N compressed sparse column matrix 
+     with storage for NNZ nonzeros, stored in the arrays JDATA (nonzero
+     values), JRVALS (row indices for each nonzero), JCOLPTRS (indices 
+     for start of each column), with the Jacobian matrix at the current
+     (t,y) in CSC form (see sundials_sparse.h for more information).
+
+     The arguments are:
+         T    -- current time [realtype, input]
+	 CJ   -- Scalar in the system Jacobian proportional 
+                 to inverse step size [realtype, input]
+         Y    -- array containing state variables [realtype, input]
+         YP   -- array containing state derivatives [realtype, input]
+	 R    -- array containing system residual F(T, Y, YP) [realtype, input]
+         N    -- number of matrix rows/columns in Jacobian [int, input]
+         NNZ  -- allocated length of nonzero storage [int, input]
+        JDATA -- nonzero values in Jacobian
+                 [realtype of length NNZ, output]
+       JRVALS -- row indices for each nonzero in Jacobian
+                  [int of length NNZ, output]
+       JCPTRS -- pointers to each Jacobian column in preceding arrays
+                 [int of length N+1, output]
+         H    -- current step size [realtype, input]
+         IPAR -- array containing integer user data that was passed to
+                 FIDAMALLOC [long int, input]
+         RPAR -- array containing real user data that was passed to
+                 FIDAMALLOC [realtype, input]
+         WK*  -- array containing temporary workspace of same size as Y 
+                 [realtype, input]
+         IER  -- return flag [int, output]:
+                    0 if successful, 
+                   >0 if a recoverable error occurred,
+                   <0 if an unrecoverable error ocurred.
+ *
+ * (6) Optional user-supplied error weight vector routine: FIDAEWT
  * As an option to providing the relative and absolute tolerances, the user
  * may supply a routine that computes the weights used in the WRMS norms.
  * If supplied, it must have the following form:
@@ -172,10 +222,11 @@
  *
  * -----------------------------------------------------------------------------
  *
- * (6) Initialization:  FNVINITS / FNVINITP , FIDAMALLOC, FIDAREINIT,
+ * (7) Initialization:  FNVINITS/FNVINITP/FNVINITOMP/FNVINITPTS, 
+ *                      FIDAMALLOC, FIDAREINIT,
  *                      FIDATOLREINIT, and FIDACALCIC
  *
- * (6.1s) To initialize the serial machine environment, the user must make
+ * (7.1s) To initialize the serial machine environment, the user must make
  * the following call:
  *        CALL FNVINITS(KEY, NEQ, IER)
  * The arguments are:
@@ -183,8 +234,8 @@
  * NEQ = size of vectors
  * IER = return completion flag. Values are 0 = success, -1 = failure.
  *
- * (6.1p) To initialize the parallel machine environment, the user must make 
- * one of the following calls:
+ * (7.1p) To initialize the distributed memory parallel machine environment, 
+ * the user must make one of the following calls:
  *        CALL FNVINITP(KEY, NLOCAL, NGLOBAL, IER)
  *                     -or-
  *        CALL FNVINITP(COMM, KEY, NLOCAL, NGLOBAL, IER)
@@ -201,7 +252,29 @@
  * look for the line "#define SUNDIALS_MPI_COMM_F2C 1" in the sundials_config.h
  * header file.
  *
- * (6.2) To set various problem and solution parameters and allocate
+ (7.1omp) To initialize the openMP threaded vector kernel, 
+          the user must make the following call:
+
+          CALL FNVINITOMP (KEY, NEQ, NUM_THREADS, IER)
+
+        The arguments are:
+	  KEY = 2 for IDA
+          NEQ = size of vectors
+          NUM_THREADS = number of threads
+          IER = return completion flag. Values are 0 = success, -1 = failure.
+
+ (7.1pts) To initialize the Pthreads threaded vector kernel, 
+          the user must make the following call:
+
+          CALL FNVINITOMP (KEY, NEQ, NUM_THREADS, IER)
+
+        The arguments are:
+	  KEY = 2 for IDA
+          NEQ = size of vectors
+          NUM_THREADS = number of threads
+          IER = return completion flag. Values are 0 = success, -1 = failure.
+ *
+ * (7.2) To set various problem and solution parameters and allocate
  * internal memory, make the following call:
  *       CALL FIDAMALLOC(T0, Y0, YP0, IATOL, RTOL, ATOL, 
  *      1                IOUT, ROUT, IPAR, RPAR, IER)
@@ -256,7 +329,7 @@
  * with FLAG = 1 to specify that FIDAEWT is provided.
  * The return flag IER is 0 if successful, and nonzero otherwise.
  *
- * (6.3) To set various integer optional inputs, make the folowing call:
+ * (7.3) To set various integer optional inputs, make the folowing call:
  *       CALL FIDASETIIN(KEY, VALUE, IER)
  * to set the optional input specified by the character key KEY to the 
  * integer value VAL.
@@ -278,7 +351,7 @@
  * FIDASETIIN, FIDASETRIN, and FIDASETVIN return IER=0 if successful and 
  * IER<0 if an error occured.
  *
- * (6.4) To re-initialize the FIDA solver for the solution of a new problem
+ * (7.4) To re-initialize the FIDA solver for the solution of a new problem
  * of the same size as one already solved, make the following call:
  *       CALL FIDAREINIT(T0, Y0, YP0, IATOL, RTOL, ATOL, ID, CONSTR, IER)
  * The arguments have the same names and meanings as those of FIDAMALLOC.
@@ -287,12 +360,12 @@
  * created by the previous FIDAMALLOC call.  The call to specify the linear system
  * solution method may or may not be needed.  See below.
  *
- * (6.5) To modify the tolerance parameters, make the following call:
+ * (7.5) To modify the tolerance parameters, make the following call:
  *       CALL FIDATOLREINIT(IATOL, RTOL, ATOL, IER)
  * The arguments have the same names and meanings as those of FIDAMALLOC.
  * FIDATOLREINIT simple calls IDASetTolerances with the given arguments.
  *
- * (6.6) To compute consistent initial conditions for an index-one DAE system,
+ * (7.6) To compute consistent initial conditions for an index-one DAE system,
  * make the following call:
  *       CALL FIDACALCIC(ICOPT, TOUT, IER)
  * The arguments are:
@@ -304,12 +377,12 @@
  * 
  * -----------------------------------------------------------------------------
  *
- * (7) Specification of linear system solution method.
+ * (8) Specification of linear system solution method.
  * FIDA presently includes four choices for the treatment of these systems,
  * and the user of FIDA must call a routine with a specific name to make the
  * desired choice.
  * 
- * (7.1s) DENSE treatment of the linear system.
+ * (8.1s) DENSE treatment of the linear system.
  * The user must make the call
  *       CALL FIDADENSE(NEQ, IER)
  * The arguments are:
@@ -330,7 +403,7 @@
  *        NRELS   = IOUT(16) -> IDADenseGetNumResEvals
  *        NJE     = IOUT(17) -> IDADenseGetNumJacEvals
  *
- * (7.2s) BAND treatment of the linear system
+ * (8.2s) BAND treatment of the linear system
  * The user must make the call
  *       CALL FIDABAND(NEQ, MU, ML, IER)
  * The arguments are:
@@ -353,7 +426,77 @@
  *        NRELS   = IOUT(16) -> IDABandGetNumResEvals
  *        NJE     = IOUT(17) -> IDABandGetNumJacEvals
  *
- * (7.3) SPGMR treatment of the linear systems.
+  (8.3s) SPARSE treatment of the linear system using the KLU solver.
+
+     The user must make the call
+
+       CALL FIDAKLU(NEQ, NNZ, ORDERING, IER)
+
+     The arguments are:
+        NEQ = the problem size [int; input]
+        NNZ = the maximum number of nonzeros [int; input]
+	ORDERING = the matrix ordering desired, possible values
+	   come from the KLU package (0 = AMD, 1 = COLAMD) [int; input]
+	IER = error return flag [int, output]: 
+	         0 = success, 
+		 negative = error.
+ 
+     The IDA KLU solver will reuse much of the factorization information from one
+     nonlinear iteration to the next.  If at any time the user wants to force a full
+     refactorization or if the number of nonzeros in the Jacobian matrix changes, the
+     user should make the call
+
+       CALL FIDAKLUREINIT(NEQ, NNZ, REINIT_TYPE)
+
+     The arguments are:
+        NEQ = the problem size [int; input]
+        NNZ = the maximum number of nonzeros [int; input]
+	REINIT_TYPE = 1 or 2.  For a value of 1, the matrix will be destroyed and 
+          a new one will be allocated with NNZ nonzeros.  For a value of 2, 
+	  only symbolic and numeric factorizations will be completed. 
+ 
+     When using FIDAKLU, the user is required to supply the FIDASPJAC 
+     routine for the evaluation of the sparse approximation to the 
+     Jacobian, as discussed above with the other user-supplied routines.
+ 
+     Optional outputs specific to the KLU case are:
+        LSTF    = IOUT(16) from IDASlsGetLastFlag
+        NJES    = IOUT(18) from IDASlsGetNumJacEvals
+     See the IDA manual for descriptions.
+ 
+ (8.4s) SPARSE treatment of the linear system using the SuperLUMT solver.
+
+     The user must make the call
+
+       CALL FIDASUPERLUMT(NTHREADS, NEQ, NNZ, ORDERING, IER)
+
+     The arguments are:
+        NTHREADS = desired number of threads to use [int; input]
+        NEQ = the problem size [int; input]
+        NNZ = the maximum number of nonzeros [int; input]
+	ORDERING = the matrix ordering desired, possible values
+	   come from the SuperLU_MT package [int; input]
+           0 = Natural
+           1 = Minimum degree on A^T A
+           2 = Minimum degree on A^T + A
+           3 = COLAMD
+	IER = error return flag [int, output]: 
+	         0 = success, 
+		 negative = error.
+	 
+     At this time, there is no reinitialization capability for the SUNDIALS 
+     interfaces to the SuperLUMT solver.
+
+     When using FIDASUPERLUMT, the user is required to supply the FIDASPJAC 
+     routine for the evaluation of the sparse approximation to the 
+     Jacobian, as discussed above with the other user-supplied routines.
+ 
+     Optional outputs specific to the SUPERLUMT case are:
+        LSTF    = IOUT(16) from IDASlsGetLastFlag
+        NJES    = IOUT(18) from IDASlsGetNumJacEvals
+     See the IDA manual for descriptions.
+ 
+ * (8.5) SPGMR treatment of the linear systems.
  * For the Scaled Preconditioned GMRES solution of the linear systems,
  * the user must make the following call:
  *       CALL FIDASPGMR(MAXL, IGSTYPE, MAXRS, EPLIFAC, DQINCFAC, IER)
@@ -385,7 +528,7 @@
  * The arguments have the same meanings as for FIDASPGMR.  If MAXL is being
  * changed, then call FIDASPGMR instead.
  *
- * (7.4) SPBCG treatment of the linear systems.
+ * (8.6) SPBCG treatment of the linear systems.
  * For the Scaled Preconditioned Bi-CGSTAB solution of the linear systems,
  * the user must make the following call:
  *       CALL FIDASPBCG(MAXL, EPLIFAC, DQINCFAC, IER)              
@@ -414,7 +557,7 @@
  *       CALL FIDASPBCGREINIT(MAXL, EPLIFAC, DQINCFAC, IER)
  * The arguments have the same meanings as for FIDASPBCG.
  *
- * (7.5) SPTFQMR treatment of the linear systems.
+ * (8.7) SPTFQMR treatment of the linear systems.
  * For the Scaled Preconditioned TFQMR solution of the linear systems,
  * the user must make the following call:
  *       CALL FIDASPTFQMR(MAXL, EPLIFAC, DQINCFAC, IER)              
@@ -443,7 +586,7 @@
  *       CALL FIDASPTFQMRREINIT (MAXL, EPLIFAC, DQINCFAC, IER)
  * The arguments have the same meanings as for FIDASPTFQMR.
  *
- * (7.6) Using user-provided functions for the iterative linear solvers
+ * (8.8) Using user-provided functions for the iterative linear solvers
  * 
  * If the user program includes the FIDAJTIMES routine for the evaluation of the 
  * Jacobian vector product, the following call must be made
@@ -478,7 +621,7 @@
  *
  * -----------------------------------------------------------------------------
  *
- * (8) The solver: FIDASOLVE
+ * (9) The solver: FIDASOLVE
  * To solve the DAE system, make the following call:
  *       CALL FIDASOLVE(TOUT, TRET, Y, YP, ITASK, IER)
  * The arguments are:
@@ -498,7 +641,7 @@
  *
  * -----------------------------------------------------------------------------
  *
- * (9) Getting current solution derivative: FIDAGETDKY
+ * (10) Getting current solution derivative: FIDAGETDKY
  * To obtain interpolated values of y and y' for any value of t in the last
  * internal step taken by IDA, make the following call:
  *       CALL FIDAGETDKY(T, K, DKY, IER)
@@ -510,7 +653,7 @@
  *
  * -----------------------------------------------------------------------------
  *
- * (10) Memory freeing: FIDAFREE
+ * (11) Memory freeing: FIDAFREE
  * To the free the internal memory created by the calls to FIDAMALLOC and
  * FNVINITS or FNVINITP, depending on the version (serial/parallel), make
  * the following call:
@@ -524,6 +667,7 @@
 
 #include <ida/ida.h>                   /* definition of type IDAResFn */
 #include <sundials/sundials_direct.h>  /* definition of type DlsMat  */
+#include <sundials/sundials_sparse.h>  /* definition of type SlsMat  */
 #include <sundials/sundials_nvector.h> /* definition of type N_Vector */
 #include <sundials/sundials_types.h>   /* definition of type realtype */
 
@@ -550,6 +694,9 @@ extern "C" {
 #define FIDA_LAPACKBANDSETJAC  SUNDIALS_F77_FUNC(fidalapackbandsetjac, FIDALAPACKBANDSETJAC)
 #define FIDA_LAPACKDENSE       SUNDIALS_F77_FUNC(fidalapackdense, FIDALAPACKDENSE)
 #define FIDA_LAPACKDENSESETJAC SUNDIALS_F77_FUNC(fidalapackdensesetjac, FIDALAPACKDENSESETJAC)
+#define FIDA_KLU            SUNDIALS_F77_FUNC(fidaklu, FIDAKLU)
+#define FIDA_KLUREINIT      SUNDIALS_F77_FUNC(fidaklureinit, FIDAKLUREINIT)
+#define FIDA_SUPERLUMT      SUNDIALS_F77_FUNC(fidasuperlumt, FIDASUPERLUMT)
 #define FIDA_SPTFQMR        SUNDIALS_F77_FUNC(fidasptfqmr, FIDASPTFQMR)
 #define FIDA_SPBCG          SUNDIALS_F77_FUNC(fidaspbcg, FIDASPBCG)
 #define FIDA_SPGMR          SUNDIALS_F77_FUNC(fidaspgmr, FIDASPGMR)
@@ -589,6 +736,9 @@ extern "C" {
 #define FIDA_LAPACKBANDSETJAC  fidalapackbandsetjac_
 #define FIDA_LAPACKDENSE       fidalapackdense_
 #define FIDA_LAPACKDENSESETJAC fidalapackdensesetjac_
+#define FIDA_KLU            fidaklu_
+#define FIDA_KLUREINIT      fidaklureinit_
+#define FIDA_SUPERLUMT      fidasuperlumt_
 #define FIDA_SPTFQMR        fidasptfqmr_
 #define FIDA_SPBCG          fidaspbcg_
 #define FIDA_SPGMR          fidaspgmr_
@@ -646,6 +796,10 @@ void FIDA_LAPACKDENSE(int *neq, int *ier);
 void FIDA_LAPACKDENSESETJAC(int *flag, int *ier);
 void FIDA_LAPACKBAND(int *neq, int *mupper, int *mlower, int *ier);
 void FIDA_LAPACKBANDSETJAC(int *flag, int *ier);
+
+void FIDA_KLU(int *neq, int *nnz, int *ordering, int *ier);
+void FIDA_KLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier);
+void FIDA_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier);
 
 void FIDA_SPTFQMR(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier);
 void FIDA_SPBCG(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier);
@@ -724,7 +878,8 @@ extern int IDA_nrtfn;           /* defined in fida.c */
 
 enum { IDA_LS_DENSE = 1, IDA_LS_BAND = 2, 
        IDA_LS_LAPACKDENSE = 3, IDA_LS_LAPACKBAND = 4, 
-       IDA_LS_SPGMR = 5, IDA_LS_SPBCG = 6, IDA_LS_SPTFQMR = 7 };
+       IDA_LS_KLU = 5, IDA_LS_SUPERLUMT = 6, 
+       IDA_LS_SPGMR = 7, IDA_LS_SPBCG = 8, IDA_LS_SPTFQMR = 9 };
 
 #ifdef __cplusplus
 }

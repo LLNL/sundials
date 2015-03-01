@@ -19,8 +19,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "fcvode.h"
-#include "cvode_impl.h"
+#include "fida.h"
+#include "ida_impl.h"
 #include <sundials/sundials_sparse.h>
 
 /* Prototype of the Fortran routine */
@@ -29,8 +29,8 @@
 extern "C" {
 #endif
  
-extern void FCV_SPJAC(realtype *T, realtype *Y, 
-		       realtype *FY, int *N, int *NNZ, 
+extern void FIDA_SPJAC(realtype *T, realtype *CJ, realtype *Y, 
+		       realtype *YP, realtype *R, int *N, int *NNZ, 
 		       realtype *JDATA, int *JRVALS, 
 		       int *JCPTRS, realtype *H, 
 		       long int *IPAR, realtype *RPAR, 
@@ -43,28 +43,29 @@ extern void FCV_SPJAC(realtype *T, realtype *Y,
  
 /*=============================================================*/
  
-/* C interface to user-supplied Fortran routine FCVSPJAC; see 
-   fcvode.h for additional information  */
-int FCVSparseJac(realtype t, N_Vector y, N_Vector fy, 
-		 SlsMat J, void *user_data, N_Vector vtemp1, 
-		 N_Vector vtemp2, N_Vector vtemp3)
+/* C interface to user-supplied Fortran routine FIDASPJAC; see 
+   fida.h for additional information  */
+int FIDASparseJac(realtype t, realtype cj, N_Vector y, N_Vector yp,
+		  N_Vector fval, SlsMat J, void *user_data, 
+		  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier;
-  realtype *ydata, *fydata, *v1data, *v2data, *v3data;
+  realtype *ydata, *ypdata, *rdata, *v1data, *v2data, *v3data;
   realtype h;
-  FCVUserData CV_userdata;
+  FIDAUserData IDA_userdata;
 
-  CVodeGetLastStep(CV_cvodemem, &h);
+  IDAGetLastStep(IDA_idamem, &h);
   ydata   = N_VGetArrayPointer(y);
-  fydata  = N_VGetArrayPointer(fy);
+  ypdata  = N_VGetArrayPointer(yp);
+  rdata  = N_VGetArrayPointer(fval);
   v1data  = N_VGetArrayPointer(vtemp1);
   v2data  = N_VGetArrayPointer(vtemp2);
   v3data  = N_VGetArrayPointer(vtemp3);
-  CV_userdata = (FCVUserData) user_data;
+  IDA_userdata = (FIDAUserData) user_data;
 
-  FCV_SPJAC(&t, ydata, fydata, &(J->N), &(J->NNZ),
+  FIDA_SPJAC(&t, &cj, ydata, ypdata, rdata, &(J->N), &(J->NNZ),
 	    J->data, J->rowvals, J->colptrs, &h, 
-	    CV_userdata->ipar, CV_userdata->rpar, v1data, 
+	    IDA_userdata->ipar, IDA_userdata->rpar, v1data, 
 	    v2data, v3data, &ier); 
   return(ier);
 }

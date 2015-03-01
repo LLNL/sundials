@@ -22,7 +22,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "fcvsol.h"
+#include "fcvode.h"
 #include "cvode_impl.h"
 #include <cvode/cvode_superlumt.h>
  
@@ -34,7 +34,7 @@
 
 void FCV_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier)
 {
-  *ier = CVSuperLUMT(CV_cvodemem, *neq, *nnz);
+  *ier = CVSuperLUMT(CV_cvodemem, *nthreads, *neq, *nnz);
   CVSuperLUMTSetOrdering(CV_cvodemem, *ordering);
   CV_ls = CV_LS_SUPERLUMT;
 }

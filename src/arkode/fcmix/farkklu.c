@@ -28,9 +28,9 @@ void FARK_KLU(int *neq, int *nnz, int *ordering, int *ier)
 
 /* Fortran interface to C routine ARKKLUReinit; see farkode.h for 
    further details */
-void FARK_KLUReinit(int *neq, int *nnz, *reinit_type, int *ier)
+void FARK_KLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier)
 {
-  *ier = ARKKLUReinit(ARK_arkodemem, *neq, *nnz, *reinit_type);
+  *ier = ARKKLUReInit(ARK_arkodemem, *neq, *nnz, *reinit_type);
 }
 
 /*===============================================================

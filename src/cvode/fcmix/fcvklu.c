@@ -45,8 +45,8 @@ void FCV_KLU(int *neq, int *nnz, int *ordering, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FCV_KLUReinit(int *neq, int *nnz, *reinit_type, int *ier)
+void FCV_KLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier)
 {
-  *ier = CVKLUReinit(CV_cvodemem, *neq, *nnz, *reinit_type);
+  *ier = CVKLUReInit(CV_cvodemem, *neq, *nnz, *reinit_type);
 }
 

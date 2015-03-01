@@ -29,6 +29,8 @@
    ---------------------      --------------------------------
    FNVINITS                   N_VNew_Serial
    FNVINITP                   N_VNew_Parallel
+   FNVINITOMP                 N_VNew_OpenMP
+   FNVINITPTS                 N_VNew_Pthreads
 
    FARKMALLOC                 ARKodeCreate, ARKodeSetUserData, 
                                  and ARKodeInit
@@ -56,7 +58,7 @@
    FARKLAPACKBANDSETJAC       ARKDlsSetBandJacFn
 
    FARKKLU                    ARKKLU
-   FARKKLUReinit              ARKKLUReinit
+   FARKKLUREINIT              ARKKLUReinit
    FARKSUPERLUMT              ARKSuperLUMT
 
    FARKSPGMR                  ARKSpgmr and ARKSpilsSet*
@@ -819,6 +821,20 @@
 	         0 = success, 
 		 negative = error.
  
+     The ARKODE KLU solver will reuse much of the factorization information from one
+     nonlinear iteration to the next.  If at any time the user wants to force a full
+     refactorization or if the number of nonzeros in the Jacobian matrix changes, the
+     user should make the call
+
+       CALL FARKKLUREINIT(NEQ, NNZ, REINIT_TYPE)
+
+     The arguments are:
+        NEQ = the problem size [int; input]
+        NNZ = the maximum number of nonzeros [int; input]
+	REINIT_TYPE = 1 or 2.  For a value of 1, the matrix will be destroyed and 
+          a new one will be allocated with NNZ nonzeros.  For a value of 2, 
+	  only symbolic and numeric factorizations will be completed. 
+ 
      When using FARKKLU, the user is required to supply the FARKSPJAC 
      routine for the evaluation of the sparse approximation to the 
      Jacobian, as discussed above with the other user-supplied routines.
@@ -848,6 +864,9 @@
 	         0 = success, 
 		 negative = error.
  
+     At this time, there is no reinitialization capability for the SUNDIALS 
+     interfaces to the SuperLUMT solver.
+
      When using FARKSUPERLUMT, the user is required to supply the FARKSPJAC 
      routine for the evaluation of the sparse approximation to the 
      Jacobian, as discussed above with the other user-supplied routines.
@@ -1346,7 +1365,7 @@ extern "C" {
 #define FARK_LAPACKBAND          farklapackband_
 #define FARK_LAPACKBANDSETJAC    farklapackbandsetjac_
 #define FARK_KLU                 farkklu_
-#define FARK_KLUReinit           farkklureinit_
+#define FARK_KLUREINIT           farkklureinit_
 #define FARK_SUPERLUMT           farksuperlumt_
 #define FARK_SPTFQMR             farksptfqmr_
 #define FARK_SPTFQMRREINIT       farksptfqmrreinit_
@@ -1431,7 +1450,7 @@ extern "C" {
   void FARK_LAPACKBANDSETJAC(int *flag, int *ier);
 
   void FARK_KLU(int *neq, int *nnz, int *ordering, int *ier);
-  void FARK_KLUReinit(int *neq, int *nnz, int *reinit_type, int *ier);
+  void FARK_KLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier);
   void FARK_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier);
 
   void FARK_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);

@@ -45,8 +45,8 @@ void FKIN_KLU(int *neq, int *nnz, int *ordering, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_KLUReinit(int *neq, int *nnz, *reinit_type, int *ier)
+void FKIN_KLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier)
 {
-  *ier = KINKLUReinit(KIN_kinmem, *neq, *nnz, *reinit_type);
+  *ier = KINKLUReInit(KIN_kinmem, *neq, *nnz, *reinit_type);
 }
 

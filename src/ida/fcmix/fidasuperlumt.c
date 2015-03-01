@@ -16,27 +16,27 @@
  * LLNS Copyright End
  * -----------------------------------------------------------------
  * This is the implementation file for the Fortran interface to
- * the KINSuperLUMT solver. See fkinsol.h for usage.
+ * the IDASuperLUMT solver. See fida.h for usage.
  * -----------------------------------------------------------------
  */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "fkinsol.h"
-#include "kinsol_impl.h"
-#include <kinsol/kinsol_superlumt.h>
+#include "fida.h"
+#include "ida_impl.h"
+#include <ida/ida_superlumt.h>
  
 /*
  * ----------------------------------------------------------------
- * Function : FKIN_SUPERLUMT
+ * Function : FIDA_SUPERLUMT
  * ----------------------------------------------------------------
  */
 
-void FKIN_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier)
+void FIDA_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier)
 {
-  *ier = KINSuperLUMT(KIN_kinmem, *nthreads, *neq, *nnz);
-  KINSuperLUMTSetOrdering(KIN_kinmem, *ordering);
-  KIN_ls = KIN_LS_SUPERLUMT;
+  *ier = IDASuperLUMT(IDA_idamem, *nthreads, *neq, *nnz);
+  IDASuperLUMTSetOrdering(IDA_idamem, *ordering);
+  IDA_ls = IDA_LS_SUPERLUMT;
 }
 
 
