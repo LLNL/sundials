@@ -34,6 +34,8 @@
 #include <cvode/cvode_band.h>          /* prototypes for CVBAND interface routines       */
 #include <cvode/cvode_dense.h>         /* prototypes for CVDENSE interface routines      */
 #include <cvode/cvode_diag.h>          /* prototypes for CVDIAG interface routines       */
+#include <cvode/cvode_klu.h>           /* prototypes for CVKLU interface routines        */
+#include <cvode/cvode_superlumt.h>     /* prototypes for CVSUPERLUMT interface routines  */
 #include <cvode/cvode_spgmr.h>         /* prototypes for CVSPGMR interface routines      */
 #include <cvode/cvode_spbcgs.h>        /* prototypes for CVSPBCG interface routines      */
 #include <cvode/cvode_sptfqmr.h>       /* prototypes for CVSPTFQMR interface routines    */
@@ -500,6 +502,11 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
     CVDiagGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);  /* LENRWLS,LENIWLS */
     CVDiagGetLastFlag(CV_cvodemem, &CV_iout[14]);                 /* LSTF */
     CVDiagGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);              /* NFELS */
+    break;
+  case CV_LS_KLU:
+  case CV_LS_SUPERLUMT:
+    CVSlsGetLastFlag(CV_cvodemem, &CV_iout[14]);                  /* LSTF  */
+    CVSlsGetNumJacEvals(CV_cvodemem, &CV_iout[16]);               /* NJE   */
     break;
   case CV_LS_SPGMR:
   case CV_LS_SPBCG:
