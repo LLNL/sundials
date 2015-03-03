@@ -1,13 +1,23 @@
 /*---------------------------------------------------------------
- Programmer(s): Daniel R. Reynolds @ SMU
- ----------------------------------------------------------------
- Copyright (c) 2013, Southern Methodist University.
- All rights reserved.
- For details, see the LICENSE file.
- ----------------------------------------------------------------
- This is the header file for FARKODE, the Fortran interface to
- the ARKODE package.                                            
- --------------------------------------------------------------*/
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *---------------------------------------------------------------
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2015, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS/SMU Copyright End
+ *---------------------------------------------------------------
+ * This is the header file for FARKODE, the Fortran interface to
+ * the ARKODE package.                                            
+ *--------------------------------------------------------------*/
 
 /*===============================================================
                 FARKODE Interface Package
@@ -1297,8 +1307,8 @@ extern "C" {
 #define FARK_SETERKTABLE         SUNDIALS_F77_FUNC(farkseterktable,         FARKSETERKTABLE)
 #define FARK_SETIRKTABLE         SUNDIALS_F77_FUNC(farksetirktable,         FARKSETIRKTABLE)
 #define FARK_SETARKTABLES        SUNDIALS_F77_FUNC(farksetarktables,        FARKSETARKTABLES)
-#define FARK_SETDIAGNOSTICS      SUNDIALS_F77_FUNC(farksetdiagnostics,      FARKSETLSETDIAGNOSTICS)
-#define FARK_STOPDIAGNOSTICS     SUNDIALS_F77_FUNC(farkstopdiagnostics,     FARKSTOPLSETDIAGNOSTICS)
+#define FARK_SETDIAGNOSTICS      SUNDIALS_F77_FUNC(farksetdiagnostics,      FARKSETDIAGNOSTICS)
+#define FARK_STOPDIAGNOSTICS     SUNDIALS_F77_FUNC(farkstopdiagnostics,     FARKSTOPDIAGNOSTICS)
 #define FARK_DENSE               SUNDIALS_F77_FUNC(farkdense,               FARKDENSE)
 #define FARK_DENSESETJAC         SUNDIALS_F77_FUNC(farkdensesetjac,         FARKDENSESETJAC)
 #define FARK_BAND                SUNDIALS_F77_FUNC(farkband,                FARKBAND)
