@@ -1,13 +1,23 @@
 /*---------------------------------------------------------------
- Programmer(s): Daniel R. Reynolds @ SMU
- ----------------------------------------------------------------
- Copyright (c) 2013, Southern Methodist University.
- All rights reserved.
- For details, see the LICENSE file.
- ----------------------------------------------------------------
- This is the common header file for the Scaled, Preconditioned
- Iterative Linear Solvers in ARKODE.
- --------------------------------------------------------------*/
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *---------------------------------------------------------------
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2015, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS/SMU Copyright End
+ *---------------------------------------------------------------
+ * This is the common header file for the Scaled, Preconditioned
+ * Iterative Linear Solvers in ARKODE.
+ *--------------------------------------------------------------*/
 
 #ifndef _ARKSPILS_H
 #define _ARKSPILS_H

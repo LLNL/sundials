@@ -1,33 +1,43 @@
 /*---------------------------------------------------------------
- Programmer(s): Daniel R. Reynolds @ SMU
- ----------------------------------------------------------------
- Copyright (c) 2013, Southern Methodist University.
- All rights reserved.
- For details, see the LICENSE file.
- ----------------------------------------------------------------
- Example problem:
- 
- The following test simulates the Robertson problem, 
- corresponding to the kinetics of an autocatalytic reaction.  
- This is an ODE system with 3 components, Y = [u,v,w], satisfying
- the equations,
-    du/dt = -0.04*u + 1e4*v*w
-    dv/dt = 0.04*u - 1e4*v*w - 3e7*v^2
-    dw/dt = 3e7*v^2
- for t in the interval [0.0, 1e11], with initial conditions 
- Y0 = [1,0,0].
-
- While integrating the system, we use the rootfinding feature 
- to find the times at which either u=1e-4 or w=1e-2.
- 
- This program solves the problem with one of the solvers, ERK, 
- DIRK or ARK.  For DIRK and ARK, implicit subsystems are solved 
- using a Newton iteration with the ARKDENSE dense linear solver, 
- and a user-supplied Jacobian routine.
-
- 100 outputs are printed at equal intervals, and run statistics 
- are printed at the end.
----------------------------------------------------------------*/
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *---------------------------------------------------------------
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2015, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS/SMU Copyright End
+ *---------------------------------------------------------------
+ * Example problem:
+ * 
+ * The following test simulates the Robertson problem, 
+ * corresponding to the kinetics of an autocatalytic reaction.  
+ * This is an ODE system with 3 components, Y = [u,v,w], satisfying
+ * the equations,
+ *    du/dt = -0.04*u + 1e4*v*w
+ *    dv/dt = 0.04*u - 1e4*v*w - 3e7*v^2
+ *    dw/dt = 3e7*v^2
+ * for t in the interval [0.0, 1e11], with initial conditions 
+ * Y0 = [1,0,0].
+ *
+ * While integrating the system, we use the rootfinding feature 
+ * to find the times at which either u=1e-4 or w=1e-2.
+ * 
+ * This program solves the problem with one of the solvers, ERK, 
+ * DIRK or ARK.  For DIRK and ARK, implicit subsystems are solved 
+ * using a Newton iteration with the ARKDENSE dense linear solver, 
+ * and a user-supplied Jacobian routine.
+ *
+ * 100 outputs are printed at equal intervals, and run statistics 
+ * are printed at the end.
+ *---------------------------------------------------------------*/
 
 /* Header files */
 #include <stdio.h>

@@ -1,33 +1,43 @@
 /*---------------------------------------------------------------
- Programmer(s): Daniel R. Reynolds @ SMU
- ----------------------------------------------------------------
- Copyright (c) 2013, Southern Methodist University.
- All rights reserved.
- For details, see the LICENSE file.
- ----------------------------------------------------------------
- Example problem:
- 
- The following test simulates a simple 1D heat equation,
-    u_t = k*u_xx + f
- for t in [0, 10], x in [0, 1], with initial conditions
-    u(0,x) =  0
- Dirichlet boundary conditions, i.e. 
-    u_t(t,0) = u_t(t,1) = 0,
- and a heating term of the form
-    f = 2*exp(-200*(x-0.25)*(x-0.25))
-        - exp(-400*(x-0.7)*(x-0.7))
-        + exp(-500*(x-0.4)*(x-0.4))
-        - 2*exp(-600*(x-0.55)*(x-0.55));
- 
- The spatial derivatives are computed using a three-point 
- centered stencil (second order for a uniform mesh).  The data
- is initially uniformly distributed over N points in the interval
- [0, 1], but as the simulation proceeds the mesh is adapted.
-
- This program solves the problem with a DIRK method, solved with 
- a Newton iteration and PCG linear solver, with a user-supplied 
- Jacobian-vector product routine.
----------------------------------------------------------------*/
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *---------------------------------------------------------------
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2015, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS/SMU Copyright End
+ *---------------------------------------------------------------
+ * Example problem:
+ * 
+ * The following test simulates a simple 1D heat equation,
+ *    u_t = k*u_xx + f
+ * for t in [0, 10], x in [0, 1], with initial conditions
+ *    u(0,x) =  0
+ * Dirichlet boundary conditions, i.e. 
+ *    u_t(t,0) = u_t(t,1) = 0,
+ * and a heating term of the form
+ *    f = 2*exp(-200*(x-0.25)*(x-0.25))
+ *        - exp(-400*(x-0.7)*(x-0.7))
+ *        + exp(-500*(x-0.4)*(x-0.4))
+ *        - 2*exp(-600*(x-0.55)*(x-0.55));
+ * 
+ * The spatial derivatives are computed using a three-point 
+ * centered stencil (second order for a uniform mesh).  The data
+ * is initially uniformly distributed over N points in the interval
+ * [0, 1], but as the simulation proceeds the mesh is adapted.
+ *
+ * This program solves the problem with a DIRK method, solved with 
+ * a Newton iteration and PCG linear solver, with a user-supplied 
+ * Jacobian-vector product routine.
+ *---------------------------------------------------------------*/
 
 /* Header files */
 #include <stdio.h>

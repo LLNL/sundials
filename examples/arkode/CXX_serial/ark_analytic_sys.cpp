@@ -1,38 +1,48 @@
 /*-----------------------------------------------------------------
- Programmer(s): Daniel R. Reynolds @ SMU
- ----------------------------------------------------------------
- Copyright (c) 2013, Southern Methodist University.
- All rights reserved.
- For details, see the LICENSE file.
- -----------------------------------------------------------------
- Example problem:
- 
- The following is a simple example problem with analytical 
- solution,
-    dy/dt = A*y
- where A = V*D*Vi, 
-      V = [1 -1 1; -1 2 1; 0 -1 2];
-      Vi = 0.25*[5 1 -3; 2 2 -2; 1 1 1];
-      D = [-0.5 0 0; 0 -0.1 0; 0 0 lam];
- where lam is a large negative number. The analytical solution to
- this problem is 
-   Y(t) = V*exp(D*t)*Vi*Y0
- for t in the interval [0.0, 0.05], with initial condition: 
- y(0) = [1,1,1]'.
- 
- The stiffness of the problem is directly proportional to the 
- value of "lamda".  The value of lamda should be negative to 
- result in a well-posed ODE; for values with magnitude larger than
- 100 the problem becomes quite stiff.
- 
- In this example, we choose lamda = -100.
- 
- This program solves the problem with the DIRK method,
- Newton iteration with the ARKDENSE dense linear solver, and a
- user-supplied Jacobian routine.
- Output is printed every 1.0 units of time (10 total).
- Run statistics (optional outputs) are printed at the end.
- -----------------------------------------------------------------*/
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *---------------------------------------------------------------
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2015, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS/SMU Copyright End
+ *---------------------------------------------------------------
+ * Example problem:
+ * 
+ * The following is a simple example problem with analytical 
+ * solution,
+ *    dy/dt = A*y
+ * where A = V*D*Vi, 
+ *      V = [1 -1 1; -1 2 1; 0 -1 2];
+ *      Vi = 0.25*[5 1 -3; 2 2 -2; 1 1 1];
+ *      D = [-0.5 0 0; 0 -0.1 0; 0 0 lam];
+ * where lam is a large negative number. The analytical solution to
+ * this problem is 
+ *   Y(t) = V*exp(D*t)*Vi*Y0
+ * for t in the interval [0.0, 0.05], with initial condition: 
+ * y(0) = [1,1,1]'.
+ * 
+ * The stiffness of the problem is directly proportional to the 
+ * value of "lamda".  The value of lamda should be negative to 
+ * result in a well-posed ODE; for values with magnitude larger than
+ * 100 the problem becomes quite stiff.
+ * 
+ * In this example, we choose lamda = -100.
+ * 
+ * This program solves the problem with the DIRK method,
+ * Newton iteration with the ARKDENSE dense linear solver, and a
+ * user-supplied Jacobian routine.
+ * Output is printed every 1.0 units of time (10 total).
+ * Run statistics (optional outputs) are printed at the end.
+ *-----------------------------------------------------------------*/
 
 // Header files
 #include <stdio.h>

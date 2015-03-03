@@ -1,39 +1,49 @@
 /*---------------------------------------------------------------
- Programmer(s): Daniel R. Reynolds @ SMU
- ----------------------------------------------------------------
- Copyright (c) 2013, Southern Methodist University.
- All rights reserved.
- For details, see the LICENSE file.
- -----------------------------------------------------------------
- Example problem:
- 
- The following test simulates a simple anisotropic 2D heat 
- equation,
-    u_t = kx*u_xx + ky*u_yy + h,
- for t in [0, 10], (x,y) in [0, 1]^2, with initial conditions
-    u(0,x,y) =  0,
- stationary boundary conditions, i.e. 
-    u_t(t,0,y) = u_t(t,1,y) = u_t(t,x,0) = u_t(t,x,1) = 0,
- and a heat source of the form
-    h(x,y) = sin(pi*x)*sin(2*pi*y).
-
- Under this setup, the problem has an analytical solution:
-    u(t,x,y) = a(t)*sin(pi*x)*sin(2*pi*y), where
-    a(t) = (1 - exp(-(kx+4*ky)*pi^2*t)) / ((kx+4*ky)*pi^2).
- 
- The spatial derivatives are computed using second-order 
- centered differences, with the data distributed over nx*ny
- points on a uniform spatial grid.
-
- This program solves the problem with a DIRK method.  This 
- employs a Newton iteration with the PCG iterative linear solver, 
- which itself uses a Jacobi preconditioner.  The example uses the 
- built-in finite-difference Jacobian-vector product routine, but 
- supplies both the RHS and preconditioner setup/solve functions.
-
- 20 outputs are printed at equal intervals, and run statistics 
- are printed at the end.
----------------------------------------------------------------*/
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *---------------------------------------------------------------
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2015, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS/SMU Copyright End
+ *---------------------------------------------------------------
+ * Example problem:
+ * 
+ * The following test simulates a simple anisotropic 2D heat 
+ * equation,
+ *    u_t = kx*u_xx + ky*u_yy + h,
+ * for t in [0, 10], (x,y) in [0, 1]^2, with initial conditions
+ *    u(0,x,y) =  0,
+ * stationary boundary conditions, i.e. 
+ *    u_t(t,0,y) = u_t(t,1,y) = u_t(t,x,0) = u_t(t,x,1) = 0,
+ * and a heat source of the form
+ *    h(x,y) = sin(pi*x)*sin(2*pi*y).
+ *
+ * Under this setup, the problem has an analytical solution:
+ *    u(t,x,y) = a(t)*sin(pi*x)*sin(2*pi*y), where
+ *    a(t) = (1 - exp(-(kx+4*ky)*pi^2*t)) / ((kx+4*ky)*pi^2).
+ * 
+ * The spatial derivatives are computed using second-order 
+ * centered differences, with the data distributed over nx*ny
+ * points on a uniform spatial grid.
+ *
+ * This program solves the problem with a DIRK method.  This 
+ * employs a Newton iteration with the PCG iterative linear solver, 
+ * which itself uses a Jacobi preconditioner.  The example uses the 
+ * built-in finite-difference Jacobian-vector product routine, but 
+ * supplies both the RHS and preconditioner setup/solve functions.
+ *
+ * 20 outputs are printed at equal intervals, and run statistics 
+ * are printed at the end.
+ *---------------------------------------------------------------*/
 
 // Header files 
 #include <stdio.h>

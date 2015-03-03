@@ -1,50 +1,60 @@
 /*-----------------------------------------------------------------
- Programmer(s): Daniel R. Reynolds @ SMU
- ----------------------------------------------------------------
- Copyright (c) 2013, Southern Methodist University.
- All rights reserved.
- For details, see the LICENSE file.
- -----------------------------------------------------------------
- Example problem:
-
- An ODE system is generated from the following 2-species diurnal
- kinetics advection-diffusion PDE system in 2 space dimensions:
-
- dc(i)/dt = Kh*(d/dx)^2 c(i) + V*dc(i)/dx + (d/dy)(Kv(y)*dc(i)/dy)
-                 + Ri(c1,c2,t)      for i = 1,2,   where
-   R1(c1,c2,t) = -q1*c1*c3 - q2*c1*c2 + 2*q3(t)*c3 + q4(t)*c2 ,
-   R2(c1,c2,t) =  q1*c1*c3 - q2*c1*c2 - q4(t)*c2 ,
-   Kv(y) = Kv0*exp(y/5) ,
- Kh, V, Kv0, q1, q2, and c3 are constants, and q3(t) and q4(t)
- vary diurnally. The problem is posed on the square
-   0 <= x <= 20,    30 <= y <= 50   (all in km),
- with homogeneous Neumann boundary conditions, and for time t in
-   0 <= t <= 86400 sec (1 day).
- The PDE system is treated by central differences on a uniform
- mesh, with simple polynomial initial profiles.
-
- The problem is solved by ARKODE on NPE processors, treated
- as a rectangular process grid of size NPEX by NPEY, with
- NPE = NPEX*NPEY. Each processor contains a subgrid of size MXSUB
- by MYSUB of the (x,y) mesh.  Thus the actual mesh sizes are
- MX = MXSUB*NPEX and MY = MYSUB*NPEY, and the ODE system size is
- neq = 2*MX*MY.
-
- The solution is done with the DIRK/GMRES method (i.e. using the
- ARKSPGMR linear solver) and the block-diagonal part of the
- Newton matrix as a left preconditioner. A copy of the
- block-diagonal part of the Jacobian is saved and conditionally
- reused within the preconditioner routine.
-
- Performance data and sampled solution values are printed at
- selected output times, and all performance counters are printed
- on completion.
-
- This version uses MPI for user routines.
- 
- Execution: mpiexec -n N ark_diurnal_kry_p   with N = NPEX*NPEY
- (see constants below).
- ---------------------------------------------------------------*/
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *---------------------------------------------------------------
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2015, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS/SMU Copyright End
+ *---------------------------------------------------------------
+ * Example problem:
+ *
+ * An ODE system is generated from the following 2-species diurnal
+ * kinetics advection-diffusion PDE system in 2 space dimensions:
+ *
+ * dc(i)/dt = Kh*(d/dx)^2 c(i) + V*dc(i)/dx + (d/dy)(Kv(y)*dc(i)/dy)
+ *                 + Ri(c1,c2,t)      for i = 1,2,   where
+ *   R1(c1,c2,t) = -q1*c1*c3 - q2*c1*c2 + 2*q3(t)*c3 + q4(t)*c2 ,
+ *   R2(c1,c2,t) =  q1*c1*c3 - q2*c1*c2 - q4(t)*c2 ,
+ *   Kv(y) = Kv0*exp(y/5) ,
+ * Kh, V, Kv0, q1, q2, and c3 are constants, and q3(t) and q4(t)
+ * vary diurnally. The problem is posed on the square
+ *   0 <= x <= 20,    30 <= y <= 50   (all in km),
+ * with homogeneous Neumann boundary conditions, and for time t in
+ *   0 <= t <= 86400 sec (1 day).
+ * The PDE system is treated by central differences on a uniform
+ * mesh, with simple polynomial initial profiles.
+ *
+ * The problem is solved by ARKODE on NPE processors, treated
+ * as a rectangular process grid of size NPEX by NPEY, with
+ * NPE = NPEX*NPEY. Each processor contains a subgrid of size MXSUB
+ * by MYSUB of the (x,y) mesh.  Thus the actual mesh sizes are
+ * MX = MXSUB*NPEX and MY = MYSUB*NPEY, and the ODE system size is
+ * neq = 2*MX*MY.
+ *
+ * The solution is done with the DIRK/GMRES method (i.e. using the
+ * ARKSPGMR linear solver) and the block-diagonal part of the
+ * Newton matrix as a left preconditioner. A copy of the
+ * block-diagonal part of the Jacobian is saved and conditionally
+ * reused within the preconditioner routine.
+ *
+ * Performance data and sampled solution values are printed at
+ * selected output times, and all performance counters are printed
+ * on completion.
+ *
+ * This version uses MPI for user routines.
+ * 
+ * Execution: mpiexec -n N ark_diurnal_kry_p   with N = NPEX*NPEY
+ * (see constants below).
+ *---------------------------------------------------------------*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

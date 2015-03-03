@@ -1,33 +1,43 @@
 /*---------------------------------------------------------------
- Programmer(s): Daniel R. Reynolds @ SMU
- ----------------------------------------------------------------
- Copyright (c) 2013, Southern Methodist University.
- All rights reserved.
- For details, see the LICENSE file.
- ----------------------------------------------------------------
- Example problem:
- 
- The following test simulates a simple 1D heat equation,
-    u_t = k*u_xx + f
- for t in [0, 10], x in [0, 1], with initial conditions
-    u(0,x) =  0
- Dirichlet boundary conditions, i.e. 
-    u_t(t,0) = u_t(t,1) = 0,
- and a point-source heating term,
-    f = 1 for x=0.5.
- 
- The spatial derivatives are computed using second-order 
- centered differences, with the data distributed over N points 
- on a uniform spatial grid.
-
- This program solves the problem with either an ERK or DIRK
- method.  For the DIRK method, we use a Newton iteration with 
- the PCG linear solver, and a user-supplied Jacobian-vector 
- product routine.
-
- 100 outputs are printed at equal intervals, and run statistics 
- are printed at the end.
----------------------------------------------------------------*/
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *---------------------------------------------------------------
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2015, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS/SMU Copyright End
+ *---------------------------------------------------------------
+ * Example problem:
+ * 
+ * The following test simulates a simple 1D heat equation,
+ *    u_t = k*u_xx + f
+ * for t in [0, 10], x in [0, 1], with initial conditions
+ *    u(0,x) =  0
+ * Dirichlet boundary conditions, i.e. 
+ *    u_t(t,0) = u_t(t,1) = 0,
+ * and a point-source heating term,
+ *    f = 1 for x=0.5.
+ * 
+ * The spatial derivatives are computed using second-order 
+ * centered differences, with the data distributed over N points 
+ * on a uniform spatial grid.
+ *
+ * This program solves the problem with either an ERK or DIRK
+ * method.  For the DIRK method, we use a Newton iteration with 
+ * the PCG linear solver, and a user-supplied Jacobian-vector 
+ * product routine.
+ *
+ * 100 outputs are printed at equal intervals, and run statistics 
+ * are printed at the end.
+ *---------------------------------------------------------------*/
 
 /* Header files */
 #include <stdio.h>

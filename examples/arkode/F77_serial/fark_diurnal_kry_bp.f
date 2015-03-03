@@ -1,6 +1,19 @@
 C     ----------------------------------------------------------------
 C     Programmer(s): Daniel R. Reynolds @ SMU
 C     ----------------------------------------------------------------
+C     LLNS/SMU Copyright Start
+C     Copyright (c) 2015, Southern Methodist University and 
+C     Lawrence Livermore National Security
+C
+C     This work was performed under the auspices of the U.S. Department 
+C     of Energy by Southern Methodist University and Lawrence Livermore 
+C     National Laboratory under Contract DE-AC52-07NA27344.
+C     Produced at Southern Methodist University and the Lawrence 
+C     Livermore National Laboratory.
+C
+C     All rights reserved.
+C     For details, see the LICENSE file.
+C     LLNS/SMU Copyright End
 C     Copyright (c) 2013, Southern Methodist University.
 C     All rights reserved.
 C     For details, see the LICENSE file.

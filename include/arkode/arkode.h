@@ -1,19 +1,29 @@
 /*---------------------------------------------------------------
- Programmer(s): Daniel R. Reynolds @ SMU
- ----------------------------------------------------------------
- Copyright (c) 2013, Southern Methodist University.
- All rights reserved.
- For details, see the LICENSE file.
- ----------------------------------------------------------------
- This is the interface file for the main ARKODE integrator.
- ----------------------------------------------------------------
- ARKODE is used to solve numerically the ordinary initial value
- problem:
-              M(t)*y' = f(t,y),
-                y(t0) = y0,
- where t0, y0 in R^N, M(t)*y: R x R^N -> R^N, and 
- f: R x R^N -> R^N are given.
- --------------------------------------------------------------*/
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *---------------------------------------------------------------
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2015, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS/SMU Copyright End
+ *---------------------------------------------------------------
+ * This is the interface file for the main ARKODE integrator.
+ *---------------------------------------------------------------
+ * ARKODE is used to solve numerically the ordinary initial value
+ * problem:
+ *              M(t)*y' = f(t,y),
+ *                y(t0) = y0,
+ * where t0, y0 in R^N, M(t)*y: R x R^N -> R^N, and 
+ * f: R x R^N -> R^N are given.
+ *--------------------------------------------------------------*/
 
 #ifndef _ARKODE_H
 #define _ARKODE_H

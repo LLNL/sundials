@@ -1,40 +1,50 @@
 /*---------------------------------------------------------------
- Programmer(s): Daniel R. Reynolds @ SMU
- ----------------------------------------------------------------
- Copyright (c) 2013, Southern Methodist University.
- All rights reserved.
- For details, see the LICENSE file.
- ----------------------------------------------------------------
- Example problem:
- 
- The following test simulates a brusselator problem from chemical 
- kinetics.  This is n PDE system with 3 components, Y = [u,v,w], 
- satisfying the equations,
-    u_t = du*u_xx + a - (w+1)*u + v*u^2
-    v_t = dv*v_xx + w*u - v*u^2
-    w_t = dw*w_xx + (b-w)/ep - w*u
- for t in [0, 80], x in [0, 1], with initial conditions
-    u(0,x) =  a  + 0.1*sin(pi*x)
-    v(0,x) = b/a + 0.1*sin(pi*x)
-    w(0,x) =  b  + 0.1*sin(pi*x),
- and with stationary boundary conditions, i.e. 
-    u_t(t,0) = u_t(t,1) = 0,
-    v_t(t,0) = v_t(t,1) = 0,
-    w_t(t,0) = w_t(t,1) = 0.
- Note: these can also be implemented as Dirichlet boundary 
- conditions with values identical to the initial conditions.
- 
- The spatial derivatives are computed using second-order 
- centered differences, with the data distributed over N points 
- on a uniform spatial grid.
-
- This program solves the problem with the DIRK method, using a
- Newton iteration with the ARKBAND band linear solver, and a
- user-supplied Jacobian routine.
-
- 100 outputs are printed at equal intervals, and run statistics 
- are printed at the end.
----------------------------------------------------------------*/
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *---------------------------------------------------------------
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2015, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS/SMU Copyright End
+ *---------------------------------------------------------------
+ * Example problem:
+ * 
+ * The following test simulates a brusselator problem from chemical 
+ * kinetics.  This is n PDE system with 3 components, Y = [u,v,w], 
+ * satisfying the equations,
+ *    u_t = du*u_xx + a - (w+1)*u + v*u^2
+ *    v_t = dv*v_xx + w*u - v*u^2
+ *    w_t = dw*w_xx + (b-w)/ep - w*u
+ * for t in [0, 80], x in [0, 1], with initial conditions
+ *    u(0,x) =  a  + 0.1*sin(pi*x)
+ *    v(0,x) = b/a + 0.1*sin(pi*x)
+ *    w(0,x) =  b  + 0.1*sin(pi*x),
+ * and with stationary boundary conditions, i.e. 
+ *    u_t(t,0) = u_t(t,1) = 0,
+ *    v_t(t,0) = v_t(t,1) = 0,
+ *    w_t(t,0) = w_t(t,1) = 0.
+ * Note: these can also be implemented as Dirichlet boundary 
+ * conditions with values identical to the initial conditions.
+ * 
+ * The spatial derivatives are computed using second-order 
+ * centered differences, with the data distributed over N points 
+ * on a uniform spatial grid.
+ *
+ * This program solves the problem with the DIRK method, using a
+ * Newton iteration with the ARKBAND band linear solver, and a
+ * user-supplied Jacobian routine.
+ *
+ * 100 outputs are printed at equal intervals, and run statistics 
+ * are printed at the end.
+ *---------------------------------------------------------------*/
 
 /* Header files */
 #include <stdio.h>
