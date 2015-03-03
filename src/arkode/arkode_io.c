@@ -1,13 +1,23 @@
 /*---------------------------------------------------------------
- Programmer(s): Daniel R. Reynolds @ SMU
- ----------------------------------------------------------------
- Copyright (c) 2013, Southern Methodist University.
- All rights reserved.
- For details, see the LICENSE file.
- ----------------------------------------------------------------
- This is the implementation file for the optional input and 
- output functions for the ARKODE solver.
- --------------------------------------------------------------*/
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *---------------------------------------------------------------
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2015, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS/SMU Copyright End
+ *---------------------------------------------------------------
+ * This is the implementation file for the optional input and 
+ * output functions for the ARKODE solver.
+ *--------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1757,8 +1767,10 @@ int ARKodeSetDeltaGammaMax(void *arkode_mem, realtype dgmax)
  ARKodeSetMaxStepsBetweenLSet:
 
  Specifies the user-provided linear setup decision constant
- msbp.  Legal values are strictly positive; illegal values imply 
- a reset to the default. 
+ msbp.  Positive values give the number of time steps to wait 
+ before calling lsetup; negative values imply recomputation of 
+ lsetup at each Newton iteration; a zero value implies a reset 
+ to the default. 
 ---------------------------------------------------------------*/
 int ARKodeSetMaxStepsBetweenLSet(void *arkode_mem, int msbp)
 {
@@ -1772,7 +1784,7 @@ int ARKodeSetMaxStepsBetweenLSet(void *arkode_mem, int msbp)
   ark_mem = (ARKodeMem) arkode_mem;
 
   /* if argument legal set it, otherwise set default */
-  if (msbp <= 0) {
+  if (msbp == 0) {
     ark_mem->ark_msbp = MSBP;
   } else {
     ark_mem->ark_msbp = msbp;

@@ -1,13 +1,23 @@
 /*---------------------------------------------------------------
- Programmer(s): Daniel R. Reynolds @ SMU
- ----------------------------------------------------------------
- Copyright (c) 2013, Southern Methodist University.
- All rights reserved.
- For details, see the LICENSE file.
- ----------------------------------------------------------------
- This is the implementation file for the main ARKODE integrator.
- It is independent of the ARKODE linear solver in use.
- --------------------------------------------------------------*/
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *---------------------------------------------------------------
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2015, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS/SMU Copyright End
+ *---------------------------------------------------------------
+ * This is the implementation file for the main ARKODE integrator.
+ * It is independent of the ARKODE linear solver in use.
+ *--------------------------------------------------------------*/
 
 /*===============================================================
              Import Header Files                                 
@@ -26,10 +36,16 @@
 #include <nvector/nvector_serial.h>
 #endif
 
+#ifdef __GNUC__
+#define SUNDIALS_UNUSED __attribute__ ((unused))
+#else
+#define SUNDIALS_UNUSED
+#endif
+
 /*===============================================================
              Private Functions Prototypes
 ===============================================================*/
-static void arkPrintMem(ARKodeMem ark_mem);
+static void arkPrintMem(ARKodeMem ark_mem) SUNDIALS_UNUSED;
 static booleantype arkCheckNvector(N_Vector tmpl);
 static booleantype arkAllocVectors(ARKodeMem ark_mem, 
 				   N_Vector tmpl);
@@ -4642,8 +4658,8 @@ static int arkNlsNewton(ARKodeMem ark_mem, int nflag)
   /* Decide whether or not to call setup routine (if one exists) */
   if (ark_mem->ark_setupNonNull) {      
     callSetup = (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
-      (ark_mem->ark_firststage) || 
-      (ark_mem->ark_nst >= ark_mem->ark_nstlp + ark_mem->ark_msbp) || 
+      (ark_mem->ark_firststage) || (ark_mem->ark_msbp < 0) ||
+      (ark_mem->ark_nst >= ark_mem->ark_nstlp + abs(ark_mem->ark_msbp)) || 
       (SUNRabs(ark_mem->ark_gamrat-ONE) > ark_mem->ark_dgmax);
   } else {  
     ark_mem->ark_crate = ONE;
@@ -5121,7 +5137,8 @@ static int arkLs(ARKodeMem ark_mem, int nflag)
 
   /* Decide whether or not to call setup routine (if one exists) */
   if (ark_mem->ark_setupNonNull) {      
-    callSetup = (ark_mem->ark_firststage) || (ark_mem->ark_linear_timedep) || 
+    callSetup = (ark_mem->ark_firststage) || 
+      (ark_mem->ark_linear_timedep) || (ark_mem->ark_msbp < 0) ||
       (SUNRabs(ark_mem->ark_gamrat-ONE) > ark_mem->ark_dgmax);
   } else {  
     callSetup = FALSE;
