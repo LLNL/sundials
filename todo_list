@@ -1,31 +1,26 @@
-To Do List for SUNDIALS, as of 02/25/2015
+To Do List for SUNDIALS, as of 03/03/2015
 
 (*** items must be completed before KINSOL and ARKode can be released.)
 
-*** () Change FORTRAN vector init/reint names
+***(Carol) Update FORTRAN Interfaces (cvode ida kinsol)
 
-*** () Release numbers updated in documentation (new for KINSOL and ARKode)
+***(Carol) Update Confluence Pages "Recent Changes"
 
-*** (Carol) Update FORTRAN Interfaces (cvode ida kinsol)
-
-*** () Update Confluence Pages "Recent Changes"
-
-*** (Carol) Create Install_Notes from existing tex files.
-
-***(Carol) Document sparse solvers
-
-***(Carol/Eddy) Update tarscripts
+***(Eddy) Update tarscripts
+    - to use new Install_Notes
+    - remove Makefile.in(s) if not needed
 
 ***(Eddy) Document Windows build - install guide
 
 ***(Eddy) Update options for cmake.  Remove autoconf documentation in 
-manuals and INSTALL_NOTES (anywhere else?)
+   manuals (anywhere else?)
 
 ***(Steve, Eddy) Finalize pthreads implementation and document performance concerns.
+    - update "Vector" chapter as needed...
 
-***(Steve, Eddy) Write and test openMP and pThreads with Fortran and document
+***(Eddy, Carol) Write and test openMP and pThreads with Fortran and document
 	- Tests written.
-	- Need to document.
+	- Need to document - add new tex file for nvector_examples (Carol create tex framework).
 
 ***(Steve, Eddy) Document KLU build options
 
@@ -33,46 +28,48 @@ manuals and INSTALL_NOTES (anywhere else?)
 	v2.3 Compile errors, 2.4 released...need to test.
 	- OpenMP works?
 	- colamd.c consistent with KLU?
+    - Update any/all examples with old print statement output (e.g. Chris' non-working cvode example)
+    - Make sure Chris' cvode example is not in tarscript release
 
-***(Eddy) Doc of NVECTOR tests in Installation chapter.
+***(Eddy) Doc of NVECTOR tests in Installation chapter (review NVector Chapter).
+
+***(Eddy) Remove testRunner from Install Guide and tarscripts
 
 ***(Carol) Nakhimovski claims posible infinite loop in KINSOL
 
 ***(Carol) User Kantli has question on KINSOL use
 
-***(Eddy) Document how users can use testRunner (copy output to answer) 
+***(Eddy) READMEs need to be updated with default CMake configure
 
-(Eddy) READMEs need to be updated.
+***(Carol) Tar-file sizes in download.html
 
-(?) Tar-file sizes in download.html
+***(Alan) Review build documentation.
 
-(Alan) Review build documentation.
-
-(Eddy) Remove autoconf from build system
-
-(Eddy) Make build system handling of examples consistent.  Right now, distclean
-does not remove compiled examples.  Also, the install builds an examples
-directory, but the executables are not copied there.
+***(Eddy) Make build system handling of examples consistent.  Right now, distclean
+   does not remove compiled examples.  Also, the install builds an examples
+   directory, but the executables are not copied there.
 
 ***(Eddy) Remove autotools build files from installation
 
 ***(Eddy) NVector test examples are not installed correctly. They contain multiple .c source
    files that need to be installed and accounted for in installed Makefile.
    
-*** (Eddy) Document NVector use in install guide
+***(Eddy) Document NVector use in install guide (Pthreads and OpenMP)
 
-*** (Eddy) C++ conditional statements in wrong place with respect to #include lines
-
-*** (Eddy) Nightly build should compile with '-Wall' and '-ansi -pendantic' to force ISO 90 behavior.
+***(Eddy) Nightly build should compile with '-Wall' and '-ansi -pendantic' to force ISO 90 behavior.
     Plus all errors/warnings should be fixed
+    - (All) working on list of warnings from current compilation
     
-*** (Alan) Identify any outstanding user issues.
+***(Alan) Identify any outstanding user issues.
 	 - Check on all Oxberry submitted patches.
 
-*** (All) Test, test, test
+***(All) Test, test, test
 -------------------------------------------------------------------------
 
 Deferred to after release (11/6/13)
+
+(Eddy) Document how users can use testRunner (copy output to answer)
+    - actually need to completely revisit how users can verify installation.  
 
 (Alan) Review header info for all files
 
@@ -141,6 +138,18 @@ Add SuperLU_MT test cases to nightly build (requires multiple compilations)
 -------------------------------------------------------------------------
 
 Completed Tasks
+
+***(Eddy) C++ conditional statements in wrong place with respect to #include lines
+
+***(Eddy) Remove autoconf from build system
+
+***(Carol) Document sparse solvers
+
+***(Carol) Create Install_Notes from existing tex files.
+
+***(Alan) Release numbers updated in documentation (new for KINSOL and ARKode)
+
+***(Alan) Change FORTRAN vector init/reint names
 
 ***(Carol/Eddy) IM release of KINSOL and ARKode...in progress 12/17/14
 	- KINSOL complete 1/5/15.  LLNL-CODE-665877
