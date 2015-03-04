@@ -519,13 +519,26 @@ To enable SuperLU\_MT, set  \id{SUPERLUMT\_ENABLE} to \id{ON}, set \id{SUPERLUMT
 path of the SuperLU\_MT installation and set \id{SUPERLUMT\_LIBRARY\_DIR} to the \id{lib} path of the SuperLU\_MT installation.
 Also, the \id{SUPERLUMT\_THREAD\_TYPE} must be set to either \id{Pthread} or \id{OpenMP}.
 
-{\warn}Do not mix thread types when building {\sundials} solvers.
+\noindent Do not mix thread types when building {\sundials} solvers.
 If threading is enabled for {\sundials} by having either \id{OPENMP\_ENABLE} or \id{PTHREAD\_ENABLE} set to \id{ON}
-then SuperLU\_MT should be set to use the same threading type.
+then SuperLU\_MT should be set to use the same threading type.{\warn}
 
 %%===============================================================================
 \section{Building and Running Examples}
 %%===============================================================================
+Each of the {\sundials} solvers is distributed with a set of examples demonstrating basic usage.
+To build and install the examples, set both \id{EXAMPLES\_ENABLE} and \id{EXAMPLES\_INSTALL} to \id{ON}.
+Specify the installation path for the examples with the variable \id{EXAMPLES\_INSTALL\_PATH}. CMake will generate
+\id{CMakeLists.txt} configuration files (and \id{Makefile} files if on Linux/Unix) that reference the
+{\em installed} {\sundials} headers and libraries.
+
+\noindent From within the installed example directory, run CMake (either with the GUI or command line) to compile the example code.
+The resulting output from running the example can be compared with example output bundled in the {\sundials} distribution.
+
+\noindent NOTE: There will likely differences in the output due to machine architecture, compiler versions,
+use of third party libraries etc.{\warn} 
+
+\noindent These examples with the installed configuration files can be used as "templates" for user developed solutions.
 
 %%===============================================================================
 \section{Configuring, building, and installing  on Windows}
