@@ -187,6 +187,9 @@ int KINSuperLUMT(void *kin_mem_v, int num_threads, int n, int nnz)
      matrix in kinSuperLUMTSetup.  */
   slumt_data->s_ordering = 3;
 
+  /* This is a direct linear solver */
+  kin_mem->kin_inexact_ls = FALSE;
+
   /* Attach linear solver memory to the nonlinear solver memory */
   kinsls_mem->s_solver_data = (void *) slumt_data;
   kin_mem->kin_lmem = kinsls_mem;

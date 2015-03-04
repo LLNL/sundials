@@ -145,6 +145,9 @@ int KINKLU(void *kin_mem_v, int n, int nnz)
   klu_data->s_ordering = 1;
   klu_data->s_Common.ordering = klu_data->s_ordering;
 
+  /* This is a direct linear solver */
+  kin_mem->kin_inexact_ls = FALSE;
+
   /* Attach linear solver memory to the nonlinear solver memory */
   kinsls_mem->s_solver_data = (void *) klu_data;
   kin_mem->kin_lmem = kinsls_mem;
