@@ -830,10 +830,18 @@ ENDIF(BUILD_CPODES)
 # Also, if we will generate exported example Makefiles, set 
 # variables needed in generating them from templates.
 
-INCLUDE(SundialsAddTest)
+# For now, TestRunner is not being distributed.
+# So:
+#  - Don't show TESTRUNNER variable
+#  - Don't enable testing if TestRunner if not found.
+#  - There will be no 'make test' target
 
+INCLUDE(SundialsAddTest)
+HIDE_VARIABLE(TESTRUNNER)
 IF(EXAMPLES_ENABLE)
-  ENABLE_TESTING()
+  IF(TESTRUNNER)
+    ENABLE_TESTING()
+  ENDIF(TESTRUNNER)
 
   IF(EXAMPLES_INSTALL)
     SET(SHELL "sh")
@@ -1015,7 +1023,7 @@ IF(EXAMPLES_ENABLE)
     ENDIF(MPIC_FOUND)
   ENDIF(BUILD_CPODES)
 
-  # Always add the nvector sieral examples
+  # Always add the nvector serial examples
   ADD_SUBDIRECTORY(examples/nvector/serial)
 
   IF(MPIC_FOUND)
