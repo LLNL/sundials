@@ -34,7 +34,6 @@ $tar $tarfile $distrobase/include/cvode/cvode_superlumt.h
 
 $tar $tarfile $distrobase/src/cvode/LICENSE
 $tar $tarfile $distrobase/src/cvode/README
-$tar $tarfile $distrobase/src/cvode/Makefile.in
 $tar $tarfile $distrobase/src/cvode/CMakeLists.txt
 
 $tar $tarfile $distrobase/src/cvode/cvode.c
@@ -63,7 +62,6 @@ $tar $tarfile $distrobase/src/cvode/cvode_bbdpre_impl.h
 
 echo "   --- Add fcvode module to $tarfile"
 
-$tar $tarfile $distrobase/src/cvode/fcmix/Makefile.in
 $tar $tarfile $distrobase/src/cvode/fcmix/CMakeLists.txt
 
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvode.c
@@ -78,6 +76,7 @@ $tar $tarfile $distrobase/src/cvode/fcmix/fcvlapdense.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvbp.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvbbd.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvroot.c
+$tar $tarfile $distrobase/src/cvode/fcmix/fcvsparse.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvode.h
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvbp.h
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvbbd.h
@@ -86,7 +85,6 @@ $tar $tarfile $distrobase/src/cvode/fcmix/fcvroot.h
 echo "   --- Add cvode examples to $tarfile"
 
 $tar $tarfile $distrobase/examples/cvode/serial/README
-$tar $tarfile $distrobase/examples/cvode/serial/Makefile.in
 $tar $tarfile $distrobase/examples/cvode/serial/CMakeLists.txt
 $tar $tarfile $distrobase/examples/cvode/serial/cvAdvDiff_bnd.c
 $tar $tarfile $distrobase/examples/cvode/serial/cvAdvDiff_bndL.c
@@ -114,7 +112,6 @@ $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_sps.c
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_sps.out
 
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/README
-$tar $tarfile $distrobase/examples/cvode/fcmix_serial/Makefile.in
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/CMakeLists.txt
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvAdvDiff_bnd.f
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvAdvDiff_bnd.out
@@ -128,7 +125,6 @@ $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_dnsL.out
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_dns.out
 
 $tar $tarfile $distrobase/examples/cvode/parallel/README
-$tar $tarfile $distrobase/examples/cvode/parallel/Makefile.in
 $tar $tarfile $distrobase/examples/cvode/parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/cvode/parallel/cvAdvDiff_non_p.c
 $tar $tarfile $distrobase/examples/cvode/parallel/cvAdvDiff_non_p.out
@@ -140,7 +136,6 @@ $tar $tarfile $distrobase/examples/cvode/parallel/cvDiurnal_kry_p.c
 $tar $tarfile $distrobase/examples/cvode/parallel/cvDiurnal_kry_p.out
 
 $tar $tarfile $distrobase/examples/cvode/fcmix_parallel/README
-$tar $tarfile $distrobase/examples/cvode/fcmix_parallel/Makefile.in
 $tar $tarfile $distrobase/examples/cvode/fcmix_parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_non_p.f
 $tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_non_p.out
@@ -149,27 +144,28 @@ $tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_bbd_p.out
 $tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_p.f
 $tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_p.out
 
-echo "   --- Add regression test files to $tarfile"
-$tar $tarfile $distrobase/test/answers/cvAdvDiff_bnd
-$tar $tarfile $distrobase/test/answers/cvAdvDiff_bndL
-$tar $tarfile $distrobase/test/answers/cvAdvDiff_non_p
-$tar $tarfile $distrobase/test/answers/cvDirectDemo_ls
-$tar $tarfile $distrobase/test/answers/cvDiurnal_kry
-$tar $tarfile $distrobase/test/answers/cvDiurnal_kry_bbd_p
-$tar $tarfile $distrobase/test/answers/cvDiurnal_kry_bp
-$tar $tarfile $distrobase/test/answers/cvDiurnal_kry_p
-$tar $tarfile $distrobase/test/answers/cvKrylovDemo_ls
-$tar $tarfile $distrobase/test/answers/cvKrylovDemo_prec
-$tar $tarfile $distrobase/test/answers/cvRoberts_dns
-$tar $tarfile $distrobase/test/answers/cvRoberts_dnsL
-$tar $tarfile $distrobase/test/answers/cvRoberts_dns_uw
-$tar $tarfile $distrobase/test/answers/cvRoberts_klu
-$tar $tarfile $distrobase/test/answers/cvRoberts_sps
-$tar $tarfile $distrobase/test/answers/fcvAdvDiff_bnd
-$tar $tarfile $distrobase/test/answers/fcvDiag_kry_bbd_p
-$tar $tarfile $distrobase/test/answers/fcvDiag_kry_p
-$tar $tarfile $distrobase/test/answers/fcvDiag_non_p
-$tar $tarfile $distrobase/test/answers/fcvDiurnal_kry
-$tar $tarfile $distrobase/test/answers/fcvDiurnal_kry_bp
-$tar $tarfile $distrobase/test/answers/fcvRoberts_dns
-$tar $tarfile $distrobase/test/answers/fcvRoberts_dnsL
+# 3/3/2015:LEBanks - Don't add to release yet. Many tests will fail, which can be confusing to users
+#echo "   --- Add regression test files to $tarfile"
+#$tar $tarfile $distrobase/test/answers/cvAdvDiff_bnd
+#$tar $tarfile $distrobase/test/answers/cvAdvDiff_bndL
+#$tar $tarfile $distrobase/test/answers/cvAdvDiff_non_p
+#$tar $tarfile $distrobase/test/answers/cvDirectDemo_ls
+#$tar $tarfile $distrobase/test/answers/cvDiurnal_kry
+#$tar $tarfile $distrobase/test/answers/cvDiurnal_kry_bbd_p
+#$tar $tarfile $distrobase/test/answers/cvDiurnal_kry_bp
+#$tar $tarfile $distrobase/test/answers/cvDiurnal_kry_p
+#$tar $tarfile $distrobase/test/answers/cvKrylovDemo_ls
+#$tar $tarfile $distrobase/test/answers/cvKrylovDemo_prec
+#$tar $tarfile $distrobase/test/answers/cvRoberts_dns
+#$tar $tarfile $distrobase/test/answers/cvRoberts_dnsL
+#$tar $tarfile $distrobase/test/answers/cvRoberts_dns_uw
+#$tar $tarfile $distrobase/test/answers/cvRoberts_klu
+#$tar $tarfile $distrobase/test/answers/cvRoberts_sps
+#$tar $tarfile $distrobase/test/answers/fcvAdvDiff_bnd
+#$tar $tarfile $distrobase/test/answers/fcvDiag_kry_bbd_p
+#$tar $tarfile $distrobase/test/answers/fcvDiag_kry_p
+#$tar $tarfile $distrobase/test/answers/fcvDiag_non_p
+#$tar $tarfile $distrobase/test/answers/fcvDiurnal_kry
+#$tar $tarfile $distrobase/test/answers/fcvDiurnal_kry_bp
+#$tar $tarfile $distrobase/test/answers/fcvRoberts_dns
+#$tar $tarfile $distrobase/test/answers/fcvRoberts_dnsL

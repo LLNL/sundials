@@ -12,26 +12,9 @@ tar cfv $tarfile $distrobase/README
 $tar $tarfile $distrobase/INSTALL_NOTES
 $tar $tarfile $distrobase/LICENSE
 
-$tar $tarfile $distrobase/Makefile.in
-
-$tar $tarfile $distrobase/configure.ac
-$tar $tarfile $distrobase/acinclude.m4
-$tar $tarfile $distrobase/config.hin
-$tar $tarfile $distrobase/configure
-
 $tar $tarfile $distrobase/CMakeLists.txt
 
 echo "   --- Add configuration files to $tarfile"
-
-$tar $tarfile $distrobase/config/config.guess
-$tar $tarfile $distrobase/config/config.sub
-$tar $tarfile $distrobase/config/install-sh
-$tar $tarfile $distrobase/config/mkinstalldirs
-$tar $tarfile $distrobase/config/rminstalldirs
-$tar $tarfile $distrobase/config/ltmain.sh
-$tar $tarfile $distrobase/config/mod_c.m4
-$tar $tarfile $distrobase/config/mod_fortran.m4
-$tar $tarfile $distrobase/config/cust_general.m4
 
 $tar $tarfile $distrobase/config/SundialsAddTest.cmake
 $tar $tarfile $distrobase/config/SundialsFortran.cmake
@@ -50,12 +33,10 @@ $tar $tarfile $distrobase/config/FindKLU.cmake
 $tar $tarfile $distrobase/config/FindSUPERLUMT.cmake
 $tar $tarfile $distrobase/config/FindKLU.cmake
 
-
-#$tar $tarfile $distrobase/config/sundials.spec
-
-$tar $tarfile $distrobase/bin/sundials-config.in
-$tar $tarfile $distrobase/bin/fortran-update.in
-$tar $tarfile $distrobase/bin/makefile-update.in
+# 03/06/2015 LEBanks - comment out, but don't remove yet...may want to recreate some of this logic in CMake 
+#$tar $tarfile $distrobase/bin/sundials-config.in
+#$tar $tarfile $distrobase/bin/fortran-update.in
+#$tar $tarfile $distrobase/bin/makefile-update.in
 
 echo "   --- Add shared module to $tarfile"
 
@@ -85,7 +66,6 @@ $tar $tarfile $distrobase/include/nvector/nvector_openmp.h
 
 $tar $tarfile $distrobase/src/sundials/README
 $tar $tarfile $distrobase/src/sundials/LICENSE
-$tar $tarfile $distrobase/src/sundials/Makefile.in
 $tar $tarfile $distrobase/src/sundials/CMakeLists.txt
 $tar $tarfile $distrobase/src/sundials/sundials_math.c
 $tar $tarfile $distrobase/src/sundials/sundials_nvector.c
@@ -103,7 +83,6 @@ $tar $tarfile $distrobase/src/sundials/sundials_iterative.c
 echo "   --- Add nvecser module to $tarfile"
 
 $tar $tarfile $distrobase/src/nvec_ser/README
-$tar $tarfile $distrobase/src/nvec_ser/Makefile.in
 $tar $tarfile $distrobase/src/nvec_ser/CMakeLists.txt
 $tar $tarfile $distrobase/src/nvec_ser/fnvector_serial.h
 $tar $tarfile $distrobase/src/nvec_ser/nvector_serial.c
@@ -112,7 +91,6 @@ $tar $tarfile $distrobase/src/nvec_ser/fnvector_serial.c
 echo "   --- Add nvecpar module to $tarfile"
 
 $tar $tarfile $distrobase/src/nvec_par/README
-$tar $tarfile $distrobase/src/nvec_par/Makefile.in
 $tar $tarfile $distrobase/src/nvec_par/CMakeLists.txt
 $tar $tarfile $distrobase/src/nvec_par/fnvector_parallel.h
 $tar $tarfile $distrobase/src/nvec_par/nvector_parallel.c
@@ -174,25 +152,26 @@ $tar $tarfile $distrobase/examples/templates/makefile_pthreads_F77_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_serial_F90_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_F90_ex.in
 
-echo "   --- Add regression test files to $tarfile"
-$tar $tarfile $distrobase/test/testRunner
-$tar $tarfile $distrobase/test/answers/test_nvector_mpi
-$tar $tarfile $distrobase/test/answers/test_nvector_mpi_1000_0
-$tar $tarfile $distrobase/test/answers/test_nvector_mpi_4
-$tar $tarfile $distrobase/test/answers/test_nvector_mpi_4_1000_0
-$tar $tarfile $distrobase/test/answers/test_nvector_openmp_10000_1_0
-$tar $tarfile $distrobase/test/answers/test_nvector_openmp_10000_2_0
-$tar $tarfile $distrobase/test/answers/test_nvector_openmp_10000_4_0
-$tar $tarfile $distrobase/test/answers/test_nvector_openmp_1000_1_0
-$tar $tarfile $distrobase/test/answers/test_nvector_openmp_1000_2_0
-$tar $tarfile $distrobase/test/answers/test_nvector_openmp_1000_4_0
-$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_10000_1_0
-$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_10000_2_0
-$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_10000_4_0
-$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_1000_1_0
-$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_1000_2_0
-$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_1000_4_0
-$tar $tarfile $distrobase/test/answers/test_nvector_serial_1000_0
-$tar $tarfile $distrobase/test/answers/test_nvector_serial_10000_0
+# 3/3/2015:LEBanks - Don't add to release yet. Many tests will fail, which can be confusing to users
+#echo "   --- Add regression test files to $tarfile"
+#$tar $tarfile $distrobase/test/testRunner
+#$tar $tarfile $distrobase/test/answers/test_nvector_mpi
+#$tar $tarfile $distrobase/test/answers/test_nvector_mpi_1000_0
+#$tar $tarfile $distrobase/test/answers/test_nvector_mpi_4
+#$tar $tarfile $distrobase/test/answers/test_nvector_mpi_4_1000_0
+#$tar $tarfile $distrobase/test/answers/test_nvector_openmp_10000_1_0
+#$tar $tarfile $distrobase/test/answers/test_nvector_openmp_10000_2_0
+#$tar $tarfile $distrobase/test/answers/test_nvector_openmp_10000_4_0
+#$tar $tarfile $distrobase/test/answers/test_nvector_openmp_1000_1_0
+#$tar $tarfile $distrobase/test/answers/test_nvector_openmp_1000_2_0
+#$tar $tarfile $distrobase/test/answers/test_nvector_openmp_1000_4_0
+#$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_10000_1_0
+#$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_10000_2_0
+#$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_10000_4_0
+#$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_1000_1_0
+#$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_1000_2_0
+#$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_1000_4_0
+#$tar $tarfile $distrobase/test/answers/test_nvector_serial_1000_0
+#$tar $tarfile $distrobase/test/answers/test_nvector_serial_10000_0
 
 

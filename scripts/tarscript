@@ -194,10 +194,10 @@ mkdir $tmpdir/examples
 cp $sundialsdir/LICENSE $tmpdir/
 cp $sundialsdir/README $tmpdir/ 
 cp $sundialsdir/INSTALL_NOTES $tmpdir/
-cp $sundialsdir/config.hin $tmpdir/
-cp $sundialsdir/configure.ac $tmpdir/configure.ac
-cp $sundialsdir/acinclude.m4 $tmpdir/
-cp $sundialsdir/Makefile.in $tmpdir/
+#cp $sundialsdir/config.hin $tmpdir/
+#cp $sundialsdir/configure.ac $tmpdir/configure.ac
+#cp $sundialsdir/acinclude.m4 $tmpdir/
+#cp $sundialsdir/Makefile.in $tmpdir/
 cp $sundialsdir/CMakeLists.txt $tmpdir/
 
 cp -r $sundialsdir/config $tmpdir/
@@ -219,12 +219,12 @@ cp -r $sundialsdir/bin $tmpdir/
 cp -r $sundialsdir/examples/nvector $tmpdir/examples/
 cp -r $sundialsdir/examples/templates $tmpdir/examples/
 
-cd $tmpdir
-echo -e "\n--- Generate configure script ---"
-aclocal --force
-autoconf --force -o configure configure.ac
-autoheader --force
-cd -
+#cd $tmpdir
+#echo -e "\n--- Generate configure script ---"
+#aclocal --force
+#autoconf --force -o configure configure.ac
+#autoheader --force
+#cd -
 
 if [ $do_sundials = "T" ]; then
     cp -r $sundialsdir/sundialsTB $tmpdir/

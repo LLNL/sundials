@@ -33,7 +33,6 @@ $tar $tarfile $distrobase/include/kinsol/kinsol_superlumt.h
 
 $tar $tarfile $distrobase/src/kinsol/LICENSE
 $tar $tarfile $distrobase/src/kinsol/README
-$tar $tarfile $distrobase/src/kinsol/Makefile.in
 $tar $tarfile $distrobase/src/kinsol/CMakeLists.txt
 
 $tar $tarfile $distrobase/src/kinsol/kinsol.c
@@ -59,7 +58,6 @@ $tar $tarfile $distrobase/src/kinsol/kinsol_sparse_impl.h
 
 echo "   --- Add fkinsol module to $tarfile"
 
-$tar $tarfile $distrobase/src/kinsol/fcmix/Makefile.in
 $tar $tarfile $distrobase/src/kinsol/fcmix/CMakeLists.txt
 
 $tar $tarfile $distrobase/src/kinsol/fcmix/fkinsol.c
@@ -77,7 +75,6 @@ $tar $tarfile $distrobase/src/kinsol/fcmix/fkinbbd.h
 echo "   --- Add kinsol examples to $tarfile"
 
 $tar $tarfile $distrobase/examples/kinsol/serial/README
-$tar $tarfile $distrobase/examples/kinsol/serial/Makefile.in
 $tar $tarfile $distrobase/examples/kinsol/serial/CMakeLists.txt
 $tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_dns.c
 $tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_dns.out
@@ -97,13 +94,11 @@ $tar $tarfile $distrobase/examples/kinsol/serial/kinRoberts_fp.c
 $tar $tarfile $distrobase/examples/kinsol/serial/kinRoberts_fp.out
 
 $tar $tarfile $distrobase/examples/kinsol/fcmix_serial/README
-$tar $tarfile $distrobase/examples/kinsol/fcmix_serial/Makefile.in
 $tar $tarfile $distrobase/examples/kinsol/fcmix_serial/CMakeLists.txt
 $tar $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinDiagon_kry.f
 $tar $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinDiagon_kry.out
 
 $tar $tarfile $distrobase/examples/kinsol/parallel/README
-$tar $tarfile $distrobase/examples/kinsol/parallel/Makefile.in
 $tar $tarfile $distrobase/examples/kinsol/parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_bbd_p.c
 $tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_bbd_p.out
@@ -111,21 +106,21 @@ $tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_p.c
 $tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_p.out
    
 $tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/README
-$tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/Makefile.in
 $tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.f
 $tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.out
 
-echo "   --- Add regression test files to $tarfile"
-$tar $tarfile $distrobase/test/answers/fkinDiagon_kry
-$tar $tarfile $distrobase/test/answers/fkinDiagon_kry_p
-$tar $tarfile $distrobase/test/answers/kinFerTron_dns
-$tar $tarfile $distrobase/test/answers/kinFoodWeb_kry
-$tar $tarfile $distrobase/test/answers/kinFoodWeb_kry_bbd_p
-$tar $tarfile $distrobase/test/answers/kinFoodWeb_kry_p
-$tar $tarfile $distrobase/test/answers/kinKrylovDemo_ls
-$tar $tarfile $distrobase/test/answers/kinLaplace_bnd
-$tar $tarfile $distrobase/test/answers/kinLaplace_picard_bnd
-$tar $tarfile $distrobase/test/answers/kinRoberts_fp
-$tar $tarfile $distrobase/test/answers/kinRoboKin_dns
-$tar $tarfile $distrobase/test/answers/kinRoboKin_slu
+# 3/3/2015:LEBanks - Don't add to release yet. Many tests will fail, which can be confusing to users
+#echo "   --- Add regression test files to $tarfile"
+#$tar $tarfile $distrobase/test/answers/fkinDiagon_kry
+#$tar $tarfile $distrobase/test/answers/fkinDiagon_kry_p
+#$tar $tarfile $distrobase/test/answers/kinFerTron_dns
+#$tar $tarfile $distrobase/test/answers/kinFoodWeb_kry
+#$tar $tarfile $distrobase/test/answers/kinFoodWeb_kry_bbd_p
+#$tar $tarfile $distrobase/test/answers/kinFoodWeb_kry_p
+#$tar $tarfile $distrobase/test/answers/kinKrylovDemo_ls
+#$tar $tarfile $distrobase/test/answers/kinLaplace_bnd
+#$tar $tarfile $distrobase/test/answers/kinLaplace_picard_bnd
+#$tar $tarfile $distrobase/test/answers/kinRoberts_fp
+#$tar $tarfile $distrobase/test/answers/kinRoboKin_dns
+#$tar $tarfile $distrobase/test/answers/kinRoboKin_slu

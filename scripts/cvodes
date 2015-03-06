@@ -34,7 +34,6 @@ $tar $tarfile $distrobase/include/cvodes/cvodes_bbdpre.h
 
 $tar $tarfile $distrobase/src/cvodes/LICENSE
 $tar $tarfile $distrobase/src/cvodes/README
-$tar $tarfile $distrobase/src/cvodes/Makefile.in
 $tar $tarfile $distrobase/src/cvodes/CMakeLists.txt
 
 $tar $tarfile $distrobase/src/cvodes/cvodes.c
@@ -66,7 +65,6 @@ $tar $tarfile $distrobase/src/cvodes/cvodes_bbdpre_impl.h
 echo "   --- Add cvodes examples to $tarfile"
 
 $tar $tarfile $distrobase/examples/cvodes/serial/README
-$tar $tarfile $distrobase/examples/cvodes/serial/Makefile.in
 $tar $tarfile $distrobase/examples/cvodes/serial/CMakeLists.txt
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsAdvDiff_ASAi_bnd.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsAdvDiff_ASAi_bnd.out
@@ -110,7 +108,6 @@ $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_sps.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_sps.out
 
 $tar $tarfile $distrobase/examples/cvodes/parallel/README
-$tar $tarfile $distrobase/examples/cvodes/parallel/Makefile.in
 $tar $tarfile $distrobase/examples/cvodes/parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/cvodes/parallel/cvsAdvDiff_ASAp_non_p.c
 $tar $tarfile $distrobase/examples/cvodes/parallel/cvsAdvDiff_ASAp_non_p.out
@@ -127,35 +124,36 @@ $tar $tarfile $distrobase/examples/cvodes/parallel/cvsDiurnal_kry_bbd_p.out
 $tar $tarfile $distrobase/examples/cvodes/parallel/cvsDiurnal_kry_p.c
 $tar $tarfile $distrobase/examples/cvodes/parallel/cvsDiurnal_kry_p.out
 
-echo "   --- Add regression test files to $tarfile"
-$tar $tarfile $distrobase/test/answers/cvsAdvDiff_ASAi_bnd
-$tar $tarfile $distrobase/test/answers/cvsAdvDiff_ASAp_non_p
-$tar $tarfile $distrobase/test/answers/cvsAdvDiff_bnd
-$tar $tarfile $distrobase/test/answers/cvsAdvDiff_bndL
-$tar $tarfile $distrobase/test/answers/cvsAdvDiff_FSA_non_p_-sensi_sim_t
-$tar $tarfile $distrobase/test/answers/cvsAdvDiff_FSA_non_p_-sensi_stg_t
-$tar $tarfile $distrobase/test/answers/cvsAdvDiff_FSA_non_-sensi_sim_t
-$tar $tarfile $distrobase/test/answers/cvsAdvDiff_FSA_non_-sensi_stg_t
-$tar $tarfile $distrobase/test/answers/cvsAdvDiff_non_p
-$tar $tarfile $distrobase/test/answers/cvsAtmDisp_ASAi_kry_bbd_p
-$tar $tarfile $distrobase/test/answers/cvsDirectDemo_ls
-$tar $tarfile $distrobase/test/answers/cvsDiurnal_FSA_kry_p_-sensi_sim_t
-$tar $tarfile $distrobase/test/answers/cvsDiurnal_FSA_kry_p_-sensi_stg_t
-$tar $tarfile $distrobase/test/answers/cvsDiurnal_FSA_kry_-sensi_sim_t
-$tar $tarfile $distrobase/test/answers/cvsDiurnal_FSA_kry_-sensi_stg_t
-$tar $tarfile $distrobase/test/answers/cvsDiurnal_kry
-$tar $tarfile $distrobase/test/answers/cvsDiurnal_kry_bbd_p
-$tar $tarfile $distrobase/test/answers/cvsDiurnal_kry_bp
-$tar $tarfile $distrobase/test/answers/cvsDiurnal_kry_p
-$tar $tarfile $distrobase/test/answers/cvsFoodWeb_ASAi_kry
-$tar $tarfile $distrobase/test/answers/cvsFoodWeb_ASAp_kry
-$tar $tarfile $distrobase/test/answers/cvsHessian_ASA_FSA
-$tar $tarfile $distrobase/test/answers/cvsKrylovDemo_ls
-$tar $tarfile $distrobase/test/answers/cvsKrylovDemo_prec
-$tar $tarfile $distrobase/test/answers/cvsRoberts_ASAi_dns
-$tar $tarfile $distrobase/test/answers/cvsRoberts_dns
-$tar $tarfile $distrobase/test/answers/cvsRoberts_dnsL
-$tar $tarfile $distrobase/test/answers/cvsRoberts_dns_uw
-$tar $tarfile $distrobase/test/answers/cvsRoberts_FSA_dns_-sensi_stg1_t
-$tar $tarfile $distrobase/test/answers/cvsRoberts_klu
-$tar $tarfile $distrobase/test/answers/cvsRoberts_sps
+# 3/3/2015:LEBanks - Don't add to release yet. Many tests will fail, which can be confusing to users
+#echo "   --- Add regression test files to $tarfile"
+#$tar $tarfile $distrobase/test/answers/cvsAdvDiff_ASAi_bnd
+#$tar $tarfile $distrobase/test/answers/cvsAdvDiff_ASAp_non_p
+#$tar $tarfile $distrobase/test/answers/cvsAdvDiff_bnd
+#$tar $tarfile $distrobase/test/answers/cvsAdvDiff_bndL
+#$tar $tarfile $distrobase/test/answers/cvsAdvDiff_FSA_non_p_-sensi_sim_t
+#$tar $tarfile $distrobase/test/answers/cvsAdvDiff_FSA_non_p_-sensi_stg_t
+#$tar $tarfile $distrobase/test/answers/cvsAdvDiff_FSA_non_-sensi_sim_t
+#$tar $tarfile $distrobase/test/answers/cvsAdvDiff_FSA_non_-sensi_stg_t
+#$tar $tarfile $distrobase/test/answers/cvsAdvDiff_non_p
+#$tar $tarfile $distrobase/test/answers/cvsAtmDisp_ASAi_kry_bbd_p
+#$tar $tarfile $distrobase/test/answers/cvsDirectDemo_ls
+#$tar $tarfile $distrobase/test/answers/cvsDiurnal_FSA_kry_p_-sensi_sim_t
+#$tar $tarfile $distrobase/test/answers/cvsDiurnal_FSA_kry_p_-sensi_stg_t
+#$tar $tarfile $distrobase/test/answers/cvsDiurnal_FSA_kry_-sensi_sim_t
+#$tar $tarfile $distrobase/test/answers/cvsDiurnal_FSA_kry_-sensi_stg_t
+#$tar $tarfile $distrobase/test/answers/cvsDiurnal_kry
+#$tar $tarfile $distrobase/test/answers/cvsDiurnal_kry_bbd_p
+#$tar $tarfile $distrobase/test/answers/cvsDiurnal_kry_bp
+#$tar $tarfile $distrobase/test/answers/cvsDiurnal_kry_p
+#$tar $tarfile $distrobase/test/answers/cvsFoodWeb_ASAi_kry
+#$tar $tarfile $distrobase/test/answers/cvsFoodWeb_ASAp_kry
+#$tar $tarfile $distrobase/test/answers/cvsHessian_ASA_FSA
+#$tar $tarfile $distrobase/test/answers/cvsKrylovDemo_ls
+#$tar $tarfile $distrobase/test/answers/cvsKrylovDemo_prec
+#$tar $tarfile $distrobase/test/answers/cvsRoberts_ASAi_dns
+#$tar $tarfile $distrobase/test/answers/cvsRoberts_dns
+#$tar $tarfile $distrobase/test/answers/cvsRoberts_dnsL
+#$tar $tarfile $distrobase/test/answers/cvsRoberts_dns_uw
+#$tar $tarfile $distrobase/test/answers/cvsRoberts_FSA_dns_-sensi_stg1_t
+#$tar $tarfile $distrobase/test/answers/cvsRoberts_klu
+#$tar $tarfile $distrobase/test/answers/cvsRoberts_sps
