@@ -253,7 +253,6 @@ int ARKKLUReInit(void *arkode_mem, int n, int nnz, int reinit_type)
 {
   ARKodeMem ark_mem;
   ARKSlsMem arksls_mem;
-  KLUData klu_data;
 
   /* Return immediately if arkode_mem is NULL. */
   if (arkode_mem == NULL) {
@@ -271,7 +270,6 @@ int ARKKLUReInit(void *arkode_mem, int n, int nnz, int reinit_type)
   }
 
   arksls_mem = (ARKSlsMem) (ark_mem->ark_lmem);
-  klu_data = (KLUData) arksls_mem->s_solver_data;
 
   /* Return if reinit_type is not valid */
   if ((reinit_type != 1) && (reinit_type != 2)) {
@@ -819,7 +817,6 @@ int ARKMassKLUReInit(void *arkode_mem, int n, int nnz, int reinit_type)
 {
   ARKodeMem ark_mem;
   ARKSlsMassMem arksls_mem;
-  KLUData klu_data;
 
   /* Return immediately if arkode_mem is NULL. */
   if (arkode_mem == NULL) {
@@ -837,7 +834,6 @@ int ARKMassKLUReInit(void *arkode_mem, int n, int nnz, int reinit_type)
   }
 
   arksls_mem = (ARKSlsMassMem) (ark_mem->ark_mass_mem);
-  klu_data = (KLUData) arksls_mem->s_solver_data;
 
   /* Return if reinit_type is not valid */
   if ((reinit_type != 1) && (reinit_type != 2)) {
