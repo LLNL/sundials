@@ -104,6 +104,10 @@ void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
   ARK_arkodemem = NULL;
   Vatol = NULL;
 
+  /* initialize global constants to zero */
+  ARK_nrtfn = 0;
+  ARK_ls = 0;
+
   /* Create ARKODE object */
   ARK_arkodemem = ARKodeCreate();
   if (ARK_arkodemem == NULL) {
@@ -205,9 +209,8 @@ void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
    structure; functions as an all-in-one interface to the C 
    routines ARKodeReInit and ARKodeSStolerances (or 
    ARKodeSVtolerances); see farkode.h for further details */
-void FARK_REINIT(realtype *t0, realtype *y0, int *imex, 
-                int *iatol, realtype *rtol, realtype *atol, 
-                int *ier)
+void FARK_REINIT(realtype *t0, realtype *y0, int *imex, int *iatol, 
+                 realtype *rtol, realtype *atol, int *ier)
 {
   N_Vector Vatol;
   realtype reltol, abstol;
@@ -790,8 +793,8 @@ void FARK_ARKODE(realtype *tout, realtype *t, realtype *y,
     break;
   case ARK_LS_KLU:
   case ARK_LS_SUPERLUMT:
-    ARKDlsGetLastFlag(ARK_arkodemem, &ARK_iout[15]);                  /* LSTF  */
-    ARKDlsGetNumJacEvals(ARK_arkodemem, &ARK_iout[17]);               /* NJE   */
+    ARKSlsGetLastFlag(ARK_arkodemem, &ARK_iout[15]);                  /* LSTF  */
+    ARKSlsGetNumJacEvals(ARK_arkodemem, &ARK_iout[17]);               /* NJE   */
     break;
   case ARK_LS_SPGMR:
   case ARK_LS_SPBCG:

@@ -271,8 +271,8 @@
 
      Required when using the ARKKLU or ARKSuperLUMT linear solvers, the 
      user must supply a routine that computes a compressed-sparse-column 
-     approximation of the system Jacobian J = dfi(t,y)/dy.  If supplied, 
-     it must have the following form:
+     approximation of the system Jacobian J = dfi(t,y)/dy.  This routine
+     must have the following form:
 
        SUBROUTINE FARKSPJAC(T, Y, FY, N, NNZ, JDATA, JRVALS, 
       &                     JCPTRS, H, IPAR, RPAR, WK1, WK2, WK3, IER)
@@ -315,15 +315,15 @@
      J = dfi(t,y)/dy and a given vector v.  If supplied, it must have the 
      following form:
 
-       SUBROUTINE FARKJTIMES(V, FJV, T, Y, FY, H, IPAR, RPAR, WORK, IER)
+       SUBROUTINE FARKJTIMES(V, JV, T, Y, FY, H, IPAR, RPAR, WORK, IER)
 
-     Typically this routine will use only NEQ, T, Y, V, and FJV.  It must
-     compute the product vector J*v where the vector V, and store the product
-     in FJV.  
+     Typically this routine will use only NEQ, T, Y, V, and JV.  It must
+     compute the product vector J*v where v is stored in the vector V 
+     and the result J*v is stored in JV.  
 
      The arguments are:
        V    -- array containing vector to multiply [realtype, input]
-       FJV  -- array containing product vector [realtype, output]
+       JV   -- array containing product vector [realtype, output]
        T    -- current time [realtype, input]
        Y    -- array containing state variables [realtype, input]
        FY   -- array containing state derivatives [realtype, input]
@@ -955,17 +955,8 @@
               0 = success; 
 	     <0 = an error occured
  
-     Optional outputs specific to the SPBCG case are:
-        LENRWLS = IOUT(14) from ARKSpilsGetWorkSpace
-        LENIWLS = IOUT(15) from ARKSpilsGetWorkSpace
-        LSTF    = IOUT(16) from ARKSpilsGetLastFlag
-        NFELS   = IOUT(17) from ARKSpilsGetNumRhsEvals
-        NJTV    = IOUT(18) from ARKSpilsGetNumJtimesEvals
-        NPE     = IOUT(19) from ARKSpilsGetNumPrecEvals
-        NPS     = IOUT(20) from ARKSpilsGetNumPrecSolves
-        NLI     = IOUT(21) from ARKSpilsGetNumLinIters
-        NCFL    = IOUT(22) from ARKSpilsGetNumConvFails
-     See the ARKODE manual for descriptions.
+     Optional outputs specific to the SPBCG case are identical to 
+     those from SPGMR.
  
      If a sequence of problems of the same size is being solved using the
      SPBCG linear solver, then following the call to FARKREINIT, a call to the
@@ -999,18 +990,9 @@
               0 = success; 
 	     <0 = an error occured
  
-     Optional outputs specific to the SPTFQMR case are:
-        LENRWLS = IOUT(14) from ARKSpilsGetWorkSpace
-        LENIWLS = IOUT(15) from ARKSpilsGetWorkSpace
-        LSTF    = IOUT(16) from ARKSpilsGetLastFlag
-        NFELS   = IOUT(17) from ARKSpilsGetNumRhsEvals
-        NJTV    = IOUT(18) from ARKSpilsGetNumJtimesEvals
-        NPE     = IOUT(19) from ARKSpilsGetNumPrecEvals
-        NPS     = IOUT(20) from ARKSpilsGetNumPrecSolves
-        NLI     = IOUT(21) from ARKSpilsGetNumLinIters
-        NCFL    = IOUT(22) from ARKSpilsGetNumConvFails
-     See the ARKODE manual for descriptions.
-
+     Optional outputs specific to the SPTFQMR case are identical to 
+     those from SPGMR.
+ 
      If a sequence of problems of the same size is being solved using the
      SPTFQMR linear solver, then following the call to FARKREINIT, a call to 
      the FARKSPTFQMRREINIT routine is needed if any of its arguments is
@@ -1047,17 +1029,8 @@
 	       0 = success; 
 	      <0 = an error occured
  
-     Optional outputs specific to the SPFGMR case are:
-        LENRWLS = IOUT(14) from ARKSpilsGetWorkSpace
-        LENIWLS = IOUT(15) from ARKSpilsGetWorkSpace
-        LSTF    = IOUT(16) from ARKSpilsGetLastFlag
-        NFELS   = IOUT(17) from ARKSpilsGetNumRhsEvals
-        NJTV    = IOUT(18) from ARKSpilsGetNumJtimesEvals
-        NPE     = IOUT(19) from ARKSpilsGetNumPrecEvals
-        NPS     = IOUT(20) from ARKSpilsGetNumPrecSolves
-        NLI     = IOUT(21) from ARKSpilsGetNumLinIters
-        NCFL    = IOUT(22) from ARKSpilsGetNumConvFails
-     See the ARKODE manual for descriptions.
+     Optional outputs specific to the SPFGMR case are identical to 
+     those from SPGMR.
  
      If a sequence of problems of the same size is being solved using the
      SPFGMR linear solver, then following the call to FARKREINIT, a call to 
@@ -1092,17 +1065,8 @@
               0 = success; 
 	     <0 = an error occured
  
-     Optional outputs specific to the PCG case are:
-        LENRWLS = IOUT(14) from ARKSpilsGetWorkSpace
-        LENIWLS = IOUT(15) from ARKSpilsGetWorkSpace
-        LSTF    = IOUT(16) from ARKSpilsGetLastFlag
-        NFELS   = IOUT(17) from ARKSpilsGetNumRhsEvals
-        NJTV    = IOUT(18) from ARKSpilsGetNumJtimesEvals
-        NPE     = IOUT(19) from ARKSpilsGetNumPrecEvals
-        NPS     = IOUT(20) from ARKSpilsGetNumPrecSolves
-        NLI     = IOUT(21) from ARKSpilsGetNumLinIters
-        NCFL    = IOUT(22) from ARKSpilsGetNumConvFails
-     See the ARKODE manual for descriptions.
+     Optional outputs specific to the PCG case are identical to 
+     those from SPGMR.
  
      If a sequence of problems of the same size is being solved using the
      PCG linear solver, then following the call to FARKREINIT, a call to the
@@ -1176,7 +1140,7 @@
 
        DIMENSION Y(*), FY(*), VT(*), R(*), Z(*), IPAR(*), RPAR(*)
 
-     Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
+     Typically this routine will use only T, Y, GAMMA, R, LR, and Z.  It
      must solve the preconditioner linear system Pz = r.  The preconditioner
      (or the product of the left and right preconditioners if both are 
      nontrivial) should be an approximation to the matrix  I - GAMMA*J  
@@ -1339,6 +1303,7 @@ extern "C" {
 #define FARK_EXP_FUN             SUNDIALS_F77_FUNC(farkefun,                FARKEFUN)
 #define FARK_DJAC                SUNDIALS_F77_FUNC(farkdjac,                FARKDJAC)
 #define FARK_BJAC                SUNDIALS_F77_FUNC(farkbjac,                FARKBJAC)
+#define FARK_SPJAC               SUNDIALS_F77_FUNC(farkspjac,               FARKSPJAC)
 #define FARK_PSOL                SUNDIALS_F77_FUNC(farkpsol,                FARKPSOL)
 #define FARK_PSET                SUNDIALS_F77_FUNC(farkpset,                FARKPSET)
 #define FARK_JTIMES              SUNDIALS_F77_FUNC(farkjtimes,              FARKJTIMES)
@@ -1396,6 +1361,7 @@ extern "C" {
 #define FARK_EXP_FUN             farkefun_
 #define FARK_DJAC                farkdjac_
 #define FARK_BJAC                farkbjac_
+#define FARK_SPJAC               farkspjac_
 #define FARK_PSOL                farkpsol_
 #define FARK_PSET                farkpset_
 #define FARK_JTIMES              farkjtimes_
@@ -1494,6 +1460,7 @@ extern "C" {
 
   void FARK_SETADAPTMETHOD(int *imethod, int *idefault, int *ipq, 
 			   realtype *params, int *ier);
+
 
   /* Prototypes: Functions Called by the ARKODE Solver */
   int FARKfi(realtype t, N_Vector y, N_Vector ydot, void *user_data);

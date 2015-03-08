@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_klu.h>
+#include <arkode/arkode_sparse.h>
 
 /*=============================================================*/
 
