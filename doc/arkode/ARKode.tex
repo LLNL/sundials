@@ -67,7 +67,7 @@ Approved for public release; further dissemination unlimited
   \vfill
   {\centerline{\includegraphics[width=0.45\textwidth]{doc_logo.pdf}}}
   \vfill
-  {\centerline{LLNL-CODE-667205}}
+  {\centerline{LLNL-SM-668082}}
 }
 
 \newcommand{\sphinxlogo}{}
@@ -1607,11 +1607,12 @@ KINSOL, a solver for nonlinear algebraic systems \(F(u) = 0\).
 \capstart
 
 \scalebox{0.750000}{\includegraphics{sunorg1.png}}
-\caption{\emph{SUNDIALS organization}: High-level diagram of the SUNDIALS structure (note that none of the
-Lapack or sparse linear solver modules are represented).}{\small 
-\(^*\) only applies to ARKode.
+\caption{\emph{SUNDIALS organization}: High-level diagram of the SUNDIALS structure (the
+Lapack linear solver modules are implicitly included under ``DENSE''
+and ``BAND'').}{\small 
+\(^*\) PCG is only available in ARKode.
 
-\(^{**}\) only applies to ARKode and KINSOL.
+\(^{**}\) SPFGMR is only available in ARKode and KINSOL.
 }\label{Organization:sunorg1}\end{figure}
 \begin{figure}[htbp]
 \centering
