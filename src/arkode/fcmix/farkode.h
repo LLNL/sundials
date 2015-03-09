@@ -25,7 +25,7 @@
  The FARKODE Interface Package is a package of C functions which 
  support the use of the ARKODE solver, for the solution of ODE 
  systems 
-         dy/dt = fe(t,y) + fi(t,y), 
+         M(t) dy/dt = fe(t,y) + fi(t,y), 
  in a mixed Fortran/C setting.  While ARKODE is written in C, it
  is assumed here that the user's calling program and user-supplied
  problem-defining routines are written in Fortran.  This package 
@@ -57,37 +57,62 @@
 
    FARKDENSE                  ARKDense
    FARKDENSESETJAC            ARKDlsSetDenseJacFn
+   FARKMASSDENSE              ARKMassDense
+   FARKDENSESETMASS           ARKDlsSetDenseMassFn
 
    FARKBAND                   ARKBand
    FARKBANDSETJAC             ARKDlsSetBandJacFn
+   FARKMASSBAND               ARKMassBand
+   FARKBANDSETMASS            ARKDlsSetBandMassFn
 
    FARKLAPACKDENSE            ARKLapackDense
    FARKLAPACKDENSESETJAC      ARKDlsSetDenseJacFn
+   FARKMASSLAPACKDENSE        ARKMassLapackDense
+   FARKLAPACKDENSESETMASS     ARKDlsSetDenseMassFn
 
    FARKLAPACKBAND             ARKLapackBand
    FARKLAPACKBANDSETJAC       ARKDlsSetBandJacFn
+   FARKMASSLAPACKBAND         ARKMassLapackBand
+   FARKLAPACKBANDSETMASS      ARKDlsSetBandMassFn
 
    FARKKLU                    ARKKLU
    FARKKLUREINIT              ARKKLUReinit
    FARKSUPERLUMT              ARKSuperLUMT
+   FARKSPARSESETJAC           ARKSlsSetSparseJacFn
+   FARKMASSKLU                ARKMassKLU
+   FARKMASSKLUREINIT          ARKMassKLUReinit
+   FARKMASSSUPERLUMT          ARKMassSuperLUMT
+   FARKSPARSESETMASS          ARKSlsSetSparseMassFn
 
    FARKSPGMR                  ARKSpgmr and ARKSpilsSet*
    FARKSPGMRREINIT            ARKSpilsSet*
+   FARKMASSSPGMR              ARKMassSpgmr and ARKSpilsSetMass*
+   FARKMASSSPGMRREINIT        ARKSpilsSetMass*
 
    FARKSPBCG                  ARKSpbcg and ARKSpilsSet*
    FARKSPBCGREINIT            ARKSpilsSet*
+   FARKMASSSPBCG              ARKMassSpbcg and ARKSpilsSetMass*
+   FARKMASSSPBCGREINIT        ARKSpilsSetMass*
 
    FARKSPTFQMR                ARKSptfqmr and ARKSpilsSet*
    FARKSPTFQMRREINIT          ARKSpilsSet*
+   FARKMASSSPTFQMR            ARKMassSptfqmr and ARKSpilsSetMass*
+   FARKMASSSPTFQMRREINIT      ARKSpilsSetMass*
 
    FARKSPFGMR                 ARKSpfgmr and ARKSpilsSet*
    FARKSPFGMRREINIT           ARKSpilsSet*
+   FARKMASSSPFGMR             ARKwMASSMassSpfgmr and ARKSpilsSetMASS*
+   FARKMASSSPFGMRREINIT       ARKSpilsSetMASS*
 
    FARKPCG                    ARKPcg and ARKSpilsSet*
    FARKPCGREINIT              ARKSpilsSet*
+   FARKMASSPCG                ARKMASSPcg and ARKSpilsSetMASS*
+   FARKMASSPCGREINIT          ARKSpilsSetMASS*
 
    FARKSPILSSETJAC            ARKSpilsSetJacTimesVecFn
    FARKSPILSSETPREC           ARKSpilsSetPreconditioner
+   FARKSPILSSETMASS           ARKSpilsSetMassTimesVecFn
+   FARKSPILSSETMASSPREC       ARKSpilsSetMassPreconditioner
  
    FARKODE                    ARKode, ARKodeGet*, and ARK*Get*
    FARKDKY                    ARKodeGetDky
@@ -103,19 +128,25 @@
  function which calls it (and its type within ARKODE), are as follows:
 
    Fortran:           Interface Fcn:           ARKODE Type:
-   -------------      ------------------       ---------------------
+   -------------      ------------------       -----------------------
    FARKIFUN           FARKfi                   ARKRhsFn
    FARKEFUN           FARKfe                   ARKRhsFn
    FARKDJAC           FARKDenseJac             ARKDlsDenseJacFn
+   FARKDMASS          FARKDenseMass            ARKDlsDenseMassFn
    FARKBJAC           FARKBandJac              ARKDlsBandJacFn
+   FARKBMASS          FARKBandMass             ARKDlsBandMassFn
    FARKSPJAC          FARKSparseJac            ARKSlsSparseJacFn
+   FARKSPMASS         FARKSparseMass           ARKSlsSparseMassFn
    FARKPSOL           FARKPSol                 ARKSpilsPrecSolveFn
    FARKPSET           FARKPSet                 ARKSpilsPrecSetupFn
+   FARKMASSPSOL       FARKMassPSol             ARKSpilsMassPrecSolveFn
+   FARKMASSPSET       FARKMassPSet             ARKSpilsMassPrecSetupFn
    FARKJTIMES         FARKJtimes               ARKSpilsJacTimesVecFn
+   FARKMTIMES         FARKMtimes               ARKSpilsMassTimesVecFn
    FARKEWT            FARKEwt                  ARKEwtFn
    FARKADAPT          FARKAdapt                ARKAdaptFn
    FARKEXPSTAB        FARKExpStab              ARKExpStabFn
-   -------------      ------------------       ---------------------
+   -------------      ------------------       -----------------------
 
  In contrast to the case of direct use of ARKODE, and of most Fortran ODE
  solvers, the names of all user-supplied routines here are fixed, in
@@ -231,6 +262,33 @@
                  >0 if a recoverable error occurred,
                  <0 if an unrecoverable error ocurred.
  
+ (2s) Optional user-supplied dense mass matrix routine: FARKDMASS
+
+     Required when using the DENSE or LAPACKDENSE mass matrix linear solvers,
+     the user must supply a routine that computes the system mass matrix M.  
+     This routine must have the following form: 
+
+       SUBROUTINE FARKDMASS(NEQ, T, DMASS, IPAR, RPAR, WK1, WK2, WK3, IER)
+
+     Typically this routine will use only NEQ, T, and DMASS. It must compute
+     the mass matrix and store it column-wise in DMASS.
+
+     The arguments are:
+       NEQ   -- number of rows in the matrix [long int, input]
+       T     -- current time [realtype, input]
+       DMASS -- 2D array containing the mass matrix entries [realtype 
+                of size (NEQ,NEQ), output]
+       IPAR  -- array containing integer user data that was passed to
+                FARKMALLOC [long int, input]
+       RPAR  -- array containing real user data that was passed to
+                FARKMALLOC [realtype, input]
+       WK*   -- array containing temporary workspace of same size as Y 
+                [realtype, input]
+       IER   -- return flag [int, output]:
+                   0 if successful, 
+                  >0 if a recoverable error occurred,
+                  <0 if an unrecoverable error ocurred.
+ 
  (3s) Optional user-supplied band Jacobian approximation routine: FARKBJAC
 
      As an option when using the BAND linear solver, the user may supply a
@@ -267,7 +325,41 @@
                  >0 if a recoverable error occurred,
                  <0 if an unrecoverable error ocurred.
  
- (4s) User-supplied sparse Jacobian approximation routine: FARKSPJAC
+ (4s) Optional user-supplied band Mass matrix routine: FARKBMASS
+
+     Required when using the BAND or LAPACKBAND mass matrix linear solvers, 
+     the user must supply a routine that computes the system mass matrix M.  
+     This routine must have the following form: 
+
+       SUBROUTINE FARKBMASS(NEQ, MU, ML, MDIM, T, BMASS, IPAR, 
+      &                     RPAR, WK1, WK2, WK3, IER)
+
+     Typically this routine will use only NEQ, MU, ML, T, and BMASS. It 
+     must load the MDIM by N array BMASS with the system mass matrix at 
+     the current (t) in band form.  Store in BMASS(k,j) the mass matrix 
+     element M(i,j)  with k = i - j + MU + 1 (k = 1 ... ML+MU+1) and 
+     j = 1 ... N.
+
+     The arguments are:
+       NEQ   -- number of rows in the matrix [long int, input]
+       MU    -- upper half-bandwidth of the matrix [long int, input]
+       ML    -- lower half-bandwidth of the matrix [long int, input]
+       MDIM  -- leading dimension of BMASS array [long int, input]
+       T     -- current time [realtype, input]
+       BMASS -- 2D array containing the mass matrix entries [realtype 
+                of size (MDIM,NEQ), output]
+       IPAR  -- array containing integer user data that was passed to
+                FARKMALLOC [long int, input]
+       RPAR  -- array containing real user data that was passed to
+                FARKMALLOC [realtype, input]
+       WK*   -- array containing temporary workspace of same size as Y 
+                [realtype, input]
+       IER   -- return flag [int, output]:
+                   0 if successful, 
+                  >0 if a recoverable error occurred,
+                  <0 if an unrecoverable error ocurred.
+ 
+ (5s) User-supplied sparse Jacobian approximation routine: FARKSPJAC
 
      Required when using the ARKKLU or ARKSuperLUMT linear solvers, the 
      user must supply a routine that computes a compressed-sparse-column 
@@ -308,7 +400,46 @@
                    >0 if a recoverable error occurred,
                    <0 if an unrecoverable error ocurred.
  
- (5) Optional user-supplied Jacobian-vector product routine: FARKJTIMES
+ (6s) User-supplied sparse Mass matrix routine: FARKSPMASS
+
+     Required when using the ARKMassKLU or ARKMassSuperLUMT mass matrix 
+     linear solvers, the user must supply a routine that computes a 
+     compressed-sparse-column version of the (possibly time-dependent) 
+     system mass matrix M(t).  If supplied, it must have the following 
+     form:
+
+       SUBROUTINE FARKSPMASS(T, N, NNZ, MDATA, MRVALS, MCPTRS, 
+      &                      IPAR, RPAR, WK1, WK2, WK3, IER)
+
+     Typically this routine will use only M, N, NNZ, MDATA, MRVALS and 
+     MCPTRS. It must load the N by N compressed sparse column matrix 
+     with storage for NNZ nonzeros, stored in the arrays MDATA (nonzero
+     values), MRVALS (row indices for each nonzero), MCOLPTRS (indices 
+     for start of each column), with the system mass matrix at the current
+     (t) in CSC form (see sundials_sparse.h for more information).
+
+     The arguments are:
+         T    -- current time [realtype, input]
+         N    -- number of rows/columns in mass matrix [int, input]
+         NNZ  -- allocated length of nonzero storage [int, input]
+        MDATA -- nonzero values in mass matrix
+                 [realtype of length NNZ, output]
+       MRVALS -- row indices for each nonzero in mass matrix
+                  [int of length NNZ, output]
+       MCPTRS -- pointers to each mass matrix column in preceding arrays
+                 [int of length N+1, output]
+         IPAR -- array containing integer user data that was passed to
+                 FARKMALLOC [long int, input]
+         RPAR -- array containing real user data that was passed to
+                 FARKMALLOC [realtype, input]
+         WK*  -- array containing temporary workspace of same size as Y 
+                 [realtype, input]
+         IER  -- return flag [int, output]:
+                    0 if successful, 
+                   >0 if a recoverable error occurred,
+                   <0 if an unrecoverable error ocurred.
+ 
+ (7) Optional user-supplied Jacobian-vector product routine: FARKJTIMES
 
      As an option when using the SP* linear solver, the user may supply a
      routine that computes the product of the system Jacobian 
@@ -338,7 +469,31 @@
                   0 if successful, 
                   nonzero if an error.
  
- (6) Optional user-supplied error weight vector routine: FARKEWT
+ (8) User-supplied mass-matrix-vector product routine: FARKMTIMES
+
+     Required when using the SP* linear solvers, the user should supply a
+     routine that computes the product of the system mass matrix M and a 
+     given vector v.  It must have the following form:
+
+       SUBROUTINE FARKMTIMES(V, MV, T, IPAR, RPAR, IER)
+
+     Typically this routine will use only NEQ, T, V, and MV.  It must
+     compute the product vector M*v where v is stored in the vector V
+     and the result M*v is stored in MV.
+
+     The arguments are:
+       V    -- array containing vector to multiply [realtype, input]
+       MV   -- array containing product vector [realtype, output]
+       T    -- current time [realtype, input]
+       IPAR -- array containing integer user data that was passed to
+               FARKMALLOC [long int, input]
+       RPAR -- array containing real user data that was passed to
+               FARKMALLOC [realtype, input]
+       IER  -- return flag [int, output]:
+                  0 if successful, 
+                  nonzero if an error.
+ 
+ (9) Optional user-supplied error weight vector routine: FARKEWT
  
      As an option to providing the relative and absolute tolerances, the user
      may supply a routine that computes the weights used in the WRMS norms.
@@ -359,7 +514,7 @@
                   0 if successful, 
                   nonzero if an error.
 
- (7) Optional user-supplied error weight vector routine: FARKADAPT
+ (10) Optional user-supplied error weight vector routine: FARKADAPT
  
      As an option to providing the time step adaptivity, the user
      may supply a routine that computes the new time step for ARKode to 
@@ -391,7 +546,7 @@
                   0 if successful, 
                   nonzero if an error.
 
- (8) Optional user-supplied explicitly stable time step routine: FARKEXPSTAB
+ (11) Optional user-supplied explicitly stable time step routine: FARKEXPSTAB
  
      As an option, the user may provide a routine to return the maximum stable 
      time step size for the explicit ODE RHS function.  If supplied, it must 
@@ -415,10 +570,10 @@
 
  -----------------------------------------------------------------------------
 
- (9) Initialization:  FNVINITS/FNVINITP/FNVINITOMP/FNVINITPTS, 
-                      FARKMALLOC, FARKREINIT, FARKRESIZE
+ (12) Initialization:  FNVINITS/FNVINITP/FNVINITOMP/FNVINITPTS, 
+                       FARKMALLOC, FARKREINIT, FARKRESIZE
  
- (9.1s) To initialize the serial vector specification, the user must make the
+ (12.1s) To initialize the serial vector specification, the user must make the
      following call:
 
         CALL FNVINITS(4, NEQ, IER)
@@ -430,7 +585,7 @@
 	          0 = success, 
 		 -1 = failure.
  
- (9.1p) To initialize the distributed memory parallel machine environment, 
+ (12.1p) To initialize the distributed memory parallel machine environment, 
         the user must make the following call:
 
         CALL FNVINITP(COMM, 4, NLOCAL, NGLOBAL, IER)
@@ -448,27 +603,27 @@
      MPI_COMM_WORLD.  If not, this routine initializes MPI and sets the
      communicator equal to MPI_COMM_WORLD.
  
- (9.1omp) To initialize the openMP threaded vector kernel, 
+ (12.1omp) To initialize the openMP threaded vector kernel, 
           the user must make the following call:
 
-          CALL FNVINITOMP (3, NEQ, NUM_THREADS, IER)
+          CALL FNVINITOMP(3, NEQ, NUM_THREADS, IER)
 
         The arguments are:
           NEQ = size of vectors
           NUM_THREADS = number of threads
           IER = return completion flag. Values are 0 = success, -1 = failure.
 
- (9.1pts) To initialize the Pthreads threaded vector kernel, 
+ (12.1pts) To initialize the Pthreads threaded vector kernel, 
           the user must make the following call:
 
-          CALL FNVINITOMP (3, NEQ, NUM_THREADS, IER)
+          CALL FNVINITPTS(3, NEQ, NUM_THREADS, IER)
 
         The arguments are:
           NEQ = size of vectors
           NUM_THREADS = number of threads
           IER = return completion flag. Values are 0 = success, -1 = failure.
 
- (9.2) To set various problem and solution parameters and allocate
+ (12.2) To set various problem and solution parameters and allocate
      internal memory, make the following call:
 
        CALL FARKMALLOC(T0, Y0, IMEX, IATOL, RTOL, ATOL, IOUT, ROUT, 
@@ -526,31 +681,34 @@
            UROUND  = ROUT( 6) from UNIT_ROUNDOFF
      See the ARKODE manual for details. 
 
- (9.2a) If the user program includes the FARKEWT routine for the evaluation 
+ (12.3) If the user program includes the FARKEWT routine for the evaluation 
      of the error weights, the following call must be made
 
        CALL FARKEWTSET(FLAG, IER)
 
-     with the int argument FLAG = 1 to specify that FARKEWT is provided.
-     The int return flag IER is 0 if successful, and nonzero otherwise.
+     with the int argument FLAG = 1 to specify that FARKEWT is provided and 
+     should be used; FLAG = 0 resets to the default EWT formulation.  The int 
+     return flag IER is 0 if successful, and nonzero otherwise.
 
- (9.2b) If the user program includes the FARKADAPT routine for performing 
+ (12.4) If the user program includes the FARKADAPT routine for performing 
      step adaptivity, the following call must be made
 
        CALL FARKADAPTSET(FLAG, IER)
 
-     with the int argument FLAG = 1 to specify that FARKADAPT is provided.
+     with the int argument FLAG = 1 to specify that FARKADAPT is provided and 
+     should be used; FLAG = 0 resets to the default adaptivity formulation. 
      The int return flag IER is 0 if successful, and nonzero otherwise.
 
- (9.2c) If the user program includes the FARKEXPSTAB routine for calculation of
+ (12.5) If the user program includes the FARKEXPSTAB routine for calculation of
      the maximum explicitly stable step size, the following call must be made
 
        CALL FARKEXPSTABSET(FLAG, IER)
 
-     with the int argument FLAG = 1 to specify that FARKEXPSTAB is provided.
+     with the int argument FLAG = 1 to specify that FARKEXPSTAB is provided and
+     should be used; FLAG = 0 resets to the default explicit stability formulation.
      The int return flag IER is 0 if successful, and nonzero otherwise.
 
- (9.3) To re-initialize the ARKODE solver for the solution of a new problem
+ (12.6) To re-initialize the ARKODE solver for the solution of a new problem
      of the same size as one already solved, make the following call:
 
        CALL FARKREINIT(T0, Y0, IMEX, IATOL, RTOL, ATOL, IER)
@@ -561,7 +719,7 @@
      the previous FARKMALLOC call.  The subsequent call to specify the linear 
      system solution method may or may not be needed; see paragraph (9) below.
  
- (9.4) To re-initialize the ARKODE solver for the solution of a new problem
+ (12.7) To re-initialize the ARKODE solver for the solution of a new problem
      of a different size as one already solved, but with the same dynamical 
      time scale and method choice, make the following call:
 
@@ -592,7 +750,7 @@
      system solution method is required, since its internal memory 
      structures will no longer be the correct size.; see paragraph (9) below.
  
- (9.5) To set various integer optional inputs, make the folowing call:
+ (12.8) To set various integer optional inputs, make the folowing call:
 
        CALL FARKSETIIN(KEY, VALUE, IER)
 
@@ -689,7 +847,7 @@
        B2 = array of length S containing the embedding coefficients
            [realtype, input]
 
- (9.6) To set a solver diagnostics output file, make the folowing call:
+ (12.9) To set a solver diagnostics output file, make the folowing call:
 
        CALL FARKSETDIAGNOSTICS(FNAME, FLEN, IER)
 
@@ -698,7 +856,7 @@
      the length (in characters) of FNAME (for portability).  The int return 
      flag IER is 0 if successful (able to open file), and nonzero otherwise.
 
- (9.7) To close the solver diagnostics output file, make the folowing call:
+ (12.10) To close the solver diagnostics output file, make the folowing call:
 
        CALL FARKSTOPDIAGNOSTICS(IER)
 
@@ -708,7 +866,7 @@
 
  -----------------------------------------------------------------------------
 
- (10) Specification of linear system solution method.
+ (13) Specification of linear system solution method.
 
      In the case of using either an implicit or ImEx method and a Newton 
      iteration, the solution of each Runge-Kutta stage may involve the 
@@ -720,7 +878,7 @@
      specification routines must be called again to set up the linear solver
      memory.
 
- (10.1s) DENSE treatment of the linear system.
+ (13.1s) DENSE treatment of the linear system.
 
      The user must make the call
 
@@ -738,9 +896,9 @@
 
        CALL FARKDENSESETJAC(FLAG, IER)
 
-     with the int FLAG=1 to specify that FARKDJAC is provided (FLAG=0 
-     specifies to use the internal finite differences approximation to the
-     Jacobian).  The int return flag IER=0 if successful, and nonzero 
+     with the int FLAG=1 to specify that FARKDJAC is provided and should be 
+     used; FLAG=0 specifies a reset to the internal finite difference Jacobian
+     approximation.  The int return flag IER=0 if successful, and nonzero 
      otherwise.
  
      Optional outputs specific to the DENSE case are:
@@ -751,7 +909,35 @@
         NJED    = IOUT(18) from ARKDlsGetNumJacEvals
      See the ARKODE manual for descriptions.
  
- (10.2s) BAND treatment of the linear system
+ (13.2s) DENSE treatment of the mass matrix linear system.
+
+     The user must make the call
+
+       CALL FARKMASSDENSE(NEQ, IER)
+
+     The arguments are:
+        NEQ = the problem size [long int; input]
+	IER = error return flag [int, output]: 
+	         0 = success, 
+		 negative = error.
+ 
+     When using MASSDENSE, the user program must provide the FARKDMASS routine 
+     for the evaluation of the dense mass matrix.  To indicate that this routine
+     has been provided, following the call to FARKMASSDENSE, the following call 
+     must be made 
+
+       CALL FARKDENSESETMASS(IER)
+
+     The int return flag IER=0 if successful, nonzero otherwise.
+ 
+     Optional outputs specific to the MASSDENSE case are:
+        LENRWMS = IOUT(23) from ARKDlsGetMassWorkSpace (realtype space)
+        LENIWMS = IOUT(24) from ARKDlsGetMassWorkSpace (integer space)
+        LSTMF   = IOUT(25) from ARKDlsGetLastMassFlag
+        NME     = IOUT(26) from ARKDlsGetNumMassEvals
+     See the ARKODE manual for descriptions.
+ 
+ (13.3s) BAND treatment of the linear system
 
      The user must make the call
 
@@ -769,9 +955,9 @@
 
        CALL FARKBANDSETJAC(FLAG, IER)
 
-     with the int FLAG=1 to specify that FARKBJAC is provided (FLAG=0 
-     specifies to use the internal finite differences approximation to the 
-     Jacobian).  The int return flag IER=0 if successful, nonzero otherwise.
+     with the int FLAG=1 to specify that FARKBJAC is provided and should be 
+     used; FLAG=0 specifies a reset to the internal finite difference Jacobian 
+     approximation.  The int return flag IER=0 if successful, nonzero otherwise.
  
      Optional outputs specific to the BAND case are:
         LENRWLS = IOUT(14) from ARKDlsGetWorkSpace (realtype space)
@@ -781,7 +967,35 @@
         NJED    = IOUT(18) from ARKDlsGetNumJacEvals
      See the ARKODE manual for descriptions.
 
- (10.3s) LAPACK dense treatment of the linear system
+ (13.4s) BAND treatment of the mass matrix linear system
+
+     The user must make the call
+
+       CALL FARKMASSBAND(NEQ, MU, ML, IER)
+
+     The arguments are:
+        NEQ = problem size [long int, input]
+	MU = upper bandwidth [long int, input]
+	ML = lower bandwidth [long int, input]
+        IER = return flag [int, output]; 0 if successful, nonzero otherwise.
+ 
+     When using MASSBAND, the user program must provide the FARKBMASS routine 
+     for the evaluation of the band mass matrix.  To indicate that this routine
+     has been provided, following the call to FARKMASSBAND, the following call 
+     must be made 
+
+       CALL FARKBANDSETMASS(IER)
+
+     The int return flag IER=0 if successful, nonzero otherwise.
+ 
+     Optional outputs specific to the MASSBAND case are:
+        LENRWMS = IOUT(23) from ARKDlsGetMassWorkSpace (realtype space)
+        LENIWMS = IOUT(24) from ARKDlsGetMassWorkSpace (integer space)
+        LSTMF   = IOUT(25) from ARKDlsGetLastMassFlag
+        NME     = IOUT(26) from ARKDlsGetNumMassEvals
+     See the ARKODE manual for descriptions.
+
+ (13.5s) LAPACK dense treatment of the linear system
 
      The user must make the call
 
@@ -794,12 +1008,32 @@
 
        CALL FARKLAPACKDENSESETJAC(FLAG, IER)
        
-     with the int FLAG=1 if the user provides the function FARKDJAC. 
+     with the int FLAG=1 if the user provides the function FARKDJAC (and 
+     wishes to use it); FLAG=0 implies a reset to the default finite 
+     difference Jacobian approximation.
 
      The optional outputs when using FARKLAPACKDENSE match those from 
      FARKDENSE.
 
- (10.4s) LAPACK band treatment of the linear system
+ (13.6s) LAPACK dense treatment of the mass matrix linear system
+
+     The user must make the call
+
+       CALL FARKMASSLAPACKDENSE(NEQ, IER)
+
+     The arguments match those for FARKMASSDENSE, except that NEQ is 
+     now a normal int (and not a long int).
+
+     Following the call to FARKMASSLAPACKDENSE, the user must call 
+
+       CALL FARKLAPACKDENSESETMASS(IER)
+
+     The int return flag IER=0 if successful, nonzero otherwise.
+ 
+     The optional outputs when using FARKMASSLAPACKDENSE match those 
+     from FARKMASSDENSE.
+
+ (13.7s) LAPACK band treatment of the linear system
 
      The user must make the call
 
@@ -812,11 +1046,31 @@
 
        CALL FARKLAPACKBANDSETJAC(FLAG, IER)
 
-     with the int FLAG=1 if the user provides the function FARKBJAC. 
+     with the int FLAG=1 if the user provides the function FARKBJAC (and 
+     wishes to use it); FLAG=0 implies a reset to the default finite 
+     difference Jacobian approximation.
 
      The optional outputs when using FARKLAPACKBAND match those from FARKBAND.
 
- (10.5s) SPARSE treatment of the linear system using the KLU solver.
+ (13.8s) LAPACK band treatment of the mass matrix linear system
+
+     The user must make the call
+
+       CALL FARKMASSLAPACKBAND(NEQ, MUPPER, MLOWER, IER)
+
+     The arguments match those for FARKMASSBAND, except that now all 
+     arguments have type 'int'.
+
+     Following the call to FARKMASSLAPACKBAND, the user must call 
+
+       CALL FARKLAPACKBANDSETMASS(IER)
+
+     The int return flag IER=0 if successful, nonzero otherwise.
+ 
+     The optional outputs when using FARKMASSLAPACKBAND match those from 
+     FARKMASSBAND.
+
+ (13.9s) SPARSE treatment of the linear system using the KLU solver.
 
      The user must make the call
 
@@ -830,6 +1084,16 @@
 	IER = error return flag [int, output]: 
 	         0 = success, 
 		 negative = error.
+ 
+     When using the KLU solver the user must provide the FARKSPJAC routine for the 
+     evaluation of the sparse approximation to the Jacobian.  To indicate that this
+     routine has been provided, after the call to FARKKLU, the following call must 
+     be made 
+
+       CALL FARKSPARSESETJAC(IER)
+
+     The int return flag IER=0 if successful, and nonzero otherwise.
+ 
  
      The ARKODE KLU solver will reuse much of the factorization information from one
      nonlinear iteration to the next.  If at any time the user wants to force a full
@@ -845,16 +1109,55 @@
           a new one will be allocated with NNZ nonzeros.  For a value of 2, 
 	  only symbolic and numeric factorizations will be completed. 
  
-     When using FARKKLU, the user is required to supply the FARKSPJAC 
-     routine for the evaluation of the sparse approximation to the 
-     Jacobian, as discussed above with the other user-supplied routines.
- 
      Optional outputs specific to the KLU case are:
         LSTF    = IOUT(16) from ARKSlsGetLastFlag
         NJES    = IOUT(18) from ARKSlsGetNumJacEvals
      See the ARKODE manual for descriptions.
  
- (10.6s) SPARSE treatment of the linear system using the SuperLUMT solver.
+ (13.10s) SPARSE treatment of the mass matrix linear system using the KLU solver.
+
+     The user must make the call
+
+       CALL FARKMASSKLU(NEQ, NNZ, ORDERING, IER)
+
+     The arguments are:
+        NEQ = the problem size [int; input]
+        NNZ = the maximum number of mass matrix nonzeros [int; input]
+	ORDERING = the matrix ordering desired, possible values
+	   come from the KLU package (0 = AMD, 1 = COLAMD) [int; input]
+	IER = error return flag [int, output]: 
+	         0 = success, 
+		 negative = error.
+ 
+     When using the MASSKLU solver the user must provide the FARKSPMASS routine for 
+     the evaluation of the sparse mass matrix.  To indicate that this routine has 
+     been provided, after the call to FARKMASSKLU, the following call must be made 
+
+       CALL FARKSPARSESETMASS(IER)
+
+     The int return flag IER=0 if successful, and nonzero otherwise.
+ 
+
+     The ARKODE KLU solver will reuse much of the factorization information from one
+     mass matrix solve to the next.  If at any time the user wants to force a full
+     refactorization or if the number of nonzeros in the mass matrix changes, the
+     user should make the call
+
+       CALL FARKMASSKLUREINIT(NEQ, NNZ, REINIT_TYPE)
+
+     The arguments are:
+        NEQ = the problem size [int; input]
+        NNZ = the maximum number of nonzeros [int; input]
+	REINIT_TYPE = 1 or 2.  For a value of 1, the matrix will be destroyed and 
+          a new one will be allocated with NNZ nonzeros.  For a value of 2, 
+	  only symbolic and numeric factorizations will be completed. 
+ 
+     Optional outputs specific to the MASSKLU case are:
+        LSTMF = IOUT(25) from ARKSlsGetLastMassFlag
+        NME = IOUT(26) from ARKSlsGetNumMassEvals
+     See the ARKODE manual for descriptions.
+ 
+ (13.11s) SPARSE treatment of the linear system using the SuperLUMT solver.
 
      The user must make the call
 
@@ -877,16 +1180,58 @@
      At this time, there is no reinitialization capability for the SUNDIALS 
      interfaces to the SuperLUMT solver.
 
-     When using FARKSUPERLUMT, the user is required to supply the FARKSPJAC 
-     routine for the evaluation of the sparse approximation to the 
-     Jacobian, as discussed above with the other user-supplied routines.
+     When using the SUPERLUMT solver the user must provide the FARKSPJAC routine
+     for the evaluation of the sparse approximation to the Jacobian.  To indicate 
+     that this routine has been provided, after the call to FARKKLU, the following 
+     call must be made 
+
+       CALL FARKSPARSESETJAC(IER)
+
+     The int return flag IER=0 if successful, and nonzero otherwise.
  
      Optional outputs specific to the SUPERLUMT case are:
         LSTF    = IOUT(16) from ARKSlsGetLastFlag
         NJES    = IOUT(18) from ARKSlsGetNumJacEvals
      See the ARKODE manual for descriptions.
  
- (10.7) SPGMR treatment of the linear systems.
+ (13.12s) SPARSE treatment of the mass matrix linear system using the SuperLUMT solver.
+
+     The user must make the call
+
+       CALL FARKMASSSUPERLUMT(NTHREADS, NEQ, NNZ, ORDERING, IER)
+
+     The arguments are:
+        NTHREADS = desired number of threads to use [int; input]
+        NEQ = the problem size [int; input]
+        NNZ = the maximum number of nonzeros [int; input]
+	ORDERING = the matrix ordering desired, possible values
+	   come from the SuperLU_MT package [int; input]
+           0 = Natural
+           1 = Minimum degree on A^T A
+           2 = Minimum degree on A^T + A
+           3 = COLAMD
+	IER = error return flag [int, output]: 
+	         0 = success, 
+		 negative = error.
+ 
+     At this time, there is no reinitialization capability for the SUNDIALS 
+     interfaces to the SuperLUMT solver.
+
+     When using the MASSSUPERLUMT solver the user must provide the FARKSPJAC 
+     routine for the evaluation of the mass matrix.  To indicate that this 
+     routine has been provided, after the call to FARKKLU, the following call
+     must be made 
+
+       CALL FARKSPARSESETMASS(IER)
+
+     The int return flag IER=0 if successful, and nonzero otherwise.
+ 
+     Optional outputs specific to the MASSSUPERLUMT case are:
+        LSTMF = IOUT(25) from ARKSlsGetLastMassFlag
+        NME = IOUT(26) from ARKSlsGetNumMassEvals
+     See the ARKODE manual for descriptions.
+ 
+ (13.13) SPGMR treatment of the linear systems.
 
      For the Scaled Preconditioned GMRES solution of the linear systems,
      the user must make the following call:
@@ -935,7 +1280,55 @@
      Note: if the problem has been resized using FARKRESIZE, then FARKSPGMR 
      must be called again. 
  
- (10.8) SPBCG treatment of the linear systems.
+ (13.14) SPGMR treatment of the mass matrix linear systems.
+
+     For the Scaled Preconditioned GMRES solution of the mass matrix 
+     linear systems, the user must make the following call:
+
+       CALL FARKMASSSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)              
+
+     The arguments are:
+        IPRETYPE = preconditioner type [int, input]: 
+              0 = none 
+              1 = left only
+              2 = right only
+              3 = both sides
+	IGSTYPE = Gram-schmidt process type [int, input]: 
+              1 = modified G-S
+              2 = classical G-S.
+	MAXL = maximum Krylov subspace dimension [int; input]; 
+	      0 = default
+	DELT = linear convergence tolerance factor [realtype, input]; 
+	      0.0 = default.
+	IER = error return flag [int, output]: 
+	       0 = success; 
+	      <0 = an error occured
+ 
+     Optional outputs specific to the MASSSPGMR case are:
+        LENRWMS = IOUT(23) from ARKSpilsGetMassWorkSpace
+        LENIWMS = IOUT(24) from ARKSpilsGetMassWorkSpace
+        LSTMF   = IOUT(25) from ARKSpilsGetLastMassFlag
+        NMPE    = IOUT(26) from ARKSpilsGetNumMassPrecEvals
+        NMPS    = IOUT(27) from ARKSpilsGetNumMassPrecSolves
+        NMLI    = IOUT(28) from ARKSpilsGetNumMassIters
+        NMCFL   = IOUT(29) from ARKSpilsGetNumMassConvFails
+     See the ARKODE manual for descriptions.
+ 
+     If a sequence of problems of the same size is being solved using the
+     MASSSPGMR linear solver, then following the call to FARKREINIT, a call
+     to the FARKMASSSPGMRREINIT routine is needed if any of IPRETYPE, 
+     IGSTYPE, DELT is being changed.  In that case, call FARKMASSSPGMRREINIT 
+     as follows:
+
+       CALL FARKMASSSPGMRREINIT(IPRETYPE, IGSTYPE, DELT, IER)
+
+     The arguments have the same meanings as for FARKMASSSPGMR.  If MAXL is 
+     being changed, then the user should call FARKMASSSPGMR instead.  
+
+     Note: if the problem has been resized using FARKRESIZE, then 
+     FARKMASSSPGMR must be called again. 
+ 
+ (13.15) SPBCG treatment of the linear systems.
 
      For the Scaled Preconditioned Bi-CGSTAB solution of the linear systems,
      the user must make the following call:
@@ -970,7 +1363,42 @@
      Note: if the problem has been resized using FARKRESIZE, then FARKSPBCG 
      must be called again. 
 
- (10.9) SPTFQMR treatment of the linear systems.
+ (13.16) SPBCG treatment of the mass matrix linear systems.
+
+     For the Scaled Preconditioned Bi-CGSTAB solution of the mass matrix 
+     linear systems, the user must make the following call:
+
+       CALL FARKMASSSPBCG(IPRETYPE, MAXL, DELT, IER)              
+
+     The arguments are:
+       IPRETYPE = preconditioner type [int, input]: 
+              0 = none 
+              1 = left only
+              2 = right only
+              3 = both sides
+       MAXL = maximum Krylov subspace dimension [int, input]; 0 = default.
+       DELT = linear convergence tolerance factor [realtype, input]; 
+              0.0 = default.
+       IER = error return flag [int, output]: 
+              0 = success; 
+	     <0 = an error occured
+ 
+     Optional outputs specific to the MASSSPBCG case are identical to 
+     those from MASSSPGMR.
+ 
+     If a sequence of problems of the same size is being solved using the
+     MASSSPBCG linear solver, then following the call to FARKREINIT, a call 
+     to the FARKMASSSPBCGREINIT routine is needed if any of its arguments 
+     is being changed.  The call is:
+
+       CALL FARKMASSSPBCGREINIT(IPRETYPE, MAXL, DELT, IER)              
+
+     The arguments have the same meanings as for FARKMASSSPBCG.
+
+     Note: if the problem has been resized using FARKRESIZE, then 
+     FARKMASSSPBCG must be called again. 
+
+ (13.17) SPTFQMR treatment of the linear systems.
 
      For the Scaled Preconditioned TFQMR solution of the linear systems, the
      user must make the following call:
@@ -1005,7 +1433,42 @@
      Note: if the problem has been resized using FARKRESIZE, then FARKSPTFQMR 
      must be called again. 
 
- (10.10) SPFGMR treatment of the linear systems.
+ (13.18) SPTFQMR treatment of the mass matrix linear systems.
+
+     For the Scaled Preconditioned TFQMR solution of the mass matrix 
+     linear systems, the user must make the following call:
+
+       CALL FARKMASSSPTFQMR(IPRETYPE, MAXL, DELT, IER)              
+
+     The arguments are:
+       IPRETYPE = preconditioner type [int, input]: 
+              0 = none 
+              1 = left only
+              2 = right only
+              3 = both sides
+       MAXL = maximum Krylov subspace dimension [int, input]; 0 = default.
+       DELT = linear convergence tolerance factor [realtype, input]
+	      0.0 = default.
+       IER = error return flag [int, output]: 
+              0 = success; 
+	     <0 = an error occured
+ 
+     Optional outputs specific to the MASSSPTFQMR case are identical to 
+     those from MASSSPGMR.
+ 
+     If a sequence of problems of the same size is being solved using the
+     MASSSPTFQMR linear solver, then following the call to FARKREINIT, a 
+     call to the FARKMASSSPTFQMRREINIT routine is needed if any of its 
+     arguments is being changed.  The call is:
+
+       CALL FARKMASSSPTFQMRREINIT(IPRETYPE, MAXL, DELT, IER)              
+
+     The arguments have the same meanings as for FARKMASSSPTFQMR.
+
+     Note: if the problem has been resized using FARKRESIZE, then 
+     FARKMASSSPTFQMR must be called again. 
+
+ (13.19) SPFGMR treatment of the linear systems.
 
      For the Scaled Preconditioned Flexible GMRES solution of the linear 
      systems, the user must make the following call:
@@ -1045,7 +1508,48 @@
      Note: if the problem has been resized using FARKRESIZE, then FARKSPFGMR 
      must be called again. 
  
- (10.11) PCG treatment of the linear systems.
+ (13.20) SPFGMR treatment of the mass matrix linear systems.
+
+     For the Scaled Preconditioned Flexible GMRES solution of the mass 
+     matrix linear systems, the user must make the following call:
+
+       CALL FARKMASSSPFGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)              
+
+     The arguments are:
+        IPRETYPE = preconditioner type [int, input]: 
+              0 = none 
+              1 = left only
+              2 = right only
+              3 = both sides
+	IGSTYPE = Gram-schmidt process type [int, input]: 
+              1 = modified G-S
+              2 = classical G-S.
+	MAXL = maximum Krylov subspace dimension [int; input]; 
+	      0 = default
+	DELT = linear convergence tolerance factor [realtype, input]; 
+	      0.0 = default.
+	IER = error return flag [int, output]: 
+	       0 = success; 
+	      <0 = an error occured
+ 
+     Optional outputs specific to the MASSSPFGMR case are identical to 
+     those from MASSSPGMR.
+ 
+     If a sequence of problems of the same size is being solved using the
+     MASSSPFGMR linear solver, then following the call to FARKREINIT, a 
+     call to the FARKMASSSPFGMRREINIT routine is needed if any of IPRETYPE, 
+     IGSTYPE, DELT is being changed.  In that case, call 
+     FARKMASSSPFGMRREINIT as follows:
+
+       CALL FARKMASSSPFGMRREINIT(IPRETYPE, IGSTYPE, DELT, IER)
+
+     The arguments have the same meanings as for FARKMASSSPFGMR.  If MAXL 
+     is being changed, then the user should call FARKMASSSPFGMR instead.  
+
+     Note: if the problem has been resized using FARKRESIZE, then 
+     FARKMASSSPFGMR must be called again. 
+ 
+ (13.21) PCG treatment of the linear systems.
 
      For the Preconditioned Conjugate Gradient solution of the linear systems,
      the user must make the following call:
@@ -1080,7 +1584,42 @@
      Note: if the problem has been resized using FARKRESIZE, then FARKPCG
      must be called again. 
 
- (10.12) Usage of user-supplied routines for the Krylov solvers
+ (13.22) PCG treatment of the mass matrix linear systems.
+
+     For the Preconditioned Conjugate Gradient solution of the mass matrix 
+     linear systems, the user must make the following call:
+
+       CALL FARKMASSPCG(IPRETYPE, MAXL, DELT, IER)              
+
+     The arguments are:
+       IPRETYPE = preconditioner type [int, input]: 
+              0 = none 
+              1 = left only
+              2 = right only
+              3 = both sides
+       MAXL = maximum Krylov subspace dimension [int, input]; 0 = default.
+       DELT = linear convergence tolerance factor [realtype, input]; 
+              0.0 = default.
+       IER = error return flag [int, output]: 
+              0 = success; 
+	     <0 = an error occured
+ 
+     Optional outputs specific to the MASSPCG case are identical to 
+     those from MASSSPGMR.
+ 
+     If a sequence of problems of the same size is being solved using the
+     MASSPCG linear solver, then following the call to FARKREINIT, a call 
+     to the FARKMASSPCGREINIT routine is needed if any of its arguments 
+     is being changed.  The call is:
+
+       CALL FARKMASSPCGREINIT(IPRETYPE, MAXL, DELT, IER)              
+
+     The arguments have the same meanings as for FARKMASSPCG.
+
+     Note: if the problem has been resized using FARKRESIZE, then 
+     FARKMASSPCG must be called again. 
+
+ (13.23) Usage of user-supplied routines for the system Krylov solvers
 
      If the user program includes the FARKJTIMES routine for the evaluation of
      the Jacobian vector product, then after specifying the linear solver 
@@ -1088,9 +1627,10 @@
 
        CALL FARKSPILSSETJAC(FLAG, IER)
 
-     with the int FLAG=1 to specify that FARKJTIMES is provided (FLAG=0 
-     specifies to use and internal finite difference approximation to this 
-     product).  The int return flag IER=0 if successful, and nonzero otherwise.
+     with the int FLAG=1 to specify that FARKJTIMES is provided and should
+     be used; FLAG=0 specifies a reset to the internal finite difference 
+     approximation to this product).  The int return flag IER=0 if 
+     successful, and nonzero otherwise.
  
      Usage of the user-supplied routines FARKPSOL and FARKPSET for solution of
      the preconditioner linear system similarly requires the following call after 
@@ -1098,8 +1638,8 @@
 
        CALL FARKSPILSSETPREC(FLAG, IER)
 
-     with the int FLAG=1. The return flag IER=0 if successful, nonzero 
-     otherwise.
+     with the int FLAG=1.  If FLAG=0 then preconditioning with these routines 
+     will be disabled. The return flag IER=0 if successful, nonzero otherwise.
 
      NOTE: following any call to FARKRESIZE, either of the above routines must 
      again be called following re-specification of the linear solver module.
@@ -1111,7 +1651,7 @@
      This routine must set up the preconditioner P to be used in the 
      subsequent call to FARKPSOL.  The preconditioner (or the product of the 
      left and right preconditioners if using both) should be an approximation 
-     to the matrix  I - GAMMA*J  (I = identity, J = Jacobian),
+     to the matrix  M(T) - GAMMA*J  (M(T) = mass matrix, J = Jacobian),
 
      The arguments are:
        T = current time [realtype, input]
@@ -1143,8 +1683,8 @@
      Typically this routine will use only T, Y, GAMMA, R, LR, and Z.  It
      must solve the preconditioner linear system Pz = r.  The preconditioner
      (or the product of the left and right preconditioners if both are 
-     nontrivial) should be an approximation to the matrix  I - GAMMA*J  
-     (I = identity, J = Jacobian).
+     nontrivial) should be an approximation to the matrix  M(T) - GAMMA*J  
+     (M(T) = mass matrix, J = Jacobian).
 
      The arguments are:
        T = current time [realtype, input]
@@ -1166,9 +1706,84 @@
 		 >0 = recoverable failure
                  <0 = non-recoverable failure
 
+ (13.24) Usage of user-supplied routines for the mass matrix Krylov solvers
+
+     When using any of the MASSSPGMR, MASSSPBCG, MASSSPTFQMR, MASSSPFGMR or 
+     MASSPCG mass matrix linear solvers, the user must supply the 
+     FARKMTIMES routine for the evaluation of the mass matrix vector product.  
+     After specifying the linear solver choice (e.g. FARKMASSSPGMR), the 
+     following call must be made
+
+       CALL FARKSPILSSETMASS(IER)
+
+     The int return flag IER=0 if successful, and nonzero otherwise.
+
+ 
+     Usage of the user-supplied routines FARKMASSPSOL and FARKMASSPSET for 
+     solution of the mass matrix preconditioner linear system similarly 
+     requires the following call after specifying the mass matrix linear 
+     solver module:
+
+       CALL FARKSPILSSETMASSPREC(FLAG, IER)
+
+     with the int FLAG=1. If FLAG=0 then preconditioning with these routines 
+     will be disabled. The return flag IER=0 if successful, nonzero otherwise.
+
+     NOTE: following any call to FARKRESIZE, the above routine must again 
+     be called following re-specification of the linear solver module.
+
+     The user-supplied routine FARKMASSPSET must have the form:
+
+       SUBROUTINE FARKMASSPSET(T,IPAR,RPAR,V1,V2,V3,IER)
+
+     This routine must set up the preconditioner P to be used in the 
+     subsequent call to FARKMASSPSOL.  The preconditioner (or the product 
+     of the left and right preconditioners if using both) should be an 
+     approximation to the system mass matrix M.
+
+     The arguments are:
+       T = current time [realtype, input]
+       IPAR = array of user integer data [long int, input/output]
+       RPAR = array with user real data [realtype, input/output]
+       V* -- array containing temporary workspace of same size as Y 
+               [realtype, input]
+       IER  = return completion flag [int, output]:
+                  0 = SUCCESS,
+		 >0 = recoverable failure
+                 <0 = non-recoverable failure
+
+     The user-supplied routine FARKMASSPSOL must have the form:
+
+       SUBROUTINE FARKMASSPSOL(T,R,Z,DELTA,LR,IPAR,RPAR,VT,IER)
+
+       DIMENSION VT(*), R(*), Z(*), IPAR(*), RPAR(*)
+
+     Typically this routine will use only T, R, LR, and Z.  It
+     must solve the preconditioner linear system Pz = r.  The 
+     preconditioner (or the product of the left and right 
+     preconditioners if both are nontrivial) should be an 
+     approximation to the system mass matrix M.
+
+     The arguments are:
+       T = current time [realtype, input]
+       R = right-hand side array [realtype, input]
+       Z = solution array [realtype, output]
+       DELTA = desired residual tolerance [realtype, input]
+       LR = flag denoting to solve the right or left preconditioner system
+                  1 = left preconditioner
+		  2 = right preconditioner
+       IPAR = array of user integer data [long int, input/output]
+       RPAR = array with user real data [realtype, input/output]
+       VT -- array containing temporary workspace of same size as Y 
+               [realtype, input]
+       IER  = return completion flag [int, output]:
+                  0 = SUCCESS,
+		 >0 = recoverable failure
+                 <0 = non-recoverable failure
+
  -----------------------------------------------------------------------------
 
- (11) The integrator: FARKODE
+ (14) The integrator: FARKODE
 
      Carrying out the integration is accomplished by making calls as follows:
 
@@ -1196,7 +1811,7 @@
  
  -----------------------------------------------------------------------------
 
- (12) Computing solution derivatives: FARKDKY
+ (15) Computing solution derivatives: FARKDKY
 
      To obtain a derivative of the solution, of order up to the method order,
      make the following call:
@@ -1212,7 +1827,7 @@
  
  -----------------------------------------------------------------------------
 
- (13) Get the current weight vector: FARKGETERRWEIGHTS
+ (16) Get the current weight vector: FARKGETERRWEIGHTS
 
      To obtain the current weight vector, make the following call:
 
@@ -1224,7 +1839,7 @@
  
  -----------------------------------------------------------------------------
 
- (14) Get an estimate of the local error: FARKGETESTLOCALERR
+ (17) Get an estimate of the local error: FARKGETESTLOCALERR
 
      To obtain the current error estimate vector, make the following call:
 
@@ -1236,10 +1851,10 @@
  
  -----------------------------------------------------------------------------
 
- (15) Memory freeing: FARKFREE 
+ (18) Memory freeing: FARKFREE 
 
      To free the internal memory created by the calls to FARKMALLOC and
-     FNVINITS or FNVINITP, make the call
+     FNVINITS, FNVINITOMP, FNVINITPTS or FNVINITP, make the call
 
        CALL FARKFREE()
  
@@ -1275,38 +1890,69 @@ extern "C" {
 #define FARK_STOPDIAGNOSTICS     SUNDIALS_F77_FUNC(farkstopdiagnostics,     FARKSTOPDIAGNOSTICS)
 #define FARK_DENSE               SUNDIALS_F77_FUNC(farkdense,               FARKDENSE)
 #define FARK_DENSESETJAC         SUNDIALS_F77_FUNC(farkdensesetjac,         FARKDENSESETJAC)
+#define FARK_MASSDENSE           SUNDIALS_F77_FUNC(farkmassdense,           FARKMASSDENSE)
+#define FARK_DENSESETMASS        SUNDIALS_F77_FUNC(farkdensesetmass,        FARKDENSESETMASS)
 #define FARK_BAND                SUNDIALS_F77_FUNC(farkband,                FARKBAND)
 #define FARK_BANDSETJAC          SUNDIALS_F77_FUNC(farkbandsetjac,          FARKBANDSETJAC)
+#define FARK_MASSBAND            SUNDIALS_F77_FUNC(farkmassband,            FARKMASSBAND)
+#define FARK_BANDSETMASS         SUNDIALS_F77_FUNC(farkbandsetmass,         FARKBANDSETMASS)
 #define FARK_LAPACKDENSE         SUNDIALS_F77_FUNC(farklapackdense,         FARKLAPACKDENSE)
 #define FARK_LAPACKDENSESETJAC   SUNDIALS_F77_FUNC(farklapackdensesetjac,   FARKLAPACKDENSESETJAC)
+#define FARK_MASSLAPACKDENSE     SUNDIALS_F77_FUNC(farkmasslapackdense,     FARKMASSLAPACKDENSE)
+#define FARK_LAPACKDENSESETMASS  SUNDIALS_F77_FUNC(farklapackdensesetmass,  FARKLAPACKDENSESETMASS)
 #define FARK_LAPACKBAND          SUNDIALS_F77_FUNC(farklapackband,          FARKLAPACKBAND)
 #define FARK_LAPACKBANDSETJAC    SUNDIALS_F77_FUNC(farklapackbandsetjac,    FARKLAPACKBANDSETJAC)
+#define FARK_MASSLAPACKBAND      SUNDIALS_F77_FUNC(farkmasslapackband,      FARKMASSLAPACKBAND)
+#define FARK_LAPACKBANDSETMASS   SUNDIALS_F77_FUNC(farklapackbandsetmass,   FARKLAPACKBANDSETMASS)
 #define FARK_KLU                 SUNDIALS_F77_FUNC(farkklu,                 FARKKLU)
 #define FARK_KLUREINIT           SUNDIALS_F77_FUNC(farkklureinit,           FARKKLUREINIT)
 #define FARK_SUPERLUMT           SUNDIALS_F77_FUNC(farksuperlumt,           FARKSUPERLUMT)
+#define FARK_SPARSESETJAC        SUNDIALS_F77_FUNC(farksparsesetjac,        FARKSPARSESETJAC)
+#define FARK_MASSKLU             SUNDIALS_F77_FUNC(farkmassklu,             FARKMASSKLU)
+#define FARK_MASSKLUREINIT       SUNDIALS_F77_FUNC(farkmassklureinit,       FARKMASSKLUREINIT)
+#define FARK_MASSSUPERLUMT       SUNDIALS_F77_FUNC(farkmasssuperlumt,       FARKMASSSUPERLUMT)
+#define FARK_SPARSESETMASS       SUNDIALS_F77_FUNC(farksparsesetmass,       FARKSPARSESETMASS)
 #define FARK_SPTFQMR             SUNDIALS_F77_FUNC(farksptfqmr,             FARKSPTFQMR)
 #define FARK_SPTFQMRREINIT       SUNDIALS_F77_FUNC(farksptfqmrreinit,       FARKSPTFQMRREINIT)
+#define FARK_MASSSPTFQMR         SUNDIALS_F77_FUNC(farkmasssptfqmr,         FARKMASSSPTFQMR)
+#define FARK_MASSSPTFQMRREINIT   SUNDIALS_F77_FUNC(farkmasssptfqmrreinit,   FARKMASSSPTFQMRREINIT)
 #define FARK_SPBCG               SUNDIALS_F77_FUNC(farkspbcg,               FARKSPBCG)
 #define FARK_SPBCGREINIT         SUNDIALS_F77_FUNC(farkspbcgreinit,         FARKSPBCGREINIT)
+#define FARK_MASSSPBCG           SUNDIALS_F77_FUNC(farkmassspbcg,           FARKMASSSPBCG)
+#define FARK_MASSSPBCGREINIT     SUNDIALS_F77_FUNC(farkmassspbcgreinit,     FARKMASSSPBCGREINIT)
 #define FARK_SPGMR               SUNDIALS_F77_FUNC(farkspgmr,               FARKSPGMR)
 #define FARK_SPGMRREINIT         SUNDIALS_F77_FUNC(farkspgmrreinit,         FARKSPGMRREINIT)
+#define FARK_MASSSPGMR           SUNDIALS_F77_FUNC(farkmassspgmr,           FARKMASSSPGMR)
+#define FARK_MASSSPGMRREINIT     SUNDIALS_F77_FUNC(farkmassspgmrreinit,     FARKMASSSPGMRREINIT)
 #define FARK_SPFGMR              SUNDIALS_F77_FUNC(farkspfgmr,              FARKSPFGMR)
 #define FARK_SPFGMRREINIT        SUNDIALS_F77_FUNC(farkspfgmrreinit,        FARKSPFGMRREINIT)
+#define FARK_MASSSPFGMR          SUNDIALS_F77_FUNC(farkmassspfgmr,          FARKMASSSPFGMR)
+#define FARK_MASSSPFGMRREINIT    SUNDIALS_F77_FUNC(farkmassspfgmrreinit,    FARKMASSSPFGMRREINIT)
 #define FARK_PCG                 SUNDIALS_F77_FUNC(farkpcg,                 FARKPCG)
 #define FARK_PCGREINIT           SUNDIALS_F77_FUNC(farkpcgreinit,           FARKPCGREINIT)
+#define FARK_MASSPCG             SUNDIALS_F77_FUNC(farkmasspcg,             FARKMASSPCG)
+#define FARK_MASSPCGREINIT       SUNDIALS_F77_FUNC(farkmasspcgreinit,       FARKMASSPCGREINIT)
 #define FARK_SPILSSETJAC         SUNDIALS_F77_FUNC(farkspilssetjac,         FARKSPILSSETJAC)
 #define FARK_SPILSSETPREC        SUNDIALS_F77_FUNC(farkspilssetprec,        FARKSPILSSETPREC)
+#define FARK_SPILSSETMASS        SUNDIALS_F77_FUNC(farkspilssetmass,        FARKSPILSSETMASS)
+#define FARK_SPILSSETMASSPREC    SUNDIALS_F77_FUNC(farkspilssetmassprec,    FARKSPILSSETMASSPREC)
 #define FARK_ARKODE              SUNDIALS_F77_FUNC(farkode,                 FARKODE)
 #define FARK_DKY                 SUNDIALS_F77_FUNC(farkdky,                 FARKDKY)
 #define FARK_FREE                SUNDIALS_F77_FUNC(farkfree,                FARKFREE)
 #define FARK_IMP_FUN             SUNDIALS_F77_FUNC(farkifun,                FARKIFUN)
 #define FARK_EXP_FUN             SUNDIALS_F77_FUNC(farkefun,                FARKEFUN)
 #define FARK_DJAC                SUNDIALS_F77_FUNC(farkdjac,                FARKDJAC)
+#define FARK_DMASS               SUNDIALS_F77_FUNC(farkdmass,               FARKDMASS)
 #define FARK_BJAC                SUNDIALS_F77_FUNC(farkbjac,                FARKBJAC)
+#define FARK_BMASS               SUNDIALS_F77_FUNC(farkbmass,               FARKBMASS)
 #define FARK_SPJAC               SUNDIALS_F77_FUNC(farkspjac,               FARKSPJAC)
+#define FARK_SPMASS              SUNDIALS_F77_FUNC(farkspmass,              FARKSPMASS)
 #define FARK_PSOL                SUNDIALS_F77_FUNC(farkpsol,                FARKPSOL)
 #define FARK_PSET                SUNDIALS_F77_FUNC(farkpset,                FARKPSET)
+#define FARK_MASSPSOL            SUNDIALS_F77_FUNC(farkmasspsol,            FARKMASSPSOL)
+#define FARK_MASSPSET            SUNDIALS_F77_FUNC(farkmasspset,            FARKMASSPSET)
 #define FARK_JTIMES              SUNDIALS_F77_FUNC(farkjtimes,              FARKJTIMES)
+#define FARK_MTIMES              SUNDIALS_F77_FUNC(farkmtimes,              FARKMTIMES)
 #define FARK_EWT                 SUNDIALS_F77_FUNC(farkewt,                 FARKEWT)
 #define FARK_EWTSET              SUNDIALS_F77_FUNC(farkewtset,              FARKEWTSET)
 #define FARK_GETERRWEIGHTS       SUNDIALS_F77_FUNC(farkgeterrweights,       FARKGETERRWEIGHTS)
@@ -1333,38 +1979,69 @@ extern "C" {
 #define FARK_STOPDIAGNOSTICS     farkstopdiagnostics_
 #define FARK_DENSE               farkdense_
 #define FARK_DENSESETJAC         farkdensesetjac_
+#define FARK_MASSDENSE           farkmassdense_
+#define FARK_DENSESETMASS        farkdensesetmass_
 #define FARK_BAND                farkband_
 #define FARK_BANDSETJAC          farkbandsetjac_
+#define FARK_MASSBAND            farkmassband_
+#define FARK_BANDSETMASS         farkbandsetmass_
 #define FARK_LAPACKDENSE         farklapackdense_
 #define FARK_LAPACKDENSESETJAC   farklapackdensesetjac_
+#define FARK_MASSLAPACKDENSE     farkmasslapackdense_
+#define FARK_LAPACKDENSESETMASS  farklapackdensesetmass_
 #define FARK_LAPACKBAND          farklapackband_
 #define FARK_LAPACKBANDSETJAC    farklapackbandsetjac_
+#define FARK_MASSLAPACKBAND      farkmasslapackband_
+#define FARK_LAPACKBANDSETMASS   farklapackbandsetmass_
 #define FARK_KLU                 farkklu_
 #define FARK_KLUREINIT           farkklureinit_
 #define FARK_SUPERLUMT           farksuperlumt_
+#define FARK_SPARSESETJAC        farksparsesetjac_
+#define FARK_MASSKLU             farkmassklu_
+#define FARK_MASSKLUREINIT       farkmassklureinit_
+#define FARK_MASSSUPERLUMT       farkmasssuperlumt_
+#define FARK_SPARSESETMASS       farksparsesetmass_
 #define FARK_SPTFQMR             farksptfqmr_
 #define FARK_SPTFQMRREINIT       farksptfqmrreinit_
+#define FARK_MASSSPTFQMR         farkmasssptfqmr_
+#define FARK_MASSSPTFQMRREINIT   farkmasssptfqmrreinit_
 #define FARK_SPBCG               farkspbcg_
 #define FARK_SPBCGREINIT         farkspbcgreinit_
+#define FARK_MASSSPBCG           farkmassspbcg_
+#define FARK_MASSSPBCGREINIT     farkmassspbcgreinit_
 #define FARK_SPGMR               farkspgmr_
 #define FARK_SPGMRREINIT         farkspgmrreinit_
+#define FARK_MASSSPGMR           farkmassspgmr_
+#define FARK_MASSSPGMRREINIT     farkmassspgmrreinit_
 #define FARK_SPFGMR              farkspfgmr_
 #define FARK_SPFGMRREINIT        farkspfgmrreinit_
+#define FARK_MASSSPFGMR          farkmassspfgmr_
+#define FARK_MASSSPFGMRREINIT    farkmassspfgmrreinit_
 #define FARK_PCG                 farkpcg_
 #define FARK_PCGREINIT           farkpcgreinit_
+#define FARK_MASSPCG             farkmasspcg_
+#define FARK_MASSPCGREINIT       farkmasspcgreinit_
 #define FARK_SPILSSETJAC         farkspilssetjac_
 #define FARK_SPILSSETPREC        farkspilssetprec_
+#define FARK_SPILSSETMASS        farkspilssetmass_
+#define FARK_SPILSSETMASSPREC    farkmassspilssetprec_
 #define FARK_ARKODE              farkode_
 #define FARK_DKY                 farkdky_
 #define FARK_FREE                farkfree_
 #define FARK_IMP_FUN             farkifun_
 #define FARK_EXP_FUN             farkefun_
 #define FARK_DJAC                farkdjac_
+#define FARK_DMASS               farkdmass_
 #define FARK_BJAC                farkbjac_
+#define FARK_BMASS               farkbmass_
 #define FARK_SPJAC               farkspjac_
+#define FARK_SPMASS              farkspmass_
 #define FARK_PSOL                farkpsol_
 #define FARK_PSET                farkpset_
+#define FARK_MASSPSOL            farkmasspsol_
+#define FARK_MASSPSET            farkmasspset_
 #define FARK_JTIMES              farkjtimes_
+#define FARK_MTIMES              farkmtimes_
 #define FARK_EWT                 farkewt_
 #define FARK_EWTSET              farkewtset_
 #define FARK_GETERRWEIGHTS       farkgeterrweights_
@@ -1415,37 +2092,62 @@ extern "C" {
 
   void FARK_DENSE(long int *neq, int *ier);
   void FARK_DENSESETJAC(int *flag, int *ier);
+  void FARK_MASSDENSE(long int *neq, int *ier);
+  void FARK_DENSESETMASS(int *ier);
 
   void FARK_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
   void FARK_BANDSETJAC(int *flag, int *ier);
+  void FARK_MASSBAND(long int *neq, long int *mupper, long int *mlower, int *ier);
+  void FARK_BANDSETMASS(int *ier);
 
   void FARK_LAPACKDENSE(int *neq, int *ier);
   void FARK_LAPACKDENSESETJAC(int *flag, int *ier);
+  void FARK_MASSLAPACKDENSE(int *neq, int *ier);
+  void FARK_LAPACKDENSESETMASS(int *ier);
 
   void FARK_LAPACKBAND(int *neq, int *mupper, int *mlower, int *ier);
   void FARK_LAPACKBANDSETJAC(int *flag, int *ier);
+  void FARK_MASSLAPACKBAND(int *neq, int *mupper, int *mlower, int *ier);
+  void FARK_LAPACKBANDSETMASS(int *ier);
 
   void FARK_KLU(int *neq, int *nnz, int *ordering, int *ier);
   void FARK_KLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier);
   void FARK_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier);
+  void FARK_SPARSESETJAC(int *ier);
+  void FARK_MASSKLU(int *neq, int *nnz, int *ordering, int *ier);
+  void FARK_MASSKLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier);
+  void FARK_MASSSUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier);
+  void FARK_SPARSESETMASS(int *ier);
 
   void FARK_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
   void FARK_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier);
+  void FARK_MASSSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
+  void FARK_MASSSPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier);
 
   void FARK_SPFGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
   void FARK_SPFGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier);
+  void FARK_MASSSPFGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
+  void FARK_MASSSPFGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier);
 
   void FARK_SPBCG(int *pretype, int *maxl, realtype *delt, int *ier);
   void FARK_SPBCGREINIT(int *pretype, int *maxl, realtype *delt, int *ier);
+  void FARK_MASSSPBCG(int *pretype, int *maxl, realtype *delt, int *ier);
+  void FARK_MASSSPBCGREINIT(int *pretype, int *maxl, realtype *delt, int *ier);
 
   void FARK_SPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier);
   void FARK_SPTFQMRREINIT(int *pretype, int *maxl, realtype *delt, int *ier);
+  void FARK_MASSSPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier);
+  void FARK_MASSSPTFQMRREINIT(int *pretype, int *maxl, realtype *delt, int *ier);
 
   void FARK_PCG(int *pretype, int *maxl, realtype *delt, int *ier);
   void FARK_PCGREINIT(int *pretype, int *maxl, realtype *delt, int *ier);
+  void FARK_MASSPCG(int *pretype, int *maxl, realtype *delt, int *ier);
+  void FARK_MASSPCGREINIT(int *pretype, int *maxl, realtype *delt, int *ier);
 
   void FARK_SPILSSETJAC(int *flag, int *ier);
   void FARK_SPILSSETPREC(int *flag, int *ier);
+  void FARK_SPILSSETMASS(int *ier);
+  void FARK_SPILSSETMASSPREC(int *flag, int *ier);
   
   void FARK_ARKODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier);
 
@@ -1471,37 +2173,62 @@ extern "C" {
 		   DlsMat J, void *user_data,
 		   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
+  int FARKDenseMass(long int N, realtype t, DlsMat M, void *user_data,
+		   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+  
   int FARKBandJac(long int N, long int mupper, long int mlower,
 		  realtype t, N_Vector y, N_Vector fy,
 		  DlsMat J, void *user_data,
 		  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+  
+  int FARKBandMass(long int N, long int mupper, long int mlower,
+		   realtype t, DlsMat M, void *user_data,
+		   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
   int FARKLapackDenseJac(long int N, realtype t, 
 			 N_Vector y, N_Vector fy, 
 			 DlsMat J, void *user_data,
 			 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
+  int FARKLapackDenseMass(long int N, realtype t, DlsMat M, void *user_data,
+			  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+
   int FARKLapackBandJac(long int N, long int mupper, long int mlower,
 			realtype t, N_Vector y, N_Vector fy,
 			DlsMat J, void *user_data,
 			N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
+  int FARKLapackBandMass(long int N, long int mupper, long int mlower,
+			 realtype t, DlsMat M, void *user_data,
+			 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+  
   int FARKSparseJac(realtype t, N_Vector y, N_Vector fy, 
 		    SlsMat J, void *user_data, N_Vector vtemp1, 
 		    N_Vector vtemp2, N_Vector vtemp3);
+
+  int FARKSparseMass(realtype t, SlsMat Mass, void *user_data, 
+		     N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
   int FARKPSet(realtype tn, N_Vector y,N_Vector fy, booleantype jok,
 	       booleantype *jcurPtr, realtype gamma, void *user_data,
 	       N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+  
+  int FARKMassPSet(realtype tn, void *user_data, N_Vector vtemp1, 
+		   N_Vector vtemp2, N_Vector vtemp3);
   
   int FARKPSol(realtype tn, N_Vector y, N_Vector fy, 
 	       N_Vector r, N_Vector z,
 	       realtype gamma, realtype delta,
 	       int lr, void *user_data, N_Vector vtemp);
   
+  int FARKMassPSol(realtype tn, N_Vector r, N_Vector z, realtype delta, 
+		   int lr, void *user_data, N_Vector vtemp);
+  
   int FARKJtimes(N_Vector v, N_Vector Jv, realtype t, 
 		 N_Vector y, N_Vector fy,
 		 void *user_data, N_Vector work);
+  
+  int FARKMtimes(N_Vector v, N_Vector Mv, realtype t, void *user_data);
   
   int FARKEwt(N_Vector y, N_Vector ewt, void *user_data);
 
@@ -1512,13 +2239,14 @@ extern "C" {
   int FARKExpStab(N_Vector y, realtype t, realtype *hstab, void *user_data);
 
   /* Declarations for global variables shared amongst various routines */
-  extern N_Vector F2C_ARKODE_vec;   /* defined in FNVECTOR module */
+  extern N_Vector F2C_ARKODE_vec;     /* defined in FNVECTOR module */
 
-  extern void *ARK_arkodemem;       /* defined in farkode.c */
-  extern long int *ARK_iout;        /* defined in farkode.c */
-  extern realtype *ARK_rout;        /* defined in farkode.c */
-  extern int ARK_nrtfn;             /* defined in farkode.c */
-  extern int ARK_ls;                /* defined in farkode.c */
+  extern void *ARK_arkodemem;     /* defined in farkode.c */
+  extern long int *ARK_iout;      /* defined in farkode.c */
+  extern realtype *ARK_rout;      /* defined in farkode.c */
+  extern int ARK_nrtfn;           /* defined in farkode.c */
+  extern int ARK_ls;              /* defined in farkode.c */
+  extern int ARK_mass_ls;         /* defined in farkode.c */
 
   /* Linear solver IDs */
   enum { ARK_LS_DENSE       = 1, 

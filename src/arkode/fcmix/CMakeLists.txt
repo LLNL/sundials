@@ -11,25 +11,29 @@
 SET(farkode_SOURCES
   farkadapt.c
   farkband.c
+  farkbandmass.c
   farkbbd.c
   farkbp.c
   farkdense.c
+  farkdensemass.c
   farkewt.c
   farkexpstab.c
   farkjtimes.c
+  farkmtimes.c
   farkode.c
   farkpreco.c
+  farkmasspreco.c
   farkroot.c
   )
 
 IF(LAPACK_FOUND)
-  SET(farkode_BL_SOURCES farklapack.c farklapdense.c farklapband.c)
+  SET(farkode_BL_SOURCES farklapack.c farklapdense.c farklapdensemass.c farklapband.c farklapbandmass.c)
 ELSE(LAPACK_FOUND)
   SET(farkode_BL_SOURCES "")
 ENDIF(LAPACK_FOUND)
 
 IF(KLU_FOUND OR SUPERLUMT_FOUND)
-  SET(farkode_SPARSE_SOURCES farksparse.c)
+  SET(farkode_SPARSE_SOURCES farksparse.c farksparsemass.c)
 ELSE(SPARSE_FOUND)
   SET(farkode_SPARSE_SOURCES "")
 ENDIF(KLU_FOUND OR SUPERLUMT_FOUND)

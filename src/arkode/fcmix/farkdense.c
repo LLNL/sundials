@@ -62,8 +62,8 @@ void FARK_DENSESETJAC(int *flag, int *ier)
 /* C interface to user-supplied Fortran routine FARKDJAC; see 
    farkode.h for additional information  */
 int FARKDenseJac(long int N, realtype t, N_Vector y, N_Vector fy, 
-		 DlsMat J, void *user_data, N_Vector vtemp1, 
-		 N_Vector vtemp2, N_Vector vtemp3)
+                 DlsMat J, void *user_data, N_Vector vtemp1, 
+                 N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier;
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
@@ -80,8 +80,8 @@ int FARKDenseJac(long int N, realtype t, N_Vector y, N_Vector fy,
   ARK_userdata = (FARKUserData) user_data;
 
   FARK_DJAC(&N, &t, ydata, fydata, jacdata, &h, 
-	    ARK_userdata->ipar, ARK_userdata->rpar, v1data, 
-	    v2data, v3data, &ier); 
+            ARK_userdata->ipar, ARK_userdata->rpar, v1data, 
+            v2data, v3data, &ier); 
   return(ier);
 }
 

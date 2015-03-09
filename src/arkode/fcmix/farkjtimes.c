@@ -80,9 +80,8 @@ int FARKJtimes(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
 
   ARK_userdata = (FARKUserData) user_data;
  
-  FARK_JTIMES(vdata, Jvdata, &t, ydata, fydata, &h, 
-	      ARK_userdata->ipar, ARK_userdata->rpar, 
-	      wkdata, &ier);
+  FARK_JTIMES(vdata, Jvdata, &t, ydata, fydata, &h, ARK_userdata->ipar, 
+	      ARK_userdata->rpar, wkdata, &ier);
   return(ier);
 }
 

@@ -35,17 +35,12 @@
 extern "C" {
 #endif
 
-  extern void FARK_PSET(realtype *T, realtype *Y, realtype *FY,
-			booleantype *JOK, booleantype *JCUR,
-			realtype *GAMMA, realtype *H,
-			long int *IPAR, realtype *RPAR, 
-			realtype *W1, realtype *W2, 
-			realtype *W3, int *IER);
-  extern void FARK_PSOL(realtype *T, realtype *Y, realtype *FY,
-			realtype *R, realtype *Z, 
-			realtype *GAMMA, realtype *DELTA,
-			int *LR, long int *IPAR, realtype *RPAR,
-			realtype *WRK, int *IER);
+  extern void FARK_MASSPSET(realtype *T, long int *IPAR, 
+			    realtype *RPAR, realtype *W1, 
+			    realtype *W2, realtype *W3, int *IER);
+  extern void FARK_MASSPSOL(realtype *T, realtype *R, realtype *Z, 
+			    realtype *DELTA, int *LR, long int *IPAR, 
+			    realtype *RPAR, realtype *WRK, int *IER);
 
 #ifdef __cplusplus
 }
@@ -53,71 +48,62 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKSpilsSetPreconditioner; see 
+/* Fortran interface to C routine ARKSpilsSetMassPreconditioner; see 
    farkode.h for further details */
-void FARK_SPILSSETPREC(int *flag, int *ier)
+void FARK_SPILSSETMASSPREC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = ARKSpilsSetPreconditioner(ARK_arkodemem, NULL, NULL);
+    *ier = ARKSpilsSetMassPreconditioner(ARK_arkodemem, NULL, NULL);
   } else {
-    *ier = ARKSpilsSetPreconditioner(ARK_arkodemem, 
-				     FARKPSet, FARKPSol);
+    *ier = ARKSpilsSetMassPreconditioner(ARK_arkodemem, 
+					 FARKMassPSet, FARKMassPSol);
   }
   return;
 }
 
 /*=============================================================*/
 
-/* C interface to user-supplied Fortran routine FARKPSET; see 
+/* C interface to user-supplied Fortran routine FARKMASSPSET; see 
    farkode.h for further details */
-int FARKPSet(realtype t, N_Vector y, N_Vector fy, 
-	     booleantype jok, booleantype *jcurPtr, 
-	     realtype gamma, void *user_data, N_Vector vtemp1, 
-	     N_Vector vtemp2, N_Vector vtemp3)
+int FARKMassPSet(realtype t, void *user_data, N_Vector vtemp1, 
+		 N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier = 0;
-  realtype *ydata, *fydata, *v1data, *v2data, *v3data;
-  realtype h;
+  realtype *v1data, *v2data, *v3data;
   FARKUserData ARK_userdata;
 
-  ARKodeGetLastStep(ARK_arkodemem, &h);
-  ydata  = N_VGetArrayPointer(y);
-  fydata = N_VGetArrayPointer(fy);
   v1data = N_VGetArrayPointer(vtemp1);
   v2data = N_VGetArrayPointer(vtemp2);
   v3data = N_VGetArrayPointer(vtemp3);
   ARK_userdata = (FARKUserData) user_data;
 
-  FARK_PSET(&t, ydata, fydata, &jok, jcurPtr, &gamma, &h,
-	    ARK_userdata->ipar, ARK_userdata->rpar,
-	    v1data, v2data, v3data, &ier);
+  FARK_MASSPSET(&t, ARK_userdata->ipar, ARK_userdata->rpar,
+		v1data, v2data, v3data, &ier);
   return(ier);
 }
 
 
 /*=============================================================*/
 
-/* C interface to user-supplied Fortran routine FARKPSOL; see 
+/* C interface to user-supplied Fortran routine FARKMASSPSOL; see 
    farkode.h for further details */
-int FARKPSol(realtype t, N_Vector y, N_Vector fy, N_Vector r, 
-	     N_Vector z, realtype gamma, realtype delta,
-	     int lr, void *user_data, N_Vector vtemp)
+int FARKMassPSol(realtype t, N_Vector r, N_Vector z, realtype delta,
+		 int lr, void *user_data, N_Vector vtemp)
 {
   int ier = 0;
-  realtype *ydata, *fydata, *vtdata, *rdata, *zdata;
+  realtype *vtdata, *rdata, *zdata;
   FARKUserData ARK_userdata;
 
-  ydata  = N_VGetArrayPointer(y);
-  fydata = N_VGetArrayPointer(fy);
   vtdata = N_VGetArrayPointer(vtemp);
   rdata  = N_VGetArrayPointer(r);
   zdata  = N_VGetArrayPointer(z);
   ARK_userdata = (FARKUserData) user_data;
 
-  FARK_PSOL(&t, ydata, fydata, rdata, zdata, &gamma, &delta, &lr, 
-	    ARK_userdata->ipar, ARK_userdata->rpar, vtdata, &ier);
+  FARK_MASSPSOL(&t, rdata, zdata, &delta, &lr, ARK_userdata->ipar, 
+		ARK_userdata->rpar, vtdata, &ier);
   return(ier);
 }
+
 
 /*===============================================================
    EOF

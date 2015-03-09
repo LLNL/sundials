@@ -218,37 +218,35 @@ int ARKKLU(void *arkode_mem, int n, int nnz)
 }
 
 
-/*
- * -----------------------------------------------------------------
- * ARKKLUReInit
- * -----------------------------------------------------------------
- * This routine reinitializes memory and flags for a new factorization 
- * (symbolic and numeric) to be conducted at the next solver setup
- * call.  This routine is useful in the cases where the number of nonzeroes 
- * has changed or if the structure of the linear system has changed
- * which would require a new symbolic (and numeric factorization).
- *
- * The reinit_type argumenmt governs the level of reinitialization:
- *
- * reinit_type = 1: The Jacobian matrix will be destroyed and 
- *                  a new one will be allocated based on the nnz
- *                  value passed to this call. New symbolic and
- *                  numeric factorizations will be completed at the next
- *                  solver setup.
- *
- * reinit_type = 2: Only symbolic and numeric factorizations will be 
- *                  completed.  It is assumed that the Jacobian size
- *                  has not exceeded the size of nnz given in the prior
- *                  call to CVKLU.
- *
- * This routine assumes no other changes to solver use are necessary.
- *
- * The return value is ARKSLS_SUCCESS = 0, ARKSLS_MEM_NULL = -1, 
- * ARKSLS_LMEM_NULL = -2, ARKSLS_ILL_INPUT = -3, or ARKSLS_MEM_FAIL = -4.
- *
- * -----------------------------------------------------------------
- */
+/*---------------------------------------------------------------
+  ARKKLUReInit
 
+  This routine reinitializes memory and flags for a new 
+  factorization (symbolic and numeric) to be conducted at the 
+  next solver setup call.  This routine is useful in the cases 
+  where the number of nonzeroes has changed or if the structure 
+  of the linear system has changed which would require a new 
+  symbolic (and numeric) factorization.
+ 
+  The reinit_type argument governs the level of reinitialization:
+ 
+  reinit_type = 1: The Jacobian matrix will be destroyed and 
+                   a new one will be allocated based on the nnz
+                   value passed to this call. New symbolic and
+                   numeric factorizations will be completed at the 
+                   next solver setup.
+ 
+  reinit_type = 2: Only symbolic and numeric factorizations will be 
+                   completed.  It is assumed that the Jacobian size
+                   has not exceeded the size of nnz given in the 
+                   prior call to ARKMassKLU.
+ 
+  This routine assumes no other changes to solver use are necessary.
+ 
+  The return value is ARKSLS_SUCCESS = 0, ARKSLS_MEM_NULL = -1, 
+  ARKSLS_MASSMEM_NULL = -8, ARKSLS_ILL_INPUT = -3, or 
+  ARKSLS_MEM_FAIL = -4.
+---------------------------------------------------------------*/
 int ARKKLUReInit(void *arkode_mem, int n, int nnz, int reinit_type)
 {
   ARKodeMem ark_mem;
@@ -782,37 +780,35 @@ int ARKMassKLU(void *arkode_mem, int n, int nnz,
 }
 
 
-/*
- * -----------------------------------------------------------------
- * ARKMassKLUReInit
- * -----------------------------------------------------------------
- * This routine reinitializes memory and flags for a new factorization 
- * (symbolic and numeric) to be conducted at the next solver setup
- * call.  This routine is useful in the cases where the number of nonzeroes 
- * has changed or if the structure of the linear system has changed
- * which would require a new symbolic (and numeric factorization).
- *
- * The reinit_type argumenmt governs the level of reinitialization:
- *
- * reinit_type = 1: The Jacobian matrix will be destroyed and 
- *                  a new one will be allocated based on the nnz
- *                  value passed to this call. New symbolic and
- *                  numeric factorizations will be completed at the next
- *                  solver setup.
- *
- * reinit_type = 2: Only symbolic and numeric factorizations will be 
- *                  completed.  It is assumed that the Jacobian size
- *                  has not exceeded the size of nnz given in the prior
- *                  call to CVKLU.
- *
- * This routine assumes no other changes to solver use are necessary.
- *
- * The return value is ARKSLS_SUCCESS = 0, ARKSLS_MEM_NULL = -1, 
- * ARKSLS_MASSMEM_NULL = -8, ARKSLS_ILL_INPUT = -3, or ARKSLS_MEM_FAIL = -4.
- *
- * -----------------------------------------------------------------
- */
+/*---------------------------------------------------------------
+  ARKMassKLUReInit
 
+  This routine reinitializes memory and flags for a new 
+  factorization (symbolic and numeric) to be conducted at the 
+  next solver setup call.  This routine is useful in the cases 
+  where the number of nonzeroes has changed or if the structure 
+  of the linear system has changed which would require a new 
+  symbolic (and numeric) factorization.
+ 
+  The reinit_type argument governs the level of reinitialization:
+ 
+  reinit_type = 1: The mass matrix will be destroyed and 
+                   a new one will be allocated based on the nnz
+                   value passed to this call. New symbolic and
+                   numeric factorizations will be completed at the 
+                   next solver setup.
+ 
+  reinit_type = 2: Only symbolic and numeric factorizations will be 
+                   completed.  It is assumed that the mass matrix
+                   size has not exceeded the size of nnz given in 
+                   the prior call to ARKMassKLU.
+ 
+  This routine assumes no other changes to solver use are necessary.
+ 
+  The return value is ARKSLS_SUCCESS = 0, ARKSLS_MEM_NULL = -1, 
+  ARKSLS_MASSMEM_NULL = -8, ARKSLS_ILL_INPUT = -3, or 
+  ARKSLS_MEM_FAIL = -4.
+---------------------------------------------------------------*/
 int ARKMassKLUReInit(void *arkode_mem, int n, int nnz, int reinit_type)
 {
   ARKodeMem ark_mem;

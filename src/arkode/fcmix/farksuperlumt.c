@@ -36,6 +36,17 @@ void FARK_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier)
   return;
 }
 
+
+/* Fortran interface to C routine ARKMassSuperLUMT; see farkode.h for 
+   further details */
+void FARK_MASSSUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier)
+{
+  *ier = ARKMassSuperLUMT(ARK_arkodemem, *nthreads, *neq, *nnz, NULL);
+  ARKMassSuperLUMTSetOrdering(ARK_arkodemem, *ordering);
+  ARK_mass_ls = ARK_LS_SUPERLUMT;
+  return;
+}
+
 /*===============================================================
    EOF
 ===============================================================*/

@@ -459,7 +459,7 @@ static void ARKSpbcgFree(ARKodeMem ark_mem)
  solver.
 ---------------------------------------------------------------*/
 int ARKMassSpbcg(void *arkode_mem, int pretype, int maxl, 
-		 ARKMTimesFn mtimes, void *mtimes_data)
+		 ARKSpilsMassTimesVecFn mtimes, void *mtimes_data)
 {
   ARKodeMem ark_mem;
   ARKSpilsMassMem arkspils_mem;

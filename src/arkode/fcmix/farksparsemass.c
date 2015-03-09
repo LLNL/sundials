@@ -33,13 +33,11 @@
 extern "C" {
 #endif
 
-  extern void FARK_SPJAC(realtype *T, realtype *Y, 
-			 realtype *FY, int *N, int *NNZ, 
-			 realtype *JDATA, int *JRVALS, 
-			 int *JCPTRS, realtype *H, 
-			 long int *IPAR, realtype *RPAR, 
-			 realtype *V1, realtype *V2, 
-			 realtype *V3, int *ier);
+  extern void FARK_SPMASS(realtype *T, int *N, int *NNZ, 
+			  realtype *MDATA, int *MRVALS, 
+			  int *MCPTRS, long int *IPAR, 
+			  realtype *RPAR, realtype *V1, 
+			  realtype *V2, realtype *V3, int *ier);
 
 #ifdef __cplusplus
 }
@@ -47,37 +45,32 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKSlsSetSparseJacFn; see 
+/* Fortran interface to C routine ARKSlsSetSparseMassFn; see 
    farkode.h for further information */
-void FARK_SPARSESETJAC(int *ier)
+void FARK_SPARSESETMASS(int *ier)
 {
-  *ier = ARKSlsSetSparseJacFn(ARK_arkodemem, FARKSparseJac);
+  *ier = ARKSlsSetSparseMassFn(ARK_arkodemem, FARKSparseMass);
 }
 
 /*=============================================================*/
 
-/* C interface to user-supplied Fortran routine FARKSPJAC; see 
+/* C interface to user-supplied Fortran routine FARKSPMASS; see 
    farkode.h for additional information  */
-int FARKSparseJac(realtype t, N_Vector y, N_Vector fy, 
-		  SlsMat J, void *user_data, N_Vector vtemp1, 
-		  N_Vector vtemp2, N_Vector vtemp3)
+int FARKSparseMass(realtype t, SlsMat MassMat, void *user_data, 
+		   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier;
-  realtype *ydata, *fydata, *v1data, *v2data, *v3data;
-  realtype h;
+  realtype *v1data, *v2data, *v3data;
   FARKUserData ARK_userdata;
 
-  ARKodeGetLastStep(ARK_arkodemem, &h);
-  ydata   = N_VGetArrayPointer(y);
-  fydata  = N_VGetArrayPointer(fy);
-  v1data  = N_VGetArrayPointer(vtemp1);
-  v2data  = N_VGetArrayPointer(vtemp2);
-  v3data  = N_VGetArrayPointer(vtemp3);
+  v1data = N_VGetArrayPointer(vtemp1);
+  v2data = N_VGetArrayPointer(vtemp2);
+  v3data = N_VGetArrayPointer(vtemp3);
   ARK_userdata = (FARKUserData) user_data;
 
-  FARK_SPJAC(&t, ydata, fydata, &(J->N), &(J->NNZ), J->data, 
-	     J->rowvals, J->colptrs, &h, ARK_userdata->ipar, 
-	     ARK_userdata->rpar, v1data, v2data, v3data, &ier); 
+  FARK_SPMASS(&t, &(MassMat->N), &(MassMat->NNZ), MassMat->data, 
+	      MassMat->rowvals, MassMat->colptrs, ARK_userdata->ipar, 
+	      ARK_userdata->rpar, v1data, v2data, v3data, &ier); 
   return(ier);
 }
 

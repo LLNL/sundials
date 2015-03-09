@@ -94,8 +94,8 @@ SUNDIALS_EXPORT int ARKSpbcg(void *arkode_mem, int pretype, int maxl);
  The above constants are defined in arkode_spils.h
 
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int ARKMassSpbcg(void *arkode_mem, int pretype, 
-				 int maxl, ARKMTimesFn mtimes,
+SUNDIALS_EXPORT int ARKMassSpbcg(void *arkode_mem, int pretype, int maxl, 
+				 ARKSpilsMassTimesVecFn mtimes,
 				 void *mtimes_data);
 
 

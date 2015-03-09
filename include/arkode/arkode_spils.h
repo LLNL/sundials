@@ -250,6 +250,31 @@ typedef int (*ARKSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv,
 
 
 /*---------------------------------------------------------------
+ Type: ARKSpilsMassTimesVecFn
+
+ The user-supplied function mtimes is to generate the product
+ M*v for given v, where M is the mass matrix, or an 
+ approximation to it, and v is a given vector. It should return 
+ 0 if successful or a negative value for an unrecoverable failure.
+
+ A function mtimes must have the prototype given below. Its
+ parameters are as follows:
+
+   v        is the N_Vector to be multiplied by M.
+
+   Mv       is the output N_Vector containing M*v.
+
+   t        is the current value of the independent variable.
+
+   user_data   is a pointer to user data, the same as the user_data
+            parameter passed to the ARKodeSetUserData function.
+---------------------------------------------------------------*/
+typedef int (*ARKSpilsMassTimesVecFn)(N_Vector v, N_Vector Mv, 
+				      realtype t, void *user_data);
+
+
+
+/*---------------------------------------------------------------
  Type: ARKSpilsMassPrecSetupFn
 
  The user-supplied mass matrix preconditioner setup function 
@@ -378,6 +403,8 @@ typedef int (*ARKSpilsMassPrecSolveFn)(realtype t, N_Vector r,
                 is to use an internal finite difference 
 		approximation routine.
 
+ ARKSpilsSetMassTimesVecFn specifies the mtimes function. No Default.
+
  The return value of ARKSpilsSet* is one of:
     ARKSPILS_SUCCESS      if successful
     ARKSPILS_MEM_NULL     if the arkode memory was NULL
@@ -401,6 +428,9 @@ SUNDIALS_EXPORT int ARKSpilsSetMassPreconditioner(void *arkode_mem,
 						  ARKSpilsMassPrecSolveFn psolve);
 SUNDIALS_EXPORT int ARKSpilsSetJacTimesVecFn(void *arkode_mem, 
 					     ARKSpilsJacTimesVecFn jtv);
+SUNDIALS_EXPORT int ARKSpilsSetMassTimesVecFn(void *arkode_mem, 
+					      ARKSpilsMassTimesVecFn mtv,
+					      void *mtimes_data);
 
 
 /*---------------------------------------------------------------

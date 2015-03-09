@@ -43,6 +43,23 @@ void FARK_KLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier)
   *ier = ARKKLUReInit(ARK_arkodemem, *neq, *nnz, *reinit_type);
 }
 
+/* Fortran interface to C routine ARKMassKLU; see farkode.h for 
+   further details */
+void FARK_MASSKLU(int *neq, int *nnz, int *ordering, int *ier)
+{
+  *ier = ARKMassKLU(ARK_arkodemem, *neq, *nnz, NULL);
+  ARKMassKLUSetOrdering(ARK_arkodemem, *ordering);
+  ARK_mass_ls = ARK_LS_KLU;
+  return;
+}
+
+/* Fortran interface to C routine ARKMassKLUReinit; see farkode.h for 
+   further details */
+void FARK_MASSKLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier)
+{
+  *ier = ARKMassKLUReInit(ARK_arkodemem, *neq, *nnz, *reinit_type);
+}
+
 /*===============================================================
    EOF
 ===============================================================*/

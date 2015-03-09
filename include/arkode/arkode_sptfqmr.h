@@ -92,8 +92,8 @@ SUNDIALS_EXPORT int ARKSptfqmr(void *arkode_mem, int pretype, int maxl);
     ARKSPILS_ILL_INPUT if a required vector operation is missing
  The above constants are defined in arkode_spils.h
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int ARKMassSptfqmr(void *arkode_mem, int pretype, 
-				   int maxl, ARKMTimesFn mtimes,
+SUNDIALS_EXPORT int ARKMassSptfqmr(void *arkode_mem, int pretype, int maxl, 
+				   ARKSpilsMassTimesVecFn mtimes,
 				   void *mtimes_data);
 
 

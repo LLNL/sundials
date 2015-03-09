@@ -35,6 +35,15 @@ void FARK_LAPACKDENSE(int *neq, int *ier)
   return;
 }
 
+/* Fortran interface to C routine ARKMassLapackDense; see farkode.h 
+   for further information */
+void FARK_MASSLAPACKDENSE(int *neq, int *ier)
+{
+  *ier = ARKMassLapackDense(ARK_arkodemem, *neq, NULL);
+  ARK_mass_ls = ARK_LS_LAPACKDENSE;
+  return;
+}
+
 /*=============================================================*/
 
 /* Fortran interface to C routine ARKLapackBand; see farkode.h 
@@ -43,6 +52,16 @@ void FARK_LAPACKBAND(int *neq, int *mupper, int *mlower, int *ier)
 {
   *ier = ARKLapackBand(ARK_arkodemem, *neq, *mupper, *mlower);
   ARK_ls = ARK_LS_LAPACKBAND;
+  return;
+}
+
+/* Fortran interface to C routine ARKMassLapackBand; see farkode.h 
+   for further information */
+void FARK_MASSLAPACKBAND(int *neq, int *mupper, int *mlower, int *ier)
+{
+  *ier = ARKMassLapackBand(ARK_arkodemem, *neq, *mupper, 
+			   *mlower, NULL);
+  ARK_mass_ls = ARK_LS_LAPACKBAND;
   return;
 }
 

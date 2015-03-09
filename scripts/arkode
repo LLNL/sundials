@@ -66,24 +66,31 @@ $tar $tarfile $distrobase/src/arkode/fcmix/CMakeLists.txt
 
 $tar $tarfile $distrobase/src/arkode/fcmix/farkadapt.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkband.c
+$tar $tarfile $distrobase/src/arkode/fcmix/farkbandmass.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkbbd.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkbbd.h
 $tar $tarfile $distrobase/src/arkode/fcmix/farkbp.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkbp.h
 $tar $tarfile $distrobase/src/arkode/fcmix/farkdense.c
+$tar $tarfile $distrobase/src/arkode/fcmix/farkdensemass.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkewt.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkexpstab.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkjtimes.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkklu.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farklapack.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farklapband.c
+$tar $tarfile $distrobase/src/arkode/fcmix/farklapbandmass.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farklapdense.c
+$tar $tarfile $distrobase/src/arkode/fcmix/farklapdensemass.c
+$tar $tarfile $distrobase/src/arkode/fcmix/farkmasspreco.c
+$tar $tarfile $distrobase/src/arkode/fcmix/farkmtimes.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkode.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkode.h
 $tar $tarfile $distrobase/src/arkode/fcmix/farkpreco.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkroot.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkroot.h
 $tar $tarfile $distrobase/src/arkode/fcmix/farksparse.c
+$tar $tarfile $distrobase/src/arkode/fcmix/farksparsemass.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farksuperlumt.c
 
 echo "   --- Add arkode examples to $tarfile"

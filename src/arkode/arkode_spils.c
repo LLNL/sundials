@@ -440,6 +440,37 @@ int ARKSpilsSetJacTimesVecFn(void *arkode_mem,
 
 
 /*---------------------------------------------------------------
+ ARKSpilsSetMassTimesVecFn
+---------------------------------------------------------------*/
+int ARKSpilsSetMassTimesVecFn(void *arkode_mem, 
+			      ARKSpilsMassTimesVecFn mtv,
+			      void *mtimes_data)
+{
+  ARKodeMem ark_mem;
+
+  /* Return immediately if arkode_mem is NULL */
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
+		    "ARKSpilsSetJacTimesVecFn", MSGS_ARKMEM_NULL);
+    return(ARKSPILS_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  if (mtv == NULL) {
+    arkProcessError(ark_mem, ARKSPILS_ILL_INPUT, "ARKSPILS", 
+		    "ARKSpilsSetMassTimesVecFn", "non-NULL function must be supplied");
+    return(ARKSPILS_LMEM_NULL);
+  }
+
+  /* set arguments into ark_mem data structure */
+  ark_mem->ark_mtimes = mtv;
+  ark_mem->ark_mtimes_data = mtimes_data;
+
+  return(ARKSPILS_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
  ARKSpilsGetWorkSpace
 ---------------------------------------------------------------*/
 int ARKSpilsGetWorkSpace(void *arkode_mem, long int *lenrwLS, 

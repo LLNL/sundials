@@ -95,7 +95,6 @@ int FARKLapackBandJac(long int N, long int mupper,
   FARK_BJAC(&N, &mupper, &mlower, &eband, &t, ydata, fydata, 
 	    jacdata, &h, ARK_userdata->ipar, ARK_userdata->rpar, 
 	    v1data, v2data, v3data, &ier);
-
   return(ier);
 }
 

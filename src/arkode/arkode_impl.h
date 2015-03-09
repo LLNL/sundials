@@ -23,6 +23,7 @@
 
 #include <stdarg.h>
 #include <arkode/arkode.h>
+#include <arkode/arkode_spils.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -430,7 +431,7 @@ typedef struct ARKodeMemRec {
   booleantype ark_mass_matrix;   /* flag denoting use of a non-identity M  */
   long int ark_mass_solves;      /* number of mass matrix solve calls      */
   long int ark_mass_mult;        /* number of mass matrix product calls    */
-  ARKMTimesFn ark_mtimes;        /* mass-matrix-vector product routine     */
+  ARKSpilsMassTimesVecFn ark_mtimes;   /* mass-matrix-vector product routine */
   void *ark_mtimes_data;         /* user pointer passed to mtimes          */
   int (*ark_minit)(struct ARKodeMemRec *ark_mem);
   int (*ark_msetup)(struct ARKodeMemRec *ark_mem, N_Vector vtemp1, 

@@ -82,9 +82,8 @@ int FARKLapackDenseJac(long int N, realtype t, N_Vector y,
   jacdata = DENSE_COL(J,0);
   ARK_userdata = (FARKUserData) user_data;
 
-  FARK_DJAC(&N, &t, ydata, fydata, jacdata, &h, 
-	    ARK_userdata->ipar, ARK_userdata->rpar, v1data, 
-	    v2data, v3data, &ier); 
+  FARK_DJAC(&N, &t, ydata, fydata, jacdata, &h, ARK_userdata->ipar, 
+	    ARK_userdata->rpar, v1data, v2data, v3data, &ier); 
   return(ier);
 }
 
