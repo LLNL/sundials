@@ -243,17 +243,17 @@ fi
 if [ $do_sundials = "T" -o $do_arkode = "T" ]; then
     cp -r $sundialsdir/include/arkode $tmpdir/include/
     cp -r $sundialsdir/src/arkode $tmpdir/src/
-    #cp -r $sundialsdir/doc/arkode $tmpdir/doc/
+    cp -r $sundialsdir/doc/arkode $tmpdir/doc/
     cp -r $sundialsdir/examples/arkode $tmpdir/examples/
-    #if [ $doc = "T" ]; then
-    #    echo -e "--- ARKODE documentation"
-    #    cd $tmpdir/doc/arkode
-    #    make QUIET= purge
-    #    make QUIET= ug_pdf
-    #    make QUIET= ex_pdf
-    #    cd - 
-    #fi
-    doc="F"
+    if [ $doc = "T" ]; then
+        echo -e "--- ARKODE documentation"
+        cd $tmpdir/doc/arkode
+        make QUIET= purge
+        make QUIET= ug_pdf
+        make QUIET= ex_pdf
+        cd - 
+    fi
+    #doc="F"
 fi
 
 if [ $do_sundials = "T" -o $do_cvode = "T" ]; then
