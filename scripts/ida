@@ -67,6 +67,9 @@ $tar $tarfile $distrobase/src/ida/fcmix/fidalapack.c
 $tar $tarfile $distrobase/src/ida/fcmix/fidalapband.c
 $tar $tarfile $distrobase/src/ida/fcmix/fidalapdense.c
 $tar $tarfile $distrobase/src/ida/fcmix/fidabbd.c
+$tar $tarfile $distrobase/src/ida/fcmix/fidasparse.c
+$tar $tarfile $distrobase/src/ida/fcmix/fidaklu.c
+$tar $tarfile $distrobase/src/ida/fcmix/fidasuperlumt.c
 $tar $tarfile $distrobase/src/ida/fcmix/fidajtimes.c
 $tar $tarfile $distrobase/src/ida/fcmix/fidapreco.c
 $tar $tarfile $distrobase/src/ida/fcmix/fidaroot.c

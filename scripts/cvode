@@ -77,6 +77,8 @@ $tar $tarfile $distrobase/src/cvode/fcmix/fcvbp.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvbbd.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvroot.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvsparse.c
+$tar $tarfile $distrobase/src/cvode/fcmix/fcvklu.c
+$tar $tarfile $distrobase/src/cvode/fcmix/fcvsuperlumt.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvode.h
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvbp.h
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvbbd.h

@@ -66,6 +66,9 @@ $tar $tarfile $distrobase/src/kinsol/fcmix/fkinband.c
 $tar $tarfile $distrobase/src/kinsol/fcmix/fkinlapack.c
 $tar $tarfile $distrobase/src/kinsol/fcmix/fkinlapdense.c
 $tar $tarfile $distrobase/src/kinsol/fcmix/fkinlapband.c
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinsparse.c
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinklu.c
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinsuperlumt.c
 $tar $tarfile $distrobase/src/kinsol/fcmix/fkinpreco.c
 $tar $tarfile $distrobase/src/kinsol/fcmix/fkinjtimes.c
 $tar $tarfile $distrobase/src/kinsol/fcmix/fkinbbd.c

@@ -193,12 +193,21 @@ mkdir $tmpdir/examples
 
 cp $sundialsdir/LICENSE $tmpdir/
 cp $sundialsdir/README $tmpdir/ 
-cp $sundialsdir/INSTALL_NOTES $tmpdir/
+#cp $sundialsdir/INSTALL_NOTES $tmpdir/
 #cp $sundialsdir/config.hin $tmpdir/
 #cp $sundialsdir/configure.ac $tmpdir/configure.ac
 #cp $sundialsdir/acinclude.m4 $tmpdir/
 #cp $sundialsdir/Makefile.in $tmpdir/
 cp $sundialsdir/CMakeLists.txt $tmpdir/
+
+# Make install guide and copy to $tmpdir
+echo -e "--- SUNDIALS Common Installation documentation"
+cd $sundialsdir/doc/sundials
+make QUIET= purge
+make QUIET= in_g_pdf
+cd - 
+cp $sundialsdir/doc/sundials/install_guide.pdf $tmpdir/INSTALL_GUIDE.pdf
+
 
 cp -r $sundialsdir/config $tmpdir/
 cp -r $sundialsdir/test $tmpdir/
