@@ -7,8 +7,39 @@ the use of the {\cvode} solver, for the solution of ODE systems
 $dy/dt = f(t,y)$, in a mixed {\F}/{\C} setting.  While {\cvode} is written
 in {\C}, it is assumed here that the user's calling program and
 user-supplied problem-defining routines are written in {\F}.
-This package provides the necessary interface to {\cvode} for both the
+This package provides the necessary interface to {\cvode} for all supplied 
 serial and the parallel {\nvector} implementations.
+
+%%==============================================================================
+% Pul in sections on portability and data types.
+%%==============================================================================
+\input{fortran}
+
+%% In this package, the names of the interface functions, and the names of
+%% the {\F} user routines called by them, appear as dummy names
+%% which are mapped to actual values by a series of definitions in the
+%% header files \id{fcvode.h}, \id{fcvroot.h}, \id{fcvbp.h}, and \id{fcvbbd.h}.
+%% By default, those mapping definitions depend in turn on the {\C} macro
+%% \id{F77\_FUNC} defined in the header file \id{sundials\_config.h} and
+%% decided upon at configuration time (see Appendix \ref{c:install}).
+
+%% The user must also ensure that variables in the user {\F} code are
+%% declared in a manner consistent with their counterparts in {\cvode}.
+%% All real variables must be declared as \id{REAL}, \id{DOUBLE PRECISION},
+%% or perhaps as \id{REAL*}{\em n}, where {\em n} denotes the number of bytes,
+%% depending on whether {\cvode} was built in single, double, or extended precision 
+%% (see Appendix \ref{c:install}). Moreover, some of the {\F} integer variables
+%% must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
+%% {\C} type \id{long int}.  These integer variables include:
+%% the optional input (\id{IVAL}), the problem size and bandwidth parameters
+%% (\id{NEQ}, \id{NLOCAL}, \id{NGLOBAL}, \id{ML}, \id{MU}, etc.),
+%% the array of integer optional outputs (\id{IOUT}),
+%% and the user array of integer data (\id{IPAR}).
+%% EXCEPTION: In the case that Lapack linear solvers are to be used, the
+%% input arguments to \id{FCVLAPACKDENSE} or \id{FCVLAPACKBAND} (\id{NEQ},
+%% \id{ML}, and \id{MU}) must be declared to be consistent with {\C} type \id{int}.
+%% This type consistency is particularly important when using {\cvode} and the
+%% {\fcvode} package on 64-bit architectures.
 
 %%==============================================================================
 \section{FCVODE routines}\label{sss:fcvroutines}
@@ -73,6 +104,12 @@ are as follows:
     interfaces to \id{CVLapackBand}.
   \item \id{FCVLAPACKBANDSETJAC}
     interfaces to \id{CVDlsSetBandJacFn}.
+  \item \id{FCVKLU}
+    interfaces to \id{CVKLU}.
+  \item \id{FCVKLUREINIT}
+    interfaces to \id{CVKLUReInit}.
+  \item \id{FCVSUPERLUMT}
+    interfaces to \id{CVSuperLUMT}.
   \item \id{FCVSPGMR}
     interfaces to \id{CVSpgmr} and {\spgmr} optional input functions.
   \item \id{FCVSPGMRREINIT} 
@@ -107,6 +144,7 @@ interface function which calls it (and its type within {\cvode}), are as follows
                & \id{FCVLapackDenseJac} & \id{CVDlsDenseJacFn} \\
 \id{FCVBJAC}   & \id{FCVBandJac}        & \id{CVDlsBandJacFn} \\
                & \id{FCVLapackBandJac}  & \id{CVDlsBandJacFn} \\
+\id{FCVSPJAC}  & \id{FCVSparseJac}      & \id{CVSlsSparseJacFn} \\
 \id{FCVPSOL}   & \id{FCVPSol}           & \id{CVSpilsPrecSolveFn} \\
 \id{FCVPSET}   & \id{FCVPSet}           & \id{CVSpilsPrecSetupFn} \\
 \id{FCVJTIMES} & \id{FCVJtimes}         & \id{CVSpilsJacTimesVecFn} \\
@@ -115,38 +153,6 @@ interface function which calls it (and its type within {\cvode}), are as follows
 In contrast to the case of direct use of {\cvode}, and of most {\F} ODE
 solvers, the names of all user-supplied routines here are fixed, in
 order to maximize portability for the resulting mixed-language program.
-
-%%==============================================================================
-\subsection{Important note on portability}
-%%==============================================================================
-\index{portability!Fortran}
-
-In this package, the names of the interface functions, and the names of
-the {\F} user routines called by them, appear as dummy names
-which are mapped to actual values by a series of definitions in the
-header files \id{fcvode.h}, \id{fcvroot.h}, \id{fcvbp.h}, and \id{fcvbbd.h}.
-By default, those mapping definitions depend in turn on the {\C} macro
-\id{F77\_FUNC} defined in the header file \id{sundials\_config.h} and
-decided upon at configuration time (see Appendix \ref{c:install}).
-
-The user must also ensure that variables in the user {\F} code are
-declared in a manner consistent with their counterparts in {\cvode}.
-All real variables must be declared as \id{REAL}, \id{DOUBLE PRECISION},
-or perhaps as \id{REAL*}{\em n}, where {\em n} denotes the number of bytes,
-depending on whether {\cvode} was built in single, double, or extended precision 
-(see Appendix \ref{c:install}). Moreover, some of the {\F} integer variables
-must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
-{\C} type \id{long int}.  These integer variables include:
-the optional input (\id{IVAL}), the problem size and bandwidth parameters
-(\id{NEQ}, \id{NLOCAL}, \id{NGLOBAL}, \id{ML}, \id{MU}, etc.),
-the array of integer optional outputs (\id{IOUT}),
-and the user array of integer data (\id{IPAR}).
-EXCEPTION: In the case that Lapack linear solvers are to be used, the
-input arguments to \id{FCVLAPACKDENSE} or \id{FCVLAPACKBAND} (\id{NEQ},
-\id{ML}, and \id{MU}) must be declared to be consistent with {\C} type \id{int}.
-This type consistency is particularly important when using {\cvode} and the
-{\fcvode} package on 64-bit architectures.
-
 
 %%==============================================================================
 \section{Usage of the FCVODE interface module}\label{ss:fcvode_usage}
@@ -176,7 +182,7 @@ to {\nvecp},
 \item {\bf Right-hand side specification}
 %%====================
   
-  The user must in all cases supply the following {\F} routine
+  The user must, in all cases, supply the following {\F} routine
   \index{FCVFUN@\texttt{FCVFUN}}
 \begin{verbatim}
       SUBROUTINE FCVFUN(T, Y, YDOT, IPAR, RPAR, IER)
@@ -233,8 +239,8 @@ to {\nvecp},
   \id{IER} is a return completion flag which is $0$ on success and $-1$ 
   if a failure occurred.
     
-  {\p} To initialize the MPI-parallel {\nvector} module {\nvecp}, the user must make the
-  following call:
+  {\p} To initialize the distributed memory 
+  parallel vector module, the user must make the following call:
   \index{FNVINITP@\texttt{FNVINITP}}
 \begin{verbatim}
       CALL FNVINITP(COMM, KEY, NLOCAL, NGLOBAL, IER)
@@ -350,9 +356,10 @@ to {\nvecp},
   
   In the case of a stiff system, the implicit \id{BDF} method involves the solution
   of linear systems related to the Jacobian $J = \partial f / \partial y$
-  of the ODE system.  {\cvode} presently includes eight choices for the treatment
-  of these systems, and the user of {\fcvode} must call a routine with a
-  specific name to make the desired choice.
+  of the ODE system.  The user of 
+  {\fcvode} must call a routine with a specific name to make the desired
+  choice of linear solver.
+
 
   %%-------------------------------------------------
 
@@ -526,6 +533,85 @@ to {\nvecp},
 \end{verbatim}
 
   Optional outputs specific to the {\band} case are listed in Table~\ref{t:fcvode_out}.
+
+  %%-------------------------------------------------
+  
+  {\s} {\bf Sparse direct treatment of the linear system}
+  \index{CVSPARSE@{\cvsparse} linear solver!use in {\fcvode}}
+  
+  To use the KLU sparse direct linear solver,
+  the user must make the call:
+  \index{FCVKLU@\texttt{FCVKLU}}
+\begin{verbatim}
+      CALL FCVKLU (NEQ, NNZ, ORDERING, IER)
+\end{verbatim}
+  where \id{NEQ} is the size of the ODE system, 
+  \id{NNZ} is the maximum number of nonzeros in the Jacobian matrix,
+  and \id{ORDERING} is the matrix ordering desired with possible values
+  from the KLU package (0 = AMD, 1 = COLAMD).
+  The argument \id{IER} is an error return flag which is $0$ for success 
+  or negative for an error.
+
+  \index{FCVKLUREINIT@\texttt{FCVKLURENIT}}
+ The {\cvode} KLU solver will reuse much of the factorization 
+ information from one nonlinear iteration and time step to the next.  
+ If at any time 
+ the user wants to force a full refactorization or if the number of 
+ nonzeros in the Jacobian matrix changes, the user should make the call
+\begin{verbatim}
+       CALL FCVKLUREINIT(NEQ, NNZ, REINIT_TYPE)
+\end{verbatim}
+  where \id{NEQ} is the size of the ODE system, 
+  \id{NNZ} is the maximum number of nonzeros in the Jacobian matrix,
+  and \id{REINIT\_TYPE} is 1 or 2.  For a value of 1, the matrix will be 
+  destroyed and a new one will be allocated with \id{NNZ} nonzeros.  
+  For a value of 2, only symbolic and numeric factorizations 
+  will be completed. 
+
+  \index{FCVSUPERLUMT@\texttt{FCVSUPERLUMT}}
+  Alternatively, to use the \id{SuperLUMT} linear solver,
+  the user must make the call:
+\begin{verbatim}
+      CALL FCVSUPERLUMT (NEQ, NNZ, ORDERING, IER)
+\end{verbatim}
+  where the arguments have the same meanings as for \id{FCVKLU}, except
+  that here possible values for \id{ORDERING} derive from the {\superlumt} 
+  package and include: 0 for Natural ordering, 1 for Minimum degree on $A^T A$,
+  2 for Minimum degree on $A^T + A$, and 3 for COLAMD.
+
+  \index{FCVSPJAC@\texttt{FCVSPJAC}}
+  If the either of the sparse direct interface packages are used, 
+  then the user must supply the \id{FCVSPJAC} routine
+  that computes a compressed-sparse-column 
+  approximation of the system Jacobian $J = df_i(y)/dy$.  If supplied, 
+  it must have the following form:
+\begin{verbatim}
+       SUBROUTINE FCVSPJAC(T, Y, FY, N, NNZ, JDATA, JRVALS, 
+      &                    JCPTRS, H, IPAR, RPAR, WK1, WK2, WK3, IER)
+\end{verbatim}
+  It must load the \id{N} by \id{N} 
+  compressed sparse column matrix 
+  with storage for \id{NNZ} nonzeros, stored in the arrays \id{JDATA} (nonzero
+  values), \id{JRVALS} (row indices for each nonzero), \id{JCOLPTRS} (indices 
+  for start of each column), with the Jacobian matrix at the current
+  $(t, y)$ in CSC form (see \id{sundials\_sparse.h} for more information).
+ The arguments are \id{T}, the current time, \id{Y}, an array containing 
+ state variables, \id{FY}, an
+ array containing state derivatives, \id{N}, the number of matrix rows/columns 
+ in the Jacobian, \id{NNZ}, allocated length of nonzero storage, \id{JDATA},
+ nonzero values in the Jacobian (of length \id{NNZ}), 
+ \id{JRVALS}, row indices for each nonzero in Jacobian (of length \id{NNZ}),
+ \id{JCPTRS}, pointers to each Jacobian column in the two preceding arrays
+ (of length \id{N}+1), \id{H}, the current step size, 
+ \id{IPAR}, an array containing integer user data that was 
+ passed to \id{FCVMALLOC}, \id{RPAR}, an array containing real user 
+ data that was passed to \id{FCVMALLOC}, 
+ \id{WK*}, work arrays containing temporary workspace 
+ of same size as \id{Y}, and \id{IER}, error return code (0 if successful,
+ >0 if a recoverable error occurred, or <0 if an unrecoverable error ocurred.)
+
+  Optional outputs specific to the {\sparse} case are listed in
+  Table~\ref{t:fcvode_out}.
 
   %%-------------------------------------------------
   
@@ -935,6 +1021,11 @@ and \S\ref{ss:optional_output}.
 14 & \id{LENIWLS}  & \id{CVDiagGetWorkSpace} \\ 
 15 & \id{LS\_FLAG} & \id{CVDiagGetLastFlag} \\ 
 16 & \id{NFELS}    & \id{CVDiagGetNumRhsEvals} \\ 
+\hline
+\multicolumn{3}{|c|}{{\cvsparse} linear solvers}\\
+\hline
+14 & \id{LS\_FLAG} & \id{CVSlsGetLastFlag} \\ 
+16 & \id{NJE}      & \id{CVSlsGetNumJacEvals} \\ 
 \hline
 \multicolumn{3}{|c|}{{\cvspgmr}, {\cvspbcg}, {\cvsptfqmr} linear solvers}\\
 \hline

@@ -166,7 +166,7 @@
 
      The arguments are:
          Y    -- array containing state variables [realtype, input]
-         FY   -- array containing state derivatives [realtype, input]
+         FY   -- array containing residual values [realtype, input]
          N    -- number of matrix rows/columns in Jacobian [int, input]
          NNZ  -- allocated length of nonzero storage [int, input]
         JDATA -- nonzero values in Jacobian
@@ -486,7 +486,8 @@
        UU          = array containing the initial guess on input, and the
                      solution on return
        GLOBALSTRAT = (INTEGER) a number defining the global strategy choice:
-                     0 = No globalization, 1 = LineSearch
+                     0 = No globalization, 1 = LineSearch, 2 = Picard, 
+                     3 = Fixed Point 
        USCALE      = array of scaling factors for the UU vector
        FSCALE      = array of scaling factors for the FVAL (function) vector
        IER         = INTEGER error flag as returned by KINSOL:

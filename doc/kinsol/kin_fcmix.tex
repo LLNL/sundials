@@ -3,12 +3,42 @@
 %%==============================================================================
 
 The {\fkinsol} interface module is a package of {\C} functions which support
-the use of the {\kinsol} solver, for the solution nonlinear systems
+the use of the {\kinsol} solver, for the solution of nonlinear systems
 $F(u)=0$, in a mixed {\F}/{\C} setting.  While {\kinsol} is written
 in {\C}, it is assumed here that the user's calling program and
 user-supplied problem-defining routines are written in {\F}.
-This package provides the necessary interface to {\kinsol} for both the
+This package provides the necessary interface to {\kinsol} for all supplied
 serial and the parallel {\nvector} implementations.
+
+%%==============================================================================
+% Pull in sections on portability and data types.
+%%==============================================================================
+\input{fortran}
+
+%% In this package, the names of the interface functions, and the names of
+%% the {\F} user routines called by them, appear as dummy names
+%% which are mapped to actual values by a series of definitions in the
+%% header files \id{fkinsol.h} and \id{fkinbbd.h}.
+%% By default, those mapping definitions depend in turn on the {\C} macro
+%% \id{F77\_FUNC} defined in the header file \id{sundials\_config.h} and
+%% decided upon at configuration time (see Appendix \ref{c:install}).
+
+%% The user must also ensure that variables in the user {\F} code are
+%% declared in a manner consistent with their counterparts in {\kinsol}.
+%% All real variables must be declared as \id{REAL}, \id{DOUBLE PRECISION},
+%% or perhaps as \id{REAL*}{\em n}, where {\em n} denotes the number of bytes,
+%% depending on whether {\kinsol} was built in single, double or extended precision 
+%% (see Appendix \ref{c:install}). Moreover, some of the {\F} integer variables
+%% must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
+%% {\C} type \id{long int}. These integer variables include:
+%% the optional input (\id{IVAL}), the problem size and bandwidth parameters
+%% (\id{NEQ}, \id{NLOCAL}, \id{NGLOBAL}, \id{ML}, \id{MU}, etc.),
+%% and the array of integer optional outputs (\id{IOUT}).
+%% EXCEPTION: In the case that Lapack linear solvers are to be used, the
+%% input arguments to \id{FKINLAPACKDENSE} or \id{FKINLAPACKBAND} (\id{NEQ},
+%% \id{ML}, and \id{MU}) must be declared to be consistent with {\C} type \id{int}.
+%% This type consistency is particularly important when using
+%% {\kinsol} and the {\fkinsol} package on 64-bit architectures.
 
 %%==============================================================================
 \section{FKINSOL routines}\label{sss:fkinroutines}
@@ -62,8 +92,16 @@ are as follows:
     interfaces to \id{KINLapackBand}.
   \item \id{FKINLAPACKBANDSETJAC}
     interfaces to \id{KINDlsSetBandJacFn}.
+  \item \id{FKINKLU}
+    interfaces to \id{KINKLU}.
+  \item \id{FKINKLUREINIT}
+    interfaces to \id{KINKLUReInit}.
+  \item \id{FKINSUPERLUMT}
+    interfaces to \id{KINSuperLUMT}.
   \item \id{FKINSPGMR}
     interfaces to \id{KINSpgmr} and {\spgmr} optional input functions.
+  \item \id{FKINSPFGMR}
+    interfaces to \id{KINSpfgmr} and {\spfgmr} optional input functions.
   \item \id{FKINSPBCG}
     interfaces to \id{KINSpbcg} and {\spbcg} optional input functions.
   \item \id{FKINSPTFQMR}
@@ -89,6 +127,7 @@ interface function which calls it (and its type within {\kinsol}), are as follow
 {}            & \id{FKINLapackDenseJac} & \id{KINDlsDenseJacFn} \\
 \id{FKBJAC}   & \id{FKINBandJac}        & \id{KINDlsBandJacFn} \\
 {}            & \id{FKINLapackBandJac}  & \id{KINDlsBandJacFn} \\
+\id{FKINSPJAC} & \id{FKINSparseJac}     & \id{KINSlsSparseJacFn} \\
 \id{FKPSET}   & \id{FKINPSet}           & \id{KINSpilsPrecSetupFn} \\
 \id{FKPSOL}   & \id{FKINPSol}           & \id{KINSpilsPrecSolveFn} \\
 \id{FKJTIMES} & \id{FKINJtimes}         & \id{KINSpilsJacTimesVecFn} \\
@@ -97,36 +136,6 @@ interface function which calls it (and its type within {\kinsol}), are as follow
 In contrast to the case of direct use of {\kinsol}, the names of all 
 user-supplied routines here are fixed, in order to maximize portability 
 for the resulting mixed-language program.
-
-%%==============================================================================
-\section{Important note on portability}
-%%==============================================================================
-\index{portability!Fortran}
-
-In this package, the names of the interface functions, and the names of
-the {\F} user routines called by them, appear as dummy names
-which are mapped to actual values by a series of definitions in the
-header files \id{fkinsol.h} and \id{fkinbbd.h}.
-By default, those mapping definitions depend in turn on the {\C} macro
-\id{F77\_FUNC} defined in the header file \id{sundials\_config.h} and
-decided upon at configuration time (see Appendix \ref{c:install}).
-
-The user must also ensure that variables in the user {\F} code are
-declared in a manner consistent with their counterparts in {\kinsol}.
-All real variables must be declared as \id{REAL}, \id{DOUBLE PRECISION},
-or perhaps as \id{REAL*}{\em n}, where {\em n} denotes the number of bytes,
-depending on whether {\kinsol} was built in single, double or extended precision 
-(see Appendix \ref{c:install}). Moreover, some of the {\F} integer variables
-must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
-{\C} type \id{long int}. These integer variables include:
-the optional input (\id{IVAL}), the problem size and bandwidth parameters
-(\id{NEQ}, \id{NLOCAL}, \id{NGLOBAL}, \id{ML}, \id{MU}, etc.),
-and the array of integer optional outputs (\id{IOUT}).
-EXCEPTION: In the case that Lapack linear solvers are to be used, the
-input arguments to \id{FKINLAPACKDENSE} or \id{FKINLAPACKBAND} (\id{NEQ},
-\id{ML}, and \id{MU}) must be declared to be consistent with {\C} type \id{int}.
-This type consistency is particularly important when using
-{\kinsol} and the {\fkinsol} package on 64-bit architectures.
 
 %%==============================================================================
 \section{Usage of the FKINSOL interface module}\label{ss:fkinsol_usage}
@@ -154,7 +163,7 @@ to {\nvecp},
 \item {\bf Nonlinear system function specification}
 %%====================
   
-  The user must in all cases supply the following {\F} routine
+  The user must, in all cases, supply the following {\F} routine
   \index{FKFUN@\texttt{FKFUN}}
 \begin{verbatim}
       SUBROUTINE FKFUN (U, FVAL, IER)
@@ -209,8 +218,8 @@ to {\nvecp},
   \id{IER} is a return completion flag which is $0$ on success and $-1$ 
   if a failure occurred.
   
-  {\p} To initialize the parallel vector module, the user must make the
-  following call:
+  {\p} To initialize the distributed memory 
+  parallel vector module, the user must make the following call:
   \index{FNVINITP@\texttt{FNVINITP}}
 \begin{verbatim}
       CALL FNVINITP (COMM, KEY, NLOCAL, NGLOBAL, IER)
@@ -281,10 +290,9 @@ to {\nvecp},
 %%====================
 
   The solution method in {\kinsol} involves the solution of linear systems 
-  related to the Jacobian of the nonlinear system. {\kinsol} presently
-  includes five choices for the treatment of these systems, and the user of
+  related to the Jacobian of the nonlinear system. The user of 
   {\fkinsol} must call a routine with a specific name to make the desired
-  choice.
+  choice of linear solver.
 
   %%-------------------------------------------------
 
@@ -420,15 +428,96 @@ to {\nvecp},
   Optional outputs specific to the {\band} case are listed in Table~\ref{t:fkinsol_out}.
 
   %%-------------------------------------------------
-  
-  {\s}{\p} {\bf SPGMR treatment of the linear systems}
-  \index{KINSPGMR@{\kinspgmr} linear solver!use in {\fkinsol}}
 
-  For the Scaled Preconditioned GMRES solution of the linear systems,
-  the user must make the call
+  {\s} {\bf Sparse direct treatment of the linear system}
+  \index{KINSPARSE@{\kinsparse} linear solver!use in {\fkinsol}}
+  
+  To use the KLU sparse direct linear solver,
+  the user must make the call:
+  \index{FKINKLU@\texttt{FKINKLU}}
+\begin{verbatim}
+      CALL FKINKLU (NEQ, NNZ, ORDERING, IER)
+\end{verbatim}
+  where \id{NEQ} is the size of the nonlinear system, 
+  \id{NNZ} is the maximum number of nonzeros in the Jacobian matrix,
+  and \id{ORDERING} is the matrix ordering desired with possible values
+  from the KLU package (0 = AMD, 1 = COLAMD).
+  The argument \id{IER} is an error return flag which is $0$ for success 
+  or negative for an error.
+
+  \index{FKINKLUREINIT@\texttt{FKINKLURENIT}}
+ The {\kinsol} KLU solver will reuse much of the factorization 
+ information from one nonlinear iteration to the next.  If at any time 
+ the user wants to force a full refactorization or if the number of 
+ nonzeros in the Jacobian matrix changes, the user should make the call
+\begin{verbatim}
+       CALL FKINKLUREINIT(NEQ, NNZ, REINIT_TYPE)
+\end{verbatim}
+  where \id{NEQ} is the size of the nonlinear system, 
+  \id{NNZ} is the maximum number of nonzeros in the Jacobian matrix,
+  and \id{REINIT\_TYPE} is 1 or 2.  For a value of 1, the matrix will be 
+  destroyed and a new one will be allocated with \id{NNZ} nonzeros.  
+  For a value of 2, only symbolic and numeric factorizations 
+  will be completed. 
+
+  \index{FKINSUPERLUMT@\texttt{FKINSUPERLUMT}}
+  Alternatively, to use the \id{SuperLUMT} linear solver,
+  the user must make the call:
+\begin{verbatim}
+      CALL FKINSUPERLUMT (NEQ, NNZ, ORDERING, IER)
+\end{verbatim}
+  where the arguments have the same meanings as for \id{FKINKLU}, except
+  that here possible values for \id{ORDERING} derive from the {\superlumt} 
+  package and include: 0 for Natural ordering, 1 for Minimum degree on $A^T A$,
+  2 for Minimum degree on $A^T + A$, and 3 for COLAMD.
+
+  \index{FKINSPJAC@\texttt{FKINSPJAC}}
+  If the either of the sparse direct interface packages are used, 
+  then the user must supply the \id{FKINSPJAC} routine
+  that computes a compressed-sparse-column 
+  approximation of the system Jacobian $J = dF(y)/dy$.  If supplied, 
+  it must have the following form:
+\begin{verbatim}
+       SUBROUTINE FKINSPJAC(Y, FY, N, NNZ, JDATA, JRVALS, 
+      &                     JCPTRS, WK1, WK2, IER)
+\end{verbatim}
+  Typically this routine will use only \id{N, NNZ, JDATA, JRVALS} and 
+  \id{JCPTRS}. It must load the \id{N} by \id{N} 
+  compressed sparse column matrix 
+  with storage for \id{NNZ} nonzeros, stored in the arrays \id{JDATA} (nonzero
+  values), \id{JRVALS} (row indices for each nonzero), \id{JCOLPTRS} (indices 
+  for start of each column), with the Jacobian matrix at the current
+  (y) in CSC form (see \id{sundials\_sparse.h} for more information).
+ The arguments are \id{Y}, an array containing state variables, \id{FY}, an
+ array containing residual values, \id{N}, the number of matrix rows/columns 
+ in the Jacobian, \id{NNZ}, allocated length of nonzero storage, \id{JDATA},
+ nonzero values in the Jacobian (of length \id{NNZ}), 
+ \id{JRVALS}, row indices for each nonzero in Jacobian (of length \id{NNZ}),
+ \id{JCPTRS}, pointers to each Jacobian column in the two preceding arrays
+ (of length \id{N}+1), \id{WK*}, work arrays containing temporary workspace 
+ of same size as \id{Y}, and \id{IER}, error return code (0 if successful,
+ >0 if a recoverable error occurred, or <0 if an unrecoverable error ocurred.)
+
+  Optional outputs specific to the {\sparse} case are listed in
+  Table~\ref{t:fkinsol_out}.
+
+  %%-------------------------------------------------
+  
+  {\s}{\p} {\bf SPGMR and SPFGMR treatment of the linear systems}
+  \index{KINSPGMR@{\kinspgmr} linear solver!use in {\fkinsol}}
+  \index{KINSPFGMR@{\kinspfgmr} linear solver!use in {\fkinsol}}
+
+  For the Scaled Preconditioned GMRES 
+  or the Scaled Preconditioned Flexible GMRES solution of the linear systems,
+  the user must make either the call
   \index{FKINSPGMR@\texttt{FKINSPGMR}}
 \begin{verbatim}
       CALL FKINSPGMR (MAXL, MAXLRST, IER)
+\end{verbatim}
+or the call
+\index{FKINSPFGMR@\texttt{FKINSPFGMR}}
+\begin{verbatim}
+      CALL FKINSPFGMR (MAXL, MAXLRST, IER)
 \end{verbatim}
   The arguments are as follows.
   \id{MAXL} is the maximum Krylov subspace dimension.
@@ -436,11 +525,11 @@ to {\nvecp},
   \id{IER} is an error return flag which is $0$ to indicate success, $-1$
   if a memory allocation failure occurred, or $-2$ to indicate an illegal input.
   
-  Optional outputs specific to the {\spgmr} case are listed in
+  Optional outputs specific to the {\spgmr} and {\spfgmr} cases are listed in
   Table~\ref{t:fkinsol_out}.
 
   For descriptions of the relevant optional user-supplied routines, see 
-  {\bf User-supplied routines for SPGMR/SPBCG/SPTFQMR} below.
+  {\bf User-supplied routines for SPGMR/SPFMGR/SPBCG/SPTFQMR} below.
   
   %%-------------------------------------------------
   
@@ -458,8 +547,7 @@ to {\nvecp},
   Optional outputs specific to the {\spbcg} case are listed in
   Table~\ref{t:fkinsol_out}.
 
-  For descriptions of the relevant optional user-supplied routines, see 
-  {\bf User-supplied routines for SPGMR/SPBCG/SPTFQMR} below.
+  For descriptions of the relevant optional user-supplied routines, see below.
   
   %%-------------------------------------------------
   
@@ -481,11 +569,13 @@ to {\nvecp},
 
   %%-------------------------------------------------
 
-  {\s}{\p} {\bf Functions used by SPGMR/SPBCG/SPTFQMR}
+  {\s}{\p} {\bf Functions used by SPGMR/SPFGMR/SPBCG/SPTFQMR}
 
   An optional user-supplied routine, \id{FKINJTIMES} (see below), can be provided for
-  Jacobian-vector products.  If it is, then, following the call to
-  \id{FKINSPGMR}, \id{FKINSPBCG}, or \id{FKINSPTFQMR}, the user must make the call:
+  Jacobian-vector products.  
+  (Note that this routine is required if Picard iteration is being used.)
+  If it is, then, following the call to
+  \id{FKINSPGMR}, \id{FKINSPFGMR}, \id{FKINSPBCG}, or \id{FKINSPTFQMR}, the user must make the call:
   \index{FKINSPILSSETJAC@\texttt{FKINSPILSSETJAC}}
 \begin{verbatim}
       CALL FKINSPILSSETJAC (FLAG, IER)
@@ -507,7 +597,7 @@ to {\nvecp},
 
   %%-------------------------------------------------
 
- {\s}{\p} {\bf User-supplied routines for SPGMR/SPBCG/SPTFQMR}
+ {\s}{\p} {\bf User-supplied routines for SPGMR/SPFGMR/SPBCG/SPTFQMR}
 
   With treatment of the linear systems by any of the Krylov iterative
   solvers, there are three optional user-supplied routines ---
@@ -515,7 +605,8 @@ to {\nvecp},
   for these routines are given below.
 
   \index{Jacobian approximation function!Jacobian times vector!use in {\fkinsol}}
-  As an option when using the {\spgmr}, {\spbcg}, or {\sptfqmr}  linear solvers, 
+  As an option when using the {\spgmr}, {\spfgmr}, {\spbcg}, or {\sptfqmr}  
+  linear solvers, 
   the user may supply a routine that computes the product of the system Jacobian 
   $J = \partial F / \partial u$ 
   and a given vector $v$.  If supplied, it must have the following form:
@@ -585,7 +676,8 @@ to {\nvecp},
   \id{U} is an array containing the initial guess on input, and the
   solution on return.
   \id{GLOBALSTRAT} is an integer (type \id{INTEGER}) defining the global strategy 
-  choice ($1$ specifies Inexact Newton, while $2$ indicates line search).
+  choice ($0$ specifies Inexact Newton, $1$ indicates Newton with line search,
+  $2$ indicates Picard iteration, and $3$ indicates Fixed Point iteration).
   \id{USCALE} is an array of scaling factors for the \id{U} vector.
   \id{FSCALE} is an array of scaling factors for the \id{FVAL} vector.
   \id{IER} is an integer completion flag and will have one of the following values:
@@ -715,7 +807,13 @@ and \S\ref{ss:optional_output}.
 10 & \id{NFELS}    & \id{KINDlsGetNumFuncEvals} \\ 
 11 & \id{NJE}      & \id{KINDlsGetNumJacEvals} \\ 
 \hline
-\multicolumn{3}{|c|}{{\kinspgmr}, {\kinspbcg}, {\kinsptfqmr}  linear solvers}\\
+\multicolumn{3}{|c|}{{\kinsparse} linear solver}\\
+\hline
+8  & \id{LS\_FLAG} & \id{KINSlsGetLastFlag} \\ 
+10 & \id{NJE}      & \id{KINSlsGetNumJacEvals} \\ 
+\hline
+\multicolumn{3}{|c|}{{\kinspgmr}, {\kinspfgmr}, 
+  {\kinspbcg}, {\kinsptfqmr}  linear solvers}\\
 \hline
 7  & \id{LENRWLS}  & \id{KINSpilsGetWorkSpace} \\
 8  & \id{LENIWLS}  & \id{KINSpilsGetWorkSpace} \\
@@ -795,7 +893,7 @@ from the main program described in \S\ref{ss:fkinsol_usage} are grayed-out.
 \item {\bf Linear solver specification}
 
   First, specify one of the {\kinspils} iterative linear solvers, by calling
-  one of \id{FKINSPGMR}, \id{FKINSPBCG}, or \id{FKINSPTFQMR}.
+  one of \id{FKINSPGMR}, \id{FKINSPFGRM}, \id{FKINSPBCG}, or \id{FKINSPTFQMR}.
 
   To initialize the {\kinbbdpre} preconditioner, make the following call:
   \index{FKINBBDINIT@\texttt{FKINBBDINIT}}
@@ -815,7 +913,7 @@ from the main program described in \S\ref{ss:fkinsol_usage} are grayed-out.
   a value of $-1$ indicates that a memory failure occurred or that an input had
   an illegal value.
 
-  Optionally, to specify that {\spgmr}, {\spbcg}, or {\sptfqmr} should use
+  Optionally, to specify that {\spgmr}, {\spfgmr}, {\spbcg}, or {\sptfqmr} should use
   the supplied \id{FKJTIMES}, make the call
   \index{FKINSPILSSETJAC@\texttt{FKINSPILSSETJAC}}
 \begin{verbatim}
@@ -828,7 +926,7 @@ from the main program described in \S\ref{ss:fkinsol_usage} are grayed-out.
 
 \item {\bf {\kinbbdpre} Optional outputs}
 
-  Optional outputs specific to the {\spgmr}, {\spbcg}, or {\sptfqmr} solver are
+  Optional outputs specific to the {\spgmr}, {\spfgmr}, {\spbcg}, or {\sptfqmr} solver are
   listed in Table \ref{t:fkinsol_out}.
   To obtain the optional outputs associated with the {\kinbbdpre} module, make
   the following call:
@@ -889,6 +987,7 @@ from the main program described in \S\ref{ss:fkinsol_usage} are grayed-out.
   \index{FKINJTIMES@\texttt{FKINJTIMES}}
   Optionally, the user can supply a routine \id{FKINJTIMES} for the evaluation of
   Jacobian-vector products, as described above in step \ref{i:fkinsol_lin_solv_spec}
-  in \S\ref{ss:fkinsol_usage}.
+  in \S\ref{ss:fkinsol_usage}.  Note that this routine is required if using
+  Picard iteration.
 
 \end{Steps}

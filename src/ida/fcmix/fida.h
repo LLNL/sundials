@@ -492,8 +492,8 @@
      Jacobian, as discussed above with the other user-supplied routines.
  
      Optional outputs specific to the SUPERLUMT case are:
-        LSTF    = IOUT(16) from IDASlsGetLastFlag
-        NJES    = IOUT(18) from IDASlsGetNumJacEvals
+        LSTF    = IOUT(14) from IDASlsGetLastFlag
+        NJES    = IOUT(16) from IDASlsGetNumJacEvals
      See the IDA manual for descriptions.
  
  * (8.5) SPGMR treatment of the linear systems.

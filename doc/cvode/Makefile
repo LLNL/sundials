@@ -32,6 +32,7 @@ cv_newlinsolv.tex \
 cv_constants.tex \
 
 UG_SHARED_FILES = \
+fortran.tex \
 install.tex \
 linsolv.tex \
 nvec_generic.tex \

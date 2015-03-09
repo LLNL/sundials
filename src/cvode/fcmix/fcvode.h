@@ -175,8 +175,7 @@
        SUBROUTINE FCVSPJAC(T, Y, FY, N, NNZ, JDATA, JRVALS, 
       &                     JCPTRS, H, IPAR, RPAR, WK1, WK2, WK3, IER)
 
-     Typically this routine will use only M, N, NNZ, JDATA, JRVALS and 
-     JCPTRS. It must load the N by N compressed sparse column matrix 
+     This routine must load the N by N compressed sparse column matrix 
      with storage for NNZ nonzeros, stored in the arrays JDATA (nonzero
      values), JRVALS (row indices for each nonzero), JCOLPTRS (indices 
      for start of each column), with the Jacobian matrix at the current
@@ -481,8 +480,8 @@
      Jacobian, as discussed above with the other user-supplied routines.
  
      Optional outputs specific to the KLU case are:
-        LSTF    = IOUT(16) from CVSlsGetLastFlag
-        NJES    = IOUT(18) from CVSlsGetNumJacEvals
+        LSTF    = IOUT(14) from CVSlsGetLastFlag
+        NJES    = IOUT(16) from CVSlsGetNumJacEvals
      See the CVODE manual for descriptions.
  
  (10.7s) SPARSE treatment of the linear system using the SuperLUMT solver.
@@ -513,8 +512,8 @@
      Jacobian, as discussed above with the other user-supplied routines.
  
      Optional outputs specific to the SUPERLUMT case are:
-        LSTF    = IOUT(16) from CVSlsGetLastFlag
-        NJES    = IOUT(18) from CVSlsGetNumJacEvals
+        LSTF    = IOUT(14) from CVSlsGetLastFlag
+        NJES    = IOUT(16) from CVSlsGetNumJacEvals
      See the CVODE manual for descriptions.
  
  * (10.8) SPGMR treatment of the linear systems.

@@ -32,6 +32,7 @@ ida_newlinsolv.tex \
 ida_constants.tex
 
 UG_SHARED_FILES = \
+fortran.tex \
 install.tex \
 linsolv.tex \
 nvec_generic.tex \

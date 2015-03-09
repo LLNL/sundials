@@ -90,12 +90,12 @@ extern "C" {
  * yp  is the current value of the derivative vector y',          
  *     namely the predicted value of y'(t).                    
  *                                                                
- * f   is the residual vector F(tt,yy,yp).                     
+ * r   is the residual vector F(tt,yy,yp).                     
  *                                                                
  * JacMat is the compressed sparse column matrix (of type SlsMat)
  *     to be loaded by an IDASlsSparseJacFn routine with an approximation
  *     to the system Jacobian matrix
- *            J = dF/dy' + gamma*dF/dy                            
+ *            J = dF/dy' + c_j*dF/dy                            
  *     at the given point (t,y,y'), where the ODE system is    
  *     given by F(t,y,y') = 0.
  *     Note that JacMat is NOT preset to zero!

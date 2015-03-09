@@ -7,7 +7,12 @@ the use of the {\ida} solver, for the solution of DAE systems, in a mixed
 {\F}/{\C} setting.  While {\ida} is written in {\C}, it is assumed here
 that the user's calling program and user-supplied problem-defining routines
 are written in {\F}. This package provides the necessary interface to {\ida}
-for both the serial and the parallel {\nvector} implementations.
+for all supplied serial and the parallel {\nvector} implementations.
+
+%%==============================================================================
+% Pull in sections on portability and data types.
+%%==============================================================================
+\input{fortran}
 
 %%==============================================================================
 \section{FIDA routines}\label{sss:fidaroutines}
@@ -74,6 +79,12 @@ are as follows:
     interfaces to \id{IDALapackBand}.
   \item \id{FIDALAPACKBANDSETJAC}
     interfaces to \id{IDADlsSetBandJacFn}.
+  \item \id{FIDAKLU}
+    interfaces to \id{IDAKLU}.
+  \item \id{FIDAKLUREINIT}
+    interfaces to \id{IDAKLUReInit}.
+  \item \id{FIDASUPERLUMT}
+    interfaces to \id{IDASuperLUMT}.
   \item \id{FIDASPGMR}
     interfaces to \id{IDASpgmr} and {\spgmr} optional input functions.
   \item \id{FIDASPGMRREINIT}
@@ -108,6 +119,7 @@ function which calls it (and its type within {\ida}), are as follows:
                 & \id{FIDALapackDenseJac} & \id{IDADlsDenseJacFn} \\
 \id{FIDABJAC}   & \id{FIDABandJac}  & \id{IDADlsBandJacFn} \\
                 & \id{FIDALapackBandJac}  & \id{IDADlsBandJacFn} \\
+\id{FIDASPJAC}  & \id{FIDASparseJac}& \id{IDASlsSparseJacFn} \\
 \id{FIDAPSOL}   & \id{FIDAPSol}     & \id{IDASpilsPrecSolveFn} \\
 \id{FIDAPSET}   & \id{FIDAPSet}     & \id{IDASpilsPrecSetupFn} \\
 \id{FIDAJTIMES} & \id{FIDAJtimes}   & \id{IDASpilsJacTimesVecFn} \\
@@ -116,38 +128,6 @@ function which calls it (and its type within {\ida}), are as follows:
 In contrast to the case of direct use of {\ida}, and of most {\F} DAE
 solvers, the names of all user-supplied routines here are fixed, in
 order to maximize portability for the resulting mixed-language program.
-
-%%==============================================================================
-\subsection{Important note on portability}
-%%==============================================================================
-\index{portability!Fortran}
-
-In this package, the names of the interface functions, and the names of
-the {\F} user routines called by them, appear as dummy names
-which are mapped to actual values by a series of definitions in the
-header files \id{fida.h}, \id{fidaroot.h}, and \id{fidabbd.h}.
-By default, those mapping definitions depend in turn on the {\C} macros
-\id{F77\_FUNC} and \id{F77\_FUNC\_} defined in the header file
-\id{sundials\_config.h} and decided upon at configuration time
-(see Appendix \ref{c:install}).
-
-The user must also ensure that variables in the user {\F} code are
-declared in a manner consistent with their counterparts in {\ida}.
-All real variables must be declared as \id{REAL}, \id{DOUBLE PRECISION},
-or perhaps as \id{REAL*}{\em n}, where {\em n} denotes the number of bytes,
-depending on whether {\ida} was built in single, double, or extended precision 
-(see Appendix \ref{c:install}). Moreover, some of the {\F} integer variables
-must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
-{\C} type \id{long int}. These integer variables include:
-the optional input (\id{IVAL}), the problem size and bandwidth parameters
-(\id{NEQ}, \id{NLOCAL}, \id{NGLOBAL}, \id{ML}, \id{MU}, etc.),
-the array of integer optional outputs (\id{IOUT}),
-and the user array of integer data (\id{IPAR}).
-EXCEPTION: In the case that Lapack linear solvers are to be used, the
-input arguments to \id{FIDALAPACKDENSE} or \id{FIDALAPACKBAND} (\id{NEQ},
-\id{ML}, and \id{MU}) must be declared to be consistent with {\C} type \id{int}.
-This type consistency is particularly important when using {\ida} and the
-{\fida} package on 64-bit architectures.
 
 %%==============================================================================
 \section{Usage of the FIDA interface module}\label{ss:fida_usage}
@@ -175,7 +155,7 @@ to {\nvecp},
   
 \item {\bf Residual function specification}
   
-  The user must in all cases supply the following {\F} routine
+  The user must, in all cases, supply the following {\F} routine
   \index{FIDARESFUN@\texttt{FIDARESFUN}}
 \begin{verbatim}
       SUBROUTINE FIDARESFUN (T, Y, YP, R, IPAR, RPAR, IER)
@@ -230,8 +210,8 @@ to {\nvecp},
   \id{IER} is a return completion flag which is $0$ on success and $-1$ 
   if a failure occurred.
 
-  {\p} To initialize the parallel vector module, the user must make the
-  following call:
+  {\p} To initialize the distributed memory 
+  parallel vector module, the user must make the following call:
   \index{FNVINITP@\texttt{FNVINITP}}
 \begin{verbatim}
       CALL FNVINITP (COMM, KEY, NLOCAL, NGLOBAL, IER)
@@ -343,9 +323,9 @@ to {\nvecp},
   The variable-order, variable-coefficient \id{BDF} method used by {\ida} involves
   the solution of linear systems related to the system Jacobian
   $J = \partial F / \partial y + \alpha \partial F / \partial \dot{y}$.
-  See Eq. (\ref{e:DAE_Newtoncorr}).  {\ida} presently includes seven choices for
-  the treatment of these systems, and the user of {\fida} must call a routine with
-  a specific name to make the desired choice.
+  See Eq. (\ref{e:DAE_Newtoncorr}).  The user of 
+  {\fida} must call a routine with a specific name to make the desired
+  choice of linear solver.
 
   %%-------------------------------------------------
 
@@ -481,6 +461,87 @@ to {\nvecp},
   for success or non-zero if an error occurred.
 
   Optional outputs specific to the {\band} case are listed in
+  Table~\ref{t:fida_out}.
+
+  %%-------------------------------------------------
+  
+  {\s} {\bf Sparse direct treatment of the linear system}
+  \index{IDASPARSE@{\idasparse} linear solver!use in {\fida}}
+  
+  To use the KLU sparse direct linear solver,
+  the user must make the call:
+  \index{FIDAKLU@\texttt{FIDAKLU}}
+\begin{verbatim}
+      CALL FIDAKLU (NEQ, NNZ, ORDERING, IER)
+\end{verbatim}
+  where \id{NEQ} is the size of the DAE system, 
+  \id{NNZ} is the maximum number of nonzeros in the Jacobian matrix,
+  and \id{ORDERING} is the matrix ordering desired with possible values
+  from the KLU package (0 = AMD, 1 = COLAMD).
+  The argument \id{IER} is an error return flag which is $0$ for success 
+  or negative for an error.
+
+  \index{FIDAKLUREINIT@\texttt{FIDAKLURENIT}}
+ The {\ida} KLU solver will reuse much of the factorization 
+ information from one nonlinear iteration and time step 
+ to the next.  If at any time 
+ the user wants to force a full refactorization or if the number of 
+ nonzeros in the Jacobian matrix changes, the user should make the call
+\begin{verbatim}
+       CALL FIDAKLUREINIT(NEQ, NNZ, REINIT_TYPE)
+\end{verbatim}
+  where \id{NEQ} is the size of the DAE system, 
+  \id{NNZ} is the maximum number of nonzeros in the Jacobian matrix,
+  and \id{REINIT\_TYPE} is 1 or 2.  For a value of 1, the matrix will be 
+  destroyed and a new one will be allocated with \id{NNZ} nonzeros.  
+  For a value of 2, only symbolic and numeric factorizations 
+  will be completed. 
+
+  \index{FIDASUPERLUMT@\texttt{FIDASUPERLUMT}}
+  Alternatively, to use the \id{SuperLUMT} linear solver,
+  the user must make the call:
+\begin{verbatim}
+      CALL FIDASUPERLUMT (NEQ, NNZ, ORDERING, IER)
+\end{verbatim}
+  where the arguments have the same meanings as for \id{FIDAKLU}, except
+  that here possible values for \id{ORDERING} derive from the {\superlumt} 
+  package and include: 0 for Natural ordering, 1 for Minimum degree on $A^T A$,
+  2 for Minimum degree on $A^T + A$, and 3 for COLAMD.
+
+  \index{FIDASPJAC@\texttt{FIDASPJAC}}
+  If the either of the sparse direct interface packages are used, 
+  then the user must supply the \id{FIDASPJAC} routine
+  that computes a compressed-sparse-column 
+  approximation of the system Jacobian $J = dF(y)/dy' + c_j dF/dy$.  
+  If supplied, it must have the following form:
+\begin{verbatim}
+       SUBROUTINE FIDASPJAC(T, CJ, Y, YP, R, N, NNZ, JDATA, JRVALS, 
+      &                    JCPTRS, H, IPAR, RPAR, WK1, WK2, WK3, IER)
+\end{verbatim}
+  It must load the \id{N} by \id{N} 
+  compressed sparse column matrix 
+  with storage for \id{NNZ} nonzeros, stored in the arrays \id{JDATA} (nonzero
+  values), \id{JRVALS} (row indices for each nonzero), \id{JCOLPTRS} (indices 
+  for start of each column), with the Jacobian matrix at the current
+  $(t, y)$ in CSC form (see \id{sundials\_sparse.h} for more information).
+ The arguments are \id{T}, the current time, \id{CJ}, scalar in the system 
+ proportional to the inverse step size, \id{Y}, an array containing 
+ state variables, \id{YP}, an array containing state derivatives, 
+ \id{R}, an array containing the system nonlinear residual,
+ \id{N}, the number of matrix rows/columns 
+ in the Jacobian, \id{NNZ}, allocated length of nonzero storage, \id{JDATA},
+ nonzero values in the Jacobian (of length \id{NNZ}), 
+ \id{JRVALS}, row indices for each nonzero in Jacobian (of length \id{NNZ}),
+ \id{JCPTRS}, pointers to each Jacobian column in the two preceding arrays
+ (of length \id{N}+1), \id{H}, the current step size, 
+ \id{IPAR}, an array containing integer user data that was 
+ passed to \id{FIDAMALLOC}, \id{RPAR}, an array containing real user 
+ data that was passed to \id{FIDAMALLOC}, 
+ \id{WK*}, work arrays containing temporary workspace 
+ of same size as \id{Y}, and \id{IER}, error return code (0 if successful,
+ >0 if a recoverable error occurred, or <0 if an unrecoverable error ocurred.)
+
+  Optional outputs specific to the {\sparse} case are listed in
   Table~\ref{t:fida_out}.
 
   %%-------------------------------------------------
@@ -920,6 +981,11 @@ and \S\ref{ss:optional_output}.
 15 &  \id{LS\_FLAG} & \id{IDADlsGetLastFlag} \\
 16 &  \id{NRELS}    & \id{IDADlsGetNumResEvals} \\
 17 &  \id{NJE}      & \id{IDADlsGetNumJacEvals} \\ 
+\hline
+\multicolumn{3}{|c|}{{\idasparse} linear solvers}\\
+\hline
+14 &  \id{LS\_FLAG} & \id{IDADlsGetLastFlag} \\
+16 &  \id{NJE}      & \id{IDADlsGetNumJacEvals} \\ 
 \hline
 \multicolumn{3}{|c|}{{\idaspgmr}, {\idaspbcg}, {\idasptfqmr} linear solvers}\\
 \hline
