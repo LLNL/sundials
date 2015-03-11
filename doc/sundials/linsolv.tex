@@ -1,15 +1,15 @@
 %===================================================================================
 \chapter{General Use Linear Solver Components in SUNDIALS}\label{s:gen_linsolv}
 %===================================================================================
-In this chapter, we describe seven generic linear solver code modules that 
-are included in {\sundials}, 
-but which are of potential use as generic packages in
-themselves, either in conjunction with the use of {\sundials} or separately.
+
+In this chapter, we describe linear solver code components that are included in
+{\sundials}, but which are of potential use as generic packages in themselves,
+either in conjunction with the use of {\sundials} or separately.
 
 These generic modules in {\sundials} are organized in
 three families, the {\em dls} family, which includes direct
 linear solvers appropriate for sequential computations; the {\em sls}
-family, which includes sparse matrices; and the {\em spils}
+family, which includes sparse matrix solvers; and the {\em spils}
 family, which includes scaled preconditioned iterative (Krylov) linear solvers.
 The solvers in each family share common data structures and functions.
 
@@ -46,7 +46,7 @@ despite this, each of the {\em dls} and {\em spils} solvers is in fact generic,
 in that it is usable completely independently of {\sundials}.
 
 For the sake of space, the functions for the \id{dense} and \id{band} modules
-that work with a matrix type and the functions in the {\spgmr}, 
+that work with a matrix type, and the functions in the {\spgmr}, 
 {\spfgmr}, {\spbcg}, and {\sptfqmr}
 modules are only summarized briefly, since they are less likely to be of direct use
 in connection with a {\sundials} solver.  However, the functions for dense matrices 
@@ -54,7 +54,6 @@ treated as simple arrays and sparse matrices are fully described,
 because we expect that they will be 
 useful in the implementation of preconditioners used with the combination of one of
 the {\sundials} solvers and one of the {\em spils} linear solvers.
-
 
 
 % ====================================================================================
@@ -82,8 +81,7 @@ The files comprising the {\band} generic linear solver are as follows:
 \end{itemize}
 %%
 Only two of the preprocessing directives in the header file \id{sundials\_config.h} 
-are relevant to the {\dense} and {\band} packages by themselves (see
-\S\ref{ss:no_config} for details):
+are relevant to the {\dense} and {\band} packages by themselves.
 \begin{itemize}
 \item (required) definition of the precision of the {\sundials} type \id{realtype}. 
   One of the following lines must be present:\\
@@ -513,11 +511,6 @@ The following functions for small band matrices are available in the
 \index{BAND@{\band} generic linear solver!functions!small matrix|)}
 
 
-
-
-
-
-
 % ====================================================================================
 \section{The SLS module}\label{s:sls}
 % ====================================================================================
@@ -541,7 +534,7 @@ in the {\sundials} {\em srcdir}, are as follows:
 \end{itemize}
 %%
 Only two of the preprocessing directives in the header file \id{sundials\_config.h} 
-are relevant to the {\sls} package by itself (see \S\ref{ss:no_config} for details):
+are relevant to the {\sls} package by itself:
 \begin{itemize}
 \item (required) definition of the precision of the {\sundials} type \id{realtype}. 
   One of the following lines must be present:\\
@@ -593,13 +586,13 @@ sparse matrix of type \id{SlsMat} need not be square.
     entry held in \id{data}
   \item[colptrs]  - pointer to a contiguous block of \id{int}
     variables (of length \id{N+1}). Each entry provides the index of
-    the first column entry into the {\id data} and {\id rowvals}
-    arrays, e.g. if {\id colptr[3]=7}, then the first nonzero entry in
-    the fourth column of the matrix is located in {\id data[7]}, and
-    is located in row {\id rowvals[7]} of the matrix.  The last entry
+    the first column entry into the \id{data} and \id{rowvals}
+    arrays, e.g. if \id{colptr[3]=7}, then the first nonzero entry in
+    the fourth column of the matrix is located in \id{data[7]}, and
+    is located in row \id{rowvals[7]} of the matrix.  The last entry
     contains the total number of nonzero values in the matrix and hence
-    points one past the end of the active data in the {\id data} and
-    {\id rowvals} arrays.
+    points one past the end of the active data in the \id{data} and
+    \id{rowvals} arrays.
 \end{description}
 For example, the $5\times 4$ matrix
 \[
@@ -655,7 +648,7 @@ number of nonzeroes here.
   within the \id{rowvals} and \id{data} arrays, while the final entry
   points one past the final nonzero entry.  Here, although \id{NNZ}
   values are allocated, only \id{nz} are actually filled in; the
-  greyed-out portions of {\id data} and {\id rowvals} indicate extra
+  greyed-out portions of \id{data} and \id{rowvals} indicate extra
   allocated space.}\label{f:cscmat}
 \end{figure}
 %%
@@ -772,8 +765,6 @@ calculations employing {\sundials}' serial or shared-memory parallel
 {\nvector} modules (see Sections \ref{ss:nvec_ser}, \ref{ss:nvec_openmp}
 and \ref{ss:nvec_pthreads} for details).
 
-
-
 % ------------------------------------------------------------------------------
 \subsection{The SUPERLUMT solver}\label{ss:superlumt}
 % ------------------------------------------------------------------------------
@@ -796,17 +787,13 @@ parallel {\nvector} modules (see Sections \ref{ss:nvec_ser}, \ref{ss:nvec_openmp
 and \ref{ss:nvec_pthreads} for details).
 
 
-
-
-
-
 % ====================================================================================
 \section{The SPILS modules: SPGMR, SPFGMR, SPBCG, and SPTFQMR}\label{s:spils}
 % ====================================================================================
 
 The {\em spils} modules contain implementations of some of the most commonly
 use scaled preconditioned Krylov solvers.
-A linear solver module from the {\em spils} family can only be used 
+A linear solver module from the {\em spils} family can be used 
 in conjunction with any {\nvector} implementation library.
 
 % ------------------------------------------------------------------------------
@@ -835,7 +822,7 @@ in the {\sundials} {\em srcdir}, are as follows:
   \id{sundials\_spgmr.c}, \id{sundials\_iterative.c}, \id{sundials\_nvector.c}
 \end{itemize}
 Only two of the preprocessing directives in the header file \id{sundials\_config.h} 
-are required to use the {\spgmr} package by itself (see \S\ref{ss:no_config} for details):
+are required to use the {\spgmr} package by itself:
 \begin{itemize}
 \item (required) definition of the precision of the {\sundials} type \id{realtype}. 
   One of the following lines must be present:\\
