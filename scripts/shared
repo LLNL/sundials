@@ -9,7 +9,6 @@ tar=$*
 echo "   --- Add top-level files to $tarfile"
     
 tar cfv $tarfile $distrobase/README
-$tar $tarfile $distrobase/INSTALL_NOTES
 $tar $tarfile $distrobase/LICENSE
 $tar $tarfile $distrobase/INSTALL_GUIDE.pdf
 
