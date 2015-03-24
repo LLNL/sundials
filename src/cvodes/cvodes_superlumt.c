@@ -24,6 +24,7 @@
 
 #include "cvodes_impl.h"
 #include "cvodes_sparse_impl.h"
+#include "cvodes/cvodes_superlumt.h"
 #include "sundials/sundials_superlumt_impl.h"
 #include "sundials/sundials_math.h"
 

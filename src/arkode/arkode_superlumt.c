@@ -21,7 +21,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <arkode/arkode_sparse.h>
+#include "arkode/arkode_superlumt.h"
+#include "arkode/arkode_sparse.h"
 #include "arkode_sparse_impl.h"
 #include "arkode_impl.h"
 

@@ -25,6 +25,7 @@
 #include "sundials/sundials_math.h"
 #include "sundials/sundials_superlumt_impl.h"
 
+#include "kinsol/kinsol_superlumt.h"
 #include "kinsol_impl.h"
 #include "kinsol_sparse_impl.h"
 

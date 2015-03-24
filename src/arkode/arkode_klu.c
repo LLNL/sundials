@@ -21,7 +21,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <arkode/arkode_sparse.h>
+#include "arkode/arkode_klu.h"
+#include "arkode/arkode_sparse.h"
 #include "arkode_sparse_impl.h"
 #include "arkode_impl.h"
 
@@ -157,33 +158,9 @@ int ARKKLU(void *arkode_mem, int n, int nnz)
     return(ARKSLS_MEM_FAIL);
   }
 
-  /* Allocate structures for KLU */
+  /* Initialize KLU structures */
   klu_data->s_Symbolic = NULL;
-  klu_data->s_Symbolic = 
-    (klu_symbolic *) malloc(sizeof(klu_symbolic));
-  if (klu_data->s_Symbolic == NULL) {
-    arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
-		    "ARKKLU", MSGSP_MEM_FAIL);
-    DestroySparseMat(arksls_mem->s_A);
-    DestroySparseMat(arksls_mem->s_savedJ);
-    free(klu_data); klu_data = NULL;
-    free(arksls_mem); arksls_mem = NULL;
-    return(ARKSLS_MEM_FAIL);
-  }
   klu_data->s_Numeric = NULL;
-  klu_data->s_Numeric = 
-    (klu_numeric *) malloc(sizeof(klu_numeric));
-  if (klu_data->s_Numeric == NULL) {
-    arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
-		    "ARKKLU", MSGSP_MEM_FAIL);
-    klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
-    free(klu_data->s_Symbolic);  klu_data->s_Symbolic = NULL;
-    DestroySparseMat(arksls_mem->s_A);
-    DestroySparseMat(arksls_mem->s_savedJ);
-    free(klu_data); klu_data = NULL;
-    free(arksls_mem); arksls_mem = NULL;
-    return(ARKSLS_MEM_FAIL);
-  }
 
   /* Set default parameters for KLU */
   flag = klu_defaults(&klu_data->s_Common);
@@ -593,11 +570,9 @@ static void arkKLUFree(ARKodeMem ark_mem)
 
   klu_free_numeric(&(klu_data->s_Numeric), 
 		   &(klu_data->s_Common));
-  free(klu_data->s_Numeric);
 
   klu_free_symbolic(&(klu_data->s_Symbolic), 
 		    &(klu_data->s_Common));
-  free(klu_data->s_Symbolic);
 
   if (arksls_mem->s_A) {
     DestroySparseMat(arksls_mem->s_A);
@@ -719,33 +694,9 @@ int ARKMassKLU(void *arkode_mem, int n, int nnz,
     return(ARKSLS_MEM_FAIL);
   }
 
-  /* Allocate structures for KLU */
+  /* Initialize KLU structures */
   klu_data->s_Symbolic = NULL;
-  klu_data->s_Symbolic = 
-    (klu_symbolic *) malloc(sizeof(klu_symbolic));
-  if (klu_data->s_Symbolic == NULL) {
-    arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
-		    "ARKMassKLU", MSGSP_MEM_FAIL);
-    DestroySparseMat(arksls_mem->s_M);
-    DestroySparseMat(arksls_mem->s_M_lu);
-    free(klu_data); klu_data = NULL;
-    free(arksls_mem); arksls_mem = NULL;
-    return(ARKSLS_MEM_FAIL);
-  }
   klu_data->s_Numeric = NULL;
-  klu_data->s_Numeric = 
-    (klu_numeric *) malloc(sizeof(klu_numeric));
-  if (klu_data->s_Numeric == NULL) {
-    arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
-		    "ARKMassKLU", MSGSP_MEM_FAIL);
-    klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
-    free(klu_data->s_Symbolic);  klu_data->s_Symbolic = NULL;
-    DestroySparseMat(arksls_mem->s_M);
-    DestroySparseMat(arksls_mem->s_M_lu);
-    free(klu_data); klu_data = NULL;
-    free(arksls_mem); arksls_mem = NULL;
-    return(ARKSLS_MEM_FAIL);
-  }
 
   /* Set default parameters for KLU */
   flag = klu_defaults(&klu_data->s_Common);
@@ -1089,11 +1040,9 @@ static void arkMassKLUFree(ARKodeMem ark_mem)
 
   klu_free_numeric(&(klu_data->s_Numeric), 
 		   &(klu_data->s_Common));
-  free(klu_data->s_Numeric);
 
   klu_free_symbolic(&(klu_data->s_Symbolic), 
 		    &(klu_data->s_Common));
-  free(klu_data->s_Symbolic);
 
   if (arksls_mem->s_M) {
     DestroySparseMat(arksls_mem->s_M);

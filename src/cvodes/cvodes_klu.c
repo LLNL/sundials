@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cvodes/cvodes_klu.h"
 #include "cvodes_impl.h"
 #include "cvodes_sparse_impl.h"
 #include "sundials/sundials_klu_impl.h"
@@ -153,9 +154,9 @@ int CVKLU(void *cvode_mem, int n, int nnz)
     return(CVSLS_MEM_FAIL);
   }
 
-  /* Allocate structures for KLU */
-  klu_data->s_Symbolic = (klu_symbolic *)malloc(sizeof(klu_symbolic));
-  klu_data->s_Numeric = (klu_numeric *)malloc(sizeof(klu_numeric));
+  /* Initialize KLU structures */
+  klu_data->s_Symbolic = NULL;
+  klu_data->s_Numeric = NULL;
 
   /* Set default parameters for KLU */
   flag = klu_defaults(&klu_data->s_Common);
@@ -529,8 +530,6 @@ static void cvKLUFree(CVodeMem cv_mem)
 
   klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
   klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
-
-  free(klu_data->s_Symbolic);
 
   if (cvsls_mem->s_JacMat) {
     DestroySparseMat(cvsls_mem->s_JacMat);

@@ -27,6 +27,7 @@
 
 #include "idas_impl.h"
 #include "idas_sparse_impl.h"
+#include "idas/idas_superlumt.h"
 
 /* Constants */
 
