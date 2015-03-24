@@ -175,7 +175,7 @@ int ARKSpilsSetMassGSType(void *arkode_mem, int gstype)
   }
   arkspils_mem = (ARKSpilsMassMem) ark_mem->ark_mass_mem;
 
-  if ((arkspils_mem->s_type != SPILS_SPGMR) ||
+  if ((arkspils_mem->s_type != SPILS_SPGMR) &&
       (arkspils_mem->s_type != SPILS_SPFGMR)) {
     arkProcessError(ark_mem, ARKSPILS_ILL_INPUT, "ARKSPILS", 
 		    "ARKSpilsSetMassGSType", MSGS_BAD_LSTYPE);
@@ -218,7 +218,7 @@ int ARKSpilsSetMaxl(void *arkode_mem, int maxl)
   }
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
 
-  if ((arkspils_mem->s_type == SPILS_SPGMR) ||
+  if ((arkspils_mem->s_type == SPILS_SPGMR) &&
       (arkspils_mem->s_type == SPILS_SPFGMR)) {
     arkProcessError(ark_mem, ARKSPILS_ILL_INPUT, "ARKSPILS", 
 		    "ARKSpilsSetMaxl", MSGS_BAD_LSTYPE);
@@ -256,7 +256,7 @@ int ARKSpilsSetMassMaxl(void *arkode_mem, int maxl)
   }
   arkspils_mem = (ARKSpilsMassMem) ark_mem->ark_mass_mem;
 
-  if ((arkspils_mem->s_type == SPILS_SPGMR) ||
+  if ((arkspils_mem->s_type == SPILS_SPGMR) &&
       (arkspils_mem->s_type == SPILS_SPFGMR)) {
     arkProcessError(ark_mem, ARKSPILS_ILL_INPUT, "ARKSPILS", 
 		    "ARKSpilsSetMassMaxl", MSGS_BAD_LSTYPE);
