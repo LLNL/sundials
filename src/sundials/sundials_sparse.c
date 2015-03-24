@@ -490,7 +490,7 @@ int SlsAddMat(SlsMat A, SlsMat B)
       w[B->rowvals[i]] -= 1;
 
     /* if any entry of w is negative, A doesn't contain B's sparsity */
-    for (i=0; i<A->N; i++)
+    for (i=0; i<A->M; i++)
       if (w[i] < 0) {
 	newmat = 1;
 	break;
