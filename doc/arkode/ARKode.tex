@@ -12910,13 +12910,12 @@ provides the necessary interfaces to ARKODE for all of the provided
 NVECTOR implementations.
 
 
-\section{Important notes on portability}
-\label{f_interface/index:important-notes-on-portability}\label{f_interface/index:finterface-portability}
+\section{Important note on portability}
+\label{f_interface/index:important-note-on-portability}\label{f_interface/index:finterface-portability}
 In this package, the names of the interface functions, and the names
 of the Fortran user routines called by them, appear as dummy names
 which are mapped to actual values by a series of definitions in the
-header files \code{farkode.h}, \code{farkroot.h}, \code{farkbp.h}, and
-\code{farkbbd.h}.  By default, those mapping definitions depend in turn
+header files.  By default, those mapping definitions depend in turn
 on the C macro \code{F77\_FUNC} defined in the header file
 \code{sundials\_config.h}.  The mapping defined by \code{F77\_FUNC} in turn
 transforms the C interface names to match the name-mangling approach
@@ -19665,17 +19664,17 @@ Usage:
 
 \chapter{Linear Solvers in ARKode}
 \label{linear_solvers/index:linearsolvers}\label{linear_solvers/index::doc}\label{linear_solvers/index:linear-solvers-in-arkode}
-In this section, we describe the generic linear solver code modules
-from SUNDIALS that are included in ARKode.  While these may be used in
-conjunction with ARKode, they may also be used separately as generic
-packages in themselves.  These generic linear solver modules are
-organized in three families of solvers, the DLS family, which includes
-direct linear solvers appropriate for sequential computations; the SLS
-family, which includes direct linear solvers for sparse matrices in
-serial or shared-memory computations; and the
-SPILS family, which includes scaled preconditioned iterative (Krylov)
-linear solvers. The solvers in each family share common data
-structures and functions.
+In this chapter, we describe linear solver code components that are
+included in SUNDIALS, but which are of potential use as generic
+packages in themselves, either in conjunction with the use of SUNDIALS
+or separately.
+
+These generic linear solver modules are organized in three families of
+solvers, the DLS family, which includes direct linear solvers
+appropriate for sequential computations; the SLS family, which
+includes sparse matrix solvers; and the SPILS family, which includes
+scaled preconditioned iterative (Krylov) linear solvers. The solvers
+in each family share common data structures and functions.
 
 The {\hyperref[linear_solvers/DLS:linearsolvers-dls]{\emph{\DUspan{}{DLS}}}} family contains the following two
 generic linear solvers:
@@ -19740,7 +19739,7 @@ this, each of the DLS and SPILS solvers is in fact generic, in that
 it is usable completely independently of SUNDIALS.
 
 For the sake of space, the functions for the DENSE, BAND modules
-that work with a matrix type and the functions in the SPGMR, SPFGMR,
+that work with a matrix type, and the functions in the SPGMR, SPFGMR,
 SPBCG, SPTFQMR and PCG modules are only summarized briefly, since
 they are less likely to be of direct use in connection with a SUNDIALS
 solver.  However, the functions for dense matrices treated as simple
@@ -19796,7 +19795,7 @@ source files (located in \code{srcdir/src/sundials}):
 
 Only two of the preprocessing directives in the header file
 \code{sundials\_config.h} are relevant to the DENSE and BAND packages by
-themselves (see the section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}} for details):
+themselves.
 \begin{itemize}
 \item {} 
 (required) definition of the precision of the SUNDIALS type
@@ -20694,8 +20693,8 @@ source files (located in \code{srcdir/src/sundials}):
 \end{itemize}
 
 Only two of the preprocessing directives in the header file
-\code{sundials\_config.h} are relevant to the SPARSE package by
-itself (see the section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}} for details):
+\code{sundials\_config.h} are relevant to the SLS package by
+itself:
 \begin{itemize}
 \item {} 
 (required) definition of the precision of the SUNDIALS type
@@ -21019,15 +21018,9 @@ parallel \code{N\_Vector} modules (see {\hyperref[nvectors/NVector_Serial:nvecto
 \section{The SPILS modules: SPGMR, SPFGMR, SPBCG, SPTFQMR and PCG}
 \label{linear_solvers/SPILS:the-spils-modules-spgmr-spfgmr-spbcg-sptfqmr-and-pcg}\label{linear_solvers/SPILS:linearsolvers-spils}\label{linear_solvers/SPILS::doc}
 The SPILS modules contain implementations of some of the most commonly
-use scaled preconditioned Krylov solvers.
-
-Due to their reliance on only general vector operations (without need
-to directly access data), the iterative linear solvers in the SPILS
-family can be used with any relatively complete NVECTOR implementation
-(see the section {\hyperref[nvectors/ARKode_requirements:nvectors-arkode]{\emph{\DUspan{}{NVECTOR functions required by ARKode}}}} for a complete listing).
-We note that while all of the vector modules provided with SUNDIALS
-meet these criteria, they may also be easily met through a
-user-supplied vector implementation.
+use scaled preconditioned Krylov solvers.  A linear solver module from
+the SPILS family can be used in conjunction with any NVECTOR
+implementation library.
 
 In the subsections below, we discuss the iterative linear solvers
 accessible to ARKode: SPGMR, SPFGMR, SPBCG, SPTFQMR and PCG.  Due to
@@ -21065,8 +21058,7 @@ source files (located in \code{srcdir/src/sundials}):
 \end{itemize}
 
 Only two of the preprocessing directives in the header file
-\code{sundials\_config.h} are required to use the SPGMR package by itself
-(see the section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}} for details):
+\code{sundials\_config.h} are required to use the SPGMR package by itself:
 \begin{itemize}
 \item {} 
 (required) definition of the precision of the SUNDIALS type
@@ -22056,7 +22048,7 @@ will build the default configuration:
 \PYGZgt{}  \PYGZhy{}DEXAMPLES\PYGZus{}INSTALL\PYGZus{}PATH\PYG{o}{=}/home/myname/sundials/installdir/examples \PYG{l+s+se}{\PYGZbs{}}
 \PYGZgt{}  ../sourcedir
 \PYG{n+nv}{\PYGZdl{} }make
-\PYG{n+nv}{\PYGZdl{} }make \PYG{n+nb}{test}
+\PYG{n+nv}{\PYGZdl{} }make install
 \end{Verbatim}
 
 
