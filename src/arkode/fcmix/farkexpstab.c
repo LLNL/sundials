@@ -48,7 +48,8 @@ void FARK_EXPSTABSET(int *flag, int *ier)
   if (*flag == 0) {
     *ier = ARKodeSetStabilityFn(ARK_arkodemem, NULL, NULL);
   } else {
-    *ier = ARKodeSetStabilityFn(ARK_arkodemem, FARKExpStab, NULL);
+    *ier = ARKodeSetStabilityFn(ARK_arkodemem, FARKExpStab, 
+				ARK_arkodemem);
   }
   return;
 }

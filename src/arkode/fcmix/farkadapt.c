@@ -51,7 +51,8 @@ void FARK_ADAPTSET(int *flag, int *ier)
   if (*flag == 0) {
     *ier = ARKodeSetAdaptivityFn(ARK_arkodemem, NULL, NULL);
   } else {
-    *ier = ARKodeSetAdaptivityFn(ARK_arkodemem, FARKAdapt, NULL);
+    *ier = ARKodeSetAdaptivityFn(ARK_arkodemem, FARKAdapt, 
+				 ARK_arkodemem);
   }
   return;
 }
