@@ -7,10 +7,11 @@ file contains one or all solvers in {\sundials}.
 
 The {\sundials} suite (or individual solvers) are distributed as
 compressed archives (\id{.tar.gz}). The name of the distribution
-archive is of the form {\em solver}\id{-x.y.z.tar.gz}, where {\em
-solver} is one of: \id{sundials}, \id{cvode}, \id{cvodes}, \id{ida},
+archive is of the form {\em solver}\id{-x.y.z.tar.gz}, where {\em solver}
+is one of: \id{sundials}, \id{cvode}, \id{cvodes}, \id{arkode}, \id{ida},
 \id{idas}, or \id{kinsol}, and \id{x.y.z} represents the version number
-(of the {\sundials} suite or of the individual solver).
+(of the {\sundials} suite or of the individual solver)
+.
 %%
 To begin the installation, first uncompress and expand the sources, by issuing
 \begin{verbatim}
@@ -58,7 +59,7 @@ The explanations on the installation procedure begins with a few common observat
   installed} {\sundials} headers and libraries.  As such, these
   configuration files for the {\sundials} examples can be used as
   "templates" for your own problems. CMake installs \id{CMakeLists.txt} files and also
-  (as an option available only under Unix/Linux) makefiles. Note this
+  (as an option available only under Unix/Linux) \id{Makefile} files. Note this
   installation approach also allows the option of building the
   {\sundials} examples without having to install them.  (This can be
   used as a sanity check for the freshly built libraries.)
@@ -104,10 +105,11 @@ compiler and linker.
 
 \subsection{Configuring, building, and installing on Unix-like systems}
 
-The default CMake configuration will build all included solvers and associated examples
-and will build static and shared libraries. The {\em installdir} defaults to /usr/local and can be changed
-by setting the \id{CMAKE\_INSTALL\_PREFIX} variable.
-Support for FORTRAN and all other options are disabled.
+The default CMake configuration will build all included solvers and
+associated examples and will build static and shared libraries. The
+{\em installdir} defaults to \id{/usr/local} and can be changed by
+setting the \id{CMAKE\_INSTALL\_PREFIX} variable.  Support for FORTRAN
+and all other options are disabled.
 
 CMake can be used from the command line with the \id{cmake} command, or from a \id{curses}-based GUI
 by using the \id{ccmake} command. Examples for using both methods will be presented.
@@ -444,7 +446,7 @@ The following examples will help demonstrate usage of the CMake configure option
 
 \noindent To configure {\sundials} using the default C and Fortran compilers,
 and default \id{mpicc} and \id{mpif77} parallel compilers, 
-enable compilation of examples,and install libraries, headers, and
+enable compilation of examples, and install libraries, headers, and
 example sources under subdirectories of
 \id{/home/myname/sundials/}, use:
 
@@ -503,21 +505,24 @@ set to the desired libraries.
 
 \subsubsection*{Building with KLU}
 The KLU libraries are part of SuiteSparse, a suite of sparse matrix software,
-available from the Texas A\&M University website: {\tt http://faculty.cse.tamu.edu/davis/suitesparse.html}
+available from the Texas A\&M University website: {\tt http://faculty.cse.tamu.edu/davis/suitesparse.html}.
 {\sundials} has been tested with SuiteSparse version 4.2.1.
 To enable KLU, set \id{KLU\_ENABLE} to \id{ON}, set \id{KLU\_INCLUDE\_DIR} to the \id{include}
 path of the KLU installation and set \id{KLU\_LIBRARY\_DIR} to the \id{lib} path of the KLU installation.
-The CMake configure will result in populating the variables: \id{AMD\_LIBRARY}, \id{AMD\_LIBRARY\_DIR},
-\id{BTF\_LIBRARY}, \id{BTF\_LIBRARY\_DIR}, \id{COLAMD\_LIBRARY},
-\id{COLAMD\_LIBRARY\_DIR}, and \id{KLU\_LIBRARY}
+The CMake configure will result in populating the following variables: \id{AMD\_LIBRARY},
+\id{AMD\_LIBRARY\_DIR}, \id{BTF\_LIBRARY}, \id{BTF\_LIBRARY\_DIR},
+\id{COLAMD\_LIBRARY}, \id{COLAMD\_LIBRARY\_DIR}, and
+\newline\id{KLU\_LIBRARY}
 
 \subsubsection*{Building with SuperLU\_MT}
 The SuperLU\_MT libraries are available for download from the Lawrence Berkeley National Laboratory website:
 {\tt http://crd-legacy.lbl.gov/$\sim$xiaoye/SuperLU/\#superlu\_mt}. 
 {\sundials} has been tested with SuperLU\_MT version 2.4.
-To enable SuperLU\_MT, set  \id{SUPERLUMT\_ENABLE} to \id{ON}, set \id{SUPERLUMT\_INCLUDE\_DIR} to the \id{SRC}
-path of the SuperLU\_MT installation and set \id{SUPERLUMT\_LIBRARY\_DIR} to the \id{lib} path of the SuperLU\_MT installation.
-Also, the \id{SUPERLUMT\_THREAD\_TYPE} must be set to either \id{Pthread} or \id{OpenMP}.
+To enable SuperLU\_MT, set  \id{SUPERLUMT\_ENABLE} to \id{ON}, set \id{SUPERLUMT\_INCLUDE\_DIR}
+to the \id{SRC} path of the SuperLU\_MT installation, and set the variable
+\newline\id{SUPERLUMT\_LIBRARY\_DIR} to the \id{lib} path of the SuperLU\_MT installation.
+At the same time, the variable
+\id{SUPERLUMT\_THREAD\_TYPE} must be set to either \id{Pthread} or \id{OpenMP}.
 
 \noindent Do not mix thread types when building {\sundials} solvers.
 If threading is enabled for {\sundials} by having either \id{OPENMP\_ENABLE} or \id{PTHREAD\_ENABLE} set to \id{ON}
@@ -541,7 +546,7 @@ use of third party libraries etc.{\warn}
 \noindent These examples with the installed configuration files can be used as "templates" for user developed solutions.
 
 %%===============================================================================
-\section{Configuring, building, and installing  on Windows}
+\section{Configuring, building, and installing  on Windows}\label{s:cmake_windows}
 %%===============================================================================
 Use \id{CMakeSetup} from the CMake install location.
 Make sure to select the appropriate source and the build directory.
@@ -588,9 +593,9 @@ A typical user program need not explicitly include any of the shared
 {\sundials} header files from under the {\em includedir}\id{/sundials}
 directory since they are explicitly included by the appropriate solver
 header files ({\em e.g.}, \id{cvode\_dense.h} includes
-\id{sundials\_dense.h}). However, it is both legal and safe to do so
-({\em e.g.}, the functions declared in \id{sundials\_dense.h} 
-could be used in building a preconditioner).
+\id{sundials\_dense.h}). However, it is both legal and safe to do so,
+and would be useful, for example, if the functions declared in \id{sundials\_dense.h} 
+are to be used in building a preconditioner.
 
 \begin{table}
 \centering
