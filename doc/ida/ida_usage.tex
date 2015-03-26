@@ -1988,7 +1988,8 @@ flag = IDASetConstraints(ida\_mem, constraints);
 %%
 %%==================================================================================
 %%
-\subsubsection{Dense direct linear solvers optional input functions}\label{sss:optin_dls}
+\subsubsection{Dense/band direct linear solvers optional input functions}
+\label{sss:optin_dls}
 \index{optional input!dense linear solver|(}
 \index{optional input!band linear solver|(}
 \index{IDADENSE@{\idadense} linear solver!optional input|(}
@@ -2106,7 +2107,8 @@ specified through \id{IDASetUserData}.
 %%
 %%==================================================================================
 %%
-\subsubsection{Sparse direct linear solvers optional input functions}\label{sss:optin_sls}
+\subsubsection{Sparse direct linear solvers optional input functions}
+\label{sss:optin_sls}
 \index{optional input!sparse linear solver|(}
 \index{IDAKLU@{\idaklu} linear solver!optional input|(}
 \index{IDASUPERLUMT@{\idasuperlumt} linear solver!optional input|(}
@@ -2161,16 +2163,16 @@ through \id{IDASetUserData}.
 %%
 %%
 \index{IDAKLU@{\idaklu} linear solver!reinitialization}
-When using a spasre dircet solver, there 
+When using a sparse direct solver, there 
 may be instances when the number of state variables does not 
 change, but the number of nonzeroes in the Jacobian does change.  
-For the {\idaklu} solver, we provide a reinitialization.
-This reinitialization routine reinitializes the Jacobian matrix
-memory for the new number of nnozeroes and sets flags for a new factorization 
+In this case, for the {\cvklu} solver, we provide the following reinitialization
+function.  This function reinitializes the Jacobian matrix
+memory for the new number of nonzeroes and sets flags for a new factorization 
 (symbolic and numeric) to be conducted at the next solver setup
 call.  This routine is useful in the cases where the number of nonzeroes 
-has changed or if the structure of the linear system has changed
-which would require a new symbolic (and numeric factorization).
+has changed, or where the structure of the linear system has changed,
+requiring a new symbolic (and numeric) factorization.
 %%
 \ucfunction{IDAKLUReInit}
 {
@@ -2311,7 +2313,8 @@ packages, and the user-supplied value will be passed directly to the package.
 %%
 %%==================================================================================
 %%
-\subsubsection{Iterative linear solvers optional input functions}\label{sss:optin_spils}
+\subsubsection{Iterative linear solvers optional input functions}
+\label{sss:optin_spils}
 \index{optional input!iterative linear solver|(}
 \index{IDASPGMR@{\idaspgmr} linear solver!optional input|(}
 \index{IDASPBCG@{\idaspbcg} linear solver!optional input|(}
@@ -3706,7 +3709,8 @@ These optional output functions are described next.
 %%
 %%==================================================================================
 %%
-\subsubsection{Initial condition calculation optional output functions}\label{sss:optout_iccalc}
+\subsubsection{Initial condition calculation optional output functions}
+\label{sss:optout_iccalc}
 \index{optional output!initial condition calculation|(}
 %%
 \ucfunction{IDAGetNumBcktrackOps}
@@ -3850,8 +3854,8 @@ There are two optional output functions associated with rootfinding.
 %%
 %%==================================================================================
 %%
-
-\subsubsection{Dense direct linear solvers optional output functions}\label{sss:optout_dls}
+\subsubsection{Dense/band direct linear solvers optional output functions}
+\label{sss:optout_dls}
 \index{optional output!dense linear solver|(}
 \index{optional output!band linear solver|(}
 \index{IDADENSE@{\idadense} linear solver!optional output|(}
