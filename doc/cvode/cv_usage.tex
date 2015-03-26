@@ -1971,7 +1971,8 @@ flag = CVodeSetIterType(cvode\_mem, iter);
 
 
 %%==============================================================================
-\subsubsection{Dense direct linear solvers optional input functions}\label{sss:optin_dls}
+\subsubsection{Dense/band direct linear solvers optional input functions}
+\label{sss:optin_dls}
 %%==============================================================================
 \index{optional input!dense linear solver|(}
 \index{optional input!band linear solver|(}
@@ -2142,16 +2143,16 @@ The pointer \id{user\_data} may be specified through \id{CVodeSetUserData}.
 %%
 %%
 \index{CVKLU@{\cvklu} linear solver!reinitialization}
-When using a spasre dircet solver, there 
+When using a sparse direct solver, there 
 may be instances when the number of state variables does not 
 change, but the number of nonzeroes in the Jacobian does change.  
-For the {\cvklu} solver, we provide a reinitialization.
-This reinitialization routine reinitializes the Jacobian matrix
-memory for the new number of nnozeroes and sets flags for a new factorization 
+In this case, for the {\cvklu} solver, we provide the following reinitialization
+function.  This function reinitializes the Jacobian matrix
+memory for the new number of nonzeroes and sets flags for a new factorization 
 (symbolic and numeric) to be conducted at the next solver setup
 call.  This routine is useful in the cases where the number of nonzeroes 
-has changed or if the structure of the linear system has changed
-which would require a new symbolic (and numeric factorization).
+has changed, or where the structure of the linear system has changed,
+requiring a new symbolic (and numeric) factorization.
 %%
 \ucfunction{CVKLUReInit}
 {
@@ -3545,7 +3546,8 @@ There are two optional output functions associated with rootfinding.
 {}
 
 %%==============================================================================
-\subsubsection{Dense direct linear solvers optional output functions}\label{sss:optout_dls}
+\subsubsection{Dense/band direct linear solvers optional output functions}
+\label{sss:optout_dls}
 %%==============================================================================
 \index{optional output!dense linear solver|(}
 \index{CVDENSE@{\cvdense} linear solver!optional output|(}
@@ -3732,101 +3734,8 @@ the name of an optional output from the main solver, a suffix \id{LS}
 
 
 %%==============================================================================
-\subsubsection{Sparse direct linear solvers optional output functions}\label{sss:optout_sls}
-%%==============================================================================
-\index{optional output!sparse linear solver|(}
-\index{CVKLU@{\cvklu} linear solver!optional output|(}
-\index{CVSUPERLUMT@{\cvsuperlumt} linear solver!optional output|(}
-The following optional outputs are available from the {\cvsls} modules:
-number of calls to the Jacobian routine
-and last return value from a {\cvsls} function.
-%%
-%%
-\ucfunction{CVSlsGetNumJacEvals}
-{
-  flag = CVSlsGetNumJacEvals(cvode\_mem, \&njevals);
-}
-{
-  The function \ID{CVSlsGetNumJacEvals} returns the
-  number of calls made to the {\cvsls} sparse
-  Jacobian approximation function.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[njevals] (\id{long int})
-    the number of calls to the Jacobian function.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSLS\_LMEM\_NULL]
-  \item[\Id{CVSLS\_SUCCESS}] 
-    The optional output value has been successfully set.
-  \item[\Id{CVSLS\_MEM\_NULL}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVSLS\_LMEM\_NULL}]
-    The {\cvsls} linear solver has not been initialized.
-  \end{args}
-}
-{}
-%%
-%%
-\ucfunction{CVSlsGetLastFlag}
-{
-  flag = CVSlsGetLastFlag(cvode\_mem, \&lsflag);
-}
-{
-  The function \ID{CVSlsGetLastFlag} returns the
-  last return value from a {\cvsls} routine. 
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[lsflag] (\id{long int})
-    the value of the last return flag from a {\cvsls} function.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSLS\_LMEM\_NULL]
-  \item[\Id{CVSLS\_SUCCESS}] 
-    The optional output value has been successfully set.
-  \item[\Id{CVSLS\_MEM\_NULL}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVSLS\_LMEM\_NULL}]
-    The {\cvsls} linear solver has not been initialized.
-  \end{args}
-}
-{
-}
-%%
-%%
-\ucfunction{CVSlsGetReturnFlagName}
-{
-  name = CVSlsGetReturnFlagName(lsflag);
-}
-{
-  The function \ID{CVSlsGetReturnFlagName} returns the
-  name of the {\cvsls} constant corresponding to \id{lsflag}.
-}
-{
-  The only argument, of type \id{long int}, is a return flag from a {\cvsls}
-  function.
-}
-{
-  The return value is a string containing the name of the corresponding constant.
-}
-{}
-\index{CVSUPERLUMT@{\cvsuperlumt} linear solver!optional output|)}
-\index{CVKLU@{\cvklu} linear solver!optional output|)}
-\index{optional output!sparse linear solver|)}
-
-
-%%==============================================================================
-\subsubsection{Diagonal linear solver optional output functions}\label{sss:optout_diag}
+\subsubsection{Diagonal linear solver optional output functions}
+\label{sss:optout_diag}
 %%==============================================================================
 \index{optional output!diagonal linear solver|(}
 \index{CVDIAG@{\cvdiag} linear solver!optional output|(}
@@ -3967,7 +3876,103 @@ the name of an optional output from the main solver, a suffix \id{LS}
 
 
 %%==============================================================================
-\subsubsection{Iterative linear solvers optional output functions}\label{sss:optout_spils}
+\subsubsection{Sparse direct linear solvers optional output functions}
+\label{sss:optout_sls}
+%%==============================================================================
+\index{optional output!sparse linear solver|(}
+\index{CVKLU@{\cvklu} linear solver!optional output|(}
+\index{CVSUPERLUMT@{\cvsuperlumt} linear solver!optional output|(}
+The following optional outputs are available from the {\cvsls} modules:
+number of calls to the Jacobian routine
+and last return value from a {\cvsls} function.
+%%
+%%
+\ucfunction{CVSlsGetNumJacEvals}
+{
+  flag = CVSlsGetNumJacEvals(cvode\_mem, \&njevals);
+}
+{
+  The function \ID{CVSlsGetNumJacEvals} returns the
+  number of calls made to the {\cvsls} sparse
+  Jacobian approximation function.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[njevals] (\id{long int})
+    the number of calls to the Jacobian function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVSLS\_LMEM\_NULL]
+  \item[\Id{CVSLS\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{CVSLS\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVSLS\_LMEM\_NULL}]
+    The {\cvsls} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{CVSlsGetLastFlag}
+{
+  flag = CVSlsGetLastFlag(cvode\_mem, \&lsflag);
+}
+{
+  The function \ID{CVSlsGetLastFlag} returns the
+  last return value from a {\cvsls} routine. 
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[lsflag] (\id{long int})
+    the value of the last return flag from a {\cvsls} function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVSLS\_LMEM\_NULL]
+  \item[\Id{CVSLS\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{CVSLS\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVSLS\_LMEM\_NULL}]
+    The {\cvsls} linear solver has not been initialized.
+  \end{args}
+}
+{
+}
+%%
+%%
+\ucfunction{CVSlsGetReturnFlagName}
+{
+  name = CVSlsGetReturnFlagName(lsflag);
+}
+{
+  The function \ID{CVSlsGetReturnFlagName} returns the
+  name of the {\cvsls} constant corresponding to \id{lsflag}.
+}
+{
+  The only argument, of type \id{long int}, is a return flag from a {\cvsls}
+  function.
+}
+{
+  The return value is a string containing the name of the corresponding constant.
+}
+{}
+\index{CVSUPERLUMT@{\cvsuperlumt} linear solver!optional output|)}
+\index{CVKLU@{\cvklu} linear solver!optional output|)}
+\index{optional output!sparse linear solver|)}
+
+
+%%==============================================================================
+\subsubsection{Iterative linear solvers optional output functions}
+\label{sss:optout_spils}
 %%==============================================================================
 \index{optional output!iterative linear solver|(}
 \index{CVSPGMR@{\cvspgmr} linear solver!optional output|(} 
@@ -4606,9 +4611,9 @@ the user may provide a function of type \Id{CVDlsDenseJacFn} defined by:
 {
   A \id{CVDlsDenseJacFn} should return 0 if successful, a positive value if a recoverable
   error occurred (in which case {\cvode} will attempt to correct, while {\cvdense} sets
-  \id{last\_flag} on \Id{CVDLS\_JACFUNC\_RECVR}), or a negative 
+  \id{last\_flag} to \Id{CVDLS\_JACFUNC\_RECVR}), or a negative 
   value if it failed unrecoverably (in which case the integration is halted, \id{CVode}
-  returns \Id{CV\_LSETUP\_FAIL} and {\cvdense} sets \id{last\_flag} on 
+  returns \Id{CV\_LSETUP\_FAIL} and {\cvdense} sets \id{last\_flag} to 
   \Id{CVDLS\_JACFUNC\_UNRECVR}).
 }
 {
@@ -4706,9 +4711,9 @@ the user may provide a function of type \Id{CVDlsBandJacFn} defined as follows:
 {
   A \id{CVDlsBandJacFn} function should return 0 if successful, a positive value if a recoverable
   error occurred (in which case {\cvode} will attempt to correct, while {\cvband} sets
-  \id{last\_flag} on \Id{CVDLS\_JACFUNC\_RECVR}), or a negative 
+  \id{last\_flag} to \Id{CVDLS\_JACFUNC\_RECVR}), or a negative 
   value if it failed unrecoverably (in which case the integration is halted, \id{CVode}
-  returns \Id{CV\_LSETUP\_FAIL} and {\cvband} sets \id{last\_flag} on 
+  returns \Id{CV\_LSETUP\_FAIL} and {\cvband} sets \id{last\_flag} to 
   \Id{CVDLS\_JACFUNC\_UNRECVR}).
 }
 {
@@ -4810,10 +4815,10 @@ function of type \Id{CVSlsSparseJacFn} defined by:
   A \id{CVSlsSparseJacFn} should return 0 if successful, a positive
   value if a recoverable error occurred (in which case {\cvode} will
   attempt to correct, while {\cvklu} or {\cvsuperlumt} sets
-  \id{last\_flag} on \Id{CVSLS\_JACFUNC\_RECVR}), or a negative value
+  \id{last\_flag} to \Id{CVSLS\_JACFUNC\_RECVR}), or a negative value
   if it failed unrecoverably (in which case the integration is halted,
   \id{CVode} returns \Id{CV\_LSETUP\_FAIL} and {\cvklu} or
-  {\cvsuperlumt} sets \id{last\_flag} on \Id{CVSLS\_JACFUNC\_UNRECVR}).
+  {\cvsuperlumt} sets \id{last\_flag} to \Id{CVSLS\_JACFUNC\_UNRECVR}).
 }
 {
   A user-supplied sparse Jacobian function must load the
