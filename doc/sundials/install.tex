@@ -32,11 +32,11 @@ The explanations on the installation procedure begins with a few common observat
     directory containing the {\sundials} sources.
   \item[{\em builddir}]
     is the (temporary) directory under which {\sundials} is built.
-  \item[{\em installdir}]
+  \item[{\em instdir}]
     is the directory under which the {\sundials} exported header files
     and libraries will be installed. Typically, header files are exported under a directory
-    {\em installdir}\id{/include} while libraries are installed under {\em installdir}\id{/lib},
-    with {\em installdir} specified at configuration time.
+    {\em instdir}\id{/include} while libraries are installed under {\em instdir}\id{/lib},
+    with {\em instdir} specified at configuration time.
   \end{description}
 
 \item For {\sundials} CMake-based installation, in-source builds are prohibited; in other words, the
@@ -45,11 +45,11 @@ The explanations on the installation procedure begins with a few common observat
   prevents ``polluting'' the source tree and allows efficient builds
   for different configurations and/or options.
 
-\item {\warn}The installation directory {\em installdir} can {\bf not} be the same as
+\item {\warn}The installation directory {\em instdir} can {\bf not} be the same as
   the source directory {\em srcdir}.
 
 \item By default, only the libraries and header files are exported to the installation
-  directory {\em installdir}.  If enabled by the user (with the
+  directory {\em instdir}.  If enabled by the user (with the
   appropriate toggle for CMake), the
   examples distributed with {\sundials} will be built together with
   the solver libraries but the installation step will result in
@@ -117,7 +117,7 @@ For the examples shown it is assumed that there is a top level {\sundials} direc
 with appropriate source, build and install directories:
 
 \begin{verbatim}
-   % mkdir (...)sundials/installdir
+   % mkdir (...)sundials/instdir
    % mkdir (...)sundials/builddir
    % cd (...)sundials/builddir
 \end{verbatim}
@@ -145,10 +145,10 @@ Using CMake with the GUI follows this general process:
 \end{itemize}
 
 To build the default configuration using the GUI, from the {\em builddir} enter
-the ccmake command and point to the {\em sourcedir}:
+the ccmake command and point to the {\em srcdir}:
 
 \begin{verbatim}
-    % ccmake ../sourcedir
+    % ccmake ../srcdir
 \end{verbatim}
 
 The default configuration screen is shown in Figure
@@ -162,14 +162,14 @@ until the 'g' option is available.}
 \label{f:ccmakedefault}
 \end{figure}
 
-The default {\em installdir} for both {\sundials} and corresponding examples
+The default {\em instdir} for both {\sundials} and corresponding examples
 can be changed by setting the \id{CMAKE\_INSTALL\_PREFIX} and
 the \id{EXAMPLES\_INSTALL\_PATH} as shown in figure
 \ref{f:ccmakeprefix}. 
 \begin{figure}[!ht]
 {\centerline{\psfig{figure=ccmakeprefix.eps,width=\textwidth}}}
-\caption [Changing the {\em installdir}]
-{Changing the {\em installdir} for {\sundials} and
+\caption [Changing the {\em instdir}]
+{Changing the {\em instdir} for {\sundials} and
 corresponding {\id examples} }
 \label{f:ccmakeprefix}
 \end{figure}
@@ -227,9 +227,9 @@ Using CMake from the command line is simply a matter of specifying CMake variabl
 with the {\id cmake} command.  The following will build the default configuration:  
 
 \begin{verbatim}
-   % cmake -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/installdir \
-   > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/installdir/examples \
-   > ../sourcedir
+   % cmake -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
+   > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
+   > ../srcdir
    % make
    % make install
 \end{verbatim}
@@ -431,7 +431,7 @@ a typical configuration on a Linux system and are provided as illustration only.
 \item[\id{TESTRUNNER}] - 
   Location of \id{testRunner} script   
   \\
-  Default: \id{sourcedir}/\id{testRunner} 
+  Default: \id{srcdir}/\id{testRunner} 
 \item[\id{USE\_GENERIC\_MATH}] -   
   Use generic (stdc) math libraries
   \\
@@ -452,11 +452,11 @@ example sources under subdirectories of
 
 \begin{verbatim}
    % cmake \
-   > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/installdir \
-   > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/installdir/examples \
+   > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
+   > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
    > -DMPI_ENABLE=ON \
    > -DFCMIX_ENABLE=ON \
-   > /home/myname/sundials/sourcedir
+   > /home/myname/sundials/srcdir
    %
    % make install
    % 
@@ -465,12 +465,12 @@ example sources under subdirectories of
 \noindent To disable installation of the examples, use:
 \begin{verbatim}
    % cmake \
-   > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/installdir \
-   > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/installdir/examples \
+   > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
+   > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
    > -DMPI_ENABLE=ON \
    > -DFCMIX_ENABLE=ON \
    > -DEXAMPLES_INSTALL=OFF \
-   > /home/myname/sundials/sourcedir
+   > /home/myname/sundials/srcdir
    %
    % make install
    % 
@@ -493,10 +493,10 @@ set to the desired libraries.
 \noindent Example: 
 \begin{verbatim}
    % cmake \
-   > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/installdir \
-   > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/installdir/examples \
+   > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
+   > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
    > -DLAPACK_LIBRARIES=/mypath/lib/liblapack.so;/mypath/lib/libblas.so \
-   > /home/myname/sundials/sourcedir
+   > /home/myname/sundials/srcdir
    %
    % make install
    % 
@@ -537,13 +537,18 @@ Specify the installation path for the examples with the variable \id{EXAMPLES\_I
 \id{CMakeLists.txt} configuration files (and \id{Makefile} files if on Linux/Unix) that reference the
 {\em installed} {\sundials} headers and libraries.
 
-\noindent From within the installed example directory, run CMake (either with the GUI or command line) to compile the example code.
-The resulting output from running the example can be compared with example output bundled in the {\sundials} distribution.
+\noindent Either the \id{CMakeLists.txt} file or the traditional \id{Makefile} may be used to build the examples
+as well as serve as a template for creating user developed solutions.
+To use the supplied \id{Makefile} simply run \id{make} to compile and generate the executables.
+To use CMake, from within the installed example directory, run \id{cmake} (or \id{ccmake} to use the GUI)
+followed by \id{make} to compile the example code.
+Note that if CMake is used, it will overwrite the traditional \id{Makefile} with a new CMake generated \id{Makefile}.
+\noindent The resulting output from running the examples can be compared with example output bundled
+in the {\sundials} distribution.
 
-\noindent NOTE: There will likely differences in the output due to machine architecture, compiler versions,
+\noindent NOTE: There will potentially be differences in the output due to machine architecture, compiler versions,
 use of third party libraries etc.{\warn} 
 
-\noindent These examples with the installed configuration files can be used as "templates" for user developed solutions.
 
 %%===============================================================================
 \section{Configuring, building, and installing  on Windows}\label{s:cmake_windows}
