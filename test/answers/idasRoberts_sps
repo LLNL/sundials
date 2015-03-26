@@ -1,5 +1,5 @@
 
-idasRoberts_dns: Robertson kinetics DAE serial example problem for IDA.
+idasRoberts_sps: Robertson kinetics DAE serial example problem for IDA.
                Three equation chemical kinetics problem.
 
 Linear solver: IDASUPERLUMT, with user-supplied Jacobian.
