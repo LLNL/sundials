@@ -1,22 +1,8 @@
-To Do List for SUNDIALS, as of 03/03/2015
+To Do List for SUNDIALS, as of 03/27/2015
 
 (*** items must be completed before KINSOL and ARKode can be released.)
 
-***(Carol) Update FORTRAN Interfaces (cvode ida kinsol)
-
 ***(Carol) Update Confluence Pages "Recent Changes"
-
-***(Eddy) Update tarscripts
-    - to use new Install_Notes
-    - remove Makefile.in(s) if not needed
-
-***(Eddy) Document Windows build - install guide
-
-***(Eddy) Update options for cmake.  Remove autoconf documentation in 
-   manuals (anywhere else?)
-
-***(Steve, Eddy) Finalize pthreads implementation and document performance concerns.
-    - update "Vector" chapter as needed...
 
 ***(Eddy, Carol) Write and test openMP and pThreads with Fortran and document
 	- Tests written.
@@ -33,33 +19,17 @@ To Do List for SUNDIALS, as of 03/03/2015
 
 ***(Eddy) Doc of NVECTOR tests in Installation chapter (review NVector Chapter).
 
-***(Eddy) Remove testRunner from Install Guide and tarscripts
-
 ***(Carol) Nakhimovski claims posible infinite loop in KINSOL
 
 ***(Carol) User Kantli has question on KINSOL use
 
-***(Eddy) READMEs need to be updated with default CMake configure
-
 ***(Carol) Tar-file sizes in download.html
-
-***(Alan) Review build documentation.
-
-***(Eddy) Make build system handling of examples consistent.  Right now, distclean
-   does not remove compiled examples.  Also, the install builds an examples
-   directory, but the executables are not copied there.
-
-***(Eddy) Remove autotools build files from installation
 
 ***(Eddy) NVector test examples are not installed correctly. They contain multiple .c source
    files that need to be installed and accounted for in installed Makefile.
    
 ***(Eddy) Document NVector use in install guide (Pthreads and OpenMP)
 
-***(Eddy) Nightly build should compile with '-Wall' and '-ansi -pendantic' to force ISO 90 behavior.
-    Plus all errors/warnings should be fixed
-    - (All) working on list of warnings from current compilation
-    
 ***(Alan) Identify any outstanding user issues.
 	 - Check on all Oxberry submitted patches.
 
@@ -68,6 +38,10 @@ To Do List for SUNDIALS, as of 03/03/2015
 
 Deferred to after release (11/6/13)
 
+***(Eddy) Nightly build should compile with '-Wall' and '-ansi -pendantic' to force ISO 90 behavior.
+    Plus all errors/warnings should be fixed
+    - (All) working on list of warnings from current compilation
+    
 (Eddy) Document how users can use testRunner (copy output to answer)
     - actually need to completely revisit how users can verify installation.  
 
@@ -138,6 +112,33 @@ Add SuperLU_MT test cases to nightly build (requires multiple compilations)
 -------------------------------------------------------------------------
 
 Completed Tasks
+
+***(Eddy) Make build system handling of examples consistent.  Right now, distclean
+   does not remove compiled examples.  Also, the install builds an examples
+   directory, but the executables are not copied there.
+
+***(Alan) Review build documentation.
+
+***(Steve, Eddy) Finalize pthreads implementation and document performance concerns.
+    - update "Vector" chapter as needed...
+
+***(Steve, Eddy) Finalize pthreads implementation and document performance concerns.
+    - update "Vector" chapter as needed...
+
+***(Eddy) READMEs need to be updated with default CMake configure
+
+***(Eddy) Remove testRunner from Install Guide and tarscripts
+
+***(Eddy) Document Windows build - install guide
+
+***(Eddy) Update options for cmake.  Remove autoconf documentation in 
+   manuals (anywhere else?)
+
+***(Eddy) Update tarscripts
+    - to use new Install_Notes
+    - remove Makefile.in(s) if not needed
+
+***(Carol) Update FORTRAN Interfaces (cvode ida kinsol)
 
 ***(Eddy) C++ conditional statements in wrong place with respect to #include lines
 
