@@ -575,17 +575,11 @@ Using the CMake {\sundials} build system, the command
    % make install
 \end{verbatim}
 will install the libraries under {\em libdir} and the public header
-files under {\em includedir}. The default values for these directories are
+files under {\em includedir}. The values for these directories are
 {\em instdir}\id{/lib} and {\em instdir}\id{/include},
-respectively, but can be changed using the configure script options
-\id{--prefix}, \id{--exec-prefix}, \id{--includedir} and \id{--libdir} 
-(see the appropriate CMake options).  For example, a global installation
-of {\sundials} on a {\sc *NIX} system could be accomplished using
-\begin{verbatim}
-   % configure --prefix=/opt/sundials-2.1.1
-\end{verbatim}
-Although all installed libraries reside under {\em libdir}, the public header files
-are further organized into subdirectories under {\em includedir}.
+respectively. The location can be changed by setting the CMake variable \id{CMAKE\_INSTALL\_PREFIX}.
+Although all installed libraries reside under {\em libdir}\id{/lib}, the public header files
+are further organized into subdirectories under {\em includedir}\id{/include}.
 
 The installed libraries and exported header files are listed for
 reference in Tables \ref{t:sundials_files} and \ref{t:sundials_files2}.
@@ -595,7 +589,7 @@ Note that, in the Tables, names are relative to {\em libdir}
 for libraries and to {\em includedir} for header files.
 
 A typical user program need not explicitly include any of the shared
-{\sundials} header files from under the {\em includedir}\id{/sundials}
+{\sundials} header files from under the {\em includedir}\id{/include}\id{/sundials}
 directory since they are explicitly included by the appropriate solver
 header files ({\em e.g.}, \id{cvode\_dense.h} includes
 \id{sundials\_dense.h}). However, it is both legal and safe to do so,
