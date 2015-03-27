@@ -428,10 +428,6 @@ a typical configuration on a Linux system and are provided as illustration only.
   Enable SUPERLU\_MT support   
   \\
   Default: OFF 
-\item[\id{TESTRUNNER}] - 
-  Location of \id{testRunner} script   
-  \\
-  Default: \id{srcdir}/\id{testRunner} 
 \item[\id{USE\_GENERIC\_MATH}] -   
   Use generic (stdc) math libraries
   \\
@@ -553,18 +549,35 @@ use of third party libraries etc.{\warn}
 %%===============================================================================
 \section{Configuring, building, and installing  on Windows}\label{s:cmake_windows}
 %%===============================================================================
-Use \id{CMakeSetup} from the CMake install location.
-Make sure to select the appropriate source and the build directory.
-Also, make sure to pick the appropriate generator (on Visual Studio 6, 
-pick the Visual Studio 6 generator). Some CMake versions will ask you 
-to select the generator the first time you press Configure instead of 
-having a drop-down menu in the main dialog. 
+CMake can also be used to build {\sundials} on Windows. To build {\sundials} for
+use with Visual Studio the following steps should be performed:
+\begin{enumerate}
+\item Unzip the downloaded tar file(s) into a directory, this will be the {\em srcdir} 
+\item Create a separate {\em builddir}
+\item Open a Visual Studio Command Prompt and cd to {\em builddir}
+\item Run cmake-gui ../{\em srcdir}
+\begin{enumerate}
+\item Hit Configure
+\item Check/Uncheck solvers to be built
+\item Change CMAKE\_INSTALL\_PREFIX to {\em instdir}
+\item Set other options as desired
+\item Hit Generate
+\end{enumerate}
+\item Back in the VS Command Window:
+\begin{enumerate}
+\item Run msbuild ALL\_BUILD.vcxproj
+\item Run msbuild INSTALL.vcxproj
+\end{enumerate} 
+\end{enumerate}
 
-CMake will now create Visual Studio project files. You should now be able to 
-open the {\sundials} project (or workspace) file. Make sure to select the appropriate 
-build type (Debug, Release, ...). To build {\sundials}, simply build the \id{ALL\_BUILD}
-target. To install {\sundials}, simply run the \id{INSTALL} target within the build system.
-
+\noindent The resulting libraries will be in the {\em instdir}.
+\noindent The {\sundials} project can also now be opened in Visual Studio.
+Double click on the ALL\_BUILD.vcxproj file to open the project.
+Build the whole {\em solution} to create the {\sundials} libraries.
+To use the {\sundials} libraries in your own projects, you must
+set the include directories for your project,
+add the {\sundials} libraries to your project solution,
+and set the {\sundials} libraries as dependencies for your project.
 
 %%===============================================================================
 \section{Installed libraries and exported header files}
