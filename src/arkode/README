@@ -1,5 +1,5 @@
                              ARKODE
-                       Release 1.0, (date)
+                   Release 1.0.1, March 30, 2015
                        Daniel R. Reynolds
                   Department of Mathematics, SMU
 
@@ -11,32 +11,32 @@ difference is in the NVECTOR module of vector kernels.  The desired
 version is obtained when compiling the example files by linking the
 appropriate library of NVECTOR kernels.  In the parallel version,
 communication between processors is done with the MPI (Message Passage
-Interface) system. 
+Interface) system, with OpenMP, or with Pthreads.
 
 When used with the serial NVECTOR module, ARKODE provides both direct (dense 
-and band) and preconditioned Krylov (iterative) linear solvers. Three different
-iterative solvers are available: scaled preconditioned GMRES (SPGMR), scaled 
-preconditioned BiCGStab (SPBCG), and scaled preconditioned TFQMR (SPTFQMR). 
-When ARKODE is used with the parallel NVECTOR module, only the Krylov
-linear solvers are available. (An approximate diagonal Jacobian option
-is available with both versions.)  For the serial version, there is a
-banded preconditioner module called ARKBANDPRE available for use with
-the Krylov solvers, while for the parallel version there is a
-preconditioner module called ARKBBDPRE which provides a
-band-block-diagonal preconditioner.
+and band) and preconditioned Krylov (iterative) linear solvers. Many different
+iterative solvers are available: scaled preconditioned GMRES (SPGMR), 
+scaled preconditioned Flexible GMRES (SPFGMR), scaled preconditioned 
+conjugate gradient, scaled preconditioned BiCGStab (SPBCG), 
+and scaled preconditioned TFQMR (SPTFQMR). When ARKODE is used with 
+the parallel NVECTOR module, only the Krylov linear solvers are available. 
+(An approximate diagonal Jacobian option is available with both versions.)  
+For the serial version, there is a banded preconditioner module called 
+ARKBANDPRE available for use with the Krylov solvers, while for the 
+parallel version there is a preconditioner module called ARKBBDPRE 
+which provides a band-block-diagonal preconditioner.
 
 ARKODE is part of a software family called SUNDIALS: SUite of Nonlinear
 and DIfferential/ALgebraic equation Solvers.  This suite consists of
-ARKODE, CVODE, KINSOL, IDAS, and IDA, and variants of these.  The
-directory structure of the package supplied reflects this family
-relationship. 
+ARKODE, CVODE, CVODES, KINSOL, IDAS, and IDA.  The directory structure 
+of the package supplied reflects this family relationship. 
 
 For use with Fortran applications, a set of Fortran/C interface routines,
 called FARKODE, is also supplied.  These are written in C, but assume that
 the user calling program and all user-supplied routines are in Fortran.
 
 The notes below provide the location of documentation, directions for the 
-installation of the CVODE package, and relevant references. Following that 
+installation of the ARKode package, and relevant references. Following that 
 is a brief history of revisions to the package.
 
 
@@ -50,8 +50,8 @@ A. Documentation
 B. Installation
 ---------------
 
-For basic installation instructions see the file /sundials/INSTALL_NOTES. 
-For complete installation instructions see the "ARKODE Installation Procedure"
+For basic installation instructions see the file /sundials/INSTALL_GUIDE.pdf. 
+For complete installation instructions see the "Installation Procedure"
 chapter in the ARKODE User Guide.
 
 
@@ -63,15 +63,28 @@ C. References
 D. Releases
 -----------
 
-v. 1.0 - (date)
+v. 1.0.1 - Mar. 2015
+v. 1.0.0 - Mar. 2015
 
 
 E. Revision History
 -------------------
 
-v. 1.0 (date)
+v. 1.0.0 (Mar. 2015) ---> v. 1.0.1 (Mar. 2015)
+---------------------------------------------
+
+- Bug fixes
+  - Fixed loop limit bug in SlsAddMat function.
+  - In interfaces to KLU and SuperLUMT, added #include lines, 
+    and removed redundant KLU structure allocations.
+  - Minor documentation updates
+  - Fixed logic bugs in three ARKSpilsSet*** functions.
+  - Fixed bug in setting user data in two ARKode Fortran interface functions.
+
+
+v. 1.0.0 Mar. 2015
 --------------------------------------------
 
-2013   DATE WRITTEN.  First released (date)
+2013   DATE WRITTEN.  First released March 2015
 
 

@@ -1,5 +1,5 @@
                                IDAS
-                    Release 1.2.0, ??? 2014
+                    Release 1.2.1, March 30, 2015
                            Radu Serban 
               Center for Applied Scientific Computing, LLNL
 
@@ -12,7 +12,8 @@ IDAS can be used both on serial and parallel computers.  The main
 difference is in the NVECTOR module of vector kernels.  The desired
 version is obtained when compiling the example files by linking the
 appropriate library of NVECTOR kernels.  In the parallel versions,
-communication between processors is done with MPI, with OpenMP, or with Pthreads.
+communication between processors is done with MPI, with OpenMP, 
+or with Pthreads.
 
 When used with the serial NVECTOR module, IDAS provides both direct 
 (dense and band) linear solvers and preconditioned Krylov (iterative) 
@@ -26,8 +27,8 @@ preconditioner.
 
 IDAS is part of a software family called SUNDIALS: SUite of Nonlinear and 
 DIfferential/ALgebraic equation Solvers [3].  This suite consists of CVODE, 
-CVODES, IDA, IDAS, and KINSOL.  The directory structure of the package supplied 
-reflects this family relationship.
+CVODES, ARkode, IDA, IDAS, and KINSOL.  The directory structure of the 
+package supplied reflects this family relationship.
 
 Several examples problem programs are included, covering both serial
 and parallel cases, both small and large problem sizes, and both
@@ -48,19 +49,19 @@ and the IDAS Examples [2] (idas_examples.pdf) documents.
 B. Installation
 ---------------
 
-For basic installation instructions see the file /sundials/INSTALL_NOTES. 
-For complete installation instructions see the "IDAS Installation Procedure"
+For basic installation instructions see the file /sundials/INSTALL_GUIDE.pdf. 
+For complete installation instructions see the "Installation Procedure"
 chapter in the IDAS User Guide.
 
 
 C. References
 -------------
 
-[1] R. Serban, C. Petra,and A. C. Hindmarsh,  "User Documentation for IDAS v1.2.0," 
-    LLNL technical report UCRL-SM-234051, ??? 2014.
+[1] R. Serban, C. Petra,and A. C. Hindmarsh,  "User Documentation for IDAS v1.2.1," 
+    LLNL technical report UCRL-SM-234051, March 2015.
 
-[2] R. Serban and A.C. Hindmarsh, "Example Programs for IDAS v1.2.0," 
-    LLNL technical report LLNL-TR-437091, ??? 2014.
+[2] R. Serban and A.C. Hindmarsh, "Example Programs for IDAS v1.2.1," 
+    LLNL technical report LLNL-TR-437091, March 2015.
 
 [3] A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, 
     D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and 
@@ -71,7 +72,8 @@ C. References
 D. Releases
 -----------
 
-v. 1.2.0   - ???  2014
+v. 1.2.1   - Mar. 2015
+v. 1.2.0   - Mar. 2015
 v. 1.1.0   - Mar. 2012
 v. 1.0.0   - May  2009
 
@@ -79,7 +81,17 @@ v. 1.0.0   - May  2009
 E. Revision History
 -------------------
 
-v. 1.1.0 (Mar. 2012) ---> v. 1.2.0 (??? 2014)
+v. 1.2.0 (Mar. 2015) ---> v. 1.2.1 (Mar. 2015)
+---------------------------------------------
+
+- Bug fixes
+  - Fixed loop limit bug in SlsAddMat function.
+  - In interfaces to KLU and SuperLUMT, added #include lines, 
+    and removed redundant KLU structure allocations.
+  - Minor documentation updates
+
+
+v. 1.1.0 (Mar. 2012) ---> v. 1.2.0 (Mar. 2015)
 ---------------------------------------------
 
 - New features
