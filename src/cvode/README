@@ -1,5 +1,5 @@
                               CVODE
-                    Release 2.8.0, ??? 2014
+                    Release 2.8.1, March 30, 2015
                  Alan C. Hindmarsh and Radu Serban
               Center for Applied Scientific Computing, LLNL
 
@@ -25,8 +25,9 @@ band-block-diagonal preconditioner.
 
 CVODE is part of a software family called SUNDIALS: SUite of Nonlinear
 and DIfferential/ALgebraic equation Solvers.  This suite consists of
-CVODE, KINSOL, IDAS, and IDA, and variants of these.  The directory
-structure of the package supplied reflects this family relationship.
+CVODE, CVODES, ARKode, KINSOL, IDAS, and IDA, and variants of these.  
+The directory structure of the package supplied reflects this family 
+relationship.
 
 For use with Fortran applications, a set of Fortran/C interface routines,
 called FCVODE, is also supplied.  These are written in C, but assume that
@@ -47,8 +48,8 @@ and the CVODE Examples [2] (cv_examples.pdf) documents.
 B. Installation
 ---------------
 
-For basic installation instructions see the file /sundials/INSTALL_NOTES. 
-For complete installation instructions see the "CVODE Installation Procedure"
+For basic installation instructions see the file /sundials/INSTALL_GUIDE.pdf. 
+For complete installation instructions see the "Installation Procedure"
 chapter in the CVODE User Guide.
 
 
@@ -73,7 +74,8 @@ C. References
 D. Releases
 -----------
 
-v. 2.8.0       - ???  2014
+v. 2.8.1       - Mar. 2015
+v. 2.8.0       - Mar. 2015
 v. 2.7.0       - Mar. 2012
 v. 2.6.0       - May  2009
 v. 2.5.0       - Nov. 2006
@@ -91,14 +93,20 @@ v. 1.0 (CVODE) - Sep. 1994 (date written)
 E. Revision History
 -------------------
 
-v. 2.7.0 (Mar. 2012) ---> v. 2.8.0 (??? 2014)
+v. 2.8.0 (Mar. 2015) ---> v. 2.8.1 (Mar. 2015)
+- Bug fixes
+  - Fixed loop limit bug in SlsAddMat function.
+  - In interfaces to KLU and SuperLUMT, added #include lines, 
+    and removed redundant KLU structure allocations.
+  - Minor documentation updates
+
+v. 2.7.0 (Mar. 2012) ---> v. 2.8.0 (Mar. 2015)
 
 - New features
    - Two major additions were made to the linear system solvers that are
-     availble for use with the CVODE solver.  In the serial case, an
-     interface to the KLU sparse direct solver was added.
-     For the parallel case, an interface to SuperLU_MT (the multi-threaded
-     version of SuperLU) was added as a thread-parallel sparse direct solver option.
+     availble for use with the CVODE solver.  If using the supplied serial
+     NVECTOR module, interfaces to the KLU sparse direct solver and to the
+     SuperLU_MT solver (the multi-threaded version of SuperLU) were added.
      As part of these additions, a sparse matrix (CSC format) structure 
      was added to CVODE.
    - Two new NVECTOR modules have been added for parallel computing
