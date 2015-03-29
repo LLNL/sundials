@@ -341,4 +341,54 @@ is returned.
 
 \section{NVECTOR Examples}\label{ss:nvec_examples}
 
-Eddy to put text here.
+There are \id{NVector} examples that may be installed for each implementation, serial, parallel, OpenMP and Pthreads.
+Each implementation makes use of the functions in \id{test\_nvector.c}.  These example functions
+show simple usage of the \id{NVector} family of functions. The input to the examples are
+are the vector length, number of threads (if threaded implementation), and a print timing flag.
+
+\noindent The following is a list of the example functions in \id{test\_nvector.c}:
+\begin{itemize}
+\item \id{Test\_N\_VClone}: Creates clone of vector and checks validity of clone.  
+\item \id{Test\_N\_VCloneEmpty}: Creates clone of empty vector and checks validity of clone.  
+\item \id{Test\_N\_VCloneVectorArray}: Creates clone of vector array and checks validity of cloned array.  
+\item \id{Test\_N\_VCloneVectorArray}: Creates clone of empty vector array and checks validity of cloned array.  
+\item \id{Test\_N\_VGetArrayPointer}: Get array pointer. 
+\item \id{Test\_N\_VSetArrayPointer}: Allocate new vector, set pointer to new vector array, and check values. 
+\item \id{Test\_N\_VLinearSum} Case 1a: Test y =  x + y 
+\item \id{Test\_N\_VLinearSum} Case 1b: Test y = -x + y 
+\item \id{Test\_N\_VLinearSum} Case 1c: Test y = ax + y
+\item \id{Test\_N\_VLinearSum} Case 2a: Test x =  x + y
+\item \id{Test\_N\_VLinearSum} Case 2b: Test x =  x - y
+\item \id{Test\_N\_VLinearSum} Case 2c: Test x =  x + by
+\item \id{Test\_N\_VLinearSum} Case 3:  Test z =  x + y
+\item \id{Test\_N\_VLinearSum} Case 4a: Test z =  x - y
+\item \id{Test\_N\_VLinearSum} Case 4b: Test z = -x + y
+\item \id{Test\_N\_VLinearSum} Case 5a: Test z =  x + by
+\item \id{Test\_N\_VLinearSum} Case 5b: Test z = ax + y
+\item \id{Test\_N\_VLinearSum} Case 6a: Test z = -x + by
+\item \id{Test\_N\_VLinearSum} Case 6b: Test z = ax - y
+\item \id{Test\_N\_VLinearSum} Case 7:  Test z = a(x + y)
+\item \id{Test\_N\_VLinearSum} Case 8:  Test z = a(x - y)
+\item \id{Test\_N\_VLinearSum} Case 9:  Test z = ax + by
+\item \id{Test\_N\_VConst}: Fill vector with constant and check result.
+\item \id{Test\_N\_VProd}: Test vector multiply: z = x * y
+\item \id{Test\_N\_VDiv}: Test vector division: z = x / y
+\item \id{Test\_N\_VScale}: Case 1: scale: x = cx
+\item \id{Test\_N\_VScale}: Case 2: copy: z = x
+\item \id{Test\_N\_VScale}: Case 3: negate: z = -x
+\item \id{Test\_N\_VScale}: Case 4: combination: z = cx
+\item \id{Test\_N\_VAbs}: Create absolute value of vector. 
+\item \id{Test\_N\_VAddConst}: add constant vector: z = c + x
+\item \id{Test\_N\_VDotProd}: Calculate dot product of two vectors.
+\item \id{Test\_N\_VMaxNorm}: Create vector with known values, find and validate max norm.
+\item \id{Test\_N\_VWrmsNorm}: Create vector of known values, find and validate weighted root mean square.
+\item \id{Test\_N\_VWrmsNormMask}: Case 1:Create vector of known values, find and validate weighted root mean square using all elements.
+\item \id{Test\_N\_VWrmsNormMask}: Case 2:Create vector of known values, find and validate weighted root mean square using no elements.
+\item \id{Test\_N\_VMin}: Create vector, find and validate the min.
+\item \id{Test\_N\_VWL2Norm}: Create vector, find and validate the weighted Euclidean L2 norm.
+\item \id{Test\_N\_VL1Norm}: Create vector, find and validate the L1 norm.
+\item \id{Test\_N\_VCompare}: Compare vector with constant returning and validating comparison vector.
+\item \id{Test\_N\_VInvTest}: Test z[i] = 1 / x[i]
+\item \id{Test\_N\_VConstrMask}: Test mask of vector x with vector c.
+\item \id{Test\_N\_VMinQuotient}: Fill two vectors with known values. Calculate and validate minimum quotient.
+\end{itemize}
