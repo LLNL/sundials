@@ -55,8 +55,8 @@ Approved for public release; further dissemination unlimited
 \clearpage
 }
 
-\title{User Documentation for ARKode v1.0.0\\
-       (SUNDIALS v2.6.0)}
+\title{User Documentation for ARKode v1.0.1\\
+       (SUNDIALS v2.6.1)}
 \author{
   Daniel R. Reynolds$^1$, David J. Gardner$^2$, \\
   Alan C. Hindmarsh$^2$, Carol S. Woodward$^2$ \\
@@ -3088,74 +3088,6 @@ modules ({\hyperref[nvectors/NVector_Serial:nvectors-nvserial]{\emph{\DUspan{}{T
 
 \end{fulllineitems}
 
-\index{ARKKLUReInit (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{c_interface/User_callable:c.ARKKLUReInit}\pysiglinewithargsret{int \bfcode{ARKKLUReInit}}{void*\emph{ arkode\_mem}, int\emph{ N}, int\emph{ NNZ}, int\emph{ reinit\_type}}{}
-This function reinitializes memory and flags for a new
-factorization (symbolic and numeric) to be conducted at the next
-solver setup call.  This routine is useful in the cases where the
-number of nonzeros has changed or if the structure of the linear
-system has changed which would require a new symbolic (and
-numeric) refactorization.  It's use requires inclusion of the
-header file \code{arkode\_klu.h}.
-\begin{description}
-\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{arkode\_mem} -- pointer to the ARKode memory block.
-
-\item {} 
-\emph{N} -- the number of components in the ODE system.
-
-\item {} 
-\emph{NNZ} -- the maximum number of nonzero entries in the system
-Jacobian.
-
-\item {} 
-\emph{reinit\_type} -- flag that governs the level of
-reinitialization:
-\begin{itemize}
-\item {} 
-1 -- the Jacobian matrix will be destroyed and a new one
-will be allocated based on the \emph{NNZ} value passed to this
-call.  New symbolic and numeric factorizations will be
-completed at the next solver setup.
-
-\item {} 
-2 -- only symbolic and numeric factorizations will be
-completed.  It is assumed that the Jacobian size has not
-exceeded the size of \emph{NNZ} given in the prior call to
-{\hyperref[c_interface/User_callable:c.ARKKLU]{\emph{\code{ARKKLU()}}}}.
-
-\end{itemize}
-
-\end{itemize}
-
-\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{ARKSLS\_SUCCESS}   if successful
-
-\item {} 
-\emph{ARKSLS\_MEM\_NULL}  if the ARKode memory was \code{NULL}
-
-\item {} 
-\emph{ARKSLS\_LMEM\_NULL}  if the linear solver memory was \code{NULL}
-
-\item {} 
-\emph{ARKSLS\_ILL\_INPUT} if a required vector operation is missing
-
-\item {} 
-\emph{ARKSLS\_MEM\_FAIL} if there was a memory allocation failure
-
-\end{itemize}
-
-\end{description}
-
-\textbf{Notes:}  This routine assumes that no other changes to solver
-use are necessary
-
-\end{fulllineitems}
-
 \index{ARKSuperLUMT (C function)}
 
 \begin{fulllineitems}
@@ -3742,74 +3674,6 @@ modules ({\hyperref[nvectors/NVector_Serial:nvectors-nvserial]{\emph{\DUspan{}{T
 
 \end{fulllineitems}
 
-\index{ARKMassKLUReInit (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{c_interface/User_callable:c.ARKMassKLUReInit}\pysiglinewithargsret{int \bfcode{ARKMassKLUReInit}}{void*\emph{ arkode\_mem}, int\emph{ N}, int\emph{ NNZ}, int\emph{ reinit\_type}}{}
-This function reinitializes memory and flags for a new
-factorization (symbolic and numeric) to be conducted at the next
-solver setup call.  This routine is useful in the cases where the
-number of nonzeros has changed or if the structure of the linear
-system has changed which would require a new symbolic (and
-numeric) refactorization.  It's use requires inclusion of the
-header file \code{arkode\_klu.h}.
-\begin{description}
-\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{arkode\_mem} -- pointer to the ARKode memory block.
-
-\item {} 
-\emph{N} -- the number of components in the ODE system.
-
-\item {} 
-\emph{NNZ} -- the maximum number of nonzero entries in the system
-mass matrix.
-
-\item {} 
-\emph{reinit\_type} -- flag that governs the level of
-reinitialization:
-\begin{itemize}
-\item {} 
-1 -- the mass matrix will be destroyed and a new one
-will be allocated based on the \emph{NNZ} value passed to this
-call.  New symbolic and numeric factorizations will be
-completed at the next solver setup.
-
-\item {} 
-2 -- only symbolic and numeric factorizations will be
-completed.  It is assumed that the mass matrix size has not
-exceeded the size of \emph{NNZ} given in the prior call to
-{\hyperref[c_interface/User_callable:c.ARKMassKLU]{\emph{\code{ARKMassKLU()}}}}.
-
-\end{itemize}
-
-\end{itemize}
-
-\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{ARKSLS\_SUCCESS}   if successful
-
-\item {} 
-\emph{ARKSLS\_MEM\_NULL}  if the ARKode memory was \code{NULL}
-
-\item {} 
-\emph{ARKSLS\_LMEM\_NULL}  if the linear solver memory was \code{NULL}
-
-\item {} 
-\emph{ARKSLS\_ILL\_INPUT} if a required vector operation is missing
-
-\item {} 
-\emph{ARKSLS\_MEM\_FAIL} if there was a memory allocation failure
-
-\end{itemize}
-
-\end{description}
-
-\textbf{Notes:}  This routine assumes that no other changes to solver
-use are necessary
-
-\end{fulllineitems}
-
 \index{ARKMassSuperLUMT (C function)}
 
 \begin{fulllineitems}
@@ -4389,7 +4253,7 @@ Step adaptivity solver options ({\hyperref[c_interface/User_callable:cinterface-
 Implicit stage solver options ({\hyperref[c_interface/User_callable:cinterface-cinterface-arkodesolverinputtable]{\emph{\DUspan{}{Optional inputs for implicit stage solves}}}}),
 
 \item {} 
-Direct linear solver options ({\hyperref[c_interface/User_callable:cinterface-arkdlsinputs]{\emph{\DUspan{}{Dense direct linear solvers optional input functions}}}}),
+Direct linear solver options ({\hyperref[c_interface/User_callable:cinterface-arkdlsinputs]{\emph{\DUspan{}{Dense/band direct linear solvers optional input functions}}}}),
 
 \item {} 
 Sparse linear solver options ({\hyperref[c_interface/User_callable:cinterface-arkslsinputs]{\emph{\DUspan{}{Sparse direct linear solvers optional input functions}}}}),
@@ -6765,8 +6629,8 @@ the factor \emph{etacf} (set within {\hyperref[c_interface/User_callable:c.ARKod
 
 
 
-\subsubsection{Dense direct linear solvers optional input functions}
-\label{c_interface/User_callable:dense-direct-linear-solvers-optional-input-functions}\label{c_interface/User_callable:cinterface-arkdlsinputs}
+\subsubsection{Dense/band direct linear solvers optional input functions}
+\label{c_interface/User_callable:cinterface-arkdlsinputs}\label{c_interface/User_callable:dense-band-direct-linear-solvers-optional-input-functions}
 The mathematical explanation of ARKode's dense linear solver methods
 is provided in the section {\hyperref[Mathematics:mathematics-linear]{\emph{\DUspan{}{Linear solver methods}}}}.
 
@@ -7203,7 +7067,156 @@ The function type {\hyperref[c_interface/User_supplied:c.ARKSlsSparseMassFn]{\em
 \end{fulllineitems}
 
 
-Both the ARKKLU and ARKSUPERLUMT solvers can apply reordering
+When using a sparse direct solver, there may be instances when the
+number of state variables does not change, but the number of nonzeroes
+in the Jacobian or mass matrix does change.  In this case, for the
+{\hyperref[c_interface/User_callable:c.ARKKLU]{\emph{\code{ARKKLU()}}}} and {\hyperref[c_interface/User_callable:c.ARKMassKLU]{\emph{\code{ARKMassKLU()}}}} solvers, we provide the
+following reinitialization functions.  These functions reinitialize
+the Jacobian or mass matrix memory for the new number of nonzeroes and
+sets flags for a new factorization (symbolic and numeric) to be
+conducted at the next solver setup call.  These routines are useful in
+the cases where the number of nonzeroes has changed, or where the
+structure of the linear system has changed, requiring a new symbolic
+(and numeric) factorization.
+\index{ARKKLUReInit (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{c_interface/User_callable:c.ARKKLUReInit}\pysiglinewithargsret{int \bfcode{ARKKLUReInit}}{void*\emph{ arkode\_mem}, int\emph{ N}, int\emph{ NNZ}, int\emph{ reinit\_type}}{}
+This function reinitializes memory and flags for a new
+factorization (symbolic and numeric) to be conducted at the next
+solver setup call.  This routine is useful in the cases where the
+number of nonzeros has changed or if the structure of the linear
+system has changed which would require a new symbolic (and
+numeric) refactorization.  It's use requires inclusion of the
+header file \code{arkode\_klu.h}.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the ARKode memory block.
+
+\item {} 
+\emph{N} -- the number of components in the ODE system.
+
+\item {} 
+\emph{NNZ} -- the maximum number of nonzero entries in the system
+Jacobian.
+
+\item {} 
+\emph{reinit\_type} -- flag that governs the level of
+reinitialization:
+\begin{itemize}
+\item {} 
+1 -- the Jacobian matrix will be destroyed and a new one
+will be allocated based on the \emph{NNZ} value passed to this
+call.  New symbolic and numeric factorizations will be
+completed at the next solver setup.
+
+\item {} 
+2 -- only symbolic and numeric factorizations will be
+completed.  It is assumed that the Jacobian size has not
+exceeded the size of \emph{NNZ} given in the prior call to
+{\hyperref[c_interface/User_callable:c.ARKKLU]{\emph{\code{ARKKLU()}}}}.
+
+\end{itemize}
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARKSLS\_SUCCESS}   if successful
+
+\item {} 
+\emph{ARKSLS\_MEM\_NULL}  if the ARKode memory was \code{NULL}
+
+\item {} 
+\emph{ARKSLS\_LMEM\_NULL}  if the linear solver memory was \code{NULL}
+
+\item {} 
+\emph{ARKSLS\_ILL\_INPUT} if a required vector operation is missing
+
+\item {} 
+\emph{ARKSLS\_MEM\_FAIL} if there was a memory allocation failure
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:}  This routine assumes that no other changes to solver
+use are necessary
+
+\end{fulllineitems}
+
+\index{ARKMassKLUReInit (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{c_interface/User_callable:c.ARKMassKLUReInit}\pysiglinewithargsret{int \bfcode{ARKMassKLUReInit}}{void*\emph{ arkode\_mem}, int\emph{ N}, int\emph{ NNZ}, int\emph{ reinit\_type}}{}
+This function reinitializes memory and flags for a new
+factorization (symbolic and numeric) to be conducted at the next
+solver setup call.  This routine is useful in the cases where the
+number of nonzeros has changed or if the structure of the linear
+system has changed which would require a new symbolic (and
+numeric) refactorization.  It's use requires inclusion of the
+header file \code{arkode\_klu.h}.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the ARKode memory block.
+
+\item {} 
+\emph{N} -- the number of components in the ODE system.
+
+\item {} 
+\emph{NNZ} -- the maximum number of nonzero entries in the system
+mass matrix.
+
+\item {} 
+\emph{reinit\_type} -- flag that governs the level of
+reinitialization:
+\begin{itemize}
+\item {} 
+1 -- the mass matrix will be destroyed and a new one
+will be allocated based on the \emph{NNZ} value passed to this
+call.  New symbolic and numeric factorizations will be
+completed at the next solver setup.
+
+\item {} 
+2 -- only symbolic and numeric factorizations will be
+completed.  It is assumed that the mass matrix size has not
+exceeded the size of \emph{NNZ} given in the prior call to
+{\hyperref[c_interface/User_callable:c.ARKMassKLU]{\emph{\code{ARKMassKLU()}}}}.
+
+\end{itemize}
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARKSLS\_SUCCESS}   if successful
+
+\item {} 
+\emph{ARKSLS\_MEM\_NULL}  if the ARKode memory was \code{NULL}
+
+\item {} 
+\emph{ARKSLS\_LMEM\_NULL}  if the linear solver memory was \code{NULL}
+
+\item {} 
+\emph{ARKSLS\_ILL\_INPUT} if a required vector operation is missing
+
+\item {} 
+\emph{ARKSLS\_MEM\_FAIL} if there was a memory allocation failure
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:}  This routine assumes that no other changes to solver
+use are necessary
+
+\end{fulllineitems}
+
+
+The {\hyperref[c_interface/User_callable:c.ARKKLU]{\emph{\code{ARKKLU()}}}}, {\hyperref[c_interface/User_callable:c.ARKMassKLU]{\emph{\code{ARKMassKLU()}}}}, \code{ARKSUPERLUMT()}
+and {\hyperref[c_interface/User_callable:c.ARKMassSuperLUMT]{\emph{\code{ARKMassSuperLUMT()}}}} solvers can apply reordering
 algorithms to minimize fill-in for the resulting sparse \(LU\)
 decomposition internal to the solver.  The approximate minimal degree
 ordering for nonsymmetric matrices given by the \code{COLAMD} algorithm
@@ -8289,7 +8302,7 @@ Output routines regarding root-finding results are in the subsection
 
 \item {} 
 Dense linear solver output routines are in the subsection
-{\hyperref[c_interface/User_callable:cinterface-arkdlsoutputs]{\emph{\DUspan{}{Dense direct linear solvers optional output functions}}}} and
+{\hyperref[c_interface/User_callable:cinterface-arkdlsoutputs]{\emph{\DUspan{}{Dense/band direct linear solvers optional output functions}}}} and
 
 \item {} 
 Sparse linear solver output routines are in the subsection
@@ -9301,8 +9314,8 @@ user's root function \(g\).
 
 
 
-\subsubsection{Dense direct linear solvers optional output functions}
-\label{c_interface/User_callable:cinterface-arkdlsoutputs}\label{c_interface/User_callable:dense-direct-linear-solvers-optional-output-functions}
+\subsubsection{Dense/band direct linear solvers optional output functions}
+\label{c_interface/User_callable:cinterface-arkdlsoutputs}\label{c_interface/User_callable:dense-band-direct-linear-solvers-optional-output-functions}
 The following optional outputs are available from the ARKDLS
 modules: workspace requirements, number of calls to the Jacobian
 routine, number of calls to the mass matrix routine, number of calls
@@ -21750,7 +21763,7 @@ file contains one or all solvers in SUNDIALS.
 The SUNDIALS suite (or individual solvers) are distributed as
 compressed archives (\code{.tar.gz}).  The name of the distribution
 archive is of the form \code{SOLVER-X.Y.Z.tar.gz}, where \code{SOLVER} is
-one of: \code{sundials}, \code{arkode}, \code{cvode}, \code{cvodes}, \code{ida},
+one of: \code{sundials}, \code{cvode}, \code{cvodes}, \code{arkode}, \code{ida},
 \code{idas}, or \code{kinsol}, and \code{X.Y.Z} represents the version number
 (of the SUNDIALS suite or of the individual solver).
 To begin the installation, first uncompress and expand the sources, by
@@ -21776,11 +21789,11 @@ directory containing the SUNDIALS sources.
 \item[{\code{BUILDDIR}}] \leavevmode
 is the (temporary) directory under which SUNDIALS is built.
 
-\item[{\code{INSTALLDIR}}] \leavevmode
+\item[{\code{INSTDIR}}] \leavevmode
 is the directory under which the SUNDIALS exported header files
 and libraries will be installed. Typically, header files are
-exported under a directory \code{INSTALLDIR/include} while libraries
-are installed under \code{INSTALLDIR/lib}, with \code{INSTALLDIR}
+exported under a directory \code{INSTDIR/include} while libraries
+are installed under \code{INSTDIR/lib}, with \code{INSTDIR}
 specified at configuration time.
 
 \end{description}
@@ -21793,12 +21806,12 @@ prevents ``polluting'' the source tree and allows efficient builds for
 different configurations and/or options.
 
 \item {} 
-The installation directory \code{INSTALLDIR} can not be the same as
+The installation directory \code{INSTDIR} can not be the same as
 the source directory \code{SRCDIR}.
 
 \item {} 
 By default, only the libraries and header files are exported to the
-installation directory \code{INSTALLDIR}.  If enabled by the user (with the
+installation directory \code{INSTDIR}.  If enabled by the user (with the
 appropriate toggle for CMake), the
 examples distributed with SUNDIALS will be built together with
 the solver libraries but the installation step will result in
@@ -21809,10 +21822,10 @@ automatically generated configuration files that reference the
 configuration files for the SUNDIALS examples can be used as
 ``templates'' for your own problems. CMake installs
 \code{CMakeLists.txt} files and also (as an option available only under
-Unix/Linux) makefiles. Note this installation approach also allows
-the option of building the SUNDIALS examples without having to
-install them.  (This can be used as a sanity check for the freshly
-built libraries.)
+Unix/Linux) \code{Makefile} files. Note this installation approach also
+allows the option of building the SUNDIALS examples without having
+to install them.  (This can be used as a sanity check for the
+freshly built libraries.)
 
 \item {} 
 Even if generation of shared libraries is enabled, only static
@@ -21874,7 +21887,7 @@ clean} which will remove files generated by the compiler and linker.
 \label{Install:installation-cmake-unix}\label{Install:index-0}\label{Install:configuring-building-and-installing-on-unix-like-systems}
 The default CMake configuration will build all included solvers and
 associated examples and will build static and shared libraries. The
-INSTALLDIR defaults to \code{/usr/local} and can be changed by setting
+INSTDIR defaults to \code{/usr/local} and can be changed by setting
 the \code{CMAKE\_INSTALL\_PREFIX} variable. Support for FORTRAN and all
 other options are disabled.
 
@@ -21887,7 +21900,7 @@ level SUNDIALS directory with appropriate source, build and install
 directories:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }mkdir \PYG{o}{(}...\PYG{o}{)}/INSTALLDIR
+\PYG{n+nv}{\PYGZdl{} }mkdir \PYG{o}{(}...\PYG{o}{)}/INSTDIR
 \PYG{n+nv}{\PYGZdl{} }mkdir \PYG{o}{(}...\PYG{o}{)}/BUILDDIR
 \PYG{n+nv}{\PYGZdl{} }\PYG{n+nb}{cd} \PYG{o}{(}...\PYG{o}{)}/BUILDDIR
 \end{Verbatim}
@@ -21979,18 +21992,18 @@ To see advanced variables, click the \code{advanced} button
 \end{itemize}
 
 To build the default configuration using the curses GUI, from the
-BUILDDIR enter the \code{ccmake} command and point to the SOURCEDIR:
+BUILDDIR enter the \code{ccmake} command and point to the SRCDIR:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }ccmake \PYG{o}{(}...\PYG{o}{)}/SOURCEDIR
+\PYG{n+nv}{\PYGZdl{} }ccmake \PYG{o}{(}...\PYG{o}{)}/SRCDIR
 \end{Verbatim}
 
 Similarly, to build the default configuration using the wxWidgets GUI,
 from the BUILDDIR enter the \code{cmake-gui} command and point to the
-SOURCEDIR:
+SRCDIR:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }cmake\PYGZhy{}gui \PYG{o}{(}...\PYG{o}{)}/SOURCEDIR
+\PYG{n+nv}{\PYGZdl{} }cmake\PYGZhy{}gui \PYG{o}{(}...\PYG{o}{)}/SRCDIR
 \end{Verbatim}
 
 The default curses configuration screen is shown in
@@ -22005,7 +22018,7 @@ To get this default configuration, press `c' repeatedly (accepting
 default values denoted with asterisk) until the `g' option is
 available.}\label{Install:ccmakedefault}\end{figure}
 
-The default INSTALLDIR for both SUNDIALS and corresponding examples
+The default INSTDIR for both SUNDIALS and corresponding examples
 can be changed by setting the \code{CMAKE\_INSTALL\_PREFIX} and
 the \code{EXAMPLES\_INSTALL\_PATH} as shown in the following figure.
 \begin{figure}[htbp]
@@ -22013,7 +22026,7 @@ the \code{EXAMPLES\_INSTALL\_PATH} as shown in the following figure.
 \capstart
 
 \scalebox{0.750000}{\includegraphics{ccmakeprefix.png}}
-\caption{Changing the INSTALLDIR for SUNDIALS and corresponding EXAMPLES.}\label{Install:ccmakeprefix}\end{figure}
+\caption{Changing the INSTDIR for SUNDIALS and corresponding EXAMPLES.}\label{Install:ccmakeprefix}\end{figure}
 
 Pressing the \code{g} key or clicking \code{generate} will generate
 makefiles including all dependencies and all rules to build SUNDIALS
@@ -22044,9 +22057,9 @@ CMake variable settings with the \code{cmake} command.  The following
 will build the default configuration:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }cmake \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/home/myname/sundials/installdir \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{}  \PYGZhy{}DEXAMPLES\PYGZus{}INSTALL\PYGZus{}PATH\PYG{o}{=}/home/myname/sundials/installdir/examples \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{}  ../sourcedir
+\PYG{n+nv}{\PYGZdl{} }cmake \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/home/myname/sundials/instdir \PYG{l+s+se}{\PYGZbs{}}
+\PYGZgt{}  \PYGZhy{}DEXAMPLES\PYGZus{}INSTALL\PYGZus{}PATH\PYG{o}{=}/home/myname/sundials/instdir/examples \PYG{l+s+se}{\PYGZbs{}}
+\PYGZgt{}  ../srcdir
 \PYG{n+nv}{\PYGZdl{} }make
 \PYG{n+nv}{\PYGZdl{} }make install
 \end{Verbatim}
@@ -22349,11 +22362,6 @@ Enable SUPERLU\_MT support
 
 Default: \code{OFF}
 
-\item[{\index{TESTRUNNER (CMake option)}TESTRUNNER}] \leavevmode
-Location of \code{testRunner} script
-
-Default: \code{sourcedir/testRunner}
-
 \item[{\index{USE\_GENERIC\_MATH (CMake option)}USE\_GENERIC\_MATH}] \leavevmode
 Use generic (\code{stdc}) math libraries
 
@@ -22374,11 +22382,11 @@ example sources under subdirectories of \code{/home/myname/sundials/}, use:
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYGZpc{} cmake \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{} \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/home/myname/sundials/installdir \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{} \PYGZhy{}DEXAMPLES\PYGZus{}INSTALL\PYGZus{}PATH\PYG{o}{=}/home/myname/sundials/installdir/examples \PYG{l+s+se}{\PYGZbs{}}
+\PYGZgt{} \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/home/myname/sundials/instdir \PYG{l+s+se}{\PYGZbs{}}
+\PYGZgt{} \PYGZhy{}DEXAMPLES\PYGZus{}INSTALL\PYGZus{}PATH\PYG{o}{=}/home/myname/sundials/instdir/examples \PYG{l+s+se}{\PYGZbs{}}
 \PYGZgt{} \PYGZhy{}DMPI\PYGZus{}ENABLE\PYG{o}{=}ON \PYG{l+s+se}{\PYGZbs{}}
 \PYGZgt{} \PYGZhy{}DFCMIX\PYGZus{}ENABLE\PYG{o}{=}ON \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{} /home/myname/sundials/sourcedir
+\PYGZgt{} /home/myname/sundials/srcdir
 
 \PYGZpc{} make install
 \end{Verbatim}
@@ -22387,12 +22395,12 @@ To disable installation of the examples, use:
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYGZpc{} cmake \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{} \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/home/myname/sundials/installdir \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{} \PYGZhy{}DEXAMPLES\PYGZus{}INSTALL\PYGZus{}PATH\PYG{o}{=}/home/myname/sundials/installdir/examples \PYG{l+s+se}{\PYGZbs{}}
+\PYGZgt{} \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/home/myname/sundials/instdir \PYG{l+s+se}{\PYGZbs{}}
+\PYGZgt{} \PYGZhy{}DEXAMPLES\PYGZus{}INSTALL\PYGZus{}PATH\PYG{o}{=}/home/myname/sundials/instdir/examples \PYG{l+s+se}{\PYGZbs{}}
 \PYGZgt{} \PYGZhy{}DMPI\PYGZus{}ENABLE\PYG{o}{=}ON \PYG{l+s+se}{\PYGZbs{}}
 \PYGZgt{} \PYGZhy{}DFCMIX\PYGZus{}ENABLE\PYG{o}{=}ON \PYG{l+s+se}{\PYGZbs{}}
 \PYGZgt{} \PYGZhy{}DEXAMPLES\PYGZus{}INSTALL\PYG{o}{=}OFF \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{} /home/myname/sundials/sourcedir
+\PYGZgt{} /home/myname/sundials/srcdir
 
 \PYGZpc{} make install
 \end{Verbatim}
@@ -22420,10 +22428,10 @@ Example:
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYGZpc{} cmake \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{} \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/home/myname/sundials/installdir \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{} \PYGZhy{}DEXAMPLES\PYGZus{}INSTALL\PYGZus{}PATH\PYG{o}{=}/home/myname/sundials/installdir/examples \PYG{l+s+se}{\PYGZbs{}}
+\PYGZgt{} \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/home/myname/sundials/instdir \PYG{l+s+se}{\PYGZbs{}}
+\PYGZgt{} \PYGZhy{}DEXAMPLES\PYGZus{}INSTALL\PYGZus{}PATH\PYG{o}{=}/home/myname/sundials/instdir/examples \PYG{l+s+se}{\PYGZbs{}}
 \PYGZgt{} \PYGZhy{}DLAPACK\PYGZus{}LIBRARIES\PYG{o}{=}/mypath/lib/liblapack.so\PYG{p}{;}/mypath/lib/libblas.so \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{} /home/myname/sundials/sourcedir
+\PYGZgt{} /home/myname/sundials/srcdir
 
 \PYGZpc{} make install
 \end{Verbatim}
@@ -22433,29 +22441,30 @@ Example:
 \label{Install:installation-cmake-externallibraries-klu}\label{Install:building-with-klu}
 The KLU libraries are part of SuiteSparse, a suite of sparse matrix
 software, available from the Texas A\&M University website:
-\href{http://faculty.cse.tamu.edu/davis/suitesparse.html}{http://faculty.cse.tamu.edu/davis/suitesparse.html}
+\href{http://faculty.cse.tamu.edu/davis/suitesparse.html}{http://faculty.cse.tamu.edu/davis/suitesparse.html} .
 
 SUNDIALS has been tested with SuiteSparse version 4.2.1.  To enable
 KLU, set \code{KLU\_ENABLE} to \code{ON}, set \code{KLU\_INCLUDE\_DIR} to the
 \code{include} path of the KLU installation and set \code{KLU\_LIBRARY\_DIR}
 to the \code{lib} path of the KLU installation.  The CMake configure will
-result in populating the variables: \code{AMD\_LIBRARY}, \code{AMD\_LIBRARY\_DIR},
-\code{BTF\_LIBRARY}, \code{BTF\_LIBRARY\_DIR}, \code{COLAMD\_LIBRARY},
-\code{COLAMD\_LIBRARY\_DIR}, and \code{KLU\_LIBRARY}.
+result in populating the following variables: \code{AMD\_LIBRARY},
+\code{AMD\_LIBRARY\_DIR},  \code{BTF\_LIBRARY}, \code{BTF\_LIBRARY\_DIR},
+\code{COLAMD\_LIBRARY}, \code{COLAMD\_LIBRARY\_DIR}, and \code{KLU\_LIBRARY}.
 
 
 \subsubsection{Building with SuperLU\_MT}
 \label{Install:building-with-superlu-mt}\label{Install:installation-cmake-externallibraries-superlu-mt}
 The SuperLU\_MT libraries are available for download from the Lawrence
 Berkeley National Laboratory website:
-\href{http://crd-legacy.lbl.gov/\$sim\$xiaoye/SuperLU/}{http://crd-legacy.lbl.gov/\$sim\$xiaoye/SuperLU/}\#superlu\_mt
+\href{http://crd-legacy.lbl.gov/\$sim\$xiaoye/SuperLU/}{http://crd-legacy.lbl.gov/\$sim\$xiaoye/SuperLU/}\#superlu\_mt .
 
 SUNDIALS has been tested with SuperLU\_MT version 2.4.  To enable
 SuperLU\_MT, set  \code{SUPERLUMT\_ENABLE} to \code{ON}, set
 \code{SUPERLUMT\_INCLUDE\_DIR} to the \code{SRC} path of the SuperLU\_MT
-installation and set \code{SUPERLUMT\_LIBRARY\_DIR} to the \code{lib} path of
-the SuperLU\_MT installation.  Also, the \code{SUPERLUMT\_THREAD\_TYPE} must
-be set to either \code{Pthread} or \code{OpenMP}.
+installation, and set the variable \code{SUPERLUMT\_LIBRARY\_DIR} to the
+\code{lib} path of the SuperLU\_MT installation.  At the same time, the
+variable \code{SUPERLUMT\_THREAD\_TYPE} must be set to either \code{Pthread}
+or \code{OpenMP}.
 
 Do not mix thread types when building SUNDIALS solvers.
 If threading is enabled for SUNDIALS by having either
@@ -22473,32 +22482,80 @@ the installation path for the examples with the variable
 configuration files (and \code{Makefile} files if on Linux/Unix) that
 reference the \emph{installed} SUNDIALS headers and libraries.
 
-From within the installed example directory, run CMake (either with
-the GUI or command line) to compile the example code.  The resulting
-output from running the example can be compared with example output
-bundled in the SUNDIALS distribution.
+Either the \code{CMakeLists.txt} file or the traditional \code{Makefile} may
+be used to build the examples as well as serve as a template for
+creating user developed solutions.  To use the supplied \code{Makefile}
+simply run \code{make} to compile and generate the executables.  To use
+CMake, from within the installed example directory, run \code{cmake} (or
+\code{ccmake} or \code{cmake-gui} to use the GUI) followed by \code{make} to
+compile the example code.  Note that if CMake is used, it will
+overwrite the traditional \code{Makefile} with a new CMake generated
+\code{Makefile}.
 
-NOTE: There will likely differences in the output due to machine
-architecture, compiler versions, use of third party libraries etc.
+The resulting output from running the examples can be compared with
+example output bundled in the SUNDIALS distribution.
 
-These examples with the installed configuration files can be used as
-``templates'' for user developed solutions.
+NOTE: There will potentially be differences in the output due to
+machine architecture, compiler versions, use of third party libraries etc.
 
 
 \subsection{Configuring, building, and installing on Windows}
 \label{Install:installation-cmake-windows}\label{Install:configuring-building-and-installing-on-windows}
-Use \index{CMakeSetup}CMakeSetup from the CMake install location. Make sure to
-select the appropriate source and the build directory.  Also, make
-sure to pick the appropriate generator (on Visual Studio 6, pick the
-Visual Studio 6 generator).  Some CMake versions will ask you to
-select the generator the first time you press Configure instead of
-having a drop-down menu in the main dialog.
+CMake can also be used to build SUNDIALS on Windows. To build SUNDIALS
+for use with Visual Studio the following steps should be performed:
+\begin{enumerate}
+\item {} 
+Unzip the downloaded tar file(s) into a directory, this will be the
+\code{SRCDIR}
 
-CMake will now create Visual Studio project files. You should now be able to
-open the SUNDIALS project (or workspace) file. Make sure to select the appropriate
-build type (Debug, Release, ...). To build SUNDIALS, simply build the
-\code{ALL\_BUILD} target. To install SUNDIALS, simply run the \code{INSTALL}
-target within the build system.
+\item {} 
+Create a separate \code{BUILDDIR}
+
+\item {} 
+Open a Visual Studio Command Prompt and cd to \code{BUILDDIR}
+
+\item {} 
+Run \code{cmake-gui ../SRCDIR}
+\begin{enumerate}
+\item {} 
+Hit Configure
+
+\item {} 
+Check/Uncheck solvers to be built
+
+\item {} 
+Change \code{CMAKE\_INSTALL\_PREFIX} to \code{INSTDIR}
+
+\item {} 
+Set other options as desired
+
+\item {} 
+Hit Generate
+
+\end{enumerate}
+
+\item {} 
+Back in the VS Command Window:
+\begin{enumerate}
+\item {} 
+Run \code{msbuild ALL\_BUILD.vcxproj}
+
+\item {} 
+Run \code{msbuild INSTALL.vcxproj}
+
+\end{enumerate}
+
+\end{enumerate}
+
+The resulting libraries will be in the \code{INSTDIR}.
+
+The SUNDIALS project can also now be opened in Visual Studio.
+Double click on the \code{ALL\_BUILD.vcxproj} file to open the project.
+Build the whole \emph{solution} to create the SUNDIALS libraries.
+To use the SUNDIALS libraries in your own projects, you must
+set the include directories for your project,
+add the SUNDIALS libraries to your project solution,
+and set the SUNDIALS libraries as dependencies for your project.
 
 
 \section{Installed libraries and exported header files}
@@ -22510,20 +22567,12 @@ Using the CMake SUNDIALS build system, the command
 \end{Verbatim}
 
 will install the libraries under \code{LIBDIR} and the public header
-files under \code{INCLUDEDIR}. The default values for these directories
-are \code{INSTALLDIR/lib} and \code{INSTALLDIR/include}, respectively, where
-INSTALLDIR is given by the CMake configuration option
-\code{CMAKE\_INSTALL\_PREFIX}. For example, a global installation of
-SUNDIALS on a LINUX/UNIX system to the system-level directory
-\code{/opt/sundials-2.6.0} could be accomplished using
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }cmake \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/opt/sundials\PYGZhy{}2.6.0
-\end{Verbatim}
-
-Although all installed libraries reside under \code{LIBDIR}, the public
-header files are further organized into subdirectories under
-\code{INCLUDEDIR}.
+files under \code{INCLUDEDIR}. The values for these directories
+are \code{INSTDIR/lib} and \code{INSTDIR/include}, respectively.  The
+location can be changed by setting the CMake variable
+\code{CMAKE\_INSTALL\_PREFIX}.  Although all installed libraries reside
+under \code{LIBDIR/lib}, the public header files are further organized
+into subdirectories under \code{INCLUDEDIR/include}.
 
 The installed libraries and exported header files are listed for
 reference in the {\hyperref[Install:installation-table]{\emph{\DUspan{}{Table: SUNDIALS libraries and header files}}}}. The file extension \code{.LIB} is typically \code{.so}
@@ -22532,12 +22581,12 @@ this table names are relative to \code{LIBDIR} for libraries and to
 \code{INCLUDEDIR} for header files.
 
 A typical user program need not explicitly include any of the shared
-SUNDIALS header files from under the \code{INCLUDEDIR/sundials}
+SUNDIALS header files from under the \code{INCLUDEDIR/include/sundials}
 directory since they are explicitly included by the appropriate solver
 header files (e.g., \code{cvode\_dense.h} includes
-\code{sundials\_dense.h}). However, it is both legal and safe to do so
-(e.g., the functions declared in \code{sundials\_dense.h} could be used in
-building a preconditioner).
+\code{sundials\_dense.h}). However, it is both legal and safe to do so,
+and would be useful, for example, if the functions declared in
+\code{sundials\_dense.h} are to be used in building a preconditioner.
 
 
 \subsection{Table: SUNDIALS libraries and header files}
