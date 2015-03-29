@@ -22,6 +22,11 @@ SET(nvector_pthreads_examples
   test_nvector_pthreads
 )
 
+SET(nvector_examples_dependencies
+  test_nvector
+  sundials_nvector
+)
+
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(. ..)
 
@@ -41,6 +46,15 @@ SET(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 # Add the build and install targets for each nvector example
 
 FOREACH(example ${nvector_pthreads_examples})
+
+  IF(WIN32)
+    # This is used to get around DLL linkage issue since we are
+    # manually including sundials_nvector.c here, which is normally in
+    # a library that is included.  If this is not set build system
+    # thinks nvector is externally linked.
+    ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
+  ENDIF(WIN32)
+
   ADD_EXECUTABLE(${example} ${example}.c ../test_nvector.c ../../../src/sundials/sundials_nvector.c)
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
@@ -57,7 +71,7 @@ FOREACH(example ${nvector_pthreads_examples})
   TARGET_LINK_LIBRARIES(${example} ${CMAKE_THREAD_LIBS_INIT})
 
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c ../test_nvector.c ../test_nvector.h DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/pthreads)
+    INSTALL(FILES ${example}.c ../test_nvector.c ../test_nvector.h ../../../src/sundials/sundials_nvector.c DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/pthreads)
   ENDIF(EXAMPLES_INSTALL)
 ENDFOREACH(example ${nvector_pthreads_examples})
 
@@ -69,6 +83,7 @@ IF(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER_LIB "sundials_nvecpthreads")
   LIST2STRING(nvector_pthreads_examples EXAMPLES)
+  LIST2STRING(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

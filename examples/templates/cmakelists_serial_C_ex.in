@@ -30,6 +30,8 @@
 #
 # -----------------------------------------------------------------
 
+cmake_minimum_required(VERSION 2.8)
+
 # Specify project name
 PROJECT(@SOLVER@_serial_examples C)
 
@@ -37,6 +39,9 @@ MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
 # Set the names of the examples to be built
 SET(examples @EXAMPLES@ @EXAMPLES_BL@)
+
+# Set names of examples specific dependency source files
+SET(examples_dependencies @EXAMPLES_DEPENDENCIES@)
 
 # Specify path to SUNDIALS header files
 SET(SUNDIALS_INC_DIR
@@ -74,7 +79,7 @@ ENDIF(LAPACK_LIBRARIES)
 
 # Build each example one by one
 FOREACH(example ${examples})
-  ADD_EXECUTABLE(${example} ${example}.c)
+  ADD_EXECUTABLE(${example} ${example}.c ${examples_dependencies})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
 ENDFOREACH(example ${examples})
  

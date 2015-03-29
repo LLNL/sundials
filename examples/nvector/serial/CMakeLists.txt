@@ -22,6 +22,11 @@ SET(nvector_serial_examples
   test_nvector_serial
 )
 
+SET(nvector_examples_dependencies
+  test_nvector
+  sundials_nvector
+)
+
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(. ..)
 
@@ -59,7 +64,7 @@ FOREACH(example ${nvector_serial_examples})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
 
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c ../test_nvector.c ../test_nvector.h DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial)
+    INSTALL(FILES ${example}.c ../test_nvector.c ../test_nvector.h ../../../src/sundials/sundials_nvector.c DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial)
   ENDIF(EXAMPLES_INSTALL)
 ENDFOREACH(example ${nvector_serial_examples})
 
@@ -71,6 +76,7 @@ IF(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER_LIB "sundials_nvecserial")
   LIST2STRING(nvector_serial_examples EXAMPLES)
+  LIST2STRING(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

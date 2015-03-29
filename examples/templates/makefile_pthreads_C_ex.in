@@ -41,6 +41,7 @@ CC       = @CC@
 CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@ @CMAKE_THREAD_LIBS_INIT@
 LIBS     = @LIBS@
+LINKFLAGS = -Wl,-rpath,@libdir@
 
 INCLUDES = -I${includedir}
 LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecpthreads ${LIBS}
@@ -49,8 +50,10 @@ LIBRARIES_SLUMT = @SUPERLUMT_LIBS@
 LIBRARIES_KLU = @KLU_LIBRARY@ @AMD_LIBRARY@ @COLAMD_LIBRARY@ @BTF_LIBRARY@
 
 EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
+EXAMPLES_DEPENDENCIES = @EXAMPLES_DEPENDENCIES@
 
 OBJECTS = ${EXAMPLES:=.o}
+OBJECTS_DEPENDENCIES = ${EXAMPLES_DEPENDENCIES:=.o}
 
 # -----------------------------------------------------------------------------------------
 
@@ -63,11 +66,14 @@ OBJECTS = ${EXAMPLES:=.o}
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${CC} -o $${i} $${i}.o ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU}" ; \
-	  ${CC} -o $${i} $${i}.o ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ; \
+	  echo "${CC} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LINKFLAGS}" ; \
+	  ${CC} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LINKFLAGS} ; \
 	done
 
+${OBJECTS}: ${OBJECTS_DEPENDENCIES}
+
 clean:
+	rm -f ${OBJECTS_DEPENDENCIES}
 	rm -f ${OBJECTS}
 	rm -f ${EXAMPLES}
 
