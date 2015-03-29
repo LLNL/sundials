@@ -41,6 +41,8 @@ F77_LNKR    = @F77_LNKR@ @OpenMP_C_FLAGS@
 F77_LDFLAGS = @F77_LDFLAGS@
 F77_LIBS    = @F77_LIBS@
 
+LINKFLAGS = -Wl,-rpath,@libdir@
+
 LIBRARIES = -l@SOLVER_FLIB@ -l@SOLVER_LIB@ -lsundials_fnvecopenmp -lsundials_nvecopenmp ${LIBS}
 LIBRARIES_BL = @BLAS_LAPACK_LIBS@
 LIBRARIES_SLUMT = @SUPERLUMT_LIBS@
@@ -61,8 +63,8 @@ OBJECTS = ${EXAMPLES:=.o}
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU}" ; \
-	  ${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ; \
+	  echo "${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LINKFLAGS}" ; \
+	  ${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LINKFLAGS} ; \
 	done
 
 clean:

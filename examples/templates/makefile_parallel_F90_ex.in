@@ -47,6 +47,8 @@ MPI_FLAGS    = @MPI_FLAGS@
 MPI_LIB_DIR  = @MPI_LIB_DIR@
 MPI_LIBS     = @MPI_LIBS@
 
+LINKFLAGS = -Wl,-rpath,@libdir@
+
 LIBRARIES = -l@SOLVER_FLIB@ -l@SOLVER_LIB@ -lsundials_fnvecparallel -lsundials_nvecparallel ${LIBS}
 LIBRARIES_BL = @BLAS_LAPACK_LIBS@
 LIBRARIES_SLUMT = @SUPERLUMT_LIBS@
@@ -67,8 +69,8 @@ OBJECTS = ${EXAMPLES:=.o}
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${MPIF90} -o $${i} $${i}.o ${MPI_FLAGS} ${F90_LDFLAGS} ${F90_LIBS} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU}" ; \
-	  ${MPIF90} -o $${i} $${i}.o ${MPI_FLAGS} ${F90_LDFLAGS} ${F90_LIBS} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ; \
+	  echo "${MPIF90} -o $${i} $${i}.o ${MPI_FLAGS} ${F90_LDFLAGS} ${F90_LIBS} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LINKFLAGS}" ; \
+	  ${MPIF90} -o $${i} $${i}.o ${MPI_FLAGS} ${F90_LDFLAGS} ${F90_LIBS} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LINKFLAGS} ; \
 	done
 
 clean:

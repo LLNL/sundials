@@ -48,6 +48,8 @@ MPI_LIB_DIR = @MPI_LIB_DIR@
 MPI_LIBS    = @MPI_LIBS@
 MPI_FLAGS   = @MPI_FLAGS@
 
+LINKFLAGS = -Wl,-rpath,@libdir@
+
 INCLUDES = -I${includedir} -I${MPI_INC_DIR}
 LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecparallel ${LIBS}
 LIBRARIES_BL = @BLAS_LAPACK_LIBS@
@@ -69,8 +71,8 @@ OBJECTS = ${EXAMPLES:=.o}
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${MPICXX} -o $${i} $${i}.o ${MPI_FLAGS} ${CXXFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU}" ; \
-	  ${MPICXX} -o $${i} $${i}.o ${MPI_FLAGS} ${CXXFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ; \
+	  echo "${MPICXX} -o $${i} $${i}.o ${MPI_FLAGS} ${CXXFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LINKFLAGS}" ; \
+	  ${MPICXX} -o $${i} $${i}.o ${MPI_FLAGS} ${CXXFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LINKFLAGS} ; \
 	done
 
 clean:
