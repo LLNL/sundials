@@ -29,6 +29,7 @@
 # for examples that do not use that module...
 #
 # -----------------------------------------------------------------
+cmake_minimum_required(VERSION 2.8)
 
 # Specify project name
 PROJECT(F90@SOLVER@_serial_examples Fortran90)

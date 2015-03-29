@@ -30,6 +30,8 @@
 #
 # -----------------------------------------------------------------
 
+cmake_minimum_required(VERSION 2.8)
+
 # Specify project name
 PROJECT(F@SOLVER@_parallel_examples Fortran)
 

@@ -30,6 +30,8 @@
 #
 # -----------------------------------------------------------------
 
+cmake_minimum_required(VERSION 2.8)
+
 # Specify project name
 PROJECT(@SOLVER@_CXX_serial_examples CXX)
 
