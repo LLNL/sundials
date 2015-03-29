@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 
   /* check input and set vector length */
   if (argc < 4){
-    printf("ERROR: two arguments required: <vector length> <number of threads> <print timing>\n");
+    printf("ERROR: THREE (3) arguments required: <vector length> <number of threads> <print timing>\n");
     return(-1);
   }
 
