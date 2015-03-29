@@ -619,7 +619,11 @@ IF(LAPACK_ENABLE)
   IF(LAPACK_LIBRARIES AND NOT LAPACK_FOUND)
     PRINT_WARNING("LAPACK not functional"
       "Blas/Lapack support will not be provided")
+  ELSE(LAPACK_LIBRARIES AND NOT LAPACK_FOUND)
+    #set sundials_config.h symbol via sundials_config.in
+    SET(SUNDIALS_BLAS_LAPACK TRUE)
   ENDIF(LAPACK_LIBRARIES AND NOT LAPACK_FOUND)
+  
 
 ELSE(LAPACK_ENABLE)
 
