@@ -1269,7 +1269,7 @@ int Test_N_VDotProd(N_Vector X, N_Vector Y,
     fails++;
   }
   else if (myid == 0) {
-    printf("    PASSED test -- N_VAddConst \n");
+    printf("    PASSED test -- N_VDotProd \n");
     PRINT_TIME("    N_VDotProd Time: %22.15e \n \n", stop_time - start_time);
   }    
   
