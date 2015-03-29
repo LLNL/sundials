@@ -1,6 +1,6 @@
 # Makefile for Sphinx LaTeX output
-ARK_UG = ARKode.pdf
-ARK_EX = ARKode_example.pdf
+ARK_UG = ark_guide.pdf
+ARK_EX = ark_examples.pdf
 SHARED_DOC = ../sundials
 HTML_DIR = ../../html/documentation
 
@@ -28,9 +28,15 @@ ug: ug_pdf
 
 ug_pdf: $(ARK_UG)
 
+$(ARK_UG): ARKode.pdf
+	mv ARKode.pdf ark_guide.pdf
+
 ex: ex_pdf
 
 ex_pdf: $(ARK_EX)
+
+$(ARK_EX): ARKode_example.pdf
+	mv ARKode_example.pdf ark_examples.pdf
 
 purge: clean
 	rm -f $(ARK_UG)
