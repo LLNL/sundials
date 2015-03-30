@@ -5,98 +5,51 @@ Running with vector length 1000
 Running with number of threads 4 
  
     PASSED test -- N_VSetArrayPointer 
- 
     PASSED test -- N_VGetArrayPointer 
- 
     PASSED test -- N_VLinearSum Case 1a 
- 
     PASSED test -- N_VLinearSum Case 1b 
- 
     PASSED test -- N_VLinearSum Case 1c 
- 
     PASSED test -- N_VLinearSum Case 2a 
- 
     PASSED test -- N_VLinearSum Case 2b 
- 
     PASSED test -- N_VLinearSum Case 2c 
- 
     PASSED test -- N_VLinearSum Case 3 
- 
     PASSED test -- N_VLinearSum Case 4a 
- 
     PASSED test -- N_VLinearSum Case 4b 
- 
     PASSED test -- N_VLinearSum Case 5a 
- 
     PASSED test -- N_VLinearSum Case 5b 
- 
     PASSED test -- N_VLinearSum Case 6a 
- 
     PASSED test -- N_VLinearSum Case 6b 
- 
     PASSED test -- N_VLinearSum Case 7 
- 
     PASSED test -- N_VLinearSum Case 8 
- 
     PASSED test -- N_VLinearSum Case 9 
- 
     PASSED test -- N_VConst 
- 
     PASSED test -- N_VProd 
- 
     PASSED test -- N_VDiv 
- 
     PASSED test -- N_VScale Case 1 
- 
     PASSED test -- N_VScale Case 2 
- 
     PASSED test -- N_VScale Case 3 
- 
     PASSED test -- N_VScale Case 4 
- 
     PASSED test -- N_VAbs 
- 
     PASSED test -- N_VInv 
- 
     PASSED test -- N_VAddConst 
- 
-    PASSED test -- N_VAddConst 
- 
+    PASSED test -- N_VDotProd 
     PASSED test -- N_VMaxNorm 
- 
     PASSED test -- N_VWrmsNorm 
- 
     PASSED test -- N_VWrmsNormMask Case 1 
- 
     PASSED test -- N_VWrmsNormMask Case 2 
- 
     PASSED test -- N_VMin 
- 
     PASSED test -- N_VWL2Norm 
- 
     PASSED test -- N_VL1Norm 
- 
     PASSED test -- N_VCompare 
- 
     PASSED test -- N_VInvTest Case 1 
- 
     PASSED test -- N_VInvTest Case 2 
- 
     PASSED test -- N_VConstrMask Case 1 
- 
     PASSED test -- N_VConstrMask Case 2 
- 
     PASSED test -- N_VMinQuotient Case 1 
- 
     PASSED test -- N_VMinQuotient Case 2 
- 
     PASSED test -- N_VCloneVectorArray 
- 
     PASSED test -- N_VCloneEmptyVectorArray 
- 
     PASSED test -- N_VCloneEmpty 
- 
     PASSED test -- N_VClone 
- 
 SUCCESS: NVector module passed all tests 
  
