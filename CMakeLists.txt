@@ -459,6 +459,10 @@ IF(WIN32)
   ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS)
 ENDIF(WIN32)
 
+IF(APPLE)
+  SET(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -undefined dynamic_lookup")
+ENDIF(APPLE)
+
 # -------------------------------------------------------------
 # A Fortran compiler is needed if:
 # (a) FCMIX is enabled
