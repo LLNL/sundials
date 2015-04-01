@@ -341,10 +341,12 @@ is returned.
 
 \section{NVECTOR Examples}\label{ss:nvec_examples}
 
-There are \id{NVector} examples that may be installed for each implementation, serial, parallel, OpenMP and Pthreads.
-Each implementation makes use of the functions in \id{test\_nvector.c}.  These example functions
-show simple usage of the \id{NVector} family of functions. The input to the examples are
-are the vector length, number of threads (if threaded implementation), and a print timing flag.
+There are \id{NVector} examples that may be installed for each
+implementation: serial, parallel, OpenMP, and Pthreads.  Each
+implementation makes use of the functions in \id{test\_nvector.c}.
+These example functions show simple usage of the \id{NVector} family
+of functions. The input to the examples are the vector length, number
+of threads (if threaded implementation), and a print timing flag.
 
 \noindent The following is a list of the example functions in \id{test\_nvector.c}:
 \begin{itemize}
@@ -382,8 +384,10 @@ are the vector length, number of threads (if threaded implementation), and a pri
 \item \id{Test\_N\_VDotProd}: Calculate dot product of two vectors.
 \item \id{Test\_N\_VMaxNorm}: Create vector with known values, find and validate max norm.
 \item \id{Test\_N\_VWrmsNorm}: Create vector of known values, find and validate weighted root mean square.
-\item \id{Test\_N\_VWrmsNormMask}: Case 1:Create vector of known values, find and validate weighted root mean square using all elements.
-\item \id{Test\_N\_VWrmsNormMask}: Case 2:Create vector of known values, find and validate weighted root mean square using no elements.
+\item \id{Test\_N\_VWrmsNormMask}: Case 1: Create vector of known values,
+      find and validate weighted root mean square using all elements.
+\item \id{Test\_N\_VWrmsNormMask}: Case 2: Create vector of known values,
+      find and validate weighted root mean square using no elements.
 \item \id{Test\_N\_VMin}: Create vector, find and validate the min.
 \item \id{Test\_N\_VWL2Norm}: Create vector, find and validate the weighted Euclidean L2 norm.
 \item \id{Test\_N\_VL1Norm}: Create vector, find and validate the L1 norm.
