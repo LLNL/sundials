@@ -485,8 +485,7 @@ If the directory containing the LAPACK and BLAS libraries is in the \id{LD\_LIBR
 variable, CMake will set the \id{LAPACK\_LIBRARIES} variable accordingly, otherwise CMake
 will attemp to find the LAPACK and BLAS libraries in standard system locations.
 To explicitly tell CMake what libraries to use, the \id{LAPACK\_LIBRARIES} varible can be
-set to the desired libraries.
-\noindent Example: 
+set to the desired libraries.  Example: 
 \begin{verbatim}
    % cmake \
    > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
@@ -533,13 +532,13 @@ Specify the installation path for the examples with the variable \id{EXAMPLES\_I
 \id{CMakeLists.txt} configuration files (and \id{Makefile} files if on Linux/Unix) that reference the
 {\em installed} {\sundials} headers and libraries.
 
-\noindent Either the \id{CMakeLists.txt} file or the traditional \id{Makefile} may be used to build the examples
+Either the \id{CMakeLists.txt} file or the traditional \id{Makefile} may be used to build the examples
 as well as serve as a template for creating user developed solutions.
 To use the supplied \id{Makefile} simply run \id{make} to compile and generate the executables.
-To use CMake, from within the installed example directory, run \id{cmake} (or \id{ccmake} to use the GUI)
+To use CMake from within the installed example directory, run \id{cmake} (or \id{ccmake} to use the GUI)
 followed by \id{make} to compile the example code.
-Note that if CMake is used, it will overwrite the traditional \id{Makefile} with a new CMake generated \id{Makefile}.
-\noindent The resulting output from running the examples can be compared with example output bundled
+Note that if CMake is used, it will overwrite the traditional \id{Makefile} with a new CMake-generated \id{Makefile}.
+The resulting output from running the examples can be compared with example output bundled
 in the {\sundials} distribution.
 
 \noindent NOTE: There will potentially be differences in the output due to machine architecture, compiler versions,
@@ -552,7 +551,7 @@ use of third party libraries etc.{\warn}
 CMake can also be used to build {\sundials} on Windows. To build {\sundials} for
 use with Visual Studio the following steps should be performed:
 \begin{enumerate}
-\item Unzip the downloaded tar file(s) into a directory, this will be the {\em srcdir} 
+\item Unzip the downloaded tar file(s) into a directory. This will be the {\em srcdir} 
 \item Create a separate {\em builddir}
 \item Open a Visual Studio Command Prompt and cd to {\em builddir}
 \item Run cmake-gui ../{\em srcdir}
