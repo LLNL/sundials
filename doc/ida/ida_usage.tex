@@ -2166,7 +2166,7 @@ through \id{IDASetUserData}.
 When using a sparse direct solver, there 
 may be instances when the number of state variables does not 
 change, but the number of nonzeroes in the Jacobian does change.  
-In this case, for the {\cvklu} solver, we provide the following reinitialization
+In this case, for the {\idaklu} solver, we provide the following reinitialization
 function.  This function reinitializes the Jacobian matrix
 memory for the new number of nonzeroes and sets flags for a new factorization 
 (symbolic and numeric) to be conducted at the next solver setup
