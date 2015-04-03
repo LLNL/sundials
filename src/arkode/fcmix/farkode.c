@@ -1027,15 +1027,18 @@ void FARK_ARKODE(realtype *tout, realtype *t, realtype *y,
    for further details */
 void FARK_DKY(realtype *t, int *k, realtype *dky, int *ier) {
 
-  /* attach output data array */
+  /* store pointer existing F2C_ARKODE_vec data array */
+  realtype *f2c_data = N_VGetArrayPointer(F2C_ARKODE_vec);
+
+  /* attach output data array to F2C_ARKODE_vec */
   N_VSetArrayPointer(dky, F2C_ARKODE_vec);
 
   /* call ARKodeGetDky */
   *ier = 0;
   *ier = ARKodeGetDky(ARK_arkodemem, *t, *k, F2C_ARKODE_vec);
 
-  /* detach output data array */
-  N_VSetArrayPointer(NULL, F2C_ARKODE_vec);
+  /* reattach F2C_ARKODE_vec to previous data array */
+  N_VSetArrayPointer(f2c_data, F2C_ARKODE_vec);
   return;
 }
 
@@ -1045,15 +1048,18 @@ void FARK_DKY(realtype *t, int *k, realtype *dky, int *ier) {
    farkode.h for further details */
 void FARK_GETERRWEIGHTS(realtype *eweight, int *ier) {
 
-  /* attach output data array */
+  /* store pointer existing F2C_ARKODE_vec data array */
+  realtype *f2c_data = N_VGetArrayPointer(F2C_ARKODE_vec);
+
+  /* attach output data array to F2C_ARKODE_vec */
   N_VSetArrayPointer(eweight, F2C_ARKODE_vec);
 
   /* call ARKodeGetErrWeights */
   *ier = 0;
   *ier = ARKodeGetErrWeights(ARK_arkodemem, F2C_ARKODE_vec);
 
-  /* detach output data array */
-  N_VSetArrayPointer(NULL, F2C_ARKODE_vec);
+  /* reattach F2C_ARKODE_vec to previous data array */
+  N_VSetArrayPointer(f2c_data, F2C_ARKODE_vec);
   return;
 }
 
@@ -1063,15 +1069,18 @@ void FARK_GETERRWEIGHTS(realtype *eweight, int *ier) {
    farkode.h for further details */
 void FARK_GETESTLOCALERR(realtype *ele, int *ier) {
 
-  /* attach output data array */
+  /* store pointer existing F2C_ARKODE_vec data array */
+  realtype *f2c_data = N_VGetArrayPointer(F2C_ARKODE_vec);
+
+  /* attach output data array to F2C_ARKODE_vec */
   N_VSetArrayPointer(ele, F2C_ARKODE_vec);
 
   /* call ARKodeGetEstLocalErrors */
   *ier = 0;
   *ier = ARKodeGetEstLocalErrors(ARK_arkodemem, F2C_ARKODE_vec);
 
-  /* detach output data array */
-  N_VSetArrayPointer(NULL, F2C_ARKODE_vec);
+  /* reattach F2C_ARKODE_vec to previous data array */
+  N_VSetArrayPointer(f2c_data, F2C_ARKODE_vec);
   return;
 }
 
