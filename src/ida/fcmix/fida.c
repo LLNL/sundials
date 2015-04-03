@@ -663,6 +663,9 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
 
 void FIDA_GETDKY(realtype *t, int *k, realtype *dky, int *ier)
 {
+  /* Store existing F2C_IDA_vec data pointer */
+  realtype *f2c_data = N_VGetArrayPointer(F2C_IDA_vec);
+
   /* Attach user data to vectors */
   N_VSetArrayPointer(dky, F2C_IDA_vec);
 
@@ -670,7 +673,7 @@ void FIDA_GETDKY(realtype *t, int *k, realtype *dky, int *ier)
   *ier = IDAGetDky(IDA_idamem, *t, *k, F2C_IDA_vec);
 
   /* Reset data pointers */
-  N_VSetArrayPointer(NULL, F2C_IDA_vec);
+  N_VSetArrayPointer(f2c_data, F2C_IDA_vec);
 
   return;
 }
@@ -679,6 +682,9 @@ void FIDA_GETDKY(realtype *t, int *k, realtype *dky, int *ier)
 
 void FIDA_GETERRWEIGHTS(realtype *eweight, int *ier)
 {
+  /* Store existing F2C_IDA_vec data pointer */
+  realtype *f2c_data = N_VGetArrayPointer(F2C_IDA_vec);
+
   /* Attach user data to vector */
   N_VSetArrayPointer(eweight, F2C_IDA_vec);
 
@@ -686,7 +692,7 @@ void FIDA_GETERRWEIGHTS(realtype *eweight, int *ier)
   *ier = IDAGetErrWeights(IDA_idamem, F2C_IDA_vec);
 
   /* Reset data pointer */
-  N_VSetArrayPointer(NULL, F2C_IDA_vec);
+  N_VSetArrayPointer(f2c_data, F2C_IDA_vec);
 
   return;
 }
@@ -695,6 +701,9 @@ void FIDA_GETERRWEIGHTS(realtype *eweight, int *ier)
 
 void FIDA_GETESTLOCALERR(realtype *ele, int *ier)
 {
+  /* Store existing F2C_IDA_vec data pointer */
+  realtype *f2c_data = N_VGetArrayPointer(F2C_IDA_vec);
+
   /* Attach user data to vector */
   N_VSetArrayPointer(ele, F2C_IDA_vec);
 
@@ -702,7 +711,7 @@ void FIDA_GETESTLOCALERR(realtype *ele, int *ier)
   *ier = IDAGetEstLocalErrors(IDA_idamem, F2C_IDA_vec);
 
   /* Reset data pointers */
-  N_VSetArrayPointer(NULL, F2C_IDA_vec);
+  N_VSetArrayPointer(f2c_data, F2C_IDA_vec);
 
   return;
 }
