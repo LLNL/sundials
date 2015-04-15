@@ -2,14 +2,6 @@ To Do List for SUNDIALS, as of 03/27/2015
 
 (*** items must be completed before KINSOL and ARKode can be released.)
 
-***(Carol) Update Confluence Pages "Recent Changes"
-
-***(Eddy, Carol) Write and test openMP and pThreads with Fortran and document
-	- Tests written.
-	- Need to document - add new tex file for nvector_examples (Carol create tex framework).
-
-***(Steve, Eddy) Document KLU build options
-
 ***(Eddy) Try newest SuperLU_MT to see if print messages still there.
 	v2.3 Compile errors, 2.4 released...need to test.
 	- OpenMP works?
@@ -17,23 +9,10 @@ To Do List for SUNDIALS, as of 03/27/2015
     - Update any/all examples with old print statement output (e.g. Chris' non-working cvode example)
     - Make sure Chris' cvode example is not in tarscript release
 
-***(Eddy) Doc of NVECTOR tests in Installation chapter (review NVector Chapter).
-
 ***(Carol) Nakhimovski claims posible infinite loop in KINSOL
 
 ***(Carol) User Kantli has question on KINSOL use
 
-***(Carol) Tar-file sizes in download.html
-
-***(Eddy) NVector test examples are not installed correctly. They contain multiple .c source
-   files that need to be installed and accounted for in installed Makefile.
-   
-***(Eddy) Document NVector use in install guide (Pthreads and OpenMP)
-
-***(Alan) Identify any outstanding user issues.
-	 - Check on all Oxberry submitted patches.
-
-***(All) Test, test, test
 -------------------------------------------------------------------------
 
 Deferred to after release (11/6/13)
@@ -112,6 +91,26 @@ Add SuperLU_MT test cases to nightly build (requires multiple compilations)
 -------------------------------------------------------------------------
 
 Completed Tasks
+
+***(Carol) Tar-file sizes in download.html
+
+***(All) Test, test, test
+
+***(Alan) Identify any outstanding user issues.
+	 - Check on all Oxberry submitted patches.
+
+***(Eddy) NVector test examples are not installed correctly. They contain multiple .c source
+   files that need to be installed and accounted for in installed Makefile.
+   
+***(Eddy) Doc of NVECTOR tests in Installation chapter (review NVector Chapter).
+
+***(Steve, Eddy) Document KLU build options
+
+***(Eddy, Carol) Write and test openMP and pThreads with Fortran and document
+	- Tests written.
+	- Need to document - add new tex file for nvector_examples (Carol create tex framework).
+
+***(Carol) Update Confluence Pages "Recent Changes"
 
 ***(Eddy) Make build system handling of examples consistent.  Right now, distclean
    does not remove compiled examples.  Also, the install builds an examples
