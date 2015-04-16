@@ -8,7 +8,7 @@ $dy/dt = f(t,y)$, in a mixed {\F}/{\C} setting.  While {\cvode} is written
 in {\C}, it is assumed here that the user's calling program and
 user-supplied problem-defining routines are written in {\F}.
 This package provides the necessary interface to {\cvode} for all supplied 
-serial and the parallel {\nvector} implementations.
+serial and parallel {\nvector} implementations.
 
 %%==============================================================================
 % Pul in sections on portability and data types.
@@ -239,7 +239,7 @@ to {\nvecp},
   \id{IER} is a return completion flag which is $0$ on success and $-1$ 
   if a failure occurred.
     
-  {\p} To initialize the distributed memory 
+  {\p} To initialize the MPI-based distributed memory 
   parallel vector module, the user must make the following call:
   \index{FNVINITP@\texttt{FNVINITP}}
 \begin{verbatim}
@@ -363,7 +363,7 @@ to {\nvecp},
 
   %%-------------------------------------------------
 
-  {\s} {\bf Diagonal approximate Jacobian}
+  {\s, \p} {\bf Diagonal approximate Jacobian}
   \index{CVDIAG@{\cvdiag} linear solver!use in {\fcvode}}
   
   This choice is appropriate when the Jacobian can be well approximated by
@@ -556,7 +556,7 @@ to {\nvecp},
  The {\cvode} KLU solver will reuse much of the factorization 
  information from one nonlinear iteration and time step to the next.  
  If at any time 
- the user wants to force a full refactorization or if the number of 
+ the user wants to force a full refactorization, or if the number of 
  nonzeros in the Jacobian matrix changes, the user should make the call
 \begin{verbatim}
        CALL FCVKLUREINIT(NEQ, NNZ, REINIT_TYPE)
@@ -583,7 +583,7 @@ to {\nvecp},
   If the either of the sparse direct interface packages are used, 
   then the user must supply the \id{FCVSPJAC} routine
   that computes a compressed-sparse-column 
-  approximation of the system Jacobian $J = df_i(y)/dy$.  If supplied, 
+  approximation of the system Jacobian $J = \partial f / \partial y$.  If supplied, 
   it must have the following form:
 \begin{verbatim}
        SUBROUTINE FCVSPJAC(T, Y, FY, N, NNZ, JDATA, JRVALS, 
@@ -595,20 +595,20 @@ to {\nvecp},
   values), \id{JRVALS} (row indices for each nonzero), \id{JCOLPTRS} (indices 
   for start of each column), with the Jacobian matrix at the current
   $(t, y)$ in CSC form (see \id{sundials\_sparse.h} for more information).
- The arguments are \id{T}, the current time, \id{Y}, an array containing 
- state variables, \id{FY}, an
- array containing state derivatives, \id{N}, the number of matrix rows/columns 
- in the Jacobian, \id{NNZ}, allocated length of nonzero storage, \id{JDATA},
- nonzero values in the Jacobian (of length \id{NNZ}), 
- \id{JRVALS}, row indices for each nonzero in Jacobian (of length \id{NNZ}),
+ The arguments are \id{T}, the current time; \id{Y}, an array containing 
+ state variables; \id{FY}, an
+ array containing state derivatives; \id{N}, the number of matrix rows/columns 
+ in the Jacobian; \id{NNZ}, allocated length of nonzero storage; \id{JDATA},
+ nonzero values in the Jacobian (of length \id{NNZ}); 
+ \id{JRVALS}, row indices for each nonzero in Jacobian (of length \id{NNZ});
  \id{JCPTRS}, pointers to each Jacobian column in the two preceding arrays
- (of length \id{N}+1), \id{H}, the current step size, 
+ (of length \id{N}+1); \id{H}, the current step size;
  \id{IPAR}, an array containing integer user data that was 
- passed to \id{FCVMALLOC}, \id{RPAR}, an array containing real user 
- data that was passed to \id{FCVMALLOC}, 
+ passed to \id{FCVMALLOC}; \id{RPAR}, an array containing real user 
+ data that was passed to \id{FCVMALLOC};
  \id{WK*}, work arrays containing temporary workspace 
- of same size as \id{Y}, and \id{IER}, error return code (0 if successful,
- >0 if a recoverable error occurred, or <0 if an unrecoverable error ocurred.)
+ of same size as \id{Y}; and \id{IER}, error return code (0 if successful,
+ $>0$ if a recoverable error occurred, or $<0$ if an unrecoverable error ocurred.)
 
   Optional outputs specific to the {\sparse} case are listed in
   Table~\ref{t:fcvode_out}.
