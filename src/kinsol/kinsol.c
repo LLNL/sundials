@@ -4,7 +4,7 @@
  * $Date$
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, Carol Woodward,
- *                and Aaron Collier @ LLNL
+ *                John Loffeld, and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
@@ -194,7 +194,7 @@ static realtype KINScFNorm(KINMem kin_mem, N_Vector v, N_Vector scale);
 static realtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u);
 static int KINStop(KINMem kin_mem, booleantype maxStepTaken, 
 		   int sflag);
-static int AndersenAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x, 
+static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x, 
 		       N_Vector x_old, int iter, realtype *R, realtype *gamma);
 
 /* 
@@ -223,7 +223,7 @@ void *KINCreate(void)
 {
   KINMem kin_mem;
   realtype uround;
-
+ 
   kin_mem = NULL;
   kin_mem = (KINMem) malloc(sizeof(struct KINMemRec));
   if (kin_mem == NULL) {
@@ -250,7 +250,6 @@ void *KINCreate(void)
   kin_mem->kin_df_aa            = NULL;
   kin_mem->kin_dg_aa            = NULL;
   kin_mem->kin_q_aa             = NULL;
-  kin_mem->kin_qtmp_aa          = NULL;
   kin_mem->kin_gamma_aa         = NULL;
   kin_mem->kin_R_aa             = NULL;
   kin_mem->kin_m_aa             = ZERO;
@@ -459,7 +458,6 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
 #define df               (kin_mem->kin_df_aa)
 #define dg               (kin_mem->kin_dg_aa)
 #define Q                (kin_mem->kin_q_aa)
-#define qtmp             (kin_mem->kin_qtmp_aa)
 #define maa              (kin_mem->kin_m_aa)
 #define aamem            (kin_mem->kin_aamem_aa)
 #define setstop          (kin_mem->kin_setstop_aa)
@@ -811,7 +809,7 @@ static booleantype KINCheckNvector(N_Vector tmpl)
 static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
 {
   /* allocate unew, fval, pp, vtemp1 and vtemp2. */  
-  /* allocate df, dg, q, for Andersen Acceleration, Broyden and EN */
+  /* allocate df, dg, q, for Anderson Acceleration, Broyden and EN */
  
   unew = N_VClone(tmpl);
   if (unew == NULL) return(FALSE);
@@ -855,11 +853,34 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
     kin_mem->kin_R_aa = (realtype *) malloc((maa*maa) * sizeof(realtype));
     if (kin_mem->kin_R_aa == NULL) {
       KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
+      N_VDestroy(unew);
+      N_VDestroy(fval);
+      N_VDestroy(pp);
+      N_VDestroy(vtemp1);
+      N_VDestroy(vtemp2);
       return(KIN_MEM_FAIL);
     }
     kin_mem->kin_gamma_aa = (realtype *)malloc(maa * sizeof(realtype));
     if (kin_mem->kin_gamma_aa == NULL) {
       KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
+      N_VDestroy(unew);
+      N_VDestroy(fval);
+      N_VDestroy(pp);
+      N_VDestroy(vtemp1);
+      N_VDestroy(vtemp2);
+      free(kin_mem->kin_R_aa);
+      return(KIN_MEM_FAIL);
+    }
+    kin_mem->kin_ipt_map = (int *)malloc(maa * sizeof(int));
+    if (kin_mem->kin_ipt_map == NULL) {
+      KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
+      N_VDestroy(unew);
+      N_VDestroy(fval);
+      N_VDestroy(pp);
+      N_VDestroy(vtemp1);
+      N_VDestroy(vtemp2);
+      free(kin_mem->kin_R_aa);
+      free(kin_mem->kin_gamma_aa);
       return(KIN_MEM_FAIL);
     }
   } 
@@ -872,6 +893,9 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
       N_VDestroy(pp);
       N_VDestroy(vtemp1);
       N_VDestroy(vtemp2);
+      free(kin_mem->kin_R_aa);
+      free(kin_mem->kin_gamma_aa);
+      free(kin_mem->kin_ipt_map);
       return(FALSE);
     }
     gold = N_VClone(tmpl);
@@ -891,6 +915,9 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
       N_VDestroy(pp);
       N_VDestroy(vtemp1);
       N_VDestroy(vtemp2);
+      free(kin_mem->kin_R_aa);
+      free(kin_mem->kin_gamma_aa);
+      free(kin_mem->kin_ipt_map);
       N_VDestroy(fold);
       N_VDestroy(gold);
       return(FALSE);
@@ -902,11 +929,15 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
       N_VDestroy(pp);
       N_VDestroy(vtemp1);
       N_VDestroy(vtemp2);
+      free(kin_mem->kin_R_aa);
+      free(kin_mem->kin_gamma_aa);
+      free(kin_mem->kin_ipt_map);
       N_VDestroy(fold);
       N_VDestroy(gold);
       N_VDestroyVectorArray(df, maa);
       return(FALSE);
     }
+
     /* update solver workspace lengths */
 
     liw += 2*maa*liw1+2;
@@ -920,28 +951,17 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
 	N_VDestroy(pp);
 	N_VDestroy(vtemp1);
 	N_VDestroy(vtemp2);
+	free(kin_mem->kin_R_aa);
+	free(kin_mem->kin_gamma_aa);
+	free(kin_mem->kin_ipt_map);
 	N_VDestroy(fold);
 	N_VDestroy(gold);
 	N_VDestroyVectorArray(df, maa);
 	N_VDestroyVectorArray(dg, maa);
 	return(FALSE);
       }
-      qtmp = N_VCloneVectorArray(maa,tmpl);
-      if (qtmp == NULL) {
-	N_VDestroy(unew);
-	N_VDestroy(fval);
-	N_VDestroy(pp);
-	N_VDestroy(vtemp1);
-	N_VDestroy(vtemp2);
-	N_VDestroy(fold);
-	N_VDestroy(gold);
-	N_VDestroyVectorArray(df, maa);
-	N_VDestroyVectorArray(dg, maa);
-	N_VDestroyVectorArray(Q, maa);
-	return(FALSE);
-      }
-      liw += 2*maa*liw1;
-      lrw += 2*maa*lrw1;
+      liw += maa*liw1;
+      lrw += maa*lrw1;
     }
   }
   return(TRUE);
@@ -968,6 +988,7 @@ static void KINFreeVectors(KINMem kin_mem)
   if ( ((strategy == KIN_PICARD) || (strategy == KIN_FP)) && (maa > 0) ) {
     free(kin_mem->kin_R_aa);
     free(kin_mem->kin_gamma_aa);
+    free(kin_mem->kin_ipt_map);
   }
 
   if (maa)
@@ -981,9 +1002,8 @@ static void KINFreeVectors(KINMem kin_mem)
      if (aamem)
      {
         N_VDestroyVectorArray(Q,maa);
-        N_VDestroyVectorArray(qtmp,maa);
-        lrw -= 2*maa*lrw1;
-        liw -= 2*maa*liw1;
+        lrw -= maa*lrw1;
+        liw -= maa*liw1;
      }
   }
 
@@ -2212,7 +2232,7 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R, realtype *g
     }
     else {  /* use Anderson, if desired */
       N_VScale(ONE, uu, unew);
-      AndersenAcc(kin_mem, gval, delta, unew, uu, (int)(iter-1), R, gamma);
+      AndersonAcc(kin_mem, gval, delta, unew, uu, (int)(iter-1), R, gamma);
     }
 
     /* Fill the Newton residual based on the new solution iterate */
@@ -2362,8 +2382,7 @@ static int KINFP(KINMem kin_mem, long int *iterp,
       N_VScale(ONE, fval, unew);
     }
     else {  /* use Anderson, if desired */
-      N_VScale(ONE, uu, unew);
-      AndersenAcc(kin_mem, fval, delta, unew, uu, (int)(iter-1), R, gamma);
+      AndersonAcc(kin_mem, fval, delta, unew, uu, (int)(iter-1), R, gamma);
     }
 
     N_VLinearSum(ONE, unew, -ONE, uu, delta);
@@ -2415,20 +2434,20 @@ static int KINFP(KINMem kin_mem, long int *iterp,
 
 /*
  * ========================================================================
- * Andersen Acceleration
+ * Anderson Acceleration
  * ========================================================================
  */
 
-static int AndersenAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, 
+static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, 
 		       N_Vector x, N_Vector xold, 
 		       int iter, realtype *R, realtype *gamma)
 {
-    
   int i_pt, i, j, lAA, imap, jmap;
   int *ipt_map;
   realtype alfa;
-  
-  ipt_map = (int *) malloc(maa * sizeof(int));
+  realtype a, b, temp, c, s;
+
+  ipt_map = kin_mem->kin_ipt_map;
   i_pt = iter-1 - ((iter-1)/maa)*maa;
   N_VLinearSum(ONE, gval, -1.0, xold, fv);
   if (iter > 0) {
@@ -2437,67 +2456,94 @@ static int AndersenAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
     /* compute df_new = fval - fval_old */
     N_VLinearSum(ONE, fv, -1.0, fold, df[i_pt]);
   }
-    
+
   N_VScale(ONE, gval, gold);
   N_VScale(ONE, fv, fold);
-  
+
   if (iter == 0) {
     N_VScale(ONE, gval, x);
   }
   else {
     if (iter == 1) {
-      N_VScale(ONE,df[i_pt],qtmp[i_pt]);
-      R[0] = sqrt(N_VDotProd(df[i_pt],df[i_pt])); 
+      R[0] = sqrt(N_VDotProd(df[i_pt],df[i_pt]));
       alfa = 1/R[0];
       N_VScale(alfa,df[i_pt],Q[i_pt]);
       ipt_map[0] = 0;
     }
-    else if (iter < maa) {
-      N_VScale(ONE,df[i_pt],qtmp[i_pt]);
+    else if (iter <= maa) {
+      N_VScale(ONE,df[i_pt],vtemp2);
       for (j=0; j < (iter-1); j++) {
-	ipt_map[j] = j;
-	R[(iter-1)*maa+j] = N_VDotProd(Q[j],qtmp[i_pt]);
-	N_VLinearSum(ONE,qtmp[i_pt],-R[(iter-1)*maa+j],Q[j],qtmp[i_pt]);
+        ipt_map[j] = j;
+        R[(iter-1)*maa+j] = N_VDotProd(Q[j],vtemp2);
+        N_VLinearSum(ONE,vtemp2,-R[(iter-1)*maa+j],Q[j],vtemp2);
       }
-      R[(iter-1)*maa+iter-1] = sqrt(N_VDotProd(qtmp[i_pt],qtmp[i_pt])); 
-      N_VScale((1/R[(iter-1)*maa+iter-1]),qtmp[i_pt],Q[i_pt]);
+      R[(iter-1)*maa+iter-1] = sqrt(N_VDotProd(vtemp2,vtemp2));
+      N_VScale((1/R[(iter-1)*maa+iter-1]),vtemp2,Q[i_pt]);
       ipt_map[iter-1] = iter-1;
     }
     else {
+      /* Delete left-most column vector from QR factorization */
+      for (i=0; i < maa-1; i++) {
+        a = R[(i+1)*maa + i];
+        b = R[(i+1)*maa + i+1];
+        temp = sqrt(a*a + b*b);
+        c = a / temp;
+        s = b / temp;
+        R[(i+1)*maa + i] = temp;
+        R[(i+1)*maa + i+1] = 0.0;
+	/* OK to re-use temp */
+        if (i < maa-1) {
+          for (j = i+2; j < maa; j++) {
+            a = R[j*maa + i];
+            b = R[j*maa + i+1];
+            temp = c * a + s * b;
+            R[j*maa + i+1] = -s*a + c*b;
+            R[j*maa + i] = temp;
+	  }
+	}
+        N_VLinearSum(c, Q[i], s, Q[i+1], vtemp2);
+        N_VLinearSum(-s, Q[i], c, Q[i+1], Q[i+1]);
+        N_VScale(ONE, vtemp2, Q[i]);
+      }
+
+      /* Shift R to the left by one. */
+      for (i = 1; i < maa; i++) {
+        for (j = 0; j < maa-1; j++) {
+          R[(i-1)*maa + j] = R[i*maa + j];
+        }
+      }
+
+      /* Add the new df vector */
+      N_VScale(ONE,df[i_pt],vtemp2);
+      for (j=0; j < (maa-1); j++) {
+        R[(maa-1)*maa+j] = N_VDotProd(Q[j],vtemp2);
+        N_VLinearSum(ONE,vtemp2,-R[(maa-1)*maa+j],Q[j],vtemp2);
+      }
+      R[(maa-1)*maa+maa-1] = sqrt(N_VDotProd(vtemp2,vtemp2));
+      N_VScale((1/R[(maa-1)*maa+maa-1]),vtemp2,Q[maa-1]);
+
+      /* Update the iteration map */
       j = 0;
       for (i=i_pt+1; i < maa; i++)
-	ipt_map[j++] = i;
+        ipt_map[j++] = i;
       for (i=0; i < (i_pt+1); i++)
-	ipt_map[j++] = i;
-      
-      for (i=0; i < maa; i++)
-	N_VScale(ONE,df[i],qtmp[i]);
-      for (i=0; i < maa; i++) {
-	imap = ipt_map[i];
-	R[i*maa+i] = sqrt(N_VDotProd(qtmp[imap],qtmp[imap]));
-	N_VScale((1/R[i*maa+i]),qtmp[imap],Q[imap]);
-	for (j = i+1; j < maa; j++) {
-	  jmap = ipt_map[j];
-	  R[j*maa+i] = N_VDotProd(qtmp[jmap],Q[imap]);
-	  N_VLinearSum(ONE,qtmp[jmap],-R[j*maa+i],Q[imap],qtmp[jmap]);
-	}            
-      }
+        ipt_map[j++] = i;
     }
+
     /* Solve least squares problem and update solution */
     lAA = iter;
     if (maa < iter) lAA = maa;
     N_VScale(ONE, gval, x);
     for (i=0; i < lAA; i++)
-      gamma[i] = N_VDotProd(fv,Q[ipt_map[i]]);
+      gamma[i] = N_VDotProd(fv,Q[i]);
     for (i=lAA-1; i > -1; i--) {
       for (j=i+1; j < lAA; j++) {
-	gamma[i] = gamma[i]-R[j*maa+i]*gamma[j]; 
+        gamma[i] = gamma[i]-R[j*maa+i]*gamma[j]; 
       }
       gamma[i] = gamma[i]/R[i*maa+i];
       N_VLinearSum(ONE,x,-gamma[i],dg[ipt_map[i]],x);
     }
   }
-  free(ipt_map);
 
   return 0;
 }

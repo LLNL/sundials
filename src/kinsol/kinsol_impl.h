@@ -161,9 +161,9 @@ typedef struct KINMemRec {
   N_Vector *kin_df_aa;	    /* vector array needed for AA, Broyden, and NLEN */
   N_Vector *kin_dg_aa;	    /* vector array needed for AA, Broyden and NLEN */
   N_Vector *kin_q_aa;	    /* vector array needed for AA */
-  N_Vector *kin_qtmp_aa;    /* vector array needed for AA */
   realtype *kin_gamma_aa;   /* array of size maa used in AA */
   realtype *kin_R_aa;       /* array of size maa*maa used in AA */
+  int      *kin_ipt_map;    /* array of size maa used in AA */
   long int kin_m_aa;	    /* parameter for AA, Broyden or NLEN */
   booleantype kin_aamem_aa; /* sets additional memory needed for Anderson Acc */
   booleantype kin_setstop_aa; /* determines whether user will set stopping criterion */
