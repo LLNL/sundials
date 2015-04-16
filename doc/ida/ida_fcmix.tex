@@ -7,7 +7,7 @@ the use of the {\ida} solver, for the solution of DAE systems, in a mixed
 {\F}/{\C} setting.  While {\ida} is written in {\C}, it is assumed here
 that the user's calling program and user-supplied problem-defining routines
 are written in {\F}. This package provides the necessary interface to {\ida}
-for all supplied serial and the parallel {\nvector} implementations.
+for all supplied serial and parallel {\nvector} implementations.
 
 %%==============================================================================
 % Pull in sections on portability and data types.
@@ -210,7 +210,7 @@ to {\nvecp},
   \id{IER} is a return completion flag which is $0$ on success and $-1$ 
   if a failure occurred.
 
-  {\p} To initialize the distributed memory 
+  {\p} To initialize the MPI-based distributed memory 
   parallel vector module, the user must make the following call:
   \index{FNVINITP@\texttt{FNVINITP}}
 \begin{verbatim}
@@ -485,7 +485,7 @@ to {\nvecp},
  The {\ida} KLU solver will reuse much of the factorization 
  information from one nonlinear iteration and time step 
  to the next.  If at any time 
- the user wants to force a full refactorization or if the number of 
+ the user wants to force a full refactorization, or if the number of 
  nonzeros in the Jacobian matrix changes, the user should make the call
 \begin{verbatim}
        CALL FIDAKLUREINIT(NEQ, NNZ, REINIT_TYPE)
@@ -512,7 +512,8 @@ to {\nvecp},
   If the either of the sparse direct interface packages are used, 
   then the user must supply the \id{FIDASPJAC} routine
   that computes a compressed-sparse-column 
-  approximation of the system Jacobian $J = dF(y)/dy' + c_j dF/dy$.  
+  approximation of the system Jacobian 
+  $J = \partial F / \partial y + c_j \partial F / \partial \dot{y}$.
   If supplied, it must have the following form:
 \begin{verbatim}
        SUBROUTINE FIDASPJAC(T, CJ, Y, YP, R, N, NNZ, JDATA, JRVALS, 
@@ -524,22 +525,22 @@ to {\nvecp},
   values), \id{JRVALS} (row indices for each nonzero), \id{JCOLPTRS} (indices 
   for start of each column), with the Jacobian matrix at the current
   $(t, y)$ in CSC form (see \id{sundials\_sparse.h} for more information).
- The arguments are \id{T}, the current time, \id{CJ}, scalar in the system 
- proportional to the inverse step size, \id{Y}, an array containing 
- state variables, \id{YP}, an array containing state derivatives, 
- \id{R}, an array containing the system nonlinear residual,
+ The arguments are \id{T}, the current time; \id{CJ}, scalar in the system 
+ proportional to the inverse step size; \id{Y}, an array containing 
+ state variables; \id{YP}, an array containing state derivatives;
+ \id{R}, an array containing the system nonlinear residual;
  \id{N}, the number of matrix rows/columns 
- in the Jacobian, \id{NNZ}, allocated length of nonzero storage, \id{JDATA},
- nonzero values in the Jacobian (of length \id{NNZ}), 
- \id{JRVALS}, row indices for each nonzero in Jacobian (of length \id{NNZ}),
+ in the Jacobian; \id{NNZ}, allocated length of nonzero storage; \id{JDATA},
+ nonzero values in the Jacobian (of length \id{NNZ});
+ \id{JRVALS}, row indices for each nonzero in Jacobian (of length \id{NNZ});
  \id{JCPTRS}, pointers to each Jacobian column in the two preceding arrays
- (of length \id{N}+1), \id{H}, the current step size, 
+ (of length \id{N}+1); \id{H}, the current step size; 
  \id{IPAR}, an array containing integer user data that was 
- passed to \id{FIDAMALLOC}, \id{RPAR}, an array containing real user 
- data that was passed to \id{FIDAMALLOC}, 
+ passed to \id{FIDAMALLOC}; \id{RPAR}, an array containing real user 
+ data that was passed to \id{FIDAMALLOC}; 
  \id{WK*}, work arrays containing temporary workspace 
- of same size as \id{Y}, and \id{IER}, error return code (0 if successful,
- >0 if a recoverable error occurred, or <0 if an unrecoverable error ocurred.)
+ of same size as \id{Y}; and \id{IER}, error return code (0 if successful,
+ $>0$ if a recoverable error occurred, or $<0$ if an unrecoverable error occurred.)
 
   Optional outputs specific to the {\sparse} case are listed in
   Table~\ref{t:fida_out}.
@@ -984,8 +985,8 @@ and \S\ref{ss:optional_output}.
 \hline
 \multicolumn{3}{|c|}{{\idasparse} linear solvers}\\
 \hline
-14 &  \id{LS\_FLAG} & \id{IDADlsGetLastFlag} \\
-16 &  \id{NJE}      & \id{IDADlsGetNumJacEvals} \\ 
+14 &  \id{LS\_FLAG} & \id{IDASlsGetLastFlag} \\
+16 &  \id{NJE}      & \id{IDASlsGetNumJacEvals} \\ 
 \hline
 \multicolumn{3}{|c|}{{\idaspgmr}, {\idaspbcg}, {\idasptfqmr} linear solvers}\\
 \hline
