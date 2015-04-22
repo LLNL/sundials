@@ -608,7 +608,7 @@ to {\nvecp},
  data that was passed to \id{FCVMALLOC};
  \id{WK*}, work arrays containing temporary workspace 
  of same size as \id{Y}; and \id{IER}, error return code (0 if successful,
- $>0$ if a recoverable error occurred, or $<0$ if an unrecoverable error ocurred.)
+ $>0$ if a recoverable error occurred, or $<0$ if an unrecoverable error occurred.)
 
   Optional outputs specific to the {\sparse} case are listed in
   Table~\ref{t:fcvode_out}.
@@ -1007,7 +1007,7 @@ and \S\ref{ss:optional_output}.
 11 &  \id{NOR}     & \id{CVodeGetNumStabLimOrderReds} \\ 
 12 &  \id{NGE}     & \id{CVodeGetNumGEvals} \\ 
 \hline
-\multicolumn{3}{|c|}{{\cvdense}, {\cvband} linear solvers}\\
+\multicolumn{3}{|c|}{{\cvdls} linear solvers}\\
 \hline
 13 & \id{LENRWLS}  & \id{CVDlsGetWorkSpace} \\ 
 14 & \id{LENIWLS}  & \id{CVDlsGetWorkSpace} \\ 
@@ -1022,12 +1022,12 @@ and \S\ref{ss:optional_output}.
 15 & \id{LS\_FLAG} & \id{CVDiagGetLastFlag} \\ 
 16 & \id{NFELS}    & \id{CVDiagGetNumRhsEvals} \\ 
 \hline
-\multicolumn{3}{|c|}{{\cvsparse} linear solvers}\\
+\multicolumn{3}{|c|}{{\cvsls} linear solvers}\\
 \hline
 14 & \id{LS\_FLAG} & \id{CVSlsGetLastFlag} \\ 
 16 & \id{NJE}      & \id{CVSlsGetNumJacEvals} \\ 
 \hline
-\multicolumn{3}{|c|}{{\cvspgmr}, {\cvspbcg}, {\cvsptfqmr} linear solvers}\\
+\multicolumn{3}{|c|}{{\cvspils} linear solvers}\\
 \hline
 13 & \id{LENRWLS}  & \id{CVSpilsGetWorkSpace} \\ 
 14 & \id{LENIWLS}  & \id{CVSpilsGetWorkSpace} \\ 
