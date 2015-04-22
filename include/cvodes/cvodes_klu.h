@@ -102,6 +102,21 @@ extern "C" {
 
   SUNDIALS_EXPORT int CVKLUSetOrdering(void *cv_mem, int ordering_choice); 
 
+/* 
+ * ================================================================
+ *
+ *                   PART II - backward problems
+ *
+ * ================================================================
+ */
+
+/*
+ * CVKLUB is a wrapper around CVKLU. It attaches the CVKLU linear solver
+ * to the backward problem memory block.
+ */
+
+  SUNDIALS_EXPORT int CVKLUB(void *cvode_mem, int which, int n, int nnz);
+
 
   
 #ifdef __cplusplus
