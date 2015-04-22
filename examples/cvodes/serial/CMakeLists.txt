@@ -181,17 +181,16 @@ IF(EXAMPLES_INSTALL)
   ENDIF(LAPACK_FOUND)
 
   IF(KLU_FOUND)
-    LIST(APPEND EXAMPLES " ")
-    LIST(APPEND EXAMPLES ${CVODES_examples_KLU})
+    LIST2STRING(CVODES_examples_KLU EXAMPLES)
   ENDIF(KLU_FOUND)
 
   IF(SUPERLUMT_FOUND)
-    LIST(APPEND EXAMPLES " ")
-    LIST(APPEND EXAMPLES ${CVODES_examples_SUPERLUMT})
+    LIST2STRING(CVODES_examples_SUPERLUMT EXAMPLES)
   ENDIF(SUPERLUMT_FOUND)
 
   STRING (REPLACE ";" " " TMP_STR ${EXAMPLES})
   SET(EXAMPLES ${TMP_STR})
+  list(REMOVE_DUPLICATES EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
