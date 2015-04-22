@@ -8,7 +8,7 @@ $F(u)=0$, in a mixed {\F}/{\C} setting.  While {\kinsol} is written
 in {\C}, it is assumed here that the user's calling program and
 user-supplied problem-defining routines are written in {\F}.
 This package provides the necessary interface to {\kinsol} for all supplied
-serial and the parallel {\nvector} implementations.
+serial and parallel {\nvector} implementations.
 
 %%==============================================================================
 % Pull in sections on portability and data types.
@@ -218,7 +218,7 @@ to {\nvecp},
   \id{IER} is a return completion flag which is $0$ on success and $-1$ 
   if a failure occurred.
   
-  {\p} To initialize the distributed memory 
+  {\p} To initialize the MPI-based distributed memory 
   parallel vector module, the user must make the following call:
   \index{FNVINITP@\texttt{FNVINITP}}
 \begin{verbatim}
@@ -448,7 +448,7 @@ to {\nvecp},
   \index{FKINKLUREINIT@\texttt{FKINKLURENIT}}
  The {\kinsol} KLU solver will reuse much of the factorization 
  information from one nonlinear iteration to the next.  If at any time 
- the user wants to force a full refactorization or if the number of 
+ the user wants to force a full refactorization, or if the number of 
  nonzeros in the Jacobian matrix changes, the user should make the call
 \begin{verbatim}
        CALL FKINKLUREINIT(NEQ, NNZ, REINIT_TYPE)
@@ -475,8 +475,8 @@ to {\nvecp},
   If the either of the sparse direct interface packages are used, 
   then the user must supply the \id{FKINSPJAC} routine
   that computes a compressed-sparse-column 
-  approximation of the system Jacobian $J = dF(y)/dy$.  If supplied, 
-  it must have the following form:
+  approximation of the system Jacobian $J = \partial F / \partial u$.
+  If supplied, it must have the following form:
 \begin{verbatim}
        SUBROUTINE FKINSPJAC(Y, FY, N, NNZ, JDATA, JRVALS, 
       &                     JCPTRS, WK1, WK2, IER)
@@ -488,15 +488,15 @@ to {\nvecp},
   values), \id{JRVALS} (row indices for each nonzero), \id{JCOLPTRS} (indices 
   for start of each column), with the Jacobian matrix at the current
   (y) in CSC form (see \id{sundials\_sparse.h} for more information).
- The arguments are \id{Y}, an array containing state variables, \id{FY}, an
- array containing residual values, \id{N}, the number of matrix rows/columns 
- in the Jacobian, \id{NNZ}, allocated length of nonzero storage, \id{JDATA},
- nonzero values in the Jacobian (of length \id{NNZ}), 
- \id{JRVALS}, row indices for each nonzero in Jacobian (of length \id{NNZ}),
+ The arguments are \id{Y}, an array containing state variables; \id{FY}, an
+ array containing residual values; \id{N}, the number of matrix rows/columns 
+ in the Jacobian; \id{NNZ}, allocated length of nonzero storage; \id{JDATA},
+ nonzero values in the Jacobian (of length \id{NNZ}); 
+ \id{JRVALS}, row indices for each nonzero in Jacobian (of length \id{NNZ});
  \id{JCPTRS}, pointers to each Jacobian column in the two preceding arrays
- (of length \id{N}+1), \id{WK*}, work arrays containing temporary workspace 
- of same size as \id{Y}, and \id{IER}, error return code (0 if successful,
- >0 if a recoverable error occurred, or <0 if an unrecoverable error ocurred.)
+ (of length \id{N}+1); \id{WK*}, work arrays containing temporary workspace 
+ of same size as \id{Y}; and \id{IER}, error return code (0 if successful,
+ $>0$ if a recoverable error occurred, or $<0$ if an unrecoverable error occurred.)
 
   Optional outputs specific to the {\sparse} case are listed in
   Table~\ref{t:fkinsol_out}.
@@ -799,7 +799,7 @@ and \S\ref{ss:optional_output}.
 5  & \id{NBCF}   & \id{KINGetNumBetaCondFails} \\
 6  & \id{NBKTRK} & \id{KINGetNumBacktrackOps} \\
 \hline
-\multicolumn{3}{|c|}{{\kindense}, {\kinband} linear solver}\\
+\multicolumn{3}{|c|}{{\kindls} linear solvers}\\
 \hline
 7  & \id{LENRWLS}  & \id{KINDlsGetWorkSpace} \\ 
 8  & \id{LENIWLS}  & \id{KINDlsGetWorkSpace} \\ 
@@ -807,13 +807,12 @@ and \S\ref{ss:optional_output}.
 10 & \id{NFELS}    & \id{KINDlsGetNumFuncEvals} \\ 
 11 & \id{NJE}      & \id{KINDlsGetNumJacEvals} \\ 
 \hline
-\multicolumn{3}{|c|}{{\kinsparse} linear solver}\\
+\multicolumn{3}{|c|}{{\kinsls} linear solvers}\\
 \hline
 8  & \id{LS\_FLAG} & \id{KINSlsGetLastFlag} \\ 
 10 & \id{NJE}      & \id{KINSlsGetNumJacEvals} \\ 
 \hline
-\multicolumn{3}{|c|}{{\kinspgmr}, {\kinspfgmr}, 
-  {\kinspbcg}, {\kinsptfqmr}  linear solvers}\\
+\multicolumn{3}{|c|}{{\kinspils} linear solvers}\\
 \hline
 7  & \id{LENRWLS}  & \id{KINSpilsGetWorkSpace} \\
 8  & \id{LENIWLS}  & \id{KINSpilsGetWorkSpace} \\
