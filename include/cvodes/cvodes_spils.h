@@ -484,6 +484,15 @@ typedef int (*CVSpilsJacTimesVecFnBS)(N_Vector vB, N_Vector JvB,
  * -----------------------------------------------------------------
  */
 
+/*
+ * -----------------------------------------------------------------
+ * Each CVSpilsSet***B or CVSpilsSet***BS function below links the
+ * main CVODES integrator with the corresponding CVSpilsSet***
+ * optional input function for the backward integration.
+ * The 'which' argument is the int returned by CVodeCreateB.
+ * -----------------------------------------------------------------
+ */
+
 SUNDIALS_EXPORT int CVSpilsSetPrecTypeB(void *cvode_mem, int which, int pretypeB);
 SUNDIALS_EXPORT int CVSpilsSetGSTypeB(void *cvode_mem, int which, int gstypeB);
 SUNDIALS_EXPORT int CVSpilsSetEpsLinB(void *cvode_mem, int which, realtype eplifacB);

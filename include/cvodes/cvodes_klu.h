@@ -111,8 +111,13 @@ extern "C" {
  */
 
 /*
- * CVKLUB is a wrapper around CVKLU. It attaches the CVKLU linear solver
- * to the backward problem memory block.
+ * -----------------------------------------------------------------
+ * Function: CVKLUB
+ * -----------------------------------------------------------------
+ * CVKLUB is a wrapper around CVKLU. It attaches the CVKLU linear
+ * solver to the backward problem memory block.
+ * The 'which' argument is the int returned by CVodeCreateB.
+ * -----------------------------------------------------------------
  */
 
   SUNDIALS_EXPORT int CVKLUB(void *cvode_mem, int which, int n, int nnz);

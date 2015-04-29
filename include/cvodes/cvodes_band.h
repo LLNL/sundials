@@ -64,6 +64,7 @@ SUNDIALS_EXPORT int CVBand(void *cvode_mem, long int N, long int mupper, long in
  * -----------------------------------------------------------------
  * CVBandB links the main CVODE integrator with the CVSBAND
  * linear solver for the backward integration.
+ * The 'which' argument is the int returned by CVodeCreateB.
  * -----------------------------------------------------------------
  */
 

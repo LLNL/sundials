@@ -171,6 +171,7 @@ SUNDIALS_EXPORT int CVBandPrecGetNumRhsEvals(void *cvode_mem, long int *nfevalsB
  *
  * CVBandPrecInitB interfaces to the CVBANDPRE preconditioner
  * for the backward integration.
+ * The 'which' argument is the int returned by CVodeCreateB.
  * -----------------------------------------------------------------
  */
 

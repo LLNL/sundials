@@ -57,6 +57,7 @@ SUNDIALS_EXPORT int CVDense(void *cvode_mem, long int N);
  * -----------------------------------------------------------------
  * CVDenseB links the main CVODE integrator with the CVSDENSE
  * linear solver for the backward integration.
+ * The 'which' argument is the int returned by CVodeCreateB.
  * -----------------------------------------------------------------
  */
 

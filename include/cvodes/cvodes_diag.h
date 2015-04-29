@@ -132,6 +132,7 @@ SUNDIALS_EXPORT char *CVDiagGetReturnFlagName(long int flag);
  * -----------------------------------------------------------------
  * CVDiagB links the main CVODE integrator with the CVDIAG
  * linear solver for the backward integration.
+ * The 'which' argument is the int returned by CVodeCreateB.
  * -----------------------------------------------------------------
  */
   

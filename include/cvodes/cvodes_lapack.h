@@ -84,6 +84,7 @@ SUNDIALS_EXPORT int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
  * -----------------------------------------------------------------
  * CVLapackDenseB links the main CVODE integrator with the dense
  * CVSLAPACK linear solver for the backward integration.
+ * The 'which' argument is the int returned by CVodeCreateB.
  * -----------------------------------------------------------------
  */
 
@@ -95,6 +96,7 @@ SUNDIALS_EXPORT int CVLapackDenseB(void *cvode_mem, int which, int nB);
  * -----------------------------------------------------------------
  * CVLapackBandB links the main CVODE integrator with the band
  * CVSLAPACK linear solver for the backward integration.
+ * The 'which' argument is the int returned by CVodeCreateB.
  * -----------------------------------------------------------------
  */
 

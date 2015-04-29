@@ -82,6 +82,16 @@ SUNDIALS_EXPORT int CVSptfqmr(void *cvode_mem, int pretype, int maxl);
  * -----------------------------------------------------------------
  */
 
+/*
+ * -----------------------------------------------------------------
+ * Function: CVSptfqmrB
+ * -----------------------------------------------------------------
+ * CVSptfqmrB links the main CVODES integrator with the CVSptfqmr
+ * linear solver for the backward integration.
+ * The 'which' argument is the int returned by CVodeCreateB.
+ * -----------------------------------------------------------------
+ */
+
 SUNDIALS_EXPORT int CVSptfqmrB(void *cvode_mem, int which,
                                int pretypeB, int maxlB);
 

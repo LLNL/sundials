@@ -390,6 +390,7 @@ typedef int (*CVDlsBandJacFnBS)(long int nB, long int mupperB, long int mlowerB,
  * the backward problem does not depend on forward sensitivities.
  * CVDlsSetDenseJacFnBS and CVDlsSetBandJacFnBS specify the Jacobian
  * functions when the backward problem does depend on sensitivities.
+ * The 'which' argument is the int returned by CVodeCreateB.
  * -----------------------------------------------------------------
  */
 

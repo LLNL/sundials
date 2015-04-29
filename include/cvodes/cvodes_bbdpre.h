@@ -316,6 +316,7 @@ typedef int (*CVCommFnB)(long int NlocalB, realtype t,
  * -----------------------------------------------------------------
  * Interface functions for the CVBBDPRE preconditioner to be used on
  * the backward phase.
+ * The 'which' argument is the int returned by CVodeCreateB.
  * -----------------------------------------------------------------
  */
 

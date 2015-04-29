@@ -15,7 +15,7 @@
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the IDASuperLUMT linear solver module.
+ * This is the header file for the CVSuperLUMT linear solver module.
  * -----------------------------------------------------------------
  */
 
@@ -80,8 +80,9 @@ extern "C" {
  * -----------------------------------------------------------------
  * Function: CVSuperLUMTB
  * -----------------------------------------------------------------
- * CVSuperLUMTB links the main IDAS integrator with the CVSuperLUMT
+ * CVSuperLUMTB links the main CVODES integrator with the CVSuperLUMT
  * linear solver for the backward integration.
+ * The 'which' argument is the int returned by CVodeCreateB.
  * -----------------------------------------------------------------
  */
  
