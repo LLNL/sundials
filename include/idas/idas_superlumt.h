@@ -56,21 +56,6 @@ extern "C" {
   SUNDIALS_EXPORT int IDASuperLUMT(void *ida_mem, int num_threads, 
 				   int n, int nnz); 
 
-/*
- * -----------------------------------------------------------------
- * Function: IDASuperLUMTB
- * -----------------------------------------------------------------
- * IDASuperLUMTB links the main IDAS integrator with the IDASuperLUMT
- * linear solver for the backward integration.
- * -----------------------------------------------------------------
- */
-
-  SUNDIALS_EXPORT int IDASuperLUMTB(void *ida_mem, int num_threads, 
-				    int which, int nB, int nnzB);
-
-
-
-
 /* 
  * -----------------------------------------------------------------
  * Optional Input Specification Functions
@@ -89,6 +74,23 @@ extern "C" {
 
   SUNDIALS_EXPORT int IDASuperLUMTSetOrdering(void *ida_mem, 
 					      int ordering_choice); 
+
+
+
+/*
+ * -----------------------------------------------------------------
+ * Function: IDASuperLUMTB
+ * -----------------------------------------------------------------
+ * IDASuperLUMTB links the main IDAS integrator with the IDASuperLUMT
+ * linear solver for the backward integration.
+ * -----------------------------------------------------------------
+ */
+
+  SUNDIALS_EXPORT int IDASuperLUMTB(void *ida_mem, int which, int num_threads, 
+				    int nB, int nnzB);
+
+
+
 
 
   

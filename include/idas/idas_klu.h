@@ -89,17 +89,6 @@ extern "C" {
   SUNDIALS_EXPORT int IDAKLUReInit(void *ida_mem_v, int n, int nnz, 
 				   int reinit_type);
 
-/*
- * -----------------------------------------------------------------
- * Function: IDAKLUB
- * -----------------------------------------------------------------
- * IDAKLUB links the main IDAS integrator with the IDAKLU
- * linear solver for the backward integration.
- * -----------------------------------------------------------------
- */
-
-  SUNDIALS_EXPORT int IDAKLUB(void *ida_mem, int which, int nB, int nnzB);
-
 /* 
  * -----------------------------------------------------------------
  * Optional Input Specification Functions
@@ -112,6 +101,27 @@ extern "C" {
  */
 
   SUNDIALS_EXPORT int IDAKLUSetOrdering(void *ida_mem, int ordering_choice); 
+
+/* 
+ * ================================================================
+ *
+ *                   PART II - backward problems
+ *
+ * ================================================================
+ */
+
+
+/*
+ * -----------------------------------------------------------------
+ * Function: IDAKLUB
+ * -----------------------------------------------------------------
+ * IDAKLUB links the main IDAS integrator with the IDAKLU
+ * linear solver for the backward integration.
+ * -----------------------------------------------------------------
+ */
+
+  SUNDIALS_EXPORT int IDAKLUB(void *ida_mem, int which, int nB, int nnzB);
+
 
 
   

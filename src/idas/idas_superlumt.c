@@ -541,7 +541,7 @@ int IDASuperLUMTSetOrdering(void *ida_mem_v, int ordering_choice)
  * IDASuperLUMTB is a wrapper around IDASuperLUMT.
  */
 
-int IDASuperLUMTB(void *ida_mem, int num_threads, int which, int n, int nnz)
+int IDASuperLUMTB(void *ida_mem, int which, int num_threads, int n, int nnz)
 {
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
