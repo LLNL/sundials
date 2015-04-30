@@ -83,14 +83,12 @@ extern "C" {
  * -----------------------------------------------------------------
  * IDASuperLUMTB links the main IDAS integrator with the IDASuperLUMT
  * linear solver for the backward integration.
+ * The 'which' argument is the int returned by IDACreateB.
  * -----------------------------------------------------------------
  */
 
   SUNDIALS_EXPORT int IDASuperLUMTB(void *ida_mem, int which, int num_threads, 
 				    int nB, int nnzB);
-
-
-
 
 
   

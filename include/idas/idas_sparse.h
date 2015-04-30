@@ -252,6 +252,7 @@ typedef int (*IDASlsSparseJacFnBS)(realtype tt, realtype c_jB,
  * when the backward problem does not depend on forward sensitivities.
  * IDASlsSetSparseJacFnBS specifies the Jacobian
  * functions when the backward problem does depend on sensitivities.
+ * The 'which' argument is the int returned by IDACreateB.
  * -----------------------------------------------------------------
  */
 

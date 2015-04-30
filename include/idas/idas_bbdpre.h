@@ -313,6 +313,7 @@ typedef int (*IDABBDCommFnB)(long int NlocalB, realtype tt,
  * -----------------------------------------------------------------
  * Interface functions for the IDABBDPRE preconditioner to be used
  * on the backward phase.
+ * The 'which' argument is the int returned by IDACreateB.
  * -----------------------------------------------------------------
  */
 

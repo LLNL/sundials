@@ -74,6 +74,16 @@ SUNDIALS_EXPORT int IDASpbcg(void *ida_mem, int maxl);
  * -----------------------------------------------------------------
  */
 
+/*
+ * -----------------------------------------------------------------
+ * Function: IDASpbcgB
+ * -----------------------------------------------------------------
+ * IDASpbcgB links the main IDAS integrator with the IDASpbcg
+ * linear solver for the backward integration.
+ * The 'which' argument is the int returned by IDACreateB.
+ * -----------------------------------------------------------------
+ */
+
 SUNDIALS_EXPORT int IDASpbcgB(void *ida_mem, int which, int maxlB);
 
 

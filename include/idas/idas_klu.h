@@ -117,6 +117,7 @@ extern "C" {
  * -----------------------------------------------------------------
  * IDAKLUB links the main IDAS integrator with the IDAKLU
  * linear solver for the backward integration.
+ * The 'which' argument is the int returned by IDACreateB.
  * -----------------------------------------------------------------
  */
 

@@ -62,6 +62,7 @@ SUNDIALS_EXPORT int IDADense(void *ida_mem, long int Neq);
  * -----------------------------------------------------------------
  * IDADenseB links the main IDAS integrator with the IDADENSE
  * linear solver for the backward integration.
+ * The 'which' argument is the int returned by IDACreateB.
  * -----------------------------------------------------------------
  */
 

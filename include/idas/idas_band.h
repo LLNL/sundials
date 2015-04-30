@@ -72,6 +72,7 @@ SUNDIALS_EXPORT int IDABand(void *ida_mem,
  * -----------------------------------------------------------------
  * IDABandB links the main IDAS integrator with the IDABAND
  * linear solver for the backward integration.
+ * The 'which' argument is the int returned by IDACreateB.
  * -----------------------------------------------------------------
  */
 

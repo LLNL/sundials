@@ -84,10 +84,11 @@ SUNDIALS_EXPORT int IDALapackBand(void *ida_mem, int N, int mupper, int mlower);
  * -----------------------------------------------------------------
  * IDALapackDenseB links the main IDAS integrator with the dense
  * IDALAPACK linear solver for the backward integration.
+ * The 'which' argument is the int returned by IDACreateB.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDALapackDenseB(void *ida_mem, int NeqB);
+  SUNDIALS_EXPORT int IDALapackDenseB(void *ida_mem, int which, int NeqB);
 
 /*
  * -----------------------------------------------------------------
@@ -95,10 +96,11 @@ SUNDIALS_EXPORT int IDALapackDenseB(void *ida_mem, int NeqB);
  * -----------------------------------------------------------------
  * IDALapackBandB links the main IDAS integrator with the band
  * IDALAPACK linear solver for the backward integration.
+ * The 'which' argument is the int returned by IDACreateB.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDALapackBandB(void *ida_mem, int NeqB, int mupperB, int mlowerB);
+  SUNDIALS_EXPORT int IDALapackBandB(void *ida_mem, int which, int NeqB, int mupperB, int mlowerB);
 
 
 #ifdef __cplusplus

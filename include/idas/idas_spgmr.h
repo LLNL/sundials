@@ -76,6 +76,16 @@ SUNDIALS_EXPORT int IDASpgmr(void *ida_mem, int maxl);
  * -----------------------------------------------------------------
  */
 
+/*
+ * -----------------------------------------------------------------
+ * Function: IDASpgmrB
+ * -----------------------------------------------------------------
+ * IDASpgmrB links the main IDAS integrator with the IDASpgmr
+ * linear solver for the backward integration.
+ * The 'which' argument is the int returned by IDACreateB.
+ * -----------------------------------------------------------------
+ */
+
 SUNDIALS_EXPORT int IDASpgmrB(void *ida_mem, int which, int maxlB);
 
 #ifdef __cplusplus

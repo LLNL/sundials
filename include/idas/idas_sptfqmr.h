@@ -74,6 +74,17 @@ SUNDIALS_EXPORT int IDASptfqmr(void *ida_mem, int maxl);
  * -----------------------------------------------------------------
  */
 
+/*
+ * -----------------------------------------------------------------
+ * Function: IDASptfqmrB
+ * -----------------------------------------------------------------
+ * IDASptfqmrB links the main IDAS integrator with the IDASptfqmr
+ * linear solver for the backward integration.
+ * The 'which' argument is the int returned by IDACreateB.
+ * -----------------------------------------------------------------
+ */
+
+
 SUNDIALS_EXPORT int IDASptfqmrB(void *ida_mem, int which, int maxlB);
 
 #ifdef __cplusplus

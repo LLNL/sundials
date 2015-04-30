@@ -442,6 +442,15 @@ typedef int (*IDASpilsJacTimesVecFnBS)(realtype t,
  * -----------------------------------------------------------------
  */
 
+/*
+ * -----------------------------------------------------------------
+ * Each IDASpilsSet***B or IDASpilsSet***BS function below links the
+ * main IDAS integrator with the corresponding IDASpilsSet***
+ * optional input function for the backward integration.
+ * The 'which' argument is the int returned by IDACreateB.
+ * -----------------------------------------------------------------
+ */
+
 SUNDIALS_EXPORT int IDASpilsSetGSTypeB(void *ida_mem, int which, int gstypeB);
 SUNDIALS_EXPORT int IDASpilsSetMaxRestartsB(void *ida_mem, int which, int maxrsB);
 SUNDIALS_EXPORT int IDASpilsSetEpsLinB(void *ida_mem, int which, realtype eplifacB);
