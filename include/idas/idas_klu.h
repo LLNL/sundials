@@ -124,6 +124,30 @@ extern "C" {
   SUNDIALS_EXPORT int IDAKLUB(void *ida_mem, int which, int nB, int nnzB);
 
 
+/*
+ * -----------------------------------------------------------------
+ * Function: IDAKLUReInitB
+ * -----------------------------------------------------------------
+ * IDAKLUReInitB pulls off the memory block associated with the which parameter
+ * and reinitializes the KLU solver associated with that memory block.
+ * The 'which' argument is the int returned by IDACreateB.
+ * -----------------------------------------------------------------
+ */
+
+  SUNDIALS_EXPORT int IDAKLUReInitB(void *ida_mem, int which, int nB, int nnzB, int reinit_type);
+
+
+/*
+ * -----------------------------------------------------------------
+ * Function: IDAKLUSetOrderingB
+ * -----------------------------------------------------------------
+ * IDAKLUSetOrderingB pulls off the memory block associated with the which parameter
+ * and sets the ordering for the KLU solver associated with that memory block.
+ * The 'which' argument is the int returned by IDACreateB.
+ * -----------------------------------------------------------------
+ */
+
+  SUNDIALS_EXPORT int IDAKLUSetOrderingB(void *ida_mem, int which, int ordering_choiceB);
 
   
 #ifdef __cplusplus

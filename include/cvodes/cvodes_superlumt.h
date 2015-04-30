@@ -90,7 +90,18 @@ extern "C" {
 				   int nB, int nnzB);
  
  
-
+/*
+ * -----------------------------------------------------------------
+ * Function: CVSuperLUMTSetOrderingB
+ * -----------------------------------------------------------------
+ * CVSuperLUMTSetOrderingB pulls off the memory block associated with the
+ * which parameter and sets the ordering for the solver associated with that block.
+ * The 'which' argument is the int returned by CVodeCreateB.
+ * -----------------------------------------------------------------
+ */
+ 
+  SUNDIALS_EXPORT int CVSuperLUMTSetOrderingB(void *cvode_mem, int which, 
+					      int ordering_choice);
 
   
 #ifdef __cplusplus

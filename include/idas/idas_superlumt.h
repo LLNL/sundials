@@ -91,6 +91,19 @@ extern "C" {
 				    int nB, int nnzB);
 
 
+/*
+ * -----------------------------------------------------------------
+ * Function: IDASuperLUMTSetOrderingB
+ * -----------------------------------------------------------------
+ * IDASuperLUMTSetOrderingB pulls off the memory block associated with the which parameter
+ * and sets the ordering for the KLU solver associated with that memory block.
+ * The 'which' argument is the int returned by IDACreateB.
+ * -----------------------------------------------------------------
+ */
+  SUNDIALS_EXPORT int IDASuperLUMTSetOrderingB(void *ida_mem, int which, 
+					      int ordering_choiceB); 
+
+
   
 #ifdef __cplusplus
 }

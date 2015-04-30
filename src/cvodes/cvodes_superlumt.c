@@ -640,6 +640,55 @@ int CVSuperLUMTB(void *cvode_mem, int which, int num_threads,
 }
 
 /*
+ * CVSuperLUMTSetOrderingB is a wrapper around CVSuperLUMTSetOrdering. 
+ * CVSuperLUMTSetOrderingB pulls off the memory block associated with the
+ * which parameter and sets the ordering for the solver associated with that block.
+ */
+
+int CVSuperLUMTSetOrderingB(void *cvode_mem, int which, int ordering_choice)
+{
+  CVodeMem cv_mem;
+  CVadjMem ca_mem;
+  CVodeBMem cvB_mem;
+  void *cvodeB_mem;
+  CVSlsMemB cvslsB_mem;
+  int flag;
+
+  /* Check if cvode_mem exists */
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CVSLS_MEM_NULL, "CVSSuperLUMT", "CVSuperLUMTSetOrderingB", MSGSP_CVMEM_NULL);
+    return(CVSLS_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Was ASA initialized? */
+  if (cv_mem->cv_adjMallocDone == FALSE) {
+    cvProcessError(cv_mem, CVSLS_NO_ADJ, "CVSSuperLUMT", "CVSuperLUMTSetOrderingB", MSGSP_NO_ADJ);
+    return(CVSLS_NO_ADJ);
+  } 
+  ca_mem = cv_mem->cv_adj_mem;
+
+  /* Check which */
+  if ( which >= ca_mem->ca_nbckpbs ) {
+    cvProcessError(cv_mem, CVSLS_ILL_INPUT, "CVSSuperLUMT", "CVSuperLUMTSetOrderingB", MSGSP_BAD_WHICH);
+    return(CVSLS_ILL_INPUT);
+  }
+
+  /* Find the CVodeBMem entry in the linked list corresponding to which */
+  cvB_mem = ca_mem->cvB_mem;
+  while (cvB_mem != NULL) {
+    if ( which == cvB_mem->cv_index ) break;
+    cvB_mem = cvB_mem->cv_next;
+  }
+
+  cvodeB_mem = (void *) (cvB_mem->cv_mem);
+
+  flag = CVSuperLUMTSetOrdering(cvodeB_mem, ordering_choice);
+
+  return(flag);
+}
+
+/*
  * cvSuperLUMTFreeB frees the memory associated with the CVSSuperLUMT linear
  * solver for backward integration.
  */

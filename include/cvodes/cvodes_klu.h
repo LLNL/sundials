@@ -123,6 +123,31 @@ extern "C" {
   SUNDIALS_EXPORT int CVKLUB(void *cvode_mem, int which, int n, int nnz);
 
 
+/*
+ * -----------------------------------------------------------------
+ * Function: CVKLUReInitB
+ * -----------------------------------------------------------------
+ * CVKLUReInitB is a wrapper around CVKLUReInit. 
+ * CVKLUReInitB pulls off the memory block associated with the
+ * which parameter and reinitializes the KLU solver associated with that block.
+ * The 'which' argument is the int returned by CVodeCreateB.
+ * -----------------------------------------------------------------
+ */
+
+  SUNDIALS_EXPORT int CVKLUReInitB(void *cvode_mem, int which, int n, int nnz, int reinit_type);
+
+/*
+ * -----------------------------------------------------------------
+ * Function: CVKLUSetOrderingB
+ * -----------------------------------------------------------------
+ * CVKLUSetOrderingB is a wrapper around CVKLUSetOrdering. 
+ * CVKLUSetOrderingB pulls off the memory block associated with the
+ * which parameter and sets the ordering for the solver associated with that block.
+ * -----------------------------------------------------------------
+ */
+
+  SUNDIALS_EXPORT int CVKLUSetOrderingB(void *cv_mem, int which, int ordering_choice); 
+
   
 #ifdef __cplusplus
 }

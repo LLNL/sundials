@@ -586,6 +586,111 @@ int IDAKLUB(void *ida_mem, int which, int n, int nnz)
   return(flag);
 }
 
+
+/*
+ * IDAKLUReInitB is a wrapper around IDAKLUReInit.
+ */
+
+int IDAKLUReInitB(void *ida_mem, int which, int n, int nnz, int reinit_type)
+{
+  IDAMem IDA_mem;
+  IDAadjMem IDAADJ_mem;
+  IDABMem IDAB_mem;
+  IDASlsMemB idaslsB_mem;
+  void *ida_memB;
+  int flag;
+  
+  /* Is ida_mem allright? */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDASLS_MEM_NULL, "IDASSLS", "IDAKLUReInitB", 
+		    MSGSP_CAMEM_NULL);
+    return(IDASLS_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDASLS_NO_ADJ, "IDASSLS", "IDAKLUReInitB",  
+		    MSGSP_NO_ADJ);
+    return(IDASLS_NO_ADJ);
+  }
+  IDAADJ_mem = IDA_mem->ida_adj_mem;
+
+  /* Check the value of which */
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
+    IDAProcessError(IDA_mem, IDASLS_ILL_INPUT, "IDASSLS", "IDAKLUReInitB", 
+		    MSGSP_BAD_WHICH);
+    return(IDASLS_ILL_INPUT);
+  }
+
+  /* Find the IDABMem entry in the linked list corresponding to 'which'. */
+  IDAB_mem = IDAADJ_mem->IDAB_mem;
+  while (IDAB_mem != NULL) {
+    if( which == IDAB_mem->ida_index ) break;
+    /* advance */
+    IDAB_mem = IDAB_mem->ida_next;
+  }
+
+  ida_memB = (void *)(IDAB_mem->IDA_mem);
+  
+  flag = IDAKLUReInit(ida_memB, n, nnz, reinit_type);
+
+  return(flag);
+}
+
+
+/*
+ * IDAKLUSetOrderingB is a wrapper around IDAKLUSetOrdering.
+ */
+
+int IDAKLUSetOrderingB(void *ida_mem, int which, int ordering_choiceB)
+{
+  IDAMem IDA_mem;
+  IDAadjMem IDAADJ_mem;
+  IDABMem IDAB_mem;
+  IDASlsMemB idaslsB_mem;
+  void *ida_memB;
+  int flag;
+  
+  /* Is ida_mem allright? */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDASLS_MEM_NULL, "IDASSLS", "IDAKLUSetOrderingB", 
+		    MSGSP_CAMEM_NULL);
+    return(IDASLS_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDASLS_NO_ADJ, "IDASSLS", "IDAKLUSetOrderingB",  
+		    MSGSP_NO_ADJ);
+    return(IDASLS_NO_ADJ);
+  }
+  IDAADJ_mem = IDA_mem->ida_adj_mem;
+
+  /* Check the value of which */
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
+    IDAProcessError(IDA_mem, IDASLS_ILL_INPUT, "IDASSLS", "IDAKLUSetOrderingB", 
+		    MSGSP_BAD_WHICH);
+    return(IDASLS_ILL_INPUT);
+  }
+
+  /* Find the IDABMem entry in the linked list corresponding to 'which'. */
+  IDAB_mem = IDAADJ_mem->IDAB_mem;
+  while (IDAB_mem != NULL) {
+    if( which == IDAB_mem->ida_index ) break;
+    /* advance */
+    IDAB_mem = IDAB_mem->ida_next;
+  }
+
+  ida_memB = (void *)(IDAB_mem->IDA_mem);
+  
+  flag = IDAKLUSetOrdering(ida_memB, ordering_choiceB);
+
+  return(flag);
+}
+
+
 /*
  * IDAKLUFreeB frees the linear solver's memory for that backward problem passed 
  * as argument. 
