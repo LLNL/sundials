@@ -125,7 +125,29 @@ def main():
             #print "\n*** FYI: " + cmd
             cmdout = runCommandPopen(cmd)
             print cmdout
-                
+            
+            # run CMake again to add SuperLU_MT config (currently KLU must be configured before SLU)
+            cmd = "cmake \ \n"
+            # enable SUPERLU_MT
+            cmd = cmd + "-DSUPERLUMT_ENABLE=TRUE \ \n"
+            # specify include dir
+            cmd = cmd + "-DSUPERLUMT_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_2.4/SRC \ \n"
+            # specify library dir
+            cmd = cmd + "-DSUPERLUMT_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_2.4/lib \ \n"
+            # specify SuperLU_MT thread type
+            cmd = cmd + "-DSUPERLUMT_THREAD_TYPE=Pthread \ \n"
+            # specify source
+            cmd = cmd + sunSrcDir
+            
+            print "\n*** Configuring with:\n" + cmd + " ..."
+            
+            # remove newlines from cmd
+            cmd = cmd.replace('\n','')
+            cmd = cmd.replace('\\','')
+            #print "\n*** FYI: " + cmd
+            cmdout = runCommandPopen(cmd)
+            print cmdout
+            
             # run make to build libs and executables
             makeLogFile = os.path.join(sunBuildDir, makeLogFileName)
             cmd = "make -j4 &> " + makeLogFile
