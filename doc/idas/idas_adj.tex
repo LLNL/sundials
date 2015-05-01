@@ -847,7 +847,7 @@ second argument, \id{which}, the identifier of the backward problem.
   flag = IDALapackDenseB(ida_mem, which, nB);
   flag = IDALapackBandB(ida_mem, which, nB, mupperB, mlowerB);
   flag = IDAKLUB(ida_mem, which, nB, nnzB);
-  flag = IDASuperLUMTB(ida_mem, num_threads, which, nB, nnzB);
+  flag = IDASuperLUMTB(ida_mem, which, num_threads, nB, nnzB);
   flag = IDASpgmrB(ida_mem, which, maxlB);
   flag = IDASpbcgB(ida_mem, which, maxlB);
   flag = IDASptfqmrB(ida_mem, which, maxlB);
@@ -1354,9 +1354,30 @@ problem through the following two functions:
 \index{IDAKLU@{\idaklu} linear solver!optional input|(}
 \index{IDASUPERLUMT@{\idasuperlumt} linear solver!optional input|(}
 Optional inputs for the {\idaklu} and {\idasuperlumt} linear solver
-modules can be set for the backward problem through the following two
-functions: 
+modules can be set for the backward problem through the following 
+functions. 
+
+The following wrapper functions can be used to to set the fill-reducing 
+ordering and, in the case of KLU, reinitialize the sparse solver in the 
+sparse linear solver modules for the backward problem.
+Their arguments are identical to those
+of the functions in \S\ref{sss:lin_solv_init} with the exception of the additional
+second argument, \id{which}, the identifier of the backward problem.
+\begin{verbatim}
+  flag = IDAKLUReInitB(ida_mem, which, nB, nnzB, reinit_typeB);
+  flag = IDAKLUSetOrderingB(ida_mem, which, ordering_choiceB);
+  flag = IDASuperLUMTSetOrderingB(ida_mem, which, num_threads, ordering_choiceB);
+\end{verbatim}
+
+Their return value \id{flag} (of type \id{int}) can have any of the return values of their counterparts.
 %%
+If the \id{ida\_mem} argument was \id{NULL}, 
+\id{flag} will be \id{IDASLS\_MEM\_NULL}. 
+%%
+Also, if \id{which} is not a valid identifier, the functions will return 
+\id{IDASLS\_ILL\_INPUT}.
+
+
 \index{Jacobian approximation function!sparse!user-supplied (backward)}
 \ucfunction{IDASlsSetSparseJacFnB}
 {
