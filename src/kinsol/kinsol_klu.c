@@ -237,6 +237,11 @@ int KINKLUReInit(void *kin_mem_v, int n, int nnz, int reinit_type)
     }
   }
 
+  /* Free the prior factorazation and reset for first factorization */
+  if( klu_data->s_Symbolic != NULL)
+    klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
+  if( klu_data->s_Numeric != NULL)
+    klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
   kinsls_mem->s_first_factorize = 1;
 
   kinsls_mem->s_last_flag = KINSLS_SUCCESS;

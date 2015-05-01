@@ -228,6 +228,7 @@ int ARKKLUReInit(void *arkode_mem, int n, int nnz, int reinit_type)
 {
   ARKodeMem ark_mem;
   ARKSlsMem arksls_mem;
+  KLUData klu_data;
 
   /* Return immediately if arkode_mem is NULL. */
   if (arkode_mem == NULL) {
@@ -245,6 +246,7 @@ int ARKKLUReInit(void *arkode_mem, int n, int nnz, int reinit_type)
   }
 
   arksls_mem = (ARKSlsMem) (ark_mem->ark_lmem);
+  klu_data = (KLUData) arksls_mem->s_solver_data;
 
   /* Return if reinit_type is not valid */
   if ((reinit_type != 1) && (reinit_type != 2)) {
@@ -269,6 +271,11 @@ int ARKKLUReInit(void *arkode_mem, int n, int nnz, int reinit_type)
     }
   }
 
+  /* Free the prior factorazation and reset for first factorization */
+  if( klu_data->s_Symbolic != NULL)
+    klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
+  if( klu_data->s_Numeric != NULL)
+    klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
   arksls_mem->s_first_factorize = 1;
 
   arksls_mem->s_last_flag = ARKSLS_SUCCESS;
@@ -764,6 +771,7 @@ int ARKMassKLUReInit(void *arkode_mem, int n, int nnz, int reinit_type)
 {
   ARKodeMem ark_mem;
   ARKSlsMassMem arksls_mem;
+  KLUData klu_data;
 
   /* Return immediately if arkode_mem is NULL. */
   if (arkode_mem == NULL) {
@@ -781,6 +789,7 @@ int ARKMassKLUReInit(void *arkode_mem, int n, int nnz, int reinit_type)
   }
 
   arksls_mem = (ARKSlsMassMem) (ark_mem->ark_mass_mem);
+  klu_data = (KLUData) arksls_mem->s_solver_data;
 
   /* Return if reinit_type is not valid */
   if ((reinit_type != 1) && (reinit_type != 2)) {
@@ -805,6 +814,11 @@ int ARKMassKLUReInit(void *arkode_mem, int n, int nnz, int reinit_type)
     }
   }
 
+  /* Free the prior factorazation and reset for first factorization */
+  if( klu_data->s_Symbolic != NULL)
+    klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
+  if( klu_data->s_Numeric != NULL)
+    klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
   arksls_mem->s_first_factorize = 1;
 
   arksls_mem->s_last_flag = ARKSLS_SUCCESS;

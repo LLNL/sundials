@@ -255,6 +255,11 @@ int IDAKLUReInit(void *ida_mem_v, int n, int nnz, int reinit_type)
     }
   }
 
+  /* Free the prior factorazation and reset for first factorization */
+  if( klu_data->s_Symbolic != NULL)
+    klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
+  if( klu_data->s_Numeric != NULL)
+    klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
   idasls_mem->s_first_factorize = 1;
 
   idasls_mem->s_last_flag = IDASLS_SUCCESS;

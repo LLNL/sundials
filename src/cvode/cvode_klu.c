@@ -249,6 +249,11 @@ int CVKLUReInit(void *cvode_mem, int n, int nnz, int reinit_type)
     }
   }
 
+  /* Free the prior factorazation and reset for first factorization */
+  if( klu_data->s_Symbolic != NULL)
+    klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
+  if( klu_data->s_Numeric != NULL)
+    klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
   cvsls_mem->s_first_factorize = 1;
 
   cvsls_mem->s_last_flag = CVSLS_SUCCESS;
