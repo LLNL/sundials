@@ -402,7 +402,7 @@ int IDABandB(void *ida_mem, int which,
   IDAB_mem->ida_lmem  = idadlsB_mem;
   IDAB_mem->ida_lfree = IDABandFreeB;
 
-  /* Call IDABand for the IDAS data of the backward problem. */
+  /* Call IDABand to attach the IDABAND linear solver. */
   ida_memB = (void *)IDAB_mem->IDA_mem;
   flag = IDABand(ida_memB, NeqB, mupperB, mlowerB);
 

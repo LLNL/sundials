@@ -373,7 +373,7 @@ int IDADenseB(void *ida_mem, int which, long int NeqB)
   
   }
 
-  /* set matrix type and initialize Jacob function. */
+  /* Set matrix type and initialize Jac function. */
   idadlsB_mem->d_typeB = SUNDIALS_DENSE;
   idadlsB_mem->d_bjacB = NULL;
 
@@ -381,7 +381,7 @@ int IDADenseB(void *ida_mem, int which, long int NeqB)
   IDAB_mem->ida_lmem  = idadlsB_mem;
   IDAB_mem->ida_lfree = IDADenseFreeB;
 
-  /* Call IDADense to the IDAS data of the backward problem. */
+  /* Call IDADense to attach the IDADENSE linear solver. */
   ida_memB = (void *)IDAB_mem->IDA_mem;
   flag = IDADense(ida_memB, NeqB);
 
