@@ -69,6 +69,17 @@ static int idaLapackBandSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
                               N_Vector yC, N_Vector ypC, N_Vector fctC);
 static int idaLapackBandFree(IDAMem IDA_mem);
 
+static void IDALapackDenseFreeB(IDABMem IDAB_mem);
+static void IDALapackBandFreeB(IDABMem IDAB_mem);
+
+/* 
+ * ================================================================
+ *
+ *                   PART I - forward problems
+ *
+ * ================================================================
+ */
+
 /*
  * =================================================================
  * READIBILITY REPLACEMENTS
@@ -563,5 +574,181 @@ static int idaLapackBandFree(IDAMem IDA_mem)
   idadls_mem = NULL;
 
   return(0);
+}
+
+/* 
+ * ================================================================
+ *
+ *                   PART II - backward problems
+ *
+ * ================================================================
+ */
+
+/*
+ * IDALapackDenseB is a wrapper around IDALapackDense.
+ */
+
+int IDALapackDenseB(void *ida_mem, int which, int NeqB)
+{
+  IDAMem IDA_mem;
+  IDAadjMem IDAADJ_mem;
+  IDABMem IDAB_mem;
+  IDADlsMemB idadlsB_mem;
+  void *ida_memB;
+  int flag;
+  
+  /* Is ida_mem allright? */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDASLAPACK", "IDALapackDenseB", MSGD_CAMEM_NULL);
+    return(IDADLS_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDADLS_NO_ADJ, "IDASLAPACK", "IDALapackDenseB",  MSGD_NO_ADJ);
+    return(IDADLS_NO_ADJ);
+  }
+  IDAADJ_mem = IDA_mem->ida_adj_mem;
+
+  /* Check the value of which */
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
+    IDAProcessError(IDA_mem, IDADLS_ILL_INPUT, "IDASLAPACK", "IDALapackDenseB", MSGD_BAD_WHICH);
+    return(IDADLS_ILL_INPUT);
+  }
+
+  /* Find the IDABMem entry in the linked list corresponding to 'which'. */
+  IDAB_mem = IDAADJ_mem->IDAB_mem;
+  while (IDAB_mem != NULL) {
+    if( which == IDAB_mem->ida_index ) break;
+    /* advance */
+    IDAB_mem = IDAB_mem->ida_next;
+  }
+
+  /* Alloc memory for IDADlsMemRecB */
+  idadlsB_mem = (IDADlsMemB) malloc(sizeof(struct IDADlsMemRecB));
+  if (idadlsB_mem == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDADLS_MEM_FAIL, "IDASLAPACK", "IDALapackDenseB", MSGD_MEM_FAIL);
+    return(IDADLS_MEM_FAIL);
+  
+  }
+
+  /* Set matrix type and initialize Jac function. */
+  idadlsB_mem->d_typeB = SUNDIALS_DENSE;
+  idadlsB_mem->d_bjacB = NULL;
+
+  /* Attach lmemB data and lfreeB function. */
+  IDAB_mem->ida_lmem  = idadlsB_mem;
+  IDAB_mem->ida_lfree = IDALapackDenseFreeB;
+
+  /* Call IDALapackDense to attach the IDALAPACKDENSE linear solver. */
+  ida_memB = (void *)IDAB_mem->IDA_mem;
+  flag = IDALapackDense(ida_memB, NeqB);
+
+  if (flag != IDADLS_SUCCESS) {
+    free(idadlsB_mem);
+    idadlsB_mem = NULL;
+  }
+
+  return(flag);
+}
+
+/*
+ * IDALapackDenseFreeB frees the linear solver's memory for that backward problem passed 
+ * as argument. 
+ */
+
+static void IDALapackDenseFreeB(IDABMem IDAB_mem)
+{
+  IDADlsMemB idadlsB_mem;
+
+  idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
+
+  free(idadlsB_mem);
+}
+
+/*
+ * IDALapackBandB is a wrapper around IDALapackBand. It attaches the IDASLAPACKBAND linear solver
+ * to the backward problem memory block.
+ */
+
+int IDALapackBandB(void *ida_mem, int which,
+             int NeqB, int mupperB, int mlowerB)
+{
+  IDAMem IDA_mem;
+  IDAadjMem IDAADJ_mem;
+  IDABMem IDAB_mem;
+  IDADlsMemB idadlsB_mem;
+  void *ida_memB;
+  int flag;
+  
+  /* Is ida_mem allright? */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDASLAPACKBAND", "IDALapackBandB", MSGD_CAMEM_NULL);
+    return(IDADLS_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDADLS_NO_ADJ, "IDASLAPACKBAND", "IDALapackBandB",  MSGD_NO_ADJ);
+    return(IDADLS_NO_ADJ);
+  }
+  IDAADJ_mem = IDA_mem->ida_adj_mem;
+
+  /* Check the value of which */
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
+    IDAProcessError(IDA_mem, IDADLS_ILL_INPUT, "IDASLAPACKBAND", "IDALapackBandB", MSGD_BAD_WHICH);
+    return(IDADLS_ILL_INPUT);
+  }
+
+  /* Find the IDABMem entry in the linked list corresponding to 'which'. */
+  IDAB_mem = IDAADJ_mem->IDAB_mem;
+  while (IDAB_mem != NULL) {
+    if( which == IDAB_mem->ida_index ) break;
+    /* advance */
+    IDAB_mem = IDAB_mem->ida_next;
+  }
+
+  /* Get memory for IDADlsMemRecB */
+  idadlsB_mem = (IDADlsMemB) malloc(sizeof(struct IDADlsMemRecB));
+  if (idadlsB_mem == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDADLS_MEM_FAIL, "IDASLAPACKBAND", "IDALapackBandB", MSGD_MEM_FAIL);
+    return(IDADLS_MEM_FAIL);
+  
+  }
+
+  /* set matrix type and initialize Jacob function. */
+  idadlsB_mem->d_typeB = SUNDIALS_BAND;
+  idadlsB_mem->d_bjacB = NULL;
+
+
+  /* Attach lmemB data and lfreeB function. */
+  IDAB_mem->ida_lmem  = idadlsB_mem;
+  IDAB_mem->ida_lfree = IDALapackBandFreeB;
+
+  /* Call IDALapackBand to attach the IDALAPACKBAND linear solver. */
+  ida_memB = (void *)IDAB_mem->IDA_mem;
+  flag = IDALapackBand(ida_memB, NeqB, mupperB, mlowerB);
+
+  if (flag != IDADLS_SUCCESS) {
+    free(idadlsB_mem);
+    idadlsB_mem = NULL;
+  }
+
+  return(flag);
+}
+
+/*
+ * IDALapackBandFreeB 
+ */
+
+static void IDALapackBandFreeB(IDABMem IDAB_mem)
+{
+  IDADlsMemB idadlsB_mem;
+
+  idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
+
+  free(idadlsB_mem);
 }
 
