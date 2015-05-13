@@ -360,7 +360,7 @@ static void cvDenseFree(CVodeMem cv_mem)
  */
 
 /*
- * CVDenseB is a wraper around CVDense. It attaches the CVSDENSE linear solver
+ * CVDenseB is a wrapper around CVDense. It attaches the CVSDENSE linear solver
  * to the backward problem memory block.
  */
 
