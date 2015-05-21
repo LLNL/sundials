@@ -95,7 +95,7 @@ end
 
 mkdir('sundials');
 fi = fopen(fullfile('sundials','sundials_config.h'),'w');
-fprintf(fi,'#define SUNDIALS_PACKAGE_VERSION "2.4.0"\n');
+fprintf(fi,'#define SUNDIALS_PACKAGE_VERSION "2.6.1"\n');
 fprintf(fi,'#define SUNDIALS_DOUBLE_PRECISION 1\n');
 fprintf(fi,'#define SUNDIALS_USE_GENERIC_MATH 1\n');
 fprintf(fi,'#define SUNDIALS_EXPORT\n');
