@@ -307,6 +307,8 @@ In the dense case, this scheme requires $N$ evaluations of $F$,
 one for each column of $J$.  In the band case, the columns of 
 $J$ are computed in groups, by the Curtis-Powell-Reid algorithm, 
 with the number of $F$ evaluations equal to the bandwidth.
+The parameter $U$ above can (optionally) be replaced by a
+user-specified value, \id{relfunc}.
 
 We note that with the sparse direct solvers, the Jacobian {\em must}
 be supplied by a user routine in compressed-sparse-column format,
@@ -323,12 +325,16 @@ where $u$ is the current approximation to a root of
 (\ref{nonlinear_system}), and $\sigma$ is a scalar. The choice of
 $\sigma$ is taken from \cite{BrSa:90} and is given by
 \begin{equation}\label{e:sigmaDQ_iterative}
-  \sigma = \frac{\max \{|u^T v|, u^T_{typ} |v|\}}{\|v\|_2}
+  \sigma = \frac{\max \{|u^T v|, u^T_{typ} |v|\}}{\|v\|_2^2}
   \mbox{sign}(u^T v) \sqrt{U} \, ,
 \end{equation}
 where $u_{typ}$ is a vector of typical values for the absolute
 values of the solution (and can be taken to be inverses of the
 scale factors given for $u$ as described below).
+This formula is suitable for {\it scaled} vectors $u$ and $v$, and
+so is applied to $D_u u$ and $D_u v$.
+The parameter $U$ above can (optionally) be replaced by a
+user-specified value, \id{relfunc}.
 Convergence of the Newton method is maintained as long as the
 value of $\sigma$ remains appropriately small, as shown in~\cite{Bro:87}.
 

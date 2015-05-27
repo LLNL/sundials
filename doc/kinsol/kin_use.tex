@@ -1842,8 +1842,9 @@ flag = KINSetRelErrFunc(kin\_mem, relfunc);
 }
 {
   The function \ID{KINSetRelErrFunc} specifies the relative error in 
-  computing $F(u)$, which is used in the difference quotient approximation of the
-  Jacobian-vector product.
+  computing $F(u)$, which is used in the difference quotient approximation to
+  the Jacobian matrix [see Eq.(\ref{e:sigmaDQ_direct})] or the Jacobian-vector
+  product [see Eq.(\ref{e:sigmaDQ_iterative})].
 }
 {
   \begin{args}[relfunc]
@@ -1866,7 +1867,7 @@ flag = KINSetRelErrFunc(kin\_mem, relfunc);
   \end{args}
 }
 {
-  The default value for \id{relfunc} is $\sqrt{\text{unit roundoff}}$.
+  The default value for \id{relfunc} is $U$ = unit roundoff.
 }
 %%
 %%
