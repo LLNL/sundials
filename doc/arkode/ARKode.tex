@@ -12919,8 +12919,8 @@ systems
 in a mixed Fortran/C setting.  While ARKODE is written in C, it is
 assumed here that the user's calling program and user-supplied
 problem-defining routines are written in Fortran. This package
-provides the necessary interfaces to ARKODE for all of the provided
-NVECTOR implementations.
+provides the necessary interfaces to ARKODE for all supplied serial
+and parallel NVECTOR implementations.
 
 
 \section{Important note on portability}
@@ -13567,7 +13567,7 @@ failure occurred).
 \end{fulllineitems}
 
 
-{[}\textbf{T}{]} To initialize the Pthreads NVECTOR module, the user must
+{[}\textbf{T}{]} To initialize the NVECTOR\_PTHREADS module, the user must
 make hte following call.
 \index{FNVINITPTS() (fortran subroutine)|textbf}
 
@@ -13597,8 +13597,8 @@ failure occurred).
 \end{fulllineitems}
 
 
-{[}\textbf{P}{]} To initialize the parallel NVECTOR module, the user must
-make the following call:
+{[}\textbf{P}{]} To initialize the MPI-based distributed memory parallel vector
+module, the user must make the following call:
 \index{FNVINITP() (fortran subroutine)|textbf}
 
 \begin{fulllineitems}
@@ -16283,10 +16283,10 @@ half-bandwidth parameters, call {\hyperref[f_interface/Usage:f/_/FARKBAND]{\emph
 {\hyperref[f_interface/Usage:f/_/FARKLAPACKBAND]{\emph{\code{FARKLAPACKBAND()}}}}) again, as described above.
 
 In the case of the KLU sparse solver, ARKode will reuse much of the
-factorization information from one solve to the next.  It is therefore
-recommended that on problem re-initialization the user force a full
-refactorization of the Jacobian matrix with a call to
-{\hyperref[f_interface/Usage:f/_/FARKKLUREINIT]{\emph{\code{FARKKLUREINIT()}}}}, as follows:
+factorization information from nonlinear iteration, stage and time
+step to the next.  If at any time the user wants to force a full
+refactorization, or if the number of nonzeros in the Jacobian matrix
+changes, the user should call {\hyperref[f_interface/Usage:f/_/FARKKLUREINIT]{\emph{\code{FARKKLUREINIT()}}}}, as follows:
 \index{FARKKLUREINIT() (fortran subroutine)|textbf}
 
 \begin{fulllineitems}

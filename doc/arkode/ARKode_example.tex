@@ -12,6 +12,9 @@
 \usepackage{sphinx}
 \usepackage{multirow}
 
+\addto\captionsenglish{\renewcommand{\figurename}{Fig. }}
+\addto\captionsenglish{\renewcommand{\tablename}{Table }}
+%\floatname{literal-block}{Listing }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% MANUALLY ADDED/EDITED
@@ -83,7 +86,7 @@ Approved for public release; further dissemination unlimited
 
 \expandafter\def\csname PYG@tok@gd\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.63,0.00,0.00}{##1}}}
 \expandafter\def\csname PYG@tok@gu\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.50,0.00,0.50}{##1}}}
-\expandafter\def\csname PYG@tok@gt\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.25,0.82}{##1}}}
+\expandafter\def\csname PYG@tok@gt\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.27,0.87}{##1}}}
 \expandafter\def\csname PYG@tok@gs\endcsname{\let\PYG@bf=\textbf}
 \expandafter\def\csname PYG@tok@gr\endcsname{\def\PYG@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
 \expandafter\def\csname PYG@tok@cm\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
@@ -94,7 +97,7 @@ Approved for public release; further dissemination unlimited
 \expandafter\def\csname PYG@tok@ge\endcsname{\let\PYG@it=\textit}
 \expandafter\def\csname PYG@tok@vc\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
 \expandafter\def\csname PYG@tok@il\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\expandafter\def\csname PYG@tok@go\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.19,0.19,0.19}{##1}}}
+\expandafter\def\csname PYG@tok@go\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.20,0.20,0.20}{##1}}}
 \expandafter\def\csname PYG@tok@cp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@gi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.63,0.00}{##1}}}
 \expandafter\def\csname PYG@tok@gh\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
@@ -124,10 +127,11 @@ Approved for public release; further dissemination unlimited
 \expandafter\def\csname PYG@tok@c\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
 \expandafter\def\csname PYG@tok@mf\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
 \expandafter\def\csname PYG@tok@err\endcsname{\def\PYG@bc##1{\setlength{\fboxsep}{0pt}\fcolorbox[rgb]{1.00,0.00,0.00}{1,1,1}{\strut ##1}}}
-\expandafter\def\csname PYG@tok@kd\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@mb\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
 \expandafter\def\csname PYG@tok@ss\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.32,0.47,0.09}{##1}}}
 \expandafter\def\csname PYG@tok@sr\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.14,0.33,0.53}{##1}}}
 \expandafter\def\csname PYG@tok@mo\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@kd\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@mi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
 \expandafter\def\csname PYG@tok@kn\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@o\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
@@ -153,12 +157,17 @@ Approved for public release; further dissemination unlimited
 \def\PYGZsh{\char`\#}
 \def\PYGZpc{\char`\%}
 \def\PYGZdl{\char`\$}
+\def\PYGZhy{\char`\-}
+\def\PYGZsq{\char`\'}
+\def\PYGZdq{\char`\"}
 \def\PYGZti{\char`\~}
 % for compatibility with earlier versions
 \def\PYGZat{@}
 \def\PYGZlb{[}
 \def\PYGZrb{]}
 \makeatother
+
+\renewcommand\PYGZsq{\textquotesingle}
 
 \begin{document}
 
@@ -205,26 +214,26 @@ that is most closely related to your own.  We group these examples
 according to programming language (C, C++, Fortran 77, Fortran 90).
 
 ARKode example problems written in C are summarized in the table
-below, and are further described in the chapters {\hyperref[c_serial:serial-c]{\emph{Serial C example problems}}},
-{\hyperref[c_openmp:openmp-c]{\emph{OpenMP C example problems}}} and {\hyperref[c_parallel:parallel-c]{\emph{Parallel C example problems}}}.
+below, and are further described in the chapters {\hyperref[c_serial:serial-c]{\emph{\DUspan{}{Serial C example problems}}}},
+{\hyperref[c_openmp:openmp-c]{\emph{\DUspan{}{OpenMP C example problems}}}} and {\hyperref[c_parallel:parallel-c]{\emph{\DUspan{}{Parallel C example problems}}}}.
 
 \begin{tabulary}{\linewidth}{|L|L|L|L|L|L|}
 \hline
-\textbf{\relax 
+\textsf{\relax 
 Problem
-} & \textbf{\relax 
+} & \textsf{\relax 
 Integrator
-} & \textbf{\relax 
+} & \textsf{\relax 
 Nonlinear
-} & \textbf{\relax 
+} & \textsf{\relax 
 Linear
-} & \textbf{\relax 
+} & \textsf{\relax 
 Size
-} & \textbf{\relax 
+} & \textsf{\relax 
 Extras
-}\\\hline
-
-{\hyperref[c_serial:ark-analytic]{\emph{ark\_analytic}}}
+}\\
+\hline
+{\hyperref[c_serial:ark-analytic]{\emph{\DUspan{}{ark\_analytic}}}}
  & 
 DIRK
  & 
@@ -233,9 +242,9 @@ Newton
 Dense
  & 
 1
- & \\\hline
-
-{\hyperref[c_serial:ark-analytic-nonlin]{\emph{ark\_analytic\_nonlin}}}
+ & \\
+\hline
+{\hyperref[c_serial:ark-analytic-nonlin]{\emph{\DUspan{}{ark\_analytic\_nonlin}}}}
  & 
 ERK
  & 
@@ -244,9 +253,9 @@ N.A.
 N.A.
  & 
 1
- & \\\hline
-
-{\hyperref[c_serial:ark-brusselator]{\emph{ark\_brusselator}}}
+ & \\
+\hline
+{\hyperref[c_serial:ark-brusselator]{\emph{\DUspan{}{ark\_brusselator}}}}
  & 
 DIRK
  & 
@@ -255,9 +264,9 @@ Newton
 Dense
  & 
 3
- & \\\hline
-
-{\hyperref[c_serial:ark-brusselator-fp]{\emph{ark\_brusselator\_fp}}}
+ & \\
+\hline
+{\hyperref[c_serial:ark-brusselator-fp]{\emph{\DUspan{}{ark\_brusselator\_fp}}}}
  & 
 ARK
  & 
@@ -266,9 +275,9 @@ Fixed-point
 N.A.
  & 
 3
- & \\\hline
-
-{\hyperref[c_serial:ark-robertson]{\emph{ark\_robertson}}}
+ & \\
+\hline
+{\hyperref[c_serial:ark-robertson]{\emph{\DUspan{}{ark\_robertson}}}}
  & 
 DIRK
  & 
@@ -277,9 +286,9 @@ Newton
 Dense
  & 
 3
- & \\\hline
-
-{\hyperref[c_serial:ark-robertson-root]{\emph{ark\_robertson\_root}}}
+ & \\
+\hline
+{\hyperref[c_serial:ark-robertson-root]{\emph{\DUspan{}{ark\_robertson\_root}}}}
  & 
 DIRK
  & 
@@ -290,9 +299,9 @@ Dense
 3
  & 
 rootfinding
-\\\hline
-
-{\hyperref[c_serial:ark-brusselator1d]{\emph{ark\_brusselator1D}}}
+\\
+\hline
+{\hyperref[c_serial:ark-brusselator1d]{\emph{\DUspan{}{ark\_brusselator1D}}}}
  & 
 DIRK
  & 
@@ -301,9 +310,9 @@ Newton
 Band
  & 
 3N
- & \\\hline
-
-{\hyperref[c_openmp:ark-brusselator1d-omp]{\emph{ark\_brusselator1D\_omp}}}
+ & \\
+\hline
+{\hyperref[c_openmp:ark-brusselator1d-omp]{\emph{\DUspan{}{ark\_brusselator1D\_omp}}}}
  & 
 DIRK
  & 
@@ -314,9 +323,9 @@ Band
 3N
  & 
 OpenMP-enabled
-\\\hline
-
-{\hyperref[c_serial:ark-brusselator1d-klu]{\emph{ark\_brusselator1D\_klu}}}
+\\
+\hline
+{\hyperref[c_serial:ark-brusselator1d-klu]{\emph{\DUspan{}{ark\_brusselator1D\_klu}}}}
  & 
 DIRK
  & 
@@ -327,9 +336,9 @@ KLU
 3N
  & 
 sparse matrices
-\\\hline
-
-{\hyperref[c_serial:ark-brusselator1d-fem-slu]{\emph{ark\_brusselator1D\_FEM\_slu}}}
+\\
+\hline
+{\hyperref[c_serial:ark-brusselator1d-fem-slu]{\emph{\DUspan{}{ark\_brusselator1D\_FEM\_slu}}}}
  & 
 DIRK
  & 
@@ -339,10 +348,10 @@ SuperLU\_MT
  & 
 3N
  & 
-finite-element, $M\ne I$, sparse matrices
-\\\hline
-
-{\hyperref[c_serial:ark-heat1d]{\emph{ark\_heat1D}}}
+finite-element, \(M\ne I\), sparse matrices
+\\
+\hline
+{\hyperref[c_serial:ark-heat1d]{\emph{\DUspan{}{ark\_heat1D}}}}
  & 
 DIRK
  & 
@@ -351,9 +360,9 @@ Newton
 PCG
  & 
 N
- & \\\hline
-
-{\hyperref[c_serial:ark-heat1d-adapt]{\emph{ark\_heat1D\_adapt}}}
+ & \\
+\hline
+{\hyperref[c_serial:ark-heat1d-adapt]{\emph{\DUspan{}{ark\_heat1D\_adapt}}}}
  & 
 DIRK
  & 
@@ -364,9 +373,9 @@ PCG
 (dynamic)
  & 
 adaptive vector resizing
-\\\hline
-
-{\hyperref[c_serial:ark-krylovdemo-prec]{\emph{ark\_KrylovDemo\_prec}}}
+\\
+\hline
+{\hyperref[c_serial:ark-krylovdemo-prec]{\emph{\DUspan{}{ark\_KrylovDemo\_prec}}}}
  & 
 DIRK
  & 
@@ -377,9 +386,9 @@ SPGMR
 216
  & 
 multiple preconditioners
-\\\hline
-
-{\hyperref[c_parallel:ark-diurnal-kry-bbd-p]{\emph{ark\_diurnal\_kry\_bbd\_p}}}
+\\
+\hline
+{\hyperref[c_parallel:ark-diurnal-kry-bbd-p]{\emph{\DUspan{}{ark\_diurnal\_kry\_bbd\_p}}}}
  & 
 DIRK
  & 
@@ -390,9 +399,9 @@ SPGMR
 200
  & 
 parallel, BBD preconditioner
-\\\hline
-
-{\hyperref[c_parallel:ark-diurnal-kry-p]{\emph{ark\_diurnal\_kry\_p}}}
+\\
+\hline
+{\hyperref[c_parallel:ark-diurnal-kry-p]{\emph{\DUspan{}{ark\_diurnal\_kry\_p}}}}
  & 
 DIRK
  & 
@@ -403,31 +412,31 @@ SPGMR
 200
  & 
 parallel, block-diagonal precond.
-\\\hline
-\end{tabulary}
+\\
+\hline\end{tabulary}
 
 
 ARKode example problems written in C++ are summarized in the table
-below, and are further described in the chapters {\hyperref[cpp_serial:serial-cpp]{\emph{Serial C++ example problems}}} and
-{\hyperref[cpp_parallel:parallel-cpp]{\emph{Parallel C++ example problems}}}.
+below, and are further described in the chapters {\hyperref[cpp_serial:serial-cpp]{\emph{\DUspan{}{Serial C++ example problems}}}} and
+{\hyperref[cpp_parallel:parallel-cpp]{\emph{\DUspan{}{Parallel C++ example problems}}}}.
 
 \begin{tabulary}{\linewidth}{|L|L|L|L|L|L|}
 \hline
-\textbf{\relax 
+\textsf{\relax 
 Problem
-} & \textbf{\relax 
+} & \textsf{\relax 
 Integrator
-} & \textbf{\relax 
+} & \textsf{\relax 
 Nonlinear
-} & \textbf{\relax 
+} & \textsf{\relax 
 Linear
-} & \textbf{\relax 
+} & \textsf{\relax 
 Size
-} & \textbf{\relax 
+} & \textsf{\relax 
 Extras
-}\\\hline
-
-{\hyperref[cpp_serial:ark-analytic-sys]{\emph{ark\_analytic\_sys}}}
+}\\
+\hline
+{\hyperref[cpp_serial:ark-analytic-sys]{\emph{\DUspan{}{ark\_analytic\_sys}}}}
  & 
 DIRK
  & 
@@ -436,9 +445,9 @@ Newton
 Dense
  & 
 3
- & \\\hline
-
-{\hyperref[cpp_parallel:ark-heat2d]{\emph{ark\_heat2D}}}
+ & \\
+\hline
+{\hyperref[cpp_parallel:ark-heat2d]{\emph{\DUspan{}{ark\_heat2D}}}}
  & 
 DIRK
  & 
@@ -446,34 +455,34 @@ Newton
  & 
 PCG
  & 
-$nx*ny$
+\(nx*ny\)
  & 
 parallel
-\\\hline
-\end{tabulary}
+\\
+\hline\end{tabulary}
 
 
 ARKode example problems written in Fortran 77 are summarized in the table
-below, and are further described in the chapters {\hyperref[f77_serial:serial-f77]{\emph{Serial Fortran 77 example problems}}} and
-{\hyperref[f77_parallel:parallel-f77]{\emph{Parallel Fortran 77 example problems}}}.
+below, and are further described in the chapters {\hyperref[f77_serial:serial-f77]{\emph{\DUspan{}{Serial Fortran 77 example problems}}}} and
+{\hyperref[f77_parallel:parallel-f77]{\emph{\DUspan{}{Parallel Fortran 77 example problems}}}}.
 
 \begin{tabulary}{\linewidth}{|L|L|L|L|L|L|}
 \hline
-\textbf{\relax 
+\textsf{\relax 
 Problem
-} & \textbf{\relax 
+} & \textsf{\relax 
 Integrator
-} & \textbf{\relax 
+} & \textsf{\relax 
 Nonlinear
-} & \textbf{\relax 
+} & \textsf{\relax 
 Linear
-} & \textbf{\relax 
+} & \textsf{\relax 
 Size
-} & \textbf{\relax 
+} & \textsf{\relax 
 Extras
-}\\\hline
-
-{\hyperref[f77_serial:fark-diurnal-kry-bp]{\emph{fark\_diurnal\_kry\_bp}}}
+}\\
+\hline
+{\hyperref[f77_serial:fark-diurnal-kry-bp]{\emph{\DUspan{}{fark\_diurnal\_kry\_bp}}}}
  & 
 DIRK
  & 
@@ -484,9 +493,9 @@ SPGMR
 10
  & 
 banded preconditioner
-\\\hline
-
-{\hyperref[f77_serial:fark-roberts-dnsl]{\emph{fark\_roberts\_dnsL}}}
+\\
+\hline
+{\hyperref[f77_serial:fark-roberts-dnsl]{\emph{\DUspan{}{fark\_roberts\_dnsL}}}}
  & 
 DIRK
  & 
@@ -497,9 +506,9 @@ Dense
 3
  & 
 LAPACK dense solver, rootfinding
-\\\hline
-
-{\hyperref[f77_parallel:fark-diag-kry-bbd-p]{\emph{fark\_diag\_kry\_bbd\_p}}}
+\\
+\hline
+{\hyperref[f77_parallel:fark-diag-kry-bbd-p]{\emph{\DUspan{}{fark\_diag\_kry\_bbd\_p}}}}
  & 
 DIRK
  & 
@@ -510,9 +519,9 @@ SPGMR
 10*NProcs
  & 
 parallel BBD preconditioner
-\\\hline
-
-{\hyperref[f77_parallel:fark-diag-non-p]{\emph{fark\_diag\_non\_p}}}
+\\
+\hline
+{\hyperref[f77_parallel:fark-diag-non-p]{\emph{\DUspan{}{fark\_diag\_non\_p}}}}
  & 
 ERK
  & 
@@ -523,31 +532,31 @@ N.A.
 10*NProcs
  & 
 parallel
-\\\hline
-\end{tabulary}
+\\
+\hline\end{tabulary}
 
 
 ARKode example problems written in Fortran 90 are summarized in the table
-below, and are further described in the chapters {\hyperref[f90_serial:serial-f90]{\emph{Serial Fortran 90 example problems}}} and
-{\hyperref[f90_parallel:parallel-f90]{\emph{Parallel Fortran 90 example problems}}}.
+below, and are further described in the chapters {\hyperref[f90_serial:serial-f90]{\emph{\DUspan{}{Serial Fortran 90 example problems}}}} and
+{\hyperref[f90_parallel:parallel-f90]{\emph{\DUspan{}{Parallel Fortran 90 example problems}}}}.
 
 \begin{tabulary}{\linewidth}{|L|L|L|L|L|L|}
 \hline
-\textbf{\relax 
+\textsf{\relax 
 Problem
-} & \textbf{\relax 
+} & \textsf{\relax 
 Integrator
-} & \textbf{\relax 
+} & \textsf{\relax 
 Nonlinear
-} & \textbf{\relax 
+} & \textsf{\relax 
 Linear
-} & \textbf{\relax 
+} & \textsf{\relax 
 Size
-} & \textbf{\relax 
+} & \textsf{\relax 
 Extras
-}\\\hline
-
-{\hyperref[f90_serial:ark-bruss]{\emph{ark\_bruss}}}
+}\\
+\hline
+{\hyperref[f90_serial:ark-bruss]{\emph{\DUspan{}{ark\_bruss}}}}
  & 
 ARK
  & 
@@ -556,9 +565,9 @@ Newton
 Dense
  & 
 3
- & \\\hline
-
-{\hyperref[f90_parallel:fark-heat2d]{\emph{fark\_heat2D}}}
+ & \\
+\hline
+{\hyperref[f90_parallel:fark-heat2d]{\emph{\DUspan{}{fark\_heat2D}}}}
  & 
 DIRK
  & 
@@ -566,11 +575,11 @@ Newton
  & 
 PCG
  & 
-$nx*ny$
+\(nx*ny\)
  & 
 parallel
-\\\hline
-\end{tabulary}
+\\
+\hline\end{tabulary}
 
 
 
@@ -583,16 +592,16 @@ This is a very simple C example showing how to use the ARKode solver
 interface.
 
 The problem is that of a scalar-valued initial value problem (IVP)
-that is linear in the dependent variable $y$, but nonlinear in
-the independent variable $t$:
+that is linear in the dependent variable \(y\), but nonlinear in
+the independent variable \(t\):
 \begin{gather}
 \begin{split}\frac{dy}{dt} = \lambda y + \frac{1}{1+t^2} - \lambda \arctan(t),\end{split}\notag
 \end{gather}
-where $0\le t\le 10$ and $y(0)=0$.  The stiffness of the
-problem may be tuned via the parameter $\lambda$.  The value of
-$\lambda$ must be negative to result in a well-posed problem;
+where \(0\le t\le 10\) and \(y(0)=0\).  The stiffness of the
+problem may be tuned via the parameter \(\lambda\).  The value of
+\(\lambda\) must be negative to result in a well-posed problem;
 for values with magnitude larger than 100 or so the problem becomes
-quite stiff.  Here, we choose $\lambda=-100$.  After each unit
+quite stiff.  Here, we choose \(\lambda=-100\).  After each unit
 time interval, the solution is output to the screen.
 
 
@@ -600,21 +609,21 @@ time interval, the solution is output to the screen.
 \label{c_serial:numerical-method}
 The example routine solves this problem using a diagonally-implicit
 Runge-Kutta method.  Each stage is solved using the built-in modified
-Newton iteration, but since the ODE is linear in $y$ these
+Newton iteration, but since the ODE is linear in \(y\) these
 should only require a single iteration per stage.  Internally, Newton
 will use the ARKDENSE dense linear solver, which in the case of this
 scalar-valued problem is just division.  The example file contains
-functions to evaluate both $f(t,y)$ and $J(t,y)=\lambda$.
+functions to evaluate both \(f(t,y)\) and \(J(t,y)=\lambda\).
 
-We specify the relative and absolute tolerances, $rtol=10^{-6}$
-and $atol=10^{-10}$, respectively.  Aside from these choices,
+We specify the relative and absolute tolerances, \(rtol=10^{-6}\)
+and \(atol=10^{-10}\), respectively.  Aside from these choices,
 this problem uses only the default ARKode solver parameters.
 
 
 \subsection{Solutions}
 \label{c_serial:solutions}
 This problem is included both as a simple example, but also because it
-has an analytical solution, $y(t) = \arctan(t)$.  As seen in the
+has an analytical solution, \(y(t) = \arctan(t)\).  As seen in the
 plots below, the computed solution tracks the analytical solution
 quite well (left), and results in errors below those specified by the input
 error tolerances (right).
@@ -628,7 +637,7 @@ error tolerances (right).
 \label{c_serial:id2}\label{c_serial:ark-analytic-nonlin}
 This example problem is only marginally more difficult than the
 preceding problem, in that the ODE right-hand side function is
-nonlinear in the solution $y$.  While the implicit solver from
+nonlinear in the solution \(y\).  While the implicit solver from
 the preceding problem would also work on this example, because it is
 not stiff we use this to demonstrate how to use ARKode's explicit
 solver interface.
@@ -637,9 +646,9 @@ The ODE problem is
 \begin{gather}
 \begin{split}\frac{dy}{dt} = (t+1) e^{-y},\end{split}\notag
 \end{gather}
-for the interval $t \in [0.0, 10.0]$, with initial condition
-$y(0)=0$.  This has analytical solution $y(t) =
-\log\left(\frac{t^2}{2} + t + 1\right)$.
+for the interval \(t \in [0.0, 10.0]\), with initial condition
+\(y(0)=0\).  This has analytical solution \(y(t) =
+\log\left(\frac{t^2}{2} + t + 1\right)\).
 
 
 \subsection{Numerical method}
@@ -653,7 +662,7 @@ Run statistics (optional outputs) are printed at the end.
 \label{c_serial:id4}
 This problem is included both as a simple example to test the
 nonlinear solvers within ARKode, but also because it has an analytical
-solution, $y(t) = \log\left(\frac{t^2}{2} + t + 1\right)$.  As
+solution, \(y(t) = \log\left(\frac{t^2}{2} + t + 1\right)\).  As
 seen in the plots below, the computed solution tracks the analytical solution
 quite well (left), and results in errors comparable with those
 specified by the requested error tolerances (right).
@@ -669,26 +678,26 @@ We now wish to exercise the ARKode solvers on more challenging
 nonlinear ODE systems.  The following test simulates a brusselator
 problem from chemical kinetics, and is used throughout the community
 as a standard benchmark problem for new solvers.  The ODE system has
-with 3 components, $Y = [u,\, v,\, w]$, satisfying the equations,
+3 components, \(Y = [u,\, v,\, w]\), satisfying the equations,
 \begin{gather}
 \begin{split}\frac{du}{dt} &= a - (w+1)u + v u^2, \\
 \frac{dv}{dt} &= w u - v u^2, \\
 \frac{dw}{dt} &= \frac{b-w}{\varepsilon} - w u.\end{split}\notag
 \end{gather}
-We integrate over the interval $0 \le t \le 10$, with the
-initial conditions $u(0) = u_0$, $v(0) = v_0$, $w(0) = w_0$.
+We integrate over the interval \(0 \le t \le 10\), with the
+initial conditions \(u(0) = u_0\), \(v(0) = v_0\), \(w(0) = w_0\).
 After each unit time interval, the solution is output to the screen.
 
 The problem implements 3 different testing scenarios:
 
-Test 1:  $u_0=3.9$,  $v_0=1.1$,  $w_0=2.8$,
-$a=1.2$, $b=2.5$, and $\varepsilon=10^{-5}$
+Test 1:  \(u_0=3.9\),  \(v_0=1.1\),  \(w_0=2.8\),
+\(a=1.2\), \(b=2.5\), and \(\varepsilon=10^{-5}\)
 
-Test 2:  $u_0=1.2$, $v_0=3.1$, $w_0=3$, $a=1$,
-$b=3.5$, and $\varepsilon=5\cdot10^{-6}$
+Test 2:  \(u_0=1.2\), \(v_0=3.1\), \(w_0=3\), \(a=1\),
+\(b=3.5\), and \(\varepsilon=5\cdot10^{-6}\)
 
-Test 3:  $u_0=3$, $v_0=3$, $w_0=3.5$, $a=0.5$,
-$b=3$, and $\varepsilon=5\cdot10^{-4}$
+Test 3:  \(u_0=3\), \(v_0=3\), \(w_0=3.5\), \(a=0.5\),
+\(b=3\), and \(\varepsilon=5\cdot10^{-4}\)
 
 The problem currently selects test 2, though that value may be easily
 adjusted to explore different testing scenarios.
@@ -701,7 +710,7 @@ Newton iteration with the ARKDENSE dense linear solver, and a
 user-supplied Jacobian routine.
 
 The problem is run using scalar relative and absolute tolerances of
-$rtol=10^{-6}$ and $atol=10^{-10}$, respectively.
+\(rtol=10^{-6}\) and \(atol=10^{-10}\), respectively.
 
 10 outputs are printed at equal intervals, and run statistics
 are printed at the end.
@@ -715,12 +724,12 @@ performed:
 Test 1:  Here, all three components exhibit a rapid transient change
 during the first 0.2 time units, followed by a slow and smooth evolution.
 
-Test 2: Here, $w$ experiences a fast initial transient, jumping
+Test 2: Here, \(w\) experiences a fast initial transient, jumping
 0.5 within a few steps.  All values proceed smoothly until around
-$t=6.5$, when both $u$ and $v$ undergo a sharp
-transition, with $u$ increaseing from around 0.5 to 5 and
-$v$ decreasing from around 6 to 1 in less than 0.5 time units.
-After this transition, both $u$ and $v$ continue to evolve
+\(t=6.5\), when both \(u\) and \(v\) undergo a sharp
+transition, with \(u\) increaseing from around 0.5 to 5 and
+\(v\) decreasing from around 6 to 1 in less than 0.5 time units.
+After this transition, both \(u\) and \(v\) continue to evolve
 somewhat rapidly for another 1.4 time units, and finish off smoothly.
 
 Test 3: Here, all components undergo very rapid initial transients
@@ -747,27 +756,27 @@ test 3.
 This test problem is a duplicate the \code{ark\_brusselator} problem
 above, but with a few key changes in the methods used for time
 integration and nonlinear solver.  As with the previous test, this
-problem has 3 dependent variables $u$, $v$ and $w$,
-that depend on the independent variable $t$ via the IVP system
+problem has 3 dependent variables \(u\), \(v\) and \(w\),
+that depend on the independent variable \(t\) via the IVP system
 \begin{gather}
 \begin{split}\frac{du}{dt} &= a - (w+1)u + v u^2, \\
 \frac{dv}{dt} &= w u - v u^2, \\
 \frac{dw}{dt} &= \frac{b-w}{\varepsilon} - w u.\end{split}\notag
 \end{gather}
-We integrate over the interval $0 \le t \le 10$, with the
-initial conditions $u(0) = u_0$, $v(0) = v_0$, $w(0) = w_0$.
+We integrate over the interval \(0 \le t \le 10\), with the
+initial conditions \(u(0) = u_0\), \(v(0) = v_0\), \(w(0) = w_0\).
 After each unit time interval, the solution is output to the screen.
 
 Again, we have 3 different testing scenarios,
 
-Test 1:  $u_0=3.9$,  $v_0=1.1$,  $w_0=2.8$,
-$a=1.2$, $b=2.5$, and $\varepsilon=10^{-5}$
+Test 1:  \(u_0=3.9\),  \(v_0=1.1\),  \(w_0=2.8\),
+\(a=1.2\), \(b=2.5\), and \(\varepsilon=10^{-5}\)
 
-Test 2:  $u_0=1.2$, $v_0=3.1$, $w_0=3$, $a=1$,
-$b=3.5$, and $\varepsilon=5\cdot10^{-6}$
+Test 2:  \(u_0=1.2\), \(v_0=3.1\), \(w_0=3\), \(a=1\),
+\(b=3.5\), and \(\varepsilon=5\cdot10^{-6}\)
 
-Test 3:  $u_0=3$, $v_0=3$, $w_0=3.5$, $a=0.5$,
-$b=3$, and $\varepsilon=5\cdot10^{-4}$
+Test 3:  \(u_0=3\), \(v_0=3\), \(w_0=3.5\), \(a=0.5\),
+\(b=3\), and \(\varepsilon=5\cdot10^{-4}\)
 
 with test 2 selected within in the example file.
 
@@ -775,8 +784,8 @@ with test 2 selected within in the example file.
 \subsection{Numerical method}
 \label{c_serial:id9}
 This program solves the problem with the ARK method, in which we have
-split the right-hand side into stiff ($f_i(t,y)$) and non-stiff
-($f_e(t,y)$) components,
+split the right-hand side into stiff (\(f_i(t,y)\)) and non-stiff
+(\(f_e(t,y)\)) components,
 \begin{gather}
 \begin{split}f_i(t,y) = \left[\begin{array}{c}
    0 \\ 0 \\ \frac{b-w}{\varepsilon}
@@ -800,14 +809,14 @@ are printed at the end.
 Our next two tests simulate the Robertson problem, corresponding to the
 kinetics of an autocatalytic reaction, corresponding to the CVODE
 example of the same name.  This is an ODE system with 3
-components, $Y = [u,\, v,\, w]^T$, satisfying the equations,
+components, \(Y = [u,\, v,\, w]^T\), satisfying the equations,
 \begin{gather}
 \begin{split}\frac{du}{dt} &= -0.04 u + 10^4 v w, \\
 \frac{dv}{dt} &= 0.04 u - 10^4 v w - 3\cdot10^7 v^2, \\
 \frac{dw}{dt} &= 3\cdot10^7 v^2.\end{split}\notag
 \end{gather}
-We integrate over the interval $0\le t\le 10^{11}$, with initial
-conditions  $Y(0) = [1,\, 0,\, 0]^T$.
+We integrate over the interval \(0\le t\le 10^{11}\), with initial
+conditions  \(Y(0) = [1,\, 0,\, 0]^T\).
 
 
 \subsection{Numerical method}
@@ -818,7 +827,7 @@ iteration with the ARKDENSE dense linear solver, and a user-supplied
 Jacobian routine.
 
 The problem is run using scalar relative and absolute tolerances of
-$rtol=10^{-4}$ and $atol=10^{-11}$, respectively.
+\(rtol=10^{-4}\) and \(atol=10^{-11}\), respectively.
 
 100 outputs are printed at equal intervals, and run statistics are
 printed at the end.
@@ -828,15 +837,15 @@ printed at the end.
 \label{c_serial:id12}
 Due to the linearly-spaced requested output times in this example, and
 since we plot in a log-log scale, by the first output at
-$t=10^9$, the solutions have already undergone a sharp
-transition from their initial values of $(u,v,w) = (1, 0, 0)$.
+\(t=10^9\), the solutions have already undergone a sharp
+transition from their initial values of \((u,v,w) = (1, 0, 0)\).
 For additional detail on the early evolution of this problem, see the
 following example, that requests logarithmically-spaced output times.
 
 From the plot here, it is somewhat difficult to see the solution
-values for $w$, which here all have a value of
-$1\pm10^{-5}$.  Additionally, we see that near the end of the
-evolution, the values for $v$ begin to exhibit oscillations;
+values for \(w\), which here all have a value of
+\(1\pm10^{-5}\).  Additionally, we see that near the end of the
+evolution, the values for \(v\) begin to exhibit oscillations;
 this is due to the fact that by this point those values have fallen
 below their specified absolute tolerance.  A smoother behavior (with
 an increase in time steps) may be obtained by reducing the absolute
@@ -854,14 +863,14 @@ We again test the Robertson problem, but in this example we will
 utilize both a logarithmically-spaced set of output times (to properly
 show the solution behavior), as well as ARKode's root-finding
 capabilities.  Again, the Robertson problem consists of an ODE system
-with 3 components, $Y = [u,\, v,\, w]^T$, satisfying the equations,
+with 3 components, \(Y = [u,\, v,\, w]^T\), satisfying the equations,
 \begin{gather}
 \begin{split}\frac{du}{dt} &= -0.04 u + 10^4 v w, \\
 \frac{dv}{dt} &= 0.04 u - 10^4 v w - 3\cdot10^7 v^2, \\
 \frac{dw}{dt} &= 3\cdot10^7 v^2.\end{split}\notag
 \end{gather}
-We integrate over the interval $0\le t\le 10^{11}$, with initial
-conditions  $Y(0) = [1,\, 0,\, 0]^T$.
+We integrate over the interval \(0\le t\le 10^{11}\), with initial
+conditions  \(Y(0) = [1,\, 0,\, 0]^T\).
 
 Additionally, we supply the following two root-finding equations:
 \begin{gather}
@@ -880,16 +889,16 @@ subsystems are solved using a Newton iteration with the ARKDENSE dense
 linear solver, and a user-supplied Jacobian routine.
 
 The problem is run using scalar relative and vector absolute
-tolerances.  Here, we choose relative tolerance $rtol=10^{-4}$,
-and set absolute tolerances on $u$, $v$ and $w$ of
-$10^{-8}$, $10^{-11}$ and $10^{-8}$, respectively.
+tolerances.  Here, we choose relative tolerance \(rtol=10^{-4}\),
+and set absolute tolerances on \(u\), \(v\) and \(w\) of
+\(10^{-8}\), \(10^{-11}\) and \(10^{-8}\), respectively.
 
 100 outputs are printed at equal intervals, and run statistics are
 printed at the end.
 
 However, unlike in the previous problem, while integrating the system,
 we use the rootfinding feature of ARKode to find the times at which
-either $u=10^{-4}$ or $w=10^{-2}$.
+either \(u=10^{-4}\) or \(w=10^{-2}\).
 
 
 \subsection{Solutions}
@@ -904,10 +913,10 @@ solution components for the Robertson ODE system.
 
 We note that when running this example, the root-finding capabilities
 of ARKode report outside of the typical logarithmically-spaced output
-times to declare that at time $t=0.264019$ the variable
-$w$ attains the value $10^{-2}$, and that at time
-$t=2.07951\cdot10^{7}$ the variable $u$ attains the value
-$10^{-4}$; both of our thresholds specified by the root-finding
+times to declare that at time \(t=0.264019\) the variable
+\(w\) attains the value \(10^{-2}\), and that at time
+\(t=2.07951\cdot10^{7}\) the variable \(u\) attains the value
+\(10^{-4}\); both of our thresholds specified by the root-finding
 function \code{g()}.
 
 
@@ -916,7 +925,7 @@ function \code{g()}.
 We now investigate a time-dependent system of partial differential
 equations.  We adapt the previously brusselator test problem by adding
 diffusion into the chemical reaction network.  We again have a system
-with 3 components, $Y = [u,\, v,\, w]^T$ that satisfy the equations,
+with 3 components, \(Y = [u,\, v,\, w]^T\) that satisfy the equations,
 \begin{gather}
 \begin{split}\frac{\partial u}{\partial t} &= d_u \frac{\partial^2 u}{\partial
    x^2} + a - (w+1) u + v u^2, \\
@@ -926,7 +935,7 @@ with 3 components, $Y = [u,\, v,\, w]^T$ that satisfy the equations,
    x^2} + \frac{b-w}{\varepsilon} - w u.\end{split}\notag
 \end{gather}
 However, now these solutions are also spatially dependent.  We
-integrate for $t \in [0, 10]$, and $x \in [0, 1]$, with
+integrate for \(t \in [0, 10]\), and \(x \in [0, 1]\), with
 initial conditions
 \begin{gather}
 \begin{split}u(0,x) &=  a + \frac{1}{10} \sin(\pi x),\\
@@ -949,14 +958,14 @@ We employ a \emph{method of lines} approach, wherein we first
 semi-discretize in space to convert the system of 3 PDEs into a larger
 system of ODEs.  To this end, the spatial derivatives are computed
 using second-order centered differences, with the data distributed
-over $N$ points on a uniform spatial grid.  Resultingly, ARKode
-approaches the problem as one involving $3N$ coupled ODEs.
+over \(N\) points on a uniform spatial grid.  Resultingly, ARKode
+approaches the problem as one involving \(3N\) coupled ODEs.
 
-The problem is run using $N=201$ spatial points, with parameters
-$a=0.6$, $b=2.0$, $d_u=0.025$, $d_v=0.025$,
-$d_w=0.025$ and $\varepsilon=10^{-5}$.  We specify scalar
-relative and absolute solver tolerances of $rtol=10^{-6}$ and
-$atol=10^{-10}$, respectively.
+The problem is run using \(N=201\) spatial points, with parameters
+\(a=0.6\), \(b=2.0\), \(d_u=0.025\), \(d_v=0.025\),
+\(d_w=0.025\) and \(\varepsilon=10^{-5}\).  We specify scalar
+relative and absolute solver tolerances of \(rtol=10^{-6}\) and
+\(atol=10^{-10}\), respectively.
 
 This program solves the problem with a DIRK method, using a Newton
 iteration with the ARKBAND banded linear solver, and a user-supplied
@@ -974,14 +983,14 @@ are printed at the end.
 
 \includegraphics[width=0.300\linewidth]{plot-ark_brusselator1D_3.png}
 
-Brusselator PDE solution snapshots: left is at time $t=0$,
-center is at time $t=2.9$, right is at time $t=8.8$.
+Brusselator PDE solution snapshots: left is at time \(t=0\),
+center is at time \(t=2.9\), right is at time \(t=8.8\).
 
 
 \section{ark\_brusselator1D\_klu}
 \label{c_serial:ark-brusselator1d-klu}\label{c_serial:id19}
 This problem is mathematically identical to the preceding problem,
-{\hyperref[c_serial:ark-brusselator1d]{\emph{ark\_brusselator1D}}}, but instead of using banded matrices with
+{\hyperref[c_serial:ark-brusselator1d]{\emph{\DUspan{}{ark\_brusselator1D}}}}, but instead of using banded matrices with
 the ARKBAND linear solver, it uses sparse matrices with the KLU
 sparse-direct linear solver.  Additionally, the solution is only
 output 10 times instead of 100.
@@ -990,7 +999,7 @@ output 10 times instead of 100.
 \section{ark\_brusselator1D\_FEM\_slu}
 \label{c_serial:id20}\label{c_serial:ark-brusselator1d-fem-slu}
 This problem is mathematically identical to the preceding problem,
-{\hyperref[c_serial:ark-brusselator1d]{\emph{ark\_brusselator1D}}}, but utilizes a different set of numerical
+{\hyperref[c_serial:ark-brusselator1d]{\emph{\DUspan{}{ark\_brusselator1D}}}}, but utilizes a different set of numerical
 methods.
 
 
@@ -1001,7 +1010,7 @@ wherein we first semi-discretize in space to convert the system of 3
 PDEs into a larger system of ODEs.  However, in this example we
 discretize in space using a standard piecewise linear Galerkin finite
 element discretization, over a non-uniform discretization of the
-interval $[0,1]$ into 100 subintervals.  To this end, we must
+interval \([0,1]\) into 100 subintervals.  To this end, we must
 integrate each term in each equation, multiplied by test functions,
 over each subinterval, e.g.
 \begin{gather}
@@ -1013,16 +1022,16 @@ therefore approximate these integrals using a three-node Gaussian
 quadrature, exact for polynomials up to degree six.
 
 After this spatial semi-discretization, the system of three PDEs is
-passed to ARKode as a system of $3N$ coupled ODEs, as with the
+passed to ARKode as a system of \(3N\) coupled ODEs, as with the
 preceding problem.
 
 As with the preceding problem, this example solves the problem with a
 DIRK method, using a Newton iteration.  However, unlike previously,
 this example uses sparse matrices (instead of banded), along with the
 sparse ARKSuperLUMT linear solver module, both for the full Newton
-systems having Jacobian $A=M-\gamma J$, as well as for the
-mass-matrix-only linear systems with system matrix $M$.
-Functions implementing both $J$ and $M$ are supplied.
+systems having Jacobian \(A=M-\gamma J\), as well as for the
+mass-matrix-only linear systems with system matrix \(M\).
+Functions implementing both \(J\) and \(M\) are supplied.
 
 100 outputs are printed at equal intervals, and run statistics
 are printed at the end.
@@ -1038,8 +1047,8 @@ are printed at the end.
 
 Finite-element Brusselator PDE solution snapshots (created using the
 supplied Python script, {\color{red}\bfseries{}{}`{}`}plot\_brusselator1D\_FEM.py{}`): left is at time
-$t=0$, center is at time $t=2.9$, right is at time
-$t=8.8$.
+\(t=0\), center is at time \(t=2.9\), right is at time
+\(t=8.8\).
 
 
 \section{ark\_heat1D}
@@ -1049,8 +1058,8 @@ simple one-dimensional heat equation,
 \begin{gather}
 \begin{split}\frac{\partial u}{\partial t} = k \frac{\partial^2 u}{\partial x^2} + f,\end{split}\notag
 \end{gather}
-for $t \in [0, 10]$, and $x \in [0, 1]$, with initial
-condition $u(0,x) = 0$, stationary boundary conditions,
+for \(t \in [0, 10]\), and \(x \in [0, 1]\), with initial
+condition \(u(0,x) = 0\), stationary boundary conditions,
 \begin{gather}
 \begin{split}\frac{\partial u}{\partial t}(t,0) = \frac{\partial u}{\partial t}(t,1) = 0,\end{split}\notag
 \end{gather}
@@ -1062,14 +1071,14 @@ and a point-source heating term,
 
 \subsection{Numerical method}
 \label{c_serial:id26}
-As with the {\hyperref[c_serial:ark-brusselator1d]{\emph{ark\_brusselator1D}}} test problem, this test computes
+As with the {\hyperref[c_serial:ark-brusselator1d]{\emph{\DUspan{}{ark\_brusselator1D}}}} test problem, this test computes
 spatial derivatives using second-order centered differences, with the
-data distributed over $N$ points on a uniform spatial grid.
+data distributed over \(N\) points on a uniform spatial grid.
 
-In this example, we use $N=201$ spatial points, with heat
-conductivity parameter $k=0.5$.  The problem is run using scalar
-relative and absolute solver tolerances of  $rtol=10^{-6}$ and
-$atol=10^{-10}$, respectively.
+In this example, we use \(N=201\) spatial points, with heat
+conductivity parameter \(k=0.5\).  The problem is run using scalar
+relative and absolute solver tolerances of  \(rtol=10^{-6}\) and
+\(atol=10^{-10}\), respectively.
 
 This program solves the problem with a DIRK method, utilizing a Newton
 iteration.  The primary utility in including this example is that each
@@ -1086,21 +1095,21 @@ examples of their use.
 
 \includegraphics[width=0.300\linewidth]{plot-ark_heat1d_3.png}
 
-One-dimensional heat PDE solution snapshots: left is at time $t=0.01$,
-center is at time $t=0.13$, right is at time $t=1.0$.
+One-dimensional heat PDE solution snapshots: left is at time \(t=0.01\),
+center is at time \(t=0.13\), right is at time \(t=1.0\).
 
 
 \section{ark\_heat1D\_adapt}
 \label{c_serial:id28}\label{c_serial:ark-heat1d-adapt}
-This problem is a clone of the {\hyperref[c_serial:ark-heat1d]{\emph{ark\_heat1D}}} test problem except that
+This problem is a clone of the {\hyperref[c_serial:ark-heat1d]{\emph{\DUspan{}{ark\_heat1D}}}} test problem except that
 unlike the previous uniform-grid problem, this test problem allows a
 dynamically-evolving spatial mesh.  The PDE under consideration is a
 simple one-dimensional heat equation,
 \begin{gather}
 \begin{split}\frac{\partial u}{\partial t} = k \frac{\partial^2 u}{\partial x^2} + f,\end{split}\notag
 \end{gather}
-for $t \in [0, 10]$, and $x \in [0, 1]$, with initial
-condition $u(0,x) = 0$, stationary boundary conditions,
+for \(t \in [0, 10]\), and \(x \in [0, 1]\), with initial
+condition \(u(0,x) = 0\), stationary boundary conditions,
 \begin{gather}
 \begin{split}\frac{\partial u}{\partial t}(t,0) = \frac{\partial u}{\partial t}(t,1) = 0,\end{split}\notag
 \end{gather}
@@ -1114,14 +1123,14 @@ and a point-source heating term,
 \label{c_serial:id29}
 We again employ a method-of-lines discretization approach.  The
 spatial derivatives are computed using a three-point centered stencil,
-that is accurate to $O(\Delta x_i^2)$ if the neighboring points are
-equidistant from the central point, i.e. $x_{i+1} - x_i = x_i -
-x_{i-1}$, though if these are unequal the approximation reduces to
+that is accurate to \(O(\Delta x_i^2)\) if the neighboring points are
+equidistant from the central point, i.e. \(x_{i+1} - x_i = x_i -
+x_{i-1}\), though if these are unequal the approximation reduces to
 first-order accuracy.  The spatial mesh is initially distributed
-uniformly over 21 points in $[0,1]$, but as the simulation
+uniformly over 21 points in \([0,1]\), but as the simulation
 proceeds the mesh is {[}crudely{]} adapted to add points to the center of
 subintervals bordering any node where
-$\left|\frac{\partial^2 u}{\partial x^2}\right| > 3\times10^{-3}$.
+\(\left|\frac{\partial^2 u}{\partial x^2}\right| > 3\times10^{-3}\).
 
 This program solves the problem with a DIRK method, utilizing a Newton
 iteration and the PCG iterative linear solver.  Additionally, the test
@@ -1137,8 +1146,8 @@ This problem is an ARKode clone of the CVODE problem,
 GMRES linear solver.  The program solves a stiff ODE system that arises
 from a system of PDEs modeling a six-species food web population
 model, with predator-prey interaction and diffusion on the unit square
-in two dimensions. We have a system with 6 components, $C =
-[c^1,\, c^2,\,\ldots, c^6]^T$ that satisfy the equations,
+in two dimensions. We have a system with 6 components, \(C =
+[c^1,\, c^2,\,\ldots, c^6]^T\) that satisfy the equations,
 \begin{gather}
 \begin{split}\frac{\partial c^i}{\partial t} &= d_i \left(\frac{\partial^2 c^i}{\partial
    x^2} + \frac{\partial^2 c^i}{\partial y^2}\right) +
@@ -1149,7 +1158,7 @@ where
 \begin{split}f_i(x,y,c) = c^i\left( b_i + \sum_{j=1}^{ns} a_{i,j} c^j\right).\end{split}\notag
 \end{gather}
 Here, the first three species are prey and the last three are
-predators.  The coefficients $a_{i,j}, b_i, d_i$ are:
+predators.  The coefficients \(a_{i,j}, b_i, d_i\) are:
 \begin{gather}
 \begin{split}a_{i,j} = \begin{cases}
             -1, \quad & i=j,\\
@@ -1165,13 +1174,13 @@ d_i = \begin{cases}
          \frac12, \quad & i>3
       \end{cases}\end{split}\notag
 \end{gather}
-The spatial domain is $(x,y) \in [0, 1]^2$; the time domain is
-$t \in [0,10]$, with initial conditions
+The spatial domain is \((x,y) \in [0, 1]^2\); the time domain is
+\(t \in [0,10]\), with initial conditions
 \begin{gather}
 \begin{split}c^i(x,y) &=  10 + i \sqrt{4x(1-x)}\sqrt{4y(1-y)}\end{split}\notag
 \end{gather}
 and with homogeneous Neumann boundary conditions,
-$\nabla c^i \cdot \vec{n} = 0$.
+\(\nabla c^i \cdot \vec{n} = 0\).
 
 
 \subsection{Numerical method}
@@ -1180,8 +1189,8 @@ We employ a method of lines approach, wherein we first
 semi-discretize in space to convert the system of 6 PDEs into a larger
 system of ODEs.  To this end, the spatial derivatives are computed
 using second-order centered differences, with the data distributed
-over $Mx*My$ points on a uniform spatial grid.  Resultingly, ARKode
-approaches the problem as one involving $6*Mx*My$ coupled ODEs.
+over \(Mx*My\) points on a uniform spatial grid.  Resultingly, ARKode
+approaches the problem as one involving \(6*Mx*My\) coupled ODEs.
 
 This program solves the problem with a DIRK method, using a Newton
 iteration with the preconditioned ARKSPGMR iterative linear solver.
@@ -1193,8 +1202,8 @@ Gauss-Seidel iterations using the diffusion terms only.
 
 \item {} 
 A block-diagonal matrix based on the partial derivatives of the
-interaction terms $f$ only, using block-grouping (computing
-only a subset of the $3\times3$ blocks).
+interaction terms \(f\) only, using block-grouping (computing
+only a subset of the \(3\times3\) blocks).
 
 \end{enumerate}
 
@@ -1220,9 +1229,9 @@ be no such messages.
 \label{c_openmp:ark-brusselator1d-omp}\label{c_openmp:id1}
 This problem is mathematically identical to the previous
 one-dimensional reaction-diffusion brusselator model,
-{\hyperref[c_serial:ark-brusselator1d]{\emph{ark\_brusselator1D}}}.  As before, we investigate a time-dependent
-system of partial differential equations with 3 components, $Y =
-[u,\, v,\, w]^T$ that satisfy the equations,
+{\hyperref[c_serial:ark-brusselator1d]{\emph{\DUspan{}{ark\_brusselator1D}}}}.  As before, we investigate a time-dependent
+system of partial differential equations with 3 components, \(Y =
+[u,\, v,\, w]^T\) that satisfy the equations,
 \begin{gather}
 \begin{split}\frac{\partial u}{\partial t} &= d_u \frac{\partial^2 u}{\partial
    x^2} + a - (w+1) u + v u^2, \\
@@ -1232,7 +1241,7 @@ system of partial differential equations with 3 components, $Y =
    x^2} + \frac{b-w}{\varepsilon} - w u.\end{split}\notag
 \end{gather}
 However, now these solutions are also spatially dependent.  We
-integrate for $t \in [0, 10]$, and $x \in [0, 1]$, with
+integrate for \(t \in [0, 10]\), and \(x \in [0, 1]\), with
 initial conditions
 \begin{gather}
 \begin{split}u(0,x) &=  a + \frac{1}{10} \sin(\pi x),\\
@@ -1277,11 +1286,11 @@ where
 R_2(c_1,c_2,t) &=  q_1*c_1*c_3 - q_2*c_1*c_2 - q_4(t)*c_2, \\
 K_v(y) &= K_{v0} e^{y/5}.\end{split}\notag
 \end{gather}
-Here $K_h$, $V$, $K_{v0}$, $q_1$, $q_2$,
-and $c_3$ are constants, and $q_3(t)$ and $q_4(t)$
+Here \(K_h\), \(V\), \(K_{v0}\), \(q_1\), \(q_2\),
+and \(c_3\) are constants, and \(q_3(t)\) and \(q_4(t)\)
 vary diurnally.  The problem is posed on the square spatial domain
-$(x,y) \in [0,20]\times[30,50]$, with homogeneous Neumann
-boundary conditions, and for time interval $t\in [0,86400]$ sec
+\((x,y) \in [0,20]\times[30,50]\), with homogeneous Neumann
+boundary conditions, and for time interval \(t\in [0,86400]\) sec
 (1 day).
 
 We enforce the initial conditions
@@ -1298,12 +1307,12 @@ We employ a method of lines approach, wherein we first
 semi-discretize in space to convert the system of 2 PDEs into a larger
 system of ODEs.  To this end, the spatial derivatives are computed
 using second-order centered differences, with the data distributed
-over $Mx*My$ points on a uniform spatial grid.  Resultingly, ARKode
-approaches the problem as one involving $2*Mx*My$ coupled ODEs.
+over \(Mx*My\) points on a uniform spatial grid.  Resultingly, ARKode
+approaches the problem as one involving \(2*Mx*My\) coupled ODEs.
 
 The problem is decomposed in parallel into uniformly-sized subdomains,
 with two subdomains in each direction (four in total), and where each
-subdomain has five points in each direction (i.e. $Mx=My=10$).
+subdomain has five points in each direction (i.e. \(Mx=My=10\)).
 
 This program solves the problem with a DIRK method, using a Newton
 iteration with the preconditioned ARKSPGMR iterative linear solver.
@@ -1343,11 +1352,11 @@ where
 R_2(c_1,c_2,t) &=  q_1*c_1*c_3 - q_2*c_1*c_2 - q_4(t)*c_2, \\
 K_v(y) &= K_{v0} e^{y/5}.\end{split}\notag
 \end{gather}
-Here $K_h$, $V$, $K_{v0}$, $q_1$, $q_2$,
-and $c_3$ are constants, and $q_3(t)$ and $q_4(t)$
+Here \(K_h\), \(V\), \(K_{v0}\), \(q_1\), \(q_2\),
+and \(c_3\) are constants, and \(q_3(t)\) and \(q_4(t)\)
 vary diurnally.  The problem is posed on the square spatial domain
-$(x,y) \in [0,20]\times[30,50]$, with homogeneous Neumann
-boundary conditions, and for time interval $t\in [0,86400]$ sec
+\((x,y) \in [0,20]\times[30,50]\), with homogeneous Neumann
+boundary conditions, and for time interval \(t\in [0,86400]\) sec
 (1 day).
 
 We enforce the initial conditions
@@ -1364,12 +1373,12 @@ We employ a method of lines approach, wherein we first
 semi-discretize in space to convert the system of 2 PDEs into a larger
 system of ODEs.  To this end, the spatial derivatives are computed
 using second-order centered differences, with the data distributed
-over $Mx*My$ points on a uniform spatial grid.  Resultingly, ARKode
-approaches the problem as one involving $2*Mx*My$ coupled ODEs.
+over \(Mx*My\) points on a uniform spatial grid.  Resultingly, ARKode
+approaches the problem as one involving \(2*Mx*My\) coupled ODEs.
 
 The problem is decomposed in parallel into uniformly-sized subdomains,
 with two subdomains in each direction (four in total), and where each
-subdomain has five points in each direction (i.e. $Mx=My=10$).
+subdomain has five points in each direction (i.e. \(Mx=My=10\)).
 
 This program solves the problem with a DIRK method, using a Newton
 iteration with the preconditioned ARKSPGMR iterative linear solver.
@@ -1395,7 +1404,7 @@ is that of a linear ODE system,
 \begin{gather}
 \begin{split}\frac{dy}{dt} = Ay\end{split}\notag
 \end{gather}
-where $A = V D V^{-1}$.  In this example, we use
+where \(A = V D V^{-1}\).  In this example, we use
 \begin{gather}
 \begin{split}V = \left[\begin{array}{rrr} 1 & -1 & 1\\ -1 & 2 & 1\\ 0 & -1 & 2
     \end{array}\right], \qquad
@@ -1404,25 +1413,25 @@ V^{-1} = \frac14 \left[\begin{array}{rrr} 5 & 1 & -3\\ 2 & 2 & -2\\
 D = \left[\begin{array}{rrr} -1/2 & 0 & 0\\ 0 & -1/10 & 0\\ 0 & 0 &
     \lambda \end{array}\right].\end{split}\notag
 \end{gather}
-where $\lambda$ is a large negative number. The analytical
+where \(\lambda\) is a large negative number. The analytical
 solution to this problem may be computed using the matrix exponential,
 \begin{gather}
 \begin{split}Y(t) = V e^{Dt} V^{-1} Y(0).\end{split}\notag
 \end{gather}
-We evolve the problem for $t$ in the interval $\left[0,\,
-\frac{1}{20}\right]$, with initial condition $Y(0) = \left[1,\,
-1,\, 1\right]^T$.
+We evolve the problem for \(t\) in the interval \(\left[0,\,
+\frac{1}{20}\right]\), with initial condition \(Y(0) = \left[1,\,
+1,\, 1\right]^T\).
 
 
 \subsection{Numerical method}
 \label{cpp_serial:numerical-method}
 The stiffness of the problem is directly proportional to the
-value of $\lambda$.  The value of $\lambda$ should be
+value of \(\lambda\).  The value of \(\lambda\) should be
 negative to result in a well-posed ODE; for values with magnitude
 larger than 100 the problem becomes quite stiff.
 
-Here, we choose $\lambda = -100$, along with scalar relative and
-absolute tolerances of $rtol=10^{-6}$ and $atol=10^{-10}$,
+Here, we choose \(\lambda = -100\), along with scalar relative and
+absolute tolerances of \(rtol=10^{-6}\) and \(atol=10^{-10}\),
 respectively.
 
 This program solves the problem with the DIRK method,
@@ -1436,7 +1445,7 @@ Run statistics (optional outputs) are printed at the end.
 \label{cpp_serial:solutions}
 This problem is included both as a simple example to test systems of
 ODE within ARKode on a problem having an analytical
-solution, $Y(t) = V e^{Dt} V^{-1} Y(0)$.  As
+solution, \(Y(t) = V e^{Dt} V^{-1} Y(0)\).  As
 seen in the plots below, the computed solution tracks the analytical
 solution quite well (left), and results in errors with exactly the
 magnitude as specified by the requested error tolerances (right).
@@ -1452,14 +1461,14 @@ magnitude as specified by the requested error tolerances (right).
 \section{ark\_heat2D}
 \label{cpp_parallel:ark-heat2d}\label{cpp_parallel:id1}
 ARKode provides on parallel C++ example problem, that extends our
-previous {\hyperref[c_serial:ark-heat1d]{\emph{ark\_heat1D}}} test to now simulate a two-dimensional heat
+previous {\hyperref[c_serial:ark-heat1d]{\emph{\DUspan{}{ark\_heat1D}}}} test to now simulate a two-dimensional heat
 equation,
 \begin{gather}
 \begin{split}\frac{\partial u}{\partial t} = k_x \frac{\partial^2 u}{\partial x^2}
                               + k_y \frac{\partial^2 u}{\partial y^2} + h,\end{split}\notag
 \end{gather}
-for $t \in [0, 0.3]$, and $(x,y) \in [0, 1]^2$, with initial
-condition $u(0,x,y) = 0$, stationary boundary conditions,
+for \(t \in [0, 0.3]\), and \((x,y) \in [0, 1]^2\), with initial
+condition \(u(0,x,y) = 0\), stationary boundary conditions,
 \begin{gather}
 \begin{split}\frac{\partial u}{\partial t}(t,0,y) = \frac{\partial u}{\partial t}(t,1,y) =
 \frac{\partial u}{\partial t}(t,x,0) = \frac{\partial u}{\partial t}(t,x,1) = 0,\end{split}\notag
@@ -1478,13 +1487,13 @@ form
 \label{cpp_parallel:numerical-method}
 The spatial derivatives are computed using second-order
 centered differences, with the data distributed over
-$nx\times ny$ points on a uniform spatial grid.
+\(nx\times ny\) points on a uniform spatial grid.
 
-The problem is set up to use spatial grid parameters $nx=60$ and
-$ny=120$, with heat conductivity parameters $k_x=0.5$ and
-$k_y=0.75$.  The problem is run using scalar relative and
-absolute solver tolerances of $rtol=10^{-5}$ and
-$atol=10^{-10}$.
+The problem is set up to use spatial grid parameters \(nx=60\) and
+\(ny=120\), with heat conductivity parameters \(k_x=0.5\) and
+\(k_y=0.75\).  The problem is run using scalar relative and
+absolute solver tolerances of \(rtol=10^{-5}\) and
+\(atol=10^{-10}\).
 
 As with the 1D version, this program solves the problem with a DIRK
 method, that itself uses a Newton iteration and PCG iterative linear
@@ -1497,10 +1506,10 @@ module for parallelization.
 
 \subsection{Solutions}
 \label{cpp_parallel:solutions}
-Top row: 2D heat PDE solution snapshots, the left is at time $t=0$,
-center is at time $t=0.03$, right is at time $t=0.3$.
+Top row: 2D heat PDE solution snapshots, the left is at time \(t=0\),
+center is at time \(t=0.03\), right is at time \(t=0.3\).
 Bottom row, absolute error in these solutions.  Note that the relative
-error in these results is on the order $10^{-4}$, corresponding
+error in these results is on the order \(10^{-4}\), corresponding
 to the spatial accuracy of the relatively coarse finite-difference
 mesh.  All plots are created using the supplied Python script,
 \code{plot\_heat2D.py}.
@@ -1541,11 +1550,11 @@ where
 R_2(c_1,c_2,t) &=  q_1*c_1*c_3 - q_2*c_1*c_2 - q_4(t)*c_2, \\
 K_v(y) &= K_{v0} e^{y/5}.\end{split}\notag
 \end{gather}
-Here $K_h$, $V$, $K_{v0}$, $q_1$, $q_2$,
-and $c_3$ are constants, and $q_3(t)$ and $q_4(t)$
+Here \(K_h\), \(V\), \(K_{v0}\), \(q_1\), \(q_2\),
+and \(c_3\) are constants, and \(q_3(t)\) and \(q_4(t)\)
 vary diurnally.  The problem is posed on the square spatial domain
-$(x,y) \in [0,20]\times[30,50]$, with homogeneous Neumann
-boundary conditions, and for time interval $t\in [0,86400]$ sec
+\((x,y) \in [0,20]\times[30,50]\), with homogeneous Neumann
+boundary conditions, and for time interval \(t\in [0,86400]\) sec
 (1 day).
 
 We enforce the initial conditions
@@ -1562,10 +1571,10 @@ We employ a method of lines approach, wherein we first
 semi-discretize in space to convert the system of 2 PDEs into a larger
 system of ODEs.  To this end, the spatial derivatives are computed
 using second-order centered differences, with the data distributed
-over $Mx*My$ points on a uniform spatial grid.  Resultingly, ARKode
-approaches the problem as one involving $2*Mx*My$ coupled ODEs.
+over \(Mx*My\) points on a uniform spatial grid.  Resultingly, ARKode
+approaches the problem as one involving \(2*Mx*My\) coupled ODEs.
 In this problem, we use a relatively coarse uniform mesh with
-$Mx=My=10$.
+\(Mx=My=10\).
 
 This program solves the problem with a DIRK method, using a Newton
 iteration with the preconditioned ARKSPGMR iterative linear solver.
@@ -1584,14 +1593,14 @@ on completion.
 This problem is an ARKode clone of the CVODE problem,
 \code{fcv\_roberts\_dnsL}.  This test problem models the kinetics of a
 three-species autocatalytic reaction.  This is an ODE system with 3
-components, $Y = [y_1,\, y_2,\, y_3]^T$, satisfying the equations,
+components, \(Y = [y_1,\, y_2,\, y_3]^T\), satisfying the equations,
 \begin{gather}
 \begin{split}\frac{d y_1}{dt} &= -0.04 y_1 + 10^4 y_2 y_3, \\
 \frac{d y_2}{dt} &= 0.04 y_1 - 10^4 y_2 y_3 - 3\cdot10^7 y_2^2, \\
 \frac{d y_3}{dt} &= 3\cdot10^7 y_2^2.\end{split}\notag
 \end{gather}
-We integrate over the interval $0\le t\le 4\cdot10^{10}$, with initial
-conditions  $Y(0) = [1,\, 0,\, 0]^T$.
+We integrate over the interval \(0\le t\le 4\cdot10^{10}\), with initial
+conditions  \(Y(0) = [1,\, 0,\, 0]^T\).
 
 Additionally, we supply the following two root-finding equations:
 \begin{gather}
@@ -1608,9 +1617,9 @@ solutions attain desired target values.
 This program solves the problem with a DIRK method, using a Newton
 iteration with the dense LAPACK linear solver module.
 
-As with the {\hyperref[c_serial:ark-robertson-root]{\emph{ark\_robertson\_root}}} problem, we enable ARKode's
+As with the {\hyperref[c_serial:ark-robertson-root]{\emph{\DUspan{}{ark\_robertson\_root}}}} problem, we enable ARKode's
 rootfinding module to find the times at which
-either $u=10^{-4}$ or $w=10^{-2}$.
+either \(u=10^{-4}\) or \(w=10^{-2}\).
 
 Performance data and solution values are printed at
 selected output times, along with additional output at rootfinding
@@ -1628,9 +1637,9 @@ diagonal ODE system,
 \begin{gather}
 \begin{split}\frac{\partial y_i}{\partial t} &= -\alpha i y_i, \quad i=1,\ldots N.\end{split}\notag
 \end{gather}
-Here $\alpha=10$ and $N=10 N_P$, where $N_P$ is the
+Here \(\alpha=10\) and \(N=10 N_P\), where \(N_P\) is the
 number of MPI tasks used for the problem.  The problem has initial
-conditions $y_i=1$ and evolves for the time interval $t\in [0,1]$.
+conditions \(y_i=1\) and evolves for the time interval \(t\in [0,1]\).
 
 
 \subsection{Numerical method}
@@ -1659,9 +1668,9 @@ diagonal ODE system,
 \begin{gather}
 \begin{split}\frac{\partial y_i}{\partial t} &= -\alpha i y_i, \quad i=1,\ldots N.\end{split}\notag
 \end{gather}
-Here $\alpha=\frac{10}{N}$ and $N=10 N_P$, where $N_P$ is the
+Here \(\alpha=\frac{10}{N}\) and \(N=10 N_P\), where \(N_P\) is the
 number of MPI tasks used for the problem.  The problem has initial
-conditions $y_i=1$ and evolves for the time interval $t\in [0,1]$.
+conditions \(y_i=1\) and evolves for the time interval \(t\in [0,1]\).
 
 
 \subsection{Numerical method}
@@ -1679,20 +1688,20 @@ errors and final performance counters are printed on completion.
 \section{ark\_bruss}
 \label{f90_serial:ark-bruss}\label{f90_serial:id1}
 This test problem is a Fortran-90 version of the same brusselator
-problem as before, {\hyperref[c_serial:ark-brusselator]{\emph{ark\_brusselator}}}, in which the ``test 1''
+problem as before, {\hyperref[c_serial:ark-brusselator]{\emph{\DUspan{}{ark\_brusselator}}}}, in which the ``test 1''
 parameters are hard-coded into the solver.  As with the previous test,
-this problem has 3 dependent variables $u$, $v$ and
-$w$, that depend on the independent variable $t$ via the
+this problem has 3 dependent variables \(u\), \(v\) and
+\(w\), that depend on the independent variable \(t\) via the
 IVP system
 \begin{gather}
 \begin{split}\frac{du}{dt} &= a - (w+1)u + v u^2, \\
 \frac{dv}{dt} &= w u - v u^2, \\
 \frac{dw}{dt} &= \frac{b-w}{\varepsilon} - w u.\end{split}\notag
 \end{gather}
-We integrate over the interval $0 \le t \le 10$, with the
-initial conditions $u(0) = 3.9$, $v(0) = 1.1$,
-$w(0) = 2.8$, and parameters $a=1.2$, $b=2.5$ and
-$\varepsilon=10^{-5}$.  After each unit time interval, the
+We integrate over the interval \(0 \le t \le 10\), with the
+initial conditions \(u(0) = 3.9\), \(v(0) = 1.1\),
+\(w(0) = 2.8\), and parameters \(a=1.2\), \(b=2.5\) and
+\(\varepsilon=10^{-5}\).  After each unit time interval, the
 solution is output to the screen.
 
 
@@ -1715,9 +1724,9 @@ routine and right-hand side functions are supplied by functions
 provided in the example file.
 
 The only non-default solver options are the tolerances
-$atol=10^{-10}$ and $rtol=10^{-6}$, adaptivity method 2 (I
+\(atol=10^{-10}\) and \(rtol=10^{-6}\), adaptivity method 2 (I
 controller), a maximum of 8 Newton iterations per step, a nonlinear
-solver convergence coefficient $nlscoef=10^{-8}$, and a maximum
+solver convergence coefficient \(nlscoef=10^{-8}\), and a maximum
 of 1000 internal time steps.
 
 
@@ -1741,14 +1750,14 @@ same equations.
 \section{fark\_heat2D}
 \label{f90_parallel:fark-heat2d}\label{f90_parallel:id1}
 This test problem is a Fortran-90 version of the same two-dimensional
-heat equation problem as in C++, {\hyperref[cpp_parallel:ark-heat2d]{\emph{ark\_heat2D}}}.  This models a
+heat equation problem as in C++, {\hyperref[cpp_parallel:ark-heat2d]{\emph{\DUspan{}{ark\_heat2D}}}}.  This models a
 simple two-dimenaional heat equation,
 \begin{gather}
 \begin{split}\frac{\partial u}{\partial t} = k_x \frac{\partial^2 u}{\partial x^2}
                               + k_y \frac{\partial^2 u}{\partial y^2} + h,\end{split}\notag
 \end{gather}
-for $t \in [0, 0.3]$, and $(x,y) \in [0, 1]^2$, with initial
-condition $u(0,x,y) = 0$, stationary boundary conditions,
+for \(t \in [0, 0.3]\), and \((x,y) \in [0, 1]^2\), with initial
+condition \(u(0,x,y) = 0\), stationary boundary conditions,
 \begin{gather}
 \begin{split}\frac{\partial u}{\partial t}(t,0,y) = \frac{\partial u}{\partial t}(t,1,y) =
 \frac{\partial u}{\partial t}(t,x,0) = \frac{\partial u}{\partial t}(t,x,1) = 0,\end{split}\notag
@@ -1766,11 +1775,11 @@ form
 \subsection{Numerical method}
 \label{f90_parallel:numerical-method}
 The spatial derivatives are computed using second-order
-centered differences, with the data distributed over $nx\times
-ny$ points on a uniform spatial grid.
+centered differences, with the data distributed over \(nx\times
+ny\) points on a uniform spatial grid.
 
-The spatial grid is set to $nx=60$ and $ny=120$.  The heat
-conductivity parameters are $k_x=0.5$ and $k_y=0.75$.
+The spatial grid is set to \(nx=60\) and \(ny=120\).  The heat
+conductivity parameters are \(k_x=0.5\) and \(k_y=0.75\).
 
 As with the C++ version, this program solves the problem with a DIRK
 method, that itself uses a Newton iteration and PCG iterative linear
