@@ -261,7 +261,7 @@ int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
 
     /* Calculate alpha = <r,r_star>/<Ap,r_star> */
 
-    alpha = ((N_VDotProd(r, r_star) / N_VDotProd(Ap, r_star)));
+    alpha = ((beta_denom / N_VDotProd(Ap, r_star)));
 
     /* Update q = r - alpha*Ap = r - alpha*(sb P1_inv A P2_inv sx_inv p) */
 
