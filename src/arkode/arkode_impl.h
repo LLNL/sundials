@@ -406,7 +406,6 @@ typedef struct ARKodeMemRec {
   N_Vector    *ark_fp_df;     /* vector array of length m   */
   N_Vector    *ark_fp_dg;     /* vector array of length m   */
   N_Vector    *ark_fp_q;      /* vector array of length m   */
-  N_Vector    *ark_fp_qtmp;   /* vector array of length m   */
   N_Vector     ark_fp_fval;   /* temporary N_Vectors        */
   N_Vector     ark_fp_fold;
   N_Vector     ark_fp_gold;

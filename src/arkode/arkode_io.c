@@ -110,7 +110,7 @@ int ARKodeSetDefaults(void *arkode_mem)
   ark_mem->ark_dgmax            = DGMAX;          /* max step change before recomputing J or P */
   ark_mem->ark_msbp             = MSBP;           /* max steps between updates to J or P */
   ark_mem->ark_use_fp           = FALSE;          /* use Newton solver */
-  ark_mem->ark_fp_m             = FP_ACCEL_M;     /* num Andersen acceleration vectors */
+  ark_mem->ark_fp_m             = FP_ACCEL_M;     /* num Anderson acceleration vectors */
   ark_mem->ark_diagfp           = NULL;           /* no solver diagnostics file */
   ark_mem->ark_report           = FALSE;          /* don't report solver diagnostics */
   ark_mem->ark_stages           = 0;              /* no stages */

@@ -84,7 +84,7 @@ static int arkNlsResid(ARKodeMem ark_mem, N_Vector y,
 			N_Vector fy, N_Vector r);
 static int arkNlsNewton(ARKodeMem ark_mem, int nflag);
 static int arkNlsAccelFP(ARKodeMem ark_mem, int nflag);
-static int arkAndersenAcc(ARKodeMem ark_mem, N_Vector gval, 
+static int arkAndersonAcc(ARKodeMem ark_mem, N_Vector gval, 
 			  N_Vector fv, N_Vector x, N_Vector xold, 
 			  int iter, realtype *R, realtype *gamma);
 static int arkLs(ARKodeMem ark_mem, int nflag);
@@ -199,7 +199,6 @@ void *ARKodeCreate()
   ark_mem->ark_fp_df    = NULL;
   ark_mem->ark_fp_dg    = NULL;
   ark_mem->ark_fp_q     = NULL;
-  ark_mem->ark_fp_qtmp  = NULL;
   ark_mem->ark_fp_fval  = NULL;
   ark_mem->ark_fp_fold  = NULL;
   ark_mem->ark_fp_gold  = NULL;
@@ -2367,12 +2366,6 @@ static void arkPrintMem(ARKodeMem ark_mem)
 	printf("ark_fp_q[%i]:\n", i);
 	N_VPrint_Serial(ark_mem->ark_fp_q[i]);
       }
-  if (ark_mem->ark_fp_qtmp != NULL) 
-    for (i=0; i<ark_mem->ark_fp_m; i++)
-      if (ark_mem->ark_fp_qtmp[i] != NULL) {
-	printf("ark_fp_qtmp[%i]:\n", i);
-	N_VPrint_Serial(ark_mem->ark_fp_qtmp[i]);
-      }
   if (ark_mem->ark_fp_fval != NULL) {
     printf("ark_fp_fval:\n");
     N_VPrint_Serial(ark_mem->ark_fp_fval);
@@ -2820,18 +2813,6 @@ static int arkAllocFPData(ARKodeMem ark_mem)
     }
   }
 
-  /* Allocate ark_fp_qtmp if needed */
-  if ((ark_mem->ark_fp_qtmp == NULL) && (maa > 0)) {
-    ark_mem->ark_fp_qtmp = N_VCloneVectorArray(maa, ark_mem->ark_ewt);
-    if (ark_mem->ark_fp_qtmp == NULL) {
-      arkFreeFPData(ark_mem);
-      return(ARK_MEM_FAIL);
-    } else {
-      ark_mem->ark_lrw += maa*ark_mem->ark_lrw1;
-      ark_mem->ark_liw += maa*ark_mem->ark_liw1;
-    }
-  }
-
   /* Allocate ark_fp_R if needed */
   if ((ark_mem->ark_fp_R == NULL) && (maa > 0)) {
     ark_mem->ark_fp_R = (realtype *) malloc((maa*maa) * sizeof(realtype));
@@ -2983,24 +2964,6 @@ static int arkResizeFPData(ARKodeMem ark_mem, ARKVecResizeFn resize,
     ark_mem->ark_liw += maa*liw_diff;
   }
 
-  /* Resize ark_fp_qtmp if needed */
-  if ((ark_mem->ark_fp_qtmp != NULL) && (maa > 0)) {
-    for (i=0; i<maa; i++) {
-      if (resize == NULL) {
-	N_VDestroy(ark_mem->ark_fp_qtmp[i]);
-	ark_mem->ark_fp_qtmp[i] = N_VClone(ark_mem->ark_ewt);
-      } else {
-	if (resize(ark_mem->ark_fp_qtmp[i], ark_mem->ark_ewt, resize_data)) {
-	  arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
-			  "arkResizeFPData", MSGARK_RESIZE_FAIL);
-	  return(ARK_ILL_INPUT);
-	}
-      }
-    }
-    ark_mem->ark_lrw += maa*lrw_diff;
-    ark_mem->ark_liw += maa*liw_diff;
-  }
-
   return(ARK_SUCCESS);
 }
 
@@ -3058,14 +3021,6 @@ static void arkFreeFPData(ARKodeMem ark_mem)
   if ((ark_mem->ark_fp_q != NULL) && (maa>0)) {
     N_VDestroyVectorArray(ark_mem->ark_fp_q, maa);
     ark_mem->ark_fp_q = NULL;
-    ark_mem->ark_lrw -= maa*ark_mem->ark_lrw1;
-    ark_mem->ark_liw -= maa*ark_mem->ark_liw1;
-  }
-
-  /* free ark_fp_qtmp if needed */
-  if ((ark_mem->ark_fp_qtmp != NULL) && (maa>0)) {
-    N_VDestroyVectorArray(ark_mem->ark_fp_qtmp, maa);
-    ark_mem->ark_fp_qtmp = NULL;
     ark_mem->ark_lrw -= maa*ark_mem->ark_lrw1;
     ark_mem->ark_liw -= maa*ark_mem->ark_liw1;
   }
@@ -4841,7 +4796,7 @@ static int arkNlsNewton(ARKodeMem ark_mem, int nflag)
 /*---------------------------------------------------------------
  arkNlsAccelFP
 
- This routine handles the Andersen-accelerated fixed-point 
+ This routine handles the Anderson-accelerated fixed-point 
  iteration for implicit portions of the ARK and DIRK methods. It 
  performs an accelerated fixed-point iteration (without need for 
  a Jacobian or preconditioner. 
@@ -4923,9 +4878,9 @@ static int arkNlsAccelFP(ARKodeMem ark_mem, int nflag)
       /* plain fixed-point solver, copy residual into y */
       N_VScale(ONE, fval, y);
     } else {
-      /* Andersen-accelerated solver */
+      /* Anderson-accelerated solver */
       N_VScale(ONE, ycur, y);   /* update guess */
-      retval = arkAndersenAcc(ark_mem, fval, tempv, y,  /* accelerate guess */
+      retval = arkAndersonAcc(ark_mem, fval, tempv, y,  /* accelerate guess */
 			      ycur, (int)(ark_mem->ark_mnewt), R, gamma);
     }
     ark_mem->ark_nni++;
@@ -4979,9 +4934,9 @@ static int arkNlsAccelFP(ARKodeMem ark_mem, int nflag)
 
 
 /*---------------------------------------------------------------
- arkAndersenAcc
+ arkAndersonAcc
 
- This routine computes the Andersen-accelerated fixed point 
+ This routine computes the Anderson-accelerated fixed point 
  iterate itself, as used by the nonlinear solver arkNlsAccelFP().  
 
  Upon entry, the predicted solution is held in xold;
@@ -4993,15 +4948,16 @@ static int arkNlsAccelFP(ARKodeMem ark_mem, int nflag)
    ARK_SUCCESS   ---> successful completion
 
 ---------------------------------------------------------------*/
-static int arkAndersenAcc(ARKodeMem ark_mem, N_Vector gval, 
+static int arkAndersonAcc(ARKodeMem ark_mem, N_Vector gval, 
 			  N_Vector fv, N_Vector x, N_Vector xold, 
 			  int iter, realtype *R, realtype *gamma)
 {
   /* local variables */
-  long int i_pt, i, j, lAA, imap, jmap;
-  realtype alfa;
+  long int i_pt, i, j, lAA;
+  realtype alfa, a, b, temp, c, s;
 
   /* local shortcut variables */
+  N_Vector vtemp2 = ark_mem->ark_y;       /* rename y as vtemp2 for readability */
   long int *ipt_map = ark_mem->ark_fp_imap;
   long int maa = ark_mem->ark_fp_m;
   N_Vector gold = ark_mem->ark_fp_gold;
@@ -5009,7 +4965,6 @@ static int arkAndersenAcc(ARKodeMem ark_mem, N_Vector gval,
   N_Vector *df = ark_mem->ark_fp_df;
   N_Vector *dg = ark_mem->ark_fp_dg;
   N_Vector *Q = ark_mem->ark_fp_q;
-  N_Vector *qtmp = ark_mem->ark_fp_qtmp;
   
   for (i=0; i<maa; i++)  ipt_map[i]=0;
   i_pt = iter-1 - ((iter-1)/maa)*maa;
@@ -5028,48 +4983,71 @@ static int arkAndersenAcc(ARKodeMem ark_mem, N_Vector gval,
     N_VScale(ONE, gval, x);
   } else {
     if (iter == 1) {
-      N_VScale(ONE, df[i_pt], qtmp[i_pt]);
       R[0] = SUNRsqrt(N_VDotProd(df[i_pt], df[i_pt])); 
       alfa = ONE/R[0];
       N_VScale(alfa, df[i_pt], Q[i_pt]);
       ipt_map[0] = 0;
-    } else if (iter < maa) {
-      N_VScale(ONE, df[i_pt], qtmp[i_pt]);
+    } else if (iter <= maa) {
+      N_VScale(ONE, df[i_pt], vtemp2);
       for (j=0; j<(iter-1); j++) {
 	ipt_map[j] = j;
-	R[(iter-1)*maa+j] = N_VDotProd(Q[j], qtmp[i_pt]);
-	N_VLinearSum(ONE, qtmp[i_pt], -R[(iter-1)*maa+j], Q[j], qtmp[i_pt]);
+	R[(iter-1)*maa+j] = N_VDotProd(Q[j], vtemp2);
+	N_VLinearSum(ONE, vtemp2, -R[(iter-1)*maa+j], Q[j], vtemp2);
       }
-      R[(iter-1)*maa+iter-1] = SUNRsqrt(N_VDotProd(qtmp[i_pt], qtmp[i_pt])); 
+      R[(iter-1)*maa+iter-1] = SUNRsqrt(N_VDotProd(vtemp2, vtemp2)); 
       if (R[(iter-1)*maa+iter-1] == ZERO) {
-	N_VScale(ZERO, qtmp[i_pt], Q[i_pt]);
+	N_VScale(ZERO, vtemp2, Q[i_pt]);
       } else {
-	N_VScale((ONE/R[(iter-1)*maa+iter-1]), qtmp[i_pt], Q[i_pt]);
+	N_VScale((ONE/R[(iter-1)*maa+iter-1]), vtemp2, Q[i_pt]);
       }
       ipt_map[iter-1] = iter-1;
     } else {
+      /* Delete left-most column vector from QR factorization */
+      for (i=0; i < maa-1; i++) {
+        a = R[(i+1)*maa + i];
+        b = R[(i+1)*maa + i+1];
+        temp = SUNRsqrt(a*a + b*b);
+        c = a / temp;
+        s = b / temp;
+        R[(i+1)*maa + i] = temp;
+        R[(i+1)*maa + i+1] = 0.0;      
+	/* OK to re-use temp */
+        if (i < maa-1) {
+          for (j = i+2; j < maa; j++) {
+            a = R[j*maa + i];
+            b = R[j*maa + i+1];
+            temp = c * a + s * b;
+            R[j*maa + i+1] = -s*a + c*b;
+            R[j*maa + i] = temp;
+	  }
+	}
+        N_VLinearSum(c, Q[i], s, Q[i+1], vtemp2);
+        N_VLinearSum(-s, Q[i], c, Q[i+1], Q[i+1]);
+        N_VScale(ONE, vtemp2, Q[i]);
+      }
+
+      /* Shift R to the left by one. */
+      for (i = 1; i < maa; i++) {
+        for (j = 0; j < maa-1; j++) {
+          R[(i-1)*maa + j] = R[i*maa + j];
+        }
+      }
+
+      /* Add the new df vector */
+      N_VScale(ONE,df[i_pt],vtemp2);
+      for (j=0; j < (maa-1); j++) {
+        R[(maa-1)*maa+j] = N_VDotProd(Q[j],vtemp2);
+        N_VLinearSum(ONE,vtemp2,-R[(maa-1)*maa+j],Q[j],vtemp2);
+      }
+      R[(maa-1)*maa+maa-1] = SUNRsqrt(N_VDotProd(vtemp2,vtemp2));
+      N_VScale((1/R[(maa-1)*maa+maa-1]),vtemp2,Q[maa-1]);
+
+      /* Update the iteration map */
       j = 0;
       for (i=i_pt+1; i<maa; i++)
 	ipt_map[j++] = i;
       for (i=0; i<(i_pt+1); i++)
 	ipt_map[j++] = i;
-      
-      for (i=0; i<maa; i++)
-	N_VScale(ONE, df[i], qtmp[i]);
-      for (i=0; i<maa; i++) {
-	imap = ipt_map[i];
-	R[i*maa+i] = SUNRsqrt(N_VDotProd(qtmp[imap], qtmp[imap]));
-	if (R[i*maa+i] == ZERO) {
-	  N_VScale(ZERO, qtmp[imap], Q[imap]);
-	} else {
-	  N_VScale((ONE/R[i*maa+i]), qtmp[imap], Q[imap]);
-	}
-	for (j=i+1; j<maa; j++) {
-	  jmap = ipt_map[j];
-	  R[j*maa+i] = N_VDotProd(qtmp[jmap], Q[imap]);
-	  N_VLinearSum(ONE, qtmp[jmap], -R[j*maa+i], Q[imap], qtmp[jmap]);
-	}            
-      }
     }
 
     /* Solve least squares problem and update solution */
@@ -5077,7 +5055,7 @@ static int arkAndersenAcc(ARKodeMem ark_mem, N_Vector gval,
     if (maa < iter)  lAA = maa;
     N_VScale(ONE, gval, x);
     for (i=0; i<lAA; i++)
-      gamma[i] = N_VDotProd(fv, Q[ipt_map[i]]);
+      gamma[i] = N_VDotProd(fv, Q[i]);
     for (i=lAA-1; i>-1; i--) {
       for (j=i+1; j<lAA; j++) 
 	gamma[i] = gamma[i] - R[j*maa+i]*gamma[j]; 
