@@ -285,16 +285,16 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     ARK_A(A,5,3) = RCONST(44275.0)/RCONST(110592.0);
     ARK_A(A,5,4) = RCONST(253.0)/RCONST(4096.0);
 
-    b[0] = RCONST(2825.0)/RCONST(27648.0);
-    b[2] = RCONST(18575.0)/RCONST(48384.0);
-    b[3] = RCONST(13525.0)/RCONST(55296.0);
-    b[4] = RCONST(277.0)/RCONST(14336.0);
-    b[5] = RCONST(1.0)/RCONST(4.0);
+    b[0] = RCONST(37.0)/RCONST(378.0);
+    b[2] = RCONST(250.0)/RCONST(621.0);
+    b[3] = RCONST(125.0)/RCONST(594.0);
+    b[5] = RCONST(512.0)/RCONST(1771.0);
 
-    b2[0] = RCONST(37.0)/RCONST(378.0);
-    b2[2] = RCONST(250.0)/RCONST(621.0);
-    b2[3] = RCONST(125.0)/RCONST(594.0);
-    b2[5] = RCONST(512.0)/RCONST(1771.0);
+    b2[0] = RCONST(2825.0)/RCONST(27648.0);
+    b2[2] = RCONST(18575.0)/RCONST(48384.0);
+    b2[3] = RCONST(13525.0)/RCONST(55296.0);
+    b2[4] = RCONST(277.0)/RCONST(14336.0);
+    b2[5] = RCONST(1.0)/RCONST(4.0);
 
     c[1] = RCONST(1.0)/RCONST(5.0);
     c[2] = RCONST(3.0)/RCONST(10.0);
