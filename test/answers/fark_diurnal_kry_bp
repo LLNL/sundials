@@ -3,71 +3,71 @@ Krylov example problem:
  Kinetics-transport, NEQ =  200
 
 
- t =   0.720000E+04     no. steps =   986no. att. steps =   991   stepsize =   0.305256E+01
+ t =   0.720000E+04     no. steps =   985no. att. steps =   990   stepsize =   0.305042E+01
   c1 (bot.left/middle/top rt.) =   0.104683E+05  0.296369E+05  0.111853E+05
   c2 (bot.left/middle/top rt.) =   0.252673E+12  0.715366E+12  0.269977E+12
 
- t =   0.144000E+05     no. steps =  2713no. att. steps =  2718   stepsize =   0.690905E+01
+ t =   0.144000E+05     no. steps =  2715no. att. steps =  2720   stepsize =   0.693787E+01
   c1 (bot.left/middle/top rt.) =   0.665902E+07  0.531590E+07  0.730081E+07
   c2 (bot.left/middle/top rt.) =   0.258191E+12  0.205675E+12  0.283286E+12
 
- t =   0.216000E+05     no. steps =  3421no. att. steps =  3426   stepsize =   0.157631E+02
+ t =   0.216000E+05     no. steps =  3421no. att. steps =  3426   stepsize =   0.158077E+02
   c1 (bot.left/middle/top rt.) =   0.266497E+08  0.103652E+08  0.293077E+08
   c2 (bot.left/middle/top rt.) =   0.299279E+12  0.102829E+12  0.331344E+12
 
- t =   0.288000E+05     no. steps =  4386no. att. steps =  4409   stepsize =   0.411925E+01
+ t =   0.288000E+05     no. steps =  4367no. att. steps =  4394   stepsize =   0.483762E+01
   c1 (bot.left/middle/top rt.) =   0.870214E+07  0.129200E+08  0.965006E+07
   c2 (bot.left/middle/top rt.) =   0.338037E+12  0.502942E+12  0.375097E+12
 
- t =   0.360000E+05     no. steps =  5711no. att. steps =  5734   stepsize =   0.255713E+01
+ t =   0.360000E+05     no. steps =  5591no. att. steps =  5618   stepsize =   0.255347E+01
   c1 (bot.left/middle/top rt.) =   0.140404E+05  0.202886E+05  0.156091E+05
   c2 (bot.left/middle/top rt.) =   0.338679E+12  0.489400E+12  0.376518E+12
 
- t =   0.432000E+05     no. steps =  6924no. att. steps =  6947   stepsize =   0.400330E+03
-  c1 (bot.left/middle/top rt.) =   0.288167E-09 -0.140719E-06  0.140085E-08
+ t =   0.432000E+05     no. steps =  6831no. att. steps =  6858   stepsize =   0.340183E+03
+  c1 (bot.left/middle/top rt.) =   0.281649E-11 -0.159695E-08  0.477653E-08
   c2 (bot.left/middle/top rt.) =   0.338234E+12  0.135516E+12  0.380354E+12
 
- t =   0.504000E+05     no. steps =  6942no. att. steps =  6965   stepsize =   0.508789E+03
-  c1 (bot.left/middle/top rt.) =   0.591760E-08 -0.467360E-06  0.100530E-07
+ t =   0.504000E+05     no. steps =  6845no. att. steps =  6874   stepsize =   0.412161E+03
+  c1 (bot.left/middle/top rt.) =  -0.376793E-14  0.316396E-13 -0.713814E-09
   c2 (bot.left/middle/top rt.) =   0.335818E+12  0.493035E+12  0.386446E+12
 
- t =   0.576000E+05     no. steps =  6957no. att. steps =  6981   stepsize =   0.326692E+03
-  c1 (bot.left/middle/top rt.) =  -0.161173E-08  0.300453E-06 -0.323960E-09
+ t =   0.576000E+05     no. steps =  6863no. att. steps =  6894   stepsize =   0.207543E+03
+  c1 (bot.left/middle/top rt.) =  -0.187221E-10  0.243787E-09  0.122844E-08
   c2 (bot.left/middle/top rt.) =   0.332033E+12  0.964976E+12  0.390901E+12
 
- t =   0.648000E+05     no. steps =  6970no. att. steps =  6994   stepsize =   0.650641E+03
-  c1 (bot.left/middle/top rt.) =  -0.589642E-08  0.438886E-06  0.154980E-08
+ t =   0.648000E+05     no. steps =  6877no. att. steps =  6908   stepsize =   0.593026E+03
+  c1 (bot.left/middle/top rt.) =   0.139511E-12  0.142649E-10  0.101147E-07
   c2 (bot.left/middle/top rt.) =   0.331304E+12  0.892178E+12  0.396344E+12
 
- t =   0.720000E+05     no. steps =  6981no. att. steps =  7005   stepsize =   0.650641E+03
-  c1 (bot.left/middle/top rt.) =   0.628397E-08 -0.960319E-06 -0.395147E-08
+ t =   0.720000E+05     no. steps =  6889no. att. steps =  6920   stepsize =   0.593026E+03
+  c1 (bot.left/middle/top rt.) =   0.568763E-07 -0.518757E-09  0.212890E-07
   c2 (bot.left/middle/top rt.) =   0.332974E+12  0.618628E+12  0.403886E+12
 
- t =   0.792000E+05     no. steps =  6992no. att. steps =  7016   stepsize =   0.650641E+03
-  c1 (bot.left/middle/top rt.) =   0.639108E-11  0.204544E-08 -0.988510E-09
+ t =   0.792000E+05     no. steps =  6901no. att. steps =  6932   stepsize =   0.593026E+03
+  c1 (bot.left/middle/top rt.) =  -0.903204E-08  0.653583E-08 -0.446261E-07
   c2 (bot.left/middle/top rt.) =   0.333443E+12  0.666905E+12  0.412027E+12
 
- t =   0.864000E+05     no. steps =  7003no. att. steps =  7027   stepsize =   0.650641E+03
-  c1 (bot.left/middle/top rt.) =   0.709352E-11 -0.263289E-08 -0.648564E-09
+ t =   0.864000E+05     no. steps =  6913no. att. steps =  6944   stepsize =   0.593026E+03
+  c1 (bot.left/middle/top rt.) =  -0.524328E-07 -0.712575E-08 -0.355568E-07
   c2 (bot.left/middle/top rt.) =   0.335180E+12  0.910621E+12  0.416253E+12
 
 
 Final statistics:
 
- number of steps        =  7003
- number of step att.    =  7027
+ number of steps        =  6913
+ number of step att.    =  6944
  number of fe evals.    =     0
- number of fi evals.    = 71705
- number of prec. setups =   425
- number of prec. evals. =   118
- number of prec. solves = 92693
- number of nonl. iters. = 36566
- number of lin. iters.  = 57412
- average Krylov subspace dimension (NLI/NNI) =   0.157009E+01
+ number of fi evals.    = 70924
+ number of prec. setups =   427
+ number of prec. evals. =   116
+ number of prec. solves = 91437
+ number of nonl. iters. = 36200
+ number of lin. iters.  = 56562
+ average Krylov subspace dimension (NLI/NNI) =   0.156249E+01
  number of conv. failures.. nonlinear =  0 linear =   0
- number of error test failures =  24
+ number of error test failures =  31
  main solver real/int workspace sizes   =  3058   55
  linear solver real/int workspace sizes =  2046   10
 In ARKBANDPRE:
  real/int workspace sizes =  2400  200
- number of f evaluations  =   590
+ number of f evaluations  =   580

@@ -194,7 +194,7 @@ t =   1.00e-02  nst = 115  nfe = 0  nfi = 1514  nni = 935  hu =    3.07e-03
 
 t =   1.00e-01  nst = 129  nfe = 0  nfi = 1717  nni = 1068  hu =    1.09e-02
 
-t =   1.00e+00  nst = 162  nfe = 0  nfi = 2227  nni = 1403  hu =    3.63e-02
+t =   1.00e+00  nst = 163  nfe = 0  nfi = 2241  nni = 1412  hu =    5.85e-02
 
 c values at t = 1:
 
@@ -246,11 +246,11 @@ Species 6
 46876.6   47001.1   47286.1   47627     47914     48040.3   
 46781.9   46876.6   47108.5   47389.7   47622.8   47718.4   
 
-t =   2.00e+00  nst = 181  nfe = 0  nfi = 2494  nni = 1565  hu =    2.57e-02
+t =   2.00e+00  nst = 180  nfe = 0  nfi = 2537  nni = 1603  hu =    6.31e-02
 
-t =   3.00e+00  nst = 199  nfe = 0  nfi = 2764  nni = 1730  hu =    4.58e-02
+t =   3.00e+00  nst = 197  nfe = 0  nfi = 2799  nni = 1765  hu =    6.68e-02
 
-t =   4.00e+00  nst = 217  nfe = 0  nfi = 3046  nni = 1902  hu =    5.11e-02
+t =   4.00e+00  nst = 215  nfe = 0  nfi = 3057  nni = 1918  hu =    5.05e-02
 
 c values at t = 4:
 
@@ -279,34 +279,34 @@ Species 3
 1.17039   1.17291   1.17911   1.18663   1.19287   1.19542   
 
 Species 4
-35860.7   36110.2   36632.4   37246.5   37779.4   38038.8   
-35784.3   36010.3   36490.5   37056.2   37545.3   37779.4   
-35597.1   35782     36180.5   36651.7   37056.2   37246.5   
-35371.5   35510.2   35816.7   36180.5   36490.5   36632.4   
-35185.4   35283.9   35510.2   35782     36010.3   36110.2   
-35109.7   35185.4   35371.5   35597.1   35784.3   35860.7   
+35860.6   36110.2   36632.4   37246.4   37779.4   38038.7   
+35784.2   36010.4   36490.4   37056.3   37545.3   37779.4   
+35597.2   35782     36180.5   36651.6   37056.3   37246.4   
+35371.4   35510.4   35816.7   36180.5   36490.4   36632.4   
+35185.4   35283.8   35510.4   35782     36010.4   36110.2   
+35109.7   35185.4   35371.4   35597.2   35784.2   35860.6   
 
 Species 5
-35860.7   36110.2   36632.4   37246.5   37779.4   38038.8   
-35784.3   36010.3   36490.5   37056.2   37545.3   37779.4   
-35597.1   35782     36180.5   36651.7   37056.2   37246.5   
-35371.5   35510.2   35816.7   36180.5   36490.5   36632.4   
-35185.4   35283.9   35510.2   35782     36010.3   36110.2   
-35109.7   35185.4   35371.5   35597.1   35784.3   35860.7   
+35860.6   36110.2   36632.4   37246.4   37779.4   38038.7   
+35784.2   36010.4   36490.4   37056.3   37545.3   37779.4   
+35597.2   35782     36180.5   36651.6   37056.3   37246.4   
+35371.4   35510.4   35816.7   36180.5   36490.4   36632.4   
+35185.4   35283.8   35510.4   35782     36010.4   36110.2   
+35109.7   35185.4   35371.4   35597.2   35784.2   35860.6   
 
 Species 6
-35860.7   36110.2   36632.4   37246.5   37779.4   38038.8   
-35784.3   36010.3   36490.5   37056.2   37545.4   37779.4   
-35597.1   35782     36180.5   36651.7   37056.2   37246.5   
-35371.5   35510.2   35816.7   36180.5   36490.5   36632.4   
-35185.4   35283.9   35510.2   35782     36010.3   36110.2   
-35109.7   35185.4   35371.5   35597.1   35784.3   35860.7   
+35860.6   36110.2   36632.4   37246.4   37779.4   38038.7   
+35784.2   36010.4   36490.4   37056.3   37545.3   37779.4   
+35597.2   35782     36180.5   36651.6   37056.3   37246.4   
+35371.4   35510.4   35816.7   36180.5   36490.4   36632.4   
+35185.4   35283.8   35510.4   35782     36010.4   36110.2   
+35109.7   35185.4   35371.4   35597.2   35784.2   35860.6   
 
-t =   5.00e+00  nst = 235  nfe = 0  nfi = 3233  nni = 1999  hu =    8.02e-02
+t =   5.00e+00  nst = 234  nfe = 0  nfi = 3334  nni = 2080  hu =    1.28e-02
 
-t =   6.00e+00  nst = 253  nfe = 0  nfi = 3479  nni = 2140  hu =    8.07e-02
+t =   6.00e+00  nst = 250  nfe = 0  nfi = 3555  nni = 2214  hu =    5.50e-02
 
-t =   7.00e+00  nst = 271  nfe = 0  nfi = 3829  nni = 2355  hu =    2.79e-03
+t =   7.00e+00  nst = 267  nfe = 0  nfi = 3769  nni = 2333  hu =    6.77e-02
 
 c values at t = 7:
 
@@ -335,34 +335,34 @@ Species 3
 1.16363   1.16614   1.17231   1.1798    1.18601   1.18854   
 
 Species 4
-35655.3   35903.6   36423.2   37034.1   37564.4   37822.3   
-35579.3   35804.3   36281.9   36844.9   37331.5   37564.4   
+35655.4   35903.6   36423.2   37034.1   37564.4   37822.4   
+35579.3   35804.3   36281.9   36844.9   37331.4   37564.4   
 35393.1   35577     35973.5   36442.3   36844.9   37034.1   
-35168.4   35306.6   35611.5   35973.5   36281.9   36423.2   
-34983.3   35081.1   35306.6   35577     35804.3   35903.6   
-34907.9   34983.3   35168.4   35393.1   35579.3   35655.3   
+35168.3   35306.6   35611.5   35973.5   36281.9   36423.2   
+34983.2   35081.1   35306.6   35577     35804.3   35903.6   
+34908     34983.2   35168.3   35393.1   35579.3   35655.4   
 
 Species 5
-35655.3   35903.6   36423.2   37034.1   37564.4   37822.3   
-35579.3   35804.3   36281.9   36844.9   37331.5   37564.4   
-35393.1   35577     35973.5   36442.3   36844.9   37034.1   
-35168.4   35306.6   35611.5   35973.5   36281.9   36423.2   
-34983.3   35081.1   35306.6   35577     35804.3   35903.6   
-34907.9   34983.3   35168.4   35393.1   35579.3   35655.3   
+35655.4   35903.6   36423.2   37034     37564.4   37822.4   
+35579.3   35804.3   36281.9   36844.9   37331.4   37564.4   
+35393.1   35577     35973.5   36442.3   36844.9   37034     
+35168.3   35306.6   35611.5   35973.5   36281.9   36423.2   
+34983.2   35081.2   35306.6   35577     35804.3   35903.6   
+34908     34983.2   35168.3   35393.1   35579.3   35655.4   
 
 Species 6
-35655.3   35903.6   36423.2   37034.1   37564.4   37822.3   
-35579.3   35804.3   36281.9   36844.9   37331.5   37564.4   
-35393.1   35577     35973.5   36442.3   36844.9   37034.1   
-35168.4   35306.6   35611.5   35973.5   36281.9   36423.2   
-34983.3   35081.1   35306.6   35577     35804.3   35903.6   
-34907.9   34983.3   35168.4   35393.1   35579.3   35655.3   
+35655.5   35903.6   36423.2   37034.1   37564.4   37822.4   
+35579.2   35804.3   36281.9   36844.8   37331.4   37564.4   
+35393.1   35577     35973.5   36442.3   36844.8   37034.1   
+35168.2   35306.6   35611.4   35973.5   36281.9   36423.2   
+34983.3   35081.1   35306.7   35577     35804.3   35903.6   
+34908     34983.3   35168.2   35393.1   35579.2   35655.4   
 
-t =   8.00e+00  nst = 285  nfe = 0  nfi = 4062  nni = 2503  hu =    5.28e-02
+t =   8.00e+00  nst = 283  nfe = 0  nfi = 3990  nni = 2459  hu =    6.09e-02
 
-t =   9.00e+00  nst = 305  nfe = 0  nfi = 4400  nni = 2706  hu =    1.15e-01
+t =   9.00e+00  nst = 303  nfe = 0  nfi = 4207  nni = 2571  hu =    4.98e-02
 
-t =   1.00e+01  nst = 324  nfe = 0  nfi = 4797  nni = 2953  hu =    2.16e-02
+t =   1.00e+01  nst = 319  nfe = 0  nfi = 4457  nni = 2721  hu =    6.03e-02
 
 c values at t = 10:
 
@@ -391,28 +391,28 @@ Species 3
 1.16347   1.16598   1.17215   1.17964   1.18585   1.18838   
 
 Species 4
-35650.4   35898.9   36418.3   37029.3   37559.3   37817.5   
-35574.6   35799.4   36277.1   36840     37326.7   37559.3   
-35388.2   35572.3   35968.8   36437.5   36840     37029.3   
-35163.8   35301.8   35606.8   35968.8   36277.1   36418.3   
-34978.6   35076.5   35301.8   35572.3   35799.4   35898.9   
-34903.4   34978.7   35163.8   35388.2   35574.6   35650.4   
+35650.7   35898.9   36418.4   37029.3   37559.5   37817.4   
+35574.6   35799.6   36277.1   36840     37326.6   37559.5   
+35388.4   35572.3   35968.7   36437.4   36840     37029.3   
+35163.8   35301.9   35606.8   35968.7   36277.1   36418.4   
+34978.6   35076.5   35301.9   35572.3   35799.6   35898.9   
+34903.3   34978.6   35163.8   35388.4   35574.6   35650.7   
 
 Species 5
-35650.4   35898.9   36418.6   37029.3   37559.4   37818.1   
-35574.6   35799.4   36276.9   36840.1   37326.5   37559.4   
-35388.2   35572.3   35968.9   36437.3   36840.1   37029.3   
-35163.8   35301.7   35606.8   35968.9   36276.9   36418.6   
-34978.8   35076.2   35301.7   35572.3   35799.4   35898.9   
-34903.3   34978.8   35163.8   35388.2   35574.6   35650.4   
+35650.6   35899.1   36418.3   37029.4   37559.3   37817.6   
+35574.8   35799.5   36277.2   36839.9   37326.8   37559.3   
+35388.3   35572.5   35968.6   36437.5   36839.9   37029.4   
+35163.9   35301.8   35606.9   35968.6   36277.2   36418.3   
+34978.4   35076.6   35301.8   35572.5   35799.5   35899.1   
+34903.4   34978.4   35163.9   35388.3   35574.8   35650.6   
 
 Species 6
-35650.5   35898.9   36418.3   37029.3   37559.3   37817.5   
-35574.7   35799.4   36277.1   36840     37326.7   37559.3   
-35388.3   35572.3   35968.8   36437.5   36840     37029.3   
-35163.8   35301.8   35606.8   35968.8   36277.1   36418.3   
-34978.5   35076.5   35301.8   35572.3   35799.4   35898.9   
-34903.4   34978.5   35163.8   35388.3   35574.7   35650.5   
+35650.8   35898.7   36418.5   37029.2   37559.7   37817.3   
+35574.4   35799.7   36277     36840.2   37326.5   37559.7   
+35388.5   35572.2   35968.8   36437.4   36840.2   37029.2   
+35163.6   35302     35606.7   35968.8   36277     36418.5   
+34978.7   35076.3   35302     35572.2   35799.7   35898.7   
+34903     34978.8   35163.6   35388.5   35574.4   35650.8   
 
 
 
@@ -422,20 +422,20 @@ Species 6
  ARKode integer workspace length        =   55 
  ARKSPGMR real workspace length         = 2206 
  ARKSPGMR integer workspace length      =   10 
- Number of steps                       =  324 
+ Number of steps                       =  319 
  Number of f-s (explicit)              =    0 
- Number of f-s (implicit)              = 4797 
- Number of f-s (SPGMR)                 = 8929 
- Number of f-s (TOTAL)                 = 8929 
- Number of setups                      =  126 
- Number of nonlinear iterations        = 2953 
- Number of linear iterations           = 8929 
- Number of preconditioner evaluations  =  126 
- Number of preconditioner solves       = 11799 
- Number of error test failures         =   44 
+ Number of f-s (implicit)              = 4457 
+ Number of f-s (SPGMR)                 = 8402 
+ Number of f-s (TOTAL)                 = 8402 
+ Number of setups                      =   93 
+ Number of nonlinear iterations        = 2721 
+ Number of linear iterations           = 8402 
+ Number of preconditioner evaluations  =   93 
+ Number of preconditioner solves       = 11046 
+ Number of error test failures         =   27 
  Number of nonlinear conv. failures    =    1 
- Number of linear convergence failures =  769 
- Average Krylov subspace dimension     = 3.024 
+ Number of linear convergence failures =  717 
+ Average Krylov subspace dimension     = 3.088 
 
 
 ----------------------------------------------------------------------------
@@ -463,25 +463,25 @@ t =   1.00e-02  nst = 115  nfe = 0  nfi = 1514  nni = 935  hu =    3.07e-03
 
 t =   1.00e-01  nst = 129  nfe = 0  nfi = 1717  nni = 1068  hu =    1.09e-02
 
-t =   1.00e+00  nst = 163  nfe = 0  nfi = 2226  nni = 1402  hu =    7.37e-02
+t =   1.00e+00  nst = 163  nfe = 0  nfi = 2225  nni = 1401  hu =    6.40e-02
 
-t =   2.00e+00  nst = 181  nfe = 0  nfi = 2528  nni = 1594  hu =    2.57e-02
+t =   2.00e+00  nst = 181  nfe = 0  nfi = 2528  nni = 1594  hu =    8.14e-02
 
-t =   3.00e+00  nst = 199  nfe = 0  nfi = 2838  nni = 1789  hu =    5.41e-02
+t =   3.00e+00  nst = 199  nfe = 0  nfi = 2817  nni = 1773  hu =    1.27e-01
 
-t =   4.00e+00  nst = 218  nfe = 0  nfi = 3123  nni = 1959  hu =    4.92e-02
+t =   4.00e+00  nst = 215  nfe = 0  nfi = 3039  nni = 1900  hu =    4.87e-02
 
-t =   5.00e+00  nst = 235  nfe = 0  nfi = 3344  nni = 2085  hu =    5.35e-02
+t =   5.00e+00  nst = 232  nfe = 0  nfi = 3305  nni = 2061  hu =    6.52e-02
 
-t =   6.00e+00  nst = 254  nfe = 0  nfi = 3581  nni = 2217  hu =    1.29e-01
+t =   6.00e+00  nst = 247  nfe = 0  nfi = 3527  nni = 2193  hu =    1.09e-01
 
-t =   7.00e+00  nst = 269  nfe = 0  nfi = 3836  nni = 2372  hu =    9.71e-02
+t =   7.00e+00  nst = 264  nfe = 0  nfi = 3747  nni = 2313  hu =    5.01e-02
 
-t =   8.00e+00  nst = 285  nfe = 0  nfi = 4162  nni = 2578  hu =    6.19e-02
+t =   8.00e+00  nst = 283  nfe = 0  nfi = 4052  nni = 2493  hu =    5.83e-02
 
-t =   9.00e+00  nst = 304  nfe = 0  nfi = 4368  nni = 2684  hu =    4.92e-02
+t =   9.00e+00  nst = 300  nfe = 0  nfi = 4260  nni = 2606  hu =    4.65e-02
 
-t =   1.00e+01  nst = 325  nfe = 0  nfi = 4713  nni = 2889  hu =    1.22e-01
+t =   1.00e+01  nst = 314  nfe = 0  nfi = 4465  nni = 2726  hu =    6.06e-02
 
 
 
@@ -491,20 +491,20 @@ t =   1.00e+01  nst = 325  nfe = 0  nfi = 4713  nni = 2889  hu =    1.22e-01
  ARKode integer workspace length        =   55 
  ARKSPGMR real workspace length         = 2206 
  ARKSPGMR integer workspace length      =   10 
- Number of steps                       =  325 
+ Number of steps                       =  314 
  Number of f-s (explicit)              =    0 
- Number of f-s (implicit)              = 4713 
- Number of f-s (SPGMR)                 = 8770 
- Number of f-s (TOTAL)                 = 8770 
- Number of setups                      =  109 
- Number of nonlinear iterations        = 2889 
- Number of linear iterations           = 8770 
- Number of preconditioner evaluations  =  109 
- Number of preconditioner solves       = 11567 
- Number of error test failures         =   39 
+ Number of f-s (implicit)              = 4465 
+ Number of f-s (SPGMR)                 = 8499 
+ Number of f-s (TOTAL)                 = 8499 
+ Number of setups                      =   91 
+ Number of nonlinear iterations        = 2726 
+ Number of linear iterations           = 8499 
+ Number of preconditioner evaluations  =   91 
+ Number of preconditioner solves       = 11150 
+ Number of error test failures         =   33 
  Number of nonlinear conv. failures    =    0 
- Number of linear convergence failures =  742 
- Average Krylov subspace dimension     = 3.036 
+ Number of linear convergence failures =  749 
+ Average Krylov subspace dimension     = 3.118 
 
 
 ----------------------------------------------------------------------------
@@ -544,13 +544,13 @@ t =   5.00e+00  nst = 234  nfe = 0  nfi = 3272  nni = 2098  hu =    1.03e-01
 
 t =   6.00e+00  nst = 249  nfe = 0  nfi = 3483  nni = 2234  hu =    8.25e-02
 
-t =   7.00e+00  nst = 267  nfe = 0  nfi = 3743  nni = 2399  hu =    1.24e-01
+t =   7.00e+00  nst = 266  nfe = 0  nfi = 3738  nni = 2394  hu =    8.38e-02
 
-t =   8.00e+00  nst = 282  nfe = 0  nfi = 3938  nni = 2519  hu =    6.00e-02
+t =   8.00e+00  nst = 284  nfe = 0  nfi = 3969  nni = 2535  hu =    1.35e-01
 
-t =   9.00e+00  nst = 300  nfe = 0  nfi = 4178  nni = 2669  hu =    6.28e-02
+t =   9.00e+00  nst = 299  nfe = 0  nfi = 4168  nni = 2659  hu =    8.07e-02
 
-t =   1.00e+01  nst = 317  nfe = 0  nfi = 4390  nni = 2796  hu =    1.84e-02
+t =   1.00e+01  nst = 317  nfe = 0  nfi = 4394  nni = 2795  hu =    9.91e-02
 
 
 
@@ -562,18 +562,18 @@ t =   1.00e+01  nst = 317  nfe = 0  nfi = 4390  nni = 2796  hu =    1.84e-02
  ARKSPGMR integer workspace length      =   10 
  Number of steps                       =  317 
  Number of f-s (explicit)              =    0 
- Number of f-s (implicit)              = 4390 
- Number of f-s (SPGMR)                 = 9079 
- Number of f-s (TOTAL)                 = 9079 
- Number of setups                      =  196 
- Number of nonlinear iterations        = 2796 
- Number of linear iterations           = 9079 
- Number of preconditioner evaluations  =  196 
- Number of preconditioner solves       = 11555 
- Number of error test failures         =    1 
- Number of nonlinear conv. failures    =   71 
- Number of linear convergence failures =  840 
- Average Krylov subspace dimension     = 3.247 
+ Number of f-s (implicit)              = 4394 
+ Number of f-s (SPGMR)                 = 9097 
+ Number of f-s (TOTAL)                 = 9097 
+ Number of setups                      =  193 
+ Number of nonlinear iterations        = 2795 
+ Number of linear iterations           = 9097 
+ Number of preconditioner evaluations  =  193 
+ Number of preconditioner solves       = 11574 
+ Number of error test failures         =    2 
+ Number of nonlinear conv. failures    =   68 
+ Number of linear convergence failures =  849 
+ Average Krylov subspace dimension     = 3.255 
 
 
 ----------------------------------------------------------------------------
@@ -611,15 +611,15 @@ t =   4.00e+00  nst = 214  nfe = 0  nfi = 2990  nni = 1916  hu =    4.79e-02
 
 t =   5.00e+00  nst = 232  nfe = 0  nfi = 3246  nni = 2082  hu =    4.04e-02
 
-t =   6.00e+00  nst = 248  nfe = 0  nfi = 3474  nni = 2225  hu =    1.07e-01
+t =   6.00e+00  nst = 248  nfe = 0  nfi = 3473  nni = 2224  hu =    7.77e-02
 
-t =   7.00e+00  nst = 264  nfe = 0  nfi = 3692  nni = 2363  hu =    9.49e-02
+t =   7.00e+00  nst = 264  nfe = 0  nfi = 3710  nni = 2376  hu =    1.14e-01
 
-t =   8.00e+00  nst = 281  nfe = 0  nfi = 3919  nni = 2505  hu =    5.90e-02
+t =   8.00e+00  nst = 282  nfe = 0  nfi = 3949  nni = 2525  hu =    3.96e-02
 
-t =   9.00e+00  nst = 297  nfe = 0  nfi = 4119  nni = 2625  hu =    1.23e-01
+t =   9.00e+00  nst = 300  nfe = 0  nfi = 4176  nni = 2662  hu =    6.37e-02
 
-t =   1.00e+01  nst = 316  nfe = 0  nfi = 4357  nni = 2768  hu =    1.23e-01
+t =   1.00e+01  nst = 317  nfe = 0  nfi = 4390  nni = 2791  hu =    9.52e-02
 
 
 
@@ -629,20 +629,20 @@ t =   1.00e+01  nst = 316  nfe = 0  nfi = 4357  nni = 2768  hu =    1.23e-01
  ARKode integer workspace length        =   55 
  ARKSPGMR real workspace length         = 2206 
  ARKSPGMR integer workspace length      =   10 
- Number of steps                       =  316 
+ Number of steps                       =  317 
  Number of f-s (explicit)              =    0 
- Number of f-s (implicit)              = 4357 
- Number of f-s (SPGMR)                 = 9012 
- Number of f-s (TOTAL)                 = 9012 
- Number of setups                      =  188 
- Number of nonlinear iterations        = 2768 
- Number of linear iterations           = 9012 
- Number of preconditioner evaluations  =  188 
- Number of preconditioner solves       = 11475 
- Number of error test failures         =    1 
+ Number of f-s (implicit)              = 4390 
+ Number of f-s (SPGMR)                 = 9128 
+ Number of f-s (TOTAL)                 = 9128 
+ Number of setups                      =  191 
+ Number of nonlinear iterations        = 2791 
+ Number of linear iterations           = 9128 
+ Number of preconditioner evaluations  =  191 
+ Number of preconditioner solves       = 11621 
+ Number of error test failures         =    2 
  Number of nonlinear conv. failures    =   68 
- Number of linear convergence failures =  823 
- Average Krylov subspace dimension     = 3.256 
+ Number of linear convergence failures =  858 
+ Average Krylov subspace dimension     = 3.271 
 
 
 ----------------------------------------------------------------------------

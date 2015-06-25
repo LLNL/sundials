@@ -6,25 +6,25 @@ Brusselator ODE test problem:
 
         t           u           v           w
    -------------------------------------------
-    1.000000    1.103849    3.013164    3.499981
-    2.000000    0.688000    3.521382    3.499988
-    3.000000    0.409466    4.277885    3.499993
+    1.000000    1.103850    3.013162    3.499981
+    2.000000    0.688000    3.521381    3.499988
+    3.000000    0.409466    4.277885    3.499991
     4.000000    0.367886    4.942005    3.499994
     5.000000    0.413854    5.510624    3.499993
-    6.000000    0.589234    5.855678    3.499990
-    7.000000    4.756548    0.735408    3.499917
-    8.000000    1.813436    1.575781    3.499968
-    9.000000    0.527897    2.807369    3.499991
-   10.000000    0.305599    3.657382    3.499995
+    6.000000    0.589233    5.855679    3.499990
+    7.000000    4.756552    0.735408    3.499917
+    8.000000    1.813438    1.575779    3.499968
+    9.000000    0.527897    2.807368    3.499991
+   10.000000    0.305599    3.657381    3.499995
    -------------------------------------------
 
 Final Solver Statistics:
-   Internal solver steps = 282 (attempted = 296)
-   Total RHS evals:  Fe = 0,  Fi = 4679
-   Total linear solver setups = 85
+   Internal solver steps = 263 (attempted = 272)
+   Total RHS evals:  Fe = 0,  Fi = 4440
+   Total linear solver setups = 83
    Total RHS evals for setting up the linear system = 0
-   Total number of Jacobian evaluations = 35
-   Total number of Newton iterations = 3195
+   Total number of Jacobian evaluations = 43
+   Total number of Newton iterations = 3076
    Total number of linear solver convergence failures = 0
-   Total number of error test failures = 14
+   Total number of error test failures = 9
 

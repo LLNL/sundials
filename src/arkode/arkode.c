@@ -4340,14 +4340,14 @@ static int arkDoErrorTest(ARKodeMem ark_mem, int *nflagPtr,
   if (retval != ARK_SUCCESS)  return(ARK_ERR_FAILURE);
 
   /* Revert error history array */
-  ark_mem->ark_hadapt_ehist[2] = ehist2;
-  ark_mem->ark_hadapt_ehist[1] = ark_mem->ark_hadapt_ehist[2];
   ark_mem->ark_hadapt_ehist[0] = ark_mem->ark_hadapt_ehist[1];
+  ark_mem->ark_hadapt_ehist[1] = ark_mem->ark_hadapt_ehist[2];
+  ark_mem->ark_hadapt_ehist[2] = ehist2;
 
   /* Revert step history array */
-  ark_mem->ark_hadapt_hhist[2] = hhist2;
-  ark_mem->ark_hadapt_hhist[1] = ark_mem->ark_hadapt_hhist[2];
   ark_mem->ark_hadapt_hhist[0] = ark_mem->ark_hadapt_hhist[1];
+  ark_mem->ark_hadapt_hhist[1] = ark_mem->ark_hadapt_hhist[2];
+  ark_mem->ark_hadapt_hhist[2] = hhist2;
 
   /* Enforce failure bounds on eta, update h, and return for retry of step */
   if (*nefPtr >= ark_mem->ark_small_nef) 
