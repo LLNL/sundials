@@ -3634,13 +3634,12 @@ of \S\ref{s:skeleton_sol}), the user may provide a function of type
   \id{DENSE\_COL} are documented in \S\ref{ss:dense}.
 
   If the user's \id{KINDlsDenseJacFn} function uses difference quotient
-  approximations, it may need to access quantities not in the call
-  list. 
-  To obtain these, the user will need to add the \id{kin\_mem} 
-  structure to their \id{user\_data} and 
-  use the \id{KINGet*} functions described in
-  \S\ref{sss:output_main}. The unit roundoff can be accessed
-  as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+  approximations, it may need to access quantities not in the call list.
+  These might include the scale vectors and the unit roundoff.
+  To obtain the scale vectors, the user will need to add to \id{user\_data}
+  pointers to \id{u\_scale} and/or \id{f\_scale} as needed.
+  The unit roundoff can be accessed as \id{UNIT\_ROUNDOFF} defined in
+  \id{sundials\_types.h}.
 
   For the sake of uniformity, the argument \id{N} is of type \id{long int},
   even in the case that the Lapack dense solver is to be used.
@@ -3731,12 +3730,13 @@ of \S\ref{s:skeleton_sol}), the user may provide a function of type
   The \id{DlsMat} type and the accessor macros \id{BAND\_ELEM}, \id{BAND\_COL},
   and \id{BAND\_COL\_ELEM} are documented in \S\ref{ss:band}.
 
-  If the user's \id{KINDlsBandJacFn} function uses difference quotient approximations,
-  it may need to access quantities not in the call list. 
-  To obtain these, the user will need to add the \id{kin\_mem} 
-  structure to their \id{user\_data} and use the
-  \id{KINGet*} functions described in \S\ref{sss:output_main}. The unit roundoff
-  can be accessed as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+  If the user's \id{KINDlsBandJacFn} function uses difference quotient
+  approximations, it may need to access quantities not in the call list.
+  These might include the scale vectors and the unit roundoff.
+  To obtain the scale vectors, the user will need to add to \id{user\_data}
+  pointers to \id{u\_scale} and/or \id{f\_scale} as needed.
+  The unit roundoff can be accessed as \id{UNIT\_ROUNDOFF} defined in
+  \id{sundials\_types.h}.
 
   For the sake of uniformity, the arguments \id{N}, \id{mlower}, and \id{mupper} are
   of type \id{long int}, even in the case that the Lapack band solver is to be used.
@@ -3799,10 +3799,12 @@ of \S\ref{s:skeleton_sol}), the user may provide a function of type
   
   If the user's \id{KINSlsSparseJacFn} function uses difference quotient
   approximations to set the specific nonzero matrix entries, then it
-  may need to access quantities not in the argument list. To obtain
-  these, use the \id{KINGet*} functions described in
-  \S\ref{sss:output_main}. The unit roundoff can be accessed as
-  \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+  may need to access quantities not in the argument list.
+  These might include the scale vectors and the unit roundoff.
+  To obtain the scale vectors, the user will need to add to \id{user\_data}
+  pointers to \id{u\_scale} and/or \id{f\_scale} as needed.
+  The unit roundoff can be accessed as \id{UNIT\_ROUNDOFF} defined in
+  \id{sundials\_types.h}.
 }
 \index{Jacobian approximation function!sparse!user-supplied|)}
 
@@ -3858,12 +3860,18 @@ supplied, the default is a difference quotient approximation of these products.
   correct by calling the preconditioner setup function. If this
   information is current, {\kinsol} halts.  If the
   Jacobian-times-vector function encounters an unrecoverable error, it
-  should return a negative value, prompting {\kinsol} to halt.  } { If
-  a user-defined routine is not given, then an internal {\kinspgmr}
-  function, using difference quotient approximations, is used.
+  should return a negative value, prompting {\kinsol} to halt.
+}
+{ If a user-defined routine is not given, then an internal \id{jtimes}
+  function, using a difference quotient approximation, is used.
 
-  If the user-provided \id{KINSpilsJacTimesVecFn} function needs the unit roundoff,
-  this can be accessed as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+  If the user's \id{KINSpilsJacTimesVecFn} function uses difference quotient
+  approximations, it may need to access quantities not in the call list.
+  These might include the scale vectors and the unit roundoff.
+  To obtain the scale vectors, the user will need to add to \id{user\_data}
+  pointers to \id{u\_scale} and/or \id{f\_scale} as needed.
+  The unit roundoff can be accessed as \id{UNIT\_ROUNDOFF} defined in
+  \id{sundials\_types.h}.
 }
 \index{Jacobian approximation function!Jacobian times vector!user-supplied|)}
 
@@ -3994,13 +4002,13 @@ typedef int (*KINSpilsPrecSetupFn)(&N\_Vector u, N\_Vector uscale, \\
   called only as often as necessary to achieve convergence of the
   Newton iteration.
  
-  If the user's \id{KINSpilsPrecSetupFn} function uses difference quotient approximations,
-  it may need to access quantities not in the call list.
-  To obtain these, the user will need to add the \id{kin\_mem} 
-  structure to their \id{user\_data} and use the
-  \id{KINGet*} functions described in \S\ref{sss:output_main}. The unit roundoff
-  can be accessed as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
-
+  If the user's \id{KINSpilsPrecSetupFn} function uses difference quotient
+  approximations, it may need to access quantities not in the call list.
+  These might include the scale vectors and the unit roundoff.
+  To obtain the scale vectors, the user will need to add to \id{user\_data}
+  pointers to \id{u\_scale} and/or \id{f\_scale} as needed.
+  The unit roundoff can be accessed as \id{UNIT\_ROUNDOFF} defined in
+  \id{sundials\_types.h}.
 
   If the preconditioner solve routine requires no preparation, then a
   preconditioner setup function need not be given.

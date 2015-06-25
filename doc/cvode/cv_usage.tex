@@ -4648,9 +4648,8 @@ the user may provide a function of type \Id{CVDlsDenseJacFn} defined by:
   If the user's \id{CVDenseJacFn} function uses difference quotient
   approximations, then it may need to access quantities not in the argument
   list. These include the current step size, the error weights, etc.
-  To obtain these, the user will need to add the \id{cv\_mem} 
-  structure to their \id{user\_data} and use the \id{CVodeGet*} 
-  functions described in
+  To obtain these, the user will need to add a pointer to \id{cv\_mem} 
+  to \id{user\_data} and then use the \id{CVodeGet*} functions described in
   \S\ref{sss:optout_main}. The unit roundoff can be accessed
   as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 
@@ -4752,14 +4751,15 @@ the user may provide a function of type \Id{CVDlsBandJacFn} defined as follows:
   The \id{DlsMat} type and the accessor macros \id{BAND\_ELEM}, \id{BAND\_COL} and
   \id{BAND\_COL\_ELEM} are documented in \S\ref{ss:band}.
 
-  If the user's \id{CVBandJacFn} function uses difference quotient approximations, then
-  it may need to access quantities not in the argument list. These include the current
-  step size, the error weights, etc. 
-  To obtain these, the user will need to add the \id{cv\_mem} 
-  structure to their \id{user\_data} and use the \id{CVodeGet*} 
-  functions described in
-  \S\ref{sss:optout_main}. The unit roundoff can be
-  accessed as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+
+  If the user's \id{CVBandJacFn} function uses difference quotient
+  approximations, then it may need to access quantities not in the
+  argument list. These include the current step size, the error
+  weights, etc.
+  To obtain these, the user will need to add a pointer to \id{cv\_mem} 
+  to \id{user\_data} and then use the \id{CVodeGet*} functions described in
+  \S\ref{sss:optout_main}. The unit roundoff can be accessed as
+  \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 
   For the sake of uniformity, the arguments \id{N}, \id{mlower}, and \id{mupper} are
   of type \id{long int}, even in the case that the Lapack band solver is to be used.
@@ -4836,10 +4836,9 @@ function of type \Id{CVSlsSparseJacFn} defined by:
   If the user's \id{CVSlsSparseJacFn} function uses difference quotient
   approximations to set the specific nonzero matrix entries, then it
   may need to access quantities not in the argument list. These
-  include the current step size, the error weights, etc.  
-  To obtain these, the user will need to add the \id{cv\_mem} 
-  structure to their \id{user\_data} and use the \id{CVodeGet*} 
-  functions described in
+  include the current step size, the error weights, etc.
+  To obtain these, the user will need to add a pointer to \id{cv\_mem} 
+  to \id{user\_data} and then use the \id{CVodeGet*} functions described in
   \S\ref{sss:optout_main}. The unit roundoff can be accessed as
   \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}. 
 }
@@ -4896,11 +4895,10 @@ the default is a difference quotient approximation to these products.
   If the user's \id{CVSpilsJacTimesVecFn} function uses difference quotient
   approximations, it may need to access quantities not in the argument
   list. These include the current step size, the error weights, etc.
-  To obtain these, the user will need to add the \id{cv\_mem} 
-  structure to their \id{user\_data} and use the \id{CVodeGet*} 
-  functions described in
-  \S\ref{sss:optout_main}. The unit roundoff can be accessed
-  as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+  To obtain these, the user will need to add a pointer to \id{cv\_mem} 
+  to \id{user\_data} and then use the \id{CVodeGet*} functions described in
+  \S\ref{sss:optout_main}. The unit roundoff can be accessed as
+  \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 }
 \index{Jacobian approximation function!Jacobian-vector product!user-supplied|)}
 
@@ -5058,11 +5056,10 @@ user-supplied {\C} function of type \Id{CVSpilsPrecSetupFn}, defined as follows:
   If the user's \id{CVSpilsPrecSetupFn} function uses difference quotient
   approximations, it may need to access quantities not in the call
   list. These include the current step size, the error weights, etc.
-  To obtain these, the user will need to add the \id{cv\_mem} 
-  structure to their \id{user\_data} and use the \id{CVodeGet*} 
-  functions described in
-  \S\ref{sss:optout_main}. The unit roundoff can be accessed
-  as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+  To obtain these, the user will need to add a pointer to \id{cv\_mem} 
+  to \id{user\_data} and then use the \id{CVodeGet*} functions described in
+  \S\ref{sss:optout_main}. The unit roundoff can be accessed as
+  \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 }
 
 

@@ -4830,14 +4830,13 @@ provide a function of type \ID{IDADlsDenseJacFn} defined by
   The \id{DlsMat} type and the accessor macros \id{DENSE\_ELEM} and 
   \id{DENSE\_COL} are documented in \S\ref{s:dls}.
 
-  If the user's \id{IDADlsDenseJacFn} function uses difference quotient approximations,
-  it may need to access quantities not in the call list. These include the current
-  stepsize, the error weights, etc. 
-  To obtain these, the user will need to add the \id{ida\_mem} 
-  structure to their \id{user\_data} and use the \id{IDAGet*} 
-  functions described in
-  \S\ref{sss:optout_main}. The unit roundoff can be accessed
-  as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+  If the user's \id{IDADlsDenseJacFn} function uses difference
+  quotient approximations, it may need to access quantities not in the
+  call list. These include the current stepsize, the error weights, etc.
+  To obtain these, the user will need to add a pointer to \id{ida\_mem} 
+  to \id{user\_data} and then use the \id{IDAGet*} functions described in
+  \S\ref{sss:optout_main}. The unit roundoff can be accessed as
+  \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 
   For the sake of uniformity, the argument \id{Neq} is of type \id{long int},
   even in the case that the Lapack dense solver is to be used.
@@ -4943,14 +4942,13 @@ function of type \ID{IDADlsBandJacFn} defined as follows:
   The \id{DlsMat} type and the accessor macros \id{BAND\_ELEM}, \id{BAND\_COL}, and
   \id{BAND\_COL\_ELEM} are documented in \S\ref{s:dls}.
 
-  If the user's \id{IDADlsBandJacFn} function uses difference quotient approximations,
-  it may need to access quantities not in the call list. These include the current
-  stepsize, the error weights, etc. 
-  To obtain these, the user will need to add the \id{ida\_mem} 
-  structure to their \id{user\_data} and use the \id{IDAGet*} 
-  functions described in
-  \S\ref{sss:optout_main}. The unit roundoff can be accessed
-  as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+  If the user's \id{IDADlsBandJacFn} function uses difference quotient
+  approximations, it may need to access quantities not in the call
+  list. These include the current stepsize, the error weights, etc.
+  To obtain these, the user will need to add a pointer to \id{ida\_mem} 
+  to \id{user\_data} and then use the \id{IDAGet*} functions described in
+  \S\ref{sss:optout_main}. The unit roundoff can be accessed as
+  \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 
   For the sake of uniformity, the arguments \id{Neq}, \id{mlower}, and \id{mupper} are
   of type \id{long int}, even in the case that the Lapack band solver is to be used.
@@ -5030,12 +5028,11 @@ function of type \ID{IDASlsSparseJacFn} defined as follows:
   If the user's \id{IDASlsSparseJacFn} function uses difference quotient
   approximations to set the specific nonzero matrix entries, then it
   may need to access quantities not in the argument list. These
-  include the current step size, the error weights, etc.  
-  To obtain these, the user will need to add the \id{ida\_mem} 
-  structure to their \id{user\_data} and use the \id{IDAGet*} 
-  functions described in
+  include the current step size, the error weights, etc.
+  To obtain these, the user will need to add a pointer to \id{ida\_mem} 
+  to \id{user\_data} and then use the \id{IDAGet*} functions described in
   \S\ref{sss:optout_main}. The unit roundoff can be accessed as
-  \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}. 
+  \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 }
 \index{Jacobian approximation function!sparse!user-supplied|)}
 %%
@@ -5093,18 +5090,16 @@ the default is a difference quotient approximation to these products.
 {
   The value to be returned by the Jacobian-times-vector function should be 0 if
   successful.  A nonzero value indicates that a nonrecoverable error occurred. 
-
+}
+{
   If the user's \id{IDASpilsJacTimesVecFn} function uses difference quotient
   approximations, it may need to access quantities not in the call
   list. These include the current stepsize, the error weights, etc.
-  To obtain these, the user will need to add the \id{ida\_mem} 
-  structure to their \id{user\_data} and use the \id{IDAGet*} 
-  functions described in
-  \S\ref{sss:optout_main}. The unit roundoff can be accessed
-  as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
-
+  To obtain these, the user will need to add a pointer to \id{ida\_mem} 
+  to \id{user\_data} and then use the \id{IDAGet*} functions described in
+  \S\ref{sss:optout_main}. The unit roundoff can be accessed as
+  \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 }
-{}
 \index{Jacobian approximation function!Jacobian times vector!user-supplied|)}
 %%
 %%--------------
@@ -5244,12 +5239,10 @@ user-supplied {\C} function of type \ID{IDASpilsPrecSetupFn}, defined as follows
   If the user's \id{IDASpilsPrecSetupFn} function uses difference quotient
   approximations, it may need to access quantities not in the call
   list. These include the current stepsize, the error weights, etc.
-  To obtain these, the user will need to add the \id{ida\_mem} 
-  structure to their \id{user\_data} and use the \id{IDAGet*} 
-  functions described in
-  \S\ref{sss:optout_main}. The unit roundoff can be accessed
-  as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
-
+  To obtain these, the user will need to add a pointer to \id{ida\_mem} 
+  to \id{user\_data} and then use the \id{IDAGet*} functions described in
+  \S\ref{sss:optout_main}. The unit roundoff can be accessed as
+  \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 }
 
 
