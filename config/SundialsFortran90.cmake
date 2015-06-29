@@ -27,7 +27,7 @@ if(CMAKE_Fortran_COMPILER)
   # Create a CMakeLists.txt file which will generate the "f90lib" library
   # and an executable "f90test"
   file(WRITE ${FortranTest_DIR}/CMakeLists.txt
-    "CMAKE_MINIMUM_REQUIRED(VERSION 2.2)\n"
+    "CMAKE_MINIMUM_REQUIRED(VERSION 2.4)\n"
     "PROJECT(f90test Fortran)\n"
     "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
     "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"

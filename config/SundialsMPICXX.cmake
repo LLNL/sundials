@@ -67,7 +67,7 @@ if(MPICXX_PERFORM_TEST)
   # Create a CMakeLists.txt file which will generate the "mpicxxtest" executable
   if(MPI_MPICXX)
     file(WRITE ${MPITest_DIR}/CMakeLists.txt
-      "CMAKE_MINIMUM_REQUIRED(VERSION 2.2)\n"
+      "CMAKE_MINIMUM_REQUIRED(VERSION 2.4)\n"
       "PROJECT(mpicxxtest CXX)\n"
       "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
       "SET(CMAKE_CXX_COMPILER ${MPI_MPICXX})\n"
@@ -80,7 +80,7 @@ if(MPICXX_PERFORM_TEST)
       "ADD_EXECUTABLE(mpicxxtest mpicxxtest.cpp)\n")
   else(MPI_MPICXX)
     file(WRITE ${MPITest_DIR}/CMakeLists.txt
-      "CMAKE_MINIMUM_REQUIRED(VERSION 2.2)\n"
+      "CMAKE_MINIMUM_REQUIRED(VERSION 2.4)\n"
       "PROJECT(mpicxxtest CXX)\n"
       "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
       "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"

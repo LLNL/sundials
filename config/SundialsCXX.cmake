@@ -27,7 +27,7 @@ if(CMAKE_CXX_COMPILER)
   file(MAKE_DIRECTORY ${CXXTest_DIR})
   # Create a CMakeLists.txt file which will generate the executable "cxxtest"
   file(WRITE ${CXXTest_DIR}/CMakeLists.txt
-    "CMAKE_MINIMUM_REQUIRED(VERSION 2.2)\n"
+    "CMAKE_MINIMUM_REQUIRED(VERSION 2.4)\n"
     "PROJECT(cxxtest CXX)\n"
     "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
     "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"

@@ -12,9 +12,12 @@
 # Find KLU library.
 # 
 
-IF(MSVC)
-  SET(PRE lib)
-ENDIF(MSVC)
+set(PRE "lib")
+IF(WIN32)
+  set(POST "d.lib" ".lib" ".dll")
+else(WIN32)
+  set(POST ".a" ".so")
+endif(WIN32)
 
 if (KLU_LIBRARY)
     get_filename_component(KLU_LIBRARY_DIR ${KLU_LIBRARY} PATH)
@@ -27,7 +30,7 @@ else (KLU_LIBRARY)
     set(temp_KLU_LIBRARY_DIR ${KLU_LIBRARY_DIR})
     unset(KLU_LIBRARY_DIR CACHE)  
     find_path(KLU_LIBRARY_DIR
-        NAMES lib${KLU_LIBRARY_NAME}.so lib${KLU_LIBRARY_NAME}.a
+        NAMES ${PRE}${KLU_LIBRARY_NAME}${POST}
         PATHS ${temp_KLU_LIBRARY_DIR}
         )
 
@@ -46,7 +49,7 @@ else (AMD_LIBRARY)
     set(temp_AMD_LIBRARY_DIR ${KLU_LIBRARY_DIR})
     unset(AMD_LIBRARY_DIR CACHE)  
     find_path(AMD_LIBRARY_DIR
-        NAMES lib${AMD_LIBRARY_NAME}.so lib${AMD_LIBRARY_NAME}.a
+        NAMES ${PRE}${AMD_LIBRARY_NAME}${POST}
         PATHS ${temp_AMD_LIBRARY_DIR}
         )
     
@@ -65,7 +68,7 @@ else (COLAMD_LIBRARY)
     set(temp_COLAMD_LIBRARY_DIR ${KLU_LIBRARY_DIR})
     unset(COLAMD_LIBRARY_DIR CACHE)  
     find_path(COLAMD_LIBRARY_DIR
-        NAMES lib${COLAMD_LIBRARY_NAME}.so lib${COLAMD_LIBRARY_NAME}.a
+        NAMES ${PRE}${COLAMD_LIBRARY_NAME}${POST}
         PATHS ${temp_COLAMD_LIBRARY_DIR}
         )
     
@@ -84,7 +87,7 @@ else (BTF_LIBRARY)
     set(temp_BTF_LIBRARY_DIR ${KLU_LIBRARY_DIR})
     unset(BTF_LIBRARY_DIR CACHE)  
     find_path(BTF_LIBRARY_DIR
-        NAMES lib${BTF_LIBRARY_NAME}.so lib${BTF_LIBRARY_NAME}.a
+        NAMES ${PRE}${BTF_LIBRARY_NAME}${POST}
         PATHS ${temp_BTF_LIBRARY_DIR}
         )
     
@@ -95,4 +98,30 @@ else (BTF_LIBRARY)
 
 endif (BTF_LIBRARY)
 
-set(KLU_LIBRARIES ${KLU_LIBRARY} ${AMD_LIBRARY} ${COLAMD_LIBRARY} ${BTF_LIBRARY})
+if (SUITESPARSECONFIG_LIBRARY)
+    get_filename_component(SUITESPARSECONFIG_LIBRARY_DIR ${SUITESPARSECONFIG_LIBRARY} PATH)
+else (SUITESPARSECONFIG_LIBRARY)
+    set(SUITESPARSECONFIG_LIBRARY_NAME suitesparseconfig)
+    
+    # find library path using potential names for static and/or shared libs
+    set(temp_SUITESPARSECONFIG_LIBRARY_DIR ${KLU_LIBRARY_DIR})
+    unset(SUITESPARSECONFIG_LIBRARY_DIR CACHE)  
+    find_path(SUITESPARSECONFIG_LIBRARY_DIR
+        NAMES ${PRE}${SUITESPARSECONFIG_LIBRARY_NAME}${POST} ${SUITESPARSECONFIG_LIBRARY_NAME}${POST}
+        PATHS ${temp_SUITESPARSECONFIG_LIBRARY_DIR}
+        )
+    # NOTE: no PRE for this one on windows
+    if (WIN32)
+        FIND_LIBRARY( SUITESPARSECONFIG_LIBRARY suitesparseconfig${POST} ${SUITESPARSECONFIG_LIBRARY_DIR} NO_DEFAULT_PATH)
+    else (WIN32)
+        FIND_LIBRARY( SUITESPARSECONFIG_LIBRARY ${PRE}suitesparseconfig${POST} ${SUITESPARSECONFIG_LIBRARY_DIR} NO_DEFAULT_PATH)
+    endif(WIN32)
+
+    mark_as_advanced(SUITESPARSECONFIG_LIBRARY)
+    mark_as_advanced(SUITESPARSECONFIG_LIBRARY_DIR)
+
+endif (SUITESPARSECONFIG_LIBRARY)
+
+
+
+set(KLU_LIBRARIES ${KLU_LIBRARY} ${AMD_LIBRARY} ${COLAMD_LIBRARY} ${BTF_LIBRARY} ${SUITESPARSECONFIG_LIBRARY})

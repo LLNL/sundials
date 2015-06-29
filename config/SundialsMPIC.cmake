@@ -79,7 +79,7 @@ if(MPIC_PERFORM_TEST)
   # Create a CMakeLists.txt file which will generate the "mpictest" executable
   if(MPI_MPICC)
     file(WRITE ${MPITest_DIR}/CMakeLists.txt
-      "CMAKE_MINIMUM_REQUIRED(VERSION 2.2)\n"
+      "CMAKE_MINIMUM_REQUIRED(VERSION 2.4)\n"
       "PROJECT(mpictest C)\n"
       "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
       "SET(CMAKE_C_COMPILER ${MPI_MPICC})\n"
@@ -92,7 +92,7 @@ if(MPIC_PERFORM_TEST)
       "ADD_EXECUTABLE(mpictest mpictest.c)\n")
   else(MPI_MPICC)
     file(WRITE ${MPITest_DIR}/CMakeLists.txt
-      "CMAKE_MINIMUM_REQUIRED(VERSION 2.2)\n"
+      "CMAKE_MINIMUM_REQUIRED(VERSION 2.4)\n"
       "PROJECT(mpictest C)\n"
       "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
       "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"
@@ -135,7 +135,7 @@ if(MPIC_FOUND)
   # Create a CMakeLists.txt file which will generate the "mpi2test" executable
   if(MPI_MPICC)
     file(WRITE ${MPITest_DIR}/CMakeLists.txt
-      "CMAKE_MINIMUM_REQUIRED(VERSION 2.2)\n"
+      "CMAKE_MINIMUM_REQUIRED(VERSION 2.4)\n"
       "PROJECT(mpi2test C)\n"
       "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
       "SET(CMAKE_C_COMPILER ${MPI_MPICC})\n"
@@ -148,7 +148,7 @@ if(MPIC_FOUND)
       "ADD_EXECUTABLE(mpi2test mpi2test.c)\n")
   else(MPI_MPICC)
     file(WRITE ${MPITest_DIR}/CMakeLists.txt
-      "CMAKE_MINIMUM_REQUIRED(VERSION 2.2)\n"
+      "CMAKE_MINIMUM_REQUIRED(VERSION 2.4)\n"
       "PROJECT(mpi2test C)\n"
       "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
       "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"
