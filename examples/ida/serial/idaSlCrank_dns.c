@@ -145,6 +145,7 @@ int main(void)
   IDAFree(&mem);
   N_VDestroy_Serial(yy);
   N_VDestroy_Serial(yp);
+  N_VDestroy_Serial(id);
 
   return(0);
   
