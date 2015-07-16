@@ -1,11 +1,11 @@
 Changes to SUNDIALS since Release of March 30, 2015.
 
-* Minor corections and additions to all User Guides.
+* Minor corrections and additions to all User Guides.
 
 * In CVODES and IDAS header files, corrected documentation of backward
 integration  functions, esp. the 'which' argument.
 
-* In IDAS, added missing backard problem support functions: IDALapackDenseB,
+* In IDAS, added missing backward problem support functions: IDALapackDenseB,
 IDALapackDenseFreeB, IDALapackBandB, IDALapackBandFreeB.
 
 * In KINSOL and ARKODE, updated Anderson acceleration implementation with QR updating.
