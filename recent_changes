@@ -1,203 +1,33 @@
-Modifications to SUNDIALS after 22 March 2012 Release - as of 3 Feb.. 2015
+Changes to SUNDIALS since Release of March 30, 2015.
 
-Note: Some of these modifications are actually accessible by the
-public by way of updates to the website after 3/22/12.
+* Minor corections and additions to all User Guides.
 
+* In CVODES and IDAS header files, corrected documentation of backward
+integration  functions, esp. the 'which' argument.
 
-1. In top level README file, changed release date from January to March 2012.
+* In IDAS, added missing backard problem support functions: IDALapackDenseB,
+IDALapackDenseFreeB, IDALapackBandB, IDALapackBandFreeB.
 
-2. In top level file Makefile.in, changed top_builddir = @top_builddir@
-   to top_builddir = @builddir@ to correct installation failures.
+* In KINSOL and ARKODE, updated Anderson acceleration implementation with QR updating.
 
-3. Updated top-level file configure.ac with new version number.
+* In CVODES, added CVKLUB prototype and corrected CVSuperLUMTB prototype.
 
-4.(a) Added file /sundialsTB/doc/html_files/stb_template/graph.tpl
-      from Radu's template directory.
-  (b) Added directory /sundialsTB/doc/tex_files/stb_template, and added to it
-      files graph.tpl, m2tex.tex, master.tpl, mdir.tpl, mfile.tpl, todo.tpl
-      (from Radu's directory), for use in making sundialsTB.ps.
-  (c) Added file /sundialsTB/doc/README_texdoc, with instructions on using m2html
-      and supplied templates to generate sundialsTB.ps.
-  (d) Added file /doc/texi2dvi, as it no longer seems to be in the casc
-      LaTex install.
+* In IDAS, made SuperLUMT call for backward problem consistent with CVODES.
 
-5. In each file /doc/<solver>/Makefile, commented out lines generating
-   html files, and cp of .ps files to html/.
+* In CVODES and IDAS, added ReInit and SetOrdering  wrappers for backward problems.
 
-6. Files /html/main.html, /html/documentation/documentation.html,
-   /html/download/download.html, /html/support/support.html modified
-   by Laura Schulz for 3/22/12 release.
+* Fixed potential memory leak in KLU ReInit functions in all solvers.
 
-7. File /html/download/whatsnew.html modified by ACH for 3/22/12 release.
+* In CVODE, IDA, and ARKODE, fixed Fortran interfaces to enable calls to
+*GetErrWeights, *GetEstLocalErrors, and *GetDky.within a time step.
 
-8. In file /html/support/notes.html, changed 3 example names, removed
-   links to html sources, corrected related text.
+* In ARKODE, fixed a bug in one Butcher table.
 
-9. In files cvode.c, cvodes.c, ida.c, idas.c, corrected minor bug in
-   **Rootfind, where input rootdir was ignored. (From bug report by T. Bourke.)
+* Updated BiCGStab solver to remove redundant dot product call.
 
-10.(a) In files /src/cvode/fcmix/{fcvbp.h, fcvbbd.h} removed/corrected
-       lines mentioning obsolete names FCVBPSP*** and FCVBBDSP**.
-   (b) In file /src/ida/fcmix/fidabbd.h, femoved comment lines mentioning
-       obsolete names FIDABBDSP***.
-   (c) In file /doc/ida/ida_fcmix.tex, removed/corrected lines
-       mentioning obsolete names FIDABBDSP***.
+* In ARKODE, fixed error in arkDoErrorTest in recovery after failure.
 
-11. In file cvodes.c, corrected line in CVodeQuadSensInit:
-    cv_mem->cv_fQS_data = ... (missing Q).
+* Various minor fixes to installation-related files.
 
-12. In CVODES example cvsHessian_ASA_FSA.c, and output cvsHessian_ASA_FSA.out,
-    corrected error (y3 -> y2) in fB2, 3rd term of Ith(yBdot,6).  (From bug
-    report by N. Singer.)
-
-13. In KINSOL file kinsol_direct.c, function kinDlsBandDQJac, change
-    ABS(uscale_data[j])  to   ONE/ABS(uscale_data[j]) in 2 places setting inc.
-
-14. In doc file install.tex, (a) swapped A.1 (autotools) and A.2 (CMake);
-    (b) corrected warning about single prec. use: 32-bit systems.
-
-15. In 5 files ***_lapack.c, changed smu = MIN(N-1,mu+ml) to smu = mu+ml
-    to correct illegal input error for DGBTRF/DGBTRS.
-
-16. In KINSOL, function KINStop, corrected two return values to make
-    u = uu and F = fval values consistent.
-
-17. In CVODES and IDAS User Guides, Section 6.2.1,added paragraphs on
-    CVodeAdjReInit and IDAAdjReInit, respectively.
-
-18. (a) In CVODES and IDAS User Guides, Section 6.2.9,added paragraphs on
-    CVodeGetAdjY and IDAGetAdjY resp.
-    (b) In CVODES example cvsRoberts_ASAi_dns, revised output to include
-    use of CVodeGetAdjY. In CVODES Examples document, revised Sec. 3.1 to
-    describe new output.
-
-19. In CVODES, added an option in the ASA case with dense or banded Jacobian:
-    With a call to CVDlsSetDenseJacFnBS or CVDlsSetBandJacFnBS, the user
-    can specify a user-supplied Jacobian function of type CVDls***JacFnBS,
-    for the case where the backward problem depends on the forward
-    sensitivities.
-
-20. In each doc/***, fixed bug in Makefile: in each shared-file list, moved
-    commented lines to bottom of list.  (Fixes item 5 above.)
-
-21. Added option in IDAS corresponding to CVODES addition above:
-    In IDAS, added an option in the ASA case with dense or banded Jacobian:
-    With a call to IDADlsSetDenseJacFnBS or IDADlsSetBandJacFnBS, the user
-    can specify a user-supplied Jacobian function of type IDADls***JacFnBS,
-    for the case where the backward problem depends on the forward
-    sensitivities.
-
-22. After discussion with Dan R., changed optional input routines in FKINSOL,
-    FCVODE, and FIDA:  Removed 4th argument (key_length) from **SET*IN functions,
-    and hardcoded key string lengths into all strncmp tests.  Corrected bug
-    (missing line *ier = 0) in FKINSET_VIN.
-
-23. In CVODE/CVODES/IDA/IDAS function **Rootfind, added line to break out
-    of root-search loop if initial interval size is below tolerance ttol.
-    In KINSOL User Guide, added missing description of FKINSETVIN.
-
-24. In CVODE/CVODES/IDA/IDAS main source file, made cosmetic changes in
-    rootfinder functions to minimize differences across the solver suite.
-
-25. In CVODE/IDA/IDAS main source file, made fix to **ProcessError function
-    as given by Radu 1/31/13: vsprintf call moved to top, msg arg. in fprintf.
-    Cosmetic changes and typo fixes made to these and CVODES file cvodes.c.
-
-26. In response to a complaint from Joel Andersson (12/4/12), changed misleading
-    names yB0, ypB0, etc. in IDAS User Guide for IDACalcICB & IDACalcICBS.
-    Also fixed incorrect or poorly worded argument descriptions for y, yp, etc.
-    throughout IDAS and CVODES User Guides (ASA chapter).
-
-27. On seeing that many CVODE and CVODES private functions that should be
-    identical are not, made changes to correct this: Changed 48 CVODE private
-    function names from CV** to cv**.  Made numerous minor cosmetic changes
-    in cvode.c  and cvodes.c to make private functions match as much as
-    possible.  Fixed minor comment errors in cvode.c, cvodes.c, cvodes_impl.h.
-    In cvodes.c, corrected the name passed to cvProcessError by cvInitialSetup
-    (was CVode).
-
-28. Fixed minor errors (all in comments) reported by S. Ledru 3/18/13, in
-    cvDiurnal_kry_p.c, cvsDiurnal_kry_p.c, cvode_bandpre.h, cvode_bbdpre.h,
-    cvode.c, cvodes_bandpre.h, cvodes_bbdpre.h, ida.h, ida_bbdpre.h, ida_direct.h,
-    ida.c, idas_direct.h.
-
-29. In FKINSOL module, fixed return value (= ier) in FKINfunc (file fkinsol.c),
-    and fixed corresponding description of FKFUN in fkinsol.h.  Also changed
-    void to int in "typedef void (*KINSysFn)..." in User Guide (file kin_use.tex).
-    In examples fkinDiagon_kry.f and fkinDiagon_kry_p.,f, changed format specs i2
-    to i4 in writes of error return values.
-
-30. Fixed bug in KINSOL involving initialization of mxnewtstep.  On repeated
-    user calls to KINSol with no call to KINSetMaxNewtonStep, the old value of
-    mxnewtstep was being incorrectly used.  In the fix, a new solver memory
-    member, mxnstepin, is the input (or preset to 0) value of mxnewtstep.
-    KINSetMaxNewtonStep sets mxnstepin (if non-negative).  KINSolInit sets
-    mxnewtstep to either the default or user's input according to mxnstepin.
-
-31. In all FCVODE, FIDA, FKINSOL examples, revised integer declarations so that
-    those which must match a C type (long int or int) have INTEGER*4 and a
-    comment about the type match.  All others are just INTEGER.  In the
-    corresponding user guides, added (or corrected) notes about the type
-    of N and Nlocal, and of arguments to FCVBPOPT and *BBDOPT.
-
-32. Added ARKODE solver to SUNDIALS, including additional PCG and FGMRES 
-    Krylov solvers and CMAKE-based build system support for C++ and Fortran90
-    example programs.  Also added a new parallel N_Vector kernel, corresponding 
-    to a multi-dimensional Cartesian grid with an arbitrary number of ghost zones
-    defined at each Cartesian face.
-
-33. Updated all copyright notices to reflect LLNS instead of UC and added
-    ausipices.
-
-34. Updated LICENSE files with LLNS information.
-
-35. Removed all C++-style "//" comments to enforce ANSI C standards.
-
-36. Added KLU as a serial sparse-direct solver option to IDAS and KINSOL.
-
-37. Added SuperLU_MT (the multi-threaded version of SuperLU) as a thread-
-    parallel sparse direct solver option to IDAS.
-
-38. Added fixed point and Picard iteratinos both with Anderson acceleration
-    to KINSOL.
-
-39. Added sparse matrix (CSC format) structure to IDAS and KINSOL.
-
-40. Added openMP and pThreads vector kernels.
-
-41. Added test code for vector kernel routines.
-
-42. Corrected error in cvDiurnal_kry_bp.c with added CVBandPrecInit call.
-
-43. Corrected typo in prototype for CVSpilsSetEpsLinB
-
-44. Fixed bug in CVODES: initialization of nefQS to 0.
-
-45. Removed argument m (= n) from CVSuperLUMT(), CVSuperLUMTB(), IDASuperLUMT(),
-    IDASuperLUMTB(), KINSuperLUMT(), in solvers and examples.
-
-46. Corrected name IDASetAdjNoSensi --> IDAAdjSetNoSensi.
-
-47. In IDA/IDAS, fixed test for valid N_Vector module in InitialSetup with
-    suppressalg on.
-
-48. Added missing tstop argument in *SetStopTime (4 solvers).
-
-49. Corrected legality test of tstop on first call (4 solvers).
-
-50. Corrected error in cvsAtmDisp_ASAi_kry_bbd_p.c (#define L).
-
-51. Corrected bug in IDASpilsSetJacTimesVecFnB() in idas_spils.c (memory arg.).
-
-52. Added options in CVODES for the user's pset, psolve, jtv functions for
-    the backward problem to depend on the forward sensitivities.
-
-53. Added options in IDAS for the user's pset, psolve, jtv functions for
-    the backward problem to depend on the forward sensitivities.
-
-54. Changed macro names MIN, MAX, ABS, SQR, SQRT, EXP to SUNMIN, etc.
-
-55. In CVODE/CVODES, fixed bug by adding line to set *tret on first call.
-
-56. Added new example, cvAdvDiff_diag_p.
+* In IDAS, fixed for-loop bugs in IDAAckpntAllocVectors.
 
