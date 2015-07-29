@@ -1,5 +1,5 @@
                                IDAS
-                    Release 1.2.1, March 30, 2015
+                    Release 1.2.2, August 3, 2015
                            Radu Serban 
               Center for Applied Scientific Computing, LLNL
 
@@ -57,11 +57,11 @@ chapter in the IDAS User Guide.
 C. References
 -------------
 
-[1] R. Serban, C. Petra,and A. C. Hindmarsh,  "User Documentation for IDAS v1.2.1," 
-    LLNL technical report UCRL-SM-234051, March 2015.
+[1] R. Serban, C. Petra,and A. C. Hindmarsh,  "User Documentation for IDAS v1.2.2," 
+    LLNL technical report UCRL-SM-234051, August 2015.
 
-[2] R. Serban and A.C. Hindmarsh, "Example Programs for IDAS v1.2.1," 
-    LLNL technical report LLNL-TR-437091, March 2015.
+[2] R. Serban and A.C. Hindmarsh, "Example Programs for IDAS v1.2.2," 
+    LLNL technical report LLNL-TR-437091, August 2015.
 
 [3] A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, 
     D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and 
@@ -72,6 +72,7 @@ C. References
 D. Releases
 -----------
 
+v. 1.2.2   - Mar. 2015
 v. 1.2.1   - Mar. 2015
 v. 1.2.0   - Mar. 2015
 v. 1.1.0   - Mar. 2012
@@ -81,9 +82,19 @@ v. 1.0.0   - May  2009
 E. Revision History
 -------------------
 
+v. 1.2.1 (Mar. 2015) ---> v. 1.2.2 (Aug. 2015)
+---------------------------------------------
+- Bug fixes
+  - Made SuperLUMT call for backward problem consistent with CVODES.
+  - Added ReInit and SetOrdering wrappers for backward problems.
+  - Fixed for-loop bugs in IDAAckpntAllocVectors.
+
+-New Features
+  - Added missing backward problem support functions:
+    IDALapackDenseB, IDALapackDenseFreeB, IDALapackBandB, IDALapackBandFreeB
+
 v. 1.2.0 (Mar. 2015) ---> v. 1.2.1 (Mar. 2015)
 ---------------------------------------------
-
 - Bug fixes
   - Fixed loop limit bug in SlsAddMat function.
   - In interfaces to KLU and SuperLUMT, added #include lines, 
@@ -93,7 +104,6 @@ v. 1.2.0 (Mar. 2015) ---> v. 1.2.1 (Mar. 2015)
 
 v. 1.1.0 (Mar. 2012) ---> v. 1.2.0 (Mar. 2015)
 ---------------------------------------------
-
 - New features
    - Two major additions were made to the linear system solvers that are
      availble for use with the IDAS solver.  In the serial case, an
@@ -138,7 +148,6 @@ v. 1.1.0 (Mar. 2012) ---> v. 1.2.0 (Mar. 2015)
 
 v. 1.0.0 (May 2009) ---> v. 1.1.0 (Mar. 2012)
 ---------------------------------------------
-
 - Bug fixes
    - errors in the logic for the integration of backward problems were
      identified and fixed.

@@ -1,5 +1,5 @@
                              KINSOL
-                   Release 2.8.1, arch 30, 2015
+                   Release 2.8.2, August 3, 2015
      Aaron Collier, Alan C. Hindmarsh, Radu Serban, and Carol S. Woodward
              Center for Applied Scientific Computing, LLNL
 
@@ -62,11 +62,11 @@ C. References
 -------------
 
 [1] A. M. Collier, A. C. Hindmarsh, R. Serban, and C. S. Woodward,
-    "User Documentation for KINSOL v2.8.1," LLNL technical report
-    UCRL-SM-208116, March 2015.
+    "User Documentation for KINSOL v2.8.2," LLNL technical report
+    UCRL-SM-208116, August 2015.
 
-[2] A. M. Collier and R. Serban, "Example Programs for KINSOL v2.8.1,"
-    LLNL technical report UCRL-SM-208114, March 2015.
+[2] A. M. Collier and R. Serban, "Example Programs for KINSOL v2.8.2,"
+    LLNL technical report UCRL-SM-208114, August 2015.
 
 [3] A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, 
     D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and 
@@ -85,6 +85,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.8.2   - Aug. 2015
 v. 2.8.1   - Mar. 2015
 v. 2.8.0   - Mar. 2015
 v. 2.7.0   - Mar. 2012
@@ -102,9 +103,13 @@ v. 1.0     - Aug. 1998 (date written)
 E. Revision History
 -------------------
 
+v. 2.8.1 (Mar. 2015) ---> v. 2.8.2 (Aug. 2015)
+---------------------------------------------
+- New Features
+  - Updated Anderson acceleration implementation with QR updating.
+
 v. 2.8.0 (Mar. 2015) ---> v. 2.8.1 (Mar. 2015)
 ---------------------------------------------
-
 - Bug fixes
   - Fixed loop limit bug in SlsAddMat function.
   - In interfaces to KLU and SuperLUMT, added #include lines, 
@@ -113,7 +118,6 @@ v. 2.8.0 (Mar. 2015) ---> v. 2.8.1 (Mar. 2015)
  
 v. 2.7.0 (Mar. 2012) ---> v. 2.8.0 (Mar. 2015)
 ---------------------------------------------
-
 - New features
    - Two major additions were made to the globalization strategy options
      (KINSol argument strategy).  One is fixed-point iteration,
@@ -157,7 +161,6 @@ v. 2.7.0 (Mar. 2012) ---> v. 2.8.0 (Mar. 2015)
 
 v. 2.6.0 (May 2009) ---> v. 2.7.0 (Mar. 2012)
 ---------------------------------------------
-
 - Bug fixes
    - Three major logic bugs were fixed -- involving updating the solution
      vector, updating the linesearch parameter, and a missing error return.
@@ -184,7 +187,6 @@ v. 2.6.0 (May 2009) ---> v. 2.7.0 (Mar. 2012)
 
 v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (May 2009)
 ---------------------------------------------
-
 - New features
    - added a new linear solver module based on Blas + Lapack for
      both dense and banded matrices.
@@ -219,7 +221,6 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (May 2009)
 
 v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Oct. 2006)
 ----------------------------------------------
-
 - Changes related to the build system
    - reorganized source tree: header files in ${srcdir}/include/kinsol,
      source files in ${srcdir}/src/kinsol, fcmix source files in
@@ -231,7 +232,6 @@ v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Oct. 2006)
 
 v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (Mar. 2006)
 ----------------------------------------------
-
 - New features
    - added direct linear solvers (dense and band, provided
      through the KINDENSE and KINBAND modules, respectively) thus adding
@@ -310,7 +310,6 @@ v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (Mar. 2006)
 
 v. 2.2.2 (Mar. 2005) ---> v. 2.3.0 (Apr. 2005)
 ----------------------------------------------
-
 - Changes to user interface
    - KINSOL now stores an actual copy of the constraints vector rather than
      just a pointer in order to resolve potential scoping issues
@@ -327,7 +326,6 @@ v. 2.2.2 (Mar. 2005) ---> v. 2.3.0 (Apr. 2005)
 
 v. 2.2.1 (Jan. 2005) ---> v. 2.2.2 (Mar. 2005)
 ----------------------------------------------
-
 - Bug fixes
    - fixed bug in computation of the scaled step length
    - fixed bug in logic for disabling the call to the preconditioner setup function 
@@ -351,14 +349,12 @@ v. 2.2.1 (Jan. 2005) ---> v. 2.2.2 (Mar. 2005)
 
 v. 2.2.0 (Dec. 2004) ---> v. 2.2.1 (Jan. 2005)
 ----------------------------------------------
-
 - Changes related to the build system
    - changed order of compiler directives in header files to avoid compilation
      errors when using a C++ compiler.
 
 v. 2.0 (Jul. 2002) ---> v. 2.2.0 (Dec. 2004)
 --------------------------------------------
-
 - New feature
    - added option to disable all error messages.
 
@@ -430,7 +426,6 @@ v. 2.0 (Jul. 2002) ---> v. 2.2.0 (Dec. 2004)
 
 v. 1.0 (Aug. 1998) ---> v. 2.0 (Jul. 2002)
 ------------------------------------------
-
 YYYYMMDD
 
 19980802   DATE WRITTEN - KINSOL released.

@@ -1,5 +1,5 @@
                              ARKODE
-                   Release 1.0.1, March 30, 2015
+                   Release 1.0.2, August 3, 2015
                        Daniel R. Reynolds
                   Department of Mathematics, SMU
 
@@ -63,12 +63,24 @@ C. References
 D. Releases
 -----------
 
+v. 1.0.2 - Aug. 2015
 v. 1.0.1 - Mar. 2015
 v. 1.0.0 - Mar. 2015
 
 
 E. Revision History
 -------------------
+
+v. 1.0.1 (Mar. 2015) ---> v. 1.0.2 (Aug. 2015)
+---------------------------------------------
+- Bug fixes
+  - Fixed Fortran interfaces to enable calls to *GetErrWeights, *GetEstLocalErrors,
+    and *GetDky within a time step.
+  - Fixed bug in Butcher table.
+  - Fixed error in arkDoErrorTest in recovery after failure.
+    
+- New Features
+  - Updated Anderson acceleration implementation with QR updating.
 
 v. 1.0.0 (Mar. 2015) ---> v. 1.0.1 (Mar. 2015)
 ---------------------------------------------
