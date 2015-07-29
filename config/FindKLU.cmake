@@ -14,7 +14,7 @@
 
 set(PRE "lib")
 IF(WIN32)
-  set(POST "d.lib" ".lib" ".dll")
+  set(POST ".lib" ".dll")
 else(WIN32)
   set(POST ".a" ".so")
 endif(WIN32)
