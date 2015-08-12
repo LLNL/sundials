@@ -77,7 +77,7 @@ extern "C" {
  * yp  is the current value of the derivative vector y',          
  *     namely the predicted value of y'(t).                    
  *                                                                
- * f   is the residual vector F(tt,yy,yp).                     
+ * r   is the residual vector F(tt,yy,yp).                     
  *                                                                
  * c_j is the scalar in the system Jacobian, proportional to 
  *     the inverse of the step size h.
@@ -88,7 +88,7 @@ extern "C" {
  * Jac is the dense matrix (of type DlsMat) to be loaded by  
  *     an IDADlsDenseJacFn routine with an approximation to the   
  *     system Jacobian matrix                                  
- *            J = dF/dy' + gamma*dF/dy                            
+ *            J = dF/dy + c_j *dF/dy'                            
  *     at the given point (t,y,y'), where the ODE system is    
  *     given by F(t,y,y') = 0.
  *     Note that Jac is NOT preset to zero!
@@ -102,7 +102,7 @@ extern "C" {
  *     a positive int if a recoverable error occurred, or         
  *     a negative int if a nonrecoverable error occurred.         
  * In the case of a recoverable error return, the integrator will 
- * attempt to recover by reducing the stepsize (which changes cj).
+ * attempt to recover by reducing the stepsize (which changes c_j).
  *
  * -----------------------------------------------------------------
  *
@@ -130,9 +130,10 @@ extern "C" {
  * NOTE: If the user's Jacobian routine needs other quantities,   
  *     they are accessible as follows: hcur (the current stepsize)
  *     and ewt (the error weight vector) are accessible through   
- *     IDAGetCurrentStep and IDAGetErrWeights, respectively 
- *     (see ida.h). The unit roundoff is available as 
- *     UNIT_ROUNDOFF defined in sundials_types.h.
+ *     IDAGetCurrentStep and IDAGetErrWeights, respectively, but this
+ *     requires including in user_data a pointer to the solver memory.
+ *     The unit roundoff is available as UNIT_ROUNDOFF defined in
+ *     sundials_types.h.
  *
  * -----------------------------------------------------------------
  */
@@ -174,7 +175,7 @@ typedef int (*IDADlsDenseJacFn)(long int N, realtype t, realtype c_j,
  * Jac is the band matrix (of type BandMat) to be loaded by    
  *     an IDADlsBandJacFn routine with an approximation to the    
  *     system Jacobian matrix                                  
- *            J = dF/dy + cj*dF/dy'                             
+ *            J = dF/dy + c_j *dF/dy'                             
  *     at the given point (t,y,y'), where the DAE system is    
  *     given by F(t,y,y') = 0.  Jac is preset to zero, so only 
  *     the nonzero elements need to be loaded.  See note below.
@@ -188,7 +189,7 @@ typedef int (*IDADlsDenseJacFn)(long int N, realtype t, realtype c_j,
  *     a positive int if a recoverable error occurred, or         
  *     a negative int if a nonrecoverable error occurred.         
  * In the case of a recoverable error return, the integrator will 
- * attempt to recover by reducing the stepsize (which changes cj).
+ * attempt to recover by reducing the stepsize (which changes c_j).
  *
  * -----------------------------------------------------------------
  *
@@ -219,9 +220,10 @@ typedef int (*IDADlsDenseJacFn)(long int N, realtype t, realtype c_j,
  * NOTE: If the user's Jacobian routine needs other quantities,   
  *       they are accessible as follows: hcur (the current stepsize)
  *       and ewt (the error weight vector) are accessible through   
- *       IDAGetCurrentStep and IDAGetErrWeights, respectively (see  
- *       ida.h). The unit roundoff is available as                  
- *       UNIT_ROUNDOFF defined in sundials_types.h                   
+ *       IDAGetCurrentStep and IDAGetErrWeights, respectively, but this
+ *       requires including in user_data a pointer to the solver memory.
+ *       The unit roundoff is available as UNIT_ROUNDOFF defined in
+ *       sundials_types.h                   
  *                                                                
  * -----------------------------------------------------------------
  */
@@ -271,7 +273,7 @@ SUNDIALS_EXPORT int IDADlsSetBandJacFn(void *ida_mem, IDADlsBandJacFn jac);
  * IDADlsGetNumJacEvals returns the number of calls made to the
  *                      Jacobian evaluation routine jac.
  * IDADlsGetNumResEvals returns the number of calls to the user
- *                      f routine due to finite difference Jacobian
+ *                      F routine due to finite difference Jacobian
  *                      evaluation.
  * IDADlsGetLastFlag    returns the last error flag set by any of
  *                      the IDADLS interface functions.
