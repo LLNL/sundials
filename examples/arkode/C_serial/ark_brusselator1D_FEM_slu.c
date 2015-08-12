@@ -309,11 +309,11 @@ int main(int argc, char *argv[]) {
     flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);    /* call integrator */
     if (check_flag(&flag, "ARKode", 1)) break;
     u = N_VWL2Norm(y,umask);                               /* access/print solution statistics */
-    u = sqrt(u*u/N);
+    u = SUNRsqrt(u*u/N);
     v = N_VWL2Norm(y,vmask);
-    v = sqrt(v*v/N);
+    v = SUNRsqrt(v*v/N);
     w = N_VWL2Norm(y,wmask);
-    w = sqrt(w*w/N);
+    w = SUNRsqrt(w*w/N);
     printf("  %10.6f  %10.6f  %10.6f  %10.6f\n", t, u, v, w);
     if (flag >= 0) {                                       /* successful solve: update output time */
       tout += dTout;
