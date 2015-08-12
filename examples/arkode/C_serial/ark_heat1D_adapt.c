@@ -163,7 +163,7 @@ int main() {
   printf("  iout          dt_old                 dt_new               ||u||_rms       N   NNI  NLI\n");
   printf(" ----------------------------------------------------------------------------------------\n");
   printf(" %4i  %19.15e  %19.15e  %19.15e  %li   %2i  %3i\n", 
-	 iout, olddt, newdt, sqrt(N_VDotProd(y,y)/udata->N), udata->N, 0, 0);
+	 iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N), udata->N, 0, 0);
   while (t < Tf) {
 
     /* "set" routines */
@@ -189,7 +189,7 @@ int main() {
     /* print current solution stats */
     iout++;
     printf(" %4i  %19.15e  %19.15e  %19.15e  %li   %2li  %3li\n", 
-	   iout, olddt, newdt, sqrt(N_VDotProd(y,y)/udata->N), udata->N, nni-nni_cur, nli);
+	   iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N), udata->N, nni-nni_cur, nli);
     nni_cur = nni;
     nni_tot = nni;
     nli_tot += nli;

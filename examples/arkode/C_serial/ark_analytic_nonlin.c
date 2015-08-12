@@ -142,7 +142,7 @@ int main()
 /* f routine to compute the ODE RHS function f(t,y). */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  NV_Ith_S(ydot,0) = (t+1.0)*exp(-NV_Ith_S(y,0));
+  NV_Ith_S(ydot,0) = (t+1.0)*SUNRexp(-NV_Ith_S(y,0));
   return 0;
 }
 
