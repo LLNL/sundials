@@ -292,10 +292,10 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
   /* source term */
   for (i=0; i<N-1; i++) {
-    Ydot[i] += 2.0*exp(-200.0*(x[i]-0.25)*(x[i]-0.25))
-                 - exp(-400.0*(x[i]-0.7)*(x[i]-0.7))
-                 + exp(-500.0*(x[i]-0.4)*(x[i]-0.4))
-             - 2.0*exp(-600.0*(x[i]-0.55)*(x[i]-0.55));
+    Ydot[i] += 2.0*SUNRexp(-200.0*(x[i]-0.25)*(x[i]-0.25))
+                 - SUNRexp(-400.0*(x[i]-0.7)*(x[i]-0.7))
+                 + SUNRexp(-500.0*(x[i]-0.4)*(x[i]-0.4))
+             - 2.0*SUNRexp(-600.0*(x[i]-0.55)*(x[i]-0.55));
   }
 
   return 0;                      /* Return with success */
