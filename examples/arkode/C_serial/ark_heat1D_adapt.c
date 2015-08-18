@@ -47,6 +47,7 @@
 #include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
 #include <arkode/arkode_pcg.h>        /* prototype for ARKPcg solver */
 #include <sundials/sundials_types.h>  /* def. of type 'realtype' */
+#include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc. */
 
 /* user data structure */
 typedef struct {

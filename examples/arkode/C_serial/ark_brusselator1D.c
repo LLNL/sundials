@@ -55,6 +55,7 @@
 #include <arkode/arkode_band.h>       /* prototype for ARKBand solver */
 #include <sundials/sundials_band.h>   /* defs. of DlsMat and BAND_ELEM */
 #include <sundials/sundials_types.h>  /* def. of type 'realtype' */
+#include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc. */
 
 /* accessor macros between (x,v) location and 1D NVector array */
 #define IDX(x,v) (3*(x)+v)

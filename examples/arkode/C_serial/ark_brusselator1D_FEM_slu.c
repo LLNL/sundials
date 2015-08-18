@@ -68,6 +68,7 @@
 #include <nvector/nvector_serial.h>    /* serial N_Vector types, fcts., macros */
 #include <arkode/arkode_superlumt.h>   /* prototype for ARKSuperLUMT solver */
 #include <sundials/sundials_types.h>   /* def. of type 'realtype' */
+#include <sundials/sundials_math.h>    /* def. of SUNRsqrt, etc. */
 #include <sundials/sundials_sparse.h>  /* defs. of SlsMat and SlsMat routines */
 
 
