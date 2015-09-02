@@ -491,17 +491,17 @@ static void PrintOutput(void *mem, N_Vector c, realtype t)
 
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
   printf("%8.2Le %12.4Le %12.4Le   | %3ld  %1d %12.4Le\n", 
-         t, c_bl[0], c_tr[1], nst, kused, hused);
+         t, c_bl[0], c_tr[0], nst, kused, hused);
   for (i=1;i<NUM_SPECIES;i++)
     printf("         %12.4Le %12.4Le   |\n",c_bl[i],c_tr[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION) 
   printf("%8.2e %12.4e %12.4e   | %3ld  %1d %12.4e\n", 
-         t, c_bl[0], c_tr[1], nst, kused, hused);
+         t, c_bl[0], c_tr[0], nst, kused, hused);
   for (i=1;i<NUM_SPECIES;i++)
     printf("         %12.4e %12.4e   |\n",c_bl[i],c_tr[i]);
 #else
   printf("%8.2e %12.4e %12.4e   | %3ld  %1d %12.4e\n", 
-         t, c_bl[0], c_tr[1], nst, kused, hused);
+         t, c_bl[0], c_tr[0], nst, kused, hused);
   for (i=1;i<NUM_SPECIES;i++)
     printf("         %12.4e %12.4e   |\n",c_bl[i],c_tr[i]);
 #endif
