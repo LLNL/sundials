@@ -411,11 +411,10 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
       xyfactor = RCONST(16.0)*xx*(ONE-xx)*yy*(ONE-yy);
       xyfactor *= xyfactor;
       loc = yloc + NUM_SPECIES*jx;
-      fac = ONE + ALPHA * xx * yy + BETA * sin(FOURPI*xx) * sin(FOURPI*yy);
-      
+       
       for (is = 0; is < NUM_SPECIES; is++) {
         if (is < np) {
-	    ccv[loc+is] = RCONST(10.0) + (realtype)(is+1) * xyfactor;
+          ccv[loc+is] = RCONST(10.0) + (realtype)(is+1) * xyfactor;
           idv[loc+is] = ONE;
         }
         else {
@@ -491,17 +490,17 @@ static void PrintOutput(void *mem, N_Vector c, realtype t)
 
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
   printf("%8.2Le %12.4Le %12.4Le   | %3ld  %1d %12.4Le\n", 
-         t, c_bl[0], c_tr[1], nst, kused, hused);
+         t, c_bl[0], c_tr[0], nst, kused, hused);
   for (i=1;i<NUM_SPECIES;i++)
     printf("         %12.4Le %12.4Le   |\n",c_bl[i],c_tr[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION) 
   printf("%8.2e %12.4e %12.4e   | %3ld  %1d %12.4e\n", 
-         t, c_bl[0], c_tr[1], nst, kused, hused);
+         t, c_bl[0], c_tr[0], nst, kused, hused);
   for (i=1;i<NUM_SPECIES;i++)
     printf("         %12.4e %12.4e   |\n",c_bl[i],c_tr[i]);
 #else
   printf("%8.2e %12.4e %12.4e   | %3ld  %1d %12.4e\n", 
-         t, c_bl[0], c_tr[1], nst, kused, hused);
+         t, c_bl[0], c_tr[0], nst, kused, hused);
   for (i=1;i<NUM_SPECIES;i++)
     printf("         %12.4e %12.4e   |\n",c_bl[i],c_tr[i]);
 #endif
