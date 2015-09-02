@@ -1428,6 +1428,7 @@ Coeff. in the nonlinear convergence test & \id{IDASetNonlinConvCoefIC} & 0.0033 
 Maximum no. of steps & \id{IDASetMaxNumStepsIC} & 5 \\
 Maximum no. of Jacobian/precond. evals. & \id{IDASetMaxNumJacsIC} & 4 \\
 Maximum no. of Newton iterations & \id{IDASetMaxNumItersIC} & 10 \\
+Max. linesearch backtracks per Newton iter. & \id{IDASetMaxBacksIC} & 100 \\
 Turn off linesearch & \id{IDASetLineSearchOffIC} & \id{FALSE} \\
 Lower bound on Newton step & \id{IDASetStepToleranceIC} &  uround$^{2/3}$ \\ 
 \hline
@@ -2773,6 +2774,39 @@ flag = IDASetMaxNumItersIC(ida\_mem, maxnit);
 }
 {
   The default value is $10$.
+}
+%%
+%%
+\ucfunction{IDASetMaxBacksIC}
+{
+flag = IDASetMaxBacksIC(ida\_mem, maxbacks);
+}
+{
+  The function \ID{IDASetMaxBacksIC} specifies the maximum number
+  of linesearch backtracks allowed in any Newton iteration, when solving
+  the initial conditions calculation problem.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[maxbacks] (\id{int})
+    maximum number of linesearch backtracks per Newton step.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDA\_ILL\_INPUT}]
+    \id{maxbacks} is non-positive.
+  \end{args}
+}
+{
+  The default value is $100$.
 }
 %%
 %%
