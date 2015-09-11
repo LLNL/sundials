@@ -1,0 +1,241 @@
+% This is a shared SUNDIALS TEX file with description of
+% the MPI parallel hypre nvector implementation
+%
+The {\nvecph} implementation of the {\nvector} module provided with
+{\sundials} is based on HYPRE's ParVector class. Most basic vector operations are 
+wrapped versions of HYPRE's vector operations. The remaining vector operations 
+mimic HYPRE's style of hybrid {\mpi} and OpenMP parallelism.  It defines the {\em content}
+field of \id{N\_Vector} to be a structure containing the global and local lengths 
+of the vector, a pointer to an object of type \id{hypre\_ParVector}, a pointer to the beginning of a contiguous local data array (which corresponds with the local data in the \id{hypre\_ParVector} {\em x}), an {\mpi} communicator, a boolean flag {\em own\_data} indicating ownership of the data array {\em data} and a boolean flag {\em own\_parvector} indicating ownership of the vector object {\em x}.
+%%
+%%
+\begin{verbatim}
+struct _N_VectorContent_ParHyp {
+  long int local_length;
+  long int global_length;
+  booleantype own_data;
+  booleantype own_parvector;
+  realtype *data;
+  MPI_Comm comm;
+  hypre_ParVector *x;
+};
+\end{verbatim}
+%%
+%%--------------------------------------------
+%%
+The following nine macros are provided to access the content of a {\nvecph}
+vector. The suffix \id{\_PH} in the names denotes the parallel HYPRE wrapped version (distributed memory parallel with OpenMP threading).
+\begin{itemize}
+
+\item 
+  \ID{NV\_CONTENT\_PH}
+
+  This macro gives access to the contents of the parhyp
+  vector \id{N\_Vector}.
+  
+  The assignment \id{v\_cont = NV\_CONTENT\_PH(v)} sets       
+  \id{v\_cont} to be a pointer to the \id{N\_Vector} content    
+  structure of type \id{struct \_N\_VectorParHypContent}.
+  
+  Implementation:
+  
+  \verb|#define NV_CONTENT_PH(v) ( (N_VectorContent_ParHyp)(v->content) )|
+  
+\item 
+  \ID{NV\_OWN\_PARVEC\_PH}, \ID{NV\_HYPRE\_PARVEC\_PH}, 
+  \ID{NV\_OWN\_DATA\_PH}, \ID{NV\_DATA\_PH}, 
+  \ID{NV\_LOCLENGTH\_PH}, \ID{NV\_GLOBLENGTH\_PH}
+  
+  These macros give individual access to the parts of    
+  the content of a parhyp \id{N\_Vector}.                        
+
+  The assignment \id{x\_vec = NV\_HYPRE\_PARVEC\_PH(v)} sets \id{x\_vec} to be     
+  a pointer to the \id{hypre\_ParVector} \id{x} for the \id{N\_Vector} \id{v}. 
+  The assignment \id{NV\_DATA\_PH(v) = v\_data} sets the local component array of 
+  the \id{hypre\_ParVector} \id{x} of \id{v} to be \id{v\_data} by storing the pointer 
+  \id{v\_data}.              
+  %%%%%%     
+  
+  The assignment \id{v\_llen = NV\_LOCLENGTH\_PH(v)} sets \id{v\_llen} to be     
+  the length of the local part of \id{v}. 
+  The call \id{NV\_LENGTH\_PH(v) = llen\_v} sets      
+  the local length of \id{v} to be \id{llen\_v}.
+  
+  The assignment \id{v\_glen = NV\_GLOBLENGTH\_PH(v)} sets \id{v\_glen} to  
+  be the global length of the vector \id{v}.                    
+  The call \id{NV\_GLOBLENGTH\_PH(v) = glen\_v} sets the global       
+  length of \id{v} to be \id{glen\_v}.
+  
+  Implementation:
+  
+  %%%%%%%%%%define these:
+  \verb|#define NV_OWN_PARVEC_PH(v) ( NV_CONTENT_PH(v)->own_parvector )|
+
+  \verb|#define NV_HYPRE_PARVEC_PH(v) ( NV_CONTENT_PH(v)->x )|
+
+  \verb|#define NV_OWN_DATA_PH(v) ( NV_CONTENT_PH(v)->own_data )|
+
+  \verb|#define NV_DATA_PH(v) ( hypre_VectorData(hypre_ParVectorLocalVector(NV_HYPRE_PARVEC_PH(v))) )|
+
+  \verb|#define NV_LOCLENGTH_PH(v) ( NV_CONTENT_PH(v)->local_length )|
+
+  \verb|#define NV_GLOBLENGTH_PH(v) ( NV_CONTENT_PH(v)->global_length )|
+  
+\item \ID{NV\_COMM\_PH}
+
+  This macro provides access to the {\mpi} communicator used by the {\nvecph}
+  vectors.
+
+  Implementation:
+
+  \verb|#define NV_COMM_PH(v) ( NV_CONTENT_PH(v)->comm )|
+
+\item \ID{NV\_Ith\_PH}
+
+  This macro gives access to the individual components of the local data
+  array of an \id{N\_Vector}.
+
+  The assignment \id{r = NV\_Ith\_PH(v,i)} sets \id{r} to be the value of 
+  the \id{i}-th component of the local part of \id{v}. 
+  The assignment \id{NV\_Ith\_PH(v,i) = r}   
+  sets the value of the \id{i}-th component of the local part of \id{v} 
+  to be \id{r}.        
+  
+  Here $i$ ranges from $0$ to $n-1$, where $n$ is the local length.
+      
+  Implementation:
+
+  \verb|#define NV_Ith_PH(v,i) ( NV_DATA_PH(v)[i] )|
+
+\end{itemize}
+%%
+%%--------------------------------------------
+%%
+The {\nvecph} module defines parhyp implementations of all vector operations listed 
+in Table \ref{t:nvecops}  Their names are obtained from those in Table \ref{t:nvecops} by
+appending the suffix \id{\_ParHyp}. The module {\nvecph} provides the following additional
+user-callable routines:
+%%
+%%
+\begin{itemize}
+
+%%--------------------------------------
+
+\item  \ID{N\_VNew\_ParHyp}
+  
+  This function creates and allocates memory for a parhyp vector.
+ 
+  
+
+\begin{verbatim}
+N_Vector N_VNew_ParHyp(MPI_Comm comm, 
+                         long int local_length, 
+                         long int global_length);
+\end{verbatim}
+  
+%%--------------------------------------
+
+\item \ID{N\_VNewEmpty\_ParHyp}
+ 
+  This function creates a new parhyp \id{N\_Vector} with an empty (\id{NULL}) data array.
+ 
+  
+
+\begin{verbatim}
+N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, 
+                              long int local_length, 
+                              long int global_length);
+\end{verbatim}
+
+  
+%%--------------------------------------
+
+\item \ID{N\_VMake\_ParHyp}
+  
+  This function creates and allocates memory for a parallel vector
+  with user-provided data array.
+ 
+  
+
+\begin{verbatim}
+N_Vector N_VMake_ParHyp(MPI_Comm comm, 
+                          long int local_length,
+                          long int global_length,
+                          realtype *v_data);
+\end{verbatim}
+
+%%--------------------------------------
+
+\item \ID{N\_VCloneVectorArray\_ParHyp}
+ 
+  This function creates (by cloning) an array of \id{count} parallel vectors.
+ 
+\begin{verbatim}
+N_Vector *N_VCloneVectorArray_ParHyp(int count, N_Vector w);
+\end{verbatim}
+
+%%--------------------------------------
+
+\item \ID{N\_VCloneEmptyVectorArray\_ParHyp}
+ 
+  This function creates (by cloning) an array of \id{count} parallel vectors,
+  each with an empty (\id{NULL}) data array.
+ 
+\begin{verbatim}
+N_Vector *N_VCloneEmptyVectorArray_ParHyp(int count, N_Vector w);
+\end{verbatim}
+
+%%--------------------------------------
+
+\item \ID{N\_VDestroyVectorArray\_ParHyp}
+ 
+ This function frees memory allocated for the array of \id{count}  variables of
+ type \id{N\_Vector} created with \id{N\_VCloneVectorArray\_ParHyp} or with
+ \id{N\_VCloneEmptyVectorArray\_ParHyp}.
+ 
+
+ \verb|void N_VDestroyVectorArray_ParHyp(N_Vector *vs, int count);|
+
+
+%%--------------------------------------
+
+\item \ID{N\_VPrint\_ParHyp}
+  
+  This function prints the content of a parhyp vector to stdout.
+ 
+    
+  \verb|void N_VPrint_ParHyp(N_Vector v);|
+
+
+\end{itemize}
+%%
+%%------------------------------------
+%%
+\paragraph{\bf Notes} 
+           
+\begin{itemize}
+                                        
+\item
+  When looping over the components of an \id{N\_Vector} \id{v}, it is     
+  more efficient to first obtain the local component array via       
+  \id{v\_data = NV\_DATA\_PH(v)} and then access \id{v\_data[i]} within the     
+  loop than it is to use \id{NV\_Ith\_PH(v,i)} within the loop.        
+                                                               
+\item
+  {\warn}\id{N\_VNewEmpty\_ParHyp}, \id{N\_VMake\_ParHyp}, 
+  and \id{N\_VCloneEmptyVectorArray\_ParHyp} set the field 
+  {\em own\_data} $=$ \id{FALSE}. 
+  \id{N\_VDestroy\_ParHyp} and \id{N\_VDestroyVectorArray\_ParHyp}
+  will not attempt to free the pointer {\em data} for any \id{N\_Vector} with
+  {\em own\_data} set to \id{FALSE}. In such a case, it is the user's responsibility to
+  deallocate the {\em data} pointer.
+
+\item
+  {\warn}To maximize efficiency, vector operations in the {\nvecph} implementation
+  that have more than one \id{N\_Vector} argument do not check for
+  consistent internal representation of these vectors. It is the user's 
+  responsibility to ensure that such routines are called with \id{N\_Vector}
+  arguments that were all created with the same internal representations.
+
+\end{itemize}
+

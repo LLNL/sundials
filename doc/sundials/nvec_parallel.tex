@@ -5,7 +5,7 @@ The {\nvecp} implementation of the {\nvector} module provided with
 {\sundials} is based on {\mpi}.  It defines the {\em content}
 field of \id{N\_Vector} to be a structure containing the global and local lengths 
 of the vector, a pointer to the beginning of a contiguous local data array,
-an {\mpi} communicator, an a boolean flag {\em own\_data} indicating ownership of 
+an {\mpi} communicator, and a boolean flag {\em own\_data} indicating ownership of 
 the data array {\em data}.
 %%
 \begin{verbatim} 
