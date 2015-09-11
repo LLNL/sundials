@@ -369,6 +369,16 @@ IF(NOT MPI_ENABLE)
 ENDIF(NOT MPI_ENABLE)
 
 # -------------------------------------------------------------
+# Enable HYPRE Vector support?
+# -------------------------------------------------------------
+
+OPTION(HYPRE_ENABLE "Enable Hypre support" OFF)
+IF(NOT MPI_ENABLE)
+  HIDE_VARIABLE(HYPRE_INCLUDE_DIR)
+  HIDE_VARIABLE(HYPRE_LIBRARY)
+ENDIF(NOT MPI_ENABLE)
+
+# -------------------------------------------------------------
 # Enable OpenMP support?
 # -------------------------------------------------------------
 
@@ -728,6 +738,41 @@ IF(MPI_ENABLE)
   ENDIF(MPIC_FOUND AND F90_ENABLE)
 ENDIF(MPI_ENABLE)
 
+#-------------------------------------------------------------
+# Find the Hypre libraries
+#-------------------------------------------------------------
+IF(HYPRE_ENABLE AND MPI_ENABLE)
+#  SHOW_VARIABLE(HYPRE_INCLUDE_DIR STRING "HYPRE include directory"
+#    "${HYPRE_INCLUDE_DIR}") 
+#  SHOW_VARIABLE(HYPRE_LIBRARY_DIR STRING
+#    "HYPRE library directory" "${HYPRE_LIBRARY_DIR}")
+
+  INCLUDE(SundialsHypre)
+
+  IF(HYPRE_FOUND) 
+    # sundials_config.h symbol
+    SET(SUNDIALS_HYPRE TRUE)
+    INCLUDE_DIRECTORIES(${HYPRE_INCLUDE_DIR})
+  ENDIF(HYPRE_FOUND)
+
+  IF(HYPRE_LIBRARIES AND NOT HYPRE_FOUND) 
+    PRINT_WARNING("HYPRE not functional - support will not be provided" 
+      "Found hypre library, test code does not work")
+  ENDIF(HYPRE_LIBRARIES AND NOT HYPRE_FOUND)
+  
+  IF(NOT HYPRE_FOUND) 
+    PRINT_WARNING("HYPRE not found - support will not be provided" 
+      "Double check spelling specified libraries (search is case sensitive)")
+  ENDIF(NOT HYPRE_FOUND)
+
+
+ENDIF(HYPRE_ENABLE AND MPI_ENABLE)
+
+IF(NOT MPI_ENABLE)
+    PRINT_WARNING("MPI not enabled - HYPRE support will not be provided" 
+      "Set MPI_ENABLE to ON to use parhyp")
+ENDIF(NOT MPI_ENABLE)
+
 # -------------------------------------------------------------
 # If using MPI with C++, disable C++ extensions (for known wrappers)
 # -------------------------------------------------------------
@@ -766,6 +811,10 @@ ADD_SUBDIRECTORY(src/nvec_ser)
 IF(MPIC_FOUND)
   ADD_SUBDIRECTORY(src/nvec_par)
 ENDIF(MPIC_FOUND)
+
+IF(SUNDIALS_HYPRE)
+  ADD_SUBDIRECTORY(src/nvec_parhyp)
+ENDIF(SUNDIALS_HYPRE)
 
 IF(OPENMP_FOUND)
   ADD_SUBDIRECTORY(src/nvec_openmp)	
@@ -904,6 +953,9 @@ IF(EXAMPLES_ENABLE)
         SET(MPI_LIB_DIR ".")
         LIST2STRING(MPI_LIBRARIES MPI_LIBS)
       ENDIF(MPI_MPICC)
+      SET(HYPRE_INC_DIR "${HYPRE_INCLUDE_DIR}")
+      SET(HYPRE_LIB_DIR "${HYPRE_LIBRARY_DIR}")
+      SET(HYPRE_LIBS "${HYPRE_LIBRARIES}")
     ENDIF(MPIC_FOUND)
     IF(MPICXX_FOUND)
       IF(MPI_MPICXX)
@@ -963,6 +1015,10 @@ IF(EXAMPLES_ENABLE)
     IF(MPIF90_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/F90_parallel)
     ENDIF(MPIF90_FOUND)
+    IF(HYPRE_ENABLE AND HYPRE_FOUND)
+      ADD_SUBDIRECTORY(examples/arkode/C_parhyp)
+    ENDIF(HYPRE_ENABLE AND HYPRE_FOUND)
+    
   ENDIF(BUILD_ARKODE)
   
   IF(BUILD_CVODE)
@@ -976,6 +1032,9 @@ IF(EXAMPLES_ENABLE)
     IF(MPIF_FOUND)
       ADD_SUBDIRECTORY(examples/cvode/fcmix_parallel)
     ENDIF(MPIF_FOUND)
+    IF(HYPRE_ENABLE AND HYPRE_FOUND)
+      ADD_SUBDIRECTORY(examples/cvode/parhyp)
+    ENDIF(HYPRE_ENABLE AND HYPRE_FOUND)
   ENDIF(BUILD_CVODE)
   
   IF(BUILD_CVODES)	
@@ -1037,6 +1096,10 @@ IF(EXAMPLES_ENABLE)
   IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/nvector/parallel)
   ENDIF(MPIC_FOUND)
+  
+  IF(SUNDIALS_HYPRE)
+      ADD_SUBDIRECTORY(examples/nvector/parhyp)
+  ENDIF(SUNDIALS_HYPRE)
 
   IF(PTHREADS_FOUND)
       ADD_SUBDIRECTORY(examples/nvector/pthreads)

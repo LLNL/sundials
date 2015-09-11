@@ -1,0 +1,113 @@
+# -----------------------------------------------------------------
+# $Revision: 4074 $
+# $Date: 2014-04-23 14:13:52 -0700 (Wed, 23 Apr 2014) $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for CVODE parallel examples
+#
+# @configure_input@
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+srcdir       = @srcdir@
+top_builddir = @top_builddir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+INSTALL      = @INSTALL@
+INSTALL_PROG = @INSTALL_PROGRAM@
+INSTALL_FILE = @INSTALL_DATA@
+
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
+
+CPP         = @CPP@
+CPPFLAGS    = @CPPFLAGS@
+CC          = @CC@
+CFLAGS      = @CFLAGS@
+LDFLAGS     = @LDFLAGS@
+LIBS        = @LIBS@
+MPICC       = @MPICC@
+MPI_INC_DIR = @MPI_INC_DIR@
+MPI_LIB_DIR = @MPI_LIB_DIR@
+MPI_LIBS    = @MPI_LIBS@
+MPI_FLAGS   = @MPI_FLAGS@
+
+BLAS_LAPACK_LIBS = @BLAS_LAPACK_LIBS@
+
+OBJ_EXT = @OBJEXT@
+EXE_EXT = @EXEEXT@
+
+EXS_INSTDIR = @EXS_INSTDIR@
+
+top_srcdir = $(srcdir)/../../..
+
+SUNDIALS_INCS = -I$(top_srcdir)/include -I$(top_builddir)/include
+
+SUNDIALS_LIBS = $(top_builddir)/src/cvode/libsundials_cvode.la $(top_builddir)/src/nvec_parhyp/libsundials_nvecparhyp.la
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
+
+
+EXAMPLES = cvAdvDiff_non_p \
+	   cvDiurnal_kry_bbd_p \
+	   cvDiurnal_kry_p
+
+OBJECTS = ${EXAMPLES:=${OBJ_EXT}}
+EXECS = ${EXAMPLES:=${EXE_EXT}}
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+all:
+	@for i in ${EXAMPLES} ; do \
+	  $(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/$${i}.c -o $${i}${OBJ_EXT} ; \
+	  $(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/$${i}$(EXE_EXT) $(builddir)/$${i}$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS) ; \
+	done
+
+install:
+	$(mkinstalldirs) $(EXS_INSTDIR)/cvode/parallel
+	$(INSTALL_FILE) Makefile_ex $(EXS_INSTDIR)/cvode/parallel/Makefile
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/parallel/README $(EXS_INSTDIR)/cvode/parallel/
+	for i in ${EXAMPLES} ; do \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/cvode/parallel/$${i}.c   $(EXS_INSTDIR)/cvode/parallel/ ; \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/cvode/parallel/$${i}.out $(EXS_INSTDIR)/cvode/parallel/ ; \
+	done
+
+uninstall:
+	rm -f $(EXS_INSTDIR)/cvode/parallel/Makefile
+	rm -f $(EXS_INSTDIR)/cvode/parallel/README
+	for i in ${EXAMPLES} ; do \
+	  rm -f $(EXS_INSTDIR)/cvode/parallel/$${i}.c ; \
+	  rm -f $(EXS_INSTDIR)/cvode/parallel/$${i}.out ; \
+	done
+	$(rminstalldirs) $(EXS_INSTDIR)/cvode/parallel
+	$(rminstalldirs) $(EXS_INSTDIR)/cvode
+
+clean:
+	rm -rf .libs
+	rm -f *.lo *.o
+	rm -f ${OBJECTS}
+	rm -f $(EXECS)
+
+distclean: clean
+	rm -f Makefile
+	rm -f Makefile_ex
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd ${top_builddir} ;                 \
+	 ${SHELL} ./config.status --recheck ; \
+	 cd ${abs_builddir}

@@ -1,0 +1,63 @@
+
+2-species diurnal advection-diffusion problem
+
+t = 7.20e+03   no. steps = 982   stepsize = 3.05e+00
+At bottom left:  c1, c2 =    1.047e+04    2.527e+11 
+At top right:    c1, c2 =    1.119e+04    2.700e+11 
+
+t = 1.44e+04   no. steps = 2712   stepsize = 6.94e+00
+At bottom left:  c1, c2 =    6.659e+06    2.582e+11 
+At top right:    c1, c2 =    7.301e+06    2.833e+11 
+
+t = 2.16e+04   no. steps = 3437   stepsize = 1.60e+01
+At bottom left:  c1, c2 =    2.665e+07    2.993e+11 
+At top right:    c1, c2 =    2.931e+07    3.313e+11 
+
+t = 2.88e+04   no. steps = 4385   stepsize = 4.78e+00
+At bottom left:  c1, c2 =    8.702e+06    3.380e+11 
+At top right:    c1, c2 =    9.650e+06    3.751e+11 
+
+t = 3.60e+04   no. steps = 5614   stepsize = 2.55e+00
+At bottom left:  c1, c2 =    1.404e+04    3.387e+11 
+At top right:    c1, c2 =    1.561e+04    3.765e+11 
+
+t = 4.32e+04   no. steps = 6823   stepsize = 3.74e+02
+At bottom left:  c1, c2 =   -8.057e-12    3.382e+11 
+At top right:    c1, c2 =    5.673e-10    3.804e+11 
+
+t = 5.04e+04   no. steps = 6843   stepsize = 3.34e+02
+At bottom left:  c1, c2 =   -1.375e-06    3.358e+11 
+At top right:    c1, c2 =   -5.997e-07    3.864e+11 
+
+t = 5.76e+04   no. steps = 6862   stepsize = 3.83e+02
+At bottom left:  c1, c2 =    8.478e-11    3.320e+11 
+At top right:    c1, c2 =    2.013e-10    3.909e+11 
+
+t = 6.48e+04   no. steps = 6876   stepsize = 5.85e+02
+At bottom left:  c1, c2 =   -2.042e-18    3.313e+11 
+At top right:    c1, c2 =    3.849e-19    3.963e+11 
+
+t = 7.20e+04   no. steps = 6888   stepsize = 5.85e+02
+At bottom left:  c1, c2 =   -3.595e-18    3.330e+11 
+At top right:    c1, c2 =   -5.725e-18    4.039e+11 
+
+t = 7.92e+04   no. steps = 6901   stepsize = 5.85e+02
+At bottom left:  c1, c2 =    2.138e-18    3.334e+11 
+At top right:    c1, c2 =   -2.631e-18    4.120e+11 
+
+t = 8.64e+04   no. steps = 6913   stepsize = 5.85e+02
+At bottom left:  c1, c2 =    7.014e-19    3.352e+11 
+At top right:    c1, c2 =    7.391e-19    4.163e+11 
+
+
+Final Statistics: 
+
+lenrw   =  3058     leniw   =   160
+lenrwls =  2046     leniwls =    80
+nst     =  6913     nfe     =     0
+nfi     = 70814     nfels   = 57847
+nni     = 36115     nli     = 57847
+nsetups =   416     netf    =    26
+npe     =   116     nps     = 92681
+ncfn    =     0     ncfl    =     0
+
