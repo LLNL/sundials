@@ -338,7 +338,8 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
  * The error return values (positive) considered recoverable are:
  *  IC_FAIL_RECOV      if res, lsetup, or lsolve failed recoverably
  *  IC_CONSTR_FAILED   if the constraints could not be met
- *  IC_LINESRCH_FAILED if the linesearch failed (on steptol test)
+ *  IC_LINESRCH_FAILED if the linesearch failed (either on steptol test
+ *                     or on maxbacks test)
  *  IC_CONV_FAIL       if the Newton iterations failed to converge
  *  IC_SLOW_CONVRG     if the iterations are converging slowly
  *                     (failed the convergence test, but showed
@@ -410,7 +411,8 @@ static int IDAnlsIC (IDAMem IDA_mem)
  * The error return values (positive) considered recoverable are:
  *  IC_FAIL_RECOV      if res or lsolve failed recoverably
  *  IC_CONSTR_FAILED   if the constraints could not be met
- *  IC_LINESRCH_FAILED if the linesearch failed (on steptol test)
+ *  IC_LINESRCH_FAILED if the linesearch failed (either on steptol test
+ *                     or on maxbacks test)
  *  IC_CONV_FAIL       if the Newton iterations failed to converge
  *  IC_SLOW_CONVRG     if the iterations appear to be converging slowly.
  *                     They failed the convergence test, but showed 
