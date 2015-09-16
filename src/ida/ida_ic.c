@@ -153,7 +153,8 @@ static int IDAICFailFlag(IDAMem IDA_mem, int retval);
  *   IDA_NO_RECOVERY     res, lsetup, or lsolve had a recoverable
  *                       error, but IDACalcIC could not recover
  *   IDA_CONSTR_FAIL     the inequality constraints could not be met
- *   IDA_LINESEARCH_FAIL the linesearch failed (on steptol test)
+ *   IDA_LINESEARCH_FAIL the linesearch failed (either on steptol test
+ *                       or on the maxbacks test)
  *   IDA_CONV_FAIL       the Newton iterations failed to converge
  * -----------------------------------------------------------------
  */
