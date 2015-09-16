@@ -679,7 +679,7 @@ SUNDIALS_EXPORT int IDAGetAdjCurrentCheckPoint(void *ida_mem, void **addr)
 }
 
 
-/* IDAGetConsistenICB
+/* IDAGetConsistentICB
  *
  * Returns the consistent initial conditions computed by IDACalcICB or
  * IDACalcICBS
@@ -698,21 +698,21 @@ int IDAGetConsistentICB(void *ida_mem, int which, N_Vector yyB0_mod, N_Vector yp
   
   /* Is ida_mem valid? */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAA", "IDAGetConsistenICB", MSGAM_NULL_IDAMEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAA", "IDAGetConsistentICB", MSGAM_NULL_IDAMEM);
     return IDA_MEM_NULL;
   }
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == FALSE) {
-    IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDAGetConsistenICB",  MSGAM_NO_ADJ);
+    IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDAGetConsistentICB",  MSGAM_NO_ADJ);
     return(IDA_NO_ADJ);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Check the value of which */
   if ( which >= nbckpbs ) {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDAGetConsistenICB", MSGAM_BAD_WHICH);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDAGetConsistentICB", MSGAM_BAD_WHICH);
     return(IDA_ILL_INPUT);
   }
   
