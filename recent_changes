@@ -27,7 +27,17 @@ IDALapackDenseFreeB, IDALapackBandB, IDALapackBandFreeB.
 
 * In ARKODE, fixed error in arkDoErrorTest in recovery after failure.
 
+* Fixed some examples w.r.t. switch to new macro/function names SUNRexp etc.
+
 * Various minor fixes to installation-related files.
 
 * In IDAS, fixed for-loop bugs in IDAAckpntAllocVectors.
+
+* Added new N_Vector module ParHyp, and ARKode and CVode example that use it.
+
+* Corrected example idaFoodWeb_bnd.c in PrintOutput (wrong component printed).
+
+* In IDA and IDAS, added optional input function IDASetMaxBacksIC to limit
+  number of linesearch backtrack operations in IDACalcIC.  User guides
+  amended accordingly.
 
