@@ -260,6 +260,8 @@
 #define MAXNJ            4  /* max. number of J tries in IC calc. */
 #define MAXNI           10  /* max. Newton iterations in IC calc. */
 #define EPCON RCONST(0.33)  /* Newton convergence test constant */
+#define MAXBACKS       100  /* max backtracks per Newton step in IDACalcIC */
+
 
 /* IDANewtonIter constants */
 
@@ -486,6 +488,7 @@ void *IDACreate(void)
   IDA_mem->ida_maxnh   = MAXNH;
   IDA_mem->ida_maxnj   = MAXNJ;
   IDA_mem->ida_maxnit  = MAXNI;
+  IDA_mem->ida_maxbacks  = MAXBACKS;
   IDA_mem->ida_lsoff   = FALSE;
   IDA_mem->ida_steptol = SUNRpowerR(IDA_mem->ida_uround, TWOTHIRDS);
 

@@ -578,6 +578,29 @@ int IDASetMaxNumItersIC(void *ida_mem, int maxnit)
 
 /*-----------------------------------------------------------------*/
 
+int IDASetMaxBacksIC(void *ida_mem, int maxbacks)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASetMaxBacksIC", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (maxbacks <= 0) {
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASetMaxBacksIC", MSG_IC_BAD_MAXBACKS);
+    return(IDA_ILL_INPUT);
+  }
+
+  IDA_mem->ida_maxbacks = maxbacks;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
 int IDASetLineSearchOffIC(void *ida_mem, booleantype lsoff)
 {
   IDAMem IDA_mem;
