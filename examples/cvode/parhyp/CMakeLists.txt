@@ -22,6 +22,7 @@
 SET(CVODE_examples
   "cvAdvDiff_non_ph\;2\;2"
   "cvDiurnal_kry_bbd_ph\;2\;2"
+  "cvHeat2D_ph\;2\;2"
   )
 
 # Check whether we use MPI compiler scripts.
@@ -63,6 +64,10 @@ IF(SUPERLUMT_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${SUPERLUMT_LIBRARIES})
 ENDIF(SUPERLUMT_FOUND)
 
+IF(HYPRE_FOUND)
+  LIST(APPEND SUNDIALS_LIBS ${HYPRE_LIBRARY})
+ENDIF(HYPRE_FOUND)
+
 # Add the build and install targets for each CVODE example
 
 FOREACH(example_tuple ${CVODE_examples})
@@ -74,12 +79,12 @@ FOREACH(example_tuple ${CVODE_examples})
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
   SUNDIALS_ADD_TEST(${example} ${example} MPI_NPROCS ${number_of_tasks})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
-  TARGET_LINK_LIBRARIES(${example} ${HYPRE_LIBS})
   IF(NOT MPI_MPICC)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
   ENDIF(NOT MPI_MPICC)
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parhyp)
+    INSTALL(FILES vis.c DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parhyp)
   ENDIF(EXAMPLES_INSTALL)
 ENDFOREACH(example_tuple ${CVODE_examples})
 
