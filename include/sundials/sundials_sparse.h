@@ -29,6 +29,9 @@ extern "C" {
  * ==================================================================
  */
 
+#define CSC_MAT 0
+#define CSR_MAT 1
+
 /*
  * -----------------------------------------------------------------
  * Type : SlsMat
@@ -63,9 +66,17 @@ typedef struct _SlsMat {
   int M;
   int N;
   int NNZ;
+  int NP;
   realtype *data;
-  int *rowvals;
-  int *colptrs;
+  int sparsetype;
+  int *indexvals;
+  int *indexptrs;
+  /* CSC indices */
+  int **rowvals;
+  int **colptrs;
+  /* CSR indices */
+  int **colvals;
+  int **rowptrs;
 } *SlsMat;
 
 /*
@@ -86,7 +97,7 @@ typedef struct _SlsMat {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SlsMat NewSparseMat(int M, int N, int NNZ);
+SUNDIALS_EXPORT SlsMat NewSparseMat(int M, int N, int NNZ, int sparsetype);
 
 /*
  * -----------------------------------------------------------------
@@ -206,7 +217,42 @@ SUNDIALS_EXPORT int SlsMatvec(SlsMat A, realtype *x, realtype *y);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void PrintSparseMat(SlsMat A);
+SUNDIALS_EXPORT void PrintSparseMatCSC(SlsMat A);
+
+
+/*
+ * ==================================================================
+ * Private function prototypes (functions working on SlsMat)
+ * ==================================================================
+ */
+
+/*
+ * -----------------------------------------------------------------
+ * Functions: SlsMatvecCSC
+ * -----------------------------------------------------------------
+ * This function computes the matrix-vector product, y=A*x, where A
+ * is a CSC sparse matrix of dimension MxN, x is a realtype array of 
+ * length N, and y is a realtype array of length M. Upon successful
+ * completion, the return value is zero; otherwise 1 is returned.
+ * -----------------------------------------------------------------
+ */
+
+int SlsMatvecCSC(SlsMat A, realtype *x, realtype *y);
+
+/*
+ * -----------------------------------------------------------------
+ * Functions: SlsMatvecCSR
+ * -----------------------------------------------------------------
+ * This function computes the matrix-vector product, y=A*x, where A
+ * is a CSR sparse matrix of dimension MxN, x is a realtype array of 
+ * length N, and y is a realtype array of length M. Upon successful
+ * completion, the return value is zero; otherwise 1 is returned.
+ * -----------------------------------------------------------------
+ */
+
+int SlsMatvecCSR(SlsMat A, realtype *x, realtype *y);
+
+//void PrintSparseMatDebug(SlsMat A);
 
 
 #ifdef __cplusplus
