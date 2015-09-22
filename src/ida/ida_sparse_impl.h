@@ -62,7 +62,7 @@ typedef struct IDASlsMemRec {
 			       factorization needs to happen */
   SlsMat s_JacMat;          /* J = dF/dy + cj*dF/dy' */
   
-  int sparsetype;
+  int sparsetype;           /* matrix type: compressed sparse column or row */
 
   void *s_solver_data;      /* structure for solver-specific data */
   

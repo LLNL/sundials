@@ -134,10 +134,16 @@ int IDAKLU(void *ida_mem, int n, int nnz, int sparsetype)
   }
 
   /* KInitialize KLU structures */
-  if (sparsetype == CSC_MAT)
-    klu_data->klusolve = &klu_solve;
-  else
-    klu_data->klusolve = &klu_tsolve;
+  switch (sparsetype) {
+    case CSC_MAT:
+      klu_data->sun_klu_solve = &klu_solve;
+      break;
+    case CSR_MAT:
+      klu_data->sun_klu_solve = &klu_tsolve;
+      break;
+    default:
+      return(-1);
+  }
   klu_data->s_Symbolic = NULL;
   klu_data->s_Numeric = NULL;
 
@@ -352,7 +358,7 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
        calls to IDAKLUSetOrdering */
     klu_data->s_Common.ordering = klu_data->s_ordering;
 
-    klu_data->s_Symbolic = klu_analyze(JacMat->N, JacMat->indexptrs, 
+    klu_data->s_Symbolic = klu_analyze(JacMat->NP, JacMat->indexptrs, 
 				       JacMat->indexvals, &(klu_data->s_Common));
     if (klu_data->s_Symbolic == NULL) {
       IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASLS", "IDAKLUSetup", 
@@ -461,9 +467,8 @@ static int IDAKLUSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   bd = N_VGetArrayPointer(b);
 
   /* Call KLU to solve the linear system */
-  //flag = klu_solve(klu_data->s_Symbolic, klu_data->s_Numeric, JacMat->N, 1, bd, 
-  flag = klu_data->klusolve(klu_data->s_Symbolic, klu_data->s_Numeric, JacMat->N, 1, bd, 
-                            &(klu_data->s_Common));
+  flag = klu_data->sun_klu_solve(klu_data->s_Symbolic, klu_data->s_Numeric, JacMat->NP, 1, bd, 
+                                 &(klu_data->s_Common));
   if (flag == 0) {
     IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASLS", "IDAKLUSolve", 
 		    MSGSP_PACKAGE_FAIL);

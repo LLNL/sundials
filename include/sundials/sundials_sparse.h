@@ -50,9 +50,15 @@ extern "C" {
  *    M     - number of rows
  *    N     - number of columns
  *    NNZ   - the number of nonzero entries in the matrix
+ *    NP    - number of index pointers
  *    data  - pointer to a contiguous block of realtype variables
- *    rowvals - row indices of each nonzero entry
- *    colptrs - starting index of the first entry in data in each column
+ *    sparsetype - type of sparse matrix: compressed sparse column or row
+ *    indexvals  - indices of each nonzero entry (columns or rows)
+ *    indexptrs  - starting index of the first entry in data for each slice
+ *    rowvals - pointer to row indices of each nonzero entry
+ *    colptrs - pointer to starting indices in data array for each column
+ *    colvals - pointer to column indices of each nonzero entry
+ *    rowptrs - pointer to starting indices in data array for each row
  *
  * The nonzero entries of the matrix are stored in
  * compressed column format.  Row indices of entries in 
@@ -90,10 +96,10 @@ typedef struct _SlsMat {
  * Function: NewSparseMat
  * -----------------------------------------------------------------
  * NewSparseMat allocates memory for a compressed column sparse
- * matrix with M rows, N columns, and NNZ nonzeros. NewSparseMat
- * returns NULL if the request for matrix storage cannot be
- * satisfied. See the above documentation for the type SlsMat
- * for matrix storage details.
+ * matrix with M rows, N columns, NNZ nonzeros and of sparsetype 
+ * type (CSC or CSR matrix). NewSparseMat returns NULL if the 
+ * request for matrix storage cannot be satisfied. See the above 
+ * documentation for the type SlsMat for matrix storage details.
  * -----------------------------------------------------------------
  */
 
@@ -103,7 +109,7 @@ SUNDIALS_EXPORT SlsMat NewSparseMat(int M, int N, int NNZ, int sparsetype);
  * -----------------------------------------------------------------
  * Function: SlsConvertDls
  * -----------------------------------------------------------------
- * SlsConvertDense creates a new sparse matrix from an existing
+ * SlsConvertDense creates a new CSC matrix from an existing
  * dense/band matrix by copying all nonzero values into the sparse 
  * matrix structure.  SlsConvertDense returns NULL if the request 
  * for matrix storage cannot be satisfied. 
