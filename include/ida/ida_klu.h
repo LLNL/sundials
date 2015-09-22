@@ -53,7 +53,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-  SUNDIALS_EXPORT int IDAKLU(void *ida_mem, int n, int nnz); 
+  SUNDIALS_EXPORT int IDAKLU(void *ida_mem, int n, int nnz, int sparesetype); 
 
 /*
  * -----------------------------------------------------------------

@@ -71,7 +71,7 @@ static int IDAKLUFree(IDAMem IDA_mem);
  * -----------------------------------------------------------------
  */
 
-int IDAKLU(void *ida_mem, int n, int nnz)
+int IDAKLU(void *ida_mem, int n, int nnz, int sparsetype)
 {
   IDAMem IDA_mem;
   IDASlsMem idasls_mem;
@@ -123,9 +123,10 @@ int IDAKLU(void *ida_mem, int n, int nnz)
   /* Set default Jacobian routine and Jacobian data */
   idasls_mem->s_jaceval = NULL;
   idasls_mem->s_jacdata = IDA_mem->ida_user_data;
+  idasls_mem->sparsetype = sparsetype;
 
   /* Allocate memory for the sparse Jacobian */
-  idasls_mem->s_JacMat = NewSparseMat(n, n, nnz);
+  idasls_mem->s_JacMat = NewSparseMat(n, n, nnz, sparsetype);
   if (idasls_mem->s_JacMat == NULL) {
     IDAProcessError(IDA_mem, IDASLS_MEM_FAIL, "IDASLS", "IDAKLU", 
 		    MSGSP_MEM_FAIL);
@@ -133,6 +134,10 @@ int IDAKLU(void *ida_mem, int n, int nnz)
   }
 
   /* KInitialize KLU structures */
+  if (sparsetype == CSC_MAT)
+    klu_data->klusolve = &klu_solve;
+  else
+    klu_data->klusolve = &klu_tsolve;
   klu_data->s_Symbolic = NULL;
   klu_data->s_Numeric = NULL;
 
@@ -233,7 +238,7 @@ int IDAKLUReInit(void *ida_mem_v, int n, int nnz, int reinit_type)
     }
 
     /* Allocate memory for the sparse Jacobian */
-    idasls_mem->s_JacMat = NewSparseMat(n, n, nnz);
+    idasls_mem->s_JacMat = NewSparseMat(n, n, nnz, idasls_mem->sparsetype);
     if (idasls_mem->s_JacMat == NULL) {
       IDAProcessError(ida_mem, IDASLS_MEM_FAIL, "IDASLS", "IDAKLU", 
 		    MSGSP_MEM_FAIL);
@@ -347,8 +352,8 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
        calls to IDAKLUSetOrdering */
     klu_data->s_Common.ordering = klu_data->s_ordering;
 
-    klu_data->s_Symbolic = klu_analyze(JacMat->N, JacMat->colptrs, 
-				       JacMat->rowvals, &(klu_data->s_Common));
+    klu_data->s_Symbolic = klu_analyze(JacMat->N, JacMat->indexptrs, 
+				       JacMat->indexvals, &(klu_data->s_Common));
     if (klu_data->s_Symbolic == NULL) {
       IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASLS", "IDAKLUSetup", 
 		      MSGSP_PACKAGE_FAIL);
@@ -358,7 +363,7 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
     /* ------------------------------------------------------------
        Compute the LU factorization of  the Jacobian.
        ------------------------------------------------------------*/
-    klu_data->s_Numeric = klu_factor(JacMat->colptrs, JacMat->rowvals, JacMat->data, 
+    klu_data->s_Numeric = klu_factor(JacMat->indexptrs, JacMat->indexvals, JacMat->data, 
 				     klu_data->s_Symbolic, &(klu_data->s_Common));
 
     if (klu_data->s_Numeric == NULL) {
@@ -371,7 +376,7 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   }
   else {
 
-    retval = klu_refactor(JacMat->colptrs, JacMat->rowvals, JacMat->data, 
+    retval = klu_refactor(JacMat->indexptrs, JacMat->indexvals, JacMat->data, 
 			  klu_data->s_Symbolic, klu_data->s_Numeric,
 			  &(klu_data->s_Common));
     if (retval == 0) {
@@ -398,7 +403,7 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
       
       /* Condition number may be getting large.  
 	 Compute more accurate estimate */
-      retval = klu_condest(JacMat->colptrs, JacMat->data, 
+      retval = klu_condest(JacMat->indexptrs, JacMat->data, 
 			   klu_data->s_Symbolic, klu_data->s_Numeric,
 			   &(klu_data->s_Common));
       if (retval == 0) {
@@ -415,7 +420,7 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 
 	klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
 	
-	klu_data->s_Numeric = klu_factor(JacMat->colptrs, JacMat->rowvals, 
+	klu_data->s_Numeric = klu_factor(JacMat->indexptrs, JacMat->indexvals, 
 					 JacMat->data, klu_data->s_Symbolic, 
 					 &(klu_data->s_Common));
 
@@ -456,8 +461,9 @@ static int IDAKLUSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   bd = N_VGetArrayPointer(b);
 
   /* Call KLU to solve the linear system */
-  flag = klu_solve(klu_data->s_Symbolic, klu_data->s_Numeric, JacMat->N, 1, bd, 
-	    &(klu_data->s_Common));
+  //flag = klu_solve(klu_data->s_Symbolic, klu_data->s_Numeric, JacMat->N, 1, bd, 
+  flag = klu_data->klusolve(klu_data->s_Symbolic, klu_data->s_Numeric, JacMat->N, 1, bd, 
+                            &(klu_data->s_Common));
   if (flag == 0) {
     IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASLS", "IDAKLUSolve", 
 		    MSGSP_PACKAGE_FAIL);

@@ -61,6 +61,8 @@ typedef struct IDASlsMemRec {
   int s_first_factorize;    /* flag telling whether the first 
 			       factorization needs to happen */
   SlsMat s_JacMat;          /* J = dF/dy + cj*dF/dy' */
+  
+  int sparsetype;
 
   void *s_solver_data;      /* structure for solver-specific data */
   
