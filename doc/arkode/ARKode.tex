@@ -770,13 +770,13 @@ Denoting the final computed value of each stage solution as
 \(z_i^{(m)}\), and the true stage solution solving \eqref{Mathematics-Residual}
 as \(z_i\), we want to ensure that the iteration error
 \(z_i - z_i^{(m)}\) is ``small'' (recall that a norm less than 1 is
-already considered ``small'').
+already considered within an acceptable tolerance).
 
 To this end, we first estimate the linear convergence rate \(R_i\)
 of the nonlinear iteration.  We initialize \(R_i=1\), and reset it
 to this value whenever \(\tilde{\mathcal A}\) or \(P\) are
 updated.  After computing a nonlinear correction \(\delta^{(m)} =
-z_i^{(m)} - z_i^{(m-1)}\), if \(m>1\) we update \(R_i\) as
+z_i^{(m)} - z_i^{(m-1)}\), if \(m>0\) we update \(R_i\) as
 \begin{gather}
 \begin{split}R_i \leftarrow \max\{ 0.3 R_i, \left\|\delta^{(m)}\right\| / \left\|\delta^{(m-1)}\right\| \}.\end{split}\notag
 \end{gather}
@@ -784,19 +784,19 @@ where the factor 0.3 is user-modifiable as the \emph{crdown} input to the
 the function {\hyperref[c_interface/User_callable:c.ARKodeSetNonlinCRDown]{\emph{\code{ARKodeSetNonlinCRDown()}}}} or the \emph{NONLIN\_CRDOWN}
 argument to {\hyperref[f_interface/Usage:f/_/FARKSETRIN]{\emph{\code{FARKSETRIN()}}}}.
 
-Denoting the true time step solution as \(y_n\), and the computed
+Denoting the true time step solution as \(y(t_n)\), and the computed
 time step solution (computed using the stage solutions
-\(z_i^{(m)}\)) as \(\tilde{y}_n\), we use the estimate
+\(z_i^{(m)}\)) as \(y_n\), we use the estimate
 \begin{gather}
-\begin{split}\left\| y_n - \tilde{y}_n \right\| \approx
+\begin{split}\left\| y(t_n) - y_n \right\| \approx
 \max_i \left\| z_i^{(m+1)} - z_i^{(m)} \right\| \approx
 \max_i R_i \left\| z_i^{(m)} - z_i^{(m-1)} \right\| =
 \max_i R_i \left\| \delta^{(m)} \right\|.\end{split}\notag
 \end{gather}
 Therefore our convergence (stopping) test for the nonlinear iteration
 for each stage is
-\begin{gather}
-\begin{split}R_i \left\|\delta^{(m)} \right\| < \epsilon,\end{split}\notag
+\phantomsection\label{Mathematics:equation-NonlinearTolerance}\begin{gather}
+\begin{split}R_i \left\|\delta^{(m)} \right\| < \epsilon,\end{split}\label{Mathematics-NonlinearTolerance}
 \end{gather}
 where the factor \(\epsilon\) has default value 0.1, and is
 user-modifiable as the \emph{nlscoef} input to the the function
@@ -805,7 +805,7 @@ function {\hyperref[f_interface/Usage:f/_/FARKSETRIN]{\emph{\code{FARKSETRIN()}}
 iterations (modifiable through {\hyperref[c_interface/User_callable:c.ARKodeSetMaxNonlinIters]{\emph{\code{ARKodeSetMaxNonlinIters()}}}}, or
 as the \emph{MAX\_NSTEPS} argument to {\hyperref[f_interface/Usage:f/_/FARKSETIIN]{\emph{\code{FARKSETIIN()}}}}).  We also
 declare the nonlinear iteration to be divergent if any of the ratios
-\(\|\delta^{(m)}\| / \|\delta^{(m-1)}\| > 2.3\) with \(m>1\)
+\(\|\delta^{(m)}\| / \|\delta^{(m-1)}\| > 2.3\) with \(m>0\)
 (the value 2.3 may be modified as the \emph{rdiv} input to
 {\hyperref[c_interface/User_callable:c.ARKodeSetNonlinRDiv]{\emph{\code{ARKodeSetNonlinRDiv()}}}} or the \emph{NONLIN\_RDIV} input to
 {\hyperref[f_interface/Usage:f/_/FARKSETRIN]{\emph{\code{FARKSETRIN()}}}}).  If convergence fails in the fixed
@@ -832,12 +832,17 @@ iteration errors do not interfere with the nonlinear solution error
 and local time integration error controls, we require that the norm of
 the preconditioned linear residual satisfies
 \phantomsection\label{Mathematics:equation-LinearTolerance}\begin{gather}
-\begin{split}\|r\| \le 0.05\epsilon.\end{split}\label{Mathematics-LinearTolerance}
+\begin{split}\|r\| \le \frac{\epsilon_L \epsilon}{10}.\end{split}\label{Mathematics-LinearTolerance}
 \end{gather}
 Here \(\epsilon\) is the same value as that used above for the
-nonlinear error control.  The value 0.05 may be modified by the user
-through the {\hyperref[c_interface/User_callable:c.ARKSpilsSetEpsLin]{\emph{\code{ARKSpilsSetEpsLin()}}}} function.  Fortran users may
-adjust this value using the \emph{DELT} argument to the functions
+nonlinear error control.  The factor of 10 is used to ensure that the
+linear solver error does not adversely affect the nonlinear solver
+convergence.  Smaller values for the parameter \(\epsilon_L\) are
+typically useful for strongly nonlinear and stiff ODE systems, while
+easier ODE systems may benefit from a value closer to 1; by default
+\(\epsilon_L = 0.05\), which may be modified by the user through
+the {\hyperref[c_interface/User_callable:c.ARKSpilsSetEpsLin]{\emph{\code{ARKSpilsSetEpsLin()}}}} function.  Fortran users may adjust
+this value using the \emph{DELT} argument to the functions
 {\hyperref[f_interface/Usage:f/_/FARKSPGMR]{\emph{\code{FARKSPGMR()}}}}, {\hyperref[f_interface/Usage:f/_/FARKSPBCG]{\emph{\code{FARKSPBCG()}}}}, {\hyperref[f_interface/Usage:f/_/FARKSPTFQMR]{\emph{\code{FARKSPTFQMR()}}}},
 {\hyperref[f_interface/Usage:f/_/FARKSPFGMR]{\emph{\code{FARKSPFGMR()}}}} or {\hyperref[f_interface/Usage:f/_/FARKPCG]{\emph{\code{FARKPCG()}}}}.  We note that for
 linearly implicit problems the same tolerance \eqref{Mathematics-LinearTolerance}
@@ -1457,16 +1462,27 @@ since \(M\) is included inside \({\mathcal A}\).  When direct
 methods (dense and band) are employed, the user must supply a routine
 to compute \(M\) in either dense or band form to match the
 structure of \({\mathcal A}\), using either the routine
-{\hyperref[c_interface/User_supplied:c.ARKDlsDenseMassFn]{\emph{\code{ARKDlsDenseMassFn()}}}} or {\hyperref[c_interface/User_supplied:c.ARKDlsBandMassFn]{\emph{\code{ARKDlsBandMassFn()}}}}.  When
-iterative methods are used, a routine must be supplied to perform the
-mass-matrix-vector product, \(Mv\), through a call to the routine
-{\hyperref[c_interface/User_supplied:c.ARKSpilsMassTimesVecFn]{\emph{\code{ARKSpilsMassTimesVecFn()}}}}.  As with iterative solvers for the
-Newton systems, preconditioning may be applied to aid in solution of
-the mass matrix systems \(Mx=b\).
+{\hyperref[c_interface/User_supplied:c.ARKDlsDenseMassFn]{\emph{\code{ARKDlsDenseMassFn()}}}} or {\hyperref[c_interface/User_supplied:c.ARKDlsBandMassFn]{\emph{\code{ARKDlsBandMassFn()}}}}.
+
+When iterative methods are used, a routine must be supplied to perform
+the mass-matrix-vector product, \(Mv\), through a call to the
+routine {\hyperref[c_interface/User_supplied:c.ARKSpilsMassTimesVecFn]{\emph{\code{ARKSpilsMassTimesVecFn()}}}}.  As with iterative solvers
+for the Newton systems, preconditioning may be applied to aid in
+solution of the mass matrix systems \(Mx=b\).  When using an
+iterative mass matrix linear solver, we require that the norm of the
+preconditioned linear residual satisfies
+\phantomsection\label{Mathematics:equation-MassLinearTolerance}\begin{gather}
+\begin{split}\|r\| \le \epsilon_L \epsilon,\end{split}\label{Mathematics-MassLinearTolerance}
+\end{gather}
+where again, \(\epsilon\) is the nonlinear solver tolerance
+parameter from \eqref{Mathematics-NonlinearTolerance}.  When using iterative system
+and mass matrix linear solvers, \(\epsilon_L\) may be specified
+separately for both tolerances \eqref{Mathematics-LinearTolerance} and
+\eqref{Mathematics-MassLinearTolerance}.
 
 We further note that non-identity mass matrices, \(M\ne I\), are
-only supported by the C and C++ ARKode interfaces, although Fortran
-support is planned for the near future.
+only currently supported by the C and C++ ARKode interfaces, although
+Fortran support is planned for the near future.
 
 
 \section{Rootfinding}
@@ -17890,13 +17906,15 @@ must return \emph{IER = 0}.
 
 \chapter{Vector Data Structures}
 \label{nvectors/index:nvectors}\label{nvectors/index::doc}\label{nvectors/index:vector-data-structures}
-The SUNDIALS library comes packaged with four NVECTOR implementations,
+The SUNDIALS library comes packaged with five NVECTOR implementations,
 one designed for serial simulations, two designed for shared-memory
-parallel simulations (via OpenMP and Pthreads), and one for
-distributed-memory parallel simulations (via MPI).  All
-implementations assume that the process-local data is stored
-contiguously, and they in turn provide a variety of standard vector
-algebra operations that may be performed on the data.
+parallel simulations (via OpenMP and Pthreads), one for
+distributed-memory parallel simulations (via MPI), and one designed
+for parallel/threaded simulations that interface with the HYPRE suite
+of parallel preconditioners.  All implementations assume that the
+process-local data is stored contiguously, and they in turn provide a
+variety of standard vector algebra operations that may be performed on
+the data.
 
 In addition, SUNDIALS provides a simple interface for generic vectors
 (akin to a C++ \emph{abstract base class}).  All of the major SUNDIALS
@@ -18597,7 +18615,7 @@ This function prints the content of a OpenMP vector to \code{stdout}.
 When looping over the components of an \code{N\_Vector v}, it is more
 efficient to first obtain the component array via \code{v\_data =
 NV\_DATA\_OMP(v)} and then access \code{v\_data{[}i{]}} within the loop than it
-is to use \code{NV\_Ith\_S(v,i)} within the loop.
+is to use \code{NV\_Ith\_OMP(v,i)} within the loop.
 
 \item {} 
 {\hyperref[nvectors/NVector_OpenMP:c.N_VNewEmpty_OpenMP]{\emph{\code{N\_VNewEmpty\_OpenMP()}}}}, {\hyperref[nvectors/NVector_OpenMP:c.N_VMake_OpenMP]{\emph{\code{N\_VMake\_OpenMP()}}}}, and
@@ -18852,6 +18870,294 @@ data pointer.
 
 \item {} 
 To maximize efficiency, vector operations in the NVECTOR\_PTHREADS
+implementation that have more than one \code{N\_Vector} argument do not
+check for consistent internal representation of these vectors. It is
+the user's responsibility to ensure that such routines are called
+with \code{N\_Vector} arguments that were all created with the same
+internal representations.
+
+\end{itemize}
+
+
+\section{The NVECTOR\_PARHYP Module}
+\label{nvectors/NVector_ParHyp:nvectors-parhyp}\label{nvectors/NVector_ParHyp:the-nvector-parhyp-module}\label{nvectors/NVector_ParHyp::doc}
+The NVECTOR\_PARHYP implementation of the NVECTOR module provided with
+SUNDIALS is based on HYPRE's ParVector class.  Most basic vector
+operations are wrapped versions of HYPRE's vector operations.  The
+remaining vector operations mimic HYPRE's style of hybrid MPI and
+OpenMP parallelism.  It defines the \emph{content} field of \code{N\_Vector} to
+be a structure containing the global and local lengths of the vector,
+a pointer to an object of type \code{hypre\_ParVector}, a pointer to the
+beginning of a contiguous local data array (which corresponds with the
+local data in the \code{hypre\_ParVector} \emph{x}), an MPI communicator, a
+boolean flag \emph{own\_data} indicating ownership of the data array \emph{data}
+and a boolean flag \emph{own\_parvector} indicating ownership of the vector
+object \emph{x}.
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}ParHyp} \PYG{p}{\PYGZob{}}
+  \PYG{k+kt}{long} \PYG{k+kt}{int} \PYG{n}{local\PYGZus{}length}\PYG{p}{;}
+  \PYG{k+kt}{long} \PYG{k+kt}{int} \PYG{n}{global\PYGZus{}length}\PYG{p}{;}
+  \PYG{n}{booleantype} \PYG{n}{own\PYGZus{}data}\PYG{p}{;}
+  \PYG{n}{booleantype} \PYG{n}{own\PYGZus{}parvector}\PYG{p}{;}
+  \PYG{n}{realtype} \PYG{o}{*}\PYG{n}{data}\PYG{p}{;}
+  \PYG{n}{MPI\PYGZus{}Comm} \PYG{n}{comm}\PYG{p}{;}
+  \PYG{n}{hypre\PYGZus{}ParVector} \PYG{o}{*}\PYG{n}{x}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\end{Verbatim}
+
+The following nine macros are provided to access the content of an NVECTOR\_PARHYP
+vector. The suffix \code{\_PH} in the names denotes the parallel HYPRE
+wrapped version (distributed memory parallel with OpenMP threading).
+\index{NV\_CONTENT\_PH (C macro)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ParHyp:c.NV_CONTENT_PH}\pysiglinewithargsret{\bfcode{NV\_CONTENT\_PH}}{v}{}
+This macro gives access to the contents of the parhyp vector
+\code{N\_Vector} \emph{v}.
+
+The assignment \code{v\_cont = NV\_CONTENT\_PH(v)} sets \code{v\_cont} to be
+a pointer to the \code{N\_Vector} content structure of type \code{N\_VectorParHypContent}.
+
+Implementation:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}CONTENT\PYGZus{}PH(v) ( (N\PYGZus{}VectorContent\PYGZus{}ParHyp)(v\PYGZhy{}\PYGZgt{}content) )}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{NV\_OWN\_PARVEC\_PH (C macro)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ParHyp:c.NV_OWN_PARVEC_PH}\pysiglinewithargsret{\bfcode{NV\_OWN\_PARVEC\_PH}}{v}{}
+Access the \emph{own\_parvector} component of the parhyp \code{N\_Vector} \emph{v}.
+
+Implementation:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}OWN\PYGZus{}PARVEC\PYGZus{}PH(v) ( NV\PYGZus{}CONTENT\PYGZus{}PH(v)\PYGZhy{}\PYGZgt{}own\PYGZus{}parvector )}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{NV\_HYPRE\_PARVEC\_PH (C macro)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ParHyp:c.NV_HYPRE_PARVEC_PH}\pysiglinewithargsret{\bfcode{NV\_HYPRE\_PARVEC\_PH}}{v}{}
+Access the \code{hypre\_ParVector} \emph{x} component of the parhyp \code{N\_Vector} \emph{v}.
+
+Implementation:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}HYPRE\PYGZus{}PARVEC\PYGZus{}PH(v) ( NV\PYGZus{}CONTENT\PYGZus{}PH(v)\PYGZhy{}\PYGZgt{}x )}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{NV\_OWN\_DATA\_PH (C macro)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ParHyp:c.NV_OWN_DATA_PH}\pysiglinewithargsret{\bfcode{NV\_OWN\_DATA\_PH}}{v}{}
+Access the \emph{own\_data} component of the parhyp \code{N\_Vector} \emph{v}.
+
+Implementation:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}OWN\PYGZus{}DATA\PYGZus{}PH(v) ( NV\PYGZus{}CONTENT\PYGZus{}PH(v)\PYGZhy{}\PYGZgt{}own\PYGZus{}data )}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{NV\_DATA\_PH (C macro)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ParHyp:c.NV_DATA_PH}\pysiglinewithargsret{\bfcode{NV\_DATA\_PH}}{v}{}
+The assignment \code{v\_data = NV\_DATA\_PH(v)} sets \code{v\_data} to be a
+pointer to the first component of the \emph{data} for the \code{N\_Vector}
+\code{v}.
+
+Similarly, the assignment \code{NV\_DATA\_PH(v) = v\_data} sets the local
+component array of the \code{hypre\_ParVector}  \code{v} to be \code{v\_data}
+by storing the pointer \code{v\_data}.
+
+Implementation:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}DATA\PYGZus{}PH(v) ( hypre\PYGZus{}VectorData(hypre\PYGZus{}ParVectorLocalVector(NV\PYGZus{}HYPRE\PYGZus{}PARVEC\PYGZus{}PH(v))) )}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{NV\_LOCLENGTH\_PH (C macro)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ParHyp:c.NV_LOCLENGTH_PH}\pysiglinewithargsret{\bfcode{NV\_LOCLENGTH\_PH}}{v}{}
+Access the \emph{local\_length} component of the parhyp \code{N\_Vector} \emph{v}.
+
+The assignment \code{v\_llen = NV\_LOCLENGTH\_PH(v)} sets \code{v\_llen} to
+be the \emph{local\_length} of \code{v}. On the other hand, the call \code{NV\_LOCLENGTH\_PH(v) =
+llen\_v} sets the \emph{local\_length} of \code{v} to be \code{llen\_v}.
+
+Implementation:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}LOCLENGTH\PYGZus{}PH(v) ( NV\PYGZus{}CONTENT\PYGZus{}PH(v)\PYGZhy{}\PYGZgt{}local\PYGZus{}length )}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{NV\_GLOBLENGTH\_PH (C macro)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ParHyp:c.NV_GLOBLENGTH_PH}\pysiglinewithargsret{\bfcode{NV\_GLOBLENGTH\_PH}}{v}{}
+Access the \emph{global\_length} component of the parhyp \code{N\_Vector} \emph{v}.
+
+The assignment \code{v\_glen = NV\_GLOBLENGTH\_PH(v)} sets \code{v\_glen} to be the
+\emph{global\_length} of \code{v}. On the other hand, the call \code{NV\_GLOBLENGTH\_PH(v) =
+glen\_v} sets the \emph{global\_length} of \code{v} to be \code{glen\_v}.
+
+Implementation:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}GLOBLENGTH\PYGZus{}PH(v) ( NV\PYGZus{}CONTENT\PYGZus{}PH(v)\PYGZhy{}\PYGZgt{}global\PYGZus{}length )}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{NV\_COMM\_PH (C macro)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ParHyp:c.NV_COMM_PH}\pysiglinewithargsret{\bfcode{NV\_COMM\_PH}}{v}{}
+Access the MPI communicator used by the parhyp \code{N\_Vector} \emph{v}.
+
+The assignment \code{comm = NV\_COMM\_PH(v)} sets
+\code{comm} to be the \emph{comm} of \code{v}.
+
+Implementation:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}COMM\PYGZus{}PH(v) ( NV\PYGZus{}CONTENT\PYGZus{}PH(v)\PYGZhy{}\PYGZgt{}comm )}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{NV\_Ith\_PH (C macro)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ParHyp:c.NV_Ith_PH}\pysiglinewithargsret{\bfcode{NV\_Ith\_PH}}{v, i}{}
+This macro gives access to the individual components of the local
+\emph{data} array of an \code{N\_Vector}, using standard 0-based C indexing.
+
+The assignment \code{r = NV\_Ith\_PH(v,i)} sets \code{r} to be the value of
+the \code{i}-th component of the local part of \code{v}.
+
+The assignment \code{NV\_Ith\_PH(v,i) = r} sets the value of the \code{i}-th
+component of the local part of \code{v} to be \code{r}.
+
+Here \code{i} ranges from 0 to \(n-1\) where \(n\) is the
+processor-local length of the vector.
+
+Implementation:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}Ith\PYGZus{}PH(v,i) ( NV\PYGZus{}DATA\PYGZus{}PH(v)[i] )}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+
+The NVECTOR\_PARHYP module defines parhyp implementations of all vector
+operations listed in the section {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}.  Their names are
+obtained from those in that section by appending the suffix
+\code{\_ParHyp}.
+
+In addition, the module NVECTOR\_PARHYP provides the following
+additional user-callable routines:
+\index{N\_VNew\_ParHyp (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VNew_ParHyp}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNew\_ParHyp}}{MPI\_Comm\emph{ comm}, long int\emph{ local\_length}, long int\emph{ global\_length}}{}
+This function creates and allocates memory for a parhyp
+\code{N\_Vector}.
+
+\end{fulllineitems}
+
+\index{N\_VNewEmpty\_ParHyp (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VNewEmpty_ParHyp}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNewEmpty\_ParHyp}}{MPI\_Comm\emph{ comm}, long int\emph{ local\_length}, long int\emph{ global\_length}}{}
+This function creates a new parhyp \code{N\_Vector} with an empty
+(\code{NULL}) data array.
+
+\end{fulllineitems}
+
+\index{N\_VMake\_ParHyp (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VMake_ParHyp}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMake\_ParHyp}}{MPI\_Comm\emph{ comm}, long int\emph{ local\_length}, long int\emph{ global\_length}, realtype*\emph{ v\_data}}{}
+This function creates and allocates memory for a parhyp vector with
+user-provided data array, \emph{v\_data}.
+
+\end{fulllineitems}
+
+\index{N\_VCloneVectorArray\_ParHyp (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VCloneVectorArray_ParHyp}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneVectorArray\_ParHyp}}{int\emph{ count}, N\_Vector\emph{ w}}{}
+This function creates (by cloning) an array of \emph{count} parhyp
+vectors.
+
+\end{fulllineitems}
+
+\index{N\_VCloneEmptyVectorArray\_ParHyp (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VCloneEmptyVectorArray_ParHyp}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneEmptyVectorArray\_ParHyp}}{int\emph{ count}, N\_Vector\emph{ w}}{}
+This function creates (by cloning) an array of \emph{count} parhyp
+vectors, each with an empty (\code{{}`NULL}) data array.
+
+\end{fulllineitems}
+
+\index{N\_VDestroyVectorArray\_ParHyp (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VDestroyVectorArray_ParHyp}\pysiglinewithargsret{void \bfcode{N\_VDestroyVectorArray\_ParHyp}}{N\_Vector*\emph{ vs}, int\emph{ count}}{}
+This function frees memory allocated for the array of \emph{count}
+variables of type \code{N\_Vector} created with
+{\hyperref[nvectors/NVector_ParHyp:c.N_VCloneVectorArray_ParHyp]{\emph{\code{N\_VCloneVectorArray\_ParHyp()}}}} or with
+{\hyperref[nvectors/NVector_ParHyp:c.N_VCloneEmptyVectorArray_ParHyp]{\emph{\code{N\_VCloneEmptyVectorArray\_ParHyp()}}}}.
+
+\end{fulllineitems}
+
+\index{N\_VPrint\_ParHyp (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VPrint_ParHyp}\pysiglinewithargsret{void \bfcode{N\_VPrint\_ParHyp}}{N\_Vector\emph{ v}}{}
+This function prints the content of a parhyp vector to \code{stdout}.
+
+\end{fulllineitems}
+
+
+\textbf{Notes}
+\begin{itemize}
+\item {} 
+When looping over the components of an \code{N\_Vector v}, it is more
+efficient to first obtain the component array via \code{v\_data =
+NV\_DATA\_PH(v)} and then access \code{v\_data{[}i{]}} within the loop than it
+is to use \code{NV\_Ith\_PH(v,i)} within the loop.
+
+\item {} 
+{\hyperref[nvectors/NVector_ParHyp:c.N_VNewEmpty_ParHyp]{\emph{\code{N\_VNewEmpty\_ParHyp()}}}}, {\hyperref[nvectors/NVector_ParHyp:c.N_VMake_ParHyp]{\emph{\code{N\_VMake\_ParHyp()}}}}, and
+{\hyperref[nvectors/NVector_ParHyp:c.N_VCloneEmptyVectorArray_ParHyp]{\emph{\code{N\_VCloneEmptyVectorArray\_ParHyp()}}}} set the field \emph{own\_data}
+to \code{FALSE}.  The functions \code{N\_VDestroy\_ParHyp()} and
+{\hyperref[nvectors/NVector_ParHyp:c.N_VDestroyVectorArray_ParHyp]{\emph{\code{N\_VDestroyVectorArray\_ParHyp()}}}} will not attempt to free the
+pointer data for any \code{N\_Vector} with \emph{own\_data} set to \code{FALSE}.
+In such a case, it is the user's responsibility to deallocate the
+data pointer.
+
+\item {} 
+To maximize efficiency, vector operations in the NVECTOR\_PARHYP
 implementation that have more than one \code{N\_Vector} argument do not
 check for consistent internal representation of these vectors. It is
 the user's responsibility to ensure that such routines are called

@@ -44,7 +44,7 @@ static int arkSuperLUMTSolve(ARKodeMem ark_mem, N_Vector b,
 			     N_Vector fcur);
 static void arkSuperLUMTFree(ARKodeMem ark_mem);
 
-/* ARKSUPERLUMT minit, msetup, msolve, and mfree routines */
+/* ARKSUPERLUMT minit, msetup, msolve, mfree and mtimes routines */
 static int arkMassSuperLUMTInit(ARKodeMem ark_mem);
 static int arkMassSuperLUMTSetup(ARKodeMem ark_mem, N_Vector tmp1,
 			     N_Vector tmp2, N_Vector tmp3);

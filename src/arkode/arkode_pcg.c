@@ -337,7 +337,7 @@ static int ARKPcgSolve(ARKodeMem ark_mem, N_Vector b,
   pcg_mem = (PcgMem) arkspils_mem->s_spils_mem;
 
   /* Test norm(b); if small, return x = 0 or x = b */
-  arkspils_mem->s_deltar = arkspils_mem->s_eplifac * ark_mem->ark_eLTE; 
+  arkspils_mem->s_deltar = arkspils_mem->s_eplifac * ark_mem->ark_eRNrm; 
   bnorm = N_VWrmsNorm(b, weight);
   if (bnorm <= arkspils_mem->s_deltar) {
     if (ark_mem->ark_mnewt > 0) N_VConst(ZERO, b); 
@@ -679,7 +679,7 @@ static int ARKMassPcgSolve(ARKodeMem ark_mem, N_Vector b,
   pcg_mem = (PcgMem) arkspils_mem->s_spils_mem;
 
   /* Set inputs delta and initial guess x = 0 to PcgSolve */
-  arkspils_mem->s_deltar = arkspils_mem->s_eplifac * ark_mem->ark_eLTE; 
+  arkspils_mem->s_deltar = arkspils_mem->s_eplifac * ark_mem->ark_nlscoef; 
   arkspils_mem->s_delta  = arkspils_mem->s_deltar * arkspils_mem->s_sqrtN;
   N_VConst(ZERO, arkspils_mem->s_x);
 

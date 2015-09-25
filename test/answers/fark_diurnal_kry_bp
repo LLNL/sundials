@@ -57,13 +57,13 @@ Final statistics:
  number of steps        =  6913
  number of step att.    =  6944
  number of fe evals.    =     0
- number of fi evals.    = 70924
+ number of fi evals.    = 70897
  number of prec. setups =   427
  number of prec. evals. =   116
- number of prec. solves = 91437
- number of nonl. iters. = 36200
+ number of prec. solves = 91579
+ number of nonl. iters. = 36173
  number of lin. iters.  = 56562
- average Krylov subspace dimension (NLI/NNI) =   0.156249E+01
+ average Krylov subspace dimension (NLI/NNI) =   0.156365E+01
  number of conv. failures.. nonlinear =  0 linear =   0
  number of error test failures =  31
  main solver real/int workspace sizes   =  3058   55

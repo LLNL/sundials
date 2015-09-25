@@ -45,7 +45,7 @@ static int arkKLUSolve(ARKodeMem ark_mem, N_Vector b,
 		       N_Vector fcur);
 static void arkKLUFree(ARKodeMem ark_mem);
 
-/* ARKKLU minit, msetup, msolve, and mfree routines */
+/* ARKKLU minit, msetup, msolve, mfree and mtimes routines */
 static int arkMassKLUInit(ARKodeMem ark_mem);
 static int arkMassKLUSetup(ARKodeMem ark_mem, N_Vector tmp1, 
 			   N_Vector tmp2, N_Vector tmp3);

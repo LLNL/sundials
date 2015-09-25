@@ -41,7 +41,7 @@ static int arkBandSolve(ARKodeMem ark_mem, N_Vector b, N_Vector weight,
                        N_Vector ycur, N_Vector fcur);
 static void arkBandFree(ARKodeMem ark_mem);
 
-/* ARKBAND minit, msetup, msolve, and mfree routines */
+/* ARKBAND minit, msetup, msolve, mfree and mtimes routines */
 static int arkMassBandInit(ARKodeMem ark_mem);
 static int arkMassBandSetup(ARKodeMem ark_mem, N_Vector vtemp1, 
 			    N_Vector vtemp2, N_Vector vtemp3);
