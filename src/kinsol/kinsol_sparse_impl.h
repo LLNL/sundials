@@ -56,6 +56,8 @@ typedef struct KINSlsMemRec {
 			       factorization needs to happen */
   SlsMat s_JacMat;          /* J = dF/du */
 
+  int sparsetype;           /* matrix type: compressed sparse column or row */
+
   void *s_solver_data;      /* structure for solver-specific data */
   
 

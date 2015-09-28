@@ -67,7 +67,7 @@ static void kinKLUFree(KINMem kin_mem);
  * -----------------------------------------------------------------
  */
 
-int KINKLU(void *kin_mem_v, int n, int nnz)
+int KINKLU(void *kin_mem_v, int n, int nnz, int sparsetype)
 {
   KINMem kin_mem;
   KINSlsMem kinsls_mem;
@@ -120,7 +120,7 @@ int KINKLU(void *kin_mem_v, int n, int nnz)
   kinsls_mem->s_jacdata = kin_mem->kin_user_data;
 
   /* Allocate memory for the sparse Jacobian */
-  kinsls_mem->s_JacMat = NewSparseMat(n, n, nnz);
+  kinsls_mem->s_JacMat = NewSparseMat(n, n, nnz, sparsetype);
   if (kinsls_mem->s_JacMat == NULL) {
     KINProcessError(kin_mem, KINSLS_MEM_FAIL, "KINSLS", "KINKLU", 
 		    MSGSP_MEM_FAIL);
@@ -128,6 +128,16 @@ int KINKLU(void *kin_mem_v, int n, int nnz)
   }
 
   /* Initialize KLU structures */
+  switch (sparsetype) {
+    case CSC_MAT:
+      klu_data->sun_klu_solve = &klu_solve;
+      break;
+    case CSR_MAT:
+      klu_data->sun_klu_solve = &klu_tsolve;
+      break;
+    default:
+      return(-1);
+  }
   klu_data->s_Symbolic = NULL;
   klu_data->s_Numeric = NULL;
 
@@ -229,7 +239,7 @@ int KINKLUReInit(void *kin_mem_v, int n, int nnz, int reinit_type)
     }
 
     /* Allocate memory for the sparse Jacobian */
-    kinsls_mem->s_JacMat = NewSparseMat(n, n, nnz);
+    kinsls_mem->s_JacMat = NewSparseMat(n, n, nnz, kinsls_mem->sparsetype);
     if (kinsls_mem->s_JacMat == NULL) {
       KINProcessError(kin_mem, KINSLS_MEM_FAIL, "KINSLS", "KINKLU", 
 		    MSGSP_MEM_FAIL);
@@ -340,8 +350,8 @@ static int kinKLUSetup(KINMem kin_mem)
        calls to KINKLUSetOrdering */
     klu_data->s_Common.ordering = klu_data->s_ordering;
 
-    klu_data->s_Symbolic = klu_analyze(JacMat->N, JacMat->colptrs, 
-				       JacMat->rowvals, &(klu_data->s_Common));
+    klu_data->s_Symbolic = klu_analyze(JacMat->NP, JacMat->indexptrs, 
+				       JacMat->indexvals, &(klu_data->s_Common));
     if (klu_data->s_Symbolic == NULL) {
       KINProcessError(kin_mem, KINSLS_PACKAGE_FAIL, "KINSLS", "kinKLUSetup", 
 		      MSGSP_PACKAGE_FAIL);
@@ -351,7 +361,7 @@ static int kinKLUSetup(KINMem kin_mem)
     /* ------------------------------------------------------------
        Compute the LU factorization of the Jacobian.
        ------------------------------------------------------------*/
-    klu_data->s_Numeric = klu_factor(JacMat->colptrs, JacMat->rowvals, 
+    klu_data->s_Numeric = klu_factor(JacMat->indexptrs, JacMat->indexvals, 
 				     JacMat->data, klu_data->s_Symbolic, 
 				     &(klu_data->s_Common));
 
@@ -366,7 +376,7 @@ static int kinKLUSetup(KINMem kin_mem)
   }
   else {
     
-    retval = klu_refactor(JacMat->colptrs, JacMat->rowvals, JacMat->data, 
+    retval = klu_refactor(JacMat->indexptrs, JacMat->indexvals, JacMat->data, 
 			klu_data->s_Symbolic, klu_data->s_Numeric,
 			&(klu_data->s_Common));
     if (retval == 0) {
@@ -394,7 +404,7 @@ static int kinKLUSetup(KINMem kin_mem)
       
       /* Condition number may be getting large.  
 	 Compute more accurate estimate */
-      retval = klu_condest(JacMat->colptrs, JacMat->data, 
+      retval = klu_condest(JacMat->indexptrs, JacMat->data, 
 			   klu_data->s_Symbolic, klu_data->s_Numeric,
 			   &(klu_data->s_Common));
       if (retval == 0) {
@@ -411,7 +421,7 @@ static int kinKLUSetup(KINMem kin_mem)
 
 	klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
 	
-	klu_data->s_Numeric = klu_factor(JacMat->colptrs, JacMat->rowvals, 
+	klu_data->s_Numeric = klu_factor(JacMat->indexptrs, JacMat->indexvals, 
 					 JacMat->data, klu_data->s_Symbolic, 
 					 &(klu_data->s_Common));
 
@@ -456,8 +466,8 @@ static int kinKLUSolve(KINMem kin_mem, N_Vector x, N_Vector b,
   xd = N_VGetArrayPointer(x);
 
   /* Call KLU to solve the linear system */
-  flag = klu_solve(klu_data->s_Symbolic, klu_data->s_Numeric, JacMat->N, 1, xd, 
-	    &(klu_data->s_Common));
+  flag = klu_data->sun_klu_solve(klu_data->s_Symbolic, klu_data->s_Numeric, JacMat->NP, 1, xd, 
+                                 &(klu_data->s_Common));
   if (flag == 0) {
     KINProcessError(kin_mem, KINSLS_PACKAGE_FAIL, "KINSLS", "kinKLUSolve", 
 		    MSGSP_PACKAGE_FAIL);
