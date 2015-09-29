@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4272 $
- * $Date: 2014-12-02 11:19:41 -0800 (Tue, 02 Dec 2014) $
+ * $Revision: 4552 $
+ * $Date: 2015-07-29 10:12:20 -0700 (Wed, 29 Jul 2015) $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -60,8 +60,8 @@
 #define NVAR   2
 #define NEQ    3*NVAR
 
-#define FTOL   RCONST(1.e-5)  /* function tolerance */
-#define STOL   RCONST(1.e-5) /* step tolerance */
+#define FTOL   RCONST(1.e-5) /* function tolerance */
+#define STOL   RCONST(1.e-5) /* step tolerance     */
 
 #define ZERO   RCONST(0.0)
 #define PT25   RCONST(0.25)
@@ -78,10 +78,6 @@ typedef struct {
   realtype ub[NVAR];
   int nnz;
 } *UserData;
-
-/* Accessor macro */
-#define Ith(v,i)    NV_Ith_S(v,i-1)   
-#define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1)
 
 /* Functions Called by the KINSOL Solver */
 static int func(N_Vector u, N_Vector f, void *user_data);
@@ -148,12 +144,12 @@ int main()
 
   N_VConst_Serial(ONE,s); /* no scaling */
 
-  Ith(c,1) =  ZERO;   /* no constraint on x1 */
-  Ith(c,2) =  ZERO;   /* no constraint on x2 */
-  Ith(c,3) =  ONE;    /* l1 = x1 - x1_min >= 0 */
-  Ith(c,4) = -ONE;    /* L1 = x1 - x1_max <= 0 */
-  Ith(c,5) =  ONE;    /* l2 = x2 - x2_min >= 0 */
-  Ith(c,6) = -ONE;    /* L2 = x2 - x22_min <= 0 */
+  NV_Ith_S(c,0) =  ZERO;   /* no constraint on x1 */
+  NV_Ith_S(c,1) =  ZERO;   /* no constraint on x2 */
+  NV_Ith_S(c,2) =  ONE;    /* l1 = x1 - x1_min >= 0  */
+  NV_Ith_S(c,3) = -ONE;    /* L1 = x1 - x1_max <= 0  */
+  NV_Ith_S(c,4) =  ONE;    /* l2 = x2 - x2_min >= 0  */
+  NV_Ith_S(c,5) = -ONE;    /* L2 = x2 - x22_min <= 0 */
   
   fnormtol=FTOL; scsteptol=STOL;
 
@@ -180,7 +176,7 @@ int main()
 //   if (check_flag(&flag, "KINDlsSetDenseJacFn", 1)) return(1);
 
 
-  /* Attach KLU linear solver using CSR matrix */
+  /* Attach KLU linear solver, which uses CSR matrix */
   flag = KINKLU(kmem, NEQ, data->nnz, CSR_MAT);
   if (check_flag(&flag, "KINKLU", 1)) return(1);
 
@@ -197,10 +193,10 @@ int main()
   printf("  [x1,x2] = ");
   PrintOutput(u1);
 
-//   N_VScale_Serial(ONE,u1,u);
-//   glstr = KIN_NONE;
-//   mset = 1;
-//   SolveIt(kmem, u, s, glstr, mset);
+  N_VScale_Serial(ONE,u1,u);
+  glstr = KIN_NONE;
+  mset = 1;
+  SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
@@ -211,52 +207,52 @@ int main()
 
   /* --------------------------- */
 
-//   N_VScale_Serial(ONE,u1,u);
-//   glstr = KIN_NONE;
-//   mset = 0;
-//   SolveIt(kmem, u, s, glstr, mset);
+  N_VScale_Serial(ONE,u1,u);
+  glstr = KIN_NONE;
+  mset = 0;
+  SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-//   N_VScale_Serial(ONE,u1,u);
-//   glstr = KIN_LINESEARCH;
-//   mset = 0;
-//   SolveIt(kmem, u, s, glstr, mset);
+  N_VScale_Serial(ONE,u1,u);
+  glstr = KIN_LINESEARCH;
+  mset = 0;
+  SolveIt(kmem, u, s, glstr, mset);
 
 
 
   /* --------------------------- */
 
-//   printf("\n------------------------------------------\n");
-//   printf("\nInitial guess in middle of feasible region\n");
-//   printf("  [x1,x2] = ");
-//   PrintOutput(u2);
+  printf("\n------------------------------------------\n");
+  printf("\nInitial guess in middle of feasible region\n");
+  printf("  [x1,x2] = ");
+  PrintOutput(u2);
 
-//   N_VScale_Serial(ONE,u2,u);
-//   glstr = KIN_NONE;
-//   mset = 1;
-//   SolveIt(kmem, u, s, glstr, mset);
-
-  /* --------------------------- */
-
-//   N_VScale_Serial(ONE,u2,u);
-//   glstr = KIN_LINESEARCH;
-//   mset = 1;
-//   SolveIt(kmem, u, s, glstr, mset);
+  N_VScale_Serial(ONE,u2,u);
+  glstr = KIN_NONE;
+  mset = 1;
+  SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-//   N_VScale_Serial(ONE,u2,u);
-//   glstr = KIN_NONE;
-//   mset = 0;
-//   SolveIt(kmem, u, s, glstr, mset);
+  N_VScale_Serial(ONE,u2,u);
+  glstr = KIN_LINESEARCH;
+  mset = 1;
+  SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-//   N_VScale_Serial(ONE,u2,u);
-//   glstr = KIN_LINESEARCH;
-//   mset = 0;
-//   SolveIt(kmem, u, s, glstr, mset);
+  N_VScale_Serial(ONE,u2,u);
+  glstr = KIN_NONE;
+  mset = 0;
+  SolveIt(kmem, u, s, glstr, mset);
+
+  /* --------------------------- */
+
+  N_VScale_Serial(ONE,u2,u);
+  glstr = KIN_LINESEARCH;
+  mset = 0;
+  SolveIt(kmem, u, s, glstr, mset);
 
 
 
@@ -359,19 +355,11 @@ static int jac(N_Vector y, N_Vector f,
   int *rowptrs;
   int *colvals;
   realtype *data;
-//   UserData params;
-//   realtype *lb;
-//   realtype *ub;
   
   yd = NV_DATA_S(y);
   rowptrs = (*J->rowptrs);
   colvals = (*J->colvals);
   data    = J->data;
-  
-  
-//   params = (UserData) user_data;
-//   lb = params->lb;
-//   ub = params->ub;
   
   SlsSetToZero(J);
 
@@ -438,28 +426,28 @@ static int jacDense(long int N,
   yd = NV_DATA_S(y);
 
   /* row 0 */
-  IJth(J,1,1) = PT5 * cos(yd[0]*yd[1]) * yd[1] - PT5;
-  IJth(J,1,2) = PT5 * cos(yd[0]*yd[1]) * yd[0] - PT25/PI;
+  DENSE_ELEM(J,0,0) = PT5 * cos(yd[0]*yd[1]) * yd[1] - PT5;
+  DENSE_ELEM(J,0,1) = PT5 * cos(yd[0]*yd[1]) * yd[0] - PT25/PI;
 
   /* row 1 */
-  IJth(J,2,1) = TWO * (ONE - PT25/PI) * (SUNRexp(TWO*yd[0]) - E);
-  IJth(J,2,2) = E/PI;
+  DENSE_ELEM(J,1,0) = TWO * (ONE - PT25/PI) * (SUNRexp(TWO*yd[0]) - E);
+  DENSE_ELEM(J,1,1) = E/PI;
   
   /* row 2 */
-  IJth(J,3,1) = -ONE;
-  IJth(J,3,3) =  ONE;
+  DENSE_ELEM(J,2,0) = -ONE;
+  DENSE_ELEM(J,2,2) =  ONE;
   
   /* row 3 */
-  IJth(J,4,1) = -ONE;
-  IJth(J,4,4) =  ONE;
+  DENSE_ELEM(J,3,0) = -ONE;
+  DENSE_ELEM(J,3,3) =  ONE;
   
   /* row 4 */
-  IJth(J,5,2) = -ONE;
-  IJth(J,5,5) =  ONE;
+  DENSE_ELEM(J,4,1) = -ONE;
+  DENSE_ELEM(J,4,4) =  ONE;
   
   /* row 5 */
-  IJth(J,6,2) = -ONE;
-  IJth(J,6,6) =  ONE;
+  DENSE_ELEM(J,5,1) = -ONE;
+  DENSE_ELEM(J,5,5) =  ONE;
   
 
   return(0);
@@ -553,11 +541,11 @@ static void PrintHeader(realtype fnormtol, realtype scsteptol)
 static void PrintOutput(N_Vector u)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf(" %8.6Lg  %8.6Lg\n", Ith(u,1), Ith(u,2));
+    printf(" %8.6Lg  %8.6Lg\n", NV_Ith_S(u,0), NV_Ith_S(u,1));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf(" %8.6g  %8.6g\n", Ith(u,1), Ith(u,2));
+    printf(" %8.6g  %8.6g\n", NV_Ith_S(u,0), NV_Ith_S(u,1));
 #else
-    printf(" %8.6g  %8.6g\n", Ith(u,1), Ith(u,2));
+    printf(" %8.6g  %8.6g\n", NV_Ith_S(u,0), NV_Ith_S(u,1));
 #endif
 }
 
@@ -577,16 +565,13 @@ static void PrintFinalStats(void *kmem)
 
 //   flag = KINDlsGetNumJacEvals(kmem, &nje);
 //   check_flag(&flag, "KINDlsGetNumJacEvals", 1);
-//   flag = KINDlsGetNumFuncEvals(kmem, &nfeD);
-//   check_flag(&flag, "KINDlsGetNumFuncEvals", 1);
 
   flag = KINSlsGetNumJacEvals(kmem, &nje);
   check_flag(&flag, "KINSlsGetNumJacEvals", 1);
-  nfeD = 0;
   
   printf("Final Statistics:\n");
   printf("  nni = %5ld    nfe  = %5ld \n", nni, nfe);
-  printf("  nje = %5ld    nfeD = %5ld \n", nje, nfeD);
+  printf("  nje = %5ld    \n", nje);
 }
 
 /*
