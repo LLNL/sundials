@@ -54,7 +54,7 @@ extern "C" {
        test for a compatible N_Vector internal representation
        by checking that the function N_VGetArrayPointer exists.
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int ARKKLU(void *arkode_mem, int n, int nnz); 
+SUNDIALS_EXPORT int ARKKLU(void *arkode_mem, int n, int nnz, int sparsetype); 
 
 
 /*---------------------------------------------------------------
@@ -83,7 +83,7 @@ SUNDIALS_EXPORT int ARKKLU(void *arkode_mem, int n, int nnz);
        test for a compatible N_Vector internal representation
        by checking that the function N_VGetArrayPointer exists.
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int ARKMassKLU(void *arkode_mem, int n, int nnz,
+SUNDIALS_EXPORT int ARKMassKLU(void *arkode_mem, int n, int nnz, int sparsetype,
 			       ARKSlsSparseMassFn smass); 
 
 

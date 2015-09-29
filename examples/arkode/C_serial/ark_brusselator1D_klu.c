@@ -217,7 +217,7 @@ int main()
 
   /* Specify the KLU sparse linear solver and Jacobian function */
   NNZ = 5*NEQ;
-  flag = ARKKLU(arkode_mem, NEQ, NNZ);
+  flag = ARKKLU(arkode_mem, NEQ, NNZ, CSC_MAT);
   if (check_flag(&flag, "ARKKLU", 1)) return 1;
   flag = ARKSlsSetSparseJacFn(arkode_mem, Jac);
   if (check_flag(&flag, "ARKSlsSetSparseJacFn", 1)) return 1;
@@ -398,7 +398,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
 
   /* Add in the Jacobian of the reaction terms matrix */
   if (udata->R == NULL) {
-    udata->R = NewSparseMat(J->M, J->N, J->NNZ);
+    udata->R = NewSparseMat(J->M, J->N, J->NNZ, CSC_MAT);
     if (udata->R == NULL) {
       printf("Jacobian calculation error in allocating R matrix!\n");
       return 1;
@@ -438,9 +438,9 @@ static int LaplaceMatrix(SlsMat Lap, UserData udata)
   SlsSetToZero(Lap);
 
   /* set first column to zero */
-  Lap->colptrs[IDX(0,0)] = nz;
-  Lap->colptrs[IDX(0,1)] = nz;
-  Lap->colptrs[IDX(0,2)] = nz;
+  (*Lap->colptrs)[IDX(0,0)] = nz;
+  (*Lap->colptrs)[IDX(0,1)] = nz;
+  (*Lap->colptrs)[IDX(0,2)] = nz;
   
   /* iterate over nodes, filling in Laplacian entries depending on these */
   uconst  = (udata->du)/(udata->dx)/(udata->dx);
@@ -452,59 +452,59 @@ static int LaplaceMatrix(SlsMat Lap, UserData udata)
   for (i=1; i<N-1; i++) {
 
     /* dependence on u at this node */
-    Lap->colptrs[IDX(i,0)] = nz;
+    (*Lap->colptrs)[IDX(i,0)] = nz;
     if (i>1) {                /* node to left */
       Lap->data[nz] = uconst;
-      Lap->rowvals[nz++] = IDX(i-1,0);
+      (*Lap->rowvals)[nz++] = IDX(i-1,0);
     }
 
     Lap->data[nz] = uconst2;  /* self */
-    Lap->rowvals[nz++] = IDX(i,0);
+    (*Lap->rowvals)[nz++] = IDX(i,0);
 
     if (i<N-2) {              /* node to right */
       Lap->data[nz] = uconst;
-      Lap->rowvals[nz++] = IDX(i+1,0);
+      (*Lap->rowvals)[nz++] = IDX(i+1,0);
     }
 
     /* dependence on v at this node */
-    Lap->colptrs[IDX(i,1)] = nz;
+    (*Lap->colptrs)[IDX(i,1)] = nz;
     if (i>1) {                /* node to left */
       Lap->data[nz] = vconst;
-      Lap->rowvals[nz++] = IDX(i-1,1);
+      (*Lap->rowvals)[nz++] = IDX(i-1,1);
     }
 
     Lap->data[nz] = vconst2;  /* self */
-    Lap->rowvals[nz++] = IDX(i,1);
+    (*Lap->rowvals)[nz++] = IDX(i,1);
 
     if (i<N-2) {              /* node to right */
       Lap->data[nz] = vconst;
-      Lap->rowvals[nz++] = IDX(i+1,1);
+      (*Lap->rowvals)[nz++] = IDX(i+1,1);
     }
 
     /* dependence on w at this node */
-    Lap->colptrs[IDX(i,2)] = nz;
+    (*Lap->colptrs)[IDX(i,2)] = nz;
     if (i>1) {                /* node to left */
       Lap->data[nz] = wconst;
-      Lap->rowvals[nz++] = IDX(i-1,2);
+      (*Lap->rowvals)[nz++] = IDX(i-1,2);
     }
 
     Lap->data[nz] = wconst2;  /* self */
-    Lap->rowvals[nz++] = IDX(i,2);
+    (*Lap->rowvals)[nz++] = IDX(i,2);
 
     if (i<N-2) {              /* node to right */
       Lap->data[nz] = wconst;
-      Lap->rowvals[nz++] = IDX(i+1,2);
+      (*Lap->rowvals)[nz++] = IDX(i+1,2);
     }
 
   }
 
   /* set last column to zero */
-  Lap->colptrs[IDX(N-1,0)] = nz;
-  Lap->colptrs[IDX(N-1,1)] = nz;
-  Lap->colptrs[IDX(N-1,2)] = nz;
+  (*Lap->colptrs)[IDX(N-1,0)] = nz;
+  (*Lap->colptrs)[IDX(N-1,1)] = nz;
+  (*Lap->colptrs)[IDX(N-1,2)] = nz;
   
   /* end of data */
-  Lap->colptrs[IDX(N-1,2)+1] = nz;
+  (*Lap->colptrs)[IDX(N-1,2)+1] = nz;
 
   return 0;
 }
@@ -525,9 +525,9 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
   SlsSetToZero(Jac);
 
   /* set first matrix column to zero */
-  Jac->colptrs[IDX(0,0)] = 0;
-  Jac->colptrs[IDX(0,1)] = 0;
-  Jac->colptrs[IDX(0,2)] = 0;
+  (*Jac->colptrs)[IDX(0,0)] = 0;
+  (*Jac->colptrs)[IDX(0,1)] = 0;
+  (*Jac->colptrs)[IDX(0,2)] = 0;
   
   /* iterate over interior nodes, filling in Jacobian entries */
   for (i=1; i<N-1; i++) {
@@ -538,47 +538,47 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
     w = Ydata[IDX(i,2)];
 
     /* dependence on u at this node */
-    Jac->colptrs[IDX(i,0)] = nz;
+    (*Jac->colptrs)[IDX(i,0)] = nz;
 
-    Jac->rowvals[nz] = IDX(i,0);        /* fu wrt u */
+    (*Jac->rowvals)[nz] = IDX(i,0);        /* fu wrt u */
     Jac->data[nz++] = TWO*u*v - w - ONE;
 
-    Jac->rowvals[nz] = IDX(i,1);        /* fv wrt u */
+    (*Jac->rowvals)[nz] = IDX(i,1);        /* fv wrt u */
     Jac->data[nz++] = w - TWO*u*v;
 
-    Jac->rowvals[nz] = IDX(i,2);        /* fw wrt u */
+    (*Jac->rowvals)[nz] = IDX(i,2);        /* fw wrt u */
     Jac->data[nz++] = -w;
 
     /* dependence on v at this node */
-    Jac->colptrs[IDX(i,1)] = nz;
+    (*Jac->colptrs)[IDX(i,1)] = nz;
 
-    Jac->rowvals[nz] = IDX(i,0);        /* fu wrt v */
+    (*Jac->rowvals)[nz] = IDX(i,0);        /* fu wrt v */
     Jac->data[nz++] = u*u;
 
-    Jac->rowvals[nz] = IDX(i,1);        /* fv wrt v */
+    (*Jac->rowvals)[nz] = IDX(i,1);        /* fv wrt v */
     Jac->data[nz++] = -u*u;
 
     /* dependence on w at this node */
-    Jac->colptrs[IDX(i,2)] = nz;
+    (*Jac->colptrs)[IDX(i,2)] = nz;
 
-    Jac->rowvals[nz] = IDX(i,0);        /* fu wrt w */
+    (*Jac->rowvals)[nz] = IDX(i,0);        /* fu wrt w */
     Jac->data[nz++] = -u;
 
-    Jac->rowvals[nz] = IDX(i,1);        /* fv wrt w */
+    (*Jac->rowvals)[nz] = IDX(i,1);        /* fv wrt w */
     Jac->data[nz++] = u;
 
-    Jac->rowvals[nz] = IDX(i,2);        /* fw wrt w */
+    (*Jac->rowvals)[nz] = IDX(i,2);        /* fw wrt w */
     Jac->data[nz++] = -ONE/ep - u;
 
   }
 
   /* set last matrix column to zero */
-  Jac->colptrs[IDX(N-1,0)] = nz;
-  Jac->colptrs[IDX(N-1,1)] = nz;
-  Jac->colptrs[IDX(N-1,2)] = nz;
+  (*Jac->colptrs)[IDX(N-1,0)] = nz;
+  (*Jac->colptrs)[IDX(N-1,1)] = nz;
+  (*Jac->colptrs)[IDX(N-1,2)] = nz;
 
   /* end of data */
-  Jac->colptrs[IDX(N-1,2)+1] = nz;
+  (*Jac->colptrs)[IDX(N-1,2)+1] = nz;
 
   return 0;
 }
