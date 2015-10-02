@@ -41,7 +41,7 @@ static int arkDenseSolve(ARKodeMem ark_mem, N_Vector b, N_Vector weight,
 			 N_Vector ycur, N_Vector fcur);
 static void arkDenseFree(ARKodeMem ark_mem);
 
-/* ARKDENSE minit, msetup, msolve, and mfree routines */
+/* ARKDENSE minit, msetup, msolve, mfree and mtimes routines */
 static int arkMassDenseInit(ARKodeMem ark_mem);
 static int arkMassDenseSetup(ARKodeMem ark_mem, N_Vector vtemp1, 
 			     N_Vector vtemp2, N_Vector vtemp3);

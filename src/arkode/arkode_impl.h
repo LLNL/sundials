@@ -303,8 +303,8 @@ typedef struct ARKodeMemRec {
   realtype ark_gammap;          /* gamma at the last setup call             */
   realtype ark_gamrat;          /* gamma / gammap                           */
   realtype ark_crate;           /* estimated corrector convergence rate     */
-  realtype ark_eLTE;            /* estimated local truncation error, used in
-				   nonlinear and linear solver tolerances   */
+  realtype ark_eRNrm;           /* estimated residual norm, used in nonlinear 
+				   and linear solver convergence tests      */
   realtype ark_nlscoef;         /* coefficient in nonlin. convergence test  */
   int      ark_mnewt;           /* Newton iteration counter                 */
 

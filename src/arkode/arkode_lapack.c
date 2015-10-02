@@ -52,7 +52,7 @@ static int arkLapackDenseSolve(ARKodeMem ark_mem, N_Vector b,
 			       N_Vector fctC);
 static void arkLapackDenseFree(ARKodeMem ark_mem);
 
-/* ARKLAPACK DENSE minit, msetup, msolve, and mfree routines */ 
+/* ARKLAPACK DENSE minit, msetup, msolve, mfree and mtimes routines */ 
 static int arkMassLapackDenseInit(ARKodeMem ark_mem);
 static int arkMassLapackDenseSetup(ARKodeMem ark_mem, N_Vector tmp1, 
 				   N_Vector tmp2, N_Vector tmp3);
@@ -73,7 +73,7 @@ static int arkLapackBandSolve(ARKodeMem ark_mem, N_Vector b,
 			      N_Vector fctC);
 static void arkLapackBandFree(ARKodeMem ark_mem);
 
-/* ARKLAPACK BAND minit, msetup, msolve, and mfree routines */ 
+/* ARKLAPACK BAND minit, msetup, msolve, mfree and mtimes routines */ 
 static int arkMassLapackBandInit(ARKodeMem ark_mem);
 static int arkMassLapackBandSetup(ARKodeMem ark_mem, N_Vector tmp1, 
 				  N_Vector tmp2, N_Vector tmp3);

@@ -18,6 +18,14 @@
 
 INSTALL(CODE "MESSAGE(\"\nInstall CVODE\n\")")
 
+IF(MPI_MPICC)
+  # use MPI_MPICC as the compiler
+  SET(CMAKE_C_COMPILER ${MPI_MPICC})
+ELSE(MPI_MPICC)
+  # add MPI_INCLUDE_PATH to include directories
+  INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
+ENDIF(MPI_MPICC)
+
 # Add variable cvode_SOURCES with the sources for the CVODE library
 SET(cvode_SOURCES
   cvode.c
@@ -41,6 +49,10 @@ ENDIF()
 
 IF(SUPERLUMT_FOUND)
     LIST(APPEND cvode_SOURCES cvode_superlumt.c)
+ENDIF()
+
+IF(HYPRE_FOUND)
+     LIST(APPEND cvode_SOURCES cvode_hypamgpre.c)
 ENDIF()
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
@@ -83,6 +95,10 @@ ENDIF()
 
 IF(SUPERLUMT_FOUND)
     LIST(APPEND cvode_HEADERS cvode_superlumt.h)
+ENDIF()
+
+IF(HYPRE_FOUND)
+     LIST(APPEND cvode_HEADERS cvode_hypamgpre.h)
 ENDIF()
 
 # Add prefix with complete path to the CVODE header files

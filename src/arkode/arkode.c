@@ -36,6 +36,8 @@
 #include <nvector/nvector_serial.h>
 #endif
 
+#define FIXED_LIN_TOL
+
 #ifdef __GNUC__
 #define SUNDIALS_UNUSED __attribute__ ((unused))
 #else
@@ -331,7 +333,7 @@ int ARKodeInit(void *arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
   ark_mem->ark_hadapt_ehist[0] = ONE;
   ark_mem->ark_hadapt_ehist[1] = ONE;
   ark_mem->ark_hadapt_ehist[2] = ONE;
-  ark_mem->ark_eLTE = 1.0;
+  ark_mem->ark_eRNrm = 1.0;
 
   /* Initialize step history */
   ark_mem->ark_hadapt_hhist[0] = ZERO;
@@ -450,7 +452,7 @@ int ARKodeReInit(void *arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
   ark_mem->ark_hadapt_ehist[0] = ONE;
   ark_mem->ark_hadapt_ehist[1] = ONE;
   ark_mem->ark_hadapt_ehist[2] = ONE;
-  ark_mem->ark_eLTE = 1.0;
+  ark_mem->ark_eRNrm = 1.0;
 
   /* Initialize step history */
   ark_mem->ark_hadapt_hhist[0] = ZERO;
@@ -2228,7 +2230,7 @@ static void arkPrintMem(ARKodeMem ark_mem)
   printf("ark_gammap = %.16g\n", ark_mem->ark_gammap);
   printf("ark_gamrat = %.16g\n", ark_mem->ark_gamrat);
   printf("ark_crate = %.16g\n", ark_mem->ark_crate);
-  printf("ark_eLTE = %.16g\n", ark_mem->ark_eLTE);
+  printf("ark_eRNrm = %.16g\n", ark_mem->ark_eRNrm);
   printf("ark_nlscoef = %.16g\n", ark_mem->ark_nlscoef);
   printf("ark_fixedstep = %i\n", ark_mem->ark_fixedstep);
   printf("ark_hadapt_ehist =  %.16g  %.16g  %.16g\n",
@@ -4677,8 +4679,8 @@ static int arkNlsNewton(ARKodeMem ark_mem, int nflag)
     ark_mem->ark_mnewt = m = 0;
     del = delp = ZERO;
 
-    /* Reset the local truncation error estimate */
-    ark_mem->ark_eLTE = ark_mem->ark_nlscoef * RCONST(0.1);
+    /* Reset the stored residual norm (for iterative linear solvers) */
+    ark_mem->ark_eRNrm = RCONST(0.1) * ark_mem->ark_nlscoef;
 
     /* Looping point for Newton iteration */
     for(;;) {
@@ -4694,8 +4696,6 @@ static int arkNlsNewton(ARKodeMem ark_mem, int nflag)
       /* Call the lsolve function */
       retval = ark_mem->ark_lsolve(ark_mem, b, ark_mem->ark_rwt, 
 				   ark_mem->ark_y, ark_mem->ark_ftemp); 
-      /* retval = ark_mem->ark_lsolve(ark_mem, b, ark_mem->ark_ewt,  */
-      /* 				   ark_mem->ark_y, ark_mem->ark_ftemp);  */
       ark_mem->ark_nni++;
     
       if (retval < 0) {
@@ -4718,19 +4718,23 @@ static int arkNlsNewton(ARKodeMem ark_mem, int nflag)
       N_VLinearSum(ONE, ark_mem->ark_acor, ONE, b, ark_mem->ark_acor);
       N_VLinearSum(ONE, ark_mem->ark_ycur, ONE, ark_mem->ark_acor, ark_mem->ark_y);
 
-      /* Test for convergence.  If m > 0, an estimate of the convergence
-	 rate constant is stored in crate, and used in the test */
+      /* Compute the nonlinear error estimate.  If m > 0, an estimate of the convergence
+	 rate constant is stored in crate, and used in the subsequent estimates */
       if (m > 0) 
 	ark_mem->ark_crate = SUNMAX(ark_mem->ark_crdown*ark_mem->ark_crate, del/delp);
-      if (ark_mem->ark_crate < ONE)
-      	ark_mem->ark_eLTE = ark_mem->ark_nlscoef * (ONE - ark_mem->ark_crate);
-      else
-      	ark_mem->ark_eLTE = ark_mem->ark_nlscoef * RCONST(0.1);
-      dcon = del * SUNMIN(ONE, ark_mem->ark_crate) / ark_mem->ark_eLTE;
+      dcon = SUNMIN(ark_mem->ark_crate, ONE) * del / ark_mem->ark_nlscoef;
+
+      /* compute the forcing term for linear solver tolerance */
+      ark_mem->ark_eRNrm = SUNMIN(ark_mem->ark_crate, ONE) * del
+	                 * RCONST(0.1) * ark_mem->ark_nlscoef;
+#ifdef FIXED_LIN_TOL
+      /* reset if a fixed linear solver tolerance is desired */
+      ark_mem->ark_eRNrm = RCONST(0.1) * ark_mem->ark_nlscoef;
+#endif
 
 #ifdef DEBUG_OUTPUT
  printf("Newton iter %i,  del = %19.16g,  crate = %19.16g\n", m, del, ark_mem->ark_crate);
- printf("   eLTE = %19.16g,  dcon = %19.16g\n", ark_mem->ark_eLTE, dcon);
+ printf("   dcon = %19.16g\n", dcon);
  printf("Newton correction:\n");
  N_VPrint_Serial(ark_mem->ark_acor);
 #endif
@@ -4885,21 +4889,17 @@ static int arkNlsAccelFP(ARKodeMem ark_mem, int nflag)
     }
     ark_mem->ark_nni++;
 
-    /* measure convergence. If ark_mem->ark_mnewt > 0, an estimate of the convergence
-       rate constant is stored in crate, and used in the test */
+    /* compute the nonlinear error estimate.  If m > 0, an estimate of the convergence
+       rate constant is stored in crate, and used in the subsequent estimates */
     N_VLinearSum(ONE, y, -ONE, ycur, tempv);
     del = N_VWrmsNorm(tempv, ark_mem->ark_ewt);
     if (ark_mem->ark_mnewt > 0)
       ark_mem->ark_crate = SUNMAX(ark_mem->ark_crdown*ark_mem->ark_crate, del/delp);
-    if (ark_mem->ark_crate < ONE)
-      ark_mem->ark_eLTE = ark_mem->ark_nlscoef * (ONE - ark_mem->ark_crate);
-    else
-      ark_mem->ark_eLTE = ark_mem->ark_nlscoef * RCONST(0.1);
-    dcon = del * SUNMIN(ONE, ark_mem->ark_crate) / ark_mem->ark_eLTE;
+    dcon = SUNMIN(ark_mem->ark_crate, ONE) * del / ark_mem->ark_nlscoef;
 
 #ifdef DEBUG_OUTPUT
  printf("FP iter %i,  del = %19.16g,  crate = %19.16g\n", ark_mem->ark_mnewt, del, ark_mem->ark_crate);
- printf("   eLTE = %19.16g,  dcon = %19.16g\n", ark_mem->ark_eLTE, dcon);
+ printf("   dcon = %19.16g\n", dcon);
  printf("Fixed-point correction:\n");
  N_VPrint_Serial(tempv);
 #endif
@@ -5163,8 +5163,8 @@ static int arkLs(ARKodeMem ark_mem, int nflag)
   ark_mem->ark_mnewt = 0;
   del = ZERO;
 
-  /*   Set the local truncation error estimate to force an "accurate" linear solve */
-  ark_mem->ark_eLTE = ark_mem->ark_nlscoef * RCONST(0.1);
+  /*   Set the stored residual norm to force an "accurate" initial linear solve */
+  ark_mem->ark_eRNrm = RCONST(0.1) * ark_mem->ark_nlscoef;
 
   /*   Evaluate the nonlinear system residual, put result into b */
   retval = arkNlsResid(ark_mem, ark_mem->ark_acor, ark_mem->ark_ftemp, b);
