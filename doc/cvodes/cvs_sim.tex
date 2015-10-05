@@ -943,10 +943,16 @@ and {\sptfqmr}, are described separately in Chapter \ref{s:gen_linsolv}.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[N] (\id{int})
+  \item[NP] (\id{int})
     problem dimension.
   \item[NNZ] (\id{int})
     maximum number of nonzero entries in the system Jacobian.
+  \item[sparsetype] (\id{int})
+    sparse storage type of the system Jacobian. If \Id{sparsetype} is  
+    set to \Id{CSC\_MAT} the solver will expect Jacobian to be stored as 
+    compressed sparse column matrix, and if \Id{sparsetype=CSR\_MAT} 
+    the solver will expect compressed sparse row matrix. 
+    If neither option is chosen, the solver will exit with error.
   \end{args}
 }
 {
