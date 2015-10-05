@@ -53,7 +53,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-  SUNDIALS_EXPORT int IDAKLU(void *ida_mem, int n, int nnz); 
+  SUNDIALS_EXPORT int IDAKLU(void *ida_mem, int n, int nnz, int sparesetype); 
 
 /*
  * -----------------------------------------------------------------
@@ -121,7 +121,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-  SUNDIALS_EXPORT int IDAKLUB(void *ida_mem, int which, int nB, int nnzB);
+  SUNDIALS_EXPORT int IDAKLUB(void *ida_mem, int which, int nB, int nnzB, int sparsetype);
 
 
 /*

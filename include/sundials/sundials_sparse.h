@@ -29,6 +29,9 @@ extern "C" {
  * ==================================================================
  */
 
+#define CSC_MAT 0
+#define CSR_MAT 1
+
 /*
  * -----------------------------------------------------------------
  * Type : SlsMat
@@ -47,9 +50,15 @@ extern "C" {
  *    M     - number of rows
  *    N     - number of columns
  *    NNZ   - the number of nonzero entries in the matrix
+ *    NP    - number of index pointers
  *    data  - pointer to a contiguous block of realtype variables
- *    rowvals - row indices of each nonzero entry
- *    colptrs - starting index of the first entry in data in each column
+ *    sparsetype - type of sparse matrix: compressed sparse column or row
+ *    indexvals  - indices of each nonzero entry (columns or rows)
+ *    indexptrs  - starting index of the first entry in data for each slice
+ *    rowvals - pointer to row indices of each nonzero entry
+ *    colptrs - pointer to starting indices in data array for each column
+ *    colvals - pointer to column indices of each nonzero entry
+ *    rowptrs - pointer to starting indices in data array for each row
  *
  * The nonzero entries of the matrix are stored in
  * compressed column format.  Row indices of entries in 
@@ -63,9 +72,17 @@ typedef struct _SlsMat {
   int M;
   int N;
   int NNZ;
+  int NP;
   realtype *data;
-  int *rowvals;
-  int *colptrs;
+  int sparsetype;
+  int *indexvals;
+  int *indexptrs;
+  /* CSC indices */
+  int **rowvals;
+  int **colptrs;
+  /* CSR indices */
+  int **colvals;
+  int **rowptrs;
 } *SlsMat;
 
 /*
@@ -79,20 +96,20 @@ typedef struct _SlsMat {
  * Function: NewSparseMat
  * -----------------------------------------------------------------
  * NewSparseMat allocates memory for a compressed column sparse
- * matrix with M rows, N columns, and NNZ nonzeros. NewSparseMat
- * returns NULL if the request for matrix storage cannot be
- * satisfied. See the above documentation for the type SlsMat
- * for matrix storage details.
+ * matrix with M rows, N columns, NNZ nonzeros and of sparsetype 
+ * type (CSC or CSR matrix). NewSparseMat returns NULL if the 
+ * request for matrix storage cannot be satisfied. See the above 
+ * documentation for the type SlsMat for matrix storage details.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SlsMat NewSparseMat(int M, int N, int NNZ);
+SUNDIALS_EXPORT SlsMat NewSparseMat(int M, int N, int NNZ, int sparsetype);
 
 /*
  * -----------------------------------------------------------------
  * Function: SlsConvertDls
  * -----------------------------------------------------------------
- * SlsConvertDense creates a new sparse matrix from an existing
+ * SlsConvertDense creates a new CSC matrix from an existing
  * dense/band matrix by copying all nonzero values into the sparse 
  * matrix structure.  SlsConvertDense returns NULL if the request 
  * for matrix storage cannot be satisfied. 
@@ -206,7 +223,42 @@ SUNDIALS_EXPORT int SlsMatvec(SlsMat A, realtype *x, realtype *y);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void PrintSparseMat(SlsMat A);
+SUNDIALS_EXPORT void PrintSparseMatCSC(SlsMat A);
+
+
+/*
+ * ==================================================================
+ * Private function prototypes (functions working on SlsMat)
+ * ==================================================================
+ */
+
+/*
+ * -----------------------------------------------------------------
+ * Functions: SlsMatvecCSC
+ * -----------------------------------------------------------------
+ * This function computes the matrix-vector product, y=A*x, where A
+ * is a CSC sparse matrix of dimension MxN, x is a realtype array of 
+ * length N, and y is a realtype array of length M. Upon successful
+ * completion, the return value is zero; otherwise 1 is returned.
+ * -----------------------------------------------------------------
+ */
+
+int SlsMatvecCSC(SlsMat A, realtype *x, realtype *y);
+
+/*
+ * -----------------------------------------------------------------
+ * Functions: SlsMatvecCSR
+ * -----------------------------------------------------------------
+ * This function computes the matrix-vector product, y=A*x, where A
+ * is a CSR sparse matrix of dimension MxN, x is a realtype array of 
+ * length N, and y is a realtype array of length M. Upon successful
+ * completion, the return value is zero; otherwise 1 is returned.
+ * -----------------------------------------------------------------
+ */
+
+int SlsMatvecCSR(SlsMat A, realtype *x, realtype *y);
+
+//void PrintSparseMatDebug(SlsMat A);
 
 
 #ifdef __cplusplus

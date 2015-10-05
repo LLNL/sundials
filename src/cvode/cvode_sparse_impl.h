@@ -73,6 +73,8 @@ typedef struct CVSlsMemRec {
 
   SlsMat s_savedJ;          /* saved copy of Jacobian */
 
+  int sparsetype;           /* matrix type: compressed sparse column or row */
+
   void *s_solver_data;      /* structure for solver-specific data */
   
 

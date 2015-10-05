@@ -1,8 +1,9 @@
 %!PS-Adobe-3.0 EPSF-3.0
 %%Title: cscmat.fig
 %%Creator: fig2dev Version 3.2 Patchlevel 5d
-%%CreationDate: Wed Jul  9 10:17:44 2014
-%%BoundingBox: 0 0 466 434
+%%CreationDate: Mon Oct  5 07:36:59 2015
+%%For: peles2@tux377.llnl.gov ()
+%%BoundingBox: 0 0 473 483
 %Magnification: 1.0000
 %%EndComments
 %%BeginProlog
@@ -42,7 +43,7 @@ $F2psDict /mtrx matrix put
 /col29 {1.000 0.750 0.750 srgb} bind def
 /col30 {1.000 0.880 0.880 srgb} bind def
 /col31 {1.000 0.840 0.000 srgb} bind def
-/col32 {0.565 0.565 0.565 srgb} bind def
+/col32 {0.557 0.557 0.557 srgb} bind def
 /col33 {0.000 0.000 0.000 srgb} bind def
 
 end
@@ -134,7 +135,7 @@ newfontname newfont definefont pop end } def
 
 /pageheader {
 save
-newpath 0 434 moveto 0 0 lineto 466 0 lineto 466 434 lineto closepath clip newpath
+newpath 0 483 moveto 0 0 lineto 473 0 lineto 473 483 lineto closepath clip newpath
 -215.1 432.7 translate
 1 -1 scale
 $F2psBegin
@@ -210,9 +211,18 @@ n 7725 1125 38 38 0 360 DrawEllipse gs col32 1.00 shd ef gr gs col0 s gr
 % Ellipse
 n 4200 600 38 38 0 360 DrawEllipse gs col32 1.00 shd ef gr gs col0 s gr
 
-% Polyline
-n 5250 1425 m 8250 1425 l 8250 0 l 5250 0 l
- cp gs col0 s gr 
+% Ellipse
+n 5775 300 38 38 0 360 DrawEllipse gs col32 1.00 shd ef gr gs col0 s gr
+
+% Ellipse
+n 6750 300 38 38 0 360 DrawEllipse gs col32 1.00 shd ef gr gs col0 s gr
+
+% Ellipse
+n 7725 300 38 38 0 360 DrawEllipse gs col32 1.00 shd ef gr gs col0 s gr
+
+% Ellipse
+n 8700 300 38 38 0 360 DrawEllipse gs col32 1.00 shd ef gr gs col0 s gr
+
 % Polyline
 gs  clippath
 6720 1963 m 6720 2115 l 6780 2115 l 6780 1963 l 6780 1963 l 6750 2083 l 6720 1963 l cp
@@ -274,28 +284,10 @@ n 4950 4950 m 5550 4950 l 5550 5400 l 4950 5400 l
 n 4950 5400 m 5550 5400 l 5550 5850 l 4950 5850 l
  cp gs col0 s gr 
 % Polyline
-n 7950 5400 m 10050 5400 l 10050 5850 l 7950 5850 l
+n 7950 4950 m 10200 4950 l 10200 5400 l 7950 5400 l
  cp gs col0 s gr 
 % Polyline
-n 7950 4950 m 10050 4950 l 10050 5400 l 7950 5400 l
- cp gs col0 s gr 
-% Polyline
-n 7950 4500 m 10050 4500 l 10050 4950 l 7950 4950 l
- cp gs col0 s gr 
-% Polyline
-n 7950 3900 m 10050 3900 l 10050 4500 l 7950 4500 l
- cp gs col0 s gr 
-% Polyline
-n 7950 3450 m 10050 3450 l 10050 3900 l 7950 3900 l
- cp gs col0 s gr 
-% Polyline
-n 7950 3000 m 10050 3000 l 10050 3450 l 7950 3450 l
- cp gs col0 s gr 
-% Polyline
-n 7950 2550 m 10050 2550 l 10050 3000 l 7950 3000 l
- cp gs col0 s gr 
-% Polyline
-n 7950 2100 m 10050 2100 l 10050 2550 l 7950 2550 l
+n 7950 3000 m 10200 3000 l 10200 3450 l 7950 3450 l
  cp gs col0 s gr 
 % Polyline
 n 10350 2100 m
@@ -450,26 +442,68 @@ n 5687 6045 m 5567 6075 l 5687 6105 l  col0 s
 n 4950 5850 m 5550 5850 l 5550 7200 l 4950 7200 l
  cp gs col32 1.00 shd ef gr gs col0 s gr 
 % Polyline
-n 7950 5850 m 10050 5850 l 10050 7200 l 7950 7200 l
+n 7950 5400 m 10200 5400 l 10200 5850 l 7950 5850 l
+ cp gs col0 s gr 
+% Polyline
+gs  clippath
+6062 1095 m 5910 1095 l 5910 1155 l 6062 1155 l 6062 1155 l 5942 1125 l 6062 1095 l cp
+eoclip
+n 5775 300 m 6225 300 l 6225 1125 l
+ 5925 1125 l gs col0 s gr gr
+
+% arrowhead
+n 6062 1095 m 5942 1125 l 6062 1155 l  col0 s
+% Polyline
+gs  clippath
+7037 1095 m 6885 1095 l 6885 1155 l 7037 1155 l 7037 1155 l 6917 1125 l 7037 1095 l cp
+eoclip
+n 6750 300 m 7200 300 l 7200 1125 l
+ 6900 1125 l gs col0 s gr gr
+
+% arrowhead
+n 7037 1095 m 6917 1125 l 7037 1155 l  col0 s
+% Polyline
+gs  clippath
+8130 -462 m 8130 -615 l 8070 -615 l 8070 -462 l 8070 -462 l 8100 -582 l 8130 -462 l cp
+eoclip
+n 7725 300 m 8100 300 l
+ 8100 -600 l gs col0 s gr gr
+
+% arrowhead
+n 8130 -462 m 8100 -582 l 8070 -462 l  col0 s
+% Polyline
+gs  clippath
+9105 -462 m 9105 -615 l 9045 -615 l 9045 -462 l 9045 -462 l 9075 -582 l 9105 -462 l cp
+eoclip
+n 8700 300 m 9075 300 l
+ 9075 -600 l gs col0 s gr gr
+
+% arrowhead
+n 9105 -462 m 9075 -582 l 9045 -462 l  col0 s
+% Polyline
+n 7950 4500 m 10200 4500 l 10200 4950 l 7950 4950 l
+ cp gs col0 s gr 
+% Polyline
+n 7950 3900 m 10200 3900 l 10200 4500 l 7950 4500 l
+ cp gs col0 s gr 
+% Polyline
+n 7950 3450 m 10200 3450 l 10200 3900 l 7950 3900 l
+ cp gs col0 s gr 
+% Polyline
+n 7950 2550 m 10200 2550 l 10200 3000 l 7950 3000 l
+ cp gs col0 s gr 
+% Polyline
+n 7950 2100 m 10200 2100 l 10200 2550 l 7950 2550 l
+ cp gs col0 s gr 
+% Polyline
+n 5250 -300 m 11250 -300 l 11250 1500 l 5250 1500 l
+ cp gs col0 s gr 
+% Polyline
+n 7950 5850 m 10200 5850 l 10200 7200 l 7950 7200 l
  cp gs col32 1.00 shd ef gr gs col0 s gr 
-/Times-Roman-iso ff 200.00 scf sf
-6450 900 m
-gs 1 -1 sc (colptrs) col0 sh gr
-/Times-Roman-iso ff 200.00 scf sf
-5700 225 m
-gs 1 -1 sc (M) col0 sh gr
-/Times-Roman-iso ff 200.00 scf sf
-5475 900 m
-gs 1 -1 sc (rowvals) col0 sh gr
 /Times-Roman-iso ff 200.00 scf sf
 7575 900 m
 gs 1 -1 sc (data) col0 sh gr
-/Times-Roman-iso ff 200.00 scf sf
-7500 225 m
-gs 1 -1 sc (NNZ) col0 sh gr
-/Times-Roman-iso ff 200.00 scf sf
-6675 225 m
-gs 1 -1 sc (N) col0 sh gr
 /Times-Roman-iso ff 200.00 scf sf
 3600 225 m
 gs 1 -1 sc (A \(type SlsMat\)) col0 sh gr
@@ -486,32 +520,71 @@ gs 1 -1 sc (0) col0 sh gr
 6675 2850 m
 gs 1 -1 sc (j) col0 sh gr
 /Times-Roman-iso ff 200.00 scf sf
-8175 5700 m
-gs 1 -1 sc (A\(rowvals[nz-1],N-1\)) col0 sh gr
-/Times-Roman-iso ff 200.00 scf sf
-8250 4800 m
-gs 1 -1 sc (A\(rowvals[k],N-1\)) col0 sh gr
-/Times-Roman-iso ff 200.00 scf sf
-8400 3750 m
-gs 1 -1 sc (A\(rowvals[j],1\)) col0 sh gr
-/Times-Roman-iso ff 200.00 scf sf
-8400 2850 m
-gs 1 -1 sc (A\(rowvals[1],0\)) col0 sh gr
-/Times-Roman-iso ff 200.00 scf sf
-8400 2400 m
-gs 1 -1 sc (A\(rowvals[0],0\)) col0 sh gr
-/Times-Roman-iso ff 200.00 scf sf
 10500 2850 m
 gs 1 -1 sc (column 0) col0 sh gr
-/Times-Roman-iso ff 200.00 scf sf
-10350 5250 m
-gs 1 -1 sc (column N-1) col0 sh gr
 /Times-Roman-iso ff 200.00 scf sf
 10500 6450 m
 gs 1 -1 sc (unused) col0 sh gr
 /Times-Roman-iso ff 200.00 scf sf
 10500 6600 m
 gs 1 -1 sc (storage) col0 sh gr
+/Times-Roman-iso ff 200.00 scf sf
+5475 75 m
+gs 1 -1 sc (rowvals) col0 sh gr
+/Times-Roman-iso ff 200.00 scf sf
+6450 75 m
+gs 1 -1 sc (colptrs) col0 sh gr
+/Times-Roman-iso ff 200.00 scf sf
+5400 900 m
+gs 1 -1 sc (indexvals) col0 sh gr
+/Times-Roman-iso ff 200.00 scf sf
+6375 900 m
+gs 1 -1 sc (indexptrs) col0 sh gr
+/Times-Roman-iso ff 200.00 scf sf
+7425 75 m
+gs 1 -1 sc (colvals) col0 sh gr
+/Times-Roman-iso ff 200.00 scf sf
+8400 75 m
+gs 1 -1 sc (rowptrs) col0 sh gr
+/Times-Roman-iso ff 200.00 scf sf
+7875 -675 m
+gs 1 -1 sc (NULL) col0 sh gr
+/Times-Roman-iso ff 200.00 scf sf
+8850 -675 m
+gs 1 -1 sc (NULL) col0 sh gr
+/Times-Roman-iso ff 200.00 scf sf
+8325 3750 m
+gs 1 -1 sc (A\(*rowvals[j],1\)) col0 sh gr
+/Times-Roman-iso ff 200.00 scf sf
+8325 2850 m
+gs 1 -1 sc (A\(*rowvals[1],0\)) col0 sh gr
+/Times-Roman-iso ff 200.00 scf sf
+8325 2400 m
+gs 1 -1 sc (A\(*rowvals[0],0\)) col0 sh gr
+/Times-Roman-iso ff 200.00 scf sf
+8175 4800 m
+gs 1 -1 sc (A\(*rowvals[k],NP-1\)) col0 sh gr
+/Times-Roman-iso ff 200.00 scf sf
+8025 5700 m
+gs 1 -1 sc (A\(*rowvals[nz-1],NP-1\)) col0 sh gr
+/Times-Roman-iso ff 200.00 scf sf
+10350 5250 m
+gs 1 -1 sc (column NP-1) col0 sh gr
+/Times-Roman-iso ff 200.00 scf sf
+8475 900 m
+gs 1 -1 sc (NNZ) col0 sh gr
+/Times-Roman-iso ff 200.00 scf sf
+9450 75 m
+gs 1 -1 sc (M) col0 sh gr
+/Times-Roman-iso ff 200.00 scf sf
+9150 900 m
+gs 1 -1 sc (sparsetype=CSC_MAT) col0 sh gr
+/Times-Roman-iso ff 200.00 scf sf
+10800 75 m
+gs 1 -1 sc (N) col0 sh gr
+/Times-Roman-iso ff 200.00 scf sf
+9900 75 m
+gs 1 -1 sc (NP = N) col0 sh gr
 % here ends figure;
 % 
 % here starts figure with depth 0
@@ -567,22 +640,40 @@ n 9000 3150 15 15 0 360 DrawEllipse gs 0.00 setgray ef gr gs col-1 s gr
 n 6900 1275 m 6900 975 l 6600 975 l 6600 1275 l
  cp gs col-1 s gr 
 % Polyline
-n 5925 600 m 5925 300 l 5625 300 l 5625 600 l
+n 7875 1275 m 7875 975 l 7575 975 l 7575 1275 l
+ cp gs col-1 s gr 
+% Polyline
+n 4350 750 m 4350 450 l 4050 450 l 4050 750 l
  cp gs col-1 s gr 
 % Polyline
 n 5925 1275 m 5925 975 l 5625 975 l 5625 1275 l
  cp gs col-1 s gr 
 % Polyline
-n 7875 1275 m 7875 975 l 7575 975 l 7575 1275 l
+n 5925 450 m 5925 150 l 5625 150 l 5625 450 l
  cp gs col-1 s gr 
 % Polyline
-n 7875 600 m 7875 300 l 7575 300 l 7575 600 l
+n 6900 450 m 6900 150 l 6600 150 l 6600 450 l
  cp gs col-1 s gr 
 % Polyline
-n 6900 600 m 6900 300 l 6600 300 l 6600 600 l
+n 7875 450 m 7875 150 l 7575 150 l 7575 450 l
  cp gs col-1 s gr 
 % Polyline
-n 4350 750 m 4350 450 l 4050 450 l 4050 750 l
+n 8850 450 m 8850 150 l 8550 150 l 8550 450 l
+ cp gs col-1 s gr 
+% Polyline
+n 8850 1275 m 8850 975 l 8550 975 l 8550 1275 l
+ cp gs col-1 s gr 
+% Polyline
+n 9675 450 m 9675 150 l 9375 150 l 9375 450 l
+ cp gs col-1 s gr 
+% Polyline
+n 10275 1275 m 10275 975 l 9975 975 l 9975 1275 l
+ cp gs col-1 s gr 
+% Polyline
+n 11025 450 m 11025 150 l 10725 150 l 10725 450 l
+ cp gs col-1 s gr 
+% Polyline
+n 10350 450 m 10350 150 l 10050 150 l 10050 450 l
  cp gs col-1 s gr 
 % here ends figure;
 pagefooter

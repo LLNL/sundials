@@ -555,6 +555,11 @@ function \id{SUNRabs}.
 %%
 \index{KLU@{\klu} sparse linear solver!type \id{SlsMat}|(}
 \index{SUPERLUMT@{\superlumt} sparse linear solver!type \id{SlsMat}|(}
+{\sundials} supports operations with compressed sparse column (CSC) and 
+compressed sparse row (CSR) matrices. For convenience integer sparse 
+matrix identifiers are defined as:\\
+  \indent \id{\#define CSC\_MAT 0}\\
+  \indent \id{\#define CSR\_MAT 1}\\
 The type \ID{SlsMat}, defined in \id{sundials\_sparse.h} is a pointer to a 
 structure defining a generic compressed-sparse-column matrix, and is
 used with all linear solvers in the {\em sls} family:
@@ -563,9 +568,15 @@ typedef struct _SlsMat {
   int M;
   int N;
   int NNZ;
+  int NP;
   realtype *data;
-  int *rowvals;
-  int *colptrs;
+  int sparsetype;
+  int *indexvals;
+  int *indexptrs;
+  int **rowvals;
+  int **colptrs;
+  int **colvals;
+  int **rowptrs;
 } *SlsMat;
 \end{verbatim}
 %%
@@ -578,23 +589,42 @@ sparse matrix of type \id{SlsMat} need not be square.
   \item[N]  - number of columns
   \item[NNZ]  - maximum number of nonzero entries in the matrix
     (allocated length of \id{data} and \id{rowvals} arrays)
+  \item[NP]  - number of index pointers (e.g. number of column pointers for 
+    CSC matrix). For CSC matrix $NP=N$ and for CSR matrix $NP=M$. This 
+    value is set automatically based on user setting of \verb|sparsetype|. 
   \item[data]  - pointer to a contiguous block of \id{realtype}
     variables (of length \id{NNZ}), containing the values of the
     nonzero entries in the matrix
-  \item[rowvals] - pointer to a contiguous block of \id{int} variables
-    (of length \id{NNZ}), containing the row indices of each nonzero
-    entry held in \id{data}
-  \item[colptrs]  - pointer to a contiguous block of \id{int}
-    variables (of length \id{N+1}). Each entry provides the index of
-    the first column entry into the \id{data} and \id{rowvals}
-    arrays, e.g. if \id{colptr[3]=7}, then the first nonzero entry in
-    the fourth column of the matrix is located in \id{data[7]}, and
-    is located in row \id{rowvals[7]} of the matrix.  The last entry
-    contains the total number of nonzero values in the matrix and hence
-    points one past the end of the active data in the \id{data} and
-    \id{rowvals} arrays.
+  \item[sparsetype]  - type of the sparse matrix (CSC or CSR)
+  \item[indexvals] - pointer to a contiguous block of \id{int} variables
+    (of length \id{NNZ}), containing the row indices of CSC (or 
+    column indices of CSR) matrix of each nonzero entry held in \id{data}
+  \item[indexptrs]  - pointer to a contiguous block of \id{int}
+    variables (of length \id{NP+1}). When matrix is of CSC type each 
+    entry provides the index of the first column entry into the 
+    \id{data} and \id{indexvals} arrays, e.g. if \id{indexptr[3]=7}, then 
+    the first nonzero entry in the fourth column of the matrix is 
+    located in \id{data[7]}, and is located in row \id{indexvals[7]} of the 
+    matrix.  The last entry contains the total number of nonzero values in 
+    the matrix and hence points one past the end of the active data in the 
+    \id{data} and \id{rowvals} arrays. For CSR matrices, each entry provides 
+    the index of the first row entry into the \id{data} and \id{indexvals} 
+    arrays.
 \end{description}
-For example, the $5\times 4$ matrix
+\noindent Following pointers are added to \id{SlsMat} type for user convenience, 
+to provide more intuitive interface to sparse matrix data structure. They are set 
+automatically by \id{NewSparseMat} function, based on sparse matrix storage type. 
+\begin{description}
+  \item[rowvals] - pointer to \verb|indexvals| when CSC type is selected,
+    otherwise set to \verb|NULL|.
+  \item[colptrs] - pointer to \verb|indexptrs| when CSC type is selected,
+    otherwise set to \verb|NULL|.
+  \item[colvals] - pointer to \verb|indexvals| when CSR type is selected,
+    otherwise set to \verb|NULL|.
+  \item[rowptrs] - pointer to \verb|indexptrs| when CSR type is selected,
+    otherwise set to \verb|NULL|.
+\end{description}
+For example, the $5\times 4$ CSC matrix
 \[
   \left[\begin{array}{cccc} 
      0 & 3 & 1 & 0\\
@@ -609,22 +639,31 @@ could be stored in a \id{SlsMat} structure as either
   M = 5;
   N = 4;
   NNZ = 8;
+  NP = N;
   data = {3.0, 1.0, 3.0, 7.0, 1.0, 2.0, 9.0, 5.0};
-  rowvals = {1, 3, 0, 2, 0, 1, 3, 4};
-  colptrs = {0, 2, 4, 5, 8};
+  sparsetype = CSC_MAT;
+  indexvals = {1, 3, 0, 2, 0, 1, 3, 4};
+  indexptrs = {0, 2, 4, 5, 8};
+  rowvals = &indexvals;
+  colptrs = &indexptrs;
+  colvals = NULL;
+  rowptrs = NULL;
 \end{verbatim}
 or 
 \begin{verbatim}
   M = 5;
   N = 4;
   NNZ = 10;
+  NP = N;
   data = {3.0, 1.0, 3.0, 7.0, 1.0, 2.0, 9.0, 5.0, *, *};
-  rowvals = {1, 3, 0, 2, 0, 1, 3, 4, *, *};
-  colptrs = {0, 2, 4, 5, 8};
+  sparsetype = CSC_MAT;
+  indexvals = {1, 3, 0, 2, 0, 1, 3, 4, *, *};
+  indexptrs = {0, 2, 4, 5, 8};
+  ...
 \end{verbatim}
 where the first has no unused space, and the second has additional
 storage (the entries marked with \texttt{*} may contain any values).
-Note in both cases that the final value in \id{colptrs} is $8$.  The work 
+Note in both cases that the final value in \id{indexptrs} is $8$.  The work 
 associated with operations on the sparse matrix is proportional to this
 value and so one should use the best understanding of the
 number of nonzeroes here.
@@ -638,17 +677,17 @@ number of nonzeroes here.
   {Diagram of the storage for a compressed-sparse-column matrix of
   type \id{SlsMat}. Here \id{A} is an $M \times N$ sparse matrix of
   type \id{SlsMat} with storage for up to \id{NNZ} nonzero entries
-  (the allocated length of both \id{data} and \id{rowvals}).  The
-  entries in \id{rowvals} may assume values from $0$ to $M-1$,
+  (the allocated length of both \id{data} and \id{indexvals}).  The
+  entries in \id{indexvals} may assume values from $0$ to $M-1$,
   corresponding to the row index (zero-based) of each nonzero value.
   The entries in \id{data} contain the values of the nonzero entries,
   with the row $i$, column $j$ entry of \id{A} (again, zero-based)
-  denoted as \id{A(i,j)}.  The \id{colptrs} array contains $N+1$
+  denoted as \id{A(i,j)}.  The \id{indexptrs} array contains $N+1$
   entries; the first $N$ denote the starting index of each column
-  within the \id{rowvals} and \id{data} arrays, while the final entry
+  within the \id{indexvals} and \id{data} arrays, while the final entry
   points one past the final nonzero entry.  Here, although \id{NNZ}
   values are allocated, only \id{nz} are actually filled in; the
-  greyed-out portions of \id{data} and \id{rowvals} indicate extra
+  greyed-out portions of \id{data} and \id{indexvals} indicate extra
   allocated space.}\label{f:cscmat}
 \end{figure}
 %%
@@ -665,12 +704,13 @@ type \id{SlsMat}.  For full details, see the header file \id{sundials\_sparse.h}
 \begin{itemize}
 
 \item \ID{NewSparseMat}
-  \par \id{NewSparseMat(M, N, NNZ)} allocates storage for an \id{M} by \id{N}
-  sparse matrix, with storage for up to \id{NNZ} nonzero entries.
+  \par \id{NewSparseMat(M, N, NNZ, sparsetype)} allocates storage for an \id{M} by \id{N}
+  sparse matrix, with storage for up to \id{NNZ} nonzero entries and \id{sparsetype} 
+  storage type.
 
 \item \ID{SlsConvertDls}
   \par \id{SlsConvertDls(A)} converts a dense or band matrix \id{A} of type
-  \id{DlsMat} into a new sparse matrix of type \id{SlsMat} by retaining
+  \id{DlsMat} into a new CSC matrix of type \id{SlsMat} by retaining
   only the nonzero values of the matrix \id{A}.
 
 \item \ID{DestroySparseMat}
@@ -684,9 +724,9 @@ type \id{SlsMat}.  For full details, see the header file \id{sundials\_sparse.h}
 \item \ID{CopySparseMat}
   \par \id{CopySparseMat(A, B)} copies the \id{SlsMat} \id{A} into the
   \id{SlsMat} \id{B}.  It is assumed that the matrices have the same
-  row/column dimensions.  If \id{B} has insufficient storage to hold
-  all the nonzero entries of \id{A}, the data and row index arrays in
-  \id{B} are reallocated to match those in \id{A}.
+  row/column dimensions and storage type.  If \id{B} has insufficient 
+  storage to hold all the nonzero entries of \id{A}, the data and row 
+  index arrays in \id{B} are reallocated to match those in \id{A}.
 
 \item \ID{ScaleSparseMat}
   \par \id{ScaleSparseMat(c, A)} scales every element in the
@@ -704,7 +744,8 @@ type \id{SlsMat}.  For full details, see the header file \id{sundials\_sparse.h}
   \id{B}, placing the result back in \id{A}.  Resizes the \id{data}
   and \id{rowvals} arrays of \id{A} upon completion to exactly match
   the nonzero storage for the result.  Upon successful completion, the
-  return value is zero; otherwise -1 is returned.
+  return value is zero; otherwise -1 is returned. It is assumed that
+  both matrices have the same size and storage type.
 
 \item \ID{ReallocSparseMat}
   \par \id{ReallocSparseMat(A)} eliminates unused storage in the
@@ -714,10 +755,10 @@ type \id{SlsMat}.  For full details, see the header file \id{sundials\_sparse.h}
 \item \ID{SlsMatvec}
   \par \id{SlsMatvec(A, x, y)} computes the sparse matrix-vector
   product, $y=Ax$.  If the \id{SlsMat} \id{A} 
-   is a sparse matrix of dimension $M\times N$, then it is assumed
-   that \id{x} is a \id{realtype} array of  length $N$, and \id{y} is a
-   \id{realtype} array of length $M$. Upon successful completion, the
-   return value is zero; otherwise -1 is returned.
+  is a sparse matrix of dimension $M\times N$, then it is assumed
+  that \id{x} is a \id{realtype} array of length $N$, and \id{y} is a
+  \id{realtype} array of length $M$. Upon successful completion, the
+  return value is zero; otherwise -1 is returned.
 
 \item \ID{PrintSparseMat}
   \par \id{PrintSparseMat(A)} Prints the \id{SlsMat} matrix \id{A} to

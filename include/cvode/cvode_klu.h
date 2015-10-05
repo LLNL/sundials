@@ -53,7 +53,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-  SUNDIALS_EXPORT int CVKLU(void *cv_mem, int n, int nnz); 
+  SUNDIALS_EXPORT int CVKLU(void *cv_mem, int n, int nnz, int sparsetype); 
 
 /*
  * -----------------------------------------------------------------

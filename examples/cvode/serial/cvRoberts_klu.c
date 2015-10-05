@@ -151,7 +151,7 @@ int main()
 
   /* Call CVKLU to specify the CVKLU sparse direct linear solver */
   nnz = NEQ * NEQ;
-  flag = CVKLU(cvode_mem, NEQ, nnz);
+  flag = CVKLU(cvode_mem, NEQ, nnz, CSC_MAT);
   if (check_flag(&flag, "CVKLU", 1)) return(1);
 
   /* Set the Jacobian routine to Jac (user-supplied) */
@@ -243,36 +243,42 @@ static int Jac(realtype t,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype *yval;
-
+  int* colptrs;
+  int* rowvals;
+  realtype* data;
+  
   yval = NV_DATA_S(y);
+  colptrs = (*JacMat->colptrs);
+  rowvals = (*JacMat->rowvals);
+  data    = JacMat->data;
 
   SlsSetToZero(JacMat);
 
-  JacMat->colptrs[0] = 0;
-  JacMat->colptrs[1] = 3;
-  JacMat->colptrs[2] = 6;
-  JacMat->colptrs[3] = 9;
+  colptrs[0] = 0;
+  colptrs[1] = 3;
+  colptrs[2] = 6;
+  colptrs[3] = 9;
 
-  JacMat->data[0] = RCONST(-0.04);
-  JacMat->rowvals[0] = 0;
-  JacMat->data[1] = RCONST(0.04);
-  JacMat->rowvals[1] = 1;
-  JacMat->data[2] = ZERO;
-  JacMat->rowvals[2] = 2;
+  data[0] = RCONST(-0.04);
+  rowvals[0] = 0;
+  data[1] = RCONST(0.04);
+  rowvals[1] = 1;
+  data[2] = ZERO;
+  rowvals[2] = 2;
 
-  JacMat->data[3] = RCONST(1.0e4)*yval[2];
-  JacMat->rowvals[3] = 0;
-  JacMat->data[4] = (RCONST(-1.0e4)*yval[2]) - (RCONST(6.0e7)*yval[1]);
-  JacMat->rowvals[4] = 1;
-  JacMat->data[5] = RCONST(6.0e7)*yval[1];
-  JacMat->rowvals[5] = 2;
+  data[3] = RCONST(1.0e4)*yval[2];
+  rowvals[3] = 0;
+  data[4] = (RCONST(-1.0e4)*yval[2]) - (RCONST(6.0e7)*yval[1]);
+  rowvals[4] = 1;
+  data[5] = RCONST(6.0e7)*yval[1];
+  rowvals[5] = 2;
 
-  JacMat->data[6] = RCONST(1.0e4)*yval[1];
-  JacMat->rowvals[6] = 0;
-  JacMat->data[7] = RCONST(-1.0e4)*yval[1];
-  JacMat->rowvals[7] = 1;
-  JacMat->data[8] = ZERO;
-  JacMat->rowvals[8] = 2;
+  data[6] = RCONST(1.0e4)*yval[1];
+  rowvals[6] = 0;
+  data[7] = RCONST(-1.0e4)*yval[1];
+  rowvals[7] = 1;
+  data[8] = ZERO;
+  rowvals[8] = 2;
 
   return(0);
 }

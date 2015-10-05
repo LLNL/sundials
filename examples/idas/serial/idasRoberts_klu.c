@@ -132,7 +132,7 @@ int main(void)
 
   /* Call IDAKLU and set up the linear solver. */
   nnz = NEQ * NEQ;
-  retval = IDAKLU(mem, NEQ, nnz);
+  retval = IDAKLU(mem, NEQ, nnz, CSC_MAT);
   if(check_flag(&retval, "IDAKLU", 1)) return(1);
   retval = IDASlsSetSparseJacFn(mem, jacrob);
   if(check_flag(&retval, "IDASlsSetSparseJacFn", 1)) return(1);
@@ -228,36 +228,42 @@ int jacrob(realtype tt,  realtype cj,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   realtype *yval;
+  int* colptrs;
+  int* rowvals;
+  realtype* data;
   
   yval = NV_DATA_S(yy);
+  colptrs = (*JacMat->colptrs);
+  rowvals = (*JacMat->rowvals);
+  data    = JacMat->data;
 
   SlsSetToZero(JacMat);
 
-  JacMat->colptrs[0] = 0;
-  JacMat->colptrs[1] = 3;
-  JacMat->colptrs[2] = 6;
-  JacMat->colptrs[3] = 9;
+  colptrs[0] = 0;
+  colptrs[1] = 3;
+  colptrs[2] = 6;
+  colptrs[3] = 9;
 
-  JacMat->data[0] = RCONST(-0.04) - cj;
-  JacMat->rowvals[0] = 0;
-  JacMat->data[1] = RCONST(0.04);
-  JacMat->rowvals[1] = 1;
-  JacMat->data[2] = ONE;
-  JacMat->rowvals[2] = 2;
+  data[0] = RCONST(-0.04) - cj;
+  rowvals[0] = 0;
+  data[1] = RCONST(0.04);
+  rowvals[1] = 1;
+  data[2] = ONE;
+  rowvals[2] = 2;
 
-  JacMat->data[3] = RCONST(1.0e4)*yval[2];
-  JacMat->rowvals[3] = 0;
-  JacMat->data[4] = (RCONST(-1.0e4)*yval[2]) - (RCONST(6.0e7)*yval[1]) - cj;
-  JacMat->rowvals[4] = 1;
-  JacMat->data[5] = ONE;
-  JacMat->rowvals[5] = 2;
+  data[3] = RCONST(1.0e4)*yval[2];
+  rowvals[3] = 0;
+  data[4] = (RCONST(-1.0e4)*yval[2]) - (RCONST(6.0e7)*yval[1]) - cj;
+  rowvals[4] = 1;
+  data[5] = ONE;
+  rowvals[5] = 2;
 
-  JacMat->data[6] = RCONST(1.0e4)*yval[1];
-  JacMat->rowvals[6] = 0;
-  JacMat->data[7] = RCONST(-1.0e4)*yval[1];
-  JacMat->rowvals[7] = 1;
-  JacMat->data[8] = ONE;
-  JacMat->rowvals[8] = 2;
+  data[6] = RCONST(1.0e4)*yval[1];
+  rowvals[6] = 0;
+  data[7] = RCONST(-1.0e4)*yval[1];
+  rowvals[7] = 1;
+  data[8] = ONE;
+  rowvals[8] = 2;
 
   return(0);
 }

@@ -83,7 +83,7 @@ static void cvKLUFreeB(CVodeBMem cvb_mem);
  * -----------------------------------------------------------------
  */
 
-int CVKLU(void *cvode_mem, int n, int nnz)
+int CVKLU(void *cvode_mem, int n, int nnz, int sparsetype)
 {
   CVodeMem cv_mem;
   CVSlsMem cvsls_mem;
@@ -134,9 +134,10 @@ int CVKLU(void *cvode_mem, int n, int nnz)
   /* Set default Jacobian routine and Jacobian data */
   cvsls_mem->s_jaceval = NULL;
   cvsls_mem->s_jacdata = cv_mem->cv_user_data;
+  cvsls_mem->sparsetype = sparsetype;
 
   /* Allocate memory for the sparse Jacobian */
-  cvsls_mem->s_JacMat = NewSparseMat(n, n, nnz);
+  cvsls_mem->s_JacMat = NewSparseMat(n, n, nnz, sparsetype);
   if (cvsls_mem->s_JacMat == NULL) {
     cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "cvKLU", 
 		    MSGSP_MEM_FAIL);
@@ -145,7 +146,7 @@ int CVKLU(void *cvode_mem, int n, int nnz)
   }
 
   /* Allocate memory for saved sparse Jacobian */
-  cvsls_mem->s_savedJ = NewSparseMat(n, n, nnz);
+  cvsls_mem->s_savedJ = NewSparseMat(n, n, nnz, sparsetype);
   if (cvsls_mem->s_savedJ == NULL) {
     cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "cvKLU", 
 		    MSGSP_MEM_FAIL);
@@ -155,6 +156,16 @@ int CVKLU(void *cvode_mem, int n, int nnz)
   }
 
   /* Initialize KLU structures */
+  switch (sparsetype) {
+    case CSC_MAT:
+      klu_data->sun_klu_solve = &klu_solve;
+      break;
+    case CSR_MAT:
+      klu_data->sun_klu_solve = &klu_tsolve;
+      break;
+    default:
+      return(-1);
+  }
   klu_data->s_Symbolic = NULL;
   klu_data->s_Numeric = NULL;
 
@@ -222,7 +233,7 @@ int CVKLUReInit(void *cvode_mem, int n, int nnz, int reinit_type)
 
   /* Return immediately if cv_mem is NULL. */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVSLS_MEM_NULL, "CVSLS", "cvKLU", 
+    cvProcessError(NULL, CVSLS_MEM_NULL, "CVSLS", "CVKLUReInit", 
 		    MSGSP_CVMEM_NULL);
     return(CVSLS_MEM_NULL);
   }
@@ -254,7 +265,7 @@ int CVKLUReInit(void *cvode_mem, int n, int nnz, int reinit_type)
     }
 
     /* Allocate memory for the sparse Jacobian */
-    cvsls_mem->s_JacMat = NewSparseMat(n, n, nnz);
+    cvsls_mem->s_JacMat = NewSparseMat(n, n, nnz, cvsls_mem->sparsetype);
     if (cvsls_mem->s_JacMat == NULL) {
       cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "CVKLU", 
 		    MSGSP_MEM_FAIL);
@@ -394,20 +405,21 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
        calls to CVKLUSetOrdering */
     klu_data->s_Common.ordering = klu_data->s_ordering;
 
-    klu_data->s_Symbolic = klu_analyze(JacMat->N, JacMat->colptrs, 
-				       JacMat->rowvals, &(klu_data->s_Common));
+    klu_data->s_Symbolic = klu_analyze(JacMat->NP, JacMat->indexptrs, 
+				       JacMat->indexvals, &(klu_data->s_Common));
     if (klu_data->s_Symbolic == NULL) {
       cvProcessError(cv_mem, CVSLS_PACKAGE_FAIL, "CVSLS", "CVKLUSetup", 
 		      MSGSP_PACKAGE_FAIL);
       return(CVSLS_PACKAGE_FAIL);
     }
+
     /* ------------------------------------------------------------
        Compute the LU factorization of  the Jacobian.
        ------------------------------------------------------------*/
-    klu_data->s_Numeric = klu_factor(JacMat->colptrs, JacMat->rowvals, 
+    klu_data->s_Numeric = klu_factor(JacMat->indexptrs, JacMat->indexvals, 
 				     JacMat->data, 
 				     klu_data->s_Symbolic, &(klu_data->s_Common));
-    
+
     if (klu_data->s_Numeric == NULL) {
       cvProcessError(cv_mem, CVSLS_PACKAGE_FAIL, "CVSLS", "CVKLUSetup", 
 		     MSGSP_PACKAGE_FAIL);
@@ -418,7 +430,7 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   }
   else {
     
-    retval = klu_refactor(JacMat->colptrs, JacMat->rowvals, JacMat->data, 
+    retval = klu_refactor(JacMat->indexptrs, JacMat->indexvals, JacMat->data, 
 			  klu_data->s_Symbolic, klu_data->s_Numeric,
 			  &(klu_data->s_Common));
     if (retval == 0) {
@@ -440,12 +452,12 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 		     MSGSP_PACKAGE_FAIL);
       return(CVSLS_PACKAGE_FAIL);
     }
-    
+
     if ( (klu_data->s_Common.rcond)  < uround_twothirds ) {
       
       /* Condition number may be getting large.  
 	 Compute more accurate estimate */
-      retval = klu_condest(JacMat->colptrs, JacMat->data, 
+      retval = klu_condest(JacMat->indexptrs, JacMat->data, 
 			   klu_data->s_Symbolic, klu_data->s_Numeric,
 			   &(klu_data->s_Common));
       if (retval == 0) {
@@ -456,16 +468,16 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
       
       if ( (klu_data->s_Common.condest) > 
 	   (1.0/uround_twothirds) ) {
-	
+
 	/* More accurate estimate also says condition number is 
 	   large, so recompute the numeric factorization */
-	
+
 	klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
 	
-	klu_data->s_Numeric = klu_factor(JacMat->colptrs, JacMat->rowvals, 
+	klu_data->s_Numeric = klu_factor(JacMat->indexptrs, JacMat->indexvals, 
 					 JacMat->data, klu_data->s_Symbolic, 
 					 &(klu_data->s_Common));
-	
+
 	if (klu_data->s_Numeric == NULL) {
 	  cvProcessError(cv_mem, CVSLS_PACKAGE_FAIL, "CVSLS", "CVKLUSetup", 
 			 MSGSP_PACKAGE_FAIL);
@@ -474,7 +486,7 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
       }
     }
   }
-  
+
   cvsls_mem->s_last_flag = CVSLS_SUCCESS;
   
   return(0);
@@ -498,14 +510,17 @@ static int cvKLUSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   
   gamrat = cv_mem->cv_gamrat;
   lmm = cv_mem->cv_lmm;
+
   cvsls_mem = (CVSlsMem) cv_mem->cv_lmem;
   JacMat = cvsls_mem->s_JacMat;
+
   klu_data = (KLUData) cvsls_mem->s_solver_data;
+
   bd = N_VGetArrayPointer(b);
 
   /* Call KLU to solve the linear system */
-  flag = klu_solve(klu_data->s_Symbolic, klu_data->s_Numeric, JacMat->N, 1, bd, 
-	    &(klu_data->s_Common));
+  flag = klu_data->sun_klu_solve(klu_data->s_Symbolic, klu_data->s_Numeric, JacMat->NP, 1, bd, 
+                                 &(klu_data->s_Common));
   if (flag == 0) {
     cvProcessError(cv_mem, CVSLS_PACKAGE_FAIL, "CVSLS", "CVKLUSolve", 
 		    MSGSP_PACKAGE_FAIL);
@@ -607,7 +622,7 @@ int CVKLUSetOrdering(void *cv_mem_v, int ordering_choice)
  * to the backward problem memory block.
  */
 
-int CVKLUB(void *cvode_mem, int which, int n, int nnz)
+int CVKLUB(void *cvode_mem, int which, int n, int nnz, int sparsetype)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -659,7 +674,7 @@ int CVKLUB(void *cvode_mem, int which, int n, int nnz)
   cvB_mem->cv_lmem = cvslsB_mem;
   cvB_mem->cv_lfree = cvKLUFreeB;
 
-  flag = CVKLU(cvodeB_mem, n, nnz);
+  flag = CVKLU(cvodeB_mem, n, nnz, sparsetype);
 
   if (flag != CVSLS_SUCCESS) {
     free(cvslsB_mem);

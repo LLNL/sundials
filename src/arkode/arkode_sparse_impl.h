@@ -63,6 +63,8 @@ typedef struct ARKSlsMemRec {
 
   SlsMat s_savedJ;           /* saved copy of Jacobian         */
 
+  int sparsetype;            /* matrix type: compressed sparse column or row */
+
   void *s_solver_data;       /* struct for solver data         */
 
 } *ARKSlsMem;
@@ -90,6 +92,8 @@ typedef struct ARKSlsMassMemRec {
   SlsMat s_M;                 /* mass matrix structure         */
 
   SlsMat s_M_lu;              /* mass matrix for LU decomp     */
+
+  int sparsetype;             /* matrix type: compressed sparse column or row */
 
   void *s_solver_data;        /* struct for solver data        */
 

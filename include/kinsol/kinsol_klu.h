@@ -53,7 +53,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-  SUNDIALS_EXPORT int KINKLU(void *kin_mem, int n, int nnz); 
+  SUNDIALS_EXPORT int KINKLU(void *kin_mem, int n, int nnz, int sparsetype); 
 
 /*
  * -----------------------------------------------------------------
