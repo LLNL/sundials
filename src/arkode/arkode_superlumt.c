@@ -815,8 +815,8 @@ static int arkMassSuperLUMTSetup(ARKodeMem ark_mem, N_Vector vtemp1,
   dCreate_CompCol_Matrix(slumt_data->s_A, arksls_mem->s_M->M, 
 			 arksls_mem->s_M->N, arksls_mem->s_M->NNZ, 
 			 arksls_mem->s_M->data, 
-			 arksls_mem->s_M->rowvals, 
-			 arksls_mem->s_M->colptrs, 
+			 arksls_mem->s_M->indexvals, 
+			 arksls_mem->s_M->indexptrs, 
 			 SLU_NC, SLU_D, SLU_GE);
 
   /* On first decomposition, set up reusable pieces */ 
