@@ -245,6 +245,9 @@ static int jac(N_Vector y, N_Vector f,
 {
   realtype *yd;
   realtype x1, x2, x3, x4, x5, x6, x7, x8;
+  int *colptrs = *J->colptrs;
+  int *rowvals = *J->rowvals;
+  realtype *data = J->data;
 
   yd = NV_DATA_S(y);
 
@@ -259,31 +262,31 @@ static int jac(N_Vector y, N_Vector f,
 
   SlsSetToZero(J);
   
-  J->colptrs[0] = 0;
-  J->colptrs[1] = 7;
-  J->colptrs[2] = 14;
-  J->colptrs[3] = 19;
-  J->colptrs[4] = 24;
-  J->colptrs[5] = 27;
-  J->colptrs[6] = 31;
-  J->colptrs[7] = 36;
-  J->colptrs[8] = 40;
-  J->colptrs[9] = 41;
-  J->colptrs[10] = 42;
-  J->colptrs[11] = 43;
-  J->colptrs[12] = 44;
-  J->colptrs[13] = 45;
-  J->colptrs[14] = 46;
-  J->colptrs[15] = 47;
-  J->colptrs[16] = 48;
-  J->colptrs[17] = 49;
-  J->colptrs[18] = 50;
-  J->colptrs[19] = 51;
-  J->colptrs[20] = 52;
-  J->colptrs[21] = 53;
-  J->colptrs[22] = 54;
-  J->colptrs[23] = 55;
-  J->colptrs[24] = 56;
+  colptrs[0] = 0;
+  colptrs[1] = 7;
+  colptrs[2] = 14;
+  colptrs[3] = 19;
+  colptrs[4] = 24;
+  colptrs[5] = 27;
+  colptrs[6] = 31;
+  colptrs[7] = 36;
+  colptrs[8] = 40;
+  colptrs[9] = 41;
+  colptrs[10] = 42;
+  colptrs[11] = 43;
+  colptrs[12] = 44;
+  colptrs[13] = 45;
+  colptrs[14] = 46;
+  colptrs[15] = 47;
+  colptrs[16] = 48;
+  colptrs[17] = 49;
+  colptrs[18] = 50;
+  colptrs[19] = 51;
+  colptrs[20] = 52;
+  colptrs[21] = 53;
+  colptrs[22] = 54;
+  colptrs[23] = 55;
+  colptrs[24] = 56;
 
   /* Nonlinear equations */
 
@@ -300,15 +303,15 @@ static int jac(N_Vector y, N_Vector f,
   */
 
   J->data[0] = - 0.1238 + 0.004731*x3;
-  J->rowvals[0] = 0;
+  rowvals[0] = 0;
   J->data[7] = - 0.001637 - 0.3578*x3;
-  J->rowvals[7] = 0;
+  rowvals[7] = 0;
   J->data[14] = 0.004731*x1 - 0.3578*x2;
-  J->rowvals[14] = 0;
+  rowvals[14] = 0;
   J->data[19] = - 0.9338;
-  J->rowvals[19] = 0;
+  rowvals[19] = 0;
   J->data[31] = 1.0;
-  J->rowvals[31] = 0;
+  rowvals[31] = 0;
 
   /*
     0.2638*x1 - x7 - 0.07745*x2 
@@ -323,15 +326,15 @@ static int jac(N_Vector y, N_Vector f,
   */
 
   J->data[1] = 0.2638 + 0.2238*x3;
-  J->rowvals[1] = 1;
+  rowvals[1] = 1;
   J->data[8] = - 0.07745 + 0.7623*x3;
-  J->rowvals[8] = 1;
+  rowvals[8] = 1;
   J->data[15] = 0.2238*x1 + 0.7623*x2;
-  J->rowvals[15] = 1;
+  rowvals[15] = 1;
   J->data[20] = - 0.6734;
-  J->rowvals[20] = 1;
+  rowvals[20] = 1;
   J->data[32] = -1.0;
-  J->rowvals[32] = 1;
+  rowvals[32] = 1;
 
 
   /*
@@ -345,13 +348,13 @@ static int jac(N_Vector y, N_Vector f,
   */
 
   J->data[2] = 0.3578;
-  J->rowvals[2] = 2;
+  rowvals[2] = 2;
   J->data[9] = 0.004731;
-  J->rowvals[9] = 2;
+  rowvals[9] = 2;
   J->data[27] = x8;
-  J->rowvals[27] = 2;
+  rowvals[27] = 2;
   J->data[36] = x6;
-  J->rowvals[36] = 2;
+  rowvals[36] = 2;
 
 
   /*
@@ -363,9 +366,9 @@ static int jac(N_Vector y, N_Vector f,
   */
 
   J->data[3] = - 0.7623;
-  J->rowvals[3] = 3;
+  rowvals[3] = 3;
   J->data[10] = 0.2238;
-  J->rowvals[10] = 3;
+  rowvals[10] = 3;
 
   /*
     x1*x1 + x2*x2 - 1
@@ -376,9 +379,9 @@ static int jac(N_Vector y, N_Vector f,
   */
 
   J->data[4] = 2.0*x1;
-  J->rowvals[4] = 4;
+  rowvals[4] = 4;
   J->data[11] = 2.0*x2;
-  J->rowvals[11] = 4;
+  rowvals[11] = 4;
 
   /*
     x3*x3 + x4*x4 - 1
@@ -389,9 +392,9 @@ static int jac(N_Vector y, N_Vector f,
   */
 
   J->data[16] = 2.0*x3;
-  J->rowvals[16] = 5;
+  rowvals[16] = 5;
   J->data[21] = 2.0*x4;
-  J->rowvals[21] = 5;
+  rowvals[21] = 5;
 
   /*
     x5*x5 + x6*x6 - 1
@@ -402,9 +405,9 @@ static int jac(N_Vector y, N_Vector f,
   */
 
   J->data[24] = 2.0*x5;
-  J->rowvals[24] = 6;
+  rowvals[24] = 6;
   J->data[28] = 2.0*x6;
-  J->rowvals[28] = 6;
+  rowvals[28] = 6;
 
   /*
     x7*x7 + x8*x8 - 1
@@ -414,9 +417,9 @@ static int jac(N_Vector y, N_Vector f,
   IJth(J,8,8) = 2.0*x8;
   */
   J->data[33] = 2.0*x7;
-  J->rowvals[33] = 7;
+  rowvals[33] = 7;
   J->data[37] = 2.0*x8;
-  J->rowvals[37] = 7;
+  rowvals[37] = 7;
 
   
   /*
@@ -433,38 +436,38 @@ static int jac(N_Vector y, N_Vector f,
   */
 
   J->data[5] = -1.0;
-  J->rowvals[5] = 8;
+  rowvals[5] = 8;
   J->data[12] = -1.0;
-  J->rowvals[12] = 9;
+  rowvals[12] = 9;
   J->data[17] = -1.0;
-  J->rowvals[17] = 10;
+  rowvals[17] = 10;
   J->data[22] = -1.0;
-  J->rowvals[22] = 11;
+  rowvals[22] = 11;
   J->data[25] = -1.0;
-  J->rowvals[25] = 12;
+  rowvals[25] = 12;
   J->data[29] = -1.0;
-  J->rowvals[29] = 13;
+  rowvals[29] = 13;
   J->data[34] = -1.0;
-  J->rowvals[34] = 14;
+  rowvals[34] = 14;
   J->data[38] = -1.0;
-  J->rowvals[38] = 15;
+  rowvals[38] = 15;
 
   J->data[40] = 1.0;
-  J->rowvals[40] = 8;
+  rowvals[40] = 8;
   J->data[41] = 1.0;
-  J->rowvals[41] = 9;
+  rowvals[41] = 9;
   J->data[42] = 1.0;
-  J->rowvals[42] = 10;
+  rowvals[42] = 10;
   J->data[43] = 1.0;
-  J->rowvals[43] = 11;
+  rowvals[43] = 11;
   J->data[44] = 1.0;
-  J->rowvals[44] = 12;
+  rowvals[44] = 12;
   J->data[45] = 1.0;
-  J->rowvals[45] = 13;
+  rowvals[45] = 13;
   J->data[46] = 1.0;
-  J->rowvals[46] = 14;
+  rowvals[46] = 14;
   J->data[47] = 1.0;
-  J->rowvals[47] = 15;
+  rowvals[47] = 15;
 
 
   /*
@@ -479,38 +482,38 @@ static int jac(N_Vector y, N_Vector f,
   */
 
   J->data[6] = 1.0;
-  J->rowvals[6] = 16;
+  rowvals[6] = 16;
   J->data[13] = 1.0;
-  J->rowvals[13] = 17;
+  rowvals[13] = 17;
   J->data[18] = 1.0;
-  J->rowvals[18] = 18;
+  rowvals[18] = 18;
   J->data[23] = 1.0;
-  J->rowvals[23] = 19;
+  rowvals[23] = 19;
   J->data[26] = 1.0;
-  J->rowvals[26] = 20;
+  rowvals[26] = 20;
   J->data[30] = 1.0;
-  J->rowvals[30] = 21;
+  rowvals[30] = 21;
   J->data[35] = 1.0;
-  J->rowvals[35] = 22;
+  rowvals[35] = 22;
   J->data[39] = 1.0;
-  J->rowvals[39] = 23;
+  rowvals[39] = 23;
 
   J->data[48] = 1.0;
-  J->rowvals[48] = 16;
+  rowvals[48] = 16;
   J->data[49] = 1.0;
-  J->rowvals[49] = 17;
+  rowvals[49] = 17;
   J->data[50] = 1.0;
-  J->rowvals[50] = 18;
+  rowvals[50] = 18;
   J->data[51] = 1.0;
-  J->rowvals[51] = 19;
+  rowvals[51] = 19;
   J->data[52] = 1.0;
-  J->rowvals[52] = 20;
+  rowvals[52] = 20;
   J->data[53] = 1.0;
-  J->rowvals[53] = 21;
+  rowvals[53] = 21;
   J->data[54] = 1.0;
-  J->rowvals[54] = 22;
+  rowvals[54] = 22;
   J->data[55] = 1.0;
-  J->rowvals[55] = 23;
+  rowvals[55] = 23;
 
   return(0);
 

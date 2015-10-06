@@ -140,7 +140,7 @@ int ARKSuperLUMT(void *arkode_mem, int num_threads, int n, int nnz)
 
   /* Allocate memory for the sparse Jacobian */
   arksls_mem->s_A = NULL;
-  arksls_mem->s_A = NewSparseMat(n, n, nnz);
+  arksls_mem->s_A = NewSparseMat(n, n, nnz, CSC_MAT);
   if (arksls_mem->s_A == NULL) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
 		    "ARKSuperLUMT", MSGSP_MEM_FAIL);
@@ -151,7 +151,7 @@ int ARKSuperLUMT(void *arkode_mem, int num_threads, int n, int nnz)
 
   /* Allocate memory for saved sparse Jacobian */
   arksls_mem->s_savedJ = NULL;
-  arksls_mem->s_savedJ = NewSparseMat(n, n, nnz);
+  arksls_mem->s_savedJ = NewSparseMat(n, n, nnz, CSC_MAT);
   if (arksls_mem->s_savedJ == NULL) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
 		    "ARKSuperLUMT", MSGSP_MEM_FAIL);
@@ -397,8 +397,8 @@ static int arkSuperLUMTSetup(ARKodeMem ark_mem, int convfail,
   dCreate_CompCol_Matrix(slumt_data->s_A, arksls_mem->s_A->M, 
 			 arksls_mem->s_A->N, arksls_mem->s_A->NNZ, 
 			 arksls_mem->s_A->data, 
-			 arksls_mem->s_A->rowvals, 
-			 arksls_mem->s_A->colptrs, 
+			 arksls_mem->s_A->indexvals, 
+			 arksls_mem->s_A->indexptrs, 
 			 SLU_NC, SLU_D, SLU_GE);
 
   /* On first decomposition, set up reusable pieces */ 
@@ -622,7 +622,7 @@ int ARKMassSuperLUMT(void *arkode_mem, int num_threads,
 
   /* Allocate memory for M and M_lu */
   arksls_mem->s_M = NULL;
-  arksls_mem->s_M = NewSparseMat(n, n, nnz);
+  arksls_mem->s_M = NewSparseMat(n, n, nnz, CSC_MAT);
   if (arksls_mem->s_M == NULL) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
 		    "ARKMassSuperLUMT", MSGSP_MEM_FAIL);
@@ -631,7 +631,7 @@ int ARKMassSuperLUMT(void *arkode_mem, int num_threads,
     return(ARKSLS_MEM_FAIL);
   }
   arksls_mem->s_M_lu = NULL;
-  arksls_mem->s_M_lu = NewSparseMat(n, n, nnz);
+  arksls_mem->s_M_lu = NewSparseMat(n, n, nnz, CSC_MAT);
   if (arksls_mem->s_M_lu == NULL) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
 		    "ARKMassSuperLUMT", MSGSP_MEM_FAIL);
@@ -815,8 +815,8 @@ static int arkMassSuperLUMTSetup(ARKodeMem ark_mem, N_Vector vtemp1,
   dCreate_CompCol_Matrix(slumt_data->s_A, arksls_mem->s_M->M, 
 			 arksls_mem->s_M->N, arksls_mem->s_M->NNZ, 
 			 arksls_mem->s_M->data, 
-			 arksls_mem->s_M->rowvals, 
-			 arksls_mem->s_M->colptrs, 
+			 arksls_mem->s_M->indexvals, 
+			 arksls_mem->s_M->indexptrs, 
 			 SLU_NC, SLU_D, SLU_GE);
 
   /* On first decomposition, set up reusable pieces */ 
