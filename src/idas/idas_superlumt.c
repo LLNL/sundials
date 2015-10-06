@@ -150,7 +150,7 @@ int IDASuperLUMT(void *ida_mem, int num_threads, int n, int nnz)
 
   /* Allocate memory for the sparse Jacobian */
   idasls_mem->s_JacMat = NULL;
-  idasls_mem->s_JacMat = NewSparseMat(n, n, nnz);
+  idasls_mem->s_JacMat = NewSparseMat(n, n, nnz, CSC_MAT);
   if (idasls_mem->s_JacMat == NULL) {
     IDAProcessError(IDA_mem, IDASLS_MEM_FAIL, "IDASSLS", "IDASuperLUMT", 
 		    MSGSP_MEM_FAIL);
@@ -194,7 +194,7 @@ int IDASuperLUMT(void *ida_mem, int num_threads, int n, int nnz)
 
   dCreate_CompCol_Matrix(slumt_data->s_A, idasls_mem->s_JacMat->M, idasls_mem->s_JacMat->N, 
 			 idasls_mem->s_JacMat->NNZ, idasls_mem->s_JacMat->data, 
-			 idasls_mem->s_JacMat->rowvals, idasls_mem->s_JacMat->colptrs, 
+			 idasls_mem->s_JacMat->indexvals, idasls_mem->s_JacMat->indexptrs, 
 			 SLU_NC, SLU_D, SLU_GE);
 
   panel_size = sp_ienv(1);

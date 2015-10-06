@@ -663,7 +663,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
 
   /* Create empty reaction Jacobian matrix (if not done already) */
   if (udata->R == NULL) {
-    udata->R = NewSparseMat(J->M, J->N, J->NNZ);
+    udata->R = NewSparseMat(J->M, J->N, J->NNZ, CSC_MAT);
     if (udata->R == NULL) {
       printf("Jac: error in allocating R matrix!\n");
       return 1;
@@ -699,6 +699,8 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
   /* set shortcuts */
   int N = udata->N;
   int i, nz=0;
+  int *colptrs = *M->colptrs;
+  int *rowvals = *M->rowvals;
 
   /* local data */
   realtype xl, xr, f1, f2, f3, dtmp;
@@ -710,7 +712,7 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
   for (i=0; i<N; i++) {
 
     /* dependence on u at this node */
-    M->colptrs[IDX(i,0)] = nz;
+    colptrs[IDX(i,0)] = nz;
 
     /*    left u trial function */
     if (i>0) {
@@ -720,7 +722,7 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
       f2 = ChiL(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
       f3 = ChiL(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
       M->data[nz] = Quad(f1,f2,f3,xl,xr);
-      M->rowvals[nz++] = IDX(i-1,0);
+      rowvals[nz++] = IDX(i-1,0);
     }
     /*    this u trial function */
     dtmp = ZERO;
@@ -741,7 +743,7 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
       dtmp += Quad(f1,f2,f3,xl,xr);
     }
     M->data[nz] = dtmp;
-    M->rowvals[nz++] = IDX(i,0);
+    rowvals[nz++] = IDX(i,0);
     /*    right u trial function */
     if (i<N-1) {
       xl = udata->x[i];
@@ -750,12 +752,12 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
       f2 = ChiL(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
       f3 = ChiL(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
       M->data[nz] = Quad(f1,f2,f3,xl,xr);
-      M->rowvals[nz++] = IDX(i+1,0);
+      rowvals[nz++] = IDX(i+1,0);
     }
 
 
     /* dependence on v at this node */
-    M->colptrs[IDX(i,1)] = nz;
+    colptrs[IDX(i,1)] = nz;
 
     /*    left v trial function */
     if (i>0) {
@@ -765,7 +767,7 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
       f2 = ChiL(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
       f3 = ChiL(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
       M->data[nz] = Quad(f1,f2,f3,xl,xr);
-      M->rowvals[nz++] = IDX(i-1,1);
+      rowvals[nz++] = IDX(i-1,1);
     }
     /*    this v trial function */
     dtmp = ZERO;
@@ -786,7 +788,7 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
       dtmp += Quad(f1,f2,f3,xl,xr);
     }
     M->data[nz] = dtmp;
-    M->rowvals[nz++] = IDX(i,1);
+    rowvals[nz++] = IDX(i,1);
     /*    right v trial function */
     if (i<N-1) {
       xl = udata->x[i];
@@ -795,12 +797,12 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
       f2 = ChiL(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
       f3 = ChiL(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
       M->data[nz] = Quad(f1,f2,f3,xl,xr);
-      M->rowvals[nz++] = IDX(i+1,1);
+      rowvals[nz++] = IDX(i+1,1);
     }
 
 
     /* dependence on w at this node */
-    M->colptrs[IDX(i,2)] = nz;
+    colptrs[IDX(i,2)] = nz;
 
     /*    left w trial function */
     if (i>0) {
@@ -810,7 +812,7 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
       f2 = ChiL(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
       f3 = ChiL(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
       M->data[nz] = Quad(f1,f2,f3,xl,xr);
-      M->rowvals[nz++] = IDX(i-1,2);
+      rowvals[nz++] = IDX(i-1,2);
     }
     /*    this w trial function */
     dtmp = ZERO;
@@ -831,7 +833,7 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
       dtmp += Quad(f1,f2,f3,xl,xr);
     }
     M->data[nz] = dtmp;
-    M->rowvals[nz++] = IDX(i,2);
+    rowvals[nz++] = IDX(i,2);
     /*    right w trial function */
     if (i<N-1) {
       xl = udata->x[i];
@@ -840,13 +842,13 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
       f2 = ChiL(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
       f3 = ChiL(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
       M->data[nz] = Quad(f1,f2,f3,xl,xr);
-      M->rowvals[nz++] = IDX(i+1,2);
+      rowvals[nz++] = IDX(i+1,2);
     }
 
   }
 
   /* signal end of data */
-  M->colptrs[IDX(N-1,2)+1] = nz;
+  colptrs[IDX(N-1,2)+1] = nz;
 
   return 0;
 }
@@ -872,6 +874,8 @@ static int LaplaceMatrix(SlsMat L, UserData udata)
   realtype dw = udata->dw;
   int i, nz=0;
   realtype xl, xr;
+  int *colptrs = *L->colptrs;
+  int *rowvals = *L->rowvals;
   
   /* clear out matrix */
   SlsSetToZero(L);
@@ -880,13 +884,13 @@ static int LaplaceMatrix(SlsMat L, UserData udata)
   for (i=0; i<N; i++) {
 
     /* dependence on u at this node */
-    L->colptrs[IDX(i,0)] = nz;
+    colptrs[IDX(i,0)] = nz;
 
     if (i>1) {
       xl = udata->x[i-1];
       xr = udata->x[i];
       L->data[nz] = (-du) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
-      L->rowvals[nz++] = IDX(i-1,0);
+      rowvals[nz++] = IDX(i-1,0);
     }
     if (i<N-1 && i>0) {
       xl = udata->x[i-1];
@@ -895,23 +899,23 @@ static int LaplaceMatrix(SlsMat L, UserData udata)
       xl = udata->x[i];
       xr = udata->x[i+1];
       L->data[nz] += (-du) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiL_x(xl,xr);
-      L->rowvals[nz++] = IDX(i,0);
+      rowvals[nz++] = IDX(i,0);
     }
     if (i<N-2) {
       xl = udata->x[i];
       xr = udata->x[i+1];
       L->data[nz] = (-du) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
-      L->rowvals[nz++] = IDX(i+1,0);
+      rowvals[nz++] = IDX(i+1,0);
     }
 
     /* dependence on v at this node */
-    L->colptrs[IDX(i,1)] = nz;
+    colptrs[IDX(i,1)] = nz;
 
     if (i>1) {
       xl = udata->x[i-1];
       xr = udata->x[i];
       L->data[nz] = (-dv) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
-      L->rowvals[nz++] = IDX(i-1,1);
+      rowvals[nz++] = IDX(i-1,1);
     }
     if (i>0 && i<N-1) {
       xl = udata->x[i];
@@ -920,23 +924,23 @@ static int LaplaceMatrix(SlsMat L, UserData udata)
       xl = udata->x[i-1];
       xr = udata->x[i];
       L->data[nz] += (-dv) * Quad(ONE,ONE,ONE,xl,xr) * ChiR_x(xl,xr) * ChiR_x(xl,xr);
-      L->rowvals[nz++] = IDX(i,1);
+      rowvals[nz++] = IDX(i,1);
     }
     if (i<N-2) {
       xl = udata->x[i];
       xr = udata->x[i+1];
       L->data[nz] = (-dv) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
-      L->rowvals[nz++] = IDX(i+1,1);
+      rowvals[nz++] = IDX(i+1,1);
     }
 
     /* dependence on w at this node */
-    L->colptrs[IDX(i,2)] = nz;
+    colptrs[IDX(i,2)] = nz;
 
     if (i>1) {
       xl = udata->x[i-1];
       xr = udata->x[i];
       L->data[nz] = (-dw) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
-      L->rowvals[nz++] = IDX(i-1,2);
+      rowvals[nz++] = IDX(i-1,2);
     }
     if (i>0 && i<N-1) {
       xl = udata->x[i];
@@ -945,19 +949,19 @@ static int LaplaceMatrix(SlsMat L, UserData udata)
       xl = udata->x[i-1];
       xr = udata->x[i];
       L->data[nz] += (-dw) * Quad(ONE,ONE,ONE,xl,xr) * ChiR_x(xl,xr) * ChiR_x(xl,xr);
-      L->rowvals[nz++] = IDX(i,2);
+      rowvals[nz++] = IDX(i,2);
     }
     if (i<N-2) {
       xl = udata->x[i];
       xr = udata->x[i+1];
       L->data[nz] = (-dw) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
-      L->rowvals[nz++] = IDX(i+1,2);
+      rowvals[nz++] = IDX(i+1,2);
     }
 
   }
 
   /* signal end of data */
-  L->colptrs[IDX(N-1,2)+1] = nz;
+  colptrs[IDX(N-1,2)+1] = nz;
 
   return 0;
 }
@@ -970,6 +974,8 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
   /* set shortcuts, local variables */
   int N = udata->N;
   int i, nz=0;
+  int *colptrs = *Jac->colptrs;
+  int *rowvals = *Jac->rowvals;
   realtype ep = udata->ep;
   realtype ul, uc, ur, vl, vc, vr, wl, wc, wr;
   realtype u1l, u2l, u3l, v1l, v2l, v3l, w1l, w2l, w3l;
@@ -1069,7 +1075,7 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
 
 
     /* dependence on u at this node */
-    Jac->colptrs[IDX(i,0)] = nz;
+    colptrs[IDX(i,0)] = nz;
 
     if (i>1) {
       /*  dR_ul/duc */
@@ -1077,21 +1083,21 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df2 = (-(w2l+ONE) + TWO*v2l*u2l) * ChiL2l * ChiR2l;
       df3 = (-(w3l+ONE) + TWO*v3l*u3l) * ChiL3l * ChiR3l;
       Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-      Jac->rowvals[nz++] = IDX(i-1,0);
+      rowvals[nz++] = IDX(i-1,0);
 
       /*  dR_vl/duc */
       df1 = (w1l - TWO*v1l*u1l) * ChiL1l * ChiR1l;
       df2 = (w2l - TWO*v2l*u2l) * ChiL2l * ChiR2l;
       df3 = (w3l - TWO*v3l*u3l) * ChiL3l * ChiR3l;
       Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-      Jac->rowvals[nz++] = IDX(i-1,1);
+      rowvals[nz++] = IDX(i-1,1);
 
       /*  dR_wl/duc */
       df1 = (-w1l) * ChiL1l * ChiR1l;
       df2 = (-w2l) * ChiL2l * ChiR2l;
       df3 = (-w3l) * ChiL3l * ChiR3l;
       Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-      Jac->rowvals[nz++] = IDX(i-1,2);
+      rowvals[nz++] = IDX(i-1,2);
     }
     if (i>0 && i<N-1) {
       /*  dR_uc/duc */
@@ -1104,7 +1110,7 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df2 = (-(w2l+ONE) + TWO*v2l*u2l) * ChiR2l * ChiR2l;
       df3 = (-(w3l+ONE) + TWO*v3l*u3l) * ChiR3l * ChiR3l;
       Jac->data[nz] += dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-      Jac->rowvals[nz++] = IDX(i,0);
+      rowvals[nz++] = IDX(i,0);
 
       /*  dR_vc/duc */
       df1 = (w1l - TWO*v1l*u1l) * ChiR1l * ChiR1l;
@@ -1116,7 +1122,7 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df2 = (w2r - TWO*v2r*u2r) * ChiL2r * ChiL2r;
       df3 = (w3r - TWO*v3r*u3r) * ChiL3r * ChiL3r;
       Jac->data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      Jac->rowvals[nz++] = IDX(i,1);
+      rowvals[nz++] = IDX(i,1);
 
       /*  dR_wc/duc */
       df1 = (-w1r) * ChiL1r * ChiL1r;
@@ -1128,7 +1134,7 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df2 = (-w2l) * ChiR2l * ChiR2l;
       df3 = (-w3l) * ChiR3l * ChiR3l;
       Jac->data[nz] += dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-      Jac->rowvals[nz++] = IDX(i,2);
+      rowvals[nz++] = IDX(i,2);
     }
     if (i<N-2) {
       /*  dR_ur/duc */
@@ -1136,26 +1142,26 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df2 = (-(w2r+ONE) + TWO*v2r*u2r) * ChiL2r * ChiR2r;
       df3 = (-(w3r+ONE) + TWO*v3r*u3r) * ChiL3r * ChiR3r;
       Jac->data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      Jac->rowvals[nz++] = IDX(i+1,0);
+      rowvals[nz++] = IDX(i+1,0);
 
       /*  dR_vr/duc */
       df1 = (w1r - TWO*v1r*u1r) * ChiL1r * ChiR1r;
       df2 = (w2r - TWO*v2r*u2r) * ChiL2r * ChiR2r;
       df3 = (w3r - TWO*v3r*u3r) * ChiL3r * ChiR3r;
       Jac->data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      Jac->rowvals[nz++] = IDX(i+1,1);
+      rowvals[nz++] = IDX(i+1,1);
 
       /*  dR_wr/duc */
       df1 = (-w1r) * ChiL1r * ChiR1r;
       df2 = (-w2r) * ChiL2r * ChiR2r;
       df3 = (-w3r) * ChiL3r * ChiR3r;
       Jac->data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      Jac->rowvals[nz++] = IDX(i+1,2);
+      rowvals[nz++] = IDX(i+1,2);
     }
 
 
     /* dependence on v at this node */
-    Jac->colptrs[IDX(i,1)] = nz;
+    colptrs[IDX(i,1)] = nz;
 
     if (i>1) {
       /*  dR_ul/dvc */
@@ -1163,14 +1169,14 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df2 = (u2l*u2l) * ChiL2l * ChiR2l;
       df3 = (u3l*u3l) * ChiL3l * ChiR3l;
       Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-      Jac->rowvals[nz++] = IDX(i-1,0);
+      rowvals[nz++] = IDX(i-1,0);
 
       /*  dR_vl/dvc */
       df1 = (-u1l*u1l) * ChiL1l * ChiR1l;
       df2 = (-u2l*u2l) * ChiL2l * ChiR2l;
       df3 = (-u3l*u3l) * ChiL3l * ChiR3l;
       Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-      Jac->rowvals[nz++] = IDX(i-1,1);
+      rowvals[nz++] = IDX(i-1,1);
     }
     if (i>0 && i<N-1) {
       /*  dR_uc/dvc */
@@ -1183,7 +1189,7 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df2 = (u2r*u2r) * ChiL2r * ChiL2r;
       df3 = (u3r*u3r) * ChiL3r * ChiL3r;
       Jac->data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      Jac->rowvals[nz++] = IDX(i,0);
+      rowvals[nz++] = IDX(i,0);
 
       /*  dR_vc/dvc */
       df1 = (-u1l*u1l) * ChiR1l * ChiR1l;
@@ -1195,7 +1201,7 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df2 = (-u2r*u2r) * ChiL2r * ChiL2r;
       df3 = (-u3r*u3r) * ChiL3r * ChiL3r;
       Jac->data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      Jac->rowvals[nz++] = IDX(i,1);
+      rowvals[nz++] = IDX(i,1);
     }
     if (i<N-2) {
       /*  dR_ur/dvc */
@@ -1203,19 +1209,19 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df2 = (u2r*u2r) * ChiL2r * ChiR2r;
       df3 = (u3r*u3r) * ChiL3r * ChiR3r;
       Jac->data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      Jac->rowvals[nz++] = IDX(i+1,0);
+      rowvals[nz++] = IDX(i+1,0);
 
       /*  dR_vr/dvc */
       df1 = (-u1r*u1r) * ChiL1r * ChiR1r;
       df2 = (-u2r*u2r) * ChiL2r * ChiR2r;
       df3 = (-u3r*u3r) * ChiL3r * ChiR3r;
       Jac->data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      Jac->rowvals[nz++] = IDX(i+1,1);
+      rowvals[nz++] = IDX(i+1,1);
     }
 
 
     /* dependence on w at this node */
-    Jac->colptrs[IDX(i,2)] = nz;
+    colptrs[IDX(i,2)] = nz;
 
     if (i>1) {
       /*  dR_ul/dwc */
@@ -1223,21 +1229,21 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df2 = (-u2l) * ChiL2l * ChiR2l;
       df3 = (-u3l) * ChiL3l * ChiR3l;
       Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-      Jac->rowvals[nz++] = IDX(i-1,0);
+      rowvals[nz++] = IDX(i-1,0);
 
       /*  dR_vl/dwc */
       df1 = (u1l) * ChiL1l * ChiR1l;
       df2 = (u2l) * ChiL2l * ChiR2l;
       df3 = (u3l) * ChiL3l * ChiR3l;
       Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-      Jac->rowvals[nz++] = IDX(i-1,1);
+      rowvals[nz++] = IDX(i-1,1);
 
       /*  dR_wl/dwc */
       df1 = (-ONE/ep - u1l) * ChiL1l * ChiR1l;
       df2 = (-ONE/ep - u2l) * ChiL2l * ChiR2l;
       df3 = (-ONE/ep - u3l) * ChiL3l * ChiR3l;
       Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-      Jac->rowvals[nz++] = IDX(i-1,2);
+      rowvals[nz++] = IDX(i-1,2);
     }
     if (i>0 && i<N-1) {
       /*  dR_uc/dwc */
@@ -1250,7 +1256,7 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df2 = (-u2r) * ChiL2r * ChiL2r;
       df3 = (-u3r) * ChiL3r * ChiL3r;
       Jac->data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      Jac->rowvals[nz++] = IDX(i,0);
+      rowvals[nz++] = IDX(i,0);
 
       /*  dR_vc/dwc */
       df1 = (u1l) * ChiR1l * ChiR1l;
@@ -1262,7 +1268,7 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df2 = (u2r) * ChiL2r * ChiL2r;
       df3 = (u3r) * ChiL3r * ChiL3r;
       Jac->data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      Jac->rowvals[nz++] = IDX(i,1);
+      rowvals[nz++] = IDX(i,1);
 
       /*  dR_wc/dwc */
       df1 = (-ONE/ep - u1l) * ChiR1l * ChiR1l;
@@ -1274,7 +1280,7 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df2 = (-ONE/ep - u2r) * ChiL2r * ChiL2r;
       df3 = (-ONE/ep - u3r) * ChiL3r * ChiL3r;
       Jac->data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      Jac->rowvals[nz++] = IDX(i,2);
+      rowvals[nz++] = IDX(i,2);
     }
     if (i<N-2) {
       /*  dR_ur/dwc */
@@ -1282,27 +1288,27 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df2 = (-u2r) * ChiL2r * ChiR2r;
       df3 = (-u3r) * ChiL3r * ChiR3r;
       Jac->data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      Jac->rowvals[nz++] = IDX(i+1,0);
+      rowvals[nz++] = IDX(i+1,0);
 
       /*  dR_vr/dwc */
       df1 = (u1r) * ChiL1r * ChiR1r;
       df2 = (u2r) * ChiL2r * ChiR2r;
       df3 = (u3r) * ChiL3r * ChiR3r;
       Jac->data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      Jac->rowvals[nz++] = IDX(i+1,1);
+      rowvals[nz++] = IDX(i+1,1);
 
       /*  dR_wr/dwc */
       df1 = (-ONE/ep - u1r) * ChiL1r * ChiR1r;
       df2 = (-ONE/ep - u2r) * ChiL2r * ChiR2r;
       df3 = (-ONE/ep - u3r) * ChiL3r * ChiR3r;
       Jac->data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      Jac->rowvals[nz++] = IDX(i+1,2);
+      rowvals[nz++] = IDX(i+1,2);
     }
 
   }
 
   /* signal end of data */
-  Jac->colptrs[IDX(N-1,2)+1] = nz;
+  colptrs[IDX(N-1,2)+1] = nz;
 
   return 0;
 }

@@ -127,7 +127,7 @@ int CVSuperLUMT(void *cvode_mem, int num_threads, int n, int nnz)
   cvsls_mem->s_jacdata = cv_mem->cv_user_data;
 
   /* Allocate memory for the sparse Jacobian */
-  cvsls_mem->s_JacMat = NewSparseMat(n, n, nnz);
+  cvsls_mem->s_JacMat = NewSparseMat(n, n, nnz, CSC_MAT);
   if (cvsls_mem->s_JacMat == NULL) {
     cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "cvSuperLUMT", 
 		    MSGSP_MEM_FAIL);
@@ -136,7 +136,7 @@ int CVSuperLUMT(void *cvode_mem, int num_threads, int n, int nnz)
   }
 
   /* Allocate memory for saved sparse Jacobian */
-  cvsls_mem->s_savedJ = NewSparseMat(n, n, nnz);
+  cvsls_mem->s_savedJ = NewSparseMat(n, n, nnz, CSC_MAT);
   if (cvsls_mem->s_savedJ == NULL) {
     cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "cvSuperLUMT", 
 		    MSGSP_MEM_FAIL);
@@ -361,7 +361,7 @@ static int cvSuperLUMTSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     SUPERLU_FREE(A->Store);
   }
   dCreate_CompCol_Matrix(A, JacMat->M, JacMat->N, JacMat->NNZ, 
-			 JacMat->data, JacMat->rowvals, JacMat->colptrs, 
+			 JacMat->data, JacMat->indexvals, JacMat->indexptrs, 
 			 SLU_NC, SLU_D, SLU_GE);
 
   if (cvsls_mem->s_first_factorize) {

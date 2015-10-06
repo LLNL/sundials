@@ -122,7 +122,7 @@ int KINSuperLUMT(void *kin_mem_v, int num_threads, int n, int nnz)
   kinsls_mem->s_jacdata = kin_mem->kin_user_data;
 
   /* Allocate memory for the sparse Jacobian */
-  kinsls_mem->s_JacMat = NewSparseMat(n, n, nnz);
+  kinsls_mem->s_JacMat = NewSparseMat(n, n, nnz, CSC_MAT);
   if (kinsls_mem->s_JacMat == NULL) {
     KINProcessError(kin_mem, KINSLS_MEM_FAIL, "KINSLS", "KINSuperLUMT", 
 		    MSGSP_MEM_FAIL);
@@ -166,7 +166,7 @@ int KINSuperLUMT(void *kin_mem_v, int num_threads, int n, int nnz)
 
   dCreate_CompCol_Matrix(slumt_data->s_A, kinsls_mem->s_JacMat->M, kinsls_mem->s_JacMat->N, 
 			 kinsls_mem->s_JacMat->NNZ, kinsls_mem->s_JacMat->data, 
-			 kinsls_mem->s_JacMat->rowvals, kinsls_mem->s_JacMat->colptrs, 
+			 kinsls_mem->s_JacMat->indexvals, kinsls_mem->s_JacMat->indexptrs, 
 			 SLU_NC, SLU_D, SLU_GE);
 
   panel_size = sp_ienv(1);
