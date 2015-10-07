@@ -30,7 +30,7 @@
    further details */
 void FARK_KLU(int *neq, int *nnz, int *ordering, int *ier)
 {
-  *ier = ARKKLU(ARK_arkodemem, *neq, *nnz);
+  *ier = ARKKLU(ARK_arkodemem, *neq, *nnz, CSC_MAT);
   ARKKLUSetOrdering(ARK_arkodemem, *ordering);
   ARK_ls = ARK_LS_KLU;
   return;
@@ -47,7 +47,7 @@ void FARK_KLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier)
    further details */
 void FARK_MASSKLU(int *neq, int *nnz, int *ordering, int *ier)
 {
-  *ier = ARKMassKLU(ARK_arkodemem, *neq, *nnz, NULL);
+  *ier = ARKMassKLU(ARK_arkodemem, *neq, *nnz, CSC_MAT, NULL);
   ARKMassKLUSetOrdering(ARK_arkodemem, *ordering);
   ARK_mass_ls = ARK_LS_KLU;
   return;

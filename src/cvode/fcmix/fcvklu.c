@@ -34,7 +34,7 @@
 
 void FCV_KLU(int *neq, int *nnz, int *ordering, int *ier)
 {
-  *ier = CVKLU(CV_cvodemem, *neq, *nnz);
+  *ier = CVKLU(CV_cvodemem, *neq, *nnz, CSC_MAT);
   CVKLUSetOrdering(CV_cvodemem, *ordering);
   CV_ls = CV_LS_KLU;
 }

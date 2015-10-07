@@ -63,8 +63,8 @@ int FIDASparseJac(realtype t, realtype cj, N_Vector y, N_Vector yp,
   v3data  = N_VGetArrayPointer(vtemp3);
   IDA_userdata = (FIDAUserData) user_data;
 
-  FIDA_SPJAC(&t, &cj, ydata, ypdata, rdata, &(J->N), &(J->NNZ),
-	    J->data, J->rowvals, J->colptrs, &h, 
+  FIDA_SPJAC(&t, &cj, ydata, ypdata, rdata, &(J->NP), &(J->NNZ),
+	    J->data, J->indexvals, J->indexptrs, &h, 
 	    IDA_userdata->ipar, IDA_userdata->rpar, v1data, 
 	    v2data, v3data, &ier); 
   return(ier);

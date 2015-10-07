@@ -62,8 +62,8 @@ int FCVSparseJac(realtype t, N_Vector y, N_Vector fy,
   v3data  = N_VGetArrayPointer(vtemp3);
   CV_userdata = (FCVUserData) user_data;
 
-  FCV_SPJAC(&t, ydata, fydata, &(J->N), &(J->NNZ),
-	    J->data, J->rowvals, J->colptrs, &h, 
+  FCV_SPJAC(&t, ydata, fydata, &(J->NP), &(J->NNZ),
+	    J->data, J->indexvals, J->indexptrs, &h, 
 	    CV_userdata->ipar, CV_userdata->rpar, v1data, 
 	    v2data, v3data, &ier); 
   return(ier);

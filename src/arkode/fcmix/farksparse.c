@@ -75,8 +75,8 @@ int FARKSparseJac(realtype t, N_Vector y, N_Vector fy,
   v3data  = N_VGetArrayPointer(vtemp3);
   ARK_userdata = (FARKUserData) user_data;
 
-  FARK_SPJAC(&t, ydata, fydata, &(J->N), &(J->NNZ), J->data, 
-	     J->rowvals, J->colptrs, &h, ARK_userdata->ipar, 
+  FARK_SPJAC(&t, ydata, fydata, &(J->NP), &(J->NNZ), J->data, 
+	     J->indexvals, J->indexptrs, &h, ARK_userdata->ipar, 
 	     ARK_userdata->rpar, v1data, v2data, v3data, &ier); 
   return(ier);
 }
