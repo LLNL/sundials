@@ -34,7 +34,7 @@
 
 void FIDA_KLU(int *neq, int *nnz, int *ordering, int *ier)
 {
-  *ier = IDAKLU(IDA_idamem, *neq, *nnz);
+  *ier = IDAKLU(IDA_idamem, *neq, *nnz, CSC_MAT);
   IDAKLUSetOrdering(IDA_idamem, *ordering);
   IDA_ls = IDA_LS_KLU;
 }

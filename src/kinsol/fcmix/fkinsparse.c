@@ -56,8 +56,8 @@ int FKINSparseJac(N_Vector y, N_Vector fy,
   v1data  = N_VGetArrayPointer(vtemp1);
   v2data  = N_VGetArrayPointer(vtemp2);
  
-  FKIN_SPJAC(ydata, fydata, &(J->N), &(J->NNZ),
-             J->data, J->rowvals, J->colptrs,  
+  FKIN_SPJAC(ydata, fydata, &(J->NP), &(J->NNZ),
+             J->data, J->indexvals, J->indexptrs,  
              v1data, v2data, &ier); 
   return(ier);
 }

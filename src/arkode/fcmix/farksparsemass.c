@@ -68,8 +68,8 @@ int FARKSparseMass(realtype t, SlsMat MassMat, void *user_data,
   v3data = N_VGetArrayPointer(vtemp3);
   ARK_userdata = (FARKUserData) user_data;
 
-  FARK_SPMASS(&t, &(MassMat->N), &(MassMat->NNZ), MassMat->data, 
-	      MassMat->rowvals, MassMat->colptrs, ARK_userdata->ipar, 
+  FARK_SPMASS(&t, &(MassMat->NP), &(MassMat->NNZ), MassMat->data, 
+	      MassMat->indexvals, MassMat->indexptrs, ARK_userdata->ipar, 
 	      ARK_userdata->rpar, v1data, v2data, v3data, &ier); 
   return(ier);
 }

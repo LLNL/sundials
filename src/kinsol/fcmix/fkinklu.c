@@ -34,7 +34,7 @@
 
 void FKIN_KLU(int *neq, int *nnz, int *ordering, int *ier)
 {
-  *ier = KINKLU(KIN_kinmem, *neq, *nnz);
+  *ier = KINKLU(KIN_kinmem, *neq, *nnz, CSC_MAT);
   KINKLUSetOrdering(KIN_kinmem, *ordering);
   KIN_ls = KIN_LS_KLU;
 }
