@@ -26,31 +26,28 @@ biblio.bib \
 texi2dvi 
 
 UG_SHARED_FIGURES = \
-doc_logo.eps
+doc_logo.pdf
 
 UG_CMAKE_FIGURES = \
-ccmakedefault.eps \
-ccmakeempty.eps \
-ccmakeprefix.eps \
-testrunnertop.eps\
-testrunnerbot.eps\
-cmaketest.eps
+ccmakedefault.png \
+ccmakeprefix.png \
+testrunnertop.png\
+testrunnerbot.png
+#ccmakeempty.pdf \
+#cmaketest.pdf
 
 #-------------------------------------------------------------------------------
 
 all:
 	@echo "Usage:"
-	@echo "  make in_g     - compile LaTeX files to generate DVI file for Instalation Guide"
-	@echo "  make in_g_pdf - compile LaTeX files to generate PS + PDF files for Installation Guide"
+	@echo "  make in_g   - compile LaTeX files to generate PDF file for Instalation Guide"
 	@echo "  make clean  - remove all temporary files"
-	@echo "  make purge  - remove temporary files + PS + PDF files"
+	@echo "  make purge  - remove temporary files + PDF files"
 	@echo ""
 
 #-------------------------------------------------------------------------------
 
-in_g: 	copy_ug_figs copy_ug_cmake_figs install_guide.aux
-
-in_g_pdf: in_g install_guide.ps
+in_g: 	copy_ug_figs copy_ug_cmake_figs install_guide.pdf
 
 copy_ug:
 	@for i in ${UG_SHARED_FILES} ; do \
@@ -67,12 +64,10 @@ copy_ug_cmake_figs:
 	cp ${SHARED_DOC}/figures/cmake/$${i} . ;\
 	done
 
-install_guide.aux: ${UG_FILES} ${UG_SHARED_FILES:%=${SHARED_DOC}/%}
-	texi2dvi ${QUIET} install_guide.tex
+install_guide.pdf: ${UG_FILES} ${UG_SHARED_FILES:%=${SHARED_DOC}/%}
+	xelatex ${QUIET} install_guide.tex
+	xelatex ${QUIET} install_guide.tex
 
-install_guide.ps: install_guide.dvi
-	dvips ${QUIET} -Ppdf install_guide
-	ps2pdf install_guide.ps
 
 #-------------------------------------------------------------------------------
 

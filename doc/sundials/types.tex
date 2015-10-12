@@ -17,7 +17,7 @@ greater than $1.0$.
 
 Within {\sundials}, real constants are set by way of a macro called
 \Id{RCONST}.  It is this macro that needs the ability to branch on the
-definition \id{realtype}.  In ANSI {\C}, a floating-point constant with no
+definition \id{realtype}.  In ANSI {\CC}, a floating-point constant with no
 suffix is stored as a \id{double}.  Placing the suffix ``F'' at the
 end of a floating point constant makes it a \id{float}, whereas using the suffix
 ``L'' makes it a \id{long double}.  For example,
@@ -40,6 +40,6 @@ functions.  (Our example programs use both \id{realtype} and
 \id{RCONST}.)  Users can, however, use the type \id{double}, \id{float}, or
 \id{long double} in their code (assuming that this usage is consistent
 with the typedef for \id{realtype}).  Thus, a previously existing
-piece of ANSI {\C} code can use {\sundials} without modifying the code
+piece of ANSI {\CC} code can use {\sundials} without modifying the code
 to use \id{realtype}, so long as the {\sundials} libraries use the
 correct precision (for details see \S\ref{ss:configuration_options_nix}).

@@ -1,5 +1,5 @@
-\usepackage{epsfig, supertabular, makeidx}
-
+\usepackage{makeidx}
+\usepackage{xtab}
 \usepackage{amsmath, amssymb}
 
 % Package to add Bibliography and Index to TOC
@@ -9,9 +9,10 @@
 \usepackage{calc}
 \usepackage{hangcaption}
 \usepackage{subfigure}
-\usepackage[usenames]{color}
-\usepackage{epsfig}
+\usepackage{color}
+%\usepackage{epsfig}
 \usepackage{pstricks}
+\usepackage{graphicx}
 
 % Needed for sideways
 \usepackage{rotating}
@@ -188,7 +189,7 @@
 \newcommand{\mpi}{{\sc MPI}}
 
 %----- C and Fortran languages
-\newcommand{\C}{{\sc C}}
+\newcommand{\CC}{{\sc C}}
 \newcommand{\CPP}{{\sc C}\raisebox{0.2em}{\tiny ++}}
 \newcommand{\F}{{\sc Fortran}}
 
@@ -448,9 +449,9 @@ Approved for public release; further dissemination unlimited
 %% to give it a fighting chance, it MUST be included last.
 
 \usepackage[
-letterpaper=true, 
-dvips, 
-ps2pdf, 
+% letterpaper=true, 
+% dvips, 
+% ps2pdf, 
 hyperindex=true, 
 linktocpage=true,
 colorlinks=true, 

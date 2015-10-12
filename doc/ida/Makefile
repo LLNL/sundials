@@ -40,29 +40,33 @@ nvec_parallel.tex \
 nvec_serial.tex \
 nvec_openmp.tex \
 nvec_pthreads.tex \
+nvec_parhyp.tex \
 spils_constants.tex \
 sun_org.tex \
 types.tex \
 ug.tex \
-biblio.bib \
-texi2dvi
+biblio.bib
+# tocbibind.sty \
+# hangcaption.sty \
+# supertabular.sty
+#texi2dvi 
 #ug_html.tex \
 #processHTML
 
 UG_SHARED_FIGURES = \
-bandmat.eps \
-cscmat.eps \
-sunorg1.eps \
-sunorg2.eps \
-doc_logo.eps
+bandmat.pdf \
+cscmat.pdf \
+sunorg1.pdf \
+sunorg2.pdf \
+doc_logo.pdf
 
 UG_CMAKE_FIGURES = \
-ccmakedefault.eps \
-ccmakeempty.eps \
-ccmakeprefix.eps \
-testrunnertop.eps\
-testrunnerbot.eps\
-cmaketest.eps
+ccmakedefault.png \
+ccmakeempty.pdf \
+ccmakeprefix.png \
+testrunnertop.png\
+testrunnerbot.png\
+cmaketest.pdf
 
 EX_FILES = \
 ida_examples.tex \
@@ -94,8 +98,7 @@ texi2dvi
 
 all:
 	@echo "Usage:"
-	@echo "  make ug     - compile LaTeX files to generate DVI file for IDA User's Guide"
-	@echo "  make ug_pdf - compile LaTeX files to generate PS + PDF files for IDA User's Guide"
+	@echo "  make ug     - compile LaTeX files to generate PDF file for IDA User's Guide"
 	@echo "  make ex     - compile LaTeX files to generate DVI file for IDA Examples Guide"
 	@echo "  make ex_pdf - compile LaTeX files to generate PS + PDF files for IDA Examples Guide"
 	@echo "  make clean  - remove all temporary files"
@@ -115,9 +118,8 @@ install: ug_pdf ex_pdf
 
 #-------------------------------------------------------------------------------
 
-ug: 	copy_ug copy_ug_figs copy_ug_cmake_figs ida_guide.aux
+ug: 	copy_ug copy_ug_figs copy_ug_cmake_figs ida_guide.pdf
 
-ug_pdf: ug ida_guide.ps
 
 #ug_html: ug
 #	cp ug_html.tex ug.tex
@@ -143,16 +145,19 @@ copy_ug_cmake_figs:
 	cp ${SHARED_DOC}/figures/cmake/$${i} . ;\
 	done
 
-ida_guide.aux: ${UG_FILES} ${UG_SHARED_FILES:%=${SHARED_DOC}/%}
-	texi2dvi ${QUIET} ida_guide.tex
+ida_guide.pdf: ${UG_FILES} ${UG_SHARED_FILES:%=${SHARED_DOC}/%}
+	xelatex ${QUIET} ida_guide.tex
+	bibtex ida_guide
+	xelatex ${QUIET} ida_guide.tex
+	xelatex ${QUIET} ida_guide.tex
 
-ida_guide.ps: ida_guide.dvi
-	dvips ${QUIET} -Ppdf ida_guide
-	ps2pdf ida_guide.ps
+# ida_guide.ps: ida_guide.dvi
+# 	dvips ${QUIET} -Ppdf ida_guide
+# 	ps2pdf ida_guide.ps
 
 #-------------------------------------------------------------------------------
 
-ex:	ug copy_ex ida_examples.aux
+ex:	ug copy_ex ida_examples.pdf
 
 ex_pdf: ex ida_examples.ps
 
@@ -170,12 +175,15 @@ copy_ex:
 	cp ${SHARED_DOC}/$${i} . ;\
 	done
 
-ida_examples.aux: ${EX_FILES} ${EX_SHARED_FILES:%=${SHARED_DOC}/%}
-	texi2dvi ${QUIET} ida_examples.tex
+ida_examples.pdf: ${EX_FILES} ${EX_SHARED_FILES:%=${SHARED_DOC}/%}
+	xelatex ${QUIET} ida_examples.tex
+	bibtex ida_examples
+	xelatex ${QUIET} ida_examples.tex
+	xelatex ${QUIET} ida_examples.tex
 
-ida_examples.ps: ida_examples.dvi
-	dvips ${QUIET} -Ppdf ida_examples
-	ps2pdf ida_examples.ps
+# ida_examples.ps: ida_examples.dvi
+# 	dvips ${QUIET} -Ppdf ida_examples
+# 	ps2pdf ida_examples.ps
 
 #-------------------------------------------------------------------------------
 
