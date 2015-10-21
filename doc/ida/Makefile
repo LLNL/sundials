@@ -58,7 +58,8 @@ bandmat.pdf \
 cscmat.pdf \
 sunorg1.pdf \
 sunorg2.pdf \
-doc_logo.pdf
+doc_logo.pdf \
+warning.png
 
 UG_CMAKE_FIGURES = \
 ccmakedefault.png \

@@ -40,29 +40,31 @@ nvec_parallel.tex \
 nvec_serial.tex \
 nvec_openmp.tex \
 nvec_pthreads.tex \
+nvec_parhyp.tex \
 spils_constants.tex \
 sun_org.tex \
 types.tex \
 ug.tex \
-biblio.bib \
-texi2dvi
+biblio.bib 
+#texi2dvi
 #ug_html.tex \
 #processHTML
 
 UG_SHARED_FIGURES = \
-bandmat.eps \
-cscmat.eps \
-sunorg1.eps \
-sunorg2.eps \
-doc_logo.eps
+bandmat.pdf \
+cscmat.pdf \
+sunorg1.pdf \
+sunorg2.pdf \
+doc_logo.pdf \
+warning.png
 
 UG_CMAKE_FIGURES = \
-ccmakedefault.eps \
-ccmakeempty.eps \
-ccmakeprefix.eps \
-testrunnertop.eps\
-testrunnerbot.eps\
-cmaketest.eps
+ccmakedefault.png \
+ccmakeempty.pdf \
+ccmakeprefix.png \
+testrunnertop.png\
+testrunnerbot.png\
+cmaketest.pdf
 
 EX_FILES = \
 idas_examples.tex \
@@ -73,8 +75,8 @@ idas_ex_codes.tex
 
 EX_SHARED_FILES = \
 ug.tex \
-biblio.bib \
-texi2dvi
+biblio.bib 
+#texi2dvi
 #ug_html.tex \
 #processHTML
 
@@ -115,7 +117,7 @@ install: ug_pdf ex_pdf
 
 #-------------------------------------------------------------------------------
 
-ug: 	copy_ug copy_ug_figs copy_ug_cmake_figs idas_guide.aux
+ug: 	copy_ug copy_ug_figs copy_ug_cmake_figs idas_guide.pdf
 
 ug_pdf: ug idas_guide.ps
 
@@ -143,18 +145,21 @@ copy_ug_cmake_figs:
 	cp ${SHARED_DOC}/figures/cmake/$${i} . ;\
 	done
 
-idas_guide.aux: ${UG_FILES} ${UG_SHARED_FILES:%=${SHARED_DOC}/%}
-	texi2dvi ${QUIET} idas_guide.tex
+idas_guide.pdf: ${UG_FILES} ${UG_SHARED_FILES:%=${SHARED_DOC}/%}
+	xelatex ${QUIET} idas_guide.tex
+	bibtex idas_guide
+	xelatex ${QUIET} idas_guide.tex
+	xelatex ${QUIET} idas_guide.tex
 
 
 
-idas_guide.ps: idas_guide.dvi
-	dvips ${QUIET} -Ppdf idas_guide
-	ps2pdf idas_guide.ps
+# idas_guide.ps: idas_guide.dvi
+# 	dvips ${QUIET} -Ppdf idas_guide
+# 	ps2pdf idas_guide.ps
 
 #-------------------------------------------------------------------------------
 
-ex:	ug copy_ex idas_examples.aux
+ex:	ug copy_ex idas_examples.pdf
 
 ex_pdf: ex idas_examples.ps
 
@@ -172,8 +177,11 @@ copy_ex:
 	cp ${SHARED_DOC}/$${i} . ;\
 	done
 
-idas_examples.aux: ${EX_FILES} ${EX_SHARED_FILES:%=${SHARED_DOC}/%}
-	texi2dvi ${QUIET} idas_examples.tex
+idas_examples.pdf: ${EX_FILES} ${EX_SHARED_FILES:%=${SHARED_DOC}/%}
+	xelatex ${QUIET} idas_examples.tex
+	bibtex idas_examples
+	xelatex ${QUIET} idas_examples.tex
+	xelatex ${QUIET} idas_examples.tex
 
 idas_examples.ps: idas_examples.dvi
 	dvips ${QUIET} -Ppdf idas_examples

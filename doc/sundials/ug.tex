@@ -11,7 +11,7 @@
 \usepackage{subfigure}
 \usepackage{color}
 %\usepackage{epsfig}
-\usepackage{pstricks}
+%\usepackage{pstricks}
 \usepackage{graphicx}
 
 % Needed for sideways
@@ -36,7 +36,8 @@
 {\mbox{}\marginpar{\raggedleft\hspace{0pt}{\rule{0mm}{1mm}#1}}}
 
 \newcommand{\warn}{%
-\marginlabel{\pstribox[shadow=false,fillstyle=solid,fillcolor=yellow,trimode=*U]{\footnotesize !}}%%
+%\marginlabel{\pstribox[shadow=false,fillstyle=solid,fillcolor=yellow,trimode=*U]{\footnotesize !}}%%
+\marginlabel{\includegraphics[scale=0.8]{warning}}%%
 }
 
 %----- Page formatting
