@@ -216,9 +216,11 @@ are grayed out.
   Upon completion of the backward integration, call all necessary deallocation
   functions. These include appropriate destructors for the vectors 
   \id{y} and \id{yB}, a call to \id{CVodeFree} to free the {\cvodes} memory block 
-  for the forward problem.  If additional forward integration(s) are to be done
-  for this problem, a call to \id{CVodeAdjFree} (see \S\ref{sss:cvadjinit}) may be
-  made to free and deallocate memory allocated for the backward problems. 
+  for the forward problem.  If one or more additional Adjoint
+  Sensitivity Analyses are
+  to be done for this problem, a call to \id{CVodeAdjFree} (see \S\ref{sss:cvadjinit})
+  may be made to free and deallocate memory allocated for the backward problems, 
+  followed by a call to \id{CVodeAdjInit}.
 
 \item
   \textcolor{gray}{\bf Finalize MPI}
@@ -364,8 +366,9 @@ The form of the call to this function is
   This function frees all memory allocated by \id{CVodeAdjInit}. This
   includes workspace memory, the linked list of checkpoints, memory
   for the interpolation data, as well as the {\cvodes} memory for the
-  backward integration phase.  In general, \id{CVodeAdjFree} need not be
-  called by the user, as it is invoked automatically by \id{CVodeFree}.
+  backward integration phase.  Unless one or more further calls to \id{CVodeAdjInit}
+  are to be made, \id{CVodeAdjFree} should not be called by the user, as it is
+  invoked automatically by \id{CVodeFree}.
 }
 %%
 %%
@@ -653,7 +656,7 @@ The call to the \id{CVodeReInitB} function has the form
   flag = CVodeReInitB(cvode\_mem, which, tB0, yB0)
 }
 {
-  The function \ID{CVodeReInitB} reinitializes {\cvodes} the backward problem.
+  The function \ID{CVodeReInitB} reinitializes a {\cvodes} backward problem.
 }
 {
   \begin{args}[cvode\_mem]
