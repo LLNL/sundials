@@ -1,0 +1,38 @@
+# -----------------------------------------------------------------
+# $Revision:  $
+# $Date:  $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/ida/LICENSE.
+# -----------------------------------------------------------------
+# Sources for IDA documents
+# -----------------------------------------------------------------
+
+
+USER_GUIDE = ida_guide
+EXAMPLES   = ida_examples
+
+UG_FILES = \
+${USER_GUIDE}.tex \
+ida_intro.tex \
+ida_install.tex \
+ida_math.tex \
+ida_usage.tex \
+ida_fcmix.tex \
+ida_nvec.tex \
+ida_org.tex \
+ida_newlinsolv.tex \
+ida_constants.tex
+#ida_linsolv.tex \
+
+EX_FILES = \
+${EXAMPLES}.tex \
+ida_ex_intro.tex \
+ida_ex_serial.tex \
+ida_ex_parallel.tex \
+ida_ex_codes.tex
+
