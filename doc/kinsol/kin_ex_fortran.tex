@@ -7,7 +7,7 @@ package are all written in standard F77 Fortran and use double precision
 arithmetic. However, when the {\F} examples are built, the source code is
 automatically modified according to the configure options supplied by the
 user and the system type. Integer variables are declared as {\tt INTEGER*}{\em n},
-where {\em n} denotes the number of bytes in the corresponding {\C} type
+where {\em n} denotes the number of bytes in the corresponding {\CC} type
 ({\tt long int} or {\tt int}). Floating-point variable declarations remain
 unchanged if double precision is used, but are changed to {\tt REAL*}{\em n},
 where {\em n} denotes the number of bytes in the {\sundials} type {\tt realtype},
@@ -17,7 +17,7 @@ changed to {\tt 0.5E-4}.
 
 
 The two examples supplied with the {\fkinsol} module are very simple tests 
-of the {\F}-{\C} interface module. 
+of the {\F}-{\CC} interface module. 
 They solve the nonlinear system
 \begin{equation*}
   F(u) = 0 \, , \quad \text{where } f_i(u) = u_i^2 - i^2 \, , 1 \le i \le N \, . 

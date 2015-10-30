@@ -12,7 +12,7 @@ templates (with the removal of some lines involved in testing), and
 are included in the {\kinsol} package.
 
 Users with applications written in {\F}77 should see Chapter \ref{s:fcmix},
-which describes the {\F}/{\C} interface module.
+which describes the {\F}/{\CC} interface module.
 
 The user should be aware that not all linear solver modules are compatible 
 with all {\nvector} implementations. 
@@ -393,7 +393,7 @@ flag = KINInit(kin\_mem, func, tmpl);
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block returned by \id{KINCreate}.
   \item[func] (\Id{KINSysFn})
-    is the {\C} function which computes the system function $F$ 
+    is the {\CC} function which computes the system function $F$ 
     (or $G(u)$ for fixed-point iteration) in the nonlinear
     problem.  This function has the form \id{func(u, fval, user\_data)}. 
     (For full details see \S\ref{ss:sysFn}.)
@@ -1203,7 +1203,7 @@ flag = KINSetErrHandlerFn(kin\_mem, ehfun, eh\_data);
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[ehfun] (\id{KINErrHandlerFn})
-    is the user's {\C} error handler function (see \S\ref{ss:ehFn}).
+    is the user's {\CC} error handler function (see \S\ref{ss:ehFn}).
   \item[eh\_data] (\id{void *})
     pointer to user data passed to \id{ehfun} every time it is called.
   \end{args}
@@ -1270,7 +1270,7 @@ flag = KINSetInfoHandlerFn(kin\_mem, ihfun, ih\_data);
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[ihfun] (\id{KINInfoHandlerFn})
-    is the user's {\C} information handler function (see \S\ref{ss:ihFn}).
+    is the user's {\CC} information handler function (see \S\ref{ss:ihFn}).
   \item[ih\_data] (\id{void *})
     pointer to user data passed to \id{ihfun} every time it is called.
   \end{args}
@@ -3890,7 +3890,7 @@ supplied, the default is a difference quotient approximation of these products.
 \index{KINSPBCG@{\kinspbcg} linear solver!preconditioner solve function}
 \index{KINSPTFQMR@{\kinsptfqmr} linear solver!preconditioner solve function}
 
-If preconditioning is used, then the user must provide a {\C} function to
+If preconditioning is used, then the user must provide a {\CC} function to
 solve the linear system $Pz = r$ where $P$ is the preconditioner matrix,
 approximating (at least crudely) the system Jacobian $J = \partial{F}/\partial{u}$. 
 This function must be of type \ID{KINSpilsPrecSolveFn}, defined as follows:
@@ -3953,7 +3953,7 @@ This function must be of type \ID{KINSpilsPrecSolveFn}, defined as follows:
 
 If the user's preconditioner requires that any Jacobian-related data
 be evaluated or preprocessed, then this needs to be done in a
-user-supplied {\C} function of type \ID{KINSpilsPrecSetupFn}, defined as follows:
+user-supplied {\CC} function of type \ID{KINSpilsPrecSetupFn}, defined as follows:
 \usfunction{KINSpilsPrecSetupFn}
 {
 typedef int (*KINSpilsPrecSetupFn)(&N\_Vector u, N\_Vector uscale, \\
@@ -4276,9 +4276,9 @@ is described in more detail below.
     approximations.  The default is \id{dq\_rel\_u}$ = \sqrt{\text{unit roundoff}}$,
     which can be specified by passing \id{dq\_rel\_u}$ = 0.0$.
   \item[Gloc] (\id{KINLocalFn})
-    the {\C} function which computes the approximation $G(u) \approx F(u)$. 
+    the {\CC} function which computes the approximation $G(u) \approx F(u)$. 
   \item[Gcomm] (\id{KINCommFn})
-    the optional {\C} function which performs all interprocess communication required for
+    the optional {\CC} function which performs all interprocess communication required for
     the computation of $G(u)$.
   \end{args}
 }

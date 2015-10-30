@@ -2,10 +2,10 @@
 \chapter{FKINSOL, an Interface Module for FORTRAN Applications}\label{s:fcmix}
 %%==============================================================================
 
-The {\fkinsol} interface module is a package of {\C} functions which support
+The {\fkinsol} interface module is a package of {\CC} functions which support
 the use of the {\kinsol} solver, for the solution of nonlinear systems
-$F(u)=0$, in a mixed {\F}/{\C} setting.  While {\kinsol} is written
-in {\C}, it is assumed here that the user's calling program and
+$F(u)=0$, in a mixed {\F}/{\CC} setting.  While {\kinsol} is written
+in {\CC}, it is assumed here that the user's calling program and
 user-supplied problem-defining routines are written in {\F}.
 This package provides the necessary interface to {\kinsol} for all supplied
 serial and parallel {\nvector} implementations.
@@ -19,7 +19,7 @@ serial and parallel {\nvector} implementations.
 %% the {\F} user routines called by them, appear as dummy names
 %% which are mapped to actual values by a series of definitions in the
 %% header files \id{fkinsol.h} and \id{fkinbbd.h}.
-%% By default, those mapping definitions depend in turn on the {\C} macro
+%% By default, those mapping definitions depend in turn on the {\CC} macro
 %% \id{F77\_FUNC} defined in the header file \id{sundials\_config.h} and
 %% decided upon at configuration time (see Appendix \ref{c:install}).
 
@@ -30,13 +30,13 @@ serial and parallel {\nvector} implementations.
 %% depending on whether {\kinsol} was built in single, double or extended precision 
 %% (see Appendix \ref{c:install}). Moreover, some of the {\F} integer variables
 %% must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
-%% {\C} type \id{long int}. These integer variables include:
+%% {\CC} type \id{long int}. These integer variables include:
 %% the optional input (\id{IVAL}), the problem size and bandwidth parameters
 %% (\id{NEQ}, \id{NLOCAL}, \id{NGLOBAL}, \id{ML}, \id{MU}, etc.),
 %% and the array of integer optional outputs (\id{IOUT}).
 %% EXCEPTION: In the case that Lapack linear solvers are to be used, the
 %% input arguments to \id{FKINLAPACKDENSE} or \id{FKINLAPACKBAND} (\id{NEQ},
-%% \id{ML}, and \id{MU}) must be declared to be consistent with {\C} type \id{int}.
+%% \id{ML}, and \id{MU}) must be declared to be consistent with {\CC} type \id{int}.
 %% This type consistency is particularly important when using
 %% {\kinsol} and the {\fkinsol} package on 64-bit architectures.
 
@@ -121,7 +121,7 @@ interface function which calls it (and its type within {\kinsol}), are as follow
 \begin{center}
 \begin{tabular}{l||l|l}
 {\fkinsol} routine      &  {\kinsol} function & {\kinsol} type of \\
-({\F}, user-supplied)  &  ({\C}, interface) & interface function \\ \hline\hline
+({\F}, user-supplied)  &  ({\CC}, interface) & interface function \\ \hline\hline
 \id{FKFUN}    & \id{FKINfunc}           & \id{KINSysFn} \\
 \id{FKDJAC}   & \id{FKINDenseJac}       & \id{KINDlsDenseJacFn} \\
 {}            & \id{FKINLapackDenseJac} & \id{KINDlsDenseJacFn} \\
@@ -234,7 +234,7 @@ to {\nvecp},
   otherwise.
 
   NOTE: The integers \id{NEQ}, \id{NLOCAL}, and \id{NGLOBAL} should be
-  declared so as to match {\C} type \id{long int}.
+  declared so as to match {\CC} type \id{long int}.
 
   {\warn}If the header file \id{sundials\_config.h} defines
   \id{SUNDIALS\_MPI\_COMM\_F2C} to be $1$ (meaning the {\mpi}
@@ -272,7 +272,7 @@ to {\nvecp},
   }
   {
     The user integer data array \id{IOUT} must be declared as \id{INTEGER*4} or
-    \id{INTEGER*8} according to the {\C} type \id{long int}.
+    \id{INTEGER*8} according to the {\CC} type \id{long int}.
 
     The optional outputs associated with the main {\kinsol} integrator
     are listed in Table~\ref{t:fkinsol_out}.
@@ -315,7 +315,7 @@ to {\nvecp},
       CALL FKINLAPACKDENSE(NEQ, IER)
 \end{verbatim}
   where the arguments have the same meanings as for \id{FKINDENSE}, except
-  that here \id{NEQ} must be declared so as to match {\C} type \id{int}.
+  that here \id{NEQ} must be declared so as to match {\CC} type \id{int}.
 
   \index{Jacobian approximation function!dense!use in {\fkinsol}}
   As an option when using the {\dense} linear solver, the user may supply a
@@ -336,7 +336,7 @@ to {\nvecp},
   a positive value if a recoverable error occurred (in which case {\kinsol}
   will attempt to correct), or a negative value if \id{FKDJAC} failed
   unrecoverably (in which case the solution process is halted).
-  NOTE: The argument \id{NEQ} has a type consistent with {\C} type \id{long int}
+  NOTE: The argument \id{NEQ} has a type consistent with {\CC} type \id{long int}
   even in the case when the Lapack dense solver is to be used.
 
   If the \id{FKDJAC} routine is provided, then, 
@@ -380,7 +380,7 @@ to {\nvecp},
 \end{verbatim}
   where the arguments have the same meanings as for \id{FKINBAND}, except
   that here \id{NEQ}, \id{MU}, and \id{ML} must be declared so as to match
-  {\C} type \id{int}.
+  {\CC} type \id{int}.
 
   \index{Jacobian approximation function!band!use in {\fkinsol}}
   As an option when using the {\band} linear solver, the user may supply a
@@ -407,7 +407,7 @@ to {\nvecp},
   attempt to correct), or a negative value if \id{FKBJAC} failed unrecoverably
   (in which case the solution process is halted).
   NOTE: The arguments \id{NEQ}, \id{MU}, \id{ML}, and \id{MDIM} have a type
-  consistent with {\C} type \id{long int} even in the case when the Lapack band
+  consistent with {\CC} type \id{long int} even in the case when the Lapack band
   solver is to be used.
 
   If the \id{FKBJAC} routine is provided, then, following the call to \id{FKINBAND},
@@ -729,7 +729,7 @@ For the legal values of \id{KEY} in calls to \ID{FKINSETIIN} and \ID{FKINSETRIN}
 see Table \ref{t:fkinsol_in}.  The one legal value of \id{KEY} for \ID{FKINSETVIN}
 is \id{CONSTR\_VEC}, for providing the array of inequality constraints to be
 imposed on the solution, if any.
-The integer \id{IVAL} should be declared in a manner consistent with {\C}
+The integer \id{IVAL} should be declared in a manner consistent with {\CC}
 type \id{long int}.
 
 The optional outputs from the {\kinsol} solver are accessed not through
@@ -841,11 +841,11 @@ and \S\ref{ss:optional_output}.
 %%==============================================================================
 \index{FKINBBD@{\fkinbbd} interface module!interface to the {\kinbbdpre} module|(}
 
-The {\fkinbbd} interface sub-module is a package of {\C} functions which,
+The {\fkinbbd} interface sub-module is a package of {\CC} functions which,
 as part of the {\fkinsol} interface module, support the use of the
 {\kinsol} solver with the parallel {\nvecp} module and the {\kinbbdpre} 
 preconditioner module (see \S\ref{sss:kinbbdpre}), for the solution of 
-nonlinear problems in a mixed {\F}/{\C} setting.  
+nonlinear problems in a mixed {\F}/{\CC} setting.  
 
 The user-callable functions in this package, with the corresponding
 {\kinsol} and {\kinbbdpre} functions, are as follows: 
@@ -863,7 +863,7 @@ type within {\kinbbdpre} or {\kinsol}):
 \begin{center}
 \begin{tabular}{l||l|l}
 {\fkinbbd} routine     &  {\kinsol} function & {\kinsol} type of \\
-({\F}, user-supplied)  &  ({\C}, interface) & interface function \\ \hline\hline
+({\F}, user-supplied)  &  ({\CC}, interface) & interface function \\ \hline\hline
 \id{FKLOCFN}  & \id{FKINgloc}     & \id{KINLocalFn} \\
 \id{FKCOMMF}  & \id{FKINgcomm}    & \id{KINCommFn} \\
 \id{FKJTIMES} & \id{FKINJtimes}   & \id{KINSpilsJacTimesVecFn} \\
@@ -933,7 +933,7 @@ from the main program described in \S\ref{ss:fkinsol_usage} are grayed-out.
 \begin{verbatim}
       CALL FKINBBDOPT (LENRBBD, LENIBBD, NGEBBD)
 \end{verbatim}
-  The arguments should be consistent with {\C} type \id{long int}.  Their
+  The arguments should be consistent with {\CC} type \id{long int}.  Their
   returned values are as follows:
   \id{LENRBBD} is the length of real preconditioner work space, in \id{realtype}
   words. \id{LENIBBD} is the length of integer preconditioner work space, in

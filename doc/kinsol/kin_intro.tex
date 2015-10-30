@@ -33,7 +33,7 @@ requirement for the formation of the actual Jacobian matrix.
 Significantly less memory was required for the solver as a result.
 
 In the late 1990's, there was a push at LLNL to rewrite the
-nonlinear solver in {\C} and port it to distributed memory
+nonlinear solver in {\CC} and port it to distributed memory
 parallel machines.  Both Newton and Krylov methods are easily
 implemented in parallel, and this effort gave rise to the
 {\kinsol} package. {\kinsol} is similar to NKSOL in functionality,
@@ -71,7 +71,7 @@ direct solvers KLU~\cite{DaPa:10,KLU_site},
 and the threaded sparse direct solver,
 SuperLU\_MT~\cite{Li:05,DGL:99,SuperLUMT_site}.
 
-In the process of translating NKSOL into {\C}, the overall
+In the process of translating NKSOL into {\CC}, the overall
 {\kinsol} organization has been changed considerably. One key
 feature of the {\kinsol} organization is that a separate module
 devoted to vector operations has been created.  This module
@@ -89,14 +89,14 @@ MPI-parallel, and both openMP and Pthreads thread-parallel
 {\nvector} implementations.
 
 \index{KINSOL@{\kinsol}!motivation for writing in C|(} There are
-several motivations for choosing the {\C} language for {\kinsol}.
-First, a general movement away from {\F} and toward {\C} in
+several motivations for choosing the {\CC} language for {\kinsol}.
+First, a general movement away from {\F} and toward {\CC} in
 scientific computing was apparent. Second, the pointer, structure,
 and dynamic memory allocation features in C are extremely useful
 in software of this complexity, with the great variety of method
-options offered. Finally, we prefer {\C} over {\CPP} for {\kinsol}
-because of the wider availability of {\C} compilers, the
-potentially greater efficiency of {\C}, and the greater ease of
+options offered. Finally, we prefer {\CC} over {\CPP} for {\kinsol}
+because of the wider availability of {\CC} compilers, the
+potentially greater efficiency of {\CC}, and the greater ease of
 interfacing the solver to applications written in {\F}.
 \index{KINSOL@{\kinsol}!motivation for writing in C|)}
 
@@ -309,7 +309,7 @@ The structure of this document is as follows:
   of solvers (\S\ref{ss:sun_org}) and the software organization of the {\kinsol}
   solver (\S\ref{ss:kinsol_org}).
 \item
-  Chapter \ref{c:usage} is the main usage document for {\kinsol} for {\C} applications.
+  Chapter \ref{c:usage} is the main usage document for {\kinsol} for {\CC} applications.
   It includes a complete description of the user interface for the solution
   of nonlinear algebraic systems.
 \item
@@ -340,7 +340,7 @@ The structure of this document is as follows:
 Finally, the reader should be aware of the following notational
 conventions in this user guide:  program listings and identifiers
 (such as \id{KINInit}) within textual explanations appear in
-typewriter type style; fields in {\C} structures (such as {\em
+typewriter type style; fields in {\CC} structures (such as {\em
 content}) appear in italics; and packages or modules are written
 in all capitals.
 Usage and installation instructions that constitute important warnings
