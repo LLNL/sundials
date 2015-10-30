@@ -1,15 +1,15 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2012-04-26 00:06:06 $
+# $Revision: 1.4 $
+# $Date: 2012-04-26 00:06:10 $
 # -----------------------------------------------------------------
-# Programmer(s): Radu Serban @ LLNL
+# Programmer(s): Radu Serban, Slaven Peles @ LLNL
 # -----------------------------------------------------------------
 # Copyright (c) 2002, The Regents of the University of California.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
-# For details, see sundials/cvodes/LICENSE.
+# For details, see sundials/ida/LICENSE.
 # -----------------------------------------------------------------
-# Makefile for CVODES documents
+# Makefile for IDA documents
 # -----------------------------------------------------------------
 
 QUIET =
@@ -18,21 +18,13 @@ SHARED_DOC = ../sundials
 
 HTML_DIR = ../../html/documentation
 
-UG_FILES = \
-cvs_guide.tex \
-cvs_intro.tex \
-cvs_install.tex \
-cvs_math.tex \
-cvs_org.tex \
-cvs_sim.tex \
-cvs_fwd.tex \
-cvs_adj.tex \
-cvs_nvec.tex \
-cvs_newlinsolv.tex \
-#cvs_linsolv.tex \
-cvs_constants.tex
+
+TEX_COMPILER = xelatex
+
+include Makefile.sources
 
 UG_SHARED_FILES = \
+fortran.tex \
 install.tex \
 linsolv.tex \
 nvec_generic.tex \
@@ -40,42 +32,36 @@ nvec_parallel.tex \
 nvec_serial.tex \
 nvec_openmp.tex \
 nvec_pthreads.tex \
+nvec_parhyp.tex \
 spils_constants.tex \
 sun_org.tex \
 types.tex \
 ug.tex \
-biblio.bib \
-texi2dvi
+biblio.bib
+#texi2dvi 
 #ug_html.tex \
 #processHTML
 
 UG_SHARED_FIGURES = \
-bandmat.eps \
-cscmat.eps \
-sunorg1.eps \
-sunorg2.eps \
-doc_logo.eps
+bandmat.pdf \
+cscmat.pdf \
+sunorg1.pdf \
+sunorg2.pdf \
+doc_logo.pdf \
+warning.png
 
 UG_CMAKE_FIGURES = \
-ccmakedefault.eps \
-ccmakeempty.eps \
-ccmakeprefix.eps \
-testrunnertop.eps\
-testrunnerbot.eps\
-cmaketest.eps
-
-EX_FILES = \
-cvs_examples.tex \
-cvs_ex_intro.tex \
-cvs_ex_fwd.tex \
-cvs_ex_adj.tex \
-cvs_ex_codes.tex \
-cvs_ex_tests.tex   
+ccmakedefault.png \
+ccmakeempty.pdf \
+ccmakeprefix.png \
+testrunnertop.png\
+testrunnerbot.png\
+cmaketest.pdf
 
 EX_SHARED_FILES = \
 ug.tex \
-biblio.bib \
-texi2dvi
+biblio.bib
+#texi2dvi \
 #ug_html.tex \
 #processHTML
 
@@ -91,42 +77,44 @@ texi2dvi
 #up_g.png \
 #warning.png
 
-all:
-	@echo "Usage:"
-	@echo "  make ug     - compile LaTeX files to generate DVI file for CVODES User's Guide"
-	@echo "  make ug_pdf - compile LaTeX files to generate PS + PDF files for CVODES User's Guide"
-	@echo "  make ex     - compile LaTeX files to generate DVI file for CVODES Examples Guide"
-	@echo "  make ex_pdf - compile LaTeX files to generate PS + PDF files for CVODES Examples Guide"
-	@echo "  make clean  - remove all temporary files"
-	@echo "  make purge  - remove temporary files + PS + PDF files"
-	@echo ""
-
-install: ug_pdf ex_pdf
-#install: ug_pdf ex_pdf ug_html ex_html
-#	rm -rf $(HTML_DIR)/cvs_guide
-#	rm -rf $(HTML_DIR)/cvs_examples
-#	cp cvs_guide.ps $(HTML_DIR)
-	cp cvs_guide.pdf $(HTML_DIR)
-#	cp -r cvs_guide $(HTML_DIR)
-#	cp cvs_examples.ps $(HTML_DIR)
-	cp cvs_examples.pdf $(HTML_DIR)
-#	cp -r cvs_examples $(HTML_DIR)
-
 
 #-------------------------------------------------------------------------------
 
-ug: 	copy_ug copy_ug_figs copy_ug_cmake_figs cvs_guide.aux
+all:
+	@echo "Usage:"
+	@echo "  make ug     - compile LaTeX files to generate PDF file for IDA User's Guide"
+	@echo "  make ex     - compile LaTeX files to generate PDF file for IDA Examples Guide"
+	@echo "  make clean  - remove all temporary files"
+	@echo "  make purge  - remove temporary files + PDF files"
+	@echo "  make ug_pdf - use pdflatex to generate PDF file for IDA User's Guide"
+	@echo "  make ex_pdf - use pdflatex to generate PDF file for IDA Examples Guide"
+	@echo ""
 
-ug_pdf: ug cvs_guide.ps
+install: ug ex
+#install: ug_pdf ex_pdf ug_html ex_html
+#	rm -rf $(HTML_DIR)/${USER_GUIDE}
+#	rm -rf $(HTML_DIR)/${EXAMPLES}
+#	cp ${USER_GUIDE}.ps $(HTML_DIR)
+	cp ${USER_GUIDE}.pdf $(HTML_DIR)
+#	cp -r ${USER_GUIDE} $(HTML_DIR)
+#	cp ${EXAMPLES}.ps $(HTML_DIR)
+	cp ${EXAMPLES}.pdf $(HTML_DIR)
+#	cp -r ${EXAMPLES} $(HTML_DIR)
+
+#-------------------------------------------------------------------------------
+
+ug: 	copy_ug copy_ug_figs copy_ug_cmake_figs ${USER_GUIDE}.pdf
+
+ug_pdf: use_pdflatex ug
 
 #ug_html: ug
 #	cp ug_html.tex ug.tex
-#	latex2html -split 3 -link 3 -info 1 -no_math -html_version 3.2,math -short_index -show_section_numbers -local_icons -white -notransparent cvs_guide.tex
+#	latex2html -split 3 -link 3 -info 1 -no_math -html_version 3.2,math -show_section_numbers -short_index -local_icons -white -notransparent ${USER_GUIDE}.tex
 #	@for i in ${HTML_BUTTONS} ; do \
-#	cp ${SHARED_DOC}/buttons/$${i} cvs_guide/ ;\
+#	cp ${SHARED_DOC}/buttons/$${i} ${USER_GUIDE}/ ;\
 #	done
-#	@cp ${SHARED_DOC}/l2h_styles.css cvs_guide/cvs_guide.css
-#	./processHTML cvs_guide
+#	@cp ${SHARED_DOC}/l2h_styles.css ${USER_GUIDE}/${USER_GUIDE}.css
+#	./processHTML ${USER_GUIDE}
 
 copy_ug:
 	@for i in ${UG_SHARED_FILES} ; do \
@@ -143,50 +131,54 @@ copy_ug_cmake_figs:
 	cp ${SHARED_DOC}/figures/cmake/$${i} . ;\
 	done
 
-cvs_guide.aux: ${UG_FILES} ${UG_SHARED_FILES:%=${SHARED_DOC}/%}
-	texi2dvi ${QUIET} cvs_guide.tex
-
-cvs_guide.ps: cvs_guide.dvi
-	dvips ${QUIET} -Ppdf cvs_guide
-	ps2pdf cvs_guide.ps
+${USER_GUIDE}.pdf: ${UG_FILES} ${UG_SHARED_FILES:%=${SHARED_DOC}/%}
+	${TEX_COMPILER} ${QUIET} ${USER_GUIDE}.tex
+	bibtex ${USER_GUIDE}
+	makeindex ${USER_GUIDE}.idx
+	${TEX_COMPILER} ${QUIET} ${USER_GUIDE}.tex
+	${TEX_COMPILER} ${QUIET} ${USER_GUIDE}.tex
+	
 
 #-------------------------------------------------------------------------------
 
-ex:	ug copy_ex cvs_examples.aux
+ex:	ug copy_ex ${EXAMPLES}.pdf
 
-ex_pdf: ex cvs_examples.ps
+ex_pdf: use_pdflatex ex
 
 #ex_html: ex
 #	cp ug_html.tex ug.tex
-#	latex2html -split 4 -link 4 -info 1 -no_math -html_version 3.2,math -show_section_numbers -local_icons -white -notransparent cvs_examples.tex
+#	latex2html -split 4 -link 4 -info 1 -no_math -html_version 3.2,math -show_section_numbers -local_icons -white -notransparent ${EXAMPLES}.tex
 #	@for i in ${HTML_BUTTONS} ; do \
-#	cp ${SHARED_DOC}/buttons/$${i} cvs_examples/ ;\
+#	cp ${SHARED_DOC}/buttons/$${i} ${EXAMPLES}/ ;\
 #	done
-#	@cp ${SHARED_DOC}/l2h_styles.css cvs_examples/cvs_examples.css
-#	./processHTML cvs_examples
+#	@cp ${SHARED_DOC}/l2h_styles.css ${EXAMPLES}/${EXAMPLES}.css
+#	./processHTML ${EXAMPLES}
 
 copy_ex:
 	@for i in ${EX_SHARED_FILES} ; do \
 	cp ${SHARED_DOC}/$${i} . ;\
 	done
 
-cvs_examples.aux: ${EX_FILES} ${EX_SHARED_FILES:%=${SHARED_DOC}/%}
-	texi2dvi ${QUIET} cvs_examples.tex
+${EXAMPLES}.pdf: ${EX_FILES} ${EX_SHARED_FILES:%=${SHARED_DOC}/%}
+	${TEX_COMPILER} ${QUIET} ${EXAMPLES}.tex
+	bibtex ${EXAMPLES}
+#	makeindex ${EXAMPLES}.idx
+	${TEX_COMPILER} ${QUIET} ${EXAMPLES}.tex
+	${TEX_COMPILER} ${QUIET} ${EXAMPLES}.tex
 
-cvs_examples.ps: cvs_examples.dvi
-	dvips ${QUIET} -Ppdf cvs_examples
-	ps2pdf cvs_examples.ps
 
 #-------------------------------------------------------------------------------
+
+use_pdflatex:
+	$(eval TEX_COMPILER := pdflatex)
 
 clean:
 	rm -rf ${UG_SHARED_FILES}
 	rm -rf ${UG_SHARED_FIGURES}
 	rm -rf ${UG_CMAKE_FIGURES}
 	rm -rf ${EX_SHARED_FILES}
-	rm -f *~ *.aux *.bbl *.blg *.log *.toc *.lot *.lof *.ind *.ilg *.idx *.dvi *.out
-
+	rm -f *~ *.aux *.bbl *.blg *.log *.toc *.lot *.lof *.ist *.ind *.ilg *.idx *.dvi *.out
 purge:  clean
-	rm -f cvs_guide.ps cvs_guide.pdf
-	rm -f cvs_examples.ps cvs_examples.pdf
-	rm -rf cvs_guide cvs_examples
+	rm -f ${USER_GUIDE}.pdf
+	rm -f ${EXAMPLES}.pdf
+	rm -rf ${USER_GUIDE} ${EXAMPLES}
