@@ -27,7 +27,7 @@ established methods for stiff integration, nonlinear iteration, and
 Krylov (linear) iteration with a problem-specific treatment of the
 dominant source of stiffness, in the form of the user-supplied
 preconditioner matrix~\cite{BrHi:89}.  The capabilities of both
-{\vode} and {\vodpk} have been combined in the {\C}-language package
+{\vode} and {\vodpk} have been combined in the {\CC}-language package
 {\cvode}\index{CVODE@{\cvode}}~\cite{CoHi:96}.
 
 At present, {\cvode} contains three Krylov methods that can be used
@@ -50,7 +50,7 @@ that the number of workspace vectors they require is fixed, while that
 number for GMRES depends on the desired Krylov subspace size.
 
 In the process of translating the {\vode} and {\vodpk} algorithms into
-{\C}, the overall {\cvode} organization has been changed considerably.
+{\CC}, the overall {\cvode} organization has been changed considerably.
 One key feature of the {\cvode} organization is that the linear system
 solvers comprise a layer of code modules that is separated from the
 integration algorithm, allowing for easy modification and expansion of
@@ -78,13 +78,13 @@ MPI-parallel, and both openMP and Pthreads thread-parallel
 \index{CVODE@{\cvode}!relationship to {\cvode}, {\pvode}|)}
 
 \index{CVODE@{\cvode}!motivation for writing in C|(}
-There are several motivations for choosing the {\C} language for {\cvode}.
-First, a general movement away from {\F} and toward {\C} in scientific
+There are several motivations for choosing the {\CC} language for {\cvode}.
+First, a general movement away from {\F} and toward {\CC} in scientific
 computing was apparent.  Second, the pointer, structure, and dynamic
 memory allocation features in C are extremely useful in software of
 this complexity, with the great variety of method options offered.
-Finally, we prefer {\C} over {\CPP} for {\cvode} because of the wider
-availability of {\C} compilers, the potentially greater efficiency of {\C},
+Finally, we prefer {\CC} over {\CPP} for {\cvode} because of the wider
+availability of {\CC} compilers, the potentially greater efficiency of {\CC},
 and the greater ease of interfacing the solver to applications written
 in extended {\F}.
 \index{CVODE@{\cvode}!motivation for writing in C|)}
@@ -301,7 +301,7 @@ The structure of this document is as follows:
   solver (\S\ref{ss:cvode_org}). 
 \item
   Chapter \ref{s:simulation} is the main usage document for {\cvode} for
-  {\C} applications.  It includes a complete description of the user interface
+  {\CC} applications.  It includes a complete description of the user interface
   for the integration of ODE initial value problems.
 \item
   In Chapter \ref{s:fcmix}, we describe {\fcvode}, an interface module
@@ -333,7 +333,7 @@ The structure of this document is as follows:
 Finally, the reader should be aware of the following notational conventions
 in this user guide:  program listings and identifiers (such as \id{CVodeInit}) 
 within textual explanations appear in typewriter type style; 
-fields in {\C} structures (such as {\em content}) appear in italics;
+fields in {\CC} structures (such as {\em content}) appear in italics;
 and packages or modules, such as {\cvdense}, are written in all capitals. 
 Usage and installation instructions that constitute important warnings
 are marked with a triangular symbol {\warn} in the margin.

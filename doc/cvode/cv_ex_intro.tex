@@ -8,7 +8,7 @@ listings, on the example programs supplied with the {\cvode} distribution
 package.
 
 The {\cvode} distribution contains examples of four types: serial
-{\C} examples, parallel {\C} examples, and serial and parallel {\F}
+{\CC} examples, parallel {\CC} examples, and serial and parallel {\F}
 examples.  
 %%
 With the exception of ''demo''-type example files, the names of all the examples 
@@ -140,7 +140,7 @@ the following four parallel examples (using the {\nvecp} module):
 Within the {\fcvode} module, in the directories 
 {\em srcdir}\id{/examples/cvode/fcmix\_serial} and
 {\em srcdir}\id{/examples/cvode/fcmix\_parallel}, are the following examples for
-the {\F}-{\C} interface.  The first five of these are serial, while
+the {\F}-{\CC} interface.  The first five of these are serial, while
 the last three are parallel.
 \begin{itemize}
 \item \id{fcvRoberts\_dns} is a serial chemical kinetics example (\id{BDF}/{\cvdense})
@@ -180,7 +180,7 @@ The examples in the {\cvode} distribution are written in such a way as
 to compile and run for any combination of configuration options during
 the installation of {\sundials} (see Appendix \ref{c:install} in the User Guide).
 As a consequence, they contain portions of code that will not be typically present in a
-user program. For example, all {\C} example programs make use of the
+user program. For example, all {\CC} example programs make use of the
 variables \id{SUNDIALS\_EXTENDED\_PRECISION} and \id{SUNDIALS\_DOUBLE\_PRECISION}
 to test if the solver libraries were built in extended or double precision,
 and use the appropriate conversion specifiers in \id{printf} functions.
