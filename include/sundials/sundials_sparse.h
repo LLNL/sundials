@@ -258,7 +258,10 @@ int SlsMatvecCSC(SlsMat A, realtype *x, realtype *y);
 
 int SlsMatvecCSR(SlsMat A, realtype *x, realtype *y);
 
-//void PrintSparseMatDebug(SlsMat A);
+/*
+ * void PrintSparseMatDebug(SlsMat A);
+ */
+  
 
 
 #ifdef __cplusplus
