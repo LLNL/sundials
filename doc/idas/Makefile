@@ -29,6 +29,7 @@ install.tex \
 linsolv.tex \
 nvec_generic.tex \
 nvec_parallel.tex \
+nvec_parhyp.tex \
 nvec_serial.tex \
 nvec_openmp.tex \
 nvec_pthreads.tex \

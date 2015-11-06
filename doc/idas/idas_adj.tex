@@ -216,9 +216,10 @@ are grayed out.
   Upon completion of the backward integration, call all necessary deallocation
   functions. These include appropriate destructors for the vectors \id{y} and
   \id{yB}, a call to \id{IDAFree} to free the {\idas} memory block for the
-  forward problem.  If additional forward integration(s) are to be done for
-  this problem, a call to \id{IDAAdjFree} (see \S\ref{sss:idaadjinit}) may be
-  made to free and deallocate the memory allocated for the backward problems.
+  forward problem.  If one or more additional adjoint sensitivity analyses are to
+  be done for this problem, a call to \id{IDAAdjFree} (see \S\ref{sss:idaadjinit})
+  may be made to free and deallocate the memory allocated for the backward problems,
+  followed by a call to \id{IDAAdjInit}.
 
 \item
   \textcolor{gray}{\bf Finalize MPI}
@@ -369,8 +370,9 @@ The form of the call to this function is
   for the interpolation data, as well as the {\idas} memory for the
   backward integration phase.
 
-  In general, \id{IDAAdjFree} need not be called by the user as it is
-  invoked automatically by \id{IDAFree}.
+  Unless one or more further calls to \id{IDAAdjInit} are to be made,
+  \id{IDAAdjFree} should not be called by the user, as it is invoked
+  automatically by \id{IDAFree}.
 }
 %%
 %%
@@ -693,7 +695,7 @@ The call to the \id{IDAReInitB} function has the form
   flag = IDAReInitB(ida\_mem, which, tB0, yB0, ypB0)
 }
 {
-  The function \ID{IDAReInitB} reinitializes {\idas} the backward problem.
+  The function \ID{IDAReInitB} reinitializes an {\idas} backward problem.
 }
 {
   \begin{args}[ida\_mem]
