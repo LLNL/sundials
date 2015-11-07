@@ -409,6 +409,17 @@ IF(PTHREAD_ENABLE)
 ENDIF(PTHREAD_ENABLE)
 
 # -------------------------------------------------------------
+# Enable PETSc support?
+# -------------------------------------------------------------
+
+OPTION(PETSC_ENABLE "Enable PETSC support" OFF)
+
+IF(NOT PETSC_ENABLE)
+  HIDE_VARIABLE(PETSC_LIBRARY_DIR)
+  HIDE_VARIABLE(PETSC_INCLUDE_DIR)
+ENDIF(NOT PETSC_ENABLE)
+
+# -------------------------------------------------------------
 # Enable examples?
 # -------------------------------------------------------------
 
@@ -773,6 +784,44 @@ IF(NOT MPI_ENABLE)
       "Set MPI_ENABLE to ON to use parhyp")
 ENDIF(NOT MPI_ENABLE)
 
+
+# -------------------------------------------------------------
+# Find (and test) the PETSc libraries
+# -------------------------------------------------------------
+
+# If PETSc is requested, first try to find the appropriate libraries to
+# link against them.
+
+IF(PETSC_ENABLE AND NOT MPI_ENABLE)
+    PRINT_WARNING("MPI not enabled - PETSc support will not be provided" 
+      "Set MPI_ENABLE to ON to use PETSc.")
+ENDIF(PETSC_ENABLE AND NOT MPI_ENABLE)
+
+IF(PETSC_ENABLE AND MPI_ENABLE)
+
+  SHOW_VARIABLE(PETSC_INCLUDE_DIR PATH "PETSc include directory"
+    "${PETSC_INCLUDE_DIR}") 
+  SHOW_VARIABLE(PETSC_LIBRARY_DIR PATH
+    "PETSc library directory" "${PETSC_LIBRARY_DIR}")
+
+  INCLUDE(SundialsPETSc)
+
+  IF(PETSC_FOUND) 
+    # sundials_config.h symbol
+    SET(SUNDIALS_PETSC TRUE)
+    INCLUDE_DIRECTORIES(${PETSC_INCLUDE_DIR})
+  ENDIF(PETSC_FOUND)
+
+  IF(PETSC_LIBRARIES AND NOT PETSC_FOUND) 
+    PRINT_WARNING("PETSC not functional - support will not be provided" 
+      "Double check spelling specified libraries (search is case sensitive)")
+  ENDIF(PETSC_LIBRARIES AND NOT PETSC_FOUND)
+
+ENDIF(PETSC_ENABLE AND MPI_ENABLE)
+
+
+
+
 # -------------------------------------------------------------
 # If using MPI with C++, disable C++ extensions (for known wrappers)
 # -------------------------------------------------------------
@@ -821,8 +870,12 @@ IF(OPENMP_FOUND)
 ENDIF(OPENMP_FOUND)
 
 IF(PTHREADS_FOUND)
-  ADD_SUBDIRECTORY(src/nvec_pthreads)	
+  ADD_SUBDIRECTORY(src/nvec_pthreads)   
 ENDIF(PTHREADS_FOUND)
+
+#IF(PETSC_FOUND)
+  ADD_SUBDIRECTORY(src/nvec_petsc)   
+#ENDIF(PETSC_FOUND)
 
 # ARKODE library
 
