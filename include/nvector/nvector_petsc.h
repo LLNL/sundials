@@ -103,8 +103,8 @@ typedef struct _N_VectorContent_petsc *N_VectorContent_petsc;
 
 /*
  * -----------------------------------------------------------------
- * PART II: macros NV_CONTENT_P, NV_DATA_P, NV_OWN_DATA_P,
- *          NV_LOCLENGTH_P, NV_GLOBLENGTH_P,NV_COMM_P, and NV_Ith_P
+ * PART II: macros NV_CONTENT_PTC, NV_DATA_PTC, NV_OWN_DATA_PTC,
+ *          NV_LOCLENGTH_PTC, NV_GLOBLENGTH_PTC,NV_COMM_PTC, and NV_Ith_PTC
  * -----------------------------------------------------------------
  * In the descriptions below, the following user declarations
  * are assumed:
@@ -112,72 +112,74 @@ typedef struct _N_VectorContent_petsc *N_VectorContent_petsc;
  * N_Vector v;
  * long int v_len, s_len, i;
  *
- * (1) NV_CONTENT_P
+ * (1) NV_CONTENT_PTC
  *
  *     This routines gives access to the contents of the parallel
  *     vector N_Vector.
  *
- *     The assignment v_cont = NV_CONTENT_P(v) sets v_cont to be
+ *     The assignment v_cont = NV_CONTENT_PTC(v) sets v_cont to be
  *     a pointer to the parallel N_Vector content structure.
  *
- * (2) NV_DATA_P, NV_OWN_DATA_P, NV_LOCLENGTH_P, NV_GLOBLENGTH_P,
- *     and NV_COMM_P
+ * (2) NV_DATA_PTC, NV_OWN_DATA_PTC, NV_LOCLENGTH_PTC, NV_GLOBLENGTH_PTC,
+ *     and NV_COMM_PTC
  *
  *     These routines give access to the individual parts of
  *     the content structure of a parallel N_Vector.
  *
- *     The assignment v_data = NV_DATA_P(v) sets v_data to be
+ *     The assignment v_data = NV_DATA_PTC(v) sets v_data to be
  *     a pointer to the first component of the local data for
- *     the vector v. The assignment NV_DATA_P(v) = data_v sets
+ *     the vector v. The assignment NV_DATA_PTC(v) = data_v sets
  *     the component array of v to be data_V by storing the
  *     pointer data_v.
  *
- *     The assignment v_llen = NV_LOCLENGTH_P(v) sets v_llen to
+ *     The assignment v_llen = NV_LOCLENGTH_PTC(v) sets v_llen to
  *     be the length of the local part of the vector v. The call
- *     NV_LOCLENGTH_P(v) = llen_v sets the local length
+ *     NV_LOCLENGTH_PTC(v) = llen_v sets the local length
  *     of v to be llen_v.
  *
- *     The assignment v_glen = NV_GLOBLENGTH_P(v) sets v_glen to
+ *     The assignment v_glen = NV_GLOBLENGTH_PTC(v) sets v_glen to
  *     be the global length of the vector v. The call
- *     NV_GLOBLENGTH_P(v) = glen_v sets the global length of v to
+ *     NV_GLOBLENGTH_PTC(v) = glen_v sets the global length of v to
  *     be glen_v.
  *
- *     The assignment v_comm = NV_COMM_P(v) sets v_comm to be the
+ *     The assignment v_comm = NV_COMM_PTC(v) sets v_comm to be the
  *     MPI communicator of the vector v. The assignment
  *     NV_COMM_C(v) = comm_v sets the MPI communicator of v to be
  *     comm_v.
  *
- * (3) NV_Ith_P
+ * (3) NV_Ith_PTC
  *
  *     In the following description, the components of the
  *     local part of an N_Vector are numbered 0..n-1, where n
  *     is the local length of (the local part of) v.
  *
- *     The assignment r = NV_Ith_P(v,i) sets r to be the value
+ *     The assignment r = NV_Ith_PTC(v,i) sets r to be the value
  *     of the ith component of the local part of the vector v.
- *     The assignment NV_Ith_P(v,i) = r sets the value of the
+ *     The assignment NV_Ith_PTC(v,i) = r sets the value of the
  *     ith local component of v to be r.
  *
  * Note: When looping over the components of an N_Vector v, it is
  * more efficient to first obtain the component array via
- * v_data = NV_DATA_P(v) and then access v_data[i] within the
- * loop than it is to use NV_Ith_P(v,i) within the loop.
+ * v_data = NV_DATA_PTC(v) and then access v_data[i] within the
+ * loop than it is to use NV_Ith_PTC(v,i) within the loop.
  * -----------------------------------------------------------------
  */
 
-#define NV_CONTENT_P(v)    ( (N_VectorContent_petsc)(v->content) )
+// This needs to be reworked 
+#define NV_CONTENT_PTC(v)    ( (N_VectorContent_petsc)(v->content) )
 
-#define NV_LOCLENGTH_P(v)  ( NV_CONTENT_P(v)->local_length )
+#define NV_LOCLENGTH_PTC(v)  ( NV_CONTENT_PTC(v)->local_length )
 
-#define NV_GLOBLENGTH_P(v) ( NV_CONTENT_P(v)->global_length )
+#define NV_GLOBLENGTH_PTC(v) ( NV_CONTENT_PTC(v)->global_length )
 
-#define NV_OWN_DATA_P(v)   ( NV_CONTENT_P(v)->own_data )
+#define NV_OWN_DATA_PTC(v)   ( NV_CONTENT_PTC(v)->own_data )
 
-#define NV_DATA_P(v)       ( NV_CONTENT_P(v)->data )
+#define NV_DATA_PTC(v)       ( NV_CONTENT_PTC(v)->data )
 
-#define NV_COMM_P(v)       ( NV_CONTENT_P(v)->comm )
+#define NV_COMM_PTC(v)       ( NV_CONTENT_PTC(v)->comm )
 
-#define NV_Ith_P(v,i)      ( NV_DATA_P(v)[i] )
+#define NV_Ith_PTC(v,i)      ( NV_DATA_PTC(v)[i] )
+// Above needs to be reworked
 
 /*
  * -----------------------------------------------------------------
@@ -199,18 +201,6 @@ typedef struct _N_VectorContent_petsc *N_VectorContent_petsc;
 
 /*
  * -----------------------------------------------------------------
- * Function : N_VNew_petsc
- * -----------------------------------------------------------------
- * This function creates and allocates memory for a parallel vector.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT N_Vector N_VNew_petsc(MPI_Comm comm, 
-					 long int local_length,
-					 long int global_length);
-
-/*
- * -----------------------------------------------------------------
  * Function : N_VNewEmpty_petsc
  * -----------------------------------------------------------------
  * This function creates a new parallel N_Vector with an empty
@@ -219,8 +209,20 @@ SUNDIALS_EXPORT N_Vector N_VNew_petsc(MPI_Comm comm,
  */
 
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_petsc(MPI_Comm comm, 
-					      long int local_length,
-					      long int global_length);
+                                           long int local_length,
+                                           long int global_length);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VNew_petsc
+ * -----------------------------------------------------------------
+ * This function creates and allocates memory for a parallel vector.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT N_Vector N_VNew_petsc(MPI_Comm comm, 
+                                      long int local_length,
+                                      long int global_length);
 
 /*
  * -----------------------------------------------------------------
@@ -232,9 +234,9 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_petsc(MPI_Comm comm,
  */
 
 SUNDIALS_EXPORT N_Vector N_VMake_petsc(MPI_Comm comm, 
-					  long int local_length,
-					  long int global_length,
-					  realtype *v_data);
+                                       long int local_length,
+                                       long int global_length,
+                                       realtype *v_data);
 
 /*
  * -----------------------------------------------------------------
