@@ -58,8 +58,8 @@
     10    Verner-6-5          ERK   8   6   5   -   - 
           Fehlberg-8-7        ERK   13  8   7   -   - 
     11    SDIRK-2-1         SDIRK   2   2   1   X   - 
-    12    Billington        SDIRK   3   3   2   -   -
-    13    TRBDF2           ESDIRK   3   3   2   -   - *not recommended
+    12    Billington        SDIRK   3   2   3   -   -
+    13    TRBDF2           ESDIRK   3   2   3   -   -
     14    Kvaerno(4,2,3)   ESDIRK   4   3   2   X   X 
     15*   ARK3(2)4L[2]SA   ESDIRK   4   3   2   X   X 
     16    Cash(5,2,4)       SDIRK   5   4   2   X   X 
@@ -601,8 +601,10 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
 
   case(12):    /* Billington-SDIRK */
     *s = 3;
-    *q = 3;
-    *p = 2;
+    /* *q = 3; */
+    /* *p = 2; */
+    *q = 2;
+    *p = 3;
 
     ARK_A(A,0,0) = RCONST(0.292893218813);
     ARK_A(A,1,0) = RCONST(0.798989873223);
@@ -611,12 +613,19 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     ARK_A(A,2,1) = RCONST(0.259210771159);
     ARK_A(A,2,2) = RCONST(0.292893218813);
 
-    b[0] = RCONST(0.691665115992);
-    b[1] = RCONST(0.503597029883);
-    b[2] = RCONST(-0.195262145876);
+    /* b[0] = RCONST(0.691665115992); */
+    /* b[1] = RCONST(0.503597029883); */
+    /* b[2] = RCONST(-0.195262145876); */
 
-    b2[0] = RCONST(0.740789228840);
-    b2[1] = RCONST(0.259210771159);
+    /* b2[0] = RCONST(0.740789228840); */
+    /* b2[1] = RCONST(0.259210771159); */
+
+    b2[0] = RCONST(0.691665115992);
+    b2[1] = RCONST(0.503597029883);
+    b2[2] = RCONST(-0.195262145876);
+
+    b[0] = RCONST(0.740789228840);
+    b[1] = RCONST(0.259210771159);
 
     c[0] = RCONST(0.292893218813);
     c[1] = RCONST(1.091883092037);
@@ -625,8 +634,10 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
 
   case(13):    /* TRBDF2-ESDIRK */
     *s = 3;
-    *q = 3;
-    *p = 2;
+    /* *q = 3; */
+    /* *p = 2; */
+    *q = 2;
+    *p = 3;
 
     ARK_A(A,1,0) = (two-sqrt2)/two;
     ARK_A(A,1,1) = (two-sqrt2)/two;
@@ -634,13 +645,21 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     ARK_A(A,2,1) = sqrt2/four;
     ARK_A(A,2,2) = (two-sqrt2)/two;
 
-    b[0] = (one-sqrt2/four)/three;
-    b[1] = (three*sqrt2/four+one)/three;
-    b[2] = (two-sqrt2)/six;
+    /* b[0] = (one-sqrt2/four)/three; */
+    /* b[1] = (three*sqrt2/four+one)/three; */
+    /* b[2] = (two-sqrt2)/six; */
 
-    b2[0] = sqrt2/four;
-    b2[1] = sqrt2/four;
-    b2[2] = (two-sqrt2)/two;
+    /* b2[0] = sqrt2/four; */
+    /* b2[1] = sqrt2/four; */
+    /* b2[2] = (two-sqrt2)/two; */
+
+    b2[0] = (one-sqrt2/four)/three;
+    b2[1] = (three*sqrt2/four+one)/three;
+    b2[2] = (two-sqrt2)/six;
+
+    b[0] = sqrt2/four;
+    b[1] = sqrt2/four;
+    b[2] = (two-sqrt2)/two;
 
     c[1] = two-sqrt2;
     c[2] = one;
