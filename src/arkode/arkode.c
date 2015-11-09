@@ -4023,7 +4023,9 @@ static int arkStep(ARKodeMem ark_mem)
 static void arkPredict(ARKodeMem ark_mem, int istage)
 {
   int i, retval, ord, jstage;
-  realtype tau, tau_tol = 0.5;
+  realtype tau;
+  realtype tau_tol = 0.5;
+  realtype tau_tol2 = 0.75;
   realtype h, a0, a1, a2;
   N_Vector yguess = ark_mem->ark_ycur;
 
@@ -4049,7 +4051,14 @@ static void arkPredict(ARKodeMem ark_mem, int istage)
   case 2:
 
     /***** Dense Output Predictor 2 -- decrease order w/ increasing stage *****/
-    ord = SUNMAX(ark_mem->ark_dense_q - istage, 1);
+    /* ord = SUNMAX(ark_mem->ark_dense_q - istage, 1); */
+    if (tau <= tau_tol) {
+      ord = 3;
+    } else if (tau <= tau_tol2) {
+      ord = 2;
+    } else {
+      ord = 1;
+    }
     retval = arkDenseEval(ark_mem, tau, 0, ord, yguess);
     if (retval == ARK_SUCCESS)  return;
     break;
@@ -4058,7 +4067,7 @@ static void arkPredict(ARKodeMem ark_mem, int istage)
 
     /***** Max order dense output for stages "close" to previous step, 
 	   first-order dense output predictor for subsequent stages *****/
-    if (tau < tau_tol) {
+    if (tau <= tau_tol) {
       retval = arkDenseEval(ark_mem, tau, 0, ark_mem->ark_dense_q, yguess);
     } else {
       retval = arkDenseEval(ark_mem, tau, 0, 1, yguess);
@@ -5366,9 +5375,11 @@ static int arkDenseEval(ARKodeMem ark_mem, realtype tau,
   q = SUNMIN(order, ark_mem->ark_dense_q);   /* respect Set routine  */
   q = SUNMIN(q, ark_mem->ark_q);             /* respect method order */
   q = SUNMAX(q, 0);                          /* respect lower bound  */
+  q = SUNMIN(q, 3);                          /* respect max possible */
 
   /* check that d is possible */
-  if ((d > SUNMIN(5,q)) || (d < 0)) {
+  /* if ((d > SUNMIN(5,q)) || (d < 0)) { */
+  if ((d > SUNMIN(3,q)) || (d < 0)) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
 		    "arkDenseEval", "Requested illegal derivative.");
     return (ARK_ILL_INPUT);

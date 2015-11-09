@@ -124,6 +124,8 @@ int main()
   if (check_flag(&flag, "ARKodeSetNonlinConvCoef", 1)) return 1;
   flag = ARKodeSetMaxNumSteps(arkode_mem, 100000);        /* Increase max number of steps */
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) return 1;
+  flag = ARKodeSetPredictorMethod(arkode_mem, 1);         /* Specify maximum-order predictor */
+  if (check_flag(&flag, "ARKodeSetPredictorMethod", 1)) return 1;
   flag = ARKodeSVtolerances(arkode_mem, reltol, atols);   /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
 

@@ -585,6 +585,12 @@ program driver
      write(0,*) "Error in FARKSetRin = ", flag
      call MPI_Finalize(flag)
   end if
+  call FARKSetIin("PREDICT_METHOD", 1_8, flag)
+  if (flag < 0) then
+     write(0,*) "Error in FARKSetIin = ", flag
+     call MPI_Finalize(flag)
+  end if
+
 
   ! Linear solver specification 
   call FARKPCG(PCGpretype, PCGmaxl, PCGdelt, flag)  ! Specify the PCG solver 
@@ -599,7 +605,7 @@ program driver
   end if
 
   ! specify that the problem is linearly implicit, but that Jacobian does not depend on time
-  call FARKSetIin("LINEAR", 0, flag)
+  call FARKSetIin("LINEAR", 0_8, flag)
   if (flag < 0) then
      write(0,*) "Error in FARKSetIin = ", flag
      call MPI_Finalize(flag)
