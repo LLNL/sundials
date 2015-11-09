@@ -11269,10 +11269,12 @@ The \code{DlsMat} type and accessor macros \code{DENSE\_ELEM} and
 If the user's \emph{ARKDlsDenseJacFn} function uses difference quotient
 approximations, then it may need to access quantities not in the
 argument list. These include the current step size, the error
-weights, etc.  To obtain these, use the ARKodeGet* functions
-listed in {\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}}. The unit roundoff
-can be accessed as \code{UNIT\_ROUNDOFF}, which is defined in the
-header file \code{sundials\_types.h}.
+weights, etc.  To obtain these, the user will need to add a pointer
+to the \code{ark\_mem} structure to their \code{user\_data}, and then use
+the ARKodeGet* functions listed in
+{\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}}. The unit roundoff can be
+accessed as \code{UNIT\_ROUNDOFF}, which is defined in the header
+file \code{sundials\_types.h}.
 
 For the sake of uniformity, the argument \emph{N} is of type \code{long int},
 even in the case that the LAPACK dense solver is to be used.
@@ -11379,10 +11381,12 @@ The \code{DlsMat} type and the accessor macros \code{BAND\_ELEM},
 If the user's \emph{ARKDlsBandJacFn} function uses difference quotient
 approximations, then it may need to access quantities not in the
 argument list.  These include the current step size, the error
-weights, etc.. To obtain these, use the ARKodeGet* functions
-listed in {\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}}. The unit roundoff
-can be accessed as \code{UNIT\_ROUNDOFF} defined in the header file
-\code{sundials\_types.h}.
+weights, etc.. To obtain these, the user will need to add a pointer
+to the \code{ark\_mem} structure to their \code{user\_data}, and then use
+the ARKodeGet* functions listed in
+{\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}}. The unit roundoff can be
+accessed as \code{UNIT\_ROUNDOFF}, which is defined in the header
+file \code{sundials\_types.h}.
 
 For the sake of uniformity, the arguments \emph{N}, \emph{mlower}, and
 \emph{mupper} are of type \code{long int}, even in the case that the
@@ -11457,11 +11461,12 @@ allocated space is available within the \code{SlsMat} structure as
 If the user's \emph{ARKSlsSparseJacFn} function uses difference quotient
 approximations to set the specific matrix entries, then it may need
 to access quantities not in the argument list.  These include the
-current step size, the error weights, etc.  To obtain these, use
-the ARKodeGet* functions listed in
-{\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}}. The unit roundoff can be
-accessed as \code{UNIT\_ROUNDOFF}, which is defined in the header file
-\code{sundials\_types.h}.
+current step size, the error weights, etc..  To obtain these, the
+user will need to add a pointer to the \code{ark\_mem} structure to
+their \code{user\_data}, and then use the ARKodeGet* functions listed
+in {\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}}. The unit roundoff can be
+accessed as \code{UNIT\_ROUNDOFF}, which is defined in the header
+file \code{sundials\_types.h}.
 
 \end{fulllineitems}
 
@@ -11520,11 +11525,12 @@ in which case the integration is halted.
 \textbf{Notes:} If the user's \emph{ARKSpilsJacTimesVecFn} function uses
 difference quotient approximations, it may need to access
 quantities not in the argument list.  These include the current
-step size, the error weights, etc..  To obtain these, use the
-ARKodeGet* functions listed in
-{\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}}. The unit roundoff can be
-accessed as \code{UNIT\_ROUNDOFF} defined in the header file
-\code{sundials\_types.h}.
+step size, the error weights, etc..  To obtain these, the
+user will need to add a pointer to the \code{ark\_mem} structure to
+their \code{user\_data}, and then use the ARKodeGet* functions listed
+in {\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}}. The unit roundoff can be
+accessed as \code{UNIT\_ROUNDOFF}, which is defined in the header
+file \code{sundials\_types.h}.
 
 \end{fulllineitems}
 
@@ -11685,10 +11691,12 @@ as needed to achieve convergence in the Newton iteration.
 If the user's \emph{ARKSpilsPrecSetupFn} function uses difference
 quotient approximations, it may need to access quantities not in
 the call list. These include the current step size, the error
-weights, etc. To obtain these, use the ARKodeGet* functions
-listed in {\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}}. The unit roundoff
-can be accessed as \code{UNIT\_ROUNDOFF} defined in the header file
-\code{sundials\_types.h}.
+weights, etc..  To obtain these, the user will need to add a
+pointer to the \code{ark\_mem} structure to their \code{user\_data}, and
+then use the ARKodeGet* functions listed in
+{\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}}. The unit roundoff can be
+accessed as \code{UNIT\_ROUNDOFF}, which is defined in the header
+file \code{sundials\_types.h}.
 
 \end{fulllineitems}
 
