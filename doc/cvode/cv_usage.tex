@@ -890,7 +890,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 \index{CVKLU@{\cvklu} linear solver!NVECTOR@{\nvector} compatibility}
 \ucfunction{CVKLU}
 {
-  flag = CVKLU(cvode\_mem, N, NNZ);
+  flag = CVKLU(cvode\_mem, NP, NNZ, sparsetype);
 }
 {
   The function \ID{CVKLU} selects the {\cvklu} linear solver and indicates
@@ -908,9 +908,9 @@ are described separately in Chapter \ref{s:gen_linsolv}.
     maximum number of nonzero entries in the system Jacobian.
   \item[sparsetype] (\id{int})
     sparse storage type of the system Jacobian. If \Id{sparsetype} is  
-    set to \Id{CSC\_MAT} the solver will expect Jacobian to be stored as 
-    compressed sparse column matrix, and if \Id{sparsetype=CSR\_MAT} 
-    the solver will expect compressed sparse row matrix. 
+    set to \Id{CSC\_MAT} the solver will expect the Jacobian to be stored as 
+    a compressed sparse column matrix, and if \Id{sparsetype=CSR\_MAT} 
+    the solver will expect a compressed sparse row matrix. 
     If neither option is chosen, the solver will exit with error.
   \end{args}
 }

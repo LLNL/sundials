@@ -348,12 +348,12 @@ The methods used in ARKode are variable-step, embedded,
 \index{additive Runge-Kutta methods}additive Runge-Kutta methods (ARK), based on formulas of the
 form
 \phantomsection\label{Mathematics:equation-ARK}\begin{gather}
-\begin{split}M z_i &= M y_{n-1} + h_n \sum_{j=0}^{i-1} A^E_{i,j} f_E(t_{n,j}, z_j)
-              + h_n \sum_{j=0}^{i}   A^I_{i,j} f_I(t_{n,j}, z_j),
+\begin{split}M z_i &= M y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f_E(t_{n,j}, z_j)
+              + h_n \sum_{j=1}^{i}   A^I_{i,j} f_I(t_{n,j}, z_j),
 \quad i=1,\ldots,s, \\
-M y_n &= M y_{n-1} + h_n \sum_{i=0}^{s} b_i \left(f_E(t_{n,i}, z_i)
+M y_n &= M y_{n-1} + h_n \sum_{i=1}^{s} b_i \left(f_E(t_{n,i}, z_i)
               + f_I(t_{n,i}, z_i)\right), \\
-M \tilde{y}_n &= M y_{n-1} + h_n \sum_{i=0}^{s} \tilde{b}_i
+M \tilde{y}_n &= M y_{n-1} + h_n \sum_{i=1}^{s} \tilde{b}_i
     \left(f_E(t_{n,i}, z_i) + f_I(t_{n,i}, z_i)\right).\end{split}\label{Mathematics-ARK}
 \end{gather}
 Here the \(y_n\) are computed approximations to \(y(t_n)\),
@@ -421,13 +421,13 @@ For both the DIRK and ARK methods corresponding to \eqref{Mathematics-IVP} and
 must be solved for each stage \(z_i, i=1,\ldots,s\), where we have
 the data
 \begin{gather}
-\begin{split}a_i \equiv M y_{n-1} + h_n \sum_{j=0}^{i-1} \left[
+\begin{split}a_i \equiv M y_{n-1} + h_n \sum_{j=1}^{i-1} \left[
    A^E_{i,j} f_E(t_{n,j}, z_j) +
    A^I_{i,j} f_I(t_{n,j}, z_j) \right]\end{split}\notag
 \end{gather}
 for the ARK methods, or
 \begin{gather}
-\begin{split}a_i \equiv M y_{n-1} + h_n \sum_{j=0}^{i-1}
+\begin{split}a_i \equiv M y_{n-1} + h_n \sum_{j=1}^{i-1}
    A^I_{i,j} f_I(t_{n,j}, z_j)\end{split}\notag
 \end{gather}
 for the DIRK methods.  Here, if \(f_I(t,y)\) depends nonlinearly
@@ -1106,7 +1106,7 @@ We therefore use this difference norm as an estimate for the local
 truncation error at the step \(n\),
 \phantomsection\label{Mathematics:equation-LTE}\begin{gather}
 \begin{split}T_n = \beta \left(y_n - \tilde{y}_n\right) =
-\beta h_n M^{-1} \sum_{i=0}^{s} \left(b_i - \tilde{b}_i\right)
+\beta h_n M^{-1} \sum_{i=1}^{s} \left(b_i - \tilde{b}_i\right)
 \left(f_E(t_{n-1} + c_i h_n, z_i) + f_I(t_{n-1} + c_i h_n, z_i)\right).\end{split}\label{Mathematics-LTE}
 \end{gather}
 Here, \(\beta>0\) is an error \emph{bias} to help account for the error
@@ -1423,20 +1423,20 @@ and (c) in constructing predictors for the implicit solver iteration
 construct the time-evolved solution \(y_n\) from equation
 \eqref{Mathematics-ARK} we must solve
 \begin{gather}
-\begin{split}&M y_n \ = \ M y_{n-1} + h_n \sum_{i=0}^{s} b_i \left(f_E(t_{n,i}, z_i)
+\begin{split}&M y_n \ = \ M y_{n-1} + h_n \sum_{i=1}^{s} b_i \left(f_E(t_{n,i}, z_i)
               + f_I(t_{n,i}, z_i)\right), \\
 \Leftrightarrow \qquad & \\
-&M (y_n -y_{n-1}) \ = \ h_n \sum_{i=0}^{s} b_i \left(f_E(t_{n,i}, z_i)
+&M (y_n -y_{n-1}) \ = \ h_n \sum_{i=1}^{s} b_i \left(f_E(t_{n,i}, z_i)
               + f_I(t_{n,i}, z_i)\right), \\
 \Leftrightarrow \qquad & \\
-&M \nu \ = \ h_n \sum_{i=0}^{s} b_i \left(f_E(t_{n,i}, z_i)
+&M \nu \ = \ h_n \sum_{i=1}^{s} b_i \left(f_E(t_{n,i}, z_i)
               + f_I(t_{n,i}, z_i)\right),\end{split}\notag
 \end{gather}
 for the update \(\nu = y_n - y_{n-1}\).  Similarly, in computing
 the local temporal error estimate \(T_n\) from equation \eqref{Mathematics-LTE}
 we must solve systems of the form
 \begin{gather}
-\begin{split}M\, T_n = h \sum_{i=0}^{s} \left(b_i - \tilde{b}_i\right)
+\begin{split}M\, T_n = h \sum_{i=1}^{s} \left(b_i - \tilde{b}_i\right)
 \left(f_E(t_{n,i}, z_i) + f_I(t_{n,i}, z_i)\right).\end{split}\notag
 \end{gather}
 Lastly, in constructing dense output and implicit predictors of order
@@ -3059,7 +3059,7 @@ in the LAPACK solvers.
 \index{ARKKLU (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_callable:c.ARKKLU}\pysiglinewithargsret{int \bfcode{ARKKLU}}{void*\emph{ arkode\_mem}, int\emph{ N}, int\emph{ NNZ}}{}
+\phantomsection\label{c_interface/User_callable:c.ARKKLU}\pysiglinewithargsret{int \bfcode{ARKKLU}}{void*\emph{ arkode\_mem}, int\emph{ NP}, int\emph{ NNZ}, int\emph{ sparsetype}}{}
 This function links the main ARKode integrator with the ARKKLU
 linear solver.  It's use requires inclusion of the header file
 \code{arkode\_klu.h}, as well as a user-supplied sparse Jacobian
@@ -3071,11 +3071,19 @@ construction routine, specified through a call to
 \emph{arkode\_mem} -- pointer to the ARKode memory block.
 
 \item {} 
-\emph{N} -- the number of components in the ODE system.
+\emph{NP} -- the number of components in the ODE system.
 
 \item {} 
 \emph{NNZ} -- the maximum number of nonzero entries in the system
 Jacobian.
+
+\item {} 
+\emph{sparsetype} -- sparse storage type of the system Jacobian.
+If \emph{sparsetype} is set to \code{CSC\_MAT} the solver will expect
+the Jacobian to be stored as a compressed sparse column
+matrix, and if \emph{sparsetype} is \code{CSR\_MAT} the solver will
+expect a compressed sparse row matrix.  If neither option is
+chosen, the solver will exit with error.
 
 \end{itemize}
 
@@ -3645,7 +3653,7 @@ it can be handled by manually zero-padding the mass matrix.
 \index{ARKMassKLU (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_callable:c.ARKMassKLU}\pysiglinewithargsret{int \bfcode{ARKMassKLU}}{void*\emph{ arkode\_mem}, int\emph{ N}, int\emph{ NNZ}, {\hyperref[c_interface/User_supplied:c.ARKSlsSparseMassFn]{\emph{ARKSlsSparseMassFn}}}\emph{ smass}}{}
+\phantomsection\label{c_interface/User_callable:c.ARKMassKLU}\pysiglinewithargsret{int \bfcode{ARKMassKLU}}{void*\emph{ arkode\_mem}, int\emph{ NP}, int\emph{ NNZ}, int\emph{ sparsetype}, {\hyperref[c_interface/User_supplied:c.ARKSlsSparseMassFn]{\emph{ARKSlsSparseMassFn}}}\emph{ smass}}{}
 This function links the mass matrix solve with the ARKKLU linear
 solver module, and specifies the sparse mass matrix function.  It's
 use requires inclusion of the header file \code{arkode\_klu.h}.
@@ -3655,10 +3663,18 @@ use requires inclusion of the header file \code{arkode\_klu.h}.
 \emph{arkode\_mem} -- pointer to the ARKode memory block.
 
 \item {} 
-\emph{N} -- the number of components in the ODE system.
+\emph{NP} -- the number of components in the ODE system.
 
 \item {} 
 \emph{NNZ} -- the maximum number of nonzeros in the mass matrix.
+
+\item {} 
+\emph{sparsetype} -- sparse storage type of the system Jacobian.
+If \emph{sparsetype} is set to \code{CSC\_MAT} the solver will expect
+the Jacobian to be stored as a compressed sparse column
+matrix, and if \emph{sparsetype} is \code{CSR\_MAT} the solver will
+expect a compressed sparse row matrix.  If neither option is
+chosen, the solver will exit with error.
 
 \item {} 
 \emph{smass} -- name of user-supplied sparse mass matrix function.
@@ -14738,7 +14754,9 @@ the user must call the {\hyperref[f_interface/Usage:f/_/FARKKLU]{\emph{\code{FAR
 \begin{fulllineitems}
 \phantomsection\label{f_interface/Usage:f/_/FARKKLU}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKKLU}}{\emph{NEQ}, \emph{NNZ}, \emph{ORDERING}, \emph{IER}}{}
 Interfaces with the {\hyperref[c_interface/User_callable:c.ARKKLU]{\emph{\code{ARKKLU()}}}} function to
-specify use of the sparse direct linear solver.
+specify use of the sparse direct linear solver.  \emph{Note}: this
+Fortran interface to {\hyperref[c_interface/User_callable:c.ARKKLU]{\emph{\code{ARKKLU()}}}} currently requires use of
+the compressed-sparse-column sparse matrix format.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
@@ -15616,7 +15634,9 @@ the user must call the {\hyperref[f_interface/Usage:f/_/FARKMASSKLU]{\emph{\code
 \begin{fulllineitems}
 \phantomsection\label{f_interface/Usage:f/_/FARKMASSKLU}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKMASSKLU}}{\emph{NEQ}, \emph{NNZ}, \emph{ORDERING}, \emph{IER}}{}
 Interfaces with the {\hyperref[c_interface/User_callable:c.ARKMassKLU]{\emph{\code{ARKMassKLU()}}}} function to
-specify use of the sparse direct linear solver.
+specify use of the sparse direct linear solver.  \emph{Note}: this
+Fortran interface to {\hyperref[c_interface/User_callable:c.ARKMassKLU]{\emph{\code{ARKMassKLU()}}}} currently requires use
+of the compressed-sparse-column sparse matrix format.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
@@ -21189,9 +21209,18 @@ or into a larger user code.
 
 \subsection{SlsMat}
 \label{linear_solvers/SLS:slsmat}
+SUNDIALS supports operations with compressed-sparse-column (CSC) and
+compressed-sparse-row (CSR) matrix formats.  For convenience, integer
+sparse matrix identifiers are defined as:\textbackslash{}
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define CSC\PYGZus{}MAT 0}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define CSR\PYGZus{}MAT 1}
+\end{Verbatim}
+
 The type {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}}}}, defined in \code{sundials\_sparse.h} is a
-pointer to a structure defining a generic compressed-sparse-column
-matrix, and is used with all linear solvers in the SLS family:
+pointer to a structure defining generic CSC and CSR matrix formats,
+and is used with all linear solvers in the SLS family:
 \index{SlsMat (C type)}
 
 \begin{fulllineitems}
@@ -21201,9 +21230,15 @@ matrix, and is used with all linear solvers in the SLS family:
   \PYG{k+kt}{int} \PYG{n}{M}\PYG{p}{;}
   \PYG{k+kt}{int} \PYG{n}{N}\PYG{p}{;}
   \PYG{k+kt}{int} \PYG{n}{NNZ}\PYG{p}{;}
+  \PYG{k+kt}{int} \PYG{n}{NP}\PYG{p}{;}
   \PYG{n}{realtype} \PYG{o}{*}\PYG{n}{data}\PYG{p}{;}
-  \PYG{k+kt}{int} \PYG{o}{*}\PYG{n}{rowvals}\PYG{p}{;}
-  \PYG{k+kt}{int} \PYG{o}{*}\PYG{n}{colptrs}\PYG{p}{;}
+  \PYG{k+kt}{int} \PYG{n}{sparsetype}\PYG{p}{;}
+  \PYG{k+kt}{int} \PYG{o}{*}\PYG{n}{indexvals}\PYG{p}{;}
+  \PYG{k+kt}{int} \PYG{o}{*}\PYG{n}{indexptrs}\PYG{p}{;}
+  \PYG{k+kt}{int} \PYG{o}{*}\PYG{o}{*}\PYG{n}{rowvals}\PYG{p}{;}
+  \PYG{k+kt}{int} \PYG{o}{*}\PYG{o}{*}\PYG{n}{colptrs}\PYG{p}{;}
+  \PYG{k+kt}{int} \PYG{o}{*}\PYG{o}{*}\PYG{n}{colvals}\PYG{p}{;}
+  \PYG{k+kt}{int} \PYG{o}{*}\PYG{o}{*}\PYG{n}{rowptrs}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}} \PYG{o}{*}\PYG{n}{SlsMat}\PYG{p}{;}
 \end{Verbatim}
 
@@ -21226,25 +21261,36 @@ sparse matrix of type {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat
 -- maximum number of nonzero entries in the matrix (allocated
 length of \textbf{data} and \textbf{rowvals} arrays)
 
+\item[{NP}] \leavevmode
+-- number of index pointers (e.g. number of column pointers for
+CSC matrix). For CSC matrices \$NP=N\$, and for CSR matrices \$NP=M\$. This
+value is set automatically based on the input for \textbf{sparsetype}.
+
 \item[{data}] \leavevmode
 -- pointer to a contiguous block of \code{realtype} variables (of
 length \textbf{NNZ}), containing the values of the nonzero entries in the
 matrix.
 
-\item[{rowvals}] \leavevmode
--- pointer to a contiguous block of \code{int} variables (of
-length \textbf{NNZ}), containing the row indices of each nonzero
-entry held in \textbf{data}.
+\item[{sparsetype}] \leavevmode
+-- type of the sparse matrix (\code{CSC\_MAT} or \code{CSR\_MAT})
 
-\item[{colptrs}] \leavevmode
+\item[{indexvals}] \leavevmode
 -- pointer to a contiguous block of \code{int} variables (of
-length \textbf{N+1}).  Each entry provides the index of the first column
-entry into the \textbf{data} and \textbf{rowvals} arrays, e.g. if
-\textbf{colptr{[}3{]}=7}, then the first nonzero entry in the fourth column
-of the matrix is located in \textbf{data{[}7{]}}, and is located in row
-\textbf{rowvals{[}7{]}} of the matrix.  The last entry contains the total
-number of nonzero values in the matrix and hence points just past
-the end of the active data in \textbf{data} and \textbf{rowvals}.
+length \textbf{NNZ}), containing the row indices (if CSC) or column
+indices (if CSR) of each nonzero matrix entry held in \textbf{data}.
+
+\item[{indexptrs}] \leavevmode
+-- pointer to a contiguous block of \code{int} variables (of
+length \textbf{NP+1}).  For CSC matrices each entry provides the index of
+the first column entry into the \textbf{data} and \textbf{indexvals} arrays,
+e.g. if \textbf{indexptr{[}3{]}=7}, then the first nonzero entry in the
+fourth column of the matrix is located in \textbf{data{[}7{]}}, and is
+located in row \textbf{indexvals{[}7{]}} of the matrix.  The last entry
+contains the total number of nonzero values in the matrix and hence
+points just past the end of the active data in the \textbf{data} and
+\textbf{indexvals} arrays.  For CSR matrices, each entry provides the
+index of the first row intry into the \textbf{data} and \textbf{indexvals}
+arrays.
 
 \end{description}\end{quote}
 \begin{figure}[htbp]
@@ -21256,19 +21302,43 @@ the end of the active data in \textbf{data} and \textbf{rowvals}.
 type {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}}}}: Here \code{A} is an \(M \times N\) sparse
 matrix of type {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}}}} with storage for up to \code{NNZ}
 nonzero entries (the allocated length of both \code{data} and
-\code{rowvals}).  The entries in \code{rowvals} may assume values from
+\code{indexvals}).  The entries in \code{indexvals} may assume values from
 \code{0} to \code{M-1}, corresponding to the row index (zero-based) of
 each nonzero value.  The entries in \code{data} contain the values of
 the nonzero entries, with the row \code{i}, column \code{j} entry of
-\code{A} (again, zero-based) denoted as \code{A(i,j)}.  The \code{colptrs}
+\code{A} (again, zero-based) denoted as \code{A(i,j)}.  The \code{indexptrs}
 array contains \code{N+1} entries; the first \code{N} denote the starting
-index of each column within the \code{rowvals} and \code{data} arrays,
+index of each column within the \code{indexvals} and \code{data} arrays,
 while the final entry points one past the final nonzero entry.
 Here, although \code{NNZ} values are allocated, only \code{nz} are
 actually filled in; the greyed-out portions of \code{data} and
-\code{rowvals} indicate extra allocated space.}\label{linear_solvers/SLS:sls-figure}\end{figure}
+\code{indexvals} indicate extra allocated space.}\label{linear_solvers/SLS:sls-figure}\end{figure}
 
-For example, the \(5\times 4\) matrix
+The following pointers are added to the \code{SlsMat} type for user
+convenience, to provide a more intuitive interface to the CSC and CSR
+sparse matrix data structures. They are set automatically by the
+{\hyperref[linear_solvers/SLS:c.NewSparseMat]{\emph{\code{NewSparseMat()}}}} function, based on the sparse matrix storage
+type.
+\begin{quote}\begin{description}
+\item[{rowvals}] \leavevmode
+-- pointer to \code{indexvals} when \code{sparsetype} is \code{CSC\_MAT},
+otherwise set to \code{NULL}.
+
+\item[{colptrs}] \leavevmode
+-- pointer to \code{indexptrs} when \code{sparsetype} is \code{CSC\_MAT},
+otherwise set to \code{NULL}.
+
+\item[{colvals}] \leavevmode
+-- pointer to \code{indexvals} when \code{sparsetype} is \code{CSR\_MAT},
+otherwise set to \code{NULL}.
+
+\item[{rowptrs}] \leavevmode
+-- pointer to \code{indexptrs} when \code{sparsetype} is \code{CSR\_MAT},
+otherwise set to \code{NULL}.
+
+\end{description}\end{quote}
+
+For example, the \(5\times 4\) CSC matrix
 \begin{gather}
 \begin{split}\left[\begin{array}{cccc}
    0 & 3 & 1 & 0\\
@@ -21284,9 +21354,15 @@ could be stored in a {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}
 \PYG{n}{M} \PYG{o}{=} \PYG{l+m+mi}{5}\PYG{p}{;}
 \PYG{n}{N} \PYG{o}{=} \PYG{l+m+mi}{4}\PYG{p}{;}
 \PYG{n}{NNZ} \PYG{o}{=} \PYG{l+m+mi}{8}\PYG{p}{;}
+\PYG{n}{NP} \PYG{o}{=} \PYG{n}{N}\PYG{p}{;}
 \PYG{n}{data} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mf}{3.0}\PYG{p}{,} \PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{l+m+mf}{3.0}\PYG{p}{,} \PYG{l+m+mf}{7.0}\PYG{p}{,} \PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{l+m+mf}{2.0}\PYG{p}{,} \PYG{l+m+mf}{9.0}\PYG{p}{,} \PYG{l+m+mf}{5.0}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
-\PYG{n}{rowvals} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
-\PYG{n}{colptrs} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{,} \PYG{l+m+mi}{5}\PYG{p}{,} \PYG{l+m+mi}{8}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\PYG{n}{sparsetype} \PYG{o}{=} \PYG{n}{CSC\PYGZus{}MAT}\PYG{p}{;}
+\PYG{n}{indexvals} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\PYG{n}{indexptrs} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{,} \PYG{l+m+mi}{5}\PYG{p}{,} \PYG{l+m+mi}{8}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\PYG{n}{rowvals} \PYG{o}{=} \PYG{o}{\PYGZam{}}\PYG{n}{indexvals}\PYG{p}{;}
+\PYG{n}{colptrs} \PYG{o}{=} \PYG{o}{\PYGZam{}}\PYG{n}{indexptrs}\PYG{p}{;}
+\PYG{n}{colvals} \PYG{o}{=} \PYG{n+nb}{NULL}\PYG{p}{;}
+\PYG{n}{rowptrs} \PYG{o}{=} \PYG{n+nb}{NULL}\PYG{p}{;}
 \end{Verbatim}
 
 or
@@ -21295,14 +21371,20 @@ or
 \PYG{n}{M} \PYG{o}{=} \PYG{l+m+mi}{5}\PYG{p}{;}
 \PYG{n}{N} \PYG{o}{=} \PYG{l+m+mi}{4}\PYG{p}{;}
 \PYG{n}{NNZ} \PYG{o}{=} \PYG{l+m+mi}{10}\PYG{p}{;}
+\PYG{n}{NP} \PYG{o}{=} \PYG{n}{N}\PYG{p}{;}
 \PYG{n}{data} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mf}{3.0}\PYG{p}{,} \PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{l+m+mf}{3.0}\PYG{p}{,} \PYG{l+m+mf}{7.0}\PYG{p}{,} \PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{l+m+mf}{2.0}\PYG{p}{,} \PYG{l+m+mf}{9.0}\PYG{p}{,} \PYG{l+m+mf}{5.0}\PYG{p}{,} \PYG{o}{*}\PYG{p}{,} \PYG{o}{*}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
-\PYG{n}{rowvals} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{,} \PYG{o}{*}\PYG{p}{,} \PYG{o}{*}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
-\PYG{n}{colptrs} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{,} \PYG{l+m+mi}{5}\PYG{p}{,} \PYG{l+m+mi}{8}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\PYG{n}{sparsetype} \PYG{o}{=} \PYG{n}{CSC\PYGZus{}MAT}\PYG{p}{;}
+\PYG{n}{indexvals} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{,} \PYG{o}{*}\PYG{p}{,} \PYG{o}{*}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\PYG{n}{indexptrs} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{,} \PYG{l+m+mi}{5}\PYG{p}{,} \PYG{l+m+mi}{8}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\PYG{n}{rowvals} \PYG{o}{=} \PYG{o}{\PYGZam{}}\PYG{n}{indexvals}\PYG{p}{;}
+\PYG{n}{colptrs} \PYG{o}{=} \PYG{o}{\PYGZam{}}\PYG{n}{indexptrs}\PYG{p}{;}
+\PYG{n}{colvals} \PYG{o}{=} \PYG{n+nb}{NULL}\PYG{p}{;}
+\PYG{n}{rowptrs} \PYG{o}{=} \PYG{n+nb}{NULL}\PYG{p}{;}
 \end{Verbatim}
 
 where the first has no unused space, and the second has additional
 storage (the entries marked with \code{*} may contain any values).  Note
-in both cases that the final value in \code{colptrs} is \code{8}.  The work
+in both cases that the final value in \code{indexptrs} is \code{8}.  The work
 associated with operations on the sparse matrix is proportional to
 this value and so one should use the best understanding of the number
 of nonzeros here.
@@ -21316,9 +21398,10 @@ type {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}}}}.  For full d
 \index{NewSparseMat (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{linear_solvers/SLS:c.NewSparseMat}\pysiglinewithargsret{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}} \bfcode{NewSparseMat}}{int\emph{ M}, int\emph{ N}, int\emph{ NNZ}}{}
+\phantomsection\label{linear_solvers/SLS:c.NewSparseMat}\pysiglinewithargsret{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}} \bfcode{NewSparseMat}}{int\emph{ M}, int\emph{ N}, int\emph{ NNZ}, int\emph{ sparsetype}}{}
 Allocates a {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}}}} sparse matrix having \emph{M} rows, \emph{N}
-columns, and storage for \emph{NNZ} nonzero entries.
+columns, and storage for \emph{NNZ} nonzero entries and \emph{sparsetype}
+storage type (\code{CSC\_MAT} or \code{CSR\_MAT}).
 
 \end{fulllineitems}
 
@@ -21326,7 +21409,7 @@ columns, and storage for \emph{NNZ} nonzero entries.
 
 \begin{fulllineitems}
 \phantomsection\label{linear_solvers/SLS:c.SlsConvertDls}\pysiglinewithargsret{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}} \bfcode{SlsConvertDls}}{{\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{DlsMat}}}\emph{ A}}{}
-Converts a dense matrix of type {\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{\code{DlsMat}}}} into a sparse
+Converts a dense matrix of type {\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{\code{DlsMat}}}} into a CSC
 matrix of type {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}}}} by retaining only the nonzero
 values of the dense matrix.
 
@@ -21352,8 +21435,11 @@ Zeros out a {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}}}} matri
 
 \begin{fulllineitems}
 \phantomsection\label{linear_solvers/SLS:c.CopySparseMat}\pysiglinewithargsret{void \bfcode{CopySparseMat}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}, {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ B}}{}
-Copies one sparse matrix to another.  If \emph{B} has insufficient
-storage, its data arrays are reallocated to match those from \emph{A}.
+Copies one sparse matrix to another.  It is assumed that the
+matrices have the same row/column dimensions and storage type.  If
+\emph{B} has insufficient storage to hold all the nonzero entries of
+\emph{A}, the data and index arrays in \emph{B} are reallocated to match
+those in \emph{A}.
 
 \end{fulllineitems}
 
@@ -21372,7 +21458,7 @@ scalar c.
 \phantomsection\label{linear_solvers/SLS:c.AddIdentitySparseMat}\pysiglinewithargsret{void \bfcode{AddIdentitySparseMat}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}}{}
 Increments a sparse matrix by the identity matrix.  If \emph{A} is not
 square, only the existing diagonal values are incremented.  Resizes
-the \code{data} and \code{rowvals} arrays of \emph{A} to allow for new nonzero
+the \code{data} and \code{indexvals} arrays of \emph{A} to allow for new nonzero
 entries on the diagonal.
 
 \end{fulllineitems}
@@ -21384,7 +21470,8 @@ entries on the diagonal.
 Adds two sparse matrices: \(A = A+B\).  Resizes the data arrays
 of \emph{A} upon completion to exactly match the nonzero storage for
 the result.  Upon successful completion, the return value is zero;
-otherwise -1 is returned.
+otherwise -1 is returned.  It is assumed that both matrices have
+the same size and storage type.
 
 \end{fulllineitems}
 
@@ -21393,8 +21480,8 @@ otherwise -1 is returned.
 \begin{fulllineitems}
 \phantomsection\label{linear_solvers/SLS:c.ReallocSparseMat}\pysiglinewithargsret{void \bfcode{ReallocSparseMat}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}}{}
 This function eliminates unused storage in \emph{A} by reallocating
-the internal \code{data} and \code{rowvals} arrays to contain
-\code{colptrs{[}N{]}} nonzeros.
+the internal \code{data} and \code{indexvals} arrays to contain
+\code{indexptrs{[}N{]}} nonzeros.
 
 \end{fulllineitems}
 
@@ -21402,11 +21489,12 @@ the internal \code{data} and \code{rowvals} arrays to contain
 
 \begin{fulllineitems}
 \phantomsection\label{linear_solvers/SLS:c.SlsMatvec}\pysiglinewithargsret{int \bfcode{SlsMatvec}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}, realtype\emph{ *x}, realtype\emph{ *y}}{}
-Computes the sparse matrix-vector product, \(y=Ax\).  If \emph{A}
-is a sparse matrix of dimension \(M\times N\), then it is assumed that \emph{x}
-is a \code{realtype} array of  length \(N\), and \emph{y} is a
-\code{realtype} array of length \(M\). Upon successful completion, the
-return value is zero; otherwise -1 is returned.
+Computes the sparse matrix-vector product, \(y=Ax\).  If the
+\code{SlsMat} \emph{A} is a sparse matrix of dimension \(M\times N\),
+then it is assumed that \emph{x} is a \code{realtype} array of  length
+\(N\), and \emph{y} is a \code{realtype} array of length
+\(M\). Upon successful completion, the return value is zero;
+otherwise -1 is returned.
 
 \end{fulllineitems}
 
@@ -23828,7 +23916,7 @@ where here the method and embedding share stage \(A\) and
 \(c\) values, but use their stages \(z_i\) differently through
 the coefficients \(b\) and \(\tilde{b}\) to generate methods
 of orders \(q\) (the main method) and \(p\) (the embedding,
-typically \(q = p+1\)).
+typically \(q = p+1\), though sometimes this is reversed).
 
 Method authors often use different naming conventions to categorize
 their methods.  For each of the methods below, we follow a uniform
@@ -23868,7 +23956,7 @@ function satisfies \(|R(\eta)| \le 1\) for all eigenvalues,
 given IVP, then the method will be linearly stable for that problem
 and step size.  The stability region
 \begin{gather}
-\begin{split}S = \{ \eta\in\mathbb{C}\; :\; |R(\eta)| \le 1\}\end{split}\notag
+\begin{split}S = \{ \eta\in\mathbb{C}\; :\; \left| R(\eta) \right| \le 1\}\end{split}\notag
 \end{gather}
 is typically given by an enclosed region of the complex plane, so it
 is standard to search for the border of that region in order to
@@ -24231,19 +24319,19 @@ are A- and B-stable.
 region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 
-\subsection{Billington-3-2-3}
-\label{Butcher:butcher-billington}\label{Butcher:billington-3-2-3}
-\index{Billington-3-2-3 SDIRK method}Butcher table number 12
+\subsection{Billington-3-3-2}
+\label{Butcher:butcher-billington}\label{Butcher:billington-3-3-2}
+\index{Billington-3-3-2 SDIRK method}Butcher table number 12
 for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  Here, the
-higher-order method is less stable than the lower-order embedding.
+higher-order embedding is less stable than the lower-order method.
 \begin{gather}
 \begin{split}\begin{array}{r|ccc}
   0.292893218813 & 0.292893218813 & 0 & 0 \\
   1.091883092037 & 0.798989873223 & 0.292893218813 & 0 \\
   1.292893218813 & 0.740789228841 & 0.259210771159 & 0.292893218813 \\
   \hline
-  3 & 0.691665115992 & 0.503597029883 & -0.195262145876 \\
-  2 & 0.740789228840 & 0.259210771159 & 0
+  2 & 0.740789228840 & 0.259210771159 & 0 \\
+  3 & 0.691665115992 & 0.503597029883 & -0.195262145876
 \end{array}\end{split}\notag
 \end{gather}\begin{figure}[htbp]
 \centering
@@ -24254,20 +24342,20 @@ higher-order method is less stable than the lower-order embedding.
 region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 
-\subsection{TRBDF2-3-2-3}
-\label{Butcher:trbdf2-3-2-3}\label{Butcher:butcher-trbdf2}
-\index{TRBDF2-3-2-3 ESDIRK method}Butcher table number 13
+\subsection{TRBDF2-3-3-2}
+\label{Butcher:butcher-trbdf2}\label{Butcher:trbdf2-3-3-2}
+\index{TRBDF2-3-3-2 ESDIRK method}Butcher table number 13
 for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  As with
-Billington, here the higher-order method is less stable than the
-lower-order embedding.
+Billington, here the higher-order embedding is less stable than the
+lower-order method.
 \begin{gather}
 \begin{split}\begin{array}{r|ccc}
   0 & 0 & 0 & 0 \\
   2-\sqrt{2} & \frac{2-\sqrt{2}}{2} & \frac{2-\sqrt{2}}{2} & 0 \\
   1 & \frac{\sqrt{2}}{4} & \frac{\sqrt{2}}{4} & \frac{2-\sqrt{2}}{2} \\
   \hline
-  3 & \frac{1-\frac{\sqrt{2}}{4}}{3} & \frac{\frac{3\sqrt{2}}{4}+1}{3} & \frac{2-\sqrt{2}}{6} \\
-  2 & \frac{\sqrt{2}}{4} & \frac{\sqrt{2}}{4} & \frac{2-\sqrt{2}}{2}
+  2 & \frac{\sqrt{2}}{4} & \frac{\sqrt{2}}{4} & \frac{2-\sqrt{2}}{2} \\
+  3 & \frac{1-\frac{\sqrt{2}}{4}}{3} & \frac{\frac{3\sqrt{2}}{4}+1}{3} & \frac{2-\sqrt{2}}{6}
 \end{array}\end{split}\notag
 \end{gather}\begin{figure}[htbp]
 \centering

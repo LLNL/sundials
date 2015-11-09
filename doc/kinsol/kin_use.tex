@@ -661,7 +661,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 \index{KINKLU@{\kinklu} linear solver!NVECTOR@{\nvector} compatibility}
 \ucfunction{KINKLU}
 {
-  flag = KINKLU(kin\_mem, N, NNZ);
+  flag = KINKLU(kin\_mem, NP, NNZ, sparsetype);
 }
 {
   The function \ID{KINKLU} selects the {\kinklu} linear solver and indicates
@@ -679,9 +679,9 @@ are described separately in Chapter \ref{s:gen_linsolv}.
     problem dimension.
   \item[sparsetype] (\id{int})
     sparse storage type of the system Jacobian. If \Id{sparsetype} is  
-    set to \Id{CSC\_MAT} the solver will expect Jacobian to be stored as 
-    compressed sparse column matrix, and if \Id{sparsetype=CSR\_MAT} 
-    the solver will expect compressed sparse row matrix. 
+    set to \Id{CSC\_MAT} the solver will expect the Jacobian to be stored as 
+    a compressed sparse column matrix, and if \Id{sparsetype=CSR\_MAT} 
+    the solver will expect a compressed sparse row matrix. 
     If neither option is chosen, the solver will exit with error.
   \end{args}
 }
