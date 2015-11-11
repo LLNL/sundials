@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <petscvec.h>
+//#include <petscvec.h>
 #include <nvector/nvector_petsc.h>
 #include <sundials/sundials_math.h>
 
@@ -165,8 +165,8 @@ N_Vector N_VNew_petsc(MPI_Comm comm,
   realtype *data;
   
   // Just to check that PETSc links properly
-  Vec pvec;
-  VecCreate(comm, &pvec);
+//   Vec pvec;
+//   VecCreate(comm, &pvec);
   // End of check
 
   v = NULL;
