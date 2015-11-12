@@ -55,6 +55,7 @@
 #define _NVECTOR_PARALLEL_H
 
 #include <mpi.h>
+#include <petscvec.h>
 #include <sundials/sundials_nvector.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -96,6 +97,7 @@ struct _N_VectorContent_petsc {
   long int global_length;  /* global vector length        */
   booleantype own_data;    /* ownership of data           */
   realtype *data;          /* local data array            */
+  Vec *pvec;               /* PETSc vector                */
   MPI_Comm comm;           /* pointer to MPI communicator */
 };
 
@@ -174,6 +176,8 @@ typedef struct _N_VectorContent_petsc *N_VectorContent_petsc;
 
 #define NV_OWN_DATA_PTC(v)   ( NV_CONTENT_PTC(v)->own_data )
 
+#define NV_PVEC_PTC(v)       ( NV_CONTENT_PTC(v)->pvec )
+
 #define NV_DATA_PTC(v)       ( NV_CONTENT_PTC(v)->data )
 
 #define NV_COMM_PTC(v)       ( NV_CONTENT_PTC(v)->comm )
@@ -186,8 +190,8 @@ typedef struct _N_VectorContent_petsc *N_VectorContent_petsc;
  * PART III: functions exported by nvector_parallel
  * 
  * CONSTRUCTORS:
- *    N_VNew_petsc
  *    N_VNewEmpty_petsc
+ *    N_VNew_petsc
  *    N_VMake_petsc
  *    N_VCloneVectorArray_petsc
  *    N_VCloneVectorArrayEmpty_petsc

@@ -44,19 +44,24 @@ int main(int argc, char *argv[])
   N_Vector W, X, Y, Z;                  /* test vectors              */
   MPI_Comm comm;                        /* MPI Communicator          */
   int      nprocs, myid;                /* Number of procs, proc id  */
+  PetscErrorCode ierr;                  /* PETSc error code          */
 
   /* Get processor number and total number of processes */
   MPI_Init(&argc, &argv);
   comm = MPI_COMM_WORLD;
   MPI_Comm_size(comm, &nprocs);
   MPI_Comm_rank(comm, &myid);
-
+  ierr = PetscInitializeNoArguments();
+  CHKERRQ(ierr);
+  
   /* set local and global lengths */
   local_length = VECLEN;
   global_length = nprocs*local_length;
 
   /* Create vectors */
+  //printf("Creating W...\n");
   W = N_VNewEmpty_petsc(comm, local_length, global_length);
+  //printf("Creating X...\n");
   X = N_VNew_petsc(comm, local_length, global_length);
   Y = N_VNew_petsc(comm, local_length, global_length);
   Z = N_VNew_petsc(comm, local_length, global_length);
@@ -89,9 +94,13 @@ int main(int argc, char *argv[])
   fails += Test_N_VClone(X, local_length, myid);
 
   /* Free vectors */
+  //printf("Destroying W...\n");
   N_VDestroy_petsc(W);
+  //printf("Destroying X...\n");
   N_VDestroy_petsc(X);
+  //printf("Destroying Y...\n");
   N_VDestroy_petsc(Y);
+  //printf("Destroying Z...\n");
   N_VDestroy_petsc(Z);
 
   /* Print result */
@@ -103,6 +112,9 @@ int main(int argc, char *argv[])
      }
   }
   
+  //printf("Finalizing PETSc...\n");
+  ierr = PetscFinalize();
+  CHKERRQ(ierr);
   MPI_Finalize();
   return(0);
 }

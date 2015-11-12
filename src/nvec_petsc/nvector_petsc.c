@@ -24,7 +24,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//#include <petscvec.h>
 #include <nvector/nvector_petsc.h>
 #include <sundials/sundials_math.h>
 
@@ -144,6 +143,7 @@ N_Vector N_VNewEmpty_petsc(MPI_Comm comm,
   content->global_length = global_length;
   content->comm          = comm;
   content->own_data      = FALSE;
+  content->pvec          = NULL;
   content->data          = NULL;
 
   /* Attach content and ops */
@@ -163,12 +163,17 @@ N_Vector N_VNew_petsc(MPI_Comm comm,
 {
   N_Vector v;
   realtype *data;
-  
-  // Just to check that PETSc links properly
-//   Vec pvec;
-//   VecCreate(comm, &pvec);
-  // End of check
+  Vec *pvec = NULL;
+  PetscErrorCode ierr;
+  PetscBool ok;
 
+  /* Check if PETSc is initialized and exit if it is not */
+  ierr = PetscInitialized(&ok);
+  if(!ok) {
+    fprintf(stderr, "PETSc not initialized!\n");
+    return NULL;
+  }
+  
   v = NULL;
   v = N_VNewEmpty_petsc(comm, local_length, global_length);
   if (v == NULL) return(NULL);
@@ -183,10 +188,22 @@ N_Vector N_VNew_petsc(MPI_Comm comm,
       N_VDestroy_petsc(v); 
       return(NULL);
     }
+    
+    pvec = (Vec*) malloc(sizeof(Vec));
+    if(pvec == NULL) { 
+      N_VDestroy_petsc(v); 
+      return(NULL);
+    }
+    
+    ierr = VecCreate(comm, pvec);
+    //CHKERRQ(ierr);
+    ierr = VecSetSizes(*pvec, local_length, global_length);
+    //CHKERRQ(ierr);
 
     /* Attach data */
     NV_OWN_DATA_PTC(v) = TRUE;
     NV_DATA_PTC(v)     = data; 
+    NV_PVEC_PTC(v)     = pvec; 
 
   }
 
@@ -387,6 +404,7 @@ N_Vector N_VCloneEmpty_petsc(N_Vector w)
   content->comm          = NV_COMM_PTC(w);
   content->own_data      = FALSE;
   content->data          = NULL;
+  content->pvec          = NULL;
 
   /* Attach content and ops */
   v->content = content;
@@ -425,9 +443,16 @@ N_Vector N_VClone_petsc(N_Vector w)
 
 void N_VDestroy_petsc(N_Vector v)
 {
+  PetscErrorCode ierr;
   if ((NV_OWN_DATA_PTC(v) == TRUE) && (NV_DATA_PTC(v) != NULL)) {
     free(NV_DATA_PTC(v));
     NV_DATA_PTC(v) = NULL;
+  }
+  
+  if ((NV_OWN_DATA_PTC(v) == TRUE) && (NV_PVEC_PTC(v) != NULL)) {
+    ierr = VecDestroy((NV_PVEC_PTC(v)));
+    //CHKERRQ(ierr);
+    NV_PVEC_PTC(v) = NULL;
   }
   
   free(v->content); 
