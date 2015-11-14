@@ -31,8 +31,10 @@
 
 #include <mpi.h>
 
+
 /* local vector length */
 #define VECLEN 10000
+
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
@@ -117,4 +119,41 @@ int main(int argc, char *argv[])
   CHKERRQ(ierr);
   MPI_Finalize();
   return(0);
+}
+
+/* ----------------------------------------------------------------------
+ * Check vector
+ * --------------------------------------------------------------------*/
+int check_ans(realtype ans, N_Vector X, long int local_length)
+{
+  int      failure = 0;
+  long int i;
+
+  /* check vector data */
+  for(i=0; i < local_length; i++){
+    failure += FNEQ(NV_Ith_PTC(X,i), ans);
+  }
+
+  if (failure > ZERO)
+    return(1);
+  else
+    return(0);
+}
+
+booleantype has_data(N_Vector X)
+{
+  if(NV_DATA_PTC(X) == NULL)
+    return FALSE;
+  else
+    return TRUE;
+}
+
+void set_element(N_Vector X, long int i, realtype val)
+{
+  NV_Ith_PTC(X,i) = val;    
+}
+
+realtype get_element(N_Vector X, long int i)
+{
+  return NV_Ith_PTC(X,i);    
 }

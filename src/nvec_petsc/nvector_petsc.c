@@ -189,6 +189,7 @@ N_Vector N_VNew_petsc(MPI_Comm comm,
       return(NULL);
     }
     
+    /* Allocate empty PETSc vector */
     pvec = (Vec*) malloc(sizeof(Vec));
     if(pvec == NULL) { 
       N_VDestroy_petsc(v); 

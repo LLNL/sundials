@@ -20,9 +20,30 @@
  * -----------------------------------------------------------------
  */
 
+/* define constatnts */
+#define NEG_TWO  RCONST(-2.0)
+#define NEG_ONE  RCONST(-1.0)
+#define NEG_HALF RCONST(-0.5)
+#define ZERO     RCONST(0.0)
+#define HALF     RCONST(0.5)
+#define ONE      RCONST(1.0)
+#define TWO      RCONST(2.0)
+
+/* NAN and floating point "equality" check, failure update macro */
+#if __STDC_VERSION__ >= 199901L
+#define FNEQ(a,b) (isnan(a) ? 1 : ( SUNRabs((a)-(b))/SUNRabs(b) > 1.0e-15 ))
+#else
+#define FNEQ(a,b) (( SUNRabs((a)-(b))/SUNRabs(b) > 1.0e-15 ))
+#endif
+
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
+  int check_ans(realtype ans, N_Vector X, long int local_length);
+  booleantype has_data(N_Vector X);
+  void set_element(N_Vector X, long int i, realtype val);
+  realtype get_element(N_Vector X, long int i);
 
   int Test_N_VCloneVectorArray(int count, N_Vector W, long int local_length, int myid);
   int Test_N_VCloneEmptyVectorArray(int count, N_Vector W, int myid);

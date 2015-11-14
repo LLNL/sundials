@@ -113,3 +113,34 @@ int main(int argc, char *argv[])
 
   return(0);
 }
+
+/* ----------------------------------------------------------------------
+ * Check vector
+ * --------------------------------------------------------------------*/
+int check_ans(realtype ans, N_Vector X, long int local_length)
+{
+  int      failure = 0;
+  long int i;
+  realtype *Xdata;
+  
+  Xdata = N_VGetArrayPointer(X);
+
+  /* check vector data */
+  for(i=0; i < local_length; i++){
+    failure += FNEQ(Xdata[i], ans);
+  }
+
+  if (failure > ZERO)
+    return(1);
+  else
+    return(0);
+}
+
+booleantype has_data(N_Vector X)
+{
+  realtype *Xdata = N_VGetArrayPointer(X);
+  if (Xdata == NULL)
+    return FALSE;
+  else
+    return TRUE;
+}
