@@ -216,7 +216,7 @@ int Test_N_VClone(N_Vector W, long int local_length, int myid)
   } 
 
   /* check cloned vector data */
-  if (!has_data(W)) {
+  if (!has_data(X)) {
     printf(">>> FAILED test -- N_VClone, Proc %d \n", myid);
     printf("    Vector data == NULL \n \n");
     N_VDestroy(X);
