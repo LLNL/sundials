@@ -192,6 +192,7 @@ N_Vector N_VNew_petsc(MPI_Comm comm,
     /* Allocate empty PETSc vector */
     pvec = (Vec*) malloc(sizeof(Vec));
     if(pvec == NULL) { 
+      free(data);
       N_VDestroy_petsc(v); 
       return(NULL);
     }
@@ -199,6 +200,8 @@ N_Vector N_VNew_petsc(MPI_Comm comm,
     ierr = VecCreate(comm, pvec);
     //CHKERRQ(ierr);
     ierr = VecSetSizes(*pvec, local_length, global_length);
+    //CHKERRQ(ierr);
+    ierr = VecSetFromOptions(*pvec);
     //CHKERRQ(ierr);
 
     /* Attach data */
@@ -416,26 +419,45 @@ N_Vector N_VCloneEmpty_petsc(N_Vector w)
 
 N_Vector N_VClone_petsc(N_Vector w)
 {
-  N_Vector v;
-  realtype *data;
-  long int local_length;
+  N_Vector v     = NULL;
+  realtype *data = NULL;
+  Vec *pvec      = NULL;
+  
+  long int local_length  = NV_LOCLENGTH_PTC(w);
+  long int global_length = NV_GLOBLENGTH_PTC(w);
+  MPI_Comm comm          = NV_COMM_PTC(w);
+  
+  PetscErrorCode ierr;
 
-  v = NULL;
   v = N_VCloneEmpty_petsc(w);
   if (v == NULL) return(NULL);
-
-  local_length  = NV_LOCLENGTH_PTC(w);
 
   /* Create data */
   if(local_length > 0) {
 
     /* Allocate memory */
-    data = NULL;
     data = (realtype *) malloc(local_length * sizeof(realtype));
     if(data == NULL) { N_VDestroy_petsc(v); return(NULL); }
 
+    /* Allocate empty PETSc vector */
+    pvec = (Vec*) malloc(sizeof(Vec));
+    if(pvec == NULL) {
+      free(data);
+      N_VDestroy_petsc(v); 
+      return(NULL);
+    }
+    
+    ierr = VecCreate(comm, pvec);
+    //CHKERRQ(ierr);
+    ierr = VecSetSizes(*pvec, local_length, global_length);
+    //CHKERRQ(ierr);
+    ierr = VecSetFromOptions(*pvec);
+    //CHKERRQ(ierr);
+    
+
     /* Attach data */
     NV_OWN_DATA_PTC(v) = TRUE;
+    NV_PVEC_PTC(v)     = pvec;
     NV_DATA_PTC(v)     = data;
   }
 

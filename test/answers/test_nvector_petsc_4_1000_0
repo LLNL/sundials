@@ -1,5 +1,8 @@
-    PASSED test -- N_VSetArrayPointer 
-    PASSED test -- N_VGetArrayPointer 
+    PASSED test -- N_VCloneVectorArray 
+    PASSED test -- N_VCloneEmptyVectorArray 
+    PASSED test -- N_VCloneEmpty 
+    PASSED test -- N_VClone 
+    PASSED test -- N_VConst 
     PASSED test -- N_VLinearSum Case 1a 
     PASSED test -- N_VLinearSum Case 1b 
     PASSED test -- N_VLinearSum Case 1c 
@@ -16,7 +19,6 @@
     PASSED test -- N_VLinearSum Case 7 
     PASSED test -- N_VLinearSum Case 8 
     PASSED test -- N_VLinearSum Case 9 
-    PASSED test -- N_VConst 
     PASSED test -- N_VProd 
     PASSED test -- N_VDiv 
     PASSED test -- N_VScale Case 1 
@@ -41,9 +43,5 @@
     PASSED test -- N_VConstrMask Case 2 
     PASSED test -- N_VMinQuotient Case 1 
     PASSED test -- N_VMinQuotient Case 2 
-    PASSED test -- N_VCloneVectorArray 
-    PASSED test -- N_VCloneEmptyVectorArray 
-    PASSED test -- N_VCloneEmpty 
-    PASSED test -- N_VClone 
 SUCCESS: NVector module passed all tests, Proc 0 
  

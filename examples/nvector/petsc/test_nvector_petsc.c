@@ -69,10 +69,20 @@ int main(int argc, char *argv[])
   Z = N_VNew_petsc(comm, local_length, global_length);
 
   /* NVector Test */
-  fails += Test_N_VSetArrayPointer(W, local_length, myid);
-  fails += Test_N_VGetArrayPointer(X, local_length, myid);
-  fails += Test_N_VLinearSum(X, Y, Z, local_length, myid);
+
+  /* Memory allocation tests */
+  fails += Test_N_VCloneVectorArray(5, X, local_length, myid);
+  fails += Test_N_VCloneEmptyVectorArray(5, X, myid);
+  fails += Test_N_VCloneEmpty(X, myid);
+  fails += Test_N_VClone(X, local_length, myid);
+
+  /* Skipped tests */
+  //fails += Test_N_VSetArrayPointer(W, local_length, myid);
+  //fails += Test_N_VGetArrayPointer(X, local_length, myid);
+  
+  /* Vector operations tests */
   fails += Test_N_VConst(X, local_length, myid);
+  fails += Test_N_VLinearSum(X, Y, Z, local_length, myid);
   fails += Test_N_VProd(X, Y, Z, local_length, myid);
   fails += Test_N_VDiv(X, Y, Z, local_length, myid);
   fails += Test_N_VScale(X, Z, local_length, myid);
@@ -90,10 +100,6 @@ int main(int argc, char *argv[])
   fails += Test_N_VInvTest(X, Z, local_length, myid);
   fails += Test_N_VConstrMask(X, Y, Z, local_length, myid);
   fails += Test_N_VMinQuotient(X, Y, local_length, myid);
-  fails += Test_N_VCloneVectorArray(5, X, local_length, myid);
-  fails += Test_N_VCloneEmptyVectorArray(5, X, myid);
-  fails += Test_N_VCloneEmpty(X, myid);
-  fails += Test_N_VClone(X, local_length, myid);
 
   /* Free vectors */
   //printf("Destroying W...\n");
@@ -142,7 +148,7 @@ int check_ans(realtype ans, N_Vector X, long int local_length)
 
 booleantype has_data(N_Vector X)
 {
-  if(NV_DATA_PTC(X) == NULL)
+  if(NV_PVEC_PTC(X) == NULL)
     return FALSE;
   else
     return TRUE;
