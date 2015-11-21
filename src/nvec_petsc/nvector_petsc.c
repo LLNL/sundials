@@ -520,16 +520,21 @@ void N_VLinearSum_petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector
   realtype c, *xd, *yd, *zd;
   N_Vector v1, v2;
   booleantype test;
+  Vec *xv = NV_PVEC_PTC(x);
+  Vec *yv = NV_PVEC_PTC(y);
+  Vec *zv = NV_PVEC_PTC(z);
 
   xd = yd = zd = NULL;
 
   if ((b == ONE) && (z == y)) {    /* BLAS usage: axpy y <- ax+y */
     Vaxpy_petsc(a, x, y);
+    VecAXPY(*yv, a, *xv); // PETSc
     return;
   }
 
   if ((a == ONE) && (z == x)) {    /* BLAS usage: axpy x <- by+x */
     Vaxpy_petsc(b, y, x);
+    VecAXPY(*xv, b, *yv); // PETSc
     return;
   }
 
@@ -537,6 +542,7 @@ void N_VLinearSum_petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector
 
   if ((a == ONE) && (b == ONE)) {
     VSum_petsc(x, y, z);
+    VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
     return;
   }
 
@@ -546,6 +552,7 @@ void N_VLinearSum_petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector
     v1 = test ? y : x;
     v2 = test ? x : y;
     VDiff_petsc(v2, v1, z);
+    VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
     return;
   }
 
@@ -556,7 +563,8 @@ void N_VLinearSum_petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector
     c = test ? b : a;
     v1 = test ? y : x;
     v2 = test ? x : y;
-        VLin1_petsc(c, v1, v2, z);
+    VLin1_petsc(c, v1, v2, z);
+    VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
     return;
   }
 
@@ -566,7 +574,8 @@ void N_VLinearSum_petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector
     c = test ? b : a;
     v1 = test ? y : x;
     v2 = test ? x : y;
-        VLin2_petsc(c, v1, v2, z);
+    VLin2_petsc(c, v1, v2, z);
+    VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
     return;
   }
 
@@ -575,13 +584,15 @@ void N_VLinearSum_petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector
 
   if (a == b) {
     VScaleSum_petsc(a, x, y, z);
+    VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
     return;
   }
 
   /* Case: a == -b */
 
   if (a == -b) {
-        VScaleDiff_petsc(a, x, y, z);
+    VScaleDiff_petsc(a, x, y, z);
+    VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
     return;
   }
 
@@ -597,37 +608,41 @@ void N_VLinearSum_petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector
 
   for (i = 0; i < N; i++)
     zd[i] = (a*xd[i])+(b*yd[i]);
+  
+  VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
 
   return;
 }
 
 void N_VConst_petsc(realtype c, N_Vector z)
 {
-  long int i, N;
-  realtype *zd;
+  long int i;
+  long int N   = NV_LOCLENGTH_PTC(z);
+  realtype *zd = NV_DATA_PTC(z);
+  Vec *zv      = NV_PVEC_PTC(z);
+  PetscScalar *a;
 
-  zd = NULL;
-
-  N  = NV_LOCLENGTH_PTC(z);
-  zd = NV_DATA_PTC(z);
-
+  VecSet(*zv, c);
   for (i = 0; i < N; i++) zd[i] = c;
-
+  
   return;
 }
 
 void N_VProd_petsc(N_Vector x, N_Vector y, N_Vector z)
 {
-  long int i, N;
-  realtype *xd, *yd, *zd;
+  long int i;
 
-  xd = yd = zd = NULL;
-
-  N  = NV_LOCLENGTH_PTC(x);
-  xd = NV_DATA_PTC(x);
-  yd = NV_DATA_PTC(y);
-  zd = NV_DATA_PTC(z);
-
+  long int N  = NV_LOCLENGTH_PTC(x);
+  realtype *xd = NV_DATA_PTC(x);
+  realtype *yd = NV_DATA_PTC(y);
+  realtype *zd = NV_DATA_PTC(z);
+  
+  Vec *xv = NV_PVEC_PTC(x);
+  Vec *yv = NV_PVEC_PTC(y);
+  Vec *zv = NV_PVEC_PTC(z);
+  
+  VecPointwiseMult(*zv, *xv, *yv);
+  
   for (i = 0; i < N; i++)
     zd[i] = xd[i]*yd[i];
 
@@ -636,15 +651,18 @@ void N_VProd_petsc(N_Vector x, N_Vector y, N_Vector z)
 
 void N_VDiv_petsc(N_Vector x, N_Vector y, N_Vector z)
 {
-  long int i, N;
-  realtype *xd, *yd, *zd;
+  long int i;
 
-  xd = yd = zd = NULL;
+  long int N  = NV_LOCLENGTH_PTC(x);
+  realtype *xd = NV_DATA_PTC(x);
+  realtype *yd = NV_DATA_PTC(y);
+  realtype *zd = NV_DATA_PTC(z);
+  
+  Vec *xv = NV_PVEC_PTC(x);
+  Vec *yv = NV_PVEC_PTC(y);
+  Vec *zv = NV_PVEC_PTC(z);
 
-  N  = NV_LOCLENGTH_PTC(x);
-  xd = NV_DATA_PTC(x);
-  yd = NV_DATA_PTC(y);
-  zd = NV_DATA_PTC(z);
+  VecPointwiseDivide(*zv, *xv, *yv); /* z = x/y */
 
   for (i = 0; i < N; i++)
     zd[i] = xd[i]/yd[i];
@@ -656,13 +674,20 @@ void N_VScale_petsc(realtype c, N_Vector x, N_Vector z)
 {
   long int i, N;
   realtype *xd, *zd;
+  
+  Vec *xv = NV_PVEC_PTC(x);
+  Vec *zv = NV_PVEC_PTC(z);
 
+ 
   xd = zd = NULL;
 
   if (z == x) {       /* BLAS usage: scale x <- cx */
     VScaleBy_petsc(c, x);
+    VecScale(*xv, c); // PETSc
     return;
   }
+  
+  VecAXPBY(*zv, c, 0.0, *xv); // PETSc; is it optimal?
 
   if (c == ONE) {
     VCopy_petsc(x, z);
@@ -684,6 +709,13 @@ void N_VAbs_petsc(N_Vector x, N_Vector z)
   long int i, N;
   realtype *xd, *zd;
 
+  Vec *xv = NV_PVEC_PTC(x);
+  Vec *zv = NV_PVEC_PTC(z);
+
+  VecAbs(*xv); // PETSc
+  if(z != x)
+    VecCopy(*xv, *zv); /* copy x~>z */
+  
   xd = zd = NULL;
 
   N  = NV_LOCLENGTH_PTC(x);
@@ -700,7 +732,14 @@ void N_VInv_petsc(N_Vector x, N_Vector z)
 {
   long int i, N;
   realtype *xd, *zd;
+  
+  Vec *xv = NV_PVEC_PTC(x);
+  Vec *zv = NV_PVEC_PTC(z);
 
+  VecReciprocal(*xv); // PETSc
+  if(z != x)
+    VecCopy(*xv, *zv); /* copy x~>z */
+  
   xd = zd = NULL;
 
   N  = NV_LOCLENGTH_PTC(x);
@@ -717,7 +756,14 @@ void N_VAddConst_petsc(N_Vector x, realtype b, N_Vector z)
 {
   long int i, N;
   realtype *xd, *zd;
+  
+  Vec *xv = NV_PVEC_PTC(x);
+  Vec *zv = NV_PVEC_PTC(z);
 
+  VecShift(*xv, b); // PETSc
+  if(z != x)
+    VecCopy(*xv, *zv); /* copy x~>z */
+  
   xd = zd = NULL;
 
   N  = NV_LOCLENGTH_PTC(x);

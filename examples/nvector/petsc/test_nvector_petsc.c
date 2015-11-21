@@ -134,11 +134,20 @@ int check_ans(realtype ans, N_Vector X, long int local_length)
 {
   int      failure = 0;
   long int i;
+  Vec *xv      = NV_PVEC_PTC(X);
+  PetscScalar *a;
 
   /* check vector data */
   for(i=0; i < local_length; i++){
     failure += FNEQ(NV_Ith_PTC(X,i), ans);
   }
+
+  VecGetArray(*xv, &a);
+  for (i = 0; i < local_length; ++i){
+    failure += FNEQ(a[i], ans);
+    //printf("%g ?= %g\n", a[i], zd[i]);
+  }
+  VecRestoreArray(*xv, &a);
 
   if (failure > ZERO)
     return(1);
