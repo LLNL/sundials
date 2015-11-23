@@ -949,18 +949,26 @@ realtype N_VL1Norm_petsc(N_Vector x)
 
 void N_VCompare_petsc(realtype c, N_Vector x, N_Vector z)
 {
-  long int i, N;
-  realtype *xd, *zd;
+  long int i;
+  long int N = NV_LOCLENGTH_PTC(x);
+  realtype *zd = NV_DATA_PTC(z);
+  Vec *xv = NV_PVEC_PTC(x);
+  Vec *zv = NV_PVEC_PTC(z);
+  PetscReal cpet = c; // <~ realtype should typedef to PETScReal
+  PetscScalar *xdata;
+  PetscScalar *zdata;
+  PetscScalar zero = 0.0;
+  PetscScalar one  = 1.0;
 
-  xd = zd = NULL;
-
-  N  = NV_LOCLENGTH_PTC(x);
-  xd = NV_DATA_PTC(x);
-  zd = NV_DATA_PTC(z);
-
+  VecGetArray(*xv, &xdata);
+  VecGetArray(*zv, &zdata);
   for (i = 0; i < N; i++) {
-    zd[i] = (SUNRabs(xd[i]) >= c) ? ONE : ZERO;
+    zdata[i] = PetscAbsScalar(xdata[i]) >= cpet ? one : zero;
+    zd[i] = zdata[i];
+    //zd[i] = (SUNRabs(xd[i]) >= c) ? ONE : ZERO;
   }
+  VecRestoreArray(*xv, &xdata);
+  VecRestoreArray(*zv, &zdata);
 
   return;
 }
@@ -970,7 +978,13 @@ booleantype N_VInvTest_petsc(N_Vector x, N_Vector z)
   long int i, N;
   realtype *xd, *zd, val, gval;
   MPI_Comm comm;
-
+  Vec *xv = NV_PVEC_PTC(x);
+  Vec *zv = NV_PVEC_PTC(z);
+  
+  VecCopy(*xv, *zv);
+  VecReciprocal(*zv);
+//  N_VConst(ONE, z);
+  
   xd = zd = NULL;
 
   N  = NV_LOCLENGTH_PTC(x);
@@ -996,34 +1010,42 @@ booleantype N_VInvTest_petsc(N_Vector x, N_Vector z)
 
 booleantype N_VConstrMask_petsc(N_Vector c, N_Vector x, N_Vector m)
 {
-  long int i, N;
-  realtype temp;
-  realtype *cd, *xd, *md;
-  MPI_Comm comm;
+  long int i;
+  long int N = NV_LOCLENGTH_PTC(x);
+  MPI_Comm comm = NV_COMM_PTC(x);
+  realtype temp = ONE;
+  Vec *xv = NV_PVEC_PTC(x);
+  Vec *cv = NV_PVEC_PTC(c);
+  Vec *mv = NV_PVEC_PTC(m);
+//   realtype *xd = NV_DATA_PTC(x);
+//   realtype *cd = NV_DATA_PTC(c);
+//   realtype *md = NV_DATA_PTC(m);
+  PetscScalar *xd;
+  PetscScalar *cd;
+  PetscScalar *md;
 
-  cd = xd = md = NULL;
-
-  N  = NV_LOCLENGTH_PTC(x);
-  xd = NV_DATA_PTC(x);
-  cd = NV_DATA_PTC(c);
-  md = NV_DATA_PTC(m);
-  comm = NV_COMM_PTC(x);
-
-  temp = ONE;
-
+  VecGetArray(*xv, &xd);
+  VecGetArray(*cv, &cd);
+  VecGetArray(*mv, &md);
   for (i = 0; i < N; i++) {
+    PetscReal cc = (PetscReal) cd[i]; /* <~ Drop imaginary parts if any. */
+    PetscReal xx = (PetscReal) xd[i]; /* <~ This is quick and dirty temporary fix */
     md[i] = ZERO;
-    if (cd[i] == ZERO) continue;
-    if (cd[i] > ONEPT5 || cd[i] < -ONEPT5) {
-      if (xd[i]*cd[i] <= ZERO) { temp = ZERO; md[i] = ONE; }
+    if (cc == ZERO) continue;
+    if (cc > ONEPT5 || cc < -ONEPT5) {
+      if (xx*cc <= ZERO) { temp = ZERO; md[i] = ONE; }
       continue;
     }
-    if (cd[i] > HALF || cd[i] < -HALF) {
-      if (xd[i]*cd[i] < ZERO ) { temp = ZERO; md[i] = ONE; }
+    if (cc > HALF || cc < -HALF) {
+      if (xx*cc < ZERO ) { temp = ZERO; md[i] = ONE; }
     }
   }
+  VecRestoreArray(*xv, &xd);
+  VecRestoreArray(*cv, &cd);
+  VecRestoreArray(*mv, &md);
 
   temp = VAllReduce_petsc(temp, 3, comm);
+  //printf("temp = %g\n", temp);
 
   if (temp == ONE) return(TRUE);
   else return(FALSE);

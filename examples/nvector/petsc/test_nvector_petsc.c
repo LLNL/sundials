@@ -137,15 +137,17 @@ int check_ans(realtype ans, N_Vector X, long int local_length)
   Vec *xv      = NV_PVEC_PTC(X);
   PetscScalar *a;
 
-  /* check vector data */
+  /* check vector data (to be removed) */
   for(i=0; i < local_length; i++){
     failure += FNEQ(NV_Ith_PTC(X,i), ans);
   }
 
+  failure = 0;
+  /* check PETSc vector */
   VecGetArray(*xv, &a);
   for (i = 0; i < local_length; ++i){
     failure += FNEQ(a[i], ans);
-    //printf("%g ?= %g\n", a[i], zd[i]);
+    //printf("%g ?= %g\n", a[i], ans);
   }
   VecRestoreArray(*xv, &a);
 
@@ -165,10 +167,26 @@ booleantype has_data(N_Vector X)
 
 void set_element(N_Vector X, long int i, realtype val)
 {
+  PetscScalar *a;
+  Vec *xv = NV_PVEC_PTC(X);
+  
+  VecGetArray(*xv, &a);
+  a[i] = val;
+  VecRestoreArray(*xv, &a);
+  
   NV_Ith_PTC(X,i) = val;    
 }
 
 realtype get_element(N_Vector X, long int i)
 {
-  return NV_Ith_PTC(X,i);    
+  PetscScalar *a;
+  Vec *xv = NV_PVEC_PTC(X);
+  realtype val;
+  
+  VecGetArray(*xv, &a);
+  val = a[i];
+  VecRestoreArray(*xv, &a);
+  
+  //return NV_Ith_PTC(X,i);    
+  return val;    
 }

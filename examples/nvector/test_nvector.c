@@ -1547,9 +1547,8 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, long int local_length, int myid)
   failure = 0;
 
   /* fill vector data */
+  N_VConst(ZERO, Z);
   for(i=0; i < local_length; i++){
-    set_element(Z, i, ZERO);
-
     mask = i % 2;   
     if (mask)
       set_element(X, i, HALF);
@@ -1664,6 +1663,7 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
 
   /* M should be vector of 0 */
   failure = check_ans(ZERO, M, local_length);
+  //printf("failure = %d\n", failure);
 
   if (failure || !test) {
     printf(">>> FAILED test -- N_VConstrMask Case 1, Proc %d \n", myid);
@@ -1737,6 +1737,7 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
     }
   }
   
+  //printf("failure = %d\n", failure);
   if (failure || test) {
     printf(">>> FAILED test -- N_VConstrMask Case 2, Proc %d \n", myid);
     PRINT_TIME("    N_VConstrMask Time: %22.15e \n \n", stop_time - start_time);
