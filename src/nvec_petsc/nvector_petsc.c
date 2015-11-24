@@ -777,71 +777,96 @@ void N_VAddConst_petsc(N_Vector x, realtype b, N_Vector z)
 
 realtype N_VDotProd_petsc(N_Vector x, N_Vector y)
 {
-  long int i, N;
-  realtype sum, *xd, *yd, gsum;
-  MPI_Comm comm;
-
-  sum = ZERO;
-  xd = yd = NULL;
-
-  N  = NV_LOCLENGTH_PTC(x);
-  xd = NV_DATA_PTC(x);
-  yd = NV_DATA_PTC(y);
-  comm = NV_COMM_PTC(x);
-
-  for (i = 0; i < N; i++) sum += xd[i]*yd[i];
-
-  gsum = VAllReduce_petsc(sum, 1, comm);
-
-  return(gsum);
+//   long int i, N;
+//   realtype sum, *xd, *yd, gsum;
+//   MPI_Comm comm;
+  Vec *xv = NV_PVEC_PTC(x);
+  Vec *yv = NV_PVEC_PTC(y);
+  PetscScalar dotprod;
+  PetscErrorCode ierr;
+  
+  ierr = VecDot(*xv, *yv, &dotprod);
+  return dotprod;
+  
+//   sum = ZERO;
+//   xd = yd = NULL;
+// 
+//   N  = NV_LOCLENGTH_PTC(x);
+//   xd = NV_DATA_PTC(x);
+//   yd = NV_DATA_PTC(y);
+//   comm = NV_COMM_PTC(x);
+// 
+//   for (i = 0; i < N; i++) sum += xd[i]*yd[i];
+// 
+//   gsum = VAllReduce_petsc(sum, 1, comm);
+// 
+//   return(gsum);
 }
 
 realtype N_VMaxNorm_petsc(N_Vector x)
 {
-  long int i, N;
-  realtype max, *xd, gmax;
-  MPI_Comm comm;
-
-  xd = NULL;
-
-  N  = NV_LOCLENGTH_PTC(x);
-  xd = NV_DATA_PTC(x);
-  comm = NV_COMM_PTC(x);
-
-  max = ZERO;
-
-  for (i = 0; i < N; i++) {
-    if (SUNRabs(xd[i]) > max) max = SUNRabs(xd[i]);
-  }
-   
-  gmax = VAllReduce_petsc(max, 2, comm);
-
-  return(gmax);
+//   long int i, N;
+//   realtype max, *xd, gmax;
+//   MPI_Comm comm;
+  Vec *xv = NV_PVEC_PTC(x);
+  PetscReal norm;
+  PetscErrorCode ierr;
+  
+  ierr = VecNorm(*xv, NORM_INFINITY, &norm);
+  
+  return norm;
+  
+//   xd = NULL;
+// 
+//   N  = NV_LOCLENGTH_PTC(x);
+//   xd = NV_DATA_PTC(x);
+//   comm = NV_COMM_PTC(x);
+// 
+//   max = ZERO;
+// 
+//   for (i = 0; i < N; i++) {
+//     if (SUNRabs(xd[i]) > max) max = SUNRabs(xd[i]);
+//   }
+//    
+//   gmax = VAllReduce_petsc(max, 2, comm);
+// 
+//   return(gmax);
 }
 
 realtype N_VWrmsNorm_petsc(N_Vector x, N_Vector w)
 {
-  long int i, N, N_global;
-  realtype sum, prodi, *xd, *wd, gsum;
-  MPI_Comm comm;
+  long int N_global = NV_GLOBLENGTH_PTC(x);
+  Vec *xv = NV_PVEC_PTC(x);
+  Vec *wv = NV_PVEC_PTC(w);
+  PetscScalar norm;
+  PetscErrorCode ierr;
+  
+  ierr = VecPointwiseMult(*xv, *xv, *wv);
+  ierr = VecDot(*xv, *xv, &norm);
+  
+  return (SUNRsqrt(norm/N_global)); /* Needs optimization */
 
-  sum = ZERO;
-  xd = wd = NULL;
-
-  N        = NV_LOCLENGTH_PTC(x);
-  N_global = NV_GLOBLENGTH_PTC(x);
-  xd       = NV_DATA_PTC(x);
-  wd       = NV_DATA_PTC(w);
-  comm     = NV_COMM_PTC(x);
-
-  for (i = 0; i < N; i++) {
-    prodi = xd[i]*wd[i];
-    sum += SUNSQR(prodi);
-  }
-
-  gsum = VAllReduce_petsc(sum, 1, comm);
-
-  return(SUNRsqrt(gsum/N_global));
+//   long int i, N, N_global;
+//   realtype sum, prodi, *xd, *wd, gsum;
+//   MPI_Comm comm;
+// 
+//   sum = ZERO;
+//   xd = wd = NULL;
+// 
+//   N        = NV_LOCLENGTH_PTC(x);
+//   N_global = NV_GLOBLENGTH_PTC(x);
+//   xd       = NV_DATA_PTC(x);
+//   wd       = NV_DATA_PTC(w);
+//   comm     = NV_COMM_PTC(x);
+// 
+//   for (i = 0; i < N; i++) {
+//     prodi = xd[i]*wd[i];
+//     sum += SUNSQR(prodi);
+//   }
+// 
+//   gsum = VAllReduce_petsc(sum, 1, comm);
+// 
+//   return(SUNRsqrt(gsum/N_global));
 }
 
 realtype N_VWrmsNormMask_petsc(N_Vector x, N_Vector w, N_Vector id)
@@ -874,77 +899,103 @@ realtype N_VWrmsNormMask_petsc(N_Vector x, N_Vector w, N_Vector id)
 
 realtype N_VMin_petsc(N_Vector x)
 {
-  long int i, N;
-  realtype min, *xd, gmin;
-  MPI_Comm comm;
+  Vec *xv = NV_PVEC_PTC(x);
+  PetscReal minval;
+  PetscErrorCode ierr;
+  PetscInt i;
+  
+  ierr = VecMin(*xv, &i, &minval);
+  
+  return minval;
 
-  xd = NULL;
-
-  N  = NV_LOCLENGTH_PTC(x);
-  comm = NV_COMM_PTC(x);
-
-  min = BIG_REAL;
-
-  if (N > 0) {
-
-    xd = NV_DATA_PTC(x);
-
-    min = xd[0];
-
-    for (i = 1; i < N; i++) {
-      if (xd[i] < min) min = xd[i];
-    }
-
-  }
-
-  gmin = VAllReduce_petsc(min, 3, comm);
-
-  return(gmin);
+//   long int i, N;
+//   realtype min, *xd, gmin;
+//   MPI_Comm comm;
+// 
+//   xd = NULL;
+// 
+//   N  = NV_LOCLENGTH_PTC(x);
+//   comm = NV_COMM_PTC(x);
+// 
+//   min = BIG_REAL;
+// 
+//   if (N > 0) {
+// 
+//     xd = NV_DATA_PTC(x);
+// 
+//     min = xd[0];
+// 
+//     for (i = 1; i < N; i++) {
+//       if (xd[i] < min) min = xd[i];
+//     }
+// 
+//   }
+// 
+//   gmin = VAllReduce_petsc(min, 3, comm);
+// 
+//   return(gmin);
 }
 
 realtype N_VWL2Norm_petsc(N_Vector x, N_Vector w)
 {
-  long int i, N;
-  realtype sum, prodi, *xd, *wd, gsum;
-  MPI_Comm comm;
-
-  sum = ZERO;
-  xd = wd = NULL;
-
-  N  = NV_LOCLENGTH_PTC(x);
-  xd = NV_DATA_PTC(x);
-  wd = NV_DATA_PTC(w);
-  comm = NV_COMM_PTC(x);
-
-  for (i = 0; i < N; i++) {
-    prodi = xd[i]*wd[i];
-    sum += SUNSQR(prodi);
-  }
-
-  gsum = VAllReduce_petsc(sum, 1, comm);
-
-  return(SUNRsqrt(gsum));
+  Vec *xv = NV_PVEC_PTC(x);
+  Vec *wv = NV_PVEC_PTC(w);
+  PetscReal norm;
+  PetscErrorCode ierr;
+  
+  ierr = VecPointwiseMult(*xv, *xv, *wv);
+  ierr = VecNorm(*xv, NORM_2, &norm);
+  
+  return norm;
+//   long int i, N;
+//   realtype sum, prodi, *xd, *wd, gsum;
+//   MPI_Comm comm;
+// 
+//   sum = ZERO;
+//   xd = wd = NULL;
+// 
+//   N  = NV_LOCLENGTH_PTC(x);
+//   xd = NV_DATA_PTC(x);
+//   wd = NV_DATA_PTC(w);
+//   comm = NV_COMM_PTC(x);
+// 
+//   for (i = 0; i < N; i++) {
+//     prodi = xd[i]*wd[i];
+//     sum += SUNSQR(prodi);
+//   }
+// 
+//   gsum = VAllReduce_petsc(sum, 1, comm);
+// 
+//   return(SUNRsqrt(gsum));
 }
 
 realtype N_VL1Norm_petsc(N_Vector x)
 {
-  long int i, N;
-  realtype sum, gsum, *xd;
-  MPI_Comm comm;
+  Vec *xv = NV_PVEC_PTC(x);
+  PetscReal norm;
+  PetscErrorCode ierr;
+  
+  ierr = VecNorm(*xv, NORM_1, &norm);
+  
+  return norm;
 
-  sum = ZERO;
-  xd = NULL;
-
-  N  = NV_LOCLENGTH_PTC(x);
-  xd = NV_DATA_PTC(x);
-  comm = NV_COMM_PTC(x);
-
-  for (i = 0; i<N; i++) 
-    sum += SUNRabs(xd[i]);
-
-  gsum = VAllReduce_petsc(sum, 1, comm);
-
-  return(gsum);
+//   long int i, N;
+//   realtype sum, gsum, *xd;
+//   MPI_Comm comm;
+// 
+//   sum = ZERO;
+//   xd = NULL;
+// 
+//   N  = NV_LOCLENGTH_PTC(x);
+//   xd = NV_DATA_PTC(x);
+//   comm = NV_COMM_PTC(x);
+// 
+//   for (i = 0; i<N; i++) 
+//     sum += SUNRabs(xd[i]);
+// 
+//   gsum = VAllReduce_petsc(sum, 1, comm);
+// 
+//   return(gsum);
 }
 
 void N_VCompare_petsc(realtype c, N_Vector x, N_Vector z)
