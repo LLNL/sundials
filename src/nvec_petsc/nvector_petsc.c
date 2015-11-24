@@ -777,9 +777,6 @@ void N_VAddConst_petsc(N_Vector x, realtype b, N_Vector z)
 
 realtype N_VDotProd_petsc(N_Vector x, N_Vector y)
 {
-//   long int i, N;
-//   realtype sum, *xd, *yd, gsum;
-//   MPI_Comm comm;
   Vec *xv = NV_PVEC_PTC(x);
   Vec *yv = NV_PVEC_PTC(y);
   PetscScalar dotprod;
@@ -787,27 +784,10 @@ realtype N_VDotProd_petsc(N_Vector x, N_Vector y)
   
   ierr = VecDot(*xv, *yv, &dotprod);
   return dotprod;
-  
-//   sum = ZERO;
-//   xd = yd = NULL;
-// 
-//   N  = NV_LOCLENGTH_PTC(x);
-//   xd = NV_DATA_PTC(x);
-//   yd = NV_DATA_PTC(y);
-//   comm = NV_COMM_PTC(x);
-// 
-//   for (i = 0; i < N; i++) sum += xd[i]*yd[i];
-// 
-//   gsum = VAllReduce_petsc(sum, 1, comm);
-// 
-//   return(gsum);
 }
 
 realtype N_VMaxNorm_petsc(N_Vector x)
 {
-//   long int i, N;
-//   realtype max, *xd, gmax;
-//   MPI_Comm comm;
   Vec *xv = NV_PVEC_PTC(x);
   PetscReal norm;
   PetscErrorCode ierr;
@@ -815,22 +795,6 @@ realtype N_VMaxNorm_petsc(N_Vector x)
   ierr = VecNorm(*xv, NORM_INFINITY, &norm);
   
   return norm;
-  
-//   xd = NULL;
-// 
-//   N  = NV_LOCLENGTH_PTC(x);
-//   xd = NV_DATA_PTC(x);
-//   comm = NV_COMM_PTC(x);
-// 
-//   max = ZERO;
-// 
-//   for (i = 0; i < N; i++) {
-//     if (SUNRabs(xd[i]) > max) max = SUNRabs(xd[i]);
-//   }
-//    
-//   gmax = VAllReduce_petsc(max, 2, comm);
-// 
-//   return(gmax);
 }
 
 realtype N_VWrmsNorm_petsc(N_Vector x, N_Vector w)
@@ -871,30 +835,39 @@ realtype N_VWrmsNorm_petsc(N_Vector x, N_Vector w)
 
 realtype N_VWrmsNormMask_petsc(N_Vector x, N_Vector w, N_Vector id)
 {
-  long int i, N, N_global;
-  realtype sum, prodi, *xd, *wd, *idd, gsum;
-  MPI_Comm comm;
-
-  sum = ZERO;
-  xd = wd = idd = NULL;
-
-  N        = NV_LOCLENGTH_PTC(x);
-  N_global = NV_GLOBLENGTH_PTC(x);
-  xd       = NV_DATA_PTC(x);
-  wd       = NV_DATA_PTC(w);
-  idd      = NV_DATA_PTC(id);
-  comm     = NV_COMM_PTC(x);
-
+  long int i;
+  long int N        = NV_LOCLENGTH_PTC(x);
+  long int N_global = NV_GLOBLENGTH_PTC(x);
+  MPI_Comm comm     = NV_COMM_PTC(x);
+  
+  Vec *xv = NV_PVEC_PTC(x);
+  Vec *wv = NV_PVEC_PTC(w);
+  Vec *idv = NV_PVEC_PTC(id);
+  PetscScalar *xd;
+  PetscScalar *wd;
+  PetscScalar *idd;
+  PetscScalar norm;
+  PetscErrorCode ierr;
+  
+  VecGetArray(*xv, &xd);
+  VecGetArray(*wv, &wd);
+  VecGetArray(*idv, &idd);
   for (i = 0; i < N; i++) {
-    if (idd[i] > ZERO) {
-      prodi = xd[i]*wd[i];
-      sum += SUNSQR(prodi);
+    PetscReal tag = (PetscReal) idd[i];
+    if (tag > ZERO) {
+      xd[i] *= wd[i];
+    }
+    else {
+      xd[i] = ZERO;  
     }
   }
+  VecRestoreArray(*xv, &xd);
+  VecRestoreArray(*wv, &wd);
+  VecRestoreArray(*idv, &idd);
 
-  gsum = VAllReduce_petsc(sum, 1, comm);
+  ierr = VecDot(*xv, *xv, &norm);
 
-  return(SUNRsqrt(gsum/N_global));
+  return(SUNRsqrt(norm/N_global));
 }
 
 realtype N_VMin_petsc(N_Vector x)
@@ -907,33 +880,6 @@ realtype N_VMin_petsc(N_Vector x)
   ierr = VecMin(*xv, &i, &minval);
   
   return minval;
-
-//   long int i, N;
-//   realtype min, *xd, gmin;
-//   MPI_Comm comm;
-// 
-//   xd = NULL;
-// 
-//   N  = NV_LOCLENGTH_PTC(x);
-//   comm = NV_COMM_PTC(x);
-// 
-//   min = BIG_REAL;
-// 
-//   if (N > 0) {
-// 
-//     xd = NV_DATA_PTC(x);
-// 
-//     min = xd[0];
-// 
-//     for (i = 1; i < N; i++) {
-//       if (xd[i] < min) min = xd[i];
-//     }
-// 
-//   }
-// 
-//   gmin = VAllReduce_petsc(min, 3, comm);
-// 
-//   return(gmin);
 }
 
 realtype N_VWL2Norm_petsc(N_Vector x, N_Vector w)
@@ -978,24 +924,6 @@ realtype N_VL1Norm_petsc(N_Vector x)
   ierr = VecNorm(*xv, NORM_1, &norm);
   
   return norm;
-
-//   long int i, N;
-//   realtype sum, gsum, *xd;
-//   MPI_Comm comm;
-// 
-//   sum = ZERO;
-//   xd = NULL;
-// 
-//   N  = NV_LOCLENGTH_PTC(x);
-//   xd = NV_DATA_PTC(x);
-//   comm = NV_COMM_PTC(x);
-// 
-//   for (i = 0; i<N; i++) 
-//     sum += SUNRabs(xd[i]);
-// 
-//   gsum = VAllReduce_petsc(sum, 1, comm);
-// 
-//   return(gsum);
 }
 
 void N_VCompare_petsc(realtype c, N_Vector x, N_Vector z)
