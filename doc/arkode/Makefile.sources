@@ -1,0 +1,24 @@
+# -----------------------------------------------------------------
+# $Revision:  $
+# $Date:  $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/ida/LICENSE.
+# -----------------------------------------------------------------
+# Sources for IDA documents
+# -----------------------------------------------------------------
+
+
+USER_GUIDE = ARKode
+EXAMPLES   = ARKode_example
+
+UG_FILES = \
+${USER_GUIDE}.tex
+
+EX_FILES = \
+${EXAMPLES}.tex
+

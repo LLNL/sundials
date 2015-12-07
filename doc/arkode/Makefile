@@ -1,105 +1,184 @@
-# Makefile for Sphinx LaTeX output
-ARK_UG = ark_guide.pdf
-ARK_EX = ark_examples.pdf
+# -----------------------------------------------------------------
+# $Revision: 1.4 $
+# $Date: 2012-04-26 00:06:10 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban, Slaven Peles @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/ida/LICENSE.
+# -----------------------------------------------------------------
+# Makefile for IDA documents
+# -----------------------------------------------------------------
+
+QUIET = -interaction=nonstopmode
+
 SHARED_DOC = ../sundials
+
 HTML_DIR = ../../html/documentation
 
-ALLDOCS = $(basename $(wildcard *.tex))
-ALLPDF = $(addsuffix .pdf,$(ALLDOCS))
-ALLDVI = $(addsuffix .dvi,$(ALLDOCS))
 
-# Prefix for archive names
-ARCHIVEPRREFIX =
-# Additional LaTeX options
-LATEXOPTS =
+TEX_COMPILER = pdflatex
 
-LATEX = latex
-PDFLATEX = pdflatex
-MAKEINDEX = makeindex
+include Makefile.sources
 
-usage:
+UG_SHARED_FILES = 
+# fortran.tex \
+# install.tex \
+# linsolv.tex \
+# nvec_generic.tex \
+# nvec_parallel.tex \
+# nvec_serial.tex \
+# nvec_openmp.tex \
+# nvec_pthreads.tex \
+# nvec_parhyp.tex \
+# spils_constants.tex \
+# sun_org.tex \
+# types.tex \
+# ug.tex \
+# biblio.bib
+#texi2dvi 
+#ug_html.tex \
+#processHTML
+
+UG_SHARED_FIGURES = \
+bandmat.png \
+cscmat.png \
+sunorg1.png \
+sunorg2.png \
+doc_logo.pdf \
+warning.png
+
+UG_CMAKE_FIGURES = \
+ccmakedefault.png \
+ccmakeempty.pdf \
+ccmakeprefix.png \
+testrunnertop.png\
+testrunnerbot.png\
+cmaketest.pdf
+
+EX_SHARED_FILES = 
+# ug.tex \
+# biblio.bib
+#texi2dvi \
+#ug_html.tex \
+#processHTML
+
+#HTML_BUTTONS = \
+#back.png \
+#contents.png \
+#index.png \
+#next.png \
+#next_g.png \
+#prev.png \
+#prev_g.png \
+#up.png \
+#up_g.png \
+#warning.png
+
+
+#-------------------------------------------------------------------------------
+
+all:
 	@echo "Usage:"
-	@echo "  make ug     - compile LaTeX files to generate PDF file for ARKode User's Guide"
-	@echo "  make ex     - compile LaTeX files to generate PDF file for ARKode Examples Guide"
+	@echo "  make ug     - compile LaTeX files to generate PDF file for IDA User's Guide"
+	@echo "  make ex     - compile LaTeX files to generate PDF file for IDA Examples Guide"
 	@echo "  make clean  - remove all temporary files"
 	@echo "  make purge  - remove temporary files + PDF files"
+	@echo "  make ug_pdf - use pdflatex to generate PDF file for IDA User's Guide"
+	@echo "  make ex_pdf - use pdflatex to generate PDF file for IDA Examples Guide"
+	@echo ""
 
-ug: ug_pdf
+install: ug ex
+#install: ug_pdf ex_pdf ug_html ex_html
+#	rm -rf $(HTML_DIR)/${USER_GUIDE}
+#	rm -rf $(HTML_DIR)/${EXAMPLES}
+#	cp ${USER_GUIDE}.ps $(HTML_DIR)
+	cp ${USER_GUIDE}.pdf $(HTML_DIR)
+#	cp -r ${USER_GUIDE} $(HTML_DIR)
+#	cp ${EXAMPLES}.ps $(HTML_DIR)
+	cp ${EXAMPLES}.pdf $(HTML_DIR)
+#	cp -r ${EXAMPLES} $(HTML_DIR)
 
-ug_pdf: $(ARK_UG)
+#-------------------------------------------------------------------------------
 
-$(ARK_UG): ARKode.pdf
-	mv ARKode.pdf ark_guide.pdf
+ug: 	copy_ug copy_ug_figs copy_ug_cmake_figs ${USER_GUIDE}.pdf
 
-ex: ex_pdf
+ug_pdf: use_pdflatex ug
 
-ex_pdf: $(ARK_EX)
+#ug_html: ug
+#	cp ug_html.tex ug.tex
+#	latex2html -split 3 -link 3 -info 1 -no_math -html_version 3.2,math -show_section_numbers -short_index -local_icons -white -notransparent ${USER_GUIDE}.tex
+#	@for i in ${HTML_BUTTONS} ; do \
+#	cp ${SHARED_DOC}/buttons/$${i} ${USER_GUIDE}/ ;\
+#	done
+#	@cp ${SHARED_DOC}/l2h_styles.css ${USER_GUIDE}/${USER_GUIDE}.css
+#	./processHTML ${USER_GUIDE}
 
-$(ARK_EX): ARKode_example.pdf
-	mv ARKode_example.pdf ark_examples.pdf
+copy_ug:
+	@for i in ${UG_SHARED_FILES} ; do \
+	cp ${SHARED_DOC}/$${i} . ;\
+	done
 
-purge: clean
-	rm -f $(ARK_UG)
-	rm -f $(ARK_EX)
+copy_ug_figs:
+	@for i in ${UG_SHARED_FIGURES} ; do \
+	cp ${SHARED_DOC}/figures/$${i} . ;\
+	done
 
-install: ug_pdf ex_pdf
-	cp $(ARK_UG) $(HTML_DIR)
-	cp $(ARK_EX) $(HTML_DIR)
+copy_ug_cmake_figs:
+	@for i in ${UG_CMAKE_FIGURES} ; do \
+	cp ${SHARED_DOC}/figures/cmake/$${i} . ;\
+	done
+
+${USER_GUIDE}.pdf: ${UG_FILES} ${UG_SHARED_FILES:%=${SHARED_DOC}/%}
+	${TEX_COMPILER} ${QUIET} ${USER_GUIDE}.tex
+#	bibtex ${USER_GUIDE}
+	makeindex ${USER_GUIDE}.idx
+	${TEX_COMPILER} ${QUIET} ${USER_GUIDE}.tex
+	${TEX_COMPILER} ${QUIET} ${USER_GUIDE}.tex
+	
+
+#-------------------------------------------------------------------------------
+
+ex:	ug copy_ex ${EXAMPLES}.pdf
+
+ex_pdf: use_pdflatex ex
+
+#ex_html: ex
+#	cp ug_html.tex ug.tex
+#	latex2html -split 4 -link 4 -info 1 -no_math -html_version 3.2,math -show_section_numbers -local_icons -white -notransparent ${EXAMPLES}.tex
+#	@for i in ${HTML_BUTTONS} ; do \
+#	cp ${SHARED_DOC}/buttons/$${i} ${EXAMPLES}/ ;\
+#	done
+#	@cp ${SHARED_DOC}/l2h_styles.css ${EXAMPLES}/${EXAMPLES}.css
+#	./processHTML ${EXAMPLES}
+
+copy_ex:
+	@for i in ${EX_SHARED_FILES} ; do \
+	cp ${SHARED_DOC}/$${i} . ;\
+	done
+
+${EXAMPLES}.pdf: ${EX_FILES} ${EX_SHARED_FILES:%=${SHARED_DOC}/%}
+	${TEX_COMPILER} ${QUIET} ${EXAMPLES}.tex
+#	bibtex ${EXAMPLES}
+	makeindex ${EXAMPLES}.idx
+	${TEX_COMPILER} ${QUIET} ${EXAMPLES}.tex
+	${TEX_COMPILER} ${QUIET} ${EXAMPLES}.tex
 
 
+#-------------------------------------------------------------------------------
 
-all: $(ALLPDF)
-all-pdf: $(ALLPDF)
-all-dvi: $(ALLDVI)
-all-ps: all-dvi
-	for f in *.dvi; do dvips $$f; done
-
-all-pdf-ja:
-	for f in *.pdf *.png *.gif *.jpg *.jpeg; do extractbb $$f; done
-	for f in *.tex; do platex -kanji=utf8 $(LATEXOPTS) $$f; done
-	for f in *.tex; do platex -kanji=utf8 $(LATEXOPTS) $$f; done
-	for f in *.tex; do platex -kanji=utf8 $(LATEXOPTS) $$f; done
-	-for f in *.idx; do mendex -U -f -d "`basename $$f .idx`.dic" -s python.ist $$f; done
-	for f in *.tex; do platex -kanji=utf8 $(LATEXOPTS) $$f; done
-	for f in *.tex; do platex -kanji=utf8 $(LATEXOPTS) $$f; done
-	for f in *.dvi; do dvipdfmx $$f; done
-
-zip: all-$(FMT)
-	mkdir $(ARCHIVEPREFIX)docs-$(FMT)
-	cp $(ALLPDF) $(ARCHIVEPREFIX)docs-$(FMT)
-	zip -q -r -9 $(ARCHIVEPREFIX)docs-$(FMT).zip $(ARCHIVEPREFIX)docs-$(FMT)
-	rm -r $(ARCHIVEPREFIX)docs-$(FMT)
-
-tar: all-$(FMT)
-	mkdir $(ARCHIVEPREFIX)docs-$(FMT)
-	cp $(ALLPDF) $(ARCHIVEPREFIX)docs-$(FMT)
-	tar cf $(ARCHIVEPREFIX)docs-$(FMT).tar $(ARCHIVEPREFIX)docs-$(FMT)
-	rm -r $(ARCHIVEPREFIX)docs-$(FMT)
-
-bz2: tar
-	bzip2 -9 -k $(ARCHIVEPREFIX)docs-$(FMT).tar
-
-# The number of LaTeX runs is quite conservative, but I don't expect it
-# to get run often, so the little extra time won't hurt.
-%.dvi: %.tex
-	$(LATEX) $(LATEXOPTS) '$<'
-	$(LATEX) $(LATEXOPTS) '$<'
-	$(LATEX) $(LATEXOPTS) '$<'
-	-$(MAKEINDEX) -s python.ist '$(basename $<).idx'
-	$(LATEX) $(LATEXOPTS) '$<'
-	$(LATEX) $(LATEXOPTS) '$<'
-
-%.pdf: %.tex
-	$(PDFLATEX) $(LATEXOPTS) '$<'
-	$(PDFLATEX) $(LATEXOPTS) '$<'
-	$(PDFLATEX) $(LATEXOPTS) '$<'
-	-$(MAKEINDEX) -s python.ist '$(basename $<).idx'
-	$(PDFLATEX) $(LATEXOPTS) '$<'
-	$(PDFLATEX) $(LATEXOPTS) '$<'
+use_pdflatex:
+	$(eval TEX_COMPILER := pdflatex)
 
 clean:
-	rm -f *.dvi *.log *.ind *.aux *.toc *.syn *.idx *.out *.ilg *.pla *~
-
-.PHONY: all all-pdf all-dvi all-ps clean
-.PHONY: all-pdf-ja
-
+	rm -rf ${UG_SHARED_FILES}
+	rm -rf ${UG_SHARED_FIGURES}
+	rm -rf ${UG_CMAKE_FIGURES}
+	rm -rf ${EX_SHARED_FILES}
+	rm -f *~ *.aux *.bbl *.blg *.log *.toc *.lot *.lof *.ind *.ilg *.idx *.dvi *.out
+purge:  clean
+	rm -f ${USER_GUIDE}.pdf
+	rm -f ${EXAMPLES}.pdf
+	rm -rf ${USER_GUIDE} ${EXAMPLES}
