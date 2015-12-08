@@ -178,11 +178,11 @@ typedef struct _N_VectorContent_petsc *N_VectorContent_petsc;
 
 #define NV_PVEC_PTC(v)       ( NV_CONTENT_PTC(v)->pvec )
 
-#define NV_DATA_PTC(v)       ( NV_CONTENT_PTC(v)->data )
+//#define NV_DATA_PTC(v)       ( NV_CONTENT_PTC(v)->data )
 
 #define NV_COMM_PTC(v)       ( NV_CONTENT_PTC(v)->comm )
 
-#define NV_Ith_PTC(v,i)      ( NV_DATA_PTC(v)[i] )
+//#define NV_Ith_PTC(v,i)      ( NV_DATA_PTC(v)[i] )
 // Above needs to be reworked
 
 /*

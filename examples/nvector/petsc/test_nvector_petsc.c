@@ -138,9 +138,9 @@ int check_ans(realtype ans, N_Vector X, long int local_length)
   PetscScalar *a;
 
   /* check vector data (to be removed) */
-  for(i=0; i < local_length; i++){
-    failure += FNEQ(NV_Ith_PTC(X,i), ans);
-  }
+//   for(i=0; i < local_length; i++){
+//     failure += FNEQ(NV_Ith_PTC(X,i), ans);
+//   }
 
   failure = 0;
   /* check PETSc vector */
@@ -174,7 +174,7 @@ void set_element(N_Vector X, long int i, realtype val)
   a[i] = val;
   VecRestoreArray(*xv, &a);
   
-  NV_Ith_PTC(X,i) = val;    
+  //NV_Ith_PTC(X,i) = val;    
 }
 
 realtype get_element(N_Vector X, long int i)
