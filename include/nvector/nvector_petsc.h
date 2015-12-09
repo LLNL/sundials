@@ -96,7 +96,6 @@ struct _N_VectorContent_petsc {
   long int local_length;   /* local vector length         */
   long int global_length;  /* global vector length        */
   booleantype own_data;    /* ownership of data           */
-  realtype *data;          /* local data array            */
   Vec *pvec;               /* PETSc vector                */
   MPI_Comm comm;           /* pointer to MPI communicator */
 };
@@ -167,7 +166,6 @@ typedef struct _N_VectorContent_petsc *N_VectorContent_petsc;
  * -----------------------------------------------------------------
  */
 
-// This needs to be reworked 
 #define NV_CONTENT_PTC(v)    ( (N_VectorContent_petsc)(v->content) )
 
 #define NV_LOCLENGTH_PTC(v)  ( NV_CONTENT_PTC(v)->local_length )
@@ -178,10 +176,9 @@ typedef struct _N_VectorContent_petsc *N_VectorContent_petsc;
 
 #define NV_PVEC_PTC(v)       ( NV_CONTENT_PTC(v)->pvec )
 
-//#define NV_DATA_PTC(v)       ( NV_CONTENT_PTC(v)->data )
-
 #define NV_COMM_PTC(v)       ( NV_CONTENT_PTC(v)->comm )
 
+// This needs to be reworked 
 //#define NV_Ith_PTC(v,i)      ( NV_DATA_PTC(v)[i] )
 // Above needs to be reworked
 

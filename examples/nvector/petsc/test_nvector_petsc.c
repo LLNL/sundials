@@ -132,22 +132,16 @@ int main(int argc, char *argv[])
  * --------------------------------------------------------------------*/
 int check_ans(realtype ans, N_Vector X, long int local_length)
 {
-  int      failure = 0;
+  int failure = 0;
   long int i;
-  Vec *xv      = NV_PVEC_PTC(X);
+  Vec *xv = NV_PVEC_PTC(X);
   PetscScalar *a;
-
-  /* check vector data (to be removed) */
-//   for(i=0; i < local_length; i++){
-//     failure += FNEQ(NV_Ith_PTC(X,i), ans);
-//   }
 
   failure = 0;
   /* check PETSc vector */
   VecGetArray(*xv, &a);
   for (i = 0; i < local_length; ++i){
     failure += FNEQ(a[i], ans);
-    //printf("%g ?= %g\n", a[i], ans);
   }
   VecRestoreArray(*xv, &a);
 
@@ -173,8 +167,6 @@ void set_element(N_Vector X, long int i, realtype val)
   VecGetArray(*xv, &a);
   a[i] = val;
   VecRestoreArray(*xv, &a);
-  
-  //NV_Ith_PTC(X,i) = val;    
 }
 
 realtype get_element(N_Vector X, long int i)
@@ -187,6 +179,5 @@ realtype get_element(N_Vector X, long int i)
   val = a[i];
   VecRestoreArray(*xv, &a);
   
-  //return NV_Ith_PTC(X,i);    
   return val;    
 }
