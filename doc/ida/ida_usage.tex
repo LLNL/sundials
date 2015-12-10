@@ -4513,13 +4513,14 @@ the name of an optional output from the main solver, a suffix \id{LS}
 \index{reinitialization}
 
 The function \ID{IDAReInit} reinitializes the main {\ida} solver for
-the solution of a problem, where a prior call to \Id{IDAInit} has
+the solution of a new problem, where a prior call to \Id{IDAInit} has
 been made. The new problem must have the same size as the previous one.
 \id{IDAReInit} performs the same input checking and initializations 
-that \id{IDAInit} does, but does no memory allocation, assuming that the 
-existing internal memory is sufficient for the new problem.
+that \id{IDAInit} does, but does no memory allocation, as it assumes that
+the existing internal memory is sufficient for the new problem.
 A call to \id{IDAReInit} deletes the solution history that was stored
-internally during the previous integration.
+internally during the previous integration.  Following a successful call to
+\id{IDAReInit}, call \id{IDASolve} again for the solution of the new problem.
 
 The use of \id{IDAReInit} requires that the maximum method order,    
 \Id{maxord}, is no larger for the new problem than for the problem  
@@ -4531,6 +4532,23 @@ If there are changes to the linear solver specifications, make the
 appropriate \id{IDA***} calls, as described in \S\ref{sss:lin_solv_init}.
 If there are changes to any optional inputs, make the appropriate
 \id{IDASet***} calls, as described in \S\ref{ss:optional_input}.
+
+One important use of the \id{IDAReInit} function is in the treating
+of jump discontinuities in the residual function.  Except in cases of
+fairly small jumps, it is usually more efficient to stop at each point
+of discontinuity and restart the integrator with a readjusted DAE
+model, using a call to \id{IDAReInit}.  To stop when the location of
+the discontinuity is known, simply make that location a value of tout.
+To stop when the location of the discontinuity is determined by the
+solution, use the rootfinding feature.  In either case, it is critical
+that the residual function {\it not} incorporate the discontinuity, but
+rather have a smooth extention over the discontinuity, so that the
+step across it (and subsequent rootfinding, if used) can be done
+efficiently.  Then use a switch within the residual function (communicated
+through \id{user\_data}) that can be flipped between the stopping of
+the integration and the restart, so that the restarted problem uses
+the new values (which have jumped).  Similar comments apply if there
+is to be a jump in the dependent variable vector.
 
 %%
 %%

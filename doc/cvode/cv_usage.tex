@@ -4318,13 +4318,14 @@ the name of an optional output from the main solver, a suffix \id{LS}
 \index{reinitialization}
 
 The function \Id{CVodeReInit} reinitializes the main {\cvode} solver for
-the solution of a problem, where a prior call to \Id{CVodeInit}
+the solution of a new problem, where a prior call to \Id{CVodeInit}
 been made. The new problem must have the same size as the previous one.
 \id{CVodeReInit} performs the same input checking and initializations 
-that \id{CVodeInit} does, but does no memory allocation as it assumes that the 
+that \id{CVodeInit} does, but does no memory allocation, as it assumes that the 
 existing internal memory is sufficient for the new problem.
 A call to \id{CVodeReInit} deletes the solution history that was stored
-internally during the previous integration.
+internally during the previous integration.  Following a successful call to
+\id{CVodeReInit}, call \id{CVode} again for the solution of the new problem.
 
 The use of \id{CVodeReInit} requires that the maximum method order, denoted by 
 \Id{maxord}, be no larger for the new problem than for the previous problem.
@@ -4334,7 +4335,26 @@ is unchanged (or changed from \Id{CV\_ADAMS} to \Id{CV\_BDF}) and the default
 value for \id{maxord} is specified.
 
 If there are changes to the linear solver specifications, make the
-appropriate \id{CV***} calls, as described in \S\ref{sss:lin_solv_init}
+appropriate \id{CV***} calls, as described in
+\S\ref{sss:lin_solv_init}.
+
+One important use of the \id{CVodeReInit} function is in the treating
+of jump discontinuities in the RHS function.  Except in cases of
+fairly small jumps, it is usually more efficient to stop at each point
+of discontinuity and restart the integrator with a readjusted ODE
+model, using a call to \id{CVodeReInit}.  To stop when the location of
+the discontinuity is known, simply make that location a value of tout.
+To stop when the location of the discontinuity is determined by the
+solution, use the rootfinding feature.  In either case, it is critical
+that the RHS function {\it not} incorporate the discontinuity, but
+rather have a smooth extention over the discontinuity, so that the
+step across it (and subsequent rootfinding, if used) can be done
+efficiently.  Then use a switch within the RHS function (communicated
+through \id{user\_data}) that can be flipped between the stopping of
+the integration and the restart, so that the restarted problem uses
+the new values (which have jumped).  Similar comments apply if there
+is to be a jump in the dependent variable vector.
+
 
 %%
 %%
