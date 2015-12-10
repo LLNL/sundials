@@ -644,10 +644,13 @@ functions.
 The function \id{CVodeReInitB} reinitializes {\cvodes} for the solution of a series
 of backward problems, each identified by a value of the parameter \id{which}.
 \id{CVodeReInitB} is essentially a wrapper for \id{CVodeReInit}, and so
-all details given for \id{CVodeReInit} in \S\ref{sss:cvreinit}
-apply.\index{reinitialization}  Also note that \id{CVodeReInitB} can be called to
+all details given for \id{CVodeReInit} in \S\ref{sss:cvreinit} apply
+here.\index{reinitialization}  Also note that \id{CVodeReInitB} can be called to
 reinitialize the backward problem even it has been initialized with the
 sensitivity-dependent version \id{CVodeInitBS}.
+Before calling \id{CVodeReInitB} for a new backward problem, call any
+desired solution extraction functions \id{CVodeGet**} associated with the
+previous backward problem.
 The call to the \id{CVodeReInitB} function has the form
 %%
 %%
@@ -1858,7 +1861,10 @@ flag = CVodeQuadInitBS(cvode\_mem, which, rhsQBS, yQBS0);
 
 
 The integration of quadrature equations during the backward phase can be
-re-initialized by calling
+re-initialized by calling the following function.
+Before calling \id{CVodeQuadReInitB} for a new backward problem, call any
+desired solution extraction functions \id{CVodeGet**} associated with the
+previous backward problem.
 %%
 %%
 \ucfunction{CVodeQuadReInitB}
