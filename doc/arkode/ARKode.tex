@@ -10588,14 +10588,16 @@ will match those described above for the function
 \subsection{ARKode reinitialization function}
 \label{c_interface/User_callable:cinterface-reinitialization}\label{c_interface/User_callable:arkode-reinitialization-function}
 The function {\hyperref[c_interface/User_callable:c.ARKodeReInit]{\emph{\code{ARKodeReInit()}}}} reinitializes the main ARKode
-solver for the solution of a problem, where a prior call to
+solver for the solution of a new problem, where a prior call to
 {\hyperref[c_interface/User_callable:c.ARKodeInit]{\emph{\code{ARKodeInit()}}}} has been made. The new problem must have the
 same size as the previous one.  {\hyperref[c_interface/User_callable:c.ARKodeReInit]{\emph{\code{ARKodeReInit()}}}} performs the
 same input checking and initializations that {\hyperref[c_interface/User_callable:c.ARKodeInit]{\emph{\code{ARKodeInit()}}}}
 does, but does no memory allocation as it assumes that the existing
 internal memory is sufficient for the new problem.  A call to
 {\hyperref[c_interface/User_callable:c.ARKodeReInit]{\emph{\code{ARKodeReInit()}}}} deletes the solution history that was stored
-internally during the previous integration.
+internally during the previous integration.  Following a successful
+call to {\hyperref[c_interface/User_callable:c.ARKodeReInit]{\emph{\code{ARKodeReInit()}}}}, call {\hyperref[c_interface/User_callable:c.ARKode]{\emph{\code{ARKode()}}}} again for
+the solution of the new problem.
 
 The use of {\hyperref[c_interface/User_callable:c.ARKodeReInit]{\emph{\code{ARKodeReInit()}}}} requires that the number of Runge
 Kutta stages, denoted by \emph{s}, be no larger for the new problem than
@@ -10604,6 +10606,24 @@ if the method order \emph{q} and the problem type (explicit, implicit,
 ImEx) are left unchanged.  If there are changes to the linear solver
 specifications, the user should make the appropriate ARK*Set* calls,
 as described in the section {\hyperref[c_interface/User_callable:cinterface-linearsolvers]{\emph{\DUspan{}{Linear solver specification functions}}}}.
+
+One important use of the {\hyperref[c_interface/User_callable:c.ARKodeReInit]{\emph{\code{ARKodeReInit()}}}} function is in the
+treating of jump discontinuities in the RHS function.  Except in cases
+of fairly small jumps, it is usually more efficient to stop at each
+point of discontinuity and restart the integrator with a readjusted
+ODE model, using a call to {\hyperref[c_interface/User_callable:c.ARKodeReInit]{\emph{\code{ARKodeReInit()}}}}.  To stop when the
+location of the discontinuity is known, simply make that location a
+value of \code{tout}.  To stop when the location of the discontinuity is
+determined by the solution, use the rootfinding feature.  In either
+case, it is critical that the RHS function \emph{not} incorporate the
+discontinuity, but rather have a smooth extention over the
+discontinuity, so that the step across it (and subsequent rootfinding,
+if used) can be done efficiently.  Then use a switch within the RHS
+function (communicated through \code{user\_data}) that can be flipped
+between the stopping of the integration and the restart, so that the
+restarted problem uses the new values (which have jumped).  Similar
+comments apply if there is to be a jump in the dependent variable
+vector.
 \index{ARKodeReInit (C function)}
 
 \begin{fulllineitems}
