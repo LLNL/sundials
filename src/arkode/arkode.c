@@ -1614,6 +1614,16 @@ int ARKode(void *arkode_mem, realtype tout, N_Vector yout,
 			MSGARK_HNIL_DONE);
     }
 
+    /* Update parameter for upcoming step size */
+    if ((ark_mem->ark_nst > 0) && (ark_mem->ark_hprime != ark_mem->ark_h)) {
+      ark_mem->ark_h = ark_mem->ark_h * ark_mem->ark_eta;
+      ark_mem->ark_next_h = ark_mem->ark_h;
+    }
+    if (ark_mem->ark_fixedstep) {
+      ark_mem->ark_h = ark_mem->ark_hin;
+      ark_mem->ark_next_h = ark_mem->ark_h;
+    }
+
     /* Call arkStep to take a step */
     kflag = arkStep(ark_mem);
 
@@ -3448,11 +3458,14 @@ static int arkSetButcherTables(ARKodeMem ark_mem)
   /* if tables have already been specified, just return */
   int i,j,q;
   booleantype A_set = FALSE;
-  for (i=0; i<ARK_S_MAX; i++)
+  for (i=0; i<ARK_S_MAX; i++) {
     for (j=0; j<ARK_S_MAX; j++) {
       if (SUNRabs(ARK_A(ark_mem->ark_Ae,i,j)) > TINY)  A_set = TRUE;
       if (SUNRabs(ARK_A(ark_mem->ark_Ai,i,j)) > TINY)  A_set = TRUE;
     }
+    if (SUNRabs(ark_mem->ark_b[i]) > TINY)  A_set = TRUE;
+    if (SUNRabs(ark_mem->ark_c[i]) > TINY)  A_set = TRUE;
+  }
   if (A_set)  return (ARK_SUCCESS);
 
   /**** explicit methods ****/
@@ -3818,11 +3831,6 @@ static int arkStep(ARKodeMem ark_mem)
   nflag = FIRST_CALL;
   eflag = ARK_SUCCESS;
   kflag = SOLVE_SUCCESS;
-
-  if ((ark_mem->ark_nst > 0) && (ark_mem->ark_hprime != ark_mem->ark_h)) {
-    ark_mem->ark_h = ark_mem->ark_h * ark_mem->ark_eta;
-    ark_mem->ark_next_h = ark_mem->ark_h;
-  }
 
   /* Looping point for attempts to take a step */
   for(;;) {  
