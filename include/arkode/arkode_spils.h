@@ -295,9 +295,6 @@ typedef int (*ARKSpilsMassTimesVecFn)(N_Vector v, N_Vector Mv,
 
  t       is the current value of the independent variable.
 
- y       is the current value of the dependent variable vector,
-          namely the predicted value of y(t).
-
  user_data  is a pointer to user data - the same as the user_data
          parameter passed to the ARKodeSetUserData function.
 
@@ -329,8 +326,6 @@ typedef int (*ARKSpilsMassPrecSetupFn)(realtype t, void *user_data,
  Its parameters are as follows:
 
  t      is the current value of the independent variable.
-
- y      is the current value of the dependent variable vector.
 
  r      is the right-hand side vector of the linear system.
 
@@ -469,6 +464,8 @@ SUNDIALS_EXPORT int ARKSpilsSetMassTimesVecFn(void *arkode_mem,
 
  ARKSpilsGetNumJtimesEvals returns the number of calls to jtimes.
 
+ ARKSpilsGetNumMtimesEvals returns the number of calls to mtimes.
+
  ARKSpilsGetNumRhsEvals returns the number of calls to the user
                  f routine due to finite difference Jacobian
                  times vector evaluation.
@@ -509,6 +506,8 @@ SUNDIALS_EXPORT int ARKSpilsGetNumMassConvFails(void *arkode_mem,
 						long int *nmcfails);
 SUNDIALS_EXPORT int ARKSpilsGetNumJtimesEvals(void *arkode_mem, 
 					      long int *njvevals);
+SUNDIALS_EXPORT int ARKSpilsGetNumMtimesEvals(void *arkode_mem, 
+					      long int *nmvevals);
 SUNDIALS_EXPORT int ARKSpilsGetNumRhsEvals(void *arkode_mem, 
 					   long int *nfevalsLS); 
 SUNDIALS_EXPORT int ARKSpilsGetLastFlag(void *arkode_mem, 

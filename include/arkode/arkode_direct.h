@@ -126,13 +126,10 @@ typedef int (*ARKDlsDenseJacFn)(long int N, realtype t,
 
  N   is the problem size.
 
- M   is the dense matrix (of type DlsMat) that will be loaded
-     by a ARKDlsDenseMassFn with an approximation to the mass matrix.
-
  t   is the current value of the independent variable.
 
- y   is the current value of the dependent variable vector,
-     namely the predicted value of y(t).
+ M   is the dense matrix (of type DlsMat) that will be loaded
+     by a ARKDlsDenseMassFn with an approximation to the mass matrix.
 
  user_data is a pointer to user data - the same as the user_data
      parameter passed to ARKodeSetFdata.
@@ -253,11 +250,11 @@ typedef int (*ARKDlsBandJacFn)(long int N, long int mupper,
 
  t is the current value of the independent variable.
 
- y is the current value of the dependent variable vector,
-      namely the predicted value of y(t).
-
  M is the band matrix (of type DlsMat) that will be loaded
  by a ARKDlsBandMassFn with an approximation to the mass matrix
+
+ user_data is a pointer to user data - the same as the user_data
+     parameter passed to ARKodeSetFdata.
 
  tmp1, tmp2, and tmp3 are pointers to memory allocated for
  vectors of length N which can be used by a ARKDlsBandMassFn

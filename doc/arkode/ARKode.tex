@@ -10786,7 +10786,9 @@ If using array-valued absolute tolerances, the absolute tolerance
 vector will be invalid after the call to {\hyperref[c_interface/User_callable:c.ARKodeResize]{\emph{\code{ARKodeResize()}}}}, so
 the new absolute tolerance vector should be re-set \textbf{following} each
 call to {\hyperref[c_interface/User_callable:c.ARKodeResize]{\emph{\code{ARKodeResize()}}}} through a new call to
-{\hyperref[c_interface/User_callable:c.ARKodeSVtolerances]{\emph{\code{ARKodeSVtolerances()}}}}.
+{\hyperref[c_interface/User_callable:c.ARKodeSVtolerances]{\emph{\code{ARKodeSVtolerances()}}}} (and similarly to
+{\hyperref[c_interface/User_callable:c.ARKodeResVtolerance]{\emph{\code{ARKodeResVtolerance()}}}} if that was used for the original
+problem).
 
 If scalar-valued tolerances or a tolerance function was specified
 through either {\hyperref[c_interface/User_callable:c.ARKodeSStolerances]{\emph{\code{ARKodeSStolerances()}}}} or
@@ -11732,7 +11734,7 @@ provide the mass matrix approximation.
 \index{ARKDlsDenseMassFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_supplied:c.ARKDlsDenseMassFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKDlsDenseMassFn)}}{long int\emph{ N}, realtype\emph{ t}, N\_Vector\emph{ y}, {\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{DlsMat}}}\emph{ M}, void*\emph{ user\_data}, N\_Vector\emph{ tmp1}, N\_Vector\emph{ tmp2}, N\_Vector\emph{ tmp3}}{}
+\phantomsection\label{c_interface/User_supplied:c.ARKDlsDenseMassFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKDlsDenseMassFn)}}{long int\emph{ N}, realtype\emph{ t}, {\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{DlsMat}}}\emph{ M}, void*\emph{ user\_data}, N\_Vector\emph{ tmp1}, N\_Vector\emph{ tmp2}, N\_Vector\emph{ tmp3}}{}
 This function computes the mass matrix \(M\) (or an approximation to it).
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -11741,9 +11743,6 @@ This function computes the mass matrix \(M\) (or an approximation to it).
 
 \item {} 
 \emph{t} -- the current value of the independent variable.
-
-\item {} 
-\emph{y} -- the current value of the dependent variable vector.
 
 \item {} 
 \emph{M} -- the output dense mass matrix (of type \code{DlsMat}).
@@ -11799,7 +11798,7 @@ the mass matrix approximation.
 \index{ARKDlsBandMassFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_supplied:c.ARKDlsBandMassFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKDlsBandMassFn)}}{long int\emph{ N}, long int\emph{ mupper}, long int\emph{ mlower}, realtype\emph{ t}, N\_Vector\emph{ y}, {\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{DlsMat}}}\emph{ M}, void*\emph{ user\_data}, N\_Vector\emph{ tmp1}, N\_Vector\emph{ tmp2}, N\_Vector\emph{ tmp3}}{}
+\phantomsection\label{c_interface/User_supplied:c.ARKDlsBandMassFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKDlsBandMassFn)}}{long int\emph{ N}, long int\emph{ mupper}, long int\emph{ mlower}, realtype\emph{ t}, {\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{DlsMat}}}\emph{ M}, void*\emph{ user\_data}, N\_Vector\emph{ tmp1}, N\_Vector\emph{ tmp2}, N\_Vector\emph{ tmp3}}{}
 This function computes the banded mass matrix \(M\) (or an approximation to it).
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -11812,10 +11811,6 @@ the mass matrix.
 
 \item {} 
 \emph{t} -- the current value of the independent variable.
-
-\item {} 
-\emph{y} -- the current value of the dependent variable vector, namely
-the predicted value of \(y(t)\).
 
 \item {} 
 \emph{M} -- the output dense mass matrix (of type \code{DlsMat}).
@@ -11890,7 +11885,7 @@ This function computes the mass matrix \(M\) (or an approximation to it).
 \item {} 
 \emph{tmp1}, \emph{tmp2}, \emph{tmp3} -- pointers to memory allocated to
 variables of type \code{N\_Vector} which can be used by an
-ARKDlsDenseMassFn as temporary storage or work space.
+ARKSlsSparseMassFn as temporary storage or work space.
 
 \end{itemize}
 
@@ -11928,7 +11923,7 @@ compute matrix-vector products \(M*v\).
 \index{ARKSpilsMassTimesVecFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_supplied:c.ARKSpilsMassTimesVecFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKSpilsMassTimesVecFn)}}{N\_Vector\emph{ v}, N\_Vector\emph{ Mv}, realtype\emph{ t}, N\_Vector\emph{ y}, void*\emph{ user\_data}, N\_Vector\emph{ tmp}}{}
+\phantomsection\label{c_interface/User_supplied:c.ARKSpilsMassTimesVecFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKSpilsMassTimesVecFn)}}{N\_Vector\emph{ v}, N\_Vector\emph{ Mv}, realtype\emph{ t}, void*\emph{ user\_data}}{}
 This function computes the product \(M*v\) (or an approximation to it).
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -11942,15 +11937,8 @@ This function computes the product \(M*v\) (or an approximation to it).
 \emph{t} -- the current value of the independent variable.
 
 \item {} 
-\emph{y} -- the current value of the dependent variable vector.
-
-\item {} 
 \emph{user\_data} -- a pointer to user data, the same as the
 \emph{user\_data} parameter that was passed to {\hyperref[c_interface/User_callable:c.ARKodeSetUserData]{\emph{\code{ARKodeSetUserData()}}}}.
-
-\item {} 
-\emph{tmp} -- pointer to memory allocated to a variable of type
-\code{N\_Vector} which can be used as temporary storage or work space.
 
 \end{itemize}
 
@@ -11980,15 +11968,12 @@ approximate \(M\).
 \index{ARKSpilsMassPrecSolveFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_supplied:c.ARKSpilsMassPrecSolveFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKSpilsMassPrecSolveFn)}}{realtype\emph{ t}, N\_Vector\emph{ y}, N\_Vector\emph{ r}, N\_Vector\emph{ z}, realtype\emph{ delta}, int\emph{ lr}, void*\emph{ user\_data}, N\_Vector\emph{ tmp}}{}
+\phantomsection\label{c_interface/User_supplied:c.ARKSpilsMassPrecSolveFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKSpilsMassPrecSolveFn)}}{realtype\emph{ t}, N\_Vector\emph{ r}, N\_Vector\emph{ z}, realtype\emph{ delta}, int\emph{ lr}, void*\emph{ user\_data}, N\_Vector\emph{ tmp}}{}
 This function solves the preconditioner system \(Pz=r\).
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
 \emph{t} -- the current value of the independent variable.
-
-\item {} 
-\emph{y} -- the current value of the dependent variable vector.
 
 \item {} 
 \emph{r} -- the right-hand side vector of the linear system.
@@ -12042,16 +12027,13 @@ within a user-supplied function of type
 \index{ARKSpilsMassPrecSetupFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_supplied:c.ARKSpilsMassPrecSetupFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKSpilsMassPrecSetupFn)}}{realtype\emph{ t}, N\_Vector\emph{ y}, void*\emph{ user\_data}, N\_Vector\emph{ tmp1}, N\_Vector\emph{ tmp2}, N\_Vector\emph{ tmp3}}{}
+\phantomsection\label{c_interface/User_supplied:c.ARKSpilsMassPrecSetupFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKSpilsMassPrecSetupFn)}}{realtype\emph{ t}, void*\emph{ user\_data}, N\_Vector\emph{ tmp1}, N\_Vector\emph{ tmp2}, N\_Vector\emph{ tmp3}}{}
 This function preprocesses and/or evaluates mass-matrix-related
 data needed by the preconditioner.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
 \emph{t} -- the current value of the independent variable.
-
-\item {} 
-\emph{y} -- the current value of the dependent variable vector.
 
 \item {} 
 \emph{user\_data} -- a pointer to user data, the same as the
