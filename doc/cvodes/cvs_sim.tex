@@ -5134,11 +5134,14 @@ that are unchanged from the skeleton program presented in
 \item
   {\bf Set problem dimensions}
 
-  {\s} Set \id{N} to the problem size $N$ (excluding quadrature variables),
-  and \id{Nq} to the number of quadrature variables.
+  {\s} {\omp} {\pt} Set \id{N} to the problem size $N$ (excluding quadrature
+   variables), and \id{Nq} to the number of quadrature variables.
 
-  {\p} Set \id{Nlocal} to the local vector length (excluding quadrature variables),
-  and \id{Nqlocal} to the local number of quadrature variables.
+  {\omp, \pt} Set \id{num\_threads}, the number of threads to use within
+  the threaded vector functions.
+
+  {\p} {\h} Set \id{Nlocal} to the local vector length (excluding quadrature
+   variables), and \id{Nqlocal} to the local number of quadrature variables.
   
 \item
   \textcolor{gray}{\bf Set vector of initial values}
@@ -5808,9 +5811,8 @@ Aside from the header files required for the integration of the ODE problem
 must include the header file \id{cvodes\_bandpre.h} which declares the needed
 function prototypes.\index{header files}
 %%
-The following is a summary of the usage of this module. Steps that are unchanged from the skeleton
-program presented in \S\ref{ss:skeleton_sim} are grayed out.
-%%
+The following is a summary of the usage of this module. Steps that are unchanged
+from the skeleton program presented in \S\ref{ss:skeleton_sim} are grayed out.
 %%
 \index{User main program!CVBANDPRE@{\cvbandpre} usage}
 \begin{Steps}
