@@ -171,17 +171,18 @@ The following is a skeleton of the user's main program (or calling
 program) for the solution of a nonlinear problem. 
 Some steps are independent of the {\nvector} implementation used; 
 where this is not the case, usage specifications are given for the implementations 
-provided with {\kinsol}: Steps marked {\p} correspond to 
-{\nvecp}, steps marked {\omp} correspond to {\nvecopenmp}, steps
-marked {\pt} correspond to {\nvecpthreads}, while steps marked {\s}
-correspond to {\nvecs}.
-%%
+provided with {\kinsol}:
+Steps marked {\s} correspond to {\nvecs},
+steps marked {\omp} correspond to {\nvecopenmp},
+steps marked {\pt} correspond to {\nvecpthreads},
+steps marked {\p} correspond to {\nvecp}, while
+steps marked {\h} correspond to {\nvecph}.
 %%
 \index{User main program!KINSOL@{\kinsol} usage}
 \begin{Steps}
   
 \item 
-  {\bf {\p} Initialize MPI}
+  {\bf {\p} {\h} Initialize MPI}
 
   Call \id{MPI\_Init(\&argc, \&argv)} to initialize {\mpi} if used by
   the user's program, aside from the internal use in {\nvecp}.  
@@ -191,12 +192,12 @@ correspond to {\nvecs}.
 \item
   {\bf Set problem dimensions}
 
-  {\s, \omp, \pt} Set \id{N}, the problem size $N$.
+  {\s} {\omp} {\pt} Set \id{N}, the problem size $N$.
 
-  {\omp, \pt} Set \id{num\_threads}, the number of threads to use within
+  {\omp} {\pt} Set \id{num\_threads}, the number of threads to use within
   the threaded vector functions.
 
-  {\p} Set \id{Nlocal}, the local vector length (the sub-vector length for this process).
+  {\p} {\h} Set \id{Nlocal}, the local vector length (the sub-vector length for this process).
   Set \id{N}, the global vector length (the problem size $N$, and the sum of all the
   values of \id{Nlocal}).  Set the active set of processes.
 
@@ -212,31 +213,37 @@ correspond to {\nvecs}.
 
   {\s} \id{u = N\_VMake\_Serial(N, udata);}
 
-  {\omp} \id{y0 = N\_VMake\_OpenMP(N, num\_threads, ydata);}
+  {\omp} \id{u = N\_VMake\_OpenMP(N, num\_threads, ydata);}
 
-  {\pt} \id{y0 = N\_VMake\_Pthreads(N, num\_threads, ydata);}
+  {\pt} \id{u = N\_VMake\_Pthreads(N, num\_threads, ydata);}
 
   {\p} \id{u = N\_VMake\_Parallel(comm, Nlocal, N, udata);}
+
+  {\h} \id{u = N\_VMake\_ParHyp(comm, Nlocal, N, udata);}
 
   Otherwise, make the call:
 
   {\s} \id{u = N\_VNew\_Serial(N);}
 
-  {\omp} \id{y0 = N\_VNew\_OpenMP(N, num\_threads);}
+  {\omp} \id{u = N\_VNew\_OpenMP(N, num\_threads);}
 
-  {\pt} \id{y0 = N\_VNew\_Pthreads(N, num\_threads);}
+  {\pt} \id{u = N\_VNew\_Pthreads(N, num\_threads);}
 
   {\p} \id{u = N\_VNew\_Parallel(comm, Nlocal, N);}
+
+  {\h} \id{u = N\_VNew\_ParHyp(comm, Nlocal, N);}
 
   and load initial values into the structure defined by:
 
   {\s} \id{NV\_DATA\_S(u)}
 
-  {\omp} \id{NV\_DATA\_OMP(y0)}
+  {\omp} \id{NV\_DATA\_OMP(u)}
 
-  {\pt} \id{NV\_DATA\_PT(y0)}
+  {\pt} \id{NV\_DATA\_PT(u)}
 
   {\p} \id{NV\_DATA\_P(u)}
+
+  {\h} \id{NV\_DATA\_PH(u)}
 
   Here \id{comm} is the {\mpi} communicator, set in one of two ways: 
   If a proper subset of active processes is to be used, \id{comm} 
@@ -273,17 +280,17 @@ correspond to {\nvecs}.
   Initialize the linear solver module with one of the following calls
   (for details see \S\ref{sss:lin_solv_init}).
 
-  {\s, \omp, \pt} \id{ier = }\Id{KINDense}\id{(...);}
+  {\s} {\omp} {\pt} \id{ier = }\Id{KINDense}\id{(...);}
 
-  {\s, \omp, \pt} \id{ier = }\Id{KINBand}\id{(...);}
+  {\s} {\omp} {\pt} \id{ier = }\Id{KINBand}\id{(...);}
 
-  {\s, \omp, \pt} \id{ier = }\Id{KINLapackDense}\id{(...);}
+  {\s} {\omp} {\pt} \id{ier = }\Id{KINLapackDense}\id{(...);}
 
-  {\s, \omp, \pt} \id{ier = }\Id{KINLapackBand}\id{(...);}
+  {\s} {\omp} {\pt} \id{ier = }\Id{KINLapackBand}\id{(...);}
 
-  {\s, \omp, \pt} \id{ier = }\Id{KINKLU}\id{(...);}
+  {\s} {\omp} {\pt} \id{ier = }\Id{KINKLU}\id{(...);}
 
-  {\s, \omp, \pt} \id{ier = }\Id{KINSuperLUMT}\id{(...);}
+  {\s} {\omp} {\pt} \id{ier = }\Id{KINSuperLUMT}\id{(...);}
 
   \id{ier = }\Id{KINSpgmr}\id{(...);}
   
@@ -320,19 +327,21 @@ correspond to {\nvecs}.
 
   {\s} \id{N\_VDestroy\_Serial(u);}
 
-  {\omp} \id{N\_VDestroy\_OpenMP(y);}
+  {\omp} \id{N\_VDestroy\_OpenMP(u);}
 
-  {\pt} \id{N\_VDestroy\_Pthreads(y);}
+  {\pt} \id{N\_VDestroy\_Pthreads(u);}
 
   {\p} \id{N\_VDestroy\_Parallel(u);}
-  
+
+  {\h} \id{N\_VDestroy\_ParHyp(u);}
+
 \item
   {\bf Free solver memory}
 
   Call \id{KINFree(\&kin\_mem)} to free the memory allocated for {\kinsol}.
   
 \item 
-  {\bf {\p} Finalize MPI}
+  {\bf {\p} {\h} Finalize MPI}
 
   Call \id{MPI\_Finalize()} to terminate {\mpi}.
   
