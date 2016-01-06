@@ -35,10 +35,12 @@ steps in the order indicated, unless otherwise noted.
 For the sake of brevity, we defer many of the details to the later sections.
 As in \S\ref{ss:skeleton_sim}, most steps are independent of the {\nvector}
 implementation used; where this is not the case, usage specifications are given for
-the four implementations provided with {\idas}:
-steps marked {\p} correspond to {\nvecp}, steps marked
-{\omp} correspond to {\nvecopenmp}, steps marked {\pt} correspond to
-{\nvecpthreads}, while steps marked {\s} correspond to {\nvecs}.
+the implementations provided with {\idas}:
+steps marked {\s} correspond to {\nvecs},
+steps marked {\omp} correspond to {\nvecopenmp},
+steps marked {\pt} correspond to {\nvecpthreads},
+steps marked {\p} correspond to {\nvecp}, while
+steps marked {\h} correspond to {\nvecph}.
 Differences between the user main program in \S\ref{ss:skeleton_sim} and
 the one below start only at step (\ref{i:fwd_start}).
 Steps that are unchanged from the skeleton program presented in
@@ -52,7 +54,7 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
 \begin{Steps}
   
 \item 
-  \textcolor{gray}{\bf {\p} Initialize MPI}
+  \textcolor{gray}{\bf {\p} {\h} Initialize MPI}
 
 \item
   \textcolor{gray}{\bf Set problem dimensions}
@@ -158,6 +160,8 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
 
   {\p} \id{yS0 = N\_VCloneVectorArray\_Parallel(Ns, y0);}
 
+  {\h} \id{yS0 = N\_VCloneVectorArray\_ParHyp(Ns, y0);}
+
   and, for each $i=0,\ldots,$\id{Ns}$-1$, load initial values for the $i$-th sensitivity 
   vector into the structure defined by:
 
@@ -168,6 +172,8 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
   {\pt} \id{NV\_DATA\_PT(yS0[i])}
 
   {\p} \id{NV\_DATA\_P(yS0[i])}
+
+  {\h} \id{NV\_DATA\_PH(yS0[i])}
 
   Here the argument \id{y0} serves only to provide the \id{N\_Vector} type for cloning.
 
@@ -183,8 +189,10 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
 
   {\p} \id{yS0 = N\_VCloneEmptyVectorArray\_Parallel(Ns, y0);}
 
-  and then attach the \id{realtype} array \id{yS0\_i} containing the initial values of the
-  $i$-th sensitivity vector using
+  {\h} \id{yS0 = N\_VCloneEmptyVectorArray\_ParHyp(Ns, y0);}
+
+  and then attach the \id{realtype} array \id{yS0\_i} containing the initial values
+  of the $i$-th sensitivity vector using
 
   {\s} \id{N\_VSetArrayPointer\_Serial(yS0\_i, yS0[i]);}
 
@@ -193,6 +201,8 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
   {\pt} \id{N\_VSetArrayPointer\_Pthreads(yS0\_i, yS0[i]);}
   
   {\p} \id{N\_VSetArrayPointer\_Parallel(yS0\_i, yS0[i]);}
+
+  {\h} \id{N\_VSetArrayPointer\_ParHyp(yS0\_i, yS0[i]);}
 
   for $i = 0,\cdots$ \id{Ns} $-1$.
 
@@ -254,6 +264,8 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
   {\pt} \id{N\_VDestroyVectorArray\_Pthreads(yS0, Ns);}
 
   {\p} \id{N\_VDestroyVectorArray\_Parallel(yS0, Ns);}
+
+  {\h} \id{N\_VDestroyVectorArray\_ParHyp(yS0, Ns);}
 
   and similarly for \id{ypS0}.
 
@@ -1490,7 +1502,7 @@ this situation. Steps that are unchanged from the skeleton program presented in
 \begin{Steps}
   
 \item 
-  \textcolor{gray}{\bf {\p} Initialize MPI}
+  \textcolor{gray}{\bf {\p} {\h} Initialize MPI}
 
 \item
   \textcolor{gray}{\bf Set problem dimensions}
@@ -1585,7 +1597,7 @@ this situation. Steps that are unchanged from the skeleton program presented in
   {\bf Free solver memory}
 
 \item 
-  \textcolor{gray}{\bf {\p} Finalize MPI}
+  \textcolor{gray}{\bf {\p} {\h} Finalize MPI}
   
 \end{Steps}
 %%
