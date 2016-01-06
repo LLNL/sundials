@@ -163,17 +163,18 @@ access to the underlying generic dense linear solver.
 The following is a skeleton of the user's main program (or calling
 program) for the integration of a DAE IVP. Some steps are independent of the
 {\nvector} implementation used; where this is not the case, usage specifications
-are given for the two implementations provided with {\ida}: steps marked {\p}
-correspond to {\nvecp}, steps marked {\omp} correspond to
-{\nvecopenmp}, steps marked {\pt} correspond to {\nvecpthreads},
-while steps marked {\s} correspond to {\nvecs}. 
-%%
+are given for the implementations provided with {\ida}:
+steps marked {\s} correspond to {\nvecs},
+steps marked {\omp} correspond to {\nvecopenmp},
+steps marked {\pt} correspond to {\nvecpthreads},
+steps marked {\p} correspond to {\nvecp}, while
+steps marked {\h} correspond to {\nvecph}.
 %%
 \index{User main program!IDA@{\ida} usage}
 \begin{Steps}
   
 \item 
-  {\bf {\p} Initialize MPI}
+  {\bf {\p} {\h} Initialize MPI}
 
   Call \id{MPI\_Init(\&argc, \&argv)} to initialize MPI if used by
   the user's program, aside from the internal use in {\nvecp}.  
@@ -185,7 +186,7 @@ while steps marked {\s} correspond to {\nvecs}.
 
   {\s, \omp, \pt} Set \id{N}, the problem size $N$.
 
-  {\p} Set \id{Nlocal}, the local vector length (the sub-vector
+  {\p} {\h} Set \id{Nlocal}, the local vector length (the sub-vector
   length for this processor); \id{N}, the global vector length (the
   problem size $N$, and the sum of all the values of \id{Nlocal});
   and the active set of processors.
@@ -212,6 +213,8 @@ while steps marked {\s} correspond to {\nvecs}.
 
   {\p} \id{y0 = N\_VMake\_Parallel(comm, Nlocal, N, ydata);}
 
+  {\h} \id{y0 = N\_VMake\_ParHyp(comm, Nlocal, N, ydata);}
+
   Otherwise, make the calls:
 
   {\s} \id{y0 = N\_VNew\_Serial(N);}
@@ -222,6 +225,8 @@ while steps marked {\s} correspond to {\nvecs}.
 
   {\p} \id{y0 = N\_VNew\_Parallel(comm, Nlocal, N);}
 
+  {\h} \id{y0 = N\_VNew\_ParHyp(comm, Nlocal, N);}
+
   and load initial values into the structure defined by:
 
   {\s} \id{NV\_DATA\_S(y0)}
@@ -231,6 +236,8 @@ while steps marked {\s} correspond to {\nvecs}.
   {\pt} \id{NV\_DATA\_PT(y0)}
 
   {\p} \id{NV\_DATA\_P(y0)}
+
+  {\h} \id{NV\_DATA\_PH(y0)}
 
   Here \id{comm} is the MPI communicator, set in one of two ways: 
   If a proper subset of active processors is to be used, \id{comm} 
@@ -353,7 +360,9 @@ while steps marked {\s} correspond to {\nvecs}.
   {\pt} \id{N\_VDestroy\_Pthreads(yret);}
 
   {\p} \id{N\_VDestroy\_Parallel(yret);}
-  
+ 
+  {\h} \id{N\_VDestroy\_ParHyp(y);}
+ 
   and similarly for \id{ypret}.
   
 \item
@@ -362,7 +371,7 @@ while steps marked {\s} correspond to {\nvecs}.
   \Id{IDAFree}\id{(\&ida\_mem)} to free the memory allocated for {\ida}.
   
 \item 
-  {\bf {\p} Finalize MPI}
+  {\bf {\p} {\h} Finalize MPI}
   
   Call \id{MPI\_Finalize()} to terminate MPI.
 
