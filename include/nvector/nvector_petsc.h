@@ -16,18 +16,18 @@
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * This is the main header file for the MPI-enabled implementation
- * of the NVECTOR module.
+ * This is the main header file for the PETSc vector wrapper 
+ * for NVECTOR module.
  *
- * Part I contains declarations specific to the parallel
- * implementation of the supplied NVECTOR module.
+ * Part I contains declarations specific to the PETSc vector wrapper
+ * implementation.
  *
  * Part II defines accessor macros that allow the user to efficiently
  * use the type N_Vector without making explicit references to the
- * underlying data structure.
+ * underlying PETSc vector.
  *
  * Part III contains the prototype for the constructor
- * N_VNew_petsc as well as implementation-specific prototypes
+ * N_VNew_petsc as well as PETSc-specific prototypes
  * for various useful vector operations.
  *
  * Notes:
@@ -37,7 +37,7 @@
  *
  *   - The definition of the type realtype can be found in the
  *     header file sundials_types.h, and it may be changed (at the 
- *     configuration stage) according to the user's needs. 
+ *     build configuration stage) according to the user's needs. 
  *     The sundials_types.h file also contains the definition
  *     for the type booleantype.
  *
@@ -51,8 +51,8 @@
  * -----------------------------------------------------------------
  */
 
-#ifndef _NVECTOR_PARALLEL_H
-#define _NVECTOR_PARALLEL_H
+#ifndef _NVECTOR_PETSC_H
+#define _NVECTOR_PETSC_H
 
 #include <mpi.h>
 #include <petscvec.h>
@@ -89,8 +89,8 @@ extern "C" {
 
 /* parallel implementation of the N_Vector 'content' structure
    contains the global and local lengths of the vector, a pointer
-   to an array of 'realtype components', the MPI communicator,
-   and a flag indicating ownership of the data */
+   to the underlying PETSc vector, the MPI communicator,
+   and a flag indicating ownership of the PETSc vector */
 
 struct _N_VectorContent_petsc {
   long int local_length;   /* local vector length         */
@@ -115,23 +115,19 @@ typedef struct _N_VectorContent_petsc *N_VectorContent_petsc;
  *
  * (1) NV_CONTENT_PTC
  *
- *     This routines gives access to the contents of the parallel
- *     vector N_Vector.
+ *     This routines gives access to the contents of the PETSc 
+ *     vector wrapper N_Vector.
  *
  *     The assignment v_cont = NV_CONTENT_PTC(v) sets v_cont to be
- *     a pointer to the parallel N_Vector content structure.
+ *     a pointer to the N_Vector (PETSc wrapper) content structure.
  *
- * (2) NV_DATA_PTC, NV_OWN_DATA_PTC, NV_LOCLENGTH_PTC, NV_GLOBLENGTH_PTC,
+ * (2) NV_PVEC_PTC, NV_OWN_DATA_PTC, NV_LOCLENGTH_PTC, NV_GLOBLENGTH_PTC,
  *     and NV_COMM_PTC
  *
  *     These routines give access to the individual parts of
  *     the content structure of a parallel N_Vector.
  *
- *     The assignment v_data = NV_DATA_PTC(v) sets v_data to be
- *     a pointer to the first component of the local data for
- *     the vector v. The assignment NV_DATA_PTC(v) = data_v sets
- *     the component array of v to be data_V by storing the
- *     pointer data_v.
+ *     NV_PVEC_PTC(v) returns pointer to the PETSc vector. 
  *
  *     The assignment v_llen = NV_LOCLENGTH_PTC(v) sets v_llen to
  *     be the length of the local part of the vector v. The call
@@ -145,10 +141,10 @@ typedef struct _N_VectorContent_petsc *N_VectorContent_petsc;
  *
  *     The assignment v_comm = NV_COMM_PTC(v) sets v_comm to be the
  *     MPI communicator of the vector v. The assignment
- *     NV_COMM_C(v) = comm_v sets the MPI communicator of v to be
+ *     NV_COMM_PTC(v) = comm_v sets the MPI communicator of v to be
  *     comm_v.
  *
- * (3) NV_Ith_PTC
+ * (3) NV_Ith_PTC <~ commented out, will probably be removed.
  *
  *     In the following description, the components of the
  *     local part of an N_Vector are numbered 0..n-1, where n
@@ -159,10 +155,6 @@ typedef struct _N_VectorContent_petsc *N_VectorContent_petsc;
  *     The assignment NV_Ith_PTC(v,i) = r sets the value of the
  *     ith local component of v to be r.
  *
- * Note: When looping over the components of an N_Vector v, it is
- * more efficient to first obtain the component array via
- * v_data = NV_DATA_PTC(v) and then access v_data[i] within the
- * loop than it is to use NV_Ith_PTC(v,i) within the loop.
  * -----------------------------------------------------------------
  */
 
@@ -184,7 +176,7 @@ typedef struct _N_VectorContent_petsc *N_VectorContent_petsc;
 
 /*
  * -----------------------------------------------------------------
- * PART III: functions exported by nvector_parallel
+ * PART III: functions exported by nvector_petsc
  * 
  * CONSTRUCTORS:
  *    N_VNewEmpty_petsc
@@ -204,8 +196,8 @@ typedef struct _N_VectorContent_petsc *N_VectorContent_petsc;
  * -----------------------------------------------------------------
  * Function : N_VNewEmpty_petsc
  * -----------------------------------------------------------------
- * This function creates a new parallel N_Vector with an empty
- * (NULL) data array.
+ * This function creates a new N_Vector wrapper around an empty
+ * (NULL) PETSc vector.
  * -----------------------------------------------------------------
  */
 
@@ -217,7 +209,8 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_petsc(MPI_Comm comm,
  * -----------------------------------------------------------------
  * Function : N_VNew_petsc
  * -----------------------------------------------------------------
- * This function creates and allocates memory for a parallel vector.
+ * This function creates and allocates memory for a N_Vector 
+ * wrapper and underlying PETSc vector.
  * -----------------------------------------------------------------
  */
 
@@ -229,8 +222,7 @@ SUNDIALS_EXPORT N_Vector N_VNew_petsc(MPI_Comm comm,
  * -----------------------------------------------------------------
  * Function : N_VMake_petsc
  * -----------------------------------------------------------------
- * This function creates and allocates memory for a parallel vector
- * with a user-supplied data array.
+ * This function is not supported for PETSc vector wrapper.
  * -----------------------------------------------------------------
  */
 
@@ -238,6 +230,16 @@ SUNDIALS_EXPORT N_Vector N_VMake_petsc(MPI_Comm comm,
                                        long int local_length,
                                        long int global_length,
                                        realtype *v_data);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VGetArrayPointer_petsc
+ * -----------------------------------------------------------------
+ * This function is not supported for PETSc vector wrapper.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT realtype *N_VGetArrayPointer_petsc(N_Vector v);
 
 /*
  * -----------------------------------------------------------------
@@ -284,7 +286,7 @@ SUNDIALS_EXPORT void N_VPrint_petsc(N_Vector v);
 
 /*
  * -----------------------------------------------------------------
- * parallel implementations of the vector operations
+ * PETSc implementations of the vector operations
  * -----------------------------------------------------------------
  */
 
@@ -292,7 +294,6 @@ SUNDIALS_EXPORT N_Vector N_VCloneEmpty_petsc(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_petsc(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_petsc(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace_petsc(N_Vector v, long int *lrw, long int *liw);
-SUNDIALS_EXPORT realtype *N_VGetArrayPointer_petsc(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_petsc(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum_petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VConst_petsc(realtype c, N_Vector z);
@@ -318,4 +319,4 @@ SUNDIALS_EXPORT realtype N_VMinQuotient_petsc(N_Vector num, N_Vector denom);
 }
 #endif
 
-#endif
+#endif /* _NVECTOR_PETSC_H */

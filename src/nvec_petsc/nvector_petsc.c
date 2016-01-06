@@ -124,7 +124,6 @@ N_Vector N_VNewEmpty_petsc(MPI_Comm comm,
   content->comm          = comm;
   content->own_data      = FALSE;
   content->pvec          = NULL;
-//  content->data          = NULL;
 
   /* Attach content and ops */
   v->content = content;
@@ -142,7 +141,6 @@ N_Vector N_VNew_petsc(MPI_Comm comm,
                       long int global_length)
 {
   N_Vector v;
-  //realtype *data;
   Vec *pvec = NULL;
   PetscErrorCode ierr;
   PetscBool ok;
@@ -161,18 +159,9 @@ N_Vector N_VNew_petsc(MPI_Comm comm,
   /* Create data */
   if(local_length > 0) {
 
-    /* Allocate memory */
-//     data = NULL;
-//     data = (realtype *) malloc(local_length * sizeof(realtype));
-//     if(data == NULL) { 
-//       N_VDestroy_petsc(v); 
-//       return(NULL);
-//     }
-    
     /* Allocate empty PETSc vector */
     pvec = (Vec*) malloc(sizeof(Vec));
     if(pvec == NULL) { 
-//      free(data);
       N_VDestroy_petsc(v); 
       return(NULL);
     }
@@ -186,9 +175,7 @@ N_Vector N_VNew_petsc(MPI_Comm comm,
 
     /* Attach data */
     NV_OWN_DATA_PTC(v) = TRUE;
-//    NV_DATA_PTC(v)     = data; 
     NV_PVEC_PTC(v)     = pvec; 
-
   }
 
   return(v);
@@ -198,7 +185,8 @@ N_Vector N_VNew_petsc(MPI_Comm comm,
 
 
 /* ---------------------------------------------------------------- 
- * Function to create a parallel N_Vector with user data component 
+ * Function to create a parallel N_Vector with user data component
+ * This function is NOT implemented for PETSc wrapper!
  */
 
 N_Vector N_VMake_petsc(MPI_Comm comm, 
@@ -206,19 +194,7 @@ N_Vector N_VMake_petsc(MPI_Comm comm,
                        long int global_length,
                        realtype *v_data)
 {
-  N_Vector v;
-
-  v = NULL;
-  v = N_VNewEmpty_petsc(comm, local_length, global_length);
-  if (v == NULL) return(NULL);
-
-  if (local_length > 0) {
-    /* Attach data */
-    NV_OWN_DATA_PTC(v) = FALSE;
-//    NV_DATA_PTC(v)     = v_data;
-  }
-
-  return(v);
+  return(NULL);
 }
 
 /* ---------------------------------------------------------------- 
@@ -386,12 +362,17 @@ N_Vector N_VClone_petsc(N_Vector w)
 {
   N_Vector v     = NULL;
   Vec *pvec      = NULL;
+  //Vec *wvec      = NV_PVEC_PTC(w);
   
-  long int local_length  = NV_LOCLENGTH_PTC(w);
-  long int global_length = NV_GLOBLENGTH_PTC(w);
+  PetscInt local_length  = NV_LOCLENGTH_PTC(w);
+  PetscInt global_length = NV_GLOBLENGTH_PTC(w);
   MPI_Comm comm          = NV_COMM_PTC(w);
   
   PetscErrorCode ierr;
+  
+//   ierr = VecGetSize(*wvec, &global_length);
+//   ierr = VecGetLocalSize(*wvec, &local_length);
+//   ierr = PetscObjectGetComm((PetscObject) (*wvec), &comm);
 
   v = N_VCloneEmpty_petsc(w);
   if (v == NULL) return(NULL);
@@ -801,7 +782,7 @@ booleantype N_VConstrMask_petsc(N_Vector c, N_Vector x, N_Vector m)
   long int i;
   long int N = NV_LOCLENGTH_PTC(x);
   MPI_Comm comm = NV_COMM_PTC(x);
-  realtype min = ONE;
+  realtype minval = ONE;
   Vec *xv = NV_PVEC_PTC(x);
   Vec *cv = NV_PVEC_PTC(c);
   Vec *mv = NV_PVEC_PTC(m);
@@ -818,20 +799,20 @@ booleantype N_VConstrMask_petsc(N_Vector c, N_Vector x, N_Vector m)
     md[i] = ZERO;
     if (cc == ZERO) continue;
     if (cc > ONEPT5 || cc < -ONEPT5) {
-      if (xx*cc <= ZERO) { min = ZERO; md[i] = ONE; }
+      if (xx*cc <= ZERO) { minval = ZERO; md[i] = ONE; }
       continue;
     }
     if (cc > HALF || cc < -HALF) {
-      if (xx*cc < ZERO ) { min = ZERO; md[i] = ONE; }
+      if (xx*cc < ZERO ) { minval = ZERO; md[i] = ONE; }
     }
   }
   VecRestoreArray(*xv, &xd);
   VecRestoreArray(*cv, &cd);
   VecRestoreArray(*mv, &md);
 
-  min = VAllReduce_petsc(min, 3, comm);
+  minval = VAllReduce_petsc(minval, 3, comm);
 
-  if (min == ONE) 
+  if (minval == ONE) 
     return(TRUE);
   else
     return(FALSE);
@@ -848,7 +829,7 @@ realtype N_VMinQuotient_petsc(N_Vector num, N_Vector denom)
   Vec *dv = NV_PVEC_PTC(denom);
   PetscScalar *nd;
   PetscScalar *dd;
-  PetscReal min = BIG_REAL;
+  PetscReal minval = BIG_REAL;
 
   VecGetArray(*nv, &nd);
   VecGetArray(*dv, &dd);
@@ -859,9 +840,9 @@ realtype N_VMinQuotient_petsc(N_Vector num, N_Vector denom)
       continue;
     else {
       if (!notEvenOnce) 
-        min = SUNMIN(min, nr/dr);
+        minval = SUNMIN(minval, nr/dr);
       else {
-        min = nr/dr;
+        minval = nr/dr;
         notEvenOnce = FALSE;
       }
     }
@@ -869,7 +850,7 @@ realtype N_VMinQuotient_petsc(N_Vector num, N_Vector denom)
   VecRestoreArray(*nv, &nd);
   VecRestoreArray(*dv, &dd);
 
-  return(VAllReduce_petsc(min, 3, comm));
+  return(VAllReduce_petsc(minval, 3, comm));
 }
 
 /*
