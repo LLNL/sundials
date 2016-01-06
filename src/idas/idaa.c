@@ -2500,7 +2500,7 @@ static int IDAAhermiteGetY(IDAMem IDA_mem, realtype t,
   dt_mem = IDAADJ_mem->dt_mem;
  
   /* Local value of Ns */
-  NS = interpSensi ? Ns : 0;
+  NS = (interpSensi && (yyS != NULL)) ? Ns : 0;
 
   /* Get the index in dt_mem */
   flag = IDAAfindIndex(IDA_mem, t, &indx, &newpoint);
@@ -2870,11 +2870,9 @@ static int IDAApolynomialGetY(IDAMem IDA_mem, realtype t,
   dt_mem = IDAADJ_mem->dt_mem;
  
   /* Local value of Ns */
- 
-  NS = interpSensi ? Ns : 0;
+  NS = (interpSensi && (yyS != NULL)) ? Ns : 0;
 
   /* Get the index in dt_mem */
-
   flag = IDAAfindIndex(IDA_mem, t, &indx, &newpoint);
   if (flag != IDA_SUCCESS) return(flag);
 

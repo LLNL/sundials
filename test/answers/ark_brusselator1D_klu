@@ -7,8 +7,8 @@
 
         t      ||u||_rms   ||v||_rms   ||w||_rms
    ----------------------------------------------
-    1.000000    0.791135    3.140510    1.999984
-    2.000000    0.960034    2.757430    1.999981
+    1.000000    0.791136    3.140509    1.999984
+    2.000000    0.960034    2.757429    1.999981
     3.000000    0.930299    2.532868    1.999982
     4.000000    0.681809    2.696300    1.999986
     5.000000    0.506326    3.007843    1.999990
@@ -20,10 +20,10 @@
    ----------------------------------------------
 
 Final Solver Statistics:
-   Internal solver steps = 109 (attempted = 110)
-   Total RHS evals:  Fe = 0,  Fi = 1779
-   Total linear solver setups = 27
-   Total number of Jacobian evaluations = 4
-   Total number of nonlinear iterations = 1225
+   Internal solver steps = 102 (attempted = 104)
+   Total RHS evals:  Fe = 0,  Fi = 1587
+   Total linear solver setups = 33
+   Total number of Jacobian evaluations = 8
+   Total number of nonlinear iterations = 1063
    Total number of nonlinear solver convergence failures = 0
-   Total number of error test failures = 1
+   Total number of error test failures = 2

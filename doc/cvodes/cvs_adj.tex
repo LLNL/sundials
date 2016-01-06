@@ -37,11 +37,13 @@ The following is a skeleton of the user's main program as an application of
 unless otherwise noted. For the sake of brevity, we defer many of the details to 
 the later sections.
 As in \S\ref{ss:skeleton_sim}, most steps are independent of the {\nvector}
-implementation used; where this is not the case, usage specifications are given for the
-two implementations provided with {\cvodes}: steps marked {\p} correspond to 
-{\nvecp}, steps marked {\omp} correspond to {\nvecopenmp}, steps
-marked {\pt} correspond to {\nvecpthreads}, while steps marked {\s}
-correspond to {\nvecs}. 
+implementation used; where this is not the case, usage specifications are given
+for the implementations provided with {\cvodes}:
+steps marked {\s} correspond to {\nvecs},
+steps marked {\omp} correspond to {\nvecopenmp},
+steps marked {\pt} correspond to {\nvecpthreads},
+steps marked {\p} correspond to {\nvecp}, while
+steps marked {\h} correspond to {\nvecph}.
 Steps that are unchanged from the skeleton programs presented in
 \S\ref{ss:skeleton_sim}, \S\ref{s:forward_usage}, and \S\ref{s:forward_quad_usage},
 are grayed out.
@@ -61,7 +63,7 @@ are grayed out.
   was selected, the main header file of the desired linear solver module.
 
 \item
-  \textcolor{gray}{\bf {\p} Initialize MPI}
+  \textcolor{gray}{\bf {\p} {\h} Initialize MPI}
 
   \vspace{0.2in}\centerline{\bf Forward problem}
 
@@ -120,9 +122,9 @@ are grayed out.
  \item \label{i:back_start}
    {\bf Set problem dimensions for the backward problem}
    
-   {\s, \omp, \pt} set \id{NB}, the number of variables in the backward problem \\
-   {\p} set \id{NB} and \id{NBlocal} \\
-   {\omp, \pt} set \id{num\_threads}
+   {\s, \omp} {\pt} set \id{NB}, the number of variables in the backward problem \\
+   {\omp} {\pt} set \id{num\_threads}\\
+   {\p} {\h} set \id{NB} and \id{NBlocal}
 
 \item
   {\bf Set initial values for the backward problem}
@@ -225,7 +227,7 @@ are grayed out.
 \item
   \textcolor{gray}{\bf Finalize MPI}
 
-  {\p} If {\mpi} was initialized by the user main program, call \id{MPI\_Finalize();}.
+  {\p} {\h} If {\mpi} was initialized by the user main program, call \id{MPI\_Finalize();}.
 
 \end{Steps}
 
@@ -644,10 +646,13 @@ functions.
 The function \id{CVodeReInitB} reinitializes {\cvodes} for the solution of a series
 of backward problems, each identified by a value of the parameter \id{which}.
 \id{CVodeReInitB} is essentially a wrapper for \id{CVodeReInit}, and so
-all details given for \id{CVodeReInit} in \S\ref{sss:cvreinit}
-apply.\index{reinitialization}  Also note that \id{CVodeReInitB} can be called to
+all details given for \id{CVodeReInit} in \S\ref{sss:cvreinit} apply
+here.\index{reinitialization}  Also note that \id{CVodeReInitB} can be called to
 reinitialize the backward problem even it has been initialized with the
 sensitivity-dependent version \id{CVodeInitBS}.
+Before calling \id{CVodeReInitB} for a new backward problem, call any
+desired solution extraction functions \id{CVodeGet**} associated with the
+previous backward problem.
 The call to the \id{CVodeReInitB} function has the form
 %%
 %%
@@ -1858,7 +1863,10 @@ flag = CVodeQuadInitBS(cvode\_mem, which, rhsQBS, yQBS0);
 
 
 The integration of quadrature equations during the backward phase can be
-re-initialized by calling
+re-initialized by calling the following function.
+Before calling \id{CVodeQuadReInitB} for a new backward problem, call any
+desired solution extraction functions \id{CVodeGet**} associated with the
+previous backward problem.
 %%
 %%
 \ucfunction{CVodeQuadReInitB}

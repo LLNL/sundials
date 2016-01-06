@@ -840,6 +840,35 @@ int ARKSpilsGetNumJtimesEvals(void *arkode_mem, long int *njvevals)
 
 
 /*---------------------------------------------------------------
+ ARKSpilsGetNumMtimesEvals
+---------------------------------------------------------------*/
+int ARKSpilsGetNumMtimesEvals(void *arkode_mem, long int *nmvevals)
+{
+  ARKodeMem ark_mem;
+  ARKSpilsMem arkspils_mem;
+
+  /* Return immediately if arkode_mem is NULL */
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
+		    "ARKSpilsGetNumMtimesEvals", MSGS_ARKMEM_NULL);
+    return(ARKSPILS_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  if (ark_mem->ark_mass_mem == NULL) {
+    arkProcessError(ark_mem, ARKSPILS_MASSMEM_NULL, "ARKSPILS", 
+		    "ARKSpilsGetNumMtimesEvals", MSGS_MASSMEM_NULL);
+    return(ARKSPILS_MASSMEM_NULL);
+  }
+  arkspils_mem = (ARKSpilsMem) ark_mem->ark_mass_mem;
+
+  *nmvevals = arkspils_mem->s_njtimes;
+
+  return(ARKSPILS_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
  ARKSpilsGetNumRhsEvals
 ---------------------------------------------------------------*/
 int ARKSpilsGetNumRhsEvals(void *arkode_mem, long int *nfevalsLS)

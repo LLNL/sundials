@@ -38,10 +38,12 @@ unless otherwise noted. For the sake of brevity, we defer many of the details to
 the later sections.
 As in \S\ref{ss:skeleton_sim}, most steps are independent of the {\nvector}
 implementation used; where this is not the case, usage specifications are given for
-the two implementations provided with {\idas}: steps marked {\p} correspond to 
-{\nvecp}, steps marked {\omp} correspond to {\nvecopenmp}, steps
-+marked {\pt} correspond to {\nvecpthreads}, while steps marked {\s}
-correspond to {\nvecs}. 
+the implementations provided with {\idas}:
+steps marked {\s} correspond to {\nvecs},
+steps marked {\omp} correspond to {\nvecopenmp},
+steps marked {\pt} correspond to {\nvecpthreads},
+steps marked {\p} correspond to {\nvecp}, while
+steps marked {\h} correspond to {\nvecph}.
 Steps that are unchanged from the skeleton programs presented in
 \S\ref{ss:skeleton_sim}, \S\ref{s:forward_usage}, and \S\ref{s:forward_quad_usage},
 are grayed out.
@@ -61,7 +63,7 @@ are grayed out.
   was selected, the main header file of the desired linear solver module.
 
 \item
-  \textcolor{gray}{\bf {\p} Initialize MPI}
+  \textcolor{gray}{\bf {\p} {\h} Initialize MPI}
 
   \vspace{0.2in}\centerline{\bf Forward problem}
 
@@ -120,9 +122,9 @@ are grayed out.
  \item \label{i:back_start}
    {\bf Set problem dimensions for the backward problem}
    
-   {\s, \omp, \pt} set \id{NB}, the number of variables in the backward problem \\
-   {\p} set \id{NB} and \id{NBlocal}\\
-   {\omp, \pt} set \id{num\_threads}
+   {\s} {\omp} {\pt} set \id{NB}, the number of variables in the backward problem \\
+   {\omp} {\pt} set \id{num\_threads}\\
+   {\p} {\h} set \id{NB} and \id{NBlocal}
 
 \item
   {\bf Set initial values for the backward problem}
@@ -224,7 +226,7 @@ are grayed out.
 \item
   \textcolor{gray}{\bf Finalize MPI}
 
-  {\p} If {\mpi} was initialized by the user main program, call \id{MPI\_Finalize();}.
+  {\p} {\h} If {\mpi} was initialized by the user main program, call \id{MPI\_Finalize();}.
 
 \end{Steps}
 
@@ -684,9 +686,12 @@ function differs between these functions.
 The function \id{IDAReInitB} reinitializes {\idas} for the solution of a series
 of backward problems, each identified by a value of the parameter \id{which}.
 \id{IDAReInitB} is essentially a wrapper for \id{IDAReInit}, and so all details
-given for \id{IDAReInit} in \S\ref{sss:idareinit} apply.\index{reinitialization}
+given for \id{IDAReInit} in \S\ref{sss:idareinit} apply here.\index{reinitialization}
 Also, \id{IDAReInitB} can be called to reinitialize a backward problem even if it
 has been initialized with the sensitivity-dependent version \id{IDAInitBS}.
+Before calling \id{IDAReInitB} for a new backward problem, call any
+desired solution extraction functions \id{IDAGet**} associated with the
+previous backward problem.
 The call to the \id{IDAReInitB} function has the form
 %%
 %%
@@ -2011,9 +2016,12 @@ flag = IDAQuadInitBS(ida\_mem, which, rhsQBS, yQBS0);
 }
 {}
 
-
 The integration of quadrature equations during the backward phase can be
-re-initialized by calling
+re-initialized by calling the following function.
+Before calling \id{IDAQuadReInitB} for a new backward problem, call any
+desired solution extraction functions \id{IDAGet**} associated with the
+previous backward problem.
+
 %%
 %%
 \ucfunction{IDAQuadReInitB}

@@ -2537,7 +2537,7 @@ static int CVAhermiteGetY(CVodeMem cv_mem, realtype t,
  
   /* Local value of Ns */
  
-  NS = IMinterpSensi ? Ns : 0;
+  NS = (IMinterpSensi && (yS != NULL)) ? Ns : 0;
 
   /* Get the index in dt_mem */
 
@@ -2813,7 +2813,7 @@ static int CVApolynomialGetY(CVodeMem cv_mem, realtype t,
   
   /* Local value of Ns */
  
-  NS = IMinterpSensi ? Ns : 0;
+  NS = (IMinterpSensi && (yS != NULL)) ? Ns : 0;
 
   /* Get the index in dt_mem */
 

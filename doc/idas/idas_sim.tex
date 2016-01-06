@@ -168,17 +168,18 @@ access to the underlying generic dense linear solver.
 The following is a skeleton of the user's main program (or calling
 program) for the integration of a DAE IVP. Some steps are independent of the
 {\nvector} implementation used; where this is not the case, usage specifications
-are given for the two implementations provided with {\idas}: steps marked {\p}
-correspond to {\nvecp}, steps marked {\omp} correspond to
-{\nvecopenmp}, steps marked {\pt} correspond to {\nvecpthreads}, while
-steps marked {\s} correspond to {\nvecs}.
-%%
+are given for the implementations provided with {\idas}:
+steps marked {\s} correspond to {\nvecs},
+steps marked {\omp} correspond to {\nvecopenmp},
+steps marked {\pt} correspond to {\nvecpthreads},
+steps marked {\p} correspond to {\nvecp}, while
+steps marked {\h} correspond to {\nvecph}.
 %%
 \index{User main program!IDAS@{\idas} usage}
 \begin{Steps}
   
 \item 
-  {\bf {\p} Initialize MPI}
+  {\bf {\p} {\h} Initialize MPI}
 
   Call \id{MPI\_Init(\&argc, \&argv)} to initialize MPI if used by
   the user's program, aside from the internal use in {\nvecp}.  
@@ -193,7 +194,7 @@ steps marked {\s} correspond to {\nvecs}.
   {\omp, \pt} Set \id{num\_threads}, the number of threads to use within
   the threaded vector functions.
 
-  {\p} Set \id{Nlocal}, the local vector length (the sub-vector
+  {\p} {\h} Set \id{Nlocal}, the local vector length (the sub-vector
   length for this processor); \id{N}, the global vector length (the
   problem size $N$, and the sum of all the values of \id{Nlocal});
   and the active set of processors.
@@ -217,6 +218,8 @@ steps marked {\s} correspond to {\nvecs}.
 
   {\p} \id{y0 = N\_VMake\_Parallel(comm, Nlocal, N, ydata);}
 
+  {\h} \id{y0 = N\_VMake\_ParHyp(comm, Nlocal, N, ydata);}
+
   Otherwise, make the calls:
 
   {\s} \id{y0 = N\_VNew\_Serial(N);}
@@ -227,6 +230,8 @@ steps marked {\s} correspond to {\nvecs}.
 
   {\p} \id{y0 = N\_VNew\_Parallel(comm, Nlocal, N);}
 
+  {\h} \id{y0 = N\_VNew\_ParHyp(comm, Nlocal, N);}
+
   and load initial values into the structure defined by:
 
   {\s} \id{NV\_DATA\_S(y0)}
@@ -236,6 +241,8 @@ steps marked {\s} correspond to {\nvecs}.
   {\pt} \id{NV\_DATA\_PT(y0)}
 
   {\p} \id{NV\_DATA\_P(y0)}
+
+  {\h} \id{NV\_DATA\_PH(y0)}
 
   Here \id{comm} is the MPI communicator, set in one of two ways: 
   If a proper subset of active processors is to be used, \id{comm} 
@@ -358,7 +365,9 @@ steps marked {\s} correspond to {\nvecs}.
   {\pt} \id{N\_VDestroy\_Pthreads(y);}
   
   {\p} \id{N\_VDestroy\_Parallel(yret);}
-  
+
+  {\h} \id{N\_VDestroy\_ParHyp(y);}
+
   and similarly for \id{ypret}.
   
 \item
@@ -367,7 +376,7 @@ steps marked {\s} correspond to {\nvecs}.
   \Id{IDAFree}\id{(\&ida\_mem)} to free the memory allocated for {\idas}.
   
 \item 
-  {\bf {\p} Finalize MPI}
+  {\bf {\p} {\h} Finalize MPI}
   
   Call \id{MPI\_Finalize()} to terminate MPI.
 
@@ -776,7 +785,8 @@ described separately in Chapter \ref{s:gen_linsolv}.
   The {\idadense} linear solver is not compatible with all
   implementations of the {\nvector} module. 
   Of the {\nvector} modules provided with {\sundials}, only {\nvecs},
-  {\nvecopenmp} and {\nvecpthreads} are compatible, while {\nvecp} is not.
+  {\nvecopenmp}, and {\nvecpthreads} are compatible, while {\nvecp} and
+  {\nvecph} are not.
 }
 %%
 %%
@@ -853,7 +863,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
   The {\idaband} linear solver is not compatible with all
   implementations of the {\nvector} module.  Of the {\nvector} modules
   provided with {\sundials}, only {\nvecs}, {\nvecopenmp} and
-  {\nvecpthreads} are compatible, while {\nvecp} is not. 
+  {\nvecpthreads} are compatible, while {\nvecp} and {\nvecph} are not. 
   The half-bandwidths are to be set so that the nonzero locations $(i,j)$ in the
   banded (approximate) Jacobian satisfy $-$\id{mlower} $\leq j-i \leq$ \id{mupper}.
 }
@@ -888,7 +898,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
 \index{IDAKLU@{\idaklu} linear solver!NVECTOR@{\nvector} compatibility}
 \ucfunction{IDAKLU}
 {
-  flag = IDAKLU(ida\_mem, N, NNZ);
+  flag = IDAKLU(ida\_mem, NP, NNZ, sparsetype);
 }
 {
   The function \ID{IDAKLU} selects the {\idaklu} linear solver and indicates
@@ -906,9 +916,9 @@ described separately in Chapter \ref{s:gen_linsolv}.
     maximum number of nonzero entries in the system Jacobian.
   \item[sparsetype] (\id{int})
     sparse storage type of the system Jacobian. If \Id{sparsetype} is  
-    set to \Id{CSC\_MAT} the solver will expect Jacobian to be stored as 
-    compressed sparse column matrix, and if \Id{sparsetype=CSR\_MAT} 
-    the solver will expect compressed sparse row matrix. 
+    set to \Id{CSC\_MAT} the solver will expect the Jacobian to be stored as 
+    a compressed sparse column matrix, and if \Id{sparsetype=CSR\_MAT} 
+    the solver will expect a compressed sparse row matrix. 
     If neither option is chosen, the solver will exit with error.
   \end{args}
 }
@@ -931,7 +941,8 @@ described separately in Chapter \ref{s:gen_linsolv}.
   The {\idaklu} linear solver is not compatible with all
   implementations of the {\nvector} module. 
   Of the {\nvector} modules provided with {\sundials}, only {\nvecs},
-  {\nvecopenmp} and {\nvecpthreads} are compatible, while {\nvecp} is not.
+  {\nvecopenmp} and {\nvecpthreads} are compatible, while {\nvecp} and
+  {\nvecph} are not.
 }
 %%
 %%
@@ -981,7 +992,8 @@ described separately in Chapter \ref{s:gen_linsolv}.
   The {\idasuperlumt} linear solver is not compatible with all
   implementations of the {\nvector} module. 
   Of the {\nvector} modules provided with {\sundials}, only {\nvecs},
-  {\nvecopenmp} and {\nvecpthreads} are compatible, while {\nvecp} is not.
+  {\nvecopenmp} and {\nvecpthreads} are compatible, while {\nvecp} and
+  {\nvecph} are not.
 
   {\warn}Performance will significantly degrade if the user applies the SuperLU\_MT
   package compiled with PThreads while using the {\nvecopenmp} module.
@@ -991,7 +1003,6 @@ described separately in Chapter \ref{s:gen_linsolv}.
   vector kernel is minimal compared to the potential benefit of the threaded solver,
   unless very long (greater than 100,000 entries) vectors are used.
 }
-%%
 %%
 \index{IDAS@{\idas} linear solvers!IDASPGMR@{\idaspgmr}}
 \index{IDASPGMR@{\idaspgmr} linear solver!selection of} 
@@ -4524,13 +4535,14 @@ the name of an optional output from the main solver, a suffix \id{LS}
 \index{reinitialization}
 
 The function \ID{IDAReInit} reinitializes the main {\idas} solver for
-the solution of a problem, where a prior call to \Id{IDAInit} has
+the solution of a new problem, where a prior call to \Id{IDAInit} has
 been made. The new problem must have the same size as the previous one.
 \id{IDAReInit} performs the same input checking and initializations 
-that \id{IDAInit} does, but does no memory allocation, assuming that the 
-existing internal memory is sufficient for the new problem.
+that \id{IDAInit} does, but does no memory allocation, as it assumes that
+the existing internal memory is sufficient for the new problem.
 A call to \id{IDAReInit} deletes the solution history that was stored
-internally during the previous integration.
+internally during the previous integration.  Following a successful call to
+\id{IDAReInit}, call \id{IDASolve} again for the solution of the new problem.
 
 The use of \id{IDAReInit} requires that the maximum method order,    
 \Id{maxord}, is no larger for the new problem than for the problem  
@@ -4542,6 +4554,23 @@ If there are changes to the linear solver specifications, make the
 appropriate \id{IDA***} calls, as described in \S\ref{sss:lin_solv_init}.
 If there are changes to any optional inputs, make the appropriate
 \id{IDASet***} calls, as described in \S\ref{ss:optional_input}.
+
+One important use of the \id{IDAReInit} function is in the treating
+of jump discontinuities in the residual function.  Except in cases of
+fairly small jumps, it is usually more efficient to stop at each point
+of discontinuity and restart the integrator with a readjusted DAE
+model, using a call to \id{IDAReInit}.  To stop when the location of
+the discontinuity is known, simply make that location a value of tout.
+To stop when the location of the discontinuity is determined by the
+solution, use the rootfinding feature.  In either case, it is critical
+that the residual function {\it not} incorporate the discontinuity, but
+rather have a smooth extention over the discontinuity, so that the
+step across it (and subsequent rootfinding, if used) can be done
+efficiently.  Then use a switch within the residual function (communicated
+through \id{user\_data}) that can be flipped between the stopping of
+the integration and the restart, so that the restarted problem uses
+the new values (which have jumped).  Similar comments apply if there
+is to be a jump in the dependent variable vector.
 
 %%
 %%
@@ -5311,16 +5340,19 @@ that are unchanged from the skeleton program presented in
 \begin{Steps}
   
 \item 
-  \textcolor{gray}{\bf {\p} Initialize MPI}
+  \textcolor{gray}{\bf {\p} {\h} Initialize MPI}
 
 \item
   {\bf Set problem dimensions}
 
-  {\s} Set \id{N} to the problem size $N$ (excluding quadrature variables),
-  and \id{Nq} to the number of quadrature variables.
+  {\s} {\omp} {\pt} Set \id{N} to the problem size $N$ (excluding quadrature
+  variables), and \id{Nq} to the number of quadrature variables.
 
-  {\p} Set \id{Nlocal} to the local vector length (excluding quadrature variables),
-  and \id{Nqlocal} to the local number of quadrature variables.
+  {\omp, \pt} Set \id{num\_threads}, the number of threads to use within
+  the threaded vector functions.
+
+  {\p} {\h} Set \id{Nlocal} to the local vector length (excluding quadrature
+  variables), and \id{Nqlocal} to the local number of quadrature variables.
   
 \item
   \textcolor{gray}{\bf Set vectors of initial values}
@@ -5387,7 +5419,7 @@ that are unchanged from the skeleton program presented in
   {\bf Free solver memory}
 
 \item 
-  \textcolor{gray}{\bf {\p} Finalize MPI}
+  \textcolor{gray}{\bf {\p} {\h} Finalize MPI}
   
 \end{Steps}
 %%

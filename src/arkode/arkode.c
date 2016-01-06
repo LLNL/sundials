@@ -1614,6 +1614,16 @@ int ARKode(void *arkode_mem, realtype tout, N_Vector yout,
 			MSGARK_HNIL_DONE);
     }
 
+    /* Update parameter for upcoming step size */
+    if ((ark_mem->ark_nst > 0) && (ark_mem->ark_hprime != ark_mem->ark_h)) {
+      ark_mem->ark_h = ark_mem->ark_h * ark_mem->ark_eta;
+      ark_mem->ark_next_h = ark_mem->ark_h;
+    }
+    if (ark_mem->ark_fixedstep) {
+      ark_mem->ark_h = ark_mem->ark_hin;
+      ark_mem->ark_next_h = ark_mem->ark_h;
+    }
+
     /* Call arkStep to take a step */
     kflag = arkStep(ark_mem);
 
@@ -3448,11 +3458,14 @@ static int arkSetButcherTables(ARKodeMem ark_mem)
   /* if tables have already been specified, just return */
   int i,j,q;
   booleantype A_set = FALSE;
-  for (i=0; i<ARK_S_MAX; i++)
+  for (i=0; i<ARK_S_MAX; i++) {
     for (j=0; j<ARK_S_MAX; j++) {
       if (SUNRabs(ARK_A(ark_mem->ark_Ae,i,j)) > TINY)  A_set = TRUE;
       if (SUNRabs(ARK_A(ark_mem->ark_Ai,i,j)) > TINY)  A_set = TRUE;
     }
+    if (SUNRabs(ark_mem->ark_b[i]) > TINY)  A_set = TRUE;
+    if (SUNRabs(ark_mem->ark_c[i]) > TINY)  A_set = TRUE;
+  }
   if (A_set)  return (ARK_SUCCESS);
 
   /**** explicit methods ****/
@@ -3819,11 +3832,6 @@ static int arkStep(ARKodeMem ark_mem)
   eflag = ARK_SUCCESS;
   kflag = SOLVE_SUCCESS;
 
-  if ((ark_mem->ark_nst > 0) && (ark_mem->ark_hprime != ark_mem->ark_h)) {
-    ark_mem->ark_h = ark_mem->ark_h * ark_mem->ark_eta;
-    ark_mem->ark_next_h = ark_mem->ark_h;
-  }
-
   /* Looping point for attempts to take a step */
   for(;;) {  
 
@@ -4023,7 +4031,9 @@ static int arkStep(ARKodeMem ark_mem)
 static void arkPredict(ARKodeMem ark_mem, int istage)
 {
   int i, retval, ord, jstage;
-  realtype tau, tau_tol = 0.5;
+  realtype tau;
+  realtype tau_tol = 0.5;
+  realtype tau_tol2 = 0.75;
   realtype h, a0, a1, a2;
   N_Vector yguess = ark_mem->ark_ycur;
 
@@ -4049,7 +4059,14 @@ static void arkPredict(ARKodeMem ark_mem, int istage)
   case 2:
 
     /***** Dense Output Predictor 2 -- decrease order w/ increasing stage *****/
-    ord = SUNMAX(ark_mem->ark_dense_q - istage, 1);
+    /* ord = SUNMAX(ark_mem->ark_dense_q - istage, 1); */
+    if (tau <= tau_tol) {
+      ord = 3;
+    } else if (tau <= tau_tol2) {
+      ord = 2;
+    } else {
+      ord = 1;
+    }
     retval = arkDenseEval(ark_mem, tau, 0, ord, yguess);
     if (retval == ARK_SUCCESS)  return;
     break;
@@ -4058,7 +4075,7 @@ static void arkPredict(ARKodeMem ark_mem, int istage)
 
     /***** Max order dense output for stages "close" to previous step, 
 	   first-order dense output predictor for subsequent stages *****/
-    if (tau < tau_tol) {
+    if (tau <= tau_tol) {
       retval = arkDenseEval(ark_mem, tau, 0, ark_mem->ark_dense_q, yguess);
     } else {
       retval = arkDenseEval(ark_mem, tau, 0, 1, yguess);
@@ -5366,9 +5383,11 @@ static int arkDenseEval(ARKodeMem ark_mem, realtype tau,
   q = SUNMIN(order, ark_mem->ark_dense_q);   /* respect Set routine  */
   q = SUNMIN(q, ark_mem->ark_q);             /* respect method order */
   q = SUNMAX(q, 0);                          /* respect lower bound  */
+  q = SUNMIN(q, 3);                          /* respect max possible */
 
   /* check that d is possible */
-  if ((d > SUNMIN(5,q)) || (d < 0)) {
+  /* if ((d > SUNMIN(5,q)) || (d < 0)) { */
+  if ((d > SUNMIN(3,q)) || (d < 0)) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
 		    "arkDenseEval", "Requested illegal derivative.");
     return (ARK_ILL_INPUT);

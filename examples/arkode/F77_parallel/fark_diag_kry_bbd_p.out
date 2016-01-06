@@ -34,10 +34,10 @@ Final statistics:
  number of fi evals.    =  3375
  number of prec. setups =    25
  number of prec. evals. =     6
- number of prec. solves =  3359
+ number of prec. solves =  3341
  number of nonl. iters. =  1776
- number of lin. iters.  =  1764
- average Krylov subspace dimension (NLI/NNI) =   0.9932
+ number of lin. iters.  =  1746
+ average Krylov subspace dimension (NLI/NNI) =   0.9831
  number of conv. failures.. nonlinear =   0  linear =   0
  number of error test failures =   0
  main solver real/int workspace sizes   =   658  160
@@ -74,10 +74,10 @@ Final statistics:
  number of fi evals.    =  3375
  number of prec. setups =    25
  number of prec. evals. =     6
- number of prec. solves =  3359
+ number of prec. solves =  3341
  number of nonl. iters. =  1776
- number of lin. iters.  =  1764
- average Krylov subspace dimension (NLI/NNI) =   0.9932
+ number of lin. iters.  =  1746
+ average Krylov subspace dimension (NLI/NNI) =   0.9831
  number of conv. failures.. nonlinear =   0  linear =   0
  number of error test failures =   0
  main solver real/int workspace sizes   =   658  160

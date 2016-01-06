@@ -41,3 +41,6 @@ IDALapackDenseFreeB, IDALapackBandB, IDALapackBandFreeB.
   number of linesearch backtrack operations in IDACalcIC.  User guides
   amended accordingly.
 
+* In CVODES and IDAS, in interpolation routines for backward problems,
+  added logic to bypass sensitivity interpolation if input sensitivity
+  argument is NULL.

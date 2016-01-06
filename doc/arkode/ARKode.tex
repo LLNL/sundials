@@ -348,12 +348,12 @@ The methods used in ARKode are variable-step, embedded,
 \index{additive Runge-Kutta methods}additive Runge-Kutta methods (ARK), based on formulas of the
 form
 \phantomsection\label{Mathematics:equation-ARK}\begin{gather}
-\begin{split}M z_i &= M y_{n-1} + h_n \sum_{j=0}^{i-1} A^E_{i,j} f_E(t_{n,j}, z_j)
-              + h_n \sum_{j=0}^{i}   A^I_{i,j} f_I(t_{n,j}, z_j),
+\begin{split}M z_i &= M y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f_E(t_{n,j}, z_j)
+              + h_n \sum_{j=1}^{i}   A^I_{i,j} f_I(t_{n,j}, z_j),
 \quad i=1,\ldots,s, \\
-M y_n &= M y_{n-1} + h_n \sum_{i=0}^{s} b_i \left(f_E(t_{n,i}, z_i)
+M y_n &= M y_{n-1} + h_n \sum_{i=1}^{s} b_i \left(f_E(t_{n,i}, z_i)
               + f_I(t_{n,i}, z_i)\right), \\
-M \tilde{y}_n &= M y_{n-1} + h_n \sum_{i=0}^{s} \tilde{b}_i
+M \tilde{y}_n &= M y_{n-1} + h_n \sum_{i=1}^{s} \tilde{b}_i
     \left(f_E(t_{n,i}, z_i) + f_I(t_{n,i}, z_i)\right).\end{split}\label{Mathematics-ARK}
 \end{gather}
 Here the \(y_n\) are computed approximations to \(y(t_n)\),
@@ -421,13 +421,13 @@ For both the DIRK and ARK methods corresponding to \eqref{Mathematics-IVP} and
 must be solved for each stage \(z_i, i=1,\ldots,s\), where we have
 the data
 \begin{gather}
-\begin{split}a_i \equiv M y_{n-1} + h_n \sum_{j=0}^{i-1} \left[
+\begin{split}a_i \equiv M y_{n-1} + h_n \sum_{j=1}^{i-1} \left[
    A^E_{i,j} f_E(t_{n,j}, z_j) +
    A^I_{i,j} f_I(t_{n,j}, z_j) \right]\end{split}\notag
 \end{gather}
 for the ARK methods, or
 \begin{gather}
-\begin{split}a_i \equiv M y_{n-1} + h_n \sum_{j=0}^{i-1}
+\begin{split}a_i \equiv M y_{n-1} + h_n \sum_{j=1}^{i-1}
    A^I_{i,j} f_I(t_{n,j}, z_j)\end{split}\notag
 \end{gather}
 for the DIRK methods.  Here, if \(f_I(t,y)\) depends nonlinearly
@@ -1106,7 +1106,7 @@ We therefore use this difference norm as an estimate for the local
 truncation error at the step \(n\),
 \phantomsection\label{Mathematics:equation-LTE}\begin{gather}
 \begin{split}T_n = \beta \left(y_n - \tilde{y}_n\right) =
-\beta h_n M^{-1} \sum_{i=0}^{s} \left(b_i - \tilde{b}_i\right)
+\beta h_n M^{-1} \sum_{i=1}^{s} \left(b_i - \tilde{b}_i\right)
 \left(f_E(t_{n-1} + c_i h_n, z_i) + f_I(t_{n-1} + c_i h_n, z_i)\right).\end{split}\label{Mathematics-LTE}
 \end{gather}
 Here, \(\beta>0\) is an error \emph{bias} to help account for the error
@@ -1423,20 +1423,20 @@ and (c) in constructing predictors for the implicit solver iteration
 construct the time-evolved solution \(y_n\) from equation
 \eqref{Mathematics-ARK} we must solve
 \begin{gather}
-\begin{split}&M y_n \ = \ M y_{n-1} + h_n \sum_{i=0}^{s} b_i \left(f_E(t_{n,i}, z_i)
+\begin{split}&M y_n \ = \ M y_{n-1} + h_n \sum_{i=1}^{s} b_i \left(f_E(t_{n,i}, z_i)
               + f_I(t_{n,i}, z_i)\right), \\
 \Leftrightarrow \qquad & \\
-&M (y_n -y_{n-1}) \ = \ h_n \sum_{i=0}^{s} b_i \left(f_E(t_{n,i}, z_i)
+&M (y_n -y_{n-1}) \ = \ h_n \sum_{i=1}^{s} b_i \left(f_E(t_{n,i}, z_i)
               + f_I(t_{n,i}, z_i)\right), \\
 \Leftrightarrow \qquad & \\
-&M \nu \ = \ h_n \sum_{i=0}^{s} b_i \left(f_E(t_{n,i}, z_i)
+&M \nu \ = \ h_n \sum_{i=1}^{s} b_i \left(f_E(t_{n,i}, z_i)
               + f_I(t_{n,i}, z_i)\right),\end{split}\notag
 \end{gather}
 for the update \(\nu = y_n - y_{n-1}\).  Similarly, in computing
 the local temporal error estimate \(T_n\) from equation \eqref{Mathematics-LTE}
 we must solve systems of the form
 \begin{gather}
-\begin{split}M\, T_n = h \sum_{i=0}^{s} \left(b_i - \tilde{b}_i\right)
+\begin{split}M\, T_n = h \sum_{i=1}^{s} \left(b_i - \tilde{b}_i\right)
 \left(f_E(t_{n,i}, z_i) + f_I(t_{n,i}, z_i)\right).\end{split}\notag
 \end{gather}
 Lastly, in constructing dense output and implicit predictors of order
@@ -3059,7 +3059,7 @@ in the LAPACK solvers.
 \index{ARKKLU (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_callable:c.ARKKLU}\pysiglinewithargsret{int \bfcode{ARKKLU}}{void*\emph{ arkode\_mem}, int\emph{ N}, int\emph{ NNZ}}{}
+\phantomsection\label{c_interface/User_callable:c.ARKKLU}\pysiglinewithargsret{int \bfcode{ARKKLU}}{void*\emph{ arkode\_mem}, int\emph{ NP}, int\emph{ NNZ}, int\emph{ sparsetype}}{}
 This function links the main ARKode integrator with the ARKKLU
 linear solver.  It's use requires inclusion of the header file
 \code{arkode\_klu.h}, as well as a user-supplied sparse Jacobian
@@ -3071,11 +3071,19 @@ construction routine, specified through a call to
 \emph{arkode\_mem} -- pointer to the ARKode memory block.
 
 \item {} 
-\emph{N} -- the number of components in the ODE system.
+\emph{NP} -- the number of components in the ODE system.
 
 \item {} 
 \emph{NNZ} -- the maximum number of nonzero entries in the system
 Jacobian.
+
+\item {} 
+\emph{sparsetype} -- sparse storage type of the system Jacobian.
+If \emph{sparsetype} is set to \code{CSC\_MAT} the solver will expect
+the Jacobian to be stored as a compressed sparse column
+matrix, and if \emph{sparsetype} is \code{CSR\_MAT} the solver will
+expect a compressed sparse row matrix.  If neither option is
+chosen, the solver will exit with error.
 
 \end{itemize}
 
@@ -3645,7 +3653,7 @@ it can be handled by manually zero-padding the mass matrix.
 \index{ARKMassKLU (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_callable:c.ARKMassKLU}\pysiglinewithargsret{int \bfcode{ARKMassKLU}}{void*\emph{ arkode\_mem}, int\emph{ N}, int\emph{ NNZ}, {\hyperref[c_interface/User_supplied:c.ARKSlsSparseMassFn]{\emph{ARKSlsSparseMassFn}}}\emph{ smass}}{}
+\phantomsection\label{c_interface/User_callable:c.ARKMassKLU}\pysiglinewithargsret{int \bfcode{ARKMassKLU}}{void*\emph{ arkode\_mem}, int\emph{ NP}, int\emph{ NNZ}, int\emph{ sparsetype}, {\hyperref[c_interface/User_supplied:c.ARKSlsSparseMassFn]{\emph{ARKSlsSparseMassFn}}}\emph{ smass}}{}
 This function links the mass matrix solve with the ARKKLU linear
 solver module, and specifies the sparse mass matrix function.  It's
 use requires inclusion of the header file \code{arkode\_klu.h}.
@@ -3655,10 +3663,18 @@ use requires inclusion of the header file \code{arkode\_klu.h}.
 \emph{arkode\_mem} -- pointer to the ARKode memory block.
 
 \item {} 
-\emph{N} -- the number of components in the ODE system.
+\emph{NP} -- the number of components in the ODE system.
 
 \item {} 
 \emph{NNZ} -- the maximum number of nonzeros in the mass matrix.
+
+\item {} 
+\emph{sparsetype} -- sparse storage type of the system Jacobian.
+If \emph{sparsetype} is set to \code{CSC\_MAT} the solver will expect
+the Jacobian to be stored as a compressed sparse column
+matrix, and if \emph{sparsetype} is \code{CSR\_MAT} the solver will
+expect a compressed sparse row matrix.  If neither option is
+chosen, the solver will exit with error.
 
 \item {} 
 \emph{smass} -- name of user-supplied sparse mass matrix function.
@@ -10572,14 +10588,16 @@ will match those described above for the function
 \subsection{ARKode reinitialization function}
 \label{c_interface/User_callable:cinterface-reinitialization}\label{c_interface/User_callable:arkode-reinitialization-function}
 The function {\hyperref[c_interface/User_callable:c.ARKodeReInit]{\emph{\code{ARKodeReInit()}}}} reinitializes the main ARKode
-solver for the solution of a problem, where a prior call to
+solver for the solution of a new problem, where a prior call to
 {\hyperref[c_interface/User_callable:c.ARKodeInit]{\emph{\code{ARKodeInit()}}}} has been made. The new problem must have the
 same size as the previous one.  {\hyperref[c_interface/User_callable:c.ARKodeReInit]{\emph{\code{ARKodeReInit()}}}} performs the
 same input checking and initializations that {\hyperref[c_interface/User_callable:c.ARKodeInit]{\emph{\code{ARKodeInit()}}}}
 does, but does no memory allocation as it assumes that the existing
 internal memory is sufficient for the new problem.  A call to
 {\hyperref[c_interface/User_callable:c.ARKodeReInit]{\emph{\code{ARKodeReInit()}}}} deletes the solution history that was stored
-internally during the previous integration.
+internally during the previous integration.  Following a successful
+call to {\hyperref[c_interface/User_callable:c.ARKodeReInit]{\emph{\code{ARKodeReInit()}}}}, call {\hyperref[c_interface/User_callable:c.ARKode]{\emph{\code{ARKode()}}}} again for
+the solution of the new problem.
 
 The use of {\hyperref[c_interface/User_callable:c.ARKodeReInit]{\emph{\code{ARKodeReInit()}}}} requires that the number of Runge
 Kutta stages, denoted by \emph{s}, be no larger for the new problem than
@@ -10588,6 +10606,24 @@ if the method order \emph{q} and the problem type (explicit, implicit,
 ImEx) are left unchanged.  If there are changes to the linear solver
 specifications, the user should make the appropriate ARK*Set* calls,
 as described in the section {\hyperref[c_interface/User_callable:cinterface-linearsolvers]{\emph{\DUspan{}{Linear solver specification functions}}}}.
+
+One important use of the {\hyperref[c_interface/User_callable:c.ARKodeReInit]{\emph{\code{ARKodeReInit()}}}} function is in the
+treating of jump discontinuities in the RHS function.  Except in cases
+of fairly small jumps, it is usually more efficient to stop at each
+point of discontinuity and restart the integrator with a readjusted
+ODE model, using a call to {\hyperref[c_interface/User_callable:c.ARKodeReInit]{\emph{\code{ARKodeReInit()}}}}.  To stop when the
+location of the discontinuity is known, simply make that location a
+value of \code{tout}.  To stop when the location of the discontinuity is
+determined by the solution, use the rootfinding feature.  In either
+case, it is critical that the RHS function \emph{not} incorporate the
+discontinuity, but rather have a smooth extention over the
+discontinuity, so that the step across it (and subsequent rootfinding,
+if used) can be done efficiently.  Then use a switch within the RHS
+function (communicated through \code{user\_data}) that can be flipped
+between the stopping of the integration and the restart, so that the
+restarted problem uses the new values (which have jumped).  Similar
+comments apply if there is to be a jump in the dependent variable
+vector.
 \index{ARKodeReInit (C function)}
 
 \begin{fulllineitems}
@@ -10750,7 +10786,9 @@ If using array-valued absolute tolerances, the absolute tolerance
 vector will be invalid after the call to {\hyperref[c_interface/User_callable:c.ARKodeResize]{\emph{\code{ARKodeResize()}}}}, so
 the new absolute tolerance vector should be re-set \textbf{following} each
 call to {\hyperref[c_interface/User_callable:c.ARKodeResize]{\emph{\code{ARKodeResize()}}}} through a new call to
-{\hyperref[c_interface/User_callable:c.ARKodeSVtolerances]{\emph{\code{ARKodeSVtolerances()}}}}.
+{\hyperref[c_interface/User_callable:c.ARKodeSVtolerances]{\emph{\code{ARKodeSVtolerances()}}}} (and similarly to
+{\hyperref[c_interface/User_callable:c.ARKodeResVtolerance]{\emph{\code{ARKodeResVtolerance()}}}} if that was used for the original
+problem).
 
 If scalar-valued tolerances or a tolerance function was specified
 through either {\hyperref[c_interface/User_callable:c.ARKodeSStolerances]{\emph{\code{ARKodeSStolerances()}}}} or
@@ -11253,10 +11291,12 @@ The \code{DlsMat} type and accessor macros \code{DENSE\_ELEM} and
 If the user's \emph{ARKDlsDenseJacFn} function uses difference quotient
 approximations, then it may need to access quantities not in the
 argument list. These include the current step size, the error
-weights, etc.  To obtain these, use the ARKodeGet* functions
-listed in {\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}}. The unit roundoff
-can be accessed as \code{UNIT\_ROUNDOFF}, which is defined in the
-header file \code{sundials\_types.h}.
+weights, etc.  To obtain these, the user will need to add a pointer
+to the \code{ark\_mem} structure to their \code{user\_data}, and then use
+the ARKodeGet* functions listed in
+{\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}}. The unit roundoff can be
+accessed as \code{UNIT\_ROUNDOFF}, which is defined in the header
+file \code{sundials\_types.h}.
 
 For the sake of uniformity, the argument \emph{N} is of type \code{long int},
 even in the case that the LAPACK dense solver is to be used.
@@ -11363,10 +11403,12 @@ The \code{DlsMat} type and the accessor macros \code{BAND\_ELEM},
 If the user's \emph{ARKDlsBandJacFn} function uses difference quotient
 approximations, then it may need to access quantities not in the
 argument list.  These include the current step size, the error
-weights, etc.. To obtain these, use the ARKodeGet* functions
-listed in {\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}}. The unit roundoff
-can be accessed as \code{UNIT\_ROUNDOFF} defined in the header file
-\code{sundials\_types.h}.
+weights, etc.. To obtain these, the user will need to add a pointer
+to the \code{ark\_mem} structure to their \code{user\_data}, and then use
+the ARKodeGet* functions listed in
+{\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}}. The unit roundoff can be
+accessed as \code{UNIT\_ROUNDOFF}, which is defined in the header
+file \code{sundials\_types.h}.
 
 For the sake of uniformity, the arguments \emph{N}, \emph{mlower}, and
 \emph{mupper} are of type \code{long int}, even in the case that the
@@ -11441,11 +11483,12 @@ allocated space is available within the \code{SlsMat} structure as
 If the user's \emph{ARKSlsSparseJacFn} function uses difference quotient
 approximations to set the specific matrix entries, then it may need
 to access quantities not in the argument list.  These include the
-current step size, the error weights, etc.  To obtain these, use
-the ARKodeGet* functions listed in
-{\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}}. The unit roundoff can be
-accessed as \code{UNIT\_ROUNDOFF}, which is defined in the header file
-\code{sundials\_types.h}.
+current step size, the error weights, etc..  To obtain these, the
+user will need to add a pointer to the \code{ark\_mem} structure to
+their \code{user\_data}, and then use the ARKodeGet* functions listed
+in {\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}}. The unit roundoff can be
+accessed as \code{UNIT\_ROUNDOFF}, which is defined in the header
+file \code{sundials\_types.h}.
 
 \end{fulllineitems}
 
@@ -11504,11 +11547,12 @@ in which case the integration is halted.
 \textbf{Notes:} If the user's \emph{ARKSpilsJacTimesVecFn} function uses
 difference quotient approximations, it may need to access
 quantities not in the argument list.  These include the current
-step size, the error weights, etc..  To obtain these, use the
-ARKodeGet* functions listed in
-{\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}}. The unit roundoff can be
-accessed as \code{UNIT\_ROUNDOFF} defined in the header file
-\code{sundials\_types.h}.
+step size, the error weights, etc..  To obtain these, the
+user will need to add a pointer to the \code{ark\_mem} structure to
+their \code{user\_data}, and then use the ARKodeGet* functions listed
+in {\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}}. The unit roundoff can be
+accessed as \code{UNIT\_ROUNDOFF}, which is defined in the header
+file \code{sundials\_types.h}.
 
 \end{fulllineitems}
 
@@ -11669,10 +11713,12 @@ as needed to achieve convergence in the Newton iteration.
 If the user's \emph{ARKSpilsPrecSetupFn} function uses difference
 quotient approximations, it may need to access quantities not in
 the call list. These include the current step size, the error
-weights, etc. To obtain these, use the ARKodeGet* functions
-listed in {\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}}. The unit roundoff
-can be accessed as \code{UNIT\_ROUNDOFF} defined in the header file
-\code{sundials\_types.h}.
+weights, etc..  To obtain these, the user will need to add a
+pointer to the \code{ark\_mem} structure to their \code{user\_data}, and
+then use the ARKodeGet* functions listed in
+{\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}}. The unit roundoff can be
+accessed as \code{UNIT\_ROUNDOFF}, which is defined in the header
+file \code{sundials\_types.h}.
 
 \end{fulllineitems}
 
@@ -11688,7 +11734,7 @@ provide the mass matrix approximation.
 \index{ARKDlsDenseMassFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_supplied:c.ARKDlsDenseMassFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKDlsDenseMassFn)}}{long int\emph{ N}, realtype\emph{ t}, N\_Vector\emph{ y}, {\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{DlsMat}}}\emph{ M}, void*\emph{ user\_data}, N\_Vector\emph{ tmp1}, N\_Vector\emph{ tmp2}, N\_Vector\emph{ tmp3}}{}
+\phantomsection\label{c_interface/User_supplied:c.ARKDlsDenseMassFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKDlsDenseMassFn)}}{long int\emph{ N}, realtype\emph{ t}, {\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{DlsMat}}}\emph{ M}, void*\emph{ user\_data}, N\_Vector\emph{ tmp1}, N\_Vector\emph{ tmp2}, N\_Vector\emph{ tmp3}}{}
 This function computes the mass matrix \(M\) (or an approximation to it).
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -11697,9 +11743,6 @@ This function computes the mass matrix \(M\) (or an approximation to it).
 
 \item {} 
 \emph{t} -- the current value of the independent variable.
-
-\item {} 
-\emph{y} -- the current value of the dependent variable vector.
 
 \item {} 
 \emph{M} -- the output dense mass matrix (of type \code{DlsMat}).
@@ -11755,7 +11798,7 @@ the mass matrix approximation.
 \index{ARKDlsBandMassFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_supplied:c.ARKDlsBandMassFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKDlsBandMassFn)}}{long int\emph{ N}, long int\emph{ mupper}, long int\emph{ mlower}, realtype\emph{ t}, N\_Vector\emph{ y}, {\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{DlsMat}}}\emph{ M}, void*\emph{ user\_data}, N\_Vector\emph{ tmp1}, N\_Vector\emph{ tmp2}, N\_Vector\emph{ tmp3}}{}
+\phantomsection\label{c_interface/User_supplied:c.ARKDlsBandMassFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKDlsBandMassFn)}}{long int\emph{ N}, long int\emph{ mupper}, long int\emph{ mlower}, realtype\emph{ t}, {\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{DlsMat}}}\emph{ M}, void*\emph{ user\_data}, N\_Vector\emph{ tmp1}, N\_Vector\emph{ tmp2}, N\_Vector\emph{ tmp3}}{}
 This function computes the banded mass matrix \(M\) (or an approximation to it).
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -11768,10 +11811,6 @@ the mass matrix.
 
 \item {} 
 \emph{t} -- the current value of the independent variable.
-
-\item {} 
-\emph{y} -- the current value of the dependent variable vector, namely
-the predicted value of \(y(t)\).
 
 \item {} 
 \emph{M} -- the output dense mass matrix (of type \code{DlsMat}).
@@ -11846,7 +11885,7 @@ This function computes the mass matrix \(M\) (or an approximation to it).
 \item {} 
 \emph{tmp1}, \emph{tmp2}, \emph{tmp3} -- pointers to memory allocated to
 variables of type \code{N\_Vector} which can be used by an
-ARKDlsDenseMassFn as temporary storage or work space.
+ARKSlsSparseMassFn as temporary storage or work space.
 
 \end{itemize}
 
@@ -11884,7 +11923,7 @@ compute matrix-vector products \(M*v\).
 \index{ARKSpilsMassTimesVecFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_supplied:c.ARKSpilsMassTimesVecFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKSpilsMassTimesVecFn)}}{N\_Vector\emph{ v}, N\_Vector\emph{ Mv}, realtype\emph{ t}, N\_Vector\emph{ y}, void*\emph{ user\_data}, N\_Vector\emph{ tmp}}{}
+\phantomsection\label{c_interface/User_supplied:c.ARKSpilsMassTimesVecFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKSpilsMassTimesVecFn)}}{N\_Vector\emph{ v}, N\_Vector\emph{ Mv}, realtype\emph{ t}, void*\emph{ user\_data}}{}
 This function computes the product \(M*v\) (or an approximation to it).
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -11898,15 +11937,8 @@ This function computes the product \(M*v\) (or an approximation to it).
 \emph{t} -- the current value of the independent variable.
 
 \item {} 
-\emph{y} -- the current value of the dependent variable vector.
-
-\item {} 
 \emph{user\_data} -- a pointer to user data, the same as the
 \emph{user\_data} parameter that was passed to {\hyperref[c_interface/User_callable:c.ARKodeSetUserData]{\emph{\code{ARKodeSetUserData()}}}}.
-
-\item {} 
-\emph{tmp} -- pointer to memory allocated to a variable of type
-\code{N\_Vector} which can be used as temporary storage or work space.
 
 \end{itemize}
 
@@ -11936,15 +11968,12 @@ approximate \(M\).
 \index{ARKSpilsMassPrecSolveFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_supplied:c.ARKSpilsMassPrecSolveFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKSpilsMassPrecSolveFn)}}{realtype\emph{ t}, N\_Vector\emph{ y}, N\_Vector\emph{ r}, N\_Vector\emph{ z}, realtype\emph{ delta}, int\emph{ lr}, void*\emph{ user\_data}, N\_Vector\emph{ tmp}}{}
+\phantomsection\label{c_interface/User_supplied:c.ARKSpilsMassPrecSolveFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKSpilsMassPrecSolveFn)}}{realtype\emph{ t}, N\_Vector\emph{ r}, N\_Vector\emph{ z}, realtype\emph{ delta}, int\emph{ lr}, void*\emph{ user\_data}, N\_Vector\emph{ tmp}}{}
 This function solves the preconditioner system \(Pz=r\).
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
 \emph{t} -- the current value of the independent variable.
-
-\item {} 
-\emph{y} -- the current value of the dependent variable vector.
 
 \item {} 
 \emph{r} -- the right-hand side vector of the linear system.
@@ -11998,16 +12027,13 @@ within a user-supplied function of type
 \index{ARKSpilsMassPrecSetupFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_supplied:c.ARKSpilsMassPrecSetupFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKSpilsMassPrecSetupFn)}}{realtype\emph{ t}, N\_Vector\emph{ y}, void*\emph{ user\_data}, N\_Vector\emph{ tmp1}, N\_Vector\emph{ tmp2}, N\_Vector\emph{ tmp3}}{}
+\phantomsection\label{c_interface/User_supplied:c.ARKSpilsMassPrecSetupFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKSpilsMassPrecSetupFn)}}{realtype\emph{ t}, void*\emph{ user\_data}, N\_Vector\emph{ tmp1}, N\_Vector\emph{ tmp2}, N\_Vector\emph{ tmp3}}{}
 This function preprocesses and/or evaluates mass-matrix-related
 data needed by the preconditioner.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
 \emph{t} -- the current value of the independent variable.
-
-\item {} 
-\emph{y} -- the current value of the dependent variable vector.
 
 \item {} 
 \emph{user\_data} -- a pointer to user data, the same as the
@@ -14738,7 +14764,9 @@ the user must call the {\hyperref[f_interface/Usage:f/_/FARKKLU]{\emph{\code{FAR
 \begin{fulllineitems}
 \phantomsection\label{f_interface/Usage:f/_/FARKKLU}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKKLU}}{\emph{NEQ}, \emph{NNZ}, \emph{ORDERING}, \emph{IER}}{}
 Interfaces with the {\hyperref[c_interface/User_callable:c.ARKKLU]{\emph{\code{ARKKLU()}}}} function to
-specify use of the sparse direct linear solver.
+specify use of the sparse direct linear solver.  \emph{Note}: this
+Fortran interface to {\hyperref[c_interface/User_callable:c.ARKKLU]{\emph{\code{ARKKLU()}}}} currently requires use of
+the compressed-sparse-column sparse matrix format.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
@@ -15616,7 +15644,9 @@ the user must call the {\hyperref[f_interface/Usage:f/_/FARKMASSKLU]{\emph{\code
 \begin{fulllineitems}
 \phantomsection\label{f_interface/Usage:f/_/FARKMASSKLU}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKMASSKLU}}{\emph{NEQ}, \emph{NNZ}, \emph{ORDERING}, \emph{IER}}{}
 Interfaces with the {\hyperref[c_interface/User_callable:c.ARKMassKLU]{\emph{\code{ARKMassKLU()}}}} function to
-specify use of the sparse direct linear solver.
+specify use of the sparse direct linear solver.  \emph{Note}: this
+Fortran interface to {\hyperref[c_interface/User_callable:c.ARKMassKLU]{\emph{\code{ARKMassKLU()}}}} currently requires use
+of the compressed-sparse-column sparse matrix format.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
@@ -21189,9 +21219,18 @@ or into a larger user code.
 
 \subsection{SlsMat}
 \label{linear_solvers/SLS:slsmat}
+SUNDIALS supports operations with compressed-sparse-column (CSC) and
+compressed-sparse-row (CSR) matrix formats.  For convenience, integer
+sparse matrix identifiers are defined as:\textbackslash{}
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define CSC\PYGZus{}MAT 0}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define CSR\PYGZus{}MAT 1}
+\end{Verbatim}
+
 The type {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}}}}, defined in \code{sundials\_sparse.h} is a
-pointer to a structure defining a generic compressed-sparse-column
-matrix, and is used with all linear solvers in the SLS family:
+pointer to a structure defining generic CSC and CSR matrix formats,
+and is used with all linear solvers in the SLS family:
 \index{SlsMat (C type)}
 
 \begin{fulllineitems}
@@ -21201,9 +21240,15 @@ matrix, and is used with all linear solvers in the SLS family:
   \PYG{k+kt}{int} \PYG{n}{M}\PYG{p}{;}
   \PYG{k+kt}{int} \PYG{n}{N}\PYG{p}{;}
   \PYG{k+kt}{int} \PYG{n}{NNZ}\PYG{p}{;}
+  \PYG{k+kt}{int} \PYG{n}{NP}\PYG{p}{;}
   \PYG{n}{realtype} \PYG{o}{*}\PYG{n}{data}\PYG{p}{;}
-  \PYG{k+kt}{int} \PYG{o}{*}\PYG{n}{rowvals}\PYG{p}{;}
-  \PYG{k+kt}{int} \PYG{o}{*}\PYG{n}{colptrs}\PYG{p}{;}
+  \PYG{k+kt}{int} \PYG{n}{sparsetype}\PYG{p}{;}
+  \PYG{k+kt}{int} \PYG{o}{*}\PYG{n}{indexvals}\PYG{p}{;}
+  \PYG{k+kt}{int} \PYG{o}{*}\PYG{n}{indexptrs}\PYG{p}{;}
+  \PYG{k+kt}{int} \PYG{o}{*}\PYG{o}{*}\PYG{n}{rowvals}\PYG{p}{;}
+  \PYG{k+kt}{int} \PYG{o}{*}\PYG{o}{*}\PYG{n}{colptrs}\PYG{p}{;}
+  \PYG{k+kt}{int} \PYG{o}{*}\PYG{o}{*}\PYG{n}{colvals}\PYG{p}{;}
+  \PYG{k+kt}{int} \PYG{o}{*}\PYG{o}{*}\PYG{n}{rowptrs}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}} \PYG{o}{*}\PYG{n}{SlsMat}\PYG{p}{;}
 \end{Verbatim}
 
@@ -21226,25 +21271,36 @@ sparse matrix of type {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat
 -- maximum number of nonzero entries in the matrix (allocated
 length of \textbf{data} and \textbf{rowvals} arrays)
 
+\item[{NP}] \leavevmode
+-- number of index pointers (e.g. number of column pointers for
+CSC matrix). For CSC matrices \$NP=N\$, and for CSR matrices \$NP=M\$. This
+value is set automatically based on the input for \textbf{sparsetype}.
+
 \item[{data}] \leavevmode
 -- pointer to a contiguous block of \code{realtype} variables (of
 length \textbf{NNZ}), containing the values of the nonzero entries in the
 matrix.
 
-\item[{rowvals}] \leavevmode
--- pointer to a contiguous block of \code{int} variables (of
-length \textbf{NNZ}), containing the row indices of each nonzero
-entry held in \textbf{data}.
+\item[{sparsetype}] \leavevmode
+-- type of the sparse matrix (\code{CSC\_MAT} or \code{CSR\_MAT})
 
-\item[{colptrs}] \leavevmode
+\item[{indexvals}] \leavevmode
 -- pointer to a contiguous block of \code{int} variables (of
-length \textbf{N+1}).  Each entry provides the index of the first column
-entry into the \textbf{data} and \textbf{rowvals} arrays, e.g. if
-\textbf{colptr{[}3{]}=7}, then the first nonzero entry in the fourth column
-of the matrix is located in \textbf{data{[}7{]}}, and is located in row
-\textbf{rowvals{[}7{]}} of the matrix.  The last entry contains the total
-number of nonzero values in the matrix and hence points just past
-the end of the active data in \textbf{data} and \textbf{rowvals}.
+length \textbf{NNZ}), containing the row indices (if CSC) or column
+indices (if CSR) of each nonzero matrix entry held in \textbf{data}.
+
+\item[{indexptrs}] \leavevmode
+-- pointer to a contiguous block of \code{int} variables (of
+length \textbf{NP+1}).  For CSC matrices each entry provides the index of
+the first column entry into the \textbf{data} and \textbf{indexvals} arrays,
+e.g. if \textbf{indexptr{[}3{]}=7}, then the first nonzero entry in the
+fourth column of the matrix is located in \textbf{data{[}7{]}}, and is
+located in row \textbf{indexvals{[}7{]}} of the matrix.  The last entry
+contains the total number of nonzero values in the matrix and hence
+points just past the end of the active data in the \textbf{data} and
+\textbf{indexvals} arrays.  For CSR matrices, each entry provides the
+index of the first row intry into the \textbf{data} and \textbf{indexvals}
+arrays.
 
 \end{description}\end{quote}
 \begin{figure}[htbp]
@@ -21256,19 +21312,43 @@ the end of the active data in \textbf{data} and \textbf{rowvals}.
 type {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}}}}: Here \code{A} is an \(M \times N\) sparse
 matrix of type {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}}}} with storage for up to \code{NNZ}
 nonzero entries (the allocated length of both \code{data} and
-\code{rowvals}).  The entries in \code{rowvals} may assume values from
+\code{indexvals}).  The entries in \code{indexvals} may assume values from
 \code{0} to \code{M-1}, corresponding to the row index (zero-based) of
 each nonzero value.  The entries in \code{data} contain the values of
 the nonzero entries, with the row \code{i}, column \code{j} entry of
-\code{A} (again, zero-based) denoted as \code{A(i,j)}.  The \code{colptrs}
+\code{A} (again, zero-based) denoted as \code{A(i,j)}.  The \code{indexptrs}
 array contains \code{N+1} entries; the first \code{N} denote the starting
-index of each column within the \code{rowvals} and \code{data} arrays,
+index of each column within the \code{indexvals} and \code{data} arrays,
 while the final entry points one past the final nonzero entry.
 Here, although \code{NNZ} values are allocated, only \code{nz} are
 actually filled in; the greyed-out portions of \code{data} and
-\code{rowvals} indicate extra allocated space.}\label{linear_solvers/SLS:sls-figure}\end{figure}
+\code{indexvals} indicate extra allocated space.}\label{linear_solvers/SLS:sls-figure}\end{figure}
 
-For example, the \(5\times 4\) matrix
+The following pointers are added to the \code{SlsMat} type for user
+convenience, to provide a more intuitive interface to the CSC and CSR
+sparse matrix data structures. They are set automatically by the
+{\hyperref[linear_solvers/SLS:c.NewSparseMat]{\emph{\code{NewSparseMat()}}}} function, based on the sparse matrix storage
+type.
+\begin{quote}\begin{description}
+\item[{rowvals}] \leavevmode
+-- pointer to \code{indexvals} when \code{sparsetype} is \code{CSC\_MAT},
+otherwise set to \code{NULL}.
+
+\item[{colptrs}] \leavevmode
+-- pointer to \code{indexptrs} when \code{sparsetype} is \code{CSC\_MAT},
+otherwise set to \code{NULL}.
+
+\item[{colvals}] \leavevmode
+-- pointer to \code{indexvals} when \code{sparsetype} is \code{CSR\_MAT},
+otherwise set to \code{NULL}.
+
+\item[{rowptrs}] \leavevmode
+-- pointer to \code{indexptrs} when \code{sparsetype} is \code{CSR\_MAT},
+otherwise set to \code{NULL}.
+
+\end{description}\end{quote}
+
+For example, the \(5\times 4\) CSC matrix
 \begin{gather}
 \begin{split}\left[\begin{array}{cccc}
    0 & 3 & 1 & 0\\
@@ -21284,9 +21364,15 @@ could be stored in a {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}
 \PYG{n}{M} \PYG{o}{=} \PYG{l+m+mi}{5}\PYG{p}{;}
 \PYG{n}{N} \PYG{o}{=} \PYG{l+m+mi}{4}\PYG{p}{;}
 \PYG{n}{NNZ} \PYG{o}{=} \PYG{l+m+mi}{8}\PYG{p}{;}
+\PYG{n}{NP} \PYG{o}{=} \PYG{n}{N}\PYG{p}{;}
 \PYG{n}{data} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mf}{3.0}\PYG{p}{,} \PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{l+m+mf}{3.0}\PYG{p}{,} \PYG{l+m+mf}{7.0}\PYG{p}{,} \PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{l+m+mf}{2.0}\PYG{p}{,} \PYG{l+m+mf}{9.0}\PYG{p}{,} \PYG{l+m+mf}{5.0}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
-\PYG{n}{rowvals} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
-\PYG{n}{colptrs} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{,} \PYG{l+m+mi}{5}\PYG{p}{,} \PYG{l+m+mi}{8}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\PYG{n}{sparsetype} \PYG{o}{=} \PYG{n}{CSC\PYGZus{}MAT}\PYG{p}{;}
+\PYG{n}{indexvals} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\PYG{n}{indexptrs} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{,} \PYG{l+m+mi}{5}\PYG{p}{,} \PYG{l+m+mi}{8}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\PYG{n}{rowvals} \PYG{o}{=} \PYG{o}{\PYGZam{}}\PYG{n}{indexvals}\PYG{p}{;}
+\PYG{n}{colptrs} \PYG{o}{=} \PYG{o}{\PYGZam{}}\PYG{n}{indexptrs}\PYG{p}{;}
+\PYG{n}{colvals} \PYG{o}{=} \PYG{n+nb}{NULL}\PYG{p}{;}
+\PYG{n}{rowptrs} \PYG{o}{=} \PYG{n+nb}{NULL}\PYG{p}{;}
 \end{Verbatim}
 
 or
@@ -21295,14 +21381,20 @@ or
 \PYG{n}{M} \PYG{o}{=} \PYG{l+m+mi}{5}\PYG{p}{;}
 \PYG{n}{N} \PYG{o}{=} \PYG{l+m+mi}{4}\PYG{p}{;}
 \PYG{n}{NNZ} \PYG{o}{=} \PYG{l+m+mi}{10}\PYG{p}{;}
+\PYG{n}{NP} \PYG{o}{=} \PYG{n}{N}\PYG{p}{;}
 \PYG{n}{data} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mf}{3.0}\PYG{p}{,} \PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{l+m+mf}{3.0}\PYG{p}{,} \PYG{l+m+mf}{7.0}\PYG{p}{,} \PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{l+m+mf}{2.0}\PYG{p}{,} \PYG{l+m+mf}{9.0}\PYG{p}{,} \PYG{l+m+mf}{5.0}\PYG{p}{,} \PYG{o}{*}\PYG{p}{,} \PYG{o}{*}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
-\PYG{n}{rowvals} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{,} \PYG{o}{*}\PYG{p}{,} \PYG{o}{*}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
-\PYG{n}{colptrs} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{,} \PYG{l+m+mi}{5}\PYG{p}{,} \PYG{l+m+mi}{8}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\PYG{n}{sparsetype} \PYG{o}{=} \PYG{n}{CSC\PYGZus{}MAT}\PYG{p}{;}
+\PYG{n}{indexvals} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{,} \PYG{o}{*}\PYG{p}{,} \PYG{o}{*}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\PYG{n}{indexptrs} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{,} \PYG{l+m+mi}{5}\PYG{p}{,} \PYG{l+m+mi}{8}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\PYG{n}{rowvals} \PYG{o}{=} \PYG{o}{\PYGZam{}}\PYG{n}{indexvals}\PYG{p}{;}
+\PYG{n}{colptrs} \PYG{o}{=} \PYG{o}{\PYGZam{}}\PYG{n}{indexptrs}\PYG{p}{;}
+\PYG{n}{colvals} \PYG{o}{=} \PYG{n+nb}{NULL}\PYG{p}{;}
+\PYG{n}{rowptrs} \PYG{o}{=} \PYG{n+nb}{NULL}\PYG{p}{;}
 \end{Verbatim}
 
 where the first has no unused space, and the second has additional
 storage (the entries marked with \code{*} may contain any values).  Note
-in both cases that the final value in \code{colptrs} is \code{8}.  The work
+in both cases that the final value in \code{indexptrs} is \code{8}.  The work
 associated with operations on the sparse matrix is proportional to
 this value and so one should use the best understanding of the number
 of nonzeros here.
@@ -21316,9 +21408,10 @@ type {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}}}}.  For full d
 \index{NewSparseMat (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{linear_solvers/SLS:c.NewSparseMat}\pysiglinewithargsret{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}} \bfcode{NewSparseMat}}{int\emph{ M}, int\emph{ N}, int\emph{ NNZ}}{}
+\phantomsection\label{linear_solvers/SLS:c.NewSparseMat}\pysiglinewithargsret{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}} \bfcode{NewSparseMat}}{int\emph{ M}, int\emph{ N}, int\emph{ NNZ}, int\emph{ sparsetype}}{}
 Allocates a {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}}}} sparse matrix having \emph{M} rows, \emph{N}
-columns, and storage for \emph{NNZ} nonzero entries.
+columns, and storage for \emph{NNZ} nonzero entries and \emph{sparsetype}
+storage type (\code{CSC\_MAT} or \code{CSR\_MAT}).
 
 \end{fulllineitems}
 
@@ -21326,7 +21419,7 @@ columns, and storage for \emph{NNZ} nonzero entries.
 
 \begin{fulllineitems}
 \phantomsection\label{linear_solvers/SLS:c.SlsConvertDls}\pysiglinewithargsret{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}} \bfcode{SlsConvertDls}}{{\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{DlsMat}}}\emph{ A}}{}
-Converts a dense matrix of type {\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{\code{DlsMat}}}} into a sparse
+Converts a dense matrix of type {\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{\code{DlsMat}}}} into a CSC
 matrix of type {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}}}} by retaining only the nonzero
 values of the dense matrix.
 
@@ -21352,8 +21445,11 @@ Zeros out a {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}}}} matri
 
 \begin{fulllineitems}
 \phantomsection\label{linear_solvers/SLS:c.CopySparseMat}\pysiglinewithargsret{void \bfcode{CopySparseMat}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}, {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ B}}{}
-Copies one sparse matrix to another.  If \emph{B} has insufficient
-storage, its data arrays are reallocated to match those from \emph{A}.
+Copies one sparse matrix to another.  It is assumed that the
+matrices have the same row/column dimensions and storage type.  If
+\emph{B} has insufficient storage to hold all the nonzero entries of
+\emph{A}, the data and index arrays in \emph{B} are reallocated to match
+those in \emph{A}.
 
 \end{fulllineitems}
 
@@ -21372,7 +21468,7 @@ scalar c.
 \phantomsection\label{linear_solvers/SLS:c.AddIdentitySparseMat}\pysiglinewithargsret{void \bfcode{AddIdentitySparseMat}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}}{}
 Increments a sparse matrix by the identity matrix.  If \emph{A} is not
 square, only the existing diagonal values are incremented.  Resizes
-the \code{data} and \code{rowvals} arrays of \emph{A} to allow for new nonzero
+the \code{data} and \code{indexvals} arrays of \emph{A} to allow for new nonzero
 entries on the diagonal.
 
 \end{fulllineitems}
@@ -21384,7 +21480,8 @@ entries on the diagonal.
 Adds two sparse matrices: \(A = A+B\).  Resizes the data arrays
 of \emph{A} upon completion to exactly match the nonzero storage for
 the result.  Upon successful completion, the return value is zero;
-otherwise -1 is returned.
+otherwise -1 is returned.  It is assumed that both matrices have
+the same size and storage type.
 
 \end{fulllineitems}
 
@@ -21393,8 +21490,8 @@ otherwise -1 is returned.
 \begin{fulllineitems}
 \phantomsection\label{linear_solvers/SLS:c.ReallocSparseMat}\pysiglinewithargsret{void \bfcode{ReallocSparseMat}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}}{}
 This function eliminates unused storage in \emph{A} by reallocating
-the internal \code{data} and \code{rowvals} arrays to contain
-\code{colptrs{[}N{]}} nonzeros.
+the internal \code{data} and \code{indexvals} arrays to contain
+\code{indexptrs{[}N{]}} nonzeros.
 
 \end{fulllineitems}
 
@@ -21402,11 +21499,12 @@ the internal \code{data} and \code{rowvals} arrays to contain
 
 \begin{fulllineitems}
 \phantomsection\label{linear_solvers/SLS:c.SlsMatvec}\pysiglinewithargsret{int \bfcode{SlsMatvec}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}, realtype\emph{ *x}, realtype\emph{ *y}}{}
-Computes the sparse matrix-vector product, \(y=Ax\).  If \emph{A}
-is a sparse matrix of dimension \(M\times N\), then it is assumed that \emph{x}
-is a \code{realtype} array of  length \(N\), and \emph{y} is a
-\code{realtype} array of length \(M\). Upon successful completion, the
-return value is zero; otherwise -1 is returned.
+Computes the sparse matrix-vector product, \(y=Ax\).  If the
+\code{SlsMat} \emph{A} is a sparse matrix of dimension \(M\times N\),
+then it is assumed that \emph{x} is a \code{realtype} array of  length
+\(N\), and \emph{y} is a \code{realtype} array of length
+\(M\). Upon successful completion, the return value is zero;
+otherwise -1 is returned.
 
 \end{fulllineitems}
 
@@ -23828,7 +23926,7 @@ where here the method and embedding share stage \(A\) and
 \(c\) values, but use their stages \(z_i\) differently through
 the coefficients \(b\) and \(\tilde{b}\) to generate methods
 of orders \(q\) (the main method) and \(p\) (the embedding,
-typically \(q = p+1\)).
+typically \(q = p+1\), though sometimes this is reversed).
 
 Method authors often use different naming conventions to categorize
 their methods.  For each of the methods below, we follow a uniform
@@ -23868,7 +23966,7 @@ function satisfies \(|R(\eta)| \le 1\) for all eigenvalues,
 given IVP, then the method will be linearly stable for that problem
 and step size.  The stability region
 \begin{gather}
-\begin{split}S = \{ \eta\in\mathbb{C}\; :\; |R(\eta)| \le 1\}\end{split}\notag
+\begin{split}S = \{ \eta\in\mathbb{C}\; :\; \left| R(\eta) \right| \le 1\}\end{split}\notag
 \end{gather}
 is typically given by an enclosed region of the complex plane, so it
 is standard to search for the border of that region in order to
@@ -23948,7 +24046,7 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:bogacki-shampine-4-2-3}\label{Butcher:butcher-bogacki-shampine}
 \index{Bogacki-Shampine-4-2-3 ERK method}Butcher table number 1
 for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
-the default 3rd order explicit method.
+the default 3rd order explicit method (from \phantomsection\label{Butcher:id1}{\hyperref[References:bs1989]{\emph{{[}BS1989{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|cccc}
   0 &   0 & 0 & 0 & 0 \\
@@ -23972,7 +24070,8 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-ark-4-2-3-e}\label{Butcher:ark-4-2-3-explicit}
 \index{ARK-4-2-3 ERK method}Butcher table number 2
 for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
-the explicit portion of the default 3rd order additive method.
+the explicit portion of the default 3rd order additive method (from
+\phantomsection\label{Butcher:id2}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|cccc}
   0 & 0 & 0 & 0 & 0 \\
@@ -23996,7 +24095,7 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-zonneveld}\label{Butcher:zonneveld-5-3-4}
 \index{Zonneveld-5-3-4 ERK method}Butcher table number 3
 for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
-the default 4th order explicit method.
+the default 4th order explicit method (from \phantomsection\label{Butcher:id3}{\hyperref[References:z1963]{\emph{{[}Z1963{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|ccccc}
     0 & 0 & 0 & 0 & 0 & 0 \\
@@ -24021,7 +24120,7 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-ark-6-3-4-e}\label{Butcher:ark-6-3-4-explicit}
 \index{ARK-6-3-4 ERK method}Butcher table number 4
 for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
-the explicit portion of the default 4th order additive method.
+the explicit portion of the default 4th order additive method (from \phantomsection\label{Butcher:id4}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|cccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -24046,7 +24145,7 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \subsection{Sayfy-Aburub-6-3-4}
 \label{Butcher:butcher-sayfy-aburub}\label{Butcher:sayfy-aburub-6-3-4}
 \index{Sayfy-Aburub-6-3-4 ERK method}Butcher table number 5
-for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.
+for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}} (from \phantomsection\label{Butcher:id5}{\hyperref[References:sa2002]{\emph{{[}SA2002{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|cccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -24072,7 +24171,7 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:cash-karp-6-4-5}\label{Butcher:butcher-cash-karp}
 \index{Cash-Karp-6-4-5 ERK method}Butcher table number 6
 for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
-the default 5th order explicit method.
+the default 5th order explicit method (from \phantomsection\label{Butcher:id6}{\hyperref[References:ck1990]{\emph{{[}CK1990{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|cccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -24097,7 +24196,7 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \subsection{Fehlberg-6-4-5}
 \label{Butcher:butcher-fehlberg}\label{Butcher:fehlberg-6-4-5}
 \index{Fehlberg-6-4-5 ERK method}Butcher table number 7
-for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.
+for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}} (from \phantomsection\label{Butcher:id7}{\hyperref[References:f1969]{\emph{{[}F1969{]}}}})
 \begin{gather}
 \begin{split}\begin{array}{r|cccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -24122,7 +24221,7 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \subsection{Dormand-Prince-7-4-5}
 \label{Butcher:dormand-prince-7-4-5}\label{Butcher:butcher-dormand-prince}
 \index{Dormand-Prince-7-4-5 ERK method}Butcher table number 8
-for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.
+for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}} (from \phantomsection\label{Butcher:id8}{\hyperref[References:dp1980]{\emph{{[}DP1980{]}}}})
 \begin{gather}
 \begin{split}\begin{array}{r|ccccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -24149,7 +24248,7 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-ark-8-4-5-e}\label{Butcher:ark-8-4-5-explicit}
 \index{ARK-8-4-5 ERK method}Butcher table number 9
 for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
-the explicit portion of the default 5th order additive method.
+the explicit portion of the default 5th order additive method (from \phantomsection\label{Butcher:id9}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|cccccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -24177,7 +24276,7 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-verner-6-5}\label{Butcher:verner-8-5-6}
 \index{Verner-8-5-6 ERK method}Butcher table number 10
 for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
-the default 6th order explicit method.
+the default 6th order explicit method (from \phantomsection\label{Butcher:id10}{\hyperref[References:v1978]{\emph{{[}V1978{]}}}})
 \begin{gather}
 \begin{split}\begin{array}{r|cccccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -24231,19 +24330,20 @@ are A- and B-stable.
 region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 
-\subsection{Billington-3-2-3}
-\label{Butcher:butcher-billington}\label{Butcher:billington-3-2-3}
-\index{Billington-3-2-3 SDIRK method}Butcher table number 12
+\subsection{Billington-3-3-2}
+\label{Butcher:butcher-billington}\label{Butcher:billington-3-3-2}
+\index{Billington-3-3-2 SDIRK method}Butcher table number 12
 for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  Here, the
-higher-order method is less stable than the lower-order embedding.
+higher-order embedding is less stable than the lower-order method
+(from \phantomsection\label{Butcher:id11}{\hyperref[References:b1983]{\emph{{[}B1983{]}}}})
 \begin{gather}
 \begin{split}\begin{array}{r|ccc}
   0.292893218813 & 0.292893218813 & 0 & 0 \\
   1.091883092037 & 0.798989873223 & 0.292893218813 & 0 \\
   1.292893218813 & 0.740789228841 & 0.259210771159 & 0.292893218813 \\
   \hline
-  3 & 0.691665115992 & 0.503597029883 & -0.195262145876 \\
-  2 & 0.740789228840 & 0.259210771159 & 0
+  2 & 0.740789228840 & 0.259210771159 & 0 \\
+  3 & 0.691665115992 & 0.503597029883 & -0.195262145876
 \end{array}\end{split}\notag
 \end{gather}\begin{figure}[htbp]
 \centering
@@ -24254,20 +24354,20 @@ higher-order method is less stable than the lower-order embedding.
 region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 
-\subsection{TRBDF2-3-2-3}
-\label{Butcher:trbdf2-3-2-3}\label{Butcher:butcher-trbdf2}
-\index{TRBDF2-3-2-3 ESDIRK method}Butcher table number 13
+\subsection{TRBDF2-3-3-2}
+\label{Butcher:butcher-trbdf2}\label{Butcher:trbdf2-3-3-2}
+\index{TRBDF2-3-3-2 ESDIRK method}Butcher table number 13
 for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  As with
-Billington, here the higher-order method is less stable than the
-lower-order embedding.
+Billington, here the higher-order embedding is less stable than the
+lower-order method (from \phantomsection\label{Butcher:id12}{\hyperref[References:b1985]{\emph{{[}B1985{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|ccc}
   0 & 0 & 0 & 0 \\
   2-\sqrt{2} & \frac{2-\sqrt{2}}{2} & \frac{2-\sqrt{2}}{2} & 0 \\
   1 & \frac{\sqrt{2}}{4} & \frac{\sqrt{2}}{4} & \frac{2-\sqrt{2}}{2} \\
   \hline
-  3 & \frac{1-\frac{\sqrt{2}}{4}}{3} & \frac{\frac{3\sqrt{2}}{4}+1}{3} & \frac{2-\sqrt{2}}{6} \\
-  2 & \frac{\sqrt{2}}{4} & \frac{\sqrt{2}}{4} & \frac{2-\sqrt{2}}{2}
+  2 & \frac{\sqrt{2}}{4} & \frac{\sqrt{2}}{4} & \frac{2-\sqrt{2}}{2} \\
+  3 & \frac{1-\frac{\sqrt{2}}{4}}{3} & \frac{\frac{3\sqrt{2}}{4}+1}{3} & \frac{2-\sqrt{2}}{6}
 \end{array}\end{split}\notag
 \end{gather}\begin{figure}[htbp]
 \centering
@@ -24282,7 +24382,8 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-kvaerno-4-2-3}\label{Butcher:kvaerno-4-2-3}
 \index{Kvaerno-4-2-3 ESDIRK method}Butcher table number 14
 for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  Both the
-method and embedding are A-stable; additionally the method is L-stable.
+method and embedding are A-stable; additionally the method is L-stable
+(from \phantomsection\label{Butcher:id13}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|cccc}
   0 & 0 & 0 & 0 & 0 \\
@@ -24308,7 +24409,7 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  This is
 the default 3rd order implicit method, and the implicit portion of the
 default 3rd order additive method.  Both the method and embedding are
-A-stable; additionally the method is L-stable.
+A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id14}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|cccc}
   0 & 0 & 0 & 0 & 0 \\
@@ -24332,7 +24433,8 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-cash-5-2-4}\label{Butcher:cash-5-2-4}
 \index{Cash-5-2-4 SDIRK method}Butcher table number 16
 for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  Both the
-method and embedding are A-stable; additionally the method is L-stable.
+method and embedding are A-stable; additionally the method is L-stable
+(from \phantomsection\label{Butcher:id15}{\hyperref[References:c1979]{\emph{{[}C1979{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|ccccc}
   0.435866521508 & 0.435866521508 & 0 & 0 & 0 & 0 \\
@@ -24357,7 +24459,8 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-cash-5-3-4}\label{Butcher:cash-5-3-4}
 \index{Cash-5-3-4 SDIRK method}Butcher table number 17
 for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  Both the
-method and embedding are A-stable; additionally the method is L-stable.
+method and embedding are A-stable; additionally the method is L-stable
+(from \phantomsection\label{Butcher:id16}{\hyperref[References:c1979]{\emph{{[}C1979{]}}}})
 \begin{gather}
 \begin{split}\begin{array}{r|ccccc}
   0.435866521508 & 0.435866521508 & 0 & 0 & 0 & 0 \\
@@ -24383,7 +24486,7 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \index{SDIRK-5-3-4 method}Butcher table number 18
 for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  This is
 the default 4th order implicit method.  Here, the method is both A-
-and L-stable, although the embedding has reduced stability.
+and L-stable, although the embedding has reduced stability (from \phantomsection\label{Butcher:id17}{\hyperref[References:hw1996]{\emph{{[}HW1996{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|ccccc}
   1/4 & 1/4 & 0 & 0 & 0 & 0 \\
@@ -24408,7 +24511,7 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:kvaerno-5-3-4}\label{Butcher:butcher-kvaerno-5-3-4}
 \index{Kvaerno-5-3-4 ESDIRK method}Butcher table number 19
 for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  Both the
-method and embedding are A-stable.
+method and embedding are A-stable (from \phantomsection\label{Butcher:id18}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|ccccc}
   0 & 0 & 0 & 0 & 0 & 0 \\
@@ -24435,7 +24538,7 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  This is
 the implicit portion of the default 4th order additive method.  Both
 the method and embedding are A-stable; additionally the method is
-L-stable.
+L-stable (from \phantomsection\label{Butcher:id19}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|cccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -24462,7 +24565,7 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \index{Kvaerno-7-4-5 ESDIRK method}Butcher table number 21
 for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  Both the
 method and embedding are A-stable; additionally the method is
-L-stable.
+L-stable (from \phantomsection\label{Butcher:id20}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|ccccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -24491,7 +24594,7 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  This is
 the default 5th order implicit method, and the implicit portion of the
 default 5th order additive method.  Both the method and embedding are
-A-stable; additionally the method is L-stable.
+A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id21}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|cccccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -24543,6 +24646,20 @@ corresponding to Butcher tables 9 and 22 for
 \end{itemize}
 \phantomsection\label{References:references}
 \begin{thebibliography}{SuperLUMT}
+\bibitem[B1985]{B1985}{\phantomsection\label{References:b1985} 
+Bank et al., Transient Simulation of Silicon Devices and
+Circuits, \emph{IEEE Trans. CAD}, 4:436-451, 1985.
+}
+\bibitem[B1983]{B1983}{\phantomsection\label{References:b1983} 
+S.R. Billington, Type-Insensitive Codes for the Solution of
+Stiff and Nonstiff Systems of Ordinary Differential
+Equations, \emph{in: Master Thesis, University of Manchester,
+United Kingdom}, 1983.
+}
+\bibitem[BS1989]{BS1989}{\phantomsection\label{References:bs1989} 
+P. Bogacki and L.F. Shampine. A 3(2) pair of Runge–Kutta
+formulas, \emph{Appl. Math. Lett.}, 2:321–325, 1989.
+}
 \bibitem[BH1989]{BH1989}{\phantomsection\label{References:bh1989} 
 P.N. Brown and A.C. Hindmarsh. Reduced Storage
 Matrix Methods in Stiff ODE Systems. \emph{J. Appl. Math. \&
@@ -24554,6 +24671,20 @@ in the Stiff ODE Setting.  In J.R. Cash and I. Gladwell,
 editors, \emph{Computational Ordinary Differential Equations},
 pp. 323-356, Oxford University Press, 1992.
 }
+\bibitem[C1979]{C1979}{\phantomsection\label{References:c1979} 
+J.R. Cash. Diagonally Implicit Runge-Kutta Formulae with
+Error Estimates. \emph{IMA J Appl Math}, 24:293-301, 1979.
+}
+\bibitem[CK1990]{CK1990}{\phantomsection\label{References:ck1990} 
+J.R. Cash and A.H. Karp. A variable order Runge-Kutta
+method for initial value problems with rapidly varying
+right-hand sides, \emph{ACM Trans. Math. Soft.},
+16:201-222, 1990.
+}
+\bibitem[DP1980]{DP1980}{\phantomsection\label{References:dp1980} 
+J.R. Dormand and P.J. Prince. A family of embedded
+Runge-Kutta formulae, \emph{J. Comput. Appl. Math.} 6:19–26, 1980.
+}
 \bibitem[DP2010]{DP2010}{\phantomsection\label{References:dp2010} 
 T. Davis and E. Palamadai Natarajan.  Algortithm 907: KLU,
 a direct sparse solver for circuit simulation
@@ -24564,6 +24695,11 @@ J.W. Demmel, J.R. Gilbert and X.S. Li. An Asynchronous
 Parallel Supernodal Algorithm for Sparse Gaussian
 Elimination. \emph{SIAM J. Matrix Analysis and Applications},
 20:915-952, 1999.
+}
+\bibitem[F1969]{F1969}{\phantomsection\label{References:f1969} 
+E. Fehlberg. Low-order classical Runge-Kutta formulas with
+step size control and their application to some heat
+transfer problems. \emph{NASA Technical Report 315}, 1969.
 }
 \bibitem[G1991]{G1991}{\phantomsection\label{References:g1991} 
 K. Gustafsson.  Control theoretic techniques for stepsize
@@ -24579,6 +24715,11 @@ Trans. Math. Soft.} 20:496-512, 1994.
 E. Hairer, S. Norsett and G. Wanner.  Solving Ordinary
 Differential Equations I. \emph{Springer Series in
 Computational Mathematics}, vol. 8, 1993.
+}
+\bibitem[HW1996]{HW1996}{\phantomsection\label{References:hw1996} 
+E. Hairer adn G. Wanner. Solving Ordinary Differential
+Equations II. \emph{Springer Series in Computational
+Mathematics}, vol. 14, 1996.
 }
 \bibitem[HS1980]{HS1980}{\phantomsection\label{References:hs1980} 
 K.L. Hiebert and L.F. Shampine.  Implicitly Defined Output
@@ -24604,6 +24745,11 @@ equations. \emph{Appl. Numer. Math.}, 44:139-181, 2003.
 \bibitem[KLU]{KLU}{\phantomsection\label{References:klu} 
 \href{http://faculty.cse.tamu.edu/davis/suitesparse.html}{KLU Sparse Matrix Factorization Library}.
 }
+\bibitem[K2004]{K2004}{\phantomsection\label{References:k2004} 
+A. Kv\{ae\}rno. Singly Diagonally Implicit Runge-Kutta
+Methods with an Explicit First Stage. \emph{BIT Numer. Math.},
+44:489-502, 2004.
+}
 \bibitem[L2005]{L2005}{\phantomsection\label{References:l2005} 
 X.S. Li. An Overview of SuperLU: Algorithms,
 Implementation, and User Interface. \emph{ACM
@@ -24617,6 +24763,10 @@ Computation, 2013.
 \bibitem[S1993]{S1993}{\phantomsection\label{References:s1993} 
 Y. Saad. A flexible inner-outer preconditioned GMRES
 algorithm.  \emph{SIAM J. Sci. Comput.}, 14:461-469, 1993.
+}
+\bibitem[SA2002]{SA2002}{\phantomsection\label{References:sa2002} 
+A. Sayfy and A. Aburub. Embedded Additive Runge-Kutta
+Methods. \emph{Intern. J. Computer Math.}, 79:945-953, 2002.
 }
 \bibitem[S1998]{S1998}{\phantomsection\label{References:s1998} 
 G. Soderlind. The automatic control of numerical
@@ -24634,10 +24784,20 @@ control and signal processing. \emph{Appl. Numer. Math.},
 \bibitem[SuperLUMT]{SuperLUMT}{\phantomsection\label{References:superlumt} 
 \href{http://crd-legacy.lbl.gov/~xiaoye/SuperLU/}{SuperLU\_MT Threaded Sparse Matrix Factorization Library}.
 }
+\bibitem[V1978]{V1978}{\phantomsection\label{References:v1978} 
+J.H. Verner. Explicit Runge-Kutta methods with estimates of
+the local truncation error. \emph{SIAM J. Numer. Anal.},
+15:772-790, 1978.
+}
 \bibitem[WN2011]{WN2011}{\phantomsection\label{References:wn2011} 
 H.F. Walker and P. Ni. Anderson acceleration for
 fixed-point iterations. \emph{SIAM J. Numer. Anal.},
 49:1715-1735, 2011.
+}
+\bibitem[Z1963]{Z1963}{\phantomsection\label{References:z1963} 
+J.A. Zonneveld. Automatic integration of ordinary
+differential equations. \emph{Report R743, Mathematisch Centrum},
+Postbus 4079, 1009AB Amsterdam, 1963.
 }
 \end{thebibliography}
 

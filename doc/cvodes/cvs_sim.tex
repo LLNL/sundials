@@ -174,15 +174,18 @@ access to the underlying generic dense linear solver.
 The following is a skeleton of the user's main program (or calling
 program) for the integration of an ODE IVP. Some steps are independent
 of the {\nvector} implementation used; where this is not the case,
-usage specifications are given for the two implementations provided
-with {\cvodes}: steps marked {\p} correspond to {\nvecp}, steps marked
-{\omp} correspond to {\nvecopenmp}, steps marked {\pt} correspond to
-{\nvecpthreads}, while steps marked {\s} correspond to {\nvecs}.
+usage specifications are given for the implementations provided
+with {\cvodes}:
+steps marked {\s} correspond to {\nvecs},
+steps marked {\omp} correspond to {\nvecopenmp},
+steps marked {\pt} correspond to {\nvecpthreads},
+steps marked {\p} correspond to {\nvecp}, while
+steps marked {\h} correspond to {\nvecph}.
 \index{User main program!IVP solution}
 \begin{Steps}
   
 \item 
-  {\bf {\p} Initialize MPI}
+  {\bf {\p} {\h} Initialize MPI}
 
   Call \id{MPI\_Init(\&argc, \&argv)} to initialize {\mpi} if used by
   the user's program. Here \id{argc} and \id{argv} are the command line
@@ -196,7 +199,7 @@ with {\cvodes}: steps marked {\p} correspond to {\nvecp}, steps marked
   {\omp, \pt} Set \id{num\_threads}, the number of threads to use within
   the threaded vector functions.
 
-  {\p} Set \id{Nlocal}, the local vector length (the sub-vector
+  {\p} {\h} Set \id{Nlocal}, the local vector length (the sub-vector
   length for this process); \id{N}, the global vector length (the
   problem size $N$, and the sum of all the values of \id{Nlocal});
   and the active set of processes.
@@ -219,6 +222,8 @@ with {\cvodes}: steps marked {\p} correspond to {\nvecp}, steps marked
 
   {\p} \id{y0 = N\_VMake\_Parallel(comm, Nlocal, N, ydata);}
 
+  {\h} \id{y0 = N\_VMake\_ParHyp(comm, Nlocal, N, ydata);}
+
   Otherwise, make the call:
 
   {\s} \id{y0 = N\_VNew\_Serial(N);}
@@ -229,6 +234,8 @@ with {\cvodes}: steps marked {\p} correspond to {\nvecp}, steps marked
 
   {\p} \id{y0 = N\_VNew\_Parallel(comm, Nlocal, N);}
 
+  {\h} \id{y0 = N\_VNew\_ParHyp(comm, Nlocal, N);}
+
   and load initial values into the structure defined by:
 
   {\s} \id{NV\_DATA\_S(y0)}
@@ -238,6 +245,8 @@ with {\cvodes}: steps marked {\p} correspond to {\nvecp}, steps marked
   {\pt} \id{NV\_DATA\_PT(y0)}
 
   {\p} \id{NV\_DATA\_P(y0)}
+
+  {\h} \id{NV\_DATA\_PH(y0)}
 
   Here \id{comm} is the {\mpi} communicator, set in one of two ways: 
   If a proper subset of active processes is to be used, \id{comm} 
@@ -351,6 +360,8 @@ with {\cvodes}: steps marked {\p} correspond to {\nvecp}, steps marked
   {\pt} \id{N\_VDestroy\_Pthreads(y);}
   
   {\p} \id{N\_VDestroy\_Parallel(y);}
+
+  {\h} \id{N\_VDestroy\_ParHyp(y);}
   
 \item
   {\bf Free solver memory}
@@ -358,7 +369,7 @@ with {\cvodes}: steps marked {\p} correspond to {\nvecp}, steps marked
   Call \Id{CVodeFree}\id{(\&cvode\_mem)} to free the memory allocated for {\cvodes}.
   
 \item 
-  {\bf {\p} Finalize MPI}
+  {\bf {\p} {\h} Finalize MPI}
 
   Call \id{MPI\_Finalize()} to terminate MPI.
   
@@ -931,7 +942,7 @@ and {\sptfqmr}, are described separately in Chapter \ref{s:gen_linsolv}.
 \index{CVKLU@{\cvklu} linear solver!NVECTOR@{\nvector} compatibility}
 \ucfunction{CVKLU}
 {
-  flag = CVKLU(cvode\_mem, N, NNZ);
+  flag = CVKLU(cvode\_mem, NP, NNZ, sparsetype);
 }
 {
   The function \ID{CVKLU} selects the {\cvklu} linear solver and indicates
@@ -949,9 +960,9 @@ and {\sptfqmr}, are described separately in Chapter \ref{s:gen_linsolv}.
     maximum number of nonzero entries in the system Jacobian.
   \item[sparsetype] (\id{int})
     sparse storage type of the system Jacobian. If \Id{sparsetype} is  
-    set to \Id{CSC\_MAT} the solver will expect Jacobian to be stored as 
-    compressed sparse column matrix, and if \Id{sparsetype=CSR\_MAT} 
-    the solver will expect compressed sparse row matrix. 
+    set to \Id{CSC\_MAT} the solver will expect the Jacobian to be stored as 
+    a compressed sparse column matrix, and if \Id{sparsetype=CSR\_MAT} 
+    the solver will expect a compressed sparse row matrix. 
     If neither option is chosen, the solver will exit with error.
   \end{args}
 }
@@ -4323,23 +4334,40 @@ the name of an optional output from the main solver, a suffix \id{LS}
 \index{reinitialization}
 
 The function \Id{CVodeReInit} reinitializes the main {\cvodes} solver for
-the solution of a problem, where a prior call to \Id{CVodeInit}
+the solution of a new problem, where a prior call to \Id{CVodeInit}
 been made. The new problem must have the same size as the previous one.
 \id{CVodeReInit} performs the same input checking and initializations 
-that \id{CVodeInit} does, but does no memory allocation as it assumes that the 
+that \id{CVodeInit} does, but does no memory allocation, as it assumes that the 
 existing internal memory is sufficient for the new problem.
 A call to \id{CVodeReInit} deletes the solution history that was stored
-internally during the previous integration.
+internally during the previous integration.  Following a successful call to
+\id{CVodeReInit}, call \id{CVode} again for the solution of the new problem.
 
 The use of \id{CVodeReInit} requires that the maximum method order, denoted by 
 \Id{maxord}, be no larger for the new problem than for the previous problem.
-This condition is  
-automatically fulfilled if the multistep method parameter \Id{lmm}  
-is unchanged (or changed from \Id{CV\_ADAMS} to \Id{CV\_BDF}) and the default    
-value for \id{maxord} is specified.
+This condition is  automatically fulfilled if the multistep method parameter
+\Id{lmm} is unchanged (or changed from \Id{CV\_ADAMS} to \Id{CV\_BDF}) and the
+default value for \id{maxord} is specified.
 
 If there are changes to the linear solver specifications, make the
-appropriate \id{CV***} calls, as described in \S\ref{sss:lin_solv_init}
+appropriate \id{CV***} calls, as described in \S\ref{sss:lin_solv_init}.
+
+One important use of the \id{CVodeReInit} function is in the treating
+of jump discontinuities in the RHS function.  Except in cases of
+fairly small jumps, it is usually more efficient to stop at each point
+of discontinuity and restart the integrator with a readjusted ODE
+model, using a call to \id{CVodeReInit}.  To stop when the location of
+the discontinuity is known, simply make that location a value of tout.
+To stop when the location of the discontinuity is determined by the
+solution, use the rootfinding feature.  In either case, it is critical
+that the RHS function {\it not} incorporate the discontinuity, but
+rather have a smooth extention over the discontinuity, so that the
+step across it (and subsequent rootfinding, if used) can be done
+efficiently.  Then use a switch within the RHS function (communicated
+through \id{user\_data}) that can be flipped between the stopping of
+the integration and the restart, so that the restarted problem uses
+the new values (which have jumped).  Similar comments apply if there
+is to be a jump in the dependent variable vector.
 
 %%
 %%
@@ -5106,11 +5134,14 @@ that are unchanged from the skeleton program presented in
 \item
   {\bf Set problem dimensions}
 
-  {\s} Set \id{N} to the problem size $N$ (excluding quadrature variables),
-  and \id{Nq} to the number of quadrature variables.
+  {\s} {\omp} {\pt} Set \id{N} to the problem size $N$ (excluding quadrature
+   variables), and \id{Nq} to the number of quadrature variables.
 
-  {\p} Set \id{Nlocal} to the local vector length (excluding quadrature variables),
-  and \id{Nqlocal} to the local number of quadrature variables.
+  {\omp, \pt} Set \id{num\_threads}, the number of threads to use within
+  the threaded vector functions.
+
+  {\p} {\h} Set \id{Nlocal} to the local vector length (excluding quadrature
+   variables), and \id{Nqlocal} to the local number of quadrature variables.
   
 \item
   \textcolor{gray}{\bf Set vector of initial values}
@@ -5780,9 +5811,8 @@ Aside from the header files required for the integration of the ODE problem
 must include the header file \id{cvodes\_bandpre.h} which declares the needed
 function prototypes.\index{header files}
 %%
-The following is a summary of the usage of this module. Steps that are unchanged from the skeleton
-program presented in \S\ref{ss:skeleton_sim} are grayed out.
-%%
+The following is a summary of the usage of this module. Steps that are unchanged
+from the skeleton program presented in \S\ref{ss:skeleton_sim} are grayed out.
 %%
 \index{User main program!CVBANDPRE@{\cvbandpre} usage}
 \begin{Steps}
