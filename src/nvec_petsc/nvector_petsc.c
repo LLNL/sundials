@@ -461,60 +461,73 @@ void N_VLinearSum_petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector
   Vec *xv = NV_PVEC_PTC(x);
   Vec *yv = NV_PVEC_PTC(y);
   Vec *zv = NV_PVEC_PTC(z);
-
-  if ((b == ONE) && (z == y)) {    /* BLAS usage: axpy y <- ax+y */
-    VecAXPY(*yv, a, *xv); // PETSc
+  
+  if (x == y) {
+    N_VScale_petsc(a + b, x, z); /* z <~ ax+bx */
     return;
   }
 
-  if ((a == ONE) && (z == x)) {    /* BLAS usage: axpy x <- by+x */
-    VecAXPY(*xv, b, *yv); // PETSc
+  if (z == y) {
+    if (b == ONE) { 
+      VecAXPY(*yv, a, *xv);   /* BLAS usage: axpy  y <- ax+y */
+      return;
+    }
+    VecAXPBY(*yv, a, b, *xv); /* BLAS usage: axpby y <- ax+by */
     return;
   }
 
-  /* Case: a == b == 1.0 */
-
-  if ((a == ONE) && (b == ONE)) {
-    VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
+  if (z == x) {
+    if (a == ONE) { 
+      VecAXPY(*xv, b, *yv);   /* BLAS usage: axpy  x <- by+x */
+      return;
+    }
+    VecAXPBY(*xv, b, a, *yv); /* BLAS usage: axpby x <- by+ax */
     return;
   }
 
-  /* Cases: (1) a == 1.0, b = -1.0, (2) a == -1.0, b == 1.0 */
-
-  if ((test = ((a == ONE) && (b == -ONE))) || ((a == -ONE) && (b == ONE))) {
-    VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
-    return;
-  }
-
-  /* Cases: (1) a == 1.0, b == other or 0.0, (2) a == other or 0.0, b == 1.0 */
-  /* if a or b is 0.0, then user should have called N_VScale */
-
-  if ((test = (a == ONE)) || (b == ONE)) {
-    VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
-    return;
-  }
-
-  /* Cases: (1) a == -1.0, b != 1.0, (2) a != 1.0, b == -1.0 */
-
-  if ((test = (a == -ONE)) || (b == -ONE)) {
-    VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
-    return;
-  }
-
-  /* Case: a == b */
-  /* catches case both a and b are 0.0 - user should have called N_VConst */
-
-  if (a == b) {
-    VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
-    return;
-  }
-
-  /* Case: a == -b */
-
-  if (a == -b) {
-    VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
-    return;
-  }
+//   /* Case: a == b == 1.0 */
+// 
+//   if ((a == ONE) && (b == ONE)) {
+//     VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
+//     return;
+//   }
+// 
+//   /* Cases: (1) a == 1.0, b = -1.0, (2) a == -1.0, b == 1.0 */
+// 
+//   if ((test = ((a == ONE) && (b == -ONE))) || ((a == -ONE) && (b == ONE))) {
+//     VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
+//     return;
+//   }
+// 
+//   /* Cases: (1) a == 1.0, b == other or 0.0, (2) a == other or 0.0, b == 1.0 */
+//   /* if a or b is 0.0, then user should have called N_VScale */
+// 
+//   if ((test = (a == ONE)) || (b == ONE)) {
+//     VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
+//     return;
+//   }
+// 
+//   /* Cases: (1) a == -1.0, b != 1.0, (2) a != 1.0, b == -1.0 */
+// 
+//   if ((test = (a == -ONE)) || (b == -ONE)) {
+//     VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
+//     return;
+//   }
+// 
+//   /* Case: a == b */
+//   /* catches case both a and b are 0.0 - user should have called N_VConst */
+// 
+//   if (a == b) {
+//     VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
+//     return;
+//   }
+// 
+//   /* Case: a == -b */
+// 
+//   if (a == -b) {
+//     VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
+//     return;
+//   }
 
   /* Do all cases not handled above:
      (1) a == other, b == 0.0 - user should have called N_VScale

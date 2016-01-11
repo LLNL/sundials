@@ -20,7 +20,6 @@
 # Add variable IDA_examples with the names of the PETSc IDA examples
 # "name\;nodes\;tasks"
 SET(IDA_examples
-  #"idaHeat2D_kry_bbd_petsc\;1\;4"
   "idaHeat2D_kry_petsc\;1\;4"
   )
 
