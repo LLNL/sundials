@@ -43,7 +43,7 @@ if(PETSC_LIBRARY)
     "\#include \"petscvec.h\"\n"
     "int main(){\n"
     "Vec x;\n"
-#    "VecCreate(PETSC_COMM_WORLD, &x);\n" 
+    "VecCreate(PETSC_COMM_WORLD, &x);\n" 
     "return(0);\n"
     "}\n")
   # Attempt to link the "ltest" executable
