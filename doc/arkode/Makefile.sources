@@ -13,8 +13,8 @@
 # -----------------------------------------------------------------
 
 
-USER_GUIDE = ARKode
-EXAMPLES   = ARKode_example
+USER_GUIDE = ark_guide
+EXAMPLES   = ark_examples
 
 UG_FILES = \
 ${USER_GUIDE}.tex
