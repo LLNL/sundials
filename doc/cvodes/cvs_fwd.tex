@@ -179,15 +179,15 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
   are already available in \id{realtype} arrays, create an array of
   \id{Ns} ``empty'' vectors by making the call
 
-  {\s} \id{yS0 = N\_VCloneEmptyVectorArray\_Serial(Ns, y0);}
+  {\s} \id{yS0 = N\_VCloneVectorArrayEmpty\_Serial(Ns, y0);}
 
-  {\omp} \id{yS0 = N\_VCloneEmptyVectorArray\_OpenMP(Ns, y0);}
+  {\omp} \id{yS0 = N\_VCloneVectorArrayEmpty\_OpenMP(Ns, y0);}
 
-  {\pt} \id{yS0 = N\_VCloneEmptyVectorArray\_Pthreads(Ns, y0);}
+  {\pt} \id{yS0 = N\_VCloneVectorArrayEmpty\_Pthreads(Ns, y0);}
 
-  {\p} \id{yS0 = N\_VCloneEmptyVectorArray\_Parallel(Ns, y0);}
+  {\p} \id{yS0 = N\_VCloneVectorArrayEmpty\_Parallel(Ns, y0);}
 
-  {\h} \id{yS0 = N\_VCloneEmptyVectorArray\_ParHyp(Ns, y0);}
+  {\h} \id{yS0 = N\_VCloneVectorArrayEmpty\_ParHyp(Ns, y0);}
 
   and then attach the \id{realtype} array \id{yS0[i]} containing the
   initial values of the $i$-th sensitivity vector using
