@@ -85,12 +85,12 @@ Table \ref{t:nvecops} contains a complete list of all vector operations defined
 by the generic {\nvector} module.
 
 Finally, note that the generic {\nvector} module defines the functions
-\ID{N\_VCloneVectorArray} and \ID{N\_VCloneEmptyVectorArray}.  Both functions
+\ID{N\_VCloneVectorArray} and \ID{N\_VCloneVectorArrayEmpty}.  Both functions
 create (by cloning) an array of \id{count} variables of type \id{N\_Vector}, each
 of the same type as an existing \id{N\_Vector}. Their prototypes are
 \begin{verbatim}
 N_Vector *N_VCloneVectorArray(int count, N_Vector w);
-N_Vector *N_VCloneEmptyVectorArray(int count, N_Vector w);
+N_Vector *N_VCloneVectorArrayEmpty(int count, N_Vector w);
 \end{verbatim}
 and their definitions are based on the implementation-specific \id{N\_VClone} and
 \id{N\_VCloneEmpty} operations, respectively.

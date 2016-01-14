@@ -129,14 +129,14 @@ user-callable routines:
 
 %%--------------------------------------
 
-\item \ID{N\_VCloneEmptyVectorArray\_Serial}
+\item \ID{N\_VCloneVectorArrayEmpty\_Serial}
 
  This function creates (by cloning) an array of \id{count} serial vectors, each with an
  empty (\id{NULL}) data array.
 
  
 
- \verb|N_Vector *N_VCloneEmptyVectorArray_Serial(int count, N_Vector w);|
+ \verb|N_Vector *N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w);|
 
 %%--------------------------------------
 
@@ -144,7 +144,7 @@ user-callable routines:
 
  This function frees memory allocated for the array of \id{count} variables of type
  \id{N\_Vector} created with \id{N\_VCloneVectorArray\_Serial} or with
- \id{N\_VCloneEmptyVectorArray\_Serial}.
+ \id{N\_VCloneVectorArrayEmpty\_Serial}.
 
  
 
@@ -176,7 +176,7 @@ user-callable routines:
 
 \item
   {\warn}\id{N\_VNewEmpty\_Serial}, \id{N\_VMake\_Serial}, 
-  and \id{N\_VCloneEmptyVectorArray\_Serial} set the field 
+  and \id{N\_VCloneVectorArrayEmpty\_Serial} set the field 
   {\em own\_data} $=$ \id{FALSE}. 
   \id{N\_VDestroy\_Serial} and \id{N\_VDestroyVectorArray\_Serial}
   will not attempt to free the pointer {\em data} for any \id{N\_Vector} with

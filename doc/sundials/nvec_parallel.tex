@@ -166,13 +166,13 @@ N_Vector *N_VCloneVectorArray_Parallel(int count, N_Vector w);
 
 %%--------------------------------------
 
-\item \ID{N\_VCloneEmptyVectorArray\_Parallel}
+\item \ID{N\_VCloneVectorArrayEmpty\_Parallel}
  
   This function creates (by cloning) an array of \id{count} parallel vectors,
   each with an empty (\id{NULL}) data array.
  
 \begin{verbatim}
-N_Vector *N_VCloneEmptyVectorArray_Parallel(int count, N_Vector w);
+N_Vector *N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w);
 \end{verbatim}
 
 %%--------------------------------------
@@ -181,7 +181,7 @@ N_Vector *N_VCloneEmptyVectorArray_Parallel(int count, N_Vector w);
  
  This function frees memory allocated for the array of \id{count}  variables of
  type \id{N\_Vector} created with \id{N\_VCloneVectorArray\_Parallel} or with
- \id{N\_VCloneEmptyVectorArray\_Parallel}.
+ \id{N\_VCloneVectorArrayEmpty\_Parallel}.
  
 
  \verb|void N_VDestroyVectorArray_Parallel(N_Vector *vs, int count);|
@@ -213,7 +213,7 @@ N_Vector *N_VCloneEmptyVectorArray_Parallel(int count, N_Vector w);
                                                                
 \item
   {\warn}\id{N\_VNewEmpty\_Parallel}, \id{N\_VMake\_Parallel}, 
-  and \id{N\_VCloneEmptyVectorArray\_Parallel} set the field 
+  and \id{N\_VCloneVectorArrayEmpty\_Parallel} set the field 
   {\em own\_data} $=$ \id{FALSE}. 
   \id{N\_VDestroy\_Parallel} and \id{N\_VDestroyVectorArray\_Parallel}
   will not attempt to free the pointer {\em data} for any \id{N\_Vector} with
