@@ -44,3 +44,8 @@ IDALapackDenseFreeB, IDALapackBandB, IDALapackBandFreeB.
 * In CVODES and IDAS, in interpolation routines for backward problems,
   added logic to bypass sensitivity interpolation if input sensitivity
   argument is NULL.
+
+* Added fnvector_parhyp.h, fnvector_parhyp.c in src/nvec/parhyp to define
+  function FNVINITPH for Fortran interface to N_VNewEmpty_ParHyp.
+  Also corrected name N_VCloneEmptyVectorArray to N_VCloneVectorArrayEmpty in
+  all documentation files.
