@@ -3,8 +3,9 @@
  * $Revision: 4396 $
  * $Date: 2015-02-26 16:59:39 -0800 (Thu, 26 Feb 2015) $
  * -----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Slaven Peles @ LLNL
+ * (based on example by Allan Taylor, Alan Hindmarsh 
+ *  and Radu Serban)
  * -----------------------------------------------------------------
  * Example problem for IDA: 2D heat equation, parallel, GMRES.
  *
@@ -353,10 +354,6 @@ int PsetupHeat(realtype tt,
   long int ixsub, jysub, npex, npey;
   UserData data = (UserData) user_data;
   Vec *ppvec = NV_PVEC_PTC((data->pp));
-//  data = (UserData) user_data;
-
-//  ppv = NV_DATA_P(data->pp);
-  
   
   ixsub = data->ixsub;
   jysub = data->jysub;
@@ -377,7 +374,7 @@ int PsetupHeat(realtype tt,
   if (jysub == 0) jybegin++; if (jysub == npey-1) jyend--;
   pelinv = ONE/(c_j + data->coeffxy); 
   
-  /* Get pointer to vector local data block */
+  /* Get pointer to vector's local data block */
   VecGetArray(*ppvec, &ppv);
 
   /* Load the inverse of the preconditioner diagonal elements
@@ -394,7 +391,6 @@ int PsetupHeat(realtype tt,
   VecRestoreArray(*ppvec, &ppv);
 
   return(0);
-
 }
 
 /*
@@ -442,7 +438,6 @@ static int rescomm(N_Vector uu, N_Vector up, void *user_data)
   Vec *uvec = NV_PVEC_PTC(uu);
 
   data = (UserData) user_data;
-  //uarray = NV_DATA_P(uu);
 
   /* Get comm, thispe, subgrid indices, data sizes, extended array uext. */
   comm = data->comm;  thispe = data->thispe;
@@ -493,9 +488,6 @@ static int reslocal(realtype tt,
   
   data = (UserData) user_data;
   uext = data->uext;
-//   uuv = NV_DATA_P(uu);
-//   upv = NV_DATA_P(up);
-//   resv = NV_DATA_P(rr);
   ixsub = data->ixsub; jysub = data->jysub;
   mxsub = data->mxsub; mxsub2 = data->mxsub + 2;
   mysub = data->mysub; npex = data->npex; npey = data->npey;

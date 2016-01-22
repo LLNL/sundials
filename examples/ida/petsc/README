@@ -1,0 +1,25 @@
+List of PETSc IDA examples
+
+  idaHeat2D_kry_petsc  : 2-D heat equation, diagonal preconditioner
+  idaHeat2D_kry_bbd_petsc : Not supposed to work with PETSc vector
+
+
+SUNDIALS was built with the following Cmake options:
+
+BUILD_ARKODE=ON
+BUILD_CVODE=ON
+BUILD_CVODES=ON
+BUILD_IDA=ON
+BUILD_IDAS=ON
+BUILD_KINSOL=ON
+BUILD_SHARED_LIBS=ON
+BUILD_STATIC_LIBS=ON
+CMAKE_INSTALL_PREFIX=/usr/casc/sundials/builddir/instdir
+CXX_ENABLE=ON
+EXAMPLES_ENABLE=ON
+EXAMPLES_INSTALL=ON
+EXAMPLES_INSTALL_PATH=/usr/casc/sundials/builddir/instdir/examples
+MPI_ENABLE=ON
+PETSC_ENABLE=ON
+
+(...)

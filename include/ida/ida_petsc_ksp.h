@@ -1,0 +1,66 @@
+/*
+ * -----------------------------------------------------------------
+ * $Revision:  $
+ * $Date:  $
+ * ----------------------------------------------------------------- 
+ * Programmers: Slaven Peles @ LLNL
+ * -----------------------------------------------------------------
+ * LLNS Copyright Start
+ * Copyright (c) 2014, Lawrence Livermore National Security
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Lawrence Livermore National Laboratory in part under 
+ * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS Copyright End
+ * -----------------------------------------------------------------
+ * This is the header file for the IDA Scaled Preconditioned GMRES     
+ * linear solver module, IDASPGMR.                                 
+ * -----------------------------------------------------------------
+ */
+
+#ifndef _IDA_PETSC_KPS_H
+#define _IDA_PETSC_KPS_H
+
+#include <nvector/nvector_petsc.h> /* PETSc vector specific */
+#include <ida/ida_petsc.h>
+//#include <sundials/sundials_spgmr.h>
+
+#ifdef __cplusplus     /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+
+/*
+ * -----------------------------------------------------------------
+ *                                                                
+ * Function : IDASpgmr                                            
+ * -----------------------------------------------------------------
+ * A call to the IDASpgmr function links the main integrator with 
+ * the IDASPGMR linear solver module.  Its parameters are as      
+ * follows:                                                       
+ *                                                                
+ * IDA_mem   is the pointer to memory block returned by IDACreate.
+ *                                                                
+ * maxl      is the maximum Krylov subspace dimension, an         
+ *           optional input.  Pass 0 to use the default value,    
+ *           MIN(Neq, 5).  Otherwise pass a positive integer.     
+ *                                                                
+ * The return values of IDASpgmr are:                             
+ *    IDASPILS_SUCCESS    if successful                            
+ *    IDASPILS_MEM_NULL   if the ida memory was NULL
+ *    IDASPILS_MEM_FAIL   if there was a memory allocation failure 
+ *    IDASPILS_ILL_INPUT  if there was illegal input.              
+ * The above constants are defined in ida_spils.h
+ *                                                                
+ * -----------------------------------------------------------------
+ */                                                                
+
+SUNDIALS_EXPORT int IDAKSP(void *ida_mem, int maxl, MPI_Comm comm);
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // _IDA_PETSC_KPS_H

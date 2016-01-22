@@ -73,6 +73,10 @@ IF(KLU_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
 ENDIF(KLU_FOUND)
 
+IF(PETSC_FOUND)
+  LIST(APPEND SUNDIALS_LIBS ${PETSC_LIBRARY})
+ENDIF(PETSC_FOUND)
+
 # Add the build and install targets for each IDA example
 
 FOREACH(example ${IDA_examples})
