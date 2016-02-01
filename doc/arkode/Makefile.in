@@ -21,7 +21,7 @@ HTML_DIR = ../../html/documentation
 
 TEX_COMPILER = pdflatex
 
-include Makefile.sources
+#include Makefile.sources
 
 UG_SHARED_FILES = 
 # fortran.tex \

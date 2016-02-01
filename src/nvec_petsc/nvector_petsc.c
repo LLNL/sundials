@@ -3,8 +3,10 @@
  * $Revision:  $
  * $Date:  $
  * -----------------------------------------------------------------
- * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
- *                and Aaron Collier @ LLNL
+ * Programmer(s): Slaven Peles @ LLNL
+ * 
+ * Based on N_Vector_Parallel by Scott D. Cohen, Alan C. Hindmarsh, 
+ * Radu Serban, and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
@@ -189,12 +191,27 @@ N_Vector N_VNew_petsc(MPI_Comm comm,
  * This function is NOT implemented for PETSc wrapper!
  */
 
-N_Vector N_VMake_petsc(MPI_Comm comm, 
-                       long int local_length,
-                       long int global_length,
-                       realtype *v_data)
+N_Vector N_VMake_petsc(Vec *pvec)
 {
-  return(NULL);
+  N_Vector v = NULL;
+  MPI_Comm comm;
+  PetscInt local_length;
+  PetscInt global_length;
+
+  VecGetLocalSize(*pvec, &local_length);
+  VecGetSize(*pvec, &global_length);
+  PetscObjectGetComm((PetscObject) (*pvec), &comm);
+  
+  v = N_VNewEmpty_petsc(comm, local_length, global_length);
+  if (v == NULL) return(NULL);
+
+  if (local_length > 0) {
+    /* Attach data */
+    NV_OWN_DATA_PTC(v) = FALSE;
+    NV_PVEC_PTC(v)     = pvec;
+  }
+
+  return(v);
 }
 
 /* ---------------------------------------------------------------- 
@@ -362,7 +379,7 @@ N_Vector N_VClone_petsc(N_Vector w)
 {
   N_Vector v     = NULL;
   Vec *pvec      = NULL;
-  //Vec *wvec      = NV_PVEC_PTC(w);
+  Vec *wvec      = NV_PVEC_PTC(w);
   
   PetscInt local_length  = NV_LOCLENGTH_PTC(w);
   PetscInt global_length = NV_GLOBLENGTH_PTC(w);
@@ -387,12 +404,21 @@ N_Vector N_VClone_petsc(N_Vector w)
       return(NULL);
     }
     
-    ierr = VecCreate(comm, pvec);
+    ierr = VecDuplicate(*wvec, pvec);
     //CHKERRQ(ierr);
-    ierr = VecSetSizes(*pvec, local_length, global_length);
-    //CHKERRQ(ierr);
-    ierr = VecSetFromOptions(*pvec);
-    //CHKERRQ(ierr);
+    if(pvec == NULL) {
+      N_VDestroy_petsc(v); 
+      return(NULL);
+    }
+    
+
+    
+//     ierr = VecCreate(comm, pvec);
+//     //CHKERRQ(ierr);
+//     ierr = VecSetSizes(*pvec, local_length, global_length);
+//     //CHKERRQ(ierr);
+//     ierr = VecSetFromOptions(*pvec);
+//     //CHKERRQ(ierr);
 
     /* Attach data */
     NV_OWN_DATA_PTC(v) = TRUE;
