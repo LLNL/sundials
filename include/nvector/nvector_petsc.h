@@ -226,10 +226,7 @@ SUNDIALS_EXPORT N_Vector N_VNew_petsc(MPI_Comm comm,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VMake_petsc(MPI_Comm comm, 
-                                       long int local_length,
-                                       long int global_length,
-                                       realtype *v_data);
+SUNDIALS_EXPORT N_Vector N_VMake_petsc(Vec *v);
 
 /*
  * -----------------------------------------------------------------
