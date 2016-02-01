@@ -74,9 +74,9 @@ typedef struct IDAMemRec {
 
   booleantype    ida_setupNonNull;   /* Does setup do something?              */
   booleantype    ida_constraintsSet; /* constraints vector present: 
-					do constraints calc                   */
+                                        do constraints calc                   */
   booleantype    ida_suppressalg;    /* true means suppress algebraic vars
-					in local error tests                  */
+                                        in local error tests                  */
 
   /* Divided differences array and associated minor arrays */
 
@@ -98,8 +98,8 @@ typedef struct IDAMemRec {
   N_Vector ida_constraints; /* vector of inequality constraint options        */
   N_Vector ida_savres;      /* saved residual vector (= tempv1)               */
   N_Vector ida_ee;          /* accumulated corrections to y vector, but
-			       set equal to estimated local errors upon
-			       successful return                              */
+                               set equal to estimated local errors upon
+                               successful return                              */
   N_Vector ida_mm;          /* mask vector in constraints tests (= tempv2)    */
   N_Vector ida_tempv1;      /* work space vector                              */
   N_Vector ida_tempv2;      /* work space vector                              */
@@ -210,11 +210,11 @@ typedef struct IDAMemRec {
   int (*ida_linit)(struct IDAMemRec *idamem);
 
   int (*ida_lsetup)(struct IDAMemRec *idamem, N_Vector yyp, 
-		    N_Vector ypp, N_Vector resp, 
-		    N_Vector tempv1, N_Vector tempv2, N_Vector tempv3); 
+                    N_Vector ypp, N_Vector resp, 
+                    N_Vector tempv1, N_Vector tempv2, N_Vector tempv3); 
 
   int (*ida_lsolve)(struct IDAMemRec *idamem, N_Vector b, N_Vector weight,
-		    N_Vector ycur, N_Vector ypcur, N_Vector rescur);
+                    N_Vector ycur, N_Vector ypcur, N_Vector rescur);
 
   int (*ida_lperf)(struct IDAMemRec *idamem, int perftask);
 
@@ -355,13 +355,13 @@ int IDAEwtSet(N_Vector ycur, N_Vector weight, void *data);
 /* High level error handler */
 
 void IDAProcessError(IDAMem IDA_mem, 
-		     int error_code, const char *module, const char *fname, 
-		     const char *msgfmt, ...);
+                     int error_code, const char *module, const char *fname, 
+                     const char *msgfmt, ...);
 
 /* Prototype of internal errHandler function */
 
 void IDAErrHandler(int error_code, const char *module, const char *function, 
-		   char *msg, void *data);
+                   char *msg, void *data);
 
 /*
  * =================================================================

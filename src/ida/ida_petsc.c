@@ -247,8 +247,8 @@ int IDAKSP(void *ida_mem, int maxl, MPI_Comm comm)
 //     return(IDASPILS_MEM_FAIL);
 //   }
 
-  /* Attach KSP solver to spils memory structure */
-  idapetsc_mem->s_spils_mem = (void *) solver;
+  /* Attach KSP solver to its SUNDIALS memory structure */
+  idapetsc_mem->s_ksp_mem = (void *) solver;
 
   /* Attach linear solver memory to the integrator memory */
   IDA_mem->ida_lmem = idapetsc_mem;
@@ -309,8 +309,8 @@ static int IDAKSPSetup(IDAMem IDA_mem,
   IDAPETScMem idapetsc_mem = (IDAPETScMem) IDA_mem->ida_lmem;
 
   /* Call user setup routine pset and update counter npe. */
-  retval = pset(tn, yy_p, yp_p, rr_p, cj, pdata,
-                tmp1, tmp2, tmp3);
+  retval = idapetsc_mem->s_pset(IDA_mem->ida_tn, yy_p, yp_p, rr_p, IDA_mem->ida_cj, idapetsc_mem->s_pdata,
+                                tmp1, tmp2, tmp3);
   (idapetsc_mem->s_npe)++;
 
   /* Return flag showing success or failure of pset. */
@@ -343,7 +343,7 @@ static int IDAKSPSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
                        N_Vector yy_now, N_Vector yp_now, N_Vector rr_now)
 {
   IDAPETScMem idapetsc_mem = (IDAPETScMem) IDA_mem->ida_lmem;
-  KSP *solver = (KSP*) idapetsc_mem->s_spils_mem;
+  KSP *solver = (KSP*) idapetsc_mem->s_ksp_mem;
   int pretype;
 //   int nli_inc, nps_inc, retval;
   realtype res_norm;
@@ -353,7 +353,7 @@ static int IDAKSPSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
     Newton convergence test constant epsNewt and safety factors.  The factor 
     sqrt(Neq) assures that the GMRES convergence test is applied to the
     WRMS norm of the residual vector, rather than the weighted L2 norm. */
-  epslin = (idapetsc_mem->s_sqrtN)*eplifac*epsNewt;
+  epslin = (idapetsc_mem->s_sqrtN)*(idapetsc_mem->s_eplifac)*(IDA_mem->ida_epsNewt);
 
   /* Set vectors ycur, ypcur, and rcur for use by the Atimes and Psolve */
   idapetsc_mem->s_ycur  = yy_now;
@@ -482,7 +482,7 @@ static int IDAKSPFree(IDAMem IDA_mem)
   N_VDestroy(yptemp);
   N_VDestroy(xx);
 
-  solver = (KSP*) idapetsc_mem->s_spils_mem;
+  solver = (KSP*) idapetsc_mem->s_ksp_mem;
   ierr = KSPDestroy(solver);
   CHKERRQ(ierr);
 

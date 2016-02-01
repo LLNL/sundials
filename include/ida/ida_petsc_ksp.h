@@ -25,7 +25,6 @@
 
 #include <nvector/nvector_petsc.h> /* PETSc vector specific */
 #include <ida/ida_petsc.h>
-//#include <sundials/sundials_spgmr.h>
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {

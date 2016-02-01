@@ -261,7 +261,7 @@ typedef int (*IDAPETScJacTimesVecFn)(realtype tt,
 
 SUNDIALS_EXPORT int IDAPETScSetPreconditioner(void *ida_mem,
                                               IDAPETScPrecSetupFn pset, 
-					      IDAPETScPrecSolveFn psolve);
+                                              IDAPETScPrecSolveFn psolve);
 SUNDIALS_EXPORT int IDAPETScSetJacTimesVecFn(void *ida_mem,
                                              IDAPETScJacTimesVecFn jtv);
 

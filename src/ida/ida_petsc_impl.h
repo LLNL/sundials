@@ -80,7 +80,7 @@ typedef struct IDAPETScMemRec {
   N_Vector s_ypcur;    /* current yp vector in Newton iteration        */
   N_Vector s_rcur;     /* rcur = F(tn, ycur, ypcur)                    */
 
-  void *s_spils_mem;   /* memory used by the generic solver            */
+  void *s_ksp_mem;     /* memory used by the KSP solver            */
 
   long int s_last_flag; /* last error return flag                      */
 
