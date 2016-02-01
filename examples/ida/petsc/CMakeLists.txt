@@ -21,6 +21,7 @@
 # "name\;nodes\;tasks"
 SET(IDA_examples
   "idaHeat2D_kry_petsc\;1\;4"
+  "idaHeat2D_kry_petsc2\;1\;4"
   )
 
 # Check whether we use MPI compiler scripts.
