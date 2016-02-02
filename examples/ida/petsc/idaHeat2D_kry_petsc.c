@@ -177,24 +177,24 @@ int main(int argc, char *argv[])
   if(check_flag((void *)uu, "N_VNew_petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
-  up = N_VNew_petsc(comm, local_N, Neq);
+  up = N_VClone(uu); 
   if(check_flag((void *)up, "N_VNew_petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
-  res = N_VNew_petsc(comm, local_N, Neq);
+  res = N_VClone(uu);
   if(check_flag((void *)res, "N_VNew_petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
-  constraints = N_VNew_petsc(comm, local_N, Neq);
+  constraints = N_VClone(uu);
   if(check_flag((void *)constraints, "N_VNew_petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
-  id = N_VNew_petsc(comm, local_N, Neq);
+  id = N_VClone(uu);
   if(check_flag((void *)id, "N_VNew_petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
   /* An N-vector to hold preconditioner. */
-  data->pp = N_VNew_petsc(comm, local_N, Neq);
+  data->pp = N_VClone(uu);
   if(check_flag((void *)data->pp, "N_VNew_petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
@@ -735,10 +735,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   Vec *uuvec  = NV_PVEC_PTC(uu);
   Vec *idvec  = NV_PVEC_PTC(id);
   
-  /* Initialize uu. */ 
-  
-//   udata = NV_DATA_P(uu);
-//   iddata = NV_DATA_P(id);
+  /* Initialize uu and id. */ 
   
   /* Set mesh spacings and subgrid indices for this PE. */
   dx = data->dx;
