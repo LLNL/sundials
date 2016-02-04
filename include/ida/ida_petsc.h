@@ -3,7 +3,7 @@
  * $Revision: 4378 $
  * $Date: 2015-02-19 10:55:14 -0800 (Thu, 19 Feb 2015) $
  * ----------------------------------------------------------------- 
- * Programmers: Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
+ * Programmers: Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
@@ -23,8 +23,9 @@
 #ifndef _IDA_PETSC_H
 #define _IDA_PETSC_H
 
-#include <sundials/sundials_iterative.h>
+//#include <sundials/sundials_iterative.h>
 #include <sundials/sundials_nvector.h>
+#include <petscmat.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -32,16 +33,80 @@ extern "C" {
 
 /* 
  * -----------------------------------------------------------------
- * IDASPILS return values 
+ * IDAKSP return values 
  * -----------------------------------------------------------------
  */
 
-#define IDASPILS_SUCCESS     0
-#define IDASPILS_MEM_NULL   -1 
-#define IDASPILS_LMEM_NULL  -2 
-#define IDASPILS_ILL_INPUT  -3
-#define IDASPILS_MEM_FAIL   -4
-#define IDASPILS_PMEM_NULL  -5
+#define IDAKSP_SUCCESS     0
+#define IDAKSP_MEM_NULL   -1 
+#define IDAKSP_LMEM_NULL  -2 
+#define IDAKSP_ILL_INPUT  -3
+#define IDAKSP_MEM_FAIL   -4
+#define IDAKSP_PMEM_NULL  -5
+
+
+/*
+ * -----------------------------------------------------------------
+ * Types : IDAPETScJacFn
+ * -----------------------------------------------------------------
+ *
+ * A sparse Jacobian approximation function jaceval must be of type 
+ * IDAPETScJacFn.
+ * Its parameters are:                     
+ *                                                                
+ * t   is the current value of the independent variable t.        
+ *                                                                
+ * c_j is the scalar in the system Jacobian, proportional to 
+ *     the inverse of the step size h.
+ *                                                                
+ * y   is the current value of the dependent variable vector,     
+ *     namely the predicted value of y(t).                     
+ *                                                                
+ * yp  is the current value of the derivative vector y',          
+ *     namely the predicted value of y'(t).                    
+ *                                                                
+ * r   is the residual vector F(tt,yy,yp).                     
+ *                                                                
+ * JacMat is the compressed sparse column matrix (of PETSc Mat type)
+ *     to be loaded by an IDAPETScJacFn routine with an approximation
+ *     to the system Jacobian matrix
+ *            J = dF/dy' + c_j*dF/dy                            
+ *     at the given point (t,y,y'), where the DAE system is    
+ *     given by F(t,y,y') = 0.
+ *     Note that JacMat is NOT preset to zero!
+ * 
+ * user_data is a pointer to user Jacobian data - the same as the    
+ *     user_data parameter passed to IDASetRdata.                     
+ *                                                                
+ * tmp1, tmp2, tmp3 are pointers to memory allocated for          
+ *     N_Vectors which can be used by an IDASparseJacFn routine 
+ *     as temporary storage or work space.                     
+ *                                                                
+ * A IDAPETScJacFn should return                                
+ *     0 if successful,                                           
+ *     a positive int if a recoverable error occurred, or         
+ *     a negative int if a nonrecoverable error occurred.         
+ * In the case of a recoverable error return, the integrator will 
+ * attempt to recover by reducing the stepsize (which changes cj).
+ *
+ * -----------------------------------------------------------------
+ *
+  * NOTE: If the user's Jacobian routine needs other quantities,   
+ *     they are accessible as follows: hcur (the current stepsize)
+ *     and ewt (the error weight vector) are accessible through   
+ *     IDAGetCurrentStep and IDAGetErrWeights, respectively 
+ *     (see ida.h). The unit roundoff is available as 
+ *     UNIT_ROUNDOFF defined in sundials_types.h.
+ *
+ * -----------------------------------------------------------------
+ */
+  
+  
+typedef int (*IDAPETScJacFn)(realtype t, realtype c_j,
+                             N_Vector y, N_Vector yp, N_Vector r, 
+                             Mat JacMat, void *user_data,
+                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+
 
 /*
  * -----------------------------------------------------------------
@@ -219,7 +284,7 @@ typedef int (*IDAPETScJacTimesVecFn)(realtype tt,
 
 /*
  * -----------------------------------------------------------------
- * Optional inputs to the IDASPILS linear solver                  
+ * Optional inputs to the IDAKSP linear solver                  
  * -----------------------------------------------------------------
  *                                                                
  * IDAPETScSetPreconditioner specifies the PrecSetup and PrecSolve 
@@ -253,9 +318,9 @@ typedef int (*IDAPETScJacTimesVecFn)(realtype tt,
  *           Default is 1.0                                       
  *                                                                
  * The return value of IDAPETScSet* is one of:
- *    IDASPILS_SUCCESS   if successful
- *    IDASPILS_MEM_NULL  if the ida memory was NULL
- *    IDASPILS_LMEM_NULL if the linear solver memory was NULL
+ *    IDAKSP_SUCCESS   if successful
+ *    IDAKSP_MEM_NULL  if the ida memory was NULL
+ *    IDAKSP_LMEM_NULL if the linear solver memory was NULL
  * -----------------------------------------------------------------
  */
 
@@ -264,6 +329,7 @@ SUNDIALS_EXPORT int IDAPETScSetPreconditioner(void *ida_mem,
                                               IDAPETScPrecSolveFn psolve);
 SUNDIALS_EXPORT int IDAPETScSetJacTimesVecFn(void *ida_mem,
                                              IDAPETScJacTimesVecFn jtv);
+SUNDIALS_EXPORT int IDAPETScSetJacFn(void *ida_mem, IDAPETScJacFn jac);
 
 SUNDIALS_EXPORT int IDAPETScSetGSType(void *ida_mem, int gstype);
 SUNDIALS_EXPORT int IDAPETScSetMaxRestarts(void *ida_mem, int maxrs);
@@ -273,11 +339,11 @@ SUNDIALS_EXPORT int IDAPETScSetIncrementFactor(void *ida_mem, realtype dqincfac)
 
 /*
  * -----------------------------------------------------------------
- * Optional outputs from the IDASPILS linear solver               
+ * Optional outputs from the IDAKSP linear solver               
  *----------------------------------------------------------------
  *                                                                
  * IDAPETScGetWorkSpace returns the real and integer workspace used 
- *     by IDASPILS.                                                  
+ *     by IDAKSP.                                                  
  * IDAPETScGetNumPrecEvals returns the number of preconditioner   
  *     evaluations, i.e. the number of calls made to PrecSetup    
  *     with jok==FALSE.                                           
@@ -291,12 +357,12 @@ SUNDIALS_EXPORT int IDAPETScSetIncrementFactor(void *ida_mem, realtype dqincfac)
  *     res routine due to finite difference Jacobian times vector 
  *     evaluation.                                                
  * IDAPETScGetLastFlag returns the last error flag set by any of
- *     the IDASPILS interface functions.
+ *     the IDAKSP interface functions.
  *                                                                
  * The return value of IDAPETScGet* is one of:
- *    IDASPILS_SUCCESS   if successful
- *    IDASPILS_MEM_NULL  if the ida memory was NULL
- *    IDASPILS_LMEM_NULL if the linear solver memory was NULL
+ *    IDAKSP_SUCCESS   if successful
+ *    IDAKSP_MEM_NULL  if the ida memory was NULL
+ *    IDAKSP_LMEM_NULL if the linear solver memory was NULL
  * -----------------------------------------------------------------
  */                                                                
 
@@ -312,7 +378,7 @@ SUNDIALS_EXPORT int IDAPETScGetLastFlag(void *ida_mem, long int *flag);
 /*
  * -----------------------------------------------------------------
  * The following function returns the name of the constant 
- * associated with an IDASPILS return flag
+ * associated with an IDAKSP return flag
  * -----------------------------------------------------------------
  */
 

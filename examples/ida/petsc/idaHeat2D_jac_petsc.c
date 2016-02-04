@@ -41,6 +41,7 @@
 
 #include <ida/ida.h>
 #include <ida/ida_spgmr.h>
+#include <ida/ida_petsc.h>
 #include <nvector/nvector_petsc.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
@@ -114,7 +115,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 int main(int argc, char *argv[])
 {
   MPI_Comm comm;
-  void *mem;
+  void *mem, *mem_tst;
   UserData data;
   int iout, thispe, ier, npes;
   long int Neq, local_N;
@@ -122,6 +123,7 @@ int main(int argc, char *argv[])
   N_Vector uu, up, constraints, id, res;
   PetscErrorCode ierr;                  /* PETSc error code  */
   Vec uvec;
+  Mat Jac;
 
   mem = NULL;
   data = NULL;
@@ -175,6 +177,12 @@ int main(int argc, char *argv[])
                       &(data->da));
   CHKERRQ(ierr);
 
+  /* PETSc linear solver requires user to create Jacobian matrix */
+  ierr = DMSetMatType(data->da, MATAIJ);
+  CHKERRQ(ierr);
+  ierr  = DMCreateMatrix(data->da, &Jac);
+  CHKERRQ(ierr);
+
   ierr = DMCreateGlobalVector(data->da, &uvec);
   CHKERRQ(ierr);
 
@@ -223,71 +231,97 @@ int main(int argc, char *argv[])
 
   mem = IDACreate();
   if(check_flag((void *)mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
+  mem_tst = IDACreate();
+  if(check_flag((void *)mem_tst, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASetUserData(mem, data);
+  if(check_flag(&ier, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
+  ier = IDASetUserData(mem_tst, data);
   if(check_flag(&ier, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASetSuppressAlg(mem, TRUE);
   if(check_flag(&ier, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
+  ier = IDASetSuppressAlg(mem_tst, TRUE);
+  if(check_flag(&ier, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASetId(mem, id);
   if(check_flag(&ier, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
+  ier = IDASetId(mem_tst, id);
+  if(check_flag(&ier, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASetConstraints(mem, constraints);
+  if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
+  ier = IDASetConstraints(mem_tst, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
   N_VDestroy_petsc(constraints);  
 
   ier = IDAInit(mem, resHeat, t0, uu, up);
   if(check_flag(&ier, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
+  ier = IDAInit(mem_tst, resHeat, t0, uu, up);
+  if(check_flag(&ier, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
   
   ier = IDASStolerances(mem, rtol, atol);
+  if(check_flag(&ier, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
+  ier = IDASStolerances(mem_tst, rtol, atol);
   if(check_flag(&ier, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Call IDASpgmr to specify the linear solver. */
 
   ier = IDASpgmr(mem, 0);
   if(check_flag(&ier, "IDASpgmr", 1, thispe)) MPI_Abort(comm, 1);
+  ier = IDAKSP(mem_tst, comm, &Jac);
+  if(check_flag(&ier, "IDAKSP", 1, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat);
   if(check_flag(&ier, "IDASpilsSetPreconditioner", 1, thispe)) MPI_Abort(comm, 1);
+  ier = IDAPETScSetJacFn(mem_tst, jacHeat);
+  if(check_flag(&ier, "IDAPETScSetJacFn", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Print output heading (on processor 0 only) and intial solution  */
   
   if (thispe == 0) PrintHeader(Neq, rtol, atol);
-  PrintOutput(thispe, mem, t0, uu); 
+  //PrintOutput(thispe, mem, t0, uu); 
+  PrintOutput(thispe, mem_tst, t0, uu); 
   
   /* Loop over tout, call IDASolve, print output. */
 
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
 
-    ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
+    ier = IDASolve(mem_tst, tout, &tret, uu, up, IDA_NORMAL);
+//    ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
     if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
 
-    PrintOutput(thispe, mem, tret, uu);
+//    PrintOutput(thispe, mem, tret, uu);
+    PrintOutput(thispe, mem_tst, tret, uu);
 
   }
   
   /* Print remaining counters. */
 
-  if (thispe == 0) PrintFinalStats(mem);
+  if (thispe == 0) 
+    PrintFinalStats(mem_tst);
+//    PrintFinalStats(mem);
 
   /* Free memory */
 
-  IDAFree(&mem);
+  //IDAFree(&mem);
+  IDAFree(&mem_tst);
 
   N_VDestroy_petsc(id);
   N_VDestroy_petsc(res);
   N_VDestroy_petsc(up);
   N_VDestroy_petsc(uu);
 
+  ierr = VecDestroy(&uvec);
+  CHKERRQ(ierr);
+  ierr = MatDestroy(&Jac);
+  CHKERRQ(ierr);
+
   N_VDestroy_petsc(data->pp);
   ierr = DMDestroy(&data->da);
   CHKERRQ(ierr);
   free(data);
   
-  ierr = VecDestroy(&uvec);
-  CHKERRQ(ierr);
-
   ierr = PetscFinalize();
   CHKERRQ(ierr);
 

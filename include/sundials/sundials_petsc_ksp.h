@@ -75,7 +75,7 @@
 #ifndef _SUNDIALS_PETSC_KSP_H
 #define _SUNDIALS_PETSC_KSP_H
 
-#include <sundials/sundials_iterative.h>
+//#include <sundials/sundials_iterative.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -254,21 +254,21 @@ extern "C" {
 
 /* Return values for KSPSolve */
 
-#define KSP_SUCCESS            0  /* Converged                     */
-#define KSP_RES_REDUCED        1  /* Did not converge, but reduced
-                                       norm of residual              */
-#define KSP_CONV_FAIL          2  /* Failed to converge            */
-#define KSP_QRFACT_FAIL        3  /* QRfact found singular matrix  */
-#define KSP_PSOLVE_FAIL_REC    4  /* psolve failed recoverably     */
-#define KSP_ATIMES_FAIL_REC    5  /* atimes failed recoverably     */
-#define KSP_PSET_FAIL_REC      6  /* pset faild recoverably        */
-
-#define KSP_MEM_NULL          -1  /* mem argument is NULL          */
-#define KSP_ATIMES_FAIL_UNREC -2  /* atimes returned failure flag  */
-#define KSP_PSOLVE_FAIL_UNREC -3  /* psolve failed unrecoverably   */
-#define KSP_GS_FAIL           -4  /* Gram-Schmidt routine faiuled  */        
-#define KSP_QRSOL_FAIL        -5  /* QRsol found singular R        */
-#define KSP_PSET_FAIL_UNREC   -6  /* pset failed unrecoverably     */
+// #define KSP_SUCCESS            0  /* Converged                     */
+// #define KSP_RES_REDUCED        1  /* Did not converge, but reduced
+//                                        norm of residual              */
+// #define KSP_CONV_FAIL          2  /* Failed to converge            */
+// #define KSP_QRFACT_FAIL        3  /* QRfact found singular matrix  */
+// #define KSP_PSOLVE_FAIL_REC    4  /* psolve failed recoverably     */
+// #define KSP_ATIMES_FAIL_REC    5  /* atimes failed recoverably     */
+// #define KSP_PSET_FAIL_REC      6  /* pset faild recoverably        */
+// 
+// #define KSP_MEM_NULL          -1  /* mem argument is NULL          */
+// #define KSP_ATIMES_FAIL_UNREC -2  /* atimes returned failure flag  */
+// #define KSP_PSOLVE_FAIL_UNREC -3  /* psolve failed unrecoverably   */
+// #define KSP_GS_FAIL           -4  /* Gram-Schmidt routine faiuled  */        
+// #define KSP_QRSOL_FAIL        -5  /* QRsol found singular R        */
+// #define KSP_PSET_FAIL_UNREC   -6  /* pset failed unrecoverably     */
 
 /*
  * -----------------------------------------------------------------
@@ -295,7 +295,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-#define KSP_VTEMP(mem) (mem->vtemp)
+//#define KSP_VTEMP(mem) (mem->vtemp)
 
 #ifdef __cplusplus
 }

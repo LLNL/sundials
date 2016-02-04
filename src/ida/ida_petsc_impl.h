@@ -23,7 +23,8 @@
 #ifndef _IDA_PETSC_IMPL_H
 #define _IDA_PETSC_IMPL_H
 
-#include <ida/ida_spils.h>
+#include <petscksp.h>
+#include <ida/ida_petsc.h>
 #include "ida_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -65,6 +66,7 @@ typedef struct IDAPETScMemRec {
   long int s_ncfl;     /* ncfl = total number of convergence failures  */
   long int s_nres;     /* nres = total number of calls to res          */
   long int s_njtimes;  /* njtimes = total number of calls to jtimes    */
+  long int s_nje;      /* nje = total number of Jacobian calls         */
 
   long int s_nst0;     /* nst0 = saved nst (for performance monitor)   */   
   long int s_nni0;     /* nni0 = saved nni (for performance monitor)   */   
@@ -80,7 +82,7 @@ typedef struct IDAPETScMemRec {
   N_Vector s_ypcur;    /* current yp vector in Newton iteration        */
   N_Vector s_rcur;     /* rcur = F(tn, ycur, ypcur)                    */
 
-  void *s_ksp_mem;     /* memory used by the KSP solver            */
+  KSP *s_ksp_mem;      /* memory used by the KSP solver            */
 
   long int s_last_flag; /* last error return flag                      */
 
@@ -110,6 +112,18 @@ typedef struct IDAPETScMemRec {
   booleantype s_jtimesDQ;
   IDAPETScJacTimesVecFn s_jtimes;
   void *s_jdata;
+  
+  /* 
+   * PETSc Jacobian evaluation
+   * 
+   */
+  IDAPETScJacFn s_jaceval;
+
+  /* 
+   * Pointer to Jacobian matrix
+   * 
+   */
+  Mat *JacMat;
 
 } *IDAPETScMem;
 
@@ -172,9 +186,10 @@ int IDAPETScPSolve(void *ida_mem, N_Vector r, N_Vector z, int lr);
 #define MSGS_NEG_EPLIFAC   "eplifac < 0.0 illegal."
 #define MSGS_NEG_DQINCFAC  "dqincfac < 0.0 illegal."
 
-#define MSGS_PSET_FAILED "The preconditioner setup routine failed in an unrecoverable manner."
+#define MSGS_PSET_FAILED  "The preconditioner setup routine failed in an unrecoverable manner."
 #define MSGS_PSOLVE_FAILED "The preconditioner solve routine failed in an unrecoverable manner."
 #define MSGS_JTIMES_FAILED "The Jacobian x vector routine failed in an unrecoverable manner."
+#define MSGS_JAC_FAILED    "The Jacobian setup routine failed in an unrecoverable manner."
 
 /* Warning Messages */
 

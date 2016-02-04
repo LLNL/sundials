@@ -16,7 +16,7 @@
  * LLNS Copyright End
  * -----------------------------------------------------------------
  * This is the header file for the IDA Scaled Preconditioned GMRES     
- * linear solver module, IDASPGMR.                                 
+ * linear solver module, IDAKSP.                                 
  * -----------------------------------------------------------------
  */
 
@@ -33,10 +33,10 @@ extern "C" {
 /*
  * -----------------------------------------------------------------
  *                                                                
- * Function : IDASpgmr                                            
+ * Function : IDAKSP                                            
  * -----------------------------------------------------------------
  * A call to the IDASpgmr function links the main integrator with 
- * the IDASPGMR linear solver module.  Its parameters are as      
+ * the IDAKSP linear solver module.  Its parameters are as      
  * follows:                                                       
  *                                                                
  * IDA_mem   is the pointer to memory block returned by IDACreate.
@@ -55,7 +55,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */                                                                
 
-SUNDIALS_EXPORT int IDAKSP(void *ida_mem, int maxl, MPI_Comm comm);
+SUNDIALS_EXPORT int IDAKSP(void *ida_mem, MPI_Comm comm, Mat *JacMat);
 
 
 #ifdef __cplusplus
