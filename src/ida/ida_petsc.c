@@ -54,6 +54,7 @@
 
 #define ZERO         RCONST(0.0)
 #define ONE          RCONST(1.0)
+#define TWO          RCONST(2.0)
 #define PT9          RCONST(0.9)
 #define PT05         RCONST(0.05)
 
@@ -181,7 +182,7 @@ int IDAKSP(void *ida_mem, MPI_Comm comm, Mat *JacMat)
   IDA_mem->ida_lfree  = IDAKSPFree;
 
   /* Set setupNonNull to FALSE */
-  IDA_mem->ida_setupNonNull = FALSE;
+  IDA_mem->ida_setupNonNull = TRUE;
 
   /* Get memory for IDAPETScMemRec. */
   idapetsc_mem = (IDAPETScMem) malloc(sizeof(struct IDAPETScMemRec));
@@ -190,6 +191,7 @@ int IDAKSP(void *ida_mem, MPI_Comm comm, Mat *JacMat)
     return(IDAKSP_MEM_FAIL);
   }
 
+  idapetsc_mem->s_pdata  = IDA_mem->ida_user_data;
   idapetsc_mem->s_last_flag  = IDAKSP_SUCCESS;
 
   /* Allocate memory for ytemp, yptemp, and xx */
@@ -315,19 +317,24 @@ static int IDAKSPSetup(IDAMem IDA_mem,
 {
   int retval;
   IDAPETScMem idapetsc_mem = (IDAPETScMem) IDA_mem->ida_lmem;
-
-  /* Call user setup routine pset and update counter npe. */
+  
+  if (idapetsc_mem->s_jaceval == NULL) {
+    printf("Jacobian evaluation function not allocated!\n.");
+    exit(0);
+  }
+  if (idapetsc_mem->JacMat == NULL) {
+    printf("Jacobian not allocated!\n.");
+    exit(0);
+  }
+  
+  /* Call user setup routine jaceval and update counter nje. */
   retval = idapetsc_mem->s_jaceval(IDA_mem->ida_tn, IDA_mem->ida_cj,
                                    yy_p, yp_p, rr_p, 
                                    *(idapetsc_mem->JacMat), idapetsc_mem->s_pdata,
                                    tmp1, tmp2, tmp3);
   (idapetsc_mem->s_nje)++;
 
-//   retval = idapetsc_mem->s_pset(IDA_mem->ida_tn, yy_p, yp_p, rr_p, IDA_mem->ida_cj, idapetsc_mem->s_pdata,
-//                                 tmp1, tmp2, tmp3);
-//   (idapetsc_mem->s_npe)++;
-
-  /* Return flag showing success or failure of pset. */
+  /* Return flag showing success or failure of jaceval. */
   if (retval < 0) {
     IDAProcessError(IDA_mem, KSP_JAC_FAIL_UNREC, "IDAKSP", "IDAKSPSetup", MSGS_JAC_FAILED);
     idapetsc_mem->s_last_flag = KSP_JAC_FAIL_UNREC;
@@ -362,6 +369,9 @@ static int IDAKSPSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
 //   int nli_inc, nps_inc, retval;
   realtype res_norm;
   PetscErrorCode ierr;
+  
+  realtype cjratio = IDA_mem->ida_cjratio;
+  //printf("cjratio should be 1, is: %g.\n", cjratio);
 
   /* Set KSPSolve convergence test constant epslin, in terms of the
     Newton convergence test constant epsNewt and safety factors.  The factor 
@@ -394,6 +404,12 @@ static int IDAKSPSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
 
   idapetsc_mem->s_last_flag = ierr;
   CHKERRQ(ierr);
+  
+    /* Scale the correction to account for change in cj. */
+  if (cjratio != ONE) N_VScale(TWO/(ONE + cjratio), bb, bb);
+
+  idapetsc_mem->s_last_flag = IDAKSP_SUCCESS;
+
   
 //   switch(retval) {
 // 
