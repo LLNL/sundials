@@ -96,12 +96,14 @@ the corresponding header files are:
 \begin{itemize}
 \item \Id{nvector\_serial.h}, 
   which defines the serial implementation {\nvecs};
-\item \Id{nvector\_parallel.h}, 
-  which defines the parallel ({\mpi}) implementation, {\nvecp}.
 \item \Id{nvector\_openmp.h},
   which defines the shared memory parallel openMP implementation,
 \item \Id{nvector\_pthreads.h},
   which defines the shared memory parallel Pthreads implementation.
+\item \Id{nvector\_parallel.h}, 
+  which defines the parallel ({\mpi}) implementation, {\nvecp}.
+\item \Id{nvector\_parhyp.h}, 
+  which defines the ParHyp implementation, {\nvecph}.
 \end{itemize}
 %%
 Note that both these files in turn include the header file \Id{sundials\_nvector.h} which 
@@ -167,92 +169,50 @@ block-diagonal matrix. For this, even though the {\cvspgmr} linear
 solver is used, the header \id{sundials\_dense.h} is included for
 access to the underlying generic dense linear solver.
 
-%%===================================================================================
+%%====================================================================
 \section{A skeleton of the user's main program}\label{ss:skeleton_sim}
-%%===================================================================================
+%%====================================================================
 
 The following is a skeleton of the user's main program (or calling
-program) for the integration of an ODE IVP. Some steps are independent
-of the {\nvector} implementation used; where this is not the case,
-usage specifications are given for the implementations provided
-with {\cvodes}:
-steps marked {\s} correspond to {\nvecs},
-steps marked {\omp} correspond to {\nvecopenmp},
-steps marked {\pt} correspond to {\nvecpthreads},
-steps marked {\p} correspond to {\nvecp}, while
-steps marked {\h} correspond to {\nvecph}.
+program) for the integration of an ODE IVP. Most of the steps are
+independent of the {\nvector} implementation used.  For the steps that
+are not, refer to Chapter \ref{s:nvector} for the specific name of the
+function to be called or macro to be referenced.
+
 \index{User main program!IVP solution}
 \begin{Steps}
   
 \item 
-  {\bf {\p} {\h} Initialize MPI}
+  {\bf Initialize parallel or multi-threaded environment, if appropriate}
 
-  Call \id{MPI\_Init(\&argc, \&argv)} to initialize {\mpi} if used by
-  the user's program. Here \id{argc} and \id{argv} are the command line
-  argument counter and array received by \id{main}, respectively.
-  
+  For example, call \id{MPI\_Init} to initialize {\mpi} if used, or
+  set \id{num\_threads}, the number of threads to use within the threaded
+  vector functions, if used.
+ 
 \item
-  {\bf Set problem dimensions}
+  {\bf Set problem dimensions etc.}
 
-  {\s, \omp, \pt} Set \id{N}, the problem size $N$.
+  This generally includes the problem size \id{N}, and may include
+  the local vector length \id{Nlocal}.
 
-  {\omp, \pt} Set \id{num\_threads}, the number of threads to use within
-  the threaded vector functions.
-
-  {\p} {\h} Set \id{Nlocal}, the local vector length (the sub-vector
-  length for this process); \id{N}, the global vector length (the
-  problem size $N$, and the sum of all the values of \id{Nlocal});
-  and the active set of processes.
-  
-  Note: The variables \id{N} and \id{Nlocal} should be of type
-  \id{long int}.  The variable \id{num\_threads} should be of type \id{int}.
+  Note: The variables \id{N} and \id{Nlocal} should be of type \id{long int}.
 
 \item
   {\bf Set vector of initial values}
  
-  To set the vector \id{y0} of initial values, use the appropriate functions defined
-  by the particular {\nvector} implementation.  If a \id{realtype} array \id{ydata}
-  containing the initial values of $y$ already exists, then make the call:
+  To set the vector \id{y0} of initial values, use the appropriate
+  functions defined by the particular {\nvector} implementation.  If a
+  \id{realtype} array \id{ydata} containing the initial values of $y$
+  already exists, then make the appropriate call
 
-  {\s} \id{y0 = N\_VMake\_Serial(N, ydata);}
+  \id{y0 = N\_VMake\_***(..., ydata);}
 
-  {\omp} \id{y0 = N\_VMake\_OpenMP(N, num\_threads, ydata);}
+  Otherwise, make the appropriate call
 
-  {\pt} \id{y0 = N\_VMake\_Pthreads(N, num\_threads, ydata);}
+  \id{y0 = N\_VNew\_***(...);}
 
-  {\p} \id{y0 = N\_VMake\_Parallel(comm, Nlocal, N, ydata);}
+  and load initial values into the structure defined by \id{NV\_DATA\_***(y0)}.
 
-  {\h} \id{y0 = N\_VMake\_ParHyp(comm, Nlocal, N, ydata);}
-
-  Otherwise, make the call:
-
-  {\s} \id{y0 = N\_VNew\_Serial(N);}
-
-  {\omp} \id{y0 = N\_VNew\_OpenMP(N, num\_threads);}
-
-  {\pt} \id{y0 = N\_VNew\_Pthreads(N, num\_threads);}
-
-  {\p} \id{y0 = N\_VNew\_Parallel(comm, Nlocal, N);}
-
-  {\h} \id{y0 = N\_VNew\_ParHyp(comm, Nlocal, N);}
-
-  and load initial values into the structure defined by:
-
-  {\s} \id{NV\_DATA\_S(y0)}
-
-  {\omp} \id{NV\_DATA\_OMP(y0)}
-
-  {\pt} \id{NV\_DATA\_PT(y0)}
-
-  {\p} \id{NV\_DATA\_P(y0)}
-
-  {\h} \id{NV\_DATA\_PH(y0)}
-
-  Here \id{comm} is the {\mpi} communicator, set in one of two ways: 
-  If a proper subset of active processes is to be used, \id{comm} 
-  must be set by suitable {\mpi} calls. Otherwise, to specify that all 
-  processes are to be used, \id{comm} must be \id{MPI\_COMM\_WORLD}.
-  
 \item\label{i:cvode_create} 
   {\bf Create {\cvodes} object}
 
@@ -266,11 +226,10 @@ steps marked {\h} correspond to {\nvecph}.
   {\bf Initialize {\cvodes} solver}
 
   Call \id{CVodeInit}\id{(...)} 
-  to provide required problem specifications,
-  allocate internal memory for {\cvodes}, 
-  and initialize {\cvodes}.
-  \id{CVodeInit} returns a flag, the value of which indicates either success or an illegal
-  argument value.  See \S\ref{sss:cvodemalloc} for details.
+  to provide required problem specifications, allocate internal memory for
+  {\cvodes}, and initialize {\cvodes}.
+  \id{CVodeInit} returns a flag, the value of which indicates either success or
+  an illegal argument value.  See \S\ref{sss:cvodemalloc} for details.
   
 \item
   {\bf Specify integration tolerances}
@@ -295,19 +254,19 @@ steps marked {\h} correspond to {\nvecph}.
   If Newton iteration is chosen, initialize the linear solver module
   with one of the following calls (for details see \S\ref{sss:lin_solv_init}):
 
-  {\s, \omp, \pt} \id{ier = }\Id{CVDense}\id{(...);}
+  \id{ier = }\Id{CVDense}\id{(...);}
 
-  {\s, \omp, \pt} \id{ier = }\Id{CVBand}\id{(...);}
+  \id{ier = }\Id{CVBand}\id{(...);}
 
-  {\s, \omp, \pt} \id{ier = }\Id{CVLapackDense}\id{(...);}
+  \id{ier = }\Id{CVLapackDense}\id{(...);}
 
-  {\s, \omp, \pt} \id{ier = }\Id{CVLapackBand}\id{(...);}
+  \id{ier = }\Id{CVLapackBand}\id{(...);}
+
+  \id{ier = }\Id{CVKLU}\id{(...);}
+
+  \id{ier = }\Id{CVSuperLUMT}\id{(...);}
 
   \id{ier = }\Id{CVDiag}\id{(...);}
-
-  {\s, \omp, \pt} \id{ier = }\Id{CVKLU}\id{(...);}
-
-  {\s, \omp, \pt} \id{ier = }\Id{CVSuperLUMT}\id{(...);}
 
   \id{ier = }\Id{CVSpgmr}\id{(...);}
   
@@ -315,6 +274,9 @@ steps marked {\h} correspond to {\nvecph}.
   
   \id{ier = }\Id{CVSptfqmr}\id{(...);}
   
+NOTE: The direct (dense or band) and sparse linear solver options are
+usable only in a serial environment.
+
 \item
   {\bf Set linear solver optional inputs}
 
@@ -337,7 +299,7 @@ steps marked {\h} correspond to {\nvecph}.
   For each point at which output is desired, call
   \id{ier = }\Id{CVode}\id{(cvode\_mem, tout, yout, \&tret, itask)}.
   Here \Id{itask} specifies the return mode.
-  The vector \id{y} (which can be the same as
+  The vector \id{yout} (which can be the same as
   the vector \id{y0} above) will contain $y(t)$.
   See \S\ref{sss:cvode} for details.
   
@@ -351,29 +313,23 @@ steps marked {\h} correspond to {\nvecph}.
   {\bf Deallocate memory for solution vector}
 
   Upon completion of the integration, deallocate memory for the vector \id{y}
-  by calling the destructor function defined by the {\nvector} implementation:
+  (or \id{yout}) by calling the appropriate destructor function defined by the
+  {\nvector} implementation:
 
-  {\s} \id{N\_VDestroy\_Serial(y);}
+  \id{N\_VDestroy\_***(y);}
 
-  {\omp} \id{N\_VDestroy\_OpenMP(y);}
-
-  {\pt} \id{N\_VDestroy\_Pthreads(y);}
-  
-  {\p} \id{N\_VDestroy\_Parallel(y);}
-
-  {\h} \id{N\_VDestroy\_ParHyp(y);}
-  
 \item
   {\bf Free solver memory}
 
-  Call \Id{CVodeFree}\id{(\&cvode\_mem)} to free the memory allocated for {\cvodes}.
+  Call \Id{CVodeFree}\id{(\&cvode\_mem)} to free the memory allocated by {\cvodes}.
   
 \item 
-  {\bf {\p} {\h} Finalize MPI}
+  {\bf Finalize MPI, if used}
 
   Call \id{MPI\_Finalize()} to terminate MPI.
   
 \end{Steps}
+
 
 %%===================================================================================
 \section{User-callable functions}\label{ss:callable_fct_sim}
@@ -5129,19 +5085,17 @@ that are unchanged from the skeleton program presented in
 \begin{Steps}
   
 \item 
-  \textcolor{gray}{\bf {\p} Initialize MPI}
+  \textcolor{gray}{\bf Initialize parallel or multi-threaded environment,
+  if appropriate}
 
 \item
-  {\bf Set problem dimensions}
+  {\bf Set problem dimensions, etc.}
 
-  {\s} {\omp} {\pt} Set \id{N} to the problem size $N$ (excluding quadrature
-   variables), and \id{Nq} to the number of quadrature variables.
+  Set the problem size \id{N} (excluding quadrature variables),
+  and the number of quadrature variables \id{Nq}.
 
-  {\omp, \pt} Set \id{num\_threads}, the number of threads to use within
-  the threaded vector functions.
-
-  {\p} {\h} Set \id{Nlocal} to the local vector length (excluding quadrature
-   variables), and \id{Nqlocal} to the local number of quadrature variables.
+  If appropriate, set the local vector length \id{Nlocal} (excluding quadrature
+   variables), and the local number of quadrature variables \id{Nqlocal}.
   
 \item
   \textcolor{gray}{\bf Set vector of initial values}
@@ -5162,7 +5116,7 @@ that are unchanged from the skeleton program presented in
   \textcolor{gray}{\bf Set linear solver optional inputs}
 
 \item
-  {\bf Set vector of initial values for quadrature variables}
+  {\bf Set vector \id{yQ0} of initial values for quadrature variables}
 
   Typically, the quadrature variables should be initialized to $0$.
 
@@ -5207,12 +5161,12 @@ that are unchanged from the skeleton program presented in
   {\bf Free solver memory}
 
 \item 
-  \textcolor{gray}{\bf {\p} Finalize MPI}
+  \textcolor{gray}{\bf Finalize MPI, if used}
   
 \end{Steps}
 %%
 \id{CVodeQuadInit} can be called and quadrature-related optional inputs 
-(step \ref{i:quad_optional_inputs} above) can be set, anywhere between steps 
+(step \ref{i:quad_optional_inputs} above) can be set anywhere between steps 
 \ref{i:quad_cvode_create} and \ref{i:quad_cvode_solve}.
 
 %%===================================================================================
@@ -5240,7 +5194,7 @@ flag = CVodeQuadInit(cvode\_mem, fQ, yQ0);
     equations. This function has the form 
     \id{fQ(t, y, yQdot, fQ\_data)} (for full details see \S\ref{ss:user_fct_quad}).
   \item[yQ0] (\id{N\_Vector})
-    is the initial value of $y_Q$.
+    is the initial value of \id{yQ}.
   \end{args}
 }
 {
@@ -5292,7 +5246,7 @@ The call to the \id{CVodeQuadReInit} function has the following form:
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[yQ0] (\id{N\_Vector})
-    is the initial value of $y_Q$.
+    is the initial value of \id{yQ}.
   \end{args}
 }
 {
