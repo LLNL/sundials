@@ -25,11 +25,11 @@
 
 //#include <petscksp.h>
 
-#include <ida/ida_petsc_ksp.h>
+#include <ida/ida_petsc.h>
+#include <nvector/nvector_petsc.h> /* PETSc vector specific */
 #include "ida_petsc_impl.h"
 #include "ida_impl.h"
 
-//#include <sundials/sundials_petsc_ksp.h>
 #include <sundials/sundials_math.h>
 
 /* Return values for KSPSolve */
@@ -41,7 +41,7 @@
 #define KSP_QRFACT_FAIL        3  /* QRfact found singular matrix  */
 #define KSP_PSOLVE_FAIL_REC    4  /* psolve failed recoverably     */
 #define KSP_ATIMES_FAIL_REC    5  /* atimes failed recoverably     */
-#define KSP_JAC_FAIL_REC       6  /* Jacobian faild recoverably    */
+#define KSP_JAC_FAIL_REC       6  /* Jacobian failedrecoverably    */
 
 #define KSP_MEM_NULL          -1  /* mem argument is NULL          */
 #define KSP_ATIMES_FAIL_UNREC -2  /* atimes returned failure flag  */
@@ -49,6 +49,12 @@
 #define KSP_GS_FAIL           -4  /* Gram-Schmidt routine faiuled  */        
 #define KSP_QRSOL_FAIL        -5  /* QRsol found singular R        */
 #define KSP_JAC_FAIL_UNREC    -6  /* Jacobian failed unrecoverably */
+
+
+/* Error message defaults */
+
+#define SUNMODULE "IDA PETSc KSP" /* SUNDIALS module ID            */
+#define SUNFUNC   "IDAPETScKSP"   /* SUNDIALS function prefix      */
 
 /* Constants */
 
@@ -58,98 +64,50 @@
 #define PT9          RCONST(0.9)
 #define PT05         RCONST(0.05)
 
-/* IDAKSP linit, lsetup, lsolve, lperf, and lfree routines */
+/* IDAPETScKSP linit, lsetup, lsolve, lperf, and lfree routines */
 
-static int IDAKSPInit(IDAMem IDA_mem);
+static int IDAPETScKSPInit(IDAMem IDA_mem);
 
-static int IDAKSPSetup(IDAMem IDA_mem, 
+static int IDAPETScKSPSetup(IDAMem IDA_mem, 
                          N_Vector yy_p, N_Vector yp_p, N_Vector rr_p, 
                          N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-static int IDAKSPSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
+static int IDAPETScKSPSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
                          N_Vector yy_now, N_Vector yp_now, N_Vector rr_now);
 
-static int IDAKSPPerf(IDAMem IDA_mem, int perftask);
+static int IDAPETScKSPPerf(IDAMem IDA_mem, int perftask);
 
-static int IDAKSPFree(IDAMem IDA_mem);
+static int IDAPETScKSPFree(IDAMem IDA_mem);
 
-
-/* Readability Replacements */
-
-#define nst          (IDA_mem->ida_nst)
-#define tn           (IDA_mem->ida_tn)
-#define cj           (IDA_mem->ida_cj)
-#define epsNewt      (IDA_mem->ida_epsNewt)
-#define res          (IDA_mem->ida_res)
-#define user_data    (IDA_mem->ida_user_data)
-#define ewt          (IDA_mem->ida_ewt)
-#define errfp        (IDA_mem->ida_errfp)
-// #define linit        (IDA_mem->ida_linit)
-// #define lsetup       (IDA_mem->ida_lsetup)
-// #define lsolve       (IDA_mem->ida_lsolve)
-// #define lperf        (IDA_mem->ida_lperf)
-// #define lfree        (IDA_mem->ida_lfree)
-// #define lmem         (IDA_mem->ida_lmem)
-#define nni          (IDA_mem->ida_nni)
-#define ncfn         (IDA_mem->ida_ncfn)
-//#define setupNonNull (IDA_mem->ida_setupNonNull)
-//#define vec_tmpl     (IDA_mem->ida_tempv1)
-
-//#define sqrtN     (idapetsc_mem->s_sqrtN)
-#define epslin    (idapetsc_mem->s_epslin)
-#define ytemp     (idapetsc_mem->s_ytemp)
-#define yptemp    (idapetsc_mem->s_yptemp)
-#define xx        (idapetsc_mem->s_xx)
-#define ycur      (idapetsc_mem->s_ycur)
-#define ypcur     (idapetsc_mem->s_ypcur)
-#define rcur      (idapetsc_mem->s_rcur)
-// #define npe       (idapetsc_mem->s_npe)
-// #define nli       (idapetsc_mem->s_nli)
-// #define nps       (idapetsc_mem->s_nps)
-// #define ncfl      (idapetsc_mem->s_ncfl)
-#define nst0      (idapetsc_mem->s_nst0)
-#define nni0      (idapetsc_mem->s_nni0)
-#define nli0      (idapetsc_mem->s_nli0)
-#define ncfn0     (idapetsc_mem->s_ncfn0)
-#define ncfl0     (idapetsc_mem->s_ncfl0)
-#define nwarn     (idapetsc_mem->s_nwarn)
-// #define njtimes   (idapetsc_mem->s_njtimes)
-// #define nres      (idapetsc_mem->s_nres)
-//#define spils_mem (idapetsc_mem->s_spils_mem)
-
-#define jtimesDQ  (idapetsc_mem->s_jtimesDQ)
-#define jtimes    (idapetsc_mem->s_jtimes)
-#define jdata     (idapetsc_mem->s_jdata)
-
-// #define last_flag (idapetsc_mem->s_last_flag)
 
 /*
- * -----------------------------------------------------------------
- * IDAKSP
- * -----------------------------------------------------------------
+ * --------------------------------------------------------------------------
+ * IDAPETScKSP
+ * --------------------------------------------------------------------------
  *
  * This routine initializes the memory record and sets various function
- * fields specific to the IDAKSP linear solver module.  
+ * fields specific to the IDAPETScKSP linear solver module.  
  *
- * IDAKSP first calls the existing lfree routine if this is not NULL.
+ * IDAPETScKSP first calls the existing lfree routine if this is not NULL.
  * It then sets the ida_linit, ida_lsetup, ida_lsolve, ida_lperf, and
- * ida_lfree fields in (*IDA_mem) to be IDAKSPInit, IDAKSPSetup,
- * IDAKSPSolve, IDAKSPPerf, and IDAKSPFree, respectively.
+ * ida_lfree fields in (*IDA_mem) to be IDAPETScKSPInit, IDAPETScKSPSetup,
+ * IDAPETScKSPSolve, IDAPETScKSPPerf, and IDAPETScKSPFree, respectively.
  * It allocates memory for a structure of type IDAPETScMemRec and sets
  * the ida_lmem field in (*IDA_mem) to the address of this structure.
  * It sets setupNonNull in (*IDA_mem).  It then various fields in the
- * IDAPETScMemRec structure. Finally, IDAKSP allocates memory for 
+ * IDAPETScMemRec structure. Finally, IDAPETScKSP allocates memory for 
  * ytemp, yptemp, and xx, and calls KSPMalloc to allocate memory
  * for the KSP solver.
  *
- * The return value of IDAKSP is:
- *   IDAKSP_SUCCESS   =  0  if successful
- *   IDAKSP_MEM_FAIL  = -1 if IDA_mem is NULL or a memory allocation failed
- *   IDAKSP_ILL_INPUT = -2 if the gstype argument is illegal.
+ * The return value of IDAPETScKSP is:
+ *   PETSC_KSP_SUCCESS   =  0 if successful
+ *   PETSC_KSP_MEM_NULL  = -1 if IDA_mem is NULL or a memory allocation failed
+ *   PETSC_KSP_LMEM_NULL = -2 if linear solver memory is NULL
+ *   PETSC_KSP_ILL_INPUT = -3 if the argument is illegal.
  *
- * -----------------------------------------------------------------
+ * --------------------------------------------------------------------------
  */
-int IDAKSP(void *ida_mem, MPI_Comm comm, Mat *JacMat)
+int IDAPETScKSP(void *ida_mem, MPI_Comm comm, Mat *JacMat)
 {
   IDAMem IDA_mem;
   IDAPETScMem idapetsc_mem;
@@ -159,15 +117,15 @@ int IDAKSP(void *ida_mem, MPI_Comm comm, Mat *JacMat)
   
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDAKSP_MEM_NULL, "IDAKSP", "IDAKSP", MSGS_IDAMEM_NULL);
-    return(IDAKSP_MEM_NULL);
+    IDAProcessError(NULL, PETSC_KSP_MEM_NULL, SUNMODULE, SUNFUNC, MSGS_IDAMEM_NULL);
+    return(PETSC_KSP_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   /* Check if N_VDotProd is present */
   if(IDA_mem->ida_tempv1->ops->nvdotprod == NULL) {
-    IDAProcessError(NULL, IDAKSP_ILL_INPUT, "IDAKSP", "IDAKSP", MSGS_BAD_NVECTOR);
-    return(IDAKSP_ILL_INPUT);
+    IDAProcessError(NULL, PETSC_KSP_ILL_INPUT, SUNMODULE, SUNFUNC, MSGS_BAD_NVECTOR);
+    return(PETSC_KSP_ILL_INPUT);
   }
 
   /* If there is an instance of linear solver associated with IDA, delete it. */
@@ -175,66 +133,48 @@ int IDAKSP(void *ida_mem, MPI_Comm comm, Mat *JacMat)
     flag = IDA_mem->ida_lfree((IDAMem) ida_mem);
 
   /* Set five main function fields in ida_mem */
-  IDA_mem->ida_linit  = IDAKSPInit;
-  IDA_mem->ida_lsetup = IDAKSPSetup;
-  IDA_mem->ida_lsolve = IDAKSPSolve;
-  IDA_mem->ida_lperf  = IDAKSPPerf;
-  IDA_mem->ida_lfree  = IDAKSPFree;
+  IDA_mem->ida_linit  = IDAPETScKSPInit;
+  IDA_mem->ida_lsetup = IDAPETScKSPSetup;
+  IDA_mem->ida_lsolve = IDAPETScKSPSolve;
+  IDA_mem->ida_lperf  = IDAPETScKSPPerf;
+  IDA_mem->ida_lfree  = IDAPETScKSPFree;
 
-  /* Set setupNonNull to FALSE */
+  /* Set setupNonNull to TRUE */
   IDA_mem->ida_setupNonNull = TRUE;
 
   /* Get memory for IDAPETScMemRec. */
   idapetsc_mem = (IDAPETScMem) malloc(sizeof(struct IDAPETScMemRec));
   if (idapetsc_mem == NULL) {
-    IDAProcessError(IDA_mem, IDAKSP_MEM_FAIL, "IDAKSP", "IDAKSP", MSGS_MEM_FAIL);
-    return(IDAKSP_MEM_FAIL);
+    IDAProcessError(IDA_mem, PETSC_KSP_MEM_FAIL, SUNMODULE, SUNFUNC, MSGS_MEM_FAIL);
+    return(PETSC_KSP_MEM_FAIL);
   }
 
-  idapetsc_mem->s_pdata  = IDA_mem->ida_user_data;
-  idapetsc_mem->s_last_flag  = IDAKSP_SUCCESS;
+  /* Set pointer to user data attached to the solver */
+  idapetsc_mem->s_udata  = IDA_mem->ida_user_data;
+  idapetsc_mem->s_last_flag  = PETSC_KSP_SUCCESS;
 
   /* Allocate memory for ytemp, yptemp, and xx */
 
-  ytemp = N_VClone(IDA_mem->ida_tempv1);
-  if (ytemp == NULL) {
-    IDAProcessError(NULL, IDAKSP_MEM_FAIL, "IDAKSP", "IDAKSP", MSGS_MEM_FAIL);
+  idapetsc_mem->s_ytemp = N_VClone(IDA_mem->ida_tempv1);
+  if (idapetsc_mem->s_ytemp == NULL) {
+    IDAProcessError(NULL, PETSC_KSP_MEM_FAIL, SUNMODULE, SUNFUNC, MSGS_MEM_FAIL);
     free(idapetsc_mem); idapetsc_mem = NULL;
-    return(IDAKSP_MEM_FAIL);
-  }
-
-  yptemp = N_VClone(IDA_mem->ida_tempv1);
-  if (yptemp == NULL) {
-    IDAProcessError(NULL, IDAKSP_MEM_FAIL, "IDAKSP", "IDAKSP", MSGS_MEM_FAIL);
-    N_VDestroy(ytemp);
-    free(idapetsc_mem); idapetsc_mem = NULL;
-    return(IDAKSP_MEM_FAIL);
-  }
-
-  xx = N_VClone(IDA_mem->ida_tempv1);
-  if (xx == NULL) {
-    IDAProcessError(NULL, IDAKSP_MEM_FAIL, "IDAKSP", "IDAKSP", MSGS_MEM_FAIL);
-    N_VDestroy(ytemp);
-    N_VDestroy(yptemp);
-    free(idapetsc_mem); idapetsc_mem = NULL;
-    return(IDAKSP_MEM_FAIL);
+    return(PETSC_KSP_MEM_FAIL);
   }
 
   /* Compute sqrtN from a dot product */
-  N_VConst(ONE, ytemp);
-  idapetsc_mem->s_sqrtN = SUNRsqrt( N_VDotProd(ytemp, ytemp) );
+  N_VConst(ONE, idapetsc_mem->s_ytemp);
+  idapetsc_mem->s_sqrtN = SUNRsqrt( N_VDotProd(idapetsc_mem->s_ytemp, idapetsc_mem->s_ytemp) );
 
   /* Allocate memory for KSP solver */
   solver = NULL;
   solver = (KSP*) malloc(sizeof(KSP));
   if (solver == NULL) {
-    IDAProcessError(NULL, IDAKSP_MEM_FAIL, "IDAKSP", "IDAKSP", MSGS_MEM_FAIL);
-    N_VDestroy(ytemp);
-    N_VDestroy(yptemp);
-    N_VDestroy(xx);
+    IDAProcessError(NULL, PETSC_KSP_MEM_FAIL, SUNMODULE, SUNFUNC, MSGS_MEM_FAIL);
+    N_VDestroy(idapetsc_mem->s_ytemp);
     free(idapetsc_mem);
     idapetsc_mem = NULL;
-    return(IDAKSP_MEM_FAIL);
+    return(PETSC_KSP_MEM_FAIL);
   }
 
   /* Create KSP solver */
@@ -254,27 +194,17 @@ int IDAKSP(void *ida_mem, MPI_Comm comm, Mat *JacMat)
   /* Attach linear solver memory to the integrator memory */
   IDA_mem->ida_lmem = idapetsc_mem;
 
-  return 0;
+  return PETSC_KSP_SUCCESS;
 }
 
 
 /*
  * -----------------------------------------------------------------
- * IDAKSP interface routines
+ * IDAPETScKSP interface routines
  * -----------------------------------------------------------------
  */
 
-/* Additional readability Replacements */
-
-#define gstype   (idapetsc_mem->s_gstype)
-#define maxl     (idapetsc_mem->s_maxl)
-#define maxrs    (idapetsc_mem->s_maxrs)
-#define eplifac  (idapetsc_mem->s_eplifac)
-#define psolve   (idapetsc_mem->s_psolve)
-#define pset     (idapetsc_mem->s_pset)
-#define pdata    (idapetsc_mem->s_pdata)
-
-static int IDAKSPInit(IDAMem IDA_mem)
+static int IDAPETScKSPInit(IDAMem IDA_mem)
 {
   IDAPETScMem idapetsc_mem;
   KSP *solver;
@@ -292,51 +222,57 @@ static int IDAKSPInit(IDAMem IDA_mem)
   idapetsc_mem->s_nres = 0;
   idapetsc_mem->s_nje  = 0;
 
-  /* Set setupNonNull to TRUE iff there is preconditioning with setup */
-  // IDA_mem->ida_setupNonNull = (psolve != NULL) && (pset != NULL);
-
-  /* Set Jacobian-related fields, based on jtimesDQ */
-  if (jtimesDQ) {
-    //jtimes = IDAPETScDQJtimes;
-    //jdata = IDA_mem;
-  } else {
-    jdata = user_data;
-  }
-
   /* Set options for the PETSc linear solver */
   ierr = KSPSetFromOptions(*solver);
   CHKERRQ(ierr);
 
-  idapetsc_mem->s_last_flag = IDAKSP_SUCCESS;
+  idapetsc_mem->s_last_flag = PETSC_KSP_SUCCESS;
   return(0);
 }
 
-static int IDAKSPSetup(IDAMem IDA_mem, 
-                       N_Vector yy_p, N_Vector yp_p, N_Vector rr_p, 
-                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+/*
+ * --------------------------------------------------------------------------
+ * IDAPETScKSPSetup
+ * --------------------------------------------------------------------------
+ *
+ * Calls user supplied function for Jacobian evaluation.
+ *
+ * The return value of IDAPETScKSP is:
+ *   PETSC_KSP_SUCCESS   =  0 if successful
+ *   PETSC_KSP_MEM_NULL  = -1 if IDA_mem is NULL or a memory allocation failed
+ *   PETSC_KSP_LMEM_NULL = -2 if linear solver memory is NULL
+ *   PETSC_KSP_ILL_INPUT = -3 if the argument is illegal.
+ * 
+ * TODO: Consolidate error messages!
+ *
+ * --------------------------------------------------------------------------
+ */
+static int IDAPETScKSPSetup(IDAMem IDA_mem, 
+                            N_Vector yy_p, N_Vector yp_p, N_Vector rr_p, 
+                            N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   int retval;
   IDAPETScMem idapetsc_mem = (IDAPETScMem) IDA_mem->ida_lmem;
   
   if (idapetsc_mem->s_jaceval == NULL) {
-    printf("Jacobian evaluation function not allocated!\n.");
-    exit(0);
+    IDAProcessError(IDA_mem, PETSC_KSP_ILL_INPUT, SUNMODULE, SUNFUNC "Setup", MSGS_JAC_NULL);
+    return(PETSC_KSP_ILL_INPUT);
   }
   if (idapetsc_mem->JacMat == NULL) {
-    printf("Jacobian not allocated!\n.");
-    exit(0);
+    IDAProcessError(IDA_mem, PETSC_KSP_ILL_INPUT, SUNMODULE, SUNFUNC "Setup", MSGS_JAC_MAT_NULL);
+    return(PETSC_KSP_ILL_INPUT);
   }
   
   /* Call user setup routine jaceval and update counter nje. */
   retval = idapetsc_mem->s_jaceval(IDA_mem->ida_tn, IDA_mem->ida_cj,
                                    yy_p, yp_p, rr_p, 
-                                   *(idapetsc_mem->JacMat), idapetsc_mem->s_pdata,
+                                   *(idapetsc_mem->JacMat), idapetsc_mem->s_udata,
                                    tmp1, tmp2, tmp3);
   (idapetsc_mem->s_nje)++;
 
   /* Return flag showing success or failure of jaceval. */
   if (retval < 0) {
-    IDAProcessError(IDA_mem, KSP_JAC_FAIL_UNREC, "IDAKSP", "IDAKSPSetup", MSGS_JAC_FAILED);
+    IDAProcessError(IDA_mem, KSP_JAC_FAIL_UNREC, SUNMODULE, SUNFUNC "Setup", MSGS_JAC_FAILED);
     idapetsc_mem->s_last_flag = KSP_JAC_FAIL_UNREC;
     return(-1);
   }
@@ -357,16 +293,41 @@ static int IDAKSPSetup(IDAMem IDA_mem,
  * We copy the solution x into b, and update the counters nli, nps, ncfl.
  * If KSPSolve returned nli_inc = 0 (hence x = 0), we take the KSP
  * vtemp vector (= P_inverse F) as the correction vector instead.
- *  Finally, we set the return value according to the success of KSPSolve.
+ * Finally, we set the return value according to the success of KSPSolve.
+ * 
+ * Use KSPGetConvergedReason() to find the outcome of the solve. 
+ * typedef enum {// converged 
+              KSP_CONVERGED_RTOL_NORMAL        =  1,
+              KSP_CONVERGED_ATOL_NORMAL        =  9,
+              KSP_CONVERGED_RTOL               =  2,
+              KSP_CONVERGED_ATOL               =  3,
+              KSP_CONVERGED_ITS                =  4,
+              KSP_CONVERGED_CG_NEG_CURVE       =  5,
+              KSP_CONVERGED_CG_CONSTRAINED     =  6,
+              KSP_CONVERGED_STEP_LENGTH        =  7,
+              KSP_CONVERGED_HAPPY_BREAKDOWN    =  8,
+              // diverged 
+              KSP_DIVERGED_NULL                = -2,
+              KSP_DIVERGED_ITS                 = -3,
+              KSP_DIVERGED_DTOL                = -4,
+              KSP_DIVERGED_BREAKDOWN           = -5,
+              KSP_DIVERGED_BREAKDOWN_BICG      = -6,
+              KSP_DIVERGED_NONSYMMETRIC        = -7,
+              KSP_DIVERGED_INDEFINITE_PC       = -8,
+              KSP_DIVERGED_NANORINF            = -9,
+              KSP_DIVERGED_INDEFINITE_MAT      = -10,
+              KSP_DIVERGED_PCSETUP_FAILED      = -11,
+
+              KSP_CONVERGED_ITERATING          =  0} KSPConvergedReason;
  */
 
-static int IDAKSPSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
-                       N_Vector yy_now, N_Vector yp_now, N_Vector rr_now)
+static int IDAPETScKSPSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
+                            N_Vector yy_now, N_Vector yp_now, N_Vector rr_now)
 {
   IDAPETScMem idapetsc_mem = (IDAPETScMem) IDA_mem->ida_lmem;
   KSP *solver = idapetsc_mem->s_ksp_mem;
   int pretype;
-//   int nli_inc, nps_inc, retval;
+  int nli_inc;
   realtype res_norm;
   PetscErrorCode ierr;
   
@@ -377,38 +338,33 @@ static int IDAKSPSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
     Newton convergence test constant epsNewt and safety factors.  The factor 
     sqrt(Neq) assures that the GMRES convergence test is applied to the
     WRMS norm of the residual vector, rather than the weighted L2 norm. */
-  epslin = (idapetsc_mem->s_sqrtN)*(idapetsc_mem->s_eplifac)*(IDA_mem->ida_epsNewt);
+  idapetsc_mem->s_epslin = (idapetsc_mem->s_sqrtN)*(idapetsc_mem->s_eplifac)*(IDA_mem->ida_epsNewt);
 
-  /* Set vectors ycur, ypcur, and rcur for use by the Atimes and Psolve */
-//   idapetsc_mem->s_ycur  = yy_now;
-//   idapetsc_mem->s_ypcur = yp_now;
-//   idapetsc_mem->s_rcur  = rr_now;
-
-  /* Set KSPSolve inputs pretype and initial guess xx = 0. */  
-//   pretype = (psolve == NULL) ? PREC_NONE : PREC_LEFT;
-//   N_VConst(ZERO, xx);
-  
   /* Call KSPSolve and copy xx to bb. */
   ierr = KSPSolve(*solver, *(NV_PVEC_PTC(bb)), *(NV_PVEC_PTC(bb)));
 
+  KSPGetIterationNumber(*solver, &nli_inc);
+  
 //   if (nli_inc == 0) N_VScale(ONE, KSP_VTEMP(spgmr_mem), bb);
 //   else N_VScale(ONE, xx, bb);
 //   
-//   /* Increment counters nli, nps, and return if successful. */
-//   idapetsc_mem->s_nli += nli_inc;
-//   idapetsc_mem->s_nps += nps_inc;
-//   if (retval != KSP_SUCCESS) 
-//     (idapetsc_mem->s_ncfl)++;
+  
+  /* Increment counters nli, nps, and return if successful. */
+  idapetsc_mem->s_nli += nli_inc;
+  if (ierr != KSP_SUCCESS) 
+    (idapetsc_mem->s_ncfl)++;
+  //printf("nli = %d\n", idapetsc_mem->s_nli);
 
   /* Interpret return value from KSPSolve */
 
   idapetsc_mem->s_last_flag = ierr;
-  CHKERRQ(ierr);
+  //CHKERRQ(ierr);
   
-    /* Scale the correction to account for change in cj. */
+  
+  /* Scale the correction to account for change in cj. */
   if (cjratio != ONE) N_VScale(TWO/(ONE + cjratio), bb, bb);
 
-  idapetsc_mem->s_last_flag = IDAKSP_SUCCESS;
+  idapetsc_mem->s_last_flag = PETSC_KSP_SUCCESS;
 
   
 //   switch(retval) {
@@ -435,11 +391,11 @@ static int IDAKSPSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
 //     return(-1);
 //     break;
 //   case KSP_ATIMES_FAIL_UNREC:
-//     IDAProcessError(IDA_mem, KSP_ATIMES_FAIL_UNREC, "IDAKSP", "IDAKSPSolve", MSGS_JTIMES_FAILED);    
+//     IDAProcessError(IDA_mem, KSP_ATIMES_FAIL_UNREC, SUNMODULE, "IDAKSPSolve", MSGS_JTIMES_FAILED);    
 //     return(-1);
 //     break;
 //   case KSP_PSOLVE_FAIL_UNREC:
-//     IDAProcessError(IDA_mem, KSP_PSOLVE_FAIL_UNREC, "IDAKSP", "IDAKSPSolve", MSGS_PSOLVE_FAILED);
+//     IDAProcessError(IDA_mem, KSP_PSOLVE_FAIL_UNREC, SUNMODULE, "IDAKSPSolve", MSGS_PSOLVE_FAILED);
 //     return(-1);
 //     break;
 //   case KSP_GS_FAIL:
@@ -454,7 +410,7 @@ static int IDAKSPSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
 }
 
 /*
- * This routine handles performance monitoring specific to the IDAKSP
+ * This routine handles performance monitoring specific to the IDAPETScKSP
  * linear solver.  When perftask = 0, it saves values of various counters.
  * When perftask = 1, it examines difference quotients in these counters,
  * and depending on their values, it prints up to three warning messages.
@@ -463,7 +419,7 @@ static int IDAKSPSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
  * TODO: Need to figure out how to use PETSc built-in stats. Disable for now!
  */
 
-static int IDAKSPPerf(IDAMem IDA_mem, int perftask)
+static int IDAPETScKSPPerf(IDAMem IDA_mem, int perftask)
 {
   IDAPETScMem idapetsc_mem;
   realtype avdim, rcfn, rcfl;
@@ -473,17 +429,17 @@ static int IDAKSPPerf(IDAMem IDA_mem, int perftask)
   idapetsc_mem = (IDAPETScMem) IDA_mem->ida_lmem;
 
 //   if (perftask == 0) {
-//     nst0 = nst;  nni0 = nni;  nli0 = nli;
-//     ncfn0 = ncfn;  ncfl0 = ncfl;  
+//     nst0 = nst;  nni0 = nni;  nli0 = idapetsc_mem->s_nli;
+//     ncfn0 = ncfn;  ncfl0 = idapetsc_mem->s_ncfl;  
 //     nwarn = 0;
 //     return(0);
 //   }
 // 
 //   nstd = nst - nst0;  nnid = nni - nni0;
 //   if (nstd == 0 || nnid == 0) return(0);
-//   avdim = (realtype) ((nli - nli0)/((realtype) nnid));
+//   avdim = (realtype) ((idapetsc_mem->s_nli - nli0)/((realtype) nnid));
 //   rcfn = (realtype) ((ncfn - ncfn0)/((realtype) nstd));
-//   rcfl = (realtype) ((ncfl - ncfl0)/((realtype) nnid));
+//   rcfl = (realtype) ((idapetsc_mem->s_ncfl - ncfl0)/((realtype) nnid));
 //   lavd = (avdim > ((realtype) maxl ));
 //   lcfn = (rcfn > PT9);
 //   lcfl = (rcfl > PT9);
@@ -491,36 +447,34 @@ static int IDAKSPPerf(IDAMem IDA_mem, int perftask)
 //   nwarn++;
 //   if (nwarn > 10) return(1);
 //   if (lavd) 
-//     IDAProcessError(IDA_mem, IDA_WARNING, "IDAKSP", "IDAKSPPerf", MSGS_AVD_WARN, tn, avdim);
+//     IDAProcessError(IDA_mem, IDA_WARNING, SUNMODULE, "IDAKSPPerf", MSGS_AVD_WARN, tn, avdim);
 //   if (lcfn) 
-//     IDAProcessError(IDA_mem, IDA_WARNING, "IDAKSP", "IDAKSPPerf", MSGS_CFN_WARN, tn, rcfn);
+//     IDAProcessError(IDA_mem, IDA_WARNING, SUNMODULE, "IDAKSPPerf", MSGS_CFN_WARN, tn, rcfn);
 //   if (lcfl) 
-//     IDAProcessError(IDA_mem, IDA_WARNING, "IDAKSP", "IDAKSPPerf", MSGS_CFL_WARN, tn, rcfl);
+//     IDAProcessError(IDA_mem, IDA_WARNING, SUNMODULE, "IDAKSPPerf", MSGS_CFL_WARN, tn, rcfl);
 
   return(0);
 }
 
-static int IDAKSPFree(IDAMem IDA_mem)
+/*
+ * Delete KSP context and idapetsc_mem.
+ */
+static int IDAPETScKSPFree(IDAMem IDA_mem)
 {
   IDAPETScMem idapetsc_mem;
-  KSP *solver;
   PetscErrorCode ierr;
 
   idapetsc_mem = (IDAPETScMem) IDA_mem->ida_lmem;
   
-  N_VDestroy(ytemp);
-  N_VDestroy(yptemp);
-  N_VDestroy(xx);
+  N_VDestroy(idapetsc_mem->s_ytemp);
 
-  solver = idapetsc_mem->s_ksp_mem;
-  ierr = KSPDestroy(solver);
+  ierr = KSPDestroy(idapetsc_mem->s_ksp_mem);
+  idapetsc_mem->s_ksp_mem = NULL;
+  
+  free(idapetsc_mem); 
+  idapetsc_mem = NULL;
+
   CHKERRQ(ierr);
-
-  if (idapetsc_mem->s_pfree != NULL) 
-    (idapetsc_mem->s_pfree)(IDA_mem);
-
-  free(idapetsc_mem); idapetsc_mem = NULL;
-
   return(0);
 }
 
@@ -535,146 +489,98 @@ int IDAPETScSetJacFn(void* ida_mem, IDAPETScJacFn jac)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDAKSP_MEM_NULL, "IDAKSP", "IDASlsSetSparseJacFn", 
-            MSGS_IDAMEM_NULL);
-    return(IDAKSP_MEM_NULL);
+    IDAProcessError(NULL, PETSC_KSP_MEM_NULL, SUNMODULE, "IDAPETScSetJacFn", MSGS_IDAMEM_NULL);
+    return(PETSC_KSP_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (IDA_mem->ida_lmem == NULL) {
-    IDAProcessError(IDA_mem, IDAKSP_LMEM_NULL, "IDAKSP", 
+    IDAProcessError(IDA_mem, PETSC_KSP_LMEM_NULL, SUNMODULE, 
             "IDAPETScSetJacFn", MSGS_LMEM_NULL);
-    return(IDAKSP_LMEM_NULL);
+    return(PETSC_KSP_LMEM_NULL);
   }
   idapetsc_mem = (IDAPETScMem) IDA_mem->ida_lmem;
 
   idapetsc_mem->s_jaceval = jac;
 
-  return(IDAKSP_SUCCESS);
+  return(PETSC_KSP_SUCCESS);
 }
 
-// int IDAKSP_tmp(void *ida_mem, MPI_Comm comm, Mat *JacMat)
-// {
-//   IDAMem IDA_mem;
-//   IDAPETScMem idapetsc_mem;
-//   KSP *solver;
-//   // KSPMem spgmr_mem;
-//   int flag, maxl1;
-//   PetscErrorCode ierr;
-//   
-//   /* Return immediately if ida_mem is NULL */
-//   if (ida_mem == NULL) {
-//     IDAProcessError(NULL, IDAKSP_MEM_NULL, "IDAKSP", "IDAKSP", MSGS_IDAMEM_NULL);
-//     return(IDAKSP_MEM_NULL);
-//   }
-//   IDA_mem = (IDAMem) ida_mem;
-// 
-//   /* Check if N_VDotProd is present */
-//   if(IDA_mem->ida_tempv1->ops->nvdotprod == NULL) {
-//     IDAProcessError(NULL, IDAKSP_ILL_INPUT, "IDAKSP", "IDAKSP", MSGS_BAD_NVECTOR);
-//     return(IDAKSP_ILL_INPUT);
-//   }
-// 
-//   /* If there is an instance of linear solver associated with IDA, delete it. */
-//   if (IDA_mem->ida_lfree != NULL) 
-//     flag = IDA_mem->ida_lfree((IDAMem) ida_mem);
-// 
-//   /* Set five main function fields in ida_mem */
-//   IDA_mem->ida_linit  = IDAKSPInit;
-//   IDA_mem->ida_lsetup = IDAKSPSetup;
-//   IDA_mem->ida_lsolve = IDAKSPSolve;
-//   IDA_mem->ida_lperf  = IDAKSPPerf;
-//   IDA_mem->ida_lfree  = IDAKSPFree;
-// 
-//   /* Allocate memory for KSP solver */
-//   solver = NULL;
-//   solver = (KSP*) malloc(sizeof(KSP));
-//   if (solver == NULL) {
-//     IDAProcessError(NULL, IDAKSP_MEM_FAIL, "IDAKSP", "IDAKSP", MSGS_MEM_FAIL);
-//     return(IDAKSP_MEM_FAIL);
-//   }
-// 
-//   /* Create KSP solver */
-//   ierr = KSPCreate(comm, solver);
-//   CHKERRQ(ierr);
-// 
-//   /* Set ILS type */
-//   //idapetsc_mem->s_type = SPILS_KSP;
-// 
-//   /* Set KSP parameters that were passed in call sequence */
-//   //maxl1 = (maxl <= 0) ? IDA_SPILS_MAXL : maxl;
-//   //idapetsc_mem->s_maxl     = maxl1;
-// 
-//   /* Set defaults for Jacobian-related fileds */
-//   //jtimesDQ = TRUE;
-//   //jtimes   = NULL;
-//   //jdata    = NULL;
-// 
-//   /* Set defaults for preconditioner-related fields */
-//   //idapetsc_mem->s_pset   = NULL;
-//   //idapetsc_mem->s_psolve = NULL;
-//   //idapetsc_mem->s_pfree  = NULL;
-//   //idapetsc_mem->s_pdata  = IDA_mem->ida_user_data;
-// 
-//   /* Set default values for the rest of the KSP parameters */
-//   //idapetsc_mem->s_gstype   = MODIFIED_GS;
-//   //idapetsc_mem->s_maxrs    = IDA_SPILS_MAXRS;
-//   //idapetsc_mem->s_eplifac  = PT05;
-//   //idapetsc_mem->s_dqincfac = ONE;
-// 
-//   idapetsc_mem->s_last_flag  = IDAKSP_SUCCESS;
-// 
-//   /* Set setupNonNull to FALSE */
-//   IDA_mem->ida_setupNonNull = FALSE;
-//   //setupNonNull = FALSE;
-// 
-//   /* Allocate memory for ytemp, yptemp, and xx */
-// 
-//   ytemp = N_VClone(IDA_mem->ida_tempv1);
-//   if (ytemp == NULL) {
-//     IDAProcessError(NULL, IDAKSP_MEM_FAIL, "IDAKSP", "IDAKSP", MSGS_MEM_FAIL);
-//     free(idapetsc_mem); idapetsc_mem = NULL;
-//     return(IDAKSP_MEM_FAIL);
-//   }
-// 
-//   yptemp = N_VClone(IDA_mem->ida_tempv1);
-//   if (yptemp == NULL) {
-//     IDAProcessError(NULL, IDAKSP_MEM_FAIL, "IDAKSP", "IDAKSP", MSGS_MEM_FAIL);
-//     N_VDestroy(ytemp);
-//     free(idapetsc_mem); idapetsc_mem = NULL;
-//     return(IDAKSP_MEM_FAIL);
-//   }
-// 
-//   xx = N_VClone(IDA_mem->ida_tempv1);
-//   if (xx == NULL) {
-//     IDAProcessError(NULL, IDAKSP_MEM_FAIL, "IDAKSP", "IDAKSP", MSGS_MEM_FAIL);
-//     N_VDestroy(ytemp);
-//     N_VDestroy(yptemp);
-//     free(idapetsc_mem); idapetsc_mem = NULL;
-//     return(IDAKSP_MEM_FAIL);
-//   }
-// 
-//   /* Compute sqrtN from a dot product */
-//   N_VConst(ONE, ytemp);
-//   idapetsc_mem->s_sqrtN = SUNRsqrt( N_VDotProd(ytemp, ytemp) );
-// 
-//   /* Call KSPMalloc to allocate workspace for KSP */
-// //   spgmr_mem = NULL;
-// //   spgmr_mem = KSPMalloc(maxl1, vec_tmpl);
-// //   if (spgmr_mem == NULL) {
-// //     IDAProcessError(NULL, IDAKSP_MEM_FAIL, "IDAKSP", "IDAKSP", MSGS_MEM_FAIL);
-// //     N_VDestroy(ytemp);
-// //     N_VDestroy(yptemp);
-// //     N_VDestroy(xx);
-// //     free(idapetsc_mem); idapetsc_mem = NULL;
-// //     return(IDAKSP_MEM_FAIL);
-// //   }
-// 
-//   /* Attach KSP solver to its SUNDIALS memory structure */
-//   idapetsc_mem->s_ksp_mem = (void *) solver;
-// 
-//   /* Attach linear solver memory to the integrator memory */
-//   IDA_mem->ida_lmem = idapetsc_mem;
-// 
-//   return(IDAKSP_SUCCESS);
-// }
+/*
+ * Get number of PETSc linear solver iterations.
+ */
+int IDAPETScGetNumLinIters(void* ida_mem, long int* nliters)
+{
+  IDAMem IDA_mem;
+  IDAPETScMem idapetsc_mem;
+
+  /* Return immediately if ida_mem is NULL */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, PETSC_KSP_MEM_NULL, SUNMODULE, "IDAPETScGetNumLinIters", MSGS_IDAMEM_NULL);
+    return(PETSC_KSP_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (IDA_mem->ida_lmem == NULL) {
+    IDAProcessError(IDA_mem, PETSC_KSP_LMEM_NULL, SUNMODULE, "IDAPETScGetNumLinIters", MSGS_LMEM_NULL);
+    return(PETSC_KSP_LMEM_NULL);
+  }
+  idapetsc_mem = (IDAPETScMem) IDA_mem->ida_lmem;
+
+  *nliters = idapetsc_mem->s_nli;
+
+  return(PETSC_KSP_SUCCESS);
+}
+
+/*
+ * Get number of PETSc linear solver convergence fails.
+ */
+int IDAPETScGetNumConvFails(void *ida_mem, long int *nlcfails)
+{
+  IDAMem IDA_mem;
+  IDAPETScMem idapetsc_mem;
+
+  /* Return immediately if ida_mem is NULL */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, PETSC_KSP_MEM_NULL, SUNMODULE, "IDAPETScGetNumConvFails", MSGS_IDAMEM_NULL);
+    return(PETSC_KSP_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (IDA_mem->ida_lmem == NULL) {
+    IDAProcessError(IDA_mem, PETSC_KSP_LMEM_NULL, SUNMODULE, "IDAPETScGetNumConvFails", MSGS_LMEM_NULL);
+    return(PETSC_KSP_LMEM_NULL);
+  }
+  idapetsc_mem = (IDAPETScMem) IDA_mem->ida_lmem;
+
+  *nlcfails = idapetsc_mem->s_ncfl;
+
+  return(PETSC_KSP_SUCCESS);
+}
+
+/*
+ * Get number of Jacobian evaluations.
+ */
+int IDAPETScGetNumJacEvals(void* ida_mem, long int* njacevals)
+{
+  IDAMem IDA_mem;
+  IDAPETScMem idapetsc_mem;
+
+  /* Return immediately if ida_mem is NULL */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, PETSC_KSP_MEM_NULL, SUNMODULE, "IDAPETScGetNumJtimesEvals", MSGS_IDAMEM_NULL);
+    return(PETSC_KSP_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (IDA_mem->ida_lmem == NULL) {
+    IDAProcessError(IDA_mem, PETSC_KSP_LMEM_NULL, SUNMODULE, "IDAPETScGetNumJtimesEvals", MSGS_LMEM_NULL);
+    return(PETSC_KSP_LMEM_NULL);
+  }
+  idapetsc_mem = (IDAPETScMem) IDA_mem->ida_lmem;
+
+  *njacevals = idapetsc_mem->s_nje;
+
+  return(PETSC_KSP_SUCCESS);
+}
+

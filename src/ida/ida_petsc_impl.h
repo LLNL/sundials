@@ -3,7 +3,7 @@
  * $Revision: 4378 $
  * $Date: 2015-02-19 10:55:14 -0800 (Thu, 19 Feb 2015) $
  * ----------------------------------------------------------------- 
- * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
+ * Programmers: Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
@@ -15,8 +15,8 @@
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * This is the common header file (private version) for the Scaled
- * Preconditioned Iterative Linear Solver modules.
+ * This is implementation of the interface to PETSc libraries.
+ * So far, only linear solvers are interfaced.
  * -----------------------------------------------------------------
  */
 
@@ -31,20 +31,14 @@
 extern "C" {
 #endif
 
-/* Types of iterative linear solvers */
-
-#define SPILS_SPGMR   1
-#define SPILS_SPBCG   2
-#define SPILS_SPTFQMR 3
-
-/* Constants */
-
-#define IDA_SPILS_MAXL    5
-#define IDA_SPILS_MAXRS   5
-
 /*
  * -----------------------------------------------------------------
- * Types : IDAPETScMemRec, IDAPETScMem                             
+ * Types : IDAPETScMemRec, IDAPETScMem
+ *
+ * TODO: Many of this variables and functions are not used as this 
+ * code is still under heavy development. Once we settle down on 
+ * the features we want to support here, the redundant declarations 
+ * will be removed. For now, they are left here as a reminder.                              
  * -----------------------------------------------------------------
  */
 
@@ -75,18 +69,27 @@ typedef struct IDAPETScMemRec {
   long int s_ncfl0;    /* ncfl0 = saved ncfl (for performance monitor) */   
   long int s_nwarn;    /* nwarn = no. of warnings (for perf. monitor)  */   
 
-  N_Vector s_ytemp;    /* temp vector used by IDAAtimesDQ              */ 
-  N_Vector s_yptemp;   /* temp vector used by IDAAtimesDQ              */ 
-  N_Vector s_xx;       /* temp vector used by the solve function       */
-  N_Vector s_ycur;     /* current y vector in Newton iteration         */
-  N_Vector s_ypcur;    /* current yp vector in Newton iteration        */
-  N_Vector s_rcur;     /* rcur = F(tn, ycur, ypcur)                    */
+  N_Vector s_ytemp;    /* temp vector used only to compute sqrt(N)     */ 
 
-  KSP *s_ksp_mem;      /* memory used by the KSP solver            */
+  KSP *s_ksp_mem;      /* memory used by the KSP solver                */
 
   long int s_last_flag; /* last error return flag                      */
+  
+  void *s_udata;       /* pointer to user defined data                 */
 
-  /* Preconditioner computation
+  /* 
+   * Jacobian evaluation function that stores Jacobian in PETSc matrix 
+   * 
+   */
+  IDAPETScJacFn s_jaceval;
+
+  /* 
+   * Pointer to PETSc matrix storing Jacobian
+   * 
+   */
+  Mat *JacMat;
+
+  /* Preconditioner computation (currently unused)
    * (a) user-provided:
    *     - pdata == user_data
    *     - pfree == NULL (the user dealocates memory for f_data)
@@ -94,13 +97,11 @@ typedef struct IDAPETScMemRec {
    *     - pdata == ida_mem
    *     - pfree == set by the prec. module and called in IDAPETScFree
    */
-
   IDAPETScPrecSetupFn s_pset;
   IDAPETScPrecSolveFn s_psolve;
   void (*s_pfree)(IDAMem IDA_mem);
-  void *s_pdata;
   
-  /* Jacobian times vector compuation
+  /* Jacobian times vector compuation (currently unused)
    * (a) jtimes function provided by the user:
    *     - jdata == user_data
    *     - jtimesDQ == FALSE
@@ -108,46 +109,10 @@ typedef struct IDAPETScMemRec {
    *     - jdata == ida_mem
    *     - jtimesDQ == TRUE
    */
-
   booleantype s_jtimesDQ;
   IDAPETScJacTimesVecFn s_jtimes;
-  void *s_jdata;
   
-  /* 
-   * PETSc Jacobian evaluation
-   * 
-   */
-  IDAPETScJacFn s_jaceval;
-
-  /* 
-   * Pointer to Jacobian matrix
-   * 
-   */
-  Mat *JacMat;
-
 } *IDAPETScMem;
-
-
-/*
- * -----------------------------------------------------------------
- * Prototypes of internal functions
- * -----------------------------------------------------------------
- */
-
-/* Atimes and PSolve routines called by generic solver */
-
-int IDAPETScAtimes(void *ida_mem, N_Vector v, N_Vector z);
-
-int IDAPETScPSolve(void *ida_mem, N_Vector r, N_Vector z, int lr);
-
-/* Difference quotient approximation for Jac times vector */
-
-// int IDAPETScDQJtimes(realtype tt,
-//                      N_Vector yy, N_Vector yp, N_Vector rr,
-//                      N_Vector v, N_Vector Jv, 
-//                      realtype c_j, void *data, 
-//                      N_Vector work1, N_Vector work2);
-
 
 
 /*
@@ -190,6 +155,8 @@ int IDAPETScPSolve(void *ida_mem, N_Vector r, N_Vector z, int lr);
 #define MSGS_PSOLVE_FAILED "The preconditioner solve routine failed in an unrecoverable manner."
 #define MSGS_JTIMES_FAILED "The Jacobian x vector routine failed in an unrecoverable manner."
 #define MSGS_JAC_FAILED    "The Jacobian setup routine failed in an unrecoverable manner."
+#define MSGS_JAC_NULL      "The pointer to Jacobian setup routine is NULL."
+#define MSGS_JAC_MAT_NULL  "The pointer to Jacobian matrix is NULL."
 
 /* Warning Messages */
 

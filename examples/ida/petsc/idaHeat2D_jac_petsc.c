@@ -40,7 +40,6 @@
 #include <math.h>
 
 #include <ida/ida.h>
-#include <ida/ida_spgmr.h>
 #include <ida/ida_petsc.h>
 #include <nvector/nvector_petsc.h>
 #include <sundials/sundials_types.h>
@@ -115,7 +114,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 int main(int argc, char *argv[])
 {
   MPI_Comm comm;
-  void *mem, *mem_tst;
+  void *mem;
   UserData data;
   int iout, thispe, ier, npes;
   long int Neq, local_N;
@@ -231,81 +230,58 @@ int main(int argc, char *argv[])
 
   mem = IDACreate();
   if(check_flag((void *)mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
-  mem_tst = IDACreate();
-  if(check_flag((void *)mem_tst, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASetUserData(mem, data);
-  if(check_flag(&ier, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
-  ier = IDASetUserData(mem_tst, data);
   if(check_flag(&ier, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASetSuppressAlg(mem, TRUE);
   if(check_flag(&ier, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
-  ier = IDASetSuppressAlg(mem_tst, TRUE);
-  if(check_flag(&ier, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASetId(mem, id);
   if(check_flag(&ier, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
-  ier = IDASetId(mem_tst, id);
-  if(check_flag(&ier, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASetConstraints(mem, constraints);
-  if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
-  ier = IDASetConstraints(mem_tst, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
   N_VDestroy_petsc(constraints);  
 
   ier = IDAInit(mem, resHeat, t0, uu, up);
   if(check_flag(&ier, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
-  ier = IDAInit(mem_tst, resHeat, t0, uu, up);
-  if(check_flag(&ier, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
   
   ier = IDASStolerances(mem, rtol, atol);
-  if(check_flag(&ier, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
-  ier = IDASStolerances(mem_tst, rtol, atol);
   if(check_flag(&ier, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Call IDASpgmr to specify the linear solver. */
 
-  ier = IDASpgmr(mem, 0);
-  if(check_flag(&ier, "IDASpgmr", 1, thispe)) MPI_Abort(comm, 1);
-  ier = IDAKSP(mem_tst, comm, &Jac);
+  ier = IDAPETScKSP(mem, comm, &Jac);
   if(check_flag(&ier, "IDAKSP", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat);
-  if(check_flag(&ier, "IDASpilsSetPreconditioner", 1, thispe)) MPI_Abort(comm, 1);
-  ier = IDAPETScSetJacFn(mem_tst, jacHeat);
+  ier = IDAPETScSetJacFn(mem, jacHeat);
   if(check_flag(&ier, "IDAPETScSetJacFn", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Print output heading (on processor 0 only) and intial solution  */
   
   if (thispe == 0) PrintHeader(Neq, rtol, atol);
-  //PrintOutput(thispe, mem, t0, uu); 
-  PrintOutput(thispe, mem_tst, t0, uu); 
+  PrintOutput(thispe, mem, t0, uu); 
   
   /* Loop over tout, call IDASolve, print output. */
 
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
 
-    ier = IDASolve(mem_tst, tout, &tret, uu, up, IDA_NORMAL);
-//    ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
+    ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
     if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
 
-//    PrintOutput(thispe, mem, tret, uu);
-    PrintOutput(thispe, mem_tst, tret, uu);
+    PrintOutput(thispe, mem, tret, uu);
 
   }
   
   /* Print remaining counters. */
 
   if (thispe == 0) 
-    PrintFinalStats(mem_tst);
-//    PrintFinalStats(mem);
+    PrintFinalStats(mem);
 
   /* Free memory */
 
-  //IDAFree(&mem);
-  IDAFree(&mem_tst);
+  IDAFree(&mem);
 
   N_VDestroy_petsc(id);
   N_VDestroy_petsc(res);
@@ -508,7 +484,7 @@ int PsolveHeat(realtype tt,
  *                                                                 
  * The optional user-supplied functions jacHeat provides Jacobian 
  * matrix               
- *                   J = dF/du + cj*dF/du'                         
+ *        J = dF/du + cj*dF/du'                         
  * where the DAE system is F(t,u,u') = 0.         
  *
  */
@@ -668,7 +644,7 @@ static void PrintHeader(long int Neq, realtype rtol, realtype atol)
   
   /* Print output table heading and initial line of table. */
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-  printf("  time     umax       k  nst  nni  nli   nre   nreLS    h      npe nps\n");
+  printf("  time     umax       k  nst  nni  nli   nre   nreLS    h      nje nps\n");
   printf("----------------------------------------------------------------------\n");
 }
 
@@ -679,7 +655,7 @@ static void PrintHeader(long int Neq, realtype rtol, realtype atol)
 static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
 {
   realtype hused, umax;
-  long int nst, nni, nje, nre, nreLS, nli, npe, nps;
+  long int nst, nni, nje, nre, nreLS=0, nli, npe, nps=0;
   int kused, ier;
 
   umax = N_VMaxNorm(uu);
@@ -696,26 +672,26 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
     check_flag(&ier, "IDAGetNumResEvals", 1, id);
     ier = IDAGetLastStep(mem, &hused);
     check_flag(&ier, "IDAGetLastStep", 1, id);
-    ier = IDASpilsGetNumJtimesEvals(mem, &nje);
-    check_flag(&ier, "IDASpilsGetNumJtimesEvals", 1, id);
-    ier = IDASpilsGetNumLinIters(mem, &nli);
-    check_flag(&ier, "IDASpilsGetNumLinIters", 1, id);
-    ier = IDASpilsGetNumResEvals(mem, &nreLS);
-    check_flag(&ier, "IDASpilsGetNumResEvals", 1, id);
-    ier = IDASpilsGetNumPrecEvals(mem, &npe);
-    check_flag(&ier, "IDASpilsGetPrecEvals", 1, id);
-    ier = IDASpilsGetNumPrecSolves(mem, &nps);
-    check_flag(&ier, "IDASpilsGetNumPrecSolves", 1, id);
+    ier = IDAPETScGetNumJacEvals(mem, &nje);
+    check_flag(&ier, "IDAPETScGetNumJtimesEvals", 1, id);
+    ier = IDAPETScGetNumLinIters(mem, &nli);
+    check_flag(&ier, "IDAPETScGetNumLinIters", 1, id);
+//     ier = IDASpilsGetNumResEvals(mem, &nreLS);
+//     check_flag(&ier, "IDASpilsGetNumResEvals", 1, id);
+//     ier = IDASpilsGetNumPrecEvals(mem, &npe);
+//     check_flag(&ier, "IDASpilsGetPrecEvals", 1, id);
+//     ier = IDASpilsGetNumPrecSolves(mem, &nps);
+//     check_flag(&ier, "IDASpilsGetNumPrecSolves", 1, id);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)  
-    printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",
-           t, umax, kused, nst, nni, nje, nre, nreLS, hused, npe, nps);
+    printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld        %9.2Le  %3ld    \n",
+           t, umax, kused, nst, nni, nli, nre, hused, nje);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)  
-    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e  %3ld %3ld\n",
-           t, umax, kused, nst, nni, nje, nre, nreLS, hused, npe, nps);
+    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld        %9.2e  %3ld    \n",
+           t, umax, kused, nst, nni, nli, nre, hused, nje);
 #else
-    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e  %3ld %3ld\n",
-           t, umax, kused, nst, nni, nje, nre, nreLS, hused, npe, nps);
+    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld        %9.2e  %3ld    \n",
+           t, umax, kused, nst, nni, nli, nre, hused, nje);
 #endif
 
   }
@@ -731,7 +707,7 @@ static void PrintFinalStats(void *mem)
 
   IDAGetNumErrTestFails(mem, &netf);
   IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-  IDASpilsGetNumConvFails(mem, &ncfl);
+  IDAPETScGetNumConvFails(mem, &ncfl);
 
   printf("\nError test failures            = %ld\n", netf);
   printf("Nonlinear convergence failures = %ld\n", ncfn);

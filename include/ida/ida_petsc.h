@@ -23,7 +23,6 @@
 #ifndef _IDA_PETSC_H
 #define _IDA_PETSC_H
 
-//#include <sundials/sundials_iterative.h>
 #include <sundials/sundials_nvector.h>
 #include <petscmat.h>
 
@@ -33,17 +32,44 @@ extern "C" {
 
 /* 
  * -----------------------------------------------------------------
- * IDAKSP return values 
+ * IDAPETScKSP return values 
  * -----------------------------------------------------------------
  */
 
-#define IDAKSP_SUCCESS     0
-#define IDAKSP_MEM_NULL   -1 
-#define IDAKSP_LMEM_NULL  -2 
-#define IDAKSP_ILL_INPUT  -3
-#define IDAKSP_MEM_FAIL   -4
-#define IDAKSP_PMEM_NULL  -5
+#define PETSC_KSP_SUCCESS     0
+#define PETSC_KSP_MEM_NULL   -1 
+#define PETSC_KSP_LMEM_NULL  -2 
+#define PETSC_KSP_ILL_INPUT  -3
+#define PETSC_KSP_MEM_FAIL   -4
+#define PETSC_KSP_PMEM_NULL  -5
 
+
+/*
+ * -----------------------------------------------------------------
+ *                                                                
+ * Function : IDAPETScKSP                                            
+ * -----------------------------------------------------------------
+ * A call to the IDAPETScKSP function links the main integrator with 
+ * the PETSc linear solver module.  Its parameters are as      
+ * follows:                                                       
+ *                                                                
+ * ida_mem   is the pointer to memory block returned by IDACreate.
+ *                                                                
+ * comm      is the MPI communicator for the computation.
+ *
+ * JacMat    is pointer to PETSc matrix containing Jacobian.     
+ *                                                                
+ * The return values of IDASpgmr are:                             
+ *    IDASPILS_SUCCESS    if successful                            
+ *    IDASPILS_MEM_NULL   if the ida memory was NULL
+ *    IDASPILS_MEM_FAIL   if there was a memory allocation failure 
+ *    IDASPILS_ILL_INPUT  if there was illegal input.              
+ * The above constants are defined in ida_spils.h
+ *                                                                
+ * -----------------------------------------------------------------
+ */                                                                
+
+SUNDIALS_EXPORT int IDAPETScKSP(void *ida_mem, MPI_Comm comm, Mat *JacMat);
 
 /*
  * -----------------------------------------------------------------
@@ -284,7 +310,7 @@ typedef int (*IDAPETScJacTimesVecFn)(realtype tt,
 
 /*
  * -----------------------------------------------------------------
- * Optional inputs to the IDAKSP linear solver                  
+ * Optional inputs to the IDAPETScKSP linear solver                  
  * -----------------------------------------------------------------
  *                                                                
  * IDAPETScSetPreconditioner specifies the PrecSetup and PrecSolve 
@@ -318,9 +344,9 @@ typedef int (*IDAPETScJacTimesVecFn)(realtype tt,
  *           Default is 1.0                                       
  *                                                                
  * The return value of IDAPETScSet* is one of:
- *    IDAKSP_SUCCESS   if successful
- *    IDAKSP_MEM_NULL  if the ida memory was NULL
- *    IDAKSP_LMEM_NULL if the linear solver memory was NULL
+ *    PETSC_KSP_SUCCESS   if successful
+ *    PETSC_KSP_MEM_NULL  if the ida memory was NULL
+ *    PETSC_KSP_LMEM_NULL if the linear solver memory was NULL
  * -----------------------------------------------------------------
  */
 
@@ -339,11 +365,11 @@ SUNDIALS_EXPORT int IDAPETScSetIncrementFactor(void *ida_mem, realtype dqincfac)
 
 /*
  * -----------------------------------------------------------------
- * Optional outputs from the IDAKSP linear solver               
+ * Optional outputs from the IDAPETScKSP linear solver               
  *----------------------------------------------------------------
  *                                                                
  * IDAPETScGetWorkSpace returns the real and integer workspace used 
- *     by IDAKSP.                                                  
+ *     by IDAPETScKSP.                                                  
  * IDAPETScGetNumPrecEvals returns the number of preconditioner   
  *     evaluations, i.e. the number of calls made to PrecSetup    
  *     with jok==FALSE.                                           
@@ -357,12 +383,12 @@ SUNDIALS_EXPORT int IDAPETScSetIncrementFactor(void *ida_mem, realtype dqincfac)
  *     res routine due to finite difference Jacobian times vector 
  *     evaluation.                                                
  * IDAPETScGetLastFlag returns the last error flag set by any of
- *     the IDAKSP interface functions.
+ *     the IDAPETScKSP interface functions.
  *                                                                
  * The return value of IDAPETScGet* is one of:
- *    IDAKSP_SUCCESS   if successful
- *    IDAKSP_MEM_NULL  if the ida memory was NULL
- *    IDAKSP_LMEM_NULL if the linear solver memory was NULL
+ *    PETSC_KSP_SUCCESS   if successful
+ *    PETSC_KSP_MEM_NULL  if the ida memory was NULL
+ *    PETSC_KSP_LMEM_NULL if the linear solver memory was NULL
  * -----------------------------------------------------------------
  */                                                                
 
@@ -372,13 +398,14 @@ SUNDIALS_EXPORT int IDAPETScGetNumPrecSolves(void *ida_mem, long int *npsolves);
 SUNDIALS_EXPORT int IDAPETScGetNumLinIters(void *ida_mem, long int *nliters);
 SUNDIALS_EXPORT int IDAPETScGetNumConvFails(void *ida_mem, long int *nlcfails);
 SUNDIALS_EXPORT int IDAPETScGetNumJtimesEvals(void *ida_mem, long int *njvevals);
+SUNDIALS_EXPORT int IDAPETScGetNumJacEvals(void *ida_mem, long int *njacevals);
 SUNDIALS_EXPORT int IDAPETScGetNumResEvals(void *ida_mem, long int *nrevalsLS); 
 SUNDIALS_EXPORT int IDAPETScGetLastFlag(void *ida_mem, long int *flag);
 
 /*
  * -----------------------------------------------------------------
  * The following function returns the name of the constant 
- * associated with an IDAKSP return flag
+ * associated with an PETSC_KSP return flag
  * -----------------------------------------------------------------
  */
 
