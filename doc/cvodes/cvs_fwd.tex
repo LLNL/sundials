@@ -280,7 +280,7 @@ The form of the call to each of these routines is as follows:
     \end{itemize}
 
   \item[fS] (\Id{CVSensRhsFn})
-    is the {\C} function which computes all sensitivity ODE right-hand sides at the same time.
+    is the {\CC} function which computes all sensitivity ODE right-hand sides at the same time.
     For full details see \S\ref{s:user_fct_fwd}.
 
   \item[yS0] (\id{N\_Vector *}) 
@@ -355,7 +355,7 @@ The form of the call to each of these routines is as follows:
     \end{itemize}
 
   \item[fS1] (\Id{CVSensRhs1Fn})
-    is the {\C} function which computes the right-hand sides of the sensitivity ODE, one
+    is the {\CC} function which computes the right-hand sides of the sensitivity ODE, one
     at a time. For full details see \S\ref{s:user_fct_fwd}.
 
   \item[yS0] (\id{N\_Vector *}) 
@@ -1763,7 +1763,7 @@ flag = CVodeQuadSensInit(cvode\_mem, rhsQS, yQS0);
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
   \item[rhsQS] (\Id{CVQuadSensRhsFn})
-    is the {\C} function which computes $f_{QS}$, the right-hand side of the 
+    is the {\CC} function which computes $f_{QS}$, the right-hand side of the 
     sensitivity-dependent quadrature equations
     (for full details see \S\ref{ss:user_fct_quad_sens}).
   \item[yQS0] (\id{N\_Vector *})

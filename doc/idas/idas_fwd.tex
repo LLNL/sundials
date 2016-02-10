@@ -329,7 +329,7 @@ The form of the call to this routine is as follows:
       have passed the local error test; 
     \end{itemize}
   \item[resS] (\Id{IDASensResFn})
-    is the {\C} function which computes the residual of the sensitivity DAE. 
+    is the {\CC} function which computes the residual of the sensitivity DAE. 
     For full details see \S\ref{s:user_fct_fwd}.
   \item[yS0] (\id{N\_Vector *}) 
     a pointer to an array of \id{Ns} vectors containing the initial 
@@ -1632,7 +1632,7 @@ flag = IDAQuadSensInit(ida\_mem, rhsQS, yQS0);
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block returned by \id{IDACreate}.
   \item[rhsQS] (\Id{IDAQuadSensRhsFn})
-    is the {\C} function which computes $f_{QS}$, the right-hand side of the 
+    is the {\CC} function which computes $f_{QS}$, the right-hand side of the 
     sensitivity-dependent quadrature equations
     (for full details see \S\ref{ss:user_fct_quad_sens}).
   \item[yQS0] (\id{N\_Vector *})

@@ -2,9 +2,9 @@
 \chapter{FIDA, an Interface Module for FORTRAN Applications}\label{s:fcmix}
 %%==============================================================================
 
-The {\fida} interface module is a package of {\C} functions which support
+The {\fida} interface module is a package of {\CC} functions which support
 the use of the {\ida} solver, for the solution of DAE systems, in a mixed
-{\F}/{\C} setting.  While {\ida} is written in {\C}, it is assumed here
+{\F}/{\CC} setting.  While {\ida} is written in {\CC}, it is assumed here
 that the user's calling program and user-supplied problem-defining routines
 are written in {\F}. This package provides the necessary interface to {\ida}
 for all supplied serial and parallel {\nvector} implementations.
@@ -112,7 +112,7 @@ function which calls it (and its type within {\ida}), are as follows:
 \begin{center}
 \begin{tabular}{l||l|l}
 {\fida} routine      &  {\ida} function & {\ida} type of \\
-({\F}, user-supplied)  &  ({\C}, interface) & interface function \\ \hline\hline
+({\F}, user-supplied)  &  ({\CC}, interface) & interface function \\ \hline\hline
 \id{FIDARESFUN} & \id{FIDAresfn}    & \id{IDAResFn} \\
 \id{FIDAEWT}    & \id{FIDAEwtSet}   & \id{IDAEwtFn} \\
 \id{FIDADJAC}   & \id{FIDADenseJac} & \id{IDADlsDenseJacFn} \\
@@ -225,7 +225,7 @@ to {\nvecp},
   set to $0$ on a successful return and to $-1$ otherwise.
 
   NOTE: The integers \id{NEQ}, \id{NLOCAL}, and \id{NGLOBAL} should be
-  declared so as to match {\C} type \id{long int}.
+  declared so as to match {\CC} type \id{long int}.
 
   {\warn}If the header file \id{sundials\_config.h} defines
   \id{SUNDIALS\_MPI\_COMM\_F2C} to be $1$ (meaning the {\mpi}
@@ -277,7 +277,7 @@ to {\nvecp},
   }
   {
     The user integer data arrays \id{IOUT} and \id{IPAR} must be declared as
-    \id{INTEGER*4} or \id{INTEGER*8} according to the {\C} type \id{long int}.
+    \id{INTEGER*4} or \id{INTEGER*8} according to the {\CC} type \id{long int}.
 
     Modifications to the user data arrays \id{IPAR} and \id{RPAR} inside a 
     user-provided routine will be propagated to all subsequent calls to
@@ -347,7 +347,7 @@ to {\nvecp},
   The argument \id{IER} is an error return flag, which is $0$ 
   for success , $-1$ if a memory allocation failure occurred, or $-2$ for illegal input.
   In the case of \id{FIDALAPACKDENSE}, \id{NEQ} must be declared so as to match
-  {\C} type \id{int}.
+  {\CC} type \id{int}.
 
   \index{Jacobian approximation function!dense!use in {\fida}}
   As an option when using the {\dense} linear solver, the user may supply a
@@ -367,7 +367,7 @@ to {\nvecp},
   current values of $t$, $y$, $\dot{y}$, $F(t,y,\dot{y})$, and $\alpha$, respectively.
   The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
   and are the same as those passed to \id{FIDAMALLOC}.
-  NOTE: The argument \id{NEQ} has a type consistent with {\C} type \id{long int}
+  NOTE: The argument \id{NEQ} has a type consistent with {\CC} type \id{long int}
   even in the case when the Lapack dense solver is to be used.
 
   If the user's \id{FIDADJAC} uses difference quotient approximations, it
@@ -413,7 +413,7 @@ to {\nvecp},
   $0$ for success , $-1$ if a memory allocation failure occurred, or $-2$ 
   in case an input has an illegal value.     
   In the case of \id{FIDALAPACKBAND}, the arguments \id{NEQ}, \id{MU}, and \id{ML}
-  must be declared so as to match {\C} type \id{int}.
+  must be declared so as to match {\CC} type \id{int}.
 
   \index{Jacobian approximation function!band!use in {\fida}}
   As an option when using the {\band} linear solver, the user may supply a
@@ -437,7 +437,7 @@ to {\nvecp},
   The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
   and are the same as those passed to \id{FIDAMALLOC}.
   NOTE: The arguments \id{NEQ}, \id{MU}, \id{ML}, and \id{MDIM} have a type
-  consistent with {\C} type \id{long int} even in the case when the Lapack band
+  consistent with {\CC} type \id{long int} even in the case when the Lapack band
   solver is to be used.
 
   If the user's \id{FIDABJAC} uses difference quotient approximations, it
@@ -876,7 +876,7 @@ where \id{KEY} is a quoted string indicating which optoinal input is set
 \id{VVAL} is the input real array, and
 \id{IER} is an integer return flag which is set to $0$ on success and
 a negative value if a failure occurred.
-\id{IVAL} should be declared so as to match {\C} type \id{long int}.
+\id{IVAL} should be declared so as to match {\CC} type \id{long int}.
 
 When using \id{FIDASETVIN} to specify the variable types (\id{KEY = 'ID\_VEC'})
 the components in the array \id{VVAL} must be $1.0$ to indicate a differential 
@@ -1135,7 +1135,7 @@ rootfinding feature.
 %%==============================================================================
 \index{FIDA@{\fida} interface module!interface to the {\idabbdpre} module|(}
 
-The {\fidabbd} interface sub-module is a package of {\C} functions
+The {\fidabbd} interface sub-module is a package of {\CC} functions
 which, as part of the {\fida} interface module, support the use of the
 {\ida} solver with the parallel {\nvecp} module, in a combination of
 any of the Krylov iterative solver modules with the {\idabbdpre} preconditioner
@@ -1160,7 +1160,7 @@ each with the corresponding interface function which calls it (and its
 type within {\idabbdpre} or {\ida}):
 \begin{center}
 \begin{tabular}{l|l|l}
-{\fidabbd} routine ({\F})  &  {\ida} function ({\C}) & {\ida} function type \\\hline
+{\fidabbd} routine ({\F})  &  {\ida} function ({\CC}) & {\ida} function type \\\hline
 \id{FIDAGLOCFN}  & \id{FIDAgloc}     & \id{IDABBDLocalFn} \\
 \id{FIDACOMMFN}  & \id{FIDAcfn}      & \id{IDABBDCommFn} \\
 \id{FIDAJTIMES} & \id{FIDAJtimes}   & \id{IDASpilsJacTimesVecFn} \\
@@ -1223,7 +1223,7 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
 \begin{verbatim}
        CALL FIDABBDOPT (LENRWBBD, LENIWBBD, NGEBBD)
 \end{verbatim}
-  The arguments should be consistent with {\C} type \id{long int}.  Their
+  The arguments should be consistent with {\CC} type \id{long int}.  Their
   returned values are as follows:
   \id{LENRWBBD} is the length of real preconditioner work space, in \id{realtype}
   words.  \id{LENIWBBD} is the length of integer preconditioner work space, in

@@ -12,7 +12,7 @@ may also be helpful. Those codes may be used as templates (with the removal of
 some lines involved in testing), and are included in the {\ida} package.
 
 Users with applications written in {\F}77 should see Chapter \ref{s:fcmix},
-which describes the {\F}/{\C} interface module.
+which describes the {\F}/{\CC} interface module.
 
 The user should be aware that not all linear solver modules are compatible 
 with all {\nvector} implementations. 
@@ -431,7 +431,7 @@ memory block created and allocated by the first two calls.
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block returned by \id{IDACreate}.
   \item[res] (\Id{IDAResFn})
-    is the {\C} function which computes the residual function $F$ in the DAE.
+    is the {\CC} function which computes the residual function $F$ in the DAE.
      This function has the form \id{res(t, yy, yp, resval, user\_data)}.
      For full details see \S\ref{ss:resFn}.
   \item[t0] (\id{realtype})
@@ -576,7 +576,7 @@ the call to \id{IDAInit}.
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block returned by \id{IDACreate}.
   \item[efun] (\id{IDAEwtFn}) 
-    is the {\C} function which defines the \id{ewt} vector (see
+    is the {\CC} function which defines the \id{ewt} vector (see
     \S\ref{ss:ewtsetFn}).
   \end{args}
 }
@@ -1244,7 +1244,7 @@ be called prior to a continuation call to \id{IDASolve}.
   \item[nrtfn] (\id{int})
     is the number of root functions $g_i$.
   \item[g] (\id{IDARootFn})
-    is the {\C} function which defines the \id{nrtfn} functions $g_i(t,y,\dot{y})$
+    is the {\CC} function which defines the \id{nrtfn} functions $g_i(t,y,\dot{y})$
     whose roots are sought. See \S\ref{ss:rootFn} for details.
  \end{args}
 }
@@ -1536,7 +1536,7 @@ flag = IDASetErrHandlerFn(ida\_mem, ehfun, eh\_data);
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[ehfun] (\id{IDAErrHandlerFn}) 
-    is the user's {\C} error handler function (see \S\ref{ss:ehFn}).
+    is the user's {\CC} error handler function (see \S\ref{ss:ehFn}).
   \item[eh\_data] (\id{void *})
     pointer to user data passed to \id{ehfun} every time it is called.
   \end{args}
@@ -4756,7 +4756,7 @@ The function type \id{IDAEwtFn} is defined as follows:
 \subsection{Rootfinding function}
 \label{ss:rootFn}
 If a rootfinding problem is to be solved during the integration of the DAE system,
-the user must supply a {\C} function of type \ID{IDARootFn}, defined as follows:
+the user must supply a {\CC} function of type \ID{IDARootFn}, defined as follows:
 %%
 \usfunction{IDARootFn}
 {
@@ -5161,7 +5161,7 @@ the default is a difference quotient approximation to these products.
 \index{IDASPGMR@{\idaspgmr} linear solver!preconditioner solve function}
 \index{IDASPBCG@{\idaspbcg} linear solver!preconditioner solve function}
 \index{IDASPTFQMR@{\idasptfqmr} linear solver!preconditioner solve function}
-If preconditioning is used, then the user must provide a {\C} function to
+If preconditioning is used, then the user must provide a {\CC} function to
 solve the linear system $Pz = r$ where $P$ is a left preconditioner
 matrix which approximates (at least crudely) the Jacobian matrix 
 $J = \partial{F}/\partial{y} + cj ~ \partial{F}/\partial{\dot{y}}$.
@@ -5230,7 +5230,7 @@ This function must be of type \ID{IDASpilsPrecSolveFn}, defined as follows:
 \index{IDASPTFQMR@{\idasptfqmr} linear solver!preconditioner setup function}
 If the user's preconditioner requires that any Jacobian-related data
 be evaluated or preprocessed, then this needs to be done in a
-user-supplied {\C} function of type \ID{IDASpilsPrecSetupFn}, defined as follows:
+user-supplied {\CC} function of type \ID{IDASpilsPrecSetupFn}, defined as follows:
 \usfunction{IDASpilsPrecSetupFn}
 {
   typedef int (*IDASpilsPrecSetupFn)(&realtype tt, N\_Vector yy, \\
@@ -5632,10 +5632,10 @@ described next.
     is \id{dq\_rel\_yy}$ = \sqrt{\text{unit roundoff}}$, which
     can be specified by passing \id{dq\_rel\_yy}$ = 0.0$.
   \item[Gres] (\id{IDABBDLocalFn})
-    the {\C} function which computes the local residual approximation 
+    the {\CC} function which computes the local residual approximation 
     $G(t,y,\dot{y})$.
   \item[Gcomm] (\id{IDABBDCommFn})
-    the optional {\C} function which performs all inter-process communication
+    the optional {\CC} function which performs all inter-process communication
     required for the computation of $G(t,y,\dot{y})$.
   \end{args}
 }

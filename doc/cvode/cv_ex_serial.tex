@@ -89,7 +89,7 @@ problem.  In the case of failure, the return value is \id{NULL}.  This
 pointer must be passed in the remaining calls to {\cvode} functions.
 
 The call to \id{CVodeInit} allocates and initializes the solver memory block.
-Its arguments include the name of the {\C} function \id{f} defining the
+Its arguments include the name of the {\CC} function \id{f} defining the
 right-hand side function $f(t,y)$, and the initial values of $t$ and $y$.
 The call to \id{CVodeSVtolerances} specifies a vector of absolute tolerances,
 and includes the value of the relative tolerance \id{reltol} and the absolute 

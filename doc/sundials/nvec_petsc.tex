@@ -1,0 +1,197 @@
+% This is a shared SUNDIALS TEX file with description of
+% the PETSc nvector wrapper implementation
+%
+The {\nvecpetsc} is an {\nvector} wrapper around PETSc vector. It defines the 
+{\em content} field of \id{N\_Vector} to be a structure containing the global 
+and local lengths of the vector, a pointer to the PETSc vector,
+an {\mpi} communicator, and a boolean flag {\em own\_data} indicating ownership of 
+the wrapped PETSc vector.
+%%
+\begin{verbatim} 
+struct _N_VectorContent_petsc {
+  long int local_length;
+  long int global_length;
+  booleantype own_data;
+  Vec *pvec;
+  MPI_Comm comm;
+};
+\end{verbatim}
+%%
+%%--------------------------------------------
+%%
+Note that PETSc vector wrapper requires {\sundials} to be built with {\mpi} support.
+The following seven macros are provided to access the content of a {\nvecpetsc}
+vector. The suffix \id{\_PTC} in the names denotes the PETSc wrapper 
+version.
+\begin{itemize}
+
+\item 
+  \ID{NV\_CONTENT\_PTC}
+
+  This macro gives access to the contents of the parallel
+  vector \id{N\_Vector}.
+  
+  The assignment \id{v\_cont = NV\_CONTENT\_PTC(v)} sets       
+  \id{v\_cont} to be a pointer to the \id{N\_Vector} content    
+  structure of type \id{struct \_N\_VectorParallelContent}.
+  
+  Implementation:
+  
+  \verb|#define NV_CONTENT_PTC(v) ( (N_VectorContent_petsc)(v->content) )|
+  
+\item 
+  \ID{NV\_OWN\_DATA\_PTC}, \ID{NV\_PVEC\_PTC}, 
+  \ID{NV\_LOCLENGTH\_PTC}, \ID{NV\_GLOBLENGTH\_PTC}
+  
+  These macros give individual access to the parts of    
+  the content of a parallel \id{N\_Vector}.                        
+  
+  The assignment \id{v\_pvec = NV\_PVEC\_PTC(v)} sets the pointer to PETSc vector 
+  \id{v\_pvec} to the address of the PETSc vector wrapped by \id{N\_Vector} \id{v}. 
+  
+  The assignment \id{v\_llen = NV\_LOCLENGTH\_PTC(v)} sets \id{v\_llen} to be     
+  the length of the local part of \id{v}. 
+  The call \id{NV\_LENGTH\_PTC(v) = llen\_v} sets      
+  the local length of \id{v} to be \id{llen\_v}.
+  
+  The assignment \id{v\_glen = NV\_GLOBLENGTH\_PTC(v)} sets \id{v\_glen} to  
+  be the global length of the vector \id{v}.                    
+  The call \id{NV\_GLOBLENGTH\_PTC(v) = glen\_v} sets the global       
+  length of \id{v} to be \id{glen\_v}.
+  
+  {\warn}Local and global vector lengths will be obsoleted by PETSc's own methods 
+  for setting and retrieving vector length. 
+  
+  Implementation:
+  
+  \verb|#define NV_OWN_DATA_PTC(v)   ( NV_CONTENT_PTC(v)->own_data )|
+
+  \verb|#define NV_PVEC_PTC(v)       ( NV_CONTENT_PTC(v)->pvec )|
+
+  \verb|#define NV_LOCLENGTH_PTC(v)  ( NV_CONTENT_PTC(v)->local_length )|
+
+  \verb|#define NV_GLOBLENGTH_PTC(v) ( NV_CONTENT_PTC(v)->global_length )|
+  
+\item \ID{NV\_COMM\_PTC}
+
+  This macro provides access to the {\mpi} communicator used by the {\nvecpetsc}
+  vectors.
+
+  Implementation:
+
+  \verb|#define NV_COMM_PTC(v) ( NV_CONTENT_PTC(v)->comm )|
+
+\end{itemize}
+%%
+%%--------------------------------------------
+%%
+The {\nvecpetsc} module defines parallel implementations of all vector operations listed 
+in Table \ref{t:nvecops}, except for \verb|N_VGetArrayPointer| and 
+\verb|N_VSetArrayPointer|. The names of vector operations are obtained from those in 
+Table \ref{t:nvecops} by appending the suffix \id{\_petsc}. The module {\nvecpetsc} 
+provides the following additional user-callable routines:
+%%
+%%
+\begin{itemize}
+
+%%--------------------------------------
+
+\item  \ID{N\_VNew\_petsc}
+  
+  This function creates and allocates new {\nvector} wrapper and PETSc 
+  vector within.
+ 
+  
+
+\begin{verbatim}
+N_Vector N_VNew_petsc(MPI_Comm comm, 
+                      long int local_length, 
+                      long int global_length);
+\end{verbatim}
+  
+%%--------------------------------------
+
+\item \ID{N\_VNewEmpty\_petsc}
+ 
+  This function creates a new {\nvector} wrapper with pointer to wrapped 
+  PETSc vector set to (\id{NULL}).
+ 
+  
+
+\begin{verbatim}
+N_Vector N_VNewEmpty_petsc(MPI_Comm comm, 
+                           long int local_length, 
+                           long int global_length);
+\end{verbatim}
+
+  
+%%--------------------------------------
+
+
+\item \ID{N\_VCloneVectorArray\_petsc}
+ 
+  This function creates (by cloning) an array of \id{count} parallel vectors.
+ 
+\begin{verbatim}
+N_Vector *N_VCloneVectorArray_petsc(int count, N_Vector w);
+\end{verbatim}
+
+%%--------------------------------------
+
+\item \ID{N\_VCloneEmptyVectorArray\_petsc}
+ 
+  This function creates (by cloning) an array of \id{count} parallel vectors,
+  each with pointers to PETSc vectors set to (\id{NULL}).
+ 
+\begin{verbatim}
+N_Vector *N_VCloneEmptyVectorArray_petsc(int count, N_Vector w);
+\end{verbatim}
+
+%%--------------------------------------
+
+\item \ID{N\_VDestroyVectorArray\_petsc}
+ 
+ This function frees memory allocated for the array of \id{count} variables of
+ type \id{N\_Vector} created with \id{N\_VCloneVectorArray\_petsc} or with
+ \id{N\_VCloneEmptyVectorArray\_petsc}.
+ 
+
+ \verb|void N_VDestroyVectorArray_petsc(N_Vector *vs, int count);|
+
+
+%%--------------------------------------
+
+\item \ID{N\_VPrint\_petsc}
+  
+  This function prints the content of the wrapped PETSc vector to stdout.
+ 
+    
+  \verb|void N_VPrint_petsc(N_Vector v);|
+
+
+\end{itemize}
+%%
+%%------------------------------------
+%%
+\paragraph{\bf Notes} 
+           
+\begin{itemize}
+                                        
+\item
+  {\warn}\id{N\_VNewEmpty\_petsc}, \id{N\_VMake\_petsc}, 
+  and \id{N\_VCloneEmptyVectorArray\_petsc} set the field 
+  {\em own\_data} $=$ \id{FALSE}. 
+  \id{N\_VDestroy\_petsc} and \id{N\_VDestroyVectorArray\_petsc}
+  will not attempt to free the pointer {\em pvec} for any \id{N\_Vector} with
+  {\em own\_data} set to \id{FALSE}. In such a case, it is the user's responsibility to
+  deallocate the {\em pvec} pointer.
+
+\item
+  {\warn}To maximize efficiency, vector operations in the {\nvecpetsc} implementation
+  that have more than one \id{N\_Vector} argument do not check for
+  consistent internal representation of these vectors. It is the user's 
+  responsibility to ensure that such routines are called with \id{N\_Vector}
+  arguments that were all created with the same internal representations.
+
+\end{itemize}
+

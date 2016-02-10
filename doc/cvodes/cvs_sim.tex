@@ -398,7 +398,7 @@ flag = CVodeInit(cvode\_mem, f, t0, y0);
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
   \item[f] (\Id{CVRhsFn})
-    is the {\C} function which computes the right-hand side function $f$ in the ODE.
+    is the {\CC} function which computes the right-hand side function $f$ in the ODE.
     This function has the form \id{f(t, y, ydot, user\_data)} (for full details see
     \S\ref{ss:rhsFn}).
   \item[t0] (\id{realtype})
@@ -540,7 +540,7 @@ Note that this call must be made after the call to \id{CVodeInit}.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
   \item[efun] (\id{CVEwtFn}) 
-    is the {\C} function which defines the \id{ewt} vector (see
+    is the {\CC} function which defines the \id{ewt} vector (see
     \S\ref{ss:ewtsetFn}).
   \end{args}
 }
@@ -1165,7 +1165,7 @@ be called prior to a continuation call to \id{CVode}.
   \item[nrtfn] (\id{int})
     is the number of root functions $g_i$.
   \item[g] (\id{CVRootFn})
-    is the {\C} function which defines the \id{nrtfn} functions $g_i(t,y)$
+    is the {\CC} function which defines the \id{nrtfn} functions $g_i(t,y)$
     whose roots are sought. See \S\ref{ss:rootFn} for details.
  \end{args}
 }
@@ -1458,7 +1458,7 @@ flag = CVodeSetErrHandlerFn(cvode\_mem, ehfun, eh\_data);
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[ehfun] (\id{CVErrHandlerFn}) 
-    is the {\C} error handler function (see \S\ref{ss:ehFn}).
+    is the {\CC} error handler function (see \S\ref{ss:ehFn}).
   \item[eh\_data] (\id{void *})
     pointer to user data passed to \id{ehfun} every time it is called.
   \end{args}
@@ -4534,7 +4534,7 @@ The function type \id{CVEwtFn} is defined as follows:
 \subsection{Rootfinding function}\label{ss:rootFn}
 %%
 If a rootfinding problem is to be solved during the integration of the ODE system,
-the user must supply a {\C} function of type \Id{CVRootFn}, defined as follows:
+the user must supply a {\CC} function of type \Id{CVRootFn}, defined as follows:
 %%
 \usfunction{CVRootFn}
 {
@@ -4913,7 +4913,7 @@ the default is a difference quotient approximation to these products.
 \index{CVSPBCG@{\cvspbcg} linear solver!preconditioner solve function}
 \index{CVSPTFQMR@{\cvsptfqmr} linear solver!preconditioner solve function}
 
-If preconditioning is used, then the user must provide a {\C} function to
+If preconditioning is used, then the user must provide a {\CC} function to
 solve the linear system $Pz = r$, where $P$ may be either a left or
 right preconditioner matrix.  Here $P$ should approximate (at least crudely)
 the Newton matrix $M = I - \gamma J$, where $J = \partial f/ \partial y$.
@@ -4984,7 +4984,7 @@ This function must be of type \Id{CVSpilsPrecSolveFn}, defined as follows:
 
 If the user's preconditioner requires that any Jacobian-related data
 be preprocessed or evaluated, then this needs to be done in a
-user-supplied {\C} function of type \Id{CVSpilsPrecSetupFn}, defined as follows:
+user-supplied {\CC} function of type \Id{CVSpilsPrecSetupFn}, defined as follows:
 \usfunction{CVSpilsPrecSetupFn}
 {
   typedef int (*CVSpilsPrecSetupFn&)(realtype t, N\_Vector y, N\_Vector fy,  \\
@@ -5190,7 +5190,7 @@ flag = CVodeQuadInit(cvode\_mem, fQ, yQ0);
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
   \item[fQ] (\Id{CVQuadRhsFn})
-    is the {\C} function which computes $f_Q$, the right-hand side of the quadrature
+    is the {\CC} function which computes $f_Q$, the right-hand side of the quadrature
     equations. This function has the form 
     \id{fQ(t, y, yQdot, fQ\_data)} (for full details see \S\ref{ss:user_fct_quad}).
   \item[yQ0] (\id{N\_Vector})
@@ -6267,9 +6267,9 @@ the {\cvbbdpre} preconditioner module are described next.
     approximations.  The default is \id{dqrely}$ = \sqrt{\text{unit roundoff}}$,
     which can be specified by passing \id{dqrely} $= 0.0$.
   \item[gloc] (\id{CVLocalFn})
-    the {\C} function which computes the approximation $g(t,y) \approx f(t,y)$. 
+    the {\CC} function which computes the approximation $g(t,y) \approx f(t,y)$. 
   \item[cfn] (\id{CVCommFn})
-    the optional {\C} function which performs all interprocess communication
+    the optional {\CC} function which performs all interprocess communication
     required for the computation of $g(t,y)$.
   \end{args}
 }

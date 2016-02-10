@@ -80,7 +80,7 @@ problem.  In the case of failure, the return value is \id{NULL}.  This
 pointer must be passed in the remaining calls to {\ida} functions.
 
 The call to \id{IDAInit} allocates the solver memory block.
-Its arguments include the name of the {\C} function \id{resrob} defining the
+Its arguments include the name of the {\CC} function \id{resrob} defining the
 residual function $F(t,y,y')$, and the initial values of $t$, $y$, and $y'$.
 The call to \id{IDASVtolerances} specifies a vector of absolute tolerances, and
 this call includes the relative tolerance \id{rtol} and the absolute tolerance

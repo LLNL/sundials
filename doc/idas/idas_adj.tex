@@ -588,7 +588,7 @@ with some particularization for backward integration, as described below.
   \item[which] (\id{int})
     represents the identifier of the backward problem.
   \item[resB] (\Id{IDAResFnB})
-    is the {\C} function which computes $fB$, the residual of the 
+    is the {\CC} function which computes $fB$, the residual of the 
     backward DAE problem. This function has the form 
     \id{resB(t, y, yp, yB, ypB, resvalB, user\_dataB)} (for full details see
     \S\ref{ss:DAEres_b}).
@@ -644,7 +644,7 @@ function differs between these functions.
   \item[which] (\id{int})
     represents the identifier of the backward problem.
   \item[resBS] (\Id{IDAResFnBS})
-    is the {\C} function which computes $fB$, the residual or the 
+    is the {\CC} function which computes $fB$, the residual or the 
     backward DAE problem. This function has the form 
     \id{resBS(t, y, yp, yS, ypS, yB, ypB, resvalB, user\_dataB)} 
     (for full details see \S\ref{ss:DAEres_bs}).
@@ -1945,7 +1945,7 @@ flag = IDAQuadInitB(ida\_mem, which, rhsQB, yQB0);
   \item[which] (\id{int})
     the identifier of the backward problem.
   \item[rhsQB] (\Id{IDAQuadRhsFnB})
-    is the {\C} function which computes $fQB$, the residual of the 
+    is the {\CC} function which computes $fQB$, the residual of the 
     backward quadrature equations. This function has the form 
     \id{rhsQB(t, y, yp, yB, ypB, rhsvalBQ, user\_dataB)} 
     (see \S\ref{sss:rhs_quad_B}).
@@ -1991,7 +1991,7 @@ flag = IDAQuadInitBS(ida\_mem, which, rhsQBS, yQBS0);
   \item[which] (\id{int})
     the identifier of the backward problem.
   \item[rhsQBS] (\Id{IDAQuadRhsFnBS})
-    is the {\C} function which computes $fQBS$, the residual of the 
+    is the {\CC} function which computes $fQBS$, the residual of the 
     backward quadrature equations. This function has the form 
     \id{rhsQBS(t, y, yp, yS, ypS, yB, ypB, rhsvalBQS, user\_dataB)} 
     (see \S\ref{sss:rhs_quad_sens_B}).
@@ -3080,7 +3080,7 @@ the user may provide a function of one of the following two forms:
 \index{IDASPBCG@{\idaspbcg} linear solver!preconditioner solve function}
 \index{IDASPTFQMR@{\idasptfqmr} linear solver!preconditioner solve function}
 If preconditioning is used during integration of the backward problem, 
-then the user must provide a {\C} function to solve the linear system 
+then the user must provide a {\CC} function to solve the linear system 
 $Pz = r$, where $P$ is a left preconditioner matrix.
 This function must have one of the following two forms:
 %%
@@ -3207,7 +3207,7 @@ This function must have one of the following two forms:
 \index{IDASPTFQMR@{\idasptfqmr} linear solver!preconditioner setup function}
 If the user's preconditioner requires that any Jacobian-related data
 be preprocessed or evaluated, then this needs to be done in a
-user-supplied {\C} function of one of the following two types:
+user-supplied {\CC} function of one of the following two types:
 %%
 \usfunction{IDASpilsPrecSetupFnB}
 {
@@ -3379,10 +3379,10 @@ by calling the appropriate function (see \S\ref{sss:lin_solv_b}).
     approximations.  The default is \id{dqrelyB}$ = \sqrt{\text{unit roundoff}}$, which
     can be specified by passing \id{dqrely}$ = 0.0$.
   \item[GresB] (\id{IDABBDLocalFnB})
-    the {\C} function which computes $G_B(t,y,\dot y, y_B, \dot y_B)$, the
+    the {\CC} function which computes $G_B(t,y,\dot y, y_B, \dot y_B)$, the
     function approximating the residual of the backward problem. 
   \item[GcommB] (\id{IDABBDCommFnB})
-    the optional {\C} function which performs all interprocess communication required for
+    the optional {\CC} function which performs all interprocess communication required for
     the computation of $G_B$.
   \end{args}
 }

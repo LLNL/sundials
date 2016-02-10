@@ -8,7 +8,7 @@ listings, on the example programs supplied with the {\kinsol} distribution
 package.
 
 The {\kinsol} distribution contains examples of four types: serial
-{\C} examples, parallel {\C} examples, and serial and parallel {\F}
+{\CC} examples, parallel {\CC} examples, and serial and parallel {\F}
 examples.
 %%
 With the exception of ''demo''-type example files, the names of all the examples 
@@ -89,7 +89,7 @@ the following parallel examples (using the {\nvecp} module):
 With the {\fkinsol} module, in the directories 
 {\em srcdir}\id{/examples/kinsol/fcmix\_serial} and
 {\em srcdir}\id{/examples/kinsol/fcmix\_parallel}, respectively, are the
-following examples for the {\F}-{\C} interface:
+following examples for the {\F}-{\CC} interface:
 \begin{itemize}
 \item \id{fkinDiagon\_kry}
   is a serial example, which solves a nonlinear system of the form
@@ -117,7 +117,7 @@ The examples in the {\kinsol} distribution are written in such a way as
 to compile and run for any combination of configuration options used during
 the installation of {\sundials} (see Appendix \ref{c:install} in the User Guide).
 As a consequence, they contain portions of code that will not be typically present in a
-user program. For example, all {\C} example programs make use of the
+user program. For example, all {\CC} example programs make use of the
 variables \id{SUNDIALS\_EXTENDED\_PRECISION} and \id{SUNDIALS\_DOUBLE\_PRECISION}
 to test if the solver libraries were built in extended or double precision, 
 and use the appropriate conversion specifiers in \id{printf} functions.

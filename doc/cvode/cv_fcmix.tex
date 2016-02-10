@@ -2,10 +2,10 @@
 \chapter{FCVODE, an Interface Module for FORTRAN Applications}\label{s:fcmix}
 %%==============================================================================
 
-The {\fcvode} interface module is a package of {\C} functions which support
+The {\fcvode} interface module is a package of {\CC} functions which support
 the use of the {\cvode} solver, for the solution of ODE systems 
-$dy/dt = f(t,y)$, in a mixed {\F}/{\C} setting.  While {\cvode} is written
-in {\C}, it is assumed here that the user's calling program and
+$dy/dt = f(t,y)$, in a mixed {\F}/{\CC} setting.  While {\cvode} is written
+in {\CC}, it is assumed here that the user's calling program and
 user-supplied problem-defining routines are written in {\F}.
 This package provides the necessary interface to {\cvode} for all supplied 
 serial and parallel {\nvector} implementations.
@@ -19,7 +19,7 @@ serial and parallel {\nvector} implementations.
 %% the {\F} user routines called by them, appear as dummy names
 %% which are mapped to actual values by a series of definitions in the
 %% header files \id{fcvode.h}, \id{fcvroot.h}, \id{fcvbp.h}, and \id{fcvbbd.h}.
-%% By default, those mapping definitions depend in turn on the {\C} macro
+%% By default, those mapping definitions depend in turn on the {\CC} macro
 %% \id{F77\_FUNC} defined in the header file \id{sundials\_config.h} and
 %% decided upon at configuration time (see Appendix \ref{c:install}).
 
@@ -30,14 +30,14 @@ serial and parallel {\nvector} implementations.
 %% depending on whether {\cvode} was built in single, double, or extended precision 
 %% (see Appendix \ref{c:install}). Moreover, some of the {\F} integer variables
 %% must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
-%% {\C} type \id{long int}.  These integer variables include:
+%% {\CC} type \id{long int}.  These integer variables include:
 %% the optional input (\id{IVAL}), the problem size and bandwidth parameters
 %% (\id{NEQ}, \id{NLOCAL}, \id{NGLOBAL}, \id{ML}, \id{MU}, etc.),
 %% the array of integer optional outputs (\id{IOUT}),
 %% and the user array of integer data (\id{IPAR}).
 %% EXCEPTION: In the case that Lapack linear solvers are to be used, the
 %% input arguments to \id{FCVLAPACKDENSE} or \id{FCVLAPACKBAND} (\id{NEQ},
-%% \id{ML}, and \id{MU}) must be declared to be consistent with {\C} type \id{int}.
+%% \id{ML}, and \id{MU}) must be declared to be consistent with {\CC} type \id{int}.
 %% This type consistency is particularly important when using {\cvode} and the
 %% {\fcvode} package on 64-bit architectures.
 
@@ -139,7 +139,7 @@ interface function which calls it (and its type within {\cvode}), are as follows
 \begin{center}
 \begin{tabular}{l||l|l}
 {\fcvode} routine      &  {\cvode} function & {\cvode} type of \\
-({\F}, user-supplied)  &  ({\C}, interface) & interface function \\ \hline\hline
+({\F}, user-supplied)  &  ({\CC}, interface) & interface function \\ \hline\hline
 \id{FCVFUN}    & \id{FCVf}              & \id{CVRhsFn} \\
 \id{FCVEWT}    & \id{FCVEwtSet}         & \id{CVEwtFn} \\
 \id{FCVDJAC}   & \id{FCVDenseJac}       & \id{CVDlsDenseJacFn} \\
@@ -270,7 +270,7 @@ steps marked {\h} apply to {\nvecph}.
   otherwise.
 
   NOTE: The integers \id{NEQ}, \id{NLOCAL}, and \id{NGLOBAL} should be
-  declared so as to match {\C} type \id{long int}.
+  declared so as to match {\CC} type \id{long int}.
 
   {\warn}If the header file \id{sundials\_config.h} defines
   \id{SUNDIALS\_MPI\_COMM\_F2C} to be $1$ (meaning the {\mpi}
@@ -326,7 +326,7 @@ steps marked {\h} apply to {\nvecph}.
   }
   {
     The user integer data arrays \id{IOUT} and \id{IPAR} must be declared as
-    \id{INTEGER*4} or \id{INTEGER*8} according to the {\C} type \id{long int}.
+    \id{INTEGER*4} or \id{INTEGER*8} according to the {\CC} type \id{long int}.
 
     Modifications to the user data arrays \id{IPAR} and \id{RPAR} inside a 
     user-provided routine will be propagated to all subsequent calls to
@@ -415,7 +415,7 @@ steps marked {\h} apply to {\nvecph}.
       CALL FCVLAPACKDENSE(NEQ, IER)
 \end{verbatim}
   where the arguments have the same meanings as for \id{FCVDENSE}, except
-  that here \id{NEQ} must be declared so as to match {\C} type \id{int}.
+  that here \id{NEQ} must be declared so as to match {\CC} type \id{int}.
 
   \index{Jacobian approximation function!dense!use in {\fcvode}}
   As an option when using the {\dense} linear solver, the user may supply a
@@ -440,7 +440,7 @@ steps marked {\h} apply to {\nvecph}.
   a positive value if a recoverable error occurred (in which case {\cvode} will 
   attempt to correct), or a negative value if \id{FCVDJAC} failed unrecoverably 
   (in which case the integration is halted).
-  NOTE: The argument \id{NEQ} has a type consistent with {\C} type \id{long int}
+  NOTE: The argument \id{NEQ} has a type consistent with {\CC} type \id{long int}
   even in the case when the Lapack dense solver is to be used.
 
   If the user's \id{FCVDJAC} uses difference quotient approximations, it
@@ -492,7 +492,7 @@ steps marked {\h} apply to {\nvecph}.
 \end{verbatim}
   where the arguments have the same meanings as for \id{FCVBAND}, except
   that here \id{NEQ}, \id{MU}, and \id{ML} must be declared so as to match
-  {\C} type \id{int}.
+  {\CC} type \id{int}.
 
   \index{Jacobian approximation function!band!use in {\fcvode}}
   As an option when using the {\band} linear solver, the user may supply a
@@ -523,7 +523,7 @@ steps marked {\h} apply to {\nvecph}.
   attempt to correct), or a negative value if \id{FCVBJAC} failed unrecoverably 
   (in which case the integration is halted).
   NOTE: The arguments \id{NEQ}, \id{MU}, \id{ML}, and \id{MDIM} have a type
-  consistent with {\C} type \id{long int} even in the case when the Lapack band
+  consistent with {\CC} type \id{long int} even in the case when the Lapack band
   solver is to be used.
 
   If the user's \id{FCVBJAC} uses difference quotient approximations, it
@@ -952,7 +952,7 @@ where \id{KEY} is a quoted string indicating which optoinal input is set
 \id{RVAL} is the real input value to be used, and
 \id{IER} is an integer return flag which is set to $0$ on success and 
 a negative value if a failure occurred.
-The integer \id{IVAL} should be declared in a manner consistent with {\C}
+The integer \id{IVAL} should be declared in a manner consistent with {\CC}
 type \id{long int}.
 
 The optional outputs from the {\cvode} solver are accessed not through
@@ -1182,7 +1182,7 @@ the following call:
 %%==============================================================================
 \index{FCVODE@{\fcvode} interface module!interface to the {\cvbandpre} module|(}
 %%
-The {\fcvbp} interface sub-module is a package of {\C} functions which,
+The {\fcvbp} interface sub-module is a package of {\CC} functions which,
 as part of the {\fcvode} interface module, support the use of the
 {\cvode} solver with the serial {\nvecs} module, and the combination of
 the {\cvbandpre} preconditioner module (see \S\ref{sss:cvbandpre}) with
@@ -1253,7 +1253,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 \begin{verbatim}
        CALL FCVBPOPT(LENRWBP, LENIWBP, NFEBP)
 \end{verbatim}
-  The arguments should be consistent with {\C} type \id{long int}.  Their
+  The arguments should be consistent with {\CC} type \id{long int}.  Their
   returned values are as follows:
   \id{LENRWBP} is the length of real preconditioner work space, in \id{realtype}
   words. \id{LENIWBP} is the length of integer preconditioner work space, in
@@ -1275,7 +1275,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 %%==============================================================================
 \index{FCVODE@{\fcvode} interface module!interface to the {\cvbbdpre} module|(}
 
-The {\fcvbbd} interface sub-module is a package of {\C} functions which,
+The {\fcvbbd} interface sub-module is a package of {\CC} functions which,
 as part of the {\fcvode} interface module, support the use of the
 {\cvode} solver with the parallel {\nvecp} module, and the combination of
 the {\cvbbdpre} preconditioner module (see \S\ref{sss:cvbbdpre}) with
@@ -1299,7 +1299,7 @@ type within {\cvbbdpre} or {\cvode}):
 \begin{center}
 \begin{tabular}{l||l|l}
 {\fcvbbd} routine      &  {\cvode} function & {\cvode} type of \\
-({\F}, user-supplied)  &  ({\C}, interface) & interface function \\ \hline\hline
+({\F}, user-supplied)  &  ({\CC}, interface) & interface function \\ \hline\hline
 \id{FCVLOCFN}  & \id{FCVgloc}     & \id{CVLocalFn} \\
 \id{FCVCOMMF}  & \id{FCVcfn}      & \id{CVCommFn} \\
 \id{FCVJTIMES} & \id{FCVJtimes}   & \id{CVSpilsJacTimesVecFn} \\
@@ -1373,7 +1373,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 \begin{verbatim}
        CALL FCVBBDOPT(LENRWBBD, LENIWBBD, NGEBBD)
 \end{verbatim}
-  The arguments should be consistent with {\C} type \id{long int}.  Their
+  The arguments should be consistent with {\CC} type \id{long int}.  Their
   returned values are as follows:
   \id{LENRWBBD} is the length of real preconditioner work space, in \id{realtype}
   words. \id{LENIWBBD} is the length of integer preconditioner work space, in

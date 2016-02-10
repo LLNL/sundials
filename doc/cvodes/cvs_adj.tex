@@ -544,7 +544,7 @@ not depend on the forward sensitivities.  It is essentially a wrapper for
   \item[which] (\id{int})
     represents the identifier of the backward problem.
   \item[rhsB] (\Id{CVRhsFnB})
-    is the {\C} function which computes $fB$, the right-hand side of the 
+    is the {\CC} function which computes $fB$, the right-hand side of the 
     backward ODE problem. This function has the form 
     \id{rhsB(t, y, yB, yBdot, user\_dataB)} (for full details see \S\ref{ss:ODErhs_b}).
   \item[tB0] (\id{realtype})
@@ -598,7 +598,7 @@ functions.
   \item[which] (\id{int})
     represents the identifier of the backward problem.
   \item[rhsBS] (\Id{CVRhsFnBS})
-    is the {\C} function which computes $fB$, the right-hand side of the 
+    is the {\CC} function which computes $fB$, the right-hand side of the 
     backward ODE problem. This function has the form 
     \id{rhsBS(t, y, yS, yB, yBdot, user\_dataB)} 
     (for full details see \S\ref{ss:ODErhs_bs}).
@@ -1781,7 +1781,7 @@ flag = CVodeQuadInitB(cvode\_mem, which, rhsQB, yQB0);
   \item[which] (\id{int})
     the identifier of the backward problem.
   \item[rhsQB] (\Id{CVQuadRhsFnB})
-    is the {\C} function which computes $fQB$, the right-hand side of the 
+    is the {\CC} function which computes $fQB$, the right-hand side of the 
     backward quadrature equations. This function has the form 
     \id{rhsQB(t, y, yB, qBdot, user\_dataB)} 
     (see \S\ref{sss:rhs_quad_B}).
@@ -1827,7 +1827,7 @@ flag = CVodeQuadInitBS(cvode\_mem, which, rhsQBS, yQBS0);
   \item[which] (\id{int})
     the identifier of the backward problem.
   \item[rhsQBS] (\Id{CVQuadRhsFnBS})
-    is the {\C} function which computes $fQBS$, the right-hand side of the 
+    is the {\CC} function which computes $fQBS$, the right-hand side of the 
     backward quadrature equations. This function has the form 
     \id{rhsQBS(t, y, yS, yB, qBdot, user\_dataB)} 
     (see \S\ref{sss:rhs_quad_sens_B}).
@@ -2783,7 +2783,7 @@ the user may provide a function of one of the following two types:
 \index{CVSPBCG@{\cvspbcg} linear solver!preconditioner solve function}
 \index{CVSPTFQMR@{\cvsptfqmr} linear solver!preconditioner solve function}
 If preconditioning is used during integration of the backward problem, 
-then the user must provide a {\C} function to solve the linear system 
+then the user must provide a {\CC} function to solve the linear system 
 $Pz = r$, where $P$ may be either a left or a right preconditioner matrix.
 Here $P$ should approximate (at least crudely) the Newton matrix 
 $M_B = I - \gamma_B J_B$, where $J_B = \partial f_B/ \partial y_B$.  If
@@ -2895,7 +2895,7 @@ This function must be of one of the following two types:
 \index{CVSPTFQMR@{\cvsptfqmr} linear solver!preconditioner setup function}
 If the user's preconditioner requires that any Jacobian-related data
 be preprocessed or evaluated, then this needs to be done in a
-user-supplied {\C} function of one of the following two types:
+user-supplied {\CC} function of one of the following two types:
 %%
 \usfunction{CVSpilsPrecSetupFnB}
 {
@@ -3143,10 +3143,10 @@ by calling the appropriate function (see \S\ref{sss:lin_solv_b}).
     approximations.  The default is \id{dqrelyB}$ = \sqrt{\text{unit roundoff}}$, which
     can be specified by passing \id{dqrely}$ = 0.0$.
   \item[glocB] (\id{CVBBDLocalFnB})
-    the {\C} function which computes the function $g_B(t,y,y_B)$ approximating
+    the {\CC} function which computes the function $g_B(t,y,y_B)$ approximating
     the right-hand side of the backward problem. 
   \item[gcommB] (\id{CVBBDCommFnB})
-    the optional {\C} function which performs all interprocess communication required for
+    the optional {\CC} function which performs all interprocess communication required for
     the computation of $g_B$.
   \end{args}
 }

@@ -1,5 +1,5 @@
-\usepackage{epsfig, supertabular, makeidx}
-
+\usepackage{makeidx}
+\usepackage{xtab}
 \usepackage{amsmath, amssymb}
 
 % Package to add Bibliography and Index to TOC
@@ -9,9 +9,10 @@
 \usepackage{calc}
 \usepackage{hangcaption}
 \usepackage{subfigure}
-\usepackage[usenames]{color}
-\usepackage{epsfig}
-\usepackage{pstricks}
+\usepackage{color}
+%\usepackage{epsfig}
+%\usepackage{pstricks}
+\usepackage{graphicx}
 
 % Needed for sideways
 \usepackage{rotating}
@@ -35,7 +36,8 @@
 {\mbox{}\marginpar{\raggedleft\hspace{0pt}{\rule{0mm}{1mm}#1}}}
 
 \newcommand{\warn}{%
-\marginlabel{\pstribox[shadow=false,fillstyle=solid,fillcolor=yellow,trimode=*U]{\footnotesize !}}%%
+%\marginlabel{\pstribox[shadow=false,fillstyle=solid,fillcolor=yellow,trimode=*U]{\footnotesize !}}%%
+\marginlabel{\includegraphics[scale=0.8]{warning}}%%
 }
 
 %----- Page formatting
@@ -86,6 +88,7 @@
 \newcommand{\nvector}{{\normalfont\scshape nvector}}
 \newcommand{\fnvector}{{\normalfont\scshape fnvector}}
 \newcommand{\nvecp}{{\normalfont\scshape nvector\_parallel}}
+\newcommand{\nvecpetsc}{{\normalfont\scshape nvector\_petsc}}
 \newcommand{\nvecph}{{\normalfont\scshape nvector\_parhyp}}
 \newcommand{\nvecs}{{\normalfont\scshape nvector\_serial}}
 \newcommand{\nvecopenmp}{{\normalfont\scshape nvector\_openmp}}
@@ -188,7 +191,7 @@
 \newcommand{\mpi}{{\sc MPI}}
 
 %----- C and Fortran languages
-\newcommand{\C}{{\sc C}}
+\newcommand{\CC}{{\sc C}}
 \newcommand{\CPP}{{\sc C}\raisebox{0.2em}{\tiny ++}}
 \newcommand{\F}{{\sc Fortran}}
 
@@ -449,9 +452,9 @@ Approved for public release; further dissemination unlimited
 %% to give it a fighting chance, it MUST be included last.
 
 \usepackage[
-letterpaper=true, 
-dvips, 
-ps2pdf, 
+% letterpaper=true, 
+% dvips, 
+% ps2pdf, 
 hyperindex=true, 
 linktocpage=true,
 colorlinks=true, 
