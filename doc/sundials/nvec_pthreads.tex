@@ -146,14 +146,14 @@ user-callable routines:
 
 %%--------------------------------------
 
-\item \ID{N\_VCloneEmptyVectorArray\_Pthreads}
+\item \ID{N\_VCloneVectorArrayEmpty\_Pthreads}
 
  This function creates (by cloning) an array of \id{count} Pthreads vectors, each with an
  empty (\id{NULL}) data array.
 
  
 
- \verb|N_Vector *N_VCloneEmptyVectorArray_Pthreads(int count, N_Vector w);|
+ \verb|N_Vector *N_VCloneVectorArrayEmpty_Pthreads(int count, N_Vector w);|
 
 %%--------------------------------------
 
@@ -161,7 +161,7 @@ user-callable routines:
 
  This function frees memory allocated for the array of \id{count} variables of type
  \id{N\_Vector} created with \id{N\_VCloneVectorArray\_Pthreads} or with
- \id{N\_VCloneEmptyVectorArray\_Pthreads}.
+ \id{N\_VCloneVectorArrayEmpty\_Pthreads}.
 
  
 
@@ -193,7 +193,7 @@ user-callable routines:
 
 \item
   {\warn}\id{N\_VNewEmpty\_Pthreads}, \id{N\_VMake\_Pthreads}, 
-  and \id{N\_VCloneEmptyVectorArray\_Pthreads} set the field 
+  and \id{N\_VCloneVectorArrayEmpty\_Pthreads} set the field 
   {\em own\_data} $=$ \id{FALSE}. 
   \id{N\_VDestroy\_Pthreads} and \id{N\_VDestroyVectorArray\_Pthreads}
   will not attempt to free the pointer {\em data} for any \id{N\_Vector} with

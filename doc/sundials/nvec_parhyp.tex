@@ -176,13 +176,13 @@ N_Vector *N_VCloneVectorArray_ParHyp(int count, N_Vector w);
 
 %%--------------------------------------
 
-\item \ID{N\_VCloneEmptyVectorArray\_ParHyp}
+\item \ID{N\_VCloneVectorArrayEmpty\_ParHyp}
  
   This function creates (by cloning) an array of \id{count} parallel vectors,
   each with an empty (\id{NULL}) data array.
  
 \begin{verbatim}
-N_Vector *N_VCloneEmptyVectorArray_ParHyp(int count, N_Vector w);
+N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w);
 \end{verbatim}
 
 %%--------------------------------------
@@ -191,7 +191,7 @@ N_Vector *N_VCloneEmptyVectorArray_ParHyp(int count, N_Vector w);
  
  This function frees memory allocated for the array of \id{count}  variables of
  type \id{N\_Vector} created with \id{N\_VCloneVectorArray\_ParHyp} or with
- \id{N\_VCloneEmptyVectorArray\_ParHyp}.
+ \id{N\_VCloneVectorArrayEmpty\_ParHyp}.
  
 
  \verb|void N_VDestroyVectorArray_ParHyp(N_Vector *vs, int count);|
@@ -223,7 +223,7 @@ N_Vector *N_VCloneEmptyVectorArray_ParHyp(int count, N_Vector w);
                                                                
 \item
   {\warn}\id{N\_VNewEmpty\_ParHyp}, \id{N\_VMake\_ParHyp}, 
-  and \id{N\_VCloneEmptyVectorArray\_ParHyp} set the field 
+  and \id{N\_VCloneVectorArrayEmpty\_ParHyp} set the field 
   {\em own\_data} $=$ \id{FALSE}. 
   \id{N\_VDestroy\_ParHyp} and \id{N\_VDestroyVectorArray\_ParHyp}
   will not attempt to free the pointer {\em data} for any \id{N\_Vector} with

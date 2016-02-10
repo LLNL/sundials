@@ -18117,10 +18117,10 @@ vectors.
 
 \end{fulllineitems}
 
-\index{N\_VCloneEmptyVectorArray\_Serial (C function)}
+\index{N\_VCloneVectorArrayEmpty\_Serial (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Serial:c.N_VCloneEmptyVectorArray_Serial}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneEmptyVectorArray\_Serial}}{int\emph{ count}, N\_Vector\emph{ w}}{}
+\phantomsection\label{nvectors/NVector_Serial:c.N_VCloneVectorArrayEmpty_Serial}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneVectorArrayEmpty\_Serial}}{int\emph{ count}, N\_Vector\emph{ w}}{}
 This function creates (by cloning) an array of \emph{count} serial
 vectors, each with an empty (\code{{}`NULL}) data array.
 
@@ -18133,7 +18133,7 @@ vectors, each with an empty (\code{{}`NULL}) data array.
 This function frees memory allocated for the array of \emph{count}
 variables of type \code{N\_Vector} created with
 {\hyperref[nvectors/NVector_Serial:c.N_VCloneVectorArray_Serial]{\emph{\code{N\_VCloneVectorArray\_Serial()}}}} or with
-{\hyperref[nvectors/NVector_Serial:c.N_VCloneEmptyVectorArray_Serial]{\emph{\code{N\_VCloneEmptyVectorArray\_Serial()}}}}.
+{\hyperref[nvectors/NVector_Serial:c.N_VCloneVectorArrayEmpty_Serial]{\emph{\code{N\_VCloneVectorArrayEmpty\_Serial()}}}}.
 
 \end{fulllineitems}
 
@@ -18156,7 +18156,7 @@ is to use \code{NV\_Ith\_S(v,i)} within the loop.
 
 \item {} 
 {\hyperref[nvectors/NVector_Serial:c.N_VNewEmpty_Serial]{\emph{\code{N\_VNewEmpty\_Serial()}}}}, {\hyperref[nvectors/NVector_Serial:c.N_VMake_Serial]{\emph{\code{N\_VMake\_Serial()}}}}, and
-{\hyperref[nvectors/NVector_Serial:c.N_VCloneEmptyVectorArray_Serial]{\emph{\code{N\_VCloneEmptyVectorArray\_Serial()}}}} set the field \emph{own\_data}
+{\hyperref[nvectors/NVector_Serial:c.N_VCloneVectorArrayEmpty_Serial]{\emph{\code{N\_VCloneVectorArrayEmpty\_Serial()}}}} set the field \emph{own\_data}
 to \code{FALSE}.  The functions \code{N\_VDestroy\_Serial()} and
 {\hyperref[nvectors/NVector_Serial:c.N_VDestroyVectorArray_Serial]{\emph{\code{N\_VDestroyVectorArray\_Serial()}}}} will not attempt to free the
 pointer data for any \code{N\_Vector} with \emph{own\_data} set to \code{FALSE}.
@@ -18368,10 +18368,10 @@ This function creates (by cloning) an array of \emph{count} parallel vectors.
 
 \end{fulllineitems}
 
-\index{N\_VCloneEmptyVectorArray\_Parallel (C function)}
+\index{N\_VCloneVectorArrayEmpty\_Parallel (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Parallel:c.N_VCloneEmptyVectorArray_Parallel}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneEmptyVectorArray\_Parallel}}{int\emph{ count}, N\_Vector\emph{ w}}{}
+\phantomsection\label{nvectors/NVector_Parallel:c.N_VCloneVectorArrayEmpty_Parallel}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneVectorArrayEmpty\_Parallel}}{int\emph{ count}, N\_Vector\emph{ w}}{}
 This function creates (by cloning) an array of \emph{count} parallel
 vectors, each with an empty (\code{NULL}) data array.
 
@@ -18384,7 +18384,7 @@ vectors, each with an empty (\code{NULL}) data array.
 This function frees memory allocated for the array of \emph{count}
 variables of type \code{N\_Vector} created with
 {\hyperref[nvectors/NVector_Parallel:c.N_VCloneVectorArray_Parallel]{\emph{\code{N\_VCloneVectorArray\_Parallel()}}}} or with
-{\hyperref[nvectors/NVector_Parallel:c.N_VCloneEmptyVectorArray_Parallel]{\emph{\code{N\_VCloneEmptyVectorArray\_Parallel()}}}}.
+{\hyperref[nvectors/NVector_Parallel:c.N_VCloneVectorArrayEmpty_Parallel]{\emph{\code{N\_VCloneVectorArrayEmpty\_Parallel()}}}}.
 
 \end{fulllineitems}
 
@@ -18407,7 +18407,7 @@ is to use \code{NV\_Ith\_P(v,i)} within the loop.
 
 \item {} 
 {\hyperref[nvectors/NVector_Parallel:c.N_VNewEmpty_Parallel]{\emph{\code{N\_VNewEmpty\_Parallel()}}}}, {\hyperref[nvectors/NVector_Parallel:c.N_VMake_Parallel]{\emph{\code{N\_VMake\_Parallel()}}}}, and
-{\hyperref[nvectors/NVector_Parallel:c.N_VCloneEmptyVectorArray_Parallel]{\emph{\code{N\_VCloneEmptyVectorArray\_Parallel()}}}} set the field \emph{own\_data} to
+{\hyperref[nvectors/NVector_Parallel:c.N_VCloneVectorArrayEmpty_Parallel]{\emph{\code{N\_VCloneVectorArrayEmpty\_Parallel()}}}} set the field \emph{own\_data} to
 \code{FALSE}. The routines \code{N\_VDestroy\_Parallel()} and
 {\hyperref[nvectors/NVector_Parallel:c.N_VDestroyVectorArray_Parallel]{\emph{\code{N\_VDestroyVectorArray\_Parallel()}}}} will not attempt to free the
 pointer data for any \code{N\_Vector} with \emph{own\_data} set to
@@ -18610,10 +18610,10 @@ vectors.
 
 \end{fulllineitems}
 
-\index{N\_VCloneEmptyVectorArray\_OpenMP (C function)}
+\index{N\_VCloneVectorArrayEmpty\_OpenMP (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_OpenMP:c.N_VCloneEmptyVectorArray_OpenMP}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneEmptyVectorArray\_OpenMP}}{int\emph{ count}, N\_Vector\emph{ w}}{}
+\phantomsection\label{nvectors/NVector_OpenMP:c.N_VCloneVectorArrayEmpty_OpenMP}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneVectorArrayEmpty\_OpenMP}}{int\emph{ count}, N\_Vector\emph{ w}}{}
 This function creates (by cloning) an array of \emph{count} OpenMP
 vectors, each with an empty (\code{{}`NULL}) data array.
 
@@ -18626,7 +18626,7 @@ vectors, each with an empty (\code{{}`NULL}) data array.
 This function frees memory allocated for the array of \emph{count}
 variables of type \code{N\_Vector} created with
 {\hyperref[nvectors/NVector_OpenMP:c.N_VCloneVectorArray_OpenMP]{\emph{\code{N\_VCloneVectorArray\_OpenMP()}}}} or with
-{\hyperref[nvectors/NVector_OpenMP:c.N_VCloneEmptyVectorArray_OpenMP]{\emph{\code{N\_VCloneEmptyVectorArray\_OpenMP()}}}}.
+{\hyperref[nvectors/NVector_OpenMP:c.N_VCloneVectorArrayEmpty_OpenMP]{\emph{\code{N\_VCloneVectorArrayEmpty\_OpenMP()}}}}.
 
 \end{fulllineitems}
 
@@ -18649,7 +18649,7 @@ is to use \code{NV\_Ith\_OMP(v,i)} within the loop.
 
 \item {} 
 {\hyperref[nvectors/NVector_OpenMP:c.N_VNewEmpty_OpenMP]{\emph{\code{N\_VNewEmpty\_OpenMP()}}}}, {\hyperref[nvectors/NVector_OpenMP:c.N_VMake_OpenMP]{\emph{\code{N\_VMake\_OpenMP()}}}}, and
-{\hyperref[nvectors/NVector_OpenMP:c.N_VCloneEmptyVectorArray_OpenMP]{\emph{\code{N\_VCloneEmptyVectorArray\_OpenMP()}}}} set the field \emph{own\_data}
+{\hyperref[nvectors/NVector_OpenMP:c.N_VCloneVectorArrayEmpty_OpenMP]{\emph{\code{N\_VCloneVectorArrayEmpty\_OpenMP()}}}} set the field \emph{own\_data}
 to \code{FALSE}.  The functions \code{N\_VDestroy\_OpenMP()} and
 {\hyperref[nvectors/NVector_OpenMP:c.N_VDestroyVectorArray_OpenMP]{\emph{\code{N\_VDestroyVectorArray\_OpenMP()}}}} will not attempt to free the
 pointer data for any \code{N\_Vector} with \emph{own\_data} set to \code{FALSE}.
@@ -18852,10 +18852,10 @@ vectors.
 
 \end{fulllineitems}
 
-\index{N\_VCloneEmptyVectorArray\_Pthreads (C function)}
+\index{N\_VCloneVectorArrayEmpty\_Pthreads (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Pthreads:c.N_VCloneEmptyVectorArray_Pthreads}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneEmptyVectorArray\_Pthreads}}{int\emph{ count}, N\_Vector\emph{ w}}{}
+\phantomsection\label{nvectors/NVector_Pthreads:c.N_VCloneVectorArrayEmpty_Pthreads}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneVectorArrayEmpty\_Pthreads}}{int\emph{ count}, N\_Vector\emph{ w}}{}
 This function creates (by cloning) an array of \emph{count} Pthreads
 vectors, each with an empty (\code{{}`NULL}) data array.
 
@@ -18868,7 +18868,7 @@ vectors, each with an empty (\code{{}`NULL}) data array.
 This function frees memory allocated for the array of \emph{count}
 variables of type \code{N\_Vector} created with
 {\hyperref[nvectors/NVector_Pthreads:c.N_VCloneVectorArray_Pthreads]{\emph{\code{N\_VCloneVectorArray\_Pthreads()}}}} or with
-{\hyperref[nvectors/NVector_Pthreads:c.N_VCloneEmptyVectorArray_Pthreads]{\emph{\code{N\_VCloneEmptyVectorArray\_Pthreads()}}}}.
+{\hyperref[nvectors/NVector_Pthreads:c.N_VCloneVectorArrayEmpty_Pthreads]{\emph{\code{N\_VCloneVectorArrayEmpty\_Pthreads()}}}}.
 
 \end{fulllineitems}
 
@@ -18891,7 +18891,7 @@ is to use \code{NV\_Ith\_S(v,i)} within the loop.
 
 \item {} 
 {\hyperref[nvectors/NVector_Pthreads:c.N_VNewEmpty_Pthreads]{\emph{\code{N\_VNewEmpty\_Pthreads()}}}}, {\hyperref[nvectors/NVector_Pthreads:c.N_VMake_Pthreads]{\emph{\code{N\_VMake\_Pthreads()}}}}, and
-{\hyperref[nvectors/NVector_Pthreads:c.N_VCloneEmptyVectorArray_Pthreads]{\emph{\code{N\_VCloneEmptyVectorArray\_Pthreads()}}}} set the field \emph{own\_data}
+{\hyperref[nvectors/NVector_Pthreads:c.N_VCloneVectorArrayEmpty_Pthreads]{\emph{\code{N\_VCloneVectorArrayEmpty\_Pthreads()}}}} set the field \emph{own\_data}
 to \code{FALSE}.  The functions \code{N\_VDestroy\_Pthreads()} and
 {\hyperref[nvectors/NVector_Pthreads:c.N_VDestroyVectorArray_Pthreads]{\emph{\code{N\_VDestroyVectorArray\_Pthreads()}}}} will not attempt to free the
 pointer data for any \code{N\_Vector} with \emph{own\_data} set to \code{FALSE}.
@@ -19140,10 +19140,10 @@ vectors.
 
 \end{fulllineitems}
 
-\index{N\_VCloneEmptyVectorArray\_ParHyp (C function)}
+\index{N\_VCloneVectorArrayEmpty\_ParHyp (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.N_VCloneEmptyVectorArray_ParHyp}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneEmptyVectorArray\_ParHyp}}{int\emph{ count}, N\_Vector\emph{ w}}{}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VCloneVectorArrayEmpty_ParHyp}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneVectorArrayEmpty\_ParHyp}}{int\emph{ count}, N\_Vector\emph{ w}}{}
 This function creates (by cloning) an array of \emph{count} parhyp
 vectors, each with an empty (\code{{}`NULL}) data array.
 
@@ -19156,7 +19156,7 @@ vectors, each with an empty (\code{{}`NULL}) data array.
 This function frees memory allocated for the array of \emph{count}
 variables of type \code{N\_Vector} created with
 {\hyperref[nvectors/NVector_ParHyp:c.N_VCloneVectorArray_ParHyp]{\emph{\code{N\_VCloneVectorArray\_ParHyp()}}}} or with
-{\hyperref[nvectors/NVector_ParHyp:c.N_VCloneEmptyVectorArray_ParHyp]{\emph{\code{N\_VCloneEmptyVectorArray\_ParHyp()}}}}.
+{\hyperref[nvectors/NVector_ParHyp:c.N_VCloneVectorArrayEmpty_ParHyp]{\emph{\code{N\_VCloneVectorArrayEmpty\_ParHyp()}}}}.
 
 \end{fulllineitems}
 
@@ -19179,7 +19179,7 @@ is to use \code{NV\_Ith\_PH(v,i)} within the loop.
 
 \item {} 
 {\hyperref[nvectors/NVector_ParHyp:c.N_VNewEmpty_ParHyp]{\emph{\code{N\_VNewEmpty\_ParHyp()}}}}, {\hyperref[nvectors/NVector_ParHyp:c.N_VMake_ParHyp]{\emph{\code{N\_VMake\_ParHyp()}}}}, and
-{\hyperref[nvectors/NVector_ParHyp:c.N_VCloneEmptyVectorArray_ParHyp]{\emph{\code{N\_VCloneEmptyVectorArray\_ParHyp()}}}} set the field \emph{own\_data}
+{\hyperref[nvectors/NVector_ParHyp:c.N_VCloneVectorArrayEmpty_ParHyp]{\emph{\code{N\_VCloneVectorArrayEmpty\_ParHyp()}}}} set the field \emph{own\_data}
 to \code{FALSE}.  The functions \code{N\_VDestroy\_ParHyp()} and
 {\hyperref[nvectors/NVector_ParHyp:c.N_VDestroyVectorArray_ParHyp]{\emph{\code{N\_VDestroyVectorArray\_ParHyp()}}}} will not attempt to free the
 pointer data for any \code{N\_Vector} with \emph{own\_data} set to \code{FALSE}.
@@ -19640,14 +19640,14 @@ module, namely \code{N\_VScale}, which performs the scaling of a vector
 The subsection {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}} contains a complete list of all
 vector operations defined by the generic NVECTOR module.  Finally, we
 note that the generic NVECTOR module defines the functions
-\code{N\_VCloneVectorArray} and \code{N\_VCloneEmptyVectorArray}. Both
+\code{N\_VCloneVectorArray} and \code{N\_VCloneVectorArrayEmpty}. Both
 functions create (by cloning) an array of \emph{count} variables of type
 \code{N\_Vector}, each of the same type as an existing \code{N\_Vector}. Their
 prototypes are:
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n+nf}{N\PYGZus{}VCloneVectorArray}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{count}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
-\PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n+nf}{N\PYGZus{}VCloneEmptyVectorArray}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{count}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n+nf}{N\PYGZus{}VCloneVectorArrayEmpty}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{count}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
 
 and their definitions are based on the implementation-specific

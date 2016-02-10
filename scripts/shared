@@ -96,6 +96,14 @@ $tar $tarfile $distrobase/src/nvec_par/fnvector_parallel.h
 $tar $tarfile $distrobase/src/nvec_par/nvector_parallel.c
 $tar $tarfile $distrobase/src/nvec_par/fnvector_parallel.c
 
+echo "   --- Add nvecparhyp module to $tarfile"
+
+$tar $tarfile $distrobase/src/nvec_parhyp/README
+$tar $tarfile $distrobase/src/nvec_parhyp/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvec_parhyp/fnvector_parhyp.h
+$tar $tarfile $distrobase/src/nvec_parhyp/nvector_parhyp.c
+$tar $tarfile $distrobase/src/nvec_parhyp/fnvector_parhyp.c
+
 echo "   --- Add nvecopenmp module to $tarfile"
 
 $tar $tarfile $distrobase/src/nvec_openmp/README

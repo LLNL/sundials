@@ -25,39 +25,36 @@ Following that are detailed descriptions of the interface to the
 various user-callable routines and of the user-supplied routines that were not
 already described in Chapter \ref{s:simulation}.
 
-%-------------------------------------------------
+%---------------------------------------------------------------------
 \section{A skeleton of the user's main program}\label{s:forward_usage}
-%-------------------------------------------------
+%---------------------------------------------------------------------
 
 The following is a skeleton of the user's main program (or calling
 program) as an application of {\cvodes}. The user program is to have these 
 steps in the order indicated, unless otherwise noted.
 For the sake of brevity, we defer many of the details to the later sections.
 As in \S\ref{ss:skeleton_sim}, most steps are independent of the {\nvector}
-implementation used; where this is not the case, usage specifications are given
-for the implementations provided with {\cvodes}:
-steps marked {\s} correspond to {\nvecs},
-steps marked {\omp} correspond to {\nvecopenmp},
-steps marked {\pt} correspond to {\nvecpthreads},
-steps marked {\p} correspond to {\nvecp}, while
-steps marked {\h} correspond to {\nvecph}.
+implementation used; where this is not the case, refer to Chapter
+\ref{s:nvector} for specifics.
 Differences between the user main program in \S\ref{ss:skeleton_sim} and
 the one below start only at step (\ref{i:fwd_start}).
 Steps that are unchanged from the skeleton program presented in
 \S\ref{ss:skeleton_sim} are grayed out.
 
-First, note that no additional header files need be included for forward sensitivity 
-analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
+First, note that no additional header files need be included for
+forward sensitivity analysis beyond those for IVP solution
+(\S\ref{ss:skeleton_sim}).
 %%
 %%
 \index{User main program!forward sensitivity analysis}
 \begin{Steps}
   
 \item 
-  \textcolor{gray}{\bf {\p} {\h} Initialize MPI}
+  \textcolor{gray}{\bf Initialize parallel or multi-threaded environment,
+  if appropriate}
 
 \item
-  \textcolor{gray}{\bf Set problem dimensions}
+  \textcolor{gray}{\bf Set problem dimensions etc.}
 
 \item
   \textcolor{gray}{\bf Set initial values}
@@ -148,61 +145,30 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
   Set the \id{Ns} vectors \id{yS0[i]} of initial values
   for sensitivities (for $i=0,\ldots,$ \id{Ns} $ - 1$). 
 
-  First, create an array of \id{Ns} vectors by making the call
+  First, create an array of \id{Ns} vectors by making the appropriate call
 
-  {\s} \id{yS0 = N\_VCloneVectorArray\_Serial(Ns, y0);}
+  \id{yS0 = N\_VCloneVectorArray\_***(Ns, y0);}
 
-  {\omp} \id{yS0 = N\_VCloneVectorArray\_OpenMP(Ns, y0);}
-
-  {\pt} \id{yS0 = N\_VCloneVectorArray\_Pthreads(Ns, y0);}
-
-  {\p} \id{yS0 = N\_VCloneVectorArray\_Parallel(Ns, y0);}
-
-  {\h} \id{yS0 = N\_VCloneVectorArray\_ParHyp(Ns, y0);}
-
-  Here the argument \id{y0} serves only to provide the \id{N\_Vector} type for cloning.
+   Here the argument \id{y0} serves only to provide the \id{N\_Vector}
+   type for cloning.
 
   Then, for each $i = 0,\ldots, $\id{Ns} $ - 1$, load initial values
   for the $i$-th sensitivity vector into the structure defined by:
 
-  {\s} \id{NV\_DATA\_S(yS0[i])}
-
-  {\omp} \id{NV\_DATA\_OMP(yS0[i])}
-
-  {\pt} \id{NV\_DATA\_PT(yS0[i])}
-
-  {\p} \id{NV\_DATA\_P(yS0[i])}
-
-  {\h} \id{NV\_DATA\_PH(yS0[i])}
+  \id{NV\_DATA\_***(yS0[i])}
 
   Alternatively, if the initial values for the sensitivity variables
   are already available in \id{realtype} arrays, create an array of
-  \id{Ns} ``empty'' vectors by making the call
+  \id{Ns} ``empty'' vectors by making the appropriate call
 
-  {\s} \id{yS0 = N\_VCloneEmptyVectorArray\_Serial(Ns, y0);}
+  \id{yS0 = N\_VCloneVectorArrayEmpty\_***(Ns, y0);}
 
-  {\omp} \id{yS0 = N\_VCloneEmptyVectorArray\_OpenMP(Ns, y0);}
+  and then attach the \id{realtype} array \id{yS0[i]} containing the initial
+  values of the $i$-th sensitivity vector using the appropriate function
 
-  {\pt} \id{yS0 = N\_VCloneEmptyVectorArray\_Pthreads(Ns, y0);}
-
-  {\p} \id{yS0 = N\_VCloneEmptyVectorArray\_Parallel(Ns, y0);}
-
-  {\h} \id{yS0 = N\_VCloneEmptyVectorArray\_ParHyp(Ns, y0);}
-
-  and then attach the \id{realtype} array \id{yS0[i]} containing the
-  initial values of the $i$-th sensitivity vector using
-
-  {\s} \id{N\_VSetArrayPointer\_Serial(yS0\_i, yS0[i]);}
+  \id{N\_VSetArrayPointer\_***(yS0\_i, yS0[i]);}
   
-  {\omp} \id{N\_VSetArrayPointer\_OpenMP(yS0\_i, yS0[i]);}
-  
-  {\pt} \id{N\_VSetArrayPointer\_Pthreads(yS0\_i, yS0[i]);}
-  
-  {\p} \id{N\_VSetArrayPointer\_Parallel(yS0\_i, yS0[i]);}
-
-  {\h} \id{N\_VSetArrayPointer\_ParHyp(yS0\_i, yS0[i]);}
-
-  for $i = 0,\ldots, $\id{Ns} $ - 1$.
+  for $i = 0,\ldots, $\id{Ns} $- 1$.
   
 \item
   {\bf Activate sensitivity calculations}
@@ -246,17 +212,10 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
 \item 
   {\bf Deallocate memory for sensitivity vectors}
 
-  Upon completion of the integration, deallocate memory for the vectors \id{yS0}:
+  Upon completion of the integration, deallocate memory for the vectors \id{yS0}
+  using the appropriate destructor:
 
-  {\s} \id{N\_VDestroyVectorArray\_Serial(yS0, Ns);}
-
-  {\omp} \id{N\_VDestroyVectorArray\_OpenMP(yS0, Ns);}
-
-  {\pt} \id{N\_VDestroyVectorArray\_Pthreads(yS0, Ns);}
-
-  {\p} \id{N\_VDestroyVectorArray\_Parallel(yS0, Ns);}
-
-  {\h} \id{N\_VDestroyVectorArray\_ParHyp(yS0, Ns);}
+  \id{N\_VDestroyVectorArray\_***(yS0, Ns);}
 
   If \id{yS} was created from \id{realtype} arrays \id{yS\_i}, it is the
   user's responsibility to also free the space for the arrays \id{yS0\_i}.
@@ -268,7 +227,7 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
   \textcolor{gray}{\bf Free solver memory}
   
 \item
-  \textcolor{gray}{\bf Free vector specification memory}
+  \textcolor{gray}{\bf Free solution vector specification memory}
 
 \end{Steps}
 
@@ -1673,10 +1632,11 @@ this situation. Steps that are unchanged from the skeleton program presented in
 \begin{Steps}
   
 \item 
-  \textcolor{gray}{\bf {\p} {\h} Initialize MPI}
+  \textcolor{gray}{\bf Initialize parallel or multi-threaded environment,
+  if appropriate}
 
 \item
-  \textcolor{gray}{\bf Set problem dimensions}
+  \textcolor{gray}{\bf Set problem dimensions etc.}
   
 \item
   \textcolor{gray}{\bf Set vectors of initial values}
@@ -1768,13 +1728,13 @@ this situation. Steps that are unchanged from the skeleton program presented in
   {\bf Free solver memory}
 
 \item 
-  \textcolor{gray}{\bf {\p} Finalize MPI}
+  \textcolor{gray}{\bf Finalize MPI, if used}
   
 \end{Steps}
 %%
 Note: \id{CVodeQuadSensInit} (step \ref{i:quad_sens_init} above) can
 be called and quadrature-related optional inputs (step
-\ref{i:quad_sens_optional_input} above) can be set, anywhere between
+\ref{i:quad_sens_optional_input} above) can be set anywhere between
 steps \ref{i:quad_sens_sens_def} and \ref{i:quad_sens_cvode_solve}.
 
 %%===================================================================================

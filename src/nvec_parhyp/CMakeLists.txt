@@ -73,5 +73,23 @@ ENDIF(BUILD_SHARED_LIBS)
 # Install the NVECPARHYP header files
 INSTALL(FILES ${nvecparhyp_HEADERS} DESTINATION include/nvector)
 
+# If FCMIX is enabled and MPI-F77 works, build and install the FNVECPARHYP library
+IF(FCMIX_ENABLE AND MPIF_FOUND)
+  SET(fnvecparhyp_SOURCES fnvector_parhyp.c)
+  IF(BUILD_STATIC_LIBS)
+    ADD_LIBRARY(sundials_fnvecparhyp_static STATIC ${fnvecparhyp_SOURCES})
+    SET_TARGET_PROPERTIES(sundials_fnvecparhyp_static
+      PROPERTIES OUTPUT_NAME sundials_fnvecparhyp CLEAN_DIRECT_OUTPUT 1)
+    INSTALL(TARGETS sundials_fnvecparhyp_static DESTINATION lib)
+  ENDIF(BUILD_STATIC_LIBS)
+  IF(BUILD_SHARED_LIBS)
+    ADD_LIBRARY(sundials_fnvecparhyp_shared SHARED ${fnvecparhyp_SOURCES})
+    SET_TARGET_PROPERTIES(sundials_fnvecparhyp_shared
+      PROPERTIES OUTPUT_NAME sundials_fnvecparhyp CLEAN_DIRECT_OUTPUT 1)
+    SET_TARGET_PROPERTIES(sundials_fnvecparhyp_shared
+      PROPERTIES VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION})
+    INSTALL(TARGETS sundials_fnvecparhyp_shared DESTINATION lib)
+  ENDIF(BUILD_SHARED_LIBS)
+ENDIF(FCMIX_ENABLE AND MPIF_FOUND)
 #
 MESSAGE(STATUS "Added NVECTOR_PARHYP module")

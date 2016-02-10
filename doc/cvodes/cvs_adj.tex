@@ -24,12 +24,12 @@ various user-callable functions and of the user-supplied functions that were not
 already described in Chapter \ref{s:simulation}.
 
 %%
-%%----------------------------------------------------------------------
-%%----------------------------------------------------------------------
+%%---------------------------------------------
+%%---------------------------------------------
 \section{A skeleton of the user's main program}
 \label{ss:skeleton_adj}
-%%---------------------------------------------------------------------
-%%----------------------------------------------------------------------
+%%---------------------------------------------
+%%---------------------------------------------
 %%
 
 The following is a skeleton of the user's main program as an application of
@@ -37,13 +37,8 @@ The following is a skeleton of the user's main program as an application of
 unless otherwise noted. For the sake of brevity, we defer many of the details to 
 the later sections.
 As in \S\ref{ss:skeleton_sim}, most steps are independent of the {\nvector}
-implementation used; where this is not the case, usage specifications are given
-for the implementations provided with {\cvodes}:
-steps marked {\s} correspond to {\nvecs},
-steps marked {\omp} correspond to {\nvecopenmp},
-steps marked {\pt} correspond to {\nvecpthreads},
-steps marked {\p} correspond to {\nvecp}, while
-steps marked {\h} correspond to {\nvecph}.
+implementation used; where this is not the case, refer to Chapter
+\ref{s:nvector} for specifics.
 Steps that are unchanged from the skeleton programs presented in
 \S\ref{ss:skeleton_sim}, \S\ref{s:forward_usage}, and \S\ref{s:forward_quad_usage},
 are grayed out.
@@ -56,19 +51,18 @@ are grayed out.
   
   The \id{cvodes.h} header file also defines additional types, constants, and
   function prototypes for the adjoint sensitivity module user-callable functions.
-  In addition, the main program should include an {\nvector} 
-  implementation header file (\id{nvector\_serial.h},
-  \id{nvector\_openmp.h}, \id{nvector\_pthreads.h}, or \id{nvector\_parallel.h}
-  for the implementations provided with {\cvodes}) and, if Newton iteration 
-  was selected, the main header file of the desired linear solver module.
+  In addition, the main program should include an {\nvector}  implementation
+  header file for the implementations provided with {\cvodes}, and, if Newton
+  iteration was selected, the main header file of the desired linear solver module.
 
 \item
-  \textcolor{gray}{\bf {\p} {\h} Initialize MPI}
+  \textcolor{gray}{\bf Initialize parallel or multi-threaded environment,
+  if appropriate}
 
   \vspace{0.2in}\centerline{\bf Forward problem}
 
 \item
-  \textcolor{gray}{\bf Set problem dimensions for the forward problem}
+  \textcolor{gray}{\bf Set problem dimensions etc. for the forward problem}
 
 \item
   \textcolor{gray}{\bf Set initial conditions for the forward problem}
@@ -120,11 +114,10 @@ are grayed out.
   \vspace{0.2in}\centerline{\bf Backward problem(s)}
 
  \item \label{i:back_start}
-   {\bf Set problem dimensions for the backward problem}
+   {\bf Set problem dimensions etc. for the backward problem}
    
-   {\s, \omp} {\pt} set \id{NB}, the number of variables in the backward problem \\
-   {\omp} {\pt} set \id{num\_threads}\\
-   {\p} {\h} set \id{NB} and \id{NBlocal}
+   This generally includes the backward problem vector length \id{NB},
+   and possibly the local vector length \id{NBlocal}.
 
 \item
   {\bf Set initial values for the backward problem}
@@ -225,9 +218,7 @@ are grayed out.
   followed by a call to \id{CVodeAdjInit}.
 
 \item
-  \textcolor{gray}{\bf Finalize MPI}
-
-  {\p} {\h} If {\mpi} was initialized by the user main program, call \id{MPI\_Finalize();}.
+  \textcolor{gray}{\bf Finalize MPI, if used}
 
 \end{Steps}
 

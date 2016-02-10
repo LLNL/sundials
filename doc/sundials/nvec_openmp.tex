@@ -143,14 +143,14 @@ user-callable routines:
 
 %%--------------------------------------
 
-\item \ID{N\_VCloneEmptyVectorArray\_OpenMP}
+\item \ID{N\_VCloneVectorArrayEmpty\_OpenMP}
 
  This function creates (by cloning) an array of \id{count} OpenMP vectors, each with an
  empty (\id{NULL}) data array.
 
  
 
- \verb|N_Vector *N_VCloneEmptyVectorArray_OpenMP(int count, N_Vector w);|
+ \verb|N_Vector *N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w);|
 
 %%--------------------------------------
 
@@ -158,7 +158,7 @@ user-callable routines:
 
  This function frees memory allocated for the array of \id{count} variables of type
  \id{N\_Vector} created with \id{N\_VCloneVectorArray\_OpenMP} or with
- \id{N\_VCloneEmptyVectorArray\_OpenMP}.
+ \id{N\_VCloneVectorArrayEmpty\_OpenMP}.
 
  
 
@@ -190,7 +190,7 @@ user-callable routines:
 
 \item
   {\warn}\id{N\_VNewEmpty\_OpenMP}, \id{N\_VMake\_OpenMP}, 
-  and \id{N\_VCloneEmptyVectorArray\_OpenMP} set the field 
+  and \id{N\_VCloneVectorArrayEmpty\_OpenMP} set the field 
   {\em own\_data} $=$ \id{FALSE}. 
   \id{N\_VDestroy\_OpenMP} and \id{N\_VDestroyVectorArray\_OpenMP}
   will not attempt to free the pointer {\em data} for any \id{N\_Vector} with
