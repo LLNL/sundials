@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision$
-# $Date$
+# $Revision: 4137 $
+# $Date: 2014-06-15 12:26:15 -0700 (Sun, 15 Jun 2014) $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -14,41 +14,42 @@
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # ---------------------------------------------------------------
-# CMakeLists.txt file for the FIDA serial examples
+# CMakeLists.txt file for IDA PETSc examples
 
 
-# Add variable ida_examples with the names of the serial FIDA examples
-
-SET(FIDA_examples
-  fidaRoberts_dns
+# Add variable IDA_examples with the names of the PETSc IDA examples
+# "name\;nodes\;tasks"
+SET(IDA_examples
+  "idaHeat2D_jac_petsc\;1\;4"
+  "idaHeat2D_kry_petsc\;1\;4"
   )
 
-# Add variable FIDA_examples_BL with the names of the serial FIDA examples
-# that use Lapack
+# Check whether we use MPI compiler scripts.
+# If yes, then change the C compiler to the MPICC script.
+# If not, then add the MPI include directory for MPI headers.
 
-SET(FIDA_examples_BL
-  )
+IF(MPI_MPICC)
+  # use MPI_MPICC as the compiler
+  SET(CMAKE_C_COMPILER ${MPI_MPICC})
+ELSE(MPI_MPICC)
+  # add MPI_INCLUDE_PATH to include directories
+  INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
+ENDIF(MPI_MPICC)
 
 # Specify libraries to link against (through the target that was used to 
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(IDA_LIB sundials_ida_static)
-  SET(NVECS_LIB sundials_nvecserial_static)
-  SET(FNVECS_LIB sundials_fnvecserial_static)
+  SET(NVECP_LIB sundials_nvecpetsc_static)
 ELSE(LINK_LIBRARY_TYPE MATCHES "static")
   SET(IDA_LIB sundials_ida_shared)
-  SET(NVECS_LIB sundials_nvecserial_shared)
-  SET(FNVECS_LIB sundials_fnvecserial_shared)
+  SET(NVECP_LIB sundials_nvecpetsc_shared)
 ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
-
-# Only static FCMIX libraries are available
-
-SET(FIDA_LIB sundials_fida_static)
 
 # Set-up linker flags and link libraries
 
-SET(SUNDIALS_LIBS ${FIDA_LIB} ${IDA_LIB} ${FNVECS_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+SET(SUNDIALS_LIBS ${IDA_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS} ${PETSC_LIBRARY})
 IF(LAPACK_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
 ENDIF(LAPACK_FOUND)
@@ -61,52 +62,38 @@ IF(SUPERLUMT_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${SUPERLUMT_LIBRARIES})
 ENDIF(SUPERLUMT_FOUND)
 
-IF(PETSC_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${PETSC_LIBRARY})
-ENDIF(PETSC_FOUND)
+# Add the build and install targets for each IDA example
 
-# Add the build and install targets for each FIDA example
-
-FOREACH(example ${FIDA_examples})
-  ADD_EXECUTABLE(${example} ${example}.f)
+FOREACH(example_tuple ${IDA_examples})
+  list(GET example_tuple 0 example)
+  list(GET example_tuple 1 number_of_nodes)
+  list(GET example_tuple 2 number_of_tasks)
+  # first item is example
+  ADD_EXECUTABLE(${example} ${example}.c)
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-  SUNDIALS_ADD_TEST(${example} ${example})
+  SUNDIALS_ADD_TEST(${example} ${example} MPI_NPROCS ${number_of_tasks})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+  IF(NOT MPI_MPICC)
+    TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
+  ENDIF(NOT MPI_MPICC)
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.f ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_serial)
+    INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc)
   ENDIF(EXAMPLES_INSTALL)
-ENDFOREACH(example ${FIDA_examples})
-
-# If Lapack support is enabled, add the build and install targets for
-# the examples using Lapack
-
-IF(LAPACK_FOUND)
-  FOREACH(example ${FIDA_examples_BL})
-    ADD_EXECUTABLE(${example} ${example}.f)
-    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-    SUNDIALS_ADD_TEST(${example} ${example})
-    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
-    IF(EXAMPLES_INSTALL)
-      INSTALL(FILES ${example}.f ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_serial)
-    ENDIF(EXAMPLES_INSTALL)
-  ENDFOREACH(example ${FIDA_examples_BL})
-ENDIF(LAPACK_FOUND)
+ENDFOREACH(example_tuple ${IDA_examples})
 
 IF(EXAMPLES_INSTALL)
 
   # Install the README file
-  INSTALL(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_serial)
+  INSTALL(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER "IDA")
   SET(SOLVER_LIB "sundials_ida")
-  SET(SOLVER_FLIB "sundials_fida")
-  LIST2STRING(FIDA_examples EXAMPLES)
-  IF(LAPACK_FOUND)
-    LIST2STRING(FIDA_examples_BL EXAMPLES_BL)
-  ELSE(LAPACK_FOUND)
-    SET(EXAMPLES_BL "")
-  ENDIF(LAPACK_FOUND)
+  FOREACH(example_tuple ${IDA_examples})
+  	list(GET example_tuple 0 example)
+  	LIST2STRING(example EXAMPLES)
+  ENDFOREACH(example_tuple ${IDA_examples})
+  
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
@@ -114,15 +101,15 @@ IF(EXAMPLES_INSTALL)
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_F77_ex.in
-      ${PROJECT_BINARY_DIR}/examples/ida/fcmix_serial/CMakeLists.txt
+      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_petsc_C_ex.in
+      ${PROJECT_BINARY_DIR}/examples/ida/petsc/CMakeLists.txt
       @ONLY
       )
 
   # install CMakelists.txt
   INSTALL(
-    FILES ${PROJECT_BINARY_DIR}/examples/ida/fcmix_serial/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_serial 
+    FILES ${PROJECT_BINARY_DIR}/examples/ida/petsc/CMakeLists.txt
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc 
     )
 
   # On UNIX-type platforms, we also  generate and install a makefile for 
@@ -132,14 +119,14 @@ IF(EXAMPLES_INSTALL)
   IF(UNIX)
     # generate Makefile and place it in the binary dir
     CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_F77_ex.in
-      ${PROJECT_BINARY_DIR}/examples/ida/fcmix_serial/Makefile_ex
+      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_petsc_C_ex.in
+      ${PROJECT_BINARY_DIR}/examples/ida/petsc/Makefile_ex
       @ONLY
       )
     # install the configured Makefile_ex as Makefile
     INSTALL(
-      FILES ${PROJECT_BINARY_DIR}/examples/ida/fcmix_serial/Makefile_ex 
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_serial 
+      FILES ${PROJECT_BINARY_DIR}/examples/ida/petsc/Makefile_ex
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc
       RENAME Makefile
       )
   ENDIF(UNIX)
