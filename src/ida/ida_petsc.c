@@ -367,7 +367,7 @@ static int IDAPETScKSPSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
   idapetsc_mem->s_last_flag = PETSC_KSP_SUCCESS;
 
   
-//   switch(retval) {
+/*   switch(retval) {
 // 
 //   case KSP_SUCCESS:
 //     return(0);
@@ -405,6 +405,7 @@ static int IDAPETScKSPSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
 //     return(-1);
 //     break;
 //   }
+*/
 
   return(0);
 }
@@ -428,6 +429,7 @@ static int IDAPETScKSPPerf(IDAMem IDA_mem, int perftask)
 
   idapetsc_mem = (IDAPETScMem) IDA_mem->ida_lmem;
 
+/*
 //   if (perftask == 0) {
 //     nst0 = nst;  nni0 = nni;  nli0 = idapetsc_mem->s_nli;
 //     ncfn0 = ncfn;  ncfl0 = idapetsc_mem->s_ncfl;  
@@ -452,6 +454,7 @@ static int IDAPETScKSPPerf(IDAMem IDA_mem, int perftask)
 //     IDAProcessError(IDA_mem, IDA_WARNING, SUNMODULE, "IDAKSPPerf", MSGS_CFN_WARN, tn, rcfn);
 //   if (lcfl) 
 //     IDAProcessError(IDA_mem, IDA_WARNING, SUNMODULE, "IDAKSPPerf", MSGS_CFL_WARN, tn, rcfl);
+*/
 
   return(0);
 }

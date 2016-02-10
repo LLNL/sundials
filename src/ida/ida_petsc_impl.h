@@ -35,7 +35,7 @@ extern "C" {
  * -----------------------------------------------------------------
  * Types : IDAPETScMemRec, IDAPETScMem
  *
- * TODO: Many of this variables and functions are not used as this 
+ * TODO: Some of these variables are not used as this 
  * code is still under heavy development. Once we settle down on 
  * the features we want to support here, the redundant declarations 
  * will be removed. For now, they are left here as a reminder.                              
@@ -89,29 +89,6 @@ typedef struct IDAPETScMemRec {
    */
   Mat *JacMat;
 
-  /* Preconditioner computation (currently unused)
-   * (a) user-provided:
-   *     - pdata == user_data
-   *     - pfree == NULL (the user dealocates memory for f_data)
-   * (b) internal preconditioner module
-   *     - pdata == ida_mem
-   *     - pfree == set by the prec. module and called in IDAPETScFree
-   */
-  IDAPETScPrecSetupFn s_pset;
-  IDAPETScPrecSolveFn s_psolve;
-  void (*s_pfree)(IDAMem IDA_mem);
-  
-  /* Jacobian times vector compuation (currently unused)
-   * (a) jtimes function provided by the user:
-   *     - jdata == user_data
-   *     - jtimesDQ == FALSE
-   * (b) internal jtimes
-   *     - jdata == ida_mem
-   *     - jtimesDQ == TRUE
-   */
-  booleantype s_jtimesDQ;
-  IDAPETScJacTimesVecFn s_jtimes;
-  
 } *IDAPETScMem;
 
 
@@ -172,4 +149,4 @@ typedef struct IDAPETScMemRec {
 }
 #endif
 
-#endif // _IDA_PETSC_IMPL_H
+#endif /* _IDA_PETSC_IMPL_H */

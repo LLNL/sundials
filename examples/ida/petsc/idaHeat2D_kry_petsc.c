@@ -4,10 +4,10 @@
  * $Date: 2015-02-26 16:59:39 -0800 (Thu, 26 Feb 2015) $
  * -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
- * (based on example by Allan Taylor, Alan Hindmarsh 
- *  and Radu Serban)
+ * (based on PETSc TS example 15 and a SUNDIALS example by 
+ *  Allan Taylor, Alan Hindmarsh and Radu Serban)
  * -----------------------------------------------------------------
- * Example problem for IDA: 2D heat equation, parallel, GMRES.
+ * Example problem for IDA: 2D heat equation, PETSc vector, GMRES.
  *
  * This example solves a discretized 2D heat equation problem.
  * This version uses the Krylov solver IDASpgmr.
@@ -32,6 +32,9 @@
  * for all components. Local error testing on the boundary values
  * is suppressed. Output is taken at t = 0, .01, .02, .04,
  * ..., 10.24.
+ * 
+ * The example uses PETSc vector and data management functions to 
+ * generate mesh and handle MPI communication.
  * -----------------------------------------------------------------
  */
 
@@ -46,6 +49,8 @@
 #include <sundials/sundials_math.h>
 
 #include <mpi.h>
+#include <petscdm.h>
+#include <petscdmda.h>
 
 #define ZERO  RCONST(0.0)
 #define ONE   RCONST(1.0)
@@ -64,36 +69,20 @@
                                     /* Spatial mesh is MX by MY */
 
 typedef struct {  
-  long int thispe, mx, my, ixsub, jysub, npex, npey, mxsub, mysub;
-  realtype    dx, dy, coeffx, coeffy, coeffxy;
-  realtype    uext[(MXSUB+2)*(MYSUB+2)];
   N_Vector    pp;    /* vector of diagonal preconditioner elements */
-  MPI_Comm    comm;
+  DM          da;    /* PETSc data management object */
 } *UserData;
 
 /* User-supplied residual function and supporting routines */
 
-int resHeat(realtype tt, 
-            N_Vector uu, N_Vector up, N_Vector rr, 
-            void *user_data);
-
-static int rescomm(N_Vector uu, N_Vector up, void *user_data);
-
-static int reslocal(realtype tt, N_Vector uu, N_Vector up, 
-                    N_Vector res,  void *user_data);
-
-static int BSend(MPI_Comm comm, long int thispe, long int ixsub, long int jysub,
-                 long int dsizex, long int dsizey, realtype uarray[]);
-
-static int BRecvPost(MPI_Comm comm, MPI_Request request[], long int thispe,
-                     long int ixsub, long int jysub,
-                     long int dsizex, long int dsizey,
-                     realtype uext[], realtype buffer[]);
-
-static int BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
-                     long int dsizex, realtype uext[], realtype buffer[]);
+int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr, void *user_data);
 
 /* User-supplied preconditioner routines */
+
+int PsetupHeat(realtype tt, 
+               N_Vector yy, N_Vector yp, N_Vector rr, 
+               realtype c_j, void *user_data,
+               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 int PsolveHeat(realtype tt, 
                N_Vector uu, N_Vector up, N_Vector rr, 
@@ -101,17 +90,10 @@ int PsolveHeat(realtype tt,
                realtype c_j, realtype delta, void *user_data, 
                N_Vector tmp);
 
-int PsetupHeat(realtype tt, 
-               N_Vector yy, N_Vector yp, N_Vector rr, 
-               realtype c_j, void *user_data,
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-
 /* Private function to check function return values */
 
-static int InitUserData(int thispe, MPI_Comm comm, UserData data);
-
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
-                             N_Vector res, UserData data);
+                             N_Vector res, void *user_data);
 
 static void PrintHeader(long int Neq, realtype rtol, realtype atol);
 
@@ -136,7 +118,8 @@ int main(int argc, char *argv[])
   long int Neq, local_N;
   realtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
-  PetscErrorCode ierr;                  /* PETSc error code          */
+  PetscErrorCode ierr;                  /* PETSc error code  */
+  Vec uvec;
 
   mem = NULL;
   data = NULL;
@@ -149,6 +132,7 @@ int main(int argc, char *argv[])
   MPI_Comm_size(comm, &npes);
   MPI_Comm_rank(comm, &thispe);
   
+  /* Initialize PETSc */
   ierr = PetscInitializeNoArguments();
   CHKERRQ(ierr);
 
@@ -172,12 +156,32 @@ int main(int argc, char *argv[])
   if(check_flag((void *)data, "malloc", 2, thispe)) 
     MPI_Abort(comm, 1);
   data->pp = NULL;
+  data->da = NULL;
 
-  uu = N_VNew_petsc(comm, local_N, Neq);
+  ierr = DMDACreate2d(comm, 
+                      DM_BOUNDARY_NONE,  /* NONE, PERIODIC, GHOSTED*/
+                      DM_BOUNDARY_NONE,
+                      DMDA_STENCIL_STAR, /* STAR, BOX */
+                      -10,               /* MX */
+                      -10,               /* MY */
+                      PETSC_DECIDE,      /* NPEX */
+                      PETSC_DECIDE,      /* NPEY */
+                      1,                 /* degrees of freedom per node */
+                      1,                 /* stencil width */
+                      NULL,              /* number of nodes per cell in x */
+                      NULL,              /* number of nodes per cell in y */
+                      &(data->da));
+  CHKERRQ(ierr);
+
+  ierr = DMCreateGlobalVector(data->da, &uvec);
+  CHKERRQ(ierr);
+
+  /* Make N_Vector wrapper for uvec */
+  uu = N_VMake_petsc(&uvec);
   if(check_flag((void *)uu, "N_VNew_petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
-  up = N_VClone(uu); 
+  up = N_VClone(uu);
   if(check_flag((void *)up, "N_VNew_petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
@@ -194,12 +198,10 @@ int main(int argc, char *argv[])
     MPI_Abort(comm, 1);
 
   /* An N-vector to hold preconditioner. */
-  data->pp = N_VClone(uu);
+  data->pp = N_VClone(uu); 
   if(check_flag((void *)data->pp, "N_VNew_petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
-  InitUserData(thispe, comm, data);
-  
   /* Initialize the uu, up, id, and res profiles. */
 
   SetInitialProfile(uu, up, id, res, data);
@@ -277,7 +279,12 @@ int main(int argc, char *argv[])
   N_VDestroy_petsc(uu);
 
   N_VDestroy_petsc(data->pp);
+  ierr = DMDestroy(&data->da);
+  CHKERRQ(ierr);
   free(data);
+  
+  ierr = VecDestroy(&uvec);
+  CHKERRQ(ierr);
 
   ierr = PetscFinalize();
   CHKERRQ(ierr);
@@ -302,29 +309,74 @@ int main(int argc, char *argv[])
  *    res_i = u'_i - (central difference)_i                              
  * while for each boundary point, it is res_i = u_i. 
  *                    
- * This parallel implementation uses several supporting routines. 
- * First a call is made to rescomm to do communication of subgrid boundary
- * data into array uext.  Then reslocal is called to compute the residual
- * on individual processors and their corresponding domains.  The routines
- * BSend, BRecvPost, and BREcvWait handle interprocessor communication
- * of uu required to calculate the residual. 
  */
 
 int resHeat(realtype tt, 
             N_Vector uu, N_Vector up, N_Vector rr, 
             void *user_data)
 {
-  int retval;
-  
-  /* Call rescomm to do inter-processor communication. */
-  retval = rescomm(uu, up, user_data);
+  PetscErrorCode ierr;
+  UserData       data = (UserData) user_data;
+  DM             da   = (DM) data->da;
+  PetscInt       i,j,Mx,My,xs,ys,xm,ym;
+  PetscReal      hx,hy,sx,sy;
+  PetscScalar    u,uxx,uyy,**uarray,**f,**udot;
+  Vec localU;
+  Vec *U    = NV_PVEC_PTC(uu);
+  Vec *Udot = NV_PVEC_PTC(up);
+  Vec *F    = NV_PVEC_PTC(rr);
 
-  /* Call reslocal to calculate res. */
-  retval = reslocal(tt, uu, up, rr, user_data);
-  
-  return(0);
+  PetscFunctionBeginUser;
+  ierr = DMGetLocalVector(da,&localU);CHKERRQ(ierr);
+  ierr = DMDAGetInfo(da,PETSC_IGNORE,&Mx,&My,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,
+                     PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE);
 
+  hx = 1.0/(PetscReal)(Mx-1); sx = 1.0/(hx*hx);
+  hy = 1.0/(PetscReal)(My-1); sy = 1.0/(hy*hy);
+
+  /*
+     Scatter ghost points to local vector,using the 2-step process
+        DMGlobalToLocalBegin(),DMGlobalToLocalEnd().
+     By placing code between these two statements, computations can be
+     done while messages are in transition.
+  */
+  ierr = DMGlobalToLocalBegin(da,*U,INSERT_VALUES,localU);CHKERRQ(ierr);
+  ierr = DMGlobalToLocalEnd(da,*U,INSERT_VALUES,localU);CHKERRQ(ierr);
+
+  /* Get pointers to vector data */
+  ierr = DMDAVecGetArrayRead(da,localU,&uarray);CHKERRQ(ierr);
+  ierr = DMDAVecGetArray(da,*F,&f);CHKERRQ(ierr);
+  ierr = DMDAVecGetArray(da,*Udot,&udot);CHKERRQ(ierr);
+
+  /* Get local grid boundaries */
+  ierr = DMDAGetCorners(da,&xs,&ys,NULL,&xm,&ym,NULL);CHKERRQ(ierr);
+
+  /* Compute function over the locally owned part of the grid */
+  for (j=ys; j<ys+ym; j++) {
+    for (i=xs; i<xs+xm; i++) {
+      /* Boundary conditions */
+      if (i == 0 || j == 0 || i == Mx-1 || j == My-1) {
+        f[j][i] = uarray[j][i]; /* F = U */
+      } else { /* Interior */
+        u = uarray[j][i];
+        /* 5-point stencil */
+        uxx = (-2.0*u + uarray[j][i-1] + uarray[j][i+1]);
+        uyy = (-2.0*u + uarray[j-1][i] + uarray[j+1][i]);
+        f[j][i] = udot[j][i] - (uxx*sx + uyy*sy);
+      }
+    }
+  }
+
+  /* Restore vectors */
+  ierr = DMDAVecRestoreArrayRead(da,localU,&uarray);CHKERRQ(ierr);
+  ierr = DMDAVecRestoreArray(da,*F,&f);CHKERRQ(ierr);
+  ierr = DMDAVecRestoreArray(da,*Udot,&udot);CHKERRQ(ierr);
+  ierr = DMRestoreLocalVector(da,&localU);CHKERRQ(ierr);
+  ierr = PetscLogFlops(11.0*ym*xm);CHKERRQ(ierr);
+  
+  return (0);
 }
+
 
 /*
  * PsetupHeat: setup for diagonal preconditioner for heatsk.    
@@ -349,49 +401,46 @@ int PsetupHeat(realtype tt,
                realtype c_j, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype *ppv, pelinv;
-  long int lx, ly, ixbegin, ixend, jybegin, jyend, locu, mxsub, mysub;
-  long int ixsub, jysub, npex, npey;
+  PetscErrorCode ierr;
+  PetscInt       i,j,Mx,My,xs,ys,xm,ym,nc;
   UserData data = (UserData) user_data;
-  Vec *ppvec = NV_PVEC_PTC((data->pp));
-  
-  ixsub = data->ixsub;
-  jysub = data->jysub;
-  mxsub = data->mxsub;
-  mysub = data->mysub;
-  npex  = data->npex;
-  npey  = data->npey;
+  DM       da   = (DM) data->da;
+  Vec *ppvec    = NV_PVEC_PTC((data->pp));
+  PetscReal      hx,hy,sx,sy;
+  PetscScalar pelinv;
+  PetscScalar **ppv;
   
   /* Initially set all pp elements to one. */
-  N_VConst(ONE, data->pp);
+  //N_VConst(ONE, data->pp);
   
-  /* Prepare to loop over subgrid. */
-  ixbegin = 0;
-  ixend   = mxsub-1;
-  jybegin = 0;
-  jyend   = mysub-1;
-  if (ixsub == 0) ixbegin++; if (ixsub == npex-1) ixend--;
-  if (jysub == 0) jybegin++; if (jysub == npey-1) jyend--;
-  pelinv = ONE/(c_j + data->coeffxy); 
-  
-  /* Get pointer to vector's local data block */
-  VecGetArray(*ppvec, &ppv);
+  PetscFunctionBeginUser;
+  ierr = DMDAGetInfo(da,PETSC_IGNORE,&Mx,&My,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE);
+  ierr = DMDAGetCorners(da,&xs,&ys,NULL,&xm,&ym,NULL);CHKERRQ(ierr);
 
-  /* Load the inverse of the preconditioner diagonal elements
-     in loop over all the local subgrid. */
+  hx = 1.0/(PetscReal)(Mx-1); sx = 1.0/(hx*hx);
+  hy = 1.0/(PetscReal)(My-1); sy = 1.0/(hy*hy);
   
-  for (ly = jybegin; ly <=jyend; ly++) {
-    for (lx = ixbegin; lx <= ixend; lx++) {
-      locu  = lx + ly*mxsub;
-      ppv[locu] = pelinv;
+  pelinv = ONE/(2.0*(sx + sy) + c_j);
+
+  ierr = DMDAVecGetArray(da, *ppvec, &ppv);
+  CHKERRQ(ierr);
+
+  for (j=ys; j<ys+ym; j++) {
+    for (i=xs; i<xs+xm; i++) {
+      if (i == 0 || j == 0 || i == Mx-1 || j == My-1) {
+        ppv[j][i] = ONE;    /* Boundary */
+      } else {
+        ppv[j][i] = pelinv; /* Interior */
+      }
     }
   }
 
-  /* Restore vector */
-  VecRestoreArray(*ppvec, &ppv);
-
+  ierr = DMDAVecRestoreArray(da, *ppvec, &ppv);
+  CHKERRQ(ierr);
+  
   return(0);
 }
+
 
 /*
  * PsolveHeat: solve preconditioner linear system.              
@@ -416,280 +465,6 @@ int PsolveHeat(realtype tt,
 
 }
 
-/*
- *--------------------------------------------------------------------
- * SUPPORTING FUNCTIONS
- *--------------------------------------------------------------------
- */
-
-
-/* 
- * rescomm routine.  This routine performs all inter-processor
- * communication of data in u needed to calculate G.                 
- */
-
-static int rescomm(N_Vector uu, N_Vector up, void *user_data)
-{
-  UserData data;
-  realtype *uarray, *uext, buffer[2*MYSUB];
-  MPI_Comm comm;
-  long int thispe, ixsub, jysub, mxsub, mysub;
-  MPI_Request request[4];
-  Vec *uvec = NV_PVEC_PTC(uu);
-
-  data = (UserData) user_data;
-
-  /* Get comm, thispe, subgrid indices, data sizes, extended array uext. */
-  comm = data->comm;  thispe = data->thispe;
-  ixsub = data->ixsub;   jysub = data->jysub;
-  mxsub = data->mxsub;   mysub = data->mysub;
-  uext = data->uext;
-  
-  /* Start receiving boundary data from neighboring PEs. */
-  BRecvPost(comm, request, thispe, ixsub, jysub, mxsub, mysub, uext, buffer);
-
-  /* Get pointer to vector local data block */
-  VecGetArray(*uvec, &uarray);
-
-  /* Send data from boundary of local grid to neighboring PEs. */
-  BSend(comm, thispe, ixsub, jysub, mxsub, mysub, uarray);
-
-  /* Restore vector */
-  VecRestoreArray(*uvec, &uarray);
-
-  /* Finish receiving boundary data from neighboring PEs. */
-  BRecvWait(request, ixsub, jysub, mxsub, uext, buffer);
-
-  return(0);
-  
-}
-
-/*
- * reslocal routine.  Compute res = F(t, uu, up).  This routine assumes
- * that all inter-processor communication of data needed to calculate F
- * has already been done, and that this data is in the work array uext.  
- */
-
-static int reslocal(realtype tt, 
-                    N_Vector uu, N_Vector up, N_Vector rr,
-                    void *user_data)
-{
-  realtype *uext, *uuv, *upv, *resv;
-  realtype termx, termy, termctr;
-  long int lx, ly, offsetu, offsetue, locu, locue;
-  long int ixsub, jysub, mxsub, mxsub2, mysub, npex, npey;
-  long int ixbegin, ixend, jybegin, jyend;
-  UserData data;
-  Vec *uuvec  = NV_PVEC_PTC(uu);
-  Vec *upvec  = NV_PVEC_PTC(up);
-  Vec *resvec = NV_PVEC_PTC(rr);
-
-  /* Get subgrid indices, array sizes, extended work array uext. */
-  
-  data = (UserData) user_data;
-  uext = data->uext;
-  ixsub = data->ixsub; jysub = data->jysub;
-  mxsub = data->mxsub; mxsub2 = data->mxsub + 2;
-  mysub = data->mysub; npex = data->npex; npey = data->npey;
-  
-  /* Initialize all elements of rr to uu. This sets the boundary
-     elements simply without indexing hassles. */
-  
-  N_VScale(ONE, uu, rr);
-  
-  /* Get pointers to vectors' local data blocks */
-  VecGetArray(*uuvec, &uuv);
-  VecGetArray(*upvec, &upv);
-  VecGetArray(*resvec, &resv);
-
-  /* Copy local segment of u vector into the working extended array uext.
-     This completes uext prior to the computation of the rr vector.     */
-  
-  offsetu = 0;
-  offsetue = mxsub2 + 1;
-  for (ly = 0; ly < mysub; ly++) {
-    for (lx = 0; lx < mxsub; lx++) uext[offsetue+lx] = uuv[offsetu+lx];
-    offsetu = offsetu + mxsub;
-    offsetue = offsetue + mxsub2;
-  }
-  
-  /* Set loop limits for the interior of the local subgrid. */
-  
-  ixbegin = 0;
-  ixend   = mxsub-1;
-  jybegin = 0;
-  jyend   = mysub-1;
-  if (ixsub == 0) ixbegin++; if (ixsub == npex-1) ixend--;
-  if (jysub == 0) jybegin++; if (jysub == npey-1) jyend--;
-  
-  /* Loop over all grid points in local subgrid. */
-
-  for (ly = jybegin; ly <=jyend; ly++) {
-    for (lx = ixbegin; lx <= ixend; lx++) {
-      locu  = lx + ly*mxsub;
-      locue = (lx+1) + (ly+1)*mxsub2;
-      termx = data->coeffx *(uext[locue-1]      + uext[locue+1]);
-      termy = data->coeffy *(uext[locue-mxsub2] + uext[locue+mxsub2]);
-      termctr = data->coeffxy*uext[locue];
-      resv[locu] = upv[locu] - (termx + termy - termctr);
-   }
-  }
-
-  /* Restore vectors */
-  VecRestoreArray(*uuvec, &uuv);
-  VecRestoreArray(*upvec, &upv);
-  VecRestoreArray(*resvec, &resv);
-  
-  return(0);
-
-}
-
-/*
- * Routine to send boundary data to neighboring PEs.                     
- */
-
-static int BSend(MPI_Comm comm, long int thispe, long int ixsub, long int jysub,
-                 long int dsizex, long int dsizey, realtype uarray[])
-{
-  long int ly, offsetu;
-  realtype bufleft[MYSUB], bufright[MYSUB];
-
-  /* If jysub > 0, send data from bottom x-line of u. */
-  
-  if (jysub != 0)
-    MPI_Send(&uarray[0], dsizex, PVEC_REAL_MPI_TYPE, thispe-NPEX, 0, comm);
-  
-  /* If jysub < NPEY-1, send data from top x-line of u. */
-  
-  if (jysub != NPEY-1) {
-    offsetu = (MYSUB-1)*dsizex;
-    MPI_Send(&uarray[offsetu], dsizex, PVEC_REAL_MPI_TYPE, 
-             thispe+NPEX, 0, comm);
-  }
-  
-  /* If ixsub > 0, send data from left y-line of u (via bufleft). */
-  
-  if (ixsub != 0) {
-    for (ly = 0; ly < MYSUB; ly++) {
-      offsetu = ly*dsizex;
-      bufleft[ly] = uarray[offsetu];
-    }
-    MPI_Send(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE, thispe-1, 0, comm);   
-  }
-  
-  /* If ixsub < NPEX-1, send data from right y-line of u (via bufright). */
-  
-  if (ixsub != NPEX-1) {
-    for (ly = 0; ly < MYSUB; ly++) {
-      offsetu = ly*MXSUB + (MXSUB-1);
-      bufright[ly] = uarray[offsetu];
-    }
-    MPI_Send(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE, thispe+1, 0, comm);   
-  }
-
-  return(0);
-
-}
-
-/*
- * Routine to start receiving boundary data from neighboring PEs.
- * Notes:
- *   1) buffer should be able to hold 2*MYSUB realtype entries, should be
- *      passed to both the BRecvPost and BRecvWait functions, and should not
- *      be manipulated between the two calls.
- *   2) request should have 4 entries, and should be passed in 
- *      both calls also. 
- */
-
-static int BRecvPost(MPI_Comm comm, MPI_Request request[], long int thispe,
-                     long int ixsub, long int jysub,
-                     long int dsizex, long int dsizey,
-                     realtype uext[], realtype buffer[])
-{
-  long int offsetue;
-  /* Have bufleft and bufright use the same buffer. */
-  realtype *bufleft = buffer, *bufright = buffer+MYSUB;
-  
-  /* If jysub > 0, receive data for bottom x-line of uext. */
-  if (jysub != 0)
-    MPI_Irecv(&uext[1], dsizex, PVEC_REAL_MPI_TYPE,
-              thispe-NPEX, 0, comm, &request[0]);
-  
-  /* If jysub < NPEY-1, receive data for top x-line of uext. */
-  if (jysub != NPEY-1) {
-    offsetue = (1 + (MYSUB+1)*(MXSUB+2));
-    MPI_Irecv(&uext[offsetue], dsizex, PVEC_REAL_MPI_TYPE,
-              thispe+NPEX, 0, comm, &request[1]);
-  }
-  
-  /* If ixsub > 0, receive data for left y-line of uext (via bufleft). */
-  if (ixsub != 0) {
-    MPI_Irecv(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE,
-              thispe-1, 0, comm, &request[2]);
-  }
-  
-  /* If ixsub < NPEX-1, receive data for right y-line of uext (via bufright). */
-  if (ixsub != NPEX-1) {
-    MPI_Irecv(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE,
-              thispe+1, 0, comm, &request[3]);
-  }
-
-  return(0);
-  
-}
-
-/*
- * Routine to finish receiving boundary data from neighboring PEs.
- * Notes:
- *   1) buffer should be able to hold 2*MYSUB realtype entries, should be
- *      passed to both the BRecvPost and BRecvWait functions, and should not
- *      be manipulated between the two calls.
- *   2) request should have four entries, and should be passed in both 
- *      calls also. 
- */
-
-static int BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
-                     long int dsizex, realtype uext[], realtype buffer[])
-{
-  long int ly, dsizex2, offsetue;
-  realtype *bufleft = buffer, *bufright = buffer+MYSUB;
-  MPI_Status status;
-  
-  dsizex2 = dsizex + 2;
-  
-  /* If jysub > 0, receive data for bottom x-line of uext. */
-  if (jysub != 0)
-    MPI_Wait(&request[0],&status);
-  
-  /* If jysub < NPEY-1, receive data for top x-line of uext. */
-  if (jysub != NPEY-1)
-    MPI_Wait(&request[1],&status);
-  
-  /* If ixsub > 0, receive data for left y-line of uext (via bufleft). */
-  if (ixsub != 0) {
-    MPI_Wait(&request[2],&status);
-    
-    /* Copy the buffer to uext. */
-    for (ly = 0; ly < MYSUB; ly++) {
-      offsetue = (ly+1)*dsizex2;
-      uext[offsetue] = bufleft[ly];
-    }
-  }
-  
-  /* If ixsub < NPEX-1, receive data for right y-line of uext (via bufright). */
-  if (ixsub != NPEX-1) {
-    MPI_Wait(&request[3],&status);
-    
-    /* Copy the buffer to uext */
-    for (ly = 0; ly < MYSUB; ly++) {
-      offsetue = (ly+2)*dsizex2 - 1;
-      uext[offsetue] = bufright[ly];
-    }
-  }
-
-  return(0);
-
-}
 
 /*
  *--------------------------------------------------------------------
@@ -697,83 +472,65 @@ static int BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
  *--------------------------------------------------------------------
  */
 
-/* 
- * InitUserData initializes the user's data block data. 
- */
-
-static int InitUserData(int thispe, MPI_Comm comm, UserData data)
-{
-  data->thispe = thispe;
-  data->dx = ONE/(MX-ONE);       /* Assumes a [0,1] interval in x. */
-  data->dy = ONE/(MY-ONE);       /* Assumes a [0,1] interval in y. */
-  data->coeffx  = ONE/(data->dx * data->dx);
-  data->coeffy  = ONE/(data->dy * data->dy);
-  data->coeffxy = TWO/(data->dx * data->dx) + TWO/(data->dy * data->dy) ;
-  data->jysub   = thispe/NPEX;
-  data->ixsub   = thispe - data->jysub * NPEX;
-  data->npex    = NPEX;
-  data->npey    = NPEY;
-  data->mx      = MX;
-  data->my      = MY;
-  data->mxsub = MXSUB;
-  data->mysub = MYSUB;
-  data->comm    = comm;
-  return(0);
-
-}
 
 /*
  * SetInitialProfile sets the initial values for the problem. 
  */
 
-static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id, 
-                             N_Vector res, UserData data)
+static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
+                             N_Vector res, void *user_data)
 {
-  long int i, iloc, j, jloc, offset, loc, ixsub, jysub;
-  long int ixbegin, ixend, jybegin, jyend;
-  realtype xfact, yfact, *udata, *iddata, dx, dy;
-  Vec *uuvec  = NV_PVEC_PTC(uu);
-  Vec *idvec  = NV_PVEC_PTC(id);
-  
-  /* Initialize uu and id. */ 
-  
-  /* Set mesh spacings and subgrid indices for this PE. */
-  dx = data->dx;
-  dy = data->dy;
-  ixsub = data->ixsub;
-  jysub = data->jysub;
-  
-  /* Set beginning and ending locations in the global array corresponding 
-     to the portion of that array assigned to this processor. */
-  ixbegin = MXSUB*ixsub;
-  ixend   = MXSUB*(ixsub+1) - 1;
-  jybegin = MYSUB*jysub;
-  jyend   = MYSUB*(jysub+1) - 1;
-  
-  /* Loop over the local array, computing the initial profile value.
-     The global indices are (i,j) and the local indices are (iloc,jloc).
-     Also set the id vector to zero for boundary points, one otherwise. */
-  
-  N_VConst(ONE,id);
-  
-  VecGetArray(*uuvec, &udata);
-  VecGetArray(*idvec, &iddata);
+  UserData       data = (UserData) user_data;
+  DM             da   = data->da;
+  PetscErrorCode ierr;
+  PetscInt       i,j,xs,ys,xm,ym,Mx,My;
+  PetscScalar    **u;
+  PetscScalar    **iddat;
+  PetscReal      hx,hy,x,y,r;
+  Vec *U     = NV_PVEC_PTC(uu);
+  Vec *idvec = NV_PVEC_PTC(id);
 
-  for (j = jybegin, jloc = 0; j <= jyend; j++, jloc++) {
-    yfact = data->dy*j;
-    offset= jloc*MXSUB;
-    for (i = ixbegin, iloc = 0; i <= ixend; i++, iloc++) {
-      xfact = data->dx * i;
-      loc = offset + iloc;
-      udata[loc] = RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
-      if (i == 0 || i == MX-1 || j == 0 || j == MY-1) iddata[loc] = ZERO;
+  PetscFunctionBeginUser;
+  ierr = DMDAGetInfo(da,PETSC_IGNORE,&Mx,&My,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,
+                     PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE);
+
+  hx = 1.0/(PetscReal)(Mx-1);
+  hy = 1.0/(PetscReal)(My-1);
+
+  /* Get pointers to vector data */
+  ierr = DMDAVecGetArray(da, *U, &u);
+  CHKERRQ(ierr);
+
+  /* Get pointers to differentiable variable IDs */
+  ierr = DMDAVecGetArray(da, *idvec, &iddat);
+  CHKERRQ(ierr);
+
+  /* Get local grid boundaries */
+  ierr = DMDAGetCorners(da,&xs,&ys,NULL,&xm,&ym,NULL);CHKERRQ(ierr);
+
+  /* Compute function over the locally owned part of the grid */
+  for (j=ys; j<ys+ym; j++) {
+    y = j*hy;
+    for (i=xs; i<xs+xm; i++) {
+      x = i*hx;
+      u[j][i] = 16.0 * x*(1.0 - x) * y*(1.0 - y);
+      if (i == 0 || j == 0 || i == Mx-1 || j == My-1) {
+        iddat[j][i] = 0.0; /* algebraic variables on the boundary */
+      } else { 
+        iddat[j][i] = 1.0; /* differential variables in the interior */
+      }
     }
   }
-  
-  VecRestoreArray(*uuvec, &udata);
-  VecRestoreArray(*idvec, &iddata);
 
-  /* Initialize up. */
+  /* Restore vectors */
+  ierr = DMDAVecRestoreArray(da, *U, &u);
+  CHKERRQ(ierr);
+
+   /* Restore vectors */
+  ierr = DMDAVecRestoreArray(da, *idvec, &iddat);
+  CHKERRQ(ierr);
+
+ /* Initialize up. */
   
   N_VConst(ZERO, up);    /* Initially set up = 0. */
   
@@ -783,8 +540,10 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   /* Copy -res into up to get correct initial up values. */
   N_VScale(-ONE, res, up);
   
-  return(0);
+
+  PetscFunctionReturn(0);
 }
+
 
 /*
  * Print first lines of output and table heading
@@ -792,7 +551,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
 
 static void PrintHeader(long int Neq, realtype rtol, realtype atol)
 { 
-  printf("\nidaHeat2D_kry_p: Heat equation, parallel example problem for IDA\n");
+  printf("\nidaHeat2D_kry_petsc: Heat equation, parallel example problem for IDA\n");
   printf("            Discretized heat equation on 2D unit square.\n");
   printf("            Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");
@@ -812,6 +571,7 @@ static void PrintHeader(long int Neq, realtype rtol, realtype atol)
   printf("all boundary components. \n");
   printf("Linear solver: IDASPGMR  ");
   printf("Preconditioner: diagonal elements only.\n"); 
+  printf("This example uses PETSc vector.\n");
   
   /* Print output table heading and initial line of table. */
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");

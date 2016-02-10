@@ -7,7 +7,8 @@
  * (based on PETSc TS example 15 and a SUNDIALS example by 
  *  Allan Taylor, Alan Hindmarsh and Radu Serban)
  * -----------------------------------------------------------------
- * Example problem for IDA: 2D heat equation, parallel, GMRES.
+ * Example problem for IDA: 2D heat equation, using PETSc linear 
+ * solver and vector.
  *
  * This example solves a discretized 2D heat equation problem.
  * This version uses the Krylov solver IDASpgmr.
@@ -25,13 +26,10 @@
  * processor, with an MXSUB by MYSUB mesh on each of NPEX * NPEY
  * processors.
  *
- * The system is solved with IDA using the Krylov linear solver
- * IDASPGMR. The preconditioner uses the diagonal elements of the
- * Jacobian only. Routines for preconditioning, required by
- * IDASPGMR, are supplied here. The constraints u >= 0 are posed
- * for all components. Local error testing on the boundary values
- * is suppressed. Output is taken at t = 0, .01, .02, .04,
- * ..., 10.24.
+ * The system is solved with IDA using default PETSc linear solver
+ * The constraints u >= 0 are posed for all components. Local error 
+ * testing on the boundary values is suppressed. Output is taken 
+ * at t = 0, .01, .02, .04, ..., 10.24.
  * -----------------------------------------------------------------
  */
 
@@ -66,7 +64,6 @@
                                     /* Spatial mesh is MX by MY */
 
 typedef struct {  
-  N_Vector    pp;    /* vector of diagonal preconditioner elements */
   DM          da;    /* PETSc data management object */
 } *UserData;
 
@@ -78,19 +75,6 @@ int jacHeat(realtype tt,  realtype c_j,
             N_Vector yy, N_Vector yp, N_Vector resvec,
             Mat Jpre, void *user_data,
             N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
-
-/* User-supplied preconditioner routines */
-
-int PsetupHeat(realtype tt, 
-               N_Vector yy, N_Vector yp, N_Vector rr, 
-               realtype c_j, void *user_data,
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-
-int PsolveHeat(realtype tt, 
-               N_Vector uu, N_Vector up, N_Vector rr, 
-               N_Vector rvec, N_Vector zvec,
-               realtype c_j, realtype delta, void *user_data, 
-               N_Vector tmp);
 
 /* Private function to check function return values */
 
@@ -158,7 +142,6 @@ int main(int argc, char *argv[])
   data = (UserData) malloc(sizeof *data);
   if(check_flag((void *)data, "malloc", 2, thispe)) 
     MPI_Abort(comm, 1);
-  data->pp = NULL;
   data->da = NULL;
 
   ierr = DMDACreate2d(comm, 
@@ -204,11 +187,6 @@ int main(int argc, char *argv[])
 
   id = N_VClone(uu);
   if(check_flag((void *)id, "N_VNew_petsc", 0, thispe)) 
-    MPI_Abort(comm, 1);
-
-  /* An N-vector to hold preconditioner. */
-  data->pp = N_VClone(uu); 
-  if(check_flag((void *)data->pp, "N_VNew_petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
   /* Initialize the uu, up, id, and res profiles. */
@@ -293,7 +271,6 @@ int main(int argc, char *argv[])
   ierr = MatDestroy(&Jac);
   CHKERRQ(ierr);
 
-  N_VDestroy_petsc(data->pp);
   ierr = DMDestroy(&data->da);
   CHKERRQ(ierr);
   free(data);
@@ -391,95 +368,6 @@ int resHeat(realtype tt,
 
 
 /*
- * PsetupHeat: setup for diagonal preconditioner for heatsk.    
- *                                                                 
- * The optional user-supplied functions PsetupHeat and          
- * PsolveHeat together must define the left preconditoner        
- * matrix P approximating the system Jacobian matrix               
- *                   J = dF/du + cj*dF/du'                         
- * (where the DAE system is F(t,u,u') = 0), and solve the linear   
- * systems P z = r.   This is done in this case by keeping only    
- * the diagonal elements of the J matrix above, storing them as    
- * inverses in a vector pp, when computed in PsetupHeat, for    
- * subsequent use in PsolveHeat.                                 
- *                                                                 
- * In this instance, only cj and data (user data structure, with    
- * pp etc.) are used from the PsetupHeat argument list.         
- *
- */
-
-int PsetupHeat(realtype tt, 
-               N_Vector yy, N_Vector yp, N_Vector rr, 
-               realtype c_j, void *user_data,
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-{
-  PetscErrorCode ierr;
-  PetscInt       i,j,Mx,My,xs,ys,xm,ym,nc;
-  UserData data = (UserData) user_data;
-  DM       da   = (DM) data->da;
-  Vec *ppvec    = NV_PVEC_PTC((data->pp));
-  PetscReal      hx,hy,sx,sy;
-  PetscScalar pelinv;
-  PetscScalar **ppv;
-  
-  /* Initially set all pp elements to one. */
-  //N_VConst(ONE, data->pp);
-  
-  PetscFunctionBeginUser;
-  ierr = DMDAGetInfo(da,PETSC_IGNORE,&Mx,&My,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE);
-  ierr = DMDAGetCorners(da,&xs,&ys,NULL,&xm,&ym,NULL);CHKERRQ(ierr);
-
-  hx = 1.0/(PetscReal)(Mx-1); sx = 1.0/(hx*hx);
-  hy = 1.0/(PetscReal)(My-1); sy = 1.0/(hy*hy);
-  
-  pelinv = ONE/(2.0*(sx + sy) + c_j);
-
-  ierr = DMDAVecGetArray(da, *ppvec, &ppv);
-  CHKERRQ(ierr);
-
-  for (j=ys; j<ys+ym; j++) {
-    for (i=xs; i<xs+xm; i++) {
-      if (i == 0 || j == 0 || i == Mx-1 || j == My-1) {
-        ppv[j][i] = ONE;    /* Boundary */
-      } else {
-        ppv[j][i] = pelinv; /* Interior */
-      }
-    }
-  }
-
-  ierr = DMDAVecRestoreArray(da, *ppvec, &ppv);
-  CHKERRQ(ierr);
-  
-  return(0);
-}
-
-
-/*
- * PsolveHeat: solve preconditioner linear system.              
- * This routine multiplies the input vector rvec by the vector pp 
- * containing the inverse diagonal Jacobian elements (previously  
- * computed in PsetupHeat), returning the result in zvec.      
- */
-
-int PsolveHeat(realtype tt, 
-               N_Vector uu, N_Vector up, N_Vector rr, 
-               N_Vector rvec, N_Vector zvec,
-               realtype c_j, realtype delta, void *user_data, 
-               N_Vector tmp)
-{
-  UserData data;
-
-  data = (UserData) user_data;
-  
-  N_VProd(data->pp, rvec, zvec);
-
-  return(0);
-
-}
-
-
-
-/*
  * jacHeat: Heat equation system Jacobian matrix.    
  *                                                                 
  * The optional user-supplied functions jacHeat provides Jacobian 
@@ -525,11 +413,12 @@ int jacHeat(realtype tt,  realtype a,
   }
   ierr = MatAssemblyBegin(Jpre,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
   ierr = MatAssemblyEnd(Jpre,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-//   if (J != Jpre) {
-//     ierr = MatAssemblyBegin(J,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-//     ierr = MatAssemblyEnd(J,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-//   }
-
+/*   
+     if (J != Jpre) {
+       ierr = MatAssemblyBegin(J,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+       ierr = MatAssemblyEnd(J,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+     }
+*/
   PetscFunctionReturn(0);
 }
 
@@ -640,7 +529,7 @@ static void PrintHeader(long int Neq, realtype rtol, realtype atol)
   printf("all boundary components. \n");
   printf("Linear solver: IDASPGMR  ");
   printf("Preconditioner: diagonal elements only.\n"); 
-  printf("This example uses PETSc vector.\n");
+  printf("This example uses PETSc vector and linear solver.\n");
   
   /* Print output table heading and initial line of table. */
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
@@ -679,9 +568,6 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
 //     ier = IDASpilsGetNumResEvals(mem, &nreLS);
 //     check_flag(&ier, "IDASpilsGetNumResEvals", 1, id);
 //     ier = IDASpilsGetNumPrecEvals(mem, &npe);
-//     check_flag(&ier, "IDASpilsGetPrecEvals", 1, id);
-//     ier = IDASpilsGetNumPrecSolves(mem, &nps);
-//     check_flag(&ier, "IDASpilsGetNumPrecSolves", 1, id);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)  
     printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld        %9.2Le  %3ld    \n",
