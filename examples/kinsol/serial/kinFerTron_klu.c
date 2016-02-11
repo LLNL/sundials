@@ -170,11 +170,12 @@ int main()
   if (check_flag(&flag, "KINInit", 1)) return(1);
 
   /* Call KINDense to specify the linear solver */
-//   flag = KINDense(kmem, NEQ); /* <-- Replace with KINKLU */
-//   if (check_flag(&flag, "KINDense", 1)) return(1);
-//   flag = KINDlsSetDenseJacFn(kmem, jacDense);
-//   if (check_flag(&flag, "KINDlsSetDenseJacFn", 1)) return(1);
-
+/*   
+ * flag = KINDense(kmem, NEQ); // <-- Replace with KINKLU
+ * if (check_flag(&flag, "KINDense", 1)) return(1);
+ * flag = KINDlsSetDenseJacFn(kmem, jacDense);
+ * if (check_flag(&flag, "KINDlsSetDenseJacFn", 1)) return(1);
+ */
 
   /* Attach KLU linear solver, which uses CSR matrix */
   flag = KINKLU(kmem, NEQ, data->nnz, CSR_MAT);
@@ -563,8 +564,9 @@ static void PrintFinalStats(void *kmem)
   flag = KINGetNumFuncEvals(kmem, &nfe);
   check_flag(&flag, "KINGetNumFuncEvals", 1);
 
-//   flag = KINDlsGetNumJacEvals(kmem, &nje);
-//   check_flag(&flag, "KINDlsGetNumJacEvals", 1);
+/*   flag = KINDlsGetNumJacEvals(kmem, &nje);
+ *   check_flag(&flag, "KINDlsGetNumJacEvals", 1);
+ */
 
   flag = KINSlsGetNumJacEvals(kmem, &nje);
   check_flag(&flag, "KINSlsGetNumJacEvals", 1);
@@ -592,7 +594,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
   if (opt == 0 && flagvalue == NULL) {
     fprintf(stderr, 
             "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1);
   }
 
@@ -602,7 +604,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
     if (*errflag < 0) {
       fprintf(stderr,
               "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-	      funcname, *errflag);
+              funcname, *errflag);
       return(1); 
     }
   }
@@ -611,7 +613,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
   else if (opt == 2 && flagvalue == NULL) {
     fprintf(stderr,
             "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1);
   }
 

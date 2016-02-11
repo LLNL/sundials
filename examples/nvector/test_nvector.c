@@ -253,15 +253,15 @@ int Test_N_VGetArrayPointer(N_Vector W, long int local_length, int myid)
   int      failure = 0;
   long int i;
   double   start_time, stop_time;
-  //realtype *Wdata;
+  realtype *Wdata;
 
-  /* get vector data */
+  /* get vector data, time it and set it to NULL */
   start_time = get_time();   
-  //Wdata = N_VGetArrayPointer(W);
-  stop_time = get_time();   
+  Wdata = N_VGetArrayPointer(W);
+  stop_time = get_time();
+  Wdata = NULL;
 
   /* check vector data */
-  //if (Wdata == NULL) {
   if (!has_data(W)) {
     printf(">>> FAILED test -- N_VGetArrayPointer, Proc %d \n", myid);
     printf("    Vector data == NULL \n \n");
@@ -270,9 +270,6 @@ int Test_N_VGetArrayPointer(N_Vector W, long int local_length, int myid)
 
   N_VConst(NEG_HALF,W);
   failure = check_ans(NEG_HALF, W, local_length);
-//   for(i=0; i < local_length; i++){
-//     failure += FNEQ(Wdata[i], NEG_HALF);
-//   }
 
   if (failure) {
     printf(">>> FAILED test -- N_VGetArrayPointer, Proc %d \n", myid);
@@ -812,9 +809,6 @@ int Test_N_VConst(N_Vector X, long int local_length, int myid)
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
   long int i;
-  //realtype *Xdata;
-
-  //Xdata = N_VGetArrayPointer(X);
 
   /* fill vector data */
   for(i=0; i < local_length; i++){
@@ -1663,7 +1657,6 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
 
   /* M should be vector of 0 */
   failure = check_ans(ZERO, M, local_length);
-  //printf("failure = %d\n", failure);
 
   if (failure || !test) {
     printf(">>> FAILED test -- N_VConstrMask Case 1, Proc %d \n", myid);
@@ -1737,7 +1730,6 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
     }
   }
   
-  //printf("failure = %d\n", failure);
   if (failure || test) {
     printf(">>> FAILED test -- N_VConstrMask Case 2, Proc %d \n", myid);
     PRINT_TIME("    N_VConstrMask Time: %22.15e \n \n", stop_time - start_time);
