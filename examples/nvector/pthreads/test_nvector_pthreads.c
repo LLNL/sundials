@@ -144,3 +144,14 @@ booleantype has_data(N_Vector X)
   else
     return TRUE;
 }
+
+void set_element(N_Vector X, long int i, realtype val)
+{
+  NV_Ith_PT(X,i) = val;
+}
+ 
+realtype get_element(N_Vector X, long int i)
+{
+  return NV_Ith_PT(X,i);
+}
+

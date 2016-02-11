@@ -61,9 +61,7 @@ int main(int argc, char *argv[])
   global_length = nprocs*local_length;
 
   /* Create vectors */
-  //printf("Creating W...\n");
   W = N_VNewEmpty_petsc(comm, local_length, global_length);
-  //printf("Creating X...\n");
   X = N_VNew_petsc(comm, local_length, global_length);
   Y = N_VNew_petsc(comm, local_length, global_length);
   Z = N_VNew_petsc(comm, local_length, global_length);
@@ -77,8 +75,8 @@ int main(int argc, char *argv[])
   fails += Test_N_VClone(X, local_length, myid);
 
   /* Skipped tests */
-  //fails += Test_N_VSetArrayPointer(W, local_length, myid);
-  //fails += Test_N_VGetArrayPointer(X, local_length, myid);
+  /* fails += Test_N_VSetArrayPointer(W, local_length, myid); */
+  /* fails += Test_N_VGetArrayPointer(X, local_length, myid); */
   
   /* Vector operations tests */
   fails += Test_N_VConst(X, local_length, myid);
@@ -102,13 +100,9 @@ int main(int argc, char *argv[])
   fails += Test_N_VMinQuotient(X, Y, local_length, myid);
 
   /* Free vectors */
-  //printf("Destroying W...\n");
   N_VDestroy_petsc(W);
-  //printf("Destroying X...\n");
   N_VDestroy_petsc(X);
-  //printf("Destroying Y...\n");
   N_VDestroy_petsc(Y);
-  //printf("Destroying Z...\n");
   N_VDestroy_petsc(Z);
 
   /* Print result */
@@ -116,11 +110,10 @@ int main(int argc, char *argv[])
     printf("FAIL: NVector module failed %i tests, Proc %d \n \n", fails, myid);
   } else {
      if(myid == 0) {
-	printf("SUCCESS: NVector module passed all tests, Proc %d \n \n",myid);
+       printf("SUCCESS: NVector module passed all tests, Proc %d \n \n",myid);
      }
   }
   
-  //printf("Finalizing PETSc...\n");
   ierr = PetscFinalize();
   CHKERRQ(ierr);
   MPI_Finalize();

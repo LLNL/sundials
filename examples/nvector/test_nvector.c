@@ -3,7 +3,7 @@
  * $Revision$
  * $Date$
  * ----------------------------------------------------------------- 
- * Programmer(s): David J. Gardner @ LLNL
+ * Programmer(s): David J. Gardner and Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * Acknowledgements: These testing routines are based on an
  *                   NVECTOR testing routine by Daniel R. Reynolds
@@ -245,13 +245,16 @@ int Test_N_VClone(N_Vector W, long int local_length, int myid)
 
 /* ----------------------------------------------------------------------
  * N_VGetArrayPointer Test
+ * 
+ * For now commenting this out to surpress warning messages (pointer set,
+ * but not used). Do we really need to time access to the vector 
+ * data pointer? 
  *
  * NOTE: This routine depends on N_VConst to check vector data.
  * --------------------------------------------------------------------*/
 int Test_N_VGetArrayPointer(N_Vector W, long int local_length, int myid)
 {
   int      failure = 0;
-  long int i;
   double   start_time, stop_time;
   realtype *Wdata;
 
@@ -259,8 +262,8 @@ int Test_N_VGetArrayPointer(N_Vector W, long int local_length, int myid)
   start_time = get_time();   
   Wdata = N_VGetArrayPointer(W);
   stop_time = get_time();
-  Wdata = NULL;
-
+  Wdata++; Wdata=NULL; /* Do something with pointer to surpress warning */
+  
   /* check vector data */
   if (!has_data(W)) {
     printf(">>> FAILED test -- N_VGetArrayPointer, Proc %d \n", myid);
@@ -340,7 +343,6 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, long int local_length,
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
-  long int i;
   
   /* 
    * Case 1a: y = x + y, (Vaxpy Case 1) 
@@ -843,7 +845,6 @@ int Test_N_VProd(N_Vector X, N_Vector Y, N_Vector Z, long int local_length, int 
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
-  long int i;
 
   /* fill vector data */
   N_VConst(TWO, X);
@@ -878,7 +879,6 @@ int Test_N_VDiv(N_Vector X, N_Vector Y, N_Vector Z, long int local_length, int m
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
-  long int i;
 
   /* fill vector data */
   N_VConst(ONE, X);
@@ -913,7 +913,6 @@ int Test_N_VScale(N_Vector X, N_Vector Z, long int local_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
-  long int i;
 
   /* 
    * Case 1: x = cx, VScaleBy
@@ -1034,7 +1033,6 @@ int Test_N_VAbs(N_Vector X, N_Vector Z, long int local_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
-  long int i;
 
   /* fill vector data */
   N_VConst(NEG_ONE, X);
@@ -1068,7 +1066,6 @@ int Test_N_VInv(N_Vector X, N_Vector Z, long int local_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
-  long int i;
 
   /* fill vector data */
   N_VConst(TWO, X);
@@ -1102,7 +1099,6 @@ int Test_N_VAddConst(N_Vector X, N_Vector Z, long int local_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
-  long int i;
 
   /* fill vector data */
   N_VConst(ONE, X);
@@ -1133,11 +1129,10 @@ int Test_N_VAddConst(N_Vector X, N_Vector Z, long int local_length, int myid)
  * N_VDotProd Test
  * --------------------------------------------------------------------*/
 int Test_N_VDotProd(N_Vector X, N_Vector Y, 
-		    long int local_length, long int global_length, int myid)
+                    long int local_length, long int global_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
-  long int i;
   realtype ans;
 
   /* fill vector data */
@@ -1172,7 +1167,6 @@ int Test_N_VMaxNorm(N_Vector X, long int local_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
-  long int i;
   realtype ans;
 
   /* fill vector data */
@@ -1207,7 +1201,6 @@ int Test_N_VWrmsNorm(N_Vector X, N_Vector W, long int local_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
-  long int i;
   realtype ans;
 
   /* fill vector data */
@@ -1243,7 +1236,6 @@ int Test_N_VWrmsNormMask(N_Vector X, N_Vector W, N_Vector ID,
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
-  long int i;
   realtype ans;
 
   /* 
@@ -1312,7 +1304,6 @@ int Test_N_VMin(N_Vector X, long int local_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
-  long int i;
   realtype ans;
 
   /* fill vector data */
@@ -1344,11 +1335,10 @@ int Test_N_VMin(N_Vector X, long int local_length, int myid)
  * N_VWL2Norm Test
  * --------------------------------------------------------------------*/
 int Test_N_VWL2Norm(N_Vector X, N_Vector W, 
-		    long int local_length, long int global_length, int myid)
+                    long int local_length, long int global_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
-  long int i;
   realtype ans;
 
   /* fill vector data */
@@ -1380,11 +1370,10 @@ int Test_N_VWL2Norm(N_Vector X, N_Vector W,
  * N_VL1Norm Test
  * --------------------------------------------------------------------*/
 int Test_N_VL1Norm(N_Vector X, long int local_length, 
-		   long int global_length, int myid)
+                   long int global_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
-  long int i;
   realtype ans;
 
   /* fill vector data */
@@ -1462,19 +1451,19 @@ int Test_N_VCompare(N_Vector X, N_Vector Z, long int local_length, int myid)
     case 0 :
       /* Z[i] == 0 */
       if (get_element(Z, i) != ZERO)
-	failure = 1;
+        failure = 1;
       break;
 
     case 1 :
       /* Z[i] == 1 */
       if (get_element(Z, i) != ONE)
-	failure = 1;
+        failure = 1;
       break;
       
     case 2 :
       /* Z[i] == 1 */
       if (get_element(Z, i) != ONE)
-	failure = 1;
+        failure = 1;
       break;
     }
   }
@@ -1560,10 +1549,10 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, long int local_length, int myid)
 
     if (mask) {
       if (get_element(Z, i) != TWO) 
-	failure = 1;
+        failure = 1;
     } else {
       if (get_element(Z, i) != ZERO) 
-	failure = 1;
+        failure = 1;
     }
   }
 
@@ -1585,7 +1574,7 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, long int local_length, int myid)
  * N_VConstrMask
  * --------------------------------------------------------------------*/
 int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M, 
-		       long int local_length, int myid)
+                       long int local_length, int myid)
 {
   int         mask, fails = 0, failure = 0;
   double      start_time, stop_time;
@@ -1692,19 +1681,19 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
       set_element(C, i, NEG_ONE);
       set_element(X, i, ONE);	
       break;
-	
+      
     case 2 :
       /* c = 0, no test */
       set_element(C, i, ZERO);
       set_element(X, i, HALF);
       break;
-	
+
     case 3 :
       /* c = 1, test for >= 0*/
       set_element(C, i, ONE);
       set_element(X, i, NEG_ONE);
       break;
-	
+
     case 4 :
       /* c = 2, test for > 0 */
       set_element(C, i, TWO);
@@ -1723,10 +1712,10 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
     
     if (mask == 2){
       if (get_element(M, i) != ZERO) 
-	failure = 1;
+        failure = 1;
     } else {
       if (get_element(M, i) != ONE)
-	failure = 1;
+        failure = 1;
     }
   }
   
@@ -1748,11 +1737,10 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
  * N_VMinQuotient Test
  * --------------------------------------------------------------------*/
 int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM, 
-			long int local_length, int myid)
+                        long int local_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
-  long int i;
   realtype ans;
 
   /*
@@ -1819,10 +1807,10 @@ int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM,
 
 #if defined( SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
 time_t base_time_tv_sec = 0; /* Base time; makes time values returned
-				by get_time easier to read when
-				printed since they will be zero
-				based.
-			     */
+                                by get_time easier to read when
+                                printed since they will be zero
+                                based.
+                              */
 #endif
 
 void SetTiming(int onoff)
