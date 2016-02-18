@@ -31,9 +31,12 @@
 #define ONE  RCONST(1.0)
 
 /* 
-Creates a new (empty) sparse matrix of a desired size and nonzero density.
-Returns NULL if a memory allocation error occurred.
-*/
+ * Default Constructor
+ * 
+ * Creates a new (empty) sparse matrix of a desired size and nonzero density.
+ * Returns NULL if a memory allocation error occurred.
+ * 
+ */
 SlsMat NewSparseMat(int M, int N, int NNZ, int sparsetype)
 {
   SlsMat A;
@@ -99,14 +102,16 @@ SlsMat NewSparseMat(int M, int N, int NNZ, int sparsetype)
 }
 
 /** 
- * @brief Utility routine to create a new sparse matrix out of an 
- * existing dense or band matrix.  Returns NULL if a memory 
- * allocation error occurred.
+ * Constructor
  * 
- * @todo Enable conversion to CSR matrix. Currently, any dense matrix 
+ * Creates a new sparse matrix out of an existing dense or band matrix.  
+ * Returns NULL if a memory allocation error occurred.
+ * 
+ * TODO: Enable conversion to CSR matrix. Currently, any dense matrix 
  * is converted to CSC.
+ * 
  */
-SlsMat SlsConvertDls(DlsMat A)
+SlsMat SlsConvertDls(const DlsMat A)
 {
   int i, j, nnz;
   realtype dtmp;
@@ -173,7 +178,9 @@ SlsMat SlsConvertDls(DlsMat A)
 
 /**
  * 
- * @brief Frees memory and deletes the structure for an existing sparse matrix.
+ * Destructor
+ * 
+ * Frees memory and deletes the structure for an existing sparse matrix.
  * 
  */
 void DestroySparseMat(SlsMat A)
@@ -200,7 +207,7 @@ void DestroySparseMat(SlsMat A)
 
 
 /** 
- * @brief Sets all entries in a sparse matrix to zero.
+ * Sets all sparse matrix entries to zero.
  */
 void SlsSetToZero(SlsMat A)
 {
@@ -221,24 +228,20 @@ void SlsSetToZero(SlsMat A)
 
 
 /** 
- * @brief Copies the sparse matrix A into sparse matrix B.  
+ * Copies the sparse matrix A into sparse matrix B.  
  * 
  * It is assumed that A and B have the same dimensions, but we account 
  * for the situation in which B has fewer nonzeros than A.
- * 
- * @todo Account for situation when matrices are of different size. 
- * Perhaps resize matrix B to match A and print warning? For now, 
- * exit with error.
- * 
+ *  
  */
-void CopySparseMat(SlsMat A, SlsMat B)
+void CopySparseMat(const SlsMat A, SlsMat B)
 {
   int i;
   int A_nz = A->indexptrs[A->NP];
   
   if(A->M != B->M || A->N != B->N) {
-    printf("Error: Copying sparse matrices of different size!\n");
-    return;
+    fprintf(stderr, "Error: Copying sparse matrices of different size!\n");
+    return (-1);
   }
     
   
@@ -272,7 +275,7 @@ void CopySparseMat(SlsMat A, SlsMat B)
 
 
 /** 
- * @brief Scales a sparse matrix A by the coefficient b.
+ * Scales a sparse matrix A by the coefficient b.
  */
 void ScaleSparseMat(realtype b, SlsMat A)
 {
@@ -370,7 +373,7 @@ Adds the identity to a sparse matrix.  Resizes A if necessary
 
 
 /** 
- * @brief Adds 1 to every diagonal entry of A.  
+ * Adds 1 to every diagonal entry of A.  
  * 
  * Works for general [rectangular] matrices and handles potentially increased 
  * size if A does not currently contain a value on the diagonal.
@@ -526,7 +529,7 @@ void AddIdentitySparseMat(SlsMat A)
 
 
 /** 
- * @brief Add two sparse matrices: A = A+B.  
+ * Add two sparse matrices: A = A+B.  
  * 
  * Handles potentially increased size if matrices have different sparsity patterns.  
  * Returns 0 if successful, and 1 if unsuccessful (in which case A is left unchanged).
@@ -536,7 +539,7 @@ void AddIdentitySparseMat(SlsMat A)
  * implementation.  
  * 
  */
-int SlsAddMat(SlsMat A, SlsMat B)
+int SlsAddMat(SlsMat A, const SlsMat B)
 {
   int j, i, p, nz, newmat;
   int *w, *Ap, *Ai, *Bp, *Bi, *Cp, *Ci;
@@ -546,9 +549,11 @@ int SlsAddMat(SlsMat A, SlsMat B)
   int N;
 
   /* ensure that matrix dimensions agree */
-  if ((A->M != B->M) || (A->N != B->N))
+  if ((A->M != B->M) || (A->N != B->N)) {
+    fprintf(stderr, "Error: Adding sparse matrices of different size!\n");
     return(-1);
-
+  }
+  
   /* if A is CSR matrix, transpose M and N */
   if (A->sparsetype == CSC_MAT) {
     M = A->M;
@@ -712,7 +717,7 @@ int SlsAddMat(SlsMat A, SlsMat B)
 
 
 /** 
- * @brief Resizes the memory allocated for a given sparse matrix, shortening 
+ * Resizes the memory allocated for a given sparse matrix, shortening 
  * it down to the number of actual nonzero entries.
  */
 void ReallocSparseMat(SlsMat A)
@@ -727,12 +732,12 @@ void ReallocSparseMat(SlsMat A)
 
 
 /** 
- * @brief Computes y=A*x, where A is a sparse matrix of dimension MxN, x is a 
+ * Computes y=A*x, where A is a sparse matrix of dimension MxN, x is a 
  * realtype array of length N, and y is a realtype array of length M. 
  * 
- * @ret 0 if successful, and 1 if unsuccessful (failed memory access).
+ * Returns 0 if successful, -1 if unsuccessful (failed memory access).
  */
-int SlsMatvec(SlsMat A, realtype *x, realtype *y)
+int SlsMatvec(const SlsMat A, const realtype *x, realtype *y)
 {
   if(A->sparsetype == CSC_MAT)
     return SlsMatvecCSC(A, x, y);
@@ -746,7 +751,7 @@ int SlsMatvec(SlsMat A, realtype *x, realtype *y)
 /** 
  * Prints the nonzero entries of a sparse matrix to screen.
  */
-void PrintSparseMatCSC(SlsMat A)
+void PrintSparseMatCSC(const SlsMat A)
 {
   int i,j, M, N, NNZ;
   int *colptrs;
@@ -779,12 +784,12 @@ void PrintSparseMatCSC(SlsMat A)
 
 
 /** 
- * @brief Computes y=A*x, where A is a CSC matrix of dimension MxN, x is a 
+ * Computes y=A*x, where A is a CSC matrix of dimension MxN, x is a 
  * realtype array of length N, and y is a realtype array of length M. 
  * 
- * @ret 0 if successful, and 1 if unsuccessful (failed memory access).
+ * Returns 0 if successful, -1 if unsuccessful (failed memory access).
  */
-int SlsMatvecCSC(SlsMat A, realtype *x, realtype *y)
+int SlsMatvecCSC(const SlsMat A, const realtype *x, realtype *y)
 {
   int j, i;
   int *Ap, *Ai;
@@ -820,12 +825,12 @@ int SlsMatvecCSC(SlsMat A, realtype *x, realtype *y)
 }
 
 /** 
- * @brief Computes y=A*x, where A is a CSR matrix of dimension MxN, x is a 
+ * Computes y=A*x, where A is a CSR matrix of dimension MxN, x is a 
  * realtype array of length N, and y is a realtype array of length M. 
  * 
- * @ret 0 if successful, and 1 if unsuccessful (failed memory access).
+ * Returns 0 if successful, -1 if unsuccessful (failed memory access).
  */
-int SlsMatvecCSR(SlsMat A, realtype *x, realtype *y)
+int SlsMatvecCSR(const SlsMat A, const realtype *x, realtype *y)
 {
   int j, i;
   int *Ap, *Aj;

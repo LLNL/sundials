@@ -116,7 +116,7 @@ SUNDIALS_EXPORT SlsMat NewSparseMat(int M, int N, int NNZ, int sparsetype);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SlsMat SlsConvertDls(DlsMat A);
+SUNDIALS_EXPORT SlsMat SlsConvertDls(const DlsMat A);
 
 /*
  * -----------------------------------------------------------------
@@ -146,7 +146,7 @@ SUNDIALS_EXPORT void SlsSetToZero(SlsMat A);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void CopySparseMat(SlsMat A, SlsMat B);
+SUNDIALS_EXPORT void CopySparseMat(const SlsMat A, const SlsMat B);
 
 /*
  * -----------------------------------------------------------------
@@ -209,7 +209,7 @@ SUNDIALS_EXPORT void ReallocSparseMat(SlsMat A);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int SlsMatvec(SlsMat A, realtype *x, realtype *y);
+SUNDIALS_EXPORT int SlsMatvec(const SlsMat A, const realtype *x, realtype *y);
 
 /*
  * -----------------------------------------------------------------
@@ -243,7 +243,7 @@ SUNDIALS_EXPORT void PrintSparseMatCSC(SlsMat A);
  * -----------------------------------------------------------------
  */
 
-int SlsMatvecCSC(SlsMat A, realtype *x, realtype *y);
+int SlsMatvecCSC(const SlsMat A, const realtype *x, realtype *y);
 
 /*
  * -----------------------------------------------------------------
@@ -256,7 +256,7 @@ int SlsMatvecCSC(SlsMat A, realtype *x, realtype *y);
  * -----------------------------------------------------------------
  */
 
-int SlsMatvecCSR(SlsMat A, realtype *x, realtype *y);
+int SlsMatvecCSR(const SlsMat A, const realtype *x, realtype *y);
 
 /*
  * void PrintSparseMatDebug(SlsMat A);
