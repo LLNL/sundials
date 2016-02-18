@@ -28,9 +28,9 @@
 
 /* Fortran interface to C routine ARKKLU; see farkode.h for 
    further details */
-void FARK_KLU(int *neq, int *nnz, int *ordering, int *ier)
+void FARK_KLU(int *neq, int *nnz, int *sparsetype, int *ordering, int *ier)
 {
-  *ier = ARKKLU(ARK_arkodemem, *neq, *nnz, CSC_MAT);
+  *ier = ARKKLU(ARK_arkodemem, *neq, *nnz, *sparsetype);
   ARKKLUSetOrdering(ARK_arkodemem, *ordering);
   ARK_ls = ARK_LS_KLU;
   return;
@@ -45,9 +45,9 @@ void FARK_KLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier)
 
 /* Fortran interface to C routine ARKMassKLU; see farkode.h for 
    further details */
-void FARK_MASSKLU(int *neq, int *nnz, int *ordering, int *ier)
+void FARK_MASSKLU(int *neq, int *nnz, int *sparsetype, int *ordering, int *ier)
 {
-  *ier = ARKMassKLU(ARK_arkodemem, *neq, *nnz, CSC_MAT, NULL);
+  *ier = ARKMassKLU(ARK_arkodemem, *neq, *nnz, *sparsetype, NULL);
   ARKMassKLUSetOrdering(ARK_arkodemem, *ordering);
   ARK_mass_ls = ARK_LS_KLU;
   return;

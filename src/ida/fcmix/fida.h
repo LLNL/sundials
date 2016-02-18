@@ -797,7 +797,7 @@ void FIDA_LAPACKDENSESETJAC(int *flag, int *ier);
 void FIDA_LAPACKBAND(int *neq, int *mupper, int *mlower, int *ier);
 void FIDA_LAPACKBANDSETJAC(int *flag, int *ier);
 
-void FIDA_KLU(int *neq, int *nnz, int *ordering, int *ier);
+void FIDA_KLU(int *neq, int *nnz, int *sparsetype, int *ordering, int *ier);
 void FIDA_KLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier);
 void FIDA_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier);
 

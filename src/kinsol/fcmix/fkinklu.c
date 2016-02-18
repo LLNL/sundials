@@ -32,9 +32,9 @@
  * ----------------------------------------------------------------
  */
 
-void FKIN_KLU(int *neq, int *nnz, int *ordering, int *ier)
+void FKIN_KLU(int *neq, int *nnz, int *sparsetype, int *ordering, int *ier)
 {
-  *ier = KINKLU(KIN_kinmem, *neq, *nnz, CSC_MAT);
+  *ier = KINKLU(KIN_kinmem, *neq, *nnz, *sparsetype);
   KINKLUSetOrdering(KIN_kinmem, *ordering);
   KIN_ls = KIN_LS_KLU;
 }

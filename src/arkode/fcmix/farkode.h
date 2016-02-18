@@ -2110,11 +2110,11 @@ extern "C" {
   void FARK_MASSLAPACKBAND(int *neq, int *mupper, int *mlower, int *ier);
   void FARK_LAPACKBANDSETMASS(int *ier);
 
-  void FARK_KLU(int *neq, int *nnz, int *ordering, int *ier);
+  void FARK_KLU(int *neq, int *nnz, int *sparsetype, int *ordering, int *ier);
   void FARK_KLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier);
   void FARK_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier);
   void FARK_SPARSESETJAC(int *ier);
-  void FARK_MASSKLU(int *neq, int *nnz, int *ordering, int *ier);
+  void FARK_MASSKLU(int *neq, int *nnz, int *sparsetype, int *ordering, int *ier);
   void FARK_MASSKLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier);
   void FARK_MASSSUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier);
   void FARK_SPARSESETMASS(int *ier);

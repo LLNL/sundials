@@ -32,9 +32,9 @@
  * ----------------------------------------------------------------
  */
 
-void FCV_KLU(int *neq, int *nnz, int *ordering, int *ier)
+void FCV_KLU(int *neq, int *nnz, int *sparsetype, int *ordering, int *ier)
 {
-  *ier = CVKLU(CV_cvodemem, *neq, *nnz, CSC_MAT);
+  *ier = CVKLU(CV_cvodemem, *neq, *nnz, *sparsetype);
   CVKLUSetOrdering(CV_cvodemem, *ordering);
   CV_ls = CV_LS_KLU;
 }

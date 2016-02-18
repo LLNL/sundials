@@ -824,7 +824,7 @@ extern "C" {
   void FCV_LAPACKBAND(int *neq, int *mupper, int *mlower, int *ier);
   void FCV_LAPACKBANDSETJAC(int *flag, int *ier);
 
-  void FCV_KLU(int *neq, int *nnz, int *ordering, int *ier);
+  void FCV_KLU(int *neq, int *nnz, int *sparsetype, int *ordering, int *ier);
   void FCV_KLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier);
   void FCV_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier);
 

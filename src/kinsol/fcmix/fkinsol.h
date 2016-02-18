@@ -657,7 +657,7 @@ void FKIN_LAPACKDENSESETJAC(int *flag, int *ier);
 void FKIN_LAPACKBAND(int *neq, int *mupper, int *mlower, int *ier);
 void FKIN_LAPACKBANDSETJAC(int *flag, int *ier);
 
-void FKIN_KLU(int *neq, int *nnz, int *ordering, int *ier);
+void FKIN_KLU(int *neq, int *nnz, int *sparsetype, int *ordering, int *ier);
 void FKIN_KLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier);
 void FKIN_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier);
 
