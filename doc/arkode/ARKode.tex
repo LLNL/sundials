@@ -5304,7 +5304,7 @@ that they specify DIRK and ERK methods, respectively.
 
 Both RK methods must share the same \emph{c}, \emph{b} and \emph{bembed} coefficients.
 
-The embedding \emph{bembed} is required.
+The embedding \emph{bembed} is required unless running in fixed-step mode.
 
 \end{fulllineitems}
 
@@ -5364,7 +5364,7 @@ correctly describe the coefficients that were input.
 Error checking is performed to ensure that \emph{A} is strictly
 lower-triangular (i.e. that it specifies an ERK method).
 
-The embedding \emph{bembed} is required.
+The embedding \emph{bembed} is required unless running in fixed-step mode.
 
 \end{fulllineitems}
 
@@ -5425,7 +5425,7 @@ Error checking is performed to ensure that \emph{A} is
 lower-triangular with a nonzero value on at least one of the
 diagonal entries (i.e. that it specifies a DIRK method).
 
-The embedding \emph{bembed} is required.
+The embedding \emph{bembed} is required unless running in fixed-step mode.
 
 \end{fulllineitems}
 
@@ -18205,7 +18205,7 @@ This macro gives access to the contents of the parallel
 
 The assignment \code{v\_cont = NV\_CONTENT\_P(v)} sets \code{v\_cont} to be a
 pointer to the \code{N\_Vector} \emph{content} structure of type \code{struct
-N\_VectorParallelContent}.
+N\_VectorContent\_Parallel}.
 
 Implementation:
 
@@ -18416,6 +18416,218 @@ deallocate the data pointer.
 
 \item {} 
 To maximize efficiency, vector operations in the NVECTOR\_PARALLEL
+implementation that have more than one \code{N\_Vector} argument do not
+check for consistent internal representation of these vectors. It is
+the user's responsibility to ensure that such routines are called
+with \code{N\_Vector} arguments that were all created with the same
+internal representations.
+
+\end{itemize}
+
+
+\section{The NVECTOR\_PETSC Module}
+\label{nvectors/NVector_PETSc:nvectors-nvpetsc}\label{nvectors/NVector_PETSc:the-nvector-petsc-module}\label{nvectors/NVector_PETSc::doc}
+The NVECTOR\_PETSC is an NVECTOR wrapper around the PETSc vector. It
+defines the \emph{content} field of a \code{N\_Vector} to be a structure
+containing the global and local lengths of the vector, a pointer to
+the PETSc vector, an MPI communicator, and a boolean flag  \emph{own\_data}
+indicating ownership of the wrapped PETSc vector.
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}petsc} \PYG{p}{\PYGZob{}}
+   \PYG{k+kt}{long} \PYG{k+kt}{int} \PYG{n}{local\PYGZus{}length}\PYG{p}{;}
+   \PYG{k+kt}{long} \PYG{k+kt}{int} \PYG{n}{global\PYGZus{}length}\PYG{p}{;}
+   \PYG{n}{booleantype} \PYG{n}{own\PYGZus{}data}\PYG{p}{;}
+   \PYG{n}{Vec} \PYG{o}{*}\PYG{n}{pvec}\PYG{p}{;}
+   \PYG{n}{MPI\PYGZus{}Comm} \PYG{n}{comm}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\end{Verbatim}
+
+Note that the PETSc vector wrapper requires SUNDIALS to be built with
+MPI support.  The following six macros are provided to access the
+content of a NVECTOR\_PETSC vector. The suffix \code{\_PTC} in the names
+denotes the PETSc wrapper version.
+\index{NV\_CONTENT\_PTC (C macro)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.NV_CONTENT_PTC}\pysiglinewithargsret{\bfcode{NV\_CONTENT\_PTC}}{v}{}
+This macro gives access to the contents of the NVECTOR\_PETSC
+\code{N\_Vector} \emph{v}.
+
+The assignment \code{v\_cont = NV\_CONTENT\_PTC(v)} sets \code{v\_cont} to be a
+pointer to the \code{N\_Vector} \emph{content} structure of type \code{struct
+N\_VectorContent\_petsc}.
+
+Implementation:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}CONTENT\PYGZus{}P(v) ( (N\PYGZus{}VectorContent\PYGZus{}petsc)(v\PYGZhy{}\PYGZgt{}content) )}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{NV\_OWN\_DATA\_PTC (C macro)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.NV_OWN_DATA_PTC}\pysiglinewithargsret{\bfcode{NV\_OWN\_DATA\_PTC}}{v}{}
+Access the \emph{own\_data} component of the NVECTOR\_PETSC \code{N\_Vector} \emph{v}.
+
+Implementation:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}OWN\PYGZus{}DATA\PYGZus{}PTC(v)   ( NV\PYGZus{}CONTENT\PYGZus{}PTC(v)\PYGZhy{}\PYGZgt{}own\PYGZus{}data )}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{NV\_PVEC\_PTC (C macro)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.NV_PVEC_PTC}\pysiglinewithargsret{\bfcode{NV\_PVEC\_PTC}}{v}{}
+The assignment \code{v\_pvec = NV\_PVEC\_PTC(v)} sets the PETSc vector
+pointer \code{v\_pvec} to the address of the PETSc vector wrapped by
+the \code{N\_Vector v}.
+
+Implementation:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}PVEC\PYGZus{}PTC(v)       ( NV\PYGZus{}CONTENT\PYGZus{}PTC(v)\PYGZhy{}\PYGZgt{}pvec )}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{NV\_LOCLENGTH\_PTC (C macro)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.NV_LOCLENGTH_PTC}\pysiglinewithargsret{\bfcode{NV\_LOCLENGTH\_PTC}}{v}{}
+The assignment \code{v\_llen = NV\_LOCLENGTH\_PTC(v)} sets \code{v\_llen} to be
+the length of the local part of \code{v}.
+
+The call \code{NV\_LOCLENGTH\_PTC(v) = llen\_v} sets the \emph{local\_length} of
+\code{v} to be \code{llen\_v}.  \emph{Warning: this does not affect the actual
+vector length stored in the PETSc vector {}`{}`pvec{}`{}`, only the
+integers stored in the NVECTOR\_PETSC object.}
+
+Implementation:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}LOCLENGTH\PYGZus{}PTC(v)  ( NV\PYGZus{}CONTENT\PYGZus{}PTC(v)\PYGZhy{}\PYGZgt{}local\PYGZus{}length )}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{NV\_GLOBLENGTH\_PTC (C macro)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.NV_GLOBLENGTH_PTC}\pysiglinewithargsret{\bfcode{NV\_GLOBLENGTH\_PTC}}{v}{}
+The assignment \code{v\_glen = NV\_GLOBLENGTH\_PTC(v)} sets \code{v\_glen} to be
+the \emph{global\_length} of the vector \code{v}.
+
+The call \code{NV\_GLOBLENGTH\_PTC(v) = glen\_v} sets the \emph{global\_length}
+of \code{v} to be \code{glen\_v}.  \emph{Warning: this does not affect the actual
+vector length stored in the PETSc vector {}`{}`pvec{}`{}`, only the
+integers stored in the NVECTOR\_PETSC object.}
+
+Implementation:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}GLOBLENGTH\PYGZus{}PTC(v) ( NV\PYGZus{}CONTENT\PYGZus{}PTC(v)\PYGZhy{}\PYGZgt{}global\PYGZus{}length )}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{NV\_COMM\_PTC (C macro)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.NV_COMM_PTC}\pysiglinewithargsret{\bfcode{NV\_COMM\_PTC}}{v}{}
+This macro provides access to the MPI communicator used by the
+NVECTOR\_PETSC \code{N\_Vector} \emph{v}.
+
+Implementation:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}COMM\PYGZus{}PTC(v) ( NV\PYGZus{}CONTENT\PYGZus{}PTC(v)\PYGZhy{}\PYGZgt{}comm )}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+
+The NVECTOR\_PETSC module defines implementations of all vector
+operations listed in the section {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, except for
+\code{N\_VGetArrayPointer} and \code{N\_VSetArrayPointer}.  The names of
+vector operations are obtained from those in the section
+{\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}} by appending the suffice \code{\_petsc}.  The module
+NVECTOR\_PETSC provides the following additional user-callable routines:
+\index{N\_VNew\_petsc (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VNew_petsc}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNew\_petsc}}{MPI\_Comm\emph{ comm}, long int\emph{ local\_length}, long int\emph{ global\_length}}{}
+This function creates and allocates memory for a NVECTOR\_PETSC vector
+having global length \emph{global\_length}, having processor-local length
+\emph{local\_length}, and using the MPI communicator \emph{comm}.
+
+\end{fulllineitems}
+
+\index{N\_VNewEmpty\_petsc (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VNewEmpty_petsc}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNewEmpty\_petsc}}{MPI\_Comm\emph{ comm}, long int\emph{ local\_length}, long int\emph{ global\_length}}{}
+This function creates a new PETSC \code{N\_Vector} with the pointer to
+the wrapped PETSc vector set to \code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VCloneVectorArray\_petsc (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VCloneVectorArray_petsc}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneVectorArray\_petsc}}{int\emph{ count}, N\_Vector\emph{ w}}{}
+This function creates (by cloning) an array of \emph{count}
+NVECTOR\_PETSC vectors.
+
+\end{fulllineitems}
+
+\index{N\_VCloneVectorArrayEmpty\_petsc (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VCloneVectorArrayEmpty_petsc}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneVectorArrayEmpty\_petsc}}{int\emph{ count}, N\_Vector\emph{ w}}{}
+This function creates (by cloning) an array of \emph{count}
+NVECTOR\_PETSC vectors, each with pointers to PETSc vectors set to \code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VDestroyVectorArray\_petsc (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VDestroyVectorArray_petsc}\pysiglinewithargsret{void \bfcode{N\_VDestroyVectorArray\_petsc}}{N\_Vector*\emph{ vs}, int\emph{ count}}{}
+This function frees memory allocated for the array of \emph{count}
+variables of type \code{N\_Vector} created with
+{\hyperref[nvectors/NVector_PETSc:c.N_VCloneVectorArray_petsc]{\emph{\code{N\_VCloneVectorArray\_petsc()}}}} or with
+{\hyperref[nvectors/NVector_PETSc:c.N_VCloneVectorArrayEmpty_petsc]{\emph{\code{N\_VCloneVectorArrayEmpty\_petsc()}}}}.
+
+\end{fulllineitems}
+
+\index{N\_VPrint\_petsc (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VPrint_petsc}\pysiglinewithargsret{void \bfcode{N\_VPrint\_petsc}}{N\_Vector\emph{ v}}{}
+This function prints the content of the wrapped PETSc vector to \code{stdout}.
+
+\end{fulllineitems}
+
+
+\textbf{Notes}
+\begin{itemize}
+\item {} 
+{\hyperref[nvectors/NVector_PETSc:c.N_VNewEmpty_petsc]{\emph{\code{N\_VNewEmpty\_petsc()}}}} and
+{\hyperref[nvectors/NVector_PETSc:c.N_VCloneVectorArrayEmpty_petsc]{\emph{\code{N\_VCloneVectorArrayEmpty\_petsc()}}}} set the field \emph{own\_data}
+to \code{FALSE}. The routines \code{N\_VDestroy\_petsc()} and
+{\hyperref[nvectors/NVector_PETSc:c.N_VDestroyVectorArray_petsc]{\emph{\code{N\_VDestroyVectorArray\_petsc()}}}} will not attempt to free the
+pointer \code{pvec} for any \code{N\_Vector} with \emph{own\_data} set to
+\code{FALSE}. In such a case, it is the user's responsibility to
+deallocate the \code{pvec} pointer.
+
+\item {} 
+To maximize efficiency, vector operations in the NVECTOR\_PETSC
 implementation that have more than one \code{N\_Vector} argument do not
 check for consistent internal representation of these vectors. It is
 the user's responsibility to ensure that such routines are called
