@@ -7,9 +7,9 @@
 # Copyright (c) 2002, The Regents of the University of California.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
-# For details, see sundials/ida/LICENSE.
+# For details, see sundials/idas/LICENSE.
 # -----------------------------------------------------------------
-# Sources for IDA documents
+# Sources for IDAS documents
 # -----------------------------------------------------------------
 
 USER_GUIDE = idas_guide

@@ -2,14 +2,23 @@
 # $Revision:  $
 # $Date:  $
 # -----------------------------------------------------------------
-# Programmer(s): Radu Serban @ LLNL
+# Programmer(s): Daniel R. Reynolds @ SMU, Slaven Peles @ LLNL
 # -----------------------------------------------------------------
-# Copyright (c) 2002, The Regents of the University of California.
-# Produced at the Lawrence Livermore National Laboratory.
+# LLNS/SMU Copyright Start
+# Copyright (c) 2015, Southern Methodist University and 
+# Lawrence Livermore National Security
+#
+# This work was performed under the auspices of the U.S. Department 
+# of Energy by Southern Methodist University and Lawrence Livermore 
+# National Laboratory under Contract DE-AC52-07NA27344.
+# Produced at Southern Methodist University and the Lawrence 
+# Livermore National Laboratory.
+#
 # All rights reserved.
-# For details, see sundials/ida/LICENSE.
+# For details, see the LICENSE file.
+# LLNS/SMU Copyright End
 # -----------------------------------------------------------------
-# Sources for IDA documents
+# Sources for ARKode documents
 # -----------------------------------------------------------------
 
 
