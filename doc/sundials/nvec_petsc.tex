@@ -129,6 +129,19 @@ N_Vector N_VNewEmpty_petsc(MPI_Comm comm,
   
 %%--------------------------------------
 
+\item \ID{N\_VMake\_petsc}
+  
+  This function creates and allocates memory for a {\nvecpetsc}
+  wrapper with a user-provided PETSc vector.
+ 
+  
+
+\begin{verbatim}
+N_Vector N_VMake_petsc(Vec *pvec);
+\end{verbatim}
+
+%%--------------------------------------
+
 
 \item \ID{N\_VCloneVectorArray\_petsc}
  
@@ -180,8 +193,8 @@ N_Vector *N_VCloneEmptyVectorArray_petsc(int count, N_Vector w);
 \begin{itemize}
                                         
 \item
-  {\warn}\id{N\_VNewEmpty\_petsc} and \id{N\_VCloneVectorArrayEmpty\_petsc} 
-  set the field {\em own\_data} $=$ \id{FALSE}.  
+  {\warn}\id{N\_VNewEmpty\_petsc}, \id{N\_VMake\_petsc}, and
+  \id{N\_VCloneVectorArrayEmpty\_petsc} set the field {\em own\_data} $=$ \id{FALSE}.   
   \id{N\_VDestroy\_petsc} and \id{N\_VDestroyVectorArray\_petsc}
   will not attempt to free the pointer {\em pvec} for any \id{N\_Vector} with
   {\em own\_data} set to \id{FALSE}. In such a case, it is the user's responsibility to
