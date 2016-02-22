@@ -840,36 +840,6 @@ int ARKodeResize(void *arkode_mem, N_Vector y0,
   /* Copy y0 into ark_ycur to set the current solution */
   N_VScale(ONE, y0, ark_mem->ark_ycur);
 
-  /* Load updated error weights */
-  ier = ark_mem->ark_efun(ark_mem->ark_ycur,
-			  ark_mem->ark_ewt, 
-			  ark_mem->ark_e_data);
-  if (ier != 0) {
-    if (ark_mem->ark_itol == ARK_WF) 
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
-		      "ARKodeResize", MSGARK_EWT_FAIL);
-    else 
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
-		      "ARKodeResize", MSGARK_BAD_EWT);
-    return(ARK_ILL_INPUT);
-  }
-
-  /* Load updated residual weights */
-  if (!ark_mem->ark_rwt_is_ewt) {
-    ier = ark_mem->ark_rfun(ark_mem->ark_ycur,
-			    ark_mem->ark_rwt, 
-			    ark_mem->ark_r_data);
-    if (ier != 0) {
-      if (ark_mem->ark_itol == ARK_WF) 
-	arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
-			"ARKodeResize", MSGARK_RWT_FAIL);
-      else 
-	arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
-			"ARKodeResize", MSGARK_BAD_RWT);
-      return(ARK_ILL_INPUT);
-    }
-  }
-
   /* Indicate that problem size is new */
   ark_mem->ark_resized = TRUE;
   ark_mem->ark_firststage = TRUE;
@@ -930,12 +900,14 @@ int ARKodeSStolerances(void *arkode_mem, realtype reltol,
   }
 
   /* Copy tolerances into memory */
-  ark_mem->ark_reltol    = reltol;
-  ark_mem->ark_Sabstol   = abstol;
-  ark_mem->ark_itol      = ARK_SS;
+  ark_mem->ark_reltol  = reltol;
+  ark_mem->ark_Sabstol = abstol;
+  ark_mem->ark_itol    = ARK_SS;
+
+  /* enforce use of arkEwtSet */
   ark_mem->ark_user_efun = FALSE;
   ark_mem->ark_efun      = arkEwtSet;
-  ark_mem->ark_e_data    = NULL; /* set to arkode_mem in InitialSetup */
+  ark_mem->ark_e_data    = ark_mem;
 
   return(ARK_SUCCESS);
 }
@@ -978,11 +950,13 @@ int ARKodeSVtolerances(void *arkode_mem, realtype reltol,
     ark_mem->ark_VabstolMallocDone = TRUE;
   }
   N_VScale(ONE, abstol, ark_mem->ark_Vabstol);
-  ark_mem->ark_reltol    = reltol;
-  ark_mem->ark_itol      = ARK_SV;
+  ark_mem->ark_reltol = reltol;
+  ark_mem->ark_itol   = ARK_SV;
+
+  /* enforce use of arkEwtSet */
   ark_mem->ark_user_efun = FALSE;
   ark_mem->ark_efun      = arkEwtSet;
-  ark_mem->ark_e_data    = NULL; /* set to arkode_mem in InitialSetup */
+  ark_mem->ark_e_data    = ark_mem;
 
   return(ARK_SUCCESS);
 }
@@ -1071,11 +1045,13 @@ int ARKodeResStolerance(void *arkode_mem, realtype rabstol)
   }
 
   /* Copy tolerances into memory */
-  ark_mem->ark_SRabstol  = rabstol;
-  ark_mem->ark_ritol     = ARK_SS;
-  ark_mem->ark_user_rfun = FALSE;
+  ark_mem->ark_SRabstol = rabstol;
+  ark_mem->ark_ritol    = ARK_SS;
+
+  /* enforce use of arkRwtSet */
+  ark_mem->ark_user_efun = FALSE;
   ark_mem->ark_rfun      = arkRwtSet;
-  ark_mem->ark_r_data    = NULL; /* set to arkode_mem in InitialSetup */
+  ark_mem->ark_r_data    = ark_mem;
 
   return(ARK_SUCCESS);
 }
@@ -1120,10 +1096,13 @@ int ARKodeResVtolerance(void *arkode_mem, N_Vector rabstol)
     ark_mem->ark_VRabstolMallocDone = TRUE;
   }
   N_VScale(ONE, rabstol, ark_mem->ark_VRabstol);
-  ark_mem->ark_ritol     = ARK_SV;
-  ark_mem->ark_user_rfun = FALSE;
+  ark_mem->ark_ritol = ARK_SV;
+
+
+  /* enforce use of arkRwtSet */
+  ark_mem->ark_user_efun = FALSE;
   ark_mem->ark_rfun      = arkRwtSet;
-  ark_mem->ark_r_data    = NULL; /* set to arkode_mem in InitialSetup */
+  ark_mem->ark_r_data    = ark_mem;
 
   return(ARK_SUCCESS);
 }
@@ -1364,6 +1343,36 @@ int ARKode(void *arkode_mem, realtype tout, N_Vector yout,
     N_VScale(ONE, ark_mem->ark_ycur, ark_mem->ark_ynew);
     ier = arkFullRHS(ark_mem, ark_mem->ark_tn, ark_mem->ark_ycur,
 		     ark_mem->ark_ftemp, ark_mem->ark_fnew);
+
+    /* Load updated error weights */
+    ier = ark_mem->ark_efun(ark_mem->ark_ycur,
+			    ark_mem->ark_ewt, 
+			    ark_mem->ark_e_data);
+    if (ier != 0) {
+      if (ark_mem->ark_itol == ARK_WF) 
+	arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
+			"ARKodeResize", MSGARK_EWT_FAIL);
+      else 
+	arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
+			"ARKodeResize", MSGARK_BAD_EWT);
+      return(ARK_ILL_INPUT);
+    }
+
+    /* Load updated residual weights */
+    if (!ark_mem->ark_rwt_is_ewt) {
+      ier = ark_mem->ark_rfun(ark_mem->ark_ycur,
+			      ark_mem->ark_rwt, 
+			      ark_mem->ark_r_data);
+      if (ier != 0) {
+	if (ark_mem->ark_itol == ARK_WF) 
+	  arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
+			  "ARKodeResize", MSGARK_RWT_FAIL);
+	else 
+	  arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
+			  "ARKodeResize", MSGARK_BAD_RWT);
+	return(ARK_ILL_INPUT);
+      }
+    }
 
     /* if the problem involves a non-identity mass matrix, update fnew here */
     if (ark_mem->ark_mass_matrix) {
@@ -3098,44 +3107,6 @@ static int arkInitialSetup(ARKodeMem ark_mem)
     return(ARK_MEM_FAIL);
   }
 
-  /* Check if lsolve function exists and call linit (if it exists) */
-  if (!ark_mem->ark_explicit && !ark_mem->ark_use_fp) {
-    if (ark_mem->ark_lsolve == NULL) {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
-		      "arkInitialSetup", MSGARK_LSOLVE_NULL);
-      return(ARK_ILL_INPUT);
-    }
-    if (ark_mem->ark_linit != NULL) {
-      ier = ark_mem->ark_linit(ark_mem);
-      if (ier != 0) {
-	arkProcessError(ark_mem, ARK_LINIT_FAIL, "ARKODE", 
-			"arkInitialSetup", MSGARK_LINIT_FAIL);
-	return(ARK_LINIT_FAIL);
-      }
-    }
-  }
-
-  /* Call minit (if it exists) */
-  if (ark_mem->ark_minit != NULL) {
-    ier = ark_mem->ark_minit(ark_mem);
-    if (ier != 0) {
-      arkProcessError(ark_mem, ARK_MASSINIT_FAIL, "ARKODE", 
-		      "arkInitialSetup", MSGARK_MASSINIT_FAIL);
-      return(ARK_MASSINIT_FAIL);
-    }
-  }
-  
-  /* Call msetup (it necessary) */
-  if (ark_mem->ark_mass_matrix && ark_mem->ark_MassSetupNonNull) {
-    ier = ark_mem->ark_msetup(ark_mem, ark_mem->ark_ewt, 
-			      ark_mem->ark_acor, ark_mem->ark_sdata);
-    if (ier != 0) {
-      arkProcessError(ark_mem, ARK_MASSSETUP_FAIL, "ARKODE", 
-		      "arkInitialSetup", MSGARK_MASSSETUP_FAIL);
-      return(ARK_MASSSETUP_FAIL);
-    }
-  }
-
   /* Check for consistency between linear system modules 
      (if lsolve is direct, msolve needs to match) */
   if (ark_mem->ark_mass_matrix) {  /* M != I */
@@ -3190,6 +3161,44 @@ static int arkInitialSetup(ARKodeMem ark_mem)
 	arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
 			"arkInitialSetup", MSGARK_BAD_RWT);
       return(ARK_ILL_INPUT);
+    }
+  }
+
+  /* Check if lsolve function exists and call linit (if it exists) */
+  if (!ark_mem->ark_explicit && !ark_mem->ark_use_fp) {
+    if (ark_mem->ark_lsolve == NULL) {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
+		      "arkInitialSetup", MSGARK_LSOLVE_NULL);
+      return(ARK_ILL_INPUT);
+    }
+    if (ark_mem->ark_linit != NULL) {
+      ier = ark_mem->ark_linit(ark_mem);
+      if (ier != 0) {
+	arkProcessError(ark_mem, ARK_LINIT_FAIL, "ARKODE", 
+			"arkInitialSetup", MSGARK_LINIT_FAIL);
+	return(ARK_LINIT_FAIL);
+      }
+    }
+  }
+
+  /* Call minit (if it exists) */
+  if (ark_mem->ark_minit != NULL) {
+    ier = ark_mem->ark_minit(ark_mem);
+    if (ier != 0) {
+      arkProcessError(ark_mem, ARK_MASSINIT_FAIL, "ARKODE", 
+		      "arkInitialSetup", MSGARK_MASSINIT_FAIL);
+      return(ARK_MASSINIT_FAIL);
+    }
+  }
+  
+  /* Call msetup (if necessary) */
+  if (ark_mem->ark_mass_matrix && ark_mem->ark_MassSetupNonNull) {
+    ier = ark_mem->ark_msetup(ark_mem, ark_mem->ark_ewt, 
+			      ark_mem->ark_acor, ark_mem->ark_sdata);
+    if (ier != 0) {
+      arkProcessError(ark_mem, ARK_MASSSETUP_FAIL, "ARKODE", 
+		      "arkInitialSetup", MSGARK_MASSSETUP_FAIL);
+      return(ARK_MASSSETUP_FAIL);
     }
   }
 
@@ -3715,14 +3724,8 @@ static int arkSetButcherTables(ARKodeMem ark_mem)
      strictly lower-triangular (ERK)
      lower-triangular with some nonzeros on diagonal (IRK)
      method order q > 0 (all)
-     embedding order q > 0 (all)
+     embedding order q > 0 (all -- if adaptive time-stepping enabled)
      stages > 0 (all)
-     matching stages (ARK)
-     matching p (ARK)
-     matching q (ARK)
-     matching c (ARK)
-     matching b (ARK)
-     matching b2 (ARK)
 
 Returns ARK_SUCCESS if tables pass, ARK_ILL_INPUT otherwise.
 ---------------------------------------------------------------*/
@@ -3785,7 +3788,7 @@ static int arkCheckButcherTables(ARKodeMem ark_mem)
   }
 
   /* check that embedding order p > 0 */
-  if (ark_mem->ark_p < 1) {
+  if ((ark_mem->ark_p < 1) && (!ark_mem->ark_fixedstep)) {
     arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", 
 		    "arkCheckButcherTables",
 		    "embedding order < 1!");
