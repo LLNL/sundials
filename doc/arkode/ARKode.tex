@@ -1954,13 +1954,17 @@ constants \code{FALSE} and \code{TRUE}, so a user program does not need to
 include \code{sundials\_types.h} directly.
 
 The calling program must also include an NVECTOR implementation
-header file (see the section {\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{Vector Data Structures}}}} for details).  For the four
+header file (see the section {\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{Vector Data Structures}}}} for details).  For the
 NVECTOR implementations that are included in the ARKode package, the
 corresponding header files are:
 \begin{itemize}
 \item {} 
 \code{nvector\_serial.h}, which defines the serial implementation
 NVECTOR\_SERIAL;
+
+\item {} 
+\code{nvector\_parallel.h}, which defines the parallel (MPI)
+implementation, NVECTOR\_PARALLEL;
 
 \item {} 
 \code{nvector\_openmp.h}, which defines the OpenMP implementation
@@ -1971,8 +1975,8 @@ NVECTOR\_OPENMP;
 NVECTOR\_PTHREADS;
 
 \item {} 
-\code{nvector\_parallel.h}, which defines the parallel (MPI)
-implementation, NVECTOR\_PARALLEL.
+\code{nvector\_parhyp.h}, which defines the parallel Hypre implementation
+NVECTOR\_PARHYP.
 
 \end{itemize}
 
@@ -2065,38 +2069,27 @@ preconditioning.
 \section{A skeleton of the user's main program}
 \label{c_interface/Skeleton::doc}\label{c_interface/Skeleton:a-skeleton-of-the-user-s-main-program}\label{c_interface/Skeleton:cinterface-skeleton}
 The following is a skeleton of the user's main program (or calling
-program) for the integration of an IVP.  Some steps are independent of
-the NVECTOR implementation used.  Where this is not the case, usage
-specifications are given for the four implementations provided with
-ARKode: steps marked {[}\textbf{S}{]} correspond to NVECTOR\_SERIAL, steps
-marked {[}\textbf{O}{]} correspond to NVECTOR\_OPENMP, steps marked {[}\textbf{T}{]}
-correspond to NVECTOR\_PTHREADS, and steps marked {[}\textbf{P}{]} correspond to
-NVECTOR\_PARALLEL.  Some steps may be marked with multiple codes,
-e.g. {[}\textbf{S}, \textbf{O}, \textbf{T}{]}.  Steps not marked apply to all NVECTOR
-implementations.
+program) for the integration of an ODE IVP.  Most of the steps are
+independent of the NVECTOR implementation used.  For the steps that
+are not, refer to the Chapter {\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{Vector Data Structures}}}} for the specific name of
+the function to be called or macro to be referenced.
 \begin{enumerate}
 \item {} 
-{[}\textbf{P}{]} Initialize MPI
+Initialize parallel or multi-threaded environment, if appropriate.
 
-Call \code{MPI\_Init} to initialize MPI if used by the user's program.
+For example, call \code{MPI\_Init} to initialize MPI if used, or set
+\code{num\_threads}, the number of threads to use within the threaded
+vector functions, if used.
 
 \item {} 
-Set problem dimensions
+Set problem dimensions, etc.
 
-{[}\textbf{S}, \textbf{O}, \textbf{T}{]} Set \code{N}, the problem size \(N\).
-
-{[}\textbf{O}, \textbf{T}{]} Set \code{num\_threads}, the number of threads to use
-within the parallelized vector functions.
-
-{[}\textbf{P}{]} Set \code{Nlocal}, the local vector length (the sub-vector length
-for this process); \code{N}, the global vector length (the problem size
-\(N\), equaling the sum of all the values of \code{Nlocal} on the
-active set of processes).
+This generally includes the problem size, \code{N}, and may include
+the local vector length \code{Nlocal}.
 
 \begin{notice}{note}{Note:}
 The variables \code{N} and \code{Nlocal} should be of type
-\code{long int}.  The variable \code{num\_threads} should be of type
-\code{int}.
+\code{long int}.
 \end{notice}
 
 \item {} 
@@ -2105,38 +2098,15 @@ Set vector of initial values
 To set the vector \code{y0} of initial values, use the appropriate
 functions defined by the particular NVECTOR implementation.  If a
 \code{realtype} array \code{ydata} containing the initial values of \(y\)
-already exists, then make the call:
+already exists, then make the appropriate call:
 
-{[}\textbf{S}{]} \code{y0 = N\_VMake\_Serial(N, ydata);}
+\code{y0 = N\_VMake\_***(..., ydata);}
 
-{[}\textbf{O}{]} \code{y0 = N\_VMake\_OpenMP(N, num\_threads, ydata);}
+Otherwise, make the appropriate call:
 
-{[}\textbf{T}{]} \code{y0 = N\_VMake\_Pthreads(N, num\_threads, ydata);}
+\code{y0 = N\_VNew\_***(...);}
 
-{[}\textbf{P}{]} \code{y0 = N\_VMake\_Parallel(comm, Nlocal, N, ydata);}
-
-Otherwise, make the call:
-
-{[}\textbf{S}{]} \code{y0 = N\_VNew\_Serial(N);}
-
-{[}\textbf{O}{]} \code{y0 = N\_VNew\_OpenMP(N, num\_threads);}
-
-{[}\textbf{T}{]} \code{y0 = N\_VNew\_Pthreads(N, num\_threads);}
-
-{[}\textbf{P}{]} \code{y0 = N\_VNew\_Parallel(comm, Nlocal, N);}
-
-and load initial values into the array accessed by:
-
-{[}\textbf{S}{]} \code{NV\_DATA\_S(y0)}
-
-{[}\textbf{O}{]} \code{NV\_DATA\_OMP(y0)}
-
-{[}\textbf{T}{]} \code{NV\_DATA\_PT(y0)}
-
-{[}\textbf{P}{]} \code{NV\_DATA\_P(y0)}
-
-Here \code{comm} is the MPI communicator containing the set of active
-processes to be used (may be the MPI default, \code{MPI\_COMM\_WORLD}).
+and load initial values into the structure defined by \code{NV\_DATA\_***(y0)}.
 
 \item {} 
 Create ARKode object
@@ -2166,6 +2136,13 @@ to specify a function which sets directly the weights used in
 evaluating WRMS vector norms. See the section
 {\hyperref[c_interface/User_callable:cinterface-tolerances]{\emph{\DUspan{}{ARKode tolerance specification functions}}}} for details.
 
+If a problem with non-identity mass matrix is used, and the
+solution units differ considerably from the equation units,
+absolute tolerances for the equation residuals (nonlinear and
+linear) may be specified separately through calls to
+{\hyperref[c_interface/User_callable:c.ARKodeResStolerance]{\emph{\code{ARKodeResStolerance()}}}}, {\hyperref[c_interface/User_callable:c.ARKodeResVtolerance]{\emph{\code{ARKodeResVtolerance()}}}} or
+{\hyperref[c_interface/User_callable:c.ARKodeResFtolerance]{\emph{\code{ARKodeResFtolerance()}}}}.
+
 \item {} 
 Set optional inputs
 
@@ -2181,17 +2158,17 @@ chosen for the solver, initialize the linear solver module with one
 of the following calls (for details see the section
 {\hyperref[c_interface/User_callable:cinterface-linearsolvers]{\emph{\DUspan{}{Linear solver specification functions}}}}):
 
-{[}\textbf{S}, \textbf{O}, \textbf{T}{]} \code{ier = ARKDense(...);}
+\code{ier = ARKDense(...);}
 
-{[}\textbf{S}, \textbf{O}, \textbf{T}{]} \code{ier = ARKBand(...);}
+\code{ier = ARKBand(...);}
 
-{[}\textbf{S}, \textbf{O}, \textbf{T}{]} \code{ier = ARKLapackDense(...);}
+\code{ier = ARKLapackDense(...);}
 
-{[}\textbf{S}, \textbf{O}, \textbf{T}{]} \code{ier = ARKLapackBand(...);}
+\code{ier = ARKLapackBand(...);}
 
-{[}\textbf{S}, \textbf{O}, \textbf{T}{]} \code{ier = ARKKLU(...);}
+\code{ier = ARKKLU(...);}
 
-{[}\textbf{S}, \textbf{O}, \textbf{T}{]} \code{ier = ARKSuperLUMT(...);}
+\code{ier = ARKSuperLUMT(...);}
 
 \code{ier = ARKSpgmr(...);}
 
@@ -2202,6 +2179,11 @@ of the following calls (for details see the section
 \code{ier = ARKSpfgmr(...);}
 
 \code{ier = ARKPcg(...);}
+
+\begin{notice}{note}{Note:}
+The direct (dense or band) and sparse linear solver options are
+usable only in a serial or threaded environment.
+\end{notice}
 
 \item {} 
 Set linear solver optional inputs
@@ -2217,17 +2199,17 @@ If a non-identity mass matrix solve is required, initialize the
 linear mass matrix solver module with one of the following calls
 (for details see the section {\hyperref[c_interface/User_callable:cinterface-linearsolvers]{\emph{\DUspan{}{Linear solver specification functions}}}}):
 
-{[}\textbf{S}, \textbf{O}, \textbf{T}{]} \code{ier = ARKMassDense(...);}
+\code{ier = ARKMassDense(...);}
 
-{[}\textbf{S}, \textbf{O}, \textbf{T}{]} \code{ier = ARKMassBand(...);}
+\code{ier = ARKMassBand(...);}
 
-{[}\textbf{S}, \textbf{O}, \textbf{T}{]} \code{ier = ARKMassLapackDense(...);}
+\code{ier = ARKMassLapackDense(...);}
 
-{[}\textbf{S}, \textbf{O}, \textbf{T}{]} \code{ier = ARKMassLapackBand(...);}
+\code{ier = ARKMassLapackBand(...);}
 
-{[}\textbf{S}, \textbf{O}, \textbf{T}{]} \code{ier = ARKMassKLU(...);}
+\code{ier = ARKMassKLU(...);}
 
-{[}\textbf{S}, \textbf{O}, \textbf{T}{]} \code{ier = ARKMassSuperLUMT(...);}
+\code{ier = ARKMassSuperLUMT(...);}
 
 \code{ier = ARKMassSpgmr(...);}
 
@@ -2262,9 +2244,9 @@ For each point at which output is desired, call
 
 \code{ier = ARKode(arkode\_mem, tout, yout, \&tret, itask)}
 
-Here, {\hyperref[c_interface/User_callable:c.ARKode]{\emph{\code{ARKode()}}}} requires that \code{itask}
-specify the return mode. The vector \code{yout} (which can be the same as
-the vector \code{y0} above) will contain \(y(t_\text{out})\). See the section
+Here, \code{itask} specifies the return mode. The vector \code{yout}
+(which can be the same as the vector \code{y0} above) will contain
+\(y(t_\text{out})\). See the section
 {\hyperref[c_interface/User_callable:cinterface-integration]{\emph{\DUspan{}{ARKode solver function}}}} for details.
 
 \item {} 
@@ -2274,27 +2256,21 @@ Call \code{ARK*Get*} functions to obtain optional output. See
 the section {\hyperref[c_interface/User_callable:cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}} for details.
 
 \item {} 
+Deallocate memory for solution vector
+
+Upon completion of the integration, deallocate memory for the
+vector \code{y} (or \code{yout}) by calling the destructor function
+defined by the NVECTOR implementation:
+
+\code{N\_VDestroy\_***(y);}
+
+\item {} 
 Free solver memory
 
 Call \code{ARKodeFree(\&arkode\_mem)} to free the memory allocated for ARKode.
 
 \item {} 
-Deallocate memory for solution vector
-
-Upon completion of the integration, deallocate memory for the
-vector \code{y} by calling the destructor function defined by the
-NVECTOR implementation:
-
-{[}\textbf{S}{]} \code{N\_VDestroy\_Serial(y);}
-
-{[}\textbf{O}{]} \code{N\_VDestroy\_OpenMP(y);}
-
-{[}\textbf{T}{]} \code{N\_VDestroy\_Pthreads(y);}
-
-{[}\textbf{P}{]} \code{N\_VDestroy\_Parallel(y);}
-
-\item {} 
-{[}\textbf{P}{]} Finalize MPI
+Finalize MPI, if used
 
 Call \code{MPI\_Finalize} to terminate MPI.
 
@@ -13070,6 +13046,10 @@ documentation, for simplified access.
 {\hyperref[f_interface/Usage:f/_/FNVINITP]{\emph{\code{FNVINITP()}}}} (defined by NVECTOR\_PARALLEL) interfaces to
 {\hyperref[nvectors/NVector_Parallel:c.N_VNewEmpty_Parallel]{\emph{\code{N\_VNewEmpty\_Parallel()}}}}.
 
+\item {} 
+{\hyperref[f_interface/Usage:f/_/FNVINITPH]{\emph{\code{FNVINITPH()}}}} (defined by NVECTOR\_PARHYP) interfaces to
+{\hyperref[nvectors/NVector_ParHyp:c.N_VNewEmpty_ParHyp]{\emph{\code{N\_VNewEmpty\_ParHyp()}}}}.
+
 \end{itemize}
 
 
@@ -13448,22 +13428,23 @@ FARKODE ``activation'' routine
 
 \subsection{Usage of the FARKODE interface module}
 \label{f_interface/Usage:finterface-usage}\label{f_interface/Usage::doc}\label{f_interface/Usage:usage-of-the-farkode-interface-module}
-The usage of FARKODE requires calls to five or more interface
+The usage of FARKODE requires calls to six or more interface
 functions, depending on the method options selected, and two or more
 user-supplied routines which define the problem to be solved.  These
-function calls and user routines are summarized individually below.
-Some details on specific argument options, and the user is referred to
-the description of the corresponding C interface ARKode functions for
-complete information on the arguments of any given user-callable
-interface routine.  The usage of FARKODE for rootfinding and with
+function calls and user routines are summarized separately below.
+Some details are omitted, and the user is referred to the description
+of the corresponding C interface ARKode functions for complete
+information on the arguments of any given user-callable interface
+routine, or of a given user-supplied function called by an interface
+function.  The usage of FARKODE for rootfinding and with
 preconditioner modules is described in later subsections.
 
-In the instructions below, steps marked {[}\textbf{S}{]} apply to the NVECTOR
-implementation NVECTOR\_SERIAL, steps marked {[}\textbf{O}{]} apply to
-NVECTOR\_OPENMP, steps marked {[}\textbf{T}{]} apply to NVECTOR\_PTHREADS, while
-steps marked {[}\textbf{P}{]} apply to NVECTOR\_PARALLEL.  Some steps will be
-marked with a combination of the above, e.g.  {[}\textbf{S}, \textbf{O}, \textbf{T}{]}.
-Steps not marked apply to all supplied NVECTOR implementations.
+In the instructions below,
+steps marked {[}\textbf{S}{]} apply to the NVECTOR module NVECTOR\_SERIAL,
+steps marked {[}\textbf{O}{]} apply to NVECTOR\_OPENMP,
+steps marked {[}\textbf{T}{]} apply to NVECTOR\_PTHREADS,
+steps marked {[}\textbf{P}{]} apply to NVECTOR\_PARALLEL, while
+steps marked {[}\textbf{H}{]} apply to NVECTOR\_PARHYP.
 
 
 \subsubsection{Right-hand side specification}
@@ -13645,6 +13626,46 @@ module, the user must make the following call:
 
 \begin{fulllineitems}
 \phantomsection\label{f_interface/Usage:f/_/FNVINITP}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FNVINITP}}{\emph{COMM}, \emph{KEY}, \emph{NLOCAL}, \emph{NGLOBAL}, \emph{IER}}{}
+Initializes the Fortran interface to the parallel NVECTOR module.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{COMM} (\code{int}, input) -- the MPI communicator.
+
+\item {} 
+\emph{KEY} (\code{int}, input) -- the solver id (\emph{KEY} = 4 for ARKode).
+
+\item {} 
+\emph{NLOCAL} (\code{long int}, input) -- local vector size on this processor.
+
+\item {} 
+\emph{NGLOBAL} (\code{long int}, input) -- the size of the ODE system,
+and the global size of vectors (the sum of all values of \emph{NLOCAL}).
+
+\item {} 
+\emph{IER} (\code{int}, output) -- return flag (0 success, -1 if a
+failure occurred).
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} If the header file \code{sundials\_config.h} defines
+\code{SUNDIALS\_MPI\_COMM\_F2C} to be 1 (meaning the MPI implementation
+used to build SUNDIALS includes the \code{MPI\_Comm\_f2c()} function),
+then COMM can be any valid MPI communicator.  Otherwise,
+\code{MPI\_COMM\_WORLD} will be used, so the user can just pass an
+integer value as a placeholder.
+
+\end{fulllineitems}
+
+
+{[}\textbf{H}{]} To initialize the MPI-based Hypre-compatible parallel vector
+module, the user must make the following call:
+\index{FNVINITPH() (fortran subroutine)|textbf}
+
+\begin{fulllineitems}
+\phantomsection\label{f_interface/Usage:f/_/FNVINITPH}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FNVINITPH}}{\emph{COMM}, \emph{KEY}, \emph{NLOCAL}, \emph{NGLOBAL}, \emph{IER}}{}
 Initializes the Fortran interface to the parallel NVECTOR module.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -18577,6 +18598,15 @@ the wrapped PETSc vector set to \code{NULL}.
 
 \end{fulllineitems}
 
+\index{N\_VMake\_petsc (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VMake_petsc}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMake\_petsc}}{Vec*\emph{ pvec}}{}
+This function creates and allocates memory for a NVECTOR\_PETSC
+wrapper with a user-provided PETSc vector.
+
+\end{fulllineitems}
+
 \index{N\_VCloneVectorArray\_petsc (C function)}
 
 \begin{fulllineitems}
@@ -18618,7 +18648,7 @@ This function prints the content of the wrapped PETSc vector to \code{stdout}.
 \textbf{Notes}
 \begin{itemize}
 \item {} 
-{\hyperref[nvectors/NVector_PETSc:c.N_VNewEmpty_petsc]{\emph{\code{N\_VNewEmpty\_petsc()}}}} and
+{\hyperref[nvectors/NVector_PETSc:c.N_VNewEmpty_petsc]{\emph{\code{N\_VNewEmpty\_petsc()}}}}, {\hyperref[nvectors/NVector_PETSc:c.N_VMake_petsc]{\emph{\code{N\_VMake\_petsc()}}}}, and
 {\hyperref[nvectors/NVector_PETSc:c.N_VCloneVectorArrayEmpty_petsc]{\emph{\code{N\_VCloneVectorArrayEmpty\_petsc()}}}} set the field \emph{own\_data}
 to \code{FALSE}. The routines \code{N\_VDestroy\_petsc()} and
 {\hyperref[nvectors/NVector_PETSc:c.N_VDestroyVectorArray_petsc]{\emph{\code{N\_VDestroyVectorArray\_petsc()}}}} will not attempt to free the
