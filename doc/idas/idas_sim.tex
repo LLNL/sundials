@@ -5292,21 +5292,17 @@ that are unchanged from the skeleton program presented in
 \index{User main program!integration of quadratures}
 \begin{Steps}
   
-\item 
-  \textcolor{gray}{\bf {\p} {\h} Initialize MPI}
+\item
+  \textcolor{gray}{\bf Initialize parallel or multi-threaded environment,
+   if appropriate}
 
 \item
-  {\bf Set problem dimensions}
+  {\bf Set problem dimensions, etc.}
 
-  {\s} {\omp} {\pt} Set \id{N} to the problem size $N$ (excluding quadrature
-  variables), and \id{Nq} to the number of quadrature variables.
+  This generally includes \id{N}, the problem size $N$ (excluding quadrature
+  variables), \id{Nq}, the number of quadrature variables, and may include
+  the local vector length \id{Nlocal} (excluding quadrature variables).
 
-  {\omp, \pt} Set \id{num\_threads}, the number of threads to use within
-  the threaded vector functions.
-
-  {\p} {\h} Set \id{Nlocal} to the local vector length (excluding quadrature
-  variables), and \id{Nqlocal} to the local number of quadrature variables.
-  
 \item
   \textcolor{gray}{\bf Set vectors of initial values}
  
@@ -5369,10 +5365,10 @@ that are unchanged from the skeleton program presented in
   {\bf Deallocate memory for solution vectors and for the vector of quadrature variables}
   
 \item
-  {\bf Free solver memory}
+  \textcolor{gray}{\bf Free solver memory}
 
 \item 
-  \textcolor{gray}{\bf {\p} {\h} Finalize MPI}
+  \textcolor{gray}{\bf Finalize MPI, if used}
   
 \end{Steps}
 %%
