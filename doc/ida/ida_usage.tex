@@ -94,9 +94,11 @@ the corresponding header files are:
 \item \Id{nvector\_parallel.h}, 
   which defines the parallel MPI implementation, {\nvecp}.
 \item \Id{nvector\_openmp.h},
-  which defines the shared memory parallel openMP implementation,
+  which defines the shared memory parallel openMP implementation, {\nvecopenmp}.
 \item \Id{nvector\_pthreads.h},
-  which defines the shared memory parallel Pthreads implementation.
+  which defines the shared memory parallel Pthreads implementation, {\nvecpthreads}.
+\item \Id{nvector\_parhyp.h},
+  which defines the shared memory parallel ParHyp implementation, {\nvecph}.
 \end{itemize}
 %%
 Note that both these files include in turn the header file \Id{sundials\_nvector.h} which 
@@ -157,94 +159,50 @@ block-diagonal matrix. For this, even though the {\idaspgmr} linear
 solver is used, the header \id{sundials\_dense.h} is included for
 access to the underlying generic dense linear solver.
 
-%%===================================================================================
+%%====================================================================
 \section{A skeleton of the user's main program}\label{ss:skeleton_sim}
-%%===================================================================================
-The following is a skeleton of the user's main program (or calling
-program) for the integration of a DAE IVP. Some steps are independent of the
-{\nvector} implementation used; where this is not the case, usage specifications
-are given for the implementations provided with {\ida}:
-steps marked {\s} correspond to {\nvecs},
-steps marked {\omp} correspond to {\nvecopenmp},
-steps marked {\pt} correspond to {\nvecpthreads},
-steps marked {\p} correspond to {\nvecp}, while
-steps marked {\h} correspond to {\nvecph}.
+%%====================================================================
+The following is a skeleton of the user's main program (or calling program)
+for the integration of a DAE IVP. Most of the steps are independent of the
+{\nvector} implementation used.  For the steps that are not, refer to
+Chapter \ref{s:nvector} for the specific name of the function to be called
+or macro to be referenced.
 %%
 \index{User main program!IDA@{\ida} usage}
 \begin{Steps}
-  
+
 \item 
-  {\bf {\p} {\h} Initialize MPI}
+  {\bf Initialize parallel or multi-threaded environment, if appropriate}
 
-  Call \id{MPI\_Init(\&argc, \&argv)} to initialize MPI if used by
-  the user's program, aside from the internal use in {\nvecp}.  
-  Here \id{argc} and \id{argv} are the command line argument 
-  counter and array received by \id{main}.
-  
+  For example, call \id{MPI\_Init} to initialize {\mpi} if used, or
+  set \id{num\_threads}, the number of threads to use within the threaded
+  vector functions, if used.
+ 
 \item
-  {\bf Set problem dimensions}
+  {\bf Set problem dimensions etc.}
 
-  {\s, \omp, \pt} Set \id{N}, the problem size $N$.
+  This generally includes the problem size \id{N}, and may include
+  the local vector length \id{Nlocal}.
 
-  {\p} {\h} Set \id{Nlocal}, the local vector length (the sub-vector
-  length for this processor); \id{N}, the global vector length (the
-  problem size $N$, and the sum of all the values of \id{Nlocal});
-  and the active set of processors.
-
-  {\omp, \pt} Set \id{num\_threads}, the number of threads to use
-  within the threaded vector functions.
-
-  Note: The variables \id{N} and \id{Nlocal} should be of type
-  \id{long int}.  The variable \id{num\_threads} should be of type \id{int}.
+  Note: The variables \id{N} and \id{Nlocal} should be of type \id{long int}.
 
 \item
   {\bf Set vectors of initial values}
- 
-  To set the vectors \id{y0} and \id{yp0} to initial values for $y$ and $\dot{y}$, 
-  use functions defined by the particular {\nvector} implementation. 
-  For the two {\nvector} implementations provided, if a \id{realtype} array  \id{ydata}
-  already exists, containing the initial values of $y$, make the calls:
 
-  {\s} \id{y0  = N\_VMake\_Serial(N, ydata);}
+  To set the vectors \id{y0} and \id{yp0} to initial values for $y$\ and
+  $\dot{y}$, use the appropriate functions defined by the particular
+  {\nvector} implementation.  If a \id{realtype} array \id{ydata} containing
+  the initial values of $y$ already exists, then make the appropriate call
 
-  {\omp} \id{y0  = N\_VMake\_OpenMP(N, num\_threads, ydata);}
+  \id{y0 = N\_VMake\_***(..., ydata);}
 
-  {\pt} \id{y0  = N\_VMake\_Pthreads(N, num\_threads, ydata);}
+  Otherwise, make the appropriate call
 
-  {\p} \id{y0 = N\_VMake\_Parallel(comm, Nlocal, N, ydata);}
+  \id{y0 = N\_VNew\_***(...);}
 
-  {\h} \id{y0 = N\_VMake\_ParHyp(comm, Nlocal, N, ydata);}
+  and load initial values into the structure defined by \id{NV\_DATA\_***(y0)}.
 
-  Otherwise, make the calls:
-
-  {\s} \id{y0 = N\_VNew\_Serial(N);}
-
-  {\omp} \id{y0 = N\_VNew\_OpenMP(N, num\_threads);}
-
-  {\pt} \id{y0 = N\_VNew\_Pthreads(N, num\_threads);}
-
-  {\p} \id{y0 = N\_VNew\_Parallel(comm, Nlocal, N);}
-
-  {\h} \id{y0 = N\_VNew\_ParHyp(comm, Nlocal, N);}
-
-  and load initial values into the structure defined by:
-
-  {\s} \id{NV\_DATA\_S(y0)}
-
-  {\omp} \id{NV\_DATA\_OMP(y0)}
-
-  {\pt} \id{NV\_DATA\_PT(y0)}
-
-  {\p} \id{NV\_DATA\_P(y0)}
-
-  {\h} \id{NV\_DATA\_PH(y0)}
-
-  Here \id{comm} is the MPI communicator, set in one of two ways: 
-  If a proper subset of active processors is to be used, \id{comm} 
-  must be set by suitable MPI calls. Otherwise, to specify that all 
-  processors are to be used, \id{comm} must be \id{MPI\_COMM\_WORLD}.
-  
-  The initial conditions for $\dot{y}$ are set similarly.
+  The vector \id{yp0} of initial conditions for $\dot{y}$ are set similarly.
 
 \item\label{i:ida_create} 
   {\bf Create {\ida} object}
@@ -286,20 +244,20 @@ steps marked {\h} correspond to {\nvecph}.
 \item\label{i:lin_solver} 
   {\bf Attach linear solver module}
 
-  Initialize the linear solver module
-  with one of the following calls (for details see \S\ref{sss:lin_solv_init}):
+  Initialize the linear solver module with one of the following calls
+  (for details see \S\ref{sss:lin_solv_init}):
 
-  {\s, \omp, \pt} \id{flag = }\Id{IDADense}\id{(...);}
+  \id{flag = }\Id{IDADense}\id{(...);}
 
-  {\s, \omp, \pt} \id{flag = }\Id{IDABand}\id{(...);}
+  \id{flag = }\Id{IDABand}\id{(...);}
 
-  {\s, \omp, \pt} \id{flag = }\Id{IDALapackDense}\id{(...);}
+  \id{flag = }\Id{IDALapackDense}\id{(...);}
 
-  {\s, \omp, \pt} \id{flag = }\Id{IDALapackBand}\id{(...);}
+  \id{flag = }\Id{IDALapackBand}\id{(...);}
 
-  {\s, \omp, \pt} \id{flag = }\Id{IDAKLU}\id{(...);}
+  \id{flag = }\Id{IDAKLU}\id{(...);}
 
-  {\s, \omp, \pt} \id{flag = }\Id{IDASuperLUMT}\id{(...);}
+  \id{flag = }\Id{IDASuperLUMT}\id{(...);}
 
   \id{flag = }\Id{IDASpgmr}\id{(...);}
 
@@ -307,11 +265,14 @@ steps marked {\h} correspond to {\nvecph}.
 
   \id{flag = }\Id{IDASptfqmr}\id{(...);}
 
+NOTE: The direct (dense or band) and sparse linear solver options are
+usable only in a serial environment.
+
 \item
   {\bf Set linear solver optional inputs}
 
-  Optionally, call \id{IDA*Set*} functions from the selected linear solver module to
-  change optional inputs specific to that linear solver.
+  Optionally, call \id{IDA*Set*} functions from the selected linear solver module
+  to change optional inputs specific to that linear solver.
   See \S\ref{sss:optin_dls} and \S\ref{sss:optin_spils} for details.
 
 \item 
@@ -337,7 +298,8 @@ steps marked {\h} correspond to {\nvecph}.
   \id{flag = }\Id{IDASolve}\id{(ida\_mem, tout, \&tret, yret, ypret, itask)}.
   Here \id{itask} specifies the return mode.  The vector \id{yret}
   (which can be the same as the vector \id{y0} above) will contain $y(t)$,
-  while the vector \id{ypret} will contain $\dot{y}(t)$.
+  while the vector \id{ypret} (which can be the same as the vector \id{yp0}
+  above) will contain $\dot{y}(t)$.
   See \S\ref{sss:idasolve} for details.
   
 \item
@@ -350,19 +312,11 @@ steps marked {\h} correspond to {\nvecph}.
   {\bf Deallocate memory for solution vectors}
 
   Upon completion of the integration, deallocate memory for the vectors \id{yret}
-  and \id{ypret} by calling the destructor function defined by the {\nvector} 
-  implementation:
+  and \id{ypret} (or \id{y} and \id{yp}) by calling the appropriate destructor
+  function defined by the {\nvector} implementation:
 
-  {\s} \id{N\_VDestroy\_Serial(yret);}
+  \id{N\_VDestroy\_***(yret);}
 
-  {\omp} \id{N\_VDestroy\_OpenMP(yret);}
-
-  {\pt} \id{N\_VDestroy\_Pthreads(yret);}
-
-  {\p} \id{N\_VDestroy\_Parallel(yret);}
- 
-  {\h} \id{N\_VDestroy\_ParHyp(y);}
- 
   and similarly for \id{ypret}.
   
 \item
@@ -371,15 +325,15 @@ steps marked {\h} correspond to {\nvecph}.
   \Id{IDAFree}\id{(\&ida\_mem)} to free the memory allocated for {\ida}.
   
 \item 
-  {\bf {\p} {\h} Finalize MPI}
+  {\bf Finalize MPI, if used}
   
   Call \id{MPI\_Finalize()} to terminate MPI.
 
 \end{Steps}
 
-%%===================================================================================
+%%==========================================================
 \section{User-callable functions}\label{ss:callable_fct_sim}
-%%===================================================================================
+%%==========================================================
 
 This section describes the {\ida} functions that are called by the
 user to set up and solve a DAE. Some of these are required. However,
