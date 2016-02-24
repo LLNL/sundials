@@ -3481,8 +3481,9 @@ static int arkSetButcherTables(ARKodeMem ark_mem)
   if (ark_mem->ark_explicit) {
 
     switch (ark_mem->ark_q) {
-    case(2):    /* Heun-Euler: q=2, p=1, s=2 */
-      ARKodeLoadButcherTable(0, &ark_mem->ark_stages, 
+    case(2):
+      ARKodeLoadButcherTable(DEFAULT_ERK_2, 
+			     &ark_mem->ark_stages, 
 			     &q, 
 			     &ark_mem->ark_p, 
 			     ark_mem->ark_Ae, 
@@ -3491,8 +3492,9 @@ static int arkSetButcherTables(ARKodeMem ark_mem)
 			     ark_mem->ark_b2);
       break;
 
-    case(3):    /* Bogacki-Shampine: q=3, p=2, s=4 */
-      ARKodeLoadButcherTable(1, &ark_mem->ark_stages, 
+    case(3):
+      ARKodeLoadButcherTable(DEFAULT_ERK_3, 
+			     &ark_mem->ark_stages, 
 			     &q, 
 			     &ark_mem->ark_p, 
 			     ark_mem->ark_Ae, 
@@ -3501,8 +3503,9 @@ static int arkSetButcherTables(ARKodeMem ark_mem)
 			     ark_mem->ark_b2);
       break;
 
-    case(4):    /* Zonneveld: q=4, p=3, s=5 */
-      ARKodeLoadButcherTable(3, &ark_mem->ark_stages, 
+    case(4):
+      ARKodeLoadButcherTable(DEFAULT_ERK_4, 
+			     &ark_mem->ark_stages, 
 			     &q, 
 			     &ark_mem->ark_p, 
 			     ark_mem->ark_Ae, 
@@ -3511,8 +3514,9 @@ static int arkSetButcherTables(ARKodeMem ark_mem)
 			     ark_mem->ark_b2);
       break;
 
-    case(5):    /* Cash-Karp: q=5, p=4, s=6 */
-      ARKodeLoadButcherTable(6, &ark_mem->ark_stages, 
+    case(5):
+      ARKodeLoadButcherTable(DEFAULT_ERK_5, 
+			     &ark_mem->ark_stages, 
 			     &q, 
 			     &ark_mem->ark_p, 
 			     ark_mem->ark_Ae, 
@@ -3521,8 +3525,21 @@ static int arkSetButcherTables(ARKodeMem ark_mem)
 			     ark_mem->ark_b2);
       break;
 
-    case(6):    /* Verner: q=6, p=5, s=8 */
-      ARKodeLoadButcherTable(10, &ark_mem->ark_stages, 
+    case(6):
+      ARKodeLoadButcherTable(DEFAULT_ERK_6, 
+			     &ark_mem->ark_stages, 
+			     &q, 
+			     &ark_mem->ark_p, 
+			     ark_mem->ark_Ae, 
+			     ark_mem->ark_b, 
+			     ark_mem->ark_c, 
+			     ark_mem->ark_b2);
+      break;
+
+    case(7):
+    case(8):
+      ARKodeLoadButcherTable(DEFAULT_ERK_8, 
+			     &ark_mem->ark_stages, 
 			     &q, 
 			     &ark_mem->ark_p, 
 			     ark_mem->ark_Ae, 
@@ -3535,7 +3552,8 @@ static int arkSetButcherTables(ARKodeMem ark_mem)
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
 		      "arkSetButcherTables", 
 		      "No explicit method at requested order, using q=6.");
-      ARKodeLoadButcherTable(12, &ark_mem->ark_stages, 
+      ARKodeLoadButcherTable(DEFAULT_ERK_6, 
+			     &ark_mem->ark_stages, 
 			     &q, 
 			     &ark_mem->ark_p, 
 			     ark_mem->ark_Ae, 
@@ -3550,8 +3568,9 @@ static int arkSetButcherTables(ARKodeMem ark_mem)
 
     switch (ark_mem->ark_q) {
 
-    case(2):    /* SDIRK-2-1: q=2, p=1, s=2 */
-      ARKodeLoadButcherTable(11, &ark_mem->ark_stages,
+    case(2):
+      ARKodeLoadButcherTable(DEFAULT_DIRK_2, 
+			     &ark_mem->ark_stages,
     			     &q,
     			     &ark_mem->ark_p,
     			     ark_mem->ark_Ai,
@@ -3560,24 +3579,9 @@ static int arkSetButcherTables(ARKodeMem ark_mem)
     			     ark_mem->ark_b2);
       break;
 
-    /* case(3):    /\* Billington: q=3, p=2, s=3 *\/ */
-    /*   ARKodeLoadButcherTable(12, &ark_mem->ark_stages, */
-    /* 			     &q, */
-    /* 			     &ark_mem->ark_p, */
-    /* 			     ark_mem->ark_Ai, */
-    /* 			     ark_mem->ark_b, */
-    /* 			     ark_mem->ark_c, */
-    /* 			     ark_mem->ark_b2); */
-    /* case(3):    /\* Kvaerno(4,2,3): q=3, p=2, s=4 *\/ */
-    /*   ARKodeLoadButcherTable(14, &ark_mem->ark_stages, */
-    /* 			     &q, */
-    /* 			     &ark_mem->ark_p, */
-    /* 			     ark_mem->ark_Ai, */
-    /* 			     ark_mem->ark_b, */
-    /* 			     ark_mem->ark_c, */
-    /* 			     ark_mem->ark_b2); */
-    case(3):    /* ARK3(2)4L[2]SA: q=3, p=2, s=4 */
-      ARKodeLoadButcherTable(15, &ark_mem->ark_stages,
+    case(3):
+      ARKodeLoadButcherTable(DEFAULT_DIRK_3, 
+			     &ark_mem->ark_stages,
     			     &q,
     			     &ark_mem->ark_p,
     			     ark_mem->ark_Ai,
@@ -3586,8 +3590,9 @@ static int arkSetButcherTables(ARKodeMem ark_mem)
     			     ark_mem->ark_b2);
       break;
 
-    case(4):    /* SDIRK-5-4: q=4, p=3, s=5, A/L stable */
-      ARKodeLoadButcherTable(18, &ark_mem->ark_stages,
+    case(4):
+      ARKodeLoadButcherTable(DEFAULT_DIRK_4, 
+			     &ark_mem->ark_stages,
     			     &q,
     			     &ark_mem->ark_p,
     			     ark_mem->ark_Ai,
@@ -3596,16 +3601,9 @@ static int arkSetButcherTables(ARKodeMem ark_mem)
     			     ark_mem->ark_b2);
       break;
 
-    /* case(5):    /\* Kvaerno(7,4,5): q=5, p=4, s=7, A/L stable *\/ */
-    /*   ARKodeLoadButcherTable(21, &ark_mem->ark_stages, */
-    /* 			     &q, */
-    /* 			     &ark_mem->ark_p, */
-    /* 			     ark_mem->ark_Ai, */
-    /* 			     ark_mem->ark_b, */
-    /* 			     ark_mem->ark_c, */
-    /* 			     ark_mem->ark_b2); */
-    case(5):    /* ARK5(4)8L[2]SA: q=5, p=4, s=8, A stable */
-      ARKodeLoadButcherTable(22, &ark_mem->ark_stages,
+    case(5):
+      ARKodeLoadButcherTable(DEFAULT_DIRK_5, 
+			     &ark_mem->ark_stages,
     			     &q,
     			     &ark_mem->ark_p,
     			     ark_mem->ark_Ai,
@@ -3618,7 +3616,8 @@ static int arkSetButcherTables(ARKodeMem ark_mem)
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
 		      "arkSetButcherTables", 
 		      "No implicit method at requested order, using q=5.");
-      ARKodeLoadButcherTable(26, &ark_mem->ark_stages, 
+      ARKodeLoadButcherTable(DEFAULT_DIRK_5, 
+			     &ark_mem->ark_stages, 
 			     &q, 
 			     &ark_mem->ark_p, 
 			     ark_mem->ark_Ai, 
@@ -3634,15 +3633,17 @@ static int arkSetButcherTables(ARKodeMem ark_mem)
     switch (ark_mem->ark_q) {
 
     case(2):
-    case(3):    /* ARK3(2)4L[2]SA: q=3, p=2, s=4, DIRK is A/L stable */
-      ARKodeLoadButcherTable(2, &ark_mem->ark_stages, 
+    case(3):
+      ARKodeLoadButcherTable(DEFAULT_ARK_ETABLE_3, 
+			     &ark_mem->ark_stages, 
 			     &q, 
 			     &ark_mem->ark_p, 
 			     ark_mem->ark_Ae, 
 			     ark_mem->ark_b, 
 			     ark_mem->ark_c, 
 			     ark_mem->ark_b2);
-      ARKodeLoadButcherTable(15, &ark_mem->ark_stages, 
+      ARKodeLoadButcherTable(DEFAULT_ARK_ITABLE_3, 
+			     &ark_mem->ark_stages, 
 			     &q, 
 			     &ark_mem->ark_p, 
 			     ark_mem->ark_Ai, 
@@ -3651,15 +3652,17 @@ static int arkSetButcherTables(ARKodeMem ark_mem)
 			     ark_mem->ark_b2);
       break;
 
-    case(4):    /* ARK4(3)6L[2]SA: q=4, p=3, s=6, DIRK is A/L stable */
-      ARKodeLoadButcherTable(4, &ark_mem->ark_stages, 
+    case(4):
+      ARKodeLoadButcherTable(DEFAULT_ARK_ETABLE_4, 
+			     &ark_mem->ark_stages, 
 			     &q, 
 			     &ark_mem->ark_p, 
 			     ark_mem->ark_Ae, 
 			     ark_mem->ark_b, 
 			     ark_mem->ark_c, 
 			     ark_mem->ark_b2);
-      ARKodeLoadButcherTable(20, &ark_mem->ark_stages, 
+      ARKodeLoadButcherTable(DEFAULT_ARK_ITABLE_4, 
+			     &ark_mem->ark_stages, 
 			     &q, 
 			     &ark_mem->ark_p, 
 			     ark_mem->ark_Ai, 
@@ -3668,15 +3671,17 @@ static int arkSetButcherTables(ARKodeMem ark_mem)
 			     ark_mem->ark_b2);
       break;
 
-    case(5):    /* ARK5(4)8L[2]SA: q=5, p=4, s=8, DIRK is A stable */
-      ARKodeLoadButcherTable(9, &ark_mem->ark_stages, 
+    case(5):
+      ARKodeLoadButcherTable(DEFAULT_ARK_ETABLE_5, 
+			     &ark_mem->ark_stages, 
 			     &q, 
 			     &ark_mem->ark_p, 
 			     ark_mem->ark_Ae, 
 			     ark_mem->ark_b, 
 			     ark_mem->ark_c, 
 			     ark_mem->ark_b2);
-      ARKodeLoadButcherTable(22, &ark_mem->ark_stages, 
+      ARKodeLoadButcherTable(DEFAULT_ARK_ITABLE_5, 
+			     &ark_mem->ark_stages, 
 			     &q, 
 			     &ark_mem->ark_p, 
 			     ark_mem->ark_Ai, 
@@ -3689,14 +3694,16 @@ static int arkSetButcherTables(ARKodeMem ark_mem)
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
 		      "arkSetButcherTables", 
 		      "No ImEx method at requested order, using q=5.");
-      ARKodeLoadButcherTable(11, &ark_mem->ark_stages, 
+      ARKodeLoadButcherTable(DEFAULT_ARK_ETABLE_5, 
+			     &ark_mem->ark_stages, 
 			     &q, 
 			     &ark_mem->ark_p, 
 			     ark_mem->ark_Ae, 
 			     ark_mem->ark_b, 
 			     ark_mem->ark_c, 
 			     ark_mem->ark_b2);
-      ARKodeLoadButcherTable(27, &ark_mem->ark_stages, 
+      ARKodeLoadButcherTable(DEFAULT_ARK_ITABLE_5, 
+			     &ark_mem->ark_stages, 
 			     &q, 
 			     &ark_mem->ark_p, 
 			     ark_mem->ark_Ai, 

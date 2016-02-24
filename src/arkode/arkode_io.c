@@ -913,8 +913,8 @@ int ARKodeSetERKTableNum(void *arkode_mem, int itable)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  /* check that argument specifies an explicit table (0-12) */
-  if (itable<0 || itable>10) {
+  /* check that argument specifies an explicit table */
+  if (itable<MIN_ERK_NUM || itable>MAX_ERK_NUM) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
 		    "ARKodeSetERKTableNum", 
 		    "Illegal ERK table number");
@@ -922,7 +922,8 @@ int ARKodeSetERKTableNum(void *arkode_mem, int itable)
   }
 
   /* fill in table based on argument */
-  iflag = ARKodeLoadButcherTable(itable, &ark_mem->ark_stages, 
+  iflag = ARKodeLoadButcherTable(itable, 
+				 &ark_mem->ark_stages, 
 				 &ark_mem->ark_q, 
 				 &ark_mem->ark_p, 
 				 ark_mem->ark_Ae, 
@@ -966,8 +967,8 @@ int ARKodeSetIRKTableNum(void *arkode_mem, int itable)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  /* check that argument specifies an implicit table (13-27) */
-  if (itable<11) {
+  /* check that argument specifies an implicit table */
+  if (itable<MIN_DIRK_NUM || itable>MAX_DIRK_NUM) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
 		    "ARKodeSetIRKTableNum", 
 		    "Illegal IRK table number");
@@ -975,7 +976,8 @@ int ARKodeSetIRKTableNum(void *arkode_mem, int itable)
   }
 
   /* fill in table based on argument */
-  iflag = ARKodeLoadButcherTable(itable, &ark_mem->ark_stages, 
+  iflag = ARKodeLoadButcherTable(itable, 
+				 &ark_mem->ark_stages, 
 				 &ark_mem->ark_q, 
 				 &ark_mem->ark_p, 
 				 ark_mem->ark_Ai, 
@@ -1020,9 +1022,10 @@ int ARKodeSetARKTableNum(void *arkode_mem, int itable, int etable)
 
   /* ensure that tables match */
   iflag = 1;
-  if ((etable == 2) && (itable == 15))  iflag = 0;
-  if ((etable == 4) && (itable == 20))  iflag = 0;
-  if ((etable == 9) && (itable == 22))  iflag = 0;
+  if ( ((etable == ARK324L2SA_ERK_4_2_3) && (itable == ARK324L2SA_DIRK_4_2_3)) ||
+       ((etable == ARK436L2SA_ERK_6_3_4) && (itable == ARK436L2SA_DIRK_6_3_4)) ||
+       ((etable == ARK548L2SA_ERK_8_4_5) && (itable == ARK548L2SA_DIRK_8_4_5)) )
+    iflag = 0;
   if (iflag) {
     arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", 
 		    "ARKodeSetARKTableNum", 
@@ -1031,14 +1034,16 @@ int ARKodeSetARKTableNum(void *arkode_mem, int itable, int etable)
   }
 
   /* fill in tables based on arguments */
-  iflag = ARKodeLoadButcherTable(itable, &ark_mem->ark_stages, 
+  iflag = ARKodeLoadButcherTable(itable, 
+				 &ark_mem->ark_stages, 
 				 &ark_mem->ark_q, 
 				 &ark_mem->ark_p, 
 				 ark_mem->ark_Ai, 
 				 ark_mem->ark_b, 
 				 ark_mem->ark_c, 
 				 ark_mem->ark_b2);
-  eflag = ARKodeLoadButcherTable(etable, &ark_mem->ark_stages, 
+  eflag = ARKodeLoadButcherTable(etable, 
+				 &ark_mem->ark_stages, 
 				 &ark_mem->ark_q, 
 				 &ark_mem->ark_p, 
 				 ark_mem->ark_Ae, 

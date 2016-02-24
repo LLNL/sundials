@@ -250,7 +250,7 @@ splittings tuned for use with optimal implicit solvers.
 This framework allows for significant freedom over the constitutive
 methods used for each component, and ARKode is packaged with a wide
 array of built-in methods for use.  These built-in Butcher tables
-include adaptive explicit methods of orders 2-6, adaptive implicit
+include adaptive explicit methods of orders 2-8, adaptive implicit
 methods of orders 2-5, and adaptive IMEX methods of orders 3-5.
 
 For problems that include nonzero implicit term \(f_I(t,y)\), the
@@ -357,16 +357,17 @@ M \tilde{y}_n &= M y_{n-1} + h_n \sum_{i=1}^{s} \tilde{b}_i
     \left(f_E(t_{n,i}, z_i) + f_I(t_{n,i}, z_i)\right).\end{split}\label{Mathematics-ARK}
 \end{gather}
 Here the \(y_n\) are computed approximations to \(y(t_n)\),
-\(\tilde{y}_n\) are lower-order embedded solutions (used in error
-estimation), and \(h_n \equiv t_n - t_{n-1}\) is the step size.
-The internal stage times are abbreviated using the notation
-\(t_{n,j} = t_{n-1} + c_j h_n\).  The ARK method is primarily
-defined through the coefficients \(A^E \in \mathbb{R}^{s\times s}\),
-\(A^I \in \mathbb{R}^{s\times s}\), \(b \in \mathbb{R}^{s}\) and
-\(c \in \mathbb{R}^{s}\), that correspond with the explicit and
-implicit Butcher tables.  We note that ARKode enforces the constraint
-that these tables must share \(b\) and \(c\) between the
-explicit and implicit methods in an ARK pair.
+\(\tilde{y}_n\) are {[}typically{]} lower-order embedded solutions
+(used in error estimation), and \(h_n \equiv t_n - t_{n-1}\) is
+the step size. The internal stage times are abbreviated using the
+notation \(t_{n,j} = t_{n-1} + c_j h_n\).  The ARK method is
+primarily defined through the coefficients \(A^E \in
+\mathbb{R}^{s\times s}\), \(A^I \in \mathbb{R}^{s\times s}\),
+\(b \in \mathbb{R}^{s}\) and \(c \in \mathbb{R}^{s}\), that
+correspond with the explicit and implicit Butcher tables.  We note
+that ARKode enforces the constraint that these tables must share
+\(b\) and \(c\) between the explicit and implicit methods in
+an ARK pair.
 
 The user of ARKode must choose appropriately between one of three
 classes of methods: \emph{multi-rate}, \emph{nonstiff} and \emph{stiff}.  All of
@@ -390,11 +391,11 @@ In this scenario, the Butcher table \(A^I=0\) in \eqref{Mathematics-ARK}, and
 the ARK methods reduce to classical \index{explicit Runge-Kutta
 methods}explicit Runge-Kutta
 methods (ERK).  For these classes of methods, ARKode allows orders of
-accuracy \(q = \{2,3,4,5,6\}\), with embeddings of orders \(p
-= \{1,2,3,4,5\}\).  These default to the {\hyperref[Butcher:butcher-heun-euler]{\emph{\DUspan{}{Heun-Euler-2-1-2}}}},
+accuracy \(q = \{2,3,4,5,6,8\}\), with embeddings of orders \(p
+= \{1,2,3,4,5,7\}\).  These default to the {\hyperref[Butcher:butcher-heun-euler]{\emph{\DUspan{}{Heun-Euler-2-1-2}}}},
 {\hyperref[Butcher:butcher-bogacki-shampine]{\emph{\DUspan{}{Bogacki-Shampine-4-2-3}}}}, {\hyperref[Butcher:butcher-zonneveld]{\emph{\DUspan{}{Zonneveld-5-3-4}}}},
-{\hyperref[Butcher:butcher-cash-karp]{\emph{\DUspan{}{Cash-Karp-6-4-5}}}} and {\hyperref[Butcher:butcher-verner-6-5]{\emph{\DUspan{}{Verner-8-5-6}}}} methods,
-respectively.
+{\hyperref[Butcher:butcher-cash-karp]{\emph{\DUspan{}{Cash-Karp-6-4-5}}}}, {\hyperref[Butcher:butcher-verner-6-5]{\emph{\DUspan{}{Verner-8-5-6}}}} and
+{\hyperref[Butcher:butcher-fehlberg-8-7]{\emph{\DUspan{}{Fehlberg-13-7-8}}}} methods, respectively.
 
 Finally, for stiff problems the user may specify that \(f_E = 0\),
 so the equation \eqref{Mathematics-IVP} reduces to the non-split IVP
@@ -5105,7 +5106,7 @@ Specifies the order of accuracy for the integration method.
 \end{description}
 
 \textbf{Notes:} For explicit methods, the allowed values are \(2 \le\)
-\emph{ord} \(\le 6\).  For implicit methods, the allowed values are
+\emph{ord} \(\le 8\).  For implicit methods, the allowed values are
 \(2\le\) \emph{ord} \(\le 5\), and for IMEX methods the allowed
 values are \(3 \le\) \emph{ord} \(\le 5\).  Any illegal input
 will result in the default value of 4.
@@ -13976,7 +13977,8 @@ ARKode routine
 
 \emph{(a)} When setting \code{ARK\_TABLE\_NUM}, pass in \emph{IVAL} as an array of
 length 2, specifying the IRK table number first, then the ERK table
-number.
+number.  The integer specifiers for each table may be found in the
+section {\hyperref[Constants:constants]{\emph{\DUspan{}{Appendix: ARKode Constants}}}}, or in the ARKode header file \code{arkode.h}.
 \index{FARKSETRIN() (fortran subroutine)|textbf}
 
 \begin{fulllineitems}
@@ -23686,6 +23688,141 @@ Use classical Gram-Schmidt procedure.
 \end{description}
 
 
+\subsection{Explicit Butcher table specification}
+\label{Constants:explicit-butcher-table-specification}\begin{description}
+\item[{\index{Heun-Euler-2-1-2 ERK method}HEUN\_EULER\_2\_1\_2  (0):}] \leavevmode
+Use the Heun-Euler-2-1-2 ERK method
+
+\item[{\index{Bogacki-Shampine-4-2-3 ERK method}BOGACKI\_SHAMPINE\_4\_2\_3  (1):}] \leavevmode
+Use the Bogacki-Shampine-4-2-3 ERK method
+
+\item[{\index{ARK-4-2-3 ERK method}ARK324L2SA\_ERK\_4\_2\_3  (2):}] \leavevmode
+Use the ARK-4-2-3 ERK method
+
+\item[{\index{Zonneveld-5-3-4 ERK method}ZONNEVELD\_5\_3\_4  (3):}] \leavevmode
+Use the Zonneveld-5-3-4 ERK method
+
+\item[{\index{ARK-6-3-4 ERK method}ARK436L2SA\_ERK\_6\_3\_4  (4):}] \leavevmode
+Use the ARK-6-3-4 ERK method
+
+\item[{\index{Sayfy-Aburub-6-3-4 ERK method}SAYFY\_ABURUB\_6\_3\_4  (5):}] \leavevmode
+Use the Sayfy-Aburub-6-3-4 ERK method
+
+\item[{\index{Cash-Karp-6-4-5 ERK method}CASH\_KARP\_6\_4\_5  (6):}] \leavevmode
+Use the Cash-Karp-6-4-5 ERK method
+
+\item[{\index{Fehlberg-6-4-5 ERK method}FEHLBERG\_6\_4\_5  (7):}] \leavevmode
+Use the Fehlberg-6-4-5 ERK method
+
+\item[{\index{Dormand-Prince-7-4-5 ERK method}DORMAND\_PRINCE\_7\_4\_5  (8):}] \leavevmode
+Use the Dormand-Prince-7-4-5 ERK method
+
+\item[{\index{ARK-8-4-5 ERK method}ARK548L2SA\_ERK\_8\_4\_5  (9):}] \leavevmode
+Use the ARK-8-4-5 ERK method
+
+\item[{\index{Verner-8-5-6 ERK method}VERNER\_8\_5\_6  (10):}] \leavevmode
+Use the Verner-8-5-6 ERK method
+
+\item[{\index{Fehlberg-13-7-8 ERK method}FEHLBERG\_13\_7\_8  (11):}] \leavevmode
+Use the Fehlberg-13-7-8 ERK method
+
+\item[{\index{DEFAULT\_ERK\_2}DEFAULT\_ERK\_2  (HEUN\_EULER\_2\_1\_2):}] \leavevmode
+Use the default second-order ERK method
+
+\item[{\index{DEFAULT\_ERK\_3}DEFAULT\_ERK\_3  (BOGACKI\_SHAMPINE\_4\_2\_3):}] \leavevmode
+Use the default third-order ERK method
+
+\item[{\index{DEFAULT\_ERK\_4}DEFAULT\_ERK\_4  (ZONNEVELD\_5\_3\_4):}] \leavevmode
+Use the default fourth-order ERK method
+
+\item[{\index{DEFAULT\_ERK\_5}DEFAULT\_ERK\_5  (CASH\_KARP\_6\_4\_5):}] \leavevmode
+Use the default fifth-order ERK method
+
+\item[{\index{DEFAULT\_ERK\_6}DEFAULT\_ERK\_6  (VERNER\_8\_5\_6):}] \leavevmode
+Use the default sixth-order ERK method
+
+\item[{\index{DEFAULT\_ERK\_8}DEFAULT\_ERK\_8  (FEHLBERG\_13\_7\_8):}] \leavevmode
+Use the default eighth-order ERK method
+
+\end{description}
+
+
+\subsection{Implicit Butcher table specification}
+\label{Constants:implicit-butcher-table-specification}\begin{description}
+\item[{\index{SDIRK-2-1-2 method}SDIRK\_2\_1\_2  (12):}] \leavevmode
+Use the SDIRK-2-1-2 SDIRK method
+
+\item[{\index{Billington-3-3-2 SDIRK method}BILLINGTON\_3\_3\_2  (13):}] \leavevmode
+Use the Billington-3-3-2 SDIRK method
+
+\item[{\index{TRBDF2-3-3-2 ESDIRK method}TRBDF2\_3\_3\_2  (14):}] \leavevmode
+Use the TRBDF2-3-3-2 ESDIRK method
+
+\item[{\index{Kvaerno-4-2-3 ESDIRK method}KVAERNO\_4\_2\_3  (15):}] \leavevmode
+Use the Kvaerno-4-2-3 ESDIRK method
+
+\item[{\index{ARK-4-2-3 ESDIRK method}ARK324L2SA\_DIRK\_4\_2\_3  (16):}] \leavevmode
+Use the ARK-4-2-3 ESDIRK method
+
+\item[{\index{Cash-5-2-4 SDIRK method}CASH\_5\_2\_4  (17):}] \leavevmode
+Use the Cash-5-2-4 SDIRK method
+
+\item[{\index{Cash-5-3-4 SDIRK method}CASH\_5\_3\_4  (18):}] \leavevmode
+Use the Cash-5-3-4 SDIRK method
+
+\item[{\index{SDIRK-5-3-4 method}SDIRK\_5\_3\_4  (19):}] \leavevmode
+Use the SDIRK-5-3-4 SDIRK method
+
+\item[{\index{Kvaerno-5-3-4 ESDIRK method}KVAERNO\_5\_3\_4  (20):}] \leavevmode
+Use the Kvaerno-5-3-4 ESDIRK method
+
+\item[{\index{ARK-6-3-4 ESDIRK method}ARK436L2SA\_DIRK\_6\_3\_4  (21):}] \leavevmode
+Use the ARK-6-3-4 ESDIRK method
+
+\item[{\index{Kvaerno-7-4-5 ESDIRK method}KVAERNO\_7\_4\_5  (22):}] \leavevmode
+Use the Kvaerno-7-4-5 ESDIRK method
+
+\item[{\index{ARK-8-4-5 ESDIRK method}ARK548L2SA\_DIRK\_8\_4\_5  (23):}] \leavevmode
+Use the ARK-8-4-5 ESDIRK method
+
+\item[{\index{DEFAULT\_DIRK\_2}DEFAULT\_DIRK\_2  (SDIRK\_2\_1\_2):}] \leavevmode
+Use the default second-order DIRK method
+
+\item[{\index{DEFAULT\_DIRK\_3}DEFAULT\_DIRK\_3  (ARK324L2SA\_DIRK\_4\_2\_3):}] \leavevmode
+Use the default third-order DIRK method
+
+\item[{\index{DEFAULT\_DIRK\_4}DEFAULT\_DIRK\_4  (SDIRK\_5\_3\_4):}] \leavevmode
+Use the default fourth-order DIRK method
+
+\item[{\index{DEFAULT\_DIRK\_5}DEFAULT\_DIRK\_5  (ARK548L2SA\_DIRK\_8\_4\_5):}] \leavevmode
+Use the default fifth-order DIRK method
+
+\end{description}
+
+
+\subsection{ImEx Butcher table specification}
+\label{Constants:imex-butcher-table-specification}\begin{description}
+\item[{\index{ARK-4-2-3 ARK method}ARK324L2SA\_ERK\_4\_2\_3 and ARK324L2SA\_DIRK\_4\_2\_3 (2 and 16):}] \leavevmode
+Use the ARK-4-2-3 ARK method
+
+\item[{\index{ARK-6-3-4 ARK method}ARK436L2SA\_ERK\_6\_3\_4 and ARK436L2SA\_DIRK\_6\_3\_4 (4 and 21):}] \leavevmode
+Use the ARK-6-3-4 ARK method
+
+\item[{\index{ARK-8-4-5 ARK method}ARK548L2SA\_ERK\_8\_4\_5 and ARK548L2SA\_DIRK\_8\_4\_5 (9 and 23):}] \leavevmode
+Use the ARK-8-4-5 ARK method
+
+\item[{\index{DEFAULT\_ARK\_ETABLE\_3}DEFAULT\_ARK\_ETABLE\_3 and \index{DEFAULT\_ARK\_ITABLE\_3}DEFAULT\_ARK\_ITABLE\_3 (ARK324L2SA\_{[}ERK,DIRK{]}\_4\_2\_3):}] \leavevmode
+Use the default third-order ARK method
+
+\item[{\index{DEFAULT\_ARK\_ETABLE\_4}DEFAULT\_ARK\_ETABLE\_4 and \index{DEFAULT\_ARK\_ITABLE\_4}DEFAULT\_ARK\_ITABLE\_4 (ARK436L2SA\_{[}ERK,DIRK{]}\_6\_3\_4):}] \leavevmode
+Use the default fourth-order ARK method
+
+\item[{\index{DEFAULT\_ARK\_ETABLE\_5}DEFAULT\_ARK\_ETABLE\_5 and \index{DEFAULT\_ARK\_ITABLE\_5}DEFAULT\_ARK\_ITABLE\_5 (ARK548L2SA\_{[}ERK,DIRK{]}\_8\_4\_5):}] \leavevmode
+Use the default fifth-order ARK method
+
+\end{description}
+
+
 \section{ARKode output constants}
 \label{Constants:arkode-output-constants}
 
@@ -24181,7 +24318,7 @@ NAME\PYGZhy{}S\PYGZhy{}P\PYGZhy{}Q
 where here
 \begin{itemize}
 \item {} 
-\code{NAME} is the author (if applicable),
+\code{NAME} is the author or the name provided by the author (if applicable),
 
 \item {} 
 \code{S} is the number of stages in the method,
@@ -24193,6 +24330,11 @@ where here
 \code{Q} is the global order of accuracy for the method.
 
 \end{itemize}
+
+In the code, unique integer IDs are defined inside \code{arkode.h} for
+each method, which may be used by calling routines to specify the
+desired method.  These names are specified in \code{fixed width font} at
+the start of each method's section below.
 
 Additionally, for each method we provide a plot of the linear
 stability region in the complex plane.  These have been computed via
@@ -24264,15 +24406,15 @@ orders 1 through 5.
 
 \subsection{Heun-Euler-2-1-2}
 \label{Butcher:butcher-heun-euler}\label{Butcher:heun-euler-2-1-2}
-\index{Heun-Euler-2-1-2 ERK method}Butcher table number 0
-for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
+\index{Heun-Euler-2-1-2 ERK method}
+\code{HEUN\_EULER\_2\_1\_2} for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
 the default 2nd order explicit method.
 \begin{gather}
 \begin{split}\begin{array}{r|cc}
   0 & 0 & 0 \\
   1 & 1 & 0 \\
   \hline
-  2 & 1/2 & 1/2 \\
+  2 & \frac{1}{2} & \frac{1}{2} \\
   1 & 1 & 0
 \end{array}\end{split}\notag
 \end{gather}\begin{figure}[htbp]
@@ -24286,18 +24428,18 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{Bogacki-Shampine-4-2-3}
 \label{Butcher:bogacki-shampine-4-2-3}\label{Butcher:butcher-bogacki-shampine}
-\index{Bogacki-Shampine-4-2-3 ERK method}Butcher table number 1
-for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
-the default 3rd order explicit method (from \phantomsection\label{Butcher:id1}{\hyperref[References:bs1989]{\emph{{[}BS1989{]}}}}).
+\index{Bogacki-Shampine-4-2-3 ERK method}
+\code{BOGACKI\_SHAMPINE\_4\_2\_3} for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This
+is the default 3rd order explicit method (from \phantomsection\label{Butcher:id1}{\hyperref[References:bs1989]{\emph{{[}BS1989{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|cccc}
   0 &   0 & 0 & 0 & 0 \\
-  1/2 & 1/2 & 0 & 0 & 0 \\
-  3/4 & 0 & 3/4 & 0 & 0 \\
-  1   & 2/9 & 1/3 & 4/9 & 0 \\
+  \frac{1}{2} & \frac{1}{2} & 0 & 0 & 0 \\
+  \frac{3}{4} & 0 & \frac{3}{4} & 0 & 0 \\
+  1   & \frac{2}{9} & \frac{1}{3} & \frac{4}{9} & 0 \\
   \hline
-  3 & 2/9 & 1/3 & 4/9 \\
-  2 & 7/24 & 1/4 & 1/3 & 1/8
+  3 & \frac{2}{9} & \frac{1}{3} & \frac{4}{9} \\
+  2 & \frac{7}{24} & \frac{1}{4} & \frac{1}{3} & \frac{1}{8}
 \end{array}\end{split}\notag
 \end{gather}\begin{figure}[htbp]
 \centering
@@ -24310,15 +24452,15 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{ARK-4-2-3 (explicit)}
 \label{Butcher:butcher-ark-4-2-3-e}\label{Butcher:ark-4-2-3-explicit}
-\index{ARK-4-2-3 ERK method}Butcher table number 2
-for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
-the explicit portion of the default 3rd order additive method (from
-\phantomsection\label{Butcher:id2}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
+\index{ARK-4-2-3 ERK method}
+\code{ARK324L2SA\_ERK\_4\_2\_3} for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.
+This is the explicit portion of the default 3rd order additive method
+(from \phantomsection\label{Butcher:id2}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|cccc}
   0 & 0 & 0 & 0 & 0 \\
   \frac{1767732205903}{2027836641118} & \frac{1767732205903}{2027836641118} & 0 & 0 & 0 \\
-  3/5 & \frac{5535828885825}{10492691773637} & \frac{788022342437}{10882634858940} & 0 & 0 \\
+  \frac{3}{5} & \frac{5535828885825}{10492691773637} & \frac{788022342437}{10882634858940} & 0 & 0 \\
   1 & \frac{6485989280629}{16251701735622} & -\frac{4246266847089}{9704473918619} & \frac{10755448449292}{10357097424841} & 0 \\
   \hline
   3 & \frac{1471266399579}{7840856788654} & -\frac{4482444167858}{7529755066697} & \frac{11266239266428}{11593286722821} & \frac{1767732205903}{4055673282236} \\
@@ -24335,19 +24477,19 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{Zonneveld-5-3-4}
 \label{Butcher:butcher-zonneveld}\label{Butcher:zonneveld-5-3-4}
-\index{Zonneveld-5-3-4 ERK method}Butcher table number 3
-for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
+\index{Zonneveld-5-3-4 ERK method}
+\code{ZONNEVELD\_5\_3\_4} for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
 the default 4th order explicit method (from \phantomsection\label{Butcher:id3}{\hyperref[References:z1963]{\emph{{[}Z1963{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|ccccc}
     0 & 0 & 0 & 0 & 0 & 0 \\
-  1/2 & 1/2 & 0 & 0 & 0 & 0 \\
-  1/2 & 0 & 1/2 & 0 & 0 & 0 \\
+  \frac{1}{2} & \frac{1}{2} & 0 & 0 & 0 & 0 \\
+  \frac{1}{2} & 0 & \frac{1}{2} & 0 & 0 & 0 \\
     1 & 0 & 0 & 1 & 0 & 0 \\
-  3/4 & 5/32 & 7/32 & 13/32 & -1/32 & 0 \\
+  \frac{3}{4} & \frac{5}{32} & \frac{7}{32} & \frac{13}{32} & -\frac{1}{32} & 0 \\
   \hline
-  4 & 1/6 & 1/3 & 1/3 & 1/6 & 0 \\
-  3 & -1/2 & 7/3 & 7/3 & 13/6 & -16/3
+  4 & \frac{1}{6} & \frac{1}{3} & \frac{1}{3} & \frac{1}{6} & 0 \\
+  3 & -\frac{1}{2} & \frac{7}{3} & \frac{7}{3} & \frac{13}{6} & -\frac{16}{3}
 \end{array}\end{split}\notag
 \end{gather}\begin{figure}[htbp]
 \centering
@@ -24360,8 +24502,8 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{ARK-6-3-4 (explicit)}
 \label{Butcher:butcher-ark-6-3-4-e}\label{Butcher:ark-6-3-4-explicit}
-\index{ARK-6-3-4 ERK method}Butcher table number 4
-for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
+\index{ARK-6-3-4 ERK method}
+\code{ARK436L2SA\_ERK\_6\_3\_4} for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
 the explicit portion of the default 4th order additive method (from \phantomsection\label{Butcher:id4}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|cccccc}
@@ -24386,19 +24528,19 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{Sayfy-Aburub-6-3-4}
 \label{Butcher:butcher-sayfy-aburub}\label{Butcher:sayfy-aburub-6-3-4}
-\index{Sayfy-Aburub-6-3-4 ERK method}Butcher table number 5
-for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}} (from \phantomsection\label{Butcher:id5}{\hyperref[References:sa2002]{\emph{{[}SA2002{]}}}}).
+\index{Sayfy-Aburub-6-3-4 ERK method}
+\code{SAYFY\_ABURUB\_6\_3\_4} for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}} (from \phantomsection\label{Butcher:id5}{\hyperref[References:sa2002]{\emph{{[}SA2002{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|cccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-  1/2 & 1/2 & 0 & 0 & 0 & 0 & 0 \\
+  \frac{1}{2} & \frac{1}{2} & 0 & 0 & 0 & 0 & 0 \\
   1 & -1 & 2 & 0 & 0 & 0 & 0 \\
-  1 & 1/6 & 2/3 & 1/6 & 0 & 0 & 0 \\
-  1/2 & 0.137 & 0.226 & 0.137 & 0 & 0 & 0 \\
+  1 & \frac{1}{6} & \frac{2}{3} & \frac{1}{6} & 0 & 0 & 0 \\
+  \frac{1}{2} & 0.137 & 0.226 & 0.137 & 0 & 0 & 0 \\
   1 & 0.452 & -0.904 & -0.548 & 0 & 2 & 0 \\
   \hline
-  4 & 1/6 & 1/3 & 1/12 & 0 & 1/3 & 1/12 \\
-  3 & 1/6 & 2/3 & 1/6 & 0 & 0 & 0
+  4 & \frac{1}{6} & \frac{1}{3} & \frac{1}{12} & 0 & \frac{1}{3} & \frac{1}{12} \\
+  3 & \frac{1}{6} & \frac{2}{3} & \frac{1}{6} & 0 & 0 & 0
 \end{array}\end{split}\notag
 \end{gather}\begin{figure}[htbp]
 \centering
@@ -24411,20 +24553,20 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{Cash-Karp-6-4-5}
 \label{Butcher:cash-karp-6-4-5}\label{Butcher:butcher-cash-karp}
-\index{Cash-Karp-6-4-5 ERK method}Butcher table number 6
-for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
+\index{Cash-Karp-6-4-5 ERK method}
+\code{CASH\_KARP\_6\_4\_5} for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
 the default 5th order explicit method (from \phantomsection\label{Butcher:id6}{\hyperref[References:ck1990]{\emph{{[}CK1990{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|cccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-  1/5 & 1/5 & 0 & 0 & 0 & 0 & 0 \\
-  3/10 & 3/40 & 9/40 & 0 & 0 & 0 & 0 \\
-  3/5 & 3/10 & -9/10 & 6/5 & 0 & 0 & 0 \\
-  1 & -11/54 & 5/2 & -70/27 & 35/27 & 0 & 0 \\
-  7/8 & 1631/55296 & 175/512 & 575/13824 & 44275/110592 & 253/4096 & 0 \\
+  \frac{1}{5} & \frac{1}{5} & 0 & 0 & 0 & 0 & 0 \\
+  \frac{3}{10} & \frac{3}{40} & \frac{9}{40} & 0 & 0 & 0 & 0 \\
+  \frac{3}{5} & \frac{3}{10} & -\frac{9}{10} & \frac{6}{5} & 0 & 0 & 0 \\
+  1 & -\frac{11}{54} & \frac{5}{2} & -\frac{70}{27} & \frac{35}{27} & 0 & 0 \\
+  \frac{7}{8} & \frac{1631}{55296} & \frac{175}{512} & \frac{575}{13824} & \frac{44275}{110592} & \frac{253}{4096} & 0 \\
   \hline
-  5 & 37/378 & 0 & 250/621 & 125/594 & 0 & 512/1771 \\
-  4 & 2825/27648 & 0 & 18575/48384 & 13525/55296 & 277/14336 & 1/4
+  5 & \frac{37}{378} & 0 & \frac{250}{621} & \frac{125}{594} & 0 & \frac{512}{1771} \\
+  4 & \frac{2825}{27648} & 0 & \frac{18575}{48384} & \frac{13525}{55296} & \frac{277}{14336} & \frac{1}{4}
 \end{array}\end{split}\notag
 \end{gather}\begin{figure}[htbp]
 \centering
@@ -24437,19 +24579,19 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{Fehlberg-6-4-5}
 \label{Butcher:butcher-fehlberg}\label{Butcher:fehlberg-6-4-5}
-\index{Fehlberg-6-4-5 ERK method}Butcher table number 7
-for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}} (from \phantomsection\label{Butcher:id7}{\hyperref[References:f1969]{\emph{{[}F1969{]}}}})
+\index{Fehlberg-6-4-5 ERK method}
+\code{FEHLBERG\_6\_4\_5} for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}} (from \phantomsection\label{Butcher:id7}{\hyperref[References:f1969]{\emph{{[}F1969{]}}}})
 \begin{gather}
 \begin{split}\begin{array}{r|cccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-  1/4 & 1/4 & 0 & 0 & 0 & 0 & 0 \\
-  3/8 & 3/32 & 9/32 & 0 & 0 & 0 & 0 \\
-  12/13 & 1932/2197 & -7200/2197 & 7296/2197 & 0 & 0 & 0 \\
-  1 & 439/216 & -8 & 3680/513 & -845/4104 & 0 & 0 \\
-  1/2 & -8/27 & 2 & -3544/2565 & 1859/4104 & -11/40 & 0 \\
+  \frac{1}{4} & \frac{1}{4} & 0 & 0 & 0 & 0 & 0 \\
+  \frac{3}{8} & \frac{3}{32} & \frac{9}{32} & 0 & 0 & 0 & 0 \\
+  \frac{12}{13} & \frac{1932}{2197} & -\frac{7200}{2197} & \frac{7296}{2197} & 0 & 0 & 0 \\
+  1 & \frac{439}{216} & -8 & \frac{3680}{513} & -\frac{845}{4104} & 0 & 0 \\
+  \frac{1}{2} & -\frac{8}{27} & 2 & -\frac{3544}{2565} & \frac{1859}{4104} & -\frac{11}{40} & 0 \\
   \hline
-  5 & 16/135 & 0 & 6656/12825 & 28561/56430 & -9/50 & 2/55 \\
-  4 & 25/216 & 0 & 1408/2565 & 2197/4104 & -1/5 & 0
+  5 & \frac{16}{135} & 0 & \frac{6656}{12825} & \frac{28561}{56430} & -\frac{9}{50} & \frac{2}{55} \\
+  4 & \frac{25}{216} & 0 & \frac{1408}{2565} & \frac{2197}{4104} & -\frac{1}{5} & 0
 \end{array}\end{split}\notag
 \end{gather}\begin{figure}[htbp]
 \centering
@@ -24462,20 +24604,20 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{Dormand-Prince-7-4-5}
 \label{Butcher:dormand-prince-7-4-5}\label{Butcher:butcher-dormand-prince}
-\index{Dormand-Prince-7-4-5 ERK method}Butcher table number 8
-for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}} (from \phantomsection\label{Butcher:id8}{\hyperref[References:dp1980]{\emph{{[}DP1980{]}}}})
+\index{Dormand-Prince-7-4-5 ERK method}
+\code{DORMAND\_PRINCE\_7\_4\_5} for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}} (from \phantomsection\label{Butcher:id8}{\hyperref[References:dp1980]{\emph{{[}DP1980{]}}}})
 \begin{gather}
 \begin{split}\begin{array}{r|ccccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-  1/5 & 1/5 & 0 & 0 & 0 & 0 & 0 & 0 \\
-  3/10 & 3/40 & 9/40 & 0 & 0 & 0 & 0 & 0 \\
-  4/5 & 44/45 & -56/15 & 32/9 & 0 & 0 & 0 & 0 \\
-  8/9 & 19372/6561 & -25360/2187 & 64448/6561 & -212/729 & 0 & 0 & 0 \\
-  1 & 9017/3168 & -355/33 & 46732/5247 & 49/176 & -5103/18656 & 0 & 0 \\
-  1 & 35/384 & 0 & 500/1113 & 125/192 & -2187/6784 & 11/84 & 0 \\
+  \frac{1}{5} & \frac{1}{5} & 0 & 0 & 0 & 0 & 0 & 0 \\
+  \frac{3}{10} & \frac{3}{40} & \frac{9}{40} & 0 & 0 & 0 & 0 & 0 \\
+  \frac{4}{5} & \frac{44}{45} & -\frac{56}{15} & \frac{32}{9} & 0 & 0 & 0 & 0 \\
+  \frac{8}{9} & \frac{19372}{6561} & -\frac{25360}{2187} & \frac{64448}{6561} & -\frac{212}{729} & 0 & 0 & 0 \\
+  1 & \frac{9017}{3168} & -\frac{355}{33} & \frac{46732}{5247} & \frac{49}{176} & -\frac{5103}{18656} & 0 & 0 \\
+  1 & \frac{35}{384} & 0 & \frac{500}{1113} & \frac{125}{192} & -\frac{2187}{6784} & \frac{11}{84} & 0 \\
   \hline
-  5 & 35/384 & 0 & 500/1113 & 125/192 & -2187/6784 & 11/84 & 0 \\
-  4 & 5179/57600 & 0 & 7571/16695 & 393/640 & -92097/339200 & 187/2100 & 1/40
+  5 & \frac{35}{384} & 0 & \frac{500}{1113} & \frac{125}{192} & -\frac{2187}{6784} & \frac{11}{84} & 0 \\
+  4 & \frac{5179}{57600} & 0 & \frac{7571}{16695} & \frac{393}{640} & -\frac{92097}{339200} & \frac{187}{2100} & \frac{1}{40}
 \end{array}\end{split}\notag
 \end{gather}\begin{figure}[htbp]
 \centering
@@ -24488,8 +24630,8 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{ARK-8-4-5 (explicit)}
 \label{Butcher:butcher-ark-8-4-5-e}\label{Butcher:ark-8-4-5-explicit}
-\index{ARK-8-4-5 ERK method}Butcher table number 9
-for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
+\index{ARK-8-4-5 ERK method}
+\code{ARK548L2SA\_ERK\_8\_4\_5} for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
 the explicit portion of the default 5th order additive method (from \phantomsection\label{Butcher:id9}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|cccccccc}
@@ -24516,22 +24658,22 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{Verner-8-5-6}
 \label{Butcher:butcher-verner-6-5}\label{Butcher:verner-8-5-6}
-\index{Verner-8-5-6 ERK method}Butcher table number 10
-for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
+\index{Verner-8-5-6 ERK method}
+\code{VERNER\_8\_5\_6} for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.  This is
 the default 6th order explicit method (from \phantomsection\label{Butcher:id10}{\hyperref[References:v1978]{\emph{{[}V1978{]}}}})
 \begin{gather}
 \begin{split}\begin{array}{r|cccccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-  1/6 & 1/6 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-  4/15 & 4/75 & 16/75 & 0 & 0 & 0 & 0 & 0 & 0 \\
-  2/3 & 5/6 & -8/3 & 5/2 & 0 & 0 & 0 & 0 & 0 \\
-  5/6 & -165/64 & 55/6 & -425/64 & 85/96 & 0 & 0 & 0 & 0 \\
-  1 & 12/5 & -8 & 4015/612 & -11/36 & 88/255 & 0 & 0 & 0 \\
-  1/15 & -8263/15000 & 124/75 & -643/680 & -81/250 & 2484/10625 & 0 & 0 & 0 \\
-  1 & 3501/1720 & -300/43 & 297275/52632 & -319/2322 & 24068/84065 & 0 & 3850/26703 & 0 \\
+  \frac{1}{6} & \frac{1}{6} & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  \frac{4}{15} & \frac{4}{75} & \frac{16}{75} & 0 & 0 & 0 & 0 & 0 & 0 \\
+  \frac{2}{3} & \frac{5}{6} & -\frac{8}{3} & \frac{5}{2} & 0 & 0 & 0 & 0 & 0 \\
+  \frac{5}{6} & -\frac{165}{64} & \frac{55}{6} & -\frac{425}{64} & \frac{85}{96} & 0 & 0 & 0 & 0 \\
+  1 & \frac{12}{5} & -8 & \frac{4015}{612} & -\frac{11}{36} & \frac{88}{255} & 0 & 0 & 0 \\
+  \frac{1}{15} & -\frac{8263}{15000} & \frac{124}{75} & -\frac{643}{680} & -\frac{81}{250} & \frac{2484}{10625} & 0 & 0 & 0 \\
+  1 & \frac{3501}{1720} & -\frac{300}{43} & \frac{297275}{52632} & -\frac{319}{2322} & \frac{24068}{84065} & 0 & \frac{3850}{26703} & 0 \\
   \hline
-  6 & 3/40 & 0 & 875/2244 & 23/72 & 264/1955 & 0 & 125/11592 & 43/616 \\
-  5 & 13/160 & 0 & 2375/5984 & 5/16 & 12/85 & 3/44 & 0 & 0
+  6 & \frac{3}{40} & 0 & \frac{875}{2244} & \frac{23}{72} & \frac{264}{1955} & 0 & \frac{125}{11592} & \frac{43}{616} \\
+  5 & \frac{13}{160} & 0 & \frac{2375}{5984} & \frac{5}{16} & \frac{12}{85} & \frac{3}{44} & 0 & 0
 \end{array}\end{split}\notag
 \end{gather}\begin{figure}[htbp]
 \centering
@@ -24539,6 +24681,39 @@ the default 6th order explicit method (from \phantomsection\label{Butcher:id10}{
 
 \scalebox{0.500000}{\includegraphics{stab_region_10.png}}
 \caption{Linear stability region for the Verner-8-5-6 method.  The method's
+region is outlined in blue; the embedding's region is in red.}\end{figure}
+
+
+\subsection{Fehlberg-13-7-8}
+\label{Butcher:butcher-fehlberg-8-7}\label{Butcher:fehlberg-13-7-8}
+\index{Fehlberg-13-7-8 ERK method}
+\code{FEHLBERG\_13\_7\_8} for {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}}.
+This is the default 8th order explicit method (from \phantomsection\label{Butcher:id11}{\hyperref[References:b2008]{\emph{{[}B2008{]}}}})
+\begin{gather}
+\begin{split}\begin{array}{r|ccccccccccccc}
+  0&   0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0\\
+  \frac{2}{27}&   \frac{2}{27}& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0\\
+  \frac{1}{9}&   \frac{1}{36}& \frac{1}{12}& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0\\
+  \frac{1}{6}&   \frac{1}{24}& 0& \frac{1}{8}& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0\\
+  \frac{5}{12}&   \frac{5}{12}& 0& -\frac{25}{16}& \frac{25}{16}& 0& 0& 0& 0& 0& 0& 0& 0& 0\\
+  \frac{1}{2}&   \frac{1}{20}& 0& 0& \frac{1}{4}& \frac{1}{5}& 0& 0& 0& 0& 0& 0& 0& 0\\
+  \frac{5}{6}&   -\frac{25}{108}& 0& 0& \frac{125}{108}& -\frac{65}{27}& \frac{125}{54}& 0& 0& 0& 0& 0& 0& 0\\
+  \frac{1}{6}&   \frac{31}{300}& 0& 0& 0& \frac{61}{225}& -\frac{2}{9}& \frac{13}{900}& 0& 0& 0& 0& 0& 0\\
+  \frac{2}{3}&   2& 0& 0& -\frac{53}{6}& \frac{704}{45}& -\frac{107}{9}& \frac{67}{90}& 3& 0& 0& 0& 0& 0\\
+  \frac{1}{3}&   -\frac{91}{108}& 0& 0& \frac{23}{108}& -\frac{976}{135}& \frac{311}{54}& -\frac{19}{60}& \frac{17}{6}& -\frac{1}{12}& 0& 0& 0& 0\\
+  1&   \frac{2383}{4100}& 0& 0& -\frac{341}{164}& \frac{4496}{1025}& -\frac{301}{82}& \frac{2133}{4100}& \frac{45}{82}& \frac{45}{164}& \frac{18}{41}& 0& 0& 0\\
+  0&   \frac{3}{205}& 0& 0& 0& 0& -\frac{6}{41}& -\frac{3}{205}& -\frac{3}{41}& \frac{3}{41}& \frac{6}{41}& 0& 0& 0\\
+  1&   -\frac{1777}{4100}& 0& 0& -\frac{341}{164}& \frac{4496}{1025}& -\frac{289}{82}& \frac{2193}{4100}& \frac{51}{82}& \frac{33}{164}& \frac{12}{41}& 0& 1& 0\\
+  \hline
+  8& 0& 0& 0& 0& 0& \frac{34}{105}& \frac{9}{35}& \frac{9}{35}& \frac{9}{280}& \frac{9}{280}& 0& \frac{41}{840}& \frac{41}{840} \\
+  7& \frac{41}{840}& 0& 0& 0& 0& \frac{34}{105}& \frac{9}{35}& \frac{9}{35}& \frac{9}{280}& \frac{9}{280}& \frac{41}{840}& 0& 0
+\end{array}\end{split}\notag
+\end{gather}\begin{figure}[htbp]
+\centering
+\capstart
+
+\scalebox{0.500000}{\includegraphics{stab_region_23.png}}
+\caption{Linear stability region for the Fehlberg-13-7-8 method.  The method's
 region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 
@@ -24551,8 +24726,8 @@ orders 1 through 4.
 
 \subsection{SDIRK-2-1-2}
 \label{Butcher:sdirk-2-1-2}\label{Butcher:butcher-sdirk-2-1}
-\index{SDIRK-2-1-2 method}Butcher table number 11
-for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  This is
+\index{SDIRK-2-1-2 method}
+\code{SDIRK\_2\_1\_2} for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  This is
 the default 2nd order implicit method.  Both the method and embedding
 are A- and B-stable.
 \begin{gather}
@@ -24560,7 +24735,7 @@ are A- and B-stable.
   1 & 1 & 0 \\
   0 & -1 & 1 \\
   \hline
-  2 & 1/2 & 1/2 \\
+  2 & \frac{1}{2} & \frac{1}{2} \\
   1 & 1 & 0
 \end{array}\end{split}\notag
 \end{gather}\begin{figure}[htbp]
@@ -24574,10 +24749,10 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{Billington-3-3-2}
 \label{Butcher:butcher-billington}\label{Butcher:billington-3-3-2}
-\index{Billington-3-3-2 SDIRK method}Butcher table number 12
-for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  Here, the
+\index{Billington-3-3-2 SDIRK method}
+\code{BILLINGTON\_3\_3\_2} for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  Here, the
 higher-order embedding is less stable than the lower-order method
-(from \phantomsection\label{Butcher:id11}{\hyperref[References:b1983]{\emph{{[}B1983{]}}}})
+(from \phantomsection\label{Butcher:id12}{\hyperref[References:b1983]{\emph{{[}B1983{]}}}})
 \begin{gather}
 \begin{split}\begin{array}{r|ccc}
   0.292893218813 & 0.292893218813 & 0 & 0 \\
@@ -24598,10 +24773,10 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{TRBDF2-3-3-2}
 \label{Butcher:butcher-trbdf2}\label{Butcher:trbdf2-3-3-2}
-\index{TRBDF2-3-3-2 ESDIRK method}Butcher table number 13
-for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  As with
+\index{TRBDF2-3-3-2 ESDIRK method}
+\code{TRBDF2\_3\_3\_2} for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  As with
 Billington, here the higher-order embedding is less stable than the
-lower-order method (from \phantomsection\label{Butcher:id12}{\hyperref[References:b1985]{\emph{{[}B1985{]}}}}).
+lower-order method (from \phantomsection\label{Butcher:id13}{\hyperref[References:b1985]{\emph{{[}B1985{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|ccc}
   0 & 0 & 0 & 0 \\
@@ -24622,10 +24797,10 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{Kvaerno-4-2-3}
 \label{Butcher:butcher-kvaerno-4-2-3}\label{Butcher:kvaerno-4-2-3}
-\index{Kvaerno-4-2-3 ESDIRK method}Butcher table number 14
-for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  Both the
+\index{Kvaerno-4-2-3 ESDIRK method}
+\code{KVAERNO\_4\_2\_3} for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  Both the
 method and embedding are A-stable; additionally the method is L-stable
-(from \phantomsection\label{Butcher:id13}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
+(from \phantomsection\label{Butcher:id14}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|cccc}
   0 & 0 & 0 & 0 & 0 \\
@@ -24647,11 +24822,11 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{ARK-4-2-3 (implicit)}
 \label{Butcher:ark-4-2-3-implicit}\label{Butcher:butcher-ark-4-2-3-i}
-\index{ARK-4-2-3 ESDIRK method}Butcher table number 15
-for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  This is
-the default 3rd order implicit method, and the implicit portion of the
-default 3rd order additive method.  Both the method and embedding are
-A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id14}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
+\index{ARK-4-2-3 ESDIRK method}
+\code{ARK324L2SA\_DIRK\_4\_2\_3} for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  This
+is the default 3rd order implicit method, and the implicit portion of
+the default 3rd order additive method.  Both the method and embedding
+are A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id15}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|cccc}
   0 & 0 & 0 & 0 & 0 \\
@@ -24673,10 +24848,10 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{Cash-5-2-4}
 \label{Butcher:butcher-cash-5-2-4}\label{Butcher:cash-5-2-4}
-\index{Cash-5-2-4 SDIRK method}Butcher table number 16
-for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  Both the
+\index{Cash-5-2-4 SDIRK method}
+\code{CASH\_5\_2\_4} for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  Both the
 method and embedding are A-stable; additionally the method is L-stable
-(from \phantomsection\label{Butcher:id15}{\hyperref[References:c1979]{\emph{{[}C1979{]}}}}).
+(from \phantomsection\label{Butcher:id16}{\hyperref[References:c1979]{\emph{{[}C1979{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|ccccc}
   0.435866521508 & 0.435866521508 & 0 & 0 & 0 & 0 \\
@@ -24699,10 +24874,10 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{Cash-5-3-4}
 \label{Butcher:butcher-cash-5-3-4}\label{Butcher:cash-5-3-4}
-\index{Cash-5-3-4 SDIRK method}Butcher table number 17
-for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  Both the
+\index{Cash-5-3-4 SDIRK method}
+\code{CASH\_5\_3\_4} for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  Both the
 method and embedding are A-stable; additionally the method is L-stable
-(from \phantomsection\label{Butcher:id16}{\hyperref[References:c1979]{\emph{{[}C1979{]}}}})
+(from \phantomsection\label{Butcher:id17}{\hyperref[References:c1979]{\emph{{[}C1979{]}}}})
 \begin{gather}
 \begin{split}\begin{array}{r|ccccc}
   0.435866521508 & 0.435866521508 & 0 & 0 & 0 & 0 \\
@@ -24725,20 +24900,20 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{SDIRK-5-3-4}
 \label{Butcher:butcher-sdirk-5-4}\label{Butcher:sdirk-5-3-4}
-\index{SDIRK-5-3-4 method}Butcher table number 18
-for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  This is
+\index{SDIRK-5-3-4 method}
+\code{SDIRK\_5\_3\_4} for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  This is
 the default 4th order implicit method.  Here, the method is both A-
-and L-stable, although the embedding has reduced stability (from \phantomsection\label{Butcher:id17}{\hyperref[References:hw1996]{\emph{{[}HW1996{]}}}}).
+and L-stable, although the embedding has reduced stability (from \phantomsection\label{Butcher:id18}{\hyperref[References:hw1996]{\emph{{[}HW1996{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|ccccc}
-  1/4 & 1/4 & 0 & 0 & 0 & 0 \\
-  3/4 & 1/2 & 1/4 & 0 & 0 & 0 \\
-  11/20 & 17/50 & -1/25 & 1/4 & 0 & 0 \\
-  1/2 & 371/1360 & -137/2720 & 15/544 & 1/4 & 0 \\
-  1 & 25/24 & -49/48 & 125/16 & -85/12 & 1/4 \\
+  \frac{1}{4} & \frac{1}{4} & 0 & 0 & 0 & 0 \\
+  \frac{3}{4} & \frac{1}{2} & \frac{1}{4} & 0 & 0 & 0 \\
+  \frac{11}{20} & \frac{17}{50} & -\frac{1}{25} & \frac{1}{4} & 0 & 0 \\
+  \frac{1}{2} & \frac{371}{1360} & -\frac{137}{2720} & \frac{15}{544} & \frac{1}{4} & 0 \\
+  1 & \frac{25}{24} & -\frac{49}{48} & \frac{125}{16} & -\frac{85}{12} & \frac{1}{4} \\
   \hline
-  4 & 25/24 & -49/48 & 125/16 & -85/12 & 1/4 \\
-  3 & 59/48 & -17/96 & 225/32 & -85/12 & 0
+  4 & \frac{25}{24} & -\frac{49}{48} & \frac{125}{16} & -\frac{85}{12} & \frac{1}{4} \\
+  3 & \frac{59}{48} & -\frac{17}{96} & \frac{225}{32} & -\frac{85}{12} & 0
 \end{array}\end{split}\notag
 \end{gather}\begin{figure}[htbp]
 \centering
@@ -24751,9 +24926,9 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{Kvaerno-5-3-4}
 \label{Butcher:kvaerno-5-3-4}\label{Butcher:butcher-kvaerno-5-3-4}
-\index{Kvaerno-5-3-4 ESDIRK method}Butcher table number 19
-for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  Both the
-method and embedding are A-stable (from \phantomsection\label{Butcher:id18}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
+\index{Kvaerno-5-3-4 ESDIRK method}
+\code{KVAERNO\_5\_3\_4} for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  Both the
+method and embedding are A-stable (from \phantomsection\label{Butcher:id19}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|ccccc}
   0 & 0 & 0 & 0 & 0 & 0 \\
@@ -24776,11 +24951,11 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{ARK-6-3-4 (implicit)}
 \label{Butcher:ark-6-3-4-implicit}\label{Butcher:butcher-ark-6-3-4-i}
-\index{ARK-6-3-4 ESDIRK method}Butcher table number 20
-for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  This is
-the implicit portion of the default 4th order additive method.  Both
-the method and embedding are A-stable; additionally the method is
-L-stable (from \phantomsection\label{Butcher:id19}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
+\index{ARK-6-3-4 ESDIRK method}
+\code{ARK436L2SA\_DIRK\_6\_3\_4} for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  This
+is the implicit portion of the default 4th order additive method.
+Both the method and embedding are A-stable; additionally the method is
+L-stable (from \phantomsection\label{Butcher:id20}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|cccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -24804,10 +24979,10 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{Kvaerno-7-4-5}
 \label{Butcher:kvaerno-7-4-5}\label{Butcher:butcher-kvaerno-7-4-5}
-\index{Kvaerno-7-4-5 ESDIRK method}Butcher table number 21
-for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  Both the
+\index{Kvaerno-7-4-5 ESDIRK method}
+\code{KVAERNO\_7\_4\_5} for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  Both the
 method and embedding are A-stable; additionally the method is
-L-stable (from \phantomsection\label{Butcher:id20}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
+L-stable (from \phantomsection\label{Butcher:id21}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|ccccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -24832,11 +25007,11 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 \subsection{ARK-8-4-5 (implicit)}
 \label{Butcher:ark-8-4-5-implicit}\label{Butcher:butcher-ark-8-4-5-i}
-\index{ARK-8-4-5 ESDIRK method}Butcher table number 22
-for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  This is
+\index{ARK-8-4-5 ESDIRK method}
+\code{ARK548L2SA\_DIRK\_8\_4\_5} for {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}.  This is
 the default 5th order implicit method, and the implicit portion of the
 default 5th order additive method.  Both the method and embedding are
-A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id21}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
+A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id22}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
 \begin{split}\begin{array}{r|cccccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -24870,20 +25045,20 @@ Butcher table pairs are as follows:
 \item {} 
 \index{ARK-4-2-3 ARK method}3rd-order pair:
 {\hyperref[Butcher:butcher-ark-4-2-3-e]{\emph{\DUspan{}{ARK-4-2-3 (explicit)}}}} with {\hyperref[Butcher:butcher-ark-4-2-3-i]{\emph{\DUspan{}{ARK-4-2-3 (implicit)}}}},
-corresponding to Butcher tables 2 and 15 for
-{\hyperref[c_interface/User_callable:c.ARKodeSetARKTableNum]{\emph{\code{ARKodeSetARKTableNum()}}}}.
+corresponding to Butcher tables \code{ARK324L2SA\_ERK\_4\_2\_3} and
+\code{ARK324L2SA\_DIRK\_4\_2\_3} for {\hyperref[c_interface/User_callable:c.ARKodeSetARKTableNum]{\emph{\code{ARKodeSetARKTableNum()}}}}.
 
 \item {} 
 \index{ARK-6-3-4 ARK method}4th-order pair:
 {\hyperref[Butcher:butcher-ark-6-3-4-e]{\emph{\DUspan{}{ARK-6-3-4 (explicit)}}}} with {\hyperref[Butcher:butcher-ark-6-3-4-i]{\emph{\DUspan{}{ARK-6-3-4 (implicit)}}}},
-corresponding to Butcher tables 4 and 20 for
-{\hyperref[c_interface/User_callable:c.ARKodeSetARKTableNum]{\emph{\code{ARKodeSetARKTableNum()}}}}.
+corresponding to Butcher tables \code{ARK436L2SA\_ERK\_6\_3\_4} and
+\code{ARK436L2SA\_DIRK\_6\_3\_4} for {\hyperref[c_interface/User_callable:c.ARKodeSetARKTableNum]{\emph{\code{ARKodeSetARKTableNum()}}}}.
 
 \item {} 
 \index{ARK-8-4-5 ARK method}5th-order pair:
 {\hyperref[Butcher:butcher-ark-8-4-5-e]{\emph{\DUspan{}{ARK-8-4-5 (explicit)}}}} with {\hyperref[Butcher:butcher-ark-8-4-5-i]{\emph{\DUspan{}{ARK-8-4-5 (implicit)}}}},
-corresponding to Butcher tables 9 and 22 for
-{\hyperref[c_interface/User_callable:c.ARKodeSetARKTableNum]{\emph{\code{ARKodeSetARKTableNum()}}}}.
+corresponding to Butcher tables \code{ARK548L2SA\_ERK\_8\_4\_5} and
+\code{ARK548L2SA\_ERK\_8\_4\_5} for {\hyperref[c_interface/User_callable:c.ARKodeSetARKTableNum]{\emph{\code{ARKodeSetARKTableNum()}}}}.
 
 \end{itemize}
 \phantomsection\label{References:references}
@@ -24906,6 +25081,10 @@ formulas, \emph{Appl. Math. Lett.}, 2:321–325, 1989.
 P.N. Brown and A.C. Hindmarsh. Reduced Storage
 Matrix Methods in Stiff ODE Systems. \emph{J. Appl. Math. \&
 Comp.}, 31:49-91, 1989.
+}
+\bibitem[B2008]{B2008}{\phantomsection\label{References:b2008} 
+J.C. Butcher, Numerical Methods for Ordinary Differential
+Equations. Wiley, 2nd edition, Chicester, England, 2008.
 }
 \bibitem[B1992]{B1992}{\phantomsection\label{References:b1992} 
 G.D. Byrne. Pragmatic Experiments with Krylov Methods

@@ -41,35 +41,35 @@
      b2[s] -- realtype embedding coefficients
 
  Allowed 'method' names and properties (those in an ARK pair are marked 
- with a *):
+ with a *).  All method names are of the form <name>_s_p_q:
 
-  imethod   name             type   s   q   p   A   L
-  ----------------------------------------------------
-     0    Heun-Euler          ERK   2   2   1   -   - 
-     1    Bogacki-Shampine    ERK   4   3   2   -   - 
-     2*   ARK3(2)4L[2]SA      ERK   4   3   2   -   - 
-     3    Zonneveld           ERK   5   4   3   -   - 
-     4*   ARK4(3)6L[2]SA      ERK   6   4   3   -   - 
-     5    Sayfy-Aburub-4-3    ERK   6   4   3   -   - 
-     6    Cash-Karp           ERK   6   5   4   -   - 
-     7    Fehlberg            ERK   6   5   4   -   - 
-     8    Dormand-Prince      ERK   7   5   4   -   - 
-     9*   ARK5(4)8L[2]SA      ERK   8   5   4   -   - 
-    10    Verner-6-5          ERK   8   6   5   -   - 
-          Fehlberg-8-7        ERK   13  8   7   -   - 
-    11    SDIRK-2-1         SDIRK   2   2   1   X   - 
-    12    Billington        SDIRK   3   2   3   -   -
-    13    TRBDF2           ESDIRK   3   2   3   -   -
-    14    Kvaerno(4,2,3)   ESDIRK   4   3   2   X   X 
-    15*   ARK3(2)4L[2]SA   ESDIRK   4   3   2   X   X 
-    16    Cash(5,2,4)       SDIRK   5   4   2   X   X 
-    17    Cash(5,3,4)       SDIRK   5   4   3   X   X 
-    18    SDIRK-5-4         SDIRK   5   4   3   X   X 
-    19    Kvaerno(5,3,4)   ESDIRK   5   4   3   X   - 
-    20*   ARK4(3)6L[2]SA   ESDIRK   6   4   3   X   X 
-    21    Kvaerno(7,4,5)   ESDIRK   7   5   4   X   X 
-    22*   ARK5(4)8L[2]SA   ESDIRK   8   5   4   X   X 
-  -----------------------------------------------------------------
+   imeth                       type  A-stable  L-stable
+  ------------------------------------------------------
+   HEUN_EULER_2_1_2             ERK     N         N 
+   BOGACKI_SHAMPINE_4_2_3       ERK     N         N 
+   ARK324L2SA_ERK_4_2_3*        ERK     N         N 
+   ZONNEVELD_5_3_4              ERK     N         N 
+   ARK436L2SA_ERK_6_3_4*        ERK     N         N 
+   SAYFY_ABURUB_6_3_4           ERK     N         N 
+   CASH_KARP_6_4_5              ERK     N         N 
+   FEHLBERG_6_4_5               ERK     N         N 
+   DORMAND_PRINCE_7_4_5         ERK     N         N 
+   ARK548L2SA_ERK_8_4_5*        ERK     N         N 
+   VERNER_8_5_6                 ERK     N         N 
+   FEHLBERG_13_7_8              ERK     N         N 
+   SDIRK_2_1_2                SDIRK     Y         N 
+   BILLINGTON_3_3_2           SDIRK     N         N
+   TRBDF2_3_3_2              ESDIRK     N         N
+   KVAERNO_4_2_3             ESDIRK     Y         Y
+   ARK324L2SA_DIRK_4_2_3*    ESDIRK     Y         Y 
+   CASH_5_2_4                 SDIRK     Y         Y 
+   CASH_5_3_4                 SDIRK     Y         Y  
+   SDIRK_5_3_4                SDIRK     Y         Y  
+   KVAERNO_5_3_4             ESDIRK     Y         N 
+   ARK436L2SA_DIRK_6_3_4*    ESDIRK     Y         Y  
+   KVAERNO_7_4_5             ESDIRK     Y         Y  
+   ARK548L2SA_DIRK_8_4_5*    ESDIRK     Y         Y  
+  ------------------------------------------------------
 
 ---------------------------------------------------------------*/
 int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p, 
@@ -96,7 +96,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
   /* fill in coefficients based on method name */
   switch(imethod) {
 
-  case(0):    /* Heun-Euler-ERK */
+  case(HEUN_EULER_2_1_2):    /* Heun-Euler-ERK */
     *s = 2;
     *q = 2;
     *p = 1;
@@ -111,7 +111,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[1] = RCONST(1.0);
     break;
 
-  case(1):    /* Bogacki-Shampine-ERK */
+  case(BOGACKI_SHAMPINE_4_2_3):    /* Bogacki-Shampine-ERK */
     *s = 4;
     *q = 3;
     *p = 2;
@@ -135,7 +135,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[3] = RCONST(1.0);
     break;
 
-  case(2):    /* ARK3(2)4L[2]SA-ERK */
+  case(ARK324L2SA_ERK_4_2_3):    /* ARK3(2)4L[2]SA-ERK */
     *s = 4;
     *q = 3;
     *p = 2;
@@ -161,7 +161,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[3] = RCONST(1.0);
     break;
 
-  case(3):    /* Zonneveld */
+  case(ZONNEVELD_5_3_4):    /* Zonneveld */
     *s = 5;
     *q = 4;
     *p = 3;
@@ -190,7 +190,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[4] = RCONST(0.75);
     break;
 
-  case(4):    /* ARK4(3)6L[2]SA-ERK */
+  case(ARK436L2SA_ERK_6_3_4):    /* ARK4(3)6L[2]SA-ERK */
     *s = 6;
     *q = 4;
     *p = 3;
@@ -229,7 +229,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[5] = RCONST(1.0);
     break;
 
-  case(5):    /* Sayfy-Aburub-4-3-ERK */
+  case(SAYFY_ABURUB_6_3_4):    /* Sayfy-Aburub-4-3-ERK */
     *s = 6;
     *q = 4;
     *p = 3;
@@ -265,7 +265,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[5] = RCONST(1.0);
     break;
 
-  case(6):    /* Cash-Karp-ERK */
+  case(CASH_KARP_6_4_5):    /* Cash-Karp-ERK */
     *s = 6;
     *q = 5;
     *p = 4;
@@ -303,7 +303,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[5] = RCONST(7.0)/RCONST(8.0);
     break;
 
-  case(7):    /* Fehlberg-ERK */
+  case(FEHLBERG_6_4_5):    /* Fehlberg-ERK */
     *s = 6;
     *q = 5;
     *p = 4;
@@ -341,7 +341,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[5] = RCONST(1.0)/RCONST(2.0);
     break;
 
-  case(8):    /* Dormand-Prince-ERK */
+  case(DORMAND_PRINCE_7_4_5):    /* Dormand-Prince-ERK */
     *s = 7;
     *q = 5;
     *p = 4;
@@ -387,7 +387,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[6] = RCONST(1.0);
     break;
 
-  case(9):    /* ARK5(4)8L[2]SA-ERK */
+  case(ARK548L2SA_ERK_8_4_5):    /* ARK5(4)8L[2]SA-ERK */
     *s = 8;
     *q = 5;
     *p = 4;
@@ -438,7 +438,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[7] = RCONST(1.0);
     break;
 
-  case(10):    /* Verner-6-5 */
+  case(VERNER_8_5_6):    /* Verner-6-5 */
     *s = 8;
     *q = 6;
     *p = 5;
@@ -492,96 +492,96 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[7] = RCONST(1.0);
     break;
 
-  /* case(??):    /\* Fehlberg-8-7 *\/ */
-  /*   *s = 13; */
-  /*   *q = 8; */
-  /*   *p = 7; */
-  /*   ARK_A(A,1,0) = RCONST(2.0)/RCONST(27.0); */
-  /*   ARK_A(A,2,0) = RCONST(1.0)/RCONST(36.0); */
-  /*   ARK_A(A,2,1) = RCONST(1.0)/RCONST(12.0); */
-  /*   ARK_A(A,3,0) = RCONST(1.0)/RCONST(24.0); */
-  /*   ARK_A(A,3,2) = RCONST(1.0)/RCONST(8.0); */
-  /*   ARK_A(A,4,0) = RCONST(5.0)/RCONST(12.0); */
-  /*   ARK_A(A,4,2) = RCONST(-25.0)/RCONST(16.0); */
-  /*   ARK_A(A,4,3) = RCONST(25.0)/RCONST(16.0); */
-  /*   ARK_A(A,5,0) = RCONST(1.0)/RCONST(20.0); */
-  /*   ARK_A(A,5,3) = RCONST(1.0)/RCONST(4.0); */
-  /*   ARK_A(A,5,4) = RCONST(1.0)/RCONST(5.0); */
-  /*   ARK_A(A,6,0) = RCONST(-25.0)/RCONST(108.0); */
-  /*   ARK_A(A,6,3) = RCONST(125.0)/RCONST(108.0); */
-  /*   ARK_A(A,6,4) = RCONST(-65.0)/RCONST(27.0); */
-  /*   ARK_A(A,6,5) = RCONST(125.0)/RCONST(54.0); */
-  /*   ARK_A(A,7,0) = RCONST(31.0)/RCONST(300.0); */
-  /*   ARK_A(A,7,4) = RCONST(61.0)/RCONST(225.0); */
-  /*   ARK_A(A,7,5) = RCONST(-2.0)/RCONST(9.0); */
-  /*   ARK_A(A,7,6) = RCONST(13.0)/RCONST(900.0); */
-  /*   ARK_A(A,8,0) = RCONST(2.0); */
-  /*   ARK_A(A,8,3) = RCONST(-53.0)/RCONST(6.0); */
-  /*   ARK_A(A,8,4) = RCONST(704.0)/RCONST(45.0); */
-  /*   ARK_A(A,8,5) = RCONST(-107.0)/RCONST(9.0); */
-  /*   ARK_A(A,8,6) = RCONST(67.0)/RCONST(90.0); */
-  /*   ARK_A(A,8,7) = RCONST(3.0); */
-  /*   ARK_A(A,9,0) = RCONST(-91.0)/RCONST(108.0); */
-  /*   ARK_A(A,9,3) = RCONST(23.0)/RCONST(108.0); */
-  /*   ARK_A(A,9,4) = RCONST(-976.0)/RCONST(135.0); */
-  /*   ARK_A(A,9,5) = RCONST(311.0)/RCONST(54.0); */
-  /*   ARK_A(A,9,6) = RCONST(-19.0)/RCONST(60.0); */
-  /*   ARK_A(A,9,7) = RCONST(17.0)/RCONST(6.0); */
-  /*   ARK_A(A,9,8) = RCONST(-1.0)/RCONST(12.0); */
-  /*   ARK_A(A,10,0) = RCONST(2383.0)/RCONST(4100.0); */
-  /*   ARK_A(A,10,3) = RCONST(-341.0)/RCONST(164.0); */
-  /*   ARK_A(A,10,4) = RCONST(4496.0)/RCONST(1025.0); */
-  /*   ARK_A(A,10,5) = RCONST(-301.0)/RCONST(82.0); */
-  /*   ARK_A(A,10,6) = RCONST(2133.0)/RCONST(4100.0); */
-  /*   ARK_A(A,10,7) = RCONST(45.0)/RCONST(82.0); */
-  /*   ARK_A(A,10,8) = RCONST(45.0)/RCONST(164.0); */
-  /*   ARK_A(A,10,9) = RCONST(18.0)/RCONST(41.0); */
-  /*   ARK_A(A,11,0) = RCONST(3.0)/RCONST(205.0); */
-  /*   ARK_A(A,11,5) = RCONST(-6.0)/RCONST(41.0); */
-  /*   ARK_A(A,11,6) = RCONST(-3.0)/RCONST(205.0); */
-  /*   ARK_A(A,11,7) = RCONST(-3.0)/RCONST(41.0); */
-  /*   ARK_A(A,11,8) = RCONST(3.0)/RCONST(41.0); */
-  /*   ARK_A(A,11,9) = RCONST(6.0)/RCONST(41.0); */
-  /*   ARK_A(A,12,0) = RCONST(-1777.0)/RCONST(4100.0); */
-  /*   ARK_A(A,12,3) = RCONST(-341.0)/RCONST(164.0); */
-  /*   ARK_A(A,12,4) = RCONST(4496.0)/RCONST(1025.0); */
-  /*   ARK_A(A,12,5) = RCONST(-289.0)/RCONST(82.0); */
-  /*   ARK_A(A,12,6) = RCONST(2193.0)/RCONST(4100.0); */
-  /*   ARK_A(A,12,7) = RCONST(51.0)/RCONST(82.0); */
-  /*   ARK_A(A,12,8) = RCONST(33.0)/RCONST(164.0); */
-  /*   ARK_A(A,12,9) = RCONST(12.0)/RCONST(41.0); */
-  /*   ARK_A(A,12,11) = RCONST(1.0); */
+  case(FEHLBERG_13_7_8):    /* Fehlberg-8-7 */
+    *s = 13;
+    *q = 8;
+    *p = 7;
+    ARK_A(A,1,0) = RCONST(2.0)/RCONST(27.0);
+    ARK_A(A,2,0) = RCONST(1.0)/RCONST(36.0);
+    ARK_A(A,2,1) = RCONST(1.0)/RCONST(12.0);
+    ARK_A(A,3,0) = RCONST(1.0)/RCONST(24.0);
+    ARK_A(A,3,2) = RCONST(1.0)/RCONST(8.0);
+    ARK_A(A,4,0) = RCONST(5.0)/RCONST(12.0);
+    ARK_A(A,4,2) = RCONST(-25.0)/RCONST(16.0);
+    ARK_A(A,4,3) = RCONST(25.0)/RCONST(16.0);
+    ARK_A(A,5,0) = RCONST(1.0)/RCONST(20.0);
+    ARK_A(A,5,3) = RCONST(1.0)/RCONST(4.0);
+    ARK_A(A,5,4) = RCONST(1.0)/RCONST(5.0);
+    ARK_A(A,6,0) = RCONST(-25.0)/RCONST(108.0);
+    ARK_A(A,6,3) = RCONST(125.0)/RCONST(108.0);
+    ARK_A(A,6,4) = RCONST(-65.0)/RCONST(27.0);
+    ARK_A(A,6,5) = RCONST(125.0)/RCONST(54.0);
+    ARK_A(A,7,0) = RCONST(31.0)/RCONST(300.0);
+    ARK_A(A,7,4) = RCONST(61.0)/RCONST(225.0);
+    ARK_A(A,7,5) = RCONST(-2.0)/RCONST(9.0);
+    ARK_A(A,7,6) = RCONST(13.0)/RCONST(900.0);
+    ARK_A(A,8,0) = RCONST(2.0);
+    ARK_A(A,8,3) = RCONST(-53.0)/RCONST(6.0);
+    ARK_A(A,8,4) = RCONST(704.0)/RCONST(45.0);
+    ARK_A(A,8,5) = RCONST(-107.0)/RCONST(9.0);
+    ARK_A(A,8,6) = RCONST(67.0)/RCONST(90.0);
+    ARK_A(A,8,7) = RCONST(3.0);
+    ARK_A(A,9,0) = RCONST(-91.0)/RCONST(108.0);
+    ARK_A(A,9,3) = RCONST(23.0)/RCONST(108.0);
+    ARK_A(A,9,4) = RCONST(-976.0)/RCONST(135.0);
+    ARK_A(A,9,5) = RCONST(311.0)/RCONST(54.0);
+    ARK_A(A,9,6) = RCONST(-19.0)/RCONST(60.0);
+    ARK_A(A,9,7) = RCONST(17.0)/RCONST(6.0);
+    ARK_A(A,9,8) = RCONST(-1.0)/RCONST(12.0);
+    ARK_A(A,10,0) = RCONST(2383.0)/RCONST(4100.0);
+    ARK_A(A,10,3) = RCONST(-341.0)/RCONST(164.0);
+    ARK_A(A,10,4) = RCONST(4496.0)/RCONST(1025.0);
+    ARK_A(A,10,5) = RCONST(-301.0)/RCONST(82.0);
+    ARK_A(A,10,6) = RCONST(2133.0)/RCONST(4100.0);
+    ARK_A(A,10,7) = RCONST(45.0)/RCONST(82.0);
+    ARK_A(A,10,8) = RCONST(45.0)/RCONST(164.0);
+    ARK_A(A,10,9) = RCONST(18.0)/RCONST(41.0);
+    ARK_A(A,11,0) = RCONST(3.0)/RCONST(205.0);
+    ARK_A(A,11,5) = RCONST(-6.0)/RCONST(41.0);
+    ARK_A(A,11,6) = RCONST(-3.0)/RCONST(205.0);
+    ARK_A(A,11,7) = RCONST(-3.0)/RCONST(41.0);
+    ARK_A(A,11,8) = RCONST(3.0)/RCONST(41.0);
+    ARK_A(A,11,9) = RCONST(6.0)/RCONST(41.0);
+    ARK_A(A,12,0) = RCONST(-1777.0)/RCONST(4100.0);
+    ARK_A(A,12,3) = RCONST(-341.0)/RCONST(164.0);
+    ARK_A(A,12,4) = RCONST(4496.0)/RCONST(1025.0);
+    ARK_A(A,12,5) = RCONST(-289.0)/RCONST(82.0);
+    ARK_A(A,12,6) = RCONST(2193.0)/RCONST(4100.0);
+    ARK_A(A,12,7) = RCONST(51.0)/RCONST(82.0);
+    ARK_A(A,12,8) = RCONST(33.0)/RCONST(164.0);
+    ARK_A(A,12,9) = RCONST(12.0)/RCONST(41.0);
+    ARK_A(A,12,11) = RCONST(1.0);
 
-  /*   b[5]  = RCONST(34.0)/RCONST(105.0); */
-  /*   b[6]  = RCONST(9.0)/RCONST(35.0); */
-  /*   b[7]  = RCONST(9.0)/RCONST(35.0); */
-  /*   b[8]  = RCONST(9.0)/RCONST(280.0); */
-  /*   b[9]  = RCONST(9.0)/RCONST(280.0); */
-  /*   b[11] = RCONST(41.0)/RCONST(840.0); */
-  /*   b[12] = RCONST(41.0)/RCONST(840.0); */
+    b[5]  = RCONST(34.0)/RCONST(105.0);
+    b[6]  = RCONST(9.0)/RCONST(35.0);
+    b[7]  = RCONST(9.0)/RCONST(35.0);
+    b[8]  = RCONST(9.0)/RCONST(280.0);
+    b[9]  = RCONST(9.0)/RCONST(280.0);
+    b[11] = RCONST(41.0)/RCONST(840.0);
+    b[12] = RCONST(41.0)/RCONST(840.0);
 
-  /*   b2[0]  = RCONST(41.0)/RCONST(840.0); */
-  /*   b2[5]  = RCONST(34.0)/RCONST(105.0); */
-  /*   b2[6]  = RCONST(9.0)/RCONST(35.0); */
-  /*   b2[7]  = RCONST(9.0)/RCONST(35.0); */
-  /*   b2[8]  = RCONST(9.0)/RCONST(280.0); */
-  /*   b2[9]  = RCONST(9.0)/RCONST(280.0); */
-  /*   b2[10] = RCONST(41.0)/RCONST(840.0); */
+    b2[0]  = RCONST(41.0)/RCONST(840.0);
+    b2[5]  = RCONST(34.0)/RCONST(105.0);
+    b2[6]  = RCONST(9.0)/RCONST(35.0);
+    b2[7]  = RCONST(9.0)/RCONST(35.0);
+    b2[8]  = RCONST(9.0)/RCONST(280.0);
+    b2[9]  = RCONST(9.0)/RCONST(280.0);
+    b2[10] = RCONST(41.0)/RCONST(840.0);
 
-  /*   c[1]  = RCONST(2.0)/RCONST(27.0);  */
-  /*   c[2]  = RCONST(1.0)/RCONST(9.0); */
-  /*   c[3]  = RCONST(1.0)/RCONST(6.0); */
-  /*   c[4]  = RCONST(5.0)/RCONST(12.0); */
-  /*   c[5]  = RCONST(1.0)/RCONST(2.0); */
-  /*   c[6]  = RCONST(5.0)/RCONST(6.0); */
-  /*   c[7]  = RCONST(1.0)/RCONST(6.0); */
-  /*   c[8]  = RCONST(2.0)/RCONST(3.0); */
-  /*   c[9]  = RCONST(1.0)/RCONST(3.0); */
-  /*   c[10] = RCONST(1.0); */
-  /*   c[12] = RCONST(1.0); */
-  /*   break; */
+    c[1]  = RCONST(2.0)/RCONST(27.0);
+    c[2]  = RCONST(1.0)/RCONST(9.0);
+    c[3]  = RCONST(1.0)/RCONST(6.0);
+    c[4]  = RCONST(5.0)/RCONST(12.0);
+    c[5]  = RCONST(1.0)/RCONST(2.0);
+    c[6]  = RCONST(5.0)/RCONST(6.0);
+    c[7]  = RCONST(1.0)/RCONST(6.0);
+    c[8]  = RCONST(2.0)/RCONST(3.0);
+    c[9]  = RCONST(1.0)/RCONST(3.0);
+    c[10] = RCONST(1.0);
+    c[12] = RCONST(1.0);
+    break;
 
-  case(11):   /* SDIRK-2-1 (A,B stable) */
+  case(SDIRK_2_1_2):   /* SDIRK-2-1 (A,B stable) */
     *s = 2;
     *q = 2;
     *p = 1;
@@ -599,7 +599,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[1] = RCONST(0.0);
     break;
 
-  case(12):    /* Billington-SDIRK */
+  case(BILLINGTON_3_3_2):    /* Billington-SDIRK */
     *s = 3;
     /* *q = 3; */
     /* *p = 2; */
@@ -632,7 +632,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[2] = RCONST(1.292893218813);
     break;
 
-  case(13):    /* TRBDF2-ESDIRK */
+  case(TRBDF2_3_3_2):    /* TRBDF2-ESDIRK */
     *s = 3;
     /* *q = 3; */
     /* *p = 2; */
@@ -665,7 +665,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[2] = one;
     break;
 
-  case(14):    /* Kvaerno(4,2,3)-ESDIRK */
+  case(KVAERNO_4_2_3):    /* Kvaerno(4,2,3)-ESDIRK */
     *s = 4;
     *q = 3;
     *p = 2;
@@ -693,7 +693,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[3] = RCONST(1.0);
     break;
 
-  case(15):    /* ARK3(2)4L[2]SA-ESDIRK */
+  case(ARK324L2SA_DIRK_4_2_3):    /* ARK3(2)4L[2]SA-ESDIRK */
     *s = 4;
     *q = 3;
     *p = 2;
@@ -722,7 +722,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[3] = RCONST(1.0);
     break;
 
-  case(16):    /* Cash(5,2,4)-SDIRK */
+  case(CASH_5_2_4):    /* Cash(5,2,4)-SDIRK */
     *s = 5;
     *q = 4;
     *p = 2;
@@ -758,7 +758,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[4] = RCONST(1.0);
     break;
 
-  case(17):    /* Cash(5,3,4)-SDIRK */
+  case(CASH_5_3_4):    /* Cash(5,3,4)-SDIRK */
     *s = 5;
     *q = 4;
     *p = 3;
@@ -796,7 +796,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[4] = RCONST(1.0);
     break;
 
-  case(18):    /* SDIRK-5-4 */
+  case(SDIRK_5_3_4):    /* SDIRK-5-4 */
     *s = 5;
     *q = 4;
     *p = 3;
@@ -834,7 +834,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[4] = RCONST(1.0);
     break;
 
-  case(19):    /* Kvaerno(5,3,4)-ESDIRK */
+  case(KVAERNO_5_3_4):    /* Kvaerno(5,3,4)-ESDIRK */
     *s = 5;
     *q = 4;
     *p = 3;
@@ -870,7 +870,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[4] = RCONST(1.0);
     break;
 
-  case(20):    /* ARK4(3)6L[2]SA-ESDIRK */
+  case(ARK436L2SA_DIRK_6_3_4):    /* ARK4(3)6L[2]SA-ESDIRK */
     *s = 6;
     *q = 4;
     *p = 3;
@@ -913,7 +913,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     b2[5] = RCONST(61727.0)/RCONST(225920.0);
     break;
 
-  case(21):    /* Kvaerno(7,4,5)-ESDIRK */
+  case(KVAERNO_7_4_5):    /* Kvaerno(7,4,5)-ESDIRK */
     *s = 7;
     *q = 5;
     *p = 4;
@@ -964,7 +964,7 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     c[6] = RCONST(1.0);
     break;
 
-  case(22):    /* ARK5(4)8L[2]SA-ESDIRK */
+  case(ARK548L2SA_DIRK_8_4_5):    /* ARK5(4)8L[2]SA-ESDIRK */
     *s = 8;
     *q = 5;
     *p = 4;
