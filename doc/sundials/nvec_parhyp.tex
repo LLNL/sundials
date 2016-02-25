@@ -4,9 +4,15 @@
 The {\nvecph} implementation of the {\nvector} module provided with
 {\sundials} is based on HYPRE's ParVector class. Most basic vector operations are 
 wrapped versions of HYPRE's vector operations. The remaining vector operations 
-mimic HYPRE's style of hybrid {\mpi} and OpenMP parallelism.  It defines the {\em content}
-field of \id{N\_Vector} to be a structure containing the global and local lengths 
-of the vector, a pointer to an object of type \id{hypre\_ParVector}, a pointer to the beginning of a contiguous local data array (which corresponds with the local data in the \id{hypre\_ParVector} {\em x}), an {\mpi} communicator, a boolean flag {\em own\_data} indicating ownership of the data array {\em data} and a boolean flag {\em own\_parvector} indicating ownership of the vector object {\em x}.
+mimic HYPRE's style of hybrid {\mpi} and OpenMP parallelism.  It
+defines the {\em content} field of \id{N\_Vector} to be a structure
+containing the global and local lengths of the vector, a pointer to an
+object of type \id{hypre\_ParVector}, a pointer to the beginning of a
+contiguous local data array (which corresponds with the local data in
+the \id{hypre\_ParVector} {\em x}), an {\mpi} communicator, a boolean
+flag {\em own\_data} indicating ownership of the data array {\em data}
+and a boolean flag {\em own\_parvector} indicating ownership of the
+vector object {\em x}.
 %%
 %%
 \begin{verbatim}
@@ -24,7 +30,8 @@ struct _N_VectorContent_ParHyp {
 %%--------------------------------------------
 %%
 The following nine macros are provided to access the content of a {\nvecph}
-vector. The suffix \id{\_PH} in the names denotes the parallel HYPRE wrapped version (distributed memory parallel with OpenMP threading).
+vector. The suffix \id{\_PH} in the names denotes the parallel HYPRE
+wrapped version (distributed memory parallel with OpenMP threading).
 \begin{itemize}
 
 \item 
@@ -35,7 +42,7 @@ vector. The suffix \id{\_PH} in the names denotes the parallel HYPRE wrapped ver
   
   The assignment \id{v\_cont = NV\_CONTENT\_PH(v)} sets       
   \id{v\_cont} to be a pointer to the \id{N\_Vector} content    
-  structure of type \id{struct N\_VectorContent\_ParHyp}.
+  structure of type \id{struct \_N\_VectorContent\_ParHyp}.
   
   Implementation:
   
