@@ -20,6 +20,8 @@
  * -----------------------------------------------------------------
  */
 
+#include <math.h>
+
 /* define constatnts */
 #define NEG_TWO  RCONST(-2.0)
 #define NEG_ONE  RCONST(-1.0)
