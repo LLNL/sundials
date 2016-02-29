@@ -88,7 +88,7 @@ IF(SUPERLUMT_FOUND)
 ENDIF()
 
 IF(PETSC_FOUND)
-    LIST(APPEND ida_HEADERS ida_petsc_ksp.h ida_petsc.h)
+    LIST(APPEND ida_HEADERS ida_petsc.h)
 ENDIF()
 
 # Add prefix with complete path to the IDA header files
