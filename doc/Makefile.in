@@ -4,10 +4,15 @@
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban, Slaven Peles @ LLNL
 # -----------------------------------------------------------------
-# Copyright (c) 2002, The Regents of the University of California.
+# LLNS Copyright Start
+# Copyright (c) 2014, Lawrence Livermore National Security
+# This work was performed under the auspices of the U.S. Department 
+# of Energy by Lawrence Livermore National Laboratory in part under 
+# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
-# For details, see sundials/LICENSE.
+# For details, see the LICENSE file.
+# LLNS Copyright End
 # -----------------------------------------------------------------
 # Makefile for SUNDIALS documents
 # -----------------------------------------------------------------
@@ -18,8 +23,8 @@ SHARED_DOC = ../sundials
 
 HTML_DIR = ../../html/documentation
 
-
-TEX_COMPILER = xelatex
+# Use pdflatex as default compiler
+TEX_COMPILER = pdflatex
 
 UG_SHARED_FILES = \
 fortran.tex \
@@ -86,8 +91,10 @@ all:
 	@echo "  make ex     - compile LaTeX files to generate PDF file for IDA Examples Guide"
 	@echo "  make clean  - remove all temporary files"
 	@echo "  make purge  - remove temporary files + PDF files"
-	@echo "  make ug_pdf - use pdflatex to generate PDF file for IDA User's Guide"
-	@echo "  make ex_pdf - use pdflatex to generate PDF file for IDA Examples Guide"
+	@echo "  make ug_pdf - generate PDF file for IDA User's Guide using pdflatex"
+	@echo "  make ex_pdf - generate PDF file for IDA Examples Guide using pdflatex"
+	@echo "  make ug_xel - generate PDF file for IDA User's Guide using xelatex"
+	@echo "  make ex_xel - generate PDF file for IDA Examples Guide using xelatex"
 	@echo ""
 
 install: ug ex
@@ -106,6 +113,8 @@ install: ug ex
 ug: 	copy_ug copy_ug_figs copy_ug_cmake_figs ${USER_GUIDE}.pdf
 
 ug_pdf: use_pdflatex ug
+
+ug_xel: use_xelatex ug
 
 #ug_html: ug
 #	cp ug_html.tex ug.tex
@@ -141,9 +150,11 @@ ${USER_GUIDE}.pdf: ${UG_FILES} ${UG_SHARED_FILES:%=${SHARED_DOC}/%}
 
 #-------------------------------------------------------------------------------
 
-ex:	ug copy_ex ${EXAMPLES}.pdf
+ex: ug copy_ex ${EXAMPLES}.pdf
 
 ex_pdf: use_pdflatex ex
+
+ex_xel: use_xelatex ex
 
 #ex_html: ex
 #	cp ug_html.tex ug.tex
@@ -171,6 +182,9 @@ ${EXAMPLES}.pdf: ${EX_FILES} ${EX_SHARED_FILES:%=${SHARED_DOC}/%}
 
 use_pdflatex:
 	$(eval TEX_COMPILER := pdflatex)
+
+use_xelatex:
+	$(eval TEX_COMPILER := xelatex)
 
 clean:
 	rm -rf ${UG_SHARED_FILES}
