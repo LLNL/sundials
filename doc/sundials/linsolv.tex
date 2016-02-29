@@ -613,7 +613,7 @@ sparse matrix of type \id{SlsMat} need not be square.
 \end{description}
 \noindent The following pointers are added to the \id{SlsMat} type for user convenience, 
 to provide a more intuitive interface to the CSC and CSR sparse matrix data structures. They are set 
-automatically by the \id{NewSparseMat} function, based on the sparse matrix storage type. 
+automatically by the \id{SparseNewMat} function, based on the sparse matrix storage type. 
 \begin{description}
   \item[rowvals] - pointer to \verb|indexvals| when \id{sparsetype} is \id{CSC\_MAT},
     otherwise set to \verb|NULL|.
@@ -703,65 +703,65 @@ type \id{SlsMat}.  For full details, see the header file \id{sundials\_sparse.h}
 \index{SLS@{\sls} sparse linear solver!functions!small matrix|(}
 \begin{itemize}
 
-\item \ID{NewSparseMat}
-  \par \id{NewSparseMat(M, N, NNZ, sparsetype)} allocates storage for an \id{M} by \id{N}
+\item \ID{SparseNewMat}
+  \par \id{SparseNewMat(M, N, NNZ, sparsetype)} allocates storage for an \id{M} by \id{N}
   sparse matrix, with storage for up to \id{NNZ} nonzero entries and \id{sparsetype} 
   storage type (\id{CSC\_MAT} or \id{CSR\_MAT}).
 
-\item \ID{SlsConvertDls}
-  \par \id{SlsConvertDls(A)} converts a dense or band matrix \id{A} of type
+\item \ID{SparseFromDenseMat}
+  \par \id{SparseFromDenseMat(A)} converts a dense or band matrix \id{A} of type
   \id{DlsMat} into a new CSC matrix of type \id{SlsMat} by retaining
   only the nonzero values of the matrix \id{A}.
 
-\item \ID{DestroySparseMat}
-  \par \id{DestroySparseMat(A)} frees the memory for a sparse matrix
-  \id{A} allocated by either \id{NewSparseMat} or \id{SlsConvertDls}.
+\item \ID{SparseDestroyMat}
+  \par \id{SparseDestroyMat(A)} frees the memory for a sparse matrix
+  \id{A} allocated by either \id{SparseNewMat} or \id{SparseFromDenseMat}.
 
 \item \ID{}
-  \par \id{SlsSetToZero(A)} zeros out the \id{SlsMat} matrix \id{A}.
+  \par \id{SparseSetMatToZero(A)} zeros out the \id{SlsMat} matrix \id{A}.
   The storage for \id{A} is left unchanged.
 
-\item \ID{CopySparseMat}
-  \par \id{CopySparseMat(A, B)} copies the \id{SlsMat} \id{A} into the
+\item \ID{SparseCopyMat}
+  \par \id{SparseCopyMat(A, B)} copies the \id{SlsMat} \id{A} into the
   \id{SlsMat} \id{B}.  It is assumed that the matrices have the same
   row/column dimensions and storage type.  If \id{B} has insufficient 
   storage to hold all the nonzero entries of \id{A}, the data and 
   index arrays in \id{B} are reallocated to match those in \id{A}.
 
-\item \ID{ScaleSparseMat}
-  \par \id{ScaleSparseMat(c, A)} scales every element in the
+\item \ID{SparseScaleMat}
+  \par \id{SparseScaleMat(c, A)} scales every element in the
   \id{SlsMat} \id{A} by the \id{realtype} scalar \id{c}.
 
-\item \ID{AddIdentitySparseMat}
-  \par \id{AddIdentitySparseMat(A)} increments the \id{SlsMat} \id{A}
+\item \ID{SparseAddIdentityMat}
+  \par \id{SparseAddIdentityMat(A)} increments the \id{SlsMat} \id{A}
   by the identity matrix.  If \id{A} is not square, only the existing
   diagonal values are incremented.  Resizes the \id{data} and
   \id{rowvals} arrays of \id{A} to allow for new 
   nonzero entries on the diagonal.
 
-\item \ID{SlsAddMat}
-  \par \id{SlsAddMat(A, B)} adds two \id{SlsMat} matrices \id{A} and
+\item \ID{SparseAddMat}
+  \par \id{SparseAddMat(A, B)} adds two \id{SlsMat} matrices \id{A} and
   \id{B}, placing the result back in \id{A}.  Resizes the \id{data}
   and \id{rowvals} arrays of \id{A} upon completion to exactly match
   the nonzero storage for the result.  Upon successful completion, the
   return value is zero; otherwise -1 is returned. It is assumed that
   both matrices have the same size and storage type.
 
-\item \ID{ReallocSparseMat}
-  \par \id{ReallocSparseMat(A)} eliminates unused storage in the
+\item \ID{SparseReallocMat}
+  \par \id{SparseReallocMat(A)} eliminates unused storage in the
   \id{SlsMat} \id{A} by resizing the internal \id{data} and
   \id{rowvals} arrays to contain exactly \id{colptrs[N]} values.
 
-\item \ID{SlsMatvec}
-  \par \id{SlsMatvec(A, x, y)} computes the sparse matrix-vector
+\item \ID{SparseMatvec}
+  \par \id{SparseMatvec(A, x, y)} computes the sparse matrix-vector
   product, $y=Ax$.  If the \id{SlsMat} \id{A} 
   is a sparse matrix of dimension $M\times N$, then it is assumed
   that \id{x} is a \id{realtype} array of length $N$, and \id{y} is a
   \id{realtype} array of length $M$. Upon successful completion, the
   return value is zero; otherwise -1 is returned.
 
-\item \ID{PrintSparseMat}
-  \par \id{PrintSparseMat(A)} Prints the \id{SlsMat} matrix \id{A} to
+\item \ID{SparsePrintMat}
+  \par \id{SparsePrintMat(A)} Prints the \id{SlsMat} matrix \id{A} to
   standard output.
 
 \end{itemize}
