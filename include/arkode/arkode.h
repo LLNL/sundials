@@ -64,7 +64,7 @@ extern "C" {
 ---------------------------------------------------------------*/
 
 /* max number of overall stages allowed */
-#define ARK_S_MAX          8
+#define ARK_S_MAX          15
 #define ARK_A(A,i,j)       (A[i*ARK_S_MAX + j])
 
 /* itask */
