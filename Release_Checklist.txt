@@ -37,7 +37,7 @@ The order is bottom-up-- starting with solver source files, and ending with web 
 6. Create PDF files for SundialsTB
     Create the PDF doc for SundialsTB by running the Matlab program texdoc.m available in sundialsTB/doc.
     The program uses the m2html toolbox, freely available.  It creates doc files in PS and PDF formats as sundialsTB.ps and sundialsTB.pdf.
-    Follow Radu's instructions in ????/README
+    Follow Radu's instructions in sundials/sundialsTB/doc/README_texdoc
 
 8. Create the tarballs
 Create the new distribution tarballs using the "tarscript" shell script under scripts/.  This also compiles the documents (user guides and example
