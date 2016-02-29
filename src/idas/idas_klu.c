@@ -139,7 +139,7 @@ int IDAKLU(void *ida_mem, int n, int nnz, int sparsetype)
   idasls_mem->sparsetype = sparsetype;
 
   /* Allocate memory for the sparse Jacobian */
-  idasls_mem->s_JacMat = NewSparseMat(n, n, nnz, sparsetype);
+  idasls_mem->s_JacMat = SparseNewMat(n, n, nnz, sparsetype);
   if (idasls_mem->s_JacMat == NULL) {
     IDAProcessError(IDA_mem, IDASLS_MEM_FAIL, "IDASSLS", "IDAKLU", 
 		    MSGSP_MEM_FAIL);
@@ -254,11 +254,11 @@ int IDAKLUReInit(void *ida_mem_v, int n, int nnz, int reinit_type)
 
     /* Destroy previous Jacobian information */
     if (idasls_mem->s_JacMat) {
-      DestroySparseMat(idasls_mem->s_JacMat);
+      SparseDestroyMat(idasls_mem->s_JacMat);
     }
 
     /* Allocate memory for the sparse Jacobian */
-    idasls_mem->s_JacMat = NewSparseMat(n, n, nnz, idasls_mem->sparsetype);
+    idasls_mem->s_JacMat = SparseNewMat(n, n, nnz, idasls_mem->sparsetype);
     if (idasls_mem->s_JacMat == NULL) {
       IDAProcessError(ida_mem, IDASLS_MEM_FAIL, "IDASLS", "IDAKLU", 
 		    MSGSP_MEM_FAIL);
@@ -512,7 +512,7 @@ static int IDAKLUFree(IDAMem IDA_mem)
   klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
 
   if (idasls_mem->s_JacMat) {
-    DestroySparseMat(idasls_mem->s_JacMat);
+    SparseDestroyMat(idasls_mem->s_JacMat);
     idasls_mem->s_JacMat = NULL;
   }
 

@@ -237,7 +237,7 @@ int jacrob(realtype tt,  realtype cj,
   rowvals = (*JacMat->rowvals);
   data    = JacMat->data;
 
-  SlsSetToZero(JacMat);
+  SparseSetMatToZero(JacMat);
 
   colptrs[0] = 0;
   colptrs[1] = 3;

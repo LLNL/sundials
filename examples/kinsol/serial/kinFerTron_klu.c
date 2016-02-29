@@ -362,7 +362,7 @@ static int jac(N_Vector y, N_Vector f,
   colvals = (*J->colvals);
   data    = J->data;
   
-  SlsSetToZero(J);
+  SparseSetMatToZero(J);
 
   rowptrs[0] =  0;
   rowptrs[1] =  2;

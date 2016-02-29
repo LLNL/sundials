@@ -374,7 +374,7 @@ int main(int argc, char *argv[]) {
   N_VDestroy_Serial(umask);
   N_VDestroy_Serial(vmask);
   N_VDestroy_Serial(wmask);
-  DestroySparseMat(udata->R);      /* Free user data */
+  SparseDestroyMat(udata->R);      /* Free user data */
   N_VDestroy_Serial(udata->tmp);
   free(udata->x);
   free(udata);
@@ -663,7 +663,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
 
   /* Create empty reaction Jacobian matrix (if not done already) */
   if (udata->R == NULL) {
-    udata->R = NewSparseMat(J->M, J->N, J->NNZ, CSC_MAT);
+    udata->R = SparseNewMat(J->M, J->N, J->NNZ, CSC_MAT);
     if (udata->R == NULL) {
       printf("Jac: error in allocating R matrix!\n");
       return 1;
@@ -678,7 +678,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
   }
 
   /* Add R to J */
-  ier = SlsAddMat(J,udata->R);
+  ier = SparseAddMat(J,udata->R);
   if (ier != 0) {
     printf("Jac: error in adding sparse matrices = %i!\n",ier);
     return 1;
@@ -706,7 +706,7 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
   realtype xl, xr, f1, f2, f3, dtmp;
 
   /* clear out mass matrix */
-  SlsSetToZero(M);
+  SparseSetMatToZero(M);
 
   /* iterate over columns, filling in matrix entries */
   for (i=0; i<N; i++) {
@@ -878,7 +878,7 @@ static int LaplaceMatrix(SlsMat L, UserData udata)
   int *rowvals = *L->rowvals;
   
   /* clear out matrix */
-  SlsSetToZero(L);
+  SparseSetMatToZero(L);
 
   /* iterate over columns, filling in Laplace matrix entries */
   for (i=0; i<N; i++) {
@@ -997,7 +997,7 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
   dQdf1r = dQdf2r = dQdf3r = ChiL1r = ChiL2r = ChiL3r = ChiR1r = ChiR2r = ChiR3r = 0.0;
 
   /* clear out matrix */
-  SlsSetToZero(Jac);
+  SparseSetMatToZero(Jac);
 
   /* iterate over columns, filling in reaction Jacobian */
   for (i=0; i<N; i++) {

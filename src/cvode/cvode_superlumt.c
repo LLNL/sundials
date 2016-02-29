@@ -127,7 +127,7 @@ int CVSuperLUMT(void *cvode_mem, int num_threads, int n, int nnz)
   cvsls_mem->s_jacdata = cv_mem->cv_user_data;
 
   /* Allocate memory for the sparse Jacobian */
-  cvsls_mem->s_JacMat = NewSparseMat(n, n, nnz, CSC_MAT);
+  cvsls_mem->s_JacMat = SparseNewMat(n, n, nnz, CSC_MAT);
   if (cvsls_mem->s_JacMat == NULL) {
     cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "cvSuperLUMT", 
 		    MSGSP_MEM_FAIL);
@@ -136,11 +136,11 @@ int CVSuperLUMT(void *cvode_mem, int num_threads, int n, int nnz)
   }
 
   /* Allocate memory for saved sparse Jacobian */
-  cvsls_mem->s_savedJ = NewSparseMat(n, n, nnz, CSC_MAT);
+  cvsls_mem->s_savedJ = SparseNewMat(n, n, nnz, CSC_MAT);
   if (cvsls_mem->s_savedJ == NULL) {
     cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "cvSuperLUMT", 
 		    MSGSP_MEM_FAIL);
-    DestroySparseMat(cvsls_mem->s_JacMat);
+    SparseDestroyMat(cvsls_mem->s_JacMat);
     free(cvsls_mem);
     return(CVSLS_MEM_FAIL);
   }
@@ -332,13 +332,13 @@ static int cvSuperLUMTSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   if (jok) {
     /* If jok = TRUE, use saved copy of J */
     *jcurPtr = FALSE;
-    CopySparseMat(savedJ, JacMat);
+    SparseCopyMat(savedJ, JacMat);
   } else {
     /* If jok = FALSE, call jac routine for new J value */
     cvsls_mem->s_nje++;
     cvsls_mem->s_nstlj = nst;
     *jcurPtr = TRUE;
-    SlsSetToZero(JacMat);
+    SparseSetMatToZero(JacMat);
     retval = jaceval(tn, ypred, fpred, JacMat, jacdata, vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
       cvProcessError(cv_mem, CVSLS_JACFUNC_UNRECVR, "CVSLS", "cvSuperLUMTSetup", MSGSP_JACFUNC_FAILED);
@@ -350,12 +350,12 @@ static int cvSuperLUMTSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
       return(1);
     }
 
-    CopySparseMat(JacMat, savedJ);
+    SparseCopyMat(JacMat, savedJ);
   }
 
   /* Scale and add I to get M = I - gamma*J */
-  ScaleSparseMat(-gamma, JacMat);
-  AddIdentitySparseMat(JacMat);
+  SparseScaleMat(-gamma, JacMat);
+  SparseAddIdentityMat(JacMat);
 
   if (A->Store) {
     SUPERLU_FREE(A->Store);
@@ -487,11 +487,11 @@ static void cvSuperLUMTFree(CVodeMem cv_mem)
   Destroy_SuperMatrix_Store(slumt_data->s_B);
   SUPERLU_FREE(slumt_data->s_A->Store);
   if (cvsls_mem->s_JacMat) {
-    DestroySparseMat(cvsls_mem->s_JacMat);
+    SparseDestroyMat(cvsls_mem->s_JacMat);
     cvsls_mem->s_JacMat = NULL;
   }
   if (cvsls_mem->s_savedJ) {
-    DestroySparseMat(cvsls_mem->s_savedJ);
+    SparseDestroyMat(cvsls_mem->s_savedJ);
     cvsls_mem->s_savedJ = NULL;
   }
 

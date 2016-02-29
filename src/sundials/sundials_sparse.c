@@ -3,7 +3,7 @@
  * $Revision$
  * $Date$
  * -----------------------------------------------------------------
- * Programmers: Carol Woodward @ LLNL
+ * Programmers: Carol Woodward, Slaven Peles @ LLNL
  *              Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -37,7 +37,7 @@
  * Returns NULL if a memory allocation error occurred.
  * 
  */
-SlsMat NewSparseMat(int M, int N, int NNZ, int sparsetype)
+SlsMat SparseNewMat(int M, int N, int NNZ, int sparsetype)
 {
   SlsMat A;
 
@@ -111,7 +111,7 @@ SlsMat NewSparseMat(int M, int N, int NNZ, int sparsetype)
  * is converted to CSC.
  * 
  */
-SlsMat SlsConvertDls(const DlsMat A)
+SlsMat SparseFromDenseMat(const DlsMat A)
 {
   int i, j, nnz;
   realtype dtmp;
@@ -127,7 +127,7 @@ SlsMat SlsConvertDls(const DlsMat A)
 	nnz += (DENSE_ELEM(A,i,j) != 0.0);
 
     /* allocate sparse matrix */
-    As = NewSparseMat(A->M, A->N, nnz, CSC_MAT);
+    As = SparseNewMat(A->M, A->N, nnz, CSC_MAT);
     if (As == NULL)  return NULL;
 
     /* copy nonzeros from A into As */
@@ -153,7 +153,7 @@ SlsMat SlsConvertDls(const DlsMat A)
 	nnz += (BAND_ELEM(A,i,j) != 0.0);
 
     /* allocate sparse matrix */
-    As = NewSparseMat(A->M, A->N, nnz, CSC_MAT);
+    As = SparseNewMat(A->M, A->N, nnz, CSC_MAT);
     if (As == NULL)  return NULL;
 
     /* copy nonzeros from A into As */
@@ -183,7 +183,7 @@ SlsMat SlsConvertDls(const DlsMat A)
  * Frees memory and deletes the structure for an existing sparse matrix.
  * 
  */
-void DestroySparseMat(SlsMat A)
+void SparseDestroyMat(SlsMat A)
 {
   if (A->data) {
     free(A->data);  
@@ -209,7 +209,7 @@ void DestroySparseMat(SlsMat A)
 /** 
  * Sets all sparse matrix entries to zero.
  */
-void SlsSetToZero(SlsMat A)
+void SparseSetMatToZero(SlsMat A)
 {
   int i;
 
@@ -234,7 +234,7 @@ void SlsSetToZero(SlsMat A)
  * for the situation in which B has fewer nonzeros than A.
  *  
  */
-void CopySparseMat(const SlsMat A, SlsMat B)
+int SparseCopyMat(const SlsMat A, SlsMat B)
 {
   int i;
   int A_nz = A->indexptrs[A->NP];
@@ -257,7 +257,7 @@ void CopySparseMat(const SlsMat A, SlsMat B)
   }
 
   /* zero out B so that copy works correctly */
-  SlsSetToZero(B);
+  SparseSetMatToZero(B);
 
   /* copy the data and row indices over */
   for (i=0; i<A_nz; i++){
@@ -270,14 +270,15 @@ void CopySparseMat(const SlsMat A, SlsMat B)
     B->indexptrs[i] = A->indexptrs[i];
   }
   B->indexptrs[A->NP] = A_nz;
-
+  
+  return 0;
 }
 
 
 /** 
  * Scales a sparse matrix A by the coefficient b.
  */
-void ScaleSparseMat(realtype b, SlsMat A)
+void SparseScaleMat(realtype b, SlsMat A)
 {
   int i;
 
@@ -291,7 +292,7 @@ void ScaleSparseMat(realtype b, SlsMat A)
 Adds the identity to a sparse matrix.  Resizes A if necessary 
 (if it had 0-valued diagonal entries).
 */
-/* void AddIdentitySparseMat(SlsMat A) */
+/* void SparseAddIdentityMat(SlsMat A) */
 /* { */
 /*   int j, i, p, M, N, nz; */
 /*   int *w, *Cp, *Ap, *Ai, *Ci; */
@@ -303,7 +304,7 @@ Adds the identity to a sparse matrix.  Resizes A if necessary
 
 /*   w = (int *)malloc(M * sizeof(int)); */
 /*   x = (realtype *)malloc(M * sizeof(realtype)); */
-/*   C = NewSparseMat(A->M, A->N, (A->NNZ)+M); */
+/*   C = SparseNewMat(A->M, A->N, (A->NNZ)+M); */
 
 /*   Cp = C->colptrs; */
 /*   Ci = C->rowvals; */
@@ -362,12 +363,12 @@ Adds the identity to a sparse matrix.  Resizes A if necessary
 /*     C->colptrs = NULL; */
 /*   } */
 
-/*   DestroySparseMat(C);  */
+/*   SparseDestroyMat(C);  */
 /*   free(w); */
 /*   free(x); */
 
 /*   /\*  Reallocate the new matrix to get rid of any extra space *\/ */
-/*   ReallocSparseMat(A); */
+/*   SparseReallocMat(A); */
 
 /* } */
 
@@ -383,7 +384,7 @@ Adds the identity to a sparse matrix.  Resizes A if necessary
  * implementation.  
  * 
  */
-void AddIdentitySparseMat(SlsMat A)
+void SparseAddIdentityMat(SlsMat A)
 {
   int j, i, p, nz, newmat, found;
   int *w, *Ap, *Ai, *Cp, *Ci;
@@ -441,7 +442,7 @@ void AddIdentitySparseMat(SlsMat A)
     x = (realtype *) malloc(A->M * sizeof(realtype));
 
     /* create new matrix for sum (overestimate nnz as sum of each) */
-    C = NewSparseMat(A->M, A->N, (A->indexptrs)[A->NP] + SUNMIN(A->M, A->N), A->sparsetype);
+    C = SparseNewMat(A->M, A->N, (A->indexptrs)[A->NP] + SUNMIN(A->M, A->N), A->sparsetype);
 
     /* access data from CSR structures (return if failure) */
     Cp = Ci = Ap = Ai = NULL;
@@ -517,12 +518,12 @@ void AddIdentitySparseMat(SlsMat A)
     C->indexptrs = NULL;
 
     /* clean up */
-    DestroySparseMat(C); 
+    SparseDestroyMat(C); 
     free(w);
     free(x);
 
     /* reallocate the new matrix to remove extra space */
-    ReallocSparseMat(A);
+    SparseReallocMat(A);
   }
 
 }
@@ -539,7 +540,7 @@ void AddIdentitySparseMat(SlsMat A)
  * implementation.  
  * 
  */
-int SlsAddMat(SlsMat A, const SlsMat B)
+int SparseAddMat(SlsMat A, const SlsMat B)
 {
   int j, i, p, nz, newmat;
   int *w, *Ap, *Ai, *Bp, *Bi, *Cp, *Ci;
@@ -621,7 +622,7 @@ int SlsAddMat(SlsMat A, const SlsMat B)
   } else {
 
     /* create new matrix for sum (overestimate nnz as sum of each) */
-    C = NewSparseMat(M, N, (A->indexptrs[N])+(B->indexptrs[N]), A->sparsetype);
+    C = SparseNewMat(M, N, (A->indexptrs[N])+(B->indexptrs[N]), A->sparsetype);
 
     /* access data from CSR structures (return if failure) */
     Cp = Ci = Ap = Ai = Bp = Bi = NULL;
@@ -700,10 +701,10 @@ int SlsAddMat(SlsMat A, const SlsMat B)
     C->indexptrs = NULL;
 
     /* clean up */
-    DestroySparseMat(C); 
+    SparseDestroyMat(C); 
 
     /* reallocate the new matrix to remove extra space */
-    ReallocSparseMat(A);
+    SparseReallocMat(A);
 
   }
 
@@ -720,7 +721,7 @@ int SlsAddMat(SlsMat A, const SlsMat B)
  * Resizes the memory allocated for a given sparse matrix, shortening 
  * it down to the number of actual nonzero entries.
  */
-void ReallocSparseMat(SlsMat A)
+void SparseReallocMat(SlsMat A)
 {
   int nzmax; 
 
@@ -737,12 +738,12 @@ void ReallocSparseMat(SlsMat A)
  * 
  * Returns 0 if successful, -1 if unsuccessful (failed memory access).
  */
-int SlsMatvec(const SlsMat A, const realtype *x, realtype *y)
+int SparseMatvec(const SlsMat A, const realtype *x, realtype *y)
 {
   if(A->sparsetype == CSC_MAT)
-    return SlsMatvecCSC(A, x, y);
+    return SparseMatvecCSC(A, x, y);
   else if (A->sparsetype == CSR_MAT)
-    return SlsMatvecCSR(A, x, y);
+    return SparseMatvecCSR(A, x, y);
   else
     return(-1);
 }
@@ -751,7 +752,7 @@ int SlsMatvec(const SlsMat A, const realtype *x, realtype *y)
 /** 
  * Prints the nonzero entries of a sparse matrix to screen.
  */
-void PrintSparseMatCSC(const SlsMat A)
+void SparsePrintMatCSC(const SlsMat A)
 {
   int i,j, M, N, NNZ;
   int *colptrs;
@@ -789,7 +790,7 @@ void PrintSparseMatCSC(const SlsMat A)
  * 
  * Returns 0 if successful, -1 if unsuccessful (failed memory access).
  */
-int SlsMatvecCSC(const SlsMat A, const realtype *x, realtype *y)
+int SparseMatvecCSC(const SlsMat A, const realtype *x, realtype *y)
 {
   int j, i;
   int *Ap, *Ai;
@@ -830,7 +831,7 @@ int SlsMatvecCSC(const SlsMat A, const realtype *x, realtype *y)
  * 
  * Returns 0 if successful, -1 if unsuccessful (failed memory access).
  */
-int SlsMatvecCSR(const SlsMat A, const realtype *x, realtype *y)
+int SparseMatvecCSR(const SlsMat A, const realtype *x, realtype *y)
 {
   int j, i;
   int *Ap, *Aj;

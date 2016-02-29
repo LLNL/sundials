@@ -260,7 +260,7 @@ static int jac(N_Vector y, N_Vector f,
   x7 = yd[6];
   x8 = yd[7];
 
-  SlsSetToZero(J);
+  SparseSetMatToZero(J);
   
   colptrs[0] = 0;
   colptrs[1] = 7;

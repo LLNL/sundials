@@ -125,7 +125,7 @@ int CVKLU(void *cvode_mem, int n, int nnz, int sparsetype)
   cvsls_mem->sparsetype = sparsetype;
 
   /* Allocate memory for the sparse Jacobian */
-  cvsls_mem->s_JacMat = NewSparseMat(n, n, nnz, sparsetype);
+  cvsls_mem->s_JacMat = SparseNewMat(n, n, nnz, sparsetype);
   if (cvsls_mem->s_JacMat == NULL) {
     cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "cvKLU", 
 		    MSGSP_MEM_FAIL);
@@ -134,11 +134,11 @@ int CVKLU(void *cvode_mem, int n, int nnz, int sparsetype)
   }
 
   /* Allocate memory for saved sparse Jacobian */
-  cvsls_mem->s_savedJ = NewSparseMat(n, n, nnz, sparsetype);
+  cvsls_mem->s_savedJ = SparseNewMat(n, n, nnz, sparsetype);
   if (cvsls_mem->s_savedJ == NULL) {
     cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "cvKLU", 
 		    MSGSP_MEM_FAIL);
-    DestroySparseMat(cvsls_mem->s_JacMat);
+    SparseDestroyMat(cvsls_mem->s_JacMat);
     free(cvsls_mem);
     return(CVSLS_MEM_FAIL);
   }
@@ -248,11 +248,11 @@ int CVKLUReInit(void *cvode_mem, int n, int nnz, int reinit_type)
 
     /* Destroy previous Jacobian information */
     if (cvsls_mem->s_JacMat) {
-      DestroySparseMat(cvsls_mem->s_JacMat);
+      SparseDestroyMat(cvsls_mem->s_JacMat);
     }
 
     /* Allocate memory for the sparse Jacobian */
-    cvsls_mem->s_JacMat = NewSparseMat(n, n, nnz, cvsls_mem->sparsetype);
+    cvsls_mem->s_JacMat = SparseNewMat(n, n, nnz, cvsls_mem->sparsetype);
     if (cvsls_mem->s_JacMat == NULL) {
       cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "CVKLU", 
 		    MSGSP_MEM_FAIL);
@@ -359,13 +359,13 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   if (jok) {
     /* If jok = TRUE, use saved copy of J */
     *jcurPtr = FALSE;
-    CopySparseMat(savedJ, JacMat);
+    SparseCopyMat(savedJ, JacMat);
   } else {
     /* If jok = FALSE, call jac routine for new J value */
     cvsls_mem->s_nje++;
     cvsls_mem->s_nstlj = nst;
     *jcurPtr = TRUE;
-    SlsSetToZero(JacMat);
+    SparseSetMatToZero(JacMat);
     retval = jaceval(tn, ypred, fpred, JacMat, jacdata, vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
       cvProcessError(cv_mem, CVSLS_JACFUNC_UNRECVR, "CVSLS", "cvKLUSetup", MSGSP_JACFUNC_FAILED);
@@ -377,12 +377,12 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
       return(1);
     }
 
-    CopySparseMat(JacMat, savedJ);
+    SparseCopyMat(JacMat, savedJ);
   }
 
   /* Scale and add I to get M = I - gamma*J */
-  ScaleSparseMat(-gamma, JacMat);
-  AddIdentitySparseMat(JacMat);
+  SparseScaleMat(-gamma, JacMat);
+  SparseAddIdentityMat(JacMat);
 
   if (cvsls_mem->s_first_factorize) {
     /* ------------------------------------------------------------
@@ -539,12 +539,12 @@ static void cvKLUFree(CVodeMem cv_mem)
   klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
 
   if (cvsls_mem->s_JacMat) {
-    DestroySparseMat(cvsls_mem->s_JacMat);
+    SparseDestroyMat(cvsls_mem->s_JacMat);
     cvsls_mem->s_JacMat = NULL;
   }
 
   if (cvsls_mem->s_savedJ) {
-    DestroySparseMat(cvsls_mem->s_savedJ);
+    SparseDestroyMat(cvsls_mem->s_savedJ);
     cvsls_mem->s_savedJ = NULL;
   }
 

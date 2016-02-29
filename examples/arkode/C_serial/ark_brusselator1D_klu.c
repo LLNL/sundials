@@ -313,7 +313,7 @@ int main()
   N_VDestroy_Serial(umask);
   N_VDestroy_Serial(vmask);
   N_VDestroy_Serial(wmask);
-  DestroySparseMat(udata->R);   /* Free user data */
+  SparseDestroyMat(udata->R);   /* Free user data */
   free(udata);
   ARKodeFree(&arkode_mem);
   return 0;
@@ -398,7 +398,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
 
   /* Add in the Jacobian of the reaction terms matrix */
   if (udata->R == NULL) {
-    udata->R = NewSparseMat(J->M, J->N, J->NNZ, CSC_MAT);
+    udata->R = SparseNewMat(J->M, J->N, J->NNZ, CSC_MAT);
     if (udata->R == NULL) {
       printf("Jacobian calculation error in allocating R matrix!\n");
       return 1;
@@ -412,7 +412,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
   }
 
   /* Add R to J */
-  if (SlsAddMat(J,udata->R) != 0) {
+  if (SparseAddMat(J,udata->R) != 0) {
     printf("Jacobian calculation error in adding sparse matrices!\n");
     return 1;
   }
@@ -438,7 +438,7 @@ static int LaplaceMatrix(SlsMat Lap, UserData udata)
   realtype *data = Lap->data;
   
   /* clear out matrix */
-  SlsSetToZero(Lap);
+  SparseSetMatToZero(Lap);
 
   /* set first column to zero */
   colptrs[IDX(0,0)] = nz;
@@ -528,7 +528,7 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
   if (check_flag((void *) Ydata, "N_VGetArrayPointer", 0)) return 1;
 
   /* clear out matrix */
-  SlsSetToZero(Jac);
+  SparseSetMatToZero(Jac);
 
   /* set first matrix column to zero */
   colptrs[IDX(0,0)] = 0;

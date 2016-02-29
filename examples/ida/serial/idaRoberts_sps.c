@@ -233,7 +233,7 @@ int jacrob(realtype tt,  realtype cj,
   
   yval = NV_DATA_S(yy);
 
-  SlsSetToZero(JacMat);
+  SparseSetMatToZero(JacMat);
 
   colptrs[0] = 0;
   colptrs[1] = 3;

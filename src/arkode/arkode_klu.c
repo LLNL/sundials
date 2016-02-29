@@ -138,7 +138,7 @@ int ARKKLU(void *arkode_mem, int n, int nnz, int sparsetype)
 
   /* Allocate memory for the sparse Jacobian */
   arksls_mem->s_A = NULL;
-  arksls_mem->s_A = NewSparseMat(n, n, nnz, sparsetype);
+  arksls_mem->s_A = SparseNewMat(n, n, nnz, sparsetype);
   if (arksls_mem->s_A == NULL) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
 		    "ARKKLU", MSGSP_MEM_FAIL);
@@ -149,11 +149,11 @@ int ARKKLU(void *arkode_mem, int n, int nnz, int sparsetype)
 
   /* Allocate memory for saved sparse Jacobian */
   arksls_mem->s_savedJ = NULL;
-  arksls_mem->s_savedJ = NewSparseMat(n, n, nnz, sparsetype);
+  arksls_mem->s_savedJ = SparseNewMat(n, n, nnz, sparsetype);
   if (arksls_mem->s_savedJ == NULL) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
 		    "ARKKLU", MSGSP_MEM_FAIL);
-    DestroySparseMat(arksls_mem->s_A);
+    SparseDestroyMat(arksls_mem->s_A);
     free(klu_data); klu_data = NULL;
     free(arksls_mem); arksls_mem = NULL;
     return(ARKSLS_MEM_FAIL);
@@ -182,8 +182,8 @@ int ARKKLU(void *arkode_mem, int n, int nnz, int sparsetype)
     free(klu_data->s_Numeric);  klu_data->s_Numeric = NULL;
     klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
     free(klu_data->s_Symbolic);  klu_data->s_Symbolic = NULL;
-    DestroySparseMat(arksls_mem->s_A);
-    DestroySparseMat(arksls_mem->s_savedJ);
+    SparseDestroyMat(arksls_mem->s_A);
+    SparseDestroyMat(arksls_mem->s_savedJ);
     free(klu_data); klu_data = NULL;
     free(arksls_mem); arksls_mem = NULL;
     return(ARKSLS_MEM_FAIL);
@@ -270,11 +270,11 @@ int ARKKLUReInit(void *arkode_mem, int n, int nnz, int reinit_type)
 
     /* Destroy previous Jacobian information */
     if (arksls_mem->s_A) {
-      DestroySparseMat(arksls_mem->s_A);
+      SparseDestroyMat(arksls_mem->s_A);
     }
 
     /* Allocate memory for the sparse Jacobian */
-    arksls_mem->s_A = NewSparseMat(n, n, nnz, arksls_mem->sparsetype);
+    arksls_mem->s_A = SparseNewMat(n, n, nnz, arksls_mem->sparsetype);
     if (arksls_mem->s_A == NULL) {
       arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", "ARKKLU", 
 		    MSGSP_MEM_FAIL);
@@ -365,14 +365,14 @@ static int arkKLUSetup(ARKodeMem ark_mem, int convfail,
   /* If jok = TRUE, use saved copy of J */
   if (jok) {
     *jcurPtr = FALSE;
-    CopySparseMat(arksls_mem->s_savedJ, arksls_mem->s_A);
+    SparseCopyMat(arksls_mem->s_savedJ, arksls_mem->s_A);
 
   /* If jok = FALSE, call jac routine for new J value */
   } else {
     arksls_mem->s_nje++;
     arksls_mem->s_nstlj = ark_mem->ark_nst;
     *jcurPtr = TRUE;
-    SlsSetToZero(arksls_mem->s_A);
+    SparseSetMatToZero(arksls_mem->s_A);
 
     retval = arksls_mem->s_Jeval(ark_mem->ark_tn, ypred, fpred, 
 				 arksls_mem->s_A, arksls_mem->s_Jdata, 
@@ -388,18 +388,18 @@ static int arkKLUSetup(ARKodeMem ark_mem, int convfail,
       return(1);
     }
 
-    CopySparseMat(arksls_mem->s_A, arksls_mem->s_savedJ);
+    SparseCopyMat(arksls_mem->s_A, arksls_mem->s_savedJ);
   }
 
   /* Scale J by -gamma */
-  ScaleSparseMat(-ark_mem->ark_gamma, arksls_mem->s_A);
+  SparseScaleMat(-ark_mem->ark_gamma, arksls_mem->s_A);
 
   /* Add mass matrix to get A = M-gamma*J */
   if (ark_mem->ark_mass_matrix) {
 
     /* Compute mass matrix */
     arksls_mass_mem = (ARKSlsMassMem) ark_mem->ark_mass_mem;
-    SlsSetToZero(arksls_mass_mem->s_M);
+    SparseSetMatToZero(arksls_mass_mem->s_M);
     retval = arksls_mass_mem->s_Meval(ark_mem->ark_tn, 
 				      arksls_mass_mem->s_M, 
 				      arksls_mass_mem->s_Mdata, 
@@ -417,7 +417,7 @@ static int arkKLUSetup(ARKodeMem ark_mem, int convfail,
     }
     
     /* add to A */
-    retval = SlsAddMat(arksls_mem->s_A, arksls_mass_mem->s_M);
+    retval = SparseAddMat(arksls_mem->s_A, arksls_mass_mem->s_M);
     if (retval < 0) {
       arkProcessError(ark_mem, ARKSLS_PACKAGE_FAIL, "ARKSLS", 
 		      "arkKLUSetup",  "Error in adding mass matrix to Jacobian");
@@ -427,7 +427,7 @@ static int arkKLUSetup(ARKodeMem ark_mem, int convfail,
     if (retval > 0)  return(retval);
     
   } else {
-    AddIdentitySparseMat(arksls_mem->s_A);
+    SparseAddIdentityMat(arksls_mem->s_A);
   }
 
 
@@ -593,12 +593,12 @@ static void arkKLUFree(ARKodeMem ark_mem)
 		    &(klu_data->s_Common));
 
   if (arksls_mem->s_A) {
-    DestroySparseMat(arksls_mem->s_A);
+    SparseDestroyMat(arksls_mem->s_A);
     arksls_mem->s_A = NULL;
   }
 
   if (arksls_mem->s_savedJ) {
-    DestroySparseMat(arksls_mem->s_savedJ);
+    SparseDestroyMat(arksls_mem->s_savedJ);
     arksls_mem->s_savedJ = NULL;
   }
 
@@ -694,7 +694,7 @@ int ARKMassKLU(void *arkode_mem, int n, int nnz, int sparsetype,
 
   /* Allocate memory for M and M_lu */
   arksls_mem->s_M = NULL;
-  arksls_mem->s_M = NewSparseMat(n, n, nnz, sparsetype);
+  arksls_mem->s_M = SparseNewMat(n, n, nnz, sparsetype);
   if (arksls_mem->s_M == NULL) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
 		    "ARKMassKLU", MSGSP_MEM_FAIL);
@@ -703,11 +703,11 @@ int ARKMassKLU(void *arkode_mem, int n, int nnz, int sparsetype,
     return(ARKSLS_MEM_FAIL);
   }
   arksls_mem->s_M_lu = NULL;
-  arksls_mem->s_M_lu = NewSparseMat(n, n, nnz, sparsetype);
+  arksls_mem->s_M_lu = SparseNewMat(n, n, nnz, sparsetype);
   if (arksls_mem->s_M_lu == NULL) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
 		    "ARKMassKLU", MSGSP_MEM_FAIL);
-    DestroySparseMat(arksls_mem->s_M);
+    SparseDestroyMat(arksls_mem->s_M);
     free(klu_data); klu_data = NULL;
     free(arksls_mem); arksls_mem = NULL;
     return(ARKSLS_MEM_FAIL);
@@ -736,8 +736,8 @@ int ARKMassKLU(void *arkode_mem, int n, int nnz, int sparsetype,
     free(klu_data->s_Numeric);  klu_data->s_Numeric = NULL;
     klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
     free(klu_data->s_Symbolic);  klu_data->s_Symbolic = NULL;
-    DestroySparseMat(arksls_mem->s_M);
-    DestroySparseMat(arksls_mem->s_M_lu);
+    SparseDestroyMat(arksls_mem->s_M);
+    SparseDestroyMat(arksls_mem->s_M_lu);
     free(klu_data); klu_data = NULL;
     free(arksls_mem); arksls_mem = NULL;
     return(ARKSLS_MEM_FAIL);
@@ -824,11 +824,11 @@ int ARKMassKLUReInit(void *arkode_mem, int n, int nnz, int reinit_type)
 
     /* Destroy previous Jacobian information */
     if (arksls_mem->s_M) {
-      DestroySparseMat(arksls_mem->s_M);
+      SparseDestroyMat(arksls_mem->s_M);
     }
 
     /* Allocate memory for the sparse Jacobian */
-    arksls_mem->s_M = NewSparseMat(n, n, nnz, arksls_mem->sparsetype);
+    arksls_mem->s_M = SparseNewMat(n, n, nnz, arksls_mem->sparsetype);
     if (arksls_mem->s_M == NULL) {
       arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", "ARKMassKLU", 
 		    MSGSP_MEM_FAIL);
@@ -905,7 +905,7 @@ static int arkMassKLUSetup(ARKodeMem ark_mem, N_Vector vtemp1,
   }
 
   /* call Meval routine for new M matrix */
-  SlsSetToZero(arksls_mem->s_M);
+  SparseSetMatToZero(arksls_mem->s_M);
   retval = arksls_mem->s_Meval(ark_mem->ark_tn, arksls_mem->s_M, 
 			       arksls_mem->s_Mdata, vtemp1, 
 			       vtemp2, vtemp3);
@@ -922,7 +922,7 @@ static int arkMassKLUSetup(ARKodeMem ark_mem, N_Vector vtemp1,
   }
 
   /* Copy M into M_lu for LU decomposition */
-  CopySparseMat(arksls_mem->s_M, arksls_mem->s_M_lu);
+  SparseCopyMat(arksls_mem->s_M, arksls_mem->s_M_lu);
 
   /* On first decomposition, get the symbolic factorization */ 
   if (arksls_mem->s_first_factorize) {
@@ -1081,12 +1081,12 @@ static void arkMassKLUFree(ARKodeMem ark_mem)
 		    &(klu_data->s_Common));
 
   if (arksls_mem->s_M) {
-    DestroySparseMat(arksls_mem->s_M);
+    SparseDestroyMat(arksls_mem->s_M);
     arksls_mem->s_M = NULL;
   }
 
   if (arksls_mem->s_M_lu) {
-    DestroySparseMat(arksls_mem->s_M_lu);
+    SparseDestroyMat(arksls_mem->s_M_lu);
     arksls_mem->s_M_lu = NULL;
   }
 
@@ -1138,7 +1138,7 @@ static int arkMassKLUMultiply(N_Vector v, N_Vector Mv,
   }
 
   /* perform matrix-vector product with arksls_mem->s_M and return */
-  if (SlsMatvec(arksls_mem->s_M, vdata, Mvdata) != 0) {
+  if (SparseMatvec(arksls_mem->s_M, vdata, Mvdata) != 0) {
     arkProcessError(NULL, ARKSLS_MEM_NULL, "ARKSLS", 
 		    "arkMassKLUMultiply", 
 		    "Mass matrix data un-allocated.");

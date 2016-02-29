@@ -120,7 +120,7 @@ int KINKLU(void *kin_mem_v, int n, int nnz, int sparsetype)
   kinsls_mem->s_jacdata = kin_mem->kin_user_data;
 
   /* Allocate memory for the sparse Jacobian */
-  kinsls_mem->s_JacMat = NewSparseMat(n, n, nnz, sparsetype);
+  kinsls_mem->s_JacMat = SparseNewMat(n, n, nnz, sparsetype);
   if (kinsls_mem->s_JacMat == NULL) {
     KINProcessError(kin_mem, KINSLS_MEM_FAIL, "KINSLS", "KINKLU", 
 		    MSGSP_MEM_FAIL);
@@ -235,11 +235,11 @@ int KINKLUReInit(void *kin_mem_v, int n, int nnz, int reinit_type)
 
     /* Destroy previous Jacobian information */
     if (kinsls_mem->s_JacMat) {
-      DestroySparseMat(kinsls_mem->s_JacMat);
+      SparseDestroyMat(kinsls_mem->s_JacMat);
     }
 
     /* Allocate memory for the sparse Jacobian */
-    kinsls_mem->s_JacMat = NewSparseMat(n, n, nnz, kinsls_mem->sparsetype);
+    kinsls_mem->s_JacMat = SparseNewMat(n, n, nnz, kinsls_mem->sparsetype);
     if (kinsls_mem->s_JacMat == NULL) {
       KINProcessError(kin_mem, KINSLS_MEM_FAIL, "KINSLS", "KINKLU", 
 		    MSGSP_MEM_FAIL);
@@ -505,7 +505,7 @@ static void kinKLUFree(KINMem kin_mem)
   klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
 
   if (kinsls_mem->s_JacMat) {
-    DestroySparseMat(kinsls_mem->s_JacMat);
+    SparseDestroyMat(kinsls_mem->s_JacMat);
     kinsls_mem->s_JacMat = NULL;
   }
 

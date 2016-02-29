@@ -122,7 +122,7 @@ int KINSuperLUMT(void *kin_mem_v, int num_threads, int n, int nnz)
   kinsls_mem->s_jacdata = kin_mem->kin_user_data;
 
   /* Allocate memory for the sparse Jacobian */
-  kinsls_mem->s_JacMat = NewSparseMat(n, n, nnz, CSC_MAT);
+  kinsls_mem->s_JacMat = SparseNewMat(n, n, nnz, CSC_MAT);
   if (kinsls_mem->s_JacMat == NULL) {
     KINProcessError(kin_mem, KINSLS_MEM_FAIL, "KINSLS", "KINSuperLUMT", 
 		    MSGSP_MEM_FAIL);
@@ -442,7 +442,7 @@ static void kinSuperLUMTFree(KINMem kin_mem)
   Destroy_SuperMatrix_Store(slumt_data->s_B);
   SUPERLU_FREE(slumt_data->s_A->Store);
   if (kinsls_mem->s_JacMat) {
-    DestroySparseMat(kinsls_mem->s_JacMat);
+    SparseDestroyMat(kinsls_mem->s_JacMat);
     kinsls_mem->s_JacMat = NULL;
   }
 

@@ -137,7 +137,7 @@ int IDASuperLUMT(void *ida_mem, int num_threads, int n, int nnz)
 
   /* Allocate memory for the sparse Jacobian */
   idasls_mem->s_JacMat = NULL;
-  idasls_mem->s_JacMat = NewSparseMat(n, n, nnz, CSC_MAT);
+  idasls_mem->s_JacMat = SparseNewMat(n, n, nnz, CSC_MAT);
   if (idasls_mem->s_JacMat == NULL) {
     IDAProcessError(IDA_mem, IDASLS_MEM_FAIL, "IDASLS", "IDASuperLUMT", 
 		    MSGSP_MEM_FAIL);
@@ -454,7 +454,7 @@ static int IDASuperLUMTFree(IDAMem IDA_mem)
   Destroy_SuperMatrix_Store(slumt_data->s_B);
   SUPERLU_FREE(slumt_data->s_A->Store);
   if (idasls_mem->s_JacMat) {
-    DestroySparseMat(idasls_mem->s_JacMat);
+    SparseDestroyMat(idasls_mem->s_JacMat);
     idasls_mem->s_JacMat = NULL;
   }
 

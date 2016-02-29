@@ -3,7 +3,7 @@
  * $Revision$
  * $Date$
  * -----------------------------------------------------------------
- * Programmer: Carol Woodward @ LLNL,
+ * Programmer: Carol Woodward, Slaven Peles @ LLNL,
  *             Daniel R. Reynolds @ SMU.
  * -----------------------------------------------------------------
  * For details, see the LICENSE file.
@@ -93,21 +93,21 @@ typedef struct _SlsMat {
 
 /*
  * -----------------------------------------------------------------
- * Function: NewSparseMat
+ * Function: SparseNewMat
  * -----------------------------------------------------------------
- * NewSparseMat allocates memory for a compressed column sparse
+ * SparseNewMat allocates memory for a compressed column sparse
  * matrix with M rows, N columns, NNZ nonzeros and of sparsetype 
- * type (CSC or CSR matrix). NewSparseMat returns NULL if the 
+ * type (CSC or CSR matrix). SparseNewMat returns NULL if the 
  * request for matrix storage cannot be satisfied. See the above 
  * documentation for the type SlsMat for matrix storage details.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SlsMat NewSparseMat(int M, int N, int NNZ, int sparsetype);
+SUNDIALS_EXPORT SlsMat SparseNewMat(int M, int N, int NNZ, int sparsetype);
 
 /*
  * -----------------------------------------------------------------
- * Function: SlsConvertDls
+ * Function: SparseFromDenseMat
  * -----------------------------------------------------------------
  * SlsConvertDense creates a new CSC matrix from an existing
  * dense/band matrix by copying all nonzero values into the sparse 
@@ -116,52 +116,52 @@ SUNDIALS_EXPORT SlsMat NewSparseMat(int M, int N, int NNZ, int sparsetype);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SlsMat SlsConvertDls(const DlsMat A);
+SUNDIALS_EXPORT SlsMat SparseFromDenseMat(const DlsMat A);
 
 /*
  * -----------------------------------------------------------------
- * Functions: DestroySparseMat
+ * Functions: SparseDestroyMat
  * -----------------------------------------------------------------
- * DestroySparseMat frees the memory allocated by NewSparseMat
+ * SparseDestroyMat frees the memory allocated by SparseNewMat
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void DestroySparseMat(SlsMat A);
+SUNDIALS_EXPORT void SparseDestroyMat(SlsMat A);
 
 /*
  * -----------------------------------------------------------------
- * Function : SlsSetToZero
+ * Function : SparseSetMatToZero
  * -----------------------------------------------------------------
  * SetToZero sets all the elements of the sparse matrix A to 0.0.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void SlsSetToZero(SlsMat A);
+SUNDIALS_EXPORT void SparseSetMatToZero(SlsMat A);
 
 /*
  * -----------------------------------------------------------------
- * Functions: CopySparseMat
+ * Functions: SparseCopyMat
  * -----------------------------------------------------------------
  * This function copies sparse matrix A into sparse matrix B.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void CopySparseMat(const SlsMat A, const SlsMat B);
+SUNDIALS_EXPORT int SparseCopyMat(const SlsMat A, const SlsMat B);
 
 /*
  * -----------------------------------------------------------------
- * Functions: ScaleSparseMat
+ * Functions: SparseScaleMat
  * -----------------------------------------------------------------
  * This function scales all data entries of a sparse matrix A 
  * by the realtype number in b.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void ScaleSparseMat(realtype b, SlsMat A);
+SUNDIALS_EXPORT void SparseScaleMat(realtype b, SlsMat A);
 
 /*
  * -----------------------------------------------------------------
- * Functions: AddIdentitySparseMat
+ * Functions: SparseAddIdentityMat
  * -----------------------------------------------------------------
  * This function adds 1 to every diagonal entry of A.
  * Note that the resulting matrix may have more nonzero entries than 
@@ -170,11 +170,11 @@ SUNDIALS_EXPORT void ScaleSparseMat(realtype b, SlsMat A);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void AddIdentitySparseMat(SlsMat A);
+SUNDIALS_EXPORT void SparseAddIdentityMat(SlsMat A);
 
 /*
  * -----------------------------------------------------------------
- * Functions: SlsAddMat
+ * Functions: SparseAddMat
  * -----------------------------------------------------------------
  * This function adds two sparse matrices: A = A+B.
  * Note that the resulting matrix may have more nonzero entries than
@@ -185,22 +185,22 @@ SUNDIALS_EXPORT void AddIdentitySparseMat(SlsMat A);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int SlsAddMat(SlsMat A, SlsMat B);
+SUNDIALS_EXPORT int SparseAddMat(SlsMat A, SlsMat B);
 
 /*
  * -----------------------------------------------------------------
- * Functions: ReallocSparseMat
+ * Functions: SparseReallocMat
  * -----------------------------------------------------------------
  * This function reallocs internal arrays so that the resulting matrix 
  * holds colptrs[N] nonzeros.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void ReallocSparseMat(SlsMat A);
+SUNDIALS_EXPORT void SparseReallocMat(SlsMat A);
 
 /*
  * -----------------------------------------------------------------
- * Functions: SlsMatvec
+ * Functions: SparseMatvec
  * -----------------------------------------------------------------
  * This function computes the matrix-vector product, y=A*x, where A
  * is a sparse matrix of dimension MxN, x is a realtype array of 
@@ -209,11 +209,11 @@ SUNDIALS_EXPORT void ReallocSparseMat(SlsMat A);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int SlsMatvec(const SlsMat A, const realtype *x, realtype *y);
+SUNDIALS_EXPORT int SparseMatvec(const SlsMat A, const realtype *x, realtype *y);
 
 /*
  * -----------------------------------------------------------------
- * Functions: PrintSparseMat
+ * Functions: SparsePrintMat
  * -----------------------------------------------------------------
  * This function prints the compressed column matrix information for 
  * matrix A to standard output.
@@ -223,7 +223,7 @@ SUNDIALS_EXPORT int SlsMatvec(const SlsMat A, const realtype *x, realtype *y);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void PrintSparseMatCSC(SlsMat A);
+SUNDIALS_EXPORT void SparsePrintMatCSC(SlsMat A);
 
 
 /*
@@ -234,7 +234,7 @@ SUNDIALS_EXPORT void PrintSparseMatCSC(SlsMat A);
 
 /*
  * -----------------------------------------------------------------
- * Functions: SlsMatvecCSC
+ * Functions: SparseMatvecCSC
  * -----------------------------------------------------------------
  * This function computes the matrix-vector product, y=A*x, where A
  * is a CSC sparse matrix of dimension MxN, x is a realtype array of 
@@ -243,11 +243,11 @@ SUNDIALS_EXPORT void PrintSparseMatCSC(SlsMat A);
  * -----------------------------------------------------------------
  */
 
-int SlsMatvecCSC(const SlsMat A, const realtype *x, realtype *y);
+int SparseMatvecCSC(const SlsMat A, const realtype *x, realtype *y);
 
 /*
  * -----------------------------------------------------------------
- * Functions: SlsMatvecCSR
+ * Functions: SparseMatvecCSR
  * -----------------------------------------------------------------
  * This function computes the matrix-vector product, y=A*x, where A
  * is a CSR sparse matrix of dimension MxN, x is a realtype array of 
@@ -256,10 +256,10 @@ int SlsMatvecCSC(const SlsMat A, const realtype *x, realtype *y);
  * -----------------------------------------------------------------
  */
 
-int SlsMatvecCSR(const SlsMat A, const realtype *x, realtype *y);
+int SparseMatvecCSR(const SlsMat A, const realtype *x, realtype *y);
 
 /*
- * void PrintSparseMatDebug(SlsMat A);
+ * void SparsePrintMatDebug(SlsMat A);
  */
   
 

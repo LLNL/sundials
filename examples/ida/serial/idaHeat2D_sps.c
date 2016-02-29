@@ -270,7 +270,7 @@ int jacHeat3(realtype tt,  realtype cj,
   dx =  ONE/(MGRID - ONE);
   beta = RCONST(4.0)/(dx*dx) + cj;
 
-  SlsSetToZero(JacMat); /* initialize Jacobian matrix */
+  SparseSetMatToZero(JacMat); /* initialize Jacobian matrix */
 
   /*
    * set up number of elements in each column 
@@ -333,7 +333,7 @@ int jacHeat(realtype tt,  realtype cj,
   beta = RCONST(4.0)/(dx*dx) + cj;
   repeat=0;
 
-  SlsSetToZero(JacMat); /* initialize Jacobian matrix  */
+  SparseSetMatToZero(JacMat); /* initialize Jacobian matrix  */
 
   /* 
    *-----------------------------------------------
@@ -560,7 +560,7 @@ int jacHeat(realtype tt,  realtype cj,
   for(i=0;i<(MGRID-2);i++) JacMat -> rowvals[TOTAL-2*(MGRID-2)  +2*i] = MGRID*MGRID-MGRID+1+i;  
   JacMat -> rowvals[TOTAL-1] = MGRID*MGRID-1;
 
-  /* PrintSparseMat(JacMat); */
+  /* SparsePrintMat(JacMat); */
  
   return(0);
 }
