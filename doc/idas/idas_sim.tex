@@ -1,4 +1,4 @@
-%%===================================================================================
+%%==================================================================================
 \chapter{Using IDAS for IVP Solution}\label{s:simulation}
 %%===================================================================================
 
@@ -5271,13 +5271,11 @@ user-supplied {\CC} function of type \ID{IDASpilsPrecSetupFn}, defined as follow
   \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 }
 
-
 %%
-%%===================================================================================
-\section{Integration of pure quadrature equations}
-%%===================================================================================
+%%==============================================================+++===
+\section{Integration of pure quadrature equations}\label{ss:purequads}
+%%=================================================================+++
 %%
-
 {\idas} allows the DAE system to include {\em pure quadratures}.  In
 this case, it is more efficient to treat the quadratures separately by
 excluding them from the nonlinear solution stage.  To do this, begin
