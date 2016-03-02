@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU
+ * Programmer(s): Unknown (Jean?)
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
  * Copyright (c) 2015, Southern Methodist University and 

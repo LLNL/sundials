@@ -101,6 +101,17 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   HYPRE_Int partitioning[2];
   int i;
 
+// #ifdef HYPRE_NO_GLOBAL_PARTITION
+//   printf("Not using global partition.\n");
+// #else
+//   printf("Using global partition.\n");
+// #endif
+
+//   if(HYPRE_AssumedPartitionCheck())
+//     printf("Not using global partition.\n");
+//   else
+//     printf("Using global partition.\n");
+  
   /* Compute global length as sum of local lengths */
   n = local_length;
   MPI_Allreduce(&n, &Nsum, 1, PVEC_INTEGER_MPI_TYPE, MPI_SUM, comm);

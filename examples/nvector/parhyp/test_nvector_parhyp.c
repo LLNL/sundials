@@ -3,7 +3,7 @@
  * $Revision: 4137 $
  * $Date: 2014-06-15 12:26:15 -0700 (Sun, 15 Jun 2014) $
  * ----------------------------------------------------------------- 
- * Programmer(s): David J. Gardner @ LLNL
+ * Programmer(s): David J. Gardner, Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
@@ -32,8 +32,8 @@
 #include <omp.h>
 
 
-/* local vector length */
-#define VECLEN 50000000
+/* default local vector length */
+#define VECLEN 5000
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
@@ -49,24 +49,32 @@ int main(int argc, char *argv[])
   int      print_timing;
 
   /* check input and set vector length */
-  if (argc < 3){
-    printf("ERROR: TWO (2) arguments required: <vector length> <print timing>\n");
-    return(-1);
+  if (argc < 3) {
+    //printf("ERROR: TWO (2) arguments required: <vector length> <print timing>\n");
+    //return(-1);
+    SetTiming(0);
+  } else {
+   print_timing = atoi(argv[2]);
+   SetTiming(print_timing);
+  }
+  
+  if (argc < 2) {
+    veclen = VECLEN;
+  } else {
+    veclen = atol(argv[1]); 
+    if (veclen <= 0) {
+      printf("ERROR: length of vector must be a positive integer \n");
+      return(-1); 
+    }
   }
 
-  veclen = atol(argv[1]); 
-  if (veclen <= 0) {
-    printf("ERROR: length of vector must be a positive integer \n");
-    return(-1); 
-  }
-
-  print_timing = atoi(argv[2]);
-  SetTiming(print_timing);
-
-  printf("\nRunning with vector length %ld \n \n", veclen);
+//   print_timing = atoi(argv[2]);
+//   SetTiming(print_timing);
+// 
+//   printf("\nRunning with vector length %ld \n \n", veclen);
   /* Get processor number and total number of processes */
   MPI_Init(&argc, &argv);
-//  omp_set_num_threads(4);
+  /* omp_set_num_threads(4); */
   comm = MPI_COMM_WORLD;
   MPI_Comm_size(comm, &nprocs);
   MPI_Comm_rank(comm, &myid);
@@ -82,7 +90,6 @@ int main(int argc, char *argv[])
   Z = N_VNew_ParHyp(comm, local_length, global_length);
 
   /* NVector Test */
-  fails += Test_N_VGetArrayPointer(X, local_length, myid);
   fails += Test_N_VSetArrayPointer(W, local_length, myid);
   fails += Test_N_VGetArrayPointer(X, local_length, myid);
   fails += Test_N_VLinearSum(X, Y, Z, local_length, myid);
@@ -109,8 +116,8 @@ int main(int argc, char *argv[])
   fails += Test_N_VCloneVectorArray(5, X, local_length, myid);
   fails += Test_N_VCloneEmptyVectorArray(5, X, myid);
 
-  /* Free vectors */
-  N_VDestroy_ParHyp(W);
+  /* Free vectors (Can't free W due to a bug in the code) */
+  //N_VDestroy_ParHyp(W);
   N_VDestroy_ParHyp(X);
   N_VDestroy_ParHyp(Y);
   N_VDestroy_ParHyp(Z);
@@ -120,7 +127,7 @@ int main(int argc, char *argv[])
     printf("FAIL: NVector module failed %i tests, Proc %d \n \n", fails, myid);
   } else {
      if(myid == 0) {
-	printf("SUCCESS: NVector module passed all tests, Proc %d \n \n",myid);
+       printf("SUCCESS: NVector module passed all tests, Proc %d \n \n",myid);
      }
   }
   

@@ -66,16 +66,16 @@ FOREACH(example ${nvector_parhyp_examples})
   SUNDIALS_ADD_TEST("${example}" ${example})
 
   # Run sequentially with arguments
-  SUNDIALS_ADD_TEST("${example}_1000_0" ${example} TEST_ARGS 1000 0)
+  SUNDIALS_ADD_TEST("${example}_10000_0" ${example} TEST_ARGS 10000 0)
 
   # Run in parhyp on 4 procs
   SUNDIALS_ADD_TEST("${example}_4" ${example} MPI_NPROCS 4)
   
   # parhyp with additional arguments and supplying an answer file
-  SUNDIALS_ADD_TEST("${example}_4_1000_0" ${example} MPI_NPROCS 4 TEST_ARGS 1000 0 ANSWER_FILE ${example})
+  SUNDIALS_ADD_TEST("${example}_4_10000_0" ${example} MPI_NPROCS 4 TEST_ARGS 10000 0 ANSWER_FILE ${example})
 
   # Specify floating point precision and integer percentage for comparison
-  SUNDIALS_ADD_TEST("${example}_precision" ${example} MPI_NPROCS 4 TEST_ARGS 1000 0 ANSWER_FILE ${example}
+  SUNDIALS_ADD_TEST("${example}_precision" ${example} MPI_NPROCS 4 TEST_ARGS 10000 0 ANSWER_FILE ${example}
     FLOAT_PRECISION 5 INTEGER_PERCENTAGE 0)
 
 #FIND_LIBRARY(SUNDIALS_HYPRE_LIBRARIES
