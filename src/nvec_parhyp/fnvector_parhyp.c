@@ -42,7 +42,7 @@ N_Vector F2C_ARKODE_vec;
 
 /* Fortran callable interface */
 
-void FNV_INITP(MPI_Fint *comm, int *code, long int *L, long int *N, int *ier)
+void FNV_INITPH(MPI_Fint *comm, int *code, long int *L, long int *N, int *ier)
 {
   MPI_Comm F2C_comm;
 
