@@ -54,13 +54,13 @@
 /* Reduction operations add/max/min over the processor group */
 static realtype VAllReduce_ParHyp(realtype d, int op, MPI_Comm comm);
 /* z=x */
-static void VCopy_ParHyp(N_Vector x, N_Vector z);
+/* static void VCopy_ParHyp(N_Vector x, N_Vector z); */
 /* z=x+y */
 static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z);
 /* z=x-y */
 static void VDiff_ParHyp(N_Vector x, N_Vector y, N_Vector z);
 /* z=-x */
-static void VNeg_ParHyp(N_Vector x, N_Vector z);
+/* static void VNeg_ParHyp(N_Vector x, N_Vector z); */
 /* z=c(x+y) */
 static void VScaleSum_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z);
 /* z=c(x-y) */
@@ -70,9 +70,9 @@ static void VLin1_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z);
 /* z=ax-y */
 static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z);
 /* y <- ax+y */
-static void Vaxpy_ParHyp(realtype a, N_Vector x, N_Vector y);
+/* static void Vaxpy_ParHyp(realtype a, N_Vector x, N_Vector y); */
 /* x <- ax */
-static void VScaleBy_ParHyp(realtype a, N_Vector x);
+/* static void VScaleBy_ParHyp(realtype a, N_Vector x); */
 
 /*
  * -----------------------------------------------------------------
@@ -85,51 +85,12 @@ static void VScaleBy_ParHyp(realtype a, N_Vector x);
  */
 
 N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, 
-                              long int local_length,
-                              long int global_length)
+                            long int local_length,
+                            long int global_length)
 {
   N_Vector v;
   N_Vector_Ops ops;
   N_VectorContent_ParHyp content;
-  long int n, Nsum;
-  /* Added variables for hypre_parhyp intialization */
-  int nprocs,myid;
-  MPI_Comm_size(comm, &nprocs);
-  MPI_Comm_rank(comm, &myid);
-  long int local_lengths[nprocs];
-  HYPRE_Int local_jlower[nprocs+1];
-  HYPRE_Int partitioning[2];
-  int i;
-
-// #ifdef HYPRE_NO_GLOBAL_PARTITION
-//   printf("Not using global partition.\n");
-// #else
-//   printf("Using global partition.\n");
-// #endif
-
-//   if(HYPRE_AssumedPartitionCheck())
-//     printf("Not using global partition.\n");
-//   else
-//     printf("Using global partition.\n");
-  
-  /* Compute global length as sum of local lengths */
-  n = local_length;
-  MPI_Allreduce(&n, &Nsum, 1, PVEC_INTEGER_MPI_TYPE, MPI_SUM, comm);
-  if (Nsum != global_length) {
-    printf(BAD_N);
-    return(NULL);
-  }
-  
-  /* Compute local lengths for proper partitioning of the hypre_parhyp vector*/
-  local_lengths[myid]=local_length;
-  MPI_Allgather(&local_length,1,PVEC_INTEGER_MPI_TYPE, &local_lengths,1,PVEC_INTEGER_MPI_TYPE,comm);
-  local_jlower[0]=0;
-  for(i=0;i<nprocs; i++)
-  {
-    local_jlower[i+1]=local_jlower[i]+local_lengths[i];
-  }
-  partitioning[0]=local_jlower[myid];
-  partitioning[1]=local_jlower[myid+1]-1;
 
   /* Create vector */
   v = NULL;
@@ -177,15 +138,10 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   content->global_length = global_length;
   content->comm          = comm;
   content->own_data      = FALSE;
-  content->own_parvector = TRUE;
+  content->own_parvector = FALSE;
   content->data          = NULL;
+  content->x             = NULL;
   
-  /* Create ParVector with partitioning info for whole system*/
-  content->x             = hypre_ParVectorCreate(comm,global_length, local_jlower);
-  /* Set up hypre_ParVector, reserve ParVectorInitialize for when there is data to allocate */
-  hypre_VectorData(hypre_ParVectorLocalVector(content->x))=NULL;
-  hypre_ParVectorSetPartitioningOwner(content->x,0);
-
   /* Attach content and ops */
   v->content = content;
   v->ops     = ops;
@@ -198,29 +154,61 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
  */
 
 N_Vector N_VNew_ParHyp(MPI_Comm comm, 
-                         long int local_length,
-                         long int global_length)
+                       long int local_length,
+                       long int global_length)
 {
   N_Vector v;
-  realtype *data;
+  N_VectorContent_ParHyp content;
+  long int n, Nsum;
+  /* Added variables for hypre_parhyp intialization */
+  int nprocs, myid;
+  long int local_lengths[nprocs];
+  HYPRE_Int local_jlower[nprocs+1];
+  int i;
 
+  /* Create empty N_Vector */
   v = NULL;
   v = N_VNewEmpty_ParHyp(comm, local_length, global_length);
-  if (v == NULL) return(NULL);
+  if (v == NULL) 
+    return(NULL);
+  content = v->content;
 
-  /* Create data */
-  if(local_length > 0) {
+//   if(HYPRE_AssumedPartitionCheck())
+//     printf("Not using global partition.\n");
+//   else
+//     printf("Using global partition.\n");
+  
+  MPI_Comm_size(comm, &nprocs);
+  MPI_Comm_rank(comm, &myid);
 
-    /* Allocate memory */
-    data = NULL;
-    data = (realtype *) malloc(local_length * sizeof(realtype));
-    if(data == NULL) { N_VDestroy_ParHyp(v); return(NULL); }
-
-    /* Attach data */
-    NV_OWN_DATA_PH(v) = TRUE;
-    NV_DATA_PH(v)     = data;
-
+  /* Compute global length as sum of local lengths */
+  n = local_length;
+  MPI_Allreduce(&n, &Nsum, 1, PVEC_INTEGER_MPI_TYPE, MPI_SUM, comm);
+  if (Nsum != global_length) {
+    printf(BAD_N);
+    return(NULL);
   }
+  
+  /* Compute local lengths for proper partitioning of the hypre_parhyp vector*/
+  local_lengths[myid]=local_length;
+  MPI_Allgather(&local_length,1,PVEC_INTEGER_MPI_TYPE, &local_lengths,1,PVEC_INTEGER_MPI_TYPE,comm);
+  local_jlower[0]=0;
+  for(i=0;i<nprocs; i++)
+  {
+    local_jlower[i+1]=local_jlower[i]+local_lengths[i];
+  }
+
+  /* Create ParVector with partitioning info for whole system*/
+  content->x = hypre_ParVectorCreate(comm, global_length, local_jlower);
+  /* Set up hypre_ParVector */
+  hypre_ParVectorInitialize(content->x);
+  
+  hypre_ParVectorSetPartitioningOwner(content->x, 0);
+  
+  hypre_ParVectorSetDataOwner(content->x, 1);
+  hypre_SeqVectorSetDataOwner(hypre_ParVectorLocalVector(content->x), 1);
+  NV_OWN_PARVEC_PH(v) = TRUE;
+  NV_OWN_DATA_PH(v)   = TRUE;
 
   return(v);
 }
@@ -229,25 +217,29 @@ N_Vector N_VNew_ParHyp(MPI_Comm comm,
  * Function to create a parhyp N_Vector with user data component 
  */
 
-N_Vector N_VMake_ParHyp(MPI_Comm comm, 
-                          long int local_length,
-                          long int global_length,
-                          realtype *v_data)
+N_Vector N_VMake_ParHyp(hypre_ParVector *x)
 {
   N_Vector v;
-
+  MPI_Comm comm = hypre_ParVectorComm(x);
+  HYPRE_Int global_length = hypre_ParVectorGlobalSize(x);
+  HYPRE_Int local_begin = hypre_ParVectorFirstIndex(x);
+  HYPRE_Int local_end = hypre_ParVectorLastIndex(x);;
+  HYPRE_Int local_length = local_end - local_begin;
+  
   v = NULL;
   v = N_VNewEmpty_ParHyp(comm, local_length, global_length);
-  if (v == NULL) return(NULL);
+  if (v == NULL) 
+    return(NULL);
 
   if (local_length > 0) {
     /* Attach data */
-    NV_OWN_DATA_PH(v) = FALSE;
-    NV_DATA_PH(v)     = v_data;
+    NV_OWN_PARVEC_PH(v)   = FALSE;
+    NV_HYPRE_PARVEC_PH(v) = x;
   }
 
   return(v);
 }
+
 
 /* ---------------------------------------------------------------- 
  * Function to create an array of new parhyp vectors. 
@@ -491,7 +483,8 @@ realtype *N_VGetArrayPointer_ParHyp(N_Vector v)
 
 void N_VSetArrayPointer_ParHyp(realtype *v_data, N_Vector v)
 {
-  if (NV_LOCLENGTH_PH(v) > 0) NV_DATA_PH(v) = v_data;
+  /* Not implemented for Hypre vector */
+  /* if (NV_LOCLENGTH_PH(v) > 0) NV_DATA_PH(v) = v_data; */
 
   return;
 }
@@ -589,11 +582,11 @@ void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
 
 void N_VConst_ParHyp(realtype c, N_Vector z)
 {
-  long int i, N;
-  realtype *zd;
+  //long int i, N;
+  //realtype *zd;
 
-HYPRE_Complex    value=c;
-HYPRE_ParVectorSetConstantValues( (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(z), value);
+  HYPRE_Complex    value=c;
+  HYPRE_ParVectorSetConstantValues( (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(z), value);
   return;
 }
 
@@ -1013,22 +1006,22 @@ static realtype VAllReduce_ParHyp(realtype d, int op, MPI_Comm comm)
   return(out);
 }
 
-static void VCopy_ParHyp(N_Vector x, N_Vector z)
-{
-  long int i, N;
-  realtype *xd, *zd;
-
-  xd = zd = NULL;
-
-  N  = NV_LOCLENGTH_PH(x);
-  xd = NV_DATA_PH(x);
-  zd = NV_DATA_PH(z);
-
-  for (i = 0; i < N; i++)
-    zd[i] = xd[i]; 
-
-  return;
-}
+// static void VCopy_ParHyp(N_Vector x, N_Vector z)
+// {
+//   long int i, N;
+//   realtype *xd, *zd;
+// 
+//   xd = zd = NULL;
+// 
+//   N  = NV_LOCLENGTH_PH(x);
+//   xd = NV_DATA_PH(x);
+//   zd = NV_DATA_PH(z);
+// 
+//   for (i = 0; i < N; i++)
+//     zd[i] = xd[i]; 
+// 
+//   return;
+// }
 
 static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 {
@@ -1066,22 +1059,22 @@ static void VDiff_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   return;
 }
 
-static void VNeg_ParHyp(N_Vector x, N_Vector z)
-{
-  long int i, N;
-  realtype *xd, *zd;
-
-  xd = zd = NULL;
-
-  N  = NV_LOCLENGTH_PH(x);
-  xd = NV_DATA_PH(x);
-  zd = NV_DATA_PH(z);
-
-  for (i = 0; i < N; i++)
-    zd[i] = -xd[i];
-
-  return;
-}
+// static void VNeg_ParHyp(N_Vector x, N_Vector z)
+// {
+//   long int i, N;
+//   realtype *xd, *zd;
+// 
+//   xd = zd = NULL;
+// 
+//   N  = NV_LOCLENGTH_PH(x);
+//   xd = NV_DATA_PH(x);
+//   zd = NV_DATA_PH(z);
+// 
+//   for (i = 0; i < N; i++)
+//     zd[i] = -xd[i];
+// 
+//   return;
+// }
 
 static void VScaleSum_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
@@ -1155,47 +1148,47 @@ static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z)
   return;
 }
 
-static void Vaxpy_ParHyp(realtype a, N_Vector x, N_Vector y)
-{
-  long int i, N;
-  realtype *xd, *yd;
+// static void Vaxpy_ParHyp(realtype a, N_Vector x, N_Vector y)
+// {
+//   long int i, N;
+//   realtype *xd, *yd;
+// 
+//   xd = yd = NULL;
+// 
+//   N  = NV_LOCLENGTH_PH(x);
+//   xd = NV_DATA_PH(x);
+//   yd = NV_DATA_PH(y);
+// 
+//   if (a == ONE) {
+//     for (i = 0; i < N; i++)
+//       yd[i] += xd[i];
+//     return;
+//   }
+//   
+//   if (a == -ONE) {
+//     for (i = 0; i < N; i++)
+//       yd[i] -= xd[i];
+//     return;
+//   }    
+//   
+//   for (i = 0; i < N; i++)
+//     yd[i] += a*xd[i];
+// 
+//   return;
+// }
 
-  xd = yd = NULL;
-
-  N  = NV_LOCLENGTH_PH(x);
-  xd = NV_DATA_PH(x);
-  yd = NV_DATA_PH(y);
-
-  if (a == ONE) {
-    for (i = 0; i < N; i++)
-      yd[i] += xd[i];
-    return;
-  }
-  
-  if (a == -ONE) {
-    for (i = 0; i < N; i++)
-      yd[i] -= xd[i];
-    return;
-  }    
-  
-  for (i = 0; i < N; i++)
-    yd[i] += a*xd[i];
-
-  return;
-}
-
-static void VScaleBy_ParHyp(realtype a, N_Vector x)
-{
-  long int i, N;
-  realtype *xd;
-
-  xd = NULL;
-
-  N  = NV_LOCLENGTH_PH(x);
-  xd = NV_DATA_PH(x);
-
-  for (i = 0; i < N; i++)
-    xd[i] *= a;
-
-  return;
-}
+// static void VScaleBy_ParHyp(realtype a, N_Vector x)
+// {
+//   long int i, N;
+//   realtype *xd;
+// 
+//   xd = NULL;
+// 
+//   N  = NV_LOCLENGTH_PH(x);
+//   xd = NV_DATA_PH(x);
+// 
+//   for (i = 0; i < N; i++)
+//     xd[i] *= a;
+// 
+//   return;
+// }

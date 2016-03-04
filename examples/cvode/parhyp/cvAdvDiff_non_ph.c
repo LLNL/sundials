@@ -35,10 +35,10 @@
 #include <math.h>
 
 #include <cvode/cvode.h>              /* prototypes for CVODE fcts. */
-#include <nvector/nvector_parhyp.h> /* definition of N_Vector and macros */
+//#include <nvector/nvector_parhyp.h> /* definition of N_Vector and macros */
 #include <sundials/sundials_types.h>  /* definition of realtype */
 #include <sundials/sundials_math.h>   /* definition of EXP */
-#include <nvector/nvector_parhyp.h>           /* nvector_parcsr implementation *?
+#include <nvector/nvector_parhyp.h>           /* nvector_parcsr implementation */
 
 #include <mpi.h>                      /* MPI constants and types */
 

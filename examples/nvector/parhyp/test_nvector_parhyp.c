@@ -42,7 +42,8 @@ int main(int argc, char *argv[])
 {
   int      fails = 0;                   /* counter for test failures */
   long int local_length, global_length; /* vector lengths            */
-  N_Vector W, X, Y, Z;                  /* test vectors              */
+  N_Vector W;
+  N_Vector X, Y, Z;                     /* test vectors              */
   MPI_Comm comm;                        /* MPI Communicator          */
   int      nprocs, myid;                /* Number of procs, proc id  */
   long int veclen;                      /* vector length             */
@@ -85,12 +86,14 @@ int main(int argc, char *argv[])
 
   /* Create vectors */
   W = N_VNewEmpty_ParHyp(comm, local_length, global_length);
+  //printf("Created empty vector W...\n");
   X = N_VNew_ParHyp(comm, local_length, global_length);
   Y = N_VNew_ParHyp(comm, local_length, global_length);
   Z = N_VNew_ParHyp(comm, local_length, global_length);
+  //printf("Created vector Z...\n");
 
   /* NVector Test */
-  fails += Test_N_VSetArrayPointer(W, local_length, myid);
+//   fails += Test_N_VSetArrayPointer(W, local_length, myid);
   fails += Test_N_VGetArrayPointer(X, local_length, myid);
   fails += Test_N_VLinearSum(X, Y, Z, local_length, myid);
   fails += Test_N_VConst(X, local_length, myid);
@@ -117,7 +120,7 @@ int main(int argc, char *argv[])
   fails += Test_N_VCloneEmptyVectorArray(5, X, myid);
 
   /* Free vectors (Can't free W due to a bug in the code) */
-  //N_VDestroy_ParHyp(W);
+  N_VDestroy_ParHyp(W);
   N_VDestroy_ParHyp(X);
   N_VDestroy_ParHyp(Y);
   N_VDestroy_ParHyp(Z);

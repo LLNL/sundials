@@ -1,4 +1,3 @@
-    PASSED test -- N_VSetArrayPointer 
     PASSED test -- N_VGetArrayPointer 
     PASSED test -- N_VLinearSum Case 1a 
     PASSED test -- N_VLinearSum Case 1b 
