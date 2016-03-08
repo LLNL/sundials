@@ -2023,6 +2023,35 @@ int ARKodeSetNoInactiveRootWarn(void *arkode_mem)
 }
 
 
+/*---------------------------------------------------------------
+ ARKodeSetPostprocessStepFn:
+
+ Specifies a user-provided step postprocessing function having 
+ type ARKPostProcessStepFn.  A NULL input function disables step
+ postprocessing.
+
+ IF THE SUPPLIED FUNCTION MODIFIES ANY OF THE ACTIVE STATE DATA, 
+ THEN ALL THEORETICAL GUARANTEES OF SOLUTION ACCURACY AND 
+ STABILITY ARE LOST.
+---------------------------------------------------------------*/
+int ARKodeSetPostprocessStepFn(void *arkode_mem, 
+			       ARKPostProcessStepFn ProcessStep)
+{
+  ARKodeMem ark_mem;
+
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+		    "ARKodeSetStabilityFn", MSGARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  /* NULL argument sets default, otherwise set inputs */
+  ark_mem->ark_ProcessStep = ProcessStep;
+  return(ARK_SUCCESS);
+}
+
+
 /*===============================================================
  ARKODE optional output functions
 ===============================================================*/

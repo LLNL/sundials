@@ -163,6 +163,8 @@ extern "C" {
 #define ARK_BAD_DKY              -26
 #define ARK_TOO_CLOSE            -27
 
+#define ARK_POSTPROCESS_FAIL     -28
+
 
 /*===============================================================
                           FUNCTION TYPES
@@ -353,6 +355,27 @@ typedef int (*ARKExpStabFn)(N_Vector y, realtype t,
 ---------------------------------------------------------------*/
 typedef int (*ARKVecResizeFn)(N_Vector y, N_Vector ytemplate, 
 			      void *user_data);
+
+/*---------------------------------------------------------------
+ Type : ARKPostProcessStepFn
+-----------------------------------------------------------------
+ A function that is used to process the results of each timestep
+ solution, in preparation for subsequent steps.  A routine of 
+ this type is designed for tasks such as inter-processor 
+ communication, computation of derived quantities, etc..
+
+ IF THIS IS USED TO MODIFY ANY OF THE ACTIVE STATE DATA, THEN ALL
+ THEORETICAL GUARANTEES OF SOLUTION ACCURACY AND STABILITY ARE 
+ LOST.
+
+ Inputs: 
+   t          current time of ARKode solution
+   y          current ARKode solution N_Vector for processing
+   user_data  the structure passed by the user to the 
+              ARKodeSetUserData routine.
+---------------------------------------------------------------*/
+typedef int (*ARKPostProcessStepFn)(realtype t, N_Vector y, 
+				    void *user_data);
 
 
 /*===============================================================
@@ -756,6 +779,9 @@ SUNDIALS_EXPORT int ARKodeSetNonlinConvCoef(void *arkode_mem,
 SUNDIALS_EXPORT int ARKodeSetRootDirection(void *arkode_mem, 
 					   int *rootdir);
 SUNDIALS_EXPORT int ARKodeSetNoInactiveRootWarn(void *arkode_mem);
+
+SUNDIALS_EXPORT int ARKodeSetPostprocessStepFn(void *arkode_mem,
+					       ARKPostProcessStepFn ProcessStep);
 
 /*---------------------------------------------------------------
  Function : ARKodeInit

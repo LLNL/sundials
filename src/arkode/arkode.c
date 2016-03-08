@@ -218,6 +218,9 @@ void *ARKodeCreate()
   ark_mem->ark_VRabstolMallocDone = FALSE;
   ark_mem->ark_MallocDone         = FALSE;
 
+  /* No user-supplied step postprocessing function yet */
+  ark_mem->ark_ProcessStep = NULL;
+
   /* Return pointer to ARKODE memory block */
   return((void *)ark_mem);
 }
@@ -4151,7 +4154,7 @@ static int arkSet(ARKodeMem ark_mem)
   int retval, j, i = ark_mem->ark_istage;
   N_Vector tmp = ark_mem->ark_tempv;
 
-  /* Initialize sdata to yn - ycur (ycur holds guess) */
+  /* Initialize sdata to ynew - ycur (ycur holds guess) */
   N_VLinearSum(ONE, ark_mem->ark_ynew, -ONE, ark_mem->ark_ycur, 
 	       ark_mem->ark_sdata);
 
@@ -4207,13 +4210,6 @@ static int arkSet(ARKodeMem ark_mem)
 
  Note: at this point in the step, the vectors ark_tempv, 
  ark_sdata and ark_ycur may all be used as temporary vectors.
-
- For now, we assume that the ODE is of the form 
-    y' = fe(t,y) + fi(t,y)
- so that both y and ytilde can be formed from existing data.  
- However, once we extend the solver to allow for non-identity
- mass matrices, this routine will perform two additional solves
- to compute the solution and embedding.
 ---------------------------------------------------------------*/
 static int arkComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
 {
@@ -4431,9 +4427,18 @@ static int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
   ark_mem->ark_hadapt_hhist[1] = ark_mem->ark_hadapt_hhist[0];
   ark_mem->ark_hadapt_hhist[0] = ark_mem->ark_h;
 
+  /* apply user-supplied step postprocessing function (if supplied) */
+  if (ark_mem->ark_ProcessStep != NULL) {
+    retval = ark_mem->ark_ProcessStep(ark_mem->ark_tn, 
+				      ark_mem->ark_y,
+				      ark_mem->ark_user_data);
+
+    if (retval != 0) return(ARK_POSTPROCESS_FAIL);
+  }
+
   /* update ycur to current solution */
   N_VScale(ONE, ark_mem->ark_y, ark_mem->ark_ycur);
-  
+
   /* swap yold and ynew arrays */
   tempvec = ark_mem->ark_yold;
   ark_mem->ark_yold = ark_mem->ark_ynew;
@@ -4445,10 +4450,11 @@ static int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
   ark_mem->ark_fnew = tempvec;
 
   /* update fnew array using explicit and implicit RHS:
-     if c[s-1] = 1.0 use already-computed RHS values, 
-     otherwise compute from scratch */
+     if c[s-1] = 1.0 (and no post-processing) use already-computed 
+     RHS values, otherwise compute from scratch */
   N_VConst(ZERO, ark_mem->ark_fnew);
-  if (SUNRabs(ark_mem->ark_c[ark_mem->ark_stages-1] - ONE) < TINY) {
+  if ( (SUNRabs(ark_mem->ark_c[ark_mem->ark_stages-1] - ONE) < TINY) &&
+       (ark_mem->ark_ProcessStep == NULL) ) {
     if (!ark_mem->ark_explicit) 
       N_VLinearSum(ONE, ark_mem->ark_Fi[ark_mem->ark_stages-1], 
 		   ONE, ark_mem->ark_fnew, ark_mem->ark_fnew);
@@ -4456,8 +4462,7 @@ static int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
       N_VLinearSum(ONE, ark_mem->ark_Fe[ark_mem->ark_stages-1], 
 		   ONE, ark_mem->ark_fnew, ark_mem->ark_fnew);
   } else {
-    /* NOTE: new y value is currently in yold, due to swap above */
-    retval = arkFullRHS(ark_mem, ark_mem->ark_tn, ark_mem->ark_yold, 
+    retval = arkFullRHS(ark_mem, ark_mem->ark_tn, ark_mem->ark_y, 
 			ark_mem->ark_ftemp, ark_mem->ark_fnew);
     if (retval != 0) return(ARK_RHSFUNC_FAIL);
   }

@@ -486,6 +486,11 @@ typedef struct ARKodeMemRec {
   booleantype *ark_gactive;     /* array with active/inactive event functions   */
   int          ark_mxgnull;     /* num. warning messages about possible g==0    */
 
+  /*----------------------------------------------------
+    User-supplied step solution post-processing function
+    ----------------------------------------------------*/
+  ARKPostProcessStepFn ark_ProcessStep;
+
 } *ARKodeMem;
 
 
