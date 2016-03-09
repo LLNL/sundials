@@ -1693,13 +1693,13 @@ ARKBAND: LU factorization and backsolving with banded matrices
 
 \item {} 
 ARKKLU: LU factorization and backsolving with
-compressed-sparse-column (CSC) matrices using the KLU linear solver
-library \phantomsection\label{Organization:id1}{\hyperref[References:klu]{\emph{{[}KLU{]}}}}.
+compressed-sparse-column (CSC) or compressed-sparese-row (CSR)
+matrices using the KLU linear solver library \phantomsection\label{Organization:id1}{\hyperref[References:klu]{\emph{{[}KLU{]}}}}.
 
 \item {} 
 ARKSUPERLUMT: LU factorization and backsolving with
-compressed-sparse-column (CSC) matrices using the threaded
-SuperLU\_MT linear solver library \phantomsection\label{Organization:id2}{\hyperref[References:superlumt]{\emph{{[}SuperLUMT{]}}}}.
+CSC matrices using the threaded SuperLU\_MT linear solver
+library \phantomsection\label{Organization:id2}{\hyperref[References:superlumt]{\emph{{[}SuperLUMT{]}}}}.
 
 \end{itemize}
 
@@ -2801,13 +2801,14 @@ ARKode Direct Linear Solvers).
 
 The second two linear solvers are sparse direct solvers based on
 Gaussian elimination, and require user-supplied routines to construct
-\(J\) (and possibly \(M\)) in compressed-sparse-column
-format.  The SUNDIALS suite does not include internal implementations
-of these solver libraries, instead requiring compilation of SUNDIALS
-to link with existing installations of these libraries (if either is
-missing, SUNDIALS will install without the corresponding interface
-routines).  Together, these linear solvers are referred to as \emph{ARKSLS}
-(which stands for ARKode Sparse Linear Solvers).
+\(J\) (and possibly \(M\)) in compressed-sparse-column (CSR)
+or compressed-sparse-row (CSR) format.  The SUNDIALS suite does not
+include internal implementations of these solver libraries, instead
+requiring compilation of SUNDIALS to link with existing installations
+of these libraries (if either is missing, SUNDIALS will install
+without the corresponding interface routines).  Together, these linear
+solvers are referred to as \emph{ARKSLS} (which stands for ARKode Sparse
+Linear Solvers).
 
 The last five ARKode linear solvers, ARKSPGMR, ARKSPBCG, ARKSPTFQMR,
 ARKSPFGMR and ARKPCG, are Krylov iterative solvers, which use scaled
@@ -3137,7 +3138,10 @@ Jacobian.
 all implementations of the NVECTOR module.  Of the four NVector
 modules provided with SUNDIALS, only the serial and threaded
 modules ({\hyperref[nvectors/NVector_Serial:nvectors-nvserial]{\emph{\DUspan{}{The NVECTOR\_SERIAL Module}}}}, {\hyperref[nvectors/NVector_OpenMP:nvectors-openmp]{\emph{\DUspan{}{The NVECTOR\_OPENMP Module}}}} and
-{\hyperref[nvectors/NVector_Pthreads:nvectors-pthreads]{\emph{\DUspan{}{The NVECTOR\_PTHREADS Module}}}}) are compatible.
+{\hyperref[nvectors/NVector_Pthreads:nvectors-pthreads]{\emph{\DUspan{}{The NVECTOR\_PTHREADS Module}}}}) are compatible.  Furthermore, the current
+SUNDIALS interface to the SuperLU\_MT library requires that the
+Jacobian matrix be stored in compressed-sparse-column (CSC) format;
+CSR format is not supported.
 
 \end{fulllineitems}
 
@@ -3731,7 +3735,10 @@ factoring/solving the ODE system.
 implementations of the NVECTOR module. Of the four NVector
 modules provided with SUNDIALS, only the serial and threaded
 modules ({\hyperref[nvectors/NVector_Serial:nvectors-nvserial]{\emph{\DUspan{}{The NVECTOR\_SERIAL Module}}}}, {\hyperref[nvectors/NVector_OpenMP:nvectors-openmp]{\emph{\DUspan{}{The NVECTOR\_OPENMP Module}}}} and
-{\hyperref[nvectors/NVector_Pthreads:nvectors-pthreads]{\emph{\DUspan{}{The NVECTOR\_PTHREADS Module}}}}) are compatible.
+{\hyperref[nvectors/NVector_Pthreads:nvectors-pthreads]{\emph{\DUspan{}{The NVECTOR\_PTHREADS Module}}}}) are compatible. Furthermore, the current
+SUNDIALS interface to the SuperLU\_MT library requires that the
+Jacobian matrix be stored in compressed-sparse-column (CSC) format;
+CSR format is not supported.
 
 \end{fulllineitems}
 
@@ -6969,33 +6976,35 @@ Sparse mass matrix ordering algorithm
 
 
 The ARKSPARSE solvers need a function to compute a
-compressed-sparse-column approximation to the Jacobian matrix
-\(J(t,y)\). This function must be of type
-{\hyperref[c_interface/User_supplied:c.ARKSlsSparseJacFn]{\emph{\code{ARKSlsSparseJacFn()}}}}.  The user must supply a custom sparse
-Jacobian function since a difference-quotient approximation would not
-leverage the underlying sparse matrix structure of the problem.  To
-specify a user-supplied Jacobian function \emph{sjac}, ARKSPARSE provides
-the function {\hyperref[c_interface/User_callable:c.ARKSlsSetSparseJacFn]{\emph{\code{ARKSlsSetSparseJacFn()}}}}. The ARKSPARSE solvers
-pass the user data pointer to the sparse Jacobian function.  This
-allows the user to create an arbitrary structure with relevant problem
-data and access it during the execution of the user-supplied Jacobian
-function, without using global data in the program. The user
-data pointer may be specified through {\hyperref[c_interface/User_callable:c.ARKodeSetUserData]{\emph{\code{ARKodeSetUserData()}}}}.
+compressed-sparse-column (CSC) or compressed-sparse-row (CSR)
+approximation to the Jacobian matrix \(J(t,y)\). This function
+must be of type {\hyperref[c_interface/User_supplied:c.ARKSlsSparseJacFn]{\emph{\code{ARKSlsSparseJacFn()}}}}.  The user must supply a
+custom sparse Jacobian function since a difference-quotient
+approximation would not leverage the underlying sparse matrix
+structure of the problem.  To specify a user-supplied Jacobian
+function \emph{sjac}, ARKSPARSE provides the function
+{\hyperref[c_interface/User_callable:c.ARKSlsSetSparseJacFn]{\emph{\code{ARKSlsSetSparseJacFn()}}}}. The ARKSPARSE solvers  pass the user
+data pointer to the sparse Jacobian function.  This allows the user to
+create an arbitrary structure with relevant problem data and access it
+during the execution of the user-supplied Jacobian function, without
+using global data in the program. The user data pointer may be
+specified through {\hyperref[c_interface/User_callable:c.ARKodeSetUserData]{\emph{\code{ARKodeSetUserData()}}}}.
 
 Similarly, if the ODE system involves a non-identity mass matrix,
 \(M\ne I\), the ARKSPARSE solver needs a function to compute a
-compressed-sparsec-column approximation to the mass matrix
-\(M(t)\).  If the Newton linear systems are solved using ARKSPARSE
-and the mass matrix systems are not, then the user must supply his/her
-own sparse mass matrix function, \emph{smass}, since there is no default
-value.  This function must be of type {\hyperref[c_interface/User_supplied:c.ARKSlsSparseMassFn]{\emph{\code{ARKSlsSparseMassFn()}}}},
-and should be set using the function
-{\hyperref[c_interface/User_callable:c.ARKSlsSetSparseMassFn]{\emph{\code{ARKSlsSetSparseMassFn()}}}}.  We note that the ARKSPARSE solvers
-pass the user data pointer to the sparse mass matrix function. This
-allows the user to create an arbitrary structure with relevant problem
-data and access it during the execution of the user-supplied mass
-matrix function, without using global data in the program. The pointer
-user data may be specified through {\hyperref[c_interface/User_callable:c.ARKodeSetUserData]{\emph{\code{ARKodeSetUserData()}}}}.
+compressed-sparse-column (CSR) or compressed-sparse-row (CSR)
+approximation to the mass matrix \(M(t)\).  If the Newton linear
+systems are solved using ARKSPARSE and the mass matrix systems are
+not, then the user must supply his/her own sparse mass matrix
+function, \emph{smass}, since there is no default value.  This function
+must be of type {\hyperref[c_interface/User_supplied:c.ARKSlsSparseMassFn]{\emph{\code{ARKSlsSparseMassFn()}}}}, and should be set
+using the function {\hyperref[c_interface/User_callable:c.ARKSlsSetSparseMassFn]{\emph{\code{ARKSlsSetSparseMassFn()}}}}.  We note that
+the ARKSPARSE solvers pass the user data pointer to the sparse mass
+matrix function. This allows the user to create an arbitrary structure
+with relevant problem data and access it during the execution of the
+user-supplied mass matrix function, without using global data in the
+program. The pointer user data may be specified through
+{\hyperref[c_interface/User_callable:c.ARKodeSetUserData]{\emph{\code{ARKodeSetUserData()}}}}.
 \index{ARKSlsSetSparseJacFn (C function)}
 
 \begin{fulllineitems}
@@ -11446,15 +11455,16 @@ halted, {\hyperref[c_interface/User_callable:c.ARKode]{\emph{\code{ARKode()}}}} 
 ARKKLU or ARKSUPERLUMT sets \emph{last\_flag} to \emph{ARKSLS\_JACFUNC\_UNRECVR}).
 
 \textbf{Notes:} A user-supplied sparse Jacobian function must load the
-compressed-sparse-column matrix \emph{Jac} with an approximation to the
-Jacobian matrix \(J(t,y)\) at the point \((t,y)\).  Storage
-for \emph{Jac} already exists on entry to this function, although the
-user should ensure that sufficient space is allocated in \emph{Jac} to
-hold the nonzero values to be set; if the existing space is
-insufficient the user may reallocate the data and row index arrays
-as needed.  The type of \emph{Jac} is \code{SlsMat}, and the amount of
-allocated space is available within the \code{SlsMat} structure as
-\code{NNZ}. The \code{SlsMat} type is further documented in the section
+compressed-sparse-column (CSC) or compressed-sparse-row (CSR)
+matrix \emph{Jac} with an approximation to the Jacobian matrix
+\(J(t,y)\) at the point \((t,y)\).  Storage for \emph{Jac}
+already exists on entry to this function, although the user should
+ensure that sufficient space is allocated in \emph{Jac} to hold the
+nonzero values to be set; if the existing space is insufficient the
+user may reallocate the data and row index arrays as needed.  The
+type of \emph{Jac} is \code{SlsMat}, and the amount of allocated space is
+available within the \code{SlsMat} structure as \code{NNZ}. The
+\code{SlsMat} type is further documented in the section
 {\hyperref[linear_solvers/index:linearsolvers]{\emph{\DUspan{}{Linear Solvers in ARKode}}}}.
 
 If the user's \emph{ARKSlsSparseJacFn} function uses difference quotient
@@ -11876,15 +11886,16 @@ which case the integration is halted, {\hyperref[c_interface/User_callable:c.ARK
 \emph{ARKSLS\_MASSFUNC\_UNRECVR}).
 
 \textbf{Notes:} A user-supplied sparse mass matrix function must load the
-compressed-sparse-column matrix \emph{M} with an approximation to the
-mass matrix \(M(t)\).  Storage for \emph{M} already exists on entry
-to this function, although the user should ensure that sufficient
-space is allocated in \emph{Jac} to hold the nonzero values to be set;
-if the existing space is insufficient the user may reallocate the
-data and row index arrays as needed.  The type of \emph{Jac} is
-\code{SlsMat}, and the amount of allocated space is available within
-the \code{SlsMat} structure as \code{NNZ}.  The \code{SlsMat} type is
-further documented in the section {\hyperref[linear_solvers/index:linearsolvers]{\emph{\DUspan{}{Linear Solvers in ARKode}}}}.
+compressed-sparse-column (CSR) or compressed-sparse-row (CSR)
+matrix \emph{M} with an approximation to the mass matrix \(M(t)\).
+Storage for \emph{M} already exists on entry to this function, although
+the user should ensure that sufficient space is allocated in \emph{Jac}
+to hold the nonzero values to be set; if the existing space is
+insufficient the user may reallocate the data and row index arrays
+as needed.  The type of \emph{Jac} is \code{SlsMat}, and the amount of
+allocated space is available within the \code{SlsMat} structure as
+\code{NNZ}.  The \code{SlsMat} type is further documented in the section
+{\hyperref[linear_solvers/index:linearsolvers]{\emph{\DUspan{}{Linear Solvers in ARKode}}}}.
 
 \end{fulllineitems}
 
@@ -14785,11 +14796,12 @@ the user must call the {\hyperref[f_interface/Usage:f/_/FARKKLU]{\emph{\code{FAR
 \index{FARKKLU() (fortran subroutine)|textbf}
 
 \begin{fulllineitems}
-\phantomsection\label{f_interface/Usage:f/_/FARKKLU}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKKLU}}{\emph{NEQ}, \emph{NNZ}, \emph{ORDERING}, \emph{IER}}{}
+\phantomsection\label{f_interface/Usage:f/_/FARKKLU}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKKLU}}{\emph{NEQ}, \emph{NNZ}, \emph{SPARSETYPE}, \emph{ORDERING}, \emph{IER}}{}
 Interfaces with the {\hyperref[c_interface/User_callable:c.ARKKLU]{\emph{\code{ARKKLU()}}}} function to
 specify use of the sparse direct linear solver.  \emph{Note}: this
 Fortran interface to {\hyperref[c_interface/User_callable:c.ARKKLU]{\emph{\code{ARKKLU()}}}} currently requires use of
-the compressed-sparse-column sparse matrix format.
+either the compressed-sparse-column (CSC) or compressed-sparse-row
+(CSR) sparse matrix format.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
@@ -14798,6 +14810,10 @@ the compressed-sparse-column sparse matrix format.
 \item {} 
 \emph{NNZ} (\code{int}, input) -- maximum number of nonzeros in
 the sparse Jacobian.
+
+\item {} 
+\emph{SPARSETYPE} (\code{int}, input) -- choice between CSC and CSR
+format (0 = CSC, 1 = CSR)
 
 \item {} 
 \emph{ORDERING} (\code{int}, input) -- the matrix ordering desired,
@@ -14859,9 +14875,12 @@ memory allocation error occurred, -2 for an illegal input).
 
 
 When using either of these sparse direct linear solvers, the user must
-supply a routine that computes a compressed-sparse-column
-approximation of the system Jacobian \(J = \frac{\partial
-f_I}{\partial y}\), having the following form:
+supply a routine that computes a sparse approximation of the system
+Jacobian \(J = \frac{\partial f_I}{\partial y}\).  Both the KLU
+and SuperLU\_MT solvers allow specification of \(J\) in
+compressed-sparse-column (CSC) format, the KLU solver interface also
+supports compressed-sparse-row (CSR) format.  The sparse Jacobian
+approximation function must have the following form:
 \index{FARKSPJAC() (fortran subroutine)|textbf}
 
 \begin{fulllineitems}
@@ -14890,12 +14909,12 @@ function (of type {\hyperref[c_interface/User_supplied:c.ARKSlsSparseJacFn]{\emp
 \emph{JDATA} (\code{realtype} of size NNZ, output) -- nonzero values in Jacobian.
 
 \item {} 
-\emph{JRVALS} (\code{int} of size NNZ, output) -- row indices for each
+\emph{JRVALS} (\code{int} of size NNZ, output) -- row \emph{{[}CSR: column{]}} indices for each
 nonzero Jacobian entry.
 
 \item {} 
 \emph{JCPTRS} (\code{int} of size N+1, output) -- indices of where
-each column's nonzeros begin in data array; last entry points
+each column's \emph{{[}CSR: row's{]}} nonzeros begin in data array; last entry points
 just past end of data values.
 
 \item {} 
@@ -14922,8 +14941,8 @@ occurred, \textless{}0 if an unrecoverable error occurred).
 \end{description}
 
 \textbf{Notes:} Due to the format of both the KLU and SuperLU\_MT
-solvers, the number of matrix rows, number of matrix nonzeros, and
-row index array are all of type \code{int} and not \code{long int}.
+solvers, the number of matrix rows/columns, number of matrix nonzeros, and
+row/column index array are all of type \code{int} and not \code{long int}.
 
 \end{fulllineitems}
 
@@ -15665,7 +15684,7 @@ the user must call the {\hyperref[f_interface/Usage:f/_/FARKMASSKLU]{\emph{\code
 \index{FARKMASSKLU() (fortran subroutine)|textbf}
 
 \begin{fulllineitems}
-\phantomsection\label{f_interface/Usage:f/_/FARKMASSKLU}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKMASSKLU}}{\emph{NEQ}, \emph{NNZ}, \emph{ORDERING}, \emph{IER}}{}
+\phantomsection\label{f_interface/Usage:f/_/FARKMASSKLU}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKMASSKLU}}{\emph{NEQ}, \emph{NNZ}, \emph{SPARSETYPE}, \emph{ORDERING}, \emph{IER}}{}
 Interfaces with the {\hyperref[c_interface/User_callable:c.ARKMassKLU]{\emph{\code{ARKMassKLU()}}}} function to
 specify use of the sparse direct linear solver.  \emph{Note}: this
 Fortran interface to {\hyperref[c_interface/User_callable:c.ARKMassKLU]{\emph{\code{ARKMassKLU()}}}} currently requires use
@@ -15678,6 +15697,10 @@ of the compressed-sparse-column sparse matrix format.
 \item {} 
 \emph{NNZ} (\code{int}, input) -- maximum number of nonzeros in
 the sparse mass matrix.
+
+\item {} 
+\emph{SPARSETYPE} (\code{int}, input) -- choice between CSC and CSR
+format (0 = CSC, 1 = CSR)
 
 \item {} 
 \emph{ORDERING} (\code{int}, input) -- the matrix ordering desired,
@@ -15741,9 +15764,12 @@ memory allocation error occurred, -2 for an illegal input).
 
 
 When using either of these sparse direct linear solvers, the user must
-supply a routine that computes a compressed-sparse-column
-approximation of the possibly time-dependent system mass matrix
-\(M(t)\), having the following form:
+supply a routine that computes a sparse approximation of the possibly
+time-dependent system mass matrix \(M(t)\).  Both the KLU and
+SuperLU\_MT solver interfaces support the compressed-sparse-column
+(CSC) matrix format, while the KLU solver interface additionally
+supports compressed-sparse-row (CSR) format.  The user-supplied
+routine for computing \(M(t)\) must have the following form:
 \index{FARKSPMASS() (fortran subroutine)|textbf}
 
 \begin{fulllineitems}
@@ -15768,12 +15794,12 @@ in mass matrix.
 in mass matrix.
 
 \item {} 
-\emph{MRVALS} (\code{int} of size NNZ, output) -- row indices for each
+\emph{MRVALS} (\code{int} of size NNZ, output) -- row \emph{{[}CSR: column{]}} indices for each
 nonzero mass matrix entry.
 
 \item {} 
 \emph{MCPTRS} (\code{int} of size N+1, output) -- indices of where
-each column's nonzeros begin in data array; last entry points
+each column's \emph{{[}CSR: row's{]}} nonzeros begin in data array; last entry points
 just past end of data values.
 
 \item {} 
@@ -15797,8 +15823,8 @@ occurred, \textless{}0 if an unrecoverable error occurred).
 \end{description}
 
 \textbf{Notes:} Due to the format of both the KLU and SuperLU\_MT
-solvers, the number of matrix rows, number of matrix nonzeros, and
-row index array are all of type \code{int} and not \code{long int}.
+solvers, the number of matrix rows/columns, number of matrix nonzeros, and
+row/column index array are all of type \code{int} and not \code{long int}.
 
 \end{fulllineitems}
 
@@ -20435,12 +20461,12 @@ The {\hyperref[linear_solvers/SLS:linearsolvers-sls]{\emph{\DUspan{}{SLS}}}} fam
 package and interfaces between it and two sparse direct solver packages:
 \begin{itemize}
 \item {} 
-The KLU package, a linear solver for compressed-sparse-column
-matrices, \phantomsection\label{linear_solvers/index:id1}{\hyperref[References:klu]{\emph{{[}KLU{]}}}}, \phantomsection\label{linear_solvers/index:id2}{\hyperref[References:dp2010]{\emph{{[}DP2010{]}}}}.
+The KLU package, a linear solver for compressed-sparse-column (CSC)
+or compressed-sparse-row (CSR) matrices, \phantomsection\label{linear_solvers/index:id1}{\hyperref[References:klu]{\emph{{[}KLU{]}}}}, \phantomsection\label{linear_solvers/index:id2}{\hyperref[References:dp2010]{\emph{{[}DP2010{]}}}}.
 
 \item {} 
 The SUPERLUMT package, a threaded linear solver for
-compressed-sparse-column matrices, \phantomsection\label{linear_solvers/index:id3}{\hyperref[References:superlumt]{\emph{{[}SuperLUMT{]}}}}, \phantomsection\label{linear_solvers/index:id4}{\hyperref[References:l2005]{\emph{{[}L2005{]}}}}, \phantomsection\label{linear_solvers/index:id5}{\hyperref[References:dgl1999]{\emph{{[}DGL1999{]}}}}.
+CSC matrices, \phantomsection\label{linear_solvers/index:id3}{\hyperref[References:superlumt]{\emph{{[}SuperLUMT{]}}}}, \phantomsection\label{linear_solvers/index:id4}{\hyperref[References:l2005]{\emph{{[}L2005{]}}}}, \phantomsection\label{linear_solvers/index:id5}{\hyperref[References:dgl1999]{\emph{{[}DGL1999{]}}}}.
 
 \end{itemize}
 
@@ -21407,12 +21433,13 @@ the parameters \emph{mu}, \emph{ml} and \emph{smu}, and where it is assumed that
 
 \section{The SLS modules}
 \label{linear_solvers/SLS:the-sls-modules}\label{linear_solvers/SLS::doc}\label{linear_solvers/SLS:linearsolvers-sls}
-SUNDIALS provides a compressed-sparse-column matrix type and sparse
-matrix support functions.  In addition, SUNDIALS provides interfaces
-to the publicly available KLU and SuperLU\_MT sparse direct solver
-packages.  The files comprising the SLS matrix module, used in the KLU
-and SUPERLUMT linear solver packages, and their locations in the
-SUNDIALS \code{srcdir}, are as follows:
+SUNDIALS provides a sparse matrix type based on the
+compressed-sparse-column and compressed-sparse-row formats, along with
+sparse matrix support functions.  In addition, SUNDIALS provides
+interfaces to the publicly available KLU and SuperLU\_MT sparse direct
+solver packages.  The files comprising the SLS matrix module, used in
+the KLU and SUPERLUMT linear solver packages, and their locations in
+the SUNDIALS \code{srcdir}, are as follows:
 \begin{itemize}
 \item {} 
 header files (located in \code{srcdir/include/sundials}):
@@ -21571,7 +21598,7 @@ actually filled in; the greyed-out portions of \code{data} and
 The following pointers are added to the \code{SlsMat} type for user
 convenience, to provide a more intuitive interface to the CSC and CSR
 sparse matrix data structures. They are set automatically by the
-{\hyperref[linear_solvers/SLS:c.NewSparseMat]{\emph{\code{NewSparseMat()}}}} function, based on the sparse matrix storage
+{\hyperref[linear_solvers/SLS:c.SparseNewMat]{\emph{\code{SparseNewMat()}}}} function, based on the sparse matrix storage
 type.
 \begin{quote}\begin{description}
 \item[{rowvals}] \leavevmode
@@ -21649,46 +21676,46 @@ of nonzeros here.
 The SPARSE module defines functions that act on sparse matrices of
 type {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}}}}.  For full details, see the header file
 \code{sundials\_sparse.h}.
-\index{NewSparseMat (C function)}
+\index{SparseNewMat (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{linear_solvers/SLS:c.NewSparseMat}\pysiglinewithargsret{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}} \bfcode{NewSparseMat}}{int\emph{ M}, int\emph{ N}, int\emph{ NNZ}, int\emph{ sparsetype}}{}
+\phantomsection\label{linear_solvers/SLS:c.SparseNewMat}\pysiglinewithargsret{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}} \bfcode{SparseNewMat}}{int\emph{ M}, int\emph{ N}, int\emph{ NNZ}, int\emph{ sparsetype}}{}
 Allocates a {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}}}} sparse matrix having \emph{M} rows, \emph{N}
 columns, and storage for \emph{NNZ} nonzero entries and \emph{sparsetype}
 storage type (\code{CSC\_MAT} or \code{CSR\_MAT}).
 
 \end{fulllineitems}
 
-\index{SlsConvertDls (C function)}
+\index{SparseFromDenseMat (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{linear_solvers/SLS:c.SlsConvertDls}\pysiglinewithargsret{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}} \bfcode{SlsConvertDls}}{{\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{DlsMat}}}\emph{ A}}{}
+\phantomsection\label{linear_solvers/SLS:c.SparseFromDenseMat}\pysiglinewithargsret{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}} \bfcode{SparseFromDenseMat}}{{\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{DlsMat}}}\emph{ A}}{}
 Converts a dense matrix of type {\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{\code{DlsMat}}}} into a CSC
 matrix of type {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}}}} by retaining only the nonzero
 values of the dense matrix.
 
 \end{fulllineitems}
 
-\index{DestroySparseMat (C function)}
+\index{SparseDestroyMat (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{linear_solvers/SLS:c.DestroySparseMat}\pysiglinewithargsret{void \bfcode{DestroySparseMat}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}}{}
+\phantomsection\label{linear_solvers/SLS:c.SparseDestroyMat}\pysiglinewithargsret{void \bfcode{SparseDestroyMat}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}}{}
 Frees memory for a {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}}}} matrix.
 
 \end{fulllineitems}
 
-\index{SlsSetToZero (C function)}
+\index{SparseSetMatToZero (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{linear_solvers/SLS:c.SlsSetToZero}\pysiglinewithargsret{void \bfcode{SlsSetToZero}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}}{}
+\phantomsection\label{linear_solvers/SLS:c.SparseSetMatToZero}\pysiglinewithargsret{void \bfcode{SparseSetMatToZero}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}}{}
 Zeros out a {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}}}} matrix (but retains its storage).
 
 \end{fulllineitems}
 
-\index{CopySparseMat (C function)}
+\index{SparseCopyMat (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{linear_solvers/SLS:c.CopySparseMat}\pysiglinewithargsret{void \bfcode{CopySparseMat}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}, {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ B}}{}
+\phantomsection\label{linear_solvers/SLS:c.SparseCopyMat}\pysiglinewithargsret{void \bfcode{SparseCopyMat}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}, {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ B}}{}
 Copies one sparse matrix to another.  It is assumed that the
 matrices have the same row/column dimensions and storage type.  If
 \emph{B} has insufficient storage to hold all the nonzero entries of
@@ -21697,19 +21724,19 @@ those in \emph{A}.
 
 \end{fulllineitems}
 
-\index{ScaleSparseMat (C function)}
+\index{SparseScaleMat (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{linear_solvers/SLS:c.ScaleSparseMat}\pysiglinewithargsret{void \bfcode{ScaleSparseMat}}{realtype\emph{ c}, {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}}{}
+\phantomsection\label{linear_solvers/SLS:c.SparseScaleMat}\pysiglinewithargsret{void \bfcode{SparseScaleMat}}{realtype\emph{ c}, {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}}{}
 Scales every element in the sparse matrix A by the by the
 scalar c.
 
 \end{fulllineitems}
 
-\index{AddIdentitySparseMat (C function)}
+\index{SparseAddIdentityMat (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{linear_solvers/SLS:c.AddIdentitySparseMat}\pysiglinewithargsret{void \bfcode{AddIdentitySparseMat}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}}{}
+\phantomsection\label{linear_solvers/SLS:c.SparseAddIdentityMat}\pysiglinewithargsret{void \bfcode{SparseAddIdentityMat}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}}{}
 Increments a sparse matrix by the identity matrix.  If \emph{A} is not
 square, only the existing diagonal values are incremented.  Resizes
 the \code{data} and \code{indexvals} arrays of \emph{A} to allow for new nonzero
@@ -21717,10 +21744,10 @@ entries on the diagonal.
 
 \end{fulllineitems}
 
-\index{SlsAddMat (C function)}
+\index{SparseAddMat (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{linear_solvers/SLS:c.SlsAddMat}\pysiglinewithargsret{int \bfcode{SlsAddMat}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}, {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ B}}{}
+\phantomsection\label{linear_solvers/SLS:c.SparseAddMat}\pysiglinewithargsret{int \bfcode{SparseAddMat}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}, {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ B}}{}
 Adds two sparse matrices: \(A = A+B\).  Resizes the data arrays
 of \emph{A} upon completion to exactly match the nonzero storage for
 the result.  Upon successful completion, the return value is zero;
@@ -21729,20 +21756,20 @@ the same size and storage type.
 
 \end{fulllineitems}
 
-\index{ReallocSparseMat (C function)}
+\index{SparseReallocMat (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{linear_solvers/SLS:c.ReallocSparseMat}\pysiglinewithargsret{void \bfcode{ReallocSparseMat}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}}{}
+\phantomsection\label{linear_solvers/SLS:c.SparseReallocMat}\pysiglinewithargsret{void \bfcode{SparseReallocMat}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}}{}
 This function eliminates unused storage in \emph{A} by reallocating
 the internal \code{data} and \code{indexvals} arrays to contain
 \code{indexptrs{[}N{]}} nonzeros.
 
 \end{fulllineitems}
 
-\index{SlsMatvec (C function)}
+\index{SparseMatvec (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{linear_solvers/SLS:c.SlsMatvec}\pysiglinewithargsret{int \bfcode{SlsMatvec}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}, realtype\emph{ *x}, realtype\emph{ *y}}{}
+\phantomsection\label{linear_solvers/SLS:c.SparseMatvec}\pysiglinewithargsret{int \bfcode{SparseMatvec}}{{\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{SlsMat}}}\emph{ A}, realtype\emph{ *x}, realtype\emph{ *y}}{}
 Computes the sparse matrix-vector product, \(y=Ax\).  If the
 \code{SlsMat} \emph{A} is a sparse matrix of dimension \(M\times N\),
 then it is assumed that \emph{x} is a \code{realtype} array of  length
@@ -21752,10 +21779,10 @@ otherwise -1 is returned.
 
 \end{fulllineitems}
 
-\index{PrintSparseMat (C function)}
+\index{SparsePrintMat (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{linear_solvers/SLS:c.PrintSparseMat}\pysiglinewithargsret{void \bfcode{PrintSparseMat}}{{\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{DlsMat}}}\emph{ A}}{}
+\phantomsection\label{linear_solvers/SLS:c.SparsePrintMat}\pysiglinewithargsret{void \bfcode{SparsePrintMat}}{{\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{DlsMat}}}\emph{ A}}{}
 Prints a {\hyperref[linear_solvers/SLS:c.SlsMat]{\emph{\code{SlsMat}}}} matrix to standard output.
 
 \end{fulllineitems}
@@ -24001,7 +24028,7 @@ The sparse Jacobian evaluation routine has not been set.
 The sparse mass matrix evaluation routine has not been set.
 
 \item[{\index{ARKSLS\_PACKAGE\_FAIL}ARKSLS\_PACKAGE\_FAIL  (-7):}] \leavevmode
-A failure occurred in the sparse matrix library (KLU or SuperLU-MT).
+A failure occurred in the sparse matrix library (KLU or SuperLU\_MT).
 
 \item[{\index{ARKSLS\_MASSMEM\_NULL}ARKSLS\_MASSMEM\_NULL  (-8):}] \leavevmode
 The ARKSLS mass matrix solver has been used but not initialized.
