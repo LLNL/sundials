@@ -363,18 +363,19 @@
 
      Required when using the ARKKLU or ARKSuperLUMT linear solvers, the 
      user must supply a routine that computes a compressed-sparse-column 
-     approximation of the system Jacobian J = dfi(t,y)/dy.  This routine
-     must have the following form:
+     [or compressed-sparse-row] approximation of the system Jacobian 
+     J = dfi(t,y)/dy.  This routine must have the following form:
 
        SUBROUTINE FARKSPJAC(T, Y, FY, N, NNZ, JDATA, JRVALS, 
       &                     JCPTRS, H, IPAR, RPAR, WK1, WK2, WK3, IER)
 
      Typically this routine will use only M, N, NNZ, JDATA, JRVALS and 
-     JCPTRS. It must load the N by N compressed sparse column matrix 
-     with storage for NNZ nonzeros, stored in the arrays JDATA (nonzero
-     values), JRVALS (row indices for each nonzero), JCOLPTRS (indices 
-     for start of each column), with the Jacobian matrix at the current
-     (t,y) in CSC form (see sundials_sparse.h for more information).
+     JCPTRS. It must load the N by N compressed sparse column [or 
+     compressed sparse row] matrix with storage for NNZ nonzeros, stored 
+     in the arrays JDATA (nonzero values), JRVALS (row [or column] indices 
+     for each nonzero), JCOLPTRS (indices for start of each column [or row]), 
+     with the Jacobian matrix at the current (t,y) in CSC [or CSR] format 
+     (see sundials_sparse.h for more information).
 
      The arguments are:
          T    -- current time [realtype, input]
@@ -384,9 +385,9 @@
          NNZ  -- allocated length of nonzero storage [int, input]
         JDATA -- nonzero values in Jacobian
                  [realtype of length NNZ, output]
-       JRVALS -- row indices for each nonzero in Jacobian
+       JRVALS -- row [or column] indices for each nonzero in Jacobian
                   [int of length NNZ, output]
-       JCPTRS -- pointers to each Jacobian column in preceding arrays
+       JCPTRS -- pointers to each Jacobian column [or row] in preceding arrays
                  [int of length N+1, output]
          H    -- current step size [realtype, input]
          IPAR -- array containing integer user data that was passed to
@@ -404,19 +405,20 @@
 
      Required when using the ARKMassKLU or ARKMassSuperLUMT mass matrix 
      linear solvers, the user must supply a routine that computes a 
-     compressed-sparse-column version of the (possibly time-dependent) 
-     system mass matrix M(t).  If supplied, it must have the following 
-     form:
+     compressed-sparse-column [or compressed-sparse-row] version of the 
+     (possibly time-dependent) system mass matrix M(t).  If supplied, 
+     it must have the following form:
 
        SUBROUTINE FARKSPMASS(T, N, NNZ, MDATA, MRVALS, MCPTRS, 
       &                      IPAR, RPAR, WK1, WK2, WK3, IER)
 
      Typically this routine will use only M, N, NNZ, MDATA, MRVALS and 
-     MCPTRS. It must load the N by N compressed sparse column matrix 
-     with storage for NNZ nonzeros, stored in the arrays MDATA (nonzero
-     values), MRVALS (row indices for each nonzero), MCOLPTRS (indices 
-     for start of each column), with the system mass matrix at the current
-     (t) in CSC form (see sundials_sparse.h for more information).
+     MCPTRS. It must load the N by N compressed sparse column [or 
+     compressed sparse row] matrix with storage for NNZ nonzeros, stored 
+     in the arrays MDATA (nonzero values), MRVALS (row [or column] indices 
+     for each nonzero), MCOLPTRS (indices for start of each column [or row]), 
+     with the system mass matrix at the current (t) in CSC [or CSR] format 
+     (see sundials_sparse.h for more information).
 
      The arguments are:
          T    -- current time [realtype, input]
@@ -424,9 +426,9 @@
          NNZ  -- allocated length of nonzero storage [int, input]
         MDATA -- nonzero values in mass matrix
                  [realtype of length NNZ, output]
-       MRVALS -- row indices for each nonzero in mass matrix
+       MRVALS -- row [or column] indices for each nonzero in mass matrix
                   [int of length NNZ, output]
-       MCPTRS -- pointers to each mass matrix column in preceding arrays
+       MCPTRS -- pointers to each mass matrix column [or row] in preceding arrays
                  [int of length N+1, output]
          IPAR -- array containing integer user data that was passed to
                  FARKMALLOC [long int, input]
@@ -1074,13 +1076,15 @@
 
      The user must make the call
 
-       CALL FARKKLU(NEQ, NNZ, ORDERING, IER)
+       CALL FARKKLU(NEQ, NNZ, SPARSETYPE, ORDERING, IER)
 
      The arguments are:
         NEQ = the problem size [int; input]
         NNZ = the maximum number of nonzeros [int; input]
-	ORDERING = the matrix ordering desired, possible values
-	   come from the KLU package (0 = AMD, 1 = COLAMD) [int; input]
+	SPARSETYPE = choice between CSC and CSR format
+           (0 = CSC, 1 = CSR) [int; input]
+	ORDERING = the matrix ordering desired, possible values come
+	   from the KLU package (0 = AMD, 1 = COLAMD) [int; input]
 	IER = error return flag [int, output]: 
 	         0 = success, 
 		 negative = error.
@@ -1118,11 +1122,13 @@
 
      The user must make the call
 
-       CALL FARKMASSKLU(NEQ, NNZ, ORDERING, IER)
+       CALL FARKMASSKLU(NEQ, NNZ, SPARSETYPE, ORDERING, IER)
 
      The arguments are:
         NEQ = the problem size [int; input]
         NNZ = the maximum number of mass matrix nonzeros [int; input]
+	SPARSETYPE = choice between CSC and CSR format
+           (0 = CSC, 1 = CSR) [int; input]
 	ORDERING = the matrix ordering desired, possible values
 	   come from the KLU package (0 = AMD, 1 = COLAMD) [int; input]
 	IER = error return flag [int, output]: 
