@@ -132,6 +132,7 @@ int ARKSuperLUMT(void *arkode_mem, int num_threads, int n, int nnz)
   arksls_mem->s_Jeval = NULL;
   arksls_mem->s_Jdata = ark_mem->ark_user_data;
   ark_mem->ark_setupNonNull = TRUE;
+  arksls_mem->sparsetype = CSC_MAT;
 
   /* Initialize counters */
   arksls_mem->s_nje = 0;
@@ -619,6 +620,7 @@ int ARKMassSuperLUMT(void *arkode_mem, int num_threads,
   arksls_mem->s_Mdata = ark_mem->ark_user_data;
   arksls_mem->s_last_flag = ARKSLS_SUCCESS;
   ark_mem->ark_MassSetupNonNull = TRUE;
+  arksls_mem->sparsetype = CSC_MAT;
 
   /* Allocate memory for M and M_lu */
   arksls_mem->s_M = NULL;
