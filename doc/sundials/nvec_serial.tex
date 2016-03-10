@@ -79,9 +79,9 @@ vector. The suffix \id{\_S} in the names denotes the serial version.
 %%----------------------------------------------
 %%
 The {\nvecs} module defines serial implementations of all vector operations listed 
-in Table \ref{t:nvecops}. Their names are obtained from those in Table \ref{t:nvecops} by
-appending the suffix \id{\_Serial}. The module {\nvecs} provides the following additional
-user-callable routines:
+in Table \ref{t:nvecops}. Their names are obtained from those in Table \ref{t:nvecops}
+by appending the suffix \id{\_Serial} (e.g. \id{N\_VDestroy\_Serial}).
+The module {\nvecs} provides the following additional user-callable routines:
 %%
 \begin{itemize}
 
@@ -191,3 +191,10 @@ user-callable routines:
   arguments that were all created with the same internal representations.
 
 \end{itemize}
+
+For solvers that include a Fortran interface module, the {\nvecs} module
+also includes a Fortran-callable function \id{FNVINITS(code, NEQ, IER)},
+to initialize this {\nvecs} module.  Here \id{code} is an input solver id
+(1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol}, 4 for {\arkode}); NEQ is
+the problem size; and IER is an error return flag equal 0 for success
+and -1 for failure.
