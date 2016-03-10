@@ -102,8 +102,9 @@ parallel version.
 %%--------------------------------------------
 %%
 The {\nvecp} module defines parallel implementations of all vector operations listed 
-in Table \ref{t:nvecops}  Their names are obtained from those in Table \ref{t:nvecops} by
-appending the suffix \id{\_Parallel}. The module {\nvecp} provides the following additional
+in Table \ref{t:nvecops}  Their names are obtained from those in Table \ref{t:nvecops}
+by appending the suffix \id{\_Parallel} (e.g. \id{N\_VDestroy\_Parallel}).
+The module {\nvecp} provides the following additional
 user-callable routines:
 %%
 %%
@@ -229,3 +230,11 @@ N_Vector *N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w);
 
 \end{itemize}
 
+For solvers that include a Fortran interface module, the {\nvecp} module
+also includes a Fortran-callable function
+\id{FNVINITP(COMM, code, NLOCAL, NGLOBAL, IER)},
+to initialize this {\nvecp} module.  Here \id{COMM} is the MPI communicator,
+\id{code} is an input solver id (1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol},
+4 for {\arkode}); \id{NLOCAL} and \id{NGLOBAL} are the local and global
+vector sizes, respectively (declared so as to match C type \id{long int});
+and IER is an error return flag equal 0 for success and -1 for failure.
