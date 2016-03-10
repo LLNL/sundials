@@ -51,7 +51,8 @@
  * selected output times, and all performance counters are printed
  * on completion.
  *
- * This version uses MPI for user routines.
+ * This example uses Hypre vector and MPI parallelization. User is 
+ * expected to be familiar with the Hypre library. 
  * 
  * Execution: mpiexec -n N ark_diurnal_kry_p   with N = NPEX*NPEY
  * (see constants below).
@@ -61,7 +62,7 @@
 #include <math.h>
 #include <arkode/arkode.h>             /* prototypes for ARKODE fcts. */
 #include <arkode/arkode_spgmr.h>       /* prototypes & constants for ARKSPGMR  */
-#include <nvector/nvector_parhyp.h>  /* def. of N_Vector, macro NV_DATA_P  */
+#include <nvector/nvector_parhyp.h>    /* def. of N_Vector, macro NV_DATA_P  */
 #include <sundials/sundials_dense.h>   /* prototypes for small dense fcts. */
 #include <sundials/sundials_types.h>   /* definitions of realtype, booleantype */
 #include <sundials/sundials_math.h>    /* definition of macros SUNSQR and EXP */
@@ -150,8 +151,8 @@ static void BSend(MPI_Comm comm,
                   realtype udata[]);
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-		      long int dsizex, long int dsizey,
-		      realtype uext[], realtype buffer[]);
+                      long int dsizex, long int dsizey,
+                      realtype uext[], realtype buffer[]);
 static void BRecvWait(MPI_Request request[], 
                       int isubx, int isuby, 
                       long int dsizex, realtype uext[],
@@ -186,6 +187,8 @@ int main(int argc, char *argv[])
   int iout, flag, my_pe, npes;
   long int neq, local_N;
   MPI_Comm comm;
+  HYPRE_Int *partitioning;
+  HYPRE_ParVector Uhyp;    /* Instantiate hypre parallel vector */
 
   u = NULL;
   data = NULL;
@@ -203,7 +206,7 @@ int main(int argc, char *argv[])
   if (npes != NPEX*NPEY) {
     if (my_pe == 0)
       fprintf(stderr, "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n\n",
-	      npes,NPEX*NPEY);
+              npes,NPEX*NPEY);
     MPI_Finalize();
     return(1);
   }
@@ -211,13 +214,29 @@ int main(int argc, char *argv[])
   /* Set local length */
   local_N = NVARS*MXSUB*MYSUB;
 
+  /* Allocate hypre vector */
+  if(HYPRE_AssumedPartitionCheck()) {
+    partitioning = (HYPRE_Int*) malloc(2 * sizeof(HYPRE_Int));
+    partitioning[0] = my_pe*local_N;
+    partitioning[1] = (my_pe + 1)*local_N;
+  } else {
+    partitioning = (HYPRE_Int*) malloc((npes + 1) * sizeof(HYPRE_Int));
+    if (my_pe == 0) {
+      fprintf(stderr, "Using global partition.\n");
+      fprintf(stderr, "I don't do this stuff. Now exiting...\n");
+      return -1;
+    }
+  }
+  HYPRE_ParVectorCreate(comm, neq, partitioning, &Uhyp);
+  HYPRE_ParVectorInitialize(Uhyp);
+
   /* Allocate and load user data block; allocate preconditioner block */
   data = (UserData) malloc(sizeof *data);
   if (check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   InitUserData(my_pe, comm, data);
 
   /* Allocate u, and set initial values and tolerances */ 
-  u = N_VNew_ParHyp(comm, local_N, neq);
+  u = N_VMake_ParHyp(Uhyp);  /* Create wrapper u around hypre vector */
   if (check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
@@ -269,7 +288,8 @@ int main(int argc, char *argv[])
   if (my_pe == 0) PrintFinalStats(arkode_mem);
 
   /* Free memory */
-  N_VDestroy_ParHyp(u);
+  N_VDestroy_ParHyp(u);          /* Free the u vector wrapper */
+  HYPRE_ParVectorDestroy(Uhyp);  /* Free the underlying hypre vector */
   FreeUserData(data);
   ARKodeFree(&arkode_mem);
   MPI_Finalize();
@@ -522,8 +542,8 @@ static void BSend(MPI_Comm comm,
 
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-		      long int dsizex, long int dsizey,
-		      realtype uext[], realtype buffer[])
+                      long int dsizex, long int dsizey,
+                      realtype uext[], realtype buffer[])
 {
   long int offsetue;
   /* Have bufleft and bufright use the same buffer */
@@ -532,7 +552,7 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[],
   /* If isuby > 0, receive data for bottom x-line of uext */
   if (isuby != 0)
     MPI_Irecv(&uext[NVARS], dsizex, PVEC_REAL_MPI_TYPE,
-    					 my_pe-NPEX, 0, comm, &request[0]);
+              my_pe-NPEX, 0, comm, &request[0]);
 
   /* If isuby < NPEY-1, receive data for top x-line of uext */
   if (isuby != NPEY-1) {
@@ -603,10 +623,11 @@ static void BRecvWait(MPI_Request request[],
       offsetbuf = ly*NVARS;
       offsetue = (ly+2)*dsizex2 - NVARS;
       for (i = 0; i < NVARS; i++)
-	uext[offsetue+i] = bufright[offsetbuf+i];
+        uext[offsetue+i] = bufright[offsetbuf+i];
     }
   }
 }
+
 
 /* ucomm routine.  This routine performs all communication 
    between processors of data needed to calculate f. */
@@ -638,6 +659,7 @@ static void ucomm(realtype t, N_Vector u, UserData data)
   /* Finish receiving boundary data from neighboring PEs */
   BRecvWait(request, isubx, isuby, nvmxsub, uext, buffer);
 }
+
 
 /* fcalc routine. Compute f(t,y).  This routine assumes that communication 
    between processors of data needed to calculate f has already been done,
@@ -793,7 +815,9 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   return(0);
 }
 
+
 /* Preconditioner setup routine. Generate and preprocess P. */
+
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
                    realtype gamma, void *user_data, 
@@ -819,7 +843,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 
   if (jok) {
 
-  /* jok = TRUE: Copy Jbd to P */
+    /* jok = TRUE: Copy Jbd to P */
     for (ly = 0; ly < MYSUB; ly++)
       for (lx = 0; lx < MXSUB; lx++)
         denseCopy(Jbd[lx][ly], P[lx][ly], NVARS, NVARS);
@@ -830,16 +854,16 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 
   else {
 
-  /* jok = FALSE: Generate Jbd from scratch and copy to P */
+    /* jok = FALSE: Generate Jbd from scratch and copy to P */
 
-  /* Make local copies of problem variables, for efficiency */
-  q4coef = data->q4;
-  dely = data->dy;
-  verdco = data->vdco;
-  hordco  = data->hdco;
-
-  /* Compute 2x2 diagonal Jacobian blocks (using q4 values 
-     computed on the last f call).  Load into P. */
+    /* Make local copies of problem variables, for efficiency */
+    q4coef = data->q4;
+    dely = data->dy;
+    verdco = data->vdco;
+    hordco  = data->hdco;
+    
+    /* Compute 2x2 diagonal Jacobian blocks (using q4 values 
+     c*omputed on the last f call).  Load into P. */
     for (ly = 0; ly < MYSUB; ly++) {
       jy = ly + isuby*MYSUB;
       ydn = YMIN + (jy - RCONST(0.5))*dely;
@@ -861,14 +885,14 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
       }
     }
 
-  *jcurPtr = TRUE;
+    *jcurPtr = TRUE;
 
   }
 
   /* Scale by -gamma */
-    for (ly = 0; ly < MYSUB; ly++)
-      for (lx = 0; lx < MXSUB; lx++)
-        denseScale(-gamma, P[lx][ly], NVARS, NVARS);
+  for (ly = 0; ly < MYSUB; ly++)
+    for (lx = 0; lx < MXSUB; lx++)
+      denseScale(-gamma, P[lx][ly], NVARS, NVARS);
 
   /* Add identity matrix and do LU decompositions on blocks in place */
   for (lx = 0; lx < MXSUB; lx++) {
@@ -882,7 +906,9 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   return(0);
 }
 
+
 /* Preconditioner solve routine */
+
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
                   N_Vector r, N_Vector z, 
                   realtype gamma, realtype delta,
@@ -936,22 +962,20 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
-	    id, funcname);
-    return(1); }
-
-  /* Check if flag < 0 */
-  else if (opt == 1) {
+            id, funcname);
+    return(1); 
+  } else if (opt == 1) { /* Check if flag < 0 */
     errflag = (int *) flagvalue;
     if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
-	      id, funcname, *errflag);
-      return(1); }}
-
-  /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+              id, funcname, *errflag);
+      return(1); 
+    }
+  } else if (opt == 2 && flagvalue == NULL) { /* Check if function returned NULL pointer - no memory allocated */
     fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
-	    id, funcname);
-    return(1); }
+            id, funcname);
+    return(1); 
+  }
 
   return(0);
 }

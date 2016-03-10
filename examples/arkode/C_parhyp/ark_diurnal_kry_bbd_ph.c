@@ -55,7 +55,9 @@
  * selected output times, and all performance counters are printed
  * on completion.
  *
- * This version uses MPI for user routines.
+ * This example uses Hypre vector and MPI parallelization. User is 
+ * expected to be familiar with the Hypre library. 
+ * 
  * Execute with number of processors = NPEX*NPEY (see constants below).
  *------------------------------------------------------------------*/
 #include <stdio.h>
@@ -126,7 +128,7 @@ static void InitUserData(int my_pe, long int local_N, MPI_Comm comm,
                          UserData data);
 static void SetInitialProfiles(N_Vector u, UserData data);
 static void PrintIntro(int npes, long int mudq, long int mldq,
-		       long int mukeep, long int mlkeep);
+                       long int mukeep, long int mlkeep);
 static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t);
 static void PrintFinalStats(void *arkode_mem);
@@ -136,8 +138,8 @@ static void BSend(MPI_Comm comm,
                   realtype uarray[]);
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-		      long int dsizex, long int dsizey,
-		      realtype uext[], realtype buffer[]);
+                      long int dsizex, long int dsizey,
+                      realtype uext[], realtype buffer[]);
 static void BRecvWait(MPI_Request request[], 
                       int isubx, int isuby, 
                       long int dsizex, realtype uext[],
@@ -165,6 +167,8 @@ int main(int argc, char *argv[])
   int iout, my_pe, npes, flag, jpre;
   long int neq, local_N, mudq, mldq, mukeep, mlkeep;
   MPI_Comm comm;
+  HYPRE_Int *partitioning;
+  HYPRE_ParVector Uhyp;    /* Instantiate hypre parallel vector */
 
   data = NULL;
   arkode_mem = NULL;
@@ -190,13 +194,29 @@ int main(int argc, char *argv[])
   /* Set local length */
   local_N = NVARS*MXSUB*MYSUB;
 
+  /* Allocate hypre vector */
+  if(HYPRE_AssumedPartitionCheck()) {
+    partitioning = (HYPRE_Int*) malloc(2 * sizeof(HYPRE_Int));
+    partitioning[0] = my_pe*local_N;
+    partitioning[1] = (my_pe + 1)*local_N;
+  } else {
+    partitioning = (HYPRE_Int*) malloc((npes + 1) * sizeof(HYPRE_Int));
+    if (my_pe == 0) {
+      fprintf(stderr, "Using global partition.\n");
+      fprintf(stderr, "I don't do this stuff. Now exiting...\n");
+      return -1;
+    }
+  }
+  HYPRE_ParVectorCreate(comm, neq, partitioning, &Uhyp);
+  HYPRE_ParVectorInitialize(Uhyp);
+
   /* Allocate and load user data block */
   data = (UserData) malloc(sizeof *data);
   if(check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   InitUserData(my_pe, local_N, comm, data);
 
   /* Allocate and initialize u, and set tolerances */ 
-  u = N_VNew_ParHyp(comm, local_N, neq);
+  u = N_VMake_ParHyp(Uhyp);  /* Create wrapper u around hypre vector */
   if(check_flag((void *)u, "N_VNew_ParHyp", 0, my_pe)) MPI_Abort(comm, 1);
   SetInitialProfiles(u, data);
   abstol = ATOL;
@@ -234,7 +254,7 @@ int main(int argc, char *argv[])
   mudq = mldq = NVARS*MXSUB;
   mukeep = mlkeep = NVARS;
   flag = ARKBBDPrecInit(arkode_mem, local_N, mudq, mldq, 
-			mukeep, mlkeep, ZERO, flocal, NULL);
+                        mukeep, mlkeep, ZERO, flocal, NULL);
   if(check_flag(&flag, "ARKBBDPrecAlloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Print heading */
@@ -258,15 +278,15 @@ int main(int argc, char *argv[])
       check_flag(&flag, "ARKSpilsSetPrecType", 1, my_pe);
 
       if (my_pe == 0) {
-	printf("\n\n-------------------------------------------------------");
-	printf("------------\n");
+        printf("\n\n-------------------------------------------------------");
+        printf("------------\n");
       }
 
     }
 
     if (my_pe == 0) {
       printf("\n\nPreconditioner type is:  jpre = %s\n\n",
-	     (jpre == PREC_LEFT) ? "PREC_LEFT" : "PREC_RIGHT");
+             (jpre == PREC_LEFT) ? "PREC_LEFT" : "PREC_RIGHT");
     }
 
     /* In loop over output points, call ARKode, print results, test for error */
@@ -282,7 +302,8 @@ int main(int argc, char *argv[])
   } /* End of jpre loop */
 
   /* Free memory */
-  N_VDestroy_ParHyp(u);
+  N_VDestroy_ParHyp(u);          /* Free the u vector wrapper */
+  HYPRE_ParVectorDestroy(Uhyp);  /* Free the underlying hypre vector */
   free(data);
   ARKodeFree(&arkode_mem);
   MPI_Finalize();
@@ -360,7 +381,7 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 
 /* Print problem introduction */
 static void PrintIntro(int npes, long int mudq, long int mldq,
-		       long int mukeep, long int mlkeep)
+                       long int mukeep, long int mlkeep)
 {
   printf("\n2-species diurnal advection-diffusion problem\n");
   printf("  %d by %d mesh on %d processors\n", MX, MY, npes);
@@ -477,7 +498,7 @@ static void PrintFinalStats(void *arkode_mem)
   flag = ARKBBDPrecGetNumGfnEvals(arkode_mem, &ngevalsBBDP);
   check_flag(&flag, "ARKBBDPrecGetNumGfnEvals", 1, 0);
   printf("In ARKBBDPRE: real/integer local work space sizes = %ld, %ld\n",
-	 lenrwBBDP, leniwBBDP);  
+         lenrwBBDP, leniwBBDP);  
   printf("             no. flocal evals. = %ld\n",ngevalsBBDP);
 }
  
@@ -532,8 +553,8 @@ static void BSend(MPI_Comm comm,
    2) request should have 4 entries, and should be passed in both calls also. */
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-		      long int dsizex, long int dsizey,
-		      realtype uext[], realtype buffer[])
+                      long int dsizex, long int dsizey,
+                      realtype uext[], realtype buffer[])
 {
   long int offsetue;
   /* Have bufleft and bufright use the same buffer */
@@ -542,25 +563,25 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[],
   /* If isuby > 0, receive data for bottom x-line of uext */
   if (isuby != 0)
     MPI_Irecv(&uext[NVARS], dsizex, PVEC_REAL_MPI_TYPE,
-    					 my_pe-NPEX, 0, comm, &request[0]);
+              my_pe-NPEX, 0, comm, &request[0]);
 
   /* If isuby < NPEY-1, receive data for top x-line of uext */
   if (isuby != NPEY-1) {
     offsetue = NVARS*(1 + (MYSUB+1)*(MXSUB+2));
     MPI_Irecv(&uext[offsetue], dsizex, PVEC_REAL_MPI_TYPE,
-                                         my_pe+NPEX, 0, comm, &request[1]);
+              my_pe+NPEX, 0, comm, &request[1]);
   }
 
   /* If isubx > 0, receive data for left y-line of uext (via bufleft) */
   if (isubx != 0) {
     MPI_Irecv(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE,
-                                         my_pe-1, 0, comm, &request[2]);
+              my_pe-1, 0, comm, &request[2]);
   }
 
   /* If isubx < NPEX-1, receive data for right y-line of uext (via bufright) */
   if (isubx != NPEX-1) {
     MPI_Irecv(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE,
-                                         my_pe+1, 0, comm, &request[3]);
+              my_pe+1, 0, comm, &request[3]);
   }
 }
 
@@ -612,7 +633,7 @@ static void BRecvWait(MPI_Request request[],
       offsetbuf = ly*NVARS;
       offsetue = (ly+2)*dsizex2 - NVARS;
       for (i = 0; i < NVARS; i++)
-	uext[offsetue+i] = bufright[offsetbuf+i];
+        uext[offsetue+i] = bufright[offsetbuf+i];
     }
   }
 }
@@ -699,7 +720,8 @@ static int flocal(long int Nlocal, realtype t, N_Vector u,
   offsetu = 0;
   offsetue = nvmxsub2 + NVARS;
   for (ly = 0; ly < MYSUB; ly++) {
-    for (i = 0; i < nvmxsub; i++) uext[offsetue+i] = uarray[offsetu+i];
+    for (i = 0; i < nvmxsub; i++) 
+      uext[offsetue+i] = uarray[offsetu+i];
     offsetu = offsetu + nvmxsub;
     offsetue = offsetue + nvmxsub2;
   }

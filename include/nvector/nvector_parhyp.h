@@ -2,9 +2,12 @@
  * -----------------------------------------------------------------
  * $Revision: 4378 $
  * $Date: 2015-02-19 10:55:14 -0800 (Thu, 19 Feb 2015) $
+ * -----------------------------------------------------------------
+ * Programmer(s): Jean M. Sexton @ SMU
+ *                Slaven Peles @ LLNL
  * ----------------------------------------------------------------- 
- * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
- *                and Aaron Collier @ LLNL
+ * Based on work by: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
+ *                   and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
@@ -76,17 +79,11 @@ extern "C" {
 /* define MPI data types */
 
 #if defined(SUNDIALS_SINGLE_PRECISION)
-
-#define PVEC_REAL_MPI_TYPE MPI_FLOAT
-
+  #define PVEC_REAL_MPI_TYPE MPI_FLOAT
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-
-#define PVEC_REAL_MPI_TYPE MPI_DOUBLE
-
+  #define PVEC_REAL_MPI_TYPE MPI_DOUBLE
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-
-#define PVEC_REAL_MPI_TYPE MPI_LONG_DOUBLE
-
+  #define PVEC_REAL_MPI_TYPE MPI_LONG_DOUBLE
 #endif
 
 #define PVEC_INTEGER_MPI_TYPE MPI_LONG
@@ -100,7 +97,7 @@ struct _N_VectorContent_ParHyp {
   long int local_length;         /* local vector length         */
   long int global_length;        /* global vector length        */
   booleantype own_data;          /* ownership of data           */
-  booleantype own_parvector; /* ownership of vector pointer */
+  booleantype own_parvector;     /* ownership of vector pointer */
   realtype *data;                /* local data array            */
   MPI_Comm comm;                 /* pointer to MPI communicator */
   
@@ -114,7 +111,8 @@ typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
 /*
  * -----------------------------------------------------------------
  * PART II: macros NV_CONTENT_PC, NV_DATA_PC, NV_OWN_DATA_PC,
- *          NV_LOCLENGTH_PC, NV_GLOBLENGTH_PC,NV_COMM_PC, and NV_Ith_PC
+ *          NV_LOCLENGTH_PC, NV_GLOBLENGTH_PC,NV_COMM_PC, and 
+ *          NV_Ith_PC
  * -----------------------------------------------------------------
  * In the descriptions below, the following user declarations
  * are assumed:
@@ -185,9 +183,9 @@ typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
 
 #define NV_OWN_DATA_PH(v)   ( NV_CONTENT_PH(v)->own_data )
 
-#define NV_OWN_PARVEC_PH(v)   ( NV_CONTENT_PH(v)->own_parvector )
+#define NV_OWN_PARVEC_PH(v) ( NV_CONTENT_PH(v)->own_parvector )
 
-#define NV_HYPRE_PARVEC_PH(v)       ( NV_CONTENT_PH(v)->x )
+#define NV_HYPRE_PARVEC_PH(v) ( NV_CONTENT_PH(v)->x )
 
 #define NV_DATA_PH(v)       ( hypre_VectorData(hypre_ParVectorLocalVector(NV_HYPRE_PARVEC_PH(v))) )
 
@@ -218,6 +216,8 @@ typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
  * Function : N_VNew_ParHyp
  * -----------------------------------------------------------------
  * This function creates and allocates memory for a parallel vector.
+ * It is provided for completeness only. This is not recommended way
+ * to create hypre vector.
  * -----------------------------------------------------------------
  */
 
@@ -229,8 +229,8 @@ SUNDIALS_EXPORT N_Vector N_VNew_ParHyp(MPI_Comm comm,
  * -----------------------------------------------------------------
  * Function : N_VNewEmpty_ParHyp
  * -----------------------------------------------------------------
- * This function creates a new parallel N_Vector with an empty
- * (NULL) data array.
+ * This function creates a new hypre vector wrapper without the 
+ * hypre vector itself.
  * -----------------------------------------------------------------
  */
 
@@ -242,8 +242,8 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
  * -----------------------------------------------------------------
  * Function : N_VMake_ParHyp
  * -----------------------------------------------------------------
- * This function creates and allocates memory for a parallel vector
- * with a user-supplied data array.
+ * This function creates a hypre vector wrapper around user-supplied 
+ * hypre vector.
  * -----------------------------------------------------------------
  */
 
@@ -253,8 +253,9 @@ SUNDIALS_EXPORT N_Vector N_VMake_ParHyp(hypre_ParVector *x);
  * -----------------------------------------------------------------
  * Function : N_VCloneVectorArray_ParHyp
  * -----------------------------------------------------------------
- * This function creates an array of 'count' PARALLEL vectors by
- * cloning a given vector w.
+ * This function creates an array of 'count' N_Vectors by cloning a 
+ * given vector w. Both, the wrapper and the underlying hypre vector
+ * are cloned.
  * -----------------------------------------------------------------
  */
 
@@ -264,8 +265,8 @@ SUNDIALS_EXPORT N_Vector *N_VCloneVectorArray_ParHyp(int count, N_Vector w);
  * -----------------------------------------------------------------
  * Function : N_VCloneVectorArrayEmpty_ParHyp
  * -----------------------------------------------------------------
- * This function creates an array of 'count' PARALLEL vectors each 
- * with an empty (NULL) data array by cloning w.
+ * This function creates an array of 'count' empty hypre vector
+ * wrappers by cloning w.
  * -----------------------------------------------------------------
  */
 

@@ -3,8 +3,11 @@
  * $Revision: 4396 $
  * $Date: 2015-02-26 16:59:39 -0800 (Thu, 26 Feb 2015) $
  * -----------------------------------------------------------------
- * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George Byrne,
- *                and Radu Serban @ LLNL
+ * Programmer(s): Jean M. Sexton @ SMU
+ *                Slaven Peles @ LLNL
+ * -----------------------------------------------------------------
+ * Based on work by Scott D. Cohen, Alan C. Hindmarsh, George Byrne,
+ *                  and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example problem:
  *
@@ -25,7 +28,9 @@
  * Output is printed at t = .5, 1.0, ..., 5.
  * Run statistics (optional outputs) are printed at the end.
  *
- * This version uses MPI for user routines.
+ * This example uses Hypre vector and MPI parallelization. User is 
+ * expected to be familiar with the Hypre library. 
+ * 
  * Execute with Number of Processors = N,  with 1 <= N <= MX.
  * -----------------------------------------------------------------
  */
@@ -35,10 +40,9 @@
 #include <math.h>
 
 #include <cvode/cvode.h>              /* prototypes for CVODE fcts. */
-//#include <nvector/nvector_parhyp.h> /* definition of N_Vector and macros */
 #include <sundials/sundials_types.h>  /* definition of realtype */
 #include <sundials/sundials_math.h>   /* definition of EXP */
-#include <nvector/nvector_parhyp.h>           /* nvector_parcsr implementation */
+#include <nvector/nvector_parhyp.h>   /* nvector implementation */
 
 #include <mpi.h>                      /* MPI constants and types */
 
@@ -94,6 +98,8 @@ int main(int argc, char *argv[])
   void *cvode_mem;
   int iout, flag, my_pe, npes;
   long int local_N, nperpe, nrem, my_base, nst;
+  HYPRE_Int *partitioning;
+  HYPRE_ParVector Uhyp; /* Instantiate hypre parallel vector */
 
   MPI_Comm comm;
 
@@ -113,6 +119,22 @@ int main(int argc, char *argv[])
   local_N = (my_pe < nrem) ? nperpe+1 : nperpe;
   my_base = (my_pe < nrem) ? my_pe*local_N : my_pe*nperpe + nrem;
 
+  /* Allocate hypre vector */
+  if(HYPRE_AssumedPartitionCheck()) {
+    partitioning = (HYPRE_Int*) malloc(2 * sizeof(HYPRE_Int));
+    partitioning[0] = my_base;
+    partitioning[1] = my_base + local_N;
+  } else {
+    partitioning = (HYPRE_Int*) malloc((npes + 1) * sizeof(HYPRE_Int));
+    if (my_pe == 0) {
+      fprintf(stderr, "Using global partition.\n");
+      fprintf(stderr, "I don't do this stuff. Now exiting...\n");
+      return -1;
+    }
+  }
+  HYPRE_ParVectorCreate(comm, NEQ, partitioning, &Uhyp);
+  HYPRE_ParVectorInitialize(Uhyp);
+
   data = (UserData) malloc(sizeof *data);  /* Allocate data memory */
   if(check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
 
@@ -120,7 +142,8 @@ int main(int argc, char *argv[])
   data->npes = npes;
   data->my_pe = my_pe;
 
-  u = N_VNew_ParHyp(comm, local_N, NEQ);  /* Allocate u vector */
+//  u = N_VNew_ParHyp(comm, local_N, NEQ);  /* Allocate u vector */
+  u = N_VMake_ParHyp(Uhyp);  /* Create wrapper u around hypre vector */
   if(check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
 
   reltol = ZERO;  /* Set the tolerances */
@@ -174,7 +197,8 @@ int main(int argc, char *argv[])
   if (my_pe == 0) 
     PrintFinalStats(cvode_mem);  /* Print some final statistics */
 
-  N_VDestroy_ParHyp(u);        /* Free the u vector */
+  N_VDestroy_ParHyp(u);          /* Free the u vector wrapper */
+  HYPRE_ParVectorDestroy(Uhyp);  /* Free the underlying hypre vector */
   CVodeFree(&cvode_mem);         /* Free the integrator memory */
   free(data);                    /* Free user data */
 
@@ -265,7 +289,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   realtype ui, ult, urt, hordc, horac, hdiff, hadv;
   realtype *udata, *dudata, *z;
   int i;
-  int npes, my_pe, my_length, my_pe_m1, my_pe_p1, last_pe, my_last;
+  int npes, my_pe, my_length, my_pe_m1, my_pe_p1, last_pe;
   UserData data;
   MPI_Status status;
   MPI_Comm comm;
@@ -289,7 +313,6 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   my_pe_m1 = my_pe - 1;
   my_pe_p1 = my_pe + 1;
   last_pe = npes - 1;
-  my_last = my_length - 1;
 
   /* Store local segment of u in the working array z. */
    for (i = 1; i <= my_length; i++)

@@ -3,9 +3,11 @@
  * $Revision: 4396 $
  * $Date: 2015-02-26 16:59:39 -0800 (Thu, 26 Feb 2015) $
  * -----------------------------------------------------------------
- * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
- *                and Aaron Collier @ LLNL
- *                Jean M. Sexton
+ * Programmer(s): Jean M. Sexton @ SMU
+ *                Slaven Peles @ LLNL
+ * -----------------------------------------------------------------
+ * Based on work by Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
+ *                  and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
@@ -81,7 +83,8 @@ static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z);
  */
 
 /* ----------------------------------------------------------------
- * Function to create a new parhyp vector with empty data array
+ * Function to create a new parhyp vector without underlying
+ * hypre vector.
  */
 
 N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, 
@@ -173,11 +176,6 @@ N_Vector N_VNew_ParHyp(MPI_Comm comm,
     return(NULL);
   content = v->content;
 
-//   if(HYPRE_AssumedPartitionCheck())
-//     printf("Not using global partition.\n");
-//   else
-//     printf("Using global partition.\n");
-  
   MPI_Comm_size(comm, &nprocs);
   MPI_Comm_rank(comm, &myid);
 
@@ -190,12 +188,12 @@ N_Vector N_VNew_ParHyp(MPI_Comm comm,
   }
   
   /* Compute local lengths for proper partitioning of the hypre_parhyp vector*/
-  local_lengths[myid]=local_length;
+  local_lengths[myid] = local_length;
   MPI_Allgather(&local_length,1,PVEC_INTEGER_MPI_TYPE, &local_lengths,1,PVEC_INTEGER_MPI_TYPE,comm);
   local_jlower[0]=0;
   for(i=0;i<nprocs; i++)
   {
-    local_jlower[i+1]=local_jlower[i]+local_lengths[i];
+    local_jlower[i+1] = local_jlower[i] + local_lengths[i];
   }
 
   /* Create ParVector with partitioning info for whole system*/
@@ -214,7 +212,8 @@ N_Vector N_VNew_ParHyp(MPI_Comm comm,
 }
 
 /* ---------------------------------------------------------------- 
- * Function to create a parhyp N_Vector with user data component 
+ * Function to create a parhyp N_Vector wrapper around user 
+ * supplie hypre vector.
  */
 
 N_Vector N_VMake_ParHyp(hypre_ParVector *x)
@@ -224,7 +223,7 @@ N_Vector N_VMake_ParHyp(hypre_ParVector *x)
   HYPRE_Int global_length = hypre_ParVectorGlobalSize(x);
   HYPRE_Int local_begin = hypre_ParVectorFirstIndex(x);
   HYPRE_Int local_end = hypre_ParVectorLastIndex(x);;
-  HYPRE_Int local_length = local_end - local_begin;
+  HYPRE_Int local_length = local_end - local_begin + 1;
   
   v = NULL;
   v = N_VNewEmpty_ParHyp(comm, local_length, global_length);
@@ -234,6 +233,7 @@ N_Vector N_VMake_ParHyp(hypre_ParVector *x)
   if (local_length > 0) {
     /* Attach data */
     NV_OWN_PARVEC_PH(v)   = FALSE;
+    NV_OWN_DATA_PH(v)     = FALSE;
     NV_HYPRE_PARVEC_PH(v) = x;
   }
 
@@ -269,8 +269,8 @@ N_Vector *N_VCloneVectorArray_ParHyp(int count, N_Vector w)
 }
 
 /* ---------------------------------------------------------------- 
- * Function to create an array of new parhyp vectors with empty
- * (NULL) data array.
+ * Function to create an array of new parhyp vector wrappers 
+ * without uderlying hypre vectors.
  */
 
 N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w)
@@ -304,15 +304,18 @@ void N_VDestroyVectorArray_ParHyp(N_Vector *vs, int count)
 {
   int j;
 
-  for (j = 0; j < count; j++) N_VDestroy_ParHyp(vs[j]);
+  for (j = 0; j < count; j++) 
+    N_VDestroy_ParHyp(vs[j]);
 
-  free(vs); vs = NULL;
+  free(vs); 
+  vs = NULL;
 
   return;
 }
 
 /* ---------------------------------------------------------------- 
- * Function to print a parhyp vector 
+ * Function to print a parhyp vector.
+ * TODO: Consider using a hypre function for this.
  */
 
 void N_VPrint_ParHyp(N_Vector x)
@@ -453,7 +456,8 @@ void N_VDestroy_ParHyp(N_Vector v)
 {
   if ((NV_OWN_PARVEC_PH(v) == TRUE)) {
     hypre_ParVectorDestroy(NV_HYPRE_PARVEC_PH(v));
-  }
+  } 
+
   free(v->content); v->content = NULL;
   free(v->ops); v->ops = NULL;
   free(v); v = NULL;
@@ -476,6 +480,10 @@ void N_VSpace_ParHyp(N_Vector v, long int *lrw, long int *liw)
   return;
 }
 
+/*
+ * Returns pointer to raw data of local hypre vector.
+ * NOTE: Use only if you know what you are doing.
+ */
 realtype *N_VGetArrayPointer_ParHyp(N_Vector v)
 {
   return((realtype *) NV_DATA_PH(v));
@@ -582,10 +590,7 @@ void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
 
 void N_VConst_ParHyp(realtype c, N_Vector z)
 {
-  //long int i, N;
-  //realtype *zd;
-
-  HYPRE_Complex    value=c;
+  HYPRE_Complex value = c;
   HYPRE_ParVectorSetConstantValues( (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(z), value);
   return;
 }
@@ -641,7 +646,7 @@ void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 
 void N_VScale_ParHyp(realtype c, N_Vector x, N_Vector z)
 {
-  HYPRE_Complex   value=c;
+  HYPRE_Complex value = c;
   HYPRE_ParVectorCopy((HYPRE_ParVector) NV_HYPRE_PARVEC_PH(x),  (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(z));
   HYPRE_ParVectorScale(value, (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(z));
   return;
@@ -703,7 +708,7 @@ realtype N_VDotProd_ParHyp(N_Vector x, N_Vector y)
 
   HYPRE_Real gsum;
   HYPRE_ParVectorInnerProd( (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(x),
-                          (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(y), &gsum);
+                            (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(y), &gsum);
 
   return(gsum);
 }
@@ -744,7 +749,7 @@ realtype N_VWrmsNorm_ParHyp(N_Vector x, N_Vector w)
   N_global = NV_GLOBLENGTH_PH(x);
   xd       = NV_DATA_PH(x);
   wd       = NV_DATA_PH(w);
-  comm = NV_COMM_PH(x);
+  comm     = NV_COMM_PH(x);
 
   for (i = 0; i < N; i++) {
     prodi = xd[i]*wd[i];
@@ -804,7 +809,8 @@ realtype N_VMin_ParHyp(N_Vector x)
     min = xd[0];
 
     for (i = 1; i < N; i++) {
-      if (xd[i] < min) min = xd[i];
+      if (xd[i] < min) 
+        min = xd[i];
     }
 
   }
@@ -927,18 +933,26 @@ booleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x, N_Vector m)
     md[i] = ZERO;
     if (cd[i] == ZERO) continue;
     if (cd[i] > ONEPT5 || cd[i] < -ONEPT5) {
-      if (xd[i]*cd[i] <= ZERO) { temp = ZERO; md[i] = ONE; }
+      if (xd[i]*cd[i] <= ZERO) { 
+        temp = ZERO; 
+        md[i] = ONE;
+      }
       continue;
     }
     if (cd[i] > HALF || cd[i] < -HALF) {
-      if (xd[i]*cd[i] < ZERO ) { temp = ZERO; md[i] = ONE; }
+      if (xd[i]*cd[i] < ZERO ) { 
+        temp = ZERO; 
+        md[i] = ONE;
+      }
     }
   }
 
   temp = VAllReduce_ParHyp(temp, 3, comm);
 
-  if (temp == ONE) return(TRUE);
-  else return(FALSE);
+  if (temp == ONE) 
+    return(TRUE);
+  else 
+    return(FALSE);
 }
 
 realtype N_VMinQuotient_ParHyp(N_Vector num, N_Vector denom)
@@ -1006,22 +1020,6 @@ static realtype VAllReduce_ParHyp(realtype d, int op, MPI_Comm comm)
   return(out);
 }
 
-// static void VCopy_ParHyp(N_Vector x, N_Vector z)
-// {
-//   long int i, N;
-//   realtype *xd, *zd;
-// 
-//   xd = zd = NULL;
-// 
-//   N  = NV_LOCLENGTH_PH(x);
-//   xd = NV_DATA_PH(x);
-//   zd = NV_DATA_PH(z);
-// 
-//   for (i = 0; i < N; i++)
-//     zd[i] = xd[i]; 
-// 
-//   return;
-// }
 
 static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 {
@@ -1059,22 +1057,6 @@ static void VDiff_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   return;
 }
 
-// static void VNeg_ParHyp(N_Vector x, N_Vector z)
-// {
-//   long int i, N;
-//   realtype *xd, *zd;
-// 
-//   xd = zd = NULL;
-// 
-//   N  = NV_LOCLENGTH_PH(x);
-//   xd = NV_DATA_PH(x);
-//   zd = NV_DATA_PH(z);
-// 
-//   for (i = 0; i < N; i++)
-//     zd[i] = -xd[i];
-// 
-//   return;
-// }
 
 static void VScaleSum_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
@@ -1148,47 +1130,3 @@ static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z)
   return;
 }
 
-// static void Vaxpy_ParHyp(realtype a, N_Vector x, N_Vector y)
-// {
-//   long int i, N;
-//   realtype *xd, *yd;
-// 
-//   xd = yd = NULL;
-// 
-//   N  = NV_LOCLENGTH_PH(x);
-//   xd = NV_DATA_PH(x);
-//   yd = NV_DATA_PH(y);
-// 
-//   if (a == ONE) {
-//     for (i = 0; i < N; i++)
-//       yd[i] += xd[i];
-//     return;
-//   }
-//   
-//   if (a == -ONE) {
-//     for (i = 0; i < N; i++)
-//       yd[i] -= xd[i];
-//     return;
-//   }    
-//   
-//   for (i = 0; i < N; i++)
-//     yd[i] += a*xd[i];
-// 
-//   return;
-// }
-
-// static void VScaleBy_ParHyp(realtype a, N_Vector x)
-// {
-//   long int i, N;
-//   realtype *xd;
-// 
-//   xd = NULL;
-// 
-//   N  = NV_LOCLENGTH_PH(x);
-//   xd = NV_DATA_PH(x);
-// 
-//   for (i = 0; i < N; i++)
-//     xd[i] *= a;
-// 
-//   return;
-// }

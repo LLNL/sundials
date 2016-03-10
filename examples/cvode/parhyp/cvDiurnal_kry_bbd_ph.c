@@ -3,9 +3,12 @@
  * $Revision: 4396 $
  * $Date: 2015-02-26 16:59:39 -0800 (Thu, 26 Feb 2015) $
  * -----------------------------------------------------------------
- * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
- *                Radu Serban  @ LLNL
- * --------------------------------------------------------------------
+ * Programmer(s): Jean M. Sexton @ SMU
+ *                Slaven Peles @ LLNL
+ * -----------------------------------------------------------------
+ * Based on work by: S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, 
+ *                   and Radu Serban  @ LLNL
+ * -----------------------------------------------------------------
  * Example problem:
  *
  * An ODE system is generated from the following 2-species diurnal
@@ -46,7 +49,9 @@
  * selected output times, and all performance counters are printed
  * on completion.
  *
- * This version uses MPI for user routines.
+ * This example uses Hypre vector and MPI parallelization. User is 
+ * expected to be familiar with the Hypre library. 
+ * 
  * Execute with number of processors = NPEX*NPEY (see constants below).
  * --------------------------------------------------------------------
  */
@@ -58,7 +63,7 @@
 #include <cvode/cvode.h>              /* prototypes for CVODE fcts. */
 #include <cvode/cvode_spgmr.h>        /* prototypes and constants for CVSPGMR */
 #include <cvode/cvode_bbdpre.h>       /* prototypes for CVBBDPRE module */
-#include <nvector/nvector_parhyp.h> /* def. of N_Vector, macro NV_DATA_P */
+#include <nvector/nvector_parhyp.h>   /* def. of N_Vector, macro NV_DATA_P */
 #include <sundials/sundials_types.h>  /* definitions of realtype, booleantype */
 #include <sundials/sundials_math.h>   /* definition of macros SUNSQR and EXP */
 
@@ -126,7 +131,7 @@ static void InitUserData(int my_pe, long int local_N, MPI_Comm comm,
                          UserData data);
 static void SetInitialProfiles(N_Vector u, UserData data);
 static void PrintIntro(int npes, long int mudq, long int mldq,
-		       long int mukeep, long int mlkeep);
+                       long int mukeep, long int mlkeep);
 static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t);
 static void PrintFinalStats(void *cvode_mem);
@@ -136,8 +141,8 @@ static void BSend(MPI_Comm comm,
                   realtype uarray[]);
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-		      long int dsizex, long int dsizey,
-		      realtype uext[], realtype buffer[]);
+                      long int dsizex, long int dsizey,
+                      realtype uext[], realtype buffer[]);
 static void BRecvWait(MPI_Request request[], 
                       int isubx, int isuby, 
                       long int dsizex, realtype uext[],
@@ -169,6 +174,8 @@ int main(int argc, char *argv[])
   int iout, my_pe, npes, flag, jpre;
   long int neq, local_N, mudq, mldq, mukeep, mlkeep;
   MPI_Comm comm;
+  HYPRE_Int *partitioning;
+  HYPRE_ParVector Uhyp;    /* Instantiate hypre parallel vector */
 
   data = NULL;
   cvode_mem = NULL;
@@ -194,13 +201,29 @@ int main(int argc, char *argv[])
   /* Set local length */
   local_N = NVARS*MXSUB*MYSUB;
 
+  /* Allocate hypre vector */
+  if(HYPRE_AssumedPartitionCheck()) {
+    partitioning = (HYPRE_Int*) malloc(2 * sizeof(HYPRE_Int));
+    partitioning[0] = my_pe*local_N;
+    partitioning[1] = (my_pe + 1)*local_N;
+  } else {
+    partitioning = (HYPRE_Int*) malloc((npes + 1) * sizeof(HYPRE_Int));
+    if (my_pe == 0) {
+      fprintf(stderr, "Using global partition.\n");
+      fprintf(stderr, "I don't do this stuff. Now exiting...\n");
+      return -1;
+    }
+  }
+  HYPRE_ParVectorCreate(comm, neq, partitioning, &Uhyp);
+  HYPRE_ParVectorInitialize(Uhyp);
+
   /* Allocate and load user data block */
   data = (UserData) malloc(sizeof *data);
   if(check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   InitUserData(my_pe, local_N, comm, data);
 
   /* Allocate and initialize u, and set tolerances */ 
-  u = N_VNew_ParHyp(comm, local_N, neq);
+  u = N_VMake_ParHyp(Uhyp);  /* Create wrapper u around hypre vector */
   if(check_flag((void *)u, "N_VNew_ParHyp", 0, my_pe)) MPI_Abort(comm, 1);
   SetInitialProfiles(u, data);
   abstol = ATOL;
@@ -244,50 +267,49 @@ int main(int argc, char *argv[])
   /* Loop over jpre (= PREC_LEFT, PREC_RIGHT), and solve the problem */
   for (jpre = PREC_LEFT; jpre <= PREC_RIGHT; jpre++) {
 
-  /* On second run, re-initialize u, the integrator, CVBBDPRE, and CVSPGMR */
+    /* On second run, re-initialize u, the integrator, CVBBDPRE, and CVSPGMR */
 
-  if (jpre == PREC_RIGHT) {
+    if (jpre == PREC_RIGHT) {
 
-    SetInitialProfiles(u, data);
+      SetInitialProfiles(u, data);
 
-    flag = CVodeReInit(cvode_mem, T0, u);
-    if(check_flag(&flag, "CVodeReInit", 1, my_pe)) MPI_Abort(comm, 1);
+      flag = CVodeReInit(cvode_mem, T0, u);
+      if(check_flag(&flag, "CVodeReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVBBDPrecReInit(cvode_mem, mudq, mldq, ZERO);
-    if(check_flag(&flag, "CVBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
+      flag = CVBBDPrecReInit(cvode_mem, mudq, mldq, ZERO);
+      if(check_flag(&flag, "CVBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVSpilsSetPrecType(cvode_mem, PREC_RIGHT);
-    check_flag(&flag, "CVSpilsSetPrecType", 1, my_pe);
+      flag = CVSpilsSetPrecType(cvode_mem, PREC_RIGHT);
+      check_flag(&flag, "CVSpilsSetPrecType", 1, my_pe);
 
-    if (my_pe == 0) {
-      printf("\n\n-------------------------------------------------------");
-      printf("------------\n");
+      if (my_pe == 0) {
+        printf("\n\n-------------------------------------------------------");
+        printf("------------\n");
+      }
+      
     }
 
-  }
 
+    if (my_pe == 0) {
+      printf("\n\nPreconditioner type is:  jpre = %s\n\n",
+             (jpre == PREC_LEFT) ? "PREC_LEFT" : "PREC_RIGHT");
+    }
 
-  if (my_pe == 0) {
-    printf("\n\nPreconditioner type is:  jpre = %s\n\n",
-	   (jpre == PREC_LEFT) ? "PREC_LEFT" : "PREC_RIGHT");
-  }
+    /* In loop over output points, call CVode, print results, test for error */
+    for (iout = 1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
+      flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
+      if(check_flag(&flag, "CVode", 1, my_pe)) break;
+      PrintOutput(cvode_mem, my_pe, comm, u, t);
+    }
 
-  /* In loop over output points, call CVode, print results, test for error */
-
-  for (iout = 1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
-    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if(check_flag(&flag, "CVode", 1, my_pe)) break;
-    PrintOutput(cvode_mem, my_pe, comm, u, t);
-  }
-
-  /* Print final statistics */
-
-  if (my_pe == 0) PrintFinalStats(cvode_mem);
+    /* Print final statistics */
+    if (my_pe == 0) PrintFinalStats(cvode_mem);
 
   } /* End of jpre loop */
 
   /* Free memory */
-  N_VDestroy_ParHyp(u);
+  N_VDestroy_ParHyp(u);          /* Free the u vector wrapper */
+  HYPRE_ParVectorDestroy(Uhyp);  /* Free the underlying hypre vector */
   free(data);
   CVodeFree(&cvode_mem);
 
@@ -557,8 +579,8 @@ static void BSend(MPI_Comm comm,
 
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-		      long int dsizex, long int dsizey,
-		      realtype uext[], realtype buffer[])
+                      long int dsizex, long int dsizey,
+                      realtype uext[], realtype buffer[])
 {
   long int offsetue;
   /* Have bufleft and bufright use the same buffer */
@@ -567,7 +589,7 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[],
   /* If isuby > 0, receive data for bottom x-line of uext */
   if (isuby != 0)
     MPI_Irecv(&uext[NVARS], dsizex, PVEC_REAL_MPI_TYPE,
-    					 my_pe-NPEX, 0, comm, &request[0]);
+              my_pe-NPEX, 0, comm, &request[0]);
 
   /* If isuby < NPEY-1, receive data for top x-line of uext */
   if (isuby != NPEY-1) {
@@ -639,7 +661,7 @@ static void BRecvWait(MPI_Request request[],
       offsetbuf = ly*NVARS;
       offsetue = (ly+2)*dsizex2 - NVARS;
       for (i = 0; i < NVARS; i++)
-	uext[offsetue+i] = bufright[offsetbuf+i];
+        uext[offsetue+i] = bufright[offsetbuf+i];
     }
   }
 }
@@ -716,7 +738,7 @@ static int flocal(long int Nlocal, realtype t, N_Vector u,
   realtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
   realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
   realtype q4coef, dely, verdco, hordco, horaco;
-  int i, lx, ly, jx, jy;
+  int i, lx, ly, /*jx,*/ jy;
   int isubx, isuby;
   long int nvmxsub, nvmxsub2, offsetu, offsetue;
   UserData data;
@@ -737,7 +759,8 @@ static int flocal(long int Nlocal, realtype t, N_Vector u,
   offsetu = 0;
   offsetue = nvmxsub2 + NVARS;
   for (ly = 0; ly < MYSUB; ly++) {
-    for (i = 0; i < nvmxsub; i++) uext[offsetue+i] = uarray[offsetu+i];
+    for (i = 0; i < nvmxsub; i++) 
+      uext[offsetue+i] = uarray[offsetu+i];
     offsetu = offsetu + nvmxsub;
     offsetue = offsetue + nvmxsub2;
   }
@@ -747,14 +770,16 @@ static int flocal(long int Nlocal, realtype t, N_Vector u,
 
   /* If isuby = 0, copy x-line 2 of u to uext */
   if (isuby == 0) {
-    for (i = 0; i < nvmxsub; i++) uext[NVARS+i] = uarray[nvmxsub+i];
+    for (i = 0; i < nvmxsub; i++) 
+      uext[NVARS+i] = uarray[nvmxsub+i];
   }
 
   /* If isuby = NPEY-1, copy x-line MYSUB-1 of u to uext */
   if (isuby == NPEY-1) {
     offsetu = (MYSUB-2)*nvmxsub;
     offsetue = (MYSUB+1)*nvmxsub2 + NVARS;
-    for (i = 0; i < nvmxsub; i++) uext[offsetue+i] = uarray[offsetu+i];
+    for (i = 0; i < nvmxsub; i++) 
+      uext[offsetue+i] = uarray[offsetu+i];
   }
 
   /* If isubx = 0, copy y-line 2 of u to uext */
@@ -762,7 +787,8 @@ static int flocal(long int Nlocal, realtype t, N_Vector u,
     for (ly = 0; ly < MYSUB; ly++) {
       offsetu = ly*nvmxsub + NVARS;
       offsetue = (ly+1)*nvmxsub2;
-      for (i = 0; i < NVARS; i++) uext[offsetue+i] = uarray[offsetu+i];
+      for (i = 0; i < NVARS; i++) 
+        uext[offsetue+i] = uarray[offsetu+i];
     }
   }
 
@@ -771,7 +797,8 @@ static int flocal(long int Nlocal, realtype t, N_Vector u,
     for (ly = 0; ly < MYSUB; ly++) {
       offsetu = (ly+1)*nvmxsub - 2*NVARS;
       offsetue = (ly+2)*nvmxsub2 - NVARS;
-      for (i = 0; i < NVARS; i++) uext[offsetue+i] = uarray[offsetu+i];
+      for (i = 0; i < NVARS; i++) 
+        uext[offsetue+i] = uarray[offsetu+i];
     }
   }
 
@@ -810,7 +837,7 @@ static int flocal(long int Nlocal, realtype t, N_Vector u,
     cyup = verdco*SUNRexp(RCONST(0.2)*yup);
     for (lx = 0; lx < MXSUB; lx++) {
 
-      jx = lx + isubx*MXSUB;
+      /* jx = lx + isubx*MXSUB; */
 
       /* Extract c1 and c2, and set kinetic rate terms */
 
@@ -871,21 +898,19 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
   if (opt == 0 && flagvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
             id, funcname);
-    return(1); }
-
-  /* Check if flag < 0 */
-  else if (opt == 1) {
+    return(1); 
+  } else if (opt == 1) {  /* Check if flag < 0 */
     errflag = (int *) flagvalue;
     if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
               id, funcname, *errflag);
-      return(1); }}
-
-  /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+      return(1); 
+    }
+  } else if (opt == 2 && flagvalue == NULL) {  /* Check if memory is allocated */
     fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
             id, funcname);
-    return(1); }
+    return(1); 
+  }
 
   return(0);
 }
