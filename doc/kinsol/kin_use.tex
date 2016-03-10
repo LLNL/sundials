@@ -85,22 +85,24 @@ and constants \id{FALSE} and \id{TRUE}.
 
 The calling program must also include an {\nvector} implementation header file
 (see Chapter \ref{s:nvector} for details).
-For the two {\nvector} implementations that are included in the {\kinsol} package,
+For the {\nvector} implementations that are included in the {\kinsol} package,
 the corresponding header files are:
 %
 \begin{itemize}
 \item \Id{nvector\_serial.h}, 
   which defines the serial implementation, {\nvecs};
 \item \Id{nvector\_parallel.h}, 
-  which defines the parallel {\mpi} implementation, {\nvecp},
+  which defines the parallel {\mpi} implementation, {\nvecp};
 \item \Id{nvector\_openmp.h},
-  which defines the shared memory parallel openMP implementation,
+  which defines the shared memory parallel openMP implementation;
 \item \Id{nvector\_pthreads.h},
-  which defines the shared memory parallel Pthreads implementation.
+  which defines the shared memory parallel Pthreads implementation;
+\item \Id{nvector\_parhyp.h}, 
+  which defines the ParHyp implementation, {\nvecph}.
 \end{itemize}
 %
-Note that these files include in turn the header file \Id{sundials\_nvector.h}, which 
-defines the abstract \Id{N\_Vector} type. 
+Note that all of these files include in turn the header file \Id{sundials\_nvector.h},
+which defines the abstract \Id{N\_Vector} type.
 
 Finally, a linear solver module header file is required. 
 \index{KINSOL@{\kinsol} linear solvers!header files}
@@ -168,88 +170,45 @@ access to the underlying generic dense linear solver.
 %--------------------------------------------------------------------
 
 The following is a skeleton of the user's main program (or calling
-program) for the solution of a nonlinear problem. 
-Some steps are independent of the {\nvector} implementation used; 
-where this is not the case, usage specifications are given for the implementations 
-provided with {\kinsol}:
-Steps marked {\s} correspond to {\nvecs},
-steps marked {\omp} correspond to {\nvecopenmp},
-steps marked {\pt} correspond to {\nvecpthreads},
-steps marked {\p} correspond to {\nvecp}, while
-steps marked {\h} correspond to {\nvecph}.
+program) for the solution of a nonlinear system problem. 
+Most of the steps are independent of the {\nvector} implementation used. 
+For the steps that are not, refer to Chapter \ref{s:nvector} for the
+specific name of the function to be called or macro to be referenced.
 %%
 \index{User main program!KINSOL@{\kinsol} usage}
 \begin{Steps}
-  
-\item 
-  {\bf {\p} {\h} Initialize MPI}
 
-  Call \id{MPI\_Init(\&argc, \&argv)} to initialize {\mpi} if used by
-  the user's program, aside from the internal use in {\nvecp}.  
-  Here \id{argc} and \id{argv} are the command line argument 
-  counter and array received by \id{main}.
-  
 \item
-  {\bf Set problem dimensions}
+  {\bf Initialize parallel or multi-threaded environment, if appropriate}
 
-  {\s} {\omp} {\pt} Set \id{N}, the problem size $N$.
+  For example, call \id{MPI\_Init} to initialize {\mpi} if used, or
+  set \id{num\_threads}, the number of threads to use within the threaded
+  vector functions, if used.
+ 
+\item
+  {\bf Set problem dimensions etc.}
 
-  {\omp} {\pt} Set \id{num\_threads}, the number of threads to use within
-  the threaded vector functions.
+  This generally includes the problem size \id{N}, and may include
+  the local vector length \id{Nlocal}.
 
-  {\p} {\h} Set \id{Nlocal}, the local vector length (the sub-vector length for this process).
-  Set \id{N}, the global vector length (the problem size $N$, and the sum of all the
-  values of \id{Nlocal}).  Set the active set of processes.
-
-  Note: The variables \id{N} and \id{Nlocal} should be of type
-  \id{long int}.  The variable \id{num\_threads} should be of type \id{int}.
+  Note: The variables \id{N} and \id{Nlocal} should be of type \id{long int}.
 
 \item
   {\bf Set vector with initial guess}
- 
-  To set the vector \id{u} of initial values, use functions defined by a
-  particular {\nvector} implementation.  If a \id{realtype} array  \id{udata}
-  already exists, containing the initial guess of $u_0$, make the call:
 
-  {\s} \id{u = N\_VMake\_Serial(N, udata);}
+  To set the vector \id{u} of initial guess values, use the appropriate
+  functions defined by the particular {\nvector} implementation.  If a
+  \id{realtype} array \id{udata} containing the initial guess $u_0$
+  already exists, then make the appropriate call
 
-  {\omp} \id{u = N\_VMake\_OpenMP(N, num\_threads, ydata);}
+  \id{u = N\_VMake\_***(..., udata);}
 
-  {\pt} \id{u = N\_VMake\_Pthreads(N, num\_threads, ydata);}
+  Otherwise, make the appropriate call
 
-  {\p} \id{u = N\_VMake\_Parallel(comm, Nlocal, N, udata);}
+  \id{u = N\_VNew\_***(...);}
 
-  {\h} \id{u = N\_VMake\_ParHyp(comm, Nlocal, N, udata);}
+  and load initial guess values into the structure defined by \id{NV\_DATA\_***(u)}.
 
-  Otherwise, make the call:
-
-  {\s} \id{u = N\_VNew\_Serial(N);}
-
-  {\omp} \id{u = N\_VNew\_OpenMP(N, num\_threads);}
-
-  {\pt} \id{u = N\_VNew\_Pthreads(N, num\_threads);}
-
-  {\p} \id{u = N\_VNew\_Parallel(comm, Nlocal, N);}
-
-  {\h} \id{u = N\_VNew\_ParHyp(comm, Nlocal, N);}
-
-  and load initial values into the structure defined by:
-
-  {\s} \id{NV\_DATA\_S(u)}
-
-  {\omp} \id{NV\_DATA\_OMP(u)}
-
-  {\pt} \id{NV\_DATA\_PT(u)}
-
-  {\p} \id{NV\_DATA\_P(u)}
-
-  {\h} \id{NV\_DATA\_PH(u)}
-
-  Here \id{comm} is the {\mpi} communicator, set in one of two ways: 
-  If a proper subset of active processes is to be used, \id{comm} 
-  must be set by suitable {\mpi} calls. Otherwise, to specify that all 
-  processes are to be used, \id{comm} must be \id{MPI\_COMM\_WORLD}.
-  
 \item\label{i:kinsol_create} 
   {\bf Create {\kinsol} object}
 
@@ -280,26 +239,29 @@ steps marked {\h} correspond to {\nvecph}.
   Initialize the linear solver module with one of the following calls
   (for details see \S\ref{sss:lin_solv_init}).
 
-  {\s} {\omp} {\pt} \id{ier = }\Id{KINDense}\id{(...);}
+  \id{ier = }\Id{KINDense}\id{(...);}
 
-  {\s} {\omp} {\pt} \id{ier = }\Id{KINBand}\id{(...);}
+  \id{ier = }\Id{KINBand}\id{(...);}
 
-  {\s} {\omp} {\pt} \id{ier = }\Id{KINLapackDense}\id{(...);}
+  \id{ier = }\Id{KINLapackDense}\id{(...);}
 
-  {\s} {\omp} {\pt} \id{ier = }\Id{KINLapackBand}\id{(...);}
+  \id{ier = }\Id{KINLapackBand}\id{(...);}
 
-  {\s} {\omp} {\pt} \id{ier = }\Id{KINKLU}\id{(...);}
+  \id{ier = }\Id{KINKLU}\id{(...);}
 
-  {\s} {\omp} {\pt} \id{ier = }\Id{KINSuperLUMT}\id{(...);}
+  \id{ier = }\Id{KINSuperLUMT}\id{(...);}
 
   \id{ier = }\Id{KINSpgmr}\id{(...);}
-  
+
   \id{ier = }\Id{KINSpfgmr}\id{(...);}
   
   \id{ier = }\Id{KINSpbcg}\id{(...);}
   
   \id{ier = }\Id{KINSptfqmr}\id{(...);}
   
+NOTE: The direct (dense or band) and sparse linear solver options are
+usable only in a serial environment.
+
 \item
   {\bf Set linear solver optional inputs}
 
@@ -322,18 +284,10 @@ steps marked {\h} correspond to {\nvecph}.
 \item
   {\bf Deallocate memory for solution vector}
 
-  Upon completion of the solution, deallocate memory for the vector \id{u}
-  by calling the destructor function defined by the {\nvector} implementation:
+  Upon completion of the solution, deallocate memory for the vector \id{u} by
+  calling the appropriate destructor function defined by the {\nvector} implementation:
 
-  {\s} \id{N\_VDestroy\_Serial(u);}
-
-  {\omp} \id{N\_VDestroy\_OpenMP(u);}
-
-  {\pt} \id{N\_VDestroy\_Pthreads(u);}
-
-  {\p} \id{N\_VDestroy\_Parallel(u);}
-
-  {\h} \id{N\_VDestroy\_ParHyp(u);}
+  \id{N\_VDestroy\_***(u);}
 
 \item
   {\bf Free solver memory}
@@ -341,7 +295,7 @@ steps marked {\h} correspond to {\nvecph}.
   Call \id{KINFree(\&kin\_mem)} to free the memory allocated for {\kinsol}.
   
 \item 
-  {\bf {\p} {\h} Finalize MPI}
+  {\bf Finalize MPI, if used}
 
   Call \id{MPI\_Finalize()} to terminate {\mpi}.
   
@@ -4171,10 +4125,10 @@ program presented in \S\ref{s:skeleton_sol} are grayed out.
 \index{User main program!KINBBDPRE@{\kinbbdpre} usage}
 \begin{Steps}
 \item 
-  \textcolor{gray}{\bf Initialize MPI}
+  \textcolor{gray}{\bf Initialize parallel or multi-threaded environment}
 
 \item
-  \textcolor{gray}{\bf Set problem dimensions}
+  \textcolor{gray}{\bf Set problem dimensions, etc.}
 
 \item
   \textcolor{gray}{\bf Set vector with initial guess}
@@ -4240,7 +4194,7 @@ program presented in \S\ref{s:skeleton_sol} are grayed out.
   \textcolor{gray}{\bf Free solver memory}
   
 \item 
-  \textcolor{gray}{\bf Finalize MPI}
+  \textcolor{gray}{\bf Finalize MPI, if used}
 
 \end{Steps}
 %%
