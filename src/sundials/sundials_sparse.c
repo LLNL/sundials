@@ -30,6 +30,46 @@
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 
+/*
+ * ==================================================================
+ * Private function prototypes (functions working on SlsMat)
+ * ==================================================================
+ */
+
+/*
+ * -----------------------------------------------------------------
+ * Functions: SparseMatvecCSC
+ * -----------------------------------------------------------------
+ * This function computes the matrix-vector product, y=A*x, where A
+ * is a CSC sparse matrix of dimension MxN, x is a realtype array of 
+ * length N, and y is a realtype array of length M. Upon successful
+ * completion, the return value is zero; otherwise 1 is returned.
+ * -----------------------------------------------------------------
+ */
+
+int SparseMatvecCSC(const SlsMat A, const realtype *x, realtype *y);
+
+/*
+ * -----------------------------------------------------------------
+ * Functions: SparseMatvecCSR
+ * -----------------------------------------------------------------
+ * This function computes the matrix-vector product, y=A*x, where A
+ * is a CSR sparse matrix of dimension MxN, x is a realtype array of 
+ * length N, and y is a realtype array of length M. Upon successful
+ * completion, the return value is zero; otherwise 1 is returned.
+ * -----------------------------------------------------------------
+ */
+
+int SparseMatvecCSR(const SlsMat A, const realtype *x, realtype *y);
+
+  
+
+/*
+ * ==================================================================
+ * Implementation of sparse matrix methods (functions on SlsMat)
+ * ==================================================================
+ */
+
 /* 
  * Default Constructor
  * 
@@ -124,7 +164,7 @@ SlsMat SparseFromDenseMat(const DlsMat A)
     nnz = 0;
     for (j=0; j<A->N; j++)
       for (i=0; i<A->M; i++)
-	nnz += (DENSE_ELEM(A,i,j) != 0.0);
+        nnz += (DENSE_ELEM(A,i,j) != 0.0);
 
     /* allocate sparse matrix */
     As = SparseNewMat(A->M, A->N, nnz, CSC_MAT);
@@ -135,11 +175,11 @@ SlsMat SparseFromDenseMat(const DlsMat A)
     for (j=0; j<A->N; j++) {
       (*As->colptrs)[j] = nnz;
       for (i=0; i<A->M; i++) {
-	dtmp = DENSE_ELEM(A,i,j);
-	if ( dtmp != 0.0 ) { 
-	  (*As->rowvals)[nnz] = i;
-	  As->data[nnz++] = dtmp;
-	}
+        dtmp = DENSE_ELEM(A,i,j);
+        if ( dtmp != 0.0 ) { 
+          (*As->rowvals)[nnz] = i;
+          As->data[nnz++] = dtmp;
+        }
       }
     }
     (*As->colptrs)[A->N] = nnz;
@@ -150,7 +190,7 @@ SlsMat SparseFromDenseMat(const DlsMat A)
     nnz = 0;
     for (j=0; j<A->N; j++)
       for (i=j-(A->mu); i<j+(A->ml); i++)
-	nnz += (BAND_ELEM(A,i,j) != 0.0);
+        nnz += (BAND_ELEM(A,i,j) != 0.0);
 
     /* allocate sparse matrix */
     As = SparseNewMat(A->M, A->N, nnz, CSC_MAT);
@@ -161,11 +201,11 @@ SlsMat SparseFromDenseMat(const DlsMat A)
     for (j=0; j<A->N; j++) {
       (*As->colptrs)[j] = nnz;
       for (i=j-(A->mu); i<j+(A->ml); i++) {
-	dtmp = BAND_ELEM(A,i,j);
-	if ( dtmp != 0.0 ) { 
-	  (*As->rowvals)[nnz] = i;
-	  As->data[nnz++] = dtmp;
-	}
+        dtmp = BAND_ELEM(A,i,j);
+        if ( dtmp != 0.0 ) { 
+          (*As->rowvals)[nnz] = i;
+          As->data[nnz++] = dtmp;
+        }
       }
     }
     (*As->colptrs)[A->N] = nnz;
@@ -183,7 +223,7 @@ SlsMat SparseFromDenseMat(const DlsMat A)
  * Frees memory and deletes the structure for an existing sparse matrix.
  * 
  */
-void SparseDestroyMat(SlsMat A)
+int SparseDestroyMat(SlsMat A)
 {
   if (A->data) {
     free(A->data);  
@@ -203,13 +243,15 @@ void SparseDestroyMat(SlsMat A)
   }
   free(A); 
   A = NULL;
+  
+  return 0;
 }
 
 
 /** 
  * Sets all sparse matrix entries to zero.
  */
-void SparseSetMatToZero(SlsMat A)
+int SparseSetMatToZero(SlsMat A)
 {
   int i;
 
@@ -223,7 +265,8 @@ void SparseSetMatToZero(SlsMat A)
   }
   /* A->colptrs[A->N] = A->NNZ; */
   A->indexptrs[A->NP] = 0;
-
+  
+  return 0;
 }
 
 
@@ -278,13 +321,14 @@ int SparseCopyMat(const SlsMat A, SlsMat B)
 /** 
  * Scales a sparse matrix A by the coefficient b.
  */
-void SparseScaleMat(realtype b, SlsMat A)
+int SparseScaleMat(realtype b, SlsMat A)
 {
   int i;
 
   for (i=0; i<A->indexptrs[A->NP]; i++){
     A->data[i] = b * (A->data[i]);
   }
+  return 0;
 }
 
 
@@ -384,7 +428,7 @@ Adds the identity to a sparse matrix.  Resizes A if necessary
  * implementation.  
  * 
  */
-void SparseAddIdentityMat(SlsMat A)
+int SparseAddIdentityMat(SlsMat A)
 {
   int j, i, p, nz, newmat, found;
   int *w, *Ap, *Ai, *Cp, *Ci;
@@ -401,8 +445,8 @@ void SparseAddIdentityMat(SlsMat A)
     found = 0;
     for (i=A->indexptrs[j]; i<A->indexptrs[j+1]; i++) {
       if (A->indexvals[i] == j) {
-	found = 1;
-	break;
+        found = 1;
+        break;
       }
     }
     /* if no diagonal found, signal new matrix */
@@ -420,8 +464,8 @@ void SparseAddIdentityMat(SlsMat A)
     /* iterate through columns, adding 1.0 to diagonal */
     for (j=0; j < SUNMIN(A->N,A->M); j++)
       for (i=A->indexptrs[j]; i<A->indexptrs[j+1]; i++)
-	if (A->indexvals[i] == j) 
-	  A->data[i] += ONE;
+        if (A->indexvals[i] == j) 
+          A->data[i] += ONE;
 
   /*   case 2: A does not already contain a diagonal */
   } else {
@@ -435,7 +479,7 @@ void SparseAddIdentityMat(SlsMat A)
       N = A->M;
     }
     else
-      return;
+      return (-1);
   
     /* create work arrays for row indices and nonzero column values */
     w = (int *) malloc(A->M * sizeof(int));
@@ -448,17 +492,17 @@ void SparseAddIdentityMat(SlsMat A)
     Cp = Ci = Ap = Ai = NULL;
     Cx = Ax = NULL;
     if (C->indexptrs)  Cp = C->indexptrs;
-    else  return;
+    else  return (-1);
     if (C->indexvals)  Ci = C->indexvals;
-    else  return;
+    else  return (-1);
     if (C->data)       Cx = C->data;
-    else  return;
+    else  return (-1);
     if (A->indexptrs)  Ap = A->indexptrs;
-    else  return;
+    else  return (-1);
     if (A->indexvals)  Ai = A->indexvals;
-    else  return;
+    else  return (-1);
     if (A->data)       Ax = A->data;
-    else  return;
+    else  return (-1);
 
     /* initialize total nonzero count */
     nz = 0;
@@ -471,28 +515,28 @@ void SparseAddIdentityMat(SlsMat A)
 
       /* clear out temporary arrays for this column (row) */
       for (i=0; i<M; i++) {
-	w[i] = 0;
-	x[i] = 0.0;
+        w[i] = 0;
+        x[i] = 0.0;
       }
 
       /* iterate down column (along row) of A, collecting nonzeros */
       for (p=Ap[j]; p<Ap[j+1]; p++) {
-	w[Ai[p]] += 1;       /* indicate that row is filled */
-	x[Ai[p]] = Ax[p];    /* collect value */
+        w[Ai[p]] += 1;       /* indicate that row is filled */
+        x[Ai[p]] = Ax[p];    /* collect value */
       }
 
       /* add identity to this column (row) */
       if (j < M) {
-	w[j] += 1;     /* indicate that row is filled */
-	x[j] += ONE;   /* update value */
+        w[j] += 1;     /* indicate that row is filled */
+        x[j] += ONE;   /* update value */
       }
 
       /* fill entries of C with this column's (row's) data */
       for (i=0; i<M; i++) {
-	if ( w[i] > 0 ) { 
-	  Ci[nz] = i;  
-	  Cx[nz++] = x[i];
-	}
+        if ( w[i] > 0 ) { 
+          Ci[nz] = i;  
+          Cx[nz++] = x[i];
+        }
       }
     }
 
@@ -525,7 +569,7 @@ void SparseAddIdentityMat(SlsMat A)
     /* reallocate the new matrix to remove extra space */
     SparseReallocMat(A);
   }
-
+  return 0;
 }
 
 
@@ -589,8 +633,8 @@ int SparseAddMat(SlsMat A, const SlsMat B)
     /* if any entry of w is negative, A doesn't contain B's sparsity */
     for (i=0; i<M; i++)
       if (w[i] < 0) {
-	newmat = 1;
-	break;
+        newmat = 1;
+        break;
       }
     if (newmat) break;
 
@@ -606,15 +650,15 @@ int SparseAddMat(SlsMat A, const SlsMat B)
 
       /* clear work array */
       for (i=0; i<M; i++)
-	x[i] = ZERO;
+        x[i] = ZERO;
 
       /* scan column of B, updating work array */
       for (i = B->indexptrs[j]; i < B->indexptrs[j+1]; i++)
-	x[B->indexvals[i]] = B->data[i];
+        x[B->indexvals[i]] = B->data[i];
 
       /* scan column of A, updating entries appropriately array */
       for (i = A->indexptrs[j]; i < A->indexptrs[j+1]; i++)
-	A->data[i] += x[A->indexvals[i]];
+        A->data[i] += x[A->indexvals[i]];
 
     }
 
@@ -657,28 +701,28 @@ int SparseAddMat(SlsMat A, const SlsMat B)
 
       /* clear out temporary arrays for this column */
       for (i=0; i<M; i++) {
-	w[i] = 0;
-	x[i] = 0.0;
+        w[i] = 0;
+        x[i] = 0.0;
       }
 
       /* iterate down column of A, collecting nonzeros */
       for (p=Ap[j]; p<Ap[j+1]; p++) {
-	w[Ai[p]] += 1;       /* indicate that row is filled */
-	x[Ai[p]] = Ax[p];    /* collect value */
+        w[Ai[p]] += 1;       /* indicate that row is filled */
+        x[Ai[p]] = Ax[p];    /* collect value */
       }
 
       /* iterate down column of B, collecting nonzeros */
       for (p=Bp[j]; p<Bp[j+1]; p++) {
-	w[Bi[p]] += 1;       /* indicate that row is filled */
-	x[Bi[p]] += Bx[p];   /* collect value */
+        w[Bi[p]] += 1;       /* indicate that row is filled */
+        x[Bi[p]] += Bx[p];   /* collect value */
       }
 
       /* fill entries of C with this column's data */
       for (i=0; i<M; i++) {
-	if ( w[i] > 0 ) { 
-	  Ci[nz] = i;  
-	  Cx[nz++] = x[i];
-	}
+        if ( w[i] > 0 ) { 
+          Ci[nz] = i;  
+          Cx[nz++] = x[i];
+        }
       }
     }
 
@@ -721,7 +765,7 @@ int SparseAddMat(SlsMat A, const SlsMat B)
  * Resizes the memory allocated for a given sparse matrix, shortening 
  * it down to the number of actual nonzero entries.
  */
-void SparseReallocMat(SlsMat A)
+int SparseReallocMat(SlsMat A)
 {
   int nzmax; 
 
@@ -729,6 +773,8 @@ void SparseReallocMat(SlsMat A)
   A->indexvals = realloc(A->indexvals, nzmax*sizeof(int));
   A->data = realloc(A->data, nzmax*sizeof(realtype));
   A->NNZ = nzmax;
+  
+  return 0;
 }
 
 

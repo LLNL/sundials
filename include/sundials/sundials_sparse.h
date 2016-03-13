@@ -126,7 +126,7 @@ SUNDIALS_EXPORT SlsMat SparseFromDenseMat(const DlsMat A);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void SparseDestroyMat(SlsMat A);
+SUNDIALS_EXPORT int SparseDestroyMat(SlsMat A);
 
 /*
  * -----------------------------------------------------------------
@@ -136,7 +136,7 @@ SUNDIALS_EXPORT void SparseDestroyMat(SlsMat A);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void SparseSetMatToZero(SlsMat A);
+SUNDIALS_EXPORT int SparseSetMatToZero(SlsMat A);
 
 /*
  * -----------------------------------------------------------------
@@ -157,7 +157,7 @@ SUNDIALS_EXPORT int SparseCopyMat(const SlsMat A, const SlsMat B);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void SparseScaleMat(realtype b, SlsMat A);
+SUNDIALS_EXPORT int SparseScaleMat(realtype b, SlsMat A);
 
 /*
  * -----------------------------------------------------------------
@@ -170,7 +170,7 @@ SUNDIALS_EXPORT void SparseScaleMat(realtype b, SlsMat A);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void SparseAddIdentityMat(SlsMat A);
+SUNDIALS_EXPORT int SparseAddIdentityMat(SlsMat A);
 
 /*
  * -----------------------------------------------------------------
@@ -196,7 +196,7 @@ SUNDIALS_EXPORT int SparseAddMat(SlsMat A, SlsMat B);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void SparseReallocMat(SlsMat A);
+SUNDIALS_EXPORT int SparseReallocMat(SlsMat A);
 
 /*
  * -----------------------------------------------------------------
@@ -226,42 +226,6 @@ SUNDIALS_EXPORT int SparseMatvec(const SlsMat A, const realtype *x, realtype *y)
 SUNDIALS_EXPORT void SparsePrintMatCSC(SlsMat A);
 
 
-/*
- * ==================================================================
- * Private function prototypes (functions working on SlsMat)
- * ==================================================================
- */
-
-/*
- * -----------------------------------------------------------------
- * Functions: SparseMatvecCSC
- * -----------------------------------------------------------------
- * This function computes the matrix-vector product, y=A*x, where A
- * is a CSC sparse matrix of dimension MxN, x is a realtype array of 
- * length N, and y is a realtype array of length M. Upon successful
- * completion, the return value is zero; otherwise 1 is returned.
- * -----------------------------------------------------------------
- */
-
-int SparseMatvecCSC(const SlsMat A, const realtype *x, realtype *y);
-
-/*
- * -----------------------------------------------------------------
- * Functions: SparseMatvecCSR
- * -----------------------------------------------------------------
- * This function computes the matrix-vector product, y=A*x, where A
- * is a CSR sparse matrix of dimension MxN, x is a realtype array of 
- * length N, and y is a realtype array of length M. Upon successful
- * completion, the return value is zero; otherwise 1 is returned.
- * -----------------------------------------------------------------
- */
-
-int SparseMatvecCSR(const SlsMat A, const realtype *x, realtype *y);
-
-/*
- * void SparsePrintMatDebug(SlsMat A);
- */
-  
 
 
 #ifdef __cplusplus
