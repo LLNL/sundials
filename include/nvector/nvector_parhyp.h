@@ -212,7 +212,6 @@ typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
  * PART III: functions exported by nvector_ParHyp
  * 
  * CONSTRUCTORS:
- *    N_VNew_ParHyp
  *    N_VNewEmpty_ParHyp
  *    N_VMake_ParHyp
  *    N_VCloneVectorArray_ParHyp
@@ -224,20 +223,6 @@ typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
  *    N_VPrint_ParHyp
  * -----------------------------------------------------------------
  */
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VNew_ParHyp
- * -----------------------------------------------------------------
- * This function creates and allocates memory for a parallel vector.
- * It is provided for completeness only. This is not recommended way
- * to create hypre vector.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT N_Vector N_VNew_ParHyp(MPI_Comm comm, 
-                                       long int local_length,
-                                       long int global_length);
 
 /*
  * -----------------------------------------------------------------
