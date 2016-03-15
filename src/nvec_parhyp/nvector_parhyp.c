@@ -142,7 +142,6 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   content->comm          = comm;
   content->own_data      = FALSE;
   content->own_parvector = FALSE;
-  content->data          = NULL;
   content->x             = NULL;
   
   /* Attach content and ops */
@@ -153,7 +152,14 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
 }
 
 /* ---------------------------------------------------------------- 
- * Function to create a new parhyp vector
+ * Function to create a new parhyp vector. This function is
+ * provided for completeness only. Hypre vector wrapper should 
+ * be created by calling N_VMake_ParHyp with a Hypre vector as
+ * the argument.
+ * 
+ * TODO: This function creates global partitioning for Hypre 
+ * vector. Probably better solution would be to pass partitioning 
+ * to this function as the argument. 
  */
 
 N_Vector N_VNew_ParHyp(MPI_Comm comm, 
@@ -362,7 +368,7 @@ N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
   if (v == NULL) return(NULL);
   
   /* Added variables for hypre_parhyp intialization */
-  int nprocs,myid;
+  int nprocs, myid;
   MPI_Comm_size(NV_COMM_PH(w), &nprocs);
   MPI_Comm_rank(NV_COMM_PH(w), &myid);
   
@@ -407,15 +413,8 @@ N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
   content->global_length = NV_GLOBLENGTH_PH(w);
   content->comm          = NV_COMM_PH(w);
   content->own_data      = FALSE;
-  content->own_parvector = TRUE;
-  content->data          = NULL;
-  /* Using CloneShallow to get the proper partitioning and data sizes:
-   * "returns a complete copy of a hypre_ParVector x - a shallow copy, re-using
-   * the partitioning and data arrays of x" */
-  content->x             = hypre_ParVectorCloneShallow(NV_HYPRE_PARVEC_PH(w));
-  hypre_ParVectorSetPartitioningOwner(content->x,0);
-  /* Changes the data array pointer in the local vector to NULL*/
-  hypre_VectorData(hypre_ParVectorLocalVector(content->x))=NULL;
+  content->own_parvector = FALSE;
+  content->x             = NULL;
   
   /* Attach content and ops */
   v->content = content;
@@ -424,30 +423,34 @@ N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
   return(v);
 }
 
+/*
+ * Clone hypre vector wrapper.
+ * TODO: Do we need to check if local vector length is zero?
+ */
 N_Vector N_VClone_ParHyp(N_Vector w)
 {
   N_Vector v;
-  realtype *data;
-  long int local_length;
 
   v = NULL;
   v = N_VCloneEmpty_ParHyp(w);
   if (v == NULL) return(NULL);
 
-  local_length  = NV_LOCLENGTH_PH(w);
-
   /* Create data */
-  if(local_length > 0) {
+  /* if(local_length > 0) { */
 
-    /* Allocate memory */
-    data = NULL;
-    data = (realtype *) malloc(local_length * sizeof(realtype));
-    if(data == NULL) { N_VDestroy_ParHyp(v); return(NULL); }
-
-    /* Attach data */
-    NV_OWN_DATA_PH(v) = TRUE;
-    hypre_ParVectorLocalVector(NV_HYPRE_PARVEC_PH(v))=hypre_SeqVectorCloneDeep(hypre_ParVectorLocalVector(NV_HYPRE_PARVEC_PH(w)));
-  }
+  /* Using CloneShallow to get the proper partitioning and data sizes:
+   * "returns a complete copy of a hypre_ParVector x - a shallow copy, re-using
+   * the partitioning and data arrays of x" */
+  NV_HYPRE_PARVEC_PH(v) = hypre_ParVectorCloneShallow(NV_HYPRE_PARVEC_PH(w));
+  hypre_ParVectorSetPartitioningOwner(NV_HYPRE_PARVEC_PH(v), 0);
+  
+  /* Attach data */
+  hypre_ParVectorLocalVector(NV_HYPRE_PARVEC_PH(v)) = 
+    hypre_SeqVectorCloneDeep(hypre_ParVectorLocalVector(NV_HYPRE_PARVEC_PH(w)));
+  NV_OWN_DATA_PH(v)   = TRUE;
+  NV_OWN_PARVEC_PH(v) = TRUE;
+  
+  /* } */
 
   return(v);
 }

@@ -88,31 +88,30 @@ extern "C" {
 
 #define PVEC_INTEGER_MPI_TYPE MPI_LONG
 
-/* parallel implementation of the N_Vector 'content' structure
-   contains the global and local lengths of the vector, a pointer
-   to an array of 'realtype components', the MPI communicator,
-   and a flag indicating ownership of the data */
-
+/* 
+ * Parallel implementation of the N_Vector 'content' structure
+ * contains the global and local lengths of the vector, a pointer
+ * to an array of 'realtype components', the MPI communicator,
+ * and a flag indicating ownership of the data. 
+ */
 struct _N_VectorContent_ParHyp {
   long int local_length;         /* local vector length         */
   long int global_length;        /* global vector length        */
   booleantype own_data;          /* ownership of data           */
   booleantype own_parvector;     /* ownership of vector pointer */
-  realtype *data;                /* local data array            */
   MPI_Comm comm;                 /* pointer to MPI communicator */
-  
-  /* The actual hypre_ParVector object the local data and
-   * other relevant info (such as partitioning) is stored in*/
-  hypre_ParVector *x;
+
+  hypre_ParVector *x; /* The actual hypre_ParVector object the local data and    */
+                      /* other relevant info (such as partitioning) is stored in */
 };
 
 typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
 
 /*
  * -----------------------------------------------------------------
- * PART II: macros NV_CONTENT_PC, NV_DATA_PC, NV_OWN_DATA_PC,
- *          NV_LOCLENGTH_PC, NV_GLOBLENGTH_PC,NV_COMM_PC, and 
- *          NV_Ith_PC
+ * PART II: macros NV_CONTENT_PH, NV_DATA_PH, NV_OWN_DATA_PH,
+ *          NV_LOCLENGTH_PH, NV_GLOBLENGTH_PH,NV_COMM_PH, and 
+ *          NV_Ith_PH
  * -----------------------------------------------------------------
  * In the descriptions below, the following user declarations
  * are assumed:
@@ -120,44 +119,59 @@ typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
  * N_Vector v;
  * long int v_len, s_len, i;
  *
- * (1) NV_CONTENT_PC
+ * (1) NV_CONTENT_PH
  *
- *     This routines gives access to the contents of the parallel
- *     vector N_Vector.
+ *     This routines gives access to the contents of the hypre
+ *     vector wrapper (the N_Vector).
  *
  *     The assignment v_cont = NV_CONTENT_PH(v) sets v_cont to be
- *     a pointer to the parallel N_Vector content structure.
+ *     a pointer to the N_Vector content structure.
  *
- * (2) NV_DATA_PC, NV_OWN_DATA_PC, NV_LOCLENGTH_PC, NV_GLOBLENGTH_PC,
- *     and NV_COMM_PC
+ * (2) NV_DATA_PH, NV_OWN_DATA_PH, NV_LOCLENGTH_PH, NV_GLOBLENGTH_PH,
+ *     and NV_COMM_PH
  *
  *     These routines give access to the individual parts of
  *     the content structure of a parhyp N_Vector.
  *
+ *     The assignment v_llen = NV_LOCLENGTH_PH(v) sets v_llen to
+ *     be the length of the local part of the vector v. The call
+ *     NV_LOCLENGTH_PH(v) = llen_v generally should NOT be used! It 
+ *     will change locally stored value with the hypre local vector 
+ *     length, but it will NOT change the length of the actual hypre
+ *     local vector.
+ *
+ *     The assignment v_glen = NV_GLOBLENGTH_PH(v) sets v_glen to
+ *     be the global length of the vector v. The call
+ *     NV_GLOBLENGTH_PH(v) = glen_v generally should NOT be used! It 
+ *     will change locally stored value with the hypre parallel vector 
+ *     length, but it will NOT change the length of the actual hypre
+ *     parallel vector.
+ *
+ *     The assignment v_comm = NV_COMM_PH(v) sets v_comm to be the
+ *     MPI communicator of the vector v. The assignment
+ *     NV_COMM_C(v) = comm_v sets the MPI communicator of v to be
+ *     NV_COMM_PH(v) = comm_v generally should NOT be used! It 
+ *     will change locally stored value with the hypre parallel vector 
+ *     communicator, but it will NOT change the communicator of the 
+ *     actual hypre parallel vector.
+ * 
+ * (3) NV_DATA_PH, NV_HYPRE_PARVEC_PH
+ *     
  *     The assignment v_data = NV_DATA_PH(v) sets v_data to be
  *     a pointer to the first component of the data inside the 
  *     local vector of the hypre_parhyp vector for
  *     the vector v. The assignment NV_DATA_PH(v) = data_v sets
  *     the component array of the local vector of the hypre_parhyp
  *     vector for the vector v to be data_v by storing the
- *     pointer data_v.
+ *     pointer data_v. This is dangerous operation. Use only if
+ *     you know what you are doing! Use NV_HYPRE_PARVEC_PH instead.
  *
- *     The assignment v_llen = NV_LOCLENGTH_PH(v) sets v_llen to
- *     be the length of the local part of the vector v. The call
- *     NV_LOCLENGTH_PH(v) = llen_v sets the local length
- *     of v to be llen_v.
+ *     The assignment v_parhyp = NV_HYPRE_PARVEC_PH(v) sets v_parhyp
+ *     to be a pointer to hypre_ParVector of vector v. The assignment
+ *     NV_HYPRE_PARVEC_PH(v) = parhyp_v sets pointer to 
+ *     hypre_ParVector of vector v to be parhyp_v.
  *
- *     The assignment v_glen = NV_GLOBLENGTH_PH(v) sets v_glen to
- *     be the global length of the vector v. The call
- *     NV_GLOBLENGTH_PH(v) = glen_v sets the global length of v to
- *     be glen_v.
- *
- *     The assignment v_comm = NV_COMM_PH(v) sets v_comm to be the
- *     MPI communicator of the vector v. The assignment
- *     NV_COMM_C(v) = comm_v sets the MPI communicator of v to be
- *     comm_v.
- *
- * (3) NV_Ith_PC
+ * (4) NV_Ith_PH
  *
  *     In the following description, the components of the
  *     local part of an N_Vector are numbered 0..n-1, where n
@@ -187,7 +201,7 @@ typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
 
 #define NV_HYPRE_PARVEC_PH(v) ( NV_CONTENT_PH(v)->x )
 
-#define NV_DATA_PH(v)       ( hypre_VectorData(hypre_ParVectorLocalVector(NV_HYPRE_PARVEC_PH(v))) )
+#define NV_DATA_PH(v)       ( NV_HYPRE_PARVEC_PH(v) == NULL ? NULL : hypre_VectorData(hypre_ParVectorLocalVector(NV_HYPRE_PARVEC_PH(v))) )
 
 #define NV_COMM_PH(v)       ( NV_CONTENT_PH(v)->comm )
 
