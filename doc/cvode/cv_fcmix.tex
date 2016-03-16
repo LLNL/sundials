@@ -172,13 +172,6 @@ function called by an interface function.
 The usage of {\fcvode} for rootfinding and with preconditioner modules is
 described in later subsections.
 
-In the instructions below,
-steps marked {\s} apply to the {\nvector} module {\nvecs},
-steps marked {\omp} apply to {\nvecopenmp},
-steps marked {\pt} apply to {\nvecpthreads},
-steps marked {\p} apply to {\nvecp}, while
-steps marked {\h} apply to {\nvecph}.
-
 \index{User main program!FCVODE@{\fcvode} usage}
 \begin{Steps}
   
@@ -205,79 +198,14 @@ steps marked {\h} apply to {\nvecph}.
 \item  {\bf {\nvector} module initialization}
 %%====================
 
-  {\s} To initialize the serial {\nvector} module, the user must make the
-  following call:
-  \index{FNVINITS@\texttt{FNVINITS}}
-\begin{verbatim}
-      CALL FNVINITS(KEY, NEQ, IER)
-\end{verbatim}
-  where 
-  \id{KEY} is the solver id (\id{KEY} = 1 for {\cvode}),
-  \id{NEQ} is the size of vectors, and
-  \id{IER} is a  return completion flag which is $0$ on success and $-1$ 
-  if a failure occurred.
-  
-  {\omp} To initialize the {\nvecopenmp} {\nvector} module, the user must make the
-  following call:
-  \index{FNVINITOMP@\texttt{FNVINITOMP}}
-\begin{verbatim}
-      CALL FNVINITOMP(KEY, NEQ, NUMTHREADS, IER)
-\end{verbatim}
-  where 
-  \id{KEY} is the solver id (\id{KEY} = 1 for {\cvode}),
-  \id{NEQ} is the size of vectors,
-  \id{NUMTHREADS} is the number of threads, and
-  \id{IER} is a return completion flag which is $0$ on success and $-1$ 
-  if a failure occurred.
-  
-  {\pt} To initialize the {\nvecpthreads} {\nvector} module, the user must make the
-  following call:
-  \index{FNVINITPTS@\texttt{FNVINITPTS}}
-\begin{verbatim}
-      CALL FNVINITPTS(KEY, NEQ, NUMTHREADS, IER)
-\end{verbatim}
-  where 
-  \id{KEY} is the solver id (\id{KEY} = 1 for {\cvode}),
-  \id{NEQ} is the size of vectors,
-  \id{NUMTHREADS} is the number of threads, and
-  \id{IER} is a return completion flag which is $0$ on success and $-1$ 
-  if a failure occurred.
-    
-  {\p} To initialize the MPI-based distributed memory 
-  parallel vector module, the user must make the following call:
-  \index{FNVINITP@\texttt{FNVINITP}}
-\begin{verbatim}
-      CALL FNVINITP(COMM, KEY, NLOCAL, NGLOBAL, IER)
-\end{verbatim}
-  in which the arguments are: \id{COMM} = {\mpi} communicator,
-  \id{KEY} = 1 for {\cvode}, \id{NLOCAL} = the local size of
-  vectors on this processor, and \id{NGLOBAL} = the system size (and the global
-  size of all vectors, equal to the sum of all values of \id{NLOCAL}).
-  The return flag \id{IER} is set to $0$ on a successful return and to $-1$
-  otherwise.
+  If using one of the {\nvector} modules supplied with {\sundials},
+  the user must make a call of the form
 
-  {\h} To initialize the MPI-based Hypre-compatible parallel vector
-  module, the user must make the following call:
-  \index{FNVINITPH@\texttt{FNVINITPH}}
 \begin{verbatim}
-      CALL FNVINITPH(COMM, KEY, NLOCAL, NGLOBAL, IER)
+      CALL FNVINIT***(...)
 \end{verbatim}
-  in which the arguments are: \id{COMM} = {\mpi} communicator,
-  \id{KEY} = 1 for {\cvode}, \id{NLOCAL} = the local size of
-  vectors on this processor, and \id{NGLOBAL} = the system size (and the global
-  size of all vectors, equal to the sum of all values of \id{NLOCAL}).
-  The return flag \id{IER} is set to $0$ on a successful return and to $-1$
-  otherwise.
-
-  NOTE: The integers \id{NEQ}, \id{NLOCAL}, and \id{NGLOBAL} should be
-  declared so as to match {\CC} type \id{long int}.
-
-  {\warn}If the header file \id{sundials\_config.h} defines
-  \id{SUNDIALS\_MPI\_COMM\_F2C} to be $1$ (meaning the {\mpi}
-  implementation used to build {\sundials} includes the
-  \id{MPI\_Comm\_f2c} function), then \id{COMM} can be any valid
-  {\mpi} communicator. Otherwise, \id{MPI\_COMM\_WORLD} will be used, so
-  just pass an integer value as a placeholder.
+in which the name and call sequence are as described in the appropriate
+section of Chapter \ref{s:nvector}.
 
 %%====================
 \item {\bf Problem specification}
@@ -373,14 +301,15 @@ steps marked {\h} apply to {\nvecph}.
   
   In the case of a stiff system, the implicit \id{BDF} method involves the solution
   of linear systems related to the Jacobian $J = \partial f / \partial y$
-  of the ODE system.  The user of 
-  {\fcvode} must call a routine with a specific name to make the desired
-  choice of linear solver.
+  of the ODE system.  The user of {\fcvode} must call a routine with a specific
+  name to make the desired choice of linear solver.
+  Note that the direct (dense or band) and sparse linear solver options are
+  usable only in a serial environment.
 
 
   %%-------------------------------------------------
 
-  {\s, \p} {\bf Diagonal approximate Jacobian}
+  {\bf Diagonal approximate Jacobian}
   \index{CVDIAG@{\cvdiag} linear solver!use in {\fcvode}}
   
   This choice is appropriate when the Jacobian can be well approximated by
@@ -396,7 +325,7 @@ steps marked {\h} apply to {\nvecph}.
   
   %%-------------------------------------------------
 
-  {\s} {\bf Dense treatment of the linear system}
+  {\bf Dense treatment of the linear system}
   \index{CVDENSE@{\cvdense} linear solver!use in {\fcvode}}
   
   To use the direct dense linear solver based on the internal {\cvode}
@@ -471,7 +400,7 @@ steps marked {\h} apply to {\nvecph}.
 
   %%-------------------------------------------------
 
-  {\s} {\bf Band treatment of the linear system}
+  {\bf Band treatment of the linear system}
   \index{CVBAND@{\cvband} linear solver!use in {\fcvode}}
   
   To use the direct band linear solver based on the internal {\cvode}
@@ -553,7 +482,7 @@ steps marked {\h} apply to {\nvecph}.
 
   %%-------------------------------------------------
   
-  {\s} {\bf Sparse direct treatment of the linear system}
+  {\bf Sparse direct treatment of the linear system}
   \index{CVSPARSE@{\cvsparse} linear solver!use in {\fcvode}}
   
   To use the KLU sparse direct linear solver,
@@ -632,7 +561,7 @@ steps marked {\h} apply to {\nvecph}.
 
   %%-------------------------------------------------
   
-  {\s}{\p}{\h} {\bf SPGMR treatment of the linear systems}
+  {\bf SPGMR treatment of the linear systems}
   \index{CVSPGMR@{\cvspgmr} linear solver!use in {\fcvode}}
   
   For the Scaled Preconditioned GMRES solution of the linear systems,
@@ -660,7 +589,7 @@ steps marked {\h} apply to {\nvecph}.
   
   %%-------------------------------------------------
   
-  {\s}{\p}{\h} {\bf SPBCG treatment of the linear systems}
+  {\bf SPBCG treatment of the linear systems}
   \index{CVSPBCG@{\cvspbcg} linear solver!use in {\fcvode}}
   
   For the Scaled Preconditioned Bi-CGStab solution of the linear systems,
@@ -679,7 +608,7 @@ steps marked {\h} apply to {\nvecph}.
   
   %%-------------------------------------------------
   
-  {\s}{\p}{\h} {\bf SPTFQMR treatment of the linear systems}
+  {\bf SPTFQMR treatment of the linear systems}
   \index{CVSPTFQMR@{\cvsptfqmr} linear solver!use in {\fcvode}}
   
   For the Scaled Preconditioned Transpose-Free Quasi-Minimal Residual solution 
@@ -697,7 +626,7 @@ steps marked {\h} apply to {\nvecph}.
   
   %%-------------------------------------------------
 
-  {\s}{\p}{\h} {\bf Functions used by SPGMR/SPBCG/SPTFQMR}
+  {\bf Functions used by SPGMR/SPBCG/SPTFQMR}
 
   An optional user-supplied routine, \id{FCVJTIMES} (see below), can be provided for
   Jacobian-vector products.  If it is, then, following the call to
@@ -723,7 +652,7 @@ steps marked {\h} apply to {\nvecph}.
 
   %%-------------------------------------------------
 
- {\s}{\p}{\h} {\bf User-supplied routines for SPGMR/SPBCG/SPTFQMR}
+ {\bf User-supplied routines for SPGMR/SPBCG/SPTFQMR}
 
   With treatment of the linear systems by any of the Krylov iterative
   solvers, there are three optional user-supplied routines ---
