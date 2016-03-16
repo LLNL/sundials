@@ -10,7 +10,7 @@ Testing has shown that vectors should be of length at least $100,000$
 before the overhead associated with creating and using the threads is
 made up by the parallelism in the vector calculations. 
 
-The Pthreads {\nvector} implementation provided with {\sundials},
+The Pthreads {\nvector} implementation provided with {\sundials}, denoted
 {\nvecpthreads}, defines the {\em content} field of \id{N\_Vector} to be a structure 
 containing the length of the vector, a pointer to the beginning of a contiguous 
 data array, a boolean flag {\em own\_data} which specifies the ownership 
@@ -96,9 +96,9 @@ vector. The suffix \id{\_PT} in the names denotes the Pthreads version.
 %%----------------------------------------------
 %%
 The {\nvecpthreads} module defines Pthreads implementations of all vector operations listed 
-in Table \ref{t:nvecops}. Their names are obtained from those in Table \ref{t:nvecops} by
-appending the suffix \id{\_Pthreads}. The module {\nvecpthreads} provides the following additional
-user-callable routines:
+in Table \ref{t:nvecops}. Their names are obtained from those in Table \ref{t:nvecops}
+by appending the suffix \id{\_Pthreads} (e.g. \id{N\_VDestroy\_Pthreads}).
+The module {\nvecpthreads} provides the following additional user-callable routines:
 %%
 \begin{itemize}
 
@@ -208,3 +208,12 @@ user-callable routines:
   arguments that were all created with the same internal representations.
 
 \end{itemize}
+
+For solvers that include a Fortran interface module, the {\nvecpthreads}
+module slso includes a Fortran-callable function
+\id{FNVINITPTS(code, NEQ, NUMTHREADS, IER)}, to initialize this
+{\nvecpthreads} module.  Here \id{code} is an input solver id
+(1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol}, 4 for {\arkode}); NEQ is
+the problem size (declared so as to match C type \id{long int});
+NUMTHREADS is the number of threads; and IER is an error return flag
+equal 0 for success and -1 for failure.

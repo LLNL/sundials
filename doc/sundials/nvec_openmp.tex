@@ -94,10 +94,10 @@ vector. The suffix \id{\_OMP} in the names denotes the OpenMP version.
 %%
 %%----------------------------------------------
 %%
-The {\nvecopenmp} module defines OpenMP implementations of all vector operations listed 
-in Table \ref{t:nvecops}. Their names are obtained from those in Table \ref{t:nvecops} by
-appending the suffix \id{\_OpenMP}. The module {\nvecopenmp} provides the following additional
-user-callable routines:
+The {\nvecopenmp} module defines OpenMP implementations of all vector operations listed
+in Table \ref{t:nvecops}. Their names are obtained from those in Table \ref{t:nvecops}
+by appending the suffix \id{\_OpenMP} (e.g.\id{N\_VDestroy\_OpenMP}).
+The module {\nvecopenmp} provides the following additional user-callable routines:
 %%
 \begin{itemize}
 
@@ -205,3 +205,12 @@ user-callable routines:
   arguments that were all created with the same internal representations.
 
 \end{itemize}
+
+For solvers that include a Fortran interface module, the {\nvecopenmp}
+module slso includes a Fortran-callable function
+\id{FNVINITOMP(code, NEQ, NUMTHREADS, IER)}, to initialize this
+{\nvecopenmp} module.  Here \id{code} is an input solver id
+(1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol}, 4 for {\arkode}); NEQ is
+the problem size (declared so as to match C type \id{long int});
+NUMTHREADS is the number of threads; and IER is an error return flag
+equal 0 for success and -1 for failure.

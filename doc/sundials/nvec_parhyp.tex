@@ -119,9 +119,9 @@ wrapped version (distributed memory parallel with OpenMP threading).
 %%--------------------------------------------
 %%
 The {\nvecph} module defines parhyp implementations of all vector operations listed 
-in Table \ref{t:nvecops}  Their names are obtained from those in Table \ref{t:nvecops} by
-appending the suffix \id{\_ParHyp}. The module {\nvecph} provides the following additional
-user-callable routines:
+in Table \ref{t:nvecops}  Their names are obtained from those in Table \ref{t:nvecops}
+by appending the suffix \id{\_ParHyp} (e.g. \id{N\_VDestroy\_ParHyp}).
+The module {\nvecph} provides the following additional user-callable routines:
 %%
 %%
 \begin{itemize}
@@ -246,3 +246,17 @@ N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w);
 
 \end{itemize}
 
+For solvers that include a Fortran interface module, the {\nvecph} module
+also includes a Fortran-callable function
+\id{FNVINITPH(COMM, code, NLOCAL, NGLOBAL, IER)},
+to initialize this {\nvecph} module.  Here \id{COMM} is the MPI communicator,
+\id{code} is an input solver id (1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol},
+4 for {\arkode}); \id{NLOCAL} and \id{NGLOBAL} are the local and global
+vector sizes, respectively (declared so as to match C type \id{long int});
+and IER is an error return flag equal 0 for success and -1 for failure.
+{\warn}Note: If the header file \id{sundials\_config.h} defines
+\id{SUNDIALS\_MPI\_COMM\_F2C} to be $1$ (meaning the {\mpi}
+implementation used to build {\sundials} includes the
+\id{MPI\_Comm\_f2c} function), then \id{COMM} can be any valid
+{\mpi} communicator. Otherwise, \id{MPI\_COMM\_WORLD} will be used, so
+just pass an integer value as a placeholder.

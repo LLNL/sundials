@@ -238,3 +238,9 @@ to initialize this {\nvecp} module.  Here \id{COMM} is the MPI communicator,
 4 for {\arkode}); \id{NLOCAL} and \id{NGLOBAL} are the local and global
 vector sizes, respectively (declared so as to match C type \id{long int});
 and IER is an error return flag equal 0 for success and -1 for failure.
+{\warn}NOTE: If the header file \id{sundials\_config.h} defines
+\id{SUNDIALS\_MPI\_COMM\_F2C} to be $1$ (meaning the {\mpi}
+implementation used to build {\sundials} includes the
+\id{MPI\_Comm\_f2c} function), then \id{COMM} can be any valid
+{\mpi} communicator. Otherwise, \id{MPI\_COMM\_WORLD} will be used, so
+just pass an integer value as a placeholder.
