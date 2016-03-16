@@ -120,6 +120,13 @@ $tar $tarfile $distrobase/examples/arkode/C_parallel/ark_diurnal_kry_bbd_p.out
 $tar $tarfile $distrobase/examples/arkode/C_parallel/ark_diurnal_kry_p.c
 $tar $tarfile $distrobase/examples/arkode/C_parallel/ark_diurnal_kry_p.out
 
+$tar $tarfile $distrobase/examples/arkode/C_parhyp/CMakeLists.txt
+$tar $tarfile $distrobase/examples/arkode/C_parhyp/README
+$tar $tarfile $distrobase/examples/arkode/C_parhyp/ark_diurnal_kry_bbd_ph.c
+$tar $tarfile $distrobase/examples/arkode/C_parhyp/ark_diurnal_kry_bbd_ph.out
+$tar $tarfile $distrobase/examples/arkode/C_parhyp/ark_diurnal_kry_ph.c
+$tar $tarfile $distrobase/examples/arkode/C_parhyp/ark_diurnal_kry_ph.out
+
 $tar $tarfile $distrobase/examples/arkode/C_serial/CMakeLists.txt
 $tar $tarfile $distrobase/examples/arkode/C_serial/README
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic.c

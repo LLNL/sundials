@@ -20,6 +20,7 @@ $tar $tarfile $distrobase/config/SundialsAddTest.cmake
 $tar $tarfile $distrobase/config/SundialsFortran.cmake
 $tar $tarfile $distrobase/config/SundialsFortran90.cmake
 $tar $tarfile $distrobase/config/SundialsCXX.cmake
+$tar $tarfile $distrobase/config/SundialsHypre.cmake
 $tar $tarfile $distrobase/config/SundialsLapack.cmake
 $tar $tarfile $distrobase/config/SundialsKLU.cmake
 $tar $tarfile $distrobase/config/SundialsSuperLUMT.cmake
@@ -29,6 +30,7 @@ $tar $tarfile $distrobase/config/SundialsMPICXX.cmake
 $tar $tarfile $distrobase/config/SundialsMPIF.cmake
 $tar $tarfile $distrobase/config/SundialsMPIF90.cmake
 $tar $tarfile $distrobase/config/FindMPI.cmake
+$tar $tarfile $distrobase/config/FindHypre.cmake
 $tar $tarfile $distrobase/config/FindKLU.cmake
 $tar $tarfile $distrobase/config/FindSUPERLUMT.cmake
 $tar $tarfile $distrobase/config/FindKLU.cmake
@@ -61,6 +63,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_superlumt_impl.h
 
 $tar $tarfile $distrobase/include/nvector/nvector_serial.h
 $tar $tarfile $distrobase/include/nvector/nvector_parallel.h
+$tar $tarfile $distrobase/include/nvector/nvector_parhyp.h
 $tar $tarfile $distrobase/include/nvector/nvector_pthreads.h
 $tar $tarfile $distrobase/include/nvector/nvector_openmp.h
 
@@ -126,6 +129,8 @@ $tar $tarfile $distrobase/examples/nvector/serial/test_nvector_serial.c
 $tar $tarfile $distrobase/examples/nvector/serial/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/parallel/test_nvector_mpi.c
 $tar $tarfile $distrobase/examples/nvector/parallel/CMakeLists.txt
+$tar $tarfile $distrobase/examples/nvector/parhyp/test_nvector_parhyp.c
+$tar $tarfile $distrobase/examples/nvector/parhyp/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/openmp/test_nvector_openmp.c
 $tar $tarfile $distrobase/examples/nvector/openmp/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/pthreads/test_nvector_pthreads.c
@@ -138,6 +143,7 @@ echo "   --- Add directory with example Makefile templates to $tarfile"
 $tar $tarfile $distrobase/examples/templates/cmakelists_parallel_C_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_parallel_F77_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_parallel_CXX_ex.in
+$tar $tarfile $distrobase/examples/templates/cmakelists_parhyp_C_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_C_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_F77_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_CXX_ex.in
@@ -150,6 +156,7 @@ $tar $tarfile $distrobase/examples/templates/cmakelists_parallel_F90_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_C_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_F77_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_CXX_ex.in
+$tar $tarfile $distrobase/examples/templates/makefile_parhyp_C_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_serial_C_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_serial_F77_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_serial_CXX_ex.in

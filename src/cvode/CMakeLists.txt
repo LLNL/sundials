@@ -51,9 +51,9 @@ IF(SUPERLUMT_FOUND)
     LIST(APPEND cvode_SOURCES cvode_superlumt.c)
 ENDIF()
 
-IF(HYPRE_FOUND)
-     LIST(APPEND cvode_SOURCES cvode_hypamgpre.c)
-ENDIF()
+# IF(HYPRE_FOUND)
+#      LIST(APPEND cvode_SOURCES cvode_hypamgpre.c)
+# ENDIF()
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the CVODE library
