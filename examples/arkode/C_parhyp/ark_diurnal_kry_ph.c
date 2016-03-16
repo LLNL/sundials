@@ -68,6 +68,8 @@
 #include <sundials/sundials_math.h>    /* definition of macros SUNSQR and EXP */
 #include <mpi.h>                       /* MPI constants and types */
 
+#include <HYPRE.h>
+
 /* Problem Constants */
 #define NVARS        2                    /* number of species         */
 #define KH           RCONST(4.0e-6)       /* horizontal diffusivity Kh */
@@ -141,7 +143,8 @@ typedef struct {
 /* Private Helper Functions */
 static void InitUserData(int my_pe, MPI_Comm comm, UserData data);
 static void FreeUserData(UserData data);
-static void SetInitialProfiles(N_Vector u, UserData data);
+static void SetInitialProfiles(HYPRE_IJVector Uij, UserData data, long int local_length, 
+                               long int my_base);
 static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t);
 static void PrintFinalStats(void *arkode_mem);
@@ -185,17 +188,18 @@ int main(int argc, char *argv[])
   UserData data;
   void *arkode_mem;
   int iout, flag, my_pe, npes;
-  long int neq, local_N;
+  long int local_N;
   MPI_Comm comm;
-  HYPRE_Int *partitioning;
-  HYPRE_ParVector Uhyp;    /* Instantiate hypre parallel vector */
+
+  HYPRE_ParVector Upar; /* Instantiate hypre parallel vector */
+  HYPRE_IJVector  Uij;  /* Instantiate "IJ" interface to hypre vector */
 
   u = NULL;
   data = NULL;
   arkode_mem = NULL;
 
   /* Set problem size neq */
-  neq = NVARS*MX*MY;
+  /* neq = NVARS*MX*MY;   */
 
   /* Get processor number and total number of pe's */
   MPI_Init(&argc, &argv);
@@ -215,30 +219,24 @@ int main(int argc, char *argv[])
   local_N = NVARS*MXSUB*MYSUB;
 
   /* Allocate hypre vector */
-  if(HYPRE_AssumedPartitionCheck()) {
-    partitioning = (HYPRE_Int*) malloc(2 * sizeof(HYPRE_Int));
-    partitioning[0] = my_pe*local_N;
-    partitioning[1] = (my_pe + 1)*local_N;
-  } else {
-    partitioning = (HYPRE_Int*) malloc((npes + 1) * sizeof(HYPRE_Int));
-    if (my_pe == 0) {
-      fprintf(stderr, "Using global partition.\n");
-      fprintf(stderr, "I don't do this stuff. Now exiting...\n");
-      return -1;
-    }
-  }
-  HYPRE_ParVectorCreate(comm, neq, partitioning, &Uhyp);
-  HYPRE_ParVectorInitialize(Uhyp);
+  HYPRE_IJVectorCreate(comm, my_pe*local_N, (my_pe + 1)*local_N - 1, &Uij);
+  HYPRE_IJVectorSetObjectType(Uij, HYPRE_PARCSR);
+  HYPRE_IJVectorInitialize(Uij);
 
   /* Allocate and load user data block; allocate preconditioner block */
   data = (UserData) malloc(sizeof *data);
   if (check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   InitUserData(my_pe, comm, data);
 
-  /* Allocate u, and set initial values and tolerances */ 
-  u = N_VMake_ParHyp(Uhyp);  /* Create wrapper u around hypre vector */
+  /* Set initial values and allocate u */ 
+  SetInitialProfiles(Uij, data, local_N, my_pe*local_N);
+  HYPRE_IJVectorAssemble(Uij);
+  HYPRE_IJVectorGetObject(Uij, (void**) &Upar);
+
+  u = N_VMake_ParHyp(Upar);  /* Create wrapper u around hypre vector */
   if (check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
-  SetInitialProfiles(u, data);
+
+  /* Set tolerances */
   abstol = ATOL; reltol = RTOL;
 
   /* Call ARKodeCreate to create the solver memory */
@@ -288,8 +286,8 @@ int main(int argc, char *argv[])
   if (my_pe == 0) PrintFinalStats(arkode_mem);
 
   /* Free memory */
-  N_VDestroy_ParHyp(u);          /* Free the u vector wrapper */
-  HYPRE_ParVectorDestroy(Uhyp);  /* Free the underlying hypre vector */
+  N_VDestroy(u);              /* Free hypre vector wrapper */
+  HYPRE_IJVectorDestroy(Uij); /* Free the underlying hypre vector */
   FreeUserData(data);
   ARKodeFree(&arkode_mem);
   MPI_Finalize();
@@ -351,15 +349,19 @@ static void FreeUserData(UserData data)
 }
 
 /* Set initial conditions in u */
-static void SetInitialProfiles(N_Vector u, UserData data)
+static void SetInitialProfiles(HYPRE_IJVector Uij, UserData data, long int local_length, 
+                               long int my_base)
 {
   int isubx, isuby, lx, ly, jx, jy;
   long int offset;
   realtype dx, dy, x, y, cx, cy, xmid, ymid;
   realtype *udata;
+  HYPRE_Int *iglobal;
 
   /* Set pointer to data array in vector u */
-  udata = NV_DATA_PH(u);
+  udata   = (realtype*) malloc(local_length*sizeof(realtype));
+  iglobal = (HYPRE_Int*) malloc(local_length*sizeof(HYPRE_Int));
+  
 
   /* Get mesh spacings, and subgrid indices for this PE */
   dx = data->dx;         dy = data->dy;
@@ -381,11 +383,15 @@ static void SetInitialProfiles(N_Vector u, UserData data)
       x = XMIN + jx*dx;
       cx = SUNSQR(RCONST(0.1)*(x - xmid));
       cx = RCONST(1.0) - cx + RCONST(0.5)*SUNSQR(cx);
-      udata[offset  ] = C1_SCALE*cx*cy; 
-      udata[offset+1] = C2_SCALE*cx*cy;
-      offset = offset + 2;
+      iglobal[offset] = my_base + offset;
+      udata[offset++] = C1_SCALE*cx*cy; 
+      iglobal[offset] = my_base + offset;
+      udata[offset++] = C2_SCALE*cx*cy;
     }
   }
+  HYPRE_IJVectorSetValues(Uij, local_length, iglobal, udata);
+  free(iglobal);
+  free(udata);
 }
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */

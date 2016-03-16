@@ -28,8 +28,9 @@
  * Output is printed at t = .5, 1.0, ..., 5.
  * Run statistics (optional outputs) are printed at the end.
  *
- * This example uses Hypre vector and MPI parallelization. User is 
- * expected to be familiar with the Hypre library. 
+ * This example uses Hypre vector with "IJ" interface and MPI 
+ * parallelization. User is expected to be familiar with the Hypre 
+ * library. 
  * 
  * Execute with Number of Processors = N,  with 1 <= N <= MX.
  * -----------------------------------------------------------------
@@ -43,6 +44,8 @@
 #include <sundials/sundials_types.h>  /* definition of realtype */
 #include <sundials/sundials_math.h>   /* definition of EXP */
 #include <nvector/nvector_parhyp.h>   /* nvector implementation */
+
+#include <HYPRE.h>
 
 #include <mpi.h>                      /* MPI constants and types */
 
@@ -71,7 +74,7 @@ typedef struct {
 
 /* Private Helper Functions */
 
-static void SetIC(N_Vector u, realtype dx, long int my_length,
+static void SetIC(HYPRE_IJVector Uij, realtype dx, long int my_length,
                   long int my_base);
 
 static void PrintIntro(int npes);
@@ -97,9 +100,10 @@ int main(int argc, char *argv[])
   UserData data;
   void *cvode_mem;
   int iout, flag, my_pe, npes;
-  long int local_N, nperpe, nrem, my_base, nst;
-  HYPRE_Int *partitioning;
-  HYPRE_ParVector Uhyp; /* Instantiate hypre parallel vector */
+  long int nst;
+  HYPRE_Int local_N, nperpe, nrem, my_base;
+  HYPRE_ParVector Upar; /* Instantiate hypre parallel vector */
+  HYPRE_IJVector  Uij;  /* Instantiate "IJ" interface to hypre vector */
 
   MPI_Comm comm;
 
@@ -113,38 +117,24 @@ int main(int argc, char *argv[])
   MPI_Comm_size(comm, &npes);
   MPI_Comm_rank(comm, &my_pe);
 
-  /* Set local vector length. */
+  /* Set partitioning. */
   nperpe = NEQ/npes;
   nrem = NEQ - npes*nperpe;
   local_N = (my_pe < nrem) ? nperpe+1 : nperpe;
   my_base = (my_pe < nrem) ? my_pe*local_N : my_pe*nperpe + nrem;
-
+  
   /* Allocate hypre vector */
-  if(HYPRE_AssumedPartitionCheck()) {
-    partitioning = (HYPRE_Int*) malloc(2 * sizeof(HYPRE_Int));
-    partitioning[0] = my_base;
-    partitioning[1] = my_base + local_N;
-  } else {
-    partitioning = (HYPRE_Int*) malloc((npes + 1) * sizeof(HYPRE_Int));
-    if (my_pe == 0) {
-      fprintf(stderr, "Using global partition.\n");
-      fprintf(stderr, "I don't do this stuff. Now exiting...\n");
-      return -1;
-    }
-  }
-  HYPRE_ParVectorCreate(comm, NEQ, partitioning, &Uhyp);
-  HYPRE_ParVectorInitialize(Uhyp);
+  HYPRE_IJVectorCreate(comm, my_base, my_base + local_N - 1, &Uij);
+  HYPRE_IJVectorSetObjectType(Uij, HYPRE_PARCSR);
+  HYPRE_IJVectorInitialize(Uij);
 
+  /* Allocate user defined data */
   data = (UserData) malloc(sizeof *data);  /* Allocate data memory */
   if(check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
 
   data->comm = comm;
   data->npes = npes;
   data->my_pe = my_pe;
-
-//  u = N_VNew_ParHyp(comm, local_N, NEQ);  /* Allocate u vector */
-  u = N_VMake_ParHyp(Uhyp);  /* Create wrapper u around hypre vector */
-  if(check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
 
   reltol = ZERO;  /* Set the tolerances */
   abstol = ATOL;
@@ -153,8 +143,14 @@ int main(int argc, char *argv[])
   data->hdcoef = RCONST(1.0)/(dx*dx);
   data->hacoef = RCONST(0.5)/(RCONST(2.0)*dx);
 
-  SetIC(u, dx, local_N, my_base);  /* Initialize u vector */
+  /* Initialize solutin vector. */
+  SetIC(Uij, dx, local_N, my_base);
+  HYPRE_IJVectorAssemble(Uij);
+  HYPRE_IJVectorGetObject(Uij, (void**) &Upar);
 
+  u = N_VMake_ParHyp(Upar);  /* Create wrapper u around hypre vector */
+  if(check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
+  
   /* Call CVodeCreate to create the solver memory and specify the 
    * Adams-Moulton LMM and the use of a functional iteration */
   cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
@@ -197,10 +193,10 @@ int main(int argc, char *argv[])
   if (my_pe == 0) 
     PrintFinalStats(cvode_mem);  /* Print some final statistics */
 
-  N_VDestroy_ParHyp(u);          /* Free the u vector wrapper */
-  HYPRE_ParVectorDestroy(Uhyp);  /* Free the underlying hypre vector */
-  CVodeFree(&cvode_mem);         /* Free the integrator memory */
-  free(data);                    /* Free user data */
+  N_VDestroy(u);              /* Free hypre vector wrapper */
+  HYPRE_IJVectorDestroy(Uij); /* Free the underlying hypre vector */
+  CVodeFree(&cvode_mem);      /* Free the integrator memory */
+  free(data);                 /* Free user data */
 
   MPI_Finalize();
 
@@ -211,24 +207,27 @@ int main(int argc, char *argv[])
 
 /* Set initial conditions in u vector */
 
-static void SetIC(N_Vector u, realtype dx, long int my_length,
-                  long int my_base)
+static void SetIC(HYPRE_IJVector Uij, realtype dx, long int my_length,
+                       long int my_base)
 {
   int i;
-  long int iglobal;
+  HYPRE_Int *iglobal;
   realtype x;
   realtype *udata;
 
   /* Set pointer to data array and get local length of u. */
-  udata = NV_DATA_PH(u);
-  my_length = NV_LOCLENGTH_PH(u);
+  udata   = (realtype*) malloc(my_length*sizeof(realtype));
+  iglobal = (HYPRE_Int*) malloc(my_length*sizeof(HYPRE_Int));
 
   /* Load initial profile into u vector */
-  for (i=1; i<=my_length; i++) {
-    iglobal = my_base + i;
-    x = iglobal*dx;
-    udata[i-1] = x*(XMAX - x)*SUNRexp(RCONST(2.0)*x);
-  }  
+  for (i = 0; i < my_length; i++) {
+    iglobal[i] = my_base + i;
+    x = (iglobal[i] + 1)*dx;
+    udata[i] = x*(XMAX - x)*SUNRexp(RCONST(2.0)*x);
+  }
+  HYPRE_IJVectorSetValues(Uij, my_length, iglobal, udata);
+  free(iglobal);
+  free(udata);
 }
 
 /* Print problem introduction */
@@ -315,23 +314,25 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   last_pe = npes - 1;
 
   /* Store local segment of u in the working array z. */
-   for (i = 1; i <= my_length; i++)
-     z[i] = udata[i - 1];
+  for (i = 1; i <= my_length; i++)
+    z[i] = udata[i - 1];
 
   /* Pass needed data to processes before and after current process. */
-   if (my_pe != 0)
-     MPI_Send(&z[1], 1, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm);
-   if (my_pe != last_pe)
-     MPI_Send(&z[my_length], 1, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm);   
+  if (my_pe != 0)
+    MPI_Send(&z[1], 1, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm);
+  if (my_pe != last_pe)
+    MPI_Send(&z[my_length], 1, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm);   
 
   /* Receive needed data from processes before and after current process. */
-   if (my_pe != 0)
-     MPI_Recv(&z[0], 1, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm, &status);
-   else z[0] = ZERO;
-   if (my_pe != last_pe)
-     MPI_Recv(&z[my_length+1], 1, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm,
-              &status);   
-   else z[my_length + 1] = ZERO;
+  if (my_pe != 0)
+    MPI_Recv(&z[0], 1, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm, &status);
+  else 
+    z[0] = ZERO;
+  if (my_pe != last_pe)
+    MPI_Recv(&z[my_length+1], 1, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm,
+             &status);   
+  else 
+    z[my_length + 1] = ZERO;
 
   /* Loop over all grid points in current process. */
   for (i=1; i<=my_length; i++) {
