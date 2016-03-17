@@ -18,7 +18,9 @@ struct _N_VectorContent_petsc {
 \end{verbatim}
 %%
 %%--------------------------------------------
-%%
+
+The header file to be included when using this module is \id{nvector\_petsc.h}.
+
 Note that the PETSc vector wrapper requires {\sundials} to be built with {\mpi} support.
 The following six macros are provided to access the content of a {\nvecpetsc}
 vector. The suffix \id{\_PTC} in the names denotes the PETSc wrapper 
@@ -90,8 +92,8 @@ version.
 The {\nvecpetsc} module defines implementations of all vector operations listed 
 in Table \ref{t:nvecops}, except for \verb|N_VGetArrayPointer| and 
 \verb|N_VSetArrayPointer|. The names of vector operations are obtained from those in 
-Table \ref{t:nvecops} by appending the suffix \id{\_petsc}. The module {\nvecpetsc} 
-provides the following additional user-callable routines:
+Table \ref{t:nvecops} by appending the suffix \id{\_petsc} (e.g. \id{N\_VDestroy\_petsc}).
+The module {\nvecpetsc}  provides the following additional user-callable routines:
 %%
 %%
 \begin{itemize}
