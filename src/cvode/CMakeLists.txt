@@ -97,9 +97,9 @@ IF(SUPERLUMT_FOUND)
     LIST(APPEND cvode_HEADERS cvode_superlumt.h)
 ENDIF()
 
-IF(HYPRE_FOUND)
-     LIST(APPEND cvode_HEADERS cvode_hypamgpre.h)
-ENDIF()
+# IF(HYPRE_FOUND)
+#      LIST(APPEND cvode_HEADERS cvode_hypamgpre.h)
+# ENDIF()
 
 # Add prefix with complete path to the CVODE header files
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/cvode/ cvode_HEADERS)
