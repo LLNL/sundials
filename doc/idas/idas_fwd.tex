@@ -140,37 +140,26 @@ sensitivity analysis} \begin{Steps}
 \item
   {\bf Set sensitivity initial conditions}
 
-  To set the sensitivities vectors \id{yS0} and \id{ypS0} to initial values,
-  use functions defined by a particular {\nvector} implementation. 
+  Set the \id{Ns} vectors \id{yS0[i]} and \id{ypS0[i]} of initial values
+  for sensitivities (for $i=0,\ldots,$ \id{Ns} $ - 1$), using the
+  appropriate functions defined by the particular {\nvector} implementation chosen.
 
-  For sensitivity vectors \id{yS0}, set the \id{Ns} $N-$vectors 
-  \id{yS0[i]} of initial values for sensitivities (for $i=0,\ldots,$\id{Ns}$-1$). 
-
-  First, create an array of \id{Ns} vectors by making the call
+  First, create an array of \id{Ns} vectors by making the appropriate call
 
   \id{yS0 = N\_VCloneVectorArray\_***(Ns, y0);}
 
-  (Here the argument \id{y0} serves only to provide the \id{N\_Vector} type
-  for cloning.)  Then, for each $i=0,\ldots,$\id{Ns}$-1$, load initial values
-  for the $i$-th sensitivity vector into the structure defined by:
-
-  \id{NV\_DATA\_***(yS0[i])}
-
-  Alternatively, if the initial values for the sensitivity variables are already
-  available in \id{realtype} arrays, create an array of \id{Ns} ``empty'' vectors
-  by making the call
+  or
 
   \id{yS0 = N\_VCloneVectorArrayEmpty\_***(Ns, y0);}
 
-  and then attach the \id{realtype} array \id{yS0\_i} containing the initial values
-  of the $i$-th sensitivity vector using
+  Here the argument \id{y0} serves only to provide the \id{N\_Vector}
+  type for cloning.
 
-  \id{N\_VSetArrayPointer\_***(yS0\_i, yS0[i]);}
+  Then, for each $i = 0,\ldots, $\id{Ns} $ - 1$, load initial values
+  for the $i$-th sensitivity vector \id{yS0[i]}.
 
-  for $i = 0,\cdots$ \id{Ns} $-1$.
-
-  The initial conditions for the \id{Ns} sensitivity derivative vectors \id{ypS0}
-  of $\dot{y}$ are set similarly.
+  Set the initial conditions for the \id{Ns} sensitivity derivative vectors \id{ypS0}
+  of $\dot{y}$ similarly.
 
 \item
   {\bf Activate sensitivity calculations}
