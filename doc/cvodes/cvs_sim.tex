@@ -88,25 +88,9 @@ Note that \id{cvodes.h} includes \Id{sundials\_types.h},
 which defines the types \id{realtype} and \id{booleantype}
 and the constants \id{FALSE} and \id{TRUE}.
 
-The calling program must also include an {\nvector} implementation header file
-(see Chapter \ref{s:nvector} for details).
-For the {\nvector} implementations that are included in the {\cvodes} package,
-the corresponding header files are:
-%%
-\begin{itemize}
-\item \Id{nvector\_serial.h}, 
-  which defines the serial implementation {\nvecs};
-\item \Id{nvector\_openmp.h},
-  which defines the shared memory parallel openMP implementation,{\nvecopenmp};
-\item \Id{nvector\_pthreads.h},
-  which defines the shared memory parallel Pthreads implementation, {\nvecpthreads};
-\item \Id{nvector\_parallel.h}, 
-  which defines the parallel ({\mpi}) implementation, {\nvecp};
-\item \Id{nvector\_parhyp.h}, 
-  which defines the ParHyp implementation, {\nvecph}.
-\end{itemize}
-%%
-Note that all of these files in turn include the header file \Id{sundials\_nvector.h}
+The calling program must also include an {\nvector} implementation header file,
+of the form \id{nvector\_***.h}.  See Chapter \ref{s:nvector} for the appropriate
+name.  This file in turn includes the header file \Id{sundials\_nvector.h}
 which defines the abstract \Id{N\_Vector} data type. 
 
 Finally, if the user chooses Newton iteration for the solution of the nonlinear
@@ -201,17 +185,15 @@ function to be called or macro to be referenced.
   {\bf Set vector of initial values}
  
   To set the vector \id{y0} of initial values, use the appropriate
-  functions defined by the particular {\nvector} implementation.  If a
-  \id{realtype} array \id{ydata} containing the initial values of $y$
-  already exists, then make the appropriate call
+  functions defined by the particular {\nvector} implementation.
 
+  If a \id{realtype} array \id{ydata} containing the initial values of $y$
+  already exists, it may be possible to do this either with a call of the form
   \id{y0 = N\_VMake\_***(..., ydata);}
-
-  Otherwise, make the appropriate call
-
+  or by making a call of the form
   \id{y0 = N\_VNew\_***(...);}
-
-  and load initial values into the structure defined by \id{NV\_DATA\_***(y0)}.
+  and loading values into the structure defined by \id{NV\_DATA\_***(y0)},
+  provided these functions and macro exist for the {\nvector} module chosen.
 
 \item\label{i:cvode_create} 
   {\bf Create {\cvodes} object}

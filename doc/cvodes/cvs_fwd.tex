@@ -143,33 +143,23 @@ forward sensitivity analysis beyond those for IVP solution
   {\bf Set sensitivity initial conditions}
 
   Set the \id{Ns} vectors \id{yS0[i]} of initial values
-  for sensitivities (for $i=0,\ldots,$ \id{Ns} $ - 1$). 
+  for sensitivities (for $i=0,\ldots,$ \id{Ns} $ - 1$), using the
+  appropriate functions defined by the particular {\nvector} implementation chosen.
 
   First, create an array of \id{Ns} vectors by making the appropriate call
 
   \id{yS0 = N\_VCloneVectorArray\_***(Ns, y0);}
 
-   Here the argument \id{y0} serves only to provide the \id{N\_Vector}
-   type for cloning.
-
-  Then, for each $i = 0,\ldots, $\id{Ns} $ - 1$, load initial values
-  for the $i$-th sensitivity vector into the structure defined by:
-
-  \id{NV\_DATA\_***(yS0[i])}
-
-  Alternatively, if the initial values for the sensitivity variables
-  are already available in \id{realtype} arrays, create an array of
-  \id{Ns} ``empty'' vectors by making the appropriate call
+  or
 
   \id{yS0 = N\_VCloneVectorArrayEmpty\_***(Ns, y0);}
 
-  and then attach the \id{realtype} array \id{yS0[i]} containing the initial
-  values of the $i$-th sensitivity vector using the appropriate function
+  Here the argument \id{y0} serves only to provide the \id{N\_Vector}
+  type for cloning.
 
-  \id{N\_VSetArrayPointer\_***(yS0\_i, yS0[i]);}
-  
-  for $i = 0,\ldots, $\id{Ns} $- 1$.
-  
+  Then, for each $i = 0,\ldots, $\id{Ns} $ - 1$, load initial values
+  for the $i$-th sensitivity vector \id{yS0[i]}.
+
 \item
   {\bf Activate sensitivity calculations}
 
