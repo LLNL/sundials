@@ -83,26 +83,10 @@ and data types can be used. The header file that is always required is:
 which defines the types \id{realtype} and \id{booleantype}
 and constants \id{FALSE} and \id{TRUE}.
 
-The calling program must also include an {\nvector} implementation header file
-(see Chapter \ref{s:nvector} for details).
-For the {\nvector} implementations that are included in the {\kinsol} package,
-the corresponding header files are:
-%
-\begin{itemize}
-\item \Id{nvector\_serial.h}, 
-  which defines the serial implementation, {\nvecs};
-\item \Id{nvector\_parallel.h}, 
-  which defines the parallel {\mpi} implementation, {\nvecp};
-\item \Id{nvector\_openmp.h},
-  which defines the shared memory parallel openMP implementation;
-\item \Id{nvector\_pthreads.h},
-  which defines the shared memory parallel Pthreads implementation;
-\item \Id{nvector\_parhyp.h}, 
-  which defines the ParHyp implementation, {\nvecph}.
-\end{itemize}
-%
-Note that all of these files include in turn the header file \Id{sundials\_nvector.h},
-which defines the abstract \Id{N\_Vector} type.
+The calling program must also include an {\nvector} implementation header file,
+of the form \id{nvector\_***.h}.  See Chapter \ref{s:nvector} for the appropriate
+name.  This file in turn includes the header file \Id{sundials\_nvector.h}
+which defines the abstract \Id{N\_Vector} data type.
 
 Finally, a linear solver module header file is required. 
 \index{KINSOL@{\kinsol} linear solvers!header files}
@@ -197,19 +181,17 @@ specific name of the function to be called or macro to be referenced.
   {\bf Set vector with initial guess}
 
   To set the vector \id{u} of initial guess values, use the appropriate
-  functions defined by the particular {\nvector} implementation.  If a
-  \id{realtype} array \id{udata} containing the initial guess $u_0$
-  already exists, then make the appropriate call
+  functions defined by the particular {\nvector} implementation.
 
+  If a \id{realtype} array \id{udata} containing the initial values of $u$
+  already exists, it may be possible to do this either with a call of the form
   \id{u = N\_VMake\_***(..., udata);}
-
-  Otherwise, make the appropriate call
-
+  or by making a call of the form
   \id{u = N\_VNew\_***(...);}
+  and loading values into the structure defined by \id{NV\_DATA\_***(u)},
+  provided these functions and macro exist for the {\nvector} module chosen.
 
-  and load initial guess values into the structure defined by \id{NV\_DATA\_***(u)}.
-
-\item\label{i:kinsol_create} 
+  \item\label{i:kinsol_create} 
   {\bf Create {\kinsol} object}
 
   Call \id{kin\_mem = KINCreate()} to create the {\kinsol} memory block.
