@@ -27,12 +27,12 @@ are as follows:
   \begin{itemize}
   \item \id{FNVINITS} (defined by {\nvecs}) 
     interfaces to \id{N\_VNewEmpty\_Serial}.
+  \item \id{FNVINITP} (defined by {\nvecp}) 
+    interfaces to \id{N\_VNewEmpty\_Parallel}.
   \item \id{FNVINITOMP} (defined by {\nvecopenmp}) 
     interfaces to \id{N\_VNewEmpty\_OpenMP}.
   \item \id{FNVINITPTS} (defined by {\nvecpthreads}) 
     interfaces to \id{N\_VNewEmpty\_Pthreads}.
-  \item \id{FNVINITP} (defined by {\nvecp}) 
-    interfaces to \id{N\_VNewEmpty\_Parallel}.
   \item \id{FNVINITPH} (defined by {\nvecph}) 
     interfaces to \id{N\_VNewEmpty\_ParHyp}.
   \end{itemize}
@@ -172,7 +172,6 @@ preconditioner modules, are each described in later sections.
 
   If using one of the {\nvector} modules supplied with {\sundials},
   the user must make a call of the form
-
 \begin{verbatim}
       CALL FNVINIT***(...)
 \end{verbatim}
