@@ -348,31 +348,38 @@ The methods used in ARKode are variable-step, embedded,
 \index{additive Runge-Kutta methods}additive Runge-Kutta methods (ARK), based on formulas of the
 form
 \phantomsection\label{Mathematics:equation-ARK}\begin{gather}
-\begin{split}M z_i &= M y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f_E(t_{n,j}, z_j)
-              + h_n \sum_{j=1}^{i}   A^I_{i,j} f_I(t_{n,j}, z_j),
+\begin{split}M z_i &= M y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f_E(t^E_{n,j}, z_j)
+              + h_n \sum_{j=1}^{i}   A^I_{i,j} f_I(t^I_{n,j}, z_j),
 \quad i=1,\ldots,s, \\
-M y_n &= M y_{n-1} + h_n \sum_{i=1}^{s} b_i \left(f_E(t_{n,i}, z_i)
-              + f_I(t_{n,i}, z_i)\right), \\
-M \tilde{y}_n &= M y_{n-1} + h_n \sum_{i=1}^{s} \tilde{b}_i
-    \left(f_E(t_{n,i}, z_i) + f_I(t_{n,i}, z_i)\right).\end{split}\label{Mathematics-ARK}
+M y_n &= M y_{n-1} + h_n \sum_{i=1}^{s} \left(b^E_i f_E(t^E_{n,i}, z_i)
+              + b^I_i f_I(t^I_{n,i}, z_i)\right), \\
+M \tilde{y}_n &= M y_{n-1} + h_n \sum_{i=1}^{s} \left(
+               \tilde{b}^E_i f_E(t^E_{n,i}, z_i) +
+               \tilde{b}^I_i f_I(t^I_{n,i}, z_i)\right).\end{split}\label{Mathematics-ARK}
 \end{gather}
 Here the \(y_n\) are computed approximations to \(y(t_n)\),
 \(\tilde{y}_n\) are {[}typically{]} lower-order embedded solutions
 (used in error estimation), and \(h_n \equiv t_n - t_{n-1}\) is
 the step size. The internal stage times are abbreviated using the
-notation \(t_{n,j} = t_{n-1} + c_j h_n\).  The ARK method is
-primarily defined through the coefficients \(A^E \in
-\mathbb{R}^{s\times s}\), \(A^I \in \mathbb{R}^{s\times s}\),
-\(b \in \mathbb{R}^{s}\) and \(c \in \mathbb{R}^{s}\), that
-correspond with the explicit and implicit Butcher tables.  We note
-that ARKode enforces the constraint that these tables must share
-\(b\) and \(c\) between the explicit and implicit methods in
-an ARK pair.
+notation \(t^E_{n,j} = t_{n-1} + c^E_j h_n\) and \(t^I_{n,j}
+= t_{n-1} + c^I_j h_n\).  The ARK method is primarily defined through
+the coefficients \(A^E \in \mathbb{R}^{s\times s}\),
+\(A^I \in \mathbb{R}^{s\times s}\), \(b^E \in \mathbb{R}^{s}\),
+\(b^I \in \mathbb{R}^{s}\), \(c^E \in \mathbb{R}^{s}\) and
+\(c^I \in \mathbb{R}^{s}\), that correspond with the explicit and
+implicit Butcher tables.  Additional coefficients
+\(\tilde{b}^E \in \mathbb{R}^{s}\) and
+\(\tilde{b}^I \in \mathbb{R}^{s}\) may be used to enable an
+\emph{embedded solution} that is used to estimate error for adaptive
+time-stepping.  We note that ARKode currently enforces the constraint
+that these tables must share the same number of stages \(s\)
+between the explicit and implicit methods in an ARK pair.
 
 The user of ARKode must choose appropriately between one of three
 classes of methods: \emph{multi-rate}, \emph{nonstiff} and \emph{stiff}.  All of
-ARKode's available Butcher tables encoding the coefficients \(c\),
-\(A^E\), \(A^I\), \(b\) and \(\tilde{b}\) are further
+ARKode's available Butcher tables encoding the coefficients
+\(c^E\), \(c^I\), \(A^E\), \(A^I\), \(b^E\),
+\(b^I\), \(\tilde{b}^E\) and \(\tilde{b}^I\) are further
 described in the {\hyperref[Butcher:butcher]{\emph{\DUspan{}{Appendix: Butcher tables}}}}.
 
 For multi-rate problems, a user should provide both of the functions
@@ -387,11 +394,11 @@ i.e. the equation \eqref{Mathematics-IVP} reduces to the non-split IVP
 \phantomsection\label{Mathematics:equation-IVP_explicit}\begin{gather}
 \begin{split}M\dot{y} = f_E(t,y), \qquad y(t_0) = y_0.\end{split}\label{Mathematics-IVP_explicit}
 \end{gather}
-In this scenario, the Butcher table \(A^I=0\) in \eqref{Mathematics-ARK}, and
-the ARK methods reduce to classical \index{explicit Runge-Kutta
-methods}explicit Runge-Kutta
-methods (ERK).  For these classes of methods, ARKode allows orders of
-accuracy \(q = \{2,3,4,5,6,8\}\), with embeddings of orders \(p
+In this scenario, the coefficients \(A^I=0\), \(c^I=0\),
+\(b^I=0\) and \(\tilde{b}^I=0\) in \eqref{Mathematics-ARK}, and the ARK
+methods reduce to classical \index{explicit Runge-Kutta methods}explicit Runge-Kutta methods
+(ERK).  For these classes of methods, ARKode allows orders of accuracy
+\(q = \{2,3,4,5,6,8\}\), with embeddings of orders \(p
 = \{1,2,3,4,5,7\}\).  These default to the {\hyperref[Butcher:butcher-heun-euler]{\emph{\DUspan{}{Heun-Euler-2-1-2}}}},
 {\hyperref[Butcher:butcher-bogacki-shampine]{\emph{\DUspan{}{Bogacki-Shampine-4-2-3}}}}, {\hyperref[Butcher:butcher-zonneveld]{\emph{\DUspan{}{Zonneveld-5-3-4}}}},
 {\hyperref[Butcher:butcher-cash-karp]{\emph{\DUspan{}{Cash-Karp-6-4-5}}}}, {\hyperref[Butcher:butcher-verner-6-5]{\emph{\DUspan{}{Verner-8-5-6}}}} and
@@ -402,8 +409,9 @@ so the equation \eqref{Mathematics-IVP} reduces to the non-split IVP
 \phantomsection\label{Mathematics:equation-IVP_implicit}\begin{gather}
 \begin{split}M\dot{y} = f_I(t,y), \qquad y(t_0) = y_0.\end{split}\label{Mathematics-IVP_implicit}
 \end{gather}
-Similarly to ERK methods, in this scenario the Butcher table
-\(A^E=0\) in \eqref{Mathematics-ARK}, and the ARK methods reduce to classical
+Similarly to ERK methods, in this scenario the coefficients
+\(A^E=0\), \(c^E=0\), \(b^E=0\) and \(\tilde{b}^E=0\)
+in \eqref{Mathematics-ARK}, and the ARK methods reduce to classical
 \index{diagonally-implicit Runge-Kutta methods}diagonally-implicit Runge-Kutta methods (DIRK).  For these
 classes of methods, ARKode allows orders of accuracy \(q =
 \{2,3,4,5\}\), with embeddings of orders \(p = \{1,2,3,4\}\).
@@ -417,19 +425,19 @@ These default to the {\hyperref[Butcher:butcher-sdirk-2-1]{\emph{\DUspan{}{SDIRK
 For both the DIRK and ARK methods corresponding to \eqref{Mathematics-IVP} and
 \eqref{Mathematics-IVP_implicit}, an implicit system
 \phantomsection\label{Mathematics:equation-Residual}\begin{gather}
-\begin{split}G(z_i) \equiv M z_i - h_n A^I_{i,i} f_I(t_{n,i}, z_i) - a_i = 0\end{split}\label{Mathematics-Residual}
+\begin{split}G(z_i) \equiv M z_i - h_n A^I_{i,i} f_I(t^I_{n,i}, z_i) - a_i = 0\end{split}\label{Mathematics-Residual}
 \end{gather}
 must be solved for each stage \(z_i, i=1,\ldots,s\), where we have
 the data
 \begin{gather}
 \begin{split}a_i \equiv M y_{n-1} + h_n \sum_{j=1}^{i-1} \left[
-   A^E_{i,j} f_E(t_{n,j}, z_j) +
-   A^I_{i,j} f_I(t_{n,j}, z_j) \right]\end{split}\notag
+   A^E_{i,j} f_E(t^E_{n,j}, z_j) +
+   A^I_{i,j} f_I(t^I_{n,j}, z_j) \right]\end{split}\notag
 \end{gather}
 for the ARK methods, or
 \begin{gather}
 \begin{split}a_i \equiv M y_{n-1} + h_n \sum_{j=1}^{i-1}
-   A^I_{i,j} f_I(t_{n,j}, z_j)\end{split}\notag
+   A^I_{i,j} f_I(t^I_{n,j}, z_j)\end{split}\notag
 \end{gather}
 for the DIRK methods.  Here, if \(f_I(t,y)\) depends nonlinearly
 on \(y\) then \eqref{Mathematics-Residual} corresponds to a nonlinear system of
@@ -935,17 +943,17 @@ subsequent solution value.  Specifically, for all of the Runge-Kutta
 methods implemented in ARKode (and the vast majority in general), each
 stage solution satisfies
 \begin{gather}
-\begin{split}z_i \approx y(t_{n,i}),\end{split}\notag
+\begin{split}z_i \approx y(t^I_{n,i}),\end{split}\notag
 \end{gather}
 so by constructing an interpolating polynomial \(p_q(t)\) through
 a set of existing data, the initial guess at stage solutions may be
 approximated as
 \begin{gather}
-\begin{split}z_i^{(0)} = p_q(t_{n,i}).\end{split}\notag
+\begin{split}z_i^{(0)} = p_q(t^I_{n,i}).\end{split}\notag
 \end{gather}
 Denoting \([a,b]\) as the interval containing the data used to
 construct \(p_q(t)\), and assuming forward integration from
-\(a\to b\), it is typically the case that \(t_{n,j} > b\).
+\(a\to b\), it is typically the case that \(t^I_{n,j} > b\).
 The dangers of using a polynomial interpolant to extrapolate values
 outside the interpolation interval are well-known, with higher-order
 polynomials and predictions further outside the interval resulting in
@@ -991,7 +999,7 @@ t_{n-1}]\) as
 we may denote the predicted stage times in the subsequent time
 interval \([t_{n-1}, t_{n}]\) as
 \begin{gather}
-\begin{split}\tau_i = c_i \frac{h_n}{h_{n-1}}.\end{split}\notag
+\begin{split}\tau_i = c^I_i \frac{h_n}{h_{n-1}}.\end{split}\notag
 \end{gather}
 We then construct the interpolants \(p(t)\) as follows:
 \begin{itemize}
@@ -1033,7 +1041,7 @@ This predictor attempts to use higher-order interpolations
 interval, and lower-order interpolants for later stages.  It uses the
 same formulas as described above, but chooses \(q\) adaptively
 based on the stage index \(i\), under the (rather tenuous)
-assumption that the stage times are increasing, i.e. \(c_j < c_k\)
+assumption that the stage times are increasing, i.e. \(c^I_j < c^I_k\)
 for \(j<k\):
 \begin{gather}
 \begin{split}q = \max\{ q_\text{max} - i,\; 1 \}.\end{split}\notag
@@ -1058,21 +1066,30 @@ step, instead using information only within the current step
 \([t_{n-1},t_n]\) (including \(y_{n-1}\) and
 \(f_{n-1}\)).  Instead, this approach uses the right-hand side
 from a previously computed stage solution in the same step,
-\(f(t_{n-1}+c_j h,z_j)\) to construct a quadratic Hermite
+\(f(t_{n-1}+c^I_j h,z_j)\) to construct a quadratic Hermite
 interpolant for the prediction.  If we define the constants
-\(\tilde{h} = c_j h\) and \(\tau = c_i h\), the predictor is
-given by
+\(\tilde{h} = c^I_j h\) and \(\tau = c^I_i h\), the predictor
+is given by
 \begin{gather}
 \begin{split}z_i^{(0)} = y_{n-1} + \left(\tau - \frac{\tau^2}{2\tilde{h}}\right)
-   f(t_{n-1},y_{n-1}) + \frac{\tau^2}{2\tilde{h}} f(t_{n-1}+c_j h,z_j).\end{split}\notag
+   f(t_{n-1},y_{n-1}) + \frac{\tau^2}{2\tilde{h}} f(t_{n-1}+\tilde{h},z_j).\end{split}\notag
 \end{gather}
-For stages in which \(c_j=0\) for all previous stages
+For stages in which \(c^I_j=0\) for all previous stages
 \(j = 0,\ldots,i-1\), and for the first stage of any time step
 \((i=0)\), this method reduces to using the trivial predictor
 \(z_i^{(0)} = y_{n-1}\).  For stages having multiple precdding
-nonzero \(c_j\), we choose the stage having largest \(c_j\)
+nonzero \(c^I_j\), we choose the stage having largest \(c^I_j\)
 value, to minimize the amount of extrapolation induced through the
 prediction.
+
+We note that in general, each stage solution \(z_j\) has
+signicantly worse accuracy than the time step solutions
+\(y_{n-1}\), due to the difference between the \emph{stage order} and
+the \emph{method order} in typical Runge-Kutta methods.  As a result, the
+accuracy of this predictor will generally be rather limited, but it is
+provided for problems in which this increased stage error is better
+than the effects of extrapolation far outside of the previous time
+step interval \([t_{n-2},t_{n-1}]\).
 
 
 \section{Time step adaptivity}
@@ -1107,8 +1124,9 @@ We therefore use this difference norm as an estimate for the local
 truncation error at the step \(n\),
 \phantomsection\label{Mathematics:equation-LTE}\begin{gather}
 \begin{split}T_n = \beta \left(y_n - \tilde{y}_n\right) =
-\beta h_n M^{-1} \sum_{i=1}^{s} \left(b_i - \tilde{b}_i\right)
-\left(f_E(t_{n-1} + c_i h_n, z_i) + f_I(t_{n-1} + c_i h_n, z_i)\right).\end{split}\label{Mathematics-LTE}
+\beta h_n M^{-1} \sum_{i=1}^{s} \left[
+\left(b^E_i - \tilde{b}^E_i\right) f_E(t^E_{n,i}, z_i) +
+\left(b^I_i - \tilde{b}^I_i\right) f_I(t^I_{n,i}, z_i) \right].\end{split}\label{Mathematics-LTE}
 \end{gather}
 Here, \(\beta>0\) is an error \emph{bias} to help account for the error
 constant \(D\); the default value of this is \(\beta = 1.5\),
@@ -1424,21 +1442,22 @@ and (c) in constructing predictors for the implicit solver iteration
 construct the time-evolved solution \(y_n\) from equation
 \eqref{Mathematics-ARK} we must solve
 \begin{gather}
-\begin{split}&M y_n \ = \ M y_{n-1} + h_n \sum_{i=1}^{s} b_i \left(f_E(t_{n,i}, z_i)
-              + f_I(t_{n,i}, z_i)\right), \\
+\begin{split}&M y_n \ = \ M y_{n-1} + h_n \sum_{i=1}^{s} \left( b^E_i f_E(t^E_{n,i}, z_i)
+              + b^I_i f_I(t^I_{n,i}, z_i)\right), \\
 \Leftrightarrow \qquad & \\
-&M (y_n -y_{n-1}) \ = \ h_n \sum_{i=1}^{s} b_i \left(f_E(t_{n,i}, z_i)
-              + f_I(t_{n,i}, z_i)\right), \\
+&M (y_n -y_{n-1}) \ = \ h_n \sum_{i=1}^{s} \left(b^E_i f_E(t^E_{n,i}, z_i)
+              + b^I_i f_I(t^I_{n,i}, z_i)\right), \\
 \Leftrightarrow \qquad & \\
-&M \nu \ = \ h_n \sum_{i=1}^{s} b_i \left(f_E(t_{n,i}, z_i)
-              + f_I(t_{n,i}, z_i)\right),\end{split}\notag
+&M \nu \ = \ h_n \sum_{i=1}^{s} \left(b^E_i f_E(t^E_{n,i}, z_i)
+              + b^I_i f_I(t^I_{n,i}, z_i)\right),\end{split}\notag
 \end{gather}
 for the update \(\nu = y_n - y_{n-1}\).  Similarly, in computing
 the local temporal error estimate \(T_n\) from equation \eqref{Mathematics-LTE}
 we must solve systems of the form
 \begin{gather}
-\begin{split}M\, T_n = h \sum_{i=1}^{s} \left(b_i - \tilde{b}_i\right)
-\left(f_E(t_{n,i}, z_i) + f_I(t_{n,i}, z_i)\right).\end{split}\notag
+\begin{split}M\, T_n = h \sum_{i=1}^{s} \left[
+\left(b^E_i - \tilde{b}^E_i\right) f_E(t^E_{n,i}, z_i) +
+\left(b^I_i - \tilde{b}^I_i\right) f_I(t^I_{n,i}, z_i) \right].\end{split}\notag
 \end{gather}
 Lastly, in constructing dense output and implicit predictors of order
 2 or higher (as in the section {\hyperref[Mathematics:mathematics-predictors-max]{\emph{\DUspan{}{Maximum order predictor}}}} above),
@@ -1955,35 +1974,10 @@ constants \code{FALSE} and \code{TRUE}, so a user program does not need to
 include \code{sundials\_types.h} directly.
 
 The calling program must also include an NVECTOR implementation
-header file (see the section {\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{Vector Data Structures}}}} for details).  For the
-NVECTOR implementations that are included in the ARKode package, the
-corresponding header files are:
-\begin{itemize}
-\item {} 
-\code{nvector\_serial.h}, which defines the serial implementation
-NVECTOR\_SERIAL;
-
-\item {} 
-\code{nvector\_parallel.h}, which defines the parallel (MPI)
-implementation, NVECTOR\_PARALLEL;
-
-\item {} 
-\code{nvector\_openmp.h}, which defines the OpenMP implementation
-NVECTOR\_OPENMP;
-
-\item {} 
-\code{nvector\_pthreads.h}, which defines the Pthreads implementation
-NVECTOR\_PTHREADS;
-
-\item {} 
-\code{nvector\_parhyp.h}, which defines the parallel Hypre implementation
-NVECTOR\_PARHYP.
-
-\end{itemize}
-
-Note that all of these files in turn include the header file
-\code{sundials\_nvector.h} which defines the abstract \code{N\_Vector} data
-type.
+header file, of the form \code{nvector\_***.h}.  See Chapter
+{\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{Vector Data Structures}}}} for details for the appropriate name.  This file in
+turn includes the header file \code{sundials\_nvector.h} which defines the
+abstract \code{N\_Vector} data type.
 
 If the user includes a non-trivial implicit component to their
 ODE system, then each time step will require a nonlinear solver for
@@ -2099,15 +2093,17 @@ Set vector of initial values
 To set the vector \code{y0} of initial values, use the appropriate
 functions defined by the particular NVECTOR implementation.  If a
 \code{realtype} array \code{ydata} containing the initial values of \(y\)
-already exists, then make the appropriate call:
+already exists, it may be possible to do this either with a call of
+the form
 
 \code{y0 = N\_VMake\_***(..., ydata);}
 
-Otherwise, make the appropriate call:
+or by making a call of the form
 
 \code{y0 = N\_VNew\_***(...);}
 
-and load initial values into the structure defined by \code{NV\_DATA\_***(y0)}.
+and loading values into the structure defined by \code{NV\_DATA\_***(y0)},
+provided these functions and macro exist for teh NVECTOR module chosen.
 
 \item {} 
 Create ARKode object
@@ -5228,7 +5224,7 @@ user if desired.
 \index{ARKodeSetARKTables (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_callable:c.ARKodeSetARKTables}\pysiglinewithargsret{int \bfcode{ARKodeSetARKTables}}{void*\emph{ arkode\_mem}, int\emph{ s}, int\emph{ q}, int\emph{ p}, realtype*\emph{ c}, realtype*\emph{ Ai}, realtype*\emph{ Ae}, realtype*\emph{ b}, realtype*\emph{ bembed}}{}
+\phantomsection\label{c_interface/User_callable:c.ARKodeSetARKTables}\pysiglinewithargsret{int \bfcode{ARKodeSetARKTables}}{void*\emph{ arkode\_mem}, int\emph{ s}, int\emph{ q}, int\emph{ p}, realtype*\emph{ ci}, realtype*\emph{ ce}, realtype*\emph{ Ai}, realtype*\emph{ Ae}, realtype*\emph{ bi}, realtype*\emph{ be}, realtype*\emph{ b2i}, realtype*\emph{ b2e}}{}
 Specifies a customized Butcher table pair for the
 additive RK method.
 \begin{description}
@@ -5246,7 +5242,10 @@ additive RK method.
 \emph{p} -- global order of accuracy for the embedded RK method.
 
 \item {} 
-\emph{c} -- array (of length \emph{s}) of stage times for the RK method.
+\emph{ci} -- array (of length \emph{s}) of stage times for the implciit RK method.
+
+\item {} 
+\emph{ce} -- array (of length \emph{s}) of stage times for the explicit RK method.
 
 \item {} 
 \emph{Ai} -- array of coefficients defining the implicit RK stages.  This should
@@ -5257,10 +5256,16 @@ be stored as a 1D array of size \emph{s*s}, in row-major order.
 be stored as a 1D array of size \emph{s*s}, in row-major order.
 
 \item {} 
-\emph{b} -- array of coefficients (of length \emph{s}) defining the time step solution.
+\emph{bi} -- array of implicit coefficients (of length \emph{s}) defining the time step solution.
 
 \item {} 
-\emph{bembed} -- array of coefficients (of length \emph{s}) defining the embedded solution.
+\emph{be} -- array of explicit coefficients (of length \emph{s}) defining the time step solution.
+
+\item {} 
+\emph{b2i} -- array of implicit coefficients (of length \emph{s}) defining the embedded solution.
+
+\item {} 
+\emph{b2e} -- array of explicit coefficients (of length \emph{s}) defining the embedded solution.
 
 \end{itemize}
 
@@ -5288,7 +5293,11 @@ that they specify DIRK and ERK methods, respectively.
 
 Both RK methods must share the same \emph{c}, \emph{b} and \emph{bembed} coefficients.
 
-The embedding \emph{bembed} is required unless running in fixed-step mode.
+If either the inputs \emph{b2i} or \emph{b2e} are set to \code{NULL}, ARKode
+will run in fixed-step mode (see {\hyperref[c_interface/User_callable:c.ARKodeSetFixedStep]{\emph{\code{ARKodeSetFixedStep()}}}});
+if called in this manner the user \emph{must} call either
+{\hyperref[c_interface/User_callable:c.ARKodeSetFixedStep]{\emph{\code{ARKodeSetFixedStep()}}}} or {\hyperref[c_interface/User_callable:c.ARKodeSetInitStep]{\emph{\code{ARKodeSetInitStep()}}}} to
+set the desired time step size.
 
 \end{fulllineitems}
 
@@ -5348,7 +5357,11 @@ correctly describe the coefficients that were input.
 Error checking is performed to ensure that \emph{A} is strictly
 lower-triangular (i.e. that it specifies an ERK method).
 
-The embedding \emph{bembed} is required unless running in fixed-step mode.
+An input \emph{bembed} of \code{NULL} will signal that ARKode will run in
+fixed-step mode (see {\hyperref[c_interface/User_callable:c.ARKodeSetFixedStep]{\emph{\code{ARKodeSetFixedStep()}}}}); if called in
+this manner the user \emph{must} call either
+{\hyperref[c_interface/User_callable:c.ARKodeSetFixedStep]{\emph{\code{ARKodeSetFixedStep()}}}} or {\hyperref[c_interface/User_callable:c.ARKodeSetInitStep]{\emph{\code{ARKodeSetInitStep()}}}} to
+set the desired time step size.
 
 \end{fulllineitems}
 
@@ -5409,7 +5422,11 @@ Error checking is performed to ensure that \emph{A} is
 lower-triangular with a nonzero value on at least one of the
 diagonal entries (i.e. that it specifies a DIRK method).
 
-The embedding \emph{bembed} is required unless running in fixed-step mode.
+An input \emph{bembed} of \code{NULL} will signal that ARKode will run in
+fixed-step mode (see {\hyperref[c_interface/User_callable:c.ARKodeSetFixedStep]{\emph{\code{ARKodeSetFixedStep()}}}}); if called in
+this manner the user \emph{must} call either
+{\hyperref[c_interface/User_callable:c.ARKodeSetFixedStep]{\emph{\code{ARKodeSetFixedStep()}}}} or {\hyperref[c_interface/User_callable:c.ARKodeSetInitStep]{\emph{\code{ARKodeSetInitStep()}}}} to
+set the desired time step size.
 
 \end{fulllineitems}
 
@@ -8817,7 +8834,7 @@ Returns the current internal time reached by the solver.
 \index{ARKodeGetCurrentButcherTables (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_callable:c.ARKodeGetCurrentButcherTables}\pysiglinewithargsret{int \bfcode{ARKodeGetCurrentButcherTables}}{void*\emph{ arkode\_mem}, int*\emph{ s}, int*\emph{ q}, int*\emph{ p}, realtype*\emph{ Ai}, realtype*\emph{ Ae}, realtype*\emph{ c}, realtype*\emph{ b}, realtype*\emph{ bembed}}{}
+\phantomsection\label{c_interface/User_callable:c.ARKodeGetCurrentButcherTables}\pysiglinewithargsret{int \bfcode{ARKodeGetCurrentButcherTables}}{void*\emph{ arkode\_mem}, int*\emph{ s}, int*\emph{ q}, int*\emph{ p}, realtype*\emph{ Ai}, realtype*\emph{ Ae}, realtype*\emph{ ci}, realtype*\emph{ ce}, realtype*\emph{ bi}, realtype*\emph{ be}, realtype*\emph{ b2i}, realtype*\emph{ b2e}}{}
 Returns the explicit and implicit Butcher tables
 currently in use by the solver.
 \begin{description}
@@ -8841,13 +8858,22 @@ currently in use by the solver.
 \emph{Ae} -- coefficients of ERK method.
 
 \item {} 
-\emph{c} -- array of internal stage times.
+\emph{ci} -- array of implicit stage times.
 
 \item {} 
-\emph{b} -- array of solution coefficients.
+\emph{ce} -- array of explicit stage times.
 
 \item {} 
-\emph{bembed} -- array of embedding coefficients.
+\emph{bi} -- array of implicit solution coefficients.
+
+\item {} 
+\emph{be} -- array of explicit solution coefficients.
+
+\item {} 
+\emph{b2i} -- array of implicit embedding coefficients.
+
+\item {} 
+\emph{b2e} -- array of explicit embedding coefficients.
 
 \end{itemize}
 
@@ -13043,23 +13069,23 @@ documentation, for simplified access.
 \subsubsection{Interface to the NVECTOR modules}
 \label{f_interface/Routines:interface-to-the-nvector-modules}\begin{itemize}
 \item {} 
-{\hyperref[f_interface/Usage:f/_/FNVINITS]{\emph{\code{FNVINITS()}}}} (defined by NVECTOR\_SERIAL) interfaces to
+\code{FNVINITS()} (defined by NVECTOR\_SERIAL) interfaces to
 {\hyperref[nvectors/NVector_Serial:c.N_VNewEmpty_Serial]{\emph{\code{N\_VNewEmpty\_Serial()}}}}.
 
 \item {} 
-{\hyperref[f_interface/Usage:f/_/FNVINITOMP]{\emph{\code{FNVINITOMP()}}}} (defined by NVECTOR\_OPENMP) interfaces to
-{\hyperref[nvectors/NVector_OpenMP:c.N_VNewEmpty_OpenMP]{\emph{\code{N\_VNewEmpty\_OpenMP()}}}}.
-
-\item {} 
-{\hyperref[f_interface/Usage:f/_/FNVINITPTS]{\emph{\code{FNVINITPTS()}}}} (defined by NVECTOR\_PTHREADS) interfaces to
-{\hyperref[nvectors/NVector_Pthreads:c.N_VNewEmpty_Pthreads]{\emph{\code{N\_VNewEmpty\_Pthreads()}}}}.
-
-\item {} 
-{\hyperref[f_interface/Usage:f/_/FNVINITP]{\emph{\code{FNVINITP()}}}} (defined by NVECTOR\_PARALLEL) interfaces to
+\code{FNVINITP()} (defined by NVECTOR\_PARALLEL) interfaces to
 {\hyperref[nvectors/NVector_Parallel:c.N_VNewEmpty_Parallel]{\emph{\code{N\_VNewEmpty\_Parallel()}}}}.
 
 \item {} 
-{\hyperref[f_interface/Usage:f/_/FNVINITPH]{\emph{\code{FNVINITPH()}}}} (defined by NVECTOR\_PARHYP) interfaces to
+\code{FNVINITOMP()} (defined by NVECTOR\_OPENMP) interfaces to
+{\hyperref[nvectors/NVector_OpenMP:c.N_VNewEmpty_OpenMP]{\emph{\code{N\_VNewEmpty\_OpenMP()}}}}.
+
+\item {} 
+\code{FNVINITPTS()} (defined by NVECTOR\_PTHREADS) interfaces to
+{\hyperref[nvectors/NVector_Pthreads:c.N_VNewEmpty_Pthreads]{\emph{\code{N\_VNewEmpty\_Pthreads()}}}}.
+
+\item {} 
+\code{FNVINITPH()} (defined by NVECTOR\_PARHYP) interfaces to
 {\hyperref[nvectors/NVector_ParHyp:c.N_VNewEmpty_ParHyp]{\emph{\code{N\_VNewEmpty\_ParHyp()}}}}.
 
 \end{itemize}
@@ -13451,13 +13477,6 @@ routine, or of a given user-supplied function called by an interface
 function.  The usage of FARKODE for rootfinding and with
 preconditioner modules is described in later subsections.
 
-In the instructions below,
-steps marked {[}\textbf{S}{]} apply to the NVECTOR module NVECTOR\_SERIAL,
-steps marked {[}\textbf{O}{]} apply to NVECTOR\_OPENMP,
-steps marked {[}\textbf{T}{]} apply to NVECTOR\_PTHREADS,
-steps marked {[}\textbf{P}{]} apply to NVECTOR\_PARALLEL, while
-steps marked {[}\textbf{H}{]} apply to NVECTOR\_PARHYP.
-
 
 \subsubsection{Right-hand side specification}
 \label{f_interface/Usage:right-hand-side-specification}\label{f_interface/Usage:finterface-rhs}
@@ -13546,171 +13565,15 @@ remain empty.
 
 \subsubsection{NVECTOR module initialization}
 \label{f_interface/Usage:nvector-module-initialization}\label{f_interface/Usage:finterface-nvector}
-{[}\textbf{S}{]} To initialize the serial NVECTOR module, the user must
-make the following call:
-\index{FNVINITS() (fortran subroutine)|textbf}
+If using one of teh NVECTOR modules supplied with SUNDIALS, the user
+must make a call of the form
 
-\begin{fulllineitems}
-\phantomsection\label{f_interface/Usage:f/_/FNVINITS}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FNVINITS}}{\emph{KEY}, \emph{NEQ}, \emph{IER}}{}
-Initializes the Fortran interface to the serial NVECTOR module.
-\begin{description}
-\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{KEY} (\code{int}, input) -- the solver id (\emph{KEY} = 4 for ARKode).
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{CALL} \PYG{n}{FNVINIT}\PYG{o}{*}\PYG{o}{*}\PYG{o}{*}\PYG{p}{(}\PYG{p}{.}\PYG{p}{.}\PYG{p}{.}\PYG{p}{)}
+\end{Verbatim}
 
-\item {} 
-\emph{NEQ} (\code{long int}, input) -- size of the ODE system.
-
-\item {} 
-\emph{IER} (\code{int}, output) -- return flag (0 success, -1 if a
-failure occurred).
-
-\end{itemize}
-
-\end{description}
-
-\end{fulllineitems}
-
-
-{[}\textbf{O}{]} To initialize the NVECTOR\_OPENMP NVECTOR module, the user must
-make the following call:
-\index{FNVINITOMP() (fortran subroutine)|textbf}
-
-\begin{fulllineitems}
-\phantomsection\label{f_interface/Usage:f/_/FNVINITOMP}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FNVINITOMP}}{\emph{KEY}, \emph{NEQ}, \emph{NUM\_THREADS}, \emph{IER}}{}
-Initializes the Fortran interface to the OpenMP NVECTOR module.
-\begin{description}
-\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{KEY} (\code{int}, input) -- the solver id (\emph{KEY} = 4 for ARKode).
-
-\item {} 
-\emph{NEQ} (\code{long int}, input) -- size of the ODE system.
-
-\item {} 
-\emph{NUM\_THREADS} (\code{int}, input) -- number of threads to use in
-parallelized regions.
-
-\item {} 
-\emph{IER} (\code{int}, output) -- return flag (0 success, -1 if a
-failure occurred).
-
-\end{itemize}
-
-\end{description}
-
-\end{fulllineitems}
-
-
-{[}\textbf{T}{]} To initialize the NVECTOR\_PTHREADS module, the user must
-make hte following call.
-\index{FNVINITPTS() (fortran subroutine)|textbf}
-
-\begin{fulllineitems}
-\phantomsection\label{f_interface/Usage:f/_/FNVINITPTS}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FNVINITPTS}}{\emph{KEY}, \emph{NEQ}, \emph{NUM\_THREADS}, \emph{IER}}{}
-Initializes the Fortran interface to the Pthreads NVECTOR module.
-\begin{description}
-\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{KEY} (\code{int}, input) -- the solver id (\emph{KEY} = 4 for ARKode).
-
-\item {} 
-\emph{NEQ} (\code{long int}, input) -- size of the ODE system.
-
-\item {} 
-\emph{NUM\_THREADS} (\code{int}, input) -- number of threads to use in
-parallelized regions.
-
-\item {} 
-\emph{IER} (\code{int}, output) -- return flag (0 success, -1 if a
-failure occurred).
-
-\end{itemize}
-
-\end{description}
-
-\end{fulllineitems}
-
-
-{[}\textbf{P}{]} To initialize the MPI-based distributed memory parallel vector
-module, the user must make the following call:
-\index{FNVINITP() (fortran subroutine)|textbf}
-
-\begin{fulllineitems}
-\phantomsection\label{f_interface/Usage:f/_/FNVINITP}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FNVINITP}}{\emph{COMM}, \emph{KEY}, \emph{NLOCAL}, \emph{NGLOBAL}, \emph{IER}}{}
-Initializes the Fortran interface to the parallel NVECTOR module.
-\begin{description}
-\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{COMM} (\code{int}, input) -- the MPI communicator.
-
-\item {} 
-\emph{KEY} (\code{int}, input) -- the solver id (\emph{KEY} = 4 for ARKode).
-
-\item {} 
-\emph{NLOCAL} (\code{long int}, input) -- local vector size on this processor.
-
-\item {} 
-\emph{NGLOBAL} (\code{long int}, input) -- the size of the ODE system,
-and the global size of vectors (the sum of all values of \emph{NLOCAL}).
-
-\item {} 
-\emph{IER} (\code{int}, output) -- return flag (0 success, -1 if a
-failure occurred).
-
-\end{itemize}
-
-\end{description}
-
-\textbf{Notes:} If the header file \code{sundials\_config.h} defines
-\code{SUNDIALS\_MPI\_COMM\_F2C} to be 1 (meaning the MPI implementation
-used to build SUNDIALS includes the \code{MPI\_Comm\_f2c()} function),
-then COMM can be any valid MPI communicator.  Otherwise,
-\code{MPI\_COMM\_WORLD} will be used, so the user can just pass an
-integer value as a placeholder.
-
-\end{fulllineitems}
-
-
-{[}\textbf{H}{]} To initialize the MPI-based Hypre-compatible parallel vector
-module, the user must make the following call:
-\index{FNVINITPH() (fortran subroutine)|textbf}
-
-\begin{fulllineitems}
-\phantomsection\label{f_interface/Usage:f/_/FNVINITPH}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FNVINITPH}}{\emph{COMM}, \emph{KEY}, \emph{NLOCAL}, \emph{NGLOBAL}, \emph{IER}}{}
-Initializes the Fortran interface to the parallel NVECTOR module.
-\begin{description}
-\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{COMM} (\code{int}, input) -- the MPI communicator.
-
-\item {} 
-\emph{KEY} (\code{int}, input) -- the solver id (\emph{KEY} = 4 for ARKode).
-
-\item {} 
-\emph{NLOCAL} (\code{long int}, input) -- local vector size on this processor.
-
-\item {} 
-\emph{NGLOBAL} (\code{long int}, input) -- the size of the ODE system,
-and the global size of vectors (the sum of all values of \emph{NLOCAL}).
-
-\item {} 
-\emph{IER} (\code{int}, output) -- return flag (0 success, -1 if a
-failure occurred).
-
-\end{itemize}
-
-\end{description}
-
-\textbf{Notes:} If the header file \code{sundials\_config.h} defines
-\code{SUNDIALS\_MPI\_COMM\_F2C} to be 1 (meaning the MPI implementation
-used to build SUNDIALS includes the \code{MPI\_Comm\_f2c()} function),
-then COMM can be any valid MPI communicator.  Otherwise,
-\code{MPI\_COMM\_WORLD} will be used, so the user can just pass an
-integer value as a placeholder.
-
-\end{fulllineitems}
-
+in which the name and call sequence are as described in the
+appropriate section of the Chapter {\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{Vector Data Structures}}}}.
 
 
 \subsubsection{Problem specification}
@@ -14221,7 +14084,7 @@ coefficients.
 \index{FARKSETARKTABLES() (fortran subroutine)|textbf}
 
 \begin{fulllineitems}
-\phantomsection\label{f_interface/Usage:f/_/FARKSETARKTABLES}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKSETARKTABLES}}{\emph{S}, \emph{Q}, \emph{P}, \emph{C}, \emph{AI}, \emph{AE}, \emph{B}, \emph{BEMBED}, \emph{IER}}{}
+\phantomsection\label{f_interface/Usage:f/_/FARKSETARKTABLES}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKSETARKTABLES}}{\emph{S}, \emph{Q}, \emph{P}, \emph{CI}, \emph{CE}, \emph{AI}, \emph{AE}, \emph{BI}, \emph{BE}, \emph{B2I}, \emph{B2E}, \emph{IER}}{}
 Interface to the routine {\hyperref[c_interface/User_callable:c.ARKodeSetARKTables]{\emph{\code{ARKodeSetARKTables()}}}}.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -14235,7 +14098,12 @@ Interface to the routine {\hyperref[c_interface/User_callable:c.ARKodeSetARKTabl
 \emph{P} (\code{int}, input) -- global order of accuracy of the embedding.
 
 \item {} 
-\emph{C} (\code{realtype}, input) -- array of length \emph{S} containing the stage times.
+\emph{CI} (\code{realtype}, input) -- array of length \emph{S} containing
+the implicit stage times.
+
+\item {} 
+\emph{CE} (\code{realtype}, input) -- array of length \emph{S} containing
+the explicit stage times.
 
 \item {} 
 \emph{AI} (\code{realtype}, input) -- array of length \emph{S*S} containing the IRK coefficients
@@ -14246,11 +14114,20 @@ Interface to the routine {\hyperref[c_interface/User_callable:c.ARKodeSetARKTabl
 (stored in row-major, ``C'', order)
 
 \item {} 
-\emph{B} (\code{realtype}, input) -- array of length \emph{S} containing the solution coefficients
+\emph{BI} (\code{realtype}, input) -- array of length \emph{S} containing
+the implicit solution coefficients
 
 \item {} 
-\emph{BEMBED} (\code{realtype}, input) -- array of length \emph{S} containing the embedding
-coefficients
+\emph{BE} (\code{realtype}, input) -- array of length \emph{S} containing
+the explicit solution coefficients
+
+\item {} 
+\emph{B2I} (\code{realtype}, input) -- array of length \emph{S} containing
+the implicit embedding coefficients
+
+\item {} 
+\emph{B2E} (\code{realtype}, input) -- array of length \emph{S} containing
+the explicit embedding coefficients
 
 \item {} 
 \emph{IER} (\code{int}, output) -- return flag (0 success, \(\ne 0\) failure)
@@ -14472,11 +14349,12 @@ related to the Jacobian \(J = \frac{\partial f_I}{\partial y}\) of
 the implicit portion of the ODE system. ARKode presently includes
 a variety of choices for the treatment of these systems, and the user
 of FARKODE must call a routine with a specific name to make the
-desired choice.
+desired choice.  We note that the direct (dense or band) and sparse
+linear solver options are only usable in a serial environment.
 
 
-\paragraph{{[}\textbf{S}, \textbf{O}, \textbf{T}{]} Dense treatment of the linear system}
-\label{f_interface/Usage:s-o-t-dense-treatment-of-the-linear-system}
+\paragraph{Dense treatment of the linear system}
+\label{f_interface/Usage:dense-treatment-of-the-linear-system}
 To use the direct dense linear solver based on the internal SUNDIALS
 implementation, the user must call the {\hyperref[f_interface/Usage:f/_/FARKDENSE]{\emph{\code{FARKDENSE()}}}} routine:
 \index{FARKDENSE() (fortran subroutine)|textbf}
@@ -14618,8 +14496,8 @@ Jacobian approximation.
 
 
 
-\paragraph{{[}\textbf{S}, \textbf{O}, \textbf{T}{]} Band treatment of the linear system}
-\label{f_interface/Usage:s-o-t-band-treatment-of-the-linear-system}
+\paragraph{Band treatment of the linear system}
+\label{f_interface/Usage:band-treatment-of-the-linear-system}
 To use the direct band linear solver that is based on the internal
 SUNDIALS implementation, the user must call the {\hyperref[f_interface/Usage:f/_/FARKBAND]{\emph{\code{FARKBAND()}}}}
 routine.
@@ -14789,8 +14667,8 @@ Jacobian approximation.
 
 
 
-\paragraph{{[}\textbf{S}, \textbf{O}, \textbf{T}{]} Sparse treatment of the linear system}
-\label{f_interface/Usage:s-o-t-sparse-treatment-of-the-linear-system}
+\paragraph{Sparse treatment of the linear system}
+\label{f_interface/Usage:sparse-treatment-of-the-linear-system}
 To use the sparse direct linear solver interface to the KLU library,
 the user must call the {\hyperref[f_interface/Usage:f/_/FARKKLU]{\emph{\code{FARKKLU()}}}} routine:
 \index{FARKKLU() (fortran subroutine)|textbf}
@@ -15402,11 +15280,12 @@ form \(Mx=b\) must be solved, where \(M(t)\) is the possibly
 time-dependent system mass matrix.  ARKode presently includes
 a variety of choices for the treatment of these systems, and the user
 of FARKODE must call a routine with a specific name to make the
-desired choice.
+desired choice.  We again note that the direct (dense or band) and sparse
+linear solver options are only usable in a serial environment.
 
 
-\paragraph{{[}\textbf{S}, \textbf{O}, \textbf{T}{]} Dense treatment of the mass matrix linear system}
-\label{f_interface/Usage:s-o-t-dense-treatment-of-the-mass-matrix-linear-system}
+\paragraph{Dense treatment of the mass matrix linear system}
+\label{f_interface/Usage:dense-treatment-of-the-mass-matrix-linear-system}
 To use the direct dense linear solver based on the internal SUNDIALS
 implementation, the user must call the {\hyperref[f_interface/Usage:f/_/FARKMASSDENSE]{\emph{\code{FARKMASSDENSE()}}}} routine:
 \index{FARKMASSDENSE() (fortran subroutine)|textbf}
@@ -15528,8 +15407,8 @@ for the mass matrix calculation.
 
 
 
-\paragraph{{[}\textbf{S}, \textbf{O}, \textbf{T}{]} Band treatment of the mass matrix linear system}
-\label{f_interface/Usage:s-o-t-band-treatment-of-the-mass-matrix-linear-system}
+\paragraph{Band treatment of the mass matrix linear system}
+\label{f_interface/Usage:band-treatment-of-the-mass-matrix-linear-system}
 To use the direct band linear solver that is based on the internal
 SUNDIALS implementation, the user must call the {\hyperref[f_interface/Usage:f/_/FARKMASSBAND]{\emph{\code{FARKMASSBAND()}}}}
 routine.
@@ -15677,8 +15556,8 @@ matrix calculation.
 
 
 
-\paragraph{{[}\textbf{S}, \textbf{O}, \textbf{T}{]} Sparse treatment of the mass matrix linear system}
-\label{f_interface/Usage:s-o-t-sparse-treatment-of-the-mass-matrix-linear-system}
+\paragraph{Sparse treatment of the mass matrix linear system}
+\label{f_interface/Usage:sparse-treatment-of-the-mass-matrix-linear-system}
 To use the sparse direct linear solver interface to the KLU library,
 the user must call the {\hyperref[f_interface/Usage:f/_/FARKMASSKLU]{\emph{\code{FARKMASSKLU()}}}} routine:
 \index{FARKMASSKLU() (fortran subroutine)|textbf}
@@ -18026,6 +17905,8 @@ flag \emph{own\_data} which specifies the ownership of data.
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
 
+The header file to be included when using this module is \code{nvector\_serial.h}.
+
 The following five macros are provided to access the content of an
 NVECTOR\_SERIAL vector. The suffix \code{\_S} in the names denotes the serial
 version.
@@ -18126,10 +18007,8 @@ Implementation:
 The NVECTOR\_SERIAL module defines serial implementations of all vector
 operations listed in the section {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}.  Their names are
 obtained from those in that section by appending the suffix
-\code{\_Serial}.
-
-In addition, the module NVECTOR\_SERIAL provides the following
-additional user-callable routines:
+\code{\_Serial} (e.g. \code{N\_VDestroy\_Serial}).  The module NVECTOR\_SERIAL
+provides the following additional user-callable routines:
 \index{N\_VNew\_Serial (C function)}
 
 \begin{fulllineitems}
@@ -18222,6 +18101,14 @@ length.
 
 \end{itemize}
 
+For solvers that include a Fortran interface module, the
+NVECTOR\_SERIAL module also includes a Fortran-callable function
+\code{FNVINITS(code, NEQ, IER)}, to initialize this NVECTOR\_SERIAL
+module.  Here \code{code} is an input solver id (1 for CVODE, 2 for IDA,
+3 for KINSOL, 4 for ARKode); \code{NEQ} is the problem size (declared so
+as to match C type \code{long int}); and \code{IER} is an error return flag
+equal 0 for success and -1 for failure.
+
 
 \section{The NVECTOR\_PARALLEL Module}
 \label{nvectors/NVector_Parallel:nvectors-nvparallel}\label{nvectors/NVector_Parallel:the-nvector-parallel-module}\label{nvectors/NVector_Parallel::doc}
@@ -18241,6 +18128,9 @@ ownership of the data array \emph{data}.
    \PYG{n}{MPI\PYGZus{}Comm} \PYG{n}{comm}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
+
+The header file to be included when using this module is
+\code{nvector\_parallel.h}.
 
 The following seven macros are provided to access the content of a
 NVECTOR\_PARALLEL vector. The suffix \code{\_P} in the names denotes the
@@ -18377,10 +18267,9 @@ Implementation:
 The NVECTOR\_PARALLEL module defines parallel implementations of all
 vector operations listed in the section {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}.  Their
 names are obtained from those that section by appending the suffix
-\code{\_Parallel}.
-
-In addition, the module NVECTOR\_PARALLEL provides the following
-additional user-callable routines:
+\code{\_Parallel} (e.g. \code{N\_VDestroy\_Parallel}).   The module
+NVECTOR\_PARALLEL provides the following additional user-callable
+routines:
 \index{N\_VNew\_Parallel (C function)}
 
 \begin{fulllineitems}
@@ -18473,6 +18362,25 @@ internal representations.
 
 \end{itemize}
 
+For solvers that include a Fortran interface module, the
+NVECTOR\_PARALLEL module also includes a Fortran-callable function
+\code{FNVINITP(COMM, code, NLOCAL, NGLOBAL, IER)}, to initialize this
+NVECTOR\_PARALLEL module.  Here \code{COMM} is the MPI communicator,
+\code{code} is an input solver id (1 for CVODE, 2 for IDA, 3 for KINSOL,
+4 for ARKode); \code{NLOCAL} and \code{NGLOBAL} are the local and global
+vector sizes, respectively (declared so as to match C type \code{long
+int}); and \code{IER} is an error return flag equal 0 for success and -1
+for failure.
+
+\begin{notice}{note}{Note:}
+If the header file \code{sundials\_config.h} defines
+\code{SUNDIALS\_MPI\_COMM\_F2C} to be 1 (meaning the MPI implementation
+used to build SUNDIALS includes the \code{MPI\_Comm\_f2c} function),
+then \code{COMM} can be any valid MPI communicator. Otherwise,
+\code{MPI\_COMM\_WORLD} will be used, so just pass an integer value as a
+placeholder.
+\end{notice}
+
 
 \section{The NVECTOR\_PETSC Module}
 \label{nvectors/NVector_PETSc:nvectors-nvpetsc}\label{nvectors/NVector_PETSc:the-nvector-petsc-module}\label{nvectors/NVector_PETSc::doc}
@@ -18491,6 +18399,9 @@ indicating ownership of the wrapped PETSc vector.
    \PYG{n}{MPI\PYGZus{}Comm} \PYG{n}{comm}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
+
+The header file to be included when using this module is
+\code{nvector\_petsc.h}.
 
 Note that the PETSc vector wrapper requires SUNDIALS to be built with
 MPI support.  The following six macros are provided to access the
@@ -18605,8 +18516,9 @@ The NVECTOR\_PETSC module defines implementations of all vector
 operations listed in the section {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, except for
 \code{N\_VGetArrayPointer} and \code{N\_VSetArrayPointer}.  The names of
 vector operations are obtained from those in the section
-{\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}} by appending the suffice \code{\_petsc}.  The module
-NVECTOR\_PETSC provides the following additional user-callable routines:
+{\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}} by appending the suffice \code{\_petsc}
+(e.g. \code{N\_VDestroy\_petsc}).  The module NVECTOR\_PETSC provides the
+following additional user-callable routines:
 \index{N\_VNew\_petsc (C function)}
 
 \begin{fulllineitems}
@@ -18721,6 +18633,8 @@ supplied argument in the vector constructor.
   \PYG{k+kt}{int} \PYG{n}{num\PYGZus{}threads}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
+
+The header file to be included when using this module is \code{nvector\_openmp.h}.
 
 The following six macros are provided to access the content of an NVECTOR\_OPENMP
 vector. The suffix \code{\_OMP} in the names denotes the OpenMP version.
@@ -18840,10 +18754,8 @@ Implementation:
 The NVECTOR\_OPENMP module defines OpenMP implementations of all vector
 operations listed in the section {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}.  Their names are
 obtained from those in that section by appending the suffix
-\code{\_OpenMP}.
-
-In addition, the module NVECTOR\_OPENMP provides the following
-additional user-callable routines:
+\code{\_OpenMP} (e.g. \code{N\_VDestroy\_OpenMP}).  The module NVECTOR\_OPENMP
+provides the following additional user-callable routines:
 \index{N\_VNew\_OpenMP (C function)}
 
 \begin{fulllineitems}
@@ -18936,6 +18848,15 @@ internal representations.
 
 \end{itemize}
 
+For solvers that include a Fortran interface module, the
+NVECTOR\_OPENMP module also includes a Fortran-callable function
+\code{FNVINITOMP(code, NEQ, NUMTHREADS, IER)}, to initialize this
+NVECTOR\_OPENMP module.  Here \code{code} is an input solver id (1 for
+CVODE, 2 for IDA, 3 for KINSOL, 4 for ARKode); \code{NEQ} is the problem
+size (declared so as to match C type \code{long int}); \code{NUMTHREADS} is
+the number of threads; and \code{IER} is an error return flag equal 0 for
+success and -1 for failure.
+
 
 \section{The NVECTOR\_PTHREADS Module}
 \label{nvectors/NVector_Pthreads:nvectors-pthreads}\label{nvectors/NVector_Pthreads::doc}\label{nvectors/NVector_Pthreads:the-nvector-pthreads-module}
@@ -18947,7 +18868,7 @@ NVECTOR\_PTHREADS.  Testing has shown that vectors should be of length
 at least \(100,000\) before the overhead associated with creating
 and using the threads is made up by the parallelism in the vector calculations.
 
-The Pthreads NVECTOR implementation provided with SUNDIALS,
+The Pthreads NVECTOR implementation provided with SUNDIALS, denoted
 NVECTOR\_PTHREADS, defines the \emph{content} field of \code{N\_Vector} to be a structure
 containing the length of the vector, a pointer to the beginning of a contiguous
 data array, a boolean flag \emph{own\_data} which specifies the ownership
@@ -18963,6 +18884,8 @@ based on the supplied argument in the vector constructor.
   \PYG{k+kt}{int} \PYG{n}{num\PYGZus{}threads}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
+
+The header file to be included when using this module is \code{nvector\_pthreads.h}.
 
 The following six macros are provided to access the content of an NVECTOR\_PTHREADS
 vector. The suffix \code{\_PT} in the names denotes the Pthreads version.
@@ -19082,10 +19005,8 @@ Implementation:
 The NVECTOR\_PTHREADS module defines Pthreads implementations of all vector
 operations listed in the section {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}.  Their names are
 obtained from those in that section by appending the suffix
-\code{\_Pthreads}.
-
-In addition, the module NVECTOR\_PTHREADS provides the following
-additional user-callable routines:
+\code{\_Pthreads} (e.g. N\_VDestroy\_Pthreads).  The module NVECTOR\_PTHREADS
+provides the following additional user-callable routines:
 \index{N\_VNew\_Pthreads (C function)}
 
 \begin{fulllineitems}
@@ -19178,6 +19099,15 @@ internal representations.
 
 \end{itemize}
 
+For solvers that include a Fortran interface module, the
+NVECTOR\_PTHREADS module slso includes a Fortran-callable function
+\code{FNVINITPTS(code, NEQ, NUMTHREADS, IER)}, to initialize this
+NVECTOR\_PTHREADS module.  Here \code{code} is an input solver id
+(1 for CVODE, 2 for IDA, 3 for KINSOL, 4 for ARKode); \code{NEQ} is
+the problem size (declared so as to match C type \code{long int});
+\code{NUMTHREADS} is the number of threads; and \code{IER} is an error
+return flag equal 0 for success and -1 for failure.
+
 
 \section{The NVECTOR\_PARHYP Module}
 \label{nvectors/NVector_ParHyp:nvectors-parhyp}\label{nvectors/NVector_ParHyp:the-nvector-parhyp-module}\label{nvectors/NVector_ParHyp::doc}
@@ -19205,6 +19135,8 @@ object \emph{x}.
   \PYG{n}{hypre\PYGZus{}ParVector} \PYG{o}{*}\PYG{n}{x}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
+
+The header file to be included when using this module is \code{nvector\_parhyp.h}.
 
 The following nine macros are provided to access the content of an NVECTOR\_PARHYP
 vector. The suffix \code{\_PH} in the names denotes the parallel HYPRE
@@ -19370,10 +19302,8 @@ Implementation:
 The NVECTOR\_PARHYP module defines parhyp implementations of all vector
 operations listed in the section {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}.  Their names are
 obtained from those in that section by appending the suffix
-\code{\_ParHyp}.
-
-In addition, the module NVECTOR\_PARHYP provides the following
-additional user-callable routines:
+\code{\_ParHyp} (e.g. \code{N\_VDestroy\_ParHyp}).  The module NVECTOR\_PARHYP
+provides the following additional user-callable routines:
 \index{N\_VNew\_ParHyp (C function)}
 
 \begin{fulllineitems}
@@ -19465,6 +19395,24 @@ with \code{N\_Vector} arguments that were all created with the same
 internal representations.
 
 \end{itemize}
+
+For solvers that include a Fortran interface module, the
+NVECTOR\_PARHYP module also includes a Fortran-callable function
+\code{FNVINITPH(COMM, code, NLOCAL, NGLOBAL, IER)}, to initialize this
+NVECTOR\_PARHYP module.  Here \code{COMM} is the MPI communicator,
+\code{code} is an input solver id (1 for CVODE, 2 for IDA, 3 for KINSOL,
+4 for ARKode); \code{NLOCAL} and \code{NGLOBAL} are the local and global
+vector sizes, respectively (declared so as to match C type \code{long int});
+and \code{IER} is an error return flag equal 0 for success and -1 for failure.
+
+\begin{notice}{note}{Note:}
+If the header file \code{sundials\_config.h} defines
+\code{SUNDIALS\_MPI\_COMM\_F2C} to be 1 (meaning the MPI implementation
+used to build SUNDIALS includes the \code{MPI\_Comm\_f2c} function),
+then \code{COMM} can be any valid MPI communicator. Otherwise,
+\code{MPI\_COMM\_WORLD} will be used, so just pass an integer value as a
+placeholder.
+\end{notice}
 
 
 \section{NVECTOR Examples}
