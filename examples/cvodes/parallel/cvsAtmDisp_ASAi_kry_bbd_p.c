@@ -4,6 +4,7 @@
  * $Date$
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
+ *                Updated by Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * Parallel Krylov adjoint sensitivity example problem.
  * -----------------------------------------------------------------
@@ -1077,6 +1078,58 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
 
   /* Write matlab files with solutions from each process */
 
+  /*   Allocate Matlab storage for data */
+
+  fprintf(fid,"x%d = zeros(%d,1); \n",  myId, l_m[0]);
+  fprintf(fid,"y%d = zeros(%d,1); \n",  myId, l_m[1]);
+#ifdef USE3D
+  fprintf(fid,"z%d = zeros(%d,1); \n",  myId, l_m[2]);
+  fprintf(fid,"p%d = zeros(%d,%d,%d); \n", myId, l_m[1], l_m[0], l_m[2]);
+  fprintf(fid,"g%d = zeros(%d,%d,%d); \n", myId, l_m[1], l_m[0], l_m[2]);
+#else
+  fprintf(fid,"p%d = zeros(%d,%d); \n", myId, l_m[1], l_m[0]);
+  fprintf(fid,"g%d = zeros(%d,%d); \n", myId, l_m[1], l_m[0]);
+#endif
+
+  /*   Write mesh information */
+
+  for(i[0]=0; i[0]<l_m[0]; i[0]++) {
+    x[0] = xmin[0] + (m_start[0]+i[0]) * dx[0];
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(fid,"x%d(%d,1) = %Le; \n",  myId, i[0]+1, x[0]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    fprintf(fid,"x%d(%d,1) = %le; \n",  myId, i[0]+1, x[0]);
+#else
+    fprintf(fid,"x%d(%d,1) = %e; \n",  myId, i[0]+1, x[0]);
+#endif
+  }
+
+  for(i[1]=0; i[1]<l_m[1]; i[1]++) {
+    x[1] = xmin[1] + (m_start[1]+i[1]) * dx[1];
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(fid,"y%d(%d,1) = %Le; \n",  myId, i[1]+1, x[1]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    fprintf(fid,"y%d(%d,1) = %le; \n",  myId, i[1]+1, x[1]);
+#else
+    fprintf(fid,"y%d(%d,1) = %e; \n",  myId, i[1]+1, x[1]);
+#endif
+  }
+
+#ifdef USE3D
+  for(i[2]=0; i[2]<l_m[2]; i[2]++) {
+    x[2] = xmin[2] + (m_start[2]+i[2]) * dx[2];
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(fid,"z%d(%d,1) = %Le; \n",  myId, i[2]+1, x[2]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    fprintf(fid,"z%d(%d,1) = %le; \n",  myId, i[2]+1, x[2]);
+#else
+    fprintf(fid,"z%d(%d,1) = %e; \n",  myId, i[2]+1, x[2]);
+#endif
+  }
+#endif
+
+  /*   Write solution data */
+
   for(i[0]=0; i[0]<l_m[0]; i[0]++) {
     x[0] = xmin[0] + (m_start[0]+i[0]) * dx[0];
     for(i[1]=0; i[1]<l_m[1]; i[1]++) {
@@ -1087,21 +1140,12 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
         g = IJth(qBdata, i);
         p = IJth(pdata, i);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-        fprintf(fid,"x%d(%d,1) = %Le; \n",  myId, i[0]+1,         x[0]);
-        fprintf(fid,"y%d(%d,1) = %Le; \n",  myId, i[1]+1,         x[1]);
-        fprintf(fid,"z%d(%d,1) = %Le; \n",  myId, i[2]+1,         x[2]);
         fprintf(fid,"p%d(%d,%d,%d) = %Le; \n", myId, i[1]+1, i[0]+1, i[2]+1, p);
         fprintf(fid,"g%d(%d,%d,%d) = %Le; \n", myId, i[1]+1, i[0]+1, i[2]+1, g);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-        fprintf(fid,"x%d(%d,1) = %le; \n",  myId, i[0]+1,         x[0]);
-        fprintf(fid,"y%d(%d,1) = %le; \n",  myId, i[1]+1,         x[1]);
-        fprintf(fid,"z%d(%d,1) = %le; \n",  myId, i[2]+1,         x[2]);
         fprintf(fid,"p%d(%d,%d,%d) = %le; \n", myId, i[1]+1, i[0]+1, i[2]+1, p);
         fprintf(fid,"g%d(%d,%d,%d) = %le; \n", myId, i[1]+1, i[0]+1, i[2]+1, g);
 #else
-        fprintf(fid,"x%d(%d,1) = %e; \n",  myId, i[0]+1,         x[0]);
-        fprintf(fid,"y%d(%d,1) = %e; \n",  myId, i[1]+1,         x[1]);
-        fprintf(fid,"z%d(%d,1) = %e; \n",  myId, i[2]+1,         x[2]);
         fprintf(fid,"p%d(%d,%d,%d) = %e; \n", myId, i[1]+1, i[0]+1, i[2]+1, p);
         fprintf(fid,"g%d(%d,%d,%d) = %e; \n", myId, i[1]+1, i[0]+1, i[2]+1, g);
 #endif
@@ -1110,18 +1154,12 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
       g = IJth(qBdata, i);
       p = IJth(pdata, i);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-      fprintf(fid,"x%d(%d,1) = %Le; \n",  myId, i[0]+1,         x[0]);
-      fprintf(fid,"y%d(%d,1) = %Le; \n",  myId, i[1]+1,         x[1]);
       fprintf(fid,"p%d(%d,%d) = %Le; \n", myId, i[1]+1, i[0]+1, p);
       fprintf(fid,"g%d(%d,%d) = %Le; \n", myId, i[1]+1, i[0]+1, g);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-      fprintf(fid,"x%d(%d,1) = %e; \n",  myId, i[0]+1,         x[0]);
-      fprintf(fid,"y%d(%d,1) = %e; \n",  myId, i[1]+1,         x[1]);
       fprintf(fid,"p%d(%d,%d) = %e; \n", myId, i[1]+1, i[0]+1, p);
       fprintf(fid,"g%d(%d,%d) = %e; \n", myId, i[1]+1, i[0]+1, g);
 #else
-      fprintf(fid,"x%d(%d,1) = %e; \n",  myId, i[0]+1,         x[0]);
-      fprintf(fid,"y%d(%d,1) = %e; \n",  myId, i[1]+1,         x[1]);
       fprintf(fid,"p%d(%d,%d) = %e; \n", myId, i[1]+1, i[0]+1, p);
       fprintf(fid,"g%d(%d,%d) = %e; \n", myId, i[1]+1, i[0]+1, g);
 #endif
@@ -1130,6 +1168,7 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
   }
   fclose(fid);
 
+
   /* Write matlab driver */
 
   if (myId == 0) {
@@ -1137,32 +1176,69 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
     fid = fopen("grad.m","w");
 
 #ifdef USE3D
-    fprintf(fid,"clear;\nfigure;\nhold on\n");
+    fprintf(fid,"clear;\n");
+    fprintf(fid,"figure(1);\nhold on\n");
+    fprintf(fid,"figure(2);\nhold on\n");
     fprintf(fid,"trans = 0.7;\n");
     fprintf(fid,"ecol  = 'none';\n");
+    fprintf(fid,"glev1 = 0.4;\n");
+    fprintf(fid,"glev2 = 0.25;\n");
+    fprintf(fid,"gcol1 = 'blue';\n");
+    fprintf(fid,"gcol2 = 'green';\n");
+    fprintf(fid,"gtrans = 0.5;\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     fprintf(fid,"xp=[%Lf %Lf];\n",G1_X,G2_X);
-    fprintf(fid,"yp=[%Lf %Lf];\n",G1_Y,G2_Y);
-    fprintf(fid,"zp=[%Lf %Lf];\n",G1_Z,G2_Z);
+    fprintf(fid,"yp=[%Lf];\n",G2_Y);
+    fprintf(fid,"zp=[%Lf];\n",G1_Z);
 #else
     fprintf(fid,"xp=[%f %f];\n",G1_X,G2_X);
-    fprintf(fid,"yp=[%f %f];\n",G1_Y,G2_Y);
-    fprintf(fid,"zp=[%f %f];\n",G1_Z,G2_Z);
+    fprintf(fid,"yp=[%f];\n",G2_Y);
+    fprintf(fid,"zp=[];\n");
 #endif
-    fprintf(fid,"ns = length(xp)*length(yp)*length(zp);\n");
-
     for (ip=0; ip<d->npes; ip++) {
       fprintf(fid,"\ngrad%03d;\n",ip);
+      fprintf(fid,"figure(1)\n");
       fprintf(fid,"[X,Y,Z]=meshgrid(x%d,y%d,z%d);\n",ip,ip,ip);
-      fprintf(fid,"s%d=slice(X,Y,Z,g%d,xp,yp,zp);\n",ip,ip);
-      fprintf(fid,"for i = 1:ns\n");
+      fprintf(fid,"s%d=slice(X,Y,Z,p%d,xp,yp,zp);\n",ip,ip);
+      fprintf(fid,"for i = 1:length(s%d)\n",ip);
       fprintf(fid,"  set(s%d(i),'FaceAlpha',trans);\n",ip);
       fprintf(fid,"  set(s%d(i),'EdgeColor',ecol);\n",ip);
       fprintf(fid,"end\n");
+
+      fprintf(fid,"\nfigure(2)\n");
+      fprintf(fid,"p=patch(isosurface(X,Y,Z,g%d,glev1));\n",ip);
+      fprintf(fid,"p.FaceColor = gcol1;\n");
+      fprintf(fid,"p.EdgeColor = ecol;\n");
+      fprintf(fid,"p=patch(isosurface(X,Y,Z,g%d,glev2));\n",ip);
+      fprintf(fid,"p.FaceColor = gcol2;\n");
+      fprintf(fid,"p.EdgeColor = ecol;\n");
+      fprintf(fid,"p.FaceAlpha = gtrans;\n");
+      fprintf(fid,"clear x%d y%d z%d p%d g%d;\n",ip,ip,ip,ip,ip);
     }
     
+    fprintf(fid,"\nfigure(1)\n");
     fprintf(fid,"view(3)\n");
-    fprintf(fid,"\nshading interp\naxis equal\n");
+    fprintf(fid,"shading interp\naxis equal\n");
+    fprintf(fid,"hold off\n");
+    fprintf(fid,"xlabel('x')\n");
+    fprintf(fid,"ylabel('y')\n");
+    fprintf(fid,"zlabel('z')\n");
+    fprintf(fid,"axis([%f, %f, %f, %f, %f, %f])\n",XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX);
+    fprintf(fid,"print('cvsadjkryx_p3Dcf','-depsc')\n");
+    fprintf(fid,"savefig('cvsadjkryx_p3Dcf.fig')\n");
+
+    fprintf(fid,"\nfigure(2)\n");
+    fprintf(fid,"view(3)\n");
+    fprintf(fid,"axis equal\n");
+    fprintf(fid,"hold off\n");
+    fprintf(fid,"xlabel('x')\n");
+    fprintf(fid,"ylabel('y')\n");
+    fprintf(fid,"zlabel('z')\n");
+    fprintf(fid,"axis([%f, %f, %f, %f, %f, %f])\n",XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX);
+    fprintf(fid,"camlight\n");
+    fprintf(fid,"lighting gouraud\n");
+    fprintf(fid,"print('cvsadjkryx_p3Dgrad','-depsc')\n");
+    fprintf(fid,"savefig('cvsadjkryx_p3Dgrad.fig')\n");
 #else
     fprintf(fid,"clear;\nfigure;\n");
     fprintf(fid,"trans = 0.7;\n");
@@ -1189,7 +1265,10 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
       fprintf(fid,"axis tight\n");
       fprintf(fid,"box on\n");
 
+      fprintf(fid,"clear x%d y%d p%d g%d;\n");
     }
+    fprintf(fid,"print('cvsadjkryx_p2D','-depsc')\n");
+    fprintf(fid,"savefig('cvsadjkryx_p2D.fig')\n");
 #endif
     fclose(fid);
   }
