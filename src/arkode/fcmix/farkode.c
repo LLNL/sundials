@@ -468,11 +468,12 @@ void FARK_SETIRKTABLE(int *s, int *q, int *p, realtype *c, realtype *A,
 
 /* Fortran interface to C routine ARKodeSetARKTables; see 
    farkode.h for further details */
-void FARK_SETARKTABLES(int *s, int *q, int *p, realtype *c, 
-		       realtype *Ai, realtype *Ae, realtype *b, 
-		       realtype *b2, int *ier) {
-  *ier = ARKodeSetARKTables(ARK_arkodemem, *s, *q, 
-			    *p, c, Ai, Ae, b, b2);
+void FARK_SETARKTABLES(int *s, int *q, int *p, realtype *ci, 
+		       realtype *ce, realtype *Ai, realtype *Ae, 
+		       realtype *bi, realtype *be, realtype *b2i, 
+		       realtype *b2e, int *ier) {
+  *ier = ARKodeSetARKTables(ARK_arkodemem, *s, *q, *p, ci, 
+			    ce, Ai, Ae, bi, be, b2i, b2e);
   return;
 }
 

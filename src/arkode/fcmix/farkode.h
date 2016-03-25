@@ -833,20 +833,27 @@
 
      To set a custom additive Runge-Kutta table, make the following call:
 
-       CALL FARKSETARKTABLES(S, Q, P, C, AI, AE, B, B2, IER)
+       CALL FARKSETARKTABLES(S, Q, P, CI, CE, AI, AE, BI, BE, B2I, B2E, IER)
 
      The arguments are:
        S = the number of stages in the table [int, input]
        Q = the global order of accuracy of the method [int, input]
        P = the global order of accuracy of the embedding [int, input]
-       C = array of length S containing the stage times [realtype, input]
+       CI = array of length S containing the implicit stage times
+           [realtype, input]
+       CE = array of length S containing the explicit stage times
+           [realtype, input]
        AI = array of length S*S containing the DIRK coefficients (stored in 
            row-major, "C", order) [realtype, input]
        AE = array of length S*S containing the ERK coefficients (stored in 
            row-major, "C", order) [realtype, input]
-       B = array of length S containing the solution coefficients
+       BI = array of length S containing the implicit solution coefficients
            [realtype, input]
-       B2 = array of length S containing the embedding coefficients
+       BE = array of length S containing the explicit solution coefficients
+           [realtype, input]
+       B2I = array of length S containing the implicit embedding coefficients
+           [realtype, input]
+       B2E = array of length S containing the explicit embedding coefficients
            [realtype, input]
 
  (12.9) To set a solver diagnostics output file, make the folowing call:
@@ -2087,8 +2094,9 @@ extern "C" {
 			realtype *b, realtype *b2, int *ier);
   void FARK_SETIRKTABLE(int *s, int *q, int *p, realtype *c, 
 			realtype *A, realtype *b, realtype *b2, int *ier);
-  void FARK_SETARKTABLES(int *s, int *q, int *p, realtype *c, realtype *Ai, 
-			 realtype *Ae, realtype *b, realtype *b2, int *ier);
+  void FARK_SETARKTABLES(int *s, int *q, int *p, realtype *ci, realtype *ce, 
+			 realtype *Ai, realtype *Ae, realtype *bi, 
+			 realtype *be, realtype *b2i, realtype *b2e, int *ier);
   void FARK_SETDIAGNOSTICS(char fname[], int *flen, int *ier);
   void FARK_STOPDIAGNOSTICS(int *ier);
 

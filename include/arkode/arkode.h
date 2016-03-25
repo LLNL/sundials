@@ -708,9 +708,11 @@ SUNDIALS_EXPORT int ARKodeSetIRKTable(void *arkode_mem, int s,
 				      realtype *A, realtype *b, 
 				      realtype *bembed);
 SUNDIALS_EXPORT int ARKodeSetARKTables(void *arkode_mem, int s, 
-				       int q, int p, realtype *c, 
+				       int q, int p, 
+				       realtype *ci, realtype *ce, 
 				       realtype *Ai, realtype *Ae, 
-				       realtype *b, realtype *bembed);
+				       realtype *bi, realtype *be, 
+				       realtype *b2i, realtype *b2e);
 SUNDIALS_EXPORT int ARKodeSetERKTableNum(void *arkode_mem, int itable);
 SUNDIALS_EXPORT int ARKodeSetIRKTableNum(void *arkode_mem, int itable);
 SUNDIALS_EXPORT int ARKodeSetARKTableNum(void *arkode_mem, 
@@ -1270,10 +1272,11 @@ SUNDIALS_EXPORT int ARKodeGetCurrentStep(void *arkode_mem,
 SUNDIALS_EXPORT int ARKodeGetCurrentTime(void *arkode_mem, 
 					 realtype *tcur);
 SUNDIALS_EXPORT int ARKodeGetCurrentButcherTables(void *arkode_mem, 
-						  int *s, int *q, 
-						  int *p, realtype *Ai, 
-						  realtype *Ae, realtype *c, 
-						  realtype *b, realtype *b2);
+						  int *s, int *q, int *p, 
+						  realtype *Ai, realtype *Ae, 
+						  realtype *ci, realtype *ce, 
+						  realtype *bi, realtype *be, 
+						  realtype *b2i, realtype *b2e);
 SUNDIALS_EXPORT int ARKodeGetTolScaleFactor(void *arkode_mem, 
 					    realtype *tolsfac);
 SUNDIALS_EXPORT int ARKodeGetErrWeights(void *arkode_mem, 

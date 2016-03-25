@@ -285,9 +285,12 @@ typedef struct ARKodeMemRec {
   int ark_dense_q;                        /* dense output polynomial order  */
   realtype ark_Ae[ARK_S_MAX*ARK_S_MAX];   /* ERK Butcher table              */
   realtype ark_Ai[ARK_S_MAX*ARK_S_MAX];   /* IRK Butcher table              */
-  realtype ark_c[ARK_S_MAX];              /* RK method canopy nodes         */
-  realtype ark_b[ARK_S_MAX];              /* RK method solution coeffs      */
-  realtype ark_b2[ARK_S_MAX];             /* RK method embedding coeffs     */
+  realtype ark_ce[ARK_S_MAX];             /* ERK method canopy nodes        */
+  realtype ark_ci[ARK_S_MAX];             /* IRK method canopy nodes        */
+  realtype ark_be[ARK_S_MAX];             /* ERK method solution coeffs     */
+  realtype ark_bi[ARK_S_MAX];             /* IRK method solution coeffs     */
+  realtype ark_b2e[ARK_S_MAX];            /* ERK method embedding coeffs    */
+  realtype ark_b2i[ARK_S_MAX];            /* IRK method embedding coeffs    */
 
   /*---------
     Step Data 
@@ -422,7 +425,7 @@ typedef struct ARKodeMemRec {
   void (*ark_lfree)(struct ARKodeMemRec *ark_mem);
   void *ark_lmem;
   int ark_lsolve_type;   /* linear solver type: 0=iterative; 1=dense; 
-                                                2=band; 3=custom */
+                                                2=band; 3=sparse; 4=custom */
 
   /*-----------------------
     Mass Matrix Solver Data 
@@ -439,7 +442,7 @@ typedef struct ARKodeMemRec {
   void (*ark_mfree)(struct ARKodeMemRec *ark_mem);
   void *ark_mass_mem;
   int ark_msolve_type;   /* mass matrix type: 0=iterative; 1=dense; 
-			                      2=band; 3=sparse, 4=custom */
+			                      2=band; 3=sparse; 4=custom */
 
   /*------------
     Saved Values
