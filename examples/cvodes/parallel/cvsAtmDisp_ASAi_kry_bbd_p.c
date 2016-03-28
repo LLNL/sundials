@@ -1265,7 +1265,7 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
       fprintf(fid,"axis tight\n");
       fprintf(fid,"box on\n");
 
-      fprintf(fid,"clear x%d y%d p%d g%d;\n");
+      fprintf(fid,"clear x%d y%d p%d g%d;\n",ip,ip,ip,ip);
     }
     fprintf(fid,"print('cvsadjkryx_p2D','-depsc')\n");
     fprintf(fid,"savefig('cvsadjkryx_p2D.fig')\n");
