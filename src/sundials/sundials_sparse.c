@@ -62,6 +62,7 @@ int SparseMatvecCSC(const SlsMat A, const realtype *x, realtype *y);
 
 int SparseMatvecCSR(const SlsMat A, const realtype *x, realtype *y);
 
+
   
 
 /*
@@ -912,3 +913,45 @@ int SparseMatvecCSR(const SlsMat A, const realtype *x, realtype *y)
   return(0);
 }
 
+
+/** 
+ * Outputs the sparse matrix data structure to disk,
+ * into three files:  sparse_data.txt, sparse_indexvals.txt 
+ * and sparse_indexptrs.txt.
+ */
+void SparseWriteMat(const SlsMat A)
+{
+
+  /* get relevant integer sizes */
+  FILE *FID;
+  int i, M, NNZ;
+  NNZ = A->NNZ;
+  if(A->sparsetype == CSC_MAT)
+    M = A->N;
+  else if (A->sparsetype == CSR_MAT)
+    M = A->M;
+  
+  /* first output the data array */
+  FID=fopen("sparse_data.txt","w");
+  for (i=0; i<NNZ; i++) {
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(FID, "  %35.32Lg\n", A->data[i]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    fprintf(FID, "  %19.16g\n", A->data[i]);
+#else
+    fprintf(FID, "  %11.8g\n", A->data[i]);
+#endif
+  }
+  fclose(FID);
+
+  /* second output the indexvals array */
+  FID=fopen("sparse_indexvals.txt","w");
+  for (i=0; i<NNZ; i++)  fprintf(FID,"  %d\n", A->indexvals[i]);
+  fclose(FID);
+  
+  /* last output the indexptrs array */
+  FID=fopen("sparse_indexptrs.txt","w");
+  for (i=0; i<=M; i++)  fprintf(FID,"  %d\n", A->indexptrs[i]);
+  fclose(FID);
+
+}
