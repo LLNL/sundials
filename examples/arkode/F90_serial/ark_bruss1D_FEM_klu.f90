@@ -541,6 +541,7 @@ subroutine farkefun(t, y, ydot, ipar, rpar, ier)
   real*8,  intent(out)  :: ydot(3,N)
 
   ! return with success (since fully implicit)
+  ydot = 0.d0
   ier = 0
   
 end subroutine farkefun
