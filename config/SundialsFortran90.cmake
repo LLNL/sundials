@@ -21,12 +21,12 @@ if(CMAKE_Fortran_COMPILER)
     CMAKE_Fortran_FLAGS_MINSIZEREL
     CMAKE_Fortran_FLAGS_RELEASE
     CMAKE_Fortran_FLAGS_RELWITHDEB)
-  # Create the FortranTest directory
-  set(FortranTest_DIR ${PROJECT_BINARY_DIR}/FortranTest)
-  file(MAKE_DIRECTORY ${FortranTest_DIR})
+  # Create the Fortran90Test directory
+  set(Fortran90Test_DIR ${PROJECT_BINARY_DIR}/Fortran90Test)
+  file(MAKE_DIRECTORY ${Fortran90Test_DIR})
   # Create a CMakeLists.txt file which will generate the "f90lib" library
   # and an executable "f90test"
-  file(WRITE ${FortranTest_DIR}/CMakeLists.txt
+  file(WRITE ${Fortran90Test_DIR}/CMakeLists.txt
     "CMAKE_MINIMUM_REQUIRED(VERSION 2.4)\n"
     "PROJECT(f90test Fortran)\n"
     "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
@@ -40,7 +40,7 @@ if(CMAKE_Fortran_COMPILER)
     "ADD_EXECUTABLE(f90test f90test.f90)\n"
     "TARGET_LINK_LIBRARIES(f90test f90lib)\n")
   # Create the Fortran source f90lib.f90 which defines two subroutines, "mysub" and "my_sub"
-  file(WRITE ${FortranTest_DIR}/f90lib.f90
+  file(WRITE ${Fortran90Test_DIR}/f90lib.f90
     "subroutine mysub\n"
     "  return\n"
     "end\n"
@@ -48,17 +48,17 @@ if(CMAKE_Fortran_COMPILER)
     "  return\n"
     "end\n")
   # Create the Fortran source f90test.f90 which calls "mysub" and "my_sub"
-  file(WRITE ${FortranTest_DIR}/f90test.f90
+  file(WRITE ${Fortran90Test_DIR}/f90test.f90
     "program f90test\n"
     "  call mysub()\n"
     "  call my_sub()\n"
     "end\n")
   # Use TRY_COMPILE to make the targets "f90lib" and "f90test"
-  try_compile(F90TEST_OK ${FortranTest_DIR} ${FortranTest_DIR}
+  try_compile(F90TEST_OK ${Fortran90Test_DIR} ${Fortran90Test_DIR}
     f90test OUTPUT_VARIABLE MY_OUTPUT)
   # To ensure we do not use stuff from the previous attempts, 
   # we must remove the CMakeFiles directory.
-  file(REMOVE_RECURSE ${FortranTest_DIR}/CMakeFiles)
+  file(REMOVE_RECURSE ${Fortran90Test_DIR}/CMakeFiles)
   # Proceed based on test results
   if(F90TEST_OK)
     message(STATUS "Trying to compile and link a simple Fortran90 program... OK")

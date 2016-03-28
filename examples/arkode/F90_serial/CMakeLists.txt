@@ -27,16 +27,24 @@ SET(FARKODE_examples
   ark_bruss
   )
 
-# Add variable farkode_bl_examples with the names of the serial FARKODE examples
+# Add variable FARKODE_examples_BL with the names of the serial FARKODE examples
 # that use Lapack
 
 SET(FARKODE_examples_BL
+  )
+
+# Add variable FARKODE_examples_KLU with the names of the serial FARKODE examples
+# that use KLU
+
+SET(FARKODE_examples_KLU
+  ark_bruss1D_FEM_klu
   )
 
 # Add variable ARKODE_extras with the names of auxiliary files to install
 
 SET(ARKODE_extras
   plot_sol.py
+  plot_brusselator1D_FEM.py
   )
 
 # Specify libraries to link against (through the target that was used to 
@@ -97,6 +105,20 @@ IF(LAPACK_FOUND)
   ENDFOREACH(example ${FARKODE_examples_BL})
 ENDIF(LAPACK_FOUND)
 
+# If KLU support is enabled, add the build and install targets for 
+# the examples using KLU
+IF(KLU_FOUND)
+  FOREACH(example ${FARKODE_examples_KLU})
+    ADD_EXECUTABLE(${example} ${example}.f90)
+    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    SUNDIALS_ADD_TEST(${example} ${example})
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+    IF(EXAMPLES_INSTALL)
+      INSTALL(FILES ${example}.f90 ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F90_serial)
+    ENDIF(EXAMPLES_INSTALL)
+  ENDFOREACH(example ${FARKODE_examples_KLU})
+ENDIF(KLU_FOUND)
+
 IF(EXAMPLES_INSTALL)
 
   # Install the README file
@@ -112,11 +134,17 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER_LIB "sundials_arkode")
   SET(SOLVER_FLIB "sundials_farkode")
   LIST2STRING(FARKODE_examples EXAMPLES)
+
   IF(LAPACK_FOUND)
     LIST2STRING(FARKODE_examples_BL EXAMPLES_BL)
   ELSE(LAPACK_FOUND)
     SET(EXAMPLES_BL "")
   ENDIF(LAPACK_FOUND)
+
+  IF(KLU_FOUND)
+    LIST2STRING(FARKODE_examples_KLU EXAMPLES)
+  ENDIF(KLU_FOUND)
+
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

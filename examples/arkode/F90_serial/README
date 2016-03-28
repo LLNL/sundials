@@ -1,6 +1,8 @@
 List of serial ARKODE F90 examples
 
   ark_bruss : chemical kinetics example (DIRK/DENSE)
+  ark_bruss1D_FEM_klu : stiff chemical kinetics PDE, with FEM
+                        spatial discretization and CSR Jacobian (DIRK/KLU)
 
 
 SUNDIALS was built with the following CMake options:
