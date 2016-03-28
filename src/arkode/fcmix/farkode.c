@@ -479,6 +479,43 @@ void FARK_SETARKTABLES(int *s, int *q, int *p, realtype *ci,
 
 /*=============================================================*/
 
+/* Fortran interface routine to set residual tolerance 
+   scalar/array; functions as an all-in-one interface to the C 
+   routines ARKodeResStolerance and ARKodeResVtolerance; 
+   see farkode.h for further details */
+void FARK_SETRESTOLERANCE(int *itol, realtype *atol, int *ier) {
+
+  N_Vector Vatol;
+  realtype abstol;
+
+  *ier = 0;
+
+  /* Set tolerance, based on itol argument */
+  abstol=1.e-9;
+  switch (*itol) {
+  case 1:
+    if (*atol > 0.0)  abstol = *atol;
+    *ier = ARKodeResStolerance(ARK_arkodemem, abstol); 
+    break;
+  case 2:
+    Vatol = NULL;
+    Vatol = N_VCloneEmpty(F2C_ARKODE_vec);
+    if (Vatol == NULL) {
+      *ier = -1;
+      return;
+    }
+    N_VSetArrayPointer(atol, Vatol);
+    if (N_VMin(Vatol) <= 0.0)  N_VConst(abstol, Vatol);
+    *ier = ARKodeResVtolerance(ARK_arkodemem, Vatol);
+    N_VDestroy(Vatol);
+    break;
+  }
+
+  return;
+}
+
+/*=============================================================*/
+
 /* Fortran interface to C routine ARKodeSetDiagnostics; see 
    farkode.h for further details */
 void FARK_SETDIAGNOSTICS(char fname[], int *flen, int *ier) {

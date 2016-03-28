@@ -49,6 +49,11 @@
    FARKSETIIN                 ARKodeSet* (integer arguments)
    FARKSETRIN                 ARKodeSet* (real arguments)
    FARKSETADAPTIVITYMETHOD    ARKodeSetAdaptivityMethod
+   FARKSETDEFAULTS            ARKodeSetDefaults
+   FARKSETERKTABLE            ARKodeSetERKTable
+   FARKSETIRKTABLE            ARKodeSetIRKTable
+   FARKSETARKTABLES           ARKodeSetARKTables
+   FARKSETRESTOLERANCE        ARKodeResStolerance, ARKodeResVtolerance
    FARKEWTSET                 ARKodeWFtolerances
    FARKADAPTSET               ARKodeSetAdaptivityFn
    FARKEXPSTABSET             ARKodeSetStabilityFn
@@ -855,6 +860,20 @@
            [realtype, input]
        B2E = array of length S containing the explicit embedding coefficients
            [realtype, input]
+
+     When using a non-identity mass matrix, to set an absolute residual 
+     tolerance (scalar or vector), call:
+
+       CALL FARKSETRESTOLERANCE(IATOL, ATOL, IER)
+
+     The arguments are:
+       IATOL = type for absolute tolerance ATOL [int, input]: 
+                 1 = scalar, 
+                 2 = array
+	ATOL = scalar or array absolute residual tolerance [realtype, input]
+	IER  = return completion flag [int, output]:
+                 0 = SUCCESS,
+                -1 = failure (see printed message for failure details).
 
  (12.9) To set a solver diagnostics output file, make the folowing call:
 
@@ -1899,6 +1918,7 @@ extern "C" {
 #define FARK_SETERKTABLE         SUNDIALS_F77_FUNC(farkseterktable,         FARKSETERKTABLE)
 #define FARK_SETIRKTABLE         SUNDIALS_F77_FUNC(farksetirktable,         FARKSETIRKTABLE)
 #define FARK_SETARKTABLES        SUNDIALS_F77_FUNC(farksetarktables,        FARKSETARKTABLES)
+#define FARK_SETRESTOLERANCE     SUNDIALS_F77_FUNC(farksetrestolerance,     FARKSETRESTOLERANCE)
 #define FARK_SETDIAGNOSTICS      SUNDIALS_F77_FUNC(farksetdiagnostics,      FARKSETDIAGNOSTICS)
 #define FARK_STOPDIAGNOSTICS     SUNDIALS_F77_FUNC(farkstopdiagnostics,     FARKSTOPDIAGNOSTICS)
 #define FARK_DENSE               SUNDIALS_F77_FUNC(farkdense,               FARKDENSE)
@@ -1988,6 +2008,7 @@ extern "C" {
 #define FARK_SETERKTABLE         farkseterktable_
 #define FARK_SETIRKTABLE         farksetirktable_
 #define FARK_SETARKTABLES        farksetarktables_
+#define FARK_SETRESTOLERANCE     farksetrestolerance_
 #define FARK_SETDIAGNOSTICS      farksetdiagnostics_
 #define FARK_STOPDIAGNOSTICS     farkstopdiagnostics_
 #define FARK_DENSE               farkdense_
@@ -2097,6 +2118,7 @@ extern "C" {
   void FARK_SETARKTABLES(int *s, int *q, int *p, realtype *ci, realtype *ce, 
 			 realtype *Ai, realtype *Ae, realtype *bi, 
 			 realtype *be, realtype *b2i, realtype *b2e, int *ier);
+  void FARK_SETRESTOLERANCE(int *itol, realtype *atol, int *ier);
   void FARK_SETDIAGNOSTICS(char fname[], int *flen, int *ier);
   void FARK_STOPDIAGNOSTICS(int *ier);
 

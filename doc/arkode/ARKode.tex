@@ -13117,6 +13117,19 @@ ARKodeSet* functions (see {\hyperref[c_interface/User_callable:cinterface-option
 \item {} 
 {\hyperref[f_interface/Usage:f/_/FARKEXPSTABSET]{\emph{\code{FARKEXPSTABSET()}}}} interfaces to {\hyperref[c_interface/User_callable:c.ARKodeSetStabilityFn]{\emph{\code{ARKodeSetStabilityFn()}}}}.
 
+\item {} 
+{\hyperref[f_interface/Usage:f/_/FARKSETERKTABLE]{\emph{\code{FARKSETERKTABLE()}}}} interfaces to {\hyperref[c_interface/User_callable:c.ARKodeSetERKTable]{\emph{\code{ARKodeSetERKTable()}}}}.
+
+\item {} 
+{\hyperref[f_interface/Usage:f/_/FARKSETIRKTABLE]{\emph{\code{FARKSETIRKTABLE()}}}} interfaces to {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTable]{\emph{\code{ARKodeSetIRKTable()}}}}.
+
+\item {} 
+{\hyperref[f_interface/Usage:f/_/FARKSETARKTABLES]{\emph{\code{FARKSETARKTABLES()}}}} interfaces to {\hyperref[c_interface/User_callable:c.ARKodeSetARKTables]{\emph{\code{ARKodeSetARKTables()}}}}.
+
+\item {} 
+{\hyperref[f_interface/Usage:f/_/FARKSETRESTOLERANCE]{\emph{\code{FARKSETRESTOLERANCE()}}}} interfaces to either
+{\hyperref[c_interface/User_callable:c.ARKodeResStolerance]{\emph{\code{ARKodeResStolerance()}}}} and {\hyperref[c_interface/User_callable:c.ARKodeResVtolerance]{\emph{\code{ARKodeResVtolerance()}}}}
+
 \end{itemize}
 \begin{itemize}
 \item {} 
@@ -14131,6 +14144,29 @@ the explicit embedding coefficients
 
 \item {} 
 \emph{IER} (\code{int}, output) -- return flag (0 success, \(\ne 0\) failure)
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{FARKSETRESTOLERANCE() (fortran subroutine)|textbf}
+
+\begin{fulllineitems}
+\phantomsection\label{f_interface/Usage:f/_/FARKSETRESTOLERANCE}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKSETRESTOLERANCE}}{\emph{IATOL}, \emph{ATOL}, \emph{IER}}{}
+Interface to the routines {\hyperref[c_interface/User_callable:c.ARKodeResStolerance]{\emph{\code{ARKodeResStolerance()}}}} and {\hyperref[c_interface/User_callable:c.ARKodeResVtolerance]{\emph{\code{ARKodeResVtolerance()}}}}.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{IATOL} (\code{int}, input) -- type for absolute residual tolerance input
+\emph{ATOL}: 1 = scalar, 2 = array
+
+\item {} 
+\emph{ATOL} (\code{realtype}, input) -- scalar or array absolute residual tolerance.
+
+\item {} 
+\emph{IER} (\code{int}, output) -- return flag (0 success, \(\ne 0\) failure).
 
 \end{itemize}
 
