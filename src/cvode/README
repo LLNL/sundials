@@ -1,5 +1,5 @@
                               CVODE
-                    Release 2.8.2, August 3, 2015
+                    Release 2.9.0, March 31, 2016
                  Alan C. Hindmarsh and Radu Serban
               Center for Applied Scientific Computing, LLNL
 
@@ -56,11 +56,11 @@ chapter in the CVODE User Guide.
 C. References
 -------------
 
-[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v2.8.0," 
-    LLNL technical report UCRL-SM-208108, ??? 2014.
+[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v2.9.0," 
+    LLNL technical report UCRL-SM-208108, March 2016.
 
-[2] A. C. Hindmarsh and R. Serban, "Example Programs for CVODE v2.8.0," 
-    LLNL technical report UCRL-SM-208110, ??? 2014.
+[2] A. C. Hindmarsh and R. Serban, "Example Programs for CVODE v2.9.0," 
+    LLNL technical report UCRL-SM-208110, March 2016.
 
 [3] S.D. Cohen and A.C. Hindmarsh, "CVODE, a Stiff/nonstiff ODE Solver in C,"
     Computers in Physics, 10(2), pp. 138-143, 1996.
@@ -74,6 +74,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.9.0       - Mar. 2016
 v. 2.8.2       - Aug. 2015
 v. 2.8.1       - Mar. 2015
 v. 2.8.0       - Mar. 2015
@@ -93,6 +94,13 @@ v. 1.0 (CVODE) - Sep. 1994 (date written)
 
 E. Revision History
 -------------------
+
+v. 2.8.2 (Aug. 2015) ---> v. 2.9.0 (Mar. 2016)
+- New features
+  - Two new NVECTOR modules added: for parallel Hypre and PetSC.
+-Other
+  - Enhanced Bi-CGstab by removing redundant dot product.
+  - Upgrades to sparse solver interfaces.
 
 v. 2.8.1 (Mar. 2015) ---> v. 2.8.2 (Aug. 2015)
 - Bug Fixes
