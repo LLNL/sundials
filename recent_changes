@@ -49,3 +49,9 @@ IDALapackDenseFreeB, IDALapackBandB, IDALapackBandFreeB.
   function FNVINITPH for Fortran interface to N_VNewEmpty_ParHyp.
   Also corrected name N_VCloneEmptyVectorArray to N_VCloneVectorArrayEmpty in
   all documentation files.
+
+* Revised all usage skeletons to remove references to names specific to
+  any particular NVECTOR module, using more general instructions instead.
+  This requires some additions to NVECTOR module documentations.
+
+* Added "Changes in ..." (latest version) to Intro. in all User Guides.
