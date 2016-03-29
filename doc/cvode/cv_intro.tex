@@ -72,9 +72,11 @@ implementation (such as serial or parallel) of {\nvector}. This allows
 writing the {\sundials} solvers in a manner independent of the actual
 {\nvector} implementation (which can be user-supplied), as well as
 allowing more than one {\nvector} module linked into an executable file.
-{\sundials} (and thus {\cvode}) is supplied with serial, 
-MPI-parallel, and both openMP and Pthreads thread-parallel
-{\nvector} implementations.
+{\sundials} (and thus {\cvode}) is supplied with six different {\nvector}
+implementations:
+serial, MPI-parallel, and both openMP and Pthreads thread-parallel
+{\nvector} implementations, a Hypre parallel implementation,
+and a PetSC implementation.
 \index{CVODE@{\cvode}!relationship to {\cvode}, {\pvode}|)}
 
 \index{CVODE@{\cvode}!motivation for writing in C|(}
@@ -90,6 +92,24 @@ in extended {\F}.
 \index{CVODE@{\cvode}!motivation for writing in C|)}
 
 \section{Changes from previous versions}
+
+\subsection*{Changes in v2.9.0}
+
+Two additional {\nvector} implementations were added -- one for
+Hypre (parallel) vectors, and one for PetSC vectors.  These
+additions are accompanied by additions to various interface functions
+and to user documentation.
+
+In {\cvode}, corrections were made to three Fortran interface
+functions.
+
+The Krylov linear solver Bi-CGstab was enhanced by removing a redundant
+dot product.  Various additions and corrections were made to the
+interfaces to the sparse solvers KLU and SuperLU\_MT.
+
+Minor corrections and additions were made to the {\cvode} solver, to the
+Fortran interfaces, to the examples, to installation-related files,
+and to the user documentation.
 
 \subsection*{Changes in v2.8.0}
 
