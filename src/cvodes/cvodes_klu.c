@@ -304,6 +304,7 @@ static int cvKLUInit(CVodeMem cv_mem)
   cvsls_mem = (CVSlsMem)cv_mem->cv_lmem;
 
   cvsls_mem->s_nje = 0;
+  /* This forces factorization for every call to CVODE */
   cvsls_mem->s_first_factorize = 1;
   cvsls_mem->s_nstlj = 0;
 
@@ -405,7 +406,10 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
        calls to CVKLUSetOrdering */
     klu_data->s_Common.ordering = klu_data->s_ordering;
 
-    klu_data->s_Symbolic = klu_analyze(JacMat->NP, JacMat->indexptrs, 
+     if (klu_data->s_Symbolic != NULL) {
+       klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
+     }
+     klu_data->s_Symbolic = klu_analyze(JacMat->NP, JacMat->indexptrs, 
 				       JacMat->indexvals, &(klu_data->s_Common));
     if (klu_data->s_Symbolic == NULL) {
       cvProcessError(cv_mem, CVSLS_PACKAGE_FAIL, "CVSLS", "CVKLUSetup", 
@@ -416,6 +420,10 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     /* ------------------------------------------------------------
        Compute the LU factorization of  the Jacobian.
        ------------------------------------------------------------*/
+    /* If klu_factor previously called, free data */
+    if( klu_data->s_Numeric != NULL) {
+       klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+    }
     klu_data->s_Numeric = klu_factor(JacMat->indexptrs, JacMat->indexvals, 
 				     JacMat->data, 
 				     klu_data->s_Symbolic, &(klu_data->s_Common));
@@ -548,8 +556,14 @@ static void cvKLUFree(CVodeMem cv_mem)
   cvsls_mem = (CVSlsMem) cv_mem->cv_lmem;
   klu_data = (KLUData) cvsls_mem->s_solver_data;
 
-  klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
-  klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
+  if( klu_data->s_Numeric != NULL)
+  {
+     klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+  }
+  if( klu_data->s_Symbolic != NULL)
+  {
+     klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
+  }
 
   if (cvsls_mem->s_JacMat) {
     SparseDestroyMat(cvsls_mem->s_JacMat);

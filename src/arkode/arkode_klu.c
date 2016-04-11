@@ -307,6 +307,7 @@ static int arkKLUInit(ARKodeMem ark_mem)
   arksls_mem = (ARKSlsMem) ark_mem->ark_lmem;
 
   arksls_mem->s_nje = 0;
+  /* Force factorization every cal to ARKODE */
   arksls_mem->s_first_factorize = 1;
   arksls_mem->s_nstlj = 0;
 
@@ -438,6 +439,9 @@ static int arkKLUSetup(ARKodeMem ark_mem, int convfail,
     klu_data->s_Common.ordering = klu_data->s_ordering;
 
     /* Perform symbolic analysis of sparsity structure */
+    if (klu_data->s_Symbolic != NULL) {
+       klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
+    }
     klu_data->s_Symbolic = klu_analyze(arksls_mem->s_A->NP, 
 				       arksls_mem->s_A->indexptrs, 
 				       arksls_mem->s_A->indexvals, 
@@ -451,6 +455,9 @@ static int arkKLUSetup(ARKodeMem ark_mem, int convfail,
     /* ------------------------------------------------------------
        Compute the LU factorization of  the Jacobian.
        ------------------------------------------------------------*/
+    if( klu_data->s_Numeric != NULL) {
+       klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+    }
     klu_data->s_Numeric = klu_factor(arksls_mem->s_A->indexptrs, 
 				     arksls_mem->s_A->indexvals, 
 				     arksls_mem->s_A->data, 
@@ -586,11 +593,14 @@ static void arkKLUFree(ARKodeMem ark_mem)
   arksls_mem = (ARKSlsMem) ark_mem->ark_lmem;
   klu_data = (KLUData) arksls_mem->s_solver_data;
 
-  klu_free_numeric(&(klu_data->s_Numeric), 
-		   &(klu_data->s_Common));
-
-  klu_free_symbolic(&(klu_data->s_Symbolic), 
-		    &(klu_data->s_Common));
+  if( klu_data->s_Numeric != NULL)
+  {
+     klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+  }
+  if( klu_data->s_Symbolic != NULL)
+  {
+     klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
+  }
 
   if (arksls_mem->s_A) {
     SparseDestroyMat(arksls_mem->s_A);
@@ -931,6 +941,9 @@ static int arkMassKLUSetup(ARKodeMem ark_mem, N_Vector vtemp1,
     klu_data->s_Common.ordering = klu_data->s_ordering;
 
     /* Perform symbolic analysis of sparsity structure */
+    if (klu_data->s_Symbolic != NULL) {
+       klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
+    }
     klu_data->s_Symbolic = klu_analyze(arksls_mem->s_M_lu->N, 
                                        arksls_mem->s_M_lu->indexptrs, 
 				       arksls_mem->s_M_lu->indexvals, 
@@ -944,6 +957,9 @@ static int arkMassKLUSetup(ARKodeMem ark_mem, N_Vector vtemp1,
     /* ------------------------------------------------------------
        Compute the LU factorization of  the Jacobian.
        ------------------------------------------------------------*/
+    if( klu_data->s_Numeric != NULL) {
+       klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+    }
     klu_data->s_Numeric = klu_factor(arksls_mem->s_M_lu->indexptrs, 
 				     arksls_mem->s_M_lu->indexvals, 
 				     arksls_mem->s_M_lu->data, 
@@ -1074,11 +1090,14 @@ static void arkMassKLUFree(ARKodeMem ark_mem)
   arksls_mem = (ARKSlsMassMem) ark_mem->ark_mass_mem;
   klu_data = (KLUData) arksls_mem->s_solver_data;
 
-  klu_free_numeric(&(klu_data->s_Numeric), 
-		   &(klu_data->s_Common));
-
-  klu_free_symbolic(&(klu_data->s_Symbolic), 
-		    &(klu_data->s_Common));
+  if( klu_data->s_Numeric != NULL)
+  {
+     klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+  }
+  if( klu_data->s_Symbolic != NULL)
+  {
+     klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
+  }
 
   if (arksls_mem->s_M) {
     SparseDestroyMat(arksls_mem->s_M);

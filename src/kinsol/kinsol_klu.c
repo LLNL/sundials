@@ -278,6 +278,7 @@ static int kinKLUInit(KINMem kin_mem)
   kinsls_mem = (KINSlsMem)kin_mem->kin_lmem;
 
   kinsls_mem->s_nje = 0;
+  /* This forces factorization for every call to KINSol */
   kinsls_mem->s_first_factorize = 1;
 
   kinsls_mem->s_last_flag = 0;
@@ -350,6 +351,9 @@ static int kinKLUSetup(KINMem kin_mem)
        calls to KINKLUSetOrdering */
     klu_data->s_Common.ordering = klu_data->s_ordering;
 
+    if (klu_data->s_Symbolic != NULL) {
+       klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
+    }
     klu_data->s_Symbolic = klu_analyze(JacMat->NP, JacMat->indexptrs, 
 				       JacMat->indexvals, &(klu_data->s_Common));
     if (klu_data->s_Symbolic == NULL) {
@@ -361,6 +365,10 @@ static int kinKLUSetup(KINMem kin_mem)
     /* ------------------------------------------------------------
        Compute the LU factorization of the Jacobian.
        ------------------------------------------------------------*/
+    /* If klu_factor previously called, free data */
+    if( klu_data->s_Numeric != NULL) {
+       klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+    }
     klu_data->s_Numeric = klu_factor(JacMat->indexptrs, JacMat->indexvals, 
 				     JacMat->data, klu_data->s_Symbolic, 
 				     &(klu_data->s_Common));
@@ -501,8 +509,14 @@ static void kinKLUFree(KINMem kin_mem)
   kinsls_mem = (KINSlsMem) kin_mem->kin_lmem;
   klu_data = (KLUData) kinsls_mem->s_solver_data;
 
-  klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
-  klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
+  if( klu_data->s_Numeric != NULL)
+  {
+     klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+  }
+  if( klu_data->s_Symbolic != NULL)
+  {
+     klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
+  }
 
   if (kinsls_mem->s_JacMat) {
     SparseDestroyMat(kinsls_mem->s_JacMat);

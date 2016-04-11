@@ -297,6 +297,7 @@ static int IDAKLUInit(IDAMem IDA_mem)
   idasls_mem = (IDASlsMem)IDA_mem->ida_lmem;
 
   idasls_mem->s_nje = 0;
+  /* Force factorization every call to IDAS */
   idasls_mem->s_first_factorize = 1;
 
   idasls_mem->s_last_flag = 0;
@@ -372,6 +373,9 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
        calls to IDAKLUSetOrdering */
     klu_data->s_Common.ordering = klu_data->s_ordering;
 
+    if (klu_data->s_Symbolic != NULL) {
+       klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
+    }
     klu_data->s_Symbolic = klu_analyze(JacMat->NP, JacMat->indexptrs, 
 				       JacMat->indexvals, &(klu_data->s_Common));
     if (klu_data->s_Symbolic == NULL) {
@@ -383,6 +387,9 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
     /* ------------------------------------------------------------
        Compute the LU factorization of  the Jacobian.
        ------------------------------------------------------------*/
+    if( klu_data->s_Numeric != NULL) {
+       klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+    }
     klu_data->s_Numeric = klu_factor(JacMat->indexptrs, JacMat->indexvals, JacMat->data, 
 				     klu_data->s_Symbolic, &(klu_data->s_Common));
 
@@ -508,8 +515,14 @@ static int IDAKLUFree(IDAMem IDA_mem)
   idasls_mem = (IDASlsMem) IDA_mem->ida_lmem;
   klu_data = (KLUData) idasls_mem->s_solver_data;
 
-  klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
-  klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
+  if( klu_data->s_Numeric != NULL)
+  {
+     klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+  }
+  if( klu_data->s_Symbolic != NULL)
+  {
+     klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
+  }
 
   if (idasls_mem->s_JacMat) {
     SparseDestroyMat(idasls_mem->s_JacMat);
