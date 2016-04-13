@@ -260,6 +260,8 @@ int main()
 
   /* Free memory */
 
+  N_VDestroy_Serial(u1);
+  N_VDestroy_Serial(u2);
   N_VDestroy_Serial(u);
   N_VDestroy_Serial(s);
   N_VDestroy_Serial(c);
