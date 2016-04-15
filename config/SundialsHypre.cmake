@@ -1,9 +1,18 @@
 # ---------------------------------------------------------------
-# Programmer:  Jean Sexton @ LLNL
+# $Revision: 4713 $
+# $Date: 2016-03-28 07:20:43 -0700 (Mon, 28 Mar 2016) $
 # ---------------------------------------------------------------
+# Programmer:  Slaven Peles @ LLNL, Jean Sexton @ SMU
+# ---------------------------------------------------------------
+# LLNS Copyright Start
+# Copyright (c) 2014, Lawrence Livermore National Security
+# This work was performed under the auspices of the U.S. Department 
+# of Energy by Lawrence Livermore National Laboratory in part under 
+# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
 # For details, see the LICENSE file.
+# LLNS Copyright End
 # ---------------------------------------------------------------
 # Hypre tests for SUNDIALS CMake-based configuration.
 # 
@@ -11,6 +20,10 @@
 set(HYPRE_FOUND FALSE)
 
 include(FindHypre)
+
+if(UNIX)
+  set(LINK_MATH_LIB "-lm")
+endif()
 
 if(HYPRE_LIBRARY)
   message(STATUS "Looking for HYPRE LIBRARY...")
@@ -29,18 +42,16 @@ if(HYPRE_LIBRARY)
     "SET(CMAKE_C_FLAGS_DEBUG \"${CMAKE_C_FLAGS_DEBUG}\")\n"
     "SET(CMAKE_C_FLAGS_RELWITHDEBUGINFO \"${CMAKE_C_FLAGS_RELWITHDEBUGINFO}\")\n"
     "SET(CMAKE_C_FLAGS_MINSIZE \"${CMAKE_C_FLAGS_MINSIZE}\")\n"
+    "SET(CMAKE_EXE_LINKER_FLAGS \"${LINK_MATH_LIB}\")\n"
     "INCLUDE_DIRECTORIES(${HYPRE_INCLUDE_DIR})\n"
     "ADD_EXECUTABLE(ltest ltest.c)\n"
     "TARGET_LINK_LIBRARIES(ltest ${HYPRE_LIBRARY})\n")    
-# Create a C source file which calls a KLU function
-# SGS TODO what is a simple KLU method to invoke?
+# Create a C source file which calls a hypre function
   file(WRITE ${HYPRETest_DIR}/ltest.c
     "\#include \"HYPRE_parcsr_ls.h\"\n"
     "int main(){\n"
     "HYPRE_ParVector par_b;\n"
     "HYPRE_IJVector b;\n"
-    "HYPRE_IJVectorAssemble(b);\n"
-    "HYPRE_IJVectorGetObject(b, (void **) &par_b);\n"
     "return(0);\n"
     "}\n")
   # Attempt to link the "ltest" executable
