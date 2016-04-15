@@ -1,5 +1,5 @@
 
-               Cheat Sheet for SVN - 19 December 2012
+               Cheat Sheet for SVN - 14 April 2016
 
 
 1 . For the initial checkout of entire SUNDIALS, do
@@ -99,3 +99,35 @@
 19. svn rename file_or_dir_name
       Renames file or directory. Commit will update the next revision in the repository
       with the new file name. The previous revision will retain the old file name.
+
+      
+   MERGING INSTRUCTIONS
+   ====================
+   
+   Always make a clean checkout of a branch where you want to merge. Feel free to 
+   experiment as much as you like, nothing can go wrong for as long as you don't 
+   commit changes due to the merge. All merging is local until that point. If you
+   can't resolve conflicts, just nuke the checked out branch and start over. 
+
+20. svn merge ^/trunk/
+    Syncs current branch with trunk. Everything from trunk gets in current branch.
+    
+21. svn merge --reintegrate ^/branches/feature
+    Reintegrates branch 'feature' to the current branch (typically trunk). 
+    
+22. svn merge -rXXXX:YYYY ^/branches/release
+    Merge revisions from XXXX to YYYY into current branch. In most cases this is 
+    what you want.
+    
+23. svn status | grep -P '^(?=.{0,6}C)'
+    This one is my favorite: Checks for conflicts.
+    
+24. svn resolve --accept working -R <path/of/conflict>
+    To resolve tree conflict when file is added/deleted on both sides 
+    and after you made sure addition/deletions are what you wanted. Tree 
+    conflicts are usually harmless.
+    
+25. svn resolve --accept theirs-full <filename>
+    Quick resolve for a file. 
+
+    
