@@ -25,7 +25,8 @@
 
 #ifndef _SLUMT_H
 #define _SLUMT_H
-#include "pdsp_defs.h"
+/* #include "pdsp_defs.h" */
+#include "slu_mt_ddefs.h"
 #endif
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -45,7 +46,7 @@ typedef struct SLUMTDataRec {
   SuperMatrix *s_A, *s_AC, *s_L, *s_U, *s_B;
   Gstat_t *Gstat;
   int *perm_r, *perm_c;
-  int num_threads; 
+  int num_threads;
   double diag_pivot_thresh; 
   superlumt_options_t *superlumt_options;
 
