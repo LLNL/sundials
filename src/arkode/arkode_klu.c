@@ -307,7 +307,7 @@ static int arkKLUInit(ARKodeMem ark_mem)
   arksls_mem = (ARKSlsMem) ark_mem->ark_lmem;
 
   arksls_mem->s_nje = 0;
-  /* Force factorization every cal to ARKODE */
+  /* Force factorization every call to ARKODE */
   arksls_mem->s_first_factorize = 1;
   arksls_mem->s_nstlj = 0;
 
