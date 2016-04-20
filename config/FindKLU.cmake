@@ -14,9 +14,11 @@
 
 set(PRE "lib")
 IF(WIN32)
-  set(POST ".lib" ".dll")
+  #set(POST ".lib" ".dll")
+  set(POST ".lib")
 else(WIN32)
-  set(POST ".a" ".so")
+  #set(POST ".a" ".so")
+  set(POST ".a")
 endif(WIN32)
 
 if (KLU_LIBRARY)

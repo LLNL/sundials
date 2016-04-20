@@ -16,7 +16,7 @@ set(PRE "lib")
 IF(WIN32)
   set(POST ".lib" ".dll")
 else(WIN32)
-  set(POST ".a" ".so")
+  set(POST ".so")
 endif(WIN32)
 
 if (PETSC_LIBRARY)

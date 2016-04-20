@@ -40,14 +40,16 @@ if(SUPERLUMT_LIBRARIES)
     "SET(CMAKE_C_FLAGS_DEBUG \"${CMAKE_C_FLAGS_DEBUG}\")\n"
     "SET(CMAKE_C_FLAGS_RELWITHDEBUGINFO \"${CMAKE_C_FLAGS_RELWITHDEBUGINFO}\")\n"
     "SET(CMAKE_C_FLAGS_MINSIZE \"${CMAKE_C_FLAGS_MINSIZE}\")\n"
+    "INCLUDE_DIRECTORIES(${SUPERLUMT_INCLUDE_DIR})\n"
     "ADD_EXECUTABLE(ltest ltest.c)\n"
     "TARGET_LINK_LIBRARIES(ltest ${SUPERLUMT_LIBRARIES})\n")    
-# TODO: Eddy - fix this test
 # Create a C source file which calls a SUPERLUMT function
   file(WRITE ${SUPERLUMT_TEST_DIR}/ltest.c
+    "\#include \"slu_mt_ddefs.h\"\n"
+#    "\#include \"pdsp_defs.h\"\n"
     "int main(){\n"
-    "int n=1;\n"
-    "double x, y;\n"
+    "SuperMatrix A;\n"
+    "NCformat *Astore;\n" 
     "return(0);\n"
     "}\n")
   # Attempt to link the "ltest" executable
@@ -67,6 +69,6 @@ if(SUPERLUMT_LIBRARIES)
     message(STATUS "Checking if SUPERLUMT works... FAILED")
   endif(LTEST_OK)
 else(SUPERLUMT_LIBRARIES)
-#PRINT_WARNING("y SundialsSUPERLUMT.cmake SUPERLUMT_LIBRARIES" "${SUPERLUMT_LIBRARIES}")
+  PRINT_WARNING("Eddy -  SundialsSUPERLUMT.cmake SUPERLUMT_LIBRARIES" "${SUPERLUMT_LIBRARIES}")
   message(STATUS "Looking for SUPERLUMT libraries... FAILED")
 endif(SUPERLUMT_LIBRARIES)
