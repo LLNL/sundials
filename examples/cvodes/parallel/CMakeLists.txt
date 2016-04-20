@@ -24,7 +24,7 @@ SET(CVODES_examples
   "cvsAdvDiff_FSA_non_p\;2\;2\;-sensi stg t"
   "cvsAdvDiff_FSA_non_p\;2\;2\;-sensi sim t"
   "cvsAdvDiff_non_p\;2\;2"
-  "cvsAtmDisp_ASAi_kry_bbd_p\;2\;4"
+  "cvsAtmDisp_ASAi_kry_bbd_p\;2\;8"
   "cvsDiurnal_FSA_kry_p\;2\;4\;-sensi stg t"
   "cvsDiurnal_FSA_kry_p\;2\;4\;-sensi sim t"
   "cvsDiurnal_kry_bbd_p\;2\;4"

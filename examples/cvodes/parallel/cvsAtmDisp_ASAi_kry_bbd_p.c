@@ -40,19 +40,19 @@
 
 #define XMIN RCONST(0.0)
 #define XMAX RCONST(20.0)
-#define MX   20    /* no. of divisions in x dir. */
+#define MX   80    /* no. of divisions in x dir. */
 #define NPX  2     /* no. of procs. in x dir.    */
 
 #define YMIN RCONST(0.0)
 #define YMAX RCONST(20.0)
-#define MY   40    /* no. of divisions in y dir. */
-#define NPY  2     /* no. of procs. in y dir.    */
+#define MY   80    /* no. of divisions in y dir. */
+#define NPY  4     /* no. of procs. in y dir.    */
 
 #ifdef USE3D
 #define ZMIN RCONST(0.0)
 #define ZMAX RCONST(20.0)
-#define MZ   20    /* no. of divisions in z dir. */
-#define NPZ  1     /* no. of procs. in z dir.    */
+#define MZ   40    /* no. of divisions in z dir. */
+#define NPZ  2     /* no. of procs. in z dir.    */
 #endif
 
 /* Parameters for source Gaussians */
@@ -1240,7 +1240,8 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
     fprintf(fid,"print('cvsadjkryx_p3Dgrad','-depsc')\n");
     fprintf(fid,"savefig('cvsadjkryx_p3Dgrad.fig')\n");
 #else
-    fprintf(fid,"clear;\nfigure;\n");
+    fprintf(fid,"clear;\n");
+    fprintf(fid,"figure('units','normalized','position',[.1 .1 .6 .4])\n");
     fprintf(fid,"trans = 0.7;\n");
     fprintf(fid,"ecol  = 'none';\n");
 
@@ -1248,26 +1249,42 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
 
       fprintf(fid,"\ngrad%03d;\n",ip);
 
-      fprintf(fid,"\nsubplot(1,2,1)\n");
-      fprintf(fid,"s=surf(x%d,y%d,g%d);\n",ip,ip,ip);
-      fprintf(fid,"set(s,'FaceAlpha',trans);\n");
-      fprintf(fid,"set(s,'EdgeColor',ecol);\n");
+      fprintf(fid,"\nax(1) = subplot(1,2,1);\n");
+      fprintf(fid,"s = surf(x%d,y%d,g%d);\n",ip,ip,ip);
+      fprintf(fid,"set(s, 'FaceAlpha', trans);\n");
+      fprintf(fid,"set(s, 'EdgeColor', ecol);\n");
       fprintf(fid,"hold on\n");
       fprintf(fid,"axis tight\n");
       fprintf(fid,"box on\n");
+      fprintf(fid,"colorbar('Position', [0.5 0.1 0.025 0.8])\n");
       
-      fprintf(fid,"\nsubplot(1,2,2)\n");
-      fprintf(fid,"s=surf(x%d,y%d,p%d);\n",ip,ip,ip);
-      fprintf(fid,"set(s,'CData',g%d);\n",ip);
-      fprintf(fid,"set(s,'FaceAlpha',trans);\n");
-      fprintf(fid,"set(s,'EdgeColor',ecol);\n");
+      fprintf(fid,"\nax(2) = subplot(1,2,2);\n");
+      fprintf(fid,"s = surf(x%d,y%d,p%d);\n",ip,ip,ip);
+      fprintf(fid,"set(s, 'CData', g%d);\n",ip);
+      fprintf(fid,"set(s, 'FaceAlpha', trans);\n");
+      fprintf(fid,"set(s, 'EdgeColor', ecol);\n");
       fprintf(fid,"hold on\n");
       fprintf(fid,"axis tight\n");
       fprintf(fid,"box on\n");
 
       fprintf(fid,"clear x%d y%d p%d g%d;\n",ip,ip,ip,ip);
     }
-    fprintf(fid,"print('cvsadjkryx_p2D','-depsc')\n");
+
+    fprintf(fid,"\nax(1) = subplot(1,2,1);\n");
+    fprintf(fid,"pos = get(ax(1), 'Position');\n");
+    fprintf(fid,"set(ax(1), 'Position', [pos(1)-0.02 pos(2) pos(3) pos(4)]);\n");
+    fprintf(fid,"xlabel('x'), ylabel('y')\n");
+    fprintf(fid,"hold off\n");
+
+    fprintf(fid,"\nax(2) = subplot(1,2,2);\n");
+    fprintf(fid,"pos = get(ax(2), 'Position');\n");
+    fprintf(fid,"set(ax(2), 'Position', [pos(1)+0.02 pos(2) pos(3) pos(4)]);\n");
+    fprintf(fid,"xlabel('x'), ylabel('y')\n");
+    fprintf(fid,"hold off\n");
+
+    fprintf(fid,"\nfig = gcf;\n");
+    fprintf(fid,"fig.PaperPositionMode = 'auto';\n");
+    fprintf(fid,"print('cvsadjkryx_p2D','-depsc','-r0')\n");
     fprintf(fid,"savefig('cvsadjkryx_p2D.fig')\n");
 #endif
     fclose(fid);
