@@ -55,8 +55,8 @@ Approved for public release; further dissemination unlimited
 \clearpage
 }
 
-\title{User Documentation for ARKode v1.0.2\\
-       (SUNDIALS v2.6.2)}
+\title{User Documentation for ARKode v1.1.0\\
+       (SUNDIALS v2.9.0)}
 \author{
   Daniel R. Reynolds$^1$, David J. Gardner$^2$, \\
   Alan C. Hindmarsh$^2$, Carol S. Woodward$^2$ \\
@@ -5242,7 +5242,7 @@ additive RK method.
 \emph{p} -- global order of accuracy for the embedded RK method.
 
 \item {} 
-\emph{ci} -- array (of length \emph{s}) of stage times for the implciit RK method.
+\emph{ci} -- array (of length \emph{s}) of stage times for the implicit RK method.
 
 \item {} 
 \emph{ce} -- array (of length \emph{s}) of stage times for the explicit RK method.
@@ -5290,8 +5290,6 @@ correctly describe the coefficients that were input.
 
 Error checking is performed on both \emph{Ai} and \emph{Ae} to ensure
 that they specify DIRK and ERK methods, respectively.
-
-Both RK methods must share the same \emph{c}, \emph{b} and \emph{bembed} coefficients.
 
 If either the inputs \emph{b2i} or \emph{b2e} are set to \code{NULL}, ARKode
 will run in fixed-step mode (see {\hyperref[c_interface/User_callable:c.ARKodeSetFixedStep]{\emph{\code{ARKodeSetFixedStep()}}}});
