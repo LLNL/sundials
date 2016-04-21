@@ -29,8 +29,8 @@ def main():
     maxBuildsPerCurrentRev = 10     # maximum number of builds to keep for current revision
     
     svnRepo = "file:///usr/casc/sundials/svnrepo/trunk"
-    sunBaseDir = "/usr/casc/sundials/etest/devtest"
-    #sunBaseDir = "/usr/casc/sundials/devtest"
+    #sunBaseDir = "/usr/casc/sundials/etest/devtest"
+    sunBaseDir = "/usr/casc/sundials/devtest"
     sunBinDir = os.path.join(sunBaseDir, "bin")
     sunNightlyDir = os.path.join(sunBaseDir, "nightly")
     todayDate = time.strftime("%Y-%m-%d")
@@ -148,30 +148,6 @@ def main():
             #print "\n*** FYI: " + cmd
             cmdout = runCommandPopen(cmd)
             print cmdout
-            
-#            # run CMake again to add SuperLU_MT config (currently KLU must be configured before SLU)
-#            cmd = "cmake \ \n"
-#            # enable SUPERLU_MT
-#            cmd = cmd + "-DSUPERLUMT_ENABLE=TRUE \ \n"
-#            # specify include dir
-#            cmd = cmd + "-DSUPERLUMT_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_2.4/SRC \ \n"
-#            # specify library dir
-#            cmd = cmd + "-DSUPERLUMT_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_2.4/lib \ \n"
-#            # specify SuperLU_MT thread type
-#            cmd = cmd + "-DSUPERLUMT_THREAD_TYPE=Pthread \ \n"
-#            # specify source
-#            cmd = cmd + sunSrcDir
-#            # concatonate output to config log file
-#            cmd = cmd + " &>> " + cmakeLogFile
-#            
-#            print "\n*** Running CMake:\n" + cmd + " ..."
-#            
-#            # remove newlines from cmd
-#            cmd = cmd.replace('\n','')
-#            cmd = cmd.replace('\\','')
-#            #print "\n*** FYI: " + cmd
-#            cmdout = runCommandPopen(cmd)
-#            print cmdout
             
             # run make to build libs and executables
             makeLogFile = os.path.join(sunBuildDir, makeLogFileName)
@@ -335,8 +311,8 @@ def sendEmail(logFile, subject):
     # me == the sender's email address
     me = "SUNDIALS.sunbuild@llnl.gov"
     # you == the recipient's email address
-    #you = "sundials-devs@llnl.gov"
-    you = "banks12@llnl.gov" # Eddy
+    you = "sundials-devs@llnl.gov"
+    #you = "banks12@llnl.gov" # Eddy
     msg['Subject'] = subject
     msg['From'] = me
     msg['To'] = you
