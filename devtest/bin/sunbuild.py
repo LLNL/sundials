@@ -29,14 +29,16 @@ def main():
     maxBuildsPerCurrentRev = 10     # maximum number of builds to keep for current revision
     
     svnRepo = "file:///usr/casc/sundials/svnrepo/trunk"
-    #sunBaseDir = "/usr/casc/sundials/etest/devtest"
-    sunBaseDir = "/usr/casc/sundials/devtest"
+    sunBaseDir = "/usr/casc/sundials/etest/devtest"
+    #sunBaseDir = "/usr/casc/sundials/devtest"
     sunBinDir = os.path.join(sunBaseDir, "bin")
     sunNightlyDir = os.path.join(sunBaseDir, "nightly")
     todayDate = time.strftime("%Y-%m-%d")
     logFileName = "build.log"
+    cmakeLogFileName = "cmake.log"
     makeLogFileName = "make.log"
-    makeFileName = ""
+    makeLogFile = "Oops - didn't get this far!"
+    cmakeLogFile = "Oops - didn't get this far!"
     tmpLogFile = os.path.join(sunNightlyDir, logFileName)
     sys.stdout = Logger(tmpLogFile)
     
@@ -98,7 +100,12 @@ def main():
             os.chdir(sunBuildDir)
                 
             # run CMake to configure
+            cmakeLogFile = os.path.join(sunBuildDir, cmakeLogFileName)
             cmd = "cmake \ \n"
+            # set compiler flags to check for non-standard code
+            # -ansi  OR  -std-c89  OR  -std=c99  OR  -std=c11
+            # NOTE: PETSC requires -std=c99 or newer
+            cmd = cmd + "-DCMAKE_C_FLAGS='-Wall -std=c99 -pedantic' \ \n"
             # enable mpi
             cmd = cmd + "-DMPI_ENABLE=ON -DFCMIX_ENABLE=ON \ \n"
             # enable lapack   (NOTE: will find libraries in LD_LIBRARY_PATH)
@@ -106,6 +113,12 @@ def main():
             # enable klu
             cmd = cmd + "-DKLU_ENABLE=TRUE -DKLU_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.2.1/include \ \n"
             cmd = cmd + "-DKLU_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.2.1/lib \ \n"
+            # enable hypre
+            cmd = cmd + "-DHYPRE_ENABLE=TRUE -DHYPRE_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/hypre/2.10.0b/include \ \n"
+            cmd = cmd + "-DHYPRE_LIBRARY=/usr/casc/sundials/apps/rh6/hypre/2.10.0b/lib/libHYPRE.a \ \n"
+            # enable PETSc
+            cmd = cmd + "-DPETSC_ENABLE=TRUE -DPETSC_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/petsc/3.6.3/include \ \n"
+            cmd = cmd + "-DPETSC_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/petsc/3.6.3/lib \ \n"
             # enable openmp
             cmd = cmd + "-DOPENMP_ENABLE=TRUE \ \n"
             # enable pthreads
@@ -114,32 +127,20 @@ def main():
             cmd = cmd + "-DFCMIX_ENABLE=TRUE \ \n"
             # enable F90
             cmd = cmd + "-DF90_ENABLE=TRUE \ \n"
-            # specify source
-            cmd = cmd + sunSrcDir
-            
-            print "\n*** Configuring with:\n" + cmd + " ..."
-            
-            # remove newlines from cmd
-            cmd = cmd.replace('\n','')
-            cmd = cmd.replace('\\','')
-            #print "\n*** FYI: " + cmd
-            cmdout = runCommandPopen(cmd)
-            print cmdout
-            
-            # run CMake again to add SuperLU_MT config (currently KLU must be configured before SLU)
-            cmd = "cmake \ \n"
             # enable SUPERLU_MT
             cmd = cmd + "-DSUPERLUMT_ENABLE=TRUE \ \n"
             # specify include dir
-            cmd = cmd + "-DSUPERLUMT_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_2.4/SRC \ \n"
+            cmd = cmd + "-DSUPERLUMT_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.0/SRC \ \n"
             # specify library dir
-            cmd = cmd + "-DSUPERLUMT_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_2.4/lib \ \n"
+            cmd = cmd + "-DSUPERLUMT_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.0/lib \ \n"
             # specify SuperLU_MT thread type
             cmd = cmd + "-DSUPERLUMT_THREAD_TYPE=Pthread \ \n"
             # specify source
             cmd = cmd + sunSrcDir
+            # redirect output to config log file
+            cmd = cmd + " &> " + cmakeLogFile
             
-            print "\n*** Configuring with:\n" + cmd + " ..."
+            print "\n*** Running CMake:\n" + cmd + " ..."
             
             # remove newlines from cmd
             cmd = cmd.replace('\n','')
@@ -147,6 +148,30 @@ def main():
             #print "\n*** FYI: " + cmd
             cmdout = runCommandPopen(cmd)
             print cmdout
+            
+#            # run CMake again to add SuperLU_MT config (currently KLU must be configured before SLU)
+#            cmd = "cmake \ \n"
+#            # enable SUPERLU_MT
+#            cmd = cmd + "-DSUPERLUMT_ENABLE=TRUE \ \n"
+#            # specify include dir
+#            cmd = cmd + "-DSUPERLUMT_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_2.4/SRC \ \n"
+#            # specify library dir
+#            cmd = cmd + "-DSUPERLUMT_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_2.4/lib \ \n"
+#            # specify SuperLU_MT thread type
+#            cmd = cmd + "-DSUPERLUMT_THREAD_TYPE=Pthread \ \n"
+#            # specify source
+#            cmd = cmd + sunSrcDir
+#            # concatonate output to config log file
+#            cmd = cmd + " &>> " + cmakeLogFile
+#            
+#            print "\n*** Running CMake:\n" + cmd + " ..."
+#            
+#            # remove newlines from cmd
+#            cmd = cmd.replace('\n','')
+#            cmd = cmd.replace('\\','')
+#            #print "\n*** FYI: " + cmd
+#            cmdout = runCommandPopen(cmd)
+#            print cmdout
             
             # run make to build libs and executables
             makeLogFile = os.path.join(sunBuildDir, makeLogFileName)
@@ -160,6 +185,8 @@ def main():
             print "\n*** Testing with:  " + cmd + " ..."
             (msg, cmdout) = runTestCommandPopen(cmd)
             print cmdout
+            
+            # Parse cmake log file for warning
                 
             # purge nightly build directory (keep maxRevDirs number of revisions)
             print "\n*** Purging nightly build directory..."
@@ -174,19 +201,19 @@ def main():
             
         except Exception, e:
             msg = "FAILED: " + str(e)
-            cleanup(msg, startTime, sunCheckoutDir, tmpLogFile, logFileName, makeLogFile)
+            cleanup(msg, startTime, sunCheckoutDir, tmpLogFile, logFileName, cmakeLogFile, makeLogFile)
             return 2
     
         # build successful - cleanup
         msg = "Finished: Rev: " + svnrev + " | " + msg
-        cleanup(msg, startTime, sunCheckoutDir, tmpLogFile, logFileName, makeLogFile)
+        cleanup(msg, startTime, sunCheckoutDir, tmpLogFile, logFileName, cmakeLogFile, makeLogFile)
     
     # catch any other exception
     except:
         # send log file in progress...
         #print "Sending email from file: ", tmpLogFile
         msg = "ABORT: Build failed for rev: " + str(svnrev)
-        cleanup(msg, startTime, sunCheckoutDir, tmpLogFile, logFileName, makeLogFile)
+        cleanup(msg, startTime, sunCheckoutDir, tmpLogFile, logFileName, cmakeLogFile, makeLogFile)
         raise Exception("ABORT")
     
     # nothing else to do
@@ -221,15 +248,16 @@ def purgeNightlyDir(rootDir, maxKeepDirs):
 #
 # cleanup
 #
-def cleanup(msg, startTime, sunCheckoutDir, tmpLogFile, logFileName, makeLogFile):
+def cleanup(msg, startTime, sunCheckoutDir, tmpLogFile, logFileName, cmakeLogFile, makeLogFile):
 
     # file spec of final log file in revision checkout directory
     revLogFile = os.path.join(sunCheckoutDir, logFileName)
     
     # print closing info
     print "\n" + msg
-    print "For build details see:  " + revLogFile
-    print "For make specific details see:  " + makeLogFile
+    print "For build script details see:    " + revLogFile
+    print "For CMake specific details see:  " + cmakeLogFile
+    print "For make specific details see:   " + makeLogFile
     print "For test details see: " + sunCheckoutDir + "/build/Testing/Temporary/LastTest.log"
     
     endTime = datetime.datetime.now()
@@ -307,8 +335,8 @@ def sendEmail(logFile, subject):
     # me == the sender's email address
     me = "SUNDIALS.sunbuild@llnl.gov"
     # you == the recipient's email address
-    you = "sundials-devs@llnl.gov"
-    #you = "banks12@llnl.gov" # Eddy
+    #you = "sundials-devs@llnl.gov"
+    you = "banks12@llnl.gov" # Eddy
     msg['Subject'] = subject
     msg['From'] = me
     msg['To'] = you
