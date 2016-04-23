@@ -151,8 +151,5 @@ ENDIF(BUILD_SHARED_LIBS)
 # Install the IDA header files
 INSTALL(FILES ${ida_HEADERS} ${ida_BL_HEADERS} DESTINATION include/ida)
 
-# Install the IDA implementation header file
-INSTALL(FILES ida_impl.h DESTINATION include/ida)
-
 #
 MESSAGE(STATUS "Added IDA module")
