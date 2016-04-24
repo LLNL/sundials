@@ -42,11 +42,11 @@
 static int IDASptfqmrInit(IDAMem IDA_mem);
 
 static int IDASptfqmrSetup(IDAMem IDA_mem, 
-			   N_Vector yy_p, N_Vector yp_p, N_Vector rr_p, 
-			   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+                           N_Vector yy_p, N_Vector yp_p, N_Vector rr_p, 
+                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 static int IDASptfqmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
-			   N_Vector yy_now, N_Vector yp_now, N_Vector rr_now);
+                           N_Vector yy_now, N_Vector yp_now, N_Vector rr_now);
 
 static int IDASptfqmrPerf(IDAMem IDA_mem, int perftask);
 
@@ -200,6 +200,8 @@ int IDASptfqmr(void *ida_mem, int maxl)
 
   idaspils_mem->s_last_flag = IDASPILS_SUCCESS;
 
+  idaSpilsInitializeCounters(idaspils_mem);
+
   /* Set setupNonNull to FALSE */
   setupNonNull = FALSE;
 
@@ -277,8 +279,7 @@ static int IDASptfqmrInit(IDAMem IDA_mem)
   sptfqmr_mem = (SptfqmrMem) spils_mem;
 
   /* Initialize counters */
-  npe = nli = nps = ncfl = 0;
-  njtimes = nres = 0;
+  idaSpilsInitializeCounters(idaspils_mem);
 
   /* Set setupNonNull to TRUE iff there is preconditioning with setup */
   setupNonNull = (psolve != NULL) && (pset != NULL);

@@ -77,15 +77,20 @@ typedef struct IDADlsMemRec {
  */
   
 int idaDlsDenseDQJac(long int N, realtype tt, realtype c_j,
-		     N_Vector yy, N_Vector yp, N_Vector rr, 
-		     DlsMat Jac, void *data,
-		     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+                     N_Vector yy, N_Vector yp, N_Vector rr, 
+                     DlsMat Jac, void *data,
+                     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   
 int idaDlsBandDQJac(long int N, long int mupper, long int mlower,
-		    realtype tt, realtype c_j, 
-		    N_Vector yy, N_Vector yp, N_Vector rr,
-		    DlsMat Jac, void *data,
-		    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+                    realtype tt, realtype c_j, 
+                    N_Vector yy, N_Vector yp, N_Vector rr,
+                    DlsMat Jac, void *data,
+                    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+
+/* Auxilliary functions */
+
+int idaDlsInitializeCounters(IDADlsMem idadls_mem);
+
 
 /*
  * =================================================================

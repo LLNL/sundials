@@ -119,9 +119,7 @@ int ARKBand(void *arkode_mem, long int N, long int mupper, long int mlower)
   ark_mem->ark_setupNonNull = TRUE;
 
   /* Initialize counters */
-  arkdls_mem->d_nje   = 0;
-  arkdls_mem->d_nfeDQ = 0;
-  arkdls_mem->d_nstlj = 0;
+  arkDlsInitializeCounters(arkdls_mem);
   
   /* Load problem dimension */
   arkdls_mem->d_n = N;
@@ -183,9 +181,8 @@ static int arkBandInit(ARKodeMem ark_mem)
 {
   ARKDlsMem arkdls_mem;
   arkdls_mem = (ARKDlsMem) ark_mem->ark_lmem;
-  arkdls_mem->d_nje   = 0;
-  arkdls_mem->d_nfeDQ = 0;
-  arkdls_mem->d_nstlj = 0;
+
+  arkDlsInitializeCounters(arkdls_mem);
 
   /* Set Jacobian function and data, depending on jacDQ */
   if (arkdls_mem->d_jacDQ) {

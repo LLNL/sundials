@@ -626,3 +626,14 @@ int KINSpilsDQJtimes(N_Vector v, N_Vector Jv,
   return(0);
 }
 
+int kinSpilsInitializeCounters(KINSpilsMem kinspils_mem)
+{
+  kinspils_mem->s_npe     = 0;
+  kinspils_mem->s_nli     = 0;
+  kinspils_mem->s_nps     = 0;
+  kinspils_mem->s_ncfl    = 0;
+  kinspils_mem->s_njtimes = 0;
+  kinspils_mem->s_nfes    = 0;
+  
+  return(0);
+}

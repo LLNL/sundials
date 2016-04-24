@@ -181,6 +181,8 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   
   cvspils_mem->s_last_flag  = CVSPILS_SUCCESS;
 
+  cvSpilsInitializeCounters(cvspils_mem);
+
   setupNonNull = FALSE;
 
   /* Check for legal pretype */ 
@@ -256,8 +258,7 @@ static int CVSpgmrInit(CVodeMem cv_mem)
   cvspils_mem = (CVSpilsMem) lmem;
 
   /* Initialize counters */
-  npe = nli = nps = ncfl = nstlpre = 0;
-  njtimes = nfes = 0;
+  cvSpilsInitializeCounters(cvspils_mem);
 
   /* Check for legal combination pretype - psolve */
   if ((pretype != PREC_NONE) && (psolve == NULL)) {

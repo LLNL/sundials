@@ -128,10 +128,7 @@ int ARKSpgmr(void *arkode_mem, int pretype, int maxl)
   arkspils_mem->s_P_data = ark_mem->ark_user_data;
 
   /* Initialize counters */
-  arkspils_mem->s_npe = arkspils_mem->s_nli = 0;
-  arkspils_mem->s_nps = arkspils_mem->s_ncfl = 0;
-  arkspils_mem->s_nstlpre = arkspils_mem->s_njtimes = 0;
-  arkspils_mem->s_nfes = 0;
+  arkSpilsInitializeCounters(arkspils_mem);
 
   /* Set default values for the rest of the Spgmr parameters */
   arkspils_mem->s_gstype = MODIFIED_GS;
@@ -205,10 +202,7 @@ static int ARKSpgmrInit(ARKodeMem ark_mem)
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
 
   /* Initialize counters */
-  arkspils_mem->s_npe = arkspils_mem->s_nli = 0;
-  arkspils_mem->s_nps = arkspils_mem->s_ncfl = 0;
-  arkspils_mem->s_nstlpre = arkspils_mem->s_njtimes = 0;
-  arkspils_mem->s_nfes = 0;
+  arkSpilsInitializeCounters(arkspils_mem);
 
   /* Check for legal combination pretype - psolve */
   if ((arkspils_mem->s_pretype != PREC_NONE) 

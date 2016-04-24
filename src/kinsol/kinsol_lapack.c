@@ -177,6 +177,8 @@ int KINLapackDense(void *kinmem, int N)
 
   last_flag = KINDLS_SUCCESS;
 
+  kinDlsInitializeCounters(kindls_mem);
+
   setupNonNull = TRUE;
 
   /* Set problem dimension */
@@ -279,6 +281,8 @@ int KINLapackBand(void *kinmem, int N, int mupper, int mlower)
 
   last_flag = KINDLS_SUCCESS;
 
+  kinDlsInitializeCounters(kindls_mem);
+
   setupNonNull = TRUE;
   
   /* Load problem dimension */
@@ -347,8 +351,7 @@ static int kinLapackDenseInit(KINMem kin_mem)
 
   kindls_mem = (KINDlsMem) lmem;
   
-  nje   = 0;
-  nfeDQ = 0;
+  kinDlsInitializeCounters(kindls_mem);
   
   if (jacDQ) {
     djac = kinDlsDenseDQJac;
@@ -484,8 +487,7 @@ static int kinLapackBandInit(KINMem kin_mem)
 
   kindls_mem = (KINDlsMem) lmem;
 
-  nje   = 0;
-  nfeDQ = 0;
+  kinDlsInitializeCounters(kindls_mem);
 
   if (jacDQ) {
     bjac = kinDlsBandDQJac;

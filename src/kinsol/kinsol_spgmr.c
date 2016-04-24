@@ -189,6 +189,8 @@ int KINSpgmr(void *kinmem, int maxl)
   kinspils_mem->s_maxlrst   = 0;
   kinspils_mem->s_last_flag = KINSPILS_SUCCESS;
 
+  kinSpilsInitializeCounters(kinspils_mem);
+
   /* Call SpgmrMalloc to allocate workspace for SPGMR */
 
   /* vec_tmpl passed as template vector */
@@ -242,9 +244,7 @@ static int KINSpgmrInit(KINMem kin_mem)
   kinspils_mem = (KINSpilsMem) lmem;
 
   /* initialize counters */
-
-  npe = nli = nps = ncfl = 0;
-  njtimes = nfes = 0;
+  kinSpilsInitializeCounters(kinspils_mem);
 
   /* set preconditioner type */
 

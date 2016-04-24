@@ -194,6 +194,7 @@ int IDALapackDense(void *ida_mem, int N)
   J_data = NULL;
 
   last_flag = IDADLS_SUCCESS;
+  idaDlsInitializeCounters(idadls_mem); 
   setupNonNull = TRUE;
 
   /* Set problem dimension */
@@ -292,6 +293,7 @@ int IDALapackBand(void *ida_mem, int N, int mupper, int mlower)
   J_data = NULL;
 
   last_flag = IDADLS_SUCCESS;
+  idaDlsInitializeCounters(idadls_mem); 
   setupNonNull = TRUE;
   
   /* Load problem dimension */
@@ -351,8 +353,7 @@ static int idaLapackDenseInit(IDAMem IDA_mem)
 
   idadls_mem = (IDADlsMem) lmem;
   
-  nje   = 0;
-  nreDQ = 0;
+  idaDlsInitializeCounters(idadls_mem); 
   
   if (jacDQ) {
     djac = idaDlsDenseDQJac;
@@ -468,8 +469,7 @@ static int idaLapackBandInit(IDAMem IDA_mem)
 
   idadls_mem = (IDADlsMem) lmem;
 
-  nje   = 0;
-  nreDQ = 0;
+  idaDlsInitializeCounters(idadls_mem); 
 
   if (jacDQ) {
     bjac = idaDlsBandDQJac;

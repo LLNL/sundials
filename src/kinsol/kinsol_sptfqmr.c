@@ -187,6 +187,8 @@ int KINSptfqmr(void *kinmem, int maxl)
   kinspils_mem->s_pretype   = PREC_NONE;
   kinspils_mem->s_last_flag = KINSPILS_SUCCESS;
 
+  kinSpilsInitializeCounters(kinspils_mem);
+
   /* Call SptfqmrMalloc to allocate workspace for SPTFQMR */
 
   /* vec_tmpl passed as template vector */
@@ -239,9 +241,7 @@ static int KINSptfqmrInit(KINMem kin_mem)
   kinspils_mem = (KINSpilsMem) lmem;
 
   /* initialize counters */
-
-  npe = nli = nps = ncfl = 0;
-  njtimes = nfes = 0;
+  kinSpilsInitializeCounters(kinspils_mem);
 
   /* set preconditioner type */
 

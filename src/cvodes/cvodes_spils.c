@@ -775,6 +775,21 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
   return(0);
 }
 
+
+int cvSpilsInitializeCounters(CVSpilsMem cvspils_mem)
+{
+  cvspils_mem->s_npe     = 0;
+  cvspils_mem->s_nli     = 0;
+  cvspils_mem->s_nps     = 0;
+  cvspils_mem->s_ncfl    = 0;
+  cvspils_mem->s_nstlpre = 0;
+  cvspils_mem->s_njtimes = 0;
+  cvspils_mem->s_nfes    = 0;
+
+  return(0);
+}
+
+
 /* 
  * ================================================================
  *

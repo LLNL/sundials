@@ -583,7 +583,7 @@ int arkDlsBandDQJac(long int N, long int mupper, long int mlower,
 
     /* Evaluate f with incremented y */
     retval = ark_mem->ark_fi(ark_mem->ark_tn, ytemp, ftemp, 
-			     ark_mem->ark_user_data);
+                             ark_mem->ark_user_data);
     arkdls_mem->d_nfeDQ++;
     if (retval != 0) break;
 
@@ -603,6 +603,14 @@ int arkDlsBandDQJac(long int N, long int mupper, long int mlower,
   return(retval);
 }
 
+
+int arkDlsInitializeCounters(ARKDlsMem arkdls_mem)
+{
+  arkdls_mem->d_nje    = 0;
+  arkdls_mem->d_nfeDQ  = 0;
+  arkdls_mem->d_nstlj  = 0;
+  return(0);
+}
 
 /*---------------------------------------------------------------
     EOF

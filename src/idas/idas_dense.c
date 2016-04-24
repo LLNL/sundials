@@ -164,6 +164,8 @@ int IDADense(void *ida_mem, long int Neq)
 
   last_flag = IDADLS_SUCCESS;
 
+  idaDlsInitializeCounters(idadls_mem); 
+
   setupNonNull = TRUE;
 
   /* Store problem size */
@@ -210,9 +212,7 @@ static int IDADenseInit(IDAMem IDA_mem)
   
   idadls_mem = (IDADlsMem) lmem;
 
-   
-  nje   = 0;
-  nreDQ = 0;
+  idaDlsInitializeCounters(idadls_mem); 
 
   if (jacDQ) {
     djac = idaDlsDenseDQJac;

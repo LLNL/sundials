@@ -149,6 +149,8 @@ int CVDense(void *cvode_mem, long int N)
 
   last_flag = CVDLS_SUCCESS;
 
+  cvDlsInitializeCounters(cvdls_mem);
+
   setupNonNull = TRUE;
 
   /* Set problem dimension */
@@ -202,9 +204,10 @@ static int cvDenseInit(CVodeMem cv_mem)
 
   cvdls_mem = (CVDlsMem) lmem;
   
-  nje   = 0;
-  nfeDQ = 0;
-  nstlj = 0;
+  cvDlsInitializeCounters(cvdls_mem);
+//   nje   = 0;
+//   nfeDQ = 0;
+//   nstlj = 0;
 
   /* Set Jacobian function and data, depending on jacDQ */
   if (jacDQ) {

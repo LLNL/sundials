@@ -640,3 +640,15 @@ int IDASpilsDQJtimes(realtype tt,
   return(0);
 
 }
+
+int idaSpilsInitializeCounters(IDASpilsMem idaspils_mem)
+{
+  idaspils_mem->s_npe     = 0;
+  idaspils_mem->s_nli     = 0;
+  idaspils_mem->s_nps     = 0;
+  idaspils_mem->s_ncfl    = 0;
+  idaspils_mem->s_njtimes = 0;
+  idaspils_mem->s_nres    = 0;
+
+  return(0);
+}

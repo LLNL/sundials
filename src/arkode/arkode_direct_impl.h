@@ -110,12 +110,16 @@ typedef struct ARKDlsMassMemRec {
  Prototypes of internal functions
 ---------------------------------------------------------------*/
 int arkDlsDenseDQJac(long int N, realtype t, N_Vector y, 
-		     N_Vector fy, DlsMat Jac, void *data,
-		     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+                     N_Vector fy, DlsMat Jac, void *data,
+                     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 int arkDlsBandDQJac(long int N, long int mupper, long int mlower,
-		    realtype t, N_Vector y, N_Vector fy, 
-		    DlsMat Jac, void *data, N_Vector tmp1, 
-		    N_Vector tmp2, N_Vector tmp3);
+                    realtype t, N_Vector y, N_Vector fy, 
+                    DlsMat Jac, void *data, N_Vector tmp1, 
+                    N_Vector tmp2, N_Vector tmp3);
+
+/* Auxilliary functions */
+
+int arkDlsInitializeCounters(ARKDlsMem arkdls_mem);
 
 
 /*---------------------------------------------------------------

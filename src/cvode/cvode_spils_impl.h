@@ -119,6 +119,10 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
                     N_Vector y, N_Vector fy, void *data,
                     N_Vector work);
 
+/* Auxilliary functions */
+int cvSpilsInitializeCounters(CVSpilsMem cvspils_mem);
+
+
 /*
  * -----------------------------------------------------------------
  * Error Messages

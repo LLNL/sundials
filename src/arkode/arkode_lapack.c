@@ -162,6 +162,9 @@ int ARKLapackDense(void *arkode_mem, int N)
   arkdls_mem->d_last_flag = ARKDLS_SUCCESS;
   ark_mem->ark_setupNonNull = TRUE;
 
+  /* Initialize counters */
+  arkDlsInitializeCounters(arkdls_mem);
+  
   /* Set problem dimension */
   arkdls_mem->d_n = (long int) N;
 
@@ -274,6 +277,9 @@ int ARKLapackBand(void *arkode_mem, int N, int mupper, int mlower)
 
   arkdls_mem->d_last_flag = ARKDLS_SUCCESS;
   ark_mem->ark_setupNonNull = TRUE;
+  
+  /* Initialize counters */
+  arkDlsInitializeCounters(arkdls_mem);
   
   /* Load problem dimension */
   arkdls_mem->d_n = (long int) N;
@@ -581,9 +587,7 @@ static int arkLapackDenseInit(ARKodeMem ark_mem)
 
   arkdls_mem = (ARKDlsMem) ark_mem->ark_lmem;
   
-  arkdls_mem->d_nje   = 0;
-  arkdls_mem->d_nfeDQ = 0;
-  arkdls_mem->d_nstlj = 0;
+  arkDlsInitializeCounters(arkdls_mem);
 
   /* Set Jacobian function and data, depending on jacDQ */
   if (arkdls_mem->d_jacDQ) {
@@ -916,9 +920,7 @@ static int arkLapackBandInit(ARKodeMem ark_mem)
 
   arkdls_mem = (ARKDlsMem) ark_mem->ark_lmem;
 
-  arkdls_mem->d_nje   = 0;
-  arkdls_mem->d_nfeDQ = 0;
-  arkdls_mem->d_nstlj = 0;
+  arkDlsInitializeCounters(arkdls_mem);
 
   /* Set Jacobian function and data, depending on jacDQ */
   if (arkdls_mem->d_jacDQ) {

@@ -134,6 +134,9 @@ int IDASpilsDQJtimes(realtype tt,
                      realtype c_j, void *data, 
                      N_Vector work1, N_Vector work2);
 
+/* Auxilliary functions */
+
+int idaSpilsInitializeCounters(IDASpilsMem idaspils_mem);
 
 
 /*

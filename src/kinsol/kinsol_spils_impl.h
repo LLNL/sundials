@@ -65,16 +65,16 @@ typedef struct KINSpilsMemRec {
 
   int  s_maxl;          /* maximum allowable dimension of Krylov subspace      */     
   int  s_pretype;       /* preconditioning type: PREC_NONE, PREC_RIGHT,
-			   PREC_LEFT or PREC_BOTH (used by SPGMR module and
-			   defined in sundials_iterative.h)                    */
+                           PREC_LEFT or PREC_BOTH (used by SPGMR module and
+                           defined in sundials_iterative.h)                    */
   int  s_gstype;        /* Gram-Schmidt orthogonalization procedure:
-			   CLASSICAL_GS or MODIFIED_GS (used by SPGMR module
-			   and defined in sundials_iterative.h)                */
+                           CLASSICAL_GS or MODIFIED_GS (used by SPGMR module
+                           and defined in sundials_iterative.h)                */
   booleantype s_new_uu; /* flag indicating if the iterate has been updated -
-			   Jacobian must be updated/reevaluated (meant to be
-			   used by user-supplied jtimes function)              */
+                           Jacobian must be updated/reevaluated (meant to be
+                           used by user-supplied jtimes function)              */
   int s_maxlrst;        /* maximum number of times the SPGMR linear solver
-			   can be restarted                                    */
+                           can be restarted                                    */
 
   /* counters */
 
@@ -83,10 +83,10 @@ typedef struct KINSpilsMemRec {
   long int s_nps;     /* number of calls to preconditioner solve fun.          */
   long int s_ncfl;    /* number of linear convergence failures                 */
   long int s_nfes;    /* number of evaluations of the system function F(u) or
-			 number of calls made to func routine                  */    
+                         number of calls made to func routine                  */    
   long int s_njtimes; /* number of times the matrix-vector product J(u)*v
-			 was computed or number of calls made to jtimes
-			 routine                                               */
+                         was computed or number of calls made to jtimes
+                         routine                                               */
 
   /* miscellaneous */
 
@@ -95,7 +95,7 @@ typedef struct KINSpilsMemRec {
   long int s_last_flag; /* last flag returned                                  */
 
 
-   /* Preconditioner computation
+  /* Preconditioner computation
    * (a) user-provided:
    *     - P_data == user_data
    *     - pfree == NULL (the user dealocates memory for user_data)
@@ -141,6 +141,11 @@ int KINSpilsPSolve(void *kinsol_mem, N_Vector r, N_Vector z, int lr);
 int KINSpilsDQJtimes(N_Vector v, N_Vector Jv,
                      N_Vector u, booleantype *new_u, 
                      void *data);
+
+/* Auxilliary functions */
+
+int kinSpilsInitializeCounters(KINSpilsMem kinspils_mem);
+
 
 /*
  * -----------------------------------------------------------------

@@ -164,6 +164,8 @@ int IDABand(void *ida_mem, long int Neq, long int mupper, long int mlower)
 
   last_flag = IDADLS_SUCCESS;
 
+  idaDlsInitializeCounters(idadls_mem);
+
   setupNonNull = TRUE;
 
   /* Store problem size */
@@ -216,9 +218,9 @@ static int IDABandInit(IDAMem IDA_mem)
 
   idadls_mem = (IDADlsMem) lmem;
 
-  /* Initialize nje and nreB */
-  nje   = 0;
-  nreDQ = 0;
+  idaDlsInitializeCounters(idadls_mem);
+//   nje   = 0;
+//   nreDQ = 0;
 
   if (jacDQ) {
     bjac = idaDlsBandDQJac;

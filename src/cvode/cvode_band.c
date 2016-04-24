@@ -153,6 +153,8 @@ int CVBand(void *cvode_mem, long int N, long int mupper, long int mlower)
 
   last_flag = CVDLS_SUCCESS;
 
+  cvDlsInitializeCounters(cvdls_mem);
+
   setupNonNull = TRUE;
   
   /* Load problem dimension */
@@ -219,9 +221,7 @@ static int cvBandInit(CVodeMem cv_mem)
 
   cvdls_mem = (CVDlsMem) lmem;
 
-  nje   = 0;
-  nfeDQ  = 0;
-  nstlj = 0;
+  cvDlsInitializeCounters(cvdls_mem);
 
   /* Set Jacobian function and data, depending on jacDQ */
   if (jacDQ) {

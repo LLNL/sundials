@@ -185,6 +185,7 @@ int CVLapackDense(void *cvode_mem, int N)
   J_data = NULL;
 
   last_flag = CVDLS_SUCCESS;
+  cvDlsInitializeCounters(cvdls_mem);  
   setupNonNull = TRUE;
 
   /* Set problem dimension */
@@ -291,6 +292,7 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
   J_data = NULL;
 
   last_flag = CVDLS_SUCCESS;
+  cvDlsInitializeCounters(cvdls_mem);  
   setupNonNull = TRUE;
   
   /* Load problem dimension */
@@ -359,9 +361,7 @@ static int cvLapackDenseInit(CVodeMem cv_mem)
 
   cvdls_mem = (CVDlsMem) lmem;
   
-  nje   = 0;
-  nfeDQ = 0;
-  nstlj = 0;
+  cvDlsInitializeCounters(cvdls_mem);  
 
   /* Set Jacobian function and data, depending on jacDQ */
   if (jacDQ) {
@@ -511,9 +511,7 @@ static int cvLapackBandInit(CVodeMem cv_mem)
 
   cvdls_mem = (CVDlsMem) lmem;
 
-  nje   = 0;
-  nfeDQ = 0;
-  nstlj = 0;
+  cvDlsInitializeCounters(cvdls_mem);  
 
   /* Set Jacobian function and data, depending on jacDQ */
   if (jacDQ) {

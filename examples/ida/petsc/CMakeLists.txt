@@ -2,7 +2,7 @@
 # $Revision: 4137 $
 # $Date: 2014-06-15 12:26:15 -0700 (Sun, 15 Jun 2014) $
 # ---------------------------------------------------------------
-# Programmer:  Radu Serban @ LLNL
+# Programmer:  Slaven Peles, Eddy Banks @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
@@ -20,7 +20,7 @@
 # Add variable IDA_examples with the names of the PETSc IDA examples
 # "name\;nodes\;tasks"
 SET(IDA_examples
-  #"idaHeat2D_jac_petsc\;1\;4"  # See Jira: SUNDIALS-86....initialization issue of idapetsc_mem
+  #"idaHeat2D_jac_petsc\;1\;4"  # Not to be released in 2.7.0
   "idaHeat2D_kry_petsc\;1\;4"
   )
 

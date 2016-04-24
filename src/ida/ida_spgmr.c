@@ -53,10 +53,6 @@ static int IDASpgmrPerf(IDAMem IDA_mem, int perftask);
 static int IDASpgmrFree(IDAMem IDA_mem);
 
 
-/* Auxilliary private functions */
-
-static int IDAInitializeCounters(IDASpilsMem idaspils_mem);
-
 /* Readability Replacements */
 
 #define nst          (IDA_mem->ida_nst)
@@ -197,9 +193,7 @@ int IDASpgmr(void *ida_mem, int maxl)
   idaspils_mem->s_last_flag  = IDASPILS_SUCCESS;
   
   /* initialize solver performance counters */
-  IDAInitializeCounters(idaspils_mem);
-/*   npe = nli = nps = ncfl = 0;
-     njtimes = nres = 0; */
+  idaSpilsInitializeCounters(idaspils_mem);
 
   /* Set setupNonNull to FALSE */
   setupNonNull = FALSE;
@@ -278,9 +272,7 @@ static int IDASpgmrInit(IDAMem IDA_mem)
   idaspils_mem = (IDASpilsMem) lmem;
 
   /* Initialize counters */
-  IDAInitializeCounters(idaspils_mem);
-/*   npe = nli = nps = ncfl = 0;
-     njtimes = nres = 0; */
+  idaSpilsInitializeCounters(idaspils_mem);
 
   /* Set setupNonNull to TRUE iff there is preconditioning with setup */
   setupNonNull = (psolve != NULL) && (pset != NULL);
@@ -485,18 +477,6 @@ static int IDASpgmrFree(IDAMem IDA_mem)
   if (idaspils_mem->s_pfree != NULL) (idaspils_mem->s_pfree)(IDA_mem);
 
   free(idaspils_mem); idaspils_mem = NULL;
-
-  return(0);
-}
-
-static int IDAInitializeCounters(IDASpilsMem idaspils_mem)
-{
-  idaspils_mem->s_npe     = 0;
-  idaspils_mem->s_nli     = 0;
-  idaspils_mem->s_nps     = 0;
-  idaspils_mem->s_ncfl    = 0;
-  idaspils_mem->s_njtimes = 0;
-  idaspils_mem->s_nres    = 0;
 
   return(0);
 }

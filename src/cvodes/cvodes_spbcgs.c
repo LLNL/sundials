@@ -178,6 +178,8 @@ int CVSpbcg(void *cvode_mem, int pretype, int maxl)
 
   cvspils_mem->s_last_flag = CVSPILS_SUCCESS;
 
+  cvSpilsInitializeCounters(cvspils_mem);
+
   setupNonNull = FALSE;
 
   /* Check for legal pretype */ 
@@ -257,8 +259,7 @@ static int CVSpbcgInit(CVodeMem cv_mem)
 
 
   /* Initialize counters */
-  npe = nli = nps = ncfl = nstlpre = 0;
-  njtimes = nfes = 0;
+  cvSpilsInitializeCounters(cvspils_mem);
 
   /* Check for legal combination pretype - psolve */
   if ((pretype != PREC_NONE) && (psolve == NULL)) {

@@ -1173,6 +1173,19 @@ int ARKSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 }
 
 
+int arkSpilsInitializeCounters(ARKSpilsMem arkspils_mem)
+{
+  arkspils_mem->s_npe     = 0;
+  arkspils_mem->s_nli     = 0;
+  arkspils_mem->s_nps     = 0;
+  arkspils_mem->s_ncfl    = 0;
+  arkspils_mem->s_nstlpre = 0;
+  arkspils_mem->s_njtimes = 0;
+  arkspils_mem->s_nfes    = 0;
+  return(0); 
+}
+
+
 /*---------------------------------------------------------------
     EOF
 ---------------------------------------------------------------*/

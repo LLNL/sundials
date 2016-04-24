@@ -496,6 +496,17 @@ int cvDlsBandDQJac(long int N, long int mupper, long int mlower,
   return(retval);
 }
 
+
+int cvDlsInitializeCounters(CVDlsMem cvdls_mem)
+{
+  cvdls_mem->d_nje   = 0;
+  cvdls_mem->d_nfeDQ = 0;
+  cvdls_mem->d_nstlj = 0;
+  
+  return(0);
+}
+
+
 /* 
  * =================================================================
  * BACKWARD INTEGRATION SUPPORT
@@ -922,3 +933,4 @@ static int cvDlsBandJacBSWrapper(long int nB, long int mupperB, long int mlowerB
 
   return(retval);
 }
+

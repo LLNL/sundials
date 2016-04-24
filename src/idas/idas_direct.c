@@ -579,6 +579,14 @@ int idaDlsBandDQJac(long int N, long int mupper, long int mlower,
 }
 
 
+int idaDlsInitializeCounters(IDADlsMem idadls_mem)
+{
+  idadls_mem->d_nje   = 0;
+  idadls_mem->d_nreDQ = 0;
+  
+  return(0);
+}
+
 /* 
  * =================================================================
  * BACKWARD INTEGRATION SUPPORT

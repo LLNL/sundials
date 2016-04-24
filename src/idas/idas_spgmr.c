@@ -202,6 +202,8 @@ int IDASpgmr(void *ida_mem, int maxl)
 
   idaspils_mem->s_last_flag  = IDASPILS_SUCCESS;
 
+  idaSpilsInitializeCounters(idaspils_mem);
+
   /* Set setupNonNull to FALSE */
   setupNonNull = FALSE;
 
@@ -279,8 +281,7 @@ static int IDASpgmrInit(IDAMem IDA_mem)
   idaspils_mem = (IDASpilsMem) lmem;
 
   /* Initialize counters */
-  npe = nli = nps = ncfl = 0;
-  njtimes = nres = 0;
+  idaSpilsInitializeCounters(idaspils_mem);
 
   /* Set setupNonNull to TRUE iff there is preconditioning with setup */
   setupNonNull = (psolve != NULL) && (pset != NULL);

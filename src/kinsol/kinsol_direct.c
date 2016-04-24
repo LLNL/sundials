@@ -494,3 +494,12 @@ int kinDlsBandDQJac(long int N, long int mupper, long int mlower,
 
   return(0);
 }
+
+
+int kinDlsInitializeCounters(KINDlsMem kindls_mem)
+{
+  kindls_mem->d_nje   = 0;
+  kindls_mem->d_nfeDQ = 0;
+  
+  return(0);
+}

@@ -187,6 +187,8 @@ int KINSpbcg(void *kinmem, int maxl)
   kinspils_mem->s_pretype   = PREC_NONE;
   kinspils_mem->s_last_flag = KINSPILS_SUCCESS;
 
+  kinSpilsInitializeCounters(kinspils_mem);
+
   /* Call SpbcgMalloc to allocate workspace for SPBCG */
 
   /* vec_tmpl passed as template vector */
@@ -242,9 +244,7 @@ static int KINSpbcgInit(KINMem kin_mem)
   spbcg_mem = (SpbcgMem) spils_mem;
 
   /* initialize counters */
-
-  npe = nli = nps = ncfl = 0;
-  njtimes = nfes = 0;
+  kinSpilsInitializeCounters(kinspils_mem);
 
   /* set preconditioner type */
 

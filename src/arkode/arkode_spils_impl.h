@@ -158,8 +158,11 @@ int ARKSpilsMPSolve(void *ark_mem, N_Vector r, N_Vector z, int lr);
 
 /* Difference quotient approximation for Jac times vector */
 int ARKSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
-		     N_Vector y, N_Vector fy, void *data,
-		     N_Vector work);
+                     N_Vector y, N_Vector fy, void *data,
+                     N_Vector work);
+
+/* Auxilliary functions */
+int arkSpilsInitializeCounters(ARKSpilsMem arkspils_mem);
 
 
 /*---------------------------------------------------------------
