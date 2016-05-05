@@ -87,11 +87,17 @@ Hypre (parallel) vectors, and one for PetSC vectors.  These
 additions are accompanied by additions to various interface functions
 and to user documentation.
 
-In {\idas}, an optional input function was added to set a maximum number
+An optional input function was added to set a maximum number
 of linesearch backtracks in the initial condition calculation, and
 four user-callable functions were added to support the use of LAPACK
 linear solvers in solving backward problems for adjoint sensitivity
 analysis.
+
+For each linear solver, the various solver performance counters are
+now initialized to 0 in both the solver specification function and in
+solver \id{linit} function.  This ensures that these solver counters
+are initialized upon linear solver instantiation as well as at the
+beginning of the problem solution.
 
 A bug in for-loop indices was fixed in \id{IDAAckpntAllocVectors}. A bug was
 fixed in the interpolation functions used in solving backward problems.

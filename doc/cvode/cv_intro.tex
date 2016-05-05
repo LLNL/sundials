@@ -100,7 +100,13 @@ Hypre (parallel) vectors, and one for PetSC vectors.  These
 additions are accompanied by additions to various interface functions
 and to user documentation.
 
-In {\cvode}, corrections were made to three Fortran interface
+For each linear solver, the various solver performance counters are
+now initialized to 0 in both the solver specification function and in
+solver \id{linit} function.  This ensures that these solver counters
+are initialized upon linear solver instantiation as well as at the
+beginning of the problem solution.
+
+In {\fcvode}, corrections were made to three Fortran interface
 functions.
 
 The Krylov linear solver Bi-CGstab was enhanced by removing a redundant

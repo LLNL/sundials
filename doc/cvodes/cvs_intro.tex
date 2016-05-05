@@ -119,8 +119,14 @@ Hypre (parallel) vectors, and one for PetSC vectors.  These
 additions are accompanied by additions to various interface functions
 and to user documentation.
 
-In {\cvodes}, a bug was fixed in the interpolation functions used in
-solving backward problems for adjoint sensitivity analysis.
+A bug was fixed in the interpolation functions used in solving
+backward problems for adjoint sensitivity analysis.
+
+For each linear solver, the various solver performance counters are
+now initialized to 0 in both the solver specification function and in
+solver \id{linit} function.  This ensures that these solver counters
+are initialized upon linear solver instantiation as well as at the
+beginning of the problem solution.
 
 The Krylov linear solver Bi-CGstab was enhanced by removing a redundant
 dot product.  Various additions and corrections were made to the
