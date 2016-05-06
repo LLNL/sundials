@@ -62,13 +62,14 @@
 #include <math.h>
 #include <arkode/arkode.h>             /* prototypes for ARKODE fcts. */
 #include <arkode/arkode_spgmr.h>       /* prototypes & constants for ARKSPGMR  */
-#include <nvector/nvector_parhyp.h>    /* def. of N_Vector, macro NV_DATA_P  */
+#include <nvector/nvector_parhyp.h>    /* declaration of N_Vector  */
 #include <sundials/sundials_dense.h>   /* prototypes for small dense fcts. */
 #include <sundials/sundials_types.h>   /* definitions of realtype, booleantype */
 #include <sundials/sundials_math.h>    /* definition of macros SUNSQR and EXP */
 #include <mpi.h>                       /* MPI constants and types */
 
 #include <HYPRE.h>
+#include <HYPRE_IJ_mv.h>
 
 /* Problem Constants */
 #define NVARS        2                    /* number of species         */
@@ -403,9 +404,12 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
   int npelast;
   long int i0, i1, nst;
   MPI_Status status;
-
+  HYPRE_ParVector uhyp;
+  
   npelast = NPEX*NPEY - 1;
-  udata = NV_DATA_PH(u);
+
+  uhyp  = NV_HYPRE_PARVEC_PH(u);
+  udata = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
 
   /* Send c1,c2 at top right mesh point to PE 0 */
   if (my_pe == npelast) {
@@ -646,8 +650,10 @@ static void ucomm(realtype t, N_Vector u, UserData data)
   int my_pe, isubx, isuby;
   long int nvmxsub, nvmysub;
   MPI_Request request[4];
-
-  udata = NV_DATA_PH(u);
+  HYPRE_ParVector uhyp;
+  
+  uhyp  = NV_HYPRE_PARVEC_PH(u);
+  udata = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
 
   /* Get comm, my_pe, subgrid indices, data sizes, extended array uext */
   comm = data->comm;  my_pe = data->my_pe;
@@ -805,18 +811,26 @@ static void fcalc(realtype t, realtype udata[],
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
-  realtype *udata, *dudata;
+  realtype *udata, *udotdata;
   UserData data;
+  HYPRE_ParVector uhyp;
+  HYPRE_ParVector udothyp;
+  
+  /* Extract hypre vectors */  
+  uhyp  = NV_HYPRE_PARVEC_PH(u);
+  udothyp  = NV_HYPRE_PARVEC_PH(udot);
+  
+  /* Access hypre vectors local data */
+  udata = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
+  udotdata = hypre_VectorData(hypre_ParVectorLocalVector(udothyp));
 
-  udata = NV_DATA_PH(u);
-  dudata = NV_DATA_PH(udot);
   data = (UserData) user_data;
 
   /* Call ucomm to do inter-processor communication */
   ucomm(t, u, data);
 
   /* Call fcalc to calculate all right-hand sides */
-  fcalc(t, udata, dudata, data);
+  fcalc(t, udata, udotdata, data);
 
   return(0);
 }
@@ -835,17 +849,20 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   long int *(*pivot)[MYSUB];
   int lx, ly, jy, isuby;
   realtype *udata, **a, **j;
+  HYPRE_ParVector uhyp;
   UserData data;
-
+  
   /* Make local copies of pointers in user_data, pointer to u's data,
      and PE index pair */
   data = (UserData) user_data;
   P = data->P;
   Jbd = data->Jbd;
   pivot = data->pivot;
-  udata = NV_DATA_PH(u);
   isuby = data->isuby;
   nvmxsub = data->nvmxsub;
+
+  uhyp  = NV_HYPRE_PARVEC_PH(u);
+  udata = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
 
   if (jok) {
 
@@ -925,8 +942,9 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   long int *(*pivot)[MYSUB];
   int lx, ly;
   realtype *zdata, *v;
+  HYPRE_ParVector zhyp;
   UserData data;
-
+  
   /* Extract the P and pivot arrays from user_data */
   data = (UserData) user_data;
   P = data->P;
@@ -938,7 +956,8 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   N_VScale(RCONST(1.0), r, z);
 
   nvmxsub = data->nvmxsub;
-  zdata = NV_DATA_PH(z);
+  zhyp  = NV_HYPRE_PARVEC_PH(z); /* extract hypre vector */
+  zdata = hypre_VectorData(hypre_ParVectorLocalVector(zhyp));
 
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {

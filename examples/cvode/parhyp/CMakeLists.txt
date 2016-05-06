@@ -21,7 +21,7 @@
 # "name\;nodes\;tasks"
 SET(CVODE_examples
   "cvAdvDiff_non_ph\;2\;2"
-  "cvDiurnal_kry_bbd_ph\;2\;4"
+#  "cvDiurnal_kry_bbd_ph\;2\;4"
 #  "cvHeat2D_ph\;2\;2"
   )
 

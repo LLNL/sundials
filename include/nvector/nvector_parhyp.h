@@ -59,11 +59,9 @@
 
 #include <mpi.h>
 #include <sundials/sundials_nvector.h>
+
 /* hypre header files */
-#include <seq_mv.h>
 #include <_hypre_parcsr_mv.h>
-#include <HYPRE_parcsr_mv.h>
-#include <_hypre_parcsr_ls.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -171,21 +169,6 @@ typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
  *     NV_HYPRE_PARVEC_PH(v) = parhyp_v sets pointer to 
  *     hypre_ParVector of vector v to be parhyp_v.
  *
- * (4) NV_Ith_PH
- *
- *     In the following description, the components of the
- *     local part of an N_Vector are numbered 0..n-1, where n
- *     is the local length of (the local part of) v.
- *
- *     The assignment r = NV_Ith_PH(v,i) sets r to be the value
- *     of the ith component of the local part of the vector v.
- *     The assignment NV_Ith_PH(v,i) = r sets the value of the
- *     ith local component of v to be r.
- *
- * Note: When looping over the components of an N_Vector v, it is
- * more efficient to first obtain the component array via
- * v_data = NV_DATA_PH(v) and then access v_data[i] within the
- * loop than it is to use NV_Ith_PH(v,i) within the loop.
  * -----------------------------------------------------------------
  */
 
@@ -205,7 +188,6 @@ typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
 
 #define NV_COMM_PH(v)       ( NV_CONTENT_PH(v)->comm )
 
-#define NV_Ith_PH(v,i)      ( NV_DATA_PH(v)[i] )
 
 /*
  * -----------------------------------------------------------------

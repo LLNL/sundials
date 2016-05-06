@@ -26,20 +26,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <omp.h>
 
 #include <nvector/nvector_parhyp.h>
 #include <sundials/sundials_math.h>
-/* hypre header files */
-#include <seq_mv.h>
-#include <_hypre_parcsr_mv.h>
-#include <HYPRE_parcsr_mv.h>
-#include <_hypre_parcsr_ls.h>
 
-/*
-#include "_hypre_utilities.h"
-#include <HYPRE_config.h>
-*/
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
 #define ONE    RCONST(1.0)
@@ -360,33 +350,33 @@ N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
 
 /*
  * Clone hypre vector wrapper.
- * TODO: Do we need to check if local vector length is zero?
+ * 
  */
 N_Vector N_VClone_ParHyp(N_Vector w)
 {
   N_Vector v;
-
+  hypre_ParVector *vx;
+  hypre_ParVector *wx;
+  
   v = NULL;
   v = N_VCloneEmpty_ParHyp(w);
-  if (v == NULL) return(NULL);
-
-  /* Create data */
-  /* if(local_length > 0) { */
-
-  /* Using CloneShallow to get the proper partitioning and data sizes:
-   * "returns a complete copy of a hypre_ParVector x - a shallow copy, re-using
-   * the partitioning and data arrays of x" */
-  NV_HYPRE_PARVEC_PH(v) = hypre_ParVectorCloneShallow(NV_HYPRE_PARVEC_PH(w));
-  hypre_ParVectorSetPartitioningOwner(NV_HYPRE_PARVEC_PH(v), 0);
+  if (v==NULL)
+    return(NULL);
   
-  /* Attach data */
-  hypre_ParVectorLocalVector(NV_HYPRE_PARVEC_PH(v)) = 
-    hypre_SeqVectorCloneDeep(hypre_ParVectorLocalVector(NV_HYPRE_PARVEC_PH(w)));
+  wx = NV_HYPRE_PARVEC_PH(w);
+  
+  vx = hypre_ParVectorCreate(wx->comm, wx->global_size, wx->partitioning);
+  hypre_ParVectorInitialize(vx);
+
+  hypre_ParVectorSetPartitioningOwner(vx, 0);
+  hypre_ParVectorSetDataOwner(vx, 1);
+  hypre_SeqVectorSetDataOwner(hypre_ParVectorLocalVector(vx), 1);
+  
+  NV_HYPRE_PARVEC_PH(v) = vx;
+  
   NV_OWN_DATA_PH(v)   = TRUE;
   NV_OWN_PARVEC_PH(v) = TRUE;
   
-  /* } */
-
   return(v);
 }
 
@@ -394,8 +384,8 @@ void N_VDestroy_ParHyp(N_Vector v)
 {
   if ((NV_OWN_PARVEC_PH(v) == TRUE)) {
     hypre_ParVectorDestroy(NV_HYPRE_PARVEC_PH(v));
-  } 
-
+  }
+  
   free(v->content); v->content = NULL;
   free(v->ops); v->ops = NULL;
   free(v); v = NULL;
@@ -430,9 +420,6 @@ realtype *N_VGetArrayPointer_ParHyp(N_Vector v)
 void N_VSetArrayPointer_ParHyp(realtype *v_data, N_Vector v)
 {
   /* Not implemented for Hypre vector */
-  /* if (NV_LOCLENGTH_PH(v) > 0) NV_DATA_PH(v) = v_data; */
-
-  return;
 }
 
 void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
@@ -549,8 +536,6 @@ void N_VProd_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
-// \   num_threads(NV_NUM_THREADS_OMP(x))
-//#pragma omp parallel for default(none) private(i) shared(N,xd,yd,zd) schedule(static) 
   for (i = 0; i < N; i++)
     zd[i] = xd[i]*yd[i];
 
@@ -574,21 +559,21 @@ void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
-// \   num_threads(NV_NUM_THREADS_OMP(x))
-//#pragma omp parallel for default(none) private(i) shared(N,xd,yd,zd) schedule(static) 
   for (i = 0; i < N; i++)
     zd[i] = xd[i]/yd[i];
 
   return;
 }
 
+
 void N_VScale_ParHyp(realtype c, N_Vector x, N_Vector z)
 {
   HYPRE_Complex value = c;
-  HYPRE_ParVectorCopy((HYPRE_ParVector) NV_HYPRE_PARVEC_PH(x),  (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(z));
+  HYPRE_ParVectorCopy((HYPRE_ParVector) NV_HYPRE_PARVEC_PH(x), (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(z));
   HYPRE_ParVectorScale(value, (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(z));
   return;
 }
+
 
 void N_VAbs_ParHyp(N_Vector x, N_Vector z)
 {
@@ -618,7 +603,6 @@ void N_VInv_ParHyp(N_Vector x, N_Vector z)
   xd = NV_DATA_PH(x);
   zd = NV_DATA_PH(z);
 
-//#pragma omp parallel for default(none) private(i) shared(N,xd,zd) schedule(static)
   for (i = 0; i < N; i++)
     zd[i] = ONE/xd[i];
 

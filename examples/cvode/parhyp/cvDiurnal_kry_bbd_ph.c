@@ -69,6 +69,8 @@
 
 #include <mpi.h>                      /* MPI constants and types */
 
+#include <HYPRE.h>
+#include <HYPRE_IJ_mv.h>
 
 /* Problem Constants */
 
@@ -129,7 +131,8 @@ typedef struct {
 
 static void InitUserData(int my_pe, long int local_N, MPI_Comm comm,
                          UserData data);
-static void SetInitialProfiles(N_Vector u, UserData data);
+static void SetInitialProfiles(HYPRE_IJVector Uij, UserData data, long int local_length, 
+                               long int my_base);
 static void PrintIntro(int npes, long int mudq, long int mldq,
                        long int mukeep, long int mlkeep);
 static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
@@ -174,8 +177,9 @@ int main(int argc, char *argv[])
   int iout, my_pe, npes, flag, jpre;
   long int neq, local_N, mudq, mldq, mukeep, mlkeep;
   MPI_Comm comm;
-  HYPRE_Int *partitioning;
-  HYPRE_ParVector Uhyp;    /* Instantiate hypre parallel vector */
+
+  HYPRE_ParVector Upar; /* Instantiate hypre parallel vector */
+  HYPRE_IJVector  Uij;  /* Instantiate "IJ" interface to hypre vector */
 
   data = NULL;
   cvode_mem = NULL;
@@ -202,30 +206,23 @@ int main(int argc, char *argv[])
   local_N = NVARS*MXSUB*MYSUB;
 
   /* Allocate hypre vector */
-  if(HYPRE_AssumedPartitionCheck()) {
-    partitioning = (HYPRE_Int*) malloc(2 * sizeof(HYPRE_Int));
-    partitioning[0] = my_pe*local_N;
-    partitioning[1] = (my_pe + 1)*local_N;
-  } else {
-    partitioning = (HYPRE_Int*) malloc((npes + 1) * sizeof(HYPRE_Int));
-    if (my_pe == 0) {
-      fprintf(stderr, "Using global partition.\n");
-      fprintf(stderr, "I don't do this stuff. Now exiting...\n");
-      return -1;
-    }
-  }
-  HYPRE_ParVectorCreate(comm, neq, partitioning, &Uhyp);
-  HYPRE_ParVectorInitialize(Uhyp);
+  HYPRE_IJVectorCreate(comm, my_pe*local_N, (my_pe + 1)*local_N - 1, &Uij);
+  HYPRE_IJVectorSetObjectType(Uij, HYPRE_PARCSR);
+  HYPRE_IJVectorInitialize(Uij);
 
   /* Allocate and load user data block */
   data = (UserData) malloc(sizeof *data);
   if(check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   InitUserData(my_pe, local_N, comm, data);
 
-  /* Allocate and initialize u, and set tolerances */ 
-  u = N_VMake_ParHyp(Uhyp);  /* Create wrapper u around hypre vector */
-  if(check_flag((void *)u, "N_VNew_ParHyp", 0, my_pe)) MPI_Abort(comm, 1);
-  SetInitialProfiles(u, data);
+  /* Set initial values and allocate u */ 
+  SetInitialProfiles(Uij, data, local_N, my_pe*local_N);
+  HYPRE_IJVectorAssemble(Uij);
+  HYPRE_IJVectorGetObject(Uij, (void**) &Upar);
+
+  u = N_VMake_ParHyp(Upar);  /* Create wrapper u around hypre vector */
+  if (check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
+
   abstol = ATOL;
   reltol = RTOL;
 
@@ -271,7 +268,8 @@ int main(int argc, char *argv[])
 
     if (jpre == PREC_RIGHT) {
 
-      SetInitialProfiles(u, data);
+      /* Reset initial values. Uij is still wrapped by u. */
+      SetInitialProfiles(Uij, data, local_N, my_pe*local_N);
 
       flag = CVodeReInit(cvode_mem, T0, u);
       if(check_flag(&flag, "CVodeReInit", 1, my_pe)) MPI_Abort(comm, 1);
@@ -308,8 +306,8 @@ int main(int argc, char *argv[])
   } /* End of jpre loop */
 
   /* Free memory */
-  N_VDestroy_ParHyp(u);          /* Free the u vector wrapper */
-  HYPRE_ParVectorDestroy(Uhyp);  /* Free the underlying hypre vector */
+  N_VDestroy(u);          /* Free the u vector wrapper */
+  HYPRE_IJVectorDestroy(Uij); /* Free the underlying hypre vector */
   free(data);
   CVodeFree(&cvode_mem);
 
@@ -351,27 +349,27 @@ static void InitUserData(int my_pe, long int local_N, MPI_Comm comm,
 
 /* Set initial conditions in u */
 
-static void SetInitialProfiles(N_Vector u, UserData data)
+static void SetInitialProfiles(HYPRE_IJVector Uij, UserData data, long int local_length, 
+                               long int my_base)
 {
-  int isubx, isuby;
-  int lx, ly, jx, jy;
+  int isubx, isuby, lx, ly, jx, jy;
   long int offset;
   realtype dx, dy, x, y, cx, cy, xmid, ymid;
-  realtype *uarray;
+  realtype *udata;
+  HYPRE_Int *iglobal;
 
   /* Set pointer to data array in vector u */
-
-  uarray = NV_DATA_PH(u);
+  udata   = (realtype*) malloc(local_length*sizeof(realtype));
+  iglobal = (HYPRE_Int*) malloc(local_length*sizeof(HYPRE_Int));
+  
 
   /* Get mesh spacings, and subgrid indices for this PE */
-
   dx = data->dx;         dy = data->dy;
   isubx = data->isubx;   isuby = data->isuby;
 
   /* Load initial profiles of c1 and c2 into local u vector.
   Here lx and ly are local mesh point indices on the local subgrid,
   and jx and jy are the global mesh point indices. */
-
   offset = 0;
   xmid = RCONST(0.5)*(XMIN + XMAX);
   ymid = RCONST(0.5)*(YMIN + YMAX);
@@ -385,17 +383,21 @@ static void SetInitialProfiles(N_Vector u, UserData data)
       x = XMIN + jx*dx;
       cx = SUNSQR(RCONST(0.1)*(x - xmid));
       cx = RCONST(1.0) - cx + RCONST(0.5)*SUNSQR(cx);
-      uarray[offset  ] = C1_SCALE*cx*cy; 
-      uarray[offset+1] = C2_SCALE*cx*cy;
-      offset = offset + 2;
+      iglobal[offset] = my_base + offset;
+      udata[offset++] = C1_SCALE*cx*cy; 
+      iglobal[offset] = my_base + offset;
+      udata[offset++] = C2_SCALE*cx*cy;
     }
   }
+  HYPRE_IJVectorSetValues(Uij, local_length, iglobal, udata);
+  free(iglobal);
+  free(udata);
 }
 
 /* Print problem introduction */
 
 static void PrintIntro(int npes, long int mudq, long int mldq,
-		       long int mukeep, long int mlkeep)
+                       long int mukeep, long int mlkeep)
 {
   printf("\n2-species diurnal advection-diffusion problem\n");
   printf("  %d by %d mesh on %d processors\n", MX, MY, npes);
@@ -517,7 +519,7 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVBBDPrecGetNumGfnEvals(cvode_mem, &ngevalsBBDP);
   check_flag(&flag, "CVBBDPrecGetNumGfnEvals", 1, 0);
   printf("In CVBBDPRE: real/integer local work space sizes = %ld, %ld\n",
-	 lenrwBBDP, leniwBBDP);  
+         lenrwBBDP, leniwBBDP);  
   printf("             no. flocal evals. = %ld\n",ngevalsBBDP);
 }
  

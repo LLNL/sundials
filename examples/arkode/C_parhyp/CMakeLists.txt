@@ -25,7 +25,7 @@
 # "name\;nodes\;tasks"
 SET(ARKODE_examples
   "ark_diurnal_kry_ph\;1\;4"
-  "ark_diurnal_kry_bbd_ph\;1\;4"
+#  "ark_diurnal_kry_bbd_ph\;1\;4"
   )
 
 # Add variable ARKODE_extras with the names of auxiliary files to install

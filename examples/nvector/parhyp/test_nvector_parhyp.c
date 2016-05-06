@@ -217,7 +217,8 @@ booleantype has_data(N_Vector X)
  * --------------------------------------------------------------------*/
 void set_element(N_Vector X, long int i, realtype val)
 {
-  NV_Ith_PH(X,i) = val;
+  realtype *Xdata = N_VGetArrayPointer(X);
+  Xdata[i] = val;
 }
  
 /* ----------------------------------------------------------------------
@@ -228,7 +229,8 @@ void set_element(N_Vector X, long int i, realtype val)
  * --------------------------------------------------------------------*/
 realtype get_element(N_Vector X, long int i)
 {
-  return NV_Ith_PH(X,i);
+  realtype *Xdata = N_VGetArrayPointer(X);
+  return Xdata[i];
 }
 
 /* ----------------------------------------------------------------------

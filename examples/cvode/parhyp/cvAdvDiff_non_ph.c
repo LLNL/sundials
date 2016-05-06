@@ -46,6 +46,7 @@
 #include <nvector/nvector_parhyp.h>   /* nvector implementation */
 
 #include <HYPRE.h>
+#include <HYPRE_IJ_mv.h>
 
 #include <mpi.h>                      /* MPI constants and types */
 
@@ -286,15 +287,22 @@ static void PrintFinalStats(void *cvode_mem)
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   realtype ui, ult, urt, hordc, horac, hdiff, hadv;
-  realtype *udata, *dudata, *z;
+  realtype *udata, *udotdata, *z;
   int i;
   int npes, my_pe, my_length, my_pe_m1, my_pe_p1, last_pe;
   UserData data;
   MPI_Status status;
   MPI_Comm comm;
+  HYPRE_ParVector uhyp;
+  HYPRE_ParVector udothyp;
 
-  udata = NV_DATA_PH(u);
-  dudata = NV_DATA_PH(udot);
+  /* Extract hypre vectors */  
+  uhyp  = NV_HYPRE_PARVEC_PH(u);
+  udothyp  = NV_HYPRE_PARVEC_PH(udot);
+  
+  /* Access hypre vectors local data */
+  udata = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
+  udotdata = hypre_VectorData(hypre_ParVectorLocalVector(udothyp));
 
   /* Extract needed problem constants from data */
   data = (UserData) user_data;
@@ -345,7 +353,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
     /* Set diffusion and advection terms and load into udot */
     hdiff = hordc*(ult - RCONST(2.0)*ui + urt);
     hadv = horac*(urt - ult);
-    dudata[i-1] = hdiff + hadv;
+    udotdata[i-1] = hdiff + hadv;
   }
 
   return(0);
