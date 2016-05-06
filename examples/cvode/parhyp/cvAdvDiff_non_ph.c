@@ -297,8 +297,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   HYPRE_ParVector udothyp;
 
   /* Extract hypre vectors */  
-  uhyp  = NV_HYPRE_PARVEC_PH(u);
-  udothyp  = NV_HYPRE_PARVEC_PH(udot);
+  uhyp  = N_VGetVector_ParHyp(u);
+  udothyp  = N_VGetVector_ParHyp(udot);
   
   /* Access hypre vectors local data */
   udata = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
@@ -311,9 +311,10 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
   /* Extract parameters for parhyp computation. */
   comm = data->comm;
-  npes = data->npes;           /* Number of processes. */ 
-  my_pe = data->my_pe;         /* Current process number. */
-  my_length = NV_LOCLENGTH_PH(u); /* Number of local elements of u. */ 
+  npes = data->npes;                           /* Number of processes    */ 
+  my_pe = data->my_pe;                         /* Current process number */
+  my_length =  hypre_ParVectorLastIndex(uhyp)  /* Local length of uhyp   */
+             - hypre_ParVectorFirstIndex(uhyp) + 1;  
   z = data->z;
 
   /* Compute related parameters. */

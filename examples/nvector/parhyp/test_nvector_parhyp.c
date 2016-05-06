@@ -243,6 +243,8 @@ int Test_N_VMake(HYPRE_ParVector W, int myid)
   int failure;
   /* double   start_time, stop_time; */
   N_Vector X;
+  int local_length = hypre_ParVectorLastIndex(W) 
+                     - hypre_ParVectorFirstIndex(W) + 1;
 
   /* clone vector */
   /* start_time = get_time(); */  
@@ -265,7 +267,7 @@ int Test_N_VMake(HYPRE_ParVector W, int myid)
   }    
 
   N_VConst(ONE,X);
-  failure = check_ans(ONE, X, NV_LOCLENGTH_PH(X));
+  failure = check_ans(ONE, X, local_length);
   if (failure) {
     printf(">>> FAILED test -- N_VMake, Proc %d \n", myid);
     printf("    Failed N_VConst check \n \n");

@@ -41,6 +41,84 @@
 #define BAD_N2 "input global length. \n\n"
 #define BAD_N   BAD_N1 BAD_N2
 
+/*
+ * -----------------------------------------------------------------
+ * Simplifying macros NV_CONTENT_PH, NV_DATA_PH, NV_LOCLENGTH_PH, 
+ *                    NV_GLOBLENGTH_PH, and NV_COMM_PH
+ * -----------------------------------------------------------------
+ * In the descriptions below, the following user declarations
+ * are assumed:
+ *
+ * N_Vector v;
+ * long int v_len, s_len, i;
+ *
+ * (1) NV_CONTENT_PH
+ *
+ *     This routines gives access to the contents of the HYPRE
+ *     vector wrapper (the N_Vector).
+ *
+ *     The assignment v_cont = NV_CONTENT_PH(v) sets v_cont to be
+ *     a pointer to the N_Vector content structure.
+ *
+ * (2) NV_DATA_PH, NV_LOCLENGTH_PH, NV_GLOBLENGTH_PH, and NV_COMM_PH
+ *
+ *     These routines give access to the individual parts of
+ *     the content structure of a parhyp N_Vector.
+ *
+ *     The assignment v_llen = NV_LOCLENGTH_PH(v) sets v_llen to
+ *     be the length of the local part of the vector v. The call
+ *     NV_LOCLENGTH_PH(v) = llen_v generally should NOT be used! It 
+ *     will change locally stored value with the HYPRE local vector 
+ *     length, but it will NOT change the length of the actual HYPRE
+ *     local vector.
+ *
+ *     The assignment v_glen = NV_GLOBLENGTH_PH(v) sets v_glen to
+ *     be the global length of the vector v. The call
+ *     NV_GLOBLENGTH_PH(v) = glen_v generally should NOT be used! It 
+ *     will change locally stored value with the HYPRE parallel vector 
+ *     length, but it will NOT change the length of the actual HYPRE
+ *     parallel vector.
+ *
+ *     The assignment v_comm = NV_COMM_PH(v) sets v_comm to be the
+ *     MPI communicator of the vector v. The assignment
+ *     NV_COMM_C(v) = comm_v sets the MPI communicator of v to be
+ *     NV_COMM_PH(v) = comm_v generally should NOT be used! It 
+ *     will change locally stored value with the HYPRE parallel vector 
+ *     communicator, but it will NOT change the communicator of the 
+ *     actual HYPRE parallel vector.
+ * 
+ * (3) NV_DATA_PH, NV_HYPRE_PARVEC_PH
+ *     
+ *     The assignment v_data = NV_DATA_PH(v) sets v_data to be
+ *     a pointer to the first component of the data inside the 
+ *     local vector of the HYPRE_parhyp vector for the vector v. 
+ *     The assignment NV_DATA_PH(v) = data_v should NOT be used. 
+ *     Instead, use NV_HYPRE_PARVEC_PH to obtain pointer to HYPRE 
+ *     vector and then use HYPRE functions to manipulate vector data.
+ *
+ *     The assignment v_parhyp = NV_HYPRE_PARVEC_PH(v) sets v_parhyp
+ *     to be a pointer to hypre_ParVector of vector v. The assignment
+ *     NV_HYPRE_PARVEC_PH(v) = parhyp_v sets pointer to 
+ *     hypre_ParVector of vector v to be parhyp_v.
+ *
+ * -----------------------------------------------------------------
+ */
+
+#define NV_CONTENT_PH(v)    ( (N_VectorContent_ParHyp)(v->content) )
+
+#define NV_LOCLENGTH_PH(v)  ( NV_CONTENT_PH(v)->local_length )
+
+#define NV_GLOBLENGTH_PH(v) ( NV_CONTENT_PH(v)->global_length )
+
+#define NV_OWN_PARVEC_PH(v) ( NV_CONTENT_PH(v)->own_parvector )
+
+#define NV_HYPRE_PARVEC_PH(v) ( NV_CONTENT_PH(v)->x )
+
+#define NV_DATA_PH(v)       ( NV_HYPRE_PARVEC_PH(v) == NULL ? NULL : hypre_VectorData(hypre_ParVectorLocalVector(NV_HYPRE_PARVEC_PH(v))) )
+
+#define NV_COMM_PH(v)       ( NV_CONTENT_PH(v)->comm )
+
+
 /* Private function prototypes */
 
 /* Reduction operations add/max/min over the processor group */
@@ -74,7 +152,7 @@ static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z);
 
 /* ----------------------------------------------------------------
  * Function to create a new parhyp vector without underlying
- * hypre vector.
+ * HYPRE vector.
  */
 
 N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, 
@@ -130,7 +208,6 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   content->local_length  = local_length;
   content->global_length = global_length;
   content->comm          = comm;
-  content->own_data      = FALSE;
   content->own_parvector = FALSE;
   content->x             = NULL;
   
@@ -144,7 +221,7 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
 
 /* ---------------------------------------------------------------- 
  * Function to create a parhyp N_Vector wrapper around user 
- * supplie hypre vector.
+ * supplie HYPRE vector.
  */
 
 N_Vector N_VMake_ParHyp(hypre_ParVector *x)
@@ -153,7 +230,7 @@ N_Vector N_VMake_ParHyp(hypre_ParVector *x)
   MPI_Comm comm = hypre_ParVectorComm(x);
   HYPRE_Int global_length = hypre_ParVectorGlobalSize(x);
   HYPRE_Int local_begin = hypre_ParVectorFirstIndex(x);
-  HYPRE_Int local_end = hypre_ParVectorLastIndex(x);;
+  HYPRE_Int local_end = hypre_ParVectorLastIndex(x);
   HYPRE_Int local_length = local_end - local_begin + 1;
   
   v = NULL;
@@ -161,12 +238,8 @@ N_Vector N_VMake_ParHyp(hypre_ParVector *x)
   if (v == NULL) 
     return(NULL);
 
-  if (local_length > 0) {
-    /* Attach data */
-    NV_OWN_PARVEC_PH(v)   = FALSE;
-    NV_OWN_DATA_PH(v)     = FALSE;
-    NV_HYPRE_PARVEC_PH(v) = x;
-  }
+  NV_OWN_PARVEC_PH(v)   = FALSE;
+  NV_HYPRE_PARVEC_PH(v) = x;
 
   return(v);
 }
@@ -201,7 +274,7 @@ N_Vector *N_VCloneVectorArray_ParHyp(int count, N_Vector w)
 
 /* ---------------------------------------------------------------- 
  * Function to create an array of new parhyp vector wrappers 
- * without uderlying hypre vectors.
+ * without uderlying HYPRE vectors.
  */
 
 N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w)
@@ -244,9 +317,19 @@ void N_VDestroyVectorArray_ParHyp(N_Vector *vs, int count)
   return;
 }
 
+
+/* ----------------------------------------------------------------
+ * Extract HYPRE vector
+ */
+
+hypre_ParVector* N_VGetVector_ParHyp(N_Vector v)
+{
+  return NV_HYPRE_PARVEC_PH(v); 
+}
+
 /* ---------------------------------------------------------------- 
  * Function to print a parhyp vector.
- * TODO: Consider using a hypre function for this.
+ * TODO: Consider using a HYPRE function for this.
  */
 
 void N_VPrint_ParHyp(N_Vector x)
@@ -337,7 +420,6 @@ N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
   content->local_length  = NV_LOCLENGTH_PH(w);
   content->global_length = NV_GLOBLENGTH_PH(w);
   content->comm          = NV_COMM_PH(w);
-  content->own_data      = FALSE;
   content->own_parvector = FALSE;
   content->x             = NULL;
   
@@ -349,21 +431,19 @@ N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
 }
 
 /*
- * Clone hypre vector wrapper.
+ * Clone HYPRE vector wrapper.
  * 
  */
 N_Vector N_VClone_ParHyp(N_Vector w)
 {
   N_Vector v;
   hypre_ParVector *vx;
-  hypre_ParVector *wx;
+  const hypre_ParVector *wx = NV_HYPRE_PARVEC_PH(w);
   
   v = NULL;
   v = N_VCloneEmpty_ParHyp(w);
   if (v==NULL)
     return(NULL);
-  
-  wx = NV_HYPRE_PARVEC_PH(w);
   
   vx = hypre_ParVectorCreate(wx->comm, wx->global_size, wx->partitioning);
   hypre_ParVectorInitialize(vx);
@@ -373,8 +453,6 @@ N_Vector N_VClone_ParHyp(N_Vector w)
   hypre_SeqVectorSetDataOwner(hypre_ParVectorLocalVector(vx), 1);
   
   NV_HYPRE_PARVEC_PH(v) = vx;
-  
-  NV_OWN_DATA_PH(v)   = TRUE;
   NV_OWN_PARVEC_PH(v) = TRUE;
   
   return(v);
@@ -408,8 +486,9 @@ void N_VSpace_ParHyp(N_Vector v, long int *lrw, long int *liw)
   return;
 }
 
+
 /*
- * Returns pointer to raw data of local hypre vector.
+ * Returns pointer to raw data of local HYPRE vector.
  * NOTE: Use only if you know what you are doing.
  */
 realtype *N_VGetArrayPointer_ParHyp(N_Vector v)
@@ -417,11 +496,20 @@ realtype *N_VGetArrayPointer_ParHyp(N_Vector v)
   return((realtype *) NV_DATA_PH(v));
 }
 
+
+/*
+ * This method is not implemented for HYPRE vector wrapper.
+ * TODO: Put error handler in the function body.
+ */
 void N_VSetArrayPointer_ParHyp(realtype *v_data, N_Vector v)
 {
   /* Not implemented for Hypre vector */
 }
 
+/*
+ * Computes z[i] = a*x[i] + b*y[i]
+ * 
+ */
 void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
 {
   long int i, N;
@@ -434,14 +522,14 @@ void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
   if ((b == ONE) && (z == y)) {    /* BLAS usage: axpy y <- ax+y */
     HYPRE_Complex   alpha=a;
     HYPRE_ParVectorAxpy( alpha, (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(x),
-                     (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(y));
+                                (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(y));
     return;
   }
 
   if ((a == ONE) && (z == x)) {    /* BLAS usage: axpy x <- by+x */
     HYPRE_Complex   beta=b;
     HYPRE_ParVectorAxpy( beta, (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(y),
-                     (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(x));
+                               (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(x));
     return;
   }
 
@@ -569,8 +657,12 @@ void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 void N_VScale_ParHyp(realtype c, N_Vector x, N_Vector z)
 {
   HYPRE_Complex value = c;
-  HYPRE_ParVectorCopy((HYPRE_ParVector) NV_HYPRE_PARVEC_PH(x), (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(z));
+  
+  if (x != z) {
+     HYPRE_ParVectorCopy((HYPRE_ParVector) NV_HYPRE_PARVEC_PH(x), (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(z));
+  }
   HYPRE_ParVectorScale(value, (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(z));
+  
   return;
 }
 
@@ -620,7 +712,8 @@ void N_VAddConst_ParHyp(N_Vector x, realtype b, N_Vector z)
   xd = NV_DATA_PH(x);
   zd = NV_DATA_PH(z);
   
-  for (i = 0; i < N; i++) zd[i] = xd[i]+b;
+  for (i = 0; i < N; i++) 
+     zd[i] = xd[i] + b;
 
   return;
 }

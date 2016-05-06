@@ -2,26 +2,20 @@
 % the MPI parallel hypre nvector implementation
 %
 The {\nvecph} implementation of the {\nvector} module provided with
-{\sundials} is based on HYPRE's ParVector class. Most basic vector operations are 
-wrapped versions of HYPRE's vector operations. The remaining vector operations 
-mimic HYPRE's style of hybrid {\mpi} and OpenMP parallelism.  It
-defines the {\em content} field of \id{N\_Vector} to be a structure
-containing the global and local lengths of the vector, a pointer to an
-object of type \id{hypre\_ParVector}, a pointer to the beginning of a
-contiguous local data array (which corresponds with the local data in
-the \id{hypre\_ParVector} {\em x}), an {\mpi} communicator, a boolean
-flag {\em own\_data} indicating ownership of the data array {\em data}
+{\sundials} is a wrapper around {\hypre}'s ParVector class. 
+Most of the vector kernels simply call {\hypre} vector operations. 
+The implementation defines the {\em content} field of \id{N\_Vector} to 
+be a structure containing the global and local lengths of the vector, a 
+pointer to an object of type \id{hypre\_ParVector}, an {\mpi} communicator, 
 and a boolean flag {\em own\_parvector} indicating ownership of the
-vector object {\em x}.
+{\hypre} parallel vector object {\em x}.
 %%
 %%
 \begin{verbatim}
 struct _N_VectorContent_ParHyp {
   long int local_length;
   long int global_length;
-  booleantype own_data;
   booleantype own_parvector;
-  realtype *data;
   MPI_Comm comm;
   hypre_ParVector *x;
 };
@@ -29,99 +23,23 @@ struct _N_VectorContent_ParHyp {
 %%
 %%--------------------------------------------
 
+\noindent
 The header file to be included when using this module is \id{nvector\_parhyp.h}.
+Unlike native {\sundials} vector types, {\nvecph} does not provide macros 
+to access its member variables.
 
-The following nine macros are provided to access the content of a {\nvecph}
-vector. The suffix \id{\_PH} in the names denotes the parallel HYPRE
-wrapped version (distributed memory parallel with OpenMP threading).
-\begin{itemize}
-
-\item 
-  \ID{NV\_CONTENT\_PH}
-
-  This macro gives access to the contents of the parhyp
-  vector \id{N\_Vector}.
-  
-  The assignment \id{v\_cont = NV\_CONTENT\_PH(v)} sets       
-  \id{v\_cont} to be a pointer to the \id{N\_Vector} content    
-  structure of type \id{struct \_N\_VectorContent\_ParHyp}.
-  
-  Implementation:
-  
-  \verb|#define NV_CONTENT_PH(v) ( (N_VectorContent_ParHyp)(v->content) )|
-  
-\item 
-  \ID{NV\_OWN\_PARVEC\_PH}, \ID{NV\_HYPRE\_PARVEC\_PH}, 
-  \ID{NV\_OWN\_DATA\_PH}, \ID{NV\_DATA\_PH}, 
-  \ID{NV\_LOCLENGTH\_PH}, \ID{NV\_GLOBLENGTH\_PH}
-  
-  These macros give individual access to the parts of    
-  the content of a parhyp \id{N\_Vector}.                        
-
-  The assignment \id{x\_vec = NV\_HYPRE\_PARVEC\_PH(v)} sets \id{x\_vec} to be     
-  a pointer to the \id{hypre\_ParVector} \id{x} for the \id{N\_Vector} \id{v}. 
-  The assignment \id{NV\_DATA\_PH(v) = v\_data} sets the local component array of 
-  the \id{hypre\_ParVector} \id{x} of \id{v} to be \id{v\_data} by storing the pointer 
-  \id{v\_data}.              
-  %%%%%%     
-  
-  The assignment \id{v\_llen = NV\_LOCLENGTH\_PH(v)} sets \id{v\_llen} to be     
-  the length of the local part of \id{v}. 
-  The call \id{NV\_LOCLENGTH\_PH(v) = llen\_v} sets      
-  the local length of \id{v} to be \id{llen\_v}.
-  
-  The assignment \id{v\_glen = NV\_GLOBLENGTH\_PH(v)} sets \id{v\_glen} to  
-  be the global length of the vector \id{v}.                    
-  The call \id{NV\_GLOBLENGTH\_PH(v) = glen\_v} sets the global       
-  length of \id{v} to be \id{glen\_v}.
-  
-  Implementation:
-  
-  %%%%%%%%%%define these:
-  \verb|#define NV_OWN_PARVEC_PH(v) ( NV_CONTENT_PH(v)->own_parvector )|
-
-  \verb|#define NV_HYPRE_PARVEC_PH(v) ( NV_CONTENT_PH(v)->x )|
-
-  \verb|#define NV_OWN_DATA_PH(v) ( NV_CONTENT_PH(v)->own_data )|
-
-  \verb|#define NV_DATA_PH(v) ( hypre_VectorData(hypre_ParVectorLocalVector(NV_HYPRE_PARVEC_PH(v))) )|
-
-  \verb|#define NV_LOCLENGTH_PH(v) ( NV_CONTENT_PH(v)->local_length )|
-
-  \verb|#define NV_GLOBLENGTH_PH(v) ( NV_CONTENT_PH(v)->global_length )|
-  
-\item \ID{NV\_COMM\_PH}
-
-  This macro provides access to the {\mpi} communicator used by the {\nvecph}
-  vectors.
-
-  Implementation:
-
-  \verb|#define NV_COMM_PH(v) ( NV_CONTENT_PH(v)->comm )|
-
-\item \ID{NV\_Ith\_PH}
-
-  This macro gives access to the individual components of the local data
-  array of an \id{N\_Vector}.
-
-  The assignment \id{r = NV\_Ith\_PH(v,i)} sets \id{r} to be the value of 
-  the \id{i}-th component of the local part of \id{v}. 
-  The assignment \id{NV\_Ith\_PH(v,i) = r}   
-  sets the value of the \id{i}-th component of the local part of \id{v} 
-  to be \id{r}.        
-  
-  Here $i$ ranges from $0$ to $n-1$, where $n$ is the local length.
-      
-  Implementation:
-
-  \verb|#define NV_Ith_PH(v,i) ( NV_DATA_PH(v)[i] )|
-
-\end{itemize}
 %%
 %%--------------------------------------------
 %%
 The {\nvecph} module defines parhyp implementations of all vector operations listed 
-in Table \ref{t:nvecops}  Their names are obtained from those in Table \ref{t:nvecops}
+in Table \ref{t:nvecops}, except for \verb|N_VSetArrayPointer|, because setting raw 
+data pointers is handled by low-level {\hypre} functions. Implementation of 
+\verb|N_VGetArrayPointer| is provided, but its use is strongly discouraged (we 
+consider removing it, as well). When access to raw vector data is needed, it is 
+recommended to extract {\hypre} vector first, and then use {\hypre} 
+methods to access the raw data. 
+
+The names of parhyp methods are obtained from those in Table \ref{t:nvecops}
 by appending the suffix \id{\_ParHyp} (e.g. \id{N\_VDestroy\_ParHyp}).
 The module {\nvecph} provides the following additional user-callable routines:
 %%
@@ -130,30 +48,17 @@ The module {\nvecph} provides the following additional user-callable routines:
 
 %%--------------------------------------
 
-\item  \ID{N\_VNew\_ParHyp}
-  
-  This function creates and allocates memory for a parhyp vector.
- 
-  
-
-\begin{verbatim}
-N_Vector N_VNew_ParHyp(MPI_Comm comm, 
-                         long int local_length, 
-                         long int global_length);
-\end{verbatim}
-  
-%%--------------------------------------
-
 \item \ID{N\_VNewEmpty\_ParHyp}
  
-  This function creates a new parhyp \id{N\_Vector} with an empty (\id{NULL}) data array.
+  This function creates a new parhyp \id{N\_Vector} with pointer to {\hypre} 
+  vector set to \id{NULL}.
  
   
 
 \begin{verbatim}
 N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, 
-                              long int local_length, 
-                              long int global_length);
+                            long int local_length, 
+                            long int global_length);
 \end{verbatim}
 
   
@@ -161,16 +66,12 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
 
 \item \ID{N\_VMake\_ParHyp}
   
-  This function creates and allocates memory for a parallel vector
-  with user-provided data array.
+  This function creates \verb|N_Vector| wrapper around {\hypre} parallel vector.
  
   
 
 \begin{verbatim}
-N_Vector N_VMake_ParHyp(MPI_Comm comm, 
-                          long int local_length,
-                          long int global_length,
-                          realtype *v_data);
+N_Vector N_VMake_ParHyp(hypre_ParVector *x);
 \end{verbatim}
 
 %%--------------------------------------
@@ -208,6 +109,16 @@ N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w);
 
 %%--------------------------------------
 
+\item \ID{N\_VGetVector\_ParHyp}
+  
+  This function returns pointer to the underlying {\hypre} vector.
+ 
+    
+  \verb|hypre_ParVector *N_VPrint_ParHyp(N_Vector v);|
+
+
+%%--------------------------------------
+
 \item \ID{N\_VPrint\_ParHyp}
   
   This function prints the content of a parhyp vector to stdout.
@@ -225,19 +136,19 @@ N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w);
 \begin{itemize}
                                         
 \item
-  When looping over the components of an \id{N\_Vector} \id{v}, it is     
-  more efficient to first obtain the local component array via       
-  \id{v\_data = NV\_DATA\_PH(v)} and then access \id{v\_data[i]} within the     
-  loop than it is to use \id{NV\_Ith\_PH(v,i)} within the loop.        
+  When there is a need to access components of an \id{N\_Vector} \id{v}, 
+  it is recommeded to extract {\hypre} vector via       
+  \id{x\_vec = N\_VGetVector(v)} and then access components using 
+  {\hypre} functions.        
                                                                
 \item
   {\warn}\id{N\_VNewEmpty\_ParHyp}, \id{N\_VMake\_ParHyp}, 
   and \id{N\_VCloneVectorArrayEmpty\_ParHyp} set the field 
-  {\em own\_data} $=$ \id{FALSE}. 
+  {\em own\_parvector} $=$ \id{FALSE}. 
   \id{N\_VDestroy\_ParHyp} and \id{N\_VDestroyVectorArray\_ParHyp}
-  will not attempt to free the pointer {\em data} for any \id{N\_Vector} with
-  {\em own\_data} set to \id{FALSE}. In such a case, it is the user's responsibility to
-  deallocate the {\em data} pointer.
+  will not attempt to delete underlying {\hypre} vector for any \id{N\_Vector} 
+  with {\em own\_parvector} set to \id{FALSE}. In such a case, it is the 
+  user's responsibility to delete the underlying vector.
 
 \item
   {\warn}To maximize efficiency, vector operations in the {\nvecph} implementation
@@ -248,17 +159,18 @@ N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w);
 
 \end{itemize}
 
-For solvers that include a Fortran interface module, the {\nvecph} module
-also includes a Fortran-callable function
-\id{FNVINITPH(COMM, code, NLOCAL, NGLOBAL, IER)},
-to initialize this {\nvecph} module.  Here \id{COMM} is the MPI communicator,
-\id{code} is an input solver id (1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol},
-4 for {\arkode}); \id{NLOCAL} and \id{NGLOBAL} are the local and global
-vector sizes, respectively (declared so as to match C type \id{long int});
-and IER is an error return flag equal 0 for success and -1 for failure.
-{\warn}Note: If the header file \id{sundials\_config.h} defines
-\id{SUNDIALS\_MPI\_COMM\_F2C} to be $1$ (meaning the {\mpi}
-implementation used to build {\sundials} includes the
-\id{MPI\_Comm\_f2c} function), then \id{COMM} can be any valid
-{\mpi} communicator. Otherwise, \id{MPI\_COMM\_WORLD} will be used, so
-just pass an integer value as a placeholder.
+% For solvers that include a Fortran interface module, the {\nvecph} module
+% also includes a Fortran-callable function
+% \id{FNVINITPH(COMM, code, NLOCAL, NGLOBAL, IER)},
+% to initialize this {\nvecph} module.  Here \id{COMM} is the MPI communicator,
+% \id{code} is an input solver id (1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol},
+% 4 for {\arkode}); \id{NLOCAL} and \id{NGLOBAL} are the local and global
+% vector sizes, respectively (declared so as to match C type \id{long int});
+% and IER is an error return flag equal 0 for success and -1 for failure.
+% 
+% {\warn}Note: If the header file \id{sundials\_config.h} defines
+% \id{SUNDIALS\_MPI\_COMM\_F2C} to be $1$ (meaning the {\mpi}
+% implementation used to build {\sundials} includes the
+% \id{MPI\_Comm\_f2c} function), then \id{COMM} can be any valid
+% {\mpi} communicator. Otherwise, \id{MPI\_COMM\_WORLD} will be used, so
+% just pass an integer value as a placeholder.

@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU
- *                Jean Sexton
+ * Programmer(s): Daniel R. Reynolds, Jean Sexton @ SMU
+ *                Slaven Peles @ LLNL
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
  * Copyright (c) 2015, Southern Methodist University and 
@@ -408,7 +408,7 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
   
   npelast = NPEX*NPEY - 1;
 
-  uhyp  = NV_HYPRE_PARVEC_PH(u);
+  uhyp  = N_VGetVector_ParHyp(u);
   udata = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
 
   /* Send c1,c2 at top right mesh point to PE 0 */
@@ -652,7 +652,7 @@ static void ucomm(realtype t, N_Vector u, UserData data)
   MPI_Request request[4];
   HYPRE_ParVector uhyp;
   
-  uhyp  = NV_HYPRE_PARVEC_PH(u);
+  uhyp  = N_VGetVector_ParHyp(u);
   udata = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
 
   /* Get comm, my_pe, subgrid indices, data sizes, extended array uext */
@@ -817,8 +817,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   HYPRE_ParVector udothyp;
   
   /* Extract hypre vectors */  
-  uhyp  = NV_HYPRE_PARVEC_PH(u);
-  udothyp  = NV_HYPRE_PARVEC_PH(udot);
+  uhyp  = N_VGetVector_ParHyp(u);
+  udothyp  = N_VGetVector_ParHyp(udot);
   
   /* Access hypre vectors local data */
   udata = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
@@ -861,7 +861,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   isuby = data->isuby;
   nvmxsub = data->nvmxsub;
 
-  uhyp  = NV_HYPRE_PARVEC_PH(u);
+  uhyp  = N_VGetVector_ParHyp(u);
   udata = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
 
   if (jok) {
@@ -956,7 +956,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   N_VScale(RCONST(1.0), r, z);
 
   nvmxsub = data->nvmxsub;
-  zhyp  = NV_HYPRE_PARVEC_PH(z); /* extract hypre vector */
+  zhyp  = N_VGetVector_ParHyp(z); /* extract hypre vector */
   zdata = hypre_VectorData(hypre_ParVectorLocalVector(zhyp));
 
   for (lx = 0; lx < MXSUB; lx++) {
