@@ -25,11 +25,7 @@
  * Part I contains declarations specific to the parallel
  * implementation of the supplied NVECTOR module.
  *
- * Part II defines accessor macros that allow the user to efficiently
- * use the type N_Vector without making explicit references to the
- * underlying data structure.
- *
- * Part III contains the prototype for the constructor
+ * Part II contains the prototype for the constructor
  * N_VNew_ParHyp as well as implementation-specific prototypes
  * for various useful vector operations.
  *

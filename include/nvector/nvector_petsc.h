@@ -3,8 +3,7 @@
  * $Revision: $
  * $Date:  $
  * ----------------------------------------------------------------- 
- * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
- *                and Aaron Collier @ LLNL
+ * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
@@ -22,12 +21,8 @@
  * Part I contains declarations specific to the PETSc vector wrapper
  * implementation.
  *
- * Part II defines accessor macros that allow the user to efficiently
- * use the type N_Vector without making explicit references to the
- * underlying PETSc vector.
- *
- * Part III contains the prototype for the constructor
- * N_VNew_petsc as well as PETSc-specific prototypes
+ * Part II contains the prototype for the constructor
+ * N_VMake_petsc as well as PETSc-specific prototypes
  * for various useful vector operations.
  *
  * Notes:
@@ -93,90 +88,18 @@ extern "C" {
    and a flag indicating ownership of the PETSc vector */
 
 struct _N_VectorContent_petsc {
-  long int local_length;   /* local vector length         */
-  long int global_length;  /* global vector length        */
-  booleantype own_data;    /* ownership of data           */
-  Vec *pvec;               /* PETSc vector                */
-  MPI_Comm comm;           /* pointer to MPI communicator */
+  long int local_length;   /* copy of local vector length  */
+  long int global_length;  /* copy of global vector length */
+  booleantype own_data;    /* ownership of data            */
+  Vec *pvec;               /* pointer to PETSc vector      */
+  MPI_Comm comm;           /* copy of MPI communicator     */
 };
 
 typedef struct _N_VectorContent_petsc *N_VectorContent_petsc;
 
 /*
  * -----------------------------------------------------------------
- * PART II: macros NV_CONTENT_PTC, NV_DATA_PTC, NV_OWN_DATA_PTC,
- *          NV_LOCLENGTH_PTC, NV_GLOBLENGTH_PTC,NV_COMM_PTC, and NV_Ith_PTC
- * -----------------------------------------------------------------
- * In the descriptions below, the following user declarations
- * are assumed:
- *
- * N_Vector v;
- * long int v_len, s_len, i;
- *
- * (1) NV_CONTENT_PTC
- *
- *     This routines gives access to the contents of the PETSc 
- *     vector wrapper N_Vector.
- *
- *     The assignment v_cont = NV_CONTENT_PTC(v) sets v_cont to be
- *     a pointer to the N_Vector (PETSc wrapper) content structure.
- *
- * (2) NV_PVEC_PTC, NV_OWN_DATA_PTC, NV_LOCLENGTH_PTC, NV_GLOBLENGTH_PTC,
- *     and NV_COMM_PTC
- *
- *     These routines give access to the individual parts of
- *     the content structure of a parallel N_Vector.
- *
- *     NV_PVEC_PTC(v) returns pointer to the PETSc vector. 
- *
- *     The assignment v_llen = NV_LOCLENGTH_PTC(v) sets v_llen to
- *     be the length of the local part of the vector v. The call
- *     NV_LOCLENGTH_PTC(v) = llen_v sets the local length
- *     of v to be llen_v.
- *
- *     The assignment v_glen = NV_GLOBLENGTH_PTC(v) sets v_glen to
- *     be the global length of the vector v. The call
- *     NV_GLOBLENGTH_PTC(v) = glen_v sets the global length of v to
- *     be glen_v.
- *
- *     The assignment v_comm = NV_COMM_PTC(v) sets v_comm to be the
- *     MPI communicator of the vector v. The assignment
- *     NV_COMM_PTC(v) = comm_v sets the MPI communicator of v to be
- *     comm_v.
- *
- * (3) NV_Ith_PTC <~ commented out, will probably be removed.
- *
- *     In the following description, the components of the
- *     local part of an N_Vector are numbered 0..n-1, where n
- *     is the local length of (the local part of) v.
- *
- *     The assignment r = NV_Ith_PTC(v,i) sets r to be the value
- *     of the ith component of the local part of the vector v.
- *     The assignment NV_Ith_PTC(v,i) = r sets the value of the
- *     ith local component of v to be r.
- *
- * -----------------------------------------------------------------
- */
-
-#define NV_CONTENT_PTC(v)    ( (N_VectorContent_petsc)(v->content) )
-
-#define NV_LOCLENGTH_PTC(v)  ( NV_CONTENT_PTC(v)->local_length )
-
-#define NV_GLOBLENGTH_PTC(v) ( NV_CONTENT_PTC(v)->global_length )
-
-#define NV_OWN_DATA_PTC(v)   ( NV_CONTENT_PTC(v)->own_data )
-
-#define NV_PVEC_PTC(v)       ( NV_CONTENT_PTC(v)->pvec )
-
-#define NV_COMM_PTC(v)       ( NV_CONTENT_PTC(v)->comm )
-
-// This needs to be reworked 
-//#define NV_Ith_PTC(v,i)      ( NV_DATA_PTC(v)[i] )
-// Above needs to be reworked
-
-/*
- * -----------------------------------------------------------------
- * PART III: functions exported by nvector_petsc
+ * PART II: functions exported by nvector_petsc
  * 
  * CONSTRUCTORS:
  *    N_VNewEmpty_petsc
@@ -204,19 +127,6 @@ typedef struct _N_VectorContent_petsc *N_VectorContent_petsc;
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_petsc(MPI_Comm comm, 
                                            long int local_length,
                                            long int global_length);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VNew_petsc
- * -----------------------------------------------------------------
- * This function creates and allocates memory for a N_Vector 
- * wrapper and underlying PETSc vector.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT N_Vector N_VNew_petsc(MPI_Comm comm, 
-                                      long int local_length,
-                                      long int global_length);
 
 /*
  * -----------------------------------------------------------------
@@ -270,6 +180,16 @@ SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_petsc(int count, N_Vector w);
  */
 
 SUNDIALS_EXPORT void N_VDestroyVectorArray_petsc(N_Vector *vs, int count);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VGetVector_petsc
+ * -----------------------------------------------------------------
+ * Extracts PETSc vector from N_Vector wrapper.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT Vec *N_VGetVector_petsc(N_Vector v);
 
 /*
  * -----------------------------------------------------------------

@@ -32,6 +32,10 @@
 
 #include <sundials/sundials_math.h>
 
+#define NV_CONTENT_PTC(v)    ( (N_VectorContent_petsc)(v->content) )
+#define NV_PVEC_PTC(v)       ( NV_CONTENT_PTC(v)->pvec )
+
+
 /* Return values for KSPSolve */
 
 #define KSP_SUCCESS            0  /* Converged                     */
@@ -165,6 +169,18 @@ int IDAPETScKSP(void *ida_mem, MPI_Comm comm, Mat *JacMat)
   /* Compute sqrtN from a dot product */
   N_VConst(ONE, idapetsc_mem->s_ytemp);
   idapetsc_mem->s_sqrtN = SUNRsqrt( N_VDotProd(idapetsc_mem->s_ytemp, idapetsc_mem->s_ytemp) );
+  
+  /* Set linear solver tolerance factor */
+  idapetsc_mem->s_eplifac = PT05;
+
+  /* Initialize counters */
+  idapetsc_mem->s_npe  = 0;
+  idapetsc_mem->s_nli  = 0;
+  idapetsc_mem->s_nps  = 0;
+  idapetsc_mem->s_ncfl = 0;
+  idapetsc_mem->s_njtimes = 0;
+  idapetsc_mem->s_nres = 0;
+  idapetsc_mem->s_nje  = 0;
 
   /* Allocate memory for KSP solver */
   solver = NULL;
@@ -332,22 +348,27 @@ static int IDAPETScKSPSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
   PetscErrorCode ierr;
   
   realtype cjratio = IDA_mem->ida_cjratio;
-  //printf("cjratio should be 1, is: %g.\n", cjratio);
+  /* printf("cjratio should be 1, is: %g.\n", cjratio); */
 
   /* Set KSPSolve convergence test constant epslin, in terms of the
     Newton convergence test constant epsNewt and safety factors.  The factor 
     sqrt(Neq) assures that the GMRES convergence test is applied to the
     WRMS norm of the residual vector, rather than the weighted L2 norm. */
   idapetsc_mem->s_epslin = (idapetsc_mem->s_sqrtN)*(idapetsc_mem->s_eplifac)*(IDA_mem->ida_epsNewt);
-
+//   printf("Estimated linear solver tolerance: %g\n",idapetsc_mem->s_epslin );
+//   printf("sqrtN: %g\n", idapetsc_mem->s_sqrtN);
+//   printf("eplifac: %g\n", idapetsc_mem->s_eplifac);
+//   printf("epsNewt: %g\n", IDA_mem->ida_epsNewt);
+  ierr = KSPSetTolerances(*solver, idapetsc_mem->s_epslin, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
+  
   /* Call KSPSolve and copy xx to bb. */
   ierr = KSPSolve(*solver, *(NV_PVEC_PTC(bb)), *(NV_PVEC_PTC(bb)));
 
   KSPGetIterationNumber(*solver, &nli_inc);
   
-//   if (nli_inc == 0) N_VScale(ONE, KSP_VTEMP(spgmr_mem), bb);
+/*   if (nli_inc == 0) N_VScale(ONE, KSP_VTEMP(spgmr_mem), bb);
 //   else N_VScale(ONE, xx, bb);
-//   
+*/   
   
   /* Increment counters nli, nps, and return if successful. */
   idapetsc_mem->s_nli += nli_inc;

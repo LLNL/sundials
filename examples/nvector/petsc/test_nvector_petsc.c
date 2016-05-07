@@ -35,6 +35,7 @@
 /* local vector length */
 #define VECLEN 10000
 
+static int Test_N_VMake(Vec* W, int myid);
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
@@ -46,6 +47,7 @@ int main(int argc, char *argv[])
   N_Vector W, X, Y, Z;                  /* test vectors              */
   MPI_Comm comm;                        /* MPI Communicator          */
   int      nprocs, myid;                /* Number of procs, proc id  */
+  Vec xvec;                             /* PETSc vector              */
   PetscErrorCode ierr;                  /* PETSc error code          */
 
   /* Get processor number and total number of processes */
@@ -59,20 +61,30 @@ int main(int argc, char *argv[])
   /* set local and global lengths */
   local_length = VECLEN;
   global_length = nprocs*local_length;
-
+  
+  /* Allocate and initialize PETSc vector */
+  VecCreate(comm, &xvec);
+  VecSetSizes(xvec, PETSC_DECIDE, global_length);
+  VecSetFromOptions(xvec);
+  
   /* Create vectors */
   W = N_VNewEmpty_petsc(comm, local_length, global_length);
-  X = N_VNew_petsc(comm, local_length, global_length);
-  Y = N_VNew_petsc(comm, local_length, global_length);
-  Z = N_VNew_petsc(comm, local_length, global_length);
 
   /* NVector Test */
+
+  /* PETSc specific tests */
+  //fails += Test_N_VMake(&xvec, myid);
+  
+  X = N_VMake_petsc(&xvec);
 
   /* Memory allocation tests */
   fails += Test_N_VCloneVectorArray(5, X, local_length, myid);
   fails += Test_N_VCloneEmptyVectorArray(5, X, myid);
   fails += Test_N_VCloneEmpty(X, myid);
   fails += Test_N_VClone(X, local_length, myid);
+
+  Y = N_VClone_petsc(X);
+  Z = N_VClone_petsc(X);
 
   /* Skipped tests */
   /* fails += Test_N_VSetArrayPointer(W, local_length, myid); */
@@ -127,7 +139,7 @@ int check_ans(realtype ans, N_Vector X, long int local_length)
 {
   int failure = 0;
   long int i;
-  Vec *xv = NV_PVEC_PTC(X);
+  Vec *xv = N_VGetVector_petsc(X);
   PetscScalar *a;
 
   failure = 0;
@@ -146,7 +158,7 @@ int check_ans(realtype ans, N_Vector X, long int local_length)
 
 booleantype has_data(N_Vector X)
 {
-  if(NV_PVEC_PTC(X) == NULL)
+  if(N_VGetVector_petsc(X) == NULL)
     return FALSE;
   else
     return TRUE;
@@ -155,7 +167,7 @@ booleantype has_data(N_Vector X)
 void set_element(N_Vector X, long int i, realtype val)
 {
   PetscScalar *a;
-  Vec *xv = NV_PVEC_PTC(X);
+  Vec *xv = N_VGetVector_petsc(X);
   
   VecGetArray(*xv, &a);
   a[i] = val;
@@ -165,7 +177,7 @@ void set_element(N_Vector X, long int i, realtype val)
 realtype get_element(N_Vector X, long int i)
 {
   PetscScalar *a;
-  Vec *xv = NV_PVEC_PTC(X);
+  Vec *xv = N_VGetVector_petsc(X);
   realtype val;
   
   VecGetArray(*xv, &a);
@@ -174,3 +186,57 @@ realtype get_element(N_Vector X, long int i)
   
   return val;    
 }
+
+/* ----------------------------------------------------------------------
+ * N_VMake Test
+ *
+ * NOTE: This routine depends on N_VConst to check vector data.
+ * --------------------------------------------------------------------*/
+static int Test_N_VMake(Vec* W, int myid)
+{
+  int failure;
+  /* double   start_time, stop_time; */
+  N_Vector X;
+  int local_length = 0;
+
+  VecGetLocalSize(*W, &local_length);
+
+  /* clone vector */
+  /* start_time = get_time(); */  
+  X = N_VMake_petsc(W);
+  /* stop_time = get_time();  */
+
+  /* check cloned vector */
+  if (X == NULL) {
+    printf(">>> FAILED test -- N_VMake, Proc %d \n", myid);
+    printf("    After N_VMakeEmpty, X == NULL \n \n");
+    return(1);
+  } 
+
+  /* check cloned vector data */
+  if (!has_data(X)) {
+    printf(">>> FAILED test -- N_VMake, Proc %d \n", myid);
+    printf("    Vector data == NULL \n \n");
+    N_VDestroy(X);
+    return(1);
+  }    
+
+  N_VConst(ONE,X);
+  failure = check_ans(ONE, X, local_length);
+  if (failure) {
+    printf(">>> FAILED test -- N_VMake, Proc %d \n", myid);
+    printf("    Failed N_VConst check \n \n");
+    N_VDestroy(X);
+    return(1);
+  }    
+
+  N_VDestroy(X); 
+
+  if (myid == 0) {
+    printf("    PASSED test -- N_VMake \n");
+    /* PRINT_TIME("    N_VMake Time: %22.15e \n \n", stop_time - start_time); */
+  }
+
+  return(0);
+}
+

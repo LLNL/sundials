@@ -39,9 +39,68 @@
 /* Error Message */
 
 
-#define BAD_N1 "N_VNew_petsc -- Sum of local vector lengths differs from "
+#define BAD_N1 "N_VNewEmpty_petsc -- Sum of local vector lengths differs from "
 #define BAD_N2 "input global length. \n\n"
 #define BAD_N   BAD_N1 BAD_N2
+
+/*
+ * -----------------------------------------------------------------
+ * Simplifying macros NV_CONTENT_PTC, NV_OWN_DATA_PTC, 
+ *                    NV_LOCLENGTH_PTC, NV_GLOBLENGTH_PTC,
+ *                    NV_COMM_PTC
+ * -----------------------------------------------------------------
+ * In the descriptions below, the following user declarations
+ * are assumed:
+ *
+ * N_Vector v;
+ * long int v_len, s_len, i;
+ *
+ * (1) NV_CONTENT_PTC
+ *
+ *     This routines gives access to the contents of the PETSc 
+ *     vector wrapper N_Vector.
+ *
+ *     The assignment v_cont = NV_CONTENT_PTC(v) sets v_cont to be
+ *     a pointer to the N_Vector (PETSc wrapper) content structure.
+ *
+ * (2) NV_PVEC_PTC, NV_OWN_DATA_PTC, NV_LOCLENGTH_PTC, NV_GLOBLENGTH_PTC,
+ *     and NV_COMM_PTC
+ *
+ *     These routines give access to the individual parts of
+ *     the content structure of a parallel N_Vector.
+ *
+ *     NV_PVEC_PTC(v) returns pointer to the PETSc vector. 
+ *
+ *     The assignment v_llen = NV_LOCLENGTH_PTC(v) sets v_llen to
+ *     be the length of the local part of the vector v. The call
+ *     NV_LOCLENGTH_PTC(v) = llen_v sets the local length
+ *     of v to be llen_v.
+ *
+ *     The assignment v_glen = NV_GLOBLENGTH_PTC(v) sets v_glen to
+ *     be the global length of the vector v. The call
+ *     NV_GLOBLENGTH_PTC(v) = glen_v sets the global length of v to
+ *     be glen_v.
+ *
+ *     The assignment v_comm = NV_COMM_PTC(v) sets v_comm to be the
+ *     MPI communicator of the vector v. The assignment
+ *     NV_COMM_PTC(v) = comm_v sets the MPI communicator of v to be
+ *     comm_v.
+ *
+ * -----------------------------------------------------------------
+ */
+
+#define NV_CONTENT_PTC(v)    ( (N_VectorContent_petsc)(v->content) )
+
+#define NV_LOCLENGTH_PTC(v)  ( NV_CONTENT_PTC(v)->local_length )
+
+#define NV_GLOBLENGTH_PTC(v) ( NV_CONTENT_PTC(v)->global_length )
+
+#define NV_OWN_DATA_PTC(v)   ( NV_CONTENT_PTC(v)->own_data )
+
+#define NV_PVEC_PTC(v)       ( NV_CONTENT_PTC(v)->pvec )
+
+#define NV_COMM_PTC(v)       ( NV_CONTENT_PTC(v)->comm )
+
 
 /* Private function prototypes */
 
@@ -134,56 +193,6 @@ N_Vector N_VNewEmpty_petsc(MPI_Comm comm,
   return(v);
 }
 
-/* ---------------------------------------------------------------- 
- * Function to create a new parallel vector
- */
-
-N_Vector N_VNew_petsc(MPI_Comm comm, 
-                      long int local_length,
-                      long int global_length)
-{
-  N_Vector v;
-  Vec *pvec = NULL;
-  PetscErrorCode ierr;
-  PetscBool ok;
-
-  /* Check if PETSc is initialized and exit if it is not */
-  ierr = PetscInitialized(&ok);
-  if(!ok) {
-    fprintf(stderr, "PETSc not initialized!\n");
-    return NULL;
-  }
-  
-  v = NULL;
-  v = N_VNewEmpty_petsc(comm, local_length, global_length);
-  if (v == NULL) return(NULL);
-
-  /* Create data */
-  if(local_length > 0) {
-
-    /* Allocate empty PETSc vector */
-    pvec = (Vec*) malloc(sizeof(Vec));
-    if(pvec == NULL) { 
-      N_VDestroy_petsc(v); 
-      return(NULL);
-    }
-    
-    ierr = VecCreate(comm, pvec);
-    //CHKERRQ(ierr);
-    ierr = VecSetSizes(*pvec, local_length, global_length);
-    //CHKERRQ(ierr);
-    ierr = VecSetFromOptions(*pvec);
-    //CHKERRQ(ierr);
-
-    /* Attach data */
-    NV_OWN_DATA_PTC(v) = TRUE;
-    NV_PVEC_PTC(v)     = pvec; 
-  }
-
-  return(v);
-}
-
-
 
 
 /* ---------------------------------------------------------------- 
@@ -203,13 +212,12 @@ N_Vector N_VMake_petsc(Vec *pvec)
   PetscObjectGetComm((PetscObject) (*pvec), &comm);
   
   v = N_VNewEmpty_petsc(comm, local_length, global_length);
-  if (v == NULL) return(NULL);
+  if (v == NULL) 
+     return(NULL);
 
-  if (local_length > 0) {
-    /* Attach data */
-    NV_OWN_DATA_PTC(v) = FALSE;
-    NV_PVEC_PTC(v)     = pvec;
-  }
+  /* Attach data */
+  NV_OWN_DATA_PTC(v) = FALSE;
+  NV_PVEC_PTC(v)     = pvec;
 
   return(v);
 }
@@ -283,6 +291,15 @@ void N_VDestroyVectorArray_petsc(N_Vector *vs, int count)
   vs = NULL;
 
   return;
+}
+
+/* ---------------------------------------------------------------- 
+ * Function to extract PETSc vector 
+ */
+
+Vec *N_VGetVector_petsc(N_Vector v)
+{
+  return NV_PVEC_PTC(v);
 }
 
 /* ---------------------------------------------------------------- 
@@ -381,60 +398,41 @@ N_Vector N_VClone_petsc(N_Vector w)
   Vec *pvec      = NULL;
   Vec *wvec      = NV_PVEC_PTC(w);
   
-  PetscInt local_length  = NV_LOCLENGTH_PTC(w);
-  PetscInt global_length = NV_GLOBLENGTH_PTC(w);
-  MPI_Comm comm          = NV_COMM_PTC(w);
+  //PetscInt local_length  = NV_LOCLENGTH_PTC(w);
   
   PetscErrorCode ierr;
   
-//   ierr = VecGetSize(*wvec, &global_length);
-//   ierr = VecGetLocalSize(*wvec, &local_length);
-//   ierr = PetscObjectGetComm((PetscObject) (*wvec), &comm);
-
   v = N_VCloneEmpty_petsc(w);
-  if (v == NULL) return(NULL);
+  if (v == NULL) 
+    return(NULL);
 
   /* Create data */
-  if(local_length > 0) {
 
-    /* Allocate empty PETSc vector */
-    pvec = (Vec*) malloc(sizeof(Vec));
-    if(pvec == NULL) {
-      N_VDestroy_petsc(v); 
-      return(NULL);
-    }
-    
-    ierr = VecDuplicate(*wvec, pvec);
-    //CHKERRQ(ierr);
-    if(pvec == NULL) {
-      N_VDestroy_petsc(v); 
-      return(NULL);
-    }
-    
-
-    
-//     ierr = VecCreate(comm, pvec);
-//     //CHKERRQ(ierr);
-//     ierr = VecSetSizes(*pvec, local_length, global_length);
-//     //CHKERRQ(ierr);
-//     ierr = VecSetFromOptions(*pvec);
-//     //CHKERRQ(ierr);
-
-    /* Attach data */
-    NV_OWN_DATA_PTC(v) = TRUE;
-    NV_PVEC_PTC(v)     = pvec;
+  /* Allocate empty PETSc vector */
+  pvec = (Vec*) malloc(sizeof(Vec));
+  if(pvec == NULL) {
+    N_VDestroy_petsc(v); 
+    return(NULL);
   }
+    
+  ierr = VecDuplicate(*wvec, pvec);
+  //CHKERRQ(ierr);
+  if(pvec == NULL) {
+    N_VDestroy_petsc(v); 
+    return(NULL);
+  }
+    
+  /* Attach data */
+  NV_OWN_DATA_PTC(v) = TRUE;
+  NV_PVEC_PTC(v)     = pvec;
 
   return(v);
 }
 
 void N_VDestroy_petsc(N_Vector v)
 {
-  PetscErrorCode ierr;
-  
-  if ((NV_OWN_DATA_PTC(v) == TRUE) && (NV_PVEC_PTC(v) != NULL)) {
-    ierr = VecDestroy((NV_PVEC_PTC(v)));
-    //CHKERRQ(ierr);
+  if (NV_OWN_DATA_PTC(v) == TRUE) {
+    VecDestroy((NV_PVEC_PTC(v)));
     NV_PVEC_PTC(v) = NULL;
   }
   
@@ -480,10 +478,6 @@ void N_VSetArrayPointer_petsc(realtype *v_data, N_Vector v)
 
 void N_VLinearSum_petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
 {
-  long int i;
-  realtype c;
-  N_Vector v1, v2;
-  booleantype test;
   Vec *xv = NV_PVEC_PTC(x);
   Vec *yv = NV_PVEC_PTC(y);
   Vec *zv = NV_PVEC_PTC(z);
@@ -511,49 +505,6 @@ void N_VLinearSum_petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector
     return;
   }
 
-//   /* Case: a == b == 1.0 */
-// 
-//   if ((a == ONE) && (b == ONE)) {
-//     VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
-//     return;
-//   }
-// 
-//   /* Cases: (1) a == 1.0, b = -1.0, (2) a == -1.0, b == 1.0 */
-// 
-//   if ((test = ((a == ONE) && (b == -ONE))) || ((a == -ONE) && (b == ONE))) {
-//     VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
-//     return;
-//   }
-// 
-//   /* Cases: (1) a == 1.0, b == other or 0.0, (2) a == other or 0.0, b == 1.0 */
-//   /* if a or b is 0.0, then user should have called N_VScale */
-// 
-//   if ((test = (a == ONE)) || (b == ONE)) {
-//     VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
-//     return;
-//   }
-// 
-//   /* Cases: (1) a == -1.0, b != 1.0, (2) a != 1.0, b == -1.0 */
-// 
-//   if ((test = (a == -ONE)) || (b == -ONE)) {
-//     VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
-//     return;
-//   }
-// 
-//   /* Case: a == b */
-//   /* catches case both a and b are 0.0 - user should have called N_VConst */
-// 
-//   if (a == b) {
-//     VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
-//     return;
-//   }
-// 
-//   /* Case: a == -b */
-// 
-//   if (a == -b) {
-//     VecAXPBYPCZ(*zv, a, b, 0.0, *xv, *yv); // PETSc, probably not optimal 
-//     return;
-//   }
 
   /* Do all cases not handled above:
      (1) a == other, b == 0.0 - user should have called N_VScale
@@ -642,9 +593,10 @@ void N_VAddConst_petsc(N_Vector x, realtype b, N_Vector z)
   PetscErrorCode ierr;
 
   if(z != x)
-    VecCopy(*xv, *zv); /* copy x~>z */
-  VecShift(*zv, b); // PETSc
-  
+    ierr = VecCopy(*xv, *zv); /* copy x~>z */
+  ierr = VecShift(*zv, b); // PETSc
+  //CHKERRQ(ierr);
+
   return;
 }
 
@@ -656,6 +608,8 @@ realtype N_VDotProd_petsc(N_Vector x, N_Vector y)
   PetscErrorCode ierr;
   
   ierr = VecDot(*xv, *yv, &dotprod);
+  CHKERRQ(ierr);
+  
   return dotprod;
 }
 
@@ -666,6 +620,7 @@ realtype N_VMaxNorm_petsc(N_Vector x)
   PetscErrorCode ierr;
   
   ierr = VecNorm(*xv, NORM_INFINITY, &norm);
+  CHKERRQ(ierr);
   
   return norm;
 }
@@ -736,6 +691,7 @@ realtype N_VMin_petsc(N_Vector x)
   PetscInt i;
   
   ierr = VecMin(*xv, &i, &minval);
+  CHKERRQ(ierr);
   
   return minval;
 }
@@ -772,6 +728,7 @@ realtype N_VL1Norm_petsc(N_Vector x)
   PetscErrorCode ierr;
   
   ierr = VecNorm(*xv, NORM_1, &norm);
+  CHKERRQ(ierr);
   
   return norm;
 }
@@ -799,16 +756,27 @@ void N_VCompare_petsc(realtype c, N_Vector x, N_Vector z)
 
 booleantype N_VInvTest_petsc(N_Vector x, N_Vector z)
 {
+  long int i;
+  long int N = NV_LOCLENGTH_PTC(x);
+  MPI_Comm comm = NV_COMM_PTC(x);
   Vec *xv = NV_PVEC_PTC(x);
   Vec *zv = NV_PVEC_PTC(z);
-  PetscErrorCode ierr;
-  PetscInt p;
-  PetscReal val;
+  PetscScalar *xd;
+  PetscScalar *zd;
+  PetscReal val = ONE;
   
-  if(xv != zv)
-    ierr = VecCopy(*xv, *zv);
-  ierr = VecReciprocal(*zv);
-  ierr = VecMin(*xv, &p, &val);
+  VecGetArray(*xv, &xd);
+  VecGetArray(*zv, &zd);
+  for (i = 0; i < N; i++) {
+    if (xd[i] == ZERO) 
+      val = ZERO;
+    else
+      zd[i] = ONE/xd[i];
+  }
+  VecRestoreArray(*xv, &xd);
+  VecRestoreArray(*zv, &zd);
+
+  val = VAllReduce_petsc(val, 3, comm);
 
   if (val == ZERO)
     return(FALSE);
@@ -834,7 +802,7 @@ booleantype N_VConstrMask_petsc(N_Vector c, N_Vector x, N_Vector m)
   VecGetArray(*mv, &md);
   for (i = 0; i < N; i++) {
     PetscReal cc = (PetscReal) cd[i]; /* <~ Drop imaginary parts if any. */
-    PetscReal xx = (PetscReal) xd[i]; /* <~ This is quick and dirty temporary fix */
+    PetscReal xx = (PetscReal) xd[i]; /* <~ Constraints defined on Re{x} */
     md[i] = ZERO;
     if (cc == ZERO) continue;
     if (cc > ONEPT5 || cc < -ONEPT5) {
