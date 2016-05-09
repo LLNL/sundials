@@ -3,7 +3,7 @@
  * $Revision: 4137 $
  * $Date: 2014-06-15 12:26:15 -0700 (Sun, 15 Jun 2014) $
  * ----------------------------------------------------------------- 
- * Programmer(s): David J. Gardner @ LLNL
+ * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
   
   /* Allocate and initialize PETSc vector */
   VecCreate(comm, &xvec);
-  VecSetSizes(xvec, PETSC_DECIDE, global_length);
+  VecSetSizes(xvec, local_length, global_length);
   VecSetFromOptions(xvec);
   
   /* Create vectors */
@@ -73,15 +73,15 @@ int main(int argc, char *argv[])
   /* NVector Test */
 
   /* PETSc specific tests */
-  //fails += Test_N_VMake(&xvec, myid);
+  fails += Test_N_VMake(&xvec, myid);
   
   X = N_VMake_petsc(&xvec);
 
   /* Memory allocation tests */
-  fails += Test_N_VCloneVectorArray(5, X, local_length, myid);
-  fails += Test_N_VCloneEmptyVectorArray(5, X, myid);
   fails += Test_N_VCloneEmpty(X, myid);
   fails += Test_N_VClone(X, local_length, myid);
+  fails += Test_N_VCloneEmptyVectorArray(5, X, myid);
+  fails += Test_N_VCloneVectorArray(5, X, local_length, myid);
 
   Y = N_VClone_petsc(X);
   Z = N_VClone_petsc(X);
@@ -194,43 +194,36 @@ realtype get_element(N_Vector X, long int i)
  * --------------------------------------------------------------------*/
 static int Test_N_VMake(Vec* W, int myid)
 {
-  int failure;
   /* double   start_time, stop_time; */
   N_Vector X;
-  int local_length = 0;
-
-  VecGetLocalSize(*W, &local_length);
 
   /* clone vector */
   /* start_time = get_time(); */  
   X = N_VMake_petsc(W);
   /* stop_time = get_time();  */
 
-  /* check cloned vector */
+  /* check vector wrapper */
   if (X == NULL) {
     printf(">>> FAILED test -- N_VMake, Proc %d \n", myid);
-    printf("    After N_VMakeEmpty, X == NULL \n \n");
+    printf("    After N_VMake, X == NULL \n \n");
     return(1);
   } 
 
-  /* check cloned vector data */
-  if (!has_data(X)) {
+  /* check underlying PETSc vector is correct */
+  if (*W != *N_VGetVector_petsc(X)) {
     printf(">>> FAILED test -- N_VMake, Proc %d \n", myid);
-    printf("    Vector data == NULL \n \n");
-    N_VDestroy(X);
-    return(1);
-  }    
-
-  N_VConst(ONE,X);
-  failure = check_ans(ONE, X, local_length);
-  if (failure) {
-    printf(">>> FAILED test -- N_VMake, Proc %d \n", myid);
-    printf("    Failed N_VConst check \n \n");
+    printf("    PETSc not wrapped correctly \n \n");
     N_VDestroy(X);
     return(1);
   }    
 
   N_VDestroy(X); 
+
+  if (*W == NULL) {
+    printf(">>> FAILED test -- N_VMake, Proc %d \n", myid);
+    printf("    Destroying wrapper destroyed underlying PETSc vector \n \n");
+    return(1);
+  }    
 
   if (myid == 0) {
     printf("    PASSED test -- N_VMake \n");
