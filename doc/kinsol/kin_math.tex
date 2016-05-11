@@ -166,7 +166,7 @@ the full Newton step tends to be taken close to the solution.
 the value $\lambda$ such that $u_n + \lambda \delta_n$
 satisfies the sufficient decrease condition (or $\alpha$-condition)
 \[
-F(u_n + \lambda\delta_n) \le F(u_n) + \alpha \nabla F(u_n) \lambda\delta_n \, ,
+F(u_n + \lambda\delta_n) \le F(u_n) + \alpha \nabla F(u_n)^T \lambda\delta_n \, ,
 \]
 where $\alpha = 10^{-4}$.
 %%
@@ -174,7 +174,7 @@ Although backtracking in itself guarantees that the step is not too small,
 {\kinsol} secondly relaxes $\lambda$ to satisfy the so-called $\beta$-condition
 (equivalent to Wolfe's curvature condition):
 \[
-F(u_n + \lambda\delta_n) \ge F(u_n) + \beta \nabla F(u_n) \lambda\delta_n \, ,
+F(u_n + \lambda\delta_n) \ge F(u_n) + \beta \nabla F(u_n)^T \lambda\delta_n \, ,
 \]
 where $\beta = 0.9$. During this second phase, $\lambda$ is allowed to
 vary in the interval $[\lambda_{min} , \lambda_{max}]$ where
