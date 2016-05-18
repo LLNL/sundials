@@ -148,5 +148,8 @@ ENDIF(BUILD_SHARED_LIBS)
 # Install the CVODES header files
 INSTALL(FILES ${cvodes_HEADERS}  ${cvodes_BL_HEADERS} DESTINATION include/cvodes)
 
+# Install the CVODES implementation header file
+INSTALL(FILES cvodes_impl.h DESTINATION include/cvodes)
+
 #
 MESSAGE(STATUS "Added CVODES module")

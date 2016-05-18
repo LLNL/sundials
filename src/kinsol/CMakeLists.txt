@@ -154,5 +154,8 @@ ENDIF(BUILD_SHARED_LIBS)
 # Install the KINSOL header files
 INSTALL(FILES ${kinsol_HEADERS} ${kinsol_BL_HEADERS} ${kinsol_SLU_HEADERS} DESTINATION include/kinsol)
 
+# Install the KINSOL implementation header file
+INSTALL(FILES kinsol_impl.h DESTINATION include/kinsol)
+
 #
 MESSAGE(STATUS "Added KINSOL module")
