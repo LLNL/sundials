@@ -3,7 +3,7 @@
  * $Revision: 4137 $
  * $Date: 2014-06-15 12:26:15 -0700 (Sun, 15 Jun 2014) $
  * ----------------------------------------------------------------- 
- * Programmer(s): David J. Gardner, Slaven Peles @ LLNL
+ * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
@@ -104,13 +104,12 @@ int main(int argc, char *argv[])
   HYPRE_ParVectorInitialize(Xhyp);
   
   /* Create empty vector */
-   W = N_VNewEmpty_ParHyp(comm, local_length, global_length);
+  W = N_VNewEmpty_ParHyp(comm, local_length, global_length);
 
   /* NVector Test */
 
   /* Hypre specific tests */
   fails += Test_N_VMake(Xhyp, myid);
-  /* fails += Test_N_VSetArrayPointer(W, local_length, myid); */
 
   /* Create hypre vector wrapper */
   X = N_VMake_ParHyp(Xhyp);
@@ -125,10 +124,14 @@ int main(int argc, char *argv[])
   Y = N_VClone(X);
   Z = N_VClone(X);
   
+  /* Skipped tests */
+  /* Setting HYPRE vector data block should not be allowed from N_Vector */
+  /* fails += Test_N_VSetArrayPointer(W, local_length, myid); */
+  
   /* Vector operations tests */
   fails += Test_N_VGetArrayPointer(X, local_length, myid);
-  fails += Test_N_VLinearSum(X, Y, Z, local_length, myid);
   fails += Test_N_VConst(X, local_length, myid);
+  fails += Test_N_VLinearSum(X, Y, Z, local_length, myid);
   fails += Test_N_VProd(X, Y, Z, local_length, myid);
   fails += Test_N_VDiv(X, Y, Z, local_length, myid);
   fails += Test_N_VScale(X, Z, local_length, myid);
@@ -201,7 +204,7 @@ int check_ans(realtype ans, N_Vector X, long int local_length)
  * --------------------------------------------------------------------*/
 booleantype has_data(N_Vector X)
 {
-  realtype *Xdata = N_VGetArrayPointer(X);
+  const realtype *Xdata = N_VGetArrayPointer(X);
   if (Xdata == NULL)
     return FALSE;
   else
@@ -229,7 +232,7 @@ void set_element(N_Vector X, long int i, realtype val)
  * --------------------------------------------------------------------*/
 realtype get_element(N_Vector X, long int i)
 {
-  realtype *Xdata = N_VGetArrayPointer(X);
+  const realtype *Xdata = N_VGetArrayPointer(X);
   return Xdata[i];
 }
 
