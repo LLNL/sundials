@@ -66,9 +66,10 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
 
 \item \ID{N\_VMake\_ParHyp}
   
-  This function creates \verb|N_Vector| wrapper around {\hypre} parallel vector.
+  This function creates \verb|N_Vector| wrapper around an existing
+{\hypre} parallel vector.
  
-  
+(This function does {\em not} allocate memory for \id{x} itself.)  
 
 \begin{verbatim}
 N_Vector N_VMake_ParHyp(hypre_ParVector *x);

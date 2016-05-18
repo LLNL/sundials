@@ -136,7 +136,7 @@ N_Vector N_VNewEmpty_petsc(MPI_Comm comm,
   This function creates and allocates memory for a {\nvecpetsc}
   wrapper with a user-provided PETSc vector.
  
-  
+  (This function does {\em not} allocate memory for \id{pvec} itself.)
 
 \begin{verbatim}
 N_Vector N_VMake_petsc(Vec *pvec);

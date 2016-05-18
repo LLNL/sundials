@@ -148,7 +148,7 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
   This function creates and allocates memory for a parallel vector
   with user-provided data array.
  
-  
+  (This function does {\em not} allocate memory for \id{v\_data} itself.)
 
 \begin{verbatim}
 N_Vector N_VMake_Parallel(MPI_Comm comm, 

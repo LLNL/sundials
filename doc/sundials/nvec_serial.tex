@@ -116,7 +116,7 @@ The module {\nvecs} provides the following additional user-callable routines:
  This function creates and allocates memory for a serial vector
  with user-provided data array.
 
- 
+ (This function does {\em not} allocate memory for \id{v\_data} itself.)
 
  \verb|N_Vector N_VMake_Serial(long int vec_length, realtype *v_data);|
 

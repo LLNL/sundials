@@ -132,7 +132,7 @@ The module {\nvecpthreads} provides the following additional user-callable routi
  This function creates and allocates memory for a Pthreads vector
  with user-provided data array.
 
- 
+ (This function does {\em not} allocate memory for \id{v\_data} itself.)
 
  \verb|N_Vector N_VMake_Pthreads(long int vec_length, realtype *v_data, int num_threads);|
 
