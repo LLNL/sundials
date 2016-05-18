@@ -120,7 +120,7 @@
     what you want.
     
 23. svn status | grep -P '^(?=.{0,6}C)'
-    This one is my favorite: Checks for conflicts.
+    This one is my favorite. It checks for conflicts. Seriously.
     
 24. svn resolve --accept working -R <path/of/conflict>
     To resolve tree conflict when file is added/deleted on both sides 
@@ -130,4 +130,7 @@
 25. svn resolve --accept theirs-full <filename>
     Quick resolve for a file. 
 
+26. svn merge -c -XXXX .
+    Undo revision XXXX in the current branch. You have to commit changes 
+    afterwards.
     
