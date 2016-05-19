@@ -47,7 +47,7 @@
  * -----------------------------------------------------------------
  */
 
-int SparseMatvecCSC(const SlsMat A, const realtype *x, realtype *y);
+static int SparseMatvecCSC(const SlsMat A, const realtype *x, realtype *y);
 
 /*
  * -----------------------------------------------------------------
@@ -60,10 +60,9 @@ int SparseMatvecCSC(const SlsMat A, const realtype *x, realtype *y);
  * -----------------------------------------------------------------
  */
 
-int SparseMatvecCSR(const SlsMat A, const realtype *x, realtype *y);
+static int SparseMatvecCSR(const SlsMat A, const realtype *x, realtype *y);
 
 
-  
 
 /*
  * ==================================================================
@@ -148,68 +147,83 @@ SlsMat SparseNewMat(int M, int N, int NNZ, int sparsetype)
  * Creates a new sparse matrix out of an existing dense or band matrix.  
  * Returns NULL if a memory allocation error occurred.
  * 
- * TODO: Enable conversion to CSR matrix. Currently, any dense matrix 
- * is converted to CSC.
- * 
  */
-SlsMat SparseFromDenseMat(const DlsMat A)
+SlsMat SparseFromDenseMat(const DlsMat Ad, int sparsetype)
 {
   int i, j, nnz;
+  int M, N;
   realtype dtmp;
   SlsMat As = NULL;
   
+  switch(sparsetype) {
+    case CSC_MAT:
+      /* CSC is transpose of CSR */
+      M = Ad->N;
+      N = Ad->M;
+      break;
+    case CSR_MAT:
+      M = Ad->M;
+      N = Ad->N;
+      break;
+    default:
+      /* Sparse matrix type not recognized */
+      return NULL;
+  }
+
   /* proceed according to A's type (dense/band) */
-  if (A->type == SUNDIALS_DENSE) {
+  if (Ad->type == SUNDIALS_DENSE) {
 
     /* determine total number of nonzeros */
     nnz = 0;
-    for (j=0; j<A->N; j++)
-      for (i=0; i<A->M; i++)
-        nnz += (DENSE_ELEM(A,i,j) != 0.0);
+    for (j=0; j<Ad->N; j++)
+      for (i=0; i<Ad->M; i++)
+        nnz += (DENSE_ELEM(Ad,i,j) != 0.0);
 
     /* allocate sparse matrix */
-    As = SparseNewMat(A->M, A->N, nnz, CSC_MAT);
+    As = SparseNewMat(Ad->M, Ad->N, nnz, sparsetype);
     if (As == NULL)  return NULL;
 
     /* copy nonzeros from A into As */
     nnz = 0;
-    for (j=0; j<A->N; j++) {
-      (*As->colptrs)[j] = nnz;
-      for (i=0; i<A->M; i++) {
-        dtmp = DENSE_ELEM(A,i,j);
-        if ( dtmp != 0.0 ) { 
-          (*As->rowvals)[nnz] = i;
+    for (i=0; i<M; i++) {
+      (As->indexptrs)[i] = nnz;
+      for (j=0; j<N; j++) {
+        /* CSR = row major looping; CSC = column major looping */
+        dtmp = (sparsetype == CSR_MAT) ? DENSE_ELEM(Ad,i,j) : DENSE_ELEM(Ad,j,i);
+        if ( dtmp != ZERO ) { 
+          (As->indexvals)[nnz] = j;
           As->data[nnz++] = dtmp;
         }
       }
     }
-    (*As->colptrs)[A->N] = nnz;
+    (As->indexptrs)[M] = nnz;
 
   } else { /* SUNDIALS_BAND */
 
     /* determine total number of nonzeros */
     nnz = 0;
-    for (j=0; j<A->N; j++)
-      for (i=j-(A->mu); i<j+(A->ml); i++)
-        nnz += (BAND_ELEM(A,i,j) != 0.0);
+    for (j=0; j<Ad->N; j++)
+      for (i=j-(Ad->mu); i<j+(Ad->ml); i++)
+        nnz += (BAND_ELEM(Ad,i,j) != 0.0);
 
     /* allocate sparse matrix */
-    As = SparseNewMat(A->M, A->N, nnz, CSC_MAT);
+    As = SparseNewMat(Ad->M, Ad->N, nnz, sparsetype);
     if (As == NULL)  return NULL;
 
     /* copy nonzeros from A into As */
     nnz = 0;
-    for (j=0; j<A->N; j++) {
-      (*As->colptrs)[j] = nnz;
-      for (i=j-(A->mu); i<j+(A->ml); i++) {
-        dtmp = BAND_ELEM(A,i,j);
+    for (i=0; i<M; i++) {
+      (As->indexptrs)[i] = nnz;
+      for (j=i-(Ad->mu); j<i+(Ad->ml); j++) {
+        /* CSR = row major looping; CSC = column major looping */
+        dtmp = (sparsetype == CSR_MAT) ? BAND_ELEM(Ad,i,j) : BAND_ELEM(Ad,j,i);
         if ( dtmp != 0.0 ) { 
-          (*As->rowvals)[nnz] = i;
+          (As->indexvals)[nnz] = j;
           As->data[nnz++] = dtmp;
         }
       }
     }
-    (*As->colptrs)[A->N] = nnz;
+    (As->indexptrs)[M] = nnz;
 
   }
 
@@ -284,7 +298,7 @@ int SparseCopyMat(const SlsMat A, SlsMat B)
   int A_nz = A->indexptrs[A->NP];
   
   if(A->M != B->M || A->N != B->N) {
-    fprintf(stderr, "Error: Copying sparse matrices of different size!\n");
+    /* fprintf(stderr, "Error: Copying sparse matrices of different size!\n"); */
     return (-1);
   }
     
@@ -333,89 +347,6 @@ int SparseScaleMat(realtype b, SlsMat A)
 }
 
 
-/* 
-Adds the identity to a sparse matrix.  Resizes A if necessary 
-(if it had 0-valued diagonal entries).
-*/
-/* void SparseAddIdentityMat(SlsMat A) */
-/* { */
-/*   int j, i, p, M, N, nz; */
-/*   int *w, *Cp, *Ap, *Ai, *Ci; */
-/*   realtype *x, *Ax, *Cx; */
-/*   SlsMat C; */
-
-/*   M = A->M; */
-/*   N = A->N; */
-
-/*   w = (int *)malloc(M * sizeof(int)); */
-/*   x = (realtype *)malloc(M * sizeof(realtype)); */
-/*   C = SparseNewMat(A->M, A->N, (A->NNZ)+M); */
-
-/*   Cp = C->colptrs; */
-/*   Ci = C->rowvals; */
-/*   Cx = C->data; */
-/*   Ap = A->colptrs; */
-/*   Ai = A->rowvals; */
-/*   Ax = A->data; */
-
-/*   /\* Initialize values *\/ */
-/*   nz = 0; */
-/*   for (j=0; j<M; j++) { */
-/*     w[j] = 0; */
-/*     x[j] = 0.0; */
-/*   } */
-
-/*   for (j=0; j<N; j++) { */
-/*     Cp[j] = nz; */
-/*     for (p=Ap[j]; p<Ap[j+1]; p++) { */
-/*       i = Ai[p]; */
-/*       w[i] = j+1; */
-/*       Ci[nz] = i; */
-/*       nz++; */
-/*       x[i] = Ax[p]; */
-/*     } */
-/*     if (w[j] < j+1) { */
-/*       Ci[nz] = j; */
-/*       nz++; */
-/*       x[j] = 1.0; */
-/*     } else { */
-/*       x[j] += 1.0; */
-/*     } */
-/*     for (p=Cp[j]; p<nz; p++) { */
-/*       Cx[p] = x[Ci[p]]; */
-/*     } */
-
-/*   } */
-/*   Cp[N] = nz; */
-  
-/*   A->N = C->N; */
-/*   A->M = C->M; */
-/*   A->NNZ = C->NNZ; */
-
-/*   if (A->data) { */
-/*     free(A->data);   */
-/*     A->data = C->data; */
-/*     C->data = NULL; */
-/*   } */
-/*   if (A->rowvals) { */
-/*     free(A->rowvals); */
-/*     A->rowvals = C->rowvals; */
-/*     C->rowvals = NULL; */
-/*   } */
-/*   if (A->colptrs) { */
-/*     free(A->colptrs); */
-/*     A->colptrs = C->colptrs; */
-/*     C->colptrs = NULL; */
-/*   } */
-
-/*   SparseDestroyMat(C);  */
-/*   free(w); */
-/*   free(x); */
-
-/*   /\*  Reallocate the new matrix to get rid of any extra space *\/ */
-/*   SparseReallocMat(A); */
-
-/* } */
 
 
 /** 
@@ -596,7 +527,7 @@ int SparseAddMat(SlsMat A, const SlsMat B)
 
   /* ensure that matrix dimensions agree */
   if ((A->M != B->M) || (A->N != B->N)) {
-    fprintf(stderr, "Error: Adding sparse matrices of different size!\n");
+    /* fprintf(stderr, "Error: Adding sparse matrices of different size!\n"); */
     return(-1);
   }
   
@@ -799,36 +730,58 @@ int SparseMatvec(const SlsMat A, const realtype *x, realtype *y)
 /** 
  * Prints the nonzero entries of a sparse matrix to screen.
  */
-void SparsePrintMatCSC(const SlsMat A)
+void SparsePrintMat(const SlsMat A, FILE* outfile)
 {
-  int i,j, M, N, NNZ;
-  int *colptrs;
+  int i,j, NNZ;
+  char *matrixtype;
+  char *indexname;
 
-  colptrs = A->indexptrs;
-
-  M = A->M;
-  N = A->N;
   NNZ = A->NNZ;
 
-  printf("\n");
+  switch(A->sparsetype) {
+    case CSC_MAT:
+      indexname = (char*) "col";
+      matrixtype = (char*) "CSC";
+      break;
+    case CSR_MAT:
+      indexname = (char*) "row";
+      matrixtype = (char*) "CSR";
+      break;
+    default:
+      /* Sparse matrix type not recognized */
+      return;
+  }
+
+
+  fprintf(outfile, "\n");
   
-  printf("%d by %d NNZ: %d \n", M, N, NNZ);
-  for (j=0; j < A->N; j++) {
-    printf("  col %d : locations %d to %d\n", j, colptrs[j], colptrs[j+1]-1);
-    for (i = colptrs[j]; i < colptrs[j+1]; i++) {
+  fprintf(outfile, "%d by %d %s matrix, NNZ: %d \n", A->M, A->N, matrixtype, NNZ);
+  for (j=0; j < A->NP; j++) {
+    fprintf(outfile, "%s %d : locations %d to %d\n", indexname, j, (A->indexptrs)[j], (A->indexptrs)[j+1]-1);
+    fprintf(outfile, "  ");
+    for (i = (A->indexptrs)[j]; i < (A->indexptrs)[j+1]; i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-      printf("%d  %12Lg  ", A->indexvals[i], A->data[i]);
+      fprintf(outfile, "%d: %Lg   ", A->indexvals[i], A->data[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-      printf("%d  %12g  ", A->indexvals[i], A->data[i]);
+      fprintf(outfile, "%d: %g   ", A->indexvals[i], A->data[i]);
 #else
-      printf("%d  %12g  ", A->indexvals[i], A->data[i]);
+      fprintf(outfile, "%d: %g   ", A->indexvals[i], A->data[i]);
 #endif
     }
-    printf("\n");
+    fprintf(outfile, "\n");
   }
-  printf("\n");
+  fprintf(outfile, "\n");
     
 }
+
+
+
+/*
+ * ==================================================================
+ * Private function definitions
+ * ==================================================================
+ */
+
 
 
 /** 
@@ -872,6 +825,7 @@ int SparseMatvecCSC(const SlsMat A, const realtype *x, realtype *y)
   return(0);
 }
 
+
 /** 
  * Computes y=A*x, where A is a CSR matrix of dimension MxN, x is a 
  * realtype array of length N, and y is a realtype array of length M. 
@@ -914,44 +868,3 @@ int SparseMatvecCSR(const SlsMat A, const realtype *x, realtype *y)
 }
 
 
-/** 
- * Outputs the sparse matrix data structure to disk,
- * into three files:  sparse_data.txt, sparse_indexvals.txt 
- * and sparse_indexptrs.txt.
- */
-void SparseWriteMat(const SlsMat A)
-{
-
-  /* get relevant integer sizes */
-  FILE *FID;
-  int i, M, NNZ;
-  NNZ = A->NNZ;
-  if(A->sparsetype == CSC_MAT)
-    M = A->N;
-  else if (A->sparsetype == CSR_MAT)
-    M = A->M;
-  
-  /* first output the data array */
-  FID=fopen("sparse_data.txt","w");
-  for (i=0; i<NNZ; i++) {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(FID, "  %35.32Lg\n", A->data[i]);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-    fprintf(FID, "  %19.16g\n", A->data[i]);
-#else
-    fprintf(FID, "  %11.8g\n", A->data[i]);
-#endif
-  }
-  fclose(FID);
-
-  /* second output the indexvals array */
-  FID=fopen("sparse_indexvals.txt","w");
-  for (i=0; i<NNZ; i++)  fprintf(FID,"  %d\n", A->indexvals[i]);
-  fclose(FID);
-  
-  /* last output the indexptrs array */
-  FID=fopen("sparse_indexptrs.txt","w");
-  for (i=0; i<=M; i++)  fprintf(FID,"  %d\n", A->indexptrs[i]);
-  fclose(FID);
-
-}

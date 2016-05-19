@@ -116,7 +116,7 @@ SUNDIALS_EXPORT SlsMat SparseNewMat(int M, int N, int NNZ, int sparsetype);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SlsMat SparseFromDenseMat(const DlsMat A);
+SUNDIALS_EXPORT SlsMat SparseFromDenseMat(const DlsMat A, int sparsetype);
 
 /*
  * -----------------------------------------------------------------
@@ -223,19 +223,7 @@ SUNDIALS_EXPORT int SparseMatvec(const SlsMat A, const realtype *x, realtype *y)
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void SparsePrintMatCSC(SlsMat A);
-
-
-/*
- * -----------------------------------------------------------------
- * Functions: SparseWriteMat
- * -----------------------------------------------------------------
- * Outputs the sparse matrix data structure to disk,
- * into three files:  sparse_data.txt, sparse_indexvals.txt 
- * and sparse_indexptrs.txt.
- */
-
-SUNDIALS_EXPORT void SparseWriteMat(const SlsMat A);
+SUNDIALS_EXPORT void SparsePrintMat(SlsMat A, FILE* outfile);
 
 
 
