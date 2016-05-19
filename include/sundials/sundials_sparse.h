@@ -146,7 +146,7 @@ SUNDIALS_EXPORT int SparseSetMatToZero(SlsMat A);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int SparseCopyMat(const SlsMat A, const SlsMat B);
+SUNDIALS_EXPORT int SparseCopyMat(const SlsMat A, SlsMat B);
 
 /*
  * -----------------------------------------------------------------
@@ -185,7 +185,7 @@ SUNDIALS_EXPORT int SparseAddIdentityMat(SlsMat A);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int SparseAddMat(SlsMat A, SlsMat B);
+SUNDIALS_EXPORT int SparseAddMat(SlsMat A, const SlsMat B);
 
 /*
  * -----------------------------------------------------------------
@@ -223,7 +223,7 @@ SUNDIALS_EXPORT int SparseMatvec(const SlsMat A, const realtype *x, realtype *y)
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void SparsePrintMat(SlsMat A, FILE* outfile);
+SUNDIALS_EXPORT void SparsePrintMat(const SlsMat A, FILE* outfile);
 
 
 
