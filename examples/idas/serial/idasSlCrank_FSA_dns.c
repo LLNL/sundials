@@ -74,7 +74,7 @@ static int ressc(realtype tres, N_Vector yy, N_Vector yp,
 static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data);
 
 static int rhsQS(int Ns, realtype t, N_Vector yy, N_Vector yp, 
-                 N_Vector *yyS, N_Vector *ypS, N_Vector rrQ, N_Vector *rhsQS,
+                 N_Vector *yyS, N_Vector *ypS, N_Vector rrQ, N_Vector *rhsvalQS,
                  void *user_data,  N_Vector yytmp, N_Vector yptmp, N_Vector tmpQS);
 
 
@@ -464,7 +464,7 @@ static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_
 }
 
 static int rhsQS(int Ns, realtype t, N_Vector yy, N_Vector yp, 
-                 N_Vector *yyS, N_Vector *ypS, N_Vector rrQ, N_Vector *rhsQS,
+                 N_Vector *yyS, N_Vector *ypS, N_Vector rrQ, N_Vector *rhsvalQS,
                  void *user_data,  N_Vector yytmp, N_Vector yptmp, N_Vector tmpQS)
 {
   realtype v1, v2, v3;
@@ -488,13 +488,13 @@ static int rhsQS(int Ns, realtype t, N_Vector yy, N_Vector yp,
   s2 = Ith(yyS[0],5);
   s3 = Ith(yyS[0],6);
 
-  Ith(rhsQS[0], 1) = J1*v1*s1 + m2*v2*s2 + J2*v3*s3;
+  Ith(rhsvalQS[0], 1) = J1*v1*s1 + m2*v2*s2 + J2*v3*s3;
 
   s1 = Ith(yyS[1],4);
   s2 = Ith(yyS[1],5);
   s3 = Ith(yyS[1],6);
 
-  Ith(rhsQS[1], 1) = J1*v1*s1 + m2*v2*s2 + J2*v3*s3;
+  Ith(rhsvalQS[1], 1) = J1*v1*s1 + m2*v2*s2 + J2*v3*s3;
 
   return(0);
 }

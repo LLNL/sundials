@@ -122,7 +122,7 @@ static int resB(realtype tt,
 static int JacB(long int NeqB, realtype tt, realtype cjB,
                 N_Vector yy, N_Vector yp,
                 N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-                DlsMat JacB, void *user_data,
+                DlsMat JB, void *user_data,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 

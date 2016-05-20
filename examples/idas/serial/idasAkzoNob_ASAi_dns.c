@@ -67,7 +67,7 @@ typedef struct {
   realtype K, klA, Ks, pCO2, H;
 } *UserData;
 
-static int res(realtype t, N_Vector yy, N_Vector yd, N_Vector res, void *userdata);
+static int res(realtype t, N_Vector yy, N_Vector yd, N_Vector resval, void *userdata);
 
 static int resB(realtype tt, 
                 N_Vector yy, N_Vector yp,
@@ -252,7 +252,7 @@ int main()
 }
 
 
-static int res(realtype t, N_Vector yy, N_Vector yd, N_Vector res, void *userdata)
+static int res(realtype t, N_Vector yy, N_Vector yd, N_Vector resval, void *userdata)
 {
   UserData data;
   realtype k1, k2, k3, k4;
@@ -294,12 +294,12 @@ static int res(realtype t, N_Vector yy, N_Vector yd, N_Vector res, void *userdat
   r5 = k4 * y6 * y6 * SUNRsqrt(y2);
   Fin = klA * ( pCO2/H - y2 );
 
-  Ith(res,1) = yd1 + TWO*r1 - r2 + r3 + r4;
-  Ith(res,2) = yd2 + HALF*r1 + r4 + HALF*r5 - Fin;
-  Ith(res,3) = yd3 - r1 + r2 - r3;
-  Ith(res,4) = yd4 + r2 - r3 + TWO*r4;
-  Ith(res,5) = yd5 - r2 + r3 - r5;
-  Ith(res,6) = Ks*y1*y4 - y6;
+  Ith(resval,1) = yd1 + TWO*r1 - r2 + r3 + r4;
+  Ith(resval,2) = yd2 + HALF*r1 + r4 + HALF*r5 - Fin;
+  Ith(resval,3) = yd3 - r1 + r2 - r3;
+  Ith(resval,4) = yd4 + r2 - r3 + TWO*r4;
+  Ith(resval,5) = yd5 - r2 + r3 - r5;
+  Ith(resval,6) = Ks*y1*y4 - y6;
 
   return(0);
 }
