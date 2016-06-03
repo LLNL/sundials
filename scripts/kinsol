@@ -81,6 +81,8 @@ $tar $tarfile $distrobase/examples/kinsol/serial/README
 $tar $tarfile $distrobase/examples/kinsol/serial/CMakeLists.txt
 $tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_dns.c
 $tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_dns.out
+$tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_klu.c
+$tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_klu.out
 $tar $tarfile $distrobase/examples/kinsol/serial/kinFoodWeb_kry.c
 $tar $tarfile $distrobase/examples/kinsol/serial/kinFoodWeb_kry.out
 $tar $tarfile $distrobase/examples/kinsol/serial/kinKrylovDemo_ls.c

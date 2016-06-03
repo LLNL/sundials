@@ -84,7 +84,7 @@ FOREACH(example_tuple ${CVODE_examples})
   ENDIF(NOT MPI_MPICC)
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parhyp)
-    INSTALL(FILES vis.c DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parhyp)
+    #INSTALL(FILES vis.c DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parhyp)
   ENDIF(EXAMPLES_INSTALL)
 ENDFOREACH(example_tuple ${CVODE_examples})
 

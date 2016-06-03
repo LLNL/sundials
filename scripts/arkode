@@ -185,6 +185,9 @@ $tar $tarfile $distrobase/examples/arkode/F90_serial/CMakeLists.txt
 $tar $tarfile $distrobase/examples/arkode/F90_serial/README
 $tar $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss.f90
 $tar $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss.out
+$tar $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss1D_FEM_klu.f90
+$tar $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss1D_FEM_klu.out
+$tar $tarfile $distrobase/examples/arkode/F90_serial/plot_brusselator1D_FEM.py
 $tar $tarfile $distrobase/examples/arkode/F90_serial/plot_sol.py
 
 # 3/3/2015:LEBanks - Don't add to release yet. Many tests will fail, which can be confusing to users
