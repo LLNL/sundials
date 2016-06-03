@@ -1,11 +1,11 @@
 % This is a shared SUNDIALS TEX file with description of
 % the PETSc nvector wrapper implementation
 %
-The {\nvecpetsc} is an {\nvector} wrapper around the PETSc vector. It defines the 
+The {\nvecpetsc} is an {\nvector} wrapper around the {\petsc} vector. It defines the 
 {\em content} field of a \id{N\_Vector} to be a structure containing the global 
-and local lengths of the vector, a pointer to the PETSc vector,
+and local lengths of the vector, a pointer to the {\petsc} vector,
 an {\mpi} communicator, and a boolean flag {\em own\_data} indicating ownership of 
-the wrapped PETSc vector.
+the wrapped {\petsc} vector.
 %%
 \begin{verbatim} 
 struct _N_VectorContent_petsc {
@@ -20,72 +20,11 @@ struct _N_VectorContent_petsc {
 %%--------------------------------------------
 
 The header file to be included when using this module is \id{nvector\_petsc.h}.
+Unlike native {\sundials} vector types, {\nvecpetsc} does not provide macros 
+to access its member variables.
+Note that {\nvecpetsc} requires {\sundials} to be built with {\mpi} support.
 
-Note that the PETSc vector wrapper requires {\sundials} to be built with {\mpi} support.
-The following six macros are provided to access the content of a {\nvecpetsc}
-vector. The suffix \id{\_PTC} in the names denotes the PETSc wrapper 
-version.
-\begin{itemize}
 
-\item 
-  \ID{NV\_CONTENT\_PTC}
-
-  This macro gives access to the contents of the PETSC
-  vector \id{N\_Vector}.
-  
-  The assignment \id{v\_cont = NV\_CONTENT\_PTC(v)} sets       
-  \id{v\_cont} to be a pointer to the \id{N\_Vector} content    
-  structure of type \id{struct \_N\_VectorContent\_petsc}.
-  
-  Implementation:
-  
-  \verb|#define NV_CONTENT_PTC(v) ( (N_VectorContent_petsc)(v->content) )|
-  
-\item 
-  \ID{NV\_OWN\_DATA\_PTC}, \ID{NV\_PVEC\_PTC}, 
-  \ID{NV\_LOCLENGTH\_PTC}, \ID{NV\_GLOBLENGTH\_PTC}
-  
-  These macros give individual access to the parts of    
-  the content of a PETSC \id{N\_Vector}.                        
-  
-  The assignment \id{v\_pvec = NV\_PVEC\_PTC(v)} sets the PETSc vector
-  pointer \id{v\_pvec} to the address of the PETSc vector wrapped by
-  the \id{N\_Vector} \id{v}.
-  
-  The assignment \id{v\_llen = NV\_LOCLENGTH\_PTC(v)} sets \id{v\_llen} to be     
-  the length of the local part of \id{v}. 
-  The call \id{NV\_LENGTH\_PTC(v) = llen\_v} sets      
-  the local length of \id{v} to be \id{llen\_v}.
-  
-  The assignment \id{v\_glen = NV\_GLOBLENGTH\_PTC(v)} sets \id{v\_glen} to  
-  be the global length of the vector \id{v}.                    
-  The call \id{NV\_GLOBLENGTH\_PTC(v) = glen\_v} sets the global       
-  length of \id{v} to be \id{glen\_v}.
-  
-  {\warn}Assignment of either the local or global lengths in the above
-  manner does not affect the actual vector lengths stored in the PETSc
-  vector \id{pvec}, only the integers stored in the {\nvecpetsc} object.
-  
-  Implementation:
-  
-  \verb|#define NV_OWN_DATA_PTC(v)   ( NV_CONTENT_PTC(v)->own_data )|
-
-  \verb|#define NV_PVEC_PTC(v)       ( NV_CONTENT_PTC(v)->pvec )|
-
-  \verb|#define NV_LOCLENGTH_PTC(v)  ( NV_CONTENT_PTC(v)->local_length )|
-
-  \verb|#define NV_GLOBLENGTH_PTC(v) ( NV_CONTENT_PTC(v)->global_length )|
-  
-\item \ID{NV\_COMM\_PTC}
-
-  This macro provides access to the {\mpi} communicator used by the {\nvecpetsc}
-  vector.
-
-  Implementation:
-
-  \verb|#define NV_COMM_PTC(v) ( NV_CONTENT_PTC(v)->comm )|
-
-\end{itemize}
 %%
 %%--------------------------------------------
 %%
@@ -98,29 +37,15 @@ The module {\nvecpetsc}  provides the following additional user-callable routine
 %%
 \begin{itemize}
 
-%%--------------------------------------
-
-\item  \ID{N\_VNew\_petsc}
-  
-  This function creates and allocates a new {\nvector} wrapper and PETSc 
-  vector within.
- 
-  
-
-\begin{verbatim}
-N_Vector N_VNew_petsc(MPI_Comm comm, 
-                      long int local_length, 
-                      long int global_length);
-\end{verbatim}
   
 %%--------------------------------------
 
 \item \ID{N\_VNewEmpty\_petsc}
  
   This function creates a new {\nvector} wrapper with the pointer to
-  the wrapped PETSc vector set to (\id{NULL}).
- 
-  
+  the wrapped {\petsc} vector set to (\id{NULL}). It is used by 
+  \id{N\_VMake\_petsc} and \id{N\_VClone\_petsc} implementations. 
+  Use it only if you know what you are doing.
 
 \begin{verbatim}
 N_Vector N_VNewEmpty_petsc(MPI_Comm comm, 
@@ -134,12 +59,21 @@ N_Vector N_VNewEmpty_petsc(MPI_Comm comm,
 \item \ID{N\_VMake\_petsc}
   
   This function creates and allocates memory for a {\nvecpetsc}
-  wrapper with a user-provided PETSc vector.
- 
-  (This function does {\em not} allocate memory for \id{pvec} itself.)
+  wrapper around user-provided {\petsc} vector. It does {\em not} 
+  allocate memory for the \id{pvec} itself.
 
 \begin{verbatim}
 N_Vector N_VMake_petsc(Vec *pvec);
+\end{verbatim}
+
+%%--------------------------------------
+
+\item \ID{N\_VGetVector\_petsc}
+  
+  This function returns pointer to underlying {\petsc} vector.
+
+\begin{verbatim}
+Vec *N_VGetVector_petsc(N_Vector v);
 \end{verbatim}
 
 %%--------------------------------------
@@ -158,7 +92,7 @@ N_Vector *N_VCloneVectorArray_petsc(int count, N_Vector w);
 \item \ID{N\_VCloneVectorArrayEmpty\_petsc}
  
   This function creates (by cloning) an array of \id{count} {\nvecpetsc} vectors,
-  each with pointers to PETSc vectors set to (\id{NULL}).
+  each with pointers to {\petsc} vectors set to (\id{NULL}).
  
 \begin{verbatim}
 N_Vector *N_VCloneEmptyVectorArray_petsc(int count, N_Vector w);
@@ -180,7 +114,7 @@ N_Vector *N_VCloneEmptyVectorArray_petsc(int count, N_Vector w);
 
 \item \ID{N\_VPrint\_petsc}
   
-  This function prints the content of the wrapped PETSc vector to stdout.
+  This function prints the content of the wrapped {\petsc} vector to stdout.
  
     
   \verb|void N_VPrint_petsc(N_Vector v);|
@@ -194,6 +128,12 @@ N_Vector *N_VCloneEmptyVectorArray_petsc(int count, N_Vector w);
            
 \begin{itemize}
                                         
+\item
+  When there is a need to access components of an \id{N\_Vector} \id{v}, 
+  it is recommeded to extract {\petsc} vector via       
+  \id{x\_vec = N\_VGetVector\_petsc(v)} and then access components using 
+  appropriate {\petsc} functions.        
+                                                               
 \item
   {\warn}\id{N\_VNewEmpty\_petsc}, \id{N\_VMake\_petsc}, and
   \id{N\_VCloneVectorArrayEmpty\_petsc} set the field {\em own\_data} $=$ \id{FALSE}.   

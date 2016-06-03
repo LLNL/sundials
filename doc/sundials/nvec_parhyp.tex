@@ -35,9 +35,9 @@ The {\nvecph} module defines parhyp implementations of all vector operations lis
 in Table \ref{t:nvecops}, except for \verb|N_VSetArrayPointer|, because setting raw 
 data pointers is handled by low-level {\hypre} functions. Implementation of 
 \verb|N_VGetArrayPointer| is provided, but its use is strongly discouraged (we 
-consider removing it, as well). When access to raw vector data is needed, it is 
+consider removing it in the future). When access to raw vector data is needed, it is 
 recommended to extract {\hypre} vector first, and then use {\hypre} 
-methods to access the raw data. 
+methods to access the data. 
 
 The names of parhyp methods are obtained from those in Table \ref{t:nvecops}
 by appending the suffix \id{\_ParHyp} (e.g. \id{N\_VDestroy\_ParHyp}).
@@ -51,7 +51,7 @@ The module {\nvecph} provides the following additional user-callable routines:
 \item \ID{N\_VNewEmpty\_ParHyp}
  
   This function creates a new parhyp \id{N\_Vector} with pointer to {\hypre} 
-  vector set to \id{NULL}.
+  vector set to \id{NULL}. 
  
   
 
@@ -67,13 +67,22 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
 \item \ID{N\_VMake\_ParHyp}
   
   This function creates \verb|N_Vector| wrapper around an existing
-{\hypre} parallel vector.
- 
-(This function does {\em not} allocate memory for \id{x} itself.)  
+  {\hypre} parallel vector. It does {\em not} allocate memory for \id{x} 
+  itself.  
 
 \begin{verbatim}
 N_Vector N_VMake_ParHyp(hypre_ParVector *x);
 \end{verbatim}
+
+%%--------------------------------------
+
+\item \ID{N\_VGetVector\_ParHyp}
+  
+  This function returns pointer to the underlying {\hypre} vector.
+ 
+    
+  \verb|hypre_ParVector *N_VGetVector_ParHyp(N_Vector v);|
+
 
 %%--------------------------------------
 
@@ -110,16 +119,6 @@ N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w);
 
 %%--------------------------------------
 
-\item \ID{N\_VGetVector\_ParHyp}
-  
-  This function returns pointer to the underlying {\hypre} vector.
- 
-    
-  \verb|hypre_ParVector *N_VPrint_ParHyp(N_Vector v);|
-
-
-%%--------------------------------------
-
 \item \ID{N\_VPrint\_ParHyp}
   
   This function prints the content of a parhyp vector to stdout.
@@ -129,6 +128,7 @@ N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w);
 
 
 \end{itemize}
+
 %%
 %%------------------------------------
 %%
@@ -139,8 +139,8 @@ N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w);
 \item
   When there is a need to access components of an \id{N\_Vector} \id{v}, 
   it is recommeded to extract {\hypre} vector via       
-  \id{x\_vec = N\_VGetVector(v)} and then access components using 
-  {\hypre} functions.        
+  \id{x\_vec = N\_VGetVector\_ParHyp(v)} and then access components using 
+  appropriate {\hypre} functions.        
                                                                
 \item
   {\warn}\id{N\_VNewEmpty\_ParHyp}, \id{N\_VMake\_ParHyp}, 
