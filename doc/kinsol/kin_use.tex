@@ -189,13 +189,15 @@ specific name of the function to be called or macro to be referenced.
   Otherwise, create a new vector by making a call of the form
   \id{u = N\_VNew\_***(...);}, and then set its elements by accessing 
   the underlying data with a call like 
-  \id{ ydata = N\_VGetArrayPointer(u);}.
+  \id{ ydata = N\_VGetArrayPointer(u);}.  
+  See \S\ref{ss:nvec_ser}-\ref{ss:nvec_pthreads} for details.
   
   For {\hypre} and {\petsc} vector wrappers, first create and initialize 
   the underlying vector and then create {\nvector} wrapper with a call 
   of the form \id{u = N\_VMake\_***(uvec);}, where \id{uvec} is a {\hypre}
   or {\petsc} vector. Note that calls like \id{N\_VNew\_***(...)} and 
   \id{N\_VGetArrayPointer(...)} are not available for the vector wrappers.
+  See \S\ref{ss:nvec_parhyp} and \S\ref{ss:nvec_petsc} for details.
 
 %   If a \id{realtype} array \id{udata} containing the initial values of $u$
 %   already exists, it may be possible to do this either with a call of the form

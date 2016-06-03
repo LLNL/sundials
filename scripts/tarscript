@@ -43,7 +43,7 @@ function print_usage
 # VERSION NUMBERS
 #---------------------------------------------------------
 
-SUN_VER="2.6.2"
+SUN_VER="2.7.0pre"
 CV_VER="2.8.2"
 CVS_VER="2.8.2"
 IDA_VER="2.8.2"
