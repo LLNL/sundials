@@ -16,6 +16,8 @@
 #ifndef _SUNDIALS_SPARSE_H
 #define _SUNDIALS_SPARSE_H
 
+#include <stdio.h>
+
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_direct.h>
 
