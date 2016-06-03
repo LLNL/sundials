@@ -187,13 +187,27 @@ function to be called or macro to be referenced.
   To set the vector \id{y0} of initial values, use the appropriate
   functions defined by the particular {\nvector} implementation.
 
-  If a \id{realtype} array \id{ydata} containing the initial values of $y$
-  already exists, it may be possible to do this either with a call of the form
-  \id{y0 = N\_VMake\_***(..., ydata);}
-  or by making a call of the form
-  \id{y0 = N\_VNew\_***(...);}
-  and loading values into the structure defined by \id{NV\_DATA\_***(y0)},
-  provided these functions and macro exist for the {\nvector} module chosen.
+  For native {\sundials} vector implementations, use a call 
+  of the form \id{y0 = N\_VMake\_***(..., ydata);} if the \id{realtype} array 
+  \id{ydata} containing the initial values of $y$ already exists.
+  Otherwise, create a new vector by making a call of the form
+  \id{y0 = N\_VNew\_***(...);}, and then set its elements by accessing 
+  the underlying data with a call like 
+  \id{ ydata = N\_VGetArrayPointer(y0);}.
+  
+  For {\hypre} and {\petsc} vector wrappers, first create and initialize 
+  the underlying vector, and then create {\nvector} wrapper with a call 
+  of the form \id{y0 = N\_VMake\_***(yvec);}, where \id{yvec} is a {\hypre}
+  or {\petsc} vector. Note that calls like \id{N\_VNew\_***(...)} and 
+  \id{N\_VGetArrayPointer(...)} are not available for the vector wrappers.
+  
+%   If a \id{realtype} array \id{ydata} containing the initial values of $y$
+%   already exists, it may be possible to do this either with a call of the form
+%   \id{y0 = N\_VMake\_***(..., ydata);}
+%   or by making a call of the form
+%   \id{y0 = N\_VNew\_***(...);}
+%   and loading values into the structure defined by \id{NV\_DATA\_***(y0)},
+%   provided these functions and macro exist for the {\nvector} module chosen.
 
 \item\label{i:cvode_create} 
   {\bf Create {\cvodes} object}
