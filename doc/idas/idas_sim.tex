@@ -183,19 +183,19 @@ or macro to be referenced.
   {\nvector} implementation.
 
   For native {\sundials} vector implementations, use a call 
-  of the form \id{y0 = N\_VMake\_***(..., ydata);} if the \id{realtype} array 
+  of the form \id{y0 = N\_VMake\_***(..., ydata)} if the \id{realtype} array 
   \id{ydata} containing the initial values of $y$ already exists.
   Otherwise, create a new vector by making a call of the form
-  \id{y0 = N\_VNew\_***(...);}, and then set its elements by accessing 
-  the underlying data with a call like 
-  \id{ ydata = N\_VGetArrayPointer(y0);}.
+  \id{y0 = N\_VNew\_***(...)}, and then set its elements by accessing 
+  the underlying data with a call of the form 
+  \id{ ydata = N\_VGetArrayPointer\_***(y0)}.
   See \S\ref{ss:nvec_ser}-\ref{ss:nvec_pthreads} for details.
   
-  For {\hypre} and {\petsc} vector wrappers, first create and initialize 
+  For the {\hypre} and {\petsc} vector wrappers, first create and initialize 
   the underlying vector and then create {\nvector} wrapper with a call 
-  of the form \id{y0 = N\_VMake\_***(yvec);}, where \id{yvec} is a {\hypre}
+  of the form \id{y0 = N\_VMake\_***(yvec)}, where \id{yvec} is a {\hypre}
   or {\petsc} vector. Note that calls like \id{N\_VNew\_***(...)} and 
-  \id{N\_VGetArrayPointer(...)} are not available for the vector wrappers.
+  \id{N\_VGetArrayPointer\_***(...)} are not available for these vector wrappers.
   See \S\ref{ss:nvec_parhyp} and \S\ref{ss:nvec_petsc} for details.
   
 %   If a \id{realtype} array \id{ydata} containing the initial values of $y$
