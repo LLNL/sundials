@@ -34,8 +34,9 @@ to access its member variables.
 The {\nvecph} module defines parhyp implementations of all vector operations listed 
 in Table \ref{t:nvecops}, except for \verb|N_VSetArrayPointer|, because setting raw 
 data pointers is handled by low-level {\hypre} functions. Implementation of 
-\verb|N_VGetArrayPointer| is provided, but its use is strongly discouraged (we 
-consider removing it in the future). When access to raw vector data is needed, it is 
+\verb|N_VGetArrayPointer| is provided, but its use is strongly
+discouraged (and we will consider removing it in the future).
+When access to raw vector data is needed, it is 
 recommended to extract {\hypre} vector first, and then use {\hypre} 
 methods to access the data. 
 
@@ -51,9 +52,8 @@ The module {\nvecph} provides the following additional user-callable routines:
 \item \ID{N\_VNewEmpty\_ParHyp}
  
   This function creates a new parhyp \id{N\_Vector} with pointer to {\hypre} 
-  vector set to \id{NULL}. 
- 
-  
+  vector set to \id{NULL}.
+
 
 \begin{verbatim}
 N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, 
@@ -78,7 +78,7 @@ N_Vector N_VMake_ParHyp(hypre_ParVector *x);
 
 \item \ID{N\_VGetVector\_ParHyp}
   
-  This function returns pointer to the underlying {\hypre} vector.
+  This function returns a pointer to the underlying {\hypre} vector.
  
     
   \verb|hypre_ParVector *N_VGetVector_ParHyp(N_Vector v);|
@@ -138,14 +138,14 @@ N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w);
                                         
 \item
   When there is a need to access components of an \id{N\_Vector} \id{v}, 
-  it is recommeded to extract {\hypre} vector via       
+  it is recommended to extract the {\hypre} vector via       
   \id{x\_vec = N\_VGetVector\_ParHyp(v)} and then access components using 
   appropriate {\hypre} functions.        
                                                                
 \item
   {\warn}\id{N\_VNewEmpty\_ParHyp}, \id{N\_VMake\_ParHyp}, 
   and \id{N\_VCloneVectorArrayEmpty\_ParHyp} set the field 
-  {\em own\_parvector} $=$ \id{FALSE}. 
+  {\em own\_parvector} to \id{FALSE}. 
   \id{N\_VDestroy\_ParHyp} and \id{N\_VDestroyVectorArray\_ParHyp}
   will not attempt to delete underlying {\hypre} vector for any \id{N\_Vector} 
   with {\em own\_parvector} set to \id{FALSE}. In such a case, it is the 

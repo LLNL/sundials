@@ -1,9 +1,9 @@
 % This is a shared SUNDIALS TEX file with description of
 % the PETSc nvector wrapper implementation
 %
-The {\nvecpetsc} is an {\nvector} wrapper around the {\petsc} vector. It defines the 
-{\em content} field of a \id{N\_Vector} to be a structure containing the global 
-and local lengths of the vector, a pointer to the {\petsc} vector,
+The {\nvecpetsc} module is an {\nvector} wrapper around the {\petsc} vector.
+It defines the {\em content} field of a \id{N\_Vector} to be a structure containing
+the global and local lengths of the vector, a pointer to the {\petsc} vector,
 an {\mpi} communicator, and a boolean flag {\em own\_data} indicating ownership of 
 the wrapped {\petsc} vector.
 %%
@@ -43,9 +43,9 @@ The module {\nvecpetsc}  provides the following additional user-callable routine
 \item \ID{N\_VNewEmpty\_petsc}
  
   This function creates a new {\nvector} wrapper with the pointer to
-  the wrapped {\petsc} vector set to (\id{NULL}). It is used by 
+  the wrapped {\petsc} vector set to (\id{NULL}). It is used by the 
   \id{N\_VMake\_petsc} and \id{N\_VClone\_petsc} implementations. 
-  Use it only if you know what you are doing.
+  It should be used only with great caution.
 
 \begin{verbatim}
 N_Vector N_VNewEmpty_petsc(MPI_Comm comm, 
@@ -59,8 +59,8 @@ N_Vector N_VNewEmpty_petsc(MPI_Comm comm,
 \item \ID{N\_VMake\_petsc}
   
   This function creates and allocates memory for a {\nvecpetsc}
-  wrapper around user-provided {\petsc} vector. It does {\em not} 
-  allocate memory for the \id{pvec} itself.
+  wrapper around a user-provided {\petsc} vector. It does {\em not} 
+  allocate memory for the vector \id{pvec} itself.
 
 \begin{verbatim}
 N_Vector N_VMake_petsc(Vec *pvec);
@@ -70,7 +70,7 @@ N_Vector N_VMake_petsc(Vec *pvec);
 
 \item \ID{N\_VGetVector\_petsc}
   
-  This function returns pointer to underlying {\petsc} vector.
+  This function returns a pointer to the underlying {\petsc} vector.
 
 \begin{verbatim}
 Vec *N_VGetVector_petsc(N_Vector v);
@@ -114,7 +114,7 @@ N_Vector *N_VCloneEmptyVectorArray_petsc(int count, N_Vector w);
 
 \item \ID{N\_VPrint\_petsc}
   
-  This function prints the content of the wrapped {\petsc} vector to stdout.
+  This function prints the content of a wrapped {\petsc} vector to stdout.
  
     
   \verb|void N_VPrint_petsc(N_Vector v);|
@@ -130,13 +130,13 @@ N_Vector *N_VCloneEmptyVectorArray_petsc(int count, N_Vector w);
                                         
 \item
   When there is a need to access components of an \id{N\_Vector} \id{v}, 
-  it is recommeded to extract {\petsc} vector via       
+  it is recommeded to extract the {\petsc} vector via       
   \id{x\_vec = N\_VGetVector\_petsc(v)} and then access components using 
   appropriate {\petsc} functions.        
                                                                
 \item
-  {\warn}\id{N\_VNewEmpty\_petsc}, \id{N\_VMake\_petsc}, and
-  \id{N\_VCloneVectorArrayEmpty\_petsc} set the field {\em own\_data} $=$ \id{FALSE}.   
+  {\warn}The functions \id{N\_VNewEmpty\_petsc}, \id{N\_VMake\_petsc}, and
+  \id{N\_VCloneVectorArrayEmpty\_petsc} set the field {\em own\_data} to \id{FALSE}.   
   \id{N\_VDestroy\_petsc} and \id{N\_VDestroyVectorArray\_petsc}
   will not attempt to free the pointer {\em pvec} for any \id{N\_Vector} with
   {\em own\_data} set to \id{FALSE}. In such a case, it is the user's responsibility to
