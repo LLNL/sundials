@@ -2091,20 +2091,42 @@ The variables \code{N} and \code{Nlocal} should be of type
 Set vector of initial values
 
 To set the vector \code{y0} of initial values, use the appropriate
-functions defined by the particular NVECTOR implementation.  If a
-\code{realtype} array \code{ydata} containing the initial values of \(y\)
-already exists, it may be possible to do this either with a call of
-the form
+functions defined by the particular NVECTOR implementation.
+
+For native SUNDIALS vector implementations, use a call of the form
+
+\end{enumerate}
+\begin{quote}
 
 \code{y0 = N\_VMake\_***(..., ydata);}
 
-or by making a call of the form
+if the \code{realtype} array \code{ydata} containing the initial values of
+\(y\) already exists.  Otherwise, create a new vector by making
+a call of the form
 
 \code{y0 = N\_VNew\_***(...);}
 
-and loading values into the structure defined by \code{NV\_DATA\_***(y0)},
-provided these functions and macro exist for teh NVECTOR module chosen.
+and then set its elements by accessing the underlying data with a
+call of the form
 
+\code{ydata = N\_VGetArrayPointer\_***(y0);}
+
+See the sections {\hyperref[nvectors/NVector_Serial:nvectors-nvserial]{\emph{\DUspan{}{The NVECTOR\_SERIAL Module}}}} through
+{\hyperref[nvectors/NVector_Pthreads:nvectors-pthreads]{\emph{\DUspan{}{The NVECTOR\_PTHREADS Module}}}} for details.
+
+For the HYPRE and PETSc vector wrappers, first create and initialize
+the underlying vector, and then create the NVECTOR wrapper with a call
+of the form
+
+\code{y0 = N\_VMake\_***(yvec);}
+
+where \code{yvec} is a HYPRE or PETSc vector.  Note that calls like
+\code{N\_VNew\_***(...)} and \code{N\_VGetArrayPointer\_***(...)} are not
+available for these vector wrappers.  See the sections
+{\hyperref[nvectors/NVector_ParHyp:nvectors-parhyp]{\emph{\DUspan{}{The NVECTOR\_PARHYP Module}}}} through {\hyperref[nvectors/NVector_PETSc:nvectors-nvpetsc]{\emph{\DUspan{}{The NVECTOR\_PETSC Module}}}} for details.
+\end{quote}
+\begin{enumerate}
+\setcounter{enumi}{3}
 \item {} 
 Create ARKode object
 
@@ -18068,6 +18090,8 @@ This function creates a new serial \code{N\_Vector} with an empty
 This function creates and allocates memory for a serial vector with
 user-provided data array, \emph{v\_data}.
 
+(This function does \emph{not} allocate memory for \code{v\_data} itself.)
+
 \end{fulllineitems}
 
 \index{N\_VCloneVectorArray\_Serial (C function)}
@@ -18330,6 +18354,8 @@ This function creates a new parallel \code{N\_Vector} with an empty
 This function creates and allocates memory for a parallel vector
 with user-provided data array.
 
+(This function does \emph{not} allocate memory for \code{v\_data} itself.)
+
 \end{fulllineitems}
 
 \index{N\_VCloneVectorArray\_Parallel (C function)}
@@ -18414,231 +18440,6 @@ then \code{COMM} can be any valid MPI communicator. Otherwise,
 \code{MPI\_COMM\_WORLD} will be used, so just pass an integer value as a
 placeholder.
 \end{notice}
-
-
-\section{The NVECTOR\_PETSC Module}
-\label{nvectors/NVector_PETSc:nvectors-nvpetsc}\label{nvectors/NVector_PETSc:the-nvector-petsc-module}\label{nvectors/NVector_PETSc::doc}
-The NVECTOR\_PETSC is an NVECTOR wrapper around the PETSc vector. It
-defines the \emph{content} field of a \code{N\_Vector} to be a structure
-containing the global and local lengths of the vector, a pointer to
-the PETSc vector, an MPI communicator, and a boolean flag  \emph{own\_data}
-indicating ownership of the wrapped PETSc vector.
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}petsc} \PYG{p}{\PYGZob{}}
-   \PYG{k+kt}{long} \PYG{k+kt}{int} \PYG{n}{local\PYGZus{}length}\PYG{p}{;}
-   \PYG{k+kt}{long} \PYG{k+kt}{int} \PYG{n}{global\PYGZus{}length}\PYG{p}{;}
-   \PYG{n}{booleantype} \PYG{n}{own\PYGZus{}data}\PYG{p}{;}
-   \PYG{n}{Vec} \PYG{o}{*}\PYG{n}{pvec}\PYG{p}{;}
-   \PYG{n}{MPI\PYGZus{}Comm} \PYG{n}{comm}\PYG{p}{;}
-\PYG{p}{\PYGZcb{}}\PYG{p}{;}
-\end{Verbatim}
-
-The header file to be included when using this module is
-\code{nvector\_petsc.h}.
-
-Note that the PETSc vector wrapper requires SUNDIALS to be built with
-MPI support.  The following six macros are provided to access the
-content of a NVECTOR\_PETSC vector. The suffix \code{\_PTC} in the names
-denotes the PETSc wrapper version.
-\index{NV\_CONTENT\_PTC (C macro)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.NV_CONTENT_PTC}\pysiglinewithargsret{\bfcode{NV\_CONTENT\_PTC}}{v}{}
-This macro gives access to the contents of the NVECTOR\_PETSC
-\code{N\_Vector} \emph{v}.
-
-The assignment \code{v\_cont = NV\_CONTENT\_PTC(v)} sets \code{v\_cont} to be a
-pointer to the \code{N\_Vector} \emph{content} structure of type \code{struct
-N\_VectorContent\_petsc}.
-
-Implementation:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}CONTENT\PYGZus{}P(v) ( (N\PYGZus{}VectorContent\PYGZus{}petsc)(v\PYGZhy{}\PYGZgt{}content) )}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{NV\_OWN\_DATA\_PTC (C macro)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.NV_OWN_DATA_PTC}\pysiglinewithargsret{\bfcode{NV\_OWN\_DATA\_PTC}}{v}{}
-Access the \emph{own\_data} component of the NVECTOR\_PETSC \code{N\_Vector} \emph{v}.
-
-Implementation:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}OWN\PYGZus{}DATA\PYGZus{}PTC(v)   ( NV\PYGZus{}CONTENT\PYGZus{}PTC(v)\PYGZhy{}\PYGZgt{}own\PYGZus{}data )}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{NV\_PVEC\_PTC (C macro)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.NV_PVEC_PTC}\pysiglinewithargsret{\bfcode{NV\_PVEC\_PTC}}{v}{}
-The assignment \code{v\_pvec = NV\_PVEC\_PTC(v)} sets the PETSc vector
-pointer \code{v\_pvec} to the address of the PETSc vector wrapped by
-the \code{N\_Vector v}.
-
-Implementation:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}PVEC\PYGZus{}PTC(v)       ( NV\PYGZus{}CONTENT\PYGZus{}PTC(v)\PYGZhy{}\PYGZgt{}pvec )}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{NV\_LOCLENGTH\_PTC (C macro)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.NV_LOCLENGTH_PTC}\pysiglinewithargsret{\bfcode{NV\_LOCLENGTH\_PTC}}{v}{}
-The assignment \code{v\_llen = NV\_LOCLENGTH\_PTC(v)} sets \code{v\_llen} to be
-the length of the local part of \code{v}.
-
-The call \code{NV\_LOCLENGTH\_PTC(v) = llen\_v} sets the \emph{local\_length} of
-\code{v} to be \code{llen\_v}.  \emph{Warning: this does not affect the actual
-vector length stored in the PETSc vector {}`{}`pvec{}`{}`, only the
-integers stored in the NVECTOR\_PETSC object.}
-
-Implementation:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}LOCLENGTH\PYGZus{}PTC(v)  ( NV\PYGZus{}CONTENT\PYGZus{}PTC(v)\PYGZhy{}\PYGZgt{}local\PYGZus{}length )}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{NV\_GLOBLENGTH\_PTC (C macro)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.NV_GLOBLENGTH_PTC}\pysiglinewithargsret{\bfcode{NV\_GLOBLENGTH\_PTC}}{v}{}
-The assignment \code{v\_glen = NV\_GLOBLENGTH\_PTC(v)} sets \code{v\_glen} to be
-the \emph{global\_length} of the vector \code{v}.
-
-The call \code{NV\_GLOBLENGTH\_PTC(v) = glen\_v} sets the \emph{global\_length}
-of \code{v} to be \code{glen\_v}.  \emph{Warning: this does not affect the actual
-vector length stored in the PETSc vector {}`{}`pvec{}`{}`, only the
-integers stored in the NVECTOR\_PETSC object.}
-
-Implementation:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}GLOBLENGTH\PYGZus{}PTC(v) ( NV\PYGZus{}CONTENT\PYGZus{}PTC(v)\PYGZhy{}\PYGZgt{}global\PYGZus{}length )}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{NV\_COMM\_PTC (C macro)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.NV_COMM_PTC}\pysiglinewithargsret{\bfcode{NV\_COMM\_PTC}}{v}{}
-This macro provides access to the MPI communicator used by the
-NVECTOR\_PETSC \code{N\_Vector} \emph{v}.
-
-Implementation:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}COMM\PYGZus{}PTC(v) ( NV\PYGZus{}CONTENT\PYGZus{}PTC(v)\PYGZhy{}\PYGZgt{}comm )}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-
-The NVECTOR\_PETSC module defines implementations of all vector
-operations listed in the section {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, except for
-\code{N\_VGetArrayPointer} and \code{N\_VSetArrayPointer}.  The names of
-vector operations are obtained from those in the section
-{\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}} by appending the suffice \code{\_petsc}
-(e.g. \code{N\_VDestroy\_petsc}).  The module NVECTOR\_PETSC provides the
-following additional user-callable routines:
-\index{N\_VNew\_petsc (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VNew_petsc}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNew\_petsc}}{MPI\_Comm\emph{ comm}, long int\emph{ local\_length}, long int\emph{ global\_length}}{}
-This function creates and allocates memory for a NVECTOR\_PETSC vector
-having global length \emph{global\_length}, having processor-local length
-\emph{local\_length}, and using the MPI communicator \emph{comm}.
-
-\end{fulllineitems}
-
-\index{N\_VNewEmpty\_petsc (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VNewEmpty_petsc}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNewEmpty\_petsc}}{MPI\_Comm\emph{ comm}, long int\emph{ local\_length}, long int\emph{ global\_length}}{}
-This function creates a new PETSC \code{N\_Vector} with the pointer to
-the wrapped PETSc vector set to \code{NULL}.
-
-\end{fulllineitems}
-
-\index{N\_VMake\_petsc (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VMake_petsc}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMake\_petsc}}{Vec*\emph{ pvec}}{}
-This function creates and allocates memory for a NVECTOR\_PETSC
-wrapper with a user-provided PETSc vector.
-
-\end{fulllineitems}
-
-\index{N\_VCloneVectorArray\_petsc (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VCloneVectorArray_petsc}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneVectorArray\_petsc}}{int\emph{ count}, N\_Vector\emph{ w}}{}
-This function creates (by cloning) an array of \emph{count}
-NVECTOR\_PETSC vectors.
-
-\end{fulllineitems}
-
-\index{N\_VCloneVectorArrayEmpty\_petsc (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VCloneVectorArrayEmpty_petsc}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneVectorArrayEmpty\_petsc}}{int\emph{ count}, N\_Vector\emph{ w}}{}
-This function creates (by cloning) an array of \emph{count}
-NVECTOR\_PETSC vectors, each with pointers to PETSc vectors set to \code{NULL}.
-
-\end{fulllineitems}
-
-\index{N\_VDestroyVectorArray\_petsc (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VDestroyVectorArray_petsc}\pysiglinewithargsret{void \bfcode{N\_VDestroyVectorArray\_petsc}}{N\_Vector*\emph{ vs}, int\emph{ count}}{}
-This function frees memory allocated for the array of \emph{count}
-variables of type \code{N\_Vector} created with
-{\hyperref[nvectors/NVector_PETSc:c.N_VCloneVectorArray_petsc]{\emph{\code{N\_VCloneVectorArray\_petsc()}}}} or with
-{\hyperref[nvectors/NVector_PETSc:c.N_VCloneVectorArrayEmpty_petsc]{\emph{\code{N\_VCloneVectorArrayEmpty\_petsc()}}}}.
-
-\end{fulllineitems}
-
-\index{N\_VPrint\_petsc (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VPrint_petsc}\pysiglinewithargsret{void \bfcode{N\_VPrint\_petsc}}{N\_Vector\emph{ v}}{}
-This function prints the content of the wrapped PETSc vector to \code{stdout}.
-
-\end{fulllineitems}
-
-
-\textbf{Notes}
-\begin{itemize}
-\item {} 
-{\hyperref[nvectors/NVector_PETSc:c.N_VNewEmpty_petsc]{\emph{\code{N\_VNewEmpty\_petsc()}}}}, {\hyperref[nvectors/NVector_PETSc:c.N_VMake_petsc]{\emph{\code{N\_VMake\_petsc()}}}}, and
-{\hyperref[nvectors/NVector_PETSc:c.N_VCloneVectorArrayEmpty_petsc]{\emph{\code{N\_VCloneVectorArrayEmpty\_petsc()}}}} set the field \emph{own\_data}
-to \code{FALSE}. The routines \code{N\_VDestroy\_petsc()} and
-{\hyperref[nvectors/NVector_PETSc:c.N_VDestroyVectorArray_petsc]{\emph{\code{N\_VDestroyVectorArray\_petsc()}}}} will not attempt to free the
-pointer \code{pvec} for any \code{N\_Vector} with \emph{own\_data} set to
-\code{FALSE}. In such a case, it is the user's responsibility to
-deallocate the \code{pvec} pointer.
-
-\item {} 
-To maximize efficiency, vector operations in the NVECTOR\_PETSC
-implementation that have more than one \code{N\_Vector} argument do not
-check for consistent internal representation of these vectors. It is
-the user's responsibility to ensure that such routines are called
-with \code{N\_Vector} arguments that were all created with the same
-internal representations.
-
-\end{itemize}
 
 
 \section{The NVECTOR\_OPENMP Module}
@@ -18814,6 +18615,8 @@ This function creates a new OpenMP \code{N\_Vector} with an empty
 \phantomsection\label{nvectors/NVector_OpenMP:c.N_VMake_OpenMP}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMake\_OpenMP}}{long int\emph{ vec\_length}, realtype*\emph{ v\_data}, int\emph{ num\_threads}}{}
 This function creates and allocates memory for a OpenMP vector with
 user-provided data array, \emph{v\_data}.
+
+(This function does \emph{not} allocate memory for \code{v\_data} itself.)
 
 \end{fulllineitems}
 
@@ -19066,6 +18869,8 @@ This function creates a new Pthreads \code{N\_Vector} with an empty
 This function creates and allocates memory for a Pthreads vector with
 user-provided data array, \emph{v\_data}.
 
+(This function does \emph{not} allocate memory for \code{v\_data} itself.)
+
 \end{fulllineitems}
 
 \index{N\_VCloneVectorArray\_Pthreads (C function)}
@@ -19145,18 +18950,14 @@ return flag equal 0 for success and -1 for failure.
 
 \section{The NVECTOR\_PARHYP Module}
 \label{nvectors/NVector_ParHyp:nvectors-parhyp}\label{nvectors/NVector_ParHyp:the-nvector-parhyp-module}\label{nvectors/NVector_ParHyp::doc}
-The NVECTOR\_PARHYP implementation of the NVECTOR module provided with
-SUNDIALS is based on HYPRE's ParVector class.  Most basic vector
-operations are wrapped versions of HYPRE's vector operations.  The
-remaining vector operations mimic HYPRE's style of hybrid MPI and
-OpenMP parallelism.  It defines the \emph{content} field of \code{N\_Vector} to
-be a structure containing the global and local lengths of the vector,
-a pointer to an object of type \code{hypre\_ParVector}, a pointer to the
-beginning of a contiguous local data array (which corresponds with the
-local data in the \code{hypre\_ParVector} \emph{x}), an MPI communicator, a
-boolean flag \emph{own\_data} indicating ownership of the data array \emph{data}
-and a boolean flag \emph{own\_parvector} indicating ownership of the vector
-object \emph{x}.
+The NVECTOR\_PARHYP implementation of the NVECTOR  module provided with
+SUNDIALS is a wrapper around HYPRE's ParVector class.
+Most of the vector kernels simply call HYPRE vector operations.
+The implementation defines the \emph{content} field of \code{N\_Vector} to
+be a structure containing the global and local lengths of the vector, a
+pointer to an object of type \code{hypre\_ParVector}, an MPI communicator,
+and a boolean flag \emph{own\_parvector} indicating ownership of the
+HYPRE parallel vector object \emph{x}.
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}ParHyp} \PYG{p}{\PYGZob{}}
@@ -19171,197 +18972,45 @@ object \emph{x}.
 \end{Verbatim}
 
 The header file to be included when using this module is \code{nvector\_parhyp.h}.
-
-The following nine macros are provided to access the content of an NVECTOR\_PARHYP
-vector. The suffix \code{\_PH} in the names denotes the parallel HYPRE
-wrapped version (distributed memory parallel with OpenMP threading).
-\index{NV\_CONTENT\_PH (C macro)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.NV_CONTENT_PH}\pysiglinewithargsret{\bfcode{NV\_CONTENT\_PH}}{v}{}
-This macro gives access to the contents of the parhyp vector
-\code{N\_Vector} \emph{v}.
-
-The assignment \code{v\_cont = NV\_CONTENT\_PH(v)} sets \code{v\_cont} to be
-a pointer to the \code{N\_Vector} content structure of type \code{N\_VectorParHypContent}.
-
-Implementation:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}CONTENT\PYGZus{}PH(v) ( (N\PYGZus{}VectorContent\PYGZus{}ParHyp)(v\PYGZhy{}\PYGZgt{}content) )}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{NV\_OWN\_PARVEC\_PH (C macro)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.NV_OWN_PARVEC_PH}\pysiglinewithargsret{\bfcode{NV\_OWN\_PARVEC\_PH}}{v}{}
-Access the \emph{own\_parvector} component of the parhyp \code{N\_Vector} \emph{v}.
-
-Implementation:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}OWN\PYGZus{}PARVEC\PYGZus{}PH(v) ( NV\PYGZus{}CONTENT\PYGZus{}PH(v)\PYGZhy{}\PYGZgt{}own\PYGZus{}parvector )}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{NV\_HYPRE\_PARVEC\_PH (C macro)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.NV_HYPRE_PARVEC_PH}\pysiglinewithargsret{\bfcode{NV\_HYPRE\_PARVEC\_PH}}{v}{}
-Access the \code{hypre\_ParVector} \emph{x} component of the parhyp \code{N\_Vector} \emph{v}.
-
-Implementation:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}HYPRE\PYGZus{}PARVEC\PYGZus{}PH(v) ( NV\PYGZus{}CONTENT\PYGZus{}PH(v)\PYGZhy{}\PYGZgt{}x )}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{NV\_OWN\_DATA\_PH (C macro)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.NV_OWN_DATA_PH}\pysiglinewithargsret{\bfcode{NV\_OWN\_DATA\_PH}}{v}{}
-Access the \emph{own\_data} component of the parhyp \code{N\_Vector} \emph{v}.
-
-Implementation:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}OWN\PYGZus{}DATA\PYGZus{}PH(v) ( NV\PYGZus{}CONTENT\PYGZus{}PH(v)\PYGZhy{}\PYGZgt{}own\PYGZus{}data )}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{NV\_DATA\_PH (C macro)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.NV_DATA_PH}\pysiglinewithargsret{\bfcode{NV\_DATA\_PH}}{v}{}
-The assignment \code{v\_data = NV\_DATA\_PH(v)} sets \code{v\_data} to be a
-pointer to the first component of the \emph{data} for the \code{N\_Vector}
-\code{v}.
-
-Similarly, the assignment \code{NV\_DATA\_PH(v) = v\_data} sets the local
-component array of the \code{hypre\_ParVector}  \code{v} to be \code{v\_data}
-by storing the pointer \code{v\_data}.
-
-Implementation:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}DATA\PYGZus{}PH(v) ( hypre\PYGZus{}VectorData(hypre\PYGZus{}ParVectorLocalVector(NV\PYGZus{}HYPRE\PYGZus{}PARVEC\PYGZus{}PH(v))) )}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{NV\_LOCLENGTH\_PH (C macro)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.NV_LOCLENGTH_PH}\pysiglinewithargsret{\bfcode{NV\_LOCLENGTH\_PH}}{v}{}
-Access the \emph{local\_length} component of the parhyp \code{N\_Vector} \emph{v}.
-
-The assignment \code{v\_llen = NV\_LOCLENGTH\_PH(v)} sets \code{v\_llen} to
-be the \emph{local\_length} of \code{v}. On the other hand, the call \code{NV\_LOCLENGTH\_PH(v) =
-llen\_v} sets the \emph{local\_length} of \code{v} to be \code{llen\_v}.
-
-Implementation:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}LOCLENGTH\PYGZus{}PH(v) ( NV\PYGZus{}CONTENT\PYGZus{}PH(v)\PYGZhy{}\PYGZgt{}local\PYGZus{}length )}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{NV\_GLOBLENGTH\_PH (C macro)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.NV_GLOBLENGTH_PH}\pysiglinewithargsret{\bfcode{NV\_GLOBLENGTH\_PH}}{v}{}
-Access the \emph{global\_length} component of the parhyp \code{N\_Vector} \emph{v}.
-
-The assignment \code{v\_glen = NV\_GLOBLENGTH\_PH(v)} sets \code{v\_glen} to be the
-\emph{global\_length} of \code{v}. On the other hand, the call \code{NV\_GLOBLENGTH\_PH(v) =
-glen\_v} sets the \emph{global\_length} of \code{v} to be \code{glen\_v}.
-
-Implementation:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}GLOBLENGTH\PYGZus{}PH(v) ( NV\PYGZus{}CONTENT\PYGZus{}PH(v)\PYGZhy{}\PYGZgt{}global\PYGZus{}length )}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{NV\_COMM\_PH (C macro)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.NV_COMM_PH}\pysiglinewithargsret{\bfcode{NV\_COMM\_PH}}{v}{}
-Access the MPI communicator used by the parhyp \code{N\_Vector} \emph{v}.
-
-The assignment \code{comm = NV\_COMM\_PH(v)} sets
-\code{comm} to be the \emph{comm} of \code{v}.
-
-Implementation:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}COMM\PYGZus{}PH(v) ( NV\PYGZus{}CONTENT\PYGZus{}PH(v)\PYGZhy{}\PYGZgt{}comm )}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{NV\_Ith\_PH (C macro)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.NV_Ith_PH}\pysiglinewithargsret{\bfcode{NV\_Ith\_PH}}{v, i}{}
-This macro gives access to the individual components of the local
-\emph{data} array of an \code{N\_Vector}, using standard 0-based C indexing.
-
-The assignment \code{r = NV\_Ith\_PH(v,i)} sets \code{r} to be the value of
-the \code{i}-th component of the local part of \code{v}.
-
-The assignment \code{NV\_Ith\_PH(v,i) = r} sets the value of the \code{i}-th
-component of the local part of \code{v} to be \code{r}.
-
-Here \code{i} ranges from 0 to \(n-1\) where \(n\) is the
-processor-local length of the vector.
-
-Implementation:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}Ith\PYGZus{}PH(v,i) ( NV\PYGZus{}DATA\PYGZus{}PH(v)[i] )}
-\end{Verbatim}
-
-\end{fulllineitems}
-
+Unlike native SUNDIALS vector types, NVECTOR\_PARHYP does not provide macros
+to access its member variables.
 
 The NVECTOR\_PARHYP module defines parhyp implementations of all vector
-operations listed in the section {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}.  Their names are
-obtained from those in that section by appending the suffix
-\code{\_ParHyp} (e.g. \code{N\_VDestroy\_ParHyp}).  The module NVECTOR\_PARHYP
-provides the following additional user-callable routines:
-\index{N\_VNew\_ParHyp (C function)}
+operations listed in the section {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, except for
+\code{N\_VSetArrayPointer}, because setting raw data pointers is handled
+by low-level HYPRE functions. Implementation of \code{N\_VGetArrayPointer}
+is provided, but its use is strongly discouraged (and we will consider
+removing it in the future). When access to raw vector data is needed, it is
+recommended to extract HYPRE vector first, and then use HYPRE methods
+to access the data.
 
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.N_VNew_ParHyp}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNew\_ParHyp}}{MPI\_Comm\emph{ comm}, long int\emph{ local\_length}, long int\emph{ global\_length}}{}
-This function creates and allocates memory for a parhyp
-\code{N\_Vector}.
-
-\end{fulllineitems}
-
+The names of parhyp methods are obtained from those in the section
+{\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}} by appending the suffix \code{\_ParHyp}
+(e.g. \code{N\_VDestroy\_ParHyp}).  The module \{nvecph\} provides the
+following additional user-callable routines:
 \index{N\_VNewEmpty\_ParHyp (C function)}
 
 \begin{fulllineitems}
 \phantomsection\label{nvectors/NVector_ParHyp:c.N_VNewEmpty_ParHyp}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNewEmpty\_ParHyp}}{MPI\_Comm\emph{ comm}, long int\emph{ local\_length}, long int\emph{ global\_length}}{}
-This function creates a new parhyp \code{N\_Vector} with an empty
-(\code{NULL}) data array.
+This function creates a new parhyp \code{N\_Vector} with pointer to
+HYPRE vector set to \code{NULL}.
 
 \end{fulllineitems}
 
 \index{N\_VMake\_ParHyp (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.N_VMake_ParHyp}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMake\_ParHyp}}{MPI\_Comm\emph{ comm}, long int\emph{ local\_length}, long int\emph{ global\_length}, realtype*\emph{ v\_data}}{}
-This function creates and allocates memory for a parhyp vector with
-user-provided data array, \emph{v\_data}.
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VMake_ParHyp}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMake\_ParHyp}}{hypre\_ParVector\emph{ *x}}{}
+This function creates an \code{N\_Vector} wrapper around an existing
+HYPRE parallel vector.  It does \emph{not} allocate memory for \code{x} itself.
+
+\end{fulllineitems}
+
+\index{N\_VGetVector\_ParHyp (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VGetVector_ParHyp}\pysiglinewithargsret{hypre\_ParVector *\bfcode{N\_VGetVector\_ParHyp}}{N\_Vector\emph{ v}}{}
+This function returns a pointer to the underlying HYPRE vector.
 
 \end{fulllineitems}
 
@@ -19406,19 +19055,19 @@ This function prints the content of a parhyp vector to \code{stdout}.
 \textbf{Notes}
 \begin{itemize}
 \item {} 
-When looping over the components of an \code{N\_Vector v}, it is more
-efficient to first obtain the component array via \code{v\_data =
-NV\_DATA\_PH(v)} and then access \code{v\_data{[}i{]}} within the loop than it
-is to use \code{NV\_Ith\_PH(v,i)} within the loop.
+When there is a need to access components of an \code{N\_Vector v},
+it is recommended to extract the HYPRE vector via
+\code{x\_vec = N\_VGetVector\_ParHyp(v)} and then access components using
+appropriate HYPRE functions.
 
 \item {} 
 {\hyperref[nvectors/NVector_ParHyp:c.N_VNewEmpty_ParHyp]{\emph{\code{N\_VNewEmpty\_ParHyp()}}}}, {\hyperref[nvectors/NVector_ParHyp:c.N_VMake_ParHyp]{\emph{\code{N\_VMake\_ParHyp()}}}}, and
-{\hyperref[nvectors/NVector_ParHyp:c.N_VCloneVectorArrayEmpty_ParHyp]{\emph{\code{N\_VCloneVectorArrayEmpty\_ParHyp()}}}} set the field \emph{own\_data}
+{\hyperref[nvectors/NVector_ParHyp:c.N_VCloneVectorArrayEmpty_ParHyp]{\emph{\code{N\_VCloneVectorArrayEmpty\_ParHyp()}}}} set the field \emph{own\_parvector}
 to \code{FALSE}.  The functions \code{N\_VDestroy\_ParHyp()} and
-{\hyperref[nvectors/NVector_ParHyp:c.N_VDestroyVectorArray_ParHyp]{\emph{\code{N\_VDestroyVectorArray\_ParHyp()}}}} will not attempt to free the
-pointer data for any \code{N\_Vector} with \emph{own\_data} set to \code{FALSE}.
-In such a case, it is the user's responsibility to deallocate the
-data pointer.
+{\hyperref[nvectors/NVector_ParHyp:c.N_VDestroyVectorArray_ParHyp]{\emph{\code{N\_VDestroyVectorArray\_ParHyp()}}}} will not attempt to delete the
+underlying HYPRE vector for any \code{N\_Vector} with \emph{own\_parvector}
+set to \code{FALSE}.  In such a case, it is the user's responsibility
+to delete the underlying vector.
 
 \item {} 
 To maximize efficiency, vector operations in the NVECTOR\_PARHYP
@@ -19430,23 +19079,132 @@ internal representations.
 
 \end{itemize}
 
-For solvers that include a Fortran interface module, the
-NVECTOR\_PARHYP module also includes a Fortran-callable function
-\code{FNVINITPH(COMM, code, NLOCAL, NGLOBAL, IER)}, to initialize this
-NVECTOR\_PARHYP module.  Here \code{COMM} is the MPI communicator,
-\code{code} is an input solver id (1 for CVODE, 2 for IDA, 3 for KINSOL,
-4 for ARKode); \code{NLOCAL} and \code{NGLOBAL} are the local and global
-vector sizes, respectively (declared so as to match C type \code{long int});
-and \code{IER} is an error return flag equal 0 for success and -1 for failure.
 
-\begin{notice}{note}{Note:}
-If the header file \code{sundials\_config.h} defines
-\code{SUNDIALS\_MPI\_COMM\_F2C} to be 1 (meaning the MPI implementation
-used to build SUNDIALS includes the \code{MPI\_Comm\_f2c} function),
-then \code{COMM} can be any valid MPI communicator. Otherwise,
-\code{MPI\_COMM\_WORLD} will be used, so just pass an integer value as a
-placeholder.
-\end{notice}
+\section{The NVECTOR\_PETSC Module}
+\label{nvectors/NVector_PETSc:nvectors-nvpetsc}\label{nvectors/NVector_PETSc:the-nvector-petsc-module}\label{nvectors/NVector_PETSc::doc}
+The NVECTOR\_PETSC module is an NVECTOR wrapper around the PETSc vector. It
+defines the \emph{content} field of a \code{N\_Vector} to be a structure
+containing the global and local lengths of the vector, a pointer to
+the PETSc vector, an MPI communicator, and a boolean flag  \emph{own\_data}
+indicating ownership of the wrapped PETSc vector.
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}petsc} \PYG{p}{\PYGZob{}}
+   \PYG{k+kt}{long} \PYG{k+kt}{int} \PYG{n}{local\PYGZus{}length}\PYG{p}{;}
+   \PYG{k+kt}{long} \PYG{k+kt}{int} \PYG{n}{global\PYGZus{}length}\PYG{p}{;}
+   \PYG{n}{booleantype} \PYG{n}{own\PYGZus{}data}\PYG{p}{;}
+   \PYG{n}{Vec} \PYG{o}{*}\PYG{n}{pvec}\PYG{p}{;}
+   \PYG{n}{MPI\PYGZus{}Comm} \PYG{n}{comm}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\end{Verbatim}
+
+The header file to be included when using this module is
+\code{nvector\_petsc.h}.  Unlike native SUNDIALS vector types,
+NVECTOR\_PETSC does not provide macros to access its member variables.
+Note that NVECTOR\_PETSC requires SUNDIALS to be built with MPI support.
+
+The NVECTOR\_PETSC module defines implementations of all vector
+operations listed in the section {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, except for
+\code{N\_VGetArrayPointer} and \code{N\_VSetArrayPointer}.  The names of
+vector operations are obtained from those in the section
+{\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}} by appending the suffice \code{\_petsc}
+(e.g. \code{N\_VDestroy\_petsc}).  The module NVECTOR\_PETSC provides the
+following additional user-callable routines:
+\index{N\_VNewEmpty\_petsc (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VNewEmpty_petsc}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNewEmpty\_petsc}}{MPI\_Comm\emph{ comm}, long int\emph{ local\_length}, long int\emph{ global\_length}}{}
+This function creates a new PETSC \code{N\_Vector} with the pointer to
+the wrapped PETSc vector set to \code{NULL}. It is used by the
+\code{N\_VMake\_petsc} and \code{N\_VClone\_petsc} implementations.  It
+should be used only with great caution.
+
+\end{fulllineitems}
+
+\index{N\_VMake\_petsc (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VMake_petsc}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMake\_petsc}}{Vec*\emph{ pvec}}{}
+This function creates and allocates memory for a NVECTOR\_PETSC
+wrapper with a user-provided PETSc vector.  It does \emph{not} allocate
+memory for the vector \code{pvec} itself.
+
+\end{fulllineitems}
+
+\index{N\_VGetVector\_petsc (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VGetVector_petsc}\pysiglinewithargsret{Vec *\bfcode{N\_VGetVector\_petsc}}{N\_Vector\emph{ v}}{}
+This function returns a pointer to the underlying PETSc vector.
+
+\end{fulllineitems}
+
+\index{N\_VCloneVectorArray\_petsc (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VCloneVectorArray_petsc}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneVectorArray\_petsc}}{int\emph{ count}, N\_Vector\emph{ w}}{}
+This function creates (by cloning) an array of \emph{count}
+NVECTOR\_PETSC vectors.
+
+\end{fulllineitems}
+
+\index{N\_VCloneVectorArrayEmpty\_petsc (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VCloneVectorArrayEmpty_petsc}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneVectorArrayEmpty\_petsc}}{int\emph{ count}, N\_Vector\emph{ w}}{}
+This function creates (by cloning) an array of \emph{count}
+NVECTOR\_PETSC vectors, each with pointers to PETSc vectors set to \code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VDestroyVectorArray\_petsc (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VDestroyVectorArray_petsc}\pysiglinewithargsret{void \bfcode{N\_VDestroyVectorArray\_petsc}}{N\_Vector*\emph{ vs}, int\emph{ count}}{}
+This function frees memory allocated for the array of \emph{count}
+variables of type \code{N\_Vector} created with
+{\hyperref[nvectors/NVector_PETSc:c.N_VCloneVectorArray_petsc]{\emph{\code{N\_VCloneVectorArray\_petsc()}}}} or with
+{\hyperref[nvectors/NVector_PETSc:c.N_VCloneVectorArrayEmpty_petsc]{\emph{\code{N\_VCloneVectorArrayEmpty\_petsc()}}}}.
+
+\end{fulllineitems}
+
+\index{N\_VPrint\_petsc (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VPrint_petsc}\pysiglinewithargsret{void \bfcode{N\_VPrint\_petsc}}{N\_Vector\emph{ v}}{}
+This function prints the content of a wrapped PETSc vector to \code{stdout}.
+
+\end{fulllineitems}
+
+
+\textbf{Notes}
+\begin{itemize}
+\item {} 
+When there is a need to access components of an \code{N\_Vector v}, it
+is recommeded to extract the PETSc vector via
+
+\code{x\_vec = N\_VGetVector\_petsc(v);}
+
+and then access components using appropriate PETSc functions.
+
+\item {} 
+The functions {\hyperref[nvectors/NVector_PETSc:c.N_VNewEmpty_petsc]{\emph{\code{N\_VNewEmpty\_petsc()}}}}, {\hyperref[nvectors/NVector_PETSc:c.N_VMake_petsc]{\emph{\code{N\_VMake\_petsc()}}}},
+and {\hyperref[nvectors/NVector_PETSc:c.N_VCloneVectorArrayEmpty_petsc]{\emph{\code{N\_VCloneVectorArrayEmpty\_petsc()}}}} set the field
+\emph{own\_data} to \code{FALSE}. The routines \code{N\_VDestroy\_petsc()} and
+{\hyperref[nvectors/NVector_PETSc:c.N_VDestroyVectorArray_petsc]{\emph{\code{N\_VDestroyVectorArray\_petsc()}}}} will not attempt to free the
+pointer \code{pvec} for any \code{N\_Vector} with \emph{own\_data} set to
+\code{FALSE}. In such a case, it is the user's responsibility to
+deallocate the \code{pvec} pointer.
+
+\item {} 
+To maximize efficiency, vector operations in the NVECTOR\_PETSC
+implementation that have more than one \code{N\_Vector} argument do not
+check for consistent internal representation of these vectors. It is
+the user's responsibility to ensure that such routines are called
+with \code{N\_Vector} arguments that were all created with the same
+internal representations.
+
+\end{itemize}
 
 
 \section{NVECTOR Examples}
