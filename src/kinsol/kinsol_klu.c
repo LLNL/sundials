@@ -77,7 +77,7 @@ int KINKLU(void *kin_mem_v, int n, int nnz, int sparsetype)
   /* Return immediately if kin_mem is NULL. */
   if (kin_mem_v == NULL) {
     KINProcessError(NULL, KINSLS_MEM_NULL, "KINSLS", "KINKLU", 
-		    MSGSP_KINMEM_NULL);
+                    MSGSP_KINMEM_NULL);
     return(KINSLS_MEM_NULL);
   }
   kin_mem = (KINMem) kin_mem_v;
@@ -85,7 +85,7 @@ int KINKLU(void *kin_mem_v, int n, int nnz, int sparsetype)
   /* Test if the NVECTOR package is compatible with the Direct solver */
   if (kin_mem->kin_vtemp1->ops->nvgetarraypointer == NULL) {
     KINProcessError(kin_mem, KINSLS_ILL_INPUT, "KINSLS", "KINKLU", 
-		    MSGSP_BAD_NVECTOR);
+                    MSGSP_BAD_NVECTOR);
     return(KINSLS_ILL_INPUT);
   }
 
@@ -101,7 +101,7 @@ int KINKLU(void *kin_mem_v, int n, int nnz, int sparsetype)
   kinsls_mem = (KINSlsMem) malloc(sizeof(struct KINSlsMemRec));
   if (kinsls_mem == NULL) {
     KINProcessError(kin_mem, KINSLS_MEM_FAIL, "KINSLS", "KINKLU", 
-		    MSGSP_MEM_FAIL);
+                    MSGSP_MEM_FAIL);
     return(KINSLS_MEM_FAIL);
   }
 
@@ -109,7 +109,7 @@ int KINKLU(void *kin_mem_v, int n, int nnz, int sparsetype)
   klu_data = (KLUData)malloc(sizeof(struct KLUDataRec));
   if (klu_data == NULL) {
     KINProcessError(kin_mem, KINSLS_MEM_FAIL, "KINSLS", "KINKLU", 
-		    MSGSP_MEM_FAIL);
+                    MSGSP_MEM_FAIL);
     return(KINSLS_MEM_FAIL);
   }
 
@@ -123,7 +123,7 @@ int KINKLU(void *kin_mem_v, int n, int nnz, int sparsetype)
   kinsls_mem->s_JacMat = SparseNewMat(n, n, nnz, sparsetype);
   if (kinsls_mem->s_JacMat == NULL) {
     KINProcessError(kin_mem, KINSLS_MEM_FAIL, "KINSLS", "KINKLU", 
-		    MSGSP_MEM_FAIL);
+                    MSGSP_MEM_FAIL);
     return(KINSLS_MEM_FAIL);
   }
 
@@ -136,7 +136,10 @@ int KINKLU(void *kin_mem_v, int n, int nnz, int sparsetype)
       klu_data->sun_klu_solve = &klu_tsolve;
       break;
     default:
-      return(-1);
+      SparseDestroyMat(kinsls_mem->s_JacMat);
+      free(klu_data);
+      free(kinsls_mem);
+      return(KINSLS_ILL_INPUT);
   }
   klu_data->s_Symbolic = NULL;
   klu_data->s_Numeric = NULL;
@@ -145,7 +148,7 @@ int KINKLU(void *kin_mem_v, int n, int nnz, int sparsetype)
   flag = klu_defaults(&klu_data->s_Common);
   if (flag == 0) {
     KINProcessError(kin_mem, KINSLS_PACKAGE_FAIL, "KINSLS", "KINKLU", 
-		    MSGSP_PACKAGE_FAIL);
+                    MSGSP_PACKAGE_FAIL);
     return(KINSLS_PACKAGE_FAIL);
   }
   /* Set ordering to COLAMD as the kinsol default use.

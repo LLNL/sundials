@@ -87,7 +87,7 @@ int ARKKLU(void *arkode_mem, int n, int nnz, int sparsetype)
   /* Return immediately if ark_mem is NULL. */
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSLS_MEM_NULL, "ARKSLS", 
-		    "ARKKLU", MSGSP_ARKMEM_NULL);
+                    "ARKKLU", MSGSP_ARKMEM_NULL);
     return(ARKSLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -95,7 +95,7 @@ int ARKKLU(void *arkode_mem, int n, int nnz, int sparsetype)
   /* Test if the NVECTOR package is compatible with the solver */
   if (ark_mem->ark_tempv->ops->nvgetarraypointer == NULL) {
     arkProcessError(ark_mem, ARKSLS_ILL_INPUT, "ARKSLS", 
-		    "ARKKLU", MSGSP_BAD_NVECTOR);
+                    "ARKKLU", MSGSP_BAD_NVECTOR);
     return(ARKSLS_ILL_INPUT);
   }
 
@@ -112,7 +112,7 @@ int ARKKLU(void *arkode_mem, int n, int nnz, int sparsetype)
   arksls_mem = (ARKSlsMem) malloc(sizeof(struct ARKSlsMemRec));
   if (arksls_mem == NULL) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
-		    "ARKKLU", MSGSP_MEM_FAIL);
+                    "ARKKLU", MSGSP_MEM_FAIL);
     return(ARKSLS_MEM_FAIL);
   }
 
@@ -120,7 +120,7 @@ int ARKKLU(void *arkode_mem, int n, int nnz, int sparsetype)
   klu_data = (KLUData) malloc(sizeof(struct KLUDataRec));
   if (klu_data == NULL) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
-		    "ARKKLU", MSGSP_MEM_FAIL);
+                    "ARKKLU", MSGSP_MEM_FAIL);
     free(arksls_mem); arksls_mem = NULL;
     return(ARKSLS_MEM_FAIL);
   }
@@ -141,7 +141,7 @@ int ARKKLU(void *arkode_mem, int n, int nnz, int sparsetype)
   arksls_mem->s_A = SparseNewMat(n, n, nnz, sparsetype);
   if (arksls_mem->s_A == NULL) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
-		    "ARKKLU", MSGSP_MEM_FAIL);
+                    "ARKKLU", MSGSP_MEM_FAIL);
     free(klu_data); klu_data = NULL;
     free(arksls_mem); arksls_mem = NULL;
     return(ARKSLS_MEM_FAIL);
@@ -152,7 +152,7 @@ int ARKKLU(void *arkode_mem, int n, int nnz, int sparsetype)
   arksls_mem->s_savedJ = SparseNewMat(n, n, nnz, sparsetype);
   if (arksls_mem->s_savedJ == NULL) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
-		    "ARKKLU", MSGSP_MEM_FAIL);
+                    "ARKKLU", MSGSP_MEM_FAIL);
     SparseDestroyMat(arksls_mem->s_A);
     free(klu_data); klu_data = NULL;
     free(arksls_mem); arksls_mem = NULL;
@@ -168,7 +168,11 @@ int ARKKLU(void *arkode_mem, int n, int nnz, int sparsetype)
       klu_data->sun_klu_solve = &klu_tsolve;
       break;
     default:
-      return(-1);
+      SparseDestroyMat(arksls_mem->s_A);
+      SparseDestroyMat(arksls_mem->s_savedJ);
+      free(klu_data); klu_data = NULL;
+      free(arksls_mem); arksls_mem = NULL;
+      return(ARKSLS_ILL_INPUT);
   }
   klu_data->s_Symbolic = NULL;
   klu_data->s_Numeric = NULL;
@@ -177,7 +181,7 @@ int ARKKLU(void *arkode_mem, int n, int nnz, int sparsetype)
   flag = klu_defaults(&klu_data->s_Common);
   if (flag == 0) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
-		    "ARKKLU", MSGSP_MEM_FAIL);
+                    "ARKKLU", MSGSP_MEM_FAIL);
     klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
     free(klu_data->s_Numeric);  klu_data->s_Numeric = NULL;
     klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
@@ -652,7 +656,7 @@ int ARKMassKLU(void *arkode_mem, int n, int nnz, int sparsetype,
   /* Return immediately if arkode_mem is NULL. */
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSLS_MEM_NULL, "ARKSLS", 
-		    "ARKMassKLU", MSGSP_ARKMEM_NULL);
+                    "ARKMassKLU", MSGSP_ARKMEM_NULL);
     return(ARKSLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -660,7 +664,7 @@ int ARKMassKLU(void *arkode_mem, int n, int nnz, int sparsetype,
   /* Test if the NVECTOR package is compatible with the solver */
   if (ark_mem->ark_tempv->ops->nvgetarraypointer == NULL) {
     arkProcessError(ark_mem, ARKSLS_ILL_INPUT, "ARKSLS", 
-		    "ARKMassKLU", MSGSP_BAD_NVECTOR);
+                    "ARKMassKLU", MSGSP_BAD_NVECTOR);
     return(ARKSLS_ILL_INPUT);
   }
 
@@ -680,7 +684,7 @@ int ARKMassKLU(void *arkode_mem, int n, int nnz, int sparsetype,
   arksls_mem = (ARKSlsMassMem) malloc(sizeof(struct ARKSlsMassMemRec));
   if (arksls_mem == NULL) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
-		    "ARKMassKLU", MSGSP_MEM_FAIL);
+                    "ARKMassKLU", MSGSP_MEM_FAIL);
     return(ARKSLS_MEM_FAIL);
   }
 
@@ -688,7 +692,7 @@ int ARKMassKLU(void *arkode_mem, int n, int nnz, int sparsetype,
   klu_data = (KLUData) malloc(sizeof(struct KLUDataRec));
   if (klu_data == NULL) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
-		    "ARKMassKLU", MSGSP_MEM_FAIL);
+                    "ARKMassKLU", MSGSP_MEM_FAIL);
     free(arksls_mem); arksls_mem = NULL;
     return(ARKSLS_MEM_FAIL);
   }
@@ -707,7 +711,7 @@ int ARKMassKLU(void *arkode_mem, int n, int nnz, int sparsetype,
   arksls_mem->s_M = SparseNewMat(n, n, nnz, sparsetype);
   if (arksls_mem->s_M == NULL) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
-		    "ARKMassKLU", MSGSP_MEM_FAIL);
+                    "ARKMassKLU", MSGSP_MEM_FAIL);
     free(klu_data); klu_data = NULL;
     free(arksls_mem); arksls_mem = NULL;
     return(ARKSLS_MEM_FAIL);
@@ -716,7 +720,7 @@ int ARKMassKLU(void *arkode_mem, int n, int nnz, int sparsetype,
   arksls_mem->s_M_lu = SparseNewMat(n, n, nnz, sparsetype);
   if (arksls_mem->s_M_lu == NULL) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
-		    "ARKMassKLU", MSGSP_MEM_FAIL);
+                    "ARKMassKLU", MSGSP_MEM_FAIL);
     SparseDestroyMat(arksls_mem->s_M);
     free(klu_data); klu_data = NULL;
     free(arksls_mem); arksls_mem = NULL;
@@ -732,7 +736,11 @@ int ARKMassKLU(void *arkode_mem, int n, int nnz, int sparsetype,
       klu_data->sun_klu_solve = &klu_tsolve;
       break;
     default:
-      return(-1);
+      SparseDestroyMat(arksls_mem->s_M);
+      SparseDestroyMat(arksls_mem->s_M_lu);
+      free(klu_data); klu_data = NULL;
+      free(arksls_mem); arksls_mem = NULL;
+      return(ARKSLS_ILL_INPUT);
   }
   klu_data->s_Symbolic = NULL;
   klu_data->s_Numeric = NULL;
@@ -741,7 +749,7 @@ int ARKMassKLU(void *arkode_mem, int n, int nnz, int sparsetype,
   flag = klu_defaults(&klu_data->s_Common);
   if (flag == 0) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
-		    "ARKMassKLU", MSGSP_MEM_FAIL);
+                    "ARKMassKLU", MSGSP_MEM_FAIL);
     klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
     free(klu_data->s_Numeric);  klu_data->s_Numeric = NULL;
     klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));

@@ -93,7 +93,7 @@ int CVKLU(void *cvode_mem, int n, int nnz, int sparsetype)
   /* Return immediately if cv_mem is NULL. */
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CVSLS_MEM_NULL, "CVSLS", "cvKLU", 
-		    MSGSP_CVMEM_NULL);
+                   MSGSP_CVMEM_NULL);
     return(CVSLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -101,7 +101,7 @@ int CVKLU(void *cvode_mem, int n, int nnz, int sparsetype)
   /* Test if the NVECTOR package is compatible with the Direct solver */
   if (cv_mem->cv_tempv->ops->nvgetarraypointer == NULL) {
     cvProcessError(cv_mem, CVSLS_ILL_INPUT, "CVSLS", "cvKLU", 
-		    MSGSP_BAD_NVECTOR);
+                   MSGSP_BAD_NVECTOR);
     return(CVSLS_ILL_INPUT);
   }
 
@@ -117,7 +117,7 @@ int CVKLU(void *cvode_mem, int n, int nnz, int sparsetype)
   cvsls_mem = (CVSlsMem) malloc(sizeof(struct CVSlsMemRec));
   if (cvsls_mem == NULL) {
     cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "cvKLU", 
-		    MSGSP_MEM_FAIL);
+                   MSGSP_MEM_FAIL);
     return(CVSLS_MEM_FAIL);
   }
 
@@ -125,7 +125,7 @@ int CVKLU(void *cvode_mem, int n, int nnz, int sparsetype)
   klu_data = (KLUData)malloc(sizeof(struct KLUDataRec));
   if (klu_data == NULL) {
     cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "cvKLU", 
-		    MSGSP_MEM_FAIL);
+                   MSGSP_MEM_FAIL);
     return(CVSLS_MEM_FAIL);
   }
 
@@ -140,7 +140,7 @@ int CVKLU(void *cvode_mem, int n, int nnz, int sparsetype)
   cvsls_mem->s_JacMat = SparseNewMat(n, n, nnz, sparsetype);
   if (cvsls_mem->s_JacMat == NULL) {
     cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "cvKLU", 
-		    MSGSP_MEM_FAIL);
+                   MSGSP_MEM_FAIL);
     free(cvsls_mem);
     return(CVSLS_MEM_FAIL);
   }
@@ -149,7 +149,7 @@ int CVKLU(void *cvode_mem, int n, int nnz, int sparsetype)
   cvsls_mem->s_savedJ = SparseNewMat(n, n, nnz, sparsetype);
   if (cvsls_mem->s_savedJ == NULL) {
     cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "cvKLU", 
-		    MSGSP_MEM_FAIL);
+                   MSGSP_MEM_FAIL);
     SparseDestroyMat(cvsls_mem->s_JacMat);
     free(cvsls_mem);
     return(CVSLS_MEM_FAIL);
@@ -164,7 +164,11 @@ int CVKLU(void *cvode_mem, int n, int nnz, int sparsetype)
       klu_data->sun_klu_solve = &klu_tsolve;
       break;
     default:
-      return(-1);
+      SparseDestroyMat(cvsls_mem->s_JacMat);
+      SparseDestroyMat(cvsls_mem->s_savedJ);
+      free(klu_data);
+      free(cvsls_mem);
+      return(CVSLS_ILL_INPUT);
   }
   klu_data->s_Symbolic = NULL;
   klu_data->s_Numeric = NULL;
@@ -173,7 +177,7 @@ int CVKLU(void *cvode_mem, int n, int nnz, int sparsetype)
   flag = klu_defaults(&klu_data->s_Common);
   if (flag == 0) {
     cvProcessError(cv_mem, CVSLS_PACKAGE_FAIL, "CVSLS", "cvKLU", 
-		    MSGSP_PACKAGE_FAIL);
+                   MSGSP_PACKAGE_FAIL);
     return(CVSLS_PACKAGE_FAIL);
   }
 

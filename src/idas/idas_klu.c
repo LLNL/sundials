@@ -94,7 +94,7 @@ int IDAKLU(void *ida_mem, int n, int nnz, int sparsetype)
   /* Return immediately if ida_mem is NULL. */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDASLS_MEM_NULL, "IDASSLS", "IDAKLU", 
-		    MSGSP_IDAMEM_NULL);
+                    MSGSP_IDAMEM_NULL);
     return(IDASLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
@@ -102,7 +102,7 @@ int IDAKLU(void *ida_mem, int n, int nnz, int sparsetype)
   /* Test if the NVECTOR package is compatible with the Direct solver */
   if (IDA_mem->ida_tempv1->ops->nvgetarraypointer == NULL) {
     IDAProcessError(IDA_mem, IDASLS_ILL_INPUT, "IDASSLS", "IDAKLU", 
-		    MSGSP_BAD_NVECTOR);
+                    MSGSP_BAD_NVECTOR);
     return(IDASLS_ILL_INPUT);
   }
 
@@ -119,7 +119,7 @@ int IDAKLU(void *ida_mem, int n, int nnz, int sparsetype)
   idasls_mem = (IDASlsMem) malloc(sizeof(struct IDASlsMemRec));
   if (idasls_mem == NULL) {
     IDAProcessError(IDA_mem, IDASLS_MEM_FAIL, "IDASSLS", "IDAKLU", 
-		    MSGSP_MEM_FAIL);
+                    MSGSP_MEM_FAIL);
     return(IDASLS_MEM_FAIL);
   }
 
@@ -127,7 +127,7 @@ int IDAKLU(void *ida_mem, int n, int nnz, int sparsetype)
   klu_data = (KLUData)malloc(sizeof(struct KLUDataRec));
   if (klu_data == NULL) {
     IDAProcessError(IDA_mem, IDASLS_MEM_FAIL, "IDASSLS", "IDAKLU", 
-		    MSGSP_MEM_FAIL);
+                    MSGSP_MEM_FAIL);
     return(IDASLS_MEM_FAIL);
   }
 
@@ -142,7 +142,7 @@ int IDAKLU(void *ida_mem, int n, int nnz, int sparsetype)
   idasls_mem->s_JacMat = SparseNewMat(n, n, nnz, sparsetype);
   if (idasls_mem->s_JacMat == NULL) {
     IDAProcessError(IDA_mem, IDASLS_MEM_FAIL, "IDASSLS", "IDAKLU", 
-		    MSGSP_MEM_FAIL);
+                    MSGSP_MEM_FAIL);
     return(IDASLS_MEM_FAIL);
   }
 
@@ -155,7 +155,10 @@ int IDAKLU(void *ida_mem, int n, int nnz, int sparsetype)
       klu_data->sun_klu_solve = &klu_tsolve;
       break;
     default:
-      return(-1);
+      SparseDestroyMat(idasls_mem->s_JacMat);
+      free(klu_data);
+      free(idasls_mem);
+      return(IDASLS_ILL_INPUT);
   }
   klu_data->s_Symbolic = NULL;
   klu_data->s_Numeric = NULL;
@@ -164,7 +167,7 @@ int IDAKLU(void *ida_mem, int n, int nnz, int sparsetype)
   flag = klu_defaults(&klu_data->s_Common);
   if (flag == 0) {
     IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASSLS", "IDAKLU", 
-		    MSGSP_PACKAGE_FAIL);
+                    MSGSP_PACKAGE_FAIL);
     return(IDASLS_PACKAGE_FAIL);
   }
 
