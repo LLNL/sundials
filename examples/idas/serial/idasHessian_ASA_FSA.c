@@ -98,7 +98,7 @@ static int resS(int Ns, realtype t,
 static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data);
 
 static int rhsQS(int Ns, realtype t, N_Vector yy, N_Vector yp, 
-                 N_Vector *yyS, N_Vector *ypS, N_Vector rrQ, N_Vector *rhsQS,
+                 N_Vector *yyS, N_Vector *ypS, N_Vector rrQ, N_Vector *rhsvalQS,
                  void *user_data,  N_Vector yytmp, N_Vector yptmp, N_Vector tmpQS);
 
 static int resBS1(realtype tt, N_Vector yy, N_Vector yp, N_Vector *yyS, N_Vector *ypS,
@@ -530,7 +530,7 @@ static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_
 static int rhsQS(int Ns, realtype t,
                  N_Vector yy, N_Vector yp, 
                  N_Vector *yyS, N_Vector *ypS, 
-                 N_Vector rrQ, N_Vector *rhsQS,
+                 N_Vector rrQ, N_Vector *rhsvalQS,
                  void *user_data,
                  N_Vector yytmp, N_Vector yptmp, N_Vector tmpQS)
 {
@@ -546,13 +546,13 @@ static int rhsQS(int Ns, realtype t,
   s1 = Ith(yyS[0],1);
   s2 = Ith(yyS[0],2);
   s3 = Ith(yyS[0],3);
-  Ith(rhsQS[0],1) = y1*s1 + y2*s2 + y3*s3;
+  Ith(rhsvalQS[0],1) = y1*s1 + y2*s2 + y3*s3;
 
   /* 2nd sensitivity RHS */
   s1 = Ith(yyS[1],1);
   s2 = Ith(yyS[1],2);
   s3 = Ith(yyS[1],3);
-  Ith(rhsQS[1],1) = y1*s1 + y2*s2 + y3*s3;
+  Ith(rhsvalQS[1],1) = y1*s1 + y2*s2 + y3*s3;
 
   return(0);
 }
