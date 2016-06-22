@@ -4506,6 +4506,7 @@ If there are changes to the linear solver specifications, make the
 appropriate \id{IDA***} calls, as described in \S\ref{sss:lin_solv_init}.
 If there are changes to any optional inputs, make the appropriate
 \id{IDASet***} calls, as described in \S\ref{ss:optional_input}.
+Otherwise, all solver inputs set previously remain in effect.
 
 One important use of the \id{IDAReInit} function is in the treating
 of jump discontinuities in the residual function.  Except in cases of

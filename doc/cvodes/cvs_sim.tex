@@ -4305,6 +4305,7 @@ default value for \id{maxord} is specified.
 
 If there are changes to the linear solver specifications, make the
 appropriate \id{CV***} calls, as described in \S\ref{sss:lin_solv_init}.
+Otherwise, all solver inputs set previously remain in effect.
 
 One important use of the \id{CVodeReInit} function is in the treating
 of jump discontinuities in the RHS function.  Except in cases of
