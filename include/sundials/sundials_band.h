@@ -76,8 +76,8 @@ extern "C" {
  * handled by the BandGBTRF routine.
  *
  * BandGBTRF is only a wrapper around bandGBTRF. All work is done
- * in bandGBTRF works directly on the data in the DlsMat A (i.e.,
- * the field cols).
+ * in bandGBTRF, which works directly on the data in the DlsMat A
+ * (i.e. in the field A->cols).
  * -----------------------------------------------------------------
  */
 
@@ -98,12 +98,13 @@ SUNDIALS_EXPORT long int bandGBTRF(realtype **a, long int n, long int mu, long i
  * did not fail.
  *
  * BandGBTRS is only a wrapper around bandGBTRS which does all the
- * work directly on the data in the DlsMat A (i.e., the field cols).
+ * work directly on the data in the DlsMat A (i.e. in A->cols).
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT void BandGBTRS(DlsMat A, long int *p, realtype *b);
-SUNDIALS_EXPORT void bandGBTRS(realtype **a, long int n, long int smu, long int ml, long int *p, realtype *b);
+SUNDIALS_EXPORT void bandGBTRS(realtype **a, long int n, long int smu,
+                               long int ml, long int *p, realtype *b);
 
 /*
  * -----------------------------------------------------------------
@@ -116,12 +117,13 @@ SUNDIALS_EXPORT void bandGBTRS(realtype **a, long int n, long int smu, long int 
  * band matrix B.
  * 
  * BandCopy is a wrapper around bandCopy which accesses the data
- * in the DlsMat A and B (i.e. the fields cols)
+ * in the DlsMat A and DlsMat B (i.e. the fields cols)
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT void BandCopy(DlsMat A, DlsMat B, long int copymu, long int copyml);
-SUNDIALS_EXPORT void bandCopy(realtype **a, realtype **b, long int n, long int a_smu, long int b_smu,
+SUNDIALS_EXPORT void bandCopy(realtype **a, realtype **b, long int n,
+                              long int a_smu, long int b_smu,
 			      long int copymu, long int copyml);
 
 /*
@@ -134,7 +136,7 @@ SUNDIALS_EXPORT void bandCopy(realtype **a, realtype **b, long int n, long int a
  *
  * BandScale is a wrapper around bandScale which performs the actual
  * scaling by accessing the data in the DlsMat A (i.e. the field
- * cols).
+ * A->cols).
  * -----------------------------------------------------------------
  */
 

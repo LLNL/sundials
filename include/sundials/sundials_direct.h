@@ -72,7 +72,7 @@ extern "C" {
  *    cols  - array of pointers. cols[j] points to the first element 
  *            of the j-th column of the matrix in the array data.
  *
- * The elements of a dense matrix are stored columnwise (i.e columns 
+ * The elements of a dense matrix are stored columnwise (i.e. columns 
  * are stored one on top of the other in memory). 
  * If A is of type DlsMat, then the (i,j)th element of A (with 
  * 0 <= i < M and 0 <= j < N) is given by (A->data)[j*n+i]. 
@@ -142,9 +142,9 @@ typedef struct _DlsMat {
  *
  * DENSE_COL(A,j) references the jth column of the M-by-N dense
  * matrix A, 0 <= j < N. The type of the expression DENSE_COL(A,j) 
- * is (realtype *). After the assignment in the usage above, col_j 
- * may be treated as an array indexed from 0 to M-1. The (i,j)-th 
- * element of A is thus referenced by col_j[i].
+ * is (realtype *). After the assignment col_j = DENSE_COL(A,j),
+ * col_j may be treated as an array indexed from 0 to M-1.
+ * The (i,j)-th element of A is thus referenced by col_j[i].
  *
  * DENSE_ELEM(A,i,j) references the (i,j)th element of the dense 
  * M-by-N matrix A, 0 <= i < M ; 0 <= j < N.
@@ -284,7 +284,7 @@ SUNDIALS_EXPORT void DestroyArray(void *p);
  * -----------------------------------------------------------------
  * Function : AddIdentity
  * -----------------------------------------------------------------
- * AddIdentity adds 1.0 to the main diagonal (A_ii, i=1,2,...,N-1) of
+ * AddIdentity adds 1.0 to the main diagonal (A_ii, i=0,1,...,N-1) of
  * the M-by-N matrix A (M>= N) and stores the result back in A.
  * AddIdentity is typically used with square matrices.
  * AddIdentity does not check for M >= N and therefore a segmentation
