@@ -266,25 +266,139 @@ user-provided vector data structure, only the Krylov solvers are
 available, although a user may supply their own linear solver for any
 data structures if desired.
 
-The guide is separated into sections focused on the major aspects of
-the ARKode library.  In the next section we provide a thorough
-presentation of the underlying {\hyperref[Mathematics:mathematics]{\emph{\DUspan{}{mathematics}}}} that
-relate these algorithms together.  We follow this with overview of how
-the source code for ARKode is {\hyperref[Organization:organization]{\emph{\DUspan{}{organized}}}}.  The
-largest section follows, providing a full account of the ARKode user
-interface, including a description of all user-accessible functions
-and outlines for ARKode usage for serial and parallel applications.
-Since ARKode is written in C, we first present {\hyperref[c_interface/index:cinterface]{\emph{\DUspan{}{the C and C++
-interface}}}}, followed with a separate section on
-{\hyperref[f_interface/index:fortraninterface]{\emph{\DUspan{}{using ARKode within Fortran applications}}}}.  The
-following three sections discuss shared features between ARKode and
-the rest of the SUNDIALS library: {\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{vector data structures}}}},
-{\hyperref[linear_solvers/index:linearsolvers]{\emph{\DUspan{}{linear solvers}}}}, and the {\hyperref[Install:installation]{\emph{\DUspan{}{installation
-procedure}}}}.  The final sections catalog the full set of
-{\hyperref[Constants:constants]{\emph{\DUspan{}{ARKode constants}}}}, that are used for both input
-specifications and return codes, and the full set of
-{\hyperref[Butcher:butcher]{\emph{\DUspan{}{Butcher tables}}}} that are packaged with
-ARKode.
+
+\section{Changes from previous versions}
+\label{Introduction:changes-from-previous-versions}
+
+\subsection{Changes in v1.1.0}
+\label{Introduction:changes-in-v1-1-0}
+We have included numerous bugfixes and enhancements since the
+v1.0.2 release.
+
+The bugfixes include:
+\begin{itemize}
+\item {} 
+For each linear solver, the various solver performance counters are
+now initialized to 0 in both the solver specification function and
+in the solver's \code{linit} function.  This ensures that these solver
+counters are initialized upon linear solver instantiation as well as
+at the beginning of the problem solution.
+
+\item {} 
+The choice of the method vs embedding the Billington and TRBDF2
+explicit Runge-Kutta methods were swapped, since in those the
+lower-order coefficients result in an A-stable method, while the
+higher-order coefficients do not.  This change results in
+significantly improved robustness when using those methods.
+
+\item {} 
+A bug was fixed for the situation where a user supplies a vector of
+absolute tolerances, and also uses the vector Resize() functionality.
+
+\item {} 
+A bug was fixed wherein a user-supplied Butcher table without an
+embedding is supplied, and the user is running with either fixed
+time steps (or they do adaptivity manually); previously this had
+resulted in an error since the embedding order was below 1.
+
+\item {} 
+Numerous aspects of the documentation were fixed and/or clarified.
+
+\end{itemize}
+
+The feature changes/enhancements include:
+\begin{itemize}
+\item {} 
+Two additional NVECTOR implementations were added -- one for Hypre
+(parallel) vectors, and one for PETSc vectors.  These additions are
+accompanied by additions to various interface functions and to user
+documentation.
+
+\item {} 
+The Krylov linear solver Bi-CGstab was enhanced by removing a
+redundant dot product.  Various additions and corrections were made
+to the interfaces to the sparse solvers KLU and SuperLU\_MT.
+
+\item {} 
+The ARKode implicit predictor algorithms were updated: methods 2 and
+3 were improved slightly, a new predictor approach was added, and
+the default choice was modified.
+
+\item {} 
+The underlying sparse matrix structure was enhanced to allow both
+CSR and CSC matrices, with CSR supported by the KLU linear solver
+interface.  ARKode interfaces to the KLU solver from both C and
+Fortran were updated to enable selection of sparse matrix type, and a
+Fortran-90 CSR example program was added.
+
+\item {} 
+The missing {\hyperref[c_interface/User_callable:c.ARKSpilsGetNumMtimesEvals]{\emph{\code{ARKSpilsGetNumMtimesEvals()}}}} function was added
+-- this had been included in the previous documentation but had not
+been implemented.
+
+\item {} 
+The handling of integer codes for specifying built-in ARKode Butcher
+tables was enhanced.  While a global numbering system is still used,
+methods now have \#defined names to simplify the user interface and to
+streamline incorporation of new Butcher tables into ARKode.
+
+\item {} 
+The maximum number of Butcher table stages was increased from 8 to
+15 to accommodate very high order methods, and an 8th-order adaptive
+ERK method was added.
+
+\item {} 
+Support was added for the explicit and implicit methods in an
+additive Runge-Kutta method to utilize different stage times,
+solution and embedding coefficients, to support new SSP-ARK
+methods.
+
+\item {} 
+The FARKODE interface was extended to include a routine to set
+scalar/array-valued residual tolerances, to support Fortran
+applications with non-identity mass-matrices.
+
+\end{itemize}
+
+
+\section{Reading this User Guide}
+\label{Introduction:reading-this-user-guide}
+This user guide is a combination of general usage instructions and
+specific example programs.  We expect that some readers will want to
+concentrate on teh general instructions, while others will refer
+mostly to the examples, and the organization is intended to
+accommodate both styles.
+
+The structure of this document is as follows:
+\begin{itemize}
+\item {} 
+In the next section we provide a thorough presentation of the
+underlying {\hyperref[Mathematics:mathematics]{\emph{\DUspan{}{mathematics}}}} that relate these
+algorithms together.
+
+\item {} 
+We follow this with overview of how the source code for ARKode is
+{\hyperref[Organization:organization]{\emph{\DUspan{}{organized}}}}.
+
+\item {} 
+The largest section follows, providing a full account of the ARKode
+user interface, including a description of all user-accessible
+functions and outlines for ARKode usage for serial and parallel
+applications. Since ARKode is written in C, we first present
+{\hyperref[c_interface/index:cinterface]{\emph{\DUspan{}{the C and C++ interface}}}}, followed with a
+separate section on {\hyperref[f_interface/index:fortraninterface]{\emph{\DUspan{}{using ARKode within Fortran applications}}}}.
+
+\item {} 
+The following three sections discuss shared features between ARKode
+and the rest of the SUNDIALS library: {\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{vector data structures}}}}, {\hyperref[linear_solvers/index:linearsolvers]{\emph{\DUspan{}{linear solvers}}}}, and the
+{\hyperref[Install:installation]{\emph{\DUspan{}{installation procedure}}}}.
+
+\item {} 
+The final sections catalog the full set of {\hyperref[Constants:constants]{\emph{\DUspan{}{ARKode constants}}}}, that are used for both input specifications and return
+codes, and the full set of {\hyperref[Butcher:butcher]{\emph{\DUspan{}{Butcher tables}}}} that are
+packaged with ARKode.
+
+\end{itemize}
 
 
 \chapter{Mathematical Considerations}
