@@ -1,4 +1,7 @@
 /*-----------------------------------------------------------------
+ * $Revision$
+ * $Date$
+ * -----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds, Jean Sexton @ SMU
  *                Slaven Peles @ LLNL
  *---------------------------------------------------------------
@@ -188,12 +191,12 @@ int main(int argc, char *argv[])
   N_Vector u;
   UserData data;
   void *arkode_mem;
-  int iout, flag, my_pe, npes;
-  long int local_N;
+  int iout, flag;
   MPI_Comm comm;
-
-  HYPRE_ParVector Upar; /* Instantiate hypre parallel vector */
-  HYPRE_IJVector  Uij;  /* Instantiate "IJ" interface to hypre vector */
+  
+  HYPRE_Int local_N, npes, my_pe;
+  HYPRE_ParVector Upar; /* Declare HYPRE parallel vector */
+  HYPRE_IJVector  Uij;  /* Declare "IJ" interface to HYPRE vector */
 
   u = NULL;
   data = NULL;

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4396 $
- * $Date: 2015-02-26 16:59:39 -0800 (Thu, 26 Feb 2015) $
+ * $Revision$
+ * $Date$
  * -----------------------------------------------------------------
  * Programmer(s): Jean M. Sexton @ SMU
  *                Slaven Peles @ LLNL
@@ -103,8 +103,8 @@ int main(int argc, char *argv[])
   int iout, flag, my_pe, npes;
   long int nst;
   HYPRE_Int local_N, nperpe, nrem, my_base;
-  HYPRE_ParVector Upar; /* Instantiate hypre parallel vector */
-  HYPRE_IJVector  Uij;  /* Instantiate "IJ" interface to hypre vector */
+  HYPRE_ParVector Upar; /* Declare HYPRE parallel vector */
+  HYPRE_IJVector  Uij;  /* Declare "IJ" interface to HYPRE vector */
 
   MPI_Comm comm;
 
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
 /* Set initial conditions in u vector */
 
 static void SetIC(HYPRE_IJVector Uij, realtype dx, long int my_length,
-                       long int my_base)
+                  long int my_base)
 {
   int i;
   HYPRE_Int *iglobal;
