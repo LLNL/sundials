@@ -71,7 +71,7 @@ int ARKodeSetDefaults(void *arkode_mem)
   ark_mem->ark_hadapt_k1        = AD0_K1;         /* step adaptivity parameter */
   ark_mem->ark_hadapt_k2        = AD0_K2;         /* step adaptivity parameter */
   ark_mem->ark_hadapt_k3        = AD0_K3;         /* step adaptivity parameter */
-  ark_mem->ark_predictor        = 3;              /* max order close, first order far */
+  ark_mem->ark_predictor        = 0;              /* trivial predictor */
   ark_mem->ark_reltol           = 1.e-4;          /* relative tolerance */
   ark_mem->ark_itol             = ARK_SS;         /* scalar-scalar solution tolerances */
   ark_mem->ark_ritol            = ARK_SS;         /* scalar-scalar residual tolerances */

@@ -135,7 +135,7 @@ C
 C     
          WRITE(6,50) T, IOUT(LNST), IOUT(LNST_ATT), ROUT(LH)
  50      FORMAT(/' t = ', E14.6, 5X, 'no. steps = ', I5, 
-     1        'no. att. steps = ', I5, '   stepsize = ', E14.6)
+     1        '  no. att. steps = ', I5, '   stepsize = ', E14.6)
          WRITE(6,55) U(1,1,1), U(1,5,5), U(1,10,10),
      1               U(2,1,1), U(2,5,5), U(2,10,10)
  55      FORMAT('  c1 (bot.left/middle/top rt.) = ', 3E14.6/
@@ -173,15 +173,15 @@ C     Print final statistics.
       WRITE(6,80) NST, NST_ATT, NFE, NFI, NPSET, NPE, NPS, NNI, NLI, 
      1     AVDIM, NCFN, NCFL, NETF, LENRW, LENIW, LENRWLS, LENIWLS
  80   FORMAT(//'Final statistics:'//
-     &   ' number of steps        = ', I5/
-     &   ' number of step att.    = ', I5/
-     &   ' number of fe evals.    = ', I5/
-     &   ' number of fi evals.    = ', I5/
-     &   ' number of prec. setups = ', I5/
-     &   ' number of prec. evals. = ', I5/
-     &   ' number of prec. solves = ', I5/
-     &   ' number of nonl. iters. = ', I5/
-     &   ' number of lin. iters.  = ', I5/
+     &   ' number of steps        = ', I6/
+     &   ' number of step att.    = ', I6/
+     &   ' number of fe evals.    = ', I6/
+     &   ' number of fi evals.    = ', I6/
+     &   ' number of prec. setups = ', I6/
+     &   ' number of prec. evals. = ', I6/
+     &   ' number of prec. solves = ', I6/
+     &   ' number of nonl. iters. = ', I6/
+     &   ' number of lin. iters.  = ', I6/
      &   ' average Krylov subspace dimension (NLI/NNI) = ', E14.6/
      &   ' number of conv. failures.. nonlinear =', I3,
      &   ' linear = ', I3/

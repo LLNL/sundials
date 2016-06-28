@@ -935,13 +935,12 @@ algorithms that may be selected by the user.  In each case, the stage
 guesses \(z_i^{(0)}\) are constructed explicitly using
 readily-available information, including the previous step solutions
 \(y_{n-1}\) and \(y_{n-2}\), as well as any previous stage
-solutions \(z_j, \quad j<i\).  In all cases, prediction is
+solutions \(z_j, \quad j<i\).  In most cases, prediction is
 performed by constructing an interpolating polynomial through
 existing data, which is then evaluated at the subsequent stage times
 to provide an inexpensive but (hopefully) reasonable prediction of the
-subsequent solution value.  Specifically, for all of the Runge-Kutta
-methods implemented in ARKode (and the vast majority in general), each
-stage solution satisfies
+subsequent solution value.  Specifically, for most Runge-Kutta
+methods each stage solution satisfies
 \begin{gather}
 \begin{split}z_i \approx y(t^I_{n,i}),\end{split}\notag
 \end{gather}
@@ -959,7 +958,7 @@ outside the interpolation interval are well-known, with higher-order
 polynomials and predictions further outside the interval resulting in
 the greatest potential inaccuracies.
 
-Each prediction algorithm therefore constructs a different type of
+The various prediction algorithms therefore construct different types of
 interpolant \(p_q(t)\), as described below.
 
 
@@ -1090,6 +1089,37 @@ accuracy of this predictor will generally be rather limited, but it is
 provided for problems in which this increased stage error is better
 than the effects of extrapolation far outside of the previous time
 step interval \([t_{n-2},t_{n-1}]\).
+
+We further note that although this method could be used with
+non-identity mass matrix \(M\ne I\), support for that mode is not
+currently implemented, so selection of this predictor in the case that
+\(M\ne I\) will result in use of the {\hyperref[Mathematics:mathematics-predictors-trivial]{\emph{\DUspan{}{Trivial predictor}}}}.
+
+
+\subsection{Minimum correction predictor}
+\label{Mathematics:minimum-correction-predictor}\label{Mathematics:mathematics-predictors-minimumcorrection}
+This predictor is not interpolation based; instead it utilizes all
+existing stage information from the current step to create a predictor
+containing all but the current stage solution.  Specifically, as
+discussed in equations \eqref{Mathematics-ARK} and \eqref{Mathematics-Residual}, each stage solves
+a nonlinear equation
+\begin{gather}
+\begin{split}z_i &= y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f_E(t^E_{n,j}, z_j)
+              + h_n \sum_{j=1}^{i}   A^I_{i,j} f_I(t^I_{n,j}, z_j), \\
+\Leftrightarrow \quad & \\
+G(z_i) &\equiv z_i - h_n A^I_{i,i} f_I(t^I_{n,i}, z_i) - a_i = 0.\end{split}\notag
+\end{gather}
+This prediction method merely computes the predictor \(z_i\) as
+\begin{gather}
+\begin{split}z_i &= y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f_E(t^E_{n,j}, z_j)
+              + h_n \sum_{j=1}^{i-1}  A^I_{i,j} f_I(t^I_{n,j}, z_j), \\
+\Leftrightarrow \quad & \\
+z_i &= a_i.\end{split}\notag
+\end{gather}
+We note that although this method could be also used with non-identity
+mass matrix \(M\ne I\), support for that mode is not currently
+implemented, so selection of this predictor in the case that
+\(M\ne I\) will result in use of the {\hyperref[Mathematics:mathematics-predictors-trivial]{\emph{\DUspan{}{Trivial predictor}}}}.
 
 
 \section{Time step adaptivity}
@@ -6175,7 +6205,7 @@ Implicit predictor method
  & 
 {\hyperref[c_interface/User_callable:c.ARKodeSetPredictorMethod]{\emph{\code{ARKodeSetPredictorMethod()}}}}
  & 
-3
+0
 \\
 \hline
 Maximum number of nonlinear iterations
@@ -6409,6 +6439,11 @@ RK stages,
 4 is the bootstrap predictor, that uses a second-order
 predictor based on only information within the current step.
 
+\item {} 
+5 is the minimum correction predictor, that uses all
+preceding stage information within the current step for
+prediction.
+
 \end{itemize}
 
 \end{itemize}
@@ -6427,8 +6462,8 @@ predictor based on only information within the current step.
 
 \end{description}
 
-\textbf{Notes:} The default value is 3.  If \emph{method} is set to an
-undefined value, the trivial predictor will be used.
+\textbf{Notes:} The default value is 0.  If \emph{method} is set to an
+undefined value, this default predictor will be used.
 
 \end{fulllineitems}
 
@@ -10638,6 +10673,7 @@ if the method order \emph{q} and the problem type (explicit, implicit,
 ImEx) are left unchanged.  If there are changes to the linear solver
 specifications, the user should make the appropriate ARK*Set* calls,
 as described in the section {\hyperref[c_interface/User_callable:cinterface-linearsolvers]{\emph{\DUspan{}{Linear solver specification functions}}}}.
+Otherwise, all solver inputs set previously remain in effect.
 
 One important use of the {\hyperref[c_interface/User_callable:c.ARKodeReInit]{\emph{\code{ARKodeReInit()}}}} function is in the
 treating of jump discontinuities in the RHS function.  Except in cases
@@ -24883,6 +24919,10 @@ J.W. Demmel, J.R. Gilbert and X.S. Li. An Asynchronous
 Parallel Supernodal Algorithm for Sparse Gaussian
 Elimination. \emph{SIAM J. Matrix Analysis and Applications},
 20:915-952, 1999.
+}
+\bibitem[F2015]{F2015}{\phantomsection\label{References:f2015} 
+R. Falgout and U.M. Yang. Hypre user's manual. \emph{LLNL
+Technical Report}, 2015.
 }
 \bibitem[F1969]{F1969}{\phantomsection\label{References:f1969} 
 E. Fehlberg. Low-order classical Runge-Kutta formulas with

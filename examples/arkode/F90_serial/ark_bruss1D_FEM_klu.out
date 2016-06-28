@@ -20,7 +20,7 @@ ARKode solver parameters:
   Step reduction factor on multiple error fails = 0.3
   Minimum error fails before above factor is used = 2
   Step reduction factor on nonlinear convergence failure = 0.25
-  Implicit predictor method = 3
+  Implicit predictor method = 0
   Implicit solver tolerance coefficient = 0.1
   Maximum number of nonlinear corrections = 3
   Nonlinear convergence rate constant = 0.3
@@ -33,8 +33,8 @@ ARKode solver parameters:
     0.00000E+00  6.32978E-01  3.36571E+00  2.03247E+00
     1.00000E+00  6.97285E-01  3.23962E+00  1.99999E+00
     2.00000E+00  7.89501E-01  3.05139E+00  1.99999E+00
-    3.00000E+00  7.83680E-01  2.93001E+00  1.99999E+00
-    4.00000E+00  6.48121E-01  3.00833E+00  1.99999E+00
+    3.00000E+00  7.83681E-01  2.93001E+00  1.99999E+00
+    4.00000E+00  6.48122E-01  3.00833E+00  1.99999E+00
     5.00000E+00  5.52223E-01  3.17028E+00  1.99999E+00
     6.00000E+00  5.22111E-01  3.30889E+00  1.99999E+00
     7.00000E+00  5.20869E-01  3.40614E+00  1.99999E+00
@@ -44,13 +44,13 @@ ARKode solver parameters:
    ----------------------------------------------------
    
  Final Solver Statistics:
-    Internal solver steps =                   109  (attempted =                  112 )
-    Total RHS evals:  Fe =                     0   Fi =                  1722
-    Total linear solver setups =                    45
+    Internal solver steps =                   104  (attempted =                  104 )
+    Total RHS evals:  Fe =                     0   Fi =                  1733
+    Total linear solver setups =                    48
     Total RHS evals for setting up the linear system =                     0
-    Total number of Jacobian evaluations =                     6
-    Total number of nonlinear iterations =                  1158
+    Total number of Jacobian evaluations =                    11
+    Total number of nonlinear iterations =                  1209
     Total number of nonlinear solver convergence failures =                     0
-    Total number of error test failures =                     3
-    Total number of mass matrix evaluations =                   162
+    Total number of error test failures =                     0
+    Total number of mass matrix evaluations =                   157
    

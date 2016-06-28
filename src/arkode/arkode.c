@@ -72,7 +72,7 @@ static int arkSetButcherTables(ARKodeMem ark_mem);
 static int arkCheckButcherTables(ARKodeMem ark_mem);
 
 static int arkStep(ARKodeMem ark_mem);
-static void arkPredict(ARKodeMem ark_mem, int istage);
+static int arkPredict(ARKodeMem ark_mem, int istage);
 static int arkSet(ARKodeMem ark_mem);
 static int arkComputeSolutions(ARKodeMem ark_mem, realtype *dsm);
 static int arkDoErrorTest(ARKodeMem ark_mem, int *nflagPtr,
@@ -3761,7 +3761,8 @@ static int arkStep(ARKodeMem ark_mem)
 #endif
       
       /* Call predictor for current stage solution (result placed in ycur) */
-      arkPredict(ark_mem, is);  
+      if (arkPredict(ark_mem, is) != ARK_SUCCESS)
+        return (ARK_MASSSOLVE_FAIL);
 
 #ifdef DEBUG_OUTPUT
  printf("predictor:\n");
@@ -3940,19 +3941,20 @@ static int arkStep(ARKodeMem ark_mem)
  interval are predicted using lower order polynomials than the
  "nearby" stages.
 ---------------------------------------------------------------*/
-static void arkPredict(ARKodeMem ark_mem, int istage)
+static int arkPredict(ARKodeMem ark_mem, int istage)
 {
   int i, retval, ord, jstage;
   realtype tau;
   realtype tau_tol = 0.5;
   realtype tau_tol2 = 0.75;
-  realtype h, a0, a1, a2;
+  realtype h, a0, a1, a2, hA;
   N_Vector yguess = ark_mem->ark_ycur;
+  N_Vector tmp = ark_mem->ark_tempv;
 
   /* if the first step (or if resized), use initial condition as guess */
   if (ark_mem->ark_nst == 0 || ark_mem->ark_resized) {
     N_VScale(ONE, ark_mem->ark_ynew, yguess);
-    return;
+    return(ARK_SUCCESS);
   }
 
   /* set evaluation time tau relative shift from previous successful time */
@@ -3965,7 +3967,7 @@ static void arkPredict(ARKodeMem ark_mem, int istage)
 
     /***** Dense Output Predictor 1 -- all to max order *****/
     retval = arkDenseEval(ark_mem, tau, 0, ark_mem->ark_dense_q, yguess);
-    if (retval == ARK_SUCCESS) return;
+    if (retval == ARK_SUCCESS)  return(ARK_SUCCESS);
     break;
 
   case 2:
@@ -3980,19 +3982,19 @@ static void arkPredict(ARKodeMem ark_mem, int istage)
       ord = 1;
     }
     retval = arkDenseEval(ark_mem, tau, 0, ord, yguess);
-    if (retval == ARK_SUCCESS)  return;
+    if (retval == ARK_SUCCESS)  return(ARK_SUCCESS);
     break;
 
   case 3:
 
-    /***** Max order dense output for stages "close" to previous step, 
-	   first-order dense output predictor for subsequent stages *****/
+    /***** Cutoff predictor: max order dense output for stages "close" to previous 
+	   step, first-order dense output predictor for subsequent stages *****/
     if (tau <= tau_tol) {
       retval = arkDenseEval(ark_mem, tau, 0, ark_mem->ark_dense_q, yguess);
     } else {
       retval = arkDenseEval(ark_mem, tau, 0, 1, yguess);
     }
-    if (retval == ARK_SUCCESS)  return;
+    if (retval == ARK_SUCCESS)  return(ARK_SUCCESS);
     break;
 
   case 4:
@@ -4029,12 +4031,40 @@ static void arkPredict(ARKodeMem ark_mem, int istage)
       N_VLinearSum(a2, ark_mem->ark_Fi[jstage], ONE, yguess, yguess);
     if (!ark_mem->ark_implicit) 
       N_VLinearSum(a2, ark_mem->ark_Fe[jstage], ONE, yguess, yguess);
+    return(ARK_SUCCESS);
+    break;
+
+  case 5:
+
+    /***** Minimal correction predictor: use all previous stage 
+           information in this step *****/
+
+    /* this approach will not work (for now) when using a non-identity mass matrix */
+    if (ark_mem->ark_mass_matrix)  break;
+
+    /* yguess = sum_{j=0}^{i-1} (Ae(i,j)*Fe(j) + Ai(i,j)*Fi(j)) */
+    N_VConst(ZERO, yguess);
+    if (!ark_mem->ark_implicit)
+      for (jstage=0; jstage<istage; jstage++) {
+        hA = ark_mem->ark_h * ARK_A(ark_mem->ark_Ae,istage,jstage);
+        N_VLinearSum(hA, ark_mem->ark_Fe[jstage], ONE, yguess, yguess);
+      }
+    if (!ark_mem->ark_explicit)
+      for (jstage=0; jstage<istage; jstage++) {
+        hA = ark_mem->ark_h * ARK_A(ark_mem->ark_Ai,istage,jstage);
+        N_VLinearSum(hA, ark_mem->ark_Fi[jstage], ONE, yguess, yguess);
+    }
+
+    /* yguess = ynew + h*sum_{j=0}^{i-1}(Ae(i,j)*Fe(j) + Ai(i,j)*Fi(j)) */ 
+    N_VLinearSum(ONE, ark_mem->ark_ynew, h, yguess, yguess);
+    return(ARK_SUCCESS);
     break;
 
   }
 
   /* if we made it here, use the trivial predictor (previous step solution) */
   N_VScale(ONE, ark_mem->ark_ynew, yguess);
+  return(ARK_SUCCESS);
 
 }
 
@@ -4053,35 +4083,43 @@ static int arkSet(ARKodeMem ark_mem)
   int retval, j, i = ark_mem->ark_istage;
   N_Vector tmp = ark_mem->ark_tempv;
 
-  /* Initialize sdata to ynew - ycur (ycur holds guess) */
-  N_VLinearSum(ONE, ark_mem->ark_ynew, -ONE, ark_mem->ark_ycur, 
-	       ark_mem->ark_sdata);
+  /* If ark_predictor==5, then sdata=0, otherwise set sdata appropriately */
+  if (ark_mem->ark_predictor == 5 && !ark_mem->ark_mass_matrix) {
 
+    N_VConst(ZERO, ark_mem->ark_sdata);
 
-  /* If M!=I, replace sdata with M*sdata, so that sdata = M*(yn-ycur) */
-  if (ark_mem->ark_mass_matrix) {
-    N_VScale(ONE, ark_mem->ark_sdata, tmp);
-    retval = ark_mem->ark_mtimes(tmp, ark_mem->ark_sdata, ark_mem->ark_tn, 
-				 ark_mem->ark_mtimes_data);
-    ark_mem->ark_mass_mult++;
-    if (retval != ARK_SUCCESS)  return (ARK_MASSMULT_FAIL);
+  } else {
+
+    /* Initialize sdata to ynew - ycur (ycur holds guess) */
+    N_VLinearSum(ONE, ark_mem->ark_ynew, -ONE, ark_mem->ark_ycur, 
+                 ark_mem->ark_sdata);
+
+    /* If M!=I, replace sdata with M*sdata, so that sdata = M*(yn-ycur) */
+    if (ark_mem->ark_mass_matrix) {
+      N_VScale(ONE, ark_mem->ark_sdata, tmp);
+      retval = ark_mem->ark_mtimes(tmp, ark_mem->ark_sdata, ark_mem->ark_tn, 
+                                   ark_mem->ark_mtimes_data);
+      ark_mem->ark_mass_mult++;
+      if (retval != ARK_SUCCESS)  return (ARK_MASSMULT_FAIL);
+    }
+
+    /* Iterate over each prior stage updating rhs */
+    /*    Explicit pieces */
+    if (!ark_mem->ark_implicit)
+      for (j=0; j<i; j++) {
+        hA = ark_mem->ark_h * ARK_A(ark_mem->ark_Ae,i,j);
+        N_VLinearSum(hA, ark_mem->ark_Fe[j], ONE, 
+                     ark_mem->ark_sdata, ark_mem->ark_sdata);
+      }
+    /*    Implicit pieces */
+    if (!ark_mem->ark_explicit)
+      for (j=0; j<i; j++) {
+        hA = ark_mem->ark_h * ARK_A(ark_mem->ark_Ai,i,j);
+        N_VLinearSum(hA, ark_mem->ark_Fi[j], ONE, 
+                     ark_mem->ark_sdata, ark_mem->ark_sdata);
+      }
+
   }
-
-  /* Iterate over each prior stage updating rhs */
-  /*    Explicit pieces */
-  if (!ark_mem->ark_implicit)
-    for (j=0; j<i; j++) {
-      hA = ark_mem->ark_h * ARK_A(ark_mem->ark_Ae,i,j);
-      N_VLinearSum(hA, ark_mem->ark_Fe[j], ONE, 
-		   ark_mem->ark_sdata, ark_mem->ark_sdata);
-    }
-  /*    Implicit pieces */
-  if (!ark_mem->ark_explicit)
-    for (j=0; j<i; j++) {
-      hA = ark_mem->ark_h * ARK_A(ark_mem->ark_Ai,i,j);
-      N_VLinearSum(hA, ark_mem->ark_Fi[j], ONE, 
-		   ark_mem->ark_sdata, ark_mem->ark_sdata);
-    }
 
   /* Update gamma */
   ark_mem->ark_gamma = ark_mem->ark_h * ARK_A(ark_mem->ark_Ai,i,i);
