@@ -255,7 +255,7 @@ program driver
   ! specify use of KLU linear solvers
   ineq = NEQ       ! convert to 'normal' integer type
   nnz = 15*NEQ     ! integer number of nonzeros           
-  ordering = 0     ! COLAMD
+  ordering = 0     ! AMD
   sparsetype = 1   ! CSR
   call FARKKLU(ineq, nnz, sparsetype, ordering, ier)
   call FARKSparseSetJac(ier)

@@ -139,7 +139,7 @@ int main()
   if (check_flag((void *)arkode_mem, "ARKodeCreate", 0)) return 1;
 
   /* Call ARKodeInit to initialize the integrator memory and specify the
-     hand-side side functions in y'=fe(t,y)+fi(t,y), the inital time T0, 
+     right-hand side functions in y'=fe(t,y)+fi(t,y), the inital time T0, 
      and the initial dependent variable vector y. */
   flag = ARKodeInit(arkode_mem, fe, fi, T0, y);
   if (check_flag(&flag, "ARKodeInit", 1)) return 1;
