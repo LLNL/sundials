@@ -215,7 +215,7 @@ according to programming language (C, C++, Fortran 77, Fortran 90).
 
 ARKode example problems written in C are summarized in the table
 below, and are further described in the chapters {\hyperref[c_serial:serial-c]{\emph{\DUspan{}{Serial C example problems}}}},
-{\hyperref[c_openmp:openmp-c]{\emph{\DUspan{}{OpenMP C example problems}}}} and {\hyperref[c_parallel:parallel-c]{\emph{\DUspan{}{Parallel C example problems}}}}.
+{\hyperref[c_openmp:openmp-c]{\emph{\DUspan{}{OpenMP C example problems}}}}, {\hyperref[c_parallel:parallel-c]{\emph{\DUspan{}{Parallel C example problems}}}} and {\hyperref[c_parhyp:parhyp-c]{\emph{\DUspan{}{Parallel Hypre example problems}}}}.
 
 \begin{tabulary}{\linewidth}{|L|L|L|L|L|L|}
 \hline
@@ -412,6 +412,19 @@ SPGMR
 200
  & 
 parallel, block-diagonal precond.
+\\
+\hline
+{\hyperref[c_parhyp:ark-diurnal-kry-ph]{\emph{\DUspan{}{ark\_diurnal\_kry\_ph}}}}
+ & 
+DIRK
+ & 
+Newton
+ & 
+SPGMR
+ & 
+200
+ & 
+HYPRE parallel vector
 \\
 \hline\end{tabulary}
 
@@ -1046,13 +1059,13 @@ are printed at the end.
 \includegraphics[width=0.300\linewidth]{plot-ark_brusselator1D_FEM_3.png}
 
 Finite-element Brusselator PDE solution snapshots (created using the
-supplied Python script, {\color{red}\bfseries{}{}`{}`}plot\_brusselator1D\_FEM.py{}`): left is at time
+supplied Python script, \code{plot\_brusselator1D\_FEM.py}): left is at time
 \(t=0\), center is at time \(t=2.9\), right is at time
 \(t=8.8\).
 
 
 \section{ark\_heat1D}
-\label{c_serial:ark-heat1d}\label{c_serial:id25}
+\label{c_serial:ark-heat1d}\label{c_serial:id23}
 As with the previous brusselator problrem, this example simulates a
 simple one-dimensional heat equation,
 \begin{gather}
@@ -1070,7 +1083,7 @@ and a point-source heating term,
 \end{gather}
 
 \subsection{Numerical method}
-\label{c_serial:id26}
+\label{c_serial:id24}
 As with the {\hyperref[c_serial:ark-brusselator1d]{\emph{\DUspan{}{ark\_brusselator1D}}}} test problem, this test computes
 spatial derivatives using second-order centered differences, with the
 data distributed over \(N\) points on a uniform spatial grid.
@@ -1088,7 +1101,7 @@ examples of their use.
 
 
 \subsection{Solutions}
-\label{c_serial:id27}
+\label{c_serial:id25}
 \includegraphics[width=0.300\linewidth]{plot-ark_heat1d_1.png}
 
 \includegraphics[width=0.300\linewidth]{plot-ark_heat1d_2.png}
@@ -1100,7 +1113,7 @@ center is at time \(t=0.13\), right is at time \(t=1.0\).
 
 
 \section{ark\_heat1D\_adapt}
-\label{c_serial:id28}\label{c_serial:ark-heat1d-adapt}
+\label{c_serial:id26}\label{c_serial:ark-heat1d-adapt}
 This problem is a clone of the {\hyperref[c_serial:ark-heat1d]{\emph{\DUspan{}{ark\_heat1D}}}} test problem except that
 unlike the previous uniform-grid problem, this test problem allows a
 dynamically-evolving spatial mesh.  The PDE under consideration is a
@@ -1120,7 +1133,7 @@ and a point-source heating term,
 \end{gather}
 
 \subsection{Numerical method}
-\label{c_serial:id29}
+\label{c_serial:id27}
 We again employ a method-of-lines discretization approach.  The
 spatial derivatives are computed using a three-point centered stencil,
 that is accurate to \(O(\Delta x_i^2)\) if the neighboring points are
@@ -1140,7 +1153,7 @@ structures across vector length changes.
 
 
 \section{ark\_KrylovDemo\_prec}
-\label{c_serial:ark-krylovdemo-prec}\label{c_serial:id30}
+\label{c_serial:ark-krylovdemo-prec}\label{c_serial:id28}
 This problem is an ARKode clone of the CVODE problem,
 \code{cv\_KrylovDemo\_prec}.  This is a demonstration program using the
 GMRES linear solver.  The program solves a stiff ODE system that arises
@@ -1184,7 +1197,7 @@ and with homogeneous Neumann boundary conditions,
 
 
 \subsection{Numerical method}
-\label{c_serial:id31}
+\label{c_serial:id29}
 We employ a method of lines approach, wherein we first
 semi-discretize in space to convert the system of 6 PDEs into a larger
 system of ODEs.  To this end, the spatial derivatives are computed
@@ -1391,6 +1404,104 @@ reused within the preconditioner routine.
 Performance data and sampled solution values are printed at
 selected output times, and all performance counters are printed
 on completion.
+
+
+\chapter{Parallel Hypre example problems}
+\label{c_parhyp:parhyp-c}\label{c_parhyp::doc}\label{c_parhyp:parallel-hypre-example-problems}
+
+\section{ark\_diurnal\_kry\_ph}
+\label{c_parhyp:ark-diurnal-kry-ph}\label{c_parhyp:id1}
+This problem is mathematically identical to the parallel C example
+problem {\hyperref[c_parallel:ark-diurnal-kry-p]{\emph{\DUspan{}{ark\_diurnal\_kry\_p}}}}.  As before, this test problem models
+a two-species diurnal kinetics advection-diffusion PDE system in two
+spatial dimensions,
+\begin{gather}
+\begin{split}\frac{\partial c_i}{\partial t} &=
+  K_h \frac{\partial^2 c_i}{\partial x^2} +
+  V \frac{\partial     c_i}{\partial x} +
+  \frac{\partial}{\partial y}\left( K_v(y)
+  \frac{\partial c_i}{\partial y}\right) +
+  R_i(c_1,c_2,t),\quad i=1,2\end{split}\notag
+\end{gather}
+where
+\begin{gather}
+\begin{split}R_1(c_1,c_2,t) &= -q_1*c_1*c_3 - q_2*c_1*c_2 + 2*q_3(t)*c_3 + q_4(t)*c_2, \\
+R_2(c_1,c_2,t) &=  q_1*c_1*c_3 - q_2*c_1*c_2 - q_4(t)*c_2, \\
+K_v(y) &= K_{v0} e^{y/5}.\end{split}\notag
+\end{gather}
+Here \(K_h\), \(V\), \(K_{v0}\), \(q_1\), \(q_2\),
+and \(c_3\) are constants, and \(q_3(t)\) and \(q_4(t)\)
+vary diurnally.  The problem is posed on the square spatial domain
+\((x,y) \in [0,20]\times[30,50]\), with homogeneous Neumann
+boundary conditions, and for time interval \(t\in [0,86400]\) sec
+(1 day).
+
+We enforce the initial conditions
+\begin{gather}
+\begin{split}c^1(x,y) &=  10^6 \chi(x)\eta(y) \\
+c^2(x,y) &=  10^{12} \chi(x)\eta(y) \\
+\chi(x) &= 1 - \sqrt{\frac{x - 10}{10}} + \frac12 \sqrt[4]{\frac{x - 10}{10}} \\
+\eta(y) &= 1 - \sqrt{\frac{y - 40}{10}} + \frac12 \sqrt[4]{\frac{x - 10}{10}}.\end{split}\notag
+\end{gather}
+
+\subsection{Numerical method}
+\label{c_parhyp:numerical-method}
+The numerical method is identical to the previous implementation,
+except that we now use the HYPRE parallel vector data structure
+instead of the native SUNDIALS parallel vector implementation.  The
+output of tehse two examples is identical.  Below, we discuss only the
+main differences between the two implementations; familiarity with the
+HYPRE library is helpful.
+
+We use the HYPRE IJ vector interface to allocate the template vector
+and create the parallel partitioning:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{HYPRE\PYGZus{}IJVectorCreate}\PYG{p}{(}\PYG{n}{comm}\PYG{p}{,} \PYG{n}{my\PYGZus{}pe}\PYG{o}{*}\PYG{n}{local\PYGZus{}N}\PYG{p}{,} \PYG{p}{(}\PYG{n}{my\PYGZus{}pe} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{)}\PYG{o}{*}\PYG{n}{local\PYGZus{}N} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{o}{\PYGZam{}}\PYG{n}{Uij}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{HYPRE\PYGZus{}IJVectorSetObjectType}\PYG{p}{(}\PYG{n}{Uij}\PYG{p}{,} \PYG{n}{HYPRE\PYGZus{}PARCSR}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{HYPRE\PYGZus{}IJVectorInitialize}\PYG{p}{(}\PYG{n}{Uij}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+The \emph{initialize} call means that vector elements are ready to be set using
+the IJ interface. We choose the initial condition vector \(x_0 =
+x(t_0)\) as the template vector, and we set its values in the
+\code{SetInitialProfiles(...)} function. We complete assembly of the
+HYPRE vector with the calls:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{HYPRE\PYGZus{}IJVectorAssemble}\PYG{p}{(}\PYG{n}{Uij}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{HYPRE\PYGZus{}IJVectorGetObject}\PYG{p}{(}\PYG{n}{Uij}\PYG{p}{,} \PYG{p}{(}\PYG{k+kt}{void}\PYG{o}{*}\PYG{o}{*}\PYG{p}{)} \PYG{o}{\PYGZam{}}\PYG{n}{Upar}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+The \emph{assemble} call is collective and makes the HYPRE vector ready to
+use.  The sets the handle \code{Upar} to the actual HYPRE vector.  The
+handle is then passed to the \code{N\_VMake} function, which creates the
+template \code{N\_Vector}, \code{u}, as a wrapper around the HYPRE vector.
+All of the other vectors used in the computation are created by
+cloning this template vector.
+
+Furthermore, since the template vector does not own the underlying
+HYPRE vector (it was created using the \code{HYPRE\_IJVectorCreate} call
+above), so it is the user's responsibility to destroy it by calling
+\code{HYPRE\_IJVectorDestroy(Uij)} after the template vector \code{u} has
+been destroyed.  This function will destroy both the HYPRE vector
+and its IJ interface.
+
+To access individual elements of the solution and derivative vectors
+\code{u} and \code{udot} in the IVP right-hand side function, \code{f}, the
+user needs to first extract the HYPRE vector by calling
+\code{N\_VGetVector\_ParHyp}, and then use HYPRE-specific methods to access
+the data from that point on.
+
+\begin{notice}{note}{Note:}
+Currently, interfaces to HYPRE solvers and preconditioners are not
+available directly through the SUNDIALS interfaces, however these
+could be utilized directly as preconditioners for SUNDIALS' Krylov
+solvers.  Direct interfaces to the HYPRE solvers will be provided
+in subsequent SUNDIALS releases.  The current HYPRE vector
+interface is included in this release mainly for testing purposes
+and as a preview of functionality to come.
+\end{notice}
 
 
 \chapter{Serial C++ example problems}
