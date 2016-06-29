@@ -61,6 +61,10 @@ int main(int argc, char *argv[])
   Y = N_VNew_Parallel(comm, local_length, global_length);
   Z = N_VNew_Parallel(comm, local_length, global_length);
 
+  if(N_VGetVectorID(W) == SUNDIALS_NVEC_PARALLEL && myid == 0) {
+    /*printf("Testing parallel (MPI) variant of N_Vector...\n");*/
+  }
+
   /* NVector Test */
   fails += Test_N_VSetArrayPointer(W, local_length, myid);
   fails += Test_N_VGetArrayPointer(X, local_length, myid);

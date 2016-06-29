@@ -69,6 +69,10 @@ int main(int argc, char *argv[])
   X = N_VNew_OpenMP(veclen, num_threads);
   Y = N_VNew_OpenMP(veclen, num_threads);
   Z = N_VNew_OpenMP(veclen, num_threads);
+
+  if(N_VGetVectorID(W) == SUNDIALS_NVEC_OPENMP) {
+    /*printf("Testing OpenMP variant of N_Vector...\n");*/
+  }
   
   /* NVector Tests */
   fails += Test_N_VSetArrayPointer(W, veclen, 0);

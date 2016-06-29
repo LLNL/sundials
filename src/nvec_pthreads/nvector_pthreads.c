@@ -104,6 +104,15 @@ static void N_VInitThreadData(Pthreads_Data *thread_data);
  * -----------------------------------------------------------------
  */
 
+/* ----------------------------------------------------------------
+ * Returns vector type ID. Used to identify vector implementation 
+ * from abstract N_Vector interface.
+ */
+N_Vector_ID N_VGetVectorID_Pthreads(N_Vector v)
+{
+  return SUNDIALS_NVEC_PTHREADS;
+}
+
 /* ----------------------------------------------------------------------------
  * Function to create a new empty vector 
  */
@@ -124,6 +133,7 @@ N_Vector N_VNewEmpty_Pthreads(long int length, int num_threads)
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
   if (ops == NULL) { free(v); return(NULL); }
 
+  ops->nvgetvectorid     = N_VGetVectorID_Pthreads;
   ops->nvclone           = N_VClone_Pthreads;
   ops->nvcloneempty      = N_VCloneEmpty_Pthreads;
   ops->nvdestroy         = N_VDestroy_Pthreads;
@@ -343,6 +353,7 @@ N_Vector N_VCloneEmpty_Pthreads(N_Vector w)
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
   if (ops == NULL) { free(v); return(NULL); }
   
+  ops->nvgetvectorid     = w->ops->nvgetvectorid;
   ops->nvclone           = w->ops->nvclone;
   ops->nvcloneempty      = w->ops->nvcloneempty;
   ops->nvdestroy         = w->ops->nvdestroy;

@@ -105,6 +105,9 @@ int main(int argc, char *argv[])
   
   /* Create empty vector */
   W = N_VNewEmpty_ParHyp(comm, local_length, global_length);
+  if(N_VGetVectorID(W) == SUNDIALS_NVEC_PARHYP && myid == 0) {
+    /*printf("Testing HYPRE parallel vector wrapper...\n");*/
+  }
 
   /* NVector Test */
 

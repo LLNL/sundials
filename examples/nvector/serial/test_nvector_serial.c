@@ -64,6 +64,10 @@ int main(int argc, char *argv[])
   Y = N_VNew_Serial(veclen);
   Z = N_VNew_Serial(veclen);
 
+  if(N_VGetVectorID(W) == SUNDIALS_NVEC_SERIAL) {
+    /*printf("Testing serial variant of N_Vector...\n");*/
+  }
+  
   /* NVector Tests */
   fails += Test_N_VSetArrayPointer(W, veclen, 0);
   fails += Test_N_VGetArrayPointer(X, veclen, 0);

@@ -237,6 +237,7 @@ SUNDIALS_EXPORT void N_VPrint_Serial(N_Vector v);
  * -----------------------------------------------------------------
  */
 
+SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_Serial(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Serial(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Serial(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Serial(N_Vector v);

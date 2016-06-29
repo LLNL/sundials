@@ -71,6 +71,10 @@ int main(int argc, char *argv[])
   Y = N_VNew_Pthreads(veclen, nthreads);
   Z = N_VNew_Pthreads(veclen, nthreads);
 
+  if(N_VGetVectorID(W) == SUNDIALS_NVEC_PTHREADS) {
+    /* printf("Testing Pthreads variant of N_Vector...\n"); */
+  }
+  
   /* NVector Tests */
   fails += Test_N_VSetArrayPointer(W, veclen, 0);
   fails += Test_N_VGetArrayPointer(X, veclen, 0);

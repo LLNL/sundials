@@ -151,10 +151,19 @@ static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z);
  */
 
 /* ----------------------------------------------------------------
+ * Returns vector type ID. Used to identify vector implementation 
+ * from abstract N_Vector interface.
+ */
+N_Vector_ID N_VGetVectorID_ParHyp(N_Vector v)
+{
+  return SUNDIALS_NVEC_PARHYP;
+}
+
+
+/* ----------------------------------------------------------------
  * Function to create a new parhyp vector without underlying
  * HYPRE vector.
  */
-
 N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, 
                             long int local_length,
                             long int global_length)
@@ -173,6 +182,7 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
   if (ops == NULL) { free(v); return(NULL); }
 
+  ops->nvgetvectorid     = N_VGetVectorID_ParHyp;
   ops->nvclone           = N_VClone_ParHyp;
   ops->nvcloneempty      = N_VCloneEmpty_ParHyp;
   ops->nvdestroy         = N_VDestroy_ParHyp;
@@ -385,6 +395,7 @@ N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
   if (ops == NULL) { free(v); return(NULL); }
   
+  ops->nvgetvectorid     = w->ops->nvgetvectorid;
   ops->nvclone           = w->ops->nvclone;
   ops->nvcloneempty      = w->ops->nvcloneempty;
   ops->nvdestroy         = w->ops->nvdestroy;

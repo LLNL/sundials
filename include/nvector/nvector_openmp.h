@@ -244,6 +244,7 @@ SUNDIALS_EXPORT void N_VPrint_OpenMP(N_Vector v);
  * -----------------------------------------------------------------
  */
 
+SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_OpenMP(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_OpenMP(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_OpenMP(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_OpenMP(N_Vector v);

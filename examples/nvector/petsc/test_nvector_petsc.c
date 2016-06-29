@@ -69,6 +69,10 @@ int main(int argc, char *argv[])
   
   /* Create vectors */
   W = N_VNewEmpty_petsc(comm, local_length, global_length);
+  if(N_VGetVectorID(W) == SUNDIALS_NVEC_PETSC && myid == 0) {
+    /*printf("Testing PETSc vector wrapper...\n");*/
+  }
+    
 
   /* NVector Test */
 

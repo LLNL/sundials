@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision:  $
- * $Date:  $
+ * $Revision:$
+ * $Date:$
  * -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * 
@@ -114,6 +114,16 @@ static realtype VAllReduce_petsc(realtype d, int op, MPI_Comm comm);
  */
 
 /* ----------------------------------------------------------------
+ * Returns vector type ID. Used to identify vector implementation 
+ * from abstract N_Vector interface.
+ */
+N_Vector_ID N_VGetVectorID_petsc(N_Vector v)
+{
+  return SUNDIALS_NVEC_PETSC;
+}
+
+
+/* ----------------------------------------------------------------
  * Function to create a new parallel vector with empty data array
  */
 
@@ -144,6 +154,7 @@ N_Vector N_VNewEmpty_petsc(MPI_Comm comm,
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
   if (ops == NULL) { free(v); return(NULL); }
 
+  ops->nvgetvectorid     = N_VGetVectorID_petsc;
   ops->nvclone           = N_VClone_petsc;
   ops->nvcloneempty      = N_VCloneEmpty_petsc;
   ops->nvdestroy         = N_VDestroy_petsc;
@@ -343,6 +354,7 @@ N_Vector N_VCloneEmpty_petsc(N_Vector w)
     return(NULL); 
   }
   
+  ops->nvgetvectorid     = w->ops->nvgetvectorid;
   ops->nvclone           = w->ops->nvclone;
   ops->nvcloneempty      = w->ops->nvcloneempty;
   ops->nvdestroy         = w->ops->nvdestroy;

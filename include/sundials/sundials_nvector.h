@@ -54,6 +54,22 @@
 extern "C" {
 #endif
 
+  
+/*
+ * -----------------------------------------------------------------
+ * Implemented N_Vector types
+ * -----------------------------------------------------------------
+ */
+  
+typedef enum {
+  SUNDIALS_NVEC_SERIAL, 
+  SUNDIALS_NVEC_PARALLEL, 
+  SUNDIALS_NVEC_OPENMP, 
+  SUNDIALS_NVEC_PTHREADS, 
+  SUNDIALS_NVEC_PARHYP, 
+  SUNDIALS_NVEC_PETSC
+} N_Vector_ID;
+  
 /*
  * -----------------------------------------------------------------
  * Generic definition of N_Vector
@@ -71,6 +87,7 @@ typedef N_Vector *N_Vector_S;
 
 /* Structure containing function pointers to vector operations  */  
 struct _generic_N_Vector_Ops {
+  N_Vector_ID (*nvgetvectorid)(N_Vector);
   N_Vector    (*nvclone)(N_Vector);
   N_Vector    (*nvcloneempty)(N_Vector);
   void        (*nvdestroy)(N_Vector);
@@ -119,6 +136,10 @@ struct _generic_N_Vector {
 
 /*
  * -----------------------------------------------------------------
+ * N_VGetVectorID
+ *   Returns an identifier for the vector type from enumeration 
+ *   N_Vector_ID.
+ *
  * N_VClone
  *   Creates a new vector of the same type as an existing vector.
  *   It does not copy the vector, but rather allocates storage for
@@ -266,6 +287,8 @@ struct _generic_N_Vector {
  * NVECTOR          ------------------------------------------------
  * FUNCTIONS          CVODE/CVODES          IDA             KINSOL    
  * -----------------------------------------------------------------
+ * N_VGetVectorID     
+ * -----------------------------------------------------------------
  * N_VClone           S Di I                S I BBDP        S I BBDP
  * -----------------------------------------------------------------
  * N_VCloneEmpty      F                     F               F
@@ -318,6 +341,7 @@ struct _generic_N_Vector {
  * -----------------------------------------------------------------
  */
   
+SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy(N_Vector v);

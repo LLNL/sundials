@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: $
- * $Date:  $
+ * $Revision:$
+ * $Date:$
  * ----------------------------------------------------------------- 
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
@@ -103,17 +103,17 @@ typedef struct _N_VectorContent_petsc *N_VectorContent_petsc;
  * 
  * CONSTRUCTORS:
  *    N_VNewEmpty_petsc
- *    N_VNew_petsc
  *    N_VMake_petsc
  *    N_VCloneVectorArray_petsc
  *    N_VCloneVectorArrayEmpty_petsc
  * DESTRUCTORS:
- *    N_VDestroy_petsc
  *    N_VDestroyVectorArray_petsc
  * OTHER:
+ *    N_VGetVector_petsc
  *    N_VPrint_petsc
  * -----------------------------------------------------------------
  */
+
 
 /*
  * -----------------------------------------------------------------
@@ -207,6 +207,7 @@ SUNDIALS_EXPORT void N_VPrint_petsc(N_Vector v);
  * -----------------------------------------------------------------
  */
 
+SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_petsc(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_petsc(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_petsc(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_petsc(N_Vector v);

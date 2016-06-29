@@ -31,6 +31,13 @@
  * -----------------------------------------------------------------
  */
 
+N_Vector_ID N_VGetVectorID(N_Vector w)
+{
+  N_Vector_ID id;
+  id = w->ops->nvgetvectorid(w);
+  return(id);
+}
+
 N_Vector N_VClone(N_Vector w)
 {
   N_Vector v = NULL;

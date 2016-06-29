@@ -70,6 +70,16 @@ static void VScaleBy_Parallel(realtype a, N_Vector x);
  */
 
 /* ----------------------------------------------------------------
+ * Returns vector type ID. Used to identify vector implementation 
+ * from abstract N_Vector interface.
+ */
+
+N_Vector_ID N_VGetVectorID_Parallel(N_Vector v)
+{
+  return SUNDIALS_NVEC_PARALLEL;
+}
+
+/* ----------------------------------------------------------------
  * Function to create a new parallel vector with empty data array
  */
 
@@ -100,6 +110,7 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
   if (ops == NULL) { free(v); return(NULL); }
 
+  ops->nvgetvectorid     = N_VGetVectorID_Parallel;
   ops->nvclone           = N_VClone_Parallel;
   ops->nvcloneempty      = N_VCloneEmpty_Parallel;
   ops->nvdestroy         = N_VDestroy_Parallel;
@@ -323,6 +334,7 @@ N_Vector N_VCloneEmpty_Parallel(N_Vector w)
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
   if (ops == NULL) { free(v); return(NULL); }
   
+  ops->nvgetvectorid     = w->ops->nvgetvectorid;
   ops->nvclone           = w->ops->nvclone;
   ops->nvcloneempty      = w->ops->nvcloneempty;
   ops->nvdestroy         = w->ops->nvdestroy;
