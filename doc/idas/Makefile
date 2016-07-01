@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2012-04-26 00:06:12 $
+# $Revision:$
+# $Date:$
 # -----------------------------------------------------------------
 # Programmer(s): Slaven Peles @ LLNL
 # -----------------------------------------------------------------
@@ -23,22 +23,19 @@ EXAMPLES   = idas_examples
 UG_FILES = \
 ${USER_GUIDE}.tex \
 idas_intro.tex \
-idas_install.tex \
 idas_math.tex \
+idas_org.tex \
 idas_sim.tex \
 idas_fwd.tex \
 idas_adj.tex \
 idas_nvec.tex \
-idas_org.tex \
 idas_newlinsolv.tex \
-#idas_linsolv.tex \
 idas_constants.tex
 
 EX_FILES = \
 ${EXAMPLES}.tex \
 idas_ex_intro.tex \
 idas_ex_fwd.tex \
-idas_ex_adj.tex \
-idas_ex_codes.tex
+idas_ex_adj.tex
 
 include ../Makefile.in

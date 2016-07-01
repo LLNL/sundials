@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision:  $
-# $Date:  $
+# $Revision:$
+# $Date:$
 # -----------------------------------------------------------------
 # Programmer(s): Slaven Peles @ LLNL
 # -----------------------------------------------------------------
@@ -32,7 +32,6 @@ ida_nvec.tex \
 ida_org.tex \
 ida_newlinsolv.tex \
 ida_constants.tex
-#ida_linsolv.tex \
 
 EX_FILES = \
 ${EXAMPLES}.tex     \

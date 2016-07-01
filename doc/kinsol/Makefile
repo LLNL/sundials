@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: $
-# $Date: $
+# $Revision$
+# $Date$
 # -----------------------------------------------------------------
 # Programmer(s): Slaven Peles @ LLNL
 # -----------------------------------------------------------------
@@ -26,21 +26,18 @@ EXAMPLES   = kin_examples
 UG_FILES = \
 ${USER_GUIDE}.tex \
 kin_intro.tex \
-kin_install.tex \
 kin_math.tex \
+kin_org.tex \
 kin_use.tex \
 kin_fcmix.tex \
 kin_nvec.tex \
-kin_org.tex \
 kin_newlinsolv.tex \
 kin_constants.tex
-#kin_linsolv.tex \
 
 EX_FILES = \
 ${EXAMPLES}.tex \
 kin_ex_intro.tex \
 kin_ex_c.tex \
-kin_ex_fortran.tex \
-kin_ex_codes.tex
+kin_ex_fortran.tex
 
 include ../Makefile.in

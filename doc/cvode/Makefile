@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision:  $
-# $Date:  $
+# $Revision:$
+# $Date:$
 # -----------------------------------------------------------------
 # Programmer(s): Slaven Peles @ LLNL
 # -----------------------------------------------------------------
@@ -38,8 +38,8 @@ ${EXAMPLES}.tex \
 cv_ex_intro.tex \
 cv_ex_serial.tex \
 cv_ex_parallel.tex \
+cv_ex_parhyp.tex \
 cv_ex_fortran.tex \
-cv_ex_codes.tex \
 cv_ex_tests.tex   
 
 include ../Makefile.in
