@@ -4,6 +4,7 @@
  * $Date$
  * -----------------------------------------------------------------
  * Programmer(s): Carol Woodward @ LLNL
+ *                Ting Yan and Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2015, Lawrence Livermore National Security
@@ -41,6 +42,15 @@ extern void FCV_SPJAC(realtype *T, realtype *Y,
 }
 #endif
  
+/*=============================================================*/
+
+/* Fortran interface to C routine CVSlsSetSparseJacFn; see
+   fcvode.h for further information */
+void FCV_SPARSESETJAC(int *ier)
+{
+  *ier = CVSlsSetSparseJacFn(CV_cvodemem, FCVSparseJac);
+}
+
 /*=============================================================*/
  
 /* C interface to user-supplied Fortran routine FCVSPJAC; see 

@@ -5,6 +5,7 @@
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
+ *                Ting Yan and Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
@@ -63,9 +64,10 @@
  *   FCVLAPACKDENSESETJAC  interfaces to CVLapackSetJacFn
  *   FCVLAPACKBANDSETJAC   interfaces to CVLapackSetJacFn
  *
- *   FCVKLU         interfaces to CVKLU
- *   FCVKLUReinit   interfaces to CVKLUReinit
- *   FCVSUPERLUMT   interfaces to CVSuperLUMT
+ *   FCVKLU             interfaces to CVKLU
+ *   FCVKLUReinit       interfaces to CVKLUReinit
+ *   FCVSUPERLUMT       interfaces to CVSuperLUMT
+ *   FCVSPARSESETJAC    interfaces to CVSlsSetSparseJacFn
  *
  *   FCVSPGMR and FCVSPGMRREINIT interface to CVSpgmr and CVSpilsSet*
  *   FCVSPBCG, FCVSPBCGREINIT interface to CVSpbcg and CVSpilsSet*
@@ -165,46 +167,46 @@
  * On return, set IER = 0 if successful, IER > 0 if a recoverable error occurred,
  * and IER < 0 if an unrecoverable error ocurred.
  * 
- (4s) User-supplied sparse Jacobian approximation routine: FCVSPJAC
-
-     Required when using the CVKLU or CVSuperLUMT linear solvers, the 
-     user must supply a routine that computes a compressed-sparse-column 
-     approximation of the system Jacobian J = dfi(t,y)/dy.  If supplied, 
-     it must have the following form:
-
-       SUBROUTINE FCVSPJAC(T, Y, FY, N, NNZ, JDATA, JRVALS, 
-      &                     JCPTRS, H, IPAR, RPAR, WK1, WK2, WK3, IER)
-
-     This routine must load the N by N compressed sparse column matrix 
-     with storage for NNZ nonzeros, stored in the arrays JDATA (nonzero
-     values), JRVALS (row indices for each nonzero), JCOLPTRS (indices 
-     for start of each column), with the Jacobian matrix at the current
-     (t,y) in CSC form (see sundials_sparse.h for more information).
-
-     The arguments are:
-         T    -- current time [realtype, input]
-         Y    -- array containing state variables [realtype, input]
-         FY   -- array containing state derivatives [realtype, input]
-         N    -- number of matrix rows/columns in Jacobian [int, input]
-         NNZ  -- allocated length of nonzero storage [int, input]
-        JDATA -- nonzero values in Jacobian
-                 [realtype of length NNZ, output]
-       JRVALS -- row indices for each nonzero in Jacobian
-                  [int of length NNZ, output]
-       JCPTRS -- pointers to each Jacobian column in preceding arrays
-                 [int of length N+1, output]
-         H    -- current step size [realtype, input]
-         IPAR -- array containing integer user data that was passed to
-                 FCVMALLOC [long int, input]
-         RPAR -- array containing real user data that was passed to
-                 FCVMALLOC [realtype, input]
-         WK*  -- array containing temporary workspace of same size as Y 
-                 [realtype, input]
-         IER  -- return flag [int, output]:
-                    0 if successful, 
-                   >0 if a recoverable error occurred,
-                   <0 if an unrecoverable error ocurred.
-
+ * (4s) User-supplied sparse Jacobian approximation routine: FCVSPJAC
+ *
+ * Required when using the CVKLU or CVSuperLUMT linear solvers, the 
+ * user must supply a routine that computes a compressed-sparse-column [or 
+ * compressed-sparse-row] approximation of the system Jacobian J = dfi(t,y)/dy.  
+ * If supplied, it must have the following form:
+ *
+ *       SUBROUTINE FCVSPJAC(T, Y, FY, N, NNZ, JDATA, JRVALS, 
+ *      &                     JCPTRS, H, IPAR, RPAR, WK1, WK2, WK3, IER)
+ *
+ * This routine must load the N by N compressed sparse column [or row] matrix 
+ * with storage for NNZ nonzeros, stored in the arrays JDATA (nonzero
+ * values), JRVALS (row [or column] indices for each nonzero), JCOLPTRS (indices 
+ * for start of each column [or row]), with the Jacobian matrix at the current
+ * (t,y) in CSC [or CSR] form (see sundials_sparse.h for more information).
+ *
+ * The arguments are:
+ *         T    -- current time [realtype, input]
+ *         Y    -- array containing state variables [realtype, input]
+ *         FY   -- array containing state derivatives [realtype, input]
+ *         N    -- number of matrix rows/columns in Jacobian [int, input]
+ *         NNZ  -- allocated length of nonzero storage [int, input]
+ *        JDATA -- nonzero values in Jacobian
+ *                 [realtype of length NNZ, output]
+ *       JRVALS -- row [or column] indices for each nonzero in Jacobian
+ *                  [int of length NNZ, output]
+ *       JCPTRS -- pointers to each Jacobian column [or row] in preceding arrays
+ *                 [int of length N+1, output]
+ *         H    -- current step size [realtype, input]
+ *         IPAR -- array containing integer user data that was passed to
+ *                 FCVMALLOC [long int, input]
+ *         RPAR -- array containing real user data that was passed to
+ *                 FCVMALLOC [realtype, input]
+ *         WK*  -- array containing temporary workspace of same size as Y 
+ *                 [realtype, input]
+ *         IER  -- return flag [int, output]:
+ *                    0 if successful, 
+ *                   >0 if a recoverable error occurred,
+ *                   <0 if an unrecoverable error ocurred.
+ *
  * (5s) Optional user-supplied Lapack dense Jacobian routine: FCVLDJAC
  * See the description for FCVDJAC. NOTE: the dense Jacobian matrix
  * is NOT set to zero before calling the user's FCVLDJAC.
@@ -259,26 +261,26 @@
  * set to MPI_COMM_WORLD.  If not, this routine initializes MPI and sets
  * the communicator equal to MPI_COMM_WORLD.
  * 
- (9.1omp) To initialize the openMP threaded vector kernel, 
-          the user must make the following call:
-
-          CALL FNVINITOMP (1, NEQ, NUM_THREADS, IER)
-
-        The arguments are:
-          NEQ = size of vectors
-          NUM_THREADS = number of threads
-          IER = return completion flag. Values are 0 = success, -1 = failure.
-
- (9.1pts) To initialize the Pthreads threaded vector kernel, 
-          the user must make the following call:
-
-          CALL FNVINITOMP (1, NEQ, NUM_THREADS, IER)
-
-        The arguments are:
-          NEQ = size of vectors
-          NUM_THREADS = number of threads
-          IER = return completion flag. Values are 0 = success, -1 = failure.
-
+ * (9.1omp) To initialize the openMP threaded vector kernel, 
+ *          the user must make the following call:
+ *
+ *          CALL FNVINITOMP (1, NEQ, NUM_THREADS, IER)
+ *
+ *        The arguments are:
+ *          NEQ = size of vectors
+ *          NUM_THREADS = number of threads
+ *          IER = return completion flag. Values are 0 = success, -1 = failure.
+ *
+ * (9.1pts) To initialize the Pthreads threaded vector kernel, 
+ *          the user must make the following call:
+ *
+ *          CALL FNVINITOMP (1, NEQ, NUM_THREADS, IER)
+ *
+ *        The arguments are:
+ *          NEQ = size of vectors
+ *          NUM_THREADS = number of threads
+ *          IER = return completion flag. Values are 0 = success, -1 = failure.
+ *
  * (9.2) To set various problem and solution parameters and allocate
  * internal memory, make the following call:
  *       CALL FCVMALLOC(T0, Y0, METH, ITMETH, IATOL, RTOL, ATOL,
@@ -446,76 +448,94 @@
  * with FLAG=1 if the user provides the function FCVLBJAC. 
  * See (9.3s)
  *
-  (10.6s) SPARSE treatment of the linear system using the KLU solver.
-
-     The user must make the call
-
-       CALL FCVKLU(NEQ, NNZ, ORDERING, IER)
-
-     The arguments are:
-        NEQ = the problem size [int; input]
-        NNZ = the maximum number of nonzeros [int; input]
-	ORDERING = the matrix ordering desired, possible values
-	   come from the KLU package (0 = AMD, 1 = COLAMD) [int; input]
-	IER = error return flag [int, output]: 
-	         0 = success, 
-		 negative = error.
- 
-     The CVODE KLU solver will reuse much of the factorization information from one
-     nonlinear iteration to the next.  If at any time the user wants to force a full
-     refactorization or if the number of nonzeros in the Jacobian matrix changes, the
-     user should make the call
-
-       CALL FCVKLUREINIT(NEQ, NNZ, REINIT_TYPE)
-
-     The arguments are:
-        NEQ = the problem size [int; input]
-        NNZ = the maximum number of nonzeros [int; input]
-	REINIT_TYPE = 1 or 2.  For a value of 1, the matrix will be destroyed and 
-          a new one will be allocated with NNZ nonzeros.  For a value of 2, 
-	  only symbolic and numeric factorizations will be completed. 
- 
-     When using FCVKLU, the user is required to supply the FCVSPJAC 
-     routine for the evaluation of the sparse approximation to the 
-     Jacobian, as discussed above with the other user-supplied routines.
- 
-     Optional outputs specific to the KLU case are:
-        LSTF    = IOUT(14) from CVSlsGetLastFlag
-        NJES    = IOUT(16) from CVSlsGetNumJacEvals
-     See the CVODE manual for descriptions.
- 
- (10.7s) SPARSE treatment of the linear system using the SuperLUMT solver.
-
-     The user must make the call
-
-       CALL FCVSUPERLUMT(NTHREADS, NEQ, NNZ, ORDERING, IER)
-
-     The arguments are:
-        NTHREADS = desired number of threads to use [int; input]
-        NEQ = the problem size [int; input]
-        NNZ = the maximum number of nonzeros [int; input]
-	ORDERING = the matrix ordering desired, possible values
-	   come from the SuperLU_MT package [int; input]
-           0 = Natural
-           1 = Minimum degree on A^T A
-           2 = Minimum degree on A^T + A
-           3 = COLAMD
-	IER = error return flag [int, output]: 
-	         0 = success, 
-		 negative = error.
-	 
-     At this time, there is no reinitialization capability for the SUNDIALS 
-     interfaces to the SuperLUMT solver.
-
-     When using FCVSUPERLUMT, the user is required to supply the FCVSPJAC 
-     routine for the evaluation of the sparse approximation to the 
-     Jacobian, as discussed above with the other user-supplied routines.
- 
-     Optional outputs specific to the SUPERLUMT case are:
-        LSTF    = IOUT(14) from CVSlsGetLastFlag
-        NJES    = IOUT(16) from CVSlsGetNumJacEvals
-     See the CVODE manual for descriptions.
- 
+ *  (10.6s) SPARSE treatment of the linear system using the KLU solver.
+ *
+ *     The user must make the call
+ *
+ *       CALL FCVKLU(NEQ, NNZ, SPARSETYPE, ORDERING, IER)
+ *
+ *     The arguments are:
+ *        NEQ = the problem size [int; input]
+ *        NNZ = the maximum number of nonzeros [int; input]
+ *        SPARSETYPE = choice between CSC and CSR format
+ *           (0 = CSC, 1 = CSR) [int; input]
+ *        ORDERING = the matrix ordering desired, possible values
+ *           come from the KLU package (0 = AMD, 1 = COLAMD) [int; input]
+ *        IER = error return flag [int, output]: 
+ *	         0 = success, 
+ *		 negative = error.
+ *
+ *     When using the KLU solver the user must provide the FCVSPJAC routine for the 
+ *     evalution of the sparse approximation to the Jacobian. To indicate that this
+ *     routine has been provided, after the call to FCVKLU, the following call must 
+ *     be made    
+ *
+ *       CALL FCVSPARSESETJAC(IER) 
+ *
+ *     The int return flag IER=0 if successful, and nonzero otherwise.
+ *
+ *  
+ *     The CVODE KLU solver will reuse much of the factorization information from one
+ *     nonlinear iteration to the next.  If at any time the user wants to force a full
+ *     refactorization or if the number of nonzeros in the Jacobian matrix changes, the
+ *     user should make the call
+ *
+ *       CALL FCVKLUREINIT(NEQ, NNZ, REINIT_TYPE)
+ *
+ *     The arguments are:
+ *        NEQ = the problem size [int; input]
+ *        NNZ = the maximum number of nonzeros [int; input]
+ *	REINIT_TYPE = 1 or 2.  For a value of 1, the matrix will be destroyed and 
+ *          a new one will be allocated with NNZ nonzeros.  For a value of 2, 
+ *	  only symbolic and numeric factorizations will be completed. 
+ * 
+ *     When using FCVKLU, the user is required to supply the FCVSPJAC 
+ *     routine for the evaluation of the sparse approximation to the 
+ *     Jacobian, as discussed above with the other user-supplied routines.
+ * 
+ *     Optional outputs specific to the KLU case are:
+ *        LSTF    = IOUT(14) from CVSlsGetLastFlag
+ *        NJES    = IOUT(16) from CVSlsGetNumJacEvals
+ *     See the CVODE manual for descriptions.
+ * 
+ * (10.7s) SPARSE treatment of the linear system using the SuperLUMT solver.
+ *
+ *     The user must make the call
+ *
+ *       CALL FCVSUPERLUMT(NTHREADS, NEQ, NNZ, ORDERING, IER)
+ *
+ *     The arguments are:
+ *        NTHREADS = desired number of threads to use [int; input]
+ *        NEQ = the problem size [int; input]
+ *        NNZ = the maximum number of nonzeros [int; input]
+ *	ORDERING = the matrix ordering desired, possible values
+ *	   come from the SuperLU_MT package [int; input]
+ *           0 = Natural
+ *           1 = Minimum degree on A^T A
+ *           2 = Minimum degree on A^T + A
+ *           3 = COLAMD
+ *	IER = error return flag [int, output]: 
+ *	         0 = success, 
+ *		 negative = error.
+ *	 
+ *     At this time, there is no reinitialization capability for the SUNDIALS 
+ *     interfaces to the SuperLUMT solver.
+ *
+ *     When using the SuperLUMT solver the user must providing the FCVSPJAC routine
+ *     for the evalution of the CSC approximation to the Jacobian (note: the current 
+ *     SuperLU_MT interface in SUNDIALS does not support CSR matrices). To indicate 
+ *     that this routine has been provided, after the call to FCVSUPERLUMT, the following
+ *     call must be made    
+ *
+ *       CALL FCVSPARSESETJAC(IER) 
+ *
+ *     The int return flag IER=0 if successful, and nonzero otherwise.
+ * 
+ *     Optional outputs specific to the SUPERLUMT case are:
+ *        LSTF    = IOUT(14) from CVSlsGetLastFlag
+ *        NJES    = IOUT(16) from CVSlsGetNumJacEvals
+ *     See the CVODE manual for descriptions.
+ * 
  * (10.8) SPGMR treatment of the linear systems.
  * For the Scaled Preconditioned GMRES solution of the linear systems,
  * the user must make the following call:
@@ -722,6 +742,7 @@ extern "C" {
 #define FCV_KLU            SUNDIALS_F77_FUNC(fcvklu, FCVKLU)
 #define FCV_KLUREINIT      SUNDIALS_F77_FUNC(fcvklureinit, FCVKLUREINIT)
 #define FCV_SUPERLUMT      SUNDIALS_F77_FUNC(fcvsuperlumt, FCVSUPERLUMT)
+#define FCV_SPARSESETJAC   SUNDIALS_F77_FUNC(fcvsparsesetjac, FCVSPARSESETJAC)  
 #define FCV_SPTFQMR        SUNDIALS_F77_FUNC(fcvsptfqmr, FCVSPTFQMR)
 #define FCV_SPTFQMRREINIT  SUNDIALS_F77_FUNC(fcvsptfqmrreinit, FCVSPTFQMRREINIT)
 #define FCV_SPBCG          SUNDIALS_F77_FUNC(fcvspbcg, FCVSPBCG)
@@ -736,6 +757,7 @@ extern "C" {
 #define FCV_FUN            SUNDIALS_F77_FUNC(fcvfun, FCVFUN)
 #define FCV_DJAC           SUNDIALS_F77_FUNC(fcvdjac, FCVDJAC)
 #define FCV_BJAC           SUNDIALS_F77_FUNC(fcvbjac, FCVBJAC)
+#define FCV_SPJAC          SUNDIALS_F77_FUNC(fcvspjac, FCVSPJAC)
 #define FCV_PSOL           SUNDIALS_F77_FUNC(fcvpsol, FCVPSOL)
 #define FCV_PSET           SUNDIALS_F77_FUNC(fcvpset, FCVPSET)
 #define FCV_JTIMES         SUNDIALS_F77_FUNC(fcvjtimes, FCVJTIMES)
@@ -762,6 +784,7 @@ extern "C" {
 #define FCV_KLU            fcvklu_
 #define FCV_KLUREINIT      fcvklureinit_
 #define FCV_SUPERLUMT      fcvsuperlumt_
+#define FCV_SPARSESETJAC   fcvsparsesetjac_
 #define FCV_SPTFQMR        fcvsptfqmr_
 #define FCV_SPTFQMRREINIT  fcvsptfqmrreinit_
 #define FCV_SPBCG          fcvspbcg_
@@ -776,6 +799,7 @@ extern "C" {
 #define FCV_FUN            fcvfun_
 #define FCV_DJAC           fcvdjac_
 #define FCV_BJAC           fcvbjac_
+#define FCV_SPJAC          fcvspjac_
 #define FCV_PSOL           fcvpsol_
 #define FCV_PSET           fcvpset_
 #define FCV_JTIMES         fcvjtimes_
@@ -827,6 +851,7 @@ extern "C" {
   void FCV_KLU(int *neq, int *nnz, int *sparsetype, int *ordering, int *ier);
   void FCV_KLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier);
   void FCV_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier);
+  void FCV_SPARSESETJAC(int *ier);
 
   void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
   void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier);
@@ -873,7 +898,11 @@ extern "C" {
                        DlsMat Jac, void *user_data,
                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-  int FCVPSet(realtype tn, N_Vector y,N_Vector fy, booleantype jok,
+  int FCVSparseJac(realtype t, N_Vector y, N_Vector fy, SlsMat J,
+		   void *user_data, N_Vector vtemp1,
+		   N_Vector vtemp2, N_Vector vtemp3);
+
+  int FCVPSet(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
               booleantype *jcurPtr, realtype gamma, void *user_data,
               N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   

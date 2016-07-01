@@ -112,6 +112,8 @@ are as follows:
     interfaces to \id{CVKLUReInit}.
   \item \id{FCVSUPERLUMT}
     interfaces to \id{CVSuperLUMT}.
+  \item \id{FCVSPARSESETJAC}
+    interfaces to \id{CVSlsSetSparseJacFn}.
   \item \id{FCVSPGMR}
     interfaces to \id{CVSpgmr} and {\spgmr} optional input functions.
   \item \id{FCVSPGMRREINIT} 
@@ -488,14 +490,17 @@ section of Chapter \ref{s:nvector}.
   the user must make the call:
   \index{FCVKLU@\texttt{FCVKLU}}
 \begin{verbatim}
-      CALL FCVKLU (NEQ, NNZ, ORDERING, IER)
+      CALL FCVKLU (NEQ, NNZ, SPARSETYPE, ORDERING, IER)
 \end{verbatim}
   where \id{NEQ} is the size of the ODE system, 
   \id{NNZ} is the maximum number of nonzeros in the Jacobian matrix,
-  and \id{ORDERING} is the matrix ordering desired with possible values
+  \id{SPARSETYPE} is a flag indicating whether the matrix is in
+  compressed-sparse-column or compressed-sparse-row format (0 = CSC, 1
+  = CSR), and \id{ORDERING} is the matrix ordering desired with possible values
   from the KLU package (0 = AMD, 1 = COLAMD).
   The argument \id{IER} is an error return flag which is $0$ for success 
   or negative for an error.
+
 
   \index{FCVKLUREINIT@\texttt{FCVKLURENIT}}
  The {\cvode} KLU solver will reuse much of the factorization 
@@ -527,7 +532,7 @@ section of Chapter \ref{s:nvector}.
   \index{FCVSPJAC@\texttt{FCVSPJAC}}
   If the either of the sparse direct interface packages are used, 
   then the user must supply the \id{FCVSPJAC} routine
-  that computes a compressed-sparse-column 
+  that computes a compressed-sparse-column [or compressed-sparse-row if using KLU]
   approximation of the system Jacobian $J = \partial f / \partial y$.  If supplied, 
   it must have the following form:
 \begin{verbatim}
@@ -535,18 +540,18 @@ section of Chapter \ref{s:nvector}.
       &                    JCPTRS, H, IPAR, RPAR, WK1, WK2, WK3, IER)
 \end{verbatim}
   It must load the \id{N} by \id{N} 
-  compressed sparse column matrix 
+  compressed sparse column [or compressed sparse row] matrix 
   with storage for \id{NNZ} nonzeros, stored in the arrays \id{JDATA} (nonzero
-  values), \id{JRVALS} (row indices for each nonzero), \id{JCOLPTRS} (indices 
-  for start of each column), with the Jacobian matrix at the current
-  $(t, y)$ in CSC form (see \id{sundials\_sparse.h} for more information).
+  values), \id{JRVALS} (row [or column] indices for each nonzero), \id{JCOLPTRS} (indices 
+  for start of each column [or row]), with the Jacobian matrix at the current
+  $(t, y)$ in CSC [or CSR] form (see \id{sundials\_sparse.h} for more information).
  The arguments are \id{T}, the current time; \id{Y}, an array containing 
  state variables; \id{FY}, an
  array containing state derivatives; \id{N}, the number of matrix rows/columns 
  in the Jacobian; \id{NNZ}, allocated length of nonzero storage; \id{JDATA},
  nonzero values in the Jacobian (of length \id{NNZ}); 
- \id{JRVALS}, row indices for each nonzero in Jacobian (of length \id{NNZ});
- \id{JCPTRS}, pointers to each Jacobian column in the two preceding arrays
+ \id{JRVALS}, row [or column] indices for each nonzero in Jacobian (of length \id{NNZ});
+ \id{JCPTRS}, pointers to each Jacobian column [or row] in the two preceding arrays
  (of length \id{N}+1); \id{H}, the current step size;
  \id{IPAR}, an array containing integer user data that was 
  passed to \id{FCVMALLOC}; \id{RPAR}, an array containing real user 
@@ -554,6 +559,16 @@ section of Chapter \ref{s:nvector}.
  \id{WK*}, work arrays containing temporary workspace 
  of same size as \id{Y}; and \id{IER}, error return code (0 if successful,
  $>0$ if a recoverable error occurred, or $<0$ if an unrecoverable error occurred.)
+
+  To indicate that the \id{FCVSPJAC} routine has been provided, then
+  following either the call to \id{FCVKLU} or \id{FCVSUPERLUMT}, the
+  following call must be made    
+  \index{FCVSPARSESETJAC@\texttt{FCVSPARSESETJAC}}
+\begin{verbatim}
+      CALL FCVSPARSESETJAC (IER)
+\end{verbatim}
+  The int return flag \id{IER} is an error return flag which is $0$
+  for success or nonzero for an error.
 
   Optional outputs specific to the {\sparse} case are listed in
   Table~\ref{t:fcvode_out}.

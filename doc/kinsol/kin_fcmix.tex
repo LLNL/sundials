@@ -100,6 +100,8 @@ are as follows:
     interfaces to \id{KINKLUReInit}.
   \item \id{FKINSUPERLUMT}
     interfaces to \id{KINSuperLUMT}.
+  \item \id{FKINSPARSESETJAC}
+    interfaces to \id{KINSlsSetSparseJacFn}.
   \item \id{FKINSPGMR}
     interfaces to \id{KINSpgmr} and {\spgmr} optional input functions.
   \item \id{FKINSPFGMR}
@@ -382,15 +384,18 @@ section of Chapter \ref{s:nvector}.
   the user must make the call:
   \index{FKINKLU@\texttt{FKINKLU}}
 \begin{verbatim}
-      CALL FKINKLU (NEQ, NNZ, ORDERING, IER)
+      CALL FKINKLU (NEQ, NNZ, SPARSETYPE, ORDERING, IER)
 \end{verbatim}
   where \id{NEQ} is the size of the nonlinear system, 
   \id{NNZ} is the maximum number of nonzeros in the Jacobian matrix,
-  and \id{ORDERING} is the matrix ordering desired with possible values
+  \id{SPARSETYPE} is a flag indicating whether the matrix is in
+  compressed-sparse-column or compressed-sparse-row format (0 = CSC, 1
+  = CSR), and \id{ORDERING} is the matrix ordering desired with possible values
   from the KLU package (0 = AMD, 1 = COLAMD).
   The argument \id{IER} is an error return flag which is $0$ for success 
   or negative for an error.
 
+ 
   \index{FKINKLUREINIT@\texttt{FKINKLURENIT}}
  The {\kinsol} KLU solver will reuse much of the factorization 
  information from one nonlinear iteration to the next.  If at any time 
@@ -420,7 +425,7 @@ section of Chapter \ref{s:nvector}.
   \index{FKINSPJAC@\texttt{FKINSPJAC}}
   If the either of the sparse direct interface packages are used, 
   then the user must supply the \id{FKINSPJAC} routine
-  that computes a compressed-sparse-column 
+  that computes a compressed-sparse-column [or compressed-sparse-row if using KLU]
   approximation of the system Jacobian $J = \partial F / \partial u$.
   If supplied, it must have the following form:
 \begin{verbatim}
@@ -429,20 +434,30 @@ section of Chapter \ref{s:nvector}.
 \end{verbatim}
   Typically this routine will use only \id{N, NNZ, JDATA, JRVALS} and 
   \id{JCPTRS}. It must load the \id{N} by \id{N} 
-  compressed sparse column matrix 
+  compressed sparse column  [or compressed sparse row] matrix 
   with storage for \id{NNZ} nonzeros, stored in the arrays \id{JDATA} (nonzero
-  values), \id{JRVALS} (row indices for each nonzero), \id{JCOLPTRS} (indices 
-  for start of each column), with the Jacobian matrix at the current
-  (y) in CSC form (see \id{sundials\_sparse.h} for more information).
+  values), \id{JRVALS} (row [or column] indices for each nonzero), \id{JCOLPTRS} (indices 
+  for start of each column [or row]), with the Jacobian matrix at the current
+  (y) in CSC [or CSR] form (see \id{sundials\_sparse.h} for more information).
  The arguments are \id{Y}, an array containing state variables; \id{FY}, an
  array containing residual values; \id{N}, the number of matrix rows/columns 
  in the Jacobian; \id{NNZ}, allocated length of nonzero storage; \id{JDATA},
  nonzero values in the Jacobian (of length \id{NNZ}); 
- \id{JRVALS}, row indices for each nonzero in Jacobian (of length \id{NNZ});
- \id{JCPTRS}, pointers to each Jacobian column in the two preceding arrays
+ \id{JRVALS}, row [or column] indices for each nonzero in Jacobian (of length \id{NNZ});
+ \id{JCPTRS}, pointers to each Jacobian column [or row] in the two preceding arrays
  (of length \id{N}+1); \id{WK*}, work arrays containing temporary workspace 
  of same size as \id{Y}; and \id{IER}, error return code (0 if successful,
  $>0$ if a recoverable error occurred, or $<0$ if an unrecoverable error occurred.)
+
+  To indicate that the \id{FKINSPJAC} routine has been provided, then
+  following either the call to \id{FKINKLU} or \id{FKINSUPERLUMT}, the
+  following call must be made    
+  \index{FKINSPARSESETJAC@\texttt{FKINSPARSESETJAC}}
+\begin{verbatim}
+      CALL FKINSPARSESETJAC (IER)
+\end{verbatim}
+  The int return flag \id{IER} is an error return flag which is $0$
+  for success or nonzero for an error.
 
   Optional outputs specific to the {\sparse} case are listed in
   Table~\ref{t:fkinsol_out}.

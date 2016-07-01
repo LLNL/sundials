@@ -4,6 +4,7 @@
  * $Date$
  * -----------------------------------------------------------------
  * Programmer(s): Carol Woodward @ LLNL
+ *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2015, Lawrence Livermore National Security
@@ -41,6 +42,15 @@ extern void FIDA_SPJAC(realtype *T, realtype *CJ, realtype *Y,
 }
 #endif
  
+/*=============================================================*/
+
+/* Fortran interface to C routine IDASlsSetSparseJacFn; see
+   fida.h for further information */
+void FIDA_SPARSESETJAC(int *ier)
+{
+  *ier = IDASlsSetSparseJacFn(IDA_idamem, FIDASparseJac);
+}
+
 /*=============================================================*/
  
 /* C interface to user-supplied Fortran routine FIDASPJAC; see 

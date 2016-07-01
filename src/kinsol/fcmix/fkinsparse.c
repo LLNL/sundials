@@ -4,6 +4,7 @@
  * $Date$
  * -----------------------------------------------------------------
  * Programmer(s): Carol Woodward @ LLNL
+ *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2015, Lawrence Livermore National Security
@@ -14,9 +15,6 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS Copyright End
- * -----------------------------------------------------------------
- * This is the implementation file for the Fortran interface to
- * the KINSuperLUMT solver. See fkinsol.h for usage.
  * -----------------------------------------------------------------
  */
 
@@ -40,6 +38,15 @@ extern void FKIN_SPJAC(realtype *Y, realtype *FY, int *N, int *NNZ,
 }
 #endif
  
+/*=============================================================*/
+
+/* Fortran interface to C routine KINSlsSetSparseJacFn; see
+   fkinsol.h for further information */
+void FKIN_SPARSESETJAC(int *ier)
+{
+  *ier = KINSlsSetSparseJacFn(KIN_kinmem, FKINSparseJac);
+}
+
 /*=============================================================*/
  
 /* C interface to user-supplied Fortran routine FKINSPJAC; see 

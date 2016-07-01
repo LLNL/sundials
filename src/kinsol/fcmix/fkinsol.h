@@ -5,6 +5,7 @@
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
+ *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
@@ -44,6 +45,7 @@
    FKINDENSE interfaces to KINDense
    FKINKLU interfaces to KINKLU
    FKINSUPERLUMT interfaces to KINSUPERLUMT
+   FKINSPARSESETJAC interfaces to KINSlsSetSparseJacFn
    FKINSPTFQMR interfaces to KINSptfqmr
    FKINSPGMR interfaces to KINSpgmr
    FKINSPFGMR interfaces to KINSpfgmr
@@ -151,18 +153,19 @@
 
      Required when using the KINKLU or KINSuperLUMT linear solvers, the 
      user must supply a routine that computes a compressed-sparse-column 
-     approximation of the system Jacobian J = dF(y)/dy.  If supplied, 
-     it must have the following form:
+     [or compressed-sparse-row] approximation of the system Jacobian 
+     J = dF(y)/dy.  If supplied, it must have the following form:
 
        SUBROUTINE FKINSPJAC(Y, FY, N, NNZ, JDATA, JRVALS, 
       &                     JCPTRS, WK1, WK2, IER)
 
      Typically this routine will use only N, NNZ, JDATA, JRVALS and 
-     JCPTRS. It must load the N by N compressed sparse column matrix 
-     with storage for NNZ nonzeros, stored in the arrays JDATA (nonzero
-     values), JRVALS (row indices for each nonzero), JCOLPTRS (indices 
-     for start of each column), with the Jacobian matrix at the current
-     (y) in CSC form (see sundials_sparse.h for more information).
+     JCPTRS. It must load the N by N compressed sparse column [or compressed 
+     sparse row] matrix with storage for NNZ nonzeros, stored in the arrays 
+     JDATA (nonzero values), JRVALS (row [or column] indices for each nonzero), 
+     JCOLPTRS (indices for start of each column [or row]), with the Jacobian 
+     matrix at the current (y) in CSC [or CSR] form (see sundials_sparse.h for 
+     more information).
 
      The arguments are:
          Y    -- array containing state variables [realtype, input]
@@ -171,9 +174,9 @@
          NNZ  -- allocated length of nonzero storage [int, input]
         JDATA -- nonzero values in Jacobian
                  [realtype of length NNZ, output]
-       JRVALS -- row indices for each nonzero in Jacobian
+       JRVALS -- row [or column] indices for each nonzero in Jacobian
                   [int of length NNZ, output]
-       JCPTRS -- pointers to each Jacobian column in preceding arrays
+       JCPTRS -- pointers to each Jacobian column [or row] in preceding arrays
                  [int of length N+1, output]
          WK*  -- array containing temporary workspace of same size as Y 
                  [realtype, input]
@@ -319,17 +322,29 @@
 
      The user must make the call
 
-       CALL FKINKLU(NEQ, NNZ, ORDERING, IER)
+       CALL FKINKLU(NEQ, NNZ, SPARSETYPE, ORDERING, IER)
 
      The arguments are:
         NEQ = the problem size [int; input]
         NNZ = the maximum number of nonzeros [int; input]
+	SPARSETYPE = choice between CSC and CSR format
+           (0 = CSC, 1 = CSR) [int; input]
 	ORDERING = the matrix ordering desired, possible values
 	   come from the KLU package (0 = AMD, 1 = COLAMD) [int; input]
 	IER = error return flag [int, output]: 
 	         0 = success, 
 		 negative = error.
  
+     When using the KLU solver the user must provide the FKINSPJAC routine for the 
+     evalution of the sparse approximation to the Jacobian. To indicate that this
+     routine has been provided, after the call to FKINKLU, the following call must 
+     be made    
+
+       CALL FKINSPARSESETJAC(IER) 
+
+     The int return flag IER=0 if successful, and nonzero otherwise.
+
+
      The KINSOL KLU solver will reuse much of the factorization information from one
      nonlinear iteration to the next.  If at any time the user wants to force a full
      refactorization or if the number of nonzeros in the Jacobian matrix changes, the
@@ -377,8 +392,14 @@
      interfaces to the SuperLUMT solver.
 
      When using FKINSUPERLUMT, the user is required to supply the FKINSPJAC 
-     routine for the evaluation of the sparse approximation to the 
-     Jacobian, as discussed above with the other user-supplied routines.
+     routine for the evaluation of the CSC approximation to the 
+     Jacobian (note: the current SuperLU_MT interface in SUNDIALS does not 
+     support CSR matrices). To indicate that this routine has been provided, 
+     after the call to FKINSUPERLUMT, the following call must be made    
+
+         CALL FKINSPARSESETJAC(IER) 
+
+     The int return flag IER=0 if successful, and nonzero otherwise.
  
      Optional outputs specific to the SUPERLUMT case are:
         LSTF    = IOUT(8)  from KINSlsGetLastFlag
@@ -585,6 +606,7 @@ extern "C" {
 #define FKIN_KLU            SUNDIALS_F77_FUNC(fkinklu, FKLUKLU)
 #define FKIN_KLUREINIT      SUNDIALS_F77_FUNC(fkinklureinit, FKLUKLUREINIT)
 #define FKIN_SUPERLUMT      SUNDIALS_F77_FUNC(fkinsuperlumt, FKLUSUPERLUMT)
+#define FKIN_SPARSESETJAC   SUNDIALS_F77_FUNC(fkinsparsesetjac, FKINSPARSESETJAC)  
 #define FKIN_SPTFQMR        SUNDIALS_F77_FUNC(fkinsptfqmr, FKINSPTFQMR)
 #define FKIN_SPBCG          SUNDIALS_F77_FUNC(fkinspbcg, FKINSPBCG)
 #define FKIN_SPGMR          SUNDIALS_F77_FUNC(fkinspgmr, FKINSPGMR)
@@ -617,6 +639,7 @@ extern "C" {
 #define FKIN_KLU            fkinklu_
 #define FKIN_KLUREINIT      fkinklureinit_
 #define FKIN_SUPERLUMT      fkinsuperlumt_
+#define FKIN_SPARSESETJAC   fkinsparsesetjac_
 #define FKIN_SPTFQMR        fkinsptfqmr_
 #define FKIN_SPBCG          fkinspbcg_
 #define FKIN_SPGMR          fkinspgmr_
@@ -660,6 +683,7 @@ void FKIN_LAPACKBANDSETJAC(int *flag, int *ier);
 void FKIN_KLU(int *neq, int *nnz, int *sparsetype, int *ordering, int *ier);
 void FKIN_KLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier);
 void FKIN_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier);
+void FKIN_SPARSESETJAC(int *ier);
 
 void FKIN_SPTFQMR(int *maxl, int *ier);
 void FKIN_SPBCG(int *maxl, int *ier);

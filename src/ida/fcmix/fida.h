@@ -4,6 +4,7 @@
  * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
+ *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
@@ -62,6 +63,7 @@
  *   FIDAKLU         interfaces to IDAKLU
  *   FIDAKLUReinit   interfaces to IDAKLUReinit
  *   FIDASUPERLUMT   interfaces to IDASuperLUMT
+ *   FIDASPARSESETJAC    interfaces to IDASlsSetSparseJacFn
  *
  *   FIDASPTFQMR/FIDASPTFQMRREINIT  interface to IDASptfqmr and IDASptfqmrSet*
  *   FIDASPBCG/FIDASPBCGREINIT      interface to IDASpbcg and IDASpbcgSet*
@@ -167,48 +169,48 @@
  * successful, and nonzero otherwise.
  * IPAR and RPAR are user (integer and real) arrays passed to FIDAMALLOC.
  *
- (5s) User-supplied sparse Jacobian approximation routine: FIDASPJAC
-
-     Required when using the IDAKLU or IDASuperLUMT linear solvers, the 
-     user must supply a routine that computes a compressed-sparse-column 
-     approximation of the system Jacobian J = dF/dy' + c_j*dF/dy.           
-     If supplied, it must have the following form:
-
-       SUBROUTINE FIDASPJAC(T, CJ, Y, YP, R, N, NNZ, JDATA, JRVALS, 
-      &                    JCPTRS, H, IPAR, RPAR, WK1, WK2, WK3, IER)
-
-     It must load the N by N compressed sparse column matrix 
-     with storage for NNZ nonzeros, stored in the arrays JDATA (nonzero
-     values), JRVALS (row indices for each nonzero), JCOLPTRS (indices 
-     for start of each column), with the Jacobian matrix at the current
-     (t,y) in CSC form (see sundials_sparse.h for more information).
-
-     The arguments are:
-         T    -- current time [realtype, input]
-	 CJ   -- Scalar in the system Jacobian proportional 
-                 to inverse step size [realtype, input]
-         Y    -- array containing state variables [realtype, input]
-         YP   -- array containing state derivatives [realtype, input]
-	 R    -- array containing system residual F(T, Y, YP) [realtype, input]
-         N    -- number of matrix rows/columns in Jacobian [int, input]
-         NNZ  -- allocated length of nonzero storage [int, input]
-        JDATA -- nonzero values in Jacobian
-                 [realtype of length NNZ, output]
-       JRVALS -- row indices for each nonzero in Jacobian
-                  [int of length NNZ, output]
-       JCPTRS -- pointers to each Jacobian column in preceding arrays
-                 [int of length N+1, output]
-         H    -- current step size [realtype, input]
-         IPAR -- array containing integer user data that was passed to
-                 FIDAMALLOC [long int, input]
-         RPAR -- array containing real user data that was passed to
-                 FIDAMALLOC [realtype, input]
-         WK*  -- array containing temporary workspace of same size as Y 
-                 [realtype, input]
-         IER  -- return flag [int, output]:
-                    0 if successful, 
-                   >0 if a recoverable error occurred,
-                   <0 if an unrecoverable error ocurred.
+ * (5s) User-supplied sparse Jacobian approximation routine: FIDASPJAC
+ *
+ * Required when using the IDAKLU or IDASuperLUMT linear solvers, the 
+ * user must supply a routine that computes a compressed-sparse-column [or 
+ * compressed-sparse-row] approximation of the system Jacobian 
+ * J = dF/dy' + c_j*dF/dy.  If supplied, it must have the following form:
+ *
+ *       SUBROUTINE FIDASPJAC(T, CJ, Y, YP, R, N, NNZ, JDATA, JRVALS, 
+ *      &                    JCPTRS, H, IPAR, RPAR, WK1, WK2, WK3, IER)
+ *
+ * It must load the N by N compressed sparse column [row] matrix 
+ * with storage for NNZ nonzeros, stored in the arrays JDATA (nonzero
+ * values), JRVALS (row [column] indices for each nonzero), JCOLPTRS (indices 
+ * for start of each column [row]), with the Jacobian matrix at the current
+ * (t,y) in CSC [CSR] form (see sundials_sparse.h for more information).
+ *
+ * The arguments are:
+ *         T    -- current time [realtype, input]
+ *         CJ   -- Scalar in the system Jacobian proportional 
+ *                 to inverse step size [realtype, input]
+ *         Y    -- array containing state variables [realtype, input]
+ *         YP   -- array containing state derivatives [realtype, input]
+ *         R    -- array containing system residual F(T, Y, YP) [realtype, input]
+ *         N    -- number of matrix rows/columns in Jacobian [int, input]
+ *         NNZ  -- allocated length of nonzero storage [int, input]
+ *        JDATA -- nonzero values in Jacobian
+ *                 [realtype of length NNZ, output]
+ *       JRVALS -- row [column] indices for each nonzero in Jacobian
+ *                  [int of length NNZ, output]
+ *       JCPTRS -- pointers to each Jacobian column [row] in preceding arrays
+ *                 [int of length N+1, output]
+ *         H    -- current step size [realtype, input]
+ *         IPAR -- array containing integer user data that was passed to
+ *                 FIDAMALLOC [long int, input]
+ *         RPAR -- array containing real user data that was passed to
+ *                 FIDAMALLOC [realtype, input]
+ *         WK*  -- array containing temporary workspace of same size as Y 
+ *                 [realtype, input]
+ *         IER  -- return flag [int, output]:
+ *                    0 if successful, 
+ *                   >0 if a recoverable error occurred,
+ *                   <0 if an unrecoverable error ocurred.
  *
  * (6) Optional user-supplied error weight vector routine: FIDAEWT
  * As an option to providing the relative and absolute tolerances, the user
@@ -426,76 +428,94 @@
  *        NRELS   = IOUT(16) -> IDABandGetNumResEvals
  *        NJE     = IOUT(17) -> IDABandGetNumJacEvals
  *
-  (8.3s) SPARSE treatment of the linear system using the KLU solver.
-
-     The user must make the call
-
-       CALL FIDAKLU(NEQ, NNZ, ORDERING, IER)
-
-     The arguments are:
-        NEQ = the problem size [int; input]
-        NNZ = the maximum number of nonzeros [int; input]
-	ORDERING = the matrix ordering desired, possible values
-	   come from the KLU package (0 = AMD, 1 = COLAMD) [int; input]
-	IER = error return flag [int, output]: 
-	         0 = success, 
-		 negative = error.
- 
-     The IDA KLU solver will reuse much of the factorization information from one
-     nonlinear iteration to the next.  If at any time the user wants to force a full
-     refactorization or if the number of nonzeros in the Jacobian matrix changes, the
-     user should make the call
-
-       CALL FIDAKLUREINIT(NEQ, NNZ, REINIT_TYPE)
-
-     The arguments are:
-        NEQ = the problem size [int; input]
-        NNZ = the maximum number of nonzeros [int; input]
-	REINIT_TYPE = 1 or 2.  For a value of 1, the matrix will be destroyed and 
-          a new one will be allocated with NNZ nonzeros.  For a value of 2, 
-	  only symbolic and numeric factorizations will be completed. 
- 
-     When using FIDAKLU, the user is required to supply the FIDASPJAC 
-     routine for the evaluation of the sparse approximation to the 
-     Jacobian, as discussed above with the other user-supplied routines.
- 
-     Optional outputs specific to the KLU case are:
-        LSTF    = IOUT(16) from IDASlsGetLastFlag
-        NJES    = IOUT(18) from IDASlsGetNumJacEvals
-     See the IDA manual for descriptions.
- 
- (8.4s) SPARSE treatment of the linear system using the SuperLUMT solver.
-
-     The user must make the call
-
-       CALL FIDASUPERLUMT(NTHREADS, NEQ, NNZ, ORDERING, IER)
-
-     The arguments are:
-        NTHREADS = desired number of threads to use [int; input]
-        NEQ = the problem size [int; input]
-        NNZ = the maximum number of nonzeros [int; input]
-	ORDERING = the matrix ordering desired, possible values
-	   come from the SuperLU_MT package [int; input]
-           0 = Natural
-           1 = Minimum degree on A^T A
-           2 = Minimum degree on A^T + A
-           3 = COLAMD
-	IER = error return flag [int, output]: 
-	         0 = success, 
-		 negative = error.
-	 
-     At this time, there is no reinitialization capability for the SUNDIALS 
-     interfaces to the SuperLUMT solver.
-
-     When using FIDASUPERLUMT, the user is required to supply the FIDASPJAC 
-     routine for the evaluation of the sparse approximation to the 
-     Jacobian, as discussed above with the other user-supplied routines.
- 
-     Optional outputs specific to the SUPERLUMT case are:
-        LSTF    = IOUT(14) from IDASlsGetLastFlag
-        NJES    = IOUT(16) from IDASlsGetNumJacEvals
-     See the IDA manual for descriptions.
- 
+ *  (8.3s) SPARSE treatment of the linear system using the KLU solver.
+ *
+ *     The user must make the call
+ *
+ *       CALL FIDAKLU(NEQ, NNZ, SPARSETYPE, ORDERING, IER)
+ *
+ *     The arguments are:
+ *        NEQ = the problem size [int; input]
+ *        NNZ = the maximum number of nonzeros [int; input]
+ *        SPARSETYPE = choice between CSC and CSR format
+ *           (0 = CSC, 1 = CSR) [int; input]
+ *        ORDERING = the matrix ordering desired, possible values
+ *           come from the KLU package (0 = AMD, 1 = COLAMD) [int; input]
+ *        IER = error return flag [int, output]: 
+ *	         0 = success, 
+ *		 negative = error.
+ * 
+ *     When using the KLU solver the user must provide the FIDASPJAC routine for the 
+ *     evalution of the sparse approximation to the Jacobian. To indicate that this
+ *     routine has been provided, after the call to FIDAKLU, the following call must 
+ *     be made    
+ *
+ *       CALL FIDASPARSESETJAC(IER) 
+ *
+ *     The int return flag IER=0 if successful, and nonzero otherwise.
+ *
+ *  
+ *     The IDA KLU solver will reuse much of the factorization information from one
+ *     nonlinear iteration to the next.  If at any time the user wants to force a full
+ *     refactorization or if the number of nonzeros in the Jacobian matrix changes, the
+ *     user should make the call
+ *
+ *       CALL FIDAKLUREINIT(NEQ, NNZ, REINIT_TYPE)
+ *
+ *     The arguments are:
+ *        NEQ = the problem size [int; input]
+ *        NNZ = the maximum number of nonzeros [int; input]
+ *	REINIT_TYPE = 1 or 2.  For a value of 1, the matrix will be destroyed and 
+ *          a new one will be allocated with NNZ nonzeros.  For a value of 2, 
+ *	  only symbolic and numeric factorizations will be completed. 
+ * 
+ *     When using FIDAKLU, the user is required to supply the FIDASPJAC 
+ *     routine for the evaluation of the sparse approximation to the 
+ *     Jacobian, as discussed above with the other user-supplied routines.
+ * 
+ *     Optional outputs specific to the KLU case are:
+ *        LSTF    = IOUT(16) from IDASlsGetLastFlag
+ *        NJES    = IOUT(18) from IDASlsGetNumJacEvals
+ *     See the IDA manual for descriptions.
+ * 
+ * (8.4s) SPARSE treatment of the linear system using the SuperLUMT solver.
+ *
+ *     The user must make the call
+ *
+ *       CALL FIDASUPERLUMT(NTHREADS, NEQ, NNZ, ORDERING, IER)
+ *
+ *     The arguments are:
+ *        NTHREADS = desired number of threads to use [int; input]
+ *        NEQ = the problem size [int; input]
+ *        NNZ = the maximum number of nonzeros [int; input]
+ *	ORDERING = the matrix ordering desired, possible values
+ *	   come from the SuperLU_MT package [int; input]
+ *           0 = Natural
+ *           1 = Minimum degree on A^T A
+ *           2 = Minimum degree on A^T + A
+ *           3 = COLAMD
+ *	IER = error return flag [int, output]: 
+ *	         0 = success, 
+ *		 negative = error.
+ *	 
+ *     At this time, there is no reinitialization capability for the SUNDIALS 
+ *     interfaces to the SuperLUMT solver.
+ *
+ *     When using FIDASUPERLUMT, the user is required to supply the FIDASPJAC 
+ *     routine for the evaluation of the CSC approximation to the Jacobian (note: the 
+ *     current SuperLU_MT interface in SUNDIALS does not support CSR matrices). To 
+ *     indicate that this routine has been provided, after the call to FIDASUPERLUMT,
+ *     the following call must be made    
+ *
+ *       CALL FIDASPARSESETJAC(IER) 
+ *
+ *     The int return flag IER=0 if successful, and nonzero otherwise.
+ * 
+ *     Optional outputs specific to the SUPERLUMT case are:
+ *        LSTF    = IOUT(14) from IDASlsGetLastFlag
+ *        NJES    = IOUT(16) from IDASlsGetNumJacEvals
+ *     See the IDA manual for descriptions.
+ * 
  * (8.5) SPGMR treatment of the linear systems.
  * For the Scaled Preconditioned GMRES solution of the linear systems,
  * the user must make the following call:
@@ -697,6 +717,7 @@ extern "C" {
 #define FIDA_KLU            SUNDIALS_F77_FUNC(fidaklu, FIDAKLU)
 #define FIDA_KLUREINIT      SUNDIALS_F77_FUNC(fidaklureinit, FIDAKLUREINIT)
 #define FIDA_SUPERLUMT      SUNDIALS_F77_FUNC(fidasuperlumt, FIDASUPERLUMT)
+#define FIDA_SPARSESETJAC   SUNDIALS_F77_FUNC(fidasparsesetjac, FIDASPARSESETJAC)
 #define FIDA_SPTFQMR        SUNDIALS_F77_FUNC(fidasptfqmr, FIDASPTFQMR)
 #define FIDA_SPBCG          SUNDIALS_F77_FUNC(fidaspbcg, FIDASPBCG)
 #define FIDA_SPGMR          SUNDIALS_F77_FUNC(fidaspgmr, FIDASPGMR)
@@ -739,6 +760,7 @@ extern "C" {
 #define FIDA_KLU            fidaklu_
 #define FIDA_KLUREINIT      fidaklureinit_
 #define FIDA_SUPERLUMT      fidasuperlumt_
+#define FIDA_SPARSESETJAC   fidasparsesetjac_
 #define FIDA_SPTFQMR        fidasptfqmr_
 #define FIDA_SPBCG          fidaspbcg_
 #define FIDA_SPGMR          fidaspgmr_
@@ -800,6 +822,7 @@ void FIDA_LAPACKBANDSETJAC(int *flag, int *ier);
 void FIDA_KLU(int *neq, int *nnz, int *sparsetype, int *ordering, int *ier);
 void FIDA_KLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier);
 void FIDA_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier);
+void FIDA_SPARSESETJAC(int *ier);
 
 void FIDA_SPTFQMR(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier);
 void FIDA_SPBCG(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier);
@@ -845,6 +868,10 @@ int FIDALapackBandJac(long int N, long int mupper, long int mlower,
                       N_Vector yy, N_Vector yp, N_Vector rr,
                       DlsMat J, void *user_data,
                       N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+
+int FIDASparseJac(realtype t, realtype cj, N_Vector y, N_Vector yp,
+		  N_Vector fval, SlsMat J, void *user_data, 
+		  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 int FIDAJtimes(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
                N_Vector v, N_Vector Jv,
