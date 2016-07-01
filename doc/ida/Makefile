@@ -35,10 +35,12 @@ ida_constants.tex
 #ida_linsolv.tex \
 
 EX_FILES = \
-${EXAMPLES}.tex \
-ida_ex_intro.tex \
-ida_ex_serial.tex \
+${EXAMPLES}.tex     \
+ida_ex_intro.tex    \
+ida_ex_serial.tex   \
 ida_ex_parallel.tex \
+ida_ex_petsc.tex    \
+ida_ex_fortran.tex  \
 ida_ex_codes.tex
 
 include ../Makefile.in

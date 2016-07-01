@@ -38,7 +38,8 @@ data pointers is handled by low-level {\hypre} functions. Implementation of
 discouraged (and we will consider removing it in the future).
 When access to raw vector data is needed, it is 
 recommended to extract {\hypre} vector first, and then use {\hypre} 
-methods to access the data. 
+methods to access the data. Usage examples of {\nvecph} are provided in 
+example programs for {\cvode} \cite{cvode_ex} and {\arkode} \cite{arkode_ex}.
 
 The names of parhyp methods are obtained from those in Table \ref{t:nvecops}
 by appending the suffix \id{\_ParHyp} (e.g. \id{N\_VDestroy\_ParHyp}).
