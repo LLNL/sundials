@@ -1,11 +1,12 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4396 $
- * $Date: 2015-02-26 16:59:39 -0800 (Thu, 26 Feb 2015) $
+ * $Revision$
+ * $Date$
  * -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
- * (based on PETSc TS example 15 and a SUNDIALS example by 
- *  Allan Taylor, Alan Hindmarsh and Radu Serban)
+ * -----------------------------------------------------------------
+ * Based on PETSc TS example 15 and a SUNDIALS example by 
+ * Allan Taylor, Alan Hindmarsh and Radu Serban
  * -----------------------------------------------------------------
  * Example problem for IDA: 2D heat equation, PETSc vector, GMRES.
  *
@@ -69,8 +70,8 @@
                                     /* Spatial mesh is MX by MY */
 
 typedef struct {  
-  N_Vector    pp;    /* vector of diagonal preconditioner elements */
-  DM          da;    /* PETSc data management object */
+  N_Vector pp;    /* vector of diagonal preconditioner elements */
+  DM       da;    /* PETSc data management object */
 } *UserData;
 
 /* User-supplied residual function and supporting routines */
@@ -115,7 +116,7 @@ int main(int argc, char *argv[])
   void *mem;
   UserData data;
   int iout, thispe, ier, npes;
-  long int Neq, local_N;
+  long int Neq;
   realtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
   PetscErrorCode ierr;                  /* PETSc error code  */
@@ -132,10 +133,6 @@ int main(int argc, char *argv[])
   MPI_Comm_size(comm, &npes);
   MPI_Comm_rank(comm, &thispe);
   
-  /* Initialize PETSc */
-  ierr = PetscInitializeNoArguments();
-  CHKERRQ(ierr);
-
   if (npes != NPEX*NPEY) {
     if (thispe == 0)
       fprintf(stderr, 
@@ -145,27 +142,29 @@ int main(int argc, char *argv[])
     return(1);
   }
   
-  /* Set local length local_N and global length Neq. */
-
-  local_N = MXSUB*MYSUB;
-  Neq     = MX * MY;
+  /* Set global vector length Neq. */
+  Neq = MX * MY;
   
-  /* Allocate and initialize the data structure and N-vectors. */
+  /* Initialize PETSc */
+  ierr = PetscInitializeNoArguments();
+  CHKERRQ(ierr);
 
+  /* Allocate and initialize the data structure and N-vectors. */
   data = (UserData) malloc(sizeof *data);
   if(check_flag((void *)data, "malloc", 2, thispe)) 
     MPI_Abort(comm, 1);
   data->pp = NULL;
   data->da = NULL;
-
+  
+  /* Create the object that will manage the communication of 2D data */
   ierr = DMDACreate2d(comm, 
-                      DM_BOUNDARY_NONE,  /* NONE, PERIODIC, GHOSTED*/
+                      DM_BOUNDARY_NONE,  /* NONE, PERIODIC, GHOSTED */
                       DM_BOUNDARY_NONE,
                       DMDA_STENCIL_STAR, /* STAR, BOX */
-                      -10,               /* MX */
-                      -10,               /* MY */
-                      PETSC_DECIDE,      /* NPEX */
-                      PETSC_DECIDE,      /* NPEY */
+                      MX,                
+                      MY,                
+                      NPEX,              /* Set numbers or use PETSC_DECIDE */
+                      NPEY,              
                       1,                 /* degrees of freedom per node */
                       1,                 /* stencil width */
                       NULL,              /* number of nodes per cell in x */
@@ -173,6 +172,7 @@ int main(int argc, char *argv[])
                       &(data->da));
   CHKERRQ(ierr);
 
+  /* Create PETSc vector */
   ierr = DMCreateGlobalVector(data->da, &uvec);
   CHKERRQ(ierr);
 
@@ -318,18 +318,31 @@ int resHeat(realtype tt,
   PetscErrorCode ierr;
   UserData       data = (UserData) user_data;
   DM             da   = (DM) data->da;
-  PetscInt       i,j,Mx,My,xs,ys,xm,ym;
-  PetscReal      hx,hy,sx,sy;
-  PetscScalar    u,uxx,uyy,**uarray,**f,**udot;
+  PetscInt       i, j, Mx, My, xs, ys, xm, ym;
+  PetscReal      hx, hy, sx, sy;
+  PetscScalar    u, uxx, uyy, **uarray, **f, **udot;
   Vec localU;
   Vec *U    = N_VGetVector_petsc(uu);
   Vec *Udot = N_VGetVector_petsc(up);
   Vec *F    = N_VGetVector_petsc(rr);
 
   PetscFunctionBeginUser;
-  ierr = DMGetLocalVector(da,&localU);CHKERRQ(ierr);
-  ierr = DMDAGetInfo(da,PETSC_IGNORE,&Mx,&My,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,
-                     PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE);
+  ierr = DMGetLocalVector(da,&localU);
+  CHKERRQ(ierr);
+  ierr = DMDAGetInfo(da,
+                     PETSC_IGNORE,
+                     &Mx,          /* Get global grid x size */
+                     &My,          /* Get global grid x size */
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE);
 
   hx = 1.0/(PetscReal)(Mx-1); sx = 1.0/(hx*hx);
   hy = 1.0/(PetscReal)(My-1); sy = 1.0/(hy*hy);
@@ -340,16 +353,22 @@ int resHeat(realtype tt,
      By placing code between these two statements, computations can be
      done while messages are in transition.
   */
-  ierr = DMGlobalToLocalBegin(da,*U,INSERT_VALUES,localU);CHKERRQ(ierr);
-  ierr = DMGlobalToLocalEnd(da,*U,INSERT_VALUES,localU);CHKERRQ(ierr);
+  ierr = DMGlobalToLocalBegin(da,*U,INSERT_VALUES,localU);
+  CHKERRQ(ierr);
+  ierr = DMGlobalToLocalEnd(da,*U,INSERT_VALUES,localU);
+  CHKERRQ(ierr);
 
   /* Get pointers to vector data */
-  ierr = DMDAVecGetArrayRead(da,localU,&uarray);CHKERRQ(ierr);
-  ierr = DMDAVecGetArray(da,*F,&f);CHKERRQ(ierr);
-  ierr = DMDAVecGetArray(da,*Udot,&udot);CHKERRQ(ierr);
+  ierr = DMDAVecGetArrayRead(da,localU,&uarray);
+  CHKERRQ(ierr);
+  ierr = DMDAVecGetArray(da,*F,&f);
+  CHKERRQ(ierr);
+  ierr = DMDAVecGetArray(da,*Udot,&udot);
+  CHKERRQ(ierr);
 
   /* Get local grid boundaries */
-  ierr = DMDAGetCorners(da,&xs,&ys,NULL,&xm,&ym,NULL);CHKERRQ(ierr);
+  ierr = DMDAGetCorners(da,&xs,&ys,NULL,&xm,&ym,NULL);
+  CHKERRQ(ierr);
 
   /* Compute function over the locally owned part of the grid */
   for (j=ys; j<ys+ym; j++) {
@@ -368,13 +387,18 @@ int resHeat(realtype tt,
   }
 
   /* Restore vectors */
-  ierr = DMDAVecRestoreArrayRead(da,localU,&uarray);CHKERRQ(ierr);
-  ierr = DMDAVecRestoreArray(da,*F,&f);CHKERRQ(ierr);
-  ierr = DMDAVecRestoreArray(da,*Udot,&udot);CHKERRQ(ierr);
-  ierr = DMRestoreLocalVector(da,&localU);CHKERRQ(ierr);
-  ierr = PetscLogFlops(11.0*ym*xm);CHKERRQ(ierr);
+  ierr = DMDAVecRestoreArrayRead(da,localU,&uarray);
+  CHKERRQ(ierr);
+  ierr = DMDAVecRestoreArray(da,*F,&f);
+  CHKERRQ(ierr);
+  ierr = DMDAVecRestoreArray(da,*Udot,&udot);
+  CHKERRQ(ierr);
+  ierr = DMRestoreLocalVector(da,&localU);
+  CHKERRQ(ierr);
+//   ierr = PetscLogFlops(11.0*ym*xm);
+//   CHKERRQ(ierr);
   
-  return (0);
+  PetscFunctionReturn(0);
 }
 
 
@@ -410,12 +434,23 @@ int PsetupHeat(realtype tt,
   PetscScalar pelinv;
   PetscScalar **ppv;
   
-  /* Initially set all pp elements to one. */
-  //N_VConst(ONE, data->pp);
-  
   PetscFunctionBeginUser;
-  ierr = DMDAGetInfo(da,PETSC_IGNORE,&Mx,&My,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE);
-  ierr = DMDAGetCorners(da,&xs,&ys,NULL,&xm,&ym,NULL);CHKERRQ(ierr);
+  ierr = DMDAGetInfo(da,
+                     PETSC_IGNORE,
+                     &Mx,
+                     &My,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE);
+  ierr = DMDAGetCorners(da, &xs, &ys, NULL, &xm, &ym, NULL);
+  CHKERRQ(ierr);
 
   hx = 1.0/(PetscReal)(Mx-1); sx = 1.0/(hx*hx);
   hy = 1.0/(PetscReal)(My-1); sy = 1.0/(hy*hy);
@@ -438,7 +473,7 @@ int PsetupHeat(realtype tt,
   ierr = DMDAVecRestoreArray(da, *ppvec, &ppv);
   CHKERRQ(ierr);
   
-  return(0);
+  PetscFunctionReturn(0);
 }
 
 
@@ -491,8 +526,20 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
   Vec *idvec = N_VGetVector_petsc(id);
 
   PetscFunctionBeginUser;
-  ierr = DMDAGetInfo(da,PETSC_IGNORE,&Mx,&My,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,
-                     PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE);
+  ierr = DMDAGetInfo(da,
+                     PETSC_IGNORE,
+                     &Mx,
+                     &My,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE);
 
   hx = 1.0/(PetscReal)(Mx-1);
   hy = 1.0/(PetscReal)(My-1);
@@ -506,7 +553,8 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
   CHKERRQ(ierr);
 
   /* Get local grid boundaries */
-  ierr = DMDAGetCorners(da,&xs,&ys,NULL,&xm,&ym,NULL);CHKERRQ(ierr);
+  ierr = DMDAGetCorners(da,&xs,&ys,NULL,&xm,&ym,NULL);
+  CHKERRQ(ierr);
 
   /* Compute function over the locally owned part of the grid */
   for (j=ys; j<ys+ym; j++) {
@@ -530,8 +578,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
   ierr = DMDAVecRestoreArray(da, *idvec, &iddat);
   CHKERRQ(ierr);
 
- /* Initialize up. */
-  
+  /* Initialize up. */
   N_VConst(ZERO, up);    /* Initially set up = 0. */
   
   /* resHeat sets res to negative of ODE RHS values at interior points. */
@@ -540,7 +587,6 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
   /* Copy -res into up to get correct initial up values. */
   N_VScale(-ONE, res, up);
   
-
   PetscFunctionReturn(0);
 }
 
