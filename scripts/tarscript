@@ -197,7 +197,7 @@ cp $sundialsdir/README $tmpdir/
 #cp $sundialsdir/config.hin $tmpdir/
 #cp $sundialsdir/configure.ac $tmpdir/configure.ac
 #cp $sundialsdir/acinclude.m4 $tmpdir/
-#cp $sundialsdir/Makefile.in $tmpdir/
+cp $sundialsdir/doc/Makefile.in $tmpdir/doc/
 cp $sundialsdir/CMakeLists.txt $tmpdir/
 
 # Make install guide and copy to $tmpdir
