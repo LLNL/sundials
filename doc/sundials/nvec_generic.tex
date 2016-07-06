@@ -32,6 +32,7 @@ the various actual vector operations, and is defined as
 %%
 \begin{verbatim}
 struct _generic_N_Vector_Ops {
+  N_Vector_ID (*nvgetvectorid)(N_Vector);
   N_Vector    (*nvclone)(N_Vector);
   N_Vector    (*nvcloneempty)(N_Vector);
   void        (*nvdestroy)(N_Vector);
@@ -121,7 +122,20 @@ A particular implementation of the {\nvector} module must:
   be used to access different parts in the {\em content} field of the newly defined \id{N\_Vector}.
 \end{itemize}
 
-
+Each {\nvector} implementation included in {\sundials} distribution has its unique 
+identifier specified in enumeration:
+\begin{verbatim}
+typedef enum {
+  SUNDIALS_NVEC_SERIAL, 
+  SUNDIALS_NVEC_PARALLEL, 
+  SUNDIALS_NVEC_OPENMP, 
+  SUNDIALS_NVEC_PTHREADS, 
+  SUNDIALS_NVEC_PARHYP, 
+  SUNDIALS_NVEC_PETSC
+} N_Vector_ID; 
+\end{verbatim}
+It is recommended that user defined {\nvector} implementation has its own unique 
+identifier added to this enumeration.
 
 %---------------------------------------------------------------------------
 % Table of vector kernels
@@ -142,6 +156,12 @@ A particular implementation of the {\nvector} module must:
 \tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
 \tablelasttail{\hline}
 \begin{xtabular}{|p{\colone}|p{\coltwo}|}
+%%
+\id{N\_VGetVectorID} & \id{id = N\_VGetVectorID(w);} \\ 
+& Returns the vector type identifier for vector \id{w}. It is used to determine
+vector implementation type (e.g.~serial, parallel,\ldots) from abstract 
+\id{N\_Vector} interface.
+\\[2mm]
 %%
 \id{N\_VClone} & \id{v = N\_VClone(w);} \\ 
 & Creates a new \id{N\_Vector} of the same type as an existing vector \id{w} and sets the
@@ -358,6 +378,7 @@ of threads (if threaded implementation), and a print timing flag.
 
 \noindent The following is a list of the example functions in \id{test\_nvector.c}:
 \begin{itemize}
+\item \id{N\_VGetVectorID}: Returns vector type identifier.
 \item \id{Test\_N\_VClone}: Creates clone of vector and checks validity of clone.  
 \item \id{Test\_N\_VCloneEmpty}: Creates clone of empty vector and checks validity of clone.  
 \item \id{Test\_N\_VCloneVectorArray}: Creates clone of vector array and checks validity of cloned array.  
