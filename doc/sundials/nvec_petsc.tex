@@ -31,7 +31,7 @@ Note that {\nvecpetsc} requires {\sundials} to be built with {\mpi} support.
 The {\nvecpetsc} module defines implementations of all vector operations listed 
 in Table \ref{t:nvecops}, except for \verb|N_VGetArrayPointer| and 
 \verb|N_VSetArrayPointer|. When access to raw vector data is needed, it is 
-recommended to extract {\petsc} vector first, and then use {\petsc} 
+recommended to extract the {\petsc} vector first, and then use {\petsc} 
 methods to access the data. A usage example of {\nvecpetsc} is provided in 
 example programs for {\ida} \cite{ida_ex}.
 
