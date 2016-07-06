@@ -23,15 +23,13 @@ EXAMPLES   = cv_examples
 UG_FILES = \
 ${USER_GUIDE}.tex \
 cv_intro.tex \
-cv_install.tex \
 cv_math.tex \
+cv_org.tex \
 cv_usage.tex \
 cv_fcmix.tex \
 cv_nvec.tex \
-cv_org.tex \
 cv_newlinsolv.tex \
-#cv_linsolv.tex \
-cv_constants.tex \
+cv_constants.tex
 
 EX_FILES = \
 ${EXAMPLES}.tex \
