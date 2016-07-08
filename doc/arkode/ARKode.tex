@@ -13353,6 +13353,9 @@ solver module (see {\hyperref[c_interface/User_callable:cinterface-optionaloutpu
 {\hyperref[f_interface/Usage:f/_/FARKSUPERLUMT]{\emph{\code{FARKSUPERLUMT()}}}} interfaces to {\hyperref[c_interface/User_callable:c.ARKSuperLUMT]{\emph{\code{ARKSuperLUMT()}}}}.
 
 \item {} 
+{\hyperref[f_interface/Usage:f/_/FARKSPARSESETJAC]{\emph{\code{FARKSPARSESETJAC()}}}} interfaces to {\hyperref[c_interface/User_callable:c.ARKSlsSetSparseJacFn]{\emph{\code{ARKSlsSetSparseJacFn()}}}}.
+
+\item {} 
 {\hyperref[f_interface/Usage:f/_/FARKSPGMR]{\emph{\code{FARKSPGMR()}}}} interfaces to {\hyperref[c_interface/User_callable:c.ARKSpgmr]{\emph{\code{ARKSpgmr()}}}} and the SPGMR optional input
 functions (see {\hyperref[c_interface/User_callable:cinterface-arkspilsinputtable]{\emph{\DUspan{}{Table: Optional inputs for ARKSPILS}}}}).
 
@@ -19132,7 +19135,8 @@ by low-level HYPRE functions. Implementation of \code{N\_VGetArrayPointer}
 is provided, but its use is strongly discouraged (and we will consider
 removing it in the future). When access to raw vector data is needed, it is
 recommended to extract HYPRE vector first, and then use HYPRE methods
-to access the data.
+to access the data.  Usage examples of NVECTOR\_PARHYP are provided in
+example programs for CVODE and ARKode.
 
 The names of parhyp methods are obtained from those in the section
 {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}} by appending the suffix \code{\_ParHyp}
@@ -19255,8 +19259,12 @@ Note that NVECTOR\_PETSC requires SUNDIALS to be built with MPI support.
 
 The NVECTOR\_PETSC module defines implementations of all vector
 operations listed in the section {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, except for
-\code{N\_VGetArrayPointer} and \code{N\_VSetArrayPointer}.  The names of
-vector operations are obtained from those in the section
+\code{N\_VGetArrayPointer} and \code{N\_VSetArrayPointer}.  When access to raw
+vector data is needed, it is recommended to extract the PETSc vector
+first, and then use PETSc methods to access the data.  A usage example
+of NVECTOR\_PETSC is provided in example programs for IDA.
+
+The names of vector operations are obtained from those in the section
 {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}} by appending the suffice \code{\_petsc}
 (e.g. \code{N\_VDestroy\_petsc}).  The module NVECTOR\_PETSC provides the
 following additional user-callable routines:
@@ -19623,6 +19631,9 @@ X
 X
 \\
 \hline
+N\_VGetVectorID
+ &  &  &  &  &  &  & \\
+\hline
 N\_VInv
  & 
 X
@@ -19754,6 +19765,7 @@ defined as
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{k}{struct} \PYG{n}{\PYGZus{}generic\PYGZus{}N\PYGZus{}Vector\PYGZus{}Ops} \PYG{p}{\PYGZob{}}
+   \PYG{n}{N\PYGZus{}Vector\PYGZus{}ID} \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvgetvectorid}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
    \PYG{n}{N\PYGZus{}Vector}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvclone}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
    \PYG{n}{N\PYGZus{}Vector}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvcloneempty}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
    \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvdestroy}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
@@ -19855,12 +19867,45 @@ field of the newly defined \code{N\_Vector}.
 
 \end{itemize}
 
+Each NVECTOR implementation included in SUNDIALS has a unique
+identifier specified in enumeration:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{typedef} \PYG{k}{enum} \PYG{p}{\PYGZob{}}
+  \PYG{n}{SUNDIALS\PYGZus{}NVEC\PYGZus{}SERIAL}\PYG{p}{,}
+  \PYG{n}{SUNDIALS\PYGZus{}NVEC\PYGZus{}PARALLEL}\PYG{p}{,}
+  \PYG{n}{SUNDIALS\PYGZus{}NVEC\PYGZus{}OPENMP}\PYG{p}{,}
+  \PYG{n}{SUNDIALS\PYGZus{}NVEC\PYGZus{}PTHREADS}\PYG{p}{,}
+  \PYG{n}{SUNDIALS\PYGZus{}NVEC\PYGZus{}PARHYP}\PYG{p}{,}
+  \PYG{n}{SUNDIALS\PYGZus{}NVEC\PYGZus{}PETSC}
+\PYG{p}{\PYGZcb{}} \PYG{n}{N\PYGZus{}Vector\PYGZus{}ID}\PYG{p}{;}
+\end{Verbatim}
+
+It is recommended that user defined NVECTOR implementations add their
+own unique identifier to this enumeration.
+
 
 \section{Description of the NVECTOR operations}
 \label{nvectors/index:nvectors-ops}\label{nvectors/index:description-of-the-nvector-operations}
-For each of the \code{N\_vector} operations, we give the name, usage
+For each of the \code{N\_Vector} operations, we give the name, usage
 of the function, and a description of its mathematical operations
 below.
+\index{N\_VGetVectorID (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/index:c.N_VGetVectorID}\pysiglinewithargsret{N\_Vector\_ID \bfcode{N\_VGetVectorID}}{N\_Vector\emph{ w}}{}
+Returns the vector type identifier for the vector \code{w}.  It is
+used to determine the vector implementation type (e.g. serial,
+parallel, ...) from the abstract \code{N\_Vector} interface.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{id} \PYG{o}{=} \PYG{n}{N\PYGZus{}VGetVectorID}\PYG{p}{(}\PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
 \index{N\_VClone (C function)}
 
 \begin{fulllineitems}
