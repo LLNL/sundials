@@ -131,11 +131,12 @@ typedef enum {
   SUNDIALS_NVEC_OPENMP, 
   SUNDIALS_NVEC_PTHREADS, 
   SUNDIALS_NVEC_PARHYP, 
-  SUNDIALS_NVEC_PETSC
+  SUNDIALS_NVEC_PETSC,
+  SUNDIALS_NVEC_CUSTOM
 } N_Vector_ID; 
 \end{verbatim}
-It is recommended that user defined {\nvector} implementations add their own unique 
-identifier to this enumeration.
+It is recommended that a user defined {\nvector} implementation uses 
+\id{SUNDIALS\_NVEC\_CUSTOM} identifier.
 
 %---------------------------------------------------------------------------
 % Table of vector kernels
