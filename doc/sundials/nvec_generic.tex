@@ -122,7 +122,7 @@ A particular implementation of the {\nvector} module must:
   be used to access different parts in the {\em content} field of the newly defined \id{N\_Vector}.
 \end{itemize}
 
-Each {\nvector} implementation included in {\sundials} distribution has its unique 
+Each {\nvector} implementation included in {\sundials} has a unique 
 identifier specified in enumeration:
 \begin{verbatim}
 typedef enum {
@@ -134,8 +134,8 @@ typedef enum {
   SUNDIALS_NVEC_PETSC
 } N_Vector_ID; 
 \end{verbatim}
-It is recommended that user defined {\nvector} implementation has its own unique 
-identifier added to this enumeration.
+It is recommended that user defined {\nvector} implementations add their own unique 
+identifier to this enumeration.
 
 %---------------------------------------------------------------------------
 % Table of vector kernels
@@ -158,8 +158,8 @@ identifier added to this enumeration.
 \begin{xtabular}{|p{\colone}|p{\coltwo}|}
 %%
 \id{N\_VGetVectorID} & \id{id = N\_VGetVectorID(w);} \\ 
-& Returns the vector type identifier for vector \id{w}. It is used to determine
-vector implementation type (e.g.~serial, parallel,\ldots) from abstract 
+& Returns the vector type identifier for the vector \id{w}. It is used to determine
+vector implementation type (e.g.~serial, parallel,\ldots) from the abstract 
 \id{N\_Vector} interface.
 \\[2mm]
 %%
