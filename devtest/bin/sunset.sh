@@ -22,7 +22,7 @@ source /usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.0/setup.sh
 source /usr/casc/sundials/apps/rh6/openmpi/1.8.8/setup.sh
 
 # hypre
-source /usr/casc/sundials/apps/rh6/hypre/2.10.0b/setup.sh
+source /usr/casc/sundials/apps/rh6/hypre/2.11.1/setup.sh
 
 # petsc
 source /usr/casc/sundials/apps/rh6/petsc/3.6.3/setup.sh
