@@ -13,10 +13,10 @@ source /usr/casc/sundials/apps/rh6/cmake/cmake-2.8.10.2/setup.sh
 source /usr/casc/sundials/apps/rh6/lapack/3.6.0/setup.sh
 
 # suitesparse klu
-source /usr/casc/sundials/apps/rh6/suitesparse/4.2.1/setup.sh
+source /usr/casc/sundials/apps/rh6/suitesparse/4.5.3/setup.sh
 
 # SuperLU_MT
-source /usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.0/setup.sh
+source /usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.1/setup.sh
 
 # openmpi
 source /usr/casc/sundials/apps/rh6/openmpi/1.8.8/setup.sh
@@ -25,7 +25,7 @@ source /usr/casc/sundials/apps/rh6/openmpi/1.8.8/setup.sh
 source /usr/casc/sundials/apps/rh6/hypre/2.11.1/setup.sh
 
 # petsc
-source /usr/casc/sundials/apps/rh6/petsc/3.6.3/setup.sh
+source /usr/casc/sundials/apps/rh6/petsc/3.7.2/setup.sh
 
 # variable used by Arkode OpenMP examples
 export OMP_NUM_THREADS=4
