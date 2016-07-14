@@ -19877,12 +19877,13 @@ identifier specified in enumeration:
   \PYG{n}{SUNDIALS\PYGZus{}NVEC\PYGZus{}OPENMP}\PYG{p}{,}
   \PYG{n}{SUNDIALS\PYGZus{}NVEC\PYGZus{}PTHREADS}\PYG{p}{,}
   \PYG{n}{SUNDIALS\PYGZus{}NVEC\PYGZus{}PARHYP}\PYG{p}{,}
-  \PYG{n}{SUNDIALS\PYGZus{}NVEC\PYGZus{}PETSC}
+  \PYG{n}{SUNDIALS\PYGZus{}NVEC\PYGZus{}PETSC}\PYG{p}{,}
+  \PYG{n}{SUNDIALS\PYGZus{}NVEC\PYGZus{}CUSTOM}
 \PYG{p}{\PYGZcb{}} \PYG{n}{N\PYGZus{}Vector\PYGZus{}ID}\PYG{p}{;}
 \end{Verbatim}
 
-It is recommended that user defined NVECTOR implementations add their
-own unique identifier to this enumeration.
+It is recommended that a user defined NVECTOR implementation use the
+\code{SUNDIALS\_NVEC\_CUSTOM} identifier.
 
 
 \section{Description of the NVECTOR operations}
