@@ -108,29 +108,37 @@
    experiment as much as you like, nothing can go wrong for as long as you don't 
    commit changes due to the merge. All merging is local until that point. If you
    can't resolve conflicts, just nuke the checked out branch and start over. 
+   
+   All instructions below assume you cd to the root of the branch where you want
+   to merge changes. 
 
 20. svn merge ^/trunk/
-    Syncs current branch with trunk. Everything from trunk gets in current branch.
+    Syncs the current branch with the trunk. Everything from trunk gets into 
+    the current branch.
     
 21. svn merge --reintegrate ^/branches/feature
-    Reintegrates branch 'feature' to the current branch (typically trunk). 
+    Reintegrates branch 'feature' into the current branch (typically trunk). 
     
 22. svn merge -rXXXX:YYYY ^/branches/release
-    Merge revisions from XXXX to YYYY into current branch. In most cases this is 
-    what you want.
+    Merge revisions from XXXX to YYYY from branch 'release' into the current 
+    branch. In most cases this is what you want.
     
 23. svn status | grep -P '^(?=.{0,6}C)'
     This one is my favorite. It checks for conflicts. Seriously.
     
 24. svn resolve --accept working -R <path/of/conflict>
-    To resolve tree conflict when file is added/deleted on both sides 
-    and after you made sure addition/deletions are what you wanted. Tree 
-    conflicts are usually harmless.
+    Resolves a tree conflict when file is added/deleted on both sides. 
+    Make sure additions/deletions are what you wanted. Tree conflicts are 
+    usually harmless.
     
 25. svn resolve --accept theirs-full <filename>
-    Quick resolve for a file. 
+    Quick conflict resolve for a file. This will integrate all of your 
+    changes except for those that are conflicting with others' changes.
 
 26. svn merge -c -XXXX .
     Undo revision XXXX in the current branch. You have to commit changes 
-    afterwards.
+    after undoing the revision.
+
+27. svn merge -c XXXX ^/branches/release
+    Merge revision XXXX from branch 'release' into the currect branch.
     
