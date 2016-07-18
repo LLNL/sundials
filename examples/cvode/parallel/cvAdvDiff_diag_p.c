@@ -199,7 +199,7 @@ static void SetIC(N_Vector u, realtype dx, long int my_length,
   realtype *udata;
 
   /* Set pointer to data array and get local length of u. */
-  udata = NV_DATA_P(u);
+  udata = N_VGetArrayPointer_Parallel(u);
   my_length = NV_LOCLENGTH_P(u);
 
   /* Load initial profile into u vector */
@@ -274,8 +274,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   MPI_Status status;
   MPI_Comm comm;
 
-  udata = NV_DATA_P(u);
-  dudata = NV_DATA_P(udot);
+  udata = N_VGetArrayPointer_Parallel(u);
+  dudata = N_VGetArrayPointer_Parallel(udot);
 
   /* Extract needed problem constants from data */
   data = (UserData) user_data;

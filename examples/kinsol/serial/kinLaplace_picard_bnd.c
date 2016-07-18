@@ -52,7 +52,7 @@
    to the underlying 1-dimensional storage. 
    IJth(vdata,i,j) references the element in the vdata array for
    u at mesh point (i,j), where 1 <= i <= NX, 1 <= j <= NY.
-   The vdata array is obtained via the macro call vdata = NV_DATA_S(v),
+   The vdata array is obtained via the macro call vdata = N_VGetArrayPointer_Serial(v),
    where v is an N_Vector. 
    The variables are ordered by the y index j, then by the x index i. */
 
@@ -145,7 +145,7 @@ int main()
    * ------------- */
 
   N_VConst_Serial(ZERO, y);
-  IJth(NV_DATA_S(y), 2, 2) = ONE;
+  IJth(N_VGetArrayPointer_Serial(y), 2, 2) = ONE;
 
   /* ----------------------------
    * Call KINSol to solve problem 
@@ -213,8 +213,8 @@ static int func(N_Vector u, N_Vector f, void *user_data)
   hdc = ONE/(dx*dx);
   vdc = ONE/(dy*dy);
 
-  udata = NV_DATA_S(u);
-  fdata = NV_DATA_S(f);
+  udata = N_VGetArrayPointer_Serial(u);
+  fdata = N_VGetArrayPointer_Serial(f);
 
   for (j=1; j <= NY; j++) {
 
@@ -313,7 +313,7 @@ static void PrintOutput(N_Vector u)
   dx = ONE/(NX+1);
   dy = ONE/(NY+1);
 
-  udata =  NV_DATA_S(u);
+  udata =  N_VGetArrayPointer_Serial(u);
 
   printf("            ");
   for (i=1; i<=NX; i+= SKIP) {

@@ -338,7 +338,7 @@ static int f(realtype t, N_Vector yy, N_Vector yd, void *f_data)
 
   /* Extract pos and vel */
 
-  yyval =  NV_DATA_S(yy);
+  yyval =  N_VGetArrayPointer_Serial(yy);
   pos = yyval;
   vel = &(yyval[3]);
 
@@ -348,7 +348,7 @@ static int f(realtype t, N_Vector yy, N_Vector yd, void *f_data)
 
   /* Load yd */
 
-  ydval =  NV_DATA_S(yd);
+  ydval =  N_VGetArrayPointer_Serial(yd);
 
   ydval[0] = vel[0];
   ydval[1] = vel[1];
@@ -376,8 +376,8 @@ static int cfun(realtype t, N_Vector yy, N_Vector cout, void *c_data)
 
   a  = data->a;
 
-  yval = NV_DATA_S(yy); 
-  cval = NV_DATA_S(cout);
+  yval = N_VGetArrayPointer_Serial(yy); 
+  cval = N_VGetArrayPointer_Serial(cout);
 
   q = yval[0];
   x = yval[1];
@@ -417,7 +417,7 @@ static int cjac(int Nc, int Ny,
 
   a  = data->a;
 
-  yval = NV_DATA_S(y); 
+  yval = N_VGetArrayPointer_Serial(y); 
 
   q = yval[0];
   x = yval[1];
@@ -469,7 +469,7 @@ static void PrintOutput(void *mem, FILE *fout, realtype t, N_Vector y)
 {
   realtype *yval;
 
-  yval  = NV_DATA_S(y);
+  yval  = N_VGetArrayPointer_Serial(y);
 
   fprintf(fout, "%10.4e %12.4e %12.4e %12.4e\n",
           t, yval[0], yval[1], yval[2]);

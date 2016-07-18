@@ -305,7 +305,7 @@ int main(int argc, char *argv[])
 
    /* Extract quadratures */
   flag = CVodeGetQuad(cvode_mem, &tret, q);
-  qdata = NV_DATA_P(q);
+  qdata = N_VGetArrayPointer_Parallel(q);
   MPI_Allreduce(&qdata[0], &G, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   if (myId == 0) printf("  G = %Le\n",G);
@@ -522,7 +522,7 @@ static void SetSource(ProblemData d)
   dx = d->dx;
 
 
-  pdata = NV_DATA_P(d->p);
+  pdata = N_VGetArrayPointer_Parallel(d->p);
 
   for(i[0]=0; i[0]<l_m[0]; i[0]++) {
     x[0] = xmin[0] + (m_start[0]+i[0]) * dx[0];
@@ -593,7 +593,7 @@ static void f_comm(long int N_local, realtype t, N_Vector y, void *user_data)
     l_m[dim] = d->l_m[dim];
   }
   yextdata = d->y_ext;
-  ydata    = NV_DATA_P(y);
+  ydata    = N_VGetArrayPointer_Parallel(y);
   
   /* Calculate required buffer size */
   FOR_DIM {
@@ -725,11 +725,11 @@ static int f_local(long int Nlocal, realtype t, N_Vector y,
   } 
 
   /* Get pointers to vector data */
-  dydata = NV_DATA_P(ydot);
-  pdata  = NV_DATA_P(d->p);
+  dydata = N_VGetArrayPointer_Parallel(ydot);
+  pdata  = N_VGetArrayPointer_Parallel(d->p);
 
   /* Copy local segment of y to y_ext */
-  Load_yext(NV_DATA_P(y), d);
+  Load_yext(N_VGetArrayPointer_Parallel(y), d);
   Ydata = d->y_ext;
 
   /* Velocity components in x1 and x2 directions (Poiseuille profile) */
@@ -804,7 +804,7 @@ static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data)
 
   d = (ProblemData) user_data;
 
-  dqdata = NV_DATA_P(qdot);
+  dqdata = N_VGetArrayPointer_Parallel(qdot);
 
   dqdata[0] = N_VDotProd_Parallel(y,y);
   dqdata[0] *= RCONST(0.5) * (d->dOmega);
@@ -864,11 +864,11 @@ static int fB_local(long int NlocalB, realtype t,
     nbr_right[dim] = d->nbr_right[dim];
   }
  
-  dyBdata = NV_DATA_P(dyB);
-  ydata   = NV_DATA_P(y);
+  dyBdata = N_VGetArrayPointer_Parallel(dyB);
+  ydata   = N_VGetArrayPointer_Parallel(y);
 
   /* Copy local segment of yB to y_ext */
-  Load_yext(NV_DATA_P(yB), d);
+  Load_yext(N_VGetArrayPointer_Parallel(yB), d);
   YBdata = d->y_ext;
 
   /* Velocity components in x1 and x2 directions (Poiseuille profile) */
@@ -1073,8 +1073,8 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
   xmax = d->xmax;
   dx = d->dx;
 
-  qBdata = NV_DATA_P(qB);
-  pdata  = NV_DATA_P(d->p);
+  qBdata = N_VGetArrayPointer_Parallel(qB);
+  pdata  = N_VGetArrayPointer_Parallel(d->p);
 
   /* Write matlab files with solutions from each process */
 

@@ -266,8 +266,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   int i, j;
   UserData data;
 
-  udata = NV_DATA_S(u);
-  dudata = NV_DATA_S(udot);
+  udata = N_VGetArrayPointer_Serial(u);
+  dudata = N_VGetArrayPointer_Serial(udot);
 
   /* Extract needed constants from data */
 
@@ -362,8 +362,8 @@ static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot,
   realtype hdiffB, hadvB, vdiffB;
   int i, j;
 
-  uBdata = NV_DATA_S(uB);
-  duBdata = NV_DATA_S(uBdot);
+  uBdata = N_VGetArrayPointer_Serial(uB);
+  duBdata = N_VGetArrayPointer_Serial(uBdot);
 
   /* Extract needed constants from data */
 
@@ -460,7 +460,7 @@ static void SetIC(N_Vector u, UserData data)
 
   /* Set pointer to data array in vector u. */
 
-  udata = NV_DATA_S(u);
+  udata = N_VGetArrayPointer_Serial(u);
 
   /* Load initial profile into u vector */
 
@@ -488,7 +488,7 @@ static void PrintOutput(N_Vector uB, UserData data)
   dx = data->dx;
   dy = data->dy;
 
-  uBdata = NV_DATA_S(uB);
+  uBdata = N_VGetArrayPointer_Serial(uB);
 
   uBmax = ZERO;
   for(j=1; j<= MY; j++) {

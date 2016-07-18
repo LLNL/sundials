@@ -235,7 +235,7 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval,
   realtype *uv, *upv, *resv, coeff;
   UserData data;
   
-  uv = NV_DATA_S(uu); upv = NV_DATA_S(up); resv = NV_DATA_S(resval);
+  uv = N_VGetArrayPointer_Serial(uu); upv = N_VGetArrayPointer_Serial(up); resv = N_VGetArrayPointer_Serial(resval);
 
   data = (UserData)user_data;
   mm = data->mm;
@@ -272,7 +272,7 @@ int jacHeat3(realtype tt,  realtype cj,
   int *rowvals   = (*JacMat->rowvals);
   realtype *data = JacMat->data;
 
-  yval = NV_DATA_S(yy);
+  yval = N_VGetArrayPointer_Serial(yy);
 
   SparseSetMatToZero(JacMat); /* initialize Jacobian matrix */
 
@@ -339,7 +339,7 @@ int jacHeat(realtype tt,  realtype cj,
   int *rowvals   = (*JacMat->rowvals);
   realtype *data = JacMat->data;
 
-  yval = NV_DATA_S(yy);
+  yval = N_VGetArrayPointer_Serial(yy);
 
   SparseSetMatToZero(JacMat); /* initialize Jacobian matrix  */
 
@@ -593,9 +593,9 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   mm = data->mm;
   mm1 = mm - 1;
   
-  udata = NV_DATA_S(uu);
-  updata = NV_DATA_S(up);
-  iddata = NV_DATA_S(id);
+  udata = N_VGetArrayPointer_Serial(uu);
+  updata = N_VGetArrayPointer_Serial(up);
+  iddata = N_VGetArrayPointer_Serial(id);
 
   /* Initialize id to 1's. */
   N_VConst(ONE, id);

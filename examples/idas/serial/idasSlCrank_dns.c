@@ -268,9 +268,9 @@ static int ressc(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *use
   m2 = data->m2;
   J2 = data->J2;
 
-  yval = NV_DATA_S(yy); 
-  ypval = NV_DATA_S(yp); 
-  rval = NV_DATA_S(rr);
+  yval = N_VGetArrayPointer_Serial(yy); 
+  ypval = N_VGetArrayPointer_Serial(yp); 
+  rval = N_VGetArrayPointer_Serial(rr);
 
   q = yval[0];
   x = yval[1];
@@ -360,7 +360,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
   long int nst;
   realtype hused;
 
-  yval  = NV_DATA_S(y);
+  yval  = N_VGetArrayPointer_Serial(y);
 
   retval = IDAGetLastOrder(mem, &kused);
   check_flag(&retval, "IDAGetLastOrder", 1);

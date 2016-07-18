@@ -370,7 +370,7 @@ static int ccomm(long int Nlocal, N_Vector cc, void *userdata)
   nsmysub = NUM_SPECIES*MYSUB;
   cext = data->cext;
 
-  cdata = NV_DATA_P(cc);
+  cdata = N_VGetArrayPointer_Parallel(cc);
 
   /* Start receiving boundary data from neighboring PEs */
   BRecvPost(comm, request, my_pe, isubx, isuby, nsmxsub, nsmysub, cext, buffer);
@@ -398,7 +398,7 @@ static int func_local(long int Nlocal, N_Vector cc, N_Vector fval, void *user_da
   UserData data;
   
   data = (UserData)user_data;
-  cdata = NV_DATA_P(cc);
+  cdata = N_VGetArrayPointer_Parallel(cc);
   
   /* Get subgrid indices, data sizes, extended work array cext */
   isubx = data->isubx;   isuby = data->isuby;
@@ -745,7 +745,7 @@ static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc)
   
   npelast = NPEX*NPEY - 1;
   
-  ct = NV_DATA_P(cc);
+  ct = N_VGetArrayPointer_Parallel(cc);
   
   /* Send the cc values (for all species) at the top right mesh point to PE 0 */
   if (my_pe == npelast) {

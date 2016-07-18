@@ -552,7 +552,7 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
 
   thispe = webdata->thispe; 
   npelast = webdata->npes - 1;
-  cdata = NV_DATA_P(cc);
+  cdata = N_VGetArrayPointer_Parallel(cc);
   
   /* Send conc. at top right mesh point from PE npes-1 to PE 0. */
   if (thispe == npelast) {
@@ -747,7 +747,7 @@ static int rescomm(long int Nlocal, realtype tt,
   MPI_Request request[4];
   
   webdata = (UserData) user_data;
-  cdata = NV_DATA_P(cc);
+  cdata = N_VGetArrayPointer_Parallel(cc);
   
   /* Get comm, thispe, subgrid indices, data sizes, extended array cext. */
   
@@ -971,7 +971,7 @@ static int reslocal(long int Nlocal, realtype tt,
   
   /* Get data pointers, subgrid data, array sizes, work array cext. */
   
-  cdata = NV_DATA_P(cc);
+  cdata = N_VGetArrayPointer_Parallel(cc);
   
   /* Copy local segment of cc vector into the working extended array cext. */
   

@@ -82,7 +82,7 @@ int main()
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ);          /* Create serial vector for solution */
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
-  NV_Ith_S(y,0) = 0.0;             /* Specify initial condition */
+  N_VConst(0.0, y);             /* Specify initial condition */
   arkode_mem = ARKodeCreate();     /* Create the solver memory */
   if (check_flag((void *)arkode_mem, "ARKodeCreate", 0)) return 1;
 
@@ -170,7 +170,7 @@ int main()
   printf("   Total number of error test failures = %li\n\n", netf);
 
   /* Clean up and return with successful completion */
-  N_VDestroy_Serial(y);     /* Free y vector */
+  N_VDestroy(y);            /* Free y vector */
   ARKodeFree(&arkode_mem);  /* Free integrator memory */
   return 0;
 }

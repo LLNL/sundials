@@ -65,7 +65,7 @@
    to the underlying 1-dimensional storage. 
    IJth(vdata,i,j) references the element in the vdata array for
    u at mesh point (i,j), where 1 <= i <= MX, 1 <= j <= MY.
-   The vdata array is obtained via the macro call vdata = NV_DATA_S(v),
+   The vdata array is obtained via the macro call vdata = N_VGetArrayPointer_Serial(v),
    where v is an N_Vector. 
    The variables are ordered by the y index j, then by the x index i. */
 
@@ -197,8 +197,8 @@ static int f(realtype t, N_Vector u,N_Vector udot, void *user_data)
   int i, j;
   UserData data;
 
-  udata = NV_DATA_S(u);
-  dudata = NV_DATA_S(udot);
+  udata = N_VGetArrayPointer_Serial(u);
+  dudata = N_VGetArrayPointer_Serial(udot);
 
   /* Extract needed constants from data */
 
@@ -299,7 +299,7 @@ static void SetIC(N_Vector u, UserData data)
 
   /* Set pointer to data array in vector u. */
 
-  udata = NV_DATA_S(u);
+  udata = N_VGetArrayPointer_Serial(u);
 
   /* Load initial profile into u vector */
   

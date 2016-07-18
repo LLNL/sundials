@@ -545,7 +545,7 @@ static void PrintOutput(void *mem, N_Vector uv, realtype tt,
 
   thispe = data->thispe; 
   npelast = data->npes - 1;
-  cdata = NV_DATA_P(uv);
+  cdata = N_VGetArrayPointer_Parallel(uv);
   
   /* Send conc. at top right mesh point from PE npes-1 to PE 0. */
   if (thispe == npelast) {
@@ -774,7 +774,7 @@ static int rescomm(long int Nlocal, realtype tt,
   MPI_Request request[4];
   
   data = (UserData) user_data;
-  cdata = NV_DATA_P(uv);
+  cdata = N_VGetArrayPointer_Parallel(uv);
 
   /* Get comm, thispe, subgrid indices, data sizes, extended array cext. */  
   comm = data->comm;     
@@ -989,7 +989,7 @@ static int reslocal(long int Nlocal, realtype tt,
   data = (UserData) user_data;
 
   /* Get data pointers, subgrid data, array sizes, work array cext. */
-  uvdata = NV_DATA_P(uv);
+  uvdata = N_VGetArrayPointer_Parallel(uv);
 
   dx2 = dx * dx;
   dy2 = dy * dy;
@@ -1149,7 +1149,7 @@ static int integr(MPI_Comm comm, N_Vector uv, void *user_data, realtype *intval)
   data = (UserData) user_data;
 
   /* compute the integral on the (local) grid */
-  uvdata = NV_DATA_P(uv);
+  uvdata = N_VGetArrayPointer_Parallel(uv);
 
   *intval = 0;
 

@@ -263,7 +263,7 @@ int heatres(realtype tres, N_Vector uu, N_Vector resval,
   realtype *uv, *resv, coeff;
   UserData data;
   
-  uv = NV_DATA_S(uu); resv = NV_DATA_S(resval);
+  uv = N_VGetArrayPointer_Serial(uu); resv = N_VGetArrayPointer_Serial(resval);
 
   data = (UserData)user_data;
   mm = data->mm;
@@ -294,7 +294,7 @@ static int jacHeat3(realtype tt,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   realtype *yval;
-  yval = NV_DATA_S(yy);
+  yval = N_VGetArrayPointer_Serial(yy);
   realtype dx =  ONE/(MGRID - ONE);
   realtype beta = RCONST(4.0)/(dx*dx);
 
@@ -364,7 +364,7 @@ static int jacHeat(realtype tt,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   realtype *yval;
-  yval = NV_DATA_S(yy);
+  yval = N_VGetArrayPointer_Serial(yy);
   realtype dx =  ONE/(MGRID - ONE);
   realtype beta = RCONST(4.0)/(dx*dx);
   int i,j, repeat=0;
@@ -620,7 +620,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector res)
   mm = data->mm;
   mm1 = mm - 1;
   
-  udata = NV_DATA_S(uu);
+  udata = N_VGetArrayPointer_Serial(uu);
 
   /* Initialize uu on all grid points. */ 
   for (j = 0; j < mm; j++) {

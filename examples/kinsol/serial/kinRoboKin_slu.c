@@ -176,8 +176,8 @@ static int func(N_Vector y, N_Vector f, void *user_data)
   realtype lb1, lb2, lb3, lb4, lb5, lb6, lb7, lb8;
   realtype ub1, ub2, ub3, ub4, ub5, ub6, ub7, ub8;
 
-  yd = NV_DATA_S(y);
-  fd = NV_DATA_S(f);
+  yd = N_VGetArrayPointer_Serial(y);
+  fd = N_VGetArrayPointer_Serial(f);
 
   x1 = yd[0]; l1 = yd[ 8]; u1 = yd[16]; 
   x2 = yd[1]; l2 = yd[ 9]; u2 = yd[17]; 
@@ -249,7 +249,7 @@ static int jac(N_Vector y, N_Vector f,
   int *rowvals = *J->rowvals;
   realtype *data = J->data;
 
-  yd = NV_DATA_S(y);
+  yd = N_VGetArrayPointer_Serial(y);
 
   x1 = yd[0];
   x2 = yd[1];

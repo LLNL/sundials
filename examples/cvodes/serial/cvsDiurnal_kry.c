@@ -98,7 +98,7 @@
    IJKth(vdata,i,j,k) references the element in the vdata array for
    species i at mesh point (j,k), where 1 <= i <= NUM_SPECIES,
    0 <= j <= MX-1, 0 <= k <= MY-1. The vdata array is obtained via
-   the macro call vdata = NV_DATA_S(v), where v is an N_Vector. 
+   the macro call vdata = N_VGetArrayPointer_Serial(v), where v is an N_Vector. 
    For each mesh point (j,k), the elements for species i and i+1 are
    contiguous within vdata.
 
@@ -296,7 +296,7 @@ static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy)
 
   /* Set pointer to data array in vector u. */
 
-  udata = NV_DATA_S(u);
+  udata = N_VGetArrayPointer_Serial(u);
 
   /* Load initial profiles of c1 and c2 into u vector */
 
@@ -323,7 +323,7 @@ static void PrintOutput(void *cvode_mem, N_Vector u, realtype t)
   realtype hu, *udata;
   int mxh = MX/2 - 1, myh = MY/2 - 1, mx1 = MX - 1, my1 = MY - 1;
 
-  udata = NV_DATA_S(u);
+  udata = N_VGetArrayPointer_Serial(u);
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);
   check_flag(&flag, "CVodeGetNumSteps", 1);
@@ -459,8 +459,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   UserData data;
 
   data = (UserData) user_data;
-  udata = NV_DATA_S(u);
-  dudata = NV_DATA_S(udot);
+  udata = N_VGetArrayPointer_Serial(u);
+  dudata = N_VGetArrayPointer_Serial(udot);
 
   /* Set diurnal rate coefficients. */
 
@@ -557,9 +557,9 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
   data = (UserData) user_data;
 
-  udata = NV_DATA_S(u);
-  vdata = NV_DATA_S(v);
-  Jvdata = NV_DATA_S(Jv);
+  udata = N_VGetArrayPointer_Serial(u);
+  vdata = N_VGetArrayPointer_Serial(v);
+  Jvdata = N_VGetArrayPointer_Serial(Jv);
 
   /* Set diurnal rate coefficients. */
 
@@ -706,7 +706,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   P = data->P;
   Jbd = data->Jbd;
   pivot = data->pivot;
-  udata = NV_DATA_S(u);
+  udata = N_VGetArrayPointer_Serial(u);
   
   if (jok) {
     
@@ -793,7 +793,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   data = (UserData) user_data;
   P = data->P;
   pivot = data->pivot;
-  zdata = NV_DATA_S(z);
+  zdata = N_VGetArrayPointer_Serial(z);
   
   N_VScale(ONE, r, z);
   

@@ -303,8 +303,8 @@ static int resweb(realtype tt, N_Vector cc, N_Vector cp,
   
   webdata = (UserData)user_data;
   
-  cpv = NV_DATA_S(cp);
-  resv = NV_DATA_S(res);
+  cpv = N_VGetArrayPointer_Serial(cp);
+  resv = N_VGetArrayPointer_Serial(res);
   np = webdata->np;
   
   /* Call Fweb to set res to vector of right-hand sides. */
@@ -397,9 +397,9 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
   realtype xx, yy, xyfactor, fac;
   realtype *ccv, *cpv, *idv;
   
-  ccv = NV_DATA_S(cc);
-  cpv = NV_DATA_S(cp);
-  idv = NV_DATA_S(id);
+  ccv = N_VGetArrayPointer_Serial(cc);
+  cpv = N_VGetArrayPointer_Serial(cp);
+  idv = N_VGetArrayPointer_Serial(id);
   np = webdata->np;
   
   /* Loop over grid, load cc values and id values. */

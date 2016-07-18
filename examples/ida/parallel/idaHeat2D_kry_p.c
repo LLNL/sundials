@@ -348,7 +348,7 @@ int PsetupHeat(realtype tt,
 
   data = (UserData) user_data;
 
-  ppv = NV_DATA_P(data->pp);
+  ppv = N_VGetArrayPointer_Parallel(data->pp);
   ixsub = data->ixsub;
   jysub = data->jysub;
   mxsub = data->mxsub;
@@ -426,7 +426,7 @@ static int rescomm(N_Vector uu, N_Vector up, void *user_data)
   MPI_Request request[4];
   
   data = (UserData) user_data;
-  uarray = NV_DATA_P(uu);
+  uarray = N_VGetArrayPointer_Parallel(uu);
   
   /* Get comm, thispe, subgrid indices, data sizes, extended array uext. */
   comm = data->comm;  thispe = data->thispe;
@@ -468,9 +468,9 @@ static int reslocal(realtype tt,
   
   data = (UserData) user_data;
   uext = data->uext;
-  uuv = NV_DATA_P(uu);
-  upv = NV_DATA_P(up);
-  resv = NV_DATA_P(rr);
+  uuv = N_VGetArrayPointer_Parallel(uu);
+  upv = N_VGetArrayPointer_Parallel(up);
+  resv = N_VGetArrayPointer_Parallel(rr);
   ixsub = data->ixsub; jysub = data->jysub;
   mxsub = data->mxsub; mxsub2 = data->mxsub + 2;
   mysub = data->mysub; npex = data->npex; npey = data->npey;
@@ -707,8 +707,8 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   
   /* Initialize uu. */ 
 
-  udata = NV_DATA_P(uu);
-  iddata = NV_DATA_P(id);
+  udata = N_VGetArrayPointer_Parallel(uu);
+  iddata = N_VGetArrayPointer_Parallel(id);
   
   /* Set mesh spacings and subgrid indices for this PE. */
   dx = data->dx;

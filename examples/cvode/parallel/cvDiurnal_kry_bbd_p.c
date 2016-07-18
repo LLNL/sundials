@@ -339,7 +339,7 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 
   /* Set pointer to data array in vector u */
 
-  uarray = NV_DATA_P(u);
+  uarray = N_VGetArrayPointer_Parallel(u);
 
   /* Get mesh spacings, and subgrid indices for this PE */
 
@@ -397,7 +397,7 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
   MPI_Status status;
 
   npelast = NPEX*NPEY - 1;
-  uarray = NV_DATA_P(u);
+  uarray = N_VGetArrayPointer_Parallel(u);
 
   /* Send c1,c2 at top right mesh point to PE 0 */
   if (my_pe == npelast) {
@@ -657,7 +657,7 @@ static void fucomm(realtype t, N_Vector u, void *user_data)
   MPI_Request request[4];
 
   data = (UserData) user_data;
-  uarray = NV_DATA_P(u);
+  uarray = N_VGetArrayPointer_Parallel(u);
 
   /* Get comm, my_pe, subgrid indices, data sizes, extended array uext */
 
@@ -722,8 +722,8 @@ static int flocal(long int Nlocal, realtype t, N_Vector u,
   UserData data;
   realtype *uarray, *duarray;
 
-  uarray = NV_DATA_P(u);
-  duarray = NV_DATA_P(udot);
+  uarray = N_VGetArrayPointer_Parallel(u);
+  duarray = N_VGetArrayPointer_Parallel(udot);
 
   /* Get subgrid indices, array sizes, extended work array uext */
 

@@ -441,7 +441,7 @@ static int res(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_
 
   y1  = Ith(yy,1); y2  = Ith(yy,2); y3  = Ith(yy,3); 
   yp1 = Ith(yp,1); yp2 = Ith(yp,2); yp3 = Ith(yp,3);
-  rval = NV_DATA_S(rr);
+  rval = N_VGetArrayPointer_Serial(rr);
 
   data = (UserData) user_data;
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];

@@ -246,7 +246,7 @@ static int Jac(realtype t,
   int *colptrs = *JacMat->colptrs;
   int *rowvals = *JacMat->rowvals;
 
-  yval = NV_DATA_S(y);
+  yval = N_VGetArrayPointer_Serial(y);
 
   SparseSetMatToZero(JacMat);
 

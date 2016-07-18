@@ -517,8 +517,8 @@ static int f2(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   long int i, j, k;
   realtype d, *ydata, *dydata;
   
-  ydata = NV_DATA_S(y);
-  dydata = NV_DATA_S(ydot);
+  ydata = N_VGetArrayPointer_Serial(y);
+  dydata = N_VGetArrayPointer_Serial(ydot);
 
   /*
      Excluding boundaries, 
@@ -584,7 +584,7 @@ static realtype MaxError(N_Vector y, realtype t)
   
   if (t == ZERO) return(ZERO);
 
-  ydata = NV_DATA_S(y);
+  ydata = N_VGetArrayPointer_Serial(y);
   if (t <= THIRTY) ex = SUNRexp(-TWO*t);
   
   for (j = 0; j < P2_MESHY; j++) {

@@ -325,8 +325,8 @@ static int func(N_Vector u, N_Vector f, void *user_data)
   lb = params->lb;
   ub = params->ub;
 
-  udata = NV_DATA_S(u);
-  fdata = NV_DATA_S(f);
+  udata = N_VGetArrayPointer_Serial(u);
+  fdata = N_VGetArrayPointer_Serial(f);
 
   x1 = udata[0];
   x2 = udata[1];
@@ -359,7 +359,7 @@ static int jac(N_Vector y, N_Vector f,
   int *colvals;
   realtype *data;
   
-  yd = NV_DATA_S(y);
+  yd = N_VGetArrayPointer_Serial(y);
   rowptrs = (*J->rowptrs);
   colvals = (*J->colvals);
   data    = J->data;
@@ -426,7 +426,7 @@ static int jacDense(long int N,
 {
   realtype *yd;
 
-  yd = NV_DATA_S(y);
+  yd = N_VGetArrayPointer_Serial(y);
 
   /* row 0 */
   DENSE_ELEM(J,0,0) = PT5 * cos(yd[0]*yd[1]) * yd[1] - PT5;
@@ -473,7 +473,7 @@ static void SetInitialGuess1(N_Vector u, UserData data)
   realtype *udata;
   realtype *lb, *ub;
 
-  udata = NV_DATA_S(u);
+  udata = N_VGetArrayPointer_Serial(u);
 
   lb = data->lb;
   ub = data->ub;
@@ -498,7 +498,7 @@ static void SetInitialGuess2(N_Vector u, UserData data)
   realtype *udata;
   realtype *lb, *ub;
 
-  udata = NV_DATA_S(u);
+  udata = N_VGetArrayPointer_Serial(u);
 
   lb = data->lb;
   ub = data->ub;

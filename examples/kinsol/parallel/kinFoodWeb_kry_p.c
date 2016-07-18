@@ -348,8 +348,8 @@ static int funcprpr(N_Vector cc, N_Vector fval, void *user_data)
   realtype *cdata, *fvdata;
   UserData data;
   
-  cdata = NV_DATA_P(cc);
-  fvdata = NV_DATA_P(fval);
+  cdata = N_VGetArrayPointer_Parallel(cc);
+  fvdata = N_VGetArrayPointer_Parallel(fval);
   data = (UserData) user_data;
   
   /* Call ccomm to do inter-processor communicaiton */
@@ -708,7 +708,7 @@ static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc)
 
   npelast = NPEX*NPEY - 1;
 
-  ct = NV_DATA_P(cc);
+  ct = N_VGetArrayPointer_Parallel(cc);
   
   /* Send the cc values (for all species) at the top right mesh point to PE 0 */
   if (my_pe == npelast) {
@@ -973,7 +973,7 @@ static void fcalcprpr(N_Vector cc, N_Vector fval, void *user_data)
   UserData data;
   
   data = (UserData)user_data;
-  cdata = NV_DATA_P(cc);
+  cdata = N_VGetArrayPointer_Parallel(cc);
 
   /* Get subgrid indices, data sizes, extended work array cext */
   isubx = data->isubx;   isuby = data->isuby;

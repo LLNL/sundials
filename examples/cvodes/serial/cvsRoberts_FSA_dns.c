@@ -451,7 +451,7 @@ static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
   int qu, flag;
   realtype hu, *udata;
   
-  udata = NV_DATA_S(u);
+  udata = N_VGetArrayPointer_Serial(u);
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);
   check_flag(&flag, "CVodeGetNumSteps", 1);
@@ -488,7 +488,7 @@ static void PrintOutputS(N_Vector *uS)
 {
   realtype *sdata;
 
-  sdata = NV_DATA_S(uS[0]);
+  sdata = N_VGetArrayPointer_Serial(uS[0]);
   printf("                  Sensitivity 1  ");
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -499,7 +499,7 @@ static void PrintOutputS(N_Vector *uS)
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
 #endif
   
-  sdata = NV_DATA_S(uS[1]);
+  sdata = N_VGetArrayPointer_Serial(uS[1]);
   printf("                  Sensitivity 2  ");
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -510,7 +510,7 @@ static void PrintOutputS(N_Vector *uS)
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
 #endif
 
-  sdata = NV_DATA_S(uS[2]);
+  sdata = N_VGetArrayPointer_Serial(uS[2]);
   printf("                  Sensitivity 3  ");
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)

@@ -255,8 +255,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   int i;
   UserData data;
 
-  udata = NV_DATA_S(u);
-  dudata = NV_DATA_S(udot);
+  udata = N_VGetArrayPointer_Serial(u);
+  dudata = N_VGetArrayPointer_Serial(udot);
 
   /* Extract needed problem constants from data */
   data = (UserData) user_data;
@@ -357,7 +357,7 @@ static void SetIC(N_Vector u, realtype dx)
   realtype *udata;
 
   /* Set pointer to data array and get local length of u. */
-  udata = NV_DATA_S(u);
+  udata = N_VGetArrayPointer_Serial(u);
 
   /* Load initial profile into u vector */
   for (i=0; i<NEQ; i++) {

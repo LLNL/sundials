@@ -294,7 +294,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
   long int nst;
   realtype hused;
 
-  yval  = NV_DATA_S(y);
+  yval  = N_VGetArrayPointer_Serial(y);
 
   retval = IDAGetLastOrder(mem, &kused);
   check_flag(&retval, "IDAGetLastOrder", 1);

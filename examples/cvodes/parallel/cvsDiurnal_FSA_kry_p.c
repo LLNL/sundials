@@ -390,8 +390,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   realtype *udata, *dudata;
   UserData data;
 
-  udata = NV_DATA_P(u);
-  dudata = NV_DATA_P(udot);
+  udata = N_VGetArrayPointer_Parallel(u);
+  dudata = N_VGetArrayPointer_Parallel(udot);
   data = (UserData) user_data;
 
   /* Call ucomm to do inter-processor communicaiton */
@@ -426,7 +426,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   P = data->P;
   Jbd = data->Jbd;
   pivot = data->pivot;
-  udata = NV_DATA_P(u);
+  udata = N_VGetArrayPointer_Parallel(u);
   isubx = data->isubx;   isuby = data->isuby;
   nvmxsub = data->nvmxsub;
 
@@ -526,7 +526,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   N_VScale(RCONST(1.0), r, z);
 
   nvmxsub = data->nvmxsub;
-  zdata = NV_DATA_P(z);
+  zdata = N_VGetArrayPointer_Parallel(z);
 
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
@@ -684,7 +684,7 @@ static void SetInitialProfiles(N_Vector u, UserData data)
   realtype *udata;
 
   /* Set pointer to data array in vector u */
-  udata = NV_DATA_P(u);
+  udata = N_VGetArrayPointer_Parallel(u);
 
   /* Get mesh spacings, and subgrid indices for this PE */
   dx = data->dx;         dy = data->dy;
@@ -870,7 +870,7 @@ static void ucomm(realtype t, N_Vector u, UserData data)
   long int isubx, isuby, nvmxsub, nvmysub;
   MPI_Request request[4];
 
-  udata = NV_DATA_P(u);
+  udata = N_VGetArrayPointer_Parallel(u);
 
   /* Get comm, my_pe, subgrid indices, data sizes, extended array uext */
   comm = data->comm;  my_pe = data->my_pe;
@@ -1045,7 +1045,7 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
   MPI_Status status;
 
   npelast = NPEX*NPEY - 1;
-  udata = NV_DATA_P(u);
+  udata = N_VGetArrayPointer_Parallel(u);
 
   /* Send c at top right mesh point to PE 0 */
   if (my_pe == npelast) {
@@ -1116,7 +1116,7 @@ static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS)
 
   npelast = NPEX*NPEY - 1;
 
-  sdata = NV_DATA_P(uS[0]);
+  sdata = N_VGetArrayPointer_Parallel(uS[0]);
 
   /* Send s1 at top right mesh point to PE 0 */
   if (my_pe == npelast) {
@@ -1153,7 +1153,7 @@ static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS)
 #endif
   }
 
-  sdata = NV_DATA_P(uS[1]);
+  sdata = N_VGetArrayPointer_Parallel(uS[1]);
 
   /* Send s2 at top right mesh point to PE 0 */
   if (my_pe == npelast) {

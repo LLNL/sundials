@@ -359,8 +359,8 @@ static int f(realtype t, N_Vector c, N_Vector cdot, void *user_data)
   WebData wdata;
   
   wdata = (WebData) user_data;
-  cdata = NV_DATA_S(c);
-  cdotdata = NV_DATA_S(cdot);
+  cdata = N_VGetArrayPointer_Serial(c);
+  cdotdata = N_VGetArrayPointer_Serial(cdot);
   
   mxns = wdata->mxns;
   ns = wdata->ns;
@@ -436,8 +436,8 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
   flag = CVodeGetErrWeights(wdata->cvode_mem, rewt);
   if(check_flag(&flag, "CVodeGetErrWeights", 1)) return(1);
 
-  cdata = NV_DATA_S(c);
-  rewtdata = NV_DATA_S(rewt);
+  cdata = N_VGetArrayPointer_Serial(c);
+  rewtdata = N_VGetArrayPointer_Serial(rewt);
 
   uround = UNIT_ROUNDOFF;
 
@@ -457,7 +457,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
      Here, fsave contains the base value of the rate vector and 
      r0 is a minimum increment factor for the difference quotient. */
 
-  f1 = NV_DATA_S(vtemp1);
+  f1 = N_VGetArrayPointer_Serial(vtemp1);
 
   fac = N_VWrmsNorm (fc, rewt);
   r0 = RCONST(1000.0)*SUNRabs(gamma)*uround*NEQ*fac;
@@ -545,7 +545,7 @@ static int PSolve(realtype t, N_Vector c, N_Vector fc,
     for (jx = 0; jx < mx; jx++) {
       igx = jigx[jx];
       ig = igx + igy*ngx;
-      denseGETRS(P[ig], mp, pivot[ig], &(NV_DATA_S(z)[iv]));
+      denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer_Serial(z)[iv]));
       iv += mp;
     }
   }
@@ -569,9 +569,9 @@ static int fB(realtype t, N_Vector c, N_Vector cB,
   WebData wdata;
 
   wdata = (WebData) user_data;
-  cdata = NV_DATA_S(c);
-  cBdata = NV_DATA_S(cB);
-  cBdotdata = NV_DATA_S(cBdot);
+  cdata = N_VGetArrayPointer_Serial(c);
+  cBdata = N_VGetArrayPointer_Serial(cB);
+  cBdotdata = N_VGetArrayPointer_Serial(cBdot);
 
   mxns = wdata->mxns;
   ns = wdata->ns;
@@ -641,8 +641,8 @@ static int PrecondB(realtype t, N_Vector c,
   flag = CVodeGetErrWeights(cvode_mem, rewt);
   if(check_flag(&flag, "CVodeGetErrWeights", 1)) return(1);
 
-  cdata = NV_DATA_S(c);
-  rewtdata = NV_DATA_S(rewt);
+  cdata = N_VGetArrayPointer_Serial(c);
+  rewtdata = N_VGetArrayPointer_Serial(rewt);
 
   uround = UNIT_ROUNDOFF;
 
@@ -662,7 +662,7 @@ static int PrecondB(realtype t, N_Vector c,
      Here, fsave contains the base value of the rate vector and 
      r0 is a minimum increment factor for the difference quotient. */
 
-  f1 = NV_DATA_S(vtemp1);
+  f1 = N_VGetArrayPointer_Serial(vtemp1);
 
   fac = N_VWrmsNorm (fcB, rewt);
   r0 = RCONST(1000.0)*SUNRabs(gamma)*uround*NEQ*fac;
@@ -745,7 +745,7 @@ static int PSolveB(realtype t, N_Vector c,
     for (jx = 0; jx < mx; jx++) {
       igx = jigx[jx];
       ig = igx + igy*ngx;
-      denseGETRS(P[ig], mp, pivot[ig], &(NV_DATA_S(z)[iv]));
+      denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer_Serial(z)[iv]));
       iv += mp;
     }
   }
@@ -872,7 +872,7 @@ static void CInit(N_Vector c, WebData wdata)
   int i, ici, ioff, iyoff, jx, jy, ns, mxns;
   realtype argx, argy, x, y, dx, dy, x_factor, y_factor, *cdata;
   
-  cdata = NV_DATA_S(c);
+  cdata = N_VGetArrayPointer_Serial(c);
   ns = wdata->ns;
   mxns = wdata->mxns;
   dx = wdata->dx;
@@ -907,7 +907,7 @@ static void CbInit(N_Vector c, int is, WebData wdata)
 
   realtype gu[NS];
 
-  cdata = NV_DATA_S(c);
+  cdata = N_VGetArrayPointer_Serial(c);
   ns = wdata->ns;
   mxns = wdata->mxns;
 
@@ -1025,8 +1025,8 @@ static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata)
   realtype beta[NS], beta2[NS], cof1[NS], gam[NS], gam2[NS];
   realtype temp, *cox, *coy, *xd, *zd;
 
-  xd = NV_DATA_S(x);
-  zd = NV_DATA_S(z);
+  xd = N_VGetArrayPointer_Serial(x);
+  zd = N_VGetArrayPointer_Serial(z);
   ns = wdata->ns;
   mx = wdata->mx;
   my = wdata->my;
@@ -1207,7 +1207,7 @@ static void PrintOutput(N_Vector cB, int ns, int mxns, WebData wdata)
 
   x = y = ZERO;
 
-  cdata = NV_DATA_S(cB);
+  cdata = N_VGetArrayPointer_Serial(cB);
 
   for (i=1; i <= ns; i++) {
 
@@ -1257,7 +1257,7 @@ static realtype doubleIntgr(N_Vector c, int i, WebData wdata)
   realtype intgr_xy, intgr_x;
   int jx, jy;
 
-  cdata = NV_DATA_S(c);
+  cdata = N_VGetArrayPointer_Serial(c);
 
   ns   = wdata->ns;
   mx   = wdata->mx;

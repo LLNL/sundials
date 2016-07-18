@@ -247,7 +247,7 @@ static int Jac(realtype t,
   int* rowvals;
   realtype* data;
   
-  yval = NV_DATA_S(y);
+  yval = N_VGetArrayPointer_Serial(y);
   colptrs = (*JacMat->colptrs);
   rowvals = (*JacMat->rowvals);
   data    = JacMat->data;

@@ -309,9 +309,9 @@ int resHeat(realtype tt,
   realtype *uu_data, *up_data, *rr_data, coeff, dif1, dif2;
   UserData data;
   
-  uu_data = NV_DATA_S(uu); 
-  up_data = NV_DATA_S(up); 
-  rr_data = NV_DATA_S(rr);
+  uu_data = N_VGetArrayPointer_Serial(uu); 
+  up_data = N_VGetArrayPointer_Serial(up); 
+  rr_data = N_VGetArrayPointer_Serial(rr);
 
   data = (UserData) user_data;
   
@@ -363,7 +363,7 @@ int PsetupHeat(realtype tt,
   UserData data;
   
   data = (UserData) user_data;
-  ppv = NV_DATA_S(data->pp);
+  ppv = N_VGetArrayPointer_Serial(data->pp);
   mm = data->mm;
 
   /* Initialize the entire vector to 1., then set the interior points to the
@@ -421,8 +421,8 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
 
   mm = data->mm;
 
-  udata = NV_DATA_S(uu);
-  updata = NV_DATA_S(up);
+  udata = N_VGetArrayPointer_Serial(uu);
+  updata = N_VGetArrayPointer_Serial(up);
 
   /* Initialize uu on all grid points. */ 
   mm1 = mm - 1;
