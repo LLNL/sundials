@@ -31,13 +31,11 @@ to access its member variables.
 %%
 %%--------------------------------------------
 %%
-The {\nvecph} module defines parhyp implementations of all vector operations listed 
-in Table \ref{t:nvecops}, except for \verb|N_VSetArrayPointer|, because setting raw 
-data pointers is handled by low-level {\hypre} functions. Implementation of 
-\verb|N_VGetArrayPointer| is provided, but its use is strongly
-discouraged (and we will consider removing it in the future).
-When access to raw vector data is needed, it is 
-recommended to extract {\hypre} vector first, and then use {\hypre} 
+The {\nvecph} module defines implementations of all vector operations 
+listed in Table \ref{t:nvecops}, except for \id{N\_VSetArrayPointer} and 
+\id{N\_VGetArrayPointer}, because accessing raw vector data is handled by 
+low-level {\hypre} functions. When access to raw vector data is needed, one 
+should extract {\hypre} vector first, and then use {\hypre} 
 methods to access the data. Usage examples of {\nvecph} are provided in 
 example programs for {\cvode} \cite{cvode_ex} and {\arkode} \cite{arkode_ex}.
 
