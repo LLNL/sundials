@@ -499,12 +499,14 @@ void N_VSpace_ParHyp(N_Vector v, long int *lrw, long int *liw)
 
 
 /*
- * Returns pointer to raw data of local HYPRE vector.
- * NOTE: Use only if you know what you are doing.
+ * This function is disabled in ParHyp implementation and returns NULL. 
+ * The user should extract HYPRE vector using N_VGetVector_ParHyp and 
+ * then use HYPRE functions to get pointer to raw data of the local HYPRE 
+ * vector.
  */
 realtype *N_VGetArrayPointer_ParHyp(N_Vector v)
 {
-  return((realtype *) NV_DATA_PH(v));
+  return NULL; /* ((realtype *) NV_DATA_PH(v)); */
 }
 
 

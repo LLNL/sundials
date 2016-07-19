@@ -41,6 +41,7 @@
 
 
 static int Test_N_VMake(HYPRE_ParVector W, int myid);
+static int Test_N_VGetVectorID(N_Vector W, int myid);
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
@@ -102,12 +103,9 @@ int main(int argc, char *argv[])
   /* Create template hypre vector */
   HYPRE_ParVectorCreate(comm, global_length, partitioning, &Xhyp);
   HYPRE_ParVectorInitialize(Xhyp);
-  
+
   /* Create empty vector */
   W = N_VNewEmpty_ParHyp(comm, local_length, global_length);
-  if(N_VGetVectorID(W) == SUNDIALS_NVEC_PARHYP && myid == 0) {
-    /*printf("Testing HYPRE parallel vector wrapper...\n");*/
-  }
 
   /* NVector Test */
 
@@ -128,11 +126,12 @@ int main(int argc, char *argv[])
   Z = N_VClone(X);
   
   /* Skipped tests */
-  /* Setting HYPRE vector data block should not be allowed from N_Vector */
+  /* Accessing HYPRE vector raw data is not allowed from N_Vector interface */
   /* fails += Test_N_VSetArrayPointer(W, local_length, myid); */
+  /* fails += Test_N_VGetArrayPointer(X, local_length, myid); */
   
-  /* Vector operations tests */
-  fails += Test_N_VGetArrayPointer(X, local_length, myid);
+  /* N_Vector interface tests */
+  fails += Test_N_VGetVectorID(W, myid);
   fails += Test_N_VConst(X, local_length, myid);
   fails += Test_N_VLinearSum(X, Y, Z, local_length, myid);
   fails += Test_N_VProd(X, Y, Z, local_length, myid);
@@ -184,10 +183,9 @@ int check_ans(realtype ans, N_Vector X, long int local_length)
 {
   int      failure = 0;
   long int i;
-  realtype *Xdata;
+  hypre_ParVector *Xvec = N_VGetVector_ParHyp(X);
+  realtype *Xdata = Xvec == NULL ? NULL : hypre_VectorData(hypre_ParVectorLocalVector(Xvec));
   
-  Xdata = N_VGetArrayPointer(X);
-
   /* check vector data */
   for(i=0; i < local_length; i++) {
     failure += FNEQ(Xdata[i], ans);
@@ -207,7 +205,8 @@ int check_ans(realtype ans, N_Vector X, long int local_length)
  * --------------------------------------------------------------------*/
 booleantype has_data(N_Vector X)
 {
-  const realtype *Xdata = N_VGetArrayPointer(X);
+  hypre_ParVector *Xvec = N_VGetVector_ParHyp(X);
+  realtype *Xdata = Xvec == NULL ? NULL : hypre_VectorData(hypre_ParVectorLocalVector(Xvec));
   if (Xdata == NULL)
     return FALSE;
   else
@@ -223,7 +222,8 @@ booleantype has_data(N_Vector X)
  * --------------------------------------------------------------------*/
 void set_element(N_Vector X, long int i, realtype val)
 {
-  realtype *Xdata = N_VGetArrayPointer(X);
+  hypre_ParVector *Xvec = N_VGetVector_ParHyp(X);
+  realtype *Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xvec));
   Xdata[i] = val;
 }
  
@@ -235,9 +235,31 @@ void set_element(N_Vector X, long int i, realtype val)
  * --------------------------------------------------------------------*/
 realtype get_element(N_Vector X, long int i)
 {
-  const realtype *Xdata = N_VGetArrayPointer(X);
+  hypre_ParVector *Xvec = N_VGetVector_ParHyp(X);
+  const realtype *Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xvec));
   return Xdata[i];
 }
+
+/* ----------------------------------------------------------------------
+ * N_VGetVectorID Test
+ *
+ * --------------------------------------------------------------------*/
+int Test_N_VGetVectorID(N_Vector v, int myid)
+{
+  N_Vector_ID id = N_VGetVectorID(v);
+  if (id == SUNDIALS_NVEC_PARHYP) {
+    if (myid == 0) {
+      printf("    PASSED test -- N_VGetVectorID \n");
+      /* PRINT_TIME("    N_VMake Time: %22.15e \n \n", stop_time - start_time); */
+    }
+    return (0);
+  } else {
+    printf(">>> FAILED test -- N_VGetVectorID, Proc %d \n", myid);
+    printf("    Unrecognized vector type %d \n \n", id);
+    return (1);    
+  }
+}
+
 
 /* ----------------------------------------------------------------------
  * N_VMake Test
