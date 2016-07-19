@@ -111,14 +111,14 @@ def main():
             # enable lapack   (NOTE: will find libraries in LD_LIBRARY_PATH)
             cmd = cmd + "-DLAPACK_ENABLE=ON \ \n"
             # enable klu
-            cmd = cmd + "-DKLU_ENABLE=TRUE -DKLU_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.2.1/include \ \n"
-            cmd = cmd + "-DKLU_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.2.1/lib \ \n"
+            cmd = cmd + "-DKLU_ENABLE=TRUE -DKLU_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.5.3/include \ \n"
+            cmd = cmd + "-DKLU_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.5.3/lib \ \n"
             # enable hypre
-            cmd = cmd + "-DHYPRE_ENABLE=TRUE -DHYPRE_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/hypre/2.10.0b/include \ \n"
-            cmd = cmd + "-DHYPRE_LIBRARY=/usr/casc/sundials/apps/rh6/hypre/2.10.0b/lib/libHYPRE.a \ \n"
+            cmd = cmd + "-DHYPRE_ENABLE=TRUE -DHYPRE_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/hypre/2.11.1/include \ \n"
+            cmd = cmd + "-DHYPRE_LIBRARY=/usr/casc/sundials/apps/rh6/hypre/2.11.1/lib/libHYPRE.a \ \n"
             # enable PETSc
-            cmd = cmd + "-DPETSC_ENABLE=TRUE -DPETSC_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/petsc/3.6.3/include \ \n"
-            cmd = cmd + "-DPETSC_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/petsc/3.6.3/lib \ \n"
+            cmd = cmd + "-DPETSC_ENABLE=TRUE -DPETSC_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/petsc/3.7.2/include \ \n"
+            cmd = cmd + "-DPETSC_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/petsc/3.7.2/lib \ \n"
             # enable openmp
             cmd = cmd + "-DOPENMP_ENABLE=TRUE \ \n"
             # enable pthreads
@@ -130,9 +130,9 @@ def main():
             # enable SUPERLU_MT
             cmd = cmd + "-DSUPERLUMT_ENABLE=TRUE \ \n"
             # specify include dir
-            cmd = cmd + "-DSUPERLUMT_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.0/SRC \ \n"
+            cmd = cmd + "-DSUPERLUMT_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.1/SRC \ \n"
             # specify library dir
-            cmd = cmd + "-DSUPERLUMT_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.0/lib \ \n"
+            cmd = cmd + "-DSUPERLUMT_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.1/lib \ \n"
             # specify SuperLU_MT thread type
             cmd = cmd + "-DSUPERLUMT_THREAD_TYPE=Pthread \ \n"
             # specify source
