@@ -87,6 +87,9 @@ Hypre (parallel) vectors, and one for PetSC vectors.  These
 additions are accompanied by additions to various interface functions
 and to user documentation.
 
+Each {\nvector} module now includes a function, \id{N\_VGetVectorID},
+that returns the {\nvector} module name.
+
 An optional input function was added to set a maximum number
 of linesearch backtracks in the initial condition calculation, and
 four user-callable functions were added to support the use of LAPACK
@@ -104,7 +107,8 @@ fixed in the interpolation functions used in solving backward problems.
 
 The Krylov linear solver Bi-CGstab was enhanced by removing a redundant
 dot product.  Various additions and corrections were made to the
-interfaces to the sparse solvers KLU and SuperLU\_MT.
+interfaces to the sparse solvers KLU and SuperLU\_MT, including support
+for CSR format when using KLU.
 
 Minor corrections and additions were made to the {\idas} solver, to the
 examples, to installation-related files, and to the user documentation.

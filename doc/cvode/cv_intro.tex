@@ -100,6 +100,9 @@ Hypre (parallel) vectors, and one for PetSC vectors.  These
 additions are accompanied by additions to various interface functions
 and to user documentation.
 
+Each {\nvector} module now includes a function, \id{N\_VGetVectorID},
+that returns the {\nvector} module name.
+
 For each linear solver, the various solver performance counters are
 now initialized to 0 in both the solver specification function and in
 solver \id{linit} function.  This ensures that these solver counters
@@ -111,7 +114,8 @@ functions.
 
 The Krylov linear solver Bi-CGstab was enhanced by removing a redundant
 dot product.  Various additions and corrections were made to the
-interfaces to the sparse solvers KLU and SuperLU\_MT.
+interfaces to the sparse solvers KLU and SuperLU\_MT, including support
+for CSR format when using KLU.
 
 Minor corrections and additions were made to the {\cvode} solver, to the
 Fortran interfaces, to the examples, to installation-related files,
