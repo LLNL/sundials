@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include "fkinsol.h"
 #include "kinsol_impl.h"
-#include <sundials/sundials_sparse.h>
+#include <kinsol/kinsol_sparse.h>
 
 /* Prototype of the Fortran routine */
  

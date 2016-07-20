@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include "fida.h"
 #include "ida_impl.h"
-#include <sundials/sundials_sparse.h>
+#include <ida/ida_sparse.h>
 
 /* Prototype of the Fortran routine */
  

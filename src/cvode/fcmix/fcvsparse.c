@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include "fcvode.h"
 #include "cvode_impl.h"
-#include <sundials/sundials_sparse.h>
+#include <cvode/cvode_sparse.h>
 
 /* Prototype of the Fortran routine */
  
