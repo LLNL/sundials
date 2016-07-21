@@ -315,9 +315,14 @@ accompanied by additions to various interface functions and to user
 documentation.
 
 \item {} 
+Each NVECTOR module now includes a function, \code{N\_VGetVectorID},
+that returns the NVECTOR module name.
+
+\item {} 
 The Krylov linear solver Bi-CGstab was enhanced by removing a
 redundant dot product.  Various additions and corrections were made
-to the interfaces to the sparse solvers KLU and SuperLU\_MT.
+to the interfaces to the sparse solvers KLU and SuperLU\_MT,
+including support for CSR format when using KLU.
 
 \item {} 
 The ARKode implicit predictor algorithms were updated: methods 2 and
@@ -19128,15 +19133,14 @@ The header file to be included when using this module is \code{nvector\_parhyp.h
 Unlike native SUNDIALS vector types, NVECTOR\_PARHYP does not provide macros
 to access its member variables.
 
-The NVECTOR\_PARHYP module defines parhyp implementations of all vector
+The NVECTOR\_PARHYP module defines implementations of all vector
 operations listed in the section {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, except for
-\code{N\_VSetArrayPointer}, because setting raw data pointers is handled
-by low-level HYPRE functions. Implementation of \code{N\_VGetArrayPointer}
-is provided, but its use is strongly discouraged (and we will consider
-removing it in the future). When access to raw vector data is needed, it is
-recommended to extract HYPRE vector first, and then use HYPRE methods
-to access the data.  Usage examples of NVECTOR\_PARHYP are provided in
-example programs for CVODE and ARKode.
+\code{N\_VSetArrayPointer} and \code{N\_VGetArrayPointer}, because accessing
+raw vector data is handled by low-level HYPRE functions.  When access
+to raw vector data is needed, one should extract the HYPRE HYPRE
+vector first, and then use HYPRE methods to access the data.  Usage
+examples of NVECTOR\_PARHYP are provided in example programs for CVODE
+and ARKode.
 
 The names of parhyp methods are obtained from those in the section
 {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}} by appending the suffix \code{\_ParHyp}
@@ -19882,7 +19886,7 @@ identifier specified in enumeration:
 \PYG{p}{\PYGZcb{}} \PYG{n}{N\PYGZus{}Vector\PYGZus{}ID}\PYG{p}{;}
 \end{Verbatim}
 
-It is recommended that a user defined NVECTOR implementation use the
+It is recommended that a user supplied NVECTOR implementation use the
 \code{SUNDIALS\_NVEC\_CUSTOM} identifier.
 
 
