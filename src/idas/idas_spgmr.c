@@ -511,7 +511,6 @@ int IDASpgmrB(void *ida_mem, int which, int maxlB)
   IDAadjMem IDAADJ_mem;
   IDABMem IDAB_mem;
   IDASpilsMemB idaspilsB_mem;
-  void *ida_memB;
   int flag;
   
   /* Check if ida_mem is allright. */
@@ -541,8 +540,6 @@ int IDASpgmrB(void *ida_mem, int which, int maxlB)
     /* advance */
     IDAB_mem = IDAB_mem->ida_next;
   }
-  /* ida_mem corresponding to 'which' problem. */
-  ida_memB = (void *) IDAB_mem->IDA_mem;
 
   
   /* Get memory for IDASpilsMemRecB */

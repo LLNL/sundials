@@ -7080,7 +7080,7 @@ static int IDAQuadSensRhs1InternalDQ(IDAMem IDA_mem, int is, realtype t,
   int nfel = 0, which;
   realtype psave, pbari;
   realtype del , rdel;
-  realtype Delp, rDelp;
+  realtype Delp;
   realtype Dely, rDely;
   realtype Del , r2Del ;
   realtype norms;
@@ -7095,7 +7095,6 @@ static int IDAQuadSensRhs1InternalDQ(IDAMem IDA_mem, int is, realtype t,
   psave = p[which];
   
   Delp  = pbari * del;
-  rDelp = ONE/Delp;
   norms   = N_VWrmsNorm(yyS, ewt) * pbari;
   rDely = SUNMAX(norms, rdel) / pbari;
   Dely  = ONE/rDely;
