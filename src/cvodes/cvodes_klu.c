@@ -233,12 +233,11 @@ int CVKLUReInit(void *cvode_mem, int n, int nnz, int reinit_type)
   CVodeMem cv_mem;
   CVSlsMem cvsls_mem;
   KLUData klu_data;
-  SlsMat JacMat;
 
   /* Return immediately if cv_mem is NULL. */
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CVSLS_MEM_NULL, "CVSLS", "CVKLUReInit", 
-		    MSGSP_CVMEM_NULL);
+                   MSGSP_CVMEM_NULL);
     return(CVSLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -246,7 +245,7 @@ int CVKLUReInit(void *cvode_mem, int n, int nnz, int reinit_type)
   /* Return immediately if cv_lmem is NULL. */
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(NULL, CVSLS_LMEM_NULL, "CVSLS", "CVKLUReInit", 
-		    MSGSP_LMEM_NULL);
+                   MSGSP_LMEM_NULL);
     return(CVSLS_LMEM_NULL);
   }
   cvsls_mem = (CVSlsMem) (cv_mem->cv_lmem);
@@ -255,11 +254,9 @@ int CVKLUReInit(void *cvode_mem, int n, int nnz, int reinit_type)
   /* Return if reinit_type is not valid */
   if ((reinit_type != 1) && (reinit_type != 2)) {
     cvProcessError(NULL, CVSLS_ILL_INPUT, "CVSLS", "CVKLUReInit", 
-		    MSGSP_ILL_INPUT);
+                   MSGSP_ILL_INPUT);
     return(CVSLS_ILL_INPUT);
   }
-
-  JacMat = cvsls_mem->s_JacMat;
 
   if (reinit_type == 1) {
 
@@ -272,7 +269,7 @@ int CVKLUReInit(void *cvode_mem, int n, int nnz, int reinit_type)
     cvsls_mem->s_JacMat = SparseNewMat(n, n, nnz, cvsls_mem->sparsetype);
     if (cvsls_mem->s_JacMat == NULL) {
       cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "CVKLU", 
-		    MSGSP_MEM_FAIL);
+                     MSGSP_MEM_FAIL);
       return(CVSLS_MEM_FAIL);
     }
   }
@@ -715,7 +712,7 @@ int CVKLUReInitB(void *cvode_mem, int which, int n, int nnz, int reinit_type)
   CVadjMem ca_mem;
   CVodeBMem cvB_mem;
   void *cvodeB_mem;
-  CVSlsMemB cvslsB_mem;
+  //CVSlsMemB cvslsB_mem;
   int flag;
 
   /* Check if cvode_mem exists */
@@ -763,7 +760,7 @@ int CVKLUSetOrderingB(void *cvode_mem, int which, int ordering_choice)
   CVadjMem ca_mem;
   CVodeBMem cvB_mem;
   void *cvodeB_mem;
-  CVSlsMemB cvslsB_mem;
+  //CVSlsMemB cvslsB_mem;
   int flag;
 
   /* Check if cvode_mem exists */

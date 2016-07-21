@@ -223,12 +223,11 @@ int IDAKLUReInit(void *ida_mem_v, int n, int nnz, int reinit_type)
   IDAMem ida_mem;
   IDASlsMem idasls_mem;
   KLUData klu_data;
-  SlsMat JacMat;
 
   /* Return immediately if ida_mem is NULL. */
   if (ida_mem_v == NULL) {
     IDAProcessError(NULL, IDASLS_MEM_NULL, "IDASLS", "IDAKLUReInit", 
-		    MSGSP_IDAMEM_NULL);
+                    MSGSP_IDAMEM_NULL);
     return(IDASLS_MEM_NULL);
   }
   ida_mem = (IDAMem) ida_mem_v;
@@ -236,7 +235,7 @@ int IDAKLUReInit(void *ida_mem_v, int n, int nnz, int reinit_type)
   /* Return immediately if ida_lmem is NULL. */
   if (ida_mem->ida_lmem == NULL) {
     IDAProcessError(NULL, IDASLS_LMEM_NULL, "IDASLS", "IDAKLUReInit", 
-		    MSGSP_LMEM_NULL);
+                    MSGSP_LMEM_NULL);
     return(IDASLS_LMEM_NULL);
   }
 
@@ -246,12 +245,9 @@ int IDAKLUReInit(void *ida_mem_v, int n, int nnz, int reinit_type)
   /* Return if reinit_type is not valid */
   if ((reinit_type != 1) && (reinit_type != 2)) {
     IDAProcessError(NULL, IDASLS_ILL_INPUT, "IDASLS", "IDAKLUReInit", 
-		    MSGSP_ILL_INPUT);
+                    MSGSP_ILL_INPUT);
     return(IDASLS_ILL_INPUT);
   }
-
-  JacMat = idasls_mem->s_JacMat;
-
 
   if (reinit_type == 1) {
 
@@ -264,7 +260,7 @@ int IDAKLUReInit(void *ida_mem_v, int n, int nnz, int reinit_type)
     idasls_mem->s_JacMat = SparseNewMat(n, n, nnz, idasls_mem->sparsetype);
     if (idasls_mem->s_JacMat == NULL) {
       IDAProcessError(ida_mem, IDASLS_MEM_FAIL, "IDASLS", "IDAKLU", 
-		    MSGSP_MEM_FAIL);
+                      MSGSP_MEM_FAIL);
       return(IDASLS_MEM_FAIL);
     }
   }
@@ -628,7 +624,7 @@ int IDAKLUReInitB(void *ida_mem, int which, int n, int nnz, int reinit_type)
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
   IDABMem IDAB_mem;
-  IDASlsMemB idaslsB_mem;
+  //IDASlsMemB idaslsB_mem;
   void *ida_memB;
   int flag;
   
@@ -680,7 +676,7 @@ int IDAKLUSetOrderingB(void *ida_mem, int which, int ordering_choiceB)
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
   IDABMem IDAB_mem;
-  IDASlsMemB idaslsB_mem;
+  //IDASlsMemB idaslsB_mem;
   void *ida_memB;
   int flag;
   

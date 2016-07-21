@@ -206,12 +206,11 @@ int KINKLUReInit(void *kin_mem_v, int n, int nnz, int reinit_type)
   KINMem kin_mem;
   KINSlsMem kinsls_mem;
   KLUData klu_data;
-  SlsMat JacMat;
 
   /* Return immediately if kin_mem is NULL. */
   if (kin_mem_v == NULL) {
     KINProcessError(NULL, KINSLS_MEM_NULL, "KINSLS", "KINKLUReInit", 
-		    MSGSP_KINMEM_NULL);
+                    MSGSP_KINMEM_NULL);
     return(KINSLS_MEM_NULL);
   }
   kin_mem = (KINMem) kin_mem_v;
@@ -219,7 +218,7 @@ int KINKLUReInit(void *kin_mem_v, int n, int nnz, int reinit_type)
   /* Return immediately if kin_lmem is NULL. */
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(NULL, KINSLS_LMEM_NULL, "KINSLS", "KINKLUReInit", 
-		    MSGSP_LMEM_NULL);
+                    MSGSP_LMEM_NULL);
     return(KINSLS_LMEM_NULL);
   }
   kinsls_mem = (KINSlsMem) (kin_mem->kin_lmem);
@@ -228,11 +227,9 @@ int KINKLUReInit(void *kin_mem_v, int n, int nnz, int reinit_type)
   /* Return if reinit_type is not valid */
   if ((reinit_type != 1) && (reinit_type != 2)) {
     KINProcessError(NULL, KINSLS_ILL_INPUT, "KINSLS", "KINKLUReInit", 
-		    MSGSP_ILL_INPUT);
+                    MSGSP_ILL_INPUT);
     return(KINSLS_ILL_INPUT);
   }
-
-  JacMat = kinsls_mem->s_JacMat;
 
   if (reinit_type == 1) {
 
@@ -245,7 +242,7 @@ int KINKLUReInit(void *kin_mem_v, int n, int nnz, int reinit_type)
     kinsls_mem->s_JacMat = SparseNewMat(n, n, nnz, kinsls_mem->sparsetype);
     if (kinsls_mem->s_JacMat == NULL) {
       KINProcessError(kin_mem, KINSLS_MEM_FAIL, "KINSLS", "KINKLU", 
-		    MSGSP_MEM_FAIL);
+                      MSGSP_MEM_FAIL);
       return(KINSLS_MEM_FAIL);
     }
   }
