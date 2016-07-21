@@ -436,7 +436,7 @@ static void CInit(N_Vector c, WebData wdata)
   int jx, jy, ns, mxns, ioff, iyoff, i, ici;
   realtype argx, argy, x, y, dx, dy, x_factor, y_factor, *cdata;
   
-  cdata = N_VGetArrayPointer_Serial(c);
+  cdata = N_VGetArrayPointer(c);
   ns = wdata->ns;
   mxns = wdata->mxns;
   dx = wdata->dx;
@@ -528,7 +528,7 @@ static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t)
   int i, jx ,jy;
   realtype *cdata;
   
-  cdata = N_VGetArrayPointer_Serial(c);
+  cdata = N_VGetArrayPointer(c);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("c values at t = %Lg:\n\n", t);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
@@ -674,8 +674,8 @@ static int f(realtype t, N_Vector c, N_Vector cdot,void *user_data)
   WebData wdata;
   
   wdata = (WebData) user_data;
-  cdata = N_VGetArrayPointer_Serial(c);
-  cdotdata = N_VGetArrayPointer_Serial(cdot);
+  cdata = N_VGetArrayPointer(c);
+  cdotdata = N_VGetArrayPointer(cdot);
   
   mxns = wdata->mxns;
   ns = wdata->ns;
@@ -776,11 +776,11 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
   
   wdata = (WebData) user_data;
   arkode_mem = wdata->arkode_mem;
-  cdata = N_VGetArrayPointer_Serial(c);
+  cdata = N_VGetArrayPointer(c);
   rewt = wdata->rewt;
   flag = ARKodeGetErrWeights(arkode_mem, rewt);
   if(check_flag(&flag, "ARKodeGetErrWeights", 1)) return(1);
-  rewtdata = N_VGetArrayPointer_Serial(rewt);
+  rewtdata = N_VGetArrayPointer(rewt);
 
   uround = UNIT_ROUNDOFF;
 
@@ -800,7 +800,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
      Here, fsave contains the base value of the rate vector and 
      r0 is a minimum increment factor for the difference quotient. */
   
-  f1 = N_VGetArrayPointer_Serial(vtemp1);
+  f1 = N_VGetArrayPointer(vtemp1);
   
   fac = N_VWrmsNorm (fc, rewt);
   r0 = RCONST(1000.0)*SUNRabs(gamma)*uround*NEQ*fac;
@@ -906,7 +906,7 @@ static int PSolve(realtype tn, N_Vector c, N_Vector fc,
     for (jx = 0; jx < mx; jx++) {
       igx = jigx[jx];
       ig = igx + igy*ngx;
-      denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer_Serial(z)[iv]));
+      denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer(z)[iv]));
       iv += mp;
     }
   }
@@ -930,8 +930,8 @@ static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata)
   realtype beta[NS], beta2[NS], cof1[NS], gam[NS], gam2[NS];
   realtype temp, *cox, *coy, *xd, *zd;
   
-  xd = N_VGetArrayPointer_Serial(x);
-  zd = N_VGetArrayPointer_Serial(z);
+  xd = N_VGetArrayPointer(x);
+  zd = N_VGetArrayPointer(z);
   ns = wdata->ns;
   mx = wdata->mx;
   my = wdata->my;
