@@ -4042,7 +4042,7 @@ static int arkPredict(ARKodeMem ark_mem, int istage)
     /* this approach will not work (for now) when using a non-identity mass matrix */
     if (ark_mem->ark_mass_matrix)  break;
 
-    /* yguess = sum_{j=0}^{i-1} (Ae(i,j)*Fe(j) + Ai(i,j)*Fi(j)) */
+    /* yguess = h*sum_{j=0}^{i-1} (Ae(i,j)*Fe(j) + Ai(i,j)*Fi(j)) */
     N_VConst(ZERO, yguess);
     if (!ark_mem->ark_implicit)
       for (jstage=0; jstage<istage; jstage++) {
@@ -4056,7 +4056,7 @@ static int arkPredict(ARKodeMem ark_mem, int istage)
     }
 
     /* yguess = ynew + h*sum_{j=0}^{i-1}(Ae(i,j)*Fe(j) + Ai(i,j)*Fi(j)) */ 
-    N_VLinearSum(ONE, ark_mem->ark_ynew, h, yguess, yguess);
+    N_VLinearSum(ONE, ark_mem->ark_ynew, ONE, yguess, yguess);
     return(ARK_SUCCESS);
     break;
 
