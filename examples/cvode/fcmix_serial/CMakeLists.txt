@@ -26,6 +26,14 @@ SET(FCVODE_examples
   fcvRoberts_dns
   )
 
+SET(FCVODE_examples_KLU
+  fcvRoberts_klu
+  )
+
+SET(FCVODE_examples_SUPERLUMT
+  fcvRoberts_sps
+  )
+
 # Add variable fcvode_bl_examples with the names of the serial FCVODE examples
 # that use Lapack
 
@@ -94,6 +102,34 @@ IF(LAPACK_FOUND)
     ENDIF(EXAMPLES_INSTALL)
   ENDFOREACH(example ${FCVODE_examples_BL})
 ENDIF(LAPACK_FOUND)
+
+# If KLU support is enabled, add the build and install targets for
+# the examples using KLU
+IF(KLU_FOUND)
+  FOREACH(example ${FCVODE_examples_KLU})
+    ADD_EXECUTABLE(${example} ${example}.f)
+    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    SUNDIALS_ADD_TEST(${example} ${example})
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+    IF(EXAMPLES_INSTALL)
+      INSTALL(FILES ${example}.f ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial)
+    ENDIF(EXAMPLES_INSTALL)
+  ENDFOREACH(example ${FCVODE_examples_KLU})
+ENDIF(KLU_FOUND)
+
+# If SUPERLUMT support is enabled, add the build and install targets for
+# the examples using SUPERLUMT
+IF(SUPERLUMT_FOUND)
+  FOREACH(example ${FCVODE_examples_SUPERLUMT})
+    ADD_EXECUTABLE(${example} ${example}.f)
+    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    SUNDIALS_ADD_TEST(${example} ${example})
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+    IF(EXAMPLES_INSTALL)
+      INSTALL(FILES ${example}.f ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial)
+    ENDIF(EXAMPLES_INSTALL)
+  ENDFOREACH(example ${FCVODE_examples_SUPERLUMT})
+ENDIF(SUPERLUMT_FOUND)
 
 IF(EXAMPLES_INSTALL)
 

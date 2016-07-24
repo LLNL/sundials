@@ -16,10 +16,6 @@
 # ---------------------------------------------------------------
 # CMakeLists.txt file for CVODES serial examples
 
-
-
-
-
 # Add variable CVODES_examples with the names of the serial CVODES examples
 # This is a list of tuples, first element is example name.
 # Optional second argument is test arguments
@@ -53,10 +49,14 @@ SET(CVODES_examples_BL
 
 SET(CVODES_examples_KLU
   cvsRoberts_klu
+  cvsRoberts_ASAi_klu
+  "cvsRoberts_FSA_klu\;-sensi stg1 t"
   )
  
 SET(CVODES_examples_SUPERLUMT
   cvsRoberts_sps
+  cvsRoberts_ASAi_sps
+  "cvsRoberts_FSA_sps\;-sensi stg1 t"
   )
 
 # Specify libraries to link against (through the target that was used to 
@@ -136,29 +136,85 @@ ENDIF(LAPACK_FOUND)
 # If KLU support is enabled, add the build and install targets for
 # the examples using KLU
 IF(KLU_FOUND)
-  FOREACH(example ${CVODES_examples_KLU})
-    ADD_EXECUTABLE(${example} ${example}.c)
-    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-    SUNDIALS_ADD_TEST(${example} ${example})
+  SET(ADDED_EXECUTABLES "")
+  FOREACH(example_tuple ${CVODES_examples_KLU})
+    LIST(GET example_tuple 0 example)
+  
+    # Only need to add the executable once
+    LIST(FIND ADDED_EXECUTABLES ${example} index)
+    IF(index EQUAL -1)
+      LIST(APPEND ADDED_EXECUTABLES ${example})
+      ADD_EXECUTABLE(${example} ${example}.c)
+      SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    ENDIF(index EQUAL -1)
+  
+    LIST(LENGTH example_tuple n)
+    IF(n EQUAL 2)
+      LIST(GET example_tuple 1 test_args)
+      STRING(REGEX REPLACE " " "_" test_name ${example}_${test_args})
+      SUNDIALS_ADD_TEST(${test_name} ${example} TEST_ARGS ${test_args})
+    ELSE()
+      SUNDIALS_ADD_TEST(${example} ${example})
+    ENDIF()
+  
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+    FILE(GLOB example_out ${example}.out*)
     IF(EXAMPLES_INSTALL)
-      INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
+      INSTALL(FILES ${example}.c ${example_out} DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
     ENDIF(EXAMPLES_INSTALL)
-  ENDFOREACH(example ${CVODES_examples_KLU})
+  ENDFOREACH(example_tuple ${CVODES_examples_KLU})
+#  FOREACH(example ${CVODES_examples_KLU})
+#    ADD_EXECUTABLE(${example} ${example}.c)
+#    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+#    SUNDIALS_ADD_TEST(${example} ${example})
+#    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+#    IF(EXAMPLES_INSTALL)
+#      INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
+#    ENDIF(EXAMPLES_INSTALL)
+#  ENDFOREACH(example ${CVODES_examples_KLU})
 ENDIF(KLU_FOUND)
 
 # If SUPERLUMT support is enabled, add the build and install targets for
 # the examples using SUPERLUMT
 IF(SUPERLUMT_FOUND)
-  FOREACH(example ${CVODES_examples_SUPERLUMT})
-    ADD_EXECUTABLE(${example} ${example}.c)
-    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-    SUNDIALS_ADD_TEST(${example} ${example})
+  SET(ADDED_EXECUTABLES "")
+  FOREACH(example_tuple ${CVODES_examples_SUPERLUMT})
+    LIST(GET example_tuple 0 example)
+  
+    # Only need to add the executable once
+    LIST(FIND ADDED_EXECUTABLES ${example} index)
+    IF(index EQUAL -1)
+      LIST(APPEND ADDED_EXECUTABLES ${example})
+      ADD_EXECUTABLE(${example} ${example}.c)
+      SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    ENDIF(index EQUAL -1)
+  
+    LIST(LENGTH example_tuple n)
+    IF(n EQUAL 2)
+      LIST(GET example_tuple 1 test_args)
+      STRING(REGEX REPLACE " " "_" test_name ${example}_${test_args})
+      SUNDIALS_ADD_TEST(${test_name} ${example} TEST_ARGS ${test_args})
+    ELSE()
+      SUNDIALS_ADD_TEST(${example} ${example})
+    ENDIF()
+  
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+    FILE(GLOB example_out ${example}.out*)
     IF(EXAMPLES_INSTALL)
-      INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
+      INSTALL(FILES ${example}.c ${example_out} DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
     ENDIF(EXAMPLES_INSTALL)
-  ENDFOREACH(example ${CVODES_examples_SUPERLUMT})
+  ENDFOREACH(example_tuple ${CVODES_examples_SUPERLUMT})
+
+#IF(SUPERLUMT_FOUND)
+#  FOREACH(example ${CVODES_examples_SUPERLUMT})
+#    ADD_EXECUTABLE(${example} ${example}.c)
+#    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+#    SUNDIALS_ADD_TEST(${example} ${example})
+#    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+#    IF(EXAMPLES_INSTALL)
+#      INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
+#    ENDIF(EXAMPLES_INSTALL)
+#  ENDFOREACH(example ${CVODES_examples_SUPERLUMT})
 ENDIF(SUPERLUMT_FOUND)
 
 IF(EXAMPLES_INSTALL)
