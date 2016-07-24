@@ -146,7 +146,15 @@ IF(EXAMPLES_INSTALL)
   ELSE(LAPACK_FOUND)
     SET(EXAMPLES_BL "")
   ENDIF(LAPACK_FOUND)
-
+  
+  IF(KLU_FOUND)
+    LIST2STRING(FCVODE_examples_KLU EXAMPLES)
+  ENDIF(KLU_FOUND)
+  
+  IF(SUPERLUMT_FOUND)
+    LIST2STRING(FCVODE_examples_SUPERLUMT EXAMPLES)
+  ENDIF(SUPERLUMT_FOUND)
+  
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
   # be used as a template for the user's own programs.
