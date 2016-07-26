@@ -2442,7 +2442,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
 		       N_Vector x, N_Vector xold, 
 		       int iter, realtype *R, realtype *gamma)
 {
-  int i_pt, i, j, lAA, imap, jmap;
+  int i_pt, i, j, lAA;
   int *ipt_map;
   realtype alfa;
   realtype a, b, temp, c, s;
