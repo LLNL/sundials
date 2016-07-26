@@ -343,12 +343,10 @@ void FIDA_SETVIN(char key_name[], realtype *vval, int *ier)
 
 void FIDA_TOLREINIT(int *iatol, realtype *rtol, realtype *atol, int *ier)
 {
-  int itol;
   N_Vector Vatol=NULL;
 
   *ier = 0;
 
-  itol = -1;
   if (*iatol == 1) {
     *ier = IDASStolerances(IDA_idamem, *rtol, *atol);
   } else {
