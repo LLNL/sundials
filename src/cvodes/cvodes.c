@@ -8836,7 +8836,7 @@ static int cvQuadSensRhs1InternalDQ(CVodeMem cv_mem, int is, realtype t,
   int nfel = 0, which;
   realtype psave, pbari;
   realtype delta , rdelta;
-  realtype Deltap, rDeltap;
+  realtype Deltap;
   realtype Deltay, rDeltay;
   realtype Delta , rDelta , r2Delta ;
   realtype norms;
@@ -8851,7 +8851,6 @@ static int cvQuadSensRhs1InternalDQ(CVodeMem cv_mem, int is, realtype t,
   psave = p[which];
   
   Deltap  = pbari * delta;
-  rDeltap = ONE/Deltap;
   norms   = N_VWrmsNorm(yS, ewt) * pbari;
   rDeltay = SUNMAX(norms, rdelta) / pbari;
   Deltay  = ONE/rDeltay;
