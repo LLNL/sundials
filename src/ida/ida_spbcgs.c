@@ -134,7 +134,7 @@ int IDASpbcg(void *ida_mem, int maxl)
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
   SpbcgMem spbcg_mem;
-  int flag, maxl1;
+  int maxl1;
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
@@ -149,7 +149,7 @@ int IDASpbcg(void *ida_mem, int maxl)
     return(IDASPILS_ILL_INPUT);
   }
 
-  if (lfree != NULL) flag = lfree((IDAMem) ida_mem);
+  if (lfree != NULL) lfree((IDAMem) ida_mem);
 
   /* Set five main function fields in ida_mem */
   linit  = IDASpbcgInit;
