@@ -3949,7 +3949,6 @@ static int arkPredict(ARKodeMem ark_mem, int istage)
   realtype tau_tol2 = 0.75;
   realtype h, a0, a1, a2, hA;
   N_Vector yguess = ark_mem->ark_ycur;
-  N_Vector tmp = ark_mem->ark_tempv;
 
   /* if the first step (or if resized), use initial condition as guess */
   if (ark_mem->ark_nst == 0 || ark_mem->ark_resized) {
