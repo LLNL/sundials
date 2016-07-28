@@ -47,8 +47,8 @@ c
 c local variables
 c
 c The following declaration specification should match C type long int.
-      integer*8 mudq, mldq, mukeep, mlkeep, iout(25), ipar
-      double precision rout(10), rpar
+      integer*8 mudq, mldq, mukeep, mlkeep, iout(25), ipar(1)
+      double precision rout(10), rpar(1)
       integer nout, ier
       parameter (nout = 11)
       integer npes, inopt, maxl, gstype, maxrs, itask, iatol
