@@ -219,6 +219,7 @@ cp -r $sundialsdir/src/sundials $tmpdir/src/
 cp -r $sundialsdir/src/nvec_ser $tmpdir/src/
 cp -r $sundialsdir/src/nvec_par $tmpdir/src/
 cp -r $sundialsdir/src/nvec_parhyp $tmpdir/src/
+cp -r $sundialsdir/src/nvec_petsc $tmpdir/src/
 cp -r $sundialsdir/src/nvec_openmp $tmpdir/src/
 cp -r $sundialsdir/src/nvec_pthreads $tmpdir/src/
 

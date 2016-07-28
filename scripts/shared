@@ -29,10 +29,12 @@ $tar $tarfile $distrobase/config/SundialsMPIC.cmake
 $tar $tarfile $distrobase/config/SundialsMPICXX.cmake
 $tar $tarfile $distrobase/config/SundialsMPIF.cmake
 $tar $tarfile $distrobase/config/SundialsMPIF90.cmake
+$tar $tarfile $distrobase/config/SundialsPETSc.cmake
 $tar $tarfile $distrobase/config/FindMPI.cmake
 $tar $tarfile $distrobase/config/FindHypre.cmake
 $tar $tarfile $distrobase/config/FindKLU.cmake
 $tar $tarfile $distrobase/config/FindSUPERLUMT.cmake
+$tar $tarfile $distrobase/config/FindPETSc.cmake
 $tar $tarfile $distrobase/config/FindKLU.cmake
 
 # 03/06/2015 LEBanks - comment out, but don't remove yet...may want to recreate some of this logic in CMake 
@@ -64,6 +66,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_superlumt_impl.h
 $tar $tarfile $distrobase/include/nvector/nvector_serial.h
 $tar $tarfile $distrobase/include/nvector/nvector_parallel.h
 $tar $tarfile $distrobase/include/nvector/nvector_parhyp.h
+$tar $tarfile $distrobase/include/nvector/nvector_petsc.h
 $tar $tarfile $distrobase/include/nvector/nvector_pthreads.h
 $tar $tarfile $distrobase/include/nvector/nvector_openmp.h
 
@@ -107,6 +110,12 @@ $tar $tarfile $distrobase/src/nvec_parhyp/fnvector_parhyp.h
 $tar $tarfile $distrobase/src/nvec_parhyp/nvector_parhyp.c
 $tar $tarfile $distrobase/src/nvec_parhyp/fnvector_parhyp.c
 
+echo "   --- Add nvecpetsc module to $tarfile"
+
+$tar $tarfile $distrobase/src/nvec_petsc/README
+$tar $tarfile $distrobase/src/nvec_petsc/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvec_petsc/nvector_petsc.h
+
 echo "   --- Add nvecopenmp module to $tarfile"
 
 $tar $tarfile $distrobase/src/nvec_openmp/README
@@ -131,6 +140,8 @@ $tar $tarfile $distrobase/examples/nvector/parallel/test_nvector_mpi.c
 $tar $tarfile $distrobase/examples/nvector/parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/parhyp/test_nvector_parhyp.c
 $tar $tarfile $distrobase/examples/nvector/parhyp/CMakeLists.txt
+$tar $tarfile $distrobase/examples/nvector/petsc/test_nvector_petsc.c
+$tar $tarfile $distrobase/examples/nvector/petsc/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/openmp/test_nvector_openmp.c
 $tar $tarfile $distrobase/examples/nvector/openmp/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/pthreads/test_nvector_pthreads.c
@@ -144,6 +155,7 @@ $tar $tarfile $distrobase/examples/templates/cmakelists_parallel_C_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_parallel_F77_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_parallel_CXX_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_parhyp_C_ex.in
+$tar $tarfile $distrobase/examples/templates/cmakelists_petsc_C_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_C_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_F77_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_CXX_ex.in
@@ -157,6 +169,7 @@ $tar $tarfile $distrobase/examples/templates/makefile_parallel_C_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_F77_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_CXX_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_parhyp_C_ex.in
+$tar $tarfile $distrobase/examples/templates/makefile_petsc_C_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_serial_C_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_serial_F77_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_serial_CXX_ex.in

@@ -122,9 +122,13 @@ $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvDiurnal_kry_bp.out
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvDiurnal_kry.f
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvDiurnal_kry.out
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_dns.f
+$tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_dns.out
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_dnsL.f
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_dnsL.out
-$tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_dns.out
+$tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_klu.f
+$tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_klu.out
+$tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_sps.f
+$tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_sps.out
 
 $tar $tarfile $distrobase/examples/cvode/parallel/README
 $tar $tarfile $distrobase/examples/cvode/parallel/CMakeLists.txt
