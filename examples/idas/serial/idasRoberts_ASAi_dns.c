@@ -493,12 +493,12 @@ int main(int argc, char *argv[])
 
 static int res(realtype t, N_Vector yy, N_Vector yp, N_Vector resval, void *user_data)
 {
-  realtype y1, y2, y3,yp1, yp2, yp3, *rval;
+  realtype y1, y2, y3, yp1, yp2, *rval;
   UserData data;
   realtype p1, p2, p3;
 
   y1  = Ith(yy,1); y2  = Ith(yy,2); y3  = Ith(yy,3); 
-  yp1 = Ith(yp,1); yp2 = Ith(yp,2); yp3 = Ith(yp,3);
+  yp1 = Ith(yp,1); yp2 = Ith(yp,2);
   rval = N_VGetArrayPointer_Serial(resval);
 
   data = (UserData) user_data;
@@ -521,11 +521,11 @@ static int Jac(long int Neq, realtype t, realtype cj,
                DlsMat J, void *user_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype y1, y2, y3;
+  realtype y2, y3;
   UserData data;
   realtype p1, p2, p3;
  
-  y1 = Ith(yy,1); y2 = Ith(yy,2); y3 = Ith(yy,3);
+  y2 = Ith(yy,2); y3 = Ith(yy,3);
   
   data = (UserData) user_data;
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
@@ -590,11 +590,11 @@ static int resB(realtype tt,
                  void *user_dataB)
 {
   UserData data;
-  realtype y1, y2, y3;
+  realtype y2, y3;
   realtype p1, p2, p3;
   realtype l1, l2, l3;
-  realtype lp1, lp2, lp3;
-  realtype l21, l32, y23;
+  realtype lp1, lp2;
+  realtype l21;
   
   data = (UserData) user_dataB;
 
@@ -602,18 +602,16 @@ static int resB(realtype tt,
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
 
   /* The y  vector */
-  y1 = Ith(yy,1); y2 = Ith(yy,2); y3 = Ith(yy,3);
+  y2 = Ith(yy,2); y3 = Ith(yy,3);
   
   /* The lambda vector */
   l1 = Ith(yyB,1); l2 = Ith(yyB,2); l3 = Ith(yyB,3);
 
   /* The lambda dot vector */
-  lp1 = Ith(ypB,1); lp2 = Ith(ypB,2); lp3 = Ith(ypB,3);
+  lp1 = Ith(ypB,1); lp2 = Ith(ypB,2);
 
   /* Temporary variables */
   l21 = l2-l1;
-  l32 = l3-l2;
-  y23 = y2*y3;
 
   /* Load residual. */
   Ith(rrB,1) = lp1 + p1*l21 - l3;
@@ -630,12 +628,11 @@ static int JacB(long int NeqB, realtype tt, realtype cj,
                 DlsMat JB, void *user_data,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
-  realtype y1, y2, y3, l1, l2, l3;
+  realtype y2, y3;
   UserData data;
   realtype p1, p2, p3;
  
-  y1 = Ith(yy,1); y2 = Ith(yy,2); y3 = Ith(yy,3);
-  l1 = Ith(yyB,1); l2 = Ith(yyB,2); l3 = Ith(yyB,3);
+  y2 = Ith(yy,2); y3 = Ith(yy,3);
   
   data = (UserData) user_data;
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
@@ -661,22 +658,15 @@ static int rhsQB(realtype tt,
                  N_Vector yyB, N_Vector ypB, 
                  N_Vector rrQB, void *user_dataB)
 {
-  UserData data;
   realtype y1, y2, y3;
-  realtype p1, p2, p3;
-  realtype l1, l2, l3;
+  realtype l1, l2;
   realtype l21;
-
-  data = (UserData) user_dataB;
-
-  /* The p vector */
-  p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
 
   /* The y vector */
   y1 = Ith(yy,1); y2 = Ith(yy,2); y3 = Ith(yy,3);
   
   /* The lambda vector */
-  l1 = Ith(yyB,1); l2 = Ith(yyB,2); l3 = Ith(yyB,3);
+  l1 = Ith(yyB,1); l2 = Ith(yyB,2);
   
   /* Temporary variables */
   l21 = l2-l1;
