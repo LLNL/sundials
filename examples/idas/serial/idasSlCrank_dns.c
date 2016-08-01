@@ -74,7 +74,7 @@ static void force(N_Vector yy, realtype *Q, UserData data);
 static void PrintHeader(realtype rtol, realtype avtol, N_Vector y);
 static void PrintOutput(void *mem, realtype t, N_Vector y);
 static void PrintFinalStats(void *mem);
-static int check_flag(void *flagvalue, char *funcname, int opt);
+static int check_flag(void *flagvalue, const char *funcname, int opt);
 /*
  *--------------------------------------------------------------------
  * Main Program
@@ -403,7 +403,7 @@ static void PrintFinalStats(void *mem)
   printf("Number of nonlinear conv. failures = %ld\n", ncfn);
 }
 
-static int check_flag(void *flagvalue, char *funcname, int opt)
+static int check_flag(void *flagvalue, const char *funcname, int opt)
 {
   int *errflag;
 

@@ -78,7 +78,7 @@ static int rhsQ(realtype t, N_Vector yy, N_Vector yp,
               N_Vector qdot, void *user_data);
 
 static void PrintOutput(realtype tfinal, N_Vector yB, N_Vector ypB);
-static int check_flag(void *flagvalue, char *funcname, int opt);
+static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 
 /* Main program */
@@ -418,7 +418,7 @@ static void PrintOutput(realtype tfinal, N_Vector yB, N_Vector ypB)
  *             NULL pointer 
  */
 
-static int check_flag(void *flagvalue, char *funcname, int opt)
+static int check_flag(void *flagvalue, const char *funcname, int opt)
 {
   int *errflag;
 

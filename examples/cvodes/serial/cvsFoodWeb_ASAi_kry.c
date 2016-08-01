@@ -208,7 +208,7 @@ static void fblock (realtype t, realtype cdata[], int jx, int jy, realtype cdotd
                     WebData wdata);
 static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata);
 static realtype doubleIntgr(N_Vector c, int i, WebData wdata);
-static int check_flag(void *flagvalue, char *funcname, int opt);
+static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /* Small Vector Kernels */
 
@@ -1335,7 +1335,7 @@ static void FreeUserData(WebData wdata)
  *             NULL pointer 
  */
 
-static int check_flag(void *flagvalue, char *funcname, int opt)
+static int check_flag(void *flagvalue, const char *funcname, int opt)
 {
   int *errflag;
 

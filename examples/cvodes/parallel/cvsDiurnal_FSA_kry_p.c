@@ -191,7 +191,7 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         realtype t, N_Vector u);
 static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS);
 static void PrintFinalStats(void *cvode_mem, booleantype sensi); 
-static int check_flag(void *flagvalue, char *funcname, int opt, int id);
+static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 
 /*
  *--------------------------------------------------------------------
@@ -1255,7 +1255,7 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
  *            NULL pointer 
  */
 
-static int check_flag(void *flagvalue, char *funcname, int opt, int id)
+static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
 {
   int *errflag;
 

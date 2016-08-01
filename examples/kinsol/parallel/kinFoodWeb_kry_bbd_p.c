@@ -187,7 +187,7 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
 static void BRecvWait(MPI_Request request[], int isubx,
                       int isuby, int dsizex, realtype *cext,
                       realtype *buffer);
-static int check_flag(void *flagvalue, char *funcname, int opt, int id);
+static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 
 /*
  *--------------------------------------------------------------------
@@ -974,7 +974,7 @@ static void BRecvWait(MPI_Request request[], int isubx,
  *             NULL pointer 
  */
 
-static int check_flag(void *flagvalue, char *funcname, int opt, int id)
+static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
 {
   int *errflag;
 

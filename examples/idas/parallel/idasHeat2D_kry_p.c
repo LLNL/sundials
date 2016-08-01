@@ -118,7 +118,7 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu);
 
 static void PrintFinalStats(void *mem);
 
-static int check_flag(void *flagvalue, char *funcname, int opt, int id);
+static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 
 /*
  *--------------------------------------------------------------------
@@ -861,7 +861,7 @@ static void PrintFinalStats(void *mem)
  *            NULL pointer 
  */
 
-static int check_flag(void *flagvalue, char *funcname, int opt, int id)
+static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
 {
   int *errflag;
 

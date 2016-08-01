@@ -199,7 +199,7 @@ static void PrintAdjSol(N_Vector uvB, N_Vector uvpB, UserData data);
 
 static void PrintFinalStats(void *mem);
 
-static int check_flag(void *flagvalue, char *funcname, int opt, int id);
+static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 
 /*
  *--------------------------------------------------------------------
@@ -858,7 +858,7 @@ static void PrintFinalStats(void *mem)
  *            NULL pointer 
  */
 
-static int check_flag(void *flagvalue, char *funcname, int opt, int id)
+static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
 {
   int *errflag;
 

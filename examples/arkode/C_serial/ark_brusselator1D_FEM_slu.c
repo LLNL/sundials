@@ -130,7 +130,7 @@ static int LaplaceMatrix(SlsMat Jac, UserData udata);
 static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata);
 
 /* Private function to check function return values */
-static int check_flag(void *flagvalue, char *funcname, int opt);
+static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /* Main Program */
 int main(int argc, char *argv[]) {
@@ -1321,7 +1321,7 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
     opt == 2 means function allocates memory so check if returned
              NULL pointer  
 */
-static int check_flag(void *flagvalue, char *funcname, int opt)
+static int check_flag(void *flagvalue, const char *funcname, int opt)
 {
   int *errflag;
 

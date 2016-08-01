@@ -176,7 +176,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
 
 /* Private function to check function return values */
 
-static int check_flag(void *flagvalue, char *funcname, int opt, int id);
+static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 
 
 /***************************** Main Program ******************************/
@@ -947,7 +947,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
 
-static int check_flag(void *flagvalue, char *funcname, int opt, int id)
+static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
 {
   int *errflag;
 

@@ -110,7 +110,7 @@ static int JacB(long int NB, long int muB, long int mlB,
 
 static void SetIC(N_Vector u, UserData data);
 static void PrintOutput(N_Vector uB, UserData data);
-static int check_flag(void *flagvalue, char *funcname, int opt);
+static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -531,7 +531,7 @@ static void PrintOutput(N_Vector uB, UserData data)
  *             NULL pointer 
  */
 
-static int check_flag(void *flagvalue, char *funcname, int opt)
+static int check_flag(void *flagvalue, const char *funcname, int opt)
 {
   int *errflag;
 

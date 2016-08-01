@@ -62,7 +62,7 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
             N_Vector fy, void *user_data, N_Vector tmp);
 
 /* Private function to check function return values */
-static int check_flag(void *flagvalue, char *funcname, int opt);
+static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /* Main Program */
 int main() {
@@ -289,7 +289,7 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
     opt == 2 means function allocates memory so check if returned
              NULL pointer  
 */
-static int check_flag(void *flagvalue, char *funcname, int opt)
+static int check_flag(void *flagvalue, const char *funcname, int opt)
 {
   int *errflag;
 

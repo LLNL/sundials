@@ -129,7 +129,7 @@ static int fQB(realtype t, N_Vector y, N_Vector yB,
 static void PrintHead(realtype tB0);
 static void PrintOutput(realtype tfinal, N_Vector y, N_Vector yB, N_Vector qB);
 static void PrintOutput1(realtype time, realtype t, N_Vector y, N_Vector yB);
-static int check_flag(void *flagvalue, char *funcname, int opt);
+static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -725,7 +725,7 @@ static void PrintOutput(realtype tfinal, N_Vector y, N_Vector yB, N_Vector qB)
  *             NULL pointer 
  */
 
-static int check_flag(void *flagvalue, char *funcname, int opt)
+static int check_flag(void *flagvalue, const char *funcname, int opt)
 {
   int *errflag;
 

@@ -133,7 +133,7 @@ static int rhsQB(realtype tt,
 
 /* Prototypes of private functions */
 static void PrintOutput(realtype tfinal, N_Vector yB, N_Vector ypB, N_Vector qB);
-static int check_flag(void *flagvalue, char *funcname, int opt);
+static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -724,7 +724,7 @@ static void PrintOutput(realtype tfinal, N_Vector yB, N_Vector ypB, N_Vector qB)
  *             NULL pointer 
  */
 
-static int check_flag(void *flagvalue, char *funcname, int opt)
+static int check_flag(void *flagvalue, const char *funcname, int opt)
 {
   int *errflag;
 

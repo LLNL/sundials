@@ -57,7 +57,7 @@ static int g(realtype t, N_Vector y,
           realtype *gout, void *user_data);
 
 /* Private function to check function return values */
-static int check_flag(void *flagvalue, char *funcname, int opt);
+static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /* Main Program */
 int main()
@@ -288,7 +288,7 @@ static int g(realtype t, N_Vector y, realtype *gout, void *user_data)
     opt == 2 means function allocates memory so check if returned
              NULL pointer  
 */
-static int check_flag(void *flagvalue, char *funcname, int opt)
+static int check_flag(void *flagvalue, const char *funcname, int opt)
 {
   int *errflag;
 

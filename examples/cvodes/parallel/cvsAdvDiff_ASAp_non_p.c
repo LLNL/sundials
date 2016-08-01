@@ -97,7 +97,7 @@ static void SetICback(N_Vector uB, long int my_base);
 static realtype Xintgr(realtype *z, long int l, realtype dx);
 static realtype Compute_g(N_Vector u, UserData data);
 static void PrintOutput(realtype g_val, N_Vector uB, UserData data);
-static int check_flag(void *flagvalue, char *funcname, int opt, int id);
+static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 
 /*
  *--------------------------------------------------------------------
@@ -668,7 +668,7 @@ static void PrintOutput(realtype g_val, N_Vector uB, UserData data)
  *             NULL pointer 
  */
 
-static int check_flag(void *flagvalue, char *funcname, int opt, int id)
+static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
 {
   int *errflag;
 

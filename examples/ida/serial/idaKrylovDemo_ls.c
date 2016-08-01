@@ -92,7 +92,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector res);
 static void PrintHeader(realtype rtol, realtype atol, int linsolver);
 static void PrintOutput(void *mem, realtype t, N_Vector uu, int linsolver);
-static int check_flag(void *flagvalue, char *funcname, int opt);
+static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -551,7 +551,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu, int linsolver)
  *            NULL pointer 
  */
 
-static int check_flag(void *flagvalue, char *funcname, int opt)
+static int check_flag(void *flagvalue, const char *funcname, int opt)
 {
   int *errflag;
 
