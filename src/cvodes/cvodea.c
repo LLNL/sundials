@@ -2463,7 +2463,8 @@ static int CVAhermiteStorePnt(CVodeMem cv_mem, DtpntMem d)
 {
   CVadjMem ca_mem;
   HermiteDataMem content;
-  int is, retval;
+  int is;
+  /* int retval; */
 
   ca_mem = cv_mem->cv_adj_mem;
 
@@ -2482,10 +2483,10 @@ static int CVAhermiteStorePnt(CVodeMem cv_mem, DtpntMem d)
 
   if (nst == 0) {
 
-    retval = f(tn, content->y, content->yd, user_data);
+    /* retval = */ f(tn, content->y, content->yd, user_data);
 
     if (IMstoreSensi) {
-      retval = cvSensRhsWrapper(cv_mem, tn, content->y, content->yd,
+      /* retval = */ cvSensRhsWrapper(cv_mem, tn, content->y, content->yd,
                                 content->yS, content->ySd,
                                 cv_mem->cv_tempv, cv_mem->cv_ftemp);
     }
@@ -2959,7 +2960,8 @@ static int CVArhsQ(realtype t, N_Vector yB,
   CVodeMem cv_mem;
   CVadjMem ca_mem;
   CVodeBMem cvB_mem;
-  int flag, retval;
+  /* int flag; */
+  int retval;
 
   cv_mem = (CVodeMem) cvode_mem;
 
@@ -2970,9 +2972,9 @@ static int CVArhsQ(realtype t, N_Vector yB,
   /* Get forward solution from interpolation */
 
   if (IMinterpSensi)
-    flag = IMget(cv_mem, t, ytmp, yStmp);
+    /* flag = */ IMget(cv_mem, t, ytmp, yStmp);
   else 
-    flag = IMget(cv_mem, t, ytmp, NULL);
+    /* flag = */ IMget(cv_mem, t, ytmp, NULL);
 
   /* Call the user's RHS function */
 
