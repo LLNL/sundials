@@ -235,12 +235,6 @@ int main(void)
       flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
       if(check_flag(&flag, "CVSpgmr", 1)) return(1);
 
-      /* Set modified Gram-Schmidt orthogonalization, preconditioner 
-	 setup and solve routines Precond and PSolve, and the pointer 
-	 to the user-defined block data */
-      flag = CVSpilsSetGSType(cvode_mem, MODIFIED_GS);
-      if(check_flag(&flag, "CVSpilsSetGSType", 1)) return(1);
-
       break;
 
     /* (b) SPBCG */
@@ -276,8 +270,7 @@ int main(void)
     }
 
 
-    /* Set preconditioner setup and solve routines Precond and PSolve,
-       and the pointer to the user-defined block data */
+    /* Set preconditioner setup and solve routines Precond and PSolve. */
     flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve);
     if(check_flag(&flag, "CVSpilsSetPreconditioner", 1)) return(1);
 

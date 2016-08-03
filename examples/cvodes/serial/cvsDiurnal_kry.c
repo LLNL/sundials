@@ -205,10 +205,6 @@ int main()
   flag = CVSpilsSetJacTimesVecFn(cvode_mem, jtv);
   if(check_flag(&flag, "CVSpilsSetJacTimesVecFn", 1)) return(1);
 
-  /* Set modified Gram-Schmidt orthogonalization */
-  flag = CVSpilsSetGSType(cvode_mem, MODIFIED_GS);
-  if(check_flag(&flag, "CVSpilsSetGSType", 1)) return(1);
-
   /* Set the preconditioner solve and setup functions */
   flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve);
   if(check_flag(&flag, "CVSpilsSetPreconditioner", 1)) return(1);
