@@ -3,6 +3,7 @@
 # $Date: 2015-03-28 20:22:03 -0700 (Sat, 28 Mar 2015) $
 # -----------------------------------------------------------------
 # Programmer: Radu Serban @ LLNL
+#             Daniel R. Reynolds @ SMU
 # -----------------------------------------------------------------
 # Copyright (c) 2007, The Regents of the University of California.
 # Produced at the Lawrence Livermore National Laboratory.
@@ -48,9 +49,8 @@ MPI_INC_DIR = @MPI_INC_DIR@
 MPI_LIB_DIR = @MPI_LIB_DIR@
 MPI_LIBS    = @MPI_LIBS@
 MPI_FLAGS   = @MPI_FLAGS@
-PETSC_LIBS = -lpetsc
-PETSC_LIB_DIR = @PETSC_LIB_DIR@
-PETSC_INC_DIR = @PETSC_INC_DIR@
+PETSC_LIBS = @PETSC_LIBRARY@
+PETSC_INC_DIR = @PETSC_INCLUDE_DIR@
 
 INCLUDES = -I${includedir} -I${MPI_INC_DIR} -I${PETSC_INC_DIR}
 LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecpetsc ${LIBS}
