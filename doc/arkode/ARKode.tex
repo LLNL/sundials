@@ -2217,7 +2217,8 @@ program) for the integration of an ODE IVP.  Most of the steps are
 independent of the NVECTOR implementation used.  For the steps that
 are not, refer to the Chapter {\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{Vector Data Structures}}}} for the specific name of
 the function to be called or macro to be referenced.
-\begin{enumerate}
+
+\index{User main program}\begin{enumerate}
 \item {} 
 Initialize parallel or multi-threaded environment, if appropriate.
 
@@ -2272,7 +2273,7 @@ of the form
 where \code{yvec} is a HYPRE or PETSc vector.  Note that calls like
 \code{N\_VNew\_***(...)} and \code{N\_VGetArrayPointer\_***(...)} are not
 available for these vector wrappers.  See the sections
-{\hyperref[nvectors/NVector_ParHyp:nvectors-parhyp]{\emph{\DUspan{}{The NVECTOR\_PARHYP Module}}}} through {\hyperref[nvectors/NVector_PETSc:nvectors-nvpetsc]{\emph{\DUspan{}{The NVECTOR\_PETSC Module}}}} for details.
+{\hyperref[nvectors/NVector_ParHyp:nvectors-parhyp]{\emph{\DUspan{}{The NVECTOR\_PARHYP Module}}}} and {\hyperref[nvectors/NVector_PETSc:nvectors-nvpetsc]{\emph{\DUspan{}{The NVECTOR\_PETSC Module}}}} for details.
 \end{quote}
 \begin{enumerate}
 \setcounter{enumi}{3}
