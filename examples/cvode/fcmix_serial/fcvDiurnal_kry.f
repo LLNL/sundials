@@ -26,8 +26,9 @@ C     The problem is solved with CVODE, with the BDF/GMRES method and
 C     the block-diagonal part of the Jacobian as a left
 C     preconditioner.
 C     
-C     Note: this program requires the dense linear solver routines
-C     DGEFA and DGESL from LINPACK, and BLAS routines DCOPY and DSCAL.
+C     Note: this program includes modified (64-bit integer) versions 
+C     of the dense linear solver routines DGEFA and DGESL from LINPACK, 
+C     and BLAS routines DCOPY and DSCAL.
 C     
 C     The second and third dimensions of U here must match the values
 C     of MX and MY, for consistency with the output statements
@@ -487,7 +488,8 @@ C
       IMPLICIT NONE
 C
       INTEGER IER
-      INTEGER MM, IPP(2,MM)
+      INTEGER MM
+      INTEGER*8 IPP(2,MM)
       DOUBLE PRECISION P(2,2,MM)
 C
       INTEGER I
@@ -510,7 +512,8 @@ C     Routine for backsolve
 C
       IMPLICIT NONE
 C
-      INTEGER MM, IPP(2,MM)
+      INTEGER MM
+      INTEGER*8 IPP(2,MM)
       DOUBLE PRECISION P(2,2,MM), Z(2,MM)
 C      
       INTEGER I
@@ -529,7 +532,8 @@ c
       implicit none
 c
       integer info, idamax, j, k, kp1, l, nm1, n
-      integer*4 lda, ipvt(1)
+      integer*4 lda
+      integer*8 ipvt(1)
       double precision a(lda,1), t
 c
 c     dgefa factors a double precision matrix by gaussian elimination.
@@ -635,7 +639,7 @@ c
       implicit none
 c
       integer lda, n, job, k, kb, l, nm1
-      integer*4 ipvt(1)
+      integer*8 ipvt(1)
       double precision a(lda,1), b(1), ddot, t
 c
 c     dgesl solves the double precision system
