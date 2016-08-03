@@ -1990,7 +1990,7 @@ static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
       return(IDA_SUCCESS);
 
   }
-  return -99;
+  return IDA_ILL_INPUT;
 }
 
 /* 
