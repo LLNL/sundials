@@ -395,9 +395,7 @@ It calls  \id{CVSpgmr} (see \ugref{sss:lin_solv_init}) to specify the {\cvspgmr}
 linear solver with left preconditioning, and the default value (indicated by a
 zero argument) for \id{maxl}.
 The call to \id{CVSpilsSetJacTimesVecFn} specifies a user-supplied function
-for Jacobian-vector products.
-The Gram-Schmidt orthogonalization is set to \id{MODIFIED\_GS}
-through the function \id{CVSpilsSetGSType}.  Next, user-supplied preconditioner
+for Jacobian-vector products.  Next, user-supplied preconditioner
 setup and solve functions, \id{Precond} and \id{PSolve}, are specified.
 See \ugref{ss:optional_input} for details on the \id{CVSpilsSetPreconditioner}
 function.
