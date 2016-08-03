@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision:$
- * $Date:$
+ * $Revision$
+ * $Date$
  * -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * 
@@ -410,9 +410,7 @@ N_Vector N_VClone_petsc(N_Vector w)
   Vec *pvec      = NULL;
   Vec *wvec      = NV_PVEC_PTC(w);
   
-  //PetscInt local_length  = NV_LOCLENGTH_PTC(w);
-  
-  PetscErrorCode ierr;
+  /* PetscErrorCode ierr; */
   
   v = N_VCloneEmpty_petsc(w);
   if (v == NULL) 
@@ -427,8 +425,8 @@ N_Vector N_VClone_petsc(N_Vector w)
     return(NULL);
   }
     
-  ierr = VecDuplicate(*wvec, pvec);
-  //CHKERRQ(ierr);
+  /* ierr = */ 
+  VecDuplicate(*wvec, pvec);
   if(pvec == NULL) {
     N_VDestroy_petsc(v); 
     return(NULL);
@@ -569,7 +567,7 @@ void N_VScale_petsc(realtype c, N_Vector x, N_Vector z)
     return;
   }
   
-  VecAXPBY(*zv, c, 0.0, *xv); // PETSc; is it optimal?
+  VecAXPBY(*zv, c, 0.0, *xv); 
 
   return;
 }
@@ -581,7 +579,7 @@ void N_VAbs_petsc(N_Vector x, N_Vector z)
 
   if(z != x)
     VecCopy(*xv, *zv); /* copy x~>z */
-  VecAbs(*zv); // PETSc
+  VecAbs(*zv); 
   
   return;
 }
@@ -593,7 +591,7 @@ void N_VInv_petsc(N_Vector x, N_Vector z)
 
   if(z != x)
     VecCopy(*xv, *zv); /* copy x~>z */
-  VecReciprocal(*zv); // PETSc
+  VecReciprocal(*zv);
 
   return;
 }
@@ -602,12 +600,10 @@ void N_VAddConst_petsc(N_Vector x, realtype b, N_Vector z)
 {
   Vec *xv = NV_PVEC_PTC(x);
   Vec *zv = NV_PVEC_PTC(z);
-  PetscErrorCode ierr;
 
   if(z != x)
-    ierr = VecCopy(*xv, *zv); /* copy x~>z */
-  ierr = VecShift(*zv, b); // PETSc
-  //CHKERRQ(ierr);
+    VecCopy(*xv, *zv); /* copy x~>z */
+  VecShift(*zv, b);
 
   return;
 }
@@ -617,10 +613,8 @@ realtype N_VDotProd_petsc(N_Vector x, N_Vector y)
   Vec *xv = NV_PVEC_PTC(x);
   Vec *yv = NV_PVEC_PTC(y);
   PetscScalar dotprod;
-  PetscErrorCode ierr;
   
-  ierr = VecDot(*xv, *yv, &dotprod);
-  CHKERRQ(ierr);
+  VecDot(*xv, *yv, &dotprod);
   
   return dotprod;
 }
@@ -629,10 +623,8 @@ realtype N_VMaxNorm_petsc(N_Vector x)
 {
   Vec *xv = NV_PVEC_PTC(x);
   PetscReal norm;
-  PetscErrorCode ierr;
   
-  ierr = VecNorm(*xv, NORM_INFINITY, &norm);
-  CHKERRQ(ierr);
+  VecNorm(*xv, NORM_INFINITY, &norm);
   
   return norm;
 }
@@ -699,11 +691,9 @@ realtype N_VMin_petsc(N_Vector x)
 {
   Vec *xv = NV_PVEC_PTC(x);
   PetscReal minval;
-  PetscErrorCode ierr;
   PetscInt i;
   
-  ierr = VecMin(*xv, &i, &minval);
-  CHKERRQ(ierr);
+  VecMin(*xv, &i, &minval);
   
   return minval;
 }
@@ -737,10 +727,8 @@ realtype N_VL1Norm_petsc(N_Vector x)
 {
   Vec *xv = NV_PVEC_PTC(x);
   PetscReal norm;
-  PetscErrorCode ierr;
   
-  ierr = VecNorm(*xv, NORM_1, &norm);
-  CHKERRQ(ierr);
+  VecNorm(*xv, NORM_1, &norm);
   
   return norm;
 }
