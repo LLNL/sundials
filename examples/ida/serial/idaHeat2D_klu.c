@@ -264,15 +264,12 @@ int jacHeat3(realtype tt,  realtype cj,
 	   SlsMat JacMat, void *user_data,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
-  realtype *yval;
   realtype dx =  ONE/(MGRID - ONE);
   realtype beta = RCONST(4.0)/(dx*dx) + cj;
   
   int *colptrs   = (*JacMat->colptrs);
   int *rowvals   = (*JacMat->rowvals);
   realtype *data = JacMat->data;
-
-  yval = N_VGetArrayPointer_Serial(yy);
 
   SparseSetMatToZero(JacMat); /* initialize Jacobian matrix */
 

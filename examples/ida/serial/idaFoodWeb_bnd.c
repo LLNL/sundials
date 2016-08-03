@@ -394,7 +394,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata)
 {
   long int loc, yloc, is, jx, jy, np;
-  realtype xx, yy, xyfactor, fac;
+  realtype xx, yy, xyfactor;
   realtype *ccv, *cpv, *idv;
   
   ccv = N_VGetArrayPointer_Serial(cc);
