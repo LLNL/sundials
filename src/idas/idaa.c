@@ -479,7 +479,7 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
   CkpntMem tmp;
   DtpntMem *dt_mem;
   int flag, i;
-  booleantype iret, allocOK;
+  booleantype /* iret, */ allocOK;
 
   /* Is the mem OK? */
   if (ida_mem == NULL) {
@@ -530,8 +530,9 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
   
   /* We will call IDASolve in IDA_ONE_STEP mode, regardless
      of what itask is, so flag if we need to return */
-  if (itask == IDA_ONE_STEP) iret = TRUE;
-  else                       iret = FALSE;
+/*   if (itask == IDA_ONE_STEP) iret = TRUE;
+ *   else                       iret = FALSE;
+ */
 
   /* On the first step:
    *   - set tinitial
