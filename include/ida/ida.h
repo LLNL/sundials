@@ -97,6 +97,8 @@ extern "C" {
 #define IDA_BAD_T           -26
 #define IDA_BAD_DKY         -27
 
+#define IDA_UNRECOGNISED_ERROR -99
+
 /*
  * ----------------------------------------------------------------
  * Type : IDAResFn                                                   

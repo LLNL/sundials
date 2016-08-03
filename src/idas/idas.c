@@ -4504,7 +4504,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
 static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret, 
                         N_Vector yret, N_Vector ypret, int itask)
 {
-  int ier;
+  /* int ier; */
   realtype troundoff;
 
   switch (itask) {
@@ -4513,7 +4513,7 @@ static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
 
       /* Test for tn past tout. */
       if ((tn - tout)*hh >= ZERO) {
-        ier = IDAGetSolution(IDA_mem, tout, yret, ypret);
+        /* ier = */ IDAGetSolution(IDA_mem, tout, yret, ypret);
         *tret = tretlast = tout;
         return(IDA_SUCCESS);
       }
@@ -4522,7 +4522,7 @@ static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
         /* Test for tn at tstop and for tn near tstop */
         troundoff = HUNDRED*uround*(SUNRabs(tn) + SUNRabs(hh));
         if (SUNRabs(tn - tstop) <= troundoff) {
-          ier = IDAGetSolution(IDA_mem, tstop, yret, ypret);
+          /* ier = */ IDAGetSolution(IDA_mem, tstop, yret, ypret);
           *tret = tretlast = tstop;
           tstopset = FALSE;
           return(IDA_TSTOP_RETURN);
@@ -4539,7 +4539,7 @@ static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
         /* Test for tn at tstop and for tn near tstop */
         troundoff = HUNDRED*uround*(SUNRabs(tn) + SUNRabs(hh));
         if (SUNRabs(tn - tstop) <= troundoff) {
-          ier = IDAGetSolution(IDA_mem, tstop, yret, ypret);
+          /* ier = */ IDAGetSolution(IDA_mem, tstop, yret, ypret);
           *tret = tretlast = tstop;
           tstopset = FALSE;
           return(IDA_TSTOP_RETURN);
@@ -4604,7 +4604,7 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
 
   }
 
-  return -99;
+  return (IDA_UNRECONGISED_ERROR);
 }
 
 /* 
