@@ -4477,7 +4477,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
     return(CONTINUE_STEPS);
         
   }
-  return(-99);
+  return(IDA_ILL_INPUT);
 }
 
 /*
