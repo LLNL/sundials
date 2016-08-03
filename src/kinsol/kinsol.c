@@ -2185,7 +2185,6 @@ void KINErrHandler(int error_code, const char *module,
 static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R, realtype *gamma, 
 		       realtype *fmaxptr)
 {
-  booleantype fOK;
   int retval, ret; 
   long int iter;
   realtype fmax, epsmin, fnormp;
@@ -2194,7 +2193,6 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R, realtype *g
   delta = kin_mem->kin_vtemp1;
   gval = kin_mem->kin_gval;
   ret = CONTINUE_ITERATIONS;
-  fOK = TRUE;
   fmax = fnormtol + ONE;
   iter = 0;
   epsmin = ZERO;
@@ -2219,10 +2217,8 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R, realtype *g
        For Picard, assume that the fval vector has been filled 
        with an eval of the nonlinear residual prior to this call. */
     retval = KINPicardFcnEval(kin_mem, gval, uu, fval);
-    if (retval == 0) {
-      fOK = TRUE;
-    } else if (retval < 0) {
-      fOK = FALSE;
+
+    if (retval < 0) {
       ret = KIN_SYSFUNC_FAIL;
       break;
     }
@@ -2237,10 +2233,8 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R, realtype *g
 
     /* Fill the Newton residual based on the new solution iterate */
     retval = func(unew, fval, user_data); nfe++;
-    if (retval == 0) {
-      fOK = TRUE;
-    }
-    else if (retval < 0) {
+    
+    if (retval < 0) {
       ret = KIN_SYSFUNC_FAIL;
       break;
     }
@@ -2353,7 +2347,6 @@ static int KINFP(KINMem kin_mem, long int *iterp,
 		 realtype *R, realtype *gamma, 
 		 realtype *fmaxptr)
 {
-  booleantype fOK;
   int retval, ret; 
   long int iter;
   realtype fmax;
@@ -2361,7 +2354,6 @@ static int KINFP(KINMem kin_mem, long int *iterp,
   
   delta = kin_mem->kin_vtemp1;
   ret = CONTINUE_ITERATIONS;
-  fOK = TRUE;
   fmax = fnormtol + ONE;
   iter = 0;
 
@@ -2373,7 +2365,6 @@ static int KINFP(KINMem kin_mem, long int *iterp,
     retval = func(uu, fval, user_data); nfe++;
 
     if (retval < 0) {
-      fOK = FALSE;
       ret = KIN_SYSFUNC_FAIL;
       break;
     }
