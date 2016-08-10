@@ -53,7 +53,7 @@ cscmat.pdf \
 sunorg1.pdf \
 sunorg2.pdf \
 doc_logo_blue.pdf \
-warning.png
+warning.pdf
 
 UG_CMAKE_FIGURES = \
 ccmakedefault.png \
