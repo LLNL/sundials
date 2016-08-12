@@ -753,6 +753,11 @@ ENDIF(MPI_ENABLE)
 #-------------------------------------------------------------
 # Find the Hypre libraries
 #-------------------------------------------------------------
+IF(HYPRE_ENABLE AND NOT MPI_ENABLE)
+    PRINT_WARNING("MPI not enabled - HYPRE support will not be provided" 
+      "Set MPI_ENABLE to ON to use parhyp")
+ENDIF(HYPRE_ENABLE AND NOT MPI_ENABLE)
+
 IF(HYPRE_ENABLE AND MPI_ENABLE)
 #  SHOW_VARIABLE(HYPRE_INCLUDE_DIR STRING "HYPRE include directory"
 #    "${HYPRE_INCLUDE_DIR}") 
@@ -777,14 +782,7 @@ IF(HYPRE_ENABLE AND MPI_ENABLE)
       "Double check spelling specified libraries (search is case sensitive)")
   ENDIF(NOT HYPRE_FOUND)
 
-
 ENDIF(HYPRE_ENABLE AND MPI_ENABLE)
-
-IF(NOT MPI_ENABLE)
-    PRINT_WARNING("MPI not enabled - HYPRE support will not be provided" 
-      "Set MPI_ENABLE to ON to use parhyp")
-ENDIF(NOT MPI_ENABLE)
-
 
 # -------------------------------------------------------------
 # Find (and test) the PETSc libraries
@@ -819,8 +817,6 @@ IF(PETSC_ENABLE AND MPI_ENABLE)
   ENDIF(PETSC_LIBRARIES AND NOT PETSC_FOUND)
 
 ENDIF(PETSC_ENABLE AND MPI_ENABLE)
-
-
 
 
 # -------------------------------------------------------------
