@@ -1401,7 +1401,7 @@ static int KINFullNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
  * If the step size is limited due to constraint violations and/or 
  * recoverable system function failures, we set rlmax=1 to ensure
  * that the update remains feasible during the attempts to enforce 
- * the beta-condition (this is not an isse while enforcing the alpha
+ * the beta-condition (this is not an issue while enforcing the alpha
  * condition, as rl can only decrease from 1 at that stage)
  */
 
@@ -1614,7 +1614,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
       } while (((*f1normp) <= alpha_cond) && 
 	       ((*f1normp) < beta_cond) && (rl < rlmax));
 
-    } /* enf if (rl == ONE) block */
+    } /* end if (rl == ONE) block */
 
     if ((rl < ONE) || ((rl > ONE) && (*f1normp > alpha_cond))) {
 

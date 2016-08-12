@@ -2019,6 +2019,8 @@ flag = KINSetMAA(kin\_mem, maa);
   The default value of \id{maa} is 0, indicating no acceleration.  The value of \id{maa}
   should always be less than \id{mxiter}.
 
+  This function MUST be called before calling \ID{KINInit}.
+
   If the user calls the function KINSetNumMaxIters, that call should be made
   before the call to KINSetMAA, as the latter uses the value of \id{mxiter}. 
 }
