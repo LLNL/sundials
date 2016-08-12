@@ -260,6 +260,8 @@ specific name of the function to be called or macro to be referenced.
 NOTE: The direct (dense or band) and sparse linear solver options are
 usable only in a serial environment.
 
+NOTE: If using solver strategy KIN\_FP no linear solver is needed.
+
 \item
   {\bf Set linear solver optional inputs}
 
@@ -901,8 +903,10 @@ the nonlinear algebraic system.
     strategy used to solve the nonlinear system. It must be of the following: \\
     \ID{KIN\_NONE}  basic Newton iteration \\
     \ID{KIN\_LINESEARCH} Newton with globalization \\
-    \ID{KIN\_FP} fixed-point iteration with Anderson Acceleration \\
-    \ID{KIN\_PICARD} Picard iteration with Anderson Acceleration \\
+    \ID{KIN\_FP} fixed-point iteration with Anderson Acceleration 
+                 (no linear solve needed)\\
+    \ID{KIN\_PICARD} Picard iteration with Anderson Acceleration 
+                     (uses a linear solver)\\
   \item[u\_scale] (\id{N\_Vector})
     vector containing diagonal elements of scaling matrix $D_u$ for vector \id{u}
     chosen so that the components of $D_u \cdot$\id{u}
