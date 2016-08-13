@@ -1,0 +1,40 @@
+{\sundials} provides some linear solvers only as a means for 
+users to get problems running and not as highly efficient solvers.
+In particular, the dense and band direct solvers are not nearly as efficient as
+their LaPACK counterparts, and users are encouraged to use LaPACK solvers
+if an efficient dense direct solver is needed.
+Table \ref{t:solver-vector} shows the linear solver interfaces
+available in {\sundials} packages and the vector implementations
+required for use.  As an example, one cannot use the {\sundials} package
+specific dense direct
+solver interfaces  with the \mpi-based vector implementation.  However, 
+as discussed in Chapter \ref{s:gen_linsolv} the direct dense, direct band, 
+and iterative spils solvers provided with
+{\sundials} are written in a way that allows a user to develop 
+their own solvers around them should a user so deire.  
+
+\begin{table}[htb]
+  \begin{centering}
+    \caption{{\sundials} linear solver interfaces and vector 
+             implementations that can be used for each.}
+    \begin{tabular}{l|ccccccc}
+    \hline
+    Linear Solver &  Serial  & Parallel  &  OpenMP  &  pThreads  & {\em hypre} & PETSc & User     \\
+    Interface     &          & (MPI)     &          &            &  Vector     & Vector& Supplied \\
+    \hline
+    Dense         &  \cm     &           & \cm      &  \cm       &             &       & \cm      \\
+    Band          &  \cm     &           & \cm      &  \cm       &             &       & \cm      \\
+    LapackDense   &  \cm     &           & \cm      &  \cm       &             &       & \cm      \\
+    LapackBand    &  \cm     &           & \cm      &  \cm       &             &       & \cm      \\
+    \klu          &  \cm     &           & \cm      &  \cm       &             &       & \cm      \\
+    \superlumt    &  \cm     &           & \cm      &  \cm       &             &       & \cm      \\
+    \spgmr        &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm  & \cm      \\
+    \spfgmr       &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm  & \cm      \\
+    \spbcg        &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm  & \cm      \\
+    \sptfqmr      &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm  & \cm      \\ 
+    User supplied &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm  & \cm      \\ 
+    \hline
+    \end{tabular}
+    \label{t:solver-vector}
+  \end{centering}
+\end{table}
