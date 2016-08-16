@@ -14,27 +14,36 @@ and iterative spils solvers provided with
 their own solvers around them should a user so deire.  
 
 \begin{table}[htb]
-  \begin{centering}
+  %\xentrystretch{2.5}
+  \centering
     \caption{{\sundials} linear solver interfaces and vector 
              implementations that can be used for each.}
-    \begin{tabular}{l|ccccccc}
+    \medskip
+    \tablefirsthead{\hline \multicolumn{1}{|p{2cm}|}{{Linear Solver Interface}} &
+                           \multicolumn{1}{p{1.3cm}|}{{Serial}} & 
+                           \multicolumn{1}{p{1.3cm}|}{{Parallel (MPI)}} & 
+                           \multicolumn{1}{p{1.4cm}|}{{OpenMP}} & 
+                           \multicolumn{1}{p{1.4cm}|}{{pThreads}} & 
+                           \multicolumn{1}{p{1.3cm}|}{{{\hypre} Vector}} & 
+                           \multicolumn{1}{p{1.3cm}|}{{{\petsc} Vector}} & 
+                           \multicolumn{1}{p{1.4cm}|}{{User Supplied}} \\ \hline }
+    {\renewcommand{\arraystretch}{1.2}
+    \begin{xtabular}{|l|c|c|c|c|c|c|c|}
+%   Linear Solver &  Serial  & Parallel  &  OpenMP  &  pThreads  & {\hypre}    & {\petsc} & User     \\
+%   Interface     &          & (MPI)     &          &            &  Vector     & Vector   & Supplied \\ 
+    Dense         &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\ 
+    Band          &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
+    LapackDense   &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
+    LapackBand    &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
+    \klu          &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
+    \superlumt    &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
+    \spgmr        &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\
+    \spfgmr       &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\
+    \spbcg        &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\
+    \sptfqmr      &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\ 
+    User supplied &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\ 
     \hline
-    Linear Solver &  Serial  & Parallel  &  OpenMP  &  pThreads  & {\em hypre} & PETSc & User     \\
-    Interface     &          & (MPI)     &          &            &  Vector     & Vector& Supplied \\
-    \hline
-    Dense         &  \cm     &           & \cm      &  \cm       &             &       & \cm      \\
-    Band          &  \cm     &           & \cm      &  \cm       &             &       & \cm      \\
-    LapackDense   &  \cm     &           & \cm      &  \cm       &             &       & \cm      \\
-    LapackBand    &  \cm     &           & \cm      &  \cm       &             &       & \cm      \\
-    \klu          &  \cm     &           & \cm      &  \cm       &             &       & \cm      \\
-    \superlumt    &  \cm     &           & \cm      &  \cm       &             &       & \cm      \\
-    \spgmr        &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm  & \cm      \\
-    \spfgmr       &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm  & \cm      \\
-    \spbcg        &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm  & \cm      \\
-    \sptfqmr      &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm  & \cm      \\ 
-    User supplied &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm  & \cm      \\ 
-    \hline
-    \end{tabular}
+    \end{xtabular}
+    }
     \label{t:solver-vector}
-  \end{centering}
 \end{table}
