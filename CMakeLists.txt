@@ -1130,7 +1130,7 @@ IF(EXAMPLES_ENABLE)
   IF(BUILD_KINSOL)	
     ADD_SUBDIRECTORY(examples/kinsol/serial)
     IF(OPENMP_FOUND)
-      ADD_SUBDIRECTORY(examples/kinsol/C_openmp)
+      #ADD_SUBDIRECTORY(examples/kinsol/C_openmp)  # no examples ready yet
     ENDIF(OPENMP_FOUND)
     IF(FCMIX_ENABLE AND F77_FOUND)
       ADD_SUBDIRECTORY(examples/kinsol/fcmix_serial)

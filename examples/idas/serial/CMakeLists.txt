@@ -45,10 +45,14 @@ SET(IDAS_examples_BL
   
 SET(IDAS_examples_SUPERLUMT
   idasRoberts_sps
+  idasRoberts_ASAi_sps
+  "idasRoberts_FSA_sps\;-sensi stg t"
   )
 
 SET(IDAS_examples_KLU
   idasRoberts_klu
+  idasRoberts_ASAi_klu
+  "idasRoberts_FSA_klu\;-sensi stg t"
   )
 
 # Specify libraries to link against (through the target that was used to 
@@ -70,10 +74,13 @@ IF(LAPACK_FOUND)
 ENDIF(LAPACK_FOUND)
 
 IF(SUPERLUMT_FOUND)
+  # quote list to retain integrity
+  LIST(APPEND IDAS_examples "${IDAS_examples_SUPERLUMT}")
   LIST(APPEND SUNDIALS_LIBS ${SUPERLUMT_LIBRARIES})
 ENDIF(SUPERLUMT_FOUND)
 
 IF(KLU_FOUND)
+  LIST(APPEND IDAS_examples "${IDAS_examples_KLU}")
   LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
 ENDIF(KLU_FOUND)
 
@@ -124,31 +131,31 @@ ENDIF(LAPACK_FOUND)
 
 # If SUPERLUMT support is enabled, add the build and install targets for
 # the examples using SUPERLUMT
-IF(SUPERLUMT_FOUND)
-  FOREACH(example ${IDAS_examples_SUPERLUMT})
-    ADD_EXECUTABLE(${example} ${example}.c)
-    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-    SUNDIALS_ADD_TEST(${example} ${example})
-    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
-    IF(EXAMPLES_INSTALL)
-      INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
-    ENDIF(EXAMPLES_INSTALL)
-  ENDFOREACH(example ${IDAS_examples_SUPERLUMT})
-ENDIF(SUPERLUMT_FOUND)
+#IF(SUPERLUMT_FOUND)
+#  FOREACH(example ${IDAS_examples_SUPERLUMT})
+#    ADD_EXECUTABLE(${example} ${example}.c)
+#    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+#    SUNDIALS_ADD_TEST(${example} ${example})
+#    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+#    IF(EXAMPLES_INSTALL)
+#      INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
+#    ENDIF(EXAMPLES_INSTALL)
+#  ENDFOREACH(example ${IDAS_examples_SUPERLUMT})
+#ENDIF(SUPERLUMT_FOUND)
 
 # If KLU support is enabled, add the build and install targets for
 # the examples using KLU
-IF(KLU_FOUND)
-  FOREACH(example ${IDAS_examples_KLU})
-    ADD_EXECUTABLE(${example} ${example}.c)
-    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-    SUNDIALS_ADD_TEST(${example} ${example})
-    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
-    IF(EXAMPLES_INSTALL)
-      INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
-    ENDIF(EXAMPLES_INSTALL)
-  ENDFOREACH(example ${IDAS_examples_KLU})
-ENDIF(KLU_FOUND)
+#IF(KLU_FOUND)
+#  FOREACH(example ${IDAS_examples_KLU})
+#    ADD_EXECUTABLE(${example} ${example}.c)
+#    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+#    SUNDIALS_ADD_TEST(${example} ${example})
+#    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+#    IF(EXAMPLES_INSTALL)
+#      INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
+#    ENDIF(EXAMPLES_INSTALL)
+#  ENDFOREACH(example ${IDAS_examples_KLU})
+#ENDIF(KLU_FOUND)
 
 IF(EXAMPLES_INSTALL)
 
@@ -170,11 +177,11 @@ IF(EXAMPLES_INSTALL)
   ENDIF(LAPACK_FOUND)
 
   IF(KLU_FOUND)
-    LIST2STRING(IDAS_examples_KLU EXAMPLES)
+    #LIST2STRING(IDAS_examples_KLU EXAMPLES)
   ENDIF(KLU_FOUND)
 
   IF(SUPERLUMT_FOUND)
-    LIST2STRING(IDAS_examples_SUPERLUMT EXAMPLES)
+    #LIST2STRING(IDAS_examples_SUPERLUMT EXAMPLES)
   ENDIF(SUPERLUMT_FOUND)
 
   STRING (REPLACE ";" " " TMP_STR ${EXAMPLES})
