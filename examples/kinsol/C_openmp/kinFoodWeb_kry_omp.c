@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
 #ifdef _OPENMP
   num_threads = omp_get_max_threads();
 #endif
-  if (argc < 1)
+  if (argc > 1)
     num_threads = strtol(argv[1], NULL, 0);
 
   data = AllocUserData();
