@@ -192,6 +192,26 @@ N_Vector *N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w);
 
 %%--------------------------------------
 
+\item \ID{N\_VGetLength\_Parallel}
+
+ This function returns number of vector elements (global vector length).
+
+ 
+ 
+ \verb|long int N_VGetLength_Parallel(N_Vector v);|
+
+%%--------------------------------------
+
+\item \ID{N\_VGetLocalLength\_Parallel}
+
+ This function returns local vector length.
+
+ 
+ 
+ \verb|long int N_VGetLocalLength_Parallel(N_Vector v);|
+
+%%--------------------------------------
+
 \item \ID{N\_VPrint\_Parallel}
   
   This function prints the content of a parallel vector to stdout.
