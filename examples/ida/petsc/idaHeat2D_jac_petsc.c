@@ -311,9 +311,9 @@ int resHeat(realtype tt,
   PetscReal      hx,hy,sx,sy;
   PetscScalar    u,uxx,uyy,**uarray,**f,**udot;
   Vec localU;
-  Vec *U    = NV_PVEC_PTC(uu);
-  Vec *Udot = NV_PVEC_PTC(up);
-  Vec *F    = NV_PVEC_PTC(rr);
+  Vec *U    = N_VGetVector_petsc(uu);
+  Vec *Udot = N_VGetVector_petsc(up);
+  Vec *F    = N_VGetVector_petsc(rr);
 
   PetscFunctionBeginUser;
   ierr = DMGetLocalVector(da,&localU);CHKERRQ(ierr);
@@ -445,8 +445,8 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
   PetscScalar    **u;
   PetscScalar    **iddat;
   PetscReal      hx,hy,x,y,r;
-  Vec *U     = NV_PVEC_PTC(uu);
-  Vec *idvec = NV_PVEC_PTC(id);
+  Vec *U     = N_VGetVector_petsc(uu);
+  Vec *idvec = N_VGetVector_petsc(id);
 
   PetscFunctionBeginUser;
   ierr = DMDAGetInfo(da,PETSC_IGNORE,&Mx,&My,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,
