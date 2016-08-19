@@ -298,6 +298,15 @@ void N_VDestroyVectorArray_Pthreads(N_Vector *vs, int count)
 }
 
 /* ----------------------------------------------------------------------------
+ * Function to return number of vector elements
+ */
+long int N_VGetLength_Pthreads(N_Vector v)
+{
+  return NV_LENGTH_PT(v);
+}
+
+ 
+/* ----------------------------------------------------------------------------
  * Function to print a vector 
  */
  

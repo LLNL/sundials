@@ -180,6 +180,7 @@ typedef struct _Pthreads_Data Pthreads_Data;
  *    N_VDestroy_Pthreads
  *    N_VDestroyVectorArray_Pthreads
  * OTHER:
+ *    N_VGetLength_Pthreads
  *    N_VPrint_Pthreads
  * -----------------------------------------------------------------
  */
@@ -248,6 +249,16 @@ SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_Pthreads(int count, N_Vector 
  */
 
 SUNDIALS_EXPORT void N_VDestroyVectorArray_Pthreads(N_Vector *vs, int count);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VGetLength_Pthreads
+ * -----------------------------------------------------------------
+ * This function returns number of vector elements.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT long int N_VGetLength_Pthreads(N_Vector v);
 
 /*
  * -----------------------------------------------------------------

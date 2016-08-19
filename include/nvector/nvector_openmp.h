@@ -159,6 +159,7 @@ typedef struct _N_VectorContent_OpenMP *N_VectorContent_OpenMP;
  *    N_VDestroy_OpenMP
  *    N_VDestroyVectorArray_OpenMP
  * OTHER:
+ *    N_VGetLength_OpenMP
  *    N_VPrint_OpenMP
  * -----------------------------------------------------------------
  */
@@ -227,6 +228,16 @@ SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w)
  */
 
 SUNDIALS_EXPORT void N_VDestroyVectorArray_OpenMP(N_Vector *vs, int count);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VGetLength_OpenMP
+ * -----------------------------------------------------------------
+ * This function returns number of vector elements.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT long int N_VGetLength_OpenMP(N_Vector v);
 
 /*
  * -----------------------------------------------------------------

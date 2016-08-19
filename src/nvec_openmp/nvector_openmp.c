@@ -260,6 +260,15 @@ void N_VDestroyVectorArray_OpenMP(N_Vector *vs, int count)
 }
 
 /* ----------------------------------------------------------------------------
+ * Function to return number of vector elements
+ */
+long int N_VGetLength_OpenMP(N_Vector v)
+{
+  return NV_LENGTH_OMP(v);
+}
+
+ 
+/* ----------------------------------------------------------------------------
  * Function to print a vector 
  */
  
