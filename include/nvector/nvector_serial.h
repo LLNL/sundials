@@ -152,6 +152,7 @@ typedef struct _N_VectorContent_Serial *N_VectorContent_Serial;
  *    N_VDestroy_Serial
  *    N_VDestroyVectorArray_Serial
  * OTHER:
+ *    N_VGetLength_Serial
  *    N_VPrint_Serial
  * -----------------------------------------------------------------
  */
@@ -220,6 +221,16 @@ SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w)
  */
 
 SUNDIALS_EXPORT void N_VDestroyVectorArray_Serial(N_Vector *vs, int count);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VGetLength_Serial
+ * -----------------------------------------------------------------
+ * This function returns number of vector elements.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT long int N_VGetLength_Serial(N_Vector v);
 
 /*
  * -----------------------------------------------------------------

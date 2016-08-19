@@ -283,6 +283,24 @@ void N_VDestroyVectorArray_Parallel(N_Vector *vs, int count)
 }
 
 /* ---------------------------------------------------------------- 
+ * Function to return global vector length 
+ */
+
+long int N_VGetLength_Parallel(N_Vector v)
+{
+  return NV_GLOBLENGTH_P(v);
+}
+
+/* ---------------------------------------------------------------- 
+ * Function to return local vector length 
+ */
+
+long int N_VGetLocalLength_Parallel(N_Vector v)
+{
+  return NV_LOCLENGTH_P(v);
+}
+
+/* ---------------------------------------------------------------- 
  * Function to print a parallel vector 
  */
 
