@@ -322,7 +322,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   /* Obtain local arrays */
   udata = N_VGetArrayPointer_Parallel(u);
   dudata = N_VGetArrayPointer_Parallel(udot);
-  my_length = NV_LOCLENGTH_P(u);
+  my_length = N_VGetLocalLength_Parallel(u);
   my_last = my_length - 1;
 
   /* Pass needed data to processes before and after current process. */
@@ -386,7 +386,7 @@ static int fB(realtype t, N_Vector u,
 
     /* Obtain local arrays */
     duBdata = N_VGetArrayPointer_Parallel(uBdot);
-    my_length = NV_LOCLENGTH_P(uB);
+    my_length = N_VGetLocalLength_Parallel(uB);
 
     /* Loop over all other processes and load right hand side of quadrature eqs. */
     duBdata[0] = ZERO;
@@ -411,7 +411,7 @@ static int fB(realtype t, N_Vector u,
     uBdata = N_VGetArrayPointer_Parallel(uB);
     duBdata = N_VGetArrayPointer_Parallel(uBdot);
     udata = N_VGetArrayPointer_Parallel(u);
-    my_length = NV_LOCLENGTH_P(uB);
+    my_length = N_VGetLocalLength_Parallel(uB);
 
     /* Compute related parameters. */
     my_pe_m1 = my_pe - 1;
@@ -509,7 +509,7 @@ static void SetIC(N_Vector u, realtype dx, long int my_length, long int my_base)
 
   /* Set pointer to data array and get local length of u */
   udata = N_VGetArrayPointer_Parallel(u);
-  my_length = NV_LOCLENGTH_P(u);
+  my_length = N_VGetLocalLength_Parallel(u);
 
   /* Load initial profile into u vector */
   for (i=1; i<=my_length; i++) {
@@ -531,7 +531,7 @@ static void SetICback(N_Vector uB, long int my_base)
 
   /* Set pointer to data array and get local length of uB */
   uBdata = N_VGetArrayPointer_Parallel(uB);
-  my_length = NV_LOCLENGTH_P(uB);
+  my_length = N_VGetLocalLength_Parallel(uB);
 
   /* Set adjoint states to 1.0 and quadrature variables to 0.0 */
   if (my_base == -1) for (i=0; i<my_length; i++) uBdata[i] = ZERO;
@@ -583,7 +583,7 @@ static realtype Compute_g(N_Vector u, UserData data)
     return(intgr);
   } else {              /* Compute local portion of the integral */
     udata = N_VGetArrayPointer_Parallel(u);
-    my_length = NV_LOCLENGTH_P(u);
+    my_length = N_VGetLocalLength_Parallel(u);
     my_intgr = Xintgr(udata, my_length, dx);
     MPI_Send(&my_intgr, 1, PVEC_REAL_MPI_TYPE, npes, 0, comm);
     return(my_intgr);

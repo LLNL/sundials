@@ -196,7 +196,7 @@ static void SetIC(N_Vector u, realtype dx, long int my_length,
 
   /* Set pointer to data array and get local length of u. */
   udata = N_VGetArrayPointer_Parallel(u);
-  my_length = NV_LOCLENGTH_P(u);
+  my_length = N_VGetLocalLength_Parallel(u);
 
   /* Load initial profile into u vector */
   for (i=1; i<=my_length; i++) {
@@ -281,7 +281,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   comm = data->comm;
   npes = data->npes;           /* Number of processes. */ 
   my_pe = data->my_pe;         /* Current process number. */
-  my_length = NV_LOCLENGTH_P(u); /* Number of local elements of u. */ 
+  my_length = N_VGetLocalLength_Parallel(u); /* Number of local elements of u. */ 
   z = data->z;
 
   /* Compute related parameters. */

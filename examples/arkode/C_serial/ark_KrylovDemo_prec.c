@@ -87,8 +87,8 @@
  * destroyMat and destroyArray.
  *
  * Note: This program assumes the sequential implementation for the
- * type N_Vector and uses the NV_DATA_S macro to gain access to the
- * contiguous array of components of an N_Vector.
+ * type N_Vector and uses the N_VGetArrayPointer_Serial to gain access 
+ * to the contiguous array of components of an N_Vector.
  *-------------------------------------------------------------------
  * Reference: Peter N. Brown and Alan C. Hindmarsh, Reduced Storage
  * Matrix Methods in Stiff ODE Systems, J. Appl. Math. & Comp., 31

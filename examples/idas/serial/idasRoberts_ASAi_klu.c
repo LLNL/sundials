@@ -491,7 +491,7 @@ static int res(realtype t, N_Vector yy, N_Vector yp, N_Vector resval, void *user
 
   y1  = Ith(yy,1); y2  = Ith(yy,2); y3  = Ith(yy,3); 
   yp1 = Ith(yp,1); yp2 = Ith(yp,2);
-  rval = NV_DATA_S(resval);
+  rval = N_VGetArrayPointer_Serial(resval);
 
   data = (UserData) user_data;
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
@@ -520,7 +520,7 @@ static int Jac(realtype t, realtype cj,
   UserData userdata;
   realtype p1, p2, p3;
  
-  yval = NV_DATA_S(yy);
+  yval = N_VGetArrayPointer_Serial(yy);
   colptrs = (*JacMat->colptrs);
   rowvals = (*JacMat->rowvals);
   data = JacMat->data;
@@ -639,7 +639,7 @@ static int JacB(realtype tt, realtype cjB,
   UserData userdata;
   realtype p1, p2, p3;
  
-  yvalB = NV_DATA_S(yy);
+  yvalB = N_VGetArrayPointer_Serial(yy);
   colptrsB = (*JacMatB->colptrs);
   rowvalsB = (*JacMatB->rowvals);
   dataB = JacMatB->data;

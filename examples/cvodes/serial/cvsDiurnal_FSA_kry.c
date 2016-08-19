@@ -54,7 +54,7 @@
 
 #include <cvodes/cvodes.h>            /* main CVODES header file */
 #include <cvodes/cvodes_spgmr.h>      /* use CVSPGMR linear */
-#include <nvector/nvector_serial.h>   /* definitions N_Vector, macro NV_DATA_S */
+#include <nvector/nvector_serial.h>   /* definitions N_Vector */
 #include <sundials/sundials_dense.h>  /* use generic DENSE solver for prec. */
 #include <sundials/sundials_types.h>  /* definition of realtype */
 #include <sundials/sundials_math.h>   /* contains macros SUNSQR and EXP */
