@@ -93,6 +93,9 @@ are grayed out.
   \textcolor{gray}{\bf Initialize forward sensitivity problem}
 
 \item
+  \textcolor{gray}{\bf Specify rootfinding}
+
+\item
   {\bf Allocate space for the adjoint computation}
 
   Call \Id{CVodeAdjInit}\id{()} to allocate memory for the 
@@ -377,6 +380,10 @@ problem and returns the solution in \id{y}. At the same time, however,
 \id{CVodeF} stores checkpoint data every \id{Nd} integration steps. \id{CVodeF} 
 can be called repeatedly by the user.
 %%
+Note that \id{CVodeF} is used only for the forward integration pass within
+an Adjoint Sensitivity Analysis.  It is not for use in Forward Sensitivity
+Analysis; for that, see Chapter \ref{s:forward}.
+%%
 The call to this function has the form
 %%
 \ucfunction{CVodeF}
@@ -424,6 +431,10 @@ The call to this function has the form
     \id{CVodeF} succeeded.
   \item[\Id{CV\_TSTOP\_RETURN}]
     \id{CVodeF} succeeded by reaching the optional stopping point.
+  \item[\Id{CV\_ROOT\_RETURN}]
+    \id{CVodeF} succeeded and found one or more roots.  In this case,
+    \id{tret} is the location of the root.  If \id{nrtfn} $>1$, call
+    \id{CVodeGetRootInfo} to see which $g_i$ were found to have a root.
   \item[\Id{CV\_NO\_MALLOC}]
     The function \id{CVodeInit} has not been previously called.
   \item[\Id{CV\_ILL\_INPUT}]
@@ -840,6 +851,11 @@ the solution of the IVP to the backward problem.
 The function \id{CVodeB} does not return the solution \id{yB} itself.
 To obtain that, call the function \id{CVodeGetB}, which is also
 described below.
+
+The \id{CVodeB} function does not support rootfinding, unlike \id{CVodeF},
+which supports the finding of roots of functions of $(t,y)$.  If rootfinding
+was performed by \id{CVodeF}, then for the sake of efficiency, it should be
+disabled for \id{CVodeB} by first calling \id{CVodeRootInit} with \id{nrtfn} = 0.
 
 The call to \id{CVodeB} has the form
 %%

@@ -90,6 +90,9 @@ are grayed out.
   \textcolor{gray}{\bf Initialize forward sensitivity problem}
 
 \item
+  \textcolor{gray}{\bf Specify rootfinding}
+
+\item
   {\bf Allocate space for the adjoint computation}
 
   Call \Id{IDAAdjInit}\id{()} to allocate memory for the 
@@ -412,8 +415,12 @@ the following function:
 The function \ID{IDASolveF} is very similar to the {\idas} function \id{IDASolve}
 (see \S\ref{sss:idasolve}) in that it integrates the solution of the forward
 problem and returns the solution $(y,\dot{y})$. At the same time, however, 
-\id{IDASolveF} stores checkpoint data every \id{Nd} integration steps. \id{IDASolveF} 
-can be called repeatedly by the user.
+\id{IDASolveF} stores checkpoint data every \id{Nd} integration steps.
+\id{IDASolveF} can be called repeatedly by the user.
+%%
+Note that \id{IDASolveF} is used only for the forward integration pass within
+an Adjoint Sensitivity Analysis.  It is not for use in Forward Sensitivity
+Analysis; for that, see Chapter \ref{s:forward}.
 %%
 The call to this function has the form
 %%
@@ -464,6 +471,10 @@ The call to this function has the form
     \id{IDASolveF} succeeded.
   \item[\Id{IDA\_TSTOP\_RETURN}]
     \id{IDASolveF} succeeded by reaching the optional stopping point.
+  \item[\Id{IDA\_ROOT\_RETURN}]
+    \id{IDASolveF} succeeded and found one or more roots.  In this case,
+    \id{tret} is the location of the root.  If \id{nrtfn} $>1$, call
+    \id{IDAGetRootInfo} to see which $g_i$ were found to have a root.
   \item[\Id{IDA\_NO\_MALLOC}]
     The function \id{IDAInit} has not been previously called.
   \item[\Id{IDA\_ILL\_INPUT}]
@@ -1007,6 +1018,12 @@ the solution of the IVP to the backward problem.
 The function \id{IDASolveB} does not return the solution \id{yB}
 itself.  To obtain that, call the function \id{IDAGetB}, which is
 also described below.
+
+The \id{IDASolveB} function does not support rootfinding, unlike
+\id{IDASoveF}, which supports the finding of roots of functions of
+$(t,y,\dot{y})$.  If rootfinding was performed by \id{IDASolveF}, then
+for the sake of efficiency, it should be disabled for \id{IDASolveB}
+by first calling \id{IDARootInit} with \id{nrtfn} = 0.
 
 The call to \id{IDASolveB} has the form
 %%
