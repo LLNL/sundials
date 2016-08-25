@@ -4,7 +4,7 @@
  * $Date:  $
  * -----------------------------------------------------------------
  * Programmer(s): Ting Yan @ SMU
- *      Based on kinFoodWeb_kry.c and parallized with OpenMP
+ *      Based on kinFoodWeb_kry.c and parallelized with OpenMP
  * -----------------------------------------------------------------
  * Example (serial):
  *
@@ -60,6 +60,21 @@
  *
  * Constraints are imposed to make all components of the solution
  * positive.
+ *
+ * Optionally, we can set the number of threads from environment 
+ * variable or command line. To check the current value for number
+ * of threads from environment:
+ *      % echo $OMP_NUM_THREADS
+ *
+ * Execution:
+ *
+ * If the user want to use the default value or the number of threads 
+ * from environment value:
+ *      % ./kinFoodWeb_kry_omp 
+ * If the user want to specify the number of threads to use
+ *      % ./kinFoodWeb_kry_omp num_threads
+ * where num_threads is the number of threads the user want to use 
+ *
  * -----------------------------------------------------------------
  * References:
  *
@@ -198,11 +213,11 @@ int main(int argc, char *argv[])
   globalstrategy = KIN_NONE;
 
   /* Set the number of threads to use */
-  num_threads = 1;
+  num_threads = 1;     /* default value*/
 #ifdef _OPENMP
-  num_threads = omp_get_max_threads();
+  num_threads = omp_get_max_threads();    /* Overwrite with OMP_NUM_THREADS environment variable */
 #endif
-  if (argc > 1)
+  if (argc > 1)        /* overwrithe with command line value, if supplied */
     num_threads = strtol(argv[1], NULL, 0);
 
   data = AllocUserData();

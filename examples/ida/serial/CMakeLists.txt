@@ -26,6 +26,7 @@ SET(IDA_examples
   idaFoodWeb_bnd
   idaHeat2D_bnd
   idaHeat2D_kry
+  idaFoodWeb_kry
   idaKrylovDemo_ls
   idaRoberts_dns
   idaSlCrank_dns

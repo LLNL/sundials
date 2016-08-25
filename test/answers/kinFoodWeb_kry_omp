@@ -24,7 +24,7 @@ At top right:
  1.25797 1.25797 1.25797 37736.7 37736.7 37736.7
 
 Final Statistics.. 
-nni    =     8    nli   =   288
-nfe    =     9    nfeSG =   296
-nps    =   296    npe   =     1     ncfl  =     5
+nni    =    10    nli   =   374
+nfe    =    11    nfeSG =   384
+nps    =   384    npe   =     1     ncfl  =     7
 num_threads = 4
