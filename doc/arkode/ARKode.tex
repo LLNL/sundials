@@ -69,7 +69,7 @@ Approved for public release; further dissemination unlimited
 \date{
   \today
   \vfill
-  {\centerline{\includegraphics[width=0.45\textwidth]{doc_logo.pdf}}}
+  {\centerline{\includegraphics[width=0.45\textwidth]{doc_logo_blue.pdf}}}
   \vfill
   {\centerline{LLNL-SM-668082}}
 }
@@ -2444,6 +2444,217 @@ Finalize MPI, if used
 Call \code{MPI\_Finalize} to terminate MPI.
 
 \end{enumerate}
+
+SUNDIALS provides some linear solvers only as a means for users to get
+problems running and not as highly efficient solvers.  In particular,
+the dense and band direct solvers are not nearly as efficient as their
+LAPACK counterparts, and users are encouraged to use LAPACK solvers if
+an efficient dense direct solver is needed.  The table below shows the
+linear solver interfaces available in SUNDIALS packages and the vector
+implementations required for use.  As an example, one cannot use the
+SUNDIALS package specific dense direct solver interfaces  with the
+MPI-based vector implementation.  However, as discussed in Chapter
+ref\{s:gen\_linsolv\} the direct dense, direct band, and iterative spils
+solvers provided with SUNDIALS are written in a way that allows a user
+to develop their own solvers around them should a user so desire.
+
+
+\subsection{SUNDIALS linear solver interfaces and vector implementations that can be used for each}
+\label{c_interface/Skeleton:cinterface-solver-vector}\label{c_interface/Skeleton:sundials-linear-solver-interfaces-and-vector-implementations-that-can-be-used-for-each}
+\begin{tabulary}{\linewidth}{|L|L|L|L|L|L|L|L|}
+\hline
+\textsf{\relax 
+Linear Solver
+Interface
+} & \textsf{\relax 
+Serial
+} & \textsf{\relax 
+Parallel
+(MPI)
+} & \textsf{\relax 
+OpenMP
+} & \textsf{\relax 
+pThreads
+} & \textsf{\relax 
+\emph{hypre}
+Vector
+} & \textsf{\relax 
+PETSc
+Vector
+} & \textsf{\relax 
+User
+Supplied
+}\\
+\hline
+Dense
+ & 
+X
+ &  & 
+X
+ & 
+X
+ &  &  & 
+X
+\\
+\hline
+Band
+ & 
+X
+ &  & 
+X
+ & 
+X
+ &  &  & 
+X
+\\
+\hline
+LapackDense
+ & 
+X
+ &  & 
+X
+ & 
+X
+ &  &  & 
+X
+\\
+\hline
+LapackBand
+ & 
+X
+ &  & 
+X
+ & 
+X
+ &  &  & 
+X
+\\
+\hline
+KLU
+ & 
+X
+ &  & 
+X
+ & 
+X
+ &  &  & 
+X
+\\
+\hline
+PCG
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+\\
+\hline
+SUPERLU\_MT
+ & 
+X
+ &  & 
+X
+ & 
+X
+ &  &  & 
+X
+\\
+\hline
+SPGMR
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+\\
+\hline
+SPFGMR
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+\\
+\hline
+SPBCG
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+\\
+\hline
+SPTFQMR
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+\\
+\hline
+User supplied
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+\\
+\hline\end{tabulary}
+
 
 
 \section{User-callable functions}
@@ -5160,9 +5371,9 @@ attaches it to the main ARKode memory block.
 user-supplied functions for which it is an argument; otherwise
 \code{NULL} is passed.
 
-If \emph{user\_data} is needed in user preconditioner functions, the
-call to this function must be made \emph{before} the call to
-specify the linear solver.
+If \emph{user\_data} is needed in user linear solver or preconditioner
+functions, the call to this function must be made \emph{before} the call
+to specify the linear solver.
 
 \end{fulllineitems}
 
@@ -7704,7 +7915,7 @@ Newton Gram-Schmidt orthogonalization type \emph{(b)}
  & 
 {\hyperref[c_interface/User_callable:c.ARKSpilsSetGSType]{\emph{\code{ARKSpilsSetGSType()}}}}
  & 
-classical GS
+modified GS
 \\
 \hline
 Newton preconditioning functions
@@ -7746,7 +7957,7 @@ Mass matrix Gram-Schmidt orthog. type \emph{(b)}
  & 
 {\hyperref[c_interface/User_callable:c.ARKSpilsSetMassGSType]{\emph{\code{ARKSpilsSetMassGSType()}}}}
  & 
-classical GS
+modified GS
 \\
 \hline
 Mass matrix preconditioning functions
@@ -18282,6 +18493,14 @@ variables of type \code{N\_Vector} created with
 
 \end{fulllineitems}
 
+\index{N\_VGetLength\_Serial (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Serial:c.N_VGetLength_Serial}\pysiglinewithargsret{long int \bfcode{N\_VGetLength\_Serial}}{N\_Vector\emph{ v}}{}
+This function returns the number of vector elements.
+
+\end{fulllineitems}
+
 \index{N\_VPrint\_Serial (C function)}
 
 \begin{fulllineitems}
@@ -18542,6 +18761,22 @@ This function frees memory allocated for the array of \emph{count}
 variables of type \code{N\_Vector} created with
 {\hyperref[nvectors/NVector_Parallel:c.N_VCloneVectorArray_Parallel]{\emph{\code{N\_VCloneVectorArray\_Parallel()}}}} or with
 {\hyperref[nvectors/NVector_Parallel:c.N_VCloneVectorArrayEmpty_Parallel]{\emph{\code{N\_VCloneVectorArrayEmpty\_Parallel()}}}}.
+
+\end{fulllineitems}
+
+\index{N\_VGetLength\_Parallel (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Parallel:c.N_VGetLength_Parallel}\pysiglinewithargsret{long int \bfcode{N\_VGetLength\_Parallel}}{N\_Vector\emph{ v}}{}
+This function returns the number of vector elements (global vector length).
+
+\end{fulllineitems}
+
+\index{N\_VGetLocalLength\_Parallel (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Parallel:c.N_VGetLocalLength_Parallel}\pysiglinewithargsret{long int \bfcode{N\_VGetLocalLength\_Parallel}}{N\_Vector\emph{ v}}{}
+This function returns the local vector length.
 
 \end{fulllineitems}
 
@@ -18808,6 +19043,14 @@ variables of type \code{N\_Vector} created with
 
 \end{fulllineitems}
 
+\index{N\_VGetLength\_OpenMP (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_OpenMP:c.N_VGetLength_OpenMP}\pysiglinewithargsret{long int \bfcode{N\_VGetLength\_OpenMP}}{N\_Vector\emph{ v}}{}
+This function returns the number of vector elements.
+
+\end{fulllineitems}
+
 \index{N\_VPrint\_OpenMP (C function)}
 
 \begin{fulllineitems}
@@ -19058,6 +19301,14 @@ This function frees memory allocated for the array of \emph{count}
 variables of type \code{N\_Vector} created with
 {\hyperref[nvectors/NVector_Pthreads:c.N_VCloneVectorArray_Pthreads]{\emph{\code{N\_VCloneVectorArray\_Pthreads()}}}} or with
 {\hyperref[nvectors/NVector_Pthreads:c.N_VCloneVectorArrayEmpty_Pthreads]{\emph{\code{N\_VCloneVectorArrayEmpty\_Pthreads()}}}}.
+
+\end{fulllineitems}
+
+\index{N\_VGetLength\_Pthreads (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Pthreads:c.N_VGetLength_Pthreads}\pysiglinewithargsret{long int \bfcode{N\_VGetLength\_Pthreads}}{N\_Vector\emph{ v}}{}
+This function returns the number of vector elements.
 
 \end{fulllineitems}
 

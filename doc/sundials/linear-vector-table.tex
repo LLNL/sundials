@@ -1,7 +1,7 @@
 {\sundials} provides some linear solvers only as a means for 
 users to get problems running and not as highly efficient solvers.
 In particular, the dense and band direct solvers are not nearly as efficient as
-their LaPACK counterparts, and users are encouraged to use LaPACK solvers
+their LAPACK counterparts, and users are encouraged to use LAPACK solvers
 if an efficient dense direct solver is needed.
 Table \ref{t:solver-vector} shows the linear solver interfaces
 available in {\sundials} packages and the vector implementations
@@ -11,7 +11,7 @@ solver interfaces  with the \mpi-based vector implementation.  However,
 as discussed in Chapter \ref{s:gen_linsolv} the direct dense, direct band, 
 and iterative spils solvers provided with
 {\sundials} are written in a way that allows a user to develop 
-their own solvers around them should a user so deire.  
+their own solvers around them should a user so desire.  
 
 \begin{table}[htb]
   %\xentrystretch{2.5}
