@@ -186,8 +186,9 @@ int main()
   /* Print some final statistics */
   PrintFinalStats(cvode_mem);
 
-  /* Free y vector */
+  /* Free y vector and abstol vectors */
   N_VDestroy_Serial(y);
+  N_VDestroy_Serial(abstol);
 
   /* Free integrator memory */
   CVodeFree(&cvode_mem);
