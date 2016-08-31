@@ -513,7 +513,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   The {\kindense} linear solver is not compatible with all
   implementations of the {\nvector} module.  Of the {\nvector} modules
   provided with {\sundials}, only {\nvecs}, {\nvecopenmp} and
-  {\nvecpthreads} are compatible, while {\nvecp} is not.
+  {\nvecpthreads} are compatible.
 }
 %%
 %%
@@ -591,7 +591,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   The {\kinband} linear solver is not compatible with all
   implementations of the {\nvector} module.  Of the {\nvector} modules
   provided with {\sundials}, only {\nvecs}, {\nvecopenmp} and
-  {\nvecpthreads} are compatible, while {\nvecp} is not.
+  {\nvecpthreads} are compatible.
   The half-bandwidths are to be set so that the nonzero locations $(i,j)$ in the
   banded (approximate) Jacobian satisfy $-$\id{mlower} $\leq j-i \leq$ \id{mupper}.
 }
@@ -669,7 +669,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   The {\kinklu} linear solver is not compatible with all
   implementations of the {\nvector} module.  Of the {\nvector} modules
   provided with {\sundials}, only {\nvecs}, {\nvecopenmp} and
-  {\nvecpthreads} are compatible, while {\nvecp} is not.
+  {\nvecpthreads} are compatible.
 }
 %%
 %%
@@ -719,7 +719,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   The {\kinsuperlumt} linear solver is not compatible with all
   implementations of the {\nvector} module.  Of the {\nvector} modules
   provided with {\sundials}, only {\nvecs}, {\nvecopenmp} and
-  {\nvecpthreads} are compatible, while {\nvecp} is not.
+  {\nvecpthreads} are compatible.
   
   {\warn}Performance will significantly degrade if the user applies the SuperLU\_MT
   package compiled with PThreads while using the {\nvecopenmp} module.

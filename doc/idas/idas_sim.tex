@@ -740,8 +740,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
   The {\idadense} linear solver is not compatible with all
   implementations of the {\nvector} module. 
   Of the {\nvector} modules provided with {\sundials}, only {\nvecs},
-  {\nvecopenmp}, and {\nvecpthreads} are compatible, while {\nvecp} and
-  {\nvecph} are not.
+  {\nvecopenmp}, and {\nvecpthreads} are compatible.
 }
 %%
 %%
@@ -818,7 +817,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
   The {\idaband} linear solver is not compatible with all
   implementations of the {\nvector} module.  Of the {\nvector} modules
   provided with {\sundials}, only {\nvecs}, {\nvecopenmp} and
-  {\nvecpthreads} are compatible, while {\nvecp} and {\nvecph} are not. 
+  {\nvecpthreads} are compatible.
   The half-bandwidths are to be set so that the nonzero locations $(i,j)$ in the
   banded (approximate) Jacobian satisfy $-$\id{mlower} $\leq j-i \leq$ \id{mupper}.
 }
@@ -896,8 +895,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
   The {\idaklu} linear solver is not compatible with all
   implementations of the {\nvector} module. 
   Of the {\nvector} modules provided with {\sundials}, only {\nvecs},
-  {\nvecopenmp} and {\nvecpthreads} are compatible, while {\nvecp} and
-  {\nvecph} are not.
+  {\nvecopenmp} and {\nvecpthreads} are compatible.
 }
 %%
 %%
@@ -947,8 +945,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
   The {\idasuperlumt} linear solver is not compatible with all
   implementations of the {\nvector} module. 
   Of the {\nvector} modules provided with {\sundials}, only {\nvecs},
-  {\nvecopenmp} and {\nvecpthreads} are compatible, while {\nvecp} and
-  {\nvecph} are not.
+  {\nvecopenmp} and {\nvecpthreads} are compatible.
 
   {\warn}Performance will significantly degrade if the user applies the SuperLU\_MT
   package compiled with PThreads while using the {\nvecopenmp} module.
