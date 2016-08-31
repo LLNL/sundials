@@ -135,7 +135,7 @@ int IDAKLU(void *ida_mem, int n, int nnz, int sparsetype)
 
   /* Set default Jacobian routine and Jacobian data */
   idasls_mem->s_jaceval = NULL;
-  idasls_mem->s_jacdata = IDA_mem->ida_user_data;
+  idasls_mem->s_jacdata = NULL;
   idasls_mem->sparsetype = sparsetype;
 
   /* Allocate memory for the sparse Jacobian */
@@ -294,6 +294,8 @@ static int IDAKLUInit(IDAMem IDA_mem)
   IDASlsMem idasls_mem;
 
   idasls_mem = (IDASlsMem)IDA_mem->ida_lmem;
+
+  idasls_mem->s_jacdata = IDA_mem->ida_user_data;
 
   idasls_mem->s_nje = 0;
   /* Force factorization every call to IDAS */

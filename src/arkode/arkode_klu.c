@@ -127,7 +127,7 @@ int ARKKLU(void *arkode_mem, int n, int nnz, int sparsetype)
 
   /* Initialize Jacobian-related data */
   arksls_mem->s_Jeval = NULL;
-  arksls_mem->s_Jdata = ark_mem->ark_user_data;
+  arksls_mem->s_Jdata = NULL;
   ark_mem->ark_setupNonNull = TRUE;
   arksls_mem->sparsetype = sparsetype;
 
@@ -309,6 +309,8 @@ static int arkKLUInit(ARKodeMem ark_mem)
   ARKSlsMem arksls_mem;
 
   arksls_mem = (ARKSlsMem) ark_mem->ark_lmem;
+
+  arksls_mem->s_Jdata = ark_mem->ark_user_data;
 
   arksls_mem->s_nje = 0;
   /* Force factorization every call to ARKODE */
@@ -880,6 +882,8 @@ static int arkMassKLUInit(ARKodeMem ark_mem)
   arksls_mem = (ARKSlsMassMem) ark_mem->ark_mass_mem;
   arksls_mem->s_nme = 0;
   arksls_mem->s_first_factorize = 1;
+
+  arksls_mem->s_Mdata = ark_mem->ark_user_data;
 
   /* Set mass matrix function data */
   arksls_mem->s_Mdata = ark_mem->ark_user_data;

@@ -133,7 +133,7 @@ int CVKLU(void *cvode_mem, int n, int nnz, int sparsetype)
 
   /* Set default Jacobian routine and Jacobian data */
   cvsls_mem->s_jaceval = NULL;
-  cvsls_mem->s_jacdata = cv_mem->cv_user_data;
+  cvsls_mem->s_jacdata = NULL;
   cvsls_mem->sparsetype = sparsetype;
 
   /* Allocate memory for the sparse Jacobian */
@@ -303,6 +303,8 @@ static int cvKLUInit(CVodeMem cv_mem)
   CVSlsMem cvsls_mem;
 
   cvsls_mem = (CVSlsMem)cv_mem->cv_lmem;
+
+  cvsls_mem->s_jacdata = cv_mem->cv_user_data;
 
   cvsls_mem->s_nje = 0;
   /* This forces factorization for every call to CVODE */

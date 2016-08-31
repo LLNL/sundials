@@ -117,7 +117,7 @@ int KINKLU(void *kin_mem_v, int n, int nnz, int sparsetype)
 
   /* Set default Jacobian routine and Jacobian data */
   kinsls_mem->s_jaceval = NULL;
-  kinsls_mem->s_jacdata = kin_mem->kin_user_data;
+  kinsls_mem->s_jacdata = NULL;
 
   /* Allocate memory for the sparse Jacobian */
   kinsls_mem->s_JacMat = SparseNewMat(n, n, nnz, sparsetype);
@@ -276,6 +276,8 @@ static int kinKLUInit(KINMem kin_mem)
   KINSlsMem kinsls_mem;
 
   kinsls_mem = (KINSlsMem)kin_mem->kin_lmem;
+
+  kinsls_mem->s_jacdata = kin_mem->kin_user_data;
 
   kinsls_mem->s_nje = 0;
   /* This forces factorization for every call to KINSol */
