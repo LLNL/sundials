@@ -26,13 +26,13 @@
 //#include <petscksp.h>
 
 #include <ida/ida_petsc.h>
-#include <nvector/nvector_petsc.h> /* PETSc vector specific */
+#include <nvector/nvector_petsc.h>
 #include "ida_petsc_impl.h"
 #include "ida_impl.h"
 
 #include <sundials/sundials_math.h>
 
-#define NV_CONTENT_PTC(v)    ( (N_VectorContent_petsc)(v->content) )
+#define NV_CONTENT_PTC(v)    ( (N_VectorContent_Petsc)(v->content) )
 #define NV_PVEC_PTC(v)       ( NV_CONTENT_PTC(v)->pvec )
 
 

@@ -38,8 +38,8 @@
 #include <math.h>
 
 #include <ida/ida.h>
-#include <ida/ida_petsc.h>
-#include <nvector/nvector_petsc.h>
+#include <ida/ida_Petsc.h>
+#include <nvector/nvector_Petsc.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 
@@ -169,24 +169,24 @@ int main(int argc, char *argv[])
   CHKERRQ(ierr);
 
   /* Make N_Vector wrapper for uvec */
-  uu = N_VMake_petsc(&uvec);
-  if(check_flag((void *)uu, "N_VNew_petsc", 0, thispe)) 
+  uu = N_VMake_Petsc(&uvec);
+  if(check_flag((void *)uu, "N_VNew_Petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
   up = N_VClone(uu);
-  if(check_flag((void *)up, "N_VNew_petsc", 0, thispe)) 
+  if(check_flag((void *)up, "N_VNew_Petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
   res = N_VClone(uu);
-  if(check_flag((void *)res, "N_VNew_petsc", 0, thispe)) 
+  if(check_flag((void *)res, "N_VNew_Petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
   constraints = N_VClone(uu);
-  if(check_flag((void *)constraints, "N_VNew_petsc", 0, thispe)) 
+  if(check_flag((void *)constraints, "N_VNew_Petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
   id = N_VClone(uu);
-  if(check_flag((void *)id, "N_VNew_petsc", 0, thispe)) 
+  if(check_flag((void *)id, "N_VNew_Petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
   /* Initialize the uu, up, id, and res profiles. */
@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
 
   ier = IDASetConstraints(mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
-  N_VDestroy_petsc(constraints);  
+  N_VDestroy_Petsc(constraints);  
 
   ier = IDAInit(mem, resHeat, t0, uu, up);
   if(check_flag(&ier, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
@@ -261,10 +261,10 @@ int main(int argc, char *argv[])
 
   IDAFree(&mem);
 
-  N_VDestroy_petsc(id);
-  N_VDestroy_petsc(res);
-  N_VDestroy_petsc(up);
-  N_VDestroy_petsc(uu);
+  N_VDestroy_Petsc(id);
+  N_VDestroy_Petsc(res);
+  N_VDestroy_Petsc(up);
+  N_VDestroy_Petsc(uu);
 
   ierr = VecDestroy(&uvec);
   CHKERRQ(ierr);
@@ -311,9 +311,9 @@ int resHeat(realtype tt,
   PetscReal      hx,hy,sx,sy;
   PetscScalar    u,uxx,uyy,**uarray,**f,**udot;
   Vec localU;
-  Vec *U    = N_VGetVector_petsc(uu);
-  Vec *Udot = N_VGetVector_petsc(up);
-  Vec *F    = N_VGetVector_petsc(rr);
+  Vec *U    = N_VGetVector_Petsc(uu);
+  Vec *Udot = N_VGetVector_Petsc(up);
+  Vec *F    = N_VGetVector_Petsc(rr);
 
   PetscFunctionBeginUser;
   ierr = DMGetLocalVector(da,&localU);CHKERRQ(ierr);
@@ -445,8 +445,8 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
   PetscScalar    **u;
   PetscScalar    **iddat;
   PetscReal      hx,hy,x,y,r;
-  Vec *U     = N_VGetVector_petsc(uu);
-  Vec *idvec = N_VGetVector_petsc(id);
+  Vec *U     = N_VGetVector_Petsc(uu);
+  Vec *idvec = N_VGetVector_Petsc(id);
 
   PetscFunctionBeginUser;
   ierr = DMDAGetInfo(da,PETSC_IGNORE,&Mx,&My,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,
@@ -509,7 +509,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
 
 static void PrintHeader(long int Neq, realtype rtol, realtype atol)
 { 
-  printf("\nidaHeat2D_kry_petsc: Heat equation, parallel example problem for IDA\n");
+  printf("\nidaHeat2D_kry_Petsc: Heat equation, parallel example problem for IDA\n");
   printf("            Discretized heat equation on 2D unit square.\n");
   printf("            Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");

@@ -177,29 +177,29 @@ int main(int argc, char *argv[])
   CHKERRQ(ierr);
 
   /* Make N_Vector wrapper for uvec */
-  uu = N_VMake_petsc(&uvec);
-  if(check_flag((void *)uu, "N_VNew_petsc", 0, thispe)) 
+  uu = N_VMake_Petsc(&uvec);
+  if(check_flag((void *)uu, "N_VNew_Petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
   up = N_VClone(uu);
-  if(check_flag((void *)up, "N_VNew_petsc", 0, thispe)) 
+  if(check_flag((void *)up, "N_VNew_Petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
   res = N_VClone(uu);
-  if(check_flag((void *)res, "N_VNew_petsc", 0, thispe)) 
+  if(check_flag((void *)res, "N_VNew_Petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
   constraints = N_VClone(uu);
-  if(check_flag((void *)constraints, "N_VNew_petsc", 0, thispe)) 
+  if(check_flag((void *)constraints, "N_VNew_Petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
   id = N_VClone(uu);
-  if(check_flag((void *)id, "N_VNew_petsc", 0, thispe)) 
+  if(check_flag((void *)id, "N_VNew_Petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
   /* An N-vector to hold preconditioner. */
   data->pp = N_VClone(uu); 
-  if(check_flag((void *)data->pp, "N_VNew_petsc", 0, thispe)) 
+  if(check_flag((void *)data->pp, "N_VNew_Petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
   /* Initialize the uu, up, id, and res profiles. */
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
 
   ier = IDASetConstraints(mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
-  N_VDestroy_petsc(constraints);  
+  N_VDestroy_Petsc(constraints);  
 
   ier = IDAInit(mem, resHeat, t0, uu, up);
   if(check_flag(&ier, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
@@ -273,12 +273,12 @@ int main(int argc, char *argv[])
 
   IDAFree(&mem);
 
-  N_VDestroy_petsc(id);
-  N_VDestroy_petsc(res);
-  N_VDestroy_petsc(up);
-  N_VDestroy_petsc(uu);
+  N_VDestroy_Petsc(id);
+  N_VDestroy_Petsc(res);
+  N_VDestroy_Petsc(up);
+  N_VDestroy_Petsc(uu);
 
-  N_VDestroy_petsc(data->pp);
+  N_VDestroy_Petsc(data->pp);
   ierr = DMDestroy(&data->da);
   CHKERRQ(ierr);
   free(data);
@@ -322,9 +322,9 @@ int resHeat(realtype tt,
   PetscReal      hx, hy, sx, sy;
   PetscScalar    u, uxx, uyy, **uarray, **f, **udot;
   Vec localU;
-  Vec *U    = N_VGetVector_petsc(uu);
-  Vec *Udot = N_VGetVector_petsc(up);
-  Vec *F    = N_VGetVector_petsc(rr);
+  Vec *U    = N_VGetVector_Petsc(uu);
+  Vec *Udot = N_VGetVector_Petsc(up);
+  Vec *F    = N_VGetVector_Petsc(rr);
 
   PetscFunctionBeginUser;
   ierr = DMGetLocalVector(da, &localU);
@@ -430,7 +430,7 @@ int PsetupHeat(realtype tt,
   PetscScalar **ppv;
   UserData data = (UserData) user_data;
   DM da = (DM) data->da;
-  Vec *ppvec = N_VGetVector_petsc((data->pp));
+  Vec *ppvec = N_VGetVector_Petsc((data->pp));
   
   PetscFunctionBeginUser;
   ierr = DMDAGetInfo(da,
@@ -520,8 +520,8 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
   PetscScalar    **u;
   PetscScalar    **iddat;
   PetscReal      hx, hy, x, y;
-  Vec *U     = N_VGetVector_petsc(uu);
-  Vec *idvec = N_VGetVector_petsc(id);
+  Vec *U     = N_VGetVector_Petsc(uu);
+  Vec *idvec = N_VGetVector_Petsc(id);
 
   PetscFunctionBeginUser;
   ierr = DMDAGetInfo(da,

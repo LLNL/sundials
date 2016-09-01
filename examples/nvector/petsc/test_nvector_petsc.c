@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
   VecSetFromOptions(xvec);
   
   /* Create vectors */
-  W = N_VNewEmpty_petsc(comm, local_length, global_length);
+  W = N_VNewEmpty_Petsc(comm, local_length, global_length);
   if(N_VGetVectorID(W) == SUNDIALS_NVEC_PETSC && myid == 0) {
     /*printf("Testing PETSc vector wrapper...\n");*/
   }
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
   /* PETSc specific tests */
   fails += Test_N_VMake(&xvec, myid);
   
-  X = N_VMake_petsc(&xvec);
+  X = N_VMake_Petsc(&xvec);
 
   /* Memory allocation tests */
   fails += Test_N_VCloneEmpty(X, myid);
@@ -87,8 +87,8 @@ int main(int argc, char *argv[])
   fails += Test_N_VCloneEmptyVectorArray(5, X, myid);
   fails += Test_N_VCloneVectorArray(5, X, local_length, myid);
 
-  Y = N_VClone_petsc(X);
-  Z = N_VClone_petsc(X);
+  Y = N_VClone_Petsc(X);
+  Z = N_VClone_Petsc(X);
 
   /* Skipped tests */
   /* fails += Test_N_VSetArrayPointer(W, local_length, myid); */
@@ -116,10 +116,10 @@ int main(int argc, char *argv[])
   fails += Test_N_VMinQuotient(X, Y, local_length, myid);
 
   /* Free vectors */
-  N_VDestroy_petsc(W);
-  N_VDestroy_petsc(X);
-  N_VDestroy_petsc(Y);
-  N_VDestroy_petsc(Z);
+  N_VDestroy_Petsc(W);
+  N_VDestroy_Petsc(X);
+  N_VDestroy_Petsc(Y);
+  N_VDestroy_Petsc(Z);
 
   /* Print result */
   if (fails) {
@@ -143,7 +143,7 @@ int check_ans(realtype ans, N_Vector X, long int local_length)
 {
   int failure = 0;
   long int i;
-  Vec *xv = N_VGetVector_petsc(X);
+  Vec *xv = N_VGetVector_Petsc(X);
   PetscScalar *a;
 
   failure = 0;
@@ -162,7 +162,7 @@ int check_ans(realtype ans, N_Vector X, long int local_length)
 
 booleantype has_data(N_Vector X)
 {
-  if(N_VGetVector_petsc(X) == NULL)
+  if(N_VGetVector_Petsc(X) == NULL)
     return FALSE;
   else
     return TRUE;
@@ -171,7 +171,7 @@ booleantype has_data(N_Vector X)
 void set_element(N_Vector X, long int i, realtype val)
 {
   PetscScalar *a;
-  Vec *xv = N_VGetVector_petsc(X);
+  Vec *xv = N_VGetVector_Petsc(X);
   
   VecGetArray(*xv, &a);
   a[i] = val;
@@ -181,7 +181,7 @@ void set_element(N_Vector X, long int i, realtype val)
 realtype get_element(N_Vector X, long int i)
 {
   PetscScalar *a;
-  Vec *xv = N_VGetVector_petsc(X);
+  Vec *xv = N_VGetVector_Petsc(X);
   realtype val;
   
   VecGetArray(*xv, &a);
@@ -203,7 +203,7 @@ static int Test_N_VMake(Vec* W, int myid)
 
   /* clone vector */
   /* start_time = get_time(); */  
-  X = N_VMake_petsc(W);
+  X = N_VMake_Petsc(W);
   /* stop_time = get_time();  */
 
   /* check vector wrapper */
@@ -214,7 +214,7 @@ static int Test_N_VMake(Vec* W, int myid)
   } 
 
   /* check underlying PETSc vector is correct */
-  if (*W != *N_VGetVector_petsc(X)) {
+  if (*W != *N_VGetVector_Petsc(X)) {
     printf(">>> FAILED test -- N_VMake, Proc %d \n", myid);
     printf("    PETSc not wrapped correctly \n \n");
     N_VDestroy(X);
