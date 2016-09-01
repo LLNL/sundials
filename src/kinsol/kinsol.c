@@ -1649,9 +1649,10 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
       } while ((*f1normp > alpha_cond) ||
 	       ((*f1normp < beta_cond) && (rldiff >= rlmin)));
 
-      if ((*f1normp) < beta_cond) {
+      if ( (*f1normp < beta_cond) || ((rldiff < rlmin) && (*f1normp > alpha_cond)) ) {
 
-	/* beta condition could not be satisfied so set unew to last u value
+	/* beta condition could not be satisfied or rldiff too small 
+	   and alpha_cond not satisfied, so set unew to last u value
 	   that satisfied the alpha condition and continue */
 
         N_VLinearSum(ONE, uu, rllo, pp, unew);
