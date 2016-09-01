@@ -104,11 +104,10 @@ c     number of this process.
          constr(ii) = 0.0d0
  20   continue
       
-      call fkinmalloc(iout, rout, ier)
-      
+      call fkincreate(ier)
       if (ier .ne. 0) then
          write(6,1231)ier
- 1231    format('SUNDIALS_ERROR: FKINMALLOC returned IER = ', i4)
+ 1231    format('SUNDIALS_ERROR: FKINCREATE returned IER = ', i4)
          call mpi_abort(mpi_comm_world, 1, ier)
          stop
       endif
@@ -117,6 +116,14 @@ c     number of this process.
       call fkinsetrin('FNORM_TOL', fnormtol, ier)
       call fkinsetrin('SSTEP_TOL', scsteptol, ier)
       call fkinsetvin('CONSTR_VEC', constr, ier)
+
+      call fkininit(iout, rout, ier)
+      if (ier .ne. 0) then
+         write(6,1232)ier
+ 1232    format('SUNDIALS_ERROR: FKININIT returned IER = ', i4)
+         call mpi_abort(mpi_comm_world, 1, ier)
+         stop
+      endif
 
       call fkinspgmr(maxl, maxlrst, ier)
       call fkinspilssetprec(1, ier)

@@ -41,6 +41,8 @@
           initialize serial, distributed memory parallel, or threaded 
           vector computations
    FKINMALLOC interfaces to KINInit
+   FKINCREATE interfaces to KINCreate
+   FKINInit interfaces to KINInit
    FKINSETIIN, FKINSETRIN, FKINSETVIN interface to KINSet* functions
    FKINDENSE interfaces to KINDense
    FKINKLU interfaces to KINKLU
@@ -185,8 +187,8 @@
                    >0 if a recoverable error occurred,
                    <0 if an unrecoverable error ocurred.
 
- (5) Initialization:  FNVINITS/FNVINITP/FNVINITOMP/FNVINITPTS and FKINMALLOC
-
+ (5) Initialization:  FNVINITS/FNVINITP/FNVINITOMP/FNVINITPTS and 
+                      FKINCREATE and FKININIT 
 
  (5.1s) To initialize the serial machine environment, the user must make
         the following call:
@@ -229,15 +231,11 @@
           NUM_THREADS = number of threads
           IER = return completion flag. Values are 0 = success, -1 = failure.
 
- (5.2) To allocate internal memory, make the following call:
+ (5.2) To create the internal memory structure, make the following call:
 
-         CALL FKINMALLOC(IOUT, ROUT, IER)
+         CALL FKINCREATE(IER)
 
        The arguments are:
-         IOUT        = array of length at least 15 for integer optional outputs
-                       (declare as INTEGER*4 or INTEGER*8 according to
-                       C type long int)
-         ROUT        = array of length at least 2 for real optional outputs
          IER         = return completion flag. Values are 0 = success, and
                        -1 = failure.
 
@@ -249,7 +247,7 @@
 
        to set the optional input specified by the character key KEY to the 
        integer value VALUE.
-       KEY is one of the following: PRNT_LEVEL, MAX_NITERS, ETA_FORM, 
+       KEY is one of the following: PRNT_LEVEL, MAX_NITERS, ETA_FORM, MAA,
        MAX_SETUPS, MAX_SP_SETUPS, NO_INIT_SETUP, NO_MIN_EPS, NO_RES_MON.
 
        To set various real optional inputs, make the folowing call:
@@ -271,6 +269,21 @@
 
       FKINSETIIN, FKINSETRIN, and FKINSETVIN return IER=0 if successful and 
       IER<0 if an error occured.
+
+ (5.4) To allocate and initialize the internal memory structure, 
+       make the following call:
+
+         CALL FKININIT(IOUT, ROUT, IER)
+
+       The arguments are:
+         IOUT        = array of length at least 15 for integer optional outputs
+                       (declare as INTEGER*4 or INTEGER*8 according to
+                       C type long int)
+         ROUT        = array of length at least 2 for real optional outputs
+         IER         = return completion flag. Values are 0 = success, and
+                       -1 = failure.
+
+       Note: See printed message for details in case of failure.
 
  (6) Specification of linear system solution method:
 
@@ -521,8 +534,8 @@
 
  (8) Memory freeing: FKINFREE
 
-     To the free the internal memory created by the calls to FKINMALLOC
-     and either FNVINITS or FNVINITP, make the following call:
+     To the free the internal memory created by the calls to FKINCREATE and 
+     FKINInit and either FNVINITS or FNVINITP, make the following call:
 
        CALL FKINFREE
 
@@ -592,6 +605,8 @@ extern "C" {
 #if defined(SUNDIALS_F77_FUNC)
 
 #define FKIN_MALLOC         SUNDIALS_F77_FUNC(fkinmalloc, FKINMALLOC)
+#define FKIN_CREATE         SUNDIALS_F77_FUNC(fkincreate, FKINCREATE)
+#define FKIN_INIT           SUNDIALS_F77_FUNC(fkininit,   FKININIT)
 #define FKIN_SETIIN         SUNDIALS_F77_FUNC(fkinsetiin, FKINSETIIN)
 #define FKIN_SETRIN         SUNDIALS_F77_FUNC(fkinsetrin, FKINSETRIN)
 #define FKIN_SETVIN         SUNDIALS_F77_FUNC(fkinsetvin, FKINSETVIN)
@@ -625,6 +640,8 @@ extern "C" {
 #else
 
 #define FKIN_MALLOC         fkinmalloc_
+#define FKIN_CREATE         fkincreate_
+#define FKIN_INIT           fkininit_
 #define FKIN_SETIIN         fkinsetiin_
 #define FKIN_SETRIN         fkinsetrin_
 #define FKIN_SETVIN         fkinsetvin_
@@ -664,6 +681,8 @@ extern "C" {
  */
 
 void FKIN_MALLOC(long int *iout, realtype *rout, int *ier);
+void FKIN_CREATE(int *ier);
+void FKIN_INIT(long int *iout, realtype *rout, int *ier);
 
 void FKIN_SETIIN(char key_name[], long int *ival, int *ier);
 void FKIN_SETRIN(char key_name[], realtype *rval, int *ier);

@@ -35,7 +35,7 @@
 #include <kinsol/kinsol_band.h>    /* prototypes of KINBAND interface routines    */
 #include <kinsol/kinsol_dense.h>   /* prototypes of KINDENSE interface routines   */
 #include <kinsol/kinsol_klu.h>     /* prototypes of KINKLU interface routines     */
-#include <kinsol/kinsol_superlumt.h> /* prototypes of KINKLU interface routines     */
+#include <kinsol/kinsol_superlumt.h> /* prototypes of KINSUPERLU interface routines */
 #include <kinsol/kinsol_sptfqmr.h> /* prototypes of KINSPTFQMR interface routines */
 #include <kinsol/kinsol_spbcgs.h>  /* prototypes of KINSPBCG interface routines   */
 #include <kinsol/kinsol_spgmr.h>   /* prototypes of KINSPGMR interface routines   */
@@ -75,6 +75,60 @@ extern void FK_FUN(realtype*, realtype*, int*);
 #ifdef __cplusplus
 }
 #endif
+
+/*
+ * ----------------------------------------------------------------
+ * Function : FKIN_CREATE
+ * ----------------------------------------------------------------
+ */
+
+void FKIN_CREATE(int *ier)
+{
+  
+  /* check for required vector operations */
+  if ((F2C_KINSOL_vec->ops->nvgetarraypointer == NULL) ||
+      (F2C_KINSOL_vec->ops->nvsetarraypointer == NULL)) {
+    *ier = -1;
+    printf("FKINCREATE: A required vector operation is not implemented.\n\n");
+    return;
+  }
+
+  /* Initialize pointers to NULL */
+  KIN_kinmem = NULL;
+
+  /* Create KINSOL object */
+  KIN_kinmem = KINCreate();
+  if (KIN_kinmem == NULL) {
+    *ier = -1;
+    return;
+  }
+}
+
+/*
+ * ----------------------------------------------------------------
+ * Function : FKIN_INIT
+ * ----------------------------------------------------------------
+ */
+
+void FKIN_INIT(long int *iout, realtype *rout, int *ier)
+{
+  
+  /* Call KINInit */
+  *ier = 0;
+  *ier = KINInit(KIN_kinmem, FKINfunc, F2C_KINSOL_vec);
+
+  /* On failure, exit */
+  if (*ier != KIN_SUCCESS) {
+    *ier = -1;
+    return;
+  }
+
+  /* Grab optional output arrays and store them in global variables */
+  KIN_iout = iout;
+  KIN_rout = rout;
+
+  return;
+}
 
 /*
  * ----------------------------------------------------------------
@@ -134,6 +188,8 @@ void FKIN_SETIIN(char key_name[], long int *ival, int *ier)
     *ier = KINSetNumMaxIters(KIN_kinmem, (int) *ival);
   else if (!strncmp(key_name,"ETA_FORM",8))
     *ier = KINSetEtaForm(KIN_kinmem, (int) *ival);
+  else if (!strncmp(key_name,"MAA",3))
+    *ier = KINSetMAA(KIN_kinmem, (int) *ival);
   else if (!strncmp(key_name,"MAX_SETUPS",10))
     *ier = KINSetMaxSetupCalls(KIN_kinmem, (int) *ival);
   else if (!strncmp(key_name,"MAX_SP_SETUPS",13))

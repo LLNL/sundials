@@ -59,15 +59,17 @@ are as follows:
     interfaces to \id{N\_VNewEmpty\_OpenMP}.
   \item \id{FNVINITPTS} (defined by {\nvecpthreads}) 
     interfaces to \id{N\_VNewEmpty\_Pthreads}.
-  \item \id{FNVINITPH} (defined by {\nvecph}) 
-    interfaces to \id{N\_VNewEmpty\_ParHyp}.
+%  \item \id{FNVINITPH} (defined by {\nvecph}) 
+%    interfaces to \id{N\_VNewEmpty\_ParHyp}.
   \end{itemize}
 \item Interface to the main {\kinsol} module
   \begin{itemize}
-  \item \id{FKINMALLOC}
-    interfaces to \id{KINCreate}, \id{KINSetUserData}, and \id{KINInit}.
+  \item \id{FKINCREATE}
+    interfaces to \id{KINCreate}.
   \item \id{FKINSETIIN} and \id{FKINSETRIN}
     interface to \id{KINSet*} functions.
+  \item \id{FKININIT}
+    interfaces to \id{KINInit}.
   \item \id{FKINSETVIN}
     interfaces to \id{KINSetConstraints}.
   \item \id{FKINSOL}
@@ -192,13 +194,47 @@ section of Chapter \ref{s:nvector}.
 \item {\bf Problem specification}
 %%====================
 
-  To set various problem and solution parameters and allocate
-  internal memory, make the following call:
-  \index{FKINMALLOC@\texttt{FKINMALLOC}}
-  \ucfunction{FKINMALLOC}
+  To create the main solver memory block, make the following call:
+  \index{FKINCREATE@\texttt{FKINCREATE}}
+  \ucfunction{FKINCREATE}
   {
     \begin{tabular}[t]{@{}r@{}l@{}l@{}}
-        &CALL FKINMALLOC (IOUT, ROUT, IER)
+        &CALL FKINCREATE (IER)
+    \end{tabular}
+  }
+  {
+    This function creates the {\kinsol} memory structure.
+  }
+  {
+    \begin{args}[IOUT\,]
+    \item[None.]
+    \end{args}
+  }
+  {
+    \id{IER} is the return completion flag. Values are $0$ for successful return
+    and $-1$ otherwise. See printed message for details in case of failure.
+  }
+  {
+  }
+
+%%====================
+\item\label{i:fkinsol_opt_input}{\bf Set optional inputs} 
+%%====================
+
+  Call \id{FKINSETIIN}, \id{FKINSETRIN}, and/or \id{FKINSETVIN}, to set desired 
+  optional inputs, if any.  See \S\ref{fkin_opt_inout} for details.
+
+%%====================
+\item {\bf Solver Initialization}
+%%====================
+
+  To set various problem and solution parameters and allocate
+  internal memory, make the following call:
+  \index{FKININIT@\texttt{FKININIT}}
+  \ucfunction{FKININIT}
+  {
+    \begin{tabular}[t]{@{}r@{}l@{}l@{}}
+        &CALL FKININIT (IOUT, ROUT, IER)
     \end{tabular}
   }
   {
@@ -222,13 +258,6 @@ section of Chapter \ref{s:nvector}.
     The optional outputs associated with the main {\kinsol} integrator
     are listed in Table~\ref{t:fkinsol_out}.
   }
-
-%%====================
-\item\label{i:fkinsol_opt_input}{\bf Set optional inputs} 
-%%====================
-
-  Call \id{FKINSETIIN}, \id{FKINSETRIN}, and/or \id{FKINSETVIN}, to set desired 
-  optional inputs, if any.  See \S\ref{fkin_opt_inout} for details.
 
 %%====================
 \item\label{i:fkinsol_lin_solv_spec}{\bf Linear solver specification} 
@@ -654,7 +683,7 @@ or the call
 \item {\bf Memory deallocation}
 %%====================
 
-  To free the internal memory created by the call to \id{FKINMALLOC},
+  To free the internal memory created by the calls to \id{FKINCREATE} and\id{FKININIT},
   make the call
   \index{FKINFREE@\texttt{FKINFREE}}
 \begin{verbatim}
@@ -697,7 +726,7 @@ The optional outputs from the {\kinsol} solver are accessed not through
 individual functions, but rather through a pair of arrays, \Id{IOUT}
 (integer type) of dimension at least $15$, and \Id{ROUT} (real type) of
 dimension at least $2$.  These arrays are owned (and allocated) by the user
-and are passed as arguments to \id{FKINMALLOC}.
+and are passed as arguments to \id{FKININIT}.
 Table \ref{t:fkinsol_out} lists the entries in these two arrays and specifies the
 optional variable as well as the {\kinsol} function which is actually called to
 extract the optional output.
@@ -716,6 +745,7 @@ and \S\ref{ss:optional_output}.
 {\bf Key} & {\bf Optional input} & Default value \\
 \hline
 \Id{PRNT\_LEVEL}     & Verbosity level of output & $0$ \\
+\Id{MAA}             & Number of prior residuals for Anderson Acceleration & 0 \\
 \Id{MAX\_NITERS}     & Maximum no. of nonlinear iterations & $200$ \\
 \Id{ETA\_FORM}       & Form of $\eta$ coefficient & $1$ (\id{KIN\_ETACHOICE1}) \\
 \Id{MAX\_SETUPS}     & Maximum no. of iterations without prec. setup & $10$ \\
@@ -849,6 +879,8 @@ from the main program described in \S\ref{ss:fkinsol_usage} are grayed-out.
 \item \textcolor{gray}{\bf Problem specification}
 
 \item \textcolor{gray}{\bf Set optional inputs}
+
+\item \textcolor{gray}{\bf {\kinsol} Initialization}
 
 \item {\bf Linear solver specification}
 
