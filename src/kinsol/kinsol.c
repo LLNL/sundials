@@ -586,8 +586,9 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
  
 
   /* CSW:  
-     Call fixed point solver for Picard method if requested.  Note that this should probably
-     be forked off to a part of an FPSOL solver instead of kinsol in the future. */
+     Call fixed point solver for Picard method if requested.  
+     Note that this should probably be forked off to a part of an 
+     FPSOL solver instead of kinsol in the future. */
   if ( strategy == KIN_PICARD ) {
 
     kin_mem->kin_gval = N_VClone(unew);
@@ -2180,11 +2181,12 @@ void KINErrHandler(int error_code, const char *module,
 /*
  * KINPicardAA
  *
- * This routine is the main driver for the Picard iteration with acclerated fixed point. 
+ * This routine is the main driver for the Picard iteration with 
+ * acclerated fixed point. 
  */
 
-static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R, realtype *gamma, 
-		       realtype *fmaxptr)
+static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R, 
+                       realtype *gamma, realtype *fmaxptr)
 {
   int retval, ret; 
   long int iter;
@@ -2214,7 +2216,7 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R, realtype *g
       if(!noMinEps) eps = SUNMAX(epsmin, eps);
     }
 
-    /* evaluate g = uu - L^{-1}func(u) and return if failed.  
+    /* evaluate g = uu - L^{-1}func(uu) and return if failed.  
        For Picard, assume that the fval vector has been filled 
        with an eval of the nonlinear residual prior to this call. */
     retval = KINPicardFcnEval(kin_mem, gval, uu, fval);
@@ -2260,10 +2262,11 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R, realtype *g
     if (fmax <= fnormtol) { 
       ret = KIN_SUCCESS;
     }
-    
+
+    /* Update with new iterate. */
+    N_VScale(ONE, unew, uu);
+
     if (ret == CONTINUE_ITERATIONS) { 
-      /* Only update solution if taking a next iteration.  */
-      N_VScale(ONE, unew, uu);
       /* evaluate eta by calling the forcing term routine */
       if (callForcingTerm) KINForcingTerm(kin_mem, fnormp);
     }
