@@ -814,8 +814,8 @@ second argument, \id{which}, the identifier of the backward problem.
   flag = CVLapackDenseB(cvode_mem, which, nB);
   flag = CVLapackBandB(cvode_mem, which, nB, mupperB, mlowerB);
   flag = CVDiagB(cvode_mem, which);
-  flag = CVSuperLUMTB(cvode_mem, num_threads, which, nB, nnzB);
-  flag = CVKLUB(cvode_mem, which, nB, nnzB);
+  flag = CVSuperLUMTB(cvode_mem, which, num_threads, nB, nnzB);
+  flag = CVKLUB(cvode_mem, which, nB, nnzB, sparsetype);
   flag = CVSpgmrB(cvode_mem, which, pretypeB, maxlB);
   flag = CVSpbcgB(cvode_mem, which, pretypeB, maxlB);
   flag = CVSptfqmrB(cvode_mem, which, pretypeB, maxlB);
