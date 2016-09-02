@@ -117,7 +117,7 @@ c
         if (ier .eq. 2) then
           call fidarootinfo(2, info, ierroot)
           if (ierroot .lt. 0) then
-            write(6,55) ier
+            write(6,55) ierroot
  55         format(///' SUNDIALS_ERROR: FIDAROOTINFO returned IER = ',
      1             i5)
             call fidarootfree

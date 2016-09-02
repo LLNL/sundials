@@ -117,7 +117,7 @@ C
         IF (IER .EQ. 2) THEN
            CALL FCVROOTINFO(2, INFO, IERROOT)
            IF (IERROOT .LT. 0) THEN
-              WRITE(6,65) IER
+              WRITE(6,65) IERROOT
  65           FORMAT(///' SUNDIALS_ERROR: FCVROOTINFO returned IER = ',
      1              I5)
               CALL FCVROOTFREE
