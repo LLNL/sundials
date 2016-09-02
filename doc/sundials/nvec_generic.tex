@@ -123,25 +123,46 @@ A particular implementation of the {\nvector} module must:
 \end{itemize}
 
 Each {\nvector} implementation included in {\sundials} has a unique 
-identifier specified in enumeration:
-\begin{verbatim}
-typedef enum {
-  SUNDIALS_NVEC_SERIAL, 
-  SUNDIALS_NVEC_PARALLEL, 
-  SUNDIALS_NVEC_OPENMP, 
-  SUNDIALS_NVEC_PTHREADS, 
-  SUNDIALS_NVEC_PARHYP, 
-  SUNDIALS_NVEC_PETSC,
-  SUNDIALS_NVEC_CUSTOM
-} N_Vector_ID; 
-\end{verbatim}
+identifier specified in enumeration and shown in Table \ref{t:vectorIDs}.
 It is recommended that a user-supplied {\nvector} implementation use the 
 \id{SUNDIALS\_NVEC\_CUSTOM} identifier.
+
+\begin{table}
+\centering
+\caption{Vector Identifications associated with vector kernels supplied with \id{\sundials}.}
+\label{t:vectorIDs}
+\medskip
+\begin{tabular}{|l|l|c|}
+\hline
+{\bf Vector ID} & {\bf Vector type} & {\bf ID Value} \\
+\hline
+SUNDIALS\_NVEC\_SERIAL     & Serial                            & 0 \\ 
+SUNDIALS\_NVEC\_PARALLEL   & Distributed memory parallel (MPI) & 1 \\
+SUNDIALS\_NVEC\_OPENMP     & OpenMP shared memory parallel     & 2 \\
+SUNDIALS\_NVEC\_PTHREADS   & PThreads shared memory parallel   & 3 \\
+SUNDIALS\_NVEC\_PARHYP     & {\hypre} ParHyp parallel vector   & 4 \\ 
+SUNDIALS\_NVEC\_PETSC      & {\petsc} parallel vector          & 5 \\
+SUNDIALS\_NVEC\_CUSTOM     & User-provided custom vector       & 6 \\
+\hline
+\end{tabular}
+\end{table}
+
+%% \begin{verbatim}
+%% typedef enum {
+%%   SUNDIALS_NVEC_SERIAL, 
+%%   SUNDIALS_NVEC_PARALLEL, 
+%%   SUNDIALS_NVEC_OPENMP, 
+%%   SUNDIALS_NVEC_PTHREADS, 
+%%   SUNDIALS_NVEC_PARHYP, 
+%%   SUNDIALS_NVEC_PETSC,
+%%   SUNDIALS_NVEC_CUSTOM
+%% } N_Vector_ID; 
+%% \end{verbatim}
 
 %---------------------------------------------------------------------------
 % Table of vector kernels
 %---------------------------------------------------------------------------
-\newpage
+%\newpage
 
 \newlength{\colone}
 \settowidth{\colone}{\id{N\_VGetArrayPointer}}
@@ -159,9 +180,9 @@ It is recommended that a user-supplied {\nvector} implementation use the
 \begin{xtabular}{|p{\colone}|p{\coltwo}|}
 %%
 \id{N\_VGetVectorID} & \id{id = N\_VGetVectorID(w);} \\ 
-& Returns the vector type identifier for the vector \id{w}. It is used to determine
+& Returns the vector type identifier for the vector \id{w}. It is used to determine the
 vector implementation type (e.g.~serial, parallel,\ldots) from the abstract 
-\id{N\_Vector} interface.
+\id{N\_Vector} interface.  Returned values are given in Table \ref{t:vectorIDs}.
 \\[2mm]
 %%
 \id{N\_VClone} & \id{v = N\_VClone(w);} \\ 
@@ -379,7 +400,6 @@ of threads (if threaded implementation), and a print timing flag.
 
 \noindent The following is a list of the example functions in \id{test\_nvector.c}:
 \begin{itemize}
-\item \id{N\_VGetVectorID}: Returns vector type identifier.
 \item \id{Test\_N\_VClone}: Creates clone of vector and checks validity of clone.  
 \item \id{Test\_N\_VCloneEmpty}: Creates clone of empty vector and checks validity of clone.  
 \item \id{Test\_N\_VCloneVectorArray}: Creates clone of vector array and checks validity of cloned array.  

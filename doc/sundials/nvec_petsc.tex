@@ -8,7 +8,7 @@ an {\mpi} communicator, and a boolean flag {\em own\_data} indicating ownership 
 the wrapped {\petsc} vector.
 %%
 \begin{verbatim} 
-struct _N_VectorContent_petsc {
+struct _N_VectorContent_Petsc {
   long int local_length;
   long int global_length;
   booleantype own_data;
@@ -30,13 +30,14 @@ Note that {\nvecpetsc} requires {\sundials} to be built with {\mpi} support.
 %%
 The {\nvecpetsc} module defines implementations of all vector operations listed 
 in Table \ref{t:nvecops}, except for \verb|N_VGetArrayPointer| and 
-\verb|N_VSetArrayPointer|. When access to raw vector data is needed, it is 
+\verb|N_VSetArrayPointer|. As such, this vector cannot be used with {\sundials} Fortran interfaces.
+When access to raw vector data is needed, it is 
 recommended to extract the {\petsc} vector first, and then use {\petsc} 
-methods to access the data. A usage example of {\nvecpetsc} is provided in 
+methods to access the data. Usage examples of {\nvecpetsc} are provided in 
 example programs for {\ida} \cite{ida_ex}.
 
 The names of vector operations are obtained from those in 
-Table \ref{t:nvecops} by appending the suffix \id{\_petsc} (e.g. \id{N\_VDestroy\_petsc}).
+Table \ref{t:nvecops} by appending the suffix \id{\_petsc} (e.g. \id{N\_VDestroy\_Petsc}).
 The module {\nvecpetsc}  provides the following additional user-callable routines:
 %%
 %%
@@ -45,15 +46,14 @@ The module {\nvecpetsc}  provides the following additional user-callable routine
   
 %%--------------------------------------
 
-\item \ID{N\_VNewEmpty\_petsc}
+\item \ID{N\_VNewEmpty\_Petsc}
  
   This function creates a new {\nvector} wrapper with the pointer to
   the wrapped {\petsc} vector set to (\id{NULL}). It is used by the 
-  \id{N\_VMake\_petsc} and \id{N\_VClone\_petsc} implementations. 
-  It should be used only with great caution.
+  \id{N\_VMake\_Petsc} and \id{N\_VClone\_Petsc} implementations. 
 
 \begin{verbatim}
-N_Vector N_VNewEmpty_petsc(MPI_Comm comm, 
+N_Vector N_VNewEmpty_Petsc(MPI_Comm comm, 
                            long int local_length, 
                            long int global_length);
 \end{verbatim}
@@ -61,68 +61,68 @@ N_Vector N_VNewEmpty_petsc(MPI_Comm comm,
   
 %%--------------------------------------
 
-\item \ID{N\_VMake\_petsc}
+\item \ID{N\_VMake\_Petsc}
   
-  This function creates and allocates memory for a {\nvecpetsc}
+  This function creates and allocates memory for an {\nvecpetsc}
   wrapper around a user-provided {\petsc} vector. It does {\em not} 
   allocate memory for the vector \id{pvec} itself.
 
 \begin{verbatim}
-N_Vector N_VMake_petsc(Vec *pvec);
+N_Vector N_VMake_Petsc(Vec *pvec);
 \end{verbatim}
 
 %%--------------------------------------
 
-\item \ID{N\_VGetVector\_petsc}
+\item \ID{N\_VGetVector\_Petsc}
   
   This function returns a pointer to the underlying {\petsc} vector.
 
 \begin{verbatim}
-Vec *N_VGetVector_petsc(N_Vector v);
+Vec *N_VGetVector_Petsc(N_Vector v);
 \end{verbatim}
 
 %%--------------------------------------
 
 
-\item \ID{N\_VCloneVectorArray\_petsc}
+\item \ID{N\_VCloneVectorArray\_Petsc}
  
   This function creates (by cloning) an array of \id{count} {\nvecpetsc} vectors.
  
 \begin{verbatim}
-N_Vector *N_VCloneVectorArray_petsc(int count, N_Vector w);
+N_Vector *N_VCloneVectorArray_Petsc(int count, N_Vector w);
 \end{verbatim}
 
 %%--------------------------------------
 
-\item \ID{N\_VCloneVectorArrayEmpty\_petsc}
+\item \ID{N\_VCloneVectorArrayEmpty\_Petsc}
  
   This function creates (by cloning) an array of \id{count} {\nvecpetsc} vectors,
   each with pointers to {\petsc} vectors set to (\id{NULL}).
  
 \begin{verbatim}
-N_Vector *N_VCloneEmptyVectorArray_petsc(int count, N_Vector w);
+N_Vector *N_VCloneEmptyVectorArray_Petsc(int count, N_Vector w);
 \end{verbatim}
 
 %%--------------------------------------
 
-\item \ID{N\_VDestroyVectorArray\_petsc}
+\item \ID{N\_VDestroyVectorArray\_Petsc}
  
  This function frees memory allocated for the array of \id{count} variables of
- type \id{N\_Vector} created with \id{N\_VCloneVectorArray\_petsc} or with
- \id{N\_VCloneVectorArrayEmpty\_petsc}.
+ type \id{N\_Vector} created with \id{N\_VCloneVectorArray\_Petsc} or with
+ \id{N\_VCloneVectorArrayEmpty\_Petsc}.
  
 
- \verb|void N_VDestroyVectorArray_petsc(N_Vector *vs, int count);|
+ \verb|void N_VDestroyVectorArray_Petsc(N_Vector *vs, int count);|
 
 
 %%--------------------------------------
 
-\item \ID{N\_VPrint\_petsc}
+\item \ID{N\_VPrint\_Petsc}
   
   This function prints the content of a wrapped {\petsc} vector to stdout.
  
     
-  \verb|void N_VPrint_petsc(N_Vector v);|
+  \verb|void N_VPrint_Petsc(N_Vector v);|
 
 
 \end{itemize}
@@ -134,15 +134,15 @@ N_Vector *N_VCloneEmptyVectorArray_petsc(int count, N_Vector w);
 \begin{itemize}
                                         
 \item
-  When there is a need to access components of an \id{N\_Vector} \id{v}, 
+  When there is a need to access components of an \id{N\_Vector\_Petsc}, \id{v}, 
   it is recommeded to extract the {\petsc} vector via       
-  \id{x\_vec = N\_VGetVector\_petsc(v)} and then access components using 
+  \id{x\_vec = N\_VGetVector\_Petsc(v)} and then access components using 
   appropriate {\petsc} functions.        
                                                                
 \item
-  {\warn}The functions \id{N\_VNewEmpty\_petsc}, \id{N\_VMake\_petsc}, and
-  \id{N\_VCloneVectorArrayEmpty\_petsc} set the field {\em own\_data} to \id{FALSE}.   
-  \id{N\_VDestroy\_petsc} and \id{N\_VDestroyVectorArray\_petsc}
+  {\warn}The functions \id{N\_VNewEmpty\_Petsc}, \id{N\_VMake\_Petsc}, and
+  \id{N\_VCloneVectorArrayEmpty\_Petsc} set the field {\em own\_data} to \id{FALSE}.   
+  \id{N\_VDestroy\_Petsc} and \id{N\_VDestroyVectorArray\_Petsc}
   will not attempt to free the pointer {\em pvec} for any \id{N\_Vector} with
   {\em own\_data} set to \id{FALSE}. In such a case, it is the user's responsibility to
   deallocate the {\em pvec} pointer.
@@ -150,7 +150,7 @@ N_Vector *N_VCloneEmptyVectorArray_petsc(int count, N_Vector w);
 \item
   {\warn}To maximize efficiency, vector operations in the {\nvecpetsc} implementation
   that have more than one \id{N\_Vector} argument do not check for
-  consistent internal representation of these vectors. It is the user's 
+  consistent internal representations of these vectors. It is the user's 
   responsibility to ensure that such routines are called with \id{N\_Vector}
   arguments that were all created with the same internal representations.
 

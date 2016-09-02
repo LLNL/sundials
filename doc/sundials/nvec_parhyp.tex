@@ -1,5 +1,5 @@
 % This is a shared SUNDIALS TEX file with description of
-% the MPI parallel hypre nvector implementation
+% the MPI parallel ParHyp hypre nvector implementation
 %
 The {\nvecph} implementation of the {\nvector} module provided with
 {\sundials} is a wrapper around {\hypre}'s ParVector class. 
@@ -22,8 +22,6 @@ struct _N_VectorContent_ParHyp {
 \end{verbatim}
 %%
 %%--------------------------------------------
-
-\noindent
 The header file to be included when using this module is \id{nvector\_parhyp.h}.
 Unlike native {\sundials} vector types, {\nvecph} does not provide macros 
 to access its member variables.
@@ -34,10 +32,13 @@ to access its member variables.
 The {\nvecph} module defines implementations of all vector operations 
 listed in Table \ref{t:nvecops}, except for \id{N\_VSetArrayPointer} and 
 \id{N\_VGetArrayPointer}, because accessing raw vector data is handled by 
-low-level {\hypre} functions. When access to raw vector data is needed, one 
+low-level {\hypre} functions. 
+As such, this vector is not available for use with {\sundials} Fortran interfaces.
+When access to raw vector data is needed, one 
 should extract {\hypre} vector first, and then use {\hypre} 
 methods to access the data. Usage examples of {\nvecph} are provided in 
-example programs for {\cvode} \cite{cvode_ex} and {\arkode} \cite{arkode_ex}.
+the \id{cvAdvDiff\_non\_ph.c} example program for {\cvode} \cite{cvode_ex} 
+and the \id{ark\_diurnal\_kry\_ph.c} example program for {\arkode} \cite{arkode_ex}.
 
 The names of parhyp methods are obtained from those in Table \ref{t:nvecops}
 by appending the suffix \id{\_ParHyp} (e.g. \id{N\_VDestroy\_ParHyp}).
@@ -50,7 +51,7 @@ The module {\nvecph} provides the following additional user-callable routines:
 
 \item \ID{N\_VNewEmpty\_ParHyp}
  
-  This function creates a new parhyp \id{N\_Vector} with pointer to {\hypre} 
+  This function creates a new parhyp \id{N\_Vector} with the pointer to the {\hypre} 
   vector set to \id{NULL}.
 
 
@@ -65,7 +66,7 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
 
 \item \ID{N\_VMake\_ParHyp}
   
-  This function creates \verb|N_Vector| wrapper around an existing
+  This function creates an \verb|N_Vector| wrapper around an existing
   {\hypre} parallel vector. It does {\em not} allocate memory for \id{x} 
   itself.  
 
@@ -136,7 +137,7 @@ N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w);
 \begin{itemize}
                                         
 \item
-  When there is a need to access components of an \id{N\_Vector} \id{v}, 
+  When there is a need to access components of an \id{N\_Vector\_ParHyp}, \id{v}, 
   it is recommended to extract the {\hypre} vector via       
   \id{x\_vec = N\_VGetVector\_ParHyp(v)} and then access components using 
   appropriate {\hypre} functions.        
@@ -146,14 +147,14 @@ N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w);
   and \id{N\_VCloneVectorArrayEmpty\_ParHyp} set the field 
   {\em own\_parvector} to \id{FALSE}. 
   \id{N\_VDestroy\_ParHyp} and \id{N\_VDestroyVectorArray\_ParHyp}
-  will not attempt to delete underlying {\hypre} vector for any \id{N\_Vector} 
+  will not attempt to delete an underlying {\hypre} vector for any \id{N\_Vector} 
   with {\em own\_parvector} set to \id{FALSE}. In such a case, it is the 
   user's responsibility to delete the underlying vector.
 
 \item
   {\warn}To maximize efficiency, vector operations in the {\nvecph} implementation
   that have more than one \id{N\_Vector} argument do not check for
-  consistent internal representation of these vectors. It is the user's 
+  consistent internal representations of these vectors. It is the user's 
   responsibility to ensure that such routines are called with \id{N\_Vector}
   arguments that were all created with the same internal representations.
 
