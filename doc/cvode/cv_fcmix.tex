@@ -522,9 +522,10 @@ section of Chapter \ref{s:nvector}.
   Alternatively, to use the \id{SuperLUMT} linear solver,
   the user must make the call:
 \begin{verbatim}
-      CALL FCVSUPERLUMT (NEQ, NNZ, ORDERING, IER)
+      CALL FCVSUPERLUMT (NTHREADS, NEQ, NNZ, ORDERING, IER)
 \end{verbatim}
-  where the arguments have the same meanings as for \id{FCVKLU}, except
+  where \id{NTHREADS} is the number of threads requested and the other 
+  arguments have the same meanings as for \id{FCVKLU}, except
   that here possible values for \id{ORDERING} derive from the {\superlumt} 
   package and include: 0 for Natural ordering, 1 for Minimum degree on $A^T A$,
   2 for Minimum degree on $A^T + A$, and 3 for COLAMD.
