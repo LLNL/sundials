@@ -56,7 +56,7 @@ Approved for public release; further dissemination unlimited
 }
 
 \title{User Documentation for ARKode v1.1.0\\
-       (SUNDIALS v2.9.0)}
+       (SUNDIALS v2.7.0)}
 \author{
   Daniel R. Reynolds$^1$, David J. Gardner$^2$, \\
   Alan C. Hindmarsh$^2$, Carol S. Woodward$^2$ \\
@@ -18290,29 +18290,702 @@ must return \emph{IER = 0}.
 
 \chapter{Vector Data Structures}
 \label{nvectors/index:nvectors}\label{nvectors/index::doc}\label{nvectors/index:vector-data-structures}
-The SUNDIALS library comes packaged with five NVECTOR implementations,
-one designed for serial simulations, two designed for shared-memory
-parallel simulations (via OpenMP and Pthreads), one for
-distributed-memory parallel simulations (via MPI), and one designed
-for parallel/threaded simulations that interface with the HYPRE suite
-of parallel preconditioners.  All implementations assume that the
+The SUNDIALS library comes packaged with a variety of NVECTOR
+implementations, designed for simulations in serial, shared-memory
+parallel, and distributed-memory parallel environments, as well as
+interfaces to vector data structures used within external linear
+solver libraries.  All native implementations assume that the
 process-local data is stored contiguously, and they in turn provide a
 variety of standard vector algebra operations that may be performed on
 the data.
 
 In addition, SUNDIALS provides a simple interface for generic vectors
 (akin to a C++ \emph{abstract base class}).  All of the major SUNDIALS
-solvers (CVODE, IDA, KINSOL, ARKODE) in turn are constructed to only
-depend on these generic vector operations, making them immediately
+solvers (CVODE(s), IDA(s), KINSOL, ARKODE) in turn are constructed to
+only depend on these generic vector operations, making them immediately
 extensible to new user-defined vector objects.  The only exceptions to
-this rule relate to the dense and banded linear system solvers, since
-they rely on particular data storage and access patterns in the
-NVECTORS used.
+this rule relate to the dense, banded and sparse-direct linear system
+solvers, since they rely on particular data storage and access
+patterns in the NVECTORS used.
 
-Details on the generic NVECTOR module are below.  However, to jump to
-specific descriptions of the various vector modules provided by
-SUNDIALS, or ARKode's requirements for routines comprising a
-user-supplied NVECTOR module, the following links are provided:
+
+\section{Description of the NVECTOR Modules}
+\label{nvectors/NVector_Description:description-of-the-nvector-modules}\label{nvectors/NVector_Description:nvectors-description}\label{nvectors/NVector_Description::doc}
+The SUNDIALS solvers are written in a data-independent manner. They
+all operate on generic vectors (of type \code{N\_Vector}) through a set of
+operations defined by, and specific to, the particular NVECTOR
+implementation. Users can provide a custom implementation of the
+NVECTOR module or use one of four provided within SUNDIALS -- a serial
+and three parallel implementations.  The generic operations are
+described below.  In the sections following, the implementations
+provided with SUNDIALS are described.
+
+The generic \code{N\_Vector} type is a pointer to a structure that has an
+implementation-dependent \emph{content} field containing the description
+and actual data of the vector, and an \emph{ops} field pointing to a
+structure with generic vector operations. The type \code{N\_Vector} is
+defined as:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{typedef} \PYG{k}{struct} \PYG{n}{\PYGZus{}generic\PYGZus{}N\PYGZus{}Vector} \PYG{o}{*}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{;}
+
+\PYG{k}{struct} \PYG{n}{\PYGZus{}generic\PYGZus{}N\PYGZus{}Vector} \PYG{p}{\PYGZob{}}
+   \PYG{k+kt}{void} \PYG{o}{*}\PYG{n}{content}\PYG{p}{;}
+   \PYG{k}{struct} \PYG{n}{\PYGZus{}generic\PYGZus{}N\PYGZus{}Vector\PYGZus{}Ops} \PYG{o}{*}\PYG{n}{ops}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\end{Verbatim}
+
+Here, the \code{\_generic\_N\_Vector\_Op} structure is essentially a list of
+function pointers to the various actual vector operations, and is
+defined as
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{struct} \PYG{n}{\PYGZus{}generic\PYGZus{}N\PYGZus{}Vector\PYGZus{}Ops} \PYG{p}{\PYGZob{}}
+   \PYG{n}{N\PYGZus{}Vector\PYGZus{}ID} \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvgetvectorid}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{N\PYGZus{}Vector}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvclone}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{N\PYGZus{}Vector}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvcloneempty}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvdestroy}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvspace}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{k+kt}{long} \PYG{k+kt}{int} \PYG{o}{*}\PYG{p}{,} \PYG{k+kt}{long} \PYG{k+kt}{int} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}\PYG{o}{*}   \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvgetarraypointer}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvsetarraypointer}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvlinearsum}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvconst}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvprod}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvdiv}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvscale}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvabs}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvinv}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvaddconst}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvdotprod}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvmaxnorm}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwrmsnorm}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwrmsnormmask}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvmin}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwl2norm}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvl1norm}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvcompare}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{booleantype} \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvinvtest}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{booleantype} \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvconstrmask}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvminquotient}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\end{Verbatim}
+
+The generic NVECTOR module defines and implements the vector
+operations acting on a \code{N\_Vector}. These routines are nothing but
+wrappers for the vector operations defined by a particular NVECTOR
+implementation, which are accessed through the \emph{ops} field of the
+\code{N\_Vector} structure. To illustrate this point we show below the
+implementation of a typical vector operation from the generic NVECTOR
+module, namely \code{N\_VScale}, which performs the scaling of a vector
+\code{x} by a scalar \code{c}:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kt}{void} \PYG{n+nf}{N\PYGZus{}VScale}\PYG{p}{(}\PYG{n}{realtype} \PYG{n}{c}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{n}{x}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{n}{z}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+   \PYG{n}{z}\PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZgt{}}\PYG{n}{ops}\PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZgt{}}\PYG{n}{nvscale}\PYG{p}{(}\PYG{n}{c}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}
+
+The subsection {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}} contains a complete list of all
+vector operations defined by the generic NVECTOR module.  Finally, we
+note that the generic NVECTOR module defines the functions
+\code{N\_VCloneVectorArray} and \code{N\_VCloneVectorArrayEmpty}. Both
+functions create (by cloning) an array of \emph{count} variables of type
+\code{N\_Vector}, each of the same type as an existing \code{N\_Vector}. Their
+prototypes are:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n+nf}{N\PYGZus{}VCloneVectorArray}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{count}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n+nf}{N\PYGZus{}VCloneVectorArrayEmpty}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{count}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+and their definitions are based on the implementation-specific
+\code{N\_VClone} and \code{N\_VCloneEmpty} operations, respectively.
+
+Similarly, an array of variables of type \code{N\_Vector} can be destroyed
+by calling \code{N\_VDestroyVectorArray}, whose prototype is
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kt}{void} \PYG{n+nf}{N\PYGZus{}VDestroyVectorArray}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n}{vs}\PYG{p}{,} \PYG{k+kt}{int} \PYG{n}{count}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+and whose definition is based on the implementation-specific
+\code{N\_VDestroy} operation.
+
+In particular, any implementation of the NVECTOR module \textbf{must}:
+\begin{itemize}
+\item {} 
+Specify the \emph{content} field of the \code{N\_Vector}.
+
+\item {} 
+Define and implement the necessary vector operations. Note that the
+names of these routines should be unique to that implementation in
+order to permit using more than one NVECTOR module (each with
+different \code{N\_Vector} internal data representations) in the same
+code.  We further note that not all of the defined operations are
+required for each solver in SUNDIALS.  The list of required
+operations for use with ARKode is given in the section
+{\hyperref[nvectors/ARKode_requirements:nvectors-arkode]{\emph{\DUspan{}{NVECTOR functions required by ARKode}}}}.
+
+\item {} 
+Define and implement user-callable constructor and destructor
+routines to create and free a \code{N\_Vector} with the new \emph{content}
+field and with \emph{ops} pointing to the new vector operations.
+
+\item {} 
+Optionally, define and implement additional user-callable routines
+acting on the newly defined \code{N\_Vector} (e.g., a routine to print the
+\emph{content} for debugging purposes).
+
+\item {} 
+Optionally, provide accessor macros as needed for that particular
+implementation to be used to access different parts in the content
+field of the newly defined \code{N\_Vector}.
+
+\end{itemize}
+
+Each NVECTOR implementation included in SUNDIALS has a unique
+identifier specified in enumeration and shown in the table below.
+It is recommended that a user supplied NVECTOR implementation use the
+\code{SUNDIALS\_NVEC\_CUSTOM} identifier.
+
+
+\subsection{Vector Identifications associated with vector kernels supplied with SUNDIALS}
+\label{nvectors/NVector_Description:nvector-vectorids}\label{nvectors/NVector_Description:vector-identifications-associated-with-vector-kernels-supplied-with-sundials}
+\begin{tabulary}{\linewidth}{|L|L|L|}
+\hline
+\textsf{\relax 
+Vector ID
+} & \textsf{\relax 
+Vector type
+} & \textsf{\relax 
+ID Value
+}\\
+\hline
+SUNDIALS\_NVEC\_SERIAL
+ & 
+Serial
+ & 
+0
+\\
+\hline
+SUNDIALS\_NVEC\_PARALLEL
+ & 
+Distributed memory parallel (MPI)
+ & 
+1
+\\
+\hline
+SUNDIALS\_NVEC\_OPENMP
+ & 
+OpenMP shared memory parallel
+ & 
+2
+\\
+\hline
+SUNDIALS\_NVEC\_PTHREADS
+ & 
+PThreads shared memory parallel
+ & 
+3
+\\
+\hline
+SUNDIALS\_NVEC\_PARHYP
+ & 
+\emph{hypre} ParHyp parallel vector
+ & 
+4
+\\
+\hline
+SUNDIALS\_NVEC\_PETSC
+ & 
+PETSc parallel vector
+ & 
+5
+\\
+\hline
+SUNDIALS\_NVEC\_CUSTOM
+ & 
+User-provided custom vector
+ & 
+6
+\\
+\hline\end{tabulary}
+
+
+
+\section{Description of the NVECTOR operations}
+\label{nvectors/NVector_Operations:nvectors-ops}\label{nvectors/NVector_Operations::doc}\label{nvectors/NVector_Operations:description-of-the-nvector-operations}
+For each of the \code{N\_Vector} operations, we give the name, usage
+of the function, and a description of its mathematical operations
+below.
+\index{N\_VGetVectorID (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VGetVectorID}\pysiglinewithargsret{N\_Vector\_ID \bfcode{N\_VGetVectorID}}{N\_Vector\emph{ w}}{}
+Returns the vector type identifier for the vector \code{w}.  It is
+used to determine the vector implementation type (e.g. serial,
+parallel, ...) from the abstract \code{N\_Vector} interface.  Returned
+values are given in the table, {\hyperref[nvectors/NVector_Description:nvector-vectorids]{\emph{\DUspan{}{Vector Identifications associated with vector kernels supplied with SUNDIALS}}}}
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{id} \PYG{o}{=} \PYG{n}{N\PYGZus{}VGetVectorID}\PYG{p}{(}\PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VClone (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VClone}\pysiglinewithargsret{N\_Vector \bfcode{N\_VClone}}{N\_Vector\emph{ w}}{}
+Creates a new \code{N\_Vector} of the same type as an existing vector
+\emph{w} and sets the \emph{ops} field.  It does not copy the vector, but
+rather allocates storage for the new vector.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{v} \PYG{o}{=} \PYG{n}{N\PYGZus{}VClone}\PYG{p}{(}\PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VCloneEmpty (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VCloneEmpty}\pysiglinewithargsret{N\_Vector \bfcode{N\_VCloneEmpty}}{N\_Vector\emph{ w}}{}
+Creates a new \code{N\_Vector} of the same type as an existing vector
+\emph{w} and sets the \emph{ops} field.  It does not allocate storage for the
+new vector's data.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{v} \PYG{o}{=} \PYG{n}{N} \PYG{n}{VCloneEmpty}\PYG{p}{(}\PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VDestroy (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VDestroy}\pysiglinewithargsret{void \bfcode{N\_VDestroy}}{N\_Vector\emph{ v}}{}
+Destroys the \code{N\_Vector} \emph{v} and frees memory allocated for its
+internal data.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{N\PYGZus{}VDestroy}\PYG{p}{(}\PYG{n}{v}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VSpace (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VSpace}\pysiglinewithargsret{void \bfcode{N\_VSpace}}{N\_Vector\emph{ v}, long int*\emph{ lrw}, long int*\emph{ liw}}{}
+Returns storage requirements for the \code{N\_Vector} \emph{v}: \emph{lrw} contains
+the number of \code{realtype} words and \emph{liw} contains the number of
+integer words.  This function is advisory only, for use in
+determining a user's total space requirements; it could be a dummy
+function in a user-supplied NVECTOR module if that information is
+not of interest.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{N\PYGZus{}VSpace}\PYG{p}{(}\PYG{n}{nvSpec}\PYG{p}{,} \PYG{o}{\PYGZam{}}\PYG{n}{lrw}\PYG{p}{,} \PYG{o}{\PYGZam{}}\PYG{n}{liw}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VGetArrayPointer (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VGetArrayPointer}\pysiglinewithargsret{realtype* \bfcode{N\_VGetArrayPointer}}{N\_Vector\emph{ v}}{}
+Returns a pointer to a \code{realtype} array from the \code{N\_Vector}
+\emph{v}.  Note that this assumes that the internal data in the
+\code{N\_Vector} is a contiguous array of \code{realtype}. This routine is
+only used in the solver-specific interfaces to the dense and banded
+(serial) linear solvers, and in the interfaces to the banded
+(serial) and band-block-diagonal (parallel) preconditioner modules
+provided with SUNDIALS.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{vdata} \PYG{o}{=} \PYG{n}{NVGetArrayPointer}\PYG{p}{(}\PYG{n}{v}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VSetArrayPointer (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VSetArrayPointer}\pysiglinewithargsret{void \bfcode{N\_VSetArrayPointer}}{realtype*\emph{ vdata}, N\_Vector\emph{ v}}{}
+Replaces the data array pointer in an \code{N\_Vector} with a given
+array of \code{realtype}.  Note that this assumes that the internal
+data in the \code{N\_Vector} is a contiguous array of
+\code{realtype}. This routine is only used in the interfaces to the
+dense (serial) linear solver, hence need not exist in a
+user-supplied NVECTOR module.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{NVSetArrayPointer}\PYG{p}{(}\PYG{n}{vdata}\PYG{p}{,}\PYG{n}{v}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VLinearSum (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VLinearSum}\pysiglinewithargsret{void \bfcode{N\_VLinearSum}}{realtype\emph{ a}, N\_Vector\emph{ x}, realtype\emph{ b}, N\_Vector\emph{ y}, N\_Vector\emph{ z}}{}
+Performs the operation \emph{z = ax + by}, where \emph{a} and \emph{b} are
+\code{realtype} scalars and \emph{x} and \emph{y} are of type \code{N\_Vector}:
+\begin{gather}
+\begin{split}z_i = a x_i + b y_i, \quad i=1,\ldots,n.\end{split}\notag
+\end{gather}
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{N\PYGZus{}VLinearSum}\PYG{p}{(}\PYG{n}{a}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{b}\PYG{p}{,} \PYG{n}{y}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VConst (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VConst}\pysiglinewithargsret{void \bfcode{N\_VConst}}{realtype\emph{ c}, N\_Vector\emph{ z}}{}
+Sets all components of the \code{N\_Vector} \emph{z} to \code{realtype} \emph{c}:
+\begin{gather}
+\begin{split}z_i = c, \quad i=1,\ldots,n.\end{split}\notag
+\end{gather}
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{N\PYGZus{}VConst}\PYG{p}{(}\PYG{n}{c}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VProd (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VProd}\pysiglinewithargsret{void \bfcode{N\_VProd}}{N\_Vector\emph{ x}, N\_Vector\emph{ y}, N\_Vector\emph{ z}}{}
+Sets the \code{N\_Vector} \emph{z} to be the component-wise product of the
+\code{N\_Vector} inputs \emph{x} and \emph{y}:
+\begin{gather}
+\begin{split}z_i = x_i y_i, \quad i=1,\ldots,n.\end{split}\notag
+\end{gather}
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{N\PYGZus{}VProd}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{y}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VDiv (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VDiv}\pysiglinewithargsret{void \bfcode{N\_VDiv}}{N\_Vector\emph{ x}, N\_Vector\emph{ y}, N\_Vector\emph{ z}}{}
+Sets the \code{N\_Vector} \emph{z} to be the component-wise ratio of the
+\code{N\_Vector} inputs \emph{x} and \emph{y}:
+\begin{gather}
+\begin{split}z_i = \frac{x_i}{y_i}, \quad i=1,\ldots,n.\end{split}\notag
+\end{gather}
+The \(y_i\) may not be tested for 0 values. It should only be
+called with a \emph{y} that is guaranteed to have all nonzero components.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{N\PYGZus{}VDiv}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{y}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VScale (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VScale}\pysiglinewithargsret{void \bfcode{N\_VScale}}{realtype\emph{ c}, N\_Vector\emph{ x}, N\_Vector\emph{ z}}{}
+Scales the \code{N\_Vector} \emph{x} by the \code{realtype} scalar \emph{c} and
+returns the result in \emph{z}:
+\begin{gather}
+\begin{split}z_i = c x_i, \quad i=1,\ldots,n.\end{split}\notag
+\end{gather}
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{N\PYGZus{}VScale}\PYG{p}{(}\PYG{n}{c}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VAbs (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VAbs}\pysiglinewithargsret{void \bfcode{N\_VAbs}}{N\_Vector\emph{ x}, N\_Vector\emph{ z}}{}
+Sets the components of the \code{N\_Vector} \emph{z} to be the absolute
+values of the components of the \code{N\_Vector} \emph{x}:
+\begin{gather}
+\begin{split}y_i = |x_i|, \quad i=1,\ldots,n.\end{split}\notag
+\end{gather}
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{N\PYGZus{}VAbs}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VInv (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VInv}\pysiglinewithargsret{void \bfcode{N\_VInv}}{N\_Vector\emph{ x}, N\_Vector\emph{ z}}{}
+Sets the components of the \code{N\_Vector} \emph{z} to be the inverses of
+the components of the \code{N\_Vector} \emph{x}:
+\begin{gather}
+\begin{split}z_i = 1.0/x_i, \quad i=1,\ldots,n.\end{split}\notag
+\end{gather}
+This routine may not check for division by 0.  It should be called
+only with an \emph{x} which is guaranteed to have all nonzero components.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{N\PYGZus{}VInv}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VAddConst (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VAddConst}\pysiglinewithargsret{void \bfcode{N\_VAddConst}}{N\_Vector\emph{ x}, realtype\emph{ b}, N\_Vector\emph{ z}}{}
+Adds the \code{realtype} scalar \emph{b} to all components of \emph{x} and
+returns the result in the \code{N\_Vector} \emph{z}:
+\begin{gather}
+\begin{split}z_i = x_i+b, \quad i=1,\ldots,n.\end{split}\notag
+\end{gather}
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{N\PYGZus{}VAddConst}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{b}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VDotProd (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VDotProd}\pysiglinewithargsret{realtype \bfcode{N\_VDotProd}}{N\_Vector\emph{ x}, N\_Vector\emph{ z}}{}
+Returns the value of the dot-product of the \code{N\_Vectors} \emph{x} and \emph{y}:
+\begin{gather}
+\begin{split}d = \sum_{i=1}^{n} x_i y_i.\end{split}\notag
+\end{gather}
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{d} \PYG{o}{=} \PYG{n}{N\PYGZus{}VDotProd}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{y}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VMaxNorm (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VMaxNorm}\pysiglinewithargsret{realtype \bfcode{N\_VMaxNorm}}{N\_Vector\emph{ x}}{}
+Returns the value of the \(l_{\infty}\) norm of the
+\code{N\_Vector} \emph{x}:
+\begin{gather}
+\begin{split}m = \max_{1\le i\le n} |x_i|.\end{split}\notag
+\end{gather}
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{m} \PYG{o}{=} \PYG{n}{N\PYGZus{}VMaxNorm}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VWrmsNorm (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VWrmsNorm}\pysiglinewithargsret{realtype \bfcode{N\_VWrmsNorm}}{N\_Vector\emph{ x}, N\_Vector\emph{ w}}{}
+Returns the weighted root-mean-square norm of the \code{N\_Vector} \emph{x}
+with (positive) \code{realtype} weight vector \emph{w}:
+\begin{gather}
+\begin{split}m = \left( \frac1n \sum_{i=1}^{n} \left(x_i w_i\right)^2\right)^{1/2}.\end{split}\notag
+\end{gather}
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{m} \PYG{o}{=} \PYG{n}{N\PYGZus{}VWrmsNorm}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VWrmsNormMask (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VWrmsNormMask}\pysiglinewithargsret{realtype \bfcode{N\_VWrmsNormMask}}{N\_Vector\emph{ x}, N\_Vector\emph{ w}, N\_Vector\emph{ id}}{}
+Returns the weighted root mean square norm of the \code{N\_Vector} \emph{x}
+with (positive) \code{realtype} weight vector \emph{w} built using only the
+elements of \emph{x} corresponding to nonzero elements of the
+\code{N\_Vector} \emph{id}:
+\begin{gather}
+\begin{split}m = \left( \frac1n \sum_{i=1}^{n} \left(x_i w_i \text{sign}(id_i)\right)^2 \right)^{1/2}.\end{split}\notag
+\end{gather}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{m} \PYG{o}{=} \PYG{n}{N\PYGZus{}VWrmsNormMask}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{w}\PYG{p}{,} \PYG{n}{id}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VMin (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VMin}\pysiglinewithargsret{realtype \bfcode{N\_VMin}}{N\_Vector\emph{ x}}{}
+Returns the smallest element of the \code{N\_Vector} \emph{x}:
+\begin{gather}
+\begin{split}m = \min_{1\le i\le n} x_i.\end{split}\notag
+\end{gather}
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{m} \PYG{o}{=} \PYG{n}{N\PYGZus{}VMin}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VWl2Norm (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VWl2Norm}\pysiglinewithargsret{realtype \bfcode{N\_VWl2Norm}}{N\_Vector\emph{ x}, N\_Vector\emph{ w}}{}
+Returns the weighted Euclidean \(l_2\) norm of the \code{N\_Vector}
+\emph{x} with \code{realtype} weight vector \emph{w}:
+\begin{gather}
+\begin{split}m = \left(\sum_{i=1}^{n}\left(x_i w_i\right)^2\right)^{1/2}.\end{split}\notag
+\end{gather}
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{m} \PYG{o}{=} \PYG{n}{N\PYGZus{}VWL2Norm}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VL1Norm (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VL1Norm}\pysiglinewithargsret{realtype \bfcode{N\_VL1Norm}}{N\_Vector\emph{ x}}{}
+Returns the \(l_1\) norm of the \code{N\_Vector} \emph{x}:
+\begin{gather}
+\begin{split}m = \sum_{i=1}^{n} |x_i|.\end{split}\notag
+\end{gather}
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{m} \PYG{o}{=} \PYG{n}{N\PYGZus{}VL1Norm}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VCompare (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VCompare}\pysiglinewithargsret{void \bfcode{N\_VCompare}}{realtype\emph{ c}, N\_Vector\emph{ x}, N\_Vector\emph{ z}}{}
+Compares the components of the \code{N\_Vector} \emph{x} to the \code{realtype}
+scalar \emph{c} and returns an \code{N\_Vector} \emph{z} such that for all
+\(1\le i\le n\),
+\begin{gather}
+\begin{split}z_i = \begin{cases} 1.0 &\quad\text{if}\; |x_i| \ge c,\\
+                    0.0 &\quad\text{otherwise}\end{cases}.\end{split}\notag
+\end{gather}
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{N\PYGZus{}VCompare}\PYG{p}{(}\PYG{n}{c}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VInvTest (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VInvTest}\pysiglinewithargsret{booleantype \bfcode{N\_VInvTest}}{N\_Vector\emph{ x}, N\_Vector\emph{ z}}{}
+Sets the components of the \code{N\_Vector} \emph{z} to be the inverses of
+the components of the \code{N\_Vector} \emph{x}, with prior testing for
+zero values:
+\begin{gather}
+\begin{split}z_i = 1.0/x_i, \quad i=1,\ldots,n.\end{split}\notag
+\end{gather}
+This routine returns a boolean assigned to \code{TRUE} if all
+components of \emph{x} are nonzero (successful inversion) and returns
+\code{FALSE} otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{t} \PYG{o}{=} \PYG{n}{N\PYGZus{}VInvTest}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VConstrMask (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VConstrMask}\pysiglinewithargsret{booleantype \bfcode{N\_VConstrMask}}{N\_Vector\emph{ c}, N\_Vector\emph{ x}, N\_Vector\emph{ m}}{}
+Performs the following constraint tests based on the values in
+\(c_i\):
+\begin{gather}
+\begin{split}x_i > 0 \;\text{if}\; c_i = 2, \\
+x_i \ge 0 \;\text{if}\; c_i = 1, \\
+x_i < 0 \;\text{if}\; c_i = -2, \\
+x_i \le 0 \;\text{if}\; c_i = -1.\end{split}\notag
+\end{gather}
+There is no constraint on \(x_i\) if \(c_i = 0\). This
+routine returns a boolean assigned to \code{FALSE} if any element
+failed the constraint test and assigned to \code{TRUE} if all
+passed. It also sets a mask vector \emph{m}, with elements equal to 1.0
+where the constraint test failed, and 0.0 where the test
+passed. This routine is used only for constraint checking.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{t} \PYG{o}{=} \PYG{n}{N\PYGZus{}VConstrMask}\PYG{p}{(}\PYG{n}{c}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{m}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VMinQuotient (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VMinQuotient}\pysiglinewithargsret{realtype \bfcode{N\_VMinQuotient}}{N\_Vector\emph{ num}, N\_Vector\emph{ denom}}{}
+This routine returns the minimum of the quotients obtained by
+termwise dividing the elements of \emph{n} by the elements in \emph{d}:
+\begin{gather}
+\begin{split}\min_{i=1,\ldots,n} \frac{\text{num}_i}{\text{denom}_i}.\end{split}\notag
+\end{gather}
+A zero element in \emph{denom} will be skipped.  If no such quotients
+are found, then the large value \code{BIG\_REAL} (defined in the header
+file \code{sundials\_types.h}) is returned.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{minq} \PYG{o}{=} \PYG{n}{N\PYGZus{}VMinQuotient}\PYG{p}{(}\PYG{n}{num}\PYG{p}{,} \PYG{n}{denom}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
 
 
 \section{The NVECTOR\_SERIAL Module}
@@ -18431,7 +19104,7 @@ Implementation:
 
 
 The NVECTOR\_SERIAL module defines serial implementations of all vector
-operations listed in the section {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}.  Their names are
+operations listed in the section {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}.  Their names are
 obtained from those in that section by appending the suffix
 \code{\_Serial} (e.g. \code{N\_VDestroy\_Serial}).  The module NVECTOR\_SERIAL
 provides the following additional user-callable routines:
@@ -18701,7 +19374,7 @@ Implementation:
 
 
 The NVECTOR\_PARALLEL module defines parallel implementations of all
-vector operations listed in the section {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}.  Their
+vector operations listed in the section {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}.  Their
 names are obtained from those that section by appending the suffix
 \code{\_Parallel} (e.g. \code{N\_VDestroy\_Parallel}).   The module
 NVECTOR\_PARALLEL provides the following additional user-callable
@@ -18981,7 +19654,7 @@ Implementation:
 
 
 The NVECTOR\_OPENMP module defines OpenMP implementations of all vector
-operations listed in the section {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}.  Their names are
+operations listed in the section {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}.  Their names are
 obtained from those in that section by appending the suffix
 \code{\_OpenMP} (e.g. \code{N\_VDestroy\_OpenMP}).  The module NVECTOR\_OPENMP
 provides the following additional user-callable routines:
@@ -19242,7 +19915,7 @@ Implementation:
 
 
 The NVECTOR\_PTHREADS module defines Pthreads implementations of all vector
-operations listed in the section {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}.  Their names are
+operations listed in the section {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}.  Their names are
 obtained from those in that section by appending the suffix
 \code{\_Pthreads} (e.g. N\_VDestroy\_Pthreads).  The module NVECTOR\_PTHREADS
 provides the following additional user-callable routines:
@@ -19386,23 +20059,25 @@ Unlike native SUNDIALS vector types, NVECTOR\_PARHYP does not provide macros
 to access its member variables.
 
 The NVECTOR\_PARHYP module defines implementations of all vector
-operations listed in the section {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, except for
+operations listed in the section {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, except for
 \code{N\_VSetArrayPointer} and \code{N\_VGetArrayPointer}, because accessing
-raw vector data is handled by low-level HYPRE functions.  When access
-to raw vector data is needed, one should extract the HYPRE HYPRE
-vector first, and then use HYPRE methods to access the data.  Usage
-examples of NVECTOR\_PARHYP are provided in example programs for CVODE
-and ARKode.
+raw vector data is handled by low-level HYPRE functions.  As such,
+this vector is not available for use with SUNDIALS Fortran
+interfaces.  When access to raw vector data is needed, one should
+extract the HYPRE HYPRE vector first, and then use HYPRE methods to
+access the data.  Usage examples of NVECTOR\_PARHYP are provided in
+the \code{cvAdvDiff\_non\_ph.c} example programs for CVODE and the
+\code{ark\_diurnal\_kry\_ph.c} example program for ARKode.
 
 The names of parhyp methods are obtained from those in the section
-{\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}} by appending the suffix \code{\_ParHyp}
+{\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}} by appending the suffix \code{\_ParHyp}
 (e.g. \code{N\_VDestroy\_ParHyp}).  The module \{nvecph\} provides the
 following additional user-callable routines:
 \index{N\_VNewEmpty\_ParHyp (C function)}
 
 \begin{fulllineitems}
 \phantomsection\label{nvectors/NVector_ParHyp:c.N_VNewEmpty_ParHyp}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNewEmpty\_ParHyp}}{MPI\_Comm\emph{ comm}, long int\emph{ local\_length}, long int\emph{ global\_length}}{}
-This function creates a new parhyp \code{N\_Vector} with pointer to
+This function creates a new parhyp \code{N\_Vector} with the pointer to the
 HYPRE vector set to \code{NULL}.
 
 \end{fulllineitems}
@@ -19465,7 +20140,7 @@ This function prints the content of a parhyp vector to \code{stdout}.
 \textbf{Notes}
 \begin{itemize}
 \item {} 
-When there is a need to access components of an \code{N\_Vector v},
+When there is a need to access components of an \code{N\_Vector\_ParHyp v},
 it is recommended to extract the HYPRE vector via
 \code{x\_vec = N\_VGetVector\_ParHyp(v)} and then access components using
 appropriate HYPRE functions.
@@ -19474,7 +20149,7 @@ appropriate HYPRE functions.
 {\hyperref[nvectors/NVector_ParHyp:c.N_VNewEmpty_ParHyp]{\emph{\code{N\_VNewEmpty\_ParHyp()}}}}, {\hyperref[nvectors/NVector_ParHyp:c.N_VMake_ParHyp]{\emph{\code{N\_VMake\_ParHyp()}}}}, and
 {\hyperref[nvectors/NVector_ParHyp:c.N_VCloneVectorArrayEmpty_ParHyp]{\emph{\code{N\_VCloneVectorArrayEmpty\_ParHyp()}}}} set the field \emph{own\_parvector}
 to \code{FALSE}.  The functions \code{N\_VDestroy\_ParHyp()} and
-{\hyperref[nvectors/NVector_ParHyp:c.N_VDestroyVectorArray_ParHyp]{\emph{\code{N\_VDestroyVectorArray\_ParHyp()}}}} will not attempt to delete the
+{\hyperref[nvectors/NVector_ParHyp:c.N_VDestroyVectorArray_ParHyp]{\emph{\code{N\_VDestroyVectorArray\_ParHyp()}}}} will not attempt to delete an
 underlying HYPRE vector for any \code{N\_Vector} with \emph{own\_parvector}
 set to \code{FALSE}.  In such a case, it is the user's responsibility
 to delete the underlying vector.
@@ -19482,7 +20157,7 @@ to delete the underlying vector.
 \item {} 
 To maximize efficiency, vector operations in the NVECTOR\_PARHYP
 implementation that have more than one \code{N\_Vector} argument do not
-check for consistent internal representation of these vectors. It is
+check for consistent internal representations of these vectors. It is
 the user's responsibility to ensure that such routines are called
 with \code{N\_Vector} arguments that were all created with the same
 internal representations.
@@ -19499,7 +20174,7 @@ the PETSc vector, an MPI communicator, and a boolean flag  \emph{own\_data}
 indicating ownership of the wrapped PETSc vector.
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}petsc} \PYG{p}{\PYGZob{}}
+\PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}Petsc} \PYG{p}{\PYGZob{}}
    \PYG{k+kt}{long} \PYG{k+kt}{int} \PYG{n}{local\PYGZus{}length}\PYG{p}{;}
    \PYG{k+kt}{long} \PYG{k+kt}{int} \PYG{n}{global\PYGZus{}length}\PYG{p}{;}
    \PYG{n}{booleantype} \PYG{n}{own\PYGZus{}data}\PYG{p}{;}
@@ -19514,78 +20189,79 @@ NVECTOR\_PETSC does not provide macros to access its member variables.
 Note that NVECTOR\_PETSC requires SUNDIALS to be built with MPI support.
 
 The NVECTOR\_PETSC module defines implementations of all vector
-operations listed in the section {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, except for
-\code{N\_VGetArrayPointer} and \code{N\_VSetArrayPointer}.  When access to raw
-vector data is needed, it is recommended to extract the PETSc vector
-first, and then use PETSc methods to access the data.  A usage example
-of NVECTOR\_PETSC is provided in example programs for IDA.
+operations listed in the section {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, except for
+\code{N\_VGetArrayPointer} and \code{N\_VSetArrayPointer}.  As such, this
+vector cannot be used with SUNDIALS Fortran interfaces.  When access
+to raw vector data is needed, it is recommended to extract the PETSc
+vector first, and then use PETSc methods to access the data.  Usage
+examples of NVECTOR\_PETSC is provided in example programs for IDA.
 
 The names of vector operations are obtained from those in the section
-{\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}} by appending the suffice \code{\_petsc}
-(e.g. \code{N\_VDestroy\_petsc}).  The module NVECTOR\_PETSC provides the
+{\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}} by appending the suffice \code{\_Petsc}
+(e.g. \code{N\_VDestroy\_Petsc}).  The module NVECTOR\_PETSC provides the
 following additional user-callable routines:
-\index{N\_VNewEmpty\_petsc (C function)}
+\index{N\_VNewEmpty\_Petsc (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VNewEmpty_petsc}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNewEmpty\_petsc}}{MPI\_Comm\emph{ comm}, long int\emph{ local\_length}, long int\emph{ global\_length}}{}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VNewEmpty_Petsc}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNewEmpty\_Petsc}}{MPI\_Comm\emph{ comm}, long int\emph{ local\_length}, long int\emph{ global\_length}}{}
 This function creates a new PETSC \code{N\_Vector} with the pointer to
 the wrapped PETSc vector set to \code{NULL}. It is used by the
-\code{N\_VMake\_petsc} and \code{N\_VClone\_petsc} implementations.  It
+\code{N\_VMake\_Petsc} and \code{N\_VClone\_Petsc} implementations.  It
 should be used only with great caution.
 
 \end{fulllineitems}
 
-\index{N\_VMake\_petsc (C function)}
+\index{N\_VMake\_Petsc (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VMake_petsc}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMake\_petsc}}{Vec*\emph{ pvec}}{}
-This function creates and allocates memory for a NVECTOR\_PETSC
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VMake_Petsc}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMake\_Petsc}}{Vec*\emph{ pvec}}{}
+This function creates and allocates memory for an NVECTOR\_PETSC
 wrapper with a user-provided PETSc vector.  It does \emph{not} allocate
 memory for the vector \code{pvec} itself.
 
 \end{fulllineitems}
 
-\index{N\_VGetVector\_petsc (C function)}
+\index{N\_VGetVector\_Petsc (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VGetVector_petsc}\pysiglinewithargsret{Vec *\bfcode{N\_VGetVector\_petsc}}{N\_Vector\emph{ v}}{}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VGetVector_Petsc}\pysiglinewithargsret{Vec *\bfcode{N\_VGetVector\_Petsc}}{N\_Vector\emph{ v}}{}
 This function returns a pointer to the underlying PETSc vector.
 
 \end{fulllineitems}
 
-\index{N\_VCloneVectorArray\_petsc (C function)}
+\index{N\_VCloneVectorArray\_Petsc (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VCloneVectorArray_petsc}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneVectorArray\_petsc}}{int\emph{ count}, N\_Vector\emph{ w}}{}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VCloneVectorArray_Petsc}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneVectorArray\_Petsc}}{int\emph{ count}, N\_Vector\emph{ w}}{}
 This function creates (by cloning) an array of \emph{count}
 NVECTOR\_PETSC vectors.
 
 \end{fulllineitems}
 
-\index{N\_VCloneVectorArrayEmpty\_petsc (C function)}
+\index{N\_VCloneVectorArrayEmpty\_Petsc (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VCloneVectorArrayEmpty_petsc}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneVectorArrayEmpty\_petsc}}{int\emph{ count}, N\_Vector\emph{ w}}{}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VCloneVectorArrayEmpty_Petsc}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneVectorArrayEmpty\_Petsc}}{int\emph{ count}, N\_Vector\emph{ w}}{}
 This function creates (by cloning) an array of \emph{count}
 NVECTOR\_PETSC vectors, each with pointers to PETSc vectors set to \code{NULL}.
 
 \end{fulllineitems}
 
-\index{N\_VDestroyVectorArray\_petsc (C function)}
+\index{N\_VDestroyVectorArray\_Petsc (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VDestroyVectorArray_petsc}\pysiglinewithargsret{void \bfcode{N\_VDestroyVectorArray\_petsc}}{N\_Vector*\emph{ vs}, int\emph{ count}}{}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VDestroyVectorArray_Petsc}\pysiglinewithargsret{void \bfcode{N\_VDestroyVectorArray\_Petsc}}{N\_Vector*\emph{ vs}, int\emph{ count}}{}
 This function frees memory allocated for the array of \emph{count}
 variables of type \code{N\_Vector} created with
-{\hyperref[nvectors/NVector_PETSc:c.N_VCloneVectorArray_petsc]{\emph{\code{N\_VCloneVectorArray\_petsc()}}}} or with
-{\hyperref[nvectors/NVector_PETSc:c.N_VCloneVectorArrayEmpty_petsc]{\emph{\code{N\_VCloneVectorArrayEmpty\_petsc()}}}}.
+{\hyperref[nvectors/NVector_PETSc:c.N_VCloneVectorArray_Petsc]{\emph{\code{N\_VCloneVectorArray\_Petsc()}}}} or with
+{\hyperref[nvectors/NVector_PETSc:c.N_VCloneVectorArrayEmpty_Petsc]{\emph{\code{N\_VCloneVectorArrayEmpty\_Petsc()}}}}.
 
 \end{fulllineitems}
 
-\index{N\_VPrint\_petsc (C function)}
+\index{N\_VPrint\_Petsc (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VPrint_petsc}\pysiglinewithargsret{void \bfcode{N\_VPrint\_petsc}}{N\_Vector\emph{ v}}{}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VPrint_Petsc}\pysiglinewithargsret{void \bfcode{N\_VPrint\_Petsc}}{N\_Vector\emph{ v}}{}
 This function prints the content of a wrapped PETSc vector to \code{stdout}.
 
 \end{fulllineitems}
@@ -19594,18 +20270,18 @@ This function prints the content of a wrapped PETSc vector to \code{stdout}.
 \textbf{Notes}
 \begin{itemize}
 \item {} 
-When there is a need to access components of an \code{N\_Vector v}, it
+When there is a need to access components of an \code{N\_Vector\_Petsc v}, it
 is recommeded to extract the PETSc vector via
 
-\code{x\_vec = N\_VGetVector\_petsc(v);}
+\code{x\_vec = N\_VGetVector\_Petsc(v);}
 
 and then access components using appropriate PETSc functions.
 
 \item {} 
-The functions {\hyperref[nvectors/NVector_PETSc:c.N_VNewEmpty_petsc]{\emph{\code{N\_VNewEmpty\_petsc()}}}}, {\hyperref[nvectors/NVector_PETSc:c.N_VMake_petsc]{\emph{\code{N\_VMake\_petsc()}}}},
-and {\hyperref[nvectors/NVector_PETSc:c.N_VCloneVectorArrayEmpty_petsc]{\emph{\code{N\_VCloneVectorArrayEmpty\_petsc()}}}} set the field
-\emph{own\_data} to \code{FALSE}. The routines \code{N\_VDestroy\_petsc()} and
-{\hyperref[nvectors/NVector_PETSc:c.N_VDestroyVectorArray_petsc]{\emph{\code{N\_VDestroyVectorArray\_petsc()}}}} will not attempt to free the
+The functions {\hyperref[nvectors/NVector_PETSc:c.N_VNewEmpty_Petsc]{\emph{\code{N\_VNewEmpty\_Petsc()}}}}, {\hyperref[nvectors/NVector_PETSc:c.N_VMake_Petsc]{\emph{\code{N\_VMake\_Petsc()}}}},
+and {\hyperref[nvectors/NVector_PETSc:c.N_VCloneVectorArrayEmpty_Petsc]{\emph{\code{N\_VCloneVectorArrayEmpty\_Petsc()}}}} set the field
+\emph{own\_data} to \code{FALSE}. The routines \code{N\_VDestroy\_Petsc()} and
+{\hyperref[nvectors/NVector_PETSc:c.N_VDestroyVectorArray_Petsc]{\emph{\code{N\_VDestroyVectorArray\_Petsc()}}}} will not attempt to free the
 pointer \code{pvec} for any \code{N\_Vector} with \emph{own\_data} set to
 \code{FALSE}. In such a case, it is the user's responsibility to
 deallocate the \code{pvec} pointer.
@@ -19613,7 +20289,7 @@ deallocate the \code{pvec} pointer.
 \item {} 
 To maximize efficiency, vector operations in the NVECTOR\_PETSC
 implementation that have more than one \code{N\_Vector} argument do not
-check for consistent internal representation of these vectors. It is
+check for consistent internal representations of these vectors. It is
 the user's responsibility to ensure that such routines are called
 with \code{N\_Vector} arguments that were all created with the same
 internal representations.
@@ -19782,7 +20458,7 @@ anything about ARKode's usage of vector functions in order to use
 ARKode.  Instead, this information is provided primarily for users
 interested in constructing a custom \code{N\_Vector} module.  We note that
 a number of \code{N\_Vector} functions from the section
-{\hyperref[nvectors/index:nvectors-description]{\emph{\DUspan{}{Description of the NVECTOR Modules}}}} are not listed in the above table.
+{\hyperref[nvectors/NVector_Description:nvectors-description]{\emph{\DUspan{}{Description of the NVECTOR Modules}}}} are not listed in the above table.
 Therefore a user-supplied \code{N\_Vector} module for ARKode could safely
 omit these functions from their implementation.
 
@@ -19976,644 +20652,17 @@ X
 
 \begin{enumerate}
 \item {} 
-The {\hyperref[nvectors/index:c.N_VDotProd]{\emph{\code{N\_VDotProd()}}}} function is only used by the main
+The {\hyperref[nvectors/NVector_Operations:c.N_VDotProd]{\emph{\code{N\_VDotProd()}}}} function is only used by the main
 ARKode integrator module when the fixed-point nonlinear solver is
 specified; when solving an explicit problem or when using a Newton
 solver with direct or sparse linear solver, it need not be
 supplied by the \code{N\_Vector} implementation.
 
 \item {} 
-The {\hyperref[nvectors/index:c.N_VSpace]{\emph{\code{N\_VSpace()}}}} function is only informational, and need
+The {\hyperref[nvectors/NVector_Operations:c.N_VSpace]{\emph{\code{N\_VSpace()}}}} function is only informational, and need
 not be supplied by the \code{N\_Vector} implementation.
 
 \end{enumerate}
-
-
-\section{Description of the NVECTOR Modules}
-\label{nvectors/index:description-of-the-nvector-modules}\label{nvectors/index:nvectors-description}
-The SUNDIALS solvers are written in a data-independent manner. They
-all operate on generic vectors (of type \code{N\_Vector}) through a set of
-operations defined by, and specific to, the particular NVECTOR
-implementation. Users can provide a custom implementation of the
-NVECTOR module or use one of four provided within SUNDIALS -- a serial
-and three parallel implementations.  The generic operations are
-described below.  In the sections following, the implementations
-provided with SUNDIALS are described.
-
-The generic \code{N\_Vector} type is a pointer to a structure that has an
-implementation-dependent \emph{content} field containing the description
-and actual data of the vector, and an \emph{ops} field pointing to a
-structure with generic vector operations. The type \code{N\_Vector} is
-defined as:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k}{typedef} \PYG{k}{struct} \PYG{n}{\PYGZus{}generic\PYGZus{}N\PYGZus{}Vector} \PYG{o}{*}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{;}
-
-\PYG{k}{struct} \PYG{n}{\PYGZus{}generic\PYGZus{}N\PYGZus{}Vector} \PYG{p}{\PYGZob{}}
-   \PYG{k+kt}{void} \PYG{o}{*}\PYG{n}{content}\PYG{p}{;}
-   \PYG{k}{struct} \PYG{n}{\PYGZus{}generic\PYGZus{}N\PYGZus{}Vector\PYGZus{}Ops} \PYG{o}{*}\PYG{n}{ops}\PYG{p}{;}
-\PYG{p}{\PYGZcb{}}\PYG{p}{;}
-\end{Verbatim}
-
-Here, the \code{\_generic\_N\_Vector\_Op} structure is essentially a list of
-function pointers to the various actual vector operations, and is
-defined as
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k}{struct} \PYG{n}{\PYGZus{}generic\PYGZus{}N\PYGZus{}Vector\PYGZus{}Ops} \PYG{p}{\PYGZob{}}
-   \PYG{n}{N\PYGZus{}Vector\PYGZus{}ID} \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvgetvectorid}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{N\PYGZus{}Vector}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvclone}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{N\PYGZus{}Vector}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvcloneempty}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvdestroy}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvspace}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{k+kt}{long} \PYG{k+kt}{int} \PYG{o}{*}\PYG{p}{,} \PYG{k+kt}{long} \PYG{k+kt}{int} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{realtype}\PYG{o}{*}   \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvgetarraypointer}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvsetarraypointer}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvlinearsum}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvconst}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvprod}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvdiv}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvscale}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvabs}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvinv}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvaddconst}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvdotprod}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvmaxnorm}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwrmsnorm}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwrmsnormmask}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvmin}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwl2norm}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvl1norm}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvcompare}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{booleantype} \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvinvtest}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{booleantype} \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvconstrmask}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvminquotient}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-\PYG{p}{\PYGZcb{}}\PYG{p}{;}
-\end{Verbatim}
-
-The generic NVECTOR module defines and implements the vector
-operations acting on a \code{N\_Vector}. These routines are nothing but
-wrappers for the vector operations defined by a particular NVECTOR
-implementation, which are accessed through the \emph{ops} field of the
-\code{N\_Vector} structure. To illustrate this point we show below the
-implementation of a typical vector operation from the generic NVECTOR
-module, namely \code{N\_VScale}, which performs the scaling of a vector
-\code{x} by a scalar \code{c}:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k+kt}{void} \PYG{n+nf}{N\PYGZus{}VScale}\PYG{p}{(}\PYG{n}{realtype} \PYG{n}{c}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{n}{x}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{n}{z}\PYG{p}{)} \PYG{p}{\PYGZob{}}
-   \PYG{n}{z}\PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZgt{}}\PYG{n}{ops}\PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZgt{}}\PYG{n}{nvscale}\PYG{p}{(}\PYG{n}{c}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
-\PYG{p}{\PYGZcb{}}
-\end{Verbatim}
-
-The subsection {\hyperref[nvectors/index:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}} contains a complete list of all
-vector operations defined by the generic NVECTOR module.  Finally, we
-note that the generic NVECTOR module defines the functions
-\code{N\_VCloneVectorArray} and \code{N\_VCloneVectorArrayEmpty}. Both
-functions create (by cloning) an array of \emph{count} variables of type
-\code{N\_Vector}, each of the same type as an existing \code{N\_Vector}. Their
-prototypes are:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n+nf}{N\PYGZus{}VCloneVectorArray}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{count}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
-\PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n+nf}{N\PYGZus{}VCloneVectorArrayEmpty}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{count}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-and their definitions are based on the implementation-specific
-\code{N\_VClone} and \code{N\_VCloneEmpty} operations, respectively.
-
-Similarly, an array of variables of type \code{N\_Vector} can be destroyed
-by calling \code{N\_VDestroyVectorArray}, whose prototype is
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k+kt}{void} \PYG{n+nf}{N\PYGZus{}VDestroyVectorArray}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n}{vs}\PYG{p}{,} \PYG{k+kt}{int} \PYG{n}{count}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-and whose definition is based on the implementation-specific
-\code{N\_VDestroy} operation.
-
-In particular, any implementation of the NVECTOR module \textbf{must}:
-\begin{itemize}
-\item {} 
-Specify the \emph{content} field of the \code{N\_Vector}.
-
-\item {} 
-Define and implement the necessary vector operations. Note that the
-names of these routines should be unique to that implementation in
-order to permit using more than one NVECTOR module (each with
-different \code{N\_Vector} internal data representations) in the same
-code.  We further note that not all of the defined operations are
-required for each solver in SUNDIALS.  The list of required
-operations for use with ARKode is given in the section
-{\hyperref[nvectors/ARKode_requirements:nvectors-arkode]{\emph{\DUspan{}{NVECTOR functions required by ARKode}}}}.
-
-\item {} 
-Define and implement user-callable constructor and destructor
-routines to create and free a \code{N\_Vector} with the new \emph{content}
-field and with \emph{ops} pointing to the new vector operations.
-
-\item {} 
-Optionally, define and implement additional user-callable routines
-acting on the newly defined \code{N\_Vector} (e.g., a routine to print the
-\emph{content} for debugging purposes).
-
-\item {} 
-Optionally, provide accessor macros as needed for that particular
-implementation to be used to access different parts in the content
-field of the newly defined \code{N\_Vector}.
-
-\end{itemize}
-
-Each NVECTOR implementation included in SUNDIALS has a unique
-identifier specified in enumeration:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k}{typedef} \PYG{k}{enum} \PYG{p}{\PYGZob{}}
-  \PYG{n}{SUNDIALS\PYGZus{}NVEC\PYGZus{}SERIAL}\PYG{p}{,}
-  \PYG{n}{SUNDIALS\PYGZus{}NVEC\PYGZus{}PARALLEL}\PYG{p}{,}
-  \PYG{n}{SUNDIALS\PYGZus{}NVEC\PYGZus{}OPENMP}\PYG{p}{,}
-  \PYG{n}{SUNDIALS\PYGZus{}NVEC\PYGZus{}PTHREADS}\PYG{p}{,}
-  \PYG{n}{SUNDIALS\PYGZus{}NVEC\PYGZus{}PARHYP}\PYG{p}{,}
-  \PYG{n}{SUNDIALS\PYGZus{}NVEC\PYGZus{}PETSC}\PYG{p}{,}
-  \PYG{n}{SUNDIALS\PYGZus{}NVEC\PYGZus{}CUSTOM}
-\PYG{p}{\PYGZcb{}} \PYG{n}{N\PYGZus{}Vector\PYGZus{}ID}\PYG{p}{;}
-\end{Verbatim}
-
-It is recommended that a user supplied NVECTOR implementation use the
-\code{SUNDIALS\_NVEC\_CUSTOM} identifier.
-
-
-\section{Description of the NVECTOR operations}
-\label{nvectors/index:nvectors-ops}\label{nvectors/index:description-of-the-nvector-operations}
-For each of the \code{N\_Vector} operations, we give the name, usage
-of the function, and a description of its mathematical operations
-below.
-\index{N\_VGetVectorID (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VGetVectorID}\pysiglinewithargsret{N\_Vector\_ID \bfcode{N\_VGetVectorID}}{N\_Vector\emph{ w}}{}
-Returns the vector type identifier for the vector \code{w}.  It is
-used to determine the vector implementation type (e.g. serial,
-parallel, ...) from the abstract \code{N\_Vector} interface.
-
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{id} \PYG{o}{=} \PYG{n}{N\PYGZus{}VGetVectorID}\PYG{p}{(}\PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VClone (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VClone}\pysiglinewithargsret{N\_Vector \bfcode{N\_VClone}}{N\_Vector\emph{ w}}{}
-Creates a new \code{N\_Vector} of the same type as an existing vector
-\emph{w} and sets the \emph{ops} field.  It does not copy the vector, but
-rather allocates storage for the new vector.
-
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{v} \PYG{o}{=} \PYG{n}{N\PYGZus{}VClone}\PYG{p}{(}\PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VCloneEmpty (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VCloneEmpty}\pysiglinewithargsret{N\_Vector \bfcode{N\_VCloneEmpty}}{N\_Vector\emph{ w}}{}
-Creates a new \code{N\_Vector} of the same type as an existing vector
-\emph{w} and sets the \emph{ops} field.  It does not allocate storage for the
-new vector's data.
-
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{v} \PYG{o}{=} \PYG{n}{N} \PYG{n}{VCloneEmpty}\PYG{p}{(}\PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VDestroy (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VDestroy}\pysiglinewithargsret{void \bfcode{N\_VDestroy}}{N\_Vector\emph{ v}}{}
-Destroys the \code{N\_Vector} \emph{v} and frees memory allocated for its
-internal data.
-
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{N\PYGZus{}VDestroy}\PYG{p}{(}\PYG{n}{v}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VSpace (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VSpace}\pysiglinewithargsret{void \bfcode{N\_VSpace}}{N\_Vector\emph{ v}, long int*\emph{ lrw}, long int*\emph{ liw}}{}
-Returns storage requirements for the \code{N\_Vector} \emph{v}: \emph{lrw} contains
-the number of \code{realtype} words and \emph{liw} contains the number of
-integer words.  This function is advisory only, for use in
-determining a user's total space requirements; it could be a dummy
-function in a user-supplied NVECTOR module if that information is
-not of interest.
-
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{N\PYGZus{}VSpace}\PYG{p}{(}\PYG{n}{nvSpec}\PYG{p}{,} \PYG{o}{\PYGZam{}}\PYG{n}{lrw}\PYG{p}{,} \PYG{o}{\PYGZam{}}\PYG{n}{liw}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VGetArrayPointer (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VGetArrayPointer}\pysiglinewithargsret{realtype* \bfcode{N\_VGetArrayPointer}}{N\_Vector\emph{ v}}{}
-Returns a pointer to a \code{realtype} array from the \code{N\_Vector}
-\emph{v}.  Note that this assumes that the internal data in the
-\code{N\_Vector} is a contiguous array of \code{realtype}. This routine is
-only used in the solver-specific interfaces to the dense and banded
-(serial) linear solvers, and in the interfaces to the banded
-(serial) and band-block-diagonal (parallel) preconditioner modules
-provided with SUNDIALS.
-
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{vdata} \PYG{o}{=} \PYG{n}{NVGetArrayPointer}\PYG{p}{(}\PYG{n}{v}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VSetArrayPointer (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VSetArrayPointer}\pysiglinewithargsret{void \bfcode{N\_VSetArrayPointer}}{realtype*\emph{ vdata}, N\_Vector\emph{ v}}{}
-Replaces the data array pointer in an \code{N\_Vector} with a given
-array of \code{realtype}.  Note that this assumes that the internal
-data in the \code{N\_Vector} is a contiguous array of
-\code{realtype}. This routine is only used in the interfaces to the
-dense (serial) linear solver, hence need not exist in a
-user-supplied NVECTOR module.
-
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{NVSetArrayPointer}\PYG{p}{(}\PYG{n}{vdata}\PYG{p}{,}\PYG{n}{v}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VLinearSum (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VLinearSum}\pysiglinewithargsret{void \bfcode{N\_VLinearSum}}{realtype\emph{ a}, N\_Vector\emph{ x}, realtype\emph{ b}, N\_Vector\emph{ y}, N\_Vector\emph{ z}}{}
-Performs the operation \emph{z = ax + by}, where \emph{a} and \emph{b} are
-\code{realtype} scalars and \emph{x} and \emph{y} are of type \code{N\_Vector}:
-\begin{gather}
-\begin{split}z_i = a x_i + b y_i, \quad i=1,\ldots,n.\end{split}\notag
-\end{gather}
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{N\PYGZus{}VLinearSum}\PYG{p}{(}\PYG{n}{a}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{b}\PYG{p}{,} \PYG{n}{y}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VConst (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VConst}\pysiglinewithargsret{void \bfcode{N\_VConst}}{realtype\emph{ c}, N\_Vector\emph{ z}}{}
-Sets all components of the \code{N\_Vector} \emph{z} to \code{realtype} \emph{c}:
-\begin{gather}
-\begin{split}z_i = c, \quad i=1,\ldots,n.\end{split}\notag
-\end{gather}
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{N\PYGZus{}VConst}\PYG{p}{(}\PYG{n}{c}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VProd (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VProd}\pysiglinewithargsret{void \bfcode{N\_VProd}}{N\_Vector\emph{ x}, N\_Vector\emph{ y}, N\_Vector\emph{ z}}{}
-Sets the \code{N\_Vector} \emph{z} to be the component-wise product of the
-\code{N\_Vector} inputs \emph{x} and \emph{y}:
-\begin{gather}
-\begin{split}z_i = x_i y_i, \quad i=1,\ldots,n.\end{split}\notag
-\end{gather}
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{N\PYGZus{}VProd}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{y}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VDiv (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VDiv}\pysiglinewithargsret{void \bfcode{N\_VDiv}}{N\_Vector\emph{ x}, N\_Vector\emph{ y}, N\_Vector\emph{ z}}{}
-Sets the \code{N\_Vector} \emph{z} to be the component-wise ratio of the
-\code{N\_Vector} inputs \emph{x} and \emph{y}:
-\begin{gather}
-\begin{split}z_i = \frac{x_i}{y_i}, \quad i=1,\ldots,n.\end{split}\notag
-\end{gather}
-The \(y_i\) may not be tested for 0 values. It should only be
-called with a \emph{y} that is guaranteed to have all nonzero components.
-
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{N\PYGZus{}VDiv}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{y}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VScale (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VScale}\pysiglinewithargsret{void \bfcode{N\_VScale}}{realtype\emph{ c}, N\_Vector\emph{ x}, N\_Vector\emph{ z}}{}
-Scales the \code{N\_Vector} \emph{x} by the \code{realtype} scalar \emph{c} and
-returns the result in \emph{z}:
-\begin{gather}
-\begin{split}z_i = c x_i, \quad i=1,\ldots,n.\end{split}\notag
-\end{gather}
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{N\PYGZus{}VScale}\PYG{p}{(}\PYG{n}{c}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VAbs (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VAbs}\pysiglinewithargsret{void \bfcode{N\_VAbs}}{N\_Vector\emph{ x}, N\_Vector\emph{ z}}{}
-Sets the components of the \code{N\_Vector} \emph{z} to be the absolute
-values of the components of the \code{N\_Vector} \emph{x}:
-\begin{gather}
-\begin{split}y_i = |x_i|, \quad i=1,\ldots,n.\end{split}\notag
-\end{gather}
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{N\PYGZus{}VAbs}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VInv (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VInv}\pysiglinewithargsret{void \bfcode{N\_VInv}}{N\_Vector\emph{ x}, N\_Vector\emph{ z}}{}
-Sets the components of the \code{N\_Vector} \emph{z} to be the inverses of
-the components of the \code{N\_Vector} \emph{x}:
-\begin{gather}
-\begin{split}z_i = 1.0/x_i, \quad i=1,\ldots,n.\end{split}\notag
-\end{gather}
-This routine may not check for division by 0.  It should be called
-only with an \emph{x} which is guaranteed to have all nonzero components.
-
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{N\PYGZus{}VInv}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VAddConst (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VAddConst}\pysiglinewithargsret{void \bfcode{N\_VAddConst}}{N\_Vector\emph{ x}, realtype\emph{ b}, N\_Vector\emph{ z}}{}
-Adds the \code{realtype} scalar \emph{b} to all components of \emph{x} and
-returns the result in the \code{N\_Vector} \emph{z}:
-\begin{gather}
-\begin{split}z_i = x_i+b, \quad i=1,\ldots,n.\end{split}\notag
-\end{gather}
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{N\PYGZus{}VAddConst}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{b}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VDotProd (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VDotProd}\pysiglinewithargsret{realtype \bfcode{N\_VDotProd}}{N\_Vector\emph{ x}, N\_Vector\emph{ z}}{}
-Returns the value of the dot-product of the \code{N\_Vectors} \emph{x} and \emph{y}:
-\begin{gather}
-\begin{split}d = \sum_{i=1}^{n} x_i y_i.\end{split}\notag
-\end{gather}
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{d} \PYG{o}{=} \PYG{n}{N\PYGZus{}VDotProd}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{y}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VMaxNorm (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VMaxNorm}\pysiglinewithargsret{realtype \bfcode{N\_VMaxNorm}}{N\_Vector\emph{ x}}{}
-Returns the value of the \(l_{\infty}\) norm of the
-\code{N\_Vector} \emph{x}:
-\begin{gather}
-\begin{split}m = \max_{1\le i\le n} |x_i|.\end{split}\notag
-\end{gather}
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{m} \PYG{o}{=} \PYG{n}{N\PYGZus{}VMaxNorm}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VWrmsNorm (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VWrmsNorm}\pysiglinewithargsret{realtype \bfcode{N\_VWrmsNorm}}{N\_Vector\emph{ x}, N\_Vector\emph{ w}}{}
-Returns the weighted root-mean-square norm of the \code{N\_Vector} \emph{x}
-with (positive) \code{realtype} weight vector \emph{w}:
-\begin{gather}
-\begin{split}m = \left( \frac1n \sum_{i=1}^{n} \left(x_i w_i\right)^2\right)^{1/2}.\end{split}\notag
-\end{gather}
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{m} \PYG{o}{=} \PYG{n}{N\PYGZus{}VWrmsNorm}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VWrmsNormMask (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VWrmsNormMask}\pysiglinewithargsret{realtype \bfcode{N\_VWrmsNormMask}}{N\_Vector\emph{ x}, N\_Vector\emph{ w}, N\_Vector\emph{ id}}{}
-Returns the weighted root mean square norm of the \code{N\_Vector} \emph{x}
-with (positive) \code{realtype} weight vector \emph{w} built using only the
-elements of \emph{x} corresponding to nonzero elements of the
-\code{N\_Vector} \emph{id}:
-\begin{gather}
-\begin{split}m = \left( \frac1n \sum_{i=1}^{n} \left(x_i w_i \text{sign}(id_i)\right)^2 \right)^{1/2}.\end{split}\notag
-\end{gather}
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{m} \PYG{o}{=} \PYG{n}{N\PYGZus{}VWrmsNormMask}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{w}\PYG{p}{,} \PYG{n}{id}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VMin (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VMin}\pysiglinewithargsret{realtype \bfcode{N\_VMin}}{N\_Vector\emph{ x}}{}
-Returns the smallest element of the \code{N\_Vector} \emph{x}:
-\begin{gather}
-\begin{split}m = \min_{1\le i\le n} x_i.\end{split}\notag
-\end{gather}
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{m} \PYG{o}{=} \PYG{n}{N\PYGZus{}VMin}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VWl2Norm (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VWl2Norm}\pysiglinewithargsret{realtype \bfcode{N\_VWl2Norm}}{N\_Vector\emph{ x}, N\_Vector\emph{ w}}{}
-Returns the weighted Euclidean \(l_2\) norm of the \code{N\_Vector}
-\emph{x} with \code{realtype} weight vector \emph{w}:
-\begin{gather}
-\begin{split}m = \left(\sum_{i=1}^{n}\left(x_i w_i\right)^2\right)^{1/2}.\end{split}\notag
-\end{gather}
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{m} \PYG{o}{=} \PYG{n}{N\PYGZus{}VWL2Norm}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VL1Norm (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VL1Norm}\pysiglinewithargsret{realtype \bfcode{N\_VL1Norm}}{N\_Vector\emph{ x}}{}
-Returns the \(l_1\) norm of the \code{N\_Vector} \emph{x}:
-\begin{gather}
-\begin{split}m = \sum_{i=1}^{n} |x_i|.\end{split}\notag
-\end{gather}
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{m} \PYG{o}{=} \PYG{n}{N\PYGZus{}VL1Norm}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VCompare (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VCompare}\pysiglinewithargsret{void \bfcode{N\_VCompare}}{realtype\emph{ c}, N\_Vector\emph{ x}, N\_Vector\emph{ z}}{}
-Compares the components of the \code{N\_Vector} \emph{x} to the \code{realtype}
-scalar \emph{c} and returns an \code{N\_Vector} \emph{z} such that for all
-\(1\le i\le n\),
-\begin{gather}
-\begin{split}z_i = \begin{cases} 1.0 &\quad\text{if}\; |x_i| \ge c,\\
-                    0.0 &\quad\text{otherwise}\end{cases}.\end{split}\notag
-\end{gather}
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{N\PYGZus{}VCompare}\PYG{p}{(}\PYG{n}{c}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VInvTest (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VInvTest}\pysiglinewithargsret{booleantype \bfcode{N\_VInvTest}}{N\_Vector\emph{ x}, N\_Vector\emph{ z}}{}
-Sets the components of the \code{N\_Vector} \emph{z} to be the inverses of
-the components of the \code{N\_Vector} \emph{x}, with prior testing for
-zero values:
-\begin{gather}
-\begin{split}z_i = 1.0/x_i, \quad i=1,\ldots,n.\end{split}\notag
-\end{gather}
-This routine returns a boolean assigned to \code{TRUE} if all
-components of \emph{x} are nonzero (successful inversion) and returns
-\code{FALSE} otherwise.
-
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{t} \PYG{o}{=} \PYG{n}{N\PYGZus{}VInvTest}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VConstrMask (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VConstrMask}\pysiglinewithargsret{booleantype \bfcode{N\_VConstrMask}}{N\_Vector\emph{ c}, N\_Vector\emph{ x}, N\_Vector\emph{ m}}{}
-Performs the following constraint tests based on the values in
-\(c_i\):
-\begin{gather}
-\begin{split}x_i > 0 \;\text{if}\; c_i = 2, \\
-x_i \ge 0 \;\text{if}\; c_i = 1, \\
-x_i < 0 \;\text{if}\; c_i = -2, \\
-x_i \le 0 \;\text{if}\; c_i = -1.\end{split}\notag
-\end{gather}
-There is no constraint on \(x_i\) if \(c_i = 0\). This
-routine returns a boolean assigned to \code{FALSE} if any element
-failed the constraint test and assigned to \code{TRUE} if all
-passed. It also sets a mask vector \emph{m}, with elements equal to 1.0
-where the constraint test failed, and 0.0 where the test
-passed. This routine is used only for constraint checking.
-
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{t} \PYG{o}{=} \PYG{n}{N\PYGZus{}VConstrMask}\PYG{p}{(}\PYG{n}{c}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{m}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
-\index{N\_VMinQuotient (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/index:c.N_VMinQuotient}\pysiglinewithargsret{realtype \bfcode{N\_VMinQuotient}}{N\_Vector\emph{ num}, N\_Vector\emph{ denom}}{}
-This routine returns the minimum of the quotients obtained by
-termwise dividing the elements of \emph{n} by the elements in \emph{d}:
-\begin{gather}
-\begin{split}\min_{i=1,\ldots,n} \frac{\text{num}_i}{\text{denom}_i}.\end{split}\notag
-\end{gather}
-A zero element in \emph{denom} will be skipped.  If no such quotients
-are found, then the large value \code{BIG\_REAL} (defined in the header
-file \code{sundials\_types.h}) is returned.
-
-Usage:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{minq} \PYG{o}{=} \PYG{n}{N\PYGZus{}VMinQuotient}\PYG{p}{(}\PYG{n}{num}\PYG{p}{,} \PYG{n}{denom}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-\end{fulllineitems}
-
 
 
 \chapter{Linear Solvers in ARKode}
@@ -22110,10 +22159,10 @@ and \code{booleantype} types and the macro \code{RCONST}, while the
 The generic NVECTOR files, \code{sundials\_nvector.h} and
 \code{sundials\_nvector.c} are needed for the definition of the generic
 \code{N\_Vector} type and functions.  The NVECTOR functions used by the
-SPGMR module are: {\hyperref[nvectors/index:c.N_VDotProd]{\emph{\code{N\_VDotProd()}}}}, {\hyperref[nvectors/index:c.N_VLinearSum]{\emph{\code{N\_VLinearSum()}}}},
-{\hyperref[nvectors/index:c.N_VScale]{\emph{\code{N\_VScale()}}}}, {\hyperref[nvectors/index:c.N_VProd]{\emph{\code{N\_VProd()}}}}, {\hyperref[nvectors/index:c.N_VDiv]{\emph{\code{N\_VDiv()}}}},
-{\hyperref[nvectors/index:c.N_VConst]{\emph{\code{N\_VConst()}}}}, {\hyperref[nvectors/index:c.N_VClone]{\emph{\code{N\_VClone()}}}},
-\code{N\_VCloneVectorArray()}, {\hyperref[nvectors/index:c.N_VDestroy]{\emph{\code{N\_VDestroy()}}}}, and
+SPGMR module are: {\hyperref[nvectors/NVector_Operations:c.N_VDotProd]{\emph{\code{N\_VDotProd()}}}}, {\hyperref[nvectors/NVector_Operations:c.N_VLinearSum]{\emph{\code{N\_VLinearSum()}}}},
+{\hyperref[nvectors/NVector_Operations:c.N_VScale]{\emph{\code{N\_VScale()}}}}, {\hyperref[nvectors/NVector_Operations:c.N_VProd]{\emph{\code{N\_VProd()}}}}, {\hyperref[nvectors/NVector_Operations:c.N_VDiv]{\emph{\code{N\_VDiv()}}}},
+{\hyperref[nvectors/NVector_Operations:c.N_VConst]{\emph{\code{N\_VConst()}}}}, {\hyperref[nvectors/NVector_Operations:c.N_VClone]{\emph{\code{N\_VClone()}}}},
+\code{N\_VCloneVectorArray()}, {\hyperref[nvectors/NVector_Operations:c.N_VDestroy]{\emph{\code{N\_VDestroy()}}}}, and
 \code{N\_VDestroyVectorArray()}.
 
 The nine files listed above can be extracted from the SUNDIALS
