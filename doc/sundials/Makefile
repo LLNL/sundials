@@ -35,8 +35,8 @@ biblio.bib
 
 
 UG_SHARED_FIGURES = \
-doc_logo.pdf \
-warning.png
+doc_logo_blue.pdf \
+warning.pdf
 
 UG_CMAKE_FIGURES = \
 ccmakedefault.png \
