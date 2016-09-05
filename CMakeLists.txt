@@ -38,9 +38,9 @@ PROJECT(sundials C)
 
 SET(PACKAGE_BUGREPORT "woodward6@llnl.gov")
 SET(PACKAGE_NAME "SUNDIALS")
-SET(PACKAGE_STRING "SUNDIALS 2.6.2")
+SET(PACKAGE_STRING "SUNDIALS 2.7.0")
 SET(PACKAGE_TARNAME "sundials")
-SET(PACKAGE_VERSION "2.6.2")
+SET(PACKAGE_VERSION "2.7.0")
 
 # 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -64,29 +64,29 @@ MARK_AS_ADVANCED(CLEAR
 
 # Specify the VERSION and SOVERSION for shared libraries
 
-SET(arkodelib_VERSION "1.0.0")
+SET(arkodelib_VERSION "1.1.0")
 SET(arkodelib_SOVERSION "1")
 
-SET(cvodelib_VERSION "1.0.0")
-SET(cvodelib_SOVERSION "1")
+SET(cvodelib_VERSION "2.9.0")
+SET(cvodelib_SOVERSION "2")
 
-SET(cvodeslib_VERSION "2.0.0")
+SET(cvodeslib_VERSION "2.9.0")
 SET(cvodeslib_SOVERSION "2")
 
-SET(idalib_VERSION "2.0.0")
+SET(idalib_VERSION "2.9.0")
 SET(idalib_SOVERSION "2")
 
-SET(idaslib_VERSION "0.0.0")
-SET(idaslib_SOVERSION "0")
+SET(idaslib_VERSION "1.3.0")
+SET(idaslib_SOVERSION "1")
 
-SET(kinsollib_VERSION "1.0.0")
-SET(kinsollib_SOVERSION "1")
+SET(kinsollib_VERSION "2.9.0")
+SET(kinsollib_SOVERSION "2")
 
 SET(cpodeslib_VERSION "0.0.0")
 SET(cpodeslib_SOVERSION "0")
 
-SET(nveclib_VERSION "0.0.2")
-SET(nveclib_SOVERSION "0")
+SET(nveclib_VERSION "2.7.0")
+SET(nveclib_SOVERSION "2")
 
 # Specify the location of additional CMAKE modules
 
