@@ -65,6 +65,7 @@
  *     #define SUNDIALS_SUPERLUMT 
  */
 #cmakedefine SUNDIALS_SUPERLUMT
+#cmakedefine SUNDIALS_SUPERLUMT_THREAD_TYPE "@SUPERLUMT_THREAD_TYPE@"
 
 /* KLU available
  * If working libraries for KLU support were found, then
