@@ -98,6 +98,11 @@ $tar $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_slu.out
 $tar $tarfile $distrobase/examples/kinsol/serial/kinRoberts_fp.c
 $tar $tarfile $distrobase/examples/kinsol/serial/kinRoberts_fp.out
 
+$tar $tarfile $distrobase/examples/kinsol/C_openmp/README
+$tar $tarfile $distrobase/examples/kinsol/C_openmp/CMakeLists.txt
+$tar $tarfile $distrobase/examples/kinsol/C_openmp/kinFoodWeb_kry_omp.c
+$tar $tarfile $distrobase/examples/kinsol/C_openmp/kinFoodWeb_kry_omp.out
+
 $tar $tarfile $distrobase/examples/kinsol/fcmix_serial/README
 $tar $tarfile $distrobase/examples/kinsol/fcmix_serial/CMakeLists.txt
 $tar $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinDiagon_kry.f

@@ -115,6 +115,7 @@ echo "   --- Add nvecpetsc module to $tarfile"
 $tar $tarfile $distrobase/src/nvec_petsc/README
 $tar $tarfile $distrobase/src/nvec_petsc/CMakeLists.txt
 $tar $tarfile $distrobase/src/nvec_petsc/nvector_petsc.h
+$tar $tarfile $distrobase/src/nvec_petsc/nvector_petsc.c
 
 echo "   --- Add nvecopenmp module to $tarfile"
 

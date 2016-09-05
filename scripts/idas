@@ -77,10 +77,18 @@ $tar $tarfile $distrobase/examples/idas/serial/idasKrylovDemo_ls.c
 $tar $tarfile $distrobase/examples/idas/serial/idasKrylovDemo_ls.out
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_dns.c
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_dns.out
+$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_klu.c
+$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_klu.out
+$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_sps.c
+$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_sps.out
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_dns.c
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_dns.out
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_dns.c
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_dns.out
+$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_klu.c
+$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_klu.out
+$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_sps.c
+$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_sps.out
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_klu.c
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_klu.out
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_sps.c
@@ -89,6 +97,13 @@ $tar $tarfile $distrobase/examples/idas/serial/idasSlCrank_dns.c
 $tar $tarfile $distrobase/examples/idas/serial/idasSlCrank_dns.out
 $tar $tarfile $distrobase/examples/idas/serial/idasSlCrank_FSA_dns.c
 $tar $tarfile $distrobase/examples/idas/serial/idasSlCrank_FSA_dns.out
+
+$tar $tarfile $distrobase/examples/idas/C_openmp/README
+$tar $tarfile $distrobase/examples/idas/C_openmp/CMakeLists.txt
+$tar $tarfile $distrobase/examples/idas/C_openmp/idasFoodWeb_bnd_omp.c
+$tar $tarfile $distrobase/examples/idas/C_openmp/idasFoodWeb_bnd_omp.out
+$tar $tarfile $distrobase/examples/idas/C_openmp/idasFoodWeb_kry_omp.c
+$tar $tarfile $distrobase/examples/idas/C_openmp/idasFoodWeb_kry_omp.out
 
 $tar $tarfile $distrobase/examples/idas/parallel/README
 $tar $tarfile $distrobase/examples/idas/parallel/CMakeLists.txt

@@ -130,6 +130,11 @@ $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_klu.out
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_sps.f
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_sps.out
 
+$tar $tarfile $distrobase/examples/cvode/C_openmp/README
+$tar $tarfile $distrobase/examples/cvode/C_openmp/CMakeLists.txt
+$tar $tarfile $distrobase/examples/cvode/C_openmp/cvAdvDiff_bnd_omp.c
+$tar $tarfile $distrobase/examples/cvode/C_openmp/cvAdvDiff_bnd_omp.out
+
 $tar $tarfile $distrobase/examples/cvode/parallel/README
 $tar $tarfile $distrobase/examples/cvode/parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/cvode/parallel/cvAdvDiff_non_p.c

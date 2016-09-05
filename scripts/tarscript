@@ -43,13 +43,13 @@ function print_usage
 # VERSION NUMBERS
 #---------------------------------------------------------
 
-SUN_VER="2.7.0pre"
-CV_VER="2.8.2"
-CVS_VER="2.8.2"
-IDA_VER="2.8.2"
-IDAS_VER="1.2.2"
-KIN_VER="2.8.2"
-ARK_VER="1.0.2"
+SUN_VER="2.7.0"
+CV_VER="2.9.0"
+CVS_VER="2.9.0"
+IDA_VER="2.9.0"
+IDAS_VER="1.3.0"
+KIN_VER="2.9.0"
+ARK_VER="1.1.0"
 
 #---------------------------------------------------------
 # Test if the script is executed from within its directory
@@ -200,15 +200,17 @@ cp $sundialsdir/README $tmpdir/
 cp $sundialsdir/doc/Makefile.in $tmpdir/doc/
 cp $sundialsdir/CMakeLists.txt $tmpdir/
 
+
 # Make install guide and copy to $tmpdir
 echo -e "--- SUNDIALS Common Installation documentation"
 cd $sundialsdir/doc/sundials
 make QUIET= purge
 make QUIET= in_g_pdf
-cd - 
 cp $sundialsdir/doc/sundials/install_guide.pdf $tmpdir/INSTALL_GUIDE.pdf
+# cleanup doc/sundials
+make QUIET= purge
 
-
+cd - 
 cp -r $sundialsdir/config $tmpdir/
 cp -r $sundialsdir/test $tmpdir/
 
