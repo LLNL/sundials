@@ -239,10 +239,11 @@ cp -r $sundialsdir/examples/templates $tmpdir/examples/
 #autoheader --force
 #cd -
 
-if [ $do_sundials = "T" ]; then
-    cp -r $sundialsdir/sundialsTB $tmpdir/
-    cp -r $sundialsdir/sundialsTB/doc $tmpdir/doc/sundialsTB
-fi
+# Don't release MATLAB until brought current with new version(s)
+#if [ $do_sundials = "T" ]; then
+#    cp -r $sundialsdir/sundialsTB $tmpdir/
+#    cp -r $sundialsdir/sundialsTB/doc $tmpdir/doc/sundialsTB
+#fi
 
 if [ $do_sundials = "T" -o $do_arkode = "T" ]; then
     cp -r $sundialsdir/include/arkode $tmpdir/include/
@@ -362,7 +363,10 @@ if [ $do_sundials = "T" ]; then
     $scriptdir/ida $tarfile $distrobase $doc $tar
     $scriptdir/idas $tarfile $distrobase $doc $tar
     $scriptdir/kinsol $tarfile $distrobase $doc $tar
-    $scriptdir/stb $tarfile $distrobase $doc $tar
+    
+    ### Don't release MATLAB until brought current with new version(s) 
+    # $scriptdir/stb $tarfile $distrobase $doc $tar  
+    
     gzip $tarfile
 fi
 
