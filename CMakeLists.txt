@@ -717,7 +717,7 @@ IF(KLU_ENABLE)
 
   IF(KLU_LIBRARIES AND NOT KLU_FOUND) 
     PRINT_WARNING("KLU not functional - support will not be provided" 
-      "Double check spelling specified libraries (search is case sensitive)")
+      "Double check spelling of include path and specified libraries (search is case sensitive)")
   ENDIF(KLU_LIBRARIES AND NOT KLU_FOUND)
 
 ENDIF(KLU_ENABLE)
