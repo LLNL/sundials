@@ -4799,11 +4799,7 @@ static int arkNlsNewton(ARKodeMem ark_mem, int nflag)
  performs an accelerated fixed-point iteration (without need for 
  a Jacobian or preconditioner. 
 
- Upon entry, the predicted solution is held in ark_mem->ark_ycur; 
- this array is never changed throughout this routine.  If an 
- initial attempt at solving the nonlinear system fail, this 
- allows for new attempts that first revert ark_mem->ark_y back 
- to this initial guess before trying again. 
+ Upon entry, the predicted solution is held in ark_mem->ark_ycur.
 
  Upon a successful solve, the solution is held in ark_mem->ark_y.
 
@@ -4913,11 +4909,6 @@ static int arkNlsAccelFP(ARKodeMem ark_mem, int nflag)
       return(CONV_FAIL);
 
     /* Update current solution guess */
-    /*** I DON'T LIKE THAT I WAIT TO UPDATE YCUR UNTIL THIS POINT; THIS MEANS THAT 
-	 I CAN RETURN WITH A LESS-ACCURATE SOLUTION THAN THE ONE I HAVE IN HAND.  
-	 MOREOVER, I ESTIMATE DCON USING THE EXPECTED ERROR IN THE NEW ITERATE, 
-	 NOT THE COMPUTED ERROR IN THE PREVIOUS ITERATE, SO MY STOP CRITERIA ARE 
-	 EVEN POTENTIALLY INCORRECT. ***/
     N_VScale(ONE, y, ycur);
     
     /* Save norm of correction and loop again */
