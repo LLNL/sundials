@@ -14,7 +14,7 @@
 
 \addto\captionsenglish{\renewcommand{\figurename}{Fig. }}
 \addto\captionsenglish{\renewcommand{\tablename}{Table }}
-%\floatname{literal-block}{Listing }
+\floatname{literal-block}{Listing }
 
 
 \usepackage{amsfonts}
@@ -97,7 +97,7 @@ Approved for public release; further dissemination unlimited
 \expandafter\def\csname PYG@tok@gr\endcsname{\def\PYG@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
 \expandafter\def\csname PYG@tok@cm\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
 \expandafter\def\csname PYG@tok@vg\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\expandafter\def\csname PYG@tok@m\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@vi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
 \expandafter\def\csname PYG@tok@mh\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
 \expandafter\def\csname PYG@tok@cs\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}\def\PYG@bc##1{\setlength{\fboxsep}{0pt}\colorbox[rgb]{1.00,0.94,0.94}{\strut ##1}}}
 \expandafter\def\csname PYG@tok@ge\endcsname{\let\PYG@it=\textit}
@@ -119,16 +119,18 @@ Approved for public release; further dissemination unlimited
 \expandafter\def\csname PYG@tok@nf\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.49}{##1}}}
 \expandafter\def\csname PYG@tok@si\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.44,0.63,0.82}{##1}}}
 \expandafter\def\csname PYG@tok@s2\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\expandafter\def\csname PYG@tok@vi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
 \expandafter\def\csname PYG@tok@nt\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.45}{##1}}}
 \expandafter\def\csname PYG@tok@nv\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
 \expandafter\def\csname PYG@tok@s1\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@ch\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
+\expandafter\def\csname PYG@tok@m\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
 \expandafter\def\csname PYG@tok@gp\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
 \expandafter\def\csname PYG@tok@sh\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 \expandafter\def\csname PYG@tok@ow\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@sx\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
 \expandafter\def\csname PYG@tok@bp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@c1\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
+\expandafter\def\csname PYG@tok@o\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
 \expandafter\def\csname PYG@tok@kc\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@c\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
 \expandafter\def\csname PYG@tok@mf\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
@@ -140,7 +142,7 @@ Approved for public release; further dissemination unlimited
 \expandafter\def\csname PYG@tok@kd\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@mi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
 \expandafter\def\csname PYG@tok@kn\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\expandafter\def\csname PYG@tok@o\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PYG@tok@cpf\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
 \expandafter\def\csname PYG@tok@kr\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@s\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 \expandafter\def\csname PYG@tok@kp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
@@ -178,6 +180,10 @@ Approved for public release; further dissemination unlimited
 \begin{document}
 
 \maketitle
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MANUALLY ADDED/EDITED
+\disclaimer
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \tableofcontents
 \phantomsection\label{index::doc}
 
@@ -22959,9 +22965,9 @@ level SUNDIALS directory with appropriate source, build and install
 directories:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }mkdir \PYG{o}{(}...\PYG{o}{)}/INSTDIR
-\PYG{n+nv}{\PYGZdl{} }mkdir \PYG{o}{(}...\PYG{o}{)}/BUILDDIR
-\PYG{n+nv}{\PYGZdl{} }\PYG{n+nb}{cd} \PYG{o}{(}...\PYG{o}{)}/BUILDDIR
+\PYGZdl{} mkdir \PYG{o}{(}...\PYG{o}{)}/INSTDIR
+\PYGZdl{} mkdir \PYG{o}{(}...\PYG{o}{)}/BUILDDIR
+\PYGZdl{} \PYG{n+nb}{cd} \PYG{o}{(}...\PYG{o}{)}/BUILDDIR
 \end{Verbatim}
 
 \index{cmake-gui}
@@ -23054,7 +23060,7 @@ To build the default configuration using the curses GUI, from the
 BUILDDIR enter the \code{ccmake} command and point to the SRCDIR:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }ccmake \PYG{o}{(}...\PYG{o}{)}/SRCDIR
+\PYGZdl{} ccmake \PYG{o}{(}...\PYG{o}{)}/SRCDIR
 \end{Verbatim}
 
 Similarly, to build the default configuration using the wxWidgets GUI,
@@ -23062,7 +23068,7 @@ from the BUILDDIR enter the \code{cmake-gui} command and point to the
 SRCDIR:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }cmake\PYGZhy{}gui \PYG{o}{(}...\PYG{o}{)}/SRCDIR
+\PYGZdl{} cmake\PYGZhy{}gui \PYG{o}{(}...\PYG{o}{)}/SRCDIR
 \end{Verbatim}
 
 The default curses configuration screen is shown in
@@ -23092,19 +23098,19 @@ makefiles including all dependencies and all rules to build SUNDIALS
 on this system.  Back at the command prompt, you can now run:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }make
+\PYGZdl{} make
 \end{Verbatim}
 
 or for a faster parallel build (e.g. using 4 threads), you can run
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }make \PYGZhy{}j 4
+\PYGZdl{} make \PYGZhy{}j 4
 \end{Verbatim}
 
 To install SUNDIALS in the installation directory specified in the configuration, simply run:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }make install
+\PYGZdl{} make install
 \end{Verbatim}
 
 \index{cmake}
@@ -23116,11 +23122,11 @@ CMake variable settings with the \code{cmake} command.  The following
 will build the default configuration:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }cmake \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/home/myname/sundials/instdir \PYG{l+s+se}{\PYGZbs{}}
+\PYGZdl{} cmake \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/home/myname/sundials/instdir \PYG{l+s+se}{\PYGZbs{}}
 \PYGZgt{}  \PYGZhy{}DEXAMPLES\PYGZus{}INSTALL\PYGZus{}PATH\PYG{o}{=}/home/myname/sundials/instdir/examples \PYG{l+s+se}{\PYGZbs{}}
 \PYGZgt{}  ../srcdir
-\PYG{n+nv}{\PYGZdl{} }make
-\PYG{n+nv}{\PYGZdl{} }make install
+\PYGZdl{} make
+\PYGZdl{} make install
 \end{Verbatim}
 
 
@@ -23622,7 +23628,7 @@ and set the SUNDIALS libraries as dependencies for your project.
 Using the CMake SUNDIALS build system, the command
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }make install
+\PYGZdl{} make install
 \end{Verbatim}
 
 will install the libraries under \code{LIBDIR} and the public header
