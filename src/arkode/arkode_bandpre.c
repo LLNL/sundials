@@ -134,8 +134,13 @@ int ARKBandPrecInit(void *arkode_mem, long int N,
     arkProcessError(ark_mem, ARKSPILS_MEM_FAIL, "ARKBANDPRE", "ARKBandPrecInit", MSGBP_MEM_FAIL);
     return(ARKSPILS_MEM_FAIL);
   }
+  
+  /* make sure s_P_data is free from any previous allocations */
+  if (arkspils_mem->s_pfree != NULL) {
+    arkspils_mem->s_pfree(ark_mem);
+  }
 
-  /* Overwrite the P_data field in the SPILS memory */
+  /* Point to the new P_data field in the SPILS memory */
   arkspils_mem->s_P_data = pdata;
 
   /* Attach the pfree function */
