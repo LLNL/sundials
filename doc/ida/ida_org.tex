@@ -79,8 +79,8 @@ In the case of the direct methods {\idadense} and {\idaband}, the
 package includes an algorithm for the approximation of the Jacobian by
 difference quotients, but the user also has the option of supplying
 the Jacobian (or an approximation to it) directly.
-When using the sparse direct linear solvers {\cvklu} and
-{\cvsuperlumt}, the user must supply a routine for the Jacobian (or an
+When using the sparse direct linear solvers {\idaklu} and
+{\idasuperlumt}, the user must supply a routine for the Jacobian (or an
 approximation to it) in CSC format, since standard difference quotient
 approximations do not leverage the inherent sparsity of the problem.
 In the case of the Krylov iterative methods {\idaspgmr}, {\idaspbcg},
