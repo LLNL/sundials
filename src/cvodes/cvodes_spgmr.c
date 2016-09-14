@@ -49,7 +49,7 @@ static void CVSpgmrFree(CVodeMem cv_mem);
 
 /* CVSPGMR lfreeB function */
 
-static void CVSpgmrFreeB(CVodeBMem cvB_mem);
+static int CVSpgmrFreeB(CVodeBMem cvB_mem);
 
 /* 
  * ================================================================
@@ -575,11 +575,13 @@ int CVSpgmrB(void *cvode_mem, int which, int pretypeB, int maxlB)
  */
 
 
-static void CVSpgmrFreeB(CVodeBMem cvB_mem)
+static int CVSpgmrFreeB(CVodeBMem cvB_mem)
 {
   CVSpilsMemB cvspilsB_mem;
 
   cvspilsB_mem = (CVSpilsMemB) (cvB_mem->cv_lmem);
 
   free(cvspilsB_mem);
+
+  return(0);
 }

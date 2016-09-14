@@ -47,7 +47,7 @@ static int cvSuperLUMTSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 static void cvSuperLUMTFree(CVodeMem cv_mem);
 
 /* CVKLU lfreeB function */
-static void cvSuperLUMTFreeB(CVodeBMem cvb_mem);
+static int cvSuperLUMTFreeB(CVodeBMem cvb_mem);
 
 /* 
  * ================================================================
@@ -693,12 +693,14 @@ int CVSuperLUMTSetOrderingB(void *cvode_mem, int which, int ordering_choice)
  * solver for backward integration.
  */
 
-static void cvSuperLUMTFreeB(CVodeBMem cvB_mem)
+static int cvSuperLUMTFreeB(CVodeBMem cvB_mem)
 {
   CVSlsMemB cvslsB_mem;
 
   cvslsB_mem = (CVSlsMemB) (cvB_mem->cv_lmem);
 
   free(cvslsB_mem);
+
+  return(0);
 }
 

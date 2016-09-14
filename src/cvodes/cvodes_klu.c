@@ -48,7 +48,7 @@ static int cvKLUSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 static void cvKLUFree(CVodeMem cv_mem);
 
 /* CVKLU lfreeB function */
-static void cvKLUFreeB(CVodeBMem cvb_mem);
+static int cvKLUFreeB(CVodeBMem cvb_mem);
 
 /* 
  * ================================================================
@@ -805,12 +805,14 @@ int CVKLUSetOrderingB(void *cvode_mem, int which, int ordering_choice)
  * solver for backward integration.
  */
 
-static void cvKLUFreeB(CVodeBMem cvB_mem)
+static int cvKLUFreeB(CVodeBMem cvB_mem)
 {
   CVSlsMemB cvslsB_mem;
 
   cvslsB_mem = (CVSlsMemB) (cvB_mem->cv_lmem);
 
   free(cvslsB_mem);
+
+  return(0);
 }
 

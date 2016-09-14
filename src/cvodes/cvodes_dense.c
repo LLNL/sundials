@@ -44,7 +44,7 @@ static int cvDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 static void cvDenseFree(CVodeMem cv_mem);
 
 /* CVSDENSE lfreeB function */
-static void cvDenseFreeB(CVodeBMem cvb_mem);
+static int cvDenseFreeB(CVodeBMem cvb_mem);
 
 /* 
  * ================================================================
@@ -437,12 +437,14 @@ int CVDenseB(void *cvode_mem, int which, long int nB)
  * solver for backward integration.
  */
 
-static void cvDenseFreeB(CVodeBMem cvB_mem)
+static int cvDenseFreeB(CVodeBMem cvB_mem)
 {
   CVDlsMemB cvdlsB_mem;
 
   cvdlsB_mem = (CVDlsMemB) (cvB_mem->cv_lmem);
 
   free(cvdlsB_mem);
+
+  return(0);
 }
 

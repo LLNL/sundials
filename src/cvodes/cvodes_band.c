@@ -44,7 +44,7 @@ static int cvBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 static void cvBandFree(CVodeMem cv_mem);
 
 /* CVSBAND lfreeB function */
-static void cvBandFreeB(CVodeBMem cvB_mem);
+static int cvBandFreeB(CVodeBMem cvB_mem);
 
 /* 
  * ================================================================
@@ -455,12 +455,14 @@ int CVBandB(void *cvode_mem, int which,
  * solver for backward integration.
  */
 
-static void cvBandFreeB(CVodeBMem cvB_mem)
+static int cvBandFreeB(CVodeBMem cvB_mem)
 {
   CVDlsMemB cvdlsB_mem;
 
   cvdlsB_mem = (CVDlsMemB) (cvB_mem->cv_lmem);
 
   free(cvdlsB_mem);
+
+  return(0);
 }
 

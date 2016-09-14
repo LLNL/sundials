@@ -68,8 +68,8 @@ static int cvLapackBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 static void cvLapackBandFree(CVodeMem cv_mem);
 
 /* CVSLAPACK lfreeB functions */
-static void cvLapackDenseFreeB(CVodeBMem cvB_mem);
-static void cvLapackBandFreeB(CVodeBMem cvB_mem);
+static int cvLapackDenseFreeB(CVodeBMem cvB_mem);
+static int cvLapackBandFreeB(CVodeBMem cvB_mem);
 
 /* 
  * ================================================================
@@ -736,13 +736,15 @@ int CVLapackDenseB(void *cvode_mem, int which, int nB)
  * linear solver for backward integration.
  */
 
-static void cvLapackDenseFreeB(CVodeBMem cvB_mem)
+static int cvLapackDenseFreeB(CVodeBMem cvB_mem)
 {
   CVDlsMemB cvdlsB_mem;
 
   cvdlsB_mem = (CVDlsMemB) (cvB_mem->cv_lmem);
 
   free(cvdlsB_mem);
+
+  return(0);
 }
 
 /*
@@ -821,11 +823,13 @@ int CVLapackBandB(void *cvode_mem, int which,
  * linear solver for backward integration.
  */
 
-static void cvLapackBandFreeB(CVodeBMem cvB_mem)
+static int cvLapackBandFreeB(CVodeBMem cvB_mem)
 {
   CVDlsMemB cvdlsB_mem;
 
   cvdlsB_mem = (CVDlsMemB) (cvB_mem->cv_lmem);
 
   free(cvdlsB_mem);
+
+  return(0);
 }

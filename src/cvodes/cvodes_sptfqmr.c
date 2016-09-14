@@ -49,7 +49,7 @@ static void CVSptfqmrFree(CVodeMem cv_mem);
 
 /* CVSPTFQMR lfreeB function */
 
-static void CVSptfqmrFreeB(CVodeBMem cvB_mem);
+static int CVSptfqmrFreeB(CVodeBMem cvB_mem);
 
 /* 
  * ================================================================
@@ -566,11 +566,13 @@ int CVSptfqmrB(void *cvode_mem, int which, int pretypeB, int maxlB)
  */
 
 
-static void CVSptfqmrFreeB(CVodeBMem cvB_mem)
+static int CVSptfqmrFreeB(CVodeBMem cvB_mem)
 {
   CVSpilsMemB cvspilsB_mem;
 
   cvspilsB_mem = (CVSpilsMemB) (cvB_mem->cv_lmem);
 
   free(cvspilsB_mem);
+
+  return(0);
 }

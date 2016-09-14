@@ -64,7 +64,7 @@ static int cvBBDDQJac(CVBBDPrecData pdata, realtype t,
                       N_Vector ytemp, N_Vector gtemp);
 
 /* Prototype for the pfree routine */
-static void CVBBDPrecFreeB(CVodeBMem cvB_mem);
+static int CVBBDPrecFreeB(CVodeBMem cvB_mem);
 
 /* 
  * ================================================================
@@ -707,10 +707,11 @@ int CVBBDPrecReInitB(void *cvode_mem, int which,
 }
 
 
-static void CVBBDPrecFreeB(CVodeBMem cvB_mem)
+static int CVBBDPrecFreeB(CVodeBMem cvB_mem)
 {
   free(cvB_mem->cv_pmem); 
   cvB_mem->cv_pmem = NULL;
+  return(0);
 }
 
 
