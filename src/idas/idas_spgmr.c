@@ -53,7 +53,7 @@ static int IDASpgmrPerf(IDAMem IDA_mem, int perftask);
 static int IDASpgmrFree(IDAMem IDA_mem);
 
 /* IDASPGMR lfreeB function */
-static void IDASpgmrFreeB(IDABMem IDAB_mem);
+static int IDASpgmrFreeB(IDABMem IDAB_mem);
 
 /* 
  * ================================================================
@@ -575,11 +575,13 @@ int IDASpgmrB(void *ida_mem, int which, int maxlB)
  * IDASpgmrFreeB 
  */
 
-static void IDASpgmrFreeB(IDABMem IDAB_mem)
+static int IDASpgmrFreeB(IDABMem IDAB_mem)
 {
   IDASpilsMemB idaspilsB_mem;
 
   idaspilsB_mem = (IDASpilsMemB) IDAB_mem->ida_lmem;
 
   free(idaspilsB_mem);
+
+  return(0);
 }

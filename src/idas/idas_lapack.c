@@ -69,8 +69,8 @@ static int idaLapackBandSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
                               N_Vector yC, N_Vector ypC, N_Vector fctC);
 static int idaLapackBandFree(IDAMem IDA_mem);
 
-static void IDALapackDenseFreeB(IDABMem IDAB_mem);
-static void IDALapackBandFreeB(IDABMem IDAB_mem);
+static int IDALapackDenseFreeB(IDABMem IDAB_mem);
+static int IDALapackBandFreeB(IDABMem IDAB_mem);
 
 /* 
  * ================================================================
@@ -658,13 +658,15 @@ int IDALapackDenseB(void *ida_mem, int which, int NeqB)
  * as argument. 
  */
 
-static void IDALapackDenseFreeB(IDABMem IDAB_mem)
+static int IDALapackDenseFreeB(IDABMem IDAB_mem)
 {
   IDADlsMemB idadlsB_mem;
 
   idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
   free(idadlsB_mem);
+
+  return(0);
 }
 
 /*
@@ -743,12 +745,14 @@ int IDALapackBandB(void *ida_mem, int which,
  * IDALapackBandFreeB 
  */
 
-static void IDALapackBandFreeB(IDABMem IDAB_mem)
+static int IDALapackBandFreeB(IDABMem IDAB_mem)
 {
   IDADlsMemB idadlsB_mem;
 
   idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
   free(idadlsB_mem);
+
+  return(0);
 }
 

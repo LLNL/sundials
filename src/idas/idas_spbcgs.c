@@ -54,7 +54,7 @@ static int IDASpbcgFree(IDAMem IDA_mem);
 
 /* IDASPBCG lfreeB function */
 
-static void IDASpbcgFreeB(IDABMem IDAB_mem);
+static int IDASpbcgFreeB(IDABMem IDAB_mem);
 
 /* 
  * ================================================================
@@ -583,11 +583,13 @@ int IDASpbcgB(void *ida_mem, int which, int maxlB)
  * IDASpbcgFreeB 
  */
 
-static void IDASpbcgFreeB(IDABMem IDAB_mem)
+static int IDASpbcgFreeB(IDABMem IDAB_mem)
 {
   IDASpilsMemB idaspilsB_mem;
 
   idaspilsB_mem = (IDASpilsMemB) IDAB_mem->ida_lmem;
 
   free(idaspilsB_mem);
+
+  return(0);
 }

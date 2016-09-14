@@ -54,7 +54,7 @@ static int IDABandFree(IDAMem IDA_mem);
 
 /* IDABAND lfreeB function */
 
-static void IDABandFreeB(IDABMem IDAB_mem);
+static int IDABandFreeB(IDABMem IDAB_mem);
 
 /* 
  * ================================================================
@@ -418,12 +418,14 @@ int IDABandB(void *ida_mem, int which,
  * IDABandFreeB 
  */
 
-static void IDABandFreeB(IDABMem IDAB_mem)
+static int IDABandFreeB(IDABMem IDAB_mem)
 {
   IDADlsMemB idadlsB_mem;
 
   idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
   free(idadlsB_mem);
+
+  return(0);
 }
 

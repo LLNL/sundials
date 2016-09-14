@@ -49,7 +49,7 @@ static int IDAKLUFree(IDAMem IDA_mem);
 
 /* IDAKLU lfreeB function */
 
-static void IDAKLUFreeB(IDABMem IDAB_mem);
+static int IDAKLUFreeB(IDABMem IDAB_mem);
 
 
 /* 
@@ -726,13 +726,15 @@ int IDAKLUSetOrderingB(void *ida_mem, int which, int ordering_choiceB)
  * as argument. 
  */
 
-static void IDAKLUFreeB(IDABMem IDAB_mem)
+static int IDAKLUFreeB(IDABMem IDAB_mem)
 {
   IDASlsMemB idaslsB_mem;
 
   idaslsB_mem = (IDASlsMemB) IDAB_mem->ida_lmem;
 
   free(idaslsB_mem);
+
+  return(0);
 }
 
 

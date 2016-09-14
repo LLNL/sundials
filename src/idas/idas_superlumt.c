@@ -50,7 +50,7 @@ static int IDASuperLUMTFree(IDAMem IDA_mem);
 
 /* IDASUPERLUMT lfreeB function */
 
-static void IDASuperLUMTFreeB(IDABMem IDAB_mem);
+static int IDASuperLUMTFreeB(IDABMem IDAB_mem);
 
 
 /* 
@@ -668,12 +668,14 @@ int IDASuperLUMTSetOrderingB(void *ida_mem, int which, int ordering_choiceB)
  * as argument. 
  */
 
-static void IDASuperLUMTFreeB(IDABMem IDAB_mem)
+static int IDASuperLUMTFreeB(IDABMem IDAB_mem)
 {
   IDASlsMemB idaslsB_mem;
 
   idaslsB_mem = (IDASlsMemB) IDAB_mem->ida_lmem;
 
   free(idaslsB_mem);
+
+  return(0);
 }
 

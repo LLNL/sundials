@@ -78,7 +78,7 @@ static int IDAAgcomm(long int NlocalB, realtype tt,
 
 /* Prototype for the pfree routine for backward problems. */
 
-static void IDABBDPrecFreeB(IDABMem IDAB_mem);
+static int IDABBDPrecFreeB(IDABMem IDAB_mem);
 
 /* 
  * ================================================================
@@ -737,10 +737,11 @@ int IDABBDPrecReInitB(void *ida_mem, int which,
   return(flag);
 }
 
-static void IDABBDPrecFreeB(IDABMem IDAB_mem)
+static int IDABBDPrecFreeB(IDABMem IDAB_mem)
 {
   free(IDAB_mem->ida_pmem);
   IDAB_mem->ida_pmem = NULL;
+  return(0);
 }
 
 /* 

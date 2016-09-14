@@ -49,7 +49,7 @@ static int IDADenseFree(IDAMem IDA_mem);
 
 /* IDADENSE lfreeB function */
 
-static void IDADenseFreeB(IDABMem IDAB_mem);
+static int IDADenseFreeB(IDABMem IDAB_mem);
 
 /* 
  * ================================================================
@@ -397,12 +397,14 @@ int IDADenseB(void *ida_mem, int which, long int NeqB)
  * as argument. 
  */
 
-static void IDADenseFreeB(IDABMem IDAB_mem)
+static int IDADenseFreeB(IDABMem IDAB_mem)
 {
   IDADlsMemB idadlsB_mem;
 
   idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
   free(idadlsB_mem);
+
+  return(0);
 }
 

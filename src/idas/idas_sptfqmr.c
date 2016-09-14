@@ -53,7 +53,7 @@ static int IDASptfqmrPerf(IDAMem IDA_mem, int perftask);
 static int IDASptfqmrFree(IDAMem IDA_mem);
 
 /* IDASPTFQMR lfree function for backward problem. */
-static void IDASptfqmrFreeB(IDABMem IDAB_mem);
+static int IDASptfqmrFreeB(IDABMem IDAB_mem);
 
 /* 
  * ================================================================
@@ -576,11 +576,13 @@ int IDASptfqmrB(void *ida_mem, int which, int maxlB)
  * IDASptfqmrFreeB 
  */
 
-static void IDASptfqmrFreeB(IDABMem IDAB_mem)
+static int IDASptfqmrFreeB(IDABMem IDAB_mem)
 {
   IDASpilsMemB idaspilsB_mem;
 
   idaspilsB_mem = (IDASpilsMemB) IDAB_mem->ida_lmem;
 
   free(idaspilsB_mem);
+
+  return(0);
 }
