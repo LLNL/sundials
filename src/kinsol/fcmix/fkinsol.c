@@ -85,6 +85,7 @@ extern void FK_FUN(realtype*, realtype*, int*);
 void FKIN_CREATE(int *ier)
 {
   
+  *ier = 0;
   /* check for required vector operations */
   if ((F2C_KINSOL_vec->ops->nvgetarraypointer == NULL) ||
       (F2C_KINSOL_vec->ops->nvsetarraypointer == NULL)) {
