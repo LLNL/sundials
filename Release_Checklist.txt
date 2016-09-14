@@ -3,6 +3,8 @@ SUNDIALS Pre-Release Tasks
 This is a list of tasks that need to be done before a SUNDIALS release.
 The order is bottom-up-- starting with solver source files, and ending with web pages.
 
+0. Create release branch from trunk in the Subversion repository
+
 1. Bug fixes - C solvers
 
 2. Bug fixes - Matlab
@@ -81,7 +83,7 @@ creates all tarballs in their final form, appropriate for uploading to the websi
     - After push, ensure web content and behavior is as expected:
        + Main Page: https://computation-external.llnl.gov/casc/sundials/main.html 
 
-13. Tag the release in Subversion repository
+13. Tag the release in the release branch in Subversion repository
 
 
 
