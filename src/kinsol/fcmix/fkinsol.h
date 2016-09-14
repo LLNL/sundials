@@ -42,7 +42,7 @@
           vector computations
    FKINMALLOC interfaces to KINInit
    FKINCREATE interfaces to KINCreate
-   FKINInit interfaces to KINInit
+   FKININIT interfaces to KINInit
    FKINSETIIN, FKINSETRIN, FKINSETVIN interface to KINSet* functions
    FKINDENSE interfaces to KINDense
    FKINKLU interfaces to KINKLU
@@ -247,8 +247,8 @@
 
        to set the optional input specified by the character key KEY to the 
        integer value VALUE.
-       KEY is one of the following: PRNT_LEVEL, MAX_NITERS, ETA_FORM, MAA,
-       MAX_SETUPS, MAX_SP_SETUPS, NO_INIT_SETUP, NO_MIN_EPS, NO_RES_MON.
+       KEY is one of the following: 'PRNT_LEVEL', 'MAX_NITERS', 'ETA_FORM', 'MAA',
+       'MAX_SETUPS', 'MAX_SP_SETUPS', 'NO_INIT_SETUP', 'NO_MIN_EPS', 'NO_RES_MON'.
 
        To set various real optional inputs, make the folowing call:
 
@@ -256,9 +256,9 @@
 
       to set the optional input specified by the character key KEY to the
       real value VALUE.
-      KEY is one of the following: FNORM_TOL, SSTEP_TOL, MAX_STEP, RERR_FUNC,
-      ETA_CONST, ETA_PARAMS, RMON_CONST, RMON_PARAMS.
-      Note that if KEY is ETA_PARAMS or RMON_PARAMS, then VALUE must be an
+      KEY is one of the following: 'FNORM_TOL', 'SSTEP_TOL', 'MAX_STEP',
+      'RERR_FUNC', 'ETA_CONST', 'ETA_PARAMS', 'RMON_CONST', 'RMON_PARAMS'.
+      Note that if KEY is 'ETA_PARAMS' or 'RMON_PARAMS', then VALUE must be an
       array of dimension 2.
 
       To set the vector of constraints on the solution, make the following call:
@@ -535,7 +535,7 @@
  (8) Memory freeing: FKINFREE
 
      To the free the internal memory created by the calls to FKINCREATE and 
-     FKINInit and either FNVINITS or FNVINITP, make the following call:
+     FKININIT and any FNVINIT**, make the following call:
 
        CALL FKINFREE
 
