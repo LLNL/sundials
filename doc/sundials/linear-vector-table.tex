@@ -1,8 +1,8 @@
 {\sundials} provides some linear solvers only as a means for 
 users to get problems running and not as highly efficient solvers.
-In particular, the dense and band direct solvers are not nearly as efficient as
-their LAPACK counterparts, and users are encouraged to use LAPACK solvers
-if an efficient dense direct solver is needed.
+For example, if solving a dense system, we suggest using the Lapack solvers
+if the size of the linear system is $> 50,000$. (Thanks to A. Nicolai for 
+his testing and recommendation.)
 Table \ref{t:solver-vector} shows the linear solver interfaces
 available in {\sundials} packages and the vector implementations
 required for use.  As an example, one cannot use the {\sundials} package
