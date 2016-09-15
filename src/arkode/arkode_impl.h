@@ -422,7 +422,7 @@ typedef struct ARKodeMemRec {
 		    N_Vector vtemp2, N_Vector vtemp3); 
   int (*ark_lsolve)(struct ARKodeMemRec *ark_mem, N_Vector b, N_Vector weight,
 		    N_Vector ycur, N_Vector fcur);
-  void (*ark_lfree)(struct ARKodeMemRec *ark_mem);
+  int (*ark_lfree)(struct ARKodeMemRec *ark_mem);
   void *ark_lmem;
   int ark_lsolve_type;   /* linear solver type: 0=iterative; 1=dense; 
                                                 2=band; 3=sparse; 4=custom */
@@ -439,7 +439,7 @@ typedef struct ARKodeMemRec {
   int (*ark_msetup)(struct ARKodeMemRec *ark_mem, N_Vector vtemp1, 
 		    N_Vector vtemp2, N_Vector vtemp3); 
   int (*ark_msolve)(struct ARKodeMemRec *ark_mem, N_Vector b, N_Vector weight);
-  void (*ark_mfree)(struct ARKodeMemRec *ark_mem);
+  int (*ark_mfree)(struct ARKodeMemRec *ark_mem);
   void *ark_mass_mem;
   int ark_msolve_type;   /* mass matrix type: 0=iterative; 1=dense; 
 			                      2=band; 3=sparse; 4=custom */
@@ -611,11 +611,12 @@ typedef struct ARKodeMemRec {
 ---------------------------------------------------------------*/
 
 /*---------------------------------------------------------------
- void (*ark_lfree)(ARKodeMem ark_mem);
+ int (*ark_lfree)(ARKodeMem ark_mem);
 -----------------------------------------------------------------
  ark_lfree should free up any memory allocated by the linear
  solver. This routine is called once a problem has been
- completed and the linear solver is no longer needed.
+ completed and the linear solver is no longer needed.  It should 
+ return 0 upon success, or a nonzero on failure.
 ---------------------------------------------------------------*/
 
 
@@ -665,11 +666,12 @@ typedef struct ARKodeMemRec {
 ---------------------------------------------------------------*/
 
 /*---------------------------------------------------------------
- void (*ark_mfree)(ARKodeMem ark_mem);
+ int (*ark_mfree)(ARKodeMem ark_mem);
 -----------------------------------------------------------------
  ark_mfree should free up any memory allocated by the mass matrix
  solver. This routine is called once a problem has been
- completed and the solver is no longer needed.
+ completed and the solver is no longer needed.  It should return
+ 0 upon success, or a nonzero on failure.
 ---------------------------------------------------------------*/
 
   

@@ -44,7 +44,7 @@ static int ARKBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
 			    int lr, void *bp_data, N_Vector tmp);
 
 /* Prototype for ARKBandPrecFree */
-static void ARKBandPrecFree(ARKodeMem ark_mem);
+static int ARKBandPrecFree(ARKodeMem ark_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
 static int ARKBandPDQJac(ARKBandPrecData pdata,
@@ -364,7 +364,7 @@ static int ARKBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
 
  Frees data associated with the ARKBand preconditioner.
 ---------------------------------------------------------------*/ 
-static void ARKBandPrecFree(ARKodeMem ark_mem)
+static int ARKBandPrecFree(ARKodeMem ark_mem)
 {
   ARKSpilsMem arkspils_mem;
   ARKBandPrecData pdata;
@@ -381,6 +381,8 @@ static void ARKBandPrecFree(ARKodeMem ark_mem)
 
   free(pdata);
   pdata = NULL;
+
+  return(0);
 }
 
 

@@ -22775,7 +22775,7 @@ The type definition of {\hyperref[linear_solvers/custom:c.lfree]{\emph{\code{lfr
 \index{lfree (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{linear_solvers/custom:c.lfree}\pysiglinewithargsret{typedef void \bfcode{(*lfree)}}{ARKodeMem\emph{ ark\_mem}}{}
+\phantomsection\label{linear_solvers/custom:c.lfree}\pysiglinewithargsret{typedef int \bfcode{(*lfree)}}{ARKodeMem\emph{ ark\_mem}}{}
 free up any memory allocated by the linear solver.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -22786,7 +22786,8 @@ free up any memory allocated by the linear solver.
 
 \end{description}
 
-\textbf{Return value:}  None
+\textbf{Return value:}  This function should return 0 if successful, or
+a nonzero if not.
 
 \textbf{Notes:}  This function is called once a problem has been
 completed and the linear solver is no longer needed.
@@ -22798,7 +22799,7 @@ Similarly, the type definition of {\hyperref[linear_solvers/custom:c.mfree]{\emp
 \index{mfree (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{linear_solvers/custom:c.mfree}\pysiglinewithargsret{typedef void \bfcode{(*mfree)}}{ARKodeMem\emph{ ark\_mem}}{}
+\phantomsection\label{linear_solvers/custom:c.mfree}\pysiglinewithargsret{typedef int \bfcode{(*mfree)}}{ARKodeMem\emph{ ark\_mem}}{}
 free up any memory allocated by the mass matrix linear solver.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -22809,7 +22810,8 @@ free up any memory allocated by the mass matrix linear solver.
 
 \end{description}
 
-\textbf{Return value:}  None
+\textbf{Return value:}  This function should return 0 if successful, or
+a nonzero if not.
 
 \textbf{Notes:}  This function is called once a problem has been
 completed and the mass matrix solver is no longer needed.

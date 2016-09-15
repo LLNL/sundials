@@ -42,7 +42,7 @@ static int ARKSpbcgSetup(ARKodeMem ark_mem, int convfail,
 static int ARKSpbcgSolve(ARKodeMem ark_mem, N_Vector b, 
 			 N_Vector weight, N_Vector ynow, 
 			 N_Vector fnow);
-static void ARKSpbcgFree(ARKodeMem ark_mem);
+static int ARKSpbcgFree(ARKodeMem ark_mem);
 
 /* ARKSPBCG minit, msetup, msolve, and mfree routines */
 static int ARKMassSpbcgInit(ARKodeMem ark_mem);
@@ -50,7 +50,7 @@ static int ARKMassSpbcgSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 			     N_Vector vtemp2, N_Vector vtemp3);
 static int ARKMassSpbcgSolve(ARKodeMem ark_mem, N_Vector b, 
 			     N_Vector weight);
-static void ARKMassSpbcgFree(ARKodeMem ark_mem);
+static int ARKMassSpbcgFree(ARKodeMem ark_mem);
 
 
 /*---------------------------------------------------------------
@@ -411,7 +411,7 @@ static int ARKSpbcgSolve(ARKodeMem ark_mem, N_Vector b,
 
  This routine frees memory specific to the Spbcg linear solver.
 ---------------------------------------------------------------*/
-static void ARKSpbcgFree(ARKodeMem ark_mem)
+static int ARKSpbcgFree(ARKodeMem ark_mem)
 {
   ARKSpilsMem arkspils_mem;
   SpbcgMem spbcg_mem;
@@ -428,6 +428,8 @@ static void ARKSpbcgFree(ARKodeMem ark_mem)
 
   free(arkspils_mem);
   ark_mem->ark_lmem = NULL;
+
+  return(0);
 }
 
 
@@ -738,7 +740,7 @@ static int ARKMassSpbcgSolve(ARKodeMem ark_mem, N_Vector b,
 
  This routine frees memory specific to the Spbcg mass matrix solver.
 ---------------------------------------------------------------*/
-static void ARKMassSpbcgFree(ARKodeMem ark_mem)
+static int ARKMassSpbcgFree(ARKodeMem ark_mem)
 {
   ARKSpilsMassMem arkspils_mem;
   SpbcgMem spbcg_mem;
@@ -754,6 +756,8 @@ static void ARKMassSpbcgFree(ARKodeMem ark_mem)
 
   free(arkspils_mem);
   ark_mem->ark_mass_mem = NULL;
+  
+  return(0);
 }
 
 

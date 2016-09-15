@@ -46,7 +46,7 @@ static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 			   int lr, void *bbd_data, N_Vector tmp);
 
 /* Prototype for ARKBBDPrecFree */
-static void ARKBBDPrecFree(ARKodeMem ark_mem);
+static int ARKBBDPrecFree(ARKodeMem ark_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
 static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t, 
@@ -155,7 +155,12 @@ int ARKBBDPrecInit(void *arkode_mem, long int Nlocal,
   pdata->ipwsize = Nlocal;
   pdata->nge = 0;
 
-  /* Overwrite the P_data field in the SPILS memory */
+  /* make sure s_P_data is free from any previous allocations */
+  if (arkspils_mem->s_pfree != NULL) {
+    arkspils_mem->s_pfree(ark_mem);
+  }
+
+  /* Point to the new P_data field in the SPILS memory */
   arkspils_mem->s_P_data = pdata;
 
   /* Attach the pfree function */
@@ -425,7 +430,7 @@ static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 
 
 /*-------------------------------------------------------------*/
-static void ARKBBDPrecFree(ARKodeMem ark_mem)
+static int ARKBBDPrecFree(ARKodeMem ark_mem)
 {
   ARKSpilsMem arkspils_mem;
   ARKBBDPrecData pdata;
@@ -442,6 +447,8 @@ static void ARKBBDPrecFree(ARKodeMem ark_mem)
 
   free(pdata);
   pdata = NULL;
+
+  return(0);
 }
 
 

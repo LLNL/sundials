@@ -43,7 +43,7 @@ static int arkKLUSetup(ARKodeMem ark_mem, int convfail,
 static int arkKLUSolve(ARKodeMem ark_mem, N_Vector b, 
 		       N_Vector weight, N_Vector ycur, 
 		       N_Vector fcur);
-static void arkKLUFree(ARKodeMem ark_mem);
+static int arkKLUFree(ARKodeMem ark_mem);
 
 /* ARKKLU minit, msetup, msolve, mfree and mtimes routines */
 static int arkMassKLUInit(ARKodeMem ark_mem);
@@ -51,7 +51,7 @@ static int arkMassKLUSetup(ARKodeMem ark_mem, N_Vector tmp1,
 			   N_Vector tmp2, N_Vector tmp3);
 static int arkMassKLUSolve(ARKodeMem ark_mem, N_Vector b, 
 			   N_Vector weight);
-static void arkMassKLUFree(ARKodeMem ark_mem);
+static int arkMassKLUFree(ARKodeMem ark_mem);
 static int arkMassKLUMultiply(N_Vector v, N_Vector Mv, 
 			      realtype t, void *arkode_mem);
 
@@ -591,7 +591,7 @@ static int arkKLUSolve(ARKodeMem ark_mem, N_Vector b,
 
  This routine frees memory specific to the ARKKLU linear solver.
 ---------------------------------------------------------------*/
-static void arkKLUFree(ARKodeMem ark_mem)
+static int arkKLUFree(ARKodeMem ark_mem)
 {
   ARKSlsMem arksls_mem;
   KLUData klu_data;
@@ -621,6 +621,8 @@ static void arkKLUFree(ARKodeMem ark_mem)
   free(klu_data); 
   free(arksls_mem); 
   ark_mem->ark_lmem = NULL;
+
+  return(0);
 }
 
 
@@ -1094,7 +1096,7 @@ static int arkMassKLUSolve(ARKodeMem ark_mem, N_Vector b,
  This routine frees memory specific to the ARKMassKLU mass 
  matrix linear solver.
 ---------------------------------------------------------------*/
-static void arkMassKLUFree(ARKodeMem ark_mem)
+static int arkMassKLUFree(ARKodeMem ark_mem)
 {
   ARKSlsMassMem arksls_mem;
   KLUData klu_data;
@@ -1124,6 +1126,8 @@ static void arkMassKLUFree(ARKodeMem ark_mem)
   free(klu_data); 
   free(arksls_mem); 
   ark_mem->ark_mass_mem = NULL;
+
+  return(0);
 }
 
 

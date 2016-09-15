@@ -39,14 +39,14 @@ static int arkBandSetup(ARKodeMem ark_mem, int convfail, N_Vector ypred,
                        N_Vector vtemp2, N_Vector vtemp3);
 static int arkBandSolve(ARKodeMem ark_mem, N_Vector b, N_Vector weight,
                        N_Vector ycur, N_Vector fcur);
-static void arkBandFree(ARKodeMem ark_mem);
+static int arkBandFree(ARKodeMem ark_mem);
 
 /* ARKBAND minit, msetup, msolve, mfree and mtimes routines */
 static int arkMassBandInit(ARKodeMem ark_mem);
 static int arkMassBandSetup(ARKodeMem ark_mem, N_Vector vtemp1, 
 			    N_Vector vtemp2, N_Vector vtemp3);
 static int arkMassBandSolve(ARKodeMem ark_mem, N_Vector b, N_Vector weight);
-static void arkMassBandFree(ARKodeMem ark_mem);
+static int arkMassBandFree(ARKodeMem ark_mem);
 static int arkMassBandMultiply(N_Vector v, N_Vector Mv, 
 			       realtype t, void *user_data);
 
@@ -350,7 +350,7 @@ static int arkBandSolve(ARKodeMem ark_mem, N_Vector b, N_Vector weight,
 
  This routine frees memory specific to the band linear solver.
 ---------------------------------------------------------------*/
-static void arkBandFree(ARKodeMem ark_mem)
+static int arkBandFree(ARKodeMem ark_mem)
 {
   ARKDlsMem arkdls_mem;
 
@@ -361,6 +361,8 @@ static void arkBandFree(ARKodeMem ark_mem)
   DestroyArray(arkdls_mem->d_lpivots);
   free(arkdls_mem);
   ark_mem->ark_lmem = NULL;
+
+  return(0);
 }
 
 
@@ -581,7 +583,7 @@ static int arkMassBandSolve(ARKodeMem ark_mem, N_Vector b,
 
  This routine frees memory specific to the band linear solver.
 ---------------------------------------------------------------*/
-static void arkMassBandFree(ARKodeMem ark_mem)
+static int arkMassBandFree(ARKodeMem ark_mem)
 {
   ARKDlsMassMem arkdls_mem;
 
@@ -592,6 +594,8 @@ static void arkMassBandFree(ARKodeMem ark_mem)
   DestroyArray(arkdls_mem->d_lpivots);
   free(arkdls_mem);
   ark_mem->ark_mass_mem = NULL;
+
+  return(0);
 }
 
 

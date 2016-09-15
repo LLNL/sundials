@@ -50,7 +50,7 @@ static int arkLapackDenseSetup(ARKodeMem ark_mem, int convfail,
 static int arkLapackDenseSolve(ARKodeMem ark_mem, N_Vector b, 
 			       N_Vector weight, N_Vector yC, 
 			       N_Vector fctC);
-static void arkLapackDenseFree(ARKodeMem ark_mem);
+static int arkLapackDenseFree(ARKodeMem ark_mem);
 
 /* ARKLAPACK DENSE minit, msetup, msolve, mfree and mtimes routines */ 
 static int arkMassLapackDenseInit(ARKodeMem ark_mem);
@@ -58,7 +58,7 @@ static int arkMassLapackDenseSetup(ARKodeMem ark_mem, N_Vector tmp1,
 				   N_Vector tmp2, N_Vector tmp3);
 static int arkMassLapackDenseSolve(ARKodeMem ark_mem, N_Vector b, 
 				   N_Vector weight);
-static void arkMassLapackDenseFree(ARKodeMem ark_mem);
+static int arkMassLapackDenseFree(ARKodeMem ark_mem);
 static int arkMassLapackDenseMultiply(N_Vector v, N_Vector Mv, 
 				      realtype t, void *user_data);
 
@@ -71,7 +71,7 @@ static int arkLapackBandSetup(ARKodeMem ark_mem, int convfail,
 static int arkLapackBandSolve(ARKodeMem ark_mem, N_Vector b, 
 			      N_Vector weight, N_Vector yC, 
 			      N_Vector fctC);
-static void arkLapackBandFree(ARKodeMem ark_mem);
+static int arkLapackBandFree(ARKodeMem ark_mem);
 
 /* ARKLAPACK BAND minit, msetup, msolve, mfree and mtimes routines */ 
 static int arkMassLapackBandInit(ARKodeMem ark_mem);
@@ -79,7 +79,7 @@ static int arkMassLapackBandSetup(ARKodeMem ark_mem, N_Vector tmp1,
 				  N_Vector tmp2, N_Vector tmp3);
 static int arkMassLapackBandSolve(ARKodeMem ark_mem, N_Vector b, 
 				  N_Vector weight);
-static void arkMassLapackBandFree(ARKodeMem ark_mem);
+static int arkMassLapackBandFree(ARKodeMem ark_mem);
 static int arkMassLapackBandMultiply(N_Vector v, N_Vector Mv, 
 				     realtype t, void *user_data);
 
@@ -752,7 +752,7 @@ static int arkLapackDenseSolve(ARKodeMem ark_mem, N_Vector b,
  arkLapackDenseFree frees memory specific to the dense linear 
  solver.
 ---------------------------------------------------------------*/                  
-static void arkLapackDenseFree(ARKodeMem ark_mem)
+static int arkLapackDenseFree(ARKodeMem ark_mem)
 {
   ARKDlsMem  arkdls_mem;
 
@@ -763,6 +763,8 @@ static void arkLapackDenseFree(ARKodeMem ark_mem)
   DestroyMat(arkdls_mem->d_savedJ);
   free(arkdls_mem); 
   arkdls_mem = NULL;
+
+  return(0);
 }
 
 
@@ -852,7 +854,7 @@ static int arkMassLapackDenseSolve(ARKodeMem ark_mem, N_Vector b,
  arkMassLapackDenseFree frees memory specific to the dense mass
  matrix solver.
 ---------------------------------------------------------------*/                  
-static void arkMassLapackDenseFree(ARKodeMem ark_mem)
+static int arkMassLapackDenseFree(ARKodeMem ark_mem)
 {
   ARKDlsMassMem arkdls_mem;
   arkdls_mem = (ARKDlsMassMem) ark_mem->ark_mass_mem;
@@ -860,6 +862,8 @@ static void arkMassLapackDenseFree(ARKodeMem ark_mem)
   DestroyArray(arkdls_mem->d_pivots);
   free(arkdls_mem); 
   arkdls_mem = NULL;
+
+  return(0);
 }
 
 
@@ -1093,7 +1097,7 @@ static int arkLapackBandSolve(ARKodeMem ark_mem, N_Vector b,
  arkLapackBandFree frees memory specific to the band linear 
  solver.
 ---------------------------------------------------------------*/                  
-static void arkLapackBandFree(ARKodeMem ark_mem)
+static int arkLapackBandFree(ARKodeMem ark_mem)
 {
   ARKDlsMem  arkdls_mem;
 
@@ -1104,6 +1108,8 @@ static void arkLapackBandFree(ARKodeMem ark_mem)
   DestroyMat(arkdls_mem->d_savedJ);
   free(arkdls_mem); 
   arkdls_mem = NULL;
+
+  return(0);
 }
 
 
@@ -1201,7 +1207,7 @@ static int arkMassLapackBandSolve(ARKodeMem ark_mem, N_Vector b,
  arkMassLapackBandFree frees memory specific to the band mass
  matrix solver.
 ---------------------------------------------------------------*/                  
-static void arkMassLapackBandFree(ARKodeMem ark_mem)
+static int arkMassLapackBandFree(ARKodeMem ark_mem)
 {
   ARKDlsMassMem arkdls_mem;
   arkdls_mem = (ARKDlsMassMem) ark_mem->ark_mass_mem;
@@ -1209,6 +1215,8 @@ static void arkMassLapackBandFree(ARKodeMem ark_mem)
   DestroyArray(arkdls_mem->d_pivots);
   free(arkdls_mem); 
   arkdls_mem = NULL;
+
+  return(0);
 }
 
 

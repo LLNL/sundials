@@ -40,7 +40,7 @@ static int ARKSptfqmrSetup(ARKodeMem ark_mem, int convfail, N_Vector ypred,
 			   N_Vector vtemp2, N_Vector vtemp3);
 static int ARKSptfqmrSolve(ARKodeMem ark_mem, N_Vector b, N_Vector weight,
 			   N_Vector ynow, N_Vector fnow);
-static void ARKSptfqmrFree(ARKodeMem ark_mem);
+static int ARKSptfqmrFree(ARKodeMem ark_mem);
 
 /* ARKSPTFQMR minit, msetup, msolve, and mfree routines */
 static int ARKMassSptfqmrInit(ARKodeMem ark_mem);
@@ -48,7 +48,7 @@ static int ARKMassSptfqmrSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 			       N_Vector vtemp2, N_Vector vtemp3);
 static int ARKMassSptfqmrSolve(ARKodeMem ark_mem, N_Vector b, 
 			       N_Vector weight);
-static void ARKMassSptfqmrFree(ARKodeMem ark_mem);
+static int ARKMassSptfqmrFree(ARKodeMem ark_mem);
 
 
 /*---------------------------------------------------------------
@@ -410,7 +410,7 @@ static int ARKSptfqmrSolve(ARKodeMem ark_mem, N_Vector b,
 
  This routine frees memory specific to the Sptfqmr linear solver.
 ---------------------------------------------------------------*/
-static void ARKSptfqmrFree(ARKodeMem ark_mem)
+static int ARKSptfqmrFree(ARKodeMem ark_mem)
 {
   ARKSpilsMem arkspils_mem;
   SptfqmrMem sptfqmr_mem;
@@ -428,7 +428,7 @@ static void ARKSptfqmrFree(ARKodeMem ark_mem)
   free(arkspils_mem);
   ark_mem->ark_lmem = NULL;
 
-  return;
+  return(0);
 }
 
 
@@ -740,7 +740,7 @@ static int ARKMassSptfqmrSolve(ARKodeMem ark_mem, N_Vector b,
 
  This routine frees memory specific to the Sptfqmr linear solver.
 ---------------------------------------------------------------*/
-static void ARKMassSptfqmrFree(ARKodeMem ark_mem)
+static int ARKMassSptfqmrFree(ARKodeMem ark_mem)
 {
   ARKSpilsMassMem arkspils_mem;
   SptfqmrMem sptfqmr_mem;
@@ -757,7 +757,7 @@ static void ARKMassSptfqmrFree(ARKodeMem ark_mem)
   free(arkspils_mem);
   ark_mem->ark_mass_mem = NULL;
 
-  return;
+  return(0);
 }
 
 

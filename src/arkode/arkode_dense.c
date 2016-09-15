@@ -39,7 +39,7 @@ static int arkDenseSetup(ARKodeMem ark_mem, int convfail, N_Vector ypred,
 			 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 static int arkDenseSolve(ARKodeMem ark_mem, N_Vector b, N_Vector weight,
 			 N_Vector ycur, N_Vector fcur);
-static void arkDenseFree(ARKodeMem ark_mem);
+static int arkDenseFree(ARKodeMem ark_mem);
 
 /* ARKDENSE minit, msetup, msolve, mfree and mtimes routines */
 static int arkMassDenseInit(ARKodeMem ark_mem);
@@ -47,7 +47,7 @@ static int arkMassDenseSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 			     N_Vector vtemp2, N_Vector vtemp3);
 static int arkMassDenseSolve(ARKodeMem ark_mem, N_Vector b, 
 			     N_Vector weight);
-static void arkMassDenseFree(ARKodeMem ark_mem);
+static int arkMassDenseFree(ARKodeMem ark_mem);
 static int arkMassDenseMultiply(N_Vector v, N_Vector Mv, 
 				realtype t, void *arkode_mem);
                 
@@ -336,7 +336,7 @@ static int arkDenseSolve(ARKodeMem ark_mem, N_Vector b,
 
  This routine frees memory specific to the dense linear solver.
 ---------------------------------------------------------------*/
-static void arkDenseFree(ARKodeMem ark_mem)
+static int arkDenseFree(ARKodeMem ark_mem)
 {
   ARKDlsMem  arkdls_mem;
 
@@ -347,6 +347,8 @@ static void arkDenseFree(ARKodeMem ark_mem)
   DestroyArray(arkdls_mem->d_lpivots);
   free(arkdls_mem);
   ark_mem->ark_lmem = NULL;
+
+  return(0);
 }
 
 
@@ -557,7 +559,7 @@ static int arkMassDenseSolve(ARKodeMem ark_mem, N_Vector b,
  This routine frees memory specific to the dense mass matrix
  solver.
 ---------------------------------------------------------------*/
-static void arkMassDenseFree(ARKodeMem ark_mem)
+static int arkMassDenseFree(ARKodeMem ark_mem)
 {
   ARKDlsMassMem  arkdls_mem;
 
@@ -568,6 +570,8 @@ static void arkMassDenseFree(ARKodeMem ark_mem)
   DestroyArray(arkdls_mem->d_lpivots);
   free(arkdls_mem);
   ark_mem->ark_mass_mem = NULL;
+
+  return(0);
 }
 
 

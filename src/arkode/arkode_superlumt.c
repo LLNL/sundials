@@ -42,7 +42,7 @@ static int arkSuperLUMTSetup(ARKodeMem ark_mem, int convfail,
 static int arkSuperLUMTSolve(ARKodeMem ark_mem, N_Vector b, 
 			     N_Vector weight, N_Vector ycur, 
 			     N_Vector fcur);
-static void arkSuperLUMTFree(ARKodeMem ark_mem);
+static int arkSuperLUMTFree(ARKodeMem ark_mem);
 
 /* ARKSUPERLUMT minit, msetup, msolve, mfree and mtimes routines */
 static int arkMassSuperLUMTInit(ARKodeMem ark_mem);
@@ -50,7 +50,7 @@ static int arkMassSuperLUMTSetup(ARKodeMem ark_mem, N_Vector tmp1,
 			     N_Vector tmp2, N_Vector tmp3);
 static int arkMassSuperLUMTSolve(ARKodeMem ark_mem, N_Vector b, 
 			     N_Vector weight);
-static void arkMassSuperLUMTFree(ARKodeMem ark_mem);
+static int arkMassSuperLUMTFree(ARKodeMem ark_mem);
 static int arkMassSuperLUMTMultiply(N_Vector v, N_Vector Mv, 
 				    realtype t, void *arkode_mem);
 
@@ -491,7 +491,7 @@ static int arkSuperLUMTSolve(ARKodeMem ark_mem, N_Vector b,
  This routine frees memory specific to the ARKSuperLUMT linear 
  solver.
 ---------------------------------------------------------------*/
-static void arkSuperLUMTFree(ARKodeMem ark_mem)
+static int arkSuperLUMTFree(ARKodeMem ark_mem)
 {
   ARKSlsMem arksls_mem;
   SLUMTData slumt_data;
@@ -531,6 +531,8 @@ static void arkSuperLUMTFree(ARKodeMem ark_mem)
   slumt_data = NULL;
   free(arksls_mem); 
   ark_mem->ark_lmem = NULL;
+
+  return(0);
 }
 
 
@@ -904,7 +906,7 @@ static int arkMassSuperLUMTSolve(ARKodeMem ark_mem, N_Vector b,
  This routine frees memory specific to the ARKSuperLUMT mass 
  matrix linear solver.
 ---------------------------------------------------------------*/
-static void arkMassSuperLUMTFree(ARKodeMem ark_mem)
+static int arkMassSuperLUMTFree(ARKodeMem ark_mem)
 {
   ARKSlsMassMem arksls_mem;
   SLUMTData slumt_data;
@@ -944,6 +946,8 @@ static void arkMassSuperLUMTFree(ARKodeMem ark_mem)
   slumt_data = NULL;
   free(arksls_mem); 
   ark_mem->ark_mass_mem = NULL;
+
+  return(0);
 }
 
 

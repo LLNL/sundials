@@ -41,7 +41,7 @@ static int ARKPcgSetup(ARKodeMem ark_mem, int convfail,
 static int ARKPcgSolve(ARKodeMem ark_mem, N_Vector b, 
 		       N_Vector weight, N_Vector ynow, 
 		       N_Vector fnow);
-static void ARKPcgFree(ARKodeMem ark_mem);
+static int ARKPcgFree(ARKodeMem ark_mem);
 
 /* ARKPCG minit, msetup, msolve, and mfree routines */
 static int ARKMassPcgInit(ARKodeMem ark_mem);
@@ -49,7 +49,7 @@ static int ARKMassPcgSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 			   N_Vector vtemp2, N_Vector vtemp3);
 static int ARKMassPcgSolve(ARKodeMem ark_mem, N_Vector b, 
 			   N_Vector weight);
-static void ARKMassPcgFree(ARKodeMem ark_mem);
+static int ARKMassPcgFree(ARKodeMem ark_mem);
 
 
 /*---------------------------------------------------------------
@@ -417,7 +417,7 @@ static int ARKPcgSolve(ARKodeMem ark_mem, N_Vector b,
 
  This routine frees memory specific to the Pcg linear solver.
 ---------------------------------------------------------------*/
-static void ARKPcgFree(ARKodeMem ark_mem)
+static int ARKPcgFree(ARKodeMem ark_mem)
 {
   ARKSpilsMem arkspils_mem;
   PcgMem pcg_mem;
@@ -434,6 +434,8 @@ static void ARKPcgFree(ARKodeMem ark_mem)
 
   free(arkspils_mem);
   ark_mem->ark_lmem = NULL;
+
+  return(0);
 }
 
 
@@ -744,7 +746,7 @@ static int ARKMassPcgSolve(ARKodeMem ark_mem, N_Vector b,
 
  This routine frees memory specific to the Pcg linear solver.
 ---------------------------------------------------------------*/
-static void ARKMassPcgFree(ARKodeMem ark_mem)
+static int ARKMassPcgFree(ARKodeMem ark_mem)
 {
   ARKSpilsMassMem arkspils_mem;
   PcgMem pcg_mem;
@@ -760,6 +762,8 @@ static void ARKMassPcgFree(ARKodeMem ark_mem)
 
   free(arkspils_mem);
   ark_mem->ark_mass_mem = NULL;
+
+  return(0);
 }
 
 

@@ -41,7 +41,7 @@ static int ARKSpfgmrSetup(ARKodeMem ark_mem, int convfail,
 static int ARKSpfgmrSolve(ARKodeMem ark_mem, N_Vector b, 
 			  N_Vector weight, N_Vector ynow, 
 			  N_Vector fnow);
-static void ARKSpfgmrFree(ARKodeMem ark_mem);
+static int ARKSpfgmrFree(ARKodeMem ark_mem);
 
 /* ARKSPFGMR minit, msetup, msolve, and mfree routines */
 static int ARKMassSpfgmrInit(ARKodeMem ark_mem);
@@ -49,7 +49,7 @@ static int ARKMassSpfgmrSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 			      N_Vector vtemp2, N_Vector vtemp3);
 static int ARKMassSpfgmrSolve(ARKodeMem ark_mem, N_Vector b, 
 			      N_Vector weight);
-static void ARKMassSpfgmrFree(ARKodeMem ark_mem);
+static int ARKMassSpfgmrFree(ARKodeMem ark_mem);
 
 
 /*---------------------------------------------------------------
@@ -415,7 +415,7 @@ static int ARKSpfgmrSolve(ARKodeMem ark_mem, N_Vector b,
 
  This routine frees memory specific to the Spfgmr linear solver.
 ---------------------------------------------------------------*/
-static void ARKSpfgmrFree(ARKodeMem ark_mem)
+static int ARKSpfgmrFree(ARKodeMem ark_mem)
 {
   ARKSpilsMem arkspils_mem;
   SpfgmrMem spfgmr_mem;
@@ -432,6 +432,8 @@ static void ARKSpfgmrFree(ARKodeMem ark_mem)
 
   free(arkspils_mem);
   ark_mem->ark_lmem = NULL;
+
+  return(0);
 }
 
 
@@ -749,7 +751,7 @@ static int ARKMassSpfgmrSolve(ARKodeMem ark_mem, N_Vector b,
 
  This routine frees memory specific to the Spfgmr linear solver.
 ---------------------------------------------------------------*/
-static void ARKMassSpfgmrFree(ARKodeMem ark_mem)
+static int ARKMassSpfgmrFree(ARKodeMem ark_mem)
 {
   ARKSpilsMassMem arkspils_mem;
   SpfgmrMem spfgmr_mem;
@@ -765,6 +767,8 @@ static void ARKMassSpfgmrFree(ARKodeMem ark_mem)
 
   free(arkspils_mem);
   ark_mem->ark_mass_mem = NULL;
+
+  return(0);
 }
 
 
