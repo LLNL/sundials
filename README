@@ -30,14 +30,10 @@ that exploits that sharing. Each individual solver includes documentation
 on installation, along with full usage documentation.
 
 Warning to users who receive more than one of these individual solvers
-at different times: The mixing of old and new versions SUNDIALS may fail.  
+at different times: The mixing of old and new versions of SUNDIALS may fail.  
 To avoid such failures, obtain all desired solvers at the same time.
 
 For installation directions see the file INSTALL_GUIDE.pdf.
-
-For additional information on a particular solver, see the README file
-in the solver directory (e.g. src/cvode/README).
-
 
 Release history:
 

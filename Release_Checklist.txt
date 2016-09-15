@@ -17,19 +17,19 @@ The order is bottom-up-- starting with solver source files, and ending with web 
 
 6. Misc. source file fixes
 
-7. Update README file at top level of src/<solver>, with version
-   number, release dates and summary of recent revisions.
-    src/arkode/README
-    src/cvode/README
-    src/cvodes/README
-    src/ida/README
-    src/idas/README
-    src/kinsol/README
-    src/nvec_openmp/README
-    src/nvec_par/README
-    src/nvec_pthreads/README
-    src/nvec_ser/README
-    src/sundials/README 
+% 7. Update README file in src/<solver>, with version
+   % number, release dates and summary of recent revisions.
+   %  src/arkode/README
+   %  src/cvode/README
+   %  src/cvodes/README
+   %  src/ida/README
+   %  src/idas/README
+   %  src/kinsol/README
+   %  src/nvec_openmp/README
+   %  src/nvec_par/README
+   %  src/nvec_pthreads/README
+   %  src/nvec_ser/README
+   %  src/sundials/README 
 
 8. Update version numbers in source code, documentation, and tarscripts.
     doc/arkode/ARKode_example.tex
@@ -41,49 +41,42 @@ The order is bottom-up-- starting with solver source files, and ending with web 
     CMakeLists.txt
     README
   
-9. Create PDF files for SundialsTB
-    a) Create the PDF doc for SundialsTB by running the Matlab program texdoc.m
-    available in sundialsTB/doc.
-    b) The program uses the m2html toolbox, freely available.  It creates doc files
-    in PS and PDF formats as sundialsTB.ps and sundialsTB.pdf.
-    c) Follow Radu's instructions in sundials/sundialsTB/doc/README_texdoc
+% 9. Create PDF files for SundialsTB
+%     a) Create the PDF doc for SundialsTB by running the Matlab program texdoc.m
+%     available in sundialsTB/doc.
+%     b) The program uses the m2html toolbox, freely available.  It creates doc files
+%     in PS and PDF formats as sundialsTB.ps and sundialsTB.pdf.
+%     c) Follow Radu's instructions in sundials/sundialsTB/doc/README_texdoc
 
 10. Create the tarballs
 Create the new distribution tarballs using the "tarscript" shell script under
 scripts/.  This also compiles the documents (user guides and example docs) and
 creates all tarballs in their final form, appropriate for uploading to the website.
 
-11. Update Internal Confluence Web pages:
-  a) Request public HTML page be pulled into internal Confluence (current contact
-  is Meg Epperly)
-  b) Modify content 
-       - Edit Main Page: https://myconfluence.llnl.gov/display/COMPWEBCOLLAB/Sundials
-           + Add release to Announcements table (with [Download | What's New])
-
-       - Edit Download Page:   https://myconfluence.llnl.gov/display/COMPWEBCOLLAB/Download
+11. Update Internal Drupal Web pages for SUNDIALS: https://computation-external.llnl.gov/user
+  b) Modify content (save edits on each page as you go)
+       - Edit Main Page: https://computation-external.llnl.gov/projects/sundials
+           + Update Release History page: https://computation-external.llnl.gov/projects/sundials/release-history
+           + Add list of primary changes and child page containing full list of changes.
+ 
+       - Edit Download Page:   https://computation-external.llnl.gov/projects/sundials/sundials-software
            + Update main download table with new versions of solvers and new sizes
-           + Update Previous releases table with new entry for previous release of ful2 SUNDIALS suite. 
+           + Upload new documentation (pdf) files.
+           + Update Previous releases table with new entry for previous release of full SUNDIALS suite. 
 
-       - Edit What's New? page: https://myconfluence.llnl.gov/pages/viewpage.action?pageId=100664575
-          + Add list of primary changes and child page containing full list of changes.
+       - Edit FAQ if necessary: https://computation-external.llnl.gov/projects/sundials/faq
 
-       - Edit FAQ if necessary: https://myconfluence.llnl.gov/display/COMPWEBCOLLAB/FAQ
+12. Once each sub page is complete, ask for team review of draft pages.
 
-  c) Upload new documentation (pdf) files.
-       - Go to Documentation page: https://myconfluence.llnl.gov/display/COMPWEBCOLLAB/Documentation
-         + Select Tools|Attachments
-         + Use 'Attach File' dialogue at at bottom of screen to upload new documentation pdf files.
+13. After team commenst are included and saved, select the "Publishing options" button in the bottom
+    left group of buttons on the draft page.  Select the Moderation state reflecting the amount of 
+    required review then Save.  This must be done for each page and is the final action before pages 
+    are uploaded for external release.
 
-  d) Upload tarballs
-       - Go to Download page: https://myconfluence.llnl.gov/display/COMPWEBCOLLAB/Download
-         + Select Tools|Attachments
-         + Use 'Attach File' dialogue at at bottom of screen to upload new tarballs.
+14. After final push, ensure web content and behavior is as expected:
+       + Main Page: http://computation.llnl.gov/projects/sundials
 
-12. Request push of Web pages (and all attachments) to interal preview site (current contact is Meg Epperly)
-    - After push, ensure web content and behavior is as expected:
-       + Main Page: https://computation-external.llnl.gov/casc/sundials/main.html 
-
-13. Tag the release in the release branch in Subversion repository
+15. Tag the release in the release branch in the Subversion repository
 
 
 
