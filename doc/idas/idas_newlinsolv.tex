@@ -272,7 +272,7 @@ The type definition of \id{lperf} is
 The type definition of \id{lfree} is
 \usfunction{lfree}
 {
-  void (*lfree)(IDAMem IDA\_mem);
+  int (*lfree)(IDAMem IDA\_mem);
 }
 {
   The \id{lfree} function should free up any memory allocated by the linear
@@ -282,7 +282,8 @@ The type definition of \id{lfree} is
   The argument \id{IDA\_mem} is the {\idas} memory pointer of type \id{IDAMem}.
 }
 {
-  The \id{lfree} function has no return value.
+  The \id{lfree} function should return 0 if successful, or a nonzero
+  if not.
 }
 {
   This function is called once a problem has been completed and the 

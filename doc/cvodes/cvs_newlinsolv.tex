@@ -265,7 +265,7 @@ The type definition of \id{lsolve} is
 The type definition of \id{lfree} is
 \usfunction{lfree}
 {
-  void (*lfree)(CVodeMem cv\_mem);
+  int (*lfree)(CVodeMem cv\_mem);
 }
 {
   The function \id{lfree} should free up any memory allocated by the linear
@@ -275,7 +275,8 @@ The type definition of \id{lfree} is
   The argument \id{cv\_mem} is the {\cvodes} memory pointer of type \id{CVodeMem}.
 }
 {
-  The \id{lfree} function has no return value.
+  The \id{lfree} function should return 0 if successful, or a nonzero
+  if not.
 }
 {
   This function is called once a problem has been completed and the 

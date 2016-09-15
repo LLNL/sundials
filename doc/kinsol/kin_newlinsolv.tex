@@ -249,7 +249,7 @@ The values of \id{strategy} and \id{etachoice} are available from the fields
 The type definition of \id{lfree} is
 \usfunction{lfree}
 {
-  void (*lfree)(KINMem kin\_mem);
+  int (*lfree)(KINMem kin\_mem);
 }
 {
   The \id{lfree} function should free any memory allocated by the linear solver.
@@ -261,7 +261,8 @@ The type definition of \id{lfree} is
   \end{args}
 }
 {
-  The \id{lfree} function has no return value.
+  The \id{lfree} function should return 0 if successful, or a nonzero
+  if not.
 }
 {
   This function is called once a problem has been completed and the 
