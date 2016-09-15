@@ -193,7 +193,12 @@ int KINBBDPrecInit(void *kinmem, long int Nlocal,
   pdata->ipwsize = Nlocal + 1;
   pdata->nge = 0;
 
-  /* Overwrite the P_data field in the SPILS memory */
+  /* make sure s_P_data is free from any previous allocations */
+  if (kinspils_mem->s_pfree != NULL) {
+    kinspils_mem->s_pfree(kin_mem);
+  }
+
+  /* Point to the new P_data field in the SPILS memory */
   kinspils_mem->s_P_data = pdata;
 
   /* Attach the pfree function */

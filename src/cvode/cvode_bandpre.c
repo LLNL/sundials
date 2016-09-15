@@ -152,7 +152,7 @@ int CVBandPrecInit(void *cvode_mem, long int N, long int mu, long int ml)
 
   /* make sure s_P_data is free from any previous allocations */
   if (cvspils_mem->s_pfree != NULL) {
-	  cvspils_mem->s_pfree(cv_mem);
+    cvspils_mem->s_pfree(cv_mem);
   }
 
   /* Point to the new P_data field in the SPILS memory */

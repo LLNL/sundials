@@ -195,7 +195,12 @@ int IDABBDPrecInit(void *ida_mem, long int Nlocal,
   pdata->ipwsize = Nlocal;
   pdata->nge = 0;
 
-  /* Overwrite the pdata field in the SPILS memory */
+  /* make sure s_P_data is free from any previous allocations */
+  if (idaspils_mem->s_pfree != NULL) {
+    idaspils_mem->s_pfree(IDA_mem);
+  }
+
+  /* Point to the new pdata field in the SPILS memory */
   idaspils_mem->s_pdata = pdata;
 
   /* Attach the pfree function */

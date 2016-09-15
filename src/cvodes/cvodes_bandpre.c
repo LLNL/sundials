@@ -156,7 +156,12 @@ int CVBandPrecInit(void *cvode_mem, long int N, long int mu, long int ml)
     return(CVSPILS_MEM_FAIL);
   }
 
-  /* Overwrite the P_data field in the SPILS memory */
+  /* make sure s_P_data is free from any previous allocations */
+  if (cvspils_mem->s_pfree != NULL) {
+    cvspils_mem->s_pfree(cv_mem);
+  }
+
+  /* Point to the new P_data field in the SPILS memory */
   cvspils_mem->s_P_data = pdata;
 
   /* Attach the pfree function */
