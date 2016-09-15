@@ -1507,9 +1507,9 @@ flag = CVodeSetErrHandlerFn(cvode\_mem, ehfun, eh\_data);
   If specified, the pointer to \id{user\_data} is passed to all user-supplied 
   functions that have it as an argument. Otherwise, a \id{NULL} pointer is passed.
 
-  {\warn}If \id{user\_data} is needed in user linear solver or preconditioner functions, the call to
-  \id{CVodeSetUserData} must be made {\it before} the call to specify the
-  linear solver.
+  {\warn}If \id{user\_data} is needed in user linear solver or preconditioner
+  functions, the call to \id{CVodeSetUserData} must be made {\it before} the
+  call to specify the linear solver.
 }
 %%
 %%
