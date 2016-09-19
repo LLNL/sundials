@@ -82,7 +82,7 @@ typedef struct CVSpilsMemRec {
    */
   CVSpilsPrecSetupFn s_pset;
   CVSpilsPrecSolveFn s_psolve;
-  void (*s_pfree)(CVodeMem cv_mem);
+  int (*s_pfree)(CVodeMem cv_mem);
   void *s_P_data;
 
   /* Jacobian times vector compuation

@@ -46,7 +46,7 @@ static int cvDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 static int cvDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                         N_Vector ycur, N_Vector fcur);
 
-static void cvDenseFree(CVodeMem cv_mem);
+static int cvDenseFree(CVodeMem cv_mem);
 
 /* Readability Replacements */
 
@@ -334,7 +334,7 @@ static int cvDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
  * -----------------------------------------------------------------
  */
 
-static void cvDenseFree(CVodeMem cv_mem)
+static int cvDenseFree(CVodeMem cv_mem)
 {
   CVDlsMem  cvdls_mem;
 
@@ -345,5 +345,7 @@ static void cvDenseFree(CVodeMem cv_mem)
   DestroyArray(lpivots);
   free(cvdls_mem);
   cv_mem->cv_lmem = NULL;
+
+  return(0);
 }
 

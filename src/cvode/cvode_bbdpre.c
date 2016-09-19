@@ -54,7 +54,7 @@ static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
                           int lr, void *bbd_data, N_Vector tmp);
 
 /* Prototype for CVBBDPrecFree */
-static void CVBBDPrecFree(CVodeMem cv_mem);
+static int CVBBDPrecFree(CVodeMem cv_mem);
 
 
 /* Prototype for difference quotient Jacobian calculation routine */
@@ -446,15 +446,15 @@ static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 }
 
 
-static void CVBBDPrecFree(CVodeMem cv_mem)
+static int CVBBDPrecFree(CVodeMem cv_mem)
 {
   CVSpilsMem cvspils_mem;
   CVBBDPrecData pdata;
   
-  if (cv_mem->cv_lmem == NULL) return;
+  if (cv_mem->cv_lmem == NULL) return(0);
   cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
   
-  if (cvspils_mem->s_P_data == NULL) return;
+  if (cvspils_mem->s_P_data == NULL) return(0);
   pdata = (CVBBDPrecData) cvspils_mem->s_P_data;
 
   DestroyMat(savedJ);
@@ -463,6 +463,8 @@ static void CVBBDPrecFree(CVodeMem cv_mem)
 
   free(pdata);
   pdata = NULL;
+
+  return(0);
 }
 
 

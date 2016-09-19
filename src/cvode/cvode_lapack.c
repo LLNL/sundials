@@ -60,7 +60,7 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
                               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int cvLapackDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                               N_Vector yC, N_Vector fctC);
-static void cvLapackDenseFree(CVodeMem cv_mem);
+static int cvLapackDenseFree(CVodeMem cv_mem);
 
 /* CVLAPACK BAND linit, lsetup, lsolve, and lfree routines */ 
 static int cvLapackBandInit(CVodeMem cv_mem);
@@ -70,7 +70,7 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
                              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int cvLapackBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                              N_Vector yC, N_Vector fctC);
-static void cvLapackBandFree(CVodeMem cv_mem);
+static int cvLapackBandFree(CVodeMem cv_mem);
 
 /*
  * =================================================================
@@ -485,7 +485,7 @@ static int cvLapackDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 /*
  * cvLapackDenseFree frees memory specific to the dense linear solver.
  */
-static void cvLapackDenseFree(CVodeMem cv_mem)
+static int cvLapackDenseFree(CVodeMem cv_mem)
 {
   CVDlsMem  cvdls_mem;
 
@@ -496,6 +496,8 @@ static void cvLapackDenseFree(CVodeMem cv_mem)
   DestroyMat(savedJ);
   free(cvdls_mem); 
   cvdls_mem = NULL;
+
+  return(0);
 }
 
 /* 
@@ -641,7 +643,7 @@ static int cvLapackBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 /*
  * cvLapackBandFree frees memory specific to the band linear solver.
  */
-static void cvLapackBandFree(CVodeMem cv_mem)
+static int cvLapackBandFree(CVodeMem cv_mem)
 {
   CVDlsMem  cvdls_mem;
 
@@ -652,5 +654,7 @@ static void cvLapackBandFree(CVodeMem cv_mem)
   DestroyMat(savedJ);
   free(cvdls_mem); 
   cvdls_mem = NULL;
+
+  return(0);
 }
 

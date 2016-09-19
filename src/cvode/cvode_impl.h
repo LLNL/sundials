@@ -204,7 +204,7 @@ typedef struct CVodeMemRec {
   int (*cv_lsolve)(struct CVodeMemRec *cv_mem, N_Vector b, N_Vector weight,
 		   N_Vector ycur, N_Vector fcur);
 
-  void (*cv_lfree)(struct CVodeMemRec *cv_mem);
+  int (*cv_lfree)(struct CVodeMemRec *cv_mem);
 
   /* Linear Solver specific memory */
 
@@ -393,11 +393,12 @@ typedef struct CVodeMemRec {
 
 /*
  * -----------------------------------------------------------------
- * void (*cv_lfree)(CVodeMem cv_mem);
+ * int (*cv_lfree)(CVodeMem cv_mem);
  * -----------------------------------------------------------------
  * cv_lfree should free up any memory allocated by the linear
  * solver. This routine is called once a problem has been
- * completed and the linear solver is no longer needed.
+ * completed and the linear solver is no longer needed.  It should 
+ * return 0 upon success, nonzero on failure.
  * -----------------------------------------------------------------
  */
   

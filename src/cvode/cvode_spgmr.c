@@ -46,7 +46,7 @@ static int CVSpgmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                         N_Vector ynow, N_Vector fnow);
 
-static void CVSpgmrFree(CVodeMem cv_mem);
+static int CVSpgmrFree(CVodeMem cv_mem);
 
 /* Readability Replacements */
 
@@ -448,7 +448,7 @@ static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
  * -----------------------------------------------------------------
  */
 
-static void CVSpgmrFree(CVodeMem cv_mem)
+static int CVSpgmrFree(CVodeMem cv_mem)
 {
   CVSpilsMem cvspils_mem;
   SpgmrMem spgmr_mem;
@@ -465,5 +465,7 @@ static void CVSpgmrFree(CVodeMem cv_mem)
 
   free(cvspils_mem);
   cv_mem->cv_lmem = NULL;
+
+  return(0);
 }
 

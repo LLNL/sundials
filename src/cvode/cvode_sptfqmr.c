@@ -45,7 +45,7 @@ static int CVSptfqmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 static int CVSptfqmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                           N_Vector ynow, N_Vector fnow);
 
-static void CVSptfqmrFree(CVodeMem cv_mem);
+static int CVSptfqmrFree(CVodeMem cv_mem);
 
 
 /* Readability Replacements */
@@ -442,7 +442,7 @@ static int CVSptfqmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
  * -----------------------------------------------------------------
  */
 
-static void CVSptfqmrFree(CVodeMem cv_mem)
+static int CVSptfqmrFree(CVodeMem cv_mem)
 {
   CVSpilsMem cvspils_mem;
   SptfqmrMem sptfqmr_mem;
@@ -460,6 +460,6 @@ static void CVSptfqmrFree(CVodeMem cv_mem)
   free(cvspils_mem);
   cv_mem->cv_lmem = NULL;
 
-  return;
+  return(0);
 }
 
