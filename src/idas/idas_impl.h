@@ -627,13 +627,13 @@ struct IDABMemRec {
   void *ida_lmem;
 
   /* Function to free any memory allocated by the linear solver */
-  void (*ida_lfree)(IDABMem IDAB_mem);
+  int (*ida_lfree)(IDABMem IDAB_mem);
 
   /* Memory block for a preconditioner's module interface to IDAA */ 
   void *ida_pmem;
 
   /* Function to free any memory allocated by the preconditioner module */
-  void (*ida_pfree)(IDABMem IDAB_mem);
+  int (*ida_pfree)(IDABMem IDAB_mem);
 
   /* Time at which to extract solution / quadratures */
   realtype ida_tout;
