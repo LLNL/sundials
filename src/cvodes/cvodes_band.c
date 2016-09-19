@@ -41,7 +41,7 @@ static int cvBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
                        N_Vector vtemp2, N_Vector vtemp3);
 static int cvBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                        N_Vector ycur, N_Vector fcur);
-static void cvBandFree(CVodeMem cv_mem);
+static int cvBandFree(CVodeMem cv_mem);
 
 /* CVSBAND lfreeB function */
 static int cvBandFreeB(CVodeBMem cvB_mem);
@@ -358,7 +358,7 @@ static int cvBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
  * -----------------------------------------------------------------
  */
 
-static void cvBandFree(CVodeMem cv_mem)
+static int cvBandFree(CVodeMem cv_mem)
 {
   CVDlsMem cvdls_mem;
 
@@ -369,6 +369,8 @@ static void cvBandFree(CVodeMem cv_mem)
   DestroyArray(lpivots);
   free(cvdls_mem);
   cv_mem->cv_lmem = NULL;
+
+  return(0);
 }
 
 /* 

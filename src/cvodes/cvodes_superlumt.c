@@ -44,7 +44,7 @@ static int cvSuperLUMTSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 static int cvSuperLUMTSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 			    N_Vector ycur, N_Vector fcur);
 
-static void cvSuperLUMTFree(CVodeMem cv_mem);
+static int cvSuperLUMTFree(CVodeMem cv_mem);
 
 /* CVKLU lfreeB function */
 static int cvSuperLUMTFreeB(CVodeBMem cvb_mem);
@@ -475,7 +475,7 @@ static int cvSuperLUMTSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   This routine frees memory specific to the CVSuperLUMT linear solver.
 */
 
-static void cvSuperLUMTFree(CVodeMem cv_mem)
+static int cvSuperLUMTFree(CVodeMem cv_mem)
 {
   CVSlsMem cvsls_mem;
   SLUMTData slumt_data;
@@ -515,7 +515,7 @@ static void cvSuperLUMTFree(CVodeMem cv_mem)
   slumt_data = NULL;
   free(cv_mem->cv_lmem); 
 
-  return;
+  return(0);
 }
 
 /* 
@@ -651,7 +651,6 @@ int CVSuperLUMTSetOrderingB(void *cvode_mem, int which, int ordering_choice)
   CVadjMem ca_mem;
   CVodeBMem cvB_mem;
   void *cvodeB_mem;
-  CVSlsMemB cvslsB_mem;
   int flag;
 
   /* Check if cvode_mem exists */

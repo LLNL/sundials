@@ -45,7 +45,7 @@ static int CVSpbcgSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 static int CVSpbcgSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                         N_Vector ynow, N_Vector fnow);
 
-static void CVSpbcgFree(CVodeMem cv_mem);
+static int CVSpbcgFree(CVodeMem cv_mem);
 
 /* CVSPBCG lfreeB function */
 
@@ -455,7 +455,7 @@ static int CVSpbcgSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
  * -----------------------------------------------------------------
  */
 
-static void CVSpbcgFree(CVodeMem cv_mem)
+static int CVSpbcgFree(CVodeMem cv_mem)
 {
   CVSpilsMem cvspils_mem;
   SpbcgMem spbcg_mem;
@@ -472,6 +472,8 @@ static void CVSpbcgFree(CVodeMem cv_mem)
 
   free(cvspils_mem);
   cv_mem->cv_lmem = NULL;
+  
+  return(0);
 }
 
 

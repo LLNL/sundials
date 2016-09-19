@@ -45,7 +45,7 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 static int cvKLUSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 		      N_Vector ycur, N_Vector fcur);
 
-static void cvKLUFree(CVodeMem cv_mem);
+static int cvKLUFree(CVodeMem cv_mem);
 
 /* CVKLU lfreeB function */
 static int cvKLUFreeB(CVodeBMem cvb_mem);
@@ -551,7 +551,7 @@ static int cvKLUSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   This routine frees memory specific to the CVKLU linear solver.
 */
 
-static void cvKLUFree(CVodeMem cv_mem)
+static int cvKLUFree(CVodeMem cv_mem)
 {
   CVSlsMem cvsls_mem;
   KLUData klu_data;
@@ -581,7 +581,7 @@ static void cvKLUFree(CVodeMem cv_mem)
   free(klu_data); 
   free(cv_mem->cv_lmem); 
 
-  return;
+  return(0);
 }
 
 /* 

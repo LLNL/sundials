@@ -41,7 +41,7 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                        N_Vector ycur, N_Vector fcur);
 
-static void CVDiagFree(CVodeMem cv_mem);
+static int CVDiagFree(CVodeMem cv_mem);
 
 
 /* 
@@ -439,7 +439,7 @@ static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
  * -----------------------------------------------------------------
  */
 
-static void CVDiagFree(CVodeMem cv_mem)
+static int CVDiagFree(CVodeMem cv_mem)
 {
   CVDiagMem cvdiag_mem;
   
@@ -450,6 +450,8 @@ static void CVDiagFree(CVodeMem cv_mem)
   N_VDestroy(bitcomp);
   free(cvdiag_mem);
   cv_mem->cv_lmem = NULL;
+  
+  return(0);
 }
 
 
