@@ -68,13 +68,11 @@ SET(kinsol_HEADERS
   kinsol_dense.h
   kinsol_direct.h
   kinsol.h
-  kinsol_klu.h
   kinsol_spbcgs.h
   kinsol_spfgmr.h
   kinsol_spgmr.h
   kinsol_spils.h
   kinsol_sptfqmr.h
-  kinsol_superlumt.h
   )
 
 IF(KLU_FOUND)
@@ -107,6 +105,15 @@ ELSE(SUPERLUMT_FOUND)
   SET(kinsol_SLU_HEADERS "")
 ENDIF(SUPERLUMT_FOUND)
 
+IF(KLU_FOUND)
+  SET(kinsol_KLU_SOURCES kinsol_klu.c)
+  SET(kinsol_KLU_HEADERS kinsol_klu.h)
+  ADD_PREFIX(${sundials_SOURCE_DIR}/include/kinsol/ kinsol_KLU_HEADERS)
+ELSE(KLU_FOUND)
+  SET(kinsol_KLU_SOURCES "")
+  SET(kinsol_KLU_HEADERS "")
+ENDIF(KLU_FOUND)
+
 # Add source directories to include directories for access to
 # implementation only header files.
 INCLUDE_DIRECTORIES(.)
@@ -120,7 +127,7 @@ IF(BUILD_STATIC_LIBS)
 
   # Add the build target for the static KINSOL library
   ADD_LIBRARY(sundials_kinsol_static STATIC
-    ${kinsol_SOURCES} ${kinsol_BL_SOURCES} ${kinsol_SLU_SOURCES} ${shared_SOURCES})
+    ${kinsol_SOURCES} ${kinsol_BL_SOURCES} ${kinsol_SLU_SOURCES} ${kinsol_KLU_SOURCES} ${shared_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_kinsol_static
@@ -136,7 +143,7 @@ IF(BUILD_SHARED_LIBS)
 
   # Add the build target for the KINSOL library
   ADD_LIBRARY(sundials_kinsol_shared SHARED
-    ${kinsol_SOURCES} ${kinsol_BL_SOURCES} ${kinsol_SLU_SOURCES} ${shared_SOURCES})
+    ${kinsol_SOURCES} ${kinsol_BL_SOURCES} ${kinsol_SLU_SOURCES} ${kinsol_KLU_SOURCES} ${shared_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_kinsol_shared
@@ -152,7 +159,7 @@ IF(BUILD_SHARED_LIBS)
 ENDIF(BUILD_SHARED_LIBS)
 
 # Install the KINSOL header files
-INSTALL(FILES ${kinsol_HEADERS} ${kinsol_BL_HEADERS} ${kinsol_SLU_HEADERS} DESTINATION include/kinsol)
+INSTALL(FILES ${kinsol_HEADERS} ${kinsol_BL_HEADERS} ${kinsol_SLU_HEADERS} ${kinsol_KLU_HEADERS} DESTINATION include/kinsol)
 
 # Install the KINSOL implementation header file
 INSTALL(FILES kinsol_impl.h DESTINATION include/kinsol)

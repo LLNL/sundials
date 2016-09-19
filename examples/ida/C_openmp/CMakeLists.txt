@@ -41,8 +41,6 @@ ELSE(LINK_LIBRARY_TYPE MATCHES "static")
 ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 
 
-SET(IDA_LIB sundials_ida_static)
-
 # Set-up linker flags and link libraries
 
 SET(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
