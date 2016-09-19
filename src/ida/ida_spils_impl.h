@@ -95,7 +95,7 @@ typedef struct IDASpilsMemRec {
 
   IDASpilsPrecSetupFn s_pset;
   IDASpilsPrecSolveFn s_psolve;
-  void (*s_pfree)(IDAMem IDA_mem);
+  int (*s_pfree)(IDAMem IDA_mem);
   void *s_pdata;
   
   /* Jacobian times vector compuation

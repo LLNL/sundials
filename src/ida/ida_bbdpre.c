@@ -58,7 +58,7 @@ static int IDABBDPrecSolve(realtype tt,
 
 /* Prototype for IDABBDPrecFree */
 
-static void IDABBDPrecFree(IDAMem ida_mem);
+static int IDABBDPrecFree(IDAMem ida_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
 
@@ -434,15 +434,15 @@ static int IDABBDPrecSolve(realtype tt,
 
 
 
-static void IDABBDPrecFree(IDAMem IDA_mem)
+static int IDABBDPrecFree(IDAMem IDA_mem)
 {
   IDASpilsMem idaspils_mem;
   IBBDPrecData pdata;
   
-  if (IDA_mem->ida_lmem == NULL) return;
+  if (IDA_mem->ida_lmem == NULL) return(0);
   idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
   
-  if (idaspils_mem->s_pdata == NULL) return;
+  if (idaspils_mem->s_pdata == NULL) return(0);
   pdata = (IBBDPrecData) idaspils_mem->s_pdata;
 
   DestroyMat(PP);
@@ -451,6 +451,8 @@ static void IDABBDPrecFree(IDAMem IDA_mem)
 
   free(pdata);
   pdata = NULL;
+
+  return(0);
 }
 
 

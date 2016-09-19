@@ -338,7 +338,8 @@ typedef struct IDAMemRec {
  * -----------------------------------------------------------------
  * ida_lfree should free up any memory allocated by the linear     
  * solver. This routine is called once a problem has been          
- * completed and the linear solver is no longer needed.            
+ * completed and the linear solver is no longer needed.  It should 
+ * return 0 upon success, nonzero on failure.
  * -----------------------------------------------------------------
  */                                                                 
 
