@@ -40,7 +40,7 @@ static int kinSuperLUMTInit(KINMem kin_mem);
 static int kinSuperLUMTSetup(KINMem kin_mem);
 static int kinSuperLUMTSolve(KINMem kin_mem, N_Vector x, N_Vector b,
 		       realtype *sJpnorm, realtype *sFdotJp);		       
-static void kinSuperLUMTFree(KINMem kin_mem);
+static int kinSuperLUMTFree(KINMem kin_mem);
 
 /*
  * -----------------------------------------------------------------
@@ -421,7 +421,7 @@ static int kinSuperLUMTSolve(KINMem kin_mem, N_Vector x, N_Vector b,
   This routine frees memory specific to the KINSuperLUMT linear solver.
 */
 
-static void kinSuperLUMTFree(KINMem kin_mem)
+static int kinSuperLUMTFree(KINMem kin_mem)
 {
   KINSlsMem kinsls_mem;
   SLUMTData slumt_data;
@@ -454,6 +454,8 @@ static void kinSuperLUMTFree(KINMem kin_mem)
 
   free(slumt_data); 
   free(kin_mem->kin_lmem); 
+
+  return(0);
 }
 
 

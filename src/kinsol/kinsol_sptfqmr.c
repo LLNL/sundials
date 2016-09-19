@@ -51,7 +51,7 @@ static int KINSptfqmrInit(KINMem kin_mem);
 static int KINSptfqmrSetup(KINMem kin_mem);
 static int KINSptfqmrSolve(KINMem kin_mem, N_Vector xx,
 			   N_Vector bb, realtype *sJpnorm, realtype *sFdotJp);
-static void KINSptfqmrFree(KINMem kin_mem);
+static int KINSptfqmrFree(KINMem kin_mem);
 
 /*
  * -----------------------------------------------------------------
@@ -418,7 +418,7 @@ static int KINSptfqmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
  * -----------------------------------------------------------------
  */
 
-static void KINSptfqmrFree(KINMem kin_mem)
+static int KINSptfqmrFree(KINMem kin_mem)
 {
   KINSpilsMem kinspils_mem;
   SptfqmrMem sptfqmr_mem;
@@ -431,4 +431,6 @@ static void KINSptfqmrFree(KINMem kin_mem)
   if (kinspils_mem->s_pfree != NULL) (kinspils_mem->s_pfree)(kin_mem);
 
   free(kinspils_mem); kinspils_mem = NULL;
+
+  return(0);
 }

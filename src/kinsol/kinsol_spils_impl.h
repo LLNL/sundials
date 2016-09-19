@@ -106,7 +106,7 @@ typedef struct KINSpilsMemRec {
  
   KINSpilsPrecSetupFn s_pset;     
   KINSpilsPrecSolveFn s_psolve; 
-  void (*s_pfree)(KINMem kin_mem);
+  int (*s_pfree)(KINMem kin_mem);
   void *s_P_data;
 
   /* Jacobian times vector compuation

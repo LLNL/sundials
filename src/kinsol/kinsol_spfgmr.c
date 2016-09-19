@@ -52,7 +52,7 @@ static int KINSpfgmrInit(KINMem kin_mem);
 static int KINSpfgmrSetup(KINMem kin_mem);
 static int KINSpfgmrSolve(KINMem kin_mem, N_Vector xx, 
                           N_Vector bb, realtype *sJpnorm, realtype *sFdotJp);
-static void KINSpfgmrFree(KINMem kin_mem);
+static int KINSpfgmrFree(KINMem kin_mem);
 
 /*
  * -----------------------------------------------------------------
@@ -433,7 +433,7 @@ static int KINSpfgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
  * -----------------------------------------------------------------
  */
 
-static void KINSpfgmrFree(KINMem kin_mem)
+static int KINSpfgmrFree(KINMem kin_mem)
 {
   KINSpilsMem kinspils_mem;
   SpfgmrMem spfgmr_mem;
@@ -446,4 +446,6 @@ static void KINSpfgmrFree(KINMem kin_mem)
   if (kinspils_mem->s_pfree != NULL) (kinspils_mem->s_pfree)(kin_mem);
 
   free(kinspils_mem); kinspils_mem = NULL;
+
+  return(0);
 }

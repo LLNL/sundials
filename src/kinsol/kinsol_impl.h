@@ -190,7 +190,7 @@ typedef struct KINMemRec {
   int (*kin_lsolve)(struct KINMemRec *kin_mem, N_Vector xx, N_Vector bb, 
 		    realtype *sJpnorm, realtype *sFdotJp);
 
-  void (*kin_lfree)(struct KINMemRec *kin_mem);
+  int (*kin_lfree)(struct KINMemRec *kin_mem);
 
   booleantype kin_inexact_ls; /* flag set by the linear solver module
 				 (in linit) indicating whether this is an
@@ -337,11 +337,12 @@ typedef struct KINMemRec {
 
 /*
  * -----------------------------------------------------------------
- * Function : void (*kin_lfree)(KINMem kin_mem)
+ * Function : int (*kin_lfree)(KINMem kin_mem)
  * -----------------------------------------------------------------
  * kin_lfree is called by KINFree and should free (deallocate) all
  * system memory resources allocated for the linear solver module
- * (see KINSpgmrFree/KINSpbcgFree).
+ * (see KINSpgmrFree/KINSpbcgFree).  It should return 0 upon 
+ * success, nonzero on failure.
  *
  *  kinmem  pointer to an internal memory block allocated during
  *          prior calls to KINCreate and KINMalloc

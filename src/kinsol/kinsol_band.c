@@ -45,7 +45,7 @@ static int kinBandInit(KINMem kin_mem);
 static int kinBandSetup(KINMem kin_mem);
 static int kinBandsolve(KINMem kin_mem, N_Vector x, N_Vector b,
                         realtype *sJpnorm, realtype *sFdotJp);
-static void kinBandFree(KINMem kin_mem);
+static int kinBandFree(KINMem kin_mem);
 
 /*
  * =================================================================
@@ -342,7 +342,7 @@ static int kinBandsolve(KINMem kin_mem, N_Vector x, N_Vector b,
  * -----------------------------------------------------------------
  */
 
-static void kinBandFree(KINMem kin_mem)
+static int kinBandFree(KINMem kin_mem)
 {
   KINDlsMem kindls_mem;
 
@@ -351,5 +351,7 @@ static void kinBandFree(KINMem kin_mem)
   DestroyMat(J);
   DestroyArray(lpivots);
   free(kindls_mem); kindls_mem = NULL;
+
+  return(0);
 }
 

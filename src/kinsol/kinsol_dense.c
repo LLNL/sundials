@@ -45,7 +45,7 @@ static int kinDenseInit(KINMem kin_mem);
 static int kinDenseSetup(KINMem kin_mem);
 static int kinDenseSolve(KINMem kin_mem, N_Vector x, N_Vector b,
                          realtype *sJpnorm, realtype *sFdotJp);
-static void kinDenseFree(KINMem kin_mem);
+static int kinDenseFree(KINMem kin_mem);
 
 /*
  * =================================================================
@@ -324,7 +324,7 @@ static int kinDenseSolve(KINMem kin_mem, N_Vector x, N_Vector b,
  * -----------------------------------------------------------------
  */
 
-static void kinDenseFree(KINMem kin_mem)
+static int kinDenseFree(KINMem kin_mem)
 {
   KINDlsMem  kindls_mem;
 
@@ -333,5 +333,7 @@ static void kinDenseFree(KINMem kin_mem)
   DestroyMat(J);
   DestroyArray(lpivots);
   free(kindls_mem); kindls_mem = NULL;
+
+  return(0);
 }
 

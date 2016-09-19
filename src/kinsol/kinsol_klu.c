@@ -41,7 +41,7 @@ static int kinKLUInit(KINMem kin_mem);
 static int kinKLUSetup(KINMem kin_mem);
 static int kinKLUSolve(KINMem kin_mem, N_Vector x, N_Vector b,
 		       realtype *sJpnorm, realtype *sFdotJp);		       
-static void kinKLUFree(KINMem kin_mem);
+static int kinKLUFree(KINMem kin_mem);
 
 /*
  * -----------------------------------------------------------------
@@ -503,7 +503,7 @@ static int kinKLUSolve(KINMem kin_mem, N_Vector x, N_Vector b,
   This routine frees memory specific to the KINKLU linear solver.
 */
 
-static void kinKLUFree(KINMem kin_mem)
+static int kinKLUFree(KINMem kin_mem)
 {
   KINSlsMem kinsls_mem;
   KLUData klu_data;
@@ -527,6 +527,8 @@ static void kinKLUFree(KINMem kin_mem)
 
   free(klu_data); 
   free(kin_mem->kin_lmem); 
+
+  return(0);
 }
 
 

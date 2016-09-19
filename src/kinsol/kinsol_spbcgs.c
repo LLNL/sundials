@@ -51,7 +51,7 @@ static int KINSpbcgInit(KINMem kin_mem);
 static int KINSpbcgSetup(KINMem kin_mem);
 static int KINSpbcgSolve(KINMem kin_mem, N_Vector xx,
 			 N_Vector bb, realtype *sJpnorm, realtype *sFdotJp);
-static void KINSpbcgFree(KINMem kin_mem);
+static int KINSpbcgFree(KINMem kin_mem);
 
 /*
  * -----------------------------------------------------------------
@@ -424,7 +424,7 @@ static int KINSpbcgSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
  * -----------------------------------------------------------------
  */
 
-static void KINSpbcgFree(KINMem kin_mem)
+static int KINSpbcgFree(KINMem kin_mem)
 {
   KINSpilsMem kinspils_mem;
   SpbcgMem spbcg_mem;
@@ -437,4 +437,6 @@ static void KINSpbcgFree(KINMem kin_mem)
   if (kinspils_mem->s_pfree != NULL) (kinspils_mem->s_pfree)(kin_mem);
 
   free(kinspils_mem); kinspils_mem = NULL;
+
+  return(0);
 }

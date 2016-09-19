@@ -51,14 +51,14 @@ static int kinLapackDenseInit(KINMem kin_mem);
 static int kinLapackDenseSetup(KINMem kin_mem);
 static int kinLapackDenseSolve(KINMem kin_mem, N_Vector x, N_Vector b,
                                realtype *sJpnorm, realtype *sFdotJp);
-static void kinLapackDenseFree(KINMem kin_mem);
+static int kinLapackDenseFree(KINMem kin_mem);
 
 /* KINLAPACK BAND linit, lsetup, lsolve, and lfree routines */ 
 static int kinLapackBandInit(KINMem kin_mem);
 static int kinLapackBandSetup(KINMem kin_mem);
 static int kinLapackBandSolve(KINMem kin_mem, N_Vector x, N_Vector b,
                               realtype *sJpnorm, realtype *sFdotJp);
-static void kinLapackBandFree(KINMem kin_mem);
+static int kinLapackBandFree(KINMem kin_mem);
 
 /*
  * =================================================================
@@ -454,7 +454,7 @@ static int kinLapackDenseSolve(KINMem kin_mem, N_Vector x, N_Vector b,
  * -----------------------------------------------------------------
  */
 
-static void kinLapackDenseFree(KINMem kin_mem)
+static int kinLapackDenseFree(KINMem kin_mem)
 {
   KINDlsMem  kindls_mem;
 
@@ -463,6 +463,8 @@ static void kinLapackDenseFree(KINMem kin_mem)
   DestroyMat(J);
   DestroyArray(pivots);
   free(kindls_mem); kindls_mem = NULL;
+
+  return(0);
 }
 
 
@@ -600,7 +602,7 @@ static int kinLapackBandSolve(KINMem kin_mem, N_Vector x, N_Vector b,
  * -----------------------------------------------------------------
  */
 
-static void kinLapackBandFree(KINMem kin_mem)
+static int kinLapackBandFree(KINMem kin_mem)
 {
   KINDlsMem kindls_mem;
 
@@ -609,4 +611,6 @@ static void kinLapackBandFree(KINMem kin_mem)
   DestroyMat(J);
   DestroyArray(pivots);
   free(kindls_mem); kindls_mem = NULL;
+
+  return(0);
 }

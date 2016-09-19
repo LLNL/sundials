@@ -58,7 +58,7 @@ static int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
 
 /* Prototype for KINBBDPrecFree */
 
-static void KINBBDPrecFree(KINMem kin_mem);
+static int KINBBDPrecFree(KINMem kin_mem);
 
 /* Prototype for difference quotient jacobian calculation routine */
 
@@ -431,15 +431,15 @@ static int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
 }
 
 
-static void KINBBDPrecFree(KINMem kin_mem)
+static int KINBBDPrecFree(KINMem kin_mem)
 {
   KINSpilsMem kinspils_mem;
   KBBDPrecData pdata;
 
-  if (kin_mem->kin_lmem == NULL) return;
+  if (kin_mem->kin_lmem == NULL) return(0);
   kinspils_mem = (KINSpilsMem) kin_mem->kin_lmem;
   
-  if (kinspils_mem->s_P_data == NULL) return;
+  if (kinspils_mem->s_P_data == NULL) return(0);
   pdata = (KBBDPrecData) kinspils_mem->s_P_data;
 
   N_VDestroy(vtemp3);
@@ -448,6 +448,8 @@ static void KINBBDPrecFree(KINMem kin_mem)
 
   free(pdata);
   pdata = NULL;
+
+  return(0);
 }
 
 
