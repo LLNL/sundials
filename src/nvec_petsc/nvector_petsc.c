@@ -135,10 +135,12 @@ N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
   N_Vector_Ops ops;
   N_VectorContent_Petsc content;
   long int n, Nsum;
+  PetscErrorCode ierr;
 
   /* Compute global length as sum of local lengths */
   n = local_length;
-  MPI_Allreduce(&n, &Nsum, 1, PVEC_INTEGER_MPI_TYPE, MPI_SUM, comm);
+  ierr = MPI_Allreduce(&n, &Nsum, 1, PVEC_INTEGER_MPI_TYPE, MPI_SUM, comm);
+  CHKERRABORT(comm,ierr);
   if (Nsum != global_length) {
     printf(BAD_N);
     return(NULL);
@@ -876,20 +878,22 @@ static realtype VAllReduce_Petsc(realtype d, int op, MPI_Comm comm)
    * The operation is over all processors in the communicator 
    */
 
+  PetscErrorCode ierr;
   realtype out;
 
   switch (op) {
-   case 1: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+   case 1: ierr = MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
            break;
 
-   case 2: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MAX, comm);
+   case 2: ierr = MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MAX, comm);
            break;
 
-   case 3: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MIN, comm);
+   case 3: ierr = MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MIN, comm);
            break;
 
    default: break;
   }
+  CHKERRABORT(comm, ierr);
 
   return(out);
 }
