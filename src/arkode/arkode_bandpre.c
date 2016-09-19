@@ -369,10 +369,10 @@ static int ARKBandPrecFree(ARKodeMem ark_mem)
   ARKSpilsMem arkspils_mem;
   ARKBandPrecData pdata;
 
-  if (ark_mem->ark_lmem == NULL) return;
+  if (ark_mem->ark_lmem == NULL) return(0);
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
   
-  if (arkspils_mem->s_P_data == NULL) return;
+  if (arkspils_mem->s_P_data == NULL) return(0);
   pdata = (ARKBandPrecData) arkspils_mem->s_P_data;
 
   DestroyMat(pdata->savedJ);

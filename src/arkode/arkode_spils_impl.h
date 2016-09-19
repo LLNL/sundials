@@ -80,7 +80,7 @@ typedef struct ARKSpilsMemRec {
         - pfree == set by the prec. module and called in ARKodeFree  */
   ARKSpilsPrecSetupFn s_pset;
   ARKSpilsPrecSolveFn s_psolve;
-  void (*s_pfree)(ARKodeMem ark_mem);
+  int (*s_pfree)(ARKodeMem ark_mem);
   void *s_P_data;
 
   /* Jacobian times vector compuation
@@ -136,7 +136,7 @@ typedef struct ARKSpilsMassMemRec {
         - pfree == set by the prec. module and called in ARKodeFree */
   ARKSpilsMassPrecSetupFn s_pset;
   ARKSpilsMassPrecSolveFn s_psolve;
-  void (*s_pfree)(ARKodeMem ark_mem);
+  int (*s_pfree)(ARKodeMem ark_mem);
   void *s_P_data;
 
   long int s_last_flag; /* last error flag returned by any function     */

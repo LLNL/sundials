@@ -435,10 +435,10 @@ static int ARKBBDPrecFree(ARKodeMem ark_mem)
   ARKSpilsMem arkspils_mem;
   ARKBBDPrecData pdata;
   
-  if (ark_mem->ark_lmem == NULL) return;
+  if (ark_mem->ark_lmem == NULL) return(0);
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
   
-  if (arkspils_mem->s_P_data == NULL) return;
+  if (arkspils_mem->s_P_data == NULL) return(0);
   pdata = (ARKBBDPrecData) arkspils_mem->s_P_data;
 
   DestroyMat(pdata->savedJ);
