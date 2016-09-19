@@ -1,7 +1,8 @@
 SUNDIALS Pre-Release Tasks
 
 This is a list of tasks that need to be done before a SUNDIALS release.
-The order is bottom-up-- starting with solver source files, and ending with web pages.
+The order is bottom-up-- starting with solver source files, and ending with
+web pages.
 
 0. Create release branch from trunk in the Subversion repository
 
@@ -17,19 +18,7 @@ The order is bottom-up-- starting with solver source files, and ending with web 
 
 6. Misc. source file fixes
 
-% 7. Update README file in src/<solver>, with version
-   % number, release dates and summary of recent revisions.
-   %  src/arkode/README
-   %  src/cvode/README
-   %  src/cvodes/README
-   %  src/ida/README
-   %  src/idas/README
-   %  src/kinsol/README
-   %  src/nvec_openmp/README
-   %  src/nvec_par/README
-   %  src/nvec_pthreads/README
-   %  src/nvec_ser/README
-   %  src/sundials/README 
+7. Update the "Changes in ..." sections in all user guides.
 
 8. Update version numbers in source code, documentation, and tarscripts.
     doc/arkode/ARKode_example.tex
@@ -41,43 +30,72 @@ The order is bottom-up-- starting with solver source files, and ending with web 
     CMakeLists.txt
     README
   
-% 9. Create PDF files for SundialsTB
-%     a) Create the PDF doc for SundialsTB by running the Matlab program texdoc.m
-%     available in sundialsTB/doc.
-%     b) The program uses the m2html toolbox, freely available.  It creates doc files
-%     in PS and PDF formats as sundialsTB.ps and sundialsTB.pdf.
-%     c) Follow Radu's instructions in sundials/sundialsTB/doc/README_texdoc
+9. Create the tarballs
+   Create the new distribution tarballs using the "tarscript" shell script 
+   under scripts/.  This also compiles the documents (user guides and example 
+   docs) and creates all tarballs in their final form, appropriate for 
+   uploading to the website.
 
-10. Create the tarballs
-Create the new distribution tarballs using the "tarscript" shell script under
-scripts/.  This also compiles the documents (user guides and example docs) and
-creates all tarballs in their final form, appropriate for uploading to the website.
-
-11. Update Internal Drupal Web pages for SUNDIALS: https://computation-external.llnl.gov/user
-  b) Modify content (save edits on each page as you go)
+10. Update Internal Drupal Web pages for SUNDIALS:
+     https://computation-external.llnl.gov/user
+  a) Modify content (save edits on each page as you go)
        - Edit Main Page: https://computation-external.llnl.gov/projects/sundials
-           + Update Release History page: https://computation-external.llnl.gov/projects/sundials/release-history
-           + Add list of primary changes and child page containing full list of changes.
+           + Update Release History page: 
+             https://computation-external.llnl.gov/projects/sundials/release-history
+           + Add list of primary changes and child page containing 
+             full list of changes (this information is shared with 
+             "Changes in ..." sections of user guides).
  
-       - Edit Download Page:   https://computation-external.llnl.gov/projects/sundials/sundials-software
-           + Update main download table with new versions of solvers and new sizes
+       - Edit Download Page:   
+         https://computation-external.llnl.gov/projects/sundials/sundials-software
+           + Update main download table with new versions of solvers and 
+             new sizes
            + Upload new documentation (pdf) files.
-           + Update Previous releases table with new entry for previous release of full SUNDIALS suite. 
+           + Update Previous releases table with new entry for previous 
+             release of full SUNDIALS suite. 
 
-       - Edit FAQ if necessary: https://computation-external.llnl.gov/projects/sundials/faq
+       - Edit FAQ if necessary: 
+         https://computation-external.llnl.gov/projects/sundials/faq
+  b) Once each sub page is complete, ask for team review of draft pages.
 
-12. Once each sub page is complete, ask for team review of draft pages.
+  c)  After team comments are included and saved, select the 
+      "Publishing options" button in the bottom left group of buttons on the 
+      draft page.  Select the Moderation state reflecting the amount of 
+      required review then Save.  This must be done for each page and is the 
+      final action before pages are uploaded for external release.
 
-13. After team commenst are included and saved, select the "Publishing options" button in the bottom
-    left group of buttons on the draft page.  Select the Moderation state reflecting the amount of 
-    required review then Save.  This must be done for each page and is the final action before pages 
-    are uploaded for external release.
-
-14. After final push, ensure web content and behavior is as expected:
+11. After final push, ensure web content and behavior is as expected:
        + Main Page: http://computation.llnl.gov/projects/sundials
 
-15. Tag the release in the release branch in the Subversion repository
+12. Tag the release in the release branch in the Subversion repository
 
+
+
+---------------------------------------------------------------
+
+Old stuff:
+
+9. Create PDF files for SundialsTB
+    a) Create the PDF doc for SundialsTB by running the Matlab program texdoc.m
+    available in sundialsTB/doc.
+    b) The program uses the m2html toolbox, freely available.  
+       It creates doc files in PS and PDF formats as sundialsTB.ps and 
+       sundialsTB.pdf.
+    c) Follow Radu's instructions in sundials/sundialsTB/doc/README_texdoc
+
+7. Update README file in src/<solver>, with version
+   number, release dates and summary of recent revisions.
+    src/arkode/README
+    src/cvode/README
+    src/cvodes/README
+    src/ida/README
+    src/idas/README
+    src/kinsol/README
+    src/nvec_openmp/README
+    src/nvec_par/README
+    src/nvec_pthreads/README
+    src/nvec_ser/README
+    src/sundials/README 
 
 
 
