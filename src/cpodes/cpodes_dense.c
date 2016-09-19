@@ -58,7 +58,7 @@ static int cpDenseSetup(CPodeMem cp_mem, int convfail,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int cpDenseSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
                         N_Vector yC, N_Vector ypC, N_Vector fctC);
-static void cpDenseFree(CPodeMem cp_mem);
+static int cpDenseFree(CPodeMem cp_mem);
 
 /* CPDENSE linitP, lsetupP, lsolveP, lmultP, and lfreeP routines */
 static int cpDenseProjInit(CPodeMem cp_mem);
@@ -68,7 +68,7 @@ static int cpDenseProjSolve(CPodeMem cp_mem, N_Vector b, N_Vector x,
                             N_Vector y, N_Vector cy,
                             N_Vector c_tmp1, N_Vector s_tmp1);
 static void cpDenseProjMult(CPodeMem cp_mem, N_Vector x, N_Vector Gx);
-static void cpDenseProjFree(CPodeMem cp_mem);
+static int cpDenseProjFree(CPodeMem cp_mem);
 
 /* Private functions for LU, QR, and SC projection */
 static void cpdLUcomputeKI(CPodeMem cp_mem);
@@ -604,7 +604,7 @@ static int cpDenseSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
  * -----------------------------------------------------------------
  */
 
-static void cpDenseFree(CPodeMem cp_mem)
+static int cpDenseFree(CPodeMem cp_mem)
 {
   CPDlsMem  cpdls_mem;
 
@@ -615,6 +615,8 @@ static void cpDenseFree(CPodeMem cp_mem)
   if (ode_type == CP_EXPL) DestroyMat(savedJ);
   free(cpdls_mem); 
   cpdls_mem = NULL;
+
+  return(0);
 }
 
 /* 
@@ -1017,7 +1019,7 @@ static void cpDenseProjMult(CPodeMem cp_mem, N_Vector x, N_Vector Gx)
  * -----------------------------------------------------------------
  */
 
-static void cpDenseProjFree(CPodeMem cp_mem)
+static int cpDenseProjFree(CPodeMem cp_mem)
 {
   CPDlsProjMem  cpdlsP_mem;
 
@@ -1041,6 +1043,8 @@ static void cpDenseProjFree(CPodeMem cp_mem)
 
   free(cpdlsP_mem); 
   cpdlsP_mem = NULL;
+
+  return(0);
 }
 
 /*

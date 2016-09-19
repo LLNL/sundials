@@ -37,7 +37,7 @@ static int cpSpgmrSetup(CPodeMem cp_mem, int convfail,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int cpSpgmrSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
                         N_Vector yC, N_Vector ypC, N_Vector fctC);
-static void cpSpgmrFree(CPodeMem cp_mem);
+static int cpSpgmrFree(CPodeMem cp_mem);
 
 /* Readability Replacements */
 
@@ -507,7 +507,7 @@ static int cpSpgmrSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
  * -----------------------------------------------------------------
  */
 
-static void cpSpgmrFree(CPodeMem cp_mem)
+static int cpSpgmrFree(CPodeMem cp_mem)
 {
   CPSpilsMem cpspils_mem;
   SpgmrMem spgmr_mem;
@@ -522,5 +522,7 @@ static void cpSpgmrFree(CPodeMem cp_mem)
   if (ode_type == CP_EXPL) N_VDestroy(yptemp);
   if (cpspils_mem->s_pfree != NULL) (cpspils_mem->s_pfree)(cp_mem);
   free(cpspils_mem); cpspils_mem = NULL;
+
+  return(0);
 }
 

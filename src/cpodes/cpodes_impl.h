@@ -273,7 +273,7 @@ typedef struct CPodeMemRec {
 		   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3); 
   int (*cp_lsolve)(struct CPodeMemRec *cp_mem, N_Vector b, N_Vector weight,
 		   N_Vector yC, N_Vector ypC, N_Vector fctC);
-  void (*cp_lfree)(struct CPodeMemRec *cp_mem);
+  int (*cp_lfree)(struct CPodeMemRec *cp_mem);
 
   /* Linear Solver specific memory */
   void *cp_lmem;           
@@ -294,7 +294,7 @@ typedef struct CPodeMemRec {
 		    N_Vector y, N_Vector cy,
 		    N_Vector c_tmp1, N_Vector s_tmp1);
   void (*cp_lmultP)(struct CPodeMemRec *cp_mem, N_Vector x, N_Vector Gx);
-  void (*cp_lfreeP)(struct CPodeMemRec *cp_mem);
+  int (*cp_lfreeP)(struct CPodeMemRec *cp_mem);
 
   /* Linear Solver specific memory */
   void *cp_lmemP;
@@ -486,11 +486,12 @@ typedef struct CPodeMemRec {
 
 /*
  * -----------------------------------------------------------------
- * void (*cp_lfree)(CPodeMem cp_mem);
+ * int (*cp_lfree)(CPodeMem cp_mem);
  * -----------------------------------------------------------------
  * cp_lfree should free up any memory allocated by the linear
  * solver. This routine is called once a problem has been
- * completed and the linear solver is no longer needed.
+ * completed and the linear solver is no longer needed.  It should 
+ * return 0 upon success, nonzero on failure.
  * -----------------------------------------------------------------
  */
   
@@ -631,11 +632,12 @@ typedef struct CPodeMemRec {
   
 /*
  * -----------------------------------------------------------------
- * void (*cp_lfreeP)(CPodeMem cp_mem);
+ * int (*cp_lfreeP)(CPodeMem cp_mem);
  * -----------------------------------------------------------------
  * cp_lfreeP should free up any memory allocated by the linear
  * solver. This routine is called once a problem has been
- * completed and the linear solver is no longer needed.
+ * completed and the linear solver is no longer needed.  It should 
+ * return 0 upon success, nonzero on failure.
  * -----------------------------------------------------------------
  */
   

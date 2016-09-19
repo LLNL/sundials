@@ -79,7 +79,7 @@ static int cpBBDPrecSolveImpl(realtype t, N_Vector y, N_Vector yp, N_Vector r,
                               void *bbd_data, N_Vector tmp);
 
 /* Prototype for cpBBDPrecFree */
-static void cpBBDPrecFree(CPodeMem cp_mem);
+static int cpBBDPrecFree(CPodeMem cp_mem);
 
 /* Difference quotient Jacobian calculation routines */
 
@@ -631,15 +631,15 @@ static int cpBBDPrecSolveImpl(realtype t, N_Vector y, N_Vector yp, N_Vector r,
  * BBD preconditioner.
  */
 
-static void cpBBDPrecFree(CPodeMem cp_mem)
+static int cpBBDPrecFree(CPodeMem cp_mem)
 {
   CPSpilsMem cpspils_mem;
   CPBBDPrecData pdata;
   
-  if (cp_mem->cp_lmem == NULL) return;
+  if (cp_mem->cp_lmem == NULL) return(0);
   cpspils_mem = (CPSpilsMem) cp_mem->cp_lmem;
   
-  if (cpspils_mem->s_P_data == NULL) return;
+  if (cpspils_mem->s_P_data == NULL) return(0);
   pdata = (CPBBDPrecData) cpspils_mem->s_P_data;
 
   DestroyMat(savedJ);
@@ -648,6 +648,8 @@ static void cpBBDPrecFree(CPodeMem cp_mem)
 
   free(pdata);
   pdata = NULL;
+
+  return(0);
 }
 
 

@@ -79,7 +79,7 @@ static int cpBandPrecSolveImpl(realtype t, N_Vector y, N_Vector yp, N_Vector r,
 
 /* Prototype for cpBandPrecFree */
 
-static void cpBandPrecFree(CPodeMem cp_mem);
+static int cpBandPrecFree(CPodeMem cp_mem);
 
 /* Difference quotient Jacobian calculation routines */
 
@@ -509,15 +509,15 @@ static int cpBandPrecSolveImpl(realtype t, N_Vector y, N_Vector yp, N_Vector r,
  * -----------------------------------------------------------------
  */
 
-static void cpBandPrecFree(CPodeMem cp_mem)
+static int cpBandPrecFree(CPodeMem cp_mem)
 {
   CPSpilsMem cpspils_mem;
   CPBandPrecData pdata;
 
-  if (cp_mem->cp_lmem == NULL) return;
+  if (cp_mem->cp_lmem == NULL) return(0);
   cpspils_mem = (CPSpilsMem) cp_mem->cp_lmem;
   
-  if (cpspils_mem->s_P_data == NULL) return;
+  if (cpspils_mem->s_P_data == NULL) return(0);
   pdata = (CPBandPrecData) cpspils_mem->s_P_data;
 
   DestroyMat(savedJ);
@@ -526,6 +526,8 @@ static void cpBandPrecFree(CPodeMem cp_mem)
 
   free(pdata);
   pdata = NULL;
+
+  return(0);
 }
 
 /* 

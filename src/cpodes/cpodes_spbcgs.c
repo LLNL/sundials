@@ -38,7 +38,7 @@ static int cpSpbcgSetup(CPodeMem cp_mem, int convfail,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int cpSpbcgSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
                         N_Vector yC, N_Vector ypC, N_Vector fctC);
-static void cpSpbcgFree(CPodeMem cp_mem);
+static int cpSpbcgFree(CPodeMem cp_mem);
 
 
 /* Readability Replacements */
@@ -502,7 +502,7 @@ static int cpSpbcgSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
  * -----------------------------------------------------------------
  */
 
-static void cpSpbcgFree(CPodeMem cp_mem)
+static int cpSpbcgFree(CPodeMem cp_mem)
 {
   CPSpilsMem cpspils_mem;
   SpbcgMem spbcg_mem;
@@ -517,5 +517,7 @@ static void cpSpbcgFree(CPodeMem cp_mem)
   if (ode_type == CP_EXPL) N_VDestroy(yptemp);
   if (cpspils_mem->s_pfree != NULL) (cpspils_mem->s_pfree)(cp_mem);
   free(cpspils_mem); cpspils_mem = NULL;
+
+  return(0);
 }
 

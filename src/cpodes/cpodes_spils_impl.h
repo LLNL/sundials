@@ -100,7 +100,7 @@ typedef struct CPSpilsMemRec {
   CPSpilsPrecSolveExplFn s_pslvE; /* preconditioner solve (CP_EXPL case) */
   CPSpilsPrecSolveImplFn s_pslvI; /* preconditioner solve (CP_IMPL case) */
 
-  void (*s_pfree)(CPodeMem cp_mem);
+  int (*s_pfree)(CPodeMem cp_mem);
 
   void *s_P_data;                 /* data passed to psolve and pset      */
 

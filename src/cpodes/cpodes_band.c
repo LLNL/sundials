@@ -48,7 +48,7 @@ static int cpBandSetup(CPodeMem cp_mem, int convfail,
                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int cpBandSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
                        N_Vector yC, N_Vector ypC, N_Vector fctC);
-static void cpBandFree(CPodeMem cp_mem);
+static int cpBandFree(CPodeMem cp_mem);
 
 /*
  * =================================================================
@@ -408,7 +408,7 @@ static int cpBandSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
  * -----------------------------------------------------------------
  */
 
-static void cpBandFree(CPodeMem cp_mem)
+static int cpBandFree(CPodeMem cp_mem)
 {
   CPDlsMem cpdls_mem;
 
@@ -419,5 +419,7 @@ static void cpBandFree(CPodeMem cp_mem)
   if (ode_type == CP_EXPL) DestroyMat(savedJ);
   free(cpdls_mem); 
   cpdls_mem = NULL;
+
+  return(0);
 }
 

@@ -73,7 +73,7 @@ static int cpLapackDenseSetup(CPodeMem cp_mem, int convfail,
                               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int cpLapackDenseSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
                               N_Vector yC, N_Vector ypC, N_Vector fctC);
-static void cpLapackDenseFree(CPodeMem cp_mem);
+static int cpLapackDenseFree(CPodeMem cp_mem);
 
 /* CPLAPACK BAND linit, lsetup, lsolve, and lfree routines */ 
 static int cpLapackBandInit(CPodeMem cp_mem);
@@ -83,7 +83,7 @@ static int cpLapackBandSetup(CPodeMem cp_mem, int convfail,
                              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int cpLapackBandSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
                              N_Vector yC, N_Vector ypC, N_Vector fctC);
-static void cpLapackBandFree(CPodeMem cp_mem);
+static int cpLapackBandFree(CPodeMem cp_mem);
 
 
 /* CPLAPACK DENSE linitP, lsetupP, lsolveP, lmultP, and lfreeP routines */
@@ -94,7 +94,7 @@ static int cpLapackDenseProjSolve(CPodeMem cp_mem, N_Vector b, N_Vector x,
                                   N_Vector y, N_Vector cy,
                                   N_Vector c_tmp1, N_Vector s_tmp1);
 static void cpLapackDenseProjMult(CPodeMem cp_mem, N_Vector x, N_Vector Gx);
-static void cpLapackDenseProjFree(CPodeMem cp_mem);
+static int cpLapackDenseProjFree(CPodeMem cp_mem);
 
 /* Private functions for LU, QR, and SC projection */
 static void cplLUcomputeKD(CPodeMem cp_mem, N_Vector d);
@@ -817,7 +817,7 @@ static int cpLapackDenseSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
 /*
  * cpLapackDenseFree frees memory specific to the dense linear solver.
  */
-static void cpLapackDenseFree(CPodeMem cp_mem)
+static int cpLapackDenseFree(CPodeMem cp_mem)
 {
   CPDlsMem  cpdls_mem;
 
@@ -828,6 +828,8 @@ static void cpLapackDenseFree(CPodeMem cp_mem)
   if (ode_type == CP_EXPL) DestroyMat(savedJ);
   free(cpdls_mem); 
   cpdls_mem = NULL;
+
+  return(0);
 }
 
 /* 
@@ -1008,7 +1010,7 @@ static int cpLapackBandSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
 /*
  * cpLapackBandFree frees memory specific to the band linear solver.
  */
-static void cpLapackBandFree(CPodeMem cp_mem)
+static int cpLapackBandFree(CPodeMem cp_mem)
 {
   CPDlsMem  cpdls_mem;
 
@@ -1019,6 +1021,8 @@ static void cpLapackBandFree(CPodeMem cp_mem)
   if (ode_type == CP_EXPL) DestroyMat(savedJ);
   free(cpdls_mem); 
   cpdls_mem = NULL;
+  
+  return(0);
 }
 
 /* 
@@ -1475,7 +1479,7 @@ static void cpLapackDenseProjMult(CPodeMem cp_mem, N_Vector x, N_Vector Gx)
 /*
  * cpLapackDenseProjFree frees memory specific to the dense linear solver.
  */
-static void cpLapackDenseProjFree(CPodeMem cp_mem)
+static int cpLapackDenseProjFree(CPodeMem cp_mem)
 {
   CPDlsProjMem cpdlsP_mem;
 
@@ -1506,6 +1510,8 @@ static void cpLapackDenseProjFree(CPodeMem cp_mem)
 
   free(cpdlsP_mem); 
   cpdlsP_mem = NULL;
+
+  return(0);
 }
 
 /*
