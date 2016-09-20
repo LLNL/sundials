@@ -1,47 +1,39 @@
 Changes to SUNDIALS since Release of March 30, 2015.
 
-* Minor corrections and additions to all User Guides.
-
-* Removed Matlab interface from distribution as it has not been updated
-  since 2009.  We expect to update this interface soon.
-
-!!!!!!!!!  * _impl file change - Slaven to provide
+* Two new NVECTOR modules added: for parallel Hypre and PETSC.
 
 * In vector API, added new required function, N_VGetVectorID.
 
+* Upgrades to sparse solver interfaces; now support CSR matrix type with KLU solver.
+
+* Updated BiCGStab solver to remove redundant dot product.
+
 * In all packages, example codes were changed from using NV_DATA macro to 
-  using N_VGetArrayPpointer_* wen using the nativevectors shipped with
+  using N_VGetArrayPointer_* when using the native vectors shipped with
   SUNDIALS
+
+!!!!!!!!!  * _impl file change - Slaven to provide
 
 * In all packages, fixed memory leak in banded preconditioner interface.
 
-* In all packages, fixed memory leak in bandpre and bbdpre 'init' routines 
-  wherein if the preconditioner is initialized in a loop, previously 
-  initialized data was not deleted. 
-
 * Fixed potential memory leak in KLU ReInit functions in all solvers.
-
-* Updated BiCGStab solver to remove redundant dot product call.
 
 * Fixed some examples w.r.t. switch to new macro/function names SUNRexp etc.
 
 * Various minor fixes to installation-related files.
 
-* Added new N_Vector module  which wraps a hypre ParHyp vector and 
-  ARKode and CVode examples that use it.
-
-* Added new N_Vector module  which wraps a PETSc vector.
-
 * Corrected name N_VCloneEmptyVectorArray to N_VCloneVectorArrayEmpty in
   all documentation files.
 
+* Updated all packages to return integers from linear solver and preconditioner 'free' functions.
+
 * Revised all usage skeletons to remove references to names specific to
   any particular NVECTOR module, using more general instructions instead.
-  This requires some additions to NVECTOR module documentations.
 
-* In sparse matrix module, allow for CSR as well as CSC matrices.
+* Removed Matlab interface from distribution as it has not been updated
+  since 2009.  We expect to update this interface soon.
 
-* In KLU interfaces, allow for CSR format matrices.
+* Minor corrections and additions to all User Guides.
 
 
 
@@ -63,6 +55,23 @@ Changes to SUNDIALS since Release of March 30, 2015.
 * In ARKODE, fixed a bug in one Butcher table.
 
 * In ARKODE, fixed error in arkDoErrorTest in recovery after failure.
+
+* In ARKODE, fixed initialization of linear solver performance counters.
+* Method and embedding for Billington and TRBDF2 explicit Runge-Kutta methods were swapped. 
+* Fix for user specification of absolute tolerance array along with vector Resize() functionality.
+* Fix for user-supplied Butcher tables without embeddings (if fixed time steps or manual adaptivity are employed).
+* Multiple documentation updates.
+* Added missing ARKSpilsGetNumMtimesEvals() function.
+ 
+* Two new NVECTOR modules added: for parallel Hypre and PETSc.
+* Enhanced Bi-CGstab by removing redundant dot product.
+* Upgrades to sparse solver interfaces; now support CSR matrix type with KLU solver.
+* Implicit predictor algorithms were updated: methods 2 and 3 were improved, a new predictor approach was added, and the default choice was modified.
+* Revised handling of integer codes for specifying built-in Butcher tables: a global numbering system is still used, but methods now have #defined names to simplify the user interface. 
+* Maximum number of Butcher table stages was increased from 8 to 15 to accommodate very high order methods, and an 8th-order adaptive ERK method was added.
+* Added support for the explicit and implicit methods in an additive Runge-Kutta method to utilize different stage times, solution and embedding coefficients, to support new SSP-ARK methods.
+* Extended FARKODE interface to include a routine to set scalar/array-valued residual tolerances, to support Fortran applications with non-identity mass-matrices. 
+* Enhanced Anderson acceleration using QR updating
 
 
 
