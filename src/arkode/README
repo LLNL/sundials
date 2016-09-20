@@ -1,5 +1,5 @@
                              ARKODE
-                   Release 1.1.0, March, 2016
+                   Release 1.1.0, September, 2016
                        Daniel R. Reynolds
                   Department of Mathematics, SMU
 
@@ -65,76 +65,8 @@ C. References
 D. Releases
 -----------
 
-v. 1.1.0 - Mar. 2016
+v. 1.1.0 - Sep. 2016
 v. 1.0.2 - Aug. 2015
 v. 1.0.1 - Mar. 2015
 v. 1.0.0 - Mar. 2015
-
-
-E. Revision History
--------------------
-
-v. 1.0.2 (Aug. 2015) ---> v. 1.1.0 (Aug. 2016)
-----------------------------------------------
-- Bug fixes
-  - Fix in initialization of linear solver performance counters.
-  - Method and embedding for Billington and TRBDF2 explicit
-    Runge-Kutta methods were swapped. 
-  - Fix for user specification of absolute tolerance array along with
-    vector Resize() functionality.
-  - Fix for user-supplied Butcher tables without embeddings (if fixed
-    time steps or manual adaptivity are employed).
-  - Multiple documentation updates.
-  - Added missing ARKSpilsGetNumMtimesEvals() function.
-
-- New features and/or enhancements
-  - Two new NVECTOR modules added: for parallel Hypre and PETSc.
-  - Enhanced Bi-CGstab by removing redundant dot product.
-  - Upgrades to sparse solver interfaces; now support CSR matrix type
-    with KLU solver.
-  - Implicit predictor algorithms were updated: methods 2 and 3 were
-    improved, a new predictor approach was added, and the default
-    choice was modified.
-  - Revised handling of integer codes for specifying built-in Butcher 
-    tables: a global numbering system is still used, but methods now
-    have #defined names to simplify the user interface. 
-  - Maximum number of Butcher table stages was increased from 8 to
-    15 to accommodate very high order methods, and an 8th-order
-    adaptive ERK method was added.
-  - Added support for the explicit and implicit methods in an additive
-    Runge-Kutta method to utilize different stage times, solution and
-  - embedding coefficients, to support new SSP-ARK methods.
-  - Extended FARKODE interface to include a routine to set
-    scalar/array-valued residual tolerances, to support Fortran
-    applications with non-identity mass-matrices. 
-  - Enhanced Anderson acceleration using QR updating
-
-v. 1.0.1 (Mar. 2015) ---> v. 1.0.2 (Aug. 2015)
----------------------------------------------
-- Bug fixes
-  - Fixed Fortran interfaces to enable calls to *GetErrWeights, *GetEstLocalErrors,
-    and *GetDky within a time step.
-  - Fixed bug in Butcher table.
-  - Fixed error in arkDoErrorTest in recovery after failure.
-    
-- New Features
-  - Updated Anderson acceleration implementation with QR updating.
-
-v. 1.0.0 (Mar. 2015) ---> v. 1.0.1 (Mar. 2015)
----------------------------------------------
-
-- Bug fixes
-  - Fixed loop limit bug in SlsAddMat function.
-  - In interfaces to KLU and SuperLUMT, added #include lines, 
-    and removed redundant KLU structure allocations.
-  - Minor documentation updates
-  - Fixed logic bugs in three ARKSpilsSet*** functions.
-  - Fixed bug in setting user data in two ARKode Fortran interface functions.
-
-
-v. 1.0.0 Mar. 2015
---------------------------------------------
-
-2013   DATE WRITTEN.  First released March 2015
-
 

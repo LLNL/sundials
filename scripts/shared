@@ -106,15 +106,12 @@ echo "   --- Add nvecparhyp module to $tarfile"
 
 $tar $tarfile $distrobase/src/nvec_parhyp/README
 $tar $tarfile $distrobase/src/nvec_parhyp/CMakeLists.txt
-$tar $tarfile $distrobase/src/nvec_parhyp/fnvector_parhyp.h
 $tar $tarfile $distrobase/src/nvec_parhyp/nvector_parhyp.c
-$tar $tarfile $distrobase/src/nvec_parhyp/fnvector_parhyp.c
 
 echo "   --- Add nvecpetsc module to $tarfile"
 
 $tar $tarfile $distrobase/src/nvec_petsc/README
 $tar $tarfile $distrobase/src/nvec_petsc/CMakeLists.txt
-$tar $tarfile $distrobase/src/nvec_petsc/nvector_petsc.h
 $tar $tarfile $distrobase/src/nvec_petsc/nvector_petsc.c
 
 echo "   --- Add nvecopenmp module to $tarfile"

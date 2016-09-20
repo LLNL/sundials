@@ -1,7 +1,7 @@
                      NVECTOR_PTHREADS
                  released as part of SUNDIALS
     SUite of Nonlinear and DIfferential/ALgebraic equation Solvers
-                   Release 2.6.2, August 2015
+                   Release 2.7.0, September 2016
 
 
 Pthreads implementation of the NVECTOR module for SUNDIALS. 
@@ -39,27 +39,9 @@ For complete installation instructions see any of the user guides.
 C. Releases
 -----------
 
+v. 2.7.0 - Sep. 2015
 v. 2.6.2 - Aug. 2015
 v. 2.6.1 - Mar. 2015
 v. 2.6.0 - Mar. 2015
 
-
-
-D. Revision History
--------------------
-
-v. 2.6.1 (Mar. 2015) ---> v. 2.6.2 (Aug. 2015)
----------------------------------------------
-
-- none
-
-v. 2.6.0 (Mar. 2015) ---> v. 2.6.0 (Mar. 2015)
----------------------------------------------
-
-- none
-
-v. 2.5.0 (Mar. 2012) ---> v. 2.6.0 (Mar.2015)
----------------------------------------------
-
-- This package added with SUNDIALS v.2.6.0.
 

@@ -1,5 +1,5 @@
                                IDAS
-                    Release 1.3.0, March 31, 2016
+                    Release 1.3.0, September 2016
                            Radu Serban 
               Center for Applied Scientific Computing, LLNL
 
@@ -72,120 +72,9 @@ C. References
 D. Releases
 -----------
 
-v. 1.3.0   - Mar. 2016
+v. 1.3.0   - Sep. 2016
 v. 1.2.2   - Aug. 2015
 v. 1.2.1   - Mar. 2015
 v. 1.2.0   - Mar. 2015
 v. 1.1.0   - Mar. 2012
 v. 1.0.0   - May  2009
-
-
-E. Revision History
--------------------
-
-v. 1.2.2 (Aug. 2015) ---> v. 1.3.0 (Mar. 2016)
----------------------------------------------
-- Bug fixes
-  - Fixed bug in interpolation functions used in backward problems.
-- New features
-  - Two new NVECTOR modules added: for parallel Hypre and PetSC.
-  - Added optional input function for max. backtracks in  I.C. calculation.
--Other
-  - Enhanced Bi-CGstab by removing redundant dot product.
-  - Upgrades to sparse solver interfaces.
-
-
-v. 1.2.1 (Mar. 2015) ---> v. 1.2.2 (Aug. 2015)
----------------------------------------------
-- Bug fixes
-  - Made SuperLUMT call for backward problem consistent with CVODES.
-  - Added ReInit and SetOrdering wrappers for backward problems.
-  - Fixed for-loop bugs in IDAAckpntAllocVectors.
-
--New Features
-  - Added missing backward problem support functions:
-    IDALapackDenseB, IDALapackDenseFreeB, IDALapackBandB, IDALapackBandFreeB
-
-v. 1.2.0 (Mar. 2015) ---> v. 1.2.1 (Mar. 2015)
----------------------------------------------
-- Bug fixes
-  - Fixed loop limit bug in SlsAddMat function.
-  - In interfaces to KLU and SuperLUMT, added #include lines, 
-    and removed redundant KLU structure allocations.
-  - Minor documentation updates
-
-
-v. 1.1.0 (Mar. 2012) ---> v. 1.2.0 (Mar. 2015)
----------------------------------------------
-- New features
-   - Two major additions were made to the linear system solvers that are
-     availble for use with the IDAS solver.  In the serial case, an
-     interface to the KLU sparse direct solver was added.
-     For the parallel case, an interface to SuperLU_MT (the multi-threaded
-     version of SuperLU) was added as a thread-parallel sparse direct solver option.
-     As part of these additions, a sparse matrix (CSC format) structure 
-     was added to IDAS.
-   - Two new NVECTOR modules have been added for parallel computing
-     environments --- one for openMP, denoted NVECTOR_OPENMP,
-     and one for Pthreads, denoted NVECTOR_PTHREADS.
-   - An option was added in the case of Adjoint Sensitivity Analysis with
-     dense or banded Jacobian:  With a call to IDADlsSetDenseJacFnBS or
-     IDADlsSetBandJacFnBS, the user can specify a user-supplied Jacobian
-     function of type IDADls***JacFnBS, for the case where the backward
-     problem depends on the forward sensitivities.
-   - For the Adjoint Sensitivity Analysis case in which the backward problem
-     depends on the forward sensitivities, options have been added to allow
-     for user-supplied set, psolve, and jtimes functions.
-
-- Bug fixes
-   - In IDARootfind, a minor bug was corrected, where the input
-     array rootdir was ignored, and a line was added to break out of
-     root-search loop if the initial interval size is below the tolerance
-     ttol.
-   - In IDALapackBand, the line smu = MIN(N-1,mu+ml) was changed to
-     smu = mu + ml to correct an illegal input error for DGBTRF/DGBTRS.
-   - A minor bug was fixed regarding the testing of the input tstop on the
-     first call to IDASolve..
-
-- Changes to user interface
-   - In the User Guide, a paragraph was added in Section 6.2.1 on
-     IDAAdjReInit, and a paragraph was added in Section 6.2.9 on
-     IDAGetAdjY.
-
-- Other
-   - In order to avoid possible name conflicts, the mathematical macro and
-     function names MIN, MAX, SQR, RAbs, RSqrt, RExp, RPowerI, and RPowerR
-     were changed to SUNMIN, SUNMAX, SUNSQR, SUNRabs, SUNRsqrt, SUNRexp,
-     SRpowerI, and SUNRpowerR, respectively.  These names occur in both the
-     solver and in various example programs.
-
-v. 1.0.0 (May 2009) ---> v. 1.1.0 (Mar. 2012)
----------------------------------------------
-- Bug fixes
-   - errors in the logic for the integration of backward problems were
-     identified and fixed.
-   - a missing vector pointer setting was added in IDASensLineSrch.
-   - in IDACompleteStep, conditionals around lines loading a new column of three
-     auxiliary divided difference arrays, for a possible order increase, were fixed.
-   - after the solver memory is created, it is set to zero before being filled.
-   - in each linear solver interface function, the linear solver memory is
-     freed on an error return, and the **Free function now includes a
-     line setting to NULL the main memory pointer to the linear solver memory.
-   - a memory leak was fixed in two of the IDASp***Free functions.
-   - in rootfinding functions IDARcheck1/IDARcheck2, when an exact zero is found,
-     the array glo at the left endpoint is adjusted instead of shifting tlo.
-
-- Changes to user interface
-   - One significant design change was made with this release: The problem
-     size and its relatives, bandwidth parameters, related internal indices,
-     pivot arrays, and the optional output lsflag, have all been
-     changed from type int to type long int, except for the
-     problem size and bandwidths in user calls to routines specifying
-     BLAS/LAPACK routines for the dense/band linear solvers.  The function
-     NewIntArray is replaced by a pair NewIntArray/NewLintArray,
-     for int and long int arrays, respectively.
-   - in a minor change to the user interface, the type of the index
-     which in IDAS was changed from long int to int.
-   - in the installation files, we modified the treatment of the macro
-     SUNDIALS_USE_GENERIC_MATH, so that the parameter GENERIC_MATH_LIB
-     is either defined (with no value) or not defined.
