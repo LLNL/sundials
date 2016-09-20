@@ -65,18 +65,18 @@ FOREACH(example ${IDAS_examples_OMP})
   SUNDIALS_ADD_TEST(${example} ${example} TEST_ARGS 4)
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/openmp)
+    INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/C_openmp)
   ENDIF(EXAMPLES_INSTALL)
 ENDFOREACH(example ${IDAS_examples_OMP})
 
 IF(EXAMPLES_INSTALL)
 
   # Install the README file
-  INSTALL(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/openmp)
+  INSTALL(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/C_openmp)
 
   # Install the extra files
   FOREACH(extrafile ${IDAS_extras_OMP})
-    INSTALL(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/openmp)
+    INSTALL(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/C_openmp)
   ENDFOREACH(extrafile ${IDAS_extras_OMP})
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
@@ -95,14 +95,14 @@ IF(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
       ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_openmp_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/idas/openmp/CMakeLists.txt
+      ${PROJECT_BINARY_DIR}/examples/idas/C_openmp/CMakeLists.txt
       @ONLY
       )
 
   # install CMakelists.txt
   INSTALL(
-    FILES ${PROJECT_BINARY_DIR}/examples/idas/openmp/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/openmp 
+    FILES ${PROJECT_BINARY_DIR}/examples/idas/C_openmp/CMakeLists.txt
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/C_openmp 
     )
 
   # On UNIX-type platforms, we also  generate and install a makefile for 
@@ -113,13 +113,13 @@ IF(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     CONFIGURE_FILE(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_openmp_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/idas/openmp/Makefile_ex
+      ${PROJECT_BINARY_DIR}/examples/idas/C_openmp/Makefile_ex
       @ONLY
       )
     # install the configured Makefile_ex as Makefile
     INSTALL(
-      FILES ${PROJECT_BINARY_DIR}/examples/idas/openmp/Makefile_ex 
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/openmp
+      FILES ${PROJECT_BINARY_DIR}/examples/idas/C_openmp/Makefile_ex 
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/C_openmp
       RENAME Makefile
       )
   ENDIF(UNIX)
