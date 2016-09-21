@@ -82,7 +82,6 @@ int IDASuperLUMT(void *ida_mem, int num_threads, int n, int nnz)
   IDASlsMem idasls_mem;
   SLUMTData slumt_data;
   int *perm_c, *perm_r;
-  int flag;
   int nrhs, panel_size, relax;
   double *bd;
   SuperMatrix *B;
@@ -102,7 +101,7 @@ int IDASuperLUMT(void *ida_mem, int num_threads, int n, int nnz)
     return(IDASLS_ILL_INPUT);
   }
 
-  if (IDA_mem->ida_lfree != NULL) flag = IDA_mem->ida_lfree(IDA_mem);
+  if (IDA_mem->ida_lfree != NULL) IDA_mem->ida_lfree(IDA_mem);
 
   /* Set five main function fields in IDA_mem. */
   IDA_mem->ida_linit  = IDASuperLUMTInit;
