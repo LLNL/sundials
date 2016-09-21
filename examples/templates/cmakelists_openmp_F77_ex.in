@@ -33,7 +33,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 # Specify project name
-PROJECT(F@SOLVER@_openmp_examples Fortran)
+PROJECT(F@SOLVER@_openmp_examples Fortran C)
 
 MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
@@ -66,6 +66,16 @@ SET(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")
 
 # Set Blas/Lapack libraries
 SET(LAPACK_LIBRARIES @BLAS_LAPACK_LIBS@ CACHE STRING "Lapack libraries")
+
+FIND_PACKAGE(OpenMP)
+IF(OPENMP_FOUND)
+  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  # Use C flags for linker as well.
+  SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
+ELSE(OPENMP_FOUND)
+  message(STATUS "Disabling OpenMP support, could not determine compiler flags")
+ENDIF(OPENMP_FOUND)
 
 # List of all libraries
 SET(SUNDIALS_LIBS 

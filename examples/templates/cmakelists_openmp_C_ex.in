@@ -39,6 +39,7 @@ MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
 # Set the names of the examples to be built
 SET(examples @EXAMPLES@ @EXAMPLES_BL@)
+LIST(REMOVE_DUPLICATES examples)
 
 # Set names of examples specific dependency source files
 SET(examples_dependencies @EXAMPLES_DEPENDENCIES@)
@@ -48,7 +49,7 @@ SET(SUNDIALS_INC_DIR
   @includedir@
   CACHE STRING
   "Location of SUNDIALS header files")
-
+  
 # Add path to SUNDIALS header files
 INCLUDE_DIRECTORIES(${SUNDIALS_INC_DIR})
 
@@ -64,6 +65,9 @@ FIND_LIBRARY(SUNDIALS_SOLVER_LIB
 FIND_LIBRARY(SUNDIALS_NVEC_LIB
   sundials_nvecopenmp ${SUNDIALS_LIB_DIR}
   DOC "NVECTOR library")
+
+# Set additional libraries
+SET(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")
 
 # Set other libraries libraries
 SET(LAPACK_LIBRARIES @BLAS_LAPACK_LIBS@ CACHE STRING "Lapack libraries")
@@ -84,11 +88,14 @@ IF(KLU_LIBRARIES)
   LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
 ENDIF(KLU_LIBRARIES)
 
+FIND_PACKAGE(OpenMP)
 IF(OPENMP_FOUND)
   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
   # Use C flags for linker as well.
   SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
+ELSE(OPENMP_FOUND)
+  message(STATUS "Disabling OpenMP support, could not determine compiler flags")
 ENDIF(OPENMP_FOUND)
 
 # Build each example one by one
