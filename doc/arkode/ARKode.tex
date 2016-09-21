@@ -316,13 +316,19 @@ The feature changes/enhancements include:
 \begin{itemize}
 \item {} 
 Two additional NVECTOR implementations were added -- one for Hypre
-(parallel) vectors, and one for PETSc vectors.  These additions are
-accompanied by additions to various interface functions and to user
-documentation.
+(parallel) ParVector vectors, and one for PETSc vectors.  These
+additions are accompanied by additions to various interface
+functions and to user documentation.
 
 \item {} 
 Each NVECTOR module now includes a function, \code{N\_VGetVectorID},
 that returns the NVECTOR module name.
+
+\item {} 
+A memory leak was fixed in the banded preconditioner and
+banded-block-diagonal preconditioner interfaces.  In addition,
+updates were done to return integers from linear solver and
+preconditioner `free' routines.
 
 \item {} 
 The Krylov linear solver Bi-CGstab was enhanced by removing a
@@ -13476,10 +13482,6 @@ documentation, for simplified access.
 \item {} 
 \code{FNVINITPTS()} (defined by NVECTOR\_PTHREADS) interfaces to
 {\hyperref[nvectors/NVector_Pthreads:c.N_VNewEmpty_Pthreads]{\emph{\code{N\_VNewEmpty\_Pthreads()}}}}.
-
-\item {} 
-\code{FNVINITPH()} (defined by NVECTOR\_PARHYP) interfaces to
-{\hyperref[nvectors/NVector_ParHyp:c.N_VNewEmpty_ParHyp]{\emph{\code{N\_VNewEmpty\_ParHyp()}}}}.
 
 \end{itemize}
 
