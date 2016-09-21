@@ -113,11 +113,20 @@ and to user documentation.
 Each {\nvector} module now includes a function, \id{N\_VGetVectorID},
 that returns the {\nvector} module name.
 
+The Picard iteration return was chanegd to always return the newest 
+iterate upon success.  A minor bug in the line search was fixed
+to prevent an infinite loop when the beta condition fails and lamba 
+is below the minimum size.
+
 For each linear solver, the various solver performance counters are
 now initialized to 0 in both the solver specification function and in
 solver \id{linit} function.  This ensures that these solver counters
 are initialized upon linear solver instantiation as well as at the
 beginning of the problem solution.
+
+A memory leak was fixed in the banded preconditioner interface.
+In addition, updates were done to return integers from linear solver 
+and preconditioner 'free' functions.
 
 Corrections were made to three Fortran interface
 functions.  The Anderson acceleration scheme was enhanced by use of
@@ -127,6 +136,12 @@ The Krylov linear solver Bi-CGstab was enhanced by removing a redundant
 dot product.  Various additions and corrections were made to the
 interfaces to the sparse solvers KLU and SuperLU\_MT, including support
 for CSR format when using KLU.
+
+The functions FKINCREATE and FKININIT were added to split the FKINMALLOC 
+routine into two pieces.  FKINMALLOC remains for backward compatibility, but
+documentation for it has been removed.
+
+A new examples was added for use of the openMP vector.
 
 Minor corrections and additions were made to the {\kinsol} solver, to the
 Fortran interfaces, to the examples, to installation-related files,

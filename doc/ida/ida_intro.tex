@@ -61,7 +61,7 @@ in extended {\F}.
 \subsection*{Changes in v2.9.0}
 
 Two additional {\nvector} implementations were added -- one for
-Hypre (parallel) vectors, and one for PetSC vectors.  These
+Hypre (parallel) ParVector vectors, and one for PetSC vectors.  These
 additions are accompanied by additions to various interface functions
 and to user documentation.
 
@@ -78,10 +78,16 @@ solver \id{linit} function.  This ensures that these solver counters
 are initialized upon linear solver instantiation as well as at the
 beginning of the problem solution.
 
+A memory leak was fixed in the banded preconditioner interface.
+In addition, updates were done to return integers from linear solver 
+and preconditioner 'free' functions.
+
 The Krylov linear solver Bi-CGstab was enhanced by removing a redundant
 dot product.  Various additions and corrections were made to the
 interfaces to the sparse solvers KLU and SuperLU\_MT, including support
 for CSR format when using KLU.
+
+New examples were added for use of the openMP vector.
 
 Minor corrections and additions were made to the {\ida} solver, to the
 Fortran interfaces, to the examples, to installation-related files,

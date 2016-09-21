@@ -131,10 +131,21 @@ solver \id{linit} function.  This ensures that these solver counters
 are initialized upon linear solver instantiation as well as at the
 beginning of the problem solution.
 
+A memory leak was fixed in the banded preconditioner interface.
+In addition, updates were done to return integers from linear solver 
+and preconditioner 'free' functions.
+
 The Krylov linear solver Bi-CGstab was enhanced by removing a redundant
 dot product.  Various additions and corrections were made to the
 interfaces to the sparse solvers KLU and SuperLU\_MT, including support
 for CSR format when using KLU.
+
+In interpolation routines for backward problems, added logic to bypass 
+sensitivity interpolation if input sensitivity argument is NULL.
+The **FreeB() functions were changed to type int.  
+
+New examples were added for use of sparse direct solvers within sensitivity
+integrations and for use of openMP.  
 
 Minor corrections and additions were made to the {\cvodes} solver, to the
 examples, to installation-related files, and to the user documentation.
