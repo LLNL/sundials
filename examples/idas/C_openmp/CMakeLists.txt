@@ -60,10 +60,12 @@ SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
 
 # Add the build and install targets for each IDAS example
 FOREACH(example ${IDAS_examples_OMP})
-  ADD_EXECUTABLE(${example} ${example}.c)
-  SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-  SUNDIALS_ADD_TEST(${example} ${example} TEST_ARGS 4)
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+  IF(NOT ${example} MATCHES "idasFoodWeb_kry_omp") # LEB NOTE: This goes away with TestRunner fix for OpenMP
+    ADD_EXECUTABLE(${example} ${example}.c)
+    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    SUNDIALS_ADD_TEST(${example} ${example} TEST_ARGS 4)
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+  ENDIF()
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/C_openmp)
   ENDIF(EXAMPLES_INSTALL)
