@@ -23338,10 +23338,35 @@ Flag to enable Fortran 90 ARKode examples (if examples are enabled)
 
 Default: \code{OFF}
 
+\item[{\index{HYPRE\_ENABLE (CMake option)}HYPRE\_ENABLE}] \leavevmode
+Flag to enable hypre support
+
+Default: \code{OFF}
+
+\item[{\index{HYPRE\_INCLUDE\_DIR (CMake option)}HYPRE\_INCLUDE\_DIR}] \leavevmode
+Path to hypre header files
+
+Default: none
+
+\item[{\index{HYPRE\_LIBRARY (CMake option)}HYPRE\_LIBRARY}] \leavevmode
+Path to hypre installed library
+
+Default: none
+
 \item[{\index{F90\_ENABLE (CMake option)}KLU\_ENABLE}] \leavevmode
 Enable KLU support
 
 Default: \code{OFF}
+
+\item[{\index{KLU\_INCLUDE\_DIR (CMake option)}KLU\_INCLUDE\_DIR}] \leavevmode
+Path to SuiteSparse header files
+
+Default: none
+
+\item[{\index{KLU\_LIBRARY\_DIR (CMake option)}KLU\_LIBRARY\_DIR}] \leavevmode
+Path to SuiteSparse installed library files
+
+Default: none
 
 \item[{\index{LAPACK\_ENABLE (CMake option)}LAPACK\_ENABLE}] \leavevmode
 Enable LAPACK support
@@ -23415,6 +23440,28 @@ Turn on support for the OpenMP based NVector
 
 Default: \code{OFF}
 
+\item[{\index{PETSC\_ENABLE (CMake option)}PETSC\_ENABLE}] \leavevmode
+Flag to enable PETSc support
+
+Default: \code{OFF}
+
+\begin{notice}{note}{Note:}
+When using this option, the PETSc-specific environment
+variables \code{PETSC\_ARCH} and \code{PETSC\_DIR} are not
+required for compiling SUNDIALS, but should be set
+appropriately when running PETSc-enabled examples.
+\end{notice}
+
+\item[{\index{PETSC\_INCLUDE\_DIR (CMake option)}PETSC\_INCLUDE\_DIR}] \leavevmode
+Path to PETSc header files
+
+Default: none
+
+\item[{\index{PETSC\_LIBRARY\_DIR (CMake option)}PETSC\_LIBRARY\_DIR}] \leavevmode
+Path to PETSc installed library files
+
+Default: none
+
 \item[{\index{PTHREAD\_ENABLE (CMake option)}PTHREAD\_ENABLE}] \leavevmode
 Turn on support for the Pthreads based NVector
 
@@ -23430,6 +23477,22 @@ Default: \code{double}
 Enable SUPERLU\_MT support
 
 Default: \code{OFF}
+
+\item[{\index{SUPERLUMT\_INCLUDE\_DIR (CMake option)}SUPERLUMT\_INCLUDE\_DIR}] \leavevmode
+Path to SuperLU\_MT header files (under a typical SuperLU\_MT
+install, this is typically the SuperLU\_MT \code{SRC} directory)
+
+Default: none
+
+\item[{\index{SUPERLUMT\_LIBRARY\_DIR (CMake option)}SUPERLUMT\_LIBRARY\_DIR}] \leavevmode
+Path to SuperLU\_MT installed library files
+
+Default: none
+
+\item[{\index{SUPERLUMT\_THREAD\_TYPE (CMake option)}SUPERLUMT\_THREAD\_TYPE}] \leavevmode
+Must be set to Pthread or OpenMP, depending on how SuperLU\_MT was compiled.
+
+Default: none
 
 \item[{\index{USE\_GENERIC\_MATH (CMake option)}USE\_GENERIC\_MATH}] \leavevmode
 Use generic (\code{stdc}) math libraries
@@ -23512,7 +23575,7 @@ The KLU libraries are part of SuiteSparse, a suite of sparse matrix
 software, available from the Texas A\&M University website:
 \href{http://faculty.cse.tamu.edu/davis/suitesparse.html}{http://faculty.cse.tamu.edu/davis/suitesparse.html} .
 
-SUNDIALS has been tested with SuiteSparse version 4.2.1.  To enable
+SUNDIALS has been tested with SuiteSparse version 4.5.3.  To enable
 KLU, set \code{KLU\_ENABLE} to \code{ON}, set \code{KLU\_INCLUDE\_DIR} to the
 \code{include} path of the KLU installation and set \code{KLU\_LIBRARY\_DIR}
 to the \code{lib} path of the KLU installation.  The CMake configure will
@@ -23527,7 +23590,7 @@ The SuperLU\_MT libraries are available for download from the Lawrence
 Berkeley National Laboratory website:
 \href{http://crd-legacy.lbl.gov/\$sim\$xiaoye/SuperLU/}{http://crd-legacy.lbl.gov/\$sim\$xiaoye/SuperLU/}\#superlu\_mt .
 
-SUNDIALS has been tested with SuperLU\_MT version 2.4.  To enable
+SUNDIALS has been tested with SuperLU\_MT version 3.1.  To enable
 SuperLU\_MT, set  \code{SUPERLUMT\_ENABLE} to \code{ON}, set
 \code{SUPERLUMT\_INCLUDE\_DIR} to the \code{SRC} path of the SuperLU\_MT
 installation, and set the variable \code{SUPERLUMT\_LIBRARY\_DIR} to the
@@ -23539,6 +23602,30 @@ Do not mix thread types when building SUNDIALS solvers.
 If threading is enabled for SUNDIALS by having either
 \code{OPENMP\_ENABLE} or \code{PTHREAD\_ENABLE} set to \code{ON} then SuperLU\_MT
 should be set to use the same threading type.
+
+
+\subsubsection{Building with PETSc}
+\label{Install:building-with-petsc}\label{Install:installation-cmake-externallibraries-petsc}
+The PETSc libraries are available for download from the Argonne
+National Laboratory website:
+\href{http://www.mcs.anl.gov/petsc}{http://www.mcs.anl.gov/petsc} .
+
+SUNDIALS has been tested with PETSc version 3.7.2.  To enable PETSc,
+set \code{PETSC\_ENABLE} to \code{ON}, set \code{PETSC\_INCLUDE\_DIR} to the
+\code{include} path of the PETSc installation, and set the variable
+\code{PETSC\_LIBRARY\_DIR} to the \code{lib} path of the PETSc installation.
+
+
+\subsubsection{Building with \emph{hypre}}
+\label{Install:building-with-hypre}\label{Install:installation-cmake-externallibraries-hypre}
+The hypre libraries are available for download from the Lawrence
+Livermore National Laboratory website:
+\href{http://computation.llnl.gov/projects/hypre-scalable-linear-solvers-multigrid-methods}{http://computation.llnl.gov/projects/hypre-scalable-linear-solvers-multigrid-methods} .
+
+SUNDIALS has been tested with hypre version 2.11.1.  To enable
+\emph{hypre}, set \code{HYPRE\_ENABLE} to \code{ON}, set \code{HYPRE\_INCLUDE\_DIR} to
+the \code{include} path of the \emph{hypre} installation, and set the variable
+\code{HYPRE\_LIBRARY\_DIR} to the \code{lib} path of the \emph{hypre} installation.
 
 
 \subsection{Building and Running Examples}
