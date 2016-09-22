@@ -205,9 +205,10 @@ static int cvDenseInit(CVodeMem cv_mem)
   cvdls_mem = (CVDlsMem) lmem;
   
   cvDlsInitializeCounters(cvdls_mem);
-//   nje   = 0;
-//   nfeDQ = 0;
-//   nstlj = 0;
+  /*   nje   = 0;
+   nfeDQ = 0;
+   nstlj = 0;
+  */
 
   /* Set Jacobian function and data, depending on jacDQ */
   if (jacDQ) {

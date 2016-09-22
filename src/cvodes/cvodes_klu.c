@@ -714,7 +714,7 @@ int CVKLUReInitB(void *cvode_mem, int which, int n, int nnz, int reinit_type)
   CVadjMem ca_mem;
   CVodeBMem cvB_mem;
   void *cvodeB_mem;
-  //CVSlsMemB cvslsB_mem;
+  /* CVSlsMemB cvslsB_mem; */
   int flag;
 
   /* Check if cvode_mem exists */
@@ -762,7 +762,7 @@ int CVKLUSetOrderingB(void *cvode_mem, int which, int ordering_choice)
   CVadjMem ca_mem;
   CVodeBMem cvB_mem;
   void *cvodeB_mem;
-  //CVSlsMemB cvslsB_mem;
+  /* CVSlsMemB cvslsB_mem; */
   int flag;
 
   /* Check if cvode_mem exists */

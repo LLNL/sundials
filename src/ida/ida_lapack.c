@@ -344,9 +344,12 @@ static int idaLapackDenseInit(IDAMem IDA_mem)
   idadls_mem = (IDADlsMem) lmem;
   
   idaDlsInitializeCounters(idadls_mem);
-//   nje   = 0;
-//   nreDQ = 0;
   
+  /*
+     nje   = 0;
+     nreDQ = 0;
+  */
+
   if (jacDQ) {
     djac = idaDlsDenseDQJac;
     J_data = IDA_mem;

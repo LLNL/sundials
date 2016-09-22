@@ -626,7 +626,7 @@ int IDAKLUReInitB(void *ida_mem, int which, int n, int nnz, int reinit_type)
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
   IDABMem IDAB_mem;
-  //IDASlsMemB idaslsB_mem;
+  /* IDASlsMemB idaslsB_mem; */
   void *ida_memB;
   int flag;
   
@@ -678,7 +678,7 @@ int IDAKLUSetOrderingB(void *ida_mem, int which, int ordering_choiceB)
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
   IDABMem IDAB_mem;
-  //IDASlsMemB idaslsB_mem;
+  /* IDASlsMemB idaslsB_mem; */
   void *ida_memB;
   int flag;
   

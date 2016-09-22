@@ -218,8 +218,11 @@ static int IDABandInit(IDAMem IDA_mem)
   idadls_mem = (IDADlsMem) lmem;
 
   idaDlsInitializeCounters(idadls_mem);
-//   nje   = 0;
-//   nreDQ = 0;
+
+/*
+    nje   = 0;
+    nreDQ = 0;
+*/
 
   if (jacDQ) {
     bjac = idaDlsBandDQJac;
