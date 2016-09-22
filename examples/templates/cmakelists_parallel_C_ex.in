@@ -39,6 +39,7 @@ MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
 # Set the names of the examples to be built
 SET(examples @EXAMPLES@)
+LIST(REMOVE_DUPLICATES examples)
 
 # Set names of examples specific dependency source files
 SET(examples_dependencies @EXAMPLES_DEPENDENCIES@)

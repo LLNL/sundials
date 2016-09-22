@@ -121,6 +121,10 @@ IF(EXAMPLES_INSTALL)
   	LIST2STRING(example EXAMPLES)
   ENDFOREACH(example_tuple ${CVODES_examples})
 
+  STRING (REPLACE ";" " " TMP_STR ${EXAMPLES})
+  SET(EXAMPLES ${TMP_STR})
+  list(REMOVE_DUPLICATES EXAMPLES)
+
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
   # be used as a template for the user's own programs.
