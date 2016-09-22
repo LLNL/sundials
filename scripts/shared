@@ -140,8 +140,8 @@ $tar $tarfile $distrobase/examples/nvector/parhyp/test_nvector_parhyp.c
 $tar $tarfile $distrobase/examples/nvector/parhyp/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/petsc/test_nvector_petsc.c
 $tar $tarfile $distrobase/examples/nvector/petsc/CMakeLists.txt
-$tar $tarfile $distrobase/examples/nvector/openmp/test_nvector_openmp.c
-$tar $tarfile $distrobase/examples/nvector/openmp/CMakeLists.txt
+$tar $tarfile $distrobase/examples/nvector/C_openmp/test_nvector_openmp.c
+$tar $tarfile $distrobase/examples/nvector/C_openmp/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/pthreads/test_nvector_pthreads.c
 $tar $tarfile $distrobase/examples/nvector/pthreads/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/test_nvector.c

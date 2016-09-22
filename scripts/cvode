@@ -150,8 +150,6 @@ $tar $tarfile $distrobase/examples/cvode/parhyp/README
 $tar $tarfile $distrobase/examples/cvode/parhyp/CMakeLists.txt
 $tar $tarfile $distrobase/examples/cvode/parhyp/cvAdvDiff_non_ph.c
 $tar $tarfile $distrobase/examples/cvode/parhyp/cvAdvDiff_non_ph.out
-$tar $tarfile $distrobase/examples/cvode/parhyp/cvDiurnal_kry_bbd_ph.c
-$tar $tarfile $distrobase/examples/cvode/parhyp/cvDiurnal_kry_bbd_ph.out
 
 $tar $tarfile $distrobase/examples/cvode/fcmix_parallel/README
 $tar $tarfile $distrobase/examples/cvode/fcmix_parallel/CMakeLists.txt
