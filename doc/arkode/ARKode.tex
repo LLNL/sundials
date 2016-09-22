@@ -263,14 +263,20 @@ For problems that include nonzero implicit term \(f_I(t,y)\), the
 resulting implicit system (assumed nonlinear, unless specified
 otherwise) is solved approximately at each integration step, using a
 Newton method, modified Newton method, an Inexact Newton method, or an
-accelerated fixed-point solver.  For implicit problems using a
-Newton-based solver and the serial or threaded NVECTOR modules in
-SUNDIALS, ARKode provides both direct (dense, band and sparse) and
-preconditioned Krylov iterative (GMRES, BiCGStab, TFQMR, FGMRES, PCG)
-linear solvers. When used with the parallel NVECTOR module or a
-user-provided vector data structure, only the Krylov solvers are
-available, although a user may supply their own linear solver for any
-data structures if desired.
+accelerated fixed-point solver.  For the Newton-based methods and the
+serial or threaded NVECTOR modules in SUNDIALS, ARKode provides both
+direct (dense, band, or sparse) and preconditioned Krylov iterative
+(GMRES, BiCGStab, TFQMR, FGMRES, or PCG) linear solvers.  When used
+with one of the distributed parallel NVECTOR modules, including PETSc
+and \emph{hypre} vectors, or a user-provided vector data structure, only
+the Krylov solvers are available, although a user may supply their own
+linear solver for any data structures if desired.  For the serial or
+threaded vector structures, there is a banded preconditioner module
+called ARKBANDPRE for use with the Krylov solvers, while for the
+distributed memory parallel vector structure there is a preconditioner
+module called ARKBBDPRE which provides a band-block-diagonal
+preconditioner.  Additionally, a user may supply more optimal,
+problem-specific preconditioner routines.
 
 
 \section{Changes from previous versions}
