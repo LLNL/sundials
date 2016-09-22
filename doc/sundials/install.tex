@@ -363,10 +363,22 @@ a typical configuration on a Linux system and are provided as illustration only.
   Enable Fortran-C support   
   \\
   Default: OFF 
+\item[\id{HYPRE\_ENABLE}] - 
+  Enable hypre support
+  \\
+  Default: OFF 
+\item[\id{HYPRE\_INCLUDE\_DIR}] - 
+  Path to hypre header files
+\item[\id{HYPRE\_LIBRARY}] - 
+  Path to hypre installed library
 \item[\id{KLU\_ENABLE}] - 
   Enable KLU support
   \\
   Default: OFF 
+\item[\id{KLU\_INCLUDE\_DIR}] - 
+  Path to SuiteSparse header files
+\item[\id{KLU\_LIBRARY\_DIR}] - 
+  Path to SuiteSparse installed library files
 \item[\id{LAPACK\_ENABLE}] -  
   Enable Lapack support
   \\
@@ -414,6 +426,14 @@ a typical configuration on a Linux system and are provided as illustration only.
   Default: OFF 
   \\
   Turn on support for the OpenMP based nvector.
+\item[\id{PETSC\_ENABLE}] - 
+  Enable PETSc support
+  \\
+  Default: OFF 
+\item[\id{PETSC\_INCLUDE\_DIR}] - 
+  Path to PETSc header files
+\item[\id{PETSC\_LIBRARY\_DIR}] - 
+  Path to PETSc installed library files
 \item[\id{PTHREAD\_ENABLE}] -  
   Enable Pthreads support
   \\
@@ -428,6 +448,12 @@ a typical configuration on a Linux system and are provided as illustration only.
   Enable SUPERLU\_MT support   
   \\
   Default: OFF 
+\item[\id{SUPERLUMT\_INCLUDE\_DIR}] - 
+  Path to SuperLU\_MT header files (typically SRC directory)
+\item[\id{SUPERLUMT\_LIBRARY\_DIR}] - 
+  Path to SuperLU\_MT installed library files
+\item[\id{SUPERLUMT\_THREAD\_TYPE}] - 
+  Must be set to Pthread or OpenMP
 \item[\id{USE\_GENERIC\_MATH}] -   
   Use generic (stdc) math libraries
   \\
@@ -501,7 +527,7 @@ set to the desired libraries.  Example:
 \subsubsection*{Building with KLU}
 The KLU libraries are part of SuiteSparse, a suite of sparse matrix software,
 available from the Texas A\&M University website: {\tt http://faculty.cse.tamu.edu/davis/suitesparse.html}.
-{\sundials} has been tested with SuiteSparse version 4.2.1.
+{\sundials} has been tested with SuiteSparse version 4.5.3.
 To enable KLU, set \id{KLU\_ENABLE} to \id{ON}, set \id{KLU\_INCLUDE\_DIR} to the \id{include}
 path of the KLU installation and set \id{KLU\_LIBRARY\_DIR} to the \id{lib} path of the KLU installation.
 The CMake configure will result in populating the following variables: \id{AMD\_LIBRARY},
@@ -512,7 +538,7 @@ The CMake configure will result in populating the following variables: \id{AMD\_
 \subsubsection*{Building with SuperLU\_MT}
 The SuperLU\_MT libraries are available for download from the Lawrence Berkeley National Laboratory website:
 {\tt http://crd-legacy.lbl.gov/$\sim$xiaoye/SuperLU/\#superlu\_mt}. 
-{\sundials} has been tested with SuperLU\_MT version 2.4.
+{\sundials} has been tested with SuperLU\_MT version 3.1. 
 To enable SuperLU\_MT, set  \id{SUPERLUMT\_ENABLE} to \id{ON}, set \id{SUPERLUMT\_INCLUDE\_DIR}
 to the \id{SRC} path of the SuperLU\_MT installation, and set the variable
 \newline\id{SUPERLUMT\_LIBRARY\_DIR} to the \id{lib} path of the SuperLU\_MT installation.
@@ -522,6 +548,22 @@ At the same time, the variable
 \noindent Do not mix thread types when building {\sundials} solvers.
 If threading is enabled for {\sundials} by having either \id{OPENMP\_ENABLE} or \id{PTHREAD\_ENABLE} set to \id{ON}
 then SuperLU\_MT should be set to use the same threading type.{\warn}
+
+\subsubsection*{Building with PETSc}
+The PETSc libraries are available for download from the Argonne National Laboratory website:
+{\tt http://www.mcs.anl.gov/petsc}. 
+{\sundials} has been tested with PETSc version 3.7.2. 
+To enable PETSc, set  \id{PETSC\_ENABLE} to \id{ON}, set \id{PETSC\_INCLUDE\_DIR}
+to the \id{include} path of the PETSc installation, and set the variable
+\id{PETSC\_LIBRARY\_DIR} to the \id{lib} path of the PETSc installation.
+
+\subsubsection*{Building with hypre}
+The hypre libraries are available for download from the Lawrence Livermore National Laboratory website:
+{\tt http://computation.llnl.gov/projects/hypre-scalable-linear-solvers-multigrid-methods}. 
+{\sundials} has been tested with hypre version 2.11.1. 
+To enable hypre, set  \id{HYPRE\_ENABLE} to \id{ON}, set \id{HYPRE\_INCLUDE\_DIR}
+to the \id{include} path of the hypre installation, and set the variable
+\id{HYPRE\_LIBRARY\_DIR} to the \id{lib} path of the hypre installation.
 
 %%===============================================================================
 \section{Building and Running Examples}
