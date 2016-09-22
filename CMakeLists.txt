@@ -1179,7 +1179,7 @@ IF(EXAMPLES_ENABLE)
   ENDIF(PTHREADS_FOUND)
 
   IF(OPENMP_FOUND)
-      ADD_SUBDIRECTORY(examples/nvector/openmp)
+      ADD_SUBDIRECTORY(examples/nvector/C_openmp)
   ENDIF(OPENMP_FOUND)
   
   IF(PETSC_FOUND)
