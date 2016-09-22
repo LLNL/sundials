@@ -4,36 +4,47 @@ List of parallel KINSOL examples
   kinFoodWeb_kry_p:     2-D food web system, block-diagonal preconditioner
 
 
-SUNDIALS was built with the following Cmake options:
+The following CMake command was used to configure SUNDIALS:
 
-BUILD_ARKODE=ON
-BUILD_CVODE=ON
-BUILD_CVODES=ON
-BUILD_IDA=ON
-BUILD_IDAS=ON
-BUILD_KINSOL=ON
-BUILD_SHARED_LIBS=ON
-BUILD_STATIC_LIBS=ON
-CMAKE_INSTALL_PREFIX=/usr/casc/sundials/builddir/instdir
-CXX_ENABLE=ON
-EXAMPLES_ENABLE=ON
-EXAMPLES_INSTALL=ON
-EXAMPLES_INSTALL_PATH=/usr/casc/sundials/builddir/instdir/examples
-F90_ENABLE=ON
-FCMIX_ENABLE=ON
-KLU_ENABLE=ON
-KLU_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.2.1/include
-KLU_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.2.1/lib
-LAPACK_ENABLE=ON
-LAPACK_LIBRARIES=/usr/casc/sundials/apps/rh6/lapack/3.5.0/lib/liblapack.so;/usr/casc/sundials/apps/rh6/lapack/3.5.0/lib/libblas.so
-MPI_ENABLE=ON
-MPI_MPICC=/usr/casc/sundials/apps/rh6/openmpi/1.4.5/bin/mpicc
-MPI_MPICXX=/usr/casc/sundials/apps/rh6/openmpi/1.4.5/bin/mpicxx
-MPI_MPIF77=/usr/casc/sundials/apps/rh6/openmpi/1.4.5/bin/mpif77
-MPI_MPIF90=/usr/casc/sundials/apps/rh6/openmpi/1.4.5/bin/mpif90
-MPI_RUN_COMMAND=mpirun
-OPENMP_ENABLE=OFF
-PTHREAD_ENABLE=ON
-SUNDIALS_PRECISION=double
-SUPERLUMT_ENABLE=OFF
-USE_GENERIC_MATH=ON
+ cmake \
+-DCMAKE_BUILD_TYPE=DEBUG \
+-DCXX_ENABLE=ON \
+-DBUILD_ARKODE=ON \
+-DBUILD_CVODE=ON \
+-DBUILD_CVODES=ON \
+-DBUILD_IDA=ON \
+-DBUILD_IDAS=ON \
+-DBUILD_KINSOL=ON \
+-DCMAKE_INSTALL_PREFIX=/home/user1/sundials/build/install \
+-DEXAMPLES_INSTALL_PATH=/home/user1/sundials/build/install/examples \
+-DBUILD_SHARED_LIBS=OFF \
+-DBUILD_STATIC_LIBS=ON \
+-DEXAMPLES_ENABLE=ON \
+-DEXAMPLES_INSTALL=ON \
+-DMPI_ENABLE=ON \
+-DFCMIX_ENABLE=ON \
+-DLAPACK_ENABLE=ON \
+-DKLU_ENABLE=ON \
+-DKLU_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.5.3/include \
+-DKLU_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.5.3/lib \
+-DHYPRE_ENABLE=ON \
+-DHYPRE_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/hypre/2.11.1/include \
+-DHYPRE_LIBRARY=/usr/casc/sundials/apps/rh6/hypre/2.11.1/lib/libHYPRE.a \
+-DOPENMP_ENABLE=ON \
+-DPTHREAD_ENABLE=ON \
+-DFCMIX_ENABLE=ON \
+-DF90_ENABLE=ON \
+-DSUPERLUMT_ENABLE=ON \
+-DSUPERLUMT_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.1/SRC \
+-DSUPERLUMT_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.1/lib \
+-DSUPERLUMT_THREAD_TYPE=Pthread \
+-DPETSC_ENABLE=ON \
+-DPETSC_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/petsc/3.7.2/include \
+-DPETSC_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/petsc/3.7.2/lib \
+../sundials
+
+  System Architecture: x86_64
+  Processor Type: Intel(R) Xeon(R) CPU E31230 @ 3.20GHz
+  Operating System: Red Hat 6.8
+  C/Fortran Compilers: gcc/gfortran v4.4.7
+  MPI: Open MPI v1.8.8
