@@ -3,6 +3,7 @@
 # $Date: 2016-03-28 07:20:43 -0700 (Mon, 28 Mar 2016) $
 # ---------------------------------------------------------------
 # Programmer:  Slaven Peles @ LLNL, Jean Sexton @ SMU
+#              Eddy Banks @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
@@ -16,6 +17,11 @@
 # ---------------------------------------------------------------
 # Hypre tests for SUNDIALS CMake-based configuration.
 # 
+### This is only set if running GUI - simply return first time enabled
+IF(HYPRE_DISABLED)
+  SET(HYPRE_DISABLED FALSE CACHE INTERNAL "GUI - now enabled" FORCE)
+  RETURN()
+ENDIF()
 
 set(HYPRE_FOUND FALSE)
 
@@ -25,8 +31,8 @@ if(UNIX)
   set(LINK_MATH_LIB "-lm")
 endif()
 
-if(HYPRE_LIBRARY)
-  message(STATUS "Looking for HYPRE LIBRARY...")
+if(HYPRE_LIBRARIES)
+  message(STATUS "Looking for HYPRE LIBRARIES...")
   # Create the HYPRETest directory
   set(HYPRETest_DIR ${PROJECT_BINARY_DIR}/HYPRETest)
   file(MAKE_DIRECTORY ${HYPRETest_DIR})
@@ -45,7 +51,7 @@ if(HYPRE_LIBRARY)
     "SET(CMAKE_EXE_LINKER_FLAGS \"${LINK_MATH_LIB}\")\n"
     "INCLUDE_DIRECTORIES(${HYPRE_INCLUDE_DIR})\n"
     "ADD_EXECUTABLE(ltest ltest.c)\n"
-    "TARGET_LINK_LIBRARIES(ltest ${HYPRE_LIBRARY})\n")    
+    "TARGET_LINK_LIBRARIES(ltest ${HYPRE_LIBRARIES})\n")    
 # Create a C source file which calls a hypre function
   file(WRITE ${HYPRETest_DIR}/ltest.c
     "\#include \"HYPRE_parcsr_ls.h\"\n"
@@ -61,20 +67,13 @@ if(HYPRE_LIBRARY)
   # we must remove the CMakeFiles directory.
   file(REMOVE_RECURSE ${HYPRETest_DIR}/CMakeFiles)
   # Process test result
-#PRINT_WARNING("LTEST_OK" "${LTEST_OK}")
   if(LTEST_OK)
-#PRINT_WARNING("x SundialsKLU.cmake KLU_LIBRARY" "${KLU_LIBRARY}")
     message(STATUS "Checking if HYPRE works... OK")
     set(HYPRE_FOUND TRUE)
-    #print_warning("KLU_FOUND" "${KLU_FOUND}")
   else(LTEST_OK)
     message(STATUS "Checking if HYPRE works... FAILED")
   endif(LTEST_OK)
-else(HYPRE_LIBRARY)
+else(HYPRE_LIBRARIES)
+  PRINT_WARNING("HYPRE LIBRARIES NOT Found. Please check library path" "${HYPRE_LIBRARY_DIR} ")
   message(STATUS "Looking for HYPRE LIBRARY... FAILED")
-endif(HYPRE_LIBRARY)
-
-
-#    "HYPRE_IJVector b;\n"
-#    "HYPRE_IJVectorAssemble(b);\n"
-#    "HYPRE_IJVectorGetObject(b, (void **) &par_b);\n"
+endif(HYPRE_LIBRARIES)

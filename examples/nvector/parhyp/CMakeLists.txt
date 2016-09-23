@@ -44,7 +44,7 @@ ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
-SET(HYPRE_LIBS ${HYPRE_LIBRARY})
+SET(HYPRE_LIBS ${HYPRE_LIBRARIES})
 
 IF(MPI_MPICC)
   # use MPI_MPICC as the compiler
@@ -78,16 +78,9 @@ FOREACH(example ${nvector_parhyp_examples})
   SUNDIALS_ADD_TEST("${example}_precision" ${example} MPI_NPROCS 4 TEST_ARGS 10000 0 ANSWER_FILE ${example}
     FLOAT_PRECISION 5 INTEGER_PERCENTAGE 0)
 
-#FIND_LIBRARY(SUNDIALS_HYPRE_LIBRARIES
-#  NAMES HYPRE 
-#  PATHS /usr/lib /usr/local/lib /usr/local/hypre/lib ${HYPRE_LIBRARY_DIR}
-#  )
-  
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   
-  TARGET_LINK_LIBRARIES(${example} ${HYPRE_LIBRARY})
-  
-  #TARGET_LINK_LIBRARIES(${example} /home/sexton10/Summer15/hypre-2.10.0b/src/hypre/lib/libHYPRE.a)
+  TARGET_LINK_LIBRARIES(${example} ${HYPRE_LIBRARIES})
   
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c ../test_nvector.c ../test_nvector.h ../../../src/sundials/sundials_nvector.c DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parhyp)

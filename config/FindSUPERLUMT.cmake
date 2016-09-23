@@ -38,7 +38,7 @@ ENDIF()
 
 if(SUPERLUMT_LIBRARY)
     get_filename_component(SUPERLUMT_LIBRARY_DIR ${SUPERLUMT_LIBRARY} PATH)
-    set(SUPERLUMT_LIBRARY_DIR ${SUPERLUMT_LIBRARY_DIR} CACHE STRING "" FORCE)
+    set(SUPERLUMT_LIBRARY_DIR ${SUPERLUMT_LIBRARY_DIR} CACHE PATH "" FORCE)
     
 else()
     # find library with user provided directory path

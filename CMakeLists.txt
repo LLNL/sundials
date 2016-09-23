@@ -379,6 +379,8 @@ OPTION(HYPRE_ENABLE "Enable Hypre support" OFF)
 IF(NOT MPI_ENABLE)
   HIDE_VARIABLE(HYPRE_INCLUDE_DIR)
   HIDE_VARIABLE(HYPRE_LIBRARY_DIR)
+  SET (HYPRE_DISABLED TRUE CACHE INTERNAL "GUI - return when first set")
+  
 ENDIF(NOT MPI_ENABLE)
 
 # -------------------------------------------------------------
@@ -762,10 +764,10 @@ IF(HYPRE_ENABLE AND NOT MPI_ENABLE)
 ENDIF(HYPRE_ENABLE AND NOT MPI_ENABLE)
 
 IF(HYPRE_ENABLE AND MPI_ENABLE)
-#  SHOW_VARIABLE(HYPRE_INCLUDE_DIR STRING "HYPRE include directory"
-#    "${HYPRE_INCLUDE_DIR}") 
-#  SHOW_VARIABLE(HYPRE_LIBRARY_DIR STRING
-#    "HYPRE library directory" "${HYPRE_LIBRARY_DIR}")
+  SHOW_VARIABLE(HYPRE_INCLUDE_DIR PATH "HYPRE include directory"
+    "${HYPRE_INCLUDE_DIR}") 
+  SHOW_VARIABLE(HYPRE_LIBRARY_DIR PATH
+    "HYPRE library directory" "${HYPRE_LIBRARY_DIR}")
 
   INCLUDE(SundialsHypre)
 
@@ -780,11 +782,6 @@ IF(HYPRE_ENABLE AND MPI_ENABLE)
       "Found hypre library, test code does not work")
   ENDIF(HYPRE_LIBRARIES AND NOT HYPRE_FOUND)
   
-  IF(NOT HYPRE_FOUND) 
-    PRINT_WARNING("HYPRE not found - support will not be provided" 
-      "Double check spelling specified libraries (search is case sensitive)")
-  ENDIF(NOT HYPRE_FOUND)
-
 ENDIF(HYPRE_ENABLE AND MPI_ENABLE)
 
 # -------------------------------------------------------------
