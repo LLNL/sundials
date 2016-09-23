@@ -29,6 +29,7 @@ TEX_COMPILER = pdflatex
 UG_SHARED_FILES = \
 fortran.tex \
 install.tex \
+license_info.tex \
 linear-vector-table.tex \
 linsolv.tex \
 nvec_generic.tex \
