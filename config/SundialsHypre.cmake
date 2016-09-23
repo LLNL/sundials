@@ -52,7 +52,7 @@ if(HYPRE_LIBRARIES)
     "INCLUDE_DIRECTORIES(${HYPRE_INCLUDE_DIR})\n"
     "ADD_EXECUTABLE(ltest ltest.c)\n"
     "TARGET_LINK_LIBRARIES(ltest ${HYPRE_LIBRARIES})\n")    
-# Create a C source file which calls a hypre function
+  # Create a C source file which calls a hypre function
   file(WRITE ${HYPRETest_DIR}/ltest.c
     "\#include \"HYPRE_parcsr_ls.h\"\n"
     "int main(){\n"

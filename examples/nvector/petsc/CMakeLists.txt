@@ -43,7 +43,6 @@ ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 # Set-up linker flags and link libraries
 
 SET(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
-SET(PETSC_LIB ${PETSC_LIBRARY})
 
 IF(MPI_MPICC)
   # use MPI_MPICC as the compiler
@@ -78,7 +77,7 @@ FOREACH(example ${nvector_petsc_examples})
     FLOAT_PRECISION 5 INTEGER_PERCENTAGE 0)
   
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
-  TARGET_LINK_LIBRARIES(${example} ${PETSC_LIBRARY})
+  TARGET_LINK_LIBRARIES(${example} ${PETSC_LIBRARIES})
 
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c ../test_nvector.c ../test_nvector.h ../../../src/sundials/sundials_nvector.c DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/petsc)

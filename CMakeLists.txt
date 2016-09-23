@@ -380,7 +380,6 @@ IF(NOT MPI_ENABLE)
   HIDE_VARIABLE(HYPRE_INCLUDE_DIR)
   HIDE_VARIABLE(HYPRE_LIBRARY_DIR)
   SET (HYPRE_DISABLED TRUE CACHE INTERNAL "GUI - return when first set")
-  
 ENDIF(NOT MPI_ENABLE)
 
 # -------------------------------------------------------------
@@ -422,6 +421,7 @@ OPTION(PETSC_ENABLE "Enable PETSC support" OFF)
 IF(NOT PETSC_ENABLE)
   HIDE_VARIABLE(PETSC_LIBRARY_DIR)
   HIDE_VARIABLE(PETSC_INCLUDE_DIR)
+  SET (PETSC_DISABLED TRUE CACHE INTERNAL "GUI - return when first set")
 ENDIF(NOT PETSC_ENABLE)
 
 # -------------------------------------------------------------
@@ -787,17 +787,12 @@ ENDIF(HYPRE_ENABLE AND MPI_ENABLE)
 # -------------------------------------------------------------
 # Find (and test) the PETSc libraries
 # -------------------------------------------------------------
-
-# If PETSc is requested, first try to find the appropriate libraries to
-# link against them.
-
 IF(PETSC_ENABLE AND NOT MPI_ENABLE)
     PRINT_WARNING("MPI not enabled - PETSc support will not be provided" 
       "Set MPI_ENABLE to ON to use PETSc.")
 ENDIF(PETSC_ENABLE AND NOT MPI_ENABLE)
 
 IF(PETSC_ENABLE AND MPI_ENABLE)
-
   SHOW_VARIABLE(PETSC_INCLUDE_DIR PATH "PETSc include directory"
     "${PETSC_INCLUDE_DIR}") 
   SHOW_VARIABLE(PETSC_LIBRARY_DIR PATH

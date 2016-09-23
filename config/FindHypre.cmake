@@ -31,7 +31,7 @@ if (HYPRE_LIBRARY)
     # We have (or were given) HYPRE_LIBRARY - get path to use for any related libs
     get_filename_component(HYPRE_LIBRARY_DIR ${HYPRE_LIBRARY} PATH)
 
-   # force CACHE update to show user DIR that will be used
+    # force CACHE update to show user DIR that will be used
     set(HYPRE_LIBRARY_DIR ${HYPRE_LIBRARY_DIR} CACHE PATH "" FORCE)
     
 else ()
