@@ -231,6 +231,7 @@ int main(int argc, char *argv[])
     free(plist);
     free(pbar);
   }
+  free(data->p);
   free(data);
   CVodeFree(&cvode_mem);
 

@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
   N_VConst(ZERO, yQB1);
 
   yB2 = N_VNew_Serial(2*Neq);
-  N_VConst(ZERO, yB1);
+  N_VConst(ZERO, yB2);
 
   yQB2 = N_VNew_Serial(Np2);
   N_VConst(ZERO, yQB2);
@@ -383,7 +383,7 @@ int main(int argc, char *argv[])
   N_VDestroy_Serial(yQ);
 
   N_VDestroyVectorArray_Serial(yS, Np);
-  N_VDestroyVectorArray_Serial(yQS, 1);
+  N_VDestroyVectorArray_Serial(yQS, Np);
 
   N_VDestroy_Serial(yB1);
   N_VDestroy_Serial(yQB1);
