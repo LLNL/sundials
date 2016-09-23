@@ -12,13 +12,18 @@
 # SUPERLUMT tests for SUNDIALS CMake-based configuration.
 #    - loosely based on SundialsLapack.cmake
 # 
+### This is only set if running GUI - simply return first time enabled
+IF(SUPERLUMT_DISABLED)
+  SET(SUPERLUMT_DISABLED FALSE CACHE INTERNAL "GUI - SUPERLUMT now enabled" FORCE)
+  RETURN()
+ENDIF()
 
 SET(SUPERLUMT_FOUND FALSE)
 
 # set SUPERLUMT_LIBRARIES
 include(FindSUPERLUMT)
 # If we have the SUPERLUMT libraries, test them
-if(SUPERLUMT_LIBRARIES)
+if(SUPERLUMT_LIBRARY AND SUPERLUMT_LIBRARIES)
   message(STATUS "Looking for SUPERLUMT libraries... OK")
   # Create the SUPERLUMT_TEST directory
   set(SUPERLUMT_TEST_DIR ${PROJECT_BINARY_DIR}/SUPERLUMT_TEST)
@@ -59,6 +64,8 @@ if(SUPERLUMT_LIBRARIES)
   else(LTEST_OK)
     message(STATUS "Checking if SUPERLUMT works... FAILED")
   endif(LTEST_OK)
-else(SUPERLUMT_LIBRARIES)
+
+else()
+  PRINT_WARNING("SUPERLUMT LIBRARIES NOT Found. Please check library path" "${SUPERLUMT_LIBRARY_DIR} ")
   message(STATUS "Looking for SUPERLUMT libraries... FAILED")
-endif(SUPERLUMT_LIBRARIES)
+endif()

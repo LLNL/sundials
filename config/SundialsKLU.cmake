@@ -11,7 +11,13 @@
 # ---------------------------------------------------------------
 # KLU tests for SUNDIALS CMake-based configuration.
 #    - loosely based on SundialsLapack.cmake
-# 
+#
+
+### This is only set if running GUI - simply return first time enabled
+IF(KLU_DISABLED)
+  SET(KLU_DISABLED FALSE CACHE INTERNAL "GUI - KLU now enabled" FORCE)
+  RETURN()
+ENDIF()
 
 SET(KLU_FOUND FALSE)
 
@@ -53,16 +59,15 @@ if(KLU_LIBRARIES)
   # we must remove the CMakeFiles directory.
   file(REMOVE_RECURSE ${KLUTest_DIR}/CMakeFiles)
   # Process test result
-#PRINT_WARNING("LTEST_OK" "${LTEST_OK}")
   if(LTEST_OK)
-#PRINT_WARNING("x SundialsKLU.cmake KLU_LIBRARIES" "${KLU_LIBRARIES}")
     message(STATUS "Checking if KLU works... OK")
     set(KLU_FOUND TRUE)
-    #print_warning("KLU_FOUND" "${KLU_FOUND}")
   else(LTEST_OK)
     message(STATUS "Checking if KLU works... FAILED")
   endif(LTEST_OK)
 else(KLU_LIBRARIES)
-#PRINT_WARNING("y SundialsKLU.cmake KLU_LIBRARIES" "${KLU_LIBRARIES}")
+  PRINT_WARNING("KLU LIBRARIES NOT Found. Please check library path" "${KLU_LIBRARY_DIR} ")
   message(STATUS "Looking for KLU libraries... FAILED")
 endif(KLU_LIBRARIES)
+ 
+  

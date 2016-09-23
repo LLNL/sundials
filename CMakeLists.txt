@@ -195,7 +195,7 @@ ELSE(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/kinsol")
   SET(BUILD_KINSOL OFF)
 ENDIF(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/kinsol")
 
-# CPODES is alway OFF for now.  (commented out for Release); ToDo: better way to do this?
+# CPODES is always OFF for now.  (commented out for Release); ToDo: better way to do this?
 #IF(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/cpodes")
 #  OPTION(BUILD_CPODES  "Build the CPODES library"  OFF)
 #ELSE(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/cpodes")
@@ -340,6 +340,7 @@ IF(NOT SUPERLUMT_ENABLE)
   HIDE_VARIABLE(SUPERLUMT_THREAD_TYPE)
   HIDE_VARIABLE(SUPERLUMT_LIBRARY_DIR)
   HIDE_VARIABLE(SUPERLUMT_INCLUDE_DIR)
+  SET (SUPERLUMT_DISABLED TRUE CACHE INTERNAL "GUI - return when first set")
 ENDIF(NOT SUPERLUMT_ENABLE)
 
 # -------------------------------------------------------------
@@ -351,6 +352,7 @@ OPTION(KLU_ENABLE "Enable KLU support" OFF)
 IF(NOT KLU_ENABLE)
   HIDE_VARIABLE(KLU_LIBRARY_DIR)
   HIDE_VARIABLE(KLU_INCLUDE_DIR)
+  SET (KLU_DISABLED TRUE CACHE INTERNAL "GUI - return when first set")
 ENDIF(NOT KLU_ENABLE)
 
 # -------------------------------------------------------------
