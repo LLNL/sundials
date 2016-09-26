@@ -21,7 +21,7 @@ $tar $tarfile $distrobase/include/ida/ida_direct.h
 $tar $tarfile $distrobase/include/ida/ida_dense.h
 $tar $tarfile $distrobase/include/ida/ida_band.h
 $tar $tarfile $distrobase/include/ida/ida_lapack.h
-$tar $tarfile $distrobase/include/ida/ida_petsc.h
+# $tar $tarfile $distrobase/include/ida/ida_petsc.h
 $tar $tarfile $distrobase/include/ida/ida_spgmr.h
 $tar $tarfile $distrobase/include/ida/ida_spbcgs.h
 $tar $tarfile $distrobase/include/ida/ida_sptfqmr.h
@@ -43,8 +43,8 @@ $tar $tarfile $distrobase/src/ida/ida_dense.c
 $tar $tarfile $distrobase/src/ida/ida_band.c
 $tar $tarfile $distrobase/src/ida/ida_klu.c
 $tar $tarfile $distrobase/src/ida/ida_lapack.c
-$tar $tarfile $distrobase/src/ida/ida_petsc_impl.h
-$tar $tarfile $distrobase/src/ida/ida_petsc.c
+# $tar $tarfile $distrobase/src/ida/ida_petsc_impl.h
+# $tar $tarfile $distrobase/src/ida/ida_petsc.c
 $tar $tarfile $distrobase/src/ida/ida_spils.c
 $tar $tarfile $distrobase/src/ida/ida_spgmr.c
 $tar $tarfile $distrobase/src/ida/ida_spbcgs.c
@@ -119,8 +119,8 @@ $tar $tarfile $distrobase/examples/ida/C_openmp/idaFoodWeb_kry_omp.out
 
 $tar $tarfile $distrobase/examples/ida/petsc/README
 $tar $tarfile $distrobase/examples/ida/petsc/CMakeLists.txt
-$tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_jac_petsc.c
-$tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_jac_petsc.out
+# $tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_jac_petsc.c
+# $tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_jac_petsc.out
 $tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_kry_petsc.c
 $tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_kry_petsc.out
 
