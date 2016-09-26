@@ -42,11 +42,11 @@ IF(SUPERLUMT_FOUND)
     LIST(APPEND ida_SOURCES ida_superlumt.c)
 ENDIF()
 
-# IF(PETSC_FOUND)
-#    # use MPI_MPICC as the compiler
-#    SET(CMAKE_C_COMPILER ${MPI_MPICC})
-#    LIST(APPEND ida_SOURCES ida_petsc.c)
-# ENDIF()
+IF(PETSC_FOUND)
+   # use MPI_MPICC as the compiler
+   SET(CMAKE_C_COMPILER ${MPI_MPICC})
+   LIST(APPEND ida_SOURCES ida_petsc.c)
+ENDIF()
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the IDA library
@@ -87,9 +87,9 @@ IF(SUPERLUMT_FOUND)
     LIST(APPEND ida_HEADERS ida_superlumt.h ida_sparse.h)
 ENDIF()
 
-# IF(PETSC_FOUND)
-#     LIST(APPEND ida_HEADERS ida_petsc.h)
-# ENDIF()
+IF(PETSC_FOUND)
+    LIST(APPEND ida_HEADERS ida_petsc.h)
+ENDIF()
 
 # Add prefix with complete path to the IDA header files
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/ida/ ida_HEADERS)
