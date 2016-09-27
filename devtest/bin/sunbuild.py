@@ -107,7 +107,13 @@ def main():
             # NOTE: PETSC requires -std=c99 or newer
             cmd = cmd + "-DCMAKE_C_FLAGS='-Wall -std=c99 -pedantic' \ \n"
             # enable mpi
-            cmd = cmd + "-DMPI_ENABLE=ON -DFCMIX_ENABLE=ON \ \n"
+            cmd = cmd + "-DMPI_ENABLE=ON \ \n"
+            # enable FCMIX
+            cmd = cmd + "-DFCMIX_ENABLE=TRUE \ \n"
+            # enable F90
+            cmd = cmd + "-DF90_ENABLE=TRUE \ \n"
+            # enable C++
+            cmd = cmd + "-DCXX_ENABLE=TRUE \ \n"
             # enable lapack   (NOTE: will find libraries in LD_LIBRARY_PATH)
             cmd = cmd + "-DLAPACK_ENABLE=ON \ \n"
             # enable klu
@@ -123,10 +129,6 @@ def main():
             cmd = cmd + "-DOPENMP_ENABLE=TRUE \ \n"
             # enable pthreads
             cmd = cmd + "-DPTHREAD_ENABLE=TRUE \ \n"
-            # enable FCMIX
-            cmd = cmd + "-DFCMIX_ENABLE=TRUE \ \n"
-            # enable F90
-            cmd = cmd + "-DF90_ENABLE=TRUE \ \n"
             # enable SUPERLU_MT
             cmd = cmd + "-DSUPERLUMT_ENABLE=TRUE \ \n"
             # specify include dir
