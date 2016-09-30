@@ -117,25 +117,25 @@ def main():
             # enable lapack   (NOTE: will find libraries in LD_LIBRARY_PATH)
             cmd = cmd + "-DLAPACK_ENABLE=ON \ \n"
             # enable klu
-            cmd = cmd + "-DKLU_ENABLE=TRUE -DKLU_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.5.3/include \ \n"
+            cmd = cmd + "-DKLU_ENABLE=ON \ \n"
+            cmd = cmd + "-DKLU_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.5.3/include \ \n"
             cmd = cmd + "-DKLU_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.5.3/lib \ \n"
             # enable hypre
-            cmd = cmd + "-DHYPRE_ENABLE=TRUE -DHYPRE_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/hypre/2.11.1/include \ \n"
+            cmd = cmd + "-DHYPRE_ENABLE=ON \ \n"
+            cmd = cmd + "-DHYPRE_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/hypre/2.11.1/include \ \n"
             cmd = cmd + "-DHYPRE_LIBRARY=/usr/casc/sundials/apps/rh6/hypre/2.11.1/lib/libHYPRE.a \ \n"
             # enable PETSc
-            cmd = cmd + "-DPETSC_ENABLE=TRUE -DPETSC_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/petsc/3.7.2/include \ \n"
+            cmd = cmd + "-DPETSC_ENABLE=ON \ \n"
+            cmd = cmd + "-DPETSC_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/petsc/3.7.2/include \ \n"
             cmd = cmd + "-DPETSC_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/petsc/3.7.2/lib \ \n"
             # enable openmp
-            cmd = cmd + "-DOPENMP_ENABLE=TRUE \ \n"
+            cmd = cmd + "-DOPENMP_ENABLE=ON \ \n"
             # enable pthreads
-            cmd = cmd + "-DPTHREAD_ENABLE=TRUE \ \n"
+            cmd = cmd + "-DPTHREAD_ENABLE=ON \ \n"
             # enable SUPERLU_MT
-            cmd = cmd + "-DSUPERLUMT_ENABLE=TRUE \ \n"
-            # specify include dir
+            cmd = cmd + "-DSUPERLUMT_ENABLE=ON \ \n"
             cmd = cmd + "-DSUPERLUMT_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.1/SRC \ \n"
-            # specify library dir
             cmd = cmd + "-DSUPERLUMT_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.1/lib \ \n"
-            # specify SuperLU_MT thread type
             cmd = cmd + "-DSUPERLUMT_THREAD_TYPE=Pthread \ \n"
             # specify source
             cmd = cmd + sunSrcDir
@@ -243,9 +243,6 @@ def cleanup(msg, startTime, sunCheckoutDir, tmpLogFile, logFileName, cmakeLogFil
     elapsedTime = endTime - startTime
     print "Elapsed Time:", elapsedTime
 
-    sys.stdout.flush()
-    sys.stdout.close()
-
     # move log file, don't overwrite a previous log file (since this is daily - this should never happen. But...)
     if fileExists(revLogFile):
         revLogFile = tmpLogFile
@@ -254,6 +251,10 @@ def cleanup(msg, startTime, sunCheckoutDir, tmpLogFile, logFileName, cmakeLogFil
 
     # send email
     sendEmail(revLogFile, msg)
+    
+    sys.stdout.flush()
+    sys.stdout.close()
+
     return
 
 
@@ -310,11 +311,11 @@ def sendEmail(logFile, subject):
     msg = MIMEText(fp.read())
     fp.close()
 
-    # me == the sender's email address
+    ### me == the sender's email address
     me = "SUNDIALS.sunbuild@llnl.gov"
-    # you == the recipient's email address
+    ### you == the recipient's email address
     you = "sundials-devs@llnl.gov"
-    #you = "banks12@llnl.gov" # Eddy
+    #you = "banks12@llnl.gov" # Eddy for testing
     msg['Subject'] = subject
     msg['From'] = me
     msg['To'] = you
