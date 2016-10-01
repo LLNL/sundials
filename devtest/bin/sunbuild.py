@@ -243,6 +243,9 @@ def cleanup(msg, startTime, sunCheckoutDir, tmpLogFile, logFileName, cmakeLogFil
     elapsedTime = endTime - startTime
     print "Elapsed Time:", elapsedTime
 
+    sys.stdout.flush()
+    sys.stdout.close()
+
     # move log file, don't overwrite a previous log file (since this is daily - this should never happen. But...)
     if fileExists(revLogFile):
         revLogFile = tmpLogFile
@@ -252,8 +255,6 @@ def cleanup(msg, startTime, sunCheckoutDir, tmpLogFile, logFileName, cmakeLogFil
     # send email
     sendEmail(revLogFile, msg)
     
-    sys.stdout.flush()
-    sys.stdout.close()
 
     return
 
