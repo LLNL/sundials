@@ -58,7 +58,7 @@
 #include <cvodes/cvodes.h>            /* prototypes for CVODE fcts. */
 #include <cvodes/cvodes_spgmr.h>      /* prototypes and constants for CVSPGMR solver */
 #include <cvodes/cvodes_bbdpre.h>     /* prototypes for CVBBDPRE module */
-#include <nvector/nvector_parallel.h> /* definition N_Vector and macro NV_DATA_P */
+#include <nvector/nvector_parallel.h> /* definition N_Vector */
 #include <sundials/sundials_types.h>  /* definitions of realtype, booleantype */
 #include <sundials/sundials_math.h>   /* definition of macros SUNSQR and EXP */
 
