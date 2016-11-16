@@ -76,7 +76,7 @@
    to the underlying 1-dimensional storage. 
    IJth(vdata,i,j) references the element in the vdata array for
    u at mesh point (i,j), where 1 <= i <= MX, 1 <= j <= MY.
-   The vdata array is obtained via the macro call vdata = N_VDATA(v),
+   The vdata array is obtained via the call vdata = N_VGetArrayPointer_Serial(v),
    where v is an N_Vector. 
    The variables are ordered by the y index j, then by the x index i. */
 
