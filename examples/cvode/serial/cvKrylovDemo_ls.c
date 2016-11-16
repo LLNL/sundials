@@ -109,7 +109,7 @@
    IJKth(vdata,i,j,k) references the element in the vdata array for
    species i at mesh point (j,k), where 1 <= i <= NUM_SPECIES,
    0 <= j <= MX-1, 0 <= k <= MY-1. The vdata array is obtained via
-   the macro call vdata = N_VGetArrayPointer_Serial(v), where v is an N_Vector. 
+   the call vdata = N_VGetArrayPointer_Serial(v), where v is an N_Vector. 
    For each mesh point (j,k), the elements for species i and i+1 are
    contiguous within vdata.
 
