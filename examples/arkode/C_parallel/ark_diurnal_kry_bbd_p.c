@@ -64,7 +64,7 @@
 #include <arkode/arkode.h>            /* prototypes for ARKODE fcts. */
 #include <arkode/arkode_spgmr.h>      /* prototypes and constants for ARKSPGMR */
 #include <arkode/arkode_bbdpre.h>     /* prototypes for ARKBBDPRE module */
-#include <nvector/nvector_parallel.h> /* def. of N_Vector, macro NV_DATA_P */
+#include <nvector/nvector_parallel.h> /* def. of N_Vector */
 #include <sundials/sundials_types.h>  /* definitions of realtype, booleantype */
 #include <sundials/sundials_math.h>   /* definition of macros SUNSQR and EXP */
 #include <mpi.h>                      /* MPI constants and types */
