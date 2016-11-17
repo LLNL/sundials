@@ -44,7 +44,7 @@
 
 #include <idas/idas.h>           /* prototypes for IDAS fcts. and consts. */
 #include <idas/idas_dense.h>
-#include <nvector/nvector_serial.h>  /* defs. of serial NVECTOR fcts. and macros  */
+#include <nvector/nvector_serial.h>  /* defs. of serial NVECTOR functions  */
 #include <sundials/sundials_types.h> /* def. of type realtype */
 #include <sundials/sundials_math.h>  /* definition of ABS */
 
