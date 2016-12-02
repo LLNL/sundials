@@ -1,0 +1,15 @@
+
+# /
+/.project
+/build
+/autom4te.cache
+/.settings
+/.cproject
+/.autotools
+/.kdev4
+/trunk.kdev4
+/.directory
+/.pydevproject
+
+# /test/
+/test/output
