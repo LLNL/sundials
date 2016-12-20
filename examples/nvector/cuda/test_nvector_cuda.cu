@@ -28,7 +28,7 @@
 #include <sundials/sundials_math.h>
 #include "test_nvector.h"
 
-#include <nvector/Vector.hpp>
+#include <nvector/cuda/Vector.hpp>
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine

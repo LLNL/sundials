@@ -47,7 +47,7 @@
 #include <sundials/sundials_math.h>  /* definition of ABS and EXP */
 
 #include <nvector/nvector_cuda.h>
-#include <nvector/Vector.hpp>
+#include <nvector/cuda/Vector.hpp>
 
 /* Problem Constants */
 

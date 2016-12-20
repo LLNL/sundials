@@ -22,8 +22,8 @@
 
 
 
-#include <nvector/Vector.hpp>
-#include <nvector/VectorKernels.cuh>
+#include <nvector/cuda/Vector.hpp>
+#include <nvector/cuda/VectorKernels.cuh>
 
 
 
