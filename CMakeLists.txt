@@ -30,9 +30,8 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
 
-# Project SUNDIALS (initially only C supported)
-
-PROJECT(sundials C)
+# Let CMake decide what compiler to use
+PROJECT(sundials)
 
 # Set some variables with info on the SUNDIALS project
 
@@ -312,11 +311,33 @@ ENDIF(BUILD_ARKODE AND EXAMPLES_ENABLE AND FCMIX_ENABLE)
 # C++ support is an option only if ARKode is built and 
 # examples are enabled
 
-IF(BUILD_ARKODE AND EXAMPLES_ENABLE)
-  SHOW_VARIABLE(CXX_ENABLE BOOL "Enable C++ ARKode examples" OFF)
-ELSE(BUILD_ARKODE AND EXAMPLES_ENABLE)
-  HIDE_VARIABLE(CXX_ENABLE)
-ENDIF(BUILD_ARKODE AND EXAMPLES_ENABLE)
+# SP: Temporarily disabled it here as CMake is picking the compiler.
+
+# IF(BUILD_ARKODE AND EXAMPLES_ENABLE)
+#   SHOW_VARIABLE(CXX_ENABLE BOOL "Enable C++ ARKode examples" OFF)
+# ELSE(BUILD_ARKODE AND EXAMPLES_ENABLE)
+#   HIDE_VARIABLE(CXX_ENABLE)
+# ENDIF(BUILD_ARKODE AND EXAMPLES_ENABLE)
+
+# -------------------------------------------------------------
+# Enable CUDA support?
+# -------------------------------------------------------------
+
+# Defaults are set for Slaven's convenience. Will be changed later.
+OPTION(CUDA_ENABLE "Build CUDA modules" ON)
+
+if(CUDA_ENABLE)
+	show_variable(CUDA_TOOLKIT_ROOT_DIR PATH "CUDA Toolkit installation directory" "/home/peles2/local/cuda")
+	find_package(CUDA)
+
+	if (CUDA_FOUND)
+        #message("CUDA found!")
+        set(CUDA_NVCC_FLAGS "-lineinfo")
+	else()
+        message(STATUS "CUDA not found! Related modules will not be built.")
+	endif()
+endif(CUDA_ENABLE)
+
 
 # -------------------------------------------------------------
 # Enable BLAS/LAPACK support?
@@ -523,13 +544,15 @@ ENDIF(F90_ENABLE AND BUILD_ARKODE)
 # (b) ARKODE examples are enabled
 # -------------------------------------------------------------
 
-IF(CXX_ENABLE AND BUILD_ARKODE)
-  INCLUDE(SundialsCXX)
-  IF(NOT CXX_FOUND AND CXX_ENABLE)
-    PRINT_WARNING("C++ compiler not functional"
-      "C++ support will not be provided")
-  ENDIF(NOT CXX_FOUND AND CXX_ENABLE)
-ENDIF(CXX_ENABLE AND BUILD_ARKODE)
+# For now comment this out. CMake selects C or C++ compiler.
+
+#IF(CXX_ENABLE AND BUILD_ARKODE)
+#  INCLUDE(SundialsCXX)
+#  IF(NOT CXX_FOUND AND CXX_ENABLE)
+#    PRINT_WARNING("C++ compiler not functional"
+#      "C++ support will not be provided")
+#  ENDIF(NOT CXX_FOUND AND CXX_ENABLE)
+#ENDIF(CXX_ENABLE AND BUILD_ARKODE)
 
 # -------------------------------------------------------------
 # Check if we need an alternate way of specifying the Fortran
@@ -869,6 +892,10 @@ IF(PETSC_FOUND)
   ADD_SUBDIRECTORY(src/nvec_petsc)   
 ENDIF(PETSC_FOUND)
 
+IF(CUDA_FOUND)
+  ADD_SUBDIRECTORY(src/nvec_cuda)   
+ENDIF(CUDA_FOUND)
+
 # ARKODE library
 
 IF(BUILD_ARKODE)	
@@ -1087,6 +1114,9 @@ IF(EXAMPLES_ENABLE)
     IF(HYPRE_ENABLE AND HYPRE_FOUND)
       ADD_SUBDIRECTORY(examples/cvode/parhyp)
     ENDIF(HYPRE_ENABLE AND HYPRE_FOUND)
+#    IF(CUDA_ENABLE AND CUDA_FOUND)
+#      ADD_SUBDIRECTORY(examples/cvode/cuda)
+#    ENDIF()
   ENDIF(BUILD_CVODE)
   
   IF(BUILD_CVODES)	
@@ -1179,6 +1209,10 @@ IF(EXAMPLES_ENABLE)
   IF(PETSC_FOUND)
       ADD_SUBDIRECTORY(examples/nvector/petsc)
   ENDIF(PETSC_FOUND)
+  
+  IF(CUDA_FOUND)
+      ADD_SUBDIRECTORY(examples/nvector/cuda)
+  ENDIF(CUDA_FOUND)
   
 ENDIF(EXAMPLES_ENABLE)
 

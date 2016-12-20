@@ -813,9 +813,10 @@ int Test_N_VConst(N_Vector X, long int local_length, int myid)
   long int i;
 
   /* fill vector data */
-  for(i=0; i < local_length; i++){
-    set_element(X, i, ZERO);
-  }
+  /* unclear what is the purpose of this -- commenting out */
+//  for(i=0; i < local_length; i++){
+//    set_element(X, i, ZERO);
+//  }
 
   start_time = get_time();
   N_VConst(ONE,X);

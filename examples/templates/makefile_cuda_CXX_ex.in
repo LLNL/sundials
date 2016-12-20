@@ -1,0 +1,64 @@
+# -----------------------------------------------------------------
+# $Revision:  $
+# $Date:  $
+# -----------------------------------------------------------------
+# Programmer: Slaven Peles @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2013, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for @SOLVER@ CUDA examples.
+#
+# This file is generated from a template using various variables
+# set at configuration time. It can be used as a template for
+# other user Makefiles.
+#
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+CPP      = @CPP@
+CPPFLAGS = @CPPFLAGS@
+CXX      = @CXX@
+CXXFLAGS   = @CXXFLAGS@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
+
+INCLUDES = -I${includedir}
+LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecserial ${LIBS}
+LIBRARIES_BL = @BLAS_LAPACK_LIBS@
+LIBRARIES_SLUMT = @SUPERLUMT_LIBS@
+LIBRARIES_KLU = @KLU_LIBRARY@ @AMD_LIBRARY@ @COLAMD_LIBRARY@ @BTF_LIBRARY@
+
+EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
+
+OBJECTS = ${EXAMPLES:=.o}
+
+# -----------------------------------------------------------------------------------------
+
+.SUFFIXES : .o .cpp
+
+.cpp.o :
+	${CXX} ${CPPFLAGS} ${CXXFLAGS} ${INCLUDES} -c $<
+
+# -----------------------------------------------------------------------------------------
+
+all: ${OBJECTS}
+	@for i in ${EXAMPLES} ; do \
+	  echo "${CXX} -o $${i} $${i}.o ${CXXFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES}" ; \
+	  ${CXX} -o $${i} $${i}.o ${CXXFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ; \
+	done
+
+clean:
+	rm -f ${OBJECTS}
+	rm -f ${EXAMPLES}
+
+# -----------------------------------------------------------------------------------------
+
