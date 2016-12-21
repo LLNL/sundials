@@ -53,11 +53,11 @@ TYPICAL WORKFLOW: see https://www.atlassian.com/git/tutorials/comparing-workflow
 4: Commit locally (commits all staged files)
       > git commit -m "my commit comment"
 
-5: Ensure you have any/all changes from remote repo (for your current branch)
+5: Ensure you have any/all changes from remote repo (defaults to your current branch)
       > git pull --rebase
 
-6: Push commited changes to remote repo (for your current branch):
-      > git push
+6: Push commited changes to remote repo (defaults to your current branch):
+      > git push origin <branchname>
 
 7: Create pull request to have your branch changes merged into develop branch
 
