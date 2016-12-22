@@ -323,11 +323,9 @@ ENDIF(BUILD_ARKODE AND EXAMPLES_ENABLE AND FCMIX_ENABLE)
 # Enable CUDA support?
 # -------------------------------------------------------------
 
-# Defaults are set for Slaven's convenience. Will be changed later.
 OPTION(CUDA_ENABLE "Build CUDA modules" ON)
 
 if(CUDA_ENABLE)
-	show_variable(CUDA_TOOLKIT_ROOT_DIR PATH "CUDA Toolkit installation directory" "/home/peles2/local/cuda")
 	find_package(CUDA)
 
 	if (CUDA_FOUND)
@@ -337,6 +335,28 @@ if(CUDA_ENABLE)
         message(STATUS "CUDA not found! Related modules will not be built.")
 	endif()
 endif(CUDA_ENABLE)
+
+
+# -------------------------------------------------------------
+# Enable RAJA support?
+# -------------------------------------------------------------
+
+OPTION(RAJA_ENABLE "Build RAJA modules" ON)
+
+if(RAJA_ENABLE)
+	set(CMAKE_CXX_STANDARD 11)
+	
+	find_package(RAJA REQUIRED)
+	if (RAJA_FOUND)
+	  #message("RAJA found!")
+	else()
+	  message(STATUS "RAJA not found! Related modules will not be built.")
+	endif()
+	
+	include_directories(${RAJA_INCLUDE_DIR})
+	set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${RAJA_NVCC_FLAGS})
+	
+endif(RAJA_ENABLE)
 
 
 # -------------------------------------------------------------
@@ -895,6 +915,10 @@ ENDIF(PETSC_FOUND)
 IF(CUDA_FOUND)
   ADD_SUBDIRECTORY(src/nvec_cuda)   
 ENDIF(CUDA_FOUND)
+
+IF(RAJA_FOUND)
+  ADD_SUBDIRECTORY(src/nvec_raja)   
+ENDIF(RAJA_FOUND)
 
 # ARKODE library
 
