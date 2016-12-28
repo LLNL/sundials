@@ -38,12 +38,16 @@ ____________________________
 TYPICAL WORKFLOW: see https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
 
 1: Start working on a feature branch do one of the following:
-  a) To work on an existing branch, checkout pecific branch to work on:
+  a) To work on an existing branch, checkout specific branch to work on:
       > git checkout <branchname>
-  OR
+
+  ---OR---
 
   b) Create a new branch based on the develop branch
       > git checkout -b <branchname> develop
+
+  [ NOTE: You cannot work directly on 'master' or 'develop' branches. You must branch ]
+  [ from 'develop' and create pull request to merge back into 'develop'               ]
 
 2: Modify Files (edit, add, etc)
 
@@ -53,14 +57,32 @@ TYPICAL WORKFLOW: see https://www.atlassian.com/git/tutorials/comparing-workflow
 4: Commit locally (commits all staged files)
       > git commit -m "my commit comment"
 
-5: Ensure you have any/all changes from remote repo (defaults to your current branch)
+5: Put your changes into the remote repo
+
+  a) Ensure you have any/all changes from remote repo (defaults to your current branch)
       > git pull --rebase
 
-6: Push commited changes to remote repo (defaults to your current branch):
+  b) If there are conflicts (git will tell you), use 'git status' for more info:
+      > git status
+
+  c) Edit file(s) to resolve any conflicts, then stage
+      > git add <path/filename>
+
+  d) Continue with rebase to bring local current with remote
+      > git rebase --continue
+
+  e) Finally, push commited changes to remote repo (defaults to your current branch):
       > git push origin <branchname>
 
 7: Create pull request to have your branch changes merged into develop branch
-
+  a) Browse to https://mystash.llnl.gov/projects/SUNDIALS/repos/sunrepo/browse
+  b) Click on left branch icon
+  c) Click on your branch - you'll see a 'Compare' screen that lets you pick a branch (on top)
+     to merge with another branch (on bottom) and shows the current differences 
+  d) Select desired branches (develop branch on bottom) and click 'Create pull request' button
+  e) Edit title of pull request (defaults to branch name), add a description, and 
+     select Reviewers that can approve the request.
+  f) Click 'Create' button
 
 ____________________________
 
@@ -78,8 +100,10 @@ HELPFUL COMMANDS:
 4: Merge different branch to your 'active' branch:
       > git merge <branchname>
 
-
 5: See differences in local file vs remote file:
       > git diff <filename>
+
+6: Abandon local changes to a file and get previously commited version
+      > git checkout <filename>
       
     
