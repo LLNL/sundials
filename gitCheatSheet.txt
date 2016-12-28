@@ -54,16 +54,10 @@ TYPICAL WORKFLOW: see https://www.atlassian.com/git/tutorials/comparing-workflow
 
 2: Modify Files (edit, add, etc)
 
-3: Stage file to be added to the repo
-      > git add <path/filename>
+  a) Periodically ensure that you are up-to-date with all desired remote branches
+      > git pull --rebase origin <remotebranch>
 
-4: Commit locally (commits all staged files)
-      > git commit -m "my commit comment"
-
-5: Put your changes into the remote repo
-
-  a) Ensure you have any/all changes from remote repo (defaults to your current branch)
-      > git pull --rebase
+  [ NOTE: do above for each branch in which you need any remote modifications ]
 
   b) If there are conflicts (git will tell you), use 'git status' for more info:
       > git status
@@ -72,19 +66,26 @@ TYPICAL WORKFLOW: see https://www.atlassian.com/git/tutorials/comparing-workflow
       > git add <path/filename>
 
   d) Continue with rebase to bring local current with remote
-      > git rebase --continue
+      > git rebase --continue <remotebranch>
 
-  e) Finally, push commited changes to remote repo (defaults to your current branch):
+  [ NOTE: continue (a) through (d) until done with modifications ]
+
+3: Commit locally (commits all staged files)
+      > git commit -m "my commit comment" -a
+
+  [ NOTE: This can also be done while iterating in Step 2 above ]
+
+4: Push commited changes to remote repo (defaults to your current branch):
       > git push origin <branchname>
 
-7: Create pull request to have your branch changes merged into develop branch
+5: Create pull request to have your branch changes reviewed/merged into target branch
   a) Browse to https://mystash.llnl.gov/projects/SUNDIALS/repos/sunrepo/browse
   b) Click on left branch icon
-  c) Click on your branch - you'll see a 'Compare' screen that lets you pick a branch (on top)
-     to merge with another branch (on bottom) and shows the current differences 
-  d) Select desired branches (develop branch on bottom) and click 'Create pull request' button
-  e) Edit title of pull request (defaults to branch name), add a description, and 
-     select Reviewers that can approve the request.
+  c) Click on your branch - you'll see a 'Compare' screen that lets you pick a branch (source on top)
+     to merge with another branch (target on bottom) and shows the current differences 
+  d) Select desired branches and click 'Create pull request' button
+  e) Edit title of pull request (defaults to branch name), add a description, and select Reviewers
+     that can approve the request.
   f) Click 'Create' button
 
 ____________________________
