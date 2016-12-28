@@ -43,11 +43,14 @@ TYPICAL WORKFLOW: see https://www.atlassian.com/git/tutorials/comparing-workflow
 
   ---OR---
 
-  b) Create a new branch based on the develop branch
+  a) Create a new branch based on the 'develop' branch
       > git checkout -b <branchname> develop
 
-  [ NOTE: You cannot work directly on 'master' or 'develop' branches. You must branch ]
-  [ from 'develop' and create pull request to merge back into 'develop'               ]
+  [ NOTE: You cannot work directly on 'master' or 'develop' branches as you are not allowed to push ]
+  [  to them. You must branch from 'develop' and create pull request to merge back into 'develop'   ]
+
+  b) Push the new branch up to the central repo
+      > git push -u origin <branchname>
 
 2: Modify Files (edit, add, etc)
 
