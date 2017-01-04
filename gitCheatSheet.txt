@@ -38,29 +38,55 @@ ____________________________
 TYPICAL WORKFLOW: see https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
 
 1: Start working on a feature branch do one of the following:
-  a) To work on an existing branch, checkout pecific branch to work on:
+  a) To work on an existing branch, checkout specific branch to work on:
       > git checkout <branchname>
-  OR
 
-  b) Create a new branch based on the develop branch
+  ---OR---
+
+  a) Create a new branch based on the 'develop' branch
       > git checkout -b <branchname> develop
+
+  [ NOTE: You cannot work directly on 'master' or 'develop' branches as you are not allowed to push ]
+  [  to them. You must branch from 'develop' and create pull request to merge back into 'develop'   ]
+
+  b) Push the new branch up to the central repo
+      > git push -u origin <branchname>
 
 2: Modify Files (edit, add, etc)
 
-3: Stage file to be added to the repo
+  a) Periodically ensure that you are up-to-date with all desired remote branches
+      > git pull --rebase origin <remotebranch>
+
+  [ NOTE: do above for each branch in which you need any remote modifications ]
+
+  b) If there are conflicts (git will tell you), use 'git status' for more info:
+      > git status
+
+  c) Edit file(s) to resolve any conflicts, then stage
       > git add <path/filename>
 
-4: Commit locally (commits all staged files)
-      > git commit -m "my commit comment"
+  d) Continue with rebase to bring local current with remote
+      > git rebase --continue <remotebranch>
 
-5: Ensure you have any/all changes from remote repo (defaults to your current branch)
-      > git pull --rebase
+  [ NOTE: continue (a) through (d) until done with modifications ]
 
-6: Push commited changes to remote repo (defaults to your current branch):
+3: Commit locally (commits all staged files)
+      > git commit -m "my commit comment" -a
+
+  [ NOTE: This can also be done while iterating in Step 2 above ]
+
+4: Push commited changes to remote repo (defaults to your current branch):
       > git push origin <branchname>
 
-7: Create pull request to have your branch changes merged into develop branch
-
+5: Create pull request to have your branch changes reviewed/merged into target branch
+  a) Browse to https://mystash.llnl.gov/projects/SUNDIALS/repos/sunrepo/browse
+  b) Click on left branch icon
+  c) Click on your branch - you'll see a 'Compare' screen that lets you pick a branch (source on top)
+     to merge with another branch (target on bottom) and shows the current differences 
+  d) Select desired branches and click 'Create pull request' button
+  e) Edit title of pull request (defaults to branch name), add a description, and select Reviewers
+     that can approve the request.
+  f) Click 'Create' button
 
 ____________________________
 
@@ -78,8 +104,10 @@ HELPFUL COMMANDS:
 4: Merge different branch to your 'active' branch:
       > git merge <branchname>
 
-
 5: See differences in local file vs remote file:
       > git diff <filename>
+
+6: Abandon local changes to a file and get previously commited version
+      > git checkout <filename>
       
     
