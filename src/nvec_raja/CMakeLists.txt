@@ -33,8 +33,8 @@ ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
 # Add variable nveccuda_HEADERS with the exported NVECRAJA header files
 SET(nvecraja_HEADERS
   nvector_raja.h 
-  Vector.hpp 
-  VectorKernels.cuh
+  raja/Vector.hpp 
+  raja/VectorKernels.cuh
 )
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/nvector/ nvecraja_HEADERS)
 
@@ -78,4 +78,4 @@ ENDIF(BUILD_SHARED_LIBS)
 INSTALL(FILES ${nvecraja_HEADERS} DESTINATION include/nvector)
 
 
-MESSAGE(STATUS "Added NVECTOR_CUDA module")
+MESSAGE(STATUS "Added NVECTOR_RAJA module")

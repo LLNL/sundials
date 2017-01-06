@@ -175,10 +175,10 @@ private:
 } // namespace rvec
 
 // Vector extractor
-//inline rvec::Vector<double, long int>* extract_raja(N_Vector v)
-//{
-//    return static_cast<rvec::Vector<double, long int>*>(v->content);
-//}
+inline rvec::Vector<double, long int>* extract_raja(N_Vector v)
+{
+    return static_cast<rvec::Vector<double, long int>*>(v->content);
+}
 
 
 

@@ -1238,6 +1238,10 @@ IF(EXAMPLES_ENABLE)
       ADD_SUBDIRECTORY(examples/nvector/cuda)
   ENDIF(CUDA_FOUND)
   
+  IF(RAJA_FOUND)
+      ADD_SUBDIRECTORY(examples/nvector/raja)
+  ENDIF(RAJA_FOUND)
+  
 ENDIF(EXAMPLES_ENABLE)
 
 #----------------------------------

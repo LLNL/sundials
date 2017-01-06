@@ -20,13 +20,14 @@
 
 #include <nvector/raja/Vector.hpp>
 #include <nvector/raja/VectorKernels.cuh>
+#include <RAJA/RAJA.hxx>
 
 
 /// Vector extractor
-inline rvec::Vector<double, long int>* extract_raja(N_Vector v)
-{ 
-    return static_cast<rvec::Vector<double, long int>*>(v->content);
-}
+//inline rvec::Vector<double, long int>* extract_raja(N_Vector v)
+//{
+//    return static_cast<rvec::Vector<double, long int>*>(v->content);
+//}
 
 
 
@@ -55,7 +56,7 @@ N_Vector N_VNewEmpty_Raja(long int length)
 //   ops->nvgetarraypointer = N_VGetArrayPointer_Raja;
 //   ops->nvsetarraypointer = N_VSetArrayPointer_Raja;
   ops->nvlinearsum       = N_VLinearSum_Raja;
-//   ops->nvconst           = N_VConst_Raja;
+  ops->nvconst           = N_VConst_Raja;
 //   ops->nvprod            = N_VProd_Raja;
 //   ops->nvdiv             = N_VDiv_Raja;
 //   ops->nvscale           = N_VScale_Raja;
@@ -128,14 +129,34 @@ void N_VDestroy_Raja(N_Vector v)
   return;
 }
 
+void N_VConst_Raja(realtype c, N_Vector Z)
+{
+  rvec::Vector<double, long int> *zv = extract_raja(Z);
+  const long int N = zv->size();
+  realtype *zdata = zv->device();
+  RAJA::forall<RAJA::cuda_exec<256> >(0, N, [=] __device__(long int i) {
+     zdata[i] = c;
+  });
+}
+
 void N_VLinearSum_Raja(double a, N_Vector X, double b, N_Vector Y, N_Vector Z)
 {
     rvec::linearSum(a, *extract_raja(X), b, *extract_raja(Y), *extract_raja(Z));
 }
 
-double N_VDotProd_Cuda(N_Vector X, N_Vector Y)
+double N_VDotProd_Raja(N_Vector X, N_Vector Y)
 {
-    return (rvec::dotProd(*extract_raja(X), *extract_raja(Y)));
+  rvec::Vector<double, long int>* xv = extract_raja(X);
+  rvec::Vector<double, long int>* yv = extract_raja(Y);
+  const double* xdata = xv->device();
+  const double* ydata = yv->device();
+  RAJA::ReduceSum<RAJA::cuda_reduce<128>, double> gpu_result(0.0);
+  RAJA::forall<RAJA::cuda_exec<128> >(0, xv->size(), [=] __device__(long int i) {
+    gpu_result += xdata[i] * ydata[i] ;
+  });
+
+  return static_cast<double>(gpu_result);
+//    return (rvec::dotProd(*extract_raja(X), *extract_raja(Y)));
 }
 
 

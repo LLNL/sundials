@@ -180,7 +180,7 @@ SUNDIALS_EXPORT void N_VDestroy_Raja(N_Vector v);
 // SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Raja(N_Vector v);
 // SUNDIALS_EXPORT void N_VSetArrayPointer_Raja(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum_Raja(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
-// SUNDIALS_EXPORT void N_VConst_Raja(realtype c, N_Vector z);
+SUNDIALS_EXPORT void N_VConst_Raja(realtype c, N_Vector z);
 // SUNDIALS_EXPORT void N_VProd_Raja(N_Vector x, N_Vector y, N_Vector z);
 // SUNDIALS_EXPORT void N_VDiv_Raja(N_Vector x, N_Vector y, N_Vector z);
 // SUNDIALS_EXPORT void N_VScale_Raja(realtype c, N_Vector x, N_Vector z);
