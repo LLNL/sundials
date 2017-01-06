@@ -82,14 +82,14 @@ int main(int argc, char *argv[])
   
   /* Vector operation tests */
   fails += Test_N_VConst(X, veclen, 0);
-//  fails += Test_N_VLinearSum(X, Y, Z, veclen, 0);
+  fails += Test_N_VLinearSum(X, Y, Z, veclen, 0);
 //  fails += Test_N_VProd(X, Y, Z, veclen, 0);
 //  fails += Test_N_VDiv(X, Y, Z, veclen, 0);
 //  fails += Test_N_VScale(X, Z, veclen, 0);
 //  fails += Test_N_VAbs(X, Z, veclen, 0);
 //  fails += Test_N_VInv(X, Z, veclen, 0);
 //  fails += Test_N_VAddConst(X, Z, veclen, 0);
-//  fails += Test_N_VDotProd(X, Y, veclen, veclen, 0);
+  fails += Test_N_VDotProd(X, Y, veclen, veclen, 0);
 //  fails += Test_N_VMaxNorm(X, veclen, 0);
 //  fails += Test_N_VWrmsNorm(X, Y, veclen, 0);
   //   fails += Test_N_VWrmsNormMask(X, Y, Z, veclen, veclen, 0);

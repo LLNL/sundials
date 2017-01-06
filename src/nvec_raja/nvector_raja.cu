@@ -23,14 +23,6 @@
 #include <RAJA/RAJA.hxx>
 
 
-/// Vector extractor
-//inline rvec::Vector<double, long int>* extract_raja(N_Vector v)
-//{
-//    return static_cast<rvec::Vector<double, long int>*>(v->content);
-//}
-
-
-
 extern "C" {
 
 N_Vector N_VNewEmpty_Raja(long int length)
@@ -141,7 +133,16 @@ void N_VConst_Raja(realtype c, N_Vector Z)
 
 void N_VLinearSum_Raja(double a, N_Vector X, double b, N_Vector Y, N_Vector Z)
 {
-    rvec::linearSum(a, *extract_raja(X), b, *extract_raja(Y), *extract_raja(Z));
+  rvec::Vector<double, long int>* xv = extract_raja(X);
+  rvec::Vector<double, long int>* yv = extract_raja(Y);
+  rvec::Vector<double, long int> *zv = extract_raja(Z);
+  const double* xdata = xv->device();
+  const double* ydata = yv->device();
+  const long int N = zv->size();
+  realtype *zdata = zv->device();
+  RAJA::forall<RAJA::cuda_exec<256> >(0, N, [=] __device__(long int i) {
+     zdata[i] = a*xdata[i] + b*ydata[i];
+  });
 }
 
 double N_VDotProd_Raja(N_Vector X, N_Vector Y)
@@ -156,7 +157,6 @@ double N_VDotProd_Raja(N_Vector X, N_Vector Y)
   });
 
   return static_cast<double>(gpu_result);
-//    return (rvec::dotProd(*extract_raja(X), *extract_raja(Y)));
 }
 
 
