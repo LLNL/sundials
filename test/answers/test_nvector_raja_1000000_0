@@ -1,0 +1,23 @@
+
+Running with vector length 1000000 
+ 
+    PASSED test -- N_VConst 
+    PASSED test -- N_VLinearSum Case 1a 
+    PASSED test -- N_VLinearSum Case 1b 
+    PASSED test -- N_VLinearSum Case 1c 
+    PASSED test -- N_VLinearSum Case 2a 
+    PASSED test -- N_VLinearSum Case 2b 
+    PASSED test -- N_VLinearSum Case 2c 
+    PASSED test -- N_VLinearSum Case 3 
+    PASSED test -- N_VLinearSum Case 4a 
+    PASSED test -- N_VLinearSum Case 4b 
+    PASSED test -- N_VLinearSum Case 5a 
+    PASSED test -- N_VLinearSum Case 5b 
+    PASSED test -- N_VLinearSum Case 6a 
+    PASSED test -- N_VLinearSum Case 6b 
+    PASSED test -- N_VLinearSum Case 7 
+    PASSED test -- N_VLinearSum Case 8 
+    PASSED test -- N_VLinearSum Case 9 
+    PASSED test -- N_VDotProd 
+SUCCESS: NVector module passed all tests 
+ 
