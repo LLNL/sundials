@@ -27,6 +27,7 @@ SET(CVODE_examples
   cvKrylovDemo_prec
   cvRoberts_dns
   cvRoberts_dns_uw
+  cvAdvDiffReac_kry
   )
 
 SET(CVODE_examples_KLU
