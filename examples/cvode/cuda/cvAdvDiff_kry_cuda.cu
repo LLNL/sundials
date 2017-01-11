@@ -41,13 +41,11 @@
 #include <cvode/cvode.h>             /* prototypes for CVODE fcts., consts. */
 #include <cvode/cvode_band.h>        /* prototype for CVBand */
 #include <cvode/cvode_spgmr.h>       /* prototypes & constants for CVSPGMR */
-//#include <nvector/nvector_serial.h>  /* serial N_Vector types, fcts., macros */
 #include <sundials/sundials_band.h>  /* definitions of type DlsMat and macros */
 #include <sundials/sundials_types.h> /* definition of type realtype */
 #include <sundials/sundials_math.h>  /* definition of ABS and EXP */
 
 #include <nvector/nvector_cuda.h>
-#include <nvector/cuda/Vector.hpp>
 
 /* Problem Constants */
 
@@ -165,9 +163,8 @@ int main(void)
   data = NULL;
   cvode_mem = NULL;
 
-  /* Create a serial vector */
+  /* Create a CUDA vector */
 
-//  u = N_VNew_Serial(NEQ);  /* Allocate u vector */
   u = N_VNew_Cuda(NEQ);  /* Allocate u vector */
   if(check_flag((void*)u, "N_VNew_Serial", 0)) return(1);
 
@@ -190,7 +187,7 @@ int main(void)
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
-   * user's right hand side function in u'=f(t,u), the inital time T0, and
+   * user's right hand side function in u'=f(t,u), the initial time T0, and
    * the initial dependent variable vector u. */
   flag = CVodeInit(cvode_mem, f, T0, u);
   if(check_flag(&flag, "CVodeInit", 1)) return(1);
@@ -212,14 +209,6 @@ int main(void)
   /* set the JAcobian-times-vector function */
   flag = CVSpilsSetJacTimesVecFn(cvode_mem, jtv);
   if(check_flag(&flag, "CVSpilsSetJacTimesVecFn", 1)) return(1);
-
-//   /* Call CVBand to specify the CVBAND band linear solver */
-//   flag = CVBand(cvode_mem, NEQ, MY, MY);
-//   if(check_flag(&flag, "CVBand", 1)) return(1);
-// 
-//   /* Set the user-supplied Jacobian routine Jac */
-//   flag = CVDlsSetBandJacFn(cvode_mem, Jac);
-//   if(check_flag(&flag, "CVDlsSetBandJacFn", 1)) return(1);
 
   /* In loop over output points: call CVode, print results, test for errors */
 
@@ -251,7 +240,7 @@ int main(void)
 
 /* f routine. Compute f(t,u). */
 
-static int f(realtype t, N_Vector u,N_Vector udot, void *user_data)
+static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   realtype hordc, horac, verdc;
   realtype *udata, *dudata;

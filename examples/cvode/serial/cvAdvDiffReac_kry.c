@@ -33,18 +33,18 @@
 
 typedef struct
 {
-    long int Nx;
-    long int Ny;
-    long int NEQ;
-    
-    realtype hx;
-    realtype hy;
-    
-    realtype hordc;
-    realtype verdc;
-    realtype horac;
-    realtype verac;
-    realtype reacc;
+  long int Nx;
+  long int Ny;
+  long int NEQ;
+
+  realtype hx;
+  realtype hy;
+
+  realtype hordc;
+  realtype verdc;
+  realtype horac;
+  realtype verac;
+  realtype reacc;
 
 } *UserData;
 
@@ -217,79 +217,79 @@ UserData SetUserData()
 void Phiu(N_Vector u, N_Vector result, long int NEQ, long int Nx, long int Ny,
           realtype hordc, realtype verdc, realtype horac, realtype verac)
 {
-    const realtype *uData = NV_DATA_S(u);
-    realtype *resultData = NV_DATA_S(result);
-    
-    long int i, j, index;
-    
-    realtype uij;
-    realtype ult;
-    realtype urt;
-    realtype uup;
-    realtype udn;
-    
-    realtype hdiff;
-    realtype vdiff;
-    realtype hadv;
-    realtype vadv;
-    
-    for (index = 0; index < NEQ; ++index)
-    {
-        i = index%Nx;
-        j = index/Nx;
-        
-        uij = uData[index];
-        
-        ult = (i == 0)    ? uData[index + 1]  : uData[index - 1];
-        urt = (i == Nx-1) ? uData[index - 1]  : uData[index + 1];
-        udn = (j == 0)    ? uData[index + Nx] : uData[index - Nx];
-        uup = (j == Ny-1) ? uData[index - Nx] : uData[index + Nx];
-        
-        hdiff =  hordc*(ult -2.0*uij + urt);
-        vdiff =  verdc*(udn -2.0*uij + uup);
-        hadv  = -horac*(urt - ult);
-        vadv  = -verac*(uup - udn);
-        
-        resultData[index] = hdiff + vdiff + hadv + vadv;
-    }
+  const realtype *uData = NV_DATA_S(u);
+  realtype *resultData = NV_DATA_S(result);
+
+  long int i, j, index;
+
+  realtype uij;
+  realtype ult;
+  realtype urt;
+  realtype uup;
+  realtype udn;
+
+  realtype hdiff;
+  realtype vdiff;
+  realtype hadv;
+  realtype vadv;
+
+  for (index = 0; index < NEQ; ++index)
+  {
+    i = index%Nx;
+    j = index/Nx;
+
+    uij = uData[index];
+
+    ult = (i == 0)    ? uData[index + 1]  : uData[index - 1];
+    urt = (i == Nx-1) ? uData[index - 1]  : uData[index + 1];
+    udn = (j == 0)    ? uData[index + Nx] : uData[index - Nx];
+    uup = (j == Ny-1) ? uData[index - Nx] : uData[index + Nx];
+
+    hdiff =  hordc*(ult -2.0*uij + urt);
+    vdiff =  verdc*(udn -2.0*uij + uup);
+    hadv  = -horac*(urt - ult);
+    vadv  = -verac*(uup - udn);
+
+    resultData[index] = hdiff + vdiff + hadv + vadv;
+  }
 
 }
 
 int RHS(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
-    UserData data = (UserData) user_data;
-    const realtype *udata = NV_DATA_S(u);
-    realtype *udotdata = NV_DATA_S(udot);
-    
-    const realtype a = -1.0 / 2.0;
-    long int i;
-    
-    Phiu(u, udot, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac); // assumes Nx=Ny!!
-    for(i=0; i<data->NEQ; ++i)
-    {
-        udotdata[i] += (data->reacc*(udata[i] + a)*(1.0 - udata[i])*udata[i]);
-    }
-   
-    return 0;
+  UserData data = (UserData) user_data;
+  const realtype *udata = NV_DATA_S(u);
+  realtype *udotdata = NV_DATA_S(udot);
+
+  const realtype a = -1.0 / 2.0;
+  long int i;
+
+  Phiu(u, udot, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac);
+  for(i=0; i<data->NEQ; ++i)
+  {
+    udotdata[i] += (data->reacc*(udata[i] + a)*(1.0 - udata[i])*udata[i]);
+  }
+
+  return 0;
 }
 
 int Jtv(N_Vector v, N_Vector Jv, realtype t, N_Vector u, N_Vector fu, void *user_data, N_Vector tmp)
 {
-    UserData data = (UserData) user_data;
-    realtype *udata = NV_DATA_S(u);
-    realtype *vdata = NV_DATA_S(v);
-    realtype *Jvdata = NV_DATA_S(Jv);
-    
-    const realtype a = -1.0 / 2.0;
-    long int i;
-    
-    Phiu(v, Jv, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac); // assumes Nx=Ny!!
-    for(i=0; i<data->NEQ; ++i)
-    {
-        Jvdata[i] += data->reacc*(3.0*udata[i] + a - 3.0*udata[i]*udata[i])*vdata[i]; // original
-    }
-    
-    return 0;
+  UserData data = (UserData) user_data;
+  realtype *udata = NV_DATA_S(u);
+  realtype *vdata = NV_DATA_S(v);
+  realtype *Jvdata = NV_DATA_S(Jv);
+
+  const realtype a = -1.0 / 2.0;
+  long int i;
+
+  Phiu(v, Jv, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac);
+  for(i=0; i<data->NEQ; ++i)
+  {
+    Jvdata[i] += data->reacc*(3.0*udata[i] + a - 3.0*udata[i]*udata[i])*vdata[i];
+  }
+
+  return 0;
 }  
   
 
