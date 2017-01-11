@@ -22,7 +22,7 @@
 
 SET(CVODE_examples
   cvAdvDiff_kry_cuda
-#  cvAdvReac_kry_cuda
+  cvAdvDiffReac_kry_cuda
   )
 
 # Add source directory to include directories
@@ -33,11 +33,9 @@ INCLUDE_DIRECTORIES(. ${CUDA_TOOLKIT_ROOT_DIR}/samples/common/inc)
 
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(CVODE_LIB sundials_cvode_static)
-  SET(NVECS_LIB sundials_nvecserial_static)
   SET(NVECS_LIB sundials_nveccuda_static)
 ELSE(LINK_LIBRARY_TYPE MATCHES "static")
   SET(CVODE_LIB sundials_cvode_shared)
-  SET(NVECS_LIB sundials_nvecserial_shared)
   SET(NVECS_LIB sundials_nveccuda_shared)
 ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 
