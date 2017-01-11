@@ -26,6 +26,7 @@ IF(OPENMP_FOUND)
 # Add variable CVODE_examples_OMP with the names of the openmp CVODE examples
 SET(CVODE_examples_OMP
   cvAdvDiff_bnd_omp
+  cvAdvDiffReac_kry_omp
   )
 
 ENDIF(OPENMP_FOUND)
