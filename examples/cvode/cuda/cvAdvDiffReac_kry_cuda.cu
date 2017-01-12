@@ -29,7 +29,7 @@
 #endif
 
 
-typedef struct
+struct _UserData
 {
   long int Nx;
   long int Ny;
@@ -47,7 +47,9 @@ typedef struct
   realtype verac;
   realtype reacc;
 
-} *UserData;
+};
+
+typedef _UserData* UserData;
 
 /* User defined functions */
 
