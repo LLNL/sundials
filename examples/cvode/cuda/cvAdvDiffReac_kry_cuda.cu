@@ -29,7 +29,7 @@
 #endif
 
 
-struct _UserData
+typedef struct //_UserData
 {
   long int Nx;
   long int Ny;
@@ -47,14 +47,14 @@ struct _UserData
   realtype verac;
   realtype reacc;
 
-};
+} *UserData;
 
-typedef _UserData* UserData;
+//typedef _UserData *UserData;
 
 /* User defined functions */
 
 static N_Vector SetIC(UserData data);
-static UserData SetUserData();
+static UserData SetUserData(int argc, char *argv[]);
 static int RHS(realtype t, N_Vector u, N_Vector udot, void *userData);
 static int Jtv(N_Vector v, N_Vector Jv, realtype t, N_Vector u, N_Vector fu, void *userData, N_Vector tmp);
 
@@ -75,7 +75,7 @@ static double get_time();
  *-------------------------------
  */
 
-int main()
+int main(int argc, char *argv[])
 {
   realtype abstol, reltol, t;
   //realtype tout;
@@ -92,7 +92,7 @@ int main()
   cvode_mem = NULL;
 
   /* Allocate memory, set problem data and initial values */
-  data = SetUserData();
+  data = SetUserData(argc, argv);
   u = SetIC(data);
 
   reltol = RCONST(1.0e-5);         /* scalar relative tolerance */
@@ -184,10 +184,10 @@ N_Vector SetIC(UserData data)
   return y;
 }
 
-UserData SetUserData()
+UserData SetUserData(int argc, char *argv[])
 {
-  const long int dimX = 70; // 70 values used in unit tests
-  const long int dimY = 80; // 80
+  long int dimX = 70; /* Default grid size */
+  long int dimY = 80;
   const realtype diffusionConst =  0.01;
   const realtype advectionConst = -10.0;
   const realtype reactionConst  = 100.0;
@@ -199,6 +199,11 @@ UserData SetUserData()
   if(check_flag((void*) ud, "AllocUserData", 2)) return(NULL);
 
   /* Set grid size */
+  if (argc == 3) {
+    dimX = strtol(argv[1], (char**) NULL, 10);
+    dimY = strtol(argv[2], (char**) NULL, 10);
+  }
+
   ud->Nx = dimX + 1;
   ud->Ny = dimY + 1;
   ud->NEQ = ud->Nx * ud->Ny;

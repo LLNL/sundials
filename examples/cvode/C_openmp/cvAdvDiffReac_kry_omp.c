@@ -185,8 +185,8 @@ N_Vector SetIC(UserData data)
 
 UserData SetUserData(int argc, char *argv[])
 {
-  const long int dimX = 70; // 70 values used in unit tests
-  const long int dimY = 80; // 80
+  long int dimX = 70; /* Default grid size */
+  long int dimY = 80;
   const realtype diffusionConst =  0.01;
   const realtype advectionConst = -10.0;
   const realtype reactionConst  = 100.0;
@@ -200,11 +200,15 @@ UserData SetUserData(int argc, char *argv[])
 #ifdef _OPENMP
   ud->num_threads = omp_get_max_threads();  /* Overwrite with OMP_NUM_THREADS environment variable */
 #endif
-  if (argc > 1)        /* overwrithe with command line value, if supplied */
-    ud->num_threads = strtol(argv[1], NULL, 0);
-
+  if (argc == 2) {  /* Overwrite with command line values, if supplied */
+    ud->num_threads = strtol(argv[1], (char**) NULL, 10);
+  }
 
   /* Set grid size */
+  if (argc == 3) {   /* Overwrite grid size with command line values, if supplied */
+    dimX = strtol(argv[1], (char**) NULL, 10);
+    dimY = strtol(argv[2], (char**) NULL, 10);
+  }
   ud->Nx = dimX + 1;
   ud->Ny = dimY + 1;
   ud->NEQ = ud->Nx * ud->Ny;
