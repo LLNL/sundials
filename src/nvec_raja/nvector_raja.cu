@@ -19,7 +19,7 @@
 
 
 #include <nvector/raja/Vector.hpp>
-#include <nvector/raja/VectorKernels.cuh>
+//#include <nvector/raja/VectorKernels.cuh>
 #include <RAJA/RAJA.hxx>
 
 

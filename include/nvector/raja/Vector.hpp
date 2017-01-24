@@ -28,10 +28,6 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <cuda_runtime.h>
-#include "ThreadPartitioning.hpp"
-#include <cublas_v2.h>
-
 #include <nvector/nvector_raja.h>
 
 namespace rvec
@@ -40,13 +36,9 @@ namespace rvec
 template <typename T, typename I=int>
 class Vector : public _N_VectorContent_Raja
 {
-public:  
-    Vector(I N) : size_(N), mem_size_(N*sizeof(T)), ownPartitioning_(true), isClone_(false)
+public:
+    Vector(I N) : size_(N), mem_size_(N*sizeof(T)), isClone_(false)
     {
-        // Set partitioning
-        partStream_ = new ThreadPartitioning<T, I>(ThreadPartitioning<T,I>::STREAM, N);
-        partReduce_ = new ThreadPartitioning<T, I>(ThreadPartitioning<T,I>::REDUCTION, N);
-        
         allocate();
     }
     
@@ -54,9 +46,6 @@ public:
     explicit Vector(const Vector& v) 
     : size_(v.size()), 
       mem_size_(size_*sizeof(T)), 
-      partStream_(v.partStream_),
-      partReduce_(v.partReduce_),
-      ownPartitioning_(false),
       isClone_(true) ///< temporary, will be removed!
     {
         allocate();
@@ -64,11 +53,6 @@ public:
     
     ~Vector()
     {
-        if (ownPartitioning_)
-        {
-            delete partReduce_;
-            delete partStream_;
-        }
         clear();
     }
     
@@ -137,34 +121,11 @@ public:
             std::cout << "Failed to copy vector from device to host (error code " << err << ")!\n";
     }
     
-    ThreadPartitioning<T, I>* partStream()
-    {
-        return partStream_;
-    }
-    
-    ThreadPartitioning<T, I>* partStream() const
-    {
-        return partStream_;
-    }
-    
-    ThreadPartitioning<T, I>* partReduce()
-    {
-        return partReduce_;
-    }
-    
-    ThreadPartitioning<T, I>* partReduce() const
-    {
-        return partReduce_;
-    }
-    
 private:
     I size_;
     I mem_size_;
     T* h_vec_;
     T* d_vec_;
-    ThreadPartitioning<T, I>* partStream_;
-    ThreadPartitioning<T, I>* partReduce_;
-    bool ownPartitioning_;
     bool isClone_;    ///< temporary, will be removed! 
 };
 
