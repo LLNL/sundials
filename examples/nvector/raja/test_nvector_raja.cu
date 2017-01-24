@@ -38,6 +38,7 @@ int main(int argc, char *argv[])
   int      fails = 0;  /* counter for test failures  */
   long int veclen;     /* vector length              */
   N_Vector W, X, Y, Z; /* test vectors               */
+//  long int liw, lrw;
   int      print_timing;
 
 
@@ -83,17 +84,17 @@ int main(int argc, char *argv[])
   /* Vector operation tests */
   fails += Test_N_VConst(X, veclen, 0);
   fails += Test_N_VLinearSum(X, Y, Z, veclen, 0);
-//  fails += Test_N_VProd(X, Y, Z, veclen, 0);
-//  fails += Test_N_VDiv(X, Y, Z, veclen, 0);
-//  fails += Test_N_VScale(X, Z, veclen, 0);
-//  fails += Test_N_VAbs(X, Z, veclen, 0);
-//  fails += Test_N_VInv(X, Z, veclen, 0);
-//  fails += Test_N_VAddConst(X, Z, veclen, 0);
+  fails += Test_N_VProd(X, Y, Z, veclen, 0);
+  fails += Test_N_VDiv(X, Y, Z, veclen, 0);
+  fails += Test_N_VScale(X, Z, veclen, 0);
+  fails += Test_N_VAbs(X, Z, veclen, 0);
+  fails += Test_N_VInv(X, Z, veclen, 0);
+  fails += Test_N_VAddConst(X, Z, veclen, 0);
   fails += Test_N_VDotProd(X, Y, veclen, veclen, 0);
-//  fails += Test_N_VMaxNorm(X, veclen, 0);
-//  fails += Test_N_VWrmsNorm(X, Y, veclen, 0);
-  //   fails += Test_N_VWrmsNormMask(X, Y, Z, veclen, veclen, 0);
-//  fails += Test_N_VMin(X, veclen, 0);
+  fails += Test_N_VMaxNorm(X, veclen, 0);
+  fails += Test_N_VWrmsNorm(X, Y, veclen, 0);
+  fails += Test_N_VWrmsNormMask(X, Y, Z, veclen, veclen, 0);
+  fails += Test_N_VMin(X, veclen, 0);
   //   fails += Test_N_VWL2Norm(X, Y, veclen, veclen, 0);
   //   fails += Test_N_VL1Norm(X, veclen, veclen, 0);
   //   fails += Test_N_VCompare(X, Z, veclen, 0);
@@ -101,8 +102,8 @@ int main(int argc, char *argv[])
   //   fails += Test_N_VConstrMask(X, Y, Z, veclen, 0);
   //   fails += Test_N_VMinQuotient(X, Y, veclen, 0);
 
-//   N_VSpace_Raja(X, &lrw, &liw);
-//   printf("lrw = %ld, liw = %ld\n", lrw, liw);
+//  N_VSpace_Raja(X, &lrw, &liw);
+//  printf("lrw = %ld, liw = %ld\n", lrw, liw);
   
   /* Free vectors */
   N_VDestroy_Raja(W);

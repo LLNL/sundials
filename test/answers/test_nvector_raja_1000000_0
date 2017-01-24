@@ -22,6 +22,20 @@ Running with vector length 1000000
     PASSED test -- N_VLinearSum Case 7 
     PASSED test -- N_VLinearSum Case 8 
     PASSED test -- N_VLinearSum Case 9 
+    PASSED test -- N_VProd 
+    PASSED test -- N_VDiv 
+    PASSED test -- N_VScale Case 1 
+    PASSED test -- N_VScale Case 2 
+    PASSED test -- N_VScale Case 3 
+    PASSED test -- N_VScale Case 4 
+    PASSED test -- N_VAbs 
+    PASSED test -- N_VInv 
+    PASSED test -- N_VAddConst 
     PASSED test -- N_VDotProd 
+    PASSED test -- N_VMaxNorm 
+    PASSED test -- N_VWrmsNorm 
+    PASSED test -- N_VWrmsNormMask Case 1 
+    PASSED test -- N_VWrmsNormMask Case 2 
+    PASSED test -- N_VMin 
 SUCCESS: NVector module passed all tests 
  
