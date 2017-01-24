@@ -1,6 +1,10 @@
 
 Running with vector length 1000000 
  
+    PASSED test -- N_VCloneEmpty 
+    PASSED test -- N_VClone 
+    PASSED test -- N_VCloneEmptyVectorArray 
+    PASSED test -- N_VCloneVectorArray 
     PASSED test -- N_VConst 
     PASSED test -- N_VLinearSum Case 1a 
     PASSED test -- N_VLinearSum Case 1b 

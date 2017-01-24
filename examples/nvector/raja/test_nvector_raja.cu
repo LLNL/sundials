@@ -68,13 +68,13 @@ int main(int argc, char *argv[])
   /* Raja specific tests */
   
   /* Memory allocation tests */
-//  fails += Test_N_VCloneEmpty(X, 0);
-//  fails += Test_N_VClone(X, veclen, 0);
-//  fails += Test_N_VCloneEmptyVectorArray(5, X, 0);
-//  fails += Test_N_VCloneVectorArray(5, X, veclen, 0);
+  fails += Test_N_VCloneEmpty(X, 0);
+  fails += Test_N_VClone(X, veclen, 0);
+  fails += Test_N_VCloneEmptyVectorArray(5, X, 0);
+  fails += Test_N_VCloneVectorArray(5, X, veclen, 0);
 
-  Y = N_VNew_Raja(veclen);
-  Z = N_VNew_Raja(veclen);
+  Y = N_VClone_Raja(X);
+  Z = N_VClone_Raja(X);
 
   /* Skipped tests */
   /*   fails += Test_N_VSetArrayPointer(W, veclen, 0); */

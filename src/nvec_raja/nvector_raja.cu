@@ -19,7 +19,6 @@
 
 
 #include <nvector/raja/Vector.hpp>
-//#include <nvector/raja/VectorKernels.cuh>
 #include <RAJA/RAJA.hxx>
 
 
@@ -41,8 +40,8 @@ N_Vector N_VNewEmpty_Raja(long int length)
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
   if (ops == NULL) { free(v); return(NULL); }
 
-//   ops->nvclone           = N_VClone_Raja;
-//   ops->nvcloneempty      = N_VCloneEmpty_Raja;
+  ops->nvclone           = N_VClone_Raja;
+  ops->nvcloneempty      = N_VCloneEmpty_Raja;
   ops->nvdestroy         = N_VDestroy_Raja;
 //   ops->nvspace           = N_VSpace_Raja;
 //   ops->nvgetarraypointer = N_VGetArrayPointer_Raja;
@@ -86,7 +85,7 @@ N_Vector N_VNew_Raja(long int length)
   v = N_VNewEmpty_Raja(length);
   if (v == NULL) return(NULL);
 
-  v->content = new rvec::Vector<double, long int>(length);
+  v->content = new rvec::Vector<realtype, long int>(length);
 
   return(v);
 }
@@ -95,7 +94,7 @@ N_Vector N_VNew_Raja(long int length)
 N_Vector N_VMake_Raja(N_VectorContent_Raja c)
 {
   N_Vector v;
-  rvec::Vector<double, long int>* x = static_cast<rvec::Vector<double, long int>*>(c);
+  rvec::Vector<realtype, long int>* x = static_cast<rvec::Vector<realtype, long int>*>(c);
   long int length = x->size();
 
   v = NULL;
@@ -108,13 +107,152 @@ N_Vector N_VMake_Raja(N_VectorContent_Raja c)
 }
 
 
+/* ----------------------------------------------------------------------------
+ * Function to create an array of new RAJA-based vectors.
+ */
+
+N_Vector *N_VCloneVectorArray_Raja(int count, N_Vector w)
+{
+  N_Vector *vs;
+  int j;
+
+  if (count <= 0) return(NULL);
+
+  vs = NULL;
+  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  if(vs == NULL) return(NULL);
+
+  for (j = 0; j < count; j++) {
+    vs[j] = NULL;
+    vs[j] = N_VClone_Raja(w);
+    if (vs[j] == NULL) {
+      N_VDestroyVectorArray_Raja(vs, j-1);
+      return(NULL);
+    }
+  }
+
+  return(vs);
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to create an array of new RAJA-based vectors with NULL data array.
+ */
+
+N_Vector *N_VCloneVectorArrayEmpty_Raja(int count, N_Vector w)
+{
+  N_Vector *vs;
+  int j;
+
+  if (count <= 0) return(NULL);
+
+  vs = NULL;
+  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  if(vs == NULL) return(NULL);
+
+  for (j = 0; j < count; j++) {
+    vs[j] = NULL;
+    vs[j] = N_VCloneEmpty_Raja(w);
+    if (vs[j] == NULL) {
+      N_VDestroyVectorArray_Raja(vs, j-1);
+      return(NULL);
+    }
+  }
+
+  return(vs);
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to free an array created with N_VCloneVectorArray_Raja
+ */
+
+void N_VDestroyVectorArray_Raja(N_Vector *vs, int count)
+{
+  int j;
+
+  for (j = 0; j < count; j++) N_VDestroy_Raja(vs[j]);
+
+  free(vs); vs = NULL;
+
+  return;
+}
+
+
+
+N_Vector N_VCloneEmpty_Raja(N_Vector w)
+{
+  N_Vector v;
+  N_Vector_Ops ops;
+
+  if (w == NULL) return(NULL);
+
+  /* Create vector */
+  v = NULL;
+  v = (N_Vector) malloc(sizeof *v);
+  if (v == NULL) return(NULL);
+
+  /* Create vector operation structure */
+  ops = NULL;
+  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
+  if (ops == NULL) { free(v); return(NULL); }
+
+  ops->nvclone           = w->ops->nvclone;
+  ops->nvcloneempty      = w->ops->nvcloneempty;
+  ops->nvdestroy         = w->ops->nvdestroy;
+  ops->nvspace           = w->ops->nvspace;
+  ops->nvgetarraypointer = w->ops->nvgetarraypointer;
+  ops->nvsetarraypointer = w->ops->nvsetarraypointer;
+  ops->nvlinearsum       = w->ops->nvlinearsum;
+  ops->nvconst           = w->ops->nvconst;
+  ops->nvprod            = w->ops->nvprod;
+  ops->nvdiv             = w->ops->nvdiv;
+  ops->nvscale           = w->ops->nvscale;
+  ops->nvabs             = w->ops->nvabs;
+  ops->nvinv             = w->ops->nvinv;
+  ops->nvaddconst        = w->ops->nvaddconst;
+  ops->nvdotprod         = w->ops->nvdotprod;
+  ops->nvmaxnorm         = w->ops->nvmaxnorm;
+  ops->nvwrmsnormmask    = w->ops->nvwrmsnormmask;
+  ops->nvwrmsnorm        = w->ops->nvwrmsnorm;
+  ops->nvmin             = w->ops->nvmin;
+  ops->nvwl2norm         = w->ops->nvwl2norm;
+  ops->nvl1norm          = w->ops->nvl1norm;
+  ops->nvcompare         = w->ops->nvcompare;
+  ops->nvinvtest         = w->ops->nvinvtest;
+  ops->nvconstrmask      = w->ops->nvconstrmask;
+  ops->nvminquotient     = w->ops->nvminquotient;
+
+  /* Create content */
+  v->content = NULL;
+  v->ops  = ops;
+
+  return(v);
+}
+
+N_Vector N_VClone_Raja(N_Vector w)
+{
+  N_Vector v;
+  rvec::Vector<double, long int>* wdat = static_cast<rvec::Vector<double, long int>*>(w->content);
+  rvec::Vector<double, long int>* vdat = new rvec::Vector<double, long int>(*wdat);
+  v = NULL;
+  v = N_VCloneEmpty_Raja(w);
+  if (v == NULL) return(NULL);
+
+  v->content = vdat;
+
+  return(v);
+}
+
+
 void N_VDestroy_Raja(N_Vector v)
 {
-//   if (NV_OWN_DATA_S(v) == TRUE) {
-//     free(NV_DATA_S(v));
-//     NV_DATA_S(v) = NULL;
-//   }
-//   free(v->content); v->content = NULL;
+  rvec::Vector<double, long int>* x = static_cast<rvec::Vector<double, long int>*>(v->content);
+  if (x != NULL) {
+    if (!x->isClone()) {
+      delete x;
+      v->content = NULL;
+    }
+  }
+
   free(v->ops); v->ops = NULL;
   free(v); v = NULL;
 
@@ -123,7 +261,7 @@ void N_VDestroy_Raja(N_Vector v)
 
 void N_VConst_Raja(realtype c, N_Vector Z)
 {
-  rvec::Vector<double, long int> *zv = extract_raja(Z);
+  rvec::Vector<realtype, long int> *zv = extract_raja(Z);
   const long int N = zv->size();
   realtype *zdata = zv->device();
   RAJA::forall<RAJA::cuda_exec<256> >(0, N, [=] __device__(long int i) {
@@ -131,13 +269,13 @@ void N_VConst_Raja(realtype c, N_Vector Z)
   });
 }
 
-void N_VLinearSum_Raja(double a, N_Vector X, double b, N_Vector Y, N_Vector Z)
+void N_VLinearSum_Raja(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector Z)
 {
-  rvec::Vector<double, long int>* xv = extract_raja(X);
-  rvec::Vector<double, long int>* yv = extract_raja(Y);
-  rvec::Vector<double, long int> *zv = extract_raja(Z);
-  const double* xdata = xv->device();
-  const double* ydata = yv->device();
+  rvec::Vector<realtype, long int> *xv = extract_raja(X);
+  rvec::Vector<realtype, long int> *yv = extract_raja(Y);
+  rvec::Vector<realtype, long int> *zv = extract_raja(Z);
+  const realtype *xdata = xv->device();
+  const realtype *ydata = yv->device();
   const long int N = zv->size();
   realtype *zdata = zv->device();
   RAJA::forall<RAJA::cuda_exec<256> >(0, N, [=] __device__(long int i) {
@@ -145,18 +283,18 @@ void N_VLinearSum_Raja(double a, N_Vector X, double b, N_Vector Y, N_Vector Z)
   });
 }
 
-double N_VDotProd_Raja(N_Vector X, N_Vector Y)
+realtype N_VDotProd_Raja(N_Vector X, N_Vector Y)
 {
-  rvec::Vector<double, long int>* xv = extract_raja(X);
-  rvec::Vector<double, long int>* yv = extract_raja(Y);
-  const double* xdata = xv->device();
-  const double* ydata = yv->device();
-  RAJA::ReduceSum<RAJA::cuda_reduce<128>, double> gpu_result(0.0);
+  rvec::Vector<realtype, long int>* xv = extract_raja(X);
+  rvec::Vector<realtype, long int>* yv = extract_raja(Y);
+  const realtype *xdata = xv->device();
+  const realtype *ydata = yv->device();
+  RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
   RAJA::forall<RAJA::cuda_exec<128> >(0, xv->size(), [=] __device__(long int i) {
     gpu_result += xdata[i] * ydata[i] ;
   });
 
-  return static_cast<double>(gpu_result);
+  return static_cast<realtype>(gpu_result);
 }
 
 
