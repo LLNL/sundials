@@ -16,9 +16,12 @@
 
 #include <cvode/cvode.h>
 #include <cvode/cvode_spgmr.h>
-#include <nvector/nvector_cuda.h>
+#include <nvector/nvector_raja.h>
+#include <nvector/raja/Vector.hpp>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
+
+#include <RAJA/RAJA.hxx>
 
 #define SUNDIALS_HAVE_POSIX_TIMERS
 #define _POSIX_TIMERS
@@ -29,7 +32,7 @@
 #endif
 
 
-typedef struct //_UserData
+typedef struct
 {
   long int Nx;
   long int Ny;
@@ -166,8 +169,9 @@ N_Vector SetIC(UserData data)
   const realtype hx = data->hx;
   const realtype hy = data->hy;
 
-  N_Vector y     = N_VNew_Cuda(data->NEQ);
-  realtype *ydat = N_VGetHostArrayPointer_Cuda(y);
+  N_Vector u = N_VNew_Raja(data->NEQ);
+  realtype *udat = extract_raja(u)->host();
+
   long int i, j, index;
 
   for (index = 0; index < data->NEQ; ++index)
@@ -178,10 +182,10 @@ N_Vector SetIC(UserData data)
     realtype y = j * hy;
     realtype x = i * hx;
     realtype tmp = (1 - x) * x * (1 - y) * y;
-    ydat[index] = (256.0 * tmp * tmp) + 0.3;
+    udat[index] = (256.0 * tmp * tmp) + 0.3;
   }
-  N_VCopyToDevice_Cuda(y);
-  return y;
+  extract_raja(u)->copyToDev();
+  return u;
 }
 
 UserData SetUserData(int argc, char *argv[])
@@ -231,109 +235,69 @@ UserData SetUserData(int argc, char *argv[])
 }
 
 
-__global__ void phiKernel(const realtype *u, realtype *result, long int NEQ, long int Nx, long int Ny,
-                          realtype hordc, realtype verdc, realtype horac, realtype verac)
+int phiRaja(const realtype *u, realtype *result, long int NEQ, long int Nx, long int Ny,
+    realtype hordc, realtype verdc, realtype horac, realtype verac)
 {
-  unsigned long int i, j, index;
+  RAJA::forall<RAJA::cuda_exec<256> >(0, NEQ, [=] __device__(long int index) {
+    long int i = index%Nx;
+    long int j = index/Nx;
 
-  /* Loop over all grid points. */
-  index = blockDim.x * blockIdx.x + threadIdx.x;
+    realtype uij = u[index];
 
-  realtype uij;
-  realtype ult;
-  realtype urt;
-  realtype uup;
-  realtype udn;
+    realtype ult = (i == 0)    ? u[index + 1]  : u[index - 1];
+    realtype urt = (i == Nx-1) ? u[index - 1]  : u[index + 1];
+    realtype udn = (j == 0)    ? u[index + Nx] : u[index - Nx];
+    realtype uup = (j == Ny-1) ? u[index - Nx] : u[index + Nx];
 
-  realtype hdiff;
-  realtype vdiff;
-  realtype hadv;
-  realtype vadv;
-
-  if (index < NEQ)
-  {
-    i = index%Nx;
-    j = index/Nx;
-
-    uij = u[index];
-
-    ult = (i == 0)    ? u[index + 1]  : u[index - 1];
-    urt = (i == Nx-1) ? u[index - 1]  : u[index + 1];
-    udn = (j == 0)    ? u[index + Nx] : u[index - Nx];
-    uup = (j == Ny-1) ? u[index - Nx] : u[index + Nx];
-
-    hdiff =  hordc*(ult -2.0*uij + urt);
-    vdiff =  verdc*(udn -2.0*uij + uup);
-    hadv  = -horac*(urt - ult);
-    vadv  = -verac*(uup - udn);
+    realtype hdiff =  hordc*(ult -2.0*uij + urt);
+    realtype vdiff =  verdc*(udn -2.0*uij + uup);
+    realtype hadv  = -horac*(urt - ult);
+    realtype vadv  = -verac*(uup - udn);
 
     result[index] = hdiff + vdiff + hadv + vadv;
-  }
+  });
 
-}
-
-
-__global__ void rhsKernel(const realtype* u, realtype* udot, long int N, realtype reacc)
-{
-  const realtype a = -1.0 / 2.0;
-
-  /* Loop over all grid points. */
-  long int tid = blockDim.x * blockIdx.x + threadIdx.x;
-
-  if(tid < N)
-  {
-    udot[tid] += (reacc*(u[tid] + a)*(1.0 - u[tid])*u[tid]);
-  }
-
+  return 0;
 }
 
 
 int RHS(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   UserData data = (UserData) user_data;
-  const int grid  = data->grid;
-  const int block = data->block;
+  const long int NEQ = data->NEQ;
+  const realtype reacc = data->reacc;
+  const realtype *udata = extract_raja(u)->device();
+  realtype *udotdata    = extract_raja(udot)->device();
 
-  const realtype *udata = N_VGetDeviceArrayPointer_Cuda(u);
-  realtype *udotdata    = N_VGetDeviceArrayPointer_Cuda(udot);
-
-  phiKernel<<<grid,block>>>(udata, udotdata, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac);
-  rhsKernel<<<grid,block>>>(udata, udotdata, data->NEQ, data->reacc);
+  phiRaja(udata, udotdata, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac);
+  RAJA::forall<RAJA::cuda_exec<256> >(0, NEQ, [=] __device__(long int index) {
+    const realtype a = -1.0 / 2.0;
+    udotdata[index] += (reacc*(udata[index] + a)*(1.0 - udata[index])*udata[index]);
+  });
 
   return 0;
-}
-
-__global__ void jtvKernel(const realtype* v, realtype* Jv, const realtype* u, long int N, realtype reacc)
-{
-  const realtype a = -1.0 / 2.0;
-
-  /* Loop over all grid points. */
-  long int tid = blockDim.x * blockIdx.x + threadIdx.x;
-
-  if(tid < N)
-  {
-    Jv[tid] += reacc*(3.0*u[tid] + a - 3.0*u[tid]*u[tid])*v[tid]; // original
-  }
-
 }
 
 
 int Jtv(N_Vector v, N_Vector Jv, realtype t, N_Vector u, N_Vector fu, void *user_data, N_Vector tmp)
 {
   UserData data = (UserData) user_data;
-  const int grid  = data->grid;
-  const int block = data->block;
+  const long int NEQ = data->NEQ;
+  const realtype reacc = data->reacc;
 
-  const realtype *udata  = N_VGetDeviceArrayPointer_Cuda(u);
-  const realtype *vdata  = N_VGetDeviceArrayPointer_Cuda(v);
-  realtype *Jvdata       = N_VGetDeviceArrayPointer_Cuda(Jv);
+  const realtype *udata  = extract_raja(u)->device();
+  const realtype *vdata  = extract_raja(v)->device();
+  realtype *Jvdata       = extract_raja(Jv)->device();
 
-  phiKernel<<<grid,block>>>(vdata, Jvdata, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac);
-  jtvKernel<<<grid,block>>>(vdata, Jvdata, udata, data->NEQ, data->reacc);
+  phiRaja(vdata, Jvdata, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac);
+  RAJA::forall<RAJA::cuda_exec<256> >(0, NEQ, [=] __device__(long int index) {
+    const realtype a = -1.0 / 2.0;
+    Jvdata[index] += reacc*(3.0*udata[index] + a - 3.0*udata[index]*udata[index])*vdata[index];
+  });
 
   return 0;
-}  
-  
+}
+
 
 
 /*
