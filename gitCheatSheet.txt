@@ -1,0 +1,114 @@
+
+               Cheat Sheet for git - 06 December 2016
+
+
+1. One-time setup of ssh keys (to avoid needing password with each repo transaction).
+    
+    [Taken from: https://myconfluence.llnl.gov/pages/viewpage.action?pageId=99844309]
+   
+    Create your ssh key using the ssh-keygen utility:
+    skip this first command if you already have a public/private ssh key
+    (i.e. you already have an id_rsa.pub file in your ~/.ssh directory))
+
+      > ssh-keygen -t rsa
+
+
+    Make sure that your ssh directory (~/.ssh) is readable only by you.
+      > chmod -R go-rwx ~/.ssh
+
+    Copy the ssh key to any other machines that you want to be able to SSH to:
+      > ssh-copy-id <destination host name>
+
+    Install the key in Stash:
+     Login to http://mystash.llnl.gov
+     Click on the profile drop down in the far top right of the window and select "Manage Account"
+     Click on the "SSH keys" link on the left of the screen and then "Add key".
+     Paste your key into the text box. The text of the key is the contents of the file "~/.ssh/id_rsa.pub"
+
+2: Tell git who you are:
+      > git config --global user.email "yourname@example.com"
+      > git config --global user.name "Your Name"
+
+3: Clone the repository:
+      > git clone ssh://git@mystash.llnl.gov:7999/sundials/sunrepo.git
+    by default, you will be on the 'develop' branch
+
+____________________________
+
+TYPICAL WORKFLOW: see https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
+
+1: Start working on a feature branch do one of the following:
+  a) To work on an existing branch, checkout specific branch to work on:
+      > git checkout <branchname>
+
+  ---OR---
+
+  a) Create a new branch based on the 'develop' branch
+      > git checkout -b <branchname> develop
+
+  [ NOTE: You cannot work directly on 'master' or 'develop' branches as 
+    you are not allowed to push to them. You must branch from 'develop' 
+    and create pull request to merge back into 'develop'   ]
+
+  b) Push the new branch up to the central repo
+      > git push -u origin <branchname>
+
+2: Modify Files (edit, add, etc)
+
+  a) Periodically ensure that you are up-to-date with all desired remote branches
+      > git pull --rebase origin <remotebranch>
+
+  [ NOTE: do above for each branch in which you need any remote modifications ]
+
+  b) If there are conflicts (git will tell you), use 'git status' for more info:
+      > git status
+
+  c) Edit file(s) to resolve any conflicts, then stage
+      > git add <path/filename>
+
+  d) Continue with rebase to bring local current with remote
+      > git rebase --continue <remotebranch>
+
+  [ NOTE: continue (a) through (d) until done with modifications ]
+
+3: Commit locally (commits all staged files)
+      > git commit -m "my commit comment" -a
+
+  [ NOTE: This can also be done while iterating in Step 2 above ]
+
+4: Push commited changes to remote repo (defaults to your current branch):
+      > git push origin <branchname>
+
+5: Create pull request to have your branch changes reviewed/merged into target branch
+  a) Browse to https://mystash.llnl.gov/projects/SUNDIALS/repos/sunrepo/browse
+  b) Click on left branch icon
+  c) Click on your branch - you'll see a 'Compare' screen that lets you pick a branch (source on top)
+     to merge with another branch (target on bottom) and shows the current differences 
+  d) Select desired branches and click 'Create pull request' button
+  e) Edit title of pull request (defaults to branch name), add a description, and select Reviewers
+     that can approve the request.
+  f) Click 'Create' button
+
+____________________________
+
+HELPFUL COMMANDS:
+
+1: List all branches (and show *current branch)
+      > git branch
+
+2: Push branch to remote repository:
+      > git push origin <branchname>
+
+3: List files you've changed and still need to add or commit:
+      > git status
+
+4: Merge different branch to your 'active' branch:
+      > git merge <branchname>
+
+5: See differences in local file vs remote file:
+      > git diff <filename>
+
+6: Abandon local changes to a file and get previously commited version
+      > git checkout <filename>
+      
+    
