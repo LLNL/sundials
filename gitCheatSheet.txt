@@ -58,20 +58,21 @@ TYPICAL WORKFLOW: see https://www.atlassian.com/git/tutorials/comparing-workflow
   a) Periodically ensure that you are up-to-date with all desired remote branches
       > git pull --rebase origin <remotebranch>
 
-  [ NOTE: do above for each branch in which you need any remote modifications ]
+  [ NOTE: your local changes must be committed prior to rebase (see step 3)]
+  [ ALSO NOTE: do above for each branch in which you need any remote modifications ]
 
   b) If there are conflicts (git will tell you), use 'git status' for more info:
       > git status
 
-  c) Edit file(s) to resolve any conflicts, then stage
-      > git add <path/filename>
+    b1) Edit file(s) to resolve any conflicts, then stage
+        > git add <path/filename>
 
-  d) Continue with rebase to bring local current with remote
-      > git rebase --continue <remotebranch>
+    b2) Continue with rebase to bring local current with remote
+        > git rebase --continue <remotebranch>
 
-  [ NOTE: continue (a) through (d) until done with modifications ]
+  c) Edit files
 
-3: Must first: Commit locally (commits all staged files)
+3: Commit locally (commits all staged files)
       > git commit -m "my commit comment" -a
 
   [ NOTE: This can also be done while iterating in Step 2 above ]
