@@ -71,7 +71,7 @@ TYPICAL WORKFLOW: see https://www.atlassian.com/git/tutorials/comparing-workflow
 
   [ NOTE: continue (a) through (d) until done with modifications ]
 
-3: Commit locally (commits all staged files)
+3: Must first: Commit locally (commits all staged files)
       > git commit -m "my commit comment" -a
 
   [ NOTE: This can also be done while iterating in Step 2 above ]
