@@ -1915,7 +1915,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
     return(CONTINUE_STEPS);
         
   }
-  return(IDA_ILL_INPUT);
+  return(IDA_ILL_INPUT);  /* This return should never happen. */
 }
 
 /*
@@ -1928,6 +1928,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
  *  CONTINUE_STEPS     if no stop conditions were found
  *  IDA_SUCCESS        for a normal return to the user
  *  IDA_TSTOP_RETURN   for a tstop-reached return to the user
+ *  IDA_ILL_INPUT      for an illegal-input return to the user
  *
  * In the two cases with tstop, this routine may reset the stepsize hh
  * to cause the next step to reach tstop exactly.
@@ -1990,7 +1991,7 @@ static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
       return(IDA_SUCCESS);
 
   }
-  return IDA_ILL_INPUT;
+  return IDA_ILL_INPUT;  /* This return should never happen. */
 }
 
 /* 
@@ -2042,7 +2043,7 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
 
   }
 
-  return (IDA_UNRECOGNISED_ERROR);
+  return (IDA_UNRECOGNISED_ERROR);   /* This return should never happen */
 }
 
 /* 
