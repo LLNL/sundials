@@ -32,7 +32,7 @@ The handle is then passed to the \verb|N_VMake| function, which creates
 the template \verb|N_Vector| as a wrapper around the {\hypre} vector. 
 All other vectors in the computation are created by cloning the template 
 vector. The template vector does not own the underlying {\hypre} vector, 
-and it is user's responsibility to destroy it using a
+and it is the user's responsibility to destroy it using a
 \verb|HYPRE_IJVectorDestroy(Uij)| call after the template vector has been 
 destroyed. This function will destroy both the {\hypre} vector and its IJ 
 interface.
