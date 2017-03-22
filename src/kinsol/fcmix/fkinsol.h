@@ -660,7 +660,7 @@ extern "C" {
 #define FKIN_SPTFQMR        fkinsptfqmr_
 #define FKIN_SPBCG          fkinspbcg_
 #define FKIN_SPGMR          fkinspgmr_
-#define FKIN_SPFGMR         fkinspgmr_
+#define FKIN_SPFGMR         fkinspfgmr_
 #define FKIN_SPILSSETJAC    fkinspilssetjac_
 #define FKIN_SPILSSETPREC   fkinspilssetprec_
 #define FKIN_SOL            fkinsol_
