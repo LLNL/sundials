@@ -37,6 +37,9 @@ ____________________________
 
 TYPICAL WORKFLOW: see https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
 
+Note: When creating a branch on which to work, please name it with either "Feature" or "Bugfix"
+followed by a short, descriptive name, i.e. "BugFix_IDAheader".
+
 1: Start working on a feature branch do one of the following:
   a) To work on an existing branch, checkout specific branch to work on:
       > git checkout <branchname>
