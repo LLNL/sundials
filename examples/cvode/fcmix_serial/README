@@ -5,6 +5,8 @@ List of serial CVODE FCMIX examples
   fcvDiurnal_kry     : kinetics-transport example (BDF/SPGMR/User Prec)
   fcvRoberts_dns     : chemical kinetics example (BDF/DENSE)
   fcvRoberts_dnsL    : chemical kinetics example (BDF/DENSE lapack)
+  fcvRoberts_klu     : dense kinetics example with KLU sparse linear solver
+  fcvRoberts_sps     : dense kinetics example with SuperLUMT sparse solver
 
 
 The following CMake command was used to configure SUNDIALS:

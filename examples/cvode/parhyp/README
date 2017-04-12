@@ -1,9 +1,6 @@
-List of parallel CVODE examples
+List of parhyp CVODE examples
 
-  cvAdvDiff_non_p       : 1-D advection-diffusion (nonstiff)
-  cvAdvDiff_diag_p      : 1-D advection-diffusion with Adams and diagonal linear solver
-  cvDiurnal_kry_bbd_p   : 2-D 2-species diurnal advection-diffusion with BBD preconditioner
-  cvDiurnal_kry_p       : 2-D 2-species diurnal advection-diffusion
+  cvAdvDiff_non_ph      : 1-D advection-diffusion (nonstiff)
 
 
 The following CMake command was used to configure SUNDIALS:
