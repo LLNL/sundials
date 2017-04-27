@@ -4570,8 +4570,8 @@ the user may provide a function of type \Id{CVDlsDenseJacFn} defined by:
 %%
 \usfunction{CVDlsDenseJacFn}
 {
-  typedef (*CVDlsDenseJacFn)(&long int N, realtype t, N\_Vector y, N\_Vector fy,\\
-                             &DlsMat Jac, void *user\_data,\\
+  typedef (*CVDlsDenseJacFn)(&long int N, realtype t, N\_Vector y,\\
+                             &N\_Vector fy, DlsMat Jac, void *user\_data,\\
                              &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
 {
