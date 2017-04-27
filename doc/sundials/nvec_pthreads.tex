@@ -134,7 +134,7 @@ The module {\nvecpthreads} provides the following additional user-callable routi
 
  (This function does {\em not} allocate memory for \id{v\_data} itself.)
 
- \verb|N_Vector N_VMake_Pthreads(long int vec_length, realtype *v_data, int num_threads);|
+ \verb|N_Vector N_VMake_Pthreads(long int vec_length,realtype *v_data,int num_threads);|
 
 %%--------------------------------------
 
@@ -224,7 +224,7 @@ The module {\nvecpthreads} provides the following additional user-callable routi
 For solvers that include a Fortran interface module, the {\nvecpthreads}
 module also includes a Fortran-callable function
 \id{FNVINITPTS(code, NEQ, NUMTHREADS, IER)}, to initialize this
-{\nvecpthreads} module.  Here \id{code} is an input solver id
+module.  Here \id{code} is an input solver id
 (1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol}, 4 for {\arkode}); NEQ is
 the problem size (declared so as to match C type \id{long int});
 NUMTHREADS is the number of threads; and IER is an error return flag
