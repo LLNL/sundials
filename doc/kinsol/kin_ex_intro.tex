@@ -7,9 +7,9 @@ Documentation of {\kinsol} \cite{kinsol_ug}.  It provides details, with
 listings, on the example programs supplied with the {\kinsol} distribution
 package.
 
-The {\kinsol} distribution contains examples of four types: serial
-{\CC} examples, parallel {\CC} examples, and serial and parallel {\F}
-examples.
+The {\kinsol} distribution contains examples of types: serial
+{\CC} examples, parallel {\CC} examples, serial and parallel {\F}
+examples, and an OpenMP example.
 %%
 With the exception of ''demo''-type example files, the names of all the examples 
 distributed with {\sundials} are of the form
@@ -37,12 +37,17 @@ following serial examples (using the {\nvecs} module):
 \item \id{kinRoberts\_fp}
   solves the backward Euler time step for a three-species chemical kinetics
   system, using the fixed point strategy.
+
 \item \id{kinFerTron\_dns}
   solves the Ferraris-Tronconi problem.
   \newline
   This program solves the problem with the {\kindense} linear solver
   and uses different combinations of globalization and Jacobian
   update strategies with different initial guesses.
+\item \id{kinFerTron\_klu}
+  solves the same problem as in \id{kinFerTron\_dns}, but uses the
+  sparse direct solver KLU.
+
 \item \id{kinRoboKin\_dns}
   solves a nonlinear system from robot kinematics.
   \newline
@@ -51,12 +56,14 @@ following serial examples (using the {\nvecs} module):
 \item \id{kinRoboKin\_slu}
   is the same as \id{kinRoboKin\_dns} but uses the SuperLUMT sparse direct
   linear solver.
+
 \item \id{kinLaplace\_bnd}
   solves a simple 2-D elliptic PDE on a unit square.
  \newline
   This program solves the problem with the {\kinband} linear solver.
 \item \id{kinLaplace\_picard\_bnd}
   is the same as \id{kinLaplace\_bnd} but uses the Picard strategy.
+
 \item \id{kinFoodWeb\_kry}
   solves a food web model.
   \newline
@@ -86,7 +93,7 @@ the following parallel examples (using the {\nvecp} module):
 \end{itemize}
 
 \vspace{0.2in}\noindent
-With the {\fkinsol} module, in the directories 
+As part of the {\fkinsol} module, in the directories 
 {\em srcdir}\id{/examples/kinsol/fcmix\_serial} and
 {\em srcdir}\id{/examples/kinsol/fcmix\_parallel}, respectively, are the
 following examples for the {\F}-{\CC} interface:
@@ -97,6 +104,13 @@ following examples for the {\F}-{\CC} interface:
 \item \id{fkinDiagon\_kry\_p}
   is a parallel implementation of \id{fkinDiagon\_kry}.
 \end{itemize}
+
+\vspace{0.2in}\noindent
+Supplied in the {\em srcdir}\id{/examples/kinsol/C\_openmp} directory
+is an example using the OpenMP NVECTOR module.
+\id{kin\_FoodWeb\_kry\_omp} solves the same problem as
+\id{kin\_FoodWeb\_kry} but uses the OpenMP module.
+
 
 \vspace{0.2in}\noindent 
 In the following sections, we give detailed descriptions of some (but

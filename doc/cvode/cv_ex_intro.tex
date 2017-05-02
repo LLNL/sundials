@@ -7,9 +7,9 @@ Documentation of {\cvode} \cite{cvode_ug}.  It provides details, with
 listings, on the example programs supplied with the {\cvode} distribution
 package.
 
-The {\cvode} distribution contains examples of four types: serial
-{\CC} examples, parallel {\CC} examples, and serial and parallel {\F}
-examples.  
+The {\cvode} distribution contains examples of six types: serial
+{\CC} examples, parallel {\CC} examples, serial and parallel {\F}
+examples, an OpenMP example, and a {\hypre} example.
 %%
 With the exception of ''demo''-type example files, the names of all the examples 
 distributed with {\sundials} are of the form \verb![slv][PbName]_[ls]_[prec]_[p]!, 
@@ -114,6 +114,8 @@ following ten serial examples (using the {\nvecs} module):
   The product preconditoner is applied on the left and on the right.    
   In each case, both the modified and classical Gram-Schmidt options    
   are tested.
+\item \id{cvHeat2D\_klu} solves a discretized 2D heat equation using
+  the sparse solver KLU.
 \end{itemize}
 
 \vspace{0.2in}\noindent Supplied in the
@@ -137,13 +139,18 @@ four parallel examples (using the {\nvecp} module):
 \end{itemize}
 
 \vspace{0.2in}\noindent Supplied in the
+{\em srcdir}\id{/examples/cvode/C\_openmp} directory is an example
+\id{cvAdvDiff\_bnd\_omp}, which solves the same problem as
+\id{cvAdvDiff\_bnd} but with the OpenMP NVECTOR module.
+
+\vspace{0.2in}\noindent Supplied in the
 {\em srcdir}\id{/examples/cvode/parhyp} directory is an example
 \id{cvAdvDiff\_non\_ph}, which solves the same problem as
 \id{cvAdvDiff\_non\_p} but with {\hypre} vectors instead of
 {\sundials} parallel vectors.
 
 \vspace{0.2in}\noindent
-Within the {\fcvode} module, in the directories 
+As part of the {\fcvode} module, in the directories 
 {\em srcdir}\id{/examples/cvode/fcmix\_serial} and
 {\em srcdir}\id{/examples/cvode/fcmix\_parallel}, are the following examples for
 the {\F}-{\CC} interface.  The first five of these are serial, while

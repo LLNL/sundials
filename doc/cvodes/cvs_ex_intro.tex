@@ -11,7 +11,8 @@ The {\cvodes} distribution contains examples of the following types:
 serial and parallel examples of Initial Value Problem (IVP) integration, 
 serial and parallel examples of forward sensitivity analysis (FSA), and 
 serial and parallel examples of adjoint sensitivity analysis (ASA).
-The names of all the examples are given in the following table.
+The names of all these examples are given in the following table.
+In addition, there is an example using OpenMP.
 
 \newlength{\colone}
 
@@ -29,12 +30,14 @@ The names of all the examples are given in the following table.
     {}  & \id{cvsKrylovDemo\_ls}   \id{cvsKrylovDemo\_prec} & {}                           \\
     \hline
     
-    FSA & \id{cvsRoberts\_FSA\_dns} \id{cvsAdvDiff\_FSA\_non} & \id{cvsAdvDiff\_FSA\_non\_p} \\
-    {}  & \id{cvsDiurnal\_FSA\_kry}                           & \id{cvsDiurnal\_FSA\_kry\_p} \\
+    FSA & \id{cvsRoberts\_FSA\_dns} \id{cvsRoberts\_FSA\_klu} & \id{cvsAdvDiff\_FSA\_non\_p} \\
+    {}  & \id{cvsRoberts\_FSA\_sps}                           & \id{cvsDiurnal\_FSA\_kry\_p} \\
+    {}  & \id{cvsAdvDiff\_FSA\_non} \id{cvsDiurnal\_FSA\_kry} & {}                           \\
     \hline
     
-    ASA & \id{cvsRoberts\_ASAi\_dns} \id{cvsAdvDiff\_ASAi\_bnd} & \id{cvsAdvDiff\_ASAp\_non\_p}      \\
-    {}  & \id{cvsFoodWeb\_ASAi\_kry} \id{cvsFoodWeb\_ASAp\_kry} & \id{cvsAtmDisp\_ASAi\_kry\_bbd\_p} \\
+    ASA & \id{cvsRoberts\_ASAi\_dns} \id{cvsRoberts\_ASAi\_klu} & \id{cvsAdvDiff\_ASAp\_non\_p}      \\
+    {}  & \id{cvsRoberts\_ASAi\_sps} \id{cvsAdvDiff\_ASAi\_bnd} & \id{cvsAtmDisp\_ASAi\_kry\_bbd\_p} \\
+    {}  & \id{cvsFoodWeb\_ASAi\_kry} \id{cvsFoodWeb\_ASAp\_kry} & {}             \\
     {}  & \id{cvsHessian\_ASA\_FSA}                             & {}                                 \\
     \hline
 
@@ -171,6 +174,10 @@ following serial examples (using the {\nvecs} module):
   iteration with the {\cvdense} linear solver, and a user-supplied    
   Jacobian routine. It also uses the user-supplied error
   weight function feature of {\cvodes}.
+\item \id{cvsRoberts\_FSA\_klu}
+  is the same as \id{cvsRoberts\_FSA\_dns} but uses the KLU sparse direct linear solver.
+\item \id{cvsRoberts\_FSA\_sps}
+  is the same as \id{cvsRoberts\_FSA\_dns} but uses the SuperLUMT sparse direct linear solver.
 \item \id{cvsAdvDiff\_FSA\_non}
   solves the semi-discrete form of an advection-diffusion equation in 1-D.
   \newline
@@ -199,6 +206,10 @@ following serial examples (using the {\nvecs} module):
   This program solves both the forward and backward problems with the BDF method, 
   Newton iteration with the {\cvdense} linear solver, and user-supplied    
   Jacobian routines.
+\item \id{cvsRoberts\_ASAi\_klu}
+  is the same as \id{cvsRoberts\_ASAi\_dns} but uses the KLU sparse direct linear solver.
+\item \id{cvsRoberts\_ASAi\_sps}
+  is the same as \id{cvsRoberts\_ASAi\_dns} but uses the SuperLUMT sparse direct linear solver.
 \item \id{cvsAdvDiff\_ASAi\_bnd}
   solves a semi-discrete 2-D advection-diffusion equation (from \id{cvsAdvDiff\_bnd}).
   \newline
@@ -285,6 +296,15 @@ the following seven parallel examples (using the {\nvecp} module):
   parameters which parametrize a distributed volume source.
 
 \end{itemize}
+
+%%
+%%--------------------------------------------------------------------------------
+%%
+
+\vspace{0.2in}\noindent 
+Supplied in {\em srcdir}\id{/examples/cvodes/C\_openmp} is
+an example, \id{cvsAdvDiff\_bnd\_omp}, which solves the same problem as
+\id{cvsAdvDiff\_bnd} but using the OpenMP NVECTOR module.
 
 %%
 %%--------------------------------------------------------------------------------

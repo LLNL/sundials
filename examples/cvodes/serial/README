@@ -9,7 +9,7 @@ List of serial CVODES examples
   cvsDiurnal_kry        : Krylov example
   cvsKrylovDemo_ls      : demonstration program with 3 Krylov solvers
   cvsKrylovDemo_prec    : demonstration program for Krylov methods
-  cvsRoberts_dns        : dense example
+  cvsRoberts_dns        : chemical kinetics example - BDF Newton/dense
   cvsRoberts_dnsL       : dense example (Lapack)
   cvsRoberts_dns_uw     : dense example with user ewt function
   cvsRoberts_klu        : dense example with KLU sparse linear solver
@@ -21,8 +21,9 @@ List of serial CVODES examples
                           Adams with Functional iteration
   cvsDiurnal_FSA_kry    : 2-D 2-species diurnal advection-diffusion PDE -
                           BDF with Newton GMRES
-  cvsRoberts_FSA_dns    : chemical kinetics ODEs -
-                          BDF with Newton Dense
+  cvsRoberts_FSA_dns    : chemical kinetics ODEs - BDF with Newton Dense
+  cvsRoberts_FSA_klu    : kinetics ODEs - FSA with KLU sparse linear solver
+  cvsRoberts_FSA_sps    : kinetics ODEs - FSA with SuperLUMT sparse solver
 
 (3) Adjoint sensitivity
 
@@ -31,6 +32,8 @@ List of serial CVODES examples
   cvsFoodWeb_ASAp_kry   : food web - adjoint sensitivity for g
   cvsHessian_ASA_FSA    : ASA example for computing Hessian
   cvsRoberts_ASAi_dns   : chemical kinetics - adjoint sensitivity
+  cvsRoberts_ASAi_klu   : kinetics - ASA with KLU sparse linear solver
+  cvsRoberts_ASAi_sps   : kinetics - ASA with SuperLUMT sparse linear solver
 
 
 The following CMake command was used to configure SUNDIALS:

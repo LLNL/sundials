@@ -1,7 +1,7 @@
 List of PETSc IDA examples
 
-  idaHeat2D_kry_petsc  : 2-D heat equation, diagonal preconditioner
-  idaHeat2D_kry_bbd_petsc : Not supposed to work with PETSc vector
+  idaHeat2D_kry_petsc  : 2D heat equation with SPGMR and PETSc vector
+  idaHeat2D_jac_petsc  : 2D heat equation with default PETSc Krylov solver
 
 
 The following CMake command was used to configure SUNDIALS:
