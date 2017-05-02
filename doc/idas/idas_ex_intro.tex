@@ -20,19 +20,22 @@ The names of all the examples are given in the following table.
 
     & Serial examples & Parallel examples \\ \hline
 
-    IVP & \id{idasRoberts\_dns}                          & \id{idasHeat2D\_kry\_p}       \\
-    {}  & \id{idasRoberts\_klu} \id{idasRoberts\_sps}    & \id{idasHeat2D\_kry\_bbd\_p}  \\
-    {}  & \id{idasAkzoNob\_dns} \id{idasSlCrank\_dns}    & \id{idasFoodWeb\_kry\_p}      \\
-    {}  & \id{idasHeat2D\_bnd}  \id{idasHeat2D\_kry}     & \id{idasFoodWeb\_kry\_bbd\_p} \\
-    {}  & \id{idasFoodWeb\_bnd} \id{idasKrylovDemo\_ls}  & \id{idasBruss\_kry\_bbd\_p}   \\
+    IVP & \id{idasRoberts\_dns}                              & \id{idasHeat2D\_kry\_p}       \\
+    {}  & \id{idasRoberts\_klu} \id{idasRoberts\_sps}        & \id{idasHeat2D\_kry\_bbd\_p}  \\
+    {}  & \id{idasAkzoNob\_dns} \id{idasSlCrank\_dns}        & \id{idasFoodWeb\_kry\_p}      \\
+    {}  & \id{idasHeat2D\_bnd}  \id{idasHeat2D\_kry}         & \id{idasFoodWeb\_kry\_bbd\_p} \\
+    {}  & \id{idasFoodWeb\_bnd} \id{idasFoodWeb\_bnd\_omp}   & \id{idasBruss\_kry\_bbd\_p}   \\
+    {}  & \id{idasFoodWeb\_kry\_omp} \id{idasKrylovDemo\_ls} & \\
     \hline
 
-    FSA & \id{idasRoberts\_FSA\_dns} & \id{idasBruss\_FSA\_kry\_bbd\_p} \\
-    {}  & \id{idasSlCrank\_FSA\_dns} & \id{idasHeat2D\_FSA\_kry\_bbd\_p} \\
+    FSA & \id{idasRoberts\_FSA\_dns}                            & \id{idasBruss\_FSA\_kry\_bbd\_p} \\
+    {}  & \id{idasRoberts\_FSA\_klu} \id{idasRoberts\_FSA\_sps} & \id{idasHeat2D\_FSA\_kry\_bbd\_p} \\
+    {}  & \id{idasSlCrank\_FSA\_dns} & \\
     \hline
     
-    ASA & \id{idasAkzoNob\_ASAi\_dns} \id{idasRoberts\_ASAi\_dns} & \id{idasBruss\_ASAp\_kry\_bbd\_p} \\
-    {}  & \id{idasHessian\_ASA\_FSA}                              & {}                                \\
+    ASA & \id{idasRoberts\_ASAi\_dns}                             & \id{idasBruss\_ASAp\_kry\_bbd\_p} \\
+    {}  & \id{idasRoberts\_ASAi\_klu} \id{idasRoberts\_ASAi\_sps} & \\
+    {}  & \id{idasAkzoNob\_ASAi\_dns} \id{idasHessian\_ASA\_FSA}  & \\
     \hline
 
   \end{tabular}
@@ -144,6 +147,14 @@ following serial examples (using the {\nvecs} module):
   This program solves the problem with the {\idadense} linear solver, and a 
   user-supplied Jacobian routine.
 
+\item \id{idasRoberts\_FSA\_klu}
+  solves the same problem as in \id{idasRoberts\_FSA\_dns} but uses
+  the sparse direct solver KLU.
+
+\item \id{idasRoberts\_FSA\_sps}
+  solves the same problem as in \id{idasRoberts\_FSA\_dns} but uses
+  the sparse solver SuperLUMT.
+
 \item \id{idasSlCrank\_FSA\_dns}
   solves a system of index-2 DAEs, modeling a planar slider-crank mechanism.
 
@@ -154,13 +165,6 @@ following serial examples (using the {\nvecs} module):
 
 %% ASA examples
 
-\item \id{idasAkzoNob\_ASAi\_dns}
-  solves the Akzo-Nobel chemical kinetics problem.
-  \newline
-  The adjoint capability of {\idas} is used to compute gradients with
-  respect to the initial conditions of the integral over time of the 
-  concentration of the first species.
-
 \item \id{idasRoberts\_ASAi\_dns}
   solves the same kinetics problem as in \id{idasRoberts\_dns}.
   \newline
@@ -169,6 +173,21 @@ following serial examples (using the {\nvecs} module):
   reaction rate constants appearing in the model.
   This program solves both the forward and backward problems with the 
   {\idadense} linear solver, and user-supplied Jacobian routines.
+
+\item \id{idasRoberts\_ASAi\_klu}
+  solves the same problem as in \id{idasRoberts\_ASAi\_dns}, but
+  uses the sparse direct solver KLU.
+
+\item \id{idasRoberts\_ASAi\_sps}
+  solves the same problem as in \id{idasRoberts\_ASAi\_dns}, but
+  uses the sparse solver SuperLUMT.
+
+\item \id{idasAkzoNob\_ASAi\_dns}
+  solves the Akzo-Nobel chemical kinetics problem.
+  \newline
+  The adjoint capability of {\idas} is used to compute gradients with
+  respect to the initial conditions of the integral over time of the 
+  concentration of the first species.
 
 %% Hessian computation example
 
@@ -241,6 +260,24 @@ the following parallel examples (using the {\nvecp} module):
 \item \id{idasBruss\_ASAp\_kry\_bbd\_p}
   solves the same problem as \id{idasBruss\_FSA\_kry\_bbd\_p} but using an adjoint
   sensitivity approach for computing the gradient of the model output functional.
+
+\end{itemize}
+
+%%
+%%-------------------------------------------------------------------------------
+%%
+
+\vspace{0.2in}\noindent 
+Supplied in the {\em srcdir}\id{/examples/idas/C\_openmp} directory are
+the following examples, using the OpenMP NVECTOR module:
+
+\begin{itemize}
+
+\item \id{idasFoodWeb\_bnd\_omp} solves the same problem as in
+\id{idasFoodWeb\_bnd} but uses the OpenMP module. 
+
+\item \id{idasFoodWeb\_kry\_omp} solves the same problem as in
+\id{idasFoodWeb\_kry} but uses the OpenMP module. 
 
 \end{itemize}
 
