@@ -521,13 +521,16 @@ SUNDIALS_EXPORT int IDAWFtolerances(void *ida_mem, IDAEwtFn efun);
  * IDASetStepToleranceIC  | positive lower bound on the norm of   
  *                        | a Newton step.                        
  *                        | [(unit roundoff)^(2/3)                
- *                                                                
+ *                        |                                        
+ * IDASetMaxBacksIC       | maximum number of linesearch backtrack
+ *                        | operations per Newton iteration.
+ *                        | [100]
+ *
  * ---------------------------------------------------------------- 
  * Return flag:
  *   IDA_SUCCESS   if successful
  *   IDA_MEM_NULL  if the ida memory is NULL
  *   IDA_ILL_INPUT if an argument has an illegal value
- *
  * ----------------------------------------------------------------
  */
 
@@ -537,6 +540,7 @@ SUNDIALS_EXPORT int IDASetMaxNumJacsIC(void *ida_mem, int maxnj);
 SUNDIALS_EXPORT int IDASetMaxNumItersIC(void *ida_mem, int maxnit);
 SUNDIALS_EXPORT int IDASetLineSearchOffIC(void *ida_mem, booleantype lsoff);
 SUNDIALS_EXPORT int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
+SUNDIALS_EXPORT int IDASetMaxBacksIC(void *ida_mem, int maxbacks);
 
 /*
  * -----------------------------------------------------------------
