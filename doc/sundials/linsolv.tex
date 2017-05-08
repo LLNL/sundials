@@ -555,9 +555,9 @@ function \id{SUNRabs}.
 %%
 \index{KLU@{\klu} sparse linear solver!type \id{SlsMat}|(}
 \index{SUPERLUMT@{\superlumt} sparse linear solver!type \id{SlsMat}|(}
-{\sundials} supports operations with matrices in compressed-sparse-column (CSC)
-format and in compressed-sparse-row (CSR) format. For convenience, integer sparse 
-matrix identifiers are defined as:\\
+{\sundials} supports operations with matrices either in compressed-sparse-column
+(CSC) format or in compressed-sparse-row (CSR) format. For convenience,
+integer sparse  matrix identifiers are defined as:\\
   \indent \id{\#define CSC\_MAT 0}\\
   \indent \id{\#define CSR\_MAT 1}\\
 The type \ID{SlsMat}, defined in \id{sundials\_sparse.h} is a pointer to a 
