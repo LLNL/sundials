@@ -80,10 +80,11 @@ directory, the following nine serial examples (using the {\nvecs} module):
 
 \item \id{idaFoodWeb\_bnd}
   solves a system of PDEs modelling a food web problem, with predator-prey
-  interaction and diffusion, on the unit square in 2-D.
+  interaction and diffusion, on the unit square in 2-D, using the band
+  linear solver.
 
 \item \id{idaFoodWeb\_kry}
-  solves the same food web problem as \id{idaFoodWeb\_bnd}, but with {\idaspgmr}
+  solves the same problem as \id{idaFoodWeb\_bnd}, but with {\idaspgmr}
   and a user-supplied preconditioner.
 
   The PDEs are discretized in space to a system of DAEs which are solved

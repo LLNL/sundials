@@ -14,8 +14,8 @@ In this example we use initialization without arguments:
 \begin{verbatim}
   PetscInitializeNoArguments(); 
 \end{verbatim}
-Alternatively a call that takes {\petsc} command line arguments could be used.
-\id{PetscFinalize()} is called at the end of the program to clean up any 
+Alternatively, a call that takes {\petsc} command line arguments could be used.
+At the end of the program, \id{PetscFinalize()} is called  to clean up any 
 objects that {\petsc} may have created automatically. 
 We use {\petsc} data management library (DM) to create 2D grid and set 
 the partitioning. In our implementation we follow Example 15 from 
