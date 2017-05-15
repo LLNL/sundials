@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
   fails += Test_N_VL1Norm(X, veclen, veclen, 0);
   fails += Test_N_VCompare(X, Z, veclen, 0);
   fails += Test_N_VInvTest(X, Z, veclen, 0);
-  //fails += Test_N_VConstrMask(X, Y, Z, veclen, 0);
+  fails += Test_N_VConstrMask(X, Y, Z, veclen, 0);
   fails += Test_N_VMinQuotient(X, Y, veclen, 0);
 
 //   N_VSpace_Cuda(X, &lrw, &liw);

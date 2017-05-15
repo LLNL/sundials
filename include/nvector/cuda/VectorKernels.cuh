@@ -567,6 +567,55 @@ invTestKernel(const T *g_idata, T *g_odata1, T *g_buffer, I n)
     if (tid == 0) g_buffer[blockIdx.x] = mySum;
 }
 
+/*
+ * Checks if inequality constraints are satisfied.
+ *
+ * It is based off reduce3 kernel from CUDA examples. Uses n/2 threads.
+ * Performs the first level of reduction when reading from global memory.
+ *
+ */
+template <typename T, typename I>
+__global__ void
+constrMaskKernel(const T *g_c, const T *g_x, T *g_m, T *g_odata, I n)
+{
+    T *sdata = SharedMemory<T>();
+
+    // perform first level of reduction,
+    // reading from global memory, writing to shared memory
+    // computing mask for failed constarints g_m on the fly
+    I tid = threadIdx.x;
+    I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+
+    // test1 = true if test failed
+    bool test1 = (abs(g_c[i]) > 1.5 && g_c[i]*g_x[i] <= 0.0) ||
+                 (abs(g_c[i]) > 0.5 && g_c[i]*g_x[i] <  0.0);
+    T mySum = g_m[i] = (i < n && test1) ? 1.0 : 0.0;
+
+    // test2 = true if test failed
+    bool test2 = (abs(g_c[i + blockDim.x]) > 1.5 && g_c[i + blockDim.x]*g_x[i + blockDim.x] <= 0.0) ||
+                 (abs(g_c[i + blockDim.x]) > 0.5 && g_c[i + blockDim.x]*g_x[i + blockDim.x] <  0.0);
+    g_m[i+blockDim.x] = (i < n && test2) ? 1.0 : 0.0;
+    mySum += g_m[i+blockDim.x];
+
+    sdata[tid] = mySum;
+    __syncthreads();
+
+    // do reduction in shared mem (blockDim.x is a power of 2)
+    for (I s=blockDim.x/2; s>0; s>>=1)
+    {
+        if (tid < s)
+        {
+            sdata[tid] = mySum = mySum + sdata[tid + s];
+        }
+
+        __syncthreads();
+    }
+
+    // write result for this block to global mem
+    if (tid == 0) g_odata[blockIdx.x] = mySum;
+}
+
+
 
 /*
  * Finds minimum component-wise quotient.
@@ -1056,6 +1105,46 @@ inline bool invTest(const nvec::Vector<T,I>& x, nvec::Vector<T,I>& z)
         gpu_result += p->hostBuffer()[i];
     }
     return !(gpu_result > 0.0);
+}
+
+
+template <typename T, typename I>
+inline bool constrMask(const nvec::Vector<T,I>& c, const nvec::Vector<T,I>& x, nvec::Vector<T,I>& m)
+{
+    // Reduction result storage on CPU
+    T gpu_result = 0;
+
+    // Set partitioning
+    ThreadPartitioning<T, I>* p = x.partReduce();
+    const dim3& grid       = p->getGrid();
+    const dim3& block      = p->getBlock();
+    unsigned int shMemSize = p->getShMemSize();
+
+    math_kernels::constrMaskKernel<T,I><<< grid, block, shMemSize >>>(c.device(), x.device(), m.device(), p->devBuffer(), x.size());
+
+    unsigned int n = grid.x * grid.y * grid.z;
+    while (n>2048)
+    {
+        // Recompute partitioning
+        unsigned int grid2;
+        unsigned int block2;
+        unsigned int shMemSize2;
+        p->setPartitioningReduce(n, grid2, block2, shMemSize2);
+
+        // Rerun reduction kernel
+        math_kernels::sumReduceKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
+        n = (n + 2*block2 - 1) / (2*block2);
+    }
+
+    // sum partial sums from each block on CPU
+    // copy result from device to host
+    p->copyFromDevBuffer(n);
+
+    for (unsigned int i=0; i<n; i++)
+    {
+        gpu_result += p->hostBuffer()[i];
+    }
+    return (gpu_result < 0.5);
 }
 
 

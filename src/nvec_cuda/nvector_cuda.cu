@@ -68,7 +68,7 @@ N_Vector N_VNewEmpty_Cuda(long int length)
   ops->nvl1norm          = N_VL1Norm_Cuda;
   ops->nvcompare         = N_VCompare_Cuda;
   ops->nvinvtest         = N_VInvTest_Cuda;
-//   ops->nvconstrmask      = N_VConstrMask_Cuda;
+  ops->nvconstrmask      = N_VConstrMask_Cuda;
   ops->nvminquotient     = N_VMinQuotient_Cuda;
 
   /* Create content */
@@ -415,7 +415,12 @@ void N_VCompare_Cuda(realtype c, N_Vector X, N_Vector Z)
 
 booleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
 {
-    return (nvec::invTest(*extract(X), *extract(Z)));
+    return (booleantype) (nvec::invTest(*extract(X), *extract(Z)));
+}
+
+booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
+{
+    return (booleantype) (nvec::constrMask(*extract(C), *extract(X), *extract(M)));
 }
 
 realtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom)
