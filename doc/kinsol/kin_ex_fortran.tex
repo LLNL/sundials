@@ -4,7 +4,13 @@
 
 The {\F} example problem programs supplied with the {\kinsol}
 package are all written in standard F77 Fortran and use double precision
-arithmetic. However, when the {\F} examples are built, the source code is
+arithmetic.  Before running any of these examples, the user should
+make sure that the {\F} data types for real and integer variables
+appropriately match the {\CC} types.  See \S\ref{ss:fcdata} in the
+{\kinsol} User Document for details.
+
+
+ However, when the {\F} examples are built, the source code is
 automatically modified according to the configure options supplied by the
 user and the system type. Integer variables are declared as {\tt INTEGER*}{\em n},
 where {\em n} denotes the number of bytes in the corresponding {\CC} type

@@ -1578,7 +1578,7 @@ void CVodeFree(void **cvode_mem)
   
   cvFreeVectors(cv_mem);
 
-  if (iter == CV_NEWTON && lfree != NULL) lfree(cv_mem);
+  if (lfree != NULL) lfree(cv_mem);
 
   if (nrtfn > 0) {
     free(glo); glo = NULL;

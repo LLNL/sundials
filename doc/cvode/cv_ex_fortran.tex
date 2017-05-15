@@ -4,17 +4,10 @@
 
 The {\F} example problem programs supplied with the {\cvode}
 package are all written in standard {\F}77 and use double precision
-arithmetic. However, when the {\F} examples are built, the source code is
-automatically modified according to the configure options supplied by the
-user and the system type. Integer variables are declared as {\tt INTEGER*}{\em n},
-where {\em n} denotes the number of bytes in the corresponding {\CC} type
-({\tt long int} or {\tt int}). Floating-point variable declarations remain
-unchanged if double precision is used, but are changed to {\tt REAL*}{\em n},
-where {\em n} denotes the number of bytes in the {\sundials} type {\tt realtype},
-if using single precision. Also, if using single precision, then declarations of
-floating-point constants are appropriately modified; e.g. {\tt 0.5D-4} is
-changed to {\tt 0.5E-4}.
-
+arithmetic.  Before running any of these examples, the user should
+make sure that the {\F} data types for real and integer variables
+appropriately match the {\CC} types.  See \S\ref{ss:fcdata} in the
+{\cvode} User Document for details.
 
 \subsection{A serial example: fcvDiurnal\_kry}\label{ss:fcvDiurnal} 
 The \id{fcvDiurnal\_kry} example is a {\F} equivalent of the \id{cvDiurnal\_kry} problem.

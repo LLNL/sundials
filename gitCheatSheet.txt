@@ -37,6 +37,16 @@ ____________________________
 
 TYPICAL WORKFLOW: see https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
 
+Note that in general, code modifications should be done in smaller units of 
+work that engage a single issue or feature rather than bundles of many
+such issues or features.
+
+Note: When creating a branch on which to work, please name it with either 
+"Feature" or "Bugfix" followed by a short, descriptive name, 
+i.e. "BugFix/SUNDIALS-123" where SINDIALS-123 corresponds to the bug
+name in Jira, that describes the single issue or feature
+being addressed in this work unit.
+
 1: Start working on a feature branch do one of the following:
   a) To work on an existing branch, checkout specific branch to work on:
       > git checkout <branchname>
@@ -58,18 +68,19 @@ TYPICAL WORKFLOW: see https://www.atlassian.com/git/tutorials/comparing-workflow
   a) Periodically ensure that you are up-to-date with all desired remote branches
       > git pull --rebase origin <remotebranch>
 
-  [ NOTE: do above for each branch in which you need any remote modifications ]
+  [ NOTE: your local changes must be committed prior to rebase (see step 3)]
+  [ ALSO NOTE: do above for each branch in which you need any remote modifications ]
 
   b) If there are conflicts (git will tell you), use 'git status' for more info:
       > git status
 
-  c) Edit file(s) to resolve any conflicts, then stage
-      > git add <path/filename>
+    b1) Edit file(s) to resolve any conflicts, then stage
+        > git add <path/filename>
 
-  d) Continue with rebase to bring local current with remote
-      > git rebase --continue <remotebranch>
+    b2) Continue with rebase to bring local current with remote
+        > git rebase --continue <remotebranch>
 
-  [ NOTE: continue (a) through (d) until done with modifications ]
+  c) Edit files
 
 3: Commit locally (commits all staged files)
       > git commit -m "my commit comment" -a

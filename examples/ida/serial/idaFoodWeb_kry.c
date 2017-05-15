@@ -62,7 +62,7 @@
  * The PDEs are discretized by central differencing on a MX by MY
  * mesh.
  *
- * The DAE system is solved by IDA using the IDABAND linear solver.
+ * The DAE system is solved by IDA using the IDASPGMR linear solver.
  * Output is printed at t = 0, .001, .01, .1, .4, .7, 1.
  * -----------------------------------------------------------------
  * References:
