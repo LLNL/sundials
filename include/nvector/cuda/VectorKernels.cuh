@@ -212,6 +212,19 @@ addConstKernel(T a, const T *X, T *Z, I n)
 }
 
 
+template <typename T, typename I>
+__global__ void
+compareKernel(T c, const T *X, T *Z, I n)
+{
+    I i = blockDim.x * blockIdx.x + threadIdx.x;
+
+    if (i < n)
+    {
+        Z[i] = (abs(X[i]) >= c) ? 1.0 : 0.0;
+    }
+}
+
+
 /*
  * Sums all elements of the vector.
  *    
@@ -380,6 +393,47 @@ wrmsNormKernel(const T *g_idata1, const T *g_idata2, T *g_odata, I n)
 }
 
 /*
+ * Weighted root mean square notm of a vector.
+ *
+ * It is based off reduce3 kernel from CUDA examples. Uses n/2 threads.
+ * Performs the first level of reduction when reading from global memory.
+ *
+ */
+template <typename T, typename I>
+__global__ void
+wrmsNormMaskKernel(const T *g_idata1, const T *g_idata2, const T *g_id, T *g_odata, I n)
+{
+    T *sdata = SharedMemory<T>();
+
+    // perform first level of reduction,
+    // reading from global memory, writing to shared memory
+    I tid = threadIdx.x;
+    I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+
+    T mySum = (i < n && g_id[i] > 0.0) ? g_idata1[i] * g_idata2[i] * g_idata1[i] * g_idata2[i] : 0.0;
+
+    if ((i + blockDim.x < n) && (g_id[i] > 0.0))
+        mySum += ( g_idata1[i+blockDim.x] * g_idata2[i+blockDim.x] * g_idata1[i+blockDim.x] * g_idata2[i+blockDim.x]);
+
+    sdata[tid] = mySum;
+    __syncthreads();
+
+    // do reduction in shared mem
+    for (I s=blockDim.x/2; s>0; s>>=1)
+    {
+        if (tid < s)
+        {
+            sdata[tid] = mySum = mySum + sdata[tid + s];
+        }
+
+        __syncthreads();
+    }
+
+    // write result for this block to global mem
+    if (tid == 0) g_odata[blockIdx.x] = mySum;
+}
+
+/*
  * Finds min value in the vector.
  *    
  * It is based off reduce3 kernel from CUDA examples. Uses n/2 threads.
@@ -416,6 +470,143 @@ findMinKernel(T MAX, const T *g_idata, T *g_odata, I n)
         __syncthreads();
     }
     
+    // write result for this block to global mem
+    if (tid == 0) g_odata[blockIdx.x] = minimum;
+}
+
+
+/*
+ * Weighted root mean square notm of a vector.
+ *
+ * It is based off reduce3 kernel from CUDA examples. Uses n/2 threads.
+ * Performs the first level of reduction when reading from global memory.
+ *
+ */
+template <typename T, typename I>
+__global__ void
+L1NormKernel(const T *g_idata1, T *g_odata, I n)
+{
+    T *sdata = SharedMemory<T>();
+
+    // perform first level of reduction,
+    // reading from global memory, writing to shared memory
+    I tid = threadIdx.x;
+    I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+
+    T mySum = (i < n) ? abs(g_idata1[i]) : 0.0;
+
+    if (i + blockDim.x < n)
+        mySum += abs(g_idata1[i+blockDim.x]);
+
+    sdata[tid] = mySum;
+    __syncthreads();
+
+    // do reduction in shared mem
+    for (I s=blockDim.x/2; s>0; s>>=1)
+    {
+        if (tid < s)
+        {
+            sdata[tid] = mySum = mySum + sdata[tid + s];
+        }
+
+        __syncthreads();
+    }
+
+    // write result for this block to global mem
+    if (tid == 0) g_odata[blockIdx.x] = mySum;
+}
+
+
+template <typename T, typename I>
+__global__ void
+invTestKernel(const T *g_idata, T *g_odata1, T *g_buffer, I n)
+{
+    T *sdata = SharedMemory<T>();
+
+    // perform first level of reduction,
+    // reading from global memory, writing to shared memory
+    I tid = threadIdx.x;
+    I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+
+    T mySum; // = (i < n) ? g_idata[i] : 0;
+
+    if (i < n && g_idata[i] == 0.0)
+    {
+      mySum = 1.0;
+    }
+    else
+    {
+      mySum = 0.0;
+      g_odata1[i] = 1.0/g_idata[i];
+    }
+
+    if (i + blockDim.x < n && g_idata[i + blockDim.x] == 0.0)
+    {
+      mySum += 1.0;
+    }
+    else
+    {
+      g_odata1[i + blockDim.x] = 1.0/g_idata[i + blockDim.x];
+    }
+
+    sdata[tid] = mySum;
+    __syncthreads();
+
+    // do reduction in shared mem (blockDim.x is a power of 2)
+    for (I s=blockDim.x/2; s>0; s>>=1)
+    {
+        if (tid < s)
+        {
+            sdata[tid] = mySum = mySum + sdata[tid + s];
+        }
+
+        __syncthreads();
+    }
+
+    // write result for this block to global mem
+    if (tid == 0) g_buffer[blockIdx.x] = mySum;
+}
+
+
+/*
+ * Finds minimum component-wise quotient.
+ *
+ * TODO: Replace '0.0' with 'ZERO'
+ *
+ * It is based off reduce3 kernel from CUDA examples. Uses n/2 threads.
+ * Performs the first level of reduction when reading from global memory.
+ *
+ */
+template <typename T, typename I>
+__global__ void
+minQuotientKernel(T MAX, const T *g_idata1, const T *g_idata2, T *g_odata, I n)
+{
+    T *sdata = SharedMemory<T>();
+
+    // perform first level of reduction,
+    // reading from global memory, writing to shared memory
+    I tid = threadIdx.x;
+    I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+
+    T minimum = (i < n && g_idata2[i] != 0.0) ? g_idata1[i]/g_idata2[i] : MAX;
+
+    if (i + blockDim.x < n && g_idata2[i + blockDim.x] != 0.0)
+        minimum = (g_idata1[i+blockDim.x]/g_idata2[i+blockDim.x]) < minimum ? g_idata1[i+blockDim.x]/g_idata2[i+blockDim.x] : minimum;
+
+    sdata[tid] = minimum;
+    __syncthreads();
+
+    // do reduction in shared mem (blockDim.x is a power of 2)
+    for (I s=blockDim.x/2; s>0; s>>=1)
+    {
+        if (tid < s)
+        {
+            sdata[tid] = minimum = sdata[tid + s] < minimum ? sdata[tid + s] : minimum;
+        }
+
+        __syncthreads();
+    }
+
     // write result for this block to global mem
     if (tid == 0) g_odata[blockIdx.x] = minimum;
 }
@@ -534,6 +725,19 @@ inline cudaError_t addConst(T const a, const Vector<T,I>& X, Vector<T,I>& Z)
 }
 
     
+template <typename T, typename I>
+inline cudaError_t compare(T const c, const Vector<T,I>& X, Vector<T,I>& Z)
+{
+    // Set partitioning
+    ThreadPartitioning<T, I>* p = X.partStream();
+    const dim3& grid       = p->getGrid();
+    const dim3& block      = p->getBlock();
+
+    math_kernels::compareKernel<<<grid, block>>>(c, X.device(), Z.device(), X.size());
+    return cudaGetLastError();
+}
+
+
 template <typename T, typename I>
 inline T dotProd(const nvec::Vector<T,I>& x, const nvec::Vector<T,I>& y)
 {
@@ -654,20 +858,19 @@ inline T wrmsNorm(const nvec::Vector<T,I>& x, const nvec::Vector<T,I>& y)
 }
     
 template <typename T, typename I>
-inline T findMin(const nvec::Vector<T,I>& x)
+inline T wrmsNormMask(const nvec::Vector<T,I>& x, const nvec::Vector<T,I>& y, const nvec::Vector<T,I>& id)
 {
     // Reduction result storage on CPU
     T gpu_result = 0;
-    T maxVal = std::numeric_limits<T>::max();
-    
+
     // Set partitioning
     ThreadPartitioning<T, I>* p = x.partReduce();
     const dim3& grid       = p->getGrid();
     const dim3& block      = p->getBlock();
     unsigned int shMemSize = p->getShMemSize();
-    
-    math_kernels::findMinKernel<T,I><<< grid, block, shMemSize >>>(maxVal, x.device(), p->devBuffer(), x.size());
-    
+
+    math_kernels::wrmsNormMaskKernel<T,I><<< grid, block, shMemSize >>>(x.device(), y.device(), id.device(), p->devBuffer(), x.size());
+
     unsigned int n = grid.x * grid.y * grid.z;
     while (n>2048)
     {
@@ -676,16 +879,56 @@ inline T findMin(const nvec::Vector<T,I>& x)
         unsigned int block2;
         unsigned int shMemSize2;
         p->setPartitioningReduce(n, grid2, block2, shMemSize2);
-        
+
+        // Rerun reduction kernel
+        math_kernels::sumReduceKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
+        n = (n + 2*block2 - 1) / (2*block2);
+    }
+
+    // sum partial sums from each block on CPU
+    // copy result from device to host
+    p->copyFromDevBuffer(n);
+
+    for (unsigned int i=0; i<n; i++)
+    {
+        gpu_result += p->hostBuffer()[i];
+    }
+    return sqrt(gpu_result/x.size());
+}
+
+template <typename T, typename I>
+inline T findMin(const nvec::Vector<T,I>& x)
+{
+    // Reduction result storage on CPU
+    T gpu_result = 0;
+    T maxVal = std::numeric_limits<T>::max();
+
+    // Set partitioning
+    ThreadPartitioning<T, I>* p = x.partReduce();
+    const dim3& grid       = p->getGrid();
+    const dim3& block      = p->getBlock();
+    unsigned int shMemSize = p->getShMemSize();
+
+    math_kernels::findMinKernel<T,I><<< grid, block, shMemSize >>>(maxVal, x.device(), p->devBuffer(), x.size());
+
+    unsigned int n = grid.x * grid.y * grid.z;
+    while (n>2048)
+    {
+        // Recompute partitioning
+        unsigned int grid2;
+        unsigned int block2;
+        unsigned int shMemSize2;
+        p->setPartitioningReduce(n, grid2, block2, shMemSize2);
+
         // Rerun reduction kernel
         math_kernels::findMinKernel<T,I><<< grid2, block2, shMemSize2 >>>(maxVal, p->devBuffer(), p->devBuffer(), n);
         n = (n + 2*block2 - 1) / (2*block2);
     }
-    
+
     // sum partial sums from each block on CPU
     // copy result from device to host
     p->copyFromDevBuffer(n);
-    
+
     gpu_result = p->hostBuffer()[0];
     for (unsigned int i=1; i<n; i++)
     {
@@ -694,9 +937,171 @@ inline T findMin(const nvec::Vector<T,I>& x)
     }
     return gpu_result;
 }
-    
+
+
+template <typename T, typename I>
+inline T wL2Norm(const nvec::Vector<T,I>& x, const nvec::Vector<T,I>& y)
+{
+    // Reduction result storage on CPU
+    T gpu_result = 0;
+
+    // Set partitioning
+    ThreadPartitioning<T, I>* p = x.partReduce();
+    const dim3& grid       = p->getGrid();
+    const dim3& block      = p->getBlock();
+    unsigned int shMemSize = p->getShMemSize();
+
+    math_kernels::wrmsNormKernel<T,I><<< grid, block, shMemSize >>>(x.device(), y.device(), p->devBuffer(), x.size());
+
+    unsigned int n = grid.x * grid.y * grid.z;
+    while (n>2048)
+    {
+        // Recompute partitioning
+        unsigned int grid2;
+        unsigned int block2;
+        unsigned int shMemSize2;
+        p->setPartitioningReduce(n, grid2, block2, shMemSize2);
+
+        // Rerun reduction kernel
+        math_kernels::sumReduceKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
+        n = (n + 2*block2 - 1) / (2*block2);
+    }
+
+    // sum partial sums from each block on CPU
+    // copy result from device to host
+    p->copyFromDevBuffer(n);
+
+    for (unsigned int i=0; i<n; i++)
+    {
+        gpu_result += p->hostBuffer()[i];
+    }
+    return sqrt(gpu_result);
+}
 
     
+template <typename T, typename I>
+inline T L1Norm(const nvec::Vector<T,I>& x)
+{
+    // Reduction result storage on CPU
+    T gpu_result = 0;
+
+    // Set partitioning
+    ThreadPartitioning<T, I>* p = x.partReduce();
+    const dim3& grid       = p->getGrid();
+    const dim3& block      = p->getBlock();
+    unsigned int shMemSize = p->getShMemSize();
+
+    math_kernels::L1NormKernel<T,I><<< grid, block, shMemSize >>>(x.device(), p->devBuffer(), x.size());
+
+    unsigned int n = grid.x * grid.y * grid.z;
+    while (n>2048)
+    {
+        // Recompute partitioning
+        unsigned int grid2;
+        unsigned int block2;
+        unsigned int shMemSize2;
+        p->setPartitioningReduce(n, grid2, block2, shMemSize2);
+
+        // Rerun reduction kernel
+        math_kernels::sumReduceKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
+        n = (n + 2*block2 - 1) / (2*block2);
+    }
+
+    // sum partial sums from each block on CPU
+    // copy result from device to host
+    p->copyFromDevBuffer(n);
+
+    for (unsigned int i=0; i<n; i++)
+    {
+        gpu_result += p->hostBuffer()[i];
+    }
+    return gpu_result;
+}
+
+
+template <typename T, typename I>
+inline bool invTest(const nvec::Vector<T,I>& x, nvec::Vector<T,I>& z)
+{
+    // Reduction result storage on CPU
+    T gpu_result = 0;
+
+    // Set partitioning
+    ThreadPartitioning<T, I>* p = x.partReduce();
+    const dim3& grid       = p->getGrid();
+    const dim3& block      = p->getBlock();
+    unsigned int shMemSize = p->getShMemSize();
+
+    math_kernels::invTestKernel<T,I><<< grid, block, shMemSize >>>(x.device(), z.device(), p->devBuffer(), x.size());
+
+    unsigned int n = grid.x * grid.y * grid.z;
+    while (n>2048)
+    {
+        // Recompute partitioning
+        unsigned int grid2;
+        unsigned int block2;
+        unsigned int shMemSize2;
+        p->setPartitioningReduce(n, grid2, block2, shMemSize2);
+
+        // Rerun reduction kernel
+        math_kernels::sumReduceKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
+        n = (n + 2*block2 - 1) / (2*block2);
+    }
+
+    // sum partial sums from each block on CPU
+    // copy result from device to host
+    p->copyFromDevBuffer(n);
+
+    for (unsigned int i=0; i<n; i++)
+    {
+        gpu_result += p->hostBuffer()[i];
+    }
+    return !(gpu_result > 0.0);
+}
+
+
+template <typename T, typename I>
+inline T minQuotient(const nvec::Vector<T,I>& num, const nvec::Vector<T,I>& den)
+{
+    // Reduction result storage on CPU
+    T gpu_result = 0;
+    T maxVal = std::numeric_limits<T>::max();
+
+    // Set partitioning
+    ThreadPartitioning<T, I>* p = num.partReduce();
+    const dim3& grid       = p->getGrid();
+    const dim3& block      = p->getBlock();
+    unsigned int shMemSize = p->getShMemSize();
+
+    math_kernels::minQuotientKernel<T,I><<< grid, block, shMemSize >>>(maxVal, num.device(), den.device(), p->devBuffer(), num.size());
+
+    unsigned int n = grid.x * grid.y * grid.z;
+    while (n>2048)
+    {
+        // Recompute partitioning
+        unsigned int grid2;
+        unsigned int block2;
+        unsigned int shMemSize2;
+        p->setPartitioningReduce(n, grid2, block2, shMemSize2);
+
+        // Rerun reduction kernel
+        math_kernels::findMinKernel<T,I><<< grid2, block2, shMemSize2 >>>(maxVal, p->devBuffer(), p->devBuffer(), n);
+        n = (n + 2*block2 - 1) / (2*block2);
+    }
+
+    // sum partial sums from each block on CPU
+    // copy result from device to host
+    p->copyFromDevBuffer(n);
+
+    gpu_result = p->hostBuffer()[0];
+    for (unsigned int i=1; i<n; i++)
+    {
+        if (p->hostBuffer()[i])
+            gpu_result = p->hostBuffer()[i];
+    }
+    return gpu_result;
+}
+
+
 
 } // namespace nvec
 

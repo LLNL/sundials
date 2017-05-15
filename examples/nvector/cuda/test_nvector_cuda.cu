@@ -93,14 +93,14 @@ int main(int argc, char *argv[])
   fails += Test_N_VDotProd(X, Y, veclen, veclen, 0);
   fails += Test_N_VMaxNorm(X, veclen, 0);
   fails += Test_N_VWrmsNorm(X, Y, veclen, 0);
-  //   fails += Test_N_VWrmsNormMask(X, Y, Z, veclen, veclen, 0);
+  fails += Test_N_VWrmsNormMask(X, Y, Z, veclen, veclen, 0);
   fails += Test_N_VMin(X, veclen, 0);
-  //   fails += Test_N_VWL2Norm(X, Y, veclen, veclen, 0);
-  //   fails += Test_N_VL1Norm(X, veclen, veclen, 0);
-  //   fails += Test_N_VCompare(X, Z, veclen, 0);
-  //   fails += Test_N_VInvTest(X, Z, veclen, 0);
-  //   fails += Test_N_VConstrMask(X, Y, Z, veclen, 0);
-  //   fails += Test_N_VMinQuotient(X, Y, veclen, 0);
+  fails += Test_N_VWL2Norm(X, Y, veclen, veclen, 0);
+  fails += Test_N_VL1Norm(X, veclen, veclen, 0);
+  fails += Test_N_VCompare(X, Z, veclen, 0);
+  fails += Test_N_VInvTest(X, Z, veclen, 0);
+  //fails += Test_N_VConstrMask(X, Y, Z, veclen, 0);
+  fails += Test_N_VMinQuotient(X, Y, veclen, 0);
 
 //   N_VSpace_Cuda(X, &lrw, &liw);
 //   printf("lrw = %ld, liw = %ld\n", lrw, liw);
@@ -158,6 +158,10 @@ void set_element(N_Vector X, long int i, realtype val)
 
 realtype get_element(N_Vector X, long int i)
 {
-  printf("Function 'get_element()' not implemented for CUDA vector");
-  return 0;
+//    realtype val;
+//    cudaMemcpy(&val, &(xv->device()[i]), sizeof(realtype), cudaMemcpyDeviceToHost);
+//    return val;
+  nvec::Vector<realtype, long int>* xv = extract(X);
+  xv->copyFromDev();
+  return (xv->host())[i];
 }

@@ -61,15 +61,15 @@ N_Vector N_VNewEmpty_Cuda(long int length)
   ops->nvaddconst        = N_VAddConst_Cuda;
   ops->nvdotprod         = N_VDotProd_Cuda;
   ops->nvmaxnorm         = N_VMaxNorm_Cuda;
-//   ops->nvwrmsnormmask    = N_VWrmsNormMask_Cuda;
+  ops->nvwrmsnormmask    = N_VWrmsNormMask_Cuda;
   ops->nvwrmsnorm        = N_VWrmsNorm_Cuda;
   ops->nvmin             = N_VMin_Cuda;
-//   ops->nvwl2norm         = N_VWL2Norm_Cuda;
-//   ops->nvl1norm          = N_VL1Norm_Cuda;
-//   ops->nvcompare         = N_VCompare_Cuda;
-//   ops->nvinvtest         = N_VInvTest_Cuda;
+  ops->nvwl2norm         = N_VWL2Norm_Cuda;
+  ops->nvl1norm          = N_VL1Norm_Cuda;
+  ops->nvcompare         = N_VCompare_Cuda;
+  ops->nvinvtest         = N_VInvTest_Cuda;
 //   ops->nvconstrmask      = N_VConstrMask_Cuda;
-//   ops->nvminquotient     = N_VMinQuotient_Cuda;
+  ops->nvminquotient     = N_VMinQuotient_Cuda;
 
   /* Create content */
   content = NULL;
@@ -388,9 +388,39 @@ double N_VWrmsNorm_Cuda(N_Vector X, N_Vector W)
     return (nvec::wrmsNorm(*extract(X), *extract(W)));
 }
 
+double N_VWrmsNormMask_Cuda(N_Vector X, N_Vector W, N_Vector Id)
+{
+    return (nvec::wrmsNormMask(*extract(X), *extract(W), *extract(Id)));
+}
+
 double N_VMin_Cuda(N_Vector X)
 {
     return (nvec::findMin(*extract(X)));
+}
+
+double N_VWL2Norm_Cuda(N_Vector X, N_Vector W)
+{
+    return (nvec::wL2Norm(*extract(X), *extract(W)));
+}
+
+double N_VL1Norm_Cuda(N_Vector X)
+{
+    return (nvec::L1Norm(*extract(X)));
+}
+
+void N_VCompare_Cuda(realtype c, N_Vector X, N_Vector Z)
+{
+    nvec::compare(c, *extract(X), *extract(Z));
+}
+
+booleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
+{
+    return (nvec::invTest(*extract(X), *extract(Z)));
+}
+
+realtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom)
+{
+    return (nvec::minQuotient(*extract(num), *extract(denom)));
 }
 
 } // extern "C"
