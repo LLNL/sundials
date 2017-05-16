@@ -594,7 +594,7 @@ constrMaskKernel(const T *g_c, const T *g_x, T *g_m, T *g_odata, I n)
     // test2 = true if test failed
     bool test2 = (abs(g_c[i + blockDim.x]) > 1.5 && g_c[i + blockDim.x]*g_x[i + blockDim.x] <= 0.0) ||
                  (abs(g_c[i + blockDim.x]) > 0.5 && g_c[i + blockDim.x]*g_x[i + blockDim.x] <  0.0);
-    g_m[i+blockDim.x] = (i < n && test2) ? 1.0 : 0.0;
+    g_m[i+blockDim.x] = (i+blockDim.x < n && test2) ? 1.0 : 0.0;
     mySum += g_m[i+blockDim.x];
 
     sdata[tid] = mySum;
@@ -1112,7 +1112,7 @@ template <typename T, typename I>
 inline bool constrMask(const nvec::Vector<T,I>& c, const nvec::Vector<T,I>& x, nvec::Vector<T,I>& m)
 {
     // Reduction result storage on CPU
-    T gpu_result = 0;
+    T gpu_result = 0.0;
 
     // Set partitioning
     ThreadPartitioning<T, I>* p = x.partReduce();
