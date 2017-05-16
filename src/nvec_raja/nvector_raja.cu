@@ -17,7 +17,7 @@
  * -----------------------------------------------------------------
  */
 
-#include <limits>
+//#include <limits>
 
 #include <nvector/raja/Vector.hpp>
 #include <RAJA/RAJA.hxx>
@@ -462,13 +462,6 @@ realtype N_VMin_Raja(N_Vector X)
 
   return static_cast<realtype>(gpu_result);
 }
-
-//   ops->nvwl2norm         = N_VWL2Norm_Raja;
-//   ops->nvl1norm          = N_VL1Norm_Raja;
-//   ops->nvcompare         = N_VCompare_Raja;
-//   ops->nvinvtest         = N_VInvTest_Raja;
-//   ops->nvconstrmask      = N_VConstrMask_Raja;
-//   ops->nvminquotient     = N_VMinQuotient_Raja;
 
 realtype N_VWL2Norm_Raja(N_Vector X, N_Vector W)
 {
