@@ -1,5 +1,5 @@
 
-Running with vector length 1000000 
+Running with vector length 10000 
  
     PASSED test -- N_VCloneEmpty 
     PASSED test -- N_VClone 
@@ -37,5 +37,14 @@ Running with vector length 1000000
     PASSED test -- N_VWrmsNormMask Case 1 
     PASSED test -- N_VWrmsNormMask Case 2 
     PASSED test -- N_VMin 
+    PASSED test -- N_VWL2Norm 
+    PASSED test -- N_VL1Norm 
+    PASSED test -- N_VCompare 
+    PASSED test -- N_VInvTest Case 1 
+    PASSED test -- N_VInvTest Case 2 
+    PASSED test -- N_VConstrMask Case 1 
+    PASSED test -- N_VConstrMask Case 2 
+    PASSED test -- N_VMinQuotient Case 1 
+    PASSED test -- N_VMinQuotient Case 2 
 SUCCESS: NVector module passed all tests 
  

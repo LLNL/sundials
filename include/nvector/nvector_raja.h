@@ -192,12 +192,12 @@ SUNDIALS_EXPORT realtype N_VMaxNorm_Raja(N_Vector x);
 SUNDIALS_EXPORT realtype N_VWrmsNorm_Raja(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT realtype N_VWrmsNormMask_Raja(N_Vector x, N_Vector w, N_Vector id);
 SUNDIALS_EXPORT realtype N_VMin_Raja(N_Vector x);
-// SUNDIALS_EXPORT realtype N_VWL2Norm_Raja(N_Vector x, N_Vector w);
-// SUNDIALS_EXPORT realtype N_VL1Norm_Raja(N_Vector x);
-// SUNDIALS_EXPORT void N_VCompare_Raja(realtype c, N_Vector x, N_Vector z);
-// SUNDIALS_EXPORT booleantype N_VInvTest_Raja(N_Vector x, N_Vector z);
-// SUNDIALS_EXPORT booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m);
-// SUNDIALS_EXPORT realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom);
+SUNDIALS_EXPORT realtype N_VWL2Norm_Raja(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT realtype N_VL1Norm_Raja(N_Vector x);
+SUNDIALS_EXPORT void N_VCompare_Raja(realtype c, N_Vector x, N_Vector z);
+SUNDIALS_EXPORT booleantype N_VInvTest_Raja(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m);
+SUNDIALS_EXPORT realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom);
 
 #ifdef __cplusplus
 }

@@ -17,11 +17,16 @@
  * -----------------------------------------------------------------
  */
 
-//#include <limits>
+#include <limits>
 
 #include <nvector/raja/Vector.hpp>
 #include <RAJA/RAJA.hxx>
 
+// Need better solution than defines
+#define ZERO   RCONST(0.0)
+#define HALF   RCONST(0.5)
+#define ONE    RCONST(1.0)
+#define ONEPT5 RCONST(1.5)
 
 extern "C" {
 
@@ -60,12 +65,12 @@ N_Vector N_VNewEmpty_Raja(long int length)
   ops->nvwrmsnormmask    = N_VWrmsNormMask_Raja;
   ops->nvwrmsnorm        = N_VWrmsNorm_Raja;
   ops->nvmin             = N_VMin_Raja;
-//   ops->nvwl2norm         = N_VWL2Norm_Raja;
-//   ops->nvl1norm          = N_VL1Norm_Raja;
-//   ops->nvcompare         = N_VCompare_Raja;
-//   ops->nvinvtest         = N_VInvTest_Raja;
-//   ops->nvconstrmask      = N_VConstrMask_Raja;
-//   ops->nvminquotient     = N_VMinQuotient_Raja;
+  ops->nvwl2norm         = N_VWL2Norm_Raja;
+  ops->nvl1norm          = N_VL1Norm_Raja;
+  ops->nvcompare         = N_VCompare_Raja;
+  ops->nvinvtest         = N_VInvTest_Raja;
+  ops->nvconstrmask      = N_VConstrMask_Raja;
+  ops->nvminquotient     = N_VMinQuotient_Raja;
 
   /* Create content */
   content = NULL;
@@ -456,6 +461,114 @@ realtype N_VMin_Raja(N_Vector X)
   });
 
   return static_cast<realtype>(gpu_result);
+}
+
+//   ops->nvwl2norm         = N_VWL2Norm_Raja;
+//   ops->nvl1norm          = N_VL1Norm_Raja;
+//   ops->nvcompare         = N_VCompare_Raja;
+//   ops->nvinvtest         = N_VInvTest_Raja;
+//   ops->nvconstrmask      = N_VConstrMask_Raja;
+//   ops->nvminquotient     = N_VMinQuotient_Raja;
+
+realtype N_VWL2Norm_Raja(N_Vector X, N_Vector W)
+{
+  rvec::Vector<realtype, long int>* xv = extract_raja(X);
+  rvec::Vector<realtype, long int>* wv = extract_raja(W);
+  const realtype *xdata = xv->device();
+  const realtype *wdata = wv->device();
+  const long int N = xv->size();
+
+  RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
+  RAJA::forall<RAJA::cuda_exec<128> >(0, N, [=] __device__(long int i) {
+    gpu_result += (xdata[i] * wdata[i] * xdata[i] * wdata[i]);
+  });
+
+  return std::sqrt(static_cast<realtype>(gpu_result));
+}
+
+realtype N_VL1Norm_Raja(N_Vector X)
+{
+  rvec::Vector<realtype, long int>* xv = extract_raja(X);
+  const realtype *xdata = xv->device();
+  const long int N = xv->size();
+
+  RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
+  RAJA::forall<RAJA::cuda_exec<128> >(0, N, [=] __device__(long int i) {
+    gpu_result += (abs(xdata[i]));
+  });
+
+  return static_cast<realtype>(gpu_result);
+}
+
+void N_VCompare_Raja(realtype c, N_Vector X, N_Vector Z)
+{
+  rvec::Vector<realtype, long int> *xv = extract_raja(X);
+  rvec::Vector<realtype, long int> *zv = extract_raja(Z);
+  const realtype *xdata = xv->device();
+  const long int N = zv->size();
+  realtype *zdata = zv->device();
+
+  RAJA::forall<RAJA::cuda_exec<256> >(0, N, [=] __device__(long int i) {
+     zdata[i] = abs(xdata[i]) >= c ? ONE : ZERO;
+  });
+}
+
+booleantype N_VInvTest_Raja(N_Vector x, N_Vector z)
+{
+  rvec::Vector<realtype, long int>* xv = extract_raja(x);
+  rvec::Vector<realtype, long int>* zv = extract_raja(z);
+  const realtype *xdata = xv->device();
+  realtype *zdata = zv->device();
+  const long int N = xv->size();
+
+  RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(ZERO);
+  RAJA::forall<RAJA::cuda_exec<128> >(0, N, [=] __device__(long int i) {
+    if (xdata[i] == ZERO) {
+      gpu_result += ONE;
+    } else {
+      zdata[i] = ONE/xdata[i];
+    }
+  });
+
+  return (static_cast<realtype>(gpu_result) < HALF);
+}
+
+booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m)
+{
+  rvec::Vector<realtype, long int> *cv = extract_raja(c);
+  rvec::Vector<realtype, long int> *xv = extract_raja(x);
+  rvec::Vector<realtype, long int> *mv = extract_raja(m);
+  const realtype *cdata = cv->device();
+  const realtype *xdata = xv->device();
+  const long int N = xv->size();
+  realtype *mdata = mv->device();
+
+  RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(ZERO);
+  RAJA::forall<RAJA::cuda_exec<128> >(0, N, [=] __device__(long int i) {
+    bool test = (abs(cdata[i]) > ONEPT5 && cdata[i]*xdata[i] <= ZERO) ||
+                (abs(cdata[i]) > HALF   && cdata[i]*xdata[i] <  ZERO);
+    mdata[i] = test ? ONE : ZERO;
+    gpu_result += mdata[i];
+  });
+
+  return (static_cast<realtype>(gpu_result) < HALF);
+}
+
+realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom)
+{
+  rvec::Vector<realtype, long int> *nv = extract_raja(num);
+  rvec::Vector<realtype, long int> *dv = extract_raja(denom);
+  const realtype *ndata = nv->device();
+  const realtype *ddata = dv->device();
+  const long int N = nv->size();
+
+  RAJA::ReduceMin<RAJA::cuda_reduce<128>, realtype> gpu_result(std::numeric_limits<realtype>::max());
+  RAJA::forall<RAJA::cuda_exec<128> >(0, N, [=] __device__(long int i) {
+    if (ddata[i] != ZERO)
+      gpu_result.min(ndata[i]/ddata[i]);
+  });
+
+  return (static_cast<realtype>(gpu_result));
 }
 
 

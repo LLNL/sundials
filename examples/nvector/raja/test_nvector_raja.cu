@@ -95,12 +95,12 @@ int main(int argc, char *argv[])
   fails += Test_N_VWrmsNorm(X, Y, veclen, 0);
   fails += Test_N_VWrmsNormMask(X, Y, Z, veclen, veclen, 0);
   fails += Test_N_VMin(X, veclen, 0);
-  //   fails += Test_N_VWL2Norm(X, Y, veclen, veclen, 0);
-  //   fails += Test_N_VL1Norm(X, veclen, veclen, 0);
-  //   fails += Test_N_VCompare(X, Z, veclen, 0);
-  //   fails += Test_N_VInvTest(X, Z, veclen, 0);
-  //   fails += Test_N_VConstrMask(X, Y, Z, veclen, 0);
-  //   fails += Test_N_VMinQuotient(X, Y, veclen, 0);
+  fails += Test_N_VWL2Norm(X, Y, veclen, veclen, 0);
+  fails += Test_N_VL1Norm(X, veclen, veclen, 0);
+  fails += Test_N_VCompare(X, Z, veclen, 0);
+  fails += Test_N_VInvTest(X, Z, veclen, 0);
+  fails += Test_N_VConstrMask(X, Y, Z, veclen, 0);
+  fails += Test_N_VMinQuotient(X, Y, veclen, 0);
 
 //  N_VSpace_Raja(X, &lrw, &liw);
 //  printf("lrw = %ld, liw = %ld\n", lrw, liw);
@@ -137,6 +137,7 @@ int check_ans(realtype ans, N_Vector X, long int local_length)
   /* check vector data */
   for(i=0; i < local_length; i++){
     failure += FNEQ(xdata[i], ans);
+    //printf("%g ?= %g\n", xdata[i], ans);
   }
   return (failure > ZERO) ? (1) : (0);
 }
@@ -158,6 +159,7 @@ void set_element(N_Vector X, long int i, realtype val)
 
 realtype get_element(N_Vector X, long int i)
 {
-  printf("Function 'get_element()' not implemented for Raja vector");
-  return 0;
+  rvec::Vector<double, long int>* xv = extract_raja(X);
+  xv->copyFromDev();
+  return (xv->host())[i];
 }

@@ -60,7 +60,7 @@ FOREACH(example ${nvector_raja_examples})
   CUDA_ADD_EXECUTABLE(${example} ${example}.cu ../test_nvector.c ../../../src/sundials/sundials_nvector.c ../../../src/sundials/sundials_math.c)
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-   SUNDIALS_ADD_TEST( ${example}_1000000_0 ${example} TEST_ARGS 1000000 0)
+   SUNDIALS_ADD_TEST( ${example}_10000_0 ${example} TEST_ARGS 10000 0)
 
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CUDA_LIBRARIES})
 
