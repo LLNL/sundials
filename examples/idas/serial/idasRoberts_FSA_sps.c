@@ -661,7 +661,7 @@ static void PrintSensIC(N_Vector y, N_Vector yp, N_Vector* yS, N_Vector* ypS)
 
 static void PrintOutput(void *ida_mem, realtype t, N_Vector u)
 {
-  long int nst;
+  indextype nst;
   int qu, flag;
   realtype hu, *udata;
   
@@ -742,9 +742,9 @@ static void PrintSensOutput(N_Vector *uS)
 
 static void PrintFinalStats(void *ida_mem, booleantype sensi)
 {
-  long int nst;
-  long int nfe, nsetups, nni, ncfn, netf;
-  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+  indextype nst;
+  indextype nfe, nsetups, nni, ncfn, netf;
+  indextype nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
   int flag;
 
   flag = IDAGetNumSteps(ida_mem, &nst);

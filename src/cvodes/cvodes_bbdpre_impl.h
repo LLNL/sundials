@@ -39,7 +39,7 @@ typedef struct CVBBDPrecDataRec {
 
   /* passed by user to CVBBDPrecAlloc and used by PrecSetup/PrecSolve */
 
-  long int mudq, mldq, mukeep, mlkeep;
+  indextype mudq, mldq, mukeep, mlkeep;
   realtype dqrely;
   CVLocalFn gloc;
   CVCommFn cfn;
@@ -48,17 +48,17 @@ typedef struct CVBBDPrecDataRec {
 
   DlsMat savedJ;
   DlsMat savedP;
-  long int *lpivots;
+  indextype *lpivots;
 
   /* set by CVBBDPrecAlloc and used by CVBBDPrecSetup */
 
-  long int n_local;
+  indextype n_local;
 
   /* available for optional output */
 
-  long int rpwsize;
-  long int ipwsize;
-  long int nge;
+  indextype rpwsize;
+  indextype ipwsize;
+  indextype nge;
 
   /* pointer to cvode_mem */
 

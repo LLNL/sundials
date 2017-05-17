@@ -466,8 +466,8 @@ static void contact(N_Vector yy, PbData data)
 static void PrintFinalStats(void *cpode_mem)
 {
   realtype h0u;
-  long int nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf;
-  long int nproj, nce, nsetupsP, nprf;
+  indextype nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf;
+  indextype nproj, nce, nsetupsP, nprf;
   int flag;
 
   flag = CPodeGetActualInitStep(cpode_mem, &h0u);

@@ -34,7 +34,7 @@
 extern "C" {
 #endif
   extern void FCV_EWT(realtype*, realtype*,  /* Y, EWT */ 
-                      long int*, realtype*,  /* IPAR, RPAR */
+                      indextype*, realtype*,  /* IPAR, RPAR */
                       int*);                 /* IER */
 #ifdef __cplusplus
 }

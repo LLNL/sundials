@@ -81,7 +81,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 static int g(realtype t, N_Vector y, realtype *gout, void *user_data);
 
-static int Jac(long int N, realtype t,
+static int Jac(indextype N, realtype t,
                N_Vector y, N_Vector fy, DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
@@ -233,7 +233,7 @@ static int g(realtype t, N_Vector y, realtype *gout, void *user_data)
  * Jacobian routine. Compute J(t,y) = df/dy. *
  */
 
-static int Jac(long int N, realtype t,
+static int Jac(indextype N, realtype t,
                N_Vector y, N_Vector fy, DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
@@ -308,7 +308,7 @@ static void PrintRootInfo(int root_f1, int root_f2)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf, nge;
+  indextype nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf, nge;
   int flag;
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);

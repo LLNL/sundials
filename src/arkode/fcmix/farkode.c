@@ -43,7 +43,7 @@
 /* Definitions for global variables shared between Fortran/C 
    interface routines */
 void     *ARK_arkodemem;
-long int *ARK_iout;
+indextype *ARK_iout;
 realtype *ARK_rout;
 int       ARK_nrtfn;
 int       ARK_ls;
@@ -58,9 +58,9 @@ extern "C" {
 #endif
 
   extern void FARK_IMP_FUN(realtype *T, realtype *Y, realtype *YDOT,
-			   long int *IPAR, realtype *RPAR, int *IER);
+			   indextype *IPAR, realtype *RPAR, int *IER);
   extern void FARK_EXP_FUN(realtype *T, realtype *Y, realtype *YDOT,
-			   long int *IPAR, realtype *RPAR, int *IER);
+			   indextype *IPAR, realtype *RPAR, int *IER);
 
 #ifdef __cplusplus
 }
@@ -75,8 +75,8 @@ extern "C" {
    for further details */
 void FARK_MALLOC(realtype *t0, realtype *y0, int *imex, 
 		 int *iatol, realtype *rtol, realtype *atol, 
-		 long int *iout, realtype *rout, 
-		 long int *ipar, realtype *rpar, int *ier) {
+		 indextype *iout, realtype *rout, 
+		 indextype *ipar, realtype *rpar, int *ier) {
 
   N_Vector Vatol;
   FARKUserData ARK_userdata;
@@ -338,7 +338,7 @@ void FARK_SETDEFAULTS(int *ier) {
 
 /* Fortran interface to C "set" routines having integer 
    arguments; see farkode.h for further details */
-void FARK_SETIIN(char key_name[], long int *ival, int *ier) {
+void FARK_SETIIN(char key_name[], indextype *ival, int *ier) {
   if (!strncmp(key_name, "ORDER", 5)) 
     *ier = ARKodeSetOrder(ARK_arkodemem, (int) *ival);
   else if (!strncmp(key_name, "DENSE_ORDER", 11)) 
@@ -348,7 +348,7 @@ void FARK_SETIIN(char key_name[], long int *ival, int *ier) {
   else if (!strncmp(key_name, "NONLINEAR", 9)) 
     *ier = ARKodeSetNonlinear(ARK_arkodemem);
   else if (!strncmp(key_name, "FIXEDPOINT", 10)) 
-    *ier = ARKodeSetFixedPoint(ARK_arkodemem, (long int) *ival);
+    *ier = ARKodeSetFixedPoint(ARK_arkodemem, (indextype) *ival);
   else if (!strncmp(key_name, "NEWTON", 6)) 
     *ier = ARKodeSetNewton(ARK_arkodemem);
   else if (!strncmp(key_name, "EXPLICIT", 8)) 
@@ -562,7 +562,7 @@ void FARK_STOPDIAGNOSTICS(int *ier) {
 
 /* Fortran interface to C routine ARKDense; see farkode.h for 
    further details */
-void FARK_DENSE(long int *neq, int *ier) {
+void FARK_DENSE(indextype *neq, int *ier) {
   *ier = ARKDense(ARK_arkodemem, *neq);
   ARK_ls = ARK_LS_DENSE;
   return;
@@ -570,7 +570,7 @@ void FARK_DENSE(long int *neq, int *ier) {
 
 /* Fortran interface to C routine ARKMassDense; see farkode.h 
    for further details */
-void FARK_MASSDENSE(long int *neq, int *ier) {
+void FARK_MASSDENSE(indextype *neq, int *ier) {
   *ier = ARKMassDense(ARK_arkodemem, *neq, NULL);
   ARK_mass_ls = ARK_LS_DENSE;
   return;
@@ -580,8 +580,8 @@ void FARK_MASSDENSE(long int *neq, int *ier) {
 
 /* Fortran interface to C routine ARKBand; see farkode.h for 
    further details */
-void FARK_BAND(long int *neq, long int *mupper, 
-	       long int *mlower, int *ier) {
+void FARK_BAND(indextype *neq, indextype *mupper, 
+	       indextype *mlower, int *ier) {
   *ier = ARKBand(ARK_arkodemem, *neq, *mupper, *mlower);
   ARK_ls = ARK_LS_BAND;
   return;
@@ -589,8 +589,8 @@ void FARK_BAND(long int *neq, long int *mupper,
 
 /* Fortran interface to C routine ARKMassBand; see farkode.h 
    for further details */
-void FARK_MASSBAND(long int *neq, long int *mupper, 
-		   long int *mlower, int *ier) {
+void FARK_MASSBAND(indextype *neq, indextype *mupper, 
+		   indextype *mlower, int *ier) {
   *ier = ARKMassBand(ARK_arkodemem, *neq, *mupper, 
 		     *mlower, NULL);
   ARK_mass_ls = ARK_LS_BAND;

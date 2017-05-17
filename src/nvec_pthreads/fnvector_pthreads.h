@@ -82,11 +82,11 @@ extern N_Vector F2C_ARKODE_vec;
  *
  */
 
-void FNV_INITPTS(int *code, long int *neq, int *num_threads, int *ier);
-void FNV_INITPTS_Q(int *code, long int *Nq, int *num_threads, int *ier);
+void FNV_INITPTS(int *code, indextype *neq, int *num_threads, int *ier);
+void FNV_INITPTS_Q(int *code, indextype *Nq, int *num_threads, int *ier);
 void FNV_INITPTS_S(int *code, int *Ns, int *ier);
-void FNV_INITPTS_B(int *code, long int *NB, int *num_threads, int *ier);
-void FNV_INITPTS_QB(int *code, long int *NqB, int *num_threads, int *ier);
+void FNV_INITPTS_B(int *code, indextype *NB, int *num_threads, int *ier);
+void FNV_INITPTS_QB(int *code, indextype *NqB, int *num_threads, int *ier);
 
 #ifdef __cplusplus
 }

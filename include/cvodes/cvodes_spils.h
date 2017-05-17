@@ -360,14 +360,14 @@ SUNDIALS_EXPORT int CVSpilsSetJacTimesVecFn(void *cvode_mem,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVSpilsGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
-SUNDIALS_EXPORT int CVSpilsGetNumPrecEvals(void *cvode_mem, long int *npevals);
-SUNDIALS_EXPORT int CVSpilsGetNumPrecSolves(void *cvode_mem, long int *npsolves);
-SUNDIALS_EXPORT int CVSpilsGetNumLinIters(void *cvode_mem, long int *nliters);
-SUNDIALS_EXPORT int CVSpilsGetNumConvFails(void *cvode_mem, long int *nlcfails);
-SUNDIALS_EXPORT int CVSpilsGetNumJtimesEvals(void *cvode_mem, long int *njvevals);
-SUNDIALS_EXPORT int CVSpilsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS); 
-SUNDIALS_EXPORT int CVSpilsGetLastFlag(void *cvode_mem, long int *flag);
+SUNDIALS_EXPORT int CVSpilsGetWorkSpace(void *cvode_mem, indextype *lenrwLS, indextype *leniwLS);
+SUNDIALS_EXPORT int CVSpilsGetNumPrecEvals(void *cvode_mem, indextype *npevals);
+SUNDIALS_EXPORT int CVSpilsGetNumPrecSolves(void *cvode_mem, indextype *npsolves);
+SUNDIALS_EXPORT int CVSpilsGetNumLinIters(void *cvode_mem, indextype *nliters);
+SUNDIALS_EXPORT int CVSpilsGetNumConvFails(void *cvode_mem, indextype *nlcfails);
+SUNDIALS_EXPORT int CVSpilsGetNumJtimesEvals(void *cvode_mem, indextype *njvevals);
+SUNDIALS_EXPORT int CVSpilsGetNumRhsEvals(void *cvode_mem, indextype *nfevalsLS); 
+SUNDIALS_EXPORT int CVSpilsGetLastFlag(void *cvode_mem, indextype *flag);
 
 /*
  * -----------------------------------------------------------------
@@ -376,7 +376,7 @@ SUNDIALS_EXPORT int CVSpilsGetLastFlag(void *cvode_mem, long int *flag);
  * -----------------------------------------------------------------
  */
   
-SUNDIALS_EXPORT char *CVSpilsGetReturnFlagName(long int flag);
+SUNDIALS_EXPORT char *CVSpilsGetReturnFlagName(indextype flag);
 
 
 /* 

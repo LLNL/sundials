@@ -53,8 +53,8 @@ extern "C" {
                        if a bandwidth has an illegal value.
 ---------------------------------------------------------------*/
 
-SUNDIALS_EXPORT int ARKBand(void *arkode_mem, long int N, 
-			    long int mupper, long int mlower);
+SUNDIALS_EXPORT int ARKBand(void *arkode_mem, indextype N, 
+			    indextype mupper, indextype mlower);
 
 /*---------------------------------------------------------------
  ARKMassBand:
@@ -83,8 +83,8 @@ SUNDIALS_EXPORT int ARKBand(void *arkode_mem, long int N,
                        if a bandwidth has an illegal value.
 ---------------------------------------------------------------*/
 
-SUNDIALS_EXPORT int ARKMassBand(void *arkode_mem, long int N, 
-				long int mupper, long int mlower,
+SUNDIALS_EXPORT int ARKMassBand(void *arkode_mem, indextype N, 
+				indextype mupper, indextype mlower,
 				ARKDlsBandMassFn bmass);
 
 #ifdef __cplusplus

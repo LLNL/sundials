@@ -131,13 +131,13 @@
 
 typedef struct {
   realtype **P[MX][MY];
-  long int *pivot[MX][MY];
+  indextype *pivot[MX][MY];
   realtype **acoef, *bcoef;
   N_Vector rates;
   realtype *cox, *coy;
   realtype ax, ay, dx, dy;
   realtype uround, sqruround;
-  long int mx, my, ns, np;
+  indextype mx, my, ns, np;
 } *UserData;
 
 /* Functions Called by the KINSOL Solver */
@@ -166,7 +166,7 @@ static void PrintOutput(N_Vector cc);
 static void PrintFinalStats(void *kmem);
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                     void *user_data);
-static realtype DotProd(long int size, realtype *x1, realtype *x2);
+static realtype DotProd(indextype size, realtype *x1, realtype *x2);
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /*
@@ -292,7 +292,7 @@ int main(void)
 static int func(N_Vector cc, N_Vector fval, void *user_data)
 {
   realtype xx, yy, delx, dely, *cxy, *rxy, *fxy, dcyli, dcyui, dcxli, dcxri;
-  long int jx, jy, is, idyu, idyl, idxr, idxl;
+  indextype jx, jy, is, idyu, idyl, idxr, idxl;
   UserData data;
   
   data = (UserData)user_data;
@@ -357,7 +357,7 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
 {
   realtype r, r0, uround, sqruround, xx, yy, delx, dely, csave, fac;
   realtype *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
-  long int i, j, jx, jy, ret;
+  indextype i, j, jx, jy, ret;
   UserData data;
   
   data = (UserData) user_data;
@@ -423,7 +423,7 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
                        N_Vector ftem)
 {
   realtype **Pxy, *vxy;
-  long int *piv, jx, jy;
+  indextype *piv, jx, jy;
   UserData data;
   
   data = (UserData)user_data;
@@ -455,7 +455,7 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                     void *user_data)
 {
-  long int i;
+  indextype i;
   realtype fac;
   UserData data;
   
@@ -474,9 +474,9 @@ static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
  * Dot product routine for realtype arrays 
  */
 
-static realtype DotProd(long int size, realtype *x1, realtype *x2)
+static realtype DotProd(indextype size, realtype *x1, realtype *x2)
 {
-  long int i;
+  indextype i;
   realtype *xx1, *xx2, temp = ZERO;
   
   xx1 = x1; xx2 = x2;
@@ -522,7 +522,7 @@ static UserData AllocUserData(void)
 
 static void InitUserData(UserData data)
 {
-  long int i, j, np;
+  indextype i, j, np;
   realtype *a1,*a2, *a3, *a4, dx2, dy2;
 
   data->mx = MX;
@@ -719,7 +719,7 @@ static void PrintOutput(N_Vector cc)
 
 static void PrintFinalStats(void *kmem)
 {
-  long int nni, nfe, nli, npe, nps, ncfl, nfeSG;
+  indextype nni, nfe, nli, npe, nps, ncfl, nfeSG;
   int flag;
   
   flag = KINGetNumNonlinSolvIters(kmem, &nni);

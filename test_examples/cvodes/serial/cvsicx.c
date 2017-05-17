@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 
   void *cvode_mem;
 
-  long int Neq;
+  indextype Neq;
   realtype reltol, abstol;
   N_Vector y0, y;
 
@@ -222,10 +222,10 @@ static int runCVode(void *cvode_mem, N_Vector y, N_Vector *yS, UserData data, FI
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int nst;
-  long int nfe, nsetups, nni, ncfn, netf;
-  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
-  long int njeD, nfeD;
+  indextype nst;
+  indextype nfe, nsetups, nni, ncfn, netf;
+  indextype nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+  indextype njeD, nfeD;
   int flag;
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);

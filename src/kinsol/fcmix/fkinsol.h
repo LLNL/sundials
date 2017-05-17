@@ -278,7 +278,7 @@
        The arguments are:
          IOUT        = array of length at least 15 for integer optional outputs
                        (declare as INTEGER*4 or INTEGER*8 according to
-                       C type long int)
+                       C type indextype)
          ROUT        = array of length at least 2 for real optional outputs
          IER         = return completion flag. Values are 0 = success, and
                        -1 = failure.
@@ -680,18 +680,18 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-void FKIN_MALLOC(long int *iout, realtype *rout, int *ier);
+void FKIN_MALLOC(indextype *iout, realtype *rout, int *ier);
 void FKIN_CREATE(int *ier);
-void FKIN_INIT(long int *iout, realtype *rout, int *ier);
+void FKIN_INIT(indextype *iout, realtype *rout, int *ier);
 
-void FKIN_SETIIN(char key_name[], long int *ival, int *ier);
+void FKIN_SETIIN(char key_name[], indextype *ival, int *ier);
 void FKIN_SETRIN(char key_name[], realtype *rval, int *ier);
 void FKIN_SETVIN(char key_name[], realtype *vval, int *ier);
 
-void FKIN_DENSE(long int *neq, int *ier);
+void FKIN_DENSE(indextype *neq, int *ier);
 void FKIN_DENSESETJAC(int *flag, int *ier);
 
-void FKIN_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
+void FKIN_BAND(indextype *neq, indextype *mupper, indextype *mlower, int *ier);
 void FKIN_BANDSETJAC(int *flag, int *ier);
 
 void FKIN_LAPACKDENSE(int *neq, int *ier);
@@ -725,22 +725,22 @@ void FKIN_FREE(void);
 
 int FKINfunc(N_Vector uu, N_Vector fval, void *user_data);
 
-int FKINDenseJac(long int N,
+int FKINDenseJac(indextype N,
                  N_Vector uu, N_Vector fval,
                  DlsMat J, void *user_data, 
                  N_Vector vtemp1, N_Vector vtemp2);
 
-int FKINBandJac(long int N, long int mupper, long int mlower,
+int FKINBandJac(indextype N, indextype mupper, indextype mlower,
                 N_Vector uu, N_Vector fval, 
                 DlsMat J, void *user_data,
                 N_Vector vtemp1, N_Vector vtemp2);
 
-int FKINLapackDenseJac(long int N,
+int FKINLapackDenseJac(indextype N,
                        N_Vector uu, N_Vector fval,
                        DlsMat J, void *user_data, 
                        N_Vector vtemp1, N_Vector vtemp2);
 
-int FKINLapackBandJac(long int N, long int mupper, long int mlower,
+int FKINLapackBandJac(indextype N, indextype mupper, indextype mlower,
                       N_Vector uu, N_Vector fval, 
                       DlsMat J, void *user_data,
                       N_Vector vtemp1, N_Vector vtemp2);
@@ -771,7 +771,7 @@ int FKINJtimes(N_Vector v, N_Vector Jv,
 
 extern N_Vector F2C_KINSOL_vec;
 extern void *KIN_kinmem;
-extern long int *KIN_iout;
+extern indextype *KIN_iout;
 extern realtype *KIN_rout;
 extern int KIN_ls;
 

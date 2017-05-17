@@ -37,17 +37,17 @@
  * -----------------------------------------------------
  */
 
-long int BandGBTRF(DlsMat A, long int *p)
+indextype BandGBTRF(DlsMat A, indextype *p)
 {
   return(bandGBTRF(A->cols, A->M, A->mu, A->ml, A->s_mu, p));
 }
 
-void BandGBTRS(DlsMat A, long int *p, realtype *b)
+void BandGBTRS(DlsMat A, indextype *p, realtype *b)
 {
   bandGBTRS(A->cols, A->M, A->s_mu, A->ml, p, b);
 }
 
-void BandCopy(DlsMat A, DlsMat B, long int copymu, long int copyml)
+void BandCopy(DlsMat A, DlsMat B, indextype copymu, indextype copyml)
 {
   bandCopy(A->cols, B->cols, A->M, A->s_mu, B->s_mu, copymu, copyml);
 }
@@ -68,10 +68,10 @@ void BandMatvec(DlsMat A, realtype *x, realtype *y)
  * -----------------------------------------------------
  */
 
-long int bandGBTRF(realtype **a, long int n, long int mu, long int ml, long int smu, long int *p)
+indextype bandGBTRF(realtype **a, indextype n, indextype mu, indextype ml, indextype smu, indextype *p)
 {
-  long int c, r, num_rows;
-  long int i, j, k, l, storage_l, storage_k, last_col_k, last_row_k;
+  indextype c, r, num_rows;
+  indextype i, j, k, l, storage_l, storage_k, last_col_k, last_row_k;
   realtype *a_c, *col_k, *diag_k, *sub_diag_k, *col_j, *kptr, *jptr;
   realtype max, temp, mult, a_kj;
   booleantype swap;
@@ -174,9 +174,9 @@ long int bandGBTRF(realtype **a, long int n, long int mu, long int ml, long int 
   return(0);
 }
 
-void bandGBTRS(realtype **a, long int n, long int smu, long int ml, long int *p, realtype *b)
+void bandGBTRS(realtype **a, indextype n, indextype smu, indextype ml, indextype *p, realtype *b)
 {
-  long int k, l, i, first_row_k, last_row_k;
+  indextype k, l, i, first_row_k, last_row_k;
   realtype mult, *diag_k;
   
   /* Solve Ly = Pb, store solution y in b */
@@ -206,10 +206,10 @@ void bandGBTRS(realtype **a, long int n, long int smu, long int ml, long int *p,
   }
 }
 
-void bandCopy(realtype **a, realtype **b, long int n, long int a_smu, long int b_smu, 
-              long int copymu, long int copyml)
+void bandCopy(realtype **a, realtype **b, indextype n, indextype a_smu, indextype b_smu, 
+              indextype copymu, indextype copyml)
 {
-  long int i, j, copySize;
+  indextype i, j, copySize;
   realtype *a_col_j, *b_col_j;
 
   copySize = copymu + copyml + 1;
@@ -222,9 +222,9 @@ void bandCopy(realtype **a, realtype **b, long int n, long int a_smu, long int b
   }
 }
 
-void bandScale(realtype c, realtype **a, long int n, long int mu, long int ml, long int smu)
+void bandScale(realtype c, realtype **a, indextype n, indextype mu, indextype ml, indextype smu)
 {
-  long int i, j, colSize;
+  indextype i, j, colSize;
   realtype *col_j;
 
   colSize = mu + ml + 1;
@@ -236,18 +236,18 @@ void bandScale(realtype c, realtype **a, long int n, long int mu, long int ml, l
   }
 }
 
-void bandAddIdentity(realtype **a, long int n, long int smu)
+void bandAddIdentity(realtype **a, indextype n, indextype smu)
 {
-  long int j;
+  indextype j;
  
   for(j=0; j < n; j++)
     a[j][smu] += ONE;
 }
 
-void bandMatvec(realtype **a, realtype *x, realtype *y, long int n, 
-		long int mu, long int ml, long int smu)
+void bandMatvec(realtype **a, realtype *x, realtype *y, indextype n, 
+		indextype mu, indextype ml, indextype smu)
 {
-  long int i, j, is, ie;
+  indextype i, j, is, ie;
   realtype *col_j;
 
   for (i=0; i<n; i++)

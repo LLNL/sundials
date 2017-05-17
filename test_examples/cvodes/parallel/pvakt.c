@@ -939,10 +939,10 @@ static void PrintHeader()
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int lenrw, leniw ;
-  long int lenrwSPGMR, leniwSPGMR;
-  long int nst, nfe, nsetups, nni, ncfn, netf;
-  long int nli, npe, nps, ncfl, nfeSPGMR;
+  indextype lenrw, leniw ;
+  indextype lenrwSPGMR, leniwSPGMR;
+  indextype nst, nfe, nsetups, nni, ncfn, netf;
+  indextype nli, npe, nps, ncfl, nfeSPGMR;
   int flag;
 
   flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);

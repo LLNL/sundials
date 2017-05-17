@@ -126,7 +126,7 @@
 
 typedef struct {
   realtype **P[MX][MY], **Jbd[MX][MY];
-  long int *pivot[MX][MY];
+  indextype *pivot[MX][MY];
   realtype q4, om, dx, dy, hdco, haco, vdco;
 } *UserData;
 
@@ -382,7 +382,7 @@ static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy)
 
 static void PrintOutput(void *cvode_mem, N_Vector u, realtype t)
 {
-  long int nst;
+  indextype nst;
   int qu, flag;
   realtype hu, *udata;
   int mxh = MX/2 - 1, myh = MY/2 - 1, mx1 = MX - 1, my1 = MY - 1;
@@ -424,10 +424,10 @@ static void PrintOutput(void *cvode_mem, N_Vector u, realtype t)
 
 static void PrintFinalStats(void *cvode_mem, int linsolver)
 {
-  long int lenrw, leniw ;
-  long int lenrwLS, leniwLS;
-  long int nst, nfe, nsetups, nni, ncfn, netf;
-  long int nli, npe, nps, ncfl, nfeLS;
+  indextype lenrw, leniw ;
+  indextype lenrwLS, leniwLS;
+  indextype nst, nfe, nsetups, nni, ncfn, netf;
+  indextype nli, npe, nps, ncfl, nfeLS;
   int flag;
 
   flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
@@ -614,7 +614,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   realtype **(*P)[MY], **(*Jbd)[MY];
-  long int *(*pivot)[MY], ier;
+  indextype *(*pivot)[MY], ier;
   int jx, jy;
   realtype *udata, **a, **j;
   UserData data;
@@ -702,7 +702,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
                   int lr, void *user_data, N_Vector vtemp)
 {
   realtype **(*P)[MY];
-  long int *(*pivot)[MY];
+  indextype *(*pivot)[MY];
   int jx, jy;
   realtype *zdata, *v;
   UserData data;

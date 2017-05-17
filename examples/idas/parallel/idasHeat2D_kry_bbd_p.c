@@ -78,11 +78,11 @@ static int heatres(realtype tres,
                    N_Vector uu, N_Vector up, N_Vector res, 
                    void *user_data);
 
-static int rescomm(long int Nlocal, realtype tt, 
+static int rescomm(indextype Nlocal, realtype tt, 
                    N_Vector uu, N_Vector up, 
                    void *user_data);
 
-static int reslocal(long int Nlocal, realtype tres, 
+static int reslocal(indextype Nlocal, realtype tres, 
                     N_Vector uu, N_Vector up, N_Vector res,  
                     void *user_data);
 
@@ -105,7 +105,7 @@ static int InitUserData(int thispe, MPI_Comm comm, UserData data);
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
                              N_Vector res, UserData data);
 
-static void PrintHeader(long int Neq, realtype rtol, realtype atol);
+static void PrintHeader(indextype Neq, realtype rtol, realtype atol);
 
 static void PrintCase(int case_number, int mudq, int mukeep);
 
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
   void *mem;
   UserData data;
   int thispe, iout, ier, npes;
-  long int Neq, local_N, mudq, mldq, mukeep, mlkeep;
+  indextype Neq, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
 
@@ -332,7 +332,7 @@ static int heatres(realtype tres, N_Vector uu, N_Vector up,
 {
   int retval;
   UserData data;
-  long int Nlocal;
+  indextype Nlocal;
   
   data = (UserData) user_data;
   
@@ -353,7 +353,7 @@ static int heatres(realtype tres, N_Vector uu, N_Vector up,
  * communication of data in u needed to calculate G.                 
  */
 
-static int rescomm(long int Nlocal, realtype tt, 
+static int rescomm(indextype Nlocal, realtype tt, 
                    N_Vector uu, N_Vector up, void *user_data)
 {
   UserData data;
@@ -390,7 +390,7 @@ static int rescomm(long int Nlocal, realtype tt,
  *  has already been done, and that this data is in the work array uext.  
  */
 
-static int reslocal(long int Nlocal, realtype tres, 
+static int reslocal(indextype Nlocal, realtype tres, 
                     N_Vector uu, N_Vector up, N_Vector res,  
                     void *user_data)
 {
@@ -697,7 +697,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
  * and table heading
  */
 
-static void PrintHeader(long int Neq, realtype rtol, realtype atol)
+static void PrintHeader(indextype Neq, realtype rtol, realtype atol)
 {
     printf("idasHeat2D_kry_bbd_p: Heat equation, parallel example problem for IDA\n");
     printf("                  Discretized heat equation on 2D unit square.\n");
@@ -747,7 +747,7 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
 {
   realtype umax, hused;
   int kused, ier;
-  long int nst, nni, nre, nli, npe, nps, nreLS, nge;
+  indextype nst, nni, nre, nli, npe, nps, nreLS, nge;
 
   umax = N_VMaxNorm(uu);
   
@@ -794,7 +794,7 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
 
 static void PrintFinalStats(void *mem)
 {
-  long int netf, ncfn, ncfl;
+  indextype netf, ncfn, ncfl;
 
   IDAGetNumErrTestFails(mem, &netf);
   IDAGetNumNonlinSolvConvFails(mem, &ncfn);

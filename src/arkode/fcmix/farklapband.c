@@ -33,11 +33,11 @@
 extern "C" {
 #endif
 
-  extern void FARK_BJAC(long int *N, long int *MU, long int *ML, 
-			long int *EBAND, realtype *T, 
+  extern void FARK_BJAC(indextype *N, indextype *MU, indextype *ML, 
+			indextype *EBAND, realtype *T, 
 			realtype *Y, realtype *FY,
 			realtype *LBJAC, realtype *H,
-			long int *IPAR, realtype *RPAR,
+			indextype *IPAR, realtype *RPAR,
 			realtype *V1, realtype *V2, 
 			realtype *V3, int *IER);
 
@@ -70,8 +70,8 @@ void FARK_LAPACKBANDSETJAC(int *flag, int *ier)
    column 0 with row index -mupper.  An extended bandwith equal
    to (J->smu) + mlower + 1 is passed as the column dimension 
    of the corresponding array */
-int FARKLapackBandJac(long int N, long int mupper, 
-		      long int mlower, realtype t, N_Vector y, 
+int FARKLapackBandJac(indextype N, indextype mupper, 
+		      indextype mlower, realtype t, N_Vector y, 
 		      N_Vector fy, DlsMat J, void *user_data,
 		      N_Vector vtemp1, N_Vector vtemp2, 
 		      N_Vector vtemp3)
@@ -79,7 +79,7 @@ int FARKLapackBandJac(long int N, long int mupper,
   int ier;
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
   realtype h;
-  long int eband;
+  indextype eband;
   FARKUserData ARK_userdata;
 
   ARKodeGetLastStep(ARK_arkodemem, &h);

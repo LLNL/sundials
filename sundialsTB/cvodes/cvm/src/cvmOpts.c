@@ -57,14 +57,14 @@
 
 int get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd, int lmm,
                      int *maxord, booleantype *sld, booleantype *errmsg,
-                     long int *mxsteps,
+                     indextype *mxsteps,
                      int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
                      double *hin, double *hmax, double *hmin, double *tstop,
                      booleantype *rhs_s)
 {
   mxArray *opt;
   int q;
-  long int i, m, n;
+  indextype i, m, n;
   double *tmp;
   char *fctName;
   char *fwd_fctName = "CVodeInit/CVodeReInit";
@@ -309,8 +309,8 @@ int get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd, 
 
 
 int get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
-                       long int *mupper, long int *mlower,
-                       long int *mudq, long int *mldq, double *dqrely,
+                       indextype *mupper, indextype *mlower,
+                       indextype *mudq, indextype *mldq, double *dqrely,
                        int *ptype, int *gstype, int *maxl)
 {
   mxArray *opt;
@@ -375,11 +375,11 @@ int get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd
 
     opt = mxGetField(options,0,"UpperBwidth");
     if ( !mxIsEmpty(opt) )
-      *mupper = (long int)*mxGetPr(opt);
+      *mupper = (indextype)*mxGetPr(opt);
     
     opt = mxGetField(options,0,"LowerBwidth");
     if ( !mxIsEmpty(opt) )
-      *mlower = (long int)*mxGetPr(opt);
+      *mlower = (indextype)*mxGetPr(opt);
 
   }
 
@@ -482,11 +482,11 @@ int get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd
     
       opt = mxGetField(options,0,"UpperBwidth");
       if ( !mxIsEmpty(opt) )
-        *mupper = (long int)*mxGetPr(opt);
+        *mupper = (indextype)*mxGetPr(opt);
       
       opt = mxGetField(options,0,"LowerBwidth");
       if ( !mxIsEmpty(opt) )
-        *mlower = (long int)*mxGetPr(opt);
+        *mlower = (indextype)*mxGetPr(opt);
       
     }
 
@@ -494,11 +494,11 @@ int get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd
       
       opt = mxGetField(options,0,"UpperBwidthDQ");
       if ( !mxIsEmpty(opt) )
-        *mudq = (long int)*mxGetPr(opt);
+        *mudq = (indextype)*mxGetPr(opt);
 
       opt = mxGetField(options,0,"LowerBwidthDQ");
       if ( !mxIsEmpty(opt) )
-        *mldq = (long int)*mxGetPr(opt);
+        *mldq = (indextype)*mxGetPr(opt);
 
       opt = mxGetField(options,0,"GlocalFn");
       if ( !mxIsEmpty(opt) ) {
@@ -528,12 +528,12 @@ int get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd
 
 
 int get_QuadOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
-                    long int Nq, booleantype *rhs_s,
+                    indextype Nq, booleantype *rhs_s,
                     booleantype *errconQ,
                     int *itolQ, double *reltolQ, double *SabstolQ, double **VabstolQ)
 {
   mxArray *opt;
-  long int i, m, n;
+  indextype i, m, n;
   double *tmp;
   char *fctName;
   char *fwd_fctName = "CVodeQuadInit/CVodeQuadReInit";

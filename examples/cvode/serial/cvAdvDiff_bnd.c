@@ -84,7 +84,7 @@ typedef struct {
 
 static void SetIC(N_Vector u, UserData data);
 static void PrintHeader(realtype reltol, realtype abstol, realtype umax);
-static void PrintOutput(realtype t, realtype umax, long int nst);
+static void PrintOutput(realtype t, realtype umax, indextype nst);
 static void PrintFinalStats(void *cvode_mem);
 
 /* Private function to check function return values */
@@ -94,7 +94,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 /* Functions Called by the Solver */
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
-static int Jac(long int N, long int mu, long int ml,
+static int Jac(indextype N, indextype mu, indextype ml,
                realtype t, N_Vector u, N_Vector fu, 
                DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -112,7 +112,7 @@ int main(void)
   UserData data;
   void *cvode_mem;
   int iout, flag;
-  long int nst;
+  indextype nst;
 
   u = NULL;
   data = NULL;
@@ -239,12 +239,12 @@ static int f(realtype t, N_Vector u,N_Vector udot, void *user_data)
 
 /* Jacobian routine. Compute J(t,u). */
 
-static int Jac(long int N, long int mu, long int ml,
+static int Jac(indextype N, indextype mu, indextype ml,
                realtype t, N_Vector u, N_Vector fu, 
                DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  long int i, j, k;
+  indextype i, j, k;
   realtype *kthCol, hordc, horac, verdc;
   UserData data;
   
@@ -340,7 +340,7 @@ static void PrintHeader(realtype reltol, realtype abstol, realtype umax)
 
 /* Print current value */
 
-static void PrintOutput(realtype t, realtype umax, long int nst)
+static void PrintOutput(realtype t, realtype umax, indextype nst)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %4.2Lf   max.norm(u) =%14.6Le   nst = %4ld\n", t, umax, nst);
@@ -358,7 +358,7 @@ static void PrintOutput(realtype t, realtype umax, long int nst)
 static void PrintFinalStats(void *cvode_mem)
 {
   int flag;
-  long int nst, nfe, nsetups, netf, nni, ncfn, nje, nfeLS;
+  indextype nst, nfe, nsetups, netf, nni, ncfn, nje, nfeLS;
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);
   check_flag(&flag, "CVodeGetNumSteps", 1);

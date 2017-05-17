@@ -53,7 +53,7 @@
 /* Type: UserData */
 
 typedef struct {
-  long int mm;
+  indextype mm;
   realtype dx;
   realtype coeff;
 } *UserData;
@@ -83,7 +83,7 @@ int main(void)
   UserData data;
   N_Vector uu, up, constraints, id, res;
   int ier, iout;
-  long int mu, ml, netf, ncfn;
+  indextype mu, ml, netf, ncfn;
   realtype rtol, atol, t0, t1, tout, tret;
   
   mem = NULL;
@@ -203,7 +203,7 @@ int main(void)
 int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, 
             void *user_data)
 {
-  long int mm, i, j, offset, loc;
+  indextype mm, i, j, offset, loc;
   realtype *uv, *upv, *resv, coeff;
   UserData data;
   
@@ -244,7 +244,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector id, N_Vector res)
 {
   realtype xfact, yfact, *udata, *updata, *iddata;
-  long int mm, mm1, i, j, offset, loc;
+  indextype mm, mm1, i, j, offset, loc;
   
   mm = data->mm;
   mm1 = mm - 1;
@@ -333,7 +333,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
 {
   int ier;
   realtype umax, hused;
-  long int nst, nni, nje, nre, nreLS;
+  indextype nst, nni, nje, nre, nreLS;
   int kused;
 
   umax = N_VMaxNorm(uu);

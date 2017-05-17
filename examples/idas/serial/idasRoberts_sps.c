@@ -315,7 +315,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
 {
   realtype *yval;
   int retval, kused;
-  long int nst;
+  indextype nst;
   realtype hused;
 
   yval  = N_VGetArrayPointer_Serial(y);
@@ -351,7 +351,7 @@ static void PrintRootInfo(int root_f1, int root_f2)
 static void PrintFinalStats(void *mem)
 {
   int retval;
-  long int nst, nni, nje, nre, nreLS, netf, ncfn, nge;
+  indextype nst, nni, nje, nre, nreLS, netf, ncfn, nge;
 
   retval = IDAGetNumSteps(mem, &nst);
   check_flag(&retval, "IDAGetNumSteps", 1);

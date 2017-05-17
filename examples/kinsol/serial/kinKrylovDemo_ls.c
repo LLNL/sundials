@@ -145,7 +145,7 @@
 
 typedef struct {
   realtype **P[MX][MY];
-  long int *pivot[MX][MY];
+  indextype *pivot[MX][MY];
   realtype **acoef, *bcoef;
   N_Vector rates;
   realtype *cox, *coy;
@@ -509,7 +509,7 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
                        N_Vector ftem)
 {
   realtype **Pxy, *vxy;
-  long int *piv, jx, jy;
+  indextype *piv, jx, jy;
   UserData data;
   
   data = (UserData)user_data;
@@ -827,7 +827,7 @@ static void PrintOutput(N_Vector cc)
 
 static void PrintFinalStats(void *kmem, int linsolver)
 {
-  long int nni, nfe, nli, npe, nps, ncfl, nfeSG;
+  indextype nni, nfe, nli, npe, nps, ncfl, nfeSG;
   int flag;
   
   flag = KINGetNumNonlinSolvIters(kmem, &nni);

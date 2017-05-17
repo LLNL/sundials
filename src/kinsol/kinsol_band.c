@@ -120,7 +120,7 @@ static int kinBandFree(KINMem kin_mem);
  * -----------------------------------------------------------------
  */
                   
-int KINBand(void *kinmem, long int N, long int mupper, long int mlower)
+int KINBand(void *kinmem, indextype N, indextype mupper, indextype mlower)
 {
   KINMem kin_mem;
   KINDlsMem kindls_mem;
@@ -269,7 +269,7 @@ static int kinBandSetup(KINMem kin_mem)
 {
   KINDlsMem kindls_mem;
   int retval;
-  long int ier;
+  indextype ier;
 
   kindls_mem = (KINDlsMem) lmem;
 

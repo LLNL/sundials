@@ -34,11 +34,11 @@
 extern "C" {
 #endif
 
-  extern void FIDA_DJAC(long int*, 
+  extern void FIDA_DJAC(indextype*, 
                         realtype*, realtype*, realtype*, realtype*,
                         realtype*, 
                         realtype*, realtype*, realtype*,
-                        long int*, realtype*,
+                        indextype*, realtype*,
                         realtype*, realtype*, realtype*, 
                         int*);
 
@@ -74,7 +74,7 @@ void FIDA_DENSESETJAC(int *flag, int *ier)
 
 /*************************************************/
 
-int FIDADenseJac(long int N, realtype t, realtype c_j, 
+int FIDADenseJac(indextype N, realtype t, realtype c_j, 
 		 N_Vector yy, N_Vector yp, N_Vector rr,
                  DlsMat Jac, void *user_data,
 		 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)

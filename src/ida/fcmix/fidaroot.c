@@ -39,7 +39,7 @@ extern "C" {
                           realtype*,  /* Y    */
                           realtype*,  /* YP   */
                           realtype*,  /* G    */
-                          long int*,  /* IPAR */
+                          indextype*,  /* IPAR */
                           realtype*,  /* RPAR */
                           int*);      /* IER  */
 #ifdef __cplusplus

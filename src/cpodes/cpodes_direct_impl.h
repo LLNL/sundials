@@ -73,11 +73,11 @@ typedef struct {
 
   long *d_pivots;         /* pivots = pivot array for PM = LU             */
   
-  long int  d_nstlj;      /* nstlj = nst at last Jacobian eval.           */
+  indextype  d_nstlj;      /* nstlj = nst at last Jacobian eval.           */
 
-  long int d_nje;         /* nje = no. of calls to jac                    */
+  indextype d_nje;         /* nje = no. of calls to jac                    */
 
-  long int d_nfeDQ;       /* no. of calls to f due to DQ Jacobian approx. */
+  indextype d_nfeDQ;       /* no. of calls to f due to DQ Jacobian approx. */
 
   int d_last_flag;        /* last error return flag                       */
   
@@ -114,18 +114,18 @@ typedef struct {
   int d_nr;                 /* no. of independent constraints (QRP)        */
 
   DlsMat d_K;               /* K matrix (s.p.d., form depends on ftype)    */
-  long int *d_pivotsP;           /* pivotsP = pivot array (for ftype LU)        */
+  indextype *d_pivotsP;           /* pivotsP = pivot array (for ftype LU)        */
 
   realtype *d_beta;         /* beta array (for ftype QR)                   */
 
   realtype *d_wrk;          /* work array (for ftype QR or QRP)             */
   int d_len_wrk;            /* length of work array                         */
 
-  long int  d_nstljP;       /* nstljP = nst at last Jacobian eval.         */
+  indextype  d_nstljP;       /* nstljP = nst at last Jacobian eval.         */
 
-  long int d_njeP;          /* njeP = no. of calls to jacP                 */
+  indextype d_njeP;          /* njeP = no. of calls to jacP                 */
 
-  long int d_nceDQ;         /* no. of calls to c due to DQ Jacobian approx.*/
+  indextype d_nceDQ;         /* no. of calls to c due to DQ Jacobian approx.*/
 
 } CPDlsProjMemRec, *CPDlsProjMem;
 

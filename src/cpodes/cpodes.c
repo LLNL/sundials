@@ -347,7 +347,7 @@ int CPodeInitExpl(void *cpode_mem, CPRhsFn f, realtype t0, N_Vector y0)
 {
   CPodeMem cp_mem;
   booleantype nvectorOK, allocOK;
-  long int lrw1, liw1;
+  indextype lrw1, liw1;
 
   /* Check cpode_mem */
   if (cpode_mem==NULL) {
@@ -427,7 +427,7 @@ int CPodeInitImpl(void *cpode_mem, CPResFn f, realtype t0, N_Vector y0, N_Vector
 {
   CPodeMem cp_mem;
   booleantype nvectorOK, allocOK;
-  long int lrw1, liw1;
+  indextype lrw1, liw1;
 
   /* Check cpode_mem */
   if (cpode_mem==NULL) {
@@ -927,7 +927,7 @@ int CPodeQuadInit(void *cpode_mem, CPQuadFn qfun, N_Vector q0)
 {
   CPodeMem cp_mem;
   booleantype allocOK;
-  long int lrw1Q, liw1Q;
+  indextype lrw1Q, liw1Q;
 
   /* Check cpode_mem */
   if (cpode_mem==NULL) {
@@ -1162,7 +1162,7 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
           N_Vector yout, N_Vector ypout, int mode)
 {
   CPodeMem cp_mem;
-  long int nstloc;
+  indextype nstloc;
   int retval, hflag, kflag, istate, ier, task, irfndp;
   realtype troundoff, tout_hin, rh, nrm;
 

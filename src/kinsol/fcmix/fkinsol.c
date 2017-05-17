@@ -48,7 +48,7 @@
  */
 
 void *KIN_kinmem;
-long int *KIN_iout;
+indextype *KIN_iout;
 realtype *KIN_rout;
 int KIN_ls;
 
@@ -111,7 +111,7 @@ void FKIN_CREATE(int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_INIT(long int *iout, realtype *rout, int *ier)
+void FKIN_INIT(indextype *iout, realtype *rout, int *ier)
 {
   
   /* Call KINInit */
@@ -137,7 +137,7 @@ void FKIN_INIT(long int *iout, realtype *rout, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_MALLOC(long int *iout, realtype *rout, int *ier)
+void FKIN_MALLOC(indextype *iout, realtype *rout, int *ier)
 {
   
   /* check for required vector operations */
@@ -181,7 +181,7 @@ void FKIN_MALLOC(long int *iout, realtype *rout, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_SETIIN(char key_name[], long int *ival, int *ier)
+void FKIN_SETIIN(char key_name[], indextype *ival, int *ier)
 {
   if (!strncmp(key_name,"PRNT_LEVEL",10))
     *ier = KINSetPrintLevel(KIN_kinmem, (int) *ival);
@@ -274,7 +274,7 @@ void FKIN_SETVIN(char key_name[], realtype *vval, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_DENSE(long int *neq, int *ier)
+void FKIN_DENSE(indextype *neq, int *ier)
 {
   *ier = KINDense(KIN_kinmem, *neq);
   KIN_ls = KIN_LS_DENSE;
@@ -286,7 +286,7 @@ void FKIN_DENSE(long int *neq, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
+void FKIN_BAND(indextype *neq, indextype *mupper, indextype *mlower, int *ier)
 {
   *ier = KINBand(KIN_kinmem, *neq, *mupper, *mlower);
   KIN_ls = KIN_LS_BAND;

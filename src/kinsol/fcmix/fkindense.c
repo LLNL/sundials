@@ -38,7 +38,7 @@
 extern "C" {
 #endif
 
-extern void FK_DJAC(long int*, realtype*, realtype*, realtype*,
+extern void FK_DJAC(indextype*, realtype*, realtype*, realtype*,
 		    realtype*, realtype*, int*);
 
 #ifdef __cplusplus
@@ -75,7 +75,7 @@ void FKIN_DENSESETJAC(int *flag, int *ier)
  * ----------------------------------------------------------------
  */
 
-int FKINDenseJac(long int N, N_Vector uu, N_Vector fval,
+int FKINDenseJac(indextype N, N_Vector uu, N_Vector fval,
 		 DlsMat J, void *user_data, N_Vector vtemp1, N_Vector vtemp2)
 {
   realtype *uu_data, *fval_data, *jacdata, *v1_data, *v2_data;

@@ -79,7 +79,7 @@ int IDASlsSetSparseJacFn(void *ida_mem, IDASlsSparseJacFn jac)
 /*
  * IDASlsGetNumJacEvals returns the number of Jacobian evaluations.
  */
-int IDASlsGetNumJacEvals(void *ida_mem, long int *njevals)
+int IDASlsGetNumJacEvals(void *ida_mem, indextype *njevals)
 {
   IDAMem IDA_mem;
   IDASlsMem idasls_mem;
@@ -107,7 +107,7 @@ int IDASlsGetNumJacEvals(void *ida_mem, long int *njevals)
  * IDASlsGetReturnFlagName returns the name associated with a IDASLS
  * return value.
  */
-char *IDASlsGetReturnFlagName(long int flag)
+char *IDASlsGetReturnFlagName(indextype flag)
 {
   char *name;
 
@@ -148,7 +148,7 @@ char *IDASlsGetReturnFlagName(long int flag)
 /*
  * IDASlsGetLastFlag returns the last flag set in a IDASLS function.
  */
-int IDASlsGetLastFlag(void *ida_mem, long int *flag)
+int IDASlsGetLastFlag(void *ida_mem, indextype *flag)
 {
   IDAMem IDA_mem;
   IDASlsMem idasls_mem;

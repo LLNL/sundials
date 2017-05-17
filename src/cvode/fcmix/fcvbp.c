@@ -35,7 +35,7 @@
 
 /***************************************************************************/
 
-void FCV_BPINIT(long int *N, long int *mu, long int *ml, int *ier)
+void FCV_BPINIT(indextype *N, indextype *mu, indextype *ml, int *ier)
 {
   /* 
      Call CVBandPrecInit to initialize the CVBANDPRE module:
@@ -52,7 +52,7 @@ void FCV_BPINIT(long int *N, long int *mu, long int *ml, int *ier)
 
 /* C function FCVBPOPT to access optional outputs from CVBANDPRE_Data */
 
-void FCV_BPOPT(long int *lenrwbp, long int *leniwbp, long int *nfebp)
+void FCV_BPOPT(indextype *lenrwbp, indextype *leniwbp, indextype *nfebp)
 {
   CVBandPrecGetWorkSpace(CV_cvodemem, lenrwbp, leniwbp);
   CVBandPrecGetNumRhsEvals(CV_cvodemem, nfebp);

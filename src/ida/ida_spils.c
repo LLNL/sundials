@@ -286,7 +286,7 @@ int IDASpilsSetJacTimesVecFn(void *ida_mem, IDASpilsJacTimesVecFn jtv)
   return(IDASPILS_SUCCESS);
 }
 
-int IDASpilsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
+int IDASpilsGetWorkSpace(void *ida_mem, indextype *lenrwLS, indextype *leniwLS)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
@@ -324,7 +324,7 @@ int IDASpilsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
   return(IDASPILS_SUCCESS);
 }
 
-int IDASpilsGetNumPrecEvals(void *ida_mem, long int *npevals)
+int IDASpilsGetNumPrecEvals(void *ida_mem, indextype *npevals)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
@@ -347,7 +347,7 @@ int IDASpilsGetNumPrecEvals(void *ida_mem, long int *npevals)
   return(IDASPILS_SUCCESS);
 }
 
-int IDASpilsGetNumPrecSolves(void *ida_mem, long int *npsolves)
+int IDASpilsGetNumPrecSolves(void *ida_mem, indextype *npsolves)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
@@ -370,7 +370,7 @@ int IDASpilsGetNumPrecSolves(void *ida_mem, long int *npsolves)
   return(IDASPILS_SUCCESS);
 }
 
-int IDASpilsGetNumLinIters(void *ida_mem, long int *nliters)
+int IDASpilsGetNumLinIters(void *ida_mem, indextype *nliters)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
@@ -393,7 +393,7 @@ int IDASpilsGetNumLinIters(void *ida_mem, long int *nliters)
   return(IDASPILS_SUCCESS);
 }
 
-int IDASpilsGetNumConvFails(void *ida_mem, long int *nlcfails)
+int IDASpilsGetNumConvFails(void *ida_mem, indextype *nlcfails)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
@@ -416,7 +416,7 @@ int IDASpilsGetNumConvFails(void *ida_mem, long int *nlcfails)
   return(IDASPILS_SUCCESS);
 }
 
-int IDASpilsGetNumJtimesEvals(void *ida_mem, long int *njvevals)
+int IDASpilsGetNumJtimesEvals(void *ida_mem, indextype *njvevals)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
@@ -439,7 +439,7 @@ int IDASpilsGetNumJtimesEvals(void *ida_mem, long int *njvevals)
   return(IDASPILS_SUCCESS);
 }
 
-int IDASpilsGetNumResEvals(void *ida_mem, long int *nrevalsLS)
+int IDASpilsGetNumResEvals(void *ida_mem, indextype *nrevalsLS)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
@@ -462,7 +462,7 @@ int IDASpilsGetNumResEvals(void *ida_mem, long int *nrevalsLS)
   return(IDASPILS_SUCCESS);
 }
 
-int IDASpilsGetLastFlag(void *ida_mem, long int *flag)
+int IDASpilsGetLastFlag(void *ida_mem, indextype *flag)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
@@ -485,7 +485,7 @@ int IDASpilsGetLastFlag(void *ida_mem, long int *flag)
   return(IDASPILS_SUCCESS);
 }
 
-char *IDASpilsGetReturnFlagName(long int flag)
+char *IDASpilsGetReturnFlagName(indextype flag)
 {
   char *name;
 

@@ -56,7 +56,7 @@ extern N_Vector F2C_ARKODE_vec;
 #define MPI_Fint int
 #endif
 
-void FNV_INITPH(MPI_Fint *comm, int *code, long int *L, long int *N, int *ier);
+void FNV_INITPH(MPI_Fint *comm, int *code, indextype *L, indextype *N, int *ier);
 
 #ifdef __cplusplus
 }

@@ -109,7 +109,7 @@ static int cvBandFree(CVodeMem cv_mem);
  * -----------------------------------------------------------------
  */
                   
-int CVBand(void *cvode_mem, long int N, long int mupper, long int mlower)
+int CVBand(void *cvode_mem, indextype N, indextype mupper, indextype mlower)
 {
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
@@ -254,7 +254,7 @@ static int cvBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 {
   booleantype jbad, jok;
   realtype dgamma;
-  long int ier;
+  indextype ier;
   CVDlsMem cvdls_mem;
   int retval;
 

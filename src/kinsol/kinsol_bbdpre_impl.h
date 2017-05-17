@@ -41,7 +41,7 @@ typedef struct KBBDPrecDataRec {
 
   /* passed by user to KINBBDPrecAlloc, used by pset/psolve functions */
 
-  long int mudq, mldq, mukeep, mlkeep;
+  indextype mudq, mldq, mukeep, mlkeep;
   KINLocalFn gloc;
   KINCommFn gcomm;
 
@@ -56,17 +56,17 @@ typedef struct KBBDPrecDataRec {
   /* set by KINBBDPrecSetup and used by KINBBDPrecSolve */
 
   DlsMat PP;
-  long int *lpivots;
+  indextype *lpivots;
 
   /* set by KINBBDPrecAlloc and used by KINBBDPrecSetup */
 
-  long int n_local;
+  indextype n_local;
 
   /* available for optional output */
 
-  long int rpwsize;
-  long int ipwsize;
-  long int nge;
+  indextype rpwsize;
+  indextype ipwsize;
+  indextype nge;
 
   /* pointer to KINSol memory */
 

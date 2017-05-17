@@ -75,12 +75,12 @@ typedef struct {
 
 /* Private Helper Functions */
 
-static void SetIC(HYPRE_IJVector Uij, realtype dx, long int my_length,
-                  long int my_base);
+static void SetIC(HYPRE_IJVector Uij, realtype dx, indextype my_length,
+                  indextype my_base);
 
 static void PrintIntro(int npes);
 
-static void PrintData(realtype t, realtype umax, long int nst);
+static void PrintData(realtype t, realtype umax, indextype nst);
 
 static void PrintFinalStats(void *cvode_mem);
 
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
   UserData data;
   void *cvode_mem;
   int iout, flag, my_pe, npes;
-  long int nst;
+  indextype nst;
   HYPRE_Int local_N, nperpe, nrem, my_base;
   HYPRE_ParVector Upar; /* Declare HYPRE parallel vector */
   HYPRE_IJVector  Uij;  /* Declare "IJ" interface to HYPRE vector */
@@ -208,8 +208,8 @@ int main(int argc, char *argv[])
 
 /* Set initial conditions in u vector */
 
-static void SetIC(HYPRE_IJVector Uij, realtype dx, long int my_length,
-                  long int my_base)
+static void SetIC(HYPRE_IJVector Uij, realtype dx, indextype my_length,
+                  indextype my_base)
 {
   int i;
   HYPRE_Int *iglobal;
@@ -243,7 +243,7 @@ static void PrintIntro(int npes)
 
 /* Print data */
 
-static void PrintData(realtype t, realtype umax, long int nst)
+static void PrintData(realtype t, realtype umax, indextype nst)
 {
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -261,7 +261,7 @@ static void PrintData(realtype t, realtype umax, long int nst)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int nst, nfe, nni, ncfn, netf;
+  indextype nst, nfe, nni, ncfn, netf;
   int flag;
   
   flag = CVodeGetNumSteps(cvode_mem, &nst);

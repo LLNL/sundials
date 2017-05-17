@@ -182,7 +182,7 @@ int KINLapackDense(void *kinmem, int N)
   setupNonNull = TRUE;
 
   /* Set problem dimension */
-  n = (long int) N;
+  n = (indextype) N;
 
   /* Allocate memory for J and pivot array */
   
@@ -286,11 +286,11 @@ int KINLapackBand(void *kinmem, int N, int mupper, int mlower)
   setupNonNull = TRUE;
   
   /* Load problem dimension */
-  n = (long int) N;
+  n = (indextype) N;
 
   /* Load half-bandwidths in kindls_mem */
-  ml = (long int) mlower;
-  mu = (long int) mupper;
+  ml = (indextype) mlower;
+  mu = (indextype) mupper;
 
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= n) || (mu >= n)) {
@@ -395,7 +395,7 @@ static int kinLapackDenseSetup(KINMem kin_mem)
   dgetrf_f77(&intn, &intn, J->data, &intn, pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return -1 */
-  last_flag = (long int) ier;
+  last_flag = (indextype) ier;
   if (ier > 0) return(-1);
 
   return(0);
@@ -540,7 +540,7 @@ static int kinLapackBandSetup(KINMem kin_mem)
   dgbtrf_f77(&intn, &intn, &iml, &imu, J->data, &ldmat, pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return -1 */
-  last_flag = (long int) ier;
+  last_flag = (indextype) ier;
   if (ier > 0) return(-1);
 
   return(0);

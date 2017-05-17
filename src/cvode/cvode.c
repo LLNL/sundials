@@ -439,7 +439,7 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
 {
   CVodeMem cv_mem;
   booleantype nvectorOK, allocOK;
-  long int lrw1, liw1;
+  indextype lrw1, liw1;
   int i,k;
 
   /* Check cvode_mem */
@@ -1075,7 +1075,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
           realtype *tret, int itask)
 {
   CVodeMem cv_mem;
-  long int nstloc;
+  indextype nstloc;
   int retval, hflag, kflag, istate, ir, ier, irfndp;
   int ewtsetOK;
   realtype troundoff, tout_hin, rh, nrm;

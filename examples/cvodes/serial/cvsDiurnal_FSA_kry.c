@@ -127,7 +127,7 @@
 typedef struct {
   realtype *p;
   realtype **P[MX][MZ], **Jbd[MX][MZ];
-  long int *pivot[MX][MZ];
+  indextype *pivot[MX][MZ];
   realtype q4, om, dx, dz, hdco, haco, vdco;
 } *UserData;
 
@@ -434,7 +434,7 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
 {
   realtype c1, c2, czdn, czup, diag, zdn, zup, q4coef, delz, verdco, hordco;
   realtype **(*P)[MZ], **(*Jbd)[MZ];
-  long int *(*pivot)[MZ];
+  indextype *(*pivot)[MZ];
   int ier, jx, jz;
   realtype *ydata, **a, **j;
   UserData data;
@@ -534,7 +534,7 @@ static int PSolve(realtype tn, N_Vector y, N_Vector fy,
                   int lr, void *user_data, N_Vector vtemp)
 {
   realtype **(*P)[MZ];
-  long int *(*pivot)[MZ];
+  indextype *(*pivot)[MZ];
   int jx, jz;
   realtype *zdata, *v;
   UserData data;
@@ -736,7 +736,7 @@ static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz)
 
 static void PrintOutput(void *cvode_mem, realtype t, N_Vector y)
 {  
-  long int nst;
+  indextype nst;
   int qu, flag;
   realtype hu;
   realtype *ydata;
@@ -831,10 +831,10 @@ static void PrintOutputS(N_Vector *uS)
 
 static void PrintFinalStats(void *cvode_mem, booleantype sensi)
 {
-  long int nst;
-  long int nfe, nsetups, nni, ncfn, netf;
-  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
-  long int nli, ncfl, npe, nps;
+  indextype nst;
+  indextype nfe, nsetups, nni, ncfn, netf;
+  indextype nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+  indextype nli, ncfl, npe, nps;
   int flag;
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);

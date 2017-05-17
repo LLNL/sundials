@@ -32,9 +32,9 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FARK_DJAC(long int *N, realtype *T, realtype *Y, 
+  extern void FARK_DJAC(indextype *N, realtype *T, realtype *Y, 
 			realtype *FY, realtype *LDJAC,
-			realtype *H, long int *IPAR, 
+			realtype *H, indextype *IPAR, 
 			realtype *RPAR, realtype *V1, 
 			realtype *V2, realtype *V3, int *ier);
 
@@ -63,7 +63,7 @@ void FARK_LAPACKDENSESETJAC(int *flag, int *ier)
    system using Lapack with dense Jacobian approximation.
    Addresses of arguments are passed to FARKDJAC, using the macro 
    DENSE_COL and the routine N_VGetArrayPointer from NVECTOR  */
-int FARKLapackDenseJac(long int N, realtype t, N_Vector y, 
+int FARKLapackDenseJac(indextype N, realtype t, N_Vector y, 
 		       N_Vector fy, DlsMat J, void *user_data,
 		       N_Vector vtemp1, N_Vector vtemp2, 
 		       N_Vector vtemp3)

@@ -90,7 +90,7 @@ int main()
   N_Vector yB, ypB;
   int ncheck, flag;
   realtype time;
-  long int nst, nstB;
+  indextype nst, nstB;
   int indexB;
     
 

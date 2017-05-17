@@ -66,12 +66,12 @@ typedef struct {
 
 /* Private Helper Functions */
 
-static void SetIC(N_Vector u, realtype dx, long int my_length,
-                  long int my_base);
+static void SetIC(N_Vector u, realtype dx, indextype my_length,
+                  indextype my_base);
 
 static void PrintIntro(int npes);
 
-static void PrintData(realtype t, realtype umax, long int nst);
+static void PrintData(realtype t, realtype umax, indextype nst);
 
 static void PrintFinalStats(void *cvode_mem);
 
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
   UserData data;
   void *cvode_mem;
   int iout, flag, my_pe, npes;
-  long int local_N, nperpe, nrem, my_base, nst;
+  indextype local_N, nperpe, nrem, my_base, nst;
 
   MPI_Comm comm;
 
@@ -186,11 +186,11 @@ int main(int argc, char *argv[])
 
 /* Set initial conditions in u vector */
 
-static void SetIC(N_Vector u, realtype dx, long int my_length,
-                  long int my_base)
+static void SetIC(N_Vector u, realtype dx, indextype my_length,
+                  indextype my_base)
 {
   int i;
-  long int iglobal;
+  indextype iglobal;
   realtype x;
   realtype *udata;
 
@@ -218,7 +218,7 @@ static void PrintIntro(int npes)
 
 /* Print data */
 
-static void PrintData(realtype t, realtype umax, long int nst)
+static void PrintData(realtype t, realtype umax, indextype nst)
 {
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -236,7 +236,7 @@ static void PrintData(realtype t, realtype umax, long int nst)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int nst, nfe, nni, ncfn, netf;
+  indextype nst, nfe, nni, ncfn, netf;
   int flag;
   
   flag = CVodeGetNumSteps(cvode_mem, &nst);

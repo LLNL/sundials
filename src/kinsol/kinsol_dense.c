@@ -119,7 +119,7 @@ static int kinDenseFree(KINMem kin_mem);
  * -----------------------------------------------------------------
  */
 
-int KINDense(void *kinmem, long int N)
+int KINDense(void *kinmem, indextype N)
 {
   KINMem kin_mem;
   KINDlsMem kindls_mem;
@@ -251,7 +251,7 @@ static int kinDenseSetup(KINMem kin_mem)
 {
   KINDlsMem kindls_mem;
   int retval;
-  long int ier;
+  indextype ier;
 
   kindls_mem = (KINDlsMem) lmem;
  

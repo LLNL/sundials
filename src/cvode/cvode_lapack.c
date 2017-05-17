@@ -191,7 +191,7 @@ int CVLapackDense(void *cvode_mem, int N)
   setupNonNull = TRUE;
 
   /* Set problem dimension */
-  n = (long int) N;
+  n = (indextype) N;
 
   /* Allocate memory for M, pivot array, and savedJ */
   M = NULL;
@@ -298,11 +298,11 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
   setupNonNull = TRUE;
   
   /* Load problem dimension */
-  n = (long int) N;
+  n = (indextype) N;
 
   /* Load half-bandwiths in cvdls_mem */
-  ml = (long int) mlower;
-  mu = (long int) mupper;
+  ml = (indextype) mlower;
+  mu = (indextype) mupper;
 
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= n) || (mu >= n)) {
@@ -446,7 +446,7 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
   dgetrf_f77(&intn, &intn, M->data, &intn, pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  last_flag = (long int) ier;
+  last_flag = (indextype) ier;
   if (ier > 0) return(1);
   return(0);
 }
@@ -601,7 +601,7 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
   dgbtrf_f77(&intn, &intn, &iml, &imu, M->data, &ldmat, pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  last_flag = (long int) ier;
+  last_flag = (indextype) ier;
   if (ier > 0) return(1);
   return(0);
 

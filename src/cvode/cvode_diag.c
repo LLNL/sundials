@@ -168,7 +168,7 @@ int CVDiag(void *cvode_mem)
  * -----------------------------------------------------------------
  */
 
-int CVDiagGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
+int CVDiagGetWorkSpace(void *cvode_mem, indextype *lenrwLS, indextype *leniwLS)
 {
   CVodeMem cv_mem;
 
@@ -191,7 +191,7 @@ int CVDiagGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
  * -----------------------------------------------------------------
  */
 
-int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
+int CVDiagGetNumRhsEvals(void *cvode_mem, indextype *nfevalsLS)
 {
   CVodeMem cv_mem;
   CVDiagMem cvdiag_mem;
@@ -220,7 +220,7 @@ int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
  * -----------------------------------------------------------------
  */
 
-int CVDiagGetLastFlag(void *cvode_mem, long int *flag)
+int CVDiagGetLastFlag(void *cvode_mem, indextype *flag)
 {
   CVodeMem cv_mem;
   CVDiagMem cvdiag_mem;
@@ -249,7 +249,7 @@ int CVDiagGetLastFlag(void *cvode_mem, long int *flag)
  * -----------------------------------------------------------------
  */
 
-char *CVDiagGetReturnFlagName(long int flag)
+char *CVDiagGetReturnFlagName(indextype flag)
 {
   char *name;
 

@@ -361,8 +361,8 @@ static int KINSpfgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   /* increment counters nli, nps, and ncfl 
      (nni is updated in the KINSol main iteration loop) */
 
-  kinspils_mem->s_nli = kinspils_mem->s_nli + (long int) nli_inc;
-  kinspils_mem->s_nps = kinspils_mem->s_nps + (long int) nps_inc;
+  kinspils_mem->s_nli = kinspils_mem->s_nli + (indextype) nli_inc;
+  kinspils_mem->s_nps = kinspils_mem->s_nps + (indextype) nps_inc;
 
   if (kin_mem->kin_printfl > 2) 
     KINPrintInfo(kin_mem, PRNT_NLI, "KINSPFGMR", "KINSpfgmrSolve", INFO_NLI, nli_inc);

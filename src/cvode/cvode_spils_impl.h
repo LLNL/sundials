@@ -56,13 +56,13 @@ typedef struct CVSpilsMemRec {
   realtype s_delta;     /* delta = deltar * sqrtN                       */
   int  s_maxl;          /* maxl = maximum dimension of the Krylov space */
 
-  long int s_nstlpre;   /* value of nst at the last pset call           */
-  long int s_npe;       /* npe = total number of pset calls             */
-  long int s_nli;       /* nli = total number of linear iterations      */
-  long int s_nps;       /* nps = total number of psolve calls           */
-  long int s_ncfl;      /* ncfl = total number of convergence failures  */
-  long int s_njtimes;   /* njtimes = total number of calls to jtimes    */
-  long int s_nfes;      /* nfeSG = total number of calls to f for     
+  indextype s_nstlpre;   /* value of nst at the last pset call           */
+  indextype s_npe;       /* npe = total number of pset calls             */
+  indextype s_nli;       /* nli = total number of linear iterations      */
+  indextype s_nps;       /* nps = total number of psolve calls           */
+  indextype s_ncfl;      /* ncfl = total number of convergence failures  */
+  indextype s_njtimes;   /* njtimes = total number of calls to jtimes    */
+  indextype s_nfes;      /* nfeSG = total number of calls to f for     
                            difference quotient Jacobian-vector products */
 
   N_Vector s_ytemp;     /* temp vector passed to jtimes and psolve      */
@@ -97,7 +97,7 @@ typedef struct CVSpilsMemRec {
   CVSpilsJacTimesVecFn s_jtimes;
   void *s_j_data;
 
-  long int s_last_flag; /* last error flag returned by any function     */
+  indextype s_last_flag; /* last error flag returned by any function     */
 
 } *CVSpilsMem;
 

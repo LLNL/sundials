@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
 
   IDAadjCheckPointRec *ckpnt;
 
-  long int nst, nstB;
+  indextype nst, nstB;
 
   data = NULL;
   ckpnt = NULL;

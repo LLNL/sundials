@@ -177,7 +177,7 @@ int CVodeSetMaxOrd(void *cvode_mem, int maxord)
  * Specifies the maximum number of integration steps
  */
 
-int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps)
+int CVodeSetMaxNumSteps(void *cvode_mem, indextype mxsteps)
 {
   CVodeMem cv_mem;
 
@@ -567,7 +567,7 @@ int CVodeSetNoInactiveRootWarn(void *cvode_mem)
  * Returns the current number of integration steps
  */
 
-int CVodeGetNumSteps(void *cvode_mem, long int *nsteps)
+int CVodeGetNumSteps(void *cvode_mem, indextype *nsteps)
 {
   CVodeMem cv_mem;
 
@@ -589,7 +589,7 @@ int CVodeGetNumSteps(void *cvode_mem, long int *nsteps)
  * Returns the current number of calls to f
  */
 
-int CVodeGetNumRhsEvals(void *cvode_mem, long int *nfevals)
+int CVodeGetNumRhsEvals(void *cvode_mem, indextype *nfevals)
 {
   CVodeMem cv_mem;
 
@@ -611,7 +611,7 @@ int CVodeGetNumRhsEvals(void *cvode_mem, long int *nfevals)
  * Returns the current number of calls to the linear solver setup routine
  */
 
-int CVodeGetNumLinSolvSetups(void *cvode_mem, long int *nlinsetups)
+int CVodeGetNumLinSolvSetups(void *cvode_mem, indextype *nlinsetups)
 {
   CVodeMem cv_mem;
 
@@ -633,7 +633,7 @@ int CVodeGetNumLinSolvSetups(void *cvode_mem, long int *nlinsetups)
  * Returns the current number of error test failures
  */
 
-int CVodeGetNumErrTestFails(void *cvode_mem, long int *netfails)
+int CVodeGetNumErrTestFails(void *cvode_mem, indextype *netfails)
 {
   CVodeMem cv_mem;
 
@@ -700,7 +700,7 @@ int CVodeGetCurrentOrder(void *cvode_mem, int *qcur)
  * limit detection algorithm
  */
 
-int CVodeGetNumStabLimOrderReds(void *cvode_mem, long int *nslred)
+int CVodeGetNumStabLimOrderReds(void *cvode_mem, indextype *nslred)
 {
   CVodeMem cv_mem;
 
@@ -879,7 +879,7 @@ int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele)
  * Returns integrator work space requirements
  */
 
-int CVodeGetWorkSpace(void *cvode_mem, long int *lenrw, long int *leniw)
+int CVodeGetWorkSpace(void *cvode_mem, indextype *lenrw, indextype *leniw)
 {
   CVodeMem cv_mem;
 
@@ -902,8 +902,8 @@ int CVodeGetWorkSpace(void *cvode_mem, long int *lenrw, long int *leniw)
  * Returns integrator statistics
  */
 
-int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps, long int *nfevals, 
-                            long int *nlinsetups, long int *netfails, int *qlast, 
+int CVodeGetIntegratorStats(void *cvode_mem, indextype *nsteps, indextype *nfevals, 
+                            indextype *nlinsetups, indextype *netfails, int *qlast, 
                             int *qcur, realtype *hinused, realtype *hlast, 
                             realtype *hcur, realtype *tcur)
 {
@@ -936,7 +936,7 @@ int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps, long int *nfevals
  * Returns the current number of calls to g (for rootfinding)
  */
 
-int CVodeGetNumGEvals(void *cvode_mem, long int *ngevals)
+int CVodeGetNumGEvals(void *cvode_mem, indextype *ngevals)
 {
   CVodeMem cv_mem;
 
@@ -984,7 +984,7 @@ int CVodeGetRootInfo(void *cvode_mem, int *rootsfound)
  * Returns the current number of iterations in the nonlinear solver
  */
 
-int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
+int CVodeGetNumNonlinSolvIters(void *cvode_mem, indextype *nniters)
 {
   CVodeMem cv_mem;
 
@@ -1007,7 +1007,7 @@ int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
  * nonlinear solver
  */
 
-int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails)
+int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, indextype *nncfails)
 {
   CVodeMem cv_mem;
 
@@ -1029,8 +1029,8 @@ int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails)
  * Returns nonlinear solver statistics
  */
 
-int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters, 
-                            long int *nncfails)
+int CVodeGetNonlinSolvStats(void *cvode_mem, indextype *nniters, 
+                            indextype *nncfails)
 {
   CVodeMem cv_mem;
 
@@ -1049,7 +1049,7 @@ int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
 
 /*-----------------------------------------------------------------*/
 
-char *CVodeGetReturnFlagName(long int flag)
+char *CVodeGetReturnFlagName(indextype flag)
 {
   char *name;
 

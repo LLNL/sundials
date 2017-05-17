@@ -46,7 +46,7 @@ typedef struct {
 /* Private Helper Functions */
 static void SetIC(N_Vector u, UserData data);
 static void PrintHeader(realtype reltol, realtype abstol, realtype umax);
-static void PrintOutput(realtype t, realtype umax, long int nst);
+static void PrintOutput(realtype t, realtype umax, indextype nst);
 static void PrintFinalStats(void *cpode_mem);
 
 /* Functions Called by the Solver */
@@ -68,7 +68,7 @@ int main(void)
   UserData data;
   void *cpode_mem;
   int iout, flag;
-  long int nst;
+  indextype nst;
 
   u = NULL;
   data = NULL;
@@ -168,7 +168,7 @@ static int Jac(int N, int mu, int ml,
                DlsMat J, void *jac_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  long int i, j, k;
+  indextype i, j, k;
   realtype *kthCol, hordc, horac, verdc;
   UserData data;
   
@@ -246,7 +246,7 @@ static void PrintHeader(realtype reltol, realtype abstol, realtype umax)
 }
 
 /* Print current value */
-static void PrintOutput(realtype t, realtype umax, long int nst)
+static void PrintOutput(realtype t, realtype umax, indextype nst)
 {
   printf("At t = %4.2f   max.norm(u) =%14.6e   nst = %4ld\n", t, umax, nst);
   return;
@@ -257,7 +257,7 @@ static void PrintOutput(realtype t, realtype umax, long int nst)
 static void PrintFinalStats(void *cpode_mem)
 {
   int flag;
-  long int nst, nfe, nsetups, netf, nni, ncfn, nje, nfeLS;
+  indextype nst, nfe, nsetups, netf, nni, ncfn, nje, nfeLS;
 
   flag = CPodeGetNumSteps(cpode_mem, &nst);
   flag = CPodeGetNumFctEvals(cpode_mem, &nfe);

@@ -357,7 +357,7 @@ void CVSensRhsCS(int Ns, realtype t,
 */
 /*-----------------------------------------------------------------*/
 
-void CVDenseCSJac(long int N, DenseMat J, realtype t, 
+void CVDenseCSJac(indextype N, DenseMat J, realtype t, 
                   N_Vector y, N_Vector fy, void *jac_data,
                   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
@@ -365,7 +365,7 @@ void CVDenseCSJac(long int N, DenseMat J, realtype t,
   CVCSMem cvcs_mem;
   N_Vector y_re, y_im, f_re, f_im, jthCol;
   realtype *ydata_im;
-  long int j;
+  indextype j;
 
   /* jac_data points to cvode_mem */
   cv_mem = (CVodeMem) jac_data;
@@ -404,15 +404,15 @@ void CVDenseCSJac(long int N, DenseMat J, realtype t,
 */
 /*-----------------------------------------------------------------*/
 
-void CVBandCSJac(long int N, long int mupper, 
-                 long int mlower, BandMat J, realtype t, 
+void CVBandCSJac(indextype N, indextype mupper, 
+                 indextype mlower, BandMat J, realtype t, 
                  N_Vector y, N_Vector fy, void *jac_data,
                  N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   CVodeMem cv_mem;
   CVCSMem cvcs_mem;
   N_Vector y_re, y_im, f_re, f_im;
-  long int group, i, j, width, ngroups, i1, i2;
+  indextype group, i, j, width, ngroups, i1, i2;
   realtype *col_j, *ydata_im, *fdata_im;
 
   /* jac_data points to cvode_mem */

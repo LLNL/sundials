@@ -163,24 +163,24 @@ typedef struct IDAMemRec {
 
   int ida_maxord;        /* max value of method order k:                      */
   int ida_maxord_alloc;  /* value of maxord used when allocating memory       */
-  long int ida_mxstep;   /* max number of internal steps for one user call    */
+  indextype ida_mxstep;   /* max number of internal steps for one user call    */
   realtype ida_hmax_inv; /* inverse of max. step size hmax (default = 0.0)    */
 
   /* Counters */
 
-  long int ida_nst;      /* number of internal steps taken                    */
-  long int ida_nre;      /* number of function (res) calls                    */
-  long int ida_ncfn;     /* number of corrector convergence failures          */
-  long int ida_netf;     /* number of error test failures                     */
-  long int ida_nni;      /* number of Newton iterations performed             */
-  long int ida_nsetups;  /* number of lsetup calls                            */
+  indextype ida_nst;      /* number of internal steps taken                    */
+  indextype ida_nre;      /* number of function (res) calls                    */
+  indextype ida_ncfn;     /* number of corrector convergence failures          */
+  indextype ida_netf;     /* number of error test failures                     */
+  indextype ida_nni;      /* number of Newton iterations performed             */
+  indextype ida_nsetups;  /* number of lsetup calls                            */
 
   /* Space requirements for IDA */
 
-  long int ida_lrw1;     /* no. of realtype words in 1 N_Vector               */
-  long int ida_liw1;     /* no. of integer words in 1 N_Vector                */
-  long int ida_lrw;      /* number of realtype words in IDA work vectors      */
-  long int ida_liw;      /* no. of integer words in IDA work vectors          */
+  indextype ida_lrw1;     /* no. of realtype words in 1 N_Vector               */
+  indextype ida_liw1;     /* no. of integer words in 1 N_Vector                */
+  indextype ida_lrw;      /* number of realtype words in IDA work vectors      */
+  indextype ida_liw;      /* no. of integer words in IDA work vectors          */
 
   realtype ida_tolsf;    /* tolerance scale factor (saved value)              */
 
@@ -244,7 +244,7 @@ typedef struct IDAMemRec {
   realtype ida_ttol;        /* tolerance on root location                      */
   int ida_taskc;            /* copy of parameter itask                         */
   int ida_irfnd;            /* flag showing whether last step had a root       */
-  long int ida_nge;         /* counter for g evaluations                       */
+  indextype ida_nge;         /* counter for g evaluations                       */
   booleantype *ida_gactive; /* array with active/inactive event functions      */
   int ida_mxgnull;          /* number of warning messages about possible g==0  */
 

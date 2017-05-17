@@ -116,7 +116,7 @@ static int cvBandFreeB(CVodeBMem cvB_mem);
  * -----------------------------------------------------------------
  */
                   
-int CVBand(void *cvode_mem, long int N, long int mupper, long int mlower)
+int CVBand(void *cvode_mem, indextype N, indextype mupper, indextype mlower)
 {
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
@@ -263,7 +263,7 @@ static int cvBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   booleantype jbad, jok;
   realtype dgamma;
   int retval;
-  long int ier;
+  indextype ier;
 
   cvdls_mem = (CVDlsMem) lmem;
 
@@ -387,7 +387,7 @@ static int cvBandFree(CVodeMem cv_mem)
  */
 
 int CVBandB(void *cvode_mem, int which,
-            long int nB, long int mupperB, long int mlowerB)
+            indextype nB, indextype mupperB, indextype mlowerB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;

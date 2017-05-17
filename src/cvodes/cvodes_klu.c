@@ -332,7 +332,7 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 {
   booleantype jbad, jok;
   int retval;
-  long int nst, nstlj;
+  indextype nst, nstlj;
   realtype tn, gamma, gammap, dgamma;
   CVSlsMem cvsls_mem;
   CVSlsSparseJacFn jaceval;

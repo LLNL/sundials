@@ -363,7 +363,7 @@ int CVSpilsSetJacTimesVecFn(void *cvode_mem, CVSpilsJacTimesVecFn jtv)
  * -----------------------------------------------------------------
  */
 
-int CVSpilsGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
+int CVSpilsGetWorkSpace(void *cvode_mem, indextype *lenrwLS, indextype *leniwLS)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
@@ -409,7 +409,7 @@ int CVSpilsGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
  * -----------------------------------------------------------------
  */
 
-int CVSpilsGetNumPrecEvals(void *cvode_mem, long int *npevals)
+int CVSpilsGetNumPrecEvals(void *cvode_mem, indextype *npevals)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
@@ -438,7 +438,7 @@ int CVSpilsGetNumPrecEvals(void *cvode_mem, long int *npevals)
  * -----------------------------------------------------------------
  */
 
-int CVSpilsGetNumPrecSolves(void *cvode_mem, long int *npsolves)
+int CVSpilsGetNumPrecSolves(void *cvode_mem, indextype *npsolves)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
@@ -467,7 +467,7 @@ int CVSpilsGetNumPrecSolves(void *cvode_mem, long int *npsolves)
  * -----------------------------------------------------------------
  */
 
-int CVSpilsGetNumLinIters(void *cvode_mem, long int *nliters)
+int CVSpilsGetNumLinIters(void *cvode_mem, indextype *nliters)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
@@ -496,7 +496,7 @@ int CVSpilsGetNumLinIters(void *cvode_mem, long int *nliters)
  * -----------------------------------------------------------------
  */
 
-int CVSpilsGetNumConvFails(void *cvode_mem, long int *nlcfails)
+int CVSpilsGetNumConvFails(void *cvode_mem, indextype *nlcfails)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
@@ -525,7 +525,7 @@ int CVSpilsGetNumConvFails(void *cvode_mem, long int *nlcfails)
  * -----------------------------------------------------------------
  */
 
-int CVSpilsGetNumJtimesEvals(void *cvode_mem, long int *njvevals)
+int CVSpilsGetNumJtimesEvals(void *cvode_mem, indextype *njvevals)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
@@ -554,7 +554,7 @@ int CVSpilsGetNumJtimesEvals(void *cvode_mem, long int *njvevals)
  * -----------------------------------------------------------------
  */
 
-int CVSpilsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
+int CVSpilsGetNumRhsEvals(void *cvode_mem, indextype *nfevalsLS)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
@@ -583,7 +583,7 @@ int CVSpilsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
  * -----------------------------------------------------------------
  */
 
-int CVSpilsGetLastFlag(void *cvode_mem, long int *flag)
+int CVSpilsGetLastFlag(void *cvode_mem, indextype *flag)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
@@ -612,7 +612,7 @@ int CVSpilsGetLastFlag(void *cvode_mem, long int *flag)
  * -----------------------------------------------------------------
  */
 
-char *CVSpilsGetReturnFlagName(long int flag)
+char *CVSpilsGetReturnFlagName(indextype flag)
 {
   char *name;
 

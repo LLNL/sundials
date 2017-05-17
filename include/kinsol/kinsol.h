@@ -458,13 +458,13 @@ SUNDIALS_EXPORT int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun, vo
 SUNDIALS_EXPORT int KINSetInfoFile(void *kinmem, FILE *infofp);
 SUNDIALS_EXPORT int KINSetUserData(void *kinmem, void *user_data);
 SUNDIALS_EXPORT int KINSetPrintLevel(void *kinmemm, int printfl);
-SUNDIALS_EXPORT int KINSetMAA(void *kinmem, long int maa);
+SUNDIALS_EXPORT int KINSetMAA(void *kinmem, indextype maa);
   /* SUNDIALS_EXPORT int KINSetAAStopCrit(void *kinmem, booleantype setstop); */
-SUNDIALS_EXPORT int KINSetNumMaxIters(void *kinmem, long int mxiter);
+SUNDIALS_EXPORT int KINSetNumMaxIters(void *kinmem, indextype mxiter);
 SUNDIALS_EXPORT int KINSetNoInitSetup(void *kinmem, booleantype noInitSetup);
 SUNDIALS_EXPORT int KINSetNoResMon(void *kinmem, booleantype noNNIResMon);
-SUNDIALS_EXPORT int KINSetMaxSetupCalls(void *kinmem, long int msbset);
-SUNDIALS_EXPORT int KINSetMaxSubSetupCalls(void *kinmem, long int msbsetsub);
+SUNDIALS_EXPORT int KINSetMaxSetupCalls(void *kinmem, indextype msbset);
+SUNDIALS_EXPORT int KINSetMaxSubSetupCalls(void *kinmem, indextype msbsetsub);
 SUNDIALS_EXPORT int KINSetEtaForm(void *kinmem, int etachoice);
 SUNDIALS_EXPORT int KINSetEtaConstValue(void *kinmem, realtype eta);
 SUNDIALS_EXPORT int KINSetEtaParams(void *kinmem, realtype egamma, realtype ealpha);
@@ -472,7 +472,7 @@ SUNDIALS_EXPORT int KINSetResMonParams(void *kinmem, realtype omegamin, realtype
 SUNDIALS_EXPORT int KINSetResMonConstValue(void *kinmem, realtype omegaconst);
 SUNDIALS_EXPORT int KINSetNoMinEps(void *kinmem, booleantype noMinEps);
 SUNDIALS_EXPORT int KINSetMaxNewtonStep(void *kinmem, realtype mxnewtstep);
-SUNDIALS_EXPORT int KINSetMaxBetaFails(void *kinmem, long int mxnbcf);
+SUNDIALS_EXPORT int KINSetMaxBetaFails(void *kinmem, indextype mxnbcf);
 SUNDIALS_EXPORT int KINSetRelErrFunc(void *kinmem, realtype relfunc);
 SUNDIALS_EXPORT int KINSetFuncNormTol(void *kinmem, realtype fnormtol);
 SUNDIALS_EXPORT int KINSetScaledStepTol(void *kinmem, realtype scsteptol);
@@ -685,7 +685,7 @@ SUNDIALS_EXPORT int KINSol(void *kinmem, N_Vector uu, int strategy,
  * -----------------------------------------------------------------
  *                           |
  * KINGetWorkSpace           | returns both integer workspace size
- *                           | (total number of long int-sized blocks
+ *                           | (total number of indextype-sized blocks
  *                           | of memory allocated by KINSOL for
  *                           | vector storage) and real workspace
  *                           | size (total number of realtype-sized
@@ -740,14 +740,14 @@ SUNDIALS_EXPORT int KINSol(void *kinmem, N_Vector uu, int strategy,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINGetWorkSpace(void *kinmem, long int *lenrw, long int *leniw);
-SUNDIALS_EXPORT int KINGetNumNonlinSolvIters(void *kinmem, long int *nniters);
-SUNDIALS_EXPORT int KINGetNumFuncEvals(void *kinmem, long int *nfevals);
-SUNDIALS_EXPORT int KINGetNumBetaCondFails(void *kinmem, long int *nbcfails); 
-SUNDIALS_EXPORT int KINGetNumBacktrackOps(void *kinmem, long int *nbacktr);
+SUNDIALS_EXPORT int KINGetWorkSpace(void *kinmem, indextype *lenrw, indextype *leniw);
+SUNDIALS_EXPORT int KINGetNumNonlinSolvIters(void *kinmem, indextype *nniters);
+SUNDIALS_EXPORT int KINGetNumFuncEvals(void *kinmem, indextype *nfevals);
+SUNDIALS_EXPORT int KINGetNumBetaCondFails(void *kinmem, indextype *nbcfails); 
+SUNDIALS_EXPORT int KINGetNumBacktrackOps(void *kinmem, indextype *nbacktr);
 SUNDIALS_EXPORT int KINGetFuncNorm(void *kinmem, realtype *fnorm);
 SUNDIALS_EXPORT int KINGetStepLength(void *kinmem, realtype *steplength);
-SUNDIALS_EXPORT char *KINGetReturnFlagName(long int flag);
+SUNDIALS_EXPORT char *KINGetReturnFlagName(indextype flag);
 
 /*
  * -----------------------------------------------------------------

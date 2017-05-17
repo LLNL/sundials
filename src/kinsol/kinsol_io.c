@@ -194,7 +194,7 @@ int KINSetUserData(void *kinmem, void *user_data)
  * -----------------------------------------------------------------
  */
 
-int KINSetMAA(void *kinmem, long int maa)
+int KINSetMAA(void *kinmem, indextype maa)
 {
   KINMem kin_mem;
 
@@ -249,7 +249,7 @@ int KINSetAAStopCrit(void *kinmem, booleantype setstop)
  * -----------------------------------------------------------------
  */
 
-int KINSetNumMaxIters(void *kinmem, long int mxiter)
+int KINSetNumMaxIters(void *kinmem, indextype mxiter)
 {
   KINMem kin_mem;
 
@@ -321,7 +321,7 @@ int KINSetNoResMon(void *kinmem, booleantype noResMon)
  * -----------------------------------------------------------------
  */
 
-int KINSetMaxSetupCalls(void *kinmem, long int msbset)
+int KINSetMaxSetupCalls(void *kinmem, indextype msbset)
 {
   KINMem kin_mem;
 
@@ -351,7 +351,7 @@ int KINSetMaxSetupCalls(void *kinmem, long int msbset)
  * -----------------------------------------------------------------
  */
 
-int KINSetMaxSubSetupCalls(void *kinmem, long int msbsetsub)
+int KINSetMaxSubSetupCalls(void *kinmem, indextype msbsetsub)
 {
   KINMem kin_mem;
 
@@ -620,7 +620,7 @@ int KINSetMaxNewtonStep(void *kinmem, realtype mxnewtstep)
  * -----------------------------------------------------------------
  */
 
-int KINSetMaxBetaFails(void *kinmem, long int mxnbcf)
+int KINSetMaxBetaFails(void *kinmem, indextype mxnbcf)
 {
   KINMem kin_mem;
 
@@ -848,7 +848,7 @@ int KINSetSysFunc(void *kinmem, KINSysFn func)
  * -----------------------------------------------------------------
  */
 
-int KINGetWorkSpace(void *kinmem, long int *lenrw, long int *leniw)
+int KINGetWorkSpace(void *kinmem, indextype *lenrw, indextype *leniw)
 {
   KINMem kin_mem;
 
@@ -871,7 +871,7 @@ int KINGetWorkSpace(void *kinmem, long int *lenrw, long int *leniw)
  * -----------------------------------------------------------------
  */
 
-int KINGetNumNonlinSolvIters(void *kinmem, long int *nniters)
+int KINGetNumNonlinSolvIters(void *kinmem, indextype *nniters)
 {
   KINMem kin_mem;
 
@@ -892,7 +892,7 @@ int KINGetNumNonlinSolvIters(void *kinmem, long int *nniters)
  * -----------------------------------------------------------------
  */
 
-int KINGetNumFuncEvals(void *kinmem, long int *nfevals)
+int KINGetNumFuncEvals(void *kinmem, indextype *nfevals)
 {
   KINMem kin_mem;
 
@@ -913,7 +913,7 @@ int KINGetNumFuncEvals(void *kinmem, long int *nfevals)
  * -----------------------------------------------------------------
  */
 
-int KINGetNumBetaCondFails(void *kinmem, long int *nbcfails)
+int KINGetNumBetaCondFails(void *kinmem, indextype *nbcfails)
 {
   KINMem kin_mem;
 
@@ -934,7 +934,7 @@ int KINGetNumBetaCondFails(void *kinmem, long int *nbcfails)
  * -----------------------------------------------------------------
  */
 
-int KINGetNumBacktrackOps(void *kinmem, long int *nbacktr)
+int KINGetNumBacktrackOps(void *kinmem, indextype *nbacktr)
 {
   KINMem kin_mem;
 
@@ -997,7 +997,7 @@ int KINGetStepLength(void *kinmem, realtype *steplength)
  * -----------------------------------------------------------------
  */
 
-char *KINGetReturnFlagName(long int flag)
+char *KINGetReturnFlagName(indextype flag)
 {
   char *name;
 

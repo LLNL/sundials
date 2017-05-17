@@ -40,7 +40,7 @@ typedef struct {
 
 /* Prototypes of functions by CVODES */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
-static int Jac(long int N, DenseMat J, realtype t,
+static int Jac(indextype N, DenseMat J, realtype t,
                N_Vector y, N_Vector fy, void *jac_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot, 
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
   UserData data;
   void *cvode_mem;
 
-  long int Neq;
+  indextype Neq;
   realtype reltol;
   N_Vector y0, y, abstol;
 
@@ -287,7 +287,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
  * Jacobian routine. Compute J(t,y). 
  */
 
-static int Jac(long int N, DenseMat J, realtype t,
+static int Jac(indextype N, DenseMat J, realtype t,
                N_Vector y, N_Vector fy, void *jac_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
@@ -393,10 +393,10 @@ static void PrintHeader(UserData data)
 
 static void PrintFinalStats(void *cvode_mem, UserData data)
 {
-  long int nst;
-  long int nfe, nsetups, nni, ncfn, netf;
-  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
-  long int njeD, nfeD;
+  indextype nst;
+  indextype nfe, nsetups, nni, ncfn, netf;
+  indextype nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+  indextype njeD, nfeD;
   int flag;
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);

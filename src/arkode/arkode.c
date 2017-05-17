@@ -58,8 +58,8 @@ static int arkAllocFPData(ARKodeMem ark_mem);
 static int arkResizeFPData(ARKodeMem ark_mem, 
 			   ARKVecResizeFn resize,
 			   void *resize_data,
-			   long int lrw_diff,
-			   long int liw_diff);
+			   indextype lrw_diff,
+			   indextype liw_diff);
 static void arkFreeFPData(ARKodeMem ark_mem);
 
 static int arkInitialSetup(ARKodeMem ark_mem);
@@ -244,7 +244,7 @@ int ARKodeInit(void *arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
 {
   ARKodeMem ark_mem;
   booleantype nvectorOK, allocOK;
-  long int lrw1, liw1;
+  indextype lrw1, liw1;
 
   /* Check arkode_mem */
   if (arkode_mem==NULL) {
@@ -539,8 +539,8 @@ int ARKodeResize(void *arkode_mem, N_Vector y0,
 		 ARKVecResizeFn resize, void *resize_data)
 {
   ARKodeMem ark_mem;
-  long int lrw1=0, liw1=0;
-  long int lrw_diff, liw_diff;
+  indextype lrw1=0, liw1=0;
+  indextype lrw_diff, liw_diff;
   int ier, i;
  
   /* Check arkode_mem */
@@ -1174,7 +1174,7 @@ int ARKode(void *arkode_mem, realtype tout, N_Vector yout,
 	   realtype *tret, int itask)
 {
   ARKodeMem ark_mem;
-  long int nstloc;
+  indextype nstloc;
   int retval, hflag, kflag, istate, ir, ier, irfndp;
   int ewtsetOK;
   realtype troundoff, tout_hin, rh, nrm;
@@ -2165,7 +2165,7 @@ static void arkPrintMem(ARKodeMem ark_mem)
   printf("ark_irfnd = %i\n", ark_mem->ark_irfnd);
   printf("ark_mxgnull = %i\n", ark_mem->ark_mxgnull);
 
-  /* output long integer quantities */
+  /* output indextypeeger quantities */
   printf("ark_mxstep = %li\n", ark_mem->ark_mxstep);
   printf("ark_nst = %li\n", ark_mem->ark_nst);
   printf("ark_nst_acc = %li\n", ark_mem->ark_nst_acc);
@@ -2771,7 +2771,7 @@ static void arkFreeVectors(ARKodeMem ark_mem)
 ---------------------------------------------------------------*/
 static int arkAllocFPData(ARKodeMem ark_mem)
 {
-  long int maa = ark_mem->ark_fp_m;
+  indextype maa = ark_mem->ark_fp_m;
 
   /* ensure that DotProd function is defined */
   if (ark_mem->ark_ewt->ops->nvdotprod == NULL) {
@@ -2876,7 +2876,7 @@ static int arkAllocFPData(ARKodeMem ark_mem)
 
   /* Allocate ark_fp_imap if needed */
   if ((ark_mem->ark_fp_imap == NULL) && (maa > 0)) {
-    ark_mem->ark_fp_imap = (long int *) malloc(maa * sizeof(long int));
+    ark_mem->ark_fp_imap = (indextype *) malloc(maa * sizeof(indextype));
     if (ark_mem->ark_fp_imap == NULL) {
       arkFreeFPData(ark_mem);
       return(ARK_MEM_FAIL);
@@ -2895,11 +2895,11 @@ static int arkAllocFPData(ARKodeMem ark_mem)
  fixed-point solver (called from ARKodeResize()).
 ---------------------------------------------------------------*/
 static int arkResizeFPData(ARKodeMem ark_mem, ARKVecResizeFn resize,
-			   void *resize_data, long int lrw_diff, 
-			   long int liw_diff)
+			   void *resize_data, indextype lrw_diff, 
+			   indextype liw_diff)
 {
-  long int i;
-  long int maa = ark_mem->ark_fp_m;
+  indextype i;
+  indextype maa = ark_mem->ark_fp_m;
 
   /* Resize ark_fp_fval if needed */
   if (ark_mem->ark_fp_fval != NULL) {
@@ -3014,7 +3014,7 @@ static int arkResizeFPData(ARKodeMem ark_mem, ARKVecResizeFn resize,
 ---------------------------------------------------------------*/
 static void arkFreeFPData(ARKodeMem ark_mem)
 {
-  long int maa = ark_mem->ark_fp_m;
+  indextype maa = ark_mem->ark_fp_m;
 
   /* free ark_fp_fval if needed */
   if (ark_mem->ark_fp_fval != NULL) {
@@ -4822,7 +4822,7 @@ static int arkNlsAccelFP(ARKodeMem ark_mem, int nflag)
   realtype tn     = ark_mem->ark_tn;
   realtype *R     = ark_mem->ark_fp_R;
   realtype *gamma = ark_mem->ark_fp_gamma;
-  long int maa    = ark_mem->ark_fp_m;
+  indextype maa    = ark_mem->ark_fp_m;
   void *udata     = ark_mem->ark_user_data;
   N_Vector ypred  = ark_mem->ark_acor;
   N_Vector y      = ark_mem->ark_y;
@@ -4938,13 +4938,13 @@ static int arkAndersonAcc(ARKodeMem ark_mem, N_Vector gval,
 			  int iter, realtype *R, realtype *gamma)
 {
   /* local variables */
-  long int i_pt, i, j, lAA;
+  indextype i_pt, i, j, lAA;
   realtype alfa, a, b, temp, c, s;
 
   /* local shortcut variables */
   N_Vector vtemp2 = ark_mem->ark_y;       /* rename y as vtemp2 for readability */
-  long int *ipt_map = ark_mem->ark_fp_imap;
-  long int maa = ark_mem->ark_fp_m;
+  indextype *ipt_map = ark_mem->ark_fp_imap;
+  indextype maa = ark_mem->ark_fp_m;
   N_Vector gold = ark_mem->ark_fp_gold;
   N_Vector fold = ark_mem->ark_fp_fold;
   N_Vector *df = ark_mem->ark_fp_df;

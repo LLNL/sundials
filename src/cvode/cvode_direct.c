@@ -149,7 +149,7 @@ int CVDlsSetBandJacFn(void *cvode_mem, CVDlsBandJacFn jac)
  * CVDlsGetWorkSpace returns the length of workspace allocated for the
  * CVDLS linear solver.
  */
-int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
+int CVDlsGetWorkSpace(void *cvode_mem, indextype *lenrwLS, indextype *leniwLS)
 {
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
@@ -181,7 +181,7 @@ int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
 /*
  * CVDlsGetNumJacEvals returns the number of Jacobian evaluations.
  */
-int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals)
+int CVDlsGetNumJacEvals(void *cvode_mem, indextype *njevals)
 {
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
@@ -208,7 +208,7 @@ int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals)
  * CVDlsGetNumRhsEvals returns the number of calls to the ODE function
  * needed for the DQ Jacobian approximation.
  */
-int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
+int CVDlsGetNumRhsEvals(void *cvode_mem, indextype *nfevalsLS)
 {
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
@@ -235,7 +235,7 @@ int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
  * CVDlsGetReturnFlagName returns the name associated with a CVDLS
  * return value.
  */
-char *CVDlsGetReturnFlagName(long int flag)
+char *CVDlsGetReturnFlagName(indextype flag)
 {
   char *name;
 
@@ -273,7 +273,7 @@ char *CVDlsGetReturnFlagName(long int flag)
 /*
  * CVDlsGetLastFlag returns the last flag set in a CVDLS function.
  */
-int CVDlsGetLastFlag(void *cvode_mem, long int *flag)
+int CVDlsGetLastFlag(void *cvode_mem, indextype *flag)
 {
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
@@ -317,7 +317,7 @@ int CVDlsGetLastFlag(void *cvode_mem, long int *flag)
  * -----------------------------------------------------------------
  */ 
 
-int cvDlsDenseDQJac(long int N, realtype t,
+int cvDlsDenseDQJac(indextype N, realtype t,
                     N_Vector y, N_Vector fy, 
                     DlsMat Jac, void *data,
                     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -325,7 +325,7 @@ int cvDlsDenseDQJac(long int N, realtype t,
   realtype fnorm, minInc, inc, inc_inv, yjsaved, srur;
   realtype *tmp2_data, *y_data, *ewt_data;
   N_Vector ftemp, jthCol;
-  long int j;
+  indextype j;
   int retval = 0;
 
   CVodeMem cv_mem;
@@ -393,7 +393,7 @@ int cvDlsDenseDQJac(long int N, realtype t,
  * -----------------------------------------------------------------
  */
 
-int cvDlsBandDQJac(long int N, long int mupper, long int mlower,
+int cvDlsBandDQJac(indextype N, indextype mupper, indextype mlower,
                    realtype t, N_Vector y, N_Vector fy, 
                    DlsMat Jac, void *data,
                    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -401,7 +401,7 @@ int cvDlsBandDQJac(long int N, long int mupper, long int mlower,
   N_Vector ftemp, ytemp;
   realtype fnorm, minInc, inc, inc_inv, srur;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
-  long int group, i, j, width, ngroups, i1, i2;
+  indextype group, i, j, width, ngroups, i1, i2;
   int retval = 0;
 
   CVodeMem cv_mem;

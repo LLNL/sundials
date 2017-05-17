@@ -181,7 +181,7 @@ int ARKDlsSetBandMassFn(void *arkode_mem, ARKDlsBandMassFn mass)
  ARKDlsGetWorkSpace returns the length of workspace allocated for 
  the ARKDLS linear solver.
 ---------------------------------------------------------------*/
-int ARKDlsGetWorkSpace(void *arkode_mem, long int *lenrwLS, long int *leniwLS)
+int ARKDlsGetWorkSpace(void *arkode_mem, indextype *lenrwLS, indextype *leniwLS)
 {
   ARKodeMem ark_mem;
   ARKDlsMem arkdls_mem;
@@ -217,8 +217,8 @@ int ARKDlsGetWorkSpace(void *arkode_mem, long int *lenrwLS, long int *leniwLS)
  ARKDlsGetMassWorkSpace returns the length of workspace allocated 
  for the ARKDLS mass matrix linear solver.
 ---------------------------------------------------------------*/
-int ARKDlsGetMassWorkSpace(void *arkode_mem, long int *lenrwMLS, 
-			   long int *leniwMLS)
+int ARKDlsGetMassWorkSpace(void *arkode_mem, indextype *lenrwMLS, 
+			   indextype *leniwMLS)
 {
   ARKodeMem ark_mem;
   ARKDlsMassMem arkdls_mem;
@@ -253,7 +253,7 @@ int ARKDlsGetMassWorkSpace(void *arkode_mem, long int *lenrwMLS,
 /*---------------------------------------------------------------
  ARKDlsGetNumJacEvals returns the number of Jacobian evaluations.
 ---------------------------------------------------------------*/
-int ARKDlsGetNumJacEvals(void *arkode_mem, long int *njevals)
+int ARKDlsGetNumJacEvals(void *arkode_mem, indextype *njevals)
 {
   ARKodeMem ark_mem;
   ARKDlsMem arkdls_mem;
@@ -282,7 +282,7 @@ int ARKDlsGetNumJacEvals(void *arkode_mem, long int *njevals)
 /*---------------------------------------------------------------
  ARKDlsGetNumMassEvals returns the number of mass matrix evaluations.
 ---------------------------------------------------------------*/
-int ARKDlsGetNumMassEvals(void *arkode_mem, long int *nmevals)
+int ARKDlsGetNumMassEvals(void *arkode_mem, indextype *nmevals)
 {
   ARKodeMem ark_mem;
   ARKDlsMassMem arkdls_mem;
@@ -312,7 +312,7 @@ int ARKDlsGetNumMassEvals(void *arkode_mem, long int *nmevals)
  ARKDlsGetNumRhsEvals returns the number of calls to the ODE function
  needed for the DQ Jacobian approximation.
 ---------------------------------------------------------------*/
-int ARKDlsGetNumRhsEvals(void *arkode_mem, long int *nfevalsLS)
+int ARKDlsGetNumRhsEvals(void *arkode_mem, indextype *nfevalsLS)
 {
   ARKodeMem ark_mem;
   ARKDlsMem arkdls_mem;
@@ -342,7 +342,7 @@ int ARKDlsGetNumRhsEvals(void *arkode_mem, long int *nfevalsLS)
  ARKDlsGetReturnFlagName returns the name associated with a ARKDLS
  return value.
 ---------------------------------------------------------------*/
-char *ARKDlsGetReturnFlagName(long int flag)
+char *ARKDlsGetReturnFlagName(indextype flag)
 {
   char *name;
 
@@ -384,7 +384,7 @@ char *ARKDlsGetReturnFlagName(long int flag)
 /*---------------------------------------------------------------
  ARKDlsGetLastFlag returns the last flag set in a ARKDLS function.
 ---------------------------------------------------------------*/
-int ARKDlsGetLastFlag(void *arkode_mem, long int *flag)
+int ARKDlsGetLastFlag(void *arkode_mem, indextype *flag)
 {
   ARKodeMem ark_mem;
   ARKDlsMem arkdls_mem;
@@ -414,7 +414,7 @@ int ARKDlsGetLastFlag(void *arkode_mem, long int *flag)
  ARKDlsGetLastMassFlag returns the last flag set in a ARKDLS mass
   matrix function.
 ---------------------------------------------------------------*/
-int ARKDlsGetLastMassFlag(void *arkode_mem, long int *flag)
+int ARKDlsGetLastMassFlag(void *arkode_mem, indextype *flag)
 {
   ARKodeMem ark_mem;
   ARKDlsMassMem arkdls_mem;
@@ -456,14 +456,14 @@ int ARKDlsGetLastMassFlag(void *arkode_mem, long int *flag)
  functions.  Finally, the actual computation of the jth column of
  the Jacobian is done with a call to N_VLinearSum.
 ---------------------------------------------------------------*/
-int arkDlsDenseDQJac(long int N, realtype t, N_Vector y, 
+int arkDlsDenseDQJac(indextype N, realtype t, N_Vector y, 
 		     N_Vector fy, DlsMat Jac, void *data,
 		     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype fnorm, minInc, inc, inc_inv, yjsaved, srur;
   realtype *tmp2_data, *y_data, *ewt_data;
   N_Vector ftemp, jthCol;
-  long int j;
+  indextype j;
   int retval = 0;
 
   ARKodeMem ark_mem;
@@ -529,7 +529,7 @@ int arkDlsDenseDQJac(long int N, realtype t, N_Vector y,
  of a column of J via the macro BAND_COL and to write a simple for 
  loop to set each of the elements of a column in succession.
 ---------------------------------------------------------------*/
-int arkDlsBandDQJac(long int N, long int mupper, long int mlower,
+int arkDlsBandDQJac(indextype N, indextype mupper, indextype mlower,
                    realtype t, N_Vector y, N_Vector fy, 
                    DlsMat Jac, void *data,
                    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -537,7 +537,7 @@ int arkDlsBandDQJac(long int N, long int mupper, long int mlower,
   N_Vector ftemp, ytemp;
   realtype fnorm, minInc, inc, inc_inv, srur;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
-  long int group, i, j, width, ngroups, i1, i2;
+  indextype group, i, j, width, ngroups, i1, i2;
   int retval = 0;
 
   ARKodeMem ark_mem;

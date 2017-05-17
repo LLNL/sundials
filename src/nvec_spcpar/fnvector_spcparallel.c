@@ -52,8 +52,8 @@ N_Vector F2C_ARKODE_vec;
 
 void FNV_INITSPCP(MPI_Fint *comm, int *code, 
                   int *Ngrp, int *Nspc,
-                  long int *Nx, long int *Ny, long int *Nz,
-                  long int *NGx, long int *NGy, long int *NGz,
+                  indextype *Nx, indextype *Ny, indextype *Nz,
+                  indextype *NGx, indextype *NGy, indextype *NGz,
                   int *ier)
 {
   MPI_Comm F2C_comm;
@@ -96,8 +96,8 @@ void FNV_INITSPCP(MPI_Fint *comm, int *code,
 
 void FNV_INITSPCP_Q(MPI_Fint *comm, int *code, 
                     int *NgrpQ, int *NspcQ,
-                    long int *NxQ, long int *NyQ, long int *NzQ,
-                    long int *NGxQ, long int *NGyQ, long int *NGzQ,
+                    indextype *NxQ, indextype *NyQ, indextype *NzQ,
+                    indextype *NGxQ, indextype *NGyQ, indextype *NGzQ,
                     int *ier)
 {
   MPI_Comm F2C_comm;
@@ -128,8 +128,8 @@ void FNV_INITSPCP_Q(MPI_Fint *comm, int *code,
 
 void FNV_INITSPCP_B(MPI_Fint *comm, int *code, 
                     int *NgrpB, int *NspcB,
-                    long int *NxB, long int *NyB, long int *NzB,
-                    long int *NGxB, long int *NGyB, long int *NGzB,
+                    indextype *NxB, indextype *NyB, indextype *NzB,
+                    indextype *NGxB, indextype *NGyB, indextype *NGzB,
                     int *ier)
 {
   MPI_Comm F2C_comm;
@@ -160,8 +160,8 @@ void FNV_INITSPCP_B(MPI_Fint *comm, int *code,
 
 void FNV_INITSPCP_QB(MPI_Fint *comm, int *code, 
                      int *NgrpQB, int *NspcQB,
-                     long int *NxQB, long int *NyQB, long int *NzQB,
-                     long int *NGxQB, long int *NGyQB, long int *NGzQB,
+                     indextype *NxQB, indextype *NyQB, indextype *NzQB,
+                     indextype *NGxQB, indextype *NGyQB, indextype *NGzQB,
                      int *ier)
 {
   MPI_Comm F2C_comm;

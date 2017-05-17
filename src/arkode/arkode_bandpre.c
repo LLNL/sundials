@@ -60,13 +60,13 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
        representation by checking that the function 
        N_VGetArrayPointer exists.
 ---------------------------------------------------------------*/
-int ARKBandPrecInit(void *arkode_mem, long int N, 
-		    long int mu, long int ml)
+int ARKBandPrecInit(void *arkode_mem, indextype N, 
+		    indextype mu, indextype ml)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
   ARKBandPrecData pdata;
-  long int mup, mlp, storagemu;
+  indextype mup, mlp, storagemu;
   int flag;
 
   if (arkode_mem == NULL) {
@@ -153,12 +153,12 @@ int ARKBandPrecInit(void *arkode_mem, long int N,
 }
 
 
-int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP, long int *leniwBP)
+int ARKBandPrecGetWorkSpace(void *arkode_mem, indextype *lenrwBP, indextype *leniwBP)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
   ARKBandPrecData pdata;
-  long int N, ml, mu, smu;
+  indextype N, ml, mu, smu;
 
   
   if (arkode_mem == NULL) {
@@ -191,7 +191,7 @@ int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP, long int *leniw
 }
 
 
-int ARKBandPrecGetNumRhsEvals(void *arkode_mem, long int *nfevalsBP)
+int ARKBandPrecGetNumRhsEvals(void *arkode_mem, indextype *nfevalsBP)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
@@ -274,7 +274,7 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   ARKBandPrecData pdata;
   ARKodeMem ark_mem;
   int retval;
-  long int ier;
+  indextype ier;
 
   /* Assume matrix and lpivots have already been allocated. */
   pdata = (ARKBandPrecData) bp_data;
@@ -402,7 +402,7 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
 {
   ARKodeMem ark_mem;
   realtype fnorm, minInc, inc, inc_inv, srur;
-  long int group, i, j, width, ngroups, i1, i2;
+  indextype group, i, j, width, ngroups, i1, i2;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
   int retval;
 

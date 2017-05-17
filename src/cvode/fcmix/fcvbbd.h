@@ -163,10 +163,10 @@
  * RTOL   = relative tolerance (scalar)
  * ATOL   = absolute tolerance (scalar or array)
  * IOUT   = array of length 21 for integer optional outputs
- *          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
+ *          (declare as INTEGER*4 or INTEGER*8 according to C type indextype)
  * ROUT   = array of length 6 for real optional outputs
  * IPAR   = array with user integer data
- *          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
+ *          (declare as INTEGER*4 or INTEGER*8 according to C type indextype)
  * RPAR   = array with user real data
  * IER    = return completion flag.  Values are 0 = success, and -1 = failure.
  *          See printed message for details in case of failure.
@@ -307,16 +307,16 @@ extern "C" {
 
 /* Prototypes of exported functions */
 
-void FCV_BBDINIT(long int *Nloc, long int *mudq, long int *mldq, long int *mu, long int *ml,
+void FCV_BBDINIT(indextype *Nloc, indextype *mudq, indextype *mldq, indextype *mu, indextype *ml,
                  realtype* dqrely, int *ier);
-void FCV_BBDREINIT(long int *Nloc, long int *mudq, long int *mldq, realtype* dqrely, int *ier);
-void FCV_BBDOPT(long int *lenrwbbd, long int *leniwbbd, long int *ngebbd);
+void FCV_BBDREINIT(indextype *Nloc, indextype *mudq, indextype *mldq, realtype* dqrely, int *ier);
+void FCV_BBDOPT(indextype *lenrwbbd, indextype *leniwbbd, indextype *ngebbd);
 
 /* Prototypes: Functions Called by the CVBBDPRE Module */
 
-int FCVgloc(long int Nloc, realtype t, N_Vector yloc, N_Vector gloc, void *user_data);
+int FCVgloc(indextype Nloc, realtype t, N_Vector yloc, N_Vector gloc, void *user_data);
 
-int FCVcfn(long int Nloc, realtype t, N_Vector y, void *user_data);
+int FCVcfn(indextype Nloc, realtype t, N_Vector y, void *user_data);
 
 #ifdef __cplusplus
 }

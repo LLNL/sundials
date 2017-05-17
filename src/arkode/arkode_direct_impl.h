@@ -46,11 +46,11 @@ typedef struct ARKDlsMemRec {
 
   int d_type;             /* SUNDIALS_DENSE or SUNDIALS_BAND              */
 
-  long int d_n;           /* problem dimension                            */
+  indextype d_n;           /* problem dimension                            */
 
-  long int d_ml;          /* lower bandwidth of Jacobian                  */
-  long int d_mu;          /* upper bandwidth of Jacobian                  */ 
-  long int d_smu;         /* upper bandwith of M = MIN(N-1,d_mu+d_ml)     */
+  indextype d_ml;          /* lower bandwidth of Jacobian                  */
+  indextype d_mu;          /* upper bandwidth of Jacobian                  */ 
+  indextype d_smu;         /* upper bandwith of M = MIN(N-1,d_mu+d_ml)     */
 
   booleantype d_jacDQ;    /* TRUE if using internal DQ Jacobian approx.   */
   ARKDlsDenseJacFn d_djac; /* dense Jacobian routine to be called          */
@@ -61,15 +61,15 @@ typedef struct ARKDlsMemRec {
   DlsMat d_savedJ;        /* savedJ = old Jacobian                        */
 
   int *d_pivots;          /* pivots = int pivot array for PM = LU         */
-  long int *d_lpivots;    /* lpivots = long int pivot array for PM = LU   */
+  indextype *d_lpivots;    /* lpivots = indextype pivot array for PM = LU   */
 
-  long int  d_nstlj;      /* nstlj = nst at last Jacobian eval.           */
+  indextype  d_nstlj;      /* nstlj = nst at last Jacobian eval.           */
 
-  long int d_nje;         /* nje = no. of calls to jac                    */
+  indextype d_nje;         /* nje = no. of calls to jac                    */
 
-  long int d_nfeDQ;       /* no. of calls to f due to DQ Jacobian approx. */
+  indextype d_nfeDQ;       /* no. of calls to f due to DQ Jacobian approx. */
 
-  long int d_last_flag;   /* last error return flag                       */
+  indextype d_last_flag;   /* last error return flag                       */
   
 } *ARKDlsMem;
 
@@ -83,11 +83,11 @@ typedef struct ARKDlsMassMemRec {
 
   int d_type;                /* SUNDIALS_DENSE or SUNDIALS_BAND            */
 
-  long int d_n;              /* problem dimension                          */
+  indextype d_n;              /* problem dimension                          */
 
-  long int d_ml;             /* lower bandwidth of mass matrix             */
-  long int d_mu;             /* upper bandwidth of mass matrix             */ 
-  long int d_smu;            /* upper bandwith of M = MIN(N-1,d_mu+d_ml)   */
+  indextype d_ml;             /* lower bandwidth of mass matrix             */
+  indextype d_mu;             /* upper bandwidth of mass matrix             */ 
+  indextype d_smu;            /* upper bandwith of M = MIN(N-1,d_mu+d_ml)   */
 
   ARKDlsDenseMassFn d_dmass; /* dense mass matrix routine to be called     */
   ARKDlsBandMassFn d_bmass;  /* band mass matrix routine to be called      */
@@ -97,11 +97,11 @@ typedef struct ARKDlsMassMemRec {
   DlsMat d_M_lu;             /* mass matrix structure for LU decomposition */
 
   int *d_pivots;             /* pivots = int pivot array for PM = LU       */
-  long int *d_lpivots;       /* lpivots = long int pivot array for PM = LU */
+  indextype *d_lpivots;       /* lpivots = indextype pivot array for PM = LU */
 
-  long int d_nme;            /* nje = no. of calls to mass matrix routine  */
+  indextype d_nme;            /* nje = no. of calls to mass matrix routine  */
 
-  long int d_last_flag;      /* last error return flag                     */
+  indextype d_last_flag;      /* last error return flag                     */
   
 } *ARKDlsMassMem;
 
@@ -109,10 +109,10 @@ typedef struct ARKDlsMassMemRec {
 /*---------------------------------------------------------------
  Prototypes of internal functions
 ---------------------------------------------------------------*/
-int arkDlsDenseDQJac(long int N, realtype t, N_Vector y, 
+int arkDlsDenseDQJac(indextype N, realtype t, N_Vector y, 
                      N_Vector fy, DlsMat Jac, void *data,
                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-int arkDlsBandDQJac(long int N, long int mupper, long int mlower,
+int arkDlsBandDQJac(indextype N, indextype mupper, indextype mlower,
                     realtype t, N_Vector y, N_Vector fy, 
                     DlsMat Jac, void *data, N_Vector tmp1, 
                     N_Vector tmp2, N_Vector tmp3);

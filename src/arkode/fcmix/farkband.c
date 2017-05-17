@@ -34,11 +34,11 @@
 extern "C" {
 #endif
 
-  extern void FARK_BJAC(long int *N, long int *MU, long int *ML,
-  			long int *EBAND, realtype *T,
+  extern void FARK_BJAC(indextype *N, indextype *MU, indextype *ML,
+  			indextype *EBAND, realtype *T,
   			realtype *Y, realtype *FY,
   			realtype *BJAC, realtype *H,
-  			long int *IPAR, realtype *RPAR,
+  			indextype *IPAR, realtype *RPAR,
   			realtype *V1, realtype *V2,
   			realtype *V3, int *IER);
 
@@ -64,8 +64,8 @@ void FARK_BANDSETJAC(int *flag, int *ier)
 
 /* C interface to user-supplied Fortran subroutine FARKBJAC; see 
    farkode.h for further details */
-int FARKBandJac(long int N, long int mupper, 
-		long int mlower, realtype t, N_Vector y, 
+int FARKBandJac(indextype N, indextype mupper, 
+		indextype mlower, realtype t, N_Vector y, 
 		N_Vector fy, DlsMat J, void *user_data, 
 		N_Vector vtemp1, N_Vector vtemp2, 
 		N_Vector vtemp3)
@@ -73,7 +73,7 @@ int FARKBandJac(long int N, long int mupper,
   int ier;
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
   realtype h;
-  long int eband;
+  indextype eband;
   FARKUserData ARK_userdata;
 
   ARKodeGetLastStep(ARK_arkodemem, &h);

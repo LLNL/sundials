@@ -156,7 +156,7 @@ extern "C" {
  */
   
   
-typedef int (*CVParCsrJacFn)(long int N, long int ilower, long int iupper, long int jlower, long int jupper, realtype gamma, realtype t,
+typedef int (*CVParCsrJacFn)(indextype N, indextype ilower, indextype iupper, indextype jlower, indextype jupper, realtype gamma, realtype t,
 			       N_Vector y, N_Vector fy, 
 			       HYPRE_IJMatrix* Jac, void *user_data,
 			       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -240,7 +240,7 @@ SUNDIALS_EXPORT int CVBoomerAMGSolve(realtype t, N_Vector y, N_Vector fy,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBoomerAMGReInit(void *cvode_mem, long int mudq, long int mldq,
+SUNDIALS_EXPORT int CVBoomerAMGReInit(void *cvode_mem, indextype mudq, indextype mldq,
 				    realtype dqrely);
 
 /*
@@ -259,8 +259,8 @@ SUNDIALS_EXPORT int CVBoomerAMGReInit(void *cvode_mem, long int mudq, long int m
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBoomerAMGGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
-SUNDIALS_EXPORT int CVBoomerAMGGetNumGfnEvals(void *cvode_mem, long int *ngevalsBBDP);
+SUNDIALS_EXPORT int CVBoomerAMGGetWorkSpace(void *cvode_mem, indextype *lenrwLS, indextype *leniwLS);
+SUNDIALS_EXPORT int CVBoomerAMGGetNumGfnEvals(void *cvode_mem, indextype *ngevalsBBDP);
 
 #ifdef __cplusplus
 }

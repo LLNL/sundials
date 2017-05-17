@@ -51,7 +51,7 @@
 
 /* user data structure */
 typedef struct {
-  long int N;           /* current number of intervals */
+  indextype N;           /* current number of intervals */
   realtype *x;          /* current mesh */
   realtype k;           /* diffusion coefficient */
   realtype refine_tol;  /* adaptivity tolerance */
@@ -63,9 +63,9 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
             N_Vector fy, void *user_data, N_Vector tmp);
 
 /* Private function to check function return values */
-realtype * adapt_mesh(N_Vector y, long int *Nnew, UserData udata);
-static int project(long int Nold, realtype *xold, N_Vector yold, 
-		   long int Nnew, realtype *xnew, N_Vector ynew);
+realtype * adapt_mesh(N_Vector y, indextype *Nnew, UserData udata);
+static int project(indextype Nold, realtype *xold, N_Vector yold, 
+		   indextype Nnew, realtype *xnew, N_Vector ynew);
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /* Main Program */
@@ -79,10 +79,10 @@ int main() {
   realtype hscale = 1.0;       /* time step change factor on resizes */
   UserData udata = NULL;
   realtype *data;
-  long int N = 21;             /* initial spatial mesh size */
+  indextype N = 21;             /* initial spatial mesh size */
   realtype refine = 3.e-3;     /* adaptivity refinement tolerance */
   realtype k = 0.5;            /* heat conductivity */
-  long int i, nni, nni_cur=0, nni_tot=0, nli, nli_tot=0;
+  indextype i, nni, nni_cur=0, nni_tot=0, nli, nli_tot=0;
   int iout=0;
 
   /* general problem variables */
@@ -94,7 +94,7 @@ int main() {
   FILE *XFID, *UFID;
   realtype t, olddt, newdt;
   realtype *xnew = NULL;
-  long int Nnew;
+  indextype Nnew;
 
   /* allocate and fill initial udata structure */
   udata = (UserData) malloc(sizeof(*udata));
@@ -268,12 +268,12 @@ int main() {
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;    /* access problem data */
-  long int N  = udata->N;                   /* set variable shortcuts */
+  indextype N  = udata->N;                   /* set variable shortcuts */
   realtype k  = udata->k;
   realtype *x = udata->x;
   realtype *Y=NULL, *Ydot=NULL;
   realtype dxL, dxR;
-  long int i;
+  indextype i;
   Y = N_VGetArrayPointer(y);      /* access data arrays */
   if (check_flag((void *) Y, "N_VGetArrayPointer", 0)) return 1;
   Ydot = N_VGetArrayPointer(ydot);
@@ -307,12 +307,12 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
 	       N_Vector fy, void *user_data, N_Vector tmp)
 {
   UserData udata = (UserData) user_data;     /* variable shortcuts */
-  long int N  = udata->N;
+  indextype N  = udata->N;
   realtype k  = udata->k;
   realtype *x = udata->x;
   realtype *V=NULL, *JV=NULL;
   realtype dxL, dxR;
-  long int i;
+  indextype i;
   V = N_VGetArrayPointer(v);       /* access data arrays */
   if (check_flag((void *) V, "N_VGetArrayPointer", 0)) return 1;
   JV = N_VGetArrayPointer(Jv);
@@ -345,12 +345,12 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
       Nnew [output] -- the size of the new mesh
       udata [input] -- the current system information 
    The return for this function is a pointer to the new mesh. */
-realtype * adapt_mesh(N_Vector y, long int *Nnew, UserData udata)
+realtype * adapt_mesh(N_Vector y, indextype *Nnew, UserData udata)
 {
   int i, j;
   int *marks=NULL;
   realtype ydd, *xold=NULL, *Y=NULL, *xnew=NULL;
-  long int num_refine, N_new;
+  indextype num_refine, N_new;
 
   /* Access current solution and mesh arrays */
   xold = udata->x;
@@ -440,8 +440,8 @@ realtype * adapt_mesh(N_Vector y, long int *Nnew, UserData udata)
       xnew [input] -- the new mesh
       ynew [output] -- the vector defined over the new mesh
                        (allocated prior to calling project) */
-static int project(long int Nold, realtype *xold, N_Vector yold, 
-		   long int Nnew, realtype *xnew, N_Vector ynew)
+static int project(indextype Nold, realtype *xold, N_Vector yold, 
+		   indextype Nnew, realtype *xnew, N_Vector ynew)
 {
   int iv, i, j;
   realtype *Yold=NULL, *Ynew=NULL;

@@ -134,7 +134,7 @@ int IDASetMaxOrd(void *ida_mem, int maxord)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetMaxNumSteps(void *ida_mem, long int mxsteps)
+int IDASetMaxNumSteps(void *ida_mem, indextype mxsteps)
 {
   IDAMem IDA_mem;
 
@@ -869,7 +869,7 @@ int IDASetQuadSensErrCon(void *ida_mem, booleantype errconQS)
 #define iroots      (IDA_mem->ida_iroots)
 #define ee          (IDA_mem->ida_ee)
 
-int IDAGetNumSteps(void *ida_mem, long int *nsteps)
+int IDAGetNumSteps(void *ida_mem, indextype *nsteps)
 {
   IDAMem IDA_mem;
 
@@ -887,7 +887,7 @@ int IDAGetNumSteps(void *ida_mem, long int *nsteps)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumResEvals(void *ida_mem, long int *nrevals)
+int IDAGetNumResEvals(void *ida_mem, indextype *nrevals)
 {
   IDAMem IDA_mem;
 
@@ -905,7 +905,7 @@ int IDAGetNumResEvals(void *ida_mem, long int *nrevals)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumLinSolvSetups(void *ida_mem, long int *nlinsetups)
+int IDAGetNumLinSolvSetups(void *ida_mem, indextype *nlinsetups)
 {
   IDAMem IDA_mem;
 
@@ -923,7 +923,7 @@ int IDAGetNumLinSolvSetups(void *ida_mem, long int *nlinsetups)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumErrTestFails(void *ida_mem, long int *netfails)
+int IDAGetNumErrTestFails(void *ida_mem, indextype *netfails)
 {
   IDAMem IDA_mem;
 
@@ -941,7 +941,7 @@ int IDAGetNumErrTestFails(void *ida_mem, long int *netfails)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumBacktrackOps(void *ida_mem, long int *nbacktracks)
+int IDAGetNumBacktrackOps(void *ida_mem, indextype *nbacktracks)
 {
   IDAMem IDA_mem;
 
@@ -1144,7 +1144,7 @@ int IDAGetEstLocalErrors(void *ida_mem, N_Vector ele)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetWorkSpace(void *ida_mem, long int *lenrw, long int *leniw)
+int IDAGetWorkSpace(void *ida_mem, indextype *lenrw, indextype *leniw)
 {
   IDAMem IDA_mem;
 
@@ -1163,8 +1163,8 @@ int IDAGetWorkSpace(void *ida_mem, long int *lenrw, long int *leniw)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, long int *nrevals, 
-                          long int *nlinsetups, long int *netfails,
+int IDAGetIntegratorStats(void *ida_mem, indextype *nsteps, indextype *nrevals, 
+                          indextype *nlinsetups, indextype *netfails,
                           int *klast, int *kcur, realtype *hinused, realtype *hlast, 
                           realtype *hcur, realtype *tcur)
 {
@@ -1193,7 +1193,7 @@ int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, long int *nrevals,
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumGEvals(void *ida_mem, long int *ngevals)
+int IDAGetNumGEvals(void *ida_mem, indextype *ngevals)
 {
   IDAMem IDA_mem;
 
@@ -1232,7 +1232,7 @@ int IDAGetRootInfo(void *ida_mem, int *rootsfound)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters)
+int IDAGetNumNonlinSolvIters(void *ida_mem, indextype *nniters)
 {
   IDAMem IDA_mem;
 
@@ -1250,7 +1250,7 @@ int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nncfails)
+int IDAGetNumNonlinSolvConvFails(void *ida_mem, indextype *nncfails)
 {
   IDAMem IDA_mem;
 
@@ -1268,7 +1268,7 @@ int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nncfails)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, long int *nncfails)
+int IDAGetNonlinSolvStats(void *ida_mem, indextype *nniters, indextype *nncfails)
 {
   IDAMem IDA_mem;
 
@@ -1303,7 +1303,7 @@ int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, long int *nncfails)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetQuadNumRhsEvals(void *ida_mem, long int *nrQevals)
+int IDAGetQuadNumRhsEvals(void *ida_mem, indextype *nrQevals)
 {
   IDAMem IDA_mem;
 
@@ -1326,7 +1326,7 @@ int IDAGetQuadNumRhsEvals(void *ida_mem, long int *nrQevals)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetQuadNumErrTestFails(void *ida_mem, long int *nQetfails)
+int IDAGetQuadNumErrTestFails(void *ida_mem, indextype *nQetfails)
 {
   IDAMem IDA_mem;
 
@@ -1372,7 +1372,7 @@ int IDAGetQuadErrWeights(void *ida_mem, N_Vector eQweight)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetQuadStats(void *ida_mem, long int *nrQevals, long int *nQetfails)
+int IDAGetQuadStats(void *ida_mem, indextype *nrQevals, indextype *nQetfails)
 {
   IDAMem IDA_mem;
 
@@ -1413,7 +1413,7 @@ int IDAGetQuadStats(void *ida_mem, long int *nrQevals, long int *nQetfails)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetQuadSensNumRhsEvals(void *ida_mem, long int *nrhsQSevals)
+int IDAGetQuadSensNumRhsEvals(void *ida_mem, indextype *nrhsQSevals)
 {
   IDAMem IDA_mem;
 
@@ -1436,7 +1436,7 @@ int IDAGetQuadSensNumRhsEvals(void *ida_mem, long int *nrhsQSevals)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetQuadSensNumErrTestFails(void *ida_mem, long int *nQSetfails)
+int IDAGetQuadSensNumErrTestFails(void *ida_mem, indextype *nQSetfails)
 {
   IDAMem IDA_mem;
 
@@ -1486,7 +1486,7 @@ int IDAGetQuadSensErrWeights(void *ida_mem, N_Vector *eQSweight)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetQuadSensStats(void *ida_mem, long int *nrhsQSevals, long int *nQSetfails)
+int IDAGetQuadSensStats(void *ida_mem, indextype *nrhsQSevals, indextype *nQSetfails)
 {
   IDAMem IDA_mem;
 
@@ -1570,7 +1570,7 @@ int IDAGetSensConsistentIC(void *ida_mem, N_Vector *yyS0, N_Vector *ypS0)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetSensNumResEvals(void *ida_mem, long int *nrSevals)
+int IDAGetSensNumResEvals(void *ida_mem, indextype *nrSevals)
 {
   IDAMem IDA_mem;
 
@@ -1593,7 +1593,7 @@ int IDAGetSensNumResEvals(void *ida_mem, long int *nrSevals)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumResEvalsSens(void *ida_mem, long int *nrevalsS)
+int IDAGetNumResEvalsSens(void *ida_mem, indextype *nrevalsS)
 {
   IDAMem IDA_mem;
 
@@ -1616,7 +1616,7 @@ int IDAGetNumResEvalsSens(void *ida_mem, long int *nrevalsS)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetSensNumErrTestFails(void *ida_mem, long int *nSetfails)
+int IDAGetSensNumErrTestFails(void *ida_mem, indextype *nSetfails)
 {
   IDAMem IDA_mem;
 
@@ -1639,7 +1639,7 @@ int IDAGetSensNumErrTestFails(void *ida_mem, long int *nSetfails)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetSensNumLinSolvSetups(void *ida_mem, long int *nlinsetupsS)
+int IDAGetSensNumLinSolvSetups(void *ida_mem, indextype *nlinsetupsS)
 {
   IDAMem IDA_mem;
 
@@ -1687,8 +1687,8 @@ int IDAGetSensErrWeights(void *ida_mem, N_Vector_S eSweight)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetSensStats(void *ida_mem, long int *nrSevals, long int *nrevalsS, 
-                      long int *nSetfails, long int *nlinsetupsS)
+int IDAGetSensStats(void *ida_mem, indextype *nrSevals, indextype *nrevalsS, 
+                      indextype *nSetfails, indextype *nlinsetupsS)
 {
   IDAMem IDA_mem;
 
@@ -1714,7 +1714,7 @@ int IDAGetSensStats(void *ida_mem, long int *nrSevals, long int *nrevalsS,
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetSensNumNonlinSolvIters(void *ida_mem, long int *nSniters)
+int IDAGetSensNumNonlinSolvIters(void *ida_mem, indextype *nSniters)
 {
   IDAMem IDA_mem;
 
@@ -1737,7 +1737,7 @@ int IDAGetSensNumNonlinSolvIters(void *ida_mem, long int *nSniters)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetSensNumNonlinSolvConvFails(void *ida_mem, long int *nSncfails)
+int IDAGetSensNumNonlinSolvConvFails(void *ida_mem, indextype *nSncfails)
 {
   IDAMem IDA_mem;
 
@@ -1760,7 +1760,7 @@ int IDAGetSensNumNonlinSolvConvFails(void *ida_mem, long int *nSncfails)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetSensNonlinSolvStats(void *ida_mem, long int *nSniters, long int *nSncfails)
+int IDAGetSensNonlinSolvStats(void *ida_mem, indextype *nSniters, indextype *nSncfails)
 {
   IDAMem IDA_mem;
 
@@ -1789,7 +1789,7 @@ int IDAGetSensNonlinSolvStats(void *ida_mem, long int *nSniters, long int *nSncf
  */
 
 
-char *IDAGetReturnFlagName(long int flag)
+char *IDAGetReturnFlagName(indextype flag)
 {
   char *name;
 

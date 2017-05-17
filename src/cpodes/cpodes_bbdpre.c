@@ -284,7 +284,7 @@ int CPBBDPrecReInit(void *cpode_mem, int mudq, int mldq, realtype dqrely)
 }
 
 
-int CPBBDPrecGetWorkSpace(void *cpode_mem, long int *lenrwBBDP, long int *leniwBBDP)
+int CPBBDPrecGetWorkSpace(void *cpode_mem, indextype *lenrwBBDP, indextype *leniwBBDP)
 {
   CPodeMem cp_mem;
   CPSpilsMem cpspils_mem;
@@ -315,7 +315,7 @@ int CPBBDPrecGetWorkSpace(void *cpode_mem, long int *lenrwBBDP, long int *leniwB
 }
 
 
-int CPBBDPrecGetNumGfnEvals(void *cpode_mem, long int *ngevalsBBDP)
+int CPBBDPrecGetNumGfnEvals(void *cpode_mem, indextype *ngevalsBBDP)
 {
   CPodeMem cp_mem;
   CPSpilsMem cpspils_mem;

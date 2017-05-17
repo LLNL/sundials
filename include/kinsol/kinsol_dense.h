@@ -50,7 +50,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINDense(void *kinmem, long int N);
+SUNDIALS_EXPORT int KINDense(void *kinmem, indextype N);
 
 #endif
 

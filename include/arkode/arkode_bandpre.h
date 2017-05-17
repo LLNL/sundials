@@ -115,8 +115,8 @@ extern "C" {
        first test for a compatible N_Vector internal
        representation by checking for required functions.
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int ARKBandPrecInit(void *arkode_mem, long int N, 
-				    long int mu, long int ml);
+SUNDIALS_EXPORT int ARKBandPrecInit(void *arkode_mem, indextype N, 
+				    indextype mu, indextype ml);
 
 /*---------------------------------------------------------------
  Optional output functions : ARKBandPrecGet*
@@ -136,10 +136,10 @@ SUNDIALS_EXPORT int ARKBandPrecInit(void *arkode_mem, long int N,
 ---------------------------------------------------------------*/
 
 SUNDIALS_EXPORT int ARKBandPrecGetWorkSpace(void *arkode_mem, 
-					    long int *lenrwLS, 
-					    long int *leniwLS);
+					    indextype *lenrwLS, 
+					    indextype *leniwLS);
 SUNDIALS_EXPORT int ARKBandPrecGetNumRhsEvals(void *arkode_mem, 
-					      long int *nfevalsBP);
+					      indextype *nfevalsBP);
 
 
 #ifdef __cplusplus

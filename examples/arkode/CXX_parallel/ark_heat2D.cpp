@@ -67,14 +67,14 @@ using namespace std;
 
 // user data structure 
 typedef struct {
-  long int nx;          // global number of x grid points 
-  long int ny;          // global number of y grid points
-  long int is;          // global x indices of this subdomain
-  long int ie;
-  long int js;          // global y indices of this subdomain
-  long int je;
-  long int nxl;         // local number of x grid points 
-  long int nyl;         // local number of y grid points 
+  indextype nx;          // global number of x grid points 
+  indextype ny;          // global number of y grid points
+  indextype is;          // global x indices of this subdomain
+  indextype ie;
+  indextype js;          // global y indices of this subdomain
+  indextype je;
+  indextype nxl;         // local number of x grid points 
+  indextype nyl;         // local number of y grid points 
   realtype dx;          // x-directional mesh spacing 
   realtype dy;          // y-directional mesh spacing 
   realtype kx;          // x-directional diffusion coefficient 
@@ -123,15 +123,15 @@ int main(int argc, char* argv[]) {
   realtype T0 = RCONST(0.0);   // initial time 
   realtype Tf = RCONST(0.3);   // final time 
   int Nt = 20;                 // total number of output times 
-  long int nx = 60;            // spatial mesh size
-  long int ny = 120;
+  indextype nx = 60;            // spatial mesh size
+  indextype ny = 120;
   realtype kx = 0.5;           // heat conductivity coefficients
   realtype ky = 0.75;
   realtype rtol = 1.e-5;       // relative and absolute tolerances
   realtype atol = 1.e-10;
   UserData *udata = NULL;
   realtype *data;
-  long int N, Ntot, i, j;
+  indextype N, Ntot, i, j;
 
   // general problem variables 
   int flag;                      // reusable error-checking flag 
@@ -272,7 +272,7 @@ int main(int argc, char* argv[]) {
   fclose(UFID);
 
   // Print some final statistics 
-  long int nst, nst_a, nfe, nfi, nsetups, nli, nJv, nlcf, nni, ncfn, netf, npe, nps;
+  indextype nst, nst_a, nfe, nfi, nsetups, nli, nJv, nlcf, nni, ncfn, netf, npe, nps;
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) return 1;
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
@@ -332,8 +332,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   N_VConst(0.0, ydot);                           // Initialize ydot to zero 
   UserData *udata = (UserData *) user_data;      // access problem data 
-  long int nxl = udata->nxl;                     // set variable shortcuts 
-  long int nyl = udata->nyl;
+  indextype nxl = udata->nxl;                     // set variable shortcuts 
+  indextype nyl = udata->nyl;
   realtype kx = udata->kx;
   realtype ky = udata->ky;
   realtype dx = udata->dx;
@@ -351,7 +351,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   realtype c1 = kx/dx/dx;
   realtype c2 = ky/dy/dy;
   realtype c3 = -TWO*(c1 + c2);
-  long int i, j;
+  indextype i, j;
   for (j=1; j<nyl-1; j++)                        // diffusive terms
     for (i=1; i<nxl-1; i++)
       Ydot[IDX(i,j,nxl)] = c1*(Y[IDX(i-1,j,nxl)] + Y[IDX(i+1,j,nxl)])

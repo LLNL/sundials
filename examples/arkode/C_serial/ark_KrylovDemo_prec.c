@@ -168,7 +168,7 @@
 
 typedef struct {
   realtype **P[NGRP];
-  long int *pivot[NGRP];
+  indextype *pivot[NGRP];
   int ns, mxns;
   int mp, mq, mx, my, ngrp, ngx, ngy, mxmp;
   int jgx[NGX+1], jgy[NGY+1], jigx[MX], jigy[MY];
@@ -338,7 +338,7 @@ int main()
 static WebData AllocUserData(void)
 {
   int i, ngrp = NGRP;
-  long int ns = NS;
+  indextype ns = NS;
   WebData wdata;
   
   wdata = (WebData) malloc(sizeof *wdata);
@@ -556,7 +556,7 @@ static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t)
 
 static void PrintOutput(void *arkode_mem, realtype t)
 {
-  long int nst, nfe, nfi, nni;
+  indextype nst, nfe, nfi, nni;
   int flag;
   realtype hu;
 
@@ -583,10 +583,10 @@ static void PrintOutput(void *arkode_mem, realtype t)
 
 static void PrintFinalStats(void *arkode_mem)
 {
-  long int lenrw, leniw ;
-  long int lenrwLS, leniwLS;
-  long int nst, nfe, nfi, nsetups, nni, ncfn, netf;
-  long int nli, npe, nps, ncfl, nfeLS;
+  indextype lenrw, leniw ;
+  indextype lenrwLS, leniwLS;
+  indextype nst, nfe, nfi, nsetups, nni, ncfn, netf;
+  indextype nli, npe, nps, ncfl, nfeLS;
   int flag;
   realtype avdim;
   
@@ -764,10 +764,10 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
 {
   realtype ***P;
   int ier;
-  long int **pivot;
+  indextype **pivot;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
   int *jxr, *jyr, ngrp, ngx, ngy, mxmp, flag;
-  long int mp;
+  indextype mp;
   realtype uround, fac, r, r0, save, srur;
   realtype *f1, *fsave, *cdata, *rewtdata;
   WebData wdata;
@@ -876,9 +876,9 @@ static int PSolve(realtype tn, N_Vector c, N_Vector fc,
                   int lr, void *user_data, N_Vector vtemp)
 {
   realtype   ***P;
-  long int **pivot;
+  indextype **pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx;
-  long int mp;
+  indextype mp;
   WebData wdata;
   
   wdata = (WebData) user_data;

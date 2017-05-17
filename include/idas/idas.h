@@ -530,7 +530,7 @@ SUNDIALS_EXPORT int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun, voi
 SUNDIALS_EXPORT int IDASetErrFile(void *ida_mem, FILE *errfp);
 SUNDIALS_EXPORT int IDASetUserData(void *ida_mem, void *user_data);
 SUNDIALS_EXPORT int IDASetMaxOrd(void *ida_mem, int maxord);
-SUNDIALS_EXPORT int IDASetMaxNumSteps(void *ida_mem, long int mxsteps);
+SUNDIALS_EXPORT int IDASetMaxNumSteps(void *ida_mem, indextype mxsteps);
 SUNDIALS_EXPORT int IDASetInitStep(void *ida_mem, realtype hin);
 SUNDIALS_EXPORT int IDASetMaxStep(void *ida_mem, realtype hmax);
 SUNDIALS_EXPORT int IDASetStopTime(void *ida_mem, realtype tstop);
@@ -1353,12 +1353,12 @@ SUNDIALS_EXPORT int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky);
  * ----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAGetWorkSpace(void *ida_mem, long int *lenrw, long int *leniw);
-SUNDIALS_EXPORT int IDAGetNumSteps(void *ida_mem, long int *nsteps);
-SUNDIALS_EXPORT int IDAGetNumResEvals(void *ida_mem, long int *nrevals);
-SUNDIALS_EXPORT int IDAGetNumLinSolvSetups(void *ida_mem, long int *nlinsetups);
-SUNDIALS_EXPORT int IDAGetNumErrTestFails(void *ida_mem, long int *netfails);
-SUNDIALS_EXPORT int IDAGetNumBacktrackOps(void *ida_mem, long int *nbacktr);
+SUNDIALS_EXPORT int IDAGetWorkSpace(void *ida_mem, indextype *lenrw, indextype *leniw);
+SUNDIALS_EXPORT int IDAGetNumSteps(void *ida_mem, indextype *nsteps);
+SUNDIALS_EXPORT int IDAGetNumResEvals(void *ida_mem, indextype *nrevals);
+SUNDIALS_EXPORT int IDAGetNumLinSolvSetups(void *ida_mem, indextype *nlinsetups);
+SUNDIALS_EXPORT int IDAGetNumErrTestFails(void *ida_mem, indextype *netfails);
+SUNDIALS_EXPORT int IDAGetNumBacktrackOps(void *ida_mem, indextype *nbacktr);
 SUNDIALS_EXPORT int IDAGetConsistentIC(void *ida_mem, N_Vector yy0_mod, N_Vector yp0_mod);
 SUNDIALS_EXPORT int IDAGetLastOrder(void *ida_mem, int *klast);
 SUNDIALS_EXPORT int IDAGetCurrentOrder(void *ida_mem, int *kcur);
@@ -1369,7 +1369,7 @@ SUNDIALS_EXPORT int IDAGetCurrentTime(void *ida_mem, realtype *tcur);
 SUNDIALS_EXPORT int IDAGetTolScaleFactor(void *ida_mem, realtype *tolsfact);
 SUNDIALS_EXPORT int IDAGetErrWeights(void *ida_mem, N_Vector eweight);
 SUNDIALS_EXPORT int IDAGetEstLocalErrors(void *ida_mem, N_Vector ele);
-SUNDIALS_EXPORT int IDAGetNumGEvals(void *ida_mem, long int *ngevals);
+SUNDIALS_EXPORT int IDAGetNumGEvals(void *ida_mem, indextype *ngevals);
 SUNDIALS_EXPORT int IDAGetRootInfo(void *ida_mem, int *rootsfound);
 
 /*
@@ -1379,9 +1379,9 @@ SUNDIALS_EXPORT int IDAGetRootInfo(void *ida_mem, int *rootsfound);
  * ----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, 
-					  long int *nrevals, long int *nlinsetups, 
-					  long int *netfails, int *qlast, int *qcur, 
+SUNDIALS_EXPORT int IDAGetIntegratorStats(void *ida_mem, indextype *nsteps, 
+					  indextype *nrevals, indextype *nlinsetups, 
+					  indextype *netfails, int *qlast, int *qcur, 
 					  realtype *hinused, realtype *hlast, realtype *hcur, 
 					  realtype *tcur);
 /*
@@ -1401,8 +1401,8 @@ SUNDIALS_EXPORT int IDAGetIntegratorStats(void *ida_mem, long int *nsteps,
  * ----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters);
-SUNDIALS_EXPORT int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nncfails);
+SUNDIALS_EXPORT int IDAGetNumNonlinSolvIters(void *ida_mem, indextype *nniters);
+SUNDIALS_EXPORT int IDAGetNumNonlinSolvConvFails(void *ida_mem, indextype *nncfails);
 
 /*
  * ----------------------------------------------------------------
@@ -1411,8 +1411,8 @@ SUNDIALS_EXPORT int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nncfai
  * ----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, 
-					  long int *nncfails);
+SUNDIALS_EXPORT int IDAGetNonlinSolvStats(void *ida_mem, indextype *nniters, 
+					  indextype *nncfails);
 
 /*
  * -----------------------------------------------------------------
@@ -1453,8 +1453,8 @@ SUNDIALS_EXPORT int IDAGetQuadDky(void *ida_mem, realtype t, int k, N_Vector dky
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAGetQuadNumRhsEvals(void *ida_mem, long int *nrhsQevals);
-SUNDIALS_EXPORT int IDAGetQuadNumErrTestFails(void *ida_mem, long int *nQetfails);
+SUNDIALS_EXPORT int IDAGetQuadNumRhsEvals(void *ida_mem, indextype *nrhsQevals);
+SUNDIALS_EXPORT int IDAGetQuadNumErrTestFails(void *ida_mem, indextype *nQetfails);
 SUNDIALS_EXPORT int IDAGetQuadErrWeights(void *ida_mem, N_Vector eQweight);
 
 /*
@@ -1465,7 +1465,7 @@ SUNDIALS_EXPORT int IDAGetQuadErrWeights(void *ida_mem, N_Vector eQweight);
  */
 
 SUNDIALS_EXPORT int IDAGetQuadStats(void *ida_mem, 
-                                    long int *nrhsQevals, long int *nQetfails);
+                                    indextype *nrhsQevals, indextype *nQetfails);
 
 /*
  * -----------------------------------------------------------------
@@ -1543,10 +1543,10 @@ SUNDIALS_EXPORT int IDAGetSensConsistentIC(void *ida_mem, N_Vector *yyS0, N_Vect
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAGetSensNumResEvals(void *ida_mem, long int *nresSevals);
-SUNDIALS_EXPORT int IDAGetNumResEvalsSens(void *ida_mem, long int *nresevalsS);
-SUNDIALS_EXPORT int IDAGetSensNumErrTestFails(void *ida_mem, long int *nSetfails);
-SUNDIALS_EXPORT int IDAGetSensNumLinSolvSetups(void *ida_mem, long int *nlinsetupsS);
+SUNDIALS_EXPORT int IDAGetSensNumResEvals(void *ida_mem, indextype *nresSevals);
+SUNDIALS_EXPORT int IDAGetNumResEvalsSens(void *ida_mem, indextype *nresevalsS);
+SUNDIALS_EXPORT int IDAGetSensNumErrTestFails(void *ida_mem, indextype *nSetfails);
+SUNDIALS_EXPORT int IDAGetSensNumLinSolvSetups(void *ida_mem, indextype *nlinsetupsS);
 SUNDIALS_EXPORT int IDAGetSensErrWeights(void *ida_mem, N_Vector_S eSweight);
 
 /*
@@ -1556,10 +1556,10 @@ SUNDIALS_EXPORT int IDAGetSensErrWeights(void *ida_mem, N_Vector_S eSweight);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAGetSensStats(void *ida_mem, long int *nresSevals, 
-                                    long int *nresevalsS, 
-                                    long int *nSetfails, 
-                                    long int *nlinsetupsS);
+SUNDIALS_EXPORT int IDAGetSensStats(void *ida_mem, indextype *nresSevals, 
+                                    indextype *nresevalsS, 
+                                    indextype *nSetfails, 
+                                    indextype *nlinsetupsS);
 
 /*
  * ----------------------------------------------------------------
@@ -1567,12 +1567,12 @@ SUNDIALS_EXPORT int IDAGetSensStats(void *ida_mem, long int *nresSevals,
  * ----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAGetSensNumNonlinSolvIters(void *ida_mem, long int *nSniters);
+SUNDIALS_EXPORT int IDAGetSensNumNonlinSolvIters(void *ida_mem, indextype *nSniters);
 SUNDIALS_EXPORT int IDAGetSensNumNonlinSolvConvFails(void *ida_mem, 
-                                                     long int *nSncfails);
+                                                     indextype *nSncfails);
 SUNDIALS_EXPORT int IDAGetSensNonlinSolvStats(void *ida_mem, 
-                                              long int *nSniters, 
-                                              long int *nSncfails);
+                                              indextype *nSniters, 
+                                              indextype *nSncfails);
 
 
 /*
@@ -1593,8 +1593,8 @@ SUNDIALS_EXPORT int IDAGetSensNonlinSolvStats(void *ida_mem,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAGetQuadSensNumRhsEvals(void *ida_mem, long int *nrhsQSevals);
-SUNDIALS_EXPORT int IDAGetQuadSensNumErrTestFails(void *ida_mem, long int *nQSetfails);
+SUNDIALS_EXPORT int IDAGetQuadSensNumRhsEvals(void *ida_mem, indextype *nrhsQSevals);
+SUNDIALS_EXPORT int IDAGetQuadSensNumErrTestFails(void *ida_mem, indextype *nQSetfails);
 SUNDIALS_EXPORT int IDAGetQuadSensErrWeights(void *ida_mem, N_Vector *eQSweight);
 
 /*
@@ -1605,8 +1605,8 @@ SUNDIALS_EXPORT int IDAGetQuadSensErrWeights(void *ida_mem, N_Vector *eQSweight)
  */
 
 SUNDIALS_EXPORT int IDAGetQuadSensStats(void *ida_mem,
-                                          long int *nrhsQSevals,
-                                          long int *nQSetfails);
+                                          indextype *nrhsQSevals,
+                                          indextype *nQSetfails);
 
 
 /*
@@ -1662,7 +1662,7 @@ SUNDIALS_EXPORT int IDAGetQuadSensDky1(void *ida_mem, realtype t, int k, int is,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT char *IDAGetReturnFlagName(long int flag);
+SUNDIALS_EXPORT char *IDAGetReturnFlagName(indextype flag);
 
 /*
  * ----------------------------------------------------------------
@@ -1729,7 +1729,7 @@ SUNDIALS_EXPORT void IDAQuadSensFree(void* ida_mem);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAAdjInit(void *ida_mem, long int steps, int interp);
+SUNDIALS_EXPORT int IDAAdjInit(void *ida_mem, indextype steps, int interp);
 /*
  * -----------------------------------------------------------------
  * IDAAdjReInit
@@ -1946,7 +1946,7 @@ SUNDIALS_EXPORT int IDASetUserDataB(void *ida_mem, int which, void *user_dataB);
 
 SUNDIALS_EXPORT int IDASetMaxOrdB(void *ida_mem, int which, int maxordB);
 
-SUNDIALS_EXPORT int IDASetMaxNumStepsB(void *ida_mem, int which, long int mxstepsB);
+SUNDIALS_EXPORT int IDASetMaxNumStepsB(void *ida_mem, int which, indextype mxstepsB);
 
 SUNDIALS_EXPORT int IDASetInitStepB(void *ida_mem, int which, realtype hinB);
 
@@ -2052,7 +2052,7 @@ SUNDIALS_EXPORT int IDAGetAdjY(void *ida_mem, realtype t,
   void *next_addr;
   realtype t0;
   realtype t1;
-  long int nstep;
+  indextype nstep;
   int order;
   realtype step;
   } IDAadjCheckPointRec;

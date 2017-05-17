@@ -197,7 +197,7 @@
  *                 [int of length N+1, output]
  *         H    -- current step size [realtype, input]
  *         IPAR -- array containing integer user data that was passed to
- *                 FCVMALLOC [long int, input]
+ *                 FCVMALLOC [indextype, input]
  *         RPAR -- array containing real user data that was passed to
  *                 FCVMALLOC [realtype, input]
  *         WK*  -- array containing temporary workspace of same size as Y 
@@ -296,10 +296,10 @@
  * RTOL   = relative tolerance (scalar)
  * ATOL   = absolute tolerance (scalar or array)
  * IOUT   = array of length 21 for integer optional outputs
- *          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
+ *          (declare as INTEGER*4 or INTEGER*8 according to C type indextype)
  * ROUT   = array of length 6 for real optional outputs
  * IPAR   = array with user integer data
- *          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
+ *          (declare as INTEGER*4 or INTEGER*8 according to C type indextype)
  * RPAR   = array with user real data
  * IER    = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
  *          See printed message for details in case of failure.
@@ -813,7 +813,7 @@ extern "C" {
 
   typedef struct {
     realtype *rpar;
-    long int *ipar;
+    indextype *ipar;
   } *FCVUserData;
 
   /* Prototypes of exported functions */
@@ -821,15 +821,15 @@ extern "C" {
   void FCV_MALLOC(realtype *t0, realtype *y0,
                   int *meth, int *itmeth, int *iatol,
                   realtype *rtol, realtype *atol,
-                  long int *iout, realtype *rout,
-                  long int *ipar, realtype *rpar,
+                  indextype *iout, realtype *rout,
+                  indextype *ipar, realtype *rpar,
                   int *ier);
 
   void FCV_REINIT(realtype *t0, realtype *y0,
                   int *iatol, realtype *rtol, realtype *atol,
                   int *ier);
 
-  void FCV_SETIIN(char key_name[], long int *ival, int *ier);
+  void FCV_SETIIN(char key_name[], indextype *ival, int *ier);
 
   void FCV_SETRIN(char key_name[], realtype *rval, int *ier);
 
@@ -837,10 +837,10 @@ extern "C" {
 
   void FCV_DIAG(int *ier);
 
-  void FCV_DENSE(long int *neq, int *ier);
+  void FCV_DENSE(indextype *neq, int *ier);
   void FCV_DENSESETJAC(int *flag, int *ier);
 
-  void FCV_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
+  void FCV_BAND(indextype *neq, indextype *mupper, indextype *mlower, int *ier);
   void FCV_BANDSETJAC(int *flag, int *ier);
 
   void FCV_LAPACKDENSE(int *neq, int *ier);
@@ -879,21 +879,21 @@ extern "C" {
   
   int FCVf(realtype t, N_Vector y, N_Vector ydot, void *user_data);
   
-  int FCVDenseJac(long int N, realtype t, 
+  int FCVDenseJac(indextype N, realtype t, 
                   N_Vector y, N_Vector fy, 
                   DlsMat J, void *user_data,
                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
-  int FCVBandJac(long int N, long int mupper, long int mlower,
+  int FCVBandJac(indextype N, indextype mupper, indextype mlower,
                  realtype t, N_Vector y, N_Vector fy,
                  DlsMat J, void *user_data,
                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
-  int FCVLapackDenseJac(long int N, realtype t,
+  int FCVLapackDenseJac(indextype N, realtype t,
                         N_Vector y, N_Vector fy, 
                         DlsMat Jac, void *user_data,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-  int FCVLapackBandJac(long int N, long int mupper, long int mlower,
+  int FCVLapackBandJac(indextype N, indextype mupper, indextype mlower,
                        realtype t, N_Vector y, N_Vector fy, 
                        DlsMat Jac, void *user_data,
                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -922,7 +922,7 @@ extern "C" {
   extern N_Vector F2C_CVODE_vec;   /* defined in FNVECTOR module */
 
   extern void *CV_cvodemem;        /* defined in fcvode.c */
-  extern long int *CV_iout;        /* defined in fcvode.c */
+  extern indextype *CV_iout;        /* defined in fcvode.c */
   extern realtype *CV_rout;        /* defined in fcvode.c */
   extern int CV_nrtfn;             /* defined in fcvode.c */
   extern int CV_ls;                /* defined in fcvode.c */

@@ -74,12 +74,12 @@ typedef struct KINMemRec {
   int kin_globalstrategy;      /* choices are KIN_NONE, KIN_LINESEARCH
 				  KIN_PICARD and KIN_FP                        */
   int kin_printfl;             /* level of verbosity of output                 */
-  long int kin_mxiter;         /* maximum number of nonlinear iterations       */
-  long int kin_msbset;         /* maximum number of nonlinear iterations that
+  indextype kin_mxiter;         /* maximum number of nonlinear iterations       */
+  indextype kin_msbset;         /* maximum number of nonlinear iterations that
 				  may be performed between calls to the
 				  linear solver setup routine (lsetup)         */
-  long int kin_msbset_sub;     /* subinterval length for residual monitoring   */
-  long int kin_mxnbcf;         /* maximum number of beta condition failures    */
+  indextype kin_msbset_sub;     /* subinterval length for residual monitoring   */
+  indextype kin_mxnbcf;         /* maximum number of beta condition failures    */
   int kin_etaflag;             /* choices are KIN_ETACONSTANT, KIN_ETACHOICE1
 				  and KIN_ETACHOICE2                           */
   booleantype kin_noMinEps;    /* flag controlling whether or not the value
@@ -122,17 +122,17 @@ typedef struct KINMemRec {
 
   /* counters */
 
-  long int kin_nni;            /* number of nonlinear iterations               */
-  long int kin_nfe;            /* number of calls made to func routine         */
-  long int kin_nnilset;        /* value of nni counter when the linear solver
+  indextype kin_nni;            /* number of nonlinear iterations               */
+  indextype kin_nfe;            /* number of calls made to func routine         */
+  indextype kin_nnilset;        /* value of nni counter when the linear solver
 				  setup was last called                        */
-  long int kin_nnilset_sub;    /* value of nni counter when the linear solver
+  indextype kin_nnilset_sub;    /* value of nni counter when the linear solver
 				  setup was last called (subinterval)          */
-  long int kin_nbcf;           /* number of times the beta-condition could not 
+  indextype kin_nbcf;           /* number of times the beta-condition could not 
 				  be met in KINLineSearch                      */
-  long int kin_nbktrk;         /* number of backtracks performed by
+  indextype kin_nbktrk;         /* number of backtracks performed by
 				  KINLineSearch                                */
-  long int kin_ncscmx;         /* number of consecutive steps of size
+  indextype kin_ncscmx;         /* number of consecutive steps of size
 				  mxnewtstep taken                             */
 
   /* vectors */
@@ -164,19 +164,19 @@ typedef struct KINMemRec {
   realtype *kin_gamma_aa;   /* array of size maa used in AA */
   realtype *kin_R_aa;       /* array of size maa*maa used in AA */
   int      *kin_ipt_map;    /* array of size maa used in AA */
-  long int kin_m_aa;	    /* parameter for AA, Broyden or NLEN */
+  indextype kin_m_aa;	    /* parameter for AA, Broyden or NLEN */
   booleantype kin_aamem_aa; /* sets additional memory needed for Anderson Acc */
   booleantype kin_setstop_aa; /* determines whether user will set stopping criterion */
 
   /* space requirements for vector storage */ 
 
-  long int kin_lrw1;        /* number of realtype-sized memory blocks needed
+  indextype kin_lrw1;        /* number of realtype-sized memory blocks needed
 			       for a single N_Vector                           */ 
-  long int kin_liw1;        /* number of int-sized memory blocks needed for
+  indextype kin_liw1;        /* number of int-sized memory blocks needed for
 			       a single N_Vecotr                               */ 
-  long int kin_lrw;         /* total number of realtype-sized memory blocks
+  indextype kin_lrw;         /* total number of realtype-sized memory blocks
 			       needed for all KINSOL work vectors              */
-  long int kin_liw;         /* total number of int-sized memory blocks needed
+  indextype kin_liw;         /* total number of int-sized memory blocks needed
 			       for all KINSOL work vectors                     */
 
   /* linear solver data */

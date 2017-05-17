@@ -35,7 +35,7 @@ extern "C" {
 typedef struct ARKBBDPrecDataRec {
 
   /* passed by user to ARKBBDPrecAlloc and used by PrecSetup/PrecSolve */
-  long int mudq, mldq, mukeep, mlkeep;
+  indextype mudq, mldq, mukeep, mlkeep;
   realtype dqrely;
   ARKLocalFn gloc;
   ARKCommFn cfn;
@@ -43,15 +43,15 @@ typedef struct ARKBBDPrecDataRec {
   /* set by ARKBBDPrecSetup and used by ARKBBDPrecSolve */
   DlsMat savedJ;
   DlsMat savedP;
-  long int *lpivots;
+  indextype *lpivots;
 
   /* set by ARKBBDPrecAlloc and used by ARKBBDPrecSetup */
-  long int n_local;
+  indextype n_local;
 
   /* available for optional output */
-  long int rpwsize;
-  long int ipwsize;
-  long int nge;
+  indextype rpwsize;
+  indextype ipwsize;
+  indextype nge;
 
   /* pointer to arkode_mem */
   void *arkode_mem;

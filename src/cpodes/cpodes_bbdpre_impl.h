@@ -50,15 +50,15 @@ typedef struct CPBBDPrecDataRec {
   /* set by CPBBDPrecSetup and used by CPBBDPrecSolve */
   DlsMat savedJ;
   DlsMat savedP;
-  long int *pivots;
+  indextype *pivots;
 
   /* set by CPBBDPrecAlloc and used by CPBBDPrecSetup */
   int n_local;
 
   /* available for optional output */
-  long int rpwsize;
-  long int ipwsize;
-  long int nge;
+  indextype rpwsize;
+  indextype ipwsize;
+  indextype nge;
 
   /* pointer to cpode_mem */
   void *cpode_mem;

@@ -36,12 +36,12 @@
 extern "C" {
 #endif
 
-  extern void FARK_GLOCFN(long int *NLOC, realtype *T, 
+  extern void FARK_GLOCFN(indextype *NLOC, realtype *T, 
 			  realtype *YLOC, realtype *GLOC,
-			  long int *IPAR, realtype *RPAR,
+			  indextype *IPAR, realtype *RPAR,
 			  int *ier);
-  extern void FARK_COMMFN(long int *NLOC, realtype *T, 
-			  realtype *Y, long int *IPAR, 
+  extern void FARK_COMMFN(indextype *NLOC, realtype *T, 
+			  realtype *Y, indextype *IPAR, 
 			  realtype *RPAR, int *ier);
 
 #ifdef __cplusplus
@@ -52,8 +52,8 @@ extern "C" {
 
 /* Fortran interface to C routine ARKBBDPrecInit; see farkbbd.h 
    for further details. */
-void FARK_BBDINIT(long int *Nloc, long int *mudq, long int *mldq, 
-		  long int *mu, long int *ml, realtype* dqrely, 
+void FARK_BBDINIT(indextype *Nloc, indextype *mudq, indextype *mldq, 
+		  indextype *mu, indextype *ml, realtype* dqrely, 
 		  int *ier)
 {
   /* Notes: FARKgloc is a pointer to the ARKLocalFn function, 
@@ -67,8 +67,8 @@ void FARK_BBDINIT(long int *Nloc, long int *mudq, long int *mldq,
 
 /* Fortran interface to C routine ARKBBDPrecReInit; see farkbbd.h 
    for further details. */
-void FARK_BBDREINIT(long int *Nloc, long int *mudq, 
-		    long int *mldq, realtype* dqrely, int *ier)
+void FARK_BBDREINIT(indextype *Nloc, indextype *mudq, 
+		    indextype *mldq, realtype* dqrely, int *ier)
 {
   *ier = ARKBBDPrecReInit(ARK_arkodemem, *mudq, *mldq, *dqrely);
   return;
@@ -78,7 +78,7 @@ void FARK_BBDREINIT(long int *Nloc, long int *mudq,
 
 /* C interface to user-supplied Fortran routine FARKGLOCFN; see 
    farkbbd.h for further details. */
-int FARKgloc(long int Nloc, realtype t, N_Vector yloc, 
+int FARKgloc(indextype Nloc, realtype t, N_Vector yloc, 
 	     N_Vector gloc, void *user_data)
 {
   int ier;
@@ -98,7 +98,7 @@ int FARKgloc(long int Nloc, realtype t, N_Vector yloc,
 
 /* C interface to user-supplied Fortran routine FARKCOMMFN; see 
    farkbbd.h for further details. */
-int FARKcfn(long int Nloc, realtype t, 
+int FARKcfn(indextype Nloc, realtype t, 
 	    N_Vector y, void *user_data)
 {
   int ier;
@@ -116,8 +116,8 @@ int FARKcfn(long int Nloc, realtype t,
 
 /* Fortran interface to C routines ARKBBDPrecGetWorkSpace and 
    ARKBBDPrecGetNumGfnEvals; see farkbbd.h for further details */
-void FARK_BBDOPT(long int *lenrwbbd, long int *leniwbbd, 
-		 long int *ngebbd)
+void FARK_BBDOPT(indextype *lenrwbbd, indextype *leniwbbd, 
+		 indextype *ngebbd)
 {
   ARKBBDPrecGetWorkSpace(ARK_arkodemem, lenrwbbd, leniwbbd);
   ARKBBDPrecGetNumGfnEvals(ARK_arkodemem, ngebbd);

@@ -36,16 +36,16 @@ extern "C" {
 typedef struct ARKBandPrecDataRec {
 
   /* Data set by user in ARKBandPrecInit */
-  long int N;
-  long int ml, mu;
+  indextype N;
+  indextype ml, mu;
 
   /* Data set by ARKBandPrecSetup */
   DlsMat savedJ;
   DlsMat savedP;
-  long int *lpivots;
+  indextype *lpivots;
 
   /* Rhs calls */
-  long int nfeBP;
+  indextype nfeBP;
 
   /* Pointer to arkode_mem */
   void *arkode_mem;

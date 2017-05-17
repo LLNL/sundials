@@ -138,7 +138,7 @@
 
 typedef struct {
   realtype **P[MXSUB][MYSUB];
-  long int *pivot[MXSUB][MYSUB];
+  indextype *pivot[MXSUB][MYSUB];
   realtype **acoef, *bcoef;
   N_Vector rates;
   realtype *cox, *coy;
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
 
 {
   int globalstrategy;
-  long int local_N;
+  indextype local_N;
   realtype fnormtol, scsteptol;
   N_Vector cc, sc, constraints;
   UserData data;
@@ -436,7 +436,7 @@ static int PSolvebd(N_Vector cc, N_Vector cscale,
                     N_Vector vtemp)
 {
   realtype **Pxy, *vxy;
-  long int *piv, jx, jy;
+  indextype *piv, jx, jy;
   UserData data;
   
   data = (UserData)user_data;
@@ -759,7 +759,7 @@ static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc)
 
 static void PrintFinalStats(void *kmem)
 {
-  long int nni, nfe, nli, npe, nps, ncfl, nfeSG;
+  indextype nni, nfe, nli, npe, nps, ncfl, nfeSG;
   int flag;
 
   flag = KINGetNumNonlinSolvIters(kmem, &nni);

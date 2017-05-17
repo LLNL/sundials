@@ -264,7 +264,7 @@ SUNDIALS_EXPORT int KINSpilsSetJacTimesVecFn(void *kinmem,
  * -----------------------------------------------------------------
  *                            |
  * KINSpilsGetWorkSpace       | returns both integer workspace size
- *                            | (total number of long int-sized blocks
+ *                            | (total number of indextype-sized blocks
  *                            | of memory allocated  for
  *                            | vector storage), and real workspace
  *                            | size (total number of realtype-sized
@@ -305,15 +305,15 @@ SUNDIALS_EXPORT int KINSpilsSetJacTimesVecFn(void *kinmem,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINSpilsGetWorkSpace(void *kinmem, long int *lenrwSG, long int *leniwSG);
-SUNDIALS_EXPORT int KINSpilsGetNumPrecEvals(void *kinmem, long int *npevals);
-SUNDIALS_EXPORT int KINSpilsGetNumPrecSolves(void *kinmem, long int *npsolves);
-SUNDIALS_EXPORT int KINSpilsGetNumLinIters(void *kinmem, long int *nliters);
-SUNDIALS_EXPORT int KINSpilsGetNumConvFails(void *kinmem, long int *nlcfails);
-SUNDIALS_EXPORT int KINSpilsGetNumJtimesEvals(void *kinmem, long int *njvevals);
-SUNDIALS_EXPORT int KINSpilsGetNumFuncEvals(void *kinmem, long int *nfevalsS); 
-SUNDIALS_EXPORT int KINSpilsGetLastFlag(void *kinmem, long int *flag);
-SUNDIALS_EXPORT char *KINSpilsGetReturnFlagName(long int flag);
+SUNDIALS_EXPORT int KINSpilsGetWorkSpace(void *kinmem, indextype *lenrwSG, indextype *leniwSG);
+SUNDIALS_EXPORT int KINSpilsGetNumPrecEvals(void *kinmem, indextype *npevals);
+SUNDIALS_EXPORT int KINSpilsGetNumPrecSolves(void *kinmem, indextype *npsolves);
+SUNDIALS_EXPORT int KINSpilsGetNumLinIters(void *kinmem, indextype *nliters);
+SUNDIALS_EXPORT int KINSpilsGetNumConvFails(void *kinmem, indextype *nlcfails);
+SUNDIALS_EXPORT int KINSpilsGetNumJtimesEvals(void *kinmem, indextype *njvevals);
+SUNDIALS_EXPORT int KINSpilsGetNumFuncEvals(void *kinmem, indextype *nfevalsS); 
+SUNDIALS_EXPORT int KINSpilsGetLastFlag(void *kinmem, indextype *flag);
+SUNDIALS_EXPORT char *KINSpilsGetReturnFlagName(indextype flag);
 
 
 #ifdef __cplusplus

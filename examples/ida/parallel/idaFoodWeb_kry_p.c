@@ -157,7 +157,7 @@
 /* Type: UserData.  Contains problem constants, preconditioner data, etc. */
 
 typedef struct {
-  long int ns;
+  indextype ns;
   int np, thispe, npes, ixsub, jysub, npex, npey;
   int mxsub, mysub, nsmxsub, nsmxsub2;
   realtype dx, dy, **acoef;
@@ -166,7 +166,7 @@ typedef struct {
   MPI_Comm comm;
   N_Vector rates;
   realtype **PP[MXSUB][MYSUB];
-  long int *pivot[MXSUB][MYSUB];
+  indextype *pivot[MXSUB][MYSUB];
   N_Vector ewt;
   void *ida_mem;
 } *UserData;
@@ -212,8 +212,8 @@ static realtype dotprod(int size, realtype *x1, realtype *x2);
 
 /* Prototypes for private Helper Functions. */
 
-static UserData AllocUserData(MPI_Comm comm, long int local_N, 
-                              long int SystemSize);
+static UserData AllocUserData(MPI_Comm comm, indextype local_N, 
+                              indextype SystemSize);
 
 static void InitUserData(UserData webdata, int thispe, int npes, 
                          MPI_Comm comm);
@@ -223,7 +223,7 @@ static void FreeUserData(UserData webdata);
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                N_Vector scrtch, UserData webdata);
 
-static void PrintHeader(long int SystemSize, int maxl, 
+static void PrintHeader(indextype SystemSize, int maxl, 
                         realtype rtol, realtype atol);
 
 static void PrintOutput(void *mem, N_Vector cc, realtype time,
@@ -244,7 +244,7 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
   void *mem;
   UserData webdata;
-  long int SystemSize, local_N;
+  indextype SystemSize, local_N;
   realtype rtol, atol, t0, tout, tret;
   N_Vector cc, cp, res, id;
   int thispe, npes, maxl, iout, flag;
@@ -394,7 +394,7 @@ int main(int argc, char *argv[])
  * AllocUserData: Allocate memory for data structure of type UserData.   
  */
 
-static UserData AllocUserData(MPI_Comm comm, long int local_N, long int SystemSize)
+static UserData AllocUserData(MPI_Comm comm, indextype local_N, indextype SystemSize)
 {
   int ix, jy;
   UserData webdata;
@@ -557,7 +557,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(long int SystemSize, int maxl, 
+static void PrintHeader(indextype SystemSize, int maxl, 
                         realtype rtol, realtype atol)
 {
   printf("\nidaFoodWeb_kry_p: Predator-prey DAE parallel example problem for IDA \n\n");
@@ -596,7 +596,7 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
 {
   MPI_Status status;
   realtype *cdata, clast[2], hused;
-  long int nst;
+  indextype nst;
   int i, kused, flag, thispe, npelast, ilast;;
 
   thispe = webdata->thispe; 
@@ -653,7 +653,7 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
 
 static void PrintFinalStats(void *mem)
 {
-  long int nst, nre, nreLS, netf, ncfn, nni, ncfl, nli, npe, nps;
+  indextype nst, nre, nreLS, netf, ncfn, nni, ncfl, nli, npe, nps;
   int flag;
 
   flag = IDAGetNumSteps(mem, &nst);
@@ -1204,7 +1204,7 @@ static int PSolvebd(realtype tt, N_Vector cc,
                  void *user_data, N_Vector tempv)
 {
   realtype **Pxy, *zxy;
-  long int *pivot, ix, jy;
+  indextype *pivot, ix, jy;
   UserData webdata;
 
   webdata = (UserData)user_data;

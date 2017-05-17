@@ -115,6 +115,8 @@ typedef long double realtype;
 #define TRUE 1
 #endif
 
+typedef long int indextype;
+
 #ifdef __cplusplus
 }
 #endif

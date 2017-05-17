@@ -96,7 +96,7 @@ int PsolveHeat(realtype tt,
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
                              N_Vector res, void *user_data);
 
-static void PrintHeader(long int Neq, realtype rtol, realtype atol);
+static void PrintHeader(indextype Neq, realtype rtol, realtype atol);
 
 static void PrintOutput(int id, void *mem, realtype t, N_Vector uu);
 
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
   void *mem;
   UserData data;
   int iout, thispe, ier, npes;
-  long int Neq;
+  indextype Neq;
   realtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
   PetscErrorCode ierr;                  /* PETSc error code  */
@@ -593,7 +593,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
  * Print first lines of output and table heading
  */
 
-static void PrintHeader(long int Neq, realtype rtol, realtype atol)
+static void PrintHeader(indextype Neq, realtype rtol, realtype atol)
 { 
   printf("\nidaHeat2D_kry_petsc: Heat equation, parallel example problem for IDA\n");
   printf("            Discretized heat equation on 2D unit square.\n");
@@ -630,7 +630,7 @@ static void PrintHeader(long int Neq, realtype rtol, realtype atol)
 static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
 {
   realtype hused, umax;
-  long int nst, nni, nje, nre, nreLS, nli, npe, nps;
+  indextype nst, nni, nje, nre, nreLS, nli, npe, nps;
   int kused, ier;
 
   umax = N_VMaxNorm(uu);
@@ -678,7 +678,7 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
 
 static void PrintFinalStats(void *mem)
 {
-  long int netf, ncfn, ncfl;
+  indextype netf, ncfn, ncfl;
 
   IDAGetNumErrTestFails(mem, &netf);
   IDAGetNumNonlinSolvConvFails(mem, &ncfn);

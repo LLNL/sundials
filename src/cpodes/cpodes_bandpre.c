@@ -196,7 +196,7 @@ int CPBandPrecInit(void *cpode_mem, int N, int mu, int ml)
   return(flag);
 }
 
-int CPBandPrecGetWorkSpace(void *cpode_mem, long int *lenrwBP, long int *leniwBP)
+int CPBandPrecGetWorkSpace(void *cpode_mem, indextype *lenrwBP, indextype *leniwBP)
 {
   CPodeMem cp_mem;
   CPSpilsMem cpspils_mem;
@@ -232,7 +232,7 @@ int CPBandPrecGetWorkSpace(void *cpode_mem, long int *lenrwBP, long int *leniwBP
   return(CPSPILS_SUCCESS);
 }
 
-int CPBandPrecGetNumRhsEvals(void *cpode_mem, long int *nfevalsBP)
+int CPBandPrecGetNumRhsEvals(void *cpode_mem, indextype *nfevalsBP)
 {
   CPodeMem cp_mem;
   CPSpilsMem cpspils_mem;

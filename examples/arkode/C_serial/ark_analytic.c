@@ -45,7 +45,7 @@
 
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(long int N, realtype t,
+static int Jac(indextype N, realtype t,
                N_Vector y, N_Vector fy, DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
@@ -60,7 +60,7 @@ int main()
   realtype T0 = RCONST(0.0);      /* initial time */
   realtype Tf = RCONST(10.0);     /* final time */
   realtype dTout = RCONST(1.0);   /* time between outputs */
-  long int NEQ = 1;               /* number of dependent vars. */
+  indextype NEQ = 1;               /* number of dependent vars. */
   realtype reltol = 1.0e-6;       /* tolerances */
   realtype abstol = 1.0e-10;
   realtype lamda  = -100.0;       /* stiffness parameter */
@@ -71,7 +71,7 @@ int main()
   void *arkode_mem = NULL;        /* empty ARKode memory structure */
   FILE *UFID;
   realtype t, tout;
-  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
+  indextype nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
 
   /* Initial diagnostics output */
   printf("\nAnalytical ODE test problem:\n");
@@ -193,7 +193,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(long int N, realtype t,
+static int Jac(indextype N, realtype t,
                N_Vector y, N_Vector fy, DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {

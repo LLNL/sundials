@@ -243,7 +243,7 @@ static int IDATestError(IDAMem IDA_mem, realtype ck,
 
 static void IDARestore(IDAMem IDA_mem, realtype saved_t);
 static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype err_km1,
-                          long int *ncfnPtr, int *ncfPtr, long int *netfPtr, int *nefPtr);
+                          indextype *ncfnPtr, int *ncfPtr, indextype *netfPtr, int *nefPtr);
 static void IDAReset(IDAMem IDA_mem);
 
 /* Function called after a successful step */
@@ -384,7 +384,7 @@ int IDAInit(void *ida_mem, IDAResFn res,
 {
   IDAMem IDA_mem;
   booleantype nvectorOK, allocOK;
-  long int lrw1, liw1;
+  indextype lrw1, liw1;
 
   /* Check ida_mem */
 
@@ -1035,7 +1035,7 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
 int IDASolve(void *ida_mem, realtype tout, realtype *tret,
              N_Vector yret, N_Vector ypret, int itask)
 {
-  long int nstloc;
+  indextype nstloc;
   int sflag, istate, ier, irfndp, ir;
   realtype tdist, troundoff, ypnorm, rh, nrm;
   IDAMem IDA_mem;
@@ -2624,7 +2624,7 @@ static void IDARestore(IDAMem IDA_mem, realtype saved_t)
  */
 
 static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype err_km1,
-                          long int *ncfnPtr, int *ncfPtr, long int *netfPtr, int *nefPtr)
+                          indextype *ncfnPtr, int *ncfPtr, indextype *netfPtr, int *nefPtr)
 {
   realtype err_knew;
 

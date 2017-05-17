@@ -495,7 +495,7 @@ static void WrongArgs(char *name)
 
 static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
 {
-  long int nst;
+  indextype nst;
   int qu, flag;
   realtype hu, *udata;
   
@@ -576,10 +576,10 @@ static void PrintOutputS(N_Vector *uS)
 
 static void PrintFinalStats(void *cvode_mem, booleantype sensi)
 {
-  long int nst;
-  long int nfe, nsetups, nni, ncfn, netf;
-  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
-  long int nje;
+  indextype nst;
+  indextype nfe, nsetups, nni, ncfn, netf;
+  indextype nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+  indextype nje;
   int flag;
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);

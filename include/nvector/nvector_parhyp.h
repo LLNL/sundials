@@ -89,8 +89,8 @@ extern "C" {
  * and a flag indicating ownership of the data. 
  */
 struct _N_VectorContent_ParHyp {
-  long int local_length;      /* local vector length         */
-  long int global_length;     /* global vector length        */
+  indextype local_length;      /* local vector length         */
+  indextype global_length;     /* global vector length        */
   booleantype own_parvector;  /* ownership of HYPRE vector   */
   MPI_Comm comm;              /* pointer to MPI communicator */
 
@@ -129,8 +129,8 @@ typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
  */
 
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, 
-                                            long int local_length,
-                                            long int global_length);
+                                            indextype local_length,
+                                            indextype global_length);
 
 /*
  * -----------------------------------------------------------------
@@ -207,7 +207,7 @@ SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_ParHyp(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_ParHyp(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_ParHyp(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_ParHyp(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_ParHyp(N_Vector v, long int *lrw, long int *liw);
+SUNDIALS_EXPORT void N_VSpace_ParHyp(N_Vector v, indextype *lrw, indextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_ParHyp(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_ParHyp(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);

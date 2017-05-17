@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 
   void *cvode_mem;
 
-  long int Neq, Np2;
+  indextype Neq, Np2;
   int Np;
 
   realtype t0, tf;
@@ -697,10 +697,10 @@ static int fQB2(realtype t, N_Vector y, N_Vector *yS,
 
 void PrintFwdStats(void *cvode_mem)
 {
-  long int nst, nfe, nsetups, nni, ncfn, netf;
-  long int nfQe, netfQ;
-  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
-  long int nfQSe, netfQS;
+  indextype nst, nfe, nsetups, nni, ncfn, netf;
+  indextype nfQe, netfQ;
+  indextype nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+  indextype nfQSe, netfQS;
 
   int qlast, qcur;
   realtype h0u, hlast, hcur, tcur;
@@ -747,8 +747,8 @@ void PrintBckStats(void *cvode_mem, int idx)
 {
   void *cvode_mem_bck;
 
-  long int nst, nfe, nsetups, nni, ncfn, netf;
-  long int nfQe, netfQ;
+  indextype nst, nfe, nsetups, nni, ncfn, netf;
+  indextype nfQe, netfQ;
 
   int qlast, qcur;
   realtype h0u, hlast, hcur, tcur;

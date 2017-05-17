@@ -63,7 +63,7 @@
 /* User data type */
 
 typedef struct {  
-  long int mm;  /* number of grid points */
+  indextype mm;  /* number of grid points */
   realtype dx;
   realtype coeff;
   N_Vector pp;  /* vector of prec. diag. elements */
@@ -106,7 +106,7 @@ int main(void)
   N_Vector uu, up, constraints, res;
   int ier, iout, linsolver;
   realtype rtol, atol, t0, t1, tout, tret;
-  long int netf, ncfn, ncfl;
+  indextype netf, ncfn, ncfl;
 
   mem = NULL;
   data = NULL;
@@ -305,7 +305,7 @@ int resHeat(realtype tt,
             N_Vector uu, N_Vector up, N_Vector rr, 
             void *user_data)
 {
-  long int i, j, offset, loc, mm;
+  indextype i, j, offset, loc, mm;
   realtype *uu_data, *up_data, *rr_data, coeff, dif1, dif2;
   UserData data;
   
@@ -358,7 +358,7 @@ int PsetupHeat(realtype tt,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   
-  long int i, j, offset, loc, mm;
+  indextype i, j, offset, loc, mm;
   realtype *ppv, pelinv;
   UserData data;
   
@@ -416,7 +416,7 @@ int PsolveHeat(realtype tt,
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
                              N_Vector res)
 {
-  long int mm, mm1, i, j, offset, loc;
+  indextype mm, mm1, i, j, offset, loc;
   realtype xfact, yfact, *udata, *updata;
 
   mm = data->mm;
@@ -501,7 +501,7 @@ static void PrintHeader(realtype rtol, realtype atol, int linsolver)
 static void PrintOutput(void *mem, realtype t, N_Vector uu, int linsolver)
 {
   realtype hused, umax;
-  long int nst, nni, nje, nre, nreLS, nli, npe, nps;
+  indextype nst, nni, nje, nre, nreLS, nli, npe, nps;
   int kused, ier;
   
   umax = N_VMaxNorm(uu);

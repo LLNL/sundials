@@ -76,12 +76,12 @@ static int CVBandPDQJac(CVBandPrecData pdata,
  * -----------------------------------------------------------------
  */
 
-int CVBandPrecInit(void *cvode_mem, long int N, long int mu, long int ml)
+int CVBandPrecInit(void *cvode_mem, indextype N, indextype mu, indextype ml)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
   CVBandPrecData pdata;
-  long int mup, mlp, storagemu;
+  indextype mup, mlp, storagemu;
   int flag;
 
   if (cvode_mem == NULL) {
@@ -167,12 +167,12 @@ int CVBandPrecInit(void *cvode_mem, long int N, long int mu, long int ml)
   return(flag);
 }
 
-int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP, long int *leniwBP)
+int CVBandPrecGetWorkSpace(void *cvode_mem, indextype *lenrwBP, indextype *leniwBP)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
   CVBandPrecData pdata;
-  long int N, ml, mu, smu;
+  indextype N, ml, mu, smu;
 
   
   if (cvode_mem == NULL) {
@@ -204,7 +204,7 @@ int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP, long int *leniwBP
   return(CVSPILS_SUCCESS);
 }
 
-int CVBandPrecGetNumRhsEvals(void *cvode_mem, long int *nfevalsBP)
+int CVBandPrecGetNumRhsEvals(void *cvode_mem, indextype *nfevalsBP)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
@@ -299,7 +299,7 @@ static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   CVBandPrecData pdata;
   CVodeMem cv_mem;
   int retval;
-  long int ier;
+  indextype ier;
 
   /* Assume matrix and lpivots have already been allocated. */
   pdata = (CVBandPrecData) bp_data;
@@ -432,7 +432,7 @@ static int CVBandPDQJac(CVBandPrecData pdata,
 {
   CVodeMem cv_mem;
   realtype fnorm, minInc, inc, inc_inv, srur;
-  long int group, i, j, width, ngroups, i1, i2;
+  indextype group, i, j, width, ngroups, i1, i2;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
   int retval;
 

@@ -141,7 +141,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef int (*KINCommFn)(long int Nlocal, N_Vector u, void *user_data);
+typedef int (*KINCommFn)(indextype Nlocal, N_Vector u, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -167,7 +167,7 @@ typedef int (*KINCommFn)(long int Nlocal, N_Vector u, void *user_data);
  * -----------------------------------------------------------------
  */
 
-typedef int (*KINLocalFn)(long int Nlocal, N_Vector uu,
+typedef int (*KINLocalFn)(indextype Nlocal, N_Vector uu,
                           N_Vector gval, void *user_data);
 
 /*
@@ -212,9 +212,9 @@ typedef int (*KINLocalFn)(long int Nlocal, N_Vector uu,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINBBDPrecInit(void *kinmem, long int Nlocal, 
-                                   long int mudq, long int mldq,
-                                   long int mukeep, long int mlkeep,
+SUNDIALS_EXPORT int KINBBDPrecInit(void *kinmem, indextype Nlocal, 
+                                   indextype mudq, indextype mldq,
+                                   indextype mukeep, indextype mlkeep,
                                    realtype dq_rel_uu, 
                                    KINLocalFn gloc, KINCommFn gcomm);
 
@@ -228,8 +228,8 @@ SUNDIALS_EXPORT int KINBBDPrecInit(void *kinmem, long int Nlocal,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINBBDPrecGetWorkSpace(void *kinmem, long int *lenrwBBDP, long int *leniwBBDP);
-SUNDIALS_EXPORT int KINBBDPrecGetNumGfnEvals(void *kinmem, long int *ngevalsBBDP);
+SUNDIALS_EXPORT int KINBBDPrecGetWorkSpace(void *kinmem, indextype *lenrwBBDP, indextype *leniwBBDP);
+SUNDIALS_EXPORT int KINBBDPrecGetNumGfnEvals(void *kinmem, indextype *ngevalsBBDP);
 
 #ifdef __cplusplus
 }

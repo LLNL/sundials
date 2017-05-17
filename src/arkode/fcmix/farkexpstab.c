@@ -33,7 +33,7 @@ extern "C" {
 #endif
 
   extern void FARK_EXPSTAB(realtype *Y, realtype *T, realtype *HSTAB, 
-			   long int *IPAR, realtype *RPAR, int *IER);
+			   indextype *IPAR, realtype *RPAR, int *IER);
 
 #ifdef __cplusplus
 }

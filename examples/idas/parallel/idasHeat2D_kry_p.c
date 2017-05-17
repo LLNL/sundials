@@ -63,7 +63,7 @@
                                     /* Spatial mesh is MX by MY */
 
 typedef struct {  
-  long int thispe, mx, my, ixsub, jysub, npex, npey, mxsub, mysub;
+  indextype thispe, mx, my, ixsub, jysub, npex, npey, mxsub, mysub;
   realtype    dx, dy, coeffx, coeffy, coeffxy;
   realtype    uext[(MXSUB+2)*(MYSUB+2)];
   N_Vector    pp;    /* vector of diagonal preconditioner elements */
@@ -81,16 +81,16 @@ static int rescomm(N_Vector uu, N_Vector up, void *user_data);
 static int reslocal(realtype tt, N_Vector uu, N_Vector up, 
                     N_Vector res,  void *user_data);
 
-static int BSend(MPI_Comm comm, long int thispe, long int ixsub, long int jysub,
-                 long int dsizex, long int dsizey, realtype uarray[]);
+static int BSend(MPI_Comm comm, indextype thispe, indextype ixsub, indextype jysub,
+                 indextype dsizex, indextype dsizey, realtype uarray[]);
 
-static int BRecvPost(MPI_Comm comm, MPI_Request request[], long int thispe,
-                     long int ixsub, long int jysub,
-                     long int dsizex, long int dsizey,
+static int BRecvPost(MPI_Comm comm, MPI_Request request[], indextype thispe,
+                     indextype ixsub, indextype jysub,
+                     indextype dsizex, indextype dsizey,
                      realtype uext[], realtype buffer[]);
 
-static int BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
-                     long int dsizex, realtype uext[], realtype buffer[]);
+static int BRecvWait(MPI_Request request[], indextype ixsub, indextype jysub,
+                     indextype dsizex, realtype uext[], realtype buffer[]);
 
 /* User-supplied preconditioner routines */
 
@@ -112,7 +112,7 @@ static int InitUserData(int thispe, MPI_Comm comm, UserData data);
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
                              N_Vector res, UserData data);
 
-static void PrintHeader(long int Neq, realtype rtol, realtype atol);
+static void PrintHeader(indextype Neq, realtype rtol, realtype atol);
 
 static void PrintOutput(int id, void *mem, realtype t, N_Vector uu);
 
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
   void *mem;
   UserData data;
   int iout, thispe, ier, npes;
-  long int Neq, local_N;
+  indextype Neq, local_N;
   realtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
 
@@ -342,8 +342,8 @@ int PsetupHeat(realtype tt,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype *ppv, pelinv;
-  long int lx, ly, ixbegin, ixend, jybegin, jyend, locu, mxsub, mysub;
-  long int ixsub, jysub, npex, npey;
+  indextype lx, ly, ixbegin, ixend, jybegin, jyend, locu, mxsub, mysub;
+  indextype ixsub, jysub, npex, npey;
   UserData data;
 
   data = (UserData) user_data;
@@ -422,7 +422,7 @@ static int rescomm(N_Vector uu, N_Vector up, void *user_data)
   UserData data;
   realtype *uarray, *uext, buffer[2*MYSUB];
   MPI_Comm comm;
-  long int thispe, ixsub, jysub, mxsub, mysub;
+  indextype thispe, ixsub, jysub, mxsub, mysub;
   MPI_Request request[4];
   
   data = (UserData) user_data;
@@ -459,9 +459,9 @@ static int reslocal(realtype tt,
 {
   realtype *uext, *uuv, *upv, *resv;
   realtype termx, termy, termctr;
-  long int lx, ly, offsetu, offsetue, locu, locue;
-  long int ixsub, jysub, mxsub, mxsub2, mysub, npex, npey;
-  long int ixbegin, ixend, jybegin, jyend;
+  indextype lx, ly, offsetu, offsetue, locu, locue;
+  indextype ixsub, jysub, mxsub, mxsub2, mysub, npex, npey;
+  indextype ixbegin, ixend, jybegin, jyend;
   UserData data;
   
   /* Get subgrid indices, array sizes, extended work array uext. */
@@ -520,10 +520,10 @@ static int reslocal(realtype tt,
  * Routine to send boundary data to neighboring PEs.                     
  */
 
-static int BSend(MPI_Comm comm, long int thispe, long int ixsub, long int jysub,
-                 long int dsizex, long int dsizey, realtype uarray[])
+static int BSend(MPI_Comm comm, indextype thispe, indextype ixsub, indextype jysub,
+                 indextype dsizex, indextype dsizey, realtype uarray[])
 {
-  long int ly, offsetu;
+  indextype ly, offsetu;
   realtype bufleft[MYSUB], bufright[MYSUB];
 
   /* If jysub > 0, send data from bottom x-line of u. */
@@ -573,12 +573,12 @@ static int BSend(MPI_Comm comm, long int thispe, long int ixsub, long int jysub,
  *      both calls also. 
  */
 
-static int BRecvPost(MPI_Comm comm, MPI_Request request[], long int thispe,
-                     long int ixsub, long int jysub,
-                     long int dsizex, long int dsizey,
+static int BRecvPost(MPI_Comm comm, MPI_Request request[], indextype thispe,
+                     indextype ixsub, indextype jysub,
+                     indextype dsizex, indextype dsizey,
                      realtype uext[], realtype buffer[])
 {
-  long int offsetue;
+  indextype offsetue;
   /* Have bufleft and bufright use the same buffer. */
   realtype *bufleft = buffer, *bufright = buffer+MYSUB;
   
@@ -620,10 +620,10 @@ static int BRecvPost(MPI_Comm comm, MPI_Request request[], long int thispe,
  *      calls also. 
  */
 
-static int BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
-                     long int dsizex, realtype uext[], realtype buffer[])
+static int BRecvWait(MPI_Request request[], indextype ixsub, indextype jysub,
+                     indextype dsizex, realtype uext[], realtype buffer[])
 {
-  long int ly, dsizex2, offsetue;
+  indextype ly, dsizex2, offsetue;
   realtype *bufleft = buffer, *bufright = buffer+MYSUB;
   MPI_Status status;
   
@@ -701,8 +701,8 @@ static int InitUserData(int thispe, MPI_Comm comm, UserData data)
 static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id, 
                              N_Vector res, UserData data)
 {
-  long int i, iloc, j, jloc, offset, loc, ixsub, jysub;
-  long int ixbegin, ixend, jybegin, jyend;
+  indextype i, iloc, j, jloc, offset, loc, ixsub, jysub;
+  indextype ixbegin, ixend, jybegin, jyend;
   realtype xfact, yfact, *udata, *iddata, dx, dy;
   
   /* Initialize uu. */ 
@@ -756,7 +756,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
  * Print first lines of output and table heading
  */
 
-static void PrintHeader(long int Neq, realtype rtol, realtype atol)
+static void PrintHeader(indextype Neq, realtype rtol, realtype atol)
 { 
   printf("\nidasHeat2D_p: Heat equation, parallel example problem for IDA\n");
   printf("                Discretized heat equation on 2D unit square.\n");
@@ -792,7 +792,7 @@ static void PrintHeader(long int Neq, realtype rtol, realtype atol)
 static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
 {
   realtype hused, umax;
-  long int nst, nni, nje, nre, nreLS, nli, npe, nps;
+  indextype nst, nni, nje, nre, nreLS, nli, npe, nps;
   int kused, ier;
 
   umax = N_VMaxNorm(uu);
@@ -840,7 +840,7 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
 
 static void PrintFinalStats(void *mem)
 {
-  long int netf, ncfn, ncfl;
+  indextype netf, ncfn, ncfl;
 
   IDAGetNumErrTestFails(mem, &netf);
   IDAGetNumNonlinSolvConvFails(mem, &ncfn);

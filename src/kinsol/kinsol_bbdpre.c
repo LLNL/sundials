@@ -88,9 +88,9 @@ static int KBBDDQJac(KBBDPrecData pdata,
  *-----------------------------------------------------------------
  */
 
-int KINBBDPrecInit(void *kinmem, long int Nlocal, 
-                   long int mudq, long int mldq,
-                   long int mukeep, long int mlkeep,
+int KINBBDPrecInit(void *kinmem, indextype Nlocal, 
+                   indextype mudq, indextype mldq,
+                   indextype mukeep, indextype mlkeep,
                    realtype dq_rel_uu, 
                    KINLocalFn gloc, KINCommFn gcomm)
 {
@@ -98,7 +98,7 @@ int KINBBDPrecInit(void *kinmem, long int Nlocal,
   KINSpilsMem kinspils_mem;
   KINMem kin_mem;
   N_Vector vtemp3;
-  long int muk, mlk, storage_mu;
+  indextype muk, mlk, storage_mu;
   int flag;
 
   pdata = NULL;
@@ -216,7 +216,7 @@ int KINBBDPrecInit(void *kinmem, long int Nlocal,
  *-----------------------------------------------------------------
  */
 
-int KINBBDPrecGetWorkSpace(void *kinmem, long int *lenrwBBDP, long int *leniwBBDP)
+int KINBBDPrecGetWorkSpace(void *kinmem, indextype *lenrwBBDP, indextype *leniwBBDP)
 {
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
@@ -252,7 +252,7 @@ int KINBBDPrecGetWorkSpace(void *kinmem, long int *lenrwBBDP, long int *leniwBBD
  *-----------------------------------------------------------------
  */
 
-int KINBBDPrecGetNumGfnEvals(void *kinmem, long int *ngevalsBBDP)
+int KINBBDPrecGetNumGfnEvals(void *kinmem, indextype *ngevalsBBDP)
 {
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
@@ -352,7 +352,7 @@ static int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
   KBBDPrecData pdata;
   KINMem kin_mem;
   int retval;
-  long int ier;
+  indextype ier;
 
   pdata = (KBBDPrecData) bbd_data;
 
@@ -477,7 +477,7 @@ static int KBBDDQJac(KBBDPrecData pdata,
                      N_Vector gu, N_Vector gtemp, N_Vector utemp)
 {
   realtype inc, inc_inv;
-  long int group, i, j, width, ngroups, i1, i2;
+  indextype group, i, j, width, ngroups, i1, i2;
   KINMem kin_mem;
   realtype *udata, *uscdata, *gudata, *gtempdata, *utempdata, *col_j;
   int retval;

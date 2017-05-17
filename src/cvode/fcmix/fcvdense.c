@@ -35,11 +35,11 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FCV_DJAC(long int*,                        /* N          */
+  extern void FCV_DJAC(indextype*,                        /* N          */
                        realtype*, realtype*, realtype*,  /* T, Y, FY   */
                        realtype*,                        /* DJAC       */
                        realtype*,                        /* H          */ 
-                       long int*, realtype*,             /* IPAR, RPAR */
+                       indextype*, realtype*,             /* IPAR, RPAR */
                        realtype*, realtype*, realtype*,  /* V1, V2, V3 */
                        int *ier);                        /* IER        */
 #ifdef __cplusplus
@@ -65,7 +65,7 @@ void FCV_DENSESETJAC(int *flag, int *ier)
    DENSE_COL from DENSE and the routine N_VGetArrayPointer from NVECTOR.
    Auxiliary data is assumed to be communicated by Common. */
 
-int FCVDenseJac(long int N, realtype t, 
+int FCVDenseJac(indextype N, realtype t, 
                 N_Vector y, N_Vector fy, 
                 DlsMat J, void *user_data,
                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)

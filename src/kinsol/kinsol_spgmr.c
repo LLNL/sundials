@@ -354,8 +354,8 @@ static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   /* increment counters nli, nps, and ncfl 
      (nni is updated in the KINSol main iteration loop) */
 
-  nli = nli + (long int) nli_inc;
-  nps = nps + (long int) nps_inc;
+  nli = nli + (indextype) nli_inc;
+  nps = nps + (indextype) nps_inc;
 
   if (printfl > 2) 
     KINPrintInfo(kin_mem, PRNT_NLI, "KINSPGMR", "KINSpgmrSolve", INFO_NLI, nli_inc);

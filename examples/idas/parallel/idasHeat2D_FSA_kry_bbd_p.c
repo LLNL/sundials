@@ -70,7 +70,7 @@
 typedef struct {  
   realtype p[2];
   int thispe, mx, my, ixsub, jysub, npex, npey, mxsub, mysub;
-  long int n_local;
+  indextype n_local;
   realtype dx, dy, coeffx, coeffy, coeffxy;
   realtype uext[(MXSUB+2)*(MYSUB+2)];
   MPI_Comm comm;
@@ -81,10 +81,10 @@ typedef struct {
 static int heatres(realtype tres, 
                    N_Vector uu, N_Vector up, N_Vector res, 
                    void *user_data);
-static int rescomm(long int Nlocal, realtype tt, 
+static int rescomm(indextype Nlocal, realtype tt, 
                    N_Vector uu, N_Vector up, 
                    void *user_data);
-static int reslocal(long int Nlocal, realtype tres, 
+static int reslocal(indextype Nlocal, realtype tres, 
                     N_Vector uu, N_Vector up, N_Vector res,  
                     void *user_data);
 static int BSend(MPI_Comm comm, int thispe, int ixsub,
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
   void *mem;
   UserData data;
   int thispe, iout, ier, npes;
-  long int Neq, local_N, mudq, mldq, mukeep, mlkeep;
+  indextype Neq, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
 
@@ -374,7 +374,7 @@ static int heatres(realtype tres, N_Vector uu, N_Vector up,
 {
   int retval;
   UserData data;
-  long int Nlocal;
+  indextype Nlocal;
   
   data = (UserData) user_data;
   
@@ -395,7 +395,7 @@ static int heatres(realtype tres, N_Vector uu, N_Vector up,
  * communication of data in u needed to calculate G.                 
  */
 
-static int rescomm(long int Nlocal, realtype tt, 
+static int rescomm(indextype Nlocal, realtype tt, 
                    N_Vector uu, N_Vector up, void *user_data)
 {
   UserData data;
@@ -432,7 +432,7 @@ static int rescomm(long int Nlocal, realtype tt,
  *  has already been done, and that this data is in the work array uext.  
  */
 
-static int reslocal(long int Nlocal, realtype tres, 
+static int reslocal(indextype Nlocal, realtype tres, 
                     N_Vector uu, N_Vector up, N_Vector res,  
                     void *user_data)
 {
@@ -806,7 +806,7 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu,
 {
   realtype umax, hused;
   int kused, ier, is;
-  long int nst, nni, nre, nli, npe, nps, nreLS, nge;
+  indextype nst, nni, nre, nli, npe, nps, nreLS, nge;
 
   umax = N_VMaxNorm(uu);
 
@@ -870,7 +870,7 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu,
 
 static void PrintFinalStats(void *mem)
 {
-  long int netf, ncfn, ncfl;
+  indextype netf, ncfn, ncfl;
 
   IDAGetNumErrTestFails(mem, &netf);
   IDAGetNumNonlinSolvConvFails(mem, &ncfn);

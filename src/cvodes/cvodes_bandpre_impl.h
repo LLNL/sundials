@@ -40,18 +40,18 @@ typedef struct CVBandPrecDataRec {
 
   /* Data set by user in CVBandPrecInit */
 
-  long int N;
-  long int ml, mu;
+  indextype N;
+  indextype ml, mu;
 
   /* Data set by CVBandPrecSetup */
 
   DlsMat savedJ;
   DlsMat savedP;
-  long int *lpivots;
+  indextype *lpivots;
 
   /* Rhs calls */
 
-  long int nfeBP;
+  indextype nfeBP;
 
   /* Pointer to cvode_mem */
 

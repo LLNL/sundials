@@ -48,23 +48,23 @@
  * =================================================================
  */
 
-static int idaDlsDenseJacBWrapper(long int NeqB, realtype tt, realtype c_jB,
+static int idaDlsDenseJacBWrapper(indextype NeqB, realtype tt, realtype c_jB,
                                   N_Vector yyB, N_Vector ypB, N_Vector rBr, 
                                   DlsMat JacB, void *ida_mem,
                                   N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
-static int idaDlsDenseJacBSWrapper(long int NeqB, realtype tt, realtype c_jB,
+static int idaDlsDenseJacBSWrapper(indextype NeqB, realtype tt, realtype c_jB,
                                    N_Vector yyB, N_Vector ypB, N_Vector rBr, 
                                    DlsMat JacB, void *ida_mem,
                                    N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
-static int idaDlsBandJacBWrapper(long int NeqB, long int mupperB, long int mlowerB,
+static int idaDlsBandJacBWrapper(indextype NeqB, indextype mupperB, indextype mlowerB,
                                  realtype tt, realtype c_jB, 
                                  N_Vector yyB, N_Vector ypB, N_Vector rrB,
                                  DlsMat JacB, void *ida_mem,
                                  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
-static int idaDlsBandJacBSWrapper(long int NeqB, long int mupperB, long int mlowerB,
+static int idaDlsBandJacBSWrapper(indextype NeqB, indextype mupperB, indextype mlowerB,
                                   realtype tt, realtype c_jB, 
                                   N_Vector yyB, N_Vector ypB, N_Vector rrB,
                                   DlsMat JacB, void *ida_mem,
@@ -182,7 +182,7 @@ int IDADlsSetBandJacFn(void *ida_mem, IDADlsBandJacFn jac)
  * IDADlsGetWorkSpace returns the length of workspace allocated for the
  * IDALAPACK linear solver.
  */
-int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
+int IDADlsGetWorkSpace(void *ida_mem, indextype *lenrwLS, indextype *leniwLS)
 {
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
@@ -214,7 +214,7 @@ int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
 /*
  * IDADlsGetNumJacEvals returns the number of Jacobian evaluations.
  */
-int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals)
+int IDADlsGetNumJacEvals(void *ida_mem, indextype *njevals)
 {
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
@@ -241,7 +241,7 @@ int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals)
  * IDADlsGetNumResEvals returns the number of calls to the DAE function
  * needed for the DQ Jacobian approximation.
  */
-int IDADlsGetNumResEvals(void *ida_mem, long int *nrevalsLS)
+int IDADlsGetNumResEvals(void *ida_mem, indextype *nrevalsLS)
 {
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
@@ -268,7 +268,7 @@ int IDADlsGetNumResEvals(void *ida_mem, long int *nrevalsLS)
  * IDADlsGetReturnFlagName returns the name associated with a IDALAPACK
  * return value.
  */
-char *IDADlsGetReturnFlagName(long int flag)
+char *IDADlsGetReturnFlagName(indextype flag)
 {
   char *name;
 
@@ -306,7 +306,7 @@ char *IDADlsGetReturnFlagName(long int flag)
 /*
  * IDADlsGetLastFlag returns the last flag set in a IDALAPACK function.
  */
-int IDADlsGetLastFlag(void *ida_mem, long int *flag)
+int IDADlsGetLastFlag(void *ida_mem, indextype *flag)
 {
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
@@ -349,7 +349,7 @@ int IDADlsGetLastFlag(void *ida_mem, long int *flag)
  * done with a call to N_VLinearSum.
  * -----------------------------------------------------------------
  */ 
-int idaDlsDenseDQJac(long int N, realtype tt, realtype c_j,
+int idaDlsDenseDQJac(indextype N, realtype tt, realtype c_j,
                      N_Vector yy, N_Vector yp, N_Vector rr, 
                      DlsMat Jac, void *data,
                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -357,7 +357,7 @@ int idaDlsDenseDQJac(long int N, realtype tt, realtype c_j,
   realtype inc, inc_inv, yj, ypj, srur, conj;
   realtype *tmp2_data, *y_data, *yp_data, *ewt_data, *cns_data = NULL;
   N_Vector rtemp, jthCol;
-  long int j;
+  indextype j;
   int retval = 0;
 
   IDAMem IDA_mem;
@@ -449,7 +449,7 @@ int idaDlsDenseDQJac(long int N, realtype tt, realtype c_j,
  * by the res routine, if any.
  */
 
-int idaDlsBandDQJac(long int N, long int mupper, long int mlower,
+int idaDlsBandDQJac(indextype N, indextype mupper, indextype mlower,
                     realtype tt, realtype c_j, 
                     N_Vector yy, N_Vector yp, N_Vector rr,
                     DlsMat Jac, void *data,
@@ -460,7 +460,7 @@ int idaDlsBandDQJac(long int N, long int mupper, long int mlower,
   realtype *ytemp_data, *yptemp_data, *rtemp_data, *r_data, *col_j;
   
   N_Vector rtemp, ytemp, yptemp;
-  long int group, i, j, i1, i2, width, ngroups;
+  indextype group, i, j, i1, i2, width, ngroups;
   int retval = 0;
 
   IDAMem IDA_mem;
@@ -854,7 +854,7 @@ int IDADlsSetBandJacFnBS(void *ida_mem, int which, IDADlsBandJacFnBS jacBS)
  * NOTE: data actually contains ida_mem
  */
 
-static int idaDlsDenseJacBWrapper(long int NeqB, realtype tt, realtype c_jB,
+static int idaDlsDenseJacBWrapper(indextype NeqB, realtype tt, realtype c_jB,
                                   N_Vector yyB, N_Vector ypB, N_Vector rrB,
                                   DlsMat JacB, void *ida_mem, 
                                   N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
@@ -900,7 +900,7 @@ static int idaDlsDenseJacBWrapper(long int NeqB, realtype tt, realtype c_jB,
  * NOTE: data actually contains ida_mem
  */
 
-static int idaDlsDenseJacBSWrapper(long int NeqB, realtype tt, realtype c_jB,
+static int idaDlsDenseJacBSWrapper(indextype NeqB, realtype tt, realtype c_jB,
                                   N_Vector yyB, N_Vector ypB, N_Vector rrB,
                                   DlsMat JacB, void *ida_mem, 
                                   N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
@@ -950,7 +950,7 @@ static int idaDlsDenseJacBSWrapper(long int NeqB, realtype tt, realtype c_jB,
  * NOTE: data actually contains ida_mem
  */
 
-static int idaDlsBandJacBWrapper(long int NeqB, long int mupperB, long int mlowerB, 
+static int idaDlsBandJacBWrapper(indextype NeqB, indextype mupperB, indextype mlowerB, 
                                  realtype tt, realtype c_jB, 
                                  N_Vector yyB, N_Vector ypB, N_Vector rrB, 
                                  DlsMat JacB, void *ida_mem, 
@@ -998,7 +998,7 @@ static int idaDlsBandJacBWrapper(long int NeqB, long int mupperB, long int mlowe
  * NOTE: data actually contains ida_mem
  */
 
-static int idaDlsBandJacBSWrapper(long int NeqB, long int mupperB, long int mlowerB, 
+static int idaDlsBandJacBSWrapper(indextype NeqB, indextype mupperB, indextype mlowerB, 
                                  realtype tt, realtype c_jB, 
                                  N_Vector yyB, N_Vector ypB, N_Vector rrB, 
                                  DlsMat JacB, void *ida_mem, 

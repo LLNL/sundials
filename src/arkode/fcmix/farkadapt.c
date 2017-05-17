@@ -35,7 +35,7 @@ extern "C" {
   extern void FARK_ADAPT(realtype *Y, realtype *T, realtype *H1, 
 			 realtype *H2, realtype *H3, realtype *E1, 
 			 realtype *E2, realtype *E3, int *Q, int *P, 
-			 realtype *HNEW, long int *IPAR, 
+			 realtype *HNEW, indextype *IPAR, 
 			 realtype *RPAR, int *IER);
 
 #ifdef __cplusplus

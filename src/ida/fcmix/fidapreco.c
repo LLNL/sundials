@@ -37,14 +37,14 @@ extern "C" {
 
   extern void FIDA_PSET(realtype*, realtype*, realtype*, realtype*,
                         realtype*, realtype*, realtype*, 
-                        long int*, realtype*,
+                        indextype*, realtype*,
                         realtype*, realtype*, realtype*, 
                         int*);
   
   extern void FIDA_PSOL(realtype*, realtype*, realtype*, realtype*,
                         realtype*, realtype*, realtype*, realtype*,
                         realtype*, 
-                        long int*, realtype*,
+                        indextype*, realtype*,
                         realtype*, int*);
 
 #ifdef __cplusplus

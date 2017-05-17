@@ -83,7 +83,7 @@ typedef struct {
 static int func(N_Vector u, N_Vector f, void *user_data);
 static int jac(N_Vector y, N_Vector f, SlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2);
-static int jacDense(long int N,
+static int jacDense(indextype N,
                     N_Vector y, N_Vector f,
                     DlsMat J, void *user_data,
                     N_Vector tmp1, N_Vector tmp2);
@@ -419,7 +419,7 @@ static int jac(N_Vector y, N_Vector f,
  * System dense Jacobian
  */
 
-static int jacDense(long int N,
+static int jacDense(indextype N,
                     N_Vector y, N_Vector f,
                     DlsMat J, void *user_data,
                     N_Vector tmp1, N_Vector tmp2)
@@ -558,7 +558,7 @@ static void PrintOutput(N_Vector u)
 
 static void PrintFinalStats(void *kmem)
 {
-  long int nni, nfe, nje, nfeD;
+  indextype nni, nfe, nje, nfeD;
   int flag;
   
   flag = KINGetNumNonlinSolvIters(kmem, &nni);

@@ -222,7 +222,7 @@ int CPDlsSetBandJacFnImpl(void *cpode_mem, CPDlsBandJacImplFn jac)
  * CPDLS linear solver.
  */
 
-int CPDlsGetWorkSpace(void *cpode_mem, long int *lenrwLS, long int *leniwLS)
+int CPDlsGetWorkSpace(void *cpode_mem, indextype *lenrwLS, indextype *leniwLS)
 {
   CPodeMem cp_mem;
   CPDlsMem cpdls_mem;
@@ -275,7 +275,7 @@ int CPDlsGetWorkSpace(void *cpode_mem, long int *lenrwLS, long int *leniwLS)
  * CPDlsGetNumJacEvals returns the number of Jacobian evaluations.
  */
 
-int CPDlsGetNumJacEvals(void *cpode_mem, long int *njevals)
+int CPDlsGetNumJacEvals(void *cpode_mem, indextype *njevals)
 {
   CPodeMem cp_mem;
   CPDlsMem cpdls_mem;
@@ -303,7 +303,7 @@ int CPDlsGetNumJacEvals(void *cpode_mem, long int *njevals)
  * needed for the DQ Jacobian approximation.
  */
 
-int CPDlsGetNumFctEvals(void *cpode_mem, long int *nfevalsLS)
+int CPDlsGetNumFctEvals(void *cpode_mem, indextype *nfevalsLS)
 {
   CPodeMem cp_mem;
   CPDlsMem cpdls_mem;
@@ -435,7 +435,7 @@ int CPDlsProjSetDenseJacFn(void *cpode_mem, CPDlsDenseProjJacFn jacP)
  * CPDlsProjGetNumJacEvals returns the number of constraint Jacobian evaluations
  */
 
-int CPDlsProjGetNumJacEvals(void *cpode_mem, long int *njPevals)
+int CPDlsProjGetNumJacEvals(void *cpode_mem, indextype *njPevals)
 {
   CPodeMem cp_mem;
   CPDlsProjMem cpdlsP_mem;
@@ -463,7 +463,7 @@ int CPDlsProjGetNumJacEvals(void *cpode_mem, long int *njPevals)
  * evaluations for computing the DQ constraint Jacobian. 
  */
 
-int CPDlsProjGetNumFctEvals(void *cpode_mem, long int *ncevalsLS)
+int CPDlsProjGetNumFctEvals(void *cpode_mem, indextype *ncevalsLS)
 {
   CPodeMem cp_mem;
   CPDlsProjMem cpdlsP_mem;

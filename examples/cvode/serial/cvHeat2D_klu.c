@@ -81,7 +81,7 @@
 /* Type: UserData */
 
 typedef struct {
-  long int mm;
+  indextype mm;
   realtype dx;
   realtype coeff;
 } *UserData;
@@ -122,7 +122,7 @@ int main(void)
   UserData data;
   N_Vector uu, constraints, res; 
   int flag, iout;
-  long int mu, ml, netf, ncfn;
+  indextype mu, ml, netf, ncfn;
   realtype rtol, atol, t0, t1, tout, tret;
 
   int nnz; /* number of non-zeroes  */
@@ -259,7 +259,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 int heatres(realtype tres, N_Vector uu, N_Vector resval, 
             void *user_data)
 {
-  long int mm, i, j, offset, loc;
+  indextype mm, i, j, offset, loc;
   realtype *uv, *resv, coeff;
   UserData data;
   
@@ -615,7 +615,7 @@ static int jacHeat(realtype tt,
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector res)
 {
   realtype xfact, yfact, *udata;
-  long int mm, mm1, i, j, offset, loc;
+  indextype mm, mm1, i, j, offset, loc;
   
   mm = data->mm;
   mm1 = mm - 1;
@@ -687,7 +687,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
 {
   int flag;
   realtype umax, hused;
-  long int nst, nni, nje, nre, nreLS;
+  indextype nst, nni, nje, nre, nreLS;
   int kused;
 
   umax = N_VMaxNorm(uu);
@@ -737,7 +737,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int nst, nfe, nsetups, nje, nni, ncfn, netf, nge;
+  indextype nst, nfe, nsetups, nje, nni, ncfn, netf, nge;
   int flag;
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);

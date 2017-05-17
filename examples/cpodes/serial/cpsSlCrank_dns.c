@@ -478,8 +478,8 @@ static void PrintOutput(void *mem, FILE *fout, realtype t, N_Vector y)
 
 static void PrintFinalStats(void *cpode_mem)
 {
-  long int nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf;
-  long int nproj, nce, nsetupsP, nprf;
+  indextype nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf;
+  indextype nproj, nce, nsetupsP, nprf;
   int flag;
 
   flag = CPodeGetNumSteps(cpode_mem, &nst);

@@ -114,7 +114,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 
 static void PrintFinalStats(void *cpode_mem)
 {
-  long int nst, nfe, nni, ncfn, netf;
+  indextype nst, nfe, nni, ncfn, netf;
   realtype h0u;
   int flag;
   

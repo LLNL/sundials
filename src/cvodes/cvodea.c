@@ -69,7 +69,7 @@ static int  CVAdataStore(CVodeMem cv_mem, CkpntMem ck_mem);
 static int  CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem); 
 
 static int CVAfindIndex(CVodeMem cv_mem, realtype t, 
-                        long int *indx, booleantype *newpoint);
+                        indextype *indx, booleantype *newpoint);
 
 static booleantype CVAhermiteMalloc(CVodeMem cv_mem);
 static void CVAhermiteFree(CVodeMem cv_mem);
@@ -102,11 +102,11 @@ static int CVArhsQ(realtype t, N_Vector yB,
  * memory structure.
  */
 
-int CVodeAdjInit(void *cvode_mem, long int steps, int interp)
+int CVodeAdjInit(void *cvode_mem, indextype steps, int interp)
 {
   CVadjMem ca_mem;
   CVodeMem cv_mem;
-  long int i, ii;
+  indextype i, ii;
 
   /* ---------------
    * Check arguments
@@ -318,7 +318,7 @@ void CVodeAdjFree(void *cvode_mem)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
-  long int i;
+  indextype i;
   
   if (cvode_mem == NULL) return;
   cv_mem = (CVodeMem) cvode_mem;
@@ -1539,7 +1539,7 @@ int CVodeGetQuadB(void *cvode_mem, int which, realtype *tret, N_Vector qB)
   CVadjMem ca_mem;
   CVodeBMem cvB_mem;
   void *cvodeB_mem;
-  long int nstB;
+  indextype nstB;
   int flag;
 
   /* Check if cvode_mem exists */
@@ -2026,7 +2026,7 @@ static int CVAdataStore(CVodeMem cv_mem, CkpntMem ck_mem)
   CVadjMem ca_mem;
   DtpntMem *dt_mem;
   realtype t;
-  long int i;
+  indextype i;
   int flag, sign;
 
   ca_mem = cv_mem->cv_adj_mem;
@@ -2185,10 +2185,10 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
  */
 
 static int CVAfindIndex(CVodeMem cv_mem, realtype t, 
-                        long int *indx, booleantype *newpoint)
+                        indextype *indx, booleantype *newpoint)
 {
   CVadjMem ca_mem;
-  static long int ilast;
+  static indextype ilast;
   DtpntMem *dt_mem;
   int sign;
   booleantype to_left, to_right;
@@ -2308,7 +2308,7 @@ static booleantype CVAhermiteMalloc(CVodeMem cv_mem)
   CVadjMem ca_mem;
   DtpntMem *dt_mem;
   HermiteDataMem content;
-  long int i, ii=0;
+  indextype i, ii=0;
   booleantype allocOK;
 
   allocOK = TRUE;
@@ -2427,7 +2427,7 @@ static void CVAhermiteFree(CVodeMem cv_mem)
   CVadjMem ca_mem;
   DtpntMem *dt_mem;
   HermiteDataMem content;
-  long int i;
+  indextype i;
 
   ca_mem = cv_mem->cv_adj_mem;
 
@@ -2529,7 +2529,7 @@ static int CVAhermiteGetY(CVodeMem cv_mem, realtype t,
   N_Vector *yS0=NULL, *ySd0=NULL, *yS1, *ySd1;
 
   int flag, is, NS;
-  long int indx;
+  indextype indx;
   booleantype newpoint;
 
  
@@ -2639,7 +2639,7 @@ static booleantype CVApolynomialMalloc(CVodeMem cv_mem)
   CVadjMem ca_mem;
   DtpntMem *dt_mem;
   PolynomialDataMem content;
-  long int i, ii=0;
+  indextype i, ii=0;
   booleantype allocOK;
 
   allocOK = TRUE;
@@ -2736,7 +2736,7 @@ static void CVApolynomialFree(CVodeMem cv_mem)
   CVadjMem ca_mem;
   DtpntMem *dt_mem;
   PolynomialDataMem content;
-  long int i;
+  indextype i;
 
   ca_mem = cv_mem->cv_adj_mem;
 
@@ -2805,7 +2805,7 @@ static int CVApolynomialGetY(CVodeMem cv_mem, realtype t,
   PolynomialDataMem content;
 
   int flag, dir, order, i, j, is, NS;
-  long int indx, base;
+  indextype indx, base;
   booleantype newpoint;
   realtype dt, factor;
 

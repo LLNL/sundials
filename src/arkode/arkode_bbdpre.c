@@ -57,16 +57,16 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
 /*---------------------------------------------------------------
  User-Callable Functions: initialization, reinit and free
 ---------------------------------------------------------------*/
-int ARKBBDPrecInit(void *arkode_mem, long int Nlocal, 
-                   long int mudq, long int mldq,
-                   long int mukeep, long int mlkeep, 
+int ARKBBDPrecInit(void *arkode_mem, indextype Nlocal, 
+                   indextype mudq, indextype mldq,
+                   indextype mukeep, indextype mlkeep, 
                    realtype dqrely, 
                    ARKLocalFn gloc, ARKCommFn cfn)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
   ARKBBDPrecData pdata;
-  long int muk, mlk, storage_mu;
+  indextype muk, mlk, storage_mu;
   int flag;
 
   if (arkode_mem == NULL) {
@@ -175,13 +175,13 @@ int ARKBBDPrecInit(void *arkode_mem, long int Nlocal,
 
 
 /*-------------------------------------------------------------*/
-int ARKBBDPrecReInit(void *arkode_mem, long int mudq, 
-		     long int mldq, realtype dqrely)
+int ARKBBDPrecReInit(void *arkode_mem, indextype mudq, 
+		     indextype mldq, realtype dqrely)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
   ARKBBDPrecData pdata;
-  long int Nlocal;
+  indextype Nlocal;
 
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKBBDPRE", 
@@ -222,8 +222,8 @@ int ARKBBDPrecReInit(void *arkode_mem, long int mudq,
 
 
 /*-------------------------------------------------------------*/
-int ARKBBDPrecGetWorkSpace(void *arkode_mem, long int *lenrwBBDP, 
-			   long int *leniwBBDP)
+int ARKBBDPrecGetWorkSpace(void *arkode_mem, indextype *lenrwBBDP, 
+			   indextype *leniwBBDP)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
@@ -258,7 +258,7 @@ int ARKBBDPrecGetWorkSpace(void *arkode_mem, long int *lenrwBBDP,
 
 
 /*-------------------------------------------------------------*/
-int ARKBBDPrecGetNumGfnEvals(void *arkode_mem, long int *ngevalsBBDP)
+int ARKBBDPrecGetNumGfnEvals(void *arkode_mem, indextype *ngevalsBBDP)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
@@ -346,7 +346,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 			   realtype gamma, void *bbd_data, 
 			   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  long int ier;
+  indextype ier;
   ARKBBDPrecData pdata;
   ARKodeMem ark_mem;
   int retval;
@@ -472,7 +472,7 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
 {
   ARKodeMem ark_mem;
   realtype gnorm, minInc, inc, inc_inv;
-  long int group, i, j, width, ngroups, i1, i2;
+  indextype group, i, j, width, ngroups, i1, i2;
   realtype *y_data, *ewt_data, *gy_data, *gtemp_data, *ytemp_data, *col_j;
   int retval;
 

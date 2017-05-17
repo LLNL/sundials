@@ -163,8 +163,8 @@ int main(int argc, char *argv[]) {
   FILE *FID, *UFID, *VFID, *WFID;
   realtype h, z, t, dTout, tout, u, v, w, pi;
   int iout;
-  long int nst, nst_a, nfe, nfi, nsetups, nje, nni, ncfn;
-  long int netf, nms, nMv;
+  indextype nst, nst_a, nfe, nfi, nsetups, nje, nni, ncfn;
+  indextype netf, nms, nMv;
 
   /* if a command-line argument was supplied, set num_threads */
   num_threads = 1;
@@ -424,7 +424,7 @@ static int f_diff(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
   realtype dw = udata->dw;
 
   /* local variables */
-  long int i;
+  indextype i;
   realtype ul, ur, vl, vr, wl, wr;
   realtype xl, xr, f1;
   booleantype left, right;
@@ -505,7 +505,7 @@ static int f_rx(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
   realtype ep = udata->ep;
 
   /* local variables */
-  long int i;
+  indextype i;
   realtype ul, ur, vl, vr, wl, wr;
   realtype u, v, w, xl, xr, f1, f2, f3;
   booleantype left, right;

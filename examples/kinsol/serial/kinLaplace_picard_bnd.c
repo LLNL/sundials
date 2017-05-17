@@ -61,7 +61,7 @@
 /* Private functions */
 
 static int func(N_Vector u, N_Vector f, void *user_data);
-static int jac(long int N, long int mu, long int ml, 
+static int jac(indextype N, indextype mu, indextype ml, 
 	       N_Vector u, N_Vector f, DlsMat J, void *user_data,
 	       N_Vector tmp1, N_Vector tmp2);
 static void PrintOutput(N_Vector u);
@@ -93,7 +93,7 @@ int main()
   printf(" + homogeneous Dirichlet boundary conditions\n\n");
   printf("Solution method: Anderson accelerated Picard iteration with band linear solver.\n");
   printf("Problem size: %2ld x %2ld = %4ld\n", 
-	 (long int) NX, (long int) NY, (long int) NEQ);
+	 (indextype) NX, (indextype) NY, (indextype) NEQ);
 
   /* --------------------------------------
    * Create vectors for solution and scales
@@ -252,7 +252,7 @@ static int func(N_Vector u, N_Vector f, void *user_data)
  * Jacobian function 
  */
 
-static int jac(long int N, long int mu, long int ml, 
+static int jac(indextype N, indextype mu, indextype ml, 
 	       N_Vector u, N_Vector f, 
 	       DlsMat J, void *user_data,
 	       N_Vector tmp1, N_Vector tmp2)
@@ -356,8 +356,8 @@ static void PrintOutput(N_Vector u)
 
 static void PrintFinalStats(void *kmem)
 {
-  long int nni, nfe, nje, nfeD;
-  long int lenrwB, leniwB;
+  indextype nni, nfe, nje, nfeD;
+  indextype lenrwB, leniwB;
   int flag;
   
   /* Main solver statistics */

@@ -140,8 +140,8 @@ typedef struct CPodeMemRec {
   booleantype cp_proj_enabled; /* is projection enabled?                      */
   booleantype cp_applyProj;    /* was projection performed at current step?   */
 
-  long int cp_proj_freq;       /* projection frequency                        */
-  long int cp_nstlprj;         /* step number of last projection              */
+  indextype cp_proj_freq;       /* projection frequency                        */
+  indextype cp_nstlprj;         /* step number of last projection              */
 
   int cp_proj_norm;            /* type of projection norm (L2 or WRMS)        */
   int cp_cnstr_type;           /* type of constraints (lin. or nonlin.)       */
@@ -154,8 +154,8 @@ typedef struct CPodeMemRec {
   N_Vector cp_errP;            /* projected error estimate (length N)         */
   N_Vector cp_yC;              /* saved corrected state (length N)            */
 
-  long int cp_lsetupP_freq;    /* frequency of cnstr. Jacobian evaluation     */
-  long int cp_nstlsetP;        /* step number of last lsetupP call            */
+  indextype cp_lsetupP_freq;    /* frequency of cnstr. Jacobian evaluation     */
+  indextype cp_nstlsetP;        /* step number of last lsetupP call            */
 
   realtype cp_crateP;          /* estimated conv. rate in nonlin. projection  */
   int cp_maxcorP;              /* maximum number of nonlin. proj. iterations  */
@@ -171,10 +171,10 @@ typedef struct CPodeMemRec {
     
   booleantype cp_first_proj;   /* is this the first time we project?          */
 
-  long int cp_nproj;           /* number of projection steps performed        */
-  long int cp_nprf;            /* number of projection failures               */
-  long int cp_nce;             /* number of calls to cfun                     */
-  long int cp_nsetupsP;        /* number of calls to lsetupP                  */       
+  indextype cp_nproj;           /* number of projection steps performed        */
+  indextype cp_nprf;            /* number of projection failures               */
+  indextype cp_nce;             /* number of calls to cfun                     */
+  indextype cp_nsetupsP;        /* number of calls to lsetupP                  */       
   int cp_maxnpf;               /* maximum number of projection failures       */
 
   /*-----------------------
@@ -199,16 +199,16 @@ typedef struct CPodeMemRec {
 
   realtype cp_acnrmQ;          /* acnrmQ = ||acorQ||_WRMS                     */
 
-  long int cp_lrw1Q;           /* no. of realtype words in 1 N_Vector yQ      */ 
-  long int cp_liw1Q;           /* no. of integer words in 1 N_Vector yQ       */ 
+  indextype cp_lrw1Q;           /* no. of realtype words in 1 N_Vector yQ      */ 
+  indextype cp_liw1Q;           /* no. of integer words in 1 N_Vector yQ       */ 
 
   int cp_qmax_allocQ;          /* qmax used when allocating quad. memory      */
 
   booleantype cp_VabstolQMallocDone;  /* did we allocate memory for abstolQ?  */
   booleantype cp_quadMallocDone;      /* was quadrature memory allocated?     */
 
-  long int cp_nqe;             /* number of calls to qfun                     */
-  long int cp_netfQ;           /* number of quadr. error test failures        */
+  indextype cp_nqe;             /* number of calls to qfun                     */
+  indextype cp_netfQ;           /* number of quadr. error test failures        */
 
   /*-----------------
     Tstop information
@@ -222,7 +222,7 @@ typedef struct CPodeMemRec {
     ------*/
 
   int cp_qmax;          /* q <= qmax                                          */
-  long int cp_mxstep;   /* maximum number of internal steps for one user call */
+  indextype cp_mxstep;   /* maximum number of internal steps for one user call */
   int cp_maxcor;        /* maximum number of corrector iterations for the     */
   /* solution of the nonlinear equation                 */
   int cp_mxhnil;        /* maximum number of warning messages issued to the   */
@@ -238,12 +238,12 @@ typedef struct CPodeMemRec {
     Counters 
     --------*/
 
-  long int cp_nst;             /* number of internal steps taken              */
-  long int cp_nfe;             /* number of f calls                           */
-  long int cp_ncfn;            /* number of corrector convergence failures    */
-  long int cp_netf;            /* number of error test failures               */
-  long int cp_nni;             /* number of nonlinear iterations performed    */
-  long int cp_nsetups;         /* number of calls to lsetup                   */
+  indextype cp_nst;             /* number of internal steps taken              */
+  indextype cp_nfe;             /* number of f calls                           */
+  indextype cp_ncfn;            /* number of corrector convergence failures    */
+  indextype cp_netf;            /* number of error test failures               */
+  indextype cp_nni;             /* number of nonlinear iterations performed    */
+  indextype cp_nsetups;         /* number of calls to lsetup                   */
   int cp_nhnil;                /* number of messages saying that t+h==t       */
 
   realtype cp_etaqm1;          /* ratio of new to old h for order q-1         */
@@ -254,12 +254,12 @@ typedef struct CPodeMemRec {
     Space requirements for CPODES 
     ----------------------------*/
 
-  long int cp_lrw1;            /* no. of realtype words in 1 state N_Vector   */ 
-  long int cp_liw1;            /* no. of integer words in 1 state N_Vector    */ 
-  long int cp_lrw2;            /* no. of realtype words in 1 cnstr. N_Vector  */ 
-  long int cp_liw2;            /* no. of integer words in 1 cnstr. N_Vector   */ 
-  long int cp_lrw;             /* no. of realtype words in CPODES work vectors*/
-  long int cp_liw;             /* no. of integer words in CPODES work vectors */
+  indextype cp_lrw1;            /* no. of realtype words in 1 state N_Vector   */ 
+  indextype cp_liw1;            /* no. of integer words in 1 state N_Vector    */ 
+  indextype cp_lrw2;            /* no. of realtype words in 1 cnstr. N_Vector  */ 
+  indextype cp_liw2;            /* no. of integer words in 1 cnstr. N_Vector   */ 
+  indextype cp_lrw;             /* no. of realtype words in CPODES work vectors*/
+  indextype cp_liw;             /* no. of integer words in CPODES work vectors */
 
   /*---------------------------------------
     Implicit Integration Linear Solver Data 
@@ -307,7 +307,7 @@ typedef struct CPodeMemRec {
     ------------*/
 
   int cp_qu;                    /* last successful q value used               */
-  long int cp_nstlset;          /* step number of last lsetup call            */
+  indextype cp_nstlset;          /* step number of last lsetup call            */
   realtype cp_h0u;              /* actual initial stepsize                    */
   realtype cp_hu;               /* last successful h value used               */
   realtype cp_saved_tq5;        /* saved value of tq[5]                       */
@@ -337,7 +337,7 @@ typedef struct CPodeMemRec {
   booleantype cp_sldeton;      /* Is Stability Limit Detection on?            */
   realtype cp_ssdat[6][4];     /* scaled data array for STALD                 */
   int cp_nscon;                /* counter for STALD method                    */
-  long int cp_nor;             /* counter for number of order reductions      */
+  indextype cp_nor;             /* counter for number of order reductions      */
 
   /*----------------
     Rootfinding Data
@@ -359,7 +359,7 @@ typedef struct CPodeMemRec {
   realtype cp_toutc;           /* copy of tout (if NORMAL mode)               */
   int cp_taskc;                /* copy of parameter task                      */
   int cp_irfnd;                /* flag showing whether last step had a root   */
-  long int cp_nge;             /* counter for g evaluations                   */
+  indextype cp_nge;             /* counter for g evaluations                   */
 
   /*------------------------------
     Consistent IC calculation data

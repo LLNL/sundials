@@ -90,7 +90,7 @@ void GetSol(void *cpode_mem, N_Vector yy0, realtype tol,
   N_Vector yy, yp;
   realtype t, x, y, xd, yd, g;
   int flag;
-  long int nst, nfe, nsetups, nje, nfeLS, ncfn, netf;
+  indextype nst, nfe, nsetups, nje, nfeLS, ncfn, netf;
 
   if (proj) {
     printf(" YES   ");

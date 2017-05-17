@@ -83,9 +83,9 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
  * -----------------------------------------------------------------
  */
 
-int IDABBDPrecInit(void *ida_mem, long int Nlocal, 
-                   long int mudq, long int mldq, 
-                   long int mukeep, long int mlkeep, 
+int IDABBDPrecInit(void *ida_mem, indextype Nlocal, 
+                   indextype mudq, indextype mldq, 
+                   indextype mukeep, indextype mlkeep, 
                    realtype dq_rel_yy, 
                    IDABBDLocalFn Gres, IDABBDCommFn Gcomm)
 {
@@ -93,7 +93,7 @@ int IDABBDPrecInit(void *ida_mem, long int Nlocal,
   IDASpilsMem idaspils_mem;
   IBBDPrecData pdata;
   N_Vector tempv4;
-  long int muk, mlk, storage_mu;
+  indextype muk, mlk, storage_mu;
   int flag;
 
   if (ida_mem == NULL) {
@@ -197,13 +197,13 @@ int IDABBDPrecInit(void *ida_mem, long int Nlocal,
 }
 
 int IDABBDPrecReInit(void *ida_mem,
-		     long int mudq, long int mldq, 
+		     indextype mudq, indextype mldq, 
 		     realtype dq_rel_yy)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
   IBBDPrecData pdata;
-  long int Nlocal;
+  indextype Nlocal;
 
 
   if (ida_mem == NULL) {
@@ -240,7 +240,7 @@ int IDABBDPrecReInit(void *ida_mem,
   return(IDASPILS_SUCCESS);
 }
 
-int IDABBDPrecGetWorkSpace(void *ida_mem, long int *lenrwBBDP, long int *leniwBBDP)
+int IDABBDPrecGetWorkSpace(void *ida_mem, indextype *lenrwBBDP, indextype *leniwBBDP)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
@@ -270,7 +270,7 @@ int IDABBDPrecGetWorkSpace(void *ida_mem, long int *lenrwBBDP, long int *leniwBB
   return(IDASPILS_SUCCESS);
 }
 
-int IDABBDPrecGetNumGfnEvals(void *ida_mem, long int *ngevalsBBDP)
+int IDABBDPrecGetNumGfnEvals(void *ida_mem, indextype *ngevalsBBDP)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
@@ -361,7 +361,7 @@ static int IDABBDPrecSetup(realtype tt,
                            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   int retval;
-  long int ier;
+  indextype ier;
   IBBDPrecData pdata;
   IDAMem IDA_mem;
 
@@ -489,7 +489,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   IDAMem IDA_mem;
   realtype inc, inc_inv;
   int  retval;
-  long int group, i, j, width, ngroups, i1, i2;
+  indextype group, i, j, width, ngroups, i1, i2;
   realtype *ydata, *ypdata, *ytempdata, *yptempdata, *grefdata, *gtempdata;
   realtype *cnsdata = NULL, *ewtdata;
   realtype *col_j, conj, yj, ypj, ewtj;

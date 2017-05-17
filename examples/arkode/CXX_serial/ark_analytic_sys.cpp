@@ -59,7 +59,7 @@ using namespace std;
 
 // User-supplied Functions Called by the Solver
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(long int N, realtype t,
+static int Jac(indextype N, realtype t,
                N_Vector y, N_Vector fy, DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
@@ -76,7 +76,7 @@ int main()
   realtype T0 = RCONST(0.0);       // initial time
   realtype Tf = RCONST(0.05);      // final time
   realtype dTout = RCONST(0.005);  // time between outputs
-  long int NEQ = 3;                // number of dependent vars.
+  indextype NEQ = 3;                // number of dependent vars.
   realtype reltol = 1.0e-6;        // tolerances
   realtype abstol = 1.0e-10;
   realtype lamda  = -100.0;        // stiffness parameter
@@ -158,7 +158,7 @@ int main()
   fclose(UFID);
 
   // Print some final statistics
-  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
+  indextype nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   check_flag(&flag, "ARKodeGetNumSteps", 1);
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
@@ -226,7 +226,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 // Jacobian routine to compute J(t,y) = df/dy.
-static int Jac(long int N, realtype t,
+static int Jac(indextype N, realtype t,
                N_Vector y, N_Vector fy, DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
@@ -298,9 +298,9 @@ static int dense_MM(DlsMat A, DlsMat B, DlsMat C)
   realtype **adata = A->cols;     // access data and extents
   realtype **bdata = B->cols;
   realtype **cdata = C->cols;
-  long int m = C->M;
-  long int n = C->N;
-  long int l = A->N;
+  indextype m = C->M;
+  indextype n = C->N;
+  indextype l = A->N;
   int i, j, k;
   DenseScale(0.0, C);             // initialize output
 

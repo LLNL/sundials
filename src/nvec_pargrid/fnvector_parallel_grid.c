@@ -39,9 +39,9 @@ N_Vector F2C_ARKODE_vec;
 
 /* Fortran callable interfaces */
 
-void FNV_INITPG(MPI_Fint *comm, int *code, long int *dims, long int *dim_len, 
-		long int *dim_alen, long int *dim_off, long int *F_ordering, 
-		long int *glob_len, int *ier)
+void FNV_INITPG(MPI_Fint *comm, int *code, indextype *dims, indextype *dim_len, 
+		indextype *dim_alen, indextype *dim_off, indextype *F_ordering, 
+		indextype *glob_len, int *ier)
 {
   MPI_Comm F2C_comm;
 
@@ -83,9 +83,9 @@ void FNV_INITPG(MPI_Fint *comm, int *code, long int *dims, long int *dim_len,
   }
 }
 
-void FNV_INITPG_Q(MPI_Fint *comm, int *code, long int *dims, long int *dim_lenQ, 
-		  long int *dim_alenQ, long int *dim_offQ, long int *F_ordering, 
-		  long int *glob_lenQ, int *ier)
+void FNV_INITPG_Q(MPI_Fint *comm, int *code, indextype *dims, indextype *dim_lenQ, 
+		  indextype *dim_alenQ, indextype *dim_offQ, indextype *F_ordering, 
+		  indextype *glob_lenQ, int *ier)
 {
   MPI_Comm F2C_comm;
 
@@ -115,9 +115,9 @@ void FNV_INITPG_Q(MPI_Fint *comm, int *code, long int *dims, long int *dim_lenQ,
   }
 }
 
-void FNV_INITPG_B(MPI_Fint *comm, int *code, long int *dims, long int *dim_lenB, 
-		  long int *dim_alenB, long int *dim_offB, long int *F_ordering, 
-		  long int *glob_lenB, int *ier)
+void FNV_INITPG_B(MPI_Fint *comm, int *code, indextype *dims, indextype *dim_lenB, 
+		  indextype *dim_alenB, indextype *dim_offB, indextype *F_ordering, 
+		  indextype *glob_lenB, int *ier)
 {
   MPI_Comm F2C_comm;
 
@@ -147,9 +147,9 @@ void FNV_INITPG_B(MPI_Fint *comm, int *code, long int *dims, long int *dim_lenB,
   }
 }
 
-void FNV_INITPG_QB(MPI_Fint *comm, int *code, long int *dims, long int *dim_lenQB, 
-		   long int *dim_alenQB, long int *dim_offQB, long int *F_ordering, 
-		   long int *glob_lenQB, int *ier)
+void FNV_INITPG_QB(MPI_Fint *comm, int *code, indextype *dims, indextype *dim_lenQB, 
+		   indextype *dim_alenQB, indextype *dim_offQB, indextype *F_ordering, 
+		   indextype *glob_lenQB, int *ier)
 {
   MPI_Comm F2C_comm;
 
@@ -180,7 +180,7 @@ void FNV_INITPG_QB(MPI_Fint *comm, int *code, long int *dims, long int *dim_lenQ
   }
 }
 
-void FNV_INITPG_S(int *code, long int *Ns, int *ier)
+void FNV_INITPG_S(int *code, indextype *Ns, int *ier)
 {
   *ier = 0;
 

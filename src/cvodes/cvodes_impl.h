@@ -274,7 +274,7 @@ typedef struct CVodeMemRec {
     ------*/
 
   int cv_qmax;             /* q <= qmax                                       */
-  long int cv_mxstep;      /* maximum number of internal steps for one 
+  indextype cv_mxstep;      /* maximum number of internal steps for one 
 			      user call                                       */
   int cv_maxcor;           /* maximum number of corrector iterations for 
 			      the solution of the nonlinear equation          */
@@ -292,31 +292,31 @@ typedef struct CVodeMemRec {
     Counters 
     ----------*/
 
-  long int cv_nst;         /* number of internal steps taken                  */
+  indextype cv_nst;         /* number of internal steps taken                  */
 
-  long int cv_nfe;         /* number of f calls                               */
-  long int cv_nfQe;        /* number of fQ calls                              */
-  long int cv_nfSe;        /* number of fS calls                              */
-  long int cv_nfeS;        /* number of f calls from sensi DQ                 */
-  long int cv_nfQSe;       /* number of fQS calls                             */
-  long int cv_nfQeS;       /* number of fQ calls from sensi DQ                */
+  indextype cv_nfe;         /* number of f calls                               */
+  indextype cv_nfQe;        /* number of fQ calls                              */
+  indextype cv_nfSe;        /* number of fS calls                              */
+  indextype cv_nfeS;        /* number of f calls from sensi DQ                 */
+  indextype cv_nfQSe;       /* number of fQS calls                             */
+  indextype cv_nfQeS;       /* number of fQ calls from sensi DQ                */
 
 
-  long int cv_ncfn;        /* number of corrector convergence failures        */
-  long int cv_ncfnS;       /* number of total sensi. corr. conv. failures     */
-  long int *cv_ncfnS1;     /* number of sensi. corrector conv. failures       */
+  indextype cv_ncfn;        /* number of corrector convergence failures        */
+  indextype cv_ncfnS;       /* number of total sensi. corr. conv. failures     */
+  indextype *cv_ncfnS1;     /* number of sensi. corrector conv. failures       */
 
-  long int cv_nni;         /* number of nonlinear iterations performed        */
-  long int cv_nniS;        /* number of total sensi. nonlinear iterations     */
-  long int *cv_nniS1;      /* number of sensi. nonlinear iterations           */
+  indextype cv_nni;         /* number of nonlinear iterations performed        */
+  indextype cv_nniS;        /* number of total sensi. nonlinear iterations     */
+  indextype *cv_nniS1;      /* number of sensi. nonlinear iterations           */
 
-  long int cv_netf;        /* number of error test failures                   */
-  long int cv_netfQ;       /* number of quadr. error test failures            */
-  long int cv_netfS;       /* number of sensi. error test failures            */
-  long int cv_netfQS;      /* number of quadr. sensi. error test failures     */
+  indextype cv_netf;        /* number of error test failures                   */
+  indextype cv_netfQ;       /* number of quadr. error test failures            */
+  indextype cv_netfS;       /* number of sensi. error test failures            */
+  indextype cv_netfQS;      /* number of quadr. sensi. error test failures     */
 
-  long int cv_nsetups;     /* number of setup calls                           */
-  long int cv_nsetupsS;    /* number of setup calls due to sensitivities      */
+  indextype cv_nsetups;     /* number of setup calls                           */
+  indextype cv_nsetupsS;    /* number of setup calls due to sensitivities      */
 
   int cv_nhnil;            /* number of messages issued to the user that
 			      t + h == t for the next iternal step            */
@@ -325,12 +325,12 @@ typedef struct CVodeMemRec {
     Space requirements for CVODES 
     -----------------------------*/
 
-  long int cv_lrw1;        /* no. of realtype words in 1 N_Vector y           */ 
-  long int cv_liw1;        /* no. of integer words in 1 N_Vector y            */ 
-  long int cv_lrw1Q;       /* no. of realtype words in 1 N_Vector yQ          */ 
-  long int cv_liw1Q;       /* no. of integer words in 1 N_Vector yQ           */ 
-  long int cv_lrw;         /* no. of realtype words in CVODES work vectors    */
-  long int cv_liw;         /* no. of integer words in CVODES work vectors     */
+  indextype cv_lrw1;        /* no. of realtype words in 1 N_Vector y           */ 
+  indextype cv_liw1;        /* no. of integer words in 1 N_Vector y            */ 
+  indextype cv_lrw1Q;       /* no. of realtype words in 1 N_Vector yQ          */ 
+  indextype cv_liw1Q;       /* no. of integer words in 1 N_Vector yQ           */ 
+  indextype cv_lrw;         /* no. of realtype words in CVODES work vectors    */
+  indextype cv_liw;         /* no. of integer words in CVODES work vectors     */
 
   /*----------------
     Step size ratios
@@ -370,7 +370,7 @@ typedef struct CVodeMemRec {
     ------------*/
 
   int cv_qu;                   /* last successful q value used                */
-  long int cv_nstlp;           /* step number of last setup call              */
+  indextype cv_nstlp;           /* step number of last setup call              */
   realtype cv_h0u;             /* actual initial stepsize                     */
   realtype cv_hu;              /* last successful h value used                */
   realtype cv_saved_tq5;       /* saved value of tq[5]                        */
@@ -417,7 +417,7 @@ typedef struct CVodeMemRec {
   booleantype cv_sldeton;     /* Is Stability Limit Detection on?             */
   realtype cv_ssdat[6][4];    /* scaled data array for STALD                  */
   int cv_nscon;               /* counter for STALD method                     */
-  long int cv_nor;            /* counter for number of order reductions       */
+  indextype cv_nor;            /* counter for number of order reductions       */
 
   /*----------------
     Rootfinding Data
@@ -437,7 +437,7 @@ typedef struct CVodeMemRec {
   realtype cv_ttol;        /* tolerance on root location trout                */
   int cv_taskc;            /* copy of parameter itask                         */
   int cv_irfnd;            /* flag showing whether last step had a root       */
-  long int cv_nge;         /* counter for g evaluations                       */
+  indextype cv_nge;         /* counter for g evaluations                       */
   booleantype *cv_gactive; /* array with active/inactive event functions      */
   int cv_mxgnull;          /* number of warning messages about possible g==0  */
 
@@ -506,7 +506,7 @@ struct CkpntMemRec {
   int ck_zqm;
     
   /* Step data */
-  long int ck_nst;
+  indextype ck_nst;
   realtype ck_tretlast;
   int      ck_q;
   int      ck_qprime;
@@ -701,13 +701,13 @@ struct CVadjMemRec {
    * ------------------ */
 
   /* Number of steps between 2 check points */
-  long int ca_nsteps;
+  indextype ca_nsteps;
   
   /* Storage for data from forward runs */
   struct DtpntMemRec **dt_mem;
 
   /* Actual number of data points in dt_mem (typically np=nsteps+1) */
-  long int ca_np;
+  indextype ca_np;
     
   /* Interpolation type */
   int ca_IMtype;

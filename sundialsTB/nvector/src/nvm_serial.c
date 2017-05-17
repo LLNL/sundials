@@ -26,7 +26,7 @@
 void InitVectors()
 {}
 
-N_Vector NewVector(long int n)
+N_Vector NewVector(indextype n)
 {
   N_Vector v;
   v = N_VNew_Serial(n);

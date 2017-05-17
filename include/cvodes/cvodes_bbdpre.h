@@ -156,7 +156,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef int (*CVLocalFn)(long int Nlocal, realtype t, 
+typedef int (*CVLocalFn)(indextype Nlocal, realtype t, 
 			 N_Vector y, N_Vector g, void *user_data);
 
 /*
@@ -187,7 +187,7 @@ typedef int (*CVLocalFn)(long int Nlocal, realtype t,
  * -----------------------------------------------------------------
  */
 
-typedef int (*CVCommFn)(long int Nlocal, realtype t, 
+typedef int (*CVCommFn)(indextype Nlocal, realtype t, 
 			N_Vector y,
 			void *user_data);
 
@@ -234,9 +234,9 @@ typedef int (*CVCommFn)(long int Nlocal, realtype t,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBBDPrecInit(void *cvode_mem, long int Nlocal, 
-                                  long int mudq, long int mldq, 
-                                  long int mukeep, long int mlkeep, 
+SUNDIALS_EXPORT int CVBBDPrecInit(void *cvode_mem, indextype Nlocal, 
+                                  indextype mudq, indextype mldq, 
+                                  indextype mukeep, indextype mlkeep, 
                                   realtype dqrely,
                                   CVLocalFn gloc, CVCommFn cfn);
 
@@ -262,7 +262,7 @@ SUNDIALS_EXPORT int CVBBDPrecInit(void *cvode_mem, long int Nlocal,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBBDPrecReInit(void *cvode_mem, long int mudq, long int mldq,
+SUNDIALS_EXPORT int CVBBDPrecReInit(void *cvode_mem, indextype mudq, indextype mldq,
                                     realtype dqrely);
 
 /*
@@ -282,8 +282,8 @@ SUNDIALS_EXPORT int CVBBDPrecReInit(void *cvode_mem, long int mudq, long int mld
  */
 
 SUNDIALS_EXPORT int CVBBDPrecGetWorkSpace(void *cvode_mem,
-                                          long int *lenrwBBDP, long int *leniwBBDP);
-SUNDIALS_EXPORT int CVBBDPrecGetNumGfnEvals(void *cvode_mem, long int *ngevalsBBDP);
+                                          indextype *lenrwBBDP, indextype *leniwBBDP);
+SUNDIALS_EXPORT int CVBBDPrecGetNumGfnEvals(void *cvode_mem, indextype *ngevalsBBDP);
 
 /* 
  * =================================================================
@@ -300,12 +300,12 @@ SUNDIALS_EXPORT int CVBBDPrecGetNumGfnEvals(void *cvode_mem, long int *ngevalsBB
  * -----------------------------------------------------------------
  */
 
-typedef int (*CVLocalFnB)(long int NlocalB, realtype t, 
+typedef int (*CVLocalFnB)(indextype NlocalB, realtype t, 
 			  N_Vector y, 
 			  N_Vector yB, N_Vector gB,
 			  void *user_dataB);
   
-typedef int (*CVCommFnB)(long int NlocalB, realtype t,
+typedef int (*CVCommFnB)(indextype NlocalB, realtype t,
 			 N_Vector y, 
 			 N_Vector yB,
 			 void *user_dataB);
@@ -320,14 +320,14 @@ typedef int (*CVCommFnB)(long int NlocalB, realtype t,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBBDPrecInitB(void *cvode_mem, int which, long int NlocalB,
-                                   long int mudqB, long int mldqB,
-                                   long int mukeepB, long int mlkeepB,
+SUNDIALS_EXPORT int CVBBDPrecInitB(void *cvode_mem, int which, indextype NlocalB,
+                                   indextype mudqB, indextype mldqB,
+                                   indextype mukeepB, indextype mlkeepB,
                                    realtype dqrelyB,
                                    CVLocalFnB glocB, CVCommFnB cfnB);
 
 SUNDIALS_EXPORT int CVBBDPrecReInitB(void *cvode_mem, int which, 
-                                     long int mudqB, long int mldqB,
+                                     indextype mudqB, indextype mldqB,
                                      realtype dqrelyB);
 
 #ifdef __cplusplus

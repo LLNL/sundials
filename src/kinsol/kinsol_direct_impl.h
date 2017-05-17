@@ -42,11 +42,11 @@ typedef struct KINDlsMemRec {
 
   int d_type;              /* SUNDIALS_DENSE or SUNDIALS_BAND              */
 
-  long int d_n;            /* problem dimension                            */
+  indextype d_n;            /* problem dimension                            */
 
-  long int d_ml;           /* lower bandwidth of Jacobian                  */
-  long int d_mu;           /* upper bandwidth of Jacobian                  */ 
-  long int d_smu;          /* upper bandwith of M = MIN(N-1,d_mu+d_ml)     */
+  indextype d_ml;           /* lower bandwidth of Jacobian                  */
+  indextype d_mu;           /* upper bandwidth of Jacobian                  */ 
+  indextype d_smu;          /* upper bandwith of M = MIN(N-1,d_mu+d_ml)     */
 
   booleantype d_jacDQ;     /* TRUE if using internal DQ Jacobian approx.   */
   KINDlsDenseJacFn d_djac; /* dense Jacobian routine to be called          */
@@ -56,13 +56,13 @@ typedef struct KINDlsMemRec {
   DlsMat d_J;              /* problem Jacobian                             */
     
   int *d_pivots;           /* int pivot array for PM = LU                  */
-  long int *d_lpivots;     /* long int pivot array for PM = LU             */
+  indextype *d_lpivots;     /* indextype pivot array for PM = LU             */
     
-  long int d_nje;          /* no. of calls to jac                          */
+  indextype d_nje;          /* no. of calls to jac                          */
     
-  long int d_nfeDQ;        /* no. of calls to F due to DQ Jacobian approx. */
+  indextype d_nfeDQ;        /* no. of calls to F due to DQ Jacobian approx. */
     
-  long int d_last_flag;    /* last error return flag                       */
+  indextype d_last_flag;    /* last error return flag                       */
     
 } *KINDlsMem;
 
@@ -73,12 +73,12 @@ typedef struct KINDlsMemRec {
  * -----------------------------------------------------------------
  */
 
-int kinDlsDenseDQJac(long int N,
+int kinDlsDenseDQJac(indextype N,
                      N_Vector u, N_Vector fu,
                      DlsMat Jac, void *data,
                      N_Vector tmp1, N_Vector tmp2);
 
-int kinDlsBandDQJac(long int N, long int mupper, long int mlower,
+int kinDlsBandDQJac(indextype N, indextype mupper, indextype mlower,
                     N_Vector u, N_Vector fu,
                     DlsMat Jac, void *data,
                     N_Vector tmp1, N_Vector tmp2);

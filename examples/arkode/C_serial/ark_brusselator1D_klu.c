@@ -116,7 +116,7 @@ int main()
   realtype reltol = 1.0e-6;     /* tolerances */
   realtype abstol = 1.0e-10;
   int i;
-  long int NEQ, NNZ;
+  indextype NEQ, NNZ;
 
   /* general problem variables */
   int flag;                     /* reusable error-checking flag */
@@ -132,7 +132,7 @@ int main()
   realtype tout = T0+dTout;
   realtype u, v, w;
   int iout;
-  long int nst, nst_a, nfe, nfi, nsetups, nje, nni, ncfn, netf;
+  indextype nst, nst_a, nfe, nfi, nsetups, nje, nni, ncfn, netf;
 
   /* allocate udata structure */
   udata = (UserData) malloc(sizeof(*udata));

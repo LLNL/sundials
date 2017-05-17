@@ -151,7 +151,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef int (*IDABBDLocalFn)(long int Nlocal, realtype tt,
+typedef int (*IDABBDLocalFn)(indextype Nlocal, realtype tt,
 			     N_Vector yy, N_Vector yp, N_Vector gval,
 			     void *user_data);
 
@@ -183,7 +183,7 @@ typedef int (*IDABBDLocalFn)(long int Nlocal, realtype tt,
  * -----------------------------------------------------------------
  */
 
-typedef int (*IDABBDCommFn)(long int Nlocal, realtype tt,
+typedef int (*IDABBDCommFn)(indextype Nlocal, realtype tt,
 			    N_Vector yy, N_Vector yp,
 			    void *user_data);
 
@@ -230,9 +230,9 @@ typedef int (*IDABBDCommFn)(long int Nlocal, realtype tt,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDABBDPrecInit(void *ida_mem, long int Nlocal,
-                                   long int mudq, long int mldq,
-                                   long int mukeep, long int mlkeep,
+SUNDIALS_EXPORT int IDABBDPrecInit(void *ida_mem, indextype Nlocal,
+                                   indextype mudq, indextype mldq,
+                                   indextype mukeep, indextype mlkeep,
                                    realtype dq_rel_yy,
                                    IDABBDLocalFn Gres, IDABBDCommFn Gcomm);
 
@@ -259,7 +259,7 @@ SUNDIALS_EXPORT int IDABBDPrecInit(void *ida_mem, long int Nlocal,
  */
 
 SUNDIALS_EXPORT int IDABBDPrecReInit(void *ida_mem,
-				     long int mudq, long int mldq,
+				     indextype mudq, indextype mldq,
 				     realtype dq_rel_yy);
 
 /*
@@ -280,8 +280,8 @@ SUNDIALS_EXPORT int IDABBDPrecReInit(void *ida_mem,
  */
 
 SUNDIALS_EXPORT int IDABBDPrecGetWorkSpace(void *ida_mem, 
-                                           long int *lenrwBBDP, long int *leniwBBDP);
-SUNDIALS_EXPORT int IDABBDPrecGetNumGfnEvals(void *ida_mem, long int *ngevalsBBDP);
+                                           indextype *lenrwBBDP, indextype *leniwBBDP);
+SUNDIALS_EXPORT int IDABBDPrecGetNumGfnEvals(void *ida_mem, indextype *ngevalsBBDP);
 
 /* 
  * =================================================================
@@ -297,12 +297,12 @@ SUNDIALS_EXPORT int IDABBDPrecGetNumGfnEvals(void *ida_mem, long int *ngevalsBBD
  * function for the BBD preconditioner on the backward phase.
  * -----------------------------------------------------------------
  */
-typedef int (*IDABBDLocalFnB)(long int NlocalB, realtype tt,
+typedef int (*IDABBDLocalFnB)(indextype NlocalB, realtype tt,
 			      N_Vector yy, N_Vector yp, 
 			      N_Vector yyB, N_Vector ypB, N_Vector gvalB,
 			      void *user_dataB);
 
-typedef int (*IDABBDCommFnB)(long int NlocalB, realtype tt,
+typedef int (*IDABBDCommFnB)(indextype NlocalB, realtype tt,
 			     N_Vector yy, N_Vector yp,
 			     N_Vector yyB, N_Vector ypB,
 			     void *user_dataB);
@@ -317,14 +317,14 @@ typedef int (*IDABBDCommFnB)(long int NlocalB, realtype tt,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDABBDPrecInitB(void *ida_mem, int which, long int NlocalB,
-                                    long int mudqB, long int mldqB,
-                                    long int mukeepB, long int mlkeepB,
+SUNDIALS_EXPORT int IDABBDPrecInitB(void *ida_mem, int which, indextype NlocalB,
+                                    indextype mudqB, indextype mldqB,
+                                    indextype mukeepB, indextype mlkeepB,
                                     realtype dq_rel_yyB,
                                     IDABBDLocalFnB GresB, IDABBDCommFnB GcommB);
 
 SUNDIALS_EXPORT int IDABBDPrecReInitB(void *ida_mem, int which, 
-                                      long int mudqB, long int mldqB, realtype dq_rel_yyB);
+                                      indextype mudqB, indextype mldqB, realtype dq_rel_yyB);
 
 #ifdef __cplusplus
 }

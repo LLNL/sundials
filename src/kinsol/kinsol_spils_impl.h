@@ -78,13 +78,13 @@ typedef struct KINSpilsMemRec {
 
   /* counters */
 
-  long int s_nli;     /* number of linear iterations performed                 */
-  long int s_npe;     /* number of preconditioner evaluations                  */
-  long int s_nps;     /* number of calls to preconditioner solve fun.          */
-  long int s_ncfl;    /* number of linear convergence failures                 */
-  long int s_nfes;    /* number of evaluations of the system function F(u) or
+  indextype s_nli;     /* number of linear iterations performed                 */
+  indextype s_npe;     /* number of preconditioner evaluations                  */
+  indextype s_nps;     /* number of calls to preconditioner solve fun.          */
+  indextype s_ncfl;    /* number of linear convergence failures                 */
+  indextype s_nfes;    /* number of evaluations of the system function F(u) or
                          number of calls made to func routine                  */    
-  long int s_njtimes; /* number of times the matrix-vector product J(u)*v
+  indextype s_njtimes; /* number of times the matrix-vector product J(u)*v
                          was computed or number of calls made to jtimes
                          routine                                               */
 
@@ -92,7 +92,7 @@ typedef struct KINSpilsMemRec {
 
   void *s_spils_mem;    /* pointer to generic linear solver memory block       */
 
-  long int s_last_flag; /* last flag returned                                  */
+  indextype s_last_flag; /* last flag returned                                  */
 
 
   /* Preconditioner computation

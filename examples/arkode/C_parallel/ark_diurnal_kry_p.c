@@ -132,7 +132,7 @@ typedef struct {
 
   /* For preconditioner */
   realtype **P[MXSUB][MYSUB], **Jbd[MXSUB][MYSUB];
-  long int *pivot[MXSUB][MYSUB];
+  indextype *pivot[MXSUB][MYSUB];
 
 } *UserData;
 
@@ -145,15 +145,15 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
 static void PrintFinalStats(void *arkode_mem);
 static void BSend(MPI_Comm comm, 
                   int my_pe, int isubx, int isuby, 
-                  long int dsizex, long int dsizey,
+                  indextype dsizex, indextype dsizey,
                   realtype udata[]);
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-		      long int dsizex, long int dsizey,
+		      indextype dsizex, indextype dsizey,
 		      realtype uext[], realtype buffer[]);
 static void BRecvWait(MPI_Request request[], 
                       int isubx, int isuby, 
-                      long int dsizex, realtype uext[],
+                      indextype dsizex, realtype uext[],
                       realtype buffer[]);
 static void ucomm(realtype t, N_Vector u, UserData data);
 static void fcalc(realtype t, realtype udata[], realtype dudata[],
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
   UserData data;
   void *arkode_mem;
   int iout, flag, my_pe, npes;
-  long int neq, local_N;
+  indextype neq, local_N;
   MPI_Comm comm;
 
   u = NULL;
@@ -333,7 +333,7 @@ static void FreeUserData(UserData data)
 static void SetInitialProfiles(N_Vector u, UserData data)
 {
   int isubx, isuby, lx, ly, jx, jy;
-  long int offset;
+  indextype offset;
   realtype dx, dy, x, y, cx, cy, xmid, ymid;
   realtype *udata;
 
@@ -374,7 +374,7 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
   int flag;
   realtype hu, *udata, tempu[2];
   int npelast;
-  long int i0, i1, nst;
+  indextype i0, i1, nst;
   MPI_Status status;
 
   npelast = NPEX*NPEY - 1;
@@ -424,10 +424,10 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
 /* Print final statistics contained in iopt */
 static void PrintFinalStats(void *arkode_mem)
 {
-  long int lenrw, leniw ;
-  long int lenrwLS, leniwLS;
-  long int nst, nfe, nfi, nsetups, nni, ncfn, netf;
-  long int nli, npe, nps, ncfl, nfeLS;
+  indextype lenrw, leniw ;
+  indextype lenrwLS, leniwLS;
+  indextype nst, nfe, nfi, nsetups, nni, ncfn, netf;
+  indextype nli, npe, nps, ncfl, nfeLS;
   int flag;
 
   flag = ARKodeGetWorkSpace(arkode_mem, &lenrw, &leniw);
@@ -472,11 +472,11 @@ static void PrintFinalStats(void *arkode_mem)
 /* Routine to send boundary data to neighboring PEs */
 static void BSend(MPI_Comm comm, 
                   int my_pe, int isubx, int isuby, 
-                  long int dsizex, long int dsizey,
+                  indextype dsizex, indextype dsizey,
                   realtype udata[])
 {
   int i, ly;
-  long int offsetu, offsetbuf;
+  indextype offsetu, offsetbuf;
   realtype bufleft[NVARS*MYSUB], bufright[NVARS*MYSUB];
 
   /* If isuby > 0, send data from bottom x-line of u */
@@ -521,10 +521,10 @@ static void BSend(MPI_Comm comm,
 
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-		      long int dsizex, long int dsizey,
+		      indextype dsizex, indextype dsizey,
 		      realtype uext[], realtype buffer[])
 {
-  long int offsetue;
+  indextype offsetue;
   /* Have bufleft and bufright use the same buffer */
   realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
 
@@ -562,11 +562,11 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[],
 
 static void BRecvWait(MPI_Request request[], 
                       int isubx, int isuby, 
-                      long int dsizex, realtype uext[],
+                      indextype dsizex, realtype uext[],
                       realtype buffer[])
 {
   int i, ly;
-  long int dsizex2, offsetue, offsetbuf;
+  indextype dsizex2, offsetue, offsetbuf;
   realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
   MPI_Status status;
 
@@ -616,7 +616,7 @@ static void ucomm(realtype t, N_Vector u, UserData data)
   realtype *udata, *uext, buffer[2*NVARS*MYSUB];
   MPI_Comm comm;
   int my_pe, isubx, isuby;
-  long int nvmxsub, nvmysub;
+  indextype nvmxsub, nvmysub;
   MPI_Request request[4];
 
   udata = N_VGetArrayPointer(u);
@@ -652,7 +652,7 @@ static void fcalc(realtype t, realtype udata[],
   realtype q4coef, dely, verdco, hordco, horaco;
   int i, lx, ly, jy;
   int isubx, isuby;
-  long int nvmxsub, nvmxsub2, offsetu, offsetue;
+  indextype nvmxsub, nvmxsub2, offsetu, offsetue;
 
   /* Get subgrid indices, data sizes, extended work array uext */
   isubx = data->isubx;   isuby = data->isuby;
@@ -801,7 +801,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
   int nvmxsub, ier, offset;
-  long int *(*pivot)[MYSUB];
+  indextype *(*pivot)[MYSUB];
   int lx, ly, jy, isuby;
   realtype *udata, **a, **j;
   UserData data;
@@ -889,7 +889,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
 {
   realtype **(*P)[MYSUB];
   int nvmxsub;
-  long int *(*pivot)[MYSUB];
+  indextype *(*pivot)[MYSUB];
   int lx, ly;
   realtype *zdata, *v;
   UserData data;

@@ -46,7 +46,7 @@ N_Vector F2C_ARKODE_vec;
 
 /* Fortran callable interfaces */
 
-void FNV_INITS(int *code, long int *N, int *ier)
+void FNV_INITS(int *code, indextype *N, int *ier)
 {
   *ier = 0;
 
@@ -76,7 +76,7 @@ void FNV_INITS(int *code, long int *N, int *ier)
   }
 }
 
-void FNV_INITS_Q(int *code, long int *Nq, int *ier)
+void FNV_INITS_Q(int *code, indextype *Nq, int *ier)
 {
   *ier = 0;
 
@@ -96,7 +96,7 @@ void FNV_INITS_Q(int *code, long int *Nq, int *ier)
   }
 }
 
-void FNV_INITS_B(int *code, long int *NB, int *ier)
+void FNV_INITS_B(int *code, indextype *NB, int *ier)
 {
   *ier = 0;
 
@@ -116,7 +116,7 @@ void FNV_INITS_B(int *code, long int *NB, int *ier)
   }
 }
 
-void FNV_INITS_QB(int *code, long int *NqB, int *ier)
+void FNV_INITS_QB(int *code, indextype *NqB, int *ier)
 {
   *ier = 0;
 

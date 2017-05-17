@@ -436,7 +436,7 @@ static int IDASpgmrPerf(IDAMem IDA_mem, int perftask)
 {
   IDASpilsMem idaspils_mem;
   realtype avdim, rcfn, rcfl;
-  long int nstd, nnid;
+  indextype nstd, nnid;
   booleantype lavd, lcfn, lcfl;
 
   idaspils_mem = (IDASpilsMem) lmem;

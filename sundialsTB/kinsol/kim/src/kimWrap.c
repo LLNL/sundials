@@ -75,7 +75,7 @@ int mxW_KINSys(N_Vector y, N_Vector fy, void *user_data )
   return(ret);
 }
 
-int mxW_KINDenseJac(long int Neq,
+int mxW_KINDenseJac(indextype Neq,
                     N_Vector y, N_Vector fy, 
                     DlsMat J, void *user_data,
                     N_Vector tmp1, N_Vector tmp2)
@@ -120,7 +120,7 @@ int mxW_KINDenseJac(long int Neq,
 }
 
 
-int mxW_KINBandJac(long int Neq, long int mupper, long int mlower,
+int mxW_KINBandJac(indextype Neq, indextype mupper, indextype mlower,
                    N_Vector y, N_Vector fy, 
                    DlsMat J, void *user_data,
                    N_Vector tmp1, N_Vector tmp2)
@@ -128,7 +128,7 @@ int mxW_KINBandJac(long int Neq, long int mupper, long int mlower,
   kimInterfaceData kimData;
   double *J_data;
   mxArray *mx_in[4], *mx_out[3];
-  long int eband, i;
+  indextype eband, i;
   int ret;
 
   /* Extract global interface data from user-data */
@@ -308,7 +308,7 @@ int mxW_KINSpilsPsol(N_Vector y, N_Vector yscale,
   return(ret);
 }
 
-int mxW_KINGloc(long int Nlocal, N_Vector y, N_Vector gval, void *user_data)
+int mxW_KINGloc(indextype Nlocal, N_Vector y, N_Vector gval, void *user_data)
 {
   kimInterfaceData kimData;
   mxArray *mx_in[3], *mx_out[3];
@@ -344,7 +344,7 @@ int mxW_KINGloc(long int Nlocal, N_Vector y, N_Vector gval, void *user_data)
   return(ret);
 }
 
-int mxW_KINGcom(long int Nlocal, N_Vector y, void *user_data)
+int mxW_KINGcom(indextype Nlocal, N_Vector y, void *user_data)
 {
   kimInterfaceData kimData;
   mxArray *mx_in[5], *mx_out[2];

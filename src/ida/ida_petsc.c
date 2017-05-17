@@ -445,7 +445,7 @@ static int IDAPETScKSPPerf(IDAMem IDA_mem, int perftask)
 {
   IDAPETScMem idapetsc_mem;
   realtype avdim, rcfn, rcfl;
-  long int nstd, nnid;
+  indextype nstd, nnid;
   booleantype lavd, lcfn, lcfl;
 
   idapetsc_mem = (IDAPETScMem) IDA_mem->ida_lmem;
@@ -533,7 +533,7 @@ int IDAPETScSetJacFn(void* ida_mem, IDAPETScJacFn jac)
 /*
  * Get number of PETSc linear solver iterations.
  */
-int IDAPETScGetNumLinIters(void* ida_mem, long int* nliters)
+int IDAPETScGetNumLinIters(void* ida_mem, indextype* nliters)
 {
   IDAMem IDA_mem;
   IDAPETScMem idapetsc_mem;
@@ -559,7 +559,7 @@ int IDAPETScGetNumLinIters(void* ida_mem, long int* nliters)
 /*
  * Get number of PETSc linear solver convergence fails.
  */
-int IDAPETScGetNumConvFails(void *ida_mem, long int *nlcfails)
+int IDAPETScGetNumConvFails(void *ida_mem, indextype *nlcfails)
 {
   IDAMem IDA_mem;
   IDAPETScMem idapetsc_mem;
@@ -585,7 +585,7 @@ int IDAPETScGetNumConvFails(void *ida_mem, long int *nlcfails)
 /*
  * Get number of Jacobian evaluations.
  */
-int IDAPETScGetNumJacEvals(void* ida_mem, long int* njacevals)
+int IDAPETScGetNumJacEvals(void* ida_mem, indextype* njacevals)
 {
   IDAMem IDA_mem;
   IDAPETScMem idapetsc_mem;

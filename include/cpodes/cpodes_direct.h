@@ -430,9 +430,9 @@ SUNDIALS_EXPORT int CPDlsSetBandJacFnImpl(void *cpode_mem, CPDlsBandJacImplFn ja
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CPDlsGetWorkSpace(void *cpode_mem, long int *lenrwLS, long int *leniwLS);
-SUNDIALS_EXPORT int CPDlsGetNumJacEvals(void *cpode_mem, long int *njevals);
-SUNDIALS_EXPORT int CPDlsGetNumFctEvals(void *cpode_mem, long int *nfevalsLS);
+SUNDIALS_EXPORT int CPDlsGetWorkSpace(void *cpode_mem, indextype *lenrwLS, indextype *leniwLS);
+SUNDIALS_EXPORT int CPDlsGetNumJacEvals(void *cpode_mem, indextype *njevals);
+SUNDIALS_EXPORT int CPDlsGetNumFctEvals(void *cpode_mem, indextype *nfevalsLS);
 SUNDIALS_EXPORT int CPDlsGetLastFlag(void *cpode_mem, int *flag);
 
 /*
@@ -453,8 +453,8 @@ SUNDIALS_EXPORT char *CPDlsGetReturnFlagName(int flag);
 
 SUNDIALS_EXPORT int CPDlsProjSetDenseJacFn(void *cpode_mem, CPDlsDenseProjJacFn jacP);
 
-SUNDIALS_EXPORT int CPDlsProjGetNumJacEvals(void *cpode_mem, long int *njPevals);
-SUNDIALS_EXPORT int CPDlsProjGetNumFctEvals(void *cpode_mem, long int *ncevalsLS);
+SUNDIALS_EXPORT int CPDlsProjGetNumJacEvals(void *cpode_mem, indextype *njPevals);
+SUNDIALS_EXPORT int CPDlsProjGetNumFctEvals(void *cpode_mem, indextype *ncevalsLS);
 
 #ifdef __cplusplus
 }
