@@ -47,6 +47,7 @@
 #endif
 
 #include <float.h>
+#include <stdint.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -115,7 +116,21 @@ typedef long double realtype;
 #define TRUE 1
 #endif
 
-typedef long int indextype;
+/*
+ *------------------------------------------------------------------
+ * Type indextype
+ *------------------------------------------------------------------
+ */
+
+#if defined(SUNDIALS_SIGNED_64BIT_TYPE)
+typedef int64_t indextype;
+#elif defined(SUNDIALS_UNSIGNED_64BIT_TYPE)
+typedef uint64_t indextype;
+#elif defined(SUNDIALS_SIGNED_32BIT_TYPE)
+typedef int32_t indextype;
+#elif defined(SUNDIALS_UNSIGNED_32BIT_TYPE)
+typedef uint32_t
+#endif
 
 #ifdef __cplusplus
 }
