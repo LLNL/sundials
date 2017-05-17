@@ -2165,7 +2165,7 @@ static void arkPrintMem(ARKodeMem ark_mem)
   printf("ark_irfnd = %i\n", ark_mem->ark_irfnd);
   printf("ark_mxgnull = %i\n", ark_mem->ark_mxgnull);
 
-  /* output indextypeeger quantities */
+  /* output long integer quantities */
   printf("ark_mxstep = %li\n", ark_mem->ark_mxstep);
   printf("ark_nst = %li\n", ark_mem->ark_nst);
   printf("ark_nst_acc = %li\n", ark_mem->ark_nst_acc);
