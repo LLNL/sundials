@@ -361,7 +361,7 @@ static int IDABBDPrecSetup(realtype tt,
                            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   int retval;
-  indextype ier;
+  long int ier;
   IBBDPrecData pdata;
   IDAMem IDA_mem;
 

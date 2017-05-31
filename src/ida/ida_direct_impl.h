@@ -62,11 +62,11 @@ typedef struct IDADlsMemRec {
   int *d_pivots;            /* pivots = int pivot array for PM = LU          */
   indextype *d_lpivots;      /* lpivots = indextype pivot array for PM = LU    */
   
-  indextype d_nje;           /* nje = no. of calls to jac                     */
+  long int d_nje;           /* nje = no. of calls to jac                     */
 
-  indextype d_nreDQ;         /* no. of calls to res due to DQ Jacobian approx.*/
+  long int d_nreDQ;         /* no. of calls to res due to DQ Jacobian approx.*/
 
-  indextype d_last_flag;     /* last error return flag                        */
+  long int d_last_flag;     /* last error return flag                        */
   
 } *IDADlsMem;
 

@@ -54,26 +54,26 @@ typedef struct IDAPETScMemRec {
   realtype s_dqincfac; /* dqincfac = optional increment factor in Jv   */
   realtype s_epslin;   /* SpgrmSolve tolerance parameter               */
 
-  indextype s_npe;      /* npe = total number of precond calls          */   
-  indextype s_nli;      /* nli = total number of linear iterations      */
-  indextype s_nps;      /* nps = total number of psolve calls           */
-  indextype s_ncfl;     /* ncfl = total number of convergence failures  */
-  indextype s_nres;     /* nres = total number of calls to res          */
-  indextype s_njtimes;  /* njtimes = total number of calls to jtimes    */
-  indextype s_nje;      /* nje = total number of Jacobian calls         */
+  long int s_npe;      /* npe = total number of precond calls          */   
+  long int s_nli;      /* nli = total number of linear iterations      */
+  long int s_nps;      /* nps = total number of psolve calls           */
+  long int s_ncfl;     /* ncfl = total number of convergence failures  */
+  long int s_nres;     /* nres = total number of calls to res          */
+  long int s_njtimes;  /* njtimes = total number of calls to jtimes    */
+  long int s_nje;      /* nje = total number of Jacobian calls         */
 
-  indextype s_nst0;     /* nst0 = saved nst (for performance monitor)   */   
-  indextype s_nni0;     /* nni0 = saved nni (for performance monitor)   */   
-  indextype s_nli0;     /* nli0 = saved nli (for performance monitor)   */   
-  indextype s_ncfn0;    /* ncfn0 = saved ncfn (for performance monitor) */   
-  indextype s_ncfl0;    /* ncfl0 = saved ncfl (for performance monitor) */   
-  indextype s_nwarn;    /* nwarn = no. of warnings (for perf. monitor)  */   
+  long int s_nst0;     /* nst0 = saved nst (for performance monitor)   */   
+  long int s_nni0;     /* nni0 = saved nni (for performance monitor)   */   
+  long int s_nli0;     /* nli0 = saved nli (for performance monitor)   */   
+  long int s_ncfn0;    /* ncfn0 = saved ncfn (for performance monitor) */   
+  long int s_ncfl0;    /* ncfl0 = saved ncfl (for performance monitor) */   
+  long int s_nwarn;    /* nwarn = no. of warnings (for perf. monitor)  */   
 
   N_Vector s_ytemp;    /* temp vector used only to compute sqrt(N)     */ 
 
   KSP *s_ksp_mem;      /* memory used by the KSP solver                */
 
-  indextype s_last_flag; /* last error return flag                      */
+  long int s_last_flag; /* last error return flag                      */
   
   void *s_udata;       /* pointer to user defined data                 */
 

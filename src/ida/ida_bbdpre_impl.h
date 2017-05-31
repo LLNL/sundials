@@ -65,7 +65,7 @@ typedef struct IBBDPrecDataRec {
 
   indextype rpwsize;
   indextype ipwsize;
-  indextype nge;
+  long int nge;
 
   /* pointer to ida_mem */
 

@@ -135,7 +135,7 @@ int IDASetMaxOrd(void *ida_mem, int maxord)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetMaxNumSteps(void *ida_mem, indextype mxsteps)
+int IDASetMaxNumSteps(void *ida_mem, long int mxsteps)
 {
   IDAMem IDA_mem;
 
@@ -676,7 +676,7 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol)
  * =================================================================
  */
 
-int IDAGetNumSteps(void *ida_mem, indextype *nsteps)
+int IDAGetNumSteps(void *ida_mem, long int *nsteps)
 {
   IDAMem IDA_mem;
 
@@ -694,7 +694,7 @@ int IDAGetNumSteps(void *ida_mem, indextype *nsteps)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumResEvals(void *ida_mem, indextype *nrevals)
+int IDAGetNumResEvals(void *ida_mem, long int *nrevals)
 {
   IDAMem IDA_mem;
 
@@ -712,7 +712,7 @@ int IDAGetNumResEvals(void *ida_mem, indextype *nrevals)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumLinSolvSetups(void *ida_mem, indextype *nlinsetups)
+int IDAGetNumLinSolvSetups(void *ida_mem, long int *nlinsetups)
 {
   IDAMem IDA_mem;
 
@@ -730,7 +730,7 @@ int IDAGetNumLinSolvSetups(void *ida_mem, indextype *nlinsetups)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumErrTestFails(void *ida_mem, indextype *netfails)
+int IDAGetNumErrTestFails(void *ida_mem, long int *netfails)
 {
   IDAMem IDA_mem;
 
@@ -748,7 +748,7 @@ int IDAGetNumErrTestFails(void *ida_mem, indextype *netfails)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumBacktrackOps(void *ida_mem, indextype *nbacktracks)
+int IDAGetNumBacktrackOps(void *ida_mem, long int *nbacktracks)
 {
   IDAMem IDA_mem;
 
@@ -951,7 +951,7 @@ int IDAGetEstLocalErrors(void *ida_mem, N_Vector ele)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetWorkSpace(void *ida_mem, indextype *lenrw, indextype *leniw)
+int IDAGetWorkSpace(void *ida_mem, long int *lenrw, long int *leniw)
 {
   IDAMem IDA_mem;
 
@@ -970,8 +970,8 @@ int IDAGetWorkSpace(void *ida_mem, indextype *lenrw, indextype *leniw)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetIntegratorStats(void *ida_mem, indextype *nsteps, indextype *nrevals, 
-                          indextype *nlinsetups, indextype *netfails,
+int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, long int *nrevals, 
+                          long int *nlinsetups, long int *netfails,
                           int *klast, int *kcur, realtype *hinused, realtype *hlast, 
                           realtype *hcur, realtype *tcur)
 {
@@ -1000,7 +1000,7 @@ int IDAGetIntegratorStats(void *ida_mem, indextype *nsteps, indextype *nrevals,
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumGEvals(void *ida_mem, indextype *ngevals)
+int IDAGetNumGEvals(void *ida_mem, long int *ngevals)
 {
   IDAMem IDA_mem;
 
@@ -1039,7 +1039,7 @@ int IDAGetRootInfo(void *ida_mem, int *rootsfound)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumNonlinSolvIters(void *ida_mem, indextype *nniters)
+int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters)
 {
   IDAMem IDA_mem;
 
@@ -1057,7 +1057,7 @@ int IDAGetNumNonlinSolvIters(void *ida_mem, indextype *nniters)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumNonlinSolvConvFails(void *ida_mem, indextype *nncfails)
+int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nncfails)
 {
   IDAMem IDA_mem;
 
@@ -1075,7 +1075,7 @@ int IDAGetNumNonlinSolvConvFails(void *ida_mem, indextype *nncfails)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNonlinSolvStats(void *ida_mem, indextype *nniters, indextype *nncfails)
+int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, long int *nncfails)
 {
   IDAMem IDA_mem;
 
@@ -1094,7 +1094,7 @@ int IDAGetNonlinSolvStats(void *ida_mem, indextype *nniters, indextype *nncfails
 
 /*-----------------------------------------------------------------*/
 
-char *IDAGetReturnFlagName(indextype flag)
+char *IDAGetReturnFlagName(long int flag)
 {
   char *name;
 
