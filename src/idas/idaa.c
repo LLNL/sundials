@@ -79,7 +79,7 @@ static int         IDAApolynomialGetY(IDAMem IDA_mem, realtype t,
                                       N_Vector *yyS, N_Vector *ypS);
 
 static int IDAAfindIndex(IDAMem ida_mem, realtype t, 
-                         indextype *indx, booleantype *newpoint);                         
+                         long int *indx, booleantype *newpoint);                         
 
 static int IDAAres(realtype tt, 
                    N_Vector yyB, N_Vector ypB, 
@@ -236,7 +236,7 @@ extern int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypr
  */
 
 
-int IDAAdjInit(void *ida_mem, indextype steps, int interp)
+int IDAAdjInit(void *ida_mem, long int steps, int interp)
 {
   IDAadjMem IDAADJ_mem;
   IDAMem IDA_mem;
@@ -1707,7 +1707,7 @@ int IDAGetQuadB(void *ida_mem, int which, realtype *tret, N_Vector qB)
   IDABMem IDAB_mem;
   void *ida_memB;
   int flag;
-  indextype nstB;
+  long int nstB;
   
   /* Is ida_mem valid? */
   if (ida_mem == NULL) {
@@ -2028,7 +2028,7 @@ static booleantype IDAAdataMalloc(IDAMem IDA_mem)
 {
   IDAadjMem IDAADJ_mem;
   DtpntMem *dt_mem;
-  indextype i, j;
+  long int i, j;
 
   IDAADJ_mem = IDA_mem->ida_adj_mem;
   IDAADJ_mem->dt_mem = NULL;
@@ -2065,7 +2065,7 @@ static booleantype IDAAdataMalloc(IDAMem IDA_mem)
 static void IDAAdataFree(IDAMem IDA_mem)
 {
   IDAadjMem IDAADJ_mem;
-  indextype i;
+  long int i;
 
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
@@ -2102,7 +2102,7 @@ static int IDAAdataStore(IDAMem IDA_mem, CkpntMem ck_mem)
   IDAadjMem IDAADJ_mem;
   DtpntMem *dt_mem;
   realtype t;
-  indextype i;
+  long int i;
   int flag, sign;
 
   IDAADJ_mem = IDA_mem->ida_adj_mem;
@@ -2259,7 +2259,7 @@ static booleantype IDAAhermiteMalloc(IDAMem IDA_mem)
   IDAadjMem IDAADJ_mem;
   DtpntMem *dt_mem;
   HermiteDataMem content;
-  indextype i, ii=0;
+  long int i, ii=0;
   booleantype allocOK;
 
   allocOK = TRUE;
@@ -2396,7 +2396,7 @@ static void IDAAhermiteFree(IDAMem IDA_mem)
   IDAadjMem IDAADJ_mem;
   DtpntMem *dt_mem;
   HermiteDataMem content;
-  indextype i;
+  long int i;
 
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
@@ -2491,7 +2491,7 @@ static int IDAAhermiteGetY(IDAMem IDA_mem, realtype t,
   N_Vector *yS0=NULL, *ySd0=NULL, *yS1, *ySd1;
 
   int flag, is, NS;
-  indextype indx;
+  long int indx;
   booleantype newpoint;
 
  
@@ -2620,7 +2620,7 @@ static booleantype IDAApolynomialMalloc(IDAMem IDA_mem)
   IDAadjMem IDAADJ_mem;
   DtpntMem *dt_mem;
   PolynomialDataMem content;
-  indextype i, ii=0;
+  long int i, ii=0;
   booleantype allocOK;
 
   allocOK = TRUE;
@@ -2765,7 +2765,7 @@ static void IDAApolynomialFree(IDAMem IDA_mem)
   IDAadjMem IDAADJ_mem;
   DtpntMem *dt_mem;
   PolynomialDataMem content;
-  indextype i;
+  long int i;
 
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
@@ -2861,7 +2861,7 @@ static int IDAApolynomialGetY(IDAMem IDA_mem, realtype t,
   PolynomialDataMem content;
 
   int flag, dir, order, i, j, is, NS;
-  indextype indx, base;
+  long int indx, base;
   booleantype newpoint;
   realtype delt, factor, Psi, Psiprime;
 
@@ -3106,11 +3106,11 @@ static int IDAAGettnSolutionYpS(IDAMem IDA_mem, N_Vector *ypS)
  */
 
 static int IDAAfindIndex(IDAMem ida_mem, realtype t, 
-                        indextype *indx, booleantype *newpoint)
+                        long int *indx, booleantype *newpoint)
 {
   IDAadjMem IDAADJ_mem;
   IDAMem IDA_mem;
-  static indextype ilast;
+  static long int ilast;
   DtpntMem *dt_mem;
   int sign;
   booleantype to_left, to_right;

@@ -214,7 +214,7 @@ int IDADlsGetWorkSpace(void *ida_mem, indextype *lenrwLS, indextype *leniwLS)
 /*
  * IDADlsGetNumJacEvals returns the number of Jacobian evaluations.
  */
-int IDADlsGetNumJacEvals(void *ida_mem, indextype *njevals)
+int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals)
 {
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
@@ -241,7 +241,7 @@ int IDADlsGetNumJacEvals(void *ida_mem, indextype *njevals)
  * IDADlsGetNumResEvals returns the number of calls to the DAE function
  * needed for the DQ Jacobian approximation.
  */
-int IDADlsGetNumResEvals(void *ida_mem, indextype *nrevalsLS)
+int IDADlsGetNumResEvals(void *ida_mem, long int *nrevalsLS)
 {
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
@@ -268,7 +268,7 @@ int IDADlsGetNumResEvals(void *ida_mem, indextype *nrevalsLS)
  * IDADlsGetReturnFlagName returns the name associated with a IDALAPACK
  * return value.
  */
-char *IDADlsGetReturnFlagName(indextype flag)
+char *IDADlsGetReturnFlagName(long int flag)
 {
   char *name;
 
@@ -306,7 +306,7 @@ char *IDADlsGetReturnFlagName(indextype flag)
 /*
  * IDADlsGetLastFlag returns the last flag set in a IDALAPACK function.
  */
-int IDADlsGetLastFlag(void *ida_mem, indextype *flag)
+int IDADlsGetLastFlag(void *ida_mem, long int *flag)
 {
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;

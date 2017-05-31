@@ -314,13 +314,13 @@ SUNDIALS_EXPORT int IDASpilsSetIncrementFactor(void *ida_mem, realtype dqincfac)
  */                                                                
 
 SUNDIALS_EXPORT int IDASpilsGetWorkSpace(void *ida_mem, indextype *lenrwLS, indextype *leniwLS);
-SUNDIALS_EXPORT int IDASpilsGetNumPrecEvals(void *ida_mem, indextype *npevals);
-SUNDIALS_EXPORT int IDASpilsGetNumPrecSolves(void *ida_mem, indextype *npsolves);
-SUNDIALS_EXPORT int IDASpilsGetNumLinIters(void *ida_mem, indextype *nliters);
-SUNDIALS_EXPORT int IDASpilsGetNumConvFails(void *ida_mem, indextype *nlcfails);
-SUNDIALS_EXPORT int IDASpilsGetNumJtimesEvals(void *ida_mem, indextype *njvevals);
-SUNDIALS_EXPORT int IDASpilsGetNumResEvals(void *ida_mem, indextype *nrevalsLS); 
-SUNDIALS_EXPORT int IDASpilsGetLastFlag(void *ida_mem, indextype *flag);
+SUNDIALS_EXPORT int IDASpilsGetNumPrecEvals(void *ida_mem, long int *npevals);
+SUNDIALS_EXPORT int IDASpilsGetNumPrecSolves(void *ida_mem, long int *npsolves);
+SUNDIALS_EXPORT int IDASpilsGetNumLinIters(void *ida_mem, long int *nliters);
+SUNDIALS_EXPORT int IDASpilsGetNumConvFails(void *ida_mem, long int *nlcfails);
+SUNDIALS_EXPORT int IDASpilsGetNumJtimesEvals(void *ida_mem, long int *njvevals);
+SUNDIALS_EXPORT int IDASpilsGetNumResEvals(void *ida_mem, long int *nrevalsLS); 
+SUNDIALS_EXPORT int IDASpilsGetLastFlag(void *ida_mem, long int *flag);
 
 
 /*
@@ -330,7 +330,7 @@ SUNDIALS_EXPORT int IDASpilsGetLastFlag(void *ida_mem, indextype *flag);
  * -----------------------------------------------------------------
  */
   
-SUNDIALS_EXPORT char *IDASpilsGetReturnFlagName(indextype flag);
+SUNDIALS_EXPORT char *IDASpilsGetReturnFlagName(long int flag);
 
 
 /* 

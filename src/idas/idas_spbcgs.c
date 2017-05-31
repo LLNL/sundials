@@ -439,7 +439,7 @@ static int IDASpbcgPerf(IDAMem IDA_mem, int perftask)
 {
   IDASpilsMem idaspils_mem;
   realtype avdim, rcfn, rcfl;
-  indextype nstd, nnid;
+  long int nstd, nnid;
   booleantype lavd, lcfn, lcfl;
 
   idaspils_mem = (IDASpilsMem) lmem;

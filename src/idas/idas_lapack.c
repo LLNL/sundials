@@ -400,7 +400,7 @@ static int idaLapackDenseSetup(IDAMem IDA_mem,
   dgetrf_f77(&intn, &intn, JJ->data, &intn, pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  last_flag = (indextype) ier;
+  last_flag = (long int) ier;
   if (ier > 0) return(1);
   return(0);
 }
@@ -519,7 +519,7 @@ static int idaLapackBandSetup(IDAMem IDA_mem,
   dgbtrf_f77(&intn, &intn, &iml, &imu, JJ->data, &ldmat, pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  last_flag = (indextype) ier;
+  last_flag = (long int) ier;
   if (ier > 0) return(1);
   return(0);
 

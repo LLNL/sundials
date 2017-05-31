@@ -281,7 +281,7 @@ typedef struct IDAMemRec {
 
   int ida_maxord;        /* max value of method order k:                      */
   int ida_maxord_alloc;  /* value of maxord used when allocating memory       */
-  indextype ida_mxstep;   /* max number of internal steps for one user call    */
+  long int ida_mxstep;   /* max number of internal steps for one user call    */
   realtype ida_hmax_inv; /* inverse of max. step size hmax (default = 0.0)    */
 
   int ida_maxcorS;       /* max number of Newton corrections for sensitivity
@@ -291,30 +291,30 @@ typedef struct IDAMemRec {
     Counters
     --------*/
 
-  indextype ida_nst;      /* number of internal steps taken                    */
+  long int ida_nst;      /* number of internal steps taken                    */
 
-  indextype ida_nre;      /* number of function (res) calls                    */
-  indextype ida_nrQe;
-  indextype ida_nrSe;
-  indextype ida_nrQSe;    /* number of fQS calls                               */
-  indextype ida_nreS;
-  indextype ida_nrQeS;    /* number of fQ calls from sensi DQ                  */
+  long int ida_nre;      /* number of function (res) calls                    */
+  long int ida_nrQe;
+  long int ida_nrSe;
+  long int ida_nrQSe;    /* number of fQS calls                               */
+  long int ida_nreS;
+  long int ida_nrQeS;    /* number of fQ calls from sensi DQ                  */
 
 
-  indextype ida_ncfn;     /* number of corrector convergence failures          */
-  indextype ida_ncfnQ;
-  indextype ida_ncfnS;
+  long int ida_ncfn;     /* number of corrector convergence failures          */
+  long int ida_ncfnQ;
+  long int ida_ncfnS;
 
-  indextype ida_netf;     /* number of error test failures                     */
-  indextype ida_netfQ;
-  indextype ida_netfS;
-  indextype ida_netfQS;   /* number of quadr. sensi. error test failures  */
+  long int ida_netf;     /* number of error test failures                     */
+  long int ida_netfQ;
+  long int ida_netfS;
+  long int ida_netfQS;   /* number of quadr. sensi. error test failures  */
 
-  indextype ida_nni;      /* number of Newton iterations performed             */
-  indextype ida_nniS;
+  long int ida_nni;      /* number of Newton iterations performed             */
+  long int ida_nniS;
 
-  indextype ida_nsetups;  /* number of lsetup calls                            */
-  indextype ida_nsetupsS;
+  long int ida_nsetups;  /* number of lsetup calls                            */
+  long int ida_nsetupsS;
   
   /*---------------------------
     Space requirements for IDAS
@@ -422,7 +422,7 @@ typedef struct IDAMemRec {
   realtype ida_ttol;     /* tolerance on root location                        */
   int ida_taskc;         /* copy of parameter itask                           */
   int ida_irfnd;         /* flag showing whether last step had a root         */
-  indextype ida_nge;      /* counter for g evaluations                         */
+  long int ida_nge;      /* counter for g evaluations                         */
   booleantype *ida_gactive; /* array with active/inactive event functions     */
   int ida_mxgnull;       /* number of warning messages about possible g==0    */
 
@@ -519,9 +519,9 @@ struct CkpntMemRec {
 
 
   /* Step data */
-  indextype     ck_nst;
+  long int     ck_nst;
   realtype     ck_tretlast; 
-  indextype     ck_ns;
+  long int     ck_ns;
   int          ck_kk;
   int          ck_kused;
   int          ck_knew;
@@ -707,14 +707,14 @@ struct IDAadjMemRec {
    * ------------------ */
 
   /* Number of steps between 2 check points */
-  indextype ia_nsteps;
+  long int ia_nsteps;
     
   /* Storage for data from forward runs */
   struct DtpntMemRec **dt_mem;
     
   /* Actual number of data points saved in current dt_mem */
   /* Commonly, np = nsteps+1                              */
-  indextype ia_np;
+  long int ia_np;
 
   /* Interpolation type */
   int ia_interpType;

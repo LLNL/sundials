@@ -165,7 +165,7 @@ int IDASetMaxOrdB(void *ida_mem, int which, int maxordB)
   return IDASetMaxOrd(ida_memB, maxordB);
 }
 
-int IDASetMaxNumStepsB(void *ida_mem, int which, indextype mxstepsB)
+int IDASetMaxNumStepsB(void *ida_mem, int which, long int mxstepsB)
 {
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;

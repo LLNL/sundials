@@ -295,9 +295,9 @@ SUNDIALS_EXPORT int IDADlsSetBandJacFn(void *ida_mem, IDADlsBandJacFn jac);
  */
 
 SUNDIALS_EXPORT int IDADlsGetWorkSpace(void *ida_mem, indextype *lenrwLS, indextype *leniwLS);
-SUNDIALS_EXPORT int IDADlsGetNumJacEvals(void *ida_mem, indextype *njevals);
-SUNDIALS_EXPORT int IDADlsGetNumResEvals(void *ida_mem, indextype *nfevalsLS);
-SUNDIALS_EXPORT int IDADlsGetLastFlag(void *ida_mem, indextype *flag);
+SUNDIALS_EXPORT int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals);
+SUNDIALS_EXPORT int IDADlsGetNumResEvals(void *ida_mem, long int *nfevalsLS);
+SUNDIALS_EXPORT int IDADlsGetLastFlag(void *ida_mem, long int *flag);
 
 /*
  * -----------------------------------------------------------------
@@ -306,7 +306,7 @@ SUNDIALS_EXPORT int IDADlsGetLastFlag(void *ida_mem, indextype *flag);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT char *IDADlsGetReturnFlagName(indextype flag);
+SUNDIALS_EXPORT char *IDADlsGetReturnFlagName(long int flag);
 
 /*
  * =================================================================
