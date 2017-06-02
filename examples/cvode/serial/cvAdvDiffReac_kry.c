@@ -31,7 +31,7 @@
 
 
 
-typedef struct
+typedef struct _UserData
 {
   long int Nx;
   long int Ny;
