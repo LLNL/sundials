@@ -22,7 +22,7 @@ INSTALL(CODE "MESSAGE(\"\nInstall NVECTOR_CUDA\n\")")
 SET(nveccuda_SOURCES nvector_cuda.cu)
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
-# also be included in the NVECSERIAL library
+# also be included in the NVECCUDA library
 SET(shared_SOURCES 
   sundials_math.c
 )
@@ -30,8 +30,7 @@ ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
 
 # Add variable nveccuda_HEADERS with the exported NVECSERIAL header files
 SET(nveccuda_HEADERS 
-  Vector.hpp 
-  VectorKernels.cuh
+  nvector_cuda.h
 )
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/nvector/ nveccuda_HEADERS)
 
@@ -47,7 +46,6 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 #  - Install the NVECSERIAL library
 IF(BUILD_STATIC_LIBS)
   CUDA_ADD_LIBRARY(sundials_nveccuda_static STATIC ${nveccuda_SOURCES})
-  TARGET_LINK_LIBRARIES(sundials_nveccuda_static ${CUDA_LIBRARIES})
   SET_TARGET_PROPERTIES(sundials_nveccuda_static
     PROPERTIES OUTPUT_NAME sundials_nveccuda CLEAN_DIRECT_OUTPUT 1
   )
@@ -61,7 +59,6 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Install the NVECSERIAL library
 IF(BUILD_SHARED_LIBS)
   CUDA_ADD_LIBRARY(sundials_nveccuda_shared SHARED ${nveccuda_SOURCES})
-  TARGET_LINK_LIBRARIES(sundials_nveccuda_shared ${CUDA_LIBRARIES})
   SET_TARGET_PROPERTIES(sundials_nveccuda_shared
     PROPERTIES OUTPUT_NAME sundials_nveccuda CLEAN_DIRECT_OUTPUT 1
   )
@@ -73,6 +70,6 @@ ENDIF(BUILD_SHARED_LIBS)
 
 # Install the NVECSERIAL header files
 INSTALL(FILES ${nveccuda_HEADERS} DESTINATION include/nvector)
-
+INSTALL(DIRECTORY ${sundials_SOURCE_DIR}/include/nvector/cuda DESTINATION include/nvector/cuda)
 
 MESSAGE(STATUS "Added NVECTOR_CUDA module")

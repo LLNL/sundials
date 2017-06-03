@@ -33,8 +33,8 @@ ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
 # Add variable nveccuda_HEADERS with the exported NVECRAJA header files
 SET(nvecraja_HEADERS
   nvector_raja.h 
-  raja/Vector.hpp 
-  raja/VectorKernels.cuh
+#  raja/Vector.hpp 
+#  raja/VectorKernels.cuh
 )
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/nvector/ nvecraja_HEADERS)
 
@@ -50,7 +50,6 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 #  - Install the NVECRAJA library
 IF(BUILD_STATIC_LIBS)
   CUDA_ADD_LIBRARY(sundials_nvecraja_static STATIC ${nvecraja_SOURCES})
-  TARGET_LINK_LIBRARIES(sundials_nvecraja_static ${CUDA_LIBRARIES})
   SET_TARGET_PROPERTIES(sundials_nvecraja_static
     PROPERTIES OUTPUT_NAME sundials_nvecraja CLEAN_DIRECT_OUTPUT 1
   )
@@ -64,18 +63,21 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Install the NVECRAJA library
 IF(BUILD_SHARED_LIBS)
   CUDA_ADD_LIBRARY(sundials_nvecraja_shared SHARED ${nvecraja_SOURCES})
-  TARGET_LINK_LIBRARIES(sundials_nvecraja_shared ${CUDA_LIBRARIES})
   SET_TARGET_PROPERTIES(sundials_nvecraja_shared
     PROPERTIES OUTPUT_NAME sundials_nvecraja CLEAN_DIRECT_OUTPUT 1
   )
   SET_TARGET_PROPERTIES(sundials_nvecraja_shared
     PROPERTIES VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION}
   )
+#  SET_TARGET_PROPERTIES(sundials_nvecraja_shared 
+#    PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE
+#  )
   INSTALL(TARGETS sundials_nvecraja_shared DESTINATION lib)
 ENDIF(BUILD_SHARED_LIBS)
 
 # Install the NVECRAJA header files
 INSTALL(FILES ${nvecraja_HEADERS} DESTINATION include/nvector)
+INSTALL(DIRECTORY ${sundials_SOURCE_DIR}/include/nvector/raja DESTINATION include/nvector/raja)
 
 
 MESSAGE(STATUS "Added NVECTOR_RAJA module")
