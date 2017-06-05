@@ -70,6 +70,6 @@ ENDIF(BUILD_SHARED_LIBS)
 
 # Install the NVECSERIAL header files
 INSTALL(FILES ${nveccuda_HEADERS} DESTINATION include/nvector)
-INSTALL(DIRECTORY ${sundials_SOURCE_DIR}/include/nvector/cuda DESTINATION include/nvector/cuda)
+INSTALL(DIRECTORY ${sundials_SOURCE_DIR}/include/nvector/cuda DESTINATION include/nvector)
 
 MESSAGE(STATUS "Added NVECTOR_CUDA module")

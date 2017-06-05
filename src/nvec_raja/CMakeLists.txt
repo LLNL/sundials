@@ -77,7 +77,7 @@ ENDIF(BUILD_SHARED_LIBS)
 
 # Install the NVECRAJA header files
 INSTALL(FILES ${nvecraja_HEADERS} DESTINATION include/nvector)
-INSTALL(DIRECTORY ${sundials_SOURCE_DIR}/include/nvector/raja DESTINATION include/nvector/raja)
+INSTALL(DIRECTORY ${sundials_SOURCE_DIR}/include/nvector/raja DESTINATION include/nvector)
 
 
 MESSAGE(STATUS "Added NVECTOR_RAJA module")
