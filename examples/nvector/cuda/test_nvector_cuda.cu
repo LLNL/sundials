@@ -128,7 +128,7 @@ int check_ans(realtype ans, N_Vector X, long int local_length)
 {
   int      failure = 0;
   long int i;
-  nvec::Vector<double, long int>* xv = extract(X);
+  nvec::Vector<double, long int>* xv = nvec::extract(X);
   realtype *xdata;
   
   xv->copyFromDev();
@@ -143,14 +143,14 @@ int check_ans(realtype ans, N_Vector X, long int local_length)
 
 booleantype has_data(N_Vector X)
 {
-  nvec::Vector<double, long int>* xv = extract(X);
+  nvec::Vector<double, long int>* xv = nvec::extract(X);
 
   return (xv == NULL ? FALSE : TRUE);
 }
 
 void set_element(N_Vector X, long int i, realtype val)
 {
-  nvec::Vector<double, long int>* xv = extract(X);
+  nvec::Vector<double, long int>* xv = nvec::extract(X);
   xv->copyFromDev();
   (xv->host())[i] = val;
   xv->copyToDev();
@@ -161,7 +161,7 @@ realtype get_element(N_Vector X, long int i)
 //    realtype val;
 //    cudaMemcpy(&val, &(xv->device()[i]), sizeof(realtype), cudaMemcpyDeviceToHost);
 //    return val;
-  nvec::Vector<realtype, long int>* xv = extract(X);
+  nvec::Vector<realtype, long int>* xv = nvec::extract(X);
   xv->copyFromDev();
   return (xv->host())[i];
 }

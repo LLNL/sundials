@@ -347,103 +347,103 @@ void N_VDestroy_Cuda(N_Vector v)
 
 void N_VSpace_Cuda(N_Vector X, long int *lrw, long int *liw)
 {
-    *lrw = (extract(X))->size();
+    *lrw = (nvec::extract(X))->size();
     *liw = 1;
 }
 
 void N_VConst_Cuda(double a, N_Vector X)
 {
-    nvec::setConst(a, *extract(X));
+    nvec::setConst(a, *nvec::extract(X));
 }
 
 void N_VLinearSum_Cuda(double a, N_Vector X, double b, N_Vector Y, N_Vector Z)
 {
-    nvec::linearSum(a, *extract(X), b, *extract(Y), *extract(Z));
+    nvec::linearSum(a, *nvec::extract(X), b, *nvec::extract(Y), *nvec::extract(Z));
 }
 
 void N_VProd_Cuda(N_Vector X, N_Vector Y, N_Vector Z)
 {
-    nvec::prod(*extract(X), *extract(Y), *extract(Z));
+    nvec::prod(*nvec::extract(X), *nvec::extract(Y), *nvec::extract(Z));
 }
 
 void N_VDiv_Cuda(N_Vector X, N_Vector Y, N_Vector Z)
 {
-    nvec::div(*extract(X), *extract(Y), *extract(Z));
+    nvec::div(*nvec::extract(X), *nvec::extract(Y), *nvec::extract(Z));
 }
 
 void N_VScale_Cuda(double a, N_Vector X, N_Vector Z)
 {
-    nvec::scale(a, *extract(X), *extract(Z));
+    nvec::scale(a, *nvec::extract(X), *nvec::extract(Z));
 }
 
 void N_VAbs_Cuda(N_Vector X, N_Vector Z)
 {
-    nvec::absVal(*extract(X), *extract(Z));
+    nvec::absVal(*nvec::extract(X), *nvec::extract(Z));
 }
 
 void N_VInv_Cuda(N_Vector X, N_Vector Z)
 {
-    nvec::inv(*extract(X), *extract(Z));
+    nvec::inv(*nvec::extract(X), *nvec::extract(Z));
 }
 
 void N_VAddConst_Cuda(N_Vector X, double b, N_Vector Z)
 {
-    nvec::addConst(b, *extract(X), *extract(Z));
+    nvec::addConst(b, *nvec::extract(X), *nvec::extract(Z));
 }
 
 double N_VDotProd_Cuda(N_Vector X, N_Vector Y)
 {
-    return (nvec::dotProd(*extract(X), *extract(Y)));
+    return (nvec::dotProd(*nvec::extract(X), *nvec::extract(Y)));
 }
 
 double N_VMaxNorm_Cuda(N_Vector X)
 {
-    return (nvec::maxNorm(*extract(X)));
+    return (nvec::maxNorm(*nvec::extract(X)));
 }
 
 double N_VWrmsNorm_Cuda(N_Vector X, N_Vector W)
 {
-    return (nvec::wrmsNorm(*extract(X), *extract(W)));
+    return (nvec::wrmsNorm(*nvec::extract(X), *nvec::extract(W)));
 }
 
 double N_VWrmsNormMask_Cuda(N_Vector X, N_Vector W, N_Vector Id)
 {
-    return (nvec::wrmsNormMask(*extract(X), *extract(W), *extract(Id)));
+    return (nvec::wrmsNormMask(*nvec::extract(X), *nvec::extract(W), *nvec::extract(Id)));
 }
 
 double N_VMin_Cuda(N_Vector X)
 {
-    return (nvec::findMin(*extract(X)));
+    return (nvec::findMin(*nvec::extract(X)));
 }
 
 double N_VWL2Norm_Cuda(N_Vector X, N_Vector W)
 {
-    return (nvec::wL2Norm(*extract(X), *extract(W)));
+    return (nvec::wL2Norm(*nvec::extract(X), *nvec::extract(W)));
 }
 
 double N_VL1Norm_Cuda(N_Vector X)
 {
-    return (nvec::L1Norm(*extract(X)));
+    return (nvec::L1Norm(*nvec::extract(X)));
 }
 
 void N_VCompare_Cuda(realtype c, N_Vector X, N_Vector Z)
 {
-    nvec::compare(c, *extract(X), *extract(Z));
+    nvec::compare(c, *nvec::extract(X), *nvec::extract(Z));
 }
 
 booleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
 {
-    return (booleantype) (nvec::invTest(*extract(X), *extract(Z)));
+    return (booleantype) (nvec::invTest(*nvec::extract(X), *nvec::extract(Z)));
 }
 
 booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
 {
-    return (booleantype) (nvec::constrMask(*extract(C), *extract(X), *extract(M)));
+    return (booleantype) (nvec::constrMask(*nvec::extract(C), *nvec::extract(X), *nvec::extract(M)));
 }
 
 realtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom)
 {
-    return (nvec::minQuotient(*extract(num), *extract(denom)));
+    return (nvec::minQuotient(*nvec::extract(num), *nvec::extract(denom)));
 }
 
 } // extern "C"

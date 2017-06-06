@@ -192,13 +192,13 @@ private:
 
 
 
-} // namespace nvec
-
 // Vector extractor
 inline nvec::Vector<double, long int>* extract(N_Vector v) 
 { 
     return static_cast<nvec::Vector<double, long int>*>(v->content); 
 }
+
+} // namespace nvec
 
 
 
