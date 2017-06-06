@@ -162,6 +162,16 @@ SUNDIALS_EXPORT void N_VDestroyVectorArray_Cuda(N_Vector *vs, int count);
 
 /*
  * -----------------------------------------------------------------
+ * Function : N_VGetLength_Cuda
+ * -----------------------------------------------------------------
+ * This function returns the length of the vector.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT long int N_VGetLength_Cuda(N_Vector v);
+
+/*
+ * -----------------------------------------------------------------
  * Function : N_VGetHostArrayPointer_Cuda
  * -----------------------------------------------------------------
  * This function returns pointer to the host raw data.

@@ -2,13 +2,13 @@
  * -----------------------------------------------------------------
  * $Revision$
  * $Date$
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
@@ -25,7 +25,14 @@
 #include <nvector/cuda/Vector.hpp>
 #include <nvector/cuda/VectorKernels.cuh>
 
-
+/* ----------------------------------------------------------------
+ * Returns vector type ID. Used to identify vector implementation
+ * from abstract N_Vector interface.
+ */
+N_Vector_ID N_VGetVectorID_Cuda(N_Vector v)
+{
+  return SUNDIALS_NVEC_CUDA;
+}
 
 extern "C" {
 
@@ -39,12 +46,13 @@ N_Vector N_VNewEmpty_Cuda(long int length)
   v = NULL;
   v = (N_Vector) malloc(sizeof *v);
   if (v == NULL) return(NULL);
-  
+
   /* Create vector operation structure */
   ops = NULL;
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
   if (ops == NULL) { free(v); return(NULL); }
 
+  ops->nvgetvectorid     = N_VGetVectorID_Cuda;
   ops->nvclone           = N_VClone_Cuda;
   ops->nvcloneempty      = N_VCloneEmpty_Cuda;
   ops->nvdestroy         = N_VDestroy_Cuda;
@@ -81,14 +89,14 @@ N_Vector N_VNewEmpty_Cuda(long int length)
   return(v);
 }
 
-    
+
 N_Vector N_VNew_Cuda(long int length)
 {
   N_Vector v;
 
   v = NULL;
   v = N_VNewEmpty_Cuda(length);
-  if (v == NULL) 
+  if (v == NULL)
     return(NULL);
 
   v->content = new nvec::Vector<double, long int>(length);
@@ -113,7 +121,7 @@ N_Vector N_VMake_Cuda(N_VectorContent_Cuda c)
 }
 
 /* ----------------------------------------------------------------------------
- * Function to create an array of new CUDA-based vectors. 
+ * Function to create an array of new CUDA-based vectors.
  */
 
 N_Vector *N_VCloneVectorArray_Cuda(int count, N_Vector w)
@@ -140,7 +148,7 @@ N_Vector *N_VCloneVectorArray_Cuda(int count, N_Vector w)
 }
 
 /* ----------------------------------------------------------------------------
- * Function to create an array of new serial vectors with NULL data array. 
+ * Function to create an array of new serial vectors with NULL data array.
  */
 
 N_Vector *N_VCloneVectorArrayEmpty_Cuda(int count, N_Vector w)
@@ -166,6 +174,15 @@ N_Vector *N_VCloneVectorArrayEmpty_Cuda(int count, N_Vector w)
   return(vs);
 }
 
+/* -----------------------------------------------------------------
+ * Function to return the length of the vector.
+ */
+long int N_VGetLength_Cuda(N_Vector v)
+{
+  nvec::Vector<double, long int>* xd = static_cast<nvec::Vector<double, long int>*>(v->content);
+  return xd->size();
+}
+
 /* ----------------------------------------------------------------------------
  * Function to free an array created with N_VCloneVectorArray_Cuda
  */
@@ -182,9 +199,9 @@ void N_VDestroyVectorArray_Cuda(N_Vector *vs, int count)
 }
 
 /* ----------------------------------------------------------------------------
- * Return pointer to the raw host data 
+ * Return pointer to the raw host data
  */
- 
+
 realtype *N_VGetHostArrayPointer_Cuda(N_Vector x)
 {
   nvec::Vector<realtype, long int>* xv = static_cast<nvec::Vector<realtype, long int>*>(x->content);
@@ -192,9 +209,9 @@ realtype *N_VGetHostArrayPointer_Cuda(N_Vector x)
 }
 
 /* ----------------------------------------------------------------------------
- * Return pointer to the raw device data 
+ * Return pointer to the raw device data
  */
- 
+
 realtype *N_VGetDeviceArrayPointer_Cuda(N_Vector x)
 {
   nvec::Vector<double, long int>* xv = static_cast<nvec::Vector<double, long int>*>(x->content);
@@ -221,11 +238,11 @@ void N_VCopyFromDevice_Cuda(N_Vector x)
   xv->copyFromDev();
 }
 
- 
+
 /* ----------------------------------------------------------------------------
- * Function to print the a CUDA-based vector 
+ * Function to print the a CUDA-based vector
  */
- 
+
 void N_VPrint_Cuda(N_Vector x)
 {
   long int i;
@@ -262,7 +279,8 @@ N_Vector N_VCloneEmpty_Cuda(N_Vector w)
   ops = NULL;
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
   if (ops == NULL) { free(v); return(NULL); }
-  
+
+  ops->nvgetvectorid     = w->ops->nvgetvectorid;
   ops->nvclone           = w->ops->nvclone;
   ops->nvcloneempty      = w->ops->nvcloneempty;
   ops->nvdestroy         = w->ops->nvdestroy;
@@ -270,10 +288,10 @@ N_Vector N_VCloneEmpty_Cuda(N_Vector w)
   ops->nvgetarraypointer = w->ops->nvgetarraypointer;
   ops->nvsetarraypointer = w->ops->nvsetarraypointer;
   ops->nvlinearsum       = w->ops->nvlinearsum;
-  ops->nvconst           = w->ops->nvconst;  
-  ops->nvprod            = w->ops->nvprod;   
+  ops->nvconst           = w->ops->nvconst;
+  ops->nvprod            = w->ops->nvprod;
   ops->nvdiv             = w->ops->nvdiv;
-  ops->nvscale           = w->ops->nvscale; 
+  ops->nvscale           = w->ops->nvscale;
   ops->nvabs             = w->ops->nvabs;
   ops->nvinv             = w->ops->nvinv;
   ops->nvaddconst        = w->ops->nvaddconst;
@@ -284,7 +302,7 @@ N_Vector N_VCloneEmpty_Cuda(N_Vector w)
   ops->nvmin             = w->ops->nvmin;
   ops->nvwl2norm         = w->ops->nvwl2norm;
   ops->nvl1norm          = w->ops->nvl1norm;
-  ops->nvcompare         = w->ops->nvcompare;    
+  ops->nvcompare         = w->ops->nvcompare;
   ops->nvinvtest         = w->ops->nvinvtest;
   ops->nvconstrmask      = w->ops->nvconstrmask;
   ops->nvminquotient     = w->ops->nvminquotient;
@@ -306,7 +324,7 @@ N_Vector N_VClone_Cuda(N_Vector w)
   if (v == NULL) return(NULL);
 
   v->content = vdat;
-  
+
   return(v);
 }
 
