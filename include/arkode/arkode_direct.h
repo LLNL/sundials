@@ -348,22 +348,22 @@ SUNDIALS_EXPORT int ARKDlsGetMassWorkSpace(void *arkode_mem,
 					   indextype *lenrwMLS, 
 					   indextype *leniwMLS);
 SUNDIALS_EXPORT int ARKDlsGetNumJacEvals(void *arkode_mem, 
-					 indextype *njevals);
+					 long int *njevals);
 SUNDIALS_EXPORT int ARKDlsGetNumMassEvals(void *arkode_mem, 
-					  indextype *nmevals);
+					  long int *nmevals);
 SUNDIALS_EXPORT int ARKDlsGetNumRhsEvals(void *arkode_mem, 
-					 indextype *nfevalsLS);
+					 long int *nfevalsLS);
 SUNDIALS_EXPORT int ARKDlsGetLastFlag(void *arkode_mem, 
-				      indextype *flag);
+				      long int *flag);
 SUNDIALS_EXPORT int ARKDlsGetLastMassFlag(void *arkode_mem, 
-					  indextype *flag);
+					  long int *flag);
 
 
 /*---------------------------------------------------------------
  The following function returns the name of the constant 
  associated with a ARKDLS return flag
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT char *ARKDlsGetReturnFlagName(indextype flag);
+SUNDIALS_EXPORT char *ARKDlsGetReturnFlagName(long int flag);
 
 
 #ifdef __cplusplus

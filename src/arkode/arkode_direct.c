@@ -253,7 +253,7 @@ int ARKDlsGetMassWorkSpace(void *arkode_mem, indextype *lenrwMLS,
 /*---------------------------------------------------------------
  ARKDlsGetNumJacEvals returns the number of Jacobian evaluations.
 ---------------------------------------------------------------*/
-int ARKDlsGetNumJacEvals(void *arkode_mem, indextype *njevals)
+int ARKDlsGetNumJacEvals(void *arkode_mem, long int *njevals)
 {
   ARKodeMem ark_mem;
   ARKDlsMem arkdls_mem;
@@ -282,7 +282,7 @@ int ARKDlsGetNumJacEvals(void *arkode_mem, indextype *njevals)
 /*---------------------------------------------------------------
  ARKDlsGetNumMassEvals returns the number of mass matrix evaluations.
 ---------------------------------------------------------------*/
-int ARKDlsGetNumMassEvals(void *arkode_mem, indextype *nmevals)
+int ARKDlsGetNumMassEvals(void *arkode_mem, long int *nmevals)
 {
   ARKodeMem ark_mem;
   ARKDlsMassMem arkdls_mem;
@@ -312,7 +312,7 @@ int ARKDlsGetNumMassEvals(void *arkode_mem, indextype *nmevals)
  ARKDlsGetNumRhsEvals returns the number of calls to the ODE function
  needed for the DQ Jacobian approximation.
 ---------------------------------------------------------------*/
-int ARKDlsGetNumRhsEvals(void *arkode_mem, indextype *nfevalsLS)
+int ARKDlsGetNumRhsEvals(void *arkode_mem, long int *nfevalsLS)
 {
   ARKodeMem ark_mem;
   ARKDlsMem arkdls_mem;
@@ -342,7 +342,7 @@ int ARKDlsGetNumRhsEvals(void *arkode_mem, indextype *nfevalsLS)
  ARKDlsGetReturnFlagName returns the name associated with a ARKDLS
  return value.
 ---------------------------------------------------------------*/
-char *ARKDlsGetReturnFlagName(indextype flag)
+char *ARKDlsGetReturnFlagName(long int flag)
 {
   char *name;
 
@@ -384,7 +384,7 @@ char *ARKDlsGetReturnFlagName(indextype flag)
 /*---------------------------------------------------------------
  ARKDlsGetLastFlag returns the last flag set in a ARKDLS function.
 ---------------------------------------------------------------*/
-int ARKDlsGetLastFlag(void *arkode_mem, indextype *flag)
+int ARKDlsGetLastFlag(void *arkode_mem, long int *flag)
 {
   ARKodeMem ark_mem;
   ARKDlsMem arkdls_mem;
@@ -414,7 +414,7 @@ int ARKDlsGetLastFlag(void *arkode_mem, indextype *flag)
  ARKDlsGetLastMassFlag returns the last flag set in a ARKDLS mass
   matrix function.
 ---------------------------------------------------------------*/
-int ARKDlsGetLastMassFlag(void *arkode_mem, indextype *flag)
+int ARKDlsGetLastMassFlag(void *arkode_mem, long int *flag)
 {
   ARKodeMem ark_mem;
   ARKDlsMassMem arkdls_mem;

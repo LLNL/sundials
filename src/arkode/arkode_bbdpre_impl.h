@@ -51,7 +51,7 @@ typedef struct ARKBBDPrecDataRec {
   /* available for optional output */
   indextype rpwsize;
   indextype ipwsize;
-  indextype nge;
+  long int nge;
 
   /* pointer to arkode_mem */
   void *arkode_mem;

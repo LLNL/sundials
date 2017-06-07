@@ -489,38 +489,38 @@ SUNDIALS_EXPORT int ARKSpilsGetMassWorkSpace(void *arkode_mem,
 					     indextype *lenrwMLS, 
 					     indextype *leniwMLS);
 SUNDIALS_EXPORT int ARKSpilsGetNumPrecEvals(void *arkode_mem, 
-					    indextype *npevals);
+					    long int *npevals);
 SUNDIALS_EXPORT int ARKSpilsGetNumMassPrecEvals(void *arkode_mem, 
-						indextype *nmpevals);
+						long int *nmpevals);
 SUNDIALS_EXPORT int ARKSpilsGetNumPrecSolves(void *arkode_mem, 
-					     indextype *npsolves);
+					     long int *npsolves);
 SUNDIALS_EXPORT int ARKSpilsGetNumMassPrecSolves(void *arkode_mem, 
-						 indextype *nmpsolves);
+						 long int *nmpsolves);
 SUNDIALS_EXPORT int ARKSpilsGetNumLinIters(void *arkode_mem, 
-					   indextype *nliters);
+					   long int *nliters);
 SUNDIALS_EXPORT int ARKSpilsGetNumMassIters(void *arkode_mem, 
-					    indextype *nmiters);
+					    long int *nmiters);
 SUNDIALS_EXPORT int ARKSpilsGetNumConvFails(void *arkode_mem, 
-					    indextype *nlcfails);
+					    long int *nlcfails);
 SUNDIALS_EXPORT int ARKSpilsGetNumMassConvFails(void *arkode_mem, 
-						indextype *nmcfails);
+						long int *nmcfails);
 SUNDIALS_EXPORT int ARKSpilsGetNumJtimesEvals(void *arkode_mem, 
-					      indextype *njvevals);
+					      long int *njvevals);
 SUNDIALS_EXPORT int ARKSpilsGetNumMtimesEvals(void *arkode_mem, 
-					      indextype *nmvevals);
+					      long int *nmvevals);
 SUNDIALS_EXPORT int ARKSpilsGetNumRhsEvals(void *arkode_mem, 
-					   indextype *nfevalsLS); 
+					   long int *nfevalsLS); 
 SUNDIALS_EXPORT int ARKSpilsGetLastFlag(void *arkode_mem, 
-					indextype *flag);
+					long int *flag);
 SUNDIALS_EXPORT int ARKSpilsGetLastMassFlag(void *arkode_mem, 
-					    indextype *flag);
+					    long int *flag);
 
 
 /*---------------------------------------------------------------
  The following function returns the name of the constant 
  associated with a ARKSPILS return flag
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT char *ARKSpilsGetReturnFlagName(indextype flag);
+SUNDIALS_EXPORT char *ARKSpilsGetReturnFlagName(long int flag);
 
 #ifdef __cplusplus
 }

@@ -194,19 +194,19 @@ SUNDIALS_EXPORT int ARKSlsSetSparseMassFn(void *arkode_mem,
     ARKSLS_MASSMEM_NULL if the linear solver memory was NULL
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKSlsGetNumJacEvals(void *arkode_mem, 
-					 indextype *njevals);
+					 long int *njevals);
 SUNDIALS_EXPORT int ARKSlsGetNumMassEvals(void *arkode_mem, 
-					  indextype *nmevals);
+					  long int *nmevals);
 SUNDIALS_EXPORT int ARKSlsGetLastFlag(void *arkode_mem, 
-				      indextype *flag);
+				      long int *flag);
 SUNDIALS_EXPORT int ARKSlsGetLastMassFlag(void *arkode_mem, 
-					  indextype *flag);
+					  long int *flag);
 
 /*---------------------------------------------------------------
  The following function returns the name of the constant 
  associated with a ARKSLS return flag
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT char *ARKSlsGetReturnFlagName(indextype flag);
+SUNDIALS_EXPORT char *ARKSlsGetReturnFlagName(long int flag);
 
 
 #ifdef __cplusplus

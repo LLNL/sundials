@@ -519,7 +519,7 @@ static int arkMassBandInit(ARKodeMem ark_mem)
 static int arkMassBandSetup(ARKodeMem ark_mem, N_Vector vtemp1, 
 			    N_Vector vtemp2, N_Vector vtemp3)
 {
-  indextype ier;
+  long int ier;
   ARKDlsMassMem arkdls_mem;
   int retval;
 

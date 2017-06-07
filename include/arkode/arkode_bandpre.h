@@ -139,7 +139,7 @@ SUNDIALS_EXPORT int ARKBandPrecGetWorkSpace(void *arkode_mem,
 					    indextype *lenrwLS, 
 					    indextype *leniwLS);
 SUNDIALS_EXPORT int ARKBandPrecGetNumRhsEvals(void *arkode_mem, 
-					      indextype *nfevalsBP);
+					      long int *nfevalsBP);
 
 
 #ifdef __cplusplus

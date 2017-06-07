@@ -342,7 +342,7 @@ typedef struct ARKodeMemRec {
   /*------------------------------------
     Limits and various solver parameters
     ------------------------------------*/
-  indextype ark_mxstep;   /* max number of internal steps for one user call */
+  long int ark_mxstep;   /* max number of internal steps for one user call */
   int      ark_maxcor;   /* max number of corrector iterations for the
 			    solution of the nonlinear equation             */
   int      ark_mxhnil;   /* max number of warning messages issued to the
@@ -369,17 +369,17 @@ typedef struct ARKodeMemRec {
   /*--------
     Counters 
     --------*/
-  indextype ark_nst;          /* number of internal steps taken             */
-  indextype ark_nst_acc;      /* number of accuracy-limited internal steps  */
-  indextype ark_nst_exp;      /* number of stability-limited internal steps */
-  indextype ark_nst_attempts; /* number of attempted steps                  */
-  indextype ark_nfe;          /* number of fe calls                         */
-  indextype ark_nfi;          /* number of fi calls                         */
-  indextype ark_ncfn;         /* number of corrector convergence failures   */
-  indextype ark_nmassfails;   /* number of mass matrix solver failures      */
-  indextype ark_netf;         /* number of error test failures              */
-  indextype ark_nni;          /* number of Newton iterations performed      */
-  indextype ark_nsetups;      /* number of setup calls                      */
+  long int ark_nst;          /* number of internal steps taken             */
+  long int ark_nst_acc;      /* number of accuracy-limited internal steps  */
+  long int ark_nst_exp;      /* number of stability-limited internal steps */
+  long int ark_nst_attempts; /* number of attempted steps                  */
+  long int ark_nfe;          /* number of fe calls                         */
+  long int ark_nfi;          /* number of fi calls                         */
+  long int ark_ncfn;         /* number of corrector convergence failures   */
+  long int ark_nmassfails;   /* number of mass matrix solver failures      */
+  long int ark_netf;         /* number of error test failures              */
+  long int ark_nni;          /* number of Newton iterations performed      */
+  long int ark_nsetups;      /* number of setup calls                      */
   int      ark_nhnil;        /* number of messages issued to the user that 
 			        t+h == t for the next iternal step         */
 
@@ -402,8 +402,8 @@ typedef struct ARKodeMemRec {
     Fixed-point Solver Data 
     -----------------------*/
   booleantype ark_use_fp;     /* flag to enable fixed-point solver vs Newton */
-  indextype    ark_fp_m;       /* number of vectors to use in acceleration    */
-  indextype    *ark_fp_imap;   /* array of length m          */
+  long int    ark_fp_m;       /* number of vectors to use in acceleration    */
+  long int    *ark_fp_imap;   /* array of length m          */
   realtype    *ark_fp_R;      /* array of length m*m        */
   realtype    *ark_fp_gamma;  /* array of length m          */
   N_Vector    *ark_fp_df;     /* vector array of length m   */
@@ -431,8 +431,8 @@ typedef struct ARKodeMemRec {
     Mass Matrix Solver Data 
     -----------------------*/
   booleantype ark_mass_matrix;   /* flag denoting use of a non-identity M  */
-  indextype ark_mass_solves;      /* number of mass matrix solve calls      */
-  indextype ark_mass_mult;        /* number of mass matrix product calls    */
+  long int ark_mass_solves;      /* number of mass matrix solve calls      */
+  long int ark_mass_mult;        /* number of mass matrix product calls    */
   ARKSpilsMassTimesVecFn ark_mtimes;   /* mass-matrix-vector product routine */
   void *ark_mtimes_data;         /* user pointer passed to mtimes          */
   int (*ark_minit)(struct ARKodeMemRec *ark_mem);
@@ -447,7 +447,7 @@ typedef struct ARKodeMemRec {
   /*------------
     Saved Values
     ------------*/
-  indextype    ark_nstlp;        /* step number of last setup call             */
+  long int    ark_nstlp;        /* step number of last setup call             */
   realtype    ark_h0u;          /* actual initial stepsize                    */
   realtype    ark_tnew;         /* time of last successful step               */
   realtype    ark_hold;         /* last successful h value used               */
@@ -485,7 +485,7 @@ typedef struct ARKodeMemRec {
   realtype     ark_ttol;        /* tolerance on root location                   */
   int          ark_taskc;       /* copy of parameter itask                      */
   int          ark_irfnd;       /* flag showing whether last step had a root    */
-  indextype     ark_nge;         /* counter for g evaluations                    */
+  long int     ark_nge;         /* counter for g evaluations                    */
   booleantype *ark_gactive;     /* array with active/inactive event functions   */
   int          ark_mxgnull;     /* num. warning messages about possible g==0    */
 

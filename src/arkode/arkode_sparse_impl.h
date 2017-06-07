@@ -50,9 +50,9 @@ typedef struct ARKSlsMemRec {
                                 to be called                   */
   void *s_Jdata;             /* user data passed to s_Jeval    */
 
-  indextype s_nje;            /* nje = no. of calls to s_Jeval  */
+  long int s_nje;            /* nje = no. of calls to s_Jeval  */
 
-  indextype s_last_flag;      /* last error return flag         */
+  long int s_last_flag;      /* last error return flag         */
 
   int s_first_factorize;     /* flag telling whether the first 
 			        factorization needs to happen  */
@@ -82,9 +82,9 @@ typedef struct ARKSlsMassMemRec {
                                     routine to be called       */
   void *s_Mdata;              /* user data passed to s_Meval   */
 
-  indextype s_nme;             /* nme = no. of calls to s_Meval */
+  long int s_nme;             /* nme = no. of calls to s_Meval */
 
-  indextype s_last_flag;       /* last error return flag        */
+  long int s_last_flag;       /* last error return flag        */
 
   int s_first_factorize;      /* flag telling whether the first 
 			         factorization needs to happen */

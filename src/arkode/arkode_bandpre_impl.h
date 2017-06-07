@@ -45,7 +45,7 @@ typedef struct ARKBandPrecDataRec {
   indextype *lpivots;
 
   /* Rhs calls */
-  indextype nfeBP;
+  long int nfeBP;
 
   /* Pointer to arkode_mem */
   void *arkode_mem;

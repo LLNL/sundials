@@ -581,7 +581,7 @@ int ARKSpilsGetMassWorkSpace(void *arkode_mem, indextype *lenrwMLS,
 /*---------------------------------------------------------------
  ARKSpilsGetNumPrecEvals
 ---------------------------------------------------------------*/
-int ARKSpilsGetNumPrecEvals(void *arkode_mem, indextype *npevals)
+int ARKSpilsGetNumPrecEvals(void *arkode_mem, long int *npevals)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
@@ -610,7 +610,7 @@ int ARKSpilsGetNumPrecEvals(void *arkode_mem, indextype *npevals)
 /*---------------------------------------------------------------
  ARKSpilsGetNumMassPrecEvals
 ---------------------------------------------------------------*/
-int ARKSpilsGetNumMassPrecEvals(void *arkode_mem, indextype *npevals)
+int ARKSpilsGetNumMassPrecEvals(void *arkode_mem, long int *npevals)
 {
   ARKodeMem ark_mem;
   ARKSpilsMassMem arkspils_mem;
@@ -639,7 +639,7 @@ int ARKSpilsGetNumMassPrecEvals(void *arkode_mem, indextype *npevals)
 /*---------------------------------------------------------------
  ARKSpilsGetNumPrecSolves
 ---------------------------------------------------------------*/
-int ARKSpilsGetNumPrecSolves(void *arkode_mem, indextype *npsolves)
+int ARKSpilsGetNumPrecSolves(void *arkode_mem, long int *npsolves)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
@@ -668,7 +668,7 @@ int ARKSpilsGetNumPrecSolves(void *arkode_mem, indextype *npsolves)
 /*---------------------------------------------------------------
  ARKSpilsGetNumMassPrecSolves
 ---------------------------------------------------------------*/
-int ARKSpilsGetNumMassPrecSolves(void *arkode_mem, indextype *npsolves)
+int ARKSpilsGetNumMassPrecSolves(void *arkode_mem, long int *npsolves)
 {
   ARKodeMem ark_mem;
   ARKSpilsMassMem arkspils_mem;
@@ -697,7 +697,7 @@ int ARKSpilsGetNumMassPrecSolves(void *arkode_mem, indextype *npsolves)
 /*---------------------------------------------------------------
  ARKSpilsGetNumLinIters
 ---------------------------------------------------------------*/
-int ARKSpilsGetNumLinIters(void *arkode_mem, indextype *nliters)
+int ARKSpilsGetNumLinIters(void *arkode_mem, long int *nliters)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
@@ -726,7 +726,7 @@ int ARKSpilsGetNumLinIters(void *arkode_mem, indextype *nliters)
 /*---------------------------------------------------------------
  ARKSpilsGetNumMassIters
 ---------------------------------------------------------------*/
-int ARKSpilsGetNumMassIters(void *arkode_mem, indextype *nmiters)
+int ARKSpilsGetNumMassIters(void *arkode_mem, long int *nmiters)
 {
   ARKodeMem ark_mem;
   ARKSpilsMassMem arkspils_mem;
@@ -755,7 +755,7 @@ int ARKSpilsGetNumMassIters(void *arkode_mem, indextype *nmiters)
 /*---------------------------------------------------------------
  ARKSpilsGetNumConvFails
 ---------------------------------------------------------------*/
-int ARKSpilsGetNumConvFails(void *arkode_mem, indextype *nlcfails)
+int ARKSpilsGetNumConvFails(void *arkode_mem, long int *nlcfails)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
@@ -784,7 +784,7 @@ int ARKSpilsGetNumConvFails(void *arkode_mem, indextype *nlcfails)
 /*---------------------------------------------------------------
  ARKSpilsGetNumMassConvFails
 ---------------------------------------------------------------*/
-int ARKSpilsGetNumMassConvFails(void *arkode_mem, indextype *nmcfails)
+int ARKSpilsGetNumMassConvFails(void *arkode_mem, long int *nmcfails)
 {
   ARKodeMem ark_mem;
   ARKSpilsMassMem arkspils_mem;
@@ -813,7 +813,7 @@ int ARKSpilsGetNumMassConvFails(void *arkode_mem, indextype *nmcfails)
 /*---------------------------------------------------------------
  ARKSpilsGetNumJtimesEvals
 ---------------------------------------------------------------*/
-int ARKSpilsGetNumJtimesEvals(void *arkode_mem, indextype *njvevals)
+int ARKSpilsGetNumJtimesEvals(void *arkode_mem, long int *njvevals)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
@@ -842,7 +842,7 @@ int ARKSpilsGetNumJtimesEvals(void *arkode_mem, indextype *njvevals)
 /*---------------------------------------------------------------
  ARKSpilsGetNumMtimesEvals
 ---------------------------------------------------------------*/
-int ARKSpilsGetNumMtimesEvals(void *arkode_mem, indextype *nmvevals)
+int ARKSpilsGetNumMtimesEvals(void *arkode_mem, long int *nmvevals)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
@@ -871,7 +871,7 @@ int ARKSpilsGetNumMtimesEvals(void *arkode_mem, indextype *nmvevals)
 /*---------------------------------------------------------------
  ARKSpilsGetNumRhsEvals
 ---------------------------------------------------------------*/
-int ARKSpilsGetNumRhsEvals(void *arkode_mem, indextype *nfevalsLS)
+int ARKSpilsGetNumRhsEvals(void *arkode_mem, long int *nfevalsLS)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
@@ -900,7 +900,7 @@ int ARKSpilsGetNumRhsEvals(void *arkode_mem, indextype *nfevalsLS)
 /*---------------------------------------------------------------
  ARKSpilsGetLastFlag
 ---------------------------------------------------------------*/
-int ARKSpilsGetLastFlag(void *arkode_mem, indextype *flag)
+int ARKSpilsGetLastFlag(void *arkode_mem, long int *flag)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
@@ -929,7 +929,7 @@ int ARKSpilsGetLastFlag(void *arkode_mem, indextype *flag)
 /*---------------------------------------------------------------
  ARKSpilsGetLastMassFlag
 ---------------------------------------------------------------*/
-int ARKSpilsGetLastMassFlag(void *arkode_mem, indextype *flag)
+int ARKSpilsGetLastMassFlag(void *arkode_mem, long int *flag)
 {
   ARKodeMem ark_mem;
   ARKSpilsMassMem arkspils_mem;
@@ -958,7 +958,7 @@ int ARKSpilsGetLastMassFlag(void *arkode_mem, indextype *flag)
 /*---------------------------------------------------------------
  ARKSpilsGetReturnFlagName
 ---------------------------------------------------------------*/
-char *ARKSpilsGetReturnFlagName(indextype flag)
+char *ARKSpilsGetReturnFlagName(long int flag)
 {
   char *name = (char *)malloc(30*sizeof(char));
 

@@ -708,7 +708,7 @@ static int arkLapackDenseSetup(ARKodeMem ark_mem, int convfail,
 	     &intn, arkdls_mem->d_pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  arkdls_mem->d_last_flag = (indextype) ier;
+  arkdls_mem->d_last_flag = (long int) ier;
   if (ier > 0) return(1);
   return(0);
 }
@@ -822,7 +822,7 @@ static int arkMassLapackDenseSetup(ARKodeMem ark_mem, N_Vector tmp1,
 	     &intn, arkdls_mem->d_pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  arkdls_mem->d_last_flag = (indextype) ier;
+  arkdls_mem->d_last_flag = (long int) ier;
   if (ier > 0) return(1);
   return(0);
 }
@@ -1050,7 +1050,7 @@ static int arkLapackBandSetup(ARKodeMem ark_mem, int convfail,
 	     &ldmat, arkdls_mem->d_pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  arkdls_mem->d_last_flag = (indextype) ier;
+  arkdls_mem->d_last_flag = (long int) ier;
   if (ier > 0) return(1);
   return(0);
 
@@ -1171,7 +1171,7 @@ static int arkMassLapackBandSetup(ARKodeMem ark_mem, N_Vector tmp1,
 	     &ldmat, arkdls_mem->d_pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  arkdls_mem->d_last_flag = (indextype) ier;
+  arkdls_mem->d_last_flag = (long int) ier;
   if (ier > 0) return(1);
   return(0);
 }

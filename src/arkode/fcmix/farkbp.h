@@ -478,7 +478,7 @@ void FARK_BPINIT(indextype *N,
 		 int *ier);
 void FARK_BPOPT(indextype *lenrwbp, 
 		indextype *leniwbp, 
-		indextype *nfebp);
+		long int *nfebp);
 
 #ifdef __cplusplus
 }

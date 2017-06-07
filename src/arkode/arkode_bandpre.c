@@ -191,7 +191,7 @@ int ARKBandPrecGetWorkSpace(void *arkode_mem, indextype *lenrwBP, indextype *len
 }
 
 
-int ARKBandPrecGetNumRhsEvals(void *arkode_mem, indextype *nfevalsBP)
+int ARKBandPrecGetNumRhsEvals(void *arkode_mem, long int *nfevalsBP)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
@@ -274,7 +274,7 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   ARKBandPrecData pdata;
   ARKodeMem ark_mem;
   int retval;
-  indextype ier;
+  long int ier;
 
   /* Assume matrix and lpivots have already been allocated. */
   pdata = (ARKBandPrecData) bp_data;

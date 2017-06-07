@@ -553,7 +553,7 @@ int ARKodeSetNonlinear(void *arkode_mem)
  acceleration space, fp_m, must be non-negative.  Illegal 
  values imply to use the default.
 ---------------------------------------------------------------*/
-int ARKodeSetFixedPoint(void *arkode_mem, indextype fp_m)
+int ARKodeSetFixedPoint(void *arkode_mem, long int fp_m)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -1133,7 +1133,7 @@ int ARKodeSetARKTableNum(void *arkode_mem, int itable, int etable)
 
  Specifies the maximum number of integration steps
 ---------------------------------------------------------------*/
-int ARKodeSetMaxNumSteps(void *arkode_mem, indextype mxsteps)
+int ARKodeSetMaxNumSteps(void *arkode_mem, long int mxsteps)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -2113,7 +2113,7 @@ int ARKodeSetPostprocessStepFn(void *arkode_mem,
 
  Returns the current number of integration steps
 ---------------------------------------------------------------*/
-int ARKodeGetNumSteps(void *arkode_mem, indextype *nsteps)
+int ARKodeGetNumSteps(void *arkode_mem, long int *nsteps)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -2134,7 +2134,7 @@ int ARKodeGetNumSteps(void *arkode_mem, indextype *nsteps)
 
  Returns the current number of stability-limited steps
 ---------------------------------------------------------------*/
-int ARKodeGetNumExpSteps(void *arkode_mem, indextype *nsteps)
+int ARKodeGetNumExpSteps(void *arkode_mem, long int *nsteps)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -2155,7 +2155,7 @@ int ARKodeGetNumExpSteps(void *arkode_mem, indextype *nsteps)
 
  Returns the current number of accuracy-limited steps
 ---------------------------------------------------------------*/
-int ARKodeGetNumAccSteps(void *arkode_mem, indextype *nsteps)
+int ARKodeGetNumAccSteps(void *arkode_mem, long int *nsteps)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -2176,7 +2176,7 @@ int ARKodeGetNumAccSteps(void *arkode_mem, indextype *nsteps)
 
  Returns the current number of steps attempted by the solver
 ---------------------------------------------------------------*/
-int ARKodeGetNumStepAttempts(void *arkode_mem, indextype *nsteps)
+int ARKodeGetNumStepAttempts(void *arkode_mem, long int *nsteps)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -2197,8 +2197,8 @@ int ARKodeGetNumStepAttempts(void *arkode_mem, indextype *nsteps)
 
  Returns the current number of calls to fe and fi
 ---------------------------------------------------------------*/
-int ARKodeGetNumRhsEvals(void *arkode_mem, indextype *fe_evals,
-			 indextype *fi_evals)
+int ARKodeGetNumRhsEvals(void *arkode_mem, long int *fe_evals,
+			 long int *fi_evals)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -2220,7 +2220,7 @@ int ARKodeGetNumRhsEvals(void *arkode_mem, indextype *fe_evals,
 
  Returns the current number of calls to the lsetup routine
 ---------------------------------------------------------------*/
-int ARKodeGetNumLinSolvSetups(void *arkode_mem, indextype *nlinsetups)
+int ARKodeGetNumLinSolvSetups(void *arkode_mem, long int *nlinsetups)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -2241,7 +2241,7 @@ int ARKodeGetNumLinSolvSetups(void *arkode_mem, indextype *nlinsetups)
 
  Returns the current number of calls to the mass matrix solver.
 ---------------------------------------------------------------*/
-int ARKodeGetNumMassSolves(void *arkode_mem, indextype *nMassSolves)
+int ARKodeGetNumMassSolves(void *arkode_mem, long int *nMassSolves)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -2262,7 +2262,7 @@ int ARKodeGetNumMassSolves(void *arkode_mem, indextype *nMassSolves)
 
  Returns the current number of calls to the mass matrix product.
 ---------------------------------------------------------------*/
-int ARKodeGetNumMassMultiplies(void *arkode_mem, indextype *nMassMult)
+int ARKodeGetNumMassMultiplies(void *arkode_mem, long int *nMassMult)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -2283,7 +2283,7 @@ int ARKodeGetNumMassMultiplies(void *arkode_mem, indextype *nMassMult)
 
  Returns the current number of error test failures
 ---------------------------------------------------------------*/
-int ARKodeGetNumErrTestFails(void *arkode_mem, indextype *netfails)
+int ARKodeGetNumErrTestFails(void *arkode_mem, long int *netfails)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -2521,11 +2521,11 @@ int ARKodeGetWorkSpace(void *arkode_mem, indextype *lenrw, indextype *leniw)
 
  Returns integrator statistics
 ---------------------------------------------------------------*/
-int ARKodeGetIntegratorStats(void *arkode_mem, indextype *nsteps, 
-			     indextype *expsteps, indextype *accsteps, 
-			     indextype *step_attempts, indextype *fe_evals, 
-			     indextype *fi_evals, indextype *nlinsetups, 
-			     indextype *netfails, realtype *hinused, 
+int ARKodeGetIntegratorStats(void *arkode_mem, long int *nsteps, 
+			     long int *expsteps, long int *accsteps, 
+			     long int *step_attempts, long int *fe_evals, 
+			     long int *fi_evals, long int *nlinsetups, 
+			     long int *netfails, realtype *hinused, 
 			     realtype *hlast, realtype *hcur, 
 			     realtype *tcur)
 {
@@ -2559,7 +2559,7 @@ int ARKodeGetIntegratorStats(void *arkode_mem, indextype *nsteps,
 
  Returns the current number of calls to g (for rootfinding)
 ---------------------------------------------------------------*/
-int ARKodeGetNumGEvals(void *arkode_mem, indextype *ngevals)
+int ARKodeGetNumGEvals(void *arkode_mem, long int *ngevals)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -2604,7 +2604,7 @@ int ARKodeGetRootInfo(void *arkode_mem, int *rootsfound)
 
  Returns the current number of nonlinear solver iterations 
 ---------------------------------------------------------------*/
-int ARKodeGetNumNonlinSolvIters(void *arkode_mem, indextype *nniters)
+int ARKodeGetNumNonlinSolvIters(void *arkode_mem, long int *nniters)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -2625,7 +2625,7 @@ int ARKodeGetNumNonlinSolvIters(void *arkode_mem, indextype *nniters)
 
  Returns the current number of nonlinear solver convergence fails
 ---------------------------------------------------------------*/
-int ARKodeGetNumNonlinSolvConvFails(void *arkode_mem, indextype *nncfails)
+int ARKodeGetNumNonlinSolvConvFails(void *arkode_mem, long int *nncfails)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -2646,8 +2646,8 @@ int ARKodeGetNumNonlinSolvConvFails(void *arkode_mem, indextype *nncfails)
 
  Returns nonlinear solver statistics
 ---------------------------------------------------------------*/
-int ARKodeGetNonlinSolvStats(void *arkode_mem, indextype *nniters, 
-			     indextype *nncfails)
+int ARKodeGetNonlinSolvStats(void *arkode_mem, long int *nniters, 
+			     long int *nncfails)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -2665,7 +2665,7 @@ int ARKodeGetNonlinSolvStats(void *arkode_mem, indextype *nniters,
 
 /*-----------------------------------------------------------------*/
 
-char *ARKodeGetReturnFlagName(indextype flag)
+char *ARKodeGetReturnFlagName(long int flag)
 {
   char *name;
   name = (char *)malloc(24*sizeof(char));

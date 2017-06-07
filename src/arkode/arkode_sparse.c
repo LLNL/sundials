@@ -94,7 +94,7 @@ int ARKSlsSetSparseMassFn(void *arkode_mem, ARKSlsSparseMassFn mass)
 /*---------------------------------------------------------------
  ARKSlsGetNumJacEvals returns the number of Jacobian evaluations.
 ---------------------------------------------------------------*/
-int ARKSlsGetNumJacEvals(void *arkode_mem, indextype *njevals)
+int ARKSlsGetNumJacEvals(void *arkode_mem, long int *njevals)
 {
   ARKodeMem ark_mem;
   ARKSlsMem arksls_mem;
@@ -124,7 +124,7 @@ int ARKSlsGetNumJacEvals(void *arkode_mem, indextype *njevals)
 /*---------------------------------------------------------------
  ARKSlsGetNumMassEvals returns the number of mass matrix evaluations.
 ---------------------------------------------------------------*/
-int ARKSlsGetNumMassEvals(void *arkode_mem, indextype *nmevals)
+int ARKSlsGetNumMassEvals(void *arkode_mem, long int *nmevals)
 {
   ARKodeMem ark_mem;
   ARKSlsMassMem arksls_mem;
@@ -154,7 +154,7 @@ int ARKSlsGetNumMassEvals(void *arkode_mem, indextype *nmevals)
  ARKSlsGetReturnFlagName returns the name associated with a 
  ARKSLS return value.
 ---------------------------------------------------------------*/
-char *ARKSlsGetReturnFlagName(indextype flag)
+char *ARKSlsGetReturnFlagName(long int flag)
 {
   char *name;
 
@@ -208,7 +208,7 @@ char *ARKSlsGetReturnFlagName(indextype flag)
 /*---------------------------------------------------------------
  ARKSlsGetLastFlag returns the last flag set in a ARKSLS function.
 ---------------------------------------------------------------*/
-int ARKSlsGetLastFlag(void *arkode_mem, indextype *flag)
+int ARKSlsGetLastFlag(void *arkode_mem, long int *flag)
 {
   ARKodeMem ark_mem;
   ARKSlsMem arksls_mem;
@@ -238,7 +238,7 @@ int ARKSlsGetLastFlag(void *arkode_mem, indextype *flag)
  ARKSlsGetLastMassFlag returns the last flag set in a ARKSLS mass
  matrix function.
 ---------------------------------------------------------------*/
-int ARKSlsGetLastMassFlag(void *arkode_mem, indextype *flag)
+int ARKSlsGetLastMassFlag(void *arkode_mem, long int *flag)
 {
   ARKodeMem ark_mem;
   ARKSlsMassMem arksls_mem;

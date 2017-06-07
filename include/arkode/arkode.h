@@ -694,7 +694,7 @@ SUNDIALS_EXPORT int ARKodeSetOrder(void *arkode_mem, int maxord);
 SUNDIALS_EXPORT int ARKodeSetDenseOrder(void *arkode_mem, int dord);
 SUNDIALS_EXPORT int ARKodeSetLinear(void *arkode_mem, int timedepend);
 SUNDIALS_EXPORT int ARKodeSetNonlinear(void *arkode_mem);
-SUNDIALS_EXPORT int ARKodeSetFixedPoint(void *arkode_mem, indextype fp_m);
+SUNDIALS_EXPORT int ARKodeSetFixedPoint(void *arkode_mem, long int fp_m);
 SUNDIALS_EXPORT int ARKodeSetNewton(void *arkode_mem);
 SUNDIALS_EXPORT int ARKodeSetExplicit(void *arkode_mem);
 SUNDIALS_EXPORT int ARKodeSetImplicit(void *arkode_mem);
@@ -718,7 +718,7 @@ SUNDIALS_EXPORT int ARKodeSetIRKTableNum(void *arkode_mem, int itable);
 SUNDIALS_EXPORT int ARKodeSetARKTableNum(void *arkode_mem, 
 					 int itable, int etable);
 SUNDIALS_EXPORT int ARKodeSetMaxNumSteps(void *arkode_mem, 
-					 indextype mxsteps);
+					 long int mxsteps);
 SUNDIALS_EXPORT int ARKodeSetMaxHnilWarns(void *arkode_mem, 
 					  int mxhnil);
 SUNDIALS_EXPORT int ARKodeSetInitStep(void *arkode_mem, 
@@ -1245,24 +1245,24 @@ SUNDIALS_EXPORT int ARKodeGetWorkSpace(void *arkode_mem,
 				       indextype *lenrw, 
 				       indextype *leniw);
 SUNDIALS_EXPORT int ARKodeGetNumSteps(void *arkode_mem, 
-				      indextype *nsteps);
+				      long int *nsteps);
 SUNDIALS_EXPORT int ARKodeGetNumExpSteps(void *arkode_mem, 
-					 indextype *expsteps);
+					 long int *expsteps);
 SUNDIALS_EXPORT int ARKodeGetNumAccSteps(void *arkode_mem, 
-					 indextype *accsteps);
+					 long int *accsteps);
 SUNDIALS_EXPORT int ARKodeGetNumStepAttempts(void *arkode_mem, 
-					     indextype *step_attempts);
+					     long int *step_attempts);
 SUNDIALS_EXPORT int ARKodeGetNumRhsEvals(void *arkode_mem, 
-					 indextype *nfe_evals, 
-					 indextype *nfi_evals);
+					 long int *nfe_evals, 
+					 long int *nfi_evals);
 SUNDIALS_EXPORT int ARKodeGetNumLinSolvSetups(void *arkode_mem, 
-					      indextype *nlinsetups);
+					      long int *nlinsetups);
 SUNDIALS_EXPORT int ARKodeGetNumMassSolves(void *arkode_mem, 
-					   indextype *nMassSolves);
+					   long int *nMassSolves);
 SUNDIALS_EXPORT int ARKodeGetNumMassMultiplies(void *arkode_mem, 
-					       indextype *nMassMult);
+					       long int *nMassMult);
 SUNDIALS_EXPORT int ARKodeGetNumErrTestFails(void *arkode_mem, 
-					     indextype *netfails);
+					     long int *netfails);
 SUNDIALS_EXPORT int ARKodeGetActualInitStep(void *arkode_mem, 
 					    realtype *hinused);
 SUNDIALS_EXPORT int ARKodeGetLastStep(void *arkode_mem, 
@@ -1284,7 +1284,7 @@ SUNDIALS_EXPORT int ARKodeGetErrWeights(void *arkode_mem,
 SUNDIALS_EXPORT int ARKodeGetEstLocalErrors(void *arkode_mem, 
 					    N_Vector ele);
 SUNDIALS_EXPORT int ARKodeGetNumGEvals(void *arkode_mem, 
-				       indextype *ngevals);
+				       long int *ngevals);
 SUNDIALS_EXPORT int ARKodeGetRootInfo(void *arkode_mem, 
 				      int *rootsfound);
 
@@ -1293,14 +1293,14 @@ SUNDIALS_EXPORT int ARKodeGetRootInfo(void *arkode_mem,
  optional outputs in one group.
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKodeGetIntegratorStats(void *arkode_mem, 
-					     indextype *nsteps,
-					     indextype *expsteps, 
-					     indextype *accsteps, 
-					     indextype *step_attempts, 
-					     indextype *nfe_evals, 
-					     indextype *nfi_evals, 
-					     indextype *nlinsetups, 
-					     indextype *netfails,
+					     long int *nsteps,
+					     long int *expsteps, 
+					     long int *accsteps, 
+					     long int *step_attempts, 
+					     long int *nfe_evals, 
+					     long int *nfi_evals, 
+					     long int *nlinsetups, 
+					     long int *netfails,
 					     realtype *hinused, 
 					     realtype *hlast, 
 					     realtype *hcur, 
@@ -1319,17 +1319,17 @@ SUNDIALS_EXPORT int ARKodeGetIntegratorStats(void *arkode_mem,
                                  convergence failures.
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKodeGetNumNonlinSolvIters(void *arkode_mem, 
-						indextype *nniters);
+						long int *nniters);
 SUNDIALS_EXPORT int ARKodeGetNumNonlinSolvConvFails(void *arkode_mem, 
-						    indextype *nncfails);
+						    long int *nncfails);
 
 /*---------------------------------------------------------------
  As a convenience, the following function provides the
  nonlinear solver optional outputs in a group.
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKodeGetNonlinSolvStats(void *arkode_mem, 
-					     indextype *nniters,
-					     indextype *nncfails);
+					     long int *nniters,
+					     long int *nncfails);
 
 /*---------------------------------------------------------------
  As a convenience, the following function may be used to retrieve
@@ -1346,7 +1346,7 @@ SUNDIALS_EXPORT int ARKodeLoadButcherTable(int imethod, int *s,
  The following function returns the name of the constant 
  associated with a ARKODE return flag
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT char *ARKodeGetReturnFlagName(indextype flag);
+SUNDIALS_EXPORT char *ARKodeGetReturnFlagName(long int flag);
 
 /*---------------------------------------------------------------
  Function : ARKodeWriteParameters
