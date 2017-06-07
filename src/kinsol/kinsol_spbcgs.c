@@ -356,8 +356,8 @@ static int KINSpbcgSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   /* increment counters nli, nps, and ncfl 
      (nni is updated in the KINSol main iteration loop) */
 
-  nli = nli + (indextype) nli_inc;
-  nps = nps + (indextype) nps_inc;
+  nli = nli + (long int) nli_inc;
+  nps = nps + (long int) nps_inc;
 
   if (printfl > 2) 
     KINPrintInfo(kin_mem, PRNT_NLI, "KINSPBCG", "KINSpbcgSolve", INFO_NLI, nli_inc);

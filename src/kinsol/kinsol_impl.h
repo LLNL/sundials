@@ -74,12 +74,12 @@ typedef struct KINMemRec {
   int kin_globalstrategy;      /* choices are KIN_NONE, KIN_LINESEARCH
 				  KIN_PICARD and KIN_FP                        */
   int kin_printfl;             /* level of verbosity of output                 */
-  indextype kin_mxiter;         /* maximum number of nonlinear iterations       */
-  indextype kin_msbset;         /* maximum number of nonlinear iterations that
+  long int kin_mxiter;         /* maximum number of nonlinear iterations       */
+  long int kin_msbset;         /* maximum number of nonlinear iterations that
 				  may be performed between calls to the
 				  linear solver setup routine (lsetup)         */
-  indextype kin_msbset_sub;     /* subinterval length for residual monitoring   */
-  indextype kin_mxnbcf;         /* maximum number of beta condition failures    */
+  long int kin_msbset_sub;     /* subinterval length for residual monitoring   */
+  long int kin_mxnbcf;         /* maximum number of beta condition failures    */
   int kin_etaflag;             /* choices are KIN_ETACONSTANT, KIN_ETACHOICE1
 				  and KIN_ETACHOICE2                           */
   booleantype kin_noMinEps;    /* flag controlling whether or not the value
@@ -122,17 +122,17 @@ typedef struct KINMemRec {
 
   /* counters */
 
-  indextype kin_nni;            /* number of nonlinear iterations               */
-  indextype kin_nfe;            /* number of calls made to func routine         */
-  indextype kin_nnilset;        /* value of nni counter when the linear solver
+  long int kin_nni;            /* number of nonlinear iterations               */
+  long int kin_nfe;            /* number of calls made to func routine         */
+  long int kin_nnilset;        /* value of nni counter when the linear solver
 				  setup was last called                        */
-  indextype kin_nnilset_sub;    /* value of nni counter when the linear solver
+  long int kin_nnilset_sub;    /* value of nni counter when the linear solver
 				  setup was last called (subinterval)          */
-  indextype kin_nbcf;           /* number of times the beta-condition could not 
+  long int kin_nbcf;           /* number of times the beta-condition could not 
 				  be met in KINLineSearch                      */
-  indextype kin_nbktrk;         /* number of backtracks performed by
+  long int kin_nbktrk;         /* number of backtracks performed by
 				  KINLineSearch                                */
-  indextype kin_ncscmx;         /* number of consecutive steps of size
+  long int kin_ncscmx;         /* number of consecutive steps of size
 				  mxnewtstep taken                             */
 
   /* vectors */

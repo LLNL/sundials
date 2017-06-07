@@ -259,7 +259,7 @@ int KINDlsGetNumFuncEvals(void *kinmem, indextype *nfevalsLS)
  * -----------------------------------------------------------------
  */
 
-int KINDlsGetLastFlag(void *kinmem, indextype *flag)
+int KINDlsGetLastFlag(void *kinmem, long int *flag)
 {
   KINMem kin_mem;
   KINDlsMem kindls_mem;
@@ -288,7 +288,7 @@ int KINDlsGetLastFlag(void *kinmem, indextype *flag)
  * -----------------------------------------------------------------
  */
 
-char *KINDlsGetReturnFlagName(indextype flag)
+char *KINDlsGetReturnFlagName(long int flag)
 {
   char *name;
 

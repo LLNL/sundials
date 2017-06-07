@@ -66,7 +66,7 @@ typedef struct KBBDPrecDataRec {
 
   indextype rpwsize;
   indextype ipwsize;
-  indextype nge;
+  long int nge;
 
   /* pointer to KINSol memory */
 

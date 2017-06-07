@@ -238,7 +238,7 @@ int KINSpilsGetWorkSpace(void *kinmem, indextype *lenrwSG, indextype *leniwSG)
  * -----------------------------------------------------------------
  */
 
-int KINSpilsGetNumPrecEvals(void *kinmem, indextype *npevals)
+int KINSpilsGetNumPrecEvals(void *kinmem, long int *npevals)
 {
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
@@ -267,7 +267,7 @@ int KINSpilsGetNumPrecEvals(void *kinmem, indextype *npevals)
  * -----------------------------------------------------------------
  */
 
-int KINSpilsGetNumPrecSolves(void *kinmem, indextype *npsolves)
+int KINSpilsGetNumPrecSolves(void *kinmem, long int *npsolves)
 {
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
@@ -296,7 +296,7 @@ int KINSpilsGetNumPrecSolves(void *kinmem, indextype *npsolves)
  * -----------------------------------------------------------------
  */
 
-int KINSpilsGetNumLinIters(void *kinmem, indextype *nliters)
+int KINSpilsGetNumLinIters(void *kinmem, long int *nliters)
 {
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
@@ -325,7 +325,7 @@ int KINSpilsGetNumLinIters(void *kinmem, indextype *nliters)
  * -----------------------------------------------------------------
  */
 
-int KINSpilsGetNumConvFails(void *kinmem, indextype *nlcfails)
+int KINSpilsGetNumConvFails(void *kinmem, long int *nlcfails)
 {
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
@@ -354,7 +354,7 @@ int KINSpilsGetNumConvFails(void *kinmem, indextype *nlcfails)
  * -----------------------------------------------------------------
  */
 
-int KINSpilsGetNumJtimesEvals(void *kinmem, indextype *njvevals)
+int KINSpilsGetNumJtimesEvals(void *kinmem, long int *njvevals)
 {
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
@@ -383,7 +383,7 @@ int KINSpilsGetNumJtimesEvals(void *kinmem, indextype *njvevals)
  * -----------------------------------------------------------------
  */
 
-int KINSpilsGetNumFuncEvals(void *kinmem, indextype *nfevalsS)
+int KINSpilsGetNumFuncEvals(void *kinmem, long int *nfevalsS)
 {
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
@@ -412,7 +412,7 @@ int KINSpilsGetNumFuncEvals(void *kinmem, indextype *nfevalsS)
  * -----------------------------------------------------------------
  */
 
-int KINSpilsGetLastFlag(void *kinmem, indextype *flag)
+int KINSpilsGetLastFlag(void *kinmem, long int *flag)
 {
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
@@ -442,7 +442,7 @@ int KINSpilsGetLastFlag(void *kinmem, indextype *flag)
  * -----------------------------------------------------------------
  */
 
-char *KINSpilsGetReturnFlagName(indextype flag)
+char *KINSpilsGetReturnFlagName(long int flag)
 {
   char *name;
 

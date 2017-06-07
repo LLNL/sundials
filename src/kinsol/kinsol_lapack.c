@@ -395,7 +395,7 @@ static int kinLapackDenseSetup(KINMem kin_mem)
   dgetrf_f77(&intn, &intn, J->data, &intn, pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return -1 */
-  last_flag = (indextype) ier;
+  last_flag = (long int) ier;
   if (ier > 0) return(-1);
 
   return(0);
@@ -540,7 +540,7 @@ static int kinLapackBandSetup(KINMem kin_mem)
   dgbtrf_f77(&intn, &intn, &iml, &imu, J->data, &ldmat, pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return -1 */
-  last_flag = (indextype) ier;
+  last_flag = (long int) ier;
   if (ier > 0) return(-1);
 
   return(0);

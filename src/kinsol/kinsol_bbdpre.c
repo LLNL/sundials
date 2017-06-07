@@ -352,7 +352,7 @@ static int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
   KBBDPrecData pdata;
   KINMem kin_mem;
   int retval;
-  indextype ier;
+  long int ier;
 
   pdata = (KBBDPrecData) bbd_data;
 

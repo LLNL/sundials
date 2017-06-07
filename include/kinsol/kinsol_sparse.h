@@ -145,8 +145,8 @@ SUNDIALS_EXPORT int KINSlsSetSparseJacFn(void *kin_mem_v, KINSlsSparseJacFn jac)
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINSlsGetNumJacEvals(void *kin_mem, indextype *njevals);
-SUNDIALS_EXPORT int KINSlsGetLastFlag(void *kin_mem, indextype *flag);
+SUNDIALS_EXPORT int KINSlsGetNumJacEvals(void *kin_mem, long int *njevals);
+SUNDIALS_EXPORT int KINSlsGetLastFlag(void *kin_mem, long int *flag);
 
 /*
  * -----------------------------------------------------------------
@@ -155,7 +155,7 @@ SUNDIALS_EXPORT int KINSlsGetLastFlag(void *kin_mem, indextype *flag);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT char *KINSlsGetReturnFlagName(indextype flag);
+SUNDIALS_EXPORT char *KINSlsGetReturnFlagName(long int flag);
 
 
 #ifdef __cplusplus

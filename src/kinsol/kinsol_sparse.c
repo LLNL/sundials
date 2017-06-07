@@ -80,7 +80,7 @@ int KINSlsSetSparseJacFn(void *kin_mem_v, KINSlsSparseJacFn jac)
 /*
  * KINSlsGetNumJacEvals returns the number of Jacobian evaluations.
  */
-int KINSlsGetNumJacEvals(void *kin_mem_v, indextype *njevals)
+int KINSlsGetNumJacEvals(void *kin_mem_v, long int *njevals)
 {
   KINMem kin_mem;
   KINSlsMem kinsls_mem;
@@ -109,7 +109,7 @@ int KINSlsGetNumJacEvals(void *kin_mem_v, indextype *njevals)
  * KINSlsGetReturnFlagName returns the name associated with a KINSLS
  * return value.
  */
-char *KINSlsGetReturnFlagName(indextype flag)
+char *KINSlsGetReturnFlagName(long int flag)
 {
   char *name;
 
@@ -150,7 +150,7 @@ char *KINSlsGetReturnFlagName(indextype flag)
 /*
  * KINSlsGetLastFlag returns the last flag set in a KINSLS function.
  */
-int KINSlsGetLastFlag(void *kin_mem_v, indextype *flag)
+int KINSlsGetLastFlag(void *kin_mem_v, long int *flag)
 {
   KINMem kin_mem;
   KINSlsMem kinsls_mem;

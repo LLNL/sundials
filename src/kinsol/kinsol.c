@@ -182,9 +182,9 @@ static int  KINFullNewton(KINMem kin_mem, realtype *fnormp,
                           realtype *f1normp, booleantype *maxStepTaken);
 static int  KINLineSearch(KINMem kin_mem, realtype *fnormp, 
                           realtype *f1normp, booleantype *maxStepTaken);
-static int  KINPicardAA(KINMem kin_mem, indextype *iter, realtype *R, 
+static int  KINPicardAA(KINMem kin_mem, long int *iter, realtype *R, 
 			realtype *gamma, realtype *fmax);
-static int  KINFP(KINMem kin_mem, indextype *iter, realtype *R, 
+static int  KINFP(KINMem kin_mem, long int *iter, realtype *R, 
 		  realtype *gamma, realtype *fmax);
 
 static int  KINLinSolDrv(KINMem kinmem);
@@ -2185,11 +2185,11 @@ void KINErrHandler(int error_code, const char *module,
  * acclerated fixed point. 
  */
 
-static int KINPicardAA(KINMem kin_mem, indextype *iterp, realtype *R, 
+static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R, 
                        realtype *gamma, realtype *fmaxptr)
 {
   int retval, ret; 
-  indextype iter;
+  long int iter;
   realtype fmax, epsmin, fnormp;
   N_Vector delta, gval;
   
@@ -2347,12 +2347,12 @@ static int KINPicardFcnEval(KINMem kin_mem, N_Vector gval, N_Vector uval, N_Vect
  * Anderson Acceleration.
  */
 
-static int KINFP(KINMem kin_mem, indextype *iterp, 
+static int KINFP(KINMem kin_mem, long int *iterp, 
 		 realtype *R, realtype *gamma, 
 		 realtype *fmaxptr)
 {
   int retval, ret; 
-  indextype iter;
+  long int iter;
   realtype fmax;
   N_Vector delta;
   

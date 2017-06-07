@@ -269,7 +269,7 @@ static int kinBandSetup(KINMem kin_mem)
 {
   KINDlsMem kindls_mem;
   int retval;
-  indextype ier;
+  long int ier;
 
   kindls_mem = (KINDlsMem) lmem;
 
