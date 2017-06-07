@@ -30,7 +30,6 @@
 
 #include <cuda_runtime.h>
 #include "ThreadPartitioning.hpp"
-#include <cublas_v2.h>
 
 #include <nvector/nvector_cuda.h>
 
@@ -41,7 +40,13 @@ template <typename T, typename I=int>
 class Vector : public _N_VectorContent_Cuda
 {
 public:
-    Vector(I N) : size_(N), mem_size_(N*sizeof(T)), ownPartitioning_(true), isClone_(false), ownDevData_(true)
+    Vector(I N)
+    : size_(N),
+      mem_size_(N*sizeof(T)),
+      ownPartitioning_(true),
+      isClone_(false),
+      ownHostData_(true),
+      ownDevData_(true)
     {
         // Set partitioning
         partStream_ = new ThreadPartitioning<T, I>(ThreadPartitioning<T,I>::STREAM, N);
@@ -50,13 +55,31 @@ public:
         allocate();
     }
 
-    Vector(I N, T* data) : size_(N), mem_size_(N*sizeof(T)), ownPartitioning_(true), isClone_(false), ownDevData_(false)
+    /// This is temporary solution will be removed.
+    /// Use only if you know what you are doing.
+    Vector(I N, T* data)
+    : size_(N),
+      mem_size_(N*sizeof(T)),
+      ownPartitioning_(true),
+      isClone_(false),
+      ownHostData_(false),
+      ownDevData_(false)
     {
         // Set partitioning
         partStream_ = new ThreadPartitioning<T, I>(ThreadPartitioning<T,I>::STREAM, N);
         partReduce_ = new ThreadPartitioning<T, I>(ThreadPartitioning<T,I>::REDUCTION, N);
 
-        allocate(data);
+        if (data == NULL)
+        {
+          h_vec_ = NULL;
+          d_vec_ = NULL;
+        }
+        else
+        {
+          // Sets pointer to device memory and allocates host memory of size N
+          allocate(data);
+          ownHostData_ = true;
+        }
     }
 
     /// Copy constructor does not copy values
@@ -66,7 +89,9 @@ public:
       partStream_(v.partStream_),
       partReduce_(v.partReduce_),
       ownPartitioning_(false),
-      isClone_(true) ///< temporary, will be removed!
+      isClone_(true), ///< temporary, will be removed!
+      ownHostData_(true),
+      ownDevData_(true)
     {
         allocate();
     }
@@ -93,23 +118,30 @@ public:
             std::cout << "Failed to allocate device vector (error code " << err << ")!\n";
     }
 
+    /// This is temporary solution! Use only if you know what you are doing.
     void allocate(T* data)
     {
-        h_vec_ = static_cast<T*>(malloc(mem_size_));
-        if(h_vec_ == NULL)
-            std::cout << "Failed to allocate host vector!\n";
-        d_vec_ = data;
+      // Allocate host data
+      h_vec_ = static_cast<T*>(malloc(mem_size_));
+      if(h_vec_ == NULL)
+        std::cout << "Failed to allocate host vector!\n";
+
+      // Set pointer to device data
+      d_vec_ = data;
     }
 
     void clear()
     {
+      if(ownHostData_)
+      {
         free(h_vec_);
-        if (ownDevData_)
-        {
-            cudaError_t err = cudaFree(d_vec_);
-            if(err != cudaSuccess)
-                std::cout << "Failed to free device vector (error code " << err << ")!\n";
-        }
+      }
+      if (ownDevData_)
+      {
+        cudaError_t err = cudaFree(d_vec_);
+        if(err != cudaSuccess)
+          std::cout << "Failed to free device vector (error code " << err << ")!\n";
+      }
     }
 
     int size() const
@@ -156,6 +188,32 @@ public:
             std::cout << "Failed to copy vector from device to host (error code " << err << ")!\n";
     }
 
+    /// This is dangerous function and is here only temporary. It will be removed.
+    void setFromHost(T* h_vec)
+    {
+      if (ownHostData_)
+      {
+        free(h_vec_);
+        ownHostData_ = false;
+      }
+      h_vec_ = h_vec;
+      copyToDev();
+    }
+
+    /// This is dangerous function and is here only temporary. It will be removed.
+    void setFromDevice(T* d_vec)
+    {
+      if(ownHostData_)
+      {
+        cudaError_t err = cudaFree(d_vec_);
+        if(err != cudaSuccess)
+          std::cout << "Failed to free device vector (error code " << err << ")!\n";
+        ownDevData_ = false;
+      }
+      d_vec_ = d_vec;
+      // Do not copy to host
+    }
+
     ThreadPartitioning<T, I>* partStream()
     {
         return partStream_;
@@ -185,6 +243,7 @@ private:
     ThreadPartitioning<T, I>* partReduce_;
     bool ownPartitioning_;
     bool isClone_;    ///< temporary, will be removed!
+    bool ownHostData_;
     bool ownDevData_;
 };
 
