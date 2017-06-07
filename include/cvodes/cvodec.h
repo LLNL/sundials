@@ -137,12 +137,12 @@ SUNDIALS_EXPORT void CVSensRhsCS(int Ns, realtype t,
 				 void *fS_data,
 				 N_Vector tmp1, N_Vector tmp2);
 
-SUNDIALS_EXPORT void CVDenseCSJac(indextype N, DenseMat J, realtype t, 
+SUNDIALS_EXPORT void CVDenseCSJac(long int N, DenseMat J, realtype t, 
 				  N_Vector y, N_Vector fy, void *jac_data,
 				  N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   
-SUNDIALS_EXPORT void CVBandCSJac(indextype N, indextype mupper, 
-				 indextype mlower, BandMat J, realtype t, 
+SUNDIALS_EXPORT void CVBandCSJac(long int N, long int mupper, 
+				 long int mlower, BandMat J, realtype t, 
 				 N_Vector y, N_Vector fy, void *jac_data,
 				 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 

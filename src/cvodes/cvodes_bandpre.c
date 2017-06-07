@@ -210,7 +210,7 @@ int CVBandPrecGetWorkSpace(void *cvode_mem, indextype *lenrwBP, indextype *leniw
   return(CVSPILS_SUCCESS);
 }
 
-int CVBandPrecGetNumRhsEvals(void *cvode_mem, indextype *nfevalsBP)
+int CVBandPrecGetNumRhsEvals(void *cvode_mem, long int *nfevalsBP)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
@@ -305,7 +305,7 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   CVBandPrecData pdata;
   CVodeMem cv_mem;
   int retval;
-  indextype ier;
+  long int ier;
 
   /* Assume matrix and lpivots have already been allocated. */
   pdata = (CVBandPrecData) bp_data;

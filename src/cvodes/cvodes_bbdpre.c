@@ -266,7 +266,7 @@ int CVBBDPrecGetWorkSpace(void *cvode_mem, indextype *lenrwBBDP, indextype *leni
   return(CVSPILS_SUCCESS);
 }
 
-int CVBBDPrecGetNumGfnEvals(void *cvode_mem, indextype *ngevalsBBDP)
+int CVBBDPrecGetNumGfnEvals(void *cvode_mem, long int *ngevalsBBDP)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
@@ -371,7 +371,7 @@ static int cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   CVBBDPrecData pdata;
   CVodeMem cv_mem;
   int retval;
-  indextype ier;
+  long int ier;
 
   pdata = (CVBBDPrecData) bbd_data;
 

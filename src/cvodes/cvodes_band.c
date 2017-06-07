@@ -263,7 +263,7 @@ static int cvBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   booleantype jbad, jok;
   realtype dgamma;
   int retval;
-  indextype ier;
+  long int ier;
 
   cvdls_mem = (CVDlsMem) lmem;
 

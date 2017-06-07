@@ -47,10 +47,10 @@ typedef struct {
 
   N_Vector di_bitcomp; /* temporary storage vector                  */
 
-  indextype di_nfeDI;   /* no. of calls to f due to difference 
+  long int di_nfeDI;   /* no. of calls to f due to difference 
 			  quotient diagonal Jacobian approximation  */
 
-  indextype di_last_flag; /* last error return flag                  */
+  long int di_last_flag; /* last error return flag                  */
 
 } CVDiagMemRec, *CVDiagMem;
 

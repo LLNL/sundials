@@ -223,7 +223,7 @@ int CVodeSetMaxOrdB(void *cvode_mem, int which, int maxordB)
 }
 
 
-int CVodeSetMaxNumStepsB(void *cvode_mem, int which, indextype mxstepsB)
+int CVodeSetMaxNumStepsB(void *cvode_mem, int which, long int mxstepsB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;

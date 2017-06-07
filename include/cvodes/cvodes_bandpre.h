@@ -154,7 +154,7 @@ SUNDIALS_EXPORT int CVBandPrecInit(void *cvode_mem, indextype N, indextype mu, i
  */
 
 SUNDIALS_EXPORT int CVBandPrecGetWorkSpace(void *cvode_mem, indextype *lenrwLS, indextype *leniwLS);
-SUNDIALS_EXPORT int CVBandPrecGetNumRhsEvals(void *cvode_mem, indextype *nfevalsBP);
+SUNDIALS_EXPORT int CVBandPrecGetNumRhsEvals(void *cvode_mem, long int *nfevalsBP);
 
 /* 
  * =================================================================

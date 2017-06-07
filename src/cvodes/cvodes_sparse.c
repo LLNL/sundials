@@ -97,7 +97,7 @@ int CVSlsSetSparseJacFn(void *cvode_mem, CVSlsSparseJacFn jac)
 /*
  * CVSlsGetNumJacEvals returns the number of Jacobian evaluations.
  */
-int CVSlsGetNumJacEvals(void *cvode_mem, indextype *njevals)
+int CVSlsGetNumJacEvals(void *cvode_mem, long int *njevals)
 {
   CVodeMem cv_mem;
   CVSlsMem cvsls_mem;
@@ -125,7 +125,7 @@ int CVSlsGetNumJacEvals(void *cvode_mem, indextype *njevals)
  * CVSlsGetReturnFlagName returns the name associated with a CVSLS
  * return value.
  */
-char *CVSlsGetReturnFlagName(indextype flag)
+char *CVSlsGetReturnFlagName(long int flag)
 {
   char *name;
 
@@ -166,7 +166,7 @@ char *CVSlsGetReturnFlagName(indextype flag)
 /*
  * CVSlsGetLastFlag returns the last flag set in a CVSLS function.
  */
-int CVSlsGetLastFlag(void *cvode_mem, indextype *flag)
+int CVSlsGetLastFlag(void *cvode_mem, long int *flag)
 {
   CVodeMem cv_mem;
   CVSlsMem cvsls_mem;

@@ -81,13 +81,13 @@ typedef struct CVDlsMemRec {
   int *d_pivots;          /* pivots = int pivot array for PM = LU         */
   indextype *d_lpivots;    /* lpivots = indextype pivot array for PM = LU   */
   
-  indextype  d_nstlj;      /* nstlj = nst at last Jacobian eval.           */
+  long int  d_nstlj;      /* nstlj = nst at last Jacobian eval.           */
 
-  indextype d_nje;         /* nje = no. of calls to jac                    */
+  long int d_nje;         /* nje = no. of calls to jac                    */
 
-  indextype d_nfeDQ;       /* no. of calls to f due to DQ Jacobian approx. */
+  long int d_nfeDQ;       /* no. of calls to f due to DQ Jacobian approx. */
 
-  indextype d_last_flag;   /* last error return flag                       */
+  long int d_last_flag;   /* last error return flag                       */
   
 } *CVDlsMem;
 

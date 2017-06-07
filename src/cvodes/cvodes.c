@@ -546,7 +546,7 @@ static int cvStgr1NewtonIteration(CVodeMem cv_mem, int is);
 static int cvQuadSensNls(CVodeMem cv_mem);
 
 static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
-                         int *ncfPtr, indextype *ncfnPtr);
+                         int *ncfPtr, long int *ncfnPtr);
 
 static void cvRestore(CVodeMem cv_mem, realtype saved_t);
 
@@ -554,7 +554,7 @@ static void cvRestore(CVodeMem cv_mem, realtype saved_t);
 
 static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t, 
                          realtype acor_nrm,
-                         int *nefPtr, indextype *netfPtr, realtype *dsmPtr);
+                         int *nefPtr, long int *netfPtr, realtype *dsmPtr);
 
 /* Function called after a successful step */
 
@@ -1593,9 +1593,9 @@ int CVodeSensInit1(void *cvode_mem, int Ns, int ism, CVSensRhs1Fn fS1, N_Vector 
     ncfS1 = NULL;
     ncfS1 = (int*)malloc(Ns*sizeof(int));
     ncfnS1 = NULL;
-    ncfnS1 = (indextype*)malloc(Ns*sizeof(indextype));
+    ncfnS1 = (long int*)malloc(Ns*sizeof(long int));
     nniS1 = NULL;
-    nniS1 = (indextype*)malloc(Ns*sizeof(indextype));
+    nniS1 = (long int*)malloc(Ns*sizeof(long int));
     if ( (ncfS1 == NULL) || (ncfnS1 == NULL) || (nniS1 == NULL) ) {
       cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES", "CVodeSensInit1", MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
@@ -1728,9 +1728,9 @@ int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0)
     ncfS1 = NULL;
     ncfS1 = (int*)malloc(Ns*sizeof(int));
     ncfnS1 = NULL;
-    ncfnS1 = (indextype*)malloc(Ns*sizeof(indextype));
+    ncfnS1 = (long int*)malloc(Ns*sizeof(long int));
     nniS1 = NULL;
-    nniS1 = (indextype*)malloc(Ns*sizeof(indextype));
+    nniS1 = (long int*)malloc(Ns*sizeof(long int));
     if ( (ncfS1==NULL) || (ncfnS1==NULL) || (nniS1==NULL) ) {
       cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES", "CVodeSensReInit", MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
@@ -2626,7 +2626,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
           realtype *tret, int itask)
 {
   CVodeMem cv_mem;
-  indextype nstloc; 
+  long int nstloc; 
   int retval, hflag, kflag, istate, is, ir, ier, irfndp;
   realtype troundoff, tout_hin, rh, nrm;
   booleantype inactive_roots;
@@ -7014,7 +7014,7 @@ static int cvStgr1NewtonIteration(CVodeMem cv_mem, int is)
  */
 
 static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
-                         int *ncfPtr, indextype *ncfnPtr)
+                         int *ncfPtr, long int *ncfnPtr)
 {
   int nflag;
   
@@ -7139,7 +7139,7 @@ static void cvRestore(CVodeMem cv_mem, realtype saved_t)
 
 static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t, 
                          realtype acor_nrm,
-                         int *nefPtr, indextype *netfPtr, realtype *dsmPtr)
+                         int *nefPtr, long int *netfPtr, realtype *dsmPtr)
 {
   realtype dsm;
   int retval, is;

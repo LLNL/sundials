@@ -287,9 +287,9 @@ SUNDIALS_EXPORT int CVDlsSetBandJacFn(void *cvode_mem, CVDlsBandJacFn jac);
  */
 
 SUNDIALS_EXPORT int CVDlsGetWorkSpace(void *cvode_mem, indextype *lenrwLS, indextype *leniwLS);
-SUNDIALS_EXPORT int CVDlsGetNumJacEvals(void *cvode_mem, indextype *njevals);
-SUNDIALS_EXPORT int CVDlsGetNumRhsEvals(void *cvode_mem, indextype *nfevalsLS);
-SUNDIALS_EXPORT int CVDlsGetLastFlag(void *cvode_mem, indextype *flag);
+SUNDIALS_EXPORT int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals);
+SUNDIALS_EXPORT int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
+SUNDIALS_EXPORT int CVDlsGetLastFlag(void *cvode_mem, long int *flag);
 
 /*
  * -----------------------------------------------------------------
@@ -298,7 +298,7 @@ SUNDIALS_EXPORT int CVDlsGetLastFlag(void *cvode_mem, indextype *flag);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT char *CVDlsGetReturnFlagName(indextype flag);
+SUNDIALS_EXPORT char *CVDlsGetReturnFlagName(long int flag);
 
 /*
  * =================================================================

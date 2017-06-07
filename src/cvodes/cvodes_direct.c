@@ -211,7 +211,7 @@ int CVDlsGetWorkSpace(void *cvode_mem, indextype *lenrwLS, indextype *leniwLS)
 /*
  * CVDlsGetNumJacEvals returns the number of Jacobian evaluations.
  */
-int CVDlsGetNumJacEvals(void *cvode_mem, indextype *njevals)
+int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals)
 {
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
@@ -238,7 +238,7 @@ int CVDlsGetNumJacEvals(void *cvode_mem, indextype *njevals)
  * CVDlsGetNumRhsEvals returns the number of calls to the ODE function
  * needed for the DQ Jacobian approximation.
  */
-int CVDlsGetNumRhsEvals(void *cvode_mem, indextype *nfevalsLS)
+int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
 {
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
@@ -265,7 +265,7 @@ int CVDlsGetNumRhsEvals(void *cvode_mem, indextype *nfevalsLS)
  * CVDlsGetReturnFlagName returns the name associated with a CVDLS
  * return value.
  */
-char *CVDlsGetReturnFlagName(indextype flag)
+char *CVDlsGetReturnFlagName(long int flag)
 {
   char *name;
 
@@ -303,7 +303,7 @@ char *CVDlsGetReturnFlagName(indextype flag)
 /*
  * CVDlsGetLastFlag returns the last flag set in a CVDLS function.
  */
-int CVDlsGetLastFlag(void *cvode_mem, indextype *flag)
+int CVDlsGetLastFlag(void *cvode_mem, long int *flag)
 {
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
