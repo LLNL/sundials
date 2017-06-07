@@ -260,7 +260,7 @@ SUNDIALS_EXPORT int CVBoomerAMGReInit(void *cvode_mem, indextype mudq, indextype
  */
 
 SUNDIALS_EXPORT int CVBoomerAMGGetWorkSpace(void *cvode_mem, indextype *lenrwLS, indextype *leniwLS);
-SUNDIALS_EXPORT int CVBoomerAMGGetNumGfnEvals(void *cvode_mem, indextype *ngevalsBBDP);
+SUNDIALS_EXPORT int CVBoomerAMGGetNumGfnEvals(void *cvode_mem, long int *ngevalsBBDP);
 
 #ifdef __cplusplus
 }

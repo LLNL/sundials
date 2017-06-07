@@ -57,7 +57,7 @@ typedef struct CVBoomerAMGDataRec {
 
   indextype rpwsize;
   indextype ipwsize;
-  indextype nge;
+  long int nge;
   
   int ilower, iupper, jlower, jupper, N;
 

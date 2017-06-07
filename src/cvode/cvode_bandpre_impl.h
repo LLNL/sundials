@@ -52,7 +52,7 @@ typedef struct CVBandPrecDataRec {
 
   /* Rhs calls */
 
-  indextype nfeBP;
+  long int nfeBP;
 
   /* Pointer to cvode_mem */
 

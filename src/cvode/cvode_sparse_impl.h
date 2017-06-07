@@ -60,9 +60,9 @@ typedef struct CVSlsMemRec {
 				  to be called */
   void *s_jacdata;           /* J_data is passed to djac or bjac */
 
-  indextype s_nje;           /* nje = no. of calls to jac */
+  long int s_nje;           /* nje = no. of calls to jac */
 
-  indextype s_last_flag;     /* last error return flag */
+  long int s_last_flag;     /* last error return flag */
 
   int s_first_factorize;    /* flag telling whether the first 
 			       factorization needs to happen */

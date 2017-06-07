@@ -446,7 +446,7 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
   dgetrf_f77(&intn, &intn, M->data, &intn, pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  last_flag = (indextype) ier;
+  last_flag = (long int) ier;
   if (ier > 0) return(1);
   return(0);
 }
@@ -601,7 +601,7 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
   dgbtrf_f77(&intn, &intn, &iml, &imu, M->data, &ldmat, pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  last_flag = (indextype) ier;
+  last_flag = (long int) ier;
   if (ier > 0) return(1);
   return(0);
 

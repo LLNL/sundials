@@ -214,7 +214,7 @@ int CVBoomerAMGSetup(realtype t, N_Vector y, N_Vector fy,
   double values[5];
   int cols[5];
 //printf("Entered setup\n");
-  indextype ier;
+  long int ier;
   CVBoomerAMGData pdata;
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;

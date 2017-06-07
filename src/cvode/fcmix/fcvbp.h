@@ -239,7 +239,7 @@ extern "C" {
 
 /* Prototypes of exported function */
 void FCV_BPINIT(indextype *N, indextype *mu, indextype *ml, int *ier);
-void FCV_BPOPT(indextype *lenrwbp, indextype *leniwbp, indextype *nfebp);
+void FCV_BPOPT(indextype *lenrwbp, indextype *leniwbp, long int *nfebp);
 
 #ifdef __cplusplus
 }

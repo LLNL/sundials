@@ -241,7 +241,7 @@ static int cvDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 {
   booleantype jbad, jok;
   realtype dgamma;
-  indextype ier;
+  long int ier;
   CVDlsMem cvdls_mem;
   int retval;
 

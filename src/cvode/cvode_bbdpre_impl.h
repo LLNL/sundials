@@ -59,7 +59,7 @@ typedef struct CVBBDPrecDataRec {
 
   indextype rpwsize;
   indextype ipwsize;
-  indextype nge;
+  long int nge;
 
   /* pointer to cvode_mem */
 

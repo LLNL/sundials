@@ -162,8 +162,8 @@ SUNDIALS_EXPORT int CVSlsSetSparseJacFn(void *cvode_mem, CVSlsSparseJacFn jac);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVSlsGetNumJacEvals(void *ida_mem, indextype *njevals);
-SUNDIALS_EXPORT int CVSlsGetLastFlag(void *ida_mem, indextype *flag);
+SUNDIALS_EXPORT int CVSlsGetNumJacEvals(void *ida_mem, long int *njevals);
+SUNDIALS_EXPORT int CVSlsGetLastFlag(void *ida_mem, long int *flag);
 
 /*
  * -----------------------------------------------------------------
@@ -172,7 +172,7 @@ SUNDIALS_EXPORT int CVSlsGetLastFlag(void *ida_mem, indextype *flag);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT char *CVSlsGetReturnFlagName(indextype flag);
+SUNDIALS_EXPORT char *CVSlsGetReturnFlagName(long int flag);
 
 
 #ifdef __cplusplus

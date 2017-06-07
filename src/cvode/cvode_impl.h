@@ -151,7 +151,7 @@ typedef struct CVodeMemRec {
     ------*/
 
   int cv_qmax;          /* q <= qmax                                          */
-  indextype cv_mxstep;   /* maximum number of internal steps for one user call */
+  long int cv_mxstep;   /* maximum number of internal steps for one user call */
   int cv_maxcor;        /* maximum number of corrector iterations for the
                            solution of the nonlinear equation                 */
   int cv_mxhnil;        /* maximum number of warning messages issued to the
@@ -167,12 +167,12 @@ typedef struct CVodeMemRec {
     Counters 
     --------*/
 
-  indextype cv_nst;         /* number of internal steps taken                  */
-  indextype cv_nfe;         /* number of f calls                               */
-  indextype cv_ncfn;        /* number of corrector convergence failures        */
-  indextype cv_netf;        /* number of error test failures                   */
-  indextype cv_nni;         /* number of Newton iterations performed           */
-  indextype cv_nsetups;     /* number of setup calls                           */
+  long int cv_nst;         /* number of internal steps taken                  */
+  long int cv_nfe;         /* number of f calls                               */
+  long int cv_ncfn;        /* number of corrector convergence failures        */
+  long int cv_netf;        /* number of error test failures                   */
+  long int cv_nni;         /* number of Newton iterations performed           */
+  long int cv_nsetups;     /* number of setup calls                           */
   int cv_nhnil;            /* number of messages issued to the user that 
                               t + h == t for the next iternal step            */
 
@@ -215,7 +215,7 @@ typedef struct CVodeMemRec {
     ------------*/
 
   int cv_qu;                   /* last successful q value used                */
-  indextype cv_nstlp;           /* step number of last setup call              */
+  long int cv_nstlp;           /* step number of last setup call              */
   realtype cv_h0u;             /* actual initial stepsize                     */
   realtype cv_hu;              /* last successful h value used                */
   realtype cv_saved_tq5;       /* saved value of tq[5]                        */
@@ -243,7 +243,7 @@ typedef struct CVodeMemRec {
   booleantype cv_sldeton;     /* is Stability Limit Detection on?             */
   realtype cv_ssdat[6][4];    /* scaled data array for STALD                  */
   int cv_nscon;               /* counter for STALD method                     */
-  indextype cv_nor;            /* counter for number of order reductions       */
+  long int cv_nor;            /* counter for number of order reductions       */
 
   /*----------------
     Rootfinding Data
@@ -263,7 +263,7 @@ typedef struct CVodeMemRec {
   realtype cv_ttol;        /* tolerance on root location                      */
   int cv_taskc;            /* copy of parameter itask                         */
   int cv_irfnd;            /* flag showing whether last step had a root       */
-  indextype cv_nge;         /* counter for g evaluations                       */
+  long int cv_nge;         /* counter for g evaluations                       */
   booleantype *cv_gactive; /* array with active/inactive event functions      */
   int cv_mxgnull;          /* number of warning messages about possible g==0  */
 

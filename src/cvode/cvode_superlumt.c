@@ -263,7 +263,7 @@ static int cvSuperLUMTSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   int retval, info;
   int nprocs, panel_size, relax, permc_spec, lwork;
   int *perm_r, *perm_c;
-  indextype nst, nstlj;
+  long int nst, nstlj;
   realtype tn, gamma, gammap, dgamma;
   double diag_pivot_thresh, drop_tol;
   fact_t fact;
