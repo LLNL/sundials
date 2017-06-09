@@ -1,4 +1,17 @@
-1. Determine mathematically "optimal" scaling vector to use for
+1. Create SUNMatrix_Dense, SUNMatrix_Band and SUNMatrix_Sparse objects
+   (in files sunmat_dense.[h,c], sunmat_band.[h,c], and
+   sunmat_sparse.[h,c] in the include/sundials and src/sundials
+   folders).  Create testing routines similar to NVector test
+   routines. 
+
+
+2. Convert existing use of dense, band and sparse matrices throughout
+   SUNDIALS (solvers and examples) to instead use the SUNMatrix
+   objects.  Fortran interfaces will work like now, where we extract
+   the data portions to pass through function calls.
+
+
+3. Determine mathematically "optimal" scaling vector to use for
    right/left preconditioning in our scaled/preconditioned iterative
    linear solvers.  For all but KINSOL, we'd previously been sending
    in the tolerance but no scaling vector so we have no basis of
@@ -16,7 +29,8 @@
      tolerance and a weight vector), then we should revert the
      PSolveFn function prototype to remove 'w' and 'tol'.
 
-2. Update all solver-specific, user-supplied 'psolve' routine
+
+4. Update all solver-specific, user-supplied 'psolve' routine
    interfaces to add the weight vector (and possibly tolerance):
    * header files
    * <solver>_spils files
@@ -28,4 +42,25 @@
      'tol', then still update all solver-specific, user-supplied
      'psolve' routine interfaces to *remove* the tolerance.
 
-3. 
+
+5. Create SUNLinSol_Dense, SUNLinSol_Band,
+   SUNLinSol_KLU and SUNLinSol_SuperLUMT objects (in files
+   sunlinsol_dense.[h,c], sunlinsol_band.[h,c],
+   sunlinsol_klu.[h,c] and sunlinsol_superlumt.[h,c] in the
+   include/sundials and src/sundials folders).  Create testing
+   routines similar to NVector test routines.
+
+6. Create SUNLinSol_PCG, SUNLinSol_SPBCGS,
+   SUNLinSol_SPGMR, SUNLinSol_SPFGMR and SUNLinSol_SPTFQMR objects (in
+   files sunlinsol_pcg.[h,c], sunlinsol_spbcgs.[h,c],
+   sunlinsol_spgmr.[h,c], sunlinsol_spfgmr.[h,c] and
+   sunlinsol_sptfqmr.[h,c] in the include/sundials and src/sundials
+   folders).  Create testing routines similar to NVector test
+   routines.
+
+7. Construct ARKode interfaces to utilize these linear solver and
+   matrix objects.
+
+8. Emulate ARKode interfaces within CVODE, CVODES, IDA, IDAS and
+   KINSOL. 
+
