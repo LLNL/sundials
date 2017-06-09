@@ -150,11 +150,15 @@ typedef struct ARKSpilsMassMemRec {
 
 /* Atimes and PSolve routines called by generic solver */
 int ARKSpilsAtimes(void *ark_mem, N_Vector v, N_Vector z);
-int ARKSpilsPSolve(void *ark_mem, N_Vector r, N_Vector z, int lr);
+/* int ARKSpilsPSolve(void *ark_mem, N_Vector r, N_Vector z, int lr); */
+int ARKSpilsPSolve(void *ark_mem, N_Vector r, N_Vector z,
+                   N_Vector w, realtype tol, int lr);
 
 /* Mtimes and MPSolve routines called by mass matrix solver */
 int ARKSpilsMtimes(void *ark_mem, N_Vector v, N_Vector z);
-int ARKSpilsMPSolve(void *ark_mem, N_Vector r, N_Vector z, int lr);
+/* int ARKSpilsMPSolve(void *ark_mem, N_Vector r, N_Vector z, int lr); */
+int ARKSpilsMPSolve(void *ark_mem, N_Vector r, N_Vector w,
+                    realtype tol, N_Vector z, int lr);
 
 /* Difference quotient approximation for Jac times vector */
 int ARKSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,

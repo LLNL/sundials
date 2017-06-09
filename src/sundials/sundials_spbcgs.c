@@ -192,7 +192,8 @@ int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
   /* Apply left preconditioner and b-scaling to r_star = r_0 */
 
   if (preOnLeft) {
-    ier = psolve(P_data, r_star, r, PREC_LEFT);
+    /* ier = psolve(P_data, r_star, r, PREC_LEFT); */
+    ier = psolve(P_data, r_star, r, sb, delta, PREC_LEFT);
     (*nps)++;
     if (ier != 0) return((ier < 0) ? SPBCG_PSOLVE_FAIL_UNREC : SPBCG_PSOLVE_FAIL_REC);
   }
@@ -233,7 +234,8 @@ int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
 
     if (preOnRight) {
       N_VScale(ONE, vtemp, Ap);
-      ier = psolve(P_data, Ap, vtemp, PREC_RIGHT);
+      /* ier = psolve(P_data, Ap, vtemp, PREC_RIGHT); */
+      ier = psolve(P_data, Ap, vtemp, sx, delta, PREC_RIGHT);
       (*nps)++;
       if (ier != 0) return((ier < 0) ? SPBCG_PSOLVE_FAIL_UNREC : SPBCG_PSOLVE_FAIL_REC);
     }
@@ -247,7 +249,8 @@ int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
     /*   Apply left preconditioner: vtemp = P1_inv A P2_inv sx_inv p */
 
     if (preOnLeft) {
-      ier = psolve(P_data, Ap, vtemp, PREC_LEFT);
+      /* ier = psolve(P_data, Ap, vtemp, PREC_LEFT); */
+      ier = psolve(P_data, Ap, vtemp, sb, delta, PREC_LEFT);
       (*nps)++;
       if (ier != 0) return((ier < 0) ? SPBCG_PSOLVE_FAIL_UNREC : SPBCG_PSOLVE_FAIL_REC);
     }
@@ -278,7 +281,8 @@ int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
 
     if (preOnRight) {
       N_VScale(ONE, vtemp, u);
-      ier = psolve(P_data, u, vtemp, PREC_RIGHT);
+      /* ier = psolve(P_data, u, vtemp, PREC_RIGHT); */
+      ier = psolve(P_data, u, vtemp, sx, delta, PREC_RIGHT);
       (*nps)++;
       if (ier != 0) return((ier < 0) ? SPBCG_PSOLVE_FAIL_UNREC : SPBCG_PSOLVE_FAIL_REC);
     }
@@ -292,7 +296,8 @@ int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
     /*   Apply left preconditioner: vtemp = P1_inv A P2_inv sx_inv p */
 
     if (preOnLeft) {
-      ier = psolve(P_data, u, vtemp, PREC_LEFT);
+      /* ier = psolve(P_data, u, vtemp, PREC_LEFT); */
+      ier = psolve(P_data, u, vtemp, sb, delta, PREC_LEFT);
       (*nps)++;
       if (ier != 0) return((ier < 0) ? SPBCG_PSOLVE_FAIL_UNREC : SPBCG_PSOLVE_FAIL_REC);
     }
@@ -349,7 +354,8 @@ int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
 
     if (scale_x) N_VDiv(x, sx, x);
     if (preOnRight) {
-      ier = psolve(P_data, x, vtemp, PREC_RIGHT);
+      /* ier = psolve(P_data, x, vtemp, PREC_RIGHT); */
+      ier = psolve(P_data, x, vtemp, sx, delta, PREC_RIGHT);
       (*nps)++;
       if (ier != 0) return((ier < 0) ? SPBCG_PSOLVE_FAIL_UNREC : SPBCG_PSOLVE_FAIL_REC);
       N_VScale(ONE, vtemp, x);

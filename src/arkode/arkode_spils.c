@@ -1049,7 +1049,9 @@ int ARKSpilsAtimes(void *arkode_mem, N_Vector v, N_Vector z)
  in which preconditioning is not done. This is the only case in 
  which the user's psolve routine is allowed to be NULL.
 ---------------------------------------------------------------*/
-int ARKSpilsPSolve(void *arkode_mem, N_Vector r, N_Vector z, int lr)
+/* int ARKSpilsPSolve(void *arkode_mem, N_Vector r, N_Vector z, int lr) */
+int ARKSpilsPSolve(void *arkode_mem, N_Vector r, N_Vector z,
+                   N_Vector w, realtype tol, int lr)
 {
   ARKodeMem   ark_mem;
   ARKSpilsMem arkspils_mem;
@@ -1063,7 +1065,8 @@ int ARKSpilsPSolve(void *arkode_mem, N_Vector r, N_Vector z, int lr)
 				  arkspils_mem->s_ycur, 
 				  arkspils_mem->s_fcur, r, z, 
 				  ark_mem->ark_gamma, 
-				  arkspils_mem->s_delta, lr, 
+                                  /* arkspils_mem->s_delta, lr */
+				  tol, lr, 
 				  arkspils_mem->s_P_data, 
 				  arkspils_mem->s_ytemp);
 
@@ -1104,7 +1107,9 @@ int ARKSpilsMtimes(void *arkode_mem, N_Vector v, N_Vector z)
  case in which preconditioning is not done. This is the only case 
  in which the user's psolve routine is allowed to be NULL.
 ---------------------------------------------------------------*/
-int ARKSpilsMPSolve(void *arkode_mem, N_Vector r, N_Vector z, int lr)
+/* int ARKSpilsMPSolve(void *arkode_mem, N_Vector r, N_Vector z, int lr) */
+int ARKSpilsMPSolve(void *arkode_mem, N_Vector r, N_Vector z,
+                    N_Vector w, realtype tol, int lr)
 {
   ARKodeMem       ark_mem;
   ARKSpilsMassMem arkspils_mem;
@@ -1115,7 +1120,8 @@ int ARKSpilsMPSolve(void *arkode_mem, N_Vector r, N_Vector z, int lr)
 
   /* This call is counted in nps within the ARKSp***Solve routine */
   retval = arkspils_mem->s_psolve(ark_mem->ark_tn, r, z, 
-				  arkspils_mem->s_delta, lr, 
+                                  /* arkspils_mem->s_delta, lr */
+				  tol, lr, 
 				  arkspils_mem->s_P_data, 
 				  arkspils_mem->s_ytemp);
   return(retval);     

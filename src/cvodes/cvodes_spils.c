@@ -710,7 +710,9 @@ int CVSpilsAtimes(void *cvode_mem, N_Vector v, N_Vector z)
  * -----------------------------------------------------------------
  */
 
-int CVSpilsPSolve(void *cvode_mem, N_Vector r, N_Vector z, int lr)
+/* int CVSpilsPSolve(void *cvode_mem, N_Vector r, N_Vector z, int lr) */
+int CVSpilsPSolve(void *cvode_mem, N_Vector r, N_Vector z,
+                  N_Vector w, realtype tol, int lr)
 {
   CVodeMem   cv_mem;
   CVSpilsMem cvspils_mem;
@@ -720,7 +722,8 @@ int CVSpilsPSolve(void *cvode_mem, N_Vector r, N_Vector z, int lr)
   cvspils_mem = (CVSpilsMem)lmem;
 
   /* This call is counted in nps within the CVSp***Solve routine */
-  retval = psolve(tn, ycur, fcur, r, z, gamma, delta, lr, P_data, ytemp);
+  /* retval = psolve(tn, ycur, fcur, r, z, gamma, delta, lr, P_data, ytemp); */
+  retval = psolve(tn, ycur, fcur, r, z, gamma, tol, lr, P_data, ytemp);
 
   return(retval);     
 }

@@ -21,7 +21,8 @@
  * The function type declarations give the prototypes for the
  * functions to be called within an iterative linear solver, that
  * are responsible for
- *    multiplying A by a given vector v (ATimesFn), and
+ *    multiplying A by a given vector v (ATimesFn), 
+ *    setting up a preconditioner P (PSetupFn), and
  *    solving the preconditioner equation Pz = r (PSolveFn).
  * -----------------------------------------------------------------
  */
@@ -87,6 +88,19 @@ enum { MODIFIED_GS = 1, CLASSICAL_GS = 2 };
 
 typedef int (*ATimesFn)(void *A_data, N_Vector v, N_Vector z);
 
+/* 
+ * -----------------------------------------------------------------
+ * Type: PSetupFn
+ * -----------------------------------------------------------------
+ * A PSetupFn is an integrator-supplied routine that accesses data
+ * stored in the integrator memory structure (P_data), and calls 
+ * the user-supplied, integrator-specific preconditioner setup 
+ * routine. 
+ * -----------------------------------------------------------------
+ */
+ 
+typedef int (*PSetupFn)(void *P_data);
+
 /*
  * -----------------------------------------------------------------
  * Type: PSolveFn                                                 
@@ -99,7 +113,12 @@ typedef int (*ATimesFn)(void *A_data, N_Vector v, N_Vector z);
  * is to be taken as the left preconditioner or the right         
  * preconditioner: lr = 1 for left and lr = 2 for right.          
  * If preconditioning is on one side only, lr can be ignored.     
- * The vector r is unchanged.                                     
+ * If the preconditioner is iterative, then it should strive to 
+ * solve the preconditioner equation so that
+ *     || Pz - r ||_wrms < tol
+ * where the weight vector for the WRMS norm is provided by the
+ * input vector w.
+ * The vector r should not be modified by the PSolveFn.
  * A PSolveFn returns 0 if successful and a non-zero value if     
  * unsuccessful.  On a failure, a negative return value indicates 
  * an unrecoverable condition, while a positive value indicates   
@@ -108,7 +127,9 @@ typedef int (*ATimesFn)(void *A_data, N_Vector v, N_Vector z);
  * -----------------------------------------------------------------
  */
 
-typedef int (*PSolveFn)(void *P_data, N_Vector r, N_Vector z, int lr);
+/* typedef int (*PSolveFn)(void *P_data, N_Vector r, N_Vector z, int lr); */
+typedef int (*PSolveFn)(void *P_data, N_Vector r, N_Vector z,
+                        N_Vector w, realtype tol, int lr);
 
 /*
  * -----------------------------------------------------------------

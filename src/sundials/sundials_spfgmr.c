@@ -242,7 +242,8 @@ int SpfgmrSolve(SpfgmrMem mem, void *A_data, N_Vector x,
       /*   Apply right preconditioner: vtemp = Z[l] = P_inv s2_inv V[l]. */ 
       if (preOnRight) {
         N_VScale(ONE, vtemp, V[l+1]);
-        ier = psolve(P_data, V[l+1], vtemp, PREC_RIGHT);
+        /* ier = psolve(P_data, V[l+1], vtemp, PREC_RIGHT); */
+        ier = psolve(P_data, V[l+1], vtemp, s2, delta, PREC_RIGHT);
         (*nps)++;
         if (ier != 0)
           return((ier < 0) ? SPFGMR_PSOLVE_FAIL_UNREC : SPFGMR_PSOLVE_FAIL_REC);
