@@ -1,0 +1,31 @@
+1. Determine mathematically "optimal" scaling vector to use for
+   right/left preconditioning in our scaled/preconditioned iterative
+   linear solvers.  For all but KINSOL, we'd previously been sending
+   in the tolerance but no scaling vector so we have no basis of
+   comparison from existing code; hence we should figure out the most
+   mathematically usable/robust choice.
+
+   * Note: technically, only FGMRES is designed to be used with an
+     iterative preconditioner; all the others assume that the
+     preconditioner is a *fixed* linear operator.  So it might be that
+     we should use sx/sb as the optimal scaling vector, but that the
+     preconditioner tolerance should be tighter than the iterative
+     linear solver tolerance.
+
+   * Note: if this doesn't make sense mathematically (to supply a
+     tolerance and a weight vector), then we should revert the
+     PSolveFn function prototype to remove 'w' and 'tol'.
+
+2. Update all solver-specific, user-supplied 'psolve' routine
+   interfaces to add the weight vector (and possibly tolerance):
+   * header files
+   * <solver>_spils files
+   * example files
+   * documentation
+   * release notes
+
+   * Note: if our resolution to 1 above is to remove both 'w' and
+     'tol', then still update all solver-specific, user-supplied
+     'psolve' routine interfaces to *remove* the tolerance.
+
+3. 
