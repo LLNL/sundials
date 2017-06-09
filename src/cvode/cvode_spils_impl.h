@@ -111,7 +111,9 @@ typedef struct CVSpilsMemRec {
 
 int CVSpilsAtimes(void *cv_mem, N_Vector v, N_Vector z);
 
-int CVSpilsPSolve(void *cv_mem, N_Vector r, N_Vector z, int lr);
+/* int CVSpilsPSolve(void *cv_mem, N_Vector r, N_Vector z, int lr); */
+int CVSpilsPSolve(void *cv_mem, N_Vector r, N_Vector z,
+                  N_Vector w, realtype tol, int lr);
 
 /* Difference quotient approximation for Jac times vector */
 
