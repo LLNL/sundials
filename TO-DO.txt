@@ -1,6 +1,6 @@
 1. Create SUNMatrix_Dense, SUNMatrix_Band and SUNMatrix_Sparse objects
-   (in files sunmat_dense.[h,c], sunmat_band.[h,c], and
-   sunmat_sparse.[h,c] in the include/sundials and src/sundials
+   (in files sunmatrix_dense.[h,c], sunmatrix_band.[h,c], and
+   sunmatrix_sparse.[h,c] in the include/sunmatrix and src/sunmat_*
    folders).  Create testing routines similar to NVector test
    routines. 
 
