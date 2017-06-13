@@ -36,17 +36,22 @@ extern "C" {
 /* define MPI data types */
 
 #if defined(SUNDIALS_SINGLE_PRECISION)
-#define SPVEC_REAL_MPI_TYPE MPI_FLOAT
-
+  #define SPVEC_REAL_MPI_TYPE MPI_FLOAT
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-#define SPVEC_REAL_MPI_TYPE MPI_DOUBLE
-
+  #define SPVEC_REAL_MPI_TYPE MPI_DOUBLE
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SPVEC_REAL_MPI_TYPE MPI_LONG_DOUBLE
-
+  #define SPVEC_REAL_MPI_TYPE MPI_LONG_DOUBLE
 #endif
 
-#define SPVEC_INTEGER_MPI_TYPE MPI_LONG
+#if defined(SUNDIALS_SIGNED_64BIT_TYPE)
+  #define SPVEC_INTEGER_MPI_TYPE MPI_LONG
+#elif defined(SUNDIALS_UNSIGNED_64BIT_TYPE)
+  #define SPVEC_INTEGER_MPI_TYPE MPI_UNSIGNED_LONG
+#elif defined(SUNDIALS_SIGNED_32BIT_TYPE)
+  #define SPVEC_INTEGER_MPI_TYPE MPI_INT
+#elif defined(SUNDIALS_UNSIGNED_32BIT_TYPE)
+  #define SPVEC_INTEGER_MPI_TYPE MPI_UNSIGNED
+#endif
 
 /* The SPCPARALLEL implementation of the N_Vector 'content' structure 
  * contains the global length of the vector, local valid lengths and 
