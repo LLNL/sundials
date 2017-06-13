@@ -315,7 +315,7 @@ int CPBBDPrecGetWorkSpace(void *cpode_mem, indextype *lenrwBBDP, indextype *leni
 }
 
 
-int CPBBDPrecGetNumGfnEvals(void *cpode_mem, indextype *ngevalsBBDP)
+int CPBBDPrecGetNumGfnEvals(void *cpode_mem, long int *ngevalsBBDP)
 {
   CPodeMem cp_mem;
   CPSpilsMem cpspils_mem;

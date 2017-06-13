@@ -80,7 +80,15 @@ extern "C" {
   #define PVEC_REAL_MPI_TYPE MPI_LONG_DOUBLE
 #endif
 
-#define PVEC_INTEGER_MPI_TYPE MPI_LONG
+#if defined(SUNDIALS_SIGNED_64BIT_TYPE)
+  #define PVEC_INTEGER_MPI_TYPE MPI_LONG
+#elif defined(SUNDIALS_UNSIGNED_64BIT_TYPE)
+  #define PVEC_INTEGER_MPI_TYPE MPI_UNSIGNED_LONG
+#elif defined(SUNDIALS_SIGNED_32BIT_TYPE)
+  #define PVEC_INTEGER_MPI_TYPE MPI_INT
+#elif defined(SUNDIALS_UNSIGNED_32BIT_TYPE)
+  #define PVEC_INTEGER_MPI_TYPE MPI_UNSIGNED
+#endif
 
 /* 
  * Parallel implementation of the N_Vector 'content' structure

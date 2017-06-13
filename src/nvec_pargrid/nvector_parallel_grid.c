@@ -94,11 +94,11 @@ static void VScaleBy_Parallel_Grid(realtype a, N_Vector x);
  */
 
 N_Vector N_VNewEmpty_Parallel_Grid(MPI_Comm comm, 
-				   indextype dims,
+				   int dims,
 				   indextype *dim_length,
 				   indextype *dim_alength,
 				   indextype *dim_offset,
-				   indextype F_ordering,
+				   booleantype F_ordering,
 				   indextype global_length)
 {
   N_Vector v;
@@ -113,7 +113,7 @@ N_Vector N_VNewEmpty_Parallel_Grid(MPI_Comm comm,
 	   MAX_DIMS);
     return(NULL);
   }
-  if (dims == 0) {
+  if (dims <= 0) {
     printf("N_VNew_Parallel_Grid error -- dims must be at least 1\n\n");
     return(NULL);
   }
@@ -172,15 +172,15 @@ N_Vector N_VNewEmpty_Parallel_Grid(MPI_Comm comm,
   if (content == NULL) { free(ops); free(v); return(NULL); }
 
   /* Attach vector components */
-  content->dims          = dims;
+  content->dims = dims;
   for (i=0; i<dims; i++)  content->dim_length[i]  = dim_length[i];
   for (i=0; i<dims; i++)  content->dim_alength[i] = dim_alength[i];
   for (i=0; i<dims; i++)  content->dim_offset[i]  = dim_offset[i];
   content->global_length = global_length;
-  content->comm          = comm;
-  content->own_data      = FALSE;
-  content->F_ordering    = (F_ordering == 1) ? TRUE : FALSE;
-  content->data          = NULL;
+  content->comm       = comm;
+  content->own_data   = FALSE;
+  content->F_ordering = F_ordering;
+  content->data       = NULL;
 
   /* set additional dimensions to have length 1, offset 0 */
   for (i=dims; i<MAX_DIMS; i++)  content->dim_length[i]  = 1;
@@ -209,16 +209,17 @@ N_Vector N_VNewEmpty_Parallel_Grid(MPI_Comm comm,
  */
 
 N_Vector N_VNew_Parallel_Grid(MPI_Comm comm, 
-			      indextype dims,
+			      int dims,
 			      indextype *dim_length,
 			      indextype *dim_alength,
 			      indextype *dim_offset,
-			      indextype F_ordering,
+			      booleantype F_ordering,
 			      indextype global_length)
 {
   N_Vector v;
   realtype *data;
-  indextype i, local_length;
+  indextype local_length;
+  int i;
 
   v = NULL;
   v = N_VNewEmpty_Parallel_Grid(comm, dims, dim_length, dim_alength, 
@@ -252,11 +253,11 @@ N_Vector N_VNew_Parallel_Grid(MPI_Comm comm,
  */
 
 N_Vector N_VMake_Parallel_Grid(MPI_Comm comm, 
-			       indextype dims,
+			       int dims,
 			       indextype *dim_length,
 			       indextype *dim_alength,
 			       indextype *dim_offset,
-			       indextype F_ordering,
+			       booleantype F_ordering,
 			       indextype global_length,
 			       realtype *v_data)
 {
@@ -353,9 +354,10 @@ void N_VDestroyVectorArray_Parallel_Grid(N_Vector *vs, int count)
 void N_VPrint_Parallel_Grid(N_Vector x)
 {
   indextype i, i0, i1, i2, i3, i4, i5;
-  indextype dims, N[MAX_DIMS], n[MAX_DIMS], o[MAX_DIMS];
+  indextype N[MAX_DIMS], n[MAX_DIMS], o[MAX_DIMS];
   booleantype Forder;
   realtype *xd = NULL;
+  int dims;
 
   /* get array dimensions */
   Forder = NV_FORDER_PG(x);
@@ -483,9 +485,10 @@ void N_VPrint_Parallel_Grid(N_Vector x)
 void N_VPrintAll_Parallel_Grid(N_Vector x)
 {
   indextype i, i0, i1, i2, i3, i4, i5;
-  indextype dims, N[MAX_DIMS], o[MAX_DIMS];
+  indextype N[MAX_DIMS], o[MAX_DIMS];
   booleantype Forder;
   realtype *xd = NULL;
+  int dims;
 
   /* get array dimensions */
   dims = NV_DIMS_PG(x);
@@ -1495,7 +1498,8 @@ static booleantype VCheck_Compatible(N_Vector x, N_Vector y)
 {
   /* This function checks that the two input vector layouts match */
 
-  indextype N, M, i;
+  indextype N, M;
+  int i;
 
   /* check for matching dims */
   N = NV_DIMS_PG(x);
@@ -1548,7 +1552,8 @@ static booleantype VCheck_Compatible(N_Vector x, N_Vector y)
 static indextype NV_DATALEN_PG(N_Vector x) {
 
   /* simple routine to output the local vector data length */
-  indextype N, i;
+  indextype N;
+  int i;
   N = 1;
   for (i=0; i<MAX_DIMS; i++)  N *= NV_ARRAYLEN_PG(x,i);
 

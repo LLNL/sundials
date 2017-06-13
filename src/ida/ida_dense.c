@@ -232,7 +232,7 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
                          N_Vector tmp3)
 {
   int retval;
-  long int retfac;
+  indextype retfac;
   IDADlsMem idadls_mem;
   
   idadls_mem = (IDADlsMem) lmem;
@@ -258,7 +258,7 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   retfac = DenseGETRF(JJ, lpivots);
 
   if (retfac != 0) {
-    last_flag = retfac;
+    last_flag = (long int) retfac;
     return(+1);
   }
   last_flag = IDADLS_SUCCESS;

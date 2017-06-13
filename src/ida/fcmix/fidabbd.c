@@ -146,7 +146,7 @@ int FIDAcfn(indextype Nloc, realtype t, N_Vector yy, N_Vector yp,
 
 /*************************************************/
 
-void FIDA_BBDOPT(indextype *lenrwbbd, indextype *leniwbbd, indextype *ngebbd)
+void FIDA_BBDOPT(indextype *lenrwbbd, indextype *leniwbbd, long int *ngebbd)
 {
   IDABBDPrecGetWorkSpace(IDA_idamem, lenrwbbd, leniwbbd);
   IDABBDPrecGetNumGfnEvals(IDA_idamem, ngebbd);

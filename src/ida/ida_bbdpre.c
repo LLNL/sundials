@@ -270,7 +270,7 @@ int IDABBDPrecGetWorkSpace(void *ida_mem, indextype *lenrwBBDP, indextype *leniw
   return(IDASPILS_SUCCESS);
 }
 
-int IDABBDPrecGetNumGfnEvals(void *ida_mem, indextype *ngevalsBBDP)
+int IDABBDPrecGetNumGfnEvals(void *ida_mem, long int *ngevalsBBDP)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;

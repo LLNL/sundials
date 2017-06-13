@@ -39,8 +39,8 @@ N_Vector F2C_ARKODE_vec;
 
 /* Fortran callable interfaces */
 
-void FNV_INITPG(MPI_Fint *comm, int *code, indextype *dims, indextype *dim_len, 
-		indextype *dim_alen, indextype *dim_off, indextype *F_ordering, 
+void FNV_INITPG(MPI_Fint *comm, int *code, int *dims, indextype *dim_len, 
+		indextype *dim_alen, indextype *dim_off, int *F_ordering, 
 		indextype *glob_len, int *ier)
 {
   MPI_Comm F2C_comm;
@@ -57,25 +57,25 @@ void FNV_INITPG(MPI_Fint *comm, int *code, indextype *dims, indextype *dim_len,
   case FCMIX_CVODE:
     F2C_CVODE_vec = NULL;
     F2C_CVODE_vec = N_VNewEmpty_Parallel_Grid(F2C_comm, *dims, dim_len, dim_alen, 
-					      dim_off, *F_ordering, *glob_len);
+					      dim_off, (booleantype) *F_ordering, *glob_len);
     if (F2C_CVODE_vec == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
     F2C_IDA_vec = NULL;
     F2C_IDA_vec = N_VNewEmpty_Parallel_Grid(F2C_comm, *dims, dim_len, dim_alen, 
-					    dim_off, *F_ordering, *glob_len);
+					    dim_off, (booleantype) *F_ordering, *glob_len);
     if (F2C_IDA_vec == NULL) *ier = -1;
     break;
   case FCMIX_KINSOL:
     F2C_KINSOL_vec = NULL;
     F2C_KINSOL_vec = N_VNewEmpty_Parallel_Grid(F2C_comm, *dims, dim_len, dim_alen, 
-					       dim_off, *F_ordering, *glob_len);
+					       dim_off, (booleantype) *F_ordering, *glob_len);
     if (F2C_KINSOL_vec == NULL) *ier = -1;
     break;
   case FCMIX_ARKODE:
     F2C_ARKODE_vec = NULL;
     F2C_ARKODE_vec = N_VNewEmpty_Parallel_Grid(F2C_comm, *dims, dim_len, dim_alen, 
-					       dim_off, *F_ordering, *glob_len);
+					       dim_off, (booleantype) *F_ordering, *glob_len);
     if (F2C_ARKODE_vec == NULL) *ier = -1;
     break;
   default:
@@ -83,8 +83,8 @@ void FNV_INITPG(MPI_Fint *comm, int *code, indextype *dims, indextype *dim_len,
   }
 }
 
-void FNV_INITPG_Q(MPI_Fint *comm, int *code, indextype *dims, indextype *dim_lenQ, 
-		  indextype *dim_alenQ, indextype *dim_offQ, indextype *F_ordering, 
+void FNV_INITPG_Q(MPI_Fint *comm, int *code, int *dims, indextype *dim_lenQ, 
+		  indextype *dim_alenQ, indextype *dim_offQ, int *F_ordering, 
 		  indextype *glob_lenQ, int *ier)
 {
   MPI_Comm F2C_comm;
@@ -101,13 +101,13 @@ void FNV_INITPG_Q(MPI_Fint *comm, int *code, indextype *dims, indextype *dim_len
   case FCMIX_CVODE:
     F2C_CVODE_vecQ = NULL;
     F2C_CVODE_vecQ = N_VNewEmpty_Parallel_Grid(F2C_comm, *dims, dim_lenQ, dim_alenQ, 
-					       dim_offQ, *F_ordering, *glob_lenQ);
+					       dim_offQ, (booleantype) *F_ordering, *glob_lenQ);
     if (F2C_CVODE_vecQ == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
     F2C_IDA_vecQ = NULL;
     F2C_IDA_vecQ = N_VNewEmpty_Parallel_Grid(F2C_comm, *dims, dim_lenQ, dim_alenQ, 
-					     dim_offQ, *F_ordering, *glob_lenQ);
+					     dim_offQ, (booleantype) *F_ordering, *glob_lenQ);
     if (F2C_IDA_vecQ == NULL) *ier = -1;
     break;
   default:
@@ -115,8 +115,8 @@ void FNV_INITPG_Q(MPI_Fint *comm, int *code, indextype *dims, indextype *dim_len
   }
 }
 
-void FNV_INITPG_B(MPI_Fint *comm, int *code, indextype *dims, indextype *dim_lenB, 
-		  indextype *dim_alenB, indextype *dim_offB, indextype *F_ordering, 
+void FNV_INITPG_B(MPI_Fint *comm, int *code, int *dims, indextype *dim_lenB, 
+		  indextype *dim_alenB, indextype *dim_offB, int *F_ordering, 
 		  indextype *glob_lenB, int *ier)
 {
   MPI_Comm F2C_comm;
@@ -133,13 +133,13 @@ void FNV_INITPG_B(MPI_Fint *comm, int *code, indextype *dims, indextype *dim_len
   case FCMIX_CVODE:
     F2C_CVODE_vecB = NULL;
     F2C_CVODE_vecB = N_VNewEmpty_Parallel_Grid(F2C_comm, *dims, dim_lenB, dim_alenB, 
-					       dim_offB, *F_ordering, *glob_lenB);
+					       dim_offB, (booleantype) *F_ordering, *glob_lenB);
     if (F2C_CVODE_vecB == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
     F2C_IDA_vecB = NULL;
     F2C_IDA_vecB = N_VNewEmpty_Parallel_Grid(F2C_comm, *dims, dim_lenB, dim_alenB, 
-					     dim_offB, *F_ordering, *glob_lenB);
+					     dim_offB, (booleantype) *F_ordering, *glob_lenB);
     if (F2C_IDA_vecB == NULL) *ier = -1;
     break;
   default:
@@ -147,8 +147,8 @@ void FNV_INITPG_B(MPI_Fint *comm, int *code, indextype *dims, indextype *dim_len
   }
 }
 
-void FNV_INITPG_QB(MPI_Fint *comm, int *code, indextype *dims, indextype *dim_lenQB, 
-		   indextype *dim_alenQB, indextype *dim_offQB, indextype *F_ordering, 
+void FNV_INITPG_QB(MPI_Fint *comm, int *code, int *dims, indextype *dim_lenQB, 
+		   indextype *dim_alenQB, indextype *dim_offQB, int *F_ordering, 
 		   indextype *glob_lenQB, int *ier)
 {
   MPI_Comm F2C_comm;
@@ -166,13 +166,13 @@ void FNV_INITPG_QB(MPI_Fint *comm, int *code, indextype *dims, indextype *dim_le
   case FCMIX_CVODE:
     F2C_CVODE_vecQB = NULL;
     F2C_CVODE_vecQB = N_VNewEmpty_Parallel_Grid(F2C_comm, *dims, dim_lenQB, dim_alenQB, 
-						dim_offQB, *F_ordering, *glob_lenQB);
+						dim_offQB, (booleantype) *F_ordering, *glob_lenQB);
     if (F2C_CVODE_vecQB == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
     F2C_IDA_vecQB = NULL;
     F2C_IDA_vecQB = N_VNewEmpty_Parallel_Grid(F2C_comm, *dims, dim_lenQB, dim_alenQB, 
-					      dim_offQB, *F_ordering, *glob_lenQB);
+					      dim_offQB, (booleantype) *F_ordering, *glob_lenQB);
     if (F2C_IDA_vecQB == NULL) *ier = -1;
     break;
   default:
@@ -180,7 +180,7 @@ void FNV_INITPG_QB(MPI_Fint *comm, int *code, indextype *dims, indextype *dim_le
   }
 }
 
-void FNV_INITPG_S(int *code, indextype *Ns, int *ier)
+void FNV_INITPG_S(int *code, int *Ns, int *ier)
 {
   *ier = 0;
 

@@ -296,7 +296,7 @@ static int arkDenseSetup(ARKodeMem ark_mem, int convfail,
   ier = DenseGETRF(arkdls_mem->d_M, arkdls_mem->d_lpivots); 
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  arkdls_mem->d_last_flag = ier;
+  arkdls_mem->d_last_flag = (long int) ier;
   if (ier > 0) return(1);
   return(0);
 }
@@ -496,7 +496,7 @@ static int arkMassDenseInit(ARKodeMem ark_mem)
 static int arkMassDenseSetup(ARKodeMem ark_mem, N_Vector vtemp1, 
 			     N_Vector vtemp2, N_Vector vtemp3)
 {
-  long int ier;
+  indextype ier;
   ARKDlsMassMem arkdls_mem;
   int retval;
 
@@ -527,7 +527,7 @@ static int arkMassDenseSetup(ARKodeMem ark_mem, N_Vector vtemp1,
   ier = DenseGETRF(arkdls_mem->d_M_lu, arkdls_mem->d_lpivots); 
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  arkdls_mem->d_last_flag = ier;
+  arkdls_mem->d_last_flag = (long int) ier;
   if (ier > 0) return(1);
   return(0);
 }

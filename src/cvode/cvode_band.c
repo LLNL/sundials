@@ -306,7 +306,7 @@ static int cvBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
   /* Return 0 if the LU was complete; otherwise return 1 */
   if (ier > 0) {
-    last_flag = ier;
+    last_flag = (long int) ier;
     return(1);
   }
   last_flag = CVDLS_SUCCESS;

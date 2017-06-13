@@ -326,7 +326,7 @@ void FIDA_BBDINIT(indextype *Nloc, indextype *mudq, indextype *mldq,
 void FIDA_BBDREINIT(indextype *Nloc, indextype *mudq, indextype *mldq,
 		    realtype *dqrely, int *ier);
 
-void FIDA_BBDOPT(indextype *lenrwbbd, indextype *leniwbbd, indextype *ngebbd);
+void FIDA_BBDOPT(indextype *lenrwbbd, indextype *leniwbbd, long int *ngebbd);
 
 /* Prototypes: Functions Called by the IDABBD Module */
 

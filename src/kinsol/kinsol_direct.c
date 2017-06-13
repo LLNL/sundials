@@ -201,7 +201,7 @@ int KINDlsGetWorkSpace(void *kinmem, indextype *lenrwLS, indextype *leniwLS)
  * -----------------------------------------------------------------
  */
 
-int KINDlsGetNumJacEvals(void *kinmem, indextype *njevals)
+int KINDlsGetNumJacEvals(void *kinmem, long int *njevals)
 {
   KINMem kin_mem;
   KINDlsMem kindls_mem;
@@ -230,7 +230,7 @@ int KINDlsGetNumJacEvals(void *kinmem, indextype *njevals)
  * -----------------------------------------------------------------
  */
 
-int KINDlsGetNumFuncEvals(void *kinmem, indextype *nfevalsLS)
+int KINDlsGetNumFuncEvals(void *kinmem, long int *nfevalsLS)
 {
   KINMem kin_mem;
   KINDlsMem kindls_mem;

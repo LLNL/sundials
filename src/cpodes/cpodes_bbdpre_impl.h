@@ -58,7 +58,7 @@ typedef struct CPBBDPrecDataRec {
   /* available for optional output */
   indextype rpwsize;
   indextype ipwsize;
-  indextype nge;
+  long int nge;
 
   /* pointer to cpode_mem */
   void *cpode_mem;

@@ -346,7 +346,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 			   realtype gamma, void *bbd_data, 
 			   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  long int ier;
+  indextype ier;
   ARKBBDPrecData pdata;
   ARKodeMem ark_mem;
   int retval;

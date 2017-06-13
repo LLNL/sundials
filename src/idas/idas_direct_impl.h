@@ -52,11 +52,11 @@ typedef struct IDADlsMemRec {
 
   int d_type;               /* Type of Jacobians (DENSE or BAND)             */
 
-  indextype d_n;             /* problem dimension                             */
+  indextype d_n;            /* problem dimension                             */
 
-  indextype d_ml;            /* b_ml = lower bandwidth of savedJ              */
-  indextype d_mu;            /* b_mu = upper bandwidth of savedJ              */ 
-  indextype d_smu;           /* upper bandwith of M = MIN(N-1,b_mu+b_ml)      */
+  indextype d_ml;           /* b_ml = lower bandwidth of savedJ              */
+  indextype d_mu;           /* b_mu = upper bandwidth of savedJ              */ 
+  indextype d_smu;          /* upper bandwith of M = MIN(N-1,b_mu+b_ml)      */
 
   booleantype d_jacDQ;      /* TRUE if using internal DQ Jacobian approx.    */
   IDADlsDenseJacFn d_djac;  /* dense Jacobian routine to be called           */
@@ -66,7 +66,7 @@ typedef struct IDADlsMemRec {
   DlsMat d_J;               /* J = dF/dy + cj*dF/dy'                         */
 
   int *d_pivots;            /* pivots = int pivot array for PM = LU          */
-  indextype *d_lpivots;      /* lpivots = indextype pivot array for PM = LU    */
+  indextype *d_lpivots;     /* lpivots = indextype pivot array for PM = LU   */
   
   long int d_nje;           /* nje = no. of calls to jac                     */
 

@@ -52,11 +52,11 @@ typedef struct CVDlsMemRec {
 
   int d_type;             /* SUNDIALS_DENSE or SUNDIALS_BAND              */
 
-  indextype d_n;           /* problem dimension                            */
+  indextype d_n;          /* problem dimension                            */
 
-  indextype d_ml;          /* lower bandwidth of Jacobian                  */
-  indextype d_mu;          /* upper bandwidth of Jacobian                  */ 
-  indextype d_smu;         /* upper bandwith of M = MIN(N-1,d_mu+d_ml)     */
+  indextype d_ml;         /* lower bandwidth of Jacobian                  */
+  indextype d_mu;         /* upper bandwidth of Jacobian                  */ 
+  indextype d_smu;        /* upper bandwith of M = MIN(N-1,d_mu+d_ml)     */
 
   booleantype d_jacDQ;    /* TRUE if using internal DQ Jacobian approx.   */
   CVDlsDenseJacFn d_djac; /* dense Jacobian routine to be called          */
@@ -67,9 +67,9 @@ typedef struct CVDlsMemRec {
   DlsMat d_savedJ;        /* savedJ = old Jacobian                        */
 
   int *d_pivots;          /* pivots = int pivot array for PM = LU         */
-  indextype *d_lpivots;    /* lpivots = indextype pivot array for PM = LU   */
+  indextype *d_lpivots;   /* lpivots = indextype pivot array for PM = LU  */
 
-  long int  d_nstlj;      /* nstlj = nst at last Jacobian eval.           */
+  long int d_nstlj;       /* nstlj = nst at last Jacobian eval.           */
 
   long int d_nje;         /* nje = no. of calls to jac                    */
 

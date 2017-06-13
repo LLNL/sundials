@@ -75,19 +75,19 @@ extern N_Vector F2C_ARKODE_vec;
 #define MPI_Fint int
 #endif
 
-void FNV_INITPG(MPI_Fint *comm, int *code, indextype *dims, indextype *dim_len, 
-		indextype *dim_alen, indextype *dim_off, indextype *F_ordering, 
+void FNV_INITPG(MPI_Fint *comm, int *code, int *dims, indextype *dim_len, 
+		indextype *dim_alen, indextype *dim_off, int *F_ordering, 
 		indextype *glob_len, int *ier);
-void FNV_INITPG_Q(MPI_Fint *comm, int *code, indextype *dims, indextype *dim_lenQ, 
-		  indextype *dim_alenQ, indextype *dim_offQ, indextype *F_ordering, 
+void FNV_INITPG_Q(MPI_Fint *comm, int *code, int *dims, indextype *dim_lenQ, 
+		  indextype *dim_alenQ, indextype *dim_offQ, int *F_ordering, 
 		  indextype *glob_lenQ, int *ier);
-void FNV_INITPG_B(MPI_Fint *comm, int *code, indextype *dims, indextype *dim_lenB, 
-		  indextype *dim_alenB, indextype *dim_offB, indextype *F_ordering, 
+void FNV_INITPG_B(MPI_Fint *comm, int *code, int *dims, indextype *dim_lenB, 
+		  indextype *dim_alenB, indextype *dim_offB, int *F_ordering, 
 		  indextype *glob_lenB, int *ier);
-void FNV_INITPG_QB(MPI_Fint *comm, int *code, indextype *dims, indextype *dim_lenQB, 
-		   indextype *dim_alenQB, indextype *dim_offQB, indextype *F_ordering, 
+void FNV_INITPG_QB(MPI_Fint *comm, int *code, int *dims, indextype *dim_lenQB, 
+		   indextype *dim_alenQB, indextype *dim_offQB, int *F_ordering, 
 		   indextype *glob_lenQB, int *ier);
-void FNV_INITPG_S(int *code, indextype *Ns, int *ier);
+void FNV_INITPG_S(int *code, int *Ns, int *ier);
 
 #ifdef __cplusplus
 }

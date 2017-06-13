@@ -67,7 +67,7 @@ typedef struct CVSlsMemRec {
   int s_first_factorize;    /* flag telling whether the first 
 			       factorization needs to happen */
 
-  int s_nstlj;              /* time step of last Jacobian evaluation */
+  long int s_nstlj;         /* time step of last Jacobian evaluation */
 
   SlsMat s_JacMat;          /* M = I - gamma * df/dy */
 

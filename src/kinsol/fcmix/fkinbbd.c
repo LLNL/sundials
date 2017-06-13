@@ -133,7 +133,7 @@ int FKINgcomm(indextype Nloc, N_Vector uu, void *user_data)
  * ----------------------------------------------------------------
  */
 
-void FKIN_BBDOPT(indextype *lenrpw, indextype *lenipw, indextype *nge)
+void FKIN_BBDOPT(indextype *lenrpw, indextype *lenipw, long int *nge)
 {
   KINBBDPrecGetWorkSpace(KIN_kinmem, lenrpw, lenipw);
   KINBBDPrecGetNumGfnEvals(KIN_kinmem, nge);

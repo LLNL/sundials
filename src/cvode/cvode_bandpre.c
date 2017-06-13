@@ -299,7 +299,7 @@ static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   CVBandPrecData pdata;
   CVodeMem cv_mem;
   int retval;
-  long int ier;
+  indextype ier;
 
   /* Assume matrix and lpivots have already been allocated. */
   pdata = (CVBandPrecData) bp_data;
