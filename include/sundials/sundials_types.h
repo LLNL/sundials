@@ -3,8 +3,8 @@
  * $Revision$
  * $Date$
  * ----------------------------------------------------------------- 
- * Programmer(s): Scott Cohen, Alan Hindmarsh, Radu Serban, and
- *                Aaron Collier @ LLNL
+ * Programmer(s): Scott Cohen, Alan Hindmarsh, Radu Serban,
+ *                Aaron Collier, and Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
@@ -87,6 +87,34 @@ typedef long double realtype;
 
 #endif
 
+
+/*
+ *------------------------------------------------------------------
+ * Type : indextype
+ *------------------------------------------------------------------
+ * Defines integer type to be used for vector and matrix indices.
+ * User can build sundials to use 32- or 64-bit integers, signed
+ * or unsigned.
+ *------------------------------------------------------------------
+ */
+
+#if defined(SUNDIALS_SIGNED_64BIT_TYPE)
+typedef int64_t indextype;
+#elif defined(SUNDIALS_UNSIGNED_64BIT_TYPE)
+typedef uint64_t indextype;
+#elif defined(SUNDIALS_SIGNED_32BIT_TYPE)
+typedef int32_t indextype;
+#elif defined(SUNDIALS_UNSIGNED_32BIT_TYPE)
+typedef uint32_t
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
+
+
 /*
  *------------------------------------------------------------------
  * Type : booleantype
@@ -116,24 +144,3 @@ typedef long double realtype;
 #define TRUE 1
 #endif
 
-/*
- *------------------------------------------------------------------
- * Type indextype
- *------------------------------------------------------------------
- */
-
-#if defined(SUNDIALS_SIGNED_64BIT_TYPE)
-typedef int64_t indextype;
-#elif defined(SUNDIALS_UNSIGNED_64BIT_TYPE)
-typedef uint64_t indextype;
-#elif defined(SUNDIALS_SIGNED_32BIT_TYPE)
-typedef int32_t indextype;
-#elif defined(SUNDIALS_UNSIGNED_32BIT_TYPE)
-typedef uint32_t
-#endif
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif
