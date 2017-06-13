@@ -285,7 +285,7 @@ int IDABBDPrecGetWorkSpace(void *ida_mem, indextype *lenrwBBDP, indextype *leniw
   return(IDASPILS_SUCCESS);
 }
 
-int IDABBDPrecGetNumGfnEvals(void *ida_mem, indextype *ngevalsBBDP)
+int IDABBDPrecGetNumGfnEvals(void *ida_mem, long int *ngevalsBBDP)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
@@ -376,7 +376,7 @@ static int IDABBDPrecSetup(realtype tt,
                            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   int retval;
-  long int ier;
+  indextype ier;
   IBBDPrecData pdata;
   IDAMem IDA_mem;
 

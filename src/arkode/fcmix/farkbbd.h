@@ -626,7 +626,7 @@ void FARK_BBDINIT(indextype *Nloc, indextype *mudq,
 void FARK_BBDREINIT(indextype *Nloc, indextype *mudq, 
 		    indextype *mldq, realtype* dqrely, int *ier);
 void FARK_BBDOPT(indextype *lenrwbbd, indextype *leniwbbd, 
-		 indextype *ngebbd);
+		 long int *ngebbd);
 
 /* Prototypes: Functions Called by the ARKBBDPRE Module */
 int FARKgloc(indextype Nloc, realtype t, N_Vector yloc, 

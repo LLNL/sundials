@@ -371,7 +371,7 @@ static int cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   CVBBDPrecData pdata;
   CVodeMem cv_mem;
   int retval;
-  long int ier;
+  indextype ier;
 
   pdata = (CVBBDPrecData) bbd_data;
 

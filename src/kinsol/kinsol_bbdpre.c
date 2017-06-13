@@ -252,7 +252,7 @@ int KINBBDPrecGetWorkSpace(void *kinmem, indextype *lenrwBBDP, indextype *leniwB
  *-----------------------------------------------------------------
  */
 
-int KINBBDPrecGetNumGfnEvals(void *kinmem, indextype *ngevalsBBDP)
+int KINBBDPrecGetNumGfnEvals(void *kinmem, long int *ngevalsBBDP)
 {
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
