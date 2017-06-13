@@ -256,7 +256,7 @@ void FIDA_SETIIN(char key_name[], indextype *ival, int *ier)
   if (!strncmp(key_name,"MAX_ORD",7))
     *ier = IDASetMaxOrd(IDA_idamem, (int) *ival);
   else if (!strncmp(key_name,"MAX_NSTEPS",10))
-    *ier = IDASetMaxNumSteps(IDA_idamem, (int) *ival);
+    *ier = IDASetMaxNumSteps(IDA_idamem, (long int) *ival);
   else if (!strncmp(key_name,"MAX_ERRFAIL",11))
     *ier = IDASetMaxErrTestFails(IDA_idamem, (int) *ival);
   else if (!strncmp(key_name,"MAX_NITERS",10))
@@ -264,7 +264,7 @@ void FIDA_SETIIN(char key_name[], indextype *ival, int *ier)
   else if (!strncmp(key_name,"MAX_CONVFAIL",12))
     *ier = IDASetMaxConvFails(IDA_idamem, (int) *ival);
   else if (!strncmp(key_name,"SUPPRESS_ALG",12))
-    *ier = IDASetSuppressAlg(IDA_idamem, (int) *ival);
+    *ier = IDASetSuppressAlg(IDA_idamem, (booleantype) *ival);
   else if (!strncmp(key_name,"MAX_NSTEPS_IC",13))
     *ier = IDASetMaxNumStepsIC(IDA_idamem, (int) *ival);
   else if (!strncmp(key_name,"MAX_NITERS_IC",13)) 
@@ -272,7 +272,7 @@ void FIDA_SETIIN(char key_name[], indextype *ival, int *ier)
   else if (!strncmp(key_name,"MAX_NJE_IC",10))
     *ier = IDASetMaxNumJacsIC(IDA_idamem, (int) *ival);
   else if (!strncmp(key_name,"LS_OFF_IC",9))
-    *ier = IDASetLineSearchOffIC(IDA_idamem, (int) *ival);
+    *ier = IDASetLineSearchOffIC(IDA_idamem, (booleantype) *ival);
   else {
     *ier = -99;
     printf("FIDASETIIN: Unrecognized key.\n\n");

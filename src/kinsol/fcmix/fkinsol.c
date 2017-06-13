@@ -186,21 +186,21 @@ void FKIN_SETIIN(char key_name[], indextype *ival, int *ier)
   if (!strncmp(key_name,"PRNT_LEVEL",10))
     *ier = KINSetPrintLevel(KIN_kinmem, (int) *ival);
   else if (!strncmp(key_name,"MAX_NITERS",10))
-    *ier = KINSetNumMaxIters(KIN_kinmem, (int) *ival);
+    *ier = KINSetNumMaxIters(KIN_kinmem, (long int) *ival);
   else if (!strncmp(key_name,"ETA_FORM",8))
     *ier = KINSetEtaForm(KIN_kinmem, (int) *ival);
   else if (!strncmp(key_name,"MAA",3))
-    *ier = KINSetMAA(KIN_kinmem, (int) *ival);
+    *ier = KINSetMAA(KIN_kinmem, (long int) *ival);
   else if (!strncmp(key_name,"MAX_SETUPS",10))
-    *ier = KINSetMaxSetupCalls(KIN_kinmem, (int) *ival);
+    *ier = KINSetMaxSetupCalls(KIN_kinmem, (long int) *ival);
   else if (!strncmp(key_name,"MAX_SP_SETUPS",13))
-    *ier = KINSetMaxSubSetupCalls(KIN_kinmem, (int) *ival);
+    *ier = KINSetMaxSubSetupCalls(KIN_kinmem, (long int) *ival);
   else if (!strncmp(key_name,"NO_INIT_SETUP",13))
-    *ier = KINSetNoInitSetup(KIN_kinmem, (int) *ival);
+    *ier = KINSetNoInitSetup(KIN_kinmem, (booleantype) *ival);
   else if (!strncmp(key_name,"NO_MIN_EPS",10))
-    *ier = KINSetNoMinEps(KIN_kinmem, (int) *ival);
+    *ier = KINSetNoMinEps(KIN_kinmem, (booleantype) *ival);
   else if (!strncmp(key_name,"NO_RES_MON",10))
-    *ier = KINSetNoResMon(KIN_kinmem, (int) *ival);
+    *ier = KINSetNoResMon(KIN_kinmem, (booleantype) *ival);
   else {
     *ier = -99;
     printf("FKINSETIIN: Unrecognized key.\n\n");

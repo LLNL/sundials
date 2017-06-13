@@ -239,7 +239,7 @@ void FCV_SETIIN(char key_name[], indextype *ival, int *ier)
   if (!strncmp(key_name,"MAX_ORD",7))
     *ier = CVodeSetMaxOrd(CV_cvodemem, (int) *ival);
   else if (!strncmp(key_name,"MAX_NSTEPS",10))
-    *ier = CVodeSetMaxNumSteps(CV_cvodemem, (int) *ival);
+    *ier = CVodeSetMaxNumSteps(CV_cvodemem, (long int) *ival);
   else if (!strncmp(key_name,"MAX_ERRFAIL",11))
     *ier = CVodeSetMaxErrTestFails(CV_cvodemem, (int) *ival);
   else if (!strncmp(key_name,"MAX_NITERS",10))
@@ -249,7 +249,7 @@ void FCV_SETIIN(char key_name[], indextype *ival, int *ier)
   else if (!strncmp(key_name,"HNIL_WARNS",10))
     *ier = CVodeSetMaxHnilWarns(CV_cvodemem, (int) *ival);
   else if (!strncmp(key_name,"STAB_LIM",8))
-    *ier = CVodeSetStabLimDet(CV_cvodemem, (int) *ival);
+    *ier = CVodeSetStabLimDet(CV_cvodemem, (booleantype) *ival);
   else {
     *ier = -99;
     printf("FCVSETIIN: Unrecognized key.\n\n");

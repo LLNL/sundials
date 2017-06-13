@@ -348,7 +348,7 @@ void FARK_SETIIN(char key_name[], indextype *ival, int *ier) {
   else if (!strncmp(key_name, "NONLINEAR", 9)) 
     *ier = ARKodeSetNonlinear(ARK_arkodemem);
   else if (!strncmp(key_name, "FIXEDPOINT", 10)) 
-    *ier = ARKodeSetFixedPoint(ARK_arkodemem, (indextype) *ival);
+    *ier = ARKodeSetFixedPoint(ARK_arkodemem, (long int) *ival);
   else if (!strncmp(key_name, "NEWTON", 6)) 
     *ier = ARKodeSetNewton(ARK_arkodemem);
   else if (!strncmp(key_name, "EXPLICIT", 8)) 
@@ -364,7 +364,7 @@ void FARK_SETIIN(char key_name[], indextype *ival, int *ier) {
   else if (!strncmp(key_name, "ARK_TABLE_NUM", 13)) 
     *ier = ARKodeSetARKTableNum(ARK_arkodemem, (int) ival[0], (int) ival[1]);
   else if (!strncmp(key_name, "MAX_NSTEPS", 10)) 
-    *ier = ARKodeSetMaxNumSteps(ARK_arkodemem, (int) *ival);
+    *ier = ARKodeSetMaxNumSteps(ARK_arkodemem, (long int) *ival);
   else if (!strncmp(key_name, "HNIL_WARNS", 10)) 
     *ier = ARKodeSetMaxHnilWarns(ARK_arkodemem, (int) *ival);
   else if (!strncmp(key_name, "PREDICT_METHOD", 14)) 
