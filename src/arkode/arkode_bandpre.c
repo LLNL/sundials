@@ -274,7 +274,7 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   ARKBandPrecData pdata;
   ARKodeMem ark_mem;
   int retval;
-  long int ier;
+  indextype ier;
 
   /* Assume matrix and lpivots have already been allocated. */
   pdata = (ARKBandPrecData) bp_data;

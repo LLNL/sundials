@@ -252,7 +252,7 @@ static int cvDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   booleantype jbad, jok;
   realtype dgamma;
   int retval;
-  long int ier;
+  indextype ier;
 
   cvdls_mem = (CVDlsMem) lmem;
  
@@ -301,7 +301,7 @@ static int cvDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   ier = DenseGETRF(M, lpivots); 
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  last_flag = ier;
+  last_flag = (long int) ier;
   if (ier > 0) return(1);
   return(0);
 }
