@@ -89,20 +89,20 @@ extern "C" {
  */
   
 struct _SUNMatrixContent_Sparse {
-  int M;
-  int N;
-  int NNZ;
-  int NP;
+  long int M;
+  long int N;
+  long int NNZ;
+  long int NP;
   realtype *data;
   int sparsetype;
-  int *indexvals;
-  int *indexptrs;
+  long int *indexvals;
+  long int *indexptrs;
   /* CSC indices */
-  int **rowvals;
-  int **colptrs;
+  long int **rowvals;
+  long int **colptrs;
   /* CSR indices */
-  int **colvals;
-  int **rowptrs;
+  long int **colvals;
+  long int **rowptrs;
 };
 
 typedef struct _SUNMatrixContent_Sparse *SUNMatrixContent_Sparse;
@@ -120,8 +120,8 @@ typedef struct _SUNMatrixContent_Sparse *SUNMatrixContent_Sparse;
  * SUNMatrix A;
  * SUNMatrixContent_Sparse A_cont;
  * realtype *A_data;
- * int A_nnz, A_np, A_type;
- * int *A_ivals, *A_iptrs;
+ * long int A_nnz, A_np, A_type;
+ * long int *A_ivals, *A_iptrs;
  *
  * (1) SM_CONTENT_S
  *
@@ -207,7 +207,8 @@ typedef struct _SUNMatrixContent_Sparse *SUNMatrixContent_Sparse;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SUNMatrix SUNMatrixNew_Sparse(int M, int N, int NNZ, int sparsetype);
+SUNDIALS_EXPORT SUNMatrix SUNMatrixNew_Sparse(long int M, long int N,
+                                              long int NNZ, int sparsetype);
 
 /*
  * -----------------------------------------------------------------
