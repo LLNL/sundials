@@ -203,7 +203,7 @@ public:
     /// This is dangerous function and is here only temporary. It will be removed.
     void setFromDevice(T* d_vec)
     {
-      if(ownHostData_)
+      if(ownDevData_)
       {
         cudaError_t err = cudaFree(d_vec_);
         if(err != cudaSuccess)
