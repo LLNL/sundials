@@ -108,12 +108,6 @@ typedef int32_t sunindextype;
 typedef uint32_t
 #endif
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif
-
 
 /*
  *------------------------------------------------------------------
@@ -143,4 +137,12 @@ typedef uint32_t
 #ifndef TRUE
 #define TRUE 1
 #endif
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif  /* _SUNDIALSTYPES_H */
+
 
