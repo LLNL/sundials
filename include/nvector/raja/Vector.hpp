@@ -30,7 +30,7 @@
 
 #include <nvector/nvector_raja.h>
 
-namespace rvec
+namespace sunrajavec
 {
 
 template <typename T, typename I=int>
@@ -133,14 +133,14 @@ private:
 
     
 
-} // namespace rvec
-
 // Vector extractor
-inline rvec::Vector<double, long int>* extract_raja(N_Vector v)
+inline sunrajavec::Vector<double, long int>* extract(N_Vector v)
 {
-    return static_cast<rvec::Vector<double, long int>*>(v->content);
+    return static_cast<sunrajavec::Vector<double, long int>*>(v->content);
 }
 
+
+} // namespace sunrajavec
 
 
 

@@ -91,7 +91,7 @@ N_Vector N_VNew_Raja(long int length)
   v = N_VNewEmpty_Raja(length);
   if (v == NULL) return(NULL);
 
-  v->content = new rvec::Vector<realtype, long int>(length);
+  v->content = new sunrajavec::Vector<realtype, long int>(length);
 
   return(v);
 }
@@ -100,7 +100,7 @@ N_Vector N_VNew_Raja(long int length)
 N_Vector N_VMake_Raja(N_VectorContent_Raja c)
 {
   N_Vector v;
-  rvec::Vector<realtype, long int>* x = static_cast<rvec::Vector<realtype, long int>*>(c);
+  sunrajavec::Vector<realtype, long int>* x = static_cast<sunrajavec::Vector<realtype, long int>*>(c);
   long int length = x->size();
 
   v = NULL;
@@ -243,8 +243,8 @@ N_Vector N_VCloneEmpty_Raja(N_Vector w)
 N_Vector N_VClone_Raja(N_Vector w)
 {
   N_Vector v;
-  rvec::Vector<double, long int>* wdat = static_cast<rvec::Vector<double, long int>*>(w->content);
-  rvec::Vector<double, long int>* vdat = new rvec::Vector<double, long int>(*wdat);
+  sunrajavec::Vector<double, long int>* wdat = static_cast<sunrajavec::Vector<double, long int>*>(w->content);
+  sunrajavec::Vector<double, long int>* vdat = new sunrajavec::Vector<double, long int>(*wdat);
   v = NULL;
   v = N_VCloneEmpty_Raja(w);
   if (v == NULL) return(NULL);
@@ -257,7 +257,7 @@ N_Vector N_VClone_Raja(N_Vector w)
 
 void N_VDestroy_Raja(N_Vector v)
 {
-  rvec::Vector<double, long int>* x = static_cast<rvec::Vector<double, long int>*>(v->content);
+  sunrajavec::Vector<double, long int>* x = static_cast<sunrajavec::Vector<double, long int>*>(v->content);
   if (x != NULL) {
     if (!x->isClone()) {
       delete x;
@@ -273,13 +273,13 @@ void N_VDestroy_Raja(N_Vector v)
 
 void N_VSpace_Raja(N_Vector X, long int *lrw, long int *liw)
 {
-    *lrw = (extract_raja(X))->size();
+    *lrw = (sunrajavec::extract(X))->size();
     *liw = 1;
 }
 
 void N_VConst_Raja(realtype c, N_Vector Z)
 {
-  rvec::Vector<realtype, long int> *zv = extract_raja(Z);
+  sunrajavec::Vector<realtype, long int> *zv = sunrajavec::extract(Z);
   const long int N = zv->size();
   realtype *zdata = zv->device();
 
@@ -290,9 +290,9 @@ void N_VConst_Raja(realtype c, N_Vector Z)
 
 void N_VLinearSum_Raja(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector Z)
 {
-  rvec::Vector<realtype, long int> *xv = extract_raja(X);
-  rvec::Vector<realtype, long int> *yv = extract_raja(Y);
-  rvec::Vector<realtype, long int> *zv = extract_raja(Z);
+  sunrajavec::Vector<realtype, long int> *xv = sunrajavec::extract(X);
+  sunrajavec::Vector<realtype, long int> *yv = sunrajavec::extract(Y);
+  sunrajavec::Vector<realtype, long int> *zv = sunrajavec::extract(Z);
   const realtype *xdata = xv->device();
   const realtype *ydata = yv->device();
   const long int N = zv->size();
@@ -305,9 +305,9 @@ void N_VLinearSum_Raja(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector 
 
 void N_VProd_Raja(N_Vector X, N_Vector Y, N_Vector Z)
 {
-  rvec::Vector<realtype, long int> *xv = extract_raja(X);
-  rvec::Vector<realtype, long int> *yv = extract_raja(Y);
-  rvec::Vector<realtype, long int> *zv = extract_raja(Z);
+  sunrajavec::Vector<realtype, long int> *xv = sunrajavec::extract(X);
+  sunrajavec::Vector<realtype, long int> *yv = sunrajavec::extract(Y);
+  sunrajavec::Vector<realtype, long int> *zv = sunrajavec::extract(Z);
   const realtype *xdata = xv->device();
   const realtype *ydata = yv->device();
   const long int N = zv->size();
@@ -320,9 +320,9 @@ void N_VProd_Raja(N_Vector X, N_Vector Y, N_Vector Z)
 
 void N_VDiv_Raja(N_Vector X, N_Vector Y, N_Vector Z)
 {
-  rvec::Vector<realtype, long int> *xv = extract_raja(X);
-  rvec::Vector<realtype, long int> *yv = extract_raja(Y);
-  rvec::Vector<realtype, long int> *zv = extract_raja(Z);
+  sunrajavec::Vector<realtype, long int> *xv = sunrajavec::extract(X);
+  sunrajavec::Vector<realtype, long int> *yv = sunrajavec::extract(Y);
+  sunrajavec::Vector<realtype, long int> *zv = sunrajavec::extract(Z);
   const realtype *xdata = xv->device();
   const realtype *ydata = yv->device();
   const long int N = zv->size();
@@ -335,8 +335,8 @@ void N_VDiv_Raja(N_Vector X, N_Vector Y, N_Vector Z)
 
 void N_VScale_Raja(realtype c, N_Vector X, N_Vector Z)
 {
-  rvec::Vector<realtype, long int> *xv = extract_raja(X);
-  rvec::Vector<realtype, long int> *zv = extract_raja(Z);
+  sunrajavec::Vector<realtype, long int> *xv = sunrajavec::extract(X);
+  sunrajavec::Vector<realtype, long int> *zv = sunrajavec::extract(Z);
   const realtype *xdata = xv->device();
   const long int N = zv->size();
   realtype *zdata = zv->device();
@@ -348,8 +348,8 @@ void N_VScale_Raja(realtype c, N_Vector X, N_Vector Z)
 
 void N_VAbs_Raja(N_Vector X, N_Vector Z)
 {
-  rvec::Vector<realtype, long int> *xv = extract_raja(X);
-  rvec::Vector<realtype, long int> *zv = extract_raja(Z);
+  sunrajavec::Vector<realtype, long int> *xv = sunrajavec::extract(X);
+  sunrajavec::Vector<realtype, long int> *zv = sunrajavec::extract(Z);
   const realtype *xdata = xv->device();
   const long int N = zv->size();
   realtype *zdata = zv->device();
@@ -361,8 +361,8 @@ void N_VAbs_Raja(N_Vector X, N_Vector Z)
 
 void N_VInv_Raja(N_Vector X, N_Vector Z)
 {
-  rvec::Vector<realtype, long int> *xv = extract_raja(X);
-  rvec::Vector<realtype, long int> *zv = extract_raja(Z);
+  sunrajavec::Vector<realtype, long int> *xv = sunrajavec::extract(X);
+  sunrajavec::Vector<realtype, long int> *zv = sunrajavec::extract(Z);
   const realtype *xdata = xv->device();
   const long int N = zv->size();
   realtype *zdata = zv->device();
@@ -374,8 +374,8 @@ void N_VInv_Raja(N_Vector X, N_Vector Z)
 
 void N_VAddConst_Raja(N_Vector X, realtype b, N_Vector Z)
 {
-  rvec::Vector<realtype, long int> *xv = extract_raja(X);
-  rvec::Vector<realtype, long int> *zv = extract_raja(Z);
+  sunrajavec::Vector<realtype, long int> *xv = sunrajavec::extract(X);
+  sunrajavec::Vector<realtype, long int> *zv = sunrajavec::extract(Z);
   const realtype *xdata = xv->device();
   const long int N = zv->size();
   realtype *zdata = zv->device();
@@ -387,8 +387,8 @@ void N_VAddConst_Raja(N_Vector X, realtype b, N_Vector Z)
 
 realtype N_VDotProd_Raja(N_Vector X, N_Vector Y)
 {
-  rvec::Vector<realtype, long int>* xv = extract_raja(X);
-  rvec::Vector<realtype, long int>* yv = extract_raja(Y);
+  sunrajavec::Vector<realtype, long int>* xv = sunrajavec::extract(X);
+  sunrajavec::Vector<realtype, long int>* yv = sunrajavec::extract(Y);
   const realtype *xdata = xv->device();
   const realtype *ydata = yv->device();
   const long int N = xv->size();
@@ -403,7 +403,7 @@ realtype N_VDotProd_Raja(N_Vector X, N_Vector Y)
 
 realtype N_VMaxNorm_Raja(N_Vector X)
 {
-  rvec::Vector<realtype, long int>* xv = extract_raja(X);
+  sunrajavec::Vector<realtype, long int>* xv = sunrajavec::extract(X);
   const realtype *xdata = xv->device();
   const long int N = xv->size();
 
@@ -417,8 +417,8 @@ realtype N_VMaxNorm_Raja(N_Vector X)
 
 realtype N_VWrmsNorm_Raja(N_Vector X, N_Vector W)
 {
-  rvec::Vector<realtype, long int>* xv = extract_raja(X);
-  rvec::Vector<realtype, long int>* wv = extract_raja(W);
+  sunrajavec::Vector<realtype, long int>* xv = sunrajavec::extract(X);
+  sunrajavec::Vector<realtype, long int>* wv = sunrajavec::extract(W);
   const realtype *xdata = xv->device();
   const realtype *wdata = wv->device();
   const long int N = xv->size();
@@ -433,9 +433,9 @@ realtype N_VWrmsNorm_Raja(N_Vector X, N_Vector W)
 
 realtype N_VWrmsNormMask_Raja(N_Vector X, N_Vector W, N_Vector ID)
 {
-  rvec::Vector<realtype, long int>* xv = extract_raja(X);
-  rvec::Vector<realtype, long int>* wv = extract_raja(W);
-  rvec::Vector<realtype, long int>* idv = extract_raja(ID);
+  sunrajavec::Vector<realtype, long int>* xv = sunrajavec::extract(X);
+  sunrajavec::Vector<realtype, long int>* wv = sunrajavec::extract(W);
+  sunrajavec::Vector<realtype, long int>* idv = sunrajavec::extract(ID);
   const realtype *xdata = xv->device();
   const realtype *wdata = wv->device();
   const realtype *iddata = idv->device();
@@ -451,7 +451,7 @@ realtype N_VWrmsNormMask_Raja(N_Vector X, N_Vector W, N_Vector ID)
 
 realtype N_VMin_Raja(N_Vector X)
 {
-  rvec::Vector<realtype, long int>* xv = extract_raja(X);
+  sunrajavec::Vector<realtype, long int>* xv = sunrajavec::extract(X);
   const realtype *xdata = xv->device();
   const long int N = xv->size();
 
@@ -465,8 +465,8 @@ realtype N_VMin_Raja(N_Vector X)
 
 realtype N_VWL2Norm_Raja(N_Vector X, N_Vector W)
 {
-  rvec::Vector<realtype, long int>* xv = extract_raja(X);
-  rvec::Vector<realtype, long int>* wv = extract_raja(W);
+  sunrajavec::Vector<realtype, long int>* xv = sunrajavec::extract(X);
+  sunrajavec::Vector<realtype, long int>* wv = sunrajavec::extract(W);
   const realtype *xdata = xv->device();
   const realtype *wdata = wv->device();
   const long int N = xv->size();
@@ -481,7 +481,7 @@ realtype N_VWL2Norm_Raja(N_Vector X, N_Vector W)
 
 realtype N_VL1Norm_Raja(N_Vector X)
 {
-  rvec::Vector<realtype, long int>* xv = extract_raja(X);
+  sunrajavec::Vector<realtype, long int>* xv = sunrajavec::extract(X);
   const realtype *xdata = xv->device();
   const long int N = xv->size();
 
@@ -495,8 +495,8 @@ realtype N_VL1Norm_Raja(N_Vector X)
 
 void N_VCompare_Raja(realtype c, N_Vector X, N_Vector Z)
 {
-  rvec::Vector<realtype, long int> *xv = extract_raja(X);
-  rvec::Vector<realtype, long int> *zv = extract_raja(Z);
+  sunrajavec::Vector<realtype, long int> *xv = sunrajavec::extract(X);
+  sunrajavec::Vector<realtype, long int> *zv = sunrajavec::extract(Z);
   const realtype *xdata = xv->device();
   const long int N = zv->size();
   realtype *zdata = zv->device();
@@ -508,8 +508,8 @@ void N_VCompare_Raja(realtype c, N_Vector X, N_Vector Z)
 
 booleantype N_VInvTest_Raja(N_Vector x, N_Vector z)
 {
-  rvec::Vector<realtype, long int>* xv = extract_raja(x);
-  rvec::Vector<realtype, long int>* zv = extract_raja(z);
+  sunrajavec::Vector<realtype, long int>* xv = sunrajavec::extract(x);
+  sunrajavec::Vector<realtype, long int>* zv = sunrajavec::extract(z);
   const realtype *xdata = xv->device();
   realtype *zdata = zv->device();
   const long int N = xv->size();
@@ -528,9 +528,9 @@ booleantype N_VInvTest_Raja(N_Vector x, N_Vector z)
 
 booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m)
 {
-  rvec::Vector<realtype, long int> *cv = extract_raja(c);
-  rvec::Vector<realtype, long int> *xv = extract_raja(x);
-  rvec::Vector<realtype, long int> *mv = extract_raja(m);
+  sunrajavec::Vector<realtype, long int> *cv = sunrajavec::extract(c);
+  sunrajavec::Vector<realtype, long int> *xv = sunrajavec::extract(x);
+  sunrajavec::Vector<realtype, long int> *mv = sunrajavec::extract(m);
   const realtype *cdata = cv->device();
   const realtype *xdata = xv->device();
   const long int N = xv->size();
@@ -549,8 +549,8 @@ booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m)
 
 realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom)
 {
-  rvec::Vector<realtype, long int> *nv = extract_raja(num);
-  rvec::Vector<realtype, long int> *dv = extract_raja(denom);
+  sunrajavec::Vector<realtype, long int> *nv = sunrajavec::extract(num);
+  sunrajavec::Vector<realtype, long int> *dv = sunrajavec::extract(denom);
   const realtype *ndata = nv->device();
   const realtype *ddata = dv->device();
   const long int N = nv->size();

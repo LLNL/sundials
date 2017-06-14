@@ -170,7 +170,7 @@ N_Vector SetIC(UserData data)
   const realtype hy = data->hy;
 
   N_Vector u = N_VNew_Raja(data->NEQ);
-  realtype *udat = extract_raja(u)->host();
+  realtype *udat = sunrajavec::extract(u)->host();
 
   long int i, j, index;
 
@@ -184,7 +184,7 @@ N_Vector SetIC(UserData data)
     realtype tmp = (1 - x) * x * (1 - y) * y;
     udat[index] = (256.0 * tmp * tmp) + 0.3;
   }
-  extract_raja(u)->copyToDev();
+  sunrajavec::extract(u)->copyToDev();
   return u;
 }
 
@@ -266,8 +266,8 @@ int RHS(realtype t, N_Vector u, N_Vector udot, void *user_data)
   UserData data = (UserData) user_data;
   const long int NEQ = data->NEQ;
   const realtype reacc = data->reacc;
-  const realtype *udata = extract_raja(u)->device();
-  realtype *udotdata    = extract_raja(udot)->device();
+  const realtype *udata = sunrajavec::extract(u)->device();
+  realtype *udotdata    = sunrajavec::extract(udot)->device();
 
   phiRaja(udata, udotdata, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac);
   RAJA::forall<RAJA::cuda_exec<256> >(0, NEQ, [=] __device__(long int index) {
@@ -285,9 +285,9 @@ int Jtv(N_Vector v, N_Vector Jv, realtype t, N_Vector u, N_Vector fu, void *user
   const long int NEQ = data->NEQ;
   const realtype reacc = data->reacc;
 
-  const realtype *udata  = extract_raja(u)->device();
-  const realtype *vdata  = extract_raja(v)->device();
-  realtype *Jvdata       = extract_raja(Jv)->device();
+  const realtype *udata  = sunrajavec::extract(u)->device();
+  const realtype *vdata  = sunrajavec::extract(v)->device();
+  realtype *Jvdata       = sunrajavec::extract(Jv)->device();
 
   phiRaja(vdata, Jvdata, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac);
   RAJA::forall<RAJA::cuda_exec<256> >(0, NEQ, [=] __device__(long int index) {

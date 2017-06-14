@@ -128,7 +128,7 @@ int check_ans(realtype ans, N_Vector X, long int local_length)
 {
   int      failure = 0;
   long int i;
-  rvec::Vector<double, long int>* xv = extract_raja(X);
+  sunrajavec::Vector<double, long int>* xv = sunrajavec::extract(X);
   realtype *xdata;
   
   xv->copyFromDev();
@@ -144,14 +144,14 @@ int check_ans(realtype ans, N_Vector X, long int local_length)
 
 booleantype has_data(N_Vector X)
 {
-  rvec::Vector<double, long int>* xv = extract_raja(X);
+  sunrajavec::Vector<double, long int>* xv = sunrajavec::extract(X);
 
   return (xv == NULL ? FALSE : TRUE);
 }
 
 void set_element(N_Vector X, long int i, realtype val)
 {
-  rvec::Vector<double, long int>* xv = extract_raja(X);
+  sunrajavec::Vector<double, long int>* xv = sunrajavec::extract(X);
   xv->copyFromDev();
   (xv->host())[i] = val;
   xv->copyToDev();
@@ -159,7 +159,7 @@ void set_element(N_Vector X, long int i, realtype val)
 
 realtype get_element(N_Vector X, long int i)
 {
-  rvec::Vector<double, long int>* xv = extract_raja(X);
+  sunrajavec::Vector<double, long int>* xv = sunrajavec::extract(X);
   xv->copyFromDev();
   return (xv->host())[i];
 }
