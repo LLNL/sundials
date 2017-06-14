@@ -86,10 +86,10 @@ extern N_Vector F2C_ARKODE_vec;
 #define MPI_Fint int
 #endif
 
-void FNV_INITP(MPI_Fint *comm, int *code, indextype *L, indextype *N, int *ier);
-void FNV_INITP_Q(MPI_Fint *comm, int *code, indextype *Lq, indextype *Nq, int *ier);
-void FNV_INITP_B(MPI_Fint *comm, int *code, indextype *LB, indextype *NB, int *ier);
-void FNV_INITP_QB(MPI_Fint *comm, int *code, indextype *LqB, indextype *NqB, int *ier);
+void FNV_INITP(MPI_Fint *comm, int *code, sunindextype *L, sunindextype *N, int *ier);
+void FNV_INITP_Q(MPI_Fint *comm, int *code, sunindextype *Lq, sunindextype *Nq, int *ier);
+void FNV_INITP_B(MPI_Fint *comm, int *code, sunindextype *LB, sunindextype *NB, int *ier);
+void FNV_INITP_QB(MPI_Fint *comm, int *code, sunindextype *LqB, sunindextype *NqB, int *ier);
 void FNV_INITP_S(int *code, int *Ns, int *ier);
 
 #ifdef __cplusplus

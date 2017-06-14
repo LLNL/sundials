@@ -138,7 +138,7 @@
 
 typedef struct {
   realtype **P[MXSUB][MYSUB];
-  indextype *pivot[MXSUB][MYSUB];
+  sunindextype *pivot[MXSUB][MYSUB];
   realtype **acoef, *bcoef;
   N_Vector rates;
   realtype *cox, *coy;
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
 
 {
   int globalstrategy;
-  indextype local_N;
+  sunindextype local_N;
   realtype fnormtol, scsteptol;
   N_Vector cc, sc, constraints;
   UserData data;
@@ -436,7 +436,7 @@ static int PSolvebd(N_Vector cc, N_Vector cscale,
                     N_Vector vtemp)
 {
   realtype **Pxy, *vxy;
-  indextype *piv, jx, jy;
+  sunindextype *piv, jx, jy;
   UserData data;
   
   data = (UserData)user_data;

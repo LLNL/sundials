@@ -46,7 +46,7 @@ extern "C" {
     ARKDLS_MEM_FAIL  if there was a memory allocation failure
     ARKDLS_ILL_INPUT if a required vector operation is missing
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int ARKDense(void *arkode_mem, indextype N);
+SUNDIALS_EXPORT int ARKDense(void *arkode_mem, sunindextype N);
 
 /*---------------------------------------------------------------
  Function: ARKMassDense
@@ -67,7 +67,7 @@ SUNDIALS_EXPORT int ARKDense(void *arkode_mem, indextype N);
     ARKDLS_MEM_FAIL  if there was a memory allocation failure
     ARKDLS_ILL_INPUT if a required vector operation is missing
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int ARKMassDense(void *arkode_mem, indextype N, 
+SUNDIALS_EXPORT int ARKMassDense(void *arkode_mem, sunindextype N, 
 				 ARKDlsDenseMassFn dmass);
 
 #ifdef __cplusplus

@@ -67,14 +67,14 @@ static void VScaleBy_SpcParallel(realtype a, N_Vector x);
  */
 
 N_Vector N_VNewEmpty_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc,
-                                 indextype Nx,  indextype Ny,  indextype Nz, 
-                                 indextype NGx, indextype NGy, indextype NGz) 
+                                 sunindextype Nx,  sunindextype Ny,  sunindextype Nz, 
+                                 sunindextype NGx, sunindextype NGy, sunindextype NGz) 
 {
   N_Vector v;
   N_Vector_Ops ops;
   N_VectorContent_SpcParallel content;
   int ig;
-  indextype tmp, n, N;
+  sunindextype tmp, n, N;
 
   /* Create the new vector */
   v = NULL;
@@ -123,7 +123,7 @@ N_Vector N_VNewEmpty_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc,
 
   /* Allocate space for arrays in content */
   content->Nspc  = (int *) malloc(Ngrp*sizeof(int));
-  content->n1    = (indextype *) malloc(Ngrp*sizeof(indextype));
+  content->n1    = (sunindextype *) malloc(Ngrp*sizeof(sunindextype));
   content->gdata = (realtype **) malloc(Ngrp*sizeof(realtype *));
 
   /* Attach lengths and communicator to N_Vector_Content_SpcParallel structure */
@@ -163,12 +163,12 @@ N_Vector N_VNewEmpty_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc,
  */
 
 N_Vector N_VNew_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc, 
-                            indextype Nx,  indextype Ny,  indextype Nz, 
-                            indextype NGx, indextype NGy, indextype NGz)
+                            sunindextype Nx,  sunindextype Ny,  sunindextype Nz, 
+                            sunindextype NGx, sunindextype NGy, sunindextype NGz)
 {
   N_Vector v;
   realtype *data;
-  indextype n;
+  sunindextype n;
 
   /* Create the new vector */
   v = NULL;
@@ -203,8 +203,8 @@ N_Vector N_VNew_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc,
  */
 
 N_Vector N_VMake_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc, 
-                             indextype Nx,  indextype Ny,  indextype Nz, 
-                             indextype NGx, indextype NGy, indextype NGz,
+                             sunindextype Nx,  sunindextype Ny,  sunindextype Nz, 
+                             sunindextype NGx, sunindextype NGy, sunindextype NGz,
                              realtype *data)
 {
   N_Vector v;
@@ -234,8 +234,8 @@ void N_VLoad_SpcParallel(N_Vector v, int igrp, int ispc, realtype *data)
 {
   realtype *vd;
   int Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock;
 
   vd = SPV_GDATA(v,igrp);
   Ns = SPV_NSPECIES(v,igrp);
@@ -340,8 +340,8 @@ void N_VPrint_SpcParallel(N_Vector v, char *fname)
 {
   FILE *fp;
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype *vd;
 
   vd = NULL;
@@ -450,7 +450,7 @@ N_Vector N_VCloneEmpty_SpcParallel(N_Vector w)
 
   /* Allocate space for arrays in content */  
   content->Nspc  = (int *) malloc(Ngrp*sizeof(int));
-  content->n1    = (indextype *) malloc(Ngrp*sizeof(indextype));
+  content->n1    = (sunindextype *) malloc(Ngrp*sizeof(sunindextype));
   content->gdata = (realtype **) malloc(Ngrp*sizeof(realtype *));
 
   /* Attach lengths and communicator to content structure */
@@ -489,7 +489,7 @@ N_Vector N_VClone_SpcParallel(N_Vector w)
 {
   N_Vector v;
   realtype *data;
-  indextype n;
+  sunindextype n;
 
   /* Create vector */
   v = NULL;
@@ -544,11 +544,11 @@ void N_VDestroy_SpcParallel(N_Vector v)
 
 /* 
  * N_VSpace_SpcParallel returns the local space requirements for one N_Vector. 
- * The amount of realtype data is given in lrw, and indextype data in liw.  
+ * The amount of realtype data is given in lrw, and sunindextype data in liw.  
  * Note: this includes ghost cell data storage as well 
  */
 
-void N_VSpace_SpcParallel(N_Vector v, indextype *lrw, indextype *liw)
+void N_VSpace_SpcParallel(N_Vector v, sunindextype *lrw, sunindextype *liw)
 {
   *lrw = SPV_LOCLENGTH(v);
   *liw = 11 + 3*SPV_NGROUPS(v);
@@ -582,8 +582,8 @@ void N_VLinearSum_SpcParallel(realtype a, N_Vector x, realtype b,
                               N_Vector y, N_Vector z)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype c, *xd, *yd, *zd;
   N_Vector v1, v2;
   booleantype test;
@@ -694,8 +694,8 @@ void N_VLinearSum_SpcParallel(realtype a, N_Vector x, realtype b,
 void N_VConst_SpcParallel(realtype c, N_Vector z)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype *zd;
 
   zd = NULL;
@@ -736,8 +736,8 @@ void N_VConst_SpcParallel(realtype c, N_Vector z)
 void N_VProd_SpcParallel(N_Vector x, N_Vector y, N_Vector z)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -780,8 +780,8 @@ void N_VProd_SpcParallel(N_Vector x, N_Vector y, N_Vector z)
 void N_VDiv_SpcParallel(N_Vector x, N_Vector y, N_Vector z)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -824,8 +824,8 @@ void N_VDiv_SpcParallel(N_Vector x, N_Vector y, N_Vector z)
 void N_VScale_SpcParallel(realtype c, N_Vector x, N_Vector z)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -885,8 +885,8 @@ void N_VScale_SpcParallel(realtype c, N_Vector x, N_Vector z)
 void N_VAbs_SpcParallel(N_Vector x, N_Vector z)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -930,8 +930,8 @@ void N_VAbs_SpcParallel(N_Vector x, N_Vector z)
 void N_VInv_SpcParallel(N_Vector x, N_Vector z)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -973,8 +973,8 @@ void N_VInv_SpcParallel(N_Vector x, N_Vector z)
 void N_VAddConst_SpcParallel(N_Vector x, realtype b, N_Vector z)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype *xd, *zd;
   
   xd = zd = NULL;
@@ -1017,8 +1017,8 @@ void N_VAddConst_SpcParallel(N_Vector x, realtype b, N_Vector z)
 realtype N_VDotProd_SpcParallel(N_Vector x, N_Vector y)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype sum, gsum, *xd, *yd;
   MPI_Comm comm;
 
@@ -1069,8 +1069,8 @@ realtype N_VDotProd_SpcParallel(N_Vector x, N_Vector y)
 realtype N_VMaxNorm_SpcParallel(N_Vector x)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype max, *xd, gmax;
   MPI_Comm comm;
 
@@ -1121,8 +1121,8 @@ realtype N_VMaxNorm_SpcParallel(N_Vector x)
 realtype N_VWrmsNorm_SpcParallel(N_Vector x, N_Vector w)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz, Nglobal;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz, Nglobal;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype sum, gsum, prodi, *xd, *wd;
   MPI_Comm comm;
 
@@ -1175,8 +1175,8 @@ realtype N_VWrmsNorm_SpcParallel(N_Vector x, N_Vector w)
 realtype N_VWrmsNormMask_SpcParallel(N_Vector x, N_Vector w, N_Vector id)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz, Nglobal;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz, Nglobal;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype sum, gsum, prodi, *xd, *wd, *idd;
   MPI_Comm comm;
 
@@ -1232,8 +1232,8 @@ realtype N_VWrmsNormMask_SpcParallel(N_Vector x, N_Vector w, N_Vector id)
 realtype N_VMin_SpcParallel(N_Vector x)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype min, gmin, *xd; 
   MPI_Comm comm;
 
@@ -1284,8 +1284,8 @@ realtype N_VMin_SpcParallel(N_Vector x)
 realtype N_VWL2Norm_SpcParallel(N_Vector x, N_Vector w)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype sum, prodi, *xd, *wd, gsum;
   MPI_Comm comm;
 
@@ -1337,8 +1337,8 @@ realtype N_VWL2Norm_SpcParallel(N_Vector x, N_Vector w)
 realtype N_VL1Norm_SpcParallel(N_Vector x)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype sum, gsum, *xd;
   MPI_Comm comm;
 
@@ -1387,8 +1387,8 @@ realtype N_VL1Norm_SpcParallel(N_Vector x)
 void N_VCompare_SpcParallel(realtype c, N_Vector x, N_Vector z)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -1432,8 +1432,8 @@ void N_VCompare_SpcParallel(realtype c, N_Vector x, N_Vector z)
 booleantype N_VInvTest_SpcParallel(N_Vector x, N_Vector z)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype *xd, *zd, val, gval;
   MPI_Comm comm;
 
@@ -1495,8 +1495,8 @@ booleantype N_VInvTest_SpcParallel(N_Vector x, N_Vector z)
 booleantype N_VConstrMask_SpcParallel(N_Vector c, N_Vector x, N_Vector m)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   booleantype test, alltest;
   realtype *cd, *xd, *md;
   MPI_Comm comm;
@@ -1563,8 +1563,8 @@ booleantype N_VConstrMask_SpcParallel(N_Vector c, N_Vector x, N_Vector m)
 realtype N_VMinQuotient_SpcParallel(N_Vector x, N_Vector y)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   booleantype notEvenOnce;
   realtype *xd, *yd, min, gmin;
   MPI_Comm comm;
@@ -1651,8 +1651,8 @@ static void VAttach_Data(N_Vector v, realtype *data)
 static void VCopy_SpcParallel(N_Vector x, N_Vector z)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -1695,8 +1695,8 @@ static void VCopy_SpcParallel(N_Vector x, N_Vector z)
 static void VSum_SpcParallel(N_Vector x, N_Vector y, N_Vector z)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -1740,8 +1740,8 @@ static void VSum_SpcParallel(N_Vector x, N_Vector y, N_Vector z)
 static void VDiff_SpcParallel(N_Vector x, N_Vector y, N_Vector z)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype *xd, *yd, *zd;
  
   xd = yd = zd = NULL;
@@ -1785,8 +1785,8 @@ static void VDiff_SpcParallel(N_Vector x, N_Vector y, N_Vector z)
 static void VNeg_SpcParallel(N_Vector x, N_Vector z)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -1830,8 +1830,8 @@ static void VScaleSum_SpcParallel(realtype c, N_Vector x, N_Vector y,
                                   N_Vector z)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -1877,8 +1877,8 @@ static void VScaleDiff_SpcParallel(realtype c, N_Vector x, N_Vector y,
 				    N_Vector z)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -1923,8 +1923,8 @@ static void VLin1_SpcParallel(realtype a, N_Vector x, N_Vector y,
 			       N_Vector z)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -1969,8 +1969,8 @@ static void VLin2_SpcParallel(realtype a, N_Vector x, N_Vector y,
 			       N_Vector z)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -2014,8 +2014,8 @@ static void VLin2_SpcParallel(realtype a, N_Vector x, N_Vector y,
 static void Vaxpy_SpcParallel(realtype a, N_Vector x, N_Vector y)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype *xd, *yd;
 
   xd = yd = NULL;
@@ -2108,8 +2108,8 @@ static void Vaxpy_SpcParallel(realtype a, N_Vector x, N_Vector y)
 static void VScaleBy_SpcParallel(realtype a, N_Vector x)
 {
   int ig, Ngrp, is, Ns;
-  indextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  indextype Yblock, Zblock, Xblock, loc;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
   realtype *xd;
 
   xd = NULL;

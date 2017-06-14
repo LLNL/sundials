@@ -116,31 +116,31 @@ typedef struct {
   realtype q4, om, dx, dy, hdco, haco, vdco;
   realtype uext[NVARS*(MXSUB+2)*(MYSUB+2)];
   int my_pe, isubx, isuby;
-  indextype nvmxsub, nvmxsub2, Nlocal;
+  sunindextype nvmxsub, nvmxsub2, Nlocal;
   MPI_Comm comm;
 } *UserData;
 
 /* Prototypes of private helper functions */
 
-static void InitUserData(int my_pe, indextype local_N, MPI_Comm comm,
+static void InitUserData(int my_pe, sunindextype local_N, MPI_Comm comm,
                          UserData data);
 static void SetInitialProfiles(N_Vector u, UserData data);
-static void PrintIntro(int npes, indextype mudq, indextype mldq,
-		       indextype mukeep, indextype mlkeep);
+static void PrintIntro(int npes, sunindextype mudq, sunindextype mldq,
+		       sunindextype mukeep, sunindextype mlkeep);
 static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t);
 static void PrintFinalStats(void *cvode_mem);
 static void BSend(MPI_Comm comm, 
                   int my_pe, int isubx, int isuby, 
-                  indextype dsizex, indextype dsizey,
+                  sunindextype dsizex, sunindextype dsizey,
                   realtype uarray[]);
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-		      indextype dsizex, indextype dsizey,
+		      sunindextype dsizex, sunindextype dsizey,
 		      realtype uext[], realtype buffer[]);
 static void BRecvWait(MPI_Request request[], 
                       int isubx, int isuby, 
-                      indextype dsizex, realtype uext[],
+                      sunindextype dsizex, realtype uext[],
                       realtype buffer[]);
 
 static void fucomm(realtype t, N_Vector u, void *user_data);
@@ -151,7 +151,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 /* Prototype of functions called by the CVBBDPRE module */
 
-static int flocal(indextype Nlocal, realtype t, N_Vector u,
+static int flocal(sunindextype Nlocal, realtype t, N_Vector u,
                   N_Vector udot, void *user_data);
 
 /* Private function to check function return values */
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
   realtype abstol, reltol, t, tout;
   N_Vector u;
   int iout, my_pe, npes, flag, jpre;
-  indextype neq, local_N, mudq, mldq, mukeep, mlkeep;
+  sunindextype neq, local_N, mudq, mldq, mukeep, mlkeep;
   MPI_Comm comm;
 
   data = NULL;
@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
 
 /* Load constants in data */
 
-static void InitUserData(int my_pe, indextype local_N, MPI_Comm comm,
+static void InitUserData(int my_pe, sunindextype local_N, MPI_Comm comm,
                          UserData data)
 {
   int isubx, isuby;
@@ -333,7 +333,7 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 {
   int isubx, isuby;
   int lx, ly, jx, jy;
-  indextype offset;
+  sunindextype offset;
   realtype dx, dy, x, y, cx, cy, xmid, ymid;
   realtype *uarray;
 
@@ -372,8 +372,8 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 
 /* Print problem introduction */
 
-static void PrintIntro(int npes, indextype mudq, indextype mldq,
-		       indextype mukeep, indextype mlkeep)
+static void PrintIntro(int npes, sunindextype mudq, sunindextype mldq,
+		       sunindextype mukeep, sunindextype mlkeep)
 {
   printf("\n2-species diurnal advection-diffusion problem\n");
   printf("  %d by %d mesh on %d processors\n", MX, MY, npes);
@@ -392,7 +392,7 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t)
 {
   int qu, flag, npelast;
-  indextype i0, i1, nst;
+  sunindextype i0, i1, nst;
   realtype hu, *uarray, tempu[2];
   MPI_Status status;
 
@@ -445,9 +445,9 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  indextype lenrw, leniw ;
-  indextype lenrwLS, leniwLS;
-  indextype lenrwBBDP, leniwBBDP, ngevalsBBDP;
+  sunindextype lenrw, leniw ;
+  sunindextype lenrwLS, leniwLS;
+  sunindextype lenrwBBDP, leniwBBDP, ngevalsBBDP;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
   int flag;
@@ -503,11 +503,11 @@ static void PrintFinalStats(void *cvode_mem)
 
 static void BSend(MPI_Comm comm, 
                   int my_pe, int isubx, int isuby, 
-                  indextype dsizex, indextype dsizey,
+                  sunindextype dsizex, sunindextype dsizey,
                   realtype uarray[])
 {
   int i, ly;
-  indextype offsetu, offsetbuf;
+  sunindextype offsetu, offsetbuf;
   realtype bufleft[NVARS*MYSUB], bufright[NVARS*MYSUB];
 
   /* If isuby > 0, send data from bottom x-line of u */
@@ -557,10 +557,10 @@ static void BSend(MPI_Comm comm,
 
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-		      indextype dsizex, indextype dsizey,
+		      sunindextype dsizex, sunindextype dsizey,
 		      realtype uext[], realtype buffer[])
 {
-  indextype offsetue;
+  sunindextype offsetue;
   /* Have bufleft and bufright use the same buffer */
   realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
 
@@ -599,11 +599,11 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[],
 
 static void BRecvWait(MPI_Request request[], 
                       int isubx, int isuby, 
-                      indextype dsizex, realtype uext[],
+                      sunindextype dsizex, realtype uext[],
                       realtype buffer[])
 {
   int i, ly;
-  indextype dsizex2, offsetue, offsetbuf;
+  sunindextype dsizex2, offsetue, offsetbuf;
   realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
   MPI_Status status;
 
@@ -653,7 +653,7 @@ static void fucomm(realtype t, N_Vector u, void *user_data)
   realtype *uarray, *uext, buffer[2*NVARS*MYSUB];
   MPI_Comm comm;
   int my_pe, isubx, isuby;
-  indextype nvmxsub, nvmysub;
+  sunindextype nvmxsub, nvmysub;
   MPI_Request request[4];
 
   data = (UserData) user_data;
@@ -708,7 +708,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
    inter-processor communication of data needed to calculate f has already
    been done, and this data is in the work array uext.                    */
 
-static int flocal(indextype Nlocal, realtype t, N_Vector u,
+static int flocal(sunindextype Nlocal, realtype t, N_Vector u,
                   N_Vector udot, void *user_data)
 {
   realtype *uext;
@@ -718,7 +718,7 @@ static int flocal(indextype Nlocal, realtype t, N_Vector u,
   realtype q4coef, dely, verdco, hordco, horaco;
   int i, lx, ly, jx, jy;
   int isubx, isuby;
-  indextype nvmxsub, nvmxsub2, offsetu, offsetue;
+  sunindextype nvmxsub, nvmxsub2, offsetu, offsetue;
   UserData data;
   realtype *uarray, *duarray;
 

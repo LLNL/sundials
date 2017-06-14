@@ -82,11 +82,11 @@ extern N_Vector F2C_ARKODE_vec;
  *
  */
 
-void FNV_INITOMP(int *code, indextype *neq, int *num_threads, int *ier);
-void FNV_INITOMP_Q(int *code, indextype *Nq, int *num_threads, int *ier);
+void FNV_INITOMP(int *code, sunindextype *neq, int *num_threads, int *ier);
+void FNV_INITOMP_Q(int *code, sunindextype *Nq, int *num_threads, int *ier);
 void FNV_INITOMP_S(int *code, int *Ns, int *ier);
-void FNV_INITOMP_B(int *code, indextype *NB, int *num_threads, int *ier);
-void FNV_INITOMP_QB(int *code, indextype *NqB, int *num_threads, int *ier);
+void FNV_INITOMP_B(int *code, sunindextype *NB, int *num_threads, int *ier);
+void FNV_INITOMP_QB(int *code, sunindextype *NqB, int *num_threads, int *ier);
 
 #ifdef __cplusplus
 }

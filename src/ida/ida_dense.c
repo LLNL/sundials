@@ -105,7 +105,7 @@ static int IDADenseFree(IDAMem IDA_mem);
  * -----------------------------------------------------------------
  */
 
-int IDADense(void *ida_mem, indextype Neq)
+int IDADense(void *ida_mem, sunindextype Neq)
 {
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
@@ -232,7 +232,7 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
                          N_Vector tmp3)
 {
   int retval;
-  indextype retfac;
+  sunindextype retfac;
   IDADlsMem idadls_mem;
   
   idadls_mem = (IDADlsMem) lmem;

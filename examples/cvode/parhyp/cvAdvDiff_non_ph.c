@@ -75,8 +75,8 @@ typedef struct {
 
 /* Private Helper Functions */
 
-static void SetIC(HYPRE_IJVector Uij, realtype dx, indextype my_length,
-                  indextype my_base);
+static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype my_length,
+                  sunindextype my_base);
 
 static void PrintIntro(int npes);
 
@@ -208,8 +208,8 @@ int main(int argc, char *argv[])
 
 /* Set initial conditions in u vector */
 
-static void SetIC(HYPRE_IJVector Uij, realtype dx, indextype my_length,
-                  indextype my_base)
+static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype my_length,
+                  sunindextype my_base)
 {
   int i;
   HYPRE_Int *iglobal;

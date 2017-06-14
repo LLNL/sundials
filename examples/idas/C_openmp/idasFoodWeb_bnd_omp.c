@@ -155,7 +155,7 @@
 /* Type: UserData.  Contains problem constants, etc. */
 
 typedef struct {
-  indextype Neq, ns, np, mx, my;
+  sunindextype Neq, ns, np, mx, my;
   realtype dx, dy, **acoef;
   realtype cox[NUM_SPECIES], coy[NUM_SPECIES], bcoef[NUM_SPECIES];
   N_Vector rates;
@@ -172,13 +172,13 @@ static int resweb(realtype time, N_Vector cc, N_Vector cp, N_Vector resval,
 static void InitUserData(UserData webdata);
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata);
-static void PrintHeader(indextype mu, indextype ml, realtype rtol, realtype atol);
+static void PrintHeader(sunindextype mu, sunindextype ml, realtype rtol, realtype atol);
 static void PrintOutput(void *mem, N_Vector c, realtype t);
 static void PrintFinalStats(void *mem);
 static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate, UserData webdata);
 static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                      UserData webdata);
-static realtype dotprod(indextype size, realtype *x1, realtype *x2);
+static realtype dotprod(sunindextype size, realtype *x1, realtype *x2);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /*
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
   UserData webdata;
   N_Vector cc, cp, id;
   int iout, retval;
-  indextype mu, ml;
+  sunindextype mu, ml;
   realtype rtol, atol, t0, tout, tret;
   int num_threads;
 
@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
 static int resweb(realtype tt, N_Vector cc, N_Vector cp, 
                   N_Vector res,  void *user_data)
 {
-  indextype jx, jy, is, yloc, loc, np;
+  sunindextype jx, jy, is, yloc, loc, np;
   realtype *resv, *cpv;
   UserData webdata;
   
@@ -424,7 +424,7 @@ static void InitUserData(UserData webdata)
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata)
 {
-  indextype loc, yloc, is, jx, jy, np;
+  sunindextype loc, yloc, is, jx, jy, np;
   realtype xx, yy, xyfactor;
   realtype *ccv, *cpv, *idv;
   
@@ -475,7 +475,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(indextype mu, indextype ml, realtype rtol, realtype atol)
+static void PrintHeader(sunindextype mu, sunindextype ml, realtype rtol, realtype atol)
 {
   printf("\nidasFoodWeb_bnd_omp: Predator-prey DAE OpenMP example problem for IDAS \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
@@ -584,7 +584,7 @@ static void PrintFinalStats(void *mem)
 static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate,  
                  UserData webdata)
 { 
-  indextype jx, jy, is, idyu, idyl, idxu, idxl;
+  sunindextype jx, jy, is, idyu, idyl, idxu, idxl;
   realtype xx, yy, *cxy, *ratesxy, *cratexy, dcyli, dcyui, dcxli, dcxui;
   
   /* Loop over grid points, evaluate interaction vector (length ns),
@@ -653,9 +653,9 @@ static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
  * dotprod: dot product routine for realtype arrays, for use by WebRates.    
  */
 
-static realtype dotprod(indextype size, realtype *x1, realtype *x2)
+static realtype dotprod(sunindextype size, realtype *x1, realtype *x2)
 {
-  indextype i;
+  sunindextype i;
   realtype *xx1, *xx2, temp = ZERO;
   
   xx1 = x1; xx2 = x2;

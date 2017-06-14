@@ -104,10 +104,10 @@
  * RTOL   = relative tolerance (scalar)
  * ATOL   = absolute tolerance (scalar or array)
  * IOUT   = array of length 21 for integer optional outputs
- *          (declare as INTEGER*4 or INTEGER*8 according to C type indextype)
+ *          (declare as INTEGER*4 or INTEGER*8 according to C type sunindextype)
  * ROUT   = array of length 6 for real optional outputs
  * IPAR   = array with user integer data
- *          (declare as INTEGER*4 or INTEGER*8 according to C type indextype)
+ *          (declare as INTEGER*4 or INTEGER*8 according to C type sunindextype)
  * RPAR   = array with user real data
  * IER    = return completion flag.  Values are 0 = success, and -1 = failure.
  *          See printed message for details in case of failure.
@@ -238,8 +238,8 @@ extern "C" {
 #endif
 
 /* Prototypes of exported function */
-void FCV_BPINIT(indextype *N, indextype *mu, indextype *ml, int *ier);
-void FCV_BPOPT(indextype *lenrwbp, indextype *leniwbp, long int *nfebp);
+void FCV_BPINIT(sunindextype *N, sunindextype *mu, sunindextype *ml, int *ier);
+void FCV_BPOPT(sunindextype *lenrwbp, sunindextype *leniwbp, long int *nfebp);
 
 #ifdef __cplusplus
 }

@@ -66,7 +66,7 @@ int get_SolverOptions(const mxArray *options,
   mxArray *opt;
   char *bufval;
   int buflen, status;
-  indextype i, m, n;
+  sunindextype i, m, n;
   double *tmp;
 
   /* Set default values (pass 0 values. KINSOL does the rest) */
@@ -241,8 +241,8 @@ int get_SolverOptions(const mxArray *options,
 
 
 int get_LinSolvOptions(const mxArray *options,
-                       indextype *mupper, indextype *mlower,
-                       indextype *mudq, indextype *mldq, double *dqrely,
+                       sunindextype *mupper, sunindextype *mlower,
+                       sunindextype *mudq, sunindextype *mldq, double *dqrely,
                        int *ptype, int *maxrs, int *maxl)
 {
   mxArray *opt;
@@ -304,11 +304,11 @@ int get_LinSolvOptions(const mxArray *options,
 
     opt = mxGetField(options,0,"UpperBwidth");
     if ( !mxIsEmpty(opt) )
-      *mupper = (indextype)*mxGetPr(opt);
+      *mupper = (sunindextype)*mxGetPr(opt);
     
     opt = mxGetField(options,0,"LowerBwidth");
     if ( !mxIsEmpty(opt) )
-      *mlower = (indextype)*mxGetPr(opt);
+      *mlower = (sunindextype)*mxGetPr(opt);
 
   }
   
@@ -394,19 +394,19 @@ int get_LinSolvOptions(const mxArray *options,
 
       opt = mxGetField(options,0,"UpperBwidth");
       if ( !mxIsEmpty(opt) )
-        *mupper = (indextype)*mxGetPr(opt);
+        *mupper = (sunindextype)*mxGetPr(opt);
     
       opt = mxGetField(options,0,"LowerBwidth");
       if ( !mxIsEmpty(opt) )
-        *mlower = (indextype)*mxGetPr(opt);
+        *mlower = (sunindextype)*mxGetPr(opt);
 
       opt = mxGetField(options,0,"UpperBwidthDQ");
       if ( !mxIsEmpty(opt) )
-        *mudq = (indextype)*mxGetPr(opt);
+        *mudq = (sunindextype)*mxGetPr(opt);
 
       opt = mxGetField(options,0,"LowerBwidthDQ");
       if ( !mxIsEmpty(opt) )
-        *mldq = (indextype)*mxGetPr(opt);
+        *mldq = (sunindextype)*mxGetPr(opt);
       
       opt = mxGetField(options,0,"GlocalFn");
       if ( !mxIsEmpty(opt) ) {

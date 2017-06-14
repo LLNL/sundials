@@ -106,7 +106,7 @@ typedef struct {
 
 static int res(realtype t, N_Vector yy, N_Vector yp, 
                N_Vector resval, void *user_data);
-static int Jac(indextype Neq, realtype t, realtype cj, 
+static int Jac(sunindextype Neq, realtype t, realtype cj, 
                N_Vector yy, N_Vector yp, N_Vector resvec, 
                DlsMat J, void *user_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -119,7 +119,7 @@ static int resB(realtype tt,
                 N_Vector yyB, N_Vector ypB, N_Vector rrB,
                 void *user_dataB);
 
-static int JacB(indextype NeqB, realtype tt, realtype cjB,
+static int JacB(sunindextype NeqB, realtype tt, realtype cjB,
                 N_Vector yy, N_Vector yp,
                 N_Vector yyB, N_Vector ypB, N_Vector rrB, 
                 DlsMat JB, void *user_data,
@@ -516,7 +516,7 @@ static int res(realtype t, N_Vector yy, N_Vector yp, N_Vector resval, void *user
  * Jacobian routine. Compute J(t,y). 
 */
 
-static int Jac(indextype Neq, realtype t, realtype cj,
+static int Jac(sunindextype Neq, realtype t, realtype cj,
                N_Vector yy, N_Vector yp, N_Vector resvec, 
                DlsMat J, void *user_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -622,7 +622,7 @@ static int resB(realtype tt,
 }
 
 /*Jacobian for backward problem. */
-static int JacB(indextype NeqB, realtype tt, realtype cj,
+static int JacB(sunindextype NeqB, realtype tt, realtype cj,
                 N_Vector yy, N_Vector yp,
                 N_Vector yyB, N_Vector ypB, N_Vector rrB, 
                 DlsMat JB, void *user_data,

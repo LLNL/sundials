@@ -54,7 +54,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDADense(void *ida_mem, indextype Neq); 
+SUNDIALS_EXPORT int IDADense(void *ida_mem, sunindextype Neq); 
 
 #ifdef __cplusplus
 }

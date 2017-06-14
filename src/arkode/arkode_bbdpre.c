@@ -57,16 +57,16 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
 /*---------------------------------------------------------------
  User-Callable Functions: initialization, reinit and free
 ---------------------------------------------------------------*/
-int ARKBBDPrecInit(void *arkode_mem, indextype Nlocal, 
-                   indextype mudq, indextype mldq,
-                   indextype mukeep, indextype mlkeep, 
+int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal, 
+                   sunindextype mudq, sunindextype mldq,
+                   sunindextype mukeep, sunindextype mlkeep, 
                    realtype dqrely, 
                    ARKLocalFn gloc, ARKCommFn cfn)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
   ARKBBDPrecData pdata;
-  indextype muk, mlk, storage_mu;
+  sunindextype muk, mlk, storage_mu;
   int flag;
 
   if (arkode_mem == NULL) {
@@ -175,13 +175,13 @@ int ARKBBDPrecInit(void *arkode_mem, indextype Nlocal,
 
 
 /*-------------------------------------------------------------*/
-int ARKBBDPrecReInit(void *arkode_mem, indextype mudq, 
-		     indextype mldq, realtype dqrely)
+int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq, 
+		     sunindextype mldq, realtype dqrely)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
   ARKBBDPrecData pdata;
-  indextype Nlocal;
+  sunindextype Nlocal;
 
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKBBDPRE", 
@@ -222,8 +222,8 @@ int ARKBBDPrecReInit(void *arkode_mem, indextype mudq,
 
 
 /*-------------------------------------------------------------*/
-int ARKBBDPrecGetWorkSpace(void *arkode_mem, indextype *lenrwBBDP, 
-			   indextype *leniwBBDP)
+int ARKBBDPrecGetWorkSpace(void *arkode_mem, sunindextype *lenrwBBDP, 
+			   sunindextype *leniwBBDP)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
@@ -346,7 +346,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 			   realtype gamma, void *bbd_data, 
 			   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  indextype ier;
+  sunindextype ier;
   ARKBBDPrecData pdata;
   ARKodeMem ark_mem;
   int retval;
@@ -472,7 +472,7 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
 {
   ARKodeMem ark_mem;
   realtype gnorm, minInc, inc, inc_inv;
-  indextype group, i, j, width, ngroups, i1, i2;
+  sunindextype group, i, j, width, ngroups, i1, i2;
   realtype *y_data, *ewt_data, *gy_data, *gtemp_data, *ytemp_data, *col_j;
   int retval;
 

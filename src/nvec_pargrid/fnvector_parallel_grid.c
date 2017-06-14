@@ -39,9 +39,9 @@ N_Vector F2C_ARKODE_vec;
 
 /* Fortran callable interfaces */
 
-void FNV_INITPG(MPI_Fint *comm, int *code, int *dims, indextype *dim_len, 
-		indextype *dim_alen, indextype *dim_off, int *F_ordering, 
-		indextype *glob_len, int *ier)
+void FNV_INITPG(MPI_Fint *comm, int *code, int *dims, sunindextype *dim_len, 
+		sunindextype *dim_alen, sunindextype *dim_off, int *F_ordering, 
+		sunindextype *glob_len, int *ier)
 {
   MPI_Comm F2C_comm;
 
@@ -83,9 +83,9 @@ void FNV_INITPG(MPI_Fint *comm, int *code, int *dims, indextype *dim_len,
   }
 }
 
-void FNV_INITPG_Q(MPI_Fint *comm, int *code, int *dims, indextype *dim_lenQ, 
-		  indextype *dim_alenQ, indextype *dim_offQ, int *F_ordering, 
-		  indextype *glob_lenQ, int *ier)
+void FNV_INITPG_Q(MPI_Fint *comm, int *code, int *dims, sunindextype *dim_lenQ, 
+		  sunindextype *dim_alenQ, sunindextype *dim_offQ, int *F_ordering, 
+		  sunindextype *glob_lenQ, int *ier)
 {
   MPI_Comm F2C_comm;
 
@@ -115,9 +115,9 @@ void FNV_INITPG_Q(MPI_Fint *comm, int *code, int *dims, indextype *dim_lenQ,
   }
 }
 
-void FNV_INITPG_B(MPI_Fint *comm, int *code, int *dims, indextype *dim_lenB, 
-		  indextype *dim_alenB, indextype *dim_offB, int *F_ordering, 
-		  indextype *glob_lenB, int *ier)
+void FNV_INITPG_B(MPI_Fint *comm, int *code, int *dims, sunindextype *dim_lenB, 
+		  sunindextype *dim_alenB, sunindextype *dim_offB, int *F_ordering, 
+		  sunindextype *glob_lenB, int *ier)
 {
   MPI_Comm F2C_comm;
 
@@ -147,9 +147,9 @@ void FNV_INITPG_B(MPI_Fint *comm, int *code, int *dims, indextype *dim_lenB,
   }
 }
 
-void FNV_INITPG_QB(MPI_Fint *comm, int *code, int *dims, indextype *dim_lenQB, 
-		   indextype *dim_alenQB, indextype *dim_offQB, int *F_ordering, 
-		   indextype *glob_lenQB, int *ier)
+void FNV_INITPG_QB(MPI_Fint *comm, int *code, int *dims, sunindextype *dim_lenQB, 
+		   sunindextype *dim_alenQB, sunindextype *dim_offQB, int *F_ordering, 
+		   sunindextype *glob_lenQB, int *ier)
 {
   MPI_Comm F2C_comm;
 

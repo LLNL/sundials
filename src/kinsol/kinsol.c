@@ -315,7 +315,7 @@ void *KINCreate(void)
 
 int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
 {
-  indextype liw1, lrw1;
+  sunindextype liw1, lrw1;
   KINMem kin_mem;
   booleantype allocOK, nvectorOK;
   

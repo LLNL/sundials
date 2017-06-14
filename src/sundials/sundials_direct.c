@@ -29,10 +29,10 @@
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 
-DlsMat NewDenseMat(indextype M, indextype N)
+DlsMat NewDenseMat(sunindextype M, sunindextype N)
 {
   DlsMat A;
-  indextype j;
+  sunindextype j;
 
   if ( (M <= 0) || (N <= 0) ) return(NULL);
 
@@ -64,9 +64,9 @@ DlsMat NewDenseMat(indextype M, indextype N)
   return(A);
 }
 
-realtype **newDenseMat(indextype m, indextype n)
+realtype **newDenseMat(sunindextype m, sunindextype n)
 {
-  indextype j;
+  sunindextype j;
   realtype **a;
 
   if ( (n <= 0) || (m <= 0) ) return(NULL);
@@ -88,10 +88,10 @@ realtype **newDenseMat(indextype m, indextype n)
 }
 
 
-DlsMat NewBandMat(indextype N, indextype mu, indextype ml, indextype smu)
+DlsMat NewBandMat(sunindextype N, sunindextype mu, sunindextype ml, sunindextype smu)
 {
   DlsMat A;
-  indextype j, colSize;
+  sunindextype j, colSize;
 
   if (N <= 0) return(NULL);
   
@@ -130,10 +130,10 @@ DlsMat NewBandMat(indextype N, indextype mu, indextype ml, indextype smu)
   return(A);
 }
 
-realtype **newBandMat(indextype n, indextype smu, indextype ml)
+realtype **newBandMat(sunindextype n, sunindextype smu, sunindextype ml)
 {
   realtype **a;
-  indextype j, colSize;
+  sunindextype j, colSize;
 
   if (n <= 0) return(NULL);
 
@@ -191,31 +191,31 @@ int *newIntArray(int n)
   return(v);
 }
 
-indextype *NewLintArray(indextype N)
+sunindextype *NewLintArray(sunindextype N)
 {
-  indextype *vec;
+  sunindextype *vec;
 
   if (N <= 0) return(NULL);
 
   vec = NULL;
-  vec = (indextype *) malloc(N * sizeof(indextype));
+  vec = (sunindextype *) malloc(N * sizeof(sunindextype));
 
   return(vec);
 }
 
-indextype *newLintArray(indextype n)
+sunindextype *newLintArray(sunindextype n)
 {
-  indextype *v;
+  sunindextype *v;
 
   if (n <= 0) return(NULL);
 
   v = NULL;
-  v = (indextype *) malloc(n * sizeof(indextype));
+  v = (sunindextype *) malloc(n * sizeof(sunindextype));
 
   return(v);
 }
 
-realtype *NewRealArray(indextype N)
+realtype *NewRealArray(sunindextype N)
 {
   realtype *vec;
 
@@ -227,7 +227,7 @@ realtype *NewRealArray(indextype N)
   return(vec);
 }
 
-realtype *newRealArray(indextype m)
+realtype *newRealArray(sunindextype m)
 {
   realtype *v;
 
@@ -254,7 +254,7 @@ void destroyArray(void *v)
 
 void AddIdentity(DlsMat A)
 {
-  indextype i;
+  sunindextype i;
 
   switch (A->type) {
 
@@ -273,7 +273,7 @@ void AddIdentity(DlsMat A)
 
 void SetToZero(DlsMat A)
 {
-  indextype i, j, colSize;
+  sunindextype i, j, colSize;
   realtype *col_j;
 
   switch (A->type) {
@@ -306,7 +306,7 @@ void SetToZero(DlsMat A)
 
 void PrintMat(DlsMat A)
 {
-  indextype i, j, start, finish;
+  sunindextype i, j, start, finish;
   realtype **a;
 
   switch (A->type) {

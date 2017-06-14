@@ -73,7 +73,7 @@ static int arkMassBandMultiply(N_Vector v, N_Vector Mv,
        representation by checking that the function 
        N_VGetArrayPointer exists.
 ---------------------------------------------------------------*/
-int ARKBand(void *arkode_mem, indextype N, indextype mupper, indextype mlower)
+int ARKBand(void *arkode_mem, sunindextype N, sunindextype mupper, sunindextype mlower)
 {
   ARKodeMem ark_mem;
   ARKDlsMem arkdls_mem;
@@ -214,7 +214,7 @@ static int arkBandSetup(ARKodeMem ark_mem, int convfail,
 {
   booleantype jbad, jok;
   realtype dgamma;
-  indextype i, j, ier, ml, mu, N, M, is, ie;
+  sunindextype i, j, ier, ml, mu, N, M, is, ie;
   DlsMat A, Mass;
   ARKDlsMem arkdls_mem;
   ARKDlsMassMem arkdls_mass_mem;
@@ -391,8 +391,8 @@ static int arkBandFree(ARKodeMem ark_mem)
        representation by checking that the function 
        N_VGetArrayPointer exists.
 ---------------------------------------------------------------*/
-int ARKMassBand(void *arkode_mem, indextype N, indextype mupper, 
-		indextype mlower, ARKDlsBandMassFn bmass)
+int ARKMassBand(void *arkode_mem, sunindextype N, sunindextype mupper, 
+		sunindextype mlower, ARKDlsBandMassFn bmass)
 {
   ARKodeMem ark_mem;
   ARKDlsMassMem arkdls_mem;
@@ -519,7 +519,7 @@ static int arkMassBandInit(ARKodeMem ark_mem)
 static int arkMassBandSetup(ARKodeMem ark_mem, N_Vector vtemp1, 
 			    N_Vector vtemp2, N_Vector vtemp3)
 {
-  indextype ier;
+  sunindextype ier;
   ARKDlsMassMem arkdls_mem;
   int retval;
 

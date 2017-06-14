@@ -66,7 +66,7 @@
 
 /* user data structure */
 typedef struct {  
-  indextype N;    /* number of intervals      */
+  sunindextype N;    /* number of intervals      */
   int nthreads;  /* number of OpenMP threads */
   realtype dx;   /* mesh spacing             */
   realtype a;    /* constant forcing on u    */
@@ -80,7 +80,7 @@ typedef struct {
 
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(indextype N, indextype mu, indextype ml,
+static int Jac(sunindextype N, sunindextype mu, sunindextype ml,
                realtype t, N_Vector y, N_Vector fy, 
                DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
   int Nvar = 3;                 /* number of solution fields */
   UserData udata = NULL;
   realtype *data;
-  indextype N = 201;             /* spatial mesh size */
+  sunindextype N = 201;             /* spatial mesh size */
   realtype a = 0.6;             /* problem parameters */
   realtype b = 2.0;
   realtype du = 0.025;
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
   realtype ep = 1.0e-5;         /* stiffness parameter */
   realtype reltol = 1.0e-6;     /* tolerances */
   realtype abstol = 1.0e-10;
-  indextype NEQ, i;
+  sunindextype NEQ, i;
 
   /* general problem variables */
   int flag;                     /* reusable error-checking flag */
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
   realtype pi, t, dTout, tout, u, v, w;
   FILE *FID, *UFID, *VFID, *WFID;
   int iout, num_threads;
-  indextype nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
+  sunindextype nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
 
   /* allocate udata structure */
   udata = (UserData) malloc(sizeof(*udata));
@@ -327,7 +327,7 @@ int main(int argc, char *argv[])
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;      /* access problem data */
-  indextype N  = udata->N;                     /* set variable shortcuts */
+  sunindextype N  = udata->N;                     /* set variable shortcuts */
   realtype a  = udata->a;
   realtype b  = udata->b;
   realtype ep = udata->ep;
@@ -337,7 +337,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   realtype dx = udata->dx;
   realtype *Ydata=NULL, *dYdata=NULL;
   realtype uconst, vconst, wconst, u, ul, ur, v, vl, vr, w, wl, wr;
-  indextype i;
+  sunindextype i;
 
   /* clear out ydot (to be careful) */
   N_VConst(0.0, ydot);
@@ -380,7 +380,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(indextype M, indextype mu, indextype ml,
+static int Jac(sunindextype M, sunindextype mu, sunindextype ml,
                realtype t, N_Vector y, N_Vector fy, 
                DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -411,8 +411,8 @@ static int Jac(indextype M, indextype mu, indextype ml,
    We add the result into Jac and do not erase what was already there */
 static int LaplaceMatrix(realtype c, DlsMat Jac, UserData udata)
 {
-  indextype i;                /* set shortcuts */
-  indextype N = udata->N;
+  sunindextype i;                /* set shortcuts */
+  sunindextype N = udata->N;
   realtype dx = udata->dx;
   
   /* iterate over intervals, filling in Jacobian entries */
@@ -440,8 +440,8 @@ static int LaplaceMatrix(realtype c, DlsMat Jac, UserData udata)
    We add the result into Jac and do not erase what was already there */
 static int ReactionJac(realtype c, N_Vector y, DlsMat Jac, UserData udata)
 {
-  indextype N  = udata->N;                      /* set shortcuts */
-  indextype i;
+  sunindextype N  = udata->N;                      /* set shortcuts */
+  sunindextype i;
   realtype u, v, w;
   realtype ep = udata->ep;
   realtype *Ydata = N_VGetArrayPointer(y);     /* access solution array */

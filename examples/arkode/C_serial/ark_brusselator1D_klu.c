@@ -116,7 +116,7 @@ int main()
   realtype reltol = 1.0e-6;     /* tolerances */
   realtype abstol = 1.0e-10;
   int i;
-  indextype NEQ, NNZ;
+  sunindextype NEQ, NNZ;
 
   /* general problem variables */
   int flag;                     /* reusable error-checking flag */

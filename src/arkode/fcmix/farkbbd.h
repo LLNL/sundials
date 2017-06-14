@@ -100,7 +100,7 @@
        YDOT -- array containing state derivatives [realtype, 
                output]
        IPAR -- array containing integer user data that was passed
-               to FARKMALLOC [indextype, input]
+               to FARKMALLOC [sunindextype, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -138,14 +138,14 @@
      mathematically identical to fi is allowed).  
 
      The arguments are:
-       NLOC -- local problem size [indextype, input]
+       NLOC -- local problem size [sunindextype, input]
        T    -- current time [realtype, input]
        YLOC -- array containing local state variables 
                [realtype, input]
        GLOC -- array containing local state derivatives 
                [realtype, output]
        IPAR -- array containing integer user data that was passed
-               to FARKMALLOC [indextype, input]
+               to FARKMALLOC [sunindextype, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -169,12 +169,12 @@
      by FARKIFUN if relevant to the evaluation of g.
 
      The arguments are:
-       NLOC -- local problem size [indextype, input]
+       NLOC -- local problem size [sunindextype, input]
        T    -- current time [realtype, input]
        YLOC -- array containing local state variables 
                [realtype, input]
        IPAR -- array containing integer user data that was passed
-               to FARKMALLOC [indextype, input]
+               to FARKMALLOC [sunindextype, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -204,7 +204,7 @@
        FY   -- state derivatives [realtype, input]
        H    -- current step size [realtype, input]
        IPAR -- array containing integer user data that was passed
-               to FARKMALLOC [indextype, input]
+               to FARKMALLOC [sunindextype, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        WORK -- array containing temporary workspace of same size
@@ -224,9 +224,9 @@
      where the first argument is an int containing the ARKODE 
      solver ID (4). The other arguments are:
         NLOCAL = local vector size on this processor 
-	   [indextype, input]
+	   [sunindextype, input]
         NGLOBAL = system size, and the global size of vectors 
-	   (the sum of all values of NLOCAL) [indextype, input]
+	   (the sum of all values of NLOCAL) [sunindextype, input]
         IER = return completion flag [int, ouptut]. 
                   0 = success, 
                  -1 = failure.
@@ -258,10 +258,10 @@
         RTOL = scalar relative tolerance [realtype, input]
 	ATOL = scalar/array absolute tolerance [realtype, input]
 	IOUT = array of length 22 for integer optional outputs
-	   [indextype, output]
+	   [sunindextype, output]
 	ROUT = array of length 6 for real optional outputs 
 	   [realtype, output]
-	IPAR = array of user integer data [indextype, in/out]
+	IPAR = array of user integer data [sunindextype, in/out]
 	RPAR = array with user real data [realtype, in/out]
 	IER  = return completion flag [int, output]:
                   0 = SUCCESS,
@@ -434,22 +434,22 @@
  
       The arguments are:
         NLOCAL = local vector size on this process 
-	     [indextype, input]
+	     [sunindextype, input]
         MUDQ = upper half-bandwidth to be used in the computation
              of the local Jacobian blocks by difference 
 	     quotients.  These may be smaller than the true 
 	     half-bandwidths of the Jacobian of the local block 
 	     of g, when smaller values may provide greater 
-	     efficiency [indextype, input]
+	     efficiency [sunindextype, input]
         MLDQ = lower half-bandwidth to be used in the computation
              of the local Jacobian blocks by difference 
-	     quotients [indextype, input]
+	     quotients [sunindextype, input]
 	MU = upper half-bandwidth of the band matrix that is
 	     retained as an approximation of the local Jacobian
-	     block (may be smaller than MUDQ) [indextype, input]
+	     block (may be smaller than MUDQ) [sunindextype, input]
 	ML = lower half-bandwidth of the band matrix that is
 	     retained as an approximation of the local Jacobian
-	     block (may be smaller than MLDQ) [indextype, input]
+	     block (may be smaller than MLDQ) [sunindextype, input]
 	DQRELY = relative increment factor in y for difference 
 	     quotients [realtype, input]
                     0.0 = default (sqrt(unit roundoff))
@@ -556,11 +556,11 @@
      The arguments returned are:
        LENRWBP = length of real preconditioner work space, in 
            realtype words (this size is local to the current 
-	   processor if run in parallel) [indextype, output]
+	   processor if run in parallel) [sunindextype, output]
        LENIWBP = length of integer preconditioner work space, in
-           integer words (processor-local) [indextype, output]
+           integer words (processor-local) [sunindextype, output]
        NGEBBD = number of g(t,y) evaluations (calls to ARKLOCFN)
-           so far [indextype, output]
+           so far [sunindextype, output]
  
  (8) Computing solution derivatives: FARKDKY
 
@@ -620,18 +620,18 @@ extern "C" {
 #endif
 
 /* Prototypes of exported functions */
-void FARK_BBDINIT(indextype *Nloc, indextype *mudq, 
-		  indextype *mldq, indextype *mu, 
-		  indextype *ml, realtype* dqrely, int *ier);
-void FARK_BBDREINIT(indextype *Nloc, indextype *mudq, 
-		    indextype *mldq, realtype* dqrely, int *ier);
-void FARK_BBDOPT(indextype *lenrwbbd, indextype *leniwbbd, 
+void FARK_BBDINIT(sunindextype *Nloc, sunindextype *mudq, 
+		  sunindextype *mldq, sunindextype *mu, 
+		  sunindextype *ml, realtype* dqrely, int *ier);
+void FARK_BBDREINIT(sunindextype *Nloc, sunindextype *mudq, 
+		    sunindextype *mldq, realtype* dqrely, int *ier);
+void FARK_BBDOPT(sunindextype *lenrwbbd, sunindextype *leniwbbd, 
 		 long int *ngebbd);
 
 /* Prototypes: Functions Called by the ARKBBDPRE Module */
-int FARKgloc(indextype Nloc, realtype t, N_Vector yloc, 
+int FARKgloc(sunindextype Nloc, realtype t, N_Vector yloc, 
 	     N_Vector gloc, void *user_data);
-int FARKcfn(indextype Nloc, realtype t, N_Vector y, 
+int FARKcfn(sunindextype Nloc, realtype t, N_Vector y, 
 	    void *user_data);
 
 #ifdef __cplusplus

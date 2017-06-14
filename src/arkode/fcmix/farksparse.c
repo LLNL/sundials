@@ -37,7 +37,7 @@ extern "C" {
 			 realtype *FY, int *N, int *NNZ, 
 			 realtype *JDATA, int *JRVALS, 
 			 int *JCPTRS, realtype *H, 
-			 indextype *IPAR, realtype *RPAR, 
+			 sunindextype *IPAR, realtype *RPAR, 
 			 realtype *V1, realtype *V2, 
 			 realtype *V3, int *ier);
 

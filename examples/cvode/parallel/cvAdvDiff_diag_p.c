@@ -67,8 +67,8 @@ typedef struct {
 
 /* Private Helper Functions */
 
-static void SetIC(N_Vector u, realtype dx, indextype my_length,
-                  indextype my_base);
+static void SetIC(N_Vector u, realtype dx, sunindextype my_length,
+                  sunindextype my_base);
 
 static void PrintIntro(int npes);
 
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
   UserData data;
   void *cvode_mem;
   int iout, flag, my_pe, npes;
-  indextype local_N, nperpe, nrem, my_base, nst;
+  sunindextype local_N, nperpe, nrem, my_base, nst;
 
   MPI_Comm comm;
 
@@ -190,11 +190,11 @@ int main(int argc, char *argv[])
 
 /* Set initial conditions in u vector */
 
-static void SetIC(N_Vector u, realtype dx, indextype my_length,
-                  indextype my_base)
+static void SetIC(N_Vector u, realtype dx, sunindextype my_length,
+                  sunindextype my_base)
 {
   int i;
-  indextype iglobal;
+  sunindextype iglobal;
   realtype x;
   realtype *udata;
 

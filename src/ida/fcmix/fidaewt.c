@@ -35,7 +35,7 @@ extern "C" {
 #endif
 
   extern void FIDA_EWT(realtype*, realtype*,   /* Y, EWT */ 
-                       indextype*, realtype*,   /* IPAR, RPAR */
+                       sunindextype*, realtype*,   /* IPAR, RPAR */
                        int*);                  /* IER */
 
 #ifdef __cplusplus

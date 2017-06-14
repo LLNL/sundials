@@ -61,14 +61,14 @@ void InitVectors()
 
 }
 
-N_Vector NewVector(indextype n)
+N_Vector NewVector(sunindextype n)
 {
   N_Vector v;
-  indextype nlocal, nglobal;
+  sunindextype nlocal, nglobal;
 
   if (sundials_VecType == 1) {
 
-    v = N_VNew_Serial((indextype)n);
+    v = N_VNew_Serial((sunindextype)n);
 
   } else {
 

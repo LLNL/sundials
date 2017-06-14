@@ -166,7 +166,7 @@
  * RTOL  = relative tolerance (scalar)
  * ATOL  = absolute tolerance (scalar or array)
  * IOUT  = array of length at least 21 for integer optional inputs and outputs
- *          (declare as INTEGER*4 or INTEGER*8 according to C type indextype)
+ *          (declare as INTEGER*4 or INTEGER*8 according to C type sunindextype)
  * ROUT  = array of length 6 for real optional inputs and outputs
  *
  *         The optional outputs are:
@@ -192,7 +192,7 @@
  *           UNITRND = ROUT( 6) -> UNIT_ROUNDOFF
  *
  * IPAR  = array with user integer data
- *         (declare as INTEGER*4 or INTEGER*8 according to C type indextype)
+ *         (declare as INTEGER*4 or INTEGER*8 according to C type sunindextype)
  * RPAR  = array with user real data
  * IER   = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
  *         See printed message for details in case of failure.
@@ -320,18 +320,18 @@ extern "C" {
 
 /* Prototypes of exported functions */
 
-void FIDA_BBDINIT(indextype *Nloc, indextype *mudq, indextype *mldq,
-                  indextype *mu, indextype *ml, realtype *dqrely, int *ier);
+void FIDA_BBDINIT(sunindextype *Nloc, sunindextype *mudq, sunindextype *mldq,
+                  sunindextype *mu, sunindextype *ml, realtype *dqrely, int *ier);
 
-void FIDA_BBDREINIT(indextype *Nloc, indextype *mudq, indextype *mldq,
+void FIDA_BBDREINIT(sunindextype *Nloc, sunindextype *mudq, sunindextype *mldq,
 		    realtype *dqrely, int *ier);
 
-void FIDA_BBDOPT(indextype *lenrwbbd, indextype *leniwbbd, long int *ngebbd);
+void FIDA_BBDOPT(sunindextype *lenrwbbd, sunindextype *leniwbbd, long int *ngebbd);
 
 /* Prototypes: Functions Called by the IDABBD Module */
 
-int FIDAgloc(indextype Nloc, realtype t, N_Vector yy, N_Vector yp, N_Vector gval, void *user_data);
-int FIDAcfn(indextype Nloc, realtype t, N_Vector yy, N_Vector yp, void *user_data);
+int FIDAgloc(sunindextype Nloc, realtype t, N_Vector yy, N_Vector yp, N_Vector gval, void *user_data);
+int FIDAcfn(sunindextype Nloc, realtype t, N_Vector yy, N_Vector yp, void *user_data);
 
 #ifdef __cplusplus
 }

@@ -73,7 +73,7 @@ SUNDIALS_EXPORT int CVDiag(void *cvode_mem);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVDiagGetWorkSpace(void *cvode_mem, indextype *lenrwLS, indextype *leniwLS);
+SUNDIALS_EXPORT int CVDiagGetWorkSpace(void *cvode_mem, sunindextype *lenrwLS, sunindextype *leniwLS);
 SUNDIALS_EXPORT int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
 SUNDIALS_EXPORT int CVDiagGetLastFlag(void *cvode_mem, long int *flag);
 

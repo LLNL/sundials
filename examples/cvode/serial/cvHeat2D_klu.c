@@ -81,7 +81,7 @@
 /* Type: UserData */
 
 typedef struct {
-  indextype mm;
+  sunindextype mm;
   realtype dx;
   realtype coeff;
 } *UserData;
@@ -122,7 +122,7 @@ int main(void)
   UserData data;
   N_Vector uu, constraints, res; 
   int flag, iout;
-  indextype mu, ml, netf, ncfn;
+  sunindextype mu, ml, netf, ncfn;
   realtype rtol, atol, t0, t1, tout, tret;
 
   int nnz; /* number of non-zeroes  */
@@ -259,7 +259,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 int heatres(realtype tres, N_Vector uu, N_Vector resval, 
             void *user_data)
 {
-  indextype mm, i, j, offset, loc;
+  sunindextype mm, i, j, offset, loc;
   realtype *uv, *resv, coeff;
   UserData data;
   
@@ -615,7 +615,7 @@ static int jacHeat(realtype tt,
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector res)
 {
   realtype xfact, yfact, *udata;
-  indextype mm, mm1, i, j, offset, loc;
+  sunindextype mm, mm1, i, j, offset, loc;
   
   mm = data->mm;
   mm1 = mm - 1;

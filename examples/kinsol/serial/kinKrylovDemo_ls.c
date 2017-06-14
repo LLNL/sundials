@@ -145,7 +145,7 @@
 
 typedef struct {
   realtype **P[MX][MY];
-  indextype *pivot[MX][MY];
+  sunindextype *pivot[MX][MY];
   realtype **acoef, *bcoef;
   N_Vector rates;
   realtype *cox, *coy;
@@ -509,7 +509,7 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
                        N_Vector ftem)
 {
   realtype **Pxy, *vxy;
-  indextype *piv, jx, jy;
+  sunindextype *piv, jx, jy;
   UserData data;
   
   data = (UserData)user_data;

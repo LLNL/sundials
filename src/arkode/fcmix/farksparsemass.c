@@ -35,7 +35,7 @@ extern "C" {
 
   extern void FARK_SPMASS(realtype *T, int *N, int *NNZ, 
 			  realtype *MDATA, int *MRVALS, 
-			  int *MCPTRS, indextype *IPAR, 
+			  int *MCPTRS, sunindextype *IPAR, 
 			  realtype *RPAR, realtype *V1, 
 			  realtype *V2, realtype *V3, int *ier);
 

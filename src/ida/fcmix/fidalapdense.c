@@ -34,11 +34,11 @@
 extern "C" {
 #endif
 
-  extern void FIDA_DJAC(indextype*, 
+  extern void FIDA_DJAC(sunindextype*, 
                         realtype*, realtype*, realtype*, realtype*,
                         realtype*, 
                         realtype*, realtype*, realtype*,
-                        indextype*, realtype*,
+                        sunindextype*, realtype*,
                         realtype*, realtype*, realtype*, 
                         int*);
 
@@ -70,7 +70,7 @@ void FIDA_LAPACKDENSESETJAC(int *flag, int *ier)
 
 /*************************************************/
 
-int FIDALapackDenseJac(indextype N, realtype t, realtype c_j, 
+int FIDALapackDenseJac(sunindextype N, realtype t, realtype c_j, 
                        N_Vector yy, N_Vector yp, N_Vector rr,
                        DlsMat Jac, void *user_data,
                        N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)

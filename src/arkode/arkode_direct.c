@@ -181,7 +181,7 @@ int ARKDlsSetBandMassFn(void *arkode_mem, ARKDlsBandMassFn mass)
  ARKDlsGetWorkSpace returns the length of workspace allocated for 
  the ARKDLS linear solver.
 ---------------------------------------------------------------*/
-int ARKDlsGetWorkSpace(void *arkode_mem, indextype *lenrwLS, indextype *leniwLS)
+int ARKDlsGetWorkSpace(void *arkode_mem, sunindextype *lenrwLS, sunindextype *leniwLS)
 {
   ARKodeMem ark_mem;
   ARKDlsMem arkdls_mem;
@@ -217,8 +217,8 @@ int ARKDlsGetWorkSpace(void *arkode_mem, indextype *lenrwLS, indextype *leniwLS)
  ARKDlsGetMassWorkSpace returns the length of workspace allocated 
  for the ARKDLS mass matrix linear solver.
 ---------------------------------------------------------------*/
-int ARKDlsGetMassWorkSpace(void *arkode_mem, indextype *lenrwMLS, 
-			   indextype *leniwMLS)
+int ARKDlsGetMassWorkSpace(void *arkode_mem, sunindextype *lenrwMLS, 
+			   sunindextype *leniwMLS)
 {
   ARKodeMem ark_mem;
   ARKDlsMassMem arkdls_mem;
@@ -456,14 +456,14 @@ int ARKDlsGetLastMassFlag(void *arkode_mem, long int *flag)
  functions.  Finally, the actual computation of the jth column of
  the Jacobian is done with a call to N_VLinearSum.
 ---------------------------------------------------------------*/
-int arkDlsDenseDQJac(indextype N, realtype t, N_Vector y, 
+int arkDlsDenseDQJac(sunindextype N, realtype t, N_Vector y, 
 		     N_Vector fy, DlsMat Jac, void *data,
 		     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype fnorm, minInc, inc, inc_inv, yjsaved, srur;
   realtype *tmp2_data, *y_data, *ewt_data;
   N_Vector ftemp, jthCol;
-  indextype j;
+  sunindextype j;
   int retval = 0;
 
   ARKodeMem ark_mem;
@@ -529,7 +529,7 @@ int arkDlsDenseDQJac(indextype N, realtype t, N_Vector y,
  of a column of J via the macro BAND_COL and to write a simple for 
  loop to set each of the elements of a column in succession.
 ---------------------------------------------------------------*/
-int arkDlsBandDQJac(indextype N, indextype mupper, indextype mlower,
+int arkDlsBandDQJac(sunindextype N, sunindextype mupper, sunindextype mlower,
                    realtype t, N_Vector y, N_Vector fy, 
                    DlsMat Jac, void *data,
                    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -537,7 +537,7 @@ int arkDlsBandDQJac(indextype N, indextype mupper, indextype mlower,
   N_Vector ftemp, ytemp;
   realtype fnorm, minInc, inc, inc_inv, srur;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
-  indextype group, i, j, width, ngroups, i1, i2;
+  sunindextype group, i, j, width, ngroups, i1, i2;
   int retval = 0;
 
   ARKodeMem ark_mem;

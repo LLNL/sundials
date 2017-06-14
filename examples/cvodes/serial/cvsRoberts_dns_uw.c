@@ -81,7 +81,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 static int g(realtype t, N_Vector y, realtype *gout, void *user_data);
 
-static int Jac(indextype N, realtype t,
+static int Jac(sunindextype N, realtype t,
                N_Vector y, N_Vector fy, DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
@@ -233,7 +233,7 @@ static int g(realtype t, N_Vector y, realtype *gout, void *user_data)
  * Jacobian routine. Compute J(t,y) = df/dy. *
  */
 
-static int Jac(indextype N, realtype t,
+static int Jac(sunindextype N, realtype t,
                N_Vector y, N_Vector fy, DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {

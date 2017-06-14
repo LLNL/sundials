@@ -45,18 +45,18 @@ typedef struct CVBoomerAMGDataRec {
 
   /* passed by user to CVBoomerAMGAlloc and used by PrecSetup/PrecSolve */
 
-  indextype mudq, mldq, mukeep, mlkeep;
+  sunindextype mudq, mldq, mukeep, mlkeep;
   realtype dqrely;
   CVParCsrJacFn jacfn;
 
   /* set by CVBoomerAMGAlloc and used by CVBoomerAMGSetup */
 
-  indextype n_local;
+  sunindextype n_local;
 
   /* available for optional output */
 
-  indextype rpwsize;
-  indextype ipwsize;
+  sunindextype rpwsize;
+  sunindextype ipwsize;
   long int nge;
   
   int ilower, iupper, jlower, jupper, N;

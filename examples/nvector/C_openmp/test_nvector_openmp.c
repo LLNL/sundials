@@ -35,7 +35,7 @@
 int main(int argc, char *argv[]) 
 {
   int      fails = 0;            /* counter for test failures */
-  indextype veclen;               /* vector length             */
+  sunindextype veclen;               /* vector length             */
   N_Vector W, X, Y, Z;           /* test vectors              */
   int      num_threads;
   int      print_timing;
@@ -120,10 +120,10 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Check vector
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, indextype local_length)
+int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 {
   int      failure = 0;
-  indextype i;
+  sunindextype i;
   realtype *Xdata;
   
   Xdata = N_VGetArrayPointer(X);
@@ -148,12 +148,12 @@ booleantype has_data(N_Vector X)
     return TRUE;
 }
 
-void set_element(N_Vector X, indextype i, realtype val)
+void set_element(N_Vector X, sunindextype i, realtype val)
 {
   NV_Ith_OMP(X,i) = val;
 }
  
-realtype get_element(N_Vector X, indextype i)
+realtype get_element(N_Vector X, sunindextype i)
 {
   return NV_Ith_OMP(X,i);
 }

@@ -111,7 +111,7 @@ extern "C" {
      UNIT_ROUNDOFF defined in sundials_types.h.
 
 ---------------------------------------------------------------*/
-typedef int (*ARKDlsDenseJacFn)(indextype N, realtype t,
+typedef int (*ARKDlsDenseJacFn)(sunindextype N, realtype t,
 				N_Vector y, N_Vector fy, 
 				DlsMat Jac, void *user_data,
 				N_Vector tmp1, N_Vector tmp2, 
@@ -142,7 +142,7 @@ typedef int (*ARKDlsDenseJacFn)(indextype N, realtype t,
  negative value if an unrecoverable error occurred.
 
 ---------------------------------------------------------------*/
-typedef int (*ARKDlsDenseMassFn)(indextype N, realtype t, DlsMat M, 
+typedef int (*ARKDlsDenseMassFn)(sunindextype N, realtype t, DlsMat M, 
 				 void *user_data, N_Vector tmp1, 
 				 N_Vector tmp2, N_Vector tmp3);
   
@@ -225,8 +225,8 @@ typedef int (*ARKDlsDenseMassFn)(indextype N, realtype t, DlsMat M,
  if a recoverable error occurred, and a negative value if an 
  unrecoverable error occurred.
 ---------------------------------------------------------------*/
-typedef int (*ARKDlsBandJacFn)(indextype N, indextype mupper, 
-			       indextype mlower, realtype t, 
+typedef int (*ARKDlsBandJacFn)(sunindextype N, sunindextype mupper, 
+			       sunindextype mlower, realtype t, 
 			       N_Vector y, N_Vector fy, 
 			       DlsMat Jac, void *user_data,
 			       N_Vector tmp1, N_Vector tmp2, 
@@ -263,8 +263,8 @@ typedef int (*ARKDlsBandJacFn)(indextype N, indextype mupper,
  A ARKDlsBandMassFn should return 0 if successful, and a negative 
  value if an unrecoverable error occurred.
 ---------------------------------------------------------------*/
-typedef int (*ARKDlsBandMassFn)(indextype N, indextype mupper, 
-				indextype mlower, realtype t, 
+typedef int (*ARKDlsBandMassFn)(sunindextype N, sunindextype mupper, 
+				sunindextype mlower, realtype t, 
 				DlsMat M, void *user_data, 
 				N_Vector tmp1, N_Vector tmp2, 
 				N_Vector tmp3);
@@ -342,11 +342,11 @@ SUNDIALS_EXPORT int ARKDlsSetBandMassFn(void *arkode_mem,
     ARKDLS_LMEM_NULL if the linear solver memory was NULL
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKDlsGetWorkSpace(void *arkode_mem, 
-				       indextype *lenrwLS, 
-				       indextype *leniwLS);
+				       sunindextype *lenrwLS, 
+				       sunindextype *leniwLS);
 SUNDIALS_EXPORT int ARKDlsGetMassWorkSpace(void *arkode_mem, 
-					   indextype *lenrwMLS, 
-					   indextype *leniwMLS);
+					   sunindextype *lenrwMLS, 
+					   sunindextype *leniwMLS);
 SUNDIALS_EXPORT int ARKDlsGetNumJacEvals(void *arkode_mem, 
 					 long int *njevals);
 SUNDIALS_EXPORT int ARKDlsGetNumMassEvals(void *arkode_mem, 

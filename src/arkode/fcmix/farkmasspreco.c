@@ -35,11 +35,11 @@
 extern "C" {
 #endif
 
-  extern void FARK_MASSPSET(realtype *T, indextype *IPAR, 
+  extern void FARK_MASSPSET(realtype *T, sunindextype *IPAR, 
 			    realtype *RPAR, realtype *W1, 
 			    realtype *W2, realtype *W3, int *IER);
   extern void FARK_MASSPSOL(realtype *T, realtype *R, realtype *Z, 
-			    realtype *DELTA, int *LR, indextype *IPAR, 
+			    realtype *DELTA, int *LR, sunindextype *IPAR, 
 			    realtype *RPAR, realtype *WRK, int *IER);
 
 #ifdef __cplusplus

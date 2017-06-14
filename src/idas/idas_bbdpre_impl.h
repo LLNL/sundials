@@ -43,7 +43,7 @@ typedef struct IBBDPrecDataRec {
   /* passed by user to IDABBDPrecAlloc and used by
      IDABBDPrecSetup/IDABBDPrecSolve functions */
 
-  indextype mudq, mldq, mukeep, mlkeep;
+  sunindextype mudq, mldq, mukeep, mlkeep;
   realtype rel_yy;
   IDABBDLocalFn glocal;
   IDABBDCommFn gcomm;
@@ -55,16 +55,16 @@ typedef struct IBBDPrecDataRec {
   /* set by IDABBDPrecon and used by IDABBDPrecSolve */
 
   DlsMat PP;
-  indextype *lpivots;
+  sunindextype *lpivots;
 
   /* set by IDABBDPrecAlloc and used by IDABBDPrecSetup */
 
-  indextype n_local;
+  sunindextype n_local;
 
   /* available for optional output */
 
-  indextype rpwsize;
-  indextype ipwsize;
+  sunindextype rpwsize;
+  sunindextype ipwsize;
   long int nge;
 
   /* pointer to ida_mem */

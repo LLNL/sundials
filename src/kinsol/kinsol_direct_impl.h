@@ -42,11 +42,11 @@ typedef struct KINDlsMemRec {
 
   int d_type;              /* SUNDIALS_DENSE or SUNDIALS_BAND              */
 
-  indextype d_n;           /* problem dimension                            */
+  sunindextype d_n;           /* problem dimension                            */
 
-  indextype d_ml;          /* lower bandwidth of Jacobian                  */
-  indextype d_mu;          /* upper bandwidth of Jacobian                  */ 
-  indextype d_smu;         /* upper bandwith of M = MIN(N-1,d_mu+d_ml)     */
+  sunindextype d_ml;          /* lower bandwidth of Jacobian                  */
+  sunindextype d_mu;          /* upper bandwidth of Jacobian                  */ 
+  sunindextype d_smu;         /* upper bandwith of M = MIN(N-1,d_mu+d_ml)     */
 
   booleantype d_jacDQ;     /* TRUE if using internal DQ Jacobian approx.   */
   KINDlsDenseJacFn d_djac; /* dense Jacobian routine to be called          */
@@ -56,7 +56,7 @@ typedef struct KINDlsMemRec {
   DlsMat d_J;              /* problem Jacobian                             */
     
   int *d_pivots;           /* int pivot array for PM = LU                  */
-  indextype *d_lpivots;    /* indextype pivot array for PM = LU            */
+  sunindextype *d_lpivots;    /* sunindextype pivot array for PM = LU            */
     
   long int d_nje;          /* no. of calls to jac                          */
     
@@ -73,12 +73,12 @@ typedef struct KINDlsMemRec {
  * -----------------------------------------------------------------
  */
 
-int kinDlsDenseDQJac(indextype N,
+int kinDlsDenseDQJac(sunindextype N,
                      N_Vector u, N_Vector fu,
                      DlsMat Jac, void *data,
                      N_Vector tmp1, N_Vector tmp2);
 
-int kinDlsBandDQJac(indextype N, indextype mupper, indextype mlower,
+int kinDlsBandDQJac(sunindextype N, sunindextype mupper, sunindextype mlower,
                     N_Vector u, N_Vector fu,
                     DlsMat Jac, void *data,
                     N_Vector tmp1, N_Vector tmp2);

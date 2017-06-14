@@ -81,12 +81,12 @@ static int cvBandPrecDQJac(CVBandPrecData pdata,
  *       by checking that the function N_VGetArrayPointer exists.
  * -----------------------------------------------------------------
  */
-int CVBandPrecInit(void *cvode_mem, indextype N, indextype mu, indextype ml)
+int CVBandPrecInit(void *cvode_mem, sunindextype N, sunindextype mu, sunindextype ml)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
   CVBandPrecData pdata;
-  indextype mup, mlp, storagemu;
+  sunindextype mup, mlp, storagemu;
   int flag;
 
   if (cvode_mem == NULL) {
@@ -173,12 +173,12 @@ int CVBandPrecInit(void *cvode_mem, indextype N, indextype mu, indextype ml)
   return(flag);
 }
 
-int CVBandPrecGetWorkSpace(void *cvode_mem, indextype *lenrwBP, indextype *leniwBP)
+int CVBandPrecGetWorkSpace(void *cvode_mem, sunindextype *lenrwBP, sunindextype *leniwBP)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
   CVBandPrecData pdata;
-  indextype N, ml, mu, smu;
+  sunindextype N, ml, mu, smu;
 
   
   if (cvode_mem == NULL) {
@@ -439,7 +439,7 @@ static int cvBandPrecDQJac(CVBandPrecData pdata,
 {
   CVodeMem cv_mem;
   realtype fnorm, minInc, inc, inc_inv, srur;
-  indextype group, i, j, width, ngroups, i1, i2;
+  sunindextype group, i, j, width, ngroups, i1, i2;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
   int retval;
 
@@ -511,7 +511,7 @@ static int cvBandPrecDQJac(CVBandPrecData pdata,
  * CVODES functions
  */
 
-int CVBandPrecInitB(void *cvode_mem, int which, indextype nB, indextype muB, indextype mlB)
+int CVBandPrecInitB(void *cvode_mem, int which, sunindextype nB, sunindextype muB, sunindextype mlB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;

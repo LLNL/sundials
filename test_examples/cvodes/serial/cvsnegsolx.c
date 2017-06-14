@@ -162,7 +162,7 @@ static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  indextype nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf;
+  sunindextype nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf;
 
   CVodeGetNumSteps(cvode_mem, &nst);
   CVodeGetNumRhsEvals(cvode_mem, &nfe);

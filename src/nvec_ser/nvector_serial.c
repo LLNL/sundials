@@ -73,7 +73,7 @@ N_Vector_ID N_VGetVectorID_Serial(N_Vector v)
  * Function to create a new empty serial vector 
  */
 
-N_Vector N_VNewEmpty_Serial(indextype length)
+N_Vector N_VNewEmpty_Serial(sunindextype length)
 {
   N_Vector v;
   N_Vector_Ops ops;
@@ -136,7 +136,7 @@ N_Vector N_VNewEmpty_Serial(indextype length)
  * Function to create a new serial vector 
  */
 
-N_Vector N_VNew_Serial(indextype length)
+N_Vector N_VNew_Serial(sunindextype length)
 {
   N_Vector v;
   realtype *data;
@@ -166,7 +166,7 @@ N_Vector N_VNew_Serial(indextype length)
  * Function to create a serial N_Vector with user data component 
  */
 
-N_Vector N_VMake_Serial(indextype length, realtype *v_data)
+N_Vector N_VMake_Serial(sunindextype length, realtype *v_data)
 {
   N_Vector v;
 
@@ -255,7 +255,7 @@ void N_VDestroyVectorArray_Serial(N_Vector *vs, int count)
 /* ----------------------------------------------------------------------------
  * Function to return number of vector elements
  */
-indextype N_VGetLength_Serial(N_Vector v)
+sunindextype N_VGetLength_Serial(N_Vector v)
 {
   return NV_LENGTH_S(v);
 }
@@ -267,7 +267,7 @@ indextype N_VGetLength_Serial(N_Vector v)
  
 void N_VPrint_Serial(N_Vector x)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype *xd;
 
   xd = NULL;
@@ -360,7 +360,7 @@ N_Vector N_VClone_Serial(N_Vector w)
 {
   N_Vector v;
   realtype *data;
-  indextype length;
+  sunindextype length;
 
   v = NULL;
   v = N_VCloneEmpty_Serial(w);
@@ -398,7 +398,7 @@ void N_VDestroy_Serial(N_Vector v)
   return;
 }
 
-void N_VSpace_Serial(N_Vector v, indextype *lrw, indextype *liw)
+void N_VSpace_Serial(N_Vector v, sunindextype *lrw, sunindextype *liw)
 {
   *lrw = NV_LENGTH_S(v);
   *liw = 1;
@@ -420,7 +420,7 @@ void N_VSetArrayPointer_Serial(realtype *v_data, N_Vector v)
 
 void N_VLinearSum_Serial(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype c, *xd, *yd, *zd;
   N_Vector v1, v2;
   booleantype test;
@@ -507,7 +507,7 @@ void N_VLinearSum_Serial(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
 
 void N_VConst_Serial(realtype c, N_Vector z)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype *zd;
 
   zd = NULL;
@@ -522,7 +522,7 @@ void N_VConst_Serial(realtype c, N_Vector z)
 
 void N_VProd_Serial(N_Vector x, N_Vector y, N_Vector z)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -540,7 +540,7 @@ void N_VProd_Serial(N_Vector x, N_Vector y, N_Vector z)
 
 void N_VDiv_Serial(N_Vector x, N_Vector y, N_Vector z)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -558,7 +558,7 @@ void N_VDiv_Serial(N_Vector x, N_Vector y, N_Vector z)
 
 void N_VScale_Serial(realtype c, N_Vector x, N_Vector z)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -585,7 +585,7 @@ void N_VScale_Serial(realtype c, N_Vector x, N_Vector z)
 
 void N_VAbs_Serial(N_Vector x, N_Vector z)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -602,7 +602,7 @@ void N_VAbs_Serial(N_Vector x, N_Vector z)
 
 void N_VInv_Serial(N_Vector x, N_Vector z)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -619,7 +619,7 @@ void N_VInv_Serial(N_Vector x, N_Vector z)
 
 void N_VAddConst_Serial(N_Vector x, realtype b, N_Vector z)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -636,7 +636,7 @@ void N_VAddConst_Serial(N_Vector x, realtype b, N_Vector z)
 
 realtype N_VDotProd_Serial(N_Vector x, N_Vector y)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype sum, *xd, *yd;
 
   sum = ZERO;
@@ -654,7 +654,7 @@ realtype N_VDotProd_Serial(N_Vector x, N_Vector y)
 
 realtype N_VMaxNorm_Serial(N_Vector x)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype max, *xd;
 
   max = ZERO;
@@ -672,7 +672,7 @@ realtype N_VMaxNorm_Serial(N_Vector x)
 
 realtype N_VWrmsNorm_Serial(N_Vector x, N_Vector w)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype sum, prodi, *xd, *wd;
 
   sum = ZERO;
@@ -692,7 +692,7 @@ realtype N_VWrmsNorm_Serial(N_Vector x, N_Vector w)
 
 realtype N_VWrmsNormMask_Serial(N_Vector x, N_Vector w, N_Vector id)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype sum, prodi, *xd, *wd, *idd;
 
   sum = ZERO;
@@ -715,7 +715,7 @@ realtype N_VWrmsNormMask_Serial(N_Vector x, N_Vector w, N_Vector id)
 
 realtype N_VMin_Serial(N_Vector x)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype min, *xd;
 
   xd = NULL;
@@ -734,7 +734,7 @@ realtype N_VMin_Serial(N_Vector x)
 
 realtype N_VWL2Norm_Serial(N_Vector x, N_Vector w)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype sum, prodi, *xd, *wd;
 
   sum = ZERO;
@@ -754,7 +754,7 @@ realtype N_VWL2Norm_Serial(N_Vector x, N_Vector w)
 
 realtype N_VL1Norm_Serial(N_Vector x)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype sum, *xd;
 
   sum = ZERO;
@@ -771,7 +771,7 @@ realtype N_VL1Norm_Serial(N_Vector x)
 
 void N_VCompare_Serial(realtype c, N_Vector x, N_Vector z)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -789,7 +789,7 @@ void N_VCompare_Serial(realtype c, N_Vector x, N_Vector z)
 
 booleantype N_VInvTest_Serial(N_Vector x, N_Vector z)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype *xd, *zd;
   booleantype no_zero_found;
 
@@ -812,7 +812,7 @@ booleantype N_VInvTest_Serial(N_Vector x, N_Vector z)
 
 booleantype N_VConstrMask_Serial(N_Vector c, N_Vector x, N_Vector m)
 {
-  indextype i, N;
+  sunindextype i, N;
   booleantype test;
   realtype *cd, *xd, *md;
 
@@ -843,7 +843,7 @@ booleantype N_VConstrMask_Serial(N_Vector c, N_Vector x, N_Vector m)
 realtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom)
 {
   booleantype notEvenOnce;
-  indextype i, N;
+  sunindextype i, N;
   realtype *nd, *dd, min;
 
   nd = dd = NULL;
@@ -877,7 +877,7 @@ realtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom)
 
 static void VCopy_Serial(N_Vector x, N_Vector z)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -894,7 +894,7 @@ static void VCopy_Serial(N_Vector x, N_Vector z)
 
 static void VSum_Serial(N_Vector x, N_Vector y, N_Vector z)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -912,7 +912,7 @@ static void VSum_Serial(N_Vector x, N_Vector y, N_Vector z)
 
 static void VDiff_Serial(N_Vector x, N_Vector y, N_Vector z)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -930,7 +930,7 @@ static void VDiff_Serial(N_Vector x, N_Vector y, N_Vector z)
 
 static void VNeg_Serial(N_Vector x, N_Vector z)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -947,7 +947,7 @@ static void VNeg_Serial(N_Vector x, N_Vector z)
 
 static void VScaleSum_Serial(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -965,7 +965,7 @@ static void VScaleSum_Serial(realtype c, N_Vector x, N_Vector y, N_Vector z)
 
 static void VScaleDiff_Serial(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -983,7 +983,7 @@ static void VScaleDiff_Serial(realtype c, N_Vector x, N_Vector y, N_Vector z)
 
 static void VLin1_Serial(realtype a, N_Vector x, N_Vector y, N_Vector z)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -1001,7 +1001,7 @@ static void VLin1_Serial(realtype a, N_Vector x, N_Vector y, N_Vector z)
 
 static void VLin2_Serial(realtype a, N_Vector x, N_Vector y, N_Vector z)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -1019,7 +1019,7 @@ static void VLin2_Serial(realtype a, N_Vector x, N_Vector y, N_Vector z)
 
 static void Vaxpy_Serial(realtype a, N_Vector x, N_Vector y)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype *xd, *yd;
 
   xd = yd = NULL;
@@ -1048,7 +1048,7 @@ static void Vaxpy_Serial(realtype a, N_Vector x, N_Vector y)
 
 static void VScaleBy_Serial(realtype a, N_Vector x)
 {
-  indextype i, N;
+  sunindextype i, N;
   realtype *xd;
 
   xd = NULL;

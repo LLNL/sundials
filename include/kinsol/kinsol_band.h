@@ -53,7 +53,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINBand(void *kinmem, indextype N, indextype mupper, indextype mlower);
+SUNDIALS_EXPORT int KINBand(void *kinmem, sunindextype N, sunindextype mupper, sunindextype mlower);
 
 #ifdef __cplusplus
 }

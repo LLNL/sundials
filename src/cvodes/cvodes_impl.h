@@ -325,12 +325,12 @@ typedef struct CVodeMemRec {
     Space requirements for CVODES 
     -----------------------------*/
 
-  indextype cv_lrw1;        /* no. of realtype words in 1 N_Vector y           */ 
-  indextype cv_liw1;        /* no. of integer words in 1 N_Vector y            */ 
-  indextype cv_lrw1Q;       /* no. of realtype words in 1 N_Vector yQ          */ 
-  indextype cv_liw1Q;       /* no. of integer words in 1 N_Vector yQ           */ 
-  indextype cv_lrw;         /* no. of realtype words in CVODES work vectors    */
-  indextype cv_liw;         /* no. of integer words in CVODES work vectors     */
+  sunindextype cv_lrw1;        /* no. of realtype words in 1 N_Vector y           */ 
+  sunindextype cv_liw1;        /* no. of integer words in 1 N_Vector y            */ 
+  sunindextype cv_lrw1Q;       /* no. of realtype words in 1 N_Vector yQ          */ 
+  sunindextype cv_liw1Q;       /* no. of integer words in 1 N_Vector yQ           */ 
+  sunindextype cv_lrw;         /* no. of realtype words in CVODES work vectors    */
+  sunindextype cv_liw;         /* no. of integer words in CVODES work vectors     */
 
   /*----------------
     Step size ratios

@@ -41,7 +41,7 @@ int main()
   N_Vector y;
   int neq, flag;
   realtype reltol, abstol, t0, t1, t2, t;
-  indextype nst1, nst2, nst;
+  sunindextype nst1, nst2, nst;
 
   neq = 1;
 

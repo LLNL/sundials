@@ -473,8 +473,8 @@ int ARKSpilsSetMassTimesVecFn(void *arkode_mem,
 /*---------------------------------------------------------------
  ARKSpilsGetWorkSpace
 ---------------------------------------------------------------*/
-int ARKSpilsGetWorkSpace(void *arkode_mem, indextype *lenrwLS, 
-			 indextype *leniwLS)
+int ARKSpilsGetWorkSpace(void *arkode_mem, sunindextype *lenrwLS, 
+			 sunindextype *leniwLS)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
@@ -527,8 +527,8 @@ int ARKSpilsGetWorkSpace(void *arkode_mem, indextype *lenrwLS,
 /*---------------------------------------------------------------
  ARKSpilsGetMassWorkSpace
 ---------------------------------------------------------------*/
-int ARKSpilsGetMassWorkSpace(void *arkode_mem, indextype *lenrwMLS, 
-			     indextype *leniwMLS)
+int ARKSpilsGetMassWorkSpace(void *arkode_mem, sunindextype *lenrwMLS, 
+			     sunindextype *leniwMLS)
 {
   ARKodeMem ark_mem;
   ARKSpilsMassMem arkspils_mem;

@@ -34,7 +34,7 @@
 extern "C" {
 #endif
   extern void FARK_ROOTFN(realtype *T, realtype *Y, 
-			  realtype *G, indextype *IPAR, 
+			  realtype *G, sunindextype *IPAR, 
 			  realtype *RPAR, int *ier);
 
 #ifdef __cplusplus

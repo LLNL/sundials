@@ -78,11 +78,11 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT indextype DenseGETRF(DlsMat A, indextype *p);
-SUNDIALS_EXPORT void DenseGETRS(DlsMat A, indextype *p, realtype *b);
+SUNDIALS_EXPORT sunindextype DenseGETRF(DlsMat A, sunindextype *p);
+SUNDIALS_EXPORT void DenseGETRS(DlsMat A, sunindextype *p, realtype *b);
 
-SUNDIALS_EXPORT indextype denseGETRF(realtype **a, indextype m, indextype n, indextype *p);
-SUNDIALS_EXPORT void denseGETRS(realtype **a, indextype n, indextype *p, realtype *b);
+SUNDIALS_EXPORT sunindextype denseGETRF(realtype **a, sunindextype m, sunindextype n, sunindextype *p);
+SUNDIALS_EXPORT void denseGETRS(realtype **a, sunindextype n, sunindextype *p, realtype *b);
 
 /*
  * -----------------------------------------------------------------
@@ -102,11 +102,11 @@ SUNDIALS_EXPORT void denseGETRS(realtype **a, indextype n, indextype *p, realtyp
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT indextype DensePOTRF(DlsMat A);
+SUNDIALS_EXPORT sunindextype DensePOTRF(DlsMat A);
 SUNDIALS_EXPORT void DensePOTRS(DlsMat A, realtype *b);
 
-SUNDIALS_EXPORT indextype densePOTRF(realtype **a, indextype m);
-SUNDIALS_EXPORT void densePOTRS(realtype **a, indextype m, realtype *b);
+SUNDIALS_EXPORT sunindextype densePOTRF(realtype **a, sunindextype m);
+SUNDIALS_EXPORT void densePOTRS(realtype **a, sunindextype m, realtype *b);
 
 /*
  * -----------------------------------------------------------------
@@ -138,9 +138,9 @@ SUNDIALS_EXPORT int DenseGEQRF(DlsMat A, realtype *beta, realtype *wrk);
 SUNDIALS_EXPORT int DenseORMQR(DlsMat A, realtype *beta, realtype *vn, realtype *vm, 
 			       realtype *wrk);
 
-SUNDIALS_EXPORT int denseGEQRF(realtype **a, indextype m, indextype n, realtype *beta,
+SUNDIALS_EXPORT int denseGEQRF(realtype **a, sunindextype m, sunindextype n, realtype *beta,
                                realtype *wrk);
-SUNDIALS_EXPORT int denseORMQR(realtype **a, indextype m, indextype n, realtype *beta,
+SUNDIALS_EXPORT int denseORMQR(realtype **a, sunindextype m, sunindextype n, realtype *beta,
 			       realtype *v, realtype *w, realtype *wrk);
 
 /*
@@ -156,7 +156,7 @@ SUNDIALS_EXPORT int denseORMQR(realtype **a, indextype m, indextype n, realtype 
  */
 
 SUNDIALS_EXPORT void DenseCopy(DlsMat A, DlsMat B);
-SUNDIALS_EXPORT void denseCopy(realtype **a, realtype **b, indextype m, indextype n);
+SUNDIALS_EXPORT void denseCopy(realtype **a, realtype **b, sunindextype m, sunindextype n);
 
 /*
  * -----------------------------------------------------------------
@@ -171,7 +171,7 @@ SUNDIALS_EXPORT void denseCopy(realtype **a, realtype **b, indextype m, indextyp
  */
 
 SUNDIALS_EXPORT void DenseScale(realtype c, DlsMat A);
-SUNDIALS_EXPORT void denseScale(realtype c, realtype **a, indextype m, indextype n);
+SUNDIALS_EXPORT void denseScale(realtype c, realtype **a, sunindextype m, sunindextype n);
 
 
 /*
@@ -183,7 +183,7 @@ SUNDIALS_EXPORT void denseScale(realtype c, realtype **a, indextype m, indextype
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void denseAddIdentity(realtype **a, indextype n);
+SUNDIALS_EXPORT void denseAddIdentity(realtype **a, sunindextype n);
 
 
 /*
@@ -201,7 +201,7 @@ SUNDIALS_EXPORT void denseAddIdentity(realtype **a, indextype n);
  */
 
 SUNDIALS_EXPORT void DenseMatvec(DlsMat A, realtype *x, realtype *y);
-SUNDIALS_EXPORT void denseMatvec(realtype **a, realtype *x, realtype *y, indextype m, indextype n);
+SUNDIALS_EXPORT void denseMatvec(realtype **a, realtype *x, realtype *y, sunindextype m, sunindextype n);
 
 
 #ifdef __cplusplus

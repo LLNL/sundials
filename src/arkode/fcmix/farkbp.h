@@ -90,7 +90,7 @@
        YDOT -- array containing state derivatives [realtype, 
                output]
        IPAR -- array containing integer user data that was passed
-               to FARKMALLOC [indextype, input]
+               to FARKMALLOC [sunindextype, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -120,7 +120,7 @@
        FY   -- state derivatives [realtype, input]
        H    -- current step size [realtype, input]
        IPAR -- array containing integer user data that was passed
-               to FARKMALLOC [indextype, input]
+               to FARKMALLOC [sunindextype, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        WORK -- array containing temporary workspace of same size
@@ -139,7 +139,7 @@
 
      where the first argument is an int containing the ARKODE 
      solver ID (4). The other arguments are:
-        NEQ = size of vectors [indextype, input]
+        NEQ = size of vectors [sunindextype, input]
 	IER = return completion flag [int, output]:
 	          0 = success, 
 		 -1 = failure.
@@ -166,10 +166,10 @@
         RTOL = scalar relative tolerance [realtype, input]
 	ATOL = scalar/array absolute tolerance [realtype, input]
 	IOUT = array of length 22 for integer optional outputs
-	   [indextype, output]
+	   [sunindextype, output]
 	ROUT = array of length 6 for real optional outputs 
 	   [realtype, output]
-	IPAR = array of user integer data [indextype, in/out]
+	IPAR = array of user integer data [sunindextype, in/out]
 	RPAR = array with user real data [realtype, in/out]
 	IER  = return completion flag [int, output]:
                   0 = SUCCESS,
@@ -341,12 +341,12 @@
         CALL FARKBPINIT(NEQ, MU, ML, IER)
 
       The arguments are:
-        NEQ = problem size [indextype, input]
+        NEQ = problem size [sunindextype, input]
         MU = upper half-bandwidth of the band matrix that is 
 	     retained as an approximation of the Jacobian 
-	     [indextype, input]
+	     [sunindextype, input]
         ML = lower half-bandwidth of the band matrix approximant
-	     to the Jacobian [indextype, input]
+	     to the Jacobian [sunindextype, input]
         IER = return completion flag [int, output]:
                     0 = success
                    <0 = an error occurred
@@ -415,10 +415,10 @@
      The arguments returned are:
        LENRWBP = length of real preconditioner work space, in 
            realtype words (this size is local to the current 
-	   processor if run in parallel) [indextype, output]
+	   processor if run in parallel) [sunindextype, output]
        LENIWBP = length of integer preconditioner work space, in
-           integer words (processor-local) [indextype, output]
-       NFEBP = number of fi(t,y) evaluations [indextype, output]
+           integer words (processor-local) [sunindextype, output]
+       NFEBP = number of fi(t,y) evaluations [sunindextype, output]
  
  (6) Computing solution derivatives: FARKDKY
 
@@ -472,12 +472,12 @@ extern "C" {
 #endif
 
 /* Prototypes of exported function */
-void FARK_BPINIT(indextype *N, 
-		 indextype *mu, 
-		 indextype *ml, 
+void FARK_BPINIT(sunindextype *N, 
+		 sunindextype *mu, 
+		 sunindextype *ml, 
 		 int *ier);
-void FARK_BPOPT(indextype *lenrwbp, 
-		indextype *leniwbp, 
+void FARK_BPOPT(sunindextype *lenrwbp, 
+		sunindextype *leniwbp, 
 		long int *nfebp);
 
 #ifdef __cplusplus

@@ -131,13 +131,13 @@
 
 typedef struct {
   realtype **P[MX][MY];
-  indextype *pivot[MX][MY];
+  sunindextype *pivot[MX][MY];
   realtype **acoef, *bcoef;
   N_Vector rates;
   realtype *cox, *coy;
   realtype ax, ay, dx, dy;
   realtype uround, sqruround;
-  indextype mx, my, ns, np;
+  sunindextype mx, my, ns, np;
 } *UserData;
 
 /* Functions Called by the KINSOL Solver */
@@ -166,7 +166,7 @@ static void PrintOutput(N_Vector cc);
 static void PrintFinalStats(void *kmem);
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                     void *user_data);
-static realtype DotProd(indextype size, realtype *x1, realtype *x2);
+static realtype DotProd(sunindextype size, realtype *x1, realtype *x2);
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /*
@@ -292,7 +292,7 @@ int main(void)
 static int func(N_Vector cc, N_Vector fval, void *user_data)
 {
   realtype xx, yy, delx, dely, *cxy, *rxy, *fxy, dcyli, dcyui, dcxli, dcxri;
-  indextype jx, jy, is, idyu, idyl, idxr, idxl;
+  sunindextype jx, jy, is, idyu, idyl, idxr, idxl;
   UserData data;
   
   data = (UserData)user_data;
@@ -357,7 +357,7 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
 {
   realtype r, r0, uround, sqruround, xx, yy, delx, dely, csave, fac;
   realtype *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
-  indextype i, j, jx, jy, ret;
+  sunindextype i, j, jx, jy, ret;
   UserData data;
   
   data = (UserData) user_data;
@@ -423,7 +423,7 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
                        N_Vector ftem)
 {
   realtype **Pxy, *vxy;
-  indextype *piv, jx, jy;
+  sunindextype *piv, jx, jy;
   UserData data;
   
   data = (UserData)user_data;
@@ -455,7 +455,7 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                     void *user_data)
 {
-  indextype i;
+  sunindextype i;
   realtype fac;
   UserData data;
   
@@ -474,9 +474,9 @@ static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
  * Dot product routine for realtype arrays 
  */
 
-static realtype DotProd(indextype size, realtype *x1, realtype *x2)
+static realtype DotProd(sunindextype size, realtype *x1, realtype *x2)
 {
-  indextype i;
+  sunindextype i;
   realtype *xx1, *xx2, temp = ZERO;
   
   xx1 = x1; xx2 = x2;
@@ -522,7 +522,7 @@ static UserData AllocUserData(void)
 
 static void InitUserData(UserData data)
 {
-  indextype i, j, np;
+  sunindextype i, j, np;
   realtype *a1,*a2, *a3, *a4, dx2, dy2;
 
   data->mx = MX;

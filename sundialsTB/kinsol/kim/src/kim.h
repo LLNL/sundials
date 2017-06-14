@@ -62,7 +62,7 @@ typedef struct kimInterfaceData_ {
 
   void *kin_mem;        /* KINSOL solver memory */
 
-  indextype n;           /* problem dimension */
+  sunindextype n;           /* problem dimension */
 
   N_Vector Y;           /* solution vector */
 
@@ -113,14 +113,14 @@ int mxW_KINSys(N_Vector y, N_Vector fy, void *user_data );
 
 /* Dense direct linear solver */
 
-int mxW_KINDenseJac(indextype N,
+int mxW_KINDenseJac(sunindextype N,
                     N_Vector y, N_Vector fy, 
                     DlsMat J, void *user_data,
                     N_Vector tmp1, N_Vector tmp2);
 
 /* Band direct linear solver */
 
-int mxW_KINBandJac(indextype N, indextype mupper, indextype mlower,
+int mxW_KINBandJac(sunindextype N, sunindextype mupper, sunindextype mlower,
                    N_Vector u, N_Vector fu, 
                    DlsMat J, void *user_data,
                    N_Vector tmp1, N_Vector tmp2);
@@ -141,8 +141,8 @@ int mxW_KINSpilsPsol(N_Vector y, N_Vector yscale,
 
 /* BBD Preconditioner */
 
-int mxW_KINGloc(indextype Nlocal, N_Vector y, N_Vector gval, void *user_data);
-int mxW_KINGcom(indextype Nlocal, N_Vector y, void *user_data);
+int mxW_KINGloc(sunindextype Nlocal, N_Vector y, N_Vector gval, void *user_data);
+int mxW_KINGcom(sunindextype Nlocal, N_Vector y, void *user_data);
 
 /*
  * ---------------------------------------------------------------------------------
@@ -160,8 +160,8 @@ int get_SolverOptions(const mxArray *options,
                       booleantype *noInitSetup, booleantype *noMinEps);
 
 int get_LinSolvOptions(const mxArray *options,
-                       indextype *mupper, indextype *mlower,
-                       indextype *mudq, indextype *mldq, double *dqrely,
+                       sunindextype *mupper, sunindextype *mlower,
+                       sunindextype *mudq, sunindextype *mldq, double *dqrely,
                        int *ptype, int *maxrs, int *maxl);
 
 #ifdef __cplusplus

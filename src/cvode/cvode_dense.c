@@ -104,7 +104,7 @@ static int cvDenseFree(CVodeMem cv_mem);
  * -----------------------------------------------------------------
  */
 
-int CVDense(void *cvode_mem, indextype N)
+int CVDense(void *cvode_mem, sunindextype N)
 {
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
@@ -241,7 +241,7 @@ static int cvDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 {
   booleantype jbad, jok;
   realtype dgamma;
-  indextype ier;
+  sunindextype ier;
   CVDlsMem cvdls_mem;
   int retval;
 

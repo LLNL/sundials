@@ -22,10 +22,10 @@
 #include <stdlib.h>
 #include "nvm.h"
 
-void PutData(N_Vector v, double *data, indextype n)
+void PutData(N_Vector v, double *data, sunindextype n)
 {
   double *vdata;
-  indextype i;
+  sunindextype i;
 
   vdata = N_VGetArrayPointer(v);
 
@@ -35,10 +35,10 @@ void PutData(N_Vector v, double *data, indextype n)
 }
 
 
-void GetData(N_Vector v, double *data, indextype n)
+void GetData(N_Vector v, double *data, sunindextype n)
 {
   double *vdata;
-  indextype i;
+  sunindextype i;
 
   vdata = N_VGetArrayPointer(v);
 

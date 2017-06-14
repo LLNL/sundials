@@ -58,8 +58,8 @@ static int arkAllocFPData(ARKodeMem ark_mem);
 static int arkResizeFPData(ARKodeMem ark_mem, 
 			   ARKVecResizeFn resize,
 			   void *resize_data,
-			   indextype lrw_diff,
-			   indextype liw_diff);
+			   sunindextype lrw_diff,
+			   sunindextype liw_diff);
 static void arkFreeFPData(ARKodeMem ark_mem);
 
 static int arkInitialSetup(ARKodeMem ark_mem);
@@ -244,7 +244,7 @@ int ARKodeInit(void *arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
 {
   ARKodeMem ark_mem;
   booleantype nvectorOK, allocOK;
-  indextype lrw1, liw1;
+  sunindextype lrw1, liw1;
 
   /* Check arkode_mem */
   if (arkode_mem==NULL) {
@@ -539,8 +539,8 @@ int ARKodeResize(void *arkode_mem, N_Vector y0,
 		 ARKVecResizeFn resize, void *resize_data)
 {
   ARKodeMem ark_mem;
-  indextype lrw1=0, liw1=0;
-  indextype lrw_diff, liw_diff;
+  sunindextype lrw1=0, liw1=0;
+  sunindextype lrw_diff, liw_diff;
   int ier, i;
  
   /* Check arkode_mem */
@@ -2895,8 +2895,8 @@ static int arkAllocFPData(ARKodeMem ark_mem)
  fixed-point solver (called from ARKodeResize()).
 ---------------------------------------------------------------*/
 static int arkResizeFPData(ARKodeMem ark_mem, ARKVecResizeFn resize,
-			   void *resize_data, indextype lrw_diff, 
-			   indextype liw_diff)
+			   void *resize_data, sunindextype lrw_diff, 
+			   sunindextype liw_diff)
 {
   long int i;
   long int maa = ark_mem->ark_fp_m;

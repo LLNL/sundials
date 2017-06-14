@@ -96,7 +96,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 static void ProcessArgs(int argc, char *argv[], int my_pe,
                         booleantype *sensi, int *sensi_meth, booleantype *err_con);
 static void WrongArgs(int my_pe, char *name);
-static void SetIC(N_Vector u, realtype dx, indextype my_length, indextype my_base);
+static void SetIC(N_Vector u, realtype dx, sunindextype my_length, sunindextype my_base);
 static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u);
 static void PrintOutputS(int my_pe, N_Vector *uS);
 static void PrintFinalStats(void *cvode_mem, booleantype sensi); 
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
   UserData data;
   void *cvode_mem;
   int iout, flag, my_pe, npes;
-  indextype local_N, nperpe, nrem, my_base;
+  sunindextype local_N, nperpe, nrem, my_base;
 
   realtype *pbar;
   int is, *plist;
@@ -423,11 +423,11 @@ static void WrongArgs(int my_pe, char *name)
  * Set initial conditions in u vector 
  */
 
-static void SetIC(N_Vector u, realtype dx, indextype my_length, 
-                  indextype my_base)
+static void SetIC(N_Vector u, realtype dx, sunindextype my_length, 
+                  sunindextype my_base)
 {
   int i;
-  indextype iglobal;
+  sunindextype iglobal;
   realtype x;
   realtype *udata;
 

@@ -62,15 +62,15 @@ extern "C" {
 struct _N_VectorContent_SpcParallel {
   int Ngrp;              /* number of variable groups               */
   int *Nspc;             /* number of species in each group         */
-  indextype Nx;           /* local x-mesh vector length              */
-  indextype Ny;           /* local y-mesh vector length              */
-  indextype Nz;           /* local z-mesh vector length              */
-  indextype NGx;          /* x-width of ghost boundary               */
-  indextype NGy;          /* y-width of ghost boundary               */
-  indextype NGz;          /* z-width of ghost boundary               */
-  indextype *n1;          /* local vector lengths for each group     */
-  indextype n;            /* local vector length                     */
-  indextype N;            /* global vector length                    */
+  sunindextype Nx;           /* local x-mesh vector length              */
+  sunindextype Ny;           /* local y-mesh vector length              */
+  sunindextype Nz;           /* local z-mesh vector length              */
+  sunindextype NGx;          /* x-width of ghost boundary               */
+  sunindextype NGy;          /* y-width of ghost boundary               */
+  sunindextype NGz;          /* z-width of ghost boundary               */
+  sunindextype *n1;          /* local vector lengths for each group     */
+  sunindextype n;            /* local vector length                     */
+  sunindextype N;            /* global vector length                    */
   realtype *data;        /* local data array                        */
   realtype **gdata;      /* pointers in data at start of group data */
   booleantype own_data;  /* flag for ownership of data              */
@@ -179,8 +179,8 @@ typedef struct _N_VectorContent_SpcParallel *N_VectorContent_SpcParallel;
  */
 
 SUNDIALS_EXPORT N_Vector N_VNew_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc, 
-					    indextype Nx,  indextype Ny,  indextype Nz, 
-					    indextype NGx, indextype NGy, indextype NGz);
+					    sunindextype Nx,  sunindextype Ny,  sunindextype Nz, 
+					    sunindextype NGx, sunindextype NGy, sunindextype NGz);
 /*
  * -----------------------------------------------------------------
  * Function : N_VNewEmpty_SpcParallel
@@ -191,8 +191,8 @@ SUNDIALS_EXPORT N_Vector N_VNew_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc,
  */
 
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_SpcParallel(MPI_Comm comm,  int Ngrp, int *Nspc,
-						 indextype Nx,  indextype Ny,  indextype Nz, 
-						 indextype NGx, indextype NGy, indextype NGz);
+						 sunindextype Nx,  sunindextype Ny,  sunindextype Nz, 
+						 sunindextype NGx, sunindextype NGy, sunindextype NGz);
 
 /*
  * -----------------------------------------------------------------
@@ -204,8 +204,8 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_SpcParallel(MPI_Comm comm,  int Ngrp, int *
  */
 
 SUNDIALS_EXPORT N_Vector N_VMake_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc, 
-					     indextype Nx,  indextype Ny,  indextype Nz, 
-					     indextype NGx, indextype NGy, indextype NGz,
+					     sunindextype Nx,  sunindextype Ny,  sunindextype Nz, 
+					     sunindextype NGx, sunindextype NGy, sunindextype NGz,
 					     realtype *data);
 
 /*
@@ -274,7 +274,7 @@ SUNDIALS_EXPORT void N_VPrint_SpcParallel(N_Vector v, char *fname);
 SUNDIALS_EXPORT N_Vector    N_VCloneEmpty_SpcParallel(N_Vector);
 SUNDIALS_EXPORT N_Vector    N_VClone_SpcParallel(N_Vector);
 SUNDIALS_EXPORT void        N_VDestroy_SpcParallel(N_Vector);
-SUNDIALS_EXPORT void        N_VSpace_SpcParallel(N_Vector, indextype *, indextype *);
+SUNDIALS_EXPORT void        N_VSpace_SpcParallel(N_Vector, sunindextype *, sunindextype *);
 SUNDIALS_EXPORT realtype   *N_VGetArrayPointer_SpcParallel(N_Vector);
 SUNDIALS_EXPORT void        N_VSetArrayPointer_SpcParallel(realtype *, N_Vector);
 SUNDIALS_EXPORT void        N_VLinearSum_SpcParallel(realtype, N_Vector, realtype, N_Vector, N_Vector);

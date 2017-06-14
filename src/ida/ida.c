@@ -384,7 +384,7 @@ int IDAInit(void *ida_mem, IDAResFn res,
 {
   IDAMem IDA_mem;
   booleantype nvectorOK, allocOK;
-  indextype lrw1, liw1;
+  sunindextype lrw1, liw1;
 
   /* Check ida_mem */
 

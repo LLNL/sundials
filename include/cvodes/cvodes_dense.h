@@ -49,7 +49,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVDense(void *cvode_mem, indextype N);
+SUNDIALS_EXPORT int CVDense(void *cvode_mem, sunindextype N);
 
 /*
  * -----------------------------------------------------------------
@@ -61,7 +61,7 @@ SUNDIALS_EXPORT int CVDense(void *cvode_mem, indextype N);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVDenseB(void *cvode_mem, int which, indextype nB);
+SUNDIALS_EXPORT int CVDenseB(void *cvode_mem, int which, sunindextype nB);
 
 #ifdef __cplusplus
 }

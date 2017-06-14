@@ -94,8 +94,8 @@ extern "C" {
    and a flag indicating ownership of the data */
 
 struct _N_VectorContent_Parallel {
-  indextype local_length;   /* local vector length         */
-  indextype global_length;  /* global vector length        */
+  sunindextype local_length;   /* local vector length         */
+  sunindextype global_length;  /* global vector length        */
   booleantype own_data;    /* ownership of data           */
   realtype *data;          /* local data array            */
   MPI_Comm comm;           /* pointer to MPI communicator */
@@ -112,7 +112,7 @@ typedef struct _N_VectorContent_Parallel *N_VectorContent_Parallel;
  * are assumed:
  *
  * N_Vector v;
- * indextype v_len, s_len, i;
+ * sunindextype v_len, s_len, i;
  *
  * (1) NV_CONTENT_P
  *
@@ -210,8 +210,8 @@ typedef struct _N_VectorContent_Parallel *N_VectorContent_Parallel;
  */
 
 SUNDIALS_EXPORT N_Vector N_VNew_Parallel(MPI_Comm comm, 
-                                         indextype local_length,
-                                         indextype global_length);
+                                         sunindextype local_length,
+                                         sunindextype global_length);
 
 /*
  * -----------------------------------------------------------------
@@ -223,8 +223,8 @@ SUNDIALS_EXPORT N_Vector N_VNew_Parallel(MPI_Comm comm,
  */
 
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_Parallel(MPI_Comm comm, 
-                                              indextype local_length,
-                                              indextype global_length);
+                                              sunindextype local_length,
+                                              sunindextype global_length);
 
 /*
  * -----------------------------------------------------------------
@@ -236,8 +236,8 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
  */
 
 SUNDIALS_EXPORT N_Vector N_VMake_Parallel(MPI_Comm comm, 
-                                          indextype local_length,
-                                          indextype global_length,
+                                          sunindextype local_length,
+                                          sunindextype global_length,
                                           realtype *v_data);
 
 /*
@@ -283,7 +283,7 @@ SUNDIALS_EXPORT void N_VDestroyVectorArray_Parallel(N_Vector *vs, int count);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT indextype N_VGetLength_Parallel(N_Vector v);
+SUNDIALS_EXPORT sunindextype N_VGetLength_Parallel(N_Vector v);
 
 /*
  * -----------------------------------------------------------------
@@ -293,7 +293,7 @@ SUNDIALS_EXPORT indextype N_VGetLength_Parallel(N_Vector v);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT indextype N_VGetLocalLength_Parallel(N_Vector v);
+SUNDIALS_EXPORT sunindextype N_VGetLocalLength_Parallel(N_Vector v);
 
 /*
  * -----------------------------------------------------------------
@@ -315,7 +315,7 @@ SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_Parallel(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Parallel(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Parallel(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Parallel(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_Parallel(N_Vector v, indextype *lrw, indextype *liw);
+SUNDIALS_EXPORT void N_VSpace_Parallel(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Parallel(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Parallel(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum_Parallel(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);

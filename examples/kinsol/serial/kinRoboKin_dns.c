@@ -46,7 +46,7 @@
 #define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1)
 
 static int func(N_Vector y, N_Vector f, void *user_data);
-static int jac(indextype N,
+static int jac(sunindextype N,
                N_Vector y, N_Vector f,
                DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2);
@@ -235,7 +235,7 @@ static int func(N_Vector y, N_Vector f, void *user_data)
  * System Jacobian
  */
 
-static int jac(indextype N,
+static int jac(sunindextype N,
                N_Vector y, N_Vector f,
                DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2)

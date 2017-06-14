@@ -34,10 +34,10 @@
 extern "C" {
 #endif
 
-  extern void FIDA_BJAC(indextype*, indextype*, indextype*, indextype*,
+  extern void FIDA_BJAC(sunindextype*, sunindextype*, sunindextype*, sunindextype*,
                         realtype*, realtype*, realtype*, realtype*,
                         realtype*, realtype*, realtype*, realtype*,
-                        indextype*, realtype*,
+                        sunindextype*, realtype*,
                         realtype*, realtype*, realtype*, int*);
 
 #ifdef __cplusplus
@@ -73,7 +73,7 @@ void FIDA_BANDSETJAC(int *flag, int *ier)
 
 /*************************************************/
 
-int FIDABandJac(indextype N, indextype mupper, indextype mlower,
+int FIDABandJac(sunindextype N, sunindextype mupper, sunindextype mlower,
 		realtype t, realtype c_j, 
 		N_Vector yy, N_Vector yp, N_Vector rr,
 		DlsMat J, void *user_data,
@@ -81,7 +81,7 @@ int FIDABandJac(indextype N, indextype mupper, indextype mlower,
 {
   realtype *yy_data, *yp_data, *rr_data, *jacdata, *ewtdata, *v1data, *v2data, *v3data;
   realtype h;
-  indextype eband;
+  sunindextype eband;
   int ier;
   FIDAUserData IDA_userdata;
 

@@ -74,7 +74,7 @@ static int arkMassDenseMultiply(N_Vector v, N_Vector Mv,
        representation by checking that N_VGetArrayPointer and
        N_VSetArrayPointer exist.
 ---------------------------------------------------------------*/
-int ARKDense(void *arkode_mem, indextype N)
+int ARKDense(void *arkode_mem, sunindextype N)
 {
   ARKodeMem ark_mem;
   ARKDlsMem arkdls_mem;
@@ -209,7 +209,7 @@ static int arkDenseSetup(ARKodeMem ark_mem, int convfail,
 {
   booleantype jbad, jok;
   realtype dgamma, *Acol_j, *Mcol_j;
-  indextype i, j, ier;
+  sunindextype i, j, ier;
   ARKDlsMem arkdls_mem;
   ARKDlsMassMem arkdls_mass_mem;
   int retval;
@@ -376,7 +376,7 @@ static int arkDenseFree(ARKodeMem ark_mem)
        representation by checking that N_VGetArrayPointer and
        N_VSetArrayPointer exist.
 ---------------------------------------------------------------*/
-int ARKMassDense(void *arkode_mem, indextype N, ARKDlsDenseMassFn dmass)
+int ARKMassDense(void *arkode_mem, sunindextype N, ARKDlsDenseMassFn dmass)
 {
   ARKodeMem ark_mem;
   ARKDlsMassMem arkdls_mem;
@@ -496,7 +496,7 @@ static int arkMassDenseInit(ARKodeMem ark_mem)
 static int arkMassDenseSetup(ARKodeMem ark_mem, N_Vector vtemp1, 
 			     N_Vector vtemp2, N_Vector vtemp3)
 {
-  indextype ier;
+  sunindextype ier;
   ARKDlsMassMem arkdls_mem;
   int retval;
 

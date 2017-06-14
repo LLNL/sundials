@@ -439,7 +439,7 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
 {
   CVodeMem cv_mem;
   booleantype nvectorOK, allocOK;
-  indextype lrw1, liw1;
+  sunindextype lrw1, liw1;
   int i,k;
 
   /* Check cvode_mem */

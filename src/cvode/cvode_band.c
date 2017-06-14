@@ -109,7 +109,7 @@ static int cvBandFree(CVodeMem cv_mem);
  * -----------------------------------------------------------------
  */
                   
-int CVBand(void *cvode_mem, indextype N, indextype mupper, indextype mlower)
+int CVBand(void *cvode_mem, sunindextype N, sunindextype mupper, sunindextype mlower)
 {
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;

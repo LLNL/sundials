@@ -320,12 +320,12 @@ typedef struct IDAMemRec {
     Space requirements for IDAS
     ---------------------------*/
 
-  indextype ida_lrw1;     /* no. of realtype words in 1 N_Vector               */
-  indextype ida_liw1;     /* no. of integer words in 1 N_Vector                */
-  indextype ida_lrw1Q;
-  indextype ida_liw1Q;
-  indextype ida_lrw;      /* number of realtype words in IDA work vectors      */
-  indextype ida_liw;      /* no. of integer words in IDA work vectors          */
+  sunindextype ida_lrw1;     /* no. of realtype words in 1 N_Vector               */
+  sunindextype ida_liw1;     /* no. of integer words in 1 N_Vector                */
+  sunindextype ida_lrw1Q;
+  sunindextype ida_liw1Q;
+  sunindextype ida_lrw;      /* number of realtype words in IDA work vectors      */
+  sunindextype ida_liw;      /* no. of integer words in IDA work vectors          */
 
 
   /*-------------------------------------------

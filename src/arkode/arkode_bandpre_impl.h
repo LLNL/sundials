@@ -36,13 +36,13 @@ extern "C" {
 typedef struct ARKBandPrecDataRec {
 
   /* Data set by user in ARKBandPrecInit */
-  indextype N;
-  indextype ml, mu;
+  sunindextype N;
+  sunindextype ml, mu;
 
   /* Data set by ARKBandPrecSetup */
   DlsMat savedJ;
   DlsMat savedP;
-  indextype *lpivots;
+  sunindextype *lpivots;
 
   /* Rhs calls */
   long int nfeBP;

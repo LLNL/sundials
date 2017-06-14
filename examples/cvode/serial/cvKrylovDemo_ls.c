@@ -126,7 +126,7 @@
 
 typedef struct {
   realtype **P[MX][MY], **Jbd[MX][MY];
-  indextype *pivot[MX][MY];
+  sunindextype *pivot[MX][MY];
   realtype q4, om, dx, dy, hdco, haco, vdco;
 } *UserData;
 
@@ -424,8 +424,8 @@ static void PrintOutput(void *cvode_mem, N_Vector u, realtype t)
 
 static void PrintFinalStats(void *cvode_mem, int linsolver)
 {
-  indextype lenrw, leniw ;
-  indextype lenrwLS, leniwLS;
+  sunindextype lenrw, leniw ;
+  sunindextype lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
   int flag;
@@ -614,7 +614,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   realtype **(*P)[MY], **(*Jbd)[MY];
-  indextype *(*pivot)[MY], ier;
+  sunindextype *(*pivot)[MY], ier;
   int jx, jy;
   realtype *udata, **a, **j;
   UserData data;
@@ -702,7 +702,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
                   int lr, void *user_data, N_Vector vtemp)
 {
   realtype **(*P)[MY];
-  indextype *(*pivot)[MY];
+  sunindextype *(*pivot)[MY];
   int jx, jy;
   realtype *zdata, *v;
   UserData data;

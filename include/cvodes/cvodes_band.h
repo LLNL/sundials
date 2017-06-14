@@ -56,7 +56,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBand(void *cvode_mem, indextype N, indextype mupper, indextype mlower);
+SUNDIALS_EXPORT int CVBand(void *cvode_mem, sunindextype N, sunindextype mupper, sunindextype mlower);
 
 /*
  * -----------------------------------------------------------------
@@ -69,7 +69,7 @@ SUNDIALS_EXPORT int CVBand(void *cvode_mem, indextype N, indextype mupper, index
  */
 
 SUNDIALS_EXPORT int CVBandB(void *cvode_mem, int which,
-                            indextype nB, indextype mupperB, indextype mlowerB);
+                            sunindextype nB, sunindextype mupperB, sunindextype mlowerB);
   
 #ifdef __cplusplus
 }

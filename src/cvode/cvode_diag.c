@@ -168,7 +168,7 @@ int CVDiag(void *cvode_mem)
  * -----------------------------------------------------------------
  */
 
-int CVDiagGetWorkSpace(void *cvode_mem, indextype *lenrwLS, indextype *leniwLS)
+int CVDiagGetWorkSpace(void *cvode_mem, sunindextype *lenrwLS, sunindextype *leniwLS)
 {
   CVodeMem cv_mem;
 

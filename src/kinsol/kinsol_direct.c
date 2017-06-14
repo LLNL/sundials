@@ -166,7 +166,7 @@ int KINDlsSetBandJacFn(void *kinmem, KINDlsBandJacFn jac)
  * -----------------------------------------------------------------
  */
 
-int KINDlsGetWorkSpace(void *kinmem, indextype *lenrwLS, indextype *leniwLS)
+int KINDlsGetWorkSpace(void *kinmem, sunindextype *lenrwLS, sunindextype *leniwLS)
 {
   KINMem kin_mem;
   KINDlsMem kindls_mem;
@@ -351,7 +351,7 @@ char *KINDlsGetReturnFlagName(long int flag)
  * -----------------------------------------------------------------
  */
 
-int kinDlsDenseDQJac(indextype N,
+int kinDlsDenseDQJac(sunindextype N,
                      N_Vector u, N_Vector fu,
                      DlsMat Jac, void *data,
                      N_Vector tmp1, N_Vector tmp2)
@@ -360,7 +360,7 @@ int kinDlsDenseDQJac(indextype N,
   realtype *tmp2_data, *u_data, *uscale_data;
   N_Vector ftemp, jthCol;
   int retval = 0;
-  indextype j;
+  sunindextype j;
 
   KINMem kin_mem;
   KINDlsMem  kindls_mem;
@@ -428,7 +428,7 @@ int kinDlsDenseDQJac(indextype N,
  * -----------------------------------------------------------------
  */
 
-int kinDlsBandDQJac(indextype N, indextype mupper, indextype mlower,
+int kinDlsBandDQJac(sunindextype N, sunindextype mupper, sunindextype mlower,
                     N_Vector u, N_Vector fu,
                     DlsMat Jac, void *data,
                     N_Vector tmp1, N_Vector tmp2)
@@ -436,7 +436,7 @@ int kinDlsBandDQJac(indextype N, indextype mupper, indextype mlower,
   realtype inc, inc_inv;
   N_Vector futemp, utemp;
   int retval;
-  indextype group, i, j, width, ngroups, i1, i2;
+  sunindextype group, i, j, width, ngroups, i1, i2;
   realtype *col_j, *fu_data, *futemp_data, *u_data, *utemp_data, *uscale_data;
 
   KINMem kin_mem;

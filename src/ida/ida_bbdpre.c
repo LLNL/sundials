@@ -83,9 +83,9 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
  * -----------------------------------------------------------------
  */
 
-int IDABBDPrecInit(void *ida_mem, indextype Nlocal, 
-                   indextype mudq, indextype mldq, 
-                   indextype mukeep, indextype mlkeep, 
+int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal, 
+                   sunindextype mudq, sunindextype mldq, 
+                   sunindextype mukeep, sunindextype mlkeep, 
                    realtype dq_rel_yy, 
                    IDABBDLocalFn Gres, IDABBDCommFn Gcomm)
 {
@@ -93,7 +93,7 @@ int IDABBDPrecInit(void *ida_mem, indextype Nlocal,
   IDASpilsMem idaspils_mem;
   IBBDPrecData pdata;
   N_Vector tempv4;
-  indextype muk, mlk, storage_mu;
+  sunindextype muk, mlk, storage_mu;
   int flag;
 
   if (ida_mem == NULL) {
@@ -197,13 +197,13 @@ int IDABBDPrecInit(void *ida_mem, indextype Nlocal,
 }
 
 int IDABBDPrecReInit(void *ida_mem,
-		     indextype mudq, indextype mldq, 
+		     sunindextype mudq, sunindextype mldq, 
 		     realtype dq_rel_yy)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
   IBBDPrecData pdata;
-  indextype Nlocal;
+  sunindextype Nlocal;
 
 
   if (ida_mem == NULL) {
@@ -240,7 +240,7 @@ int IDABBDPrecReInit(void *ida_mem,
   return(IDASPILS_SUCCESS);
 }
 
-int IDABBDPrecGetWorkSpace(void *ida_mem, indextype *lenrwBBDP, indextype *leniwBBDP)
+int IDABBDPrecGetWorkSpace(void *ida_mem, sunindextype *lenrwBBDP, sunindextype *leniwBBDP)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
@@ -489,7 +489,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   IDAMem IDA_mem;
   realtype inc, inc_inv;
   int  retval;
-  indextype group, i, j, width, ngroups, i1, i2;
+  sunindextype group, i, j, width, ngroups, i1, i2;
   realtype *ydata, *ypdata, *ytempdata, *yptempdata, *grefdata, *gtempdata;
   realtype *cnsdata = NULL, *ewtdata;
   realtype *col_j, conj, yj, ypj, ewtj;

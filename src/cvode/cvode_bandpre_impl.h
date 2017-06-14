@@ -41,14 +41,14 @@ typedef struct CVBandPrecDataRec {
 
   /* Data set by user in CVBandPrecInit */
 
-  indextype N;
-  indextype ml, mu;
+  sunindextype N;
+  sunindextype ml, mu;
 
   /* Data set by CVBandPrecSetup */
 
   DlsMat savedJ;
   DlsMat savedP;
-  indextype *lpivots;
+  sunindextype *lpivots;
 
   /* Rhs calls */
 

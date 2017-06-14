@@ -77,9 +77,9 @@ typedef struct {
   realtype p[2];            /* model parameters                         */
   realtype dx;              /* spatial discretization grid              */
   realtype hdcoef, hacoef;  /* diffusion and advection coefficients     */
-  indextype local_N;
-  indextype npes, my_pe;     /* total number of processes and current ID */
-  indextype nperpe, nrem;
+  sunindextype local_N;
+  sunindextype npes, my_pe;     /* total number of processes and current ID */
+  sunindextype nperpe, nrem;
   MPI_Comm comm;            /* MPI communicator                         */
   realtype *z1, *z2;        /* work space                               */
 } *UserData;
@@ -92,9 +92,9 @@ static int fB(realtype t, N_Vector u,
 
 /* Prototypes of private functions */
 
-static void SetIC(N_Vector u, realtype dx, indextype my_length, indextype my_base);
-static void SetICback(N_Vector uB, indextype my_base);
-static realtype Xintgr(realtype *z, indextype l, realtype dx);
+static void SetIC(N_Vector u, realtype dx, sunindextype my_length, sunindextype my_base);
+static void SetICback(N_Vector uB, sunindextype my_base);
+static realtype Xintgr(realtype *z, sunindextype l, realtype dx);
 static realtype Compute_g(N_Vector u, UserData data);
 static void PrintOutput(realtype g_val, N_Vector uB, UserData data);
 static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 
   realtype dx, t, g_val;
   int flag, my_pe, nprocs, npes, ncheck;
-  indextype local_N=0, nperpe, nrem, my_base=-1;
+  sunindextype local_N=0, nperpe, nrem, my_base=-1;
 
   MPI_Comm comm;
 
@@ -295,7 +295,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   realtype uLeft, uRight, ui, ult, urt;
   realtype hordc, horac, hdiff, hadv;
   realtype *udata, *dudata;
-  indextype i, my_length;
+  sunindextype i, my_length;
   int npes, my_pe, my_pe_m1, my_pe_p1, last_pe, my_last;
   UserData data;
   MPI_Status status;
@@ -369,7 +369,7 @@ static int fB(realtype t, N_Vector u,
   realtype uLeft, uRight, ui, ult, urt;
   realtype dx, hordc, horac, hdiff, hadv;
   realtype *z1, *z2, intgr1, intgr2;
-  indextype i, my_length;
+  sunindextype i, my_length;
   int npes, my_pe, my_pe_m1, my_pe_p1, last_pe, my_last;
   UserData data;
   realtype data_in[2], data_out[2];
@@ -500,10 +500,10 @@ static int fB(realtype t, N_Vector u,
  * Set initial conditions in u vector 
  */
 
-static void SetIC(N_Vector u, realtype dx, indextype my_length, indextype my_base)
+static void SetIC(N_Vector u, realtype dx, sunindextype my_length, sunindextype my_base)
 {
   int i;
-  indextype iglobal;
+  sunindextype iglobal;
   realtype x;
   realtype *udata;
 
@@ -523,11 +523,11 @@ static void SetIC(N_Vector u, realtype dx, indextype my_length, indextype my_bas
  * Set final conditions in uB vector 
  */
 
-static void SetICback(N_Vector uB, indextype my_base)
+static void SetICback(N_Vector uB, sunindextype my_base)
 {
   int i;
   realtype *uBdata;
-  indextype my_length;
+  sunindextype my_length;
 
   /* Set pointer to data array and get local length of uB */
   uBdata = N_VGetArrayPointer_Parallel(uB);
@@ -542,10 +542,10 @@ static void SetICback(N_Vector uB, indextype my_base)
  * Compute local value of the space integral int_x z(x) dx 
  */
 
-static realtype Xintgr(realtype *z, indextype l, realtype dx)
+static realtype Xintgr(realtype *z, sunindextype l, realtype dx)
 {
   realtype my_intgr;
-  indextype i;
+  sunindextype i;
 
   my_intgr = RCONST(0.5)*(z[0] + z[l-1]);
   for (i = 1; i < l-1; i++)
@@ -562,7 +562,7 @@ static realtype Xintgr(realtype *z, indextype l, realtype dx)
 static realtype Compute_g(N_Vector u, UserData data)
 {
   realtype intgr, my_intgr, dx, *udata;
-  indextype my_length;
+  sunindextype my_length;
   int npes, my_pe, i;
   MPI_Status status;
   MPI_Comm comm;
@@ -599,7 +599,7 @@ static void PrintOutput(realtype g_val, N_Vector uB, UserData data)
   MPI_Comm comm;
   MPI_Status status;
   int npes, my_pe;
-  indextype i, Ni, indx, local_N, nperpe, nrem;
+  sunindextype i, Ni, indx, local_N, nperpe, nrem;
   realtype *uBdata;
   realtype *mu;
 

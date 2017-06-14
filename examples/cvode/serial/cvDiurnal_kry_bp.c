@@ -120,7 +120,7 @@ typedef struct {
 
 static void InitUserData(UserData data);
 static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy);
-static void PrintIntro(indextype mu, indextype ml);
+static void PrintIntro(sunindextype mu, sunindextype ml);
 static void PrintOutput(void *cvode_mem, N_Vector u, realtype t);
 static void PrintFinalStats(void *cvode_mem);
 
@@ -144,7 +144,7 @@ int main()
   UserData data;
   void *cvode_mem;
   int flag, iout, jpre;
-  indextype ml, mu;
+  sunindextype ml, mu;
 
   u = NULL;
   data = NULL;
@@ -289,7 +289,7 @@ static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy)
   }
 }
 
-static void PrintIntro(indextype mu, indextype ml)
+static void PrintIntro(sunindextype mu, sunindextype ml)
 {
   printf("2-species diurnal advection-diffusion problem, %d by %d mesh\n",
          MX, MY);
@@ -345,9 +345,9 @@ static void PrintOutput(void *cvode_mem, N_Vector u,realtype t)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  indextype lenrw, leniw ;
-  indextype lenrwLS, leniwLS;
-  indextype lenrwBP, leniwBP;
+  sunindextype lenrw, leniw ;
+  sunindextype lenrwLS, leniwLS;
+  sunindextype lenrwBP, leniwBP;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
   long int nfeBP;

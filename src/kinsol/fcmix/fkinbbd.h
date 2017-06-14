@@ -179,7 +179,7 @@
                        input values in IOPT[] array are to be used for
                        input: 0 = no and 1 = yes.
          IOPT        = array for integer optional inputs and outputs (declare
-                       as INTEGER*4 or INTEGER*8 according to C type indextype)
+                       as INTEGER*4 or INTEGER*8 according to C type sunindextype)
          ROPT        = array of real optional inputs and outputs
          IER         = return completion flag. Values are 0 = success, and
                        -1 = failure.
@@ -290,9 +290,9 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-void FKIN_BBDINIT(indextype *nlocal, indextype *mudq, indextype *mldq,
-		  indextype *mu, indextype *ml, int *ier);
-void FKIN_BBDOPT(indextype *lenrpw, indextype *lenipw, long int *nge);
+void FKIN_BBDINIT(sunindextype *nlocal, sunindextype *mudq, sunindextype *mldq,
+		  sunindextype *mu, sunindextype *ml, int *ier);
+void FKIN_BBDOPT(sunindextype *lenrpw, sunindextype *lenipw, long int *nge);
 
 /*
  * -----------------------------------------------------------------
@@ -300,8 +300,8 @@ void FKIN_BBDOPT(indextype *lenrpw, indextype *lenipw, long int *nge);
  * -----------------------------------------------------------------
  */
 
-int FKINgloc(indextype Nloc, N_Vector uu, N_Vector gval, void *user_data);
-int FKINgcomm(indextype Nloc, N_Vector uu, void *user_data);
+int FKINgloc(sunindextype Nloc, N_Vector uu, N_Vector gval, void *user_data);
+int FKINgcomm(sunindextype Nloc, N_Vector uu, void *user_data);
 
 #ifdef __cplusplus
 }

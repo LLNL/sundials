@@ -168,7 +168,7 @@ typedef struct {
  */
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int f_local(indextype Nlocal, realtype t, N_Vector y, 
+static int f_local(sunindextype Nlocal, realtype t, N_Vector y, 
                    N_Vector ydot, void *user_data);
 
 static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data);
@@ -176,7 +176,7 @@ static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data);
 
 static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, 
               void *user_dataB);
-static int fB_local(indextype NlocalB, realtype t, 
+static int fB_local(sunindextype NlocalB, realtype t, 
                     N_Vector y, N_Vector yB, N_Vector yBdot, 
                     void *user_dataB);
 
@@ -190,9 +190,9 @@ static int fQB(realtype t, N_Vector y, N_Vector yB,
  */
 
 static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
-                    indextype *neq, indextype *l_neq);
+                    sunindextype *neq, sunindextype *l_neq);
 static void SetSource(ProblemData d);
-static void f_comm(indextype Nlocal, realtype t, N_Vector y, void *user_data);
+static void f_comm(sunindextype Nlocal, realtype t, N_Vector y, void *user_data);
 static void Load_yext(realtype *src, ProblemData d);
 static void PrintHeader();
 static void PrintFinalStats(void *cvode_mem);
@@ -212,17 +212,17 @@ int main(int argc, char *argv[])
   int npes, npes_needed;
   int myId;
  
-  indextype neq, l_neq;
+  sunindextype neq, l_neq;
 
   void *cvode_mem;
   N_Vector y, q;
   realtype abstol, reltol, abstolQ, reltolQ;
-  indextype mudq, mldq, mukeep, mlkeep;
+  sunindextype mudq, mldq, mukeep, mlkeep;
 
   int indexB;
   N_Vector yB, qB;
   realtype abstolB, reltolB, abstolQB, reltolQB;
-  indextype mudqB, mldqB, mukeepB, mlkeepB;
+  sunindextype mudqB, mldqB, mukeepB, mlkeepB;
 
   realtype tret, *qdata, G;
 
@@ -402,7 +402,7 @@ int main(int argc, char *argv[])
  */
 
 static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
-                    indextype *neq, indextype *l_neq)
+                    sunindextype *neq, sunindextype *l_neq)
 {
   int n[DIM], nd[DIM];
   int dim, size;
@@ -571,7 +571,7 @@ static void SetSource(ProblemData d)
  *------------------------------------------------------------------
  */
 
-static void f_comm(indextype N_local, realtype t, N_Vector y, void *user_data)
+static void f_comm(sunindextype N_local, realtype t, N_Vector y, void *user_data)
 {
   int id, n[DIM], proc_cond[DIM], nbr[DIM][2];
   ProblemData d;
@@ -684,7 +684,7 @@ static void f_comm(indextype N_local, realtype t, N_Vector y, void *user_data)
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   ProblemData d;
-  indextype l_neq=1;
+  sunindextype l_neq=1;
   int dim;
 
   d = (ProblemData) user_data;
@@ -699,7 +699,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   return(0);
 }
 
-static int f_local(indextype Nlocal, realtype t, N_Vector y, 
+static int f_local(sunindextype Nlocal, realtype t, N_Vector y, 
                    N_Vector ydot, void *user_data)
 {
   realtype *Ydata, *dydata, *pdata;
@@ -823,7 +823,7 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot,
               void *user_dataB)
 {
   ProblemData d;
-  indextype l_neq=1;
+  sunindextype l_neq=1;
   int dim;
 
   d = (ProblemData) user_dataB;
@@ -838,7 +838,7 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot,
   return(0);
 }
 
-static int fB_local(indextype NlocalB, realtype t, 
+static int fB_local(sunindextype NlocalB, realtype t, 
                     N_Vector y, N_Vector yB, N_Vector dyB, 
                     void *user_dataB)
 {
@@ -1016,8 +1016,8 @@ static void PrintHeader()
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  indextype lenrw, leniw ;
-  indextype lenrwSPGMR, leniwSPGMR;
+  sunindextype lenrw, leniw ;
+  sunindextype lenrwSPGMR, leniwSPGMR;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeSPGMR;
   int flag;

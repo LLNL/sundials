@@ -63,7 +63,7 @@
 /* User data type */
 
 typedef struct {  
-  indextype mm;  /* number of grid points */
+  sunindextype mm;  /* number of grid points */
   realtype dx;
   realtype coeff;
   N_Vector pp;  /* vector of prec. diag. elements */
@@ -305,7 +305,7 @@ int resHeat(realtype tt,
             N_Vector uu, N_Vector up, N_Vector rr, 
             void *user_data)
 {
-  indextype i, j, offset, loc, mm;
+  sunindextype i, j, offset, loc, mm;
   realtype *uu_data, *up_data, *rr_data, coeff, dif1, dif2;
   UserData data;
   
@@ -358,7 +358,7 @@ int PsetupHeat(realtype tt,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   
-  indextype i, j, offset, loc, mm;
+  sunindextype i, j, offset, loc, mm;
   realtype *ppv, pelinv;
   UserData data;
   
@@ -416,7 +416,7 @@ int PsolveHeat(realtype tt,
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
                              N_Vector res)
 {
-  indextype mm, mm1, i, j, offset, loc;
+  sunindextype mm, mm1, i, j, offset, loc;
   realtype xfact, yfact, *udata, *updata;
 
   mm = data->mm;

@@ -140,7 +140,7 @@ extern "C" {
  a recoverable error occurred, and a negative value if an 
  unrecoverable error occurred.
 ---------------------------------------------------------------*/
-typedef int (*ARKLocalFn)(indextype Nlocal, realtype t, N_Vector y,
+typedef int (*ARKLocalFn)(sunindextype Nlocal, realtype t, N_Vector y,
                           N_Vector g, void *user_data);
 
 
@@ -169,7 +169,7 @@ typedef int (*ARKLocalFn)(indextype Nlocal, realtype t, N_Vector y,
  a recoverable error occurred, and a negative value if an 
  unrecoverable error occurred.
 ---------------------------------------------------------------*/
-typedef int (*ARKCommFn)(indextype Nlocal, realtype t, 
+typedef int (*ARKCommFn)(sunindextype Nlocal, realtype t, 
 			 N_Vector y, void *user_data);
 
 
@@ -213,9 +213,9 @@ typedef int (*ARKCommFn)(indextype Nlocal, realtype t,
    ARKSPILS_ILL_INPUT if an input has an illegal value
    ARKSPILS_MEM_FAIL if a memory allocation request failed
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int ARKBBDPrecInit(void *arkode_mem, indextype Nlocal, 
-				   indextype mudq, indextype mldq, 
-				   indextype mukeep, indextype mlkeep, 
+SUNDIALS_EXPORT int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal, 
+				   sunindextype mudq, sunindextype mldq, 
+				   sunindextype mukeep, sunindextype mlkeep, 
 				   realtype dqrely,
 				   ARKLocalFn gloc, ARKCommFn cfn);
 
@@ -240,8 +240,8 @@ SUNDIALS_EXPORT int ARKBBDPrecInit(void *arkode_mem, indextype Nlocal,
    ARKSPILS_LMEM_NULL if the linear solver memory is NULL
    ARKSPILS_PMEM_NULL if the preconditioner memory is NULL
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int ARKBBDPrecReInit(void *arkode_mem, indextype mudq, 
-				     indextype mldq, realtype dqrely);
+SUNDIALS_EXPORT int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq, 
+				     sunindextype mldq, realtype dqrely);
 
 
 /*---------------------------------------------------------------
@@ -259,8 +259,8 @@ SUNDIALS_EXPORT int ARKBBDPrecReInit(void *arkode_mem, indextype mudq,
 ---------------------------------------------------------------*/
 
 SUNDIALS_EXPORT int ARKBBDPrecGetWorkSpace(void *arkode_mem, 
-					   indextype *lenrwLS, 
-					   indextype *leniwLS);
+					   sunindextype *lenrwLS, 
+					   sunindextype *leniwLS);
 SUNDIALS_EXPORT int ARKBBDPrecGetNumGfnEvals(void *arkode_mem, 
 					     long int *ngevalsBBDP);
 

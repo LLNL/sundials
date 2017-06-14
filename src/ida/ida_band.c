@@ -112,7 +112,7 @@ static int IDABandFree(IDAMem IDA_mem);
  * -----------------------------------------------------------------
  */
 
-int IDABand(void *ida_mem, indextype Neq, indextype mupper, indextype mlower)
+int IDABand(void *ida_mem, sunindextype Neq, sunindextype mupper, sunindextype mlower)
 {
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
@@ -252,7 +252,7 @@ static int IDABandSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
                         N_Vector tmp3)
 {
   int retval;
-  indextype retfac;
+  sunindextype retfac;
   IDADlsMem idadls_mem;
   
   idadls_mem = (IDADlsMem) lmem;

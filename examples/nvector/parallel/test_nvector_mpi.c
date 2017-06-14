@@ -40,7 +40,7 @@
 int main(int argc, char *argv[]) 
 {
   int      fails = 0;                   /* counter for test failures */
-  indextype local_length, global_length; /* vector lengths            */
+  sunindextype local_length, global_length; /* vector lengths            */
   N_Vector W, X, Y, Z;                  /* test vectors              */
   MPI_Comm comm;                        /* MPI Communicator          */
   int      nprocs, myid;                /* Number of procs, proc id  */
@@ -114,10 +114,10 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Check vector
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, indextype local_length)
+int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 {
   int      failure = 0;
-  indextype i;
+  sunindextype i;
   realtype *Xdata;
   
   Xdata = N_VGetArrayPointer(X);
@@ -142,12 +142,12 @@ booleantype has_data(N_Vector X)
     return TRUE;
 }
 
-void set_element(N_Vector X, indextype i, realtype val)
+void set_element(N_Vector X, sunindextype i, realtype val)
 {
   NV_Ith_P(X,i) = val;    
 }
 
-realtype get_element(N_Vector X, indextype i)
+realtype get_element(N_Vector X, sunindextype i)
 {
   return NV_Ith_P(X,i);    
 }

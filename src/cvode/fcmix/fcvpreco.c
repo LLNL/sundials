@@ -41,7 +41,7 @@ extern "C" {
   extern void FCV_PSET(realtype*, realtype*, realtype*,  /* T, Y, FY */
                        booleantype*, booleantype*,       /* JOK, JCUR */
                        realtype*, realtype*,             /* GAMMA, H */
-                       indextype*, realtype*,             /* IPAR, RPAR */
+                       sunindextype*, realtype*,             /* IPAR, RPAR */
                        realtype*, realtype*, realtype*,  /* W1, W2, W3 */
                        int*);                            /* IER */
 
@@ -49,7 +49,7 @@ extern "C" {
                        realtype*, realtype*,             /* R, Z */
                        realtype*, realtype*,             /* GAMMA, DELTA */
                        int*,                             /* LR */
-                       indextype*, realtype*,             /* IPAR, RPAR */
+                       sunindextype*, realtype*,             /* IPAR, RPAR */
                        realtype*,                        /* WRK */
                        int*);                            /* IER */
 

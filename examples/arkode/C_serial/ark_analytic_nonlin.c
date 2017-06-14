@@ -50,7 +50,7 @@ int main()
   realtype T0 = RCONST(0.0);     /* initial time */
   realtype Tf = RCONST(10.0);    /* final time */
   realtype dTout = RCONST(1.0);  /* time between outputs */
-  indextype NEQ = 1;              /* number of dependent vars. */
+  sunindextype NEQ = 1;              /* number of dependent vars. */
   realtype reltol = 1.0e-6;      /* tolerances */
   realtype abstol = 1.0e-10;
 

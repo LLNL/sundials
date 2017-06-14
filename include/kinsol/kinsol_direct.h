@@ -114,7 +114,7 @@ extern "C" {
  */
   
   
-typedef int (*KINDlsDenseJacFn)(indextype N,
+typedef int (*KINDlsDenseJacFn)(sunindextype N,
 				N_Vector u, N_Vector fu, 
 				DlsMat J, void *user_data,
 				N_Vector tmp1, N_Vector tmp2);
@@ -195,7 +195,7 @@ typedef int (*KINDlsDenseJacFn)(indextype N,
  * -----------------------------------------------------------------
  */
 
-typedef int (*KINDlsBandJacFn)(indextype N, indextype mupper, indextype mlower,
+typedef int (*KINDlsBandJacFn)(sunindextype N, sunindextype mupper, sunindextype mlower,
 			       N_Vector u, N_Vector fu, 
 			       DlsMat J, void *user_data,
 			       N_Vector tmp1, N_Vector tmp2);
@@ -254,7 +254,7 @@ SUNDIALS_EXPORT int KINDlsSetBandJacFn(void *kinmem, KINDlsBandJacFn jac);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINDlsGetWorkSpace(void *kinmem, indextype *lenrwB, indextype *leniwB);
+SUNDIALS_EXPORT int KINDlsGetWorkSpace(void *kinmem, sunindextype *lenrwB, sunindextype *leniwB);
 SUNDIALS_EXPORT int KINDlsGetNumJacEvals(void *kinmem, long int *njevalsB);
 SUNDIALS_EXPORT int KINDlsGetNumFuncEvals(void *kinmem, long int *nfevalsB);
 SUNDIALS_EXPORT int KINDlsGetLastFlag(void *kinmem, long int *flag);

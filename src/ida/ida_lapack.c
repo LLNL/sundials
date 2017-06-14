@@ -186,7 +186,7 @@ int IDALapackDense(void *ida_mem, int N)
   setupNonNull = TRUE;
 
   /* Set problem dimension */
-  n = (indextype) N;
+  n = (sunindextype) N;
 
   /* Allocate memory for JJ and pivot array */
   JJ = NULL;
@@ -287,11 +287,11 @@ int IDALapackBand(void *ida_mem, int N, int mupper, int mlower)
   setupNonNull = TRUE;
   
   /* Load problem dimension */
-  n = (indextype) N;
+  n = (sunindextype) N;
 
   /* Load half-bandwiths in idadls_mem */
-  ml = (indextype) mlower;
-  mu = (indextype) mupper;
+  ml = (sunindextype) mlower;
+  mu = (sunindextype) mupper;
 
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= n) || (mu >= n)) {

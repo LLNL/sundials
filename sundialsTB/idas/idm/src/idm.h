@@ -65,12 +65,12 @@ enum {PM_NONE, PM_BBDPRE};
 typedef struct idmPbData_ {
 
 
-  indextype n;        /* problem dimension */
+  sunindextype n;        /* problem dimension */
   N_Vector YY;       /* solution vector */
   N_Vector YP;       /* derivative of solution vector */
 
   booleantype Quadr; /* integrate quadratures? */
-  indextype nq;       /* number of quadratures */
+  sunindextype nq;       /* number of quadratures */
   N_Vector YQ;       /* quadratures vector */
 
   booleantype Fsa;   /* integrate sensitivities? */
@@ -173,13 +173,13 @@ int mxW_IDASensRes(int Nsens, realtype tres,
                    void *user_data,
                    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-int mxW_IDADenseJac(indextype Neq, 
+int mxW_IDADenseJac(sunindextype Neq, 
                     realtype tt, realtype c_j, 
                     N_Vector yy, N_Vector yp, N_Vector rr,
                     DlsMat Jac, void *user_data, 
                     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-int mxW_IDABandJac(indextype Neq, indextype mupper, indextype mlower, 
+int mxW_IDABandJac(sunindextype Neq, sunindextype mupper, sunindextype mlower, 
                    realtype tt, realtype c_j, 
                    N_Vector yy, N_Vector yp, N_Vector rr, 
                    DlsMat Jac, void *user_data,
@@ -201,10 +201,10 @@ int mxW_IDASpilsPsol(realtype tt,
                      realtype c_j, realtype delta, void *user_data,
                      N_Vector tmp);
 
-int mxW_IDABBDgloc(indextype Nlocal, realtype tt,
+int mxW_IDABBDgloc(sunindextype Nlocal, realtype tt,
                    N_Vector yy, N_Vector yp, N_Vector gval,
                    void *user_data);
-int mxW_IDABBDgcom(indextype Nlocal, realtype tt,
+int mxW_IDABBDgcom(sunindextype Nlocal, realtype tt,
                    N_Vector yy, N_Vector yp,
                    void *user_data);
 
@@ -236,14 +236,14 @@ int mxW_IDAQuadFctBS(realtype t,
                      N_Vector ypQB,
                      void *user_dataB);
 
-int mxW_IDADenseJacB(indextype NeqB, 
+int mxW_IDADenseJacB(sunindextype NeqB, 
                      realtype tt, realtype c_jB,
                      N_Vector yy, N_Vector yp,
                      N_Vector yyB, N_Vector ypB, N_Vector rrB,
                      DlsMat JacB, void *user_dataB, 
                      N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
-int mxW_IDABandJacB(indextype NeqB, indextype mupperB, indextype mlowerB, 
+int mxW_IDABandJacB(sunindextype NeqB, sunindextype mupperB, sunindextype mlowerB, 
                     realtype tt, realtype c_jB, 
                     N_Vector yy, N_Vector yp,
                     N_Vector yyB, N_Vector ypB, N_Vector rrB,
@@ -269,11 +269,11 @@ int mxW_IDASpilsPsolB(realtype tt,
                       realtype c_jB, realtype deltaB,
                       void *user_dataB, N_Vector tmpB);
 
-int mxW_IDABBDglocB(indextype NlocalB, realtype tt,
+int mxW_IDABBDglocB(sunindextype NlocalB, realtype tt,
                     N_Vector yy, N_Vector yp, 
                     N_Vector yyB, N_Vector ypB, N_Vector gvalB,
                     void *user_dataB);
-int mxW_IDABBDgcomB(indextype NlocalB, realtype tt,
+int mxW_IDABBDgcomB(sunindextype NlocalB, realtype tt,
                     N_Vector yy, N_Vector yp,
                     N_Vector yyB, N_Vector ypB,
                     void *user_dataB);
@@ -291,7 +291,7 @@ void mxW_IDAMonitorB(int call, int idxB, double tB,
 
 int get_IntgrOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
                      int *maxord,
-                     indextype *mxsteps,
+                     sunindextype *mxsteps,
                      int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
                      double *hin, double *hmax,
                      double *tstop,
@@ -301,12 +301,12 @@ int get_IntgrOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
                      booleantype *res_s);
 
 int get_LinSolvOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
-                       indextype *mupper, indextype *mlower,
-                       indextype *mudq, indextype *mldq, double *dqrely,
+                       sunindextype *mupper, sunindextype *mlower,
+                       sunindextype *mudq, sunindextype *mldq, double *dqrely,
                        int *gstype, int *maxl);
 
 int get_QuadOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
-                    indextype Nq, booleantype *rhs_s,
+                    sunindextype Nq, booleantype *rhs_s,
                     booleantype *errconQ,
                     int *itolQ, double *reltolQ, double *SabstolQ, double **VabstolQ);
 

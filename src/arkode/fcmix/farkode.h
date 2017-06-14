@@ -191,9 +191,9 @@
  should take care that all arguments passed through this Fortran/C interface 
  are declared of the appropriate type.
  
- Integers: SUNDIALS uses both 'int' and 'indextype' types:
+ Integers: SUNDIALS uses both 'int' and 'sunindextype' types:
    int      -- equivalent to an INTEGER or INTEGER*4 in Fortran
-   indextype -- this will depend on the computer architecture:
+   sunindextype -- this will depend on the computer architecture:
                  32-bit -- equivalent to an INTEGER or INTEGER*4 in Fortran
                  64-bit -- equivalent to an INTEGER*8 in Fortran
 	      
@@ -228,7 +228,7 @@
        Y    -- array containing state variables [realtype, input]
        YDOT -- array containing state derivatives [realtype, output]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [indextype, input]
+               FARKMALLOC [sunindextype, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -249,7 +249,7 @@
      the Jacobian and store it column-wise in DJAC.
 
      The arguments are:
-       NEQ  -- number of rows in the matrix [indextype, input]
+       NEQ  -- number of rows in the matrix [sunindextype, input]
        T    -- current time [realtype, input]
        Y    -- array containing state variables [realtype, input]
        FY   -- array containing state derivatives [realtype, input]
@@ -257,7 +257,7 @@
                (NEQ,NEQ), output]
        H    -- current step size [realtype, input]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [indextype, input]
+               FARKMALLOC [sunindextype, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        WK*  -- array containing temporary workspace of same size as Y 
@@ -279,12 +279,12 @@
      the mass matrix and store it column-wise in DMASS.
 
      The arguments are:
-       NEQ   -- number of rows in the matrix [indextype, input]
+       NEQ   -- number of rows in the matrix [sunindextype, input]
        T     -- current time [realtype, input]
        DMASS -- 2D array containing the mass matrix entries [realtype 
                 of size (NEQ,NEQ), output]
        IPAR  -- array containing integer user data that was passed to
-                FARKMALLOC [indextype, input]
+                FARKMALLOC [sunindextype, input]
        RPAR  -- array containing real user data that was passed to
                 FARKMALLOC [realtype, input]
        WK*   -- array containing temporary workspace of same size as Y 
@@ -309,10 +309,10 @@
      J(i,j)  with k = i - j + MU + 1 (k = 1 ... ML+MU+1) and j = 1 ... N.
 
      The arguments are:
-       NEQ  -- number of rows in the matrix [indextype, input]
-       MU   -- upper half-bandwidth of the matrix [indextype, input]
-       ML   -- lower half-bandwidth of the matrix [indextype, input]
-       MDIM -- leading dimension of BJAC array [indextype, input]
+       NEQ  -- number of rows in the matrix [sunindextype, input]
+       MU   -- upper half-bandwidth of the matrix [sunindextype, input]
+       ML   -- lower half-bandwidth of the matrix [sunindextype, input]
+       MDIM -- leading dimension of BJAC array [sunindextype, input]
        T    -- current time [realtype, input]
        Y    -- array containing state variables [realtype, input]
        FY   -- array containing state derivatives [realtype, input]
@@ -320,7 +320,7 @@
                (MDIM,NEQ), output]
        H    -- current step size [realtype, input]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [indextype, input]
+               FARKMALLOC [sunindextype, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        WK*  -- array containing temporary workspace of same size as Y 
@@ -346,15 +346,15 @@
      j = 1 ... N.
 
      The arguments are:
-       NEQ   -- number of rows in the matrix [indextype, input]
-       MU    -- upper half-bandwidth of the matrix [indextype, input]
-       ML    -- lower half-bandwidth of the matrix [indextype, input]
-       MDIM  -- leading dimension of BMASS array [indextype, input]
+       NEQ   -- number of rows in the matrix [sunindextype, input]
+       MU    -- upper half-bandwidth of the matrix [sunindextype, input]
+       ML    -- lower half-bandwidth of the matrix [sunindextype, input]
+       MDIM  -- leading dimension of BMASS array [sunindextype, input]
        T     -- current time [realtype, input]
        BMASS -- 2D array containing the mass matrix entries [realtype 
                 of size (MDIM,NEQ), output]
        IPAR  -- array containing integer user data that was passed to
-                FARKMALLOC [indextype, input]
+                FARKMALLOC [sunindextype, input]
        RPAR  -- array containing real user data that was passed to
                 FARKMALLOC [realtype, input]
        WK*   -- array containing temporary workspace of same size as Y 
@@ -396,7 +396,7 @@
                  [int of length N+1, output]
          H    -- current step size [realtype, input]
          IPAR -- array containing integer user data that was passed to
-                 FARKMALLOC [indextype, input]
+                 FARKMALLOC [sunindextype, input]
          RPAR -- array containing real user data that was passed to
                  FARKMALLOC [realtype, input]
          WK*  -- array containing temporary workspace of same size as Y 
@@ -436,7 +436,7 @@
        MCPTRS -- pointers to each mass matrix column [or row] in preceding arrays
                  [int of length N+1, output]
          IPAR -- array containing integer user data that was passed to
-                 FARKMALLOC [indextype, input]
+                 FARKMALLOC [sunindextype, input]
          RPAR -- array containing real user data that was passed to
                  FARKMALLOC [realtype, input]
          WK*  -- array containing temporary workspace of same size as Y 
@@ -467,7 +467,7 @@
        FY   -- array containing state derivatives [realtype, input]
        H    -- current step size [realtype, input]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [indextype, input]
+               FARKMALLOC [sunindextype, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        WORK -- array containing temporary workspace of same size as Y 
@@ -493,7 +493,7 @@
        MV   -- array containing product vector [realtype, output]
        T    -- current time [realtype, input]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [indextype, input]
+               FARKMALLOC [sunindextype, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -514,7 +514,7 @@
        Y    -- array containing state variables [realtype, input]
        EWT  -- array containing the error weight vector [realtype, output]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [indextype, input]
+               FARKMALLOC [sunindextype, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -546,7 +546,7 @@
        P    -- global order of accuracy for RK embedding [int, input]
        HNEW -- predicted next step size [realtype, output]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [indextype, input]
+               FARKMALLOC [sunindextype, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -568,7 +568,7 @@
        T     -- current time [realtype, input]
        HSTAB -- explicitly-stable step size [realtype, output]
        IPAR  -- array containing integer user data that was passed to
-                FARKMALLOC [indextype, input]
+                FARKMALLOC [sunindextype, input]
        RPAR  -- array containing real user data that was passed to
                 FARKMALLOC [realtype, input]
        IER   -- return flag [int, output]:
@@ -587,7 +587,7 @@
 
      where the first argument is an int containing the ARKODE solver ID (4). 
      The other arguments are:
-        NEQ = size of vectors [indextype, input]
+        NEQ = size of vectors [sunindextype, input]
 	IER = return completion flag [int, output]:
 	          0 = success, 
 		 -1 = failure.
@@ -599,9 +599,9 @@
 
      The arguments are:
         COMM = the MPI communicator [int, input]
-        NLOCAL = local size of vectors on this processor [indextype, input]
+        NLOCAL = local size of vectors on this processor [sunindextype, input]
         NGLOBAL = the system size, and the global size of vectors (the sum 
-           of all values of NLOCAL) [indextype, input]
+           of all values of NLOCAL) [sunindextype, input]
         IER = return completion flag [int, ouptut]. 
                   0 = success, 
                  -1 = failure.
@@ -651,9 +651,9 @@
         RTOL = scalar relative tolerance [realtype, input]
 	ATOL = scalar or array absolute tolerance [realtype, input]
 	IOUT = array of length 22 for integer optional outputs
-	   [indextype, output]
+	   [sunindextype, output]
 	ROUT = array of length 6 for real optional outputs [realtype, output]
-	IPAR = array of user integer data [indextype, input/output]
+	IPAR = array of user integer data [sunindextype, input/output]
 	RPAR = array with user real data [realtype, input/output]
 	IER  = return completion flag [int, output]:
                   0 = SUCCESS,
@@ -763,7 +763,7 @@
 
      to set the integer value VALUE to the optional input specified by the 
      quoted character string KEY. VALUE must be a Fortran integer of size 
-     commensurate with a C "indextype".  KEY must be one of the following: 
+     commensurate with a C "sunindextype".  KEY must be one of the following: 
      ORDER, DENSE_ORDER, LINEAR, NONLINEAR, FIXEDPOINT, NEWTON, EXPLICIT, 
      IMPLICIT, IMEX, IRK_TABLE_NUM, ERK_TABLE_NUM, ARK_TABLE_NUM (pass in an 
      int array of length 2, implicit method first), MAX_NSTEPS, HNIL_WARNS, 
@@ -913,7 +913,7 @@
        CALL FARKDENSE(NEQ, IER)
 
      The arguments are:
-        NEQ = the problem size [indextype; input]
+        NEQ = the problem size [sunindextype; input]
 	IER = error return flag [int, output]: 
 	         0 = success, 
 		 negative = error.
@@ -944,7 +944,7 @@
        CALL FARKMASSDENSE(NEQ, IER)
 
      The arguments are:
-        NEQ = the problem size [indextype; input]
+        NEQ = the problem size [sunindextype; input]
 	IER = error return flag [int, output]: 
 	         0 = success, 
 		 negative = error.
@@ -972,9 +972,9 @@
        CALL FARKBAND(NEQ, MU, ML, IER)
 
      The arguments are:
-        NEQ = problem size [indextype, input]
-	MU = upper bandwidth [indextype, input]
-	ML = lower bandwidth [indextype, input]
+        NEQ = problem size [sunindextype, input]
+	MU = upper bandwidth [sunindextype, input]
+	ML = lower bandwidth [sunindextype, input]
         IER = return flag [int, output]; 0 if successful, nonzero otherwise.
  
      If the user program includes the FARKBJAC routine for the evaluation of 
@@ -1002,9 +1002,9 @@
        CALL FARKMASSBAND(NEQ, MU, ML, IER)
 
      The arguments are:
-        NEQ = problem size [indextype, input]
-	MU = upper bandwidth [indextype, input]
-	ML = lower bandwidth [indextype, input]
+        NEQ = problem size [sunindextype, input]
+	MU = upper bandwidth [sunindextype, input]
+	ML = lower bandwidth [sunindextype, input]
         IER = return flag [int, output]; 0 if successful, nonzero otherwise.
  
      When using MASSBAND, the user program must provide the FARKBMASS routine 
@@ -1030,7 +1030,7 @@
        CALL FARKLAPACKDENSE(NEQ, IER)
 
      The arguments match those for FARKDENSE, except that NEQ is now a 
-     normal int (and not a indextype).
+     normal int (and not a sunindextype).
 
      Following the call to FARKLAPACKDENSE, the user may optionally call
 
@@ -1050,7 +1050,7 @@
        CALL FARKMASSLAPACKDENSE(NEQ, IER)
 
      The arguments match those for FARKMASSDENSE, except that NEQ is 
-     now a normal int (and not a indextype).
+     now a normal int (and not a sunindextype).
 
      Following the call to FARKMASSLAPACKDENSE, the user must call 
 
@@ -1697,7 +1697,7 @@
            [realtype, output], 1=yes, 0=no
        GAMMA = Jacobian scaling factor [realtype, input]
        H = current time step [realtype, input]
-       IPAR = array of user integer data [indextype, input/output]
+       IPAR = array of user integer data [sunindextype, input/output]
        RPAR = array with user real data [realtype, input/output]
        V* -- array containing temporary workspace of same size as Y 
                [realtype, input]
@@ -1729,7 +1729,7 @@
        LR = flag denoting to solve the right or left preconditioner system
                   1 = left preconditioner
 		  2 = right preconditioner
-       IPAR = array of user integer data [indextype, input/output]
+       IPAR = array of user integer data [sunindextype, input/output]
        RPAR = array with user real data [realtype, input/output]
        VT -- array containing temporary workspace of same size as Y 
                [realtype, input]
@@ -1775,7 +1775,7 @@
 
      The arguments are:
        T = current time [realtype, input]
-       IPAR = array of user integer data [indextype, input/output]
+       IPAR = array of user integer data [sunindextype, input/output]
        RPAR = array with user real data [realtype, input/output]
        V* -- array containing temporary workspace of same size as Y 
                [realtype, input]
@@ -1804,7 +1804,7 @@
        LR = flag denoting to solve the right or left preconditioner system
                   1 = left preconditioner
 		  2 = right preconditioner
-       IPAR = array of user integer data [indextype, input/output]
+       IPAR = array of user integer data [sunindextype, input/output]
        RPAR = array with user real data [realtype, input/output]
        VT -- array containing temporary workspace of same size as Y 
                [realtype, input]
@@ -2092,14 +2092,14 @@ extern "C" {
   /* Type for user data */
   typedef struct {
     realtype *rpar;
-    indextype *ipar;
+    sunindextype *ipar;
   } *FARKUserData;
   
   /* Prototypes of exported functions */
   void FARK_MALLOC(realtype *t0, realtype *y0, int *imex, 
 		   int *iatol, realtype *rtol, realtype *atol, 
-		   indextype *iout, realtype *rout, 
-		   indextype *ipar, realtype *rpar, int *ier);
+		   sunindextype *iout, realtype *rout, 
+		   sunindextype *ipar, realtype *rpar, int *ier);
 
   void FARK_REINIT(realtype *t0, realtype *y0, int *imex,
 		   int *iatol, realtype *rtol, realtype *atol,
@@ -2108,7 +2108,7 @@ extern "C" {
   void FARK_RESIZE(realtype *t0, realtype *y0, realtype *hscale, 
 		   int *itol, realtype *rtol, realtype *atol, int *ier);
 
-  void FARK_SETIIN(char key_name[], indextype *ival, int *ier);
+  void FARK_SETIIN(char key_name[], sunindextype *ival, int *ier);
   void FARK_SETRIN(char key_name[], realtype *rval, int *ier);
   void FARK_SETDEFAULTS(int *ier);
   void FARK_SETERKTABLE(int *s, int *q, int *p, realtype *c, realtype *A, 
@@ -2126,14 +2126,14 @@ extern "C" {
   void FARK_ADAPTSET(int *flag, int *ier);
   void FARK_EXPSTABSET(int *flag, int *ier);
 
-  void FARK_DENSE(indextype *neq, int *ier);
+  void FARK_DENSE(sunindextype *neq, int *ier);
   void FARK_DENSESETJAC(int *flag, int *ier);
-  void FARK_MASSDENSE(indextype *neq, int *ier);
+  void FARK_MASSDENSE(sunindextype *neq, int *ier);
   void FARK_DENSESETMASS(int *ier);
 
-  void FARK_BAND(indextype *neq, indextype *mupper, indextype *mlower, int *ier);
+  void FARK_BAND(sunindextype *neq, sunindextype *mupper, sunindextype *mlower, int *ier);
   void FARK_BANDSETJAC(int *flag, int *ier);
-  void FARK_MASSBAND(indextype *neq, indextype *mupper, indextype *mlower, int *ier);
+  void FARK_MASSBAND(sunindextype *neq, sunindextype *mupper, sunindextype *mlower, int *ier);
   void FARK_BANDSETMASS(int *ier);
 
   void FARK_LAPACKDENSE(int *neq, int *ier);
@@ -2204,37 +2204,37 @@ extern "C" {
   int FARKfi(realtype t, N_Vector y, N_Vector ydot, void *user_data);
   int FARKfe(realtype t, N_Vector y, N_Vector ydot, void *user_data);
   
-  int FARKDenseJac(indextype N, realtype t, 
+  int FARKDenseJac(sunindextype N, realtype t, 
 		   N_Vector y, N_Vector fy, 
 		   DlsMat J, void *user_data,
 		   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
-  int FARKDenseMass(indextype N, realtype t, DlsMat M, void *user_data,
+  int FARKDenseMass(sunindextype N, realtype t, DlsMat M, void *user_data,
 		   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
-  int FARKBandJac(indextype N, indextype mupper, indextype mlower,
+  int FARKBandJac(sunindextype N, sunindextype mupper, sunindextype mlower,
 		  realtype t, N_Vector y, N_Vector fy,
 		  DlsMat J, void *user_data,
 		  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
-  int FARKBandMass(indextype N, indextype mupper, indextype mlower,
+  int FARKBandMass(sunindextype N, sunindextype mupper, sunindextype mlower,
 		   realtype t, DlsMat M, void *user_data,
 		   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
-  int FARKLapackDenseJac(indextype N, realtype t, 
+  int FARKLapackDenseJac(sunindextype N, realtype t, 
 			 N_Vector y, N_Vector fy, 
 			 DlsMat J, void *user_data,
 			 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
-  int FARKLapackDenseMass(indextype N, realtype t, DlsMat M, void *user_data,
+  int FARKLapackDenseMass(sunindextype N, realtype t, DlsMat M, void *user_data,
 			  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-  int FARKLapackBandJac(indextype N, indextype mupper, indextype mlower,
+  int FARKLapackBandJac(sunindextype N, sunindextype mupper, sunindextype mlower,
 			realtype t, N_Vector y, N_Vector fy,
 			DlsMat J, void *user_data,
 			N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
-  int FARKLapackBandMass(indextype N, indextype mupper, indextype mlower,
+  int FARKLapackBandMass(sunindextype N, sunindextype mupper, sunindextype mlower,
 			 realtype t, DlsMat M, void *user_data,
 			 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
@@ -2278,7 +2278,7 @@ extern "C" {
   extern N_Vector F2C_ARKODE_vec;     /* defined in FNVECTOR module */
 
   extern void *ARK_arkodemem;     /* defined in farkode.c */
-  extern indextype *ARK_iout;      /* defined in farkode.c */
+  extern sunindextype *ARK_iout;      /* defined in farkode.c */
   extern realtype *ARK_rout;      /* defined in farkode.c */
   extern int ARK_nrtfn;           /* defined in farkode.c */
   extern int ARK_ls;              /* defined in farkode.c */

@@ -316,7 +316,7 @@ static int KIM_Initialization(int nlhs, mxArray *plhs[], int nrhs, const mxArray
   N_Vector NVconstraints;
 
   int ptype;
-  indextype mudq, mldq, mupper, mlower;
+  sunindextype mudq, mldq, mupper, mlower;
   int maxl, maxrs;
   double dqrely;
 
@@ -341,7 +341,7 @@ static int KIM_Initialization(int nlhs, mxArray *plhs[], int nrhs, const mxArray
   
   /* Problem dimension */
 
-  N = (indextype) mxGetScalar(prhs[1]);
+  N = (sunindextype) mxGetScalar(prhs[1]);
 
   /* Solver Options (may be empty) */
 
@@ -672,11 +672,11 @@ static int KIM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     "ncfl",
   };
 
-  indextype nfe, nni, nbcf, nbops;
+  sunindextype nfe, nni, nbcf, nbops;
   double fnorm, step;
 
-  indextype njeD, nfeD;
-  indextype nli, npe, nps, ncfl;
+  sunindextype njeD, nfeD;
+  sunindextype nli, npe, nps, ncfl;
 
   mxArray *mx_ls;
   int nfields;

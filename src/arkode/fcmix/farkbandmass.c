@@ -34,9 +34,9 @@
 extern "C" {
 #endif
 
-  extern void FARK_BMASS(indextype *N, indextype *MU, indextype *ML,
-  			 indextype *EBAND, realtype *T,
-  			 realtype *BMASS, indextype *IPAR,
+  extern void FARK_BMASS(sunindextype *N, sunindextype *MU, sunindextype *ML,
+  			 sunindextype *EBAND, realtype *T,
+  			 realtype *BMASS, sunindextype *IPAR,
   			 realtype *RPAR, realtype *V1,
   			 realtype *V2, realtype *V3, int *IER);
 
@@ -57,13 +57,13 @@ void FARK_BANDSETMASS(int *ier)
 
 /* C interface to user-supplied Fortran subroutine FARKBMASS; see 
    farkode.h for further details */
-int FARKBandMass(indextype N, indextype mupper, indextype mlower, 
+int FARKBandMass(sunindextype N, sunindextype mupper, sunindextype mlower, 
 		 realtype t, DlsMat M, void *user_data, 
 		 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier;
   realtype *massdata, *v1data, *v2data, *v3data;
-  indextype eband;
+  sunindextype eband;
   FARKUserData ARK_userdata;
 
   v1data  = N_VGetArrayPointer(vtemp1);

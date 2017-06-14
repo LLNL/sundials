@@ -36,11 +36,11 @@
 extern "C" {
 #endif
 
-  extern void FCV_BJAC(indextype*, indextype*, indextype*, indextype*,    /* N,MU,ML,EBAND */
+  extern void FCV_BJAC(sunindextype*, sunindextype*, sunindextype*, sunindextype*,    /* N,MU,ML,EBAND */
                        realtype*, realtype*, realtype*,  /* T, Y, FY         */
                        realtype*,                        /* LBJAC            */
                        realtype*,                        /* H                */
-                       indextype*, realtype*,             /* IPAR, RPAR       */
+                       sunindextype*, realtype*,             /* IPAR, RPAR       */
                        realtype*, realtype*, realtype*,  /* V1, V2, V3       */
                        int*);                            /* IER              */
 
@@ -72,7 +72,7 @@ void FCV_LAPACKBANDSETJAC(int *flag, int *ier)
  * Auxiliary data is assumed to be communicated by Common. 
  */
 
-int FCVLapackBandJac(indextype N, indextype mupper, indextype mlower,
+int FCVLapackBandJac(sunindextype N, sunindextype mupper, sunindextype mlower,
                      realtype t, N_Vector y, N_Vector fy, 
                      DlsMat J, void *user_data,
                      N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
@@ -80,7 +80,7 @@ int FCVLapackBandJac(indextype N, indextype mupper, indextype mlower,
   int ier;
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
   realtype h;
-  indextype eband;
+  sunindextype eband;
   FCVUserData CV_userdata;
 
   CVodeGetLastStep(CV_cvodemem, &h);

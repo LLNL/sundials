@@ -801,7 +801,7 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
 {
   CVodeMem cv_mem;
   booleantype nvectorOK, allocOK;
-  indextype lrw1, liw1;
+  sunindextype lrw1, liw1;
   int i,k;
 
   /* Check cvode_mem */
@@ -1176,7 +1176,7 @@ int CVodeQuadInit(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0)
 {
   CVodeMem cv_mem;
   booleantype allocOK;
-  indextype lrw1Q, liw1Q;
+  sunindextype lrw1Q, liw1Q;
 
   /* Check cvode_mem */
   if (cvode_mem==NULL) {

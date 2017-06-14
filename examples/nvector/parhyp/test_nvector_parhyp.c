@@ -49,12 +49,12 @@ static int Test_N_VGetVectorID(N_Vector W, int myid);
 int main(int argc, char *argv[]) 
 {
   int      fails = 0;                   /* counter for test failures */
-  indextype local_length, global_length; /* vector lengths            */
+  sunindextype local_length, global_length; /* vector lengths            */
   N_Vector W;
   N_Vector X, Y, Z;                     /* test vectors              */
   MPI_Comm comm;                        /* MPI Communicator          */
   int      nprocs, myid;                /* Number of procs, proc id  */
-  indextype veclen;                      /* vector length             */
+  sunindextype veclen;                      /* vector length             */
   int      print_timing;
   HYPRE_Int *partitioning;      /* Vector Partitioning */
   HYPRE_ParVector Xhyp;         /* Instantiate hypre parallel vector */
@@ -179,10 +179,10 @@ int main(int argc, char *argv[])
  * 
  * Checks if all elements of vector X are set to value ans. 
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, indextype local_length)
+int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 {
   int      failure = 0;
-  indextype i;
+  sunindextype i;
   hypre_ParVector *Xvec = N_VGetVector_ParHyp(X);
   realtype *Xdata = Xvec == NULL ? NULL : hypre_VectorData(hypre_ParVectorLocalVector(Xvec));
   
@@ -220,7 +220,7 @@ booleantype has_data(N_Vector X)
  * Sets single element in hypre vector by accessing its raw block. 
  * Probably not the most efficient way to set the entire vector.
  * --------------------------------------------------------------------*/
-void set_element(N_Vector X, indextype i, realtype val)
+void set_element(N_Vector X, sunindextype i, realtype val)
 {
   hypre_ParVector *Xvec = N_VGetVector_ParHyp(X);
   realtype *Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xvec));
@@ -233,7 +233,7 @@ void set_element(N_Vector X, indextype i, realtype val)
  * Reads single element from hypre vector by accessing its raw block. 
  * Probably not the most efficient way to get the vector values.
  * --------------------------------------------------------------------*/
-realtype get_element(N_Vector X, indextype i)
+realtype get_element(N_Vector X, sunindextype i)
 {
   hypre_ParVector *Xvec = N_VGetVector_ParHyp(X);
   const realtype *Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xvec));

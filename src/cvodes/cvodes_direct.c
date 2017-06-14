@@ -51,22 +51,22 @@
  * =================================================================
  */
 
-static int cvDlsDenseJacBWrapper(indextype nB, realtype t,
+static int cvDlsDenseJacBWrapper(sunindextype nB, realtype t,
                                  N_Vector yB, N_Vector fyB, 
                                  DlsMat JB, void *cvode_mem,
                                  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
-static int cvDlsDenseJacBSWrapper(indextype nB, realtype t,
+static int cvDlsDenseJacBSWrapper(sunindextype nB, realtype t,
                                  N_Vector yB, N_Vector fyB, 
                                  DlsMat JB, void *cvode_mem,
                                  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
-static int cvDlsBandJacBWrapper(indextype nB, indextype mupperB, indextype mlowerB, 
+static int cvDlsBandJacBWrapper(sunindextype nB, sunindextype mupperB, sunindextype mlowerB, 
                                 realtype t, N_Vector yB, N_Vector fyB, 
                                 DlsMat Jac, void *cvode_mem, 
                                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
-static int cvDlsBandJacBSWrapper(indextype nB, indextype mupperB, indextype mlowerB, 
+static int cvDlsBandJacBSWrapper(sunindextype nB, sunindextype mupperB, sunindextype mlowerB, 
                                 realtype t, N_Vector yB, N_Vector fyB, 
                                 DlsMat Jac, void *cvode_mem, 
                                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
@@ -179,7 +179,7 @@ int CVDlsSetBandJacFn(void *cvode_mem, CVDlsBandJacFn jac)
  * CVDlsGetWorkSpace returns the length of workspace allocated for the
  * CVDLS linear solver.
  */
-int CVDlsGetWorkSpace(void *cvode_mem, indextype *lenrwLS, indextype *leniwLS)
+int CVDlsGetWorkSpace(void *cvode_mem, sunindextype *lenrwLS, sunindextype *leniwLS)
 {
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
@@ -347,7 +347,7 @@ int CVDlsGetLastFlag(void *cvode_mem, long int *flag)
  * -----------------------------------------------------------------
  */ 
 
-int cvDlsDenseDQJac(indextype N, realtype t,
+int cvDlsDenseDQJac(sunindextype N, realtype t,
                     N_Vector y, N_Vector fy, 
                     DlsMat Jac, void *data,
                     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -355,7 +355,7 @@ int cvDlsDenseDQJac(indextype N, realtype t,
   realtype fnorm, minInc, inc, inc_inv, yjsaved, srur;
   realtype *tmp2_data, *y_data, *ewt_data;
   N_Vector ftemp, jthCol;
-  indextype j;
+  sunindextype j;
   int retval = 0;
 
   CVodeMem cv_mem;
@@ -423,7 +423,7 @@ int cvDlsDenseDQJac(indextype N, realtype t,
  * -----------------------------------------------------------------
  */
 
-int cvDlsBandDQJac(indextype N, indextype mupper, indextype mlower,
+int cvDlsBandDQJac(sunindextype N, sunindextype mupper, sunindextype mlower,
                    realtype t, N_Vector y, N_Vector fy, 
                    DlsMat Jac, void *data,
                    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -431,7 +431,7 @@ int cvDlsBandDQJac(indextype N, indextype mupper, indextype mlower,
   N_Vector ftemp, ytemp;
   realtype fnorm, minInc, inc, inc_inv, srur;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
-  indextype group, i, j, width, ngroups, i1, i2;
+  sunindextype group, i, j, width, ngroups, i1, i2;
   int retval = 0;
 
   CVodeMem cv_mem;
@@ -771,7 +771,7 @@ int CVDlsSetBandJacFnBS(void *cvode_mem, int which, CVDlsBandJacFnBS jacBS)
  * NOTE: data here contains cvode_mem
  */
 
-static int cvDlsDenseJacBWrapper(indextype nB, realtype t,
+static int cvDlsDenseJacBWrapper(sunindextype nB, realtype t,
                                  N_Vector yB, N_Vector fyB, 
                                  DlsMat JB, void *cvode_mem,
                                  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
@@ -812,7 +812,7 @@ static int cvDlsDenseJacBWrapper(indextype nB, realtype t,
  * NOTE: data here contains cvode_mem
  */
 
-static int cvDlsDenseJacBSWrapper(indextype nB, realtype t,
+static int cvDlsDenseJacBSWrapper(sunindextype nB, realtype t,
                                  N_Vector yB, N_Vector fyB, 
                                  DlsMat JB, void *cvode_mem,
                                  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
@@ -857,7 +857,7 @@ static int cvDlsDenseJacBSWrapper(indextype nB, realtype t,
  * NOTE: data here contains cvode_mem
  */
 
-static int cvDlsBandJacBWrapper(indextype nB, indextype mupperB, indextype mlowerB, 
+static int cvDlsBandJacBWrapper(sunindextype nB, sunindextype mupperB, sunindextype mlowerB, 
                                 realtype t, N_Vector yB, N_Vector fyB, 
                                 DlsMat JB, void *cvode_mem, 
                                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
@@ -898,7 +898,7 @@ static int cvDlsBandJacBWrapper(indextype nB, indextype mupperB, indextype mlowe
  * NOTE: data here contains cvode_mem
  */
 
-static int cvDlsBandJacBSWrapper(indextype nB, indextype mupperB, indextype mlowerB, 
+static int cvDlsBandJacBSWrapper(sunindextype nB, sunindextype mupperB, sunindextype mlowerB, 
                                 realtype t, N_Vector yB, N_Vector fyB, 
                                 DlsMat JB, void *cvode_mem, 
                                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)

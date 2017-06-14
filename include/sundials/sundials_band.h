@@ -81,9 +81,9 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT indextype BandGBTRF(DlsMat A, indextype *p);
-SUNDIALS_EXPORT indextype bandGBTRF(realtype **a, indextype n, indextype mu, indextype ml,
-                                   indextype smu, indextype *p);
+SUNDIALS_EXPORT sunindextype BandGBTRF(DlsMat A, sunindextype *p);
+SUNDIALS_EXPORT sunindextype bandGBTRF(realtype **a, sunindextype n, sunindextype mu, sunindextype ml,
+                                   sunindextype smu, sunindextype *p);
 
 /*
  * -----------------------------------------------------------------
@@ -102,9 +102,9 @@ SUNDIALS_EXPORT indextype bandGBTRF(realtype **a, indextype n, indextype mu, ind
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void BandGBTRS(DlsMat A, indextype *p, realtype *b);
-SUNDIALS_EXPORT void bandGBTRS(realtype **a, indextype n, indextype smu,
-                               indextype ml, indextype *p, realtype *b);
+SUNDIALS_EXPORT void BandGBTRS(DlsMat A, sunindextype *p, realtype *b);
+SUNDIALS_EXPORT void bandGBTRS(realtype **a, sunindextype n, sunindextype smu,
+                               sunindextype ml, sunindextype *p, realtype *b);
 
 /*
  * -----------------------------------------------------------------
@@ -121,10 +121,10 @@ SUNDIALS_EXPORT void bandGBTRS(realtype **a, indextype n, indextype smu,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void BandCopy(DlsMat A, DlsMat B, indextype copymu, indextype copyml);
-SUNDIALS_EXPORT void bandCopy(realtype **a, realtype **b, indextype n,
-                              indextype a_smu, indextype b_smu,
-			      indextype copymu, indextype copyml);
+SUNDIALS_EXPORT void BandCopy(DlsMat A, DlsMat B, sunindextype copymu, sunindextype copyml);
+SUNDIALS_EXPORT void bandCopy(realtype **a, realtype **b, sunindextype n,
+                              sunindextype a_smu, sunindextype b_smu,
+			      sunindextype copymu, sunindextype copyml);
 
 /*
  * -----------------------------------------------------------------
@@ -141,7 +141,7 @@ SUNDIALS_EXPORT void bandCopy(realtype **a, realtype **b, indextype n,
  */
 
 SUNDIALS_EXPORT void BandScale(realtype c, DlsMat A);
-SUNDIALS_EXPORT void bandScale(realtype c, realtype **a, indextype n, indextype mu, indextype ml, indextype smu);
+SUNDIALS_EXPORT void bandScale(realtype c, realtype **a, sunindextype n, sunindextype mu, sunindextype ml, sunindextype smu);
 
 /*
  * -----------------------------------------------------------------
@@ -152,7 +152,7 @@ SUNDIALS_EXPORT void bandScale(realtype c, realtype **a, indextype n, indextype 
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void bandAddIdentity(realtype **a, indextype n, indextype smu);
+SUNDIALS_EXPORT void bandAddIdentity(realtype **a, sunindextype n, sunindextype smu);
 
 
 /*
@@ -170,8 +170,8 @@ SUNDIALS_EXPORT void bandAddIdentity(realtype **a, indextype n, indextype smu);
  */
 
 SUNDIALS_EXPORT void BandMatvec(DlsMat A, realtype *x, realtype *y);
-SUNDIALS_EXPORT void bandMatvec(realtype **a, realtype *x, realtype *y, indextype n, 
-		indextype mu, indextype ml, indextype smu);
+SUNDIALS_EXPORT void bandMatvec(realtype **a, realtype *x, realtype *y, sunindextype n, 
+		sunindextype mu, sunindextype ml, sunindextype smu);
 
 #ifdef __cplusplus
 }

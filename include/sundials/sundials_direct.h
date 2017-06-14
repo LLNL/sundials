@@ -118,14 +118,14 @@ extern "C" {
 
 typedef struct _DlsMat {
   int type;
-  indextype M;
-  indextype N;
-  indextype ldim;
-  indextype mu;
-  indextype ml;
-  indextype s_mu;
+  sunindextype M;
+  sunindextype N;
+  sunindextype ldim;
+  sunindextype mu;
+  sunindextype ml;
+  sunindextype s_mu;
   realtype *data;
-  indextype ldata;
+  sunindextype ldata;
   realtype **cols;
 } *DlsMat;
 
@@ -199,7 +199,7 @@ typedef struct _DlsMat {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT DlsMat NewDenseMat(indextype M, indextype N);
+SUNDIALS_EXPORT DlsMat NewDenseMat(sunindextype M, sunindextype N);
 
 /*
  * -----------------------------------------------------------------
@@ -221,7 +221,7 @@ SUNDIALS_EXPORT DlsMat NewDenseMat(indextype M, indextype N);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT DlsMat NewBandMat(indextype N, indextype mu, indextype ml, indextype smu);
+SUNDIALS_EXPORT DlsMat NewBandMat(sunindextype N, sunindextype mu, sunindextype ml, sunindextype smu);
 
 /*
  * -----------------------------------------------------------------
@@ -249,13 +249,13 @@ SUNDIALS_EXPORT int *NewIntArray(int N);
  * -----------------------------------------------------------------
  * Function: NewLintArray
  * -----------------------------------------------------------------
- * NewLintArray allocates memory an array of N indextype's and returns
+ * NewLintArray allocates memory an array of N sunindextype's and returns
  * the pointer to the memory it allocates. If the request for
  * memory storage cannot be satisfied, it returns NULL.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT indextype *NewLintArray(indextype N);
+SUNDIALS_EXPORT sunindextype *NewLintArray(sunindextype N);
 
 /*
  * -----------------------------------------------------------------
@@ -267,7 +267,7 @@ SUNDIALS_EXPORT indextype *NewLintArray(indextype N);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT realtype *NewRealArray(indextype N);
+SUNDIALS_EXPORT realtype *NewRealArray(sunindextype N);
 
 /*
  * -----------------------------------------------------------------
@@ -325,12 +325,12 @@ SUNDIALS_EXPORT void PrintMat(DlsMat A);
  * ==================================================================
  */
 
-SUNDIALS_EXPORT realtype **newDenseMat(indextype m, indextype n);
-SUNDIALS_EXPORT realtype **newBandMat(indextype n, indextype smu, indextype ml);
+SUNDIALS_EXPORT realtype **newDenseMat(sunindextype m, sunindextype n);
+SUNDIALS_EXPORT realtype **newBandMat(sunindextype n, sunindextype smu, sunindextype ml);
 SUNDIALS_EXPORT void destroyMat(realtype **a);
 SUNDIALS_EXPORT int *newIntArray(int n);
-SUNDIALS_EXPORT indextype *newLintArray(indextype n);
-SUNDIALS_EXPORT realtype *newRealArray(indextype m);
+SUNDIALS_EXPORT sunindextype *newLintArray(sunindextype n);
+SUNDIALS_EXPORT realtype *newRealArray(sunindextype m);
 SUNDIALS_EXPORT void destroyArray(void *v);
 
 

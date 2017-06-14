@@ -165,7 +165,7 @@ typedef struct {
     rhs[NUM_SPECIES], cext[(MXSUB+2)*(MYSUB+2)*NUM_SPECIES];
   MPI_Comm comm;
   N_Vector rates;
-  indextype n_local;
+  sunindextype n_local;
 } *UserData;
 
 /* Prototypes for functions called by the IDA Solver. */
@@ -174,11 +174,11 @@ static int resweb(realtype tt,
                   N_Vector cc, N_Vector cp, N_Vector rr, 
                   void *user_data);
 
-static int reslocal(indextype Nlocal, realtype tt, 
+static int reslocal(sunindextype Nlocal, realtype tt, 
                     N_Vector cc, N_Vector cp, N_Vector res, 
                     void *user_data);
 
-static int rescomm(indextype Nlocal, realtype tt,
+static int rescomm(sunindextype Nlocal, realtype tt,
                    N_Vector cc, N_Vector cp, 
                    void *user_data);
 
@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
   void *mem;
   UserData webdata;
-  indextype SystemSize, local_N, mudq, mldq, mukeep, mlkeep;
+  sunindextype SystemSize, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, tout, tret;
   N_Vector cc, cp, res, id;
   int thispe, npes, maxl, iout, retval;
@@ -709,7 +709,7 @@ static int resweb(realtype tt,
 {
   int retval;
   UserData webdata;
-  indextype Nlocal;
+  sunindextype Nlocal;
   
   webdata = (UserData) user_data;
   
@@ -734,7 +734,7 @@ static int resweb(realtype tt,
  * and receive-waiting, in routines BRecvPost, BSend, BRecvWait.         
  */
 
-static int rescomm(indextype Nlocal, realtype tt, 
+static int rescomm(sunindextype Nlocal, realtype tt, 
                    N_Vector cc, N_Vector cp,
                    void *user_data)
 {
@@ -957,7 +957,7 @@ static void BSend(MPI_Comm comm, int my_pe, int ixsub, int jysub,
  * for use by the preconditioner setup routine.                          
  */
 
-static int reslocal(indextype Nlocal, realtype tt, 
+static int reslocal(sunindextype Nlocal, realtype tt, 
                     N_Vector cc, N_Vector cp, N_Vector rr,
                     void *user_data)
 {

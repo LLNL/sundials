@@ -590,7 +590,7 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
   double t0, *yy0, *yp0;
 
   int maxord;
-  indextype mxsteps;
+  sunindextype mxsteps;
 
   int itol;
   realtype reltol, Sabstol, *Vabstol;
@@ -601,9 +601,9 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
   booleantype suppress;
 
-  indextype mupper, mlower;
+  sunindextype mupper, mlower;
   int gstype, maxl;
-  indextype mudq, mldq;
+  sunindextype mudq, mldq;
   double dqrely;
 
   double *id, *cnstr;
@@ -1517,7 +1517,7 @@ static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
   double tB0, *yyB0, *ypB0;
 
   int maxordB;
-  indextype mxstepsB;
+  sunindextype mxstepsB;
 
   int itolB;
   realtype reltolB, SabstolB, *VabstolB;
@@ -1529,9 +1529,9 @@ static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   booleantype suppressB;
 
-  indextype mupperB, mlowerB;
+  sunindextype mupperB, mlowerB;
   int gstypeB, maxlB;
-  indextype mudqB, mldqB;
+  sunindextype mudqB, mldqB;
   double dqrelyB;
 
   double *idB, *cnstrB;
@@ -2171,7 +2171,7 @@ static int IDM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   int itask, is, Ntout, itout, s_idx;
   double *tout, tret, h;
   double *tdata, *yydata, *yQdata, *yySdata;
-  indextype nst;
+  sunindextype nst;
 
   int status, ida_status;
 
@@ -2649,7 +2649,7 @@ static int idmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB)
   double tretB, hB;
   double *tdata, *ydata, *yQdata;
   int itout;
-  indextype nstB;
+  sunindextype nstB;
 
   int status, ida_status;
 
@@ -2909,19 +2909,19 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     "ncfnS",
   };
 
-  indextype nst, nfe, nsetups, nni, ncfn, netf, nge;
+  sunindextype nst, nfe, nsetups, nni, ncfn, netf, nge;
   int qlast, qcur;
   double h0used, hlast, hcur, tcur;
   int *rootsfound;
 
-  indextype njeD, nfeD;
-  indextype njeB, nfeB;
-  indextype nli, npe, nps, ncfl, njeSG, nfeSG;
+  sunindextype njeD, nfeD;
+  sunindextype njeB, nfeB;
+  sunindextype nli, npe, nps, ncfl, njeSG, nfeSG;
 
-  indextype nfQe, netfQ;
+  sunindextype nfQe, netfQ;
 
-  indextype nrSe, nfeS, netfS, nsetupsS;
-  indextype nniS, ncfnS;
+  sunindextype nrSe, nfeS, netfS, nsetupsS;
+  sunindextype nniS, ncfnS;
 
   int i, status;
   mxArray *mxS_root, *mxS_ls, *mxS_quad, *mxS_fsa;
@@ -3175,15 +3175,15 @@ static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   void *ida_memB;
 
-  indextype nst, nfe, nsetups, nni, ncfn, netf;
+  sunindextype nst, nfe, nsetups, nni, ncfn, netf;
   int qlast, qcur;
   double h0used, hlast, hcur, tcur;
 
-  indextype njeD, nfeD;
-  indextype njeB, nfeB;
-  indextype nli, npe, nps, ncfl, njeSG, nfeSG;
+  sunindextype njeD, nfeD;
+  sunindextype njeB, nfeB;
+  sunindextype nli, npe, nps, ncfl, njeSG, nfeSG;
 
-  indextype nfQe, netfQ;
+  sunindextype nfQe, netfQ;
 
   int status;
   mxArray *mxS_ls, *mxS_quad;

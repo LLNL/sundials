@@ -64,7 +64,7 @@ extern "C" {
  */
 
 SUNDIALS_EXPORT int IDABand(void *ida_mem,
-                            indextype Neq, indextype mupper, indextype mlower);
+                            sunindextype Neq, sunindextype mupper, sunindextype mlower);
 
 /*
  * -----------------------------------------------------------------
@@ -77,7 +77,7 @@ SUNDIALS_EXPORT int IDABand(void *ida_mem,
  */
 
 SUNDIALS_EXPORT int IDABandB(void *idaadj_mem, int which, 
-                             indextype NeqB, indextype mupperB, indextype mlowerB);
+                             sunindextype NeqB, sunindextype mupperB, sunindextype mlowerB);
 
 #ifdef __cplusplus
 }

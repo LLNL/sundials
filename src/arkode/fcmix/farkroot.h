@@ -53,7 +53,7 @@
       T = independent variable value t  [realtype, input]
       Y = dependent variable array y  [realtype, input]
       G = function value array g(t,y)  [realtype, output]
-      IPAR = user data array [indextype, input/output]
+      IPAR = user data array [sunindextype, input/output]
       RPAR = user data array [realtype, input/output]
       IER = return flag [int, output]:
             0 if success

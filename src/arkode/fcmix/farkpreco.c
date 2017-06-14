@@ -38,13 +38,13 @@ extern "C" {
   extern void FARK_PSET(realtype *T, realtype *Y, realtype *FY,
 			booleantype *JOK, booleantype *JCUR,
 			realtype *GAMMA, realtype *H,
-			indextype *IPAR, realtype *RPAR, 
+			sunindextype *IPAR, realtype *RPAR, 
 			realtype *W1, realtype *W2, 
 			realtype *W3, int *IER);
   extern void FARK_PSOL(realtype *T, realtype *Y, realtype *FY,
 			realtype *R, realtype *Z, 
 			realtype *GAMMA, realtype *DELTA,
-			int *LR, indextype *IPAR, realtype *RPAR,
+			int *LR, sunindextype *IPAR, realtype *RPAR,
 			realtype *WRK, int *IER);
 
 #ifdef __cplusplus
