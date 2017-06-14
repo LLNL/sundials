@@ -107,7 +107,7 @@ int main(void)
   N_Vector uu, up, constraints, res;
   int ier, iout, linsolver;
   realtype rtol, atol, t0, t1, tout, tret;
-  indextype netf, ncfn, ncfl;
+  long int netf, ncfn, ncfl;
 
   mem = NULL;
   data = NULL;
@@ -502,7 +502,7 @@ static void PrintHeader(realtype rtol, realtype atol, int linsolver)
 static void PrintOutput(void *mem, realtype t, N_Vector uu, int linsolver)
 {
   realtype hused, umax;
-  indextype nst, nni, nje, nre, nreLS, nli, npe, nps;
+  long int nst, nni, nje, nre, nreLS, nli, npe, nps;
   int kused, ier;
   
   umax = N_VMaxNorm(uu);

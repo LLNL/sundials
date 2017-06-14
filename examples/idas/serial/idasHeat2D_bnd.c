@@ -333,7 +333,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
 {
   int ier;
   realtype umax, hused;
-  indextype nst, nni, nje, nre, nreLS;
+  long int nst, nni, nje, nre, nreLS;
   int kused;
 
   umax = N_VMaxNorm(uu);

@@ -610,7 +610,7 @@ static void PrintHeader(indextype maxl, realtype rtol, realtype atol)
 static void PrintOutput(void *mem, N_Vector c, realtype t)
 {
   int i, kused, flag;
-  indextype nst;
+  long int nst;
   realtype *c_bl, *c_tr, hused;
 
   flag = IDAGetLastOrder(mem, &kused);
@@ -649,7 +649,7 @@ static void PrintOutput(void *mem, N_Vector c, realtype t)
 
 static void PrintFinalStats(void *mem)
 { 
-  indextype nst, nre, sli, netf, nps, npevals, nrevalsLS;
+  long int nst, nre, sli, netf, nps, npevals, nrevalsLS;
   int flag;
 
   flag = IDAGetNumSteps(mem, &nst);

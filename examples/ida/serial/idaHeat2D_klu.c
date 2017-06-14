@@ -95,7 +95,7 @@ int main(void)
   UserData data;
   N_Vector uu, up, constraints, id, res;  /* uu is u, up is du/dt */
   int ier, iout;
-  indextype netf, ncfn;
+  long int netf, ncfn;
   realtype rtol, atol, t0, t1, tout, tret;
 
   int nnz; /* number of non-zeroes  */
@@ -674,7 +674,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
 {
   int ier;
   realtype umax, hused;
-  indextype nst, nni, nje, nre;
+  long int nst, nni, nje, nre;
   int kused;
 
   umax = N_VMaxNorm(uu);

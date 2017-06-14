@@ -272,7 +272,7 @@ int main(int argc, char* argv[]) {
   fclose(UFID);
 
   // Print some final statistics 
-  indextype nst, nst_a, nfe, nfi, nsetups, nli, nJv, nlcf, nni, ncfn, netf, npe, nps;
+  long int nst, nst_a, nfe, nfi, nsetups, nli, nJv, nlcf, nni, ncfn, netf, npe, nps;
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) return 1;
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);

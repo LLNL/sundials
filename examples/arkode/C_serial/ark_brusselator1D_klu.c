@@ -132,7 +132,7 @@ int main()
   realtype tout = T0+dTout;
   realtype u, v, w;
   int iout;
-  indextype nst, nst_a, nfe, nfi, nsetups, nje, nni, ncfn, netf;
+  long int nst, nst_a, nfe, nfi, nsetups, nje, nni, ncfn, netf;
 
   /* allocate udata structure */
   udata = (UserData) malloc(sizeof(*udata));

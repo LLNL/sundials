@@ -273,7 +273,7 @@ static int g(realtype t, N_Vector y, N_Vector yp, realtype *gout, void *g_data)
 static void PrintFinalStats(void *cpode_mem)
 {
   realtype h0u;
-  indextype nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf, nge;
+  long int nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf, nge;
   int flag;
 
   flag = CPodeGetActualInitStep(cpode_mem, &h0u);

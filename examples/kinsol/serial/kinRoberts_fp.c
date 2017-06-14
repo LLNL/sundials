@@ -240,7 +240,7 @@ static void PrintOutput(N_Vector y)
 
 static void PrintFinalStats(void *kmem)
 {
-  indextype nni, nfe;
+  long int nni, nfe;
   int flag;
   
   /* Main solver statistics */

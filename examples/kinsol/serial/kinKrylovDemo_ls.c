@@ -827,7 +827,7 @@ static void PrintOutput(N_Vector cc)
 
 static void PrintFinalStats(void *kmem, int linsolver)
 {
-  indextype nni, nfe, nli, npe, nps, ncfl, nfeSG;
+  long int nni, nfe, nli, npe, nps, ncfl, nfeSG;
   int flag;
   
   flag = KINGetNumNonlinSolvIters(kmem, &nni);

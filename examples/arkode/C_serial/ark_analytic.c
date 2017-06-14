@@ -71,7 +71,7 @@ int main()
   void *arkode_mem = NULL;        /* empty ARKode memory structure */
   FILE *UFID;
   realtype t, tout;
-  indextype nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
+  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
 
   /* Initial diagnostics output */
   printf("\nAnalytical ODE test problem:\n");

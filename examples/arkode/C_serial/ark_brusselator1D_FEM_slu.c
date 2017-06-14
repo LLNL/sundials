@@ -163,8 +163,8 @@ int main(int argc, char *argv[]) {
   FILE *FID, *UFID, *VFID, *WFID;
   realtype h, z, t, dTout, tout, u, v, w, pi;
   int iout;
-  indextype nst, nst_a, nfe, nfi, nsetups, nje, nni, ncfn;
-  indextype netf, nms, nMv;
+  long int nst, nst_a, nfe, nfi, nsetups, nje, nni, ncfn;
+  long int netf, nms, nMv;
 
   /* if a command-line argument was supplied, set num_threads */
   num_threads = 1;

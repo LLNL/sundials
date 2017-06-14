@@ -311,7 +311,7 @@ static void PrintRootInfo(int root_f1, int root_f2)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  indextype nst, nfe, nsetups, nje, nni, ncfn, netf, nge;
+  long int nst, nfe, nsetups, nje, nni, ncfn, netf, nge;
   int flag;
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);

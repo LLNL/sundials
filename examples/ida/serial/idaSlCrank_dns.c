@@ -312,7 +312,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
 {
   realtype *yval;
   int flag, kused;
-  indextype nst;
+  long int nst;
   realtype hused;
 
   yval  = N_VGetArrayPointer_Serial(y);
@@ -329,7 +329,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
 static void PrintFinalStats(void *mem)
 {
   int flag;
-  indextype nst, nni, nje, nre, nreLS, netf, ncfn;
+  long int nst, nni, nje, nre, nreLS, netf, ncfn;
 
   flag = IDAGetNumSteps(mem, &nst);
   flag = IDAGetNumResEvals(mem, &nre);

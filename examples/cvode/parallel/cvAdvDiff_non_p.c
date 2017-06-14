@@ -71,7 +71,7 @@ static void SetIC(N_Vector u, realtype dx, indextype my_length,
 
 static void PrintIntro(int npes);
 
-static void PrintData(realtype t, realtype umax, indextype nst);
+static void PrintData(realtype t, realtype umax, long int nst);
 
 static void PrintFinalStats(void *cvode_mem);
 
@@ -218,7 +218,7 @@ static void PrintIntro(int npes)
 
 /* Print data */
 
-static void PrintData(realtype t, realtype umax, indextype nst)
+static void PrintData(realtype t, realtype umax, long int nst)
 {
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -236,7 +236,7 @@ static void PrintData(realtype t, realtype umax, indextype nst)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  indextype nst, nfe, nni, ncfn, netf;
+  long int nst, nfe, nni, ncfn, netf;
   int flag;
   
   flag = CVodeGetNumSteps(cvode_mem, &nst);

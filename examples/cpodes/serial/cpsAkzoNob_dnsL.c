@@ -209,7 +209,7 @@ static int cfun(realtype t, N_Vector yy, N_Vector cout, void *c_data)
 static void PrintFinalStats(void *cpode_mem)
 {
   realtype h0u;
-  indextype nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf, nge;
+  long int nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf, nge;
   indextype nproj, nce, nsetupsP, nprf;
   int flag;
 

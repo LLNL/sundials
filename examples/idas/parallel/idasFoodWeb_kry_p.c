@@ -596,7 +596,7 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
 {
   MPI_Status status;
   realtype *cdata, clast[2], hused;
-  indextype nst;
+  long int nst;
   int i, kused, flag, thispe, npelast, ilast;;
 
   thispe = webdata->thispe; 
@@ -653,7 +653,7 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
 
 static void PrintFinalStats(void *mem)
 {
-  indextype nst, nre, nreLS, netf, ncfn, nni, ncfl, nli, npe, nps;
+  long int nst, nre, nreLS, netf, ncfn, nni, ncfl, nli, npe, nps;
   int flag;
 
   flag = IDAGetNumSteps(mem, &nst);

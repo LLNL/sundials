@@ -81,7 +81,7 @@ typedef struct {
 
 static void SetIC(N_Vector u, UserData data);
 static void PrintHeader(realtype reltol, realtype abstol, realtype umax);
-static void PrintOutput(realtype t, realtype umax, indextype nst);
+static void PrintOutput(realtype t, realtype umax, long int nst);
 static void PrintFinalStats(void *cvode_mem);
 
 /* Private function to check function return values */
@@ -109,7 +109,7 @@ int main(void)
   UserData data;
   void *cvode_mem;
   int iout, flag;
-  indextype nst;
+  long int nst;
 
   u = NULL;
   data = NULL;
@@ -335,7 +335,7 @@ static void PrintHeader(realtype reltol, realtype abstol, realtype umax)
 
 /* Print current value */
 
-static void PrintOutput(realtype t, realtype umax, indextype nst)
+static void PrintOutput(realtype t, realtype umax, long int nst)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %4.2Lf   max.norm(u) =%14.6Le   nst = %4ld\n", t, umax, nst);
@@ -353,7 +353,7 @@ static void PrintOutput(realtype t, realtype umax, indextype nst)
 static void PrintFinalStats(void *cvode_mem)
 {
   int flag;
-  indextype nst, nfe, nsetups, netf, nni, ncfn, nje, nfeLS;
+  long int nst, nfe, nsetups, netf, nni, ncfn, nje, nfeLS;
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);
   check_flag(&flag, "CVodeGetNumSteps", 1);

@@ -80,7 +80,7 @@ static void SetIC(HYPRE_IJVector Uij, realtype dx, indextype my_length,
 
 static void PrintIntro(int npes);
 
-static void PrintData(realtype t, realtype umax, indextype nst);
+static void PrintData(realtype t, realtype umax, long int nst);
 
 static void PrintFinalStats(void *cvode_mem);
 
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
   UserData data;
   void *cvode_mem;
   int iout, flag, my_pe, npes;
-  indextype nst;
+  long int nst;
   HYPRE_Int local_N, nperpe, nrem, my_base;
   HYPRE_ParVector Upar; /* Declare HYPRE parallel vector */
   HYPRE_IJVector  Uij;  /* Declare "IJ" interface to HYPRE vector */
@@ -243,7 +243,7 @@ static void PrintIntro(int npes)
 
 /* Print data */
 
-static void PrintData(realtype t, realtype umax, indextype nst)
+static void PrintData(realtype t, realtype umax, long int nst)
 {
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -261,7 +261,7 @@ static void PrintData(realtype t, realtype umax, indextype nst)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  indextype nst, nfe, nni, ncfn, netf;
+  long int nst, nfe, nni, ncfn, netf;
   int flag;
   
   flag = CVodeGetNumSteps(cvode_mem, &nst);

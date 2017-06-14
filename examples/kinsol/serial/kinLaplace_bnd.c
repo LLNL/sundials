@@ -303,9 +303,9 @@ static void PrintOutput(N_Vector u)
 
 static void PrintFinalStats(void *kmem)
 {
-  indextype nni, nfe, nje, nfeD;
+  long int nni, nfe, nje, nfeD;
   indextype lenrw, leniw, lenrwB, leniwB;
-  indextype nbcfails, nbacktr;
+  long int nbcfails, nbacktr;
   int flag;
   
   /* Main solver statistics */

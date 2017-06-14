@@ -556,7 +556,7 @@ static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t)
 
 static void PrintOutput(void *arkode_mem, realtype t)
 {
-  indextype nst, nfe, nfi, nni;
+  long int nst, nfe, nfi, nni;
   int flag;
   realtype hu;
 
@@ -585,8 +585,8 @@ static void PrintFinalStats(void *arkode_mem)
 {
   indextype lenrw, leniw ;
   indextype lenrwLS, leniwLS;
-  indextype nst, nfe, nfi, nsetups, nni, ncfn, netf;
-  indextype nli, npe, nps, ncfl, nfeLS;
+  long int nst, nfe, nfi, nsetups, nni, ncfn, netf;
+  long int nli, npe, nps, ncfl, nfeLS;
   int flag;
   realtype avdim;
   

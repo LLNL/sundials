@@ -71,7 +71,7 @@ int main()
   FILE *UFID;
   realtype t, tout;
   int iout;
-  indextype nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
+  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
 
   /* set up the initial conditions, tolerances, initial time step size */
   realtype u0 = RCONST(1.0);

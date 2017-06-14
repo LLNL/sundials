@@ -117,7 +117,7 @@ int main()
   realtype pi, t, dTout, tout, u, v, w;
   FILE *FID, *UFID, *VFID, *WFID;
   int iout;
-  indextype nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
+  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
 
   /* allocate udata structure */
   udata = (UserData) malloc(sizeof(*udata));

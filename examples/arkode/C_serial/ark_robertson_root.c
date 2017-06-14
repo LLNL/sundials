@@ -70,8 +70,8 @@ int main()
   indextype NEQ = 3;              /* number of dependent vars. */
   realtype reltol;
   int rootsfound[2];
-  indextype nst, nst_a, nfe, nfi, nsetups;
-  indextype nje, nfeLS, nni, ncfn, netf, nge;
+  long int nst, nst_a, nfe, nfi, nsetups;
+  long int nje, nfeLS, nni, ncfn, netf, nge;
   int flag, rtflag;              /* reusable error-checking flags */
   FILE *UFID;
   realtype t, tout;

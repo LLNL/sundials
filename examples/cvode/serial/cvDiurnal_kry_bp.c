@@ -303,7 +303,7 @@ static void PrintIntro(indextype mu, indextype ml)
 
 static void PrintOutput(void *cvode_mem, N_Vector u,realtype t)
 {
-  indextype nst;
+  long int nst;
   int qu, flag;
   realtype hu, *udata;
   int mxh = MX/2 - 1, myh = MY/2 - 1, mx1 = MX - 1, my1 = MY - 1;
@@ -348,9 +348,9 @@ static void PrintFinalStats(void *cvode_mem)
   indextype lenrw, leniw ;
   indextype lenrwLS, leniwLS;
   indextype lenrwBP, leniwBP;
-  indextype nst, nfe, nsetups, nni, ncfn, netf;
-  indextype nli, npe, nps, ncfl, nfeLS;
-  indextype nfeBP;
+  long int nst, nfe, nsetups, nni, ncfn, netf;
+  long int nli, npe, nps, ncfl, nfeLS;
+  long int nfeBP;
   int flag;
 
   flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);

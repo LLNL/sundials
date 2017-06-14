@@ -502,7 +502,7 @@ static int rhsQS(int Ns, realtype t, N_Vector yy, N_Vector yp,
 static void PrintFinalStats(void *mem)
 {
   int flag;
-  indextype nst, nni, nje, nre, nreLS, netf, ncfn;
+  long int nst, nni, nje, nre, nreLS, netf, ncfn;
 
   flag = IDAGetNumSteps(mem, &nst);
   flag = IDAGetNumResEvals(mem, &nre);

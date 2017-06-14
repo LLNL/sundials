@@ -460,8 +460,8 @@ static void PrintFinalStats(void *arkode_mem)
 {
   indextype lenrw, leniw ;
   indextype lenrwLS, leniwLS;
-  indextype nst, nfe, nfi, nsetups, nni, ncfn, netf;
-  indextype nli, npe, nps, ncfl, nfeLS;
+  long int nst, nfe, nfi, nsetups, nni, ncfn, netf;
+  long int nli, npe, nps, ncfl, nfeLS;
   int flag;
 
   flag = ARKodeGetWorkSpace(arkode_mem, &lenrw, &leniw);

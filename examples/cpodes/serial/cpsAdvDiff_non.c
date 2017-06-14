@@ -160,7 +160,7 @@ static realtype MaxError(N_Vector y, realtype t)
 
 static void PrintFinalStats(void *cpode_mem)
 {
-  indextype nst, nfe, nni, ncfn, netf;
+  long int nst, nfe, nni, ncfn, netf;
   realtype h0u;
   int flag;
   

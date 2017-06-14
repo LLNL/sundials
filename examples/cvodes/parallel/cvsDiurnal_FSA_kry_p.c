@@ -1038,7 +1038,7 @@ static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data
 static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         realtype t, N_Vector u)
 {
-  indextype nst;
+  long int nst;
   int qu, flag;
   realtype hu, *udata, tempu[2];
   indextype npelast, i0, i1;
@@ -1197,9 +1197,9 @@ static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS)
 
 static void PrintFinalStats(void *cvode_mem, booleantype sensi) 
 {
-  indextype nst;
-  indextype nfe, nsetups, nni, ncfn, netf;
-  indextype nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+  long int nst;
+  long int nfe, nsetups, nni, ncfn, netf;
+  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
   int flag;
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);

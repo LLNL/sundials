@@ -553,7 +553,7 @@ static void PrintOutput(N_Vector y)
 
 static void PrintFinalStats(void *kmem)
 {
-  indextype nni, nfe, nje;
+  long int nni, nfe, nje;
   int flag;
   
   flag = KINGetNumNonlinSolvIters(kmem, &nni);

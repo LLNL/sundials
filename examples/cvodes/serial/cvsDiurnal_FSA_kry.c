@@ -736,7 +736,7 @@ static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz)
 
 static void PrintOutput(void *cvode_mem, realtype t, N_Vector y)
 {  
-  indextype nst;
+  long int nst;
   int qu, flag;
   realtype hu;
   realtype *ydata;
@@ -831,10 +831,10 @@ static void PrintOutputS(N_Vector *uS)
 
 static void PrintFinalStats(void *cvode_mem, booleantype sensi)
 {
-  indextype nst;
-  indextype nfe, nsetups, nni, ncfn, netf;
-  indextype nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
-  indextype nli, ncfl, npe, nps;
+  long int nst;
+  long int nfe, nsetups, nni, ncfn, netf;
+  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+  long int nli, ncfl, npe, nps;
   int flag;
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);

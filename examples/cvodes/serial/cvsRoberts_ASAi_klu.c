@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
   realtype time;
   int flag, nnz, ncheck;
 
-  indextype nst, nstB;
+  long int nst, nstB;
 
   CVadjCheckPointRec *ckpnt;
 

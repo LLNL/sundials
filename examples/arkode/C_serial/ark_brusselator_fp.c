@@ -94,7 +94,7 @@ int main()
   FILE *UFID;
   realtype t, tout;
   int iout;
-  indextype nst, nst_a, nfe, nfi, nni, ncfn, netf;
+  long int nst, nst_a, nfe, nfi, nni, ncfn, netf;
 
   /* set up the test problem according to the desired test */
   if (test == 1) {

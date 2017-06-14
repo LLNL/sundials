@@ -86,7 +86,7 @@ int main() {
   FILE *FID, *UFID;
   realtype t, dTout, tout;
   int iout;
-  indextype nst, nst_a, nfe, nfi, nsetups, nli, nJv, nlcf, nni, ncfn, netf;
+  long int nst, nst_a, nfe, nfi, nsetups, nli, nJv, nlcf, nni, ncfn, netf;
 
   /* allocate and fill udata structure */
   udata = (UserData) malloc(sizeof(*udata));

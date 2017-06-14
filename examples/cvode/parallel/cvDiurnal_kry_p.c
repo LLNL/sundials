@@ -441,8 +441,8 @@ static void PrintFinalStats(void *cvode_mem)
 {
   indextype lenrw, leniw ;
   indextype lenrwLS, leniwLS;
-  indextype nst, nfe, nsetups, nni, ncfn, netf;
-  indextype nli, npe, nps, ncfl, nfeLS;
+  long int nst, nfe, nsetups, nni, ncfn, netf;
+  long int nli, npe, nps, ncfl, nfeLS;
   int flag;
 
   flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);

@@ -806,7 +806,7 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu,
 {
   realtype umax, hused;
   int kused, ier, is;
-  indextype nst, nni, nre, nli, npe, nps, nreLS, nge;
+  long int nst, nni, nre, nli, npe, nps, nreLS, nge;
 
   umax = N_VMaxNorm(uu);
 
@@ -870,7 +870,7 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu,
 
 static void PrintFinalStats(void *mem)
 {
-  indextype netf, ncfn, ncfl;
+  long int netf, ncfn, ncfl;
 
   IDAGetNumErrTestFails(mem, &netf);
   IDAGetNumNonlinSolvConvFails(mem, &ncfn);
