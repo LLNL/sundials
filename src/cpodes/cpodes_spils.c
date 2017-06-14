@@ -354,7 +354,7 @@ int CPSpilsSetJacTimesVecFnImpl(void *cpode_mem, CPSpilsJacTimesVecImplFn jtimes
  * -----------------------------------------------------------------
  */
 
-int CPSpilsGetWorkSpace(void *cpode_mem, indextype *lenrwLS, indextype *leniwLS)
+int CPSpilsGetWorkSpace(void *cpode_mem, long int *lenrwLS, long int *leniwLS)
 {
   CPodeMem cp_mem;
   CPSpilsMem cpspils_mem;
@@ -400,7 +400,7 @@ int CPSpilsGetWorkSpace(void *cpode_mem, indextype *lenrwLS, indextype *leniwLS)
  * -----------------------------------------------------------------
  */
 
-int CPSpilsGetNumPrecEvals(void *cpode_mem, indextype *npevals)
+int CPSpilsGetNumPrecEvals(void *cpode_mem, long int *npevals)
 {
   CPodeMem cp_mem;
   CPSpilsMem cpspils_mem;
@@ -429,7 +429,7 @@ int CPSpilsGetNumPrecEvals(void *cpode_mem, indextype *npevals)
  * -----------------------------------------------------------------
  */
 
-int CPSpilsGetNumPrecSolves(void *cpode_mem, indextype *npsolves)
+int CPSpilsGetNumPrecSolves(void *cpode_mem, long int *npsolves)
 {
   CPodeMem cp_mem;
   CPSpilsMem cpspils_mem;
@@ -458,7 +458,7 @@ int CPSpilsGetNumPrecSolves(void *cpode_mem, indextype *npsolves)
  * -----------------------------------------------------------------
  */
 
-int CPSpilsGetNumLinIters(void *cpode_mem, indextype *nliters)
+int CPSpilsGetNumLinIters(void *cpode_mem, long int *nliters)
 {
   CPodeMem cp_mem;
   CPSpilsMem cpspils_mem;
@@ -487,7 +487,7 @@ int CPSpilsGetNumLinIters(void *cpode_mem, indextype *nliters)
  * -----------------------------------------------------------------
  */
 
-int CPSpilsGetNumConvFails(void *cpode_mem, indextype *nlcfails)
+int CPSpilsGetNumConvFails(void *cpode_mem, long int *nlcfails)
 {
   CPodeMem cp_mem;
   CPSpilsMem cpspils_mem;
@@ -516,7 +516,7 @@ int CPSpilsGetNumConvFails(void *cpode_mem, indextype *nlcfails)
  * -----------------------------------------------------------------
  */
 
-int CPSpilsGetNumJtimesEvals(void *cpode_mem, indextype *njvevals)
+int CPSpilsGetNumJtimesEvals(void *cpode_mem, long int *njvevals)
 {
   CPodeMem cp_mem;
   CPSpilsMem cpspils_mem;
@@ -545,7 +545,7 @@ int CPSpilsGetNumJtimesEvals(void *cpode_mem, indextype *njvevals)
  * -----------------------------------------------------------------
  */
 
-int CPSpilsGetNumFctEvals(void *cpode_mem, indextype *nfevalsLS)
+int CPSpilsGetNumFctEvals(void *cpode_mem, long int *nfevalsLS)
 {
   CPodeMem cp_mem;
   CPSpilsMem cpspils_mem;

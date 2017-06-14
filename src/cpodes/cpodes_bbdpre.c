@@ -284,7 +284,7 @@ int CPBBDPrecReInit(void *cpode_mem, int mudq, int mldq, realtype dqrely)
 }
 
 
-int CPBBDPrecGetWorkSpace(void *cpode_mem, indextype *lenrwBBDP, indextype *leniwBBDP)
+int CPBBDPrecGetWorkSpace(void *cpode_mem, long int *lenrwBBDP, long int *leniwBBDP)
 {
   CPodeMem cp_mem;
   CPSpilsMem cpspils_mem;

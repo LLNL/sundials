@@ -135,8 +135,8 @@ SUNDIALS_EXPORT int CPBandPrecInit(void *cpode_mem, int N, int mu, int ml);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CPBandPrecGetWorkSpace(void *cpode_mem, indextype *lenrwLS, indextype *leniwLS);
-SUNDIALS_EXPORT int CPBandPrecGetNumFctEvals(void *cpode_mem, indextype *nfevalsBP);
+SUNDIALS_EXPORT int CPBandPrecGetWorkSpace(void *cpode_mem, long int *lenrwLS, long int *leniwLS);
+SUNDIALS_EXPORT int CPBandPrecGetNumFctEvals(void *cpode_mem, long int *nfevalsBP);
 
 
 #ifdef __cplusplus

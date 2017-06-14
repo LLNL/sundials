@@ -494,7 +494,7 @@ static int cpDenseSetup(CPodeMem cp_mem, int convfail,
 {
   booleantype jbad, jok;
   realtype dgamma;
-  indextype ier;
+  long int ier;
   CPDlsMem cpdls_mem;
   int retval;
 
@@ -667,10 +667,10 @@ static int cpDenseProjInit(CPodeMem cp_mem)
 static int cpDenseProjSetup(CPodeMem cp_mem, N_Vector y, N_Vector cy,
                             N_Vector c_tmp1, N_Vector c_tmp2, N_Vector s_tmp1)
 {
-  indextype ier;
+  long int ier;
   CPDlsProjMem cpdlsP_mem;
   realtype **g_mat, *col_i, *s_tmpd;
-  indextype i, j, k;
+  long int i, j, k;
   int retval;
 
   cpdlsP_mem = (CPDlsProjMem) lmemP;
@@ -817,7 +817,7 @@ static int cpDenseProjSolve(CPodeMem cp_mem, N_Vector b, N_Vector x,
   CPDlsProjMem cpdlsP_mem;
   realtype **g_mat, *bd, *xd, *col_i, *s_tmpd;
   realtype  *ewt_data, *d_data, *da_data, tmp;
-  indextype nd, i, k, pk;
+  long int nd, i, k, pk;
 
   cpdlsP_mem = (CPDlsProjMem) lmemP;
 
@@ -996,7 +996,7 @@ static void cpDenseProjMult(CPodeMem cp_mem, N_Vector x, N_Vector Gx)
 {
   CPDlsProjMem cpdlsP_mem;
   realtype **g_mat, *col_j, *x_d, *Gx_d;
-  indextype j, k;
+  long int j, k;
 
   cpdlsP_mem = (CPDlsProjMem) lmemP;
 
@@ -1060,7 +1060,7 @@ static void cpdLUcomputeKI(CPodeMem cp_mem)
 {
   CPDlsProjMem cpdlsP_mem;
   realtype **g_mat, **k_mat, *k_col_j;
-  indextype nd, i, j, k;
+  long int nd, i, j, k;
 
   cpdlsP_mem = (CPDlsProjMem) lmemP;
 
@@ -1097,7 +1097,7 @@ static void cpdLUcomputeKD(CPodeMem cp_mem, N_Vector d)
   CPDlsProjMem cpdlsP_mem;
   realtype *d_data, *ewt_data, tmp;
   realtype **g_mat, **k_mat, *k_col_j;
-  indextype nd, i, j, k, pk;
+  long int nd, i, j, k, pk;
 
   cpdlsP_mem = (CPDlsProjMem) lmemP;
 
@@ -1153,7 +1153,7 @@ static void cpdSCcomputeKI(CPodeMem cp_mem)
 {
   CPDlsProjMem cpdlsP_mem;
   realtype **g_mat, **k_mat, *k_col_j;
-  indextype i, j, k;
+  long int i, j, k;
 
   cpdlsP_mem = (CPDlsProjMem) lmemP;
 

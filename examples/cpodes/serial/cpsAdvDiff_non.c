@@ -106,7 +106,7 @@ static int res(realtype t, N_Vector y, N_Vector yp, N_Vector res, void *user_dat
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  indextype i, j, k;
+  long int i, j, k;
   realtype d, *ydata, *dydata;
   
   ydata = N_VGetArrayPointer_Serial(y);
@@ -134,7 +134,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 static realtype MaxError(N_Vector y, realtype t)
 {
-  indextype i, j, k;
+  long int i, j, k;
   realtype *ydata, er, ex=ZERO, yt, maxError=ZERO, ifact_inv, jfact_inv=ONE;
   
   if (t == ZERO) return(ZERO);

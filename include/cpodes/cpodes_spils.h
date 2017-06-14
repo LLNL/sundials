@@ -404,13 +404,13 @@ SUNDIALS_EXPORT int CPSpilsSetJacTimesVecFnImpl(void *cpode_mem,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CPSpilsGetWorkSpace(void *cpode_mem, indextype *lenrwLS, indextype *leniwLS);
-SUNDIALS_EXPORT int CPSpilsGetNumPrecEvals(void *cpode_mem, indextype *npevals);
-SUNDIALS_EXPORT int CPSpilsGetNumPrecSolves(void *cpode_mem, indextype *npsolves);
-SUNDIALS_EXPORT int CPSpilsGetNumLinIters(void *cpode_mem, indextype *nliters);
-SUNDIALS_EXPORT int CPSpilsGetNumConvFails(void *cpode_mem, indextype *nlcfails);
-SUNDIALS_EXPORT int CPSpilsGetNumJtimesEvals(void *cpode_mem, indextype *njvevals);
-SUNDIALS_EXPORT int CPSpilsGetNumFctEvals(void *cpode_mem, indextype *nfevalsLS); 
+SUNDIALS_EXPORT int CPSpilsGetWorkSpace(void *cpode_mem, long int *lenrwLS, long int *leniwLS);
+SUNDIALS_EXPORT int CPSpilsGetNumPrecEvals(void *cpode_mem, long int *npevals);
+SUNDIALS_EXPORT int CPSpilsGetNumPrecSolves(void *cpode_mem, long int *npsolves);
+SUNDIALS_EXPORT int CPSpilsGetNumLinIters(void *cpode_mem, long int *nliters);
+SUNDIALS_EXPORT int CPSpilsGetNumConvFails(void *cpode_mem, long int *nlcfails);
+SUNDIALS_EXPORT int CPSpilsGetNumJtimesEvals(void *cpode_mem, long int *njvevals);
+SUNDIALS_EXPORT int CPSpilsGetNumFctEvals(void *cpode_mem, long int *nfevalsLS); 
 SUNDIALS_EXPORT int CPSpilsGetLastFlag(void *cpode_mem, int *flag);
 
 /*

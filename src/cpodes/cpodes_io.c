@@ -151,7 +151,7 @@ int CPodeSetMaxOrd(void *cpode_mem, int maxord)
  * Specifies the maximum number of integration steps
  */
 
-int CPodeSetMaxNumSteps(void *cpode_mem, indextype mxsteps)
+int CPodeSetMaxNumSteps(void *cpode_mem, long int mxsteps)
 {
   CPodeMem cp_mem;
 
@@ -490,7 +490,7 @@ int CPodeSetProjUpdateErrEst(void *cpode_mem, booleantype proj_err)
  * CPodeSetProjFrequency
  */
 
-int CPodeSetProjFrequency(void *cpode_mem, indextype proj_freq)
+int CPodeSetProjFrequency(void *cpode_mem, long int proj_freq)
 {
   CPodeMem cp_mem;
 
@@ -537,7 +537,7 @@ int CPodeSetProjTestCnstr(void *cpode_mem, booleantype test_cnstr)
  * to the linear solver's setup function).
  */
 
-int CPodeSetProjLsetupFreq(void *cpode_mem, indextype lset_freq)
+int CPodeSetProjLsetupFreq(void *cpode_mem, long int lset_freq)
 {
   CPodeMem cp_mem;
 
@@ -719,7 +719,7 @@ int CPodeGetConsistentIC(void *cpode_mem, N_Vector yy0, N_Vector yp0)
  * Returns the current number of integration steps
  */
 
-int CPodeGetNumSteps(void *cpode_mem, indextype *nsteps)
+int CPodeGetNumSteps(void *cpode_mem, long int *nsteps)
 {
   CPodeMem cp_mem;
 
@@ -740,7 +740,7 @@ int CPodeGetNumSteps(void *cpode_mem, indextype *nsteps)
  * Returns the current number of calls to f
  */
 
-int CPodeGetNumFctEvals(void *cpode_mem, indextype *nfevals)
+int CPodeGetNumFctEvals(void *cpode_mem, long int *nfevals)
 {
   CPodeMem cp_mem;
 
@@ -761,7 +761,7 @@ int CPodeGetNumFctEvals(void *cpode_mem, indextype *nfevals)
  * Returns the current number of calls to the linear solver setup routine
  */
 
-int CPodeGetNumLinSolvSetups(void *cpode_mem, indextype *nlinsetups)
+int CPodeGetNumLinSolvSetups(void *cpode_mem, long int *nlinsetups)
 {
   CPodeMem cp_mem;
 
@@ -782,7 +782,7 @@ int CPodeGetNumLinSolvSetups(void *cpode_mem, indextype *nlinsetups)
  * Returns the current number of error test failures
  */
 
-int CPodeGetNumErrTestFails(void *cpode_mem, indextype *netfails)
+int CPodeGetNumErrTestFails(void *cpode_mem, long int *netfails)
 {
   CPodeMem cp_mem;
 
@@ -846,7 +846,7 @@ int CPodeGetCurrentOrder(void *cpode_mem, int *qcur)
  * limit detection algorithm
  */
 
-int CPodeGetNumStabLimOrderReds(void *cpode_mem, indextype *nslred)
+int CPodeGetNumStabLimOrderReds(void *cpode_mem, long int *nslred)
 {
   CPodeMem cp_mem;
 
@@ -1017,7 +1017,7 @@ int CPodeGetEstLocalErrors(void *cpode_mem, N_Vector ele)
  * Returns integrator work space requirements
  */
 
-int CPodeGetWorkSpace(void *cpode_mem, indextype *lenrw, indextype *leniw)
+int CPodeGetWorkSpace(void *cpode_mem, long int *lenrw, long int *leniw)
 {
   CPodeMem cp_mem;
 
@@ -1039,8 +1039,8 @@ int CPodeGetWorkSpace(void *cpode_mem, indextype *lenrw, indextype *leniw)
  * Returns integrator statistics
  */
 
-int CPodeGetIntegratorStats(void *cpode_mem, indextype *nsteps, indextype *nfevals, 
-                            indextype *nlinsetups, indextype *netfails, int *qlast, 
+int CPodeGetIntegratorStats(void *cpode_mem, long int *nsteps, long int *nfevals, 
+                            long int *nlinsetups, long int *netfails, int *qlast, 
                             int *qcur, realtype *hinused, realtype *hlast, 
                             realtype *hcur, realtype *tcur)
 {
@@ -1072,7 +1072,7 @@ int CPodeGetIntegratorStats(void *cpode_mem, indextype *nsteps, indextype *nfeva
  * Returns the current number of calls to g (for rootfinding)
  */
 
-int CPodeGetNumGEvals(void *cpode_mem, indextype *ngevals)
+int CPodeGetNumGEvals(void *cpode_mem, long int *ngevals)
 {
   CPodeMem cp_mem;
 
@@ -1118,7 +1118,7 @@ int CPodeGetRootInfo(void *cpode_mem, int *rootsfound)
  * Returns the current number of iterations in the nonlinear solver
  */
 
-int CPodeGetNumNonlinSolvIters(void *cpode_mem, indextype *nniters)
+int CPodeGetNumNonlinSolvIters(void *cpode_mem, long int *nniters)
 {
   CPodeMem cp_mem;
 
@@ -1140,7 +1140,7 @@ int CPodeGetNumNonlinSolvIters(void *cpode_mem, indextype *nniters)
  * nonlinear solver
  */
 
-int CPodeGetNumNonlinSolvConvFails(void *cpode_mem, indextype *nncfails)
+int CPodeGetNumNonlinSolvConvFails(void *cpode_mem, long int *nncfails)
 {
   CPodeMem cp_mem;
 
@@ -1161,8 +1161,8 @@ int CPodeGetNumNonlinSolvConvFails(void *cpode_mem, indextype *nncfails)
  * Returns nonlinear solver statistics
  */
 
-int CPodeGetNonlinSolvStats(void *cpode_mem, indextype *nniters, 
-                            indextype *nncfails)
+int CPodeGetNonlinSolvStats(void *cpode_mem, long int *nniters, 
+                            long int *nncfails)
 {
   CPodeMem cp_mem;
 
@@ -1184,7 +1184,7 @@ int CPodeGetNonlinSolvStats(void *cpode_mem, indextype *nniters,
  * -----------------------------------------------------------------
  */
 
-int CPodeGetProjNumProj(void *cpode_mem, indextype *nproj)
+int CPodeGetProjNumProj(void *cpode_mem, long int *nproj)
 {
   CPodeMem cp_mem;
 
@@ -1199,7 +1199,7 @@ int CPodeGetProjNumProj(void *cpode_mem, indextype *nproj)
   return(CP_SUCCESS);
 }
 
-int CPodeGetProjNumCnstrEvals(void *cpode_mem, indextype *nce)
+int CPodeGetProjNumCnstrEvals(void *cpode_mem, long int *nce)
 {
   CPodeMem cp_mem;
 
@@ -1214,7 +1214,7 @@ int CPodeGetProjNumCnstrEvals(void *cpode_mem, indextype *nce)
   return(CP_SUCCESS);
 }
 
-int CPodeGetProjNumLinSolvSetups(void *cpode_mem, indextype *nsetupsP)
+int CPodeGetProjNumLinSolvSetups(void *cpode_mem, long int *nsetupsP)
 {
   CPodeMem cp_mem;
 
@@ -1229,7 +1229,7 @@ int CPodeGetProjNumLinSolvSetups(void *cpode_mem, indextype *nsetupsP)
   return(CP_SUCCESS);
 }
 
-int CPodeGetProjNumFailures(void *cpode_mem, indextype *nprf)
+int CPodeGetProjNumFailures(void *cpode_mem, long int *nprf)
 {
   CPodeMem cp_mem;
 
@@ -1244,8 +1244,8 @@ int CPodeGetProjNumFailures(void *cpode_mem, indextype *nprf)
   return(CP_SUCCESS);
 }
 
-int CPodeGetProjStats(void *cpode_mem, indextype *nproj, indextype *nce, 
-                      indextype *nsetupsP, indextype *nprf)
+int CPodeGetProjStats(void *cpode_mem, long int *nproj, long int *nce, 
+                      long int *nsetupsP, long int *nprf)
 {
   CPodeMem cp_mem;
 
@@ -1269,7 +1269,7 @@ int CPodeGetProjStats(void *cpode_mem, indextype *nproj, indextype *nce,
  * -----------------------------------------------------------------
  */
 
-int CPodeGetQuadNumFunEvals(void *cpode_mem, indextype *nqevals)
+int CPodeGetQuadNumFunEvals(void *cpode_mem, long int *nqevals)
 {
   CPodeMem cp_mem;
 

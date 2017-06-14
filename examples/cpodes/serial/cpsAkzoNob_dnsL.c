@@ -210,7 +210,7 @@ static void PrintFinalStats(void *cpode_mem)
 {
   realtype h0u;
   long int nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf, nge;
-  indextype nproj, nce, nsetupsP, nprf;
+  long int nproj, nce, nsetupsP, nprf;
   int flag;
 
   flag = CPodeGetActualInitStep(cpode_mem, &h0u);

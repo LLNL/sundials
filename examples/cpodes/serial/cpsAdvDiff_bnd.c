@@ -168,7 +168,7 @@ static int Jac(int N, int mu, int ml,
                DlsMat J, void *jac_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  indextype i, j, k;
+  long int i, j, k;
   realtype *kthCol, hordc, horac, verdc;
   UserData data;
   

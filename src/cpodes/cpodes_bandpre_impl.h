@@ -44,10 +44,10 @@ typedef struct CPBandPrecDataRec {
   /* Data set by CPBandPrecSetup */
   DlsMat savedJ;
   DlsMat savedP;
-  indextype *pivots;
+  long int *pivots;
 
   /* Function evaluations for DQ Jacobian approximation */
-  indextype nfeBP;
+  long int nfeBP;
 
   /* Pointer to cpode_mem */
   void *cpode_mem;

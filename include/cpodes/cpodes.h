@@ -895,7 +895,7 @@ SUNDIALS_EXPORT int CPodeSetErrFile(void *cpode_mem, FILE *errfp);
 SUNDIALS_EXPORT int CPodeSetUserData(void *cpode_mem, void *user_data);
 
 SUNDIALS_EXPORT int CPodeSetMaxOrd(void *cpode_mem, int maxord);
-SUNDIALS_EXPORT int CPodeSetMaxNumSteps(void *cpode_mem, indextype mxsteps);
+SUNDIALS_EXPORT int CPodeSetMaxNumSteps(void *cpode_mem, long int mxsteps);
 SUNDIALS_EXPORT int CPodeSetMaxHnilWarns(void *cpode_mem, int mxhnil);
 SUNDIALS_EXPORT int CPodeSetStabLimDet(void *cpode_mem, booleantype stldet);
 SUNDIALS_EXPORT int CPodeSetInitStep(void *cpode_mem, realtype hin);
@@ -909,9 +909,9 @@ SUNDIALS_EXPORT int CPodeSetMaxConvFails(void *cpode_mem, int maxncf);
 SUNDIALS_EXPORT int CPodeSetNonlinConvCoef(void *cpode_mem, realtype nlscoef);
 
 SUNDIALS_EXPORT int CPodeSetProjUpdateErrEst(void *cpode_mem, booleantype proj_err);
-SUNDIALS_EXPORT int CPodeSetProjFrequency(void *cpode_mem, indextype proj_freq);
+SUNDIALS_EXPORT int CPodeSetProjFrequency(void *cpode_mem, long int proj_freq);
 SUNDIALS_EXPORT int CPodeSetProjTestCnstr(void *cpode_mem, booleantype test_cnstr);
-SUNDIALS_EXPORT int CPodeSetProjLsetupFreq(void *cpode_mem, indextype proj_lset_freq);
+SUNDIALS_EXPORT int CPodeSetProjLsetupFreq(void *cpode_mem, long int proj_lset_freq);
 SUNDIALS_EXPORT int CPodeSetProjNonlinConvCoef(void *cpode_mem, realtype prjcoef);
 
 SUNDIALS_EXPORT int CPodeSetQuadErrCon(void *cpode_mem, booleantype errconQ, 
@@ -1128,14 +1128,14 @@ SUNDIALS_EXPORT int CPodeGetConsistentIC(void *cpode_mem, N_Vector yy0, N_Vector
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CPodeGetWorkSpace(void *cpode_mem, indextype *lenrw, indextype *leniw);
-SUNDIALS_EXPORT int CPodeGetNumSteps(void *cpode_mem, indextype *nsteps);
-SUNDIALS_EXPORT int CPodeGetNumFctEvals(void *cpode_mem, indextype *nfevals);
-SUNDIALS_EXPORT int CPodeGetNumLinSolvSetups(void *cpode_mem, indextype *nlinsetups);
-SUNDIALS_EXPORT int CPodeGetNumErrTestFails(void *cpode_mem, indextype *netfails);
+SUNDIALS_EXPORT int CPodeGetWorkSpace(void *cpode_mem, long int *lenrw, long int *leniw);
+SUNDIALS_EXPORT int CPodeGetNumSteps(void *cpode_mem, long int *nsteps);
+SUNDIALS_EXPORT int CPodeGetNumFctEvals(void *cpode_mem, long int *nfevals);
+SUNDIALS_EXPORT int CPodeGetNumLinSolvSetups(void *cpode_mem, long int *nlinsetups);
+SUNDIALS_EXPORT int CPodeGetNumErrTestFails(void *cpode_mem, long int *netfails);
 SUNDIALS_EXPORT int CPodeGetLastOrder(void *cpode_mem, int *qlast);
 SUNDIALS_EXPORT int CPodeGetCurrentOrder(void *cpode_mem, int *qcur);
-SUNDIALS_EXPORT int CPodeGetNumStabLimOrderReds(void *cpode_mem, indextype *nslred);
+SUNDIALS_EXPORT int CPodeGetNumStabLimOrderReds(void *cpode_mem, long int *nslred);
 SUNDIALS_EXPORT int CPodeGetActualInitStep(void *cpode_mem, realtype *hinused);
 SUNDIALS_EXPORT int CPodeGetLastStep(void *cpode_mem, realtype *hlast);
 SUNDIALS_EXPORT int CPodeGetCurrentStep(void *cpode_mem, realtype *hcur);
@@ -1143,11 +1143,11 @@ SUNDIALS_EXPORT int CPodeGetCurrentTime(void *cpode_mem, realtype *tcur);
 SUNDIALS_EXPORT int CPodeGetTolScaleFactor(void *cpode_mem, realtype *tolsfac);
 SUNDIALS_EXPORT int CPodeGetErrWeights(void *cpode_mem, N_Vector eweight);
 SUNDIALS_EXPORT int CPodeGetEstLocalErrors(void *cpode_mem, N_Vector ele);
-SUNDIALS_EXPORT int CPodeGetNumGEvals(void *cpode_mem, indextype *ngevals);
+SUNDIALS_EXPORT int CPodeGetNumGEvals(void *cpode_mem, long int *ngevals);
 SUNDIALS_EXPORT int CPodeGetRootInfo(void *cpode_mem, int *rootsfound);
-SUNDIALS_EXPORT int CPodeGetIntegratorStats(void *cpode_mem, indextype *nsteps,
-					    indextype *nfevals, indextype *nlinsetups,
-					    indextype *netfails, int *qlast,
+SUNDIALS_EXPORT int CPodeGetIntegratorStats(void *cpode_mem, long int *nsteps,
+					    long int *nfevals, long int *nlinsetups,
+					    long int *netfails, int *qlast,
 					    int *qcur, realtype *hinused, realtype *hlast,
 					    realtype *hcur, realtype *tcur);
 
@@ -1167,10 +1167,10 @@ SUNDIALS_EXPORT int CPodeGetIntegratorStats(void *cpode_mem, indextype *nsteps,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CPodeGetNumNonlinSolvIters(void *cpode_mem, indextype *nniters);
-SUNDIALS_EXPORT int CPodeGetNumNonlinSolvConvFails(void *cpode_mem, indextype *nncfails);
-SUNDIALS_EXPORT int CPodeGetNonlinSolvStats(void *cpode_mem, indextype *nniters,
-					    indextype *nncfails);
+SUNDIALS_EXPORT int CPodeGetNumNonlinSolvIters(void *cpode_mem, long int *nniters);
+SUNDIALS_EXPORT int CPodeGetNumNonlinSolvConvFails(void *cpode_mem, long int *nncfails);
+SUNDIALS_EXPORT int CPodeGetNonlinSolvStats(void *cpode_mem, long int *nniters,
+					    long int *nncfails);
 
   
 /*
@@ -1183,13 +1183,13 @@ SUNDIALS_EXPORT int CPodeGetNonlinSolvStats(void *cpode_mem, indextype *nniters,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CPodeGetProjNumProj(void *cpode_mem, indextype *nproj);
-SUNDIALS_EXPORT int CPodeGetProjNumCnstrEvals(void *cpode_mem, indextype *nce);
-SUNDIALS_EXPORT int CPodeGetProjNumLinSolvSetups(void *cpode_mem, indextype *nsetupsP);
-SUNDIALS_EXPORT int CPodeGetProjNumFailures(void *cpode_mem, indextype *nprf);
-SUNDIALS_EXPORT int CPodeGetProjStats(void *cpode_mem, indextype *nproj,
-				      indextype *nce, indextype *nsetupsP,
-				      indextype *nprf);
+SUNDIALS_EXPORT int CPodeGetProjNumProj(void *cpode_mem, long int *nproj);
+SUNDIALS_EXPORT int CPodeGetProjNumCnstrEvals(void *cpode_mem, long int *nce);
+SUNDIALS_EXPORT int CPodeGetProjNumLinSolvSetups(void *cpode_mem, long int *nsetupsP);
+SUNDIALS_EXPORT int CPodeGetProjNumFailures(void *cpode_mem, long int *nprf);
+SUNDIALS_EXPORT int CPodeGetProjStats(void *cpode_mem, long int *nproj,
+				      long int *nce, long int *nsetupsP,
+				      long int *nprf);
 
 /*
  * -----------------------------------------------------------------
@@ -1205,7 +1205,7 @@ SUNDIALS_EXPORT int CPodeGetProjStats(void *cpode_mem, indextype *nproj,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CPodeGetQuadNumFunEvals(void *cpode_mem, indextype *nqevals);
+SUNDIALS_EXPORT int CPodeGetQuadNumFunEvals(void *cpode_mem, long int *nqevals);
 SUNDIALS_EXPORT int CPodeGetQuadErrWeights(void *cpode_mem, N_Vector eQweight);
 
 /*
