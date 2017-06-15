@@ -16,3 +16,4 @@
 # misc
 *.orig
 *.nvvp
+*.ptp-sync*
