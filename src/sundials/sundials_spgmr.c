@@ -367,7 +367,7 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
       if (scale2) N_VDiv(xcor, s2, xcor);
       if (preOnRight) {
         /* ier = psolve(P_data, xcor, vtemp, PREC_RIGHT); */
-        ier = psolve(P_data, xcor, vtemp, v2, delta, PREC_RIGHT);
+        ier = psolve(P_data, xcor, vtemp, s2, delta, PREC_RIGHT);
         (*nps)++;
         if (ier != 0)
           return((ier < 0) ? SPGMR_PSOLVE_FAIL_UNREC : SPGMR_PSOLVE_FAIL_REC);
