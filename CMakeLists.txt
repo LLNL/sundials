@@ -88,6 +88,9 @@ SET(cpodeslib_SOVERSION "0")
 SET(nveclib_VERSION "2.7.0")
 SET(nveclib_SOVERSION "2")
 
+SET(sunmatrixlib_VERSION "1.0.0")
+SET(sunmatrixlib_SOVERSION "1")
+
 # Specify the location of additional CMAKE modules
 
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/config)
@@ -849,6 +852,9 @@ ENDIF(SUPERLUMT_FOUND)
 
 ADD_SUBDIRECTORY(src/sundials)
 ADD_SUBDIRECTORY(src/nvec_ser)
+ADD_SUBDIRECTORY(src/sunmat_dense)
+ADD_SUBDIRECTORY(src/sunmat_band)
+ADD_SUBDIRECTORY(src/sunmat_sparse)
 IF(MPIC_FOUND)
   ADD_SUBDIRECTORY(src/nvec_par)
 ENDIF(MPIC_FOUND)
@@ -1159,6 +1165,11 @@ IF(EXAMPLES_ENABLE)
 
   # Always add the nvector serial examples
   ADD_SUBDIRECTORY(examples/nvector/serial)
+
+  # # Always add the sunmatrix dense/band/sparse examples
+  # ADD_SUBDIRECTORY(examples/sunmatrix/dense)
+  # ADD_SUBDIRECTORY(examples/sunmatrix/band)
+  # ADD_SUBDIRECTORY(examples/sunmatrix/sparse)
 
   IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/nvector/parallel)

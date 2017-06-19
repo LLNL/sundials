@@ -1,13 +1,10 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
  *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -52,6 +49,9 @@
 #define _SUNMATRIX_DENSE_H
 
 #include <sundials/sundials_matrix.h>
+#include <nvector/nvector_serial.h>
+#include <nvector/nvector_openmp.h>
+#include <nvector/nvector_pthreads.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -65,15 +65,14 @@ extern "C" {
  * contains:
  *   M     - number of rows
  *   N     - number of columns
- *   ldim  - leading dimension (ldim >= M)
  *   data  - pointer to a contiguous block of realtype variables
- *   ldata - length of the data array = ldim*N
+ *   ldata - length of the data array = M*N
  *   cols  - array of pointers. cols[j] points to the first element 
  *           of the j-th column of the matrix in the array data.
  * The elements of a dense matrix are stored columnwise (i.e. columns 
  * are stored one on top of the other in memory); i.e. if A is a 
  * SUNMatrix_Dense object, then the (i,j)th element of A (with 
- * 0 <= i < M and 0 <= j < N) is given by (A->data)[j*ldim+i].
+ * 0 <= i < M and 0 <= j < N) is given by (A->data)[j*M+i].
  *
  * -----------------------------------------------------------------
  */
@@ -81,7 +80,6 @@ extern "C" {
 struct _SUNMatrixContent_Dense {
   long int M;
   long int N;
-  long int ldim;
   realtype *data;
   long int ldata;
   realtype **cols;
@@ -100,7 +98,7 @@ typedef struct _SUNMatrixContent_Dense *SUNMatrixContent_Dense;
  * SUNMatrix A;
  * SUNMatrixContent_Dense A_cont;
  * realtype *A_col_j, *A_data, A_ij;
- * long int i, j, A_rows, A_cols;
+ * long int i, j, A_rows, A_cols, A_ldata;
  *
  * (1) SM_CONTENT_D
  *
@@ -110,13 +108,16 @@ typedef struct _SUNMatrixContent_Dense *SUNMatrixContent_Dense;
  *     The assignment A_cont = SM_CONTENT_D(A) sets A_cont to be
  *     a pointer to the dense SUNMatrix content structure.
  *
- * (2) SM_DATA_D, SM_ROWS_D, SM_COLUMNS_D
+ * (2) SM_DATA_D, SM_LDATA_D, SM_ROWS_D, SM_COLUMNS_D
  *
  *     These macros give access to the individual parts of
  *     the content structure of a dense SUNMatrix.
  *
  *     The assignment A_data = SM_DATA_D(A) sets A_data to be
  *     a pointer to the first component of A. 
+ *
+ *     The assignment A_ldata = SM_LDATA_D(A) sets A_ldata to be
+ *     the length of the data array for A. 
  *
  *     The assignment A_rows = SM_ROWS_D(A) sets A_rows to be
  *     the number of rows in A.
@@ -151,6 +152,8 @@ typedef struct _SUNMatrixContent_Dense *SUNMatrixContent_Dense;
 #define SM_ROWS_D(A)        ( SM_CONTENT_D(A)->M )
 
 #define SM_COLUMNS_D(A)     ( SM_CONTENT_D(A)->N )
+
+#define SM_LDATA_D(A)       ( SM_CONTENT_D(A)->ldata )
 
 #define SM_DATA_D(A)        ( SM_CONTENT_D(A)->data )
 
@@ -187,14 +190,14 @@ SUNDIALS_EXPORT SUNMatrix SUNMatrixNew_Dense(long int M, long int N);
  * Functions: SUNMatrixPrint_Dense
  * -----------------------------------------------------------------
  * This function prints the content of a M-by-N dense matrix A to
- * standard output as it would normally appear on paper.
+ * file pointer as it would normally appear on paper.
  * It is intended as debugging tools with small values of M and N.
  * The elements are printed using the %g/%lg/%Lg option. 
  * A blank line is printed before and after the matrix.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void SUNMatrixPrint_Dense(SUNMatrix A);
+SUNDIALS_EXPORT void SUNMatrixPrint_Dense(SUNMatrix A, FILE* outfile);
 
 
 /*
@@ -211,6 +214,7 @@ SUNDIALS_EXPORT int SUNMatrixScale_Dense(realtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatrixCopy_Dense(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatrixAddIdentity_Dense(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatrixAdd_Dense(SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT int SUNMatrixMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y);
 
   
 #ifdef __cplusplus

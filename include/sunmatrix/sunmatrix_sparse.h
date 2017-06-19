@@ -1,13 +1,10 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
  *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -52,6 +49,11 @@
 #define _SUNMATRIX_SPARSE_H
 
 #include <sundials/sundials_matrix.h>
+#include <sunmatrix/sunmatrix_dense.h>
+#include <sunmatrix/sunmatrix_band.h>
+#include <nvector/nvector_serial.h>
+#include <nvector/nvector_openmp.h>
+#include <nvector/nvector_pthreads.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -203,7 +205,11 @@ typedef struct _SUNMatrixContent_Sparse *SUNMatrixContent_Sparse;
  * Function: SUNMatrixNew_Sparse
  * -----------------------------------------------------------------
  * SUNMatrixNew_Sparse creates and allocates memory for an M-by-N 
- * sparse SUNMatrix of type sparsetype (CSC or CSR matrix).
+ * sparse SUNMatrix of type sparsetype.
+ * Requirements: M and N must be strictly positive; NNZ must be 
+ * non-negative; sparsetype must be either CSC_MAT or CSR_MAT;
+ * Returns NULL if any requirements are violated, or if the matrix 
+ * storage request cannot be satisfied.
  * -----------------------------------------------------------------
  */
 
@@ -215,13 +221,19 @@ SUNDIALS_EXPORT SUNMatrix SUNMatrixNew_Sparse(long int M, long int N,
  * Function: SUNMatrix_DenseToSparse
  * -----------------------------------------------------------------
  * SUNMatrix_DenseToSparse creates a new sparse matrix from an 
- * existing dense or band matrix by copying all nonzero values into
- * the sparse matrix structure.  Returns NULL if the request for 
- * matrix storage cannot be satisfied. 
+ * existing dense or band matrix by copying all values with 
+ * magnitude larger than droptol into the sparse matrix structure.  
+ * Requirements: A must have type SUNMATRIX_DENSE or SUNMATRIX_BAND; 
+ * droptol must be non-negative; sparsetype must be either 
+ * CSC_MAT or CSR_MAT.
+ * Returns NULL if any requirements are violated, or if the matrix
+ * storage request cannot be satisfied. 
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SUNMatrix SUNMatrix_DenseToSparse(const SUNMatrix A, int sparsetype);
+SUNDIALS_EXPORT SUNMatrix SUNMatrix_DenseToSparse(SUNMatrix A,
+                                                  realtype droptol,
+                                                  int sparsetype);
 
 /*
  * -----------------------------------------------------------------
@@ -246,7 +258,7 @@ SUNDIALS_EXPORT int SparseReallocMat(SUNMatrix A);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void SUNMatrixPrint_Sparse(const SUNMatrix A, FILE* outfile);
+SUNDIALS_EXPORT void SUNMatrixPrint_Sparse(SUNMatrix A, FILE* outfile);
 
 
 /*
@@ -263,6 +275,7 @@ SUNDIALS_EXPORT int SUNMatrixScale_Sparse(realtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatrixCopy_Sparse(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatrixAddIdentity_Sparse(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatrixAdd_Sparse(SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT int SUNMatrixMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y);
 
 
 #ifdef __cplusplus

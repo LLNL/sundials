@@ -1,13 +1,10 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
  *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -52,6 +49,9 @@
 #define _SUNMATRIX_BAND_H
 
 #include <sundials/sundials_matrix.h>
+#include <nvector/nvector_serial.h>
+#include <nvector/nvector_openmp.h>
+#include <nvector/nvector_pthreads.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -113,7 +113,7 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
  * SUNMatrix A;
  * SUNMatrixContent_Band A_cont;
  * realtype *A_col_j, *A_data, A_ij;
- * long int i, j, A_rows, A_cols;
+ * long int i, j, A_rows, A_cols, A_ldata;
  *
  * (1) SM_CONTENT_B
  *
@@ -123,8 +123,8 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
  *     The assignment A_cont = SM_CONTENT_B(A) sets A_cont to be
  *     a pointer to the band SUNMatrix content structure.
  *
- * (2) SM_DATA_B, SM_ROWS_B, SM_COLUMNS_B, SM_UBAND_B, 
- *     SM_LBAND_B and SM_SUBAND_B
+ * (2) SM_DATA_B, SM_ROWS_B, SM_COLUMNS_B, SM_LDATA_B, 
+ *     SM_UBAND_B, SM_LBAND_B and SM_SUBAND_B
  *
  *     These macros give access to the individual parts of
  *     the content structure of a band SUNMatrix.
@@ -137,6 +137,9 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
  *
  *     The assignment A_cols = SM_COLUMNS_B(A) sets A_cols to be
  *     the number of columns in A.
+ *
+ *     The assignment A_ldata = SM_LDATA_B(A) sets A_ldata to be
+ *     the length of the data array for A.
  *
  *     The assignment A_mu = SM_UBAND_B(A) sets A_mu to be
  *     the upper bandwidth of A.
@@ -183,6 +186,8 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
 #define SM_ROWS_B(A)        ( SM_CONTENT_B(A)->M )
 
 #define SM_COLUMNS_B(A)     ( SM_CONTENT_B(A)->N )
+
+#define SM_LDATA_B(A)       ( SM_CONTENT_B(A)->ldata )
 
 #define SM_UBAND_B(A)       ( SM_CONTENT_B(A)->mu )
 
@@ -236,14 +241,14 @@ SUNDIALS_EXPORT SUNMatrix SUNMatrixNew_Band(long int N, long int mu,
  * Functions: SUNMatrixPrint_Band
  * -----------------------------------------------------------------
  * This function prints the content of a M-by-N band matrix A to
- * standard output as it would normally appear on paper.
+ * a file pointer as it would normally appear on paper.
  * It is intended as debugging tools with small values of M and N.
  * The elements are printed using the %g/%lg/%Lg option. 
  * A blank line is printed before and after the matrix.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void SUNMatrixPrint_Band(SUNMatrix A);
+SUNDIALS_EXPORT void SUNMatrixPrint_Band(SUNMatrix A, FILE* outfile);
 
 
 /*
@@ -260,7 +265,7 @@ SUNDIALS_EXPORT int SUNMatrixScale_Band(realtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatrixCopy_Band(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatrixAddIdentity_Band(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatrixAdd_Band(SUNMatrix A, SUNMatrix B);
-
+SUNDIALS_EXPORT int SUNMatrixMatvec_Band(SUNMatrix A, N_Vector x, N_Vector y);
   
 #ifdef __cplusplus
 }
