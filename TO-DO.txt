@@ -1,8 +1,6 @@
-1. Create SUNMatrix_Dense, SUNMatrix_Band and SUNMatrix_Sparse objects
-   (in files sunmatrix_dense.[h,c], sunmatrix_band.[h,c], and
-   sunmatrix_sparse.[h,c] in the include/sunmatrix and src/sunmat_*
-   folders).  Create testing routines similar to NVector test
-   routines. 
+1. Create testing routines for SUNMatrix_Dense, SUNMatrix_Band and
+   SUNMatrix_Sparse objects, similar to NVector test routines.  Stub
+   has been added to CMakeLists.txt file, but is currently commented-out.
 
 
 2. Convert existing use of dense, band and sparse matrices throughout
@@ -11,7 +9,15 @@
    the data portions to pass through function calls.
 
 
-3. Determine mathematically "optimal" scaling vector to use for
+3. Create SUNLinSol_Dense, SUNLinSol_Band,
+   SUNLinSol_KLU and SUNLinSol_SuperLUMT objects (in files
+   sunlinsol_dense.[h,c], sunlinsol_band.[h,c],
+   sunlinsol_klu.[h,c] and sunlinsol_superlumt.[h,c] in the
+   include/sundials and src/sundials folders).  Create testing
+   routines similar to NVector test routines.
+
+
+4. Determine mathematically "optimal" scaling vector to use for
    right/left preconditioning in our scaled/preconditioned iterative
    linear solvers.  For all but KINSOL, we'd previously been sending
    in the tolerance but no scaling vector so we have no basis of
@@ -30,7 +36,7 @@
      PSolveFn function prototype to remove 'w' and 'tol'.
 
 
-4. Update all solver-specific, user-supplied 'psolve' routine
+5. Update all solver-specific, user-supplied 'psolve' routine
    interfaces to add the weight vector (and possibly tolerance):
    * header files
    * <solver>_spils files
@@ -38,17 +44,10 @@
    * documentation
    * release notes
 
-   * Note: if our resolution to 1 above is to remove both 'w' and
+   * Note: if our resolution to 4 above is to remove both 'w' and
      'tol', then still update all solver-specific, user-supplied
      'psolve' routine interfaces to *remove* the tolerance.
 
-
-5. Create SUNLinSol_Dense, SUNLinSol_Band,
-   SUNLinSol_KLU and SUNLinSol_SuperLUMT objects (in files
-   sunlinsol_dense.[h,c], sunlinsol_band.[h,c],
-   sunlinsol_klu.[h,c] and sunlinsol_superlumt.[h,c] in the
-   include/sundials and src/sundials folders).  Create testing
-   routines similar to NVector test routines.
 
 6. Create SUNLinSol_PCG, SUNLinSol_SPBCGS,
    SUNLinSol_SPGMR, SUNLinSol_SPFGMR and SUNLinSol_SPTFQMR objects (in
@@ -58,8 +57,10 @@
    folders).  Create testing routines similar to NVector test
    routines.
 
-7. Construct ARKode interfaces to utilize these linear solver and
-   matrix objects.
+
+7. Construct ARKode interfaces to utilize linear solver and matrix
+   objects. 
+
 
 8. Emulate ARKode interfaces within CVODE, CVODES, IDA, IDAS and
    KINSOL. 

@@ -55,7 +55,8 @@
 #define _SUNMATRIX_H
  
 #include <sundials/sundials_types.h>
- 
+#include <sundials/sundials_nvector.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
@@ -98,6 +99,7 @@ struct _generic_SUNMatrix_Ops {
   int          (*copy)(SUNMatrix, SUNMatrix);
   int          (*addidentity)(SUNMatrix);
   int          (*add)(SUNMatrix, SUNMatrix);
+  int          (*matvec)(SUNMatrix, N_Vector, N_Vector);
 };
  
 /* A matrix is a structure with an implementation-dependent
@@ -133,38 +135,48 @@ struct _generic_SUNMatrix {
  *   Performs the operation A = c*A
  *
  * SUNMatrixCopy
- *   Performs the operation A = B
+ *   Performs the operation A = B.  Returns an error if A and B have 
+ *   different types and/or dimensions.
  *
  * SUNMatrixAddIdentity
  *   Performs the operation A = A+I
  *
  * SUNMatrixAdd
- *   Performs the A = A + B
+ *   Performs the A = A + B.  Returns an error if A and B have 
+ *   different types and/or dimensions.
+ *
+ * SUNMatrixMatvec
+ *   Performs the matrix-vector product y = A*x.  Returns an error if 
+ *   A, x and/or y have incompatible types and/or dimensions.
  *
  * -----------------------------------------------------------------
  *
  * The following table lists the matrix functions used by
  * different modules in SUNDIALS. The symbols in the table
  * have the following meaning:
- * D  -  called by dense linear solver modules
- * B  -  called by band linear solver modules
- * I  -  called by iterative linear solver modules
- * S  -  called by sparse linear solver modules
- * BP -  called by band preconditioner module
- * DP -  called by band-block diagonal preconditioner module
+ *   D  -  called by dense linear solver modules
+ *   B  -  called by band linear solver modules
+ *   I  -  called by iterative linear solver modules
+ *   S  -  called by sparse linear solver modules
+ *   BP -  called by band preconditioner module
+ *   DP -  called by band-block diagonal preconditioner module
  *
- *                                    MODULES                  
- * MATRIX            -----------------------------------------------
- * FUNCTIONS         CVODE(S)      ARKode      IDA(S)       KINSOL    
- * -------------------------------------------------------------------
- * MatrixGetID       D B S BP DP  D B S BP DP  D B S BP DP  D B S BP DP
- * MatrixClone       D B S BP DP  D B S BP DP  BP DP
- * MatrixDestroy     D B S BP DP  D B S BP DP  BP DP
- * MatrixZero        D B S BP DP  D B S BP DP  D B S BP DP  D B BP DP
- * MatrixScale       D B S BP DP  D B S BP DP
- * MatrixCopy        D B S BP DP  D B S BP DP
- * MatrixAddIdentity D B S BP DP  D B S BP DP
- * MatrixAdd                      D B S BP DP
+ *                                MODULES                  
+ * MATRIX        -----------------------------------------------
+ * FUNCTIONS     CVODE(S)      ARKode      IDA(S)       KINSOL    
+ * ----------------------------------------------------------------
+ *  GetID        D B S BP DP  D B S BP DP  D B S BP DP  D B S BP DP
+ *  Clone        D B S BP DP  D B S BP DP  BP DP
+ *  Destroy      D B S BP DP  D B S BP DP  BP DP
+ *  Zero         D B S BP DP  D B S BP DP  D B S BP DP  D B BP DP
+ *  Scale        D B S BP DP  D B S BP DP
+ *  Copy         D B S BP DP  D B S BP DP
+ *  AddIdentity  D B S BP DP  D B S BP DP
+ *  Add                       D B S BP DP
+ *  Matvec*                   D B S
+ * -----------------------------------------------------------------
+ *  Note: MatrixMatvec is only called by ARKode when solving 
+ *        problems having non-identity mass matrix
  * -----------------------------------------------------------------
  */
   
@@ -176,6 +188,7 @@ SUNDIALS_EXPORT int SUNMatrixScale(realtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatrixCopy(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatrixAddIdentity(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatrixAdd(SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT int SUNMatrixMatvec(SUNMatrix A, N_Vector x, N_Vector y);
  
 #ifdef __cplusplus
 }
