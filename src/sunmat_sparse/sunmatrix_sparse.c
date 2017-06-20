@@ -74,7 +74,6 @@ SUNMatrix SUNMatrixNew_Sparse(long int M, long int N,
   SUNMatrix A;
   SUNMatrix_Ops ops;
   SUNMatrixContent_Sparse content;
-  long int j;
 
   /* return with NULL matrix on illegal input */
   if ( (M <= 0) || (N <= 0) || (NNZ < 0) ) return(NULL);
@@ -410,7 +409,6 @@ int SUNMatrixZero_Sparse(SUNMatrix A)
 int SUNMatrixScale_Sparse(realtype c, SUNMatrix A)
 {
   long int i;
-  realtype *Adata;
 
   /* Verify that A is a sparse matrix */
   if ( (SUNMatrixGetID(A) != SUNMATRIX_CSC) &&

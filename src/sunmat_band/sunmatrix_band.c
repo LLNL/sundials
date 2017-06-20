@@ -321,13 +321,13 @@ static booleantype SMCompatible_Band(SUNMatrix A, SUNMatrix B)
   /* both matrices must have the same shape 
      (note that we do not require the same ldim or smu, 
       only the active bandwidth) */
-  if (SM_ROWS_D(A) != SM_ROWS_D(B))
+  if (SM_ROWS_B(A) != SM_ROWS_B(B))
     return FALSE;
-  if (SM_COLUMNS_D(A) != SM_COLUMNS_D(B))
+  if (SM_COLUMNS_B(A) != SM_COLUMNS_B(B))
     return FALSE;
-  if (SM_UBAND_D(A) != SM_UBAND_D(B))
+  if (SM_UBAND_B(A) != SM_UBAND_B(B))
     return FALSE;
-  if (SM_LBAND_D(A) != SM_LBAND_D(B))
+  if (SM_LBAND_B(A) != SM_LBAND_B(B))
     return FALSE;
 
   return TRUE;
