@@ -252,9 +252,9 @@ private:
 
 
 // Vector extractor
-inline nvec::Vector<double, long int>* extract(N_Vector v) 
+inline nvec::Vector<realtype, long int>* extract(N_Vector v)
 { 
-    return static_cast<nvec::Vector<double, long int>*>(v->content); 
+    return static_cast<nvec::Vector<realtype, long int>*>(v->content);
 }
 
 } // namespace nvec

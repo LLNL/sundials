@@ -134,9 +134,9 @@ private:
     
 
 // Vector extractor
-inline sunrajavec::Vector<double, long int>* extract(N_Vector v)
+inline sunrajavec::Vector<realtype, long int>* extract(N_Vector v)
 {
-    return static_cast<sunrajavec::Vector<double, long int>*>(v->content);
+    return static_cast<sunrajavec::Vector<realtype, long int>*>(v->content);
 }
 
 

@@ -22,6 +22,8 @@
 #include <nvector/raja/Vector.hpp>
 #include <RAJA/RAJA.hxx>
 
+#define abs(x) ((x)<0 ? -(x) : (x))
+
 // Need better solution than defines
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
@@ -243,8 +245,8 @@ N_Vector N_VCloneEmpty_Raja(N_Vector w)
 N_Vector N_VClone_Raja(N_Vector w)
 {
   N_Vector v;
-  sunrajavec::Vector<double, long int>* wdat = static_cast<sunrajavec::Vector<double, long int>*>(w->content);
-  sunrajavec::Vector<double, long int>* vdat = new sunrajavec::Vector<double, long int>(*wdat);
+  sunrajavec::Vector<realtype, long int>* wdat = static_cast<sunrajavec::Vector<realtype, long int>*>(w->content);
+  sunrajavec::Vector<realtype, long int>* vdat = new sunrajavec::Vector<realtype, long int>(*wdat);
   v = NULL;
   v = N_VCloneEmpty_Raja(w);
   if (v == NULL) return(NULL);
@@ -257,7 +259,7 @@ N_Vector N_VClone_Raja(N_Vector w)
 
 void N_VDestroy_Raja(N_Vector v)
 {
-  sunrajavec::Vector<double, long int>* x = static_cast<sunrajavec::Vector<double, long int>*>(v->content);
+  sunrajavec::Vector<realtype, long int>* x = static_cast<sunrajavec::Vector<realtype, long int>*>(v->content);
   if (x != NULL) {
     if (!x->isClone()) {
       delete x;
@@ -355,7 +357,7 @@ void N_VAbs_Raja(N_Vector X, N_Vector Z)
   realtype *zdata = zv->device();
 
   RAJA::forall<RAJA::cuda_exec<256> >(0, N, [=] __device__(long int i) {
-     zdata[i] = std::abs(xdata[i]);
+     zdata[i] = abs(xdata[i]);
   });
 }
 
@@ -409,7 +411,7 @@ realtype N_VMaxNorm_Raja(N_Vector X)
 
   RAJA::ReduceMax<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
   RAJA::forall<RAJA::cuda_exec<128> >(0, N, [=] __device__(long int i) {
-    gpu_result.max(std::abs(xdata[i]));
+    gpu_result.max(abs(xdata[i]));
   });
 
   return static_cast<realtype>(gpu_result);

@@ -99,7 +99,7 @@ N_Vector N_VNew_Cuda(long int length)
   if (v == NULL)
     return(NULL);
 
-  v->content = new nvec::Vector<double, long int>(length);
+  v->content = new nvec::Vector<realtype, long int>(length);
 
   return(v);
 }
@@ -108,7 +108,7 @@ N_Vector N_VNew_Cuda(long int length)
 N_Vector N_VMake_Cuda(N_VectorContent_Cuda c)
 {
   N_Vector v;
-  nvec::Vector<double, long int>* x = static_cast<nvec::Vector<double, long int>*>(c);
+  nvec::Vector<realtype, long int>* x = static_cast<nvec::Vector<realtype, long int>*>(c);
   long int length = x->size();
 
   v = NULL;
@@ -179,7 +179,7 @@ N_Vector *N_VCloneVectorArrayEmpty_Cuda(int count, N_Vector w)
  */
 long int N_VGetLength_Cuda(N_Vector v)
 {
-  nvec::Vector<double, long int>* xd = static_cast<nvec::Vector<double, long int>*>(v->content);
+  nvec::Vector<realtype, long int>* xd = static_cast<nvec::Vector<realtype, long int>*>(v->content);
   return xd->size();
 }
 
@@ -214,7 +214,7 @@ realtype *N_VGetHostArrayPointer_Cuda(N_Vector x)
 
 realtype *N_VGetDeviceArrayPointer_Cuda(N_Vector x)
 {
-  nvec::Vector<double, long int>* xv = static_cast<nvec::Vector<double, long int>*>(x->content);
+  nvec::Vector<realtype, long int>* xv = static_cast<nvec::Vector<realtype, long int>*>(x->content);
   return (xv->device());
 }
 
@@ -224,7 +224,7 @@ realtype *N_VGetDeviceArrayPointer_Cuda(N_Vector x)
 
 void N_VCopyToDevice_Cuda(N_Vector x)
 {
-  nvec::Vector<double, long int>* xv = static_cast<nvec::Vector<double, long int>*>(x->content);
+  nvec::Vector<realtype, long int>* xv = static_cast<nvec::Vector<realtype, long int>*>(x->content);
   xv->copyToDev();
 }
 
@@ -234,7 +234,7 @@ void N_VCopyToDevice_Cuda(N_Vector x)
 
 void N_VCopyFromDevice_Cuda(N_Vector x)
 {
-  nvec::Vector<double, long int>* xv = static_cast<nvec::Vector<double, long int>*>(x->content);
+  nvec::Vector<realtype, long int>* xv = static_cast<nvec::Vector<realtype, long int>*>(x->content);
   xv->copyFromDev();
 }
 
@@ -246,7 +246,7 @@ void N_VCopyFromDevice_Cuda(N_Vector x)
 void N_VPrint_Cuda(N_Vector x)
 {
   long int i;
-  nvec::Vector<double, long int>* xd = static_cast<nvec::Vector<double, long int>*>(x->content);
+  nvec::Vector<realtype, long int>* xd = static_cast<nvec::Vector<realtype, long int>*>(x->content);
 
   for (i = 0; i < xd->size(); i++) {
     std::cout << xd->host()[i] << "\n";
@@ -317,8 +317,8 @@ N_Vector N_VCloneEmpty_Cuda(N_Vector w)
 N_Vector N_VClone_Cuda(N_Vector w)
 {
   N_Vector v;
-  nvec::Vector<double, long int>* wdat = static_cast<nvec::Vector<double, long int>*>(w->content);
-  nvec::Vector<double, long int>* vdat = new nvec::Vector<double, long int>(*wdat);
+  nvec::Vector<realtype, long int>* wdat = static_cast<nvec::Vector<realtype, long int>*>(w->content);
+  nvec::Vector<realtype, long int>* vdat = new nvec::Vector<realtype, long int>(*wdat);
   v = NULL;
   v = N_VCloneEmpty_Cuda(w);
   if (v == NULL) return(NULL);
@@ -331,7 +331,7 @@ N_Vector N_VClone_Cuda(N_Vector w)
 
 void N_VDestroy_Cuda(N_Vector v)
 {
-  nvec::Vector<double, long int>* x = static_cast<nvec::Vector<double, long int>*>(v->content);
+  nvec::Vector<realtype, long int>* x = static_cast<nvec::Vector<realtype, long int>*>(v->content);
   if (x != NULL) {
     if (!x->isClone()) {
       delete x;
@@ -351,12 +351,12 @@ void N_VSpace_Cuda(N_Vector X, long int *lrw, long int *liw)
     *liw = 1;
 }
 
-void N_VConst_Cuda(double a, N_Vector X)
+void N_VConst_Cuda(realtype a, N_Vector X)
 {
     nvec::setConst(a, *nvec::extract(X));
 }
 
-void N_VLinearSum_Cuda(double a, N_Vector X, double b, N_Vector Y, N_Vector Z)
+void N_VLinearSum_Cuda(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector Z)
 {
     nvec::linearSum(a, *nvec::extract(X), b, *nvec::extract(Y), *nvec::extract(Z));
 }
@@ -371,7 +371,7 @@ void N_VDiv_Cuda(N_Vector X, N_Vector Y, N_Vector Z)
     nvec::div(*nvec::extract(X), *nvec::extract(Y), *nvec::extract(Z));
 }
 
-void N_VScale_Cuda(double a, N_Vector X, N_Vector Z)
+void N_VScale_Cuda(realtype a, N_Vector X, N_Vector Z)
 {
     nvec::scale(a, *nvec::extract(X), *nvec::extract(Z));
 }
@@ -386,42 +386,42 @@ void N_VInv_Cuda(N_Vector X, N_Vector Z)
     nvec::inv(*nvec::extract(X), *nvec::extract(Z));
 }
 
-void N_VAddConst_Cuda(N_Vector X, double b, N_Vector Z)
+void N_VAddConst_Cuda(N_Vector X, realtype b, N_Vector Z)
 {
     nvec::addConst(b, *nvec::extract(X), *nvec::extract(Z));
 }
 
-double N_VDotProd_Cuda(N_Vector X, N_Vector Y)
+realtype N_VDotProd_Cuda(N_Vector X, N_Vector Y)
 {
     return (nvec::dotProd(*nvec::extract(X), *nvec::extract(Y)));
 }
 
-double N_VMaxNorm_Cuda(N_Vector X)
+realtype N_VMaxNorm_Cuda(N_Vector X)
 {
     return (nvec::maxNorm(*nvec::extract(X)));
 }
 
-double N_VWrmsNorm_Cuda(N_Vector X, N_Vector W)
+realtype N_VWrmsNorm_Cuda(N_Vector X, N_Vector W)
 {
     return (nvec::wrmsNorm(*nvec::extract(X), *nvec::extract(W)));
 }
 
-double N_VWrmsNormMask_Cuda(N_Vector X, N_Vector W, N_Vector Id)
+realtype N_VWrmsNormMask_Cuda(N_Vector X, N_Vector W, N_Vector Id)
 {
     return (nvec::wrmsNormMask(*nvec::extract(X), *nvec::extract(W), *nvec::extract(Id)));
 }
 
-double N_VMin_Cuda(N_Vector X)
+realtype N_VMin_Cuda(N_Vector X)
 {
     return (nvec::findMin(*nvec::extract(X)));
 }
 
-double N_VWL2Norm_Cuda(N_Vector X, N_Vector W)
+realtype N_VWL2Norm_Cuda(N_Vector X, N_Vector W)
 {
     return (nvec::wL2Norm(*nvec::extract(X), *nvec::extract(W)));
 }
 
-double N_VL1Norm_Cuda(N_Vector X)
+realtype N_VL1Norm_Cuda(N_Vector X)
 {
     return (nvec::L1Norm(*nvec::extract(X)));
 }

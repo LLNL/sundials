@@ -42,6 +42,7 @@ namespace nvec
     class ThreadPartitioning;
 }
 
+//#define abs(x) ((x)<0 ? -(x) : (x))
 
 namespace nvec
 {
@@ -52,16 +53,16 @@ namespace math_kernels
 template<class T>
 struct SharedMemory
 {
-    __device__ inline operator       T *()
+    __device__ inline operator T *()
     {
-        extern __shared__ int __smem[];
-        return (T *)__smem;
+        extern __shared__ float sundials_shmem_ptr[];
+        return (T *) sundials_shmem_ptr;
     }
     
     __device__ inline operator const T *() const
     {
-        extern __shared__ int __smem[];
-        return (T *)__smem;
+        extern __shared__ float sundials_shmem_ptr[];
+        return (T *) sundials_shmem_ptr;
     }
 };
 
@@ -70,19 +71,37 @@ struct SharedMemory
 template<>
 struct SharedMemory<double>
 {
-    __device__ inline operator       double *()
+    __device__ inline operator double *()
     {
-        extern __shared__ double __smem_d[];
-        return (double *)__smem_d;
+        extern __shared__ double sundials_shmem_ptr_double[];
+        return (double *) sundials_shmem_ptr_double;
     }
-    
+
     __device__ inline operator const double *() const
     {
-        extern __shared__ double __smem_d[];
-        return (double *)__smem_d;
+        extern __shared__ double sundials_shmem_ptr_double[];
+        return (double *) sundials_shmem_ptr_double;
     }
 };
         
+// specialize for long double to avoid unaligned memory
+// access compile errors
+template<>
+struct SharedMemory<long double>
+{
+    __device__ inline operator long double *()
+    {
+        extern __shared__ long double sundials_shmem_ptr_long_double[];
+        return (long double *) sundials_shmem_ptr_long_double;
+    }
+
+    __device__ inline operator const long double *() const
+    {
+        extern __shared__ long double sundials_shmem_ptr_long_double[];
+        return (long double *) sundials_shmem_ptr_long_double;
+    }
+};
+
         
     
 /**
@@ -352,7 +371,7 @@ maxNormKernel(const T *g_idata, T *g_odata, I n)
 
 
 /*
- * Weighted root mean square notm of a vector.
+ * Weighted root mean square norm of a vector.
  *    
  * It is based off reduce3 kernel from CUDA examples. Uses n/2 threads.
  * Performs the first level of reduction when reading from global memory.
