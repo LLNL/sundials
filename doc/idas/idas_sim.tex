@@ -4993,10 +4993,10 @@ used (i.e. either \Id{IDAKLU} or \Id{IDASuperLUMT} is called in Step
 function of type \ID{IDASlsSparseJacFn} defined as follows:
 \usfunction{IDASlsSparseJacFn}
 {
- typedef int (*IDASlsSparseJacFn&)(realtype t, realtype c\_j,\\ 
+ typedef int (*IDASlsSparseJ&acFn)(realtype t, realtype c\_j,\\ 
                              &N\_Vector y, N\_Vector yp, N\_Vector r, \\
                              &SlsMat Jac, void *user\_data, \\
-                             &N\_Vector tmp1, N\_Vector tmp2,N\_Vector tmp3);
+                             &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
 {
   This function computes the sparse Jacobian $J$ of the DAE system (or an
