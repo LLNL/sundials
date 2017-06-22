@@ -171,7 +171,11 @@ int main()
   flag = KINGetFuncNorm(kmem, &fnorm);
   if (check_flag(&flag, "KINGetfuncNorm", 1)) return(1);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("\nComputed solution (||F|| = %Lg):\n\n",fnorm);
+#else
   printf("\nComputed solution (||F|| = %g):\n\n",fnorm);
+#endif  
   PrintOutput(y);
 
   PrintFinalStats(kmem);

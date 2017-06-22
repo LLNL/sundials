@@ -195,7 +195,11 @@ int main()
   flag = IDAGetQuad(mem, &time, q);
   if (check_flag(&flag, "IDAGetQuad", 1)) return(1);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("G:          %24.16Lf \n",Ith(q,1));
+#else
   printf("G:          %24.16f \n",Ith(q,1));
+#endif  
   printf("--------------------------------------------------------\n\n");
 
 
@@ -404,7 +408,11 @@ static int resB(realtype tt,
  */
 static void PrintOutput(realtype tfinal, N_Vector yB, N_Vector ypB)
 {
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("dG/dy0: \t%12.4Le\n\t\t%12.4Le\n\t\t%12.4Le\n\t\t%12.4Le\n\t\t%12.4Le\n\t\t%12.4Le\n",
+#else
   printf("dG/dy0: \t%12.4e\n\t\t%12.4e\n\t\t%12.4e\n\t\t%12.4e\n\t\t%12.4e\n\t\t%12.4e\n",
+#endif         
          Ith(yB,1), Ith(yB,2), Ith(yB,3), Ith(yB,4), Ith(yB,5), Ith(yB,6));
   printf("--------------------------------------------------------\n\n");
 }

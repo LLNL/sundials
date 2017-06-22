@@ -314,14 +314,25 @@ int main(int argc, char *argv[])
 
   printf("\nQuadrature:\n");
   IDAGetQuad(ida_mem, &t, yQ);
-  printf("G:      %10.4e\n", Ith(yQ,1)); 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("G:      %10.4Le\n", Ith(yQ,1));
+#else
+  printf("G:      %10.4e\n", Ith(yQ,1));
+#endif  
 
   if(sensi) {
     IDAGetQuadSens(ida_mem, &t, yQS);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("\nSensitivities at t=%Lg:\n",t);
+    printf("dG/dp1: %11.4Le\n", Ith(yQS[0], 1));
+    printf("dG/dp1: %11.4Le\n", Ith(yQS[1], 1));
+    printf("dG/dp1: %11.4Le\n", Ith(yQS[2], 1));
+#else
     printf("\nSensitivities at t=%g:\n",t);
     printf("dG/dp1: %11.4e\n", Ith(yQS[0], 1));
     printf("dG/dp1: %11.4e\n", Ith(yQS[1], 1));
     printf("dG/dp1: %11.4e\n", Ith(yQS[2], 1));
+#endif    
   }
 
   /* Print final statistics */

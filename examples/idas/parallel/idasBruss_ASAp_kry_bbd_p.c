@@ -750,7 +750,11 @@ static void PrintSol(void* mem, N_Vector uv, N_Vector uvp,
         
       uvxy  = IJ_Vptr(uv, ix, jy);
       /* uvxy = (&NV_Ith_P(uv, (i)*NUM_SPECIES + (j)*NSMXSUB*npex )); */
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+      fprintf(fout, "%Lg\n%Lg\n", uvxy[0], uvxy[1]);
+#else
       fprintf(fout, "%g\n%g\n", uvxy[0], uvxy[1]);
+#endif      
     }
   }    
   fclose(fout);
@@ -788,7 +792,11 @@ static void PrintAdjSol(N_Vector uvB, N_Vector uvpB, UserData data)
     for (ix=0; ix<mxsub; ix++) {
 
       uvxy  = IJ_Vptr(uvB, ix, jy);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+      fprintf(fout, "%Lg\n%Lg\n", uvxy[0], uvxy[1]);
+#else
       fprintf(fout, "%g\n%g\n", uvxy[0], uvxy[1]);
+#endif      
     }
   }    
   fclose(fout);
