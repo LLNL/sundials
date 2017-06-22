@@ -171,6 +171,10 @@ typedef struct _SUNMatrixContent_Dense *SUNMatrixContent_Dense;
  *    SUNMatrixDestroy_Dense
  * OTHER:
  *    SUNMatrixPrint_Dense
+ *    SUNMatrixDense_Rows
+ *    SUNMatrixDense_LData
+ *    SUNMatrixDense_Data 
+ *    SUNMatrixDense_Column
  * -----------------------------------------------------------------
  */
 
@@ -199,6 +203,34 @@ SUNDIALS_EXPORT SUNMatrix SUNMatrixNew_Dense(long int M, long int N);
 
 SUNDIALS_EXPORT void SUNMatrixPrint_Dense(SUNMatrix A, FILE* outfile);
 
+
+/*
+ * -----------------------------------------------------------------
+ * Accessor Functions: 
+ *
+ * SUNMatrixDense_Rows 
+ *    Returns the number of rows in the dense matrix
+ *
+ * SUNMatrixDense_Columns
+ *    Returns the number of columns in the dense matrix
+ *
+ * SUNMatrixDense_LData
+ *    Returns the total allocated data length for the dense matrix
+ *
+ * SUNMatrixDense_Data
+ *    Returns a pointer to the data array for the dense matrix
+ *
+ * SUNMatrixDense_Column
+ *    Returns a pointer to the jth column of the dense matrix
+ *
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT long int SUNMatrixDense_Rows(SUNMatrix A);
+SUNDIALS_EXPORT long int SUNMatrixDense_Columns(SUNMatrix A);
+SUNDIALS_EXPORT long int SUNMatrixDense_LData(SUNMatrix A);
+SUNDIALS_EXPORT realtype* SUNMatrixDense_Data(SUNMatrix A);
+SUNDIALS_EXPORT realtype* SUNMatrixDense_Column(SUNMatrix A, long int j);
 
 /*
  * -----------------------------------------------------------------

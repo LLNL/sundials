@@ -161,7 +161,7 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
  *     be a pointer to the jth column of the M-by-N band
  *     matrix A, 0 <= j < N.  After the assignment, A_col_j may 
  *     be treated as an array indexed from -mu to ml.
- *     The (i,j)-th element of A is thus referenced by col_j[i].
+ *     The (i,j)-th element of A is thus referenced by col_j[i-j].
  *
  *     The assignment A_ij = SM_COLUMN_ELEMENT_B(SM_COLUMN_B(A),i,j) 
  *     sets A_ij to the value of the (i,j)th element of the band 
@@ -214,6 +214,13 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
  *    SUNMatrixDestroy_Band
  * OTHER:
  *    SUNMatrixPrint_Band
+ *    SUNMatrixBand_Rows
+ *    SUNMatrixBand_Columns
+ *    SUNMatrixBand_LowerBandwidth
+ *    SUNMatrixBand_UpperBandwidth
+ *    SUNMatrixBand_StoredUpperBandwidth
+ *    SUNMatrixBand_Data
+ *    SUNMatrixBand_Column
  * -----------------------------------------------------------------
  */
 
@@ -250,6 +257,43 @@ SUNDIALS_EXPORT SUNMatrix SUNMatrixNew_Band(long int N, long int mu,
 
 SUNDIALS_EXPORT void SUNMatrixPrint_Band(SUNMatrix A, FILE* outfile);
 
+
+/*
+ * -----------------------------------------------------------------
+ * Accessor Functions: 
+ *
+ * SUNMatrixBand_Rows
+ *    Returns the number of rows in the banded matrix
+ *
+ * SUNMatrixBand_Columns
+ *    Returns the number of columns in the banded matrix
+ *
+ * SUNMatrixBand_LowerBandwidth
+ *    Returns the number of lower bands in the banded matrix
+ *
+ * SUNMatrixBand_UpperBandwidth
+ *    Returns the number of upper bands in the banded matrix
+ *
+ * SUNMatrixBand_StoredUpperBandwidth
+ *    Returns the number of stored upper bands in the banded matrix
+ *
+ * SUNMatrixBand_Data
+ *    Returns a pointer to the data array for the sparse matrix
+ *
+ * SUNMatrixBand_Column
+ *    Returns a pointer to the diagonal entry of jth column of the
+ *    banded matrix.  The resulting pointer should be indexed over 
+ *    the range -mu to ml.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT long int SUNMatrixBand_Rows(SUNMatrix A);
+SUNDIALS_EXPORT long int SUNMatrixBand_Columns(SUNMatrix A);
+SUNDIALS_EXPORT long int SUNMatrixBand_LowerBandwidth(SUNMatrix A);
+SUNDIALS_EXPORT long int SUNMatrixBand_UpperBandwidth(SUNMatrix A);
+SUNDIALS_EXPORT long int SUNMatrixBand_StoredUpperBandwidth(SUNMatrix A);
+SUNDIALS_EXPORT realtype* SUNMatrixBand_Data(SUNMatrix A);
+SUNDIALS_EXPORT realtype* SUNMatrixBand_Column(SUNMatrix A, long int j);
 
 /*
  * -----------------------------------------------------------------

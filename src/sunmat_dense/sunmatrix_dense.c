@@ -169,6 +169,21 @@ void SUNMatrixPrint_Dense(SUNMatrix A, FILE* outfile)
 }
 
 
+/* ----------------------------------------------------------------------------
+ * Functions to access the contents of the dense matrix structure
+ */
+
+long int SUNMatrixDense_Rows(SUNMatrix A)
+{ return SM_ROWS_D(A); }
+long int SUNMatrixDense_Columns(SUNMatrix A)
+{ return SM_COLUMNS_D(A); }
+long int SUNMatrixDense_LData(SUNMatrix A)
+{ return SM_LDATA_D(A); }
+realtype* SUNMatrixDense_Data(SUNMatrix A)
+{ return SM_DATA_D(A); }
+realtype* SUNMatrixDense_Column(SUNMatrix A, long int j)
+{ return SM_COLUMN_D(A,j); }
+
 /*
  * -----------------------------------------------------------------
  * implementation of matrix operations

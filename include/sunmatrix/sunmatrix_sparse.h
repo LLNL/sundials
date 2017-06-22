@@ -197,6 +197,13 @@ typedef struct _SUNMatrixContent_Sparse *SUNMatrixContent_Sparse;
  * OTHER:
  *    SUNMatrixPrint_Sparse
  *    SparseReallocMat
+ *    SUNMatrixSparse_Rows
+ *    SUNMatrixSparse_Columns 
+ *    SUNMatrixSparse_NNZ
+ *    SUNMatrixSparse_Data 
+ *    SUNMatrixSparse_IndexValues
+ *    SUNMatrixSparse_IndexPointers
+
  * -----------------------------------------------------------------
  */
 
@@ -260,6 +267,41 @@ SUNDIALS_EXPORT int SparseReallocMat(SUNMatrix A);
 
 SUNDIALS_EXPORT void SUNMatrixPrint_Sparse(SUNMatrix A, FILE* outfile);
 
+
+/*
+ * -----------------------------------------------------------------
+ * Accessor Functions: 
+ *
+ * SUNMatrixSparse_Rows 
+ *    Returns the number of rows in the sparse matrix
+ *
+ * SUNMatrixSparse_Columns
+ *    Returns the number of columns in the sparse matrix
+ *
+ * SUNMatrixSparse_NNZ
+ *    Returns the allocated number of nonzeros in the sparse matrix
+ *
+ * SUNMatrixSparse_Data
+ *    Returns a pointer to the data array for the sparse matrix
+ *
+ * SUNMatrixSparse_IndexValues
+ *    Returns a ptr to the index value array for the sparse matrix:
+ *    for CSR this is the column index for each nonzero,
+ *    for CSC this is the row index for each nonzero.
+ *
+ * SUNMatrixSparse_IndexPointers
+ *    Returns a ptr to the index pointer array for the sparse matrix:
+ *    for CSR this is the location of the first entry of each row,
+ *    for CSC this is the location of the first entry of each column.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT long int SUNMatrixSparse_Rows(SUNMatrix A);
+SUNDIALS_EXPORT long int SUNMatrixSparse_Columns(SUNMatrix A);
+SUNDIALS_EXPORT long int SUNMatrixSparse_NNZ(SUNMatrix A);
+SUNDIALS_EXPORT realtype* SUNMatrixSparse_Data(SUNMatrix A);
+SUNDIALS_EXPORT long int* SUNMatrixSparse_IndexValues(SUNMatrix A);
+SUNDIALS_EXPORT long int* SUNMatrixSparse_IndexPointers(SUNMatrix A);
 
 /*
  * -----------------------------------------------------------------
