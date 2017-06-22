@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
   print_timing = atoi(argv[3]);
   SetTiming(print_timing);
 
-  printf("\nRunning with vector length %ld \n \n", veclen);
+  printf("\nRunning with vector length %ld \n \n", (long int) veclen);
   printf("\nRunning with number of threads %d \n \n", num_threads);
 
   /* Create vectors */

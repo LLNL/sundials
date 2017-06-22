@@ -78,7 +78,7 @@ typedef struct {
   realtype dx;              /* spatial discretization grid              */
   realtype hdcoef, hacoef;  /* diffusion and advection coefficients     */
   sunindextype local_N;
-  sunindextype npes, my_pe;     /* total number of processes and current ID */
+  int npes, my_pe;          /* total number of processes and current ID */
   sunindextype nperpe, nrem;
   MPI_Comm comm;            /* MPI communicator                         */
   realtype *z1, *z2;        /* work space                               */
@@ -639,13 +639,13 @@ static void PrintOutput(realtype g_val, N_Vector uB, UserData data)
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     for (i=0; i<NEQ; i++)
-      printf("  [%2ld]: %8Le\n", i+1, mu[i]);
+      printf("  [%2ld]: %8Le\n", (long int) i+1, mu[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
     for (i=0; i<NEQ; i++)
-      printf("  [%2ld]: %8e\n", i+1, mu[i]);
+      printf("  [%2ld]: %8e\n", (long int) i+1, mu[i]);
 #else
     for (i=0; i<NEQ; i++)
-      printf("  [%2ld]: %8e\n", i+1, mu[i]);
+      printf("  [%2ld]: %8e\n", (long int) i+1, mu[i]);
 #endif
 
     free(mu);

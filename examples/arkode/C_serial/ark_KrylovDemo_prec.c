@@ -619,10 +619,10 @@ static void PrintFinalStats(void *arkode_mem)
   check_flag(&flag, "ARKSpilsGetNumRhsEvals", 1);
 
   printf("\n\n Final statistics for this run:\n\n");
-  printf(" ARKode real workspace length           = %4ld \n", lenrw);
-  printf(" ARKode integer workspace length        = %4ld \n", leniw);
-  printf(" ARKSPGMR real workspace length         = %4ld \n", lenrwLS);
-  printf(" ARKSPGMR integer workspace length      = %4ld \n", leniwLS);
+  printf(" ARKode real workspace length           = %4ld \n", (long int) lenrw);
+  printf(" ARKode integer workspace length        = %4ld \n", (long int) leniw);
+  printf(" ARKSPGMR real workspace length         = %4ld \n", (long int) lenrwLS);
+  printf(" ARKSPGMR integer workspace length      = %4ld \n", (long int) leniwLS);
   printf(" Number of steps                       = %4ld \n", nst);
   printf(" Number of f-s (explicit)              = %4ld \n", nfe);
   printf(" Number of f-s (implicit)              = %4ld \n", nfi);

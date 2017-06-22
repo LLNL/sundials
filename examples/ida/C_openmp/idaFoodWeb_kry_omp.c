@@ -188,7 +188,7 @@ static int PSolve(realtype tt,
 static void InitUserData(UserData webdata);
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata);
-static void PrintHeader(sunindextype maxl, realtype rtol, realtype atol);
+static void PrintHeader(int maxl, realtype rtol, realtype atol);
 static void PrintOutput(void *mem, N_Vector c, realtype t);
 static void PrintFinalStats(void *mem);
 static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate, UserData webdata);
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
   UserData webdata;
   N_Vector cc, cp, id;
   int iout, jx, jy, flag;
-  sunindextype maxl;
+  int maxl;
   realtype rtol, atol, t0, tout, tret;
   int num_threads;
 
@@ -611,7 +611,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(sunindextype maxl, realtype rtol, realtype atol)
+static void PrintHeader(int maxl, realtype rtol, realtype atol)
 {
   printf("\nidaFoodWeb_kry_omp: Predator-prey DAE OpenMP example problem using Krylov solver for IDA \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
@@ -624,7 +624,7 @@ static void PrintHeader(sunindextype maxl, realtype rtol, realtype atol)
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: IDASpgmr,  Spgmr parameters maxl = %ld\n",maxl);
+  printf("Linear solver: IDASpgmr,  Spgmr parameters maxl = %d\n",maxl);
   printf("CalcIC called to correct initial predator concentrations.\n\n");
   printf("-----------------------------------------------------------\n");
   printf("  t        bottom-left  top-right");

@@ -424,7 +424,7 @@ static int f_diff(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
   realtype dw = udata->dw;
 
   /* local variables */
-  sunindextype i;
+  int i;
   realtype ul, ur, vl, vr, wl, wr;
   realtype xl, xr, f1;
   booleantype left, right;
@@ -505,7 +505,7 @@ static int f_rx(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
   realtype ep = udata->ep;
 
   /* local variables */
-  sunindextype i;
+  int i;
   realtype ul, ur, vl, vr, wl, wr;
   realtype u, v, w, xl, xr, f1, f2, f3;
   booleantype left, right;

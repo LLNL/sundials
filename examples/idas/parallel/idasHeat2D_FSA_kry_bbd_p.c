@@ -103,8 +103,8 @@ static int InitUserData(int thispe, MPI_Comm comm, UserData data);
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
                              N_Vector res, UserData data);
 
-static void PrintHeader(int Neq, realtype rtol, realtype atol,
-                        int mudq, int mukeep,
+static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol,
+                        sunindextype mudq, sunindextype mukeep,
                         booleantype sensi, int sensi_meth, int err_con);
 static void PrintOutput(int id, void *mem, realtype t, N_Vector uu, 
                         booleantype sensi, N_Vector *uuS);
@@ -747,15 +747,15 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
  * and table heading
  */
 
-static void PrintHeader(int Neq, realtype rtol, realtype atol,
-                        int mudq, int mukeep,
+static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol,
+                        sunindextype mudq, sunindextype mukeep,
                         booleantype sensi, int sensi_meth, int err_con)
 {
     printf("\nidasHeat2D_FSA_kry_bbd_p: Heat equation, parallel example problem for IDA\n");
     printf("                     Discretized heat equation on 2D unit square.\n");
     printf("                     Zero boundary conditions, polynomial initial conditions.\n");
     printf("                     Mesh dimensions: %d x %d ; ", MX, MY);
-    printf("    Total system size: %d\n\n", Neq);
+    printf("    Total system size: %ld\n\n", (long int) Neq);
 
     printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
     printf("         Processor array: %d x %d\n", NPEX, NPEY);
@@ -771,8 +771,8 @@ static void PrintHeader(int Neq, realtype rtol, realtype atol,
     printf(" all boundary components. \n");
     printf("Linear solver: IDASPGMR.    ");
     printf("Preconditioner: IDABBDPRE - Banded-block-diagonal.\n"); 
-    printf("Difference quotient half-bandwidths = %d",mudq);
-    printf("Retained matrix half-bandwidths = %d \n\n",mukeep);
+    printf("Difference quotient half-bandwidths = %ld",(long int) mudq);
+    printf("Retained matrix half-bandwidths = %ld \n\n",(long int) mukeep);
 
     if (sensi) {
       printf("Sensitivity: YES ");

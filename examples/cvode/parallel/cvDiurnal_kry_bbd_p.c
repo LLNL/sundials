@@ -379,9 +379,9 @@ static void PrintIntro(int npes, sunindextype mudq, sunindextype mldq,
   printf("  %d by %d mesh on %d processors\n", MX, MY, npes);
   printf("  Using CVBBDPRE preconditioner module\n");
   printf("    Difference-quotient half-bandwidths are");
-  printf(" mudq = %ld,  mldq = %ld\n", mudq, mldq);
+  printf(" mudq = %ld,  mldq = %ld\n", (long int) mudq, (long int) mldq);
   printf("    Retained band block half-bandwidths are");
-  printf(" mukeep = %ld,  mlkeep = %ld", mukeep, mlkeep);
+  printf(" mukeep = %ld,  mlkeep = %ld", (long int) mukeep, (long int) mlkeep);
 
   return;
 }
@@ -392,7 +392,8 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t)
 {
   int qu, flag, npelast;
-  sunindextype i0, i1, nst;
+  long int nst;
+  sunindextype i0, i1;
   realtype hu, *uarray, tempu[2];
   MPI_Status status;
 
@@ -447,8 +448,8 @@ static void PrintFinalStats(void *cvode_mem)
 {
   sunindextype lenrw, leniw ;
   sunindextype lenrwLS, leniwLS;
-  sunindextype lenrwBBDP, leniwBBDP, ngevalsBBDP;
-  long int nst, nfe, nsetups, nni, ncfn, netf;
+  sunindextype lenrwBBDP, leniwBBDP;
+  long int nst, nfe, nsetups, nni, ncfn, netf, ngevalsBBDP;
   long int nli, npe, nps, ncfl, nfeLS;
   int flag;
 
@@ -481,8 +482,8 @@ static void PrintFinalStats(void *cvode_mem)
   check_flag(&flag, "CVSpilsGetNumRhsEvals", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
-  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
-  printf("lenrwls = %5ld     leniwls = %5ld\n", lenrwLS, leniwLS);
+  printf("lenrw   = %5ld     leniw   = %5ld\n", (long int) lenrw, (long int) leniw);
+  printf("lenrwls = %5ld     leniwls = %5ld\n", (long int) lenrwLS, (long int) leniwLS);
   printf("nst     = %5ld\n"                  , nst);
   printf("nfe     = %5ld     nfels   = %5ld\n"  , nfe, nfeLS);
   printf("nni     = %5ld     nli     = %5ld\n"  , nni, nli);
@@ -495,7 +496,7 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVBBDPrecGetNumGfnEvals(cvode_mem, &ngevalsBBDP);
   check_flag(&flag, "CVBBDPrecGetNumGfnEvals", 1, 0);
   printf("In CVBBDPRE: real/integer local work space sizes = %ld, %ld\n",
-	 lenrwBBDP, leniwBBDP);  
+	 (long int) lenrwBBDP, (long int) leniwBBDP);  
   printf("             no. flocal evals. = %ld\n",ngevalsBBDP);
 }
  

@@ -366,9 +366,9 @@ static void PrintIntro(int npes, sunindextype mudq, sunindextype mldq,
   printf("  %d by %d mesh on %d processors\n", MX, MY, npes);
   printf("  Using ARKBBDPRE preconditioner module\n");
   printf("    Difference-quotient half-bandwidths are");
-  printf(" mudq = %ld,  mldq = %ld\n", mudq, mldq);
+  printf(" mudq = %ld,  mldq = %ld\n", (long int) mudq, (long int) mldq);
   printf("    Retained band block half-bandwidths are");
-  printf(" mukeep = %ld,  mlkeep = %ld", mukeep, mlkeep);
+  printf(" mukeep = %ld,  mlkeep = %ld", (long int) mukeep, (long int) mlkeep);
   return;
 }
 
@@ -377,7 +377,8 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t)
 {
   int flag, npelast;
-  sunindextype i0, i1, nst;
+  sunindextype i0, i1;
+  long int nst;
   realtype hu, *uarray, tempu[2];
   MPI_Status status;
 
@@ -429,9 +430,9 @@ static void PrintFinalStats(void *arkode_mem)
 {
   sunindextype lenrw, leniw ;
   sunindextype lenrwLS, leniwLS;
-  sunindextype lenrwBBDP, leniwBBDP, ngevalsBBDP;
+  sunindextype lenrwBBDP, leniwBBDP;
   long int nst, nfe, nfi, nsetups, nni, ncfn, netf;
-  long int nli, npe, nps, ncfl, nfeLS;
+  long int nli, npe, nps, ncfl, nfeLS, ngevalsBBDP;
   int flag;
 
   flag = ARKodeGetWorkSpace(arkode_mem, &lenrw, &leniw);
@@ -463,8 +464,8 @@ static void PrintFinalStats(void *arkode_mem)
   check_flag(&flag, "ARKSpilsGetNumRhsEvals", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
-  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
-  printf("lenrwls = %5ld     leniwls = %5ld\n", lenrwLS, leniwLS);
+  printf("lenrw   = %5ld     leniw   = %5ld\n", (long int) lenrw, (long int) leniw);
+  printf("lenrwls = %5ld     leniwls = %5ld\n", (long int) lenrwLS, (long int) leniwLS);
   printf("nst     = %5ld     nfe     = %5ld\n", nst, nfe);
   printf("nfe     = %5ld     nfels   = %5ld\n", nfi, nfeLS);
   printf("nni     = %5ld     nli     = %5ld\n", nni, nli);
@@ -477,7 +478,7 @@ static void PrintFinalStats(void *arkode_mem)
   flag = ARKBBDPrecGetNumGfnEvals(arkode_mem, &ngevalsBBDP);
   check_flag(&flag, "ARKBBDPrecGetNumGfnEvals", 1, 0);
   printf("In ARKBBDPRE: real/integer local work space sizes = %ld, %ld\n",
-	 lenrwBBDP, leniwBBDP);  
+	 (long int) lenrwBBDP, (long int) leniwBBDP);
   printf("             no. flocal evals. = %ld\n",ngevalsBBDP);
 }
  

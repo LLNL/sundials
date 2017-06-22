@@ -488,7 +488,7 @@ static void PrintHeader(sunindextype mu, sunindextype ml, realtype rtol, realtyp
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: IDABAND,  Band parameters mu = %ld, ml = %ld\n",mu,ml);
+  printf("Linear solver: IDABAND,  Band parameters mu = %ld, ml = %ld\n", (long int) mu, (long int) ml);
   printf("CalcIC called to correct initial predator concentrations.\n\n");
   printf("-----------------------------------------------------------\n");
   printf("  t        bottom-left  top-right");

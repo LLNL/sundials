@@ -374,7 +374,8 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
   int flag;
   realtype hu, *udata, tempu[2];
   int npelast;
-  sunindextype i0, i1, nst;
+  sunindextype i0, i1;
+  long int nst;
   MPI_Status status;
 
   npelast = NPEX*NPEY - 1;
@@ -424,7 +425,7 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
 /* Print final statistics contained in iopt */
 static void PrintFinalStats(void *arkode_mem)
 {
-  sunindextype lenrw, leniw ;
+  sunindextype lenrw, leniw;
   sunindextype lenrwLS, leniwLS;
   long int nst, nfe, nfi, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
@@ -459,8 +460,8 @@ static void PrintFinalStats(void *arkode_mem)
   check_flag(&flag, "ARKSpilsGetNumRhsEvals", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
-  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
-  printf("lenrwls = %5ld     leniwls = %5ld\n", lenrwLS, leniwLS);
+  printf("lenrw   = %5ld     leniw   = %5ld\n", (long int) lenrw, (long int) leniw);
+  printf("lenrwls = %5ld     leniwls = %5ld\n", (long int) lenrwLS, (long int) leniwLS);
   printf("nst     = %5ld     nfe     = %5ld\n", nst, nfe);
   printf("nfi     = %5ld     nfels   = %5ld\n", nfi, nfeLS);
   printf("nni     = %5ld     nli     = %5ld\n", nni, nli);

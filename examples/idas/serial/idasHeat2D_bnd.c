@@ -83,7 +83,8 @@ int main(void)
   UserData data;
   N_Vector uu, up, constraints, id, res;
   int ier, iout;
-  sunindextype mu, ml, netf, ncfn;
+  long int netf, ncfn;
+  sunindextype mu, ml;
   realtype rtol, atol, t0, t1, tout, tret;
   
   mem = NULL;

@@ -92,7 +92,8 @@ int main(int argc, char *argv[])
   UserData data;
   void *cvode_mem;
   int iout, flag, my_pe, npes;
-  sunindextype local_N, nperpe, nrem, my_base, nst;
+  long int nst;
+  sunindextype local_N, nperpe, nrem, my_base;
 
   MPI_Comm comm;
 

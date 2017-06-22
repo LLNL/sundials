@@ -63,7 +63,8 @@ int main(int argc, char *argv[])
   SetTiming(print_timing);
 
 
-  printf("\nRunning with %d threads and vector length %ld \n \n", nthreads, veclen);
+  printf("\nRunning with %d threads and vector length %ld \n \n",
+         nthreads, (long int) veclen);
 
   /* Create vectors */
   W = N_VNewEmpty_Pthreads(veclen, nthreads);

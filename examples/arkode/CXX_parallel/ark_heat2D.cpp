@@ -225,7 +225,8 @@ int main(int argc, char* argv[]) {
   sprintf(outname, "heat2d_subdomain.%03i.txt", udata->myid);
   FILE *UFID = fopen(outname,"w");
   fprintf(UFID, "%li  %li  %li  %li  %li  %li\n", 
-	  udata->nx, udata->ny, udata->is, udata->ie, udata->js, udata->je);
+	  (long int) udata->nx, (long int) udata->ny, (long int) udata->is,
+          (long int) udata->ie, (long int) udata->js, (long int) udata->je);
   fclose(UFID);
 
   // Open output streams for results, access data array 

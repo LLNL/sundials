@@ -84,7 +84,7 @@ int main()
   printf("   d^2 u / dx^2 + d^2 u / dy^2 = u^3 - u + 2.0\n");
   printf(" + homogeneous Dirichlet boundary conditions\n\n");
   printf("Solution method: Modified Newton with band linear solver\n");
-  printf("Problem size: %2ld x %2ld = %4ld\n", (sunindextype) NX, (sunindextype) NY, (sunindextype) NEQ);
+  printf("Problem size: %2ld x %2ld = %4ld\n", (long int) NX, (long int) NY, (long int) NEQ);
 
   /* --------------------------------------
    * Create vectors for solution and scales
@@ -344,8 +344,8 @@ static void PrintFinalStats(void *kmem)
   printf("nbcfails = %6ld    nbacktr = %6ld \n", nbcfails, nbacktr);
   printf("nje      = %6ld    nfeB    = %6ld \n", nje, nfeD);
   printf("\n");
-  printf("lenrw    = %6ld    leniw   = %6ld \n", lenrw, leniw);
-  printf("lenrwB   = %6ld    leniwB  = %6ld \n", lenrwB, leniwB);
+  printf("lenrw    = %6ld    leniw   = %6ld \n", (long int) lenrw, (long int) leniw);
+  printf("lenrwB   = %6ld    leniwB  = %6ld \n", (long int) lenrwB, (long int) leniwB);
   
 }
 

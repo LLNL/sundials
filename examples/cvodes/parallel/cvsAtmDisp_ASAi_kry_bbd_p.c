@@ -1038,8 +1038,8 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVSpilsGetNumRhsEvals(cvode_mem, &nfeSPGMR);
 
   printf("\nFinal Statistics.. \n\n");
-  printf("lenrw   = %6ld     leniw = %6ld\n", lenrw, leniw);
-  printf("llrw    = %6ld     lliw  = %6ld\n", lenrwSPGMR, leniwSPGMR);
+  printf("lenrw   = %6ld     leniw = %6ld\n", (long int) lenrw, (long int) leniw);
+  printf("llrw    = %6ld     lliw  = %6ld\n", (long int) lenrwSPGMR, (long int) leniwSPGMR);
   printf("nst     = %6ld\n"                  , nst);
   printf("nfe     = %6ld     nfel  = %6ld\n"  , nfe, nfeSPGMR);
   printf("nni     = %6ld     nli   = %6ld\n"  , nni, nli);

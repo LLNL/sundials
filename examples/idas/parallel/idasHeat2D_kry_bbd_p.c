@@ -704,7 +704,7 @@ static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
     printf("                  Zero boundary conditions,");
     printf(" polynomial initial conditions.\n");
     printf("                Mesh dimensions: %d x %d", MX, MY);
-    printf("        Total system size: %ld\n\n", Neq);
+    printf("        Total system size: %ld\n\n", (long int) Neq);
 
     printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
     printf("         Processor array: %d x %d\n", NPEX, NPEY);

@@ -43,7 +43,7 @@ void FARK_BPINIT(sunindextype *N, sunindextype *mu,
 /* Fortran interface to C routines ARKBandPrecGetWorkSpace and 
    ARKBandPrecGetNumRhsEvals; see farkbp.h for additional 
    information */
-void FARK_BPOPT(sunindextype *lenrwbp, sunindextype *leniwbp, sunindextype *nfebp)
+void FARK_BPOPT(sunindextype *lenrwbp, sunindextype *leniwbp, long int *nfebp)
 {
   ARKBandPrecGetWorkSpace(ARK_arkodemem, lenrwbp, leniwbp);
   ARKBandPrecGetNumRhsEvals(ARK_arkodemem, nfebp);

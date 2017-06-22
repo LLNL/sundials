@@ -706,9 +706,9 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
            maxl, maxlrst);
     printf("Preconditioning uses band-block-diagonal matrix from KINBBDPRE\n");
     printf("  Difference quotient half-bandwidths: mudq = %ld, mldq = %ld\n",
-	   mudq, mldq);
+	   (long int) mudq, (long int) mldq);
     printf("  Retained band block half-bandwidths: mukeep = %ld, mlkeep = %ld\n",
-	   mukeep, mlkeep);
+	   (long int) mukeep, (long int) mlkeep);
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
     printf("Tolerance parameters:  fnormtol = %Lg   scsteptol = %Lg\n",
            fnormtol, scsteptol);

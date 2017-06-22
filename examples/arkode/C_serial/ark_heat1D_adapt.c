@@ -51,7 +51,7 @@
 
 /* user data structure */
 typedef struct {
-  sunindextype N;           /* current number of intervals */
+  sunindextype N;       /* current number of intervals */
   realtype *x;          /* current mesh */
   realtype k;           /* diffusion coefficient */
   realtype refine_tol;  /* adaptivity tolerance */
@@ -82,7 +82,8 @@ int main() {
   sunindextype N = 21;             /* initial spatial mesh size */
   realtype refine = 3.e-3;     /* adaptivity refinement tolerance */
   realtype k = 0.5;            /* heat conductivity */
-  sunindextype i, nni, nni_cur=0, nni_tot=0, nli, nli_tot=0;
+  sunindextype i;
+  long int nni, nni_cur=0, nni_tot=0, nli, nli_tot=0;
   int iout=0;
 
   /* general problem variables */
@@ -107,7 +108,7 @@ int main() {
   /* Initial problem output */
   printf("\n1D adaptive Heat PDE test problem:\n");
   printf("  diffusion coefficient:  k = %g\n", udata->k);
-  printf("  initial N = %li\n", udata->N);
+  printf("  initial N = %li\n", (long int) udata->N);
 
   /* Initialize data structures */
   y = N_VNew_Serial(N);       /* Create initial serial vector for solution */
@@ -164,7 +165,7 @@ int main() {
   printf("  iout          dt_old                 dt_new               ||u||_rms       N   NNI  NLI\n");
   printf(" ----------------------------------------------------------------------------------------\n");
   printf(" %4i  %19.15e  %19.15e  %19.15e  %li   %2i  %3i\n", 
-	 iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N), udata->N, 0, 0);
+	 iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N), (long int) udata->N, 0, 0);
   while (t < Tf) {
 
     /* "set" routines */
@@ -190,7 +191,7 @@ int main() {
     /* print current solution stats */
     iout++;
     printf(" %4i  %19.15e  %19.15e  %19.15e  %li   %2li  %3li\n", 
-	   iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N), udata->N, nni-nni_cur, nli);
+	   iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N), (long int) udata->N, nni-nni_cur, nli);
     nni_cur = nni;
     nni_tot = nni;
     nli_tot += nli;
@@ -268,7 +269,7 @@ int main() {
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;    /* access problem data */
-  sunindextype N  = udata->N;                   /* set variable shortcuts */
+  sunindextype N = udata->N;                /* set variable shortcuts */
   realtype k  = udata->k;
   realtype *x = udata->x;
   realtype *Y=NULL, *Ydot=NULL;
@@ -307,7 +308,7 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
 	       N_Vector fy, void *user_data, N_Vector tmp)
 {
   UserData udata = (UserData) user_data;     /* variable shortcuts */
-  sunindextype N  = udata->N;
+  sunindextype N = udata->N;
   realtype k  = udata->k;
   realtype *x = udata->x;
   realtype *V=NULL, *JV=NULL;
@@ -347,7 +348,7 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
    The return for this function is a pointer to the new mesh. */
 realtype * adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata)
 {
-  int i, j;
+  sunindextype i, j;
   int *marks=NULL;
   realtype ydd, *xold=NULL, *Y=NULL, *xnew=NULL;
   sunindextype num_refine, N_new;
@@ -443,7 +444,7 @@ realtype * adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata)
 static int project(sunindextype Nold, realtype *xold, N_Vector yold, 
 		   sunindextype Nnew, realtype *xnew, N_Vector ynew)
 {
-  int iv, i, j;
+  sunindextype iv, i, j;
   realtype *Yold=NULL, *Ynew=NULL;
 
   /* Access data arrays */

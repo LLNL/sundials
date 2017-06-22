@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
   SetTiming(print_timing);
 
 
-  printf("\nRunning with vector length %ld \n \n", veclen);
+  printf("\nRunning with vector length %ld \n \n", (long int) veclen);
 
   /* Create vectors */
   W = N_VNewEmpty_Serial(veclen);

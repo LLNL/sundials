@@ -93,7 +93,7 @@ int main()
   printf(" + homogeneous Dirichlet boundary conditions\n\n");
   printf("Solution method: Anderson accelerated Picard iteration with band linear solver.\n");
   printf("Problem size: %2ld x %2ld = %4ld\n", 
-	 (sunindextype) NX, (sunindextype) NY, (sunindextype) NEQ);
+	 (long int) NX, (long int) NY, (long int) NEQ);
 
   /* --------------------------------------
    * Create vectors for solution and scales
@@ -383,7 +383,7 @@ static void PrintFinalStats(void *kmem)
   printf("nni      = %6ld    nfe     = %6ld \n", nni, nfe);
   printf("nje      = %6ld    nfeB    = %6ld \n", nje, nfeD);
   printf("\n");
-  printf("lenrwB   = %6ld    leniwB  = %6ld \n", lenrwB, leniwB);
+  printf("lenrwB   = %6ld    leniwB  = %6ld \n", (long int) lenrwB, (long int) leniwB);
   
 }
 

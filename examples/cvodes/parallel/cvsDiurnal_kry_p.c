@@ -386,7 +386,8 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
   int qu, flag;
   realtype hu, *udata, tempu[2];
   int npelast;
-  sunindextype i0, i1, nst;
+  long int  nst;
+  sunindextype i0, i1;
   MPI_Status status;
 
   npelast = NPEX*NPEY - 1;
@@ -474,8 +475,8 @@ static void PrintFinalStats(void *cvode_mem)
   check_flag(&flag, "CVSpilsGetNumRhsEvals", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
-  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
-  printf("lenrwls = %5ld     leniwls = %5ld\n", lenrwLS, leniwLS);
+  printf("lenrw   = %5ld     leniw   = %5ld\n", (long int) lenrw, (long int) leniw);
+  printf("lenrwls = %5ld     leniwls = %5ld\n", (long int) lenrwLS, (long int) leniwLS);
   printf("nst     = %5ld\n"                  , nst);
   printf("nfe     = %5ld     nfels   = %5ld\n"  , nfe, nfeLS);
   printf("nni     = %5ld     nli     = %5ld\n"  , nni, nli);

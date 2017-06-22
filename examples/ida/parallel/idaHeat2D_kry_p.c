@@ -63,7 +63,8 @@
                                     /* Spatial mesh is MX by MY */
 
 typedef struct {  
-  sunindextype thispe, mx, my, ixsub, jysub, npex, npey, mxsub, mysub;
+  int thispe, npex, npey, ixsub, jysub;
+  sunindextype mx, my, mxsub, mysub;
   realtype    dx, dy, coeffx, coeffy, coeffxy;
   realtype    uext[(MXSUB+2)*(MYSUB+2)];
   N_Vector    pp;    /* vector of diagonal preconditioner elements */
@@ -81,15 +82,15 @@ static int rescomm(N_Vector uu, N_Vector up, void *user_data);
 static int reslocal(realtype tt, N_Vector uu, N_Vector up, 
                     N_Vector res,  void *user_data);
 
-static int BSend(MPI_Comm comm, sunindextype thispe, sunindextype ixsub, sunindextype jysub,
+static int BSend(MPI_Comm comm, int thispe, int ixsub, int jysub,
                  sunindextype dsizex, sunindextype dsizey, realtype uarray[]);
 
-static int BRecvPost(MPI_Comm comm, MPI_Request request[], sunindextype thispe,
-                     sunindextype ixsub, sunindextype jysub,
+static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
+                     int ixsub, int jysub,
                      sunindextype dsizex, sunindextype dsizey,
                      realtype uext[], realtype buffer[]);
 
-static int BRecvWait(MPI_Request request[], sunindextype ixsub, sunindextype jysub,
+static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
                      sunindextype dsizex, realtype uext[], realtype buffer[]);
 
 /* User-supplied preconditioner routines */
@@ -343,7 +344,8 @@ int PsetupHeat(realtype tt,
 {
   realtype *ppv, pelinv;
   sunindextype lx, ly, ixbegin, ixend, jybegin, jyend, locu, mxsub, mysub;
-  sunindextype ixsub, jysub, npex, npey;
+  int ixsub, jysub;
+  int npex, npey;
   UserData data;
 
   data = (UserData) user_data;
@@ -422,7 +424,8 @@ static int rescomm(N_Vector uu, N_Vector up, void *user_data)
   UserData data;
   realtype *uarray, *uext, buffer[2*MYSUB];
   MPI_Comm comm;
-  sunindextype thispe, ixsub, jysub, mxsub, mysub;
+  int thispe, ixsub, jysub;
+  sunindextype mxsub, mysub;
   MPI_Request request[4];
   
   data = (UserData) user_data;
@@ -460,7 +463,8 @@ static int reslocal(realtype tt,
   realtype *uext, *uuv, *upv, *resv;
   realtype termx, termy, termctr;
   sunindextype lx, ly, offsetu, offsetue, locu, locue;
-  sunindextype ixsub, jysub, mxsub, mxsub2, mysub, npex, npey;
+  int ixsub, jysub, npex, npey;
+  sunindextype mxsub, mxsub2, mysub;
   sunindextype ixbegin, ixend, jybegin, jyend;
   UserData data;
   
@@ -520,7 +524,7 @@ static int reslocal(realtype tt,
  * Routine to send boundary data to neighboring PEs.                     
  */
 
-static int BSend(MPI_Comm comm, sunindextype thispe, sunindextype ixsub, sunindextype jysub,
+static int BSend(MPI_Comm comm, int thispe, int ixsub, int jysub,
                  sunindextype dsizex, sunindextype dsizey, realtype uarray[])
 {
   sunindextype ly, offsetu;
@@ -573,8 +577,8 @@ static int BSend(MPI_Comm comm, sunindextype thispe, sunindextype ixsub, suninde
  *      both calls also. 
  */
 
-static int BRecvPost(MPI_Comm comm, MPI_Request request[], sunindextype thispe,
-                     sunindextype ixsub, sunindextype jysub,
+static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
+                     int ixsub, int jysub,
                      sunindextype dsizex, sunindextype dsizey,
                      realtype uext[], realtype buffer[])
 {
@@ -620,7 +624,7 @@ static int BRecvPost(MPI_Comm comm, MPI_Request request[], sunindextype thispe,
  *      calls also. 
  */
 
-static int BRecvWait(MPI_Request request[], sunindextype ixsub, sunindextype jysub,
+static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
                      sunindextype dsizex, realtype uext[], realtype buffer[])
 {
   sunindextype ly, dsizex2, offsetue;
@@ -701,7 +705,8 @@ static int InitUserData(int thispe, MPI_Comm comm, UserData data)
 static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id, 
                              N_Vector res, UserData data)
 {
-  sunindextype i, iloc, j, jloc, offset, loc, ixsub, jysub;
+  int ixsub, jysub;
+  sunindextype i, iloc, j, jloc, offset, loc;
   sunindextype ixbegin, ixend, jybegin, jyend;
   realtype xfact, yfact, *udata, *iddata, dx, dy;
   
@@ -763,7 +768,7 @@ static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
   printf("            Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");
   printf("            Mesh dimensions: %d x %d", MX, MY);
-  printf("        Total system size: %ld\n\n", Neq);
+  printf("        Total system size: %ld\n\n", (long int) Neq);
   printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
   printf("        Processor array: %d x %d\n", NPEX, NPEY);
 #if defined(SUNDIALS_EXTENDED_PRECISION)

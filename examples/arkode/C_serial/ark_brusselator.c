@@ -82,7 +82,7 @@ int main()
   realtype T0 = RCONST(0.0);     /* initial time */
   realtype Tf = RCONST(10.0);    /* final time */
   realtype dTout = RCONST(1.0);  /* time between outputs */
-  sunindextype NEQ = 3;              /* number of dependent vars. */
+  sunindextype NEQ = 3;          /* number of dependent vars. */
   int Nt = ceil(Tf/dTout);       /* number of output times */
   int test = 2;                  /* test problem to run */
   realtype reltol = 1.0e-6;      /* tolerances */

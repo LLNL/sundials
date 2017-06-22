@@ -1410,7 +1410,8 @@ int Test_N_VCompare(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   sunindextype i;
 
   if (local_length < 3) {
-    printf("Error Test_N_VCompare: Local vector length is %ld, length must be >= 3", local_length);
+    printf("Error Test_N_VCompare: Local vector length is %ld, length must be >= 3",
+           (long int) local_length);
     return(-1);
   }
 
@@ -1493,7 +1494,8 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   booleantype test;
 
   if (local_length < 2) {
-    printf("Error Test_N_VCompare: Local vector length is %ld, length must be >= 2", local_length);
+    printf("Error Test_N_VCompare: Local vector length is %ld, length must be >= 2",
+           (long int) local_length);
     return(-1);
   }
 
@@ -1582,7 +1584,8 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
   booleantype test;
 
   if (local_length < 7) {
-    printf("Error Test_N_VCompare: Local vector length is %ld, length must be >= 7", local_length);
+    printf("Error Test_N_VCompare: Local vector length is %ld, length must be >= 7",
+           (long int) local_length);
     return(-1);
   }
 

@@ -592,7 +592,7 @@ static void PrintHeader(sunindextype maxl, realtype rtol, realtype atol)
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: IDASpgmr,  Spgmr parameters maxl = %ld\n",maxl);
+  printf("Linear solver: IDASpgmr,  Spgmr parameters maxl = %ld\n",(long int) maxl);
   printf("CalcIC called to correct initial predator concentrations.\n\n");
   printf("-----------------------------------------------------------\n");
   printf("  t        bottom-left  top-right");

@@ -2178,10 +2178,10 @@ static void arkPrintMem(ARKodeMem ark_mem)
   printf("ark_netf = %li\n", ark_mem->ark_netf);
   printf("ark_nni = %li\n", ark_mem->ark_nni);
   printf("ark_nsetups = %li\n", ark_mem->ark_nsetups);
-  printf("ark_lrw1 = %li\n", ark_mem->ark_lrw1);
-  printf("ark_liw1 = %li\n", ark_mem->ark_liw1);
-  printf("ark_lrw = %li\n", ark_mem->ark_lrw);
-  printf("ark_liw = %li\n", ark_mem->ark_liw);
+  printf("ark_lrw1 = %li\n", (long int) ark_mem->ark_lrw1);
+  printf("ark_liw1 = %li\n", (long int) ark_mem->ark_liw1);
+  printf("ark_lrw = %li\n", (long int) ark_mem->ark_lrw);
+  printf("ark_liw = %li\n", (long int) ark_mem->ark_liw);
   printf("ark_fp_m = %li\n", ark_mem->ark_fp_m);
   if (ark_mem->ark_fp_imap != NULL)
     for (i=0; i<ark_mem->ark_fp_m; i++)

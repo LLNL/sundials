@@ -51,9 +51,9 @@
 
 /* user data structure */
 typedef struct {
-  sunindextype N;    /* number of intervals   */
-  realtype dx;   /* mesh spacing          */
-  realtype k;    /* diffusion coefficient */
+  sunindextype N;  /* number of intervals   */
+  realtype dx;     /* mesh spacing          */
+  realtype k;      /* diffusion coefficient */
 } *UserData;
 
 /* User-supplied Functions Called by the Solver */
@@ -75,7 +75,7 @@ int main() {
   realtype atol = 1.e-10;      /* absolute tolerance */
   UserData udata = NULL;
   realtype *data;
-  sunindextype N = 201;            /* spatial mesh size */
+  sunindextype N = 201;        /* spatial mesh size */
   realtype k = 0.5;            /* heat conductivity */
   sunindextype i;
 
@@ -96,7 +96,7 @@ int main() {
 
   /* Initial problem output */
   printf("\n1D Heat PDE test problem:\n");
-  printf("  N = %li\n", udata->N);
+  printf("  N = %li\n", (long int) udata->N);
   printf("  diffusion coefficient:  k = %g\n", udata->k);
 
   /* Initialize data structures */
@@ -253,7 +253,7 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
 	       N_Vector fy, void *user_data, N_Vector tmp)
 {
   UserData udata = (UserData) user_data;     /* variable shortcuts */
-  sunindextype N  = udata->N;
+  sunindextype N = udata->N;
   realtype k  = udata->k;
   realtype dx = udata->dx;
   realtype *V=NULL, *JV=NULL;

@@ -142,7 +142,8 @@ typedef struct {
   realtype *p;
   realtype q4, om, dx, dy, hdco, haco, vdco;
   realtype uext[NVARS*(MXSUB+2)*(MYSUB+2)];
-  sunindextype my_pe, isubx, isuby, nvmxsub, nvmxsub2;
+  int my_pe, isubx, isuby;
+  sunindextype nvmxsub, nvmxsub2;
   MPI_Comm comm;
 
   /* For preconditioner */
@@ -175,14 +176,14 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data);
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector u, UserData data);
 
-static void BSend(MPI_Comm comm, int my_pe, sunindextype isubx, 
-                  sunindextype isuby, sunindextype dsizex, 
+static void BSend(MPI_Comm comm, int my_pe, int isubx, 
+                  int isuby, sunindextype dsizex, 
                   sunindextype dsizey, realtype udata[]);
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
-                      sunindextype isubx, sunindextype isuby,
+                      int isubx, int isuby,
                       sunindextype dsizex, sunindextype dsizey,
                       realtype uext[], realtype buffer[]);
-static void BRecvWait(MPI_Request request[], sunindextype isubx, sunindextype isuby,
+static void BRecvWait(MPI_Request request[], int isubx, int isuby,
                       sunindextype dsizex, realtype uext[], realtype buffer[]);
 static void ucomm(realtype t, N_Vector u, UserData data);
 static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data);
@@ -606,7 +607,7 @@ static void WrongArgs(int my_pe, char *name)
 
 static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
 {
-  sunindextype isubx, isuby;
+  int isubx, isuby;
   int  lx, ly;
   realtype KH, VEL, KV0;
 
@@ -679,7 +680,8 @@ static void FreeUserData(UserData data)
 
 static void SetInitialProfiles(N_Vector u, UserData data)
 {
-  sunindextype isubx, isuby, lx, ly, jx, jy, offset;
+  int isubx, isuby;
+  sunindextype lx, ly, jx, jy, offset;
   realtype dx, dy, x, y, cx, cy, xmid, ymid;
   realtype *udata;
 
@@ -717,8 +719,8 @@ static void SetInitialProfiles(N_Vector u, UserData data)
  * Routine to send boundary data to neighboring PEs.
  */
 
-static void BSend(MPI_Comm comm, int my_pe, sunindextype isubx, 
-                  sunindextype isuby, sunindextype dsizex, sunindextype dsizey, 
+static void BSend(MPI_Comm comm, int my_pe, int isubx, 
+                  int isuby, sunindextype dsizex, sunindextype dsizey, 
                   realtype udata[])
 {
   int i, ly;
@@ -768,7 +770,7 @@ static void BSend(MPI_Comm comm, int my_pe, sunindextype isubx,
  */
 
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
-                      sunindextype isubx, sunindextype isuby,
+                      int isubx, int isuby,
                       sunindextype dsizex, sunindextype dsizey,
                       realtype uext[], realtype buffer[])
 {
@@ -811,7 +813,7 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
  *  2) request should have 4 entries, and should be passed in both calls also. 
  */
 
-static void BRecvWait(MPI_Request request[], sunindextype isubx, sunindextype isuby,
+static void BRecvWait(MPI_Request request[], int isubx, int isuby,
                       sunindextype dsizex, realtype uext[], realtype buffer[])
 {
   int i, ly;
@@ -866,8 +868,8 @@ static void ucomm(realtype t, N_Vector u, UserData data)
 {
   realtype *udata, *uext, buffer[2*NVARS*MYSUB];
   MPI_Comm comm;
-  int my_pe;
-  sunindextype isubx, isuby, nvmxsub, nvmysub;
+  int my_pe, isubx, isuby;
+  sunindextype nvmxsub, nvmysub;
   MPI_Request request[4];
 
   udata = N_VGetArrayPointer_Parallel(u);
@@ -902,8 +904,8 @@ static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data
   realtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
   realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
   realtype q4coef, dely, verdco, hordco, horaco;
-  int i, lx, ly, jx, jy;
-  sunindextype isubx, isuby, nvmxsub, nvmxsub2, offsetu, offsetue;
+  int i, lx, ly, jx, jy, isubx, isuby;
+  sunindextype nvmxsub, nvmxsub2, offsetu, offsetue;
   realtype Q1, Q2, C3, A3, A4, KH, VEL, KV0;
 
   /* Get subgrid indices, data sizes, extended work array uext */

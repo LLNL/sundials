@@ -66,15 +66,15 @@
 
 /* user data structure */
 typedef struct {  
-  sunindextype N;    /* number of intervals      */
-  int nthreads;  /* number of OpenMP threads */
-  realtype dx;   /* mesh spacing             */
-  realtype a;    /* constant forcing on u    */
-  realtype b;    /* steady-state value of w  */
-  realtype du;   /* diffusion coeff for u    */
-  realtype dv;   /* diffusion coeff for v    */
-  realtype dw;   /* diffusion coeff for w    */
-  realtype ep;   /* stiffness parameter      */
+  sunindextype N;  /* number of intervals      */
+  int nthreads;    /* number of OpenMP threads */
+  realtype dx;     /* mesh spacing             */
+  realtype a;      /* constant forcing on u    */
+  realtype b;      /* steady-state value of w  */
+  realtype du;     /* diffusion coeff for u    */
+  realtype dv;     /* diffusion coeff for v    */
+  realtype dw;     /* diffusion coeff for w    */
+  realtype ep;     /* stiffness parameter      */
 } *UserData;
 
 
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
   int Nvar = 3;                 /* number of solution fields */
   UserData udata = NULL;
   realtype *data;
-  sunindextype N = 201;             /* spatial mesh size */
+  sunindextype N = 201;         /* spatial mesh size */
   realtype a = 0.6;             /* problem parameters */
   realtype b = 2.0;
   realtype du = 0.025;
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
   realtype pi, t, dTout, tout, u, v, w;
   FILE *FID, *UFID, *VFID, *WFID;
   int iout, num_threads;
-  sunindextype nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
+  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
 
   /* allocate udata structure */
   udata = (UserData) malloc(sizeof(*udata));
@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
 
   /* Initial problem output */
   printf("\n1D Brusselator PDE test problem:\n");
-  printf("    N = %li,  NEQ = %li\n", udata->N, NEQ);
+  printf("    N = %li,  NEQ = %li\n", (long int) udata->N, (long int) NEQ);
   printf("    num_threads = %i\n", num_threads);
   printf("    problem parameters:  a = %g,  b = %g,  ep = %g\n",
 	 udata->a, udata->b, udata->ep);
@@ -327,7 +327,7 @@ int main(int argc, char *argv[])
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;      /* access problem data */
-  sunindextype N  = udata->N;                     /* set variable shortcuts */
+  sunindextype N = udata->N;                  /* set variable shortcuts */
   realtype a  = udata->a;
   realtype b  = udata->b;
   realtype ep = udata->ep;
@@ -411,9 +411,9 @@ static int Jac(sunindextype M, sunindextype mu, sunindextype ml,
    We add the result into Jac and do not erase what was already there */
 static int LaplaceMatrix(realtype c, DlsMat Jac, UserData udata)
 {
-  sunindextype i;                /* set shortcuts */
-  sunindextype N = udata->N;
+  sunindextype N = udata->N;            /* set shortcuts */
   realtype dx = udata->dx;
+  sunindextype i;
   
   /* iterate over intervals, filling in Jacobian entries */
 #pragma omp parallel for default(shared) private(i) schedule(static) num_threads(udata->nthreads)
@@ -440,10 +440,10 @@ static int LaplaceMatrix(realtype c, DlsMat Jac, UserData udata)
    We add the result into Jac and do not erase what was already there */
 static int ReactionJac(realtype c, N_Vector y, DlsMat Jac, UserData udata)
 {
-  sunindextype N  = udata->N;                      /* set shortcuts */
+  sunindextype N = udata->N;                   /* set shortcuts */
+  realtype ep = udata->ep;
   sunindextype i;
   realtype u, v, w;
-  realtype ep = udata->ep;
   realtype *Ydata = N_VGetArrayPointer(y);     /* access solution array */
   if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
   

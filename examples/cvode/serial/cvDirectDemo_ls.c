@@ -674,8 +674,8 @@ static void PrintErrOutput(realtype tol_factor)
 
 static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
 {
-  sunindextype lenrw, leniw, nst, nfe, nsetups, nni, ncfn, netf;
-  sunindextype lenrwLS, leniwLS, nje, nfeLS;
+  sunindextype lenrw, leniw, lenrwLS, leniwLS;
+  long int nst, nfe, nsetups, nni, ncfn, netf, nje, nfeLS;
   int flag;
 
   flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
@@ -694,8 +694,8 @@ static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
   printf("\n Final statistics for this run:\n\n");
-  printf(" CVode real workspace length              = %4ld \n", lenrw);
-  printf(" CVode integer workspace length           = %4ld \n", leniw);
+  printf(" CVode real workspace length              = %4ld \n", (long int) lenrw);
+  printf(" CVode integer workspace length           = %4ld \n", (long int) leniw);
   printf(" Number of steps                          = %4ld \n",  nst);
   printf(" Number of f-s                            = %4ld \n",  nfe);
   printf(" Number of setups                         = %4ld \n",  nsetups);
@@ -731,9 +731,9 @@ static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
       check_flag(&flag, "CVDiagGetWorkSpace", 1);
       break;
     }
-    printf(" Linear solver real workspace length      = %4ld \n", lenrwLS);
-    printf(" Linear solver integer workspace length   = %4ld \n", leniwLS);
-    printf(" Number of Jacobian evaluations           = %4ld  \n", nje);
+    printf(" Linear solver real workspace length      = %4ld \n", (long int) lenrwLS);
+    printf(" Linear solver integer workspace length   = %4ld \n", (long int) leniwLS);
+    printf(" Number of Jacobian evaluations           = %4ld \n", nje);
     printf(" Number of f evals. in linear solver      = %4ld \n\n", nfeLS);
   }
   

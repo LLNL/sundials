@@ -115,8 +115,8 @@ int main()
   realtype ep = 1.0e-5;         /* stiffness parameter */
   realtype reltol = 1.0e-6;     /* tolerances */
   realtype abstol = 1.0e-10;
-  int i;
-  sunindextype NEQ, NNZ;
+  int i, NNZ;
+  sunindextype NEQ;
 
   /* general problem variables */
   int flag;                     /* reusable error-checking flag */
@@ -153,7 +153,7 @@ int main()
 
   /* Initial problem output */
   printf("\n1D Brusselator PDE test problem (KLU solver):\n");
-  printf("    N = %i,  NEQ = %li\n", udata->N, NEQ);
+  printf("    N = %i,  NEQ = %li\n", udata->N, (long int) NEQ);
   printf("    problem parameters:  a = %g,  b = %g,  ep = %g\n",
 	 udata->a, udata->b, udata->ep);
   printf("    diffusion coefficients:  du = %g,  dv = %g,  dw = %g\n", 

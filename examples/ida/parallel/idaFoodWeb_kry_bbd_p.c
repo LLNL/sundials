@@ -514,7 +514,7 @@ static void PrintHeader(sunindextype SystemSize, int maxl,
   printf("\nidaFoodWeb_kry_bbd_p: Predator-prey DAE parallel example problem for IDA \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
   printf("     Mesh dimensions: %d x %d", MX, MY);
-  printf("     Total system size: %ld\n",SystemSize);
+  printf("     Total system size: %ld\n",(long int) SystemSize);
   printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
   printf("     Processor array: %d x %d\n", NPEX, NPEY);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -527,7 +527,7 @@ static void PrintHeader(sunindextype SystemSize, int maxl,
   printf("Linear solver: IDASPGMR     Max. Krylov dimension maxl: %d\n", maxl);
   printf("Preconditioner: band-block-diagonal (IDABBDPRE), with parameters\n");
   printf("     mudq = %ld,  mldq = %ld,  mukeep = %ld,  mlkeep = %ld\n",
-         mudq, mldq, mukeep, mlkeep);
+         (long int) mudq, (long int) mldq, (long int) mukeep, (long int) mlkeep);
   printf("CalcIC called to correct initial predator concentrations \n\n");
   printf("-----------------------------------------------------------\n");
   printf("  t        bottom-left  top-right");

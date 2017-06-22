@@ -563,7 +563,7 @@ static void PrintHeader(sunindextype SystemSize, int maxl,
   printf("\nidaFoodWeb_kry_p: Predator-prey DAE parallel example problem for IDA \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
   printf("     Mesh dimensions: %d x %d", MX, MY);
-  printf("     Total system size: %ld\n",SystemSize);
+  printf("     Total system size: %ld\n", (long int) SystemSize);
   printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
   printf("     Processor array: %d x %d\n", NPEX, NPEY);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -1204,7 +1204,7 @@ static int PSolvebd(realtype tt, N_Vector cc,
                  void *user_data, N_Vector tempv)
 {
   realtype **Pxy, *zxy;
-  sunindextype *pivot, ix, jy;
+ sunindextype *pivot, ix, jy;
   UserData webdata;
 
   webdata = (UserData)user_data;
