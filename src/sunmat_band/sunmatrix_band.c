@@ -176,6 +176,25 @@ void SUNMatrixPrint_Band(SUNMatrix A, FILE* outfile)
   return;
 }
 
+/* ----------------------------------------------------------------------------
+ * Functions to access the contents of the band matrix structure
+ */
+
+long int SUNMatrixBand_Rows(SUNMatrix A)
+{ return SM_ROWS_B(A); }
+long int SUNMatrixBand_Columns(SUNMatrix A)
+{ return SM_COLUMNS_B(A); }
+long int SUNMatrixBand_LowerBandwidth(SUNMatrix A)
+{ return SM_LBAND_B(A); }
+long int SUNMatrixBand_UpperBandwidth(SUNMatrix A)
+{ return SM_UBAND_B(A); }
+long int SUNMatrixBand_StoredUpperBandwidth(SUNMatrix A)
+{ return SM_SUBAND_B(A); }
+realtype* SUNMatrixBand_Data(SUNMatrix A)
+{ return SM_DATA_B(A); }
+realtype* SUNMatrixBand_Column(SUNMatrix A, long int j)
+{ return SM_COLUMN_B(A,j); }
+
 /*
  * -----------------------------------------------------------------
  * implementation of matrix operations

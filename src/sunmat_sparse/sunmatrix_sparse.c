@@ -373,6 +373,23 @@ void SUNMatrixPrint_Sparse(SUNMatrix A, FILE* outfile)
 }
 
 
+/* ----------------------------------------------------------------------------
+ * Functions to access the contents of the sparse matrix structure
+ */
+
+long int SUNMatrixSparse_Rows(SUNMatrix A)
+{ return SM_ROWS_S(A); }
+long int SUNMatrixSparse_Columns(SUNMatrix A)
+{ return SM_COLUMNS_S(A); }
+long int SUNMatrixSparse_NNZ(SUNMatrix A)
+{ return SM_NNZ_S(A); }
+realtype* SUNMatrixSparse_Data(SUNMatrix A)
+{ return SM_DATA_S(A); }
+long int* SUNMatrixSparse_IndexValues(SUNMatrix A)
+{ return SM_INDEXVALS_S(A); }
+long int* SUNMatrixSparse_IndexPointers(SUNMatrix A)
+{ return SM_INDEXPTRS_S(A); }
+
 /*
  * -----------------------------------------------------------------
  * implementation of matrix operations
