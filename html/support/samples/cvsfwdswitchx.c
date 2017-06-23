@@ -393,10 +393,10 @@ static void PrintHeader(UserData data)
 
 static void PrintFinalStats(void *cvode_mem, UserData data)
 {
-  sunindextype nst;
-  sunindextype nfe, nsetups, nni, ncfn, netf;
-  sunindextype nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
-  sunindextype njeD, nfeD;
+  long int nst;
+  long int nfe, nsetups, nni, ncfn, netf;
+  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+  long int njeD, nfeD;
   int flag;
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);

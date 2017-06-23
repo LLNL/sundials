@@ -402,7 +402,7 @@ static void PrintOutput(void *cvode_mem, realtype t, realtype y1, realtype y2, r
 static void PrintSolverStats(void *cvode_mem)
 {
   realtype h0u;
-  sunindextype nst, nfe, nsetups, nni, ncfn, netf;
+  long int nst, nfe, nsetups, nni, ncfn, netf;
   int flag;
 
   flag = CVodeGetActualInitStep(cvode_mem, &h0u);

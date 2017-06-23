@@ -941,8 +941,8 @@ static void PrintFinalStats(void *cvode_mem)
 {
   sunindextype lenrw, leniw ;
   sunindextype lenrwSPGMR, leniwSPGMR;
-  sunindextype nst, nfe, nsetups, nni, ncfn, netf;
-  sunindextype nli, npe, nps, ncfl, nfeSPGMR;
+  long int nst, nfe, nsetups, nni, ncfn, netf;
+  long int nli, npe, nps, ncfl, nfeSPGMR;
   int flag;
 
   flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);

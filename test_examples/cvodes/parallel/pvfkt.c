@@ -627,7 +627,7 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t)
 {
-  sunindextype nst;
+  long int nst;
   int qu;
   realtype hu, *udata, tempu[2];
   int npelast, i0, i1;
@@ -860,9 +860,9 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
 {
   sunindextype lenrw, leniw ;
   sunindextype lenrwSPGMR, leniwSPGMR;
-  sunindextype nst, nfe, nsetups, nni, ncfn, netf;
-  sunindextype nli, npe, nps, ncfl, nfeSPGMR;
-  sunindextype nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+  long int nst, nfe, nsetups, nni, ncfn, netf;
+  long int nli, npe, nps, ncfl, nfeSPGMR;
+  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
   int flag;
 
   flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
