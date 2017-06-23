@@ -62,7 +62,7 @@ SUNLinearSolver SUNBandLinearSolver(N_Vector y, SUNMatrix A)
     return NULL;
   if ( (MatrixRows != MatrixCols) || (MatrixRows != VecLength) )
     return NULL;
-  
+
   /* Create linear solver */
   S = NULL;
   S = (SUNLinearSolver) malloc(sizeof *S);
@@ -147,10 +147,16 @@ int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A, N_Vector tmp1,
   /* access data pointers (return with failure on NULL) */
   A_cols = NULL;
   pivots = NULL;
-  A_cols = SUNBandMatrix_Cols(A);
+  A_cols = SM_COLS_B(A);
   pivots = SLS_PIVOTS_B(S);
   if ( (A_cols == NULL) || (pivots == NULL) )
     return 1;
+
+  /* ensure that storage upper bandwidth is sufficient for fill-in */
+  if (SM_SUBAND_B(A) < SUNMIN(SM_COLUMNS_B(A)-1, SM_UBAND_B(A) + SM_LBAND_B(A))) {
+    SLS_LASTFLAG_B(S) = -1;
+    return 1;
+  }
   
   /* perform LU factorization of input matrix */
   SLS_LASTFLAG_B(S) = bandGBTRF(A_cols, SM_COLUMNS_B(A), SM_UBAND_B(A),

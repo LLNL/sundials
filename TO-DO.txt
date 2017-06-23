@@ -80,3 +80,7 @@
 8. Emulate ARKode interfaces within CVODE, CVODES, IDA, IDAS and
    KINSOL. 
 
+
+9. Add error messages and robust error flags to SUNMatrix and
+   SUNLinearSolver modules.
+
