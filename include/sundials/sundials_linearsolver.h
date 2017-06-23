@@ -97,7 +97,7 @@ typedef struct _generic_SUNLinearSolver *SUNLinearSolver;
 struct _generic_SUNLinearSolver_Ops {
   SUNLinearSolver_Type (*gettype)(SUNLinearSolver);
   int                  (*setatimes)(SUNLinearSolver, void*, 
-                                    AtimesFn);
+                                    ATimesFn);
   int                  (*setpreconditioner)(SUNLinearSolver, void*, 
                                             PSetupFn, PSolveFn);
   int                  (*initialize)(SUNLinearSolver);
@@ -106,6 +106,7 @@ struct _generic_SUNLinearSolver_Ops {
   int                  (*solve)(SUNLinearSolver, SUNMatrix, N_Vector, 
                                 N_Vector, N_Vector, realtype);
   int                  (*performance)(SUNLinearSolver, int);
+  long int             (*lastflag)(SUNLinearSolver);
   int                  (*free)(SUNLinearSolver);
 };
  
@@ -122,36 +123,37 @@ struct _generic_SUNLinearSolver {
  * -----------------------------------------------------------------
  * III. Functions exported by SUNLinearSolver module
  * 
- * SUNLinearSolverGetType
+ * SUNLinSolGetType
  *   Returns an identifier for the linear solver type from 
  *   enumeration SUNLinearSolver_Type.
  *
- * SUNLinearSolverSetAtimes (iterative methods only)
- *   Sets the function pointer for Atimes inside of an iterative 
+ * SUNLinSolSetATimes (iterative methods only)
+ *   Sets the function pointer for ATimes inside of an iterative 
  *   linear solver object.  This function should only be called by
  *   a main integrator, who will either provide this via 
  *   difference-quotients and vector operations, or by translating 
  *   between the generic PSetup and PSolve calls and the integrator-
  *   specific user-supplied routines.
  *
- * SUNLinearSolverSetPreconditioner (iterative methods only)
+ * SUNLinSolSetPreconditioner (iterative methods only)
  *   Sets function pointers for PSetup and PSolve routines inside 
  *   of iterative linear solver objects.  This function should only 
  *   be called by a main integrator, who will provide translation 
  *   between the generic PSetup and PSolve calls and the integrator-
  *   specific user-supplied routines.
- *   SUNLinearSolverInitialize
+ *
+ * SUNLinSolInitialize
  *   Performs linear solver initialization (assumes that all 
  *   solver-specific options have been set)
  *
- * SUNLinearSolverSetup
+ * SUNLinSolSetup
  *   Performs any linear solver setup needed, based on an updated
  *   system matrix A.  This may be called frequently (e.g. with a
  *   full Newton method) or infrequently (for a modified Newton 
  *   method), based on the type of integrator and/or nonlinear 
  *   solver requesting the solves.
  *
- * SUNLinearSolverSolve
+ * SUNLinSolSolve
  *   Solves a linear system A*x = b.  If the solver is scaled, it 
  *   uses the supplied scaling vector.  If the solver is iterative, 
  *   it attempts to solve to the specified tolerance (weighted RMS 
@@ -159,12 +161,17 @@ struct _generic_SUNLinearSolver {
  *   and scaling vectors, and if the solver does not support scaling 
  *   then it should just use an RMS norm.
  *
- * SUNLinearSolverPerformance (optional; only required for IDA(s))
+ * SUNLinSolPerformance (optional; only required for IDA(s))
  *   Performs linear solver performance-related tasks: for perftask=0, 
  *   an initialization of performance variables is performed, while 
  *   for perftask=1, the performance is evaluated.
  *
- * SUNLinearSolverFree
+ * SUNLinSolLastFlag
+ *   Returns the last error flag encountered within the linear solver,
+ *   allowing the user to investigate linear solver issues after 
+ *   failed solves.
+ *
+ * SUNLinSolFree
  *   Frees memory allocated by the linear solver.
  *
  * ---------------------------------------------------------------
@@ -181,12 +188,13 @@ struct _generic_SUNLinearSolver {
  *  Functions           CVODE(S)  ARKode     IDA(S)      KINSOL
  *  ------------------------------------------------------------
  *  GetType             M I P#    M I P#     M I P#      M I P
- *  SetAtimes           I         I S+       I           I
+ *  SetATimes           I         I S+       I           I
  *  SetPreconditioner   I*        I* S*      I*          I*
  *  Initialize          M I P#    M I P# S   M I P#      M I P
  *  Setup               M I P#    M I P# S   M I P#      M I P      
  *  Solve               M I P#    M I P# S   M I P#      M I P
  *  Performance                              M I P#
+ *  LastFlag^
  *  Free                M I P#    M I P# S   M I P#      M I P
  *  ------------------------------------------------------------
  * Notes: * -- only if user calls integrator-specific 
@@ -194,28 +202,31 @@ struct _generic_SUNLinearSolver {
  *        + -- only called when using a non-identity mass matrix
  *             with an iterative linear solver
  *        # -- planned (currently only available for KINSOL)         
+ *        ^ -- available for users to diagnose solver failures
  * ---------------------------------------------------------------
  */
   
-SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinearSolverGetType(SUNLinearSolver S);
+SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver S);
 
-SUNDIALS_EXPORT int SUNLinearSolverSetAtimes(SUNLinearSolver S, void* A_data,
-                                             AtimesFn At);
+SUNDIALS_EXPORT int SUNLinSolSetATimes(SUNLinearSolver S, void* A_data,
+                                       ATimesFn At);
   
-SUNDIALS_EXPORT int SUNLinearSolverSetPreconditioner(SUNLinearSolver S, void* P_data,
-                                                     PSetupFn Pset, PSolveFn Psol);
+SUNDIALS_EXPORT int SUNLinSolSetPreconditioner(SUNLinearSolver S, void* P_data,
+                                               PSetupFn Pset, PSolveFn Psol);
   
-SUNDIALS_EXPORT int SUNLinearSolverInitialize(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolInitialize(SUNLinearSolver S);
   
-SUNDIALS_EXPORT int SUNLinearSolverSetup(SUNLinearSolver S, SUNMatrix A, N_Vector tmp1,
-                                         N_Vector tmp2, N_Vector tmp3);
+SUNDIALS_EXPORT int SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A, N_Vector tmp1,
+                                   N_Vector tmp2, N_Vector tmp3);
   
-SUNDIALS_EXPORT int SUNLinearSolverSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                                         N_Vector b, N_Vector w, realtype tol);
+SUNDIALS_EXPORT int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                                   N_Vector b, N_Vector w, realtype tol);
   
-SUNDIALS_EXPORT int SUNLinearSolverPerformance(SUNLinearSolver S, int perftask);
+SUNDIALS_EXPORT int SUNLinSolPerformance(SUNLinearSolver S, int perftask);
   
-SUNDIALS_EXPORT int SUNLinearSolverFree(SUNLinearSolver S);
+SUNDIALS_EXPORT long int SUNLinSolLastFlag(SUNLinearSolver S);
+  
+SUNDIALS_EXPORT int SUNLinSolFree(SUNLinearSolver S);
  
 #ifdef __cplusplus
 }
