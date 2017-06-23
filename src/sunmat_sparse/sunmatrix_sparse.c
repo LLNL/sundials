@@ -44,20 +44,6 @@ int Matvec_SparseCSR(SUNMatrix A, N_Vector x, N_Vector y);
  * -----------------------------------------------------------------
  */
 
-/* ----------------------------------------------------------------
- * Returns the SUNMatrix type ID. Used to identify matrix 
- * implementations from the abstract SUNMatrix interface.
- */
-
-SUNMatrix_ID SUNMatrixGetID_Sparse(SUNMatrix A)
-{
-  if (SM_SPARSETYPE_S(A) == CSC_MAT) {
-    return SUNMATRIX_CSC;
-  } else {
-    return SUNMATRIX_CSR;
-  }
-}
-
 /*
  * ==================================================================
  * Private function prototypes (functions working on SlsMat)
@@ -68,8 +54,8 @@ SUNMatrix_ID SUNMatrixGetID_Sparse(SUNMatrix A)
  * Function to create a new sparse matrix
  */
 
-SUNMatrix SUNMatrixNew_Sparse(long int M, long int N,
-                              long int NNZ, int sparsetype)
+SUNMatrix SUNSparseMatrix(long int M, long int N,
+                          long int NNZ, int sparsetype)
 {
   SUNMatrix A;
   SUNMatrix_Ops ops;
@@ -90,14 +76,14 @@ SUNMatrix SUNMatrixNew_Sparse(long int M, long int N,
   if (ops == NULL) { free(A); return(NULL); }
 
   /* Attach operations */
-  ops->getid       = SUNMatrixGetID_Sparse;
-  ops->clone       = SUNMatrixClone_Sparse;
-  ops->destroy     = SUNMatrixDestroy_Sparse;
-  ops->zero        = SUNMatrixZero_Sparse;
-  ops->scale       = SUNMatrixScale_Sparse;
-  ops->copy        = SUNMatrixCopy_Sparse;
-  ops->addidentity = SUNMatrixAddIdentity_Sparse;
-  ops->add         = SUNMatrixAdd_Sparse;
+  ops->getid       = SUNMatGetID_Sparse;
+  ops->clone       = SUNMatClone_Sparse;
+  ops->destroy     = SUNMatDestroy_Sparse;
+  ops->zero        = SUNMatZero_Sparse;
+  ops->scale       = SUNMatScale_Sparse;
+  ops->copy        = SUNMatCopy_Sparse;
+  ops->addidentity = SUNMatAddIdentity_Sparse;
+  ops->add         = SUNMatAdd_Sparse;
 
   /* Create content */
   content = NULL;
@@ -155,7 +141,7 @@ SUNMatrix SUNMatrixNew_Sparse(long int M, long int N,
  * if the request for matrix storage cannot be satisfied.
  */
 
-SUNMatrix SUNMatrix_DenseToSparse(SUNMatrix Ad, realtype droptol, int sparsetype)
+SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix Ad, realtype droptol, int sparsetype)
 {
   long int i, j, nnz;
   long int M, N;
@@ -166,12 +152,12 @@ SUNMatrix SUNMatrix_DenseToSparse(SUNMatrix Ad, realtype droptol, int sparsetype
     return NULL;
   if ( droptol < ZERO )
     return NULL;
-  if ( (SUNMatrixGetID(Ad) != SUNMATRIX_DENSE) &&
-       (SUNMatrixGetID(Ad) != SUNMATRIX_BAND) )
+  if ( (SUNMatGetID(Ad) != SUNMATRIX_DENSE) &&
+       (SUNMatGetID(Ad) != SUNMATRIX_BAND) )
     return NULL;
   
   /* proceed according to A's type (dense/band) */
-  if (SUNMatrixGetID(Ad) == SUNMATRIX_DENSE) {
+  if (SUNMatGetID(Ad) == SUNMATRIX_DENSE) {
 
     /* set size of new matrix */
     M = SM_ROWS_D(Ad);
@@ -184,7 +170,7 @@ SUNMatrix SUNMatrix_DenseToSparse(SUNMatrix Ad, realtype droptol, int sparsetype
         nnz += (SUNRabs(SM_ELEMENT_D(Ad,i,j)) >= droptol);
     
     /* allocate sparse matrix */
-    As = SUNMatrixNew_Sparse(M, N, nnz, sparsetype);
+    As = SUNSparseMatrix(M, N, nnz, sparsetype);
     if (As == NULL)  return NULL;
   
     /* copy nonzeros from Ad into As, based on CSR/CSC type */
@@ -226,7 +212,7 @@ SUNMatrix SUNMatrix_DenseToSparse(SUNMatrix Ad, realtype droptol, int sparsetype
         nnz += (SUNRabs(SM_ELEMENT_B(Ad,i,j)) >= droptol);
 
     /* allocate sparse matrix */
-    As = SUNMatrixNew_Sparse(M, N, nnz, sparsetype);
+    As = SUNSparseMatrix(M, N, nnz, sparsetype);
     if (As == NULL)  return NULL;
 
     /* copy nonzeros from Ad into As, based on CSR/CSC type */
@@ -267,11 +253,11 @@ SUNMatrix SUNMatrix_DenseToSparse(SUNMatrix Ad, realtype droptol, int sparsetype
  * and 1 on failure (e.g. if A does not have sparse type, or if nnz is negative)
  */
 
-int SparseReallocMat(SUNMatrix A)
+int SUNSparseMatrix_Realloc(SUNMatrix A)
 {
   /* check for valid matrix type */
-  if ( (SUNMatrixGetID(A) != SUNMATRIX_CSC) &&
-       (SUNMatrixGetID(A) != SUNMATRIX_CSR) )
+  if ( (SUNMatGetID(A) != SUNMATRIX_CSC) &&
+       (SUNMatGetID(A) != SUNMATRIX_CSR) )
     return 1;
 
   /* get total number of nonzeros (return with failure if illegal) */
@@ -290,44 +276,10 @@ int SparseReallocMat(SUNMatrix A)
 
 
 /* ----------------------------------------------------------------------------
- * Function to free a matrix created with SUNMatrixNew_Sparse
- */
-
-void SUNMatrixDestroy_Sparse(SUNMatrix A)
-{
-  /* should not be called unless A is a sparse matrix; 
-     otherwise return immediately */
-  if ( (SUNMatrixGetID(A) != SUNMATRIX_CSC) &&
-       (SUNMatrixGetID(A) != SUNMATRIX_CSR) )
-    return;
-
-  /* perform operation */
-  if (SM_DATA_S(A)) {
-    free(SM_DATA_S(A));  SM_DATA_S(A) = NULL;
-  }
-  if (SM_INDEXVALS_S(A)) {
-    free(SM_INDEXVALS_S(A));
-    SM_INDEXVALS_S(A) = NULL;
-    SM_CONTENT_S(A)->rowvals = NULL;
-    SM_CONTENT_S(A)->colvals = NULL;
-  }
-  if (SM_INDEXPTRS_S(A)) {
-    free(SM_INDEXPTRS_S(A));
-    SM_INDEXPTRS_S(A) = NULL;
-    SM_CONTENT_S(A)->colptrs = NULL;
-    SM_CONTENT_S(A)->rowptrs = NULL;
-  }
-  free(A->content); A->content = NULL;
-  free(A->ops);  A->ops = NULL;
-  free(A); A = NULL;
-  return;
-}
-  
-/* ----------------------------------------------------------------------------
  * Function to print the sparse matrix 
  */
  
-void SUNMatrixPrint_Sparse(SUNMatrix A, FILE* outfile)
+void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile)
 {
   long int i, j;
   char *matrixtype;
@@ -335,8 +287,8 @@ void SUNMatrixPrint_Sparse(SUNMatrix A, FILE* outfile)
   
   /* should not be called unless A is a sparse matrix; 
      otherwise return immediately */
-  if ( (SUNMatrixGetID(A) != SUNMATRIX_CSC) &&
-       (SUNMatrixGetID(A) != SUNMATRIX_CSR) )
+  if ( (SUNMatGetID(A) != SUNMATRIX_CSC) &&
+       (SUNMatGetID(A) != SUNMATRIX_CSR) )
     return;
 
   /* perform operation */
@@ -377,18 +329,61 @@ void SUNMatrixPrint_Sparse(SUNMatrix A, FILE* outfile)
  * Functions to access the contents of the sparse matrix structure
  */
 
-long int SUNMatrixSparse_Rows(SUNMatrix A)
-{ return SM_ROWS_S(A); }
-long int SUNMatrixSparse_Columns(SUNMatrix A)
-{ return SM_COLUMNS_S(A); }
-long int SUNMatrixSparse_NNZ(SUNMatrix A)
-{ return SM_NNZ_S(A); }
-realtype* SUNMatrixSparse_Data(SUNMatrix A)
-{ return SM_DATA_S(A); }
-long int* SUNMatrixSparse_IndexValues(SUNMatrix A)
-{ return SM_INDEXVALS_S(A); }
-long int* SUNMatrixSparse_IndexPointers(SUNMatrix A)
-{ return SM_INDEXPTRS_S(A); }
+long int SUNSparseMatrix_Rows(SUNMatrix A)
+{
+  if ( (SUNMatGetID(A) == SUNMATRIX_CSC) ||
+       (SUNMatGetID(A) == SUNMATRIX_CSR) )
+    return SM_ROWS_S(A);
+  else
+    return -1;
+}
+
+long int SUNSparseMatrix_Columns(SUNMatrix A)
+{
+  if ( (SUNMatGetID(A) == SUNMATRIX_CSC) ||
+       (SUNMatGetID(A) == SUNMATRIX_CSR) )
+    return SM_COLUMNS_S(A);
+  else
+    return -1;
+}
+
+long int SUNSparseMatrix_NNZ(SUNMatrix A)
+{
+  if ( (SUNMatGetID(A) == SUNMATRIX_CSC) ||
+       (SUNMatGetID(A) == SUNMATRIX_CSR) )
+    return SM_NNZ_S(A);
+  else
+    return -1;
+}
+
+
+realtype* SUNSparseMatrix_Data(SUNMatrix A)
+{
+  if ( (SUNMatGetID(A) == SUNMATRIX_CSC) ||
+       (SUNMatGetID(A) == SUNMATRIX_CSR) )
+    return SM_DATA_S(A);
+  else
+    return NULL;
+}
+
+long int* SUNSparseMatrix_IndexValues(SUNMatrix A)
+{
+  if ( (SUNMatGetID(A) == SUNMATRIX_CSC) ||
+       (SUNMatGetID(A) == SUNMATRIX_CSR) )
+    return SM_INDEXVALS_S(A);
+  else
+    return NULL;
+}
+
+long int* SUNSparseMatrix_IndexPointers(SUNMatrix A)
+{
+  if ( (SUNMatGetID(A) == SUNMATRIX_CSC) ||
+       (SUNMatGetID(A) == SUNMATRIX_CSR) )
+    return SM_INDEXPTRS_S(A);
+  else
+    return NULL;
+}
+
 
 /*
  * -----------------------------------------------------------------
@@ -396,21 +391,49 @@ long int* SUNMatrixSparse_IndexPointers(SUNMatrix A)
  * -----------------------------------------------------------------
  */
 
-SUNMatrix SUNMatrixClone_Sparse(SUNMatrix A)
+SUNMatrix_ID SUNMatGetID_Sparse(SUNMatrix A)
 {
-  SUNMatrix B = SUNMatrixNew_Sparse(SM_ROWS_S(A), SM_COLUMNS_S(A),
-                                    SM_NNZ_S(A), SM_SPARSETYPE_S(A));
+  if (SM_SPARSETYPE_S(A) == CSC_MAT) {
+    return SUNMATRIX_CSC;
+  } else {
+    return SUNMATRIX_CSR;
+  }
+}
+
+SUNMatrix SUNMatClone_Sparse(SUNMatrix A)
+{
+  SUNMatrix B = SUNSparseMatrix(SM_ROWS_S(A), SM_COLUMNS_S(A),
+                                SM_NNZ_S(A), SM_SPARSETYPE_S(A));
   return(B);
 }
 
-int SUNMatrixZero_Sparse(SUNMatrix A)
+void SUNMatDestroy_Sparse(SUNMatrix A)
+{
+  /* perform operation */
+  if (SM_DATA_S(A)) {
+    free(SM_DATA_S(A));  SM_DATA_S(A) = NULL;
+  }
+  if (SM_INDEXVALS_S(A)) {
+    free(SM_INDEXVALS_S(A));
+    SM_INDEXVALS_S(A) = NULL;
+    SM_CONTENT_S(A)->rowvals = NULL;
+    SM_CONTENT_S(A)->colvals = NULL;
+  }
+  if (SM_INDEXPTRS_S(A)) {
+    free(SM_INDEXPTRS_S(A));
+    SM_INDEXPTRS_S(A) = NULL;
+    SM_CONTENT_S(A)->colptrs = NULL;
+    SM_CONTENT_S(A)->rowptrs = NULL;
+  }
+  free(A->content); A->content = NULL;
+  free(A->ops);  A->ops = NULL;
+  free(A); A = NULL;
+  return;
+}
+  
+int SUNMatZero_Sparse(SUNMatrix A)
 {
   long int i;
-
-  /* Verify that A is a sparse matrix */
-  if ( (SUNMatrixGetID(A) != SUNMATRIX_CSC) &&
-       (SUNMatrixGetID(A) != SUNMATRIX_CSR) )
-    return 1;
 
   /* Perform operation */
   for (i=0; i<SM_NNZ_S(A); i++) {
@@ -423,14 +446,9 @@ int SUNMatrixZero_Sparse(SUNMatrix A)
   return 0;
 }
 
-int SUNMatrixScale_Sparse(realtype c, SUNMatrix A)
+int SUNMatScale_Sparse(realtype c, SUNMatrix A)
 {
   long int i;
-
-  /* Verify that A is a sparse matrix */
-  if ( (SUNMatrixGetID(A) != SUNMATRIX_CSC) &&
-       (SUNMatrixGetID(A) != SUNMATRIX_CSR) )
-    return 1;
 
   /* Perform operation */
   for (i=0; i<(SM_INDEXPTRS_S(A))[SM_NP_S(A)]; i++)
@@ -438,7 +456,7 @@ int SUNMatrixScale_Sparse(realtype c, SUNMatrix A)
   return 0;
 }
 
-int SUNMatrixCopy_Sparse(SUNMatrix B, SUNMatrix A)
+int SUNMatCopy_Sparse(SUNMatrix B, SUNMatrix A)
 {
   long int i, A_nz;
 
@@ -458,7 +476,7 @@ int SUNMatrixCopy_Sparse(SUNMatrix B, SUNMatrix A)
   }
 
   /* zero out B so that copy works correctly */
-  SUNMatrixZero_Sparse(B);
+  SUNMatZero_Sparse(B);
 
   /* copy the data and row indices over */
   for (i=0; i<A_nz; i++){
@@ -475,7 +493,7 @@ int SUNMatrixCopy_Sparse(SUNMatrix B, SUNMatrix A)
   return 0;
 }
 
-int SUNMatrixAddIdentity_Sparse(SUNMatrix A)
+int SUNMatAddIdentity_Sparse(SUNMatrix A)
 {
   long int j, i, p, nz;
   booleantype newmat, found;
@@ -484,11 +502,6 @@ int SUNMatrixAddIdentity_Sparse(SUNMatrix A)
   SUNMatrix C;
   long int M;
   long int N;
-
-  /* Verify that A is a sparse matrix */
-  if ( (SUNMatrixGetID(A) != SUNMATRIX_CSC) &&
-       (SUNMatrixGetID(A) != SUNMATRIX_CSR) )
-    return 1;
 
   /* Perform operation */
 
@@ -539,10 +552,10 @@ int SUNMatrixAddIdentity_Sparse(SUNMatrix A)
     x = (realtype *) malloc(SM_ROWS_S(A) * sizeof(realtype));
 
     /* create new matrix for sum (overestimate nnz as sum of each) */
-    C = SUNMatrixNew_Sparse(SM_ROWS_S(A), SM_COLUMNS_S(A),
-                            (SM_INDEXPTRS_S(A))[SM_NP_S(A)]
-                            + SUNMIN(SM_ROWS_S(A), SM_COLUMNS_S(A)),
-                            SM_SPARSETYPE_S(A));
+    C = SUNSparseMatrix(SM_ROWS_S(A), SM_COLUMNS_S(A),
+                        (SM_INDEXPTRS_S(A))[SM_NP_S(A)]
+                        + SUNMIN(SM_ROWS_S(A), SM_COLUMNS_S(A)),
+                        SM_SPARSETYPE_S(A));
 
     /* access data from CSR structures (return if failure) */
     Cp = Ci = Ap = Ai = NULL;
@@ -618,18 +631,18 @@ int SUNMatrixAddIdentity_Sparse(SUNMatrix A)
     SM_INDEXPTRS_S(C) = NULL;
 
     /* clean up */
-    SUNMatrixDestroy_Sparse(C); 
+    SUNMatDestroy_Sparse(C); 
     free(w);
     free(x);
 
     /* reallocate the new matrix to remove extra space */
-    SparseReallocMat(A);
+    SUNSparseMatrix_Realloc(A);
   }
   return 0;
 
 }
 
-int SUNMatrixAdd_Sparse(SUNMatrix A, SUNMatrix B)
+int SUNMatAdd_Sparse(SUNMatrix A, SUNMatrix B)
 {
   long int j, i, p, nz;
   booleantype newmat;
@@ -709,8 +722,8 @@ int SUNMatrixAdd_Sparse(SUNMatrix A, SUNMatrix B)
   } else {
 
     /* create new matrix for sum (overestimate nnz as sum of each) */
-    C = SUNMatrixNew_Sparse(M, N, (SM_INDEXPTRS_S(A))[N]+(SM_INDEXPTRS_S(B))[N],
-                            SM_SPARSETYPE_S(A));
+    C = SUNSparseMatrix(M, N, (SM_INDEXPTRS_S(A))[N]+(SM_INDEXPTRS_S(B))[N],
+                        SM_SPARSETYPE_S(A));
 
     /* access data from CSR structures (return if failure) */
     Cp = Ci = Ap = Ai = Bp = Bi = NULL;
@@ -789,10 +802,10 @@ int SUNMatrixAdd_Sparse(SUNMatrix A, SUNMatrix B)
     SM_INDEXPTRS_S(C) = NULL;
 
     /* clean up */
-    SUNMatrixDestroy_Sparse(C); 
+    SUNMatDestroy_Sparse(C); 
 
     /* reallocate the new matrix to remove extra space */
-    SparseReallocMat(A);
+    SUNSparseMatrix_Realloc(A);
 
   }
 
@@ -805,7 +818,7 @@ int SUNMatrixAdd_Sparse(SUNMatrix A, SUNMatrix B)
 
 }
 
-int SUNMatrixMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y)
+int SUNMatMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y)
 {
   /* Verify that A, x and y are compatible */
   if (!SMCompatible2_Sparse(A, x, y))
@@ -832,17 +845,17 @@ int SUNMatrixMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y)
 static booleantype SMCompatible_Sparse(SUNMatrix A, SUNMatrix B)
 {
   /* both matrices must be sparse */
-  if ( (SUNMatrixGetID(A) != SUNMATRIX_CSC) &&
-       (SUNMatrixGetID(A) != SUNMATRIX_CSR) )
+  if ( (SUNMatGetID(A) != SUNMATRIX_CSC) &&
+       (SUNMatGetID(A) != SUNMATRIX_CSR) )
     return FALSE;
-  if ( (SUNMatrixGetID(B) != SUNMATRIX_CSC) &&
-       (SUNMatrixGetID(B) != SUNMATRIX_CSR) )
+  if ( (SUNMatGetID(B) != SUNMATRIX_CSC) &&
+       (SUNMatGetID(B) != SUNMATRIX_CSR) )
     return FALSE;
 
   /* both matrices must have the same shape and sparsity type */
-  if (SM_ROWS_S(A) != SM_ROWS_S(B))
+  if (SUNSparseMatrix_Rows(A) != SUNSparseMatrix_Rows(B))
     return FALSE;
-  if (SM_COLUMNS_S(A) != SM_COLUMNS_S(B))
+  if (SUNSparseMatrix_Columns(A) != SUNSparseMatrix_Columns(B))
     return FALSE;
   if (SM_SPARSETYPE_S(A) != SM_SPARSETYPE_S(B))
     return FALSE;
@@ -858,33 +871,29 @@ static booleantype SMCompatible_Sparse(SUNMatrix A, SUNMatrix B)
 
 static booleantype SMCompatible2_Sparse(SUNMatrix A, N_Vector x, N_Vector y)
 {
-  /* matrix must be sparse */
-  if ( (SUNMatrixGetID(A) != SUNMATRIX_CSC) &&
-       (SUNMatrixGetID(A) != SUNMATRIX_CSR) )
-    return FALSE;
 
   /* vectors must be one of {SERIAL, OPENMP, PTHREADS}, and 
      have compatible dimensions */ 
   if (N_VGetVectorID(x) == SUNDIALS_NVEC_SERIAL) {
-    if (NV_LENGTH_S(x) != SM_COLUMNS_S(A))
+    if (N_VGetLength_Serial(x) != SUNSparseMatrix_Columns(A))
       return FALSE;
   } else if (N_VGetVectorID(x) == SUNDIALS_NVEC_OPENMP) {
-    if (NV_LENGTH_OMP(x) != SM_COLUMNS_S(A))
+    if (N_VGetLength_OpenMP(x) != SUNSparseMatrix_Columns(A))
       return FALSE;
   } else if (N_VGetVectorID(x) == SUNDIALS_NVEC_PTHREADS) {
-    if (NV_LENGTH_PT(x) != SM_COLUMNS_S(A))
+    if (N_VGetLength_Pthreads(x) != SUNSparseMatrix_Columns(A))
       return FALSE;
   } else {   /* incompatible type */
     return FALSE;
   }
   if (N_VGetVectorID(y) == SUNDIALS_NVEC_SERIAL) {
-    if (NV_LENGTH_S(y) != SM_ROWS_S(A))
+    if (N_VGetLength_Serial(y) != SUNSparseMatrix_Rows(A))
       return FALSE;
   } else if (N_VGetVectorID(y) == SUNDIALS_NVEC_OPENMP) {
-    if (NV_LENGTH_OMP(y) != SM_ROWS_S(A))
+    if (N_VGetLength_OpenMP(y) != SUNSparseMatrix_Rows(A))
       return FALSE;
   } else if (N_VGetVectorID(y) == SUNDIALS_NVEC_PTHREADS) {
-    if (NV_LENGTH_PT(y) != SM_ROWS_S(A))
+    if (N_VGetLength_Pthreads(y) != SUNSparseMatrix_Rows(A))
       return FALSE;
   } else {   /* incompatible type */
     return FALSE;

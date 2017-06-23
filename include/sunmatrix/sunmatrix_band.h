@@ -28,7 +28,7 @@
  * references to the underlying data structure.
  *
  * Part III contains the prototype for the constructor 
- * SUNMatrixNew_Band as well as implementation-specific prototypes 
+ * SUNBandMatrix as well as implementation-specific prototypes 
  * for various useful matrix operations.
  *
  * Notes:
@@ -104,16 +104,16 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
 /*
  * -----------------------------------------------------------------
  * PART II: macros SM_CONTENT_B, SM_DATA_B, SM_ROWS_B, SM_COLUMNS_B, 
- *          SM_UBAND_B, SM_LBAND_B, SM_SUBAND_B, SM_COLUMN_B, 
- *          SM_COLUMN_ELEMENT_B, and SM_ELEMENT_B
+ *          SM_UBAND_B, SM_LBAND_B, SM_SUBAND_B, SM_COLS_B, 
+ *          SM_COLUMN_B, SM_COLUMN_ELEMENT_B, and SM_ELEMENT_B
  * -----------------------------------------------------------------
  * In the descriptions below, the following user declarations
  * are assumed:
  *
  * SUNMatrix A;
  * SUNMatrixContent_Band A_cont;
- * realtype *A_col_j, *A_data, A_ij;
- * long int i, j, A_rows, A_cols, A_ldata;
+ * realtype *A_col_j, *A_data, **A_cols, A_ij;
+ * long int i, j, A_rows, A_columns, A_ldata;
  *
  * (1) SM_CONTENT_B
  *
@@ -132,11 +132,14 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
  *     The assignment A_data = SM_DATA_B(A) sets A_data to be
  *     a pointer to the first component of A. 
  *
+ *     The assignment A_cols = SM_COLS_B(A) sets A_cols to be
+ *     a pointer to the content's 'cols' entry
+ *
  *     The assignment A_rows = SM_ROWS_B(A) sets A_rows to be
  *     the number of rows in A.
  *
- *     The assignment A_cols = SM_COLUMNS_B(A) sets A_cols to be
- *     the number of columns in A.
+ *     The assignment A_columns = SM_COLUMNS_B(A) sets A_columns 
+ *     to be the number of columns in A.
  *
  *     The assignment A_ldata = SM_LDATA_B(A) sets A_ldata to be
  *     the length of the data array for A.
@@ -197,6 +200,8 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
 
 #define SM_DATA_B(A)        ( SM_CONTENT_B(A)->data )
 
+#define SM_COLS_B(A)        ( SM_CONTENT_B(A)->cols )
+
 #define SM_COLUMN_B(A,j)    ( ((SM_CONTENT_B(A)->cols)[j])+SM_SUBAND_B(A) )
 
 #define SM_COLUMN_ELEMENT_B(col_j,i,j) (col_j[(i)-(j)])
@@ -209,27 +214,26 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
  * PART III: functions exported by sunmatrix_band
  * 
  * CONSTRUCTORS:
- *    SUNMatrixNew_Band
- * DESTRUCTORS:
- *    SUNMatrixDestroy_Band
+ *    SUNBandMatrix
  * OTHER:
- *    SUNMatrixPrint_Band
- *    SUNMatrixBand_Rows
- *    SUNMatrixBand_Columns
- *    SUNMatrixBand_LowerBandwidth
- *    SUNMatrixBand_UpperBandwidth
- *    SUNMatrixBand_StoredUpperBandwidth
- *    SUNMatrixBand_Data
- *    SUNMatrixBand_Column
+ *    SUNBandMatrix_Print
+ *    SUNBandMatrix_Rows
+ *    SUNBandMatrix_Columns
+ *    SUNBandMatrix_LowerBandwidth
+ *    SUNBandMatrix_UpperBandwidth
+ *    SUNBandMatrix_StoredUpperBandwidth
+ *    SUNBandMatrix_Data
+ *    SUNBandMatrix_Cols
+ *    SUNBandMatrix_Column
  * -----------------------------------------------------------------
  */
 
 
 /*
  * -----------------------------------------------------------------
- * Function: SUNMatrixNew_Band
+ * Function: SUNBandMatrix
  * -----------------------------------------------------------------
- * SUNMatrixNew_Band creates and allocates memory for an M-by-N 
+ * SUNBandMatrix creates and allocates memory for an M-by-N 
  * band matrix with upper bandwidth mu, lower bandwidth ml, and 
  * storage upper bandwidth smu. Pass smu as follows depending on 
  * whether A will be LU factored:
@@ -240,12 +244,12 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SUNMatrix SUNMatrixNew_Band(long int N, long int mu,
-                                            long int ml, long int smu);
+SUNDIALS_EXPORT SUNMatrix SUNBandMatrix(long int N, long int mu,
+                                        long int ml, long int smu);
 
 /*
  * -----------------------------------------------------------------
- * Functions: SUNMatrixPrint_Band
+ * Functions: SUNBandMatrix_Print
  * -----------------------------------------------------------------
  * This function prints the content of a M-by-N band matrix A to
  * a file pointer as it would normally appear on paper.
@@ -255,45 +259,49 @@ SUNDIALS_EXPORT SUNMatrix SUNMatrixNew_Band(long int N, long int mu,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void SUNMatrixPrint_Band(SUNMatrix A, FILE* outfile);
+SUNDIALS_EXPORT void SUNBandMatrix_Print(SUNMatrix A, FILE* outfile);
 
 
 /*
  * -----------------------------------------------------------------
  * Accessor Functions: 
  *
- * SUNMatrixBand_Rows
+ * SUNBandMatrix_Rows
  *    Returns the number of rows in the banded matrix
  *
- * SUNMatrixBand_Columns
+ * SUNBandMatrix_Columns
  *    Returns the number of columns in the banded matrix
  *
- * SUNMatrixBand_LowerBandwidth
+ * SUNBandMatrix_LowerBandwidth
  *    Returns the number of lower bands in the banded matrix
  *
- * SUNMatrixBand_UpperBandwidth
+ * SUNBandMatrix_UpperBandwidth
  *    Returns the number of upper bands in the banded matrix
  *
- * SUNMatrixBand_StoredUpperBandwidth
+ * SUNBandMatrix_StoredUpperBandwidth
  *    Returns the number of stored upper bands in the banded matrix
  *
- * SUNMatrixBand_Data
+ * SUNBandMatrix_Data
  *    Returns a pointer to the data array for the sparse matrix
  *
- * SUNMatrixBand_Column
+ * SUNBandMatrix_Cols
+ *    Returns a pointer to the cols array for the sparse matrix
+ *
+ * SUNBandMatrix_Column
  *    Returns a pointer to the diagonal entry of jth column of the
  *    banded matrix.  The resulting pointer should be indexed over 
  *    the range -mu to ml.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT long int SUNMatrixBand_Rows(SUNMatrix A);
-SUNDIALS_EXPORT long int SUNMatrixBand_Columns(SUNMatrix A);
-SUNDIALS_EXPORT long int SUNMatrixBand_LowerBandwidth(SUNMatrix A);
-SUNDIALS_EXPORT long int SUNMatrixBand_UpperBandwidth(SUNMatrix A);
-SUNDIALS_EXPORT long int SUNMatrixBand_StoredUpperBandwidth(SUNMatrix A);
-SUNDIALS_EXPORT realtype* SUNMatrixBand_Data(SUNMatrix A);
-SUNDIALS_EXPORT realtype* SUNMatrixBand_Column(SUNMatrix A, long int j);
+SUNDIALS_EXPORT long int SUNBandMatrix_Rows(SUNMatrix A);
+SUNDIALS_EXPORT long int SUNBandMatrix_Columns(SUNMatrix A);
+SUNDIALS_EXPORT long int SUNBandMatrix_LowerBandwidth(SUNMatrix A);
+SUNDIALS_EXPORT long int SUNBandMatrix_UpperBandwidth(SUNMatrix A);
+SUNDIALS_EXPORT long int SUNBandMatrix_StoredUpperBandwidth(SUNMatrix A);
+SUNDIALS_EXPORT realtype* SUNBandMatrix_Data(SUNMatrix A);
+SUNDIALS_EXPORT realtype** SUNBandMatrix_Cols(SUNMatrix A);
+SUNDIALS_EXPORT realtype* SUNBandMatrix_Column(SUNMatrix A, long int j);
 
 /*
  * -----------------------------------------------------------------
@@ -301,15 +309,15 @@ SUNDIALS_EXPORT realtype* SUNMatrixBand_Column(SUNMatrix A, long int j);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SUNMatrix_ID SUNMatrixGetID_Band(SUNMatrix A);
-SUNDIALS_EXPORT SUNMatrix SUNMatrixClone_Band(SUNMatrix A);
-SUNDIALS_EXPORT void SUNMatrixDestroy_Band(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatrixZero_Band(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatrixScale_Band(realtype c, SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatrixCopy_Band(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatrixAddIdentity_Band(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatrixAdd_Band(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatrixMatvec_Band(SUNMatrix A, N_Vector x, N_Vector y);
+SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID_Band(SUNMatrix A);
+SUNDIALS_EXPORT SUNMatrix SUNMatClone_Band(SUNMatrix A);
+SUNDIALS_EXPORT void SUNMatDestroy_Band(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatZero_Band(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatScale_Band(realtype c, SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatCopy_Band(SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT int SUNMatAddIdentity_Band(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatAdd_Band(SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT int SUNMatMatvec_Band(SUNMatrix A, N_Vector x, N_Vector y);
   
 #ifdef __cplusplus
 }

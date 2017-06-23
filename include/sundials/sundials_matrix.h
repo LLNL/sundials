@@ -112,37 +112,37 @@ struct _generic_SUNMatrix {
  * -----------------------------------------------------------------
  * III. Functions exported by SUNMatrix module
  *
- * SUNMatrixGetID
+ * SUNMatGetID
  *   Returns an identifier for the matrix type from the enumeration 
  *   SUNMatrix_ID.  This will be queried by a given linear solver to 
  *   assess compatibility.
  *
- * SUNMatrixClone
+ * SUNMatClone
  *   Creates a new matrix of the same type as an existing matrix.
  *   It does not copy the matrix, but rather allocates storage for
  *   the new matrix.
  *
- * SUNMatrixDestroy
- *   Destroys a matrix created with SUNMatrixClone.
+ * SUNMatDestroy
+ *   Destroys a matrix created with SUNMatClone.
  *
- * SUNMatrixZero
+ * SUNMatZero
  *   Sets all matrix entries to zero
  *
- * SUNMatrixScale
+ * SUNMatScale
  *   Performs the operation A = c*A
  *
- * SUNMatrixCopy
+ * SUNMatCopy
  *   Performs the operation A = B.  Returns an error if A and B have 
  *   different types and/or dimensions.
  *
- * SUNMatrixAddIdentity
+ * SUNMatAddIdentity
  *   Performs the operation A = A+I
  *
- * SUNMatrixAdd
+ * SUNMatAdd
  *   Performs the A = A + B.  Returns an error if A and B have 
  *   different types and/or dimensions.
  *
- * SUNMatrixMatvec
+ * SUNMatMatvec
  *   Performs the matrix-vector product y = A*x.  Returns an error if 
  *   A, x and/or y have incompatible types and/or dimensions.
  *
@@ -177,15 +177,15 @@ struct _generic_SUNMatrix {
  * -----------------------------------------------------------------
  */
   
-SUNDIALS_EXPORT SUNMatrix_ID SUNMatrixGetID(SUNMatrix A);
-SUNDIALS_EXPORT SUNMatrix SUNMatrixClone(SUNMatrix A);
-SUNDIALS_EXPORT void SUNMatrixDestroy(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatrixZero(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatrixScale(realtype c, SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatrixCopy(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatrixAddIdentity(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatrixAdd(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatrixMatvec(SUNMatrix A, N_Vector x, N_Vector y);
+SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID(SUNMatrix A);
+SUNDIALS_EXPORT SUNMatrix SUNMatClone(SUNMatrix A);
+SUNDIALS_EXPORT void SUNMatDestroy(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatZero(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatScale(realtype c, SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatCopy(SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT int SUNMatAddIdentity(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatAdd(SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y);
  
 #ifdef __cplusplus
 }

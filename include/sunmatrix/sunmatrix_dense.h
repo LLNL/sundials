@@ -28,7 +28,7 @@
  * references to the underlying data structure.
  *
  * Part III contains the prototype for the constructor 
- * SUNMatrixNew_Dense as well as implementation-specific prototypes 
+ * SUNDenseMatrix as well as implementation-specific prototypes 
  * for various useful matrix operations.
  *
  * Notes:
@@ -166,32 +166,29 @@ typedef struct _SUNMatrixContent_Dense *SUNMatrixContent_Dense;
  * PART III: functions exported by sunmatrix_dense
  * 
  * CONSTRUCTORS:
- *    SUNMatrixNew_Dense
- * DESTRUCTORS:
- *    SUNMatrixDestroy_Dense
+ *    SUNDenseMatrix
  * OTHER:
- *    SUNMatrixPrint_Dense
- *    SUNMatrixDense_Rows
- *    SUNMatrixDense_LData
- *    SUNMatrixDense_Data 
- *    SUNMatrixDense_Column
+ *    SUNDenseMatrix_Print
+ *    SUNDenseMatrix_Rows
+ *    SUNDenseMatrix_LData
+ *    SUNDenseMatrix_Data 
+ *    SUNDenseMatrix_Column
  * -----------------------------------------------------------------
  */
 
 /*
  * -----------------------------------------------------------------
- * Function: SUNMatrixNew_Dense
+ * Function: SUNDenseMatrix
  * -----------------------------------------------------------------
- * SUNMatrixNew_Dense creates and allocates memory for an M-by-N 
- * dense SUNMatrix.
+ * Creates and allocates memory for an M-by-N dense SUNMatrix.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SUNMatrix SUNMatrixNew_Dense(long int M, long int N);
+SUNDIALS_EXPORT SUNMatrix SUNDenseMatrix(long int M, long int N);
 
 /*
  * -----------------------------------------------------------------
- * Functions: SUNMatrixPrint_Dense
+ * Functions: SUNDenseMatrix_Print
  * -----------------------------------------------------------------
  * This function prints the content of a M-by-N dense matrix A to
  * file pointer as it would normally appear on paper.
@@ -201,36 +198,36 @@ SUNDIALS_EXPORT SUNMatrix SUNMatrixNew_Dense(long int M, long int N);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void SUNMatrixPrint_Dense(SUNMatrix A, FILE* outfile);
+SUNDIALS_EXPORT void SUNDenseMatrix_Print(SUNMatrix A, FILE* outfile);
 
 
 /*
  * -----------------------------------------------------------------
  * Accessor Functions: 
  *
- * SUNMatrixDense_Rows 
+ * SUNDenseMatrix_Rows 
  *    Returns the number of rows in the dense matrix
  *
- * SUNMatrixDense_Columns
+ * SUNDenseMatrix_Columns
  *    Returns the number of columns in the dense matrix
  *
- * SUNMatrixDense_LData
+ * SUNDenseMatrix_LData
  *    Returns the total allocated data length for the dense matrix
  *
- * SUNMatrixDense_Data
+ * SUNDenseMatrix_Data
  *    Returns a pointer to the data array for the dense matrix
  *
- * SUNMatrixDense_Column
+ * SUNDenseMatrix_Column
  *    Returns a pointer to the jth column of the dense matrix
  *
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT long int SUNMatrixDense_Rows(SUNMatrix A);
-SUNDIALS_EXPORT long int SUNMatrixDense_Columns(SUNMatrix A);
-SUNDIALS_EXPORT long int SUNMatrixDense_LData(SUNMatrix A);
-SUNDIALS_EXPORT realtype* SUNMatrixDense_Data(SUNMatrix A);
-SUNDIALS_EXPORT realtype* SUNMatrixDense_Column(SUNMatrix A, long int j);
+SUNDIALS_EXPORT long int SUNDenseMatrix_Rows(SUNMatrix A);
+SUNDIALS_EXPORT long int SUNDenseMatrix_Columns(SUNMatrix A);
+SUNDIALS_EXPORT long int SUNDenseMatrix_LData(SUNMatrix A);
+SUNDIALS_EXPORT realtype* SUNDenseMatrix_Data(SUNMatrix A);
+SUNDIALS_EXPORT realtype* SUNDenseMatrix_Column(SUNMatrix A, long int j);
 
 /*
  * -----------------------------------------------------------------
@@ -238,15 +235,15 @@ SUNDIALS_EXPORT realtype* SUNMatrixDense_Column(SUNMatrix A, long int j);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SUNMatrix_ID SUNMatrixGetID_Dense(SUNMatrix A);
-SUNDIALS_EXPORT SUNMatrix SUNMatrixClone_Dense(SUNMatrix A);
-SUNDIALS_EXPORT void SUNMatrixDestroy_Dense(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatrixZero_Dense(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatrixScale_Dense(realtype c, SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatrixCopy_Dense(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatrixAddIdentity_Dense(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatrixAdd_Dense(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatrixMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y);
+SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID_Dense(SUNMatrix A);
+SUNDIALS_EXPORT SUNMatrix SUNMatClone_Dense(SUNMatrix A);
+SUNDIALS_EXPORT void SUNMatDestroy_Dense(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatZero_Dense(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatScale_Dense(realtype c, SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatCopy_Dense(SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT int SUNMatAddIdentity_Dense(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatAdd_Dense(SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT int SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y);
 
   
 #ifdef __cplusplus
