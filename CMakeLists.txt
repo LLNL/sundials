@@ -864,6 +864,7 @@ ADD_SUBDIRECTORY(src/nvec_ser)
 ADD_SUBDIRECTORY(src/sunmat_dense)
 ADD_SUBDIRECTORY(src/sunmat_band)
 ADD_SUBDIRECTORY(src/sunmat_sparse)
+ADD_SUBDIRECTORY(src/sunlinsol_band)
 IF(MPIC_FOUND)
   ADD_SUBDIRECTORY(src/nvec_par)
 ENDIF(MPIC_FOUND)
@@ -1179,6 +1180,10 @@ IF(EXAMPLES_ENABLE)
   # ADD_SUBDIRECTORY(examples/sunmatrix/dense)
   # ADD_SUBDIRECTORY(examples/sunmatrix/band)
   # ADD_SUBDIRECTORY(examples/sunmatrix/sparse)
+
+  # # Always add the sunlinearsolver dense/band examples
+  # ADD_SUBDIRECTORY(examples/sunlinsol/dense)
+  # ADD_SUBDIRECTORY(examples/sunlinsol/band)
 
   IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/nvector/parallel)
