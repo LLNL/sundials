@@ -32,49 +32,54 @@
  * -----------------------------------------------------------------
  */
 
-SUNLinearSolver_Type SUNLinearSolverGetType(SUNLinearSolver S)
+SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver S)
 {
   SUNLinearSolver_Type type;
   type = A->ops->gettype(S);
   return(type);
 }
 
-int SUNLinearSolverSetAtimes(SUNLinearSolver S, void* A_data,
-                             AtimesFn At)
+int SUNLinSolSetATimes(SUNLinearSolver S, void* A_data,
+                       ATimesFn At)
 {
   return ((int) S->ops->setatimes(S, A_data, At));
 }
 
   
-int SUNLinearSolverSetPreconditioner(SUNLinearSolver S, void* P_data,
-                                     PSetupFn Pset, PSolveFn Psol)
+int SUNLinSolSetPreconditioner(SUNLinearSolver S, void* P_data,
+                               PSetupFn Pset, PSolveFn Psol)
 {
   return ((int) S->ops->setpreconditioner(S, P_data, Pset, Psol));
 }
   
-int SUNLinearSolverInitialize(SUNLinearSolver S)
+int SUNLinSolInitialize(SUNLinearSolver S)
 {
   return ((int) S->ops->initialize(S));
 }
   
-int SUNLinearSolverSetup(SUNLinearSolver S, SUNMatrix A, N_Vector tmp1,
-                         N_Vector tmp2, N_Vector tmp3)
+int SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A, N_Vector tmp1,
+                   N_Vector tmp2, N_Vector tmp3)
 {
   return ((int) S->ops->setup(S, A, tmp1, tmp2, tmp3));
 }
 
-int SUNLinearSolverSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                         N_Vector b, N_Vector w, realtype tol)
+int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                   N_Vector b, N_Vector w, realtype tol)
 {
   return ((int) S->ops->solve(S, A, x, b, w, tol));
 }
   
-int SUNLinearSolverPerformance(SUNLinearSolver S, int perftask)
+int SUNLinSolPerformance(SUNLinearSolver S, int perftask)
 {
   return ((int) S->ops->performance(S, perftask));
 }
 
-int SUNLinearSolverFree(SUNLinearSolver S)
+long int SUNLinSolLastFlag(SUNLinearSolver S)
+{
+  return ((long int) S->ops->lastflag(S));
+}
+
+int SUNLinSolFree(SUNLinearSolver S)
 {
   if (S==NULL) return 0;
   S->ops->free(S);

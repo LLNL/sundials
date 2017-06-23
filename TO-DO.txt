@@ -13,8 +13,23 @@
    SUNLinSol_KLU and SUNLinSol_SuperLUMT objects (in files
    sunlinsol_dense.[h,c], sunlinsol_band.[h,c],
    sunlinsol_klu.[h,c] and sunlinsol_superlumt.[h,c] in the
-   include/sundials and src/sundials folders).  Create testing
+   include/sundials and src/sunlinsol_* folders).  Create testing
    routines similar to NVector test routines.
+
+   Note: what to do about solver-specific counters?  For iterative
+   solvers these should be contained *inside* the iterative linear
+   solver.  However, for dense/band linear solvers we have the
+   counters: 
+      nje: # of calls to the user Jacobian routine
+      nfeDQ: # of calls to the user RHS for difference-quotient
+        Jacobian approximation
+      nstlj: time step at last call to Jacobian construction routine
+   these all *should* be stored inside the integrator memory
+   structure.  The first two of these are implemented by the DQ
+   Jacobian construction routine, and the third is a
+   time-step-specific *signal* on when to update the Jacobian.
+   However, how/when do we initialize/re-initialize these?  All should
+   be reset whenever the integrator is initialized/re-initialized.
 
 
 4. Determine mathematically "optimal" scaling vector to use for
