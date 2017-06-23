@@ -33,53 +33,53 @@
  * -----------------------------------------------------------------
  */
 
-SUNMatrix_ID SUNMatrixGetID(SUNMatrix A)
+SUNMatrix_ID SUNMatGetID(SUNMatrix A)
 {
   SUNMatrix_ID id;
   id = A->ops->getid(A);
   return(id);
 }
 
-SUNMatrix SUNMatrixClone(SUNMatrix A)
+SUNMatrix SUNMatClone(SUNMatrix A)
 {
   SUNMatrix B = NULL;
   B = A->ops->clone(A);
   return(B);
 }
 
-void SUNMatrixDestroy(SUNMatrix A)
+void SUNMatDestroy(SUNMatrix A)
 {
   if (A==NULL) return;
   A->ops->destroy(A);
   return;
 }
 
-int SUNMatrixZero(SUNMatrix A)
+int SUNMatZero(SUNMatrix A)
 {
   return((int) A->ops->zero(A));
 }
 
-int SUNMatrixScale(realtype c, SUNMatrix A)
+int SUNMatScale(realtype c, SUNMatrix A)
 {
   return((int) A->ops->scale(c, A));
 }
 
-int SUNMatrixCopy(SUNMatrix A, SUNMatrix B)
+int SUNMatCopy(SUNMatrix A, SUNMatrix B)
 {
   return((int) A->ops->copy(A, B));
 }
 
-int SUNMatrixAddIdentity(SUNMatrix A)
+int SUNMatAddIdentity(SUNMatrix A)
 {
   return((int) A->ops->addidentity(A));
 }
 
-int SUNMatrixAdd(SUNMatrix A, SUNMatrix B)
+int SUNMatAdd(SUNMatrix A, SUNMatrix B)
 {
   return((int) A->ops->add(A,B));
 }
 
-int SUNMatrixMatvec(SUNMatrix A, N_Vector x, N_Vector y)
+int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)
 {
   return((int) A->ops->matvec(A,x,y));
 }

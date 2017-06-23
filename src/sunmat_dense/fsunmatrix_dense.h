@@ -34,9 +34,9 @@ extern "C" {
 #endif
 
 #if defined(SUNDIALS_F77_FUNC)
-#define FSUNMATRIX_INITD   SUNDIALS_F77_FUNC(fsunmatrixinitd, FSUNMATRIXINITD)
+#define FSUNDENSEMAT_INIT   SUNDIALS_F77_FUNC(fsundensematinit, FSUNDENSEMATINIT)
 #else
-#define FSUNMATRIX_INITD   fsunmatrixinitd_
+#define FSUNDENSEMAT_INIT   fsundensematinit_
 #endif
 
 
@@ -50,10 +50,10 @@ extern SUNMatrix F2C_ARKODE_matrix;
 /* 
  * Prototypes of exported functions 
  *
- * FSUNMATRIX_INITD - initializes dense matrix operations for main problem
+ * FSUNDENSEMAT_INIT - initializes dense matrix operations for main problem
  */
 
-void FSUNMATRIX_INITD(int *code, long int *M, long int *N, int *ier);
+void FSUNDENSEMAT_INIT(int *code, long int *M, long int *N, int *ier);
 
 #ifdef __cplusplus
 }

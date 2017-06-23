@@ -37,7 +37,7 @@ SUNMatrix F2C_ARKODE_matrix;
 
 /* Fortran callable interfaces */
 
-void FSUNMATRIX_INITD(int *code, long int *N, long int *mu, long int *ml,
+void FSUNBANDMAT_INIT(int *code, long int *N, long int *mu, long int *ml,
                       long int *smu, int *ier)
 {
   *ier = 0;
@@ -45,22 +45,22 @@ void FSUNMATRIX_INITD(int *code, long int *N, long int *mu, long int *ml,
   switch(*code) {
   case FCMIX_CVODE:
     F2C_CVODE_matrix = NULL;
-    F2C_CVODE_matrix = SUNMatrixNew_Band(*N, *mu, *ml, *smu);
+    F2C_CVODE_matrix = SUNBandMatrix(*N, *mu, *ml, *smu);
     if (F2C_CVODE_matrix == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
     F2C_IDA_matrix = NULL;
-    F2C_IDA_matrix = SUNMatrixNew_Band(*N, *mu, *ml, *smu);
+    F2C_IDA_matrix = SUNBandMatrix(*N, *mu, *ml, *smu);
     if (F2C_IDA_matrix == NULL) *ier = -1;
     break;
   case FCMIX_KINSOL:
     F2C_KINSOL_matrix = NULL;
-    F2C_KINSOL_matrix = SUNMatrixNew_Band(*N, *mu, *ml, *smu);
+    F2C_KINSOL_matrix = SUNBandMatrix(*N, *mu, *ml, *smu);
     if (F2C_KINSOL_matrix == NULL) *ier = -1;
     break;
   case FCMIX_ARKODE:
     F2C_ARKODE_matrix = NULL;
-    F2C_ARKODE_matrix = SUNMatrixNew_Band(*N, *mu, *ml, *smu);
+    F2C_ARKODE_matrix = SUNBandMatrix(*N, *mu, *ml, *smu);
     if (F2C_ARKODE_matrix == NULL) *ier = -1;
     break;
   default:

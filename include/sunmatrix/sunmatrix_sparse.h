@@ -190,29 +190,27 @@ typedef struct _SUNMatrixContent_Sparse *SUNMatrixContent_Sparse;
  * PART III: functions exported by sunmatrix_sparse
  * 
  * CONSTRUCTORS:
- *    SUNMatrixNew_Sparse
- *    SUNMatrix_DenseToSparse
- * DESTRUCTORS:
- *    SUNMatrixDestroy_Sparse
+ *    SUNSparseMatrix
+ *    SUNSparseFromDenseMatrix
  * OTHER:
- *    SUNMatrixPrint_Sparse
- *    SparseReallocMat
- *    SUNMatrixSparse_Rows
- *    SUNMatrixSparse_Columns 
- *    SUNMatrixSparse_NNZ
- *    SUNMatrixSparse_Data 
- *    SUNMatrixSparse_IndexValues
- *    SUNMatrixSparse_IndexPointers
+ *    SUNSparseMatrix_Print
+ *    SUNSparseMatrix_Realloc
+ *    SUNSparseMatrix_Rows
+ *    SUNSparseMatrix_Columns 
+ *    SUNSparseMatrix_NNZ
+ *    SUNSparseMatrix_Data 
+ *    SUNSparseMatrix_IndexValues
+ *    SUNSparseMatrix_IndexPointers
 
  * -----------------------------------------------------------------
  */
 
 /*
  * -----------------------------------------------------------------
- * Function: SUNMatrixNew_Sparse
+ * Function: SUNSparseMatrix
  * -----------------------------------------------------------------
- * SUNMatrixNew_Sparse creates and allocates memory for an M-by-N 
- * sparse SUNMatrix of type sparsetype.
+ * Creates and allocates memory for an M-by-N sparse SUNMatrix of 
+ * type sparsetype.
  * Requirements: M and N must be strictly positive; NNZ must be 
  * non-negative; sparsetype must be either CSC_MAT or CSR_MAT;
  * Returns NULL if any requirements are violated, or if the matrix 
@@ -220,16 +218,16 @@ typedef struct _SUNMatrixContent_Sparse *SUNMatrixContent_Sparse;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SUNMatrix SUNMatrixNew_Sparse(long int M, long int N,
-                                              long int NNZ, int sparsetype);
+SUNDIALS_EXPORT SUNMatrix SUNSparseMatrix(long int M, long int N,
+                                          long int NNZ, int sparsetype);
 
 /*
  * -----------------------------------------------------------------
- * Function: SUNMatrix_DenseToSparse
+ * Function: SUNSparseFromDenseMatrix
  * -----------------------------------------------------------------
- * SUNMatrix_DenseToSparse creates a new sparse matrix from an 
- * existing dense or band matrix by copying all values with 
- * magnitude larger than droptol into the sparse matrix structure.  
+ * Creates a new sparse matrix from an existing dense or band matrix 
+ * by copying all values with magnitude larger than droptol into the 
+ * sparse matrix structure.  
  * Requirements: A must have type SUNMATRIX_DENSE or SUNMATRIX_BAND; 
  * droptol must be non-negative; sparsetype must be either 
  * CSC_MAT or CSR_MAT.
@@ -238,13 +236,13 @@ SUNDIALS_EXPORT SUNMatrix SUNMatrixNew_Sparse(long int M, long int N,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SUNMatrix SUNMatrix_DenseToSparse(SUNMatrix A,
-                                                  realtype droptol,
-                                                  int sparsetype);
+SUNDIALS_EXPORT SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix A,
+                                                   realtype droptol,
+                                                   int sparsetype);
 
 /*
  * -----------------------------------------------------------------
- * Functions: SparseReallocMat
+ * Functions: SUNSparseMatrix_Realloc
  * -----------------------------------------------------------------
  * This function reallocates internal arrays so that the resulting 
  * sparse matrix holds colptrs[N] nonzeros.  Returns 0 on success and 
@@ -252,11 +250,11 @@ SUNDIALS_EXPORT SUNMatrix SUNMatrix_DenseToSparse(SUNMatrix A,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int SparseReallocMat(SUNMatrix A);
+SUNDIALS_EXPORT int SUNSparseMatrix_Realloc(SUNMatrix A);
 
 /*
  * -----------------------------------------------------------------
- * Functions: SUNMatrixPrint_Sparse
+ * Functions: SUNSparseMatrix_Print
  * -----------------------------------------------------------------
  * This function prints the sparse matrix information to a file 
  * pointer.  It is intended as a debugging tool with small values 
@@ -265,43 +263,43 @@ SUNDIALS_EXPORT int SparseReallocMat(SUNMatrix A);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void SUNMatrixPrint_Sparse(SUNMatrix A, FILE* outfile);
+SUNDIALS_EXPORT void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile);
 
 
 /*
  * -----------------------------------------------------------------
  * Accessor Functions: 
  *
- * SUNMatrixSparse_Rows 
+ * SUNSparseMatrix_Rows 
  *    Returns the number of rows in the sparse matrix
  *
- * SUNMatrixSparse_Columns
+ * SUNSparseMatrix_Columns
  *    Returns the number of columns in the sparse matrix
  *
- * SUNMatrixSparse_NNZ
+ * SUNSparseMatrix_NNZ
  *    Returns the allocated number of nonzeros in the sparse matrix
  *
- * SUNMatrixSparse_Data
+ * SUNSparseMatrix_Data
  *    Returns a pointer to the data array for the sparse matrix
  *
- * SUNMatrixSparse_IndexValues
+ * SUNSparseMatrix_IndexValues
  *    Returns a ptr to the index value array for the sparse matrix:
  *    for CSR this is the column index for each nonzero,
  *    for CSC this is the row index for each nonzero.
  *
- * SUNMatrixSparse_IndexPointers
+ * SUNSparseMatrix_IndexPointers
  *    Returns a ptr to the index pointer array for the sparse matrix:
  *    for CSR this is the location of the first entry of each row,
  *    for CSC this is the location of the first entry of each column.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT long int SUNMatrixSparse_Rows(SUNMatrix A);
-SUNDIALS_EXPORT long int SUNMatrixSparse_Columns(SUNMatrix A);
-SUNDIALS_EXPORT long int SUNMatrixSparse_NNZ(SUNMatrix A);
-SUNDIALS_EXPORT realtype* SUNMatrixSparse_Data(SUNMatrix A);
-SUNDIALS_EXPORT long int* SUNMatrixSparse_IndexValues(SUNMatrix A);
-SUNDIALS_EXPORT long int* SUNMatrixSparse_IndexPointers(SUNMatrix A);
+SUNDIALS_EXPORT long int SUNSparseMatrix_Rows(SUNMatrix A);
+SUNDIALS_EXPORT long int SUNSparseMatrix_Columns(SUNMatrix A);
+SUNDIALS_EXPORT long int SUNSparseMatrix_NNZ(SUNMatrix A);
+SUNDIALS_EXPORT realtype* SUNSparseMatrix_Data(SUNMatrix A);
+SUNDIALS_EXPORT long int* SUNSparseMatrix_IndexValues(SUNMatrix A);
+SUNDIALS_EXPORT long int* SUNSparseMatrix_IndexPointers(SUNMatrix A);
 
 /*
  * -----------------------------------------------------------------
@@ -309,15 +307,15 @@ SUNDIALS_EXPORT long int* SUNMatrixSparse_IndexPointers(SUNMatrix A);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SUNMatrix_ID SUNMatrixGetID_Sparse(SUNMatrix A);
-SUNDIALS_EXPORT SUNMatrix SUNMatrixClone_Sparse(SUNMatrix A);
-SUNDIALS_EXPORT void SUNMatrixDestroy_Sparse(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatrixZero_Sparse(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatrixScale_Sparse(realtype c, SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatrixCopy_Sparse(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatrixAddIdentity_Sparse(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatrixAdd_Sparse(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatrixMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y);
+SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID_Sparse(SUNMatrix A);
+SUNDIALS_EXPORT SUNMatrix SUNMatClone_Sparse(SUNMatrix A);
+SUNDIALS_EXPORT void SUNMatDestroy_Sparse(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatZero_Sparse(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatScale_Sparse(realtype c, SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatCopy_Sparse(SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT int SUNMatAddIdentity_Sparse(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatAdd_Sparse(SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT int SUNMatMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y);
 
 
 #ifdef __cplusplus

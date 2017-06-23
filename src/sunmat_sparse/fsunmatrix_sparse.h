@@ -34,9 +34,9 @@ extern "C" {
 #endif
 
 #if defined(SUNDIALS_F77_FUNC)
-#define FSUNMATRIX_INITS   SUNDIALS_F77_FUNC(fsunmatrixinits, FSUNMATRIXINITS)
+#define FSUNSPARSEMAT_INIT   SUNDIALS_F77_FUNC(fsunsparsematinit, FSUNSPARSEMATINIT)
 #else
-#define FSUNMATRIX_INITS   fsunmatrixinits_
+#define FSUNSPARSEMAT_INIT   fsunsparsematinit_
 #endif
 
 
@@ -50,11 +50,11 @@ extern SUNMatrix F2C_ARKODE_matrix;
 /* 
  * Prototypes of exported functions 
  *
- * FSUNMATRIX_INITS - initializes sparse matrix operations for main problem
+ * FSUNSPARSEMAT_INIT - initializes sparse matrix operations for main problem
  */
 
-void FSUNMATRIX_INITS(int *code, long int *M, long int *N,
-                      long int *NNZ, int *sparsetype, int *ier);
+void FSUNSPARSEMAT_INIT(int *code, long int *M, long int *N,
+                        long int *NNZ, int *sparsetype, int *ier);
 
 #ifdef __cplusplus
 }
