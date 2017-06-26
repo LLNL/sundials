@@ -72,10 +72,9 @@ SUNMatrix SUNBandMatrix(long int N, long int mu, long int ml, long int smu)
   ops->clone       = SUNMatClone_Band;
   ops->destroy     = SUNMatDestroy_Band;
   ops->zero        = SUNMatZero_Band;
-  ops->scale       = SUNMatScale_Band;
   ops->copy        = SUNMatCopy_Band;
-  ops->addidentity = SUNMatAddIdentity_Band;
-  ops->add         = SUNMatAdd_Band;
+  ops->scaleadd    = SUNMatScaleAdd_Band;
+  ops->scaleaddi   = SUNMatScaleAddI_Band;
   ops->matvec      = SUNMatMatvec_Band;
 
   /* Create content */
@@ -258,22 +257,6 @@ int SUNMatZero_Band(SUNMatrix A)
   return 0;
 }
 
-int SUNMatScale_Band(realtype c, SUNMatrix A)
-{
-  long int i;
-  realtype *Adata;
-
-  /* Verify that A is a band matrix */
-  if (SUNMatGetID(A) != SUNMATRIX_BAND)
-    return 1;
-
-  /* Perform operation */
-  Adata = SM_DATA_B(A);
-  for (i=0; i<SM_LDATA_B(A); i++)
-    Adata[i] *= c;
-  return 0;
-}
-
 int SUNMatCopy_BAND(SUNMatrix A, SUNMatrix B)
 {
   long int i, j, copysize;
@@ -294,21 +277,27 @@ int SUNMatCopy_BAND(SUNMatrix A, SUNMatrix B)
   return 0;
 }
 
-int SUNMatAddIdentity_Band(SUNMatrix A)
+int SUNMatScaleAddI_Band(realtype c, SUNMatrix A)
 {
-  long int i;
-
+  long int i, j, scalesize;
+  realtype *A_colj;
+  
   /* Verify that A is a band matrix */
   if (SUNMatGetID(A) != SUNMATRIX_BAND)
     return 1;
 
   /* Perform operation */
-  for (i=0; i<SM_COLUMNS_B(A); i++)
-    SM_ELEMENT_B(A,i,i) += ONE;
+  scalesize = SM_UBAND_B(A) + SM_LBAND_B(A) + 1;
+  for (j=0; j<SM_COLUMNS_B(A); j++) {
+    A_colj = SM_COLUMN_B(A,j)+SM_SUBAND_B(A)-SM_UBAND_B(A);
+    for (i=0; i<scalesize; i++)
+      A_colj[i] *= c;
+    SM_ELEMENT_B(A,j,j) += ONE;
+  }
   return 0;
 }
 
-int SUNMatAdd_Band(SUNMatrix A, SUNMatrix B)
+int SUNMatScaleAdd_Band(realtype c, SUNMatrix A, SUNMatrix B)
 {
   long int i, j, addsize;
   realtype *A_colj, *B_colj;
@@ -323,7 +312,7 @@ int SUNMatAdd_Band(SUNMatrix A, SUNMatrix B)
     A_colj = SM_COLUMN_B(A,j)+SM_SUBAND_B(A)-SM_UBAND_B(A);
     B_colj = SM_COLUMN_B(B,j)+SM_SUBAND_B(B)-SM_UBAND_B(B);
     for (i=0; i<addsize; i++)
-      A_colj[i] += B_colj[i];
+      A_colj[i] = c*A_colj[i] + B_colj[i];
   }
   return 0;
 }

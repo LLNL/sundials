@@ -313,10 +313,9 @@ SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID_Band(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix SUNMatClone_Band(SUNMatrix A);
 SUNDIALS_EXPORT void SUNMatDestroy_Band(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatZero_Band(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatScale_Band(realtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopy_Band(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatAddIdentity_Band(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatAdd_Band(SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT int SUNMatScaleAdd_Band(realtype c, SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT int SUNMatScaleAddI_Band(realtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec_Band(SUNMatrix A, N_Vector x, N_Vector y);
   
 #ifdef __cplusplus

@@ -59,24 +59,19 @@ int SUNMatZero(SUNMatrix A)
   return((int) A->ops->zero(A));
 }
 
-int SUNMatScale(realtype c, SUNMatrix A)
-{
-  return((int) A->ops->scale(c, A));
-}
-
 int SUNMatCopy(SUNMatrix A, SUNMatrix B)
 {
   return((int) A->ops->copy(A, B));
 }
 
-int SUNMatAddIdentity(SUNMatrix A)
+int SUNMatScaleAdd(realtype c, SUNMatrix A, SUNMatrix B)
 {
-  return((int) A->ops->addidentity(A));
+  return((int) A->ops->scaleadd(c, A, B));
 }
 
-int SUNMatAdd(SUNMatrix A, SUNMatrix B)
+int SUNMatScaleAddI(realtype c, SUNMatrix A)
 {
-  return((int) A->ops->add(A,B));
+  return((int) A->ops->scaleaddi(c, A));
 }
 
 int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)

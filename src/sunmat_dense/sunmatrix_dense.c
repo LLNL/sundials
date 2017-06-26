@@ -72,10 +72,9 @@ SUNMatrix SUNDenseMatrix(long int M, long int N)
   ops->clone       = SUNMatClone_Dense;
   ops->destroy     = SUNMatDestroy_Dense;
   ops->zero        = SUNMatZero_Dense;
-  ops->scale       = SUNMatScale_Dense;
   ops->copy        = SUNMatCopy_Dense;
-  ops->addidentity = SUNMatAddIdentity_Dense;
-  ops->add         = SUNMatAdd_Dense;
+  ops->scaleadd    = SUNMatScaleAdd_Dense;
+  ops->scaleaddi   = SUNMatScaleAddI_Dense;
   ops->matvec      = SUNMatMatvec_Dense;
 
   /* Create content */
@@ -224,18 +223,6 @@ int SUNMatZero_Dense(SUNMatrix A)
   return 0;
 }
 
-int SUNMatScale_Dense(realtype c, SUNMatrix A)
-{
-  long int i;
-  realtype *Adata;
-
-  /* Perform operation */
-  Adata = SM_DATA_D(A);
-  for (i=0; i<SM_LDATA_D(A); i++)
-    Adata[i] *= c;
-  return 0;
-}
-
 int SUNMatCopy_Dense(SUNMatrix A, SUNMatrix B)
 {
   long int i, j;
@@ -251,17 +238,22 @@ int SUNMatCopy_Dense(SUNMatrix A, SUNMatrix B)
   return 0;
 }
 
-int SUNMatAddIdentity_Dense(SUNMatrix A)
+int SUNMatScaleAddI_Dense(realtype c, SUNMatrix A)
 {
-  long int i;
+  long int i, j;
 
   /* Perform operation */
-  for (i=0; i<SM_COLUMNS_D(A); i++)
-    SM_ELEMENT_D(A,i,i) += ONE;
+  for (j=0; j<SM_COLUMNS_D(A); j++)
+    for (i=0; i<SM_ROWS_D(A); i++)
+      if (i == j) {
+        SM_ELEMENT_D(A,i,i) = c*SM_ELEMENT_D(A,i,i) + ONE;
+      } else {
+        SM_ELEMENT_D(A,i,i) *= c;
+      }
   return 0;
 }
 
-int SUNMatAdd_Dense(SUNMatrix A, SUNMatrix B)
+int SUNMatScaleAdd_Dense(realtype c, SUNMatrix A, SUNMatrix B)
 {
   long int i, j;
 
@@ -272,7 +264,7 @@ int SUNMatAdd_Dense(SUNMatrix A, SUNMatrix B)
   /* Perform operation */
   for (j=0; j<SM_COLUMNS_D(A); j++)
     for (i=0; i<SM_ROWS_D(A); i++)
-      SM_ELEMENT_D(A,i,j) += SM_ELEMENT_D(B,i,j);
+      SM_ELEMENT_D(A,i,j) = c*SM_ELEMENT_D(A,i,j) + SM_ELEMENT_D(B,i,j);
   return 0;
 }
 
