@@ -108,7 +108,7 @@ SUNDIALS_EXPORT int ARKMassKLU(void *arkode_mem, int n, int nnz, int sparsetype,
  * reinit_type = 2: Only symbolic and numeric factorizations will be 
  *                  completed.  It is assumed that the Jacobian size
  *                  has not exceeded the size of nnz given in the prior
- *                  call to CVKLU.
+ *                  call to ARKKLU.
  *
  * This routine assumes no other changes to solver use are necessary.
  *
@@ -143,7 +143,7 @@ SUNDIALS_EXPORT int ARKMassKLU(void *arkode_mem, int n, int nnz, int sparsetype,
  * reinit_type = 2: Only symbolic and numeric factorizations will be 
  *                  completed.  It is assumed that the Jacobian size
  *                  has not exceeded the size of nnz given in the prior
- *                  call to CVKLU.
+ *                  call to ARKMassKLU.
  *
  * This routine assumes no other changes to solver use are necessary.
  *
