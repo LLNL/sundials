@@ -24,11 +24,11 @@
  * of the supplied SUNLINSOL module.
  * 
  * Part II defines accessor macros that allow the user to 
- * efficiently use this SUNMatrix type without making explicit
+ * efficiently use this SUNLinearSolver type without making explicit
  * references to the underlying data structure.
  *
  * Part III contains the prototype for the constructor 
- * SLSNew_Band as well as implementation-specific prototypes 
+ * SUNBandLinearSolver as well as implementation-specific prototypes 
  * for various useful solver operations.
  *
  * Notes:
@@ -96,7 +96,7 @@ typedef struct _SUNLinearSolverContent_Band *SUNLinearSolverContent_Band;
  * (2) SLS_PIVOTS_B, SLS_LASTFLAG_B
  *
  *     These macros give access to the individual parts of
- *     the content structure of a band SUNMatrix.
+ *     the content structure of a band SUNLinearSolver.
  *
  *     The assignment S_pivots = SLS_PIVOTS_B(S) sets S_pivots
  *     to be a pointer to pivot array of S.
