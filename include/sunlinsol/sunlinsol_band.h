@@ -135,7 +135,7 @@ SUNDIALS_EXPORT SUNLinearSolver SUNBandLinearSolver(N_Vector y,
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_Band(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_Band(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetATimes_Band(SUNLinearSolver S, void* A_data,
-                                            ATimesFn At);
+                                            ATSetupFn ATSetup, ATimesFn ATimes);
 SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_Band(SUNLinearSolver S,
                                                     void* P_data,
                                                     PSetupFn Pset,

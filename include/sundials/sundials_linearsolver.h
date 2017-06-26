@@ -97,7 +97,7 @@ typedef struct _generic_SUNLinearSolver *SUNLinearSolver;
 struct _generic_SUNLinearSolver_Ops {
   SUNLinearSolver_Type (*gettype)(SUNLinearSolver);
   int                  (*setatimes)(SUNLinearSolver, void*, 
-                                    ATimesFn);
+                                    ATSetupFn, ATimesFn);
   int                  (*setpreconditioner)(SUNLinearSolver, void*, 
                                             PSetupFn, PSolveFn);
   int                  (*initialize)(SUNLinearSolver);
@@ -128,12 +128,12 @@ struct _generic_SUNLinearSolver {
  *   enumeration SUNLinearSolver_Type.
  *
  * SUNLinSolSetATimes (iterative methods only)
- *   Sets the function pointer for ATimes inside of an iterative 
- *   linear solver object.  This function should only be called by
- *   a main integrator, who will either provide this via 
+ *   Sets the function pointers for ATSetup and ATimes inside of an
+ *   iterative linear solver object.  This function should only be 
+ *   called by a main integrator, who will either provide this via 
  *   difference-quotients and vector operations, or by translating 
- *   between the generic PSetup and PSolve calls and the integrator-
- *   specific user-supplied routines.
+ *   between the generic ATSetup and ATimes calls and the 
+ *   integrator-specific, user-supplied routines.
  *
  * SUNLinSolSetPreconditioner (iterative methods only)
  *   Sets function pointers for PSetup and PSolve routines inside 
@@ -209,7 +209,7 @@ struct _generic_SUNLinearSolver {
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver S);
 
 SUNDIALS_EXPORT int SUNLinSolSetATimes(SUNLinearSolver S, void* A_data,
-                                       ATimesFn At);
+                                       ATSetupFn ATSetup, ATimesFn ATimes);
   
 SUNDIALS_EXPORT int SUNLinSolSetPreconditioner(SUNLinearSolver S, void* P_data,
                                                PSetupFn Pset, PSolveFn Psol);
