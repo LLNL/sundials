@@ -121,8 +121,8 @@ int SUNLinSolInitialize_Band(SUNLinearSolver S)
   return 0;
 }
 
-int SUNLinSolSetATimes_Band(SUNLinearSolver S,
-                            void* A_data, ATimesFn At)
+int SUNLinSolSetATimes_Band(SUNLinearSolver S, void* A_data, 
+                            ATSetupFn ATSetup, ATimesFn ATimes)
 {
   /* direct solvers do not utilize an 'ATimes' routine, 
      so return an error is this routine is ever called */
