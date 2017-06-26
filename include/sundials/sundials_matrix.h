@@ -92,10 +92,9 @@ struct _generic_SUNMatrix_Ops {
   SUNMatrix    (*clone)(SUNMatrix);
   void         (*destroy)(SUNMatrix);
   int          (*zero)(SUNMatrix);
-  int          (*scale)(realtype, SUNMatrix);
   int          (*copy)(SUNMatrix, SUNMatrix);
-  int          (*addidentity)(SUNMatrix);
-  int          (*add)(SUNMatrix, SUNMatrix);
+  int          (*scaleadd)(realtype, SUNMatrix, SUNMatrix);
+  int          (*scaleaddi)(realtype, SUNMatrix);
   int          (*matvec)(SUNMatrix, N_Vector, N_Vector);
 };
  
@@ -128,19 +127,17 @@ struct _generic_SUNMatrix {
  * SUNMatZero
  *   Sets all matrix entries to zero
  *
- * SUNMatScale
- *   Performs the operation A = c*A
+ * SUNMatScaleAdd
+ *   Performs the operation A = c*A + B.  Returns an error if A 
+ *   and B have different types and/or dimensions.
  *
  * SUNMatCopy
  *   Performs the operation A = B.  Returns an error if A and B have 
  *   different types and/or dimensions.
  *
- * SUNMatAddIdentity
- *   Performs the operation A = A+I
- *
- * SUNMatAdd
- *   Performs the A = A + B.  Returns an error if A and B have 
- *   different types and/or dimensions.
+ * SUNMatScaleAddI
+ *   Performs the operation A = c*A + I.  Returns an error if A is '
+ *   not a square matrix.
  *
  * SUNMatMatvec
  *   Performs the matrix-vector product y = A*x.  Returns an error if 
@@ -166,10 +163,9 @@ struct _generic_SUNMatrix {
  *  Clone        D B S BP DP  D B S BP DP  BP DP
  *  Destroy      D B S BP DP  D B S BP DP  BP DP
  *  Zero         D B S BP DP  D B S BP DP  D B S BP DP  D B BP DP
- *  Scale        D B S BP DP  D B S BP DP
  *  Copy         D B S BP DP  D B S BP DP
- *  AddIdentity  D B S BP DP  D B S BP DP
- *  Add                       D B S BP DP
+ *  ScaleAddI    D B S BP DP  D B S BP DP
+ *  ScaleAdd                  D B S BP DP
  *  Matvec*                   D B S
  * -----------------------------------------------------------------
  *  Note: MatrixMatvec is only called by ARKode when solving 
@@ -181,10 +177,9 @@ SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix SUNMatClone(SUNMatrix A);
 SUNDIALS_EXPORT void SUNMatDestroy(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatZero(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatScale(realtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopy(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatAddIdentity(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatAdd(SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT int SUNMatScaleAdd(realtype c, SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT int SUNMatScaleAddI(realtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y);
  
 #ifdef __cplusplus

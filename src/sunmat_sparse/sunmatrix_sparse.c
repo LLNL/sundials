@@ -80,10 +80,9 @@ SUNMatrix SUNSparseMatrix(long int M, long int N,
   ops->clone       = SUNMatClone_Sparse;
   ops->destroy     = SUNMatDestroy_Sparse;
   ops->zero        = SUNMatZero_Sparse;
-  ops->scale       = SUNMatScale_Sparse;
   ops->copy        = SUNMatCopy_Sparse;
-  ops->addidentity = SUNMatAddIdentity_Sparse;
-  ops->add         = SUNMatAdd_Sparse;
+  ops->scaleadd    = SUNMatScaleAdd_Sparse;
+  ops->scaleaddi   = SUNMatScaleAddI_Sparse;
 
   /* Create content */
   content = NULL;
@@ -446,16 +445,6 @@ int SUNMatZero_Sparse(SUNMatrix A)
   return 0;
 }
 
-int SUNMatScale_Sparse(realtype c, SUNMatrix A)
-{
-  long int i;
-
-  /* Perform operation */
-  for (i=0; i<(SM_INDEXPTRS_S(A))[SM_NP_S(A)]; i++)
-    (SM_DATA_S(A))[i] *= c;
-  return 0;
-}
-
 int SUNMatCopy_Sparse(SUNMatrix B, SUNMatrix A)
 {
   long int i, A_nz;
@@ -493,7 +482,7 @@ int SUNMatCopy_Sparse(SUNMatrix B, SUNMatrix A)
   return 0;
 }
 
-int SUNMatAddIdentity_Sparse(SUNMatrix A)
+int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
 {
   long int j, i, p, nz;
   booleantype newmat, found;
@@ -506,7 +495,7 @@ int SUNMatAddIdentity_Sparse(SUNMatrix A)
   /* Perform operation */
 
   /* determine if A already contains values on the diagonal (hence 
-     memory allocation necessary)*/
+     no memory allocation necessary) */
   newmat=FALSE;
   for (j=0; j < SUNMIN(SM_COLUMNS_S(A),SM_ROWS_S(A)); j++) {
     /* scan column (row if CSR) of A, searching for diagonal value */
@@ -532,8 +521,11 @@ int SUNMatAddIdentity_Sparse(SUNMatrix A)
     /* iterate through columns, adding 1.0 to diagonal */
     for (j=0; j < SUNMIN(SM_COLUMNS_S(A),SM_ROWS_S(A)); j++)
       for (i=(SM_INDEXPTRS_S(A))[j]; i<(SM_INDEXPTRS_S(A))[j+1]; i++)
-        if ((SM_INDEXVALS_S(A))[i] == j) 
-          (SM_DATA_S(A))[i] += ONE;
+        if ((SM_INDEXVALS_S(A))[i] == j) {
+          (SM_DATA_S(A))[i] = ONE + c*(SM_DATA_S(A))[i];
+        } else {
+          (SM_DATA_S(A))[i] = c*(SM_DATA_S(A))[i];
+        }
 
   /*   case 2: A does not already contain a diagonal */
   } else {
@@ -590,8 +582,8 @@ int SUNMatAddIdentity_Sparse(SUNMatrix A)
 
       /* iterate down column (along row) of A, collecting nonzeros */
       for (p=Ap[j]; p<Ap[j+1]; p++) {
-        w[Ai[p]] += 1;       /* indicate that row is filled */
-        x[Ai[p]] = Ax[p];    /* collect value */
+        w[Ai[p]] += 1;         /* indicate that row is filled */
+        x[Ai[p]] = c*Ax[p];    /* collect/scale value */
       }
 
       /* add identity to this column (row) */
@@ -642,7 +634,7 @@ int SUNMatAddIdentity_Sparse(SUNMatrix A)
 
 }
 
-int SUNMatAdd_Sparse(SUNMatrix A, SUNMatrix B)
+int SUNMatScaleAdd_Sparse(realtype c, SUNMatrix A, SUNMatrix B)
 {
   long int j, i, p, nz;
   booleantype newmat;
@@ -714,7 +706,7 @@ int SUNMatAdd_Sparse(SUNMatrix A, SUNMatrix B)
 
       /* scan column of A, updating entries appropriately array */
       for (i = (SM_INDEXPTRS_S(A))[j]; i < (SM_INDEXPTRS_S(A))[j+1]; i++)
-        (SM_DATA_S(A))[i] += x[(SM_INDEXVALS_S(A))[i]];
+        (SM_DATA_S(A))[i] = c*(SM_DATA_S(A))[i] + x[(SM_INDEXVALS_S(A))[i]];
 
     }
 
@@ -764,8 +756,8 @@ int SUNMatAdd_Sparse(SUNMatrix A, SUNMatrix B)
 
       /* iterate down column of A, collecting nonzeros */
       for (p=Ap[j]; p<Ap[j+1]; p++) {
-        w[Ai[p]] += 1;       /* indicate that row is filled */
-        x[Ai[p]] = Ax[p];    /* collect value */
+        w[Ai[p]] += 1;         /* indicate that row is filled */
+        x[Ai[p]] = c*Ax[p];    /* collect/scale value */
       }
 
       /* iterate down column of B, collecting nonzeros */
