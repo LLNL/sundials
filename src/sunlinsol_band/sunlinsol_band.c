@@ -89,6 +89,7 @@ SUNLinearSolver SUNBandLinearSolver(N_Vector y, SUNMatrix A)
   if (content == NULL) { free(ops); free(S); return(NULL); }
 
   /* Fill content */
+  content->last_flag = 0;
   content->pivots = NULL;
   content->pivots = (long int *) malloc(MatrixRows * sizeof(long int));
   if (content->pivots == NULL) {
