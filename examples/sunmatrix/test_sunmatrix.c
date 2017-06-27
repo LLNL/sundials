@@ -79,6 +79,7 @@ int Test_SUNMatClone(SUNMatrix A, int myid)
 {
   int       failure;
   double    start_time, stop_time;
+  realtype  tol=1e-15;
   SUNMatrix B;
 
   /* clone vector */
@@ -102,7 +103,7 @@ int Test_SUNMatClone(SUNMatrix A, int myid)
   }    
 
   SUNMatCopy(B, A);
-  failure = check_matrix(B, A);
+  failure = check_matrix(B, A, tol);
   if (failure) {
     printf(">>> FAILED test -- SUNMatCopy, Proc %d \n", myid);
     printf("    Failed SUNMatCopy check \n \n");
@@ -129,6 +130,7 @@ int Test_SUNMatZero(SUNMatrix A, int myid)
 {
   int       failure;
   double    start_time, stop_time;
+  realtype  tol=1e-15;
   SUNMatrix B;
 
   /* protect A */
@@ -146,7 +148,7 @@ int Test_SUNMatZero(SUNMatrix A, int myid)
   }
 
   /* A data should be a vector of zeros */
-  failure = check_matrix_entry(B, ZERO);
+  failure = check_matrix_entry(B, ZERO, tol);
 
   if (failure) {
     printf(">>> FAILED test -- SUNMatZero, Proc %d \n", myid);
@@ -170,6 +172,7 @@ int Test_SUNMatCopy(SUNMatrix A, int myid)
   int       failure;
   double    start_time, stop_time;
   SUNMatrix B; 
+  realtype  tol=1e-15;
 
   B = SUNMatClone(A);
 
@@ -185,7 +188,7 @@ int Test_SUNMatCopy(SUNMatrix A, int myid)
   }
 
   /* check matrix entries */
-  failure = check_matrix(B, A);
+  failure = check_matrix(B, A, tol);
 
   if (failure) {
     printf(">>> FAILED test -- SUNMatCopy, Proc %d \n", myid);
@@ -213,6 +216,7 @@ int Test_SUNMatScaleAdd(SUNMatrix A, int myid)
   int       failure;
   double    start_time, stop_time;
   SUNMatrix B;
+  realtype  tol=1e-15;
 
   /* protect A */
   B = SUNMatClone(A);
@@ -230,7 +234,7 @@ int Test_SUNMatScaleAdd(SUNMatrix A, int myid)
   }
   
   /* check matrix entries */
-  failure = check_matrix_entry(B, ZERO);
+  failure = check_matrix_entry(B, ZERO, tol);
 
   if (failure) {
     printf(">>> FAILED test -- SUNMatScaleAdd, Proc %d \n", myid);
@@ -256,6 +260,7 @@ int Test_SUNMatScaleAddI(SUNMatrix A, SUNMatrix I, int myid)
   int       failure;
   double    start_time, stop_time;
   SUNMatrix B;
+  realtype  tol=1e-15;
 
   /* protect A */
   B = SUNMatClone(A);
@@ -273,7 +278,7 @@ int Test_SUNMatScaleAddI(SUNMatrix A, SUNMatrix I, int myid)
   }
 
   /* check matrix */
-  failure = check_matrix_entry(B, ZERO);
+  failure = check_matrix_entry(B, ZERO, tol);
 
   if (failure) {
     printf(">>> FAILED test -- SUNMatScaleAddI, Proc %d \n", myid);
@@ -298,6 +303,7 @@ int Test_SUNMatMatvec(SUNMatix A, N_Vector x, N_Vector y, int myid)
   double   start_time, stop_time;
   SUNMatrix B;
   N_Vector  z, w;
+  realtype  tol=1e-14;
 
   /* protect A */
   B = SUNMatClone(A);
@@ -315,7 +321,7 @@ int Test_SUNMatMatvec(SUNMatix A, N_Vector x, N_Vector y, int myid)
 
   w = N_VLinearSum(THREE,y,ONE,x,w);
   
-  failure = check_vector(w,z);
+  failure = check_vector(w,z,tol);
 
   if (failure) {
     printf(">>> FAILED test -- SUNMatMatvec, Proc %d \n", myid);
