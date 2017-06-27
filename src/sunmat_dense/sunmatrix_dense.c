@@ -280,7 +280,7 @@ int SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
   /* access vector data (return if failure) */
   xd = N_VGetArrayPointer(x);
   yd = N_VGetArrayPointer(y);
-  if ((xd == NULL) || (yd == NULL))
+  if ((xd == NULL) || (yd == NULL) || (xd == yd))
     return 1;
 
   /* Perform operation */
