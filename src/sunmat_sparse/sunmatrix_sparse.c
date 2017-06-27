@@ -900,7 +900,8 @@ static booleantype SMCompatible2_Sparse(SUNMatrix A, N_Vector x, N_Vector y)
  * compatible N_Vector object of length N, and y is a compatible 
  * N_Vector object of length M.
  * 
- * Returns 0 if successful, 1 if unsuccessful (failed memory access).
+ * Returns 0 if successful, 1 if unsuccessful (failed memory access, or both 
+ * x and y are the same vector).
  */
 int Matvec_SparseCSC(SUNMatrix A, N_Vector x, N_Vector y)
 {
@@ -918,7 +919,7 @@ int Matvec_SparseCSC(SUNMatrix A, N_Vector x, N_Vector y)
   /* access vector data (return if failure) */
   xd = N_VGetArrayPointer(x);
   yd = N_VGetArrayPointer(y);
-  if ((xd == NULL) || (yd == NULL))
+  if ((xd == NULL) || (yd == NULL) || (xd == yd) )
     return 1;
 
   /* initialize result */
@@ -961,7 +962,7 @@ int Matvec_SparseCSR(SUNMatrix A, N_Vector x, N_Vector y)
   /* access vector data (return if failure) */
   xd = N_VGetArrayPointer(x);
   yd = N_VGetArrayPointer(y);
-  if ((xd == NULL) || (yd == NULL))
+  if ((xd == NULL) || (yd == NULL) || (xd == yd))
     return 1;
 
   /* initialize result */

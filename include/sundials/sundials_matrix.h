@@ -141,7 +141,8 @@ struct _generic_SUNMatrix {
  *
  * SUNMatMatvec
  *   Performs the matrix-vector product y = A*x.  Returns an error if 
- *   A, x and/or y have incompatible types and/or dimensions.
+ *   A, x and/or y have incompatible types and/or dimensions, or if 
+ *   x and y are the same vector.
  *
  * -----------------------------------------------------------------
  *
