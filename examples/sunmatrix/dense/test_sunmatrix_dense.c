@@ -36,97 +36,125 @@
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
-  int      fails = 0;  /* counter for test failures  */
-  long int veclen;     /* vector length              */
-  N_Vector W, X, Y, Z; /* test vectors               */
-  int      print_timing;
-
+  int       fails = 0;        /* counter for test failures  */
+  long int  matrows, matcols; /* vector length              */
+  N_Vector  x, y;             /* test vectors               */
+  realtype* xdata, ydata;     /* pointer to vector data     */
+  SUNMatrix A, I;             /* test matrices              */
+  realtype* Adata, Idata;     /* pointer to matrix data     */
+  int       print_timing; 
 
   /* check input and set vector length */
-  if (argc < 3){
-    printf("ERROR: ONE (1) Input required: vector length, print timing \n");
+  if (argc < 4){
+    printf("ERROR: THREE (3) Input required: matrix rows, matrix cols, print timing \n");
     return(-1);
   }
-
-  veclen = atol(argv[1]); 
-  if (veclen <= 0) {
-    printf("ERROR: length of vector must be a positive integer \n");
+  
+  matrows = atol(argv[1]); 
+  if (matrows <= 0) {
+    printf("ERROR: number of rows must be a positive integer \n");
+    return(-1); 
+  }
+  
+  matcols = atol(argv[2]); 
+  if (matcols <= 0) {
+    printf("ERROR: number of cols must be a positive integer \n");
     return(-1); 
   }
 
-  print_timing = atoi(argv[2]);
-  SetTiming(print_timing);
-
-
-  printf("\nRunning with vector length %ld \n \n", veclen);
-
-  /* Create vectors */
-  W = N_VNewEmpty_Serial(veclen);
-  X = N_VNew_Serial(veclen);
-  Y = N_VNew_Serial(veclen);
-  Z = N_VNew_Serial(veclen);
-
-  if(N_VGetVectorID(W) == SUNDIALS_NVEC_SERIAL) {
-    /*printf("Testing serial variant of N_Vector...\n");*/
+  /* or add check around scale add I and skip if not square */
+  if (matrows != matcols) {
+    printf("ERROR: number of rows must equal the number of cols \n");
+    return(-1); 
   }
   
-  /* NVector Tests */
-  fails += Test_N_VSetArrayPointer(W, veclen, 0);
-  fails += Test_N_VGetArrayPointer(X, veclen, 0);
-  fails += Test_N_VLinearSum(X, Y, Z, veclen, 0);
-  fails += Test_N_VConst(X, veclen, 0);
-  fails += Test_N_VProd(X, Y, Z, veclen, 0);
-  fails += Test_N_VDiv(X, Y, Z, veclen, 0);
-  fails += Test_N_VScale(X, Z, veclen, 0);
-  fails += Test_N_VAbs(X, Z, veclen, 0);
-  fails += Test_N_VInv(X, Z, veclen, 0);
-  fails += Test_N_VAddConst(X, Z, veclen, 0);
-  fails += Test_N_VDotProd(X, Y, veclen, veclen, 0);
-  fails += Test_N_VMaxNorm(X, veclen, 0);
-  fails += Test_N_VWrmsNorm(X, Y, veclen, 0);
-  fails += Test_N_VWrmsNormMask(X, Y, Z, veclen, veclen, 0);
-  fails += Test_N_VMin(X, veclen, 0);
-  fails += Test_N_VWL2Norm(X, Y, veclen, veclen, 0);
-  fails += Test_N_VL1Norm(X, veclen, veclen, 0);
-  fails += Test_N_VCompare(X, Z, veclen, 0);
-  fails += Test_N_VInvTest(X, Z, veclen, 0);
-  fails += Test_N_VConstrMask(X, Y, Z, veclen, 0);
-  fails += Test_N_VMinQuotient(X, Y, veclen, 0);
-  fails += Test_N_VCloneVectorArray(5, X, veclen, 0);
-  fails += Test_N_VCloneEmptyVectorArray(5, X, 0);
-  fails += Test_N_VCloneEmpty(X, 0);
-  fails += Test_N_VClone(X, veclen, 0);
+  print_timing = atoi(argv[3]);
+  SetTiming(print_timing);
+  
+  printf("\nRunning with matrix size, %ld by %ld \n \n", matrows, matcols);
+  
+  /* Create vectors and matrices */
+  x = N_VNew_Serial(matcols);
+  y = N_VNew_Serial(matrows);
+  A = SUNDenseMatrix(matrows, matcols);
+  I = SUNDenseMatrix(matrows, matcols);
+  
+  /* Fill matrices and vectors */
+  Adata = SUNDenseMatrix_Data(A);
+  for(j=0; j < matcols; j++) {
+    for(i=0; i < matrows; i++) {
+      Adata[j*matrows + i] = (j+1)*(i+j);
+    }
+  }
 
-  /* Free vectors */
-  N_VDestroy_Serial(W);
-  N_VDestroy_Serial(X);
-  N_VDestroy_Serial(Y);
-  N_VDestroy_Serial(Z);
+  Idata = SUNDenseMatrix_Data(I);
+  for(i=0, j=0; i < matrows; i++, j++) {
+    Idata[j*matrows + i] = ONE;
+  }
+
+  xdata = N_VGetArrayPointer(x);
+  for(i=0; i < matcols; i++) {
+    xdata[i] = ONE / (i+1);
+  }
+
+  ydata = N_VGetArrayPointer(y);
+  for(i=0; i < matrows; i++) {
+    m = i;
+    n = m + matcols - 1;
+    ydata[i] = HALF*(n+1-m)*(n+m);
+  }
+    
+  /* SUNMatrix Tests */
+  fails += Test_SUNMatGetID(A, SUNMATRIX_DENSE, 0);
+  fails += Test_SUNMatClone(A, 0);
+  fails += Test_SUNMatCopy(A, 0);
+  fails += Test_SUNMatZero(A, 0);
+  fails += Test_SUNScaleAdd(A, 0);
+  fails += Test_SUNScaleAddI(A, I, 0);
+  fails += Test_SUNMatMatvec(A, x, y, 0);
+
+  /* Free vectors and matrices */
+  N_VDestroy_Serial(x);
+  N_VDestroy_Serial(y);
+  SUNMatDestroy(A);
+  SUNMatDestroy(I);
 
   /* Print result */
   if (fails) {
-    printf("FAIL: NVector module failed %i tests \n \n", fails);
+    printf("FAIL: SUNMatrix module failed %i tests \n \n", fails);
   } else {
-    printf("SUCCESS: NVector module passed all tests \n \n");
+    printf("SUCCESS: SUNMatrix module passed all tests \n \n");
   }
 
   return(0);
 }
 
 /* ----------------------------------------------------------------------
- * Check vector
+ * Check matrix
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, long int local_length)
+int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
 {
   int      failure = 0;
+  realtype *Adata, *Bdata;
+  long int Aldata, Bldata;
   long int i;
-  realtype *Xdata;
   
-  Xdata = N_VGetArrayPointer(X);
+  /* get data pointers */
+  Adata = SUNDenseMatrix_Data(A);
+  Bdata = SUNDenseMatrix_Data(B);
 
-  /* check vector data */
-  for(i=0; i < local_length; i++){
-    failure += FNEQ(Xdata[i], ans);
+  /* get and check data lengths */
+  Aldata = SUNDenseMatrix_LData(A);
+  Bldata = SUNDenseMatrix_LData(B);
+
+  if (Aldata != Bldata) {
+    printf(">>> ERROR: check_matrix: Different data array lengths \n");
+    return(1);
+  }
+  
+  /* compare data */
+  for(i=0; i < Aldata; i++){
+    failure += FNEQ(Adata[i], Bdata[i], tol);
   }
 
   if (failure > ZERO)
@@ -135,21 +163,64 @@ int check_ans(realtype ans, N_Vector X, long int local_length)
     return(0);
 }
 
-booleantype has_data(N_Vector X)
+int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
 {
-  realtype *Xdata = N_VGetArrayPointer(X);
-  if (Xdata == NULL)
+  int      failure = 0;
+  realtype *Adata;
+  long int Aldata;
+  long int i;
+  
+  /* get data pointer */
+  Adata = SUNDenseMatrix_Data(A);
+
+  /* compare data */
+  Aldata = SUNDenseMatrix_LData(A);
+  for(i=0; i < Aldata; i++){
+    failure += FNEQ(Adata[i], val, tol);
+  }
+
+  if (failure > ZERO)
+    return(1);
+  else
+    return(0);
+}
+
+int check_vector(N_Vector x, N_Vector y, realtype tol)
+{
+  int failure = 0;
+  realtype *xdata, *ydata;
+  long int xldata, yldata;
+  long int i;
+
+  /* get vector data */
+  xdata = N_VGetArrayPointer(x);
+  ydata = N_VGetArrayPointer(y);
+
+  /* check data lengths */
+  xldata = N_VGetLength_Serial(x);
+  yldata = N_VGetLength_Serial(y);
+
+  if (xldata != yldata) {
+    printf(">>> ERROR: check_vector: Different data array lengths \n");
+    return(1);
+  }
+
+  /* check vector data */
+  for(i=0; i < xldata; i++){
+    failure += FNEQ(xdata[i], ydata[i], tol);
+  }
+
+  if (failure > ZERO)
+    return(1);
+  else
+    return(0);
+}
+
+booleantype has_data(SUNMatrix A)
+{
+  realtype *Adata = SUNDenseMatrix_Data(A);
+  if (Adata == NULL)
     return FALSE;
   else
     return TRUE;
-}
-
-void set_element(N_Vector X, long int i, realtype val)
-{
-  NV_Ith_S(X,i) = val;    
-}
-
-realtype get_element(N_Vector X, long int i)
-{
-  return NV_Ith_S(X,i);    
 }
