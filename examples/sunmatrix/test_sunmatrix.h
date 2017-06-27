@@ -45,19 +45,19 @@
 extern "C" {
 #endif
   /* Forward declarations for implementation specific utility functions */
-  int check_matrix(SUNMatrix A, SUNMatrix B);
-  int check_matrix_entry(SUNMatrix A, realtype val);
-  int check_vector(N_Vector X, N_Vector Y);
+  int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol);
+  int check_matrix_entry(SUNMatrix A, realtype val, realtype tol);
+  int check_vector(N_Vector X, N_Vector Y, realtype tol);
   booleantype has_data(SUNMatrix A);
    
   /* Test function declarations */
-  int Test_SUNMatGetID(SUNMatrix A, int myid);
+  int Test_SUNMatGetID(SUNMatrix A, SUNMatrix_ID sunid, int myid);
   int Test_SUNMatClone(SUNMatrix A, int myid);
   int Test_SUNMatZero(SUNMatrix A, int myid);
-  int Test_SUNMatCopy(SUNMatrix A, SUNMatrix B, int myid);
-  int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix B, SUNMatrix C, int myid);
-  int Test_SUNMatScaleAddI(SUNMatrix A, SUNMatrix B, int myid);
-  int Test_SUNMatMatvec(SUNMatrix A, N_Vector X, SUNMatrix B, int myid);
+  int Test_SUNMatCopy(SUNMatrix A, int myid);
+  int Test_SUNMatScaleAdd(SUNMatrix A, int myid);
+  int Test_SUNMatScaleAddI(SUNMatrix A, SUNMatrix I, int myid);
+  int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid);
 
   /* Timing function */
   void SetTiming(int onoff);
