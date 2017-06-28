@@ -273,69 +273,73 @@ int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid)
   /* 
    * Case 2: different sparsity/bandwith patterns
    */
+  if (is_square(A)) {
 
-  /* protect A and I */
-  D = SUNMatClone(A);
-  failure = SUNMatCopy(D,A);
-  if (failure) {
-    printf(">>> FAILED test -- SUNMatCopy returned %d on Proc %d \n", 
-           failure, myid);
-    SUNMatDestroy(B);
-    SUNMatDestroy(D);
-    return(1);
-  }
-  C = SUNMatClone(I);
-  failure = SUNMatCopy(C,I);
-  if (failure) {
-    printf(">>> FAILED test -- SUNMatCopy returned %d on Proc %d \n", 
-           failure, myid);
-    SUNMatDestroy(B);
+    /* protect A and I */
+    D = SUNMatClone(A);
+    failure = SUNMatCopy(D,A);
+    if (failure) {
+      printf(">>> FAILED test -- SUNMatCopy returned %d on Proc %d \n", 
+             failure, myid);
+      SUNMatDestroy(B);
+      SUNMatDestroy(D);
+      return(1);
+    }
+    C = SUNMatClone(I);
+    failure = SUNMatCopy(C,I);
+    if (failure) {
+      printf(">>> FAILED test -- SUNMatCopy returned %d on Proc %d \n", 
+             failure, myid);
+      SUNMatDestroy(B);
+      SUNMatDestroy(C);
+      SUNMatDestroy(D);
+      return(1);
+    }
+
+    /* fill B and C */
+    start_time = get_time(); 
+    failure = SUNMatScaleAdd(ONE, D, I);
+    if (failure) {
+      printf(">>> FAILED test -- SUNMatScaleAdd returned %d on Proc %d \n", 
+             failure, myid);
+      SUNMatDestroy(B);
+      SUNMatDestroy(C);
+      SUNMatDestroy(D);
+      return(1);
+    }
+    failure = SUNMatScaleAdd(ONE, C, A);
+    if (failure) {
+      printf(">>> FAILED test -- SUNMatScaleAdd returned %d on Proc %d \n", 
+             failure, myid);
+      SUNMatDestroy(B);
+      SUNMatDestroy(C);
+      SUNMatDestroy(D);
+      return(1);
+    }
+    stop_time = get_time(); 
+
+    /* check matrix entries */
+    failure = check_matrix(D, C, tol);
+
+    if (failure) {
+      printf(">>> FAILED test -- SUNMatScaleAdd case 2 check, Proc %d \n", myid);
+      PRINT_TIME("    SUNMatScaleAdd Time: %22.15e \n \n", stop_time - start_time);
+      SUNMatDestroy(B);
+      SUNMatDestroy(C);
+      SUNMatDestroy(D);
+      return(1);
+    }
+    else if (myid == 0) {
+      printf("    PASSED test -- SUNMatScaleAdd case 2 \n");
+      PRINT_TIME("    SUNMatScaleAdd Time: %22.15e \n \n", stop_time - start_time);
+    }    
+
     SUNMatDestroy(C);
     SUNMatDestroy(D);
-    return(1);
   }
-
-  /* fill B and C */
-  start_time = get_time(); 
-  failure = SUNMatScaleAdd(ONE, D, I);
-  if (failure) {
-    printf(">>> FAILED test -- SUNMatScaleAdd returned %d on Proc %d \n", 
-           failure, myid);
-    SUNMatDestroy(B);
-    SUNMatDestroy(C);
-    SUNMatDestroy(D);
-    return(1);
-  }
-  failure = SUNMatScaleAdd(ONE, C, A);
-  if (failure) {
-    printf(">>> FAILED test -- SUNMatScaleAdd returned %d on Proc %d \n", 
-           failure, myid);
-    SUNMatDestroy(B);
-    SUNMatDestroy(C);
-    SUNMatDestroy(D);
-    return(1);
-  }
-  stop_time = get_time(); 
-
-  /* check matrix entries */
-  failure = check_matrix(D, C, tol);
-
-  if (failure) {
-    printf(">>> FAILED test -- SUNMatScaleAdd case 2 check, Proc %d \n", myid);
-    PRINT_TIME("    SUNMatScaleAdd Time: %22.15e \n \n", stop_time - start_time);
-    SUNMatDestroy(B);
-    SUNMatDestroy(C);
-    SUNMatDestroy(D);
-    return(1);
-  }
-  else if (myid == 0) {
-    printf("    PASSED test -- SUNMatScaleAdd case 2 \n");
-    PRINT_TIME("    SUNMatScaleAdd Time: %22.15e \n \n", stop_time - start_time);
-  }    
 
   SUNMatDestroy(B);
-  SUNMatDestroy(C);
-  SUNMatDestroy(D);
+  
   return(0);
 }
 
@@ -407,47 +411,73 @@ int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
   N_Vector  z, w;
   realtype  tol=1e-14;
 
-  /* protect A */
-  B = SUNMatClone(A);
-  failure = SUNMatCopy(B,A);
-  if (failure) {
-    printf(">>> FAILED test -- SUNMatCopy returned %d on Proc %d \n", 
-           failure, myid);
+  /* harder tests for square matrices */
+  if (is_square(A)) {
+    
+    /* protect A */
+    B = SUNMatClone(A);
+    failure = SUNMatCopy(B,A);
+    if (failure) {
+      printf(">>> FAILED test -- SUNMatCopy returned %d on Proc %d \n", 
+             failure, myid);
+      SUNMatDestroy(B);
+      return(1);
+    }
+
+    /* compute matrix vector product */
+    failure = SUNMatScaleAddI(THREE,B);
+    if (failure) {
+      printf(">>> FAILED test -- SUNMatScaleAddI returned %d on Proc %d \n", 
+             failure, myid);
+      SUNMatDestroy(B);
+      return(1);
+    }
+
+    z = N_VClone(y);
+    w = N_VClone(y);
+
+    start_time = get_time();
+    failure = SUNMatMatvec(B,x,z);
+    stop_time = get_time(); 
+
+    if (failure) {
+      printf(">>> FAILED test -- SUNMatMatvec returned %d on Proc %d \n", 
+             failure, myid);
+      SUNMatDestroy(B);
+      return(1);
+    }
+  
+    N_VLinearSum(THREE,y,ONE,x,w);
+  
+    failure = check_vector(w,z,tol);
+
     SUNMatDestroy(B);
-    return(1);
-  }
+    N_VDestroy(z);
+    N_VDestroy(w);
 
-  /* compute matrix vector product */
-  failure = SUNMatScaleAddI(THREE,B);
-  if (failure) {
-    printf(">>> FAILED test -- SUNMatScaleAddI returned %d on Proc %d \n", 
-           failure, myid);
-    SUNMatDestroy(B);
-    return(1);
-  }
+  } else {
 
-  z = N_VClone(y);
-  w = N_VClone(y);
+    z = N_VClone(y);
 
-  start_time = get_time();
-  failure = SUNMatMatvec(B,x,z);
-  stop_time = get_time(); 
+    start_time = get_time();
+    failure = SUNMatMatvec(A,x,z);
+    stop_time = get_time(); 
 
-  if (failure) {
-    printf(">>> FAILED test -- SUNMatMatvec returned %d on Proc %d \n", 
-           failure, myid);
-    SUNMatDestroy(B);
-    return(1);
+    if (failure) {
+      printf(">>> FAILED test -- SUNMatMatvec returned %d on Proc %d \n", 
+             failure, myid);
+      return(1);
+    }
+  
+    failure = check_vector(y,z,tol);
+
+    N_VDestroy(z);
+    
   }
   
-  N_VLinearSum(THREE,y,ONE,x,w);
-  
-  failure = check_vector(w,z,tol);
-
   if (failure) {
     printf(">>> FAILED test -- SUNMatMatvec check, Proc %d \n", myid);
     PRINT_TIME("    SUNMatMatvec Time: %22.15e \n \n", stop_time - start_time);
-    SUNMatDestroy(B);
     return(1);
   }
   else if (myid == 0) {
@@ -455,7 +485,6 @@ int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
     PRINT_TIME("    SUNMatMatvec Time: %22.15e \n \n", stop_time - start_time);
   }    
 
-  SUNMatDestroy(B);
   return(0);
 }
 

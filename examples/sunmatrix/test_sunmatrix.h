@@ -49,6 +49,7 @@ extern "C" {
   int check_matrix_entry(SUNMatrix A, realtype val, realtype tol);
   int check_vector(N_Vector X, N_Vector Y, realtype tol);
   booleantype has_data(SUNMatrix A);
+  booleantype is_square(SUNMatrix A);
    
   /* Test function declarations */
   int Test_SUNMatGetID(SUNMatrix A, SUNMatrix_ID sunid, int myid);

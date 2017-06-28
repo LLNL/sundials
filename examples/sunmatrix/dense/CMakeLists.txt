@@ -25,8 +25,10 @@ SET(sunmatrix_dense_examples
 )
 
 SET(sunmatrix_dense_dependencies
+  test_sunmatrix
   sundials_nvector
   sundials_sunmatrix
+  sundials_sunmatrixdense
 )
 
 # Add source directory to include directories
@@ -55,16 +57,18 @@ FOREACH(example ${sunmatrix_dense_examples})
     ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
   ENDIF(WIN32)
 
-  ADD_EXECUTABLE(${example} ${example}.c ../../../src/sundials/sundials_matrix.c ../../../src/sundials/sundials_nvector.c)
+  ADD_EXECUTABLE(${example} ${example}.c ../test_sunmatrix.c ../../../src/sundials/sundials_matrix.c ../../../src/sundials/sundials_nvector.c)
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-  SUNDIALS_ADD_TEST( ${example}_1000_0 ${example} TEST_ARGS 1000 0)
-  SUNDIALS_ADD_TEST( ${example}_10000_0 ${example} TEST_ARGS 10000 0)
+  SUNDIALS_ADD_TEST( ${example}_10_2_3_0 ${example} TEST_ARGS 10 2 3 0)
+  SUNDIALS_ADD_TEST( ${example}_300_7_4_0 ${example} TEST_ARGS 300 7 4 0)
+  SUNDIALS_ADD_TEST( ${example}_1000_8_8_0 ${example} TEST_ARGS 1000 8 8 0)
+  SUNDIALS_ADD_TEST( ${example}_50000_3_100_0 ${example} TEST_ARGS 50000 3 100 0)
 
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
 
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c ../../../src/sundials/sundials_matrix.c ../../../src/sundials/sundials_nvector.c DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/dense)
+    INSTALL(FILES ${example}.c ../test_sunmatrix.c ../test_sunmatrix.h ../../../src/sundials/sundials_matrix.c ../../../src/sundials/sundials_nvector.c DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/dense)
   ENDIF(EXAMPLES_INSTALL)
 ENDFOREACH(example ${sunmatrix_dense_examples})
 
