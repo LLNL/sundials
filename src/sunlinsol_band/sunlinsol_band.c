@@ -52,12 +52,19 @@ SUNLinearSolver SUNBandLinearSolver(N_Vector y, SUNMatrix A)
     return NULL;
   MatrixRows = SUNBandMatrix_Rows(A);
   MatrixCols = SUNBandMatrix_Columns(A);
-  if (N_VGetVectorID(y) == SUNDIALS_NVEC_SERIAL)
+  if (N_VGetVectorID(y) == SUNDIALS_NVEC_SERIAL) {
     VecLength = N_VGetLength_Serial(y);
-  else if (N_VGetVectorID(y) == SUNDIALS_NVEC_OPENMP)
+  }
+#ifdef SUNDIALS_OPENMP_ENABLED
+  else if (N_VGetVectorID(y) == SUNDIALS_NVEC_OPENMP) {
     VecLength = N_VGetLength_OpenMP(y);
-  else if (N_VGetVectorID(y) == SUNDIALS_NVEC_PTHREADS)
+  }
+#endif
+#ifdef SUNDIALS_PTHREADS_ENABLED
+  else if (N_VGetVectorID(y) == SUNDIALS_NVEC_PTHREADS) {
     VecLength = N_VGetLength_Pthreads(y);
+  }
+#endif
   else
     return NULL;
   if ( (MatrixRows != MatrixCols) || (MatrixRows != VecLength) )
