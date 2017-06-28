@@ -87,7 +87,7 @@ SUNMatrix SUNDenseMatrix(long int M, long int N)
   content->N = N;
   content->ldata = M*N;
   content->data = NULL;
-  content->data = (realtype *) malloc(M * N * sizeof(realtype));
+  content->data = (realtype *) calloc(M * N, sizeof(realtype));
   if (content->data == NULL) {
     free(content); free(ops); free(A); return(NULL);
   }
@@ -321,32 +321,53 @@ static booleantype SMCompatible_Dense(SUNMatrix A, SUNMatrix B)
 
 static booleantype SMCompatible2_Dense(SUNMatrix A, N_Vector x, N_Vector y)
 {
-  /* vectors must be one of {SERIAL, OPENMP, PTHREADS}, and 
-     have compatible dimensions */ 
-  if (N_VGetVectorID(x) == SUNDIALS_NVEC_SERIAL) {
-    if (N_VGetLength_Serial(x) != SUNDenseMatrix_Columns(A))
-      return FALSE;
-  } else if (N_VGetVectorID(x) == SUNDIALS_NVEC_OPENMP) {
-    if (N_VGetLength_OpenMP(x) != SUNDenseMatrix_Columns(A))
-      return FALSE;
-  } else if (N_VGetVectorID(x) == SUNDIALS_NVEC_PTHREADS) {
-    if (N_VGetLength_Pthreads(x) != SUNDenseMatrix_Columns(A))
-      return FALSE;
-  } else {   /* incompatible type */
+  /*   vectors must be one of {SERIAL, OPENMP, PTHREADS} */ 
+  if ( (N_VGetVectorID(x) != SUNDIALS_NVEC_SERIAL) &&
+       (N_VGetVectorID(x) != SUNDIALS_NVEC_OPENMP) &&
+       (N_VGetVectorID(x) != SUNDIALS_NVEC_PTHREADS) )
     return FALSE;
-  }
-  if (N_VGetVectorID(y) == SUNDIALS_NVEC_SERIAL) {
-    if (N_VGetLength_Serial(y) != SUNDenseMatrix_Rows(A))
-      return FALSE;
-  } else if (N_VGetVectorID(y) == SUNDIALS_NVEC_OPENMP) {
-    if (N_VGetLength_OpenMP(y) != SUNDenseMatrix_Rows(A))
-      return FALSE;
-  } else if (N_VGetVectorID(y) == SUNDIALS_NVEC_PTHREADS) {
-    if (N_VGetLength_Pthreads(y) != SUNDenseMatrix_Rows(A))
-      return FALSE;
-  } else {   /* incompatible type */
-    return FALSE;
-  }
+
+/*   /\* vectors must be one of {SERIAL, OPENMP, PTHREADS}, and  */
+/*      have compatible dimensions *\/  */
+/*   if (N_VGetVectorID(x) == SUNDIALS_NVEC_SERIAL) { */
+/*     if (N_VGetLength_Serial(x) != SUNDenseMatrix_Columns(A)) */
+/*       return FALSE; */
+/*   } */
+/* #ifdef SUNDIALS_OPENMP_ENABLED */
+/*   else if (N_VGetVectorID(x) == SUNDIALS_NVEC_OPENMP) { */
+/*     if (N_VGetLength_OpenMP(x) != SUNDenseMatrix_Columns(A)) */
+/*       return FALSE; */
+/*   } */
+/* #endif */
+/* #ifdef SUNDIALS_PTHREADS_ENABLED */
+/*   else if (N_VGetVectorID(x) == SUNDIALS_NVEC_PTHREADS) { */
+/*     if (N_VGetLength_Pthreads(x) != SUNDenseMatrix_Columns(A)) */
+/*       return FALSE; */
+/*   } */
+/* #endif */
+/*   else {   /\* incompatible type *\/ */
+/*     return FALSE; */
+/*   } */
+
+/*   if (N_VGetVectorID(y) == SUNDIALS_NVEC_SERIAL) { */
+/*     if (N_VGetLength_Serial(y) != SUNDenseMatrix_Rows(A)) */
+/*       return FALSE; */
+/*   } */
+/* #ifdef SUNDIALS_OPENMP_ENABLED */
+/*   else if (N_VGetVectorID(y) == SUNDIALS_NVEC_OPENMP) { */
+/*     if (N_VGetLength_OpenMP(y) != SUNDenseMatrix_Rows(A)) */
+/*       return FALSE; */
+/*   } */
+/* #endif */
+/* #ifdef SUNDIALS_PTHREADS_ENABLED */
+/*   else if (N_VGetVectorID(y) == SUNDIALS_NVEC_PTHREADS) { */
+/*     if (N_VGetLength_Pthreads(y) != SUNDenseMatrix_Rows(A)) */
+/*       return FALSE; */
+/*   } */
+/* #endif */
+/*   else {   /\* incompatible type *\/ */
+/*     return FALSE; */
+/*   } */
 
   return TRUE;
 }

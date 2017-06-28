@@ -111,15 +111,15 @@ SUNMatrix SUNSparseMatrix(long int M, long int N,
     content->rowvals = NULL;
     content->colptrs = NULL;
   }
-  content->data = (realtype *) malloc(NNZ * sizeof(realtype));
+  content->data = (realtype *) calloc(NNZ, sizeof(realtype));
   if (content->data == NULL) {
     free(content); free(ops); free(A); return(NULL);
   }
-  content->indexvals = (long int *) malloc(NNZ * sizeof(long int));
+  content->indexvals = (long int *) calloc(NNZ, sizeof(long int));
   if (content->indexvals == NULL) {
     free(content->data); free(content); free(ops); free(A); return(NULL);
   }
-  content->indexptrs = (long int *) malloc((content->NP + 1) * sizeof(long int));
+  content->indexptrs = (long int *) calloc((content->NP + 1), sizeof(long int));
   if (content->indexptrs == NULL) {
     free(content->indexvals);
     free(content->data);
@@ -751,7 +751,7 @@ int SUNMatScaleAdd_Sparse(realtype c, SUNMatrix A, SUNMatrix B)
       /* clear out temporary arrays for this column */
       for (i=0; i<M; i++) {
         w[i] = 0;
-        x[i] = 0.0;
+        x[i] = RCONST(0.0);
       }
 
       /* iterate down column of A, collecting nonzeros */
@@ -864,32 +864,53 @@ static booleantype SMCompatible_Sparse(SUNMatrix A, SUNMatrix B)
 static booleantype SMCompatible2_Sparse(SUNMatrix A, N_Vector x, N_Vector y)
 {
 
-  /* vectors must be one of {SERIAL, OPENMP, PTHREADS}, and 
-     have compatible dimensions */ 
-  if (N_VGetVectorID(x) == SUNDIALS_NVEC_SERIAL) {
-    if (N_VGetLength_Serial(x) != SUNSparseMatrix_Columns(A))
-      return FALSE;
-  } else if (N_VGetVectorID(x) == SUNDIALS_NVEC_OPENMP) {
-    if (N_VGetLength_OpenMP(x) != SUNSparseMatrix_Columns(A))
-      return FALSE;
-  } else if (N_VGetVectorID(x) == SUNDIALS_NVEC_PTHREADS) {
-    if (N_VGetLength_Pthreads(x) != SUNSparseMatrix_Columns(A))
-      return FALSE;
-  } else {   /* incompatible type */
+  /*   vectors must be one of {SERIAL, OPENMP, PTHREADS} */ 
+  if ( (N_VGetVectorID(x) != SUNDIALS_NVEC_SERIAL) &&
+       (N_VGetVectorID(x) != SUNDIALS_NVEC_OPENMP) &&
+       (N_VGetVectorID(x) != SUNDIALS_NVEC_PTHREADS) )
     return FALSE;
-  }
-  if (N_VGetVectorID(y) == SUNDIALS_NVEC_SERIAL) {
-    if (N_VGetLength_Serial(y) != SUNSparseMatrix_Rows(A))
-      return FALSE;
-  } else if (N_VGetVectorID(y) == SUNDIALS_NVEC_OPENMP) {
-    if (N_VGetLength_OpenMP(y) != SUNSparseMatrix_Rows(A))
-      return FALSE;
-  } else if (N_VGetVectorID(y) == SUNDIALS_NVEC_PTHREADS) {
-    if (N_VGetLength_Pthreads(y) != SUNSparseMatrix_Rows(A))
-      return FALSE;
-  } else {   /* incompatible type */
-    return FALSE;
-  }
+
+/*   /\* vectors must be one of {SERIAL, OPENMP, PTHREADS}, and  */
+/*      have compatible dimensions *\/  */
+/*   if (N_VGetVectorID(x) == SUNDIALS_NVEC_SERIAL) { */
+/*     if (N_VGetLength_Serial(x) != SUNSparseMatrix_Columns(A)) */
+/*       return FALSE; */
+/*   } */
+/* #ifdef SUNDIALS_OPENMP_ENABLED */
+/*   else if (N_VGetVectorID(x) == SUNDIALS_NVEC_OPENMP) { */
+/*     if (N_VGetLength_OpenMP(x) != SUNSparseMatrix_Columns(A)) */
+/*       return FALSE; */
+/*   } */
+/* #endif */
+/* #ifdef SUNDIALS_PTHREADS_ENABLED */
+/*   else if (N_VGetVectorID(x) == SUNDIALS_NVEC_PTHREADS) { */
+/*     if (N_VGetLength_Pthreads(x) != SUNSparseMatrix_Columns(A)) */
+/*       return FALSE; */
+/*   } */
+/* #endif */
+/*   else {   /\* incompatible type *\/ */
+/*     return FALSE; */
+/*   } */
+  
+/*   if (N_VGetVectorID(y) == SUNDIALS_NVEC_SERIAL) { */
+/*     if (N_VGetLength_Serial(y) != SUNSparseMatrix_Rows(A)) */
+/*       return FALSE; */
+/*   } */
+/* #ifdef SUNDIALS_OPENMP_ENABLED */
+/*   else if (N_VGetVectorID(y) == SUNDIALS_NVEC_OPENMP) { */
+/*     if (N_VGetLength_OpenMP(y) != SUNSparseMatrix_Rows(A)) */
+/*       return FALSE; */
+/*   } */
+/* #endif */
+/* #ifdef SUNDIALS_PTHREADS_ENABLED */
+/*   else if (N_VGetVectorID(y) == SUNDIALS_NVEC_PTHREADS) { */
+/*     if (N_VGetLength_Pthreads(y) != SUNSparseMatrix_Rows(A)) */
+/*       return FALSE; */
+/*   } */
+/* #endif */
+/*   else {   /\* incompatible type *\/ */
+/*     return FALSE; */
+/*   } */
 
   return TRUE;
 }

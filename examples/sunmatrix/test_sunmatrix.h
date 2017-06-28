@@ -55,7 +55,7 @@ extern "C" {
   int Test_SUNMatClone(SUNMatrix A, int myid);
   int Test_SUNMatZero(SUNMatrix A, int myid);
   int Test_SUNMatCopy(SUNMatrix A, int myid);
-  int Test_SUNMatScaleAdd(SUNMatrix A, int myid);
+  int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid);
   int Test_SUNMatScaleAddI(SUNMatrix A, SUNMatrix I, int myid);
   int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid);
 
