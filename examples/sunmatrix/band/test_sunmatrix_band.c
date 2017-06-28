@@ -37,13 +37,13 @@
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
-  int      fails = 0;            /* counter for test failures  */
-  long int cols, uband, lband;   /* matrix columns, bandwidths */
-  SUNMatrix A, I;                /* test matrices              */
-  N_Vector X, Y;                 /* test vectors               */
-  int      print_timing;
-  long int i, j, k, kstart, kend, jstart, jend;
-  realtype *colj, *xdata, *ydata;
+  int       fails = 0;            /* counter for test failures  */
+  long int  cols, uband, lband;   /* matrix columns, bandwidths */
+  SUNMatrix A, I;                 /* test matrices              */
+  N_Vector  x, y;                 /* test vectors               */
+  int       print_timing;
+  long int  i, j, k, kstart, kend, jstart, jend;
+  realtype  *colj, *xdata, *ydata;
 
   /* check input and set vector length */
   if (argc < 5){
@@ -78,12 +78,12 @@ int main(int argc, char *argv[])
   /* Create matrices and vectors */
   A = SUNBandMatrix(cols, uband, lband, uband);
   I = SUNBandMatrix(cols, 0, 0, 0);
-  X = N_VNew_Serial(cols);
-  Y = N_VNew_Serial(cols);
+  x = N_VNew_Serial(cols);
+  y = N_VNew_Serial(cols);
 
   /* Fill matrices */
-  xdata = N_VGetArrayPointer(X);
-  ydata = N_VGetArrayPointer(Y);
+  xdata = N_VGetArrayPointer(x);
+  ydata = N_VGetArrayPointer(y);
   for (j=0; j<cols; j++) {
     
     /* identity matrix */
@@ -101,10 +101,10 @@ int main(int argc, char *argv[])
   /* Fill vectors */
   for (i=0; i<cols; i++) {
 
-    /* X vector */
+    /* x vector */
     xdata[i] = i;
 
-    /* Y vector */
+    /* y vector */
     ydata[i] = RCONST(0.0);
     jstart = SUNMAX(0, i-lband);
     jend = SUNMIN(cols-1, i+uband);
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
   fails += Test_SUNMatZero(A, 0);
   fails += Test_SUNMatScaleAdd(A, I, 0);
   fails += Test_SUNMatScaleAddI(A, I, 0);
-  fails += Test_SUNMatMatvec(A, X, Y, 0);
+  fails += Test_SUNMatMatvec(A, x, y, 0);
 
   /* Print result */
   if (fails) {
@@ -129,9 +129,9 @@ int main(int argc, char *argv[])
     printf("\nI =\n");
     SUNBandMatrix_Print(I,stdout);
     printf("\nx =\n");
-    N_VPrint_Serial(X);
+    N_VPrint_Serial(x);
     printf("\ny =\n");
-    N_VPrint_Serial(Y);
+    N_VPrint_Serial(y);
   } else {
     printf("SUCCESS: SUNMatrix module passed all tests \n \n");
   }
@@ -139,8 +139,8 @@ int main(int argc, char *argv[])
   /* Free matrices and vectors */
   SUNMatDestroy(A);
   SUNMatDestroy(I);
-  N_VDestroy(X);
-  N_VDestroy(Y);
+  N_VDestroy(x);
+  N_VDestroy(y);
 
   return(0);
 }
@@ -253,5 +253,10 @@ booleantype has_data(SUNMatrix A)
     return FALSE;
   else
     return TRUE;
+}
+
+booleantype is_square(SUNMatrix A)
+{
+  return TRUE;
 }
 

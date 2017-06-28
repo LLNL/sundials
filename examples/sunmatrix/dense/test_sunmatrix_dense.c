@@ -29,6 +29,7 @@
 #include <sunmatrix/sunmatrix_dense.h>
 #include <nvector/nvector_serial.h>
 #include <sundials/sundials_math.h>
+#include "test_sunmatrix.h"
 
 
 /* ----------------------------------------------------------------------
@@ -39,10 +40,11 @@ int main(int argc, char *argv[])
   int       fails = 0;        /* counter for test failures  */
   long int  matrows, matcols; /* vector length              */
   N_Vector  x, y;             /* test vectors               */
-  realtype* xdata, ydata;     /* pointer to vector data     */
+  realtype  *xdata, *ydata;   /* pointers to vector data    */
   SUNMatrix A, I;             /* test matrices              */
-  realtype* Adata, Idata;     /* pointer to matrix data     */
-  int       print_timing; 
+  realtype  *Adata, *Idata;   /* pointers to matrix data    */
+  int       print_timing, square;
+  long int  i, j, m, n;
 
   /* check input and set vector length */
   if (argc < 4){
@@ -62,22 +64,18 @@ int main(int argc, char *argv[])
     return(-1); 
   }
 
-  /* or add check around scale add I and skip if not square */
-  if (matrows != matcols) {
-    printf("ERROR: number of rows must equal the number of cols \n");
-    return(-1); 
-  }
-  
   print_timing = atoi(argv[3]);
   SetTiming(print_timing);
   
+  square = (matrows == matcols) ? 1 : 0;
   printf("\nRunning with matrix size, %ld by %ld \n \n", matrows, matcols);
   
   /* Create vectors and matrices */
   x = N_VNew_Serial(matcols);
   y = N_VNew_Serial(matrows);
   A = SUNDenseMatrix(matrows, matcols);
-  I = SUNDenseMatrix(matrows, matcols);
+  if (square)
+    I = SUNDenseMatrix(matrows, matcols);
   
   /* Fill matrices and vectors */
   Adata = SUNDenseMatrix_Data(A);
@@ -87,9 +85,11 @@ int main(int argc, char *argv[])
     }
   }
 
-  Idata = SUNDenseMatrix_Data(I);
-  for(i=0, j=0; i < matrows; i++, j++) {
-    Idata[j*matrows + i] = ONE;
+  if (square) {
+    Idata = SUNDenseMatrix_Data(I);
+    for(i=0, j=0; i < matrows; i++, j++) {
+      Idata[j*matrows + i] = ONE;
+    }
   }
 
   xdata = N_VGetArrayPointer(x);
@@ -109,22 +109,34 @@ int main(int argc, char *argv[])
   fails += Test_SUNMatClone(A, 0);
   fails += Test_SUNMatCopy(A, 0);
   fails += Test_SUNMatZero(A, 0);
-  fails += Test_SUNScaleAdd(A, 0);
-  fails += Test_SUNScaleAddI(A, I, 0);
+  fails += Test_SUNMatScaleAdd(A, I, 0);
+  if (square) 
+    fails += Test_SUNMatScaleAddI(A, I, 0);
   fails += Test_SUNMatMatvec(A, x, y, 0);
+
+  /* Print result */
+  if (fails) {
+    printf("FAIL: SUNMatrix module failed %i tests \n \n", fails);
+    printf("\nA =\n");
+    SUNDenseMatrix_Print(A,stdout);
+    if (square) {
+      printf("\nI =\n");
+      SUNDenseMatrix_Print(I,stdout);
+    }
+    printf("\nx =\n");
+    N_VPrint_Serial(x);
+    printf("\ny =\n");
+    N_VPrint_Serial(y);
+  } else {
+    printf("SUCCESS: SUNMatrix module passed all tests \n \n");
+  }
 
   /* Free vectors and matrices */
   N_VDestroy_Serial(x);
   N_VDestroy_Serial(y);
   SUNMatDestroy(A);
-  SUNMatDestroy(I);
-
-  /* Print result */
-  if (fails) {
-    printf("FAIL: SUNMatrix module failed %i tests \n \n", fails);
-  } else {
-    printf("SUCCESS: SUNMatrix module passed all tests \n \n");
-  }
+  if (square)
+    SUNMatDestroy(I);
 
   return(0);
 }
@@ -223,4 +235,12 @@ booleantype has_data(SUNMatrix A)
     return FALSE;
   else
     return TRUE;
+}
+
+booleantype is_square(SUNMatrix A)
+{
+  if (SUNDenseMatrix_Rows(A) == SUNDenseMatrix_Columns(A))
+    return TRUE;
+  else
+    return FALSE;
 }

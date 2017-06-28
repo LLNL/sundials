@@ -1177,7 +1177,7 @@ IF(EXAMPLES_ENABLE)
   ADD_SUBDIRECTORY(examples/nvector/serial)
 
   # # Always add the sunmatrix dense/band/sparse examples
-  # ADD_SUBDIRECTORY(examples/sunmatrix/dense)
+  ADD_SUBDIRECTORY(examples/sunmatrix/dense)
   ADD_SUBDIRECTORY(examples/sunmatrix/band)
   # ADD_SUBDIRECTORY(examples/sunmatrix/sparse)
 
