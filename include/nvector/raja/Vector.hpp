@@ -33,7 +33,7 @@
 namespace sunrajavec
 {
 
-template <typename T, typename I=int>
+template <typename T, typename I=long int>
 class Vector : public _N_VectorContent_Raja
 {
 public:
@@ -133,10 +133,27 @@ private:
 
     
 
-// Vector extractor
-inline sunrajavec::Vector<realtype, long int>* extract(N_Vector v)
+// Extract Vector from N_Vector
+template <typename T, typename I=long int>
+inline Vector<T, I>* extract(N_Vector v)
 {
-    return static_cast<sunrajavec::Vector<realtype, long int>*>(v->content);
+    return static_cast<Vector<T, I>*>(v->content);
+}
+
+// Get Vector device data
+template <typename T, typename I=long int>
+inline T* getDevData(N_Vector v)
+{
+  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
+  return vp->device();
+}
+
+// Get Vector length
+template <typename T, typename I=long int>
+inline I getSize(N_Vector v)
+{
+  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
+  return vp->size();
 }
 
 
