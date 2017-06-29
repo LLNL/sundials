@@ -50,6 +50,15 @@
      tolerance and a weight vector), then we should revert the
      PSolveFn function prototype to remove 'w' and 'tol'.
 
+   * Actually, the CVODE(S), ARKode and IDA(S) user guide already
+     states to call *GetErrWeights() to retrieve the scaling vector,
+     so no API change is needed.  The CVODES and IDAS user guides, in
+     the portion discussing the backwards problem, are less specific
+     (and should be updated).  That said, I should modify the ARKode
+     documentation to state that users should call *GetResWeights()
+     since I use that scaling vector for linear convergence tests.  I
+     also need to ADD a user-callable function to access that vector.
+
 
 5. Update all solver-specific, user-supplied 'psolve' routine
    interfaces to add the weight vector (and possibly tolerance):
