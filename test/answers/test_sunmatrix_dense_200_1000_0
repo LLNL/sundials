@@ -1,0 +1,11 @@
+
+Dense matrix test: size 200 by 1000
+
+    PASSED test -- SUNMatGetID 
+    PASSED test -- N_VClone 
+    PASSED test -- N_VConst 
+    PASSED test -- SUNMatZero 
+    PASSED test -- SUNMatScaleAdd case 1 
+    PASSED test -- SUNMatMatvec 
+SUCCESS: SUNMatrix module passed all tests 
+ 

@@ -72,8 +72,8 @@ int main(int argc, char *argv[])
   print_timing = atoi(argv[4]);
   SetTiming(print_timing);
 
-
-  printf("\nRunning with matrix size %ld, bandwidths %ld %ld \n \n", cols, uband, lband);
+  printf("\nBand matrix test: size %ld, bandwidths %ld %ld\n\n",
+         cols, uband, lband);
 
   /* Create matrices and vectors */
   A = SUNBandMatrix(cols, uband, lband, uband);

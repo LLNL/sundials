@@ -83,6 +83,7 @@ SUNMatrix SUNSparseMatrix(long int M, long int N,
   ops->copy        = SUNMatCopy_Sparse;
   ops->scaleadd    = SUNMatScaleAdd_Sparse;
   ops->scaleaddi   = SUNMatScaleAddI_Sparse;
+  ops->matvec      = SUNMatMatvec_Sparse;
 
   /* Create content */
   content = NULL;
@@ -230,7 +231,7 @@ SUNMatrix SUNSparseFromBandMatrix(SUNMatrix Ad, realtype droptol, int sparsetype
   /* determine total number of nonzeros */
   nnz = 0;
   for (j=0; j<N; j++)
-    for (i=SUNMAX(0,j-SM_UBAND_B(Ad)); i<SUNMIN(M,j+SM_LBAND_B(Ad)); i++)
+    for (i=SUNMAX(0,j-SM_UBAND_B(Ad)); i<=SUNMIN(M-1,j+SM_LBAND_B(Ad)); i++)
       nnz += (SUNRabs(SM_ELEMENT_B(Ad,i,j)) > droptol);
 
   /* allocate sparse matrix */
@@ -242,7 +243,7 @@ SUNMatrix SUNSparseFromBandMatrix(SUNMatrix Ad, realtype droptol, int sparsetype
   if (sparsetype == CSC_MAT) {
     for (j=0; j<N; j++) {
       (SM_INDEXPTRS_S(As))[j] = nnz;
-      for (i=SUNMAX(0,j-SM_UBAND_B(Ad)); i<SUNMIN(M,j+SM_LBAND_B(Ad)); i++) {
+      for (i=SUNMAX(0,j-SM_UBAND_B(Ad)); i<=SUNMIN(M-1,j+SM_LBAND_B(Ad)); i++) {
         if ( SUNRabs(SM_ELEMENT_B(Ad,i,j)) > droptol ) { 
           (SM_INDEXVALS_S(As))[nnz] = i;
           (SM_DATA_S(As))[nnz++] = SM_ELEMENT_B(Ad,i,j);
@@ -253,7 +254,7 @@ SUNMatrix SUNSparseFromBandMatrix(SUNMatrix Ad, realtype droptol, int sparsetype
   } else {       /* CSR_MAT */
     for (i=0; i<M; i++) {
       (SM_INDEXPTRS_S(As))[i] = nnz;
-      for (j=SUNMAX(0,i-SM_LBAND_B(Ad)); j<SUNMIN(N,i+SM_UBAND_B(Ad)); j++) {
+      for (j=SUNMAX(0,i-SM_LBAND_B(Ad)); j<=SUNMIN(N-1,i+SM_UBAND_B(Ad)); j++) {
         if ( SUNRabs(SM_ELEMENT_B(Ad,i,j)) > droptol ) { 
           (SM_INDEXVALS_S(As))[nnz] = j;
           (SM_DATA_S(As))[nnz++] = SM_ELEMENT_B(Ad,i,j);

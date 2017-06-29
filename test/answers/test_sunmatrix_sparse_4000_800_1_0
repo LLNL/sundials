@@ -1,0 +1,11 @@
+
+Sparse matrix test: size 4000 by 800, type = 1
+
+    PASSED test -- SUNMatGetID 
+    PASSED test -- N_VClone 
+    PASSED test -- N_VConst 
+    PASSED test -- SUNMatZero 
+    PASSED test -- SUNMatScaleAdd case 1 
+    PASSED test -- SUNMatMatvec 
+SUCCESS: SUNMatrix module passed all tests 
+ 
