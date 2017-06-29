@@ -1179,7 +1179,7 @@ IF(EXAMPLES_ENABLE)
   # # Always add the sunmatrix dense/band/sparse examples
   ADD_SUBDIRECTORY(examples/sunmatrix/dense)
   ADD_SUBDIRECTORY(examples/sunmatrix/band)
-  # ADD_SUBDIRECTORY(examples/sunmatrix/sparse)
+  ADD_SUBDIRECTORY(examples/sunmatrix/sparse)
 
   # # Always add the sunlinearsolver dense/band examples
   # ADD_SUBDIRECTORY(examples/sunlinsol/dense)

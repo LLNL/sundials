@@ -192,6 +192,7 @@ typedef struct _SUNMatrixContent_Sparse *SUNMatrixContent_Sparse;
  * CONSTRUCTORS:
  *    SUNSparseMatrix
  *    SUNSparseFromDenseMatrix
+ *    SUNSparseFromBandMatrix
  * OTHER:
  *    SUNSparseMatrix_Print
  *    SUNSparseMatrix_Realloc
@@ -225,10 +226,10 @@ SUNDIALS_EXPORT SUNMatrix SUNSparseMatrix(long int M, long int N,
  * -----------------------------------------------------------------
  * Function: SUNSparseFromDenseMatrix
  * -----------------------------------------------------------------
- * Creates a new sparse matrix from an existing dense or band matrix 
- * by copying all values with magnitude larger than droptol into the 
- * sparse matrix structure.  
- * Requirements: A must have type SUNMATRIX_DENSE or SUNMATRIX_BAND; 
+ * Creates a new sparse matrix from an existing dense matrix 
+ * by copying all values with magnitude larger than or equal to 
+ * droptol into the sparse matrix structure.  
+ * Requirements: A must have type SUNMATRIX_DENSE; 
  * droptol must be non-negative; sparsetype must be either 
  * CSC_MAT or CSR_MAT.
  * Returns NULL if any requirements are violated, or if the matrix
@@ -239,6 +240,25 @@ SUNDIALS_EXPORT SUNMatrix SUNSparseMatrix(long int M, long int N,
 SUNDIALS_EXPORT SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix A,
                                                    realtype droptol,
                                                    int sparsetype);
+
+/*
+ * -----------------------------------------------------------------
+ * Function: SUNSparseFromBandMatrix
+ * -----------------------------------------------------------------
+ * Creates a new sparse matrix from an existing band matrix 
+ * by copying all values with magnitude larger than or equal to 
+ * droptol into the sparse matrix structure.  
+ * Requirements: A must have type SUNMATRIX_BAND; 
+ * droptol must be non-negative; sparsetype must be either 
+ * CSC_MAT or CSR_MAT.
+ * Returns NULL if any requirements are violated, or if the matrix
+ * storage request cannot be satisfied. 
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT SUNMatrix SUNSparseFromBandMatrix(SUNMatrix A,
+                                                  realtype droptol,
+                                                  int sparsetype);
 
 /*
  * -----------------------------------------------------------------
