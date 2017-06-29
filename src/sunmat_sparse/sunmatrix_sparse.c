@@ -135,7 +135,7 @@ SUNMatrix SUNSparseMatrix(long int M, long int N,
 
 
 /* ----------------------------------------------------------------------------
- * Function to create a new sparse matrix from an existing dense or band matrix 
+ * Function to create a new sparse matrix from an existing dense matrix 
  * by copying all nonzero values into the sparse matrix structure.  Returns NULL 
  * if the request for matrix storage cannot be satisfied.
  */
@@ -151,95 +151,111 @@ SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix Ad, realtype droptol, int sparsetyp
     return NULL;
   if ( droptol < ZERO )
     return NULL;
-  if ( (SUNMatGetID(Ad) != SUNMATRIX_DENSE) &&
-       (SUNMatGetID(Ad) != SUNMATRIX_BAND) )
+  if (SUNMatGetID(Ad) != SUNMATRIX_DENSE)
     return NULL;
   
-  /* proceed according to A's type (dense/band) */
-  if (SUNMatGetID(Ad) == SUNMATRIX_DENSE) {
+  /* set size of new matrix */
+  M = SM_ROWS_D(Ad);
+  N = SM_COLUMNS_D(Ad);
 
-    /* set size of new matrix */
-    M = SM_ROWS_D(Ad);
-    N = SM_COLUMNS_D(Ad);
-
-    /* determine total number of nonzeros */
-    nnz = 0;
-    for (j=0; j<N; j++)
-      for (i=0; i<M; i++)
-        nnz += (SUNRabs(SM_ELEMENT_D(Ad,i,j)) >= droptol);
+  /* determine total number of nonzeros */
+  nnz = 0;
+  for (j=0; j<N; j++)
+    for (i=0; i<M; i++)
+      nnz += (SUNRabs(SM_ELEMENT_D(Ad,i,j)) >= droptol);
     
-    /* allocate sparse matrix */
-    As = SUNSparseMatrix(M, N, nnz, sparsetype);
-    if (As == NULL)  return NULL;
+  /* allocate sparse matrix */
+  As = SUNSparseMatrix(M, N, nnz, sparsetype);
+  if (As == NULL)  return NULL;
   
-    /* copy nonzeros from Ad into As, based on CSR/CSC type */
-    nnz = 0;
-    if (sparsetype == CSC_MAT) {
-      for (j=0; j<N; j++) {
-        (SM_INDEXPTRS_S(As))[j] = nnz;
-        for (i=0; i<M; i++) {
-          if ( SUNRabs(SM_ELEMENT_D(Ad,i,j)) >= droptol ) { 
-            (SM_INDEXVALS_S(As))[nnz] = i;
-            (SM_DATA_S(As))[nnz++] = SM_ELEMENT_D(Ad,i,j);
-          }
-        }
-      }
-      (SM_INDEXPTRS_S(As))[N] = nnz;
-    } else {       /* CSR_MAT */
+  /* copy nonzeros from Ad into As, based on CSR/CSC type */
+  nnz = 0;
+  if (sparsetype == CSC_MAT) {
+    for (j=0; j<N; j++) {
+      (SM_INDEXPTRS_S(As))[j] = nnz;
       for (i=0; i<M; i++) {
-        (SM_INDEXPTRS_S(As))[i] = nnz;
-        for (j=0; j<N; j++) {
-          if ( SUNRabs(SM_ELEMENT_D(Ad,i,j)) >= droptol ) { 
-            (SM_INDEXVALS_S(As))[nnz] = j;
-            (SM_DATA_S(As))[nnz++] = SM_ELEMENT_D(Ad,i,j);
-          }
+        if ( SUNRabs(SM_ELEMENT_D(Ad,i,j)) >= droptol ) { 
+          (SM_INDEXVALS_S(As))[nnz] = i;
+          (SM_DATA_S(As))[nnz++] = SM_ELEMENT_D(Ad,i,j);
         }
       }
-      (SM_INDEXPTRS_S(As))[M] = nnz;
     }
+    (SM_INDEXPTRS_S(As))[N] = nnz;
+  } else {       /* CSR_MAT */
+    for (i=0; i<M; i++) {
+      (SM_INDEXPTRS_S(As))[i] = nnz;
+      for (j=0; j<N; j++) {
+        if ( SUNRabs(SM_ELEMENT_D(Ad,i,j)) >= droptol ) { 
+          (SM_INDEXVALS_S(As))[nnz] = j;
+          (SM_DATA_S(As))[nnz++] = SM_ELEMENT_D(Ad,i,j);
+        }
+      }
+    }
+    (SM_INDEXPTRS_S(As))[M] = nnz;
+  }
     
-  } else {   /* SUNMATRIX_BAND */
+  return(As);
+}
 
-    /* set size of new matrix */
-    M = SM_ROWS_B(Ad);
-    N = SM_COLUMNS_B(Ad);
 
-    /* determine total number of nonzeros */
-    nnz = 0;
-    for (j=0; j<N; j++)
-      for (i=SUNMAX(0,j-SM_UBAND_B(Ad)); i<SUNMIN(M,j+SM_LBAND_B(Ad)); i++)
-        nnz += (SUNRabs(SM_ELEMENT_B(Ad,i,j)) >= droptol);
+/* ----------------------------------------------------------------------------
+ * Function to create a new sparse matrix from an existing band matrix 
+ * by copying all nonzero values into the sparse matrix structure.  Returns NULL 
+ * if the request for matrix storage cannot be satisfied.
+ */
 
-    /* allocate sparse matrix */
-    As = SUNSparseMatrix(M, N, nnz, sparsetype);
-    if (As == NULL)  return NULL;
+SUNMatrix SUNSparseFromBandMatrix(SUNMatrix Ad, realtype droptol, int sparsetype)
+{
+  long int i, j, nnz;
+  long int M, N;
+  SUNMatrix As;
 
-    /* copy nonzeros from Ad into As, based on CSR/CSC type */
-    nnz = 0;
-    if (sparsetype == CSC_MAT) {
-      for (j=0; j<N; j++) {
-        (SM_INDEXPTRS_S(As))[j] = nnz;
-        for (i=SUNMAX(0,j-SM_UBAND_B(Ad)); i<SUNMIN(M,j+SM_LBAND_B(Ad)); i++) {
-          if ( SUNRabs(SM_ELEMENT_B(Ad,i,j)) >= droptol ) { 
-            (SM_INDEXVALS_S(As))[nnz] = i;
-            (SM_DATA_S(As))[nnz++] = SM_ELEMENT_B(Ad,i,j);
-          }
+  /* check for legal sparsetype, droptol and input matrix type */
+  if ( (sparsetype != CSR_MAT) && (sparsetype != CSC_MAT) )
+    return NULL;
+  if ( droptol < ZERO )
+    return NULL;
+  if (SUNMatGetID(Ad) != SUNMATRIX_BAND)
+    return NULL;
+  
+  /* set size of new matrix */
+  M = SM_ROWS_B(Ad);
+  N = SM_COLUMNS_B(Ad);
+
+  /* determine total number of nonzeros */
+  nnz = 0;
+  for (j=0; j<N; j++)
+    for (i=SUNMAX(0,j-SM_UBAND_B(Ad)); i<SUNMIN(M,j+SM_LBAND_B(Ad)); i++)
+      nnz += (SUNRabs(SM_ELEMENT_B(Ad,i,j)) >= droptol);
+
+  /* allocate sparse matrix */
+  As = SUNSparseMatrix(M, N, nnz, sparsetype);
+  if (As == NULL)  return NULL;
+
+  /* copy nonzeros from Ad into As, based on CSR/CSC type */
+  nnz = 0;
+  if (sparsetype == CSC_MAT) {
+    for (j=0; j<N; j++) {
+      (SM_INDEXPTRS_S(As))[j] = nnz;
+      for (i=SUNMAX(0,j-SM_UBAND_B(Ad)); i<SUNMIN(M,j+SM_LBAND_B(Ad)); i++) {
+        if ( SUNRabs(SM_ELEMENT_B(Ad,i,j)) >= droptol ) { 
+          (SM_INDEXVALS_S(As))[nnz] = i;
+          (SM_DATA_S(As))[nnz++] = SM_ELEMENT_B(Ad,i,j);
         }
       }
-      (SM_INDEXPTRS_S(As))[N] = nnz;
-    } else {       /* CSR_MAT */
-      for (i=0; i<M; i++) {
-        (SM_INDEXPTRS_S(As))[i] = nnz;
-        for (j=SUNMAX(0,i-SM_LBAND_B(Ad)); j<SUNMIN(N,i+SM_UBAND_B(Ad)); j++) {
-          if ( SUNRabs(SM_ELEMENT_B(Ad,i,j)) >= droptol ) { 
-            (SM_INDEXVALS_S(As))[nnz] = j;
-            (SM_DATA_S(As))[nnz++] = SM_ELEMENT_B(Ad,i,j);
-          }
-        }
-      }
-      (SM_INDEXPTRS_S(As))[M] = nnz;
     }
-
+    (SM_INDEXPTRS_S(As))[N] = nnz;
+  } else {       /* CSR_MAT */
+    for (i=0; i<M; i++) {
+      (SM_INDEXPTRS_S(As))[i] = nnz;
+      for (j=SUNMAX(0,i-SM_LBAND_B(Ad)); j<SUNMIN(N,i+SM_UBAND_B(Ad)); j++) {
+        if ( SUNRabs(SM_ELEMENT_B(Ad,i,j)) >= droptol ) { 
+          (SM_INDEXVALS_S(As))[nnz] = j;
+          (SM_DATA_S(As))[nnz++] = SM_ELEMENT_B(Ad,i,j);
+        }
+      }
+    }
+    (SM_INDEXPTRS_S(As))[M] = nnz;
   }
 
   return(As);
