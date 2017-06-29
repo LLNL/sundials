@@ -130,8 +130,13 @@ SUNMatrix SUNSparseMatrix(long int M, long int N,
   }
   content->indexptrs[content->NP] = 0;
 
+  /* Attach content and ops */
+  A->content = content;
+  A->ops     = ops;
+
   return(A);
 }
+
 
 
 /* ----------------------------------------------------------------------------
@@ -271,8 +276,7 @@ SUNMatrix SUNSparseFromBandMatrix(SUNMatrix Ad, realtype droptol, int sparsetype
 int SUNSparseMatrix_Realloc(SUNMatrix A)
 {
   /* check for valid matrix type */
-  if ( (SUNMatGetID(A) != SUNMATRIX_CSC) &&
-       (SUNMatGetID(A) != SUNMATRIX_CSR) )
+  if (SUNMatGetID(A) != SUNMATRIX_SPARSE)
     return 1;
 
   /* get total number of nonzeros (return with failure if illegal) */
@@ -302,8 +306,7 @@ void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile)
   
   /* should not be called unless A is a sparse matrix; 
      otherwise return immediately */
-  if ( (SUNMatGetID(A) != SUNMATRIX_CSC) &&
-       (SUNMatGetID(A) != SUNMATRIX_CSR) )
+  if (SUNMatGetID(A) != SUNMATRIX_SPARSE)
     return;
 
   /* perform operation */
@@ -346,8 +349,7 @@ void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile)
 
 long int SUNSparseMatrix_Rows(SUNMatrix A)
 {
-  if ( (SUNMatGetID(A) == SUNMATRIX_CSC) ||
-       (SUNMatGetID(A) == SUNMATRIX_CSR) )
+  if (SUNMatGetID(A) == SUNMATRIX_SPARSE)
     return SM_ROWS_S(A);
   else
     return -1;
@@ -355,8 +357,7 @@ long int SUNSparseMatrix_Rows(SUNMatrix A)
 
 long int SUNSparseMatrix_Columns(SUNMatrix A)
 {
-  if ( (SUNMatGetID(A) == SUNMATRIX_CSC) ||
-       (SUNMatGetID(A) == SUNMATRIX_CSR) )
+  if (SUNMatGetID(A) == SUNMATRIX_SPARSE)
     return SM_COLUMNS_S(A);
   else
     return -1;
@@ -364,8 +365,7 @@ long int SUNSparseMatrix_Columns(SUNMatrix A)
 
 long int SUNSparseMatrix_NNZ(SUNMatrix A)
 {
-  if ( (SUNMatGetID(A) == SUNMATRIX_CSC) ||
-       (SUNMatGetID(A) == SUNMATRIX_CSR) )
+  if (SUNMatGetID(A) == SUNMATRIX_SPARSE)
     return SM_NNZ_S(A);
   else
     return -1;
@@ -374,8 +374,7 @@ long int SUNSparseMatrix_NNZ(SUNMatrix A)
 
 realtype* SUNSparseMatrix_Data(SUNMatrix A)
 {
-  if ( (SUNMatGetID(A) == SUNMATRIX_CSC) ||
-       (SUNMatGetID(A) == SUNMATRIX_CSR) )
+  if (SUNMatGetID(A) == SUNMATRIX_SPARSE)
     return SM_DATA_S(A);
   else
     return NULL;
@@ -383,8 +382,7 @@ realtype* SUNSparseMatrix_Data(SUNMatrix A)
 
 long int* SUNSparseMatrix_IndexValues(SUNMatrix A)
 {
-  if ( (SUNMatGetID(A) == SUNMATRIX_CSC) ||
-       (SUNMatGetID(A) == SUNMATRIX_CSR) )
+  if (SUNMatGetID(A) == SUNMATRIX_SPARSE)
     return SM_INDEXVALS_S(A);
   else
     return NULL;
@@ -392,8 +390,7 @@ long int* SUNSparseMatrix_IndexValues(SUNMatrix A)
 
 long int* SUNSparseMatrix_IndexPointers(SUNMatrix A)
 {
-  if ( (SUNMatGetID(A) == SUNMATRIX_CSC) ||
-       (SUNMatGetID(A) == SUNMATRIX_CSR) )
+  if (SUNMatGetID(A) == SUNMATRIX_SPARSE)
     return SM_INDEXPTRS_S(A);
   else
     return NULL;
@@ -408,11 +405,7 @@ long int* SUNSparseMatrix_IndexPointers(SUNMatrix A)
 
 SUNMatrix_ID SUNMatGetID_Sparse(SUNMatrix A)
 {
-  if (SM_SPARSETYPE_S(A) == CSC_MAT) {
-    return SUNMATRIX_CSC;
-  } else {
-    return SUNMATRIX_CSR;
-  }
+  return SUNMATRIX_SPARSE;
 }
 
 SUNMatrix SUNMatClone_Sparse(SUNMatrix A)
@@ -853,11 +846,8 @@ int SUNMatMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y)
 static booleantype SMCompatible_Sparse(SUNMatrix A, SUNMatrix B)
 {
   /* both matrices must be sparse */
-  if ( (SUNMatGetID(A) != SUNMATRIX_CSC) &&
-       (SUNMatGetID(A) != SUNMATRIX_CSR) )
-    return FALSE;
-  if ( (SUNMatGetID(B) != SUNMATRIX_CSC) &&
-       (SUNMatGetID(B) != SUNMATRIX_CSR) )
+  if ( (SUNMatGetID(A) != SUNMATRIX_SPARSE) ||
+       (SUNMatGetID(B) != SUNMATRIX_SPARSE) )
     return FALSE;
 
   /* both matrices must have the same shape and sparsity type */
