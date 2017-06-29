@@ -32,6 +32,15 @@
 
 extern "C" {
 
+/* ----------------------------------------------------------------
+ * Returns vector type ID. Used to identify vector implementation
+ * from abstract N_Vector interface.
+ */
+N_Vector_ID N_VGetVectorID_Raja(N_Vector v)
+{
+  return SUNDIALS_NVEC_RAJA;
+}
+
 N_Vector N_VNewEmpty_Raja(long int length)
 {
   N_Vector v;
@@ -48,6 +57,7 @@ N_Vector N_VNewEmpty_Raja(long int length)
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
   if (ops == NULL) { free(v); return(NULL); }
 
+  ops->nvgetvectorid     = N_VGetVectorID_Raja;
   ops->nvclone           = N_VClone_Raja;
   ops->nvcloneempty      = N_VCloneEmpty_Raja;
   ops->nvdestroy         = N_VDestroy_Raja;
@@ -185,6 +195,29 @@ void N_VDestroyVectorArray_Raja(N_Vector *vs, int count)
 }
 
 
+/* ----------------------------------------------------------------------------
+ * Function to print the a serial vector
+ */
+
+void N_VPrint_Raja(N_Vector X)
+{
+  const realtype *xd = sunrajavec::getDevData<realtype, long int>(X);
+  const long int N = sunrajavec::getSize<realtype, long int>(X);
+  long int i;
+
+  for (i = 0; i < N; ++i) {
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("%35.32Lg\n", xd[i]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("%19.16g\n", xd[i]);
+#else
+    printf("%11.8g\n", xd[i]);
+#endif
+  }
+  printf("\n");
+
+  return;
+}
 
 /*
  * -----------------------------------------------------------------
@@ -209,6 +242,7 @@ N_Vector N_VCloneEmpty_Raja(N_Vector w)
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
   if (ops == NULL) { free(v); return(NULL); }
 
+  ops->nvgetvectorid     = w->ops->nvgetvectorid;
   ops->nvclone           = w->ops->nvclone;
   ops->nvcloneempty      = w->ops->nvcloneempty;
   ops->nvdestroy         = w->ops->nvdestroy;

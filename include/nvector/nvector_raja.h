@@ -165,7 +165,7 @@ SUNDIALS_EXPORT void N_VDestroyVectorArray_Raja(N_Vector *vs, int count);
  * -----------------------------------------------------------------
  */
 
-//SUNDIALS_EXPORT void N_VPrint_Raja(N_Vector v);
+SUNDIALS_EXPORT void N_VPrint_Raja(N_Vector v);
 
 /*
  * -----------------------------------------------------------------
@@ -173,6 +173,7 @@ SUNDIALS_EXPORT void N_VDestroyVectorArray_Raja(N_Vector *vs, int count);
  * -----------------------------------------------------------------
  */
 
+SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_Raja(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Raja(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Raja(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Raja(N_Vector v);
