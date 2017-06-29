@@ -167,7 +167,7 @@ SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix Ad, realtype droptol, int sparsetyp
   nnz = 0;
   for (j=0; j<N; j++)
     for (i=0; i<M; i++)
-      nnz += (SUNRabs(SM_ELEMENT_D(Ad,i,j)) >= droptol);
+      nnz += (SUNRabs(SM_ELEMENT_D(Ad,i,j)) > droptol);
     
   /* allocate sparse matrix */
   As = SUNSparseMatrix(M, N, nnz, sparsetype);
@@ -179,7 +179,7 @@ SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix Ad, realtype droptol, int sparsetyp
     for (j=0; j<N; j++) {
       (SM_INDEXPTRS_S(As))[j] = nnz;
       for (i=0; i<M; i++) {
-        if ( SUNRabs(SM_ELEMENT_D(Ad,i,j)) >= droptol ) { 
+        if ( SUNRabs(SM_ELEMENT_D(Ad,i,j)) > droptol ) { 
           (SM_INDEXVALS_S(As))[nnz] = i;
           (SM_DATA_S(As))[nnz++] = SM_ELEMENT_D(Ad,i,j);
         }
@@ -190,7 +190,7 @@ SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix Ad, realtype droptol, int sparsetyp
     for (i=0; i<M; i++) {
       (SM_INDEXPTRS_S(As))[i] = nnz;
       for (j=0; j<N; j++) {
-        if ( SUNRabs(SM_ELEMENT_D(Ad,i,j)) >= droptol ) { 
+        if ( SUNRabs(SM_ELEMENT_D(Ad,i,j)) > droptol ) { 
           (SM_INDEXVALS_S(As))[nnz] = j;
           (SM_DATA_S(As))[nnz++] = SM_ELEMENT_D(Ad,i,j);
         }
@@ -231,7 +231,7 @@ SUNMatrix SUNSparseFromBandMatrix(SUNMatrix Ad, realtype droptol, int sparsetype
   nnz = 0;
   for (j=0; j<N; j++)
     for (i=SUNMAX(0,j-SM_UBAND_B(Ad)); i<SUNMIN(M,j+SM_LBAND_B(Ad)); i++)
-      nnz += (SUNRabs(SM_ELEMENT_B(Ad,i,j)) >= droptol);
+      nnz += (SUNRabs(SM_ELEMENT_B(Ad,i,j)) > droptol);
 
   /* allocate sparse matrix */
   As = SUNSparseMatrix(M, N, nnz, sparsetype);
@@ -243,7 +243,7 @@ SUNMatrix SUNSparseFromBandMatrix(SUNMatrix Ad, realtype droptol, int sparsetype
     for (j=0; j<N; j++) {
       (SM_INDEXPTRS_S(As))[j] = nnz;
       for (i=SUNMAX(0,j-SM_UBAND_B(Ad)); i<SUNMIN(M,j+SM_LBAND_B(Ad)); i++) {
-        if ( SUNRabs(SM_ELEMENT_B(Ad,i,j)) >= droptol ) { 
+        if ( SUNRabs(SM_ELEMENT_B(Ad,i,j)) > droptol ) { 
           (SM_INDEXVALS_S(As))[nnz] = i;
           (SM_DATA_S(As))[nnz++] = SM_ELEMENT_B(Ad,i,j);
         }
@@ -254,7 +254,7 @@ SUNMatrix SUNSparseFromBandMatrix(SUNMatrix Ad, realtype droptol, int sparsetype
     for (i=0; i<M; i++) {
       (SM_INDEXPTRS_S(As))[i] = nnz;
       for (j=SUNMAX(0,i-SM_LBAND_B(Ad)); j<SUNMIN(N,i+SM_UBAND_B(Ad)); j++) {
-        if ( SUNRabs(SM_ELEMENT_B(Ad,i,j)) >= droptol ) { 
+        if ( SUNRabs(SM_ELEMENT_B(Ad,i,j)) > droptol ) { 
           (SM_INDEXVALS_S(As))[nnz] = j;
           (SM_DATA_S(As))[nnz++] = SM_ELEMENT_B(Ad,i,j);
         }
@@ -371,6 +371,21 @@ long int SUNSparseMatrix_NNZ(SUNMatrix A)
     return -1;
 }
 
+long int SUNSparseMatrix_NP(SUNMatrix A)
+{
+  if (SUNMatGetID(A) == SUNMATRIX_SPARSE)
+    return SM_NP_S(A);
+  else
+    return -1;
+}
+
+int SUNSparseMatrix_SparseType(SUNMatrix A)
+{
+  if (SUNMatGetID(A) == SUNMATRIX_SPARSE)
+    return SM_SPARSETYPE_S(A);
+  else
+    return -1;
+}
 
 realtype* SUNSparseMatrix_Data(SUNMatrix A)
 {
