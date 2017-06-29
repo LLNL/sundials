@@ -199,6 +199,8 @@ typedef struct _SUNMatrixContent_Sparse *SUNMatrixContent_Sparse;
  *    SUNSparseMatrix_Rows
  *    SUNSparseMatrix_Columns 
  *    SUNSparseMatrix_NNZ
+ *    SUNSparseMatrix_NP
+ *    SUNSparseMatrix_SparseType
  *    SUNSparseMatrix_Data 
  *    SUNSparseMatrix_IndexValues
  *    SUNSparseMatrix_IndexPointers
@@ -227,8 +229,8 @@ SUNDIALS_EXPORT SUNMatrix SUNSparseMatrix(long int M, long int N,
  * Function: SUNSparseFromDenseMatrix
  * -----------------------------------------------------------------
  * Creates a new sparse matrix from an existing dense matrix 
- * by copying all values with magnitude larger than or equal to 
- * droptol into the sparse matrix structure.  
+ * by copying all values with magnitude larger than droptol into 
+ * the sparse matrix structure.  
  * Requirements: A must have type SUNMATRIX_DENSE; 
  * droptol must be non-negative; sparsetype must be either 
  * CSC_MAT or CSR_MAT.
@@ -299,6 +301,13 @@ SUNDIALS_EXPORT void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile);
  * SUNSparseMatrix_NNZ
  *    Returns the allocated number of nonzeros in the sparse matrix
  *
+ * SUNSparseMatrix_NP
+ *    Returns the number of columns/rows depending on whether the 
+ *    matrix uses CSC/CSR format, respectively
+ *
+ * SUNSparseMatrix_SparseType
+ *    Returns the storage type for this matrix (CSR_MAT or CSC_MAT)
+ *
  * SUNSparseMatrix_Data
  *    Returns a pointer to the data array for the sparse matrix
  *
@@ -317,6 +326,8 @@ SUNDIALS_EXPORT void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile);
 SUNDIALS_EXPORT long int SUNSparseMatrix_Rows(SUNMatrix A);
 SUNDIALS_EXPORT long int SUNSparseMatrix_Columns(SUNMatrix A);
 SUNDIALS_EXPORT long int SUNSparseMatrix_NNZ(SUNMatrix A);
+SUNDIALS_EXPORT long int SUNSparseMatrix_NP(SUNMatrix A);
+SUNDIALS_EXPORT int SUNSparseMatrix_SparseType(SUNMatrix A);
 SUNDIALS_EXPORT realtype* SUNSparseMatrix_Data(SUNMatrix A);
 SUNDIALS_EXPORT long int* SUNSparseMatrix_IndexValues(SUNMatrix A);
 SUNDIALS_EXPORT long int* SUNSparseMatrix_IndexPointers(SUNMatrix A);
