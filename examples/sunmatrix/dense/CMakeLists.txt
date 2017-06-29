@@ -60,10 +60,9 @@ FOREACH(example ${sunmatrix_dense_examples})
   ADD_EXECUTABLE(${example} ${example}.c ../test_sunmatrix.c ../../../src/sundials/sundials_matrix.c ../../../src/sundials/sundials_nvector.c)
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-  SUNDIALS_ADD_TEST( ${example}_10_2_3_0 ${example} TEST_ARGS 10 2 3 0)
-  SUNDIALS_ADD_TEST( ${example}_300_7_4_0 ${example} TEST_ARGS 300 7 4 0)
-  SUNDIALS_ADD_TEST( ${example}_1000_8_8_0 ${example} TEST_ARGS 1000 8 8 0)
-  SUNDIALS_ADD_TEST( ${example}_50000_3_100_0 ${example} TEST_ARGS 50000 3 100 0)
+  SUNDIALS_ADD_TEST( ${example}_100_100_0 ${example} TEST_ARGS 100 100 0)
+  SUNDIALS_ADD_TEST( ${example}_200_1000_0 ${example} TEST_ARGS 200 1000 0)
+  SUNDIALS_ADD_TEST( ${example}_2000_100_0 ${example} TEST_ARGS 2000 100 0)
 
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
 

@@ -37,8 +37,9 @@
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
-  int       fails = 0;                  /* counter for test failures  */
-  long int  matrows, matcols, mattype;  /* matrix dims & type         */
+  int       fails=0;                    /* counter for test failures  */
+  long int  matrows, matcols;           /* matrix dims                */
+  int       mattype;                    /* matrix storage type        */
   N_Vector  x, y;                       /* test vectors               */
   realtype* vecdata;                    /* pointers to vector data    */
   SUNMatrix A, B, C, D, I;              /* test matrices              */
@@ -73,11 +74,13 @@ int main(int argc, char *argv[])
   }
   mattype = (k == 0) ? CSC_MAT : CSR_MAT;
   
-  print_timing = atoi(argv[3]);
+  print_timing = atoi(argv[4]);
   SetTiming(print_timing);
   
   square = (matrows == matcols) ? 1 : 0;
-  printf("\nRunning with matrix size, %ld by %ld \n \n", matrows, matcols);
+  printf("\nSparse matrix test: size %ld by %ld, type = %i\n\n",
+         matrows, matcols, mattype);
+
     
   /* check creating sparse matrix from dense matrix */
   B = SUNDenseMatrix(5,6);
@@ -101,7 +104,7 @@ int main(int argc, char *argv[])
     colindices = SUNSparseMatrix_IndexValues(C);
     matdata = SUNSparseMatrix_Data(C);
     rowptrs[0] = 0;
-    matdata[0] = RCONST(2.0);   colindices[0] = 0;
+    matdata[0] = RCONST(2.0);   colindices[0] = 1;
     matdata[1] = RCONST(7.0);   colindices[1] = 4;
     rowptrs[1] = 2;
     matdata[2] = RCONST(4.0);   colindices[2] = 2;
@@ -115,7 +118,7 @@ int main(int argc, char *argv[])
     matdata[7] = RCONST(3.0);   colindices[7] = 1;
     matdata[8] = RCONST(9.0);   colindices[8] = 5;
     rowptrs[5] = 9;
-    
+
     A = SUNSparseFromDenseMatrix(B, ZERO, CSR_MAT);
     fails += check_matrix(A, C, 1e-15);
 
@@ -131,8 +134,8 @@ int main(int argc, char *argv[])
   
     /* Check CSC */
     D = SUNSparseMatrix(5, 6, 9, CSC_MAT);
-    rowptrs = SUNSparseMatrix_IndexPointers(D);
-    colindices = SUNSparseMatrix_IndexValues(D);
+    colptrs = SUNSparseMatrix_IndexPointers(D);
+    rowindices = SUNSparseMatrix_IndexValues(D);
     matdata = SUNSparseMatrix_Data(D);
     colptrs[0] = 0;
     matdata[0] = RCONST(1.0);   rowindices[0] = 2;
@@ -232,8 +235,8 @@ int main(int argc, char *argv[])
     
     /* Check CSC */
     D = SUNSparseMatrix(7, 7, 21, CSC_MAT);
-    rowptrs = SUNSparseMatrix_IndexPointers(D);
-    colindices = SUNSparseMatrix_IndexValues(D);
+    colptrs = SUNSparseMatrix_IndexPointers(D);
+    rowindices = SUNSparseMatrix_IndexValues(D);
     matdata = SUNSparseMatrix_Data(D);
     colptrs[ 0] = 0;
     matdata[ 0] = RCONST(-1.0);  rowindices[ 0] = 1;
@@ -270,6 +273,7 @@ int main(int argc, char *argv[])
 
     if (fails) {
       printf("FAIL: SUNMatrix SparseFromBand CSC conversion failed\n");
+      return(1);
     }
 
     SUNMatDestroy(A);
@@ -288,9 +292,9 @@ int main(int argc, char *argv[])
     for(i=0; i<matrows; i++) {
       matdata[i] = ONE;
       colindices[i] = i;
-      colptrs[i] = i;
+      rowptrs[i] = i;
     }
-    colptrs[matrows] = matrows;
+    rowptrs[matrows] = matrows;
   }
   
   /* Create/fill random dense matrix, create sparse from it */
@@ -319,7 +323,7 @@ int main(int argc, char *argv[])
   }
     
   /* SUNMatrix Tests */
-  fails += Test_SUNMatGetID(A, SUNMATRIX_DENSE, 0);
+  fails += Test_SUNMatGetID(A, SUNMATRIX_SPARSE, 0);
   fails += Test_SUNMatClone(A, 0);
   fails += Test_SUNMatCopy(A, 0);
   fails += Test_SUNMatZero(A, 0);
@@ -364,36 +368,45 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
   realtype *Adata, *Bdata;
   long int *Aindexptrs, *Bindexptrs;
   long int *Aindexvals, *Bindexvals;
-  long int i, ANP, BNP, Alen, Blen;
+  long int i, ANP, BNP, Annz, Bnnz;
   
   /* get matrix pointers */
   Adata = SUNSparseMatrix_Data(A);
   Aindexptrs = SUNSparseMatrix_IndexPointers(A);
   Aindexvals = SUNSparseMatrix_IndexValues(A);
-  ANP = SM_CONTENT_S(A)->NP;
-  Alen = Aindexptrs[ANP];
+  ANP = SUNSparseMatrix_NP(A);
+  Annz = Aindexptrs[ANP];
   
   Bdata = SUNSparseMatrix_Data(B);
   Bindexptrs = SUNSparseMatrix_IndexPointers(B);
   Bindexvals = SUNSparseMatrix_IndexValues(B);
-  BNP = SM_CONTENT_S(B)->NP;
-  Blen = Bindexptrs[BNP];
+  BNP = SUNSparseMatrix_NP(B);
+  Bnnz = Bindexptrs[BNP];
 
   /* matrices must have same sparsetype, shape and actual data lengths */
   if (SUNMatGetID(A) != SUNMatGetID(B)) {
-    printf(">>> ERROR: check_matrix: Different storage types \n");
+    printf(">>> ERROR: check_matrix: Different storage types (%d vs %d)\n",
+           SUNMatGetID(A), SUNMatGetID(B));
+    return(1);
+  }
+  if (SUNSparseMatrix_SparseType(A) != SUNSparseMatrix_SparseType(B)) {
+    printf(">>> ERROR: check_matrix: Different storage types (%d vs %d)\n",
+           SUNSparseMatrix_SparseType(A), SUNSparseMatrix_SparseType(B));
     return(1);
   }
   if (SUNSparseMatrix_Rows(A) != SUNSparseMatrix_Rows(B)) {
-    printf(">>> ERROR: check_matrix: Different numbers of rows \n");
+    printf(">>> ERROR: check_matrix: Different numbers of rows (%ld vs %ld)\n",
+           SUNSparseMatrix_Rows(A), SUNSparseMatrix_Rows(B));
     return(1);
   }
   if (SUNSparseMatrix_Columns(A) != SUNSparseMatrix_Columns(B)) {
-    printf(">>> ERROR: check_matrix: Different numbers of columns \n");
+    printf(">>> ERROR: check_matrix: Different numbers of columns (%ld vs %ld)\n",
+           SUNSparseMatrix_Columns(A), SUNSparseMatrix_Columns(B));
     return(1);
   }
-  if (Alen != Blen) {
-    printf(">>> ERROR: check_matrix: Different data array lengths \n");
+  if (Annz != Bnnz) {
+    printf(">>> ERROR: check_matrix: Different numbers of nonzeos (%ld vs %ld)\n",
+           Annz, Bnnz);
     return(1);
   }
 
@@ -404,7 +417,7 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
     printf(">>> ERROR: check_matrix: Different indexptrs \n");
     return(1);
   }
-  for (i=0; i<Alen; i++) 
+  for (i=0; i<Annz; i++) 
     failure += (Aindexvals[i] != Bindexvals[i]);
   if (failure > ZERO) {
     printf(">>> ERROR: check_matrix: Different indexvals \n");
@@ -412,7 +425,7 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
   }
   
   /* compare matrix values */
-  for(i=0; i<Alen; i++)
+  for(i=0; i<Annz; i++)
     failure += FNEQ(Adata[i], Bdata[i], tol);
   if (failure > ZERO) {
     printf(">>> ERROR: check_matrix: Different entries \n");
@@ -434,7 +447,7 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
 
   /* compare data */
   indexptrs = SUNSparseMatrix_IndexPointers(A);
-  NP = SM_CONTENT_S(A)->NP;
+  NP = SUNSparseMatrix_NP(A);
   for(i=0; i < indexptrs[NP]; i++){
     failure += FNEQ(Adata[i], val, tol);
   }

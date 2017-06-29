@@ -244,12 +244,11 @@ int SUNMatScaleAddI_Dense(realtype c, SUNMatrix A)
 
   /* Perform operation */
   for (j=0; j<SM_COLUMNS_D(A); j++)
-    for (i=0; i<SM_ROWS_D(A); i++)
-      if (i == j) {
-        SM_ELEMENT_D(A,i,i) = c*SM_ELEMENT_D(A,i,i) + ONE;
-      } else {
-        SM_ELEMENT_D(A,i,i) *= c;
-      }
+    for (i=0; i<SM_ROWS_D(A); i++) {
+      SM_ELEMENT_D(A,i,j) *= c;
+      if (i == j) 
+        SM_ELEMENT_D(A,i,j) += ONE;
+    }
   return 0;
 }
 

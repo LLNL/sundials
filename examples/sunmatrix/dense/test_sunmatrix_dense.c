@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
   SetTiming(print_timing);
   
   square = (matrows == matcols) ? 1 : 0;
-  printf("\nRunning with matrix size, %ld by %ld \n \n", matrows, matcols);
+  printf("\nDense matrix test: size %ld by %ld\n\n", matrows, matcols);
   
   /* Create vectors and matrices */
   x = N_VNew_Serial(matcols);
@@ -191,6 +191,14 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
     failure += FNEQ(Adata[i], val, tol);
   }
 
+  if (failure > ZERO) {
+    printf("Check_matrix_entry failures:\n");
+    for(i=0; i < Aldata; i++)
+      if (FNEQ(Adata[i], val, tol) != 0)
+        printf("  Adata[%ld] = %g != %g (err = %g)\n", i, Adata[i], val,
+               SUNRabs(Adata[i]-val));
+  }
+  
   if (failure > ZERO)
     return(1);
   else
@@ -218,10 +226,17 @@ int check_vector(N_Vector x, N_Vector y, realtype tol)
   }
 
   /* check vector data */
-  for(i=0; i < xldata; i++){
+  for(i=0; i < xldata; i++)
     failure += FNEQ(xdata[i], ydata[i], tol);
-  }
 
+  if (failure > ZERO) {
+    printf("Check_vector failures:\n");
+    for(i=0; i < xldata; i++)
+      if (FNEQ(xdata[i], ydata[i], tol) != 0)
+        printf("  xdata[%ld] = %g != %g (err = %g)\n", i, xdata[i], ydata[i],
+               SUNRabs(xdata[i]-ydata[i]));
+  }
+  
   if (failure > ZERO)
     return(1);
   else
