@@ -170,6 +170,7 @@ typedef struct _SUNMatrixContent_Dense *SUNMatrixContent_Dense;
  * OTHER:
  *    SUNDenseMatrix_Print
  *    SUNDenseMatrix_Rows
+ *    SUNDenseMatrix_Columns
  *    SUNDenseMatrix_LData
  *    SUNDenseMatrix_Data 
  *    SUNDenseMatrix_Column
