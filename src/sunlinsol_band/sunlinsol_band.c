@@ -28,7 +28,16 @@
 #include <sunlinsol/sunlinsol_band.h>
 #include <sundials/sundials_math.h>
 
-#define ONE  RCONST(1.0)
+#define ZERO  RCONST(0.0)
+#define ONE   RCONST(1.0)
+#define ROW(i,j,smu) (i-j+smu)
+
+/* private functions */
+long int sunlinsolbandGBTRF(realtype **a, long int n, long int mu, 
+			    long int ml, long int smu, long int *p);
+void sunlinsolbandGBTRS(realtype **a, long int n, long int smu, 
+			long int ml, long int *p, realtype *b);
+
 
 /*
  * -----------------------------------------------------------------
@@ -88,6 +97,7 @@ SUNLinearSolver SUNBandLinearSolver(N_Vector y, SUNMatrix A)
   ops->setup             = SUNLinSolSetup_Band;
   ops->solve             = SUNLinSolSolve_Band;
   ops->performance       = SUNLinSolPerformance_Band;
+  ops->lastflag          = SUNLinSolLastFlag_Band;
   ops->free              = SUNLinSolFree_Band;
 
   /* Create content */
@@ -146,8 +156,7 @@ int SUNLinSolSetPreconditioner_Band(SUNLinearSolver S, void* P_data,
   return 1;
 }
 
-int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A, N_Vector tmp1, 
-                        N_Vector tmp2, N_Vector tmp3)
+int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
 {
   realtype **A_cols;
   long int *pivots;
@@ -167,8 +176,8 @@ int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A, N_Vector tmp1,
   }
   
   /* perform LU factorization of input matrix */
-  SLS_LASTFLAG_B(S) = bandGBTRF(A_cols, SM_COLUMNS_B(A), SM_UBAND_B(A),
-                                SM_LBAND_B(A), SM_SUBAND_B(A), pivots);
+  SLS_LASTFLAG_B(S) = sunlinsolbandGBTRF(A_cols, SM_COLUMNS_B(A), SM_UBAND_B(A),
+					 SM_LBAND_B(A), SM_SUBAND_B(A), pivots);
   
   /* store error flag (if nonzero, this row encountered zero-valued pivod) */
   if (SLS_LASTFLAG_B(S) > 0)
@@ -196,7 +205,8 @@ int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     return 1;
   
   /* solve using LU factors */
-  bandGBTRS(A_cols, SM_COLUMNS_B(A), SM_SUBAND_B(A), SM_LBAND_B(A), pivots, xdata);
+  sunlinsolbandGBTRS(A_cols, SM_COLUMNS_B(A), SM_SUBAND_B(A), 
+		     SM_LBAND_B(A), pivots, xdata);
   return 0;
 }
 
@@ -221,3 +231,149 @@ int SUNLinSolFree_Band(SUNLinearSolver S)
   free(S); S = NULL;
   return 0;
 }
+
+
+/*
+ Private functions
+ */
+
+long int sunlinsolbandGBTRF(realtype **a, long int n, long int mu, 
+			    long int ml, long int smu, long int *p)
+{
+  long int c, r, num_rows;
+  long int i, j, k, l, storage_l, storage_k, last_col_k, last_row_k;
+  realtype *a_c, *col_k, *diag_k, *sub_diag_k, *col_j, *kptr, *jptr;
+  realtype max, temp, mult, a_kj;
+  booleantype swap;
+
+  /* zero out the first smu - mu rows of the rectangular array a */
+
+  num_rows = smu - mu;
+  if (num_rows > 0) {
+    for (c=0; c < n; c++) {
+      a_c = a[c];
+      for (r=0; r < num_rows; r++) {
+	a_c[r] = ZERO;
+      }
+    }
+  }
+
+  /* k = elimination step number */
+
+  for (k=0; k < n-1; k++, p++) {
+    
+    col_k     = a[k];
+    diag_k    = col_k + smu;
+    sub_diag_k = diag_k + 1;
+    last_row_k = SUNMIN(n-1,k+ml);
+
+    /* find l = pivot row number */
+
+    l=k;
+    max = SUNRabs(*diag_k);
+    for (i=k+1, kptr=sub_diag_k; i <= last_row_k; i++, kptr++) { 
+      if (SUNRabs(*kptr) > max) {
+	l=i;
+	max = SUNRabs(*kptr);
+      }
+    }
+    storage_l = ROW(l, k, smu);
+    *p = l;
+    
+    /* check for zero pivot element */
+
+    if (col_k[storage_l] == ZERO) return(k+1);
+    
+    /* swap a(l,k) and a(k,k) if necessary */
+    
+    if ( (swap = (l != k) )) {
+      temp = col_k[storage_l];
+      col_k[storage_l] = *diag_k;
+      *diag_k = temp;
+    }
+
+    /* Scale the elements below the diagonal in         */
+    /* column k by -1.0 / a(k,k). After the above swap, */
+    /* a(k,k) holds the pivot element. This scaling     */
+    /* stores the pivot row multipliers -a(i,k)/a(k,k)  */
+    /* in a(i,k), i=k+1, ..., SUNMIN(n-1,k+ml).            */
+    
+    mult = -ONE / (*diag_k);
+    for (i=k+1, kptr = sub_diag_k; i <= last_row_k; i++, kptr++)
+      (*kptr) *= mult;
+
+    /* row_i = row_i - [a(i,k)/a(k,k)] row_k, i=k+1, ..., SUNMIN(n-1,k+ml) */
+    /* row k is the pivot row after swapping with row l.                */
+    /* The computation is done one column at a time,                    */
+    /* column j=k+1, ..., SUNMIN(k+smu,n-1).                               */
+    
+    last_col_k = SUNMIN(k+smu,n-1);
+    for (j=k+1; j <= last_col_k; j++) {
+      
+      col_j = a[j];
+      storage_l = ROW(l,j,smu); 
+      storage_k = ROW(k,j,smu); 
+      a_kj = col_j[storage_l];
+
+      /* Swap the elements a(k,j) and a(k,l) if l!=k. */
+      
+      if (swap) {
+	col_j[storage_l] = col_j[storage_k];
+	col_j[storage_k] = a_kj;
+      }
+
+      /* a(i,j) = a(i,j) - [a(i,k)/a(k,k)]*a(k,j) */
+      /* a_kj = a(k,j), *kptr = - a(i,k)/a(k,k), *jptr = a(i,j) */
+
+      if (a_kj != ZERO) {
+	for (i=k+1, kptr=sub_diag_k, jptr=col_j+ROW(k+1,j,smu);
+	     i <= last_row_k;
+	     i++, kptr++, jptr++)
+	  (*jptr) += a_kj * (*kptr);
+      }
+    }    
+  }
+  
+  /* set the last pivot row to be n-1 and check for a zero pivot */
+
+  *p = n-1; 
+  if (a[n-1][smu] == ZERO) return(n);
+
+  /* return 0 to indicate success */
+
+  return(0);
+}
+
+void sunlinsolbandGBTRS(realtype **a, long int n, long int smu, 
+			long int ml, long int *p, realtype *b)
+{
+  long int k, l, i, first_row_k, last_row_k;
+  realtype mult, *diag_k;
+  
+  /* Solve Ly = Pb, store solution y in b */
+  
+  for (k=0; k < n-1; k++) {
+    l = p[k];
+    mult = b[l];
+    if (l != k) {
+      b[l] = b[k];
+      b[k] = mult;
+    }
+    diag_k = a[k]+smu;
+    last_row_k = SUNMIN(n-1,k+ml);
+    for (i=k+1; i <= last_row_k; i++)
+      b[i] += mult * diag_k[i-k];
+  }
+  
+  /* Solve Ux = y, store solution x in b */
+  
+  for (k=n-1; k >= 0; k--) {
+    diag_k = a[k]+smu;
+    first_row_k = SUNMAX(0,k-smu);
+    b[k] /= (*diag_k);
+    mult = -b[k];
+    for (i=first_row_k; i <= k-1; i++)
+      b[i] += mult*diag_k[i-k];
+  }
+}
+
