@@ -126,8 +126,7 @@ int PcgSolve(PcgMem mem, void *A_data, N_Vector x, N_Vector b,
 
   /* Apply preconditioner and b-scaling to r = r_0 */
   if (UsePrec) {
-    /* ier = psolve(P_data, r, z, PREC_LEFT);   /\* z = P^{-1}r *\/ */
-    ier = psolve(P_data, r, z, w, delta, PREC_LEFT);   /* z = P^{-1}r */
+    ier = psolve(P_data, r, z, delta, PREC_LEFT);   /* z = P^{-1}r */
     (*nps)++;
     if (ier != 0) return((ier < 0) ? PCG_PSOLVE_FAIL_UNREC : PCG_PSOLVE_FAIL_REC);
   }
@@ -168,8 +167,7 @@ int PcgSolve(PcgMem mem, void *A_data, N_Vector x, N_Vector b,
 
     /* Apply preconditioner:  z = P^{-1}*r */
     if (UsePrec) {
-      /* ier = psolve(P_data, r, z, PREC_LEFT); */
-      ier = psolve(P_data, r, z, w, delta, PREC_LEFT);
+      ier = psolve(P_data, r, z, delta, PREC_LEFT);
       (*nps)++;
       if (ier != 0) return((ier < 0) ? PCG_PSOLVE_FAIL_UNREC : PCG_PSOLVE_FAIL_REC);
     }

@@ -134,9 +134,8 @@ typedef struct KINSpilsMemRec {
 /* KINSpgmr Atimes and PSolve routines called by generic solver */
 
 int KINSpilsAtimes(void *kinsol_mem, N_Vector v, N_Vector z);
-/* int KINSpilsPSolve(void *kinsol_mem, N_Vector r, N_Vector z, int lr); */
 int KINSpilsPSolve(void *kinsol_mem, N_Vector r, N_Vector z,
-                   N_Vector w, realtype tol, int lr);
+                   realtype tol, int lr);
 
 /* difference quotient approximation for jacobian times vector */
 

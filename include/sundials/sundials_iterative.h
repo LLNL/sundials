@@ -128,8 +128,8 @@ typedef int (*PSetupFn)(void *P_data);
  * If the preconditioner is iterative, then it should strive to 
  * solve the preconditioner equation so that
  *     || Pz - r ||_wrms < tol
- * where the weight vector for the WRMS norm is provided by the
- * input vector w.
+ * where the weight vector for the WRMS norm may be accessed from 
+ * the main integrator memory structure.
  * The vector r should not be modified by the PSolveFn.
  * A PSolveFn returns 0 if successful and a non-zero value if     
  * unsuccessful.  On a failure, a negative return value indicates 
@@ -139,9 +139,8 @@ typedef int (*PSetupFn)(void *P_data);
  * -----------------------------------------------------------------
  */
 
-/* typedef int (*PSolveFn)(void *P_data, N_Vector r, N_Vector z, int lr); */
 typedef int (*PSolveFn)(void *P_data, N_Vector r, N_Vector z,
-                        N_Vector w, realtype tol, int lr);
+                        realtype tol, int lr);
 
 /*
  * -----------------------------------------------------------------
