@@ -101,8 +101,7 @@ struct _generic_SUNLinearSolver_Ops {
   int                  (*setpreconditioner)(SUNLinearSolver, void*, 
                                             PSetupFn, PSolveFn);
   int                  (*initialize)(SUNLinearSolver);
-  int                  (*setup)(SUNLinearSolver, SUNMatrix, 
-                                N_Vector, N_Vector, N_Vector);
+  int                  (*setup)(SUNLinearSolver, SUNMatrix);
   int                  (*solve)(SUNLinearSolver, SUNMatrix, N_Vector, 
                                 N_Vector, N_Vector, realtype);
   int                  (*performance)(SUNLinearSolver, int);
@@ -216,8 +215,7 @@ SUNDIALS_EXPORT int SUNLinSolSetPreconditioner(SUNLinearSolver S, void* P_data,
   
 SUNDIALS_EXPORT int SUNLinSolInitialize(SUNLinearSolver S);
   
-SUNDIALS_EXPORT int SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A, N_Vector tmp1,
-                                   N_Vector tmp2, N_Vector tmp3);
+SUNDIALS_EXPORT int SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A);
   
 SUNDIALS_EXPORT int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                    N_Vector b, N_Vector w, realtype tol);
