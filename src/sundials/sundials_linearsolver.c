@@ -35,7 +35,7 @@
 SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver S)
 {
   SUNLinearSolver_Type type;
-  type = A->ops->gettype(S);
+  type = S->ops->gettype(S);
   return(type);
 }
 
@@ -57,10 +57,9 @@ int SUNLinSolInitialize(SUNLinearSolver S)
   return ((int) S->ops->initialize(S));
 }
   
-int SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A, N_Vector tmp1,
-                   N_Vector tmp2, N_Vector tmp3)
+int SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A)
 {
-  return ((int) S->ops->setup(S, A, tmp1, tmp2, tmp3));
+  return ((int) S->ops->setup(S, A));
 }
 
 int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,

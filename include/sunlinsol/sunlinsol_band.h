@@ -140,9 +140,7 @@ SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_Band(SUNLinearSolver S,
                                                     void* P_data,
                                                     PSetupFn Pset,
                                                     PSolveFn Psol);
-SUNDIALS_EXPORT int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A,
-                                        N_Vector tmp1, N_Vector tmp2,
-                                        N_Vector tmp3);
+SUNDIALS_EXPORT int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A,
                                         N_Vector x, N_Vector b,
                                         N_Vector w, realtype tol);
