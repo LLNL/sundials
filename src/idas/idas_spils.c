@@ -604,9 +604,8 @@ int IDASpilsAtimes(void *ida_mem, N_Vector v, N_Vector z)
  * that IDASilsPSolve will not be called in the case psolve = NULL.
  */
 
-/* int IDASpilsPSolve(void *ida_mem, N_Vector r, N_Vector z, int lr) */
 int IDASpilsPSolve(void *ida_mem, N_Vector r, N_Vector z,
-                   N_Vector w, realtype tol, int lr)
+                   realtype tol, int lr)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
@@ -615,7 +614,6 @@ int IDASpilsPSolve(void *ida_mem, N_Vector r, N_Vector z,
   IDA_mem = (IDAMem) ida_mem;
   idaspils_mem = (IDASpilsMem) lmem;
 
-  /* retval = psolve(tn, ycur, ypcur, rcur, r, z, cj, epslin, pdata, ytemp); */
   retval = psolve(tn, ycur, ypcur, rcur, r, z, cj, tol, pdata, ytemp);
 
   /* This call is counted in nps within the IDASp**Solve routine */

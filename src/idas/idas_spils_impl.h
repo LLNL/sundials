@@ -124,9 +124,8 @@ typedef struct IDASpilsMemRec {
 
 int IDASpilsAtimes(void *ida_mem, N_Vector v, N_Vector z);
 
-/* int IDASpilsPSolve(void *ida_mem, N_Vector r, N_Vector z, int lr); */
 int IDASpilsPSolve(void *ida_mem, N_Vector r, N_Vector z,
-                   N_Vector w, realtype tol, int lr);
+                   realtype tol, int lr);
 
 /* Difference quotient approximation for Jac times vector */
 

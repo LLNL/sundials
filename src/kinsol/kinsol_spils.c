@@ -527,9 +527,8 @@ int KINSpilsAtimes(void *kinsol_mem, N_Vector v, N_Vector z)
  * -----------------------------------------------------------------
  */
 
-/* int KINSpilsPSolve(void *kinsol_mem, N_Vector r, N_Vector z, int lrdummy) */
 int KINSpilsPSolve(void *kinsol_mem, N_Vector r, N_Vector z,
-                   N_Vector w, realtype tol, int lrdummy)
+                   realtype toldummy, int lrdummy)
 {
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
