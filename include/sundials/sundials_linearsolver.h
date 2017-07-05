@@ -25,6 +25,44 @@
  *   - an 'ops' filed which contains a structure listing operations
  *     acting on/by such solvers
  *
+ * We consider both direct linear solvers and iterative linear solvers
+ * as available implementations of this package; as a result some of 
+ * the routines are applicable only to one type of linear solver (as 
+ * noted in the comments below).
+ *
+ * For most of the iterative linear solvers, instead of solving the 
+ * linear system A x = b directly, we apply the underlying iterative 
+ * algorithm to the transformed system 
+ *
+ *        Abar xbar = bbar
+ *
+ * where
+ *
+ *        Abar = S1 (P1-inverse) A (P2-inverse) (S2-inverse),
+ *        bbar = S1 (P1-inverse) b,
+ *        xbar = S2 P2 x,
+ * 
+ * and where 
+ *
+ *        P1 = left preconditioner
+ *        P2 = right preconditioner
+ *        S1 = diagonal matrix of scale factors for P1-inverse b
+ *        S2 = diagonal matrix of scale factors for P2 x.
+ * 
+ * The stopping tolerance on iterative linear solvers is on the  
+ * 2-norm of the scaled preconditioned residual:
+ *      || bbar - Abar xbar ||_2  <  tol.
+ * 
+ * We note that the Preconditioned Conjugate Gradient (PCG) solver 
+ * considers S1=S2 and P1=P2 (where each is approximately A^{1/2}), and 
+ * both scaling and preconditioning are applied symmetrically and 
+ * simultaneously, so that the user-supplied S and P are in fact 
+ * S1^2 and P1^2, i.e. P is approximately A and S is the corresponding 
+ * diagonal matrix of scale factors for P.  As such, in the PCG solver the 
+ * second scaling vector and the left/right "type" of P are ignored.
+ *
+ * -----------------------------------------------------------------
+ *
  * Part I of this file contains enumeration constants for all 
  * SUNDIALS-defined linear solver types, as well as a generic type for 
  * user-supplied linear solver types.
@@ -100,11 +138,15 @@ struct _generic_SUNLinearSolver_Ops {
                                     ATSetupFn, ATimesFn);
   int                  (*setpreconditioner)(SUNLinearSolver, void*, 
                                             PSetupFn, PSolveFn);
+  int                  (*setscalingvectors)(SUNLinearSolver,
+                                            N_Vector, N_Vector);
   int                  (*initialize)(SUNLinearSolver);
   int                  (*setup)(SUNLinearSolver, SUNMatrix);
   int                  (*solve)(SUNLinearSolver, SUNMatrix, N_Vector, 
-                                N_Vector, N_Vector, realtype);
-  long int             (*numiters)(SUNLinearSolver);
+                                N_Vector, realtype);
+  int                  (*numiters)(SUNLinearSolver);
+  realtype             (*resnorm)(SUNLinearSolver);
+  int                  (*numpsolves)(SUNLinearSolver);
   long int             (*lastflag)(SUNLinearSolver);
   int                  (*free)(SUNLinearSolver);
 };
@@ -141,6 +183,16 @@ struct _generic_SUNLinearSolver {
  *   between the generic PSetup and PSolve calls and the integrator-
  *   specific user-supplied routines.
  *
+ * SUNLinSolSetScalingVectors (iterative methods only)
+ *   Sets pointers to left/right scaling vectors for the linear
+ *   system solve.  Here, s1 is an N_Vector of positive scale factors
+ *   for P1-inv b, where P1 is the left preconditioner (the vector is 
+ *   not tested for positivity).  Pass NULL if no scaling on P1-inv b
+ *   is required.  Similarly, s2 is an N_Vector of positive scale 
+ *   factors for P2 x, where P2 is the right preconditioner (again 
+ *   not tested for positivity). Pass NULL if no scaling on P2 x is 
+ *   required.
+ *
  * SUNLinSolInitialize
  *   Performs linear solver initialization (assumes that all 
  *   solver-specific options have been set)
@@ -154,15 +206,22 @@ struct _generic_SUNLinearSolver {
  *
  * SUNLinSolSolve
  *   Solves a linear system A*x = b.  If the solver is scaled, it 
- *   uses the supplied scaling vector.  If the solver is iterative, 
- *   it attempts to solve to the specified tolerance (weighted RMS 
- *   norm).  If the solver is direct it ignores the input tolerance 
+ *   uses the supplied scaling vectors.  If the solver is iterative, 
+ *   it attempts to solve to the specified tolerance (weighted 
+ *   2-norm).  If the solver is direct it ignores the input tolerance 
  *   and scaling vectors, and if the solver does not support scaling 
  *   then it should just use an RMS norm.
  *
  * SUNLinSolNumIters (iterative methods only)
- *   Returns the accumulated number of linear iterations performed 
- *   since initialization.
+ *   Returns the number of linear iterations performed in the last 
+ *   'Solve' call.
+ *
+ * SUNLinSolResNorm (iterative methods only)
+ *   Returns the final residual norm from the last 'Solve' call.
+ *
+ * SUNLinSolNumPSolves (iterative methods only)
+ *   Returns the number of preconditioner solve calls from the last
+ *   'Solve' call.
  *
  * SUNLinSolLastFlag
  *   Returns the last error flag encountered within the linear solver,
@@ -188,10 +247,13 @@ struct _generic_SUNLinearSolver {
  *  GetType             M I P#    M I P#     M I P#      M I P
  *  SetATimes           I         I S+       I           I
  *  SetPreconditioner   I*        I* S*      I*          I*
+ *  SetScalingVectors   I         I S+       I           I 
  *  Initialize          M I P#    M I P# S   M I P#      M I P
  *  Setup               M I P#    M I P# S   M I P#      M I P      
  *  Solve               M I P#    M I P# S   M I P#      M I P
- *  NumIters            I         I S        I           I
+ *  NumIters            I         I S+       I           I
+ *  ResNorm             I         I S+       I           I
+ *  NumPSolves          I         I S+       I           I
  *  LastFlag^
  *  Free                M I P#    M I P# S   M I P#      M I P
  *  ------------------------------------------------------------
@@ -212,14 +274,21 @@ SUNDIALS_EXPORT int SUNLinSolSetATimes(SUNLinearSolver S, void* A_data,
 SUNDIALS_EXPORT int SUNLinSolSetPreconditioner(SUNLinearSolver S, void* P_data,
                                                PSetupFn Pset, PSolveFn Psol);
   
+SUNDIALS_EXPORT int SUNLinSolSetScalingVectors(SUNLinearSolver S, N_Vector s1,
+                                               N_Vector s2);
+  
 SUNDIALS_EXPORT int SUNLinSolInitialize(SUNLinearSolver S);
   
 SUNDIALS_EXPORT int SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A);
   
 SUNDIALS_EXPORT int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                                   N_Vector b, N_Vector w, realtype tol);
+                                   N_Vector b, realtype tol);
   
-SUNDIALS_EXPORT long int SUNLinSolNumIters(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolNumIters(SUNLinearSolver S);
+  
+SUNDIALS_EXPORT realtype SUNLinSolResNorm(SUNLinearSolver S);
+  
+SUNDIALS_EXPORT int SUNLinSolNumPSolves(SUNLinearSolver S);
   
 SUNDIALS_EXPORT long int SUNLinSolLastFlag(SUNLinearSolver S);
   

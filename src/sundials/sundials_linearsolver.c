@@ -52,6 +52,12 @@ int SUNLinSolSetPreconditioner(SUNLinearSolver S, void* P_data,
   return ((int) S->ops->setpreconditioner(S, P_data, Pset, Psol));
 }
   
+int SUNLinSolSetScalingVectors(SUNLinearSolver S,
+                               N_Vector s1, N_Vector s2)
+{
+  return ((int) S->ops->setscalingvectors(S, s1, s2));
+}
+  
 int SUNLinSolInitialize(SUNLinearSolver S)
 {
   return ((int) S->ops->initialize(S));
@@ -63,14 +69,24 @@ int SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A)
 }
 
 int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                   N_Vector b, N_Vector w, realtype tol)
+                   N_Vector b, realtype tol)
 {
-  return ((int) S->ops->solve(S, A, x, b, w, tol));
+  return ((int) S->ops->solve(S, A, x, b, tol));
 }
   
-long int SUNLinSolNumIters(SUNLinearSolver S)
+int SUNLinSolNumIters(SUNLinearSolver S)
 {
   return ((int) S->ops->numiters(S));
+}
+
+realtype SUNLinSolResNorm(SUNLinearSolver S)
+{
+  return ((realtype) S->ops->resnorm(S));
+}
+
+int SUNLinSolNumPSolves(SUNLinearSolver S)
+{
+  return ((int) S->ops->numpsolves(S));
 }
 
 long int SUNLinSolLastFlag(SUNLinearSolver S)

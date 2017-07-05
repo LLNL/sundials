@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
   long int        cols, uband, lband; /* matrix columns, bandwidths */
   SUNLinearSolver BandSol;            /* solver object              */
   SUNMatrix       A, B;               /* test matrices              */
-  N_Vector        x, y, b, w;         /* test vectors               */
+  N_Vector        x, y, b;            /* test vectors               */
   int             print_timing;
   long int        j, k, kstart, kend;
   realtype        *colj, *xdata;
@@ -83,7 +83,6 @@ int main(int argc, char *argv[])
   x = N_VNew_Serial(cols);
   y = N_VNew_Serial(cols);
   b = N_VNew_Serial(cols);
-  w = N_VNew_Serial(cols);
 
   /* Fill matrix and x vector with uniform random data in [0,1] */
   xdata = N_VGetArrayPointer(x);
@@ -108,9 +107,6 @@ int main(int argc, char *argv[])
     return(1);
   }
 
-  /* Fill weight vector with ones */
-  N_VConst(ONE, w);
-
   /* copy A and x into B and y to print in case of solver failure */
   SUNMatCopy(B, A);
   N_VScale(ONE, x, y);
@@ -124,13 +120,16 @@ int main(int argc, char *argv[])
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(BandSol, 0);
   fails += Test_SUNLinSolSetup(BandSol, A, 0);
-  fails += Test_SUNLinSolSolve(BandSol, A, x, b, w, RCONST(1.0e-15), 0);
+  fails += Test_SUNLinSolSolve(BandSol, A, x, b, RCONST(1.0e-15), 0);
  
   fails += Test_SUNLinSolGetType(BandSol, SUNLINEARSOLVER_DIRECT, 0);
   fails += Test_SUNLinSolLastFlag(BandSol, 0);
   fails += Test_SUNLinSolNumIters(BandSol, 0);
+  fails += Test_SUNLinSolResNorm(BandSol, 0);
+  fails += Test_SUNLinSolNumPSolves(BandSol, 0);
   fails += Test_SUNLinSolSetATimes(BandSol, FALSE, 0);
   fails += Test_SUNLinSolSetPreconditioner(BandSol, FALSE, 0);
+  fails += Test_SUNLinSolSetScalingVectors(BandSol, x, y, FALSE, 0);
 
   /* Print result */
   if (fails) {
@@ -153,7 +152,6 @@ int main(int argc, char *argv[])
   SUNMatDestroy(B);
   N_VDestroy(x);
   N_VDestroy(y);
-  N_VDestroy(w);
 
   return(0);
 }
