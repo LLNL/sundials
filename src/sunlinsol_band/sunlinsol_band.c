@@ -96,7 +96,7 @@ SUNLinearSolver SUNBandLinearSolver(N_Vector y, SUNMatrix A)
   ops->initialize        = SUNLinSolInitialize_Band;
   ops->setup             = SUNLinSolSetup_Band;
   ops->solve             = SUNLinSolSolve_Band;
-  ops->performance       = SUNLinSolPerformance_Band;
+  ops->numiters          = SUNLinSolNumIters_Band;
   ops->lastflag          = SUNLinSolLastFlag_Band;
   ops->free              = SUNLinSolFree_Band;
 
@@ -210,9 +210,9 @@ int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   return 0;
 }
 
-int SUNLinSolPerformance_Band(SUNLinearSolver S, int perftask)
+long int SUNLinSolNumIters_Band(SUNLinearSolver S)
 {
-  /* direct solvers do not perform performance monitoring */
+  /* direct solvers do not perform 'iterations' */
   return 0;
 }
 

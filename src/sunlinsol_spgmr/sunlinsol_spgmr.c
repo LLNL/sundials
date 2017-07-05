@@ -63,7 +63,8 @@ SUNLinearSolver SUNSPGMR(N_Vector y, int pretype, int maxl)
   ops->initialize        = SUNLinSolInitialize_SPGMR;
   ops->setup             = SUNLinSolSetup_SPGMR;
   ops->solve             = SUNLinSolSolve_SPGMR;
-  ops->performance       = SUNLinSolPerformance_SPGMR;
+  ops->liniters          = SUNLinSolLinIters_SPGMR;
+  ops->lastflag          = SUNLinSolLastFlag_SPGMR;  
   ops->free              = SUNLinSolFree_SPGMR;
 
   /* Create content */
@@ -161,10 +162,10 @@ int SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector tmp1,
 int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
                          N_Vector b, N_Vector w, realtype tol)
 {
-
+   
 }
 
-int SUNLinSolPerformance_SPGMR(SUNLinearSolver S, int perftask)
+long int SUNLinSolLinIters_SPGMR(SUNLinearSolver S)
 {
 
 }

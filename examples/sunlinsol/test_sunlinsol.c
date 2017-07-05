@@ -95,35 +95,25 @@ int Test_SUNLinSolLastFlag(SUNLinearSolver S, int myid)
 
 
 /* ----------------------------------------------------------------------
- * SUNLinSolPerformance Test
+ * SUNLinSolNumIters Test
  * --------------------------------------------------------------------*/
-int Test_SUNLinSolPerformance(SUNLinearSolver S, int myid)
+int Test_SUNLinSolNumIters(SUNLinearSolver S, int myid)
 {
   int       failure;
   double    start_time, stop_time;
+  long int  numiters;
 
-  /* call routine in both ways, checking for failing return flag */
-  start_time = get_time();
-  failure = SUNLinSolPerformance(S, 0);
-  if (failure) {
-    printf(">>> FAILED test -- SUNLinSolPerformance (0) returned %d on Proc %d \n", 
-           failure, myid);
-    return(1);
-  }
-  
-  failure += SUNLinSolPerformance(S, 1);
-  stop_time = get_time();
-  if (failure) {
-    printf(">>> FAILED test -- SUNLinSolPerformance (1) returned %d on Proc %d \n", 
-           failure, myid);
-    return(1);
-  }
+  /* the only way to fail this test is if the function is NULL, 
+     which will cause a seg-fault */
+  start_time = get_time();   
+  numiters = SUNLinSolNumIters(S);
+  stop_time = get_time();   
 
   if (myid == 0) {
-    printf("    PASSED test -- SUNLinSolPerformance \n");
-    PRINT_TIME("    SUNLinSolPerformance Time: %22.15e \n \n", stop_time - start_time);
-  }    
-  
+    printf("    PASSED test -- SUNLinSolNumIters (%ld) \n", numiters);
+    PRINT_TIME("    SUNLinSolNumIters Time: %22.15e \n \n", stop_time - start_time);
+  }
+
   return(0);
 }
 

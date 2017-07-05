@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
  
   fails += Test_SUNLinSolGetType(BandSol, SUNLINEARSOLVER_DIRECT, 0);
   fails += Test_SUNLinSolLastFlag(BandSol, 0);
-  fails += Test_SUNLinSolPerformance(BandSol, 0);
+  fails += Test_SUNLinSolNumIters(BandSol, 0);
   fails += Test_SUNLinSolSetATimes(BandSol, FALSE, 0);
   fails += Test_SUNLinSolSetPreconditioner(BandSol, FALSE, 0);
 
