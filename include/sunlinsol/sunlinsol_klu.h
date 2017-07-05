@@ -219,13 +219,15 @@ SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_KLU(SUNLinearSolver S,
                                                    void* P_data,
                                                    PSetupFn Pset,
                                                    PSolveFn Psol);
-SUNDIALS_EXPORT int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A,
-                                       N_Vector tmp1, N_Vector tmp2,
-                                       N_Vector tmp3);
+SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_KLU(SUNLinearSolver S,
+                                                   N_Vector s1,
+                                                   N_Vector s2);
+SUNDIALS_EXPORT int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A,
-                                       N_Vector x, N_Vector b,
-                                       N_Vector w, realtype tol);
-SUNDIALS_EXPORT long int SUNLinSolNumIters_KLU(SUNLinearSolver S);
+                                       N_Vector x, N_Vector b, realtype tol);
+SUNDIALS_EXPORT int SUNLinSolNumIters_KLU(SUNLinearSolver S);
+SUNDIALS_EXPORT realtype SUNLinSolResNorm_KLU(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolNumPSolves_KLU(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_KLU(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolFree_KLU(SUNLinearSolver S);
   

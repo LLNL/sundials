@@ -93,10 +93,13 @@ SUNLinearSolver SUNBandLinearSolver(N_Vector y, SUNMatrix A)
   ops->gettype           = SUNLinSolGetType_Band;
   ops->setatimes         = SUNLinSolSetATimes_Band;
   ops->setpreconditioner = SUNLinSolSetPreconditioner_Band;
+  ops->setscalingvectors = SUNLinSolSetScalingVectors_Band;
   ops->initialize        = SUNLinSolInitialize_Band;
   ops->setup             = SUNLinSolSetup_Band;
   ops->solve             = SUNLinSolSolve_Band;
   ops->numiters          = SUNLinSolNumIters_Band;
+  ops->resnorm           = SUNLinSolResNorm_Band;
+  ops->numpsolves        = SUNLinSolNumPSolves_Band;
   ops->lastflag          = SUNLinSolLastFlag_Band;
   ops->free              = SUNLinSolFree_Band;
 
@@ -156,6 +159,15 @@ int SUNLinSolSetPreconditioner_Band(SUNLinearSolver S, void* P_data,
   return 1;
 }
 
+int SUNLinSolSetScalingVectors_Band(SUNLinearSolver S, N_Vector s1,
+                                    N_Vector s2)
+{
+  /* direct solvers do not utilize scaling, 
+     so return an error is this routine is ever called */
+  SLS_LASTFLAG_B(S) = 1;
+  return 1;
+}
+
 int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
 {
   realtype **A_cols;
@@ -186,7 +198,7 @@ int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
 }
 
 int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
-                        N_Vector b, N_Vector w, realtype tol)
+                        N_Vector b, realtype tol)
 {
   realtype **A_cols, *xdata;
   long int *pivots;
@@ -210,9 +222,21 @@ int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   return 0;
 }
 
-long int SUNLinSolNumIters_Band(SUNLinearSolver S)
+int SUNLinSolNumIters_Band(SUNLinearSolver S)
 {
   /* direct solvers do not perform 'iterations' */
+  return 0;
+}
+
+realtype SUNLinSolResNorm_Band(SUNLinearSolver S)
+{
+  /* direct solvers do not check linear residual */
+  return ZERO;
+}
+
+int SUNLinSolNumPSolves_Band(SUNLinearSolver S)
+{
+  /* direct solvers do not use preconditioning */
   return 0;
 }
 

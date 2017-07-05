@@ -99,9 +99,8 @@ int Test_SUNLinSolLastFlag(SUNLinearSolver S, int myid)
  * --------------------------------------------------------------------*/
 int Test_SUNLinSolNumIters(SUNLinearSolver S, int myid)
 {
-  int       failure;
-  double    start_time, stop_time;
-  long int  numiters;
+  int    failure, numiters;
+  double start_time, stop_time;
 
   /* the only way to fail this test is if the function is NULL, 
      which will cause a seg-fault */
@@ -110,8 +109,54 @@ int Test_SUNLinSolNumIters(SUNLinearSolver S, int myid)
   stop_time = get_time();   
 
   if (myid == 0) {
-    printf("    PASSED test -- SUNLinSolNumIters (%ld) \n", numiters);
+    printf("    PASSED test -- SUNLinSolNumIters (%d) \n", numiters);
     PRINT_TIME("    SUNLinSolNumIters Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  return(0);
+}
+
+
+/* ----------------------------------------------------------------------
+ * SUNLinSolNumPSolves Test
+ * --------------------------------------------------------------------*/
+int Test_SUNLinSolNumPSolves(SUNLinearSolver S, int myid)
+{
+  int    failure, npsolves;
+  double start_time, stop_time;
+
+  /* the only way to fail this test is if the function is NULL, 
+     which will cause a seg-fault */
+  start_time = get_time();   
+  npsolves = SUNLinSolNumPSolves(S);
+  stop_time = get_time();   
+
+  if (myid == 0) {
+    printf("    PASSED test -- SUNLinSolNumPSolves (%d) \n", npsolves);
+    PRINT_TIME("    SUNLinSolNumPSolves Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  return(0);
+}
+
+
+/* ----------------------------------------------------------------------
+ * SUNLinSolResNorm Test
+ * --------------------------------------------------------------------*/
+int Test_SUNLinSolResNorm(SUNLinearSolver S, int myid)
+{
+  int    failure;
+  double start_time, stop_time, resnorm;
+
+  /* the only way to fail this test is if the function is NULL, 
+     which will cause a seg-fault */
+  start_time = get_time();   
+  resnorm = (double) SUNLinSolResNorm(S);
+  stop_time = get_time();   
+
+  if (myid == 0) {
+    printf("    PASSED test -- SUNLinSolResNorm (%g) \n", resnorm);
+    PRINT_TIME("    SUNLinSolResNorm Time: %22.15e \n \n", stop_time - start_time);
   }
 
   return(0);
@@ -159,7 +204,7 @@ int Test_SUNLinSolSetPreconditioner(SUNLinearSolver S, booleantype shouldpass, i
   int       ierr, failure;
   double    start_time, stop_time;
 
-  /* try calling SetATimes routine: should pass/fail based on expected input */
+  /* try calling SetPreconditioner routine: should pass/fail based on expected input */
   start_time = get_time();
   ierr = SUNLinSolSetPreconditioner(S, NULL, PSetup, PSolve);
   stop_time = get_time(); 
@@ -178,6 +223,41 @@ int Test_SUNLinSolSetPreconditioner(SUNLinearSolver S, booleantype shouldpass, i
   else if (myid == 0) {
     printf("    PASSED test -- SUNLinSolSetPreconditioner \n");
     PRINT_TIME("    SUNLinSolSetPreconditioner Time: %22.15e \n \n", stop_time - start_time);
+  }    
+
+  return(0);
+}
+
+
+/* ----------------------------------------------------------------------
+ * SUNLinSolSetScalingVectors
+ * --------------------------------------------------------------------*/
+int Test_SUNLinSolSetScalingVectors(SUNLinearSolver S, N_Vector s1,
+                                    N_Vector s2, booleantype shouldpass,
+                                    int myid)
+{
+  int       ierr, failure;
+  double    start_time, stop_time;
+
+  /* try calling SetScalingVectors routine: should pass/fail based on expected input */
+  start_time = get_time();
+  ierr = SUNLinSolSetScalingVectors(S, s1, s2);
+  stop_time = get_time(); 
+
+  failure = 0;
+  if (shouldpass && ierr)
+    failure = 1;
+  if (!shouldpass && !ierr)
+    failure = 1;
+  
+  if (failure) {
+    printf(">>> FAILED test -- SUNLinSolSetScalingVectors returned %d on Proc %d \n", 
+           failure, myid);
+    return(1);
+  }
+  else if (myid == 0) {
+    printf("    PASSED test -- SUNLinSolSetScalingVectors \n");
+    PRINT_TIME("    SUNLinSolSetScalingVectors Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   return(0);
@@ -247,7 +327,7 @@ int Test_SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A, int myid)
  * 'setup' by the Test_SUNLinSolSetup() function prior to this call.
  * --------------------------------------------------------------------*/
 int Test_SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
-                        N_Vector b, N_Vector w, realtype tol, int myid)
+                        N_Vector b, realtype tol, int myid)
 {
   int       failure;
   double    start_time, stop_time;
@@ -259,7 +339,7 @@ int Test_SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   /* perform solve */
   start_time = get_time();
-  failure = SUNLinSolSolve(S, A, y, b, w, tol);
+  failure = SUNLinSolSolve(S, A, y, b, tol);
   stop_time = get_time(); 
   if (failure) {
     printf(">>> FAILED test -- SUNLinSolSolve returned %d on Proc %d \n", 

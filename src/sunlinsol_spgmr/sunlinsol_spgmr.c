@@ -60,10 +60,13 @@ SUNLinearSolver SUNSPGMR(N_Vector y, int pretype, int maxl)
   ops->gettype           = SUNLinSolGetType_SPGMR;
   ops->setatimes         = SUNLinSolSetATimes_SPGMR;
   ops->setpreconditioner = SUNLinSolSetPreconditioner_SPGMR;
+  ops->setscalingvectors = SUNLinSolSetScalingVectors_SPGMR;
   ops->initialize        = SUNLinSolInitialize_SPGMR;
   ops->setup             = SUNLinSolSetup_SPGMR;
   ops->solve             = SUNLinSolSolve_SPGMR;
-  ops->liniters          = SUNLinSolLinIters_SPGMR;
+  ops->numiters          = SUNLinSolNumIters_SPGMR;
+  ops->resnorm           = SUNLinSolResNorm_SPGMR;
+  ops->numpsolves        = SUNLinSolNumPSolves_SPGMR;
   ops->lastflag          = SUNLinSolLastFlag_SPGMR;  
   ops->free              = SUNLinSolFree_SPGMR;
 
@@ -135,8 +138,18 @@ int SUNLinSolSetPreconditioner_SPGMR(SUNLinearSolver S, void* PData,
   return 0;
 }
 
-int SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector tmp1, 
-                         N_Vector tmp2, N_Vector tmp3)
+int SUNLinSolSetScalingVectors_SPGMR(SUNLinearSolver S, N_Vector s1,
+                                     N_Vector s2)
+{
+  /* set N_Vector pointers to integrator-supplied scaling vectors, 
+     and return with success */
+  SLS_CONTENT_SPGMR(S)->s1 = s1;
+  SLS_CONTENT_SPGMR(S)->s2 = s2;
+  SLS_CONTENT_SPGMR(S)->last_flag = 0;
+  return 0;
+}
+
+int SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A)
 {
   int ierr;
   ATSetupFn ATSetup = SLS_CONTENT_SPGMR(S)->ATSetup;
@@ -160,12 +173,22 @@ int SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector tmp1,
 }
 
 int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
-                         N_Vector b, N_Vector w, realtype tol)
+                         N_Vector b, realtype tol)
 {
    
 }
 
-long int SUNLinSolLinIters_SPGMR(SUNLinearSolver S)
+int SUNLinSolNumIters_SPGMR(SUNLinearSolver S)
+{
+
+}
+
+realtype SUNLinSolResNorm_SPGMR(SUNLinearSolver S)
+{
+
+}
+
+int SUNLinSolNumPSolves_SPGMR(SUNLinearSolver S)
 {
 
 }

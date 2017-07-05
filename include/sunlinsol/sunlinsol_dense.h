@@ -145,11 +145,15 @@ SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_Dense(SUNLinearSolver S,
                                                      void* P_data,
                                                      PSetupFn Pset,
                                                      PSolveFn Psol);
+SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_Dense(SUNLinearSolver S,
+                                                     N_Vector s1,
+                                                     N_Vector s2);
 SUNDIALS_EXPORT int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A,
-                                        N_Vector x, N_Vector b, 
-                                        N_Vector w, realtype tol);
-SUNDIALS_EXPORT long int SUNLinSolNumIters_Dense(SUNLinearSolver S);
+                                        N_Vector x, N_Vector b, realtype tol);
+SUNDIALS_EXPORT int SUNLinSolNumIters_Dense(SUNLinearSolver S);
+SUNDIALS_EXPORT realtype SUNLinSolResNorm_Dense(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolNumPSolves_Dense(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_Dense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolFree_Dense(SUNLinearSolver S);
   
