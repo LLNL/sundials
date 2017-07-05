@@ -104,7 +104,7 @@ struct _generic_SUNLinearSolver_Ops {
   int                  (*setup)(SUNLinearSolver, SUNMatrix);
   int                  (*solve)(SUNLinearSolver, SUNMatrix, N_Vector, 
                                 N_Vector, N_Vector, realtype);
-  int                  (*performance)(SUNLinearSolver, int);
+  long int             (*numiters)(SUNLinearSolver);
   long int             (*lastflag)(SUNLinearSolver);
   int                  (*free)(SUNLinearSolver);
 };
@@ -160,10 +160,9 @@ struct _generic_SUNLinearSolver {
  *   and scaling vectors, and if the solver does not support scaling 
  *   then it should just use an RMS norm.
  *
- * SUNLinSolPerformance (optional; only required for IDA(s))
- *   Performs linear solver performance-related tasks: for perftask=0, 
- *   an initialization of performance variables is performed, while 
- *   for perftask=1, the performance is evaluated.
+ * SUNLinSolNumIters (iterative methods only)
+ *   Returns the accumulated number of linear iterations performed 
+ *   since initialization.
  *
  * SUNLinSolLastFlag
  *   Returns the last error flag encountered within the linear solver,
@@ -192,7 +191,7 @@ struct _generic_SUNLinearSolver {
  *  Initialize          M I P#    M I P# S   M I P#      M I P
  *  Setup               M I P#    M I P# S   M I P#      M I P      
  *  Solve               M I P#    M I P# S   M I P#      M I P
- *  Performance                              M I P#
+ *  NumIters            I         I S        I           I
  *  LastFlag^
  *  Free                M I P#    M I P# S   M I P#      M I P
  *  ------------------------------------------------------------
@@ -220,7 +219,7 @@ SUNDIALS_EXPORT int SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                    N_Vector b, N_Vector w, realtype tol);
   
-SUNDIALS_EXPORT int SUNLinSolPerformance(SUNLinearSolver S, int perftask);
+SUNDIALS_EXPORT long int SUNLinSolNumIters(SUNLinearSolver S);
   
 SUNDIALS_EXPORT long int SUNLinSolLastFlag(SUNLinearSolver S);
   

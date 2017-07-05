@@ -68,9 +68,9 @@ int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   return ((int) S->ops->solve(S, A, x, b, w, tol));
 }
   
-int SUNLinSolPerformance(SUNLinearSolver S, int perftask)
+long int SUNLinSolNumIters(SUNLinearSolver S)
 {
-  return ((int) S->ops->performance(S, perftask));
+  return ((int) S->ops->numiters(S));
 }
 
 long int SUNLinSolLastFlag(SUNLinearSolver S)

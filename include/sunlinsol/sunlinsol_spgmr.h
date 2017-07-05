@@ -150,8 +150,7 @@ SUNDIALS_EXPORT int SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A,
 SUNDIALS_EXPORT int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A,
                                          N_Vector x, N_Vector b,
                                          N_Vector w, realtype tol);
-SUNDIALS_EXPORT int SUNLinSolPerformance_SPGMR(SUNLinearSolver S,
-                                               int perftask);
+SUNDIALS_EXPORT long int SUNLinSolNumIters_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolFree_SPGMR(SUNLinearSolver S);
   
