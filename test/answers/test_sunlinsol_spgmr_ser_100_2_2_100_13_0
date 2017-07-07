@@ -1,0 +1,66 @@
+
+SPGMR linear solver test:
+  nprocs = 1
+  local/global problem sizes = 100/100
+  Gram-Schmidt orthogonalization type = 2
+  Preconditioning type = 2
+  Maximum Krylov subspace dimension = 100
+  Solver Tolerance = 1e-13
+  timing output flag = 0
+
+    PASSED test -- SUNLinSolGetType 
+    PASSED test -- SUNLinSolSetATimes 
+    PASSED test -- SUNLinSolSetPreconditioner 
+    PASSED test -- SUNLinSolSetScalingVectors 
+    PASSED test -- SUNLinSolInitialize 
+    SPGMR linear solver workspace: real = 20901, integer = 105
+SUCCESS: SUNSPGMR module passed all initialization tests
+
+    PASSED test -- SUNLinSolSetup 
+    PASSED test -- SUNLinSolSolve 
+    PASSED test -- SUNLinSolLastFlag (0) 
+    PASSED test -- SUNLinSolNumIters (22) 
+    PASSED test -- SUNLinSolResNorm (4.98395e-14) 
+    PASSED test -- SUNLinSolNumPSolves (0) 
+SUCCESS: SUNSPGMR module, problem 1, passed all tests
+
+    PASSED test -- SUNLinSolSetup 
+    PASSED test -- SUNLinSolSolve 
+    PASSED test -- SUNLinSolLastFlag (0) 
+    PASSED test -- SUNLinSolNumIters (22) 
+    PASSED test -- SUNLinSolResNorm (5.86477e-14) 
+    PASSED test -- SUNLinSolNumPSolves (23) 
+SUCCESS: SUNSPGMR module, problem 2, passed all tests
+
+    PASSED test -- SUNLinSolSetup 
+    PASSED test -- SUNLinSolSolve 
+    PASSED test -- SUNLinSolLastFlag (0) 
+    PASSED test -- SUNLinSolNumIters (22) 
+    PASSED test -- SUNLinSolResNorm (4.41433e-14) 
+    PASSED test -- SUNLinSolNumPSolves (0) 
+SUCCESS: SUNSPGMR module, problem 3, passed all tests
+
+    PASSED test -- SUNLinSolSetup 
+    PASSED test -- SUNLinSolSolve 
+    PASSED test -- SUNLinSolLastFlag (0) 
+    PASSED test -- SUNLinSolNumIters (22) 
+    PASSED test -- SUNLinSolResNorm (5.1478e-14) 
+    PASSED test -- SUNLinSolNumPSolves (23) 
+SUCCESS: SUNSPGMR module, problem 4, passed all tests
+
+    PASSED test -- SUNLinSolSetup 
+    PASSED test -- SUNLinSolSolve 
+    PASSED test -- SUNLinSolLastFlag (0) 
+    PASSED test -- SUNLinSolNumIters (22) 
+    PASSED test -- SUNLinSolResNorm (3.82581e-14) 
+    PASSED test -- SUNLinSolNumPSolves (0) 
+SUCCESS: SUNSPGMR module, problem 5, passed all tests
+
+    PASSED test -- SUNLinSolSetup 
+    PASSED test -- SUNLinSolSolve 
+    PASSED test -- SUNLinSolLastFlag (0) 
+    PASSED test -- SUNLinSolNumIters (22) 
+    PASSED test -- SUNLinSolResNorm (5.8204e-14) 
+    PASSED test -- SUNLinSolNumPSolves (23) 
+SUCCESS: SUNSPGMR module, problem 6, passed all tests
+
