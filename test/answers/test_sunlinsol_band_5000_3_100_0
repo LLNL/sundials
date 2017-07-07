@@ -7,7 +7,7 @@ Band linear solver test: size 5000, bandwidths 3 100
     PASSED test -- SUNLinSolGetType 
     PASSED test -- SUNLinSolLastFlag (0) 
     PASSED test -- SUNLinSolNumIters (0) 
-    PASSED test -- SUNLinSolResNorm (0) 
+    PASSED test -- SUNLinSolResNorm
     PASSED test -- SUNLinSolNumPSolves (0) 
     PASSED test -- SUNLinSolSetATimes 
     PASSED test -- SUNLinSolSetPreconditioner 
