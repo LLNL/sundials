@@ -155,7 +155,7 @@ int Test_SUNLinSolResNorm(SUNLinearSolver S, int myid)
   stop_time = get_time();   
 
   if (myid == 0) {
-    printf("    PASSED test -- SUNLinSolResNorm (%g) \n", resnorm);
+    printf("    PASSED test -- SUNLinSolResNorm\n");
     PRINT_TIME("    SUNLinSolResNorm Time: %22.15e \n \n", stop_time - start_time);
   }
 
