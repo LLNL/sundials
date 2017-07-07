@@ -166,14 +166,16 @@ int Test_SUNLinSolResNorm(SUNLinearSolver S, int myid)
 /* ----------------------------------------------------------------------
  * SUNLinSolSetATimes Test
  * --------------------------------------------------------------------*/
-int Test_SUNLinSolSetATimes(SUNLinearSolver S, booleantype shouldpass, int myid)
+int Test_SUNLinSolSetATimes(SUNLinearSolver S, void *ATdata,
+                            ATSetupFn ATSetup, ATimesFn ATimes,
+                            booleantype shouldpass, int myid)
 {
   int     ierr, failure;
   double  start_time, stop_time;
 
   /* try calling SetATimes routine: should pass/fail based on expected input */
   start_time = get_time();
-  ierr = SUNLinSolSetATimes(S, NULL, ATSetup, ATimes);
+  ierr = SUNLinSolSetATimes(S, ATdata, ATSetup, ATimes);
   stop_time = get_time(); 
 
   failure = 0;
@@ -199,14 +201,16 @@ int Test_SUNLinSolSetATimes(SUNLinearSolver S, booleantype shouldpass, int myid)
 /* ----------------------------------------------------------------------
  * SUNLinSolSetPreconditioner
  * --------------------------------------------------------------------*/
-int Test_SUNLinSolSetPreconditioner(SUNLinearSolver S, booleantype shouldpass, int myid)
+int Test_SUNLinSolSetPreconditioner(SUNLinearSolver S, void *Pdata,
+                                    PSetupFn PSetup, PSolveFn PSolve,
+                                    booleantype shouldpass, int myid)
 {
   int       ierr, failure;
   double    start_time, stop_time;
 
   /* try calling SetPreconditioner routine: should pass/fail based on expected input */
   start_time = get_time();
-  ierr = SUNLinSolSetPreconditioner(S, NULL, PSetup, PSolve);
+  ierr = SUNLinSolSetPreconditioner(S, Pdata, PSetup, PSolve);
   stop_time = get_time(); 
 
   failure = 0;
@@ -364,25 +368,6 @@ int Test_SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   N_VDestroy(y);
   return(0);
 }
-
-
-/* ----------------------------------------------------------------------
- * Dummy integrator-specific function pointers
- */
-
-int ATSetup(void *A_data)
-{ return 0; }
-
-int ATimes(void *A_data, N_Vector v, N_Vector z)
-{ return 0; }
-
-int PSetup(void *P_data)
-{ return 0; }
-
-int PSolve(void *P_data, N_Vector r, N_Vector z, realtype tol, int lr)
-{ return 0; }
-
-
 
 
 /* ======================================================================

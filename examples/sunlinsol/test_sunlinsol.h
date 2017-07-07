@@ -48,8 +48,11 @@ extern "C" {
   int Test_SUNLinSolNumIters(SUNLinearSolver S, int myid);
   int Test_SUNLinSolResNorm(SUNLinearSolver S, int myid);
   int Test_SUNLinSolNumPSolves(SUNLinearSolver S, int myid);
-  int Test_SUNLinSolSetATimes(SUNLinearSolver S, booleantype shouldpass, int myid);
-  int Test_SUNLinSolSetPreconditioner(SUNLinearSolver S, booleantype shouldpass, int myid);
+  int Test_SUNLinSolSetATimes(SUNLinearSolver S, void *ATdata, ATSetupFn ATSetup,
+                              ATimesFn ATimes, booleantype shouldpass, int myid);
+  int Test_SUNLinSolSetPreconditioner(SUNLinearSolver S, void *Pdata,
+                                      PSetupFn PSetup, PSolveFn PSolve,
+                                      booleantype shouldpass, int myid);
   int Test_SUNLinSolSetScalingVectors(SUNLinearSolver S, N_Vector s1, N_Vector s2,
                                       booleantype shouldpass, int myid);
   int Test_SUNLinSolInitialize(SUNLinearSolver S, int myid);
@@ -59,12 +62,6 @@ extern "C" {
 
   /* Timing function */
   void SetTiming(int onoff);
-
-  /* Dummy integrator-specific function pointers */
-  int ATSetup(void *A_data);
-  int ATimes(void *A_data, N_Vector v, N_Vector z);
-  int PSetup(void *P_data);
-  int PSolve(void *P_data, N_Vector r, N_Vector z, realtype tol, int lr);
   
 #ifdef __cplusplus
 }
