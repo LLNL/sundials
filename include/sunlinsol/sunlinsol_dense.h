@@ -73,7 +73,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
   
-struct _SUNMatrixContent_Dense {
+struct _SUNLinearSolverContent_Dense {
   long int *pivots;
   long int last_flag;
 };
