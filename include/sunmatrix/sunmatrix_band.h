@@ -133,7 +133,7 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
  *     a pointer to the first component of A. 
  *
  *     The assignment A_cols = SM_COLS_B(A) sets A_cols to be
- *     a pointer to the content's 'cols' entry
+ *     a pointer to the content's 'cols' entry.
  *
  *     The assignment A_rows = SM_ROWS_B(A) sets A_rows to be
  *     the number of rows in A.
@@ -282,10 +282,10 @@ SUNDIALS_EXPORT void SUNBandMatrix_Print(SUNMatrix A, FILE* outfile);
  *    Returns the number of stored upper bands in the banded matrix
  *
  * SUNBandMatrix_Data
- *    Returns a pointer to the data array for the sparse matrix
+ *    Returns a pointer to the data array for the banded matrix
  *
  * SUNBandMatrix_Cols
- *    Returns a pointer to the cols array for the sparse matrix
+ *    Returns a pointer to the cols array for the banded matrix
  *
  * SUNBandMatrix_Column
  *    Returns a pointer to the diagonal entry of jth column of the
