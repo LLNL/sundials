@@ -1,0 +1,184 @@
+/*
+ * ----------------------------------------------------------------- 
+ * Programmer(s): Daniel Reynolds, Ashley Crawford @ SMU
+ *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
+ * -----------------------------------------------------------------
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2017, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS/SMU Copyright End
+ * -----------------------------------------------------------------
+ * This is the testing routine to check the SUNLinSol Dense module 
+ * implementation. 
+ * -----------------------------------------------------------------
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <sundials/sundials_types.h>
+#include <sunlinsol/sunlinsol_dense.h>
+#include <sunmatrix/sunmatrix_dense.h>
+#include <nvector/nvector_serial.h>
+#include <sundials/sundials_math.h>
+#include "test_sunlinsol.h"
+
+
+/* ----------------------------------------------------------------------
+ * SUNDenseLinearSolver Testing Routine
+ * --------------------------------------------------------------------*/
+int main(int argc, char *argv[]) 
+{
+  int             fails = 0;          /* counter for test failures  */
+  long int        cols, rows;         /* matrix columns, rows */
+  SUNLinearSolver DenseSol;            /* solver object              */
+  SUNMatrix       A, B;               /* test matrices              */
+  N_Vector        x, y, b;            /* test vectors               */
+  int             print_timing;
+  long int        j, k, kstart, kend;
+  realtype        *colj, *xdata;
+
+  /* check input and set matrix dimensions */
+  if (argc < 3){
+    printf("ERROR: TWO (2) Inputs required: matrix cols, print timing \n");
+    return(-1);
+  }
+
+  cols = atol(argv[1]); 
+  if (cols <= 0) {
+    printf("ERROR: number of matrix columns must be a positive integer \n");
+    return(-1); 
+  }
+
+  cols = rows;
+
+  print_timing = atoi(argv[2]);
+  SetTiming(print_timing);
+
+  printf("\nDense linear solver test: size %ld\n\n",
+         cols);
+
+  /* Create matrices and vectors */
+  A = SUNDenseMatrix(rows, cols);
+  B = SUNDenseMatrix(rows, cols);
+  I = SUNDenseMatrix(rows, cols);
+  x = N_VNew_Serial(cols);
+  y = N_VNew_Serial(cols);
+  b = N_VNew_Serial(cols);
+
+  /* Fill matrix and x vector with uniform random data in [0,1] */
+  xdata = N_VGetArrayPointer(x);
+  for (j=0; j<cols; j++) {
+    
+    /* A matrix column */
+    colj = SUNDenseMatrix_Column(A, j);
+    for (k=0; k<rows; k++)
+      colj[k] = random() / (pow(2.0,31.0) - 1.0);
+
+    /* x entry */
+    xdata[j] = random() / (pow(2.0,31.0) - 1.0);
+    
+  }
+  
+  k=cols-1;
+  for (j=0; j<rows; j++) {
+    I(j,k) = 1;
+    k = k-1;
+  }    
+  
+  for (j=0; j<rows; j++)
+    for(k=0; k<cols; k++)
+    A(j,k) = A(j,k) + I(j,k); 
+  /* Scale/shift matrix to ensure diagonal dominance */
+ /* fails += SUNMatScaleAddI( ONE/(uband+lband+1), A );
+  if (fails) {
+    printf("FAIL: SUNLinSol SUNMatScaleAddI failure\n");
+    return(1);
+  }
+  */
+
+  /* copy A and x into B and y to print in case of solver failure */
+  SUNMatCopy(B, A);
+  N_VScale(ONE, x, y);
+
+  /* create right-hand side vector for linear solve */
+  fails = SUNMatMatvec(A, x, b);
+  
+  /* Create dense linear solver */
+  DenseSol = SUNDenseLinearSolver(x, A);
+  
+  /* Run Tests */
+  fails += Test_SUNLinSolInitialize(DenseSol, 0);
+  fails += Test_SUNLinSolSetup(DenseSol, A, 0);
+  fails += Test_SUNLinSolSolve(DenseSol, A, x, b, RCONST(1.0e-15), 0);
+ 
+  fails += Test_SUNLinSolGetType(DenseSol, SUNLINEARSOLVER_DIRECT, 0);
+  fails += Test_SUNLinSolLastFlag(DenseSol, 0);
+  fails += Test_SUNLinSolNumIters(DenseSol, 0);
+  fails += Test_SUNLinSolResNorm(DenseSol, 0);
+  fails += Test_SUNLinSolNumPSolves(DenseSol, 0);
+  fails += Test_SUNLinSolSetATimes(DenseSol, FALSE, 0);
+  fails += Test_SUNLinSolSetPreconditioner(DenseSol, FALSE, 0);
+  fails += Test_SUNLinSolSetScalingVectors(DenseSol, x, y, FALSE, 0);
+
+  /* Print result */
+  if (fails) {
+    printf("FAIL: SUNLinSol module failed %i tests \n \n", fails);
+    printf("\nA (original) =\n");
+    SUNDenseMatrix_Print(B,stdout);
+    printf("\nA (factored) =\n");
+    SUNDenseMatrix_Print(A,stdout);
+    printf("\nx (original) =\n");
+    N_VPrint_Serial(y);
+    printf("\nx (computed) =\n");
+    N_VPrint_Serial(x);
+  } else {
+    printf("SUCCESS: SUNLinSol module passed all tests \n \n");
+  }
+
+  /* Free solver, matrix and vectors */
+  SUNLinSolFree(DenseSol);
+  SUNMatDestroy(A);
+  SUNMatDestroy(B);
+  N_VDestroy(x);
+  N_VDestroy(y);
+
+  return(0);
+}
+
+/* ----------------------------------------------------------------------
+ * Implementation-specific 'check' routines
+ * --------------------------------------------------------------------*/
+int check_vector(N_Vector X, N_Vector Y, realtype tol)
+{
+  int      failure = 0;
+  long int i, local_length;
+  realtype *Xdata, *Ydata, maxerr;
+  
+  Xdata = N_VGetArrayPointer(X);
+  Ydata = N_VGetArrayPointer(Y);
+  local_length = N_VGetLength_Serial(X);
+  
+  /* check vector data */
+  for(i=0; i < local_length; i++)
+    failure += FNEQ(Xdata[i], Ydata[i], tol);
+
+  if (failure > ZERO) {
+    maxerr = ZERO;
+    for(i=0; i < local_length; i++)
+      maxerr = SUNMAX(SUNRabs(Xdata[i]-Ydata[i]), maxerr);
+    printf("check err failure: maxerr = %g (tol = %g)\n",
+	   maxerr, tol);
+    return(1);
+  }
+  else
+    return(0);
+}
