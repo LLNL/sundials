@@ -32,12 +32,6 @@
 #define ONE   RCONST(1.0)
 #define ROW(i,j,smu) (i-j+smu)
 
-/* private functions */
-long int sunlinsolbandGBTRF(realtype **a, long int n, long int mu, 
-			    long int ml, long int smu, long int *p);
-void sunlinsolbandGBTRS(realtype **a, long int n, long int smu, 
-			long int ml, long int *p, realtype *b);
-
 
 /*
  * -----------------------------------------------------------------
@@ -188,8 +182,8 @@ int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
   }
   
   /* perform LU factorization of input matrix */
-  SLS_LASTFLAG_B(S) = sunlinsolbandGBTRF(A_cols, SM_COLUMNS_B(A), SM_UBAND_B(A),
-					 SM_LBAND_B(A), SM_SUBAND_B(A), pivots);
+  SLS_LASTFLAG_B(S) = bandGBTRF(A_cols, SM_COLUMNS_B(A), SM_UBAND_B(A),
+                                SM_LBAND_B(A), SM_SUBAND_B(A), pivots);
   
   /* store error flag (if nonzero, this row encountered zero-valued pivod) */
   if (SLS_LASTFLAG_B(S) > 0)
@@ -217,8 +211,8 @@ int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     return 1;
   
   /* solve using LU factors */
-  sunlinsolbandGBTRS(A_cols, SM_COLUMNS_B(A), SM_SUBAND_B(A), 
-		     SM_LBAND_B(A), pivots, xdata);
+  bandGBTRS(A_cols, SM_COLUMNS_B(A), SM_SUBAND_B(A), 
+            SM_LBAND_B(A), pivots, xdata);
   return 0;
 }
 
