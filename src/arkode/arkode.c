@@ -3165,6 +3165,27 @@ static int arkInitialSetup(ARKodeMem ark_mem)
     return(ARK_ILL_INPUT);
   }
 
+  /* Call minit (if it exists) */
+  if (ark_mem->ark_minit != NULL) {
+    ier = ark_mem->ark_minit(ark_mem);
+    if (ier != 0) {
+      arkProcessError(ark_mem, ARK_MASSINIT_FAIL, "ARKODE", 
+		      "arkInitialSetup", MSGARK_MASSINIT_FAIL);
+      return(ARK_MASSINIT_FAIL);
+    }
+  }
+  
+  /* Call msetup (if necessary) */
+  if (ark_mem->ark_mass_matrix && ark_mem->ark_MassSetupNonNull) {
+    ier = ark_mem->ark_msetup(ark_mem, ark_mem->ark_ewt, 
+			      ark_mem->ark_acor, ark_mem->ark_sdata);
+    if (ier != 0) {
+      arkProcessError(ark_mem, ARK_MASSSETUP_FAIL, "ARKODE", 
+		      "arkInitialSetup", MSGARK_MASSSETUP_FAIL);
+      return(ARK_MASSSETUP_FAIL);
+    }
+  }
+
   /* Set data for rfun (if left unspecified) */
   if (ark_mem->ark_user_rfun) 
     ark_mem->ark_r_data = ark_mem->ark_user_data;
@@ -3203,27 +3224,6 @@ static int arkInitialSetup(ARKodeMem ark_mem)
 			"arkInitialSetup", MSGARK_LINIT_FAIL);
 	return(ARK_LINIT_FAIL);
       }
-    }
-  }
-
-  /* Call minit (if it exists) */
-  if (ark_mem->ark_minit != NULL) {
-    ier = ark_mem->ark_minit(ark_mem);
-    if (ier != 0) {
-      arkProcessError(ark_mem, ARK_MASSINIT_FAIL, "ARKODE", 
-		      "arkInitialSetup", MSGARK_MASSINIT_FAIL);
-      return(ARK_MASSINIT_FAIL);
-    }
-  }
-  
-  /* Call msetup (if necessary) */
-  if (ark_mem->ark_mass_matrix && ark_mem->ark_MassSetupNonNull) {
-    ier = ark_mem->ark_msetup(ark_mem, ark_mem->ark_ewt, 
-			      ark_mem->ark_acor, ark_mem->ark_sdata);
-    if (ier != 0) {
-      arkProcessError(ark_mem, ARK_MASSSETUP_FAIL, "ARKODE", 
-		      "arkInitialSetup", MSGARK_MASSSETUP_FAIL);
-      return(ARK_MASSSETUP_FAIL);
     }
   }
 
