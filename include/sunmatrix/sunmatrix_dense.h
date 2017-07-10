@@ -97,8 +97,8 @@ typedef struct _SUNMatrixContent_Dense *SUNMatrixContent_Dense;
  *
  * SUNMatrix A;
  * SUNMatrixContent_Dense A_cont;
- * realtype *A_col_j, *A_data, A_ij;
- * long int i, j, A_rows, A_cols, A_ldata;
+ * realtype *A_col_j, *A_data, **A_cols, A_ij;
+ * long int i, j, A_rows, A_columns, A_ldata;
  *
  * (1) SM_CONTENT_D
  *
@@ -108,7 +108,7 @@ typedef struct _SUNMatrixContent_Dense *SUNMatrixContent_Dense;
  *     The assignment A_cont = SM_CONTENT_D(A) sets A_cont to be
  *     a pointer to the dense SUNMatrix content structure.
  *
- * (2) SM_DATA_D, SM_LDATA_D, SM_ROWS_D, SM_COLUMNS_D
+ * (2) SM_DATA_D, SM_COLS_D, SM_LDATA_D, SM_ROWS_D, SM_COLUMNS_D
  *
  *     These macros give access to the individual parts of
  *     the content structure of a dense SUNMatrix.
@@ -116,14 +116,17 @@ typedef struct _SUNMatrixContent_Dense *SUNMatrixContent_Dense;
  *     The assignment A_data = SM_DATA_D(A) sets A_data to be
  *     a pointer to the first component of A. 
  *
+ *     The assignment A_cols = SM_COLS_D(A) sets A_cols to be
+ *     a pointer to the content's 'cols' entry.
+ *
  *     The assignment A_ldata = SM_LDATA_D(A) sets A_ldata to be
  *     the length of the data array for A. 
  *
  *     The assignment A_rows = SM_ROWS_D(A) sets A_rows to be
  *     the number of rows in A.
  *
- *     The assignment A_cols = SM_COLUMNS_D(A) sets A_cols to be
- *     the number of columns in A.
+ *     The assignment A_columns = SM_COLUMNS_D(A) sets A_columns 
+ *     to be the number of columns in A.
  *
  * (3) SM_COLUMN_D and SM_ELEMENT_D
  *
@@ -157,6 +160,8 @@ typedef struct _SUNMatrixContent_Dense *SUNMatrixContent_Dense;
 
 #define SM_DATA_D(A)        ( SM_CONTENT_D(A)->data )
 
+#define SM_COLS_D(A)        ( SM_CONTENT_D(A)->cols )
+
 #define SM_COLUMN_D(A,j)    ( (SM_CONTENT_D(A)->cols)[j] )
 
 #define SM_ELEMENT_D(A,i,j) ( (SM_CONTENT_D(A)->cols)[j][i] )
@@ -173,6 +178,7 @@ typedef struct _SUNMatrixContent_Dense *SUNMatrixContent_Dense;
  *    SUNDenseMatrix_Columns
  *    SUNDenseMatrix_LData
  *    SUNDenseMatrix_Data 
+ *    SUNDenseMatrix_Cols
  *    SUNDenseMatrix_Column
  * -----------------------------------------------------------------
  */
@@ -218,6 +224,9 @@ SUNDIALS_EXPORT void SUNDenseMatrix_Print(SUNMatrix A, FILE* outfile);
  * SUNDenseMatrix_Data
  *    Returns a pointer to the data array for the dense matrix
  *
+ * SUNDenseMatrix_Cols
+ *    Returns a pointer to the cols array for the dense matrix
+ *
  * SUNDenseMatrix_Column
  *    Returns a pointer to the jth column of the dense matrix
  *
@@ -228,6 +237,7 @@ SUNDIALS_EXPORT long int SUNDenseMatrix_Rows(SUNMatrix A);
 SUNDIALS_EXPORT long int SUNDenseMatrix_Columns(SUNMatrix A);
 SUNDIALS_EXPORT long int SUNDenseMatrix_LData(SUNMatrix A);
 SUNDIALS_EXPORT realtype* SUNDenseMatrix_Data(SUNMatrix A);
+SUNDIALS_EXPORT realtype** SUNDenseMatrix_Cols(SUNMatrix A);
 SUNDIALS_EXPORT realtype* SUNDenseMatrix_Column(SUNMatrix A, long int j);
 
 /*

@@ -174,6 +174,14 @@ realtype* SUNDenseMatrix_Data(SUNMatrix A)
     return NULL;
 }
 
+realtype** SUNDenseMatrix_Cols(SUNMatrix A)
+{
+  if (SUNMatGetID(A) == SUNMATRIX_DENSE)
+    return SM_COLS_D(A);
+  else
+    return NULL;
+}
+
 realtype* SUNDenseMatrix_Column(SUNMatrix A, long int j)
 {
   if (SUNMatGetID(A) == SUNMATRIX_DENSE)
