@@ -28,6 +28,12 @@
 #include <sundials/sundials_spgmr.h>
 #include <sundials/sundials_math.h>
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define RSYM ".32Lg"
+#else
+#define RSYM ".16g"
+#endif
+
 /* Constants */
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
@@ -357,7 +363,7 @@ static int ARKSpgmrSolve(ARKodeMem ark_mem, N_Vector b,
 
   /* Log solver statistics to diagnostics file (if requested) */
   if (ark_mem->ark_report) 
-    fprintf(ark_mem->ark_diagfp, "      kry  %19.16g  %19.16g  %i  %i\n", 
+    fprintf(ark_mem->ark_diagfp, "      kry  %"RSYM"  %"RSYM"  %i  %i\n", 
 	    bnorm, res_norm, nli_inc, nps_inc);
   
   /* Interpret return value from SpgmrSolve */
@@ -697,7 +703,7 @@ static int ARKMassSpgmrSolve(ARKodeMem ark_mem, N_Vector b,
 
   /* Log solver statistics to diagnostics file (if requested) */
   if (ark_mem->ark_report) 
-    fprintf(ark_mem->ark_diagfp, "      mass  %19.16g  %i  %i\n", 
+    fprintf(ark_mem->ark_diagfp, "      mass  %"RSYM"  %i  %i\n", 
 	    res_norm, nli_inc, nps_inc);
   
   /* Interpret return value from SpgmrSolve */

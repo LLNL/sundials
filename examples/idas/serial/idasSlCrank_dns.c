@@ -157,7 +157,11 @@ int main(void)
 
   IDAGetQuad(mem, &tret, q);
   printf("--------------------------------------------\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("  G = %24.16Lf\n", Ith(q,1));
+#else
   printf("  G = %24.16f\n", Ith(q,1));
+#endif  
   printf("--------------------------------------------\n\n");
   
   IDAFree(&mem);

@@ -321,8 +321,13 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
   flag = IDAGetNumSteps(mem, &nst);
   flag = IDAGetLastStep(mem, &hused);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%10.4Le %12.4Le %12.4Le %12.4Le %3ld  %1d %12.4Le\n", 
+         t, yval[0], yval[1], yval[2], nst, kused, hused);
+#else
   printf("%10.4e %12.4e %12.4e %12.4e %3ld  %1d %12.4e\n", 
          t, yval[0], yval[1], yval[2], nst, kused, hused);
+#endif
 }
 
 
