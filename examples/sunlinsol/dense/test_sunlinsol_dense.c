@@ -40,11 +40,11 @@ int main(int argc, char *argv[])
   int             fails = 0;          /* counter for test failures  */
   long int        cols, rows;         /* matrix columns, rows */
   SUNLinearSolver DenseSol;            /* solver object              */
-  SUNMatrix       A, B;               /* test matrices              */
+  SUNMatrix       A, B, I;               /* test matrices              */
   N_Vector        x, y, b;            /* test vectors               */
   int             print_timing;
   long int        j, k, kstart, kend;
-  realtype        *colj, *xdata;
+  realtype        *colj, *xdata, *colIj;
 
   /* check input and set matrix dimensions */
   if (argc < 3){
@@ -88,15 +88,18 @@ int main(int argc, char *argv[])
     
   }
   
-  k=cols-1;
-  for (j=0; j<rows; j++) {
-    I(j,k) = 1;
-    k = k-1;
+  j=cols-1;
+  for (k=0; k<rows; k++) {
+    colj = SunDenseMatrix_Column(I,j);
+    colj[k] = 1;
+    j = j-1;
   }    
   
-  for (j=0; j<rows; j++)
-    for(k=0; k<cols; k++)
-    A(j,k) = A(j,k) + I(j,k); 
+  for (k=0; k<rows; k++)
+    for(j=0; j<cols; j++)
+      colj = SunDenseMatrix_Column(A,j);
+      colIj = SunDenseMatrix_Column(I,j);
+    colj[k]  = colj[k] + colIj[k]; 
   /* Scale/shift matrix to ensure diagonal dominance */
  /* fails += SUNMatScaleAddI( ONE/(uband+lband+1), A );
   if (fails) {
