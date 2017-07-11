@@ -95,7 +95,9 @@ SUNLinearSolver SUNSPGMR(N_Vector y, int pretype, int maxl)
   content->numpsolves = 0;
   content->resnorm = ZERO;
   content->xcor = N_VClone(y);
+  if (content->xcor == NULL)  return NULL;
   content->vtemp = N_VClone(y);
+  if (content->vtemp == NULL)  return NULL;
   content->s1 = NULL;
   content->s2 = NULL;
   content->ATSetup = NULL;
