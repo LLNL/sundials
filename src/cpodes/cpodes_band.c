@@ -198,7 +198,7 @@ int CPBand(void *cpode_mem, int N, int mupper, int mlower)
     free(cpdls_mem);
     return(CPDLS_MEM_FAIL);
   }  
-  pivots = NewLintArray(N);
+  pivots = NewIndexArray(N);
   if (pivots == NULL) {
     cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPBAND", "CPBand", MSGD_MEM_FAIL);
     DestroyMat(M);
