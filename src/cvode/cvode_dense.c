@@ -104,7 +104,7 @@ static int cvDenseFree(CVodeMem cv_mem);
  * -----------------------------------------------------------------
  */
 
-int CVDense(void *cvode_mem, long int N)
+int CVDense(void *cvode_mem, sunindextype N)
 {
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
@@ -241,7 +241,7 @@ static int cvDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 {
   booleantype jbad, jok;
   realtype dgamma;
-  long int ier;
+  sunindextype ier;
   CVDlsMem cvdls_mem;
   int retval;
 
@@ -292,7 +292,7 @@ static int cvDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   ier = DenseGETRF(M, lpivots); 
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  last_flag = ier;
+  last_flag = (long int) ier;
   if (ier > 0) return(1);
   return(0);
 }

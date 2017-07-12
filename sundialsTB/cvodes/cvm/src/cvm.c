@@ -559,7 +559,7 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
   int lmm, iter, maxord;
 
-  long int mxsteps;
+  sunindextype mxsteps;
 
   int itol;
   realtype reltol, Sabstol, *Vabstol;
@@ -575,9 +575,9 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
   booleantype rhs_s; /* ignored */
 
-  long int mupper, mlower;
+  sunindextype mupper, mlower;
   int ptype, gstype, maxl;
-  long int mudq, mldq;
+  sunindextype mudq, mldq;
   double dqrely;
 
   char *bufval;
@@ -1506,7 +1506,7 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
   double tB0, *yB0;
 
   int lmmB, iterB, maxordB;
-  long int mxstepsB;
+  sunindextype mxstepsB;
 
   int itolB;
   realtype reltolB, SabstolB, *VabstolB;
@@ -1520,9 +1520,9 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   booleantype rhs_s;
 
-  long int mupperB, mlowerB;
+  sunindextype mupperB, mlowerB;
   int ptypeB, gstypeB, maxlB;
-  long int mudqB, mldqB;
+  sunindextype mudqB, mldqB;
   double dqrelyB;
 
   booleantype found_bck;
@@ -2137,7 +2137,7 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   int itask, is, Ntout, itout, s_idx;
   double *tout, tret, h;
   double *tdata, *ydata, *yQdata, *ySdata;
-  long int nst;
+  sunindextype nst;
 
   fwdPb = cvmData->fwdPb;
 
@@ -2611,7 +2611,7 @@ static int cvmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB)
   double tretB, hB;
   double *tdata, *ydata, *yQdata;
   int itout;
-  long int nstB;
+  sunindextype nstB;
 
   int status, cv_status;
 
@@ -2793,7 +2793,7 @@ static int cvmSolveB_more(mxArray *plhs[], int NtoutB, double *toutB, int itaskB
   double tretB, h, hB;
   double **tdata, **ydata, **yQdata;
   int itout;
-  long int nstB;
+  sunindextype nstB;
 
   char err_msg[80];
 
@@ -3012,20 +3012,20 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     "ncfnS",
   };
 
-  long int nst, nfe, nsetups, nni, ncfn, netf, nge;
+  sunindextype nst, nfe, nsetups, nni, ncfn, netf, nge;
   int qlast, qcur;
   double h0used, hlast, hcur, tcur;
   int *rootsfound;
 
-  long int njeD, nfeD;
-  long int nfeDI;
-  long int njeB, nfeB;
-  long int nli, npe, nps, ncfl, njeSG, nfeSG;
+  sunindextype njeD, nfeD;
+  sunindextype nfeDI;
+  sunindextype njeB, nfeB;
+  sunindextype nli, npe, nps, ncfl, njeSG, nfeSG;
 
-  long int nfQe, netfQ;
+  sunindextype nfQe, netfQ;
 
-  long int nfSe, nfeS, netfS, nsetupsS;
-  long int nniS, ncfnS;
+  sunindextype nfSe, nfeS, netfS, nsetupsS;
+  sunindextype nniS, ncfnS;
 
   int i, status;
   mxArray *mxS_root, *mxS_ls, *mxS_quad, *mxS_fsa;
@@ -3302,16 +3302,16 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   void *cvode_memB;
 
-  long int nst, nfe, nsetups, nni, ncfn, netf;
+  sunindextype nst, nfe, nsetups, nni, ncfn, netf;
   int qlast, qcur;
   double h0used, hlast, hcur, tcur;
 
-  long int njeD, nfeD;
-  long int nfeDI;
-  long int njeB, nfeB;
-  long int nli, npe, nps, ncfl, njeSG, nfeSG;
+  sunindextype njeD, nfeD;
+  sunindextype nfeDI;
+  sunindextype njeB, nfeB;
+  sunindextype nli, npe, nps, ncfl, njeSG, nfeSG;
 
-  long int nfQe, netfQ;
+  sunindextype nfQe, netfQ;
 
   mxArray *mxS_ls, *mxS_quad;
   int nfields;

@@ -127,7 +127,7 @@
 typedef struct {
   realtype *p;
   realtype **P[MX][MZ], **Jbd[MX][MZ];
-  long int *pivot[MX][MZ];
+  sunindextype *pivot[MX][MZ];
   realtype q4, om, dx, dz, hdco, haco, vdco;
 } *UserData;
 
@@ -434,7 +434,7 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
 {
   realtype c1, c2, czdn, czup, diag, zdn, zup, q4coef, delz, verdco, hordco;
   realtype **(*P)[MZ], **(*Jbd)[MZ];
-  long int *(*pivot)[MZ];
+  sunindextype *(*pivot)[MZ];
   int ier, jx, jz;
   realtype *ydata, **a, **j;
   UserData data;
@@ -534,7 +534,7 @@ static int PSolve(realtype tn, N_Vector y, N_Vector fy,
                   int lr, void *user_data, N_Vector vtemp)
 {
   realtype **(*P)[MZ];
-  long int *(*pivot)[MZ];
+  sunindextype *(*pivot)[MZ];
   int jx, jz;
   realtype *zdata, *v;
   UserData data;

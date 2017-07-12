@@ -189,7 +189,11 @@ int main()
   if (check_flag(&flag, "IDAGetQuad", 1)) return(1);
 
   printf("\n--------------------------------------------------------\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("G:          %24.16Lf \n",Ith(q,1));
+#else
   printf("G:          %24.16f \n",Ith(q,1));
+#endif  
   printf("--------------------------------------------------------\n\n");
 
   PrintFinalStats(mem);

@@ -57,7 +57,7 @@ typedef struct ARKSlsMemRec {
   int s_first_factorize;     /* flag telling whether the first 
 			        factorization needs to happen  */
 
-  int s_nstlj;               /* time step of last J evaluation */
+  long int s_nstlj;          /* time step of last J evaluation */
 
   SlsMat s_A;                /* A = M - gamma * df/dy          */
 

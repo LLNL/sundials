@@ -73,13 +73,13 @@ typedef struct {
 
   long *d_pivots;         /* pivots = pivot array for PM = LU             */
   
-  long int  d_nstlj;      /* nstlj = nst at last Jacobian eval.           */
+  long int d_nstlj;       /* nstlj = nst at last Jacobian eval.           */
 
   long int d_nje;         /* nje = no. of calls to jac                    */
 
   long int d_nfeDQ;       /* no. of calls to f due to DQ Jacobian approx. */
 
-  int d_last_flag;        /* last error return flag                       */
+  long int d_last_flag;   /* last error return flag                       */
   
 } CPDlsMemRec, *CPDlsMem;
 
@@ -121,7 +121,7 @@ typedef struct {
   realtype *d_wrk;          /* work array (for ftype QR or QRP)             */
   int d_len_wrk;            /* length of work array                         */
 
-  long int  d_nstljP;       /* nstljP = nst at last Jacobian eval.         */
+  long int d_nstljP;        /* nstljP = nst at last Jacobian eval.         */
 
   long int d_njeP;          /* njeP = no. of calls to jacP                 */
 

@@ -81,7 +81,7 @@ int jacHeat(realtype tt,  realtype c_j,
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
                              N_Vector res, void *user_data);
 
-static void PrintHeader(long int Neq, realtype rtol, realtype atol);
+static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol);
 
 static void PrintOutput(int id, void *mem, realtype t, N_Vector uu);
 
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
   void *mem;
   UserData data;
   int iout, thispe, ier, npes;
-  long int Neq, local_N;
+  sunindextype Neq, local_N;
   realtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
   PetscErrorCode ierr;                  /* PETSc error code  */
@@ -507,14 +507,14 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
  * Print first lines of output and table heading
  */
 
-static void PrintHeader(long int Neq, realtype rtol, realtype atol)
+static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
 { 
   printf("\nidaHeat2D_kry_Petsc: Heat equation, parallel example problem for IDA\n");
   printf("            Discretized heat equation on 2D unit square.\n");
   printf("            Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");
   printf("            Mesh dimensions: %d x %d", MX, MY);
-  printf("        Total system size: %ld\n\n", Neq);
+  printf("        Total system size: %ld\n\n", (long int) Neq);
   printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
   printf("        Processor array: %d x %d\n", NPEX, NPEY);
 #if defined(SUNDIALS_EXTENDED_PRECISION)

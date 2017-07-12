@@ -38,7 +38,7 @@
 extern "C" {
 #endif
 
-extern void FK_BJAC(long int*, long int*, long int*, long int*,
+extern void FK_BJAC(sunindextype*, sunindextype*, sunindextype*, sunindextype*,
                     realtype*, realtype*,
                     realtype*,
                     realtype*, realtype*, int*);
@@ -77,13 +77,13 @@ void FKIN_BANDSETJAC(int *flag, int *ier)
  * ----------------------------------------------------------------
  */
 
-int FKINBandJac(long int N, long int mupper, long int mlower,
+int FKINBandJac(sunindextype N, sunindextype mupper, sunindextype mlower,
                 N_Vector uu, N_Vector fval, 
                 DlsMat J, void *user_data,
                 N_Vector vtemp1, N_Vector vtemp2)
 {
   realtype *uu_data, *fval_data, *jacdata, *v1_data, *v2_data;
-  long int eband;
+  sunindextype eband;
   int ier;
 
   /* Initialize all pointers to NULL */

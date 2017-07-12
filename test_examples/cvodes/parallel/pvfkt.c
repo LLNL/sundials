@@ -858,8 +858,8 @@ static void PrintRow(realtype *row, FILE* f1, FILE* f2)
 
 static void PrintFinalStats(void *cvode_mem, booleantype sensi) 
 {
-  long int lenrw, leniw ;
-  long int lenrwSPGMR, leniwSPGMR;
+  sunindextype lenrw, leniw ;
+  sunindextype lenrwSPGMR, leniwSPGMR;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeSPGMR;
   long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;

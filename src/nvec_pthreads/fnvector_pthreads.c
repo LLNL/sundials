@@ -46,7 +46,7 @@ N_Vector F2C_ARKODE_vec;
 
 /* Fortran callable interfaces */
 
-void FNV_INITPTS(int *code, long int *N, int *num_threads, int *ier)
+void FNV_INITPTS(int *code, sunindextype *N, int *num_threads, int *ier)
 {
   *ier = 0;
 
@@ -76,7 +76,7 @@ void FNV_INITPTS(int *code, long int *N, int *num_threads, int *ier)
   }
 }
 
-void FNV_INITPTS_Q(int *code, long int *Nq, int *num_threads, int *ier)
+void FNV_INITPTS_Q(int *code, sunindextype *Nq, int *num_threads, int *ier)
 {
   *ier = 0;
 
@@ -96,7 +96,7 @@ void FNV_INITPTS_Q(int *code, long int *Nq, int *num_threads, int *ier)
   }
 }
 
-void FNV_INITPTS_B(int *code, long int *NB, int *num_threads, int *ier)
+void FNV_INITPTS_B(int *code, sunindextype *NB, int *num_threads, int *ier)
 {
   *ier = 0;
 
@@ -116,7 +116,7 @@ void FNV_INITPTS_B(int *code, long int *NB, int *num_threads, int *ier)
   }
 }
 
-void FNV_INITPTS_QB(int *code, long int *NqB, int *num_threads, int *ier)
+void FNV_INITPTS_QB(int *code, sunindextype *NqB, int *num_threads, int *ier)
 {
   *ier = 0;
 

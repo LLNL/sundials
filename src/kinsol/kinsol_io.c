@@ -848,7 +848,7 @@ int KINSetSysFunc(void *kinmem, KINSysFn func)
  * -----------------------------------------------------------------
  */
 
-int KINGetWorkSpace(void *kinmem, long int *lenrw, long int *leniw)
+int KINGetWorkSpace(void *kinmem, sunindextype *lenrw, sunindextype *leniw)
 {
   KINMem kin_mem;
 

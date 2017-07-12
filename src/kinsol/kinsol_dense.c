@@ -119,7 +119,7 @@ static int kinDenseFree(KINMem kin_mem);
  * -----------------------------------------------------------------
  */
 
-int KINDense(void *kinmem, long int N)
+int KINDense(void *kinmem, sunindextype N)
 {
   KINMem kin_mem;
   KINDlsMem kindls_mem;
@@ -251,7 +251,7 @@ static int kinDenseSetup(KINMem kin_mem)
 {
   KINDlsMem kindls_mem;
   int retval;
-  long int ier;
+  sunindextype ier;
 
   kindls_mem = (KINDlsMem) lmem;
  
@@ -267,7 +267,7 @@ static int kinDenseSetup(KINMem kin_mem)
   ier = DenseGETRF(J, lpivots); 
 
   /* Return 0 if the LU was complete; otherwise return -1 */
-  last_flag = ier;
+  last_flag = (long int) ier;
   if (ier > 0) return(-1);
 
   return(0);

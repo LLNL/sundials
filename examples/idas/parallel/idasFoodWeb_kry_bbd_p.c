@@ -165,7 +165,7 @@ typedef struct {
     rhs[NUM_SPECIES], cext[(MXSUB+2)*(MYSUB+2)*NUM_SPECIES];
   MPI_Comm comm;
   N_Vector rates;
-  long int n_local;
+  sunindextype n_local;
 } *UserData;
 
 /* Prototypes for functions called by the IDA Solver. */
@@ -174,11 +174,11 @@ static int resweb(realtype tt,
                   N_Vector cc, N_Vector cp, N_Vector rr, 
                   void *user_data);
 
-static int reslocal(long int Nlocal, realtype tt, 
+static int reslocal(sunindextype Nlocal, realtype tt, 
                     N_Vector cc, N_Vector cp, N_Vector res, 
                     void *user_data);
 
-static int rescomm(long int Nlocal, realtype tt,
+static int rescomm(sunindextype Nlocal, realtype tt,
                    N_Vector cc, N_Vector cp, 
                    void *user_data);
 
@@ -208,9 +208,9 @@ static void InitUserData(UserData webdata, int thispe, int npes,
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                N_Vector scrtch, UserData webdata);
 
-static void PrintHeader(int SystemSize, int maxl, 
-                        int mudq, int mldq, 
-                        int mukeep, int mlkeep,
+static void PrintHeader(sunindextype SystemSize, int maxl, 
+                        sunindextype mudq, sunindextype mldq, 
+                        sunindextype mukeep, sunindextype mlkeep,
                         realtype rtol, realtype atol);
 
 static void PrintOutput(void *mem, N_Vector cc, realtype time,
@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
   void *mem;
   UserData webdata;
-  long int SystemSize, local_N, mudq, mldq, mukeep, mlkeep;
+  sunindextype SystemSize, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, tout, tret;
   N_Vector cc, cp, res, id;
   int thispe, npes, maxl, iout, retval;
@@ -505,15 +505,15 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
  * and table headerr
  */
 
-static void PrintHeader(int SystemSize, int maxl, 
-                        int mudq, int mldq, 
-                        int mukeep, int mlkeep,
+static void PrintHeader(sunindextype SystemSize, int maxl, 
+                        sunindextype mudq, sunindextype mldq, 
+                        sunindextype mukeep, sunindextype mlkeep,
                         realtype rtol, realtype atol)
 {
   printf("\nidasFoodWeb_kry_bbd_p: Predator-prey DAE parallel example problem for IDA \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
   printf("     Mesh dimensions: %d x %d", MX, MY);
-  printf("     Total system size: %d\n",SystemSize);
+  printf("     Total system size: %ld\n",(long int) SystemSize);
   printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
   printf("     Processor array: %d x %d\n", NPEX, NPEY);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -525,8 +525,8 @@ static void PrintHeader(int SystemSize, int maxl,
 #endif
   printf("Linear solver: IDASPGMR     Max. Krylov dimension maxl: %d\n", maxl);
   printf("Preconditioner: band-block-diagonal (IDABBDPRE), with parameters\n");
-  printf("     mudq = %d,  mldq = %d,  mukeep = %d,  mlkeep = %d\n",
-         mudq, mldq, mukeep, mlkeep);
+  printf("     mudq = %ld,  mldq = %ld,  mukeep = %ld,  mlkeep = %ld\n",
+         (long int) mudq, (long int) mldq, (long int) mukeep, (long int) mlkeep);
   printf("CalcIC called to correct initial predator concentrations \n\n");
   printf("-----------------------------------------------------------\n");
   printf("  t        bottom-left  top-right");
@@ -709,7 +709,7 @@ static int resweb(realtype tt,
 {
   int retval;
   UserData webdata;
-  long int Nlocal;
+  sunindextype Nlocal;
   
   webdata = (UserData) user_data;
   
@@ -734,7 +734,7 @@ static int resweb(realtype tt,
  * and receive-waiting, in routines BRecvPost, BSend, BRecvWait.         
  */
 
-static int rescomm(long int Nlocal, realtype tt, 
+static int rescomm(sunindextype Nlocal, realtype tt, 
                    N_Vector cc, N_Vector cp,
                    void *user_data)
 {
@@ -957,7 +957,7 @@ static void BSend(MPI_Comm comm, int my_pe, int ixsub, int jysub,
  * for use by the preconditioner setup routine.                          
  */
 
-static int reslocal(long int Nlocal, realtype tt, 
+static int reslocal(sunindextype Nlocal, realtype tt, 
                     N_Vector cc, N_Vector cp, N_Vector rr,
                     void *user_data)
 {
