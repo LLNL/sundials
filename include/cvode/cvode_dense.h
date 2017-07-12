@@ -50,7 +50,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVDense(void *cvode_mem, long int N);
+SUNDIALS_EXPORT int CVDense(void *cvode_mem, sunindextype N);
 
 #ifdef __cplusplus
 }

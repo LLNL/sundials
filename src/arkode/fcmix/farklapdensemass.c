@@ -33,8 +33,8 @@
 extern "C" {
 #endif
 
-  extern void FARK_DMASS(long int *N, realtype *T, 
-			 realtype *DMASS, long int *IPAR, 
+  extern void FARK_DMASS(sunindextype *N, realtype *T, 
+			 realtype *DMASS, sunindextype *IPAR, 
 			 realtype *RPAR, realtype *V1, 
 			 realtype *V2, realtype *V3, int *ier);
 
@@ -55,7 +55,7 @@ void FARK_LAPACKDENSESETMASS(int *ier)
 
 /* C interface to user-supplied Fortran routine FARKDMASS; see 
    farkode.h for additional information  */
-int FARKLapackDenseMass(long int N, realtype t, DlsMat M, 
+int FARKLapackDenseMass(sunindextype N, realtype t, DlsMat M, 
 			void *user_data, N_Vector vtemp1, 
 			N_Vector vtemp2, N_Vector vtemp3)
 {

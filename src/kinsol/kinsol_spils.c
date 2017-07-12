@@ -191,7 +191,7 @@ int KINSpilsSetJacTimesVecFn(void *kinmem, KINSpilsJacTimesVecFn jtv)
  * -----------------------------------------------------------------
  */
 
-int KINSpilsGetWorkSpace(void *kinmem, long int *lenrwSG, long int *leniwSG)
+int KINSpilsGetWorkSpace(void *kinmem, sunindextype *lenrwSG, sunindextype *leniwSG)
 {
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;

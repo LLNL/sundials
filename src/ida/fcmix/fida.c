@@ -44,7 +44,7 @@
 N_Vector F2C_IDA_ypvec, F2C_IDA_ewtvec;
 
 void *IDA_idamem;
-long int *IDA_iout;
+sunindextype *IDA_iout;
 realtype *IDA_rout;
 int IDA_ls;
 int IDA_nrtfn;
@@ -66,7 +66,7 @@ extern "C" {
                           realtype*,    /* Y    */
                           realtype*,    /* YP   */
                           realtype*,    /* R    */
-                          long int*,    /* IPAR */
+                          sunindextype*,    /* IPAR */
                           realtype*,    /* RPAR */
                           int*);        /* IER  */
 
@@ -78,8 +78,8 @@ extern "C" {
 
 void FIDA_MALLOC(realtype *t0, realtype *yy0, realtype *yp0,
                  int *iatol, realtype *rtol, realtype *atol,
-                 long int *iout, realtype *rout, 
-                 long int *ipar, realtype *rpar,
+                 sunindextype *iout, realtype *rout, 
+                 sunindextype *ipar, realtype *rpar,
                  int *ier)
 {
   N_Vector Vatol;
@@ -251,12 +251,12 @@ void FIDA_REINIT(realtype *t0, realtype *yy0, realtype *yp0,
 
 /*************************************************/
 
-void FIDA_SETIIN(char key_name[], long int *ival, int *ier)
+void FIDA_SETIIN(char key_name[], sunindextype *ival, int *ier)
 {
   if (!strncmp(key_name,"MAX_ORD",7))
     *ier = IDASetMaxOrd(IDA_idamem, (int) *ival);
   else if (!strncmp(key_name,"MAX_NSTEPS",10))
-    *ier = IDASetMaxNumSteps(IDA_idamem, (int) *ival);
+    *ier = IDASetMaxNumSteps(IDA_idamem, (long int) *ival);
   else if (!strncmp(key_name,"MAX_ERRFAIL",11))
     *ier = IDASetMaxErrTestFails(IDA_idamem, (int) *ival);
   else if (!strncmp(key_name,"MAX_NITERS",10))
@@ -264,7 +264,7 @@ void FIDA_SETIIN(char key_name[], long int *ival, int *ier)
   else if (!strncmp(key_name,"MAX_CONVFAIL",12))
     *ier = IDASetMaxConvFails(IDA_idamem, (int) *ival);
   else if (!strncmp(key_name,"SUPPRESS_ALG",12))
-    *ier = IDASetSuppressAlg(IDA_idamem, (int) *ival);
+    *ier = IDASetSuppressAlg(IDA_idamem, (booleantype) *ival);
   else if (!strncmp(key_name,"MAX_NSTEPS_IC",13))
     *ier = IDASetMaxNumStepsIC(IDA_idamem, (int) *ival);
   else if (!strncmp(key_name,"MAX_NITERS_IC",13)) 
@@ -272,7 +272,7 @@ void FIDA_SETIIN(char key_name[], long int *ival, int *ier)
   else if (!strncmp(key_name,"MAX_NJE_IC",10))
     *ier = IDASetMaxNumJacsIC(IDA_idamem, (int) *ival);
   else if (!strncmp(key_name,"LS_OFF_IC",9))
-    *ier = IDASetLineSearchOffIC(IDA_idamem, (int) *ival);
+    *ier = IDASetLineSearchOffIC(IDA_idamem, (booleantype) *ival);
   else {
     *ier = -99;
     printf("FIDASETIIN: Unrecognized key.\n\n");
@@ -461,7 +461,7 @@ void FIDA_SPGMR(int *maxl, int *gstype, int *maxrs,
 
 /*************************************************/
 
-void FIDA_DENSE(long int *neq, int *ier)
+void FIDA_DENSE(sunindextype *neq, int *ier)
 {
 
   *ier = 0;
@@ -475,7 +475,7 @@ void FIDA_DENSE(long int *neq, int *ier)
 
 /*************************************************/
 
-void FIDA_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
+void FIDA_BAND(sunindextype *neq, sunindextype *mupper, sunindextype *mlower, int *ier)
 {
 
   *ier = 0;
@@ -610,8 +610,8 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
                         &IDA_rout[1],           /* HLAST */
                         &IDA_rout[2],           /* HCUR */
                         &IDA_rout[3]);          /* TCUR */
-  IDA_iout[8] = (long int) klast;
-  IDA_iout[9] = (long int) kcur;
+  IDA_iout[8] = (sunindextype) klast;
+  IDA_iout[9] = (sunindextype) kcur;
   IDAGetNonlinSolvStats(IDA_idamem,
                         &IDA_iout[6],           /* NNI */
                         &IDA_iout[5]);          /* NCFN */

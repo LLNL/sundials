@@ -35,11 +35,11 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FCV_BJAC(long int*, long int*, long int*, long int*,  /* N,MU,ML,EBAND */
+  extern void FCV_BJAC(sunindextype*, sunindextype*, sunindextype*, sunindextype*,  /* N,MU,ML,EBAND */
                        realtype*, realtype*, realtype*,  /* T, Y, FY         */
                        realtype*,                        /* BJAC             */
                        realtype*,                        /* H                */
-                       long int*, realtype*,             /* IPAR, RPAR       */
+                       sunindextype*, realtype*,             /* IPAR, RPAR       */
                        realtype*, realtype*, realtype*,  /* V1, V2, V3       */
                        int*);                            /* IER              */
 #ifdef __cplusplus
@@ -68,7 +68,7 @@ void FCV_BANDSETJAC(int *flag, int *ier)
    passed as the column dimension of the corresponding array.
    Auxiliary data is assumed to be communicated by Common. */
 
-int FCVBandJac(long int N, long int mupper, long int mlower,
+int FCVBandJac(sunindextype N, sunindextype mupper, sunindextype mlower,
                realtype t, N_Vector y, N_Vector fy, 
                DlsMat J, void *user_data,
                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
@@ -76,7 +76,7 @@ int FCVBandJac(long int N, long int mupper, long int mlower,
   int ier;
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
   realtype h;
-  long int eband;
+  sunindextype eband;
   FCVUserData CV_userdata;
 
   CVodeGetLastStep(CV_cvodemem, &h);

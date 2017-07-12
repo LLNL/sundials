@@ -76,21 +76,21 @@
 
 /* user data structure */
 typedef struct {  
-  long int N;    /* number of intervals      */
-  int nthreads;  /* number of OpenMP threads */
-  realtype dx;   /* mesh spacing             */
-  realtype a;    /* constant forcing on u    */
-  realtype b;    /* steady-state value of w  */
-  realtype du;   /* diffusion coeff for u    */
-  realtype dv;   /* diffusion coeff for v    */
-  realtype dw;   /* diffusion coeff for w    */
-  realtype ep;   /* stiffness parameter      */
+  sunindextype N;  /* number of intervals      */
+  int nthreads;    /* number of OpenMP threads */
+  realtype dx;     /* mesh spacing             */
+  realtype a;      /* constant forcing on u    */
+  realtype b;      /* steady-state value of w  */
+  realtype du;     /* diffusion coeff for u    */
+  realtype dv;     /* diffusion coeff for v    */
+  realtype dw;     /* diffusion coeff for w    */
+  realtype ep;     /* stiffness parameter      */
 } *UserData;
 
 
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(long int N, long int mu, long int ml,
+static int Jac(sunindextype N, sunindextype mu, sunindextype ml,
                realtype t, N_Vector y, N_Vector fy, 
                DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
   int Nvar = 3;                 /* number of solution fields */
   UserData udata = NULL;
   realtype *data;
-  long int N = 201;             /* spatial mesh size */
+  sunindextype N = 201;         /* spatial mesh size */
   realtype a = 0.6;             /* problem parameters */
   realtype b = 2.0;
   realtype du = 0.025;
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
   realtype ep = 1.0e-5;         /* stiffness parameter */
   realtype reltol = 1.0e-6;     /* tolerances */
   realtype abstol = 1.0e-10;
-  long int NEQ, i;
+  sunindextype NEQ, i;
 
   /* general problem variables */
   int flag;                     /* reusable error-checking flag */
@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
 
   /* Initial problem output */
   printf("\n1D Brusselator PDE test problem:\n");
-  printf("    N = %li,  NEQ = %li\n", udata->N, NEQ);
+  printf("    N = %li,  NEQ = %li\n", (long int) udata->N, (long int) NEQ);
   printf("    num_threads = %i\n", num_threads);
   printf("    problem parameters:  a = %"GSYM",  b = %"GSYM",  ep = %"GSYM"\n",
 	 udata->a, udata->b, udata->ep);
@@ -337,7 +337,7 @@ int main(int argc, char *argv[])
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;      /* access problem data */
-  long int N  = udata->N;                     /* set variable shortcuts */
+  sunindextype N = udata->N;                  /* set variable shortcuts */
   realtype a  = udata->a;
   realtype b  = udata->b;
   realtype ep = udata->ep;
@@ -347,7 +347,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   realtype dx = udata->dx;
   realtype *Ydata=NULL, *dYdata=NULL;
   realtype uconst, vconst, wconst, u, ul, ur, v, vl, vr, w, wl, wr;
-  long int i;
+  sunindextype i;
 
   /* clear out ydot (to be careful) */
   N_VConst(0.0, ydot);
@@ -390,7 +390,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(long int M, long int mu, long int ml,
+static int Jac(sunindextype M, sunindextype mu, sunindextype ml,
                realtype t, N_Vector y, N_Vector fy, 
                DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -421,9 +421,9 @@ static int Jac(long int M, long int mu, long int ml,
    We add the result into Jac and do not erase what was already there */
 static int LaplaceMatrix(realtype c, DlsMat Jac, UserData udata)
 {
-  long int i;                /* set shortcuts */
-  long int N = udata->N;
+  sunindextype N = udata->N;            /* set shortcuts */
   realtype dx = udata->dx;
+  sunindextype i;
   
   /* iterate over intervals, filling in Jacobian entries */
 #pragma omp parallel for default(shared) private(i) schedule(static) num_threads(udata->nthreads)
@@ -450,10 +450,10 @@ static int LaplaceMatrix(realtype c, DlsMat Jac, UserData udata)
    We add the result into Jac and do not erase what was already there */
 static int ReactionJac(realtype c, N_Vector y, DlsMat Jac, UserData udata)
 {
-  long int N  = udata->N;                      /* set shortcuts */
-  long int i;
-  realtype u, v, w;
+  sunindextype N = udata->N;                   /* set shortcuts */
   realtype ep = udata->ep;
+  sunindextype i;
+  realtype u, v, w;
   realtype *Ydata = N_VGetArrayPointer(y);     /* access solution array */
   if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
   

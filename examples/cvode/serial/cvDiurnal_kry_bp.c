@@ -120,7 +120,7 @@ typedef struct {
 
 static void InitUserData(UserData data);
 static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy);
-static void PrintIntro(long int mu, long int ml);
+static void PrintIntro(sunindextype mu, sunindextype ml);
 static void PrintOutput(void *cvode_mem, N_Vector u, realtype t);
 static void PrintFinalStats(void *cvode_mem);
 
@@ -144,7 +144,7 @@ int main()
   UserData data;
   void *cvode_mem;
   int flag, iout, jpre;
-  long int ml, mu;
+  sunindextype ml, mu;
 
   u = NULL;
   data = NULL;
@@ -289,12 +289,12 @@ static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy)
   }
 }
 
-static void PrintIntro(long int mu, long int ml)
+static void PrintIntro(sunindextype mu, sunindextype ml)
 {
   printf("2-species diurnal advection-diffusion problem, %d by %d mesh\n",
          MX, MY);
   printf("SPGMR solver; band preconditioner; mu = %ld, ml = %ld\n\n",
-         mu, ml);
+         (long int) mu, (long int) ml);
 
   return;
 }
@@ -345,9 +345,9 @@ static void PrintOutput(void *cvode_mem, N_Vector u,realtype t)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int lenrw, leniw ;
-  long int lenrwLS, leniwLS;
-  long int lenrwBP, leniwBP;
+  sunindextype lenrw, leniw ;
+  sunindextype lenrwLS, leniwLS;
+  sunindextype lenrwBP, leniwBP;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
   long int nfeBP;
@@ -387,9 +387,9 @@ static void PrintFinalStats(void *cvode_mem)
   check_flag(&flag, "CVBandPrecGetNumRhsEvals", 1);
 
   printf("\nFinal Statistics.. \n\n");
-  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
-  printf("lenrwls = %5ld     leniwls = %5ld\n", lenrwLS, leniwLS);
-  printf("lenrwbp = %5ld     leniwbp = %5ld\n", lenrwBP, leniwBP);
+  printf("lenrw   = %5ld     leniw   = %5ld\n", (long int) lenrw, (long int) leniw);
+  printf("lenrwls = %5ld     leniwls = %5ld\n", (long int) lenrwLS, (long int) leniwLS);
+  printf("lenrwbp = %5ld     leniwbp = %5ld\n", (long int) lenrwBP, (long int) leniwBP);
   printf("nst     = %5ld\n"                  , nst);
   printf("nfe     = %5ld     nfetot  = %5ld\n"  , nfe, nfe+nfeLS+nfeBP);
   printf("nfeLS   = %5ld     nfeBP   = %5ld\n"  , nfeLS, nfeBP);

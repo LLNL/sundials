@@ -61,9 +61,9 @@
 
 /* user data structure */
 typedef struct {
-  long int N;    /* number of intervals   */
-  realtype dx;   /* mesh spacing          */
-  realtype k;    /* diffusion coefficient */
+  sunindextype N;  /* number of intervals   */
+  realtype dx;     /* mesh spacing          */
+  realtype k;      /* diffusion coefficient */
 } *UserData;
 
 /* User-supplied Functions Called by the Solver */
@@ -85,9 +85,9 @@ int main() {
   realtype atol = 1.e-10;      /* absolute tolerance */
   UserData udata = NULL;
   realtype *data;
-  long int N = 201;            /* spatial mesh size */
+  sunindextype N = 201;        /* spatial mesh size */
   realtype k = 0.5;            /* heat conductivity */
-  long int i;
+  sunindextype i;
 
   /* general problem variables */
   int flag;                 /* reusable error-checking flag */
@@ -232,12 +232,12 @@ int main() {
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;    /* access problem data */
-  long int N  = udata->N;                   /* set variable shortcuts */
+  sunindextype N  = udata->N;                   /* set variable shortcuts */
   realtype k  = udata->k;
   realtype dx = udata->dx;
   realtype *Y=NULL, *Ydot=NULL;
   realtype c1, c2;
-  long int i, isource;
+  sunindextype i, isource;
 
   Y = N_VGetArrayPointer(y);      /* access data arrays */
   if (check_flag((void *) Y, "N_VGetArrayPointer", 0)) return 1;
@@ -263,12 +263,12 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
 	       N_Vector fy, void *user_data, N_Vector tmp)
 {
   UserData udata = (UserData) user_data;     /* variable shortcuts */
-  long int N  = udata->N;
+  sunindextype N = udata->N;
   realtype k  = udata->k;
   realtype dx = udata->dx;
   realtype *V=NULL, *JV=NULL;
   realtype c1, c2;
-  long int i;
+  sunindextype i;
 
   V = N_VGetArrayPointer(v);       /* access data arrays */
   if (check_flag((void *) V, "N_VGetArrayPointer", 0)) return 1;

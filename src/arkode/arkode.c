@@ -64,8 +64,8 @@ static int arkAllocFPData(ARKodeMem ark_mem);
 static int arkResizeFPData(ARKodeMem ark_mem, 
 			   ARKVecResizeFn resize,
 			   void *resize_data,
-			   long int lrw_diff,
-			   long int liw_diff);
+			   sunindextype lrw_diff,
+			   sunindextype liw_diff);
 static void arkFreeFPData(ARKodeMem ark_mem);
 
 static int arkInitialSetup(ARKodeMem ark_mem);
@@ -250,7 +250,7 @@ int ARKodeInit(void *arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
 {
   ARKodeMem ark_mem;
   booleantype nvectorOK, allocOK;
-  long int lrw1, liw1;
+  sunindextype lrw1, liw1;
 
   /* Check arkode_mem */
   if (arkode_mem==NULL) {
@@ -545,8 +545,8 @@ int ARKodeResize(void *arkode_mem, N_Vector y0,
 		 ARKVecResizeFn resize, void *resize_data)
 {
   ARKodeMem ark_mem;
-  long int lrw1=0, liw1=0;
-  long int lrw_diff, liw_diff;
+  sunindextype lrw1=0, liw1=0;
+  sunindextype lrw_diff, liw_diff;
   int ier, i;
  
   /* Check arkode_mem */
@@ -2184,10 +2184,10 @@ static void arkPrintMem(ARKodeMem ark_mem)
   printf("ark_netf = %li\n", ark_mem->ark_netf);
   printf("ark_nni = %li\n", ark_mem->ark_nni);
   printf("ark_nsetups = %li\n", ark_mem->ark_nsetups);
-  printf("ark_lrw1 = %li\n", ark_mem->ark_lrw1);
-  printf("ark_liw1 = %li\n", ark_mem->ark_liw1);
-  printf("ark_lrw = %li\n", ark_mem->ark_lrw);
-  printf("ark_liw = %li\n", ark_mem->ark_liw);
+  printf("ark_lrw1 = %li\n", (long int) ark_mem->ark_lrw1);
+  printf("ark_liw1 = %li\n", (long int) ark_mem->ark_liw1);
+  printf("ark_lrw = %li\n", (long int) ark_mem->ark_lrw);
+  printf("ark_liw = %li\n", (long int) ark_mem->ark_liw);
   printf("ark_fp_m = %li\n", ark_mem->ark_fp_m);
   if (ark_mem->ark_fp_imap != NULL)
     for (i=0; i<ark_mem->ark_fp_m; i++)
@@ -2901,8 +2901,8 @@ static int arkAllocFPData(ARKodeMem ark_mem)
  fixed-point solver (called from ARKodeResize()).
 ---------------------------------------------------------------*/
 static int arkResizeFPData(ARKodeMem ark_mem, ARKVecResizeFn resize,
-			   void *resize_data, long int lrw_diff, 
-			   long int liw_diff)
+			   void *resize_data, sunindextype lrw_diff, 
+			   sunindextype liw_diff)
 {
   long int i;
   long int maa = ark_mem->ark_fp_m;

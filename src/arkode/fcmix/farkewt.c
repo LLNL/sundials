@@ -33,7 +33,7 @@ extern "C" {
 #endif
 
   extern void FARK_EWT(realtype *Y, realtype *EWT, 
-		       long int *IPAR, realtype *RPAR, 
+		       sunindextype *IPAR, realtype *RPAR, 
 		       int *IER);
 
 #ifdef __cplusplus

@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 
   void *cvode_mem;
 
-  long int Neq;
+  sunindextype Neq;
   realtype reltol, abstol;
   N_Vector y0, y;
 

@@ -69,7 +69,7 @@ using namespace std;
 
 // User-supplied Functions Called by the Solver
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(long int N, realtype t,
+static int Jac(sunindextype N, realtype t,
                N_Vector y, N_Vector fy, DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
@@ -86,7 +86,7 @@ int main()
   realtype T0 = RCONST(0.0);       // initial time
   realtype Tf = RCONST(0.05);      // final time
   realtype dTout = RCONST(0.005);  // time between outputs
-  long int NEQ = 3;                // number of dependent vars.
+  sunindextype NEQ = 3;                // number of dependent vars.
   realtype reltol = 1.0e-6;        // tolerances
   realtype abstol = 1.0e-10;
   realtype lamda  = -100.0;        // stiffness parameter
@@ -236,7 +236,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 // Jacobian routine to compute J(t,y) = df/dy.
-static int Jac(long int N, realtype t,
+static int Jac(sunindextype N, realtype t,
                N_Vector y, N_Vector fy, DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
@@ -308,9 +308,9 @@ static int dense_MM(DlsMat A, DlsMat B, DlsMat C)
   realtype **adata = A->cols;     // access data and extents
   realtype **bdata = B->cols;
   realtype **cdata = C->cols;
-  long int m = C->M;
-  long int n = C->N;
-  long int l = A->N;
+  sunindextype m = C->M;
+  sunindextype n = C->N;
+  sunindextype l = A->N;
   int i, j, k;
   DenseScale(0.0, C);             // initialize output
 

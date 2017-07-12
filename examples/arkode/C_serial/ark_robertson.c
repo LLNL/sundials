@@ -57,7 +57,7 @@
 
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(long int N, realtype t,
+static int Jac(sunindextype N, realtype t,
                N_Vector y, N_Vector fy, DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
@@ -72,7 +72,7 @@ int main()
   realtype Tf = RCONST(1.e11);   /* final time */
   realtype dTout = (Tf-T0)/100;  /* time between outputs */
   int Nt = ceil(Tf/dTout);       /* number of output times */
-  long int NEQ = 3;              /* number of dependent vars. */
+  sunindextype NEQ = 3;              /* number of dependent vars. */
 
   /* general problem variables */
   int flag;                      /* reusable error-checking flag */
@@ -225,7 +225,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(long int N, realtype t,
+static int Jac(sunindextype N, realtype t,
                N_Vector y, N_Vector fy, DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {

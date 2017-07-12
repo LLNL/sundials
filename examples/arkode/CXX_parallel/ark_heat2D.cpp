@@ -77,14 +77,14 @@ using namespace std;
 
 // user data structure 
 typedef struct {
-  long int nx;          // global number of x grid points 
-  long int ny;          // global number of y grid points
-  long int is;          // global x indices of this subdomain
-  long int ie;
-  long int js;          // global y indices of this subdomain
-  long int je;
-  long int nxl;         // local number of x grid points 
-  long int nyl;         // local number of y grid points 
+  sunindextype nx;          // global number of x grid points 
+  sunindextype ny;          // global number of y grid points
+  sunindextype is;          // global x indices of this subdomain
+  sunindextype ie;
+  sunindextype js;          // global y indices of this subdomain
+  sunindextype je;
+  sunindextype nxl;         // local number of x grid points 
+  sunindextype nyl;         // local number of y grid points 
   realtype dx;          // x-directional mesh spacing 
   realtype dy;          // y-directional mesh spacing 
   realtype kx;          // x-directional diffusion coefficient 
@@ -133,15 +133,15 @@ int main(int argc, char* argv[]) {
   realtype T0 = RCONST(0.0);   // initial time 
   realtype Tf = RCONST(0.3);   // final time 
   int Nt = 20;                 // total number of output times 
-  long int nx = 60;            // spatial mesh size
-  long int ny = 120;
+  sunindextype nx = 60;            // spatial mesh size
+  sunindextype ny = 120;
   realtype kx = 0.5;           // heat conductivity coefficients
   realtype ky = 0.75;
   realtype rtol = 1.e-5;       // relative and absolute tolerances
   realtype atol = 1.e-10;
   UserData *udata = NULL;
   realtype *data;
-  long int N, Ntot, i, j;
+  sunindextype N, Ntot, i, j;
 
   // general problem variables 
   int flag;                      // reusable error-checking flag 
@@ -235,7 +235,8 @@ int main(int argc, char* argv[]) {
   sprintf(outname, "heat2d_subdomain.%03i.txt", udata->myid);
   FILE *UFID = fopen(outname,"w");
   fprintf(UFID, "%li  %li  %li  %li  %li  %li\n", 
-	  udata->nx, udata->ny, udata->is, udata->ie, udata->js, udata->je);
+	  (long int) udata->nx, (long int) udata->ny, (long int) udata->is,
+          (long int) udata->ie, (long int) udata->js, (long int) udata->je);
   fclose(UFID);
 
   // Open output streams for results, access data array 
@@ -342,8 +343,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   N_VConst(0.0, ydot);                           // Initialize ydot to zero 
   UserData *udata = (UserData *) user_data;      // access problem data 
-  long int nxl = udata->nxl;                     // set variable shortcuts 
-  long int nyl = udata->nyl;
+  sunindextype nxl = udata->nxl;                     // set variable shortcuts 
+  sunindextype nyl = udata->nyl;
   realtype kx = udata->kx;
   realtype ky = udata->ky;
   realtype dx = udata->dx;
@@ -361,7 +362,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   realtype c1 = kx/dx/dx;
   realtype c2 = ky/dy/dy;
   realtype c3 = -TWO*(c1 + c2);
-  long int i, j;
+  sunindextype i, j;
   for (j=1; j<nyl-1; j++)                        // diffusive terms
     for (i=1; i<nxl-1; i++)
       Ydot[IDX(i,j,nxl)] = c1*(Y[IDX(i-1,j,nxl)] + Y[IDX(i+1,j,nxl)])

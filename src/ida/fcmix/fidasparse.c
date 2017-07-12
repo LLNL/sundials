@@ -34,7 +34,7 @@ extern void FIDA_SPJAC(realtype *T, realtype *CJ, realtype *Y,
 		       realtype *YP, realtype *R, int *N, int *NNZ, 
 		       realtype *JDATA, int *JRVALS, 
 		       int *JCPTRS, realtype *H, 
-		       long int *IPAR, realtype *RPAR, 
+		       sunindextype *IPAR, realtype *RPAR, 
 		       realtype *V1, realtype *V2, 
 		       realtype *V3, int *ier);
  

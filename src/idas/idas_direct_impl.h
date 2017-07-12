@@ -52,11 +52,11 @@ typedef struct IDADlsMemRec {
 
   int d_type;               /* Type of Jacobians (DENSE or BAND)             */
 
-  long int d_n;             /* problem dimension                             */
+  sunindextype d_n;            /* problem dimension                             */
 
-  long int d_ml;            /* b_ml = lower bandwidth of savedJ              */
-  long int d_mu;            /* b_mu = upper bandwidth of savedJ              */ 
-  long int d_smu;           /* upper bandwith of M = MIN(N-1,b_mu+b_ml)      */
+  sunindextype d_ml;           /* b_ml = lower bandwidth of savedJ              */
+  sunindextype d_mu;           /* b_mu = upper bandwidth of savedJ              */ 
+  sunindextype d_smu;          /* upper bandwith of M = MIN(N-1,b_mu+b_ml)      */
 
   booleantype d_jacDQ;      /* TRUE if using internal DQ Jacobian approx.    */
   IDADlsDenseJacFn d_djac;  /* dense Jacobian routine to be called           */
@@ -66,7 +66,7 @@ typedef struct IDADlsMemRec {
   DlsMat d_J;               /* J = dF/dy + cj*dF/dy'                         */
 
   int *d_pivots;            /* pivots = int pivot array for PM = LU          */
-  long int *d_lpivots;      /* lpivots = long int pivot array for PM = LU    */
+  sunindextype *d_lpivots;     /* lpivots = sunindextype pivot array for PM = LU   */
   
   long int d_nje;           /* nje = no. of calls to jac                     */
 
@@ -82,12 +82,12 @@ typedef struct IDADlsMemRec {
  * -----------------------------------------------------------------
  */
   
-int idaDlsDenseDQJac(long int N, realtype tt, realtype c_j,
+int idaDlsDenseDQJac(sunindextype N, realtype tt, realtype c_j,
                      N_Vector yy, N_Vector yp, N_Vector rr, 
                      DlsMat Jac, void *data,
                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   
-int idaDlsBandDQJac(long int N, long int mupper, long int mlower,
+int idaDlsBandDQJac(sunindextype N, sunindextype mupper, sunindextype mlower,
                     realtype tt, realtype c_j, 
                     N_Vector yy, N_Vector yp, N_Vector rr,
                     DlsMat Jac, void *data,

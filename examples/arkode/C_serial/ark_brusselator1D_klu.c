@@ -125,8 +125,8 @@ int main()
   realtype ep = 1.0e-5;         /* stiffness parameter */
   realtype reltol = 1.0e-6;     /* tolerances */
   realtype abstol = 1.0e-10;
-  int i;
-  long int NEQ, NNZ;
+  int i, NNZ;
+  sunindextype NEQ;
 
   /* general problem variables */
   int flag;                     /* reusable error-checking flag */

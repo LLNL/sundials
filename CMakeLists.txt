@@ -247,6 +247,15 @@ SET(SUNDIALS_PRECISION "double" CACHE STRING "double, single or extended")
 STRING(TOUPPER ${SUNDIALS_PRECISION} SUNDIALS_PRECISION)
 SET(PRECISION_LEVEL "#define SUNDIALS_${SUNDIALS_PRECISION}_PRECISION 1")
 
+# Option to specify index type
+# ----------------------------
+
+SET(SUNDIALS_INDEX_TYPE "signed_64bit" CACHE STRING "signed_64bit, unsigned_64bit, signed_32bit or unsigned_32bit")
+
+# prepare substitution variable PRECISION_LEVEL for sundials_config.h
+STRING(TOUPPER ${SUNDIALS_INDEX_TYPE} SUNDIALS_INDEX_TYPE)
+SET(INDEX_TYPE "#define SUNDIALS_${SUNDIALS_INDEX_TYPE}_TYPE 1")
+
 # Option to use the generic math libraries (UNIX only)
 # ----------------------------------------------------
 

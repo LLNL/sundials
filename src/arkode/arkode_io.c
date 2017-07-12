@@ -2505,7 +2505,7 @@ int ARKodeGetEstLocalErrors(void *arkode_mem, N_Vector ele)
 
  Returns integrator work space requirements
 ---------------------------------------------------------------*/
-int ARKodeGetWorkSpace(void *arkode_mem, long int *lenrw, long int *leniw)
+int ARKodeGetWorkSpace(void *arkode_mem, sunindextype *lenrw, sunindextype *leniw)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {

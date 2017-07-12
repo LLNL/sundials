@@ -1353,7 +1353,7 @@ SUNDIALS_EXPORT int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky);
  * ----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAGetWorkSpace(void *ida_mem, long int *lenrw, long int *leniw);
+SUNDIALS_EXPORT int IDAGetWorkSpace(void *ida_mem, sunindextype *lenrw, sunindextype *leniw);
 SUNDIALS_EXPORT int IDAGetNumSteps(void *ida_mem, long int *nsteps);
 SUNDIALS_EXPORT int IDAGetNumResEvals(void *ida_mem, long int *nrevals);
 SUNDIALS_EXPORT int IDAGetNumLinSolvSetups(void *ida_mem, long int *nlinsetups);

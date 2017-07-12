@@ -57,7 +57,7 @@ int print_time = 0;
  *
  * NOTE: This routine depends on N_VConst to check vector data.
  * --------------------------------------------------------------------*/
-int Test_N_VCloneVectorArray(int count, N_Vector W, long int local_length, int myid)
+int Test_N_VCloneVectorArray(int count, N_Vector W, sunindextype local_length, int myid)
 {
   int      i, failure;
   double   start_time, stop_time;
@@ -197,7 +197,7 @@ int Test_N_VCloneEmpty(N_Vector W, int myid)
  *
  * NOTE: This routine depends on N_VConst to check vector data.
  * --------------------------------------------------------------------*/
-int Test_N_VClone(N_Vector W, long int local_length, int myid)
+int Test_N_VClone(N_Vector W, sunindextype local_length, int myid)
 {
   int      failure;
   double   start_time, stop_time;
@@ -252,7 +252,7 @@ int Test_N_VClone(N_Vector W, long int local_length, int myid)
  *
  * NOTE: This routine depends on N_VConst to check vector data.
  * --------------------------------------------------------------------*/
-int Test_N_VGetArrayPointer(N_Vector W, long int local_length, int myid)
+int Test_N_VGetArrayPointer(N_Vector W, sunindextype local_length, int myid)
 {
   int      failure = 0;
   double   start_time, stop_time;
@@ -294,10 +294,10 @@ int Test_N_VGetArrayPointer(N_Vector W, long int local_length, int myid)
  *
  * NOTE: This routine depends on N_VConst to check vector data.
  * --------------------------------------------------------------------*/
-int Test_N_VSetArrayPointer(N_Vector W, long int local_length, int myid)
+int Test_N_VSetArrayPointer(N_Vector W, sunindextype local_length, int myid)
 {
   int      failure = 0;
-  long int i;  
+  sunindextype i;  
   double   start_time, stop_time;
   realtype *Wdata;
 
@@ -339,7 +339,7 @@ int Test_N_VSetArrayPointer(N_Vector W, long int local_length, int myid)
 /* ----------------------------------------------------------------------
  * N_VLinearSum Tests
  * --------------------------------------------------------------------*/
-int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, long int local_length, int myid)
+int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, sunindextype local_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
@@ -806,11 +806,11 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, long int local_length,
 /* ----------------------------------------------------------------------
  * N_VConst Test
  * --------------------------------------------------------------------*/
-int Test_N_VConst(N_Vector X, long int local_length, int myid)
+int Test_N_VConst(N_Vector X, sunindextype local_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
-  long int i;
+  sunindextype i;
 
   /* fill vector data */
   for(i=0; i < local_length; i++){
@@ -841,7 +841,7 @@ int Test_N_VConst(N_Vector X, long int local_length, int myid)
 /* ----------------------------------------------------------------------
  * N_VProd Test
  * --------------------------------------------------------------------*/
-int Test_N_VProd(N_Vector X, N_Vector Y, N_Vector Z, long int local_length, int myid)
+int Test_N_VProd(N_Vector X, N_Vector Y, N_Vector Z, sunindextype local_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
@@ -875,7 +875,7 @@ int Test_N_VProd(N_Vector X, N_Vector Y, N_Vector Z, long int local_length, int 
 /* ----------------------------------------------------------------------
  * N_VDiv Test
  * --------------------------------------------------------------------*/
-int Test_N_VDiv(N_Vector X, N_Vector Y, N_Vector Z, long int local_length, int myid)
+int Test_N_VDiv(N_Vector X, N_Vector Y, N_Vector Z, sunindextype local_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
@@ -909,7 +909,7 @@ int Test_N_VDiv(N_Vector X, N_Vector Y, N_Vector Z, long int local_length, int m
 /* ----------------------------------------------------------------------
  * N_VScale Tests
  * --------------------------------------------------------------------*/
-int Test_N_VScale(N_Vector X, N_Vector Z, long int local_length, int myid)
+int Test_N_VScale(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
@@ -1029,7 +1029,7 @@ int Test_N_VScale(N_Vector X, N_Vector Z, long int local_length, int myid)
 /* ----------------------------------------------------------------------
  * N_VAbs Test
  * --------------------------------------------------------------------*/
-int Test_N_VAbs(N_Vector X, N_Vector Z, long int local_length, int myid)
+int Test_N_VAbs(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
@@ -1062,7 +1062,7 @@ int Test_N_VAbs(N_Vector X, N_Vector Z, long int local_length, int myid)
 /* ----------------------------------------------------------------------
  * N_VInv Test
  * --------------------------------------------------------------------*/
-int Test_N_VInv(N_Vector X, N_Vector Z, long int local_length, int myid)
+int Test_N_VInv(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
@@ -1095,7 +1095,7 @@ int Test_N_VInv(N_Vector X, N_Vector Z, long int local_length, int myid)
 /* ----------------------------------------------------------------------
  * N_VAddConst Test
  * --------------------------------------------------------------------*/
-int Test_N_VAddConst(N_Vector X, N_Vector Z, long int local_length, int myid)
+int Test_N_VAddConst(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
@@ -1129,7 +1129,7 @@ int Test_N_VAddConst(N_Vector X, N_Vector Z, long int local_length, int myid)
  * N_VDotProd Test
  * --------------------------------------------------------------------*/
 int Test_N_VDotProd(N_Vector X, N_Vector Y, 
-                    long int local_length, long int global_length, int myid)
+                    sunindextype local_length, sunindextype global_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
@@ -1163,7 +1163,7 @@ int Test_N_VDotProd(N_Vector X, N_Vector Y,
 /* ----------------------------------------------------------------------
  * N_VMaxNorm Test
  * --------------------------------------------------------------------*/
-int Test_N_VMaxNorm(N_Vector X, long int local_length, int myid)
+int Test_N_VMaxNorm(N_Vector X, sunindextype local_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
@@ -1197,7 +1197,7 @@ int Test_N_VMaxNorm(N_Vector X, long int local_length, int myid)
 /* ----------------------------------------------------------------------
  * N_VWrmsNorm Test
  * --------------------------------------------------------------------*/
-int Test_N_VWrmsNorm(N_Vector X, N_Vector W, long int local_length, int myid)
+int Test_N_VWrmsNorm(N_Vector X, N_Vector W, sunindextype local_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
@@ -1232,7 +1232,7 @@ int Test_N_VWrmsNorm(N_Vector X, N_Vector W, long int local_length, int myid)
  * N_VWrmsNormMask Test
  * --------------------------------------------------------------------*/
 int Test_N_VWrmsNormMask(N_Vector X, N_Vector W, N_Vector ID, 
-			 long int local_length, long int global_length, int myid)
+			 sunindextype local_length, sunindextype global_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
@@ -1300,7 +1300,7 @@ int Test_N_VWrmsNormMask(N_Vector X, N_Vector W, N_Vector ID,
 /* ----------------------------------------------------------------------
  * N_VMin Test
  * --------------------------------------------------------------------*/
-int Test_N_VMin(N_Vector X, long int local_length, int myid)
+int Test_N_VMin(N_Vector X, sunindextype local_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
@@ -1335,7 +1335,7 @@ int Test_N_VMin(N_Vector X, long int local_length, int myid)
  * N_VWL2Norm Test
  * --------------------------------------------------------------------*/
 int Test_N_VWL2Norm(N_Vector X, N_Vector W, 
-                    long int local_length, long int global_length, int myid)
+                    sunindextype local_length, sunindextype global_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
@@ -1369,8 +1369,8 @@ int Test_N_VWL2Norm(N_Vector X, N_Vector W,
 /* ----------------------------------------------------------------------
  * N_VL1Norm Test
  * --------------------------------------------------------------------*/
-int Test_N_VL1Norm(N_Vector X, long int local_length, 
-                   long int global_length, int myid)
+int Test_N_VL1Norm(N_Vector X, sunindextype local_length, 
+                   sunindextype global_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
@@ -1403,14 +1403,15 @@ int Test_N_VL1Norm(N_Vector X, long int local_length,
 /* ----------------------------------------------------------------------
  * N_VCompare
  * --------------------------------------------------------------------*/
-int Test_N_VCompare(N_Vector X, N_Vector Z, long int local_length, int myid)
+int Test_N_VCompare(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 {
   int      mask, fails = 0, failure = 0;
   double   start_time, stop_time;
-  long int i;
+  sunindextype i;
 
   if (local_length < 3) {
-    printf("Error Test_N_VCompare: Local vector length is %ld, length must be >= 3", local_length);
+    printf("Error Test_N_VCompare: Local vector length is %ld, length must be >= 3",
+           (long int) local_length);
     return(-1);
   }
 
@@ -1485,15 +1486,16 @@ int Test_N_VCompare(N_Vector X, N_Vector Z, long int local_length, int myid)
 /* ----------------------------------------------------------------------
  * N_VInvTest
  * --------------------------------------------------------------------*/
-int Test_N_VInvTest(N_Vector X, N_Vector Z, long int local_length, int myid)
+int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 {
   int         mask, fails = 0, failure = 0;
   double      start_time, stop_time;
-  long int    i;
+  sunindextype    i;
   booleantype test;
 
   if (local_length < 2) {
-    printf("Error Test_N_VCompare: Local vector length is %ld, length must be >= 2", local_length);
+    printf("Error Test_N_VCompare: Local vector length is %ld, length must be >= 2",
+           (long int) local_length);
     return(-1);
   }
 
@@ -1574,15 +1576,16 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, long int local_length, int myid)
  * N_VConstrMask
  * --------------------------------------------------------------------*/
 int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M, 
-                       long int local_length, int myid)
+                       sunindextype local_length, int myid)
 {
   int         mask, fails = 0, failure = 0;
   double      start_time, stop_time;
-  long int    i;
+  sunindextype    i;
   booleantype test;
 
   if (local_length < 7) {
-    printf("Error Test_N_VCompare: Local vector length is %ld, length must be >= 7", local_length);
+    printf("Error Test_N_VCompare: Local vector length is %ld, length must be >= 7",
+           (long int) local_length);
     return(-1);
   }
 
@@ -1737,7 +1740,7 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
  * N_VMinQuotient Test
  * --------------------------------------------------------------------*/
 int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM, 
-                        long int local_length, int myid)
+                        sunindextype local_length, int myid)
 {
   int      fails = 0, failure = 0;
   double   start_time, stop_time;

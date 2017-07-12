@@ -60,7 +60,7 @@
 
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(long int N, realtype t,
+static int Jac(sunindextype N, realtype t,
                N_Vector y, N_Vector fy, DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int g(realtype t, N_Vector y,
@@ -77,7 +77,7 @@ int main()
   realtype T1 = RCONST(0.4);     /* first output time */
   realtype TMult = RCONST(10.0); /* output time multiplication factor */
   int Nt = 12;                   /* total number of output times */
-  long int NEQ = 3;              /* number of dependent vars. */
+  sunindextype NEQ = 3;              /* number of dependent vars. */
   realtype reltol;
   int rootsfound[2];
   long int nst, nst_a, nfe, nfi, nsetups;
@@ -252,7 +252,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(long int N, realtype t,
+static int Jac(sunindextype N, realtype t,
                N_Vector y, N_Vector fy, DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
