@@ -157,7 +157,7 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   /* allocate memory for lpivots */
 
   pdata->lpivots = NULL;
-  pdata->lpivots = NewLintArray(Nlocal);
+  pdata->lpivots = NewIndexArray(Nlocal);
   if (pdata->lpivots == NULL) {
     DestroyMat(pdata->PP);
     free(pdata); pdata = NULL;
