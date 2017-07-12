@@ -49,6 +49,16 @@
 #include <sundials/sundials_types.h>  /* def. of type 'realtype' */
 #include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc. */
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
 /* user data structure */
 typedef struct {
   sunindextype N;       /* current number of intervals */
@@ -107,8 +117,8 @@ int main() {
 
   /* Initial problem output */
   printf("\n1D adaptive Heat PDE test problem:\n");
-  printf("  diffusion coefficient:  k = %g\n", udata->k);
-  printf("  initial N = %li\n", (long int) udata->N);
+  printf("  diffusion coefficient:  k = %"GSYM"\n", udata->k);
+  printf("  initial N = %li\n", udata->N);
 
   /* Initialize data structures */
   y = N_VNew_Serial(N);       /* Create initial serial vector for solution */
@@ -119,7 +129,7 @@ int main() {
   XFID=fopen("heat_mesh.txt","w");
 
   /* output initial mesh to disk */
-  for (i=0; i<udata->N; i++)  fprintf(XFID," %.16e", udata->x[i]);
+  for (i=0; i<udata->N; i++)  fprintf(XFID," %.16"ESYM, udata->x[i]);
   fprintf(XFID,"\n");
 
   /* Open output stream for results, access data array */
@@ -127,7 +137,7 @@ int main() {
 
   /* output initial condition to disk */
   data = N_VGetArrayPointer(y);
-  for (i=0; i<udata->N; i++)  fprintf(UFID," %.16e", data[i]);
+  for (i=0; i<udata->N; i++)  fprintf(UFID," %.16"ESYM, data[i]);
   fprintf(UFID,"\n");
 
 
@@ -164,8 +174,8 @@ int main() {
   newdt = 0.0;
   printf("  iout          dt_old                 dt_new               ||u||_rms       N   NNI  NLI\n");
   printf(" ----------------------------------------------------------------------------------------\n");
-  printf(" %4i  %19.15e  %19.15e  %19.15e  %li   %2i  %3i\n", 
-	 iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N), (long int) udata->N, 0, 0);
+  printf(" %4i  %19.15"ESYM"  %19.15"ESYM"  %19.15"ESYM"  %li   %2i  %3i\n", 
+	 iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N), udata->N, 0, 0);
   while (t < Tf) {
 
     /* "set" routines */
@@ -190,17 +200,17 @@ int main() {
 
     /* print current solution stats */
     iout++;
-    printf(" %4i  %19.15e  %19.15e  %19.15e  %li   %2li  %3li\n", 
-	   iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N), (long int) udata->N, nni-nni_cur, nli);
+    printf(" %4i  %19.15"ESYM"  %19.15"ESYM"  %19.15"ESYM"  %li   %2li  %3li\n", 
+	   iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N), udata->N, nni-nni_cur, nli);
     nni_cur = nni;
     nni_tot = nni;
     nli_tot += nli;
 
     /* output results and current mesh to disk */
     data = N_VGetArrayPointer(y);
-    for (i=0; i<udata->N; i++)  fprintf(UFID," %.16e", data[i]);
+    for (i=0; i<udata->N; i++)  fprintf(UFID," %.16"ESYM, data[i]);
     fprintf(UFID,"\n");
-    for (i=0; i<udata->N; i++)  fprintf(XFID," %.16e", udata->x[i]);
+    for (i=0; i<udata->N; i++)  fprintf(XFID," %.16"ESYM, udata->x[i]);
     fprintf(XFID,"\n");
 
     /* adapt the spatial mesh */

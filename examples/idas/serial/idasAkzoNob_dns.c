@@ -108,17 +108,18 @@ int main()
   if (check_flag((void *)yp, "N_VNew_Serial", 0)) return(1);
 
   /* Consistent IC for  y, y'. */
-#define y01 0.444
-#define y02 0.00123
-#define y03 0.00
-#define y04 0.007
-#define y05 0.0
-  Ith(yy,1) = RCONST(y01);
-  Ith(yy,2) = RCONST(y02);
-  Ith(yy,3) = RCONST(y03);
-  Ith(yy,4) = RCONST(y04);
-  Ith(yy,5) = RCONST(y05);
-  Ith(yy,6) = data->Ks * RCONST(y01) * RCONST(y04);
+  const realtype y01 = RCONST(0.444);
+  const realtype y02 = RCONST(0.00123);
+  const realtype y03 = RCONST(0.0);
+  const realtype y04 = RCONST(0.007);
+  const realtype y05 = RCONST(0.0);
+
+  Ith(yy,1) = y01;
+  Ith(yy,2) = y02;
+  Ith(yy,3) = y03;
+  Ith(yy,4) = y04;
+  Ith(yy,5) = y05;
+  Ith(yy,6) = data->Ks * y01 * y04;
 
   /* Get y' = - res(t0, y, 0) */
   N_VConst(ZERO, yp);
@@ -188,7 +189,11 @@ int main()
   if (check_flag(&flag, "IDAGetQuad", 1)) return(1);
 
   printf("\n--------------------------------------------------------\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("G:          %24.16Lf \n",Ith(q,1));
+#else
   printf("G:          %24.16f \n",Ith(q,1));
+#endif  
   printf("--------------------------------------------------------\n\n");
 
   PrintFinalStats(mem);

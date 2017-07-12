@@ -43,6 +43,16 @@
 #include <sundials/sundials_dense.h> /* definitions DlsMat DENSE_ELEM */
 #include <sundials/sundials_types.h> /* definition of type realtype */
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int Jac(sunindextype N, realtype t,
@@ -75,9 +85,9 @@ int main()
 
   /* Initial diagnostics output */
   printf("\nAnalytical ODE test problem:\n");
-  printf("    lamda = %g\n",    lamda);
-  printf("   reltol = %.1e\n",  reltol);
-  printf("   abstol = %.1e\n\n",abstol);
+  printf("    lamda = %"GSYM"\n",    lamda);
+  printf("   reltol = %.1"ESYM"\n",  reltol);
+  printf("   abstol = %.1"ESYM"\n\n",abstol);
 
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ);          /* Create serial vector for solution */
@@ -114,7 +124,7 @@ int main()
   fprintf(UFID,"# t u\n");
 
   /* output initial condition to disk */
-  fprintf(UFID," %.16e %.16e\n", T0, NV_Ith_S(y,0));  
+  fprintf(UFID," %.16"ESYM" %.16"ESYM"\n", T0, NV_Ith_S(y,0));  
 
   /* Main time-stepping loop: calls ARKode to perform the integration, then
      prints results.  Stops when the final time has been reached */
@@ -126,8 +136,8 @@ int main()
 
     flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);      /* call integrator */
     if (check_flag(&flag, "ARKode", 1)) break;
-    printf("  %10.6f  %10.6f\n", t, NV_Ith_S(y,0));          /* access/print solution */
-    fprintf(UFID," %.16e %.16e\n", t, NV_Ith_S(y,0));  
+    printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, NV_Ith_S(y,0));          /* access/print solution */
+    fprintf(UFID," %.16"ESYM" %.16"ESYM"\n", t, NV_Ith_S(y,0));  
     if (flag >= 0) {                                         /* successful solve: update time */
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;

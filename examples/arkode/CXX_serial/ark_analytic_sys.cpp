@@ -55,6 +55,16 @@
 #include <sundials/sundials_dense.h>  // defs. of DlsMat and DENSE_ELEM
 #include <sundials/sundials_types.h>  // def. of type 'realtype'
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
 using namespace std;
 
 // User-supplied Functions Called by the Solver
@@ -129,7 +139,7 @@ int main()
   fprintf(UFID,"# t y1 y2 y3\n");
 
   // output initial condition to disk 
-  fprintf(UFID," %.16e %.16e %.16e %.16e\n", 
+  fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n", 
 	  T0, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
 
   /* Main time-stepping loop: calls ARKode to perform the integration, then
@@ -142,9 +152,9 @@ int main()
 
     flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);       // call integrator
     if (check_flag(&flag, "ARKode", 1)) break;
-    printf("  %8.4f  %8.5f  %8.5f  %8.5f\n",                  // access/print solution
+    printf("  %8.4"FSYM"  %8.5"FSYM"  %8.5"FSYM"  %8.5"FSYM"\n",                  // access/print solution
            t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
-    fprintf(UFID," %.16e %.16e %.16e %.16e\n", 
+    fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n", 
 	    t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
     if (flag >= 0) {                                          // successful solve: update time
       tout += dTout;

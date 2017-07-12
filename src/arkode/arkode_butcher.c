@@ -41,35 +41,43 @@
      b2[s] -- realtype embedding coefficients
 
  Allowed 'method' names and properties (those in an ARK pair are marked 
- with a *).  All method names are of the form <name>_s_p_q:
+ with a *).  All method names are of the form <name>_s_p_q.  The method 
+ 'type' is one of 
+    ERK -- explicit Runge Kutta
+    SDIRK -- singly-diagonally implicit Runge Kutta
+    SDIRK -- explicit [1st stage] singly-diagonally implicit Runge Kutta
+ The 'A-stable' and 'L-stable' columns are based on numerical estimates 
+ of each property.  The 'QP' column denotes whether the coefficients 
+ of the method are known precisely enough for use in 'long double' 
+ (128-bit) calculations.
 
-   imeth                       type  A-stable  L-stable
-  ------------------------------------------------------
-   HEUN_EULER_2_1_2             ERK     N         N 
-   BOGACKI_SHAMPINE_4_2_3       ERK     N         N 
-   ARK324L2SA_ERK_4_2_3*        ERK     N         N 
-   ZONNEVELD_5_3_4              ERK     N         N 
-   ARK436L2SA_ERK_6_3_4*        ERK     N         N 
-   SAYFY_ABURUB_6_3_4           ERK     N         N 
-   CASH_KARP_6_4_5              ERK     N         N 
-   FEHLBERG_6_4_5               ERK     N         N 
-   DORMAND_PRINCE_7_4_5         ERK     N         N 
-   ARK548L2SA_ERK_8_4_5*        ERK     N         N 
-   VERNER_8_5_6                 ERK     N         N 
-   FEHLBERG_13_7_8              ERK     N         N 
-   SDIRK_2_1_2                SDIRK     Y         N 
-   BILLINGTON_3_3_2           SDIRK     N         N
-   TRBDF2_3_3_2              ESDIRK     N         N
-   KVAERNO_4_2_3             ESDIRK     Y         Y
-   ARK324L2SA_DIRK_4_2_3*    ESDIRK     Y         Y 
-   CASH_5_2_4                 SDIRK     Y         Y 
-   CASH_5_3_4                 SDIRK     Y         Y  
-   SDIRK_5_3_4                SDIRK     Y         Y  
-   KVAERNO_5_3_4             ESDIRK     Y         N 
-   ARK436L2SA_DIRK_6_3_4*    ESDIRK     Y         Y  
-   KVAERNO_7_4_5             ESDIRK     Y         Y  
-   ARK548L2SA_DIRK_8_4_5*    ESDIRK     Y         Y  
-  ------------------------------------------------------
+   imeth                       type  A-stable  L-stable  QP 
+  ----------------------------------------------------------
+   HEUN_EULER_2_1_2             ERK     N         N       Y
+   BOGACKI_SHAMPINE_4_2_3       ERK     N         N       Y
+   ARK324L2SA_ERK_4_2_3*        ERK     N         N       N
+   ZONNEVELD_5_3_4              ERK     N         N       Y
+   ARK436L2SA_ERK_6_3_4*        ERK     N         N       N
+   SAYFY_ABURUB_6_3_4           ERK     N         N       N
+   CASH_KARP_6_4_5              ERK     N         N       Y
+   FEHLBERG_6_4_5               ERK     N         N       Y
+   DORMAND_PRINCE_7_4_5         ERK     N         N       Y
+   ARK548L2SA_ERK_8_4_5*        ERK     N         N       N
+   VERNER_8_5_6                 ERK     N         N       Y
+   FEHLBERG_13_7_8              ERK     N         N       Y
+   SDIRK_2_1_2                SDIRK     Y         N       Y
+   BILLINGTON_3_3_2           SDIRK     N         N       N
+   TRBDF2_3_3_2              ESDIRK     N         N       Y
+   KVAERNO_4_2_3             ESDIRK     Y         Y       N
+   ARK324L2SA_DIRK_4_2_3*    ESDIRK     Y         Y       N
+   CASH_5_2_4                 SDIRK     Y         Y       N
+   CASH_5_3_4                 SDIRK     Y         Y       N
+   SDIRK_5_3_4                SDIRK     Y         Y       Y
+   KVAERNO_5_3_4             ESDIRK     Y         N       N
+   ARK436L2SA_DIRK_6_3_4*    ESDIRK     Y         Y       N
+   KVAERNO_7_4_5             ESDIRK     Y         Y       N
+   ARK548L2SA_DIRK_8_4_5*    ESDIRK     Y         Y       N
+  ----------------------------------------------------------
 
 ---------------------------------------------------------------*/
 int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p, 
@@ -748,8 +756,8 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     b[3] = RCONST(-0.266418670647);
     b[4] = RCONST(0.435866521508);
 
-    b2[0] = RCONST((-0.7-0.5))/RCONST((-0.7-0.435866521508));
-    b2[1] = RCONST((0.5-0.435866521508))/RCONST((-0.7-0.435866521508));
+    b2[0] = (RCONST(-0.7)-RCONST(0.5))/(RCONST(-0.7)-RCONST(0.435866521508));
+    b2[1] = (RCONST(0.5)-RCONST(0.435866521508))/(RCONST(-0.7)-RCONST(0.435866521508));
 
     c[0] = RCONST(0.435866521508);
     c[1] = RCONST(-0.7);

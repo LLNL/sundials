@@ -563,7 +563,11 @@ static void PrintSol(void* mem, N_Vector uv, N_Vector uvp,
     for (ix=0; ix<mxsub; ix++) {
     
       uvxy  = IJ_Vptr(uv, ix, jy);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+      fprintf(fout, "%Lg\n%Lg\n", uvxy[0], uvxy[1]);
+#else
       fprintf(fout, "%g\n%g\n", uvxy[0], uvxy[1]);
+#endif      
     }
   }    
   fclose(fout);

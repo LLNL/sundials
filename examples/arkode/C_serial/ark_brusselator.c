@@ -66,6 +66,16 @@
 #include <sundials/sundials_dense.h>  /* defs. of DlsMat and DENSE_ELEM */
 #include <sundials/sundials_types.h>  /* def. of type 'realtype' */
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int Jac(sunindextype N, realtype t,
@@ -125,9 +135,9 @@ int main()
 
   /* Initial problem output */
   printf("\nBrusselator ODE test problem:\n");
-  printf("    initial conditions:  u0 = %g,  v0 = %g,  w0 = %g\n",u0,v0,w0);
-  printf("    problem parameters:  a = %g,  b = %g,  ep = %g\n",a,b,ep);
-  printf("    reltol = %.1e,  abstol = %.1e\n\n",reltol,abstol);
+  printf("    initial conditions:  u0 = %"GSYM",  v0 = %"GSYM",  w0 = %"GSYM"\n",u0,v0,w0);
+  printf("    problem parameters:  a = %"GSYM",  b = %"GSYM",  ep = %"GSYM"\n",a,b,ep);
+  printf("    reltol = %.1"ESYM",  abstol = %.1"ESYM"\n\n",reltol,abstol);
 
   /* Initialize data structures */
   rdata[0] = a;     /* set user data  */
@@ -165,7 +175,7 @@ int main()
   fprintf(UFID,"# t u v w\n");
 
   /* output initial condition to disk */
-  fprintf(UFID," %.16e %.16e %.16e %.16e\n", 
+  fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n", 
 	  T0, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
 
   /* Main time-stepping loop: calls ARKode to perform the integration, then
@@ -178,9 +188,9 @@ int main()
 
     flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);      /* call integrator */
     if (check_flag(&flag, "ARKode", 1)) break;
-    printf("  %10.6f  %10.6f  %10.6f  %10.6f\n",             /* access/print solution */
+    printf("  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"\n",             /* access/print solution */
            t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
-    fprintf(UFID," %.16e %.16e %.16e %.16e\n", 
+    fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n", 
 	    t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
     if (flag >= 0) {                                         /* successful solve: update time */
       tout += dTout;

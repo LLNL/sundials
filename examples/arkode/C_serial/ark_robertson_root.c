@@ -48,6 +48,16 @@
 #include <sundials/sundials_dense.h>  /* defs. of DlsMat and DENSE_ELEM */
 #include <sundials/sundials_types.h>  /* def. of type 'realtype' */
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int Jac(sunindextype N, realtype t,
@@ -89,7 +99,7 @@ int main()
 
   /* Initial problem output */
   printf("\nRobertson ODE test problem (with rootfinding):\n");
-  printf("    initial conditions:  u0 = %g,  v0 = %g,  w0 = %g\n",u0,v0,w0);
+  printf("    initial conditions:  u0 = %"GSYM",  v0 = %"GSYM",  w0 = %"GSYM"\n",u0,v0,w0);
 
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ);        /* Create serial vector for solution */
@@ -144,7 +154,7 @@ int main()
   fprintf(UFID,"# t u v w\n");
 
   /* output initial condition to disk */
-  fprintf(UFID," %.16e %.16e %.16e %.16e\n", 
+  fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n", 
 	  T0, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
 
   /* Main time-stepping loop: calls ARKode to perform the integration, then
@@ -152,7 +162,7 @@ int main()
   t = T0;
   printf("        t             u             v             w\n");
   printf("   -----------------------------------------------------\n");
-  printf("  %12.5e  %12.5e  %12.5e  %12.5e\n",
+  printf("  %12.5"ESYM"  %12.5"ESYM"  %12.5"ESYM"  %12.5"ESYM"\n",
       t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
   tout = T1;
   iout = 0;
@@ -160,9 +170,9 @@ int main()
 
     flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);     /* call integrator */
     if (check_flag(&flag, "ARKode", 1)) break;
-    printf("  %12.5e  %12.5e  %12.5e  %12.5e\n",  t,        /* access/print solution */
+    printf("  %12.5"ESYM"  %12.5"ESYM"  %12.5"ESYM"  %12.5"ESYM"\n",  t,        /* access/print solution */
         NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
-    fprintf(UFID," %.16e %.16e %.16e %.16e\n", 
+    fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n", 
 	    t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
     if (flag == ARK_ROOT_RETURN) {                          /* check if a root was found */
       rtflag = ARKodeGetRootInfo(arkode_mem, rootsfound);

@@ -332,7 +332,11 @@ int main(int argc, char *argv[])
   /* calculate integral of u over domain. */
   integr(comm, uv, data, &intval);
   if (thispe == 0) {
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("\n\nThe average of u on the domain:\ng = %Lg\n", intval);
+#else
     printf("\n\nThe average of u on the domain:\ng = %g\n", intval);
+#endif    
   }
 
   /* integrate the sensitivities of u over domain. */
@@ -343,7 +347,11 @@ int main(int argc, char *argv[])
   for (is=0; is<NS; is++) {
     integr(comm, uvS[is], data, &intval);
     if (thispe == 0) {
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+      printf("w.r.t. eps%d = %14.10Lf\n", is, intval);
+#else
       printf("w.r.t. eps%d = %14.10f\n", is, intval);
+#endif      
     }
   }
 
@@ -618,7 +626,11 @@ static void PrintSol(void* mem, N_Vector uv, N_Vector uvp,
     for (ix=0; ix<mxsub; ix++) {
     
       uvxy  = IJ_Vptr(uv, ix, jy);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+      fprintf(fout, "%Lg\n%Lg\n", uvxy[0], uvxy[1]);
+#else
       fprintf(fout, "%g\n%g\n", uvxy[0], uvxy[1]);
+#endif      
     }
   }    
   fclose(fout);

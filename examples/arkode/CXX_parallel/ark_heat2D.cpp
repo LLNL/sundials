@@ -57,6 +57,16 @@
 #include "sundials/sundials_types.h"  // def. of type 'realtype' 
 #include "mpi.h"                      // MPI header file
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
 using namespace std;
 
 // accessor macros between (x,y) location and 1D NVector array
@@ -235,7 +245,7 @@ int main(int argc, char* argv[]) {
   data = N_VGetArrayPointer(y);
 
   // output initial condition to disk 
-  for (i=0; i<N; i++)  fprintf(UFID," %.16e", data[i]);
+  for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM, data[i]);
   fprintf(UFID,"\n");
 
   /* Main time-stepping loop: calls ARKode to perform the integration, then
@@ -247,7 +257,7 @@ int main(int argc, char* argv[]) {
   if (outproc) {
     cout << "        t      ||u||_rms\n";
     cout << "   ----------------------\n";
-    printf("  %10.6f  %10.6f\n", t, urms);
+    printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, urms);
   }
   int iout;
   for (iout=0; iout<Nt; iout++) {
@@ -255,7 +265,7 @@ int main(int argc, char* argv[]) {
     flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);         // call integrator 
     if (check_flag(&flag, "ARKode", 1)) break;
     urms = sqrt(N_VDotProd(y,y)/nx/ny);
-    if (outproc)  printf("  %10.6f  %10.6f\n", t, urms);        // print solution stats 
+    if (outproc)  printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, urms);        // print solution stats 
     if (flag >= 0) {                                            // successful solve: update output time
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;
@@ -266,7 +276,7 @@ int main(int argc, char* argv[]) {
     }
 
     // output results to disk 
-    for (i=0; i<N; i++)  fprintf(UFID," %.16e", data[i]);
+    for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[i]);
     fprintf(UFID,"\n");
   }
   if (outproc)  cout << "   ----------------------\n";

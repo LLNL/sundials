@@ -57,6 +57,16 @@
 #include <sundials/sundials_types.h>  /* def. of type 'realtype' */
 #include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc. */
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
 /* accessor macros between (x,v) location and 1D NVector array */
 #define IDX(x,v) (3*(x)+v)
 
@@ -137,12 +147,12 @@ int main()
 
   /* Initial problem output */
   printf("\n1D Brusselator PDE test problem:\n");
-  printf("    N = %li,  NEQ = %li\n", (long int) udata->N, (long int) NEQ);
-  printf("    problem parameters:  a = %g,  b = %g,  ep = %g\n",
+  printf("    N = %li,  NEQ = %li\n", udata->N, NEQ);
+  printf("    problem parameters:  a = %"GSYM",  b = %"GSYM",  ep = %"GSYM"\n",
       udata->a, udata->b, udata->ep);
-  printf("    diffusion coefficients:  du = %g,  dv = %g,  dw = %g\n",
+  printf("    diffusion coefficients:  du = %"GSYM",  dv = %"GSYM",  dw = %"GSYM"\n",
       udata->du, udata->dv, udata->dw);
-  printf("    reltol = %.1e,  abstol = %.1e\n\n", reltol, abstol);
+  printf("    reltol = %.1"ESYM",  abstol = %.1"ESYM"\n\n", reltol, abstol);
 
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ);           /* Create serial vector for solution */
@@ -206,7 +216,7 @@ int main()
 
   /* output spatial mesh to disk */
   FID = fopen("bruss_mesh.txt","w");
-  for (i=0; i<N; i++)  fprintf(FID,"  %.16e\n", udata->dx*i);
+  for (i=0; i<N; i++)  fprintf(FID,"  %.16"ESYM"\n", udata->dx*i);
   fclose(FID);
 
   /* Open output streams for results, access data array */
@@ -217,9 +227,9 @@ int main()
   /* output initial condition to disk */
   data = N_VGetArrayPointer(y);
   if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
-  for (i=0; i<N; i++)  fprintf(UFID," %.16e", data[IDX(i,0)]);
-  for (i=0; i<N; i++)  fprintf(VFID," %.16e", data[IDX(i,1)]);
-  for (i=0; i<N; i++)  fprintf(WFID," %.16e", data[IDX(i,2)]);
+  for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[IDX(i,0)]);
+  for (i=0; i<N; i++)  fprintf(VFID," %.16"ESYM"", data[IDX(i,1)]);
+  for (i=0; i<N; i++)  fprintf(WFID," %.16"ESYM"", data[IDX(i,2)]);
   fprintf(UFID,"\n");
   fprintf(VFID,"\n");
   fprintf(WFID,"\n");
@@ -241,7 +251,7 @@ int main()
     v = SUNRsqrt(v*v/N);
     w = N_VWL2Norm(y,wmask);
     w = SUNRsqrt(w*w/N);
-    printf("  %10.6f  %10.6f  %10.6f  %10.6f\n", t, u, v, w);
+    printf("  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"\n", t, u, v, w);
     if (flag >= 0) {                                       /* successful solve: update output time */
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;
@@ -251,9 +261,9 @@ int main()
     }
 
     /* output results to disk */
-    for (i=0; i<N; i++)  fprintf(UFID," %.16e", data[IDX(i,0)]);
-    for (i=0; i<N; i++)  fprintf(VFID," %.16e", data[IDX(i,1)]);
-    for (i=0; i<N; i++)  fprintf(WFID," %.16e", data[IDX(i,2)]);
+    for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[IDX(i,0)]);
+    for (i=0; i<N; i++)  fprintf(VFID," %.16"ESYM"", data[IDX(i,1)]);
+    for (i=0; i<N; i++)  fprintf(WFID," %.16"ESYM"", data[IDX(i,2)]);
     fprintf(UFID,"\n");
     fprintf(VFID,"\n");
     fprintf(WFID,"\n");
