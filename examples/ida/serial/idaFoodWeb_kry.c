@@ -204,7 +204,7 @@ int main()
   webdata->ewt = N_VNew_Serial(NEQ);
   for (jx = 0; jx < MX; jx++) {
     for (jy = 0; jy < MY; jy++) {
-      (webdata->pivot)[jx][jy] = newLintArray(NUM_SPECIES);
+      (webdata->pivot)[jx][jy] = newIndexArray(NUM_SPECIES);
       (webdata->PP)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
     }
   }
