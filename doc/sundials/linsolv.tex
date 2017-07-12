@@ -270,7 +270,7 @@ in the {\dense} package.  For full details, see the header files
 \item \id{NewDenseMat}: allocation of a \id{DlsMat} dense matrix;
 \item \id{DestroyMat}: free memory for a \id{DlsMat} matrix;
 \item \id{PrintMat}: print a \id{DlsMat} matrix to standard output.
-\item \id{NewLintArray}: allocation of an array of \id{long int} integers for use
+\item \id{NewIndexArray}: allocation of an array of \id{long int} integers for use
   as pivots with \id{DenseGETRF} and \id{DenseGETRS};
 \item \id{NewIntArray}: allocation of an array of \id{int} integers for use
   as pivots with the Lapack dense solvers;
@@ -312,8 +312,8 @@ The following functions for small dense matrices are available in the
 \item \ID{destroyMat}
   \par \id{destroyMat(a)} frees the dense matrix \id{a} allocated by \id{newDenseMat};
 
-\item \ID{newLintArray}
-  \par \id{newLintArray(n)} allocates an array of \id{n} integers, all \id{long int}.
+\item \ID{newIndexArray}
+  \par \id{newIndexArray(n)} allocates an array of \id{n} integers, all \id{long int}.
   It returns a pointer to the first element in the array if successful. 
   It returns \id{NULL} if the memory request could not be satisfied.
 
@@ -328,7 +328,7 @@ The following functions for small dense matrices are available in the
   It returns \id{NULL} if the memory request could not be satisfied.
 
 \item \ID{destroyArray}
-  \par \id{destroyArray(p)} frees the array \id{p} allocated by \id{newLintArray},
+  \par \id{destroyArray(p)} frees the array \id{p} allocated by \id{newIndexArray},
   \id{newIntArray}, or \id{newRealArray};
 
 \item \ID{denseCopy}
@@ -431,7 +431,7 @@ in the {\band} package.  For full details, see the header files
 \item \id{NewBandMat}: allocation of a \id{DlsMat} band matrix;
 \item \id{DestroyMat}: free memory for a \id{DlsMat} matrix;
 \item \id{PrintMat}: print a \id{DlsMat} matrix to standard output.
-\item \id{NewLintArray}: allocation of an array of \id{int} integers for use
+\item \id{NewIndexArray}: allocation of an array of \id{int} integers for use
   as pivots with \id{BandGBRF} and \id{BandGBRS};
 \item \id{NewIntArray}: allocation of an array of \id{int} integers for use
   as pivots with the Lapack band solvers;
@@ -460,8 +460,8 @@ The following functions for small band matrices are available in the
 \item \ID{destroyMat}
   \par \id{destroyMat(a)} frees the band matrix \id{a} allocated by \id{newBandMat};
 
-\item \ID{newLintArray}
-  \par \id{newLintArray(n)} allocates an array of \id{n} integers, all \id{long int}. 
+\item \ID{newIndexArray}
+  \par \id{newIndexArray(n)} allocates an array of \id{n} integers, all \id{long int}. 
   It returns a pointer to the first element in the array if successful. 
   It returns \id{NULL} if the memory request could not be satisfied.
 
@@ -476,7 +476,7 @@ The following functions for small band matrices are available in the
   It returns \id{NULL} if the memory request could not be satisfied.
 
 \item \ID{destroyArray}
-  \par \id{destroyArray(p)} frees the array \id{p} allocated by \id{newLintArray},
+  \par \id{destroyArray(p)} frees the array \id{p} allocated by \id{newIndexArray},
   \id{newIntArray}, or \id{newRealArray};
 
 \item \ID{bandCopy}
