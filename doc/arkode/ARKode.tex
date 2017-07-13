@@ -21217,8 +21217,8 @@ Prints a {\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{\code{DlsMat}}}} matrix t
 \index{NewIndexArray (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{linear_solvers/DLS:c.NewIndexArray}\pysiglinewithargsret{long int* \bfcode{NewIndexArray}}{long int\emph{ N}}{}
-Allocates an array of \code{long int} integers for use as pivots with
+\phantomsection\label{linear_solvers/DLS:c.NewIndexArray}\pysiglinewithargsret{indextype* \bfcode{NewIndexArray}}{indextype\emph{ N}}{}
+Allocates an array of \code{indextype} integers for use as pivots with
 {\hyperref[linear_solvers/DLS:c.DenseGETRF]{\emph{\code{DenseGETRF()}}}} and \code{DenseGETRS()}.
 
 \end{fulllineitems}
@@ -21377,8 +21377,8 @@ Frees the dense matrix \emph{a} allocated by {\hyperref[linear_solvers/DLS:c.new
 \index{newIndexArray (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{linear_solvers/DLS:c.newIndexArray}\pysiglinewithargsret{long int* \bfcode{newIndexArray}}{long int\emph{ n}}{}
-Allocates an array of \emph{n} integers of \code{long int} type.  It
+\phantomsection\label{linear_solvers/DLS:c.newIndexArray}\pysiglinewithargsret{indextype* \bfcode{newIndexArray}}{indextype\emph{ n}}{}
+Allocates an array of \emph{n} integers of \code{indextype} type.  It
 returns a pointer to the first element in the array if
 successful. It returns \code{NULL} if the memory request could not be
 satisfied.
@@ -21591,8 +21591,8 @@ Prints a {\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{\code{DlsMat}}}} matrix t
 \index{NewIndexArray (C function)}
 
 \begin{fulllineitems}
-\pysiglinewithargsret{long int* \bfcode{NewIndexArray}}{long int\emph{ N}}{}
-Allocates an array of \code{long int} integers for use as pivots with
+\pysiglinewithargsret{indextype* \bfcode{NewIndexArray}}{indextype\emph{ N}}{}
+Allocates an array of \code{indextype} integers for use as pivots with
 \code{BandGBRF()} and \code{BandGBRS()}.
 
 \end{fulllineitems}
@@ -21707,8 +21707,8 @@ Frees the band matrix \emph{a} allocated by {\hyperref[linear_solvers/DLS:c.newB
 \index{newIndexArray (C function)}
 
 \begin{fulllineitems}
-\pysiglinewithargsret{long int* \bfcode{newIndexArray}}{long int\emph{ n}}{}
-Allocates an array of \emph{n} integers of type \code{long int}. It returns
+\pysiglinewithargsret{indextype* \bfcode{newIndexArray}}{indextype\emph{ n}}{}
+Allocates an array of \emph{n} integers of type \code{indextype}. It returns
 a pointer to the first element in the array if successful.  It
 returns \code{NULL} if the memory request could not be satisfied.
 

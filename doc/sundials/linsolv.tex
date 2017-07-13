@@ -270,7 +270,7 @@ in the {\dense} package.  For full details, see the header files
 \item \id{NewDenseMat}: allocation of a \id{DlsMat} dense matrix;
 \item \id{DestroyMat}: free memory for a \id{DlsMat} matrix;
 \item \id{PrintMat}: print a \id{DlsMat} matrix to standard output.
-\item \id{NewIndexArray}: allocation of an array of \id{long int} integers for use
+\item \id{NewIndexArray}: allocation of an array of integers for use
   as pivots with \id{DenseGETRF} and \id{DenseGETRS};
 \item \id{NewIntArray}: allocation of an array of \id{int} integers for use
   as pivots with the Lapack dense solvers;
@@ -313,7 +313,7 @@ The following functions for small dense matrices are available in the
   \par \id{destroyMat(a)} frees the dense matrix \id{a} allocated by \id{newDenseMat};
 
 \item \ID{newIndexArray}
-  \par \id{newIndexArray(n)} allocates an array of \id{n} integers, all \id{long int}.
+  \par \id{newIndexArray(n)} allocates an array of \id{n} integers, all \id{indextype}.
   It returns a pointer to the first element in the array if successful. 
   It returns \id{NULL} if the memory request could not be satisfied.
 
@@ -431,7 +431,7 @@ in the {\band} package.  For full details, see the header files
 \item \id{NewBandMat}: allocation of a \id{DlsMat} band matrix;
 \item \id{DestroyMat}: free memory for a \id{DlsMat} matrix;
 \item \id{PrintMat}: print a \id{DlsMat} matrix to standard output.
-\item \id{NewIndexArray}: allocation of an array of \id{int} integers for use
+\item \id{NewIndexArray}: allocation of an array of integers for use
   as pivots with \id{BandGBRF} and \id{BandGBRS};
 \item \id{NewIntArray}: allocation of an array of \id{int} integers for use
   as pivots with the Lapack band solvers;
