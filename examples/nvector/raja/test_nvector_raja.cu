@@ -36,9 +36,9 @@
 int main(int argc, char *argv[]) 
 {
   int      fails = 0;  /* counter for test failures  */
-  long int veclen;     /* vector length              */
+  sunindextype veclen;     /* vector length              */
   N_Vector W, X, Y, Z; /* test vectors               */
-//  long int liw, lrw;
+//  sunindextype liw, lrw;
   int      print_timing;
 
 
@@ -124,11 +124,11 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Check vector
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, long int local_length)
+int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 {
   int      failure = 0;
-  long int i;
-  sunrajavec::Vector<double, long int>* xv = sunrajavec::extract<realtype, long int>(X);
+  sunindextype i;
+  sunrajavec::Vector<double, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
   realtype *xdata;
   
   xv->copyFromDev();
@@ -144,22 +144,22 @@ int check_ans(realtype ans, N_Vector X, long int local_length)
 
 booleantype has_data(N_Vector X)
 {
-  sunrajavec::Vector<double, long int>* xv = sunrajavec::extract<realtype, long int>(X);
+  sunrajavec::Vector<double, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
 
   return (xv == NULL ? FALSE : TRUE);
 }
 
-void set_element(N_Vector X, long int i, realtype val)
+void set_element(N_Vector X, sunindextype i, realtype val)
 {
-  sunrajavec::Vector<double, long int>* xv = sunrajavec::extract<realtype, long int>(X);
+  sunrajavec::Vector<double, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
   xv->copyFromDev();
   (xv->host())[i] = val;
   xv->copyToDev();
 }
 
-realtype get_element(N_Vector X, long int i)
+realtype get_element(N_Vector X, sunindextype i)
 {
-  sunrajavec::Vector<double, long int>* xv = sunrajavec::extract<realtype, long int>(X);
+  sunrajavec::Vector<double, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
   xv->copyFromDev();
   return (xv->host())[i];
 }

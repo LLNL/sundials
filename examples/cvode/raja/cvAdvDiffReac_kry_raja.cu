@@ -34,9 +34,9 @@
 
 typedef struct
 {
-  long int Nx;
-  long int Ny;
-  long int NEQ;
+  sunindextype Nx;
+  sunindextype Ny;
+  sunindextype NEQ;
 
   int block;
   int grid;
@@ -165,14 +165,14 @@ int main(int argc, char *argv[])
 
 N_Vector SetIC(UserData data)
 {
-  const long int Nx = data->Nx;
+  const sunindextype Nx = data->Nx;
   const realtype hx = data->hx;
   const realtype hy = data->hy;
 
   N_Vector u = N_VNew_Raja(data->NEQ);
-  realtype *udat = sunrajavec::extract<realtype, long int>(u)->host();
+  realtype *udat = sunrajavec::extract<realtype, sunindextype>(u)->host();
 
-  long int i, j, index;
+  sunindextype i, j, index;
 
   for (index = 0; index < data->NEQ; ++index)
   {
@@ -184,14 +184,14 @@ N_Vector SetIC(UserData data)
     realtype tmp = (1 - x) * x * (1 - y) * y;
     udat[index] = (256.0 * tmp * tmp) + 0.3;
   }
-  sunrajavec::extract<realtype, long int>(u)->copyToDev();
+  sunrajavec::extract<realtype, sunindextype>(u)->copyToDev();
   return u;
 }
 
 UserData SetUserData(int argc, char *argv[])
 {
-  long int dimX = 70; /* Default grid size */
-  long int dimY = 80;
+  sunindextype dimX = 70; /* Default grid size */
+  sunindextype dimY = 80;
   const realtype diffusionConst =  0.01;
   const realtype advectionConst = -10.0;
   const realtype reactionConst  = 100.0;
@@ -235,12 +235,12 @@ UserData SetUserData(int argc, char *argv[])
 }
 
 
-int phiRaja(const realtype *u, realtype *result, long int NEQ, long int Nx, long int Ny,
+int phiRaja(const realtype *u, realtype *result, sunindextype NEQ, sunindextype Nx, sunindextype Ny,
     realtype hordc, realtype verdc, realtype horac, realtype verac)
 {
-  RAJA::forall<RAJA::cuda_exec<256> >(0, NEQ, [=] __device__(long int index) {
-    long int i = index%Nx;
-    long int j = index/Nx;
+  RAJA::forall<RAJA::cuda_exec<256> >(0, NEQ, [=] __device__(sunindextype index) {
+    sunindextype i = index%Nx;
+    sunindextype j = index/Nx;
 
     realtype uij = u[index];
 
@@ -264,13 +264,13 @@ int phiRaja(const realtype *u, realtype *result, long int NEQ, long int Nx, long
 int RHS(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   UserData data = (UserData) user_data;
-  const long int NEQ = data->NEQ;
+  const sunindextype NEQ = data->NEQ;
   const realtype reacc = data->reacc;
-  const realtype *udata = sunrajavec::extract<realtype, long int>(u)->device();
-  realtype *udotdata    = sunrajavec::extract<realtype, long int>(udot)->device();
+  const realtype *udata = sunrajavec::extract<realtype, sunindextype>(u)->device();
+  realtype *udotdata    = sunrajavec::extract<realtype, sunindextype>(udot)->device();
 
   phiRaja(udata, udotdata, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac);
-  RAJA::forall<RAJA::cuda_exec<256> >(0, NEQ, [=] __device__(long int index) {
+  RAJA::forall<RAJA::cuda_exec<256> >(0, NEQ, [=] __device__(sunindextype index) {
     const realtype a = -1.0 / 2.0;
     udotdata[index] += (reacc*(udata[index] + a)*(1.0 - udata[index])*udata[index]);
   });
@@ -282,15 +282,15 @@ int RHS(realtype t, N_Vector u, N_Vector udot, void *user_data)
 int Jtv(N_Vector v, N_Vector Jv, realtype t, N_Vector u, N_Vector fu, void *user_data, N_Vector tmp)
 {
   UserData data = (UserData) user_data;
-  const long int NEQ = data->NEQ;
+  const sunindextype NEQ = data->NEQ;
   const realtype reacc = data->reacc;
 
-  const realtype *udata  = sunrajavec::extract<realtype, long int>(u)->device();
-  const realtype *vdata  = sunrajavec::extract<realtype, long int>(v)->device();
-  realtype *Jvdata       = sunrajavec::extract<realtype, long int>(Jv)->device();
+  const realtype *udata  = sunrajavec::extract<realtype, sunindextype>(u)->device();
+  const realtype *vdata  = sunrajavec::extract<realtype, sunindextype>(v)->device();
+  realtype *Jvdata       = sunrajavec::extract<realtype, sunindextype>(Jv)->device();
 
   phiRaja(vdata, Jvdata, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac);
-  RAJA::forall<RAJA::cuda_exec<256> >(0, NEQ, [=] __device__(long int index) {
+  RAJA::forall<RAJA::cuda_exec<256> >(0, NEQ, [=] __device__(sunindextype index) {
     const realtype a = -1.0 / 2.0;
     Jvdata[index] += reacc*(3.0*udata[index] + a - 3.0*udata[index]*udata[index])*vdata[index];
   });
@@ -331,8 +331,8 @@ static void PrintOutput(void *cvode_mem, N_Vector u, realtype t)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int lenrw, leniw ;
-  long int lenrwLS, leniwLS;
+  sunindextype lenrw, leniw ;
+  sunindextype lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
   int flag;
