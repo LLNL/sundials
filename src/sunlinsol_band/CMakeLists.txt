@@ -24,7 +24,7 @@ SET(sunlinsolband_SOURCES sunlinsol_band.c)
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the SUNLINSOLBAND library
-SET(shared_SOURCES sundials_math.c)
+SET(shared_SOURCES sundials_math.c sundials_band.c)
 ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
 
 # Add variable sunlinsolband_HEADERS with the exported SUNLINSOLBAND header files

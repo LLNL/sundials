@@ -127,8 +127,8 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolNumIters(BandSol, 0);
   fails += Test_SUNLinSolResNorm(BandSol, 0);
   fails += Test_SUNLinSolNumPSolves(BandSol, 0);
-  fails += Test_SUNLinSolSetATimes(BandSol, FALSE, 0);
-  fails += Test_SUNLinSolSetPreconditioner(BandSol, FALSE, 0);
+  fails += Test_SUNLinSolSetATimes(BandSol, NULL, NULL, NULL, FALSE, 0);
+  fails += Test_SUNLinSolSetPreconditioner(BandSol, NULL, NULL, NULL, FALSE, 0);
   fails += Test_SUNLinSolSetScalingVectors(BandSol, x, y, FALSE, 0);
 
   /* Print result */

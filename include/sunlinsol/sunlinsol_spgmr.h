@@ -122,6 +122,10 @@
 extern "C" {
 #endif
 
+/* Default SPGMR solver parameters */
+#define SUNSPGMR_MAXL_DEFAULT    5
+#define SUNSPGMR_GSTYPE_DEFAULT  MODIFIED_GS
+
 /*
  * -----------------------------------------------------------------
  * PART I: SPGMR implementation of SUNLinearSolver
@@ -168,7 +172,13 @@ extern "C" {
 struct _SUNLinearSolverContent_SPGMR {
   int maxl;
   int pretype;
+  int gstype;
+  int max_restarts;
+  int numiters;
+  int numpsolves;
+  realtype resnorm;
   long int last_flag;
+
   ATSetupFn ATSetup;
   ATimesFn ATimes;
   void* ATData;
@@ -176,6 +186,8 @@ struct _SUNLinearSolverContent_SPGMR {
   PSolveFn Psolve;
   void* PData;
 
+  N_Vector s1;
+  N_Vector s2;
   N_Vector *V;
   realtype **Hes;
   realtype *givens;
@@ -231,6 +243,11 @@ typedef struct _SUNLinearSolverContent_SPGMR *SUNLinearSolverContent_SPGMR;
  */
 
 SUNDIALS_EXPORT SUNLinearSolver SUNSPGMR(N_Vector y, int pretype, int maxl);
+SUNDIALS_EXPORT int SUNSPGMRSetPrecType(SUNLinearSolver S, int pretype);
+SUNDIALS_EXPORT int SUNSPGMRSetGSType(SUNLinearSolver S, int gstype);
+SUNDIALS_EXPORT int SUNSPGMRGetWorkspace(SUNLinearSolver S, 
+                                         long int *lenrwLS, 
+                                         long int *leniwLS);
 
 /*
  * -----------------------------------------------------------------
@@ -257,7 +274,27 @@ SUNDIALS_EXPORT realtype SUNLinSolResNorm_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolNumPSolves_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolFree_SPGMR(SUNLinearSolver S);
-  
+
+/* Possible return values from the SPGMR 'solve' function -- should
+   these be abstracted to instead apply to all linear solvers? */
+
+#define SPGMR_SUCCESS            0  /* Converged                     */
+#define SPGMR_RES_REDUCED        1  /* Did not converge, but reduced
+                                       norm of residual              */
+#define SPGMR_CONV_FAIL          2  /* Failed to converge            */
+#define SPGMR_QRFACT_FAIL        3  /* QRfact found singular matrix  */
+#define SPGMR_PSOLVE_FAIL_REC    4  /* psolve failed recoverably     */
+#define SPGMR_ATIMES_FAIL_REC    5  /* atimes failed recoverably     */
+#define SPGMR_PSET_FAIL_REC      6  /* pset faild recoverably        */
+#define SPGMR_ILL_INPUT          7  /* illegal 'set' routine input   */
+
+#define SPGMR_MEM_NULL          -1  /* mem argument is NULL          */
+#define SPGMR_ATIMES_FAIL_UNREC -2  /* atimes returned failure flag  */
+#define SPGMR_PSOLVE_FAIL_UNREC -3  /* psolve failed unrecoverably   */
+#define SPGMR_GS_FAIL           -4  /* Gram-Schmidt routine faiuled  */        
+#define SPGMR_QRSOL_FAIL        -5  /* QRsol found singular R        */
+#define SPGMR_PSET_FAIL_UNREC   -6  /* pset failed unrecoverably     */
+
 #ifdef __cplusplus
 }
 #endif
