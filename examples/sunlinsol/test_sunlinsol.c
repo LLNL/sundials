@@ -99,7 +99,7 @@ int Test_SUNLinSolLastFlag(SUNLinearSolver S, int myid)
  * --------------------------------------------------------------------*/
 int Test_SUNLinSolNumIters(SUNLinearSolver S, int myid)
 {
-  int    failure, numiters;
+  int    numiters;
   double start_time, stop_time;
 
   /* the only way to fail this test is if the function is NULL, 
@@ -122,7 +122,7 @@ int Test_SUNLinSolNumIters(SUNLinearSolver S, int myid)
  * --------------------------------------------------------------------*/
 int Test_SUNLinSolNumPSolves(SUNLinearSolver S, int myid)
 {
-  int    failure, npsolves;
+  int    npsolves;
   double start_time, stop_time;
 
   /* the only way to fail this test is if the function is NULL, 
@@ -145,16 +145,20 @@ int Test_SUNLinSolNumPSolves(SUNLinearSolver S, int myid)
  * --------------------------------------------------------------------*/
 int Test_SUNLinSolResNorm(SUNLinearSolver S, int myid)
 {
-  int    failure;
   double start_time, stop_time, resnorm;
 
-  /* the only way to fail this test is if the function is NULL, 
-     which will cause a seg-fault */
+  /* this test can fail if the function is NULL, which will cause a seg-fault */
   start_time = get_time();   
   resnorm = (double) SUNLinSolResNorm(S);
   stop_time = get_time();   
 
-  if (myid == 0) {
+  /* this test can also fail if the return value is negative */
+  if (resnorm < ZERO){
+    printf(">>> FAILED test -- SUNLinSolResNorm returned %g on Proc %d \n", 
+           resnorm, myid);
+    return(1);
+  }
+  else if (myid == 0) {
     printf("    PASSED test -- SUNLinSolResNorm\n");
     PRINT_TIME("    SUNLinSolResNorm Time: %22.15e \n \n", stop_time - start_time);
   }
