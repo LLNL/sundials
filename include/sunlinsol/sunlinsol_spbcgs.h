@@ -122,8 +122,7 @@ extern "C" {
 #endif
 
 /* Default SPBCGS solver parameters */
-#define SUNSPBCGS_MAXL_DEFAULT    5
-#define SUNSPBCGS_GSTYPE_DEFAULT  MODIFIED_GS
+#define SUNSPBCGS_MAXL_DEFAULT 5
 
 /*
  * -----------------------------------------------------------------
@@ -154,7 +153,6 @@ extern "C" {
 struct _SUNLinearSolverContent_SPBCGS {
   int maxl;
   int pretype;
-  int gstype;
   int max_restarts;
   int numiters;
   int numpsolves;

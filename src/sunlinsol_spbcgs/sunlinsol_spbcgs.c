@@ -89,7 +89,6 @@ SUNLinearSolver SUNSPBCGS(N_Vector y, int pretype, int maxl)
   content->last_flag = 0;
   content->maxl = maxl;
   content->pretype = pretype;
-  content->gstype = SUNSPBCGS_GSTYPE_DEFAULT;
   content->numiters = 0;
   content->numpsolves = 0;
   content->resnorm = ZERO;
