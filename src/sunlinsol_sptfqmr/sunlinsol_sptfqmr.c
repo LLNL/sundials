@@ -183,8 +183,6 @@ SUNLinearSolver_Type SUNLinSolGetType_SPTFQMR(SUNLinearSolver S)
 
 int SUNLinSolInitialize_SPTFQMR(SUNLinearSolver S)
 {
-  int k;
-
   /* set shortcut to SPTFQMR memory structure */
   if (S == NULL) return(SPTFQMR_MEM_NULL);  
   SUNLinearSolverContent_SPTFQMR content = SLS_CONTENT_SPTFQMR(S);
@@ -282,7 +280,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   realtype temp_val;
   booleantype preOnLeft, preOnRight, scale_x, scale_b, converged;
   booleantype b_ok;
-  int n, m, ier, pretype, l_max;
+  int n, m, ier, l_max;
   void *A_data, *P_data;
   ATimesFn atimes;
   PSolveFn psolve;

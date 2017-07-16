@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 {
   int             fails=0;          /* counter for test failures */
   SUNLinearSolver LS;               /* linear solver object      */
-  N_Vector        xhat, x, bhat, b; /* test vectors              */
+  N_Vector        xhat, x, b;       /* test vectors              */
   UserData        ProbData;         /* problem data structure    */
   int             pretype, maxl, print_timing;
   long int        i, lenrwLS, leniwLS;

@@ -178,8 +178,6 @@ SUNLinearSolver_Type SUNLinSolGetType_SPBCGS(SUNLinearSolver S)
 
 int SUNLinSolInitialize_SPBCGS(SUNLinearSolver S)
 {
-  int k;
-
   /* set shortcut to SPBCGS memory structure */
   if (S == NULL) return(SPBCG_MEM_NULL);  
   SUNLinearSolverContent_SPBCGS content = SLS_CONTENT_SPBCGS(S);
@@ -273,7 +271,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   realtype alpha, beta, omega, omega_denom, beta_num, beta_denom, r_norm, rho;
   N_Vector r_star, r, p, q, u, Ap, vtemp;
   booleantype preOnLeft, preOnRight, scale_x, scale_b, converged;
-  int l, l_max, ier, pretype;
+  int l, l_max, ier;
   void *A_data, *P_data;
   N_Vector sx, sb;
   ATimesFn atimes;
@@ -573,8 +571,6 @@ long int SUNLinSolLastFlag_SPBCGS(SUNLinearSolver S)
 
 int SUNLinSolFree_SPBCGS(SUNLinearSolver S)
 {
-  int k;
-
   if (S == NULL) return(SPBCG_MEM_NULL);
 
   /* delete items from within the content structure */
