@@ -90,16 +90,18 @@ int main(int argc, char *argv[])
   
   j=cols-1;
   for (k=0; k<rows; k++) {
-    colj = SunDenseMatrix_Column(I,j);
+    colj = SUNDenseMatrix_Column(I,j);
     colj[k] = 1;
     j = j-1;
   }    
   
-  for (k=0; k<rows; k++)
-    for(j=0; j<cols; j++)
-      colj = SunDenseMatrix_Column(A,j);
-      colIj = SunDenseMatrix_Column(I,j);
-    colj[k]  = colj[k] + colIj[k]; 
+  for (k=0; k<rows; k++){
+    for(j=0; j<cols; j++){
+      colj = SUNDenseMatrix_Column(A,j);
+      colIj = SUNDenseMatrix_Column(I,j);
+      colj[k]  = colj[k] + colIj[k]; 
+   }
+  }
   /* Scale/shift matrix to ensure diagonal dominance */
  /* fails += SUNMatScaleAddI( ONE/(uband+lband+1), A );
   if (fails) {
@@ -128,8 +130,8 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolNumIters(DenseSol, 0);
   fails += Test_SUNLinSolResNorm(DenseSol, 0);
   fails += Test_SUNLinSolNumPSolves(DenseSol, 0);
-  fails += Test_SUNLinSolSetATimes(DenseSol, FALSE, 0);
-  fails += Test_SUNLinSolSetPreconditioner(DenseSol, FALSE, 0);
+  fails += Test_SUNLinSolSetATimes(DenseSol, NULL, NULL, NULL, FALSE, 0);
+  fails += Test_SUNLinSolSetPreconditioner(DenseSol, NULL, NULL, NULL, FALSE, 0);
   fails += Test_SUNLinSolSetScalingVectors(DenseSol, x, y, FALSE, 0);
 
   /* Print result */
