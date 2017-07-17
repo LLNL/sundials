@@ -17,7 +17,7 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
- * This is the testing routine to check the SUNLinSol SPGMR module 
+ * This is the testing routine to check the SUNLinSol SPFGMR module 
  * implementation. 
  * -----------------------------------------------------------------
  */
@@ -26,7 +26,7 @@
 #include <stdlib.h>
 
 #include <sundials/sundials_types.h>
-#include <sunlinsol/sunlinsol_spgmr.h>
+#include <sunlinsol/sunlinsol_spfgmr.h>
 #include <nvector/nvector_serial.h>
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_iterative.h>
@@ -42,7 +42,7 @@
 typedef struct {
   long int Nloc;  /* local problem size */
   N_Vector d;     /* matrix diagonal */
-  N_Vector s1;    /* scaling vectors supplied to SPGMR */
+  N_Vector s1;    /* scaling vectors supplied to SPFGMR */
   N_Vector s2;
   MPI_Comm comm;  /* communicator object */
   int myid;       /* MPI process ID */
@@ -67,7 +67,7 @@ static realtype urand();
 long int local_length;
 
 /* ----------------------------------------------------------------------
- * SUNSPGMR Linear Solver Testing Routine
+ * SUNSPFGMR Linear Solver Testing Routine
  *
  * We run multiple tests to exercise this solver:
  * 1. simple tridiagonal system (no preconditioning)
@@ -84,7 +84,7 @@ long int local_length;
  *       and solution vector x = (S2-inverse) xhat; hence the linear 
  *       system has rows scaled by S1-inverse and columns scaled by S2, 
  *       where S1 and S2 are the diagonal matrices with entries from the 
- *       vectors s1 and s2, the 'scaling' vectors supplied to SPGMR 
+ *       vectors s1 and s2, the 'scaling' vectors supplied to SPFGMR 
  *       having strictly positive entries.  When this is combined with 
  *       preconditioning, assume that Phat is the desired preconditioner 
  *       for Ahat, then our preconditioning matrix P \approx A should be
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
   SUNLinearSolver LS;               /* linear solver object      */
   N_Vector        xhat, x, b;       /* test vectors              */
   UserData        ProbData;         /* problem data structure    */
-  int             gstype, pretype, maxl, print_timing;
+  int             gstype, maxl, print_timing;
   long int        i, lenrwLS, leniwLS;
   realtype        *vecdata;
   double          tol;
@@ -117,11 +117,10 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "MPI_Comm_rank", 1)) return 1;
 
   /* check inputs: local problem size, timing flag */
-  if (argc < 7) {
-    printf("ERROR: SIX (6) Inputs required:\n");
+  if (argc < 6) {
+    printf("ERROR: FIVE (5) Inputs required:\n");
     printf("  Local problem size should be >0\n");
     printf("  Gram-Schmidt orthogonalization type should be 1 or 2\n");
-    printf("  Preconditioning type should be 1 or 2\n");
     printf("  Maximum Krylov subspace dimension should be >0\n");
     printf("  Solver tolerance should be >0\n");
     printf("  timing output flag should be 0 or 1 \n");
@@ -138,31 +137,25 @@ int main(int argc, char *argv[])
     printf("ERROR: Gram-Schmidt orthogonalization type must be either 1 or 2\n");
     return 1; 
   }
-  pretype = atoi(argv[3]);
-  if ((pretype < 1) || (pretype > 2)) {
-    printf("ERROR: Preconditioning type must be either 1 or 2\n");
-    return 1; 
-  }
-  maxl = atoi(argv[4]);
+  maxl = atoi(argv[3]);
   if (maxl <= 0) {
     printf("ERROR: Maximum Krylov subspace dimension must be a positive integer\n");
     return 1; 
   }
-  tol = atof(argv[5]);
+  tol = atof(argv[4]);
   if (tol <= ZERO) {
     printf("ERROR: Solver tolerance must be a positive real number\n");
     return 1; 
   }
-  print_timing = atoi(argv[6]);
+  print_timing = atoi(argv[5]);
   SetTiming(print_timing);
 
   if (ProbData.myid == 0) {
-    printf("\nSPGMR linear solver test:\n");
+    printf("\nSPFGMR linear solver test:\n");
     printf("  nprocs = %i\n", ProbData.nprocs);
     printf("  local/global problem sizes = %ld/%ld\n", ProbData.Nloc,
            ProbData.nprocs * ProbData.Nloc);
     printf("  Gram-Schmidt orthogonalization type = %i\n", gstype);
-    printf("  Preconditioning type = %i\n", pretype);
     printf("  Maximum Krylov subspace dimension = %i\n", maxl);
     printf("  Solver Tolerance = %lg\n", tol);
     printf("  timing output flag = %i\n\n", print_timing);
@@ -211,8 +204,8 @@ int main(int argc, char *argv[])
   /* Fill Jacobi vector with matrix diagonal */
   N_VConst(FIVE, ProbData.d);
   
-  /* Create SPGMR linear solver */
-  LS = SUNSPGMR(x, pretype, maxl);
+  /* Create SPFGMR linear solver */
+  LS = SUNSPFGMR(x, PREC_RIGHT, maxl);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_ITERATIVE,
                                  ProbData.myid);
   fails += Test_SUNLinSolSetATimes(LS, &ProbData, ATSetup, ATimes,
@@ -222,16 +215,16 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolSetScalingVectors(LS, ProbData.s1, ProbData.s2,
                                            TRUE, ProbData.myid);
   fails += Test_SUNLinSolInitialize(LS, ProbData.myid);
-  fails += SUNSPGMRSetGSType(LS, gstype);  
-  fails += SUNSPGMRGetWorkspace(LS, &lenrwLS, &leniwLS);
+  fails += SUNSPFGMRSetGSType(LS, gstype);  
+  fails += SUNSPFGMRGetWorkspace(LS, &lenrwLS, &leniwLS);
   if (ProbData.myid == 0)
-    printf("    SPGMR linear solver workspace: real = %ld, integer = %ld\n",
+    printf("    SPFGMR linear solver workspace: real = %ld, integer = %ld\n",
            lenrwLS, leniwLS);
   if (fails) {
-    printf("FAIL: SUNSPGMR module failed %i initialization tests\n\n", fails);
+    printf("FAIL: SUNSPFGMR module failed %i initialization tests\n\n", fails);
     return 1;
   } else if (ProbData.myid == 0)
-    printf("SUCCESS: SUNSPGMR module passed all initialization tests\n\n");
+    printf("SUCCESS: SUNSPFGMR module passed all initialization tests\n\n");
 
 
   
@@ -249,7 +242,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPGMRSetPrecType(LS, PREC_NONE);  
+  fails += SUNSPFGMRSetPrecType(LS, PREC_NONE);  
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
@@ -259,9 +252,9 @@ int main(int argc, char *argv[])
   
   /* Print result */
   if (fails) 
-    printf("FAIL: SUNSPGMR module, problem 1, failed %i tests\n\n", fails);
+    printf("FAIL: SUNSPFGMR module, problem 1, failed %i tests\n\n", fails);
   else if (ProbData.myid == 0)
-    printf("SUCCESS: SUNSPGMR module, problem 1, passed all tests\n\n");
+    printf("SUCCESS: SUNSPFGMR module, problem 1, passed all tests\n\n");
 
   
   /*** Test 2: simple Poisson-like solve (Jacobi preconditioning) ***/
@@ -278,7 +271,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPGMRSetPrecType(LS, pretype);  
+  fails += SUNSPFGMRSetPrecType(LS, PREC_RIGHT);  
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
@@ -288,9 +281,9 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) 
-    printf("FAIL: SUNSPGMR module, problem 2, failed %i tests\n\n", fails);
+    printf("FAIL: SUNSPFGMR module, problem 2, failed %i tests\n\n", fails);
   else if (ProbData.myid == 0)
-    printf("SUCCESS: SUNSPGMR module, problem 2, passed all tests\n\n");
+    printf("SUCCESS: SUNSPFGMR module, problem 2, passed all tests\n\n");
 
   
   /*** Test 3: Poisson-like solve w/ scaled rows (no preconditioning) ***/
@@ -309,7 +302,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPGMRSetPrecType(LS, PREC_NONE);  
+  fails += SUNSPFGMRSetPrecType(LS, PREC_NONE);  
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
@@ -319,9 +312,9 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) 
-    printf("FAIL: SUNSPGMR module, problem 3, failed %i tests\n\n", fails);
+    printf("FAIL: SUNSPFGMR module, problem 3, failed %i tests\n\n", fails);
   else if (ProbData.myid == 0)
-    printf("SUCCESS: SUNSPGMR module, problem 3, passed all tests\n\n");
+    printf("SUCCESS: SUNSPFGMR module, problem 3, passed all tests\n\n");
 
   
   /*** Test 4: Poisson-like solve w/ scaled rows (Jacobi preconditioning) ***/
@@ -340,7 +333,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPGMRSetPrecType(LS, pretype);  
+  fails += SUNSPFGMRSetPrecType(LS, PREC_RIGHT);  
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
@@ -350,9 +343,9 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) 
-    printf("FAIL: SUNSPGMR module, problem 4, failed %i tests\n\n", fails);
+    printf("FAIL: SUNSPFGMR module, problem 4, failed %i tests\n\n", fails);
   else if (ProbData.myid == 0)
-    printf("SUCCESS: SUNSPGMR module, problem 4, passed all tests\n\n");
+    printf("SUCCESS: SUNSPFGMR module, problem 4, passed all tests\n\n");
 
   
   /*** Test 5: Poisson-like solve w/ scaled columns (no preconditioning) ***/
@@ -371,7 +364,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPGMRSetPrecType(LS, PREC_NONE);
+  fails += SUNSPFGMRSetPrecType(LS, PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
@@ -381,9 +374,9 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) 
-    printf("FAIL: SUNSPGMR module, problem 5, failed %i tests\n\n", fails);
+    printf("FAIL: SUNSPFGMR module, problem 5, failed %i tests\n\n", fails);
   else if (ProbData.myid == 0)
-    printf("SUCCESS: SUNSPGMR module, problem 5, passed all tests\n\n");
+    printf("SUCCESS: SUNSPFGMR module, problem 5, passed all tests\n\n");
 
   
   /*** Test 6: Poisson-like solve w/ scaled columns (Jacobi preconditioning) ***/
@@ -402,7 +395,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPGMRSetPrecType(LS, pretype);  
+  fails += SUNSPFGMRSetPrecType(LS, PREC_RIGHT);  
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
@@ -412,9 +405,9 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) 
-    printf("FAIL: SUNSPGMR module, problem 6, failed %i tests\n\n", fails);
+    printf("FAIL: SUNSPFGMR module, problem 6, failed %i tests\n\n", fails);
   else if (ProbData.myid == 0)
-    printf("SUCCESS: SUNSPGMR module, problem 6, passed all tests\n\n");
+    printf("SUCCESS: SUNSPFGMR module, problem 6, passed all tests\n\n");
 
   
   /* Free solver and vectors */

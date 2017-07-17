@@ -95,7 +95,9 @@ SUNLinearSolver SUNSPGMR(N_Vector y, int pretype, int maxl)
   content->numpsolves = 0;
   content->resnorm = ZERO;
   content->xcor = N_VClone(y);
+  if (content->xcor == NULL)  return NULL;
   content->vtemp = N_VClone(y);
+  if (content->vtemp == NULL)  return NULL;
   content->s1 = NULL;
   content->s2 = NULL;
   content->ATSetup = NULL;
@@ -656,7 +658,7 @@ int SUNLinSolFree_SPGMR(SUNLinearSolver S)
     N_VDestroy(SLS_CONTENT_SPGMR(S)->vtemp);
   if (SLS_CONTENT_SPGMR(S)->V)
     N_VDestroyVectorArray(SLS_CONTENT_SPGMR(S)->V, 
-                          SLS_CONTENT_SPGMR(S)->maxl);
+                          SLS_CONTENT_SPGMR(S)->maxl+1);
   if (SLS_CONTENT_SPGMR(S)->Hes) {
     for (k=0; k<=SLS_CONTENT_SPGMR(S)->maxl; k++)
       if (SLS_CONTENT_SPGMR(S)->Hes[k])
