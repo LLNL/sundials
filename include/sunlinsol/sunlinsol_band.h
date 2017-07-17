@@ -67,7 +67,7 @@ extern "C" {
  */
   
 struct _SUNLinearSolverContent_Band {
-  long int *pivots;
+  sunindextype *pivots;
   long int last_flag;
 };
 
@@ -83,7 +83,8 @@ typedef struct _SUNLinearSolverContent_Band *SUNLinearSolverContent_Band;
  *
  * SUNLinearSolver S;
  * SUNLinearSolverContent_Band S_cont;
- * long int *S_pivots, S_lastflag;
+ * sunindextype *S_pivots;
+ * long int S_lastflag;
  *
  * (1) SLS_CONTENT_B
  *

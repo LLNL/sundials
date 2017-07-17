@@ -39,12 +39,12 @@
 int main(int argc, char *argv[]) 
 {
   int             fails = 0;          /* counter for test failures  */
-  long int        cols, uband, lband; /* matrix columns, bandwidths */
+  sunindextype    cols, uband, lband; /* matrix columns, bandwidths */
   SUNLinearSolver BandSol;            /* solver object              */
   SUNMatrix       A, B;               /* test matrices              */
   N_Vector        x, y, b;            /* test vectors               */
   int             print_timing;
-  long int        j, k, kstart, kend;
+  sunindextype    j, k, kstart, kend;
   realtype        *colj, *xdata;
 
   /* check input and set matrix dimensions */
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
   SetTiming(print_timing);
 
   printf("\nBand linear solver test: size %ld, bandwidths %ld %ld\n\n",
-         cols, uband, lband);
+         (long int) cols, (long int) uband, (long int) lband);
 
   /* Create matrices and vectors */
   A = SUNBandMatrix(cols, uband, lband, lband+uband);
@@ -161,8 +161,8 @@ int main(int argc, char *argv[])
  * --------------------------------------------------------------------*/
 int check_vector(N_Vector X, N_Vector Y, realtype tol)
 {
-  int      failure = 0;
-  long int i, local_length;
+  int failure = 0;
+  sunindextype i, local_length;
   realtype *Xdata, *Ydata, maxerr;
   
   Xdata = N_VGetArrayPointer(X);

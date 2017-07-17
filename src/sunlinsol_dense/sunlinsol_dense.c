@@ -46,7 +46,7 @@ SUNLinearSolver SUNDenseLinearSolver(N_Vector y, SUNMatrix A)
   SUNLinearSolver S;
   SUNLinearSolver_Ops ops;
   SUNLinearSolverContent_Dense content;
-  long int MatrixRows, MatrixCols, VecLength;
+  sunindextype MatrixRows, MatrixCols, VecLength;
   
   /* Check compatibility with supplied SUNMatrix and N_Vector */
   if (SUNMatGetID(A) != SUNMATRIX_DENSE)
@@ -103,7 +103,7 @@ SUNLinearSolver SUNDenseLinearSolver(N_Vector y, SUNMatrix A)
   /* Fill content */
   content->last_flag = 0;
   content->pivots = NULL;
-  content->pivots = (long int *) malloc(MatrixRows * sizeof(long int));
+  content->pivots = (sunindextype *) malloc(MatrixRows * sizeof(sunindextype));
   if (content->pivots == NULL) {
     free(content); free(ops); free(S); return(NULL);
   }
@@ -163,7 +163,7 @@ int SUNLinSolSetScalingVectors_Dense(SUNLinearSolver S, N_Vector s1,
 int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
 {
   realtype **A_cols;
-  long int *pivots;
+  sunindextype *pivots;
   
   /* access data pointers (return with failure on NULL) */
   A_cols = NULL;
@@ -187,7 +187,7 @@ int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                         N_Vector b, realtype tol)
 {
   realtype **A_cols, *xdata;
-  long int *pivots;
+  sunindextype *pivots;
   
   /* copy b into x */
   N_VScale(ONE, b, x);

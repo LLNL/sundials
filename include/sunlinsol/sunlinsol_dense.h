@@ -74,7 +74,7 @@ extern "C" {
  */
   
 struct _SUNLinearSolverContent_Dense {
-  long int *pivots;
+  sunindextype *pivots;
   long int last_flag;
 };
 
@@ -88,7 +88,8 @@ typedef struct _SUNLinearSolverContent_Dense *SUNLinearSolverContent_Dense;
  *
  * SUNLinearSolver S;
  * SUNLinearSolverContent_Dense S_cont;
- * long int *S_pivots, S_lastflag;
+ * sunindextype *S_pivots;
+ * long int S_lastflag;
  *
  * (1) SLS_CONTENT_D
  *

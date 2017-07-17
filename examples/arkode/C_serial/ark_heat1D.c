@@ -106,7 +106,7 @@ int main() {
 
   /* Initial problem output */
   printf("\n1D Heat PDE test problem:\n");
-  printf("  N = %li\n", udata->N);
+  printf("  N = %li\n", (long int) udata->N);
   printf("  diffusion coefficient:  k = %"GSYM"\n", udata->k);
 
   /* Initialize data structures */

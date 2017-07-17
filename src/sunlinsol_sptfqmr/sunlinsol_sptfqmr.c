@@ -157,7 +157,7 @@ SUNDIALS_EXPORT int SUNSPTFQMRGetWorkspace(SUNLinearSolver S,
                                            long int *lenrwLS, 
                                            long int *leniwLS)
 {
-  long int liw1, lrw1;
+  sunindextype liw1, lrw1;
 
   /* Check for non-NULL SUNLinearSolver */
   if (S == NULL) return(SPTFQMR_MEM_NULL);

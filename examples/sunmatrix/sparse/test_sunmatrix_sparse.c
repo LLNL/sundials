@@ -37,17 +37,17 @@
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
-  int       fails=0;                    /* counter for test failures  */
-  long int  matrows, matcols;           /* matrix dims                */
-  int       mattype;                    /* matrix storage type        */
-  N_Vector  x, y;                       /* test vectors               */
-  realtype* vecdata;                    /* pointers to vector data    */
-  SUNMatrix A, B, C, D, I;              /* test matrices              */
-  realtype* matdata;                    /* pointer to matrix data     */
-  long int  i, j, k, kstart, kend, N, uband, lband, suband;
-  long int  *colptrs, *rowindices;
-  long int  *rowptrs, *colindices;
-  int       print_timing, square; 
+  int          fails=0;                    /* counter for test failures  */
+  sunindextype matrows, matcols;           /* matrix dims                */
+  int          mattype;                    /* matrix storage type        */
+  N_Vector     x, y;                       /* test vectors               */
+  realtype*    vecdata;                    /* pointers to vector data    */
+  SUNMatrix    A, B, C, D, I;              /* test matrices              */
+  realtype*    matdata;                    /* pointer to matrix data     */
+  sunindextype i, j, k, kstart, kend, N, uband, lband, suband;
+  sunindextype *colptrs, *rowindices;
+  sunindextype *rowptrs, *colindices;
+  int          print_timing, square; 
 
   /* check input and set vector length */
   if (argc < 5){
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
   
   square = (matrows == matcols) ? 1 : 0;
   printf("\nSparse matrix test: size %ld by %ld, type = %i\n\n",
-         matrows, matcols, mattype);
+         (long int) matrows, (long int) matcols, mattype);
 
     
   /* check creating sparse matrix from dense matrix */
@@ -364,11 +364,11 @@ int main(int argc, char *argv[])
  * --------------------------------------------------------------------*/
 int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
 {
-  int      failure = 0;
+  int failure = 0;
   realtype *Adata, *Bdata;
-  long int *Aindexptrs, *Bindexptrs;
-  long int *Aindexvals, *Bindexvals;
-  long int i, ANP, BNP, Annz, Bnnz;
+  sunindextype *Aindexptrs, *Bindexptrs;
+  sunindextype *Aindexvals, *Bindexvals;
+  sunindextype i, ANP, BNP, Annz, Bnnz;
   
   /* get matrix pointers */
   Adata = SUNSparseMatrix_Data(A);
@@ -396,17 +396,18 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
   }
   if (SUNSparseMatrix_Rows(A) != SUNSparseMatrix_Rows(B)) {
     printf(">>> ERROR: check_matrix: Different numbers of rows (%ld vs %ld)\n",
-           SUNSparseMatrix_Rows(A), SUNSparseMatrix_Rows(B));
+           (long int) SUNSparseMatrix_Rows(A), (long int) SUNSparseMatrix_Rows(B));
     return(1);
   }
   if (SUNSparseMatrix_Columns(A) != SUNSparseMatrix_Columns(B)) {
     printf(">>> ERROR: check_matrix: Different numbers of columns (%ld vs %ld)\n",
-           SUNSparseMatrix_Columns(A), SUNSparseMatrix_Columns(B));
+           (long int) SUNSparseMatrix_Columns(A),
+           (long int) SUNSparseMatrix_Columns(B));
     return(1);
   }
   if (Annz != Bnnz) {
     printf(">>> ERROR: check_matrix: Different numbers of nonzeos (%ld vs %ld)\n",
-           Annz, Bnnz);
+           (long int) Annz, (long int) Bnnz);
     return(1);
   }
 
@@ -437,10 +438,10 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
 
 int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
 {
-  int      failure = 0;
+  int failure = 0;
   realtype *Adata;
-  long int *indexptrs;
-  long int i, NP;
+  sunindextype *indexptrs;
+  sunindextype i, NP;
   
   /* get data pointer */
   Adata = SUNSparseMatrix_Data(A);
@@ -462,8 +463,8 @@ int check_vector(N_Vector x, N_Vector y, realtype tol)
 {
   int failure = 0;
   realtype *xdata, *ydata;
-  long int xldata, yldata;
-  long int i;
+  sunindextype xldata, yldata;
+  sunindextype i;
 
   /* get vector data */
   xdata = N_VGetArrayPointer(x);

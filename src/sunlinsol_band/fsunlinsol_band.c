@@ -49,8 +49,7 @@ extern N_Vector F2C_ARKODE_vec;
 
 /* Fortran callable interfaces */
 
-void FSUNBANDLINSOL_INIT(int *code, long int *N, long int *mu, 
-                         long int *ml, long int *smu, int *ier)
+void FSUNBANDLINSOL_INIT(int *code, int *ier)
 {
   *ier = 0;
 

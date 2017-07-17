@@ -118,7 +118,7 @@ int main() {
   /* Initial problem output */
   printf("\n1D adaptive Heat PDE test problem:\n");
   printf("  diffusion coefficient:  k = %"GSYM"\n", udata->k);
-  printf("  initial N = %li\n", udata->N);
+  printf("  initial N = %li\n", (long int) udata->N);
 
   /* Initialize data structures */
   y = N_VNew_Serial(N);       /* Create initial serial vector for solution */
@@ -175,7 +175,8 @@ int main() {
   printf("  iout          dt_old                 dt_new               ||u||_rms       N   NNI  NLI\n");
   printf(" ----------------------------------------------------------------------------------------\n");
   printf(" %4i  %19.15"ESYM"  %19.15"ESYM"  %19.15"ESYM"  %li   %2i  %3i\n", 
-	 iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N), udata->N, 0, 0);
+	 iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N),
+         (long int) udata->N, 0, 0);
   while (t < Tf) {
 
     /* "set" routines */
@@ -201,7 +202,8 @@ int main() {
     /* print current solution stats */
     iout++;
     printf(" %4i  %19.15"ESYM"  %19.15"ESYM"  %19.15"ESYM"  %li   %2li  %3li\n", 
-	   iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N), udata->N, nni-nni_cur, nli);
+	   iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N),
+           (long int) udata->N, nni-nni_cur, nli);
     nni_cur = nni;
     nni_tot = nni;
     nli_tot += nli;

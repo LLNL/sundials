@@ -38,12 +38,12 @@
 int main(int argc, char *argv[]) 
 {
   int             fails = 0;          /* counter for test failures  */
-  long int        cols, rows;         /* matrix columns, rows */
-  SUNLinearSolver DenseSol;            /* solver object              */
-  SUNMatrix       A, B, I;               /* test matrices              */
+  sunindextype    cols, rows;         /* matrix columns, rows       */
+  SUNLinearSolver DenseSol;           /* solver object              */
+  SUNMatrix       A, B, I;            /* test matrices              */
   N_Vector        x, y, b;            /* test vectors               */
   int             print_timing;
-  long int        j, k;
+  sunindextype    j, k;
   realtype        *colj, *xdata, *colIj;
 
   /* check input and set matrix dimensions */
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
   SetTiming(print_timing);
 
   printf("\nDense linear solver test: size %ld\n\n",
-         cols);
+         (long int) cols);
 
   /* Create matrices and vectors */
   A = SUNDenseMatrix(rows, cols);
@@ -157,8 +157,8 @@ int main(int argc, char *argv[])
  * --------------------------------------------------------------------*/
 int check_vector(N_Vector X, N_Vector Y, realtype tol)
 {
-  int      failure = 0;
-  long int i, local_length;
+  int failure = 0;
+  sunindextype i, local_length;
   realtype *Xdata, *Ydata, maxerr;
   
   Xdata = N_VGetArrayPointer(X);

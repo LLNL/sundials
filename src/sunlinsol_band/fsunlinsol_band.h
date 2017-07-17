@@ -53,8 +53,7 @@ extern SUNLinearSolver F2C_ARKODE_linsol;
  * FSUNBANDLINSOL_INIT - initializes band linear solver for main problem
  */
 
-void FSUNBANDLINSOL_INIT(int *code, long int *N, long int *mu, 
-                         long int *ml, long int *smu, int *ier);
+void FSUNBANDLINSOL_INIT(int *code, int *ier);
 
 #ifdef __cplusplus
 }

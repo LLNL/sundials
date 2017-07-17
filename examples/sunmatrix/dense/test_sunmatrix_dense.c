@@ -37,14 +37,14 @@
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
-  int       fails = 0;        /* counter for test failures  */
-  long int  matrows, matcols; /* vector length              */
-  N_Vector  x, y;             /* test vectors               */
-  realtype  *xdata, *ydata;   /* pointers to vector data    */
-  SUNMatrix A, I;             /* test matrices              */
-  realtype  *Adata, *Idata;   /* pointers to matrix data    */
-  int       print_timing, square;
-  long int  i, j, m, n;
+  int          fails = 0;        /* counter for test failures  */
+  sunindextype matrows, matcols; /* vector length              */
+  N_Vector     x, y;             /* test vectors               */
+  realtype     *xdata, *ydata;   /* pointers to vector data    */
+  SUNMatrix    A, I;             /* test matrices              */
+  realtype     *Adata, *Idata;   /* pointers to matrix data    */
+  int          print_timing, square;
+  sunindextype i, j, m, n;
 
   /* check input and set vector length */
   if (argc < 4){
@@ -68,7 +68,8 @@ int main(int argc, char *argv[])
   SetTiming(print_timing);
   
   square = (matrows == matcols) ? 1 : 0;
-  printf("\nDense matrix test: size %ld by %ld\n\n", matrows, matcols);
+  printf("\nDense matrix test: size %ld by %ld\n\n",
+         (long int) matrows, (long int) matcols);
   
   /* Create vectors and matrices */
   x = N_VNew_Serial(matcols);
@@ -146,10 +147,10 @@ int main(int argc, char *argv[])
  * --------------------------------------------------------------------*/
 int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
 {
-  int      failure = 0;
+  int failure = 0;
   realtype *Adata, *Bdata;
-  long int Aldata, Bldata;
-  long int i;
+  sunindextype Aldata, Bldata;
+  sunindextype i;
   
   /* get data pointers */
   Adata = SUNDenseMatrix_Data(A);
@@ -177,10 +178,10 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
 
 int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
 {
-  int      failure = 0;
+  int failure = 0;
   realtype *Adata;
-  long int Aldata;
-  long int i;
+  sunindextype Aldata;
+  sunindextype i;
   
   /* get data pointer */
   Adata = SUNDenseMatrix_Data(A);
@@ -195,8 +196,8 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
     printf("Check_matrix_entry failures:\n");
     for(i=0; i < Aldata; i++)
       if (FNEQ(Adata[i], val, tol) != 0)
-        printf("  Adata[%ld] = %g != %g (err = %g)\n", i, Adata[i], val,
-               SUNRabs(Adata[i]-val));
+        printf("  Adata[%ld] = %g != %g (err = %g)\n", (long int) i,
+               Adata[i], val, SUNRabs(Adata[i]-val));
   }
   
   if (failure > ZERO)
@@ -209,8 +210,8 @@ int check_vector(N_Vector x, N_Vector y, realtype tol)
 {
   int failure = 0;
   realtype *xdata, *ydata;
-  long int xldata, yldata;
-  long int i;
+  sunindextype xldata, yldata;
+  sunindextype i;
 
   /* get vector data */
   xdata = N_VGetArrayPointer(x);
@@ -233,8 +234,8 @@ int check_vector(N_Vector x, N_Vector y, realtype tol)
     printf("Check_vector failures:\n");
     for(i=0; i < xldata; i++)
       if (FNEQ(xdata[i], ydata[i], tol) != 0)
-        printf("  xdata[%ld] = %g != %g (err = %g)\n", i, xdata[i], ydata[i],
-               SUNRabs(xdata[i]-ydata[i]));
+        printf("  xdata[%ld] = %g != %g (err = %g)\n", (long int) i,
+               xdata[i], ydata[i], SUNRabs(xdata[i]-ydata[i]));
   }
   
   if (failure > ZERO)

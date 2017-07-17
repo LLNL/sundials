@@ -87,14 +87,14 @@ extern "C" {
  */
   
 struct _SUNMatrixContent_Band {
-  long int M;
-  long int N;
-  long int ldim;
-  long int mu;
-  long int ml;
-  long int s_mu;
+  sunindextype M;
+  sunindextype N;
+  sunindextype ldim;
+  sunindextype mu;
+  sunindextype ml;
+  sunindextype s_mu;
   realtype *data;
-  long int ldata;
+  sunindextype ldata;
   realtype **cols;
 };
 
@@ -113,7 +113,7 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
  * SUNMatrix A;
  * SUNMatrixContent_Band A_cont;
  * realtype *A_col_j, *A_data, **A_cols, A_ij;
- * long int i, j, A_rows, A_columns, A_ldata;
+ * sunindextype i, j, A_rows, A_columns, A_ldata;
  *
  * (1) SM_CONTENT_B
  *
@@ -244,8 +244,8 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SUNMatrix SUNBandMatrix(long int N, long int mu,
-                                        long int ml, long int smu);
+SUNDIALS_EXPORT SUNMatrix SUNBandMatrix(sunindextype N, sunindextype mu,
+                                        sunindextype ml, sunindextype smu);
 
 /*
  * -----------------------------------------------------------------
@@ -294,14 +294,14 @@ SUNDIALS_EXPORT void SUNBandMatrix_Print(SUNMatrix A, FILE* outfile);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT long int SUNBandMatrix_Rows(SUNMatrix A);
-SUNDIALS_EXPORT long int SUNBandMatrix_Columns(SUNMatrix A);
-SUNDIALS_EXPORT long int SUNBandMatrix_LowerBandwidth(SUNMatrix A);
-SUNDIALS_EXPORT long int SUNBandMatrix_UpperBandwidth(SUNMatrix A);
-SUNDIALS_EXPORT long int SUNBandMatrix_StoredUpperBandwidth(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNBandMatrix_Rows(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNBandMatrix_Columns(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNBandMatrix_LowerBandwidth(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNBandMatrix_UpperBandwidth(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNBandMatrix_StoredUpperBandwidth(SUNMatrix A);
 SUNDIALS_EXPORT realtype* SUNBandMatrix_Data(SUNMatrix A);
 SUNDIALS_EXPORT realtype** SUNBandMatrix_Cols(SUNMatrix A);
-SUNDIALS_EXPORT realtype* SUNBandMatrix_Column(SUNMatrix A, long int j);
+SUNDIALS_EXPORT realtype* SUNBandMatrix_Column(SUNMatrix A, sunindextype j);
 
 /*
  * -----------------------------------------------------------------
