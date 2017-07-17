@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
   SUNMatrix       A, B, I;               /* test matrices              */
   N_Vector        x, y, b;            /* test vectors               */
   int             print_timing;
-  long int        j, k, kstart, kend;
+  long int        j, k;
   realtype        *colj, *xdata, *colIj;
 
   /* check input and set matrix dimensions */
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     return(-1); 
   }
 
-  cols = rows;
+  rows = cols;
 
   print_timing = atoi(argv[2]);
   SetTiming(print_timing);
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     /* A matrix column */
     colj = SUNDenseMatrix_Column(A, j);
     for (k=0; k<rows; k++)
-      colj[k] = random() / (pow(2.0,31.0) - 1.0);
+      colj[k] = random() / (pow(2.0,31.0) - 1.0) / cols;
 
     /* x entry */
     xdata[j] = random() / (pow(2.0,31.0) - 1.0);
@@ -102,13 +102,6 @@ int main(int argc, char *argv[])
       colj[k]  = colj[k] + colIj[k]; 
    }
   }
-  /* Scale/shift matrix to ensure diagonal dominance */
- /* fails += SUNMatScaleAddI( ONE/(uband+lband+1), A );
-  if (fails) {
-    printf("FAIL: SUNLinSol SUNMatScaleAddI failure\n");
-    return(1);
-  }
-  */
 
   /* copy A and x into B and y to print in case of solver failure */
   SUNMatCopy(B, A);
