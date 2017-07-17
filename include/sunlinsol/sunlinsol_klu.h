@@ -200,7 +200,7 @@ SUNDIALS_EXPORT SUNLinearSolver SUNKLULinearSolver(N_Vector y,
                                                    SUNMatrix A);
 
 SUNDIALS_EXPORT int SUNKLUReInit(SUNLinearSolver S, SUNMatrix A,
-                                 long int nnz, int reinit_type);
+                                 sunindextype nnz, int reinit_type);
 
 SUNDIALS_EXPORT int SUNKLUSetOrdering(SUNLinearSolver S,
                                       int ordering_choice);

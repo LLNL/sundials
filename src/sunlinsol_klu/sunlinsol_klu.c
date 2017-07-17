@@ -47,7 +47,7 @@ SUNLinearSolver SUNKLULinearSolver(N_Vector y, SUNMatrix A)
   SUNLinearSolver S;
   SUNLinearSolver_Ops ops;
   SUNLinearSolverContent_KLU content;
-  long int MatrixRows, MatrixCols, VecLength;
+  sunindextype MatrixRows, MatrixCols, VecLength;
   
   /* Check compatibility with supplied SUNMatrix and N_Vector */
   if (SUNMatGetID(A) != SUNMATRIX_SPARSE)
@@ -112,7 +112,7 @@ SUNLinearSolver SUNKLULinearSolver(N_Vector y, SUNMatrix A)
 }
 
 int SUNKLUReInit(SUNLinearSolver S, SUNMatrix A,
-                 long int nnz, int reinit_type)
+                 sunindextype nnz, int reinit_type)
 {
   
 }
@@ -170,7 +170,7 @@ int SUNLinSolSetScalingVectors_KLU(SUNLinearSolver S, N_Vector s1,
 int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
 {
   realtype **A_cols;
-  long int *pivots;
+  sunindextype *pivots;
   
   /* access data pointers (return with failure on NULL) */
   A_cols = NULL;
@@ -193,7 +193,7 @@ int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                        N_Vector b, realtype tol)
 {
   realtype **A_cols, *xdata;
-  long int *pivots;
+  sunindextype *pivots;
   
   /* copy b into x */
   N_VScale(ONE, b, x);

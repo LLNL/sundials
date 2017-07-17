@@ -169,7 +169,7 @@ SUNDIALS_EXPORT int SUNSPGMRGetWorkspace(SUNLinearSolver S,
                                          long int *leniwLS)
 {
   int maxl;
-  long int liw1, lrw1;
+  sunindextype liw1, lrw1;
 
   /* Check for non-NULL SUNLinearSolver */
   if (S == NULL) return(SPGMR_MEM_NULL);

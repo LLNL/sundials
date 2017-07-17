@@ -37,13 +37,13 @@
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
-  int       fails = 0;            /* counter for test failures  */
-  long int  cols, uband, lband;   /* matrix columns, bandwidths */
-  SUNMatrix A, I;                 /* test matrices              */
-  N_Vector  x, y;                 /* test vectors               */
-  int       print_timing;
-  long int  i, j, k, kstart, kend, jstart, jend;
-  realtype  *colj, *xdata, *ydata;
+  int          fails = 0;            /* counter for test failures  */
+  sunindextype cols, uband, lband;   /* matrix columns, bandwidths */
+  SUNMatrix    A, I;                 /* test matrices              */
+  N_Vector     x, y;                 /* test vectors               */
+  int          print_timing;
+  sunindextype i, j, k, kstart, kend, jstart, jend;
+  realtype     *colj, *xdata, *ydata;
 
   /* check input and set vector length */
   if (argc < 5){
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
   SetTiming(print_timing);
 
   printf("\nBand matrix test: size %ld, bandwidths %ld %ld\n\n",
-         cols, uband, lband);
+         (long int) cols, (long int) uband, (long int) lband);
 
   /* Create matrices and vectors */
   A = SUNBandMatrix(cols, uband, lband, uband);
@@ -150,8 +150,8 @@ int main(int argc, char *argv[])
  * --------------------------------------------------------------------*/
 int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
 {
-  int      failure = 0;
-  long int i, j, istart, iend;
+  int failure = 0;
+  sunindextype i, j, istart, iend;
   realtype *Acolj, *Bcolj;
 
   /* check matrix type and dimensions */
@@ -197,8 +197,8 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
 
 int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
 {
-  int      failure = 0;
-  long int i, j, istart, iend;
+  int failure = 0;
+  sunindextype i, j, istart, iend;
   realtype *Acolj;
 
   /* check matrix data */
@@ -214,7 +214,8 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
     for (i=istart; i<=iend; i++) {
       if (FNEQ(Acolj[i], val, tol)) {
         failure++;
-        printf("j = %li, Acolj[%li] = %g, val = %g\n", j, i, Acolj[i], val);
+        printf("j = %li, Acolj[%li] = %g, val = %g\n",
+               (long int) j, (long int) i, Acolj[i], val);
       }
     }
   }
@@ -227,8 +228,8 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
 
 int check_vector(N_Vector X, N_Vector Y, realtype tol)
 {
-  int      failure = 0;
-  long int i, local_length;
+  int failure = 0;
+  sunindextype i, local_length;
   realtype *Xdata, *Ydata;
   
   Xdata = N_VGetArrayPointer(X);

@@ -91,20 +91,20 @@ extern "C" {
  */
   
 struct _SUNMatrixContent_Sparse {
-  long int M;
-  long int N;
-  long int NNZ;
-  long int NP;
+  sunindextype M;
+  sunindextype N;
+  sunindextype NNZ;
+  sunindextype NP;
   realtype *data;
   int sparsetype;
-  long int *indexvals;
-  long int *indexptrs;
+  sunindextype *indexvals;
+  sunindextype *indexptrs;
   /* CSC indices */
-  long int **rowvals;
-  long int **colptrs;
+  sunindextype **rowvals;
+  sunindextype **colptrs;
   /* CSR indices */
-  long int **colvals;
-  long int **rowptrs;
+  sunindextype **colvals;
+  sunindextype **rowptrs;
 };
 
 typedef struct _SUNMatrixContent_Sparse *SUNMatrixContent_Sparse;
@@ -122,8 +122,8 @@ typedef struct _SUNMatrixContent_Sparse *SUNMatrixContent_Sparse;
  * SUNMatrix A;
  * SUNMatrixContent_Sparse A_cont;
  * realtype *A_data;
- * long int A_nnz, A_np, A_type;
- * long int *A_ivals, *A_iptrs;
+ * int A_type;
+ * sunindextype A_nnz, A_np, *A_ivals, *A_iptrs;
  *
  * (1) SM_CONTENT_S
  *
@@ -221,8 +221,8 @@ typedef struct _SUNMatrixContent_Sparse *SUNMatrixContent_Sparse;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SUNMatrix SUNSparseMatrix(long int M, long int N,
-                                          long int NNZ, int sparsetype);
+SUNDIALS_EXPORT SUNMatrix SUNSparseMatrix(sunindextype M, sunindextype N,
+                                          sunindextype NNZ, int sparsetype);
 
 /*
  * -----------------------------------------------------------------
@@ -323,14 +323,14 @@ SUNDIALS_EXPORT void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT long int SUNSparseMatrix_Rows(SUNMatrix A);
-SUNDIALS_EXPORT long int SUNSparseMatrix_Columns(SUNMatrix A);
-SUNDIALS_EXPORT long int SUNSparseMatrix_NNZ(SUNMatrix A);
-SUNDIALS_EXPORT long int SUNSparseMatrix_NP(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNSparseMatrix_Rows(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNSparseMatrix_Columns(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNSparseMatrix_NNZ(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNSparseMatrix_NP(SUNMatrix A);
 SUNDIALS_EXPORT int SUNSparseMatrix_SparseType(SUNMatrix A);
 SUNDIALS_EXPORT realtype* SUNSparseMatrix_Data(SUNMatrix A);
-SUNDIALS_EXPORT long int* SUNSparseMatrix_IndexValues(SUNMatrix A);
-SUNDIALS_EXPORT long int* SUNSparseMatrix_IndexPointers(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype* SUNSparseMatrix_IndexValues(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype* SUNSparseMatrix_IndexPointers(SUNMatrix A);
 
 /*
  * -----------------------------------------------------------------

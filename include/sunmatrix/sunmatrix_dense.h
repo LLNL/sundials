@@ -78,10 +78,10 @@ extern "C" {
  */
   
 struct _SUNMatrixContent_Dense {
-  long int M;
-  long int N;
+  sunindextype M;
+  sunindextype N;
   realtype *data;
-  long int ldata;
+  sunindextype ldata;
   realtype **cols;
 };
 
@@ -98,7 +98,7 @@ typedef struct _SUNMatrixContent_Dense *SUNMatrixContent_Dense;
  * SUNMatrix A;
  * SUNMatrixContent_Dense A_cont;
  * realtype *A_col_j, *A_data, **A_cols, A_ij;
- * long int i, j, A_rows, A_columns, A_ldata;
+ * sunindextype i, j, A_rows, A_columns, A_ldata;
  *
  * (1) SM_CONTENT_D
  *
@@ -191,7 +191,7 @@ typedef struct _SUNMatrixContent_Dense *SUNMatrixContent_Dense;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SUNMatrix SUNDenseMatrix(long int M, long int N);
+SUNDIALS_EXPORT SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N);
 
 /*
  * -----------------------------------------------------------------
@@ -233,12 +233,12 @@ SUNDIALS_EXPORT void SUNDenseMatrix_Print(SUNMatrix A, FILE* outfile);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT long int SUNDenseMatrix_Rows(SUNMatrix A);
-SUNDIALS_EXPORT long int SUNDenseMatrix_Columns(SUNMatrix A);
-SUNDIALS_EXPORT long int SUNDenseMatrix_LData(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNDenseMatrix_Rows(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNDenseMatrix_Columns(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNDenseMatrix_LData(SUNMatrix A);
 SUNDIALS_EXPORT realtype* SUNDenseMatrix_Data(SUNMatrix A);
 SUNDIALS_EXPORT realtype** SUNDenseMatrix_Cols(SUNMatrix A);
-SUNDIALS_EXPORT realtype* SUNDenseMatrix_Column(SUNMatrix A, long int j);
+SUNDIALS_EXPORT realtype* SUNDenseMatrix_Column(SUNMatrix A, sunindextype j);
 
 /*
  * -----------------------------------------------------------------

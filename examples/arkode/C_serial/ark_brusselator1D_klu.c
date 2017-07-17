@@ -163,7 +163,7 @@ int main()
 
   /* Initial problem output */
   printf("\n1D Brusselator PDE test problem (KLU solver):\n");
-  printf("    N = %i,  NEQ = %li\n", udata->N, NEQ);
+  printf("    N = %i,  NEQ = %li\n", udata->N, (long int) NEQ);
   printf("    problem parameters:  a = %"GSYM",  b = %"GSYM",  ep = %"GSYM"\n",
 	 udata->a, udata->b, udata->ep);
   printf("    diffusion coefficients:  du = %"GSYM",  dv = %"GSYM",  dw = %"GSYM"\n", 

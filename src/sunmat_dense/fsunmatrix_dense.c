@@ -44,22 +44,26 @@ void FSUNDENSEMAT_INIT(int *code, long int *M, long int *N, int *ier)
   switch(*code) {
   case FCMIX_CVODE:
     F2C_CVODE_matrix = NULL;
-    F2C_CVODE_matrix = SUNDenseMatrix(*M,*N);
+    F2C_CVODE_matrix = SUNDenseMatrix((sunindextype) *M,
+                                      (sunindextype) *N);
     if (F2C_CVODE_matrix == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
     F2C_IDA_matrix = NULL;
-    F2C_IDA_matrix = SUNDenseMatrix(*M,*N);
+    F2C_IDA_matrix = SUNDenseMatrix((sunindextype) *M,
+                                    (sunindextype) *N);
     if (F2C_IDA_matrix == NULL) *ier = -1;
     break;
   case FCMIX_KINSOL:
     F2C_KINSOL_matrix = NULL;
-    F2C_KINSOL_matrix = SUNDenseMatrix(*M,*N);
+    F2C_KINSOL_matrix = SUNDenseMatrix((sunindextype) *M,
+                                       (sunindextype) *N);
     if (F2C_KINSOL_matrix == NULL) *ier = -1;
     break;
   case FCMIX_ARKODE:
     F2C_ARKODE_matrix = NULL;
-    F2C_ARKODE_matrix = SUNDenseMatrix(*M,*N);
+    F2C_ARKODE_matrix = SUNDenseMatrix((sunindextype) *M,
+                                       (sunindextype) *N);
     if (F2C_ARKODE_matrix == NULL) *ier = -1;
     break;
   default:

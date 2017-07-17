@@ -47,12 +47,12 @@ static booleantype SMCompatible2_Dense(SUNMatrix A, N_Vector x, N_Vector y);
  * Function to create a new dense matrix
  */
 
-SUNMatrix SUNDenseMatrix(long int M, long int N)
+SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N)
 {
   SUNMatrix A;
   SUNMatrix_Ops ops;
   SUNMatrixContent_Dense content;
-  long int j;
+  sunindextype j;
 
   /* return with NULL matrix on illegal dimension input */
   if ( (M <= 0) || (N <= 0) ) return(NULL);
@@ -112,7 +112,7 @@ SUNMatrix SUNDenseMatrix(long int M, long int N)
  
 void SUNDenseMatrix_Print(SUNMatrix A, FILE* outfile)
 {
-  long int i, j;
+  sunindextype i, j;
   
   /* should not be called unless A is a dense matrix; 
      otherwise return immediately */
@@ -142,7 +142,7 @@ void SUNDenseMatrix_Print(SUNMatrix A, FILE* outfile)
  * Functions to access the contents of the dense matrix structure
  */
 
-long int SUNDenseMatrix_Rows(SUNMatrix A)
+sunindextype SUNDenseMatrix_Rows(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_DENSE)
     return SM_ROWS_D(A);
@@ -150,7 +150,7 @@ long int SUNDenseMatrix_Rows(SUNMatrix A)
     return -1;
 }
 
-long int SUNDenseMatrix_Columns(SUNMatrix A)
+sunindextype SUNDenseMatrix_Columns(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_DENSE)
     return SM_COLUMNS_D(A);
@@ -158,7 +158,7 @@ long int SUNDenseMatrix_Columns(SUNMatrix A)
     return -1;
 }
 
-long int SUNDenseMatrix_LData(SUNMatrix A)
+sunindextype SUNDenseMatrix_LData(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_DENSE)
     return SM_LDATA_D(A);
@@ -182,7 +182,7 @@ realtype** SUNDenseMatrix_Cols(SUNMatrix A)
     return NULL;
 }
 
-realtype* SUNDenseMatrix_Column(SUNMatrix A, long int j)
+realtype* SUNDenseMatrix_Column(SUNMatrix A, sunindextype j)
 {
   if (SUNMatGetID(A) == SUNMATRIX_DENSE)
     return SM_COLUMN_D(A,j);
@@ -221,7 +221,7 @@ void SUNMatDestroy_Dense(SUNMatrix A)
 
 int SUNMatZero_Dense(SUNMatrix A)
 {
-  long int i;
+  sunindextype i;
   realtype *Adata;
 
   /* Perform operation */
@@ -233,7 +233,7 @@ int SUNMatZero_Dense(SUNMatrix A)
 
 int SUNMatCopy_Dense(SUNMatrix A, SUNMatrix B)
 {
-  long int i, j;
+  sunindextype i, j;
 
   /* Verify that A and B are compatible */
   if (!SMCompatible_Dense(A, B))
@@ -248,7 +248,7 @@ int SUNMatCopy_Dense(SUNMatrix A, SUNMatrix B)
 
 int SUNMatScaleAddI_Dense(realtype c, SUNMatrix A)
 {
-  long int i, j;
+  sunindextype i, j;
 
   /* Perform operation */
   for (j=0; j<SM_COLUMNS_D(A); j++)
@@ -262,7 +262,7 @@ int SUNMatScaleAddI_Dense(realtype c, SUNMatrix A)
 
 int SUNMatScaleAdd_Dense(realtype c, SUNMatrix A, SUNMatrix B)
 {
-  long int i, j;
+  sunindextype i, j;
 
   /* Verify that A and B are compatible */
   if (!SMCompatible_Dense(A, B))
@@ -277,7 +277,7 @@ int SUNMatScaleAdd_Dense(realtype c, SUNMatrix A, SUNMatrix B)
 
 int SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
 {
-  long int i, j;
+  sunindextype i, j;
   realtype *col_j, *xd, *yd;
   
   /* Verify that A, x and y are compatible */

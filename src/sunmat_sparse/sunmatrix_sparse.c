@@ -54,8 +54,8 @@ int Matvec_SparseCSR(SUNMatrix A, N_Vector x, N_Vector y);
  * Function to create a new sparse matrix
  */
 
-SUNMatrix SUNSparseMatrix(long int M, long int N,
-                          long int NNZ, int sparsetype)
+SUNMatrix SUNSparseMatrix(sunindextype M, sunindextype N,
+                          sunindextype NNZ, int sparsetype)
 {
   SUNMatrix A;
   SUNMatrix_Ops ops;
@@ -116,11 +116,11 @@ SUNMatrix SUNSparseMatrix(long int M, long int N,
   if (content->data == NULL) {
     free(content); free(ops); free(A); return(NULL);
   }
-  content->indexvals = (long int *) calloc(NNZ, sizeof(long int));
+  content->indexvals = (sunindextype *) calloc(NNZ, sizeof(sunindextype));
   if (content->indexvals == NULL) {
     free(content->data); free(content); free(ops); free(A); return(NULL);
   }
-  content->indexptrs = (long int *) calloc((content->NP + 1), sizeof(long int));
+  content->indexptrs = (sunindextype *) calloc((content->NP + 1), sizeof(sunindextype));
   if (content->indexptrs == NULL) {
     free(content->indexvals);
     free(content->data);
@@ -148,8 +148,8 @@ SUNMatrix SUNSparseMatrix(long int M, long int N,
 
 SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix Ad, realtype droptol, int sparsetype)
 {
-  long int i, j, nnz;
-  long int M, N;
+  sunindextype i, j, nnz;
+  sunindextype M, N;
   SUNMatrix As;
 
   /* check for legal sparsetype, droptol and input matrix type */
@@ -212,8 +212,8 @@ SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix Ad, realtype droptol, int sparsetyp
 
 SUNMatrix SUNSparseFromBandMatrix(SUNMatrix Ad, realtype droptol, int sparsetype)
 {
-  long int i, j, nnz;
-  long int M, N;
+  sunindextype i, j, nnz;
+  sunindextype M, N;
   SUNMatrix As;
 
   /* check for legal sparsetype, droptol and input matrix type */
@@ -281,13 +281,13 @@ int SUNSparseMatrix_Realloc(SUNMatrix A)
     return 1;
 
   /* get total number of nonzeros (return with failure if illegal) */
-  long int nzmax; 
+  sunindextype nzmax; 
   nzmax = (SM_INDEXPTRS_S(A))[SM_NP_S(A)];
   if (nzmax < 0)
     return 1;
 
   /* perform reallocation */
-  SM_INDEXVALS_S(A) = realloc(SM_INDEXVALS_S(A), nzmax*sizeof(long int));
+  SM_INDEXVALS_S(A) = realloc(SM_INDEXVALS_S(A), nzmax*sizeof(sunindextype));
   SM_DATA_S(A) = realloc(SM_DATA_S(A), nzmax*sizeof(realtype));
   SM_NNZ_S(A) = nzmax;
 
@@ -301,7 +301,7 @@ int SUNSparseMatrix_Realloc(SUNMatrix A)
  
 void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile)
 {
-  long int i, j;
+  sunindextype i, j;
   char *matrixtype;
   char *indexname;
   
@@ -322,19 +322,24 @@ void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile)
     break;
   }
   fprintf(outfile, "\n");
-  fprintf(outfile, "%ld by %ld %s matrix, NNZ: %ld \n", SM_ROWS_S(A),
-          SM_COLUMNS_S(A), matrixtype, SM_NNZ_S(A));
+  fprintf(outfile, "%ld by %ld %s matrix, NNZ: %ld \n",
+          (long int) SM_ROWS_S(A), (long int) SM_COLUMNS_S(A), 
+          matrixtype, (long int) SM_NNZ_S(A));
   for (j=0; j<SM_NP_S(A); j++) {
     fprintf(outfile, "%s %ld : locations %ld to %ld\n", indexname,
-            j, (SM_INDEXPTRS_S(A))[j], (SM_INDEXPTRS_S(A))[j+1]-1);
+            (long int) j, (long int) (SM_INDEXPTRS_S(A))[j],
+            (long int) (SM_INDEXPTRS_S(A))[j+1]-1);
     fprintf(outfile, "  ");
     for (i=(SM_INDEXPTRS_S(A))[j]; i<(SM_INDEXPTRS_S(A))[j+1]; i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-      fprintf(outfile, "%ld: %Lg   ", (SM_INDEXVALS_S(A))[i], (SM_DATA_S(A))[i]);
+      fprintf(outfile, "%ld: %Lg   ", (long int) (SM_INDEXVALS_S(A))[i],
+              (SM_DATA_S(A))[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-      fprintf(outfile, "%ld: %g   ", (SM_INDEXVALS_S(A))[i], (SM_DATA_S(A))[i]);
+      fprintf(outfile, "%ld: %g   ", (long int) (SM_INDEXVALS_S(A))[i],
+              (SM_DATA_S(A))[i]);
 #else
-      fprintf(outfile, "%ld: %g   ", (SM_INDEXVALS_S(A))[i], (SM_DATA_S(A))[i]);
+      fprintf(outfile, "%ld: %g   ", (long int) (SM_INDEXVALS_S(A))[i],
+              (SM_DATA_S(A))[i]);
 #endif
     }
     fprintf(outfile, "\n");
@@ -348,7 +353,7 @@ void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile)
  * Functions to access the contents of the sparse matrix structure
  */
 
-long int SUNSparseMatrix_Rows(SUNMatrix A)
+sunindextype SUNSparseMatrix_Rows(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_SPARSE)
     return SM_ROWS_S(A);
@@ -356,7 +361,7 @@ long int SUNSparseMatrix_Rows(SUNMatrix A)
     return -1;
 }
 
-long int SUNSparseMatrix_Columns(SUNMatrix A)
+sunindextype SUNSparseMatrix_Columns(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_SPARSE)
     return SM_COLUMNS_S(A);
@@ -364,7 +369,7 @@ long int SUNSparseMatrix_Columns(SUNMatrix A)
     return -1;
 }
 
-long int SUNSparseMatrix_NNZ(SUNMatrix A)
+sunindextype SUNSparseMatrix_NNZ(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_SPARSE)
     return SM_NNZ_S(A);
@@ -372,7 +377,7 @@ long int SUNSparseMatrix_NNZ(SUNMatrix A)
     return -1;
 }
 
-long int SUNSparseMatrix_NP(SUNMatrix A)
+sunindextype SUNSparseMatrix_NP(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_SPARSE)
     return SM_NP_S(A);
@@ -396,7 +401,7 @@ realtype* SUNSparseMatrix_Data(SUNMatrix A)
     return NULL;
 }
 
-long int* SUNSparseMatrix_IndexValues(SUNMatrix A)
+sunindextype* SUNSparseMatrix_IndexValues(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_SPARSE)
     return SM_INDEXVALS_S(A);
@@ -404,7 +409,7 @@ long int* SUNSparseMatrix_IndexValues(SUNMatrix A)
     return NULL;
 }
 
-long int* SUNSparseMatrix_IndexPointers(SUNMatrix A)
+sunindextype* SUNSparseMatrix_IndexPointers(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_SPARSE)
     return SM_INDEXPTRS_S(A);
@@ -457,7 +462,7 @@ void SUNMatDestroy_Sparse(SUNMatrix A)
   
 int SUNMatZero_Sparse(SUNMatrix A)
 {
-  long int i;
+  sunindextype i;
 
   /* Perform operation */
   for (i=0; i<SM_NNZ_S(A); i++) {
@@ -472,7 +477,7 @@ int SUNMatZero_Sparse(SUNMatrix A)
 
 int SUNMatCopy_Sparse(SUNMatrix B, SUNMatrix A)
 {
-  long int i, A_nz;
+  sunindextype i, A_nz;
 
   /* Verify that A and B are compatible */
   if (!SMCompatible_Sparse(A, B))
@@ -509,13 +514,13 @@ int SUNMatCopy_Sparse(SUNMatrix B, SUNMatrix A)
 
 int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
 {
-  long int j, i, p, nz;
+  sunindextype j, i, p, nz;
   booleantype newmat, found;
-  long int *w, *Ap, *Ai, *Cp, *Ci;
+  sunindextype *w, *Ap, *Ai, *Cp, *Ci;
   realtype *x, *Ax, *Cx;
   SUNMatrix C;
-  long int M;
-  long int N;
+  sunindextype M;
+  sunindextype N;
 
   /* Perform operation */
 
@@ -565,7 +570,7 @@ int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
     }
   
     /* create work arrays for row indices and nonzero column values */
-    w = (long int *) malloc(SM_ROWS_S(A) * sizeof(long int));
+    w = (sunindextype *) malloc(SM_ROWS_S(A) * sizeof(sunindextype));
     x = (realtype *) malloc(SM_ROWS_S(A) * sizeof(realtype));
 
     /* create new matrix for sum (overestimate nnz as sum of each) */
@@ -661,13 +666,13 @@ int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
 
 int SUNMatScaleAdd_Sparse(realtype c, SUNMatrix A, SUNMatrix B)
 {
-  long int j, i, p, nz;
+  sunindextype j, i, p, nz;
   booleantype newmat;
-  long int *w, *Ap, *Ai, *Bp, *Bi, *Cp, *Ci;
+  sunindextype *w, *Ap, *Ai, *Bp, *Bi, *Cp, *Ci;
   realtype *x, *Ax, *Bx, *Cx;
   SUNMatrix C;
-  long int M;
-  long int N;
+  sunindextype M;
+  sunindextype N;
 
   /* Verify that A and B are compatible */
   if (!SMCompatible_Sparse(A, B))
@@ -685,7 +690,7 @@ int SUNMatScaleAdd_Sparse(realtype c, SUNMatrix A, SUNMatrix B)
   }
   
   /* create work arrays for row indices and nonzero column values */
-  w = (long int *) malloc(M * sizeof(long int));
+  w = (sunindextype *) malloc(M * sizeof(sunindextype));
   x = (realtype *) malloc(M * sizeof(realtype));
 
   /* determine if A already contains the sparsity pattern of B */
@@ -948,8 +953,8 @@ static booleantype SMCompatible2_Sparse(SUNMatrix A, N_Vector x, N_Vector y)
  */
 int Matvec_SparseCSC(SUNMatrix A, N_Vector x, N_Vector y)
 {
-  long int i, j;
-  long int *Ap, *Ai;
+  sunindextype i, j;
+  sunindextype *Ap, *Ai;
   realtype *Ax, *xd, *yd;
 
   /* access data from CSC structure (return if failure) */
@@ -991,8 +996,8 @@ int Matvec_SparseCSC(SUNMatrix A, N_Vector x, N_Vector y)
  */
 int Matvec_SparseCSR(SUNMatrix A, N_Vector x, N_Vector y)
 {
-  long int i, j;
-  long int *Ap, *Aj;
+  sunindextype i, j;
+  sunindextype *Ap, *Aj;
   realtype *Ax, *xd, *yd;
 
   /* access data from CSR structure (return if failure) */

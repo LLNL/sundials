@@ -40,13 +40,13 @@
 
 /* user data structure */
 typedef struct {
-  long int Nloc;  /* local problem size */
-  N_Vector d;     /* matrix diagonal */
-  N_Vector s1;    /* scaling vectors supplied to SPBCGS */
+  sunindextype Nloc;  /* local problem size */
+  N_Vector d;         /* matrix diagonal */
+  N_Vector s1;        /* scaling vectors supplied to SPBCGS */
   N_Vector s2;
-  MPI_Comm comm;  /* communicator object */
-  int myid;       /* MPI process ID */
-  int nprocs;     /* total number of MPI processes */
+  MPI_Comm comm;      /* communicator object */
+  int myid;           /* MPI process ID */
+  int nprocs;         /* total number of MPI processes */
 } UserData;
 
 /* private functions */
@@ -64,7 +64,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 static realtype urand();
 
 /* global copy of Nloc (for check_vector routine) */
-long int local_length;
+sunindextype local_length;
 
 /* ----------------------------------------------------------------------
  * SUNSPBCGS Linear Solver Testing Routine
@@ -103,7 +103,8 @@ int main(int argc, char *argv[])
   N_Vector        xhat, x, b;       /* test vectors              */
   UserData        ProbData;         /* problem data structure    */
   int             pretype, maxl, print_timing;
-  long int        i, lenrwLS, leniwLS;
+  long int        lenrwLS, leniwLS;
+  sunindextype    i;
   realtype        *vecdata;
   double          tol;
 
@@ -153,8 +154,8 @@ int main(int argc, char *argv[])
   if (ProbData.myid == 0) {
     printf("\nSPBCGS linear solver test:\n");
     printf("  nprocs = %i\n", ProbData.nprocs);
-    printf("  local/global problem sizes = %ld/%ld\n", ProbData.Nloc,
-           ProbData.nprocs * ProbData.Nloc);
+    printf("  local/global problem sizes = %ld/%ld\n", (long int) ProbData.Nloc,
+           (long int) (ProbData.nprocs * ProbData.Nloc));
     printf("  Preconditioning type = %i\n", pretype);
     printf("  Maximum Krylov subspace dimension = %i\n", maxl);
     printf("  Solver Tolerance = %lg\n", tol);
@@ -435,7 +436,7 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
 {
   /* local variables */
   realtype *v, *z, *s1, *s2, vL, vR, vsL, vsR;
-  long int i, Nloc;
+  sunindextype i, Nloc;
   int ierr;
   UserData *ProbData;
   MPI_Request SendReqL, SendReqR, RecvReqL, RecvReqR;
@@ -514,7 +515,7 @@ int PSolve(void* Data, N_Vector r_vec, N_Vector z_vec, realtype tol, int lr)
 {
   /* local variables */
   realtype *r, *z, *d;
-  long int i;
+  sunindextype i;
   UserData *ProbData;
   
   /* access user data structure and vector data */
@@ -570,8 +571,8 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
  * --------------------------------------------------------------------*/
 int check_vector(N_Vector X, N_Vector Y, realtype tol)
 {
-  int      failure = 0;
-  long int i;
+  int failure = 0;
+  sunindextype i;
   realtype *Xdata, *Ydata, maxerr;
   
   Xdata = N_VGetArrayPointer(X);
