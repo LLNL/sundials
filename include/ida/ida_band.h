@@ -55,7 +55,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDABand(void *ida_mem, long int Neq, long int mupper, long int mlower);
+SUNDIALS_EXPORT int IDABand(void *ida_mem, sunindextype Neq, sunindextype mupper, sunindextype mlower);
 
 #ifdef __cplusplus
 }

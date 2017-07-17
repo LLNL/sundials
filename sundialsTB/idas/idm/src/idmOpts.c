@@ -58,7 +58,7 @@
 
 int get_IntgrOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
                      int *maxord,
-                     long int *mxsteps,
+                     sunindextype *mxsteps,
                      int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
                      double *hin, double *hmax,
                      double *tstop,
@@ -70,7 +70,7 @@ int get_IntgrOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
   mxArray *opt;
   char *bufval;
   int buflen, status, q;
-  long int i, m, n;
+  sunindextype i, m, n;
   double *tmp;
   char *fctName;
   char *fwd_fctName = "IDAInit/IDAReInit";
@@ -360,8 +360,8 @@ int get_IntgrOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
 
 
 int get_LinSolvOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
-                       long int *mupper, long int *mlower,
-                       long int *mudq, long int *mldq, double *dqrely,
+                       sunindextype *mupper, sunindextype *mlower,
+                       sunindextype *mudq, sunindextype *mldq, double *dqrely,
                        int *gstype, int *maxl)
 {
   mxArray *opt;
@@ -425,11 +425,11 @@ int get_LinSolvOptions(const mxArray *options, idmPbData thisPb, booleantype fwd
 
     opt = mxGetField(options,0,"UpperBwidth");
     if ( !mxIsEmpty(opt) )
-      *mupper = (long int)*mxGetPr(opt);
+      *mupper = (sunindextype)*mxGetPr(opt);
     
     opt = mxGetField(options,0,"LowerBwidth");
     if ( !mxIsEmpty(opt) )
-      *mlower = (long int)*mxGetPr(opt);
+      *mlower = (sunindextype)*mxGetPr(opt);
 
   }
 
@@ -510,19 +510,19 @@ int get_LinSolvOptions(const mxArray *options, idmPbData thisPb, booleantype fwd
       
       opt = mxGetField(options,0,"UpperBwidth");
       if ( !mxIsEmpty(opt) )
-        *mupper = (long int)*mxGetPr(opt);
+        *mupper = (sunindextype)*mxGetPr(opt);
       
       opt = mxGetField(options,0,"LowerBwidth");
       if ( !mxIsEmpty(opt) )
-        *mlower = (long int)*mxGetPr(opt);
+        *mlower = (sunindextype)*mxGetPr(opt);
 
       opt = mxGetField(options,0,"UpperBwidthDQ");
       if ( !mxIsEmpty(opt) )
-        *mudq = (long int)*mxGetPr(opt);
+        *mudq = (sunindextype)*mxGetPr(opt);
 
       opt = mxGetField(options,0,"LowerBwidthDQ");
       if ( !mxIsEmpty(opt) )
-        *mldq = (long int)*mxGetPr(opt);
+        *mldq = (sunindextype)*mxGetPr(opt);
 
       opt = mxGetField(options,0,"GlocalFn");
       if ( !mxIsEmpty(opt) ) {
@@ -552,12 +552,12 @@ int get_LinSolvOptions(const mxArray *options, idmPbData thisPb, booleantype fwd
 
 
 int get_QuadOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
-                    long int Nq, booleantype *rhs_s,
+                    sunindextype Nq, booleantype *rhs_s,
                     booleantype *errconQ,
                     int *itolQ, double *reltolQ, double *SabstolQ, double **VabstolQ)
 {
   mxArray *opt;
-  long int i, m, n;
+  sunindextype i, m, n;
   double *tmp;
   char *fctName;
   char *fwd_fctName = "IDAQuadInit/IDAQuadReInit";

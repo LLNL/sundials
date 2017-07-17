@@ -191,7 +191,7 @@ int CVLapackDense(void *cvode_mem, int N)
   setupNonNull = TRUE;
 
   /* Set problem dimension */
-  n = (long int) N;
+  n = (sunindextype) N;
 
   /* Allocate memory for M, pivot array, and savedJ */
   M = NULL;
@@ -298,11 +298,11 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
   setupNonNull = TRUE;
   
   /* Load problem dimension */
-  n = (long int) N;
+  n = (sunindextype) N;
 
   /* Load half-bandwiths in cvdls_mem */
-  ml = (long int) mlower;
-  mu = (long int) mupper;
+  ml = (sunindextype) mlower;
+  mu = (sunindextype) mupper;
 
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= n) || (mu >= n)) {

@@ -573,7 +573,7 @@ int IDAInit(void *ida_mem, IDAResFn res,
 {
   IDAMem IDA_mem;
   booleantype nvectorOK, allocOK;
-  long int lrw1, liw1;
+  sunindextype lrw1, liw1;
 
   /* Check ida_mem */
 
@@ -935,7 +935,7 @@ int IDAQuadInit(void *ida_mem, IDAQuadRhsFn rhsQ, N_Vector yQ0)
 {
   IDAMem IDA_mem;
   booleantype allocOK;
-  long int lrw1Q, liw1Q;
+  sunindextype lrw1Q, liw1Q;
   int i;
 
   /* Check ida_mem */

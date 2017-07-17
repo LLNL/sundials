@@ -116,31 +116,31 @@ typedef struct {
   realtype q4, om, dx, dy, hdco, haco, vdco;
   realtype uext[NVARS*(MXSUB+2)*(MYSUB+2)];
   int my_pe, isubx, isuby;
-  long int nvmxsub, nvmxsub2, Nlocal;
+  sunindextype nvmxsub, nvmxsub2, Nlocal;
   MPI_Comm comm;
 } *UserData;
 
 /* Prototypes of private helper functions */
 
-static void InitUserData(int my_pe, long int local_N, MPI_Comm comm,
+static void InitUserData(int my_pe, sunindextype local_N, MPI_Comm comm,
                          UserData data);
 static void SetInitialProfiles(N_Vector u, UserData data);
-static void PrintIntro(int npes, long int mudq, long int mldq,
-		       long int mukeep, long int mlkeep);
+static void PrintIntro(int npes, sunindextype mudq, sunindextype mldq,
+		       sunindextype mukeep, sunindextype mlkeep);
 static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t);
 static void PrintFinalStats(void *cvode_mem);
 static void BSend(MPI_Comm comm, 
                   int my_pe, int isubx, int isuby, 
-                  long int dsizex, long int dsizey,
+                  sunindextype dsizex, sunindextype dsizey,
                   realtype uarray[]);
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-		      long int dsizex, long int dsizey,
+		      sunindextype dsizex, sunindextype dsizey,
 		      realtype uext[], realtype buffer[]);
 static void BRecvWait(MPI_Request request[], 
                       int isubx, int isuby, 
-                      long int dsizex, realtype uext[],
+                      sunindextype dsizex, realtype uext[],
                       realtype buffer[]);
 
 static void fucomm(realtype t, N_Vector u, void *user_data);
@@ -151,7 +151,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 /* Prototype of functions called by the CVBBDPRE module */
 
-static int flocal(long int Nlocal, realtype t, N_Vector u,
+static int flocal(sunindextype Nlocal, realtype t, N_Vector u,
                   N_Vector udot, void *user_data);
 
 /* Private function to check function return values */
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
   realtype abstol, reltol, t, tout;
   N_Vector u;
   int iout, my_pe, npes, flag, jpre;
-  long int neq, local_N, mudq, mldq, mukeep, mlkeep;
+  sunindextype neq, local_N, mudq, mldq, mukeep, mlkeep;
   MPI_Comm comm;
 
   data = NULL;
@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
 
 /* Load constants in data */
 
-static void InitUserData(int my_pe, long int local_N, MPI_Comm comm,
+static void InitUserData(int my_pe, sunindextype local_N, MPI_Comm comm,
                          UserData data)
 {
   int isubx, isuby;
@@ -333,7 +333,7 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 {
   int isubx, isuby;
   int lx, ly, jx, jy;
-  long int offset;
+  sunindextype offset;
   realtype dx, dy, x, y, cx, cy, xmid, ymid;
   realtype *uarray;
 
@@ -372,16 +372,16 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 
 /* Print problem introduction */
 
-static void PrintIntro(int npes, long int mudq, long int mldq,
-		       long int mukeep, long int mlkeep)
+static void PrintIntro(int npes, sunindextype mudq, sunindextype mldq,
+		       sunindextype mukeep, sunindextype mlkeep)
 {
   printf("\n2-species diurnal advection-diffusion problem\n");
   printf("  %d by %d mesh on %d processors\n", MX, MY, npes);
   printf("  Using CVBBDPRE preconditioner module\n");
   printf("    Difference-quotient half-bandwidths are");
-  printf(" mudq = %ld,  mldq = %ld\n", mudq, mldq);
+  printf(" mudq = %ld,  mldq = %ld\n", (long int) mudq, (long int) mldq);
   printf("    Retained band block half-bandwidths are");
-  printf(" mukeep = %ld,  mlkeep = %ld", mukeep, mlkeep);
+  printf(" mukeep = %ld,  mlkeep = %ld", (long int) mukeep, (long int) mlkeep);
 
   return;
 }
@@ -392,7 +392,8 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t)
 {
   int qu, flag, npelast;
-  long int i0, i1, nst;
+  sunindextype i0, i1;
+  long int nst;
   realtype hu, *uarray, tempu[2];
   MPI_Status status;
 
@@ -445,11 +446,11 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int lenrw, leniw ;
-  long int lenrwLS, leniwLS;
-  long int lenrwBBDP, leniwBBDP, ngevalsBBDP;
+  sunindextype lenrw, leniw ;
+  sunindextype lenrwLS, leniwLS;
+  sunindextype lenrwBBDP, leniwBBDP;
   long int nst, nfe, nsetups, nni, ncfn, netf;
-  long int nli, npe, nps, ncfl, nfeLS;
+  long int nli, npe, nps, ncfl, nfeLS, ngevalsBBDP;
   int flag;
 
   flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
@@ -481,8 +482,8 @@ static void PrintFinalStats(void *cvode_mem)
   check_flag(&flag, "CVSpilsGetNumRhsEvals", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
-  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
-  printf("lenrwls = %5ld     leniwls = %5ld\n", lenrwLS, leniwLS);
+  printf("lenrw   = %5ld     leniw   = %5ld\n", (long int) lenrw, (long int) leniw);
+  printf("lenrwls = %5ld     leniwls = %5ld\n", (long int) lenrwLS, (long int) leniwLS);
   printf("nst     = %5ld\n"                  , nst);
   printf("nfe     = %5ld     nfels   = %5ld\n"  , nfe, nfeLS);
   printf("nni     = %5ld     nli     = %5ld\n"  , nni, nli);
@@ -495,7 +496,7 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVBBDPrecGetNumGfnEvals(cvode_mem, &ngevalsBBDP);
   check_flag(&flag, "CVBBDPrecGetNumGfnEvals", 1, 0);
   printf("In CVBBDPRE: real/integer local work space sizes = %ld, %ld\n",
-	 lenrwBBDP, leniwBBDP);  
+	 (long int) lenrwBBDP, (long int) leniwBBDP);  
   printf("             no. flocal evals. = %ld\n",ngevalsBBDP);
 }
  
@@ -503,11 +504,11 @@ static void PrintFinalStats(void *cvode_mem)
 
 static void BSend(MPI_Comm comm, 
                   int my_pe, int isubx, int isuby, 
-                  long int dsizex, long int dsizey,
+                  sunindextype dsizex, sunindextype dsizey,
                   realtype uarray[])
 {
   int i, ly;
-  long int offsetu, offsetbuf;
+  sunindextype offsetu, offsetbuf;
   realtype bufleft[NVARS*MYSUB], bufright[NVARS*MYSUB];
 
   /* If isuby > 0, send data from bottom x-line of u */
@@ -557,10 +558,10 @@ static void BSend(MPI_Comm comm,
 
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-		      long int dsizex, long int dsizey,
+		      sunindextype dsizex, sunindextype dsizey,
 		      realtype uext[], realtype buffer[])
 {
-  long int offsetue;
+  sunindextype offsetue;
   /* Have bufleft and bufright use the same buffer */
   realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
 
@@ -599,11 +600,11 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[],
 
 static void BRecvWait(MPI_Request request[], 
                       int isubx, int isuby, 
-                      long int dsizex, realtype uext[],
+                      sunindextype dsizex, realtype uext[],
                       realtype buffer[])
 {
   int i, ly;
-  long int dsizex2, offsetue, offsetbuf;
+  sunindextype dsizex2, offsetue, offsetbuf;
   realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
   MPI_Status status;
 
@@ -653,7 +654,7 @@ static void fucomm(realtype t, N_Vector u, void *user_data)
   realtype *uarray, *uext, buffer[2*NVARS*MYSUB];
   MPI_Comm comm;
   int my_pe, isubx, isuby;
-  long int nvmxsub, nvmysub;
+  sunindextype nvmxsub, nvmysub;
   MPI_Request request[4];
 
   data = (UserData) user_data;
@@ -708,7 +709,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
    inter-processor communication of data needed to calculate f has already
    been done, and this data is in the work array uext.                    */
 
-static int flocal(long int Nlocal, realtype t, N_Vector u,
+static int flocal(sunindextype Nlocal, realtype t, N_Vector u,
                   N_Vector udot, void *user_data)
 {
   realtype *uext;
@@ -718,7 +719,7 @@ static int flocal(long int Nlocal, realtype t, N_Vector u,
   realtype q4coef, dely, verdco, hordco, horaco;
   int i, lx, ly, jx, jy;
   int isubx, isuby;
-  long int nvmxsub, nvmxsub2, offsetu, offsetue;
+  sunindextype nvmxsub, nvmxsub2, offsetu, offsetue;
   UserData data;
   realtype *uarray, *duarray;
 

@@ -184,10 +184,10 @@ typedef struct CVodeMemRec {
     Space requirements for CVODE 
     ----------------------------*/
 
-  long int cv_lrw1;        /* no. of realtype words in 1 N_Vector             */ 
-  long int cv_liw1;        /* no. of integer words in 1 N_Vector              */ 
-  long int cv_lrw;         /* no. of realtype words in CVODE work vectors     */
-  long int cv_liw;         /* no. of integer words in CVODE work vectors      */
+  sunindextype cv_lrw1;        /* no. of realtype words in 1 N_Vector             */ 
+  sunindextype cv_liw1;        /* no. of integer words in 1 N_Vector              */ 
+  sunindextype cv_lrw;         /* no. of realtype words in CVODE work vectors     */
+  sunindextype cv_liw;         /* no. of integer words in CVODE work vectors      */
 
   /*------------------
     Linear Solver Data 

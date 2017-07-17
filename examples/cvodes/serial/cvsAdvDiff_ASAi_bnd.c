@@ -93,14 +93,14 @@ typedef struct {
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
-static int Jac(long int N, long int mu, long int ml,
+static int Jac(sunindextype N, sunindextype mu, sunindextype ml,
                realtype t, N_Vector u, N_Vector fu, 
                DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3); 
 
 static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot, void *user_dataB);
 
-static int JacB(long int NB, long int muB, long int mlB,
+static int JacB(sunindextype NB, sunindextype muB, sunindextype mlB,
                 realtype tB, N_Vector u, 
                 N_Vector uB, N_Vector fuB,
                 DlsMat JB, void *user_dataB,
@@ -306,7 +306,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
  * Jac function. Jacobian of forward ODE.
  */
 
-static int Jac(long int N, long int mu, long int ml,
+static int Jac(sunindextype N, sunindextype mu, sunindextype ml,
                realtype t, N_Vector u, N_Vector fu, 
                DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -402,7 +402,7 @@ static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot,
  * JacB function. Jacobian of backward ODE
  */
 
-static int JacB(long int NB, long int muB, long int mlB,
+static int JacB(sunindextype NB, sunindextype muB, sunindextype mlB,
                 realtype tB, N_Vector u, 
                 N_Vector uB, N_Vector fuB,
                 DlsMat JB, void *user_dataB,

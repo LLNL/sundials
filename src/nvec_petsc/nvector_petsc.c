@@ -53,7 +53,7 @@
  * are assumed:
  *
  * N_Vector v;
- * long int v_len, s_len, i;
+ * sunindextype v_len, s_len, i;
  *
  * (1) NV_CONTENT_PTC
  *
@@ -128,13 +128,13 @@ N_Vector_ID N_VGetVectorID_Petsc(N_Vector v)
  */
 
 N_Vector N_VNewEmpty_Petsc(MPI_Comm comm, 
-                           long int local_length,
-                           long int global_length)
+                           sunindextype local_length,
+                           sunindextype global_length)
 {
   N_Vector v;
   N_Vector_Ops ops;
   N_VectorContent_Petsc content;
-  long int n, Nsum;
+  sunindextype n, Nsum;
   PetscErrorCode ierr;
 
   /* Compute global length as sum of local lengths */
@@ -458,7 +458,7 @@ void N_VDestroy_Petsc(N_Vector v)
   return;
 }
 
-void N_VSpace_Petsc(N_Vector v, long int *lrw, long int *liw)
+void N_VSpace_Petsc(N_Vector v, sunindextype *lrw, sunindextype *liw)
 {
   MPI_Comm comm;
   int npes;
@@ -633,9 +633,9 @@ realtype N_VMaxNorm_Petsc(N_Vector x)
 
 realtype N_VWrmsNorm_Petsc(N_Vector x, N_Vector w)
 {
-  long int i;
-  long int N        = NV_LOCLENGTH_PTC(x);
-  long int N_global = NV_GLOBLENGTH_PTC(x);
+  sunindextype i;
+  sunindextype N        = NV_LOCLENGTH_PTC(x);
+  sunindextype N_global = NV_GLOBLENGTH_PTC(x);
   MPI_Comm comm     = NV_COMM_PTC(x);
   Vec *xv = NV_PVEC_PTC(x);
   Vec *wv = NV_PVEC_PTC(w);
@@ -658,9 +658,9 @@ realtype N_VWrmsNorm_Petsc(N_Vector x, N_Vector w)
 
 realtype N_VWrmsNormMask_Petsc(N_Vector x, N_Vector w, N_Vector id)
 {
-  long int i;
-  long int N        = NV_LOCLENGTH_PTC(x);
-  long int N_global = NV_GLOBLENGTH_PTC(x);
+  sunindextype i;
+  sunindextype N        = NV_LOCLENGTH_PTC(x);
+  sunindextype N_global = NV_GLOBLENGTH_PTC(x);
   MPI_Comm comm     = NV_COMM_PTC(x);
   
   Vec *xv = NV_PVEC_PTC(x);
@@ -702,8 +702,8 @@ realtype N_VMin_Petsc(N_Vector x)
 
 realtype N_VWL2Norm_Petsc(N_Vector x, N_Vector w)
 {
-  long int i;
-  long int N        = NV_LOCLENGTH_PTC(x);
+  sunindextype i;
+  sunindextype N        = NV_LOCLENGTH_PTC(x);
   MPI_Comm comm     = NV_COMM_PTC(x);
 
   Vec *xv = NV_PVEC_PTC(x);
@@ -737,8 +737,8 @@ realtype N_VL1Norm_Petsc(N_Vector x)
 
 void N_VCompare_Petsc(realtype c, N_Vector x, N_Vector z)
 {
-  long int i;
-  long int N = NV_LOCLENGTH_PTC(x);
+  sunindextype i;
+  sunindextype N = NV_LOCLENGTH_PTC(x);
   Vec *xv = NV_PVEC_PTC(x);
   Vec *zv = NV_PVEC_PTC(z);
   PetscReal cpet = c; // <~ realtype should typedef to PETScReal
@@ -758,8 +758,8 @@ void N_VCompare_Petsc(realtype c, N_Vector x, N_Vector z)
 
 booleantype N_VInvTest_Petsc(N_Vector x, N_Vector z)
 {
-  long int i;
-  long int N = NV_LOCLENGTH_PTC(x);
+  sunindextype i;
+  sunindextype N = NV_LOCLENGTH_PTC(x);
   MPI_Comm comm = NV_COMM_PTC(x);
   Vec *xv = NV_PVEC_PTC(x);
   Vec *zv = NV_PVEC_PTC(z);
@@ -788,8 +788,8 @@ booleantype N_VInvTest_Petsc(N_Vector x, N_Vector z)
 
 booleantype N_VConstrMask_Petsc(N_Vector c, N_Vector x, N_Vector m)
 {
-  long int i;
-  long int N = NV_LOCLENGTH_PTC(x);
+  sunindextype i;
+  sunindextype N = NV_LOCLENGTH_PTC(x);
   MPI_Comm comm = NV_COMM_PTC(x);
   realtype minval = ONE;
   Vec *xv = NV_PVEC_PTC(x);
@@ -830,8 +830,8 @@ booleantype N_VConstrMask_Petsc(N_Vector c, N_Vector x, N_Vector m)
 realtype N_VMinQuotient_Petsc(N_Vector num, N_Vector denom)
 {
   booleantype notEvenOnce = TRUE;
-  long int i; 
-  long int N    = NV_LOCLENGTH_PTC(num);
+  sunindextype i; 
+  sunindextype N    = NV_LOCLENGTH_PTC(num);
   MPI_Comm comm = NV_COMM_PTC(num);
 
   Vec *nv = NV_PVEC_PTC(num);

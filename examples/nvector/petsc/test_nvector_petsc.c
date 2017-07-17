@@ -43,7 +43,7 @@ static int Test_N_VMake(Vec* W, int myid);
 int main(int argc, char *argv[]) 
 {
   int      fails = 0;                   /* counter for test failures */
-  long int local_length, global_length; /* vector lengths            */
+  sunindextype local_length, global_length; /* vector lengths            */
   N_Vector W, X, Y, Z;                  /* test vectors              */
   MPI_Comm comm;                        /* MPI Communicator          */
   int      nprocs, myid;                /* Number of procs, proc id  */
@@ -139,10 +139,10 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Check vector
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, long int local_length)
+int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 {
   int failure = 0;
-  long int i;
+  sunindextype i;
   Vec *xv = N_VGetVector_Petsc(X);
   PetscScalar *a;
 
@@ -168,7 +168,7 @@ booleantype has_data(N_Vector X)
     return TRUE;
 }
 
-void set_element(N_Vector X, long int i, realtype val)
+void set_element(N_Vector X, sunindextype i, realtype val)
 {
   PetscScalar *a;
   Vec *xv = N_VGetVector_Petsc(X);
@@ -178,7 +178,7 @@ void set_element(N_Vector X, long int i, realtype val)
   VecRestoreArray(*xv, &a);
 }
 
-realtype get_element(N_Vector X, long int i)
+realtype get_element(N_Vector X, sunindextype i)
 {
   PetscScalar *a;
   Vec *xv = N_VGetVector_Petsc(X);

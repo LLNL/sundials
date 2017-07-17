@@ -61,7 +61,7 @@
 /* Private functions */
 
 static int func(N_Vector u, N_Vector f, void *user_data);
-static int jac(long int N, long int mu, long int ml, 
+static int jac(sunindextype N, sunindextype mu, sunindextype ml, 
 	       N_Vector u, N_Vector f, DlsMat J, void *user_data,
 	       N_Vector tmp1, N_Vector tmp2);
 static void PrintOutput(N_Vector u);
@@ -172,7 +172,11 @@ int main()
   flag = KINGetFuncNorm(kmem, &fnorm);
   if (check_flag(&flag, "KINGetfuncNorm", 1)) return(1);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("\nComputed solution (||F|| = %Lg):\n\n",fnorm);
+#else
   printf("\nComputed solution (||F|| = %g):\n\n",fnorm);
+#endif  
   PrintOutput(y);
 
   PrintFinalStats(kmem);
@@ -252,7 +256,7 @@ static int func(N_Vector u, N_Vector f, void *user_data)
  * Jacobian function 
  */
 
-static int jac(long int N, long int mu, long int ml, 
+static int jac(sunindextype N, sunindextype mu, sunindextype ml, 
 	       N_Vector u, N_Vector f, 
 	       DlsMat J, void *user_data,
 	       N_Vector tmp1, N_Vector tmp2)
@@ -357,7 +361,7 @@ static void PrintOutput(N_Vector u)
 static void PrintFinalStats(void *kmem)
 {
   long int nni, nfe, nje, nfeD;
-  long int lenrwB, leniwB;
+  sunindextype lenrwB, leniwB;
   int flag;
   
   /* Main solver statistics */
@@ -383,7 +387,7 @@ static void PrintFinalStats(void *kmem)
   printf("nni      = %6ld    nfe     = %6ld \n", nni, nfe);
   printf("nje      = %6ld    nfeB    = %6ld \n", nje, nfeD);
   printf("\n");
-  printf("lenrwB   = %6ld    leniwB  = %6ld \n", lenrwB, leniwB);
+  printf("lenrwB   = %6ld    leniwB  = %6ld \n", (long int) lenrwB, (long int) leniwB);
   
 }
 

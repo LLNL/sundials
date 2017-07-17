@@ -54,7 +54,7 @@
 /* Type: UserData */
 
 typedef struct {
-  long int mm;
+  sunindextype mm;
   realtype dx;
   realtype coeff;
 } *UserData;
@@ -232,7 +232,7 @@ int main(void)
 int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, 
             void *user_data)
 {
-  long int mm, i, j, offset, loc;
+  sunindextype mm, i, j, offset, loc;
   realtype *uv, *upv, *resv, coeff;
   UserData data;
   
@@ -580,7 +580,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector id, N_Vector res)
 {
   realtype xfact, yfact, *udata, *updata, *iddata;
-  long int mm, mm1, i, j, offset, loc;
+  sunindextype mm, mm1, i, j, offset, loc;
   
   mm = data->mm;
   mm1 = mm - 1;

@@ -164,19 +164,19 @@ typedef struct KINMemRec {
   realtype *kin_gamma_aa;   /* array of size maa used in AA */
   realtype *kin_R_aa;       /* array of size maa*maa used in AA */
   int      *kin_ipt_map;    /* array of size maa used in AA */
-  long int kin_m_aa;	    /* parameter for AA, Broyden or NLEN */
+  sunindextype kin_m_aa;	    /* parameter for AA, Broyden or NLEN */
   booleantype kin_aamem_aa; /* sets additional memory needed for Anderson Acc */
   booleantype kin_setstop_aa; /* determines whether user will set stopping criterion */
 
   /* space requirements for vector storage */ 
 
-  long int kin_lrw1;        /* number of realtype-sized memory blocks needed
+  sunindextype kin_lrw1;        /* number of realtype-sized memory blocks needed
 			       for a single N_Vector                           */ 
-  long int kin_liw1;        /* number of int-sized memory blocks needed for
+  sunindextype kin_liw1;        /* number of int-sized memory blocks needed for
 			       a single N_Vecotr                               */ 
-  long int kin_lrw;         /* total number of realtype-sized memory blocks
+  sunindextype kin_lrw;         /* total number of realtype-sized memory blocks
 			       needed for all KINSOL work vectors              */
-  long int kin_liw;         /* total number of int-sized memory blocks needed
+  sunindextype kin_liw;         /* total number of int-sized memory blocks needed
 			       for all KINSOL work vectors                     */
 
   /* linear solver data */

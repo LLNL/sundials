@@ -67,20 +67,22 @@ extern "C" {
 /* define MPI data types */
 
 #if defined(SUNDIALS_SINGLE_PRECISION)
-
-#define PVEC_REAL_MPI_TYPE MPI_FLOAT
-
+  #define PVEC_REAL_MPI_TYPE MPI_FLOAT
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-
-#define PVEC_REAL_MPI_TYPE MPI_DOUBLE
-
+  #define PVEC_REAL_MPI_TYPE MPI_DOUBLE
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-
-#define PVEC_REAL_MPI_TYPE MPI_LONG_DOUBLE
-
+  #define PVEC_REAL_MPI_TYPE MPI_LONG_DOUBLE
 #endif
 
-#define PVEC_INTEGER_MPI_TYPE MPI_LONG
+#if defined(SUNDIALS_SIGNED_64BIT_TYPE)
+  #define PVEC_INTEGER_MPI_TYPE MPI_LONG
+#elif defined(SUNDIALS_UNSIGNED_64BIT_TYPE)
+  #define PVEC_INTEGER_MPI_TYPE MPI_UNSIGNED_LONG
+#elif defined(SUNDIALS_SIGNED_32BIT_TYPE)
+  #define PVEC_INTEGER_MPI_TYPE MPI_INT
+#elif defined(SUNDIALS_UNSIGNED_32BIT_TYPE)
+  #define PVEC_INTEGER_MPI_TYPE MPI_UNSIGNED
+#endif
 
 /* parallel implementation of the N_Vector 'content' structure
    contains the global and local lengths of the vector, a pointer
@@ -88,8 +90,8 @@ extern "C" {
    and a flag indicating ownership of the PETSc vector */
 
 struct _N_VectorContent_Petsc {
-  long int local_length;   /* copy of local vector length  */
-  long int global_length;  /* copy of global vector length */
+  sunindextype local_length;   /* copy of local vector length  */
+  sunindextype global_length;  /* copy of global vector length */
   booleantype own_data;    /* ownership of data            */
   Vec *pvec;               /* pointer to PETSc vector      */
   MPI_Comm comm;           /* copy of MPI communicator     */
@@ -125,8 +127,8 @@ typedef struct _N_VectorContent_Petsc *N_VectorContent_Petsc;
  */
 
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_Petsc(MPI_Comm comm, 
-                                           long int local_length,
-                                           long int global_length);
+                                           sunindextype local_length,
+                                           sunindextype global_length);
 
 /*
  * -----------------------------------------------------------------
@@ -211,7 +213,7 @@ SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_Petsc(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Petsc(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Petsc(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Petsc(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_Petsc(N_Vector v, long int *lrw, long int *liw);
+SUNDIALS_EXPORT void N_VSpace_Petsc(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Petsc(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum_Petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VConst_Petsc(realtype c, N_Vector z);

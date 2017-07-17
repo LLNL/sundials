@@ -49,11 +49,21 @@
 #include <sundials/sundials_types.h>  /* def. of type 'realtype' */
 #include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc. */
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
 /* user data structure */
 typedef struct {
-  long int N;    /* number of intervals   */
-  realtype dx;   /* mesh spacing          */
-  realtype k;    /* diffusion coefficient */
+  sunindextype N;  /* number of intervals   */
+  realtype dx;     /* mesh spacing          */
+  realtype k;      /* diffusion coefficient */
 } *UserData;
 
 /* User-supplied Functions Called by the Solver */
@@ -75,9 +85,9 @@ int main() {
   realtype atol = 1.e-10;      /* absolute tolerance */
   UserData udata = NULL;
   realtype *data;
-  long int N = 201;            /* spatial mesh size */
+  sunindextype N = 201;        /* spatial mesh size */
   realtype k = 0.5;            /* heat conductivity */
-  long int i;
+  sunindextype i;
 
   /* general problem variables */
   int flag;                 /* reusable error-checking flag */
@@ -97,7 +107,7 @@ int main() {
   /* Initial problem output */
   printf("\n1D Heat PDE test problem:\n");
   printf("  N = %li\n", udata->N);
-  printf("  diffusion coefficient:  k = %g\n", udata->k);
+  printf("  diffusion coefficient:  k = %"GSYM"\n", udata->k);
 
   /* Initialize data structures */
   y = N_VNew_Serial(N);            /* Create serial vector for solution */
@@ -135,7 +145,7 @@ int main() {
 
   /* output mesh to disk */
   FID=fopen("heat_mesh.txt","w");
-  for (i=0; i<N; i++)  fprintf(FID,"  %.16e\n", udata->dx*i);
+  for (i=0; i<N; i++)  fprintf(FID,"  %.16"ESYM"\n", udata->dx*i);
   fclose(FID);
 
   /* Open output stream for results, access data array */
@@ -143,7 +153,7 @@ int main() {
   data = N_VGetArrayPointer(y);
 
   /* output initial condition to disk */
-  for (i=0; i<N; i++)  fprintf(UFID," %.16e", data[i]);
+  for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[i]);
   fprintf(UFID,"\n");
 
   /* Main time-stepping loop: calls ARKode to perform the integration, then
@@ -153,12 +163,12 @@ int main() {
   tout = T0+dTout;
   printf("        t      ||u||_rms\n");
   printf("   -------------------------\n");
-  printf("  %10.6f  %10.6f\n", t, SUNRsqrt(N_VDotProd(y,y)/N));
+  printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, SUNRsqrt(N_VDotProd(y,y)/N));
   for (iout=0; iout<Nt; iout++) {
 
     flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);         /* call integrator */
     if (check_flag(&flag, "ARKode", 1)) break;
-    printf("  %10.6f  %10.6f\n", t, SUNRsqrt(N_VDotProd(y,y)/N));   /* print solution stats */
+    printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, SUNRsqrt(N_VDotProd(y,y)/N));   /* print solution stats */
     if (flag >= 0) {                                            /* successful solve: update output time */
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;
@@ -168,7 +178,7 @@ int main() {
     }
 
     /* output results to disk */
-    for (i=0; i<N; i++)  fprintf(UFID," %.16e", data[i]);
+    for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[i]);
     fprintf(UFID,"\n");
   }
   printf("   -------------------------\n");
@@ -222,12 +232,12 @@ int main() {
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;    /* access problem data */
-  long int N  = udata->N;                   /* set variable shortcuts */
+  sunindextype N  = udata->N;                   /* set variable shortcuts */
   realtype k  = udata->k;
   realtype dx = udata->dx;
   realtype *Y=NULL, *Ydot=NULL;
   realtype c1, c2;
-  long int i, isource;
+  sunindextype i, isource;
 
   Y = N_VGetArrayPointer(y);      /* access data arrays */
   if (check_flag((void *) Y, "N_VGetArrayPointer", 0)) return 1;
@@ -253,12 +263,12 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
 	       N_Vector fy, void *user_data, N_Vector tmp)
 {
   UserData udata = (UserData) user_data;     /* variable shortcuts */
-  long int N  = udata->N;
+  sunindextype N = udata->N;
   realtype k  = udata->k;
   realtype dx = udata->dx;
   realtype *V=NULL, *JV=NULL;
   realtype c1, c2;
-  long int i;
+  sunindextype i;
 
   V = N_VGetArrayPointer(v);       /* access data arrays */
   if (check_flag((void *) V, "N_VGetArrayPointer", 0)) return 1;
