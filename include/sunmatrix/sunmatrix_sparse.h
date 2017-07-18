@@ -204,7 +204,6 @@ typedef struct _SUNMatrixContent_Sparse *SUNMatrixContent_Sparse;
  *    SUNSparseMatrix_Data 
  *    SUNSparseMatrix_IndexValues
  *    SUNSparseMatrix_IndexPointers
-
  * -----------------------------------------------------------------
  */
 
