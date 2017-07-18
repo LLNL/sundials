@@ -356,8 +356,9 @@ int Test_SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     return(1);
   }
 
-  /* Check solution */
+  /* Check solution, and copy y into x for return */
   failure = check_vector(x, y, 10.0*tol);
+  N_VScale(ONE, y, x);
   if (failure) {
     printf(">>> FAILED test -- SUNLinSolSolve check, Proc %d \n", myid);
     PRINT_TIME("    SUNLinSolSolve Time: %22.15e \n \n", stop_time - start_time);
