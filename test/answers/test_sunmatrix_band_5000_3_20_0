@@ -1,5 +1,5 @@
 
-Band matrix test: size 50000, bandwidths 3 100
+Band matrix test: size 5000, bandwidths 3 20
 
     PASSED test -- SUNMatGetID 
     PASSED test -- N_VClone 

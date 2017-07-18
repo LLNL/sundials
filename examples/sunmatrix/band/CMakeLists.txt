@@ -63,7 +63,7 @@ FOREACH(example ${sunmatrix_band_examples})
   SUNDIALS_ADD_TEST( ${example}_10_2_3_0 ${example} TEST_ARGS 10 2 3 0)
   SUNDIALS_ADD_TEST( ${example}_300_7_4_0 ${example} TEST_ARGS 300 7 4 0)
   SUNDIALS_ADD_TEST( ${example}_1000_8_8_0 ${example} TEST_ARGS 1000 8 8 0)
-  SUNDIALS_ADD_TEST( ${example}_50000_3_100_0 ${example} TEST_ARGS 50000 3 100 0)
+  SUNDIALS_ADD_TEST( ${example}_5000_3_20_0 ${example} TEST_ARGS 5000 3 20 0)
 
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
 
