@@ -401,7 +401,7 @@ int Test_SUNMatScaleAddI(SUNMatrix A, SUNMatrix I, int myid)
 
 
 /* ----------------------------------------------------------------------
- * SUNMatMatvec Test
+ * SUNMatMatvec Test (y should be correct A*x product)
  * --------------------------------------------------------------------*/
 int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
 {
