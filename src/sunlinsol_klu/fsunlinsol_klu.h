@@ -62,8 +62,8 @@ extern SUNLinearSolver F2C_ARKODE_linsol;
 void FSUNKLU_INIT(int *code, int *ier);
 void FSUNKLU_REINIT(int *code, long int *NNZ, 
                     int *reinit_type, int *ier);
-void FSUNKLU_SETORDERING(long int *code,
-                         int *ordering_choice, int *ier);
+void FSUNKLU_SETORDERING(int *code, int *ordering,
+                         int *ier);
 
 #ifdef __cplusplus
 }
