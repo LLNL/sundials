@@ -56,26 +56,22 @@ void FSUNKLU_INIT(int *code, int *ier)
   switch(*code) {
   case FCMIX_CVODE:
     F2C_CVODE_linsol = NULL;
-    F2C_CVODE_linsol = SUNKLULinearSolver(F2C_CVODE_vec,
-                                          F2C_CVODE_matrix);
+    F2C_CVODE_linsol = SUNKLU(F2C_CVODE_vec, F2C_CVODE_matrix);
     if (F2C_CVODE_linsol == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
     F2C_IDA_linsol = NULL;
-    F2C_IDA_linsol = SUNKLULinearSolver(F2C_IDA_vec,
-                                        F2C_IDA_matrix);
+    F2C_IDA_linsol = SUNKLU(F2C_IDA_vec, F2C_IDA_matrix);
     if (F2C_IDA_linsol == NULL) *ier = -1;
     break;
   case FCMIX_KINSOL:
     F2C_KINSOL_linsol = NULL;
-    F2C_KINSOL_linsol = SUNKLULinearSolver(F2C_KINSOL_vec,
-                                           F2C_KINSOL_matrix);
+    F2C_KINSOL_linsol = SUNKLU(F2C_KINSOL_vec, F2C_KINSOL_matrix);
     if (F2C_KINSOL_linsol == NULL) *ier = -1;
     break;
   case FCMIX_ARKODE:
     F2C_ARKODE_linsol = NULL;
-    F2C_ARKODE_linsol = SUNKLULinearSolver(F2C_ARKODE_vec,
-                                           F2C_ARKODE_matrix);
+    F2C_ARKODE_linsol = SUNKLU(F2C_ARKODE_vec, F2C_ARKODE_matrix);
     if (F2C_ARKODE_linsol == NULL) *ier = -1;
     break;
   default:

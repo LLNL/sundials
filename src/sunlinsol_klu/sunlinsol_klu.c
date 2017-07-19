@@ -28,9 +28,24 @@
 #include <sunlinsol/sunlinsol_klu.h>
 #include <sundials/sundials_math.h>
 
-#define ONE RCONST(1.0)
-#define TWO RCONST(2.0)
+#define ZERO      RCONST(0.0)
+#define ONE       RCONST(1.0)
+#define TWO       RCONST(2.0)
 #define TWOTHIRDS RCONST(0.666666666666666666666666666666667)
+
+/*
+ * -----------------------------------------------------------------
+ * KLU solver structure accessibility macros: 
+ * -----------------------------------------------------------------
+ */
+
+#define KLU_CONTENT(S)     ( (SUNLinearSolverContent_KLU)(S->content) )
+#define LASTFLAG(S)        ( KLU_CONTENT(S)->last_flag )
+#define FIRSTFACTORIZE(S)  ( KLU_CONTENT(S)->first_factorize )
+#define SYMBOLIC(S)        ( KLU_CONTENT(S)->symbolic )
+#define NUMERIC(S)         ( KLU_CONTENT(S)->numeric )
+#define COMMON(S)          ( KLU_CONTENT(S)->common )
+#define SOLVE(S)           ( KLU_CONTENT(S)->klu_solver )
 
 /*
  * -----------------------------------------------------------------
@@ -42,12 +57,13 @@
  * Function to create a new KLU linear solver
  */
 
-SUNLinearSolver SUNKLULinearSolver(N_Vector y, SUNMatrix A)
+SUNLinearSolver SUNKLU(N_Vector y, SUNMatrix A)
 {
   SUNLinearSolver S;
   SUNLinearSolver_Ops ops;
   SUNLinearSolverContent_KLU content;
   sunindextype MatrixRows, MatrixCols, VecLength;
+  int flag;
   
   /* Check compatibility with supplied SUNMatrix and N_Vector */
   if (SUNMatGetID(A) != SUNMATRIX_SPARSE)
@@ -94,7 +110,7 @@ SUNLinearSolver SUNKLULinearSolver(N_Vector y, SUNMatrix A)
   ops->resnorm           = SUNLinSolResNorm_KLU;
   ops->numpsolves        = SUNLinSolNumPSolves_KLU;
   ops->lastflag          = SUNLinSolLastFlag_KLU;
-  ops->free              = SUNLinSolFree_;
+  ops->free              = SUNLinSolFree_KLU;
 
   /* Create content */
   content = NULL;
@@ -103,6 +119,27 @@ SUNLinearSolver SUNKLULinearSolver(N_Vector y, SUNMatrix A)
 
   /* Fill content */
   content->last_flag = 0;
+  content->first_factorize = 1;
+#if defined(SUNDIALS_SIGNED_64BIT_TYPE)
+  if (SUNSparseMatrix_SparseType(A) == CSC_MAT) {
+    content->klu_solver = &klu_l_solve;
+  } else {
+    content->klu_solver = &klu_l_tsolve;
+  }
+#elif defined(SUNDIALS_SIGNED_32BIT_TYPE)
+  if (SUNSparseMatrix_SparseType(A) == CSC_MAT) {
+    content->klu_solver = &klu_solve;
+  } else {
+    content->klu_solver = &klu_tsolve;
+  }
+#else  /* incompatible sunindextype for KLU */
+#error  Incompatible sunindextype for KLU
+#endif
+  content->symbolic = NULL;
+  content->numeric = NULL;
+  flag = sun_klu_defaults(&(content->common));
+  if (flag == 0) { free(content); free(ops); free(S); return(NULL); }
+  (content->common).ordering = SUNKLU_ORDERING_DEFAULT;
   
   /* Attach content and ops */
   S->content = content;
@@ -111,15 +148,74 @@ SUNLinearSolver SUNKLULinearSolver(N_Vector y, SUNMatrix A)
   return(S);
 }
 
+
+/* ----------------------------------------------------------------------------
+ * Function to reinitialize a KLU linear solver
+ */
+
 int SUNKLUReInit(SUNLinearSolver S, SUNMatrix A,
                  sunindextype nnz, int reinit_type)
 {
+  sunindextype n;
+  int type;
   
+  /* Check for non-NULL SUNLinearSolver */
+  if (S == NULL) return(KLU_MEM_NULL);
+
+  /* Check for non-NULL (and valid) SUNMatrix */
+  if (A == NULL) return(KLU_MEM_FAIL);
+  if (SUNMatGetID(A) != SUNMATRIX_SPARSE)
+    return(KLU_ILL_INPUT);
+
+  /* Check for valid reinit_type */
+  if ((reinit_type != 1) && (reinit_type != 2))
+    return(KLU_ILL_INPUT);
+
+  /* Perform re-initialization */ 
+  if (reinit_type == 1) {
+
+    /* Get size/type of current matrix */
+    n = SUNSparseMatrix_Rows(A);
+    type = SUNSparseMatrix_SparseType(A);
+    
+    /* Destroy previous matrix */
+    SUNMatDestroy(A);
+
+    /* Create new sparse matrix */
+    A = SUNSparseMatrix(n, n, nnz, type);
+    if (A == NULL) return(KLU_MEM_FAIL);
+    
+  }
+
+  /* Free the prior factorazation and reset for first factorization */
+  if( SYMBOLIC(S) != NULL)
+    sun_klu_free_symbolic(&SYMBOLIC(S), &COMMON(S));
+  if( NUMERIC(S) != NULL)
+    sun_klu_free_numeric(&NUMERIC(S), &COMMON(S));
+  FIRSTFACTORIZE(S) = 1;
+
+  LASTFLAG(S) = KLU_SUCCESS;
+  return(LASTFLAG(S));
 }
+
+/* ----------------------------------------------------------------------------
+ * Function to set the ordering type for a KLU linear solver
+ */
 
 int SUNKLUSetOrdering(SUNLinearSolver S, int ordering_choice)
 {
+  /* Check for legal ordering_choice */ 
+  if ((ordering_choice < 0) || (ordering_choice > 2))
+    return(KLU_ILL_INPUT);
 
+  /* Check for non-NULL SUNLinearSolver */
+  if (S == NULL) return(KLU_MEM_NULL);
+
+  /* Set ordering_choice */
+  COMMON(S).ordering = ordering_choice;
+
+  LASTFLAG(S) = KLU_SUCCESS;
+  return(LASTFLAG(S));
 }
 
 /*
@@ -133,85 +229,184 @@ SUNLinearSolver_Type SUNLinSolGetType_KLU(SUNLinearSolver S)
   return SUNLINEARSOLVER_DIRECT;
 }
 
+
 int SUNLinSolInitialize_KLU(SUNLinearSolver S)
 {
-  /* all solver-specific memory has already been allocated */
-  SLS_LASTFLAG_K(S) = 0;
-  return 0;
+  /* Force factorization */
+  FIRSTFACTORIZE(S) = 1;
+ 
+  LASTFLAG(S) = KLU_SUCCESS;
+  return(LASTFLAG(S));
 }
+
 
 int SUNLinSolSetATimes_KLU(SUNLinearSolver S, void* A_data, 
                            ATSetupFn ATSetup, ATimesFn ATimes)
 {
   /* direct solvers do not utilize an 'ATimes' routine, 
      so return an error is this routine is ever called */
-  SLS_LASTFLAG_K(S) = 1;
-  return 1;
+  LASTFLAG(S) = KLU_ILL_INPUT;
+  return(LASTFLAG(S));
 }
+
 
 int SUNLinSolSetPreconditioner_KLU(SUNLinearSolver S, void* P_data,
                                     PSetupFn Pset, PSolveFn Psol)
 {
   /* direct solvers do not utilize preconditioning, 
      so return an error is this routine is ever called */
-  SLS_LASTFLAG_K(S) = 1;
-  return 1;
+  LASTFLAG(S) = KLU_ILL_INPUT;
+  return(LASTFLAG(S));
 }
+
 
 int SUNLinSolSetScalingVectors_KLU(SUNLinearSolver S, N_Vector s1,
                                    N_Vector s2)
 {
   /* direct solvers do not utilize scaling, 
      so return an error is this routine is ever called */
-  SLS_LASTFLAG_K(S) = 1;
-  return 1;
+  LASTFLAG(S) = KLU_ILL_INPUT;
+  return(LASTFLAG(S));
 }
+
 
 int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
 {
-  realtype **A_cols;
-  sunindextype *pivots;
+  int retval;
+  realtype uround_twothirds;
   
-  /* access data pointers (return with failure on NULL) */
-  A_cols = NULL;
-  pivots = NULL;
-  A_cols = SM_COLS_K(A);
-  if (A_cols == NULL)
-    return 1;
+  uround_twothirds = SUNRpowerR(UNIT_ROUNDOFF,TWOTHIRDS);
 
-  /* perform LU factorization of input matrix */
-  SLS_LASTFLAG_K(S) = bandGBTRF(A_cols, SM_COLUMNS_B(A), SM_UBAND_B(A),
-                                SM_LBAND_B(A), SM_SUBAND_B(A), pivots);
+  /* Ensure that A is a sparse matrix */
+  if (SUNMatGetID(A) != SUNMATRIX_SPARSE) {
+    LASTFLAG(S) = KLU_ILL_INPUT;
+    return(LASTFLAG(S));
+  }
   
-  /* store error flag (if nonzero, this row encountered zero-valued pivod) */
-  if (SLS_LASTFLAG_K(S) > 0)
-    return 1;
-  return 0;
+  /* On first decomposition, get the symbolic factorization */ 
+  if (FIRSTFACTORIZE(S)) {
+
+    /* Perform symbolic analysis of sparsity structure */
+    if (SYMBOLIC(S)) 
+      sun_klu_free_symbolic(&SYMBOLIC(S), &COMMON(S));
+    SYMBOLIC(S) = sun_klu_analyze(SUNSparseMatrix_NP(A), 
+                                  SUNSparseMatrix_IndexPointers(A), 
+                                  SUNSparseMatrix_IndexValues(A), 
+                                  &COMMON(S));
+    if (SYMBOLIC(S) == NULL) {
+      LASTFLAG(S) = KLU_PACKAGE_FAIL;
+      return(LASTFLAG(S));
+    }
+
+    /* ------------------------------------------------------------
+       Compute the LU factorization of the matrix
+       ------------------------------------------------------------*/
+    if(NUMERIC(S)) 
+      sun_klu_free_numeric(&NUMERIC(S), &COMMON(S));
+    NUMERIC(S) = sun_klu_factor(SUNSparseMatrix_IndexPointers(A), 
+                                SUNSparseMatrix_IndexValues(A), 
+                                SUNSparseMatrix_Data(A), 
+                                SYMBOLIC(S), 
+                                &COMMON(S));
+    if (NUMERIC(S) == NULL) {
+      LASTFLAG(S) = KLU_PACKAGE_FAIL;
+      return(LASTFLAG(S));
+    }
+
+    FIRSTFACTORIZE(S) = 0;
+
+  } else {   /* not the first decomposition, so just refactor */
+
+    retval = sun_klu_refactor(SUNSparseMatrix_IndexPointers(A), 
+                              SUNSparseMatrix_IndexValues(A), 
+                              SUNSparseMatrix_Data(A), 
+                              SYMBOLIC(S),
+                              NUMERIC(S),
+                              &COMMON(S));
+    if (retval == 0) {
+      LASTFLAG(S) = KLU_PACKAGE_FAIL;
+      return(LASTFLAG(S));
+    }
+    
+    /*-----------------------------------------------------------
+      Check if a cheap estimate of the reciprocal of the condition 
+      number is getting too small.  If so, delete
+      the prior numeric factorization and recompute it.
+      -----------------------------------------------------------*/
+    
+    retval = sun_klu_rcond(SYMBOLIC(S), NUMERIC(S), &COMMON(S));
+    if (retval == 0) {
+      LASTFLAG(S) = KLU_PACKAGE_FAIL;
+      return(LASTFLAG(S));
+    }
+
+    if ( COMMON(S).rcond < uround_twothirds ) {
+      
+      /* Condition number may be getting large.  
+	 Compute more accurate estimate */
+      retval = sun_klu_condest(SUNSparseMatrix_IndexPointers(A), 
+                               SUNSparseMatrix_Data(A), 
+                               SYMBOLIC(S),
+                               NUMERIC(S),
+                               &COMMON(S));
+      if (retval == 0) {
+        LASTFLAG(S) = KLU_PACKAGE_FAIL;
+        return(LASTFLAG(S));
+      }
+      
+      if ( COMMON(S).condest > (ONE/uround_twothirds) ) {
+
+	/* More accurate estimate also says condition number is 
+	   large, so recompute the numeric factorization */
+	sun_klu_free_numeric(&NUMERIC(S), &COMMON(S));
+	NUMERIC(S) = sun_klu_factor(SUNSparseMatrix_IndexPointers(A), 
+                                    SUNSparseMatrix_IndexValues(A), 
+                                    SUNSparseMatrix_Data(A), 
+                                    SYMBOLIC(S), 
+                                    &COMMON(S));
+	if (NUMERIC(S) == NULL) {
+          LASTFLAG(S) = KLU_PACKAGE_FAIL;
+          return(LASTFLAG(S));
+	}
+      }
+      
+    }
+  }
+
+  LASTFLAG(S) = KLU_SUCCESS;
+  return(LASTFLAG(S));
 }
+
 
 int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
                        N_Vector b, realtype tol)
 {
-  realtype **A_cols, *xdata;
-  sunindextype *pivots;
+  int flag;
+  realtype *xdata;
   
   /* copy b into x */
   N_VScale(ONE, b, x);
 
-  /* access data pointers (return with failure on NULL) */
-  A_cols = NULL;
-  xdata = NULL;
-  pivots = NULL;
-  A_cols = SUNSparseMatrix_Cols(A);
+  /* access x data array */
   xdata = N_VGetArrayPointer(x);
-  pivots = SLS_PIVOTS_B(S);
-  if ( (A_cols == NULL) || (xdata == NULL)  || (pivots == NULL) )
-    return 1;
+  if (xdata == NULL) {
+    LASTFLAG(S) = KLU_MEM_FAIL;
+    return(LASTFLAG(S));
+  }
   
-  /* solve using LU factors */
-  bandGBTRS(A_cols, SM_COLUMNS_B(A), SM_SUBAND_B(A), SM_LBAND_B(A), pivots, xdata);
-  return 0;
+  /* Call KLU to solve the linear system */
+  flag = SOLVE(S)(SYMBOLIC(S), NUMERIC(S), 
+                  SUNSparseMatrix_NP(A), 1, xdata, 
+                  &COMMON(S));
+  if (flag == 0) {
+    LASTFLAG(S) = KLU_PACKAGE_FAIL;
+    return(LASTFLAG(S));
+  }
+
+  LASTFLAG(S) = KLU_SUCCESS;
+  return(LASTFLAG(S));
 }
+
 
 int SUNLinSolNumIters_KLU(SUNLinearSolver S)
 {
@@ -219,11 +414,13 @@ int SUNLinSolNumIters_KLU(SUNLinearSolver S)
   return 0;
 }
 
+
 realtype SUNLinSolResNorm_KLU(SUNLinearSolver S)
 {
   /* direct solvers do not measure the linear residual */
   return ZERO;
 }
+
 
 int SUNLinSolNumPSolves_KLU(SUNLinearSolver S)
 {
@@ -231,16 +428,29 @@ int SUNLinSolNumPSolves_KLU(SUNLinearSolver S)
   return 0;
 }
 
+
 long int SUNLinSolLastFlag_KLU(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
-  return (SLS_LASTFLAG_K(S));
+  return LASTFLAG(S);
 }
+
 
 int SUNLinSolFree_KLU(SUNLinearSolver S)
 {
-  /* delete items from the contents structure, then delete generic structures */
-  /* free(SLS_PIVOTS_K(S));  SLS_PIVOTS_K(S) = NULL; */
+  /* return with success if already freed */
+  if (S == NULL)
+    return 0;
+  
+  /* delete items from the contents structure (if it exists) */
+  if (S->content) {
+    if (NUMERIC(S))
+      sun_klu_free_numeric(&NUMERIC(S), &COMMON(S));
+    if (SYMBOLIC(S))
+      sun_klu_free_symbolic(&SYMBOLIC(S), &COMMON(S));
+  }
+  
+  /* delete generic structures */
   free(S->content);  S->content = NULL;
   free(S->ops);  S->ops = NULL;
   free(S); S = NULL;

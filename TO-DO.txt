@@ -1,25 +1,10 @@
-1. Create testing routines for SUNMatrix_Dense, SUNMatrix_Band and
-   SUNMatrix_Sparse objects, similar to NVector test routines.  Stub
-   has been added to CMakeLists.txt file, but is currently commented-out.
+1. Create SUNLAPACKDense, SUNLAPACKBand, and SUNPCG objects.  Create 
+   testing routines similar to NVector test routines.
 
-
-2. Convert existing use of dense, band and sparse matrices throughout
-   SUNDIALS (solvers and examples) to instead use the SUNMatrix
-   objects.  Fortran interfaces will work like now, where we extract
-   the data portions to pass through function calls.
-
-
-3. Create SUNLinSol_Dense, SUNLinSol_Band,
-   SUNLinSol_KLU and SUNLinSol_SuperLUMT objects (in files
-   sunlinsol_dense.[h,c], sunlinsol_band.[h,c],
-   sunlinsol_klu.[h,c] and sunlinsol_superlumt.[h,c] in the
-   include/sundials and src/sunlinsol_* folders).  Create testing
-   routines similar to NVector test routines.
-
-   Note: what to do about solver-specific counters?  For iterative
-   solvers these should be contained *inside* the iterative linear
-   solver.  However, for dense/band linear solvers we have the
-   counters: 
+   Note about solver-specific counters:
+   For iterative solvers these should be contained *inside* the 
+   iterative linear solver.  However, for dense/band linear solvers 
+   we have the counters: 
       nje: # of calls to the user Jacobian routine
       nfeDQ: # of calls to the user RHS for difference-quotient
         Jacobian approximation
@@ -28,68 +13,25 @@
    structure.  The first two of these are implemented by the DQ
    Jacobian construction routine, and the third is a
    time-step-specific *signal* on when to update the Jacobian.
-   However, how/when do we initialize/re-initialize these?  All should
-   be reset whenever the integrator is initialized/re-initialized.
+   We should initialize/re-initialize these whenever the integrator is
+   initialized/re-initialized. 
 
 
-4. Determine mathematically "optimal" scaling vector to use for
-   right/left preconditioning in our scaled/preconditioned iterative
-   linear solvers.  For all but KINSOL, we'd previously been sending
-   in the tolerance but no scaling vector so we have no basis of
-   comparison from existing code; hence we should figure out the most
-   mathematically usable/robust choice.
-
-   * Note: technically, only FGMRES is designed to be used with an
-     iterative preconditioner; all the others assume that the
-     preconditioner is a *fixed* linear operator.  So it might be that
-     we should use sx/sb as the optimal scaling vector, but that the
-     preconditioner tolerance should be tighter than the iterative
-     linear solver tolerance.
-
-   * Note: if this doesn't make sense mathematically (to supply a
-     tolerance and a weight vector), then we should revert the
-     PSolveFn function prototype to remove 'w' and 'tol'.
-
-   * Actually, the CVODE(S), ARKode and IDA(S) user guide already
-     states to call *GetErrWeights() to retrieve the scaling vector,
-     so no API change is needed.  The CVODES and IDAS user guides, in
-     the portion discussing the backwards problem, are less specific
-     (and should be updated).  That said, I should modify the ARKode
-     documentation to state that users should call *GetResWeights()
-     since I use that scaling vector for linear convergence tests.  I
-     also need to ADD a user-callable function to access that vector.
+2. Convert existing use of dense, band and sparse matrices throughout
+   SUNDIALS (solvers and examples) to instead use the SUNMatrix
+   objects.  Fortran interfaces will work like now, where we extract
+   the data portions to pass through function calls.
 
 
-5. Update all solver-specific, user-supplied 'psolve' routine
-   interfaces to add the weight vector (and possibly tolerance):
-   * header files
-   * <solver>_spils files
-   * example files
-   * documentation
-   * release notes
-
-   * Note: if our resolution to 4 above is to remove both 'w' and
-     'tol', then still update all solver-specific, user-supplied
-     'psolve' routine interfaces to *remove* the tolerance.
+3. Construct ARKode interfaces to utilize linear solver and matrix
+   objects.  Update all ARKode examples accordingly.
 
 
-6. Create SUNLinSol_PCG, SUNLinSol_SPBCGS,
-   SUNLinSol_SPGMR, SUNLinSol_SPFGMR and SUNLinSol_SPTFQMR objects (in
-   files sunlinsol_pcg.[h,c], sunlinsol_spbcgs.[h,c],
-   sunlinsol_spgmr.[h,c], sunlinsol_spfgmr.[h,c] and
-   sunlinsol_sptfqmr.[h,c] in the include/sundials and src/sundials
-   folders).  Create testing routines similar to NVector test
-   routines.
+4. Repeat 4 for CVODE, CVODES, IDA, IDAS and KINSOL. 
 
 
-7. Construct ARKode interfaces to utilize linear solver and matrix
-   objects. 
-
-
-8. Emulate ARKode interfaces within CVODE, CVODES, IDA, IDAS and
-   KINSOL. 
-
-
-9. Add error messages and robust error flags to SUNMatrix and
-   SUNLinearSolver modules.
+5. Create common set of return values and error messages for all 
+   SUNLinearSolver and SUNMatrix objects (put in
+   sundials_linearsolver.h and sundials_matrix.h), and update all
+   SUNLinearSolver and SUNMatrix implementations to use those.
 
