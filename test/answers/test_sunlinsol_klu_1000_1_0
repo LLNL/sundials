@@ -1,5 +1,5 @@
 
-Sparse linear solver test: size 1000, type 1
+KLU linear solver test: size 1000, type 1
 
     PASSED test -- SUNLinSolInitialize 
     PASSED test -- SUNLinSolSetup 

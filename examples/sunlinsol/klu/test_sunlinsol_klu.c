@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
   print_timing = atoi(argv[3]);
   SetTiming(print_timing);
 
-  printf("\nSparse linear solver test: size %ld, type %i\n\n",
+  printf("\nKLU linear solver test: size %ld, type %i\n\n",
          (long int) N, mattype);
 
   /* Create matrices and vectors */
