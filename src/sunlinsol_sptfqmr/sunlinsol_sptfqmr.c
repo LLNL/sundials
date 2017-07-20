@@ -34,6 +34,17 @@
 
 /*
  * -----------------------------------------------------------------
+ * SPTFQMR solver structure accessibility macros: 
+ * -----------------------------------------------------------------
+ */
+
+  
+#define SPTFQMR_CONTENT(S)  ( (SUNLinearSolverContent_SPTFQMR)(S->content) )
+#define LASTFLAG(S)         ( SPTFQMR_CONTENT(S)->last_flag )
+
+
+/*
+ * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -144,7 +155,7 @@ SUNDIALS_EXPORT int SUNSPTFQMRSetPrecType(SUNLinearSolver S, int pretype)
   if (S == NULL) return(SPTFQMR_MEM_NULL);
 
   /* Set pretype */
-  SLS_CONTENT_SPTFQMR(S)->pretype = pretype;
+  SPTFQMR_CONTENT(S)->pretype = pretype;
   return(SPTFQMR_SUCCESS);
 }
 
@@ -162,7 +173,7 @@ SUNDIALS_EXPORT int SUNSPTFQMRGetWorkspace(SUNLinearSolver S,
   /* Check for non-NULL SUNLinearSolver */
   if (S == NULL) return(SPTFQMR_MEM_NULL);
 
-  N_VSpace(SLS_CONTENT_SPTFQMR(S)->vtemp1, &lrw1, &liw1);
+  N_VSpace(SPTFQMR_CONTENT(S)->vtemp1, &lrw1, &liw1);
   *lenrwLS = lrw1*11;
   *leniwLS = liw1*11;
   return(SPTFQMR_SUCCESS);
@@ -185,7 +196,7 @@ int SUNLinSolInitialize_SPTFQMR(SUNLinearSolver S)
 {
   /* set shortcut to SPTFQMR memory structure */
   if (S == NULL) return(SPTFQMR_MEM_NULL);  
-  SUNLinearSolverContent_SPTFQMR content = SLS_CONTENT_SPTFQMR(S);
+  SUNLinearSolverContent_SPTFQMR content = SPTFQMR_CONTENT(S);
 
   /* ensure valid options */
   if ( (content->pretype != PREC_LEFT) && 
@@ -209,10 +220,10 @@ int SUNLinSolSetATimes_SPTFQMR(SUNLinearSolver S, void* ATData,
   /* set function pointers to integrator-supplied ATSetup 
      and ATimes routines and data, and return with success */
   if (S == NULL) return(SPTFQMR_MEM_NULL);
-  SLS_CONTENT_SPTFQMR(S)->ATSetup = ATSetup;
-  SLS_CONTENT_SPTFQMR(S)->ATimes = ATimes;
-  SLS_CONTENT_SPTFQMR(S)->ATData = ATData;
-  SLS_CONTENT_SPTFQMR(S)->last_flag = 0;
+  SPTFQMR_CONTENT(S)->ATSetup = ATSetup;
+  SPTFQMR_CONTENT(S)->ATimes = ATimes;
+  SPTFQMR_CONTENT(S)->ATData = ATData;
+  LASTFLAG(S) = 0;
   return 0;
 }
 
@@ -223,10 +234,10 @@ int SUNLinSolSetPreconditioner_SPTFQMR(SUNLinearSolver S, void* PData,
   /* set function pointers to integrator-supplied Psetup and PSolve
      routines and data, and return with success */
   if (S == NULL) return(SPTFQMR_MEM_NULL);
-  SLS_CONTENT_SPTFQMR(S)->Psetup = Psetup;
-  SLS_CONTENT_SPTFQMR(S)->Psolve = Psolve;
-  SLS_CONTENT_SPTFQMR(S)->PData = PData;
-  SLS_CONTENT_SPTFQMR(S)->last_flag = 0;
+  SPTFQMR_CONTENT(S)->Psetup = Psetup;
+  SPTFQMR_CONTENT(S)->Psolve = Psolve;
+  SPTFQMR_CONTENT(S)->PData = PData;
+  LASTFLAG(S) = 0;
   return 0;
 }
 
@@ -238,9 +249,9 @@ int SUNLinSolSetScalingVectors_SPTFQMR(SUNLinearSolver S,
   /* set N_Vector pointers to integrator-supplied scaling vectors, 
      and return with success */
   if (S == NULL) return(SPTFQMR_MEM_NULL);
-  SLS_CONTENT_SPTFQMR(S)->s1 = s1;
-  SLS_CONTENT_SPTFQMR(S)->s2 = s2;
-  SLS_CONTENT_SPTFQMR(S)->last_flag = 0;
+  SPTFQMR_CONTENT(S)->s1 = s1;
+  SPTFQMR_CONTENT(S)->s2 = s2;
+  LASTFLAG(S) = 0;
   return 0;
 }
 
@@ -249,20 +260,20 @@ int SUNLinSolSetup_SPTFQMR(SUNLinearSolver S, SUNMatrix A)
 {
   /* Set shortcuts to SPTFQMR memory structures */
   if (S == NULL) return(SPTFQMR_MEM_NULL);
-  ATSetupFn ATSetup = SLS_CONTENT_SPTFQMR(S)->ATSetup;
-  PSetupFn Psetup = SLS_CONTENT_SPTFQMR(S)->Psetup;
-  void* ATData = SLS_CONTENT_SPTFQMR(S)->ATData;
-  void* PData = SLS_CONTENT_SPTFQMR(S)->PData;
+  ATSetupFn ATSetup = SPTFQMR_CONTENT(S)->ATSetup;
+  PSetupFn Psetup = SPTFQMR_CONTENT(S)->Psetup;
+  void* ATData = SPTFQMR_CONTENT(S)->ATData;
+  void* PData = SPTFQMR_CONTENT(S)->PData;
   
   /* no solver-specific setup is required, but if user-supplied 
      ATSetup or Psetup routines exist, call those here */
   if (ATSetup != NULL) {
-    SLS_CONTENT_SPTFQMR(S)->last_flag = ATSetup(ATData);
-    if (SLS_CONTENT_SPTFQMR(S)->last_flag != 0)  return 1;
+    LASTFLAG(S) = ATSetup(ATData);
+    if (LASTFLAG(S) != 0)  return 1;
   }
   if (Psetup != NULL) {
-    SLS_CONTENT_SPTFQMR(S)->last_flag = Psetup(PData);
-    if (SLS_CONTENT_SPTFQMR(S)->last_flag != 0)  return 1;
+    LASTFLAG(S) = Psetup(PData);
+    if (LASTFLAG(S) != 0)  return 1;
   }
   
   /* return with success */ 
@@ -290,26 +301,26 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   
   /* Make local shorcuts to solver variables. */
   if (S == NULL) return(SPTFQMR_MEM_NULL);
-  l_max        = SLS_CONTENT_SPTFQMR(S)->maxl;
-  r_star       = SLS_CONTENT_SPTFQMR(S)->r_star;
-  q            = SLS_CONTENT_SPTFQMR(S)->q;
-  d            = SLS_CONTENT_SPTFQMR(S)->d;
-  v            = SLS_CONTENT_SPTFQMR(S)->v;
-  p            = SLS_CONTENT_SPTFQMR(S)->p;
-  r            = SLS_CONTENT_SPTFQMR(S)->r;
-  u            = SLS_CONTENT_SPTFQMR(S)->u;
-  vtemp1       = SLS_CONTENT_SPTFQMR(S)->vtemp1;
-  vtemp2       = SLS_CONTENT_SPTFQMR(S)->vtemp2;
-  vtemp3       = SLS_CONTENT_SPTFQMR(S)->vtemp3;
-  sb           = SLS_CONTENT_SPTFQMR(S)->s1;
-  sx           = SLS_CONTENT_SPTFQMR(S)->s2;
-  A_data       = SLS_CONTENT_SPTFQMR(S)->ATData;
-  P_data       = SLS_CONTENT_SPTFQMR(S)->PData;
-  atimes       = SLS_CONTENT_SPTFQMR(S)->ATimes;
-  psolve       = SLS_CONTENT_SPTFQMR(S)->Psolve;
-  nli          = &(SLS_CONTENT_SPTFQMR(S)->numiters);
-  nps          = &(SLS_CONTENT_SPTFQMR(S)->numpsolves);
-  res_norm     = &(SLS_CONTENT_SPTFQMR(S)->resnorm);
+  l_max        = SPTFQMR_CONTENT(S)->maxl;
+  r_star       = SPTFQMR_CONTENT(S)->r_star;
+  q            = SPTFQMR_CONTENT(S)->q;
+  d            = SPTFQMR_CONTENT(S)->d;
+  v            = SPTFQMR_CONTENT(S)->v;
+  p            = SPTFQMR_CONTENT(S)->p;
+  r            = SPTFQMR_CONTENT(S)->r;
+  u            = SPTFQMR_CONTENT(S)->u;
+  vtemp1       = SPTFQMR_CONTENT(S)->vtemp1;
+  vtemp2       = SPTFQMR_CONTENT(S)->vtemp2;
+  vtemp3       = SPTFQMR_CONTENT(S)->vtemp3;
+  sb           = SPTFQMR_CONTENT(S)->s1;
+  sx           = SPTFQMR_CONTENT(S)->s2;
+  A_data       = SPTFQMR_CONTENT(S)->ATData;
+  P_data       = SPTFQMR_CONTENT(S)->PData;
+  atimes       = SPTFQMR_CONTENT(S)->ATimes;
+  psolve       = SPTFQMR_CONTENT(S)->Psolve;
+  nli          = &(SPTFQMR_CONTENT(S)->numiters);
+  nps          = &(SPTFQMR_CONTENT(S)->numpsolves);
+  res_norm     = &(SPTFQMR_CONTENT(S)->resnorm);
 
   /* Initialize counters and convergence flag */
   temp_val = r_curr_norm = -ONE;
@@ -318,10 +329,10 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   b_ok = FALSE;
 
   /* set booleantype flags for internal solver options */
-  preOnLeft  = ( (SLS_CONTENT_SPTFQMR(S)->pretype == PREC_LEFT) || 
-                 (SLS_CONTENT_SPTFQMR(S)->pretype == PREC_BOTH) );
-  preOnRight = ( (SLS_CONTENT_SPTFQMR(S)->pretype == PREC_RIGHT) || 
-                 (SLS_CONTENT_SPTFQMR(S)->pretype == PREC_BOTH) );
+  preOnLeft  = ( (SPTFQMR_CONTENT(S)->pretype == PREC_LEFT) || 
+                 (SPTFQMR_CONTENT(S)->pretype == PREC_BOTH) );
+  preOnRight = ( (SPTFQMR_CONTENT(S)->pretype == PREC_RIGHT) || 
+                 (SPTFQMR_CONTENT(S)->pretype == PREC_BOTH) );
   scale_x = (sx != NULL);
   scale_b = (sb != NULL);
 
@@ -331,9 +342,9 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   else {
     ier = atimes(A_data, x, r_star);
     if (ier != 0) {
-      SLS_CONTENT_SPTFQMR(S)->last_flag = (ier < 0) ?
+      LASTFLAG(S) = (ier < 0) ?
         SPTFQMR_ATIMES_FAIL_UNREC : SPTFQMR_ATIMES_FAIL_REC;
-      return(SLS_CONTENT_SPTFQMR(S)->last_flag);
+      return(LASTFLAG(S));
     }
     N_VLinearSum(ONE, b, -ONE, r_star, r_star);
   }
@@ -343,9 +354,9 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     ier = psolve(P_data, r_star, vtemp1, delta, PREC_LEFT);
     (*nps)++;
     if (ier != 0) {
-      SLS_CONTENT_SPTFQMR(S)->last_flag = (ier < 0) ?
+      LASTFLAG(S) = (ier < 0) ?
         SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC;
-      return(SLS_CONTENT_SPTFQMR(S)->last_flag);
+      return(LASTFLAG(S));
     }
   }
   else N_VScale(ONE, r_star, vtemp1);
@@ -362,8 +373,8 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
      to do anything */
   *res_norm = r_init_norm = SUNRsqrt(rho[0]);
   if (r_init_norm <= delta) {
-    SLS_CONTENT_SPTFQMR(S)->last_flag = SPTFQMR_SUCCESS;
-    return(SLS_CONTENT_SPTFQMR(S)->last_flag);
+    LASTFLAG(S) = SPTFQMR_SUCCESS;
+    return(LASTFLAG(S));
   }
 
   /* Set v = A*r_0 (preconditioned and scaled) */
@@ -374,24 +385,24 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     ier = psolve(P_data, v, vtemp1, delta, PREC_RIGHT);
     (*nps)++;
     if (ier != 0) {
-      SLS_CONTENT_SPTFQMR(S)->last_flag = (ier < 0) ?
+      LASTFLAG(S) = (ier < 0) ?
         SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC;
-      return(SLS_CONTENT_SPTFQMR(S)->last_flag);
+      return(LASTFLAG(S));
     }
   }
   ier = atimes(A_data, vtemp1, v);
   if (ier != 0) {
-    SLS_CONTENT_SPTFQMR(S)->last_flag = (ier < 0) ?
+    LASTFLAG(S) = (ier < 0) ?
       SPTFQMR_ATIMES_FAIL_UNREC : SPTFQMR_ATIMES_FAIL_REC;
-    return(SLS_CONTENT_SPTFQMR(S)->last_flag);
+    return(LASTFLAG(S));
   }
   if (preOnLeft) {
     ier = psolve(P_data, v, vtemp1, delta, PREC_LEFT);
     (*nps)++;
     if (ier != 0) {
-      SLS_CONTENT_SPTFQMR(S)->last_flag = (ier < 0) ?
+      LASTFLAG(S) = (ier < 0) ?
         SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC;
-      return(SLS_CONTENT_SPTFQMR(S)->last_flag);
+      return(LASTFLAG(S));
     }
   }
   else N_VScale(ONE, v, vtemp1);
@@ -430,24 +441,24 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       ier = psolve(P_data, vtemp1, r[1], delta, PREC_RIGHT);
       (*nps)++;
       if (ier != 0) {
-        SLS_CONTENT_SPTFQMR(S)->last_flag = (ier < 0) ?
+        LASTFLAG(S) = (ier < 0) ?
           SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC;
-        return(SLS_CONTENT_SPTFQMR(S)->last_flag);
+        return(LASTFLAG(S));
       }
     }
     ier = atimes(A_data, r[1], vtemp1);
     if (ier != 0) {
-      SLS_CONTENT_SPTFQMR(S)->last_flag = (ier < 0) ?
+      LASTFLAG(S) = (ier < 0) ?
         SPTFQMR_ATIMES_FAIL_UNREC : SPTFQMR_ATIMES_FAIL_REC;
-      return(SLS_CONTENT_SPTFQMR(S)->last_flag);
+      return(LASTFLAG(S));
     }
     if (preOnLeft) {
       ier = psolve(P_data, vtemp1, r[1], delta, PREC_LEFT);
       (*nps)++;
       if (ier != 0) {
-        SLS_CONTENT_SPTFQMR(S)->last_flag = (ier < 0) ?
+        LASTFLAG(S) = (ier < 0) ?
           SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC;
-        return(SLS_CONTENT_SPTFQMR(S)->last_flag);
+        return(LASTFLAG(S));
       }
     }
     else N_VScale(ONE, vtemp1, r[1]);
@@ -522,25 +533,25 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 	  ier = psolve(P_data, vtemp1, vtemp2, delta, PREC_RIGHT);
 	  (*nps)++;
 	  if (ier != 0) {
-            SLS_CONTENT_SPTFQMR(S)->last_flag = (ier < 0) ?
+            LASTFLAG(S) = (ier < 0) ?
               SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_UNREC;
-            return(SLS_CONTENT_SPTFQMR(S)->last_flag);
+            return(LASTFLAG(S));
           }
 	  N_VScale(ONE, vtemp2, vtemp1);
 	}
 	ier = atimes(A_data, vtemp1, vtemp2);
         if (ier != 0) {
-          SLS_CONTENT_SPTFQMR(S)->last_flag = (ier < 0) ?
+          LASTFLAG(S) = (ier < 0) ?
             SPTFQMR_ATIMES_FAIL_UNREC : SPTFQMR_ATIMES_FAIL_REC;
-          return(SLS_CONTENT_SPTFQMR(S)->last_flag);
+          return(LASTFLAG(S));
         }
 	if (preOnLeft) {
 	  ier = psolve(P_data, vtemp2, vtemp1, delta, PREC_LEFT);
 	  (*nps)++;
 	  if (ier != 0) {
-            SLS_CONTENT_SPTFQMR(S)->last_flag = (ier < 0) ?
+            LASTFLAG(S) = (ier < 0) ?
               SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC;
-            return(SLS_CONTENT_SPTFQMR(S)->last_flag);
+            return(LASTFLAG(S));
           }
 	}
 	else N_VScale(ONE, vtemp2, vtemp1);
@@ -553,9 +564,9 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 	    ier = psolve(P_data, b, vtemp3, delta, PREC_LEFT);
 	    (*nps)++;
 	    if (ier != 0) {
-              SLS_CONTENT_SPTFQMR(S)->last_flag = (ier < 0) ?
+              LASTFLAG(S) = (ier < 0) ?
                 SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC;
-              return(SLS_CONTENT_SPTFQMR(S)->last_flag);
+              return(LASTFLAG(S));
             }
 	  }
 	  else N_VScale(ONE, b, vtemp3);
@@ -599,24 +610,24 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       ier = psolve(P_data, v, vtemp1, delta, PREC_RIGHT);
       (*nps)++;
       if (ier != 0) {
-        SLS_CONTENT_SPTFQMR(S)->last_flag = (ier < 0) ?
+        LASTFLAG(S) = (ier < 0) ?
           SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC;
-        return(SLS_CONTENT_SPTFQMR(S)->last_flag);
+        return(LASTFLAG(S));
       }
     }
     ier = atimes(A_data, vtemp1, v);
     if (ier != 0) {
-      SLS_CONTENT_SPTFQMR(S)->last_flag = (ier < 0) ?
+      LASTFLAG(S) = (ier < 0) ?
         SPTFQMR_ATIMES_FAIL_UNREC : SPTFQMR_ATIMES_FAIL_REC;
-      return(SLS_CONTENT_SPTFQMR(S)->last_flag);
+      return(LASTFLAG(S));
     }
     if (preOnLeft) {
       ier = psolve(P_data, v, vtemp1, delta, PREC_LEFT);
       (*nps)++;
       if (ier != 0) {
-        SLS_CONTENT_SPTFQMR(S)->last_flag = (ier < 0) ?
+        LASTFLAG(S) = (ier < 0) ?
           SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC;
-        return(SLS_CONTENT_SPTFQMR(S)->last_flag);
+        return(LASTFLAG(S));
       }
     }
     else N_VScale(ONE, v, vtemp1);
@@ -638,22 +649,22 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       ier = psolve(P_data, x, vtemp1, delta, PREC_RIGHT);
       (*nps)++;
       if (ier != 0) {
-        SLS_CONTENT_SPTFQMR(S)->last_flag = (ier < 0) ?
+        LASTFLAG(S) = (ier < 0) ?
           SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_UNREC;
-        return(SLS_CONTENT_SPTFQMR(S)->last_flag);
+        return(LASTFLAG(S));
       }
       N_VScale(ONE, vtemp1, x);
     }
     if (converged == TRUE) 
-      SLS_CONTENT_SPTFQMR(S)->last_flag = SPTFQMR_SUCCESS;
+      LASTFLAG(S) = SPTFQMR_SUCCESS;
     else 
-      SLS_CONTENT_SPTFQMR(S)->last_flag = SPTFQMR_RES_REDUCED;
-    return(SLS_CONTENT_SPTFQMR(S)->last_flag);
+      LASTFLAG(S) = SPTFQMR_RES_REDUCED;
+    return(LASTFLAG(S));
   }
   /* Otherwise, return error code */
   else {
-    SLS_CONTENT_SPTFQMR(S)->last_flag = SPTFQMR_CONV_FAIL;
-    return(SLS_CONTENT_SPTFQMR(S)->last_flag);
+    LASTFLAG(S) = SPTFQMR_CONV_FAIL;
+    return(LASTFLAG(S));
   }
 }
 
@@ -662,7 +673,7 @@ int SUNLinSolNumIters_SPTFQMR(SUNLinearSolver S)
 {
   /* return the stored 'numiters' value */
   if (S == NULL) return(SPTFQMR_MEM_NULL);
-  return (SLS_CONTENT_SPTFQMR(S)->numiters);
+  return (SPTFQMR_CONTENT(S)->numiters);
 }
 
 
@@ -670,7 +681,7 @@ realtype SUNLinSolResNorm_SPTFQMR(SUNLinearSolver S)
 {
   /* return the stored 'resnorm' value */
   if (S == NULL) return(SPTFQMR_MEM_NULL);
-  return (SLS_CONTENT_SPTFQMR(S)->resnorm);
+  return (SPTFQMR_CONTENT(S)->resnorm);
 }
 
 
@@ -678,7 +689,7 @@ int SUNLinSolNumPSolves_SPTFQMR(SUNLinearSolver S)
 {
   /* return the stored 'numpsolves' value */
   if (S == NULL) return(SPTFQMR_MEM_NULL);
-  return (SLS_CONTENT_SPTFQMR(S)->numpsolves);
+  return (SPTFQMR_CONTENT(S)->numpsolves);
 }
 
 
@@ -686,7 +697,7 @@ long int SUNLinSolLastFlag_SPTFQMR(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
   if (S == NULL) return(SPTFQMR_MEM_NULL);
-  return (SLS_CONTENT_SPTFQMR(S)->last_flag);
+  return (LASTFLAG(S));
 }
 
 
@@ -695,26 +706,26 @@ int SUNLinSolFree_SPTFQMR(SUNLinearSolver S)
   if (S == NULL) return(SPTFQMR_MEM_NULL);
 
   /* delete items from within the content structure */
-  if (SLS_CONTENT_SPTFQMR(S)->r_star)
-    N_VDestroy(SLS_CONTENT_SPTFQMR(S)->r_star);
-  if (SLS_CONTENT_SPTFQMR(S)->q)
-    N_VDestroy(SLS_CONTENT_SPTFQMR(S)->q);
-  if (SLS_CONTENT_SPTFQMR(S)->d)
-    N_VDestroy(SLS_CONTENT_SPTFQMR(S)->d);
-  if (SLS_CONTENT_SPTFQMR(S)->v)
-    N_VDestroy(SLS_CONTENT_SPTFQMR(S)->v);
-  if (SLS_CONTENT_SPTFQMR(S)->p)
-    N_VDestroy(SLS_CONTENT_SPTFQMR(S)->p);
-  if (SLS_CONTENT_SPTFQMR(S)->r)
-    N_VDestroyVectorArray(SLS_CONTENT_SPTFQMR(S)->r, 2);
-  if (SLS_CONTENT_SPTFQMR(S)->u)
-    N_VDestroy(SLS_CONTENT_SPTFQMR(S)->u);
-  if (SLS_CONTENT_SPTFQMR(S)->vtemp1)
-    N_VDestroy(SLS_CONTENT_SPTFQMR(S)->vtemp1);
-  if (SLS_CONTENT_SPTFQMR(S)->vtemp2)
-    N_VDestroy(SLS_CONTENT_SPTFQMR(S)->vtemp2);
-  if (SLS_CONTENT_SPTFQMR(S)->vtemp3)
-    N_VDestroy(SLS_CONTENT_SPTFQMR(S)->vtemp3);
+  if (SPTFQMR_CONTENT(S)->r_star)
+    N_VDestroy(SPTFQMR_CONTENT(S)->r_star);
+  if (SPTFQMR_CONTENT(S)->q)
+    N_VDestroy(SPTFQMR_CONTENT(S)->q);
+  if (SPTFQMR_CONTENT(S)->d)
+    N_VDestroy(SPTFQMR_CONTENT(S)->d);
+  if (SPTFQMR_CONTENT(S)->v)
+    N_VDestroy(SPTFQMR_CONTENT(S)->v);
+  if (SPTFQMR_CONTENT(S)->p)
+    N_VDestroy(SPTFQMR_CONTENT(S)->p);
+  if (SPTFQMR_CONTENT(S)->r)
+    N_VDestroyVectorArray(SPTFQMR_CONTENT(S)->r, 2);
+  if (SPTFQMR_CONTENT(S)->u)
+    N_VDestroy(SPTFQMR_CONTENT(S)->u);
+  if (SPTFQMR_CONTENT(S)->vtemp1)
+    N_VDestroy(SPTFQMR_CONTENT(S)->vtemp1);
+  if (SPTFQMR_CONTENT(S)->vtemp2)
+    N_VDestroy(SPTFQMR_CONTENT(S)->vtemp2);
+  if (SPTFQMR_CONTENT(S)->vtemp3)
+    N_VDestroy(SPTFQMR_CONTENT(S)->vtemp3);
 
   /* delete generic structures */
   free(S->content);  S->content = NULL;
