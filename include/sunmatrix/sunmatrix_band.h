@@ -104,7 +104,7 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
 /*
  * -----------------------------------------------------------------
  * PART II: macros SM_CONTENT_B, SM_DATA_B, SM_ROWS_B, SM_COLUMNS_B, 
- *          SM_UBAND_B, SM_LBAND_B, SM_SUBAND_B, SM_COLS_B, 
+ *          SM_UBAND_B, SM_LBAND_B, SM_SUBAND_B, SM_LDIM_B, SM_COLS_B, 
  *          SM_COLUMN_B, SM_COLUMN_ELEMENT_B, and SM_ELEMENT_B
  * -----------------------------------------------------------------
  * In the descriptions below, the following user declarations
@@ -113,7 +113,7 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
  * SUNMatrix A;
  * SUNMatrixContent_Band A_cont;
  * realtype *A_col_j, *A_data, **A_cols, A_ij;
- * sunindextype i, j, A_rows, A_columns, A_ldata;
+ * sunindextype i, j, A_rows, A_columns, A_ldata, A_ldim;
  *
  * (1) SM_CONTENT_B
  *
@@ -123,7 +123,7 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
  *     The assignment A_cont = SM_CONTENT_B(A) sets A_cont to be
  *     a pointer to the band SUNMatrix content structure.
  *
- * (2) SM_DATA_B, SM_ROWS_B, SM_COLUMNS_B, SM_LDATA_B, 
+ * (2) SM_DATA_B, SM_ROWS_B, SM_COLUMNS_B, SM_LDATA_B, SM_LDIM_B, 
  *     SM_UBAND_B, SM_LBAND_B and SM_SUBAND_B
  *
  *     These macros give access to the individual parts of
@@ -152,6 +152,9 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
  *
  *     The assignment A_smu = SM_SUBAND_B(A) sets A_smu to be
  *     the storage upper bandwidth of A.
+ *
+ *     The assignment A_ldim = SM_LDIM_B(A) sets A_ldim to be
+ *     the length of the leading dimension of A.
  *
  * (3) SM_COLUMN_B, SM_COLUMN_ELEMENT_B and SM_ELEMENT_B
  *
@@ -198,6 +201,8 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
 
 #define SM_SUBAND_B(A)      ( SM_CONTENT_B(A)->s_mu )
 
+#define SM_LDIM_B(A)        ( SM_CONTENT_B(A)->ldim )
+
 #define SM_DATA_B(A)        ( SM_CONTENT_B(A)->data )
 
 #define SM_COLS_B(A)        ( SM_CONTENT_B(A)->cols )
@@ -222,6 +227,7 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
  *    SUNBandMatrix_LowerBandwidth
  *    SUNBandMatrix_UpperBandwidth
  *    SUNBandMatrix_StoredUpperBandwidth
+ *    SUNBandMatrix_LDim
  *    SUNBandMatrix_Data
  *    SUNBandMatrix_Cols
  *    SUNBandMatrix_Column
@@ -299,6 +305,7 @@ SUNDIALS_EXPORT sunindextype SUNBandMatrix_Columns(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNBandMatrix_LowerBandwidth(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNBandMatrix_UpperBandwidth(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNBandMatrix_StoredUpperBandwidth(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNBandMatrix_LDim(SUNMatrix A);
 SUNDIALS_EXPORT realtype* SUNBandMatrix_Data(SUNMatrix A);
 SUNDIALS_EXPORT realtype** SUNBandMatrix_Cols(SUNMatrix A);
 SUNDIALS_EXPORT realtype* SUNBandMatrix_Column(SUNMatrix A, sunindextype j);

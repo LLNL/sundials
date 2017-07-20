@@ -191,6 +191,14 @@ sunindextype SUNBandMatrix_StoredUpperBandwidth(SUNMatrix A)
     return -1;
 }
 
+sunindextype SUNBandMatrix_LDim(SUNMatrix A)
+{
+  if (SUNMatGetID(A) == SUNMATRIX_BAND)
+    return SM_LDIM_B(A);
+  else
+    return -1;
+}
+
 realtype* SUNBandMatrix_Data(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_BAND)
