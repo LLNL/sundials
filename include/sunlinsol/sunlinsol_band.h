@@ -23,11 +23,7 @@
  * Part I contains declarations specific to the band implementation
  * of the supplied SUNLINSOL module.
  * 
- * Part II defines accessor macros that allow the user to 
- * efficiently use this SUNLinearSolver type without making explicit
- * references to the underlying data structure.
- *
- * Part III contains the prototype for the constructor 
+ * Part II contains the prototype for the constructor 
  * SUNBandLinearSolver as well as implementation-specific prototypes 
  * for various useful solver operations.
  *
@@ -76,47 +72,7 @@ typedef struct _SUNLinearSolverContent_Band *SUNLinearSolverContent_Band;
   
 /*
  * -----------------------------------------------------------------
- * PART II: macros SLS_CONTENT_B, SLS_DATA_B, SLS_LASTFLAG_B
- * -----------------------------------------------------------------
- * In the descriptions below, the following user declarations
- * are assumed:
- *
- * SUNLinearSolver S;
- * SUNLinearSolverContent_Band S_cont;
- * sunindextype *S_pivots;
- * long int S_lastflag;
- *
- * (1) SLS_CONTENT_B
- *
- *     This macro gives access to the contents of the band
- *     SUNLinearSolver
- *
- *     The assignment S_cont = SLS_CONTENT_B(S) sets S_cont to be
- *     a pointer to the band SUNLinearSolver content structure.
- *
- * (2) SLS_PIVOTS_B, SLS_LASTFLAG_B
- *
- *     These macros give access to the individual parts of
- *     the content structure of a band SUNLinearSolver.
- *
- *     The assignment S_pivots = SLS_PIVOTS_B(S) sets S_pivots
- *     to be a pointer to pivot array of S.
- *
- *     The assignment S_lastflag = SLS_LASTFLAG_B(S) sets S_lastflag
- *     to be the 'last_flag' entry from the content structure for S.
- *
- * -----------------------------------------------------------------
- */
-
-#define SLS_CONTENT_B(S)     ( (SUNLinearSolverContent_Band)(S->content) )
-
-#define SLS_PIVOTS_B(S)      ( SLS_CONTENT_B(S)->pivots )
-
-#define SLS_LASTFLAG_B(S)    ( SLS_CONTENT_B(S)->last_flag )
-
-/*
- * -----------------------------------------------------------------
- * PART III: functions exported by sunlinsol_band
+ * PART II: functions exported by sunlinsol_band
  * 
  * CONSTRUCTOR:
  *    SUNBandLinearSolver creates and allocates memory for a banded

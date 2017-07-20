@@ -90,11 +90,7 @@
  * Part I contains declarations specific to the SPBCGS implementation
  * of the supplied SUNLINSOL module.
  * 
- * Part II defines accessor macros that allow the user to 
- * efficiently use this SUNLinearSolver type without making explicit
- * references to the underlying data structure.
- *
- * Part III contains the prototype for the constructor 
+ * Part II contains the prototype for the constructor 
  * SUNSPBCGS as well as implementation-specific prototypes 
  * for various useful solver operations.
  *
@@ -182,41 +178,7 @@ typedef struct _SUNLinearSolverContent_SPBCGS *SUNLinearSolverContent_SPBCGS;
   
 /*
  * -----------------------------------------------------------------
- * PART II: macros SLS_CONTENT_SPBCGS
- * -----------------------------------------------------------------
- * In the descriptions below, the following user declarations
- * are assumed:
- *
- * SUNLinearSolver S;
- * SUNLinearSolverContent_SPBCGS S_cont;
- * int S_maxl, S_pretype;
- * long int S_lastflag;
- *
- * (1) SLS_CONTENT_SPBCGS
- *
- *     This macro gives access to the contents of the SPBCGS
- *     SUNLinearSolver
- *
- *     The assignment S_cont = SLS_CONTENT_SPBCGS(S) sets S_cont to be
- *     a pointer to the SPBCGS SUNLinearSolver content structure.
- *
- *     The assignment S_maxl = SLS_CONTENT_SPBCGS(S)->maxl sets S_maxl
- *     to be the maxl value from the SPBCGS content structure
- *
- *     The assignment S_pretype = SLS_CONTENT_SPBCGS(S)->pretype sets
- *     S_pretype to be the pretype value from the SPBCGS content
- *
- *     The assignment S_lastflag = SLS_CONTENT_SPBCGS(S)->lastflag 
- *     sets S_lastflag to be the lastflag value from the SPBCGS content
- *
- * -----------------------------------------------------------------
- */
-
-#define SLS_CONTENT_SPBCGS(S)  ( (SUNLinearSolverContent_SPBCGS)(S->content) )
-
-/*
- * -----------------------------------------------------------------
- * PART III: functions exported by sunlinsol_spbcgs
+ * PART II: functions exported by sunlinsol_spbcgs
  * 
  * CONSTRUCTOR:
  *    SUNSPBCGS creates and allocates memory for a SPBCGS solver

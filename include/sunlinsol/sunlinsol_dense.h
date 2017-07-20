@@ -23,11 +23,7 @@
  * Part I contains declarations specific to the dense implementation
  * of the supplied SUNLINSOL module.
  * 
- * Part II defines accessor macros that allow the user to 
- * efficiently use this SUNMatrix type without making explicit
- * references to the underlying data structure.
- *
- * Part III contains the prototype for the constructor 
+ * Part II contains the prototype for the constructor 
  * SLSNew_Dense as well as implementation-specific prototypes 
  * for various useful matrix operations.
  *
@@ -82,46 +78,7 @@ typedef struct _SUNLinearSolverContent_Dense *SUNLinearSolverContent_Dense;
 
 /*
  * -----------------------------------------------------------------
- * PART II: macros SLS_CONTENT_D, SLS_DATA_D, SLS_LASTFLAG_D * -----------------------------------------------------------------
- * In the descriptions below, the following user declarations
- * are assumed:
- *
- * SUNLinearSolver S;
- * SUNLinearSolverContent_Dense S_cont;
- * sunindextype *S_pivots;
- * long int S_lastflag;
- *
- * (1) SLS_CONTENT_D
- *
- *     This macro gives access to the contents of the dense
- *     SUNLinearSolver
- *
- *     The assignment S_cont = SLS_CONTENT_B(S) sets S_cont to
- *	  be a pointer to the dense SUNLinearSolver content
- *	  structure.
- *
- * (2) SLS_PIVOTS_D, SLS_LASTFLAG_D
- *
- *     These macros give access to the individual parts of
- *     the content structure of a dense SUNMatrix.
- *
- *     The assignment S_pivots = SLS_PIVOTS_B(S) sets S_pivots
- *     to be a pointer to pivot array of S.
- *
- *	  The assignment S_lastflag = SLS_LASTFLAG_D(S) sets 
- *  	  S_lastflag to be the 'last_flag' eentry from the content 
- * 	  structure for S.
- * ----------------------------------------------------------------- */
-  
-#define SLS_CONTENT_D(S)     ( (SUNLinearSolverContent_Dense)(S->content) )
-
-#define SLS_PIVOTS_D(S)      ( SLS_CONTENT_D(S)->pivots )
-
-#define SLS_LASTFLAG_D(S)    ( SLS_CONTENT_D(S)->last_flag )
-
-/*
- * -----------------------------------------------------------------
- * PART III: functions exported by sunlinsol_dense
+ * PART II: functions exported by sunlinsol_dense
  * 
  * CONSTRUCTORS:
  *    SUNDenseLinearSolver creates and allocates memory for a 

@@ -35,6 +35,16 @@
 
 /*
  * -----------------------------------------------------------------
+ * Band solver structure accessibility macros: 
+ * -----------------------------------------------------------------
+ */
+
+#define BAND_CONTENT(S)   ( (SUNLinearSolverContent_Band)(S->content) )
+#define PIVOTS(S)         ( BAND_CONTENT(S)->pivots )
+#define LASTFLAG(S)       ( BAND_CONTENT(S)->last_flag )
+
+/*
+ * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -131,7 +141,7 @@ SUNLinearSolver_Type SUNLinSolGetType_Band(SUNLinearSolver S)
 int SUNLinSolInitialize_Band(SUNLinearSolver S)
 {
   /* all solver-specific memory has already been allocated */
-  SLS_LASTFLAG_B(S) = 0;
+  LASTFLAG(S) = 0;
   return 0;
 }
 
@@ -140,7 +150,7 @@ int SUNLinSolSetATimes_Band(SUNLinearSolver S, void* A_data,
 {
   /* direct solvers do not utilize an 'ATimes' routine, 
      so return an error is this routine is ever called */
-  SLS_LASTFLAG_B(S) = 1;
+  LASTFLAG(S) = 1;
   return 1;
 }
 
@@ -149,7 +159,7 @@ int SUNLinSolSetPreconditioner_Band(SUNLinearSolver S, void* P_data,
 {
   /* direct solvers do not utilize preconditioning, 
      so return an error is this routine is ever called */
-  SLS_LASTFLAG_B(S) = 1;
+  LASTFLAG(S) = 1;
   return 1;
 }
 
@@ -158,7 +168,7 @@ int SUNLinSolSetScalingVectors_Band(SUNLinearSolver S, N_Vector s1,
 {
   /* direct solvers do not utilize scaling, 
      so return an error is this routine is ever called */
-  SLS_LASTFLAG_B(S) = 1;
+  LASTFLAG(S) = 1;
   return 1;
 }
 
@@ -171,22 +181,22 @@ int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
   A_cols = NULL;
   pivots = NULL;
   A_cols = SM_COLS_B(A);
-  pivots = SLS_PIVOTS_B(S);
+  pivots = PIVOTS(S);
   if ( (A_cols == NULL) || (pivots == NULL) )
     return 1;
 
   /* ensure that storage upper bandwidth is sufficient for fill-in */
   if (SM_SUBAND_B(A) < SUNMIN(SM_COLUMNS_B(A)-1, SM_UBAND_B(A) + SM_LBAND_B(A))) {
-    SLS_LASTFLAG_B(S) = -1;
+    LASTFLAG(S) = -1;
     return 1;
   }
   
   /* perform LU factorization of input matrix */
-  SLS_LASTFLAG_B(S) = bandGBTRF(A_cols, SM_COLUMNS_B(A), SM_UBAND_B(A),
+  LASTFLAG(S) = bandGBTRF(A_cols, SM_COLUMNS_B(A), SM_UBAND_B(A),
                                 SM_LBAND_B(A), SM_SUBAND_B(A), pivots);
   
   /* store error flag (if nonzero, this row encountered zero-valued pivod) */
-  if (SLS_LASTFLAG_B(S) > 0)
+  if (LASTFLAG(S) > 0)
     return 1;
   return 0;
 }
@@ -206,7 +216,7 @@ int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   pivots = NULL;
   A_cols = SUNBandMatrix_Cols(A);
   xdata = N_VGetArrayPointer(x);
-  pivots = SLS_PIVOTS_B(S);
+  pivots = PIVOTS(S);
   if ( (A_cols == NULL) || (xdata == NULL)  || (pivots == NULL) )
     return 1;
   
@@ -237,13 +247,13 @@ int SUNLinSolNumPSolves_Band(SUNLinearSolver S)
 long int SUNLinSolLastFlag_Band(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
-  return (SLS_LASTFLAG_B(S));
+  return (LASTFLAG(S));
 }
 
 int SUNLinSolFree_Band(SUNLinearSolver S)
 {
   /* delete items from the contents structure, then delete generic structures */
-  free(SLS_PIVOTS_B(S));  SLS_PIVOTS_B(S) = NULL;
+  free(PIVOTS(S));  PIVOTS(S) = NULL;
   free(S->content);  S->content = NULL;
   free(S->ops);  S->ops = NULL;
   free(S); S = NULL;

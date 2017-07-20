@@ -91,11 +91,7 @@
  * Part I contains declarations specific to the SPGMR implementation
  * of the supplied SUNLINSOL module.
  * 
- * Part II defines accessor macros that allow the user to 
- * efficiently use this SUNLinearSolver type without making explicit
- * references to the underlying data structure.
- *
- * Part III contains the prototype for the constructor 
+ * Part II contains the prototype for the constructor 
  * SUNSPGMR as well as implementation-specific prototypes 
  * for various useful solver operations.
  *
@@ -198,44 +194,9 @@ struct _SUNLinearSolverContent_SPGMR {
 
 typedef struct _SUNLinearSolverContent_SPGMR *SUNLinearSolverContent_SPGMR;
 
-  
 /*
  * -----------------------------------------------------------------
- * PART II: macros SLS_CONTENT_SPGMR
- * -----------------------------------------------------------------
- * In the descriptions below, the following user declarations
- * are assumed:
- *
- * SUNLinearSolver S;
- * SUNLinearSolverContent_SPGMR S_cont;
- * int S_maxl, S_pretype;
- * long int S_lastflag;
- *
- * (1) SLS_CONTENT_SPGMR
- *
- *     This macro gives access to the contents of the SPGMR
- *     SUNLinearSolver
- *
- *     The assignment S_cont = SLS_CONTENT_SPGMR(S) sets S_cont to be
- *     a pointer to the SPGMR SUNLinearSolver content structure.
- *
- *     The assignment S_maxl = SLS_CONTENT_SPGMR(S)->maxl sets S_maxl
- *     to be the maxl value from the SPGMR content structure
- *
- *     The assignment S_pretype = SLS_CONTENT_SPGMR(S)->pretype sets
- *     S_pretype to be the pretype value from the SPGMR content
- *
- *     The assignment S_lastflag = SLS_CONTENT_SPGMR(S)->lastflag 
- *     sets S_lastflag to be the lastflag value from the SPGMR content
- *
- * -----------------------------------------------------------------
- */
-
-#define SLS_CONTENT_SPGMR(S)  ( (SUNLinearSolverContent_SPGMR)(S->content) )
-
-/*
- * -----------------------------------------------------------------
- * PART III: functions exported by sunlinsol_spgmr
+ * PART II: functions exported by sunlinsol_spgmr
  * 
  * CONSTRUCTOR:
  *    SUNSPGMR creates and allocates memory for a SPGMR solver

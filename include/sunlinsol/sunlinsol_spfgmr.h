@@ -87,11 +87,7 @@
  * Part I contains declarations specific to the SPFGMR implementation
  * of the supplied SUNLINSOL module.
  * 
- * Part II defines accessor macros that allow the user to 
- * efficiently use this SUNLinearSolver type without making explicit
- * references to the underlying data structure.
- *
- * Part III contains the prototype for the constructor 
+ * Part II contains the prototype for the constructor 
  * SUNSPFGMR as well as implementation-specific prototypes 
  * for various useful solver operations.
  *
@@ -198,44 +194,9 @@ struct _SUNLinearSolverContent_SPFGMR {
 
 typedef struct _SUNLinearSolverContent_SPFGMR *SUNLinearSolverContent_SPFGMR;
 
-  
 /*
  * -----------------------------------------------------------------
- * PART II: macros SLS_CONTENT_SPFGMR
- * -----------------------------------------------------------------
- * In the descriptions below, the following user declarations
- * are assumed:
- *
- * SUNLinearSolver S;
- * SUNLinearSolverContent_SPFGMR S_cont;
- * int S_maxl, S_pretype;
- * long int S_lastflag;
- *
- * (1) SLS_CONTENT_SPFGMR
- *
- *     This macro gives access to the contents of the SPFGMR
- *     SUNLinearSolver
- *
- *     The assignment S_cont = SLS_CONTENT_SPFGMR(S) sets S_cont to be
- *     a pointer to the SPFGMR SUNLinearSolver content structure.
- *
- *     The assignment S_maxl = SLS_CONTENT_SPFGMR(S)->maxl sets S_maxl
- *     to be the maxl value from the SPFGMR content structure
- *
- *     The assignment S_pretype = SLS_CONTENT_SPFGMR(S)->pretype sets
- *     S_pretype to be the pretype value from the SPFGMR content
- *
- *     The assignment S_lastflag = SLS_CONTENT_SPFGMR(S)->lastflag 
- *     sets S_lastflag to be the lastflag value from the SPFGMR content
- *
- * -----------------------------------------------------------------
- */
-
-#define SLS_CONTENT_SPFGMR(S)  ( (SUNLinearSolverContent_SPFGMR)(S->content) )
-
-/*
- * -----------------------------------------------------------------
- * PART III: functions exported by sunlinsol_spfgmr
+ * PART II: functions exported by sunlinsol_spfgmr
  * 
  * CONSTRUCTOR:
  *    SUNSPFGMR creates and allocates memory for a SPFGMR solver
