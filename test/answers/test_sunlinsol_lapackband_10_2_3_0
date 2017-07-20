@@ -1,0 +1,16 @@
+
+LapackBand linear solver test: size 10, bandwidths 2 3
+
+    PASSED test -- SUNLinSolInitialize 
+    PASSED test -- SUNLinSolSetup 
+    PASSED test -- SUNLinSolSolve 
+    PASSED test -- SUNLinSolGetType 
+    PASSED test -- SUNLinSolLastFlag (0) 
+    PASSED test -- SUNLinSolNumIters (0) 
+    PASSED test -- SUNLinSolResNorm
+    PASSED test -- SUNLinSolNumPSolves (0) 
+    PASSED test -- SUNLinSolSetATimes 
+    PASSED test -- SUNLinSolSetPreconditioner 
+    PASSED test -- SUNLinSolSetScalingVectors 
+SUCCESS: SUNLinSol module passed all tests 
+ 
