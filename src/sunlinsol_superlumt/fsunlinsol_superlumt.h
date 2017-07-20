@@ -1,6 +1,6 @@
 /*
  * ----------------------------------------------------------------- 
- * Programmer(s): Daniel Reynolds, Ashley Crawford @ SMU
+ * Programmer(s): Daniel Reynolds @ SMU
  *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS/SMU Copyright Start
@@ -17,16 +17,16 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
- * This file (companion of fsunlinsol_band.c) contains the
- * definitions needed for the initialization of band
+ * This file (companion of fsunlinsol_superlumt.c) contains the
+ * definitions needed for the initialization of superlumt
  * linear solver operations in Fortran.
  * -----------------------------------------------------------------
  */
 
-#ifndef _FSUNLINSOL_BAND_H
-#define _FSUNLINSOL_BAND_H
+#ifndef _FSUNLINSOL_SUPERLUMT_H
+#define _FSUNLINSOL_SUPERLUMT_H
 
-#include <sunlinsol/sunlinsol_band.h>
+#include <sunlinsol/sunlinsol_superlumt.h>
 #include <sundials/sundials_fnvector.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -34,9 +34,11 @@ extern "C" {
 #endif
 
 #if defined(SUNDIALS_F77_FUNC)
-#define FSUNBANDLINSOL_INIT   SUNDIALS_F77_FUNC(fsunbandlinsolinit, FSUNBANDLINSOLINIT)
+#define FSUNSUPERLUMT_INIT         SUNDIALS_F77_FUNC(fsunsuperlumtinit,        FSUNSUPERLUMTINIT)
+#define FSUNSUPERLUMT_SETORDERING  SUNDIALS_F77_FUNC(fsunsuperlumtsetordering, FSUNSUPERLUMTSETORDERING)
 #else
-#define FSUNBANDLINSOL_INIT   fsunbandlinsolinit_
+#define FSUNSUPERLUMT_INIT         fsunsuperlumtinit_
+#define FSUNSUPERLUMT_SETORDERING  fsunsuperlumtsetordering_
 #endif
 
 
@@ -50,11 +52,12 @@ extern SUNLinearSolver F2C_ARKODE_linsol;
 /* 
  * Prototypes of exported functions 
  *
- * FSUNBANDLINSOL_INIT - initializes band linear solver for main problem
+ * FSUNSUPERLUMT_INIT - initializes superlumt linear solver for main problem
+ * FSUNSUPERLUMT_SETORDERING - sets the ordering choice used by SUPERLUMT
  */
 
-void FSUNBANDLINSOL_INIT(int *code, long int *N, long int *mu, 
-                         long int *ml, long int *smu, int *ier);
+void FSUNSUPERLUMT_INIT(int *code, int *ier, int *num_threads);
+void FSUNSUPERLUMT_SETORDERING(int *code, int *ordering, int *ier);
 
 #ifdef __cplusplus
 }
