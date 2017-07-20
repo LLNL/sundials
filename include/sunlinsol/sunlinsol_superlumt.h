@@ -1,6 +1,6 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds, Ashley Crawford @ SMU
+ * Programmer(s): Daniel Reynolds @ SMU
  *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS/SMU Copyright Start
@@ -17,18 +17,14 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the band implementation of the 
+ * This is the header file for the SuperLUMT implementation of the 
  * SUNLINSOL module.
  * 
- * Part I contains declarations specific to the band implementation
- * of the supplied SUNLINSOL module.
+ * Part I contains declarations specific to the SuperLUMT 
+ * implementation of the supplied SUNLINSOL module.
  * 
- * Part II defines accessor macros that allow the user to 
- * efficiently use this SUNMatrix type without making explicit
- * references to the underlying data structure.
- *
- * Part III contains the prototype for the constructor 
- * SLSNew_Band as well as implementation-specific prototypes 
+ * Part II contains the prototype for the constructor 
+ * SUNSuperLUMT as well as implementation-specific prototypes 
  * for various useful solver operations.
  *
  * Notes:
@@ -39,14 +35,17 @@
  * -----------------------------------------------------------------
  */
 
-#ifndef _SUNLINSOL_BAND_H
-#define _SUNLINSOL_BAND_H
+#ifndef _SUNLINSOL_SLUMT_H
+#define _SUNLINSOL_SLUMT_H
 
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
-#include <sundials/sundials_band.h>
-#include <sunmatrix/sunmatrix_band.h>
+#include <sunmatrix/sunmatrix_sparse.h>
+/* assume SuperLU_MT library was built with compatible index type */  
+#if defined(SUNDIALS_SIGNED_64BIT_TYPE)
+#define _LONGINT
+#endif
 #include <nvector/nvector_serial.h>
 #include <nvector/nvector_openmp.h>
 #include <nvector/nvector_pthreads.h>
@@ -55,103 +54,131 @@
 extern "C" {
 #endif
 
+/* Default SuperLU_MT solver parameters */
+#define SUNSLUMT_ORDERING_DEFAULT  3     /* COLAMD */
+
+/* Interfaces to match 'realtype' with the correct SuperLUMT functions */
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#ifndef _SLUMT_H
+#define _SLUMT_H
+#include "slu_mt_ddefs.h"
+#endif
+#define xgstrs                  dgstrs
+#define pxgstrf                 pdgstrf
+#define pxgstrf_init            pdgstrf_init
+#define xCreate_Dense_Matrix    dCreate_Dense_Matrix
+#define xCreate_CompCol_Matrix  dCreate_CompCol_Matrix
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#ifndef _SLUMT_H
+#define _SLUMT_H
+#include "slu_mt_sdefs.h"
+#endif
+#define xgstrs                  sgstrs
+#define pxgstrf                 psgstrf
+#define pxgstrf_init            psgstrf_init
+#define xCreate_Dense_Matrix    sCreate_Dense_Matrix
+#define xCreate_CompCol_Matrix  sCreate_CompCol_Matrix
+#else  /* incompatible sunindextype for SuperLUMT */
+#error  Incompatible realtype for SuperLUMT
+#endif
+
+  
 /*
  * -----------------------------------------------------------------
- * PART I: Band implementation of SUNLinearSolver
+ * PART I: SuperLUMT implementation of SUNLinearSolver
  *
- * The band implementation of the SUNLinearSolver 'content' 
+ * The SuperLUMT implementation of the SUNLinearSolver 'content' 
  * structure contains:
- *     pivots -- index array for partial pivoting in LU factorization
  *     last_flag -- last error return flag from internal setup/solve
+ *     A, AC, L, U, B -- SuperMatrix pointers used in solve
+ *     Gstat -- GStat_t object used in solve
+ *     perm_r, perm_c -- permutation arrays used in solve
+ *     num_threads -- number of OpenMP/Pthreads threads to use
+ *     diag_pivot_thresh -- threshold on diagonal pivoting
+ *     ordering -- flag for reordering algorithm to use
+ *     options -- pointer to SuperLUMT options structure
+ *     slumt_solver -- ptr to SuperLUMT function to handle CSR/CSC
  * -----------------------------------------------------------------
  */
   
-struct _SUNLinearSolverContent_Band {
-  long int *pivots;
-  long int last_flag;
+struct _SUNLinearSolverContent_SuperLUMT {
+  long int     last_flag;
+  int          first_factorize;
+  SuperMatrix  *A, *AC, *L, *U, *B;
+  Gstat_t      *Gstat;
+  sunindextype *perm_r, *perm_c;
+  sunindextype N;
+  int          num_threads;
+  realtype     diag_pivot_thresh; 
+  int          ordering;
+  superlumt_options_t *options;
+
 };
 
-typedef struct _SUNLinearSolverContent_Band *SUNLinearSolverContent_Band;
+typedef struct _SUNLinearSolverContent_SuperLUMT *SUNLinearSolverContent_SuperLUMT;
 
   
 /*
  * -----------------------------------------------------------------
- * PART II: macros SLS_CONTENT_B, SLS_DATA_B, SLS_LASTFLAG_B
- * -----------------------------------------------------------------
- * In the descriptions below, the following user declarations
- * are assumed:
- *
- * SUNLinearSolver S;
- * SUNLinearSolverContent_Band S_cont;
- * long int *S_pivots, S_lastflag;
- *
- * (1) SLS_CONTENT_B
- *
- *     This macro gives access to the contents of the band
- *     SUNLinearSolver
- *
- *     The assignment S_cont = SLS_CONTENT_B(S) sets S_cont to be
- *     a pointer to the band SUNLinearSolver content structure.
- *
- * (2) SLS_PIVOTS_B, SLS_LASTFLAG_B
- *
- *     These macros give access to the individual parts of
- *     the content structure of a band SUNMatrix.
- *
- *     The assignment S_pivots = SLS_PIVOTS_B(S) sets S_pivots
- *     to be a pointer to pivot array of S.
- *
- *     The assignment S_lastflag = SLS_LASTFLAG_B(S) sets S_lastflag
- *     to be the 'last_flag' entry from the content structure for S.
- *
- * -----------------------------------------------------------------
- */
-
-#define SLS_CONTENT_B(S)     ( (SUNLinearSolverContent_Band)(S->content) )
-
-#define SLS_PIVOTS_B(S)      ( SLS_CONTENT_B(S)->pivots )
-
-#define SLS_LASTFLAG_B(S)    ( SLS_CONTENT_B(S)->last_flag )
-
-/*
- * -----------------------------------------------------------------
- * PART III: functions exported by sunlinsol_band
+ * PART II: functions exported by sunlinsol_slumt
  * 
  * CONSTRUCTOR:
- *    SUNBandLinearSolver creates and allocates memory for a banded
- *    matrix solver
+ *    SUNSuperLUMT creates and allocates memory for a SuperLUMT sparse-direct 
+ *      linear solver
+ *
+ * OTHER:
+ *    SUNSuperLUMTSetOrdering sets the ordering used by SuperLUMT for reducing 
+ *      fill in the linear solve.  Options for ordering_choice are: 
+ *         0 for natural ordering
+ *         1 for minimal degree ordering on A'*A
+ *         2 for minimal degree ordering on A'+A
+ *         3 for AMD ordering for unsymmetric matrices
+ *      The default used in SUNDIALS is 3 for COLAMD.
+ *
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SUNLinearSolver SUNBandLinearSolver(N_Vector y,
-                                                    SUNMatrix A);
+SUNDIALS_EXPORT SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A,
+                                             int num_threads);
+
+SUNDIALS_EXPORT int SUNSuperLUMTSetOrdering(SUNLinearSolver S,
+                                      int ordering_choice);
 
 /*
  * -----------------------------------------------------------------
- * band implementations of various useful linear solver operations
+ * SuperLUMT implementations of various useful linear solver operations
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_Band(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolInitialize_Band(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSetATimes_Band(SUNLinearSolver S, void* A_data,
-                                            ATSetupFn ATSetup, ATimesFn ATimes);
-SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_Band(SUNLinearSolver S,
-                                                    void* P_data,
-                                                    PSetupFn Pset,
-                                                    PSolveFn Psol);
-SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_Band(SUNLinearSolver S,
-                                                    N_Vector s1,
-                                                    N_Vector s2);
-SUNDIALS_EXPORT int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A);
-SUNDIALS_EXPORT int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A,
-                                        N_Vector x, N_Vector b, realtype tol);
-SUNDIALS_EXPORT int SUNLinSolNumIters_Band(SUNLinearSolver S);
-SUNDIALS_EXPORT realtype SUNLinSolResNorm_Band(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolNumPSolves_Band(SUNLinearSolver S);
-SUNDIALS_EXPORT long int SUNLinSolLastFlag_Band(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolFree_Band(SUNLinearSolver S);
+SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SuperLUMT(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolInitialize_SuperLUMT(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolSetATimes_SuperLUMT(SUNLinearSolver S, void* A_data,
+                                           ATSetupFn ATSetup, ATimesFn ATimes);
+SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_SuperLUMT(SUNLinearSolver S,
+                                                   void* P_data,
+                                                   PSetupFn Pset,
+                                                   PSolveFn Psol);
+SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_SuperLUMT(SUNLinearSolver S,
+                                                   N_Vector s1,
+                                                   N_Vector s2);
+SUNDIALS_EXPORT int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A);
+SUNDIALS_EXPORT int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A,
+                                       N_Vector x, N_Vector b, realtype tol);
+SUNDIALS_EXPORT int SUNLinSolNumIters_SuperLUMT(SUNLinearSolver S);
+SUNDIALS_EXPORT realtype SUNLinSolResNorm_SuperLUMT(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolNumPSolves_SuperLUMT(SUNLinearSolver S);
+SUNDIALS_EXPORT long int SUNLinSolLastFlag_SuperLUMT(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolFree_SuperLUMT(SUNLinearSolver S);
   
+/* Possible return values from the SuperLUMT functions -- should
+   these be abstracted to instead apply to all linear solvers? */
+
+#define SLUMT_SUCCESS           0  /* successful function call   */
+#define SLUMT_MEM_NULL         -1  /* mem argument is NULL       */
+#define SLUMT_ILL_INPUT        -2  /* illegal input              */
+#define SLUMT_MEM_FAIL         -3  /* failed memory access       */
+#define SLUMT_PACKAGE_FAIL     -4  /* internal SuperLUMT failure */
+
 #ifdef __cplusplus
 }
 #endif
