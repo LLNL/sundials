@@ -67,7 +67,7 @@ SUNLinearSolver SUNKLU(N_Vector y, SUNMatrix A)
   
   /* Check compatibility with supplied SUNMatrix and N_Vector */
   if (SUNMatGetID(A) != SUNMATRIX_SPARSE)
-    return NULL;
+    return(NULL);
   MatrixRows = SUNSparseMatrix_Rows(A);
   MatrixCols = SUNSparseMatrix_Columns(A);
   if (N_VGetVectorID(y) == SUNDIALS_NVEC_SERIAL) {
@@ -84,9 +84,9 @@ SUNLinearSolver SUNKLU(N_Vector y, SUNMatrix A)
   }
 #endif
   else
-    return NULL;
+    return(NULL);
   if ( (MatrixRows != MatrixCols) || (MatrixRows != VecLength) )
-    return NULL;
+    return(NULL);
 
   /* Create linear solver */
   S = NULL;
@@ -160,16 +160,16 @@ int SUNKLUReInit(SUNLinearSolver S, SUNMatrix A,
   int type;
   
   /* Check for non-NULL SUNLinearSolver */
-  if (S == NULL) return(KLU_MEM_NULL);
+  if ((S == NULL) || (A == NULL)) 
+    return(SUNLS_MEM_NULL);
 
-  /* Check for non-NULL (and valid) SUNMatrix */
-  if (A == NULL) return(KLU_MEM_FAIL);
+  /* Check for valid SUNMatrix */
   if (SUNMatGetID(A) != SUNMATRIX_SPARSE)
-    return(KLU_ILL_INPUT);
+    return(SUNLS_ILL_INPUT);
 
   /* Check for valid reinit_type */
   if ((reinit_type != 1) && (reinit_type != 2))
-    return(KLU_ILL_INPUT);
+    return(SUNLS_ILL_INPUT);
 
   /* Perform re-initialization */ 
   if (reinit_type == 1) {
@@ -183,7 +183,7 @@ int SUNKLUReInit(SUNLinearSolver S, SUNMatrix A,
 
     /* Create new sparse matrix */
     A = SUNSparseMatrix(n, n, nnz, type);
-    if (A == NULL) return(KLU_MEM_FAIL);
+    if (A == NULL) return(SUNLS_MEM_FAIL);
     
   }
 
@@ -194,7 +194,7 @@ int SUNKLUReInit(SUNLinearSolver S, SUNMatrix A,
     sun_klu_free_numeric(&NUMERIC(S), &COMMON(S));
   FIRSTFACTORIZE(S) = 1;
 
-  LASTFLAG(S) = KLU_SUCCESS;
+  LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
 }
 
@@ -206,15 +206,15 @@ int SUNKLUSetOrdering(SUNLinearSolver S, int ordering_choice)
 {
   /* Check for legal ordering_choice */ 
   if ((ordering_choice < 0) || (ordering_choice > 2))
-    return(KLU_ILL_INPUT);
+    return(SUNLS_ILL_INPUT);
 
   /* Check for non-NULL SUNLinearSolver */
-  if (S == NULL) return(KLU_MEM_NULL);
+  if (S == NULL) return(SUNLS_MEM_NULL);
 
   /* Set ordering_choice */
   COMMON(S).ordering = ordering_choice;
 
-  LASTFLAG(S) = KLU_SUCCESS;
+  LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
 }
 
@@ -226,7 +226,7 @@ int SUNKLUSetOrdering(SUNLinearSolver S, int ordering_choice)
 
 SUNLinearSolver_Type SUNLinSolGetType_KLU(SUNLinearSolver S)
 {
-  return SUNLINEARSOLVER_DIRECT;
+  return(SUNLINEARSOLVER_DIRECT);
 }
 
 
@@ -235,7 +235,7 @@ int SUNLinSolInitialize_KLU(SUNLinearSolver S)
   /* Force factorization */
   FIRSTFACTORIZE(S) = 1;
  
-  LASTFLAG(S) = KLU_SUCCESS;
+  LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
 }
 
@@ -245,7 +245,7 @@ int SUNLinSolSetATimes_KLU(SUNLinearSolver S, void* A_data,
 {
   /* direct solvers do not utilize an 'ATimes' routine, 
      so return an error is this routine is ever called */
-  LASTFLAG(S) = KLU_ILL_INPUT;
+  LASTFLAG(S) = SUNLS_ILL_INPUT;
   return(LASTFLAG(S));
 }
 
@@ -255,7 +255,7 @@ int SUNLinSolSetPreconditioner_KLU(SUNLinearSolver S, void* P_data,
 {
   /* direct solvers do not utilize preconditioning, 
      so return an error is this routine is ever called */
-  LASTFLAG(S) = KLU_ILL_INPUT;
+  LASTFLAG(S) = SUNLS_ILL_INPUT;
   return(LASTFLAG(S));
 }
 
@@ -265,7 +265,7 @@ int SUNLinSolSetScalingVectors_KLU(SUNLinearSolver S, N_Vector s1,
 {
   /* direct solvers do not utilize scaling, 
      so return an error is this routine is ever called */
-  LASTFLAG(S) = KLU_ILL_INPUT;
+  LASTFLAG(S) = SUNLS_ILL_INPUT;
   return(LASTFLAG(S));
 }
 
@@ -279,7 +279,7 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
 
   /* Ensure that A is a sparse matrix */
   if (SUNMatGetID(A) != SUNMATRIX_SPARSE) {
-    LASTFLAG(S) = KLU_ILL_INPUT;
+    LASTFLAG(S) = SUNLS_ILL_INPUT;
     return(LASTFLAG(S));
   }
   
@@ -294,7 +294,7 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
                                   SUNSparseMatrix_IndexValues(A), 
                                   &COMMON(S));
     if (SYMBOLIC(S) == NULL) {
-      LASTFLAG(S) = KLU_PACKAGE_FAIL;
+      LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;
       return(LASTFLAG(S));
     }
 
@@ -309,7 +309,7 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
                                 SYMBOLIC(S), 
                                 &COMMON(S));
     if (NUMERIC(S) == NULL) {
-      LASTFLAG(S) = KLU_PACKAGE_FAIL;
+      LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;
       return(LASTFLAG(S));
     }
 
@@ -324,7 +324,7 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
                               NUMERIC(S),
                               &COMMON(S));
     if (retval == 0) {
-      LASTFLAG(S) = KLU_PACKAGE_FAIL;
+      LASTFLAG(S) = SUNLS_PACKAGE_FAIL_REC;
       return(LASTFLAG(S));
     }
     
@@ -336,7 +336,7 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
     
     retval = sun_klu_rcond(SYMBOLIC(S), NUMERIC(S), &COMMON(S));
     if (retval == 0) {
-      LASTFLAG(S) = KLU_PACKAGE_FAIL;
+      LASTFLAG(S) = SUNLS_PACKAGE_FAIL_REC;
       return(LASTFLAG(S));
     }
 
@@ -350,7 +350,7 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
                                NUMERIC(S),
                                &COMMON(S));
       if (retval == 0) {
-        LASTFLAG(S) = KLU_PACKAGE_FAIL;
+	LASTFLAG(S) = SUNLS_PACKAGE_FAIL_REC;
         return(LASTFLAG(S));
       }
       
@@ -365,7 +365,7 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
                                     SYMBOLIC(S), 
                                     &COMMON(S));
 	if (NUMERIC(S) == NULL) {
-          LASTFLAG(S) = KLU_PACKAGE_FAIL;
+	  LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;
           return(LASTFLAG(S));
 	}
       }
@@ -373,7 +373,7 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
     }
   }
 
-  LASTFLAG(S) = KLU_SUCCESS;
+  LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
 }
 
@@ -384,13 +384,17 @@ int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   int flag;
   realtype *xdata;
   
+  /* check for valid inputs */
+  if ( (A == NULL) || (S == NULL) || (x == NULL) || (b == NULL) ) 
+    return(SUNLS_MEM_NULL);
+  
   /* copy b into x */
   N_VScale(ONE, b, x);
 
   /* access x data array */
   xdata = N_VGetArrayPointer(x);
   if (xdata == NULL) {
-    LASTFLAG(S) = KLU_MEM_FAIL;
+    LASTFLAG(S) = SUNLS_MEM_FAIL;
     return(LASTFLAG(S));
   }
   
@@ -399,11 +403,11 @@ int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                   SUNSparseMatrix_NP(A), 1, xdata, 
                   &COMMON(S));
   if (flag == 0) {
-    LASTFLAG(S) = KLU_PACKAGE_FAIL;
+    LASTFLAG(S) = SUNLS_PACKAGE_FAIL_REC;
     return(LASTFLAG(S));
   }
 
-  LASTFLAG(S) = KLU_SUCCESS;
+  LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
 }
 
@@ -411,28 +415,28 @@ int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 int SUNLinSolNumIters_KLU(SUNLinearSolver S)
 {
   /* direct solvers do not perform 'iterations' */
-  return 0;
+  return(0);
 }
 
 
 realtype SUNLinSolResNorm_KLU(SUNLinearSolver S)
 {
   /* direct solvers do not measure the linear residual */
-  return ZERO;
+  return(ZERO);
 }
 
 
 int SUNLinSolNumPSolves_KLU(SUNLinearSolver S)
 {
   /* direct solvers do not use preconditioning */
-  return 0;
+  return(0);
 }
 
 
 long int SUNLinSolLastFlag_KLU(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
-  return LASTFLAG(S);
+  return(LASTFLAG(S));
 }
 
 
@@ -440,7 +444,7 @@ int SUNLinSolFree_KLU(SUNLinearSolver S)
 {
   /* return with success if already freed */
   if (S == NULL)
-    return 0;
+    return(SUNLS_SUCCESS);
   
   /* delete items from the contents structure (if it exists) */
   if (S->content) {
@@ -448,11 +452,15 @@ int SUNLinSolFree_KLU(SUNLinearSolver S)
       sun_klu_free_numeric(&NUMERIC(S), &COMMON(S));
     if (SYMBOLIC(S))
       sun_klu_free_symbolic(&SYMBOLIC(S), &COMMON(S));
+    free(S->content);  
+    S->content = NULL;
   }
   
   /* delete generic structures */
-  free(S->content);  S->content = NULL;
-  free(S->ops);  S->ops = NULL;
+  if (S->ops) {
+    free(S->ops);  
+    S->ops = NULL;
+  }
   free(S); S = NULL;
-  return 0;
+  return(SUNLS_SUCCESS);
 }

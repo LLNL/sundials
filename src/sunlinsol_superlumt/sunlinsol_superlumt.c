@@ -71,11 +71,10 @@ SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
   SUNLinearSolver_Ops ops;
   SUNLinearSolverContent_SuperLUMT content;
   sunindextype MatrixRows, MatrixCols, VecLength;
-  int flag;
 
   /* Check compatibility with supplied SUNMatrix and N_Vector */
   if (SUNMatGetID(A) != SUNMATRIX_SPARSE)
-    return NULL;
+    return(NULL);
   MatrixRows = SUNSparseMatrix_Rows(A);
   MatrixCols = SUNSparseMatrix_Columns(A);
   if (N_VGetVectorID(y) == SUNDIALS_NVEC_SERIAL) {
@@ -92,9 +91,9 @@ SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
   }
 #endif
   else
-    return NULL;
+    return(NULL);
   if ( (MatrixRows != MatrixCols) || (MatrixRows != VecLength) )
-    return NULL;
+    return(NULL);
   
   /* Create linear solver */
   S = NULL;
@@ -204,15 +203,15 @@ int SUNSuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice)
 {
   /* Check for legal ordering_choice */ 
   if ((ordering_choice < 0) || (ordering_choice > 3))
-    return(SLUMT_ILL_INPUT);
+    return(SUNLS_ILL_INPUT);
 
   /* Check for non-NULL SUNLinearSolver */
-  if (S == NULL) return(SLUMT_MEM_NULL);
+  if (S == NULL) return(SUNLS_MEM_NULL);
 
   /* Set ordering_choice */
   ORDERING(S) = ordering_choice;
 
-  LASTFLAG(S) = SLUMT_SUCCESS;
+  LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
 }
 
@@ -224,7 +223,7 @@ int SUNSuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice)
 
 SUNLinearSolver_Type SUNLinSolGetType_SuperLUMT(SUNLinearSolver S)
 {
-  return SUNLINEARSOLVER_DIRECT;
+  return(SUNLINEARSOLVER_DIRECT);
 }
 
 
@@ -236,7 +235,7 @@ int SUNLinSolInitialize_SuperLUMT(SUNLinearSolver S)
   /* Initialize statistics variables */
   StatInit(SIZE(S), NUMTHREADS(S), GSTAT(S));
   
-  LASTFLAG(S) = SLUMT_SUCCESS;
+  LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
 }
 
@@ -246,7 +245,7 @@ int SUNLinSolSetATimes_SuperLUMT(SUNLinearSolver S, void* A_data,
 {
   /* direct solvers do not utilize an 'ATimes' routine, 
      so return an error is this routine is ever called */
-  LASTFLAG(S) = SLUMT_ILL_INPUT;
+  LASTFLAG(S) = SUNLS_ILL_INPUT;
   return(LASTFLAG(S));
 }
 
@@ -256,7 +255,7 @@ int SUNLinSolSetPreconditioner_SuperLUMT(SUNLinearSolver S, void* P_data,
 {
   /* direct solvers do not utilize preconditioning, 
      so return an error is this routine is ever called */
-  LASTFLAG(S) = SLUMT_ILL_INPUT;
+  LASTFLAG(S) = SUNLS_ILL_INPUT;
   return(LASTFLAG(S));
 }
 
@@ -266,7 +265,7 @@ int SUNLinSolSetScalingVectors_SuperLUMT(SUNLinearSolver S, N_Vector s1,
 {
   /* direct solvers do not utilize scaling, 
      so return an error is this routine is ever called */
-  LASTFLAG(S) = SLUMT_ILL_INPUT;
+  LASTFLAG(S) = SUNLS_ILL_INPUT;
   return(LASTFLAG(S));
 }
 
@@ -331,11 +330,12 @@ int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A)
   pxgstrf(OPTIONS(S), SM_AC(S), PERMR(S), SM_L(S), SM_U(S),
           GSTAT(S), &retval);
   if (retval != 0) {
-    LASTFLAG(S) = retval;
+    LASTFLAG(S) = (retval < 0) ? 
+      SUNLS_PACKAGE_FAIL_UNREC : SUNLS_PACKAGE_FAIL_REC;
     return(LASTFLAG(S));
   }
   
-  LASTFLAG(S) = SLUMT_SUCCESS;
+  LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
 }
 
@@ -346,7 +346,6 @@ int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   sunindextype retval;
   realtype *xdata;
   DNformat *Bstore;
-  realtype *bd;
   trans_t trans;
   
   /* copy b into x */
@@ -355,7 +354,7 @@ int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   /* access x data array */
   xdata = N_VGetArrayPointer(x);
   if (xdata == NULL) {
-    LASTFLAG(S) = SLUMT_MEM_FAIL;
+    LASTFLAG(S) = SUNLS_MEM_FAIL;
     return(LASTFLAG(S));
   }
 
@@ -366,11 +365,11 @@ int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   trans = (SUNSparseMatrix_SparseType(A) == CSC_MAT) ? NOTRANS : TRANS;
   xgstrs(trans, SM_L(S), SM_U(S), PERMR(S), PERMC(S), SM_B(S), GSTAT(S), &retval);
   if (retval != 0) {
-    LASTFLAG(S) = retval;
+    LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;
     return(LASTFLAG(S));
   }
   
-  LASTFLAG(S) = SLUMT_SUCCESS;
+  LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
 }
 
@@ -378,28 +377,28 @@ int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 int SUNLinSolNumIters_SuperLUMT(SUNLinearSolver S)
 {
   /* direct solvers do not perform 'iterations' */
-  return 0;
+  return(0);
 }
 
 
 realtype SUNLinSolResNorm_SuperLUMT(SUNLinearSolver S)
 {
   /* direct solvers do not measure the linear residual */
-  return ZERO;
+  return(ZERO);
 }
 
 
 int SUNLinSolNumPSolves_SuperLUMT(SUNLinearSolver S)
 {
   /* direct solvers do not use preconditioning */
-  return 0;
+  return(0);
 }
 
 
 long int SUNLinSolLastFlag_SuperLUMT(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
-  return LASTFLAG(S);
+  return(LASTFLAG(S));
 }
 
 
@@ -407,7 +406,7 @@ int SUNLinSolFree_SuperLUMT(SUNLinearSolver S)
 {
   /* return with success if already freed */
   if (S == NULL)
-    return 0;
+    return(SUNLS_SUCCESS);
   
   /* delete items from the contents structure (if it exists) */
   if (S->content) {
@@ -428,11 +427,16 @@ int SUNLinSolFree_SuperLUMT(SUNLinearSolver S)
     free(SM_AC(S));
     free(SM_L(S));
     free(SM_U(S));
+
+    free(S->content);  
+    S->content = NULL;
   }
   
   /* delete generic structures */
-  free(S->content);  S->content = NULL;
-  free(S->ops);  S->ops = NULL;
+  if (S->ops) {
+    free(S->ops);  
+    S->ops = NULL;
+  }
   free(S); S = NULL;
-  return 0;
+  return(SUNLS_SUCCESS);
 }

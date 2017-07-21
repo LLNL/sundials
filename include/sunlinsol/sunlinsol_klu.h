@@ -199,14 +199,6 @@ SUNDIALS_EXPORT int SUNLinSolNumPSolves_KLU(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_KLU(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolFree_KLU(SUNLinearSolver S);
   
-/* Possible return values from the KLU functions -- should
-   these be abstracted to instead apply to all linear solvers? */
-
-#define KLU_SUCCESS           0  /* successful function call */
-#define KLU_MEM_NULL         -1  /* mem argument is NULL     */
-#define KLU_ILL_INPUT        -2  /* illegal input            */
-#define KLU_MEM_FAIL         -3  /* failed memory access     */
-#define KLU_PACKAGE_FAIL     -4  /* internal KLU failure     */
 
 #ifdef __cplusplus
 }

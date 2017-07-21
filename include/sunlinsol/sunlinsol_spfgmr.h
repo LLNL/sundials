@@ -236,25 +236,6 @@ SUNDIALS_EXPORT int SUNLinSolNumPSolves_SPFGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_SPFGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolFree_SPFGMR(SUNLinearSolver S);
 
-/* Possible return values from the SPFGMR 'solve' function -- should
-   these be abstracted to instead apply to all linear solvers? */
-
-#define SPFGMR_SUCCESS            0  /* Converged                     */
-#define SPFGMR_RES_REDUCED        1  /* Did not converge, but reduced
-                                        norm of residual              */
-#define SPFGMR_CONV_FAIL          2  /* Failed to converge            */
-#define SPFGMR_QRFACT_FAIL        3  /* QRfact found singular matrix  */
-#define SPFGMR_PSOLVE_FAIL_REC    4  /* psolve failed recoverably     */
-#define SPFGMR_ATIMES_FAIL_REC    5  /* atimes failed recoverably     */
-#define SPFGMR_PSET_FAIL_REC      6  /* pset faild recoverably        */
-#define SPFGMR_ILL_INPUT          7  /* illegal 'set' routine input   */
-
-#define SPFGMR_MEM_NULL          -1  /* mem argument is NULL          */
-#define SPFGMR_ATIMES_FAIL_UNREC -2  /* atimes returned failure flag  */
-#define SPFGMR_PSOLVE_FAIL_UNREC -3  /* psolve failed unrecoverably   */
-#define SPFGMR_GS_FAIL           -4  /* Gram-Schmidt routine faiuled  */        
-#define SPFGMR_QRSOL_FAIL        -5  /* QRsol found singular R        */
-#define SPFGMR_PSET_FAIL_UNREC   -6  /* pset failed unrecoverably     */
 
 #ifdef __cplusplus
 }

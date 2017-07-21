@@ -170,14 +170,6 @@ SUNDIALS_EXPORT int SUNLinSolNumPSolves_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolFree_SuperLUMT(SUNLinearSolver S);
   
-/* Possible return values from the SuperLUMT functions -- should
-   these be abstracted to instead apply to all linear solvers? */
-
-#define SLUMT_SUCCESS           0  /* successful function call   */
-#define SLUMT_MEM_NULL         -1  /* mem argument is NULL       */
-#define SLUMT_ILL_INPUT        -2  /* illegal input              */
-#define SLUMT_MEM_FAIL         -3  /* failed memory access       */
-#define SLUMT_PACKAGE_FAIL     -4  /* internal SuperLUMT failure */
 
 #ifdef __cplusplus
 }
