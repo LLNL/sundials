@@ -217,22 +217,6 @@ SUNDIALS_EXPORT int SUNLinSolNumPSolves_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolFree_SPBCGS(SUNLinearSolver S);
 
-/* Possible return values from the SPBCGS 'solve' function -- should
-   these be abstracted to instead apply to all linear solvers? */
-
-#define SPBCG_SUCCESS            0  /* SPBCG algorithm converged          */
-#define SPBCG_RES_REDUCED        1  /* SPBCG did NOT converge, but the
-				       residual was reduced               */
-#define SPBCG_CONV_FAIL          2  /* SPBCG algorithm failed to converge */
-#define SPBCG_PSOLVE_FAIL_REC    3  /* psolve failed recoverably          */
-#define SPBCG_ATIMES_FAIL_REC    4  /* atimes failed recoverably          */
-#define SPBCG_PSET_FAIL_REC      5  /* pset faild recoverably             */
-#define SPBCG_ILL_INPUT          6  /* illegal 'set' routine input        */
-
-#define SPBCG_MEM_NULL          -1  /* mem argument is NULL               */
-#define SPBCG_ATIMES_FAIL_UNREC -2  /* atimes returned failure flag       */
-#define SPBCG_PSOLVE_FAIL_UNREC -3  /* psolve failed unrecoverably        */
-#define SPBCG_PSET_FAIL_UNREC   -4  /* pset failed unrecoverably          */
 
 #ifdef __cplusplus
 }

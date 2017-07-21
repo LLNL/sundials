@@ -57,11 +57,10 @@ SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A)
   SUNLinearSolver_Ops ops;
   SUNLinearSolverContent_LapackBand content;
   sunindextype MatrixRows, MatrixCols, VecLength;
-  int flag;
   
   /* Check compatibility with supplied SUNMatrix and N_Vector */
   if (SUNMatGetID(A) != SUNMATRIX_BAND)
-    return NULL;
+    return(NULL);
   MatrixRows = SUNBandMatrix_Rows(A);
   MatrixCols = SUNBandMatrix_Columns(A);
   if (N_VGetVectorID(y) == SUNDIALS_NVEC_SERIAL) {
@@ -78,9 +77,9 @@ SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A)
   }
 #endif
   else
-    return NULL;
+    return(NULL);
   if ( (MatrixRows != MatrixCols) || (MatrixRows != VecLength) )
-    return NULL;
+    return(NULL);
 
   /* Create linear solver */
   S = NULL;
@@ -135,14 +134,14 @@ SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A)
 
 SUNLinearSolver_Type SUNLinSolGetType_LapackBand(SUNLinearSolver S)
 {
-  return SUNLINEARSOLVER_DIRECT;
+  return(SUNLINEARSOLVER_DIRECT);
 }
 
 
 int SUNLinSolInitialize_LapackBand(SUNLinearSolver S)
 {
   /* all solver-specific memory has already been allocated */
-  LASTFLAG(S) = 0;
+  LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
 }
 
@@ -152,7 +151,7 @@ int SUNLinSolSetATimes_LapackBand(SUNLinearSolver S, void* A_data,
 {
   /* direct solvers do not utilize an 'ATimes' routine, 
      so return an error is this routine is ever called */
-  LASTFLAG(S) = 1;
+  LASTFLAG(S) = SUNLS_ILL_INPUT;
   return(LASTFLAG(S));
 }
 
@@ -162,7 +161,7 @@ int SUNLinSolSetPreconditioner_LapackBand(SUNLinearSolver S, void* P_data,
 {
   /* direct solvers do not utilize preconditioning, 
      so return an error is this routine is ever called */
-  LASTFLAG(S) = 1;
+  LASTFLAG(S) = SUNLS_ILL_INPUT;
   return(LASTFLAG(S));
 }
 
@@ -172,7 +171,7 @@ int SUNLinSolSetScalingVectors_LapackBand(SUNLinearSolver S, N_Vector s1,
 {
   /* direct solvers do not utilize scaling, 
      so return an error is this routine is ever called */
-  LASTFLAG(S) = 1;
+  LASTFLAG(S) = SUNLS_ILL_INPUT;
   return(LASTFLAG(S));
 }
 
@@ -181,9 +180,13 @@ int SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A)
 {
   int n, ml, mu, ldim, ier;
 
+  /* check for valid inputs */
+  if ( (A == NULL) || (S == NULL) ) 
+    return(SUNLS_MEM_NULL);
+  
   /* Ensure that A is a band matrix */
   if (SUNMatGetID(A) != SUNMATRIX_BAND) {
-    LASTFLAG(S) = 1;
+    LASTFLAG(S) = SUNLS_ILL_INPUT;
     return(LASTFLAG(S));
   }
   
@@ -196,8 +199,11 @@ int SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A)
 	     &ldim, PIVOTS(S), &ier);
   
   LASTFLAG(S) = (long int) ier;
-  if (ier > 0) return(1);
-  return(0);
+  if (ier > 0) 
+    return(SUNLS_LUFACT_FAIL);
+  if (ier < 0) 
+    return(SUNLS_PACKAGE_FAIL_UNREC);
+  return(SUNLS_SUCCESS);
 }
 
 
@@ -206,6 +212,10 @@ int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 {
   int n, ml, mu, ldim, one, ier;
   realtype *xdata;
+  
+  /* check for valid inputs */
+  if ( (A == NULL) || (S == NULL) || (x == NULL) || (b == NULL) ) 
+    return(SUNLS_MEM_NULL);
   
   /* copy b into x */
   N_VScale(ONE, b, x);
@@ -226,9 +236,10 @@ int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   xgbtrs_f77("N", &n, &ml, &mu, &one, SUNBandMatrix_Data(A), 
 	     &ldim, PIVOTS(S), xdata, &n, &ier, 1);
   LASTFLAG(S) = (long int) ier;
-  if (ier > 0) return(1);
+  if (ier < 0) 
+    return(SUNLS_PACKAGE_FAIL_UNREC);
 
-  LASTFLAG(S) = 0;
+  LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
 }
 
@@ -265,16 +276,22 @@ int SUNLinSolFree_LapackBand(SUNLinearSolver S)
 {
   /* return with success if already freed */
   if (S == NULL)
-    return(0);
+    return(SUNLS_SUCCESS);
   
-  /* delete items from the contents structure (if it exists) */
+  /* delete items from contents, then delete generic structure */
   if (S->content) {
-    if (PIVOTS(S)) free(PIVOTS(S));
+    if (PIVOTS(S)) {
+      free(PIVOTS(S));
+      PIVOTS(S) = NULL;
+    }
+    free(S->content);  
+    S->content = NULL;
   }
-  
-  /* delete generic structures */
-  free(S->content);  S->content = NULL;
-  free(S->ops);  S->ops = NULL;
+ 
+  if (S->ops) {
+    free(S->ops);  
+    S->ops = NULL;
+  }
   free(S); S = NULL;
-  return 0;
+  return(SUNLS_SUCCESS);
 }

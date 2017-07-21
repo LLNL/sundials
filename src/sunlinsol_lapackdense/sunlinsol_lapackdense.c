@@ -57,11 +57,10 @@ SUNLinearSolver SUNLapackDense(N_Vector y, SUNMatrix A)
   SUNLinearSolver_Ops ops;
   SUNLinearSolverContent_LapackDense content;
   sunindextype MatrixRows, MatrixCols, VecLength;
-  int flag;
   
   /* Check compatibility with supplied SUNMatrix and N_Vector */
   if (SUNMatGetID(A) != SUNMATRIX_DENSE)
-    return NULL;
+    return(NULL);
   MatrixRows = SUNDenseMatrix_Rows(A);
   MatrixCols = SUNDenseMatrix_Columns(A);
   if (N_VGetVectorID(y) == SUNDIALS_NVEC_SERIAL) {
@@ -78,9 +77,9 @@ SUNLinearSolver SUNLapackDense(N_Vector y, SUNMatrix A)
   }
 #endif
   else
-    return NULL;
+    return(NULL);
   if ( (MatrixRows != MatrixCols) || (MatrixRows != VecLength) )
-    return NULL;
+    return(NULL);
 
   /* Create linear solver */
   S = NULL;
@@ -136,14 +135,14 @@ SUNLinearSolver SUNLapackDense(N_Vector y, SUNMatrix A)
 
 SUNLinearSolver_Type SUNLinSolGetType_LapackDense(SUNLinearSolver S)
 {
-  return SUNLINEARSOLVER_DIRECT;
+  return(SUNLINEARSOLVER_DIRECT);
 }
 
 
 int SUNLinSolInitialize_LapackDense(SUNLinearSolver S)
 {
   /* all solver-specific memory has already been allocated */
-  LASTFLAG(S) = 0;
+  LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
 }
 
@@ -153,7 +152,7 @@ int SUNLinSolSetATimes_LapackDense(SUNLinearSolver S, void* A_data,
 {
   /* direct solvers do not utilize an 'ATimes' routine, 
      so return an error is this routine is ever called */
-  LASTFLAG(S) = 1;
+  LASTFLAG(S) = SUNLS_ILL_INPUT;
   return(LASTFLAG(S));
 }
 
@@ -163,7 +162,7 @@ int SUNLinSolSetPreconditioner_LapackDense(SUNLinearSolver S, void* P_data,
 {
   /* direct solvers do not utilize preconditioning, 
      so return an error is this routine is ever called */
-  LASTFLAG(S) = 1;
+  LASTFLAG(S) = SUNLS_ILL_INPUT;
   return(LASTFLAG(S));
 }
 
@@ -173,7 +172,7 @@ int SUNLinSolSetScalingVectors_LapackDense(SUNLinearSolver S, N_Vector s1,
 {
   /* direct solvers do not utilize scaling, 
      so return an error is this routine is ever called */
-  LASTFLAG(S) = 1;
+  LASTFLAG(S) = SUNLS_ILL_INPUT;
   return(LASTFLAG(S));
 }
 
@@ -182,9 +181,13 @@ int SUNLinSolSetup_LapackDense(SUNLinearSolver S, SUNMatrix A)
 {
   int n, ier;
 
+  /* check for valid inputs */
+  if ( (A == NULL) || (S == NULL) ) 
+    return(SUNLS_MEM_NULL);
+  
   /* Ensure that A is a dense matrix */
   if (SUNMatGetID(A) != SUNMATRIX_DENSE) {
-    LASTFLAG(S) = 1;
+    LASTFLAG(S) = SUNLS_ILL_INPUT;
     return(LASTFLAG(S));
   }
   
@@ -192,8 +195,11 @@ int SUNLinSolSetup_LapackDense(SUNLinearSolver S, SUNMatrix A)
   n = SUNDenseMatrix_Rows(A);
   xgetrf_f77(&n, &n, SUNDenseMatrix_Data(A), &n, PIVOTS(S), &ier);
   LASTFLAG(S) = (long int) ier;
-  if (ier > 0) return(1);
-  return(0);
+  if (ier > 0) 
+    return(SUNLS_LUFACT_FAIL);
+  if (ier < 0) 
+    return(SUNLS_PACKAGE_FAIL_UNREC);
+  return(SUNLS_SUCCESS);
 }
 
 
@@ -203,13 +209,16 @@ int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   int n, one, ier;
   realtype *xdata;
   
+  if ( (A == NULL) || (S == NULL) || (x == NULL) || (b == NULL) ) 
+    return(SUNLS_MEM_NULL);
+
   /* copy b into x */
   N_VScale(ONE, b, x);
 
   /* access x data array */
   xdata = N_VGetArrayPointer(x);
   if (xdata == NULL) {
-    LASTFLAG(S) = 1;
+    LASTFLAG(S) = SUNLS_MEM_FAIL;
     return(LASTFLAG(S));
   }
   
@@ -219,9 +228,10 @@ int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   xgetrs_f77("N", &n, &one, SUNDenseMatrix_Data(A), 
 	     &n, PIVOTS(S), xdata, &n, &ier, 1);
   LASTFLAG(S) = (long int) ier;
-  if (ier > 0) return(1);
+  if (ier < 0) 
+    return(SUNLS_PACKAGE_FAIL_UNREC);
 
-  LASTFLAG(S) = 0;
+  LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
 }
 
@@ -256,18 +266,23 @@ long int SUNLinSolLastFlag_LapackDense(SUNLinearSolver S)
 
 int SUNLinSolFree_LapackDense(SUNLinearSolver S)
 {
-  /* return with success if already freed */
+  /* return if S is already free */
   if (S == NULL)
-    return(0);
-  
-  /* delete items from the contents structure (if it exists) */
+    return(SUNLS_SUCCESS);
+
+  /* delete items from contents, then delete generic structure */
   if (S->content) {
-    if (PIVOTS(S)) free(PIVOTS(S));
+    if (PIVOTS(S)) {
+      free(PIVOTS(S));
+      PIVOTS(S) = NULL;
+    }
+    free(S->content);  
+    S->content = NULL;
   }
-  
-  /* delete generic structures */
-  free(S->content);  S->content = NULL;
-  free(S->ops);  S->ops = NULL;
+  if (S->ops) {
+    free(S->ops);  
+    S->ops = NULL;
+  }
   free(S); S = NULL;
-  return 0;
+  return(SUNLS_SUCCESS);
 }

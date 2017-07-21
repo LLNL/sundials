@@ -217,22 +217,6 @@ SUNDIALS_EXPORT int SUNLinSolNumPSolves_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolFree_SPTFQMR(SUNLinearSolver S);
 
-/* Possible return values from the SPTFQMR 'solve' function -- should
-   these be abstracted to instead apply to all linear solvers? */
-
-#define SPTFQMR_SUCCESS            0  /* SPTFQMR algorithm converged          */
-#define SPTFQMR_RES_REDUCED        1  /* SPTFQMR did NOT converge, but the
-				         residual was reduced                 */
-#define SPTFQMR_CONV_FAIL          2  /* SPTFQMR algorithm failed to converge */
-#define SPTFQMR_PSOLVE_FAIL_REC    3  /* psolve failed recoverably            */
-#define SPTFQMR_ATIMES_FAIL_REC    4  /* atimes failed recoverably            */
-#define SPTFQMR_PSET_FAIL_REC      5  /* pset faild recoverably               */
-#define SPTFQMR_ILL_INPUT          6  /* illegal 'set' routine input         */
-
-#define SPTFQMR_MEM_NULL          -1  /* mem argument is NULL                 */
-#define SPTFQMR_ATIMES_FAIL_UNREC -2  /* atimes returned failure flag         */
-#define SPTFQMR_PSOLVE_FAIL_UNREC -3  /* psolve failed unrecoverably          */
-#define SPTFQMR_PSET_FAIL_UNREC   -4  /* pset failed unrecoverably            */
 
 #ifdef __cplusplus
 }
