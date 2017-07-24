@@ -1,8 +1,8 @@
-1. Create SUNLAPACKDense, SUNLAPACKBand, and SUNPCG objects.  Create 
-   testing routines similar to NVector test routines.
+1. Create SUNPCG object and testing routine:
 
    Note about solver-specific counters:
-   For iterative solvers these should be contained *inside* the 
+
+   For iterative solvers these should be contained *inside* the
    iterative linear solver.  However, for dense/band linear solvers 
    we have the counters: 
       nje: # of calls to the user Jacobian routine
@@ -17,20 +17,14 @@
    initialized/re-initialized. 
 
 
-2. Convert existing use of dense, band and sparse matrices throughout
-   SUNDIALS (solvers and examples) to instead use the SUNMatrix
-   objects.  Fortran interfaces will work like now, where we extract
-   the data portions to pass through function calls.
-
-
-3. Construct ARKode interfaces to utilize linear solver and matrix
+2. Construct ARKode interfaces to utilize linear solver and matrix
    objects.  Update all ARKode examples accordingly.
 
 
-4. Repeat 4 for CVODE, CVODES, IDA, IDAS and KINSOL. 
+3. Repeat 2 for CVODE, CVODES, IDA, IDAS and KINSOL. 
 
 
-5. Create common set of return values and error messages for all 
+4. Create common set of return values and error messages for all 
    SUNLinearSolver and SUNMatrix objects (put in
    sundials_linearsolver.h and sundials_matrix.h), and update all
    SUNLinearSolver and SUNMatrix implementations to use those.
