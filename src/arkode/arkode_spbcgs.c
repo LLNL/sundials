@@ -41,9 +41,7 @@
 
 /* ARKSPBCG linit, lsetup, lsolve, and lfree routines */
 static int ARKSpbcgInit(ARKodeMem ark_mem);
-static int ARKSpbcgSetup(ARKodeMem ark_mem, int convfail, 
-			 N_Vector ypred, N_Vector fpred, 
-			 booleantype *jcurPtr, N_Vector vtemp1,
+static int ARKSpbcgSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 			 N_Vector vtemp2, N_Vector vtemp3);
 static int ARKSpbcgSolve(ARKodeMem ark_mem, N_Vector b, 
 			 N_Vector weight, N_Vector ynow, 
@@ -255,32 +253,13 @@ static int ARKSpbcgInit(ARKodeMem ark_mem)
  of the pset output. In any case, if jcur == TRUE, we increment 
  npe and save nst in nstlpre.
 ---------------------------------------------------------------*/
-static int ARKSpbcgSetup(ARKodeMem ark_mem, int convfail, 
-			 N_Vector ypred, N_Vector fpred, 
-			 booleantype *jcurPtr, N_Vector vtemp1,
+static int ARKSpbcgSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 			 N_Vector vtemp2, N_Vector vtemp3)
 {
-  booleantype jbad, jok;
-  realtype dgamma;
   int  retval;
   ARKSpilsMem arkspils_mem;
-
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
-
-  /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-  dgamma = SUNRabs((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
-  jbad = (ark_mem->ark_nst == 0) || 
-    (ark_mem->ark_nst > arkspils_mem->s_nstlpre + ARKSPILS_MSBPRE) ||
-    ((convfail == ARK_FAIL_BAD_J) && (dgamma < ARKSPILS_DGMAX)) ||
-    (convfail == ARK_FAIL_OTHER);
-  *jcurPtr = jbad;
-  jok = !jbad;
-
-  /* Call pset routine and possibly reset jcur */
-  retval = arkspils_mem->s_pset(ark_mem->ark_tn, ypred, fpred, jok, 
-				jcurPtr, ark_mem->ark_gamma, 
-				arkspils_mem->s_P_data, vtemp1, 
-				vtemp2, vtemp3);
+  retval = ARKSpilsCallPSetup(ark_mem, vtemp1, vtemp2, vtemp3);
   if (retval < 0) {
     arkProcessError(ark_mem, SPBCG_PSET_FAIL_UNREC, "ARKSPBCG", 
 		    "ARKSpbcgSetup", MSGS_PSET_FAILED);
@@ -288,14 +267,6 @@ static int ARKSpbcgSetup(ARKodeMem ark_mem, int convfail,
   }
   if (retval > 0) {
     arkspils_mem->s_last_flag = SPBCG_PSET_FAIL_REC;
-  }
-
-  if (jbad) *jcurPtr = TRUE;
-
-  /* If jcur = TRUE, increment npe and save nst value */
-  if (*jcurPtr) {
-    arkspils_mem->s_npe++;
-    arkspils_mem->s_nstlpre = ark_mem->ark_nst;
   }
 
   arkspils_mem->s_last_flag = SPBCG_SUCCESS;

@@ -433,6 +433,25 @@ typedef int (*ARKSpilsMassPrecSolveFn)(realtype t, N_Vector r,
 				       N_Vector tmp);   /* REMOVE THIS TEMPORARY VECTOR */
 
 
+  
+/*===============================================================
+ FUNCTIONS FOR USE BY ARKODE DIRECTLY
+===============================================================*/
+
+/*---------------------------------------------------------------
+ ARKSpilsCallPSetup determines whether to call the user-supplied 
+ preconditioner setup routine, based on heuristics regarding 
+ previous converence issues, the number of time steps 
+ since it was last updated, etc.
+---------------------------------------------------------------*/
+SUNDIALS_EXPORT int ARKSpilsCallPSetup(void *arkode_mem, N_Vector vtemp1,
+                                       N_Vector vtemp2, N_Vector vtemp3);
+
+
+/*===============================================================
+  EXPORTED FUNCTIONS
+===============================================================*/
+
 /*---------------------------------------------------------------
  Optional inputs to the ARKSPILS linear solver:
 

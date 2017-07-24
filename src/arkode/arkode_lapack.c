@@ -43,9 +43,7 @@
 
 /* ARKLAPACK DENSE linit, lsetup, lsolve, and lfree routines */ 
 static int arkLapackDenseInit(ARKodeMem ark_mem);
-static int arkLapackDenseSetup(ARKodeMem ark_mem, int convfail, 
-			       N_Vector yP, N_Vector fctP, 
-			       booleantype *jcurPtr, N_Vector tmp1, 
+static int arkLapackDenseSetup(ARKodeMem ark_mem, N_Vector tmp1, 
 			       N_Vector tmp2, N_Vector tmp3);
 static int arkLapackDenseSolve(ARKodeMem ark_mem, N_Vector b, 
 			       N_Vector weight, N_Vector yC, 
@@ -64,9 +62,7 @@ static int arkMassLapackDenseMultiply(N_Vector v, N_Vector Mv,
 
 /* ARKLAPACK BAND linit, lsetup, lsolve, and lfree routines */ 
 static int arkLapackBandInit(ARKodeMem ark_mem);
-static int arkLapackBandSetup(ARKodeMem ark_mem, int convfail, 
-			      N_Vector yP, N_Vector fctP, 
-			      booleantype *jcurPtr, N_Vector tmp1, 
+static int arkLapackBandSetup(ARKodeMem ark_mem, N_Vector tmp1, 
 			      N_Vector tmp2, N_Vector tmp3);
 static int arkLapackBandSolve(ARKodeMem ark_mem, N_Vector b, 
 			      N_Vector weight, N_Vector yC, 
@@ -610,9 +606,7 @@ static int arkLapackDenseInit(ARKodeMem ark_mem)
  the Newton matrix A = M - gamma*J updates counters, and calls 
  the dense LU factorization routine.
 ---------------------------------------------------------------*/                  
-static int arkLapackDenseSetup(ARKodeMem ark_mem, int convfail,
-			       N_Vector yP, N_Vector fctP,
-			       booleantype *jcurPtr, N_Vector tmp1, 
+static int arkLapackDenseSetup(ARKodeMem ark_mem, N_Vector tmp1, 
 			       N_Vector tmp2, N_Vector tmp3)
 {
   ARKDlsMem arkdls_mem;
@@ -630,13 +624,13 @@ static int arkLapackDenseSetup(ARKodeMem ark_mem, int convfail,
   dgamma = SUNRabs((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
   jbad = (ark_mem->ark_nst == 0) || 
     (ark_mem->ark_nst > arkdls_mem->d_nstlj + ARKD_MSBJ) ||
-    ((convfail == ARK_FAIL_BAD_J) && (dgamma < ARKD_DGMAX)) ||
-    (convfail == ARK_FAIL_OTHER);
+    ((ark_mem->ark_convfail == ARK_FAIL_BAD_J) && (dgamma < ARKD_DGMAX)) ||
+    (ark_mem->ark_convfail == ARK_FAIL_OTHER);
   jok = !jbad;
   
   /* If jok = TRUE, use saved copy of J */
   if (jok) {
-    *jcurPtr = FALSE;
+    ark_mem->ark_jcur = FALSE;
     dcopy_f77(&lenmat, arkdls_mem->d_savedJ->data, &one, 
 	      arkdls_mem->d_M->data, &one);
     
@@ -644,12 +638,13 @@ static int arkLapackDenseSetup(ARKodeMem ark_mem, int convfail,
   } else {
     arkdls_mem->d_nje++;
     arkdls_mem->d_nstlj = ark_mem->ark_nst;
-    *jcurPtr = TRUE;
+    ark_mem->ark_jcur = TRUE;
     SetToZero(arkdls_mem->d_M);
 
     retval = arkdls_mem->d_djac(arkdls_mem->d_n, ark_mem->ark_tn, 
-				yP, fctP, arkdls_mem->d_M, 
-				arkdls_mem->d_J_data, tmp1, tmp2, tmp3);
+				ark_mem->ark_ycur, ark_mem->ark_ftemp,
+                                arkdls_mem->d_M, arkdls_mem->d_J_data,
+                                tmp1, tmp2, tmp3);
 
     if (retval == 0) {
       dcopy_f77(&lenmat, arkdls_mem->d_M->data, &one, 
@@ -947,9 +942,7 @@ static int arkLapackBandInit(ARKodeMem ark_mem)
  matrix A = M - gamma*J, updates counters, and calls the band LU
  factorization routine.
 ---------------------------------------------------------------*/                  
-static int arkLapackBandSetup(ARKodeMem ark_mem, int convfail, 
-			      N_Vector yP, N_Vector fctP, 
-			      booleantype *jcurPtr, N_Vector tmp1, 
+static int arkLapackBandSetup(ARKodeMem ark_mem, N_Vector tmp1, 
 			      N_Vector tmp2, N_Vector tmp3)
 {
   ARKDlsMem arkdls_mem;
@@ -970,13 +963,13 @@ static int arkLapackBandSetup(ARKodeMem ark_mem, int convfail,
   dgamma = SUNRabs((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
   jbad = (ark_mem->ark_nst == 0) || 
     (ark_mem->ark_nst > arkdls_mem->d_nstlj + ARKD_MSBJ) ||
-    ((convfail == ARK_FAIL_BAD_J) && (dgamma < ARKD_DGMAX)) ||
-    (convfail == ARK_FAIL_OTHER);
+    ((ark_mem->ark_convfail == ARK_FAIL_BAD_J) && (dgamma < ARKD_DGMAX)) ||
+    (ark_mem->ark_convfail == ARK_FAIL_OTHER);
   jok = !jbad;
   
   /* If jok = TRUE, use saved copy of J */
   if (jok) {
-    *jcurPtr = FALSE;
+    ark_mem->ark_jcur = FALSE;
     dcopy_f77(&lenmat, arkdls_mem->d_savedJ->data, 
 	      &one, arkdls_mem->d_M->data, &one);
     
@@ -984,13 +977,14 @@ static int arkLapackBandSetup(ARKodeMem ark_mem, int convfail,
   } else {
     arkdls_mem->d_nje++;
     arkdls_mem->d_nstlj = ark_mem->ark_nst;
-    *jcurPtr = TRUE;
+    ark_mem->ark_jcur = TRUE;
     SetToZero(arkdls_mem->d_M);
 
     retval = arkdls_mem->d_bjac(arkdls_mem->d_n, arkdls_mem->d_mu, 
 				arkdls_mem->d_ml, ark_mem->ark_tn, 
-				yP, fctP, arkdls_mem->d_M, 
-				arkdls_mem->d_J_data, tmp1, tmp2, tmp3);
+				ark_mem->ark_ycur, ark_mem->ark_ftemp,
+                                arkdls_mem->d_M, arkdls_mem->d_J_data,
+                                tmp1, tmp2, tmp3);
     if (retval == 0) {
       dcopy_f77(&lenmat, arkdls_mem->d_M->data, &one, 
 		arkdls_mem->d_savedJ->data, &one);

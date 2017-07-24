@@ -34,8 +34,7 @@
 
 /* ARKBAND linit, lsetup, lsolve, and lfree routines */
 static int arkBandInit(ARKodeMem ark_mem);
-static int arkBandSetup(ARKodeMem ark_mem, int convfail, N_Vector ypred,
-                       N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
+static int arkBandSetup(ARKodeMem ark_mem, N_Vector vtemp1,
                        N_Vector vtemp2, N_Vector vtemp3);
 static int arkBandSolve(ARKodeMem ark_mem, N_Vector b, N_Vector weight,
                        N_Vector ycur, N_Vector fcur);
@@ -207,103 +206,18 @@ static int arkBandInit(ARKodeMem ark_mem)
  matrix  A = M - gamma*J, updates counters, and calls the band 
  LU factorization routine.
 ---------------------------------------------------------------*/
-static int arkBandSetup(ARKodeMem ark_mem, int convfail, 
-			N_Vector ypred, N_Vector fpred, 
-			booleantype *jcurPtr, N_Vector vtemp1,
+static int arkBandSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 			N_Vector vtemp2, N_Vector vtemp3)
 {
-  booleantype jbad, jok;
-  realtype dgamma;
-  sunindextype i, j, ier, ml, mu, N, M, is, ie;
-  DlsMat A, Mass;
+  sunindextype ier;
   ARKDlsMem arkdls_mem;
-  ARKDlsMassMem arkdls_mass_mem;
   int retval;
 
   arkdls_mem = (ARKDlsMem) ark_mem->ark_lmem;
 
-  /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-  dgamma = SUNRabs((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
-  jbad = (ark_mem->ark_nst == 0) || 
-    (ark_mem->ark_nst > arkdls_mem->d_nstlj + ARKD_MSBJ) ||
-    ((convfail == ARK_FAIL_BAD_J) && (dgamma < ARKD_DGMAX)) ||
-    (convfail == ARK_FAIL_OTHER);
-  jok = !jbad;
-  
-  if (jok) {
-
-    /* If jok = TRUE, use saved copy of J */
-    *jcurPtr = FALSE;
-    BandCopy(arkdls_mem->d_savedJ, arkdls_mem->d_M, arkdls_mem->d_mu, arkdls_mem->d_ml);
-
-  } else {
-
-    /* If jok = FALSE, call jac routine for new J value */
-    arkdls_mem->d_nje++;
-    arkdls_mem->d_nstlj = ark_mem->ark_nst;
-    *jcurPtr = TRUE;
-    SetToZero(arkdls_mem->d_M); 
-
-    retval = arkdls_mem->d_bjac(arkdls_mem->d_n, arkdls_mem->d_mu, arkdls_mem->d_ml, 
-				ark_mem->ark_tn, ypred, fpred, arkdls_mem->d_M, 
-				arkdls_mem->d_J_data, vtemp1, vtemp2, vtemp3);
-    if (retval < 0) {
-      arkProcessError(ark_mem, ARKDLS_JACFUNC_UNRECVR, "ARKBAND", "arkBandSetup", MSGD_JACFUNC_FAILED);
-      arkdls_mem->d_last_flag = ARKDLS_JACFUNC_UNRECVR;
-      return(-1);
-    }
-    if (retval > 0) {
-      arkdls_mem->d_last_flag = ARKDLS_JACFUNC_RECVR;
-      return(1);
-    }
-
-    BandCopy(arkdls_mem->d_M, arkdls_mem->d_savedJ, arkdls_mem->d_mu, arkdls_mem->d_ml);
-
-  }
-
-  /* Scale J by -gamma */
-  BandScale(-ark_mem->ark_gamma, arkdls_mem->d_M);
-
-  /* Add mass matrix to get A = M-gamma*J*/
-  if (ark_mem->ark_mass_matrix) {
-
-    /* Compute mass matrix */
-    arkdls_mass_mem = (ARKDlsMassMem) ark_mem->ark_mass_mem;
-    SetToZero(arkdls_mass_mem->d_M);
-    retval = arkdls_mass_mem->d_bmass(arkdls_mass_mem->d_n, arkdls_mass_mem->d_mu, 
-				      arkdls_mass_mem->d_ml, ark_mem->ark_tn, 
-				      arkdls_mass_mem->d_M, arkdls_mass_mem->d_M_data, 
-				      vtemp1, vtemp2, vtemp3);
-    arkdls_mass_mem->d_nme++;
-    if (retval < 0) {
-      arkProcessError(ark_mem, ARKDLS_MASSFUNC_UNRECVR, "ARKBAND", 
-		      "arkBandSetup",  MSGD_MASSFUNC_FAILED);
-      arkdls_mem->d_last_flag = ARKDLS_MASSFUNC_UNRECVR;
-      return(-1);
-    }
-    if (retval > 0) {
-      arkdls_mem->d_last_flag = ARKDLS_MASSFUNC_RECVR;
-      return(1);
-    }
-
-    /* perform matrix sum */
-    ml = arkdls_mem->d_M->ml;
-    mu = arkdls_mem->d_M->mu;
-    N = arkdls_mem->d_M->N;
-    M = arkdls_mem->d_M->M;
-    A = arkdls_mem->d_M;
-    Mass = arkdls_mass_mem->d_M;
-    for (j=0; j<N; j++) {                /* loop over columns */
-      is = (0 > j-mu) ? 0 : j-mu;        /* colum nonzero bounds */
-      ie = (M-1 < j+ml) ? M-1 : j+ml;
-      for (i=is; i<=ie; i++) {           /* loop over rows */
-	BAND_ELEM(A,i,j) += BAND_ELEM(Mass,i,j);
-      }
-    }
-
-  } else {
-    AddIdentity(arkdls_mem->d_M);
-  }
+  /* call 'setup' based on heuristics */
+  ier = ARKDlsSetupMatrix(ark_mem, vtemp1, vtemp2, vtemp3);
+  if (ier != 0) return(1);
 
   /* Do LU factorization of M */
   ier = BandGBTRF(arkdls_mem->d_M, arkdls_mem->d_lpivots);

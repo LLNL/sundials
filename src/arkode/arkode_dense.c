@@ -34,9 +34,8 @@
 
 /* ARKDENSE linit, lsetup, lsolve, and lfree routines */
 static int arkDenseInit(ARKodeMem ark_mem);
-static int arkDenseSetup(ARKodeMem ark_mem, int convfail, N_Vector ypred,
-			 N_Vector fpred, booleantype *jcurPtr, 
-			 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+static int arkDenseSetup(ARKodeMem ark_mem, N_Vector vtemp1,
+                         N_Vector vtemp2, N_Vector vtemp3);
 static int arkDenseSolve(ARKodeMem ark_mem, N_Vector b, N_Vector weight,
 			 N_Vector ycur, N_Vector fcur);
 static int arkDenseFree(ARKodeMem ark_mem);
@@ -202,95 +201,17 @@ static int arkDenseInit(ARKodeMem ark_mem)
  A = M - gamma*J, updates counters, and calls the dense LU 
  factorization routine.
 ---------------------------------------------------------------*/
-static int arkDenseSetup(ARKodeMem ark_mem, int convfail, 
-			 N_Vector ypred, N_Vector fpred, 
-			 booleantype *jcurPtr, N_Vector vtemp1, 
+static int arkDenseSetup(ARKodeMem ark_mem, N_Vector vtemp1, 
 			 N_Vector vtemp2, N_Vector vtemp3)
 {
-  booleantype jbad, jok;
-  realtype dgamma, *Acol_j, *Mcol_j;
-  sunindextype i, j, ier;
+  sunindextype ier;
   ARKDlsMem arkdls_mem;
-  ARKDlsMassMem arkdls_mass_mem;
-  int retval;
 
   arkdls_mem = (ARKDlsMem) ark_mem->ark_lmem;
- 
-  /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-  dgamma = SUNRabs((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
-  jbad = (ark_mem->ark_nst == 0) || 
-    (ark_mem->ark_nst > arkdls_mem->d_nstlj + ARKD_MSBJ) ||
-    ((convfail == ARK_FAIL_BAD_J) && (dgamma < ARKD_DGMAX)) ||
-    (convfail == ARK_FAIL_OTHER);
-  jok = !jbad;
- 
-  /* If jok = TRUE, use saved copy of J */
-  if (jok) {
-    *jcurPtr = FALSE;
-    DenseCopy(arkdls_mem->d_savedJ, arkdls_mem->d_M);
 
-  /* If jok = FALSE, call jac routine for new J value */
-  } else {
-    arkdls_mem->d_nje++;
-    arkdls_mem->d_nstlj = ark_mem->ark_nst;
-    *jcurPtr = TRUE;
-    SetToZero(arkdls_mem->d_M);
-
-    retval = arkdls_mem->d_djac(arkdls_mem->d_n, ark_mem->ark_tn, 
-				ypred, fpred, arkdls_mem->d_M, 
-				arkdls_mem->d_J_data, 
-				vtemp1, vtemp2, vtemp3);
-    if (retval < 0) {
-      arkProcessError(ark_mem, ARKDLS_JACFUNC_UNRECVR, "ARKDENSE", 
-		      "arkDenseSetup",  MSGD_JACFUNC_FAILED);
-      arkdls_mem->d_last_flag = ARKDLS_JACFUNC_UNRECVR;
-      return(-1);
-    }
-    if (retval > 0) {
-      arkdls_mem->d_last_flag = ARKDLS_JACFUNC_RECVR;
-      return(1);
-    }
-
-    DenseCopy(arkdls_mem->d_M, arkdls_mem->d_savedJ);
-
-  }
-  
-  /* Scale J by -gamma */
-  DenseScale(-ark_mem->ark_gamma, arkdls_mem->d_M);
-  
-  /* Add mass matrix to get A = M-gamma*J*/
-  if (ark_mem->ark_mass_matrix) {
-
-    /* Compute mass matrix */
-    arkdls_mass_mem = (ARKDlsMassMem) ark_mem->ark_mass_mem;
-    SetToZero(arkdls_mass_mem->d_M);
-    retval = arkdls_mass_mem->d_dmass(arkdls_mass_mem->d_n, 
-				      ark_mem->ark_tn, 
-				      arkdls_mass_mem->d_M, 
-				      arkdls_mass_mem->d_M_data, 
-				      vtemp1, vtemp2, vtemp3);
-    arkdls_mass_mem->d_nme++;
-    if (retval < 0) {
-      arkProcessError(ark_mem, ARKDLS_MASSFUNC_UNRECVR, "ARKDENSE", 
-		      "arkDenseSetup",  MSGD_MASSFUNC_FAILED);
-      arkdls_mem->d_last_flag = ARKDLS_MASSFUNC_UNRECVR;
-      return(-1);
-    }
-    if (retval > 0) {
-      arkdls_mem->d_last_flag = ARKDLS_MASSFUNC_RECVR;
-      return(1);
-    }
-
-    /* Add to A */
-    for (j=0; j<arkdls_mem->d_M->N; j++) {
-      Acol_j = arkdls_mem->d_M->cols[j];
-      Mcol_j = arkdls_mass_mem->d_M->cols[j];
-      for (i=0; i<arkdls_mem->d_M->M; i++) 
-	Acol_j[i] += Mcol_j[i];
-    }
-  } else {
-    AddIdentity(arkdls_mem->d_M);
-  }
+  /* call 'setup' based on heuristics */
+  ier = ARKDlsSetupMatrix(ark_mem, vtemp1, vtemp2, vtemp3);
+  if (ier != 0) return(1);
 
   /* Do LU factorization of A */
   ier = DenseGETRF(arkdls_mem->d_M, arkdls_mem->d_lpivots); 

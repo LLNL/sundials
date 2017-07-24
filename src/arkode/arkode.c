@@ -372,6 +372,9 @@ int ARKodeInit(void *arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
   ark_mem->ark_mass_setup   = 0;
   ark_mem->ark_mass_mult    = 0;
 
+  /* Initialize convergence failure flag */
+  ark_mem->ark_convfail = ARK_NO_FAILURES;
+  
   /* Initialize other integrator optional outputs */
   ark_mem->ark_h0u    = ZERO;
   ark_mem->ark_next_h = ZERO;
@@ -2211,6 +2214,7 @@ static void arkPrintMem(ARKodeMem ark_mem)
   printf("ark_use_fp = %i\n", ark_mem->ark_use_fp);
   printf("ark_mass_matrix = %i\n", ark_mem->ark_mass_matrix);
   printf("ark_jcur = %i\n", ark_mem->ark_jcur);
+  printf("ark_convfail = %i\n", ark_mem->ark_convfail);
   printf("ark_setupNonNull = %i\n", ark_mem->ark_setupNonNull);
   printf("ark_MassSetupNonNull = %i\n", ark_mem->ark_MassSetupNonNull);
   printf("ark_VabstolMallocDone = %i\n", ark_mem->ark_VabstolMallocDone);
@@ -4601,7 +4605,7 @@ static int arkNlsResid(ARKodeMem ark_mem, N_Vector y,
 static int arkNlsNewton(ARKodeMem ark_mem, int nflag)
 {
   N_Vector vtemp1, vtemp2, vtemp3, b;
-  int convfail, retval, ier, m;
+  int retval, ier, m;
   booleantype callSetup;
   realtype del, delp, dcon;
   
@@ -4611,7 +4615,7 @@ static int arkNlsNewton(ARKodeMem ark_mem, int nflag)
   b      = ark_mem->ark_tempv; /* also rename tempv as b for readability */
 
   /* Set flag convfail, input to lsetup for its evaluation decision */
-  convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
+  ark_mem->ark_convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
     ARK_NO_FAILURES : ARK_FAIL_OTHER;
 
   /* Decide whether or not to call setup routine (if one exists) */
@@ -4648,9 +4652,7 @@ static int arkNlsNewton(ARKodeMem ark_mem, int nflag)
       /* Solver diagnostics reporting */
       if (ark_mem->ark_report)  fprintf(ark_mem->ark_diagfp, "  lsetup\n");
 
-      ier = ark_mem->ark_lsetup(ark_mem, convfail, ark_mem->ark_ycur, 
-				ark_mem->ark_ftemp, &ark_mem->ark_jcur, 
-				vtemp1, vtemp2, vtemp3);
+      ier = ark_mem->ark_lsetup(ark_mem, vtemp1, vtemp2, vtemp3);
       ark_mem->ark_nsetups++;
       callSetup = FALSE;
       ark_mem->ark_firststage = FALSE;
@@ -4794,7 +4796,7 @@ static int arkNlsNewton(ARKodeMem ark_mem, int nflag)
     if (ier != TRY_AGAIN) return(ier);
     
     callSetup = TRUE;
-    convfail = ARK_FAIL_BAD_J;
+    ark_mem->ark_convfail = ARK_FAIL_BAD_J;
   }
 }
 
@@ -5094,7 +5096,7 @@ static int arkAndersonAcc(ARKodeMem ark_mem, N_Vector gval,
 static int arkLs(ARKodeMem ark_mem, int nflag)
 {
   N_Vector vtemp1, vtemp2, vtemp3, b;
-  int convfail, retval, ier;
+  int retval, ier;
   booleantype callSetup;
   realtype del;
   
@@ -5104,7 +5106,7 @@ static int arkLs(ARKodeMem ark_mem, int nflag)
   b      = ark_mem->ark_tempv; /* also rename tempv as b for readability */
 
   /* Set flag convfail, input to lsetup for its evaluation decision */
-  convfail = (nflag == FIRST_CALL) ? ARK_NO_FAILURES : ARK_FAIL_OTHER;
+  ark_mem->ark_convfail = (nflag == FIRST_CALL) ? ARK_NO_FAILURES : ARK_FAIL_OTHER;
 
   /* Decide whether or not to call setup routine (if one exists) */
   if (ark_mem->ark_setupNonNull) {      
@@ -5130,9 +5132,7 @@ static int arkLs(ARKodeMem ark_mem, int nflag)
     /* Solver diagnostics reporting */
     if (ark_mem->ark_report)  fprintf(ark_mem->ark_diagfp, "  lsetup\n");
 
-    ier = ark_mem->ark_lsetup(ark_mem, convfail, ark_mem->ark_ycur, 
-			      ark_mem->ark_ftemp, &ark_mem->ark_jcur, 
-			      vtemp1, vtemp2, vtemp3);
+    ier = ark_mem->ark_lsetup(ark_mem, vtemp1, vtemp2, vtemp3);
     ark_mem->ark_nsetups++;
     callSetup = FALSE;
     ark_mem->ark_firststage = FALSE;

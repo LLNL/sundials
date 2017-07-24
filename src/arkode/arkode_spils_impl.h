@@ -81,8 +81,7 @@ typedef struct ARKSpilsMemRec {
         - pfree == set by the prec. module and called in ARKodeFree  */
   ARKSpilsPrecSetupFn s_pset;
   ARKSpilsPrecSolveFn s_psolve;
-  int s_jok;          /* THESE TWO VARIABLES ARE CURRENTLY HELD IN EACH */ 
-  int s_jcurPtr;      /* SOLVER INTERFACE; USE THESE ONES INSTEAD */
+  int s_jok;          /* THIS IS CURRENTLY HELD IN EACH SOLVER INTERFACE; USE THIS ONE INSTEAD */
   int (*s_pfree)(ARKodeMem ark_mem); /* -- REMOVE? */
   void *s_P_data;
 
