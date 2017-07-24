@@ -417,8 +417,7 @@ typedef struct ARKodeMemRec {
     Linear Solver Data 
     ------------------*/
   int (*ark_linit)(struct ARKodeMemRec *ark_mem);
-  int (*ark_lsetup)(struct ARKodeMemRec *ark_mem, int convfail, N_Vector ypred,
-		    N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
+  int (*ark_lsetup)(struct ARKodeMemRec *ark_mem, N_Vector vtemp1,
 		    N_Vector vtemp2, N_Vector vtemp3); 
   int (*ark_lsolve)(struct ARKodeMemRec *ark_mem, N_Vector b, N_Vector weight,
 		    N_Vector ycur, N_Vector fcur);
@@ -454,6 +453,7 @@ typedef struct ARKodeMemRec {
   realtype    ark_tnew;         /* time of last successful step               */
   realtype    ark_hold;         /* last successful h value used               */
   booleantype ark_jcur;         /* is Jacobian info. for lin. solver current? */
+  int         ark_convfail;     /* flag storing previous solver failure mode  */
   realtype    ark_tolsf;        /* tolerance scale factor                     */
   booleantype ark_setupNonNull; /* does ark_lsetup do anything?               */
   booleantype ark_MassSetupNonNull; /* does ark_msetup do anything?           */

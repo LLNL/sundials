@@ -35,9 +35,7 @@
 
 /* ARKSUPERLUMT linit, lsetup, lsolve, and lfree routines */
 static int arkSuperLUMTInit(ARKodeMem ark_mem);
-static int arkSuperLUMTSetup(ARKodeMem ark_mem, int convfail, 
-			     N_Vector ypred, N_Vector fpred, 
-			     booleantype *jcurPtr, N_Vector tmp1, 
+static int arkSuperLUMTSetup(ARKodeMem ark_mem, N_Vector tmp1, 
 			     N_Vector tmp2, N_Vector tmp3);
 static int arkSuperLUMTSolve(ARKodeMem ark_mem, N_Vector b, 
 			     N_Vector weight, N_Vector ycur, 
@@ -275,9 +273,7 @@ static int arkSuperLUMTInit(ARKodeMem ark_mem)
          LU factorization failed, or
      -1  if the jac routine failed unrecoverably.
 ---------------------------------------------------------------*/
-static int arkSuperLUMTSetup(ARKodeMem ark_mem, int convfail, 
-			     N_Vector ypred, N_Vector fpred, 
-			     booleantype *jcurPtr, N_Vector vtemp1, 
+static int arkSuperLUMTSetup(ARKodeMem ark_mem, N_Vector vtemp1, 
 			     N_Vector vtemp2, N_Vector vtemp3)
 {
   booleantype jbad, jok;
@@ -318,25 +314,25 @@ static int arkSuperLUMTSetup(ARKodeMem ark_mem, int convfail,
   dgamma = SUNRabs((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
   jbad = (ark_mem->ark_nst == 0) || 
     (ark_mem->ark_nst > arksls_mem->s_nstlj + ARKS_MSBJ) ||
-    ((convfail == ARK_FAIL_BAD_J) && (dgamma < ARKS_DGMAX)) ||
-    (convfail == ARK_FAIL_OTHER);
+    ((ark_mem->ark_convfail == ARK_FAIL_BAD_J) && (dgamma < ARKS_DGMAX)) ||
+    (ark_mem->ark_convfail == ARK_FAIL_OTHER);
   jok = !jbad;
   
   /* If jok = TRUE, use saved copy of J */
   if (jok) {
-    *jcurPtr = FALSE;
+    ark_mem->ark_jcur = FALSE;
     SparseCopyMat(arksls_mem->s_savedJ, arksls_mem->s_A);
 
   /* If jok = FALSE, call jac routine for new J value */
   } else {
     arksls_mem->s_nje++;
     arksls_mem->s_nstlj = ark_mem->ark_nst;
-    *jcurPtr = TRUE;
+    ark_mem->ark_jcur = TRUE;
     SparseSetMatToZero(arksls_mem->s_A);
 
-    retval = arksls_mem->s_Jeval(ark_mem->ark_tn, ypred, fpred, 
-				 arksls_mem->s_A, arksls_mem->s_Jdata, 
-				 vtemp1, vtemp2, vtemp3);
+    retval = arksls_mem->s_Jeval(ark_mem->ark_tn, ark_mem->ark_ycur,
+                                 ark_mem->ark_ftemp, arksls_mem->s_A,
+                                 arksls_mem->s_Jdata, vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
       arkProcessError(ark_mem, ARKSLS_JACFUNC_UNRECVR, "ARKSLS", 
 		      "arkSuperLUMTSetup", MSGSP_JACFUNC_FAILED);

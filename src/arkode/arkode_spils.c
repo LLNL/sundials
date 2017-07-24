@@ -23,6 +23,7 @@
 
 #include "arkode_impl.h"
 #include "arkode_spils_impl.h"
+#include <sundials/sundials_math.h>
 
 /* constants */
 #define MAX_DQITERS  3  /* max. # of attempts to recover in DQ J*v */
@@ -1053,6 +1054,66 @@ char *ARKSpilsGetReturnFlagName(long int flag)
 ===============================================================*/
 
 /*---------------------------------------------------------------
+ ARKSpilsCallPSetup calls the user-supplied preconditioner setup 
+ routine, providing heuristic recommendations on whether this 
+ this should be updated based on heuristics regarding previous 
+ converence issues, the number of time steps since it was last 
+ updated, etc.
+---------------------------------------------------------------*/
+int ARKSpilsCallPSetup(void *arkode_mem, N_Vector vtemp1,
+                       N_Vector vtemp2, N_Vector vtemp3)
+{
+  booleantype jbad, jok;
+  realtype dgamma;
+  int  retval;
+  ARKodeMem ark_mem;
+  ARKSpilsMem arkspils_mem;
+
+  /* Return immediately if arkode_mem or ark_mem->ark_lmem are NULL */
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
+		    "ARKSpilsCallPSetup", MSGS_ARKMEM_NULL);
+    return(ARKSPILS_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  if (ark_mem->ark_lmem == NULL) {
+    arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKDLS", 
+		    "ARKSpilsCallPSetup", MSGS_LMEM_NULL);
+    return(ARKSPILS_LMEM_NULL);
+  }
+  arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
+
+  /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
+  dgamma = SUNRabs((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
+  jbad = (ark_mem->ark_nst == 0) || 
+    (ark_mem->ark_nst > arkspils_mem->s_nstlpre + ARKSPILS_MSBPRE) ||
+    ((ark_mem->ark_convfail == ARK_FAIL_BAD_J) && (dgamma < ARKSPILS_DGMAX)) ||
+    (ark_mem->ark_convfail == ARK_FAIL_OTHER);
+  ark_mem->ark_jcur = jbad;
+  jok = !jbad;
+
+  /* Call pset routine and possibly reset jcur */
+  retval = arkspils_mem->s_pset(ark_mem->ark_tn,
+                                ark_mem->ark_ycur,
+                                ark_mem->ark_ftemp,
+                                jok, 
+				&ark_mem->ark_jcur,
+                                ark_mem->ark_gamma, 
+				arkspils_mem->s_P_data,
+                                vtemp1, vtemp2, vtemp3);
+  if (jbad) ark_mem->ark_jcur = TRUE;
+
+  /* If jcur = TRUE, increment npe and save nst value */
+  if (ark_mem->ark_jcur) {
+    arkspils_mem->s_npe++;
+    arkspils_mem->s_nstlpre = ark_mem->ark_nst;
+  }
+  return(retval);
+  
+}
+
+
+/*---------------------------------------------------------------
  ARKSpilsATSetup:
 
  This routine provides a generic interface for calling a user-
@@ -1142,7 +1203,7 @@ int ARKSpilsPSetup(void *arkode_mem)
           arkspils_mem->s_ycur, 
           arkspils_mem->s_fcur, 
           arkspils_mem->s_jok,
-          &arkspils_mem->s_jcurPtr,
+          &ark_mem->ark_jcur,
           ark_mem->ark_gamma, 
           arkspils_mem->s_P_data, 
           arkspils_mem->s_ytemp, 

@@ -24,6 +24,8 @@
 #include "arkode_impl.h"
 #include "arkode_direct_impl.h"
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_band.h>
+#include <sundials/sundials_dense.h>
 
 /*===============================================================
  FUNCTION SPECIFIC CONSTANTS
@@ -36,9 +38,174 @@
 
 
 /*===============================================================
+ FUNCTIONS FOR USE BY ARKODE DIRECTLY
+===============================================================*/
+
+/*---------------------------------------------------------------
+ ARKDlsSetupMatrix determines whether to create a new dense/band 
+ Jacobian matrix (or use a stored version), based on heuristics
+ regarding previous converence issues, the number of time steps 
+ since it was last updated, etc.; it then creates the system
+ matrix from this, the 'gamma' factor and the mass/identity 
+ matrix, A = M-gamma*J.
+---------------------------------------------------------------*/
+int ARKDlsSetupMatrix(void *arkode_mem, N_Vector vtemp1,
+                      N_Vector vtemp2, N_Vector vtemp3)
+{
+  booleantype jbad, jok;
+  realtype dgamma, *Acol_j, *Mcol_j;
+  sunindextype i, j, ier, ml, mu, N, M, is, ie;
+  DlsMat A, Mass;
+  ARKodeMem ark_mem;
+  ARKDlsMem arkdls_mem;
+  ARKDlsMassMem arkdls_mass_mem;
+  int retval;
+  booleantype DENSE;
+
+  /* Return immediately if arkode_mem or ark_mem->ark_lmem are NULL */
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARKDLS_MEM_NULL, "ARKDLS", 
+		    "ARKDlsCallSetup", MSGD_ARKMEM_NULL);
+    return(ARKDLS_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  if (ark_mem->ark_lmem == NULL) {
+    arkProcessError(ark_mem, ARKDLS_LMEM_NULL, "ARKDLS", 
+		    "ARKDlsCallSetup", MSGD_LMEM_NULL);
+    return(ARKDLS_LMEM_NULL);
+  }
+  arkdls_mem = (ARKDlsMem) ark_mem->ark_lmem;
+
+  /* set flag to indicate DENSE vs BAND */
+  DENSE = (arkdls_mem->d_savedJ->type == SUNDIALS_DENSE) ? TRUE : FALSE;
+  
+  /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
+  dgamma = SUNRabs((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
+  jbad = (ark_mem->ark_nst == 0) || 
+    (ark_mem->ark_nst > arkdls_mem->d_nstlj + ARKD_MSBJ) ||
+    ((ark_mem->ark_convfail == ARK_FAIL_BAD_J) && (dgamma < ARKD_DGMAX)) ||
+    (ark_mem->ark_convfail == ARK_FAIL_OTHER);
+  jok = !jbad;
+ 
+  /* If jok = TRUE, use saved copy of J */
+  if (jok) {
+    ark_mem->ark_jcur = FALSE;
+    if (DENSE) {
+      DenseCopy(arkdls_mem->d_savedJ, arkdls_mem->d_M);
+    } else {
+      BandCopy(arkdls_mem->d_savedJ, arkdls_mem->d_M, arkdls_mem->d_mu, arkdls_mem->d_ml);
+    }
+
+  /* If jok = FALSE, call jac routine for new J value */
+  } else {
+    arkdls_mem->d_nje++;
+    arkdls_mem->d_nstlj = ark_mem->ark_nst;
+    ark_mem->ark_jcur = TRUE;
+    SetToZero(arkdls_mem->d_M);
+
+    if (DENSE) {
+      retval = arkdls_mem->d_djac(arkdls_mem->d_n, ark_mem->ark_tn, 
+                                  ark_mem->ark_ycur, ark_mem->ark_ftemp,
+                                  arkdls_mem->d_M, arkdls_mem->d_J_data, 
+                                  vtemp1, vtemp2, vtemp3);
+    } else {
+      retval = arkdls_mem->d_bjac(arkdls_mem->d_n, arkdls_mem->d_mu, arkdls_mem->d_ml, 
+                                  ark_mem->ark_tn, ark_mem->ark_ycur, ark_mem->ark_ftemp, 
+                                  arkdls_mem->d_M, arkdls_mem->d_J_data,
+                                  vtemp1, vtemp2, vtemp3);
+    }
+    if (retval < 0) {
+      arkProcessError(ark_mem, ARKDLS_JACFUNC_UNRECVR, "ARKDLS", 
+		      "ARKDlsCallSetup",  MSGD_JACFUNC_FAILED);
+      arkdls_mem->d_last_flag = ARKDLS_JACFUNC_UNRECVR;
+      return(-1);
+    }
+    if (retval > 0) {
+      arkdls_mem->d_last_flag = ARKDLS_JACFUNC_RECVR;
+      return(1);
+    }
+
+    if (DENSE) {
+      DenseCopy(arkdls_mem->d_M, arkdls_mem->d_savedJ);
+    } else {
+      BandCopy(arkdls_mem->d_M, arkdls_mem->d_savedJ, arkdls_mem->d_mu, arkdls_mem->d_ml);
+    }
+
+  }
+  
+  /* Scale J by -gamma */
+  if (DENSE) {
+    DenseScale(-ark_mem->ark_gamma, arkdls_mem->d_M);
+  } else {
+    BandScale(-ark_mem->ark_gamma, arkdls_mem->d_M);
+  }
+  
+  /* Add mass matrix to get A = M-gamma*J*/
+  if (ark_mem->ark_mass_matrix) {
+
+    /* Compute mass matrix */
+    arkdls_mass_mem = (ARKDlsMassMem) ark_mem->ark_mass_mem;
+    SetToZero(arkdls_mass_mem->d_M);
+    if (DENSE) {
+      retval = arkdls_mass_mem->d_dmass(arkdls_mass_mem->d_n, 
+                                        ark_mem->ark_tn, 
+                                        arkdls_mass_mem->d_M, 
+                                        arkdls_mass_mem->d_M_data, 
+                                        vtemp1, vtemp2, vtemp3);
+    } else {
+      retval = arkdls_mass_mem->d_bmass(arkdls_mass_mem->d_n, arkdls_mass_mem->d_mu, 
+                                        arkdls_mass_mem->d_ml, ark_mem->ark_tn, 
+                                        arkdls_mass_mem->d_M, arkdls_mass_mem->d_M_data, 
+                                        vtemp1, vtemp2, vtemp3);
+    }
+    arkdls_mass_mem->d_nme++;
+    if (retval < 0) {
+      arkProcessError(ark_mem, ARKDLS_MASSFUNC_UNRECVR, "ARKDLS", 
+		      "ARKDlsCallSetup",  MSGD_MASSFUNC_FAILED);
+      arkdls_mem->d_last_flag = ARKDLS_MASSFUNC_UNRECVR;
+      return(-1);
+    }
+    if (retval > 0) {
+      arkdls_mem->d_last_flag = ARKDLS_MASSFUNC_RECVR;
+      return(1);
+    }
+
+    /* Add to A */
+    if (DENSE) {
+      for (j=0; j<arkdls_mem->d_M->N; j++) {
+        Acol_j = arkdls_mem->d_M->cols[j];
+        Mcol_j = arkdls_mass_mem->d_M->cols[j];
+        for (i=0; i<arkdls_mem->d_M->M; i++) 
+          Acol_j[i] += Mcol_j[i];
+      }
+    } else {
+      ml = arkdls_mem->d_M->ml;
+      mu = arkdls_mem->d_M->mu;
+      N = arkdls_mem->d_M->N;
+      M = arkdls_mem->d_M->M;
+      A = arkdls_mem->d_M;
+      Mass = arkdls_mass_mem->d_M;
+      for (j=0; j<N; j++) {                /* loop over columns */
+        is = (0 > j-mu) ? 0 : j-mu;        /* colum nonzero bounds */
+        ie = (M-1 < j+ml) ? M-1 : j+ml;
+        for (i=is; i<=ie; i++) {           /* loop over rows */
+          BAND_ELEM(A,i,j) += BAND_ELEM(Mass,i,j);
+        }
+      }
+    }
+  } else {
+    AddIdentity(arkdls_mem->d_M);
+  }
+
+  return(ARKDLS_SUCCESS);
+}
+
+
+             
+/*===============================================================
  EXPORTED FUNCTIONS
 ===============================================================*/
-              
+
 /*---------------------------------------------------------------
  ARKDlsSetDenseJacFn specifies the dense Jacobian function.
 ---------------------------------------------------------------*/

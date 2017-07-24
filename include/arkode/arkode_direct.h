@@ -272,6 +272,21 @@ typedef int (*ARKDlsBandMassFn)(sunindextype N, sunindextype mupper,
 
 
 /*===============================================================
+ FUNCTIONS FOR USE BY ARKODE DIRECTLY
+===============================================================*/
+
+/*---------------------------------------------------------------
+ ARKDlsSetupMatrix determines whether to create a new dense/band 
+ Jacobian matrix (or use a stored version), based on heuristics
+ regarding previous converence issues, the number of time steps 
+ since it was last updated, etc.; it then creates the system
+ matrix from this, the 'gamma' factor and the mass/identity 
+ matrix, A = M-gamma*J.
+---------------------------------------------------------------*/
+SUNDIALS_EXPORT int ARKDlsSetupMatrix(void *arkode_mem, N_Vector vtemp1,
+                                      N_Vector vtemp2, N_Vector vtemp3);
+
+/*===============================================================
   EXPORTED FUNCTIONS
 ===============================================================*/
 
