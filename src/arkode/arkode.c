@@ -369,6 +369,7 @@ int ARKodeInit(void *arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
   ark_mem->ark_nge          = 0;
   ark_mem->ark_irfnd        = 0;
   ark_mem->ark_mass_solves  = 0;
+  ark_mem->ark_mass_setup   = 0;
   ark_mem->ark_mass_mult    = 0;
 
   /* Initialize other integrator optional outputs */
@@ -488,6 +489,7 @@ int ARKodeReInit(void *arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
   ark_mem->ark_nge          = 0;
   ark_mem->ark_irfnd        = 0;
   ark_mem->ark_mass_solves  = 0;
+  ark_mem->ark_mass_setup   = 0;
   ark_mem->ark_mass_mult    = 0;
 
   /* Indicate that problem size is new */
