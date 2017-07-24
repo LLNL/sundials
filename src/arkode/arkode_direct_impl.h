@@ -44,24 +44,24 @@ extern "C" {
 ---------------------------------------------------------------*/
 typedef struct ARKDlsMemRec {
 
-  int d_type;             /* SUNDIALS_DENSE or SUNDIALS_BAND              */
+  int d_type;             /* SUNDIALS_DENSE or SUNDIALS_BAND -- REMOVE */
 
-  sunindextype d_n;          /* problem dimension                            */
+  sunindextype d_n;          /* problem dimension -- REMOVE            */
 
-  sunindextype d_ml;         /* lower bandwidth of Jacobian                  */
-  sunindextype d_mu;         /* upper bandwidth of Jacobian                  */ 
-  sunindextype d_smu;        /* upper bandwith of M = MIN(N-1,d_mu+d_ml)     */
+  sunindextype d_ml;         /* lower bandwidth of Jacobian -- REMOVE  */
+  sunindextype d_mu;         /* upper bandwidth of Jacobian -- REMOVE  */ 
+  sunindextype d_smu;        /* upper bandwith of M = MIN(N-1,d_mu+d_ml) -- REMOVE */
 
-  booleantype d_jacDQ;    /* TRUE if using internal DQ Jacobian approx.   */
-  ARKDlsDenseJacFn d_djac; /* dense Jacobian routine to be called          */
-  ARKDlsBandJacFn d_bjac;  /* band Jacobian routine to be called           */
-  void *d_J_data;         /* user data is passed to djac or bjac          */
+  booleantype d_jacDQ;    /* TRUE if using internal DQ Jacobian approx. */
+  ARKDlsDenseJacFn d_djac; /* dense Jacobian routine to be called -- REPLACE WITH GENERIC */
+  ARKDlsBandJacFn d_bjac;  /* band Jacobian routine to be called -- REMOVE */
+  void *d_J_data;         /* user data is passed to djac or bjac -- UPDATE COMMENT */
 
-  DlsMat d_M;             /* M = I - gamma * df/dy                        */
-  DlsMat d_savedJ;        /* savedJ = old Jacobian                        */
+  DlsMat d_M;             /* M = I - gamma * df/dy -- CHANGE NAME TO A, CHANGE TYPE */
+  DlsMat d_savedJ;        /* savedJ = old Jacobian -- CHANGE TYPE */
 
-  int *d_pivots;          /* pivots = int pivot array for PM = LU         */
-  sunindextype *d_lpivots;   /* lpivots = sunindextype pivot array for PM = LU  */
+  int *d_pivots;          /* pivots = int pivot array for PM = LU -- REMOVE */
+  sunindextype *d_lpivots;   /* lpivots = sunindextype pivot array for PM = LU -- REMOVE */
 
   long int d_nstlj;       /* nstlj = nst at last Jacobian eval.           */
 
@@ -69,7 +69,7 @@ typedef struct ARKDlsMemRec {
 
   long int d_nfeDQ;       /* no. of calls to f due to DQ Jacobian approx. */
 
-  long int d_last_flag;   /* last error return flag                       */
+  long int d_last_flag;   /* last error return flag -- REMOVE? */
   
 } *ARKDlsMem;
 
@@ -81,27 +81,27 @@ typedef struct ARKDlsMemRec {
 ---------------------------------------------------------------*/
 typedef struct ARKDlsMassMemRec {
 
-  int d_type;                /* SUNDIALS_DENSE or SUNDIALS_BAND            */
+  int d_type;                /* SUNDIALS_DENSE or SUNDIALS_BAND -- REMOVE */
 
-  sunindextype d_n;             /* problem dimension                          */
+  sunindextype d_n;             /* problem dimension -- REMOVE */
 
-  sunindextype d_ml;            /* lower bandwidth of mass matrix             */
-  sunindextype d_mu;            /* upper bandwidth of mass matrix             */ 
-  sunindextype d_smu;           /* upper bandwith of M = MIN(N-1,d_mu+d_ml)   */
+  sunindextype d_ml;            /* lower bandwidth of mass matrix -- REMOVE */
+  sunindextype d_mu;            /* upper bandwidth of mass matrix -- REMOVE */ 
+  sunindextype d_smu;           /* upper bandwith of M = MIN(N-1,d_mu+d_ml) -- REMOVE */
 
-  ARKDlsDenseMassFn d_dmass; /* dense mass matrix routine to be called     */
-  ARKDlsBandMassFn d_bmass;  /* band mass matrix routine to be called      */
-  void *d_M_data;            /* user data is passed to djac or bjac        */
+  ARKDlsDenseMassFn d_dmass; /* dense mass matrix routine to be called -- REPLACE WITH GENERIC */
+  ARKDlsBandMassFn d_bmass;  /* band mass matrix routine to be called -- REMOVE */
+  void *d_M_data;            /* user data is passed to djac or bjac -- UPDATE COMMENT */
 
-  DlsMat d_M;                /* mass matrix structure                      */
-  DlsMat d_M_lu;             /* mass matrix structure for LU decomposition */
+  DlsMat d_M;                /* mass matrix structure -- CHANGE TYPE */
+  DlsMat d_M_lu;             /* mass matrix structure for LU decomposition -- CHANGE TYPE */
 
-  int *d_pivots;             /* pivots = int pivot array for PM = LU       */
-  sunindextype *d_lpivots;      /* lpivots = sunindextype pivot array for PM = LU */
+  int *d_pivots;             /* pivots = int pivot array for PM = LU -- REMOVE */
+  sunindextype *d_lpivots;      /* lpivots = sunindextype pivot array for PM = LU -- REMOVE  */
 
   long int d_nme;            /* nje = no. of calls to mass matrix routine  */
 
-  long int d_last_flag;      /* last error return flag                     */
+  long int d_last_flag;      /* last error return flag -- REMOVE? */
   
 } *ARKDlsMassMem;
 
@@ -109,14 +109,16 @@ typedef struct ARKDlsMassMemRec {
 /*---------------------------------------------------------------
  Prototypes of internal functions
 ---------------------------------------------------------------*/
+int arkDlsDirectDQJac(realtype t, N_Vector y, N_Vector fy, 
+	                 SUNMatrix Jac, void *data, N_Vector tmp1, 
+	                 N_Vector tmp2, N_Vector tmp3);    /* NEW GENERIC DQ ROUTINE */
 int arkDlsDenseDQJac(sunindextype N, realtype t, N_Vector y, 
                      N_Vector fy, DlsMat Jac, void *data,
-                     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+                     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3); /* MODIFY AND CALL FROM ArkDlsDirectDQJac */
 int arkDlsBandDQJac(sunindextype N, sunindextype mupper, sunindextype mlower,
                     realtype t, N_Vector y, N_Vector fy, 
                     DlsMat Jac, void *data, N_Vector tmp1, 
-                    N_Vector tmp2, N_Vector tmp3);
-
+                    N_Vector tmp2, N_Vector tmp3); /* MODIFY AND CALL FROM ArkDlsDirectDQJac */
 /* Auxilliary functions */
 
 int arkDlsInitializeCounters(ARKDlsMem arkdls_mem);

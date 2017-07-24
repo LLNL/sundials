@@ -31,7 +31,7 @@ extern "C" {
 
 
 /*---------------------------------------------------------------
- ARKSPILS return values 
+ ARKSPILS return values -- ADJUST CONSTANTS AS NECESSARY
 ---------------------------------------------------------------*/
 #define ARKSPILS_SUCCESS       0
 #define ARKSPILS_MEM_NULL     -1
@@ -59,9 +59,9 @@ extern "C" {
                    multiplied to get a tolerance on the linear
                    iteration
 ---------------------------------------------------------------*/
-#define ARKSPILS_MAXL   5
-#define ARKSPILS_MSBPRE 50
-#define ARKSPILS_DGMAX  RCONST(0.2)
+#define ARKSPILS_MAXL   5 /* -- REMOVE */
+#define ARKSPILS_MSBPRE 50 /* -- TURN INTO A PARAMETER, MAKE THIS THE DEFAULT */
+#define ARKSPILS_DGMAX  RCONST(0.2) /* -- TURN INTO A PARAMETER, MAKE THIS THE DEFAULT */
 #define ARKSPILS_EPLIN  RCONST(0.05)
 
 
@@ -152,11 +152,11 @@ extern "C" {
    < 0 for an unrecoverable error (integration is halted).
 ---------------------------------------------------------------*/
 typedef int (*ARKSpilsPrecSetupFn)(realtype t, N_Vector y, 
-				   N_Vector fy, booleantype jok, 
-				   booleantype *jcurPtr,
-				   realtype gamma, void *user_data,
-				   N_Vector tmp1, N_Vector tmp2,
-				   N_Vector tmp3);
+           N_Vector fy, booleantype jok, 
+           booleantype *jcurPtr,
+           realtype gamma, void *user_data,
+           N_Vector tmp1, N_Vector tmp2,
+           N_Vector tmp3);   /* REMOVE THESE 3 TEMPORARY VECTORS */
 
 
 /*---------------------------------------------------------------
@@ -211,7 +211,48 @@ typedef int (*ARKSpilsPrecSolveFn)(realtype t, N_Vector y,
 				   N_Vector fy, N_Vector r, 
 				   N_Vector z, realtype gamma, 
 				   realtype delta, int lr, 
-				   void *user_data, N_Vector tmp);
+				   void *user_data, N_Vector tmp);   /* REMOVE THIS TEMPORARY VECTOR */
+
+
+/*---------------------------------------------------------------
+ Type: ARKSpilsJacTimesSetupFn
+
+ The user-supplied Jacobian-times-vector product setup function 
+ JacTimesSetup and the user-supplied Jacobian-times-vector 
+ product function JTimes together must generate the product
+ J*v for v, where J is the Jacobian df/dy, or an approximation 
+ to it, and v is a given vector. It should return 0 if 
+ successful a positive value for a recoverable error or a
+ negative value for an unrecoverable failure.
+
+ Each call to the JacTimesSetup function is preceded by a call 
+ to the RhsFn fi with the same (t,y) arguments.  Thus the 
+ JacTimesSetup function can use any auxiliary data that is 
+ computed and saved by the f function and made accessible to 
+ JacTimesSetup.
+
+ A function JacTimesSetup must have the prototype given below.
+ Its parameters are as follows:
+
+ t       is the current value of the independent variable.
+
+ y       is the current value of the dependent variable vector,
+          namely the predicted value of y(t).
+
+ fy      is the vector f(t,y).
+
+ user_data  is a pointer to user data - the same as the user_data
+         parameter passed to the ARKodeSetUserData function.
+
+ Returned value:
+ The value to be returned by the JacTimesSetup function is a flag
+ indicating whether it was successful.  This value should be
+   0   if successful,
+   > 0 for a recoverable error (step will be retried),
+   < 0 for an unrecoverable error (integration is halted).
+---------------------------------------------------------------*/
+typedef int (*ARKSpilsJacTimesSetupFn)(realtype t, N_Vector y, 
+           N_Vector fy, void *user_data);
 
 
 /*---------------------------------------------------------------
@@ -250,6 +291,36 @@ typedef int (*ARKSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv,
 
 
 /*---------------------------------------------------------------
+ Type: ARKSpilsMassTimesSetupFn
+
+ The user-supplied mass matrix-times-vector product setup 
+ function MassTimesSetup and the user-supplied mass 
+ matrix-times-vector product function MTimes together must 
+ generate the product M*v for v, where M is the mass matrix, or 
+ an approximation to it, and v is a given vector. It should 
+ return 0 if successful a positive value for a recoverable error 
+ or a negative value for an unrecoverable failure.
+
+ A function MassTimesSetup must have the prototype given below.
+ Its parameters are as follows:
+
+ t       is the current value of the independent variable.
+
+ mtimes_data  is a pointer to user data - the same as the 
+         parameter passed to the ARKodeSetMassTimesVecFn
+         function.
+
+ Returned value:
+ The value to be returned by the MassTimesSetup function is a 
+ flag indicating whether it was successful.  This value should be
+   0   if successful,
+   > 0 for a recoverable error (step will be retried),
+   < 0 for an unrecoverable error (integration is halted).
+---------------------------------------------------------------*/
+typedef int (*ARKSpilsMassTimesSetupFn)(realtype t, void *mtimes_data);
+
+
+/*---------------------------------------------------------------
  Type: ARKSpilsMassTimesVecFn
 
  The user-supplied function mtimes is to generate the product
@@ -266,11 +337,12 @@ typedef int (*ARKSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv,
 
    t        is the current value of the independent variable.
 
-   user_data   is a pointer to user data, the same as the user_data
-            parameter passed to the ARKodeSetUserData function.
+   mtimes_data   is a pointer to user data, the same as the 
+            parameter passed to the ARKodeSetMassTimesVecFn 
+            function.
 ---------------------------------------------------------------*/
 typedef int (*ARKSpilsMassTimesVecFn)(N_Vector v, N_Vector Mv, 
-				      realtype t, void *user_data);
+				      realtype t, void *mtimes_data);
 
 
 
@@ -311,7 +383,7 @@ typedef int (*ARKSpilsMassTimesVecFn)(N_Vector v, N_Vector Mv,
 ---------------------------------------------------------------*/
 typedef int (*ARKSpilsMassPrecSetupFn)(realtype t, void *user_data, 
 				       N_Vector tmp1, N_Vector tmp2, 
-				       N_Vector tmp3);
+				       N_Vector tmp3);  /* REMOVE THESE 3 TEMPORARY VECTORS */
 
 
 /*---------------------------------------------------------------
@@ -358,7 +430,7 @@ typedef int (*ARKSpilsMassPrecSetupFn)(realtype t, void *user_data,
 typedef int (*ARKSpilsMassPrecSolveFn)(realtype t, N_Vector r, 
 				       N_Vector z, realtype delta, 
 				       int lr, void *user_data, 
-				       N_Vector tmp);
+				       N_Vector tmp);   /* REMOVE THIS TEMPORARY VECTOR */
 
 
 /*---------------------------------------------------------------
@@ -407,12 +479,12 @@ typedef int (*ARKSpilsMassPrecSolveFn)(realtype t, N_Vector r,
     ARKSPILS_MASSMEM_NULL if the mass matrix solver memory was NULL
     ARKSPILS_ILL_INPUT    if an input has an illegal value
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int ARKSpilsSetPrecType(void *arkode_mem, int pretype);
-SUNDIALS_EXPORT int ARKSpilsSetMassPrecType(void *arkode_mem, int pretype);
-SUNDIALS_EXPORT int ARKSpilsSetGSType(void *arkode_mem, int gstype);
-SUNDIALS_EXPORT int ARKSpilsSetMassGSType(void *arkode_mem, int gstype);
-SUNDIALS_EXPORT int ARKSpilsSetMaxl(void *arkode_mem, int maxl);
-SUNDIALS_EXPORT int ARKSpilsSetMassMaxl(void *arkode_mem, int maxl);
+SUNDIALS_EXPORT int ARKSpilsSetPrecType(void *arkode_mem, int pretype); /* -- REMOVE */
+SUNDIALS_EXPORT int ARKSpilsSetMassPrecType(void *arkode_mem, int pretype); /* -- REMOVE */
+SUNDIALS_EXPORT int ARKSpilsSetGSType(void *arkode_mem, int gstype); /* -- REMOVE */
+SUNDIALS_EXPORT int ARKSpilsSetMassGSType(void *arkode_mem, int gstype); /* -- REMOVE */
+SUNDIALS_EXPORT int ARKSpilsSetMaxl(void *arkode_mem, int maxl); /* -- REMOVE */
+SUNDIALS_EXPORT int ARKSpilsSetMassMaxl(void *arkode_mem, int maxl); /* -- REMOVE */
 SUNDIALS_EXPORT int ARKSpilsSetEpsLin(void *arkode_mem, realtype eplifac);
 SUNDIALS_EXPORT int ARKSpilsSetMassEpsLin(void *arkode_mem, realtype eplifac);
 SUNDIALS_EXPORT int ARKSpilsSetPreconditioner(void *arkode_mem, 
@@ -421,11 +493,15 @@ SUNDIALS_EXPORT int ARKSpilsSetPreconditioner(void *arkode_mem,
 SUNDIALS_EXPORT int ARKSpilsSetMassPreconditioner(void *arkode_mem, 
 						  ARKSpilsMassPrecSetupFn pset,
 						  ARKSpilsMassPrecSolveFn psolve);
+SUNDIALS_EXPORT int ARKSpilsSetJacTimesSetupFn(void *arkode_mem, 
+               ARKSpilsJacTimesSetupFn jsetup);
 SUNDIALS_EXPORT int ARKSpilsSetJacTimesVecFn(void *arkode_mem, 
-					     ARKSpilsJacTimesVecFn jtv);
+               ARKSpilsJacTimesVecFn jtv);
+SUNDIALS_EXPORT int ARKSpilsSetMassTimesSetupFn(void *arkode_mem, 
+                ARKSpilsMassTimesSetupFn msetup);
 SUNDIALS_EXPORT int ARKSpilsSetMassTimesVecFn(void *arkode_mem, 
-					      ARKSpilsMassTimesVecFn mtv,
-					      void *mtimes_data);
+                ARKSpilsMassTimesVecFn mtv,
+                void *mtimes_data);
 
 
 /*---------------------------------------------------------------
@@ -484,10 +560,10 @@ SUNDIALS_EXPORT int ARKSpilsSetMassTimesVecFn(void *arkode_mem,
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKSpilsGetWorkSpace(void *arkode_mem, 
 					 sunindextype *lenrwLS, 
-					 sunindextype *leniwLS);
+					 sunindextype *leniwLS); /* -- ONLY INCLUDE GENERIC WORKSPACE */
 SUNDIALS_EXPORT int ARKSpilsGetMassWorkSpace(void *arkode_mem, 
 					     sunindextype *lenrwMLS, 
-					     sunindextype *leniwMLS);
+					     sunindextype *leniwMLS); /* -- ONLY INCLUDE GENERIC WORKSPACE */
 SUNDIALS_EXPORT int ARKSpilsGetNumPrecEvals(void *arkode_mem, 
 					    long int *npevals);
 SUNDIALS_EXPORT int ARKSpilsGetNumMassPrecEvals(void *arkode_mem, 
@@ -511,16 +587,16 @@ SUNDIALS_EXPORT int ARKSpilsGetNumMtimesEvals(void *arkode_mem,
 SUNDIALS_EXPORT int ARKSpilsGetNumRhsEvals(void *arkode_mem, 
 					   long int *nfevalsLS); 
 SUNDIALS_EXPORT int ARKSpilsGetLastFlag(void *arkode_mem, 
-					long int *flag);
+					long int *flag); /* -- REMOVE? */
 SUNDIALS_EXPORT int ARKSpilsGetLastMassFlag(void *arkode_mem, 
-					    long int *flag);
+					    long int *flag); /* -- REMOVE? */
 
 
 /*---------------------------------------------------------------
  The following function returns the name of the constant 
  associated with a ARKSPILS return flag
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT char *ARKSpilsGetReturnFlagName(long int flag);
+SUNDIALS_EXPORT char *ARKSpilsGetReturnFlagName(long int flag); /* -- REMOVE? */
 
 #ifdef __cplusplus
 }

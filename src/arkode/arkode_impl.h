@@ -432,7 +432,9 @@ typedef struct ARKodeMemRec {
     -----------------------*/
   booleantype ark_mass_matrix;   /* flag denoting use of a non-identity M  */
   long int ark_mass_solves;      /* number of mass matrix solve calls      */
+  long int ark_mass_setup;       /* number of mass matrix-product setup calls */
   long int ark_mass_mult;        /* number of mass matrix product calls    */
+  ARKSpilsMassTimesSetupFn ark_mtsetup; /* mass-matrix-vector product setup */
   ARKSpilsMassTimesVecFn ark_mtimes;   /* mass-matrix-vector product routine */
   void *ark_mtimes_data;         /* user pointer passed to mtimes          */
   int (*ark_minit)(struct ARKodeMemRec *ark_mem);
