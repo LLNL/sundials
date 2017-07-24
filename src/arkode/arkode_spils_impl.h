@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 
-/* Types of iterative linear solvers */
+/* Types of iterative linear solvers -- REMOVE */
 #define SPILS_SPGMR   1
 #define SPILS_SPBCG   2
 #define SPILS_SPTFQMR 3
@@ -45,31 +45,32 @@ extern "C" {
 ---------------------------------------------------------------*/
 typedef struct ARKSpilsMemRec {
 
-  int s_type;           /* type of scaled preconditioned iterative LS   */
+  int s_type;           /* type of scaled preconditioned iterative LS -- REMOVE */
 
-  int  s_pretype;       /* type of preconditioning                      */
-  int  s_gstype;        /* type of Gram-Schmidt orthogonalization       */
+  int  s_pretype;       /* type of preconditioning -- REMOVE            */
+  int  s_gstype;        /* type of Gram-Schmidt orthogonalization -- REMOVE */
   realtype s_sqrtN;     /* sqrt(N)                                      */
   realtype s_eplifac;   /* eplifac = user specified or EPLIN_DEFAULT    */
   realtype s_deltar;    /* deltar = delt * LTE                          */
   realtype s_delta;     /* delta = deltar * sqrtN                       */
-  int  s_maxl;          /* maxl = maximum dimension of the Krylov space */
+  int  s_maxl;          /* maxl = maximum dimension of the Krylov space -- REMOVE */
 
   long int s_nstlpre;   /* value of nst at the last pset call           */
   long int s_npe;       /* npe = total number of pset calls             */
   long int s_nli;       /* nli = total number of linear iterations      */
   long int s_nps;       /* nps = total number of psolve calls           */
   long int s_ncfl;      /* ncfl = total number of convergence failures  */
+  long int s_njtsetup;  /* njtsetup = total number of calls to jysetup  */
   long int s_njtimes;   /* njtimes = total number of calls to jtimes    */
   long int s_nfes;      /* nfeSG = total number of calls to f for     
                            difference quotient Jacobian-vector products */
 
-  N_Vector s_ytemp;     /* temp vector passed to jtimes and psolve      */
-  N_Vector s_x;         /* temp vector used by ARKSpilsSolve            */
+  N_Vector s_ytemp;     /* temp vector passed to jtimes and psolve -- REMOVE? */
+  N_Vector s_x;         /* temp vector used by ARKSpilsSolve -- REMOVE? */
   N_Vector s_ycur;      /* ARKODE current y vector in Newton Iteration  */
   N_Vector s_fcur;      /* fcur = f(tn, ycur)                           */
 
-  void* s_spils_mem;    /* memory used by the generic solver            */
+  void* s_spils_mem;    /* memory used by the generic solver -- REPLACE WITH SUNLinearSolver OBJECT */
 
   /* Preconditioner computation
     (a) user-provided:
@@ -80,7 +81,9 @@ typedef struct ARKSpilsMemRec {
         - pfree == set by the prec. module and called in ARKodeFree  */
   ARKSpilsPrecSetupFn s_pset;
   ARKSpilsPrecSolveFn s_psolve;
-  int (*s_pfree)(ARKodeMem ark_mem);
+  int s_jok;          /* THESE TWO VARIABLES ARE CURRENTLY HELD IN EACH */ 
+  int s_jcurPtr;      /* SOLVER INTERFACE; USE THESE ONES INSTEAD */
+  int (*s_pfree)(ARKodeMem ark_mem); /* -- REMOVE? */
   void *s_P_data;
 
   /* Jacobian times vector compuation
@@ -91,10 +94,11 @@ typedef struct ARKSpilsMemRec {
         - j_data == arkode_mem
         - jtimesDQ == TRUE   */
   booleantype s_jtimesDQ;
+  ARKSpilsJacTimesSetupFn s_jtsetup;
   ARKSpilsJacTimesVecFn s_jtimes;
   void *s_j_data;
 
-  long int s_last_flag; /* last error flag returned by any function     */
+  long int s_last_flag; /* last error flag returned by any function -- REMOVE? */
 
 } *ARKSpilsMem;
 
@@ -104,7 +108,7 @@ typedef struct ARKSpilsMemRec {
 
  The type ARKSpilsMassMem is pointer to a ARKSpilsMassMemRec.
 ---------------------------------------------------------------*/
-typedef struct ARKSpilsMassMemRec {
+typedef struct ARKSpilsMassMemRec {  /* DO THE SAME AS ABOVE */
 
   int s_type;           /* type of scaled preconditioned iterative LS   */
 
@@ -148,13 +152,17 @@ typedef struct ARKSpilsMassMemRec {
  Prototypes of internal functions
 ---------------------------------------------------------------*/
 
-/* Atimes and PSolve routines called by generic solver */
+/* ATSetup, ATimes, PSetup and PSolve routines called by generic solver */
+int ARKSpilsATSetup(void *ark_mem);
 int ARKSpilsAtimes(void *ark_mem, N_Vector v, N_Vector z);
+int ARKSpilsPSetup(void *ark_mem);
 int ARKSpilsPSolve(void *ark_mem, N_Vector r, N_Vector z,
                    realtype tol, int lr);
 
 /* Mtimes and MPSolve routines called by mass matrix solver */
+int ARKSpilsMTSetup(void *ark_mem);
 int ARKSpilsMtimes(void *ark_mem, N_Vector v, N_Vector z);
+int ARKSpilsMPSetup(void *ark_mem);
 int ARKSpilsMPSolve(void *ark_mem, N_Vector r, N_Vector z,
                     realtype tol, int lr);
 
@@ -168,7 +176,7 @@ int arkSpilsInitializeCounters(ARKSpilsMem arkspils_mem);
 
 
 /*---------------------------------------------------------------
- Error Messages
+ Error Messages -- REMOVE SOME???
 ---------------------------------------------------------------*/
 #define MSGS_ARKMEM_NULL   "Integrator memory is NULL."
 #define MSGS_MEM_FAIL      "A memory request failed."

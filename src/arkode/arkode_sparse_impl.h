@@ -47,23 +47,23 @@ extern "C" {
 typedef struct ARKSlsMemRec {
 
   ARKSlsSparseJacFn s_Jeval; /* user Jacobian evaluation routine 
-                                to be called                   */
+                                to be called -- REMOVE (REPLACED BY GENERIC) */
   void *s_Jdata;             /* user data passed to s_Jeval    */
 
   long int s_nje;            /* nje = no. of calls to s_Jeval  */
 
-  long int s_last_flag;      /* last error return flag         */
+  long int s_last_flag;      /* last error return flag -- REMOVE? */
 
   int s_first_factorize;     /* flag telling whether the first 
-			        factorization needs to happen  */
+			        factorization needs to happen -- REMOVE */
 
   long int s_nstlj;          /* time step of last J evaluation */
 
-  SlsMat s_A;                /* A = M - gamma * df/dy          */
+  SlsMat s_A;                /* A = M - gamma * df/dy -- CHANGE TYPE */
 
-  SlsMat s_savedJ;           /* saved copy of Jacobian         */
+  SlsMat s_savedJ;           /* saved copy of Jacobian -- CHANGE TYPE */
 
-  int sparsetype;            /* matrix type: compressed sparse column or row */
+  int sparsetype;            /* matrix type: compressed sparse column or row -- REMOVE */
 
   void *s_solver_data;       /* struct for solver data         */
 

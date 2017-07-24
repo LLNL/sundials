@@ -61,7 +61,7 @@ SUNLinearSolver SUNDenseLinearSolver(N_Vector y, SUNMatrix A)
   
   /* Check compatibility with supplied SUNMatrix and N_Vector */
   if (SUNMatGetID(A) != SUNMATRIX_DENSE)
-    return NULL;
+    return(NULL);
   MatrixRows = SUNDenseMatrix_Rows(A);
   MatrixCols = SUNDenseMatrix_Columns(A);
   if (N_VGetVectorID(y) == SUNDIALS_NVEC_SERIAL) {
@@ -78,9 +78,9 @@ SUNLinearSolver SUNDenseLinearSolver(N_Vector y, SUNMatrix A)
   }
 #endif
   else
-    return NULL;
+    return(NULL);
   if ( (MatrixRows != MatrixCols) || (MatrixRows != VecLength) )
-    return NULL;
+    return(NULL);
   
   /* Create linear solver */
   S = NULL;
@@ -134,14 +134,14 @@ SUNLinearSolver SUNDenseLinearSolver(N_Vector y, SUNMatrix A)
 
 SUNLinearSolver_Type SUNLinSolGetType_Dense(SUNLinearSolver S)
 {
-  return SUNLINEARSOLVER_DIRECT;
+  return(SUNLINEARSOLVER_DIRECT);
 }
 
 int SUNLinSolInitialize_Dense(SUNLinearSolver S)
 {
   /* all solver-specific memory has already been allocated */
-  LASTFLAG(S) = 0;
-  return 0;
+  LASTFLAG(S) = SUNLS_SUCCESS;
+  return(LASTFLAG(S));
 }
 
 int SUNLinSolSetATimes_Dense(SUNLinearSolver S, void* A_data,
@@ -149,8 +149,8 @@ int SUNLinSolSetATimes_Dense(SUNLinearSolver S, void* A_data,
 {
   /* direct solvers do not utilize an 'ATimes' routine, 
      so return an error is this routine is ever called */
-  LASTFLAG(S) = 1;
-  return 1;
+  LASTFLAG(S) = SUNLS_ILL_INPUT;
+  return(LASTFLAG(S));
 }
 
 int SUNLinSolSetPreconditioner_Dense(SUNLinearSolver S, void* P_data,
@@ -158,8 +158,8 @@ int SUNLinSolSetPreconditioner_Dense(SUNLinearSolver S, void* P_data,
 {
   /* direct solvers do not utilize preconditioning, 
      so return an error is this routine is ever called */
-  LASTFLAG(S) = 1;
-  return 1;
+  LASTFLAG(S) = SUNLS_ILL_INPUT;
+  return(LASTFLAG(S));
 }
 
 int SUNLinSolSetScalingVectors_Dense(SUNLinearSolver S, N_Vector s1,
@@ -167,8 +167,8 @@ int SUNLinSolSetScalingVectors_Dense(SUNLinearSolver S, N_Vector s1,
 {
   /* direct solvers do not utilize scaling, 
      so return an error is this routine is ever called */
-  LASTFLAG(S) = 1;
-  return 1;
+  LASTFLAG(S) = SUNLS_ILL_INPUT;
+  return(LASTFLAG(S));
 }
 
 int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
@@ -176,22 +176,34 @@ int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
   realtype **A_cols;
   sunindextype *pivots;
   
+  /* check for valid inputs */
+  if ( (A == NULL) || (S == NULL) ) 
+    return(SUNLS_MEM_NULL);
+  
+  /* Ensure that A is a dense matrix */
+  if (SUNMatGetID(A) != SUNMATRIX_DENSE) {
+    LASTFLAG(S) = SUNLS_ILL_INPUT;
+    return(LASTFLAG(S));
+  }
+  
   /* access data pointers (return with failure on NULL) */
   A_cols = NULL;
   pivots = NULL;
   A_cols = SUNDenseMatrix_Cols(A);
   pivots = PIVOTS(S);
-  if ( (A_cols == NULL) || (pivots == NULL) )
-    return 1;
+  if ( (A_cols == NULL) || (pivots == NULL) ) {
+    LASTFLAG(S) = SUNLS_MEM_FAIL;
+    return(LASTFLAG(S));
+  }
   
   /* perform LU factorization of input matrix */
   LASTFLAG(S) = denseGETRF(A_cols, SUNDenseMatrix_Rows(A),
-                                 SUNDenseMatrix_Columns(A), pivots);
+                           SUNDenseMatrix_Columns(A), pivots);
 
   /* store error flag (if nonzero, this row encountered zero-valued pivod) */
   if (LASTFLAG(S) > 0)
-    return 1;
-  return 0;
+    return(SUNLS_LUFACT_FAIL);
+  return(SUNLS_SUCCESS);
 }
 
 int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
@@ -199,6 +211,9 @@ int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 {
   realtype **A_cols, *xdata;
   sunindextype *pivots;
+  
+  if ( (A == NULL) || (S == NULL) || (x == NULL) || (b == NULL) ) 
+    return(SUNLS_MEM_NULL);
   
   /* copy b into x */
   N_VScale(ONE, b, x);
@@ -210,45 +225,61 @@ int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   A_cols = SUNDenseMatrix_Cols(A);
   xdata = N_VGetArrayPointer(x);
   pivots = PIVOTS(S);
-  if ( (A_cols == NULL) || (xdata == NULL)  || (pivots == NULL) )
-    return 1;
+  if ( (A_cols == NULL) || (xdata == NULL)  || (pivots == NULL) ) {
+    LASTFLAG(S) = SUNLS_MEM_FAIL;
+    return(LASTFLAG(S));
+  }
   
   /* solve using LU factors */
   denseGETRS(A_cols, SUNDenseMatrix_Rows(A), pivots, xdata);
-  return 0;
+  LASTFLAG(S) = SUNLS_SUCCESS;
+  return(LASTFLAG(S));
 }
 
 int SUNLinSolNumIters_Dense(SUNLinearSolver S)
 {
   /* direct solvers do not perform 'iterations' */
-  return 0;
+  return(0);
 }
 
 realtype SUNLinSolResNorm_Dense(SUNLinearSolver S)
 {
   /* direct solvers do not measure the linear residual */
-  return ZERO;
+  return(ZERO);
 }
 
 int SUNLinSolNumPSolves_Dense(SUNLinearSolver S)
 {
   /* direct solvers do not use preconditioning */
-  return 0;
+  return(0);
 }
 
 long int SUNLinSolLastFlag_Dense(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
-  return (LASTFLAG(S));
+  return(LASTFLAG(S));
 }
 
 int SUNLinSolFree_Dense(SUNLinearSolver S)
 {
-  /* delete items from the contents structure, then delete generic structures */
-  free(PIVOTS(S));  PIVOTS(S) = NULL;
-  free(S->content);  S->content = NULL;
-  free(S->ops);  S->ops = NULL;
+  /* return if S is already free */
+  if (S == NULL)
+    return(SUNLS_SUCCESS);
+
+  /* delete items from contents, then delete generic structure */
+  if (S->content) {
+    if (PIVOTS(S)) {
+      free(PIVOTS(S));
+      PIVOTS(S) = NULL;
+    }
+    free(S->content);  
+    S->content = NULL;
+  }
+  if (S->ops) {
+    free(S->ops);  
+    S->ops = NULL;
+  }
   free(S); S = NULL;
-  return 0;
+  return(SUNLS_SUCCESS);
 }
 

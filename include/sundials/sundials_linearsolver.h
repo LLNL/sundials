@@ -85,6 +85,10 @@
  * following:
  *  - "Set" routines to control solver-specific parameters/options
  *  - "Get" routines to access solver-specific performance metrics
+ *
+ * Part IV of this file contains error codes that may be returned by
+ * SUNLinearSolver objects.
+ *
  * -----------------------------------------------------------------
  */
 
@@ -293,7 +297,37 @@ SUNDIALS_EXPORT int SUNLinSolNumPSolves(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag(SUNLinearSolver S);
   
 SUNDIALS_EXPORT int SUNLinSolFree(SUNLinearSolver S);
- 
+
+
+/*
+ * -----------------------------------------------------------------
+ * IV. SUNLinearSolver error codes
+ * ---------------------------------------------------------------
+ */
+
+#define SUNLS_SUCCESS             0  /* successful/converged          */
+
+#define SUNLS_MEM_NULL           -1  /* mem argument is NULL          */
+#define SUNLS_ILL_INPUT          -2  /* illegal function input        */
+#define SUNLS_MEM_FAIL           -3  /* failed memory access          */
+#define SUNLS_ASET_FAIL_UNREC    -4  /* atsetup unrecoverable failure */
+#define SUNLS_ATIMES_FAIL_UNREC  -5  /* atimes unrecoverable failure  */
+#define SUNLS_PSET_FAIL_UNREC    -6  /* pset unrecoverable failure    */
+#define SUNLS_PSOLVE_FAIL_UNREC  -7  /* psolve unrecoverable failure  */
+#define SUNLS_PACKAGE_FAIL_UNREC -8  /* external package unrec. fail  */
+#define SUNLS_GS_FAIL            -9  /* Gram-Schmidt failure          */        
+#define SUNLS_QRSOL_FAIL        -10  /* QRsol found singular R        */
+
+#define SUNLS_RES_REDUCED         1  /* nonconv. solve, resid reduced */
+#define SUNLS_CONV_FAIL           2  /* nonconvergent solve           */
+#define SUNLS_ASET_FAIL_REC       3  /* atsetup failed recoverably    */
+#define SUNLS_ATIMES_FAIL_REC     4  /* atimes failed recoverably     */
+#define SUNLS_PSET_FAIL_REC       5  /* pset failed recoverably       */
+#define SUNLS_PSOLVE_FAIL_REC     6  /* psolve failed recoverably     */
+#define SUNLS_PACKAGE_FAIL_REC    7  /* external package recov. fail  */
+#define SUNLS_QRFACT_FAIL         8  /* QRfact found singular matrix  */
+#define SUNLS_LUFACT_FAIL         9  /* LUfact found singular matrix  */
+
 #ifdef __cplusplus
 }
 #endif

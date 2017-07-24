@@ -22,6 +22,7 @@
 #define _ARKDLS_H
 
 #include <sundials/sundials_direct.h>
+#include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -33,7 +34,7 @@ extern "C" {
   ARKDIRECT CONSTANTS
 ===============================================================*/
 
-/* ARKDLS return values */
+/* ARKDLS return values -- ADJUST CONSTANTS AS NECESSARY */
 #define ARKDLS_SUCCESS          0
 #define ARKDLS_MEM_NULL        -1
 #define ARKDLS_LMEM_NULL       -2
@@ -53,7 +54,7 @@ extern "C" {
 ===============================================================*/
 
 /*---------------------------------------------------------------
- Type: ARKDlsDenseJacFn
+ Type: ARKDlsDenseJacFn -- UPDATE TO BE GENERIC; INPUT A SUNMatrix AND LEAVE ALL DIMENSIONS OUT OF FUNCTION CALL (SINCE ACCESSIBLE INSIDE Jac)
 
  A dense Jacobian approximation function Jac must be of type 
  ARKDlsDenseJacFn. Its parameters are:
@@ -119,7 +120,7 @@ typedef int (*ARKDlsDenseJacFn)(sunindextype N, realtype t,
   
 
 /*---------------------------------------------------------------
- Type: ARKDlsDenseMassFn
+ Type: ARKDlsDenseMassFn -- UPDATE TO BE GENERIC; INPUT A SUNMatrix AND LEAVE ALL DIMENSIONS OUT OF FUNCTION CALL (SINCE ACCESSIBLE INSIDE Jac)
 
  A dense mass matrix approximation function Mass must be of type 
  ARKDlsDenseMassFn. Its parameters are:
@@ -148,7 +149,7 @@ typedef int (*ARKDlsDenseMassFn)(sunindextype N, realtype t, DlsMat M,
   
 
 /*---------------------------------------------------------------
- Type: ARKDlsBandJacFn
+ Type: ARKDlsBandJacFn -- REMOVE (REPLACED WITH GENERIC ABOVE), MOVE RELEVANT COMMENTS
 
  A band Jacobian approximation function Jac must have the
  prototype given below. Its parameters are:
@@ -233,7 +234,7 @@ typedef int (*ARKDlsBandJacFn)(sunindextype N, sunindextype mupper,
 			       N_Vector tmp3);
 
 /*---------------------------------------------------------------
- Type: ARKDlsBandMassFn
+ Type: ARKDlsBandMassFn -- REMOVE (REPLACED WITH GENERIC ABOVE), MOVE RELEVANT COMMENTS
 
  A band mass matrix approximation function Mass must have the
  prototype given below. Its parameters are:
@@ -275,7 +276,7 @@ typedef int (*ARKDlsBandMassFn)(sunindextype N, sunindextype mupper,
 ===============================================================*/
 
 /*---------------------------------------------------------------
- Optional inputs to the ARKDLS linear solver:
+ Optional inputs to the ARKDLS linear solver: -- COMBINE INTO GENERIC
 
  ARKDlsSetDenseJacFn specifies the dense Jacobian approximation
  routine to be used for a direct dense linear solver.
@@ -298,7 +299,7 @@ SUNDIALS_EXPORT int ARKDlsSetBandJacFn(void *arkode_mem,
 
 
 /*---------------------------------------------------------------
- Optional inputs to the ARKDLS linear solver:
+ Optional inputs to the ARKDLS linear solver: -- COMBINE INTO GENERIC
 
  ARKDlsSetDenseMassFn specifies the dense mass matrix 
  approximation routine to be used for a direct dense solver.
@@ -343,10 +344,10 @@ SUNDIALS_EXPORT int ARKDlsSetBandMassFn(void *arkode_mem,
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKDlsGetWorkSpace(void *arkode_mem, 
 				       sunindextype *lenrwLS, 
-				       sunindextype *leniwLS);
+				       sunindextype *leniwLS); /* -- ONLY INCLUDE GENERIC WORKSPACE */
 SUNDIALS_EXPORT int ARKDlsGetMassWorkSpace(void *arkode_mem, 
 					   sunindextype *lenrwMLS, 
-					   sunindextype *leniwMLS);
+					   sunindextype *leniwMLS); /* -- ONLY INCLUDE GENERIC WORKSPACE */
 SUNDIALS_EXPORT int ARKDlsGetNumJacEvals(void *arkode_mem, 
 					 long int *njevals);
 SUNDIALS_EXPORT int ARKDlsGetNumMassEvals(void *arkode_mem, 
@@ -354,16 +355,16 @@ SUNDIALS_EXPORT int ARKDlsGetNumMassEvals(void *arkode_mem,
 SUNDIALS_EXPORT int ARKDlsGetNumRhsEvals(void *arkode_mem, 
 					 long int *nfevalsLS);
 SUNDIALS_EXPORT int ARKDlsGetLastFlag(void *arkode_mem, 
-				      long int *flag);
+				      long int *flag); /* -- REMOVE? */
 SUNDIALS_EXPORT int ARKDlsGetLastMassFlag(void *arkode_mem, 
-					  long int *flag);
+					  long int *flag); /* -- REMOVE? */
 
 
 /*---------------------------------------------------------------
  The following function returns the name of the constant 
  associated with a ARKDLS return flag
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT char *ARKDlsGetReturnFlagName(long int flag);
+SUNDIALS_EXPORT char *ARKDlsGetReturnFlagName(long int flag); /* -- REMOVE? */
 
 
 #ifdef __cplusplus
