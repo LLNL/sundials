@@ -66,7 +66,6 @@ int CVDlsSetupMatrix(void *cvode_mem, N_Vector vtemp1,
 {
   booleantype jbad, jok;
   realtype dgamma;
-  sunindextype ier;
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
   int retval;

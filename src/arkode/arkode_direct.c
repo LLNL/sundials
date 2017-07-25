@@ -54,7 +54,7 @@ int ARKDlsSetupMatrix(void *arkode_mem, N_Vector vtemp1,
 {
   booleantype jbad, jok;
   realtype dgamma, *Acol_j, *Mcol_j;
-  sunindextype i, j, ier, ml, mu, N, M, is, ie;
+  sunindextype i, j, ml, mu, N, M, is, ie;
   DlsMat A, Mass;
   ARKodeMem ark_mem;
   ARKDlsMem arkdls_mem;

@@ -211,7 +211,6 @@ static int arkBandSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 {
   sunindextype ier;
   ARKDlsMem arkdls_mem;
-  int retval;
 
   arkdls_mem = (ARKDlsMem) ark_mem->ark_lmem;
 
