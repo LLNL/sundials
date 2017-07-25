@@ -60,7 +60,7 @@ typedef struct ARKSpilsMemRec {
   long int s_nli;       /* nli = total number of linear iterations      */
   long int s_nps;       /* nps = total number of psolve calls           */
   long int s_ncfl;      /* ncfl = total number of convergence failures  */
-  long int s_njtsetup;  /* njtsetup = total number of calls to jysetup  */
+  long int s_njtsetup;  /* njtsetup = total number of calls to jtsetup  */
   long int s_njtimes;   /* njtimes = total number of calls to jtimes    */
   long int s_nfes;      /* nfeSG = total number of calls to f for     
                            difference quotient Jacobian-vector products */

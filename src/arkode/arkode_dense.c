@@ -209,9 +209,10 @@ static int arkDenseSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 
   arkdls_mem = (ARKDlsMem) ark_mem->ark_lmem;
 
-  /* call 'setup' based on heuristics */
+  /* setup system matrix */
   ier = ARKDlsSetupMatrix(ark_mem, vtemp1, vtemp2, vtemp3);
-  if (ier != 0) return(1);
+  if (ier < 0) return(-1);
+  if (ier > 0) return(1);
 
   /* Do LU factorization of A */
   ier = DenseGETRF(arkdls_mem->d_M, arkdls_mem->d_lpivots); 

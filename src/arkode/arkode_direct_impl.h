@@ -109,9 +109,9 @@ typedef struct ARKDlsMassMemRec {
 /*---------------------------------------------------------------
  Prototypes of internal functions
 ---------------------------------------------------------------*/
-int arkDlsDirectDQJac(realtype t, N_Vector y, N_Vector fy, 
-	                 SUNMatrix Jac, void *data, N_Vector tmp1, 
-	                 N_Vector tmp2, N_Vector tmp3);    /* NEW GENERIC DQ ROUTINE */
+int arkDlsDQJac(realtype t, N_Vector y, N_Vector fy, 
+                SUNMatrix Jac, void *data, N_Vector tmp1, 
+                N_Vector tmp2, N_Vector tmp3);      /* NEW GENERIC DQ ROUTINE */
 int arkDlsDenseDQJac(sunindextype N, realtype t, N_Vector y, 
                      N_Vector fy, DlsMat Jac, void *data,
                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3); /* MODIFY AND CALL FROM ArkDlsDirectDQJac */

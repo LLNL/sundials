@@ -257,12 +257,11 @@ static int ARKSpgmrSetup(ARKodeMem ark_mem, N_Vector vtemp1,
     arkProcessError(ark_mem, SPGMR_PSET_FAIL_UNREC, "ARKSPGMR", 
 		    "ARKSpgmrSetup", MSGS_PSET_FAILED);
     arkspils_mem->s_last_flag = SPGMR_PSET_FAIL_UNREC;
-  }
-  if (retval > 0) {
+  } else if (retval > 0) {
     arkspils_mem->s_last_flag = SPGMR_PSET_FAIL_REC;
+  } else {
+    arkspils_mem->s_last_flag = SPGMR_SUCCESS;
   }
-
-  arkspils_mem->s_last_flag = SPGMR_SUCCESS;
 
   /* Return the same value that pset returned */
   return(retval);
@@ -614,11 +613,9 @@ static int ARKMassSpgmrSetup(ARKodeMem ark_mem, N_Vector vtemp1,
     arkProcessError(ark_mem, SPGMR_PSET_FAIL_UNREC, "ARKSPGMR", 
 		    "ARKMassSpgmrSetup", MSGS_PSET_FAILED);
     arkspils_mem->s_last_flag = SPGMR_PSET_FAIL_UNREC;
-  }
-  if (retval > 0) {
+  } else if (retval > 0) {
     arkspils_mem->s_last_flag = SPGMR_PSET_FAIL_REC;
-  }
-  if (retval == 0) {
+  } else {
     arkspils_mem->s_last_flag = SPGMR_SUCCESS;
   }
 
