@@ -317,7 +317,6 @@ static void CVBoomerAMGFree(CVodeMem cv_mem)
   pdata = NULL;
 }
 
-#define lmem       (cv_mem->cv_lmem)
 /*
 int JacTimes(N_Vector v, N_Vector Jv, realtype t, N_Vector y, N_Vector fy, void *user_data, N_Vector tmp)
 {
@@ -331,11 +330,11 @@ int JacTimes(N_Vector v, N_Vector Jv, realtype t, N_Vector y, N_Vector fy, void 
   }
   cv_mem = (CVodeMem) user_data->ode_mem;
 
-  if (lmem == NULL) {
+  if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", "CVSpilsSetJacTimesVecFn", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
-  cvspils_mem = (CVSpilsMem) lmem;
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
   pdata = (CVBoomerAMGData) cvspils_mem->s_P_data;
  hypre_ParCSRMatrixMatvec ( 1.0, pdata->parcsr_A, NV_HYPRE_PARVEC_PH(v), 1.0, NV_HYPRE_PARVEC_PH(Jv));
 }*/
@@ -359,11 +358,11 @@ int CVSpilsSetParCsrJacFn(void *cvode_mem, CVParCsrJacFn jparcsr)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (lmem == NULL) {
+  if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", "CVSpilsSetJacTimesVecFn", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
-  cvspils_mem = (CVSpilsMem) lmem;
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
   pdata = (CVBoomerAMGData) cvspils_mem->s_P_data;
 
   if (jparcsr != NULL) {
@@ -389,11 +388,11 @@ int CVParCsrSetSpilsJacTimesVecFn(void *cvode_mem, CVSpilsJacTimesVecFn jparcsr)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (lmem == NULL) {
+  if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", "CVSpilsSetJacTimesVecFn", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
-  cvspils_mem = (CVSpilsMem) lmem;
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
   pdata = (CVBoomerAMGData) cvspils_mem->s_P_data;
 
   if (jparcsr != NULL) {
