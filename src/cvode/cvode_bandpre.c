@@ -62,10 +62,6 @@ static int CVBandPDQJac(CVBandPrecData pdata,
                         realtype t, N_Vector y, N_Vector fy, 
                         N_Vector ftemp, N_Vector ytemp);
 
-/* Redability replacements */
-
-#define vec_tmpl (cv_mem->cv_tempv)
-
 /*
  * -----------------------------------------------------------------
  * Initialization, Free, and Get Functions
@@ -98,7 +94,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N, sunindextype mu, sunindextyp
   cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
 
   /* Test if the NVECTOR package is compatible with the BAND preconditioner */
-  if(vec_tmpl->ops->nvgetarraypointer == NULL) {
+  if(cv_mem->cv_tempv->ops->nvgetarraypointer == NULL) {
     cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVBANDPRE", "CVBandPrecInit", MSGBP_BAD_NVECTOR);
     return(CVSPILS_ILL_INPUT);
   }
@@ -233,16 +229,6 @@ int CVBandPrecGetNumRhsEvals(void *cvode_mem, long int *nfevalsBP)
   return(CVSPILS_SUCCESS);
 }
 
-/* Readability Replacements */
-
-#define N       (pdata->N)
-#define mu      (pdata->mu)
-#define ml      (pdata->ml)
-#define lpivots (pdata->lpivots)
-#define savedJ  (pdata->savedJ)
-#define savedP  (pdata->savedP)
-#define nfeBP   (pdata->nfeBP)
-
 /*
  * -----------------------------------------------------------------
  * CVBandPrecSetup
@@ -310,13 +296,13 @@ static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
     /* If jok = TRUE, use saved copy of J. */
     *jcurPtr = FALSE;
-    BandCopy(savedJ, savedP, mu, ml);
+    BandCopy(pdata->savedJ, pdata->savedP, pdata->mu, pdata->ml);
 
   } else {
 
     /* If jok = FALSE, call CVBandPDQJac for new J value. */
     *jcurPtr = TRUE;
-    SetToZero(savedJ);
+    SetToZero(pdata->savedJ);
 
     retval = CVBandPDQJac(pdata, t, y, fy, tmp1, tmp2);
     if (retval < 0) {
@@ -327,16 +313,16 @@ static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
       return(1);
     }
 
-    BandCopy(savedJ, savedP, mu, ml);
+    BandCopy(pdata->savedJ, pdata->savedP, pdata->mu, pdata->ml);
 
   }
   
   /* Scale and add I to get savedP = I - gamma*J. */
-  BandScale(-gamma, savedP);
-  AddIdentity(savedP);
+  BandScale(-gamma, pdata->savedP);
+  AddIdentity(pdata->savedP);
  
   /* Do LU factorization of matrix. */
-  ier = BandGBTRF(savedP, lpivots);
+  ier = BandGBTRF(pdata->savedP, pdata->lpivots);
  
   /* Return 0 if the LU was complete; otherwise return 1. */
   if (ier > 0) return(1);
@@ -380,7 +366,7 @@ static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
   /* Do band backsolve on the vector z. */
   zd = N_VGetArrayPointer(z);
 
-  BandGBTRS(savedP, lpivots, zd);
+  BandGBTRS(pdata->savedP, pdata->lpivots, zd);
 
   return(0);
 }
@@ -397,21 +383,15 @@ static int CVBandPrecFree(CVodeMem cv_mem)
   if (cvspils_mem->s_P_data == NULL) return(0);
   pdata = (CVBandPrecData) cvspils_mem->s_P_data;
 
-  DestroyMat(savedJ);
-  DestroyMat(savedP);
-  DestroyArray(lpivots);
+  DestroyMat(pdata->savedJ);
+  DestroyMat(pdata->savedP);
+  DestroyArray(pdata->lpivots);
 
   free(pdata);
   pdata = NULL;
 
   return(0);
 }
-
-#define ewt       (cv_mem->cv_ewt)
-#define uround    (cv_mem->cv_uround)
-#define h         (cv_mem->cv_h)
-#define f         (cv_mem->cv_f)
-#define user_data (cv_mem->cv_user_data)
 
 /*
  * -----------------------------------------------------------------
@@ -439,7 +419,7 @@ static int CVBandPDQJac(CVBandPrecData pdata,
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
   /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp. */
-  ewt_data   = N_VGetArrayPointer(ewt);
+  ewt_data   = N_VGetArrayPointer(cv_mem->cv_ewt);
   fy_data    = N_VGetArrayPointer(fy);
   ftemp_data = N_VGetArrayPointer(ftemp);
   y_data     = N_VGetArrayPointer(y);
@@ -449,37 +429,37 @@ static int CVBandPDQJac(CVBandPrecData pdata,
   N_VScale(ONE, y, ytemp);
 
   /* Set minimum increment based on uround and norm of f. */
-  srur = SUNRsqrt(uround);
-  fnorm = N_VWrmsNorm(fy, ewt);
+  srur = SUNRsqrt(cv_mem->cv_uround);
+  fnorm = N_VWrmsNorm(fy, cv_mem->cv_ewt);
   minInc = (fnorm != ZERO) ?
-           (MIN_INC_MULT * SUNRabs(h) * uround * N * fnorm) : ONE;
+           (MIN_INC_MULT * SUNRabs(cv_mem->cv_h) * cv_mem->cv_uround * pdata->N * fnorm) : ONE;
 
   /* Set bandwidth and number of column groups for band differencing. */
-  width = ml + mu + 1;
-  ngroups = SUNMIN(width, N);
+  width = pdata->ml + pdata->mu + 1;
+  ngroups = SUNMIN(width, pdata->N);
   
   for (group = 1; group <= ngroups; group++) {
     
     /* Increment all y_j in group. */
-    for(j = group-1; j < N; j += width) {
+    for(j = group-1; j < pdata->N; j += width) {
       inc = SUNMAX(srur*SUNRabs(y_data[j]), minInc/ewt_data[j]);
       ytemp_data[j] += inc;
     }
 
     /* Evaluate f with incremented y. */
 
-    retval = f(t, ytemp, ftemp, user_data);
-    nfeBP++;
+    retval = cv_mem->cv_f(t, ytemp, ftemp, cv_mem->cv_user_data);
+    pdata->nfeBP++;
     if (retval != 0) return(retval);
 
     /* Restore ytemp, then form and load difference quotients. */
-    for (j = group-1; j < N; j += width) {
+    for (j = group-1; j < pdata->N; j += width) {
       ytemp_data[j] = y_data[j];
-      col_j = BAND_COL(savedJ,j);
+      col_j = BAND_COL(pdata->savedJ,j);
       inc = SUNMAX(srur*SUNRabs(y_data[j]), minInc/ewt_data[j]);
       inc_inv = ONE/inc;
-      i1 = SUNMAX(0, j-mu);
-      i2 = SUNMIN(j+ml, N-1);
+      i1 = SUNMAX(0, j-pdata->mu);
+      i2 = SUNMIN(j+pdata->ml, pdata->N-1);
       for (i=i1; i <= i2; i++)
         BAND_COL_ELEM(col_j,i,j) =
           inc_inv * (ftemp_data[i] - fy_data[i]);

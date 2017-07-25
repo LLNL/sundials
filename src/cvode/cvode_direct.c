@@ -45,38 +45,6 @@
 #define ONE          RCONST(1.0)
 #define TWO          RCONST(2.0)
 
-/*
- * =================================================================
- * READIBILITY REPLACEMENTS
- * =================================================================
- */
-
-#define f         (cv_mem->cv_f)
-#define user_data (cv_mem->cv_user_data)
-#define uround    (cv_mem->cv_uround)
-#define nst       (cv_mem->cv_nst)
-#define tn        (cv_mem->cv_tn)
-#define h         (cv_mem->cv_h)
-#define gamma     (cv_mem->cv_gamma)
-#define gammap    (cv_mem->cv_gammap)
-#define gamrat    (cv_mem->cv_gamrat)
-#define ewt       (cv_mem->cv_ewt)
-
-#define lmem      (cv_mem->cv_lmem)
-
-#define mtype     (cvdls_mem->d_type)
-#define n         (cvdls_mem->d_n)
-#define ml        (cvdls_mem->d_ml)
-#define mu        (cvdls_mem->d_mu)
-#define smu       (cvdls_mem->d_smu)
-#define jacDQ     (cvdls_mem->d_jacDQ)
-#define djac      (cvdls_mem->d_djac)
-#define bjac      (cvdls_mem->d_bjac)
-#define M         (cvdls_mem->d_M)
-#define nje       (cvdls_mem->d_nje)
-#define nfeDQ     (cvdls_mem->d_nfeDQ)
-#define last_flag (cvdls_mem->d_last_flag)
-
 /* 
  * =================================================================
  * EXPORTED FUNCTIONS
@@ -98,17 +66,17 @@ int CVDlsSetDenseJacFn(void *cvode_mem, CVDlsDenseJacFn jac)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (lmem == NULL) {
+  if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVDLS_LMEM_NULL, "CVDLS", "CVDlsSetDenseJacFn", MSGD_LMEM_NULL);
     return(CVDLS_LMEM_NULL);
   }
-  cvdls_mem = (CVDlsMem) lmem;
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
   if (jac != NULL) {
-    jacDQ = FALSE;
-    djac = jac;
+    cvdls_mem->d_jacDQ = FALSE;
+    cvdls_mem->d_djac = jac;
   } else {
-    jacDQ = TRUE;
+    cvdls_mem->d_jacDQ = TRUE;
   }
 
   return(CVDLS_SUCCESS);
@@ -129,17 +97,17 @@ int CVDlsSetBandJacFn(void *cvode_mem, CVDlsBandJacFn jac)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (lmem == NULL) {
+  if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVDLS_LMEM_NULL, "CVDLS", "CVDlsSetBandJacFn", MSGD_LMEM_NULL);
     return(CVDLS_LMEM_NULL);
   }
-  cvdls_mem = (CVDlsMem) lmem;
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
   if (jac != NULL) {
-    jacDQ = FALSE;
-    bjac = jac;
+    cvdls_mem->d_jacDQ = FALSE;
+    cvdls_mem->d_bjac = jac;
   } else {
-    jacDQ = TRUE;
+    cvdls_mem->d_jacDQ = TRUE;
   }
 
   return(CVDLS_SUCCESS);
@@ -161,18 +129,18 @@ int CVDlsGetWorkSpace(void *cvode_mem, sunindextype *lenrwLS, sunindextype *leni
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (lmem == NULL) {
+  if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVDLS_LMEM_NULL, "CVDLS", "CVDlsGetWorkSpace", MSGD_LMEM_NULL);
     return(CVDLS_LMEM_NULL);
   }
-  cvdls_mem = (CVDlsMem) lmem;
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
-  if (mtype == SUNDIALS_DENSE) {
-    *lenrwLS = 2*n*n;
-    *leniwLS = n;
-  } else if (mtype == SUNDIALS_BAND) {
-    *lenrwLS = n*(smu + mu + 2*ml + 2);
-    *leniwLS = n;
+  if (cvdls_mem->d_type == SUNDIALS_DENSE) {
+    *lenrwLS = 2*cvdls_mem->d_n*cvdls_mem->d_n;
+    *leniwLS = cvdls_mem->d_n;
+  } else if (cvdls_mem->d_type == SUNDIALS_BAND) {
+    *lenrwLS = cvdls_mem->d_n*(cvdls_mem->d_smu + cvdls_mem->d_mu + 2*cvdls_mem->d_ml + 2);
+    *leniwLS = cvdls_mem->d_n;
   }
 
   return(CVDLS_SUCCESS);
@@ -193,13 +161,13 @@ int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (lmem == NULL) {
+  if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVDLS_LMEM_NULL, "CVDLS", "CVDlsGetNumJacEvals", MSGD_LMEM_NULL);
     return(CVDLS_LMEM_NULL);
   }
-  cvdls_mem = (CVDlsMem) lmem;
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
-  *njevals = nje;
+  *njevals = cvdls_mem->d_nje;
 
   return(CVDLS_SUCCESS);
 }
@@ -220,13 +188,13 @@ int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (lmem == NULL) {
+  if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVDLS_LMEM_NULL, "CVDLS", "CVDlsGetNumRhsEvals", MSGD_LMEM_NULL);
     return(CVDLS_LMEM_NULL);
   }
-  cvdls_mem = (CVDlsMem) lmem;
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
-  *nfevalsLS = nfeDQ;
+  *nfevalsLS = cvdls_mem->d_nfeDQ;
 
   return(CVDLS_SUCCESS);
 }
@@ -285,13 +253,13 @@ int CVDlsGetLastFlag(void *cvode_mem, long int *flag)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (lmem == NULL) {
+  if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVDLS_LMEM_NULL, "CVDLS", "CVDlsGetLastFlag", MSGD_LMEM_NULL);
     return(CVDLS_LMEM_NULL);
   }
-  cvdls_mem = (CVDlsMem) lmem;
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
-  *flag = last_flag;
+  *flag = cvdls_mem->d_last_flag;
 
   return(CVDLS_SUCCESS);
 }
@@ -333,7 +301,7 @@ int cvDlsDenseDQJac(sunindextype N, realtype t,
 
   /* data points to cvode_mem */
   cv_mem = (CVodeMem) data;
-  cvdls_mem = (CVDlsMem) lmem;
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
   /* Save pointer to the array in tmp2 */
   tmp2_data = N_VGetArrayPointer(tmp2);
@@ -343,14 +311,14 @@ int cvDlsDenseDQJac(sunindextype N, realtype t,
   jthCol = tmp2;
 
   /* Obtain pointers to the data for ewt, y */
-  ewt_data = N_VGetArrayPointer(ewt);
+  ewt_data = N_VGetArrayPointer(cv_mem->cv_ewt);
   y_data   = N_VGetArrayPointer(y);
 
   /* Set minimum increment based on uround and norm of f */
-  srur = SUNRsqrt(uround);
-  fnorm = N_VWrmsNorm(fy, ewt);
+  srur = SUNRsqrt(cv_mem->cv_uround);
+  fnorm = N_VWrmsNorm(fy, cv_mem->cv_ewt);
   minInc = (fnorm != ZERO) ?
-           (MIN_INC_MULT * SUNRabs(h) * uround * N * fnorm) : ONE;
+           (MIN_INC_MULT * SUNRabs(cv_mem->cv_h) * cv_mem->cv_uround * N * fnorm) : ONE;
 
   for (j = 0; j < N; j++) {
 
@@ -362,8 +330,8 @@ int cvDlsDenseDQJac(sunindextype N, realtype t,
     inc = SUNMAX(srur*SUNRabs(yjsaved), minInc/ewt_data[j]);
     y_data[j] += inc;
 
-    retval = f(t, y, ftemp, user_data);
-    nfeDQ++;
+    retval = cv_mem->cv_f(t, y, ftemp, cv_mem->cv_user_data);
+    cvdls_mem->d_nfeDQ++;
     if (retval != 0) break;
     
     y_data[j] = yjsaved;
@@ -409,14 +377,14 @@ int cvDlsBandDQJac(sunindextype N, sunindextype mupper, sunindextype mlower,
 
   /* data points to cvode_mem */
   cv_mem = (CVodeMem) data;
-  cvdls_mem = (CVDlsMem) lmem;
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
   /* Rename work vectors for use as temporary values of y and f */
   ftemp = tmp1;
   ytemp = tmp2;
 
   /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp */
-  ewt_data   = N_VGetArrayPointer(ewt);
+  ewt_data   = N_VGetArrayPointer(cv_mem->cv_ewt);
   fy_data    = N_VGetArrayPointer(fy);
   ftemp_data = N_VGetArrayPointer(ftemp);
   y_data     = N_VGetArrayPointer(y);
@@ -426,10 +394,10 @@ int cvDlsBandDQJac(sunindextype N, sunindextype mupper, sunindextype mlower,
   N_VScale(ONE, y, ytemp);
 
   /* Set minimum increment based on uround and norm of f */
-  srur = SUNRsqrt(uround);
-  fnorm = N_VWrmsNorm(fy, ewt);
+  srur = SUNRsqrt(cv_mem->cv_uround);
+  fnorm = N_VWrmsNorm(fy, cv_mem->cv_ewt);
   minInc = (fnorm != ZERO) ?
-           (MIN_INC_MULT * SUNRabs(h) * uround * N * fnorm) : ONE;
+           (MIN_INC_MULT * SUNRabs(cv_mem->cv_h) * cv_mem->cv_uround * N * fnorm) : ONE;
 
   /* Set bandwidth and number of column groups for band differencing */
   width = mlower + mupper + 1;
@@ -446,8 +414,8 @@ int cvDlsBandDQJac(sunindextype N, sunindextype mupper, sunindextype mlower,
 
     /* Evaluate f with incremented y */
 
-    retval = f(tn, ytemp, ftemp, user_data);
-    nfeDQ++;
+    retval = cv_mem->cv_f(cv_mem->cv_tn, ytemp, ftemp, cv_mem->cv_user_data);
+    cvdls_mem->d_nfeDQ++;
     if (retval != 0) break;
 
     /* Restore ytemp, then form and load difference quotients */

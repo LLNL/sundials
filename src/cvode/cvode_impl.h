@@ -220,6 +220,7 @@ typedef struct CVodeMemRec {
   realtype cv_hu;              /* last successful h value used                */
   realtype cv_saved_tq5;       /* saved value of tq[5]                        */
   booleantype cv_jcur;         /* is Jacobian info. for lin. solver current?  */
+  int cv_convfail;             /* flag storing previous solver failure mode   */
   realtype cv_tolsf;           /* tolerance scale factor                      */
   int cv_qmax_alloc;           /* value of qmax used when allocating memory   */
   int cv_indx_acor;            /* index of the zn vector with saved acor      */
