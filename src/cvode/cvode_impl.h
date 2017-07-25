@@ -197,8 +197,7 @@ typedef struct CVodeMemRec {
 
   int (*cv_linit)(struct CVodeMemRec *cv_mem);
 
-  int (*cv_lsetup)(struct CVodeMemRec *cv_mem, int convfail, N_Vector ypred,
-		   N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
+  int (*cv_lsetup)(struct CVodeMemRec *cv_mem, N_Vector vtemp1,
 		   N_Vector vtemp2, N_Vector vtemp3); 
 
   int (*cv_lsolve)(struct CVodeMemRec *cv_mem, N_Vector b, N_Vector weight,

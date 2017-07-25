@@ -54,20 +54,16 @@
 
 /* CVLAPACK DENSE linit, lsetup, lsolve, and lfree routines */ 
 static int cvLapackDenseInit(CVodeMem cv_mem);
-static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail, 
-                              N_Vector yP, N_Vector fctP, 
-                              booleantype *jcurPtr,
-                              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int cvLapackDenseSetup(CVodeMem cv_mem, N_Vector tmp1,
+                              N_Vector tmp2, N_Vector tmp3);
 static int cvLapackDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                               N_Vector yC, N_Vector fctC);
 static int cvLapackDenseFree(CVodeMem cv_mem);
 
 /* CVLAPACK BAND linit, lsetup, lsolve, and lfree routines */ 
 static int cvLapackBandInit(CVodeMem cv_mem);
-static int cvLapackBandSetup(CVodeMem cv_mem, int convfail, 
-                             N_Vector yP, N_Vector fctP, 
-                             booleantype *jcurPtr,
-                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int cvLapackBandSetup(CVodeMem cv_mem, N_Vector tmp1,
+                             N_Vector tmp2, N_Vector tmp3);
 static int cvLapackBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                              N_Vector yC, N_Vector fctC);
 static int cvLapackBandFree(CVodeMem cv_mem);
@@ -344,32 +340,33 @@ static int cvLapackDenseInit(CVodeMem cv_mem)
  * saved copy. In any case, it constructs the Newton matrix M = I - gamma*J
  * updates counters, and calls the dense LU factorization routine.
  */
-static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
-                              N_Vector yP, N_Vector fctP,
-                              booleantype *jcurPtr,
-                              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int cvLapackDenseSetup(CVodeMem cv_mem, N_Vector tmp1,
+                              N_Vector tmp2, N_Vector tmp3)
 {
   CVDlsMem cvdls_mem;
   realtype dgamma, fact;
   booleantype jbad, jok;
   int ier, retval, one = 1;
   int intn, lenmat;
-
+  N_Vector yP, fctP;
+  
   cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
   intn = (int) cvdls_mem->d_n;
   lenmat = cvdls_mem->d_M->ldata;
+  yP = cv_mem->cv_zn[0];
+  fctP = cv_mem->cv_ftemp;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
   dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
   jbad = (cv_mem->cv_nst == 0) || (cv_mem->cv_nst > cvdls_mem->d_nstlj + CVD_MSBJ) ||
-    ((convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
-    (convfail == CV_FAIL_OTHER);
+    ((cv_mem->cv_convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
+    (cv_mem->cv_convfail == CV_FAIL_OTHER);
   jok = !jbad;
   
   if (jok) {
     
     /* If jok = TRUE, use saved copy of J */
-    *jcurPtr = FALSE;
+    cv_mem->cv_jcur = FALSE;
     dcopy_f77(&lenmat, cvdls_mem->d_savedJ->data, &one, cvdls_mem->d_M->data, &one);
     
   } else {
@@ -377,10 +374,11 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
     /* If jok = FALSE, call jac routine for new J value */
     cvdls_mem->d_nje++;
     cvdls_mem->d_nstlj = cv_mem->cv_nst;
-    *jcurPtr = TRUE;
+    cv_mem->cv_jcur = TRUE;
     SetToZero(cvdls_mem->d_M);
 
-    retval = cvdls_mem->d_djac(cvdls_mem->d_n, cv_mem->cv_tn, yP, fctP, cvdls_mem->d_M, cvdls_mem->d_J_data, tmp1, tmp2, tmp3);
+    retval = cvdls_mem->d_djac(cvdls_mem->d_n, cv_mem->cv_tn, yP, fctP,
+                               cvdls_mem->d_M, cvdls_mem->d_J_data, tmp1, tmp2, tmp3);
 
     if (retval == 0) {
       dcopy_f77(&lenmat, cvdls_mem->d_M->data, &one, cvdls_mem->d_savedJ->data, &one);
@@ -497,35 +495,36 @@ static int cvLapackBandInit(CVodeMem cv_mem)
  * saved copy. In any case, it constructs the Newton matrix M = I - gamma*J, 
  * updates counters, and calls the band LU factorization routine.
  */
-static int cvLapackBandSetup(CVodeMem cv_mem, int convfail, 
-                             N_Vector yP, N_Vector fctP, 
-                             booleantype *jcurPtr,
-                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int cvLapackBandSetup(CVodeMem cv_mem, N_Vector tmp1,
+                             N_Vector tmp2, N_Vector tmp3)
 {
   CVDlsMem cvdls_mem;
   realtype dgamma, fact;
   booleantype jbad, jok;
   int ier, retval, one = 1;
   int intn, iml, imu, lenmat, ldmat;
-
+  N_Vector yP, fctP;
+  
   cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
   intn = (int) cvdls_mem->d_n;
   iml = (int) cvdls_mem->d_ml;
   imu = (int) cvdls_mem->d_mu;
   lenmat = cvdls_mem->d_M->ldata;
   ldmat = cvdls_mem->d_M->ldim;
-
+  yP = cv_mem->cv_zn[0];
+  fctP = cv_mem->cv_ftemp;
+  
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
   dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
   jbad = (cv_mem->cv_nst == 0) || (cv_mem->cv_nst > cvdls_mem->d__nstlj + CVD_MSBJ) ||
-    ((convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
-    (convfail == CV_FAIL_OTHER);
+    ((cv_mem->cv_convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
+    (cv_mem->cv_convfail == CV_FAIL_OTHER);
   jok = !jbad;
   
   if (jok) {
     
     /* If jok = TRUE, use saved copy of J */
-    *jcurPtr = FALSE;
+    cv_mem->cv_jcur = FALSE;
     dcopy_f77(&lenmat, cvdls_mem->d_savedJ->data, &one, cvdls_mem->d_M->data, &one);
     
   } else {
@@ -533,10 +532,12 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
     /* If jok = FALSE, call jac routine for new J value */
     cvdls_mem->d_nje++;
     cvdls_mem->d_nstlj = cv_mem->cv_nst;
-    *jcurPtr = TRUE;
+    cv_mem->cv_jcur = TRUE;
     SetToZero(cvdls_mem->d_M);
 
-    retval = cvdls_mem->d_bjac(cvdls_mem->d_n, cvdls_mem->d_mu, cvdls_mem->d_ml, cv_mem->cv_tn, yP, fctP, cvdls_mem->d_M, cvdls_mem->d_J_data, tmp1, tmp2, tmp3);
+    retval = cvdls_mem->d_bjac(cvdls_mem->d_n, cvdls_mem->d_mu, cvdls_mem->d_ml,
+                               cv_mem->cv_tn, yP, fctP, cvdls_mem->d_M, cvdls_mem->d_J_data,
+                               tmp1, tmp2, tmp3);
     if (retval == 0) {
       dcopy_f77(&lenmat, cvdls_mem->d_M->data, &one, cvdls_mem->d_savedJ->data, &one);
     } else if (retval < 0) {
