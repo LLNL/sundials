@@ -409,7 +409,7 @@ int ARKSpilsSetMassPreconditioner(void *arkode_mem,
  ARKSpilsSetJacTimesVecFn
 ---------------------------------------------------------------*/
 int ARKSpilsSetJacTimesVecFn(void *arkode_mem, 
-           ARKSpilsJacTimesVecFn jtv)
+                             ARKSpilsJacTimesVecFn jtv)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
@@ -417,14 +417,14 @@ int ARKSpilsSetJacTimesVecFn(void *arkode_mem,
   /* Return immediately if arkode_mem is NULL */
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
-        "ARKSpilsSetJacTimesVecFn", MSGS_ARKMEM_NULL);
+                    "ARKSpilsSetJacTimesVecFn", MSGS_ARKMEM_NULL);
     return(ARKSPILS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
   if (ark_mem->ark_lmem == NULL) {
     arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKSPILS", 
-        "ARKSpilsSetJacTimesVecFn", MSGS_LMEM_NULL);
+                    "ARKSpilsSetJacTimesVecFn", MSGS_LMEM_NULL);
     return(ARKSPILS_LMEM_NULL);
   }
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
@@ -1077,7 +1077,7 @@ int ARKSpilsCallPSetup(void *arkode_mem, N_Vector vtemp1,
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->ark_lmem == NULL) {
-    arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKDLS", 
+    arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKSPILS", 
 		    "ARKSpilsCallPSetup", MSGS_LMEM_NULL);
     return(ARKSPILS_LMEM_NULL);
   }
@@ -1200,15 +1200,15 @@ int ARKSpilsPSetup(void *arkode_mem)
 
   /* This call is counted within the iterative linear solver */
   retval = arkspils_mem->s_pset(ark_mem->ark_tn, 
-          arkspils_mem->s_ycur, 
-          arkspils_mem->s_fcur, 
-          arkspils_mem->s_jok,
-          &ark_mem->ark_jcur,
-          ark_mem->ark_gamma, 
-          arkspils_mem->s_P_data, 
-          arkspils_mem->s_ytemp, 
-          arkspils_mem->s_ytemp, 
-          arkspils_mem->s_ytemp);  /* REMOVE THESE 3 TEMPORARY VECTORS */
+                                arkspils_mem->s_ycur, 
+                                arkspils_mem->s_fcur, 
+                                arkspils_mem->s_jok,
+                                &ark_mem->ark_jcur,
+                                ark_mem->ark_gamma, 
+                                arkspils_mem->s_P_data, 
+                                arkspils_mem->s_ytemp, 
+                                arkspils_mem->s_ytemp, 
+                                arkspils_mem->s_ytemp);  /* REMOVE THESE 3 TEMPORARY VECTORS */
 
   return(retval);     
 }
@@ -1237,12 +1237,12 @@ int ARKSpilsPSolve(void *arkode_mem, N_Vector r, N_Vector z,
 
   /* This call is counted in nps within the ARKSp***Solve routine */
   retval = arkspils_mem->s_psolve(ark_mem->ark_tn, 
-          arkspils_mem->s_ycur, 
-          arkspils_mem->s_fcur, r, z, 
-          ark_mem->ark_gamma, 
-          tol, lr, 
-          arkspils_mem->s_P_data, 
-          arkspils_mem->s_ytemp);   /* REMOVE THIS TEMPORARY VECTOR */
+                                  arkspils_mem->s_ycur, 
+                                  arkspils_mem->s_fcur, r, z, 
+                                  ark_mem->ark_gamma, 
+                                  tol, lr, 
+                                  arkspils_mem->s_P_data, 
+                                  arkspils_mem->s_ytemp);   /* REMOVE THIS TEMPORARY VECTOR */
 
   return(retval);     
 }
@@ -1261,7 +1261,7 @@ int ARKSpilsMTSetup(void *arkode_mem)
   int retval;
   ark_mem = (ARKodeMem) arkode_mem;
   retval = ark_mem->ark_mtsetup(ark_mem->ark_tn, 
-             ark_mem->ark_mtimes_data);
+                                ark_mem->ark_mtimes_data);
   ark_mem->ark_mass_setup++;
 
   return(retval);
@@ -1282,7 +1282,7 @@ int ARKSpilsMtimes(void *arkode_mem, N_Vector v, N_Vector z)
   int retval;
   ark_mem = (ARKodeMem) arkode_mem;
   retval = ark_mem->ark_mtimes(v, z, ark_mem->ark_tn, 
-             ark_mem->ark_mtimes_data);
+                               ark_mem->ark_mtimes_data);
   ark_mem->ark_mass_mult++;
 
   return(retval);
@@ -1311,10 +1311,10 @@ int ARKSpilsMPSetup(void *arkode_mem)
 
   /* This call is counted within the iterative linear solver */
   retval = arkspils_mem->s_pset(ark_mem->ark_tn, 
-          arkspils_mem->s_P_data, 
-          arkspils_mem->s_ytemp,   /* REMOVE THESE 3 TEMPORARY VECTORS */
-          arkspils_mem->s_ytemp, 
-          arkspils_mem->s_ytemp);  
+                                arkspils_mem->s_P_data, 
+                                arkspils_mem->s_ytemp,   /* REMOVE THESE 3 TEMPORARY VECTORS */
+                                arkspils_mem->s_ytemp, 
+                                arkspils_mem->s_ytemp);  
   return(retval);     
 }
 
@@ -1343,9 +1343,9 @@ int ARKSpilsMPSolve(void *arkode_mem, N_Vector r, N_Vector z,
 
   /* This call is counted in nps within the ARKSp***Solve routine */
   retval = arkspils_mem->s_psolve(ark_mem->ark_tn, r, z, 
-          tol, lr, 
-          arkspils_mem->s_P_data, 
-          arkspils_mem->s_ytemp);  /* REMOVE THIS TEMPORARY VECTOR */
+                                  tol, lr, 
+                                  arkspils_mem->s_P_data, 
+                                  arkspils_mem->s_ytemp);  /* REMOVE THIS TEMPORARY VECTOR */
   return(retval);     
 }
 

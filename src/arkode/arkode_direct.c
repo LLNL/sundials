@@ -65,13 +65,13 @@ int ARKDlsSetupMatrix(void *arkode_mem, N_Vector vtemp1,
   /* Return immediately if arkode_mem or ark_mem->ark_lmem are NULL */
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKDLS_MEM_NULL, "ARKDLS", 
-		    "ARKDlsCallSetup", MSGD_ARKMEM_NULL);
+		    "ARKDlsSetupMatrix", MSGD_ARKMEM_NULL);
     return(ARKDLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->ark_lmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_LMEM_NULL, "ARKDLS", 
-		    "ARKDlsCallSetup", MSGD_LMEM_NULL);
+		    "ARKDlsSetupMatrix", MSGD_LMEM_NULL);
     return(ARKDLS_LMEM_NULL);
   }
   arkdls_mem = (ARKDlsMem) ark_mem->ark_lmem;
@@ -116,7 +116,7 @@ int ARKDlsSetupMatrix(void *arkode_mem, N_Vector vtemp1,
     }
     if (retval < 0) {
       arkProcessError(ark_mem, ARKDLS_JACFUNC_UNRECVR, "ARKDLS", 
-		      "ARKDlsCallSetup",  MSGD_JACFUNC_FAILED);
+		      "ARKDlsSetupMatrix",  MSGD_JACFUNC_FAILED);
       arkdls_mem->d_last_flag = ARKDLS_JACFUNC_UNRECVR;
       return(-1);
     }
@@ -161,7 +161,7 @@ int ARKDlsSetupMatrix(void *arkode_mem, N_Vector vtemp1,
     arkdls_mass_mem->d_nme++;
     if (retval < 0) {
       arkProcessError(ark_mem, ARKDLS_MASSFUNC_UNRECVR, "ARKDLS", 
-		      "ARKDlsCallSetup",  MSGD_MASSFUNC_FAILED);
+		      "ARKDlsSetupMatrix",  MSGD_MASSFUNC_FAILED);
       arkdls_mem->d_last_flag = ARKDLS_MASSFUNC_UNRECVR;
       return(-1);
     }

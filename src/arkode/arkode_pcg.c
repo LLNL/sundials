@@ -269,12 +269,11 @@ static int ARKPcgSetup(ARKodeMem ark_mem, N_Vector vtemp1,
     arkProcessError(ark_mem, PCG_PSET_FAIL_UNREC, "ARKPCG", 
 		    "ARKPcgSetup", MSGS_PSET_FAILED);
     arkspils_mem->s_last_flag = PCG_PSET_FAIL_UNREC;
-  }
-  if (retval > 0) {
+  } else if (retval > 0) {
     arkspils_mem->s_last_flag = PCG_PSET_FAIL_REC;
+  } else {
+    arkspils_mem->s_last_flag = PCG_SUCCESS;
   }
-
-  arkspils_mem->s_last_flag = PCG_SUCCESS;
 
   /* Return the same value that pset returned */
   return(retval);
@@ -618,11 +617,9 @@ static int ARKMassPcgSetup(ARKodeMem ark_mem, N_Vector vtemp1,
     arkProcessError(ark_mem, PCG_PSET_FAIL_UNREC, "ARKPCG", 
 		    "ARKMassPcgSetup", MSGS_PSET_FAILED);
     arkspils_mem->s_last_flag = PCG_PSET_FAIL_UNREC;
-  }
-  if (retval > 0) {
+  } else if (retval > 0) {
     arkspils_mem->s_last_flag = PCG_PSET_FAIL_REC;
-  }
-  if (retval == 0) {
+  } else {
     arkspils_mem->s_last_flag = PCG_SUCCESS;
   }
 
