@@ -20,7 +20,7 @@
 //#include <limits>
 
 #include <nvector/raja/Vector.hpp>
-#include <RAJA/RAJA.hxx>
+#include <RAJA/RAJA.hpp>
 
 //#define abs(x) ((x)<0 ? -(x) : (x))
 
@@ -31,6 +31,8 @@
 #define ONEPT5 RCONST(1.5)
 
 extern "C" {
+
+static constexpr sunindextype zeroIdx = 0;
 
 /* ----------------------------------------------------------------
  * Returns vector type ID. Used to identify vector implementation
@@ -318,7 +320,7 @@ void N_VConst_Raja(realtype c, N_Vector Z)
   const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(Z);
   realtype *zdata = sunrajavec::getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(0, N, [=] __device__(sunindextype i) {
+  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
      zdata[i] = c;
   });
 }
@@ -330,7 +332,7 @@ void N_VLinearSum_Raja(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector 
   const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
   realtype *zdata = sunrajavec::getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(0, N, [=] __device__(sunindextype i) {
+  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
      zdata[i] = a*xdata[i] + b*ydata[i];
   });
 }
@@ -342,7 +344,7 @@ void N_VProd_Raja(N_Vector X, N_Vector Y, N_Vector Z)
   const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
   realtype *zdata = sunrajavec::getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(0, N, [=] __device__(sunindextype i) {
+  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
      zdata[i] = xdata[i] * ydata[i];
   });
 }
@@ -354,7 +356,7 @@ void N_VDiv_Raja(N_Vector X, N_Vector Y, N_Vector Z)
   const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
   realtype *zdata = sunrajavec::getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(0, N, [=] __device__(sunindextype i) {
+  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
      zdata[i] = xdata[i] / ydata[i];
   });
 }
@@ -365,7 +367,7 @@ void N_VScale_Raja(realtype c, N_Vector X, N_Vector Z)
   const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
   realtype *zdata = sunrajavec::getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(0, N, [=] __device__(sunindextype i) {
+  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
      zdata[i] = c * xdata[i];
   });
 }
@@ -376,7 +378,7 @@ void N_VAbs_Raja(N_Vector X, N_Vector Z)
   const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
   realtype *zdata = sunrajavec::getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(0, N, [=] __device__(sunindextype i) {
+  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
      zdata[i] = abs(xdata[i]);
   });
 }
@@ -387,7 +389,7 @@ void N_VInv_Raja(N_Vector X, N_Vector Z)
   const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
   realtype *zdata = sunrajavec::getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(0, N, [=] __device__(sunindextype i) {
+  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
      zdata[i] = RCONST(1.0) / xdata[i];
   });
 }
@@ -398,7 +400,7 @@ void N_VAddConst_Raja(N_Vector X, realtype b, N_Vector Z)
   const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
   realtype *zdata = sunrajavec::getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(0, N, [=] __device__(sunindextype i) {
+  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
      zdata[i] = xdata[i] + b;
   });
 }
@@ -410,7 +412,7 @@ realtype N_VDotProd_Raja(N_Vector X, N_Vector Y)
   const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
 
   RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
-  RAJA::forall<RAJA::cuda_exec<128> >(0, N, [=] __device__(sunindextype i) {
+  RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
     gpu_result += xdata[i] * ydata[i] ;
   });
 
@@ -423,7 +425,7 @@ realtype N_VMaxNorm_Raja(N_Vector X)
   const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
 
   RAJA::ReduceMax<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
-  RAJA::forall<RAJA::cuda_exec<128> >(0, N, [=] __device__(sunindextype i) {
+  RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
     gpu_result.max(abs(xdata[i]));
   });
 
@@ -437,7 +439,7 @@ realtype N_VWrmsNorm_Raja(N_Vector X, N_Vector W)
   const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
 
   RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
-  RAJA::forall<RAJA::cuda_exec<128> >(0, N, [=] __device__(sunindextype i) {
+  RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
     gpu_result += (xdata[i] * wdata[i] * xdata[i] * wdata[i]);
   });
 
@@ -452,7 +454,7 @@ realtype N_VWrmsNormMask_Raja(N_Vector X, N_Vector W, N_Vector ID)
   const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
 
   RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
-  RAJA::forall<RAJA::cuda_exec<128> >(0, N, [=] __device__(sunindextype i) {
+  RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
     gpu_result += (xdata[i] * wdata[i] * xdata[i] * wdata[i] * iddata[i]);
   });
 
@@ -465,7 +467,7 @@ realtype N_VMin_Raja(N_Vector X)
   const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
 
   RAJA::ReduceMin<RAJA::cuda_reduce<128>, realtype> gpu_result(std::numeric_limits<realtype>::max());
-  RAJA::forall<RAJA::cuda_exec<128> >(0, N, [=] __device__(sunindextype i) {
+  RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
     gpu_result.min(xdata[i]);
   });
 
@@ -479,7 +481,7 @@ realtype N_VWL2Norm_Raja(N_Vector X, N_Vector W)
   const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
 
   RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
-  RAJA::forall<RAJA::cuda_exec<128> >(0, N, [=] __device__(sunindextype i) {
+  RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
     gpu_result += (xdata[i] * wdata[i] * xdata[i] * wdata[i]);
   });
 
@@ -492,7 +494,7 @@ realtype N_VL1Norm_Raja(N_Vector X)
   const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
 
   RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
-  RAJA::forall<RAJA::cuda_exec<128> >(0, N, [=] __device__(sunindextype i) {
+  RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
     gpu_result += (abs(xdata[i]));
   });
 
@@ -505,7 +507,7 @@ void N_VCompare_Raja(realtype c, N_Vector X, N_Vector Z)
   const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
   realtype *zdata = sunrajavec::getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(0, N, [=] __device__(sunindextype i) {
+  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
      zdata[i] = abs(xdata[i]) >= c ? ONE : ZERO;
   });
 }
@@ -517,7 +519,7 @@ booleantype N_VInvTest_Raja(N_Vector x, N_Vector z)
   realtype *zdata = sunrajavec::getDevData<realtype, sunindextype>(z);
 
   RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(ZERO);
-  RAJA::forall<RAJA::cuda_exec<128> >(0, N, [=] __device__(sunindextype i) {
+  RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
     if (xdata[i] == ZERO) {
       gpu_result += ONE;
     } else {
@@ -536,7 +538,7 @@ booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m)
   realtype *mdata = sunrajavec::getDevData<realtype, sunindextype>(m);
 
   RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(ZERO);
-  RAJA::forall<RAJA::cuda_exec<128> >(0, N, [=] __device__(sunindextype i) {
+  RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
     bool test = (abs(cdata[i]) > ONEPT5 && cdata[i]*xdata[i] <= ZERO) ||
                 (abs(cdata[i]) > HALF   && cdata[i]*xdata[i] <  ZERO);
     mdata[i] = test ? ONE : ZERO;
@@ -553,7 +555,7 @@ realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom)
   const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(num);
 
   RAJA::ReduceMin<RAJA::cuda_reduce<128>, realtype> gpu_result(std::numeric_limits<realtype>::max());
-  RAJA::forall<RAJA::cuda_exec<128> >(0, N, [=] __device__(sunindextype i) {
+  RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
     if (ddata[i] != ZERO)
       gpu_result.min(ndata[i]/ddata[i]);
   });

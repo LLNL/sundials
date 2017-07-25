@@ -21,7 +21,7 @@
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 
-#include <RAJA/RAJA.hxx>
+#include <RAJA/RAJA.hpp>
 
 #define SUNDIALS_HAVE_POSIX_TIMERS
 #define _POSIX_TIMERS
@@ -238,7 +238,8 @@ UserData SetUserData(int argc, char *argv[])
 int phiRaja(const realtype *u, realtype *result, sunindextype NEQ, sunindextype Nx, sunindextype Ny,
     realtype hordc, realtype verdc, realtype horac, realtype verac)
 {
-  RAJA::forall<RAJA::cuda_exec<256> >(0, NEQ, [=] __device__(sunindextype index) {
+  const sunindextype zero = 0;
+  RAJA::forall<RAJA::cuda_exec<256> >(zero, NEQ, [=] __device__(sunindextype index) {
     sunindextype i = index%Nx;
     sunindextype j = index/Nx;
 
@@ -268,9 +269,10 @@ int RHS(realtype t, N_Vector u, N_Vector udot, void *user_data)
   const realtype reacc = data->reacc;
   const realtype *udata = sunrajavec::extract<realtype, sunindextype>(u)->device();
   realtype *udotdata    = sunrajavec::extract<realtype, sunindextype>(udot)->device();
+  const sunindextype zero = 0;
 
   phiRaja(udata, udotdata, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac);
-  RAJA::forall<RAJA::cuda_exec<256> >(0, NEQ, [=] __device__(sunindextype index) {
+  RAJA::forall<RAJA::cuda_exec<256> >(zero, NEQ, [=] __device__(sunindextype index) {
     const realtype a = -1.0 / 2.0;
     udotdata[index] += (reacc*(udata[index] + a)*(1.0 - udata[index])*udata[index]);
   });
@@ -284,13 +286,14 @@ int Jtv(N_Vector v, N_Vector Jv, realtype t, N_Vector u, N_Vector fu, void *user
   UserData data = (UserData) user_data;
   const sunindextype NEQ = data->NEQ;
   const realtype reacc = data->reacc;
+  const sunindextype zero = 0;
 
   const realtype *udata  = sunrajavec::extract<realtype, sunindextype>(u)->device();
   const realtype *vdata  = sunrajavec::extract<realtype, sunindextype>(v)->device();
   realtype *Jvdata       = sunrajavec::extract<realtype, sunindextype>(Jv)->device();
 
   phiRaja(vdata, Jvdata, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac);
-  RAJA::forall<RAJA::cuda_exec<256> >(0, NEQ, [=] __device__(sunindextype index) {
+  RAJA::forall<RAJA::cuda_exec<256> >(zero, NEQ, [=] __device__(sunindextype index) {
     const realtype a = -1.0 / 2.0;
     Jvdata[index] += reacc*(3.0*udata[index] + a - 3.0*udata[index]*udata[index])*vdata[index];
   });
