@@ -61,6 +61,7 @@ typedef struct CVSpilsMemRec {
   long int s_nli;       /* nli = total number of linear iterations      */
   long int s_nps;       /* nps = total number of psolve calls           */
   long int s_ncfl;      /* ncfl = total number of convergence failures  */
+  long int s_njtsetup;  /* njtsetup = total number of calls to jtsetup  */
   long int s_njtimes;   /* njtimes = total number of calls to jtimes    */
   long int s_nfes;      /* nfeSG = total number of calls to f for     
                            difference quotient Jacobian-vector products */
@@ -82,6 +83,7 @@ typedef struct CVSpilsMemRec {
    */
   CVSpilsPrecSetupFn s_pset;
   CVSpilsPrecSolveFn s_psolve;
+  int s_jok;     /* THIS IS CURRENTLY HELD IN EACH SOLVER INTERFACE; USE THIS ONE INSTEAD */
   int (*s_pfree)(CVodeMem cv_mem);
   void *s_P_data;
 
@@ -94,6 +96,7 @@ typedef struct CVSpilsMemRec {
    *     - jtimesDQ == TRUE
    */
   booleantype s_jtimesDQ;
+  CVSpilsJacTimesSetupFn s_jtsetup;
   CVSpilsJacTimesVecFn s_jtimes;
   void *s_j_data;
 
@@ -109,7 +112,11 @@ typedef struct CVSpilsMemRec {
 
 /* Atimes and PSolve routines called by generic solver */
 
+int CVSpilsATSetup(void *cv_mem);
+
 int CVSpilsAtimes(void *cv_mem, N_Vector v, N_Vector z);
+
+int CVSpilsPSetup(void *cv_mem);
 
 int CVSpilsPSolve(void *cv_mem, N_Vector r, N_Vector z,
                   realtype tol, int lr);

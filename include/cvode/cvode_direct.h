@@ -23,6 +23,7 @@
 #define _CVDLS_H
 
 #include <sundials/sundials_direct.h>
+#include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -216,6 +217,23 @@ typedef int (*CVDlsBandJacFn)(sunindextype N, sunindextype mupper, sunindextype 
 			      DlsMat Jac, void *user_data,
 			      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
+/*
+ * =================================================================
+ *            P R I V A T E    F U N C T I O N S 
+ * =================================================================
+ */
+
+/*---------------------------------------------------------------
+ CVDlsSetupMatrix determines whether to create a new dense/band 
+ Jacobian matrix (or use a stored version), based on heuristics
+ regarding previous converence issues, the number of time steps 
+ since it was last updated, etc.; it then creates the system
+ matrix from this, the 'gamma' factor and the identity 
+ matrix, A = I-gamma*J.
+---------------------------------------------------------------*/
+SUNDIALS_EXPORT int CVDlsSetupMatrix(void *cvode_mem, N_Vector vtemp1,
+                                     N_Vector vtemp2, N_Vector vtemp3);
+  
 /*
  * =================================================================
  *            E X P O R T E D    F U N C T I O N S 
