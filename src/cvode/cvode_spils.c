@@ -24,6 +24,7 @@
 
 #include "cvode_impl.h"
 #include "cvode_spils_impl.h"
+#include <sundials/sundials_math.h>
 
 /* Private constants */
 
@@ -251,6 +252,37 @@ int CVSpilsSetJacTimesVecFn(void *cvode_mem, CVSpilsJacTimesVecFn jtv)
   } else {
     cvspils_mem->s_jtimesDQ = TRUE;
   }
+
+  return(CVSPILS_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * CVSpilsSetJacTimesSetupFn
+ * -----------------------------------------------------------------
+ */
+
+int CVSpilsSetJacTimesSetupFn(void *cvode_mem, CVSpilsJacTimesSetupFn jtsetup)
+{
+  CVodeMem cv_mem;
+  CVSpilsMem cvspils_mem;
+
+  /* Return immediately if cvode_mem is NULL */
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", "CVSpilsSetJacTimesSetupFn", MSGS_CVMEM_NULL);
+    return(CVSPILS_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (cv_mem->cv_lmem == NULL) {
+    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", "CVSpilsSetJacTimesSetupFn", MSGS_LMEM_NULL);
+    return(CVSPILS_LMEM_NULL);
+  }
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
+
+  /* set internal function pointer based on input;
+     Note that NULL input disables jtsetup routine */
+  cvspils_mem->s_jtsetup = jtsetup;
 
   return(CVSPILS_SUCCESS);
 }
@@ -548,6 +580,90 @@ char *CVSpilsGetReturnFlagName(long int flag)
  * -----------------------------------------------------------------
  */
 
+/*---------------------------------------------------------------
+ CVSpilsCallPSetup calls the user-supplied preconditioner setup 
+ routine, providing heuristic recommendations on whether this 
+ this should be updated based on heuristics regarding previous 
+ converence issues, the number of time steps since it was last 
+ updated, etc.
+---------------------------------------------------------------*/
+int CVSpilsCallPSetup(void *cvode_mem, N_Vector vtemp1,
+                      N_Vector vtemp2, N_Vector vtemp3)
+{
+  booleantype jbad, jok;
+  realtype dgamma;
+  int  retval;
+  CVodeMem cv_mem;
+  CVSpilsMem cvspils_mem;
+  N_Vector ypred, fpred;
+
+  /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", 
+                   "CVSpilsCallPSetup", MSGS_CVMEM_NULL);
+    return(CVSPILS_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+  if (cv_mem->cv_lmem == NULL) {
+    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", 
+		    "CVSpilsCallPSetup", MSGS_LMEM_NULL);
+    return(CVSPILS_LMEM_NULL);
+  }
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
+  ypred = cv_mem->cv_zn[0];
+  fpred = cv_mem->cv_ftemp;
+
+  /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
+  dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
+  jbad = (cv_mem->cv_nst == 0) || (cv_mem->cv_nst > cvspils_mem->s_nstlpre + CVSPILS_MSBPRE) ||
+    ((cv_mem->cv_convfail == CV_FAIL_BAD_J) && (dgamma < CVSPILS_DGMAX)) ||
+    (cv_mem->cv_convfail == CV_FAIL_OTHER);
+  cv_mem->cv_jcur = jbad;
+  jok = !jbad;
+
+  /* Call pset routine and possibly reset jcur */
+  retval = cvspils_mem->s_pset(cv_mem->cv_tn, ypred, fpred, jok,
+                               &cv_mem->cv_jcur, cv_mem->cv_gamma,
+                               cvspils_mem->s_P_data, 
+                               vtemp1, vtemp2, vtemp3);
+  if (jbad) cv_mem->cv_jcur = TRUE;
+
+  /* If jcur = TRUE, increment npe and save nst value */
+  if (cv_mem->cv_jcur) {
+    cvspils_mem->s_npe++;
+    cvspils_mem->s_nstlpre = cv_mem->cv_nst;
+  }
+  return(retval);
+  
+}
+
+
+/*---------------------------------------------------------------
+ CVSpilsATSetup:
+
+ This routine provides a generic interface for calling a user-
+ supplied setup routine to prepare for subsequent calls to a 
+ user-supplied Jacobian-vector product routine.  The return value 
+ is 0 if successful, nonzero otherwise.
+---------------------------------------------------------------*/
+int CVSpilsATSetup(void *cvode_mem)
+{
+  CVodeMem   cv_mem;
+  CVSpilsMem cvspils_mem;
+  int flag;
+
+  cv_mem = (CVodeMem) cvode_mem;
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
+
+  flag = cvspils_mem->s_jtsetup(cv_mem->cv_tn, 
+                                cvspils_mem->s_ycur, 
+                                cvspils_mem->s_fcur, 
+                                cvspils_mem->s_j_data);
+  cvspils_mem->s_njtsetup++;
+  return(flag);
+}
+
+
 /*
  * -----------------------------------------------------------------
  * CVSpilsAtimes
@@ -578,6 +694,40 @@ int CVSpilsAtimes(void *cvode_mem, N_Vector v, N_Vector z)
   N_VLinearSum(ONE, v, -cv_mem->cv_gamma, z, z);
 
   return(0);
+}
+
+/*---------------------------------------------------------------
+ CVSpilsPSetup:
+
+ This routine interfaces between the generic iterative linear 
+ solvers and the user's psetup routine.  It passes to psetup all 
+ required state information from cvode_mem.  Its return value 
+ is the same as that returned by psetup. Note that the generic
+ iterative linear solvers guarantee that CVSpilsPSetup will only
+ be called in the case that the user's psetup routine is non-NULL.
+---------------------------------------------------------------*/
+int CVSpilsPSetup(void *cvode_mem)
+{
+  CVodeMem   cv_mem;
+  CVSpilsMem cvspils_mem;
+  int retval;
+
+  cv_mem = (CVodeMem) cvode_mem;
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
+
+  /* This call is counted within the iterative linear solver */
+  retval = cvspils_mem->s_pset(cv_mem->cv_tn, 
+                               cvspils_mem->s_ycur, 
+                               cvspils_mem->s_fcur, 
+                               cvspils_mem->s_jok,
+                               &cv_mem->cv_jcur,
+                               cv_mem->cv_gamma, 
+                               cvspils_mem->s_P_data, 
+                               cvspils_mem->s_ytemp, 
+                               cvspils_mem->s_ytemp, 
+                               cvspils_mem->s_ytemp);
+
+  return(retval);     
 }
 
 /*
@@ -667,12 +817,13 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 
 int cvSpilsInitializeCounters(CVSpilsMem cvspils_mem)
 {
-  cvspils_mem->s_npe     = 0;
-  cvspils_mem->s_nli     = 0;
-  cvspils_mem->s_nps     = 0;
-  cvspils_mem->s_ncfl    = 0;
-  cvspils_mem->s_nstlpre = 0;
-  cvspils_mem->s_njtimes = 0;
-  cvspils_mem->s_nfes    = 0;
+  cvspils_mem->s_npe      = 0;
+  cvspils_mem->s_nli      = 0;
+  cvspils_mem->s_nps      = 0;
+  cvspils_mem->s_ncfl     = 0;
+  cvspils_mem->s_nstlpre  = 0;
+  cvspils_mem->s_njtsetup = 0;
+  cvspils_mem->s_njtimes  = 0;
+  cvspils_mem->s_nfes     = 0;
   return(0);
 }

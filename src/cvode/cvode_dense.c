@@ -205,59 +205,15 @@ static int cvDenseInit(CVodeMem cv_mem)
 static int cvDenseSetup(CVodeMem cv_mem, N_Vector vtemp1, 
                         N_Vector vtemp2, N_Vector vtemp3)
 {
-  booleantype jbad, jok;
-  realtype dgamma;
   sunindextype ier;
   CVDlsMem cvdls_mem;
-  int retval;
-  N_Vector ypred, fpred;
   
   cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
-  ypred = cv_mem->cv_zn[0];
-  fpred = cv_mem->cv_ftemp;
-  
-  /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
- 
-  dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
-  jbad = (cv_mem->cv_nst == 0) || (cv_mem->cv_nst > cvdls_mem->d_nstlj + CVD_MSBJ) ||
-         ((cv_mem->cv_convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
-         (cv_mem->cv_convfail == CV_FAIL_OTHER);
-  jok = !jbad;
- 
-  if (jok) {
 
-    /* If jok = TRUE, use saved copy of J */
-    cv_mem->cv_jcur = FALSE;
-    DenseCopy(cvdls_mem->d_savedJ, cvdls_mem->d_M);
-
-  } else {
-
-    /* If jok = FALSE, call jac routine for new J value */
-    cvdls_mem->d_nje++;
-    cvdls_mem->d_nstlj = cv_mem->cv_nst;
-    cv_mem->cv_jcur = TRUE;
-    SetToZero(cvdls_mem->d_M);
-
-    retval = cvdls_mem->d_djac(cvdls_mem->d_n, cv_mem->cv_tn, ypred,
-                               fpred, cvdls_mem->d_M, cvdls_mem->d_J_data,
-                               vtemp1, vtemp2, vtemp3);
-    if (retval < 0) {
-      cvProcessError(cv_mem, CVDLS_JACFUNC_UNRECVR, "CVDENSE", "cvDenseSetup", MSGD_JACFUNC_FAILED);
-      cvdls_mem->d_last_flag = CVDLS_JACFUNC_UNRECVR;
-      return(-1);
-    }
-    if (retval > 0) {
-      cvdls_mem->d_last_flag = CVDLS_JACFUNC_RECVR;
-      return(1);
-    }
-
-    DenseCopy(cvdls_mem->d_M, cvdls_mem->d_savedJ);
-
-  }
-  
-  /* Scale and add I to get M = I - gamma*J */
-  DenseScale(-cv_mem->cv_gamma, cvdls_mem->d_M);
-  AddIdentity(cvdls_mem->d_M);
+  /* setup system matrix */
+  ier = CVDlsSetupMatrix(cv_mem, vtemp1, vtemp2, vtemp3);
+  if (ier < 0)  return(-1);
+  if (ier > 0)  return(1);
 
   /* Do LU factorization of M */
   ier = DenseGETRF(cvdls_mem->d_M, cvdls_mem->d_lpivots); 

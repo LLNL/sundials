@@ -240,45 +240,21 @@ static int CVSptfqmrInit(CVodeMem cv_mem)
 static int CVSptfqmrSetup(CVodeMem cv_mem, N_Vector vtemp1,
 			  N_Vector vtemp2, N_Vector vtemp3)
 {
-  booleantype jbad, jok;
-  realtype dgamma;
   int  retval;
   CVSpilsMem cvspils_mem;
-  N_Vector ypred, fpred;
   
   cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
-  ypred = cv_mem->cv_zn[0];
-  fpred = cv_mem->cv_ftemp;
 
-  /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-  dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
-  jbad = (cv_mem->cv_nst == 0) || (cv_mem->cv_nst > cvspils_mem->s_nstlpre + CVSPILS_MSBPRE) ||
-      ((cv_mem->cv_convfail == CV_FAIL_BAD_J) && (dgamma < CVSPILS_DGMAX)) ||
-      (cv_mem->cv_convfail == CV_FAIL_OTHER);
-  cv_mem->cv_jcur = jbad;
-  jok = !jbad;
-
-  /* Call pset routine and possibly reset jcur */
-  retval = cvspils_mem->s_pset(cv_mem->cv_tn, ypred, fpred, jok, &cv_mem->cv_jcur,
-                               cv_mem->cv_gamma, cvspils_mem->s_P_data,
-                               vtemp1, vtemp2, vtemp3);
+  /* Call preconditioner setup routine */
+  retval = CVSpilsCallPSetup(cv_mem, vtemp1, vtemp2, vtemp3);
   if (retval < 0) {
     cvProcessError(cv_mem, SPTFQMR_PSET_FAIL_UNREC, "CVSPTFQMR", "CVSptfqmrSetup", MSGS_PSET_FAILED);
     cvspils_mem->s_last_flag = SPTFQMR_PSET_FAIL_UNREC;
-  }
-  if (retval > 0) {
+  } else if (retval > 0) {
     cvspils_mem->s_last_flag = SPTFQMR_PSET_FAIL_REC;
+  } else {
+    cvspils_mem->s_last_flag = SPTFQMR_SUCCESS;
   }
-
-  if (jbad) cv_mem->cv_jcur = TRUE;
-
-  /* If jcur = TRUE, increment npe and save nst value */
-  if (cv_mem->cv_jcur) {
-    cvspils_mem->s_npe++;
-    cvspils_mem->s_nstlpre = cv_mem->cv_nst;
-  }
-
-  cvspils_mem->s_last_flag = SPTFQMR_SUCCESS;
 
   /* Return the same value that pset returned */
   return(retval);

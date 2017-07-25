@@ -221,6 +221,49 @@ typedef int (*CVSpilsPrecSolveFn)(realtype t, N_Vector y, N_Vector fy,
                                   realtype gamma, realtype delta,
                                   int lr, void *user_data, N_Vector tmp);
 
+/* ---------------------------------------------------------------
+ * Type: CVSpilsJacTimesSetupFn
+ *
+ * The user-supplied Jacobian-times-vector product setup function 
+ * JacTimesSetup and the user-supplied Jacobian-times-vector 
+ * product function JTimes together must generate the product
+ * J*v for v, where J is the Jacobian df/dy, or an approximation 
+ * to it, and v is a given vector. It should return 0 if 
+ * successful a positive value for a recoverable error or a
+ * negative value for an unrecoverable failure.
+ *
+ * Each call to the JacTimesSetup function is preceded by a call 
+ * to the RhsFn fi with the same (t,y) arguments.  Thus the 
+ * JacTimesSetup function can use any auxiliary data that is 
+ * computed and saved by the f function and made accessible to 
+ * JacTimesSetup.
+ *
+ * A function JacTimesSetup must have the prototype given below.
+ * Its parameters are as follows:
+ *
+ * t       is the current value of the independent variable.
+ *
+ * y       is the current value of the dependent variable vector,
+ *          namely the predicted value of y(t).
+ *
+ * fy      is the vector f(t,y).
+ *
+ * user_data  is a pointer to user data - the same as the user_data
+ *         parameter passed to the CVodeSetUserData function.
+ *
+ * Returned value:
+ * The value to be returned by the JacTimesSetup function is a flag
+ * indicating whether it was successful.  This value should be
+ *   0   if successful,
+ *   > 0 for a recoverable error (step will be retried),
+ *   < 0 for an unrecoverable error (integration is halted).
+ * ---------------------------------------------------------------
+ */
+  
+typedef int (*CVSpilsJacTimesSetupFn)(realtype t, N_Vector y, 
+                                      N_Vector fy, void *user_data);
+
+  
 /*
  * -----------------------------------------------------------------
  * Type : CVSpilsJacTimesVecFn
@@ -258,6 +301,29 @@ typedef int (*CVSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
                                     void *user_data, N_Vector tmp);
 
 
+/*
+ * =================================================================
+ *            P R I V A T E    F U N C T I O N S 
+ * =================================================================
+ */
+
+/*
+ * ---------------------------------------------------------------
+ * CVSpilsCallPSetup determines whether to call the user-supplied 
+ * preconditioner setup routine, based on heuristics regarding 
+ * previous converence issues, the number of time steps 
+ * since it was last updated, etc.
+ * ---------------------------------------------------------------
+ */
+  
+SUNDIALS_EXPORT int CVSpilsCallPSetup(void *cvode_mem, N_Vector vtemp1,
+                                      N_Vector vtemp2, N_Vector vtemp3);
+  
+/*
+ * =================================================================
+ *            E X P O R T E D    F U N C T I O N S 
+ * =================================================================
+ */
 
 /*
  * -----------------------------------------------------------------
@@ -289,6 +355,8 @@ typedef int (*CVSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
  * CVSpilsSetPreconditioner specifies the PrecSetup and PrecSolve functions.
  *                Default is NULL for both arguments (no preconditioning)
  *
+ * CVSpilsSetJacTimesSetupFn specifies the jtsetup function. No default.
+ *
  * CVSpilsSetJacTimesVecFn specifies the jtimes function. Default is to 
  *                use an internal finite difference approximation routine.
  *
@@ -307,6 +375,8 @@ SUNDIALS_EXPORT int CVSpilsSetEpsLin(void *cvode_mem, realtype eplifac);
 SUNDIALS_EXPORT int CVSpilsSetPreconditioner(void *cvode_mem, 
                                              CVSpilsPrecSetupFn pset,
                                              CVSpilsPrecSolveFn psolve);
+SUNDIALS_EXPORT int CVSpilsSetJacTimesSetupFn(void *cvode_mem, 
+                                              CVSpilsJacTimesSetupFn jtsetup);
 SUNDIALS_EXPORT int CVSpilsSetJacTimesVecFn(void *cvode_mem, 
                                             CVSpilsJacTimesVecFn jtv);
 
