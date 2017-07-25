@@ -2606,9 +2606,7 @@ static int cvNlsNewton(CVodeMem cv_mem, int nflag)
     if (retval > 0) return(RHSFUNC_RECVR);
 
     if (callSetup) {
-      ier = cv_mem->cv_lsetup(cv_mem, cv_mem->cv_convfail,
-                              cv_mem->cv_zn[0], cv_mem->cv_ftemp,
-                              &cv_mem->cv_jcur, vtemp1, vtemp2, vtemp3);
+      ier = cv_mem->cv_lsetup(cv_mem, vtemp1, vtemp2, vtemp3);
       cv_mem->cv_nsetups++;
       callSetup = FALSE;
       cv_mem->cv_gamrat = cv_mem->cv_crate = ONE; 

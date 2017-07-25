@@ -35,8 +35,7 @@
 
 static int CVDiagInit(CVodeMem cv_mem);
 
-static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-                       N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
+static int CVDiagSetup(CVodeMem cv_mem, N_Vector vtemp1,
                        N_Vector vtemp2, N_Vector vtemp3);
 
 static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
@@ -290,17 +289,18 @@ static int CVDiagInit(CVodeMem cv_mem)
  * -----------------------------------------------------------------
  */
 
-static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-                       N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
+static int CVDiagSetup(CVodeMem cv_mem, N_Vector vtemp1,
                        N_Vector vtemp2, N_Vector vtemp3)
 {
   realtype r;
-  N_Vector ftemp, y;
+  N_Vector ftemp, y, ypred, fpred;
   booleantype invOK;
   CVDiagMem cvdiag_mem;
   int retval;
-
+  
   cvdiag_mem = (CVDiagMem) cv_mem->cv_lmem;
+  ypred = cv_mem->cv_zn[0];
+  fpred = cv_mem->cv_ftemp;
 
   /* Rename work vectors for use as temporary values of y and f */
   ftemp = vtemp1;
@@ -345,7 +345,7 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   }
 
   /* Set jcur = TRUE, save gamma in gammasv, and return */
-  *jcurPtr = TRUE;
+  cv_mem->cv_jcur = TRUE;
   cvdiag_mem->di_gammasv = cv_mem->cv_gamma;
   cvdiag_mem->di_last_flag = CVDIAG_SUCCESS;
   return(0);

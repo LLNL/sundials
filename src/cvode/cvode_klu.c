@@ -38,9 +38,8 @@
  
 static int cvKLUInit(CVodeMem cv_mem);
 
-static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred, 
-		      N_Vector fpred, booleantype *jcurPtr,
-		      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int cvKLUSetup(CVodeMem cv_mem, N_Vector tmp1,
+                      N_Vector tmp2, N_Vector tmp3);
 
 static int cvKLUSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 		      N_Vector ycur, N_Vector fcur);
@@ -312,9 +311,8 @@ static int cvKLUInit(CVodeMem cv_mem)
      -1  if the jac routine failed unrecoverably.
 */
 
-static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred, 
-		      N_Vector fpred, booleantype *jcurPtr,
-		      N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+static int cvKLUSetup(CVodeMem cv_mem, N_Vector vtemp1,
+                      N_Vector vtemp2, N_Vector vtemp3)
 {
   booleantype jbad, jok;
   int retval;
@@ -325,6 +323,7 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   KLUData klu_data;
   SlsMat JacMat, savedJ;
   void *jacdata;
+  N_Vector ypred, fpred;
   
   realtype uround_twothirds;
 
@@ -335,6 +334,8 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   gamma = cv_mem->cv_gamma;
   gammap = cv_mem->cv_gammap;
   nst = cv_mem->cv_nst;
+  ypred = cv_mem->cv_zn[0];
+  fpred = cv_mem->cv_ftemp;
 
   klu_data = (KLUData) cvsls_mem->s_solver_data;
 
@@ -355,19 +356,19 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   /* Determine whether Jacobian needs to be recalculated */
   dgamma = SUNRabs((gamma/gammap) - ONE);
   jbad = (nst == 0) || (nst > nstlj + CVS_MSBJ) ||
-         ((convfail == CV_FAIL_BAD_J) && (dgamma < CVS_DGMAX)) ||
-         (convfail == CV_FAIL_OTHER);
+         ((cv_mem->cv_convfail == CV_FAIL_BAD_J) && (dgamma < CVS_DGMAX)) ||
+         (cv_mem->cv_convfail == CV_FAIL_OTHER);
   jok = !jbad;
   
   if (jok) {
     /* If jok = TRUE, use saved copy of J */
-    *jcurPtr = FALSE;
+    cv_mem->cv_jcur = FALSE;
     SparseCopyMat(savedJ, JacMat);
   } else {
     /* If jok = FALSE, call jac routine for new J value */
     cvsls_mem->s_nje++;
     cvsls_mem->s_nstlj = nst;
-    *jcurPtr = TRUE;
+    cv_mem->cv_jcur = TRUE;
     SparseSetMatToZero(JacMat);
     retval = jaceval(tn, ypred, fpred, JacMat, jacdata, vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
