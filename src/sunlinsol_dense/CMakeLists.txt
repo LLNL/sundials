@@ -66,23 +66,23 @@ ENDIF(BUILD_SHARED_LIBS)
 INSTALL(FILES ${sunlinsoldense_HEADERS} DESTINATION include/sunlinsol)
 
 # If FCMIX is enabled, build and install the FSUNLINSOLDENSE library
-#IF(FCMIX_ENABLE AND F77_FOUND)
-#  SET(fsunlinsoldense_SOURCES fsunlinsol_dense.c)
-#  IF(BUILD_STATIC_LIBS)
-#    ADD_LIBRARY(sundials_fsunlinsoldense_static STATIC ${fsunlinsoldense_SOURCES})
-#    SET_TARGET_PROPERTIES(sundials_fsunlinsoldense_static
-#      PROPERTIES OUTPUT_NAME sundials_fsunlinsoldense CLEAN_DIRECT_OUTPUT 1)
-#    INSTALL(TARGETS sundials_fsunlinsoldense_static DESTINATION lib)
-#  ENDIF(BUILD_STATIC_LIBS)
-#  IF(BUILD_SHARED_LIBS)
-#    ADD_LIBRARY(sundials_fsunlinsoldense_shared ${fsunlinsoldense_SOURCES})
-#    SET_TARGET_PROPERTIES(sundials_fsunlinsoldense_shared
-#      PROPERTIES OUTPUT_NAME sundials_fsunlinsoldense CLEAN_DIRECT_OUTPUT 1)
-#    SET_TARGET_PROPERTIES(sundials_fsunlinsoldense_shared 
-#      PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
-#    INSTALL(TARGETS sundials_fsunlinsoldense_shared DESTINATION lib)
-#  ENDIF(BUILD_SHARED_LIBS)
-#ENDIF(FCMIX_ENABLE AND F77_FOUND)
+IF(FCMIX_ENABLE AND F77_FOUND)
+  SET(fsunlinsoldense_SOURCES fsunlinsol_dense.c)
+  IF(BUILD_STATIC_LIBS)
+    ADD_LIBRARY(sundials_fsunlinsoldense_static STATIC ${fsunlinsoldense_SOURCES})
+    SET_TARGET_PROPERTIES(sundials_fsunlinsoldense_static
+      PROPERTIES OUTPUT_NAME sundials_fsunlinsoldense CLEAN_DIRECT_OUTPUT 1)
+    INSTALL(TARGETS sundials_fsunlinsoldense_static DESTINATION lib)
+  ENDIF(BUILD_STATIC_LIBS)
+  IF(BUILD_SHARED_LIBS)
+    ADD_LIBRARY(sundials_fsunlinsoldense_shared ${fsunlinsoldense_SOURCES})
+    SET_TARGET_PROPERTIES(sundials_fsunlinsoldense_shared
+      PROPERTIES OUTPUT_NAME sundials_fsunlinsoldense CLEAN_DIRECT_OUTPUT 1)
+    SET_TARGET_PROPERTIES(sundials_fsunlinsoldense_shared 
+      PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
+    INSTALL(TARGETS sundials_fsunlinsoldense_shared DESTINATION lib)
+  ENDIF(BUILD_SHARED_LIBS)
+ENDIF(FCMIX_ENABLE AND F77_FOUND)
 
 #
 MESSAGE(STATUS "Added SUNLINSOL_DENSE module")
