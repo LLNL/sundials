@@ -1,0 +1,16 @@
+
+Diagonal matrix test:
+  nprocs = 1
+  local/global problem sizes = 100/100
+  timing output flag = 0
+
+    PASSED test -- SUNMatGetID 
+    PASSED test -- N_VClone 
+    PASSED test -- N_VConst 
+    PASSED test -- SUNMatZero 
+    PASSED test -- SUNMatScaleAdd case 1 
+    PASSED test -- SUNMatScaleAdd case 2 
+    PASSED test -- SUNMatScaleAddI 
+    PASSED test -- SUNMatMatvec 
+SUCCESS: SUNMatrix module passed all tests 
+ 

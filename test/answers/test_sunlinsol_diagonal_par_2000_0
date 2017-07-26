@@ -1,0 +1,19 @@
+
+Diagonal linear solver test:
+  nprocs = 4
+  local/global problem sizes = 2000/8000
+  timing output flag = 0
+
+    PASSED test -- SUNLinSolInitialize 
+    PASSED test -- SUNLinSolSetup 
+    PASSED test -- SUNLinSolSolve 
+    PASSED test -- SUNLinSolGetType 
+    PASSED test -- SUNLinSolLastFlag (0) 
+    PASSED test -- SUNLinSolNumIters (0) 
+    PASSED test -- SUNLinSolResNorm
+    PASSED test -- SUNLinSolNumPSolves (0) 
+    PASSED test -- SUNLinSolSetATimes 
+    PASSED test -- SUNLinSolSetPreconditioner 
+    PASSED test -- SUNLinSolSetScalingVectors 
+SUCCESS: Diagonal SUNLinSol module passed all tests 
+ 
