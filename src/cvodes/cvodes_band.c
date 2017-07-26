@@ -54,43 +54,6 @@ static int cvBandFreeB(CVodeBMem cvB_mem);
  * ================================================================
  */
 
-
-/* Readability Replacements */
-
-#define lmm       (cv_mem->cv_lmm)
-#define f         (cv_mem->cv_f)
-#define nst       (cv_mem->cv_nst)
-#define tn        (cv_mem->cv_tn)
-#define h         (cv_mem->cv_h)
-#define gamma     (cv_mem->cv_gamma)
-#define gammap    (cv_mem->cv_gammap)
-#define gamrat    (cv_mem->cv_gamrat)
-#define ewt       (cv_mem->cv_ewt)
-#define nfe       (cv_mem->cv_nfe)
-#define linit     (cv_mem->cv_linit)
-#define lsetup    (cv_mem->cv_lsetup)
-#define lsolve    (cv_mem->cv_lsolve)
-#define lfree     (cv_mem->cv_lfree)
-#define lmem      (cv_mem->cv_lmem)
-#define vec_tmpl     (cv_mem->cv_tempv)
-#define setupNonNull (cv_mem->cv_setupNonNull)
-
-#define mtype      (cvdls_mem->d_type)
-#define n          (cvdls_mem->d_n)
-#define jacDQ      (cvdls_mem->d_jacDQ)
-#define jac        (cvdls_mem->d_bjac)
-#define M          (cvdls_mem->d_M)
-#define mu         (cvdls_mem->d_mu)
-#define ml         (cvdls_mem->d_ml)
-#define smu        (cvdls_mem->d_smu)
-#define lpivots    (cvdls_mem->d_lpivots)
-#define savedJ     (cvdls_mem->d_savedJ)
-#define nstlj      (cvdls_mem->d_nstlj)
-#define nje        (cvdls_mem->d_nje)
-#define nfeDQ      (cvdls_mem->d_nfeDQ)
-#define J_data     (cvdls_mem->d_J_data)
-#define last_flag  (cvdls_mem->d_last_flag)
-
 /*
  * -----------------------------------------------------------------
  * CVBand
@@ -129,18 +92,18 @@ int CVBand(void *cvode_mem, sunindextype N, sunindextype mupper, sunindextype ml
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
-  if (vec_tmpl->ops->nvgetarraypointer == NULL) {
+  if (cv_mem->cv_tempv->ops->nvgetarraypointer == NULL) {
     cvProcessError(cv_mem, CVDLS_ILL_INPUT, "CVSBAND", "CVBand", MSGD_BAD_NVECTOR);
     return(CVDLS_ILL_INPUT);
   }
 
-  if (lfree != NULL) lfree(cv_mem);
+  if (cv_mem->cv_lfree != NULL) cv_mem->cv_lfree(cv_mem);
 
   /* Set four main function fields in cv_mem */  
-  linit  = cvBandInit;
-  lsetup = cvBandSetup;
-  lsolve = cvBandSolve;
-  lfree  = cvBandFree;
+  cv_mem->cv_linit  = cvBandInit;
+  cv_mem->cv_lsetup = cvBandSetup;
+  cv_mem->cv_lsolve = cvBandSolve;
+  cv_mem->cv_lfree  = cvBandFree;
   
   /* Get memory for CVDlsMemRec */
   cvdls_mem = NULL;
@@ -151,64 +114,65 @@ int CVBand(void *cvode_mem, sunindextype N, sunindextype mupper, sunindextype ml
   }
 
   /* Set matrix type */
-  mtype = SUNDIALS_BAND;
+  cvdls_mem->d_type = SUNDIALS_BAND;
 
   /* Initialize Jacobian-related data */
-  jacDQ = TRUE;
-  jac = NULL;
-  J_data = NULL;
+  cvdls_mem->d_jacDQ = TRUE;
+  cvdls_mem->d_bjac = NULL;
+  cvdls_mem->d_J_data = NULL;
 
-  last_flag = CVDLS_SUCCESS;
+  cvdls_mem->d_last_flag = CVDLS_SUCCESS;
 
   cvDlsInitializeCounters(cvdls_mem);  
 
-  setupNonNull = TRUE;
+  cv_mem->cv_setupNonNull = TRUE;
   
   /* Load problem dimension */
-  n = N;
+  cvdls_mem->d_n = N;
 
   /* Load half-bandwiths in cvdls_mem */
-  ml = mlower;
-  mu = mupper;
+  cvdls_mem->d_ml = mlower;
+  cvdls_mem->d_mu = mupper;
 
   /* Test ml and mu for legality */
-  if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
+  if ((cvdls_mem->d_ml < 0) || (cvdls_mem->d_mu < 0) ||
+      (cvdls_mem->d_ml >= N) || (cvdls_mem->d_mu >= N)) {
     cvProcessError(cv_mem, CVDLS_ILL_INPUT, "CVSBAND", "CVBand", MSGD_BAD_SIZES);
     free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_ILL_INPUT);
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
-  smu = SUNMIN(N-1, mu + ml);
+  cvdls_mem->d_smu = SUNMIN(N-1, cvdls_mem->d_mu + cvdls_mem->d_ml);
 
   /* Allocate memory for M, savedJ, and pivot arrays */
-  M = NULL;
-  M = NewBandMat(N, mu, ml, smu);
-  if (M == NULL) {
+  cvdls_mem->d_M = NULL;
+  cvdls_mem->d_M = NewBandMat(N, cvdls_mem->d_mu, cvdls_mem->d_ml, cvdls_mem->d_smu);
+  if (cvdls_mem->d_M == NULL) {
     cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSBAND", "CVBand", MSGD_MEM_FAIL);
     free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
-  savedJ = NULL;
-  savedJ = NewBandMat(N, mu, ml, mu);
-  if (savedJ == NULL) {
+  cvdls_mem->d_savedJ = NULL;
+  cvdls_mem->d_savedJ = NewBandMat(N, cvdls_mem->d_mu, cvdls_mem->d_ml, cvdls_mem->d_mu);
+  if (cvdls_mem->d_savedJ == NULL) {
     cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSBAND", "CVBand", MSGD_MEM_FAIL);
-    DestroyMat(M);
+    DestroyMat(cvdls_mem->d_M);
     free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
-  lpivots = NULL;
-  lpivots = NewLintArray(N);
-  if (lpivots == NULL) {
+  cvdls_mem->d_lpivots = NULL;
+  cvdls_mem->d_lpivots = NewLintArray(N);
+  if (cvdls_mem->d_lpivots == NULL) {
     cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSBAND", "CVBand", MSGD_MEM_FAIL);
-    DestroyMat(M);
-    DestroyMat(savedJ);
+    DestroyMat(cvdls_mem->d_M);
+    DestroyMat(cvdls_mem->d_savedJ);
     free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
 
   /* Attach linear solver memory to integrator memory */
-  lmem = cvdls_mem;
+  cv_mem->cv_lmem = cvdls_mem;
 
   return(CVDLS_SUCCESS);
 }
@@ -226,19 +190,19 @@ static int cvBandInit(CVodeMem cv_mem)
 {
   CVDlsMem cvdls_mem;
 
-  cvdls_mem = (CVDlsMem) lmem;
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
   cvDlsInitializeCounters(cvdls_mem);  
 
   /* Set Jacobian function and data, depending on jacDQ */
-  if (jacDQ) {
-    jac = cvDlsBandDQJac;
-    J_data = cv_mem;
+  if (cvdls_mem->d_jacDQ) {
+    cvdls_mem->d_bjac = cvDlsBandDQJac;
+    cvdls_mem->d_J_data = cv_mem;
   } else {
-    J_data = cv_mem->cv_user_data;
+    cvdls_mem->d_J_data = cv_mem->cv_user_data;
   }
 
-  last_flag = CVDLS_SUCCESS;
+  cvdls_mem->d_last_flag = CVDLS_SUCCESS;
   return(0);
 }
 
@@ -265,12 +229,12 @@ static int cvBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   int retval;
   sunindextype ier;
 
-  cvdls_mem = (CVDlsMem) lmem;
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
 
-  dgamma = SUNRabs((gamma/gammap) - ONE);
-  jbad = (nst == 0) || (nst > nstlj + CVD_MSBJ) ||
+  dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
+  jbad = (cv_mem->cv_nst == 0) || (cv_mem->cv_nst > cvdls_mem->d_nstlj + CVD_MSBJ) ||
          ((convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
          (convfail == CV_FAIL_OTHER);
   jok = !jbad;
@@ -279,44 +243,49 @@ static int cvBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
     /* If jok = TRUE, use saved copy of J */
     *jcurPtr = FALSE;
-    BandCopy(savedJ, M, mu, ml);
+    BandCopy(cvdls_mem->d_savedJ, cvdls_mem->d_M,
+             cvdls_mem->d_mu, cvdls_mem->d_ml);
 
   } else {
 
     /* If jok = FALSE, call jac routine for new J value */
-    nje++;
-    nstlj = nst;
+    cvdls_mem->d_nje++;
+    cvdls_mem->d_nstlj = cv_mem->cv_nst;
     *jcurPtr = TRUE;
-    SetToZero(M); 
+    SetToZero(cvdls_mem->d_M); 
 
-    retval = jac(n, mu, ml, tn, ypred, fpred, M, J_data, vtemp1, vtemp2, vtemp3);
+    retval = cvdls_mem->d_bjac(cvdls_mem->d_n, cvdls_mem->d_mu,
+                               cvdls_mem->d_ml, cv_mem->cv_tn,
+                               ypred, fpred, cvdls_mem->d_M, cvdls_mem->d_J_data,
+                               vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
       cvProcessError(cv_mem, CVDLS_JACFUNC_UNRECVR, "CVSBAND", "cvBandSetup", MSGD_JACFUNC_FAILED);
-      last_flag = CVDLS_JACFUNC_UNRECVR;
+      cvdls_mem->d_last_flag = CVDLS_JACFUNC_UNRECVR;
       return(-1);
     }
     if (retval > 0) {
-      last_flag = CVDLS_JACFUNC_RECVR;
+      cvdls_mem->d_last_flag = CVDLS_JACFUNC_RECVR;
       return(1);
     }
 
-    BandCopy(M, savedJ, mu, ml);
+    BandCopy(cvdls_mem->d_M, cvdls_mem->d_savedJ,
+             cvdls_mem->d_mu, cvdls_mem->d_ml);
 
   }
   
   /* Scale and add I to get M = I - gamma*J */
-  BandScale(-gamma, M);
-  AddIdentity(M);
+  BandScale(-cv_mem->cv_gamma, cvdls_mem->d_M);
+  AddIdentity(cvdls_mem->d_M);
 
   /* Do LU factorization of M */
-  ier = BandGBTRF(M, lpivots);
+  ier = BandGBTRF(cvdls_mem->d_M, cvdls_mem->d_lpivots);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
   if (ier > 0) {
-    last_flag = (long int) ier;
+    cvdls_mem->d_last_flag = (long int) ier;
     return(1);
   }
-  last_flag = CVDLS_SUCCESS;
+  cvdls_mem->d_last_flag = CVDLS_SUCCESS;
   return(0);
 }
 
@@ -335,18 +304,18 @@ static int cvBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   CVDlsMem cvdls_mem;
   realtype *bd;
 
-  cvdls_mem = (CVDlsMem) lmem;
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
   bd = N_VGetArrayPointer(b);
 
-  BandGBTRS(M, lpivots, bd);
+  BandGBTRS(cvdls_mem->d_M, cvdls_mem->d_lpivots, bd);
 
   /* If CV_BDF, scale the correction to account for change in gamma */
-  if ((lmm == CV_BDF) && (gamrat != ONE)) {
-    N_VScale(TWO/(ONE + gamrat), b, b);
+  if ((cv_mem->cv_lmm == CV_BDF) && (cv_mem->cv_gamrat != ONE)) {
+    N_VScale(TWO/(ONE + cv_mem->cv_gamrat), b, b);
   }
 
-  last_flag = CVDLS_SUCCESS;
+  cvdls_mem->d_last_flag = CVDLS_SUCCESS;
   return(0);
 }
 
@@ -362,11 +331,11 @@ static int cvBandFree(CVodeMem cv_mem)
 {
   CVDlsMem cvdls_mem;
 
-  cvdls_mem = (CVDlsMem) lmem;
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
-  DestroyMat(M);
-  DestroyMat(savedJ);
-  DestroyArray(lpivots);
+  DestroyMat(cvdls_mem->d_M);
+  DestroyMat(cvdls_mem->d_savedJ);
+  DestroyArray(cvdls_mem->d_lpivots);
   free(cvdls_mem);
   cv_mem->cv_lmem = NULL;
 
