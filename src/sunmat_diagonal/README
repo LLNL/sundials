@@ -1,0 +1,40 @@
+                     SUNMATRIX_DIAGONAL
+                 released as part of SUNDIALS
+    SUite of Nonlinear and DIfferential/ALgebraic equation Solvers
+                   Release 3.0.0, September 2017
+
+
+Diagonal implementation of the SUNMATRIX module for SUNDIALS. 
+
+SUNMATRIX_DIAGONAL defines the content field of SUNMatrix to be a structure 
+containing a single N_Vector, for the diagonal of the matrix.
+
+SUNMATRIX_DIAGONAL defines two macros to provide access to the content of 
+a diagonal SUNMatrix, a constructor for variables of type SUNMatrix, and
+destructors for SUNMatrix.
+
+SUNMATRIX_DIAGONAL provides implementations for all matrix operations defined
+by the generic SUNMATRIX module in the table of operations.
+
+
+A. Documentation
+----------------
+
+The diagonal SUNMATRIX implementation is fully described in the user
+documentation for any of the SUNDIALS solvers. A PDF file for the user
+guide for a particular solver is available in the solver's
+subdirectory under doc/. 
+
+
+B. Installation
+---------------
+
+For basic installation instructions see /sundials/INSTALL_GUIDE.pdf. 
+For complete installation instructions see any of the user guides.
+
+
+D. Releases
+-----------
+v. 1.0   - date?
+
+
