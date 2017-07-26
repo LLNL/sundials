@@ -24,13 +24,13 @@
  * of the supplied SUNLINSOL module.
  * 
  * Part II contains the prototype for the constructor 
- * SLSNew_Dense as well as implementation-specific prototypes 
- * for various useful matrix operations.
+ * SUNDenseLinearSolver as well as implementation-specific 
+ * prototypes for various useful matrix operations.
  *
  * Notes:
  *
- *   - The definition of the generic SUNLinearSolver structure can be found
- *     in the header file sundials_linearsolver.h.
+ *   - The definition of the generic SUNLinearSolver structure can 
+ *     be found in the header file sundials_linearsolver.h.
  *
  *   - The definition of the type 'realtype' can be found in the
  *     header file sundials_types.h, and it may be changed (at the 
