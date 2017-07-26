@@ -79,44 +79,6 @@ static int cvLapackBandFreeB(CVodeBMem cvB_mem);
  * ================================================================
  */
 
-/* Readability Replacements */
-
-#define lmm            (cv_mem->cv_lmm)
-#define f              (cv_mem->cv_f)
-#define uround         (cv_mem->cv_uround)
-#define nst            (cv_mem->cv_nst)
-#define tn             (cv_mem->cv_tn)
-#define h              (cv_mem->cv_h)
-#define gamma          (cv_mem->cv_gamma)
-#define gammap         (cv_mem->cv_gammap)
-#define gamrat         (cv_mem->cv_gamrat)
-#define ewt            (cv_mem->cv_ewt)
-
-#define linit          (cv_mem->cv_linit)
-#define lsetup         (cv_mem->cv_lsetup)
-#define lsolve         (cv_mem->cv_lsolve)
-#define lfree          (cv_mem->cv_lfree)
-#define lmem           (cv_mem->cv_lmem)
-#define tempv          (cv_mem->cv_tempv)
-#define setupNonNull   (cv_mem->cv_setupNonNull)
-
-#define mtype          (cvdls_mem->d_type)
-#define n              (cvdls_mem->d_n)
-#define jacDQ          (cvdls_mem->d_jacDQ)
-#define djac           (cvdls_mem->d_djac)
-#define bjac           (cvdls_mem->d_bjac)
-#define M              (cvdls_mem->d_M)
-#define mu             (cvdls_mem->d_mu)
-#define ml             (cvdls_mem->d_ml)
-#define smu            (cvdls_mem->d_smu)
-#define pivots         (cvdls_mem->d_pivots)
-#define savedJ         (cvdls_mem->d_savedJ)
-#define nstlj          (cvdls_mem->d_nstlj)
-#define nje            (cvdls_mem->d_nje)
-#define nfeDQ          (cvdls_mem->d_nfeDQ)
-#define J_data         (cvdls_mem->d_J_data)
-#define last_flag      (cvdls_mem->d_last_flag)
-
 /*
  * -----------------------------------------------------------------
  * CVLapackDense
@@ -154,19 +116,19 @@ int CVLapackDense(void *cvode_mem, int N)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the CVSLAPACK solver */
-  if (tempv->ops->nvgetarraypointer == NULL ||
-      tempv->ops->nvsetarraypointer == NULL) {
+  if (cv_mem->cv_tempv->ops->nvgetarraypointer == NULL ||
+      cv_mem->cv_tempv->ops->nvsetarraypointer == NULL) {
     cvProcessError(cv_mem, CVDLS_ILL_INPUT, "CVSLAPACK", "CVLapackDense", MSGD_BAD_NVECTOR);
     return(CVDLS_ILL_INPUT);
   }
 
-  if (lfree !=NULL) lfree(cv_mem);
+  if (cv_mem->cv_lfree !=NULL) cv_mem->cv_lfree(cv_mem);
 
   /* Set four main function fields in cv_mem */
-  linit  = cvLapackDenseInit;
-  lsetup = cvLapackDenseSetup;
-  lsolve = cvLapackDenseSolve;
-  lfree  = cvLapackDenseFree;
+  cv_mem->cv_linit  = cvLapackDenseInit;
+  cv_mem->cv_lsetup = cvLapackDenseSetup;
+  cv_mem->cv_lsolve = cvLapackDenseSolve;
+  cv_mem->cv_lfree  = cvLapackDenseFree;
 
   /* Get memory for CVDlsMemRec */
   cvdls_mem = NULL;
@@ -177,49 +139,49 @@ int CVLapackDense(void *cvode_mem, int N)
   }
 
   /* Set matrix type */
-  mtype = SUNDIALS_DENSE;
+  cvdls_mem->d_type = SUNDIALS_DENSE;
 
   /* Initialize Jacobian-related data */
-  jacDQ  = TRUE;
-  djac   = NULL;
-  J_data = NULL;
+  cvdls_mem->d_jacDQ  = TRUE;
+  cvdls_mem->d_djac   = NULL;
+  cvdls_mem->d_J_data = NULL;
 
-  last_flag = CVDLS_SUCCESS;
+  cvdls_mem->d_last_flag = CVDLS_SUCCESS;
   cvDlsInitializeCounters(cvdls_mem);  
-  setupNonNull = TRUE;
+  cv_mem->cv_setupNonNull = TRUE;
 
   /* Set problem dimension */
-  n = (sunindextype) N;
+  cvdls_mem->d_n = (sunindextype) N;
 
   /* Allocate memory for M, pivot array, and (if needed) savedJ */
-  M = NULL;
-  pivots = NULL;
-  savedJ = NULL;
+  cvdls_mem->d_M = NULL;
+  cvdls_mem->d_pivots = NULL;
+  cvdls_mem->d_savedJ = NULL;
 
-  M = NewDenseMat(n, n);
-  if (M == NULL) {
+  cvdls_mem->d_M = NewDenseMat(cvdls_mem->d_n, cvdls_mem->d_n);
+  if (cvdls_mem->d_M == NULL) {
     cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSLAPACK", "CVLapackDense", MSGD_MEM_FAIL);
     free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
-  pivots = NewIntArray(N);
-  if (pivots == NULL) {
+  cvdls_mem->d_pivots = NewIntArray(N);
+  if (cvdls_mem->d_pivots == NULL) {
     cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSLAPACK", "CVLapackDense", MSGD_MEM_FAIL);
-    DestroyMat(M);
+    DestroyMat(cvdls_mem->d_M);
     free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
-  savedJ = NewDenseMat(n, n);
-  if (savedJ == NULL) {
+  cvdls_mem->d_savedJ = NewDenseMat(cvdls_mem->d_n, cvdls_mem->d_n);
+  if (cvdls_mem->d_savedJ == NULL) {
     cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSLAPACK", "CVLapackDense", MSGD_MEM_FAIL);
-    DestroyMat(M);
-    DestroyArray(pivots);
+    DestroyMat(cvdls_mem->d_M);
+    DestroyArray(cvdls_mem->d_pivots);
     free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
 
   /* Attach linear solver memory to integrator memory */
-  lmem = cvdls_mem;
+  cv_mem->cv_lmem = cvdls_mem;
 
   return(CVDLS_SUCCESS);
 }
@@ -262,18 +224,18 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
-  if (tempv->ops->nvgetarraypointer == NULL) {
+  if (cv_mem->cv_tempv->ops->nvgetarraypointer == NULL) {
     cvProcessError(cv_mem, CVDLS_ILL_INPUT, "CVSLAPACK", "CVLapackBand", MSGD_BAD_NVECTOR);
     return(CVDLS_ILL_INPUT);
   }
 
-  if (lfree != NULL) lfree(cv_mem);
+  if (cv_mem->cv_lfree != NULL) cv_mem->cv_lfree(cv_mem);
 
   /* Set four main function fields in cv_mem */  
-  linit  = cvLapackBandInit;
-  lsetup = cvLapackBandSetup;
-  lsolve = cvLapackBandSolve;
-  lfree  = cvLapackBandFree;
+  cv_mem->cv_linit  = cvLapackBandInit;
+  cv_mem->cv_lsetup = cvLapackBandSetup;
+  cv_mem->cv_lsolve = cvLapackBandSolve;
+  cv_mem->cv_lfree  = cvLapackBandFree;
   
   /* Get memory for CVDlsMemRec */
   cvdls_mem = NULL;
@@ -284,63 +246,66 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
   }
 
   /* Set matrix type */
-  mtype = SUNDIALS_BAND;
+  cvdls_mem->d_type = SUNDIALS_BAND;
 
   /* Initialize Jacobian-related data */
-  jacDQ  = TRUE;
-  bjac   = NULL;
-  J_data = NULL;
+  cvdls_mem->d_jacDQ  = TRUE;
+  cvdls_mem->d_bjac   = NULL;
+  cvdls_mem->d_J_data = NULL;
 
-  last_flag = CVDLS_SUCCESS;
+  cvdls_mem->d_last_flag = CVDLS_SUCCESS;
   cvDlsInitializeCounters(cvdls_mem);  
-  setupNonNull = TRUE;
+  cv_mem->cv_setupNonNull = TRUE;
   
   /* Load problem dimension */
-  n = (sunindextype) N;
+  cvdls_mem->d_n = (sunindextype) N;
 
   /* Load half-bandwiths in cvdls_mem */
-  ml = (sunindextype) mlower;
-  mu = (sunindextype) mupper;
+  cvdls_mem->d_ml = (sunindextype) mlower;
+  cvdls_mem->d_mu = (sunindextype) mupper;
 
   /* Test ml and mu for legality */
-  if ((ml < 0) || (mu < 0) || (ml >= n) || (mu >= n)) {
+  if ((cvdls_mem->d_ml < 0) || (cvdls_mem->d_mu < 0) ||
+      (cvdls_mem->d_ml >= cvdls_mem->d_n) || (cvdls_mem->d_mu >= cvdls_mem->d_n)) {
     cvProcessError(cv_mem, CVDLS_ILL_INPUT, "CVSLAPACK", "CVLapackBand", MSGD_BAD_SIZES);
     free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_ILL_INPUT);
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
-  smu = mu + ml;
+  cvdls_mem->d_smu = cvdls_mem->d_mu + cvdls_mem->d_ml;
 
   /* Allocate memory for M, savedJ, and pivot arrays */
-  M = NULL;
-  pivots = NULL;
-  savedJ = NULL;
+  cvdls_mem->d_M = NULL;
+  cvdls_mem->d_pivots = NULL;
+  cvdls_mem->d_savedJ = NULL;
 
-  M = NewBandMat(n, mu, ml, smu);
-  if (M == NULL) {
+  cvdls_mem->d_M = NewBandMat(cvdls_mem->d_n, cvdls_mem->d_mu,
+                              cvdls_mem->d_ml, cvdls_mem->d_smu);
+  if (cvdls_mem->d_M == NULL) {
     cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSLAPACK", "CVLapackBand", MSGD_MEM_FAIL);
     free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }  
-  pivots = NewIntArray(N);
-  if (pivots == NULL) {
+  cvdls_mem->d_pivots = NewIntArray(N);
+  if (cvdls_mem->d_pivots == NULL) {
     cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSLAPACK", "CVLapackBand", MSGD_MEM_FAIL);
-    DestroyMat(M);
+    DestroyMat(cvdls_mem->d_M);
     free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
-  savedJ = NewBandMat(n, mu, ml, smu);
-  if (savedJ == NULL) {
+  cvdls_mem->d_savedJ = NewBandMat(cvdls_mem->d_n, cvdls_mem->d_mu,
+                                   cvdls_mem->d_ml, cvdls_mem->d_smu);
+  if (cvdls_mem->d_savedJ == NULL) {
     cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSLAPACK", "CVLapackBand", MSGD_MEM_FAIL);
-    DestroyMat(M);
-    DestroyArray(pivots);
+    DestroyMat(cvdls_mem->d_M);
+    DestroyArray(cvdls_mem->d_pivots);
     free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
 
   /* Attach linear solver memory to integrator memory */
-  lmem = cvdls_mem;
+  cv_mem->cv_lmem = cvdls_mem;
 
   return(CVDLS_SUCCESS);
 }
@@ -359,19 +324,19 @@ static int cvLapackDenseInit(CVodeMem cv_mem)
 {
   CVDlsMem cvdls_mem;
 
-  cvdls_mem = (CVDlsMem) lmem;
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
   
   cvDlsInitializeCounters(cvdls_mem);  
 
   /* Set Jacobian function and data, depending on jacDQ */
-  if (jacDQ) {
-    djac = cvDlsDenseDQJac;
-    J_data = cv_mem;
+  if (cvdls_mem->d_jacDQ) {
+    cvdls_mem->d_djac = cvDlsDenseDQJac;
+    cvdls_mem->d_J_data = cv_mem;
   } else {
-    J_data = cv_mem->cv_user_data;
+    cvdls_mem->d_J_data = cv_mem->cv_user_data;
   }
 
-  last_flag = CVDLS_SUCCESS;
+  cvdls_mem->d_last_flag = CVDLS_SUCCESS;
   return(0);
 }
 
@@ -393,13 +358,14 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
   int ier, retval, one = 1;
   int intn, lenmat;
 
-  cvdls_mem = (CVDlsMem) lmem;
-  intn = (int) n;
-  lenmat = M->ldata;
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
+  intn = (int) cvdls_mem->d_n;
+  lenmat = cvdls_mem->d_M->ldata;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-  dgamma = SUNRabs((gamma/gammap) - ONE);
-  jbad = (nst == 0) || (nst > nstlj + CVD_MSBJ) ||
+  dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
+  jbad = (cv_mem->cv_nst == 0) ||
+    (cv_mem->cv_nst > cvdls_mem->d_nstlj + CVD_MSBJ) ||
     ((convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
     (convfail == CV_FAIL_OTHER);
   jok = !jbad;
@@ -408,42 +374,46 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
     
     /* If jok = TRUE, use saved copy of J */
     *jcurPtr = FALSE;
-    dcopy_f77(&lenmat, savedJ->data, &one, M->data, &one);
+    dcopy_f77(&lenmat, cvdls_mem->d_savedJ->data, &one,
+              cvdls_mem->d_M->data, &one);
     
   } else {
     
     /* If jok = FALSE, call jac routine for new J value */
-    nje++;
-    nstlj = nst;
+    cvdls_mem->d_nje++;
+    cvdls_mem->d_nstlj = cv_mem->cv_nst;
     *jcurPtr = TRUE;
-    SetToZero(M);
+    SetToZero(cvdls_mem->d_M);
 
-    retval = djac(n, tn, yP, fctP, M, J_data, tmp1, tmp2, tmp3);
+    retval = cvdls_mem->d_djac(cvdls_mem->d_n, cv_mem->cv_tn,
+                               yP, fctP, cvdls_mem->d_M, cvdls_mem->d_J_data,
+                               tmp1, tmp2, tmp3);
     if (retval == 0) {
-      dcopy_f77(&lenmat, M->data, &one, savedJ->data, &one);
+      dcopy_f77(&lenmat, cvdls_mem->d_M->data, &one, cvdls_mem->d_savedJ->data, &one);
     } else if (retval < 0) {
       cvProcessError(cv_mem, CVDLS_JACFUNC_UNRECVR, "CVSLAPACK", "cvLapackDenseSetup", MSGD_JACFUNC_FAILED);
-      last_flag = CVDLS_JACFUNC_UNRECVR;
+      cvdls_mem->d_last_flag = CVDLS_JACFUNC_UNRECVR;
       return(-1);
     } else if (retval > 0) {
-      last_flag = CVDLS_JACFUNC_RECVR;
+      cvdls_mem->d_last_flag = CVDLS_JACFUNC_RECVR;
       return(1);
     }
     
   }
 
   /* Scale J by - gamma */
-  fact = -gamma;
-  dscal_f77(&lenmat, &fact, M->data, &one);
+  fact = -cv_mem->cv_gamma;
+  dscal_f77(&lenmat, &fact, cvdls_mem->d_M->data, &one);
   
   /* Add identity to get M = I - gamma*J*/
-  AddIdentity(M);
+  AddIdentity(cvdls_mem->d_M);
 
   /* Do LU factorization of M */
-  dgetrf_f77(&intn, &intn, M->data, &intn, pivots, &ier);
+  dgetrf_f77(&intn, &intn, cvdls_mem->d_M->data,
+             &intn, cvdls_mem->d_pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  last_flag = (long int) ier;
+  cvdls_mem->d_last_flag = (long int) ier;
   if (ier > 0) return(1);
   return(0);
 }
@@ -460,22 +430,23 @@ static int cvLapackDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   int ier, one = 1;
   int intn;
 
-  cvdls_mem = (CVDlsMem) lmem;
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
-  intn = (int) n;
+  intn = (int) cvdls_mem->d_n;
 
   bd = N_VGetArrayPointer(b);
 
-  dgetrs_f77("N", &intn, &one, M->data, &intn, pivots, bd, &intn, &ier, 1); 
+  dgetrs_f77("N", &intn, &one, cvdls_mem->d_M->data, &intn,
+             cvdls_mem->d_pivots, bd, &intn, &ier, 1); 
   if (ier > 0) return(1);
 
   /* For BDF, scale the correction to account for change in gamma */
-  if ((lmm == CV_BDF) && (gamrat != ONE)) {
-    fact = TWO/(ONE + gamrat);
+  if ((cv_mem->cv_lmm == CV_BDF) && (cv_mem->cv_gamrat != ONE)) {
+    fact = TWO/(ONE + cv_mem->cv_gamrat);
     dscal_f77(&intn, &fact, bd, &one); 
   }
   
-  last_flag = CVDLS_SUCCESS;
+  cvdls_mem->d_last_flag = CVDLS_SUCCESS;
   return(0);
 }
 
@@ -486,11 +457,11 @@ static int cvLapackDenseFree(CVodeMem cv_mem)
 {
   CVDlsMem  cvdls_mem;
 
-  cvdls_mem = (CVDlsMem) lmem;
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
   
-  DestroyMat(M);
-  DestroyArray(pivots);
-  DestroyMat(savedJ);
+  DestroyMat(cvdls_mem->d_M);
+  DestroyArray(cvdls_mem->d_pivots);
+  DestroyMat(cvdls_mem->d_savedJ);
   free(cvdls_mem); 
   cvdls_mem = NULL;
 
@@ -511,19 +482,19 @@ static int cvLapackBandInit(CVodeMem cv_mem)
 {
   CVDlsMem cvdls_mem;
 
-  cvdls_mem = (CVDlsMem) lmem;
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
   cvDlsInitializeCounters(cvdls_mem);  
 
   /* Set Jacobian function and data, depending on jacDQ */
-  if (jacDQ) {
-    bjac = cvDlsBandDQJac;
-    J_data = cv_mem;
+  if (cvdls_mem->d_jacDQ) {
+    cvdls_mem->d_bjac = cvDlsBandDQJac;
+    cvdls_mem->d_J_data = cv_mem;
   } else {
-    J_data = cv_mem->cv_user_data;
+    cvdls_mem->d_J_data = cv_mem->cv_user_data;
   }
 
-  last_flag = CVDLS_SUCCESS;
+  cvdls_mem->d_last_flag = CVDLS_SUCCESS;
   return(0);
 }
 
@@ -545,17 +516,18 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
   int ier, retval, one = 1;
   int intn, iml, imu, lenmat, ldmat;
 
-  cvdls_mem = (CVDlsMem) lmem;
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
-  intn = (int) n;
-  iml = (int) ml;
-  imu = (int) mu;
-  lenmat = M->ldata;
-  ldmat = M->ldim;
+  intn = (int) cvdls_mem->d_n;
+  iml = (int) cvdls_mem->d_ml;
+  imu = (int) cvdls_mem->d_mu;
+  lenmat = cvdls_mem->d_M->ldata;
+  ldmat = cvdls_mem->d_M->ldim;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-  dgamma = SUNRabs((gamma/gammap) - ONE);
-  jbad = (nst == 0) || (nst > nstlj + CVD_MSBJ) ||
+  dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
+  jbad = (cv_mem->cv_nst == 0) ||
+    (cv_mem->cv_nst > cvdls_mem->d_nstlj + CVD_MSBJ) ||
     ((convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
     (convfail == CV_FAIL_OTHER);
   jok = !jbad;
@@ -564,42 +536,48 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
     
     /* If jok = TRUE, use saved copy of J */
     *jcurPtr = FALSE;
-    dcopy_f77(&lenmat, savedJ->data, &one, M->data, &one);
+    dcopy_f77(&lenmat, cvdls_mem->d_savedJ->data, &one,
+              cvdls_mem->d_M->data, &one);
     
   } else {
     
     /* If jok = FALSE, call jac routine for new J value */
-    nje++;
-    nstlj = nst;
+    cvdls_mem->d_nje++;
+    cvdls_mem->d_nstlj = cv_mem->cv_nst;
     *jcurPtr = TRUE;
-    SetToZero(M); 
+    SetToZero(cvdls_mem->d_M); 
 
-    retval = bjac(n, mu, ml, tn, yP, fctP, M, J_data, tmp1, tmp2, tmp3);
+    retval = cvdls_mem->d_bjac(cvdls_mem->d_n, cvdls_mem->d_mu,
+                               cvdls_mem->d_ml, cv_mem->cv_tn, yP, fctP,
+                               cvdls_mem->d_M, cvdls_mem->d_J_data,
+                               tmp1, tmp2, tmp3);
     if (retval == 0) {
-      dcopy_f77(&lenmat, M->data, &one, savedJ->data, &one);
+      dcopy_f77(&lenmat, cvdls_mem->d_M->data, &one,
+                cvdls_mem->d_savedJ->data, &one);
     } else if (retval < 0) {
       cvProcessError(cv_mem, CVDLS_JACFUNC_UNRECVR, "CVSLAPACK", "cvLapackBandSetup", MSGD_JACFUNC_FAILED);
-      last_flag = CVDLS_JACFUNC_UNRECVR;
+      cvdls_mem->d_last_flag = CVDLS_JACFUNC_UNRECVR;
       return(-1);
     } else if (retval > 0) {
-      last_flag = CVDLS_JACFUNC_RECVR;
+      cvdls_mem->d_last_flag = CVDLS_JACFUNC_RECVR;
       return(1);
     }
     
   }
   
   /* Scale J by - gamma */
-  fact = -gamma;
-  dscal_f77(&lenmat, &fact, M->data, &one);
+  fact = -cv_mem->cv_gamma;
+  dscal_f77(&lenmat, &fact, cvdls_mem->d_M->data, &one);
   
   /* Add identity to get M = I - gamma*J*/
-  AddIdentity(M);
+  AddIdentity(cvdls_mem->d_M);
   
   /* Do LU factorization of M */
-  dgbtrf_f77(&intn, &intn, &iml, &imu, M->data, &ldmat, pivots, &ier);
+  dgbtrf_f77(&intn, &intn, &iml, &imu, cvdls_mem->d_M->data,
+             &ldmat, cvdls_mem->d_pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  last_flag = (long int) ier;
+  cvdls_mem->d_last_flag = (long int) ier;
   if (ier > 0) return(1);
   return(0);
 
@@ -617,25 +595,26 @@ static int cvLapackBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   int ier, one = 1;
   int intn, iml, imu, ldmat;
 
-  cvdls_mem = (CVDlsMem) lmem;
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
-  intn = (int) n;
-  iml = (int) ml;
-  imu = (int) mu;
-  ldmat = M->ldim;
+  intn = (int) cvdls_mem->d_n;
+  iml = (int) cvdls_mem->d_ml;
+  imu = (int) cvdls_mem->d_mu;
+  ldmat = cvdls_mem->d_M->ldim;
 
   bd = N_VGetArrayPointer(b);
 
-  dgbtrs_f77("N", &intn, &iml, &imu, &one, M->data, &ldmat, pivots, bd, &intn, &ier, 1);
+  dgbtrs_f77("N", &intn, &iml, &imu, &one, cvdls_mem->d_M->data,
+             &ldmat, cvdls_mem->d_pivots, bd, &intn, &ier, 1);
   if (ier > 0) return(1);
 
   /* For BDF, scale the correction to account for change in gamma */
-  if ((lmm == CV_BDF) && (gamrat != ONE)) {
-    fact = TWO/(ONE + gamrat);
+  if ((cv_mem->cv_lmm == CV_BDF) && (cv_mem->cv_gamrat != ONE)) {
+    fact = TWO/(ONE + cv_mem->cv_gamrat);
     dscal_f77(&intn, &fact, bd, &one); 
   }
 
-  last_flag = CVDLS_SUCCESS;
+  cvdls_mem->d_last_flag = CVDLS_SUCCESS;
   return(0);
 }
 
@@ -646,11 +625,11 @@ static int cvLapackBandFree(CVodeMem cv_mem)
 {
   CVDlsMem  cvdls_mem;
 
-  cvdls_mem = (CVDlsMem) lmem;
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
   
-  DestroyMat(M);
-  DestroyArray(pivots);
-  DestroyMat(savedJ);
+  DestroyMat(cvdls_mem->d_M);
+  DestroyArray(cvdls_mem->d_pivots);
+  DestroyMat(cvdls_mem->d_savedJ);
   free(cvdls_mem); 
   cvdls_mem = NULL;
 

@@ -46,13 +46,6 @@
 /*END          CVODEC Error Messages                               */
 /*=================================================================*/
 
-/* Readibility Replacements */
-#define errfp  (cv_mem->cv_errfp)
-#define uround (cv_mem->cv_uround)
-#define lmem   (cv_mem->cv_lmem)
-#define csmem  (cv_mem->cv_csmem)
-#define nvspec (cv_mem->cv_nvspec)
-
 /*=================================================================*/
 /*BEGIN        EXPORTED FUNCTIONS IMPLEMENTATION                   */
 /*=================================================================*/
@@ -82,12 +75,12 @@ int CVodeSetCSDerivs(void *cvode_mem, void *f_cs, void *f_data_im)
 
   cvcs_mem = (CVCSMem) malloc(sizeof(CVCSMemRec));
   if (cvcs_mem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
+    if(cv_mem->cv_errfp!=NULL) fprintf(cv_mem->cv_errfp, MSG_MEM_FAIL);
     return(CVCS_MEM_FAIL);
   }
 
   if (f_cs == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_FCS_NULL);
+    if(cv_mem->cv_errfp!=NULL) fprintf(cv_mem->cv_errfp, MSG_FCS_NULL);
     return(CVCS_ILL_INPUT);
   }
 
@@ -103,12 +96,12 @@ int CVodeSetCSDerivs(void *cvode_mem, void *f_cs, void *f_data_im)
 
   cvcs_mem->cvcs_f_data_im = f_data_im;
 
-  cvcs_mem->cvcs_del_cs    = uround;
+  cvcs_mem->cvcs_del_cs    = cv_mem->cv_uround;
 
   cvcs_mem->cvcs_p_im      = NULL;
   
   /* attach cs memory to main CVODES memory */
-  csmem = cvcs_mem;
+  cv_mem->cv_csmem = cvcs_mem;
 
   return(SUCCESS);
   
@@ -132,15 +125,15 @@ int CVodeSetCSStep(void *cvode_mem, realtype del_cs)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (csmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_Step_NO_CSMEM);
+  if (cv_mem->cv_csmem == NULL) {
+    if(cv_mem->cv_errfp!=NULL) fprintf(cv_mem->cv_errfp, MSG_Step_NO_CSMEM);
     return(CVCS_NO_CSMEM);
   }
 
-  cvcs_mem = (CVCSMem) csmem;
+  cvcs_mem = (CVCSMem) cv_mem->cv_csmem;
 
-  if (del_cs < uround) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_DEL, del_cs, uround);
+  if (del_cs < cv_mem->cv_uround) {
+    if(cv_mem->cv_errfp!=NULL) fprintf(cv_mem->cv_errfp, MSG_BAD_DEL, del_cs, cv_mem->cv_uround);
     return(CVCS_ILL_INPUT);
   }
 
@@ -166,15 +159,15 @@ int CVodeSetSensCSRhs(void *cvode_mem, realtype *p_im)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (csmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_Sens_NO_CSMEM);
+  if (cv_mem->cv_csmem == NULL) {
+    if(cv_mem->cv_errfp!=NULL) fprintf(cv_mem->cv_errfp, MSG_Sens_NO_CSMEM);
     return(CVCS_NO_CSMEM);
   }
 
-  cvcs_mem = (CVCSMem) csmem;
+  cvcs_mem = (CVCSMem) cv_mem->cv_csmem;
 
   if (p_im == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_PIM_NULL);
+    if(cv_mem->cv_errfp!=NULL) fprintf(cv_mem->cv_errfp, MSG_PIM_NULL);
     return(CVCS_ILL_INPUT);
   }
 
@@ -206,12 +199,12 @@ int CVDenseSetCSJac(void *cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_NO_DENSEMEM);
+  if (cv_mem->cv_lmem == NULL) {
+    if(cv_mem->cv_errfp!=NULL) fprintf(cv_mem->cv_errfp, MSG_NO_DENSEMEM);
     return(CVCS_NO_LMEM);
   }
 
-  cvdense_mem = (CVDenseMem) lmem;
+  cvdense_mem = (CVDenseMem) cv_mem->cv_lmem;
 
   cvdense_mem->d_jac = CVDenseCSJac;
   cvdense_mem->d_J_data = cvode_mem;
@@ -236,12 +229,12 @@ int CVBandSetCSJac(void *cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_NO_BANDMEM);
+  if (cv_mem->cv_lmem == NULL) {
+    if(cv_mem->cv_errfp!=NULL) fprintf(cv_mem->cv_errfp, MSG_NO_BANDMEM);
     return(CVCS_NO_LMEM);
   }
 
-  cvband_mem = (CVBandMem) lmem;
+  cvband_mem = (CVBandMem) cv_mem->cv_lmem;
 
   cvband_mem->b_jac = CVBandCSJac;
   cvband_mem->b_J_data = cvode_mem;
@@ -266,12 +259,12 @@ int CVSpgmrSetCSJacTimesVec(void *cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_NO_SPGMRMEM);
+  if (cv_mem->cv_lmem == NULL) {
+    if(cv_mem->cv_errfp!=NULL) fprintf(cv_mem->cv_errfp, MSG_NO_SPGMRMEM);
     return(CVCS_NO_LMEM);
   }
 
-  cvspgmr_mem = (CVSpgmrMem) lmem;
+  cvspgmr_mem = (CVSpgmrMem) cv_mem->cv_lmem;
 
   cvspgmr_mem->g_jtimes = CVSpgmrCSJtimes;
   cvspgmr_mem->g_j_data = cvode_mem;
@@ -287,18 +280,6 @@ int CVSpgmrSetCSJacTimesVec(void *cvode_mem)
 /*=================================================================*/
 /*BEGIN        CS Approximation Routines                           */
 /*=================================================================*/
-
-/* Readibility Replacements */
-#define f_data_re (cv_mem->cv_f_data)
-#define plist     (cv_mem->cv_plist)
-
-#define type1     (cvcs_mem->cvcs_type1)
-#define f_cs1     (cvcs_mem->cvcs_f_cs1)
-#define f_cs2     (cvcs_mem->cvcs_f_cs2)
-#define f_data_im (cvcs_mem->cvcs_f_data_im)
-#define del_cs    (cvcs_mem->cvcs_del_cs)
-#define p_im      (cvcs_mem->cvcs_p_im)
-
 
 /*-----------------   CVSensRhsCS   -------------------------------*/
 /*
@@ -322,10 +303,10 @@ void CVSensRhsCS(int Ns, realtype t,
 
   /* fS_data points to cvode_mem */
   cv_mem = (CVodeMem) fS_data;
-  cvcs_mem = (CVCSMem) csmem;
+  cvcs_mem = (CVCSMem) cv_mem->cv_csmem;
 
-  if (plist!=NULL)
-    which   = abs(plist[iS]) - 1;
+  if (cv_mem->cv_plist!=NULL)
+    which   = abs(cv_mem->cv_plist[iS]) - 1;
   else
     which  = iS;
  
@@ -334,18 +315,18 @@ void CVSensRhsCS(int Ns, realtype t,
   f_re = tmp2;
   f_im = ySdot;
 
-  N_VScale(del_cs, yS, y_im);
+  N_VScale(cvcs_mem->cvcs_del_cs, yS, y_im);
 
-  p_im[which] = del_cs;
+  cvcs_mem->cvcs_p_im[which] = cvcs_mem->cvcs_del_cs;
 
-  if (type1)
-    f_cs1(t, 0.0, y_re, y_im, f_re, f_im, f_data_re);
+  if (cvcs_mem->cvcs_type1)
+    cvcs_mem->cvcs_f_cs1(t, 0.0, y_re, y_im, f_re, f_im, cv_mem->cv_f_data);
   else
-    f_cs2(t, 0.0, y_re, y_im, f_re, f_im, f_data_re, f_data_im);
+    cvcs_mem->cvcs_f_cs2(t, 0.0, y_re, y_im, f_re, f_im, cv_mem->cv_f_data, cvcs_mem->cvcs_f_data_im);
 
-  N_VScale(ONE/del_cs, f_im, ySdot);
+  N_VScale(ONE/cvcs_mem->cvcs_del_cs, f_im, ySdot);
 
-  p_im[which] = ZERO;
+  cvcs_mem->cvcs_p_im[which] = ZERO;
 
 }
 
@@ -369,7 +350,7 @@ void CVDenseCSJac(sunindextype N, DenseMat J, realtype t,
 
   /* jac_data points to cvode_mem */
   cv_mem = (CVodeMem) jac_data;
-  cvcs_mem = (CVCSMem) csmem;
+  cvcs_mem = (CVCSMem) cv_mem->cv_csmem;
 
   y_re = y;
   y_im = tmp1;
@@ -379,16 +360,16 @@ void CVDenseCSJac(sunindextype N, DenseMat J, realtype t,
   N_VConst(ZERO, y_im);
   ydata_im = (realtype *) N_VGetData(y_im);
 
-  jthCol = N_VMake((void *)DENSE_COL(J,0), nvspec);
+  jthCol = N_VMake((void *)DENSE_COL(J,0), cv_mem->cv_nvspec);
 
   for (j=0; j < N; j++) {
     N_VSetData((void *)DENSE_COL(J,j), jthCol);
-    ydata_im[j] = del_cs;
-    if (type1)
-      f_cs1(t, 0.0, y_re, y_im, f_re, f_im, f_data_re);
+    ydata_im[j] = cvcs_mem->cvcs_del_cs;
+    if (cvcs_mem->cvcs_type1)
+      cvcs_mem->cvcs_f_cs1(t, 0.0, y_re, y_im, f_re, f_im, cv_mem->cv_f_data);
     else
-      f_cs2(t, 0.0, y_re, y_im, f_re, f_im, f_data_re, f_data_im);
-    N_VScale(ONE/del_cs, f_im, jthCol);
+      cvcs_mem->cvcs_f_cs2(t, 0.0, y_re, y_im, f_re, f_im, cv_mem->cv_f_data, cvcs_mem->cvcs_f_data_im);
+    N_VScale(ONE/cvcs_mem->cvcs_del_cs, f_im, jthCol);
     DENSE_COL(J,j) = (realtype *) N_VGetData(jthCol);
     ydata_im[j] = ZERO;
   }
@@ -417,7 +398,7 @@ void CVBandCSJac(sunindextype N, sunindextype mupper,
 
   /* jac_data points to cvode_mem */
   cv_mem = (CVodeMem) jac_data;
-  cvcs_mem = (CVCSMem) csmem;
+  cvcs_mem = (CVCSMem) cv_mem->cv_csmem;
 
   y_re = y;
   y_im = tmp1;
@@ -434,12 +415,12 @@ void CVBandCSJac(sunindextype N, sunindextype mupper,
   for (group=1; group <= ngroups; group++) {
 
     for(j=group-1; j < N; j+=width)
-      ydata_im[j] = del_cs;
+      ydata_im[j] = cvcs_mem->cvcs_del_cs;
 
-    if (type1)
-      f_cs1(t, 0.0, y_re, y_im, f_re, f_im, f_data_re);
+    if (cvcs_mem->cvcs_type1)
+      cvcs_mem->cvcs_f_cs1(t, 0.0, y_re, y_im, f_re, f_im, cv_mem->cv_f_data);
     else
-      f_cs2(t, 0.0, y_re, y_im, f_re, f_im, f_data_re, f_data_im);
+      cvcs_mem->cvcs_f_cs2(t, 0.0, y_re, y_im, f_re, f_im, cv_mem->cv_f_data, cvcs_mem->cvcs_f_data_im);
     
     fdata_im = (realtype *) N_VGetData(f_im);
 
@@ -449,7 +430,7 @@ void CVBandCSJac(sunindextype N, sunindextype mupper,
       i1 = SUNMAX(0, j-mupper);
       i2 = SUNMIN(j+mlower, N-1);
       for (i=i1; i <= i2; i++)
-        BAND_COL_ELEM(col_j,i,j) = fdata_im[i]/del_cs;
+        BAND_COL_ELEM(col_j,i,j) = fdata_im[i]/cvcs_mem->cvcs_del_cs;
     }
   }
 
@@ -474,7 +455,7 @@ int CVSpgmrCSJtimes(N_Vector v, N_Vector Jv, realtype t,
 
   /* jac_data points to cvode_mem */
   cv_mem = (CVodeMem) jac_data;
-  cvcs_mem = (CVCSMem) csmem;
+  cvcs_mem = (CVCSMem) cv_mem->cv_csmem;
 
   y_re = y;
   y_im = v;
@@ -482,20 +463,20 @@ int CVSpgmrCSJtimes(N_Vector v, N_Vector Jv, realtype t,
   f_im = Jv;
 
   /* Set y_im = h_sc * v */
-  N_VScale(del_cs, v, y_im);
+  N_VScale(cvcs_mem->cvcs_del_cs, v, y_im);
 
   /* Evaluate right hand side in complex arithmetic */
   /* f_im =  f( y+i*h*v) */
-  if (type1)
-    f_cs1(t, 0.0, y_re, y_im, f_re, f_im, f_data_re);
+  if (cvcs_mem->cvcs_type1)
+    cvcs_mem->cvcs_f_cs1(t, 0.0, y_re, y_im, f_re, f_im, cv_mem->cv_f_data);
   else
-    f_cs2(t, 0.0, y_re, y_im, f_re, f_im, f_data_re, f_data_im);
+    cvcs_mem->cvcs_f_cs2(t, 0.0, y_re, y_im, f_re, f_im, cv_mem->cv_f_data, cvcs_mem->cvcs_f_data_im);
 
   /* Compute Jv = f_im / h_sc */
-  N_VScale(ONE/del_cs, f_im, Jv);
+  N_VScale(ONE/cvcs_mem->cvcs_del_cs, f_im, Jv);
 
   /* Undo scale of v  */
-  N_VScale(ONE/del_cs, v, v);
+  N_VScale(ONE/cvcs_mem->cvcs_del_cs, v, v);
 
   return(SUCCESS);
 

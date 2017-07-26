@@ -74,11 +74,6 @@ static int CVBBDPrecFreeB(CVodeBMem cvB_mem);
  * ================================================================
  */
 
-/* Redability replacements */
-
-#define uround   (cv_mem->cv_uround)
-#define vec_tmpl (cv_mem->cv_tempv)
-
 /*
  * -----------------------------------------------------------------
  * User-Callable Functions: initialization, reinit and free
@@ -111,7 +106,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
 
   /* Test if the NVECTOR package is compatible with the BLOCK BAND preconditioner */
-  if(vec_tmpl->ops->nvgetarraypointer == NULL) {
+  if(cv_mem->cv_tempv->ops->nvgetarraypointer == NULL) {
     cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVBBDPRE", "CVBBDPrecInit", MSGBBD_BAD_NVECTOR);
     return(CVSPILS_ILL_INPUT);
   }
@@ -165,7 +160,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   }
 
   /* Set pdata->dqrely based on input dqrely (0 implies default). */
-  pdata->dqrely = (dqrely > ZERO) ? dqrely : SUNRsqrt(uround);
+  pdata->dqrely = (dqrely > ZERO) ? dqrely : SUNRsqrt(cv_mem->cv_uround);
 
   /* Store Nlocal to be used in CVBBDPrecSetup */
   pdata->n_local = Nlocal;
@@ -228,7 +223,7 @@ int CVBBDPrecReInit(void *cvode_mem,
   pdata->mldq = SUNMIN(Nlocal-1, SUNMAX(0,mldq));
 
   /* Set pdata->dqrely based on input dqrely (0 implies default). */
-  pdata->dqrely = (dqrely > ZERO) ? dqrely : SUNRsqrt(uround);
+  pdata->dqrely = (dqrely > ZERO) ? dqrely : SUNRsqrt(cv_mem->cv_uround);
 
   /* Re-initialize nge */
   pdata->nge = 0;
@@ -294,21 +289,6 @@ int CVBBDPrecGetNumGfnEvals(void *cvode_mem, long int *ngevalsBBDP)
 
   return(CVSPILS_SUCCESS);
 }
-
-/* Readability Replacements */
-
-#define Nlocal  (pdata->n_local)
-#define mudq    (pdata->mudq)
-#define mldq    (pdata->mldq)
-#define mukeep  (pdata->mukeep)
-#define mlkeep  (pdata->mlkeep)
-#define dqrely  (pdata->dqrely)
-#define gloc    (pdata->gloc)
-#define cfn     (pdata->cfn)
-#define savedJ  (pdata->savedJ)
-#define savedP  (pdata->savedP)
-#define lpivots (pdata->lpivots)
-#define nge     (pdata->nge)
 
 /*
  * -----------------------------------------------------------------
@@ -381,13 +361,13 @@ static int cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
     /* If jok = TRUE, use saved copy of J */
     *jcurPtr = FALSE;
-    BandCopy(savedJ, savedP, mukeep, mlkeep);
+    BandCopy(pdata->savedJ, pdata->savedP, pdata->mukeep, pdata->mlkeep);
 
   } else {
 
     /* Otherwise call cvBBDDQJac for new J value */
     *jcurPtr = TRUE;
-    SetToZero(savedJ);
+    SetToZero(pdata->savedJ);
 
     retval = cvBBDDQJac(pdata, t, y, tmp1, tmp2, tmp3);
     if (retval < 0) {
@@ -398,16 +378,16 @@ static int cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
       return(1);
     }
 
-    BandCopy(savedJ, savedP, mukeep, mlkeep);
+    BandCopy(pdata->savedJ, pdata->savedP, pdata->mukeep, pdata->mlkeep);
 
   }
   
   /* Scale and add I to get P = I - gamma*J */
-  BandScale(-gamma, savedP);
-  AddIdentity(savedP);
+  BandScale(-gamma, pdata->savedP);
+  AddIdentity(pdata->savedP);
  
   /* Do LU factorization of P in place */
-  ier = BandGBTRF(savedP, lpivots);
+  ier = BandGBTRF(pdata->savedP, pdata->lpivots);
  
   /* Return 0 if the LU was complete; otherwise return 1 */
   if (ier > 0) return(1);
@@ -451,7 +431,7 @@ static int cvBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
   
   zd = N_VGetArrayPointer(z);
 
-  BandGBTRS(savedP, lpivots, zd);
+  BandGBTRS(pdata->savedP, pdata->lpivots, zd);
 
   return(0);
 }
@@ -468,21 +448,15 @@ static int cvBBDPrecFree(CVodeMem cv_mem)
   if (cvspils_mem->s_P_data == NULL) return(0);
   pdata = (CVBBDPrecData) cvspils_mem->s_P_data;
 
-  DestroyMat(savedJ);
-  DestroyMat(savedP);
-  DestroyArray(lpivots);
+  DestroyMat(pdata->savedJ);
+  DestroyMat(pdata->savedP);
+  DestroyArray(pdata->lpivots);
 
   free(pdata);
   pdata = NULL;
   
   return(0);
 }
-
-
-
-#define ewt       (cv_mem->cv_ewt)
-#define h         (cv_mem->cv_h)
-#define user_data (cv_mem->cv_user_data)
 
 /*
  * -----------------------------------------------------------------
@@ -517,53 +491,53 @@ static int cvBBDDQJac(CVBBDPrecData pdata, realtype t,
   N_VScale(ONE, y, ytemp);
 
   /* Call cfn and gloc to get base value of g(t,y) */
-  if (cfn != NULL) {
-    retval = cfn(Nlocal, t, y, user_data);
+  if (pdata->cfn != NULL) {
+    retval = pdata->cfn(pdata->n_local, t, y, cv_mem->cv_user_data);
     if (retval != 0) return(retval);
   }
 
-  retval = gloc(Nlocal, t, ytemp, gy, user_data);
-  nge++;
+  retval = pdata->gloc(pdata->n_local, t, ytemp, gy, cv_mem->cv_user_data);
+  pdata->nge++;
   if (retval != 0) return(retval);
 
   /* Obtain pointers to the data for various vectors */
   y_data     =  N_VGetArrayPointer(y);
   gy_data    =  N_VGetArrayPointer(gy);
-  ewt_data   =  N_VGetArrayPointer(ewt);
+  ewt_data   =  N_VGetArrayPointer(cv_mem->cv_ewt);
   ytemp_data =  N_VGetArrayPointer(ytemp);
   gtemp_data =  N_VGetArrayPointer(gtemp);
 
   /* Set minimum increment based on uround and norm of g */
-  gnorm = N_VWrmsNorm(gy, ewt);
+  gnorm = N_VWrmsNorm(gy, cv_mem->cv_ewt);
   minInc = (gnorm != ZERO) ?
-           (MIN_INC_MULT * SUNRabs(h) * uround * Nlocal * gnorm) : ONE;
+    (MIN_INC_MULT * SUNRabs(cv_mem->cv_h) * cv_mem->cv_uround * pdata->n_local * gnorm) : ONE;
 
   /* Set bandwidth and number of column groups for band differencing */
-  width = mldq + mudq + 1;
-  ngroups = SUNMIN(width, Nlocal);
+  width = pdata->mldq + pdata->mudq + 1;
+  ngroups = SUNMIN(width, pdata->n_local);
 
   /* Loop over groups */  
   for (group=1; group <= ngroups; group++) {
     
     /* Increment all y_j in group */
-    for(j=group-1; j < Nlocal; j+=width) {
-      inc = SUNMAX(dqrely*SUNRabs(y_data[j]), minInc/ewt_data[j]);
+    for(j=group-1; j < pdata->n_local; j+=width) {
+      inc = SUNMAX(pdata->dqrely*SUNRabs(y_data[j]), minInc/ewt_data[j]);
       ytemp_data[j] += inc;
     }
 
     /* Evaluate g with incremented y */
-    retval = gloc(Nlocal, t, ytemp, gtemp, user_data);
-    nge++;
+    retval = pdata->gloc(pdata->n_local, t, ytemp, gtemp, cv_mem->cv_user_data);
+    pdata->nge++;
     if (retval != 0) return(retval);
 
     /* Restore ytemp, then form and load difference quotients */
-    for (j=group-1; j < Nlocal; j+=width) {
+    for (j=group-1; j < pdata->n_local; j+=width) {
       ytemp_data[j] = y_data[j];
-      col_j = BAND_COL(savedJ,j);
-      inc = SUNMAX(dqrely*SUNRabs(y_data[j]), minInc/ewt_data[j]);
+      col_j = BAND_COL(pdata->savedJ,j);
+      inc = SUNMAX(pdata->dqrely*SUNRabs(y_data[j]), minInc/ewt_data[j]);
       inc_inv = ONE/inc;
-      i1 = SUNMAX(0, j-mukeep);
-      i2 = SUNMIN(j+mlkeep, Nlocal-1);
+      i1 = SUNMAX(0, j-pdata->mukeep);
+      i2 = SUNMIN(j+pdata->mlkeep, pdata->n_local-1);
       for (i=i1; i <= i2; i++)
         BAND_COL_ELEM(col_j,i,j) =
           inc_inv * (gtemp_data[i] - gy_data[i]);
@@ -581,16 +555,6 @@ static int cvBBDDQJac(CVBBDPrecData pdata, realtype t,
  *
  * ================================================================
  */
-
-
-/* Additional readability replacements */
-
-#define ytmp  (ca_mem->ca_ytmp)
-#define yStmp (ca_mem->ca_yStmp)
-#define IMget (ca_mem->ca_IMget)
-
-#define gloc_B     (cvbbdB_mem->glocB)
-#define cfn_B      (cvbbdB_mem->cfnB)
 
 /*
  * CVBBDPrecInitB, CVBPSp*B
@@ -659,8 +623,8 @@ int CVBBDPrecInitB(void *cvode_mem, int which, sunindextype NlocalB,
     return(CVSPILS_MEM_FAIL);
   }
 
-  gloc_B = glocB;
-  cfn_B  = cfnB;
+  cvbbdB_mem->glocB = glocB;
+  cvbbdB_mem->cfnB  = cfnB;
 
   /* attach pmem and pfree */
   cvB_mem->cv_pmem = cvbbdB_mem;
@@ -746,14 +710,14 @@ static int cvGlocWrapper(sunindextype NlocalB, realtype t, N_Vector yB, N_Vector
   cvbbdB_mem = (CVBBDPrecDataB) (cvB_mem->cv_pmem);
 
   /* Forward solution from interpolation */
-  flag = IMget(cv_mem, t, ytmp, NULL);
+  flag = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
   if (flag != CV_SUCCESS) {
     cvProcessError(cv_mem, -1, "CVBBDPRE", "cvGlocWrapper", MSGBBD_BAD_TINTERP);
     return(-1);
   } 
 
   /* Call user's adjoint glocB routine */
-  retval = gloc_B(NlocalB, t, ytmp, yB, gB, cvB_mem->cv_user_data);
+  retval = cvbbdB_mem->glocB(NlocalB, t, ca_mem->ca_ytmp, yB, gB, cvB_mem->cv_user_data);
 
   return(retval);
 }
@@ -781,17 +745,17 @@ static int cvCfnWrapper(sunindextype NlocalB, realtype t, N_Vector yB, void *cvo
 
   cvbbdB_mem = (CVBBDPrecDataB) (cvB_mem->cv_pmem);
 
-  if (cfn_B == NULL) return(0);
+  if (cvbbdB_mem->cfnB == NULL) return(0);
 
   /* Forward solution from interpolation */
-  flag = IMget(cv_mem, t, ytmp, NULL);
+  flag = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
   if (flag != CV_SUCCESS) {
     cvProcessError(cv_mem, -1, "CVBBDPRE", "cvCfnWrapper", MSGBBD_BAD_TINTERP);
     return(-1);
   } 
 
   /* Call user's adjoint cfnB routine */
-  retval = cfn_B(NlocalB, t, ytmp, yB, cvB_mem->cv_user_data);
+  retval = cvbbdB_mem->cfnB(NlocalB, t, ca_mem->ca_ytmp, yB, cvB_mem->cv_user_data);
 
   return(retval);
 }

@@ -59,50 +59,6 @@ static int CVSpgmrFreeB(CVodeBMem cvB_mem);
  * ================================================================
  */
 
-
-/* Readability Replacements */
-
-#define tq           (cv_mem->cv_tq)
-#define nst          (cv_mem->cv_nst)
-#define tn           (cv_mem->cv_tn)
-#define h            (cv_mem->cv_h)
-#define gamma        (cv_mem->cv_gamma)
-#define gammap       (cv_mem->cv_gammap)   
-#define f            (cv_mem->cv_f)
-#define user_data    (cv_mem->cv_user_data)
-#define ewt          (cv_mem->cv_ewt)
-#define mnewt        (cv_mem->cv_mnewt)
-#define ropt         (cv_mem->cv_ropt)
-#define linit        (cv_mem->cv_linit)
-#define lsetup       (cv_mem->cv_lsetup)
-#define lsolve       (cv_mem->cv_lsolve)
-#define lfree        (cv_mem->cv_lfree)
-#define lmem         (cv_mem->cv_lmem)
-#define vec_tmpl     (cv_mem->cv_tempv)
-#define setupNonNull (cv_mem->cv_setupNonNull)
-
-#define sqrtN     (cvspils_mem->s_sqrtN)   
-#define ytemp     (cvspils_mem->s_ytemp)
-#define x         (cvspils_mem->s_x)
-#define ycur      (cvspils_mem->s_ycur)
-#define fcur      (cvspils_mem->s_fcur)
-#define delta     (cvspils_mem->s_delta)
-#define deltar    (cvspils_mem->s_deltar)
-#define npe       (cvspils_mem->s_npe)
-#define nli       (cvspils_mem->s_nli)
-#define nps       (cvspils_mem->s_nps)
-#define ncfl      (cvspils_mem->s_ncfl)
-#define nstlpre   (cvspils_mem->s_nstlpre)
-#define njtimes   (cvspils_mem->s_njtimes)
-#define nfes      (cvspils_mem->s_nfes)
-#define spils_mem (cvspils_mem->s_spils_mem)
-
-#define jtimesDQ  (cvspils_mem->s_jtimesDQ)
-#define jtimes    (cvspils_mem->s_jtimes)
-#define j_data    (cvspils_mem->s_j_data)
-
-#define last_flag (cvspils_mem->s_last_flag)
-
 /*
  * -----------------------------------------------------------------
  * CVSpgmr
@@ -136,18 +92,18 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Check if N_VDotProd is present */
-  if(vec_tmpl->ops->nvdotprod == NULL) {
+  if(cv_mem->cv_tempv->ops->nvdotprod == NULL) {
     cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPGMR", "CVSpgmr", MSGS_BAD_NVECTOR);
     return(CVSPILS_ILL_INPUT);
   }
 
-  if (lfree != NULL) lfree(cv_mem);
+  if (cv_mem->cv_lfree != NULL) cv_mem->cv_lfree(cv_mem);
 
   /* Set four main function fields in cv_mem */
-  linit  = CVSpgmrInit;
-  lsetup = CVSpgmrSetup;
-  lsolve = CVSpgmrSolve;
-  lfree  = CVSpgmrFree;
+  cv_mem->cv_linit  = CVSpgmrInit;
+  cv_mem->cv_lsetup = CVSpgmrSetup;
+  cv_mem->cv_lsolve = CVSpgmrSolve;
+  cv_mem->cv_lfree  = CVSpgmrFree;
 
   /* Get memory for CVSpilsMemRec */
   cvspils_mem = NULL;
@@ -165,9 +121,9 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   mxl = cvspils_mem->s_maxl = (maxl <= 0) ? CVSPILS_MAXL : maxl;
 
   /* Set defaults for Jacobian-related fileds */
-  jtimesDQ = TRUE;
-  jtimes   = NULL;
-  j_data   = NULL;
+  cvspils_mem->s_jtimesDQ = TRUE;
+  cvspils_mem->s_jtimes   = NULL;
+  cvspils_mem->s_j_data   = NULL;
 
   /* Set defaults for preconditioner-related fields */
   cvspils_mem->s_pset   = NULL;
@@ -183,7 +139,7 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
 
   cvSpilsInitializeCounters(cvspils_mem);
 
-  setupNonNull = FALSE;
+  cv_mem->cv_setupNonNull = FALSE;
 
   /* Check for legal pretype */ 
   if ((pretype != PREC_NONE) && (pretype != PREC_LEFT) &&
@@ -194,54 +150,43 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   }
 
   /* Allocate memory for ytemp and x */
-  ytemp = N_VClone(vec_tmpl);
-  if (ytemp == NULL) {
+  cvspils_mem->s_ytemp = N_VClone(cv_mem->cv_tempv);
+  if (cvspils_mem->s_ytemp == NULL) {
     cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPGMR", "CVSpgmr", MSGS_MEM_FAIL);
     free(cvspils_mem); cvspils_mem = NULL;
     return(CVSPILS_MEM_FAIL);
   }
-  x = N_VClone(vec_tmpl);
-  if (x == NULL) {
+  cvspils_mem->s_x = N_VClone(cv_mem->cv_tempv);
+  if (cvspils_mem->s_x == NULL) {
     cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPGMR", "CVSpgmr", MSGS_MEM_FAIL);
-    N_VDestroy(ytemp);
+    N_VDestroy(cvspils_mem->s_ytemp);
     free(cvspils_mem); cvspils_mem = NULL;
     return(CVSPILS_MEM_FAIL);
   }
 
   /* Compute sqrtN from a dot product */
-  N_VConst(ONE, ytemp);
-  sqrtN = SUNRsqrt( N_VDotProd(ytemp, ytemp) );
+  N_VConst(ONE, cvspils_mem->s_ytemp);
+  cvspils_mem->s_sqrtN = SUNRsqrt( N_VDotProd(cvspils_mem->s_ytemp, cvspils_mem->s_ytemp) );
 
   /* Call SpgmrMalloc to allocate workspace for Spgmr */
   spgmr_mem = NULL;
-  spgmr_mem = SpgmrMalloc(mxl, vec_tmpl);
+  spgmr_mem = SpgmrMalloc(mxl, cv_mem->cv_tempv);
   if (spgmr_mem == NULL) {
     cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPGMR", "CVSpgmr", MSGS_MEM_FAIL);
-    N_VDestroy(ytemp);
-    N_VDestroy(x);
+    N_VDestroy(cvspils_mem->s_ytemp);
+    N_VDestroy(cvspils_mem->s_x);
     free(cvspils_mem); cvspils_mem = NULL;
     return(CVSPILS_MEM_FAIL);
   }
   
   /* Attach SPGMR memory to spils memory structure */
-  spils_mem = (void *) spgmr_mem;
+  cvspils_mem->s_spils_mem = (void *) spgmr_mem;
 
   /* Attach linear solver memory to integrator memory */
-  lmem = cvspils_mem;
+  cv_mem->cv_lmem = cvspils_mem;
 
   return(CVSPILS_SUCCESS);
 }
-
-
-/* Additional readability Replacements */
-
-#define pretype (cvspils_mem->s_pretype)
-#define gstype  (cvspils_mem->s_gstype)
-#define eplifac (cvspils_mem->s_eplifac)
-#define maxl    (cvspils_mem->s_maxl)
-#define psolve  (cvspils_mem->s_psolve)
-#define pset    (cvspils_mem->s_pset)
-#define P_data  (cvspils_mem->s_P_data)
 
 /*
  * -----------------------------------------------------------------
@@ -255,31 +200,31 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
 static int CVSpgmrInit(CVodeMem cv_mem)
 {
   CVSpilsMem cvspils_mem;
-  cvspils_mem = (CVSpilsMem) lmem;
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
 
   /* Initialize counters */
   cvSpilsInitializeCounters(cvspils_mem);
 
   /* Check for legal combination pretype - psolve */
-  if ((pretype != PREC_NONE) && (psolve == NULL)) {
+  if ((cvspils_mem->s_pretype != PREC_NONE) && (cvspils_mem->s_psolve == NULL)) {
     cvProcessError(cv_mem, -1, "CVSPGMR", "CVSpgmrInit", MSGS_PSOLVE_REQ);
-    last_flag = CVSPILS_ILL_INPUT;
+    cvspils_mem->s_last_flag = CVSPILS_ILL_INPUT;
     return(-1);
   }
 
   /* Set setupNonNull = TRUE iff there is preconditioning (pretype != PREC_NONE)
      and there is a preconditioning setup phase (pset != NULL)             */
-  setupNonNull = (pretype != PREC_NONE) && (pset != NULL);
+  cv_mem->cv_setupNonNull = (cvspils_mem->s_pretype != PREC_NONE) && (cvspils_mem->s_pset != NULL);
 
   /* Set Jacobian-related fields, based on jtimesDQ */
-  if (jtimesDQ) {
-    jtimes = CVSpilsDQJtimes;
-    j_data = cv_mem;
+  if (cvspils_mem->s_jtimesDQ) {
+    cvspils_mem->s_jtimes = CVSpilsDQJtimes;
+    cvspils_mem->s_j_data = cv_mem;
   } else {
-    j_data = user_data;
+    cvspils_mem->s_j_data = cv_mem->cv_user_data;
   }
 
-  last_flag = CVSPILS_SUCCESS;
+  cvspils_mem->s_last_flag = CVSPILS_SUCCESS;
   return(0);
 }
 
@@ -305,36 +250,37 @@ static int CVSpgmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   int  retval;
   CVSpilsMem cvspils_mem;
 
-  cvspils_mem = (CVSpilsMem) lmem;
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-  dgamma = SUNRabs((gamma/gammap) - ONE);
-  jbad = (nst == 0) || (nst > nstlpre + CVSPILS_MSBPRE) ||
+  dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
+  jbad = (cv_mem->cv_nst == 0) ||
+    (cv_mem->cv_nst > cvspils_mem->s_nstlpre + CVSPILS_MSBPRE) ||
     ((convfail == CV_FAIL_BAD_J) && (dgamma < CVSPILS_DGMAX)) ||
     (convfail == CV_FAIL_OTHER);
   *jcurPtr = jbad;
   jok = !jbad;
 
   /* Call pset routine and possibly reset jcur */
-  retval = pset(tn, ypred, fpred, jok, jcurPtr, gamma, P_data, 
+  retval = cvspils_mem->s_pset(cv_mem->cv_tn, ypred, fpred, jok, jcurPtr, cv_mem->cv_gamma, cvspils_mem->s_P_data, 
                 vtemp1, vtemp2, vtemp3);
   if (retval < 0) {
     cvProcessError(cv_mem, SPGMR_PSET_FAIL_UNREC, "CVSPGMR", "CVSpgmrSetup", MSGS_PSET_FAILED);
-    last_flag = SPGMR_PSET_FAIL_UNREC;
+    cvspils_mem->s_last_flag = SPGMR_PSET_FAIL_UNREC;
   }
   if (retval > 0) {
-    last_flag = SPGMR_PSET_FAIL_REC;
+    cvspils_mem->s_last_flag = SPGMR_PSET_FAIL_REC;
   }
 
   if (jbad) *jcurPtr = TRUE;
 
   /* If jcur = TRUE, increment npe and save nst value */
   if (*jcurPtr) {
-    npe++;
-    nstlpre = nst;
+    cvspils_mem->s_npe++;
+    cvspils_mem->s_nstlpre = cv_mem->cv_nst;
   }
 
-  last_flag = SPGMR_SUCCESS;
+  cvspils_mem->s_last_flag = SPGMR_SUCCESS;
 
   /* Return the same value that pset returned */
   return(retval);
@@ -370,42 +316,42 @@ static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   SpgmrMem spgmr_mem;
   int nli_inc, nps_inc, retval;
   
-  cvspils_mem = (CVSpilsMem) lmem;
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
 
-  spgmr_mem = (SpgmrMem) spils_mem;
+  spgmr_mem = (SpgmrMem) cvspils_mem->s_spils_mem;
 
   /* Test norm(b); if small, return x = 0 or x = b */
-  deltar = eplifac*tq[4]; 
+  cvspils_mem->s_deltar = cvspils_mem->s_eplifac*cv_mem->cv_tq[4]; 
 
   bnorm = N_VWrmsNorm(b, weight);
-  if (bnorm <= deltar) {
-    if (mnewt > 0) N_VConst(ZERO, b); 
+  if (bnorm <= cvspils_mem->s_deltar) {
+    if (cv_mem->cv_mnewt > 0) N_VConst(ZERO, b); 
     return(0);
   }
 
   /* Set vectors ycur and fcur for use by the Atimes and Psolve routines */
-  ycur = ynow;
-  fcur = fnow;
+  cvspils_mem->s_ycur = ynow;
+  cvspils_mem->s_fcur = fnow;
 
   /* Set inputs delta and initial guess x = 0 to SpgmrSolve */  
-  delta = deltar * sqrtN;
-  N_VConst(ZERO, x);
+  cvspils_mem->s_delta = cvspils_mem->s_deltar * cvspils_mem->s_sqrtN;
+  N_VConst(ZERO, cvspils_mem->s_x);
   
   /* Call SpgmrSolve and copy x to b */
-  retval = SpgmrSolve(spgmr_mem, cv_mem, x, b, pretype, gstype, delta, 0,
+  retval = SpgmrSolve(spgmr_mem, cv_mem, cvspils_mem->s_x, b, cvspils_mem->s_pretype, cvspils_mem->s_gstype, cvspils_mem->s_delta, 0,
                    cv_mem, weight, weight, CVSpilsAtimes, CVSpilsPSolve,
                    &res_norm, &nli_inc, &nps_inc);
 
-  N_VScale(ONE, x, b);
+  N_VScale(ONE, cvspils_mem->s_x, b);
   
   /* Increment counters nli, nps, and ncfl */
-  nli += nli_inc;
-  nps += nps_inc;
-  if (retval != SPGMR_SUCCESS) ncfl++;
+  cvspils_mem->s_nli += nli_inc;
+  cvspils_mem->s_nps += nps_inc;
+  if (retval != SPGMR_SUCCESS) cvspils_mem->s_ncfl++;
 
   /* Interpret return value from SpgmrSolve */
 
-  last_flag = retval;
+  cvspils_mem->s_last_flag = retval;
 
   switch(retval) {
 
@@ -413,7 +359,7 @@ static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
     return(0);
     break;
   case SPGMR_RES_REDUCED:
-    if (mnewt == 0) return(0);
+    if (cv_mem->cv_mnewt == 0) return(0);
     else            return(1);
     break;
   case SPGMR_CONV_FAIL:
@@ -464,12 +410,12 @@ static int CVSpgmrFree(CVodeMem cv_mem)
   CVSpilsMem cvspils_mem;
   SpgmrMem spgmr_mem;
 
-  cvspils_mem = (CVSpilsMem) lmem;
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
   
-  N_VDestroy(ytemp);
-  N_VDestroy(x);
+  N_VDestroy(cvspils_mem->s_ytemp);
+  N_VDestroy(cvspils_mem->s_x);
 
-  spgmr_mem = (SpgmrMem) spils_mem;
+  spgmr_mem = (SpgmrMem) cvspils_mem->s_spils_mem;
   SpgmrFree(spgmr_mem);
 
   if (cvspils_mem->s_pfree != NULL) (cvspils_mem->s_pfree)(cv_mem);
@@ -488,14 +434,6 @@ static int CVSpgmrFree(CVodeMem cv_mem)
  *
  * ================================================================
  */
-
-
-/* Additional readability replacements */
-
-#define pset_B      (cvspilsB_mem->s_psetB)
-#define psolve_B    (cvspilsB_mem->s_psolveB)
-#define jtimes_B    (cvspilsB_mem->s_jtimesB)
-#define P_data_B    (cvspilsB_mem->s_P_dataB)
 
 /*
  * CVSpgmrB
@@ -550,12 +488,12 @@ int CVSpgmrB(void *cvode_mem, int which, int pretypeB, int maxlB)
     return(CVSPILS_MEM_FAIL);
   }
 
-  pset_B = NULL;
-  psolve_B = NULL;
-  P_data_B = NULL;
+  cvspilsB_mem->s_psetB = NULL;
+  cvspilsB_mem->s_psolveB = NULL;
+  cvspilsB_mem->s_P_dataB = NULL;
 
   /* initialize Jacobian function */
-  jtimes_B = NULL;
+  cvspilsB_mem->s_jtimesB = NULL;
 
   /* attach lmemB and lfreeB */
   cvB_mem->cv_lmem = cvspilsB_mem;
