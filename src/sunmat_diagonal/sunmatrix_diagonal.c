@@ -52,7 +52,6 @@ SUNMatrix SUNDiagonalMatrix(N_Vector tmpl)
   SUNMatrix A;
   SUNMatrix_Ops ops;
   SUNMatrixContent_Diagonal content;
-  sunindextype j;
 
   /* return with NULL matrix on illegal input */
   if ( tmpl==NULL ) return(NULL);
