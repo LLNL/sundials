@@ -71,10 +71,14 @@ typedef struct CVodeBMemRec *CVodeBMem;
 
 /*
  * -----------------------------------------------------------------
- * Types: struct CVodeMemRec, CVodeMem
+ * Types: struct CVodeMemRec, CVodeMem, cvLinPoint
  * -----------------------------------------------------------------
  * The type CVodeMem is type pointer to struct CVodeMemRec.
  * This structure contains fields to keep track of problem state.
+ *
+ * The cvLinPoint structure contains pointers specifying a current 
+ * state around which a problem is linearized (i.e. for a linear 
+ * solver).
  * -----------------------------------------------------------------
  */
   
@@ -348,9 +352,8 @@ typedef struct CVodeMemRec {
 
   int (*cv_linit)(struct CVodeMemRec *cv_mem);
 
-  int (*cv_lsetup)(struct CVodeMemRec *cv_mem, int convfail, 
-		   N_Vector ypred, N_Vector fpred, booleantype *jcurPtr, 
-		   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
+  int (*cv_lsetup)(void *cur_state, N_Vector vtemp1,
+                   N_Vector vtemp2, N_Vector vtemp3); 
 
   int (*cv_lsolve)(struct CVodeMemRec *cv_mem, N_Vector b, N_Vector weight,
 		   N_Vector ycur, N_Vector fcur);
@@ -375,6 +378,7 @@ typedef struct CVodeMemRec {
   realtype cv_hu;              /* last successful h value used                */
   realtype cv_saved_tq5;       /* saved value of tq[5]                        */
   booleantype cv_jcur;         /* is Jacobian info for linear solver current? */
+  int cv_convfail;             /* flag storing previous solver failure mode   */
   realtype cv_tolsf;           /* tolerance scale factor                      */
   int cv_qmax_alloc;           /* qmax used when allocating mem               */
   int cv_qmax_allocQ;          /* qmax used when allocating quad. mem         */
@@ -452,6 +456,16 @@ typedef struct CVodeMemRec {
   booleantype cv_adjMallocDone;
 
 } *CVodeMem;
+
+
+typedef struct cvLinPoint {
+
+  realtype t;              /* current 'time' at linearization point      */
+  N_Vector y;              /* current solution at linearization point    */
+  N_Vector f;              /* current f(t,y) at linearization point      */
+  CVodeMem cv_mem;         /* pointer to the main CVode memory structure */
+
+} cvLinPoint;
 
 
 /* 

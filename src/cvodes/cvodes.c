@@ -885,6 +885,10 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
 
   cv_mem->cv_irfnd   = 0;
 
+  /* Initialize convergence failure flag */
+
+  cv_mem->cv_convfail = CV_NO_FAILURES;
+  
   /* Initialize other integrator optional outputs */
 
   cv_mem->cv_h0u      = ZERO;
@@ -986,6 +990,10 @@ int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0)
   cv_mem->cv_nge     = 0;
 
   cv_mem->cv_irfnd   = 0;
+
+  /* Initialize convergence failure flag */
+
+  cv_mem->cv_convfail = CV_NO_FAILURES;
 
   /* Initialize other integrator optional outputs */
 
@@ -5897,9 +5905,10 @@ static int cvNlsFunctional(CVodeMem cv_mem)
 static int cvNlsNewton(CVodeMem cv_mem, int nflag)
 {
   N_Vector vtemp1, vtemp2, vtemp3, wrk1, wrk2;
-  int convfail, ier;
+  int ier;
   booleantype callSetup, do_sensi_sim;
   int retval, is;
+  cvLinPoint cur_state;
   
   /* Are we computing sensitivities with the CV_SIMULTANEOUS approach? */
   do_sensi_sim = (cv_mem->cv_sensi && (cv_mem->cv_ism==CV_SIMULTANEOUS));
@@ -5909,7 +5918,7 @@ static int cvNlsNewton(CVodeMem cv_mem, int nflag)
   vtemp3 = cv_mem->cv_tempv; /* rename tempv as vtemp3 for readability */
   
   /* Set flag convfail, input to lsetup for its evaluation decision */
-  convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
+  cv_mem->cv_convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
     CV_NO_FAILURES : CV_FAIL_OTHER;
 
   /* Decide whether or not to call setup routine (if one exists) */
@@ -5920,7 +5929,7 @@ static int cvNlsNewton(CVodeMem cv_mem, int nflag)
     /* Decide whether to force a call to setup */
     if (cv_mem->cv_forceSetup) {
       callSetup = TRUE;
-      convfail = CV_FAIL_OTHER;
+      cv_mem->cv_convfail = CV_FAIL_OTHER;
     }
 
   } else {  
@@ -5952,9 +5961,14 @@ static int cvNlsNewton(CVodeMem cv_mem, int nflag)
     }
 
     if (callSetup) {
-      ier = cv_mem->cv_lsetup(cv_mem, convfail, cv_mem->cv_zn[0],
-                              cv_mem->cv_ftemp, &(cv_mem->cv_jcur), 
-                              vtemp1, vtemp2, vtemp3);
+      
+      /* Set up linearization point for upcoming linear setup */
+      cur_state.t = cv_mem->cv_tn;
+      cur_state.y = cv_mem->cv_zn[0];
+      cur_state.f = cv_mem->cv_ftemp;
+      cur_state.cv_mem = cv_mem;
+    
+      ier = cv_mem->cv_lsetup(&cur_state, vtemp1, vtemp2, vtemp3);
       cv_mem->cv_nsetups++;
       callSetup = FALSE;
       cv_mem->cv_forceSetup = FALSE;
@@ -5987,7 +6001,7 @@ static int cvNlsNewton(CVodeMem cv_mem, int nflag)
     if (ier != TRY_AGAIN) return(ier);
     
     callSetup = TRUE;
-    convfail = CV_FAIL_BAD_J;
+    cv_mem->cv_convfail = CV_FAIL_BAD_J;
   }
 }
 
@@ -6380,8 +6394,9 @@ static int cvStgrNlsFunctional(CVodeMem cv_mem)
 static int cvStgrNlsNewton(CVodeMem cv_mem)
 {
   int retval, is;
-  int convfail, ier;
+  int ier;
   N_Vector vtemp1, vtemp2, vtemp3, wrk1, wrk2;
+  cvLinPoint cur_state;
 
   for(;;) {
 
@@ -6410,17 +6425,21 @@ static int cvStgrNlsNewton(CVodeMem cv_mem)
     /* There was a convergence failure and the Jacobian-related data
        appears not to be current. Call lsetup with convfail=CV_FAIL_BAD_J
        and then loop again */
-    convfail = CV_FAIL_BAD_J;
+    cv_mem->cv_convfail = CV_FAIL_BAD_J;
 
     /* Rename some vectors for readibility */
     vtemp1 = cv_mem->cv_tempv;
     vtemp2 = cv_mem->cv_yS[0];
     vtemp3 = cv_mem->cv_ftempS[0];
 
+    /* Set up linearization point for upcoming linear setup */
+    cur_state.t = cv_mem->cv_tn;
+    cur_state.y = cv_mem->cv_y;
+    cur_state.f = cv_mem->cv_ftemp;
+    cur_state.cv_mem = cv_mem;
+    
     /* Call linear solver setup at converged y */
-    ier = cv_mem->cv_lsetup(cv_mem, convfail, cv_mem->cv_y,
-                            cv_mem->cv_ftemp, &(cv_mem->cv_jcur), 
-                            vtemp1, vtemp2, vtemp3);
+    ier = cv_mem->cv_lsetup(&cur_state, vtemp1, vtemp2, vtemp3);
     cv_mem->cv_nsetups++;
     cv_mem->cv_nsetupsS++;
     cv_mem->cv_gamrat = ONE;
@@ -6676,9 +6695,10 @@ static int cvStgr1NlsFunctional(CVodeMem cv_mem, int is)
 
 static int cvStgr1NlsNewton(CVodeMem cv_mem, int is)
 {
-  int convfail, retval, ier;
+  int retval, ier;
   N_Vector vtemp1, vtemp2, vtemp3, wrk1, wrk2;
-
+  cvLinPoint cur_state;
+  
   for(;;) {
 
     /* Set acorS to zero and load prediction into yS vector */
@@ -6704,17 +6724,21 @@ static int cvStgr1NlsNewton(CVodeMem cv_mem, int is)
     /* There was a convergence failure and the Jacobian-related data
        appears not to be current. Call lsetup with convfail=CV_FAIL_BAD_J
        and then loop again */
-    convfail = CV_FAIL_BAD_J;
+    cv_mem->cv_convfail = CV_FAIL_BAD_J;
 
     /* Rename some vectors for readibility */
     vtemp1 = cv_mem->cv_tempv;
     vtemp2 = cv_mem->cv_yS[0];
     vtemp3 = cv_mem->cv_ftempS[0];
 
+    /* Set up linearization point for upcoming linear setup */
+    cur_state.t = cv_mem->cv_tn;
+    cur_state.y = cv_mem->cv_y;
+    cur_state.f = cv_mem->cv_ftemp;
+    cur_state.cv_mem = cv_mem;
+    
     /* Call linear solver setup at converged y */
-    ier = cv_mem->cv_lsetup(cv_mem, convfail, cv_mem->cv_y,
-                            cv_mem->cv_ftemp, &(cv_mem->cv_jcur), 
-                            vtemp1, vtemp2, vtemp3);
+    ier = cv_mem->cv_lsetup(&cur_state, vtemp1, vtemp2, vtemp3);
     cv_mem->cv_nsetups++;
     cv_mem->cv_nsetupsS++;
     cv_mem->cv_gamrat = ONE;

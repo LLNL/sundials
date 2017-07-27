@@ -37,9 +37,8 @@
  
 static int cvSuperLUMTInit(CVodeMem cv_mem);
 
-static int cvSuperLUMTSetup(CVodeMem cv_mem, int convfail, N_Vector ypred, 
-			    N_Vector fpred, booleantype *jcurPtr,
-			    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int cvSuperLUMTSetup(void* cur_state, N_Vector tmp1, 
+			    N_Vector tmp2, N_Vector tmp3);
 
 static int cvSuperLUMTSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 			    N_Vector ycur, N_Vector fcur);
@@ -266,9 +265,8 @@ static int cvSuperLUMTInit(CVodeMem cv_mem)
      -1  if the jac routine failed unrecoverably.
 */
 
-static int cvSuperLUMTSetup(CVodeMem cv_mem, int convfail, N_Vector ypred, 
-			   N_Vector fpred, booleantype *jcurPtr,
-			   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+static int cvSuperLUMTSetup(void* current_state, N_Vector vtemp1, 
+			    N_Vector vtemp2, N_Vector vtemp3)
 {
   booleantype jbad, jok;
   int retval, info;
@@ -289,9 +287,13 @@ static int cvSuperLUMTSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   SlsMat JacMat, savedJ;
   void *jacdata;
   void *work;
-  
+  CVodeMem cv_mem;
+  cvLinPoint *cur_state;
+
+  cur_state = (cvLinPoint*) current_state;
+  cv_mem = cur_state->cv_mem;
   cvsls_mem = (CVSlsMem) (cv_mem->cv_lmem);
-  tn = cv_mem->cv_tn; 
+  tn = cur_state->t;
   gamma = cv_mem->cv_gamma;
   gammap = cv_mem->cv_gammap;
   nst = cv_mem->cv_nst;
@@ -336,21 +338,21 @@ static int cvSuperLUMTSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   /* Determine whether Jacobian needs to be recalculated */
   dgamma = SUNRabs((gamma/gammap) - ONE);
   jbad = (nst == 0) || (nst > nstlj + CVS_MSBJ) ||
-         ((convfail == CV_FAIL_BAD_J) && (dgamma < CVS_DGMAX)) ||
-         (convfail == CV_FAIL_OTHER);
+         ((cv_mem->cv_convfail == CV_FAIL_BAD_J) && (dgamma < CVS_DGMAX)) ||
+         (cv_mem->cv_convfail == CV_FAIL_OTHER);
   jok = !jbad;
   
   if (jok) {
     /* If jok = TRUE, use saved copy of J */
-    *jcurPtr = FALSE;
+    cv_mem->cv_jcur = FALSE;
     SparseCopyMat(savedJ, JacMat);
   } else {
     /* If jok = FALSE, call jac routine for new J value */
     cvsls_mem->s_nje++;
     cvsls_mem->s_nstlj = nst;
-    *jcurPtr = TRUE;
+    cv_mem->cv_jcur = TRUE;
     SparseSetMatToZero(JacMat);
-    retval = jaceval(tn, ypred, fpred, JacMat, jacdata, vtemp1, vtemp2, vtemp3);
+    retval = jaceval(tn, cur_state->y, cur_state->f, JacMat, jacdata, vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
       cvProcessError(cv_mem, CVSLS_JACFUNC_UNRECVR, "CVSLS", "cvSuperLUMTSetup", MSGSP_JACFUNC_FAILED);
       cvsls_mem->s_last_flag = CVSLS_JACFUNC_UNRECVR;
