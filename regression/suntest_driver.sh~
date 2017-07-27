@@ -1,0 +1,84 @@
+#!/bin/bash
+# ------------------------------------------------------------------------------
+# SUNDIALS Regression Tests Driver Script
+# ------------------------------------------------------------------------------
+
+# initialize failure counter
+nfail=0
+
+# real and index types to test
+# realtype=('single' 'double' 'extended')
+# indextype=('signed_32bit' 'signed_64bit' 'unsigned_32bit' 'unsigned_64bit')
+realtype=('double')
+indextype=('signed_64bit')
+
+# number of threads for parallel builds (optional)
+nbt=4
+
+# remove old test directories and logs
+\rm -rf suntest*/ *.log
+
+# output to stdout and log file
+echo "--------------------------------------------------" | tee -a sunregression.log
+echo "SUNDIALS Regression Tests" | tee -a sunregression.log
+date | tee -a sunregression.log
+echo "--------------------------------------------------" | tee -a sunregression.log
+
+# ------------------------------------------------------------------------------
+# Minimal setup: no external solvers enabled
+for ((i=0; i<${#realtype[@]}; i++)); do
+    for ((j=0; j<${#indextype[@]}; j++)); do
+
+        # run tests
+        ./suntest_minimal.sh ${realtype[i]} ${indextype[j]} $nbt
+
+        # check number of errors
+        nerr=$?
+        if [ $nerr -ne 0 ]; then
+            let nfail+=nerr
+            echo "FAILED: $nerr failures, suntest_minimal.sh ${realtype[i]} ${indextype[j]}" \
+                | tee -a sunregression.log
+        else
+            echo "PASSED: $nerr failures, suntest_minimal.sh ${realtype[i]} ${indextype[j]}" \
+                | tee -a sunregression.log
+        fi
+    done
+done
+echo "--------------------------------------------------" | tee -a sunregression.log
+
+# ------------------------------------------------------------------------------
+# Maximal setup: all external solvers enabled
+for ((i=0; i<${#realtype[@]}; i++)); do
+    for ((j=0; j<${#indextype[@]}; j++)); do
+
+        # run tests
+        ./suntest_maximal.sh ${realtype[i]} ${indextype[j]} $nbt
+
+        # check number of errors
+        nerr=$?
+        if [ $nerr -ne 0 ]; then
+            let nfail+=nerr
+            echo "FAILED: $nerr failures, suntest_maximal.sh ${realtype[i]} ${indextype[j]}" \
+                | tee -a sunregression.log
+        else
+            echo "PASSED: $nerr failures, suntest_maximal.sh ${realtype[i]} ${indextype[j]}" \
+                | tee -a sunregression.log
+        fi
+    done
+done
+echo "--------------------------------------------------" | tee -a sunregression.log
+
+# ------------------------------------------------------------------------------
+# Return pass/fail
+echo "--------------------------------------------------" | tee -a sunregression.log
+if [ $nfail -ne 0 ]; then
+    echo "FAILED: $nfail failures." | tee -a sunregression.log
+else
+    echo "PASSED: $nfail failures." | tee -a sunregression.log
+fi
+echo "--------------------------------------------------" | tee -a sunregression.log
+
+# notify users
+# NEED TO ADD
+
+exit $nfail

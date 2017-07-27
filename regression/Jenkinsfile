@@ -1,0 +1,13 @@
+#!/usr/bin/env groovy
+pipeline {
+    agent any
+
+    stages {
+        stage('Test') {
+            steps {
+              echo "Build and Test..."
+              sh('cd regression && ./suntest_driver.sh')
+            }
+        }
+    }
+}
