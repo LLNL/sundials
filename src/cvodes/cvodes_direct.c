@@ -31,6 +31,8 @@
 #include "cvodes_impl.h"
 #include "cvodes_direct_impl.h"
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_dense.h>
+#include <sundials/sundials_band.h>
 
 /* 
  * =================================================================
@@ -44,6 +46,123 @@
 #define ZERO         RCONST(0.0)
 #define ONE          RCONST(1.0)
 #define TWO          RCONST(2.0)
+
+/* 
+ * =================================================================
+ * PRIVATE FUNCTIONS
+ * =================================================================
+ */
+
+/*---------------------------------------------------------------
+ * cvDlsSetupMatrix determines whether to create a new dense/band 
+ * Jacobian matrix (or use a stored version), based on heuristics
+ * regarding previous converence issues, the number of time steps 
+ * since it was last updated, etc.; it then creates the system
+ * matrix from this, the 'gamma' factor and the identity 
+ * matrix, A = I-gamma*J.  Information on the linearization point
+ * for J, along with a pointer to the CVodeMem structure, are 
+ * provided in the cur_state structure.
+---------------------------------------------------------------*/
+int cvDlsSetupMatrix(cvLinPoint *cur_state, N_Vector vtemp1,
+                     N_Vector vtemp2, N_Vector vtemp3)
+{
+  booleantype jbad, jok;
+  realtype tn, dgamma;
+  CVodeMem cv_mem;
+  CVDlsMem cvdls_mem;
+  int retval;
+  booleantype DENSE;
+  N_Vector ypred, fpred;
+
+  /* Return immediately if cur_state, cvode_mem or cv_mem->cv_lmem are NULL */
+  if (cur_state == NULL) {
+    cvProcessError(NULL, CVDLS_MEM_NULL, "CVDLS", 
+                   "cvDlsSetupMatrix", MSGD_CVMEM_NULL);
+    return(CVDLS_MEM_NULL);
+  }
+  if (cur_state->cv_mem == NULL) {
+    cvProcessError(NULL, CVDLS_MEM_NULL, "CVDLS", 
+                   "cvDlsSetupMatrix", MSGD_CVMEM_NULL);
+    return(CVDLS_MEM_NULL);
+  }
+  cv_mem = cur_state->cv_mem;
+  if (cv_mem->cv_lmem == NULL) {
+    cvProcessError(cv_mem, CVDLS_LMEM_NULL, "CVDLS", 
+                   "cvDlsSetupMatrix", MSGD_LMEM_NULL);
+    return(CVDLS_LMEM_NULL);
+  }
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
+
+  /* access current linearization point state */
+  tn = cur_state->t;
+  ypred = cur_state->y;
+  fpred = cur_state->f;
+
+  /* set flag to indicate DENSE vs BAND */
+  DENSE = (cvdls_mem->d_savedJ->type == SUNDIALS_DENSE) ? TRUE : FALSE;
+  
+  /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
+  dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
+  jbad = (cv_mem->cv_nst == 0) || (cv_mem->cv_nst > cvdls_mem->d_nstlj + CVD_MSBJ) ||
+         ((cv_mem->cv_convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
+         (cv_mem->cv_convfail == CV_FAIL_OTHER);
+  jok = !jbad;
+ 
+  /* If jok = TRUE, use saved copy of J */
+  if (jok) {
+    cv_mem->cv_jcur = FALSE;
+    if (DENSE) {
+      DenseCopy(cvdls_mem->d_savedJ, cvdls_mem->d_M);
+    } else {
+      BandCopy(cvdls_mem->d_savedJ, cvdls_mem->d_M, cvdls_mem->d_mu, cvdls_mem->d_ml);
+    }
+
+  /* If jok = FALSE, call jac routine for new J value */
+  } else {
+    cvdls_mem->d_nje++;
+    cvdls_mem->d_nstlj = cv_mem->cv_nst;
+    cv_mem->cv_jcur = TRUE;
+    SetToZero(cvdls_mem->d_M);
+
+    if (DENSE) {
+      retval = cvdls_mem->d_djac(cvdls_mem->d_n, tn, ypred,
+                                 fpred, cvdls_mem->d_M, cvdls_mem->d_J_data,
+                                 vtemp1, vtemp2, vtemp3);
+    } else {
+      retval = cvdls_mem->d_bjac(cvdls_mem->d_n, cvdls_mem->d_mu,
+                               cvdls_mem->d_ml, tn, ypred,
+                               fpred, cvdls_mem->d_M, cvdls_mem->d_J_data,
+                               vtemp1, vtemp2, vtemp3);
+    }
+    if (retval < 0) {
+      cvProcessError(cv_mem, CVDLS_JACFUNC_UNRECVR, "CVDLS",
+                     "cvDlsSetupMatrix", MSGD_JACFUNC_FAILED);
+      cvdls_mem->d_last_flag = CVDLS_JACFUNC_UNRECVR;
+      return(-1);
+    }
+    if (retval > 0) {
+      cvdls_mem->d_last_flag = CVDLS_JACFUNC_RECVR;
+      return(1);
+    }
+
+    if (DENSE) {
+      DenseCopy(cvdls_mem->d_M, cvdls_mem->d_savedJ);
+    } else {
+      BandCopy(cvdls_mem->d_M, cvdls_mem->d_savedJ, cvdls_mem->d_mu, cvdls_mem->d_ml);
+    }
+
+  }
+  
+  /* Scale and add I to get M = I - gamma*J */
+  if (DENSE) {
+    DenseScale(-cv_mem->cv_gamma, cvdls_mem->d_M);
+  } else {
+    BandScale(-cv_mem->cv_gamma, cvdls_mem->d_M);
+  }
+  AddIdentity(cvdls_mem->d_M);
+    
+  return(CVDLS_SUCCESS);
+}
 
 /* 
  * =================================================================

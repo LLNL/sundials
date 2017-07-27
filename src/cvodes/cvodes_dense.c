@@ -36,9 +36,8 @@
 
 /* CVSDENSE linit, lsetup, lsolve, and lfree routines */
 static int cvDenseInit(CVodeMem cv_mem);
-static int cvDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-                        N_Vector fpred, booleantype *jcurPtr, 
-                        N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+static int cvDenseSetup(void* cur_state, N_Vector vtemp1,
+                        N_Vector vtemp2, N_Vector vtemp3);
 static int cvDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                         N_Vector ycur, N_Vector fcur);
 static int cvDenseFree(CVodeMem cv_mem);
@@ -211,62 +210,21 @@ static int cvDenseInit(CVodeMem cv_mem)
  * -----------------------------------------------------------------
  */
 
-static int cvDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-                        N_Vector fpred, booleantype *jcurPtr, 
-                        N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+static int cvDenseSetup(void* current_state, N_Vector vtemp1,
+                        N_Vector vtemp2, N_Vector vtemp3)
 {
-  CVDlsMem cvdls_mem;
-  booleantype jbad, jok;
-  realtype dgamma;
-  int retval;
   sunindextype ier;
+  CVDlsMem cvdls_mem;
+  cvLinPoint *cur_state;
 
-  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
+  cur_state = (cvLinPoint*) current_state;
+  cvdls_mem = (CVDlsMem) cur_state->cv_mem->cv_lmem;
  
-  /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
- 
-  dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
-  jbad = (cv_mem->cv_nst == 0) ||
-    (cv_mem->cv_nst > cvdls_mem->d_nstlj + CVD_MSBJ) ||
-    ((convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
-    (convfail == CV_FAIL_OTHER);
-  jok = !jbad;
- 
-  if (jok) {
-
-    /* If jok = TRUE, use saved copy of J */
-    *jcurPtr = FALSE;
-    DenseCopy(cvdls_mem->d_savedJ, cvdls_mem->d_M);
-
-  } else {
-
-    /* If jok = FALSE, call jac routine for new J value */
-    cvdls_mem->d_nje++;
-    cvdls_mem->d_nstlj = cv_mem->cv_nst;
-    *jcurPtr = TRUE;
-    SetToZero(cvdls_mem->d_M);
-
-    retval = cvdls_mem->d_djac(cvdls_mem->d_n, cv_mem->cv_tn, ypred,
-                               fpred, cvdls_mem->d_M, cvdls_mem->d_J_data,
-                               vtemp1, vtemp2, vtemp3);
-    if (retval < 0) {
-      cvProcessError(cv_mem, CVDLS_JACFUNC_UNRECVR, "CVSDENSE", "cvDenseSetup", MSGD_JACFUNC_FAILED);
-      cvdls_mem->d_last_flag = CVDLS_JACFUNC_UNRECVR;
-      return(-1);
-    }
-    if (retval > 0) {
-      cvdls_mem->d_last_flag = CVDLS_JACFUNC_RECVR;
-      return(1);
-    }
-
-    DenseCopy(cvdls_mem->d_M, cvdls_mem->d_savedJ);
-
-  }
+  /* setup system matrix */
+  ier = cvDlsSetupMatrix(cur_state, vtemp1, vtemp2, vtemp3);
+  if (ier < 0)  return(-1);
+  if (ier > 0)  return(1);
   
-  /* Scale and add I to get M = I - gamma*J */
-  DenseScale(-cv_mem->cv_gamma, cvdls_mem->d_M);
-  AddIdentity(cvdls_mem->d_M);
-
   /* Do LU factorization of M */
   ier = DenseGETRF(cvdls_mem->d_M, cvdls_mem->d_lpivots); 
 

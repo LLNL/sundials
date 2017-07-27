@@ -30,6 +30,7 @@
 #define _CVSDLS_H
 
 #include <sundials/sundials_direct.h>
+#include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */

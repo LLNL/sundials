@@ -23,6 +23,7 @@
 #define _CVSDLS_IMPL_H
 
 #include <cvodes/cvodes_direct.h>
+#include "cvodes_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -97,6 +98,19 @@ typedef struct CVDlsMemRec {
  * -----------------------------------------------------------------
  */
 
+/*
+ * -----------------------------------------------------------------
+ * PRIVATE FUNCTIONS 
+ * -----------------------------------------------------------------
+ */
+
+int cvDlsSetupMatrix(cvLinPoint *cur_state, N_Vector vtemp1,
+                     N_Vector vtemp2, N_Vector vtemp3);
+  
+
+int cvDlsDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
+               void *data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+  
 int cvDlsDenseDQJac(sunindextype N, realtype t,
                     N_Vector y, N_Vector fy, 
                     DlsMat Jac, void *data,

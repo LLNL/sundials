@@ -49,20 +49,16 @@
 
 /* CVSLAPACK DENSE linit, lsetup, lsolve, and lfree routines */ 
 static int cvLapackDenseInit(CVodeMem cv_mem);
-static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail, 
-                              N_Vector yP, N_Vector fctP, 
-                              booleantype *jcurPtr,
-                              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int cvLapackDenseSetup(void* cur_state, N_Vector tmp1,
+                              N_Vector tmp2, N_Vector tmp3);
 static int cvLapackDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                               N_Vector yC, N_Vector fctC);
 static int cvLapackDenseFree(CVodeMem cv_mem);
 
 /* CVSLAPACK BAND linit, lsetup, lsolve, and lfree routines */ 
 static int cvLapackBandInit(CVodeMem cv_mem);
-static int cvLapackBandSetup(CVodeMem cv_mem, int convfail, 
-                             N_Vector yP, N_Vector fctP, 
-                             booleantype *jcurPtr,
-                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int cvLapackBandSetup(void* cur_state, N_Vector tmp1,
+                             N_Vector tmp2, N_Vector tmp3);
 static int cvLapackBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                              N_Vector yC, N_Vector fctC);
 static int cvLapackBandFree(CVodeMem cv_mem);
@@ -347,17 +343,19 @@ static int cvLapackDenseInit(CVodeMem cv_mem)
  * saved copy. In any case, it constructs the Newton matrix M = I - gamma*J
  * updates counters, and calls the dense LU factorization routine.
  */
-static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
-                              N_Vector yP, N_Vector fctP,
-                              booleantype *jcurPtr,
-                              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int cvLapackDenseSetup(void* current_state, N_Vector tmp1,
+                              N_Vector tmp2, N_Vector tmp3)
 {
   CVDlsMem cvdls_mem;
   realtype dgamma, fact;
   booleantype jbad, jok;
   int ier, retval, one = 1;
   int intn, lenmat;
+  CVodeMem cv_mem;
+  cvLinPoint *cur_state;
 
+  cur_state = (cvLinPoint*) current_state;
+  cv_mem = cur_state->cv_mem;
   cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
   intn = (int) cvdls_mem->d_n;
   lenmat = cvdls_mem->d_M->ldata;
@@ -385,8 +383,8 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
     *jcurPtr = TRUE;
     SetToZero(cvdls_mem->d_M);
 
-    retval = cvdls_mem->d_djac(cvdls_mem->d_n, cv_mem->cv_tn,
-                               yP, fctP, cvdls_mem->d_M, cvdls_mem->d_J_data,
+    retval = cvdls_mem->d_djac(cvdls_mem->d_n, cur_state->t,
+                               cur_state->y, cur_state->f, cvdls_mem->d_M, cvdls_mem->d_J_data,
                                tmp1, tmp2, tmp3);
     if (retval == 0) {
       dcopy_f77(&lenmat, cvdls_mem->d_M->data, &one, cvdls_mem->d_savedJ->data, &one);
@@ -505,17 +503,19 @@ static int cvLapackBandInit(CVodeMem cv_mem)
  * saved copy. In any case, it constructs the Newton matrix M = I - gamma*J, 
  * updates counters, and calls the band LU factorization routine.
  */
-static int cvLapackBandSetup(CVodeMem cv_mem, int convfail, 
-                             N_Vector yP, N_Vector fctP, 
-                             booleantype *jcurPtr,
-                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int cvLapackBandSetup(void* current_state, N_Vector tmp1,
+                             N_Vector tmp2, N_Vector tmp3)
 {
   CVDlsMem cvdls_mem;
   realtype dgamma, fact;
   booleantype jbad, jok;
   int ier, retval, one = 1;
   int intn, iml, imu, lenmat, ldmat;
+  CVodeMem cv_mem;
+  cvLinPoint *cur_state;
 
+  cur_state = (cvLinPoint*) current_state;
+  cv_mem = cur_state->cv_mem;
   cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
   intn = (int) cvdls_mem->d_n;
@@ -548,7 +548,8 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
     SetToZero(cvdls_mem->d_M); 
 
     retval = cvdls_mem->d_bjac(cvdls_mem->d_n, cvdls_mem->d_mu,
-                               cvdls_mem->d_ml, cv_mem->cv_tn, yP, fctP,
+                               cvdls_mem->d_ml, cur_state->t,
+                               cur_state->y, cur_state->f,
                                cvdls_mem->d_M, cvdls_mem->d_J_data,
                                tmp1, tmp2, tmp3);
     if (retval == 0) {

@@ -73,6 +73,7 @@ typedef struct CVSpilsMemRec {
   long int s_nli;       /* nli = total number of linear iterations      */
   long int s_nps;       /* nps = total number of psolve calls           */
   long int s_ncfl;      /* ncfl = total number of convergence failures  */
+  long int s_njtsetup;  /* njtsetup = total number of calls to jtsetup  */
   long int s_njtimes;   /* njtimes = total number of calls to jtimes    */
   long int s_nfes;      /* nfeSG = total number of calls to f for     
 			   difference quotient Jacobian-vector products */
@@ -94,6 +95,7 @@ typedef struct CVSpilsMemRec {
    */
   CVSpilsPrecSetupFn s_pset;
   CVSpilsPrecSolveFn s_psolve;
+  int s_jok;     /* THIS IS CURRENTLY HELD IN EACH SOLVER INTERFACE; USE THIS ONE INSTEAD */
   int (*s_pfree)(CVodeMem cv_mem);
   void *s_P_data;
 
@@ -106,6 +108,7 @@ typedef struct CVSpilsMemRec {
    *     - jtimesDQ == TRUE
    */
   booleantype s_jtimesDQ;
+  CVSpilsJacTimesSetupFn s_jtsetup;
   CVSpilsJacTimesVecFn s_jtimes;
   void *s_j_data;
 
@@ -119,9 +122,13 @@ typedef struct CVSpilsMemRec {
  * -----------------------------------------------------------------
  */
 
-/* Atimes and PSolve routines called by generic solver */
+/* ATSetup, Atimes, PSetup and PSolve routines called by generic solver */
+
+int CVSpilsATSetup(void *cv_mem);
 
 int CVSpilsAtimes(void *cv_mem, N_Vector v, N_Vector z);
+
+int CVSpilsPSetup(void *cv_mem);
 
 int CVSpilsPSolve(void *cv_mem, N_Vector r, N_Vector z,
                   realtype tol, int lr);
@@ -131,6 +138,13 @@ int CVSpilsPSolve(void *cv_mem, N_Vector r, N_Vector z,
 int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
                     N_Vector y, N_Vector fy, void *data,
                     N_Vector work);
+
+/* wrapper for user-supplied preconditioner setup routine; supplies 
+   update suggestion based on solver heuristics */
+  
+int cvSpilsCallPSetup(cvLinPoint *cur_state, N_Vector vtemp1,
+                      N_Vector vtemp2, N_Vector vtemp3);
+  
 
 /* Auxilliary functions */
 int cvSpilsInitializeCounters(CVSpilsMem cvspils_mem);
@@ -153,6 +167,8 @@ int cvSpilsInitializeCounters(CVSpilsMem cvspils_mem);
 
 typedef struct CVSpilsMemRecB {
 
+  CVSpilsJacTimesSetupFnB s_jtsetupB;
+  CVSpilsJacTimesSetupFnBS s_jtsetupBS;
   CVSpilsJacTimesVecFnB s_jtimesB;
   CVSpilsJacTimesVecFnBS s_jtimesBS;
   CVSpilsPrecSetupFnB s_psetB;

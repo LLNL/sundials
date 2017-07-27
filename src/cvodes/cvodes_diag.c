@@ -34,8 +34,7 @@
 
 static int CVDiagInit(CVodeMem cv_mem);
 
-static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-                       N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
+static int CVDiagSetup(void* current_state, N_Vector vtemp1,
                        N_Vector vtemp2, N_Vector vtemp3);
 
 static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
@@ -299,8 +298,7 @@ static int CVDiagInit(CVodeMem cv_mem)
  * -----------------------------------------------------------------
  */
 
-static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-                       N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
+static int CVDiagSetup(void* current_state, N_Vector vtemp1,
                        N_Vector vtemp2, N_Vector vtemp3)
 {
   realtype r;
@@ -308,7 +306,11 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   booleantype invOK;
   CVDiagMem cvdiag_mem;
   int retval;
+  CVodeMem cv_mem;
+  cvLinPoint *cur_state;
 
+  cur_state = (cvLinPoint*) current_state;
+  cv_mem = cur_state->cv_mem;
   cvdiag_mem = (CVDiagMem) cv_mem->cv_lmem;
 
   /* Rename work vectors for use as temporary values of y and f */
@@ -317,11 +319,11 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
   /* Form y with perturbation = FRACT*(func. iter. correction) */
   r = FRACT * cv_mem->cv_rl1;
-  N_VLinearSum(cv_mem->cv_h, fpred, -ONE, cv_mem->cv_zn[1], ftemp);
-  N_VLinearSum(r, ftemp, ONE, ypred, y);
+  N_VLinearSum(cv_mem->cv_h, cur_state->f, -ONE, cv_mem->cv_zn[1], ftemp);
+  N_VLinearSum(r, ftemp, ONE, cur_state->y, y);
 
   /* Evaluate f at perturbed y */
-  retval = cv_mem->cv_f(cv_mem->cv_tn, y, cvdiag_mem->di_M, cv_mem->cv_user_data);
+  retval = cv_mem->cv_f(cur_state->t, y, cvdiag_mem->di_M, cv_mem->cv_user_data);
   cvdiag_mem->di_nfeDI++;
   if (retval < 0) {
     cvProcessError(cv_mem, CVDIAG_RHSFUNC_UNRECVR, "CVDIAG", "CVDiagSetup", MSGDG_RHSFUNC_FAILED);
@@ -334,7 +336,7 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   }
 
   /* Construct M = I - gamma*J with J = diag(deltaf_i/deltay_i) */
-  N_VLinearSum(ONE, cvdiag_mem->di_M, -ONE, fpred, cvdiag_mem->di_M);
+  N_VLinearSum(ONE, cvdiag_mem->di_M, -ONE, cur_state->f, cvdiag_mem->di_M);
   N_VLinearSum(FRACT, ftemp, -cv_mem->cv_h, cvdiag_mem->di_M, cvdiag_mem->di_M);
   N_VProd(ftemp, cv_mem->cv_ewt, y);
   /* Protect against deltay_i being at roundoff level */
@@ -354,7 +356,7 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   }
 
   /* Set jcur = TRUE, save gamma in gammasv, and return */
-  *jcurPtr = TRUE;
+  cv_mem->cv_jcur = TRUE;
   cvdiag_mem->di_gammasv = cv_mem->cv_gamma;
   cvdiag_mem->di_last_flag = CVDIAG_SUCCESS;
   return(0);
