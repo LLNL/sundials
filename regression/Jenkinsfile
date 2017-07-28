@@ -5,6 +5,8 @@ pipeline {
     stages {
         stage('Test') {
             steps {
+              echo "Running tests as..."           
+              sh('whoami')
               echo "Build and Test..."
               sh('cd regression && ./suntest_driver.sh')
             }
