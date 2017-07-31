@@ -92,9 +92,6 @@ fi
 date | tee -a suntest.log
 echo "--------------------------------------------------" | tee -a suntest.log
 
-# set to fail to test email notification
-nfail=1
-
 # ------------------------------------------------------------------------------
 # Email notification
 ./suntest_notify.py $nfail $BRANCHNAME $TESTURL
