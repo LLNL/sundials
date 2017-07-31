@@ -64,7 +64,7 @@ for ((i=0; i<${#realtype[@]}; i++)); do
     for ((j=0; j<${#indextype[@]}; j++)); do
 
         # print test label for Jenkins section collapsing
-        echo "TEST: ./suntest.sh ${realtype[i]} ${indextype[j]} $buildthreads"
+        echo -e "TEST: ./suntest.sh ${realtype[i]} ${indextype[j]} $buildthreads \n"
 
         # run tests
         ./suntest.sh ${realtype[i]} ${indextype[j]} $buildthreads

@@ -1,4 +1,4 @@
-Jenkins Setup Instrucitons and Usage Information
+Jenkins Setup Instructions and Usage Information
 
 This file describes how to setup the Jenkins automation server for
 continuous integration of the SUNDIALS Git repository. The steps below
@@ -24,8 +24,8 @@ Installing Jenkins:
 
    > sudo service jenkins start
 
-4) Open a web browser and navagate to http://systemaddress:8080/
-   where systemaddress is the network address of the machine Jenkins
+4) Open a web browser and navigate to http://system-address:8080/
+   where system-address is the network address of the machine Jenkins
    was installed on e.g., http://tux369.llnl.gov:8080/
 
 5) Click "select plugins to install"
@@ -49,18 +49,23 @@ Installing Jenkins:
 
 ======================================================================
 
-Adding the Bitbucket Branch Source Plugin:
+Additional Plugins:
 
-For better integrate with the local Bitbucket server, Git branches,
-and pull requests we need to install an additional Jenkins plugin.
+The "Bitbucket Branch Source Plugin" provides better integration with
+the local Bitbucket server, Git branches, and pull requests. 
 
-1) Navagate to Manage Jenkins > Manage Plugins
+The "Collapsing Console Sections Plugin" provides better readability
+of the Jenkins console output by enabling collapsible sections.
+
+To install these plugins:
+
+1) Navigate to Manage Jenkins > Manage Plugins
 
 2) Click the "Available" tab
 
-3) Seach for "bitbucket"
+3) Search for the plugin name
 
-4) Check the box next to "Bitbucket Branch Source Plugin"
+4) Check the box next to plugin
 
 5) Click "install without restart"
 
@@ -71,12 +76,12 @@ Adding Credentials:
 For Jenkins to use the Bitbucket server API we need to provide it with
 a user's credentials.
 
-1) Navagate to Credentials > global 
+1) Navigate to Credentials > global 
 
 2) Click "Add Credentials"
 
 3) The Kind should be "Username and password" and the Scope should be
-   "Global (Jenkins, nodes, items, all child itmes, etc)". Fill in the
+   "Global (Jenkins, nodes, items, all child items, etc)". Fill in the
    username and password then click OK.
 
    Note: The saved login information in Jenkins will need to be
@@ -97,12 +102,12 @@ To clone repositories Jenkins will need a pair of SSH keys.
    > cp id_rsa* jenkins
    > cp key_backup/id_rsa* .
 
-2) Navagate to Credentials > global 
+2) Navigate to Credentials > global 
 
 3) Click "Add Credentials"
 
 4) The Kind should be "SSH Username with private key", Scope
-   should be "Global (Jenkins, nodes, items, all child itmes,
+   should be "Global (Jenkins, nodes, items, all child items,
    etc)", and fill in the Username as Jenkins. For the Private Key
    field:
    
@@ -113,10 +118,10 @@ To clone repositories Jenkins will need a pair of SSH keys.
 
       where username is the user name set for JENKINS_USER below.
 
-   b) If you are not chaning the JENKINS_USER (see below) then you
+   b) If you are not changing the JENKINS_USER (see below) then you
       you will need to either use the "Enter directly" option or
       transfer ownership of the keys to the local user jenkins, move
-      them a directory the local jenkins user can acces, and enter the
+      them a directory the local jenkins user can access, and enter the
       path to as in a) above.
 
    Then click OK.
@@ -125,10 +130,10 @@ To clone repositories Jenkins will need a pair of SSH keys.
 
 Adding a Bitbucket Server:
 
-Because the reposity is located in a local Bitbucket server we need to
+Because the repository is located in a local Bitbucket server we need to
 give this information to Jenkins:
 
-1) Navagate to Manage Jenkins > Configure System
+1) Navigate to Manage Jenkins > Configure System
 
 2) Under Bitbucket Endpoints, click on "Add" and select "Bitbucket
    Server" 
@@ -142,13 +147,13 @@ give this information to Jenkins:
 
 Changing Git:
 
-If you are chaning the JENKINS_USER (see below) then you may also need
+If you are changing the JENKINS_USER (see below) then you may also need
 to change the installation of Git that Jenkins uses. When Jenkins is
 run under a different user uses the .gitconfig file of that
 user. Depending on the options set in .gitconfig Jenkins may need to
 use a different (newer) install of Git than it find by default. 
 
-1) Navagate to Manage Jenkins > Global Tool Configuration
+1) Navigate to Manage Jenkins > Global Tool Configuration
 
 2) Under Git, change "Path to Git executable" to the desired
    installation of Git (e.g. https://mybitbucket.llnl.gov)
@@ -157,14 +162,14 @@ use a different (newer) install of Git than it find by default.
 
 ======================================================================
 
-Enabeling Anonymous Read Access:
+Enabling Anonymous Read Access:
 
 For users to view the build status without needing to logging in to
 Jenkins will enable anonymous read access.
 
-1) Navagate to Manage Jenkins > Configure Global Security
+1) Navigate to Manage Jenkins > Configure Global Security
 
-2) Under Access Control > Authroization, check the box in front of
+2) Under Access Control > Authorization, check the box in front of
    "Allow anonymous read access"
 
 3) Click "Save"
@@ -175,12 +180,12 @@ Changing JENKINS_USER:
 
 Regression testing in SUNDIALS utilizes external libraries (e.g. MPI,
 LAPACK, hypre, etc.) that are installed in a shared location
-(/usr/casc/apps) that is accessabe to members of the nsde Acitve
+(/usr/casc/apps) that is accessible to members of the nsde Active
 Directory group. By default Jenkins is installed and runs as the local
 user jenkins. As a local jenkins user can not be added to the nsde
 group and so is not able to access the shared directory. If the
 libraries used in regression testing are installed in a local
-directory accessable to the jenkins user (e.g. /usr/lib) then the
+directory accessible to the jenkins user (e.g. /usr/lib) then the
 following steps are not necessary.
 
 The following instructions describe how to change the user Jenkins is
@@ -236,7 +241,7 @@ pipeline for a multibranch Bitbucket server repository.
 
    d) Repository Name: select the desired repo name (e.g. sunrepo)
 
-6) Under Bitbucker click "Add" and select "Checkout over SSH." Click
+6) Under Bitbucket click "Add" and select "Checkout over SSH." Click
    "Credentials" select  and and select Jenkins.
 
 7) Under Scan Multibranch Pipeline Trigger, check the box next to
@@ -250,7 +255,7 @@ pipeline for a multibranch Bitbucket server repository.
 
 8) Click "Save"
 
-Jenkins will now scan the reposity for branches and pull requests that
+Jenkins will now scan the repository for branches and pull requests that
 contain a Jenkinsfile and run the pipeline for any branches or pull
 requests with a Jenkinsfile. 
 
