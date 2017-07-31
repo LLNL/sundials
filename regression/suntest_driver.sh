@@ -15,14 +15,28 @@
 # SUNDIALS regression testing driver script
 # -------------------------------------------------------------------------------
 
-# number of threads for parallel builds (optional)
-nbt=4
+# check number of inputs
+if [ "$#" -lt 2 ]; then
+    echo "ERROR: Illegal number of parameters, branch name and test URL required"
+    exit 1
+fi
+BRANCHNAME=$1 
+TESTURL=$2
 
-# initialize failure counter
+# add newer python install to path
+export PATH=/usr/apps/python/latest/bin:$PATH
+
+# use newer version of Git (same as Jenkins uses) to path
+source /usr/apps/git/2.9.4/setup.sh
+
+# number of threads for parallel builds (optional, if empty will use all threads)
+buildthreads=4
+
+# initialize failure counter (0 = success)
 nfail=0
 
 # real and index types to test
-# NOTE: need to create answers for different realtypes
+# NOTE: may need to create answer files for different realtypes
 # NOTE: master branch will ignore indextype
 realtype=('double')
 indextype=('signed_64bit')
@@ -39,8 +53,10 @@ indextype=('signed_64bit')
 # ------------------------------------------------------------------------------
 # Run regression tests
 echo "--------------------------------------------------" | tee -a suntest.log
-echo "SUNDIALS Regression Tests" | tee -a suntest.log
+echo "SUNDIALS regression tests on $BRANCHNAME branch   " | tee -a suntest.log
 date | tee -a suntest.log
+echo "--------------------------------------------------" | tee -a suntest.log
+git log -1 | tee -a suntest.log
 echo "--------------------------------------------------" | tee -a suntest.log
 
 # loop over build options
@@ -48,10 +64,10 @@ for ((i=0; i<${#realtype[@]}; i++)); do
     for ((j=0; j<${#indextype[@]}; j++)); do
 
         # print test label for Jenkins section collapsing
-        echo "TEST: ./suntest.sh ${realtype[i]} ${indextype[j]} $nbt"
+        echo "TEST: ./suntest.sh ${realtype[i]} ${indextype[j]} $buildthreads"
 
         # run tests
-        ./suntest.sh ${realtype[i]} ${indextype[j]} $nbt
+        ./suntest.sh ${realtype[i]} ${indextype[j]} $buildthreads
 
         # check return flag
         if [ $? -ne 0 ]; then
@@ -67,13 +83,18 @@ done
 # ------------------------------------------------------------------------------
 # Return overall pass/fail
 echo "--------------------------------------------------" | tee -a suntest.log
-echo "Regression Tests Completed" | tee -a suntest.log
-date | tee -a suntest.log
+echo "SUNDIALS regression tests on $BRANCHNAME branch   " | tee -a suntest.log
 if [ $nfail -ne 0 ]; then
     echo "FAILED: $nfail failures." | tee -a suntest.log
 else
     echo "PASSED" | tee -a suntest.log
 fi
+date | tee -a suntest.log
 echo "--------------------------------------------------" | tee -a suntest.log
 
+# ------------------------------------------------------------------------------
+# Email notification
+./suntest_notify.py $nfail $BRANCHNAME $TESTURL
+
+# return pass/fail
 exit $nfail

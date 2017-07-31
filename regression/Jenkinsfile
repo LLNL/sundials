@@ -9,7 +9,7 @@ pipeline {
               echo "END JENKINS SETUP"
 
               // run regression tests
-              sh('cd regression && ./suntest_driver.sh')
+              sh("cd regression && ./suntest_driver.sh ${env.BRANCH_NAME} ${env.BUILD_URL}")
             }
         }
     }

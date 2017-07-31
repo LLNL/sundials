@@ -20,12 +20,9 @@ if [ "$#" -lt 2 ]; then
     echo "ERROR: Illegal number of parameters, real and index type required"
     exit 1
 fi
-realtype=$1   # required, precision for realtypes
-indextype=$2  # required, integer type for indices
-nbt=$3        # optional, number of build threads
-
-# add newer python install to path
-export PATH=/usr/apps/python/latest/bin:$PATH
+realtype=$1     # required, precision for realtypes
+indextype=$2    # required, integer type for indices
+buildthreads=$3 # optional, number of build threads (if empty will use all threads)
 
 # number of threads in OpenMP examples
 export OMP_NUM_THREADS=4
@@ -54,7 +51,7 @@ cd suntest_${realtype}_${indextype}
 # Note the -LAH flag lists the non-advanced cached variables (L), 
 # the dvanced variables (A), and help for each variable (H). This
 # will not print any system variables.
-echo "START CMAKE" # label for section collapsing in Jenkins
+echo "START CMAKE"
 $MYCMAKE \
     -D SUNDIALS_PRECISION=$realtype \
     -D SUNDIALS_INDEX_TYPE=$indextype \
@@ -106,36 +103,30 @@ $MYCMAKE \
 rc=${PIPESTATUS[0]}
 echo -e "\ncmake returned $rc\n" | tee -a configure.log
 if [ $rc -ne 0 ]; then
-    echo "END CMAKE"
     exit 1
 fi
-echo "END CMAKE" # label for section collapsing in Jenkins
 
 # build sundials
-echo "START MAKE" # label for section collapsing in Jenkins
-make -j $nbt 2>&1 | tee make.log
+echo "START MAKE"
+make -j $buildthreads 2>&1 | tee make.log
 
 # check make return code
 rc=${PIPESTATUS[0]}
 echo -e "\nmake returned $rc\n" | tee -a make.log
 if [ $rc -ne 0 ]; then
-    echo "END MAKE"
     exit 1
 fi
-echo "END MAKE" # label for section collapsing in Jenkins
 
 # test sundials
-echo "START TEST" # label for section collapsing in Jenkins
+echo "START TEST"
 make test 2>&1 | tee test.log
 
 # check make test return code
 rc=${PIPESTATUS[0]}
 echo -e "\nmake test returned $rc\n" | tee -a test.log
 if [ $rc -ne 0 ]; then
-    echo "END TEST"
     exit 1
 fi
-echo "END TEST" # label for section collapsing in Jenkins
 
 # if we make it here all tests have passed
 exit 0
