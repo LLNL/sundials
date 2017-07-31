@@ -88,13 +88,12 @@ def sendEmail(recipient, subject, message):
     fp.close()
 
     # sender's email address
-    sender = "SUNDIALS.Jenkins@llnl.gov"
+    sender = "SUNDIALS.suntest@llnl.gov"
 
     # email settings
     msg['Subject'] = subject
     msg['From'] = sender
     msg['To'] = recipient
-    msg.add_header('reply-to', "sundials-devs@llnl.gov")
 
     # Send the message via our own SMTP server, but don't include the
     # envelope header.
