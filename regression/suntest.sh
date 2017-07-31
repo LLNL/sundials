@@ -1,27 +1,19 @@
 #!/bin/bash
-# ------------------------------------------------------------------------------
-# SUNDIALS Maximal Regression Test
-# ------------------------------------------------------------------------------
-# configure sundials with CMake
-#
-# set compiler flags to check for non-standard code
-# -ansi  OR  -std-c89  OR  -std=c99  OR  -std=c11
-# NOTE: PETSC requires -std=c99 or newer
-# 
-# enable mpi
-# enable openmp
-# enable pthreads
-#
-# enable FCMIX
-# enable F90
-# enable C++
-#
-# enable lapack
-# enable klu
-# enable hypre
-# enable PETSc
-# enable SUPERLU_MT
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
+# Programmer(s): David J. Gardner @ LLNL 
+# -------------------------------------------------------------------------------
+# LLNS Copyright Start
+# Copyright (c) 2014, Lawrence Livermore National Security
+# This work was performed under the auspices of the U.S. Department 
+# of Energy by Lawrence Livermore National Laboratory in part under 
+# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# LLNS Copyright End
+# -------------------------------------------------------------------------------
+# SUNDIALS regression testing script with all external libraries enabled
+# -------------------------------------------------------------------------------
 
 # check number of inputs
 if [ "$#" -lt 2 ]; then
@@ -62,6 +54,7 @@ cd suntest_${realtype}_${indextype}
 # Note the -LAH flag lists the non-advanced cached variables (L), 
 # the dvanced variables (A), and help for each variable (H). This
 # will not print any system variables.
+echo "START CMAKE" # label for section collapsing in Jenkins
 $MYCMAKE \
     -D SUNDIALS_PRECISION=$realtype \
     -D SUNDIALS_INDEX_TYPE=$indextype \
@@ -113,28 +106,36 @@ $MYCMAKE \
 rc=${PIPESTATUS[0]}
 echo -e "\ncmake returned $rc\n" | tee -a configure.log
 if [ $rc -ne 0 ]; then
+    echo "END CMAKE"
     exit 1
 fi
+echo "END CMAKE" # label for section collapsing in Jenkins
 
 # build sundials
+echo "START MAKE" # label for section collapsing in Jenkins
 make -j $nbt 2>&1 | tee make.log
 
 # check make return code
 rc=${PIPESTATUS[0]}
 echo -e "\nmake returned $rc\n" | tee -a make.log
 if [ $rc -ne 0 ]; then
+    echo "END MAKE"
     exit 1
 fi
+echo "END MAKE" # label for section collapsing in Jenkins
 
 # test sundials
+echo "START TEST" # label for section collapsing in Jenkins
 make test 2>&1 | tee test.log
 
 # check make test return code
 rc=${PIPESTATUS[0]}
 echo -e "\nmake test returned $rc\n" | tee -a test.log
 if [ $rc -ne 0 ]; then
+    echo "END TEST"
     exit 1
 fi
+echo "END TEST" # label for section collapsing in Jenkins
 
 # if we make it here all tests have passed
 exit 0

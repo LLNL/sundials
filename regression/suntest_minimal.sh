@@ -1,20 +1,18 @@
 #!/bin/bash
-# ------------------------------------------------------------------------------
-# SUNDIALS Minimal Regression Test
-# ------------------------------------------------------------------------------
-# configure sundials with CMake
-#
-# set compiler flags to check for non-standard code
-# -ansi  OR  -std-c89  OR  -std=c99  OR  -std=c11
-# NOTE: PETSC requires -std=c99 or newer
-# 
-# enable mpi
-# enable openmp
-# enable pthreads
-#
-# enable FCMIX
-# enable F90
-# enable C++
+# -------------------------------------------------------------------------------
+# Programmer(s): David J. Gardner @ LLNL 
+# -------------------------------------------------------------------------------
+# LLNS Copyright Start
+# Copyright (c) 2014, Lawrence Livermore National Security
+# This work was performed under the auspices of the U.S. Department 
+# of Energy by Lawrence Livermore National Laboratory in part under 
+# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# LLNS Copyright End
+# -------------------------------------------------------------------------------
+# SUNDIALS regression testing script with no external libraries enabled
 # ------------------------------------------------------------------------------
 
 # check number of inputs
