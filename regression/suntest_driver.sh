@@ -47,6 +47,9 @@ echo "--------------------------------------------------" | tee -a suntest.log
 for ((i=0; i<${#realtype[@]}; i++)); do
     for ((j=0; j<${#indextype[@]}; j++)); do
 
+        # print test label for Jenkins section collapsing
+        echo "TEST: ./suntest.sh ${realtype[i]} ${indextype[j]} $nbt"
+
         # run tests
         ./suntest.sh ${realtype[i]} ${indextype[j]} $nbt
 
@@ -57,6 +60,7 @@ for ((i=0; i<${#realtype[@]}; i++)); do
         else
             echo "PASSED: ${realtype[i]} ${indextype[j]}" | tee -a suntest.log
         fi
+
     done
 done
 

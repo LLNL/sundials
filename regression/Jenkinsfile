@@ -5,9 +5,10 @@ pipeline {
     stages {
         stage('Test') {
             steps {
-              echo "Running tests as..."           
-              sh('whoami')
-              echo "Build and Test..."
+              // output for collapse setions plugin
+              echo "END JENKINS SETUP"
+
+              // run regression tests
               sh('cd regression && ./suntest_driver.sh')
             }
         }
