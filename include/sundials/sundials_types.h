@@ -113,12 +113,8 @@ typedef long double realtype;
 
 #if defined(SUNDIALS_SIGNED_64BIT_TYPE)
 typedef int64_t sunindextype;
-#elif defined(SUNDIALS_UNSIGNED_64BIT_TYPE)
-typedef uint64_t sunindextype;
 #elif defined(SUNDIALS_SIGNED_32BIT_TYPE)
 typedef int32_t sunindextype;
-#elif defined(SUNDIALS_UNSIGNED_32BIT_TYPE)
-typedef uint32_t
 #endif
 
 
