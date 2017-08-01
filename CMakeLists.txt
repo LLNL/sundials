@@ -252,7 +252,7 @@ SET(PRECISION_LEVEL "#define SUNDIALS_${SUNDIALS_PRECISION}_PRECISION 1")
 
 SET(SUNDIALS_INDEX_TYPE "signed_64bit" CACHE STRING "signed_64bit or signed_32bit")
 
-# prepare substitution variable PRECISION_LEVEL for sundials_config.h
+# prepare substitution variable INDEX_TYPE for sundials_config.h
 STRING(TOUPPER ${SUNDIALS_INDEX_TYPE} SUNDIALS_INDEX_TYPE)
 SET(INDEX_TYPE "#define SUNDIALS_${SUNDIALS_INDEX_TYPE}_TYPE 1")
 
