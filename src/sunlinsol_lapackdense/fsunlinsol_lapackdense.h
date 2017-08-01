@@ -34,9 +34,11 @@ extern "C" {
 #endif
 
 #if defined(SUNDIALS_F77_FUNC)
-#define FSUNLAPACKDENSE_INIT  SUNDIALS_F77_FUNC(fsunlapackdenseinit, FSUNLAPACKDENSEINIT)
+#define FSUNLAPACKDENSE_INIT     SUNDIALS_F77_FUNC(fsunlapackdenseinit, FSUNLAPACKDENSEINIT)
+#define FSUNMASSLAPACKDENSE_INIT SUNDIALS_F77_FUNC(fsunmasslapackdenseinit, FSUNMASSLAPACKDENSEINIT)
 #else
-#define FSUNLAPACKDENSE_INIT  fsunlapackdenseinit_
+#define FSUNLAPACKDENSE_INIT     fsunlapackdenseinit_
+#define FSUNMASSLAPACKDENSE_INIT fsunmasslapackdenseinit_
 #endif
 
 
@@ -46,14 +48,17 @@ extern SUNLinearSolver F2C_CVODE_linsol;
 extern SUNLinearSolver F2C_IDA_linsol;
 extern SUNLinearSolver F2C_KINSOL_linsol;
 extern SUNLinearSolver F2C_ARKODE_linsol;
+extern SUNLinearSolver F2C_ARKODE_mass_sol;
 
 /* 
  * Prototypes of exported functions 
  *
  * FSUNLAPACKDENSE_INIT - initializes LAPACK dense linear solver for main problem
+ * FSUNMASSLAPACKDENSE_INIT - initializes LAPACK dense linear solver for mass matrix solve
  */
 
 void FSUNLAPACKDENSE_INIT(int *code, int *ier);
+void FSUNMASSLAPACKDENSE_INIT(int *ier);
 
 #ifdef __cplusplus
 }

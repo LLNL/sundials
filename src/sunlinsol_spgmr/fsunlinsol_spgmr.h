@@ -34,9 +34,11 @@ extern "C" {
 #endif
 
 #if defined(SUNDIALS_F77_FUNC)
-#define FSUNSPGMR_INIT   SUNDIALS_F77_FUNC(fsunspgmrinit, FSUNSPGMRINIT)
+#define FSUNSPGMR_INIT     SUNDIALS_F77_FUNC(fsunspgmrinit, FSUNSPGMRINIT)
+#define FSUNMASSSPGMR_INIT SUNDIALS_F77_FUNC(fsunmassspgmrinit, FSUNMASSSPGMRINIT)
 #else
-#define FSUNSPGMR_INIT   fsunspgmrinit_
+#define FSUNSPGMR_INIT     fsunspgmrinit_
+#define FSUNMASSSPGMR_INIT fsunmassspgmrinit_
 #endif
 
 
@@ -46,14 +48,17 @@ extern SUNLinearSolver F2C_CVODE_linsol;
 extern SUNLinearSolver F2C_IDA_linsol;
 extern SUNLinearSolver F2C_KINSOL_linsol;
 extern SUNLinearSolver F2C_ARKODE_linsol;
+extern SUNLinearSolver F2C_ARKODE_mass_sol;
 
 /* 
  * Prototypes of exported functions 
  *
  * FSUNSPGMR_INIT - initializes SPGMR linear solver for main problem
+ * FSUNMASSSPGMR_INIT - initializes SPGMR linear solver for mass matrix solve
  */
 
 void FSUNSPGMR_INIT(int *code, int *pretype, int *maxl, int *ier);
+void FSUNMASSSPGMR_INIT(int *pretype, int *maxl, int *ier);
 
 #ifdef __cplusplus
 }

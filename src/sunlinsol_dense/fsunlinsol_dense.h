@@ -34,9 +34,11 @@ extern "C" {
 #endif
 
 #if defined(SUNDIALS_F77_FUNC)
-#define FSUNDENSELINSOL_INIT   SUNDIALS_F77_FUNC(fsundenselinsolinit, FSUNDENSELINSOLINIT)
+#define FSUNDENSELINSOL_INIT     SUNDIALS_F77_FUNC(fsundenselinsolinit, FSUNDENSELINSOLINIT)
+#define FSUNMASSDENSELINSOL_INIT SUNDIALS_F77_FUNC(fsunmassdenselinsolinit, FSUNMASSDENSELINSOLINIT)
 #else
-#define FSUNDENSELINSOL_INIT   fsundenselinsolinit_
+#define FSUNDENSELINSOL_INIT     fsundenselinsolinit_
+#define FSUNMASSDENSELINSOL_INIT fsunmassdenselinsolinit_
 #endif
 
 
@@ -46,14 +48,17 @@ extern SUNLinearSolver F2C_CVODE_linsol;
 extern SUNLinearSolver F2C_IDA_linsol;
 extern SUNLinearSolver F2C_KINSOL_linsol;
 extern SUNLinearSolver F2C_ARKODE_linsol;
+extern SUNLinearSolver F2C_ARKODE_mass_sol;
 
 /* 
  * Prototypes of exported functions 
  *
  * FSUNDENSELINSOL_INIT - initializes dense linear solver for main problem
+ * FSUNMASSDENSELINSOL_INIT - initializes dense linear solver for mass matrix solve
  */
 
 void FSUNDENSELINSOL_INIT(int *code, int *ier);
+void FSUNMASSDENSELINSOL_INIT(int *ier);
 
 #ifdef __cplusplus
 }

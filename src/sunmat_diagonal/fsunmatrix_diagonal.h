@@ -34,9 +34,11 @@ extern "C" {
 #endif
 
 #if defined(SUNDIALS_F77_FUNC)
-#define FSUNDIAGONALMAT_INIT   SUNDIALS_F77_FUNC(fsundiagonalmatinit, FSUNDIAGONALMATINIT)
+#define FSUNDIAGONALMAT_INIT     SUNDIALS_F77_FUNC(fsundiagonalmatinit, FSUNDIAGONALMATINIT)
+#define FSUNDIAGONALMASSMAT_INIT SUNDIALS_F77_FUNC(fsundiagonalmassmatinit, FSUNDIAGONALMASSMATINIT)
 #else
-#define FSUNDIAGONALMAT_INIT   fsundiagonalmatinit_
+#define FSUNDIAGONALMAT_INIT     fsundiagonalmatinit_
+#define FSUNDIAGONALMASSMAT_INIT fsundiagonalmassmatinit_
 #endif
 
 
@@ -46,14 +48,17 @@ extern SUNMatrix F2C_CVODE_matrix;
 extern SUNMatrix F2C_IDA_matrix;
 extern SUNMatrix F2C_KINSOL_matrix;
 extern SUNMatrix F2C_ARKODE_matrix;
+extern SUNMatrix F2C_ARKODE_mass_matrix;
 
 /* 
  * Prototypes of exported functions 
  *
  * FSUNDIAGONALMAT_INIT - initializes diagonal matrix operations for main problem
+ * FSUNDIAGONALMASSMAT_INIT - initializes diagonal matrix operations for mass matrix solver
  */
 
 void FSUNDIAGONALMAT_INIT(int *code, int *ier);
+void FSUNDIAGONALMASSMAT_INIT(int *ier);
 
 #ifdef __cplusplus
 }

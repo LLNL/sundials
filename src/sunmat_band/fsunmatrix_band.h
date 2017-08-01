@@ -34,9 +34,11 @@ extern "C" {
 #endif
 
 #if defined(SUNDIALS_F77_FUNC)
-#define FSUNBANDMAT_INIT   SUNDIALS_F77_FUNC(fsunbandmatinit, FSUNBANDMATINIT)
+#define FSUNBANDMAT_INIT     SUNDIALS_F77_FUNC(fsunbandmatinit, FSUNBANDMATINIT)
+#define FSUNBANDMASSMAT_INIT SUNDIALS_F77_FUNC(fsunbandmassmatinit, FSUNBANDMASSMATINIT)
 #else
-#define FSUNBANDMAT_INIT   fsunbandmatinit_
+#define FSUNBANDMAT_INIT     fsunbandmatinit_
+#define FSUNBANDMASSMAT_INIT fsunbandmassmatinit_
 #endif
 
 
@@ -46,15 +48,19 @@ extern SUNMatrix F2C_CVODE_matrix;
 extern SUNMatrix F2C_IDA_matrix;
 extern SUNMatrix F2C_KINSOL_matrix;
 extern SUNMatrix F2C_ARKODE_matrix;
+extern SUNMatrix F2C_ARKODE_mass_matrix;
 
 /* 
  * Prototypes of exported functions 
  *
  * FSUNBANDMAT_INIT - initializes band matrix operations for main problem
+ * FSUNBANDMASSMAT_INIT - initializes band matrix operations for mass matrix solve
  */
 
 void FSUNBANDMAT_INIT(int *code, long int *N, long int *mu, long int *ml,
                       long int *smu, int *ier);
+void FSUNBANDMASSMAT_INIT(long int *N, long int *mu, long int *ml,
+                          long int *smu, int *ier);
 
 #ifdef __cplusplus
 }
