@@ -123,7 +123,6 @@ SUNDIALS_EXPORT int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A,
                                                N_Vector x, N_Vector b, realtype tol);
 SUNDIALS_EXPORT int SUNLinSolNumIters_LapackDense(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm_LapackDense(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolNumPSolves_LapackDense(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_LapackDense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolFree_LapackDense(SUNLinearSolver S);
   

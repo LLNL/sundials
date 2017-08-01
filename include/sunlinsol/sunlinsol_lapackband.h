@@ -123,7 +123,6 @@ SUNDIALS_EXPORT int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A,
                                               N_Vector x, N_Vector b, realtype tol);
 SUNDIALS_EXPORT int SUNLinSolNumIters_LapackBand(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm_LapackBand(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolNumPSolves_LapackBand(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_LapackBand(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolFree_LapackBand(SUNLinearSolver S);
   

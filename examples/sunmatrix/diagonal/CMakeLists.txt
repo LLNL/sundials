@@ -43,7 +43,7 @@ IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(SUNMATS_LIB sundials_sunmatrixdiagonal_static)
 ELSE(LINK_LIBRARY_TYPE MATCHES "static")
   SET(NVECS_LIB sundials_nvecserial_shared)
-  SET(NVECP_LIB sundials_nvecsparallel_shared)
+  SET(NVECP_LIB sundials_nvecparallel_shared)
   SET(SUNMATS_LIB sundials_sunmatrixdiagonal_shared)
 ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 

@@ -101,7 +101,6 @@ SUNLinearSolver SUNLapackDense(N_Vector y, SUNMatrix A)
   ops->solve             = SUNLinSolSolve_LapackDense;
   ops->numiters          = SUNLinSolNumIters_LapackDense;
   ops->resnorm           = SUNLinSolResNorm_LapackDense;
-  ops->numpsolves        = SUNLinSolNumPSolves_LapackDense;
   ops->lastflag          = SUNLinSolLastFlag_LapackDense;
   ops->free              = SUNLinSolFree_LapackDense;
 
@@ -247,13 +246,6 @@ realtype SUNLinSolResNorm_LapackDense(SUNLinearSolver S)
 {
   /* direct solvers do not measure the linear residual */
   return(ZERO);
-}
-
-
-int SUNLinSolNumPSolves_LapackDense(SUNLinearSolver S)
-{
-  /* direct solvers do not use preconditioning */
-  return(0);
 }
 
 

@@ -87,7 +87,6 @@ SUNLinearSolver SUNSPFGMR(N_Vector y, int pretype, int maxl)
   ops->solve             = SUNLinSolSolve_SPFGMR;
   ops->numiters          = SUNLinSolNumIters_SPFGMR;
   ops->resnorm           = SUNLinSolResNorm_SPFGMR;
-  ops->numpsolves        = SUNLinSolNumPSolves_SPFGMR;
   ops->lastflag          = SUNLinSolLastFlag_SPFGMR;  
   ops->free              = SUNLinSolFree_SPFGMR;
 
@@ -103,7 +102,6 @@ SUNLinearSolver SUNSPFGMR(N_Vector y, int pretype, int maxl)
   content->gstype = SUNSPFGMR_GSTYPE_DEFAULT;
   content->max_restarts = 0;
   content->numiters = 0;
-  content->numpsolves = 0;
   content->resnorm = ZERO;
   content->xcor = N_VClone(y);
   if (content->xcor == NULL)  return(NULL);
@@ -368,7 +366,7 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   realtype beta, rotation_product, r_norm, s_product, rho;
   booleantype preOnRight, scale1, scale2, converged;
   int i, j, k, l, l_max, krydim, ier, ntries, max_restarts, gstype;
-  int *nli, *nps;
+  int *nli;
   void *A_data, *P_data;
   ATimesFn atimes;
   PSolveFn psolve;
@@ -395,11 +393,10 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   atimes       = SPFGMR_CONTENT(S)->ATimes;
   psolve       = SPFGMR_CONTENT(S)->Psolve;
   nli          = &(SPFGMR_CONTENT(S)->numiters);
-  nps          = &(SPFGMR_CONTENT(S)->numpsolves);
   res_norm     = &(SPFGMR_CONTENT(S)->resnorm);
 
   /* Initialize counters and convergence flag */
-  *nli = *nps = 0;
+  *nli = 0;
   converged = FALSE;
 
   /* set booleantype flags for internal solver options */
@@ -470,7 +467,6 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       if (preOnRight) {
         N_VScale(ONE, vtemp, V[l+1]);
         ier = psolve(P_data, V[l+1], vtemp, delta, PREC_RIGHT);
-        (*nps)++;
         if (ier != 0) {
           LASTFLAG(S) = (ier < 0) ?
             SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
@@ -593,14 +589,6 @@ realtype SUNLinSolResNorm_SPFGMR(SUNLinearSolver S)
   /* return the stored 'resnorm' value */
   if (S == NULL) return(-ONE);
   return (SPFGMR_CONTENT(S)->resnorm);
-}
-
-
-int SUNLinSolNumPSolves_SPFGMR(SUNLinearSolver S)
-{
-  /* return the stored 'numpsolves' value */
-  if (S == NULL) return(-1);
-  return (SPFGMR_CONTENT(S)->numpsolves);
 }
 
 

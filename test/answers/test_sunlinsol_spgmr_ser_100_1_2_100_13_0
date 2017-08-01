@@ -21,7 +21,6 @@ SUCCESS: SUNSPGMR module passed all initialization tests
     PASSED test -- SUNLinSolLastFlag (0) 
     PASSED test -- SUNLinSolNumIters (22) 
     PASSED test -- SUNLinSolResNorm
-    PASSED test -- SUNLinSolNumPSolves (0) 
 SUCCESS: SUNSPGMR module, problem 1, passed all tests
 
     PASSED test -- SUNLinSolSetup 
@@ -29,7 +28,6 @@ SUCCESS: SUNSPGMR module, problem 1, passed all tests
     PASSED test -- SUNLinSolLastFlag (0) 
     PASSED test -- SUNLinSolNumIters (22) 
     PASSED test -- SUNLinSolResNorm
-    PASSED test -- SUNLinSolNumPSolves (23) 
 SUCCESS: SUNSPGMR module, problem 2, passed all tests
 
     PASSED test -- SUNLinSolSetup 
@@ -37,7 +35,6 @@ SUCCESS: SUNSPGMR module, problem 2, passed all tests
     PASSED test -- SUNLinSolLastFlag (0) 
     PASSED test -- SUNLinSolNumIters (22) 
     PASSED test -- SUNLinSolResNorm
-    PASSED test -- SUNLinSolNumPSolves (0) 
 SUCCESS: SUNSPGMR module, problem 3, passed all tests
 
     PASSED test -- SUNLinSolSetup 
@@ -45,7 +42,6 @@ SUCCESS: SUNSPGMR module, problem 3, passed all tests
     PASSED test -- SUNLinSolLastFlag (0) 
     PASSED test -- SUNLinSolNumIters (22) 
     PASSED test -- SUNLinSolResNorm
-    PASSED test -- SUNLinSolNumPSolves (23) 
 SUCCESS: SUNSPGMR module, problem 4, passed all tests
 
     PASSED test -- SUNLinSolSetup 
@@ -53,7 +49,6 @@ SUCCESS: SUNSPGMR module, problem 4, passed all tests
     PASSED test -- SUNLinSolLastFlag (0) 
     PASSED test -- SUNLinSolNumIters (22) 
     PASSED test -- SUNLinSolResNorm
-    PASSED test -- SUNLinSolNumPSolves (0) 
 SUCCESS: SUNSPGMR module, problem 5, passed all tests
 
     PASSED test -- SUNLinSolSetup 
@@ -61,6 +56,5 @@ SUCCESS: SUNSPGMR module, problem 5, passed all tests
     PASSED test -- SUNLinSolLastFlag (0) 
     PASSED test -- SUNLinSolNumIters (22) 
     PASSED test -- SUNLinSolResNorm
-    PASSED test -- SUNLinSolNumPSolves (23) 
 SUCCESS: SUNSPGMR module, problem 6, passed all tests
 

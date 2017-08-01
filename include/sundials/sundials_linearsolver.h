@@ -150,7 +150,6 @@ struct _generic_SUNLinearSolver_Ops {
                                 N_Vector, realtype);
   int                  (*numiters)(SUNLinearSolver);
   realtype             (*resnorm)(SUNLinearSolver);
-  int                  (*numpsolves)(SUNLinearSolver);
   long int             (*lastflag)(SUNLinearSolver);
   int                  (*free)(SUNLinearSolver);
 };
@@ -178,14 +177,20 @@ struct _generic_SUNLinearSolver {
  *   called by a main integrator, who will either provide this via 
  *   difference-quotients and vector operations, or by translating 
  *   between the generic ATSetup and ATimes calls and the 
- *   integrator-specific, user-supplied routines.
+ *   integrator-specific, user-supplied routines.  This should return
+ *   zero for a successful call, and a negative value for a failure.  
+ *   Ideally, this should return one of the generic SUNLS_* error 
+ *   codes listed at the bottom of this file.
  *
  * SUNLinSolSetPreconditioner (iterative methods only)
  *   Sets function pointers for PSetup and PSolve routines inside 
  *   of iterative linear solver objects.  This function should only 
  *   be called by a main integrator, who will provide translation 
  *   between the generic PSetup and PSolve calls and the integrator-
- *   specific user-supplied routines.
+ *   specific user-supplied routines.  This should return
+ *   zero for a successful call, and a negative value for a failure.
+ *   Ideally, this should return one of the generic SUNLS_* error 
+ *   codes listed at the bottom of this file.
  *
  * SUNLinSolSetScalingVectors (iterative methods only)
  *   Sets pointers to left/right scaling vectors for the linear
@@ -195,18 +200,27 @@ struct _generic_SUNLinearSolver {
  *   is required.  Similarly, s2 is an N_Vector of positive scale 
  *   factors for P2 x, where P2 is the right preconditioner (again 
  *   not tested for positivity). Pass NULL if no scaling on P2 x is 
- *   required.
+ *   required.  This should return zero for a successful call, and a 
+ *   negative value for a failure.  Ideally, this should return one of
+ *   the generic SUNLS_* error codes listed at the bottom of this file.
  *
  * SUNLinSolInitialize
  *   Performs linear solver initialization (assumes that all 
- *   solver-specific options have been set)
+ *   solver-specific options have been set).  This should return
+ *   zero for a successful call, and a negative value for a failure.  
+ *   Ideally, this should return one of the generic SUNLS_* error 
+ *   codes listed at the bottom of this file.
  *
  * SUNLinSolSetup
  *   Performs any linear solver setup needed, based on an updated
  *   system matrix A.  This may be called frequently (e.g. with a
  *   full Newton method) or infrequently (for a modified Newton 
  *   method), based on the type of integrator and/or nonlinear 
- *   solver requesting the solves.
+ *   solver requesting the solves.  This should return
+ *   zero for a successful call, a positive value for a recoverable 
+ *   failure and a negative value for an unrecoverable failure.  
+ *   Ideally, this should return one of the generic SUNLS_* error 
+ *   codes listed at the bottom of this file.
  *
  * SUNLinSolSolve
  *   Solves a linear system A*x = b.  If the solver is scaled, it 
@@ -214,18 +228,18 @@ struct _generic_SUNLinearSolver {
  *   it attempts to solve to the specified tolerance (weighted 
  *   2-norm).  If the solver is direct it ignores the input tolerance 
  *   and scaling vectors, and if the solver does not support scaling 
- *   then it should just use an RMS norm.
+ *   then it should just use a 2-norm.  This should return zero for a
+ *   successful call, a positive value for a recoverable failure and 
+ *   a negative value for an unrecoverable failure.  Ideally, this 
+ *   should return one of the generic SUNLS_* error codes listed at 
+ *   the bottom of this file.
  *
  * SUNLinSolNumIters (iterative methods only)
  *   Returns the number of linear iterations performed in the last 
- *   'Solve' call.
+ *   'Solve' call.  
  *
  * SUNLinSolResNorm (iterative methods only)
  *   Returns the final residual norm from the last 'Solve' call.
- *
- * SUNLinSolNumPSolves (iterative methods only)
- *   Returns the number of preconditioner solve calls from the last
- *   'Solve' call.
  *
  * SUNLinSolLastFlag
  *   Returns the last error flag encountered within the linear solver,
@@ -233,7 +247,8 @@ struct _generic_SUNLinearSolver {
  *   failed solves.
  *
  * SUNLinSolFree
- *   Frees memory allocated by the linear solver.
+ *   Frees memory allocated by the linear solver.  This should return
+ *   zero for a successful call, and a negative value for a failure.
  *
  * ---------------------------------------------------------------
  *
@@ -257,7 +272,6 @@ struct _generic_SUNLinearSolver {
  *  Solve               M I P#    M I P# S   M I P#      M I P
  *  NumIters            I         I S+       I           I
  *  ResNorm             I         I S+       I           I
- *  NumPSolves          I         I S+       I           I
  *  LastFlag^
  *  Free                M I P#    M I P# S   M I P#      M I P
  *  ------------------------------------------------------------
@@ -291,8 +305,6 @@ SUNDIALS_EXPORT int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 SUNDIALS_EXPORT int SUNLinSolNumIters(SUNLinearSolver S);
   
 SUNDIALS_EXPORT realtype SUNLinSolResNorm(SUNLinearSolver S);
-  
-SUNDIALS_EXPORT int SUNLinSolNumPSolves(SUNLinearSolver S);
   
 SUNDIALS_EXPORT long int SUNLinSolLastFlag(SUNLinearSolver S);
   

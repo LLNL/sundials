@@ -115,7 +115,6 @@ SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
   ops->solve             = SUNLinSolSolve_SuperLUMT;
   ops->numiters          = SUNLinSolNumIters_SuperLUMT;
   ops->resnorm           = SUNLinSolResNorm_SuperLUMT;
-  ops->numpsolves        = SUNLinSolNumPSolves_SuperLUMT;
   ops->lastflag          = SUNLinSolLastFlag_SuperLUMT;
   ops->free              = SUNLinSolFree_SuperLUMT;
 
@@ -385,13 +384,6 @@ realtype SUNLinSolResNorm_SuperLUMT(SUNLinearSolver S)
 {
   /* direct solvers do not measure the linear residual */
   return(ZERO);
-}
-
-
-int SUNLinSolNumPSolves_SuperLUMT(SUNLinearSolver S)
-{
-  /* direct solvers do not use preconditioning */
-  return(0);
 }
 
 

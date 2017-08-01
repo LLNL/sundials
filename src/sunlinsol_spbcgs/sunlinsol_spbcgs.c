@@ -86,7 +86,6 @@ SUNLinearSolver SUNSPBCGS(N_Vector y, int pretype, int maxl)
   ops->solve             = SUNLinSolSolve_SPBCGS;
   ops->numiters          = SUNLinSolNumIters_SPBCGS;
   ops->resnorm           = SUNLinSolResNorm_SPBCGS;
-  ops->numpsolves        = SUNLinSolNumPSolves_SPBCGS;
   ops->lastflag          = SUNLinSolLastFlag_SPBCGS;  
   ops->free              = SUNLinSolFree_SPBCGS;
 
@@ -100,7 +99,6 @@ SUNLinearSolver SUNSPBCGS(N_Vector y, int pretype, int maxl)
   content->maxl = maxl;
   content->pretype = pretype;
   content->numiters = 0;
-  content->numpsolves = 0;
   content->resnorm = ZERO;
   content->r_star = N_VClone(y);
   if (content->r_star == NULL)  return(NULL);
@@ -294,7 +292,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   ATimesFn atimes;
   PSolveFn psolve;
   realtype *res_norm;
-  int *nli, *nps;
+  int *nli;
   
   /* Make local shorcuts to solver variables. */
   if (S == NULL) return(SUNLS_MEM_NULL);
@@ -313,11 +311,10 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   atimes       = SPBCGS_CONTENT(S)->ATimes;
   psolve       = SPBCGS_CONTENT(S)->Psolve;
   nli          = &(SPBCGS_CONTENT(S)->numiters);
-  nps          = &(SPBCGS_CONTENT(S)->numpsolves);
   res_norm     = &(SPBCGS_CONTENT(S)->resnorm);
 
   /* Initialize counters and convergence flag */
-  *nli = *nps = 0;
+  *nli = 0;
   converged = FALSE;
 
   /* set booleantype flags for internal solver options */
@@ -345,7 +342,6 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   if (preOnLeft) {
     ier = psolve(P_data, r_star, r, delta, PREC_LEFT);
-    (*nps)++;
     if (ier != 0) {
       LASTFLAG(S) = (ier < 0) ?
         SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
@@ -393,7 +389,6 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     if (preOnRight) {
       N_VScale(ONE, vtemp, Ap);
       ier = psolve(P_data, Ap, vtemp, delta, PREC_RIGHT);
-      (*nps)++;
       if (ier != 0) {
         LASTFLAG(S) = (ier < 0) ?
           SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
@@ -414,7 +409,6 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
     if (preOnLeft) {
       ier = psolve(P_data, Ap, vtemp, delta, PREC_LEFT);
-      (*nps)++;
       if (ier != 0) {
         LASTFLAG(S) = (ier < 0) ?
           SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
@@ -449,7 +443,6 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     if (preOnRight) {
       N_VScale(ONE, vtemp, u);
       ier = psolve(P_data, u, vtemp, delta, PREC_RIGHT);
-      (*nps)++;
       if (ier != 0) {
         LASTFLAG(S) = (ier < 0) ?
           SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
@@ -470,7 +463,6 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
     if (preOnLeft) {
       ier = psolve(P_data, u, vtemp, delta, PREC_LEFT);
-      (*nps)++;
       if (ier != 0) {
         LASTFLAG(S) = (ier < 0) ?
           SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
@@ -531,7 +523,6 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     if (scale_x) N_VDiv(x, sx, x);
     if (preOnRight) {
       ier = psolve(P_data, x, vtemp, delta, PREC_RIGHT);
-      (*nps)++;
       if (ier != 0) {
         LASTFLAG(S) = (ier < 0) ?
           SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
@@ -567,14 +558,6 @@ realtype SUNLinSolResNorm_SPBCGS(SUNLinearSolver S)
   /* return the stored 'resnorm' value */
   if (S == NULL) return(-ONE);
   return (SPBCGS_CONTENT(S)->resnorm);
-}
-
-
-int SUNLinSolNumPSolves_SPBCGS(SUNLinearSolver S)
-{
-  /* return the stored 'numpsolves' value */
-  if (S == NULL) return(-1);
-  return (SPBCGS_CONTENT(S)->numpsolves);
 }
 
 

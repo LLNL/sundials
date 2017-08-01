@@ -105,7 +105,6 @@ SUNDIALS_EXPORT int SUNLinSolSolve_Diagonal(SUNLinearSolver S, SUNMatrix A,
                                             N_Vector x, N_Vector b, realtype tol);
 SUNDIALS_EXPORT int SUNLinSolNumIters_Diagonal(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm_Diagonal(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolNumPSolves_Diagonal(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_Diagonal(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolFree_Diagonal(SUNLinearSolver S);
   

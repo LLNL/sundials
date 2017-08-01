@@ -118,29 +118,6 @@ int Test_SUNLinSolNumIters(SUNLinearSolver S, int myid)
 
 
 /* ----------------------------------------------------------------------
- * SUNLinSolNumPSolves Test
- * --------------------------------------------------------------------*/
-int Test_SUNLinSolNumPSolves(SUNLinearSolver S, int myid)
-{
-  int    npsolves;
-  double start_time, stop_time;
-
-  /* the only way to fail this test is if the function is NULL, 
-     which will cause a seg-fault */
-  start_time = get_time();   
-  npsolves = SUNLinSolNumPSolves(S);
-  stop_time = get_time();   
-
-  if (myid == 0) {
-    printf("    PASSED test -- SUNLinSolNumPSolves (%d) \n", npsolves);
-    PRINT_TIME("    SUNLinSolNumPSolves Time: %22.15e \n \n", stop_time - start_time);
-  }
-
-  return(0);
-}
-
-
-/* ----------------------------------------------------------------------
  * SUNLinSolResNorm Test
  * --------------------------------------------------------------------*/
 int Test_SUNLinSolResNorm(SUNLinearSolver S, int myid)

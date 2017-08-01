@@ -149,7 +149,6 @@ struct _SUNLinearSolverContent_SPTFQMR {
   int pretype;
   int max_restarts;
   int numiters;
-  int numpsolves;
   realtype resnorm;
   long int last_flag;
 
@@ -213,7 +212,6 @@ SUNDIALS_EXPORT int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A,
                                           N_Vector x, N_Vector b, realtype tol);
 SUNDIALS_EXPORT int SUNLinSolNumIters_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm_SPTFQMR(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolNumPSolves_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolFree_SPTFQMR(SUNLinearSolver S);
 

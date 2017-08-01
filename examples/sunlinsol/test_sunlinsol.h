@@ -47,7 +47,6 @@ extern "C" {
   int Test_SUNLinSolLastFlag(SUNLinearSolver S, int myid);
   int Test_SUNLinSolNumIters(SUNLinearSolver S, int myid);
   int Test_SUNLinSolResNorm(SUNLinearSolver S, int myid);
-  int Test_SUNLinSolNumPSolves(SUNLinearSolver S, int myid);
   int Test_SUNLinSolSetATimes(SUNLinearSolver S, void *ATdata, ATSetupFn ATSetup,
                               ATimesFn ATimes, booleantype shouldpass, int myid);
   int Test_SUNLinSolSetPreconditioner(SUNLinearSolver S, void *Pdata,

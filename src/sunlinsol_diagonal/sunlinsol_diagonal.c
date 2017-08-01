@@ -91,7 +91,6 @@ SUNLinearSolver SUNDiagonalLinearSolver(N_Vector y, SUNMatrix A)
   ops->solve             = SUNLinSolSolve_Diagonal;
   ops->numiters          = SUNLinSolNumIters_Diagonal;
   ops->resnorm           = SUNLinSolResNorm_Diagonal;
-  ops->numpsolves        = SUNLinSolNumPSolves_Diagonal;
   ops->lastflag          = SUNLinSolLastFlag_Diagonal;
   ops->free              = SUNLinSolFree_Diagonal;
 
@@ -222,12 +221,6 @@ realtype SUNLinSolResNorm_Diagonal(SUNLinearSolver S)
 {
   /* direct solvers do not measure the linear residual */
   return(ZERO);
-}
-
-int SUNLinSolNumPSolves_Diagonal(SUNLinearSolver S)
-{
-  /* direct solvers do not use preconditioning */
-  return(0);
 }
 
 long int SUNLinSolLastFlag_Diagonal(SUNLinearSolver S)
