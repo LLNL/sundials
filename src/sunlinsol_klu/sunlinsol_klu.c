@@ -108,7 +108,6 @@ SUNLinearSolver SUNKLU(N_Vector y, SUNMatrix A)
   ops->solve             = SUNLinSolSolve_KLU;
   ops->numiters          = SUNLinSolNumIters_KLU;
   ops->resnorm           = SUNLinSolResNorm_KLU;
-  ops->numpsolves        = SUNLinSolNumPSolves_KLU;
   ops->lastflag          = SUNLinSolLastFlag_KLU;
   ops->free              = SUNLinSolFree_KLU;
 
@@ -423,13 +422,6 @@ realtype SUNLinSolResNorm_KLU(SUNLinearSolver S)
 {
   /* direct solvers do not measure the linear residual */
   return(ZERO);
-}
-
-
-int SUNLinSolNumPSolves_KLU(SUNLinearSolver S)
-{
-  /* direct solvers do not use preconditioning */
-  return(0);
 }
 
 

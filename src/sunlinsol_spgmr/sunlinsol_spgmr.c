@@ -85,7 +85,6 @@ SUNLinearSolver SUNSPGMR(N_Vector y, int pretype, int maxl)
   ops->solve             = SUNLinSolSolve_SPGMR;
   ops->numiters          = SUNLinSolNumIters_SPGMR;
   ops->resnorm           = SUNLinSolResNorm_SPGMR;
-  ops->numpsolves        = SUNLinSolNumPSolves_SPGMR;
   ops->lastflag          = SUNLinSolLastFlag_SPGMR;  
   ops->free              = SUNLinSolFree_SPGMR;
 
@@ -101,7 +100,6 @@ SUNLinearSolver SUNSPGMR(N_Vector y, int pretype, int maxl)
   content->gstype = SUNSPGMR_GSTYPE_DEFAULT;
   content->max_restarts = 0;
   content->numiters = 0;
-  content->numpsolves = 0;
   content->resnorm = ZERO;
   content->xcor = N_VClone(y);
   if (content->xcor == NULL)  return(NULL);
@@ -357,7 +355,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   realtype beta, rotation_product, r_norm, s_product, rho;
   booleantype preOnLeft, preOnRight, scale2, scale1, converged;
   int i, j, k, l, l_plus_1, l_max, krydim, ier, ntries, max_restarts, gstype;
-  int *nli, *nps;
+  int *nli;
   void *A_data, *P_data;
   ATimesFn atimes;
   PSolveFn psolve;
@@ -384,11 +382,10 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   atimes       = SPGMR_CONTENT(S)->ATimes;
   psolve       = SPGMR_CONTENT(S)->Psolve;
   nli          = &(SPGMR_CONTENT(S)->numiters);
-  nps          = &(SPGMR_CONTENT(S)->numpsolves);
   res_norm     = &(SPGMR_CONTENT(S)->resnorm);
 
   /* Initialize counters and convergence flag */
-  *nli = *nps = 0;
+  *nli = 0;
   converged = FALSE;
 
   /* set booleantype flags for internal solver options */
@@ -416,7 +413,6 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   /* Apply left preconditioner and left scaling to V[0] = r_0 */
   if (preOnLeft) {
     ier = psolve(P_data, V[0], vtemp, delta, PREC_LEFT);
-    (*nps)++;
     if (ier != 0) {
       LASTFLAG(S) = (ier < 0) ? 
           SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
@@ -473,7 +469,6 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       if (preOnRight) {
         N_VScale(ONE, vtemp, V[l_plus_1]);
         ier = psolve(P_data, V[l_plus_1], vtemp, delta, PREC_RIGHT);
-        (*nps)++;
         if (ier != 0) {
           LASTFLAG(S) = (ier < 0) ? 
               SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
@@ -492,7 +487,6 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       /* Apply left preconditioning: vtemp = P1_inv A P2_inv s2_inv V[l] */
       if (preOnLeft) {
         ier = psolve(P_data, V[l_plus_1], vtemp, delta, PREC_LEFT);
-        (*nps)++;
         if (ier != 0) {
           LASTFLAG(S) = (ier < 0) ? 
               SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
@@ -560,7 +554,6 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       if (scale2) N_VDiv(xcor, s2, xcor);
       if (preOnRight) {
         ier = psolve(P_data, xcor, vtemp, delta, PREC_RIGHT);
-        (*nps)++;
         if (ier != 0) {
           LASTFLAG(S) = (ier < 0) ? 
               SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
@@ -610,7 +603,6 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     if (scale2) N_VDiv(xcor, s2, xcor);
     if (preOnRight) {
       ier = psolve(P_data, xcor, vtemp, delta, PREC_RIGHT);
-      (*nps)++;
       if (ier != 0) {
         LASTFLAG(S) = (ier < 0) ? 
             SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
@@ -645,14 +637,6 @@ realtype SUNLinSolResNorm_SPGMR(SUNLinearSolver S)
   /* return the stored 'resnorm' value */
   if (S == NULL) return(-ONE);
   return (SPGMR_CONTENT(S)->resnorm);
-}
-
-
-int SUNLinSolNumPSolves_SPGMR(SUNLinearSolver S)
-{
-  /* return the stored 'numpsolves' value */
-  if (S == NULL) return(-1);
-  return (SPGMR_CONTENT(S)->numpsolves);
 }
 
 

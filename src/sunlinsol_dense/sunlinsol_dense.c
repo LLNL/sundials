@@ -102,7 +102,6 @@ SUNLinearSolver SUNDenseLinearSolver(N_Vector y, SUNMatrix A)
   ops->solve             = SUNLinSolSolve_Dense;
   ops->numiters          = SUNLinSolNumIters_Dense;
   ops->resnorm           = SUNLinSolResNorm_Dense;
-  ops->numpsolves        = SUNLinSolNumPSolves_Dense;
   ops->lastflag          = SUNLinSolLastFlag_Dense;
   ops->free              = SUNLinSolFree_Dense;
 
@@ -246,12 +245,6 @@ realtype SUNLinSolResNorm_Dense(SUNLinearSolver S)
 {
   /* direct solvers do not measure the linear residual */
   return(ZERO);
-}
-
-int SUNLinSolNumPSolves_Dense(SUNLinearSolver S)
-{
-  /* direct solvers do not use preconditioning */
-  return(0);
 }
 
 long int SUNLinSolLastFlag_Dense(SUNLinearSolver S)

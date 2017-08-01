@@ -101,7 +101,6 @@ SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A)
   ops->solve             = SUNLinSolSolve_LapackBand;
   ops->numiters          = SUNLinSolNumIters_LapackBand;
   ops->resnorm           = SUNLinSolResNorm_LapackBand;
-  ops->numpsolves        = SUNLinSolNumPSolves_LapackBand;
   ops->lastflag          = SUNLinSolLastFlag_LapackBand;
   ops->free              = SUNLinSolFree_LapackBand;
 
@@ -255,13 +254,6 @@ realtype SUNLinSolResNorm_LapackBand(SUNLinearSolver S)
 {
   /* direct solvers do not measure the linear residual */
   return(ZERO);
-}
-
-
-int SUNLinSolNumPSolves_LapackBand(SUNLinearSolver S)
-{
-  /* direct solvers do not use preconditioning */
-  return(0);
 }
 
 

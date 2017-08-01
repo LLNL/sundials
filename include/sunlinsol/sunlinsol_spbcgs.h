@@ -151,7 +151,6 @@ struct _SUNLinearSolverContent_SPBCGS {
   int pretype;
   int max_restarts;
   int numiters;
-  int numpsolves;
   realtype resnorm;
   long int last_flag;
 
@@ -213,7 +212,6 @@ SUNDIALS_EXPORT int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A,
                                           N_Vector x, N_Vector b, realtype tol);
 SUNDIALS_EXPORT int SUNLinSolNumIters_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm_SPBCGS(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolNumPSolves_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolFree_SPBCGS(SUNLinearSolver S);
 

@@ -166,7 +166,6 @@ SUNDIALS_EXPORT int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A,
                                        N_Vector x, N_Vector b, realtype tol);
 SUNDIALS_EXPORT int SUNLinSolNumIters_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm_SuperLUMT(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolNumPSolves_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolFree_SuperLUMT(SUNLinearSolver S);
   

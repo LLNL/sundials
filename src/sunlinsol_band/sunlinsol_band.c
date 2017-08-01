@@ -103,7 +103,6 @@ SUNLinearSolver SUNBandLinearSolver(N_Vector y, SUNMatrix A)
   ops->solve             = SUNLinSolSolve_Band;
   ops->numiters          = SUNLinSolNumIters_Band;
   ops->resnorm           = SUNLinSolResNorm_Band;
-  ops->numpsolves        = SUNLinSolNumPSolves_Band;
   ops->lastflag          = SUNLinSolLastFlag_Band;
   ops->free              = SUNLinSolFree_Band;
 
@@ -255,12 +254,6 @@ realtype SUNLinSolResNorm_Band(SUNLinearSolver S)
 {
   /* direct solvers do not check linear residual */
   return(ZERO);
-}
-
-int SUNLinSolNumPSolves_Band(SUNLinearSolver S)
-{
-  /* direct solvers do not use preconditioning */
-  return(0);
 }
 
 long int SUNLinSolLastFlag_Band(SUNLinearSolver S)

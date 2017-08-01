@@ -122,7 +122,6 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolLastFlag(DenseSol, 0);
   fails += Test_SUNLinSolNumIters(DenseSol, 0);
   fails += Test_SUNLinSolResNorm(DenseSol, 0);
-  fails += Test_SUNLinSolNumPSolves(DenseSol, 0);
   fails += Test_SUNLinSolSetATimes(DenseSol, NULL, NULL, NULL, FALSE, 0);
   fails += Test_SUNLinSolSetPreconditioner(DenseSol, NULL, NULL, NULL, FALSE, 0);
   fails += Test_SUNLinSolSetScalingVectors(DenseSol, x, y, FALSE, 0);

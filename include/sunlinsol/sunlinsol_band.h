@@ -105,7 +105,6 @@ SUNDIALS_EXPORT int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A,
                                         N_Vector x, N_Vector b, realtype tol);
 SUNDIALS_EXPORT int SUNLinSolNumIters_Band(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm_Band(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolNumPSolves_Band(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_Band(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolFree_Band(SUNLinearSolver S);
   

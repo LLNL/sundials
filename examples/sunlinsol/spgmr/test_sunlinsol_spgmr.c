@@ -256,7 +256,6 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
   fails += Test_SUNLinSolNumIters(LS, ProbData.myid);
   fails += Test_SUNLinSolResNorm(LS, ProbData.myid);
-  fails += Test_SUNLinSolNumPSolves(LS, ProbData.myid);
   
   /* Print result */
   if (fails) 
@@ -285,7 +284,6 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
   fails += Test_SUNLinSolNumIters(LS, ProbData.myid);
   fails += Test_SUNLinSolResNorm(LS, ProbData.myid);
-  fails += Test_SUNLinSolNumPSolves(LS, ProbData.myid);
 
   /* Print result */
   if (fails) 
@@ -316,7 +314,6 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
   fails += Test_SUNLinSolNumIters(LS, ProbData.myid);
   fails += Test_SUNLinSolResNorm(LS, ProbData.myid);
-  fails += Test_SUNLinSolNumPSolves(LS, ProbData.myid);
 
   /* Print result */
   if (fails) 
@@ -347,7 +344,6 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
   fails += Test_SUNLinSolNumIters(LS, ProbData.myid);
   fails += Test_SUNLinSolResNorm(LS, ProbData.myid);
-  fails += Test_SUNLinSolNumPSolves(LS, ProbData.myid);
 
   /* Print result */
   if (fails) 
@@ -378,7 +374,6 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
   fails += Test_SUNLinSolNumIters(LS, ProbData.myid);
   fails += Test_SUNLinSolResNorm(LS, ProbData.myid);
-  fails += Test_SUNLinSolNumPSolves(LS, ProbData.myid);
 
   /* Print result */
   if (fails) 
@@ -409,7 +404,6 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
   fails += Test_SUNLinSolNumIters(LS, ProbData.myid);
   fails += Test_SUNLinSolResNorm(LS, ProbData.myid);
-  fails += Test_SUNLinSolNumPSolves(LS, ProbData.myid);
 
   /* Print result */
   if (fails) 

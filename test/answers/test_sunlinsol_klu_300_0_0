@@ -8,7 +8,6 @@ KLU linear solver test: size 300, type 0
     PASSED test -- SUNLinSolLastFlag (0) 
     PASSED test -- SUNLinSolNumIters (0) 
     PASSED test -- SUNLinSolResNorm
-    PASSED test -- SUNLinSolNumPSolves (0) 
     PASSED test -- SUNLinSolSetATimes 
     PASSED test -- SUNLinSolSetPreconditioner 
     PASSED test -- SUNLinSolSetScalingVectors 

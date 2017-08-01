@@ -84,11 +84,6 @@ realtype SUNLinSolResNorm(SUNLinearSolver S)
   return ((realtype) S->ops->resnorm(S));
 }
 
-int SUNLinSolNumPSolves(SUNLinearSolver S)
-{
-  return ((int) S->ops->numpsolves(S));
-}
-
 long int SUNLinSolLastFlag(SUNLinearSolver S)
 {
   return ((long int) S->ops->lastflag(S));
