@@ -149,9 +149,14 @@ Changing Git:
 
 If you are changing the JENKINS_USER (see below) then you may also need
 to change the installation of Git that Jenkins uses. When Jenkins is
-run under a different user uses the .gitconfig file of that
+run under a different user it uses the .gitconfig file of that
 user. Depending on the options set in .gitconfig Jenkins may need to
-use a different (newer) install of Git than it find by default. 
+use a different (newer) install of Git than it finds by default.
+
+Also note that this setting only effects what version of Git Jenkins
+will used to interact with the repo. If any regression test scripts
+use Git commands they will use the default install of Git unless a
+newer version is added to the path or called explicitly.
 
 1) Navigate to Manage Jenkins > Global Tool Configuration
 
