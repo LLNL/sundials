@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
   MPI_Comm        comm;
   int             myid;
   int             nprocs;
-  realtype        *xdata, *ydata, *bdata, *Adata;
+  realtype        *xdata, *Adata;
 
   /* Set up MPI environment */
   fails = MPI_Init(&argc, &argv);
@@ -201,7 +201,6 @@ int check_vector(N_Vector x, N_Vector y, realtype tol)
 {
   int failure = 0;
   realtype *xdata, *ydata;
-  sunindextype xldata, yldata;
   sunindextype i;
 
   /* get vector data */
