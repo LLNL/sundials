@@ -186,7 +186,6 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
 {
   int failure = 0;
   realtype *Adata, *Bdata;
-  sunindextype Aldata, Bldata;
   sunindextype i;
   
   /* get data pointers */
@@ -208,7 +207,6 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
 {
   int failure = 0;
   realtype *Adata;
-  sunindextype Aldata;
   sunindextype i;
   
   /* get data pointer */
@@ -236,7 +234,6 @@ int check_vector(N_Vector x, N_Vector y, realtype tol)
 {
   int failure = 0;
   realtype *xdata, *ydata;
-  sunindextype xldata, yldata;
   sunindextype i;
 
   /* get vector data */
