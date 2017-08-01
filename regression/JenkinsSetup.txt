@@ -188,9 +188,16 @@ libraries used in regression testing are installed in a local
 directory accessible to the jenkins user (e.g. /usr/lib) then the
 following steps are not necessary.
 
+NOTE: When changing the JENKINS_USER so Jenkins runs under a different
+user account Jenkins will utilize the git configuration (~/.gitconfig)
+file of that user. Depending on the settings in the .gitconfig file
+this can cause unexpected behavior in Jenkins. For example, if the
+pull.ff is set to 'only' this can break merges performed in pull
+request testing. A possible workaround for the user is to setup an
+alias with the desired behavior.
+
 The following instructions describe how to change the user Jenkins is
-run under in order to access the shared directory of installed
-libraries. 
+run under. 
 
 1) Stop Jenkins
 
