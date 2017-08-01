@@ -2,19 +2,14 @@
 pipeline {
     agent any
 
-    environment {
-        // set global Jenkins environment variables
-        MYPYTHON="/usr/apps/python/latest/bin/python"
-    }
-
     stages {
         stage('Test') {
             steps {
               // output for collapse setions plugin
               echo "END JENKINS SETUP"
 
-              // run regression tests
-              sh("cd regression && ./suntest_driver.sh ${env.BRANCH_NAME}")
+              // run regression tests with 4 build threads
+              sh("cd regression && ./suntest_driver.sh 4 ${env.BRANCH_NAME}")
             }
         }
     }
@@ -23,13 +18,13 @@ pipeline {
                  echo 'Tests Complete'
          }
          success {
-                 sh("cd regression && ${env.MYPYTHON} suntest_notify.py success ${env.BRANCH_NAME} ${env.BUILD_URL}")
+                 sh("cd regression && ./suntest_notify.py success ${env.BRANCH_NAME} ${env.BUILD_URL}")
          }
          failure {
-                 sh("cd regression && ${env.MYPYTHON} suntest_notify.py failure ${env.BRANCH_NAME} ${env.BUILD_URL}")
+                 sh("cd regression && ./suntest_notify.py failure ${env.BRANCH_NAME} ${env.BUILD_URL}")
          }
          unstable {
-                 sh("cd regression && ${env.MYPYTHON} suntest_notify.py unstable ${env.BRANCH_NAME} ${env.BUILD_URL}")
+                 sh("cd regression && ./suntest_notify.py unstable ${env.BRANCH_NAME} ${env.BUILD_URL}")
          }
     }
 }

@@ -28,8 +28,8 @@ def main():
                         choices=['success','failure','unstable'],
                         help='Status of regression test')
 
-    parser.add_argument('branchname',type=str,
-                        help='Name of branch tested')
+    parser.add_argument('testname',type=str,
+                        help='Name branch name or pull-request tested')
 
     parser.add_argument('testurl',type=str,
                         help='URL for viewing test results')
@@ -56,7 +56,7 @@ def main():
             log.write(args.testurl)
 
     # determine notification recipient
-    if ((args.branchname == 'master') or (args.branchname == 'develop')):
+    if ((args.testname == 'master') or (args.testname == 'develop')):
         # SUNDIALS developers list
         recipient = "sundials-devs@llnl.gov"
     else:
@@ -67,13 +67,13 @@ def main():
     # send notification if regression tests fail or log file not found
     if (args.teststatus != 'success'):
 
-        subject = "FAILED: SUNDIALS "+args.branchname+" failed regression tests"
+        subject = "FAILED: SUNDIALS "+args.testname+" failed regression tests"
         print "Tests failed, sending notification to",recipient
         sendEmail(recipient, subject, logfile)
 
     elif (missinglogfile):
 
-        subject = "ERROR: SUNDIALS "+args.branchname+" log file not found"
+        subject = "ERROR: SUNDIALS "+args.testname+" log file not found"
         print "Log file not found, sending notification to",recipient
         sendEmail(recipient, subject, logfile)
 

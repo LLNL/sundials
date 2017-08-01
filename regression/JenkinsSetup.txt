@@ -145,18 +145,19 @@ give this information to Jenkins:
 
 ======================================================================
 
-Changing Git:
+Changing the Default Git:
 
-If you are changing the JENKINS_USER (see below) then you may also need
-to change the installation of Git that Jenkins uses. When Jenkins is
-run under a different user it uses the .gitconfig file of that
-user. Depending on the options set in .gitconfig Jenkins may need to
-use a different (newer) install of Git than it finds by default.
+If you are changing the JENKINS_USER (see below), then you may need to
+change which installation of Git Jenkins uses. When Jenkins is run
+as a specific user it uses the .gitconfig file of that user. Depending
+on the options set in .gitconfig Jenkins may need to use a different
+(newer) install of Git than it finds by default.
 
-Also note that this setting only effects what version of Git Jenkins
-will used to interact with the repo. If any regression test scripts
-use Git commands they will use the default install of Git unless a
-newer version is added to the path or called explicitly.
+NOTE: This setting only effects what version of Git Jenkins will used
+to interact with the repo. If any regression test scripts use Git
+commands they will use the default install of Git unless a newer
+version is added to the path or called explicitly. See below for
+updating the PATH environment variable:
 
 1) Navigate to Manage Jenkins > Global Tool Configuration
 
@@ -164,6 +165,30 @@ newer version is added to the path or called explicitly.
    installation of Git (e.g. https://mybitbucket.llnl.gov)
 
 3) Click "Save"
+
+======================================================================
+
+Updating the PATH environment variable:
+
+If regression testing scripts require that certain path are set in the
+PATH environment variable, the following steps detail how to modify
+PATH for each Jenkins testing node.
+
+1) Navigate to Manage Jenkins > Manage Nodes
+
+2) Click the gear icon next to the node you want to configure
+
+3) Under "Node Properties" check the box next to "Environment
+   variables" 
+
+4) Click "Add" and enter the PATH+SOMENAME in the Name field and the
+   desired path in the Value field. For example to add the path for
+   a newer version of git to PATH do enter the following:
+
+   Name:  PATH+NFS_GIT
+   Value: /usr/apps/git/2.9.4/bin
+
+5) Click "Save"
 
 ======================================================================
 

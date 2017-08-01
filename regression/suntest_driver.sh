@@ -15,21 +15,17 @@
 # SUNDIALS regression testing driver script
 # -------------------------------------------------------------------------------
 
-# check number of inputs
-if [ "$#" -lt 1 ]; then
-    echo "ERROR: Illegal number of parameters, branch name required"
-    exit 1
+# number of threads for parallel build (defaults to 1)
+if [ "$#" -ge 2 ]; then
+    buildthreads=$1
+else
+    buildthreads=1
 fi
-BRANCHNAME=$1 # name of branch (or pull-request) being tested
 
-# add newer python install to path
-export PATH=/usr/apps/python/latest/bin:$PATH
-
-# use newer version of Git (same as Jenkins uses) to path
-source /usr/apps/git/2.9.4/setup.sh
-
-# number of threads for parallel builds (optional, if empty will use all threads)
-buildthreads=4
+# set test name (branch name or pull-request) if provided
+if [ "$#" -ge 1 ]; then
+    testname=$2
+fi
 
 # initialize failure counter (0 = success)
 nfail=0
@@ -52,7 +48,7 @@ indextype=('signed_64bit')
 # ------------------------------------------------------------------------------
 # Run regression tests
 echo "--------------------------------------------------" | tee -a suntest.log
-echo "SUNDIALS regression tests on $BRANCHNAME " | tee -a suntest.log
+echo "SUNDIALS regression tests: $testname " | tee -a suntest.log
 date | tee -a suntest.log
 echo "--------------------------------------------------" | tee -a suntest.log
 git log -1 | tee -a suntest.log
@@ -82,7 +78,7 @@ done
 # ------------------------------------------------------------------------------
 # Report test results
 echo "--------------------------------------------------" | tee -a suntest.log
-echo "SUNDIALS regression tests on $BRANCHNAME " | tee -a suntest.log
+echo "SUNDIALS regression tests: $testname " | tee -a suntest.log
 if [ $nfail -ne 0 ]; then
     echo "FAILED: $nfail failures." | tee -a suntest.log
 else

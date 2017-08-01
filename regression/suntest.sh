@@ -30,9 +30,6 @@ export OMP_NUM_THREADS=4
 # set file permissions (rwxrwxr-x)
 umask 002
 
-# path to cmake
-MYCMAKE=/usr/casc/sundials/apps/rh6/cmake/cmake-2.8.10.2/bin/cmake
-
 # path to installed libraries
 APPDIR=/usr/casc/sundials/apps/rh6
 MPIDIR=${APPDIR}/openmpi/1.8.8/bin
@@ -52,7 +49,7 @@ cd suntest_${realtype}_${indextype}
 # the dvanced variables (A), and help for each variable (H). This
 # will not print any system variables.
 echo "START CMAKE"
-$MYCMAKE \
+cmake \
     -D SUNDIALS_PRECISION=$realtype \
     -D SUNDIALS_INDEX_TYPE=$indextype \
     \
