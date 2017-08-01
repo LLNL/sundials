@@ -57,9 +57,8 @@ def main():
 
     # determine notification recipient
     if ((args.branchname == 'master') or (args.branchname == 'develop')):
-        # SUNDIALS developer list
-        # recipient = "sundials-devs@llnl.gov"
-        recipient = "gardner48@llnl.gov" # for testing
+        # SUNDIALS developers list
+        recipient = "sundials-devs@llnl.gov"
     else:
         # author of most recent commit
         cmd = "git log --format='%ae' -1"

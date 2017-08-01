@@ -2,6 +2,11 @@
 pipeline {
     agent any
 
+    environment {
+        // set global Jenkins environment variables
+        MYPYTHON="/usr/apps/python/latest/bin/python"
+    }
+
     stages {
         stage('Test') {
             steps {
@@ -18,13 +23,13 @@ pipeline {
                  echo 'Tests Complete'
          }
          success {
-                 sh("cd regression && ./suntest_notify.py success ${env.BRANCH_NAME} ${env.BUILD_URL}")
+                 sh("cd regression && ${env.MYPYTHON} suntest_notify.py success ${env.BRANCH_NAME} ${env.BUILD_URL}")
          }
          failure {
-                 sh("cd regression && ./suntest_notify.py failure ${env.BRANCH_NAME} ${env.BUILD_URL}")
+                 sh("cd regression && ${env.MYPYTHON} suntest_notify.py failure ${env.BRANCH_NAME} ${env.BUILD_URL}")
          }
          unstable {
-                 sh("cd regression && ./suntest_notify.py unstable ${env.BRANCH_NAME} ${env.BUILD_URL}")
+                 sh("cd regression && ${env.MYPYTHON} suntest_notify.py unstable ${env.BRANCH_NAME} ${env.BUILD_URL}")
          }
     }
 }
