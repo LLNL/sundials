@@ -34,6 +34,7 @@ SUNLinearSolver F2C_CVODE_linsol;
 SUNLinearSolver F2C_IDA_linsol;
 SUNLinearSolver F2C_KINSOL_linsol;
 SUNLinearSolver F2C_ARKODE_linsol;
+SUNLinearSolver F2C_ARKODE_mass_sol;
 
 /* Declarations of external global variables */
 
@@ -41,6 +42,7 @@ extern SUNMatrix F2C_CVODE_matrix;
 extern SUNMatrix F2C_IDA_matrix;
 extern SUNMatrix F2C_KINSOL_matrix;
 extern SUNMatrix F2C_ARKODE_matrix;
+extern SUNMatrix F2C_ARKODE_mass_matrix;
 
 extern N_Vector F2C_CVODE_vec;
 extern N_Vector F2C_IDA_vec;
@@ -55,21 +57,25 @@ void FSUNSPBCGS_INIT(int *code, int *pretype, int *maxl, int *ier)
 
   switch(*code) {
   case FCMIX_CVODE:
+    if (F2C_CVODE_linsol)  SUNLinSolFree(F2C_CVODE_linsol);
     F2C_CVODE_linsol = NULL;
     F2C_CVODE_linsol = SUNSPBCGS(F2C_CVODE_vec, *pretype, *maxl);
     if (F2C_CVODE_linsol == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
+    if (F2C_IDA_linsol)  SUNLinSolFree(F2C_IDA_linsol);
     F2C_IDA_linsol = NULL;
     F2C_IDA_linsol = SUNSPBCGS(F2C_IDA_vec, *pretype, *maxl);
     if (F2C_IDA_linsol == NULL) *ier = -1;
     break;
   case FCMIX_KINSOL:
+    if (F2C_KINSOL_linsol)  SUNLinSolFree(F2C_KINSOL_linsol);
     F2C_KINSOL_linsol = NULL;
     F2C_KINSOL_linsol = SUNSPBCGS(F2C_KINSOL_vec, *pretype, *maxl);
     if (F2C_KINSOL_linsol == NULL) *ier = -1;
     break;
   case FCMIX_ARKODE:
+    if (F2C_ARKODE_linsol)  SUNLinSolFree(F2C_ARKODE_linsol);
     F2C_ARKODE_linsol = NULL;
     F2C_ARKODE_linsol = SUNSPBCGS(F2C_ARKODE_vec, *pretype, *maxl);
     if (F2C_ARKODE_linsol == NULL) *ier = -1;
@@ -77,4 +83,14 @@ void FSUNSPBCGS_INIT(int *code, int *pretype, int *maxl, int *ier)
   default:
     *ier = -1;
   }
+}
+
+
+void FSUNMASSSPBCGS_INIT(int *pretype, int *maxl, int *ier)
+{
+  *ier = 0;
+  if (F2C_ARKODE_mass_sol)  SUNLinSolFree(F2C_ARKODE_mass_sol);
+  F2C_ARKODE_mass_sol = NULL;
+  F2C_ARKODE_mass_sol = SUNSPBCGS(F2C_ARKODE_vec, *pretype, *maxl);
+  if (F2C_ARKODE_mass_sol == NULL) *ier = -1;
 }

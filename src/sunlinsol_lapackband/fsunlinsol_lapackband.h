@@ -34,9 +34,11 @@ extern "C" {
 #endif
 
 #if defined(SUNDIALS_F77_FUNC)
-#define FSUNLAPACKBAND_INIT  SUNDIALS_F77_FUNC(fsunlapackbandinit, FSUNLAPACKBANDINIT)
+#define FSUNLAPACKBAND_INIT     SUNDIALS_F77_FUNC(fsunlapackbandinit, FSUNLAPACKBANDINIT)
+#define FSUNMASSLAPACKBAND_INIT SUNDIALS_F77_FUNC(fsunmasslapackbandinit, FSUNMASSLAPACKBANDINIT)
 #else
-#define FSUNLAPACKBAND_INIT  fsunlapackbandinit_
+#define FSUNLAPACKBAND_INIT     fsunlapackbandinit_
+#define FSUNMASSLAPACKBAND_INIT fsunmasslapackbandinit_
 #endif
 
 
@@ -46,14 +48,17 @@ extern SUNLinearSolver F2C_CVODE_linsol;
 extern SUNLinearSolver F2C_IDA_linsol;
 extern SUNLinearSolver F2C_KINSOL_linsol;
 extern SUNLinearSolver F2C_ARKODE_linsol;
+extern SUNLinearSolver F2C_ARKODE_mass_sol;
 
 /* 
  * Prototypes of exported functions 
  *
  * FSUNLAPACKBAND_INIT - initializes LAPACK band linear solver for main problem
+ * FSUNMASSLAPACKBAND_INIT - initializes LAPACK band linear solver for mass matrix solve
  */
 
 void FSUNLAPACKBAND_INIT(int *code, int *ier);
+void FSUNMASSLAPACKBAND_INIT(int *ier);
 
 #ifdef __cplusplus
 }

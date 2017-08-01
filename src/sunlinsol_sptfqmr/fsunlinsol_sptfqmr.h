@@ -34,9 +34,11 @@ extern "C" {
 #endif
 
 #if defined(SUNDIALS_F77_FUNC)
-#define FSUNSPTFQMR_INIT   SUNDIALS_F77_FUNC(fsunsptfqmrinit, FSUNSPTFQMRINIT)
+#define FSUNSPTFQMR_INIT     SUNDIALS_F77_FUNC(fsunsptfqmrinit, FSUNSPTFQMRINIT)
+#define FSUNMASSSPTFQMR_INIT SUNDIALS_F77_FUNC(fsunmasssptfqmrinit, FSUNMASSSPTFQMRINIT)
 #else
-#define FSUNSPTFQMR_INIT   fsunsptfqmrinit_
+#define FSUNSPTFQMR_INIT     fsunsptfqmrinit_
+#define FSUNMASSSPTFQMR_INIT fsunmasssptfqmrinit_
 #endif
 
 
@@ -46,14 +48,17 @@ extern SUNLinearSolver F2C_CVODE_linsol;
 extern SUNLinearSolver F2C_IDA_linsol;
 extern SUNLinearSolver F2C_KINSOL_linsol;
 extern SUNLinearSolver F2C_ARKODE_linsol;
+extern SUNLinearSolver F2C_ARKODE_mass_sol;
 
 /* 
  * Prototypes of exported functions 
  *
  * FSUNSPTFQMR_INIT - initializes SPTFQMR linear solver for main problem
+ * FSUNMASSSPTFQMR_INIT - initializes SPTFQMR linear solver for mass matrix solve
  */
 
 void FSUNSPTFQMR_INIT(int *code, int *pretype, int *maxl, int *ier);
+void FSUNMASSSPTFQMR_INIT(int *pretype, int *maxl, int *ier);
 
 #ifdef __cplusplus
 }

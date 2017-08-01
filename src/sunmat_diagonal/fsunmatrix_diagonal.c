@@ -34,6 +34,7 @@ SUNMatrix F2C_CVODE_matrix;
 SUNMatrix F2C_IDA_matrix;
 SUNMatrix F2C_KINSOL_matrix;
 SUNMatrix F2C_ARKODE_matrix;
+SUNMatrix F2C_ARKODE_mass_matrix;
 
 /* Access global vector variables */
 
@@ -50,21 +51,25 @@ void FSUNDIAGONALMAT_INIT(int *code, int *ier)
 
   switch(*code) {
   case FCMIX_CVODE:
+    if (F2C_CVODE_matrix)  SUNMatDestroy(F2C_CVODE_matrix);
     F2C_CVODE_matrix = NULL;
     F2C_CVODE_matrix = SUNDiagonalMatrix(F2C_CVODE_vec);
     if (F2C_CVODE_matrix == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
+    if (F2C_IDA_matrix)  SUNMatDestroy(F2C_IDA_matrix);
     F2C_IDA_matrix = NULL;
     F2C_IDA_matrix = SUNDiagonalMatrix(F2C_IDA_vec);
     if (F2C_IDA_matrix == NULL) *ier = -1;
     break;
   case FCMIX_KINSOL:
+    if (F2C_KINSOL_matrix)  SUNMatDestroy(F2C_KINSOL_matrix);
     F2C_KINSOL_matrix = NULL;
     F2C_KINSOL_matrix = SUNDiagonalMatrix(F2C_KINSOL_vec);
     if (F2C_KINSOL_matrix == NULL) *ier = -1;
     break;
   case FCMIX_ARKODE:
+    if (F2C_ARKODE_matrix)  SUNMatDestroy(F2C_ARKODE_matrix);
     F2C_ARKODE_matrix = NULL;
     F2C_ARKODE_matrix = SUNDiagonalMatrix(F2C_ARKODE_vec);
     if (F2C_ARKODE_matrix == NULL) *ier = -1;
@@ -72,4 +77,14 @@ void FSUNDIAGONALMAT_INIT(int *code, int *ier)
   default:
     *ier = -1;
   }
+}
+
+
+void FSUNDIAGONALMASSMAT_INIT(int *ier)
+{
+  *ier = 0;
+  if (F2C_ARKODE_mass_matrix)  SUNMatDestroy(F2C_ARKODE_mass_matrix);
+  F2C_ARKODE_mass_matrix = NULL;
+  F2C_ARKODE_mass_matrix = SUNDiagonalMatrix(F2C_ARKODE_vec);
+  if (F2C_ARKODE_mass_matrix == NULL) *ier = -1;
 }
