@@ -20,8 +20,8 @@ if [ "$#" -lt 2 ]; then
     echo "ERROR: Illegal number of parameters, branch name and test URL required"
     exit 1
 fi
-BRANCHNAME=$1 
-TESTURL=$2
+BRANCHNAME=$1 # name of branch (or pull-request) being tested
+TESTURL=$2    # URL to Jenkins test
 
 # add newer python install to path
 export PATH=/usr/apps/python/latest/bin:$PATH
@@ -53,7 +53,7 @@ indextype=('signed_64bit')
 # ------------------------------------------------------------------------------
 # Run regression tests
 echo "--------------------------------------------------" | tee -a suntest.log
-echo "SUNDIALS regression tests on $BRANCHNAME branch   " | tee -a suntest.log
+echo "SUNDIALS regression tests on $BRANCHNAME " | tee -a suntest.log
 date | tee -a suntest.log
 echo "--------------------------------------------------" | tee -a suntest.log
 git log -1 | tee -a suntest.log
@@ -83,7 +83,7 @@ done
 # ------------------------------------------------------------------------------
 # Return overall pass/fail
 echo "--------------------------------------------------" | tee -a suntest.log
-echo "SUNDIALS regression tests on $BRANCHNAME branch   " | tee -a suntest.log
+echo "SUNDIALS regression tests on $BRANCHNAME " | tee -a suntest.log
 if [ $nfail -ne 0 ]; then
     echo "FAILED: $nfail failures." | tee -a suntest.log
 else

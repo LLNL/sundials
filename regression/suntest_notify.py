@@ -28,7 +28,7 @@ def main():
                         help='Status of regression tests, 0 = success')
 
     parser.add_argument('branchname',type=str,
-                        help='Name of branch tested')
+                        help='Name of branch (or pull-request) tested')
 
     parser.add_argument('testurl',type=str,
                         help='URL for viewing test results')
@@ -45,13 +45,13 @@ def main():
     # send notification if any regression tests fail
     if (args.teststatus != 0):
 
-        subject = "FAILED: SUNDIALS "+args.branchname+" branch failed regression tests"
+        subject = "FAILED: SUNDIALS "+args.branchname+" failed regression tests"
 
         if ((args.branchname == 'master') or (args.branchname == 'develop')):      
             # SUNDIALS developer list
             recipient = "sundials-devs@llnl.gov"
         else:
-            # author of last commit
+            # author of most recent commit
             cmd = "git log --format='%ae' -1"
             recipient = runCommand(cmd)
 
