@@ -12,7 +12,7 @@
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # -------------------------------------------------------------------------------
-# Send email notification if a SUNDIALS regression test fails
+# Send email notification if a SUNDIALS regression test status
 # -------------------------------------------------------------------------------
 
 def main():
@@ -21,14 +21,15 @@ def main():
     import sys, os
 
     parser = argparse.ArgumentParser(
-        description='Send email notification if regression test fails', 
+        description='Send email notification based on regression test status',
         formatter_class=argparse.RawTextHelpFormatter)
     
-    parser.add_argument('teststatus',type=int,
-                        help='Status of regression tests, 0 = success')
+    parser.add_argument('teststatus',type=str,
+                        choices=['success','failure','unstable'],
+                        help='Status of regression test')
 
     parser.add_argument('branchname',type=str,
-                        help='Name of branch (or pull-request) tested')
+                        help='Name of branch tested')
 
     parser.add_argument('testurl',type=str,
                         help='URL for viewing test results')
@@ -36,28 +37,49 @@ def main():
     # parse command line args 
     args = parser.parse_args()
 
-    # add URL for test results to log file
+    # name of regression test log file
     logfile = "suntest.log"
-    with open(logfile, "a") as log:
-        log.write("View output log at:\n")
-        log.write(args.testurl)
 
-    # send notification if any regression tests fail
-    if (args.teststatus != 0):
+    # if log file exists add url, otherwise create log file
+    if (os.path.isfile(logfile)):
+        missinglogfile = False
+        with open(logfile,"a") as log:
+            log.write("View test output at:\n")
+            log.write(args.testurl)
+    else:
+        print "Warning: log file not found"
+        missinglogfile = True
+
+        with open(logfile,"w") as log:
+            log.write("Warning: log file not found\n")
+            log.write("View test output at:\n")
+            log.write(args.testurl)
+
+    # determine notification recipient
+    if ((args.branchname == 'master') or (args.branchname == 'develop')):
+        # SUNDIALS developer list
+        # recipient = "sundials-devs@llnl.gov"
+        recipient = "gardner48@llnl.gov" # for testing
+    else:
+        # author of most recent commit
+        cmd = "git log --format='%ae' -1"
+        recipient = runCommand(cmd)
+
+    # send notification if regression tests fail or log file not found
+    if (args.teststatus != 'success'):
 
         subject = "FAILED: SUNDIALS "+args.branchname+" failed regression tests"
-
-        if ((args.branchname == 'master') or (args.branchname == 'develop')):      
-            # SUNDIALS developer list
-            recipient = "sundials-devs@llnl.gov"
-        else:
-            # author of most recent commit
-            cmd = "git log --format='%ae' -1"
-            recipient = runCommand(cmd)
-
         print "Tests failed, sending notification to",recipient
-
         sendEmail(recipient, subject, logfile)
+
+    elif (missinglogfile):
+
+        subject = "ERROR: SUNDIALS "+args.branchname+" log file not found"
+        print "Log file not found, sending notification to",recipient
+        sendEmail(recipient, subject, logfile)
+
+    else:
+        print "Tests passed, no notifications sent"
 
 #
 # run external command 
@@ -65,7 +87,7 @@ def main():
 def runCommand(cmd):
 
     import subprocess
- 
+
     cmdout = subprocess.check_output(cmd, shell=True)
 
     return(cmdout)

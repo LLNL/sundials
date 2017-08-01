@@ -9,8 +9,22 @@ pipeline {
               echo "END JENKINS SETUP"
 
               // run regression tests
-              sh("cd regression && ./suntest_driver.sh ${env.BRANCH_NAME} ${env.BUILD_URL}")
+              sh("cd regression && ./suntest_driver.sh ${env.BRANCH_NAME})
             }
         }
+    }
+    post {
+         always {
+                 echo 'Tests Complete'
+         }
+         success {
+                 sh("cd regression && ./suntest_notify.py success ${env.BRANCH_NAME} ${env.BUILD_URL}")
+         }
+         failure {
+                 sh("cd regression && ./suntest_notify.py failure ${env.BRANCH_NAME} ${env.BUILD_URL}")
+         }
+         unstable {
+                 sh("cd regression && ./suntest_notify.py unstable ${env.BRANCH_NAME} ${env.BUILD_URL}")
+         }
     }
 }
