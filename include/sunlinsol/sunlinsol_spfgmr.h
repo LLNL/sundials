@@ -205,9 +205,6 @@ typedef struct _SUNLinearSolverContent_SPFGMR *SUNLinearSolverContent_SPFGMR;
 SUNDIALS_EXPORT SUNLinearSolver SUNSPFGMR(N_Vector y, int pretype, int maxl);
 SUNDIALS_EXPORT int SUNSPFGMRSetPrecType(SUNLinearSolver S, int pretype);
 SUNDIALS_EXPORT int SUNSPFGMRSetGSType(SUNLinearSolver S, int gstype);
-SUNDIALS_EXPORT int SUNSPFGMRGetWorkspace(SUNLinearSolver S, 
-                                         long int *lenrwLS, 
-                                         long int *leniwLS);
 
 /*
  * -----------------------------------------------------------------
@@ -232,6 +229,9 @@ SUNDIALS_EXPORT int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A,
 SUNDIALS_EXPORT int SUNLinSolNumIters_SPFGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm_SPFGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_SPFGMR(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolSpace_SPFGMR(SUNLinearSolver S, 
+                                          long int *lenrwLS, 
+                                          long int *leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_SPFGMR(SUNLinearSolver S);
 
 

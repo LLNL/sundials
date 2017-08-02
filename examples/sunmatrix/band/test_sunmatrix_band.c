@@ -120,6 +120,7 @@ int main(int argc, char *argv[])
   fails += Test_SUNMatScaleAdd(A, I, 0);
   fails += Test_SUNMatScaleAddI(A, I, 0);
   fails += Test_SUNMatMatvec(A, x, y, 0);
+  fails += Test_SUNMatSpace(A, 0);
 
   /* Print result */
   if (fails) {

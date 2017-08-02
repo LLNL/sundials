@@ -490,6 +490,32 @@ int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
 
 
 
+/* ----------------------------------------------------------------------
+ * SUNMatSpace Test
+ * --------------------------------------------------------------------*/
+int Test_SUNMatSpace(SUNMatrix A, int myid)
+{
+  int      failure;
+  double   start_time, stop_time;
+  long int lenrw, leniw;
+
+  start_time = get_time();
+  failure = SUNMatSpace(A, &lenrw, &leniw);
+  stop_time = get_time();   
+
+  if (failure) {
+    printf(">>> FAILED test -- SUNMatSpace, Proc %d \n", myid);
+    PRINT_TIME("    SUNMatSpace Time: %22.15e \n \n", stop_time - start_time);
+    return(1);
+  } else if (myid == 0) {
+    printf("    PASSED test -- SUNMatSpace, lenrw = %li, leniw = %li\n", lenrw, leniw);
+    PRINT_TIME("    SUNMatSpace Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  return(0);
+}
+
+
 
 
 

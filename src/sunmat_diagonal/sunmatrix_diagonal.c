@@ -84,6 +84,7 @@ SUNMatrix SUNDiagonalMatrix(N_Vector tmpl)
   ops->scaleadd  = SUNMatScaleAdd_Diagonal;
   ops->scaleaddi = SUNMatScaleAddI_Diagonal;
   ops->matvec    = SUNMatMatvec_Diagonal;
+  ops->space     = SUNMatSpace_Diagonal;
 
   /* Create content */
   content = NULL;
@@ -193,6 +194,12 @@ int SUNMatMatvec_Diagonal(SUNMatrix A, N_Vector x, N_Vector y)
 
   /* Perform operation */
   N_VProd(SM_DATA_DIAG(A), x, y);
+  return 0;
+}
+
+int SUNMatSpace_Diagonal(SUNMatrix A, long int *lenrw, long int *leniw)
+{
+  N_VSpace(SM_DATA_DIAG(A), lenrw, leniw);
   return 0;
 }
 

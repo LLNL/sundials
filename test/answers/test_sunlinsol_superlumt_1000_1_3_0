@@ -6,6 +6,7 @@ SuperLUMT linear solver test: size 1000, type 1, num_threads 3
     PASSED test -- SUNLinSolSolve 
     PASSED test -- SUNLinSolGetType 
     PASSED test -- SUNLinSolLastFlag (0) 
+    PASSED test -- SUNLinSolSpace, lenrw = 1, leniw = 2005
     PASSED test -- SUNLinSolNumIters (0) 
     PASSED test -- SUNLinSolResNorm
     PASSED test -- SUNLinSolSetATimes 

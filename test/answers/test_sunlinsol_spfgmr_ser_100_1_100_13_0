@@ -12,7 +12,7 @@ SPFGMR linear solver test:
     PASSED test -- SUNLinSolSetPreconditioner 
     PASSED test -- SUNLinSolSetScalingVectors 
     PASSED test -- SUNLinSolInitialize 
-    SPFGMR linear solver workspace: real = 30801, integer = 204
+    PASSED test -- SUNLinSolSpace, lenrw = 30801, leniw = 204
 SUCCESS: SUNSPFGMR module passed all initialization tests
 
     PASSED test -- SUNLinSolSetup 

@@ -151,6 +151,7 @@ struct _generic_SUNLinearSolver_Ops {
   int                  (*numiters)(SUNLinearSolver);
   realtype             (*resnorm)(SUNLinearSolver);
   long int             (*lastflag)(SUNLinearSolver);
+  int                  (*space)(SUNLinearSolver, long int*, long int*);
   int                  (*free)(SUNLinearSolver);
 };
  
@@ -246,6 +247,10 @@ struct _generic_SUNLinearSolver {
  *   allowing the user to investigate linear solver issues after 
  *   failed solves.
  *
+ * SUNLinSolSpace
+ *   Returns the integer and real workspace sizes for the linear
+ *   solver.
+ *
  * SUNLinSolFree
  *   Frees memory allocated by the linear solver.  This should return
  *   zero for a successful call, and a negative value for a failure.
@@ -273,6 +278,7 @@ struct _generic_SUNLinearSolver {
  *  NumIters            I         I S+       I           I
  *  ResNorm             I         I S+       I           I
  *  LastFlag^
+ *  Space               M I P#    M I P# S   M I P#      M I P
  *  Free                M I P#    M I P# S   M I P#      M I P
  *  ------------------------------------------------------------
  * Notes: * -- only if user calls integrator-specific 
@@ -307,6 +313,9 @@ SUNDIALS_EXPORT int SUNLinSolNumIters(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm(SUNLinearSolver S);
   
 SUNDIALS_EXPORT long int SUNLinSolLastFlag(SUNLinearSolver S);
+  
+SUNDIALS_EXPORT int SUNLinSolSpace(SUNLinearSolver S, long int *lenrwLS,
+                                   long int *leniwLS);
   
 SUNDIALS_EXPORT int SUNLinSolFree(SUNLinearSolver S);
 

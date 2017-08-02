@@ -114,6 +114,7 @@ int main(int argc, char *argv[])
   if (square) 
     fails += Test_SUNMatScaleAddI(A, I, 0);
   fails += Test_SUNMatMatvec(A, x, y, 0);
+  fails += Test_SUNMatSpace(A, 0);
 
   /* Print result */
   if (fails) {

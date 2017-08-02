@@ -112,7 +112,6 @@ struct _SUNLinearSolverContent_SuperLUMT {
   realtype     diag_pivot_thresh; 
   int          ordering;
   superlumt_options_t *options;
-
 };
 
 typedef struct _SUNLinearSolverContent_SuperLUMT *SUNLinearSolverContent_SuperLUMT;
@@ -167,6 +166,9 @@ SUNDIALS_EXPORT int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A,
 SUNDIALS_EXPORT int SUNLinSolNumIters_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_SuperLUMT(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolSpace_SuperLUMT(SUNLinearSolver S, 
+                                             long int *lenrwLS, 
+                                             long int *leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_SuperLUMT(SUNLinearSolver S);
   
 

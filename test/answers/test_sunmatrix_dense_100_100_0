@@ -9,5 +9,6 @@ Dense matrix test: size 100 by 100
     PASSED test -- SUNMatScaleAdd case 2 
     PASSED test -- SUNMatScaleAddI 
     PASSED test -- SUNMatMatvec 
+    PASSED test -- SUNMatSpace, lenrw = 10000, leniw = 103
 SUCCESS: SUNMatrix module passed all tests 
  

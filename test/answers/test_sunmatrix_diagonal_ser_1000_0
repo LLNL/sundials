@@ -12,5 +12,6 @@ Diagonal matrix test:
     PASSED test -- SUNMatScaleAdd case 2 
     PASSED test -- SUNMatScaleAddI 
     PASSED test -- SUNMatMatvec 
+    PASSED test -- SUNMatSpace, lenrw = 1000, leniw = 1
 SUCCESS: SUNMatrix module passed all tests 
  

@@ -103,7 +103,6 @@ int main(int argc, char *argv[])
   N_Vector        xhat, x, b;       /* test vectors              */
   UserData        ProbData;         /* problem data structure    */
   int             gstype, pretype, maxl, print_timing;
-  long int        lenrwLS, leniwLS;
   sunindextype    i;
   realtype        *vecdata;
   double          tol;
@@ -223,11 +222,8 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolSetScalingVectors(LS, ProbData.s1, ProbData.s2,
                                            TRUE, ProbData.myid);
   fails += Test_SUNLinSolInitialize(LS, ProbData.myid);
+  fails += Test_SUNLinSolSpace(LS, ProbData.myid);
   fails += SUNSPGMRSetGSType(LS, gstype);  
-  fails += SUNSPGMRGetWorkspace(LS, &lenrwLS, &leniwLS);
-  if (ProbData.myid == 0)
-    printf("    SPGMR linear solver workspace: real = %ld, integer = %ld\n",
-           lenrwLS, leniwLS);
   if (fails) {
     printf("FAIL: SUNSPGMR module failed %i initialization tests\n\n", fails);
     return 1;

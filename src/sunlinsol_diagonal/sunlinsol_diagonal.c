@@ -92,6 +92,7 @@ SUNLinearSolver SUNDiagonalLinearSolver(N_Vector y, SUNMatrix A)
   ops->numiters          = SUNLinSolNumIters_Diagonal;
   ops->resnorm           = SUNLinSolResNorm_Diagonal;
   ops->lastflag          = SUNLinSolLastFlag_Diagonal;
+  ops->space             = SUNLinSolSpace_Diagonal;
   ops->free              = SUNLinSolFree_Diagonal;
 
   /* Create content */
@@ -227,6 +228,15 @@ long int SUNLinSolLastFlag_Diagonal(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
   return(LASTFLAG(S));
+}
+
+int SUNLinSolSpace_Diagonal(SUNLinearSolver S, 
+                            long int *lenrwLS, 
+                            long int *leniwLS)
+{
+  *leniwLS = 1;
+  *lenrwLS = 0;
+  return(SUNLS_SUCCESS);
 }
 
 int SUNLinSolFree_Diagonal(SUNLinearSolver S)

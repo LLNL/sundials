@@ -196,6 +196,9 @@ SUNDIALS_EXPORT int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A,
 SUNDIALS_EXPORT int SUNLinSolNumIters_KLU(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm_KLU(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_KLU(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolSpace_KLU(SUNLinearSolver S,
+                                       long int *lenrwLS,
+                                       long int *leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_KLU(SUNLinearSolver S);
   
 

@@ -152,6 +152,8 @@ SUNDIALS_EXPORT int SUNMatCopy_Diagonal(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd_Diagonal(realtype c, SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAddI_Diagonal(realtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec_Diagonal(SUNMatrix A, N_Vector x, N_Vector y);
+SUNDIALS_EXPORT int SUNMatSpace_Diagonal(SUNMatrix A, long int *lenrw,
+                                         long int *leniw);
 
   
 #ifdef __cplusplus

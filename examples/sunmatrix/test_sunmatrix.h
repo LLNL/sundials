@@ -59,6 +59,7 @@ extern "C" {
   int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid);
   int Test_SUNMatScaleAddI(SUNMatrix A, SUNMatrix I, int myid);
   int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid);
+  int Test_SUNMatSpace(SUNMatrix A, int myid);
 
   /* Timing function */
   void SetTiming(int onoff);

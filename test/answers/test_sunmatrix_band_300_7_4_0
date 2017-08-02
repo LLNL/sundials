@@ -9,5 +9,6 @@ Band matrix test: size 300, bandwidths 7 4
     PASSED test -- SUNMatScaleAdd case 2 
     PASSED test -- SUNMatScaleAddI 
     PASSED test -- SUNMatMatvec 
+    PASSED test -- SUNMatSpace, lenrw = 3600, leniw = 307
 SUCCESS: SUNMatrix module passed all tests 
  

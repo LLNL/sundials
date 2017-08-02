@@ -45,6 +45,7 @@ extern "C" {
   /* Test function declarations */
   int Test_SUNLinSolGetType(SUNLinearSolver S, SUNLinearSolver_Type sunid, int myid);
   int Test_SUNLinSolLastFlag(SUNLinearSolver S, int myid);
+  int Test_SUNLinSolSpace(SUNLinearSolver S, int myid);
   int Test_SUNLinSolNumIters(SUNLinearSolver S, int myid);
   int Test_SUNLinSolResNorm(SUNLinearSolver S, int myid);
   int Test_SUNLinSolSetATimes(SUNLinearSolver S, void *ATdata, ATSetupFn ATSetup,

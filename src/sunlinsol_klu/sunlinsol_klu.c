@@ -62,31 +62,19 @@ SUNLinearSolver SUNKLU(N_Vector y, SUNMatrix A)
   SUNLinearSolver S;
   SUNLinearSolver_Ops ops;
   SUNLinearSolverContent_KLU content;
-  sunindextype MatrixRows, MatrixCols, VecLength;
   int flag;
   
   /* Check compatibility with supplied SUNMatrix and N_Vector */
   if (SUNMatGetID(A) != SUNMATRIX_SPARSE)
     return(NULL);
-  MatrixRows = SUNSparseMatrix_Rows(A);
-  MatrixCols = SUNSparseMatrix_Columns(A);
-  if (N_VGetVectorID(y) == SUNDIALS_NVEC_SERIAL) {
-    VecLength = N_VGetLength_Serial(y);
-  }
-#ifdef SUNDIALS_OPENMP_ENABLED
-  else if (N_VGetVectorID(y) == SUNDIALS_NVEC_OPENMP) {
-    VecLength = N_VGetLength_OpenMP(y);
-  }
-#endif
-#ifdef SUNDIALS_PTHREADS_ENABLED
-  else if (N_VGetVectorID(y) == SUNDIALS_NVEC_PTHREADS) {
-    VecLength = N_VGetLength_Pthreads(y);
-  }
-#endif
-  else
+  if ( (N_VGetVectorID(y) != SUNDIALS_NVEC_SERIAL) &&
+       (N_VGetVectorID(y) != SUNDIALS_NVEC_OPENMP) &&
+       (N_VGetVectorID(y) != SUNDIALS_NVEC_PTHREADS) )
     return(NULL);
-  if ( (MatrixRows != MatrixCols) || (MatrixRows != VecLength) )
-    return(NULL);
+
+  /* Optimally we would verify that the dimensions of A and y agree, but 
+   since there is no generic 'length' routine for N_Vectors we cannot */
+  
 
   /* Create linear solver */
   S = NULL;
@@ -109,6 +97,7 @@ SUNLinearSolver SUNKLU(N_Vector y, SUNMatrix A)
   ops->numiters          = SUNLinSolNumIters_KLU;
   ops->resnorm           = SUNLinSolResNorm_KLU;
   ops->lastflag          = SUNLinSolLastFlag_KLU;
+  ops->space             = SUNLinSolSpace_KLU;
   ops->free              = SUNLinSolFree_KLU;
 
   /* Create content */
@@ -431,6 +420,17 @@ long int SUNLinSolLastFlag_KLU(SUNLinearSolver S)
   return(LASTFLAG(S));
 }
 
+
+int SUNLinSolSpace_KLU(SUNLinearSolver S, 
+                       long int *lenrwLS, 
+                       long int *leniwLS)
+{
+  /* since the klu structures are opaque objects, we 
+     omit those from these results */
+  *leniwLS = 2;
+  *lenrwLS = 0;
+  return(SUNLS_SUCCESS);
+}
 
 int SUNLinSolFree_KLU(SUNLinearSolver S)
 {
