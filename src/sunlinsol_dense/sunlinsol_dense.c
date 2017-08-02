@@ -57,30 +57,21 @@ SUNLinearSolver SUNDenseLinearSolver(N_Vector y, SUNMatrix A)
   SUNLinearSolver S;
   SUNLinearSolver_Ops ops;
   SUNLinearSolverContent_Dense content;
-  sunindextype MatrixRows, MatrixCols, VecLength;
+  sunindextype MatrixRows;
   
   /* Check compatibility with supplied SUNMatrix and N_Vector */
   if (SUNMatGetID(A) != SUNMATRIX_DENSE)
     return(NULL);
+  if (SUNDenseMatrix_Rows(A) != SUNDenseMatrix_Columns(A))
+    return(NULL);
   MatrixRows = SUNDenseMatrix_Rows(A);
-  MatrixCols = SUNDenseMatrix_Columns(A);
-  if (N_VGetVectorID(y) == SUNDIALS_NVEC_SERIAL) {
-    VecLength = N_VGetLength_Serial(y);
-  }
-#ifdef SUNDIALS_OPENMP_ENABLED
-  else if (N_VGetVectorID(y) == SUNDIALS_NVEC_OPENMP) {
-    VecLength = N_VGetLength_OpenMP(y);
-  }
-#endif
-#ifdef SUNDIALS_PTHREADS_ENABLED
-  else if (N_VGetVectorID(y) == SUNDIALS_NVEC_PTHREADS) {
-    VecLength = N_VGetLength_Pthreads(y);
-  }
-#endif
-  else
+  if ( (N_VGetVectorID(y) != SUNDIALS_NVEC_SERIAL) &&
+       (N_VGetVectorID(y) != SUNDIALS_NVEC_OPENMP) &&
+       (N_VGetVectorID(y) != SUNDIALS_NVEC_PTHREADS) )
     return(NULL);
-  if ( (MatrixRows != MatrixCols) || (MatrixRows != VecLength) )
-    return(NULL);
+
+  /* Optimally we would verify that the dimensions of A and y agree, but 
+   since there is no generic 'length' routine for N_Vectors we cannot */
   
   /* Create linear solver */
   S = NULL;
@@ -103,6 +94,7 @@ SUNLinearSolver SUNDenseLinearSolver(N_Vector y, SUNMatrix A)
   ops->numiters          = SUNLinSolNumIters_Dense;
   ops->resnorm           = SUNLinSolResNorm_Dense;
   ops->lastflag          = SUNLinSolLastFlag_Dense;
+  ops->space             = SUNLinSolSpace_Dense;
   ops->free              = SUNLinSolFree_Dense;
 
   /* Create content */
@@ -111,6 +103,7 @@ SUNLinearSolver SUNDenseLinearSolver(N_Vector y, SUNMatrix A)
   if (content == NULL) { free(ops); free(S); return(NULL); }
 
   /* Fill content */
+  content->N = MatrixRows;
   content->last_flag = 0;
   content->pivots = NULL;
   content->pivots = (sunindextype *) malloc(MatrixRows * sizeof(sunindextype));
@@ -251,6 +244,15 @@ long int SUNLinSolLastFlag_Dense(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
   return(LASTFLAG(S));
+}
+
+int SUNLinSolSpace_Dense(SUNLinearSolver S, 
+                         long int *lenrwLS, 
+                         long int *leniwLS)
+{
+  *leniwLS = 2 + DENSE_CONTENT(S)->N;
+  *lenrwLS = 0;
+  return(SUNLS_SUCCESS);
 }
 
 int SUNLinSolFree_Dense(SUNLinearSolver S)

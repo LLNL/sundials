@@ -56,31 +56,23 @@ SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A)
   SUNLinearSolver S;
   SUNLinearSolver_Ops ops;
   SUNLinearSolverContent_LapackBand content;
-  sunindextype MatrixRows, MatrixCols, VecLength;
+  sunindextype MatrixRows;
   
   /* Check compatibility with supplied SUNMatrix and N_Vector */
   if (SUNMatGetID(A) != SUNMATRIX_BAND)
     return(NULL);
-  MatrixRows = SUNBandMatrix_Rows(A);
-  MatrixCols = SUNBandMatrix_Columns(A);
-  if (N_VGetVectorID(y) == SUNDIALS_NVEC_SERIAL) {
-    VecLength = N_VGetLength_Serial(y);
-  }
-#ifdef SUNDIALS_OPENMP_ENABLED
-  else if (N_VGetVectorID(y) == SUNDIALS_NVEC_OPENMP) {
-    VecLength = N_VGetLength_OpenMP(y);
-  }
-#endif
-#ifdef SUNDIALS_PTHREADS_ENABLED
-  else if (N_VGetVectorID(y) == SUNDIALS_NVEC_PTHREADS) {
-    VecLength = N_VGetLength_Pthreads(y);
-  }
-#endif
-  else
+  if (SUNBandMatrix_Rows(A) != SUNBandMatrix_Columns(A))
     return(NULL);
-  if ( (MatrixRows != MatrixCols) || (MatrixRows != VecLength) )
+  MatrixRows = SUNBandMatrix_Rows(A);
+  if ( (N_VGetVectorID(y) != SUNDIALS_NVEC_SERIAL) &&
+       (N_VGetVectorID(y) != SUNDIALS_NVEC_OPENMP) &&
+       (N_VGetVectorID(y) != SUNDIALS_NVEC_PTHREADS) )
     return(NULL);
 
+  /* Optimally we would verify that the dimensions of A and y agree, but 
+   since there is no generic 'length' routine for N_Vectors we cannot */
+
+  
   /* Create linear solver */
   S = NULL;
   S = (SUNLinearSolver) malloc(sizeof *S);
@@ -101,6 +93,7 @@ SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A)
   ops->solve             = SUNLinSolSolve_LapackBand;
   ops->numiters          = SUNLinSolNumIters_LapackBand;
   ops->resnorm           = SUNLinSolResNorm_LapackBand;
+  ops->space             = SUNLinSolSpace_LapackBand;
   ops->lastflag          = SUNLinSolLastFlag_LapackBand;
   ops->free              = SUNLinSolFree_LapackBand;
 
@@ -110,9 +103,10 @@ SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A)
   if (content == NULL) { free(ops); free(S); return(NULL); }
 
   /* Fill content */
+  content->N = MatrixRows;
   content->last_flag = 0;
   content->pivots = NULL;
-  content->pivots = (int *) malloc(MatrixRows * sizeof(int));
+  content->pivots = (sunindextype *) malloc(MatrixRows * sizeof(sunindextype));
   if (content->pivots == NULL) {
     free(content); free(ops); free(S); return(NULL);
   }
@@ -263,6 +257,15 @@ long int SUNLinSolLastFlag_LapackBand(SUNLinearSolver S)
   return(LASTFLAG(S));
 }
 
+
+int SUNLinSolSpace_LapackBand(SUNLinearSolver S, 
+                              long int *lenrwLS, 
+                              long int *leniwLS)
+{
+  *lenrwLS = 0;
+  *leniwLS = 2 + LAPACKBAND_CONTENT(S)->N;
+  return(SUNLS_SUCCESS);
+}
 
 int SUNLinSolFree_LapackBand(SUNLinearSolver S)
 {

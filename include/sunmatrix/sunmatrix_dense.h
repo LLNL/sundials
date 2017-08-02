@@ -254,6 +254,8 @@ SUNDIALS_EXPORT int SUNMatCopy_Dense(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd_Dense(realtype c, SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAddI_Dense(realtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y);
+SUNDIALS_EXPORT int SUNMatSpace_Dense(SUNMatrix A, long int *lenrw,
+                                      long int *leniw);
 
   
 #ifdef __cplusplus

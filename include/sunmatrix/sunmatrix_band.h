@@ -324,6 +324,7 @@ SUNDIALS_EXPORT int SUNMatCopy_Band(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd_Band(realtype c, SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAddI_Band(realtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec_Band(SUNMatrix A, N_Vector x, N_Vector y);
+SUNDIALS_EXPORT int SUNMatSpace_Band(SUNMatrix A, long int *lenrw, long int *leniw);
   
 #ifdef __cplusplus
 }

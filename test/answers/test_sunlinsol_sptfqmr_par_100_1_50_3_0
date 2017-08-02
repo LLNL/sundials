@@ -12,7 +12,7 @@ SPTFQMR linear solver test:
     PASSED test -- SUNLinSolSetPreconditioner 
     PASSED test -- SUNLinSolSetScalingVectors 
     PASSED test -- SUNLinSolInitialize 
-    SPTFQMR linear solver workspace: real = 4400, integer = 88
+    PASSED test -- SUNLinSolSpace, lenrw = 4400, leniw = 88
 SUCCESS: SUNSPTFQMR module passed all initialization tests
 
     PASSED test -- SUNLinSolSetup 

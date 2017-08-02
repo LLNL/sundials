@@ -87,6 +87,7 @@ SUNLinearSolver SUNSPBCGS(N_Vector y, int pretype, int maxl)
   ops->numiters          = SUNLinSolNumIters_SPBCGS;
   ops->resnorm           = SUNLinSolResNorm_SPBCGS;
   ops->lastflag          = SUNLinSolLastFlag_SPBCGS;  
+  ops->space             = SUNLinSolSpace_SPBCGS;  
   ops->free              = SUNLinSolFree_SPBCGS;
 
   /* Create content */
@@ -148,26 +149,6 @@ SUNDIALS_EXPORT int SUNSPBCGSSetPrecType(SUNLinearSolver S, int pretype)
 
   /* Set pretype */
   PRETYPE(S) = pretype;
-  return(SUNLS_SUCCESS);
-}
-
-
-/* ----------------------------------------------------------------------------
- * Function to return the SPBCGS workspace sizes
- */
-
-SUNDIALS_EXPORT int SUNSPBCGSGetWorkspace(SUNLinearSolver S, 
-                                         long int *lenrwLS, 
-                                         long int *leniwLS)
-{
-  sunindextype liw1, lrw1;
-
-  /* Check for non-NULL SUNLinearSolver */
-  if (S == NULL) return(SUNLS_MEM_NULL);
-
-  N_VSpace(SPBCGS_CONTENT(S)->vtemp, &lrw1, &liw1);
-  *lenrwLS = lrw1*9;
-  *leniwLS = liw1*9;
   return(SUNLS_SUCCESS);
 }
 
@@ -568,6 +549,17 @@ long int SUNLinSolLastFlag_SPBCGS(SUNLinearSolver S)
   return (LASTFLAG(S));
 }
 
+
+int SUNLinSolSpace_SPBCGS(SUNLinearSolver S, 
+                          long int *lenrwLS, 
+                          long int *leniwLS)
+{
+  sunindextype liw1, lrw1;
+  N_VSpace(SPBCGS_CONTENT(S)->vtemp, &lrw1, &liw1);
+  *lenrwLS = lrw1*9;
+  *leniwLS = liw1*9;
+  return(SUNLS_SUCCESS);
+}
 
 int SUNLinSolFree_SPBCGS(SUNLinearSolver S)
 {

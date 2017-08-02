@@ -89,6 +89,12 @@ long int SUNLinSolLastFlag(SUNLinearSolver S)
   return ((long int) S->ops->lastflag(S));
 }
 
+int SUNLinSolSpace(SUNLinearSolver S, long int *lenrwLS,
+                   long int *leniwLS)
+{
+  return ((int) S->ops->space(S, lenrwLS, leniwLS));
+}
+
 int SUNLinSolFree(SUNLinearSolver S)
 {
   if (S==NULL) return 0;

@@ -76,6 +76,11 @@ int SUNMatScaleAddI(realtype c, SUNMatrix A)
 
 int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)
 {
-  return((int) A->ops->matvec(A,x,y));
+  return((int) A->ops->matvec(A, x, y));
+}
+
+int SUNMatSpace(SUNMatrix A, long int *lenrw, long int *leniw)
+{
+  return((int) A->ops->space(A, lenrw, leniw));
 }
 

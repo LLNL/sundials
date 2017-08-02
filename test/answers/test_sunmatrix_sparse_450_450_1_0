@@ -9,5 +9,6 @@ Sparse matrix test: size 450 by 450, type = 1
     PASSED test -- SUNMatScaleAdd case 2 
     PASSED test -- SUNMatScaleAddI 
     PASSED test -- SUNMatMatvec 
+    PASSED test -- SUNMatSpace, lenrw = 1345, leniw = 1805
 SUCCESS: SUNMatrix module passed all tests 
  

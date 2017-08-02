@@ -70,30 +70,22 @@ SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
   SUNLinearSolver S;
   SUNLinearSolver_Ops ops;
   SUNLinearSolverContent_SuperLUMT content;
-  sunindextype MatrixRows, MatrixCols, VecLength;
+  sunindextype MatrixRows;
 
   /* Check compatibility with supplied SUNMatrix and N_Vector */
   if (SUNMatGetID(A) != SUNMATRIX_SPARSE)
     return(NULL);
+  if (SUNSparseMatrix_Rows(A) != SUNSparseMatrix_Columns(A))
+    return(NULL);
   MatrixRows = SUNSparseMatrix_Rows(A);
-  MatrixCols = SUNSparseMatrix_Columns(A);
-  if (N_VGetVectorID(y) == SUNDIALS_NVEC_SERIAL) {
-    VecLength = N_VGetLength_Serial(y);
-  }
-#ifdef SUNDIALS_OPENMP_ENABLED
-  else if (N_VGetVectorID(y) == SUNDIALS_NVEC_OPENMP) {
-    VecLength = N_VGetLength_OpenMP(y);
-  }
-#endif
-#ifdef SUNDIALS_PTHREADS_ENABLED
-  else if (N_VGetVectorID(y) == SUNDIALS_NVEC_PTHREADS) {
-    VecLength = N_VGetLength_Pthreads(y);
-  }
-#endif
-  else
+  if ( (N_VGetVectorID(y) != SUNDIALS_NVEC_SERIAL) &&
+       (N_VGetVectorID(y) != SUNDIALS_NVEC_OPENMP) &&
+       (N_VGetVectorID(y) != SUNDIALS_NVEC_PTHREADS) )
     return(NULL);
-  if ( (MatrixRows != MatrixCols) || (MatrixRows != VecLength) )
-    return(NULL);
+
+  /* Optimally we would verify that the dimensions of A and y agree, but 
+   since there is no generic 'length' routine for N_Vectors we cannot */
+
   
   /* Create linear solver */
   S = NULL;
@@ -116,6 +108,7 @@ SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
   ops->numiters          = SUNLinSolNumIters_SuperLUMT;
   ops->resnorm           = SUNLinSolResNorm_SuperLUMT;
   ops->lastflag          = SUNLinSolLastFlag_SuperLUMT;
+  ops->space             = SUNLinSolSpace_SuperLUMT;
   ops->free              = SUNLinSolFree_SuperLUMT;
 
   /* Create content */
@@ -393,6 +386,17 @@ long int SUNLinSolLastFlag_SuperLUMT(SUNLinearSolver S)
   return(LASTFLAG(S));
 }
 
+
+int SUNLinSolSpace_SuperLUMT(SUNLinearSolver S, 
+                             long int *lenrwLS, 
+                             long int *leniwLS)
+{
+  /* since the SuperLU_MT structures are opaque objects, we 
+     omit those from these results */
+  *leniwLS = 5 + 2*SIZE(S);
+  *lenrwLS = 1;
+  return(SUNLS_SUCCESS);
+}
 
 int SUNLinSolFree_SuperLUMT(SUNLinearSolver S)
 {

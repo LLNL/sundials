@@ -87,6 +87,7 @@ SUNLinearSolver SUNSPTFQMR(N_Vector y, int pretype, int maxl)
   ops->numiters          = SUNLinSolNumIters_SPTFQMR;
   ops->resnorm           = SUNLinSolResNorm_SPTFQMR;
   ops->lastflag          = SUNLinSolLastFlag_SPTFQMR;  
+  ops->space             = SUNLinSolSpace_SPTFQMR;  
   ops->free              = SUNLinSolFree_SPTFQMR;
 
   /* Create content */
@@ -154,26 +155,6 @@ SUNDIALS_EXPORT int SUNSPTFQMRSetPrecType(SUNLinearSolver S, int pretype)
 
   /* Set pretype */
   SPTFQMR_CONTENT(S)->pretype = pretype;
-  return(SUNLS_SUCCESS);
-}
-
-
-/* ----------------------------------------------------------------------------
- * Function to return the SPTFQMR workspace sizes
- */
-
-SUNDIALS_EXPORT int SUNSPTFQMRGetWorkspace(SUNLinearSolver S, 
-                                           long int *lenrwLS, 
-                                           long int *leniwLS)
-{
-  sunindextype liw1, lrw1;
-
-  /* Check for non-NULL SUNLinearSolver */
-  if (S == NULL) return(SUNLS_MEM_NULL);
-
-  N_VSpace(SPTFQMR_CONTENT(S)->vtemp1, &lrw1, &liw1);
-  *lenrwLS = lrw1*11;
-  *leniwLS = liw1*11;
   return(SUNLS_SUCCESS);
 }
 
@@ -688,6 +669,17 @@ long int SUNLinSolLastFlag_SPTFQMR(SUNLinearSolver S)
   return (LASTFLAG(S));
 }
 
+
+int SUNLinSolSpace_SPTFQMR(SUNLinearSolver S, 
+                           long int *lenrwLS, 
+                           long int *leniwLS)
+{
+  sunindextype liw1, lrw1;
+  N_VSpace(SPTFQMR_CONTENT(S)->vtemp1, &lrw1, &liw1);
+  *lenrwLS = lrw1*11;
+  *leniwLS = liw1*11;
+  return(SUNLS_SUCCESS);
+}
 
 int SUNLinSolFree_SPTFQMR(SUNLinearSolver S)
 {

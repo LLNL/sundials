@@ -345,6 +345,8 @@ SUNDIALS_EXPORT int SUNMatCopy_Sparse(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd_Sparse(realtype c, SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y);
+SUNDIALS_EXPORT int SUNMatSpace_Sparse(SUNMatrix A, long int *lenrw,
+                                       long int *leniw);
 
 
 #ifdef __cplusplus

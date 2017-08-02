@@ -96,6 +96,7 @@ struct _generic_SUNMatrix_Ops {
   int          (*scaleadd)(realtype, SUNMatrix, SUNMatrix);
   int          (*scaleaddi)(realtype, SUNMatrix);
   int          (*matvec)(SUNMatrix, N_Vector, N_Vector);
+  int          (*space)(SUNMatrix, long int*, long int*);
 };
  
 /* A matrix is a structure with an implementation-dependent
@@ -144,6 +145,10 @@ struct _generic_SUNMatrix {
  *   A, x and/or y have incompatible types and/or dimensions, or if 
  *   x and y are the same vector.
  *
+ * SUNMatSpace
+ *   Returns the real and integer workspace requirement for the 
+ *   SUNMatrix object.
+ *
  * -----------------------------------------------------------------
  *
  * The following table lists the matrix functions used by
@@ -168,6 +173,7 @@ struct _generic_SUNMatrix {
  *  ScaleAddI    D B S BP DP  D B S BP DP
  *  ScaleAdd                  D B S BP DP
  *  Matvec*                   D B S
+ *  Space        D B S BP DP  D B S BP DP  D B S BP DP  D B S BP DP
  * -----------------------------------------------------------------
  *  Note: MatrixMatvec is only called by ARKode when solving 
  *        problems having non-identity mass matrix
@@ -182,6 +188,8 @@ SUNDIALS_EXPORT int SUNMatCopy(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd(realtype c, SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAddI(realtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y);
+SUNDIALS_EXPORT int SUNMatSpace(SUNMatrix A, long int *lenrw,
+                                long int *leniw);
  
 #ifdef __cplusplus
 }

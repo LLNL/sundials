@@ -57,12 +57,14 @@ extern "C" {
  *
  * The band implementation of the SUNLinearSolver 'content' 
  * structure contains:
+ *     N -- size of the linear system
  *     pivots -- index array for partial pivoting in LU factorization
  *     last_flag -- last error return flag from internal setup/solve
  * -----------------------------------------------------------------
  */
   
 struct _SUNLinearSolverContent_Band {
+  sunindextype  N;
   sunindextype *pivots;
   long int last_flag;
 };
@@ -106,6 +108,9 @@ SUNDIALS_EXPORT int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A,
 SUNDIALS_EXPORT int SUNLinSolNumIters_Band(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm_Band(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_Band(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolSpace_Band(SUNLinearSolver S,
+                                        long int *lenrwLS,
+                                        long int *leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_Band(SUNLinearSolver S);
   
 #ifdef __cplusplus

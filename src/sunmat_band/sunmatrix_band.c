@@ -78,6 +78,7 @@ SUNMatrix SUNBandMatrix(sunindextype N, sunindextype mu,
   ops->scaleadd    = SUNMatScaleAdd_Band;
   ops->scaleaddi   = SUNMatScaleAddI_Band;
   ops->matvec      = SUNMatMatvec_Band;
+  ops->space       = SUNMatSpace_Band;
 
   /* Create content */
   content = NULL;
@@ -386,6 +387,13 @@ int SUNMatMatvec_Band(SUNMatrix A, N_Vector x, N_Vector y)
   return 0;
 }
 
+int SUNMatSpace_Band(SUNMatrix A, long int *lenrw, long int *leniw)
+{
+  *lenrw = SM_COLUMNS_B(A) * (SM_SUBAND_B(A) + SM_LBAND_B(A) + 1);
+  *leniw = 7 + SM_COLUMNS_B(A);
+  return 0;
+}
+
 
 /*
  * -----------------------------------------------------------------
@@ -424,47 +432,9 @@ static booleantype SMCompatible2_Band(SUNMatrix A, N_Vector x, N_Vector y)
        (N_VGetVectorID(x) != SUNDIALS_NVEC_PTHREADS) )
     return FALSE;
 
-/*   /\*   vectors must be one of {SERIAL, OPENMP, PTHREADS}, and  */
-/*        have compatible dimensions *\/  */
-/*   if (N_VGetVectorID(x) == SUNDIALS_NVEC_SERIAL) { */
-/*     if (N_VGetLength_Serial(x) != SUNBandMatrix_Columns(A)) */
-/*       return FALSE; */
-/*   } */
-/* #ifdef SUNDIALS_OPENMP_ENABLED */
-/*   else if (N_VGetVectorID(x) == SUNDIALS_NVEC_OPENMP) { */
-/*     if (N_VGetLength_OpenMP(x) != SUNBandMatrix_Columns(A)) */
-/*       return FALSE; */
-/*   } */
-/* #endif */
-/* #ifdef SUNDIALS_PTHREADS_ENABLED */
-/*   else if (N_VGetVectorID(x) == SUNDIALS_NVEC_PTHREADS) { */
-/*     if (N_VGetLength_Pthreads(x) != SUNBandMatrix_Columns(A)) */
-/*       return FALSE; */
-/*   } */
-/* #endif */
-/*   else {   /\* incompatible type *\/ */
-/*     return FALSE; */
-/*   } */
-/*   if (N_VGetVectorID(y) == SUNDIALS_NVEC_SERIAL) { */
-/*     if (N_VGetLength_Serial(y) != SUNBandMatrix_Rows(A)) */
-/*       return FALSE; */
-/*   } */
-/* #ifdef SUNDIALS_OPENMP_ENABLED */
-/*   else if (N_VGetVectorID(y) == SUNDIALS_NVEC_OPENMP) { */
-/*     if (N_VGetLength_OpenMP(y) != SUNBandMatrix_Rows(A)) */
-/*       return FALSE; */
-/*   } */
-/* #endif */
-/* #ifdef SUNDIALS_PTHREADS_ENABLED */
-/*   else if (N_VGetVectorID(y) == SUNDIALS_NVEC_PTHREADS) { */
-/*     if (N_VGetLength_Pthreads(y) != SUNBandMatrix_Rows(A)) */
-/*       return FALSE; */
-/*   } */
-/* #endif */
-/*   else {   /\* incompatible type *\/ */
-/*     return FALSE; */
-/*   } */
-  
+  /* Optimally we would verify that the dimensions of A, x and y agree, 
+   but since there is no generic 'length' routine for N_Vectors we cannot */
+
   return TRUE;
 }
 

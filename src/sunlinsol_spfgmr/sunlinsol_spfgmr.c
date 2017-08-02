@@ -88,6 +88,7 @@ SUNLinearSolver SUNSPFGMR(N_Vector y, int pretype, int maxl)
   ops->numiters          = SUNLinSolNumIters_SPFGMR;
   ops->resnorm           = SUNLinSolResNorm_SPFGMR;
   ops->lastflag          = SUNLinSolLastFlag_SPFGMR;  
+  ops->space             = SUNLinSolSpace_SPFGMR;  
   ops->free              = SUNLinSolFree_SPFGMR;
 
   /* Create content */
@@ -166,28 +167,6 @@ SUNDIALS_EXPORT int SUNSPFGMRSetGSType(SUNLinearSolver S, int gstype)
 
   /* Set pretype */
   SPFGMR_CONTENT(S)->gstype = gstype;
-  return(SUNLS_SUCCESS);
-}
-
-
-/* ----------------------------------------------------------------------------
- * Function to return the SPFGMR workspace sizes
- */
-
-SUNDIALS_EXPORT int SUNSPFGMRGetWorkspace(SUNLinearSolver S, 
-                                         long int *lenrwLS, 
-                                         long int *leniwLS)
-{
-  int maxl;
-  sunindextype liw1, lrw1;
-
-  /* Check for non-NULL SUNLinearSolver */
-  if (S == NULL) return(SUNLS_MEM_NULL);
-
-  maxl = SPFGMR_CONTENT(S)->maxl;
-  N_VSpace(SPFGMR_CONTENT(S)->vtemp, &lrw1, &liw1);
-  *lenrwLS = lrw1*(2*maxl + 4) + maxl*(maxl + 4) + 1;
-  *leniwLS = liw1*(2*maxl + 4);
   return(SUNLS_SUCCESS);
 }
 
@@ -599,6 +578,19 @@ long int SUNLinSolLastFlag_SPFGMR(SUNLinearSolver S)
   return (LASTFLAG(S));
 }
 
+
+int SUNLinSolSpace_SPFGMR(SUNLinearSolver S, 
+                          long int *lenrwLS, 
+                          long int *leniwLS)
+{
+  int maxl;
+  sunindextype liw1, lrw1;
+  maxl = SPFGMR_CONTENT(S)->maxl;
+  N_VSpace(SPFGMR_CONTENT(S)->vtemp, &lrw1, &liw1);
+  *lenrwLS = lrw1*(2*maxl + 4) + maxl*(maxl + 4) + 1;
+  *leniwLS = liw1*(2*maxl + 4);
+  return(SUNLS_SUCCESS);
+}
 
 int SUNLinSolFree_SPFGMR(SUNLinearSolver S)
 {

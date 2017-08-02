@@ -12,7 +12,7 @@ SPBCGS linear solver test:
     PASSED test -- SUNLinSolSetPreconditioner 
     PASSED test -- SUNLinSolSetScalingVectors 
     PASSED test -- SUNLinSolInitialize 
-    SPBCGS linear solver workspace: real = 3600, integer = 72
+    PASSED test -- SUNLinSolSpace, lenrw = 3600, leniw = 72
 SUCCESS: SUNSPBCGS module passed all initialization tests
 
     PASSED test -- SUNLinSolSetup 
