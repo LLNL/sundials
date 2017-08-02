@@ -71,6 +71,45 @@ To install these plugins:
 
 ======================================================================
 
+Using the Collapsing Console Sections Plugin:
+
+The Collapsing Console Sections Plugin works by parsing the Jenkins
+console output to find lines, defined by Java regular expression, that
+mark the start and end of a collapible section. 
+
+1) Navigate to Manage Jenkins > Configure System
+
+2) Under "Collapsing Console Sections" check the box next to Enable
+   sections numbering. 
+
+3) To create a CMAKE section, click on "Add Console Section" and
+   enter/do the following: 
+
+   Section name:        CMAKE
+   Section starts with: START CMAKE
+   Section ends with:   (cmake returned .*)
+   Check the box next to "Collapse Sections by default"
+
+4) To create a BUILDING section, click on "Add Console Section" and
+   enter/do the following: 
+
+   Section name:        BUILDING
+   Section starts with: START MAKE
+   Section ends with:   (make returned .*)
+   Check the box next to "Collapse Sections by default"
+
+5) To create a TESTING section, click on "Add Console Section" and
+   enter/do the following:
+
+   Section name:        TESTING
+   Section starts with: START TEST
+   Section ends with:   (make test returned .*)
+   Check the box next to "Collapse Sections by default"
+
+6) Click "Save"
+
+======================================================================
+
 Adding Credentials:
 
 For Jenkins to use the Bitbucket server API we need to provide it with
@@ -277,6 +316,8 @@ pipeline for a multibranch Bitbucket server repository.
    c) Owner: sundials
 
    d) Repository Name: select the desired repo name (e.g. sunrepo)
+
+   e) Discover branches: select the strategy "All branches" 
 
 6) Under Bitbucket click "Add" and select "Checkout over SSH." Click
    "Credentials" select  and and select Jenkins.
