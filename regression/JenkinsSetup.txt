@@ -6,7 +6,7 @@ are based on installing Jenkins 2.60.2 on a desktop machine running
 RHEL6 following the instructions available at:
 https://pkg.jenkins.io/redhat-stable/
 
-======================================================================
+=======================================================================
 
 Installing Jenkins:
 
@@ -47,7 +47,7 @@ Installing Jenkins:
 
 9) Click "start using jenkins"
 
-======================================================================
+=======================================================================
 
 Additional Plugins:
 
@@ -69,20 +69,28 @@ To install these plugins:
 
 5) Click "install without restart"
 
-======================================================================
+=======================================================================
 
 Using the Collapsing Console Sections Plugin:
 
 The Collapsing Console Sections Plugin works by parsing the Jenkins
 console output to find lines, defined by Java regular expression, that
-mark the start and end of a collapible section. 
+mark the start and end of a collapsible section. 
 
 1) Navigate to Manage Jenkins > Configure System
 
 2) Under "Collapsing Console Sections" check the box next to Enable
    sections numbering. 
 
-3) To create a CMAKE section, click on "Add Console Section" and
+3) To create a Jenkins Setup section, click on "Add Console Section"
+   and enter/do the following: 
+
+   Section name:        Jenkins Setup
+   Section starts with: ((Branch indexing)|(Started by user .*))
+   Section ends with:   END JENKINS SETUP
+   Check the box next to "Collapse Sections by default"
+
+4) To create a CMAKE section, click on "Add Console Section" and
    enter/do the following: 
 
    Section name:        CMAKE
@@ -90,7 +98,7 @@ mark the start and end of a collapible section.
    Section ends with:   (cmake returned .*)
    Check the box next to "Collapse Sections by default"
 
-4) To create a BUILDING section, click on "Add Console Section" and
+5) To create a BUILDING section, click on "Add Console Section" and
    enter/do the following: 
 
    Section name:        BUILDING
@@ -98,7 +106,7 @@ mark the start and end of a collapible section.
    Section ends with:   (make returned .*)
    Check the box next to "Collapse Sections by default"
 
-5) To create a TESTING section, click on "Add Console Section" and
+6) To create a TESTING section, click on "Add Console Section" and
    enter/do the following:
 
    Section name:        TESTING
@@ -108,7 +116,7 @@ mark the start and end of a collapible section.
 
 6) Click "Save"
 
-======================================================================
+=======================================================================
 
 Adding Credentials:
 
@@ -165,7 +173,7 @@ To clone repositories Jenkins will need a pair of SSH keys.
 
    Then click OK.
 
-======================================================================
+=======================================================================
 
 Adding a Bitbucket Server:
 
@@ -182,7 +190,7 @@ give this information to Jenkins:
 
 4) Click "Save"
 
-======================================================================
+=======================================================================
 
 Changing the Default Git:
 
@@ -205,7 +213,7 @@ updating the PATH environment variable:
 
 3) Click "Save"
 
-======================================================================
+=======================================================================
 
 Updating the PATH environment variable:
 
@@ -229,7 +237,27 @@ PATH for each Jenkins testing node.
 
 5) Click "Save"
 
-======================================================================
+=======================================================================
+
+Adjusting the number of build executors:
+
+Depending on the machine Jenkins is installed on it may or may not be
+desirable to allow multiple regression tests to run in parallel on a
+node (machine). The number of jobs Jenkins can run in parallel can be
+adjusted on a per node basis. If there are more jobs to run than idle
+nodes Jenkins will place the jobs in a first in first out queue and
+run them as resources become available.
+
+1) Navigate to Manage Jenkins > Manage Nodes 
+
+2) Click the gear icon next to the desired node
+
+3) Change "# of executors" to the desired number of test jobs that can
+   run in parallel
+
+4) Click "Save"
+
+=======================================================================
 
 Enabling Anonymous Read Access:
 
@@ -243,7 +271,7 @@ Jenkins will enable anonymous read access.
 
 3) Click "Save"
 
-======================================================================
+=======================================================================
 
 Changing JENKINS_USER:
 
@@ -288,7 +316,7 @@ run under.
 
    > sudo service jenkins start
 
-======================================================================
+=======================================================================
 
 Adding a Jenkins Pipeline:
 
@@ -333,9 +361,8 @@ pipeline for a multibranch Bitbucket server repository.
 
 8) Click "Save"
 
-Jenkins will now scan the repository for branches and pull requests that
-contain a Jenkinsfile and run the pipeline for any branches or pull
-requests with a Jenkinsfile. 
+Jenkins will now scan the repository for branches and pull requests
+that contain a Jenkinsfile and run the pipeline for any branches or
+pull requests with a Jenkinsfile.
 
-======================================================================
-
+=======================================================================
