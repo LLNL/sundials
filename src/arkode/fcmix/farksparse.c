@@ -23,7 +23,8 @@
 #include <stdlib.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_sparse.h>
+#include <arkode/arkode_direct.h>
+#include <sunmatrix/sunmatrix_sparse.h>
 
 /*=============================================================*/
 
@@ -34,9 +35,10 @@ extern "C" {
 #endif
 
   extern void FARK_SPJAC(realtype *T, realtype *Y, 
-			 realtype *FY, int *N, int *NNZ, 
-			 realtype *JDATA, int *JRVALS, 
-			 int *JCPTRS, realtype *H, 
+			 realtype *FY, sunindextype *N, 
+                         sunindextype *NNZ, realtype *JDATA, 
+                         sunindextype *JRVALS, 
+			 sunindextype *JCPTRS, realtype *H, 
 			 sunindextype *IPAR, realtype *RPAR, 
 			 realtype *V1, realtype *V2, 
 			 realtype *V3, int *ier);
@@ -47,11 +49,11 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKSlsSetSparseJacFn; see 
+/* Fortran interface to C routine ARKDlsSetJacFn; see 
    farkode.h for further information */
 void FARK_SPARSESETJAC(int *ier)
 {
-  *ier = ARKSlsSetSparseJacFn(ARK_arkodemem, FARKSparseJac);
+  *ier = ARKDlsSetJacFn(ARK_arkodemem, FARKSparseJac);
 }
 
 /*=============================================================*/
@@ -59,12 +61,13 @@ void FARK_SPARSESETJAC(int *ier)
 /* C interface to user-supplied Fortran routine FARKSPJAC; see 
    farkode.h for additional information  */
 int FARKSparseJac(realtype t, N_Vector y, N_Vector fy, 
-		  SlsMat J, void *user_data, N_Vector vtemp1, 
+		  SUNMatrix J, void *user_data, N_Vector vtemp1, 
 		  N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier;
-  realtype *ydata, *fydata, *v1data, *v2data, *v3data;
+  realtype *ydata, *fydata, *v1data, *v2data, *v3data, *Jdata;
   realtype h;
+  sunindextype NP, NNZ, *indexvals, *indexptrs; 
   FARKUserData ARK_userdata;
 
   ARKodeGetLastStep(ARK_arkodemem, &h);
@@ -74,10 +77,15 @@ int FARKSparseJac(realtype t, N_Vector y, N_Vector fy,
   v2data  = N_VGetArrayPointer(vtemp2);
   v3data  = N_VGetArrayPointer(vtemp3);
   ARK_userdata = (FARKUserData) user_data;
+  NP = SUNSparseMatrix_NP(J);
+  NNZ = SUNSparseMatrix_NNZ(J);
+  Jdata = SUNSparseMatrix_Data(J);
+  indexvals = SUNSparseMatrix_IndexValues(J);
+  indexptrs = SUNSparseMatrix_IndexPointers(J);
 
-  FARK_SPJAC(&t, ydata, fydata, &(J->NP), &(J->NNZ), J->data, 
-	     J->indexvals, J->indexptrs, &h, ARK_userdata->ipar, 
-	     ARK_userdata->rpar, v1data, v2data, v3data, &ier); 
+  FARK_SPJAC(&t, ydata, fydata, &NP, &NNZ, Jdata, indexvals, indexptrs, 
+             &h, ARK_userdata->ipar, ARK_userdata->rpar, v1data, v2data, 
+             v3data, &ier); 
   return(ier);
 }
 

@@ -17,8 +17,8 @@
  *---------------------------------------------------------------
  * This is the header file for the ARKBANDPRE module, which
  * provides a banded difference quotient Jacobian-based
- * preconditioner and solver routines for use with ARKSPGMR,
- * ARKSPBCG, ARKSPTFQMR, ARKSPFGMR or ARKPCG.
+ * preconditioner and solver routines for use with the ARKSPILS 
+ * interface.
  *
  * Summary:
  * These routines provide a band matrix preconditioner based on
@@ -28,37 +28,44 @@
  *   ml = lower half-bandwidth (number of sub-diagonals)
  * The routines generate a band matrix of bandwidth ml + mu + 1
  * and use this to form a preconditioner for use with the Krylov
- * linear solver in ARKSP*. Although this matrix is intended to
+ * linear solver in ARKSPILS. Although this matrix is intended to
  * approximate the Jacobian dfi/dy, it may be a very crude
  * approximation. The true Jacobian need not be banded, or its
  * true bandwith may be larger than ml + mu + 1, as long as the
  * banded approximation generated here is sufficiently accurate
  * to speed convergence as a preconditioner.
  *
+ * Note: this preconditioner does not work for IVPs involving
+ * a non-identity mass matrix.
+ *
  * Usage:
  *   The following is a summary of the usage of this module.
- *   Details of the calls to ARKodeCreate, ARKSp*,
+ *   Details of the calls to ARKodeCreate, ARKSpils*,
  *   and ARKode are available in the User Guide.
  *   To use these routines, the sequence of calls in the user
  *   main program should be as follows:
  *
  *   #include <arkode/arkode_bandpre.h>
- *   #include <nvector_serial.h>
+ *   #include <nvector_serial.h>   (or openmp or pthreads)
+ *   ...
+ *   void *arkode_mem;
  *   ...
  *   Set y0
+ *   ...
+ *   SUNLinearSolver LS = SUNSPBCGS(y0, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNSPFGMR(y0, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNSPGMR(y0, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNSPTFQMR(y0, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNPCG(y0, pretype, maxl);
  *   ...
  *   arkode_mem = ARKodeCreate();
  *   ier = ARKodeInit(...);
  *   ...
- *   flag = ARKSptfqmr(arkode_mem, pretype, maxl);
- *     -or-
- *   flag = ARKSpgmr(arkode_mem, pretype, maxl);
- *     -or-
- *   flag = ARKSpbcg(arkode_mem, pretype, maxl);
- *     -or-
- *   flag = ARKSpfgmr(arkode_mem, pretype, maxl);
- *     -or-
- *   flag = ARKPcg(arkode_mem, pretype, maxl);
+ *   ier = ARKSpilsSetLinearSolver(arkode_mem, LS);
  *   ...
  *   flag = ARKBandPrecInit(arkode_mem, N, mu, ml);
  *   ...
@@ -66,14 +73,16 @@
  *   ...
  *   Free y0
  *   ...
+ *   SUNLinSolFree(LS);
+ *   ...
  *   ARKodeFree(&arkode_mem);
  *
  * Notes:
  * (1) Include this file for the ARKBandPrecData type definition.
  * (2) In the ARKBandPrecAlloc call, the arguments N is the
  *     problem dimension.
- * (3) In the ARKBPSp* call, the user is free to specify
- *     the input pretype and the optional input maxl.
+ * (3) In the linear solver creation call, the user is free to 
+ *     specify the input pretype and the optional input maxl.
  *--------------------------------------------------------------*/
 
 #ifndef _ARKBANDPRE_H
@@ -89,9 +98,9 @@ extern "C" {
 /*---------------------------------------------------------------
  ARKBandPrecInit:
 
- ARKBandPrecInit allocates and initializes the BANDPRE preconditioner
- module. This functino must be called AFTER one of the SPILS linear
- solver modules has been attached to the ARKODE integrator.
+ ARKBandPrecInit allocates and initializes the BANDPRE 
+ preconditioner module. This function must be called AFTER the
+ ARKSPILS linear solver interface has been created.
 
  The parameters of ARKBandPrecInit are as follows:
 
@@ -110,10 +119,10 @@ extern "C" {
    ARKSPILS_ILL_INPUT if an input has an illegal value
    ARKSPILS_MEM_FAIL if a memory allocation request failed
 
- NOTE: The band preconditioner assumes a serial implementation
-       of the NVECTOR package. Therefore, ARKBandPrecInit will
-       first test for a compatible N_Vector internal
-       representation by checking for required functions.
+ NOTE: The band preconditioner assumes a serial/OpenMP/Pthreads
+       implementation of the NVECTOR package. Therefore, 
+       ARKBandPrecInit will first test for a compatible N_Vector 
+       internal representation by checking for required functions.
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKBandPrecInit(void *arkode_mem, sunindextype N, 
 				    sunindextype mu, sunindextype ml);
@@ -126,7 +135,7 @@ SUNDIALS_EXPORT int ARKBandPrecInit(void *arkode_mem, sunindextype N,
 
  ARKBandPrecGetNumRhsEvals returns the number of calls made from
                           ARKBANDPRE to the user's right-hand side
-                          routine f.
+                          routine fi.
 
  The return value of ARKBandPrecGet* is one of:
    ARKSPILS_SUCCESS if no errors occurred
@@ -136,8 +145,8 @@ SUNDIALS_EXPORT int ARKBandPrecInit(void *arkode_mem, sunindextype N,
 ---------------------------------------------------------------*/
 
 SUNDIALS_EXPORT int ARKBandPrecGetWorkSpace(void *arkode_mem, 
-					    sunindextype *lenrwLS, 
-					    sunindextype *leniwLS);
+					    long int *lenrwLS, 
+					    long int *leniwLS);
 SUNDIALS_EXPORT int ARKBandPrecGetNumRhsEvals(void *arkode_mem, 
 					      long int *nfevalsBP);
 

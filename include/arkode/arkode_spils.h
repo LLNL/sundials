@@ -15,8 +15,8 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * This is the common header file for the Scaled, Preconditioned
- * Iterative Linear Solvers in ARKODE.
+ * Common header file for the Scaled, Preconditioned Iterative 
+ * Linear Solver interface in ARKODE.
  *--------------------------------------------------------------*/
 
 #ifndef _ARKSPILS_H
@@ -24,11 +24,15 @@
 
 #include <sundials/sundials_iterative.h>
 #include <sundials/sundials_nvector.h>
+#include <sundials/sundials_linearsolver.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
+/*===============================================================
+ ARKSPILS Constants
+===============================================================*/
 
 /*---------------------------------------------------------------
  ARKSPILS return values -- ADJUST CONSTANTS AS NECESSARY
@@ -41,6 +45,7 @@ extern "C" {
 #define ARKSPILS_PMEM_NULL    -5
 #define ARKSPILS_MASSMEM_NULL -6
 
+#define ARKSPILS_SUNLS_FAIL  -10
 
 /*---------------------------------------------------------------
  ARKSPILS solver constants:
@@ -59,11 +64,15 @@ extern "C" {
                    multiplied to get a tolerance on the linear
                    iteration
 ---------------------------------------------------------------*/
-#define ARKSPILS_MAXL   5 /* -- REMOVE */
 #define ARKSPILS_MSBPRE 50 /* -- TURN INTO A PARAMETER, MAKE THIS THE DEFAULT */
 #define ARKSPILS_DGMAX  RCONST(0.2) /* -- TURN INTO A PARAMETER, MAKE THIS THE DEFAULT */
 #define ARKSPILS_EPLIN  RCONST(0.05)
 
+
+  
+/*===============================================================
+ ARKSPILS user-supplied function prototypes
+===============================================================*/
 
 /*---------------------------------------------------------------
  Type: ARKSpilsPrecSetupFn
@@ -132,11 +141,6 @@ extern "C" {
  user_data  is a pointer to user data - the same as the user_data
          parameter passed to the ARKodeSetUserData function.
 
- tmp1, tmp2, and tmp3 are pointers to memory allocated
-                      for N_Vectors which can be used by
-                      ARKSpilsPrecSetupFn as temporary storage or
-                      work space.
-
  NOTE: If the user's preconditioner needs other quantities,
        they are accessible as follows: hcur (the current stepsize)
        and ewt (the error weight vector) are accessible through
@@ -152,11 +156,9 @@ extern "C" {
    < 0 for an unrecoverable error (integration is halted).
 ---------------------------------------------------------------*/
 typedef int (*ARKSpilsPrecSetupFn)(realtype t, N_Vector y, 
-           N_Vector fy, booleantype jok, 
-           booleantype *jcurPtr,
-           realtype gamma, void *user_data,
-           N_Vector tmp1, N_Vector tmp2,
-           N_Vector tmp3);   /* REMOVE THESE 3 TEMPORARY VECTORS */
+                                   N_Vector fy, booleantype jok, 
+                                   booleantype *jcurPtr,
+                                   realtype gamma, void *user_data);
 
 
 /*---------------------------------------------------------------
@@ -197,9 +199,6 @@ typedef int (*ARKSpilsPrecSetupFn)(realtype t, N_Vector y,
  user_data  is a pointer to user data - the same as the user_data
          parameter passed to the ARKodeSetUserData function.
 
- tmp    is a pointer to memory allocated for an N_Vector
-        which can be used by PSolve for work space.
-
  Returned value:
  The value to be returned by the PrecSolve function is a flag
  indicating whether it was successful.  This value should be
@@ -208,10 +207,10 @@ typedef int (*ARKSpilsPrecSetupFn)(realtype t, N_Vector y,
    negative for an unrecoverable error (integration is halted).
 ---------------------------------------------------------------*/
 typedef int (*ARKSpilsPrecSolveFn)(realtype t, N_Vector y, 
-				   N_Vector fy, N_Vector r, 
-				   N_Vector z, realtype gamma, 
-				   realtype delta, int lr, 
-				   void *user_data, N_Vector tmp);   /* REMOVE THIS TEMPORARY VECTOR */
+                                   N_Vector fy, N_Vector r, 
+                                   N_Vector z, realtype gamma, 
+                                   realtype delta, int lr, 
+                                   void *user_data);
 
 
 /*---------------------------------------------------------------
@@ -252,7 +251,7 @@ typedef int (*ARKSpilsPrecSolveFn)(realtype t, N_Vector y,
    < 0 for an unrecoverable error (integration is halted).
 ---------------------------------------------------------------*/
 typedef int (*ARKSpilsJacTimesSetupFn)(realtype t, N_Vector y, 
-           N_Vector fy, void *user_data);
+                                       N_Vector fy, void *user_data);
 
 
 /*---------------------------------------------------------------
@@ -285,9 +284,9 @@ typedef int (*ARKSpilsJacTimesSetupFn)(realtype t, N_Vector y,
             which can be used by Jtimes for work space.
 ---------------------------------------------------------------*/
 typedef int (*ARKSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv, 
-				     realtype t, N_Vector y, 
-				     N_Vector fy, void *user_data, 
-				     N_Vector tmp);
+                                     realtype t, N_Vector y, 
+                                     N_Vector fy, void *user_data, 
+                                     N_Vector tmp);
 
 
 /*---------------------------------------------------------------
@@ -342,8 +341,7 @@ typedef int (*ARKSpilsMassTimesSetupFn)(realtype t, void *mtimes_data);
             function.
 ---------------------------------------------------------------*/
 typedef int (*ARKSpilsMassTimesVecFn)(N_Vector v, N_Vector Mv, 
-				      realtype t, void *mtimes_data);
-
+                                      realtype t, void *mtimes_data);
 
 
 /*---------------------------------------------------------------
@@ -370,20 +368,13 @@ typedef int (*ARKSpilsMassTimesVecFn)(N_Vector v, N_Vector Mv,
  user_data  is a pointer to user data - the same as the user_data
          parameter passed to the ARKodeSetUserData function.
 
- tmp1, tmp2, and tmp3 are pointers to memory allocated
-                      for N_Vectors which can be used by
-                      ARKSpilsMassPrecSetupFn as temporary 
-                      storage or work space.
-
  Returned value:
  The value to be returned by the MPrecSetup function is a flag
  indicating whether it was successful.  This value should be
    0   if successful,
    < 0 for an unrecoverable error (integration is halted).
 ---------------------------------------------------------------*/
-typedef int (*ARKSpilsMassPrecSetupFn)(realtype t, void *user_data, 
-				       N_Vector tmp1, N_Vector tmp2, 
-				       N_Vector tmp3);  /* REMOVE THESE 3 TEMPORARY VECTORS */
+typedef int (*ARKSpilsMassPrecSetupFn)(realtype t, void *user_data);
 
 
 /*---------------------------------------------------------------
@@ -418,9 +409,6 @@ typedef int (*ARKSpilsMassPrecSetupFn)(realtype t, void *user_data,
  user_data  is a pointer to user data - the same as the user_data
          parameter passed to the ARKodeSetUserData function.
 
- tmp    is a pointer to memory allocated for an N_Vector
-        which can be used by PSolve for work space.
-
  Returned value:
  The value to be returned by the MPrecSolve function is a flag
  indicating whether it was successful.  This value should be
@@ -428,53 +416,64 @@ typedef int (*ARKSpilsMassPrecSetupFn)(realtype t, void *user_data,
    negative for an unrecoverable error (integration is halted).
 ---------------------------------------------------------------*/
 typedef int (*ARKSpilsMassPrecSolveFn)(realtype t, N_Vector r, 
-				       N_Vector z, realtype delta, 
-				       int lr, void *user_data, 
-				       N_Vector tmp);   /* REMOVE THIS TEMPORARY VECTOR */
-
-
+                                       N_Vector z, realtype delta, 
+                                       int lr, void *user_data);
+  
   
 /*===============================================================
- FUNCTIONS FOR USE BY ARKODE DIRECTLY
+  ARKSPILS Exported functions
 ===============================================================*/
 
 /*---------------------------------------------------------------
- ARKSpilsCallPSetup determines whether to call the user-supplied 
- preconditioner setup routine, based on heuristics regarding 
- previous converence issues, the number of time steps 
- since it was last updated, etc.
+ Required inputs for the ARKSPILS linear solver interface:
+
+ ARKSpilsSetLinearSolver specifies the iterative SUNLinearSolver 
+ object that ARKode should use.  This is required if ARKode is 
+ solving an implicit or IMEX IVP, and using an inexact Newton 
+ solver.
+
+ ARKSpilsSetMassLinearSolver specifies the iterative 
+ SUNLinearSolver object (and user-provided function to perform
+ the mass-matrix-vector product) that ARKode should use for 
+ mass-matrix systems.  This is required if ARKode is solving a
+ problem with non-identity mass matrix and the user wishes to 
+ use an iterative solver for these systems.
+
+ NOTE: when solving an implicit or IMEX IVP with non-identity mass
+ matrix and iterative linear solver, both the system and mass solvers
+ must be iterative (i.e. you cannot combine a direct system 
+ solver with an iterative mass matrix solver, etc.).
+
+ The return value is one of:
+    ARKSPILS_SUCCESS   if successful
+    ARKSPILS_MEM_NULL  if the ARKODE memory was NULL
+    ARKSPILS_ILL_INPUT if the linear solver memory was NULL
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int ARKSpilsCallPSetup(void *arkode_mem, N_Vector vtemp1,
-                                       N_Vector vtemp2, N_Vector vtemp3);
+SUNDIALS_EXPORT int ARKSpilsSetLinearSolver(void *arkode_mem, 
+                                            SUNLinearSolver LS);
 
+SUNDIALS_EXPORT int ARKSpilsSetMassLinearSolver(void *arkode_mem, 
+                                                SUNLinearSolver LS,
+                                                booleantype time_dep,
+                                                ARKSpilsMassTimesSetupFn mtsetup,
+                                                ARKSpilsMassTimesVecFn mtimes,
+                                                void *mtimes_data);
 
-/*===============================================================
-  EXPORTED FUNCTIONS
-===============================================================*/
-
+  
 /*---------------------------------------------------------------
- Optional inputs to the ARKSPILS linear solver:
-
- ARKSpilsSetPrecType resets the type of preconditioner, pretype,
-                from the value previously set.
-                This must be one of PREC_NONE, PREC_LEFT, 
-                PREC_RIGHT, or PREC_BOTH.
-
- ARKSpilsSetGSType specifies the type of Gram-Schmidt
-                orthogonalization to be used. This must be one of
-                the two enumeration constants MODIFIED_GS or
-                CLASSICAL_GS defined in iterative.h. These 
-                correspond to using modified Gram-Schmidt and 
-                classical Gram-Schmidt, respectively.
-                Default value is MODIFIED_GS.
-
- ARKSpilsSetMaxl resets the maximum Krylov subspace size, maxl,
-                from the value previously set.
-                An input value <= 0, gives the default value.
+ Optional inputs to the ARKSPILS linear solver -- ALL of these 
+ must be called AFTER the corresponding iterative linear solver 
+ object (system matrix or mass matrix) has been attached to the 
+ ARKode integrator).
 
  ARKSpilsSetEpsLin specifies the factor by which the tolerance on
                 the nonlinear iteration is multiplied to get a
                 tolerance on the linear iteration.
+                Default value is 0.05.
+
+ ARKSpilsSetMassEpsLin specifies the factor by which the tolerance
+                on the nonlinear iteration is multiplied to get a
+                tolerance on the mass matrix linear iteration.
                 Default value is 0.05.
 
  ARKSpilsSetPreconditioner specifies the PrecSetup and PrecSolve 
@@ -485,11 +484,15 @@ SUNDIALS_EXPORT int ARKSpilsCallPSetup(void *arkode_mem, N_Vector vtemp1,
                 and MPrecSolve functions.  Default is NULL for 
                 both arguments (no preconditioning)
 
- ARKSpilsSetJacTimesVecFn specifies the jtimes function. Default 
-                is to use an internal finite difference 
-		approximation routine.
+ ARKSpilsSetJacTimes specifies the jtsetup and jtimes functions. 
+                Default is to use an internal finite difference 
+		approximation routine (no setup).
 
- ARKSpilsSetMassTimesVecFn specifies the mtimes function. No Default.
+ ARKSpilsSetMassTimes specifies the mtsetup and mtimes functions. 
+ Note that mtimes had to be supplied when attaching the iterative 
+ linear solver to the ARKSpils interface, so this routine is 
+ primarily provided to allow supplying mtsetup or to modify previous 
+ inputs.
 
  The return value of ARKSpilsSet* is one of:
     ARKSPILS_SUCCESS      if successful
@@ -498,30 +501,21 @@ SUNDIALS_EXPORT int ARKSpilsCallPSetup(void *arkode_mem, N_Vector vtemp1,
     ARKSPILS_MASSMEM_NULL if the mass matrix solver memory was NULL
     ARKSPILS_ILL_INPUT    if an input has an illegal value
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int ARKSpilsSetPrecType(void *arkode_mem, int pretype); /* -- REMOVE */
-SUNDIALS_EXPORT int ARKSpilsSetMassPrecType(void *arkode_mem, int pretype); /* -- REMOVE */
-SUNDIALS_EXPORT int ARKSpilsSetGSType(void *arkode_mem, int gstype); /* -- REMOVE */
-SUNDIALS_EXPORT int ARKSpilsSetMassGSType(void *arkode_mem, int gstype); /* -- REMOVE */
-SUNDIALS_EXPORT int ARKSpilsSetMaxl(void *arkode_mem, int maxl); /* -- REMOVE */
-SUNDIALS_EXPORT int ARKSpilsSetMassMaxl(void *arkode_mem, int maxl); /* -- REMOVE */
 SUNDIALS_EXPORT int ARKSpilsSetEpsLin(void *arkode_mem, realtype eplifac);
 SUNDIALS_EXPORT int ARKSpilsSetMassEpsLin(void *arkode_mem, realtype eplifac);
 SUNDIALS_EXPORT int ARKSpilsSetPreconditioner(void *arkode_mem, 
-					      ARKSpilsPrecSetupFn pset,
-					      ARKSpilsPrecSolveFn psolve);
+                                              ARKSpilsPrecSetupFn psetup,
+                                              ARKSpilsPrecSolveFn psolve);
 SUNDIALS_EXPORT int ARKSpilsSetMassPreconditioner(void *arkode_mem, 
-						  ARKSpilsMassPrecSetupFn pset,
-						  ARKSpilsMassPrecSolveFn psolve);
-SUNDIALS_EXPORT int ARKSpilsSetJacTimesSetupFn(void *arkode_mem, 
-               ARKSpilsJacTimesSetupFn jsetup);
-SUNDIALS_EXPORT int ARKSpilsSetJacTimesVecFn(void *arkode_mem, 
-               ARKSpilsJacTimesVecFn jtv);
-SUNDIALS_EXPORT int ARKSpilsSetMassTimesSetupFn(void *arkode_mem, 
-                ARKSpilsMassTimesSetupFn msetup);
-SUNDIALS_EXPORT int ARKSpilsSetMassTimesVecFn(void *arkode_mem, 
-                ARKSpilsMassTimesVecFn mtv,
-                void *mtimes_data);
-
+                                                  ARKSpilsMassPrecSetupFn psetup,
+                                                  ARKSpilsMassPrecSolveFn psolve);
+SUNDIALS_EXPORT int ARKSpilsSetJacTimes(void *arkode_mem, 
+                                        ARKSpilsJacTimesSetupFn jtsetup,
+                                        ARKSpilsJacTimesVecFn jtimes);
+SUNDIALS_EXPORT int ARKSpilsSetMassTimes(void *arkode_mem, 
+                                         ARKSpilsMassTimesSetupFn msetup,
+                                         ARKSpilsMassTimesVecFn mtimes,
+                                         void *mtimes_data);
 
 /*---------------------------------------------------------------
  Optional outputs from the ARKSPILS linear solver:
@@ -578,37 +572,37 @@ SUNDIALS_EXPORT int ARKSpilsSetMassTimesVecFn(void *arkode_mem,
     ARKSPILS_LMEM_NULL if the linear solver memory was NULL
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKSpilsGetWorkSpace(void *arkode_mem, 
-					 sunindextype *lenrwLS, 
-					 sunindextype *leniwLS); /* -- ONLY INCLUDE GENERIC WORKSPACE */
+                                         sunindextype *lenrwLS, 
+                                         sunindextype *leniwLS);
 SUNDIALS_EXPORT int ARKSpilsGetMassWorkSpace(void *arkode_mem, 
-					     sunindextype *lenrwMLS, 
-					     sunindextype *leniwMLS); /* -- ONLY INCLUDE GENERIC WORKSPACE */
+                                             sunindextype *lenrwMLS, 
+                                             sunindextype *leniwMLS);
 SUNDIALS_EXPORT int ARKSpilsGetNumPrecEvals(void *arkode_mem, 
-					    long int *npevals);
+                                            long int *npevals);
 SUNDIALS_EXPORT int ARKSpilsGetNumMassPrecEvals(void *arkode_mem, 
-						long int *nmpevals);
+                                                long int *nmpevals);
 SUNDIALS_EXPORT int ARKSpilsGetNumPrecSolves(void *arkode_mem, 
-					     long int *npsolves);
+                                             long int *npsolves);
 SUNDIALS_EXPORT int ARKSpilsGetNumMassPrecSolves(void *arkode_mem, 
-						 long int *nmpsolves);
+                                                 long int *nmpsolves);
 SUNDIALS_EXPORT int ARKSpilsGetNumLinIters(void *arkode_mem, 
-					   long int *nliters);
+                                           long int *nliters);
 SUNDIALS_EXPORT int ARKSpilsGetNumMassIters(void *arkode_mem, 
-					    long int *nmiters);
+                                            long int *nmiters);
 SUNDIALS_EXPORT int ARKSpilsGetNumConvFails(void *arkode_mem, 
-					    long int *nlcfails);
+                                            long int *nlcfails);
 SUNDIALS_EXPORT int ARKSpilsGetNumMassConvFails(void *arkode_mem, 
-						long int *nmcfails);
+                                                long int *nmcfails);
 SUNDIALS_EXPORT int ARKSpilsGetNumJtimesEvals(void *arkode_mem, 
-					      long int *njvevals);
+                                              long int *njvevals);
 SUNDIALS_EXPORT int ARKSpilsGetNumMtimesEvals(void *arkode_mem, 
-					      long int *nmvevals);
+                                              long int *nmvevals);
 SUNDIALS_EXPORT int ARKSpilsGetNumRhsEvals(void *arkode_mem, 
-					   long int *nfevalsLS); 
+                                           long int *nfevalsLS); 
 SUNDIALS_EXPORT int ARKSpilsGetLastFlag(void *arkode_mem, 
-					long int *flag); /* -- REMOVE? */
+                                        long int *flag); /* -- REMOVE? */
 SUNDIALS_EXPORT int ARKSpilsGetLastMassFlag(void *arkode_mem, 
-					    long int *flag); /* -- REMOVE? */
+                                            long int *flag); /* -- REMOVE? */
 
 
 /*---------------------------------------------------------------

@@ -1224,6 +1224,9 @@ SUNDIALS_EXPORT int ARKodeGetDky(void *arkode_mem, realtype t,
  ARKodeGetErrWeights returns the current error weight vector.
                      The user must allocate space for eweight.
 
+ ARKodeGetResWeights returns the current residual weight vector.
+                     The user must allocate space for rweight.
+
  ARKodeGetEstLocalErrors returns the vector of estimated local
                          errors. The user must allocate space
                          for ele.
@@ -1281,6 +1284,8 @@ SUNDIALS_EXPORT int ARKodeGetTolScaleFactor(void *arkode_mem,
 					    realtype *tolsfac);
 SUNDIALS_EXPORT int ARKodeGetErrWeights(void *arkode_mem, 
 					N_Vector eweight);
+SUNDIALS_EXPORT int ARKodeGetResWeights(void *arkode_mem, 
+					N_Vector rweight);
 SUNDIALS_EXPORT int ARKodeGetEstLocalErrors(void *arkode_mem, 
 					    N_Vector ele);
 SUNDIALS_EXPORT int ARKodeGetNumGEvals(void *arkode_mem, 
