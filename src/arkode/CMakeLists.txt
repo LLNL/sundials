@@ -36,12 +36,14 @@ SET(arkode_SOURCES
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the ARKODE library
 SET(shared_SOURCES
-  sundials_nvector.c
-  sundials_matrix.c
-  sundials_linearsolver.c
-  sundials_math.c
-  sundials_direct.c
-  sundials_iterative.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_matrix.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_band.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_dense.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_iterative.c
+  ${sundials_SOURCE_DIR}/src/nvec_ser/nvector_serial.c
   )
 
 # Add variable sunmatrix_SOURCES with the common SUNMatrix sources which will
@@ -84,9 +86,6 @@ IF(LAPACK_FOUND)
     ${sundials_SOURCE_DIR}/src/sunlinsol_lapackdense/sunlinsol_lapackdense.c
     )
 ENDIF()
-
-# Add prefix with complete path to the common SUNDIALS sources
-ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
 
 # Add variable arkode_HEADERS with the exported ARKODE header files
 SET(arkode_HEADERS

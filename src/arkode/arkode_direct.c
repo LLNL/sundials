@@ -320,12 +320,12 @@ int ARKDlsSetMassFn(void *arkode_mem, ARKDlsMassFn mass)
  ARKDlsGetWorkSpace returns the length of workspace allocated for 
  the ARKDLS linear solver.
 ---------------------------------------------------------------*/
-int ARKDlsGetWorkSpace(void *arkode_mem, sunindextype *lenrwLS, 
-                       sunindextype *leniwLS)
+int ARKDlsGetWorkSpace(void *arkode_mem, sunindextype *lenrw, 
+                       sunindextype *leniw)
 {
   ARKodeMem ark_mem;
   ARKDlsMem arkdls_mem;
-  sunindextype N, smu, ml, NNZ, NP, lrw1, liw1;
+  sunindextype lrw1, liw1;
 
   /* Return immediately if arkode_mem is NULL */
   if (arkode_mem == NULL) {
@@ -344,31 +344,18 @@ int ARKDlsGetWorkSpace(void *arkode_mem, sunindextype *lenrwLS,
 
   /* initialize outputs with requirements from ARKDlsMem structure */
   N_VSpace(arkdls_mem->x, &lrw1, &liw1);
-  *lenrwLS = lrw1;
-  *leniwLS = liw1 + 7;
+  *lenrw = lrw1;
+  *leniw = liw1 + 4;
 
-  /* If SUNMatrix objects have been set up, add their storage here */
-  if (arkdls_mem->A != NULL) {
-    if (SUNMatGetID(arkdls_mem->A) == SUNMATRIX_DENSE) {
-      N = SUNDenseMatrix_Rows(arkdls_mem->A);
-      *lenrwLS += 2*(N*N);
-      *leniwLS += 2*(3+N);
-    } else if (SUNMatGetID(arkdls_mem->A) == SUNMATRIX_BAND) {
-      N = SUNBandMatrix_Columns(arkdls_mem->A);
-      smu = SUNBandMatrix_StoredUpperBandwidth(arkdls_mem->A);
-      ml = SUNBandMatrix_LowerBandwidth(arkdls_mem->A);
-      *lenrwLS += 2*(N*(smu+ml+1));
-      *leniwLS += 2*(7+N);
-    } else if (SUNMatGetID(arkdls_mem->A) == SUNMATRIX_DIAGONAL) {
-      *lenrwLS += 2*lrw1;
-      *leniwLS += 2*liw1;
-    } else if (SUNMatGetID(arkdls_mem->A) == SUNMATRIX_SPARSE) {
-      NNZ = SUNSparseMatrix_NNZ(arkdls_mem->A);
-      NP = SUNSparseMatrix_NP(arkdls_mem->A);
-      *lenrwLS += 2*(NNZ);
-      *leniwLS += 2*(9+NNZ+NP+1);
-    }
-  }
+  /* add SUNMatrix size (only account for the one owned by Dls interface) */
+  SUNMatSpace(arkdls_mem->savedJ, &lrw1, &liw1);
+  *lenrw += lrw1;
+  *leniw += liw1;
+
+  /* add LS sizes */
+  SUNLinSolSpace(arkdls_mem->LS, &lrw1, &liw1);
+  *lenrw += lrw1;
+  *leniw += liw1;
 
   return(ARKDLS_SUCCESS);
 }
@@ -521,12 +508,12 @@ int ARKDlsGetLastFlag(void *arkode_mem, long int *flag)
  ARKDlsGetMassWorkSpace returns the length of workspace allocated 
  for the ARKDLS mass matrix linear solver.
 ---------------------------------------------------------------*/
-int ARKDlsGetMassWorkSpace(void *arkode_mem, sunindextype *lenrwMLS, 
-                           sunindextype *leniwMLS)
+int ARKDlsGetMassWorkSpace(void *arkode_mem, sunindextype *lenrw, 
+                           sunindextype *leniw)
 {
   ARKodeMem ark_mem;
   ARKDlsMassMem arkdls_mem;
-  sunindextype N, smu, ml, NNZ, NP, lrw1, liw1;
+  sunindextype lrw1, liw1;
 
   /* Return immediately if arkode_mem is NULL */
   if (arkode_mem == NULL) {
@@ -545,31 +532,18 @@ int ARKDlsGetMassWorkSpace(void *arkode_mem, sunindextype *lenrwMLS,
 
   /* initialize outputs with requirements from ARKDlsMem structure */
   N_VSpace(arkdls_mem->x, &lrw1, &liw1);
-  *lenrwMLS = lrw1;
-  *leniwMLS = liw1 + 4;
+  *lenrw = lrw1;
+  *leniw = liw1 + 6;
 
-  /* If SUNMatrix objects have been set up, add their storage here */
-  if (arkdls_mem->M != NULL) {
-    if (SUNMatGetID(arkdls_mem->M) == SUNMATRIX_DENSE) {
-      N = SUNDenseMatrix_Rows(arkdls_mem->M);
-      *lenrwMLS += 2*(N*N);
-      *leniwMLS += 2*(3+N);
-    } else if (SUNMatGetID(arkdls_mem->M) == SUNMATRIX_BAND) {
-      N = SUNBandMatrix_Columns(arkdls_mem->M);
-      smu = SUNBandMatrix_StoredUpperBandwidth(arkdls_mem->M);
-      ml = SUNBandMatrix_LowerBandwidth(arkdls_mem->M);
-      *lenrwMLS += 2*(N*(smu+ml+1));
-      *leniwMLS += 2*(7+N);
-    } else if (SUNMatGetID(arkdls_mem->M) == SUNMATRIX_DIAGONAL) {
-      *lenrwMLS += 2*lrw1;
-      *leniwMLS += 2*liw1;
-    } else if (SUNMatGetID(arkdls_mem->M) == SUNMATRIX_SPARSE) {
-      NNZ = SUNSparseMatrix_NNZ(arkdls_mem->M);
-      NP = SUNSparseMatrix_NP(arkdls_mem->M);
-      *lenrwMLS += 2*(NNZ);
-      *leniwMLS += 2*(9+NNZ+NP+1);
-    }
-  }
+  /* add SUNMatrix size (only account for the one owned by Dls interface) */
+  SUNMatSpace(arkdls_mem->M_lu, &lrw1, &liw1);
+  *lenrw += lrw1;
+  *leniw += liw1;
+
+  /* add LS sizes */
+  SUNLinSolSpace(arkdls_mem->LS, &lrw1, &liw1);
+  *lenrw += lrw1;
+  *leniw += liw1;
 
   return(ARKDLS_SUCCESS);
 }
@@ -1103,8 +1077,8 @@ int arkDlsSetup(ARKodeMem ark_mem, N_Vector vtemp1,
     }
 
     retval = arkdls_mem->jac(ark_mem->ark_tn, ark_mem->ark_ycur, 
-                               ark_mem->ark_ftemp, arkdls_mem->A, 
-                               arkdls_mem->J_data, vtemp1, vtemp2, vtemp3);
+                             ark_mem->ark_ftemp, arkdls_mem->A, 
+                             arkdls_mem->J_data, vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
       arkProcessError(ark_mem, ARKDLS_JACFUNC_UNRECVR, "ARKDLS", 
 		      "arkDlsSetup",  MSGD_JACFUNC_FAILED);
