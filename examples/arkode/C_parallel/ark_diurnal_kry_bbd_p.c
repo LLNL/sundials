@@ -41,7 +41,7 @@
  * neq = 2*MX*MY.
  *
  * The solution is done with the DIRK/GMRES method (i.e. using the
- * ARKSPGMR linear solver) and a block-diagonal matrix with banded
+ * SUNSPGMR linear solver) and a block-diagonal matrix with banded
  * blocks as a preconditioner, using the ARKBBDPRE module.
  * Each block is generated using difference quotients, with
  * half-bandwidths mudq = mldq = 2*MXSUB, but the retained banded
@@ -61,13 +61,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <arkode/arkode.h>            /* prototypes for ARKODE fcts. */
-#include <arkode/arkode_spgmr.h>      /* prototypes and constants for ARKSPGMR */
-#include <arkode/arkode_bbdpre.h>     /* prototypes for ARKBBDPRE module */
-#include <nvector/nvector_parallel.h> /* def. of N_Vector */
-#include <sundials/sundials_types.h>  /* definitions of realtype, booleantype */
-#include <sundials/sundials_math.h>   /* definition of macros SUNSQR and EXP */
-#include <mpi.h>                      /* MPI constants and types */
+#include <arkode/arkode.h>              /* prototypes for ARKODE fcts.      */
+#include <nvector/nvector_parallel.h>   /* access to MPI-parallel N_Vector  */
+#include <sunlinsol/sunlinsol_spgmr.h>  /* access to SPGMR SUNLinearSolver  */
+#include <arkode/arkode_spils.h>        /* access to ARKSpils interface     */
+#include <arkode/arkode_bbdpre.h>       /* access to ARKBBDPRE module       */
+#include <sundials/sundials_types.h>    /* SUNDIALS type definitions        */
+#include <sundials/sundials_math.h>     /* definition of macros SUNSQR, EXP */
+#include <mpi.h>                        /* MPI constants and types          */
 
 
 /* Problem Constants */
@@ -159,6 +160,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 int main(int argc, char *argv[])
 {
   UserData data;
+  SUNLinearSolver LS;
   void *arkode_mem;
   realtype abstol, reltol, t, tout;
   N_Vector u;
@@ -167,6 +169,7 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
 
   data = NULL;
+  LS = NULL;
   arkode_mem = NULL;
   u = NULL;
 
@@ -202,6 +205,11 @@ int main(int argc, char *argv[])
   abstol = ATOL;
   reltol = RTOL;
 
+  /* Create SPGMR solver structure -- use left preconditioning 
+     and the default Krylov dimension maxl */
+  LS = SUNSPGMR(u, PREC_LEFT, 0);
+  if (check_flag((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  
   /* Call ARKodeCreate to create the solver memory */
   arkode_mem = ARKodeCreate();
   if(check_flag((void *)arkode_mem, "ARKodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
@@ -225,17 +233,16 @@ int main(int argc, char *argv[])
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
   if (check_flag(&flag, "ARKodeSStolerances", 1, my_pe)) return(1);
 
-  /* Call ARKSpgmr to specify the linear solver ARKSPGMR with left
-     preconditioning and the default Krylov dimension maxl */
-  flag = ARKSpgmr(arkode_mem, PREC_LEFT, 0);
-  if(check_flag(&flag, "ARKBBDSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
+  /* Attach SPGMR solver structure to ARKSpils interface */
+  flag = ARKSpilsSetLinearSolver(arkode_mem, LS);
+  if (check_flag(&flag, "ARKSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Initialize BBD preconditioner */
   mudq = mldq = NVARS*MXSUB;
   mukeep = mlkeep = NVARS;
   flag = ARKBBDPrecInit(arkode_mem, local_N, mudq, mldq, 
 			mukeep, mlkeep, ZERO, flocal, NULL);
-  if(check_flag(&flag, "ARKBBDPrecAlloc", 1, my_pe)) MPI_Abort(comm, 1);
+  if(check_flag(&flag, "ARKBBDPrecInit", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Print heading */
   if (my_pe == 0) PrintIntro(npes, mudq, mldq, mukeep, mlkeep);
@@ -254,8 +261,8 @@ int main(int argc, char *argv[])
       flag = ARKBBDPrecReInit(arkode_mem, mudq, mldq, ZERO);
       if(check_flag(&flag, "ARKBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-      flag = ARKSpilsSetPrecType(arkode_mem, PREC_RIGHT);
-      check_flag(&flag, "ARKSpilsSetPrecType", 1, my_pe);
+      flag = SUNSPGMRSetPrecType(LS, PREC_RIGHT);
+      check_flag(&flag, "SUNSPGMRSetPrecType", 1, my_pe);
 
       if (my_pe == 0) {
 	printf("\n\n-------------------------------------------------------");
@@ -285,6 +292,7 @@ int main(int argc, char *argv[])
   N_VDestroy_Parallel(u);
   free(data);
   ARKodeFree(&arkode_mem);
+  SUNLinSolFree(LS);
   MPI_Finalize();
   return(0);
 }
@@ -430,7 +438,7 @@ static void PrintFinalStats(void *arkode_mem)
 {
   sunindextype lenrw, leniw ;
   sunindextype lenrwLS, leniwLS;
-  sunindextype lenrwBBDP, leniwBBDP;
+  long int lenrwBBDP, leniwBBDP;
   long int nst, nfe, nfi, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS, ngevalsBBDP;
   int flag;

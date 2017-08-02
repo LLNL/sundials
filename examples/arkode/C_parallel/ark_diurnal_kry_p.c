@@ -41,7 +41,7 @@
  * neq = 2*MX*MY.
  *
  * The solution is done with the DIRK/GMRES method (i.e. using the
- * ARKSPGMR linear solver) and the block-diagonal part of the
+ * SUNSPGMR linear solver) and the block-diagonal part of the
  * Newton matrix as a left preconditioner. A copy of the
  * block-diagonal part of the Jacobian is saved and conditionally
  * reused within the preconditioner routine.
@@ -58,13 +58,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <arkode/arkode.h>             /* prototypes for ARKODE fcts. */
-#include <arkode/arkode_spgmr.h>       /* prototypes & constants for ARKSPGMR  */
-#include <nvector/nvector_parallel.h>  /* def. of N_Vector  */
-#include <sundials/sundials_dense.h>   /* prototypes for small dense fcts. */
-#include <sundials/sundials_types.h>   /* definitions of realtype, booleantype */
-#include <sundials/sundials_math.h>    /* definition of macros SUNSQR and EXP */
-#include <mpi.h>                       /* MPI constants and types */
+#include <arkode/arkode.h>               /* prototypes for ARKODE fcts.      */
+#include <nvector/nvector_parallel.h>    /* access to MPI-parallel N_Vector  */
+#include <sunlinsol/sunlinsol_spgmr.h>   /* access to SPGMR SUNLinearSolver  */
+#include <sunmatrix/sunmatrix_dense.h>   /* access to dense SUNMatrix        */
+#include <sunlinsol/sunlinsol_dense.h>   /* access to dense SUNLinearSolver  */
+#include <arkode/arkode_spils.h>         /* access to ARKSpils interface     */
+#include <sundials/sundials_types.h>     /* SUNDIALS type definitions        */
+#include <sundials/sundials_math.h>      /* definition of macros SUNSQR, EXP */
+#include <mpi.h>                         /* MPI constants and types          */
 
 /* Problem Constants */
 #define NVARS        2                    /* number of species         */
@@ -113,15 +115,15 @@
    matrices with a (row,column) pair, where 1 <= row,column <= NVARS.   
 
    IJth(a,i,j) references the (i,j)th entry of the small matrix realtype **a,
-   where 1 <= i,j <= NVARS. The small matrix routines in sundials_dense.h
-   work with matrices stored by column in a 2-dimensional array. In C,
-   arrays are indexed starting at 0, not 1. */
+   where 1 <= i,j <= NVARS. The small matrix routines in sunmatrix_dense.h
+   and sunlinsol_dense.h work with matrices stored by column in a 
+   2-dimensional array. In C, arrays are indexed starting at 0, not 1. */
 #define IJth(a,i,j) (a[j-1][i-1])
 
 /* Type : UserData 
-   contains problem constants, preconditioner blocks, pivot arrays, 
-   grid constants, and processor indices, as well as data needed
-   for the preconditiner */
+   contains problem constants, preconditioner blocks, small dense 
+   linear solvers, grid constants, and processor indices, as well as 
+   data needed for the preconditiner */
 typedef struct {
 
   realtype q4, om, dx, dy, hdco, haco, vdco;
@@ -131,8 +133,9 @@ typedef struct {
   MPI_Comm comm;
 
   /* For preconditioner */
-  realtype **P[MXSUB][MYSUB], **Jbd[MXSUB][MYSUB];
-  sunindextype *pivot[MXSUB][MYSUB];
+  SUNMatrix P[MXSUB][MYSUB], Jbd[MXSUB][MYSUB];
+  SUNLinearSolver LS[MXSUB][MYSUB];
+  N_Vector r, z;
 
 } *UserData;
 
@@ -164,12 +167,10 @@ static void fcalc(realtype t, realtype udata[], realtype dudata[],
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *user_data, 
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+                   realtype gamma, void *user_data);
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
-                  N_Vector r, N_Vector z, 
-                  realtype gamma, realtype delta,
-                  int lr, void *user_data, N_Vector vtemp);
+                  N_Vector r, N_Vector z, realtype gamma, 
+                  realtype delta, int lr, void *user_data);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
@@ -181,6 +182,7 @@ int main(int argc, char *argv[])
   realtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
+  SUNLinearSolver LS;
   void *arkode_mem;
   int iout, flag, my_pe, npes;
   sunindextype neq, local_N;
@@ -188,6 +190,7 @@ int main(int argc, char *argv[])
 
   u = NULL;
   data = NULL;
+  LS = NULL;
   arkode_mem = NULL;
 
   /* Set problem size neq */
@@ -221,6 +224,11 @@ int main(int argc, char *argv[])
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
 
+  /* Create SPGMR solver structure -- use left preconditioning 
+     and the default Krylov dimension maxl */
+  LS = SUNSPGMR(u, PREC_LEFT, 0);
+  if (check_flag((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  
   /* Call ARKodeCreate to create the solver memory */
   arkode_mem = ARKodeCreate();
   if (check_flag((void *)arkode_mem, "ARKodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
@@ -244,16 +252,16 @@ int main(int argc, char *argv[])
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
   if (check_flag(&flag, "ARKodeSStolerances", 1, my_pe)) return(1);
 
-  /* Call ARKSpgmr to specify the linear solver ARKSPGMR 
-     with left preconditioning and the default Krylov dimension maxl */
-  flag = ARKSpgmr(arkode_mem, PREC_LEFT, 0);
-  if (check_flag(&flag, "ARKSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
+  /* Attach SPGMR solver structure to ARKSpils interface */
+  flag = ARKSpilsSetLinearSolver(arkode_mem, LS);
+  if (check_flag(&flag, "ARKSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Set preconditioner setup and solve routines Precond and PSolve, 
      and the pointer to the user-defined block data */
   flag = ARKSpilsSetPreconditioner(arkode_mem, Precond, PSolve);
   if (check_flag(&flag, "ARKSpilsSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
 
+  /* Print heading */
   if (my_pe == 0)
     printf("\n2-species diurnal advection-diffusion problem\n\n");
 
@@ -268,9 +276,10 @@ int main(int argc, char *argv[])
   if (my_pe == 0) PrintFinalStats(arkode_mem);
 
   /* Free memory */
-  N_VDestroy_Parallel(u);
   FreeUserData(data);
   ARKodeFree(&arkode_mem);
+  SUNLinSolFree(LS);
+  N_VDestroy_Parallel(u);
   MPI_Finalize();
   return(0);
 }
@@ -306,11 +315,14 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
   data->nvmxsub2 = NVARS*(MXSUB+2);
 
   /* Preconditioner-related fields */
+  data->r = N_VNewEmpty_Serial(NVARS);
+  data->z = N_VNewEmpty_Serial(NVARS);
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      (data->P)[lx][ly] = newDenseMat(NVARS, NVARS);
-      (data->Jbd)[lx][ly] = newDenseMat(NVARS, NVARS);
-      (data->pivot)[lx][ly] = newLintArray(NVARS);
+      (data->P)[lx][ly] = SUNDenseMatrix(NVARS, NVARS);
+      (data->Jbd)[lx][ly] = SUNDenseMatrix(NVARS, NVARS);
+      (data->LS)[lx][ly] = SUNDenseLinearSolver(data->r, (data->P)[lx][ly]);
+      SUNLinSolInitialize((data->LS)[lx][ly]);
     }
   }
 }
@@ -319,11 +331,13 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
 static void FreeUserData(UserData data)
 {
   int lx, ly;
+  N_VDestroy(data->r);
+  N_VDestroy(data->z);
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      destroyMat((data->P)[lx][ly]);
-      destroyMat((data->Jbd)[lx][ly]);
-      destroyArray((data->pivot)[lx][ly]);
+      SUNMatDestroy((data->P)[lx][ly]);
+      SUNMatDestroy((data->Jbd)[lx][ly]);
+      SUNLinSolFree((data->LS)[lx][ly]);
     }
   }
   free(data);
@@ -471,10 +485,9 @@ static void PrintFinalStats(void *arkode_mem)
 }
  
 /* Routine to send boundary data to neighboring PEs */
-static void BSend(MPI_Comm comm, 
-                  int my_pe, int isubx, int isuby, 
-                  sunindextype dsizex, sunindextype dsizey,
-                  realtype udata[])
+static void BSend(MPI_Comm comm, int my_pe, int isubx, 
+                  int isuby, sunindextype dsizex, 
+                  sunindextype dsizey, realtype udata[])
 {
   int i, ly;
   sunindextype offsetu, offsetbuf;
@@ -796,35 +809,29 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 /* Preconditioner setup routine. Generate and preprocess P. */
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *user_data, 
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+                   realtype gamma, void *user_data)
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
-  realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
   int nvmxsub, ier, offset;
-  sunindextype *(*pivot)[MYSUB];
   int lx, ly, jy, isuby;
-  realtype *udata, **a, **j;
+  realtype *udata, **j;
   UserData data;
 
   /* Make local copies of pointers in user_data, pointer to u's data,
      and PE index pair */
   data = (UserData) user_data;
-  P = data->P;
-  Jbd = data->Jbd;
-  pivot = data->pivot;
   udata = N_VGetArrayPointer(u);
   isuby = data->isuby;
   nvmxsub = data->nvmxsub;
 
   if (jok) {
-
-  /* jok = TRUE: Copy Jbd to P */
+    
+    /* jok = TRUE: Copy Jbd to P */
     for (ly = 0; ly < MYSUB; ly++)
       for (lx = 0; lx < MXSUB; lx++)
-        denseCopy(Jbd[lx][ly], P[lx][ly], NVARS, NVARS);
-
-  *jcurPtr = FALSE;
+        SUNMatCopy((data->P)[lx][ly], (data->Jbd)[lx][ly]);
+          
+    *jcurPtr = FALSE;
 
   }
 
@@ -851,13 +858,12 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
         offset = lx*NVARS + ly*nvmxsub;
         c1 = udata[offset];
         c2 = udata[offset+1];
-        j = Jbd[lx][ly];
-        a = P[lx][ly];
+        j = SUNDenseMatrix_Cols((data->Jbd)[lx][ly]);
         IJth(j,1,1) = (-Q1*C3 - Q2*c2) + diag;
         IJth(j,1,2) = -Q2*c1 + q4coef;
         IJth(j,2,1) = Q1*C3 - Q2*c2;
         IJth(j,2,2) = (-Q2*c1 - q4coef) + diag;
-        denseCopy(j, a, NVARS, NVARS);
+        SUNMatCopy((data->P)[lx][ly], (data->Jbd)[lx][ly]);
       }
     }
 
@@ -865,19 +871,14 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 
   }
 
-  /* Scale by -gamma */
-    for (ly = 0; ly < MYSUB; ly++)
-      for (lx = 0; lx < MXSUB; lx++)
-        denseScale(-gamma, P[lx][ly], NVARS, NVARS);
-
-  /* Add identity matrix and do LU decompositions on blocks in place */
-  for (lx = 0; lx < MXSUB; lx++) {
-    for (ly = 0; ly < MYSUB; ly++) {
-      denseAddIdentity(P[lx][ly], NVARS);
-      ier = denseGETRF(P[lx][ly], NVARS, NVARS, pivot[lx][ly]);
+  /* Scale by -gamma and add identity, 
+     then perform LU decompositions on blocks in place */
+  for (ly = 0; ly < MYSUB; ly++)
+    for (lx = 0; lx < MXSUB; lx++) {
+      SUNMatScaleAddI(-gamma, (data->P)[lx][ly]);
+      ier = SUNLinSolSetup((data->LS)[lx][ly], (data->P)[lx][ly]);
       if (ier != 0) return(1);
     }
-  }
 
   return(0);
 }
@@ -886,32 +887,37 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
                   N_Vector r, N_Vector z, 
                   realtype gamma, realtype delta,
-                  int lr, void *user_data, N_Vector vtemp)
+                  int lr, void *user_data)
 {
-  realtype **(*P)[MYSUB];
   int nvmxsub;
-  sunindextype *(*pivot)[MYSUB];
-  int lx, ly;
-  realtype *zdata, *v;
+  int lx, ly, ier;
+  realtype *zdata, *rdata;
   UserData data;
 
-  /* Extract the P and pivot arrays from user_data */
+  /* cast the user_data to be of UserData type */
   data = (UserData) user_data;
-  P = data->P;
-  pivot = data->pivot;
 
-  /* Solve the block-diagonal system Px = r using LU factors stored
-     in P and pivot data in pivot, and return the solution in z.
-     First copy vector r to z. */
-  N_VScale(RCONST(1.0), r, z);
-
+  /* Solve the block-diagonal system Pz = r using the dense linear solver. 
+     For each block: 
+     * attach the piece of the data arrays to our empty serial vectors r and z
+     * call dense linear solver 
+     * detach the data arrays from our empty serial vectors r and z 
+  */
   nvmxsub = data->nvmxsub;
   zdata = N_VGetArrayPointer(z);
+  rdata = N_VGetArrayPointer(r);
 
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      v = &(zdata[lx*NVARS + ly*nvmxsub]);
-      denseGETRS(P[lx][ly], NVARS, pivot[lx][ly], v);
+      N_VSetArrayPointer(&(rdata[lx*NVARS + ly*nvmxsub]), data->r);
+      N_VSetArrayPointer(&(zdata[lx*NVARS + ly*nvmxsub]), data->z);
+
+      ier = SUNLinSolSolve((data->LS)[lx][ly], (data->P)[lx][ly],
+                           data->z, data->r, RCONST(0.0));
+      if (ier != 0) return(1);
+
+      N_VSetArrayPointer(NULL, data->r);
+      N_VSetArrayPointer(NULL, data->z);
     }
   }
 

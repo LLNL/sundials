@@ -444,10 +444,11 @@ int ARKSpilsSetJacTimes(void *arkode_mem,
 /*---------------------------------------------------------------
  ARKSpilsGetWorkSpace
 ---------------------------------------------------------------*/
-int ARKSpilsGetWorkSpace(void *arkode_mem, sunindextype *lenrwLS, 
-			 sunindextype *leniwLS)
+int ARKSpilsGetWorkSpace(void *arkode_mem, sunindextype *lenrw, 
+			 sunindextype *leniw)
 {
   ARKodeMem ark_mem;
+  ARKSpilsMem arkspils_mem;
   sunindextype lrw1, liw1;
 
   /* Return immediately if arkode_mem or ark_mem->ark_lmem are NULL */
@@ -462,10 +463,17 @@ int ARKSpilsGetWorkSpace(void *arkode_mem, sunindextype *lenrwLS,
 		    "ARKSpilsGetWorkSpace", MSGS_LMEM_NULL);
     return(ARKSPILS_LMEM_NULL);
   }
+  arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
 
+  /* start with fixed sizes plus NVectors */
   N_VSpace(ark_mem->ark_tempv, &lrw1, &liw1);
-  *lenrwLS = 4 + 2*lrw1;
-  *leniwLS = 20 + 2*liw1;
+  *lenrw = 4 + 2*lrw1;
+  *leniw = 10 + 2*liw1;
+
+  /* add LS sizes */
+  SUNLinSolSpace(arkspils_mem->LS, &lrw1, &liw1);
+  *lenrw += lrw1;
+  *leniw += liw1;
 
   return(ARKSPILS_SUCCESS);
 }
@@ -848,10 +856,11 @@ int ARKSpilsSetMassTimes(void *arkode_mem,
 /*---------------------------------------------------------------
  ARKSpilsGetMassWorkSpace
 ---------------------------------------------------------------*/
-int ARKSpilsGetMassWorkSpace(void *arkode_mem, sunindextype *lenrwMLS, 
-			     sunindextype *leniwMLS)
+int ARKSpilsGetMassWorkSpace(void *arkode_mem, sunindextype *lenrw, 
+			     sunindextype *leniw)
 {
   ARKodeMem ark_mem;
+  ARKSpilsMassMem arkspils_mem;
   sunindextype lrw1, liw1;
 
   /* Return immediately if arkode_mem or ark_mem->ark_mass_mem are NULL */
@@ -866,10 +875,17 @@ int ARKSpilsGetMassWorkSpace(void *arkode_mem, sunindextype *lenrwMLS,
 		    "ARKSpilsGetMassWorkSpace", MSGS_MASSMEM_NULL);
     return(ARKSPILS_MASSMEM_NULL);
   }
+  arkspils_mem = (ARKSpilsMassMem) ark_mem->ark_mass_mem;
 
+  /* start with fixed sizes plus NVectors */
   N_VSpace(ark_mem->ark_tempv, &lrw1, &liw1);
-  *lenrwMLS = 4 + lrw1;
-  *leniwMLS = 11 + liw1;
+  *lenrw = 4 + lrw1;
+  *leniw = 8 + liw1;
+
+  /* add LS sizes */
+  SUNLinSolSpace(arkspils_mem->LS, &lrw1, &liw1);
+  *lenrw += lrw1;
+  *leniw += liw1;
 
   return(ARKSPILS_SUCCESS);
 }
@@ -1469,6 +1485,10 @@ int arkSpilsSetup(ARKodeMem ark_mem, N_Vector vtemp1,
   ARKSpilsMem arkspils_mem;
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
 
+  /* Set ARKSpils N_Vector pointers to current solution and rhs */
+  arkspils_mem->ycur = ark_mem->ark_ycur;
+  arkspils_mem->fcur = ark_mem->ark_ftemp;
+  
   /* Call LS setup routine -- note all heuristics regarding 
    whether to update the preconditioner are handled in the 
    ARKSpilsPSetup routine (called by the LS) */
@@ -1599,10 +1619,14 @@ int arkSpilsFree(ARKodeMem ark_mem)
   if (ark_mem->ark_lmem == NULL)  return(ARKSPILS_SUCCESS);
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
 
-  /* detach ARKSpils interface routines from LS object */
-  SUNLinSolSetATimes(arkspils_mem->LS, NULL, NULL, NULL);
-  SUNLinSolSetPreconditioner(arkspils_mem->LS, NULL, NULL, NULL);
-
+  /* detach ARKSpils interface routines from LS object (if LS still exists) */
+  if (arkspils_mem->LS) {
+    if (arkspils_mem->LS->ops) {
+      SUNLinSolSetATimes(arkspils_mem->LS, NULL, NULL, NULL);
+      SUNLinSolSetPreconditioner(arkspils_mem->LS, NULL, NULL, NULL);
+    }
+  }
+  
   /* Free N_Vector memory */
   if (arkspils_mem->ytemp) {
     N_VDestroy(arkspils_mem->ytemp);
