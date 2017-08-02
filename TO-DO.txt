@@ -29,3 +29,12 @@
    sundials_linearsolver.h and sundials_matrix.h), and update all
    SUNLinearSolver and SUNMatrix implementations to use those.
 
+
+5. Update SUNMatrix 'copy' routine to swap order of arguments (second
+   is a copy of the first) to match N_Vector and previous matrix
+   operations. 
+
+
+6. Add in checks to ARKode initialization (and other solvers) to
+   ensure that when a sparse matrix is used, the Jacobian construction
+   function is provided.
