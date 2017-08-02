@@ -31,6 +31,8 @@ export OMP_NUM_THREADS=4
 umask 002
 
 # path to installed libraries
+# NOTE: Will need to change some paths based on realtype/indextype when 
+# options other than double and long int are used for testing
 APPDIR=/usr/casc/sundials/apps/rh6
 MPIDIR=${APPDIR}/openmpi/1.8.8/bin
 KLUDIR=${APPDIR}/suitesparse/4.5.3
@@ -99,9 +101,7 @@ cmake \
 # check cmake return code
 rc=${PIPESTATUS[0]}
 echo -e "\ncmake returned $rc\n" | tee -a configure.log
-if [ $rc -ne 0 ]; then
-    exit 1
-fi
+if [ $rc -ne 0 ]; then exit 1; fi
 
 # build sundials
 echo "START MAKE"
@@ -110,9 +110,7 @@ make -j $buildthreads 2>&1 | tee make.log
 # check make return code
 rc=${PIPESTATUS[0]}
 echo -e "\nmake returned $rc\n" | tee -a make.log
-if [ $rc -ne 0 ]; then
-    exit 1
-fi
+if [ $rc -ne 0 ]; then exit 1; fi
 
 # test sundials
 echo "START TEST"
@@ -121,9 +119,7 @@ make test 2>&1 | tee test.log
 # check make test return code
 rc=${PIPESTATUS[0]}
 echo -e "\nmake test returned $rc\n" | tee -a test.log
-if [ $rc -ne 0 ]; then
-    exit 1
-fi
+if [ $rc -ne 0 ]; then exit 1; fi
 
 # if we make it here all tests have passed
 exit 0

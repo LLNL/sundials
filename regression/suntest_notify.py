@@ -80,6 +80,7 @@ def main():
     else:
         print "Tests passed, no notifications sent"
 
+
 #
 # run external command 
 #
