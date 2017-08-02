@@ -52,8 +52,9 @@ extern "C" {
 
 /* Fortran interface to C routine ARKBBDPrecInit; see farkbbd.h 
    for further details. */
-void FARK_BBDINIT(sunindextype *Nloc, sunindextype *mudq, sunindextype *mldq, 
-		  sunindextype *mu, sunindextype *ml, realtype* dqrely, 
+void FARK_BBDINIT(sunindextype *Nloc, sunindextype *mudq,
+                  sunindextype *mldq, sunindextype *mu,
+                  sunindextype *ml, realtype* dqrely, 
 		  int *ier)
 {
   /* Notes: FARKgloc is a pointer to the ARKLocalFn function, 
@@ -67,8 +68,8 @@ void FARK_BBDINIT(sunindextype *Nloc, sunindextype *mudq, sunindextype *mldq,
 
 /* Fortran interface to C routine ARKBBDPrecReInit; see farkbbd.h 
    for further details. */
-void FARK_BBDREINIT(sunindextype *Nloc, sunindextype *mudq, 
-		    sunindextype *mldq, realtype* dqrely, int *ier)
+void FARK_BBDREINIT(sunindextype *mudq, sunindextype *mldq,
+                    realtype* dqrely, int *ier)
 {
   *ier = ARKBBDPrecReInit(ARK_arkodemem, *mudq, *mldq, *dqrely);
   return;
@@ -98,8 +99,7 @@ int FARKgloc(sunindextype Nloc, realtype t, N_Vector yloc,
 
 /* C interface to user-supplied Fortran routine FARKCOMMFN; see 
    farkbbd.h for further details. */
-int FARKcfn(sunindextype Nloc, realtype t, 
-	    N_Vector y, void *user_data)
+int FARKcfn(sunindextype Nloc, realtype t, N_Vector y, void *user_data)
 {
   int ier;
   realtype *yloc;
@@ -116,7 +116,7 @@ int FARKcfn(sunindextype Nloc, realtype t,
 
 /* Fortran interface to C routines ARKBBDPrecGetWorkSpace and 
    ARKBBDPrecGetNumGfnEvals; see farkbbd.h for further details */
-void FARK_BBDOPT(sunindextype *lenrwbbd, sunindextype *leniwbbd, 
+void FARK_BBDOPT(long int *lenrwbbd, long int *leniwbbd, 
 		 long int *ngebbd)
 {
   ARKBBDPrecGetWorkSpace(ARK_arkodemem, lenrwbbd, leniwbbd);

@@ -23,7 +23,8 @@
 #include <stdlib.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_band.h>
+#include <arkode/arkode_direct.h>
+#include <sunmatrix/sunmatrix_band.h>
 
 
 /*=============================================================*/
@@ -34,11 +35,12 @@
 extern "C" {
 #endif
 
-  extern void FARK_BMASS(sunindextype *N, sunindextype *MU, sunindextype *ML,
-  			 sunindextype *EBAND, realtype *T,
-  			 realtype *BMASS, sunindextype *IPAR,
-  			 realtype *RPAR, realtype *V1,
-  			 realtype *V2, realtype *V3, int *IER);
+  extern void FARK_BMASS(sunindextype *N, sunindextype *MU, 
+                         sunindextype *ML, sunindextype *EBAND, 
+                         realtype *T, realtype *BMASS, 
+                         sunindextype *IPAR, realtype *RPAR, 
+                         realtype *V1, realtype *V2, realtype *V3, 
+                         int *IER);
 
 #ifdef __cplusplus
 }
@@ -46,31 +48,34 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface routine to ARKDlsSetBandMassFn; see farkode.h 
+/* Fortran interface routine to ARKDlsSetMassFn; see farkode.h 
    for further details */
 void FARK_BANDSETMASS(int *ier)
 {
-  *ier = ARKDlsSetBandMassFn(ARK_arkodemem, FARKBandMass);
+  *ier = ARKDlsSetMassFn(ARK_arkodemem, FARKBandMass);
 }
 
 /*=============================================================*/
 
 /* C interface to user-supplied Fortran subroutine FARKBMASS; see 
    farkode.h for further details */
-int FARKBandMass(sunindextype N, sunindextype mupper, sunindextype mlower, 
-		 realtype t, DlsMat M, void *user_data, 
+int FARKBandMass(realtype t, SUNMatrix M, void *user_data, 
 		 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier;
   realtype *massdata, *v1data, *v2data, *v3data;
-  sunindextype eband;
+  sunindextype N, mupper, mlower, smu, eband;
   FARKUserData ARK_userdata;
 
   v1data  = N_VGetArrayPointer(vtemp1);
   v2data  = N_VGetArrayPointer(vtemp2);
   v3data  = N_VGetArrayPointer(vtemp3);
-  eband   = (M->s_mu) + mlower + 1;
-  massdata = BAND_COL(M,0) - mupper;
+  N = SUNBandMatrix_Columns(M);
+  mupper = SUNBandMatrix_UpperBandwidth(M);
+  mlower = SUNBandMatrix_LowerBandwidth(M);
+  smu = SUNBandMatrix_StoredUpperBandwidth(M);
+  eband   = smu + mlower + 1;
+  massdata = SUNBandMatrix_Column(M,0) - mupper;
   ARK_userdata = (FARKUserData) user_data;
 
   FARK_BMASS(&N, &mupper, &mlower, &eband, &t, massdata, 

@@ -23,7 +23,8 @@
 #include <stdlib.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_band.h>
+#include <arkode/arkode_direct.h>
+#include <sunmatrix/sunmatrix_band.h>
 
 
 /*=============================================================*/
@@ -34,9 +35,9 @@
 extern "C" {
 #endif
 
-  extern void FARK_BJAC(sunindextype *N, sunindextype *MU, sunindextype *ML,
-  			sunindextype *EBAND, realtype *T,
-  			realtype *Y, realtype *FY,
+  extern void FARK_BJAC(sunindextype *N, sunindextype *MU, 
+                        sunindextype *ML, sunindextype *EBAND, 
+                        realtype *T, realtype *Y, realtype *FY,
   			realtype *BJAC, realtype *H,
   			sunindextype *IPAR, realtype *RPAR,
   			realtype *V1, realtype *V2,
@@ -48,14 +49,14 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface routine to ARKDlsSetBandJacFn; see farkode.h 
+/* Fortran interface routine to ARKDlsSetJacFn; see farkode.h 
    for further details */
 void FARK_BANDSETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = ARKDlsSetBandJacFn(ARK_arkodemem, NULL);
+    *ier = ARKDlsSetJacFn(ARK_arkodemem, NULL);
   } else {
-    *ier = ARKDlsSetBandJacFn(ARK_arkodemem, FARKBandJac);
+    *ier = ARKDlsSetJacFn(ARK_arkodemem, FARKBandJac);
   }
   return;
 }
@@ -64,16 +65,14 @@ void FARK_BANDSETJAC(int *flag, int *ier)
 
 /* C interface to user-supplied Fortran subroutine FARKBJAC; see 
    farkode.h for further details */
-int FARKBandJac(sunindextype N, sunindextype mupper, 
-		sunindextype mlower, realtype t, N_Vector y, 
-		N_Vector fy, DlsMat J, void *user_data, 
-		N_Vector vtemp1, N_Vector vtemp2, 
+int FARKBandJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, 
+                void *user_data, N_Vector vtemp1, N_Vector vtemp2, 
 		N_Vector vtemp3)
 {
   int ier;
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
   realtype h;
-  sunindextype eband;
+  sunindextype N, mupper, mlower, smu, eband;
   FARKUserData ARK_userdata;
 
   ARKodeGetLastStep(ARK_arkodemem, &h);
@@ -82,8 +81,12 @@ int FARKBandJac(sunindextype N, sunindextype mupper,
   v1data  = N_VGetArrayPointer(vtemp1);
   v2data  = N_VGetArrayPointer(vtemp2);
   v3data  = N_VGetArrayPointer(vtemp3);
-  eband   = (J->s_mu) + mlower + 1;
-  jacdata = BAND_COL(J,0) - mupper;
+  N = SUNBandMatrix_Columns(J);
+  mupper = SUNBandMatrix_UpperBandwidth(J);
+  mlower = SUNBandMatrix_LowerBandwidth(J);
+  smu = SUNBandMatrix_StoredUpperBandwidth(J);
+  eband   = smu + mlower + 1;
+  jacdata = SUNBandMatrix_Column(J,0) - mupper;
   ARK_userdata = (FARKUserData) user_data;
 
   FARK_BJAC(&N, &mupper, &mlower, &eband, &t, ydata, fydata, 

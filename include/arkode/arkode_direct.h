@@ -15,7 +15,8 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Common header file for the direct linear solvers in ARKODE.
+ * Common header file for the direct linear solver interface in 
+ * ARKODE.
  *--------------------------------------------------------------*/
 
 #ifndef _ARKDLS_H
@@ -23,6 +24,7 @@
 
 #include <sundials/sundials_direct.h>
 #include <sundials/sundials_matrix.h>
+#include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_nvector.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -31,7 +33,7 @@ extern "C" {
 
 
 /*===============================================================
-  ARKDIRECT CONSTANTS
+  ARKDLS Constants
 ===============================================================*/
 
 /* ARKDLS return values -- ADJUST CONSTANTS AS NECESSARY */
@@ -48,22 +50,23 @@ extern "C" {
 #define ARKDLS_MASSFUNC_UNRECVR -8
 #define ARKDLS_MASSFUNC_RECVR   -9
 
+#define ARKDLS_SUNMAT_FAIL      -10
 
+
+  
 /*===============================================================
-  FUNCTION TYPES
+ ARKDLS user-supplied function prototypes
 ===============================================================*/
 
 /*---------------------------------------------------------------
- Type: ARKDlsDenseJacFn -- UPDATE TO BE GENERIC; INPUT A SUNMatrix AND LEAVE ALL DIMENSIONS OUT OF FUNCTION CALL (SINCE ACCESSIBLE INSIDE Jac)
+ Type: ARKDlsJacFn
 
- A dense Jacobian approximation function Jac must be of type 
- ARKDlsDenseJacFn. Its parameters are:
+ A Jacobian approximation function Jac must be of type 
+ ARKDlsJacFn. Its parameters are:
 
- N   is the problem size.
-
- Jac is the dense matrix (of type DlsMat) that will be loaded
-     by a ARKDlsDenseJacFn with an approximation to the Jacobian 
-     matrix J = (df_i/dy_j) at the point (t,y). 
+ Jac is the SUNMatrix that will be loaded by a ARKDlsJacFn with
+     an approximation to the Jacobian matrix 
+     J = (df_i/dy_j) at the point (t,y). 
 
  t   is the current value of the independent variable.
 
@@ -73,36 +76,19 @@ extern "C" {
  fy  is the vector f(t,y).
 
  user_data is a pointer to user data - the same as the user_data
-     parameter passed to ARKodeSetFdata.
+     parameter passed to ARKodeSetUserData.
 
  tmp1, tmp2, and tmp3 are pointers to memory allocated for
- vectors of length N which can be used by a ARKDlsDenseJacFn
+ vectors of length N which can be used by a ARKDlsJacFn
  as temporary storage or work space.
 
- A ARKDlsDenseJacFn should return 0 if successful, a positive 
+ A ARKDlsJacFn should return 0 if successful, a positive 
  value if a recoverable error occurred, and a negative value if 
  an unrecoverable error occurred.
 
- NOTE: The following are two efficient ways to load a dense Jac:         
- (1) (with macros - no explicit data structure references)      
-     for (j=0; j < Neq; j++) {                                  
-       col_j = DENSE_COL(Jac,j);                                 
-       for (i=0; i < Neq; i++) {                                
-         generate J_ij = the (i,j)th Jacobian element           
-         col_j[i] = J_ij;                                       
-       }                                                        
-     }                                                          
- (2) (without macros - explicit data structure references)      
-     for (j=0; j < Neq; j++) {                                  
-       col_j = (Jac->data)[j];                                   
-       for (i=0; i < Neq; i++) {                                
-         generate J_ij = the (i,j)th Jacobian element           
-         col_j[i] = J_ij;                                       
-       }                                                        
-     }                                                          
- A third way, using the DENSE_ELEM(A,i,j) macro, is much less   
- efficient in general.  It is only appropriate for use in small 
- problems in which efficiency of access is NOT a major concern. 
+ NOTE: See the relevant SUNMatrix implementation header files
+ and documentation for mechanisms to inquire about matrix 
+ dimensions, and to set matrix entries.
                                                                 
  NOTE: If the user's Jacobian routine needs other quantities,   
      they are accessible as follows: hcur (the current stepsize)
@@ -112,225 +98,102 @@ extern "C" {
      UNIT_ROUNDOFF defined in sundials_types.h.
 
 ---------------------------------------------------------------*/
-typedef int (*ARKDlsDenseJacFn)(sunindextype N, realtype t,
-				N_Vector y, N_Vector fy, 
-				DlsMat Jac, void *user_data,
-				N_Vector tmp1, N_Vector tmp2, 
-				N_Vector tmp3);
+typedef int (*ARKDlsJacFn)(realtype t, N_Vector y, N_Vector fy, 
+                           SUNMatrix Jac, void *user_data,
+                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   
 
 /*---------------------------------------------------------------
- Type: ARKDlsDenseMassFn -- UPDATE TO BE GENERIC; INPUT A SUNMatrix AND LEAVE ALL DIMENSIONS OUT OF FUNCTION CALL (SINCE ACCESSIBLE INSIDE Jac)
+ Type: ARKDlsMassFn
 
- A dense mass matrix approximation function Mass must be of type 
- ARKDlsDenseMassFn. Its parameters are:
-
- N   is the problem size.
+ A mass matrix approximation function Mass must be of type 
+ ARKDlsMassFn. Its parameters are:
 
  t   is the current value of the independent variable.
 
- M   is the dense matrix (of type DlsMat) that will be loaded
-     by a ARKDlsDenseMassFn with an approximation to the mass matrix.
+ M   is the SUNMatrix that will be loaded by a ARKDlsMassFn 
+     with an approximation to the mass matrix.
 
  user_data is a pointer to user data - the same as the user_data
-     parameter passed to ARKodeSetFdata.
+     parameter passed to ARKodeSetUserData.
 
  tmp1, tmp2, and tmp3 are pointers to memory allocated for
- vectors of length N which can be used by a ARKDlsDenseMassFn
+ vectors of length N which can be used by a ARKDlsMassFn
  as temporary storage or work space.
 
- A ARKDlsDenseMassFn should return 0 if successful, and a 
+ A ARKDlsMassFn should return 0 if successful, and a 
  negative value if an unrecoverable error occurred.
 
 ---------------------------------------------------------------*/
-typedef int (*ARKDlsDenseMassFn)(sunindextype N, realtype t, DlsMat M, 
-				 void *user_data, N_Vector tmp1, 
-				 N_Vector tmp2, N_Vector tmp3);
+typedef int (*ARKDlsMassFn)(realtype t, SUNMatrix M, void *user_data, 
+                            N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   
 
-/*---------------------------------------------------------------
- Type: ARKDlsBandJacFn -- REMOVE (REPLACED WITH GENERIC ABOVE), MOVE RELEVANT COMMENTS
-
- A band Jacobian approximation function Jac must have the
- prototype given below. Its parameters are:
-
- N is the length of all vector arguments.
-
- mupper is the upper half-bandwidth of the approximate banded
- Jacobian. This parameter is the same as the mupper parameter
- passed by the user to the linear solver initialization function.
-
- mlower is the lower half-bandwidth of the approximate banded
- Jacobian. This parameter is the same as the mlower parameter
- passed by the user to the linear solver initialization function.
-
- t is the current value of the independent variable.
-
- y is the current value of the dependent variable vector,
-      namely the predicted value of y(t).
-
- fy is the vector f(t,y).
-
- Jac is the band matrix (of type DlsMat) that will be loaded
- by a ARKDlsBandJacFn with an approximation to the Jacobian matrix
- Jac = (df_i/dy_j) at the point (t,y).
- Three efficient ways to load J are:
-
- (1) (with macros - no explicit data structure references)
-    for (j=0; j < n; j++) {
-       col_j = BAND_COL(Jac,j);
-       for (i=j-mupper; i <= j+mlower; i++) {
-         generate J_ij = the (i,j)th Jacobian element
-         BAND_COL_ELEM(col_j,i,j) = J_ij;
-       }
-     }
-
- (2) (with BAND_COL macro, but without BAND_COL_ELEM macro)
-    for (j=0; j < n; j++) {
-       col_j = BAND_COL(Jac,j);
-       for (k=-mupper; k <= mlower; k++) {
-         generate J_ij = the (i,j)th Jacobian element, i=j+k
-         col_j[k] = J_ij;
-       }
-     }
-
- (3) (without macros - explicit data structure references)
-     offset = Jac->smu;
-     for (j=0; j < n; j++) {
-       col_j = ((Jac->data)[j])+offset;
-       for (k=-mupper; k <= mlower; k++) {
-         generate J_ij = the (i,j)th Jacobian element, i=j+k
-         col_j[k] = J_ij;
-       }
-     }
- Caution: Jac->smu is generally NOT the same as mupper.
-
- The BAND_ELEM(A,i,j) macro is appropriate for use in small
- problems in which efficiency of access is NOT a major concern.
-
- user_data is a pointer to user data - the same as the user_data
-          parameter passed to ARKodeSetFdata.
-
- NOTE: If the user's Jacobian routine needs other quantities,
-     they are accessible as follows: hcur (the current stepsize)
-     and ewt (the error weight vector) are accessible through
-     ARKodeGetCurrentStep and ARKodeGetErrWeights, respectively
-     (see arkode.h). The unit roundoff is available as
-     UNIT_ROUNDOFF defined in sundials_types.h
-
- tmp1, tmp2, and tmp3 are pointers to memory allocated for
- vectors of length N which can be used by a ARKDlsBandJacFn
- as temporary storage or work space.
-
- A ARKDlsBandJacFn should return 0 if successful, a positive value
- if a recoverable error occurred, and a negative value if an 
- unrecoverable error occurred.
----------------------------------------------------------------*/
-typedef int (*ARKDlsBandJacFn)(sunindextype N, sunindextype mupper, 
-			       sunindextype mlower, realtype t, 
-			       N_Vector y, N_Vector fy, 
-			       DlsMat Jac, void *user_data,
-			       N_Vector tmp1, N_Vector tmp2, 
-			       N_Vector tmp3);
-
-/*---------------------------------------------------------------
- Type: ARKDlsBandMassFn -- REMOVE (REPLACED WITH GENERIC ABOVE), MOVE RELEVANT COMMENTS
-
- A band mass matrix approximation function Mass must have the
- prototype given below. Its parameters are:
-
- N is the length of all vector arguments.
-
- mupper is the upper half-bandwidth of the approximate banded
- Jacobian. This parameter is the same as the mupper parameter
- passed by the user to the linear solver initialization function.
-
- mlower is the lower half-bandwidth of the approximate banded
- Jacobian. This parameter is the same as the mlower parameter
- passed by the user to the linear solver initialization function.
-
- t is the current value of the independent variable.
-
- M is the band matrix (of type DlsMat) that will be loaded
- by a ARKDlsBandMassFn with an approximation to the mass matrix
-
- user_data is a pointer to user data - the same as the user_data
-     parameter passed to ARKodeSetFdata.
-
- tmp1, tmp2, and tmp3 are pointers to memory allocated for
- vectors of length N which can be used by a ARKDlsBandMassFn
- as temporary storage or work space.
-
- A ARKDlsBandMassFn should return 0 if successful, and a negative 
- value if an unrecoverable error occurred.
----------------------------------------------------------------*/
-typedef int (*ARKDlsBandMassFn)(sunindextype N, sunindextype mupper, 
-				sunindextype mlower, realtype t, 
-				DlsMat M, void *user_data, 
-				N_Vector tmp1, N_Vector tmp2, 
-				N_Vector tmp3);
-
-
 /*===============================================================
- FUNCTIONS FOR USE BY ARKODE DIRECTLY
+  ARKDLS Exported functions
 ===============================================================*/
 
 /*---------------------------------------------------------------
- ARKDlsSetupMatrix determines whether to create a new dense/band 
- Jacobian matrix (or use a stored version), based on heuristics
- regarding previous converence issues, the number of time steps 
- since it was last updated, etc.; it then creates the system
- matrix from this, the 'gamma' factor and the mass/identity 
- matrix, A = M-gamma*J.
----------------------------------------------------------------*/
-SUNDIALS_EXPORT int ARKDlsSetupMatrix(void *arkode_mem, N_Vector vtemp1,
-                                      N_Vector vtemp2, N_Vector vtemp3);
+ Required inputs for the ARKDLS linear solver interface:
 
-/*===============================================================
-  EXPORTED FUNCTIONS
-===============================================================*/
+ ARKDlsSetLinearSolver specifies the direct SUNLinearSolver 
+ object that ARKode should use.  This is required if ARKode is 
+ solving an implicit or IMEX IVP, and using a modified Newton 
+ solver.
+
+ ARKDlsSetMassLinearSolver specifies the direct SUNLinearSolver 
+ object (and user-provided function to fill the mass matrix) that
+ ARKode should use when solving mass-matrix linear systems.  This 
+ is required if ARKode is solving a problem with non-identity 
+ mass matrix and the user wishes to use a direct solver for these 
+ systems.
+
+ NOTE: when solving an implicit or IMEX IVP with non-identity mass
+ matrix and direct linear solver, both the system and mass matrices 
+ must have the same type (i.e. you cannot combine a direct system 
+ solver with an iterative mass matrix solver, or a dense and banded 
+ matrices, etc.).
+
+ The return value is one of:
+    ARKDLS_SUCCESS   if successful
+    ARKDLS_MEM_NULL  if the ARKODE memory was NULL
+    ARKDLS_ILL_INPUT if the linear solver memory was NULL
+---------------------------------------------------------------*/
+SUNDIALS_EXPORT int ARKDlsSetLinearSolver(void *arkode_mem, 
+                                          SUNLinearSolver LS,
+                                          SUNMatrix A);
+
+SUNDIALS_EXPORT int ARKDlsSetMassLinearSolver(void *arkode_mem, 
+                                              SUNLinearSolver LS,
+                                              SUNMatrix M,
+                                              booleantype time_dep,
+                                              ARKDlsMassFn mass);
 
 /*---------------------------------------------------------------
- Optional inputs to the ARKDLS linear solver: -- COMBINE INTO GENERIC
+ Optional inputs to the ARKDLS linear solver interface:
 
- ARKDlsSetDenseJacFn specifies the dense Jacobian approximation
- routine to be used for a direct dense linear solver.
+ ARKDlsSetJacFn specifies the dense/band/sparse/diagonal Jacobian
+ approximation routine to be used for a direct linear solver.
 
- ARKDlsSetBandJacFn specifies the band Jacobian approximation
- routine to be used for a direct band linear solver.
+ By default, a difference quotient approximation is used for 
+ dense/band/diagonal; no default exists for sparse (so this must 
+ be user-supplied).
 
- By default, a difference quotient approximation, supplied with
- the solver is used.
+ ARKDlsSetMassFn specifies the mass matrix approximation routine 
+ to be used for a direct linear solver.  As this must have already
+ been supplied to attach the direct mass linear solver to ARKode, 
+ this routine is provided to allow changing this function after it 
+ is initially set.
 
  The return value is one of:
     ARKDLS_SUCCESS   if successful
     ARKDLS_MEM_NULL  if the ARKODE memory was NULL
     ARKDLS_LMEM_NULL if the linear solver memory was NULL
----------------------------------------------------------------*/
-SUNDIALS_EXPORT int ARKDlsSetDenseJacFn(void *arkode_mem, 
-					ARKDlsDenseJacFn jac);
-SUNDIALS_EXPORT int ARKDlsSetBandJacFn(void *arkode_mem, 
-				       ARKDlsBandJacFn jac);
-
-
-/*---------------------------------------------------------------
- Optional inputs to the ARKDLS linear solver: -- COMBINE INTO GENERIC
-
- ARKDlsSetDenseMassFn specifies the dense mass matrix 
- approximation routine to be used for a direct dense solver.
-
- ARKDlsSetBandMassFn specifies the band mass matrix approximation
- routine to be used for a direct band solver.
-
- The return value is one of:
-    ARKDLS_SUCCESS      if successful
-    ARKDLS_MEM_NULL     if the ARKODE memory was NULL
     ARKDLS_MASSMEM_NULL if the mass matrix solver memory was NULL
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int ARKDlsSetDenseMassFn(void *arkode_mem, 
-					 ARKDlsDenseMassFn mass);
-SUNDIALS_EXPORT int ARKDlsSetBandMassFn(void *arkode_mem, 
-					ARKDlsBandMassFn mass);
+SUNDIALS_EXPORT int ARKDlsSetJacFn(void *arkode_mem, ARKDlsJacFn jac);
+
+SUNDIALS_EXPORT int ARKDlsSetMassFn(void *arkode_mem, ARKDlsMassFn mass);
 
 
 /*---------------------------------------------------------------
@@ -359,10 +222,10 @@ SUNDIALS_EXPORT int ARKDlsSetBandMassFn(void *arkode_mem,
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKDlsGetWorkSpace(void *arkode_mem, 
 				       sunindextype *lenrwLS, 
-				       sunindextype *leniwLS); /* -- ONLY INCLUDE GENERIC WORKSPACE */
+				       sunindextype *leniwLS);
 SUNDIALS_EXPORT int ARKDlsGetMassWorkSpace(void *arkode_mem, 
 					   sunindextype *lenrwMLS, 
-					   sunindextype *leniwMLS); /* -- ONLY INCLUDE GENERIC WORKSPACE */
+					   sunindextype *leniwMLS);
 SUNDIALS_EXPORT int ARKDlsGetNumJacEvals(void *arkode_mem, 
 					 long int *njevals);
 SUNDIALS_EXPORT int ARKDlsGetNumMassEvals(void *arkode_mem, 

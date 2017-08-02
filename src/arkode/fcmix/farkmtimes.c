@@ -35,6 +35,8 @@
 extern "C" {
 #endif
 
+  extern void FARK_MTSETUP(realtype *T, sunindextype *IPAR, 
+                           realtype *RPAR, int *IER);
   extern void FARK_MTIMES(realtype *V, realtype *MV, realtype *T, 
 			  sunindextype *IPAR, realtype *RPAR, int *IER);
 
@@ -44,17 +46,28 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKSpilsSetMassTimesVecFn; see 
+/* Fortran interface to C routine ARKSpilsSetMassTimes; see 
    farkode.h for further information */
 void FARK_SPILSSETMASS(int *ier)
 {
   ARKodeMem ark_mem;
   ark_mem = (ARKodeMem) ARK_arkodemem;
-  *ier = ARKSpilsSetMassTimesVecFn(ARK_arkodemem, FARKMtimes, 
-				   ark_mem->ark_user_data);
+  *ier = ARKSpilsSetMassTimes(ARK_arkodemem, FARKMTSetup, 
+                              FARKMtimes, ark_mem->ark_user_data);
 }
 
 /*=============================================================*/
+
+/* C interface to user-supplied Fortran routine FARKMTSETUP; see
+   farkode.h for further information */
+int FARKMTSetup(realtype t, void *user_data)
+{
+  FARKUserData ARK_userdata;
+  int ier = 0;
+  ARK_userdata = (FARKUserData) user_data;
+  FARK_MTSETUP(&t, ARK_userdata->ipar, ARK_userdata->rpar, &ier);
+  return(ier);
+}
 
 /* C interface to user-supplied Fortran routine FARKMTIMES; see
    farkode.h for further information */

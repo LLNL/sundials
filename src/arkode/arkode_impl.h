@@ -419,31 +419,24 @@ typedef struct ARKodeMemRec {
   int (*ark_linit)(struct ARKodeMemRec *ark_mem);
   int (*ark_lsetup)(struct ARKodeMemRec *ark_mem, N_Vector vtemp1,
 		    N_Vector vtemp2, N_Vector vtemp3); 
-  int (*ark_lsolve)(struct ARKodeMemRec *ark_mem, N_Vector b, N_Vector weight,
-		    N_Vector ycur, N_Vector fcur);
+  int (*ark_lsolve)(struct ARKodeMemRec *ark_mem, N_Vector b,
+                    N_Vector ycur, N_Vector fcur);
   int (*ark_lfree)(struct ARKodeMemRec *ark_mem);
   void *ark_lmem;
-  int ark_lsolve_type;   /* linear solver type: 0=iterative; 1=dense; 
-                                                2=band; 3=sparse; 4=custom */
+  int ark_lsolve_type;   /* linear solver type: 0=iterative; 1=direct; 2=custom */
 
   /*-----------------------
     Mass Matrix Solver Data 
     -----------------------*/
   booleantype ark_mass_matrix;   /* flag denoting use of a non-identity M  */
-  long int ark_mass_solves;      /* number of mass matrix solve calls      */
-  long int ark_mass_setup;       /* number of mass matrix-product setup calls */
-  long int ark_mass_mult;        /* number of mass matrix product calls    */
-  ARKSpilsMassTimesSetupFn ark_mtsetup; /* mass-matrix-vector product setup */
-  ARKSpilsMassTimesVecFn ark_mtimes;   /* mass-matrix-vector product routine */
-  void *ark_mtimes_data;         /* user pointer passed to mtimes          */
   int (*ark_minit)(struct ARKodeMemRec *ark_mem);
-  int (*ark_msetup)(struct ARKodeMemRec *ark_mem, N_Vector vtemp1, 
+  int (*ark_msetup)(struct ARKodeMemRec *ark_mem, N_Vector vtemp1,
 		    N_Vector vtemp2, N_Vector vtemp3); 
-  int (*ark_msolve)(struct ARKodeMemRec *ark_mem, N_Vector b, N_Vector weight);
+  int (*ark_mmult)(struct ARKodeMemRec *ark_mem, N_Vector v, N_Vector Mv);
+  int (*ark_msolve)(struct ARKodeMemRec *ark_mem, N_Vector b);
   int (*ark_mfree)(struct ARKodeMemRec *ark_mem);
   void *ark_mass_mem;
-  int ark_msolve_type;   /* mass matrix type: 0=iterative; 1=dense; 
-			                      2=band; 3=sparse; 4=custom */
+  int ark_msolve_type;   /* mass matrix type: 0=iterative; 1=direct; 2=custom */
 
   /*------------
     Saved Values
@@ -455,8 +448,6 @@ typedef struct ARKodeMemRec {
   booleantype ark_jcur;         /* is Jacobian info. for lin. solver current? */
   int         ark_convfail;     /* flag storing previous solver failure mode  */
   realtype    ark_tolsf;        /* tolerance scale factor                     */
-  booleantype ark_setupNonNull; /* does ark_lsetup do anything?               */
-  booleantype ark_MassSetupNonNull; /* does ark_msetup do anything?           */
   booleantype ark_VabstolMallocDone;
   booleantype ark_VRabstolMallocDone;
   booleantype ark_MallocDone;  
@@ -543,48 +534,24 @@ typedef struct ARKodeMemRec {
  int (*ark_linit)(ARKodeMem ark_mem);
 -----------------------------------------------------------------
  The purpose of ark_linit is to complete initializations for a
- specific linear solver, such as counters and statistics.
- An LInitFn should return 0 if it has successfully initialized 
- the ARKODE linear solver and a negative value otherwise.
- If an error does occur, an appropriate message should be sent 
- to the error handler function.
+ specific ARKode linear solver interface, such as counters and 
+ statistics.  An LInitFn should return 0 if it has successfully 
+ initialized the ARKODE linear solver interface and a negative 
+ value otherwise. If an error does occur, an appropriate message 
+ should be sent to the error handler function.
 ---------------------------------------------------------------*/
   
 /*---------------------------------------------------------------
- int (*ark_lsetup)(ARKodeMem ark_mem, int convfail, 
-                   N_Vector ypred, N_Vector fpred, 
-		   booleantype *jcurPtr, N_Vector vtemp1, 
+ int (*ark_lsetup)(ARKodeMem ark_mem, N_Vector vtemp1, 
 		   N_Vector vtemp2, N_Vector vtemp3);
  -----------------------------------------------------------------
- The job of ark_lsetup is to prepare the linear solver for
- subsequent calls to ark_lsolve. It may recompute Jacobian-
+ The job of ark_lsetup is to prepare the linear solver interface 
+ for subsequent calls to ark_lsolve. It may recompute Jacobian-
  related data is it deems necessary. Its parameters are as
  follows:
 
  ark_mem - problem memory pointer of type ARKodeMem. See the
           typedef earlier in this file.
-
- convfail - a flag to indicate any problem that occurred during
-            the solution of the nonlinear equation on the
-            current time step for which the linear solver is
-            being used. This flag can be used to help decide
-            whether the Jacobian data kept by a ARKODE linear
-            solver needs to be updated or not.
-            Its possible values have been documented above.
-
- ypred - the predicted y vector for the current ARKODE internal
-         step.
-
- fpred - f(tn, ypred).
-
- jcurPtr - a pointer to a boolean to be filled in by ark_lsetup.
-           The function should set *jcurPtr=TRUE if its Jacobian
-           data is current after the call and should set
-           *jcurPtr=FALSE if its Jacobian data is not current.
-           Note: If ark_lsetup calls for re-evaluation of
-           Jacobian data (based on convfail and ARKODE state
-           data), it should return *jcurPtr=TRUE always;
-           otherwise an infinite loop can result.
 
  vtemp1 - temporary N_Vector provided for use by ark_lsetup.
 
@@ -592,31 +559,74 @@ typedef struct ARKodeMemRec {
 
  vtemp3 - temporary N_Vector provided for use by ark_lsetup.
 
+
+ Additional flags and vectors that are set within the ARKode 
+ memory structure, and that may be of use when determining 
+ linear solver 'setup' logic (e.g. for a modified Newton 
+ method, to lag a preconditioner for a specific number of 
+ time steps, or to use when updating a Jacobian matrix or 
+ preconditioner) include:
+
+ ark_convfail - a flag to indicate any problem that occurred 
+          during the solution of the nonlinear equation on 
+          the current time step for which the linear solver 
+          is being used. This flag can be used to help 
+          decide whether the Jacobian data kept by a ARKODE 
+          linear solver needs to be updated or not.
+          Its possible values have been documented above.
+
+ ark_tn - the independent variable 'time' for the predicted 
+          y vector.
+
+ ark_ycur - the predicted y(ark_tn) vector for the current 
+          ARKODE internal stage/step.
+
+ ark_ftemp - fi(tn, ypred).
+
+ ark_jcur - a boolean to be filled in by ark_lsetup.
+           The function should set *jcurPtr=TRUE if its 
+           Jacobian data is current after the call and should 
+           set ark_jcur=FALSE if its Jacobian data is not 
+           current. 
+           Note: If ark_lsetup calls for re-evaluation of 
+           Jacobian data (based on convfail and ARKODE state
+           data), it should return ark_jcur=TRUE always;
+           otherwise an infinite loop can result.
+
  The ark_lsetup routine should return 0 if successful, a positive
  value for a recoverable error, and a negative value for an
  unrecoverable error.
 ---------------------------------------------------------------*/
 
 /*---------------------------------------------------------------
- int (*ark_lsolve)(ARKodeMem ark_mem, N_Vector b, N_Vector weight,
+ int (*ark_lsolve)(ARKodeMem ark_mem, N_Vector b, 
                    N_Vector ycur, N_Vector fcur);
 -----------------------------------------------------------------
  ark_lsolve must solve the linear equation P x = b, where
  P is some approximation to (M - gamma J), M is the system mass
  matrix, J = (df/dy)(tn,ycur), and the RHS vector b is input. The 
  N-vector ycur contains the solver's current approximation to 
- y(tn) and the vector fcur contains the N_Vector f(tn,ycur). The 
- solution is to be returned in the vector b. ark_lsolve returns 
- a positive value for a recoverable error and a negative value 
- for an unrecoverable error. Success is indicated by a 0 return 
- value.
+ y(tn) and the vector fcur contains the N_Vector f(tn,ycur). 
+
+ Additional vectors that are set within the ARKode memory 
+ structure, and that may be of use within an iterative linear 
+ solver, include:
+
+ ark_ewt - the error weight vector (scaling for solution vector)
+
+ ark_rwt - the residual weight vector (scaling for rhs vector)
+
+ The solution is to be returned in the vector b. ark_lsolve 
+ returns a positive value for a recoverable error and a 
+ negative value for an unrecoverable error. Success is 
+ indicated by a 0 return value.
 ---------------------------------------------------------------*/
 
 /*---------------------------------------------------------------
  int (*ark_lfree)(ARKodeMem ark_mem);
 -----------------------------------------------------------------
  ark_lfree should free up any memory allocated by the linear
- solver. This routine is called once a problem has been
+ solver interface. This routine is called once a problem has been
  completed and the linear solver is no longer needed.  It should 
  return 0 upon success, or a nonzero on failure.
 ---------------------------------------------------------------*/
@@ -627,10 +637,10 @@ typedef struct ARKodeMemRec {
  int (*ark_minit)(ARKodeMem ark_mem);
 -----------------------------------------------------------------
  The purpose of ark_minit is to complete initializations for a
- specific mass matrix linear solver, such as counters and 
- statistics. An function of this type should return 0 if it has 
- successfully initialized the mass matrix linear solver and a 
- negative value otherwise.  If an error does occur, an 
+ specific mass matrix linear solver interface, such as counters 
+ and statistics. An function of this type should return 0 if it 
+ has successfully initialized the mass matrix linear solver and 
+ a negative value otherwise.  If an error does occur, an 
  appropriate message should be sent to the error handler function.
 ---------------------------------------------------------------*/
   
@@ -638,10 +648,10 @@ typedef struct ARKodeMemRec {
  int (*ark_msetup)(ARKodeMem ark_mem, N_Vector vtemp1, 
                    N_Vector vtemp2, N_Vector vtemp3);
  -----------------------------------------------------------------
- The job of ark_msetup is to prepare the mass matrix solver for
- subsequent calls to ark_msolve. It may recompute mass matrix
- related data is it deems necessary. Its parameters are as
- follows:
+ The job of ark_msetup is to prepare the mass matrix solver 
+ interface for subsequent calls to ark_msolve or ark_mmult. It 
+ may recompute mass matrix related data is it deems necessary. 
+ Its parameters are as follows:
 
  ark_mem - problem memory pointer of type ARKodeMem. See the
           typedef earlier in this file.
@@ -657,21 +667,40 @@ typedef struct ARKodeMemRec {
 ---------------------------------------------------------------*/
 
 /*---------------------------------------------------------------
- int (*ark_msolve)(ARKodeMem ark_mem, N_Vector b, N_Vector weight);
+ int (*ark_mmult)(ARKodeMem ark_mem, N_Vector v, N_Vector z);
+-----------------------------------------------------------------
+ ark_mmult must compute the matrix-vector product, z = M*v, 
+ where M is the system mass matrix the vector v is input, and the 
+ vector z is output. The ark_mmult routine returns a positive 
+ value for a recoverable error and a negative value for an 
+ unrecoverable error. Success is indicated by a 0 return value.
+---------------------------------------------------------------*/
+
+/*---------------------------------------------------------------
+ int (*ark_msolve)(ARKodeMem ark_mem, N_Vector b);
 -----------------------------------------------------------------
  ark_msolve must solve the linear equation M x = b, where
  M is the system mass matrix, and the RHS vector b is input. The
- solution is to be returned in the vector b.  The ark_msolve
- routine returns a positive value for a recoverable error and 
- a negative value for an unrecoverable error. Success is 
- indicated by a 0 return value.
+ solution is to be returned in the vector b.  
+
+ Additional vectors that are set within the ARKode memory 
+ structure, and that may be of use within an iterative linear 
+ solver, include:
+
+ ark_ewt - the error weight vector (scaling for solution vector)
+
+ ark_rwt - the residual weight vector (scaling for rhs vector)
+
+ The ark_msolve routine returns a positive value for a 
+ recoverable error and a negative value for an unrecoverable 
+ error. Success is indicated by a 0 return value.
 ---------------------------------------------------------------*/
 
 /*---------------------------------------------------------------
  int (*ark_mfree)(ARKodeMem ark_mem);
 -----------------------------------------------------------------
  ark_mfree should free up any memory allocated by the mass matrix
- solver. This routine is called once a problem has been
+ solver interface. This routine is called once a problem has been
  completed and the solver is no longer needed.  It should return
  0 upon success, or a nonzero on failure.
 ---------------------------------------------------------------*/
@@ -757,7 +786,7 @@ void arkProcessError(ARKodeMem ark_mem, int error_code,
 #define MSGARK_NO_ROOT       "Rootfinding was not initialized."
 
 /* ARKode Error Messages */
-#define MSGARK_LSOLVE_NULL    "The linear solver's solve routine is NULL."
+#define MSGARK_LSOLVE_NULL    "The linear solver object is NULL."
 #define MSGARK_YOUT_NULL      "yout = NULL illegal."
 #define MSGARK_TRET_NULL      "tret = NULL illegal."
 #define MSGARK_BAD_EWT        "Initial ewt has component(s) equal to zero (illegal)."
@@ -794,9 +823,9 @@ void arkProcessError(ARKodeMem ark_mem, int error_code,
 #define MSGARK_MISSING_FI     "Cannot specify that method is explicit without providing a function pointer to fe(t,y)."
 #define MSGARK_MISSING_F      "Cannot specify that method is ImEx without providing function pointers to fi(t,y) and fe(t,y)."
 #define MSGARK_RESIZE_FAIL    "Error in user-supplied resize() function."
+#define MSGARK_MASSSOLVE_NULL "The mass matrix linear solver object is NULL."
 #define MSGARK_MASSINIT_FAIL  "The mass matrix solver's init routine failed."
 #define MSGARK_MASSSETUP_FAIL "The mass matrix solver's setup routine failed."
-#define MSGARK_MASSSOLVE_NULL "The mass matrix solver's solve routine is NULL."
 #define MSGARK_MASSSOLVE_FAIL "The mass matrix solver failed."
 #define MSGARK_MASSFREE_FAIL  "The mass matrixsolver's free routine failed."
 

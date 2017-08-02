@@ -23,7 +23,8 @@
 #include <stdlib.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_dense.h>
+#include <arkode/arkode_direct.h>
+#include <sunmatrix/sunmatrix_dense.h>
 
 /*=============================================================*/
 
@@ -45,14 +46,14 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKDlsSetDenseJacFn; see 
+/* Fortran interface to C routine ARKDlsSetJacFn; see 
    farkode.h for additional information */
 void FARK_DENSESETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = ARKDlsSetDenseJacFn(ARK_arkodemem, NULL);
+    *ier = ARKDlsSetJacFn(ARK_arkodemem, NULL);
   } else {
-    *ier = ARKDlsSetDenseJacFn(ARK_arkodemem, FARKDenseJac);
+    *ier = ARKDlsSetJacFn(ARK_arkodemem, FARKDenseJac);
   }
   return;
 }
@@ -61,13 +62,14 @@ void FARK_DENSESETJAC(int *flag, int *ier)
 
 /* C interface to user-supplied Fortran routine FARKDJAC; see 
    farkode.h for additional information  */
-int FARKDenseJac(sunindextype N, realtype t, N_Vector y, N_Vector fy, 
-                 DlsMat J, void *user_data, N_Vector vtemp1, 
-                 N_Vector vtemp2, N_Vector vtemp3)
+int FARKDenseJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, 
+                 void *user_data, N_Vector vtemp1, N_Vector vtemp2, 
+                 N_Vector vtemp3)
 {
   int ier;
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
   realtype h;
+  sunindextype N;
   FARKUserData ARK_userdata;
 
   ARKodeGetLastStep(ARK_arkodemem, &h);
@@ -76,7 +78,8 @@ int FARKDenseJac(sunindextype N, realtype t, N_Vector y, N_Vector fy,
   v1data  = N_VGetArrayPointer(vtemp1);
   v2data  = N_VGetArrayPointer(vtemp2);
   v3data  = N_VGetArrayPointer(vtemp3);
-  jacdata = DENSE_COL(J,0);
+  N = SUNDenseMatrix_Columns(J);
+  jacdata = SUNDenseMatrix_Column(J,0);
   ARK_userdata = (FARKUserData) user_data;
 
   FARK_DJAC(&N, &t, ydata, fydata, jacdata, &h, 

@@ -23,7 +23,8 @@
 #include <stdlib.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_dense.h>
+#include <arkode/arkode_direct.h>
+#include <sunmatrix/sunmatrix_dense.h>
 
 /*=============================================================*/
 
@@ -44,28 +45,30 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface routine to ARKDlsSetDenseMassFn; see 
+/* Fortran interface routine to ARKDlsSetMassFn; see 
    farkode.h for further details */
 void FARK_DENSESETMASS(int *ier)
 {
-  *ier = ARKDlsSetDenseMassFn(ARK_arkodemem, FARKDenseMass);
+  *ier = ARKDlsSetMassFn(ARK_arkodemem, FARKDenseMass);
 }
 
 /*=============================================================*/
 
 /* C interface to user-supplied Fortran routine FARKDMASS; see 
    farkode.h for additional information  */
-int FARKDenseMass(sunindextype N, realtype t, DlsMat M, void *user_data, 
+int FARKDenseMass(realtype t, SUNMatrix M, void *user_data, 
 		  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier;
   realtype *massdata, *v1data, *v2data, *v3data;
+  sunindextype N;
   FARKUserData ARK_userdata;
 
   v1data  = N_VGetArrayPointer(vtemp1);
   v2data  = N_VGetArrayPointer(vtemp2);
   v3data  = N_VGetArrayPointer(vtemp3);
-  massdata = DENSE_COL(M,0);
+  N = SUNDenseMatrix_Columns(M);
+  massdata = SUNDenseMatrix_Column(M,0);
   ARK_userdata = (FARKUserData) user_data;
 
   FARK_DMASS(&N, &t, massdata, ARK_userdata->ipar, ARK_userdata->rpar, 
