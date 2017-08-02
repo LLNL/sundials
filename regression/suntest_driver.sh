@@ -16,14 +16,14 @@
 # -------------------------------------------------------------------------------
 
 # number of threads for parallel build (defaults to 1)
-if [ "$#" -ge 2 ]; then
+if [ "$#" -ge 1 ]; then
     buildthreads=$1
 else
     buildthreads=1
 fi
 
-# set test name (branch name or pull-request) if provided
-if [ "$#" -ge 1 ]; then
+# set test name (branch name or pull-request) if provided, otherwise leave empty
+if [ "$#" -ge 2 ]; then
     testname=$2
 fi
 
