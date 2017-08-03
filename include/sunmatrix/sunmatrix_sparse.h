@@ -1,7 +1,9 @@
 /*
  * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
- *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
+ *                David Gardner @ LLNL
+ * Based on code sundials_sparse.h by: Carol Woodward and 
+ *     Slaven Peles @ LLNL, and Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * LLNS/SMU Copyright Start
  * Copyright (c) 2017, Southern Methodist University and 

@@ -1,7 +1,6 @@
 /*
  * ----------------------------------------------------------------- 
- * Programmer(s): Daniel Reynolds, Ashley Crawford @ SMU
- *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
+ * Programmer(s): Daniel Reynolds @ SMU
  * -----------------------------------------------------------------
  * LLNS/SMU Copyright Start
  * Copyright (c) 2017, Southern Methodist University and 
@@ -90,8 +89,6 @@ sunindextype local_length;
  *       for Ahat, then our preconditioning matrix P \approx A should be
  *         left prec:  P-inverse \approx S1-inverse Ahat-inverse S1
  *         right prec:  P-inverse \approx S2-inverse Ahat-inverse S2.
- *       Here we use a diagonal preconditioner D, so the S*-inverse 
- *       and S* in the product cancel one another.
  * 
  * If this is run with 1 MPI task, our tests use the serial N_Vector 
  * module; otherwise we use the MPI-parallel N_Vector module.

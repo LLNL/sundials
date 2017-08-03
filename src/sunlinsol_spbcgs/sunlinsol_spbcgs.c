@@ -1,7 +1,6 @@
 /*
  * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
- *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
  * Based on sundials_spbcgs.c code, written by Peter Brown and 
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -185,7 +184,7 @@ int SUNLinSolInitialize_SPBCGS(SUNLinearSolver S)
 
 
 int SUNLinSolSetATimes_SPBCGS(SUNLinearSolver S, void* ATData, 
-                            ATSetupFn ATSetup, ATimesFn ATimes)
+                              ATSetupFn ATSetup, ATimesFn ATimes)
 {
   /* set function pointers to integrator-supplied ATSetup 
      and ATimes routines and data, and return with success */
@@ -199,7 +198,7 @@ int SUNLinSolSetATimes_SPBCGS(SUNLinearSolver S, void* ATData,
 
 
 int SUNLinSolSetPreconditioner_SPBCGS(SUNLinearSolver S, void* PData,
-                                    PSetupFn Psetup, PSolveFn Psolve)
+                                      PSetupFn Psetup, PSolveFn Psolve)
 {
   /* set function pointers to integrator-supplied Psetup and PSolve
      routines and data, and return with success */
@@ -213,7 +212,7 @@ int SUNLinSolSetPreconditioner_SPBCGS(SUNLinearSolver S, void* PData,
 
 
 int SUNLinSolSetScalingVectors_SPBCGS(SUNLinearSolver S, N_Vector s1,
-                                     N_Vector s2)
+                                      N_Vector s2)
 {
   /* set N_Vector pointers to integrator-supplied scaling vectors, 
      and return with success */
@@ -256,12 +255,13 @@ int SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A)
   }
   
   /* return with success */ 
-  return(SUNLS_SUCCESS);
+  LASTFLAG(S) = SUNLS_SUCCESS;
+  return(LASTFLAG(S));
 }
 
 
 int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
-                         N_Vector b, realtype delta)
+                          N_Vector b, realtype delta)
 {
   /* local data and shortcut variables */
   realtype alpha, beta, omega, omega_denom, beta_num, beta_denom, r_norm, rho;
@@ -560,6 +560,7 @@ int SUNLinSolSpace_SPBCGS(SUNLinearSolver S,
   *leniwLS = liw1*9;
   return(SUNLS_SUCCESS);
 }
+
 
 int SUNLinSolFree_SPBCGS(SUNLinearSolver S)
 {

@@ -1,6 +1,5 @@
 # ---------------------------------------------------------------
 # Programmer(s): Daniel Reynolds @ SMU
-#                David Gardner, Carol Woodward, Slaven Peles @ LLNL
 # -----------------------------------------------------------------
 # LLNS/SMU Copyright Start
 # Copyright (c) 2017, Southern Methodist University and 
