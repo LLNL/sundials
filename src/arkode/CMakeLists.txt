@@ -66,7 +66,7 @@ SET(sunlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunlinsol_spfgmr/sunlinsol_spfgmr.c
   ${sundials_SOURCE_DIR}/src/sunlinsol_spgmr/sunlinsol_spgmr.c
   ${sundials_SOURCE_DIR}/src/sunlinsol_sptfqmr/sunlinsol_sptfqmr.c
-  #${sundials_SOURCE_DIR}/src/sunlinsol_pcg/sunlinsol_pcg.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_pcg/sunlinsol_pcg.c
   )
 
 IF(KLU_FOUND)
