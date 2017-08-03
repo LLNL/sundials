@@ -33,6 +33,9 @@
 #define ONE       RCONST(1.0)
 #define TWO       RCONST(2.0)
 
+/* Private function prototypes */
+sunindextype GlobalVectorLength_SuperLUMT(N_Vector y);
+
 /*
  * -----------------------------------------------------------------
  * SuperLUMT solver structure accessibility macros: 
@@ -71,7 +74,7 @@ SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
   SUNLinearSolver S;
   SUNLinearSolver_Ops ops;
   SUNLinearSolverContent_SuperLUMT content;
-  sunindextype MatrixRows;
+  sunindextype MatrixRows, VecLength;
 
   /* Check compatibility with supplied SUNMatrix and N_Vector */
   if (SUNMatGetID(A) != SUNMATRIX_SPARSE)
@@ -84,9 +87,10 @@ SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
        (N_VGetVectorID(y) != SUNDIALS_NVEC_PTHREADS) )
     return(NULL);
 
-  /* Optimally we would verify that the dimensions of A and y agree, but 
-   since there is no generic 'length' routine for N_Vectors we cannot */
-
+  /* optimally this function would be replaced with a generic N_Vector routine */
+  VecLength = GlobalVectorLength_SuperLUMT(y);
+  if (MatrixRows != VecLength)
+    return(NULL);
   
   /* Create linear solver */
   S = NULL;
@@ -436,4 +440,26 @@ int SUNLinSolFree_SuperLUMT(SUNLinearSolver S)
   }
   free(S); S = NULL;
   return(SUNLS_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * private functions
+ * -----------------------------------------------------------------
+ */
+
+/* Inefficient kludge for determining the number of entries in a N_Vector 
+   object (replace if such a routine is ever added to the N_Vector API).
+
+   Returns "-1" on an error. */
+sunindextype GlobalVectorLength_SuperLUMT(N_Vector y)
+{
+  realtype len;
+  N_Vector tmp = NULL;
+  tmp = N_VClone(y);
+  if (tmp == NULL)  return(-1);
+  N_VConst(ONE, tmp);
+  len = N_VDotProd(tmp, tmp);
+  N_VDestroy(tmp);
+  return( (sunindextype) len );
 }
