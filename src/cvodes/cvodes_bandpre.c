@@ -147,7 +147,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N, sunindextype mu, sunindextyp
 
   /* Allocate memory for pivot array. */
   pdata->lpivots = NULL;
-  pdata->lpivots = NewLintArray(N);
+  pdata->lpivots = NewIndexArray(N);
   if (pdata->lpivots == NULL) {
     DestroyMat(pdata->savedP);
     DestroyMat(pdata->savedJ);

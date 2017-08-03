@@ -406,7 +406,7 @@ static UserData AllocUserData(MPI_Comm comm, sunindextype local_N, sunindextype 
   for (ix = 0; ix < MXSUB; ix++) {
     for (jy = 0; jy < MYSUB; jy++) {
       (webdata->PP)[ix][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (webdata->pivot)[ix][jy] = newLintArray(NUM_SPECIES);
+      (webdata->pivot)[ix][jy] = newIndexArray(NUM_SPECIES);
     }
   }
   

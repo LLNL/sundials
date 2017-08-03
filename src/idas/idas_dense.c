@@ -180,7 +180,7 @@ int IDADense(void *ida_mem, sunindextype Neq)
   }
 
   lpivots = NULL;
-  lpivots = NewLintArray(Neq);
+  lpivots = NewIndexArray(Neq);
   if (lpivots == NULL) {
     IDAProcessError(IDA_mem, IDADLS_MEM_FAIL, "IDASDENSE", "IDADense", MSGD_MEM_FAIL);
     DestroyMat(JJ);

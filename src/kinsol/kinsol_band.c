@@ -194,7 +194,7 @@ int KINBand(void *kinmem, sunindextype N, sunindextype mupper, sunindextype mlow
   }
 
   lpivots = NULL;
-  lpivots = NewLintArray(N);
+  lpivots = NewIndexArray(N);
   if (lpivots == NULL) {
     KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINBAND", "KINBand", MSGD_MEM_FAIL);
     DestroyMat(J);

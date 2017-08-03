@@ -310,7 +310,7 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
     for (ly = 0; ly < MYSUB; ly++) {
       (data->P)[lx][ly] = newDenseMat(NVARS, NVARS);
       (data->Jbd)[lx][ly] = newDenseMat(NVARS, NVARS);
-      (data->pivot)[lx][ly] = newLintArray(NVARS);
+      (data->pivot)[lx][ly] = newIndexArray(NVARS);
     }
   }
 }
