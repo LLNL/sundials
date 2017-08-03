@@ -33,6 +33,9 @@
 #define TWO       RCONST(2.0)
 #define TWOTHIRDS RCONST(0.666666666666666666666666666666667)
 
+/* Private function prototypes */
+sunindextype GlobalVectorLength_KLU(N_Vector y);
+
 /*
  * -----------------------------------------------------------------
  * KLU solver structure accessibility macros: 
@@ -62,20 +65,25 @@ SUNLinearSolver SUNKLU(N_Vector y, SUNMatrix A)
   SUNLinearSolver S;
   SUNLinearSolver_Ops ops;
   SUNLinearSolverContent_KLU content;
+  sunindextype MatrixRows, VecLength;
   int flag;
   
   /* Check compatibility with supplied SUNMatrix and N_Vector */
   if (SUNMatGetID(A) != SUNMATRIX_SPARSE)
     return(NULL);
+  if (SUNSparseMatrix_Rows(A) != SUNSparseMatrix_Columns(A))
+    return(NULL);
+  MatrixRows = SUNSparseMatrix_Rows(A);
   if ( (N_VGetVectorID(y) != SUNDIALS_NVEC_SERIAL) &&
        (N_VGetVectorID(y) != SUNDIALS_NVEC_OPENMP) &&
        (N_VGetVectorID(y) != SUNDIALS_NVEC_PTHREADS) )
     return(NULL);
 
-  /* Optimally we would verify that the dimensions of A and y agree, but 
-   since there is no generic 'length' routine for N_Vectors we cannot */
+  /* optimally this function would be replaced with a generic N_Vector routine */
+  VecLength = GlobalVectorLength_KLU(y);
+  if (MatrixRows != VecLength)
+    return(NULL);
   
-
   /* Create linear solver */
   S = NULL;
   S = (SUNLinearSolver) malloc(sizeof *S);
@@ -455,4 +463,26 @@ int SUNLinSolFree_KLU(SUNLinearSolver S)
   }
   free(S); S = NULL;
   return(SUNLS_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * private functions
+ * -----------------------------------------------------------------
+ */
+
+/* Inefficient kludge for determining the number of entries in a N_Vector 
+   object (replace if such a routine is ever added to the N_Vector API).
+
+   Returns "-1" on an error. */
+sunindextype GlobalVectorLength_KLU(N_Vector y)
+{
+  realtype len;
+  N_Vector tmp = NULL;
+  tmp = N_VClone(y);
+  if (tmp == NULL)  return(-1);
+  N_VConst(ONE, tmp);
+  len = N_VDotProd(tmp, tmp);
+  N_VDestroy(tmp);
+  return( (sunindextype) len );
 }
