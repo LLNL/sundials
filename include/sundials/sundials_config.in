@@ -46,8 +46,8 @@
 /* Define type of vector indices in SUNDIALS 'sunindextype'. 
  * Depending on user choice of indextype, one of the following 
  * four macros will be defined:
- *     #define SUNDIALS_LONG_INT_TYPE 1
- *     #define SUNDIALS_INT_TYPE 1
+ *     #define SUNDIALS_SIGNED_64BIT_TYPE 1
+ *     #define SUNDIALS_SIGNED_32BIT_TYPE 1
  */
 @INDEX_TYPE@
 
