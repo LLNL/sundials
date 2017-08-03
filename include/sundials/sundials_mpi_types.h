@@ -21,6 +21,7 @@
  *------------------------------------------------------------------
  */
 
+#include <sundials/sundials_types.h>
 
 /* define MPI data types */
 
