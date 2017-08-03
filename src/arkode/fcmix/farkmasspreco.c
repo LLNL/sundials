@@ -15,10 +15,11 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * The C function FARKPSet is to interface between the ARKSP*
- * modules and the user-supplied preconditioner setup routine 
- * FARKPSET. Note the use of the generic name FARK_PSET in the 
- * code below.
+ * The C function FARKPSet is to interface between the 
+ * ARKSPILSMASS module and the user-supplied mass matrix 
+ * preconditioner setup/solve routines FARKPSET and FARKPSOL. 
+ * Note the use of the generic names FARK_PSET and  FARK_PSOL in
+ * the code below.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>

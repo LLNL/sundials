@@ -15,10 +15,11 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * The C function FARKJtimes is to interface between the ARKSP* 
- * modules and the user-supplied Jacobian-vector product routine
- * FARKJTIMES. Note the use of the generic name FARK_JTIMES in
- * the code below.
+ * The C functions FARKMTSetup and FARKMtimes are to interface 
+ * between the ARKSPILS and ARKSPILSMASS modules and the 
+ * user-supplied mass-matrix-vector setup/product routines
+ * FARKMTSETUP and FARKJTIMES. Note the use of the generic names
+ * FARK_MTSETUP and FARK_MTIMES in the code below.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>

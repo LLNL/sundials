@@ -15,7 +15,7 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Fortran/C interface routines for ARKODE/ARKKLU, for the case
+ * Fortran/C interface routines for ARKODE/ARDLS, for the case
  * of a user-supplied sparse Jacobian routine.
  *--------------------------------------------------------------*/
 

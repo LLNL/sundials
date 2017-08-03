@@ -16,6 +16,8 @@ SET(farkode_SOURCES
   farkbp.c
   farkdense.c
   farkdensemass.c
+  farkdiag.c
+  farkdiagmass.c
   farkewt.c
   farkexpstab.c
   farkjtimes.c
@@ -27,6 +29,54 @@ SET(farkode_SOURCES
   farksparse.c 
   farksparsemass.c
   )
+
+# Add variable shared_SOURCES with the common SUNDIALS sources which will
+# also be included in the ARKODE library
+SET(shared_SOURCES
+  ${sundials_SOURCE_DIR}/src/nvec_ser/fnvector_serial.c
+  )
+
+# Add variable sunmatrix_SOURCES with the common SUNMatrix sources which will
+# also be included in the ARKODE library
+SET(sunmatrix_SOURCES
+  ${sundials_SOURCE_DIR}/src/sunmat_band/fsunmatrix_band.c
+  ${sundials_SOURCE_DIR}/src/sunmat_dense/fsunmatrix_dense.c
+  ${sundials_SOURCE_DIR}/src/sunmat_diagonal/fsunmatrix_diagonal.c
+  ${sundials_SOURCE_DIR}/src/sunmat_sparse/fsunmatrix_sparse.c
+  )
+
+# Add variable sunlinsol_SOURCES with the common SUNLinearSolver sources which will
+# also be included in the ARKODE library
+SET(sunlinsol_SOURCES
+  ${sundials_SOURCE_DIR}/src/sunlinsol_band/fsunlinsol_band.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_dense/fsunlinsol_dense.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_diagonal/fsunlinsol_diagonal.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_spbcgs/fsunlinsol_spbcgs.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_spfgmr/fsunlinsol_spfgmr.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_spgmr/fsunlinsol_spgmr.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_sptfqmr/fsunlinsol_sptfqmr.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_pcg/fsunlinsol_pcg.c
+  )
+
+IF(KLU_FOUND)
+  LIST(APPEND sunlinsol_SOURCES
+    ${sundials_SOURCE_DIR}/src/sunlinsol_klu/fsunlinsol_klu.c
+    )
+ENDIF()
+
+IF(SUPERLUMT_FOUND)
+  LIST(APPEND sunlinsol_SOURCES
+    ${sundials_SOURCE_DIR}/src/sunlinsol_superlumt/fsunlinsol_superlumt.c
+    )
+ENDIF()
+
+IF(LAPACK_FOUND)
+  LIST(APPEND sunlinsol_SOURCES
+    ${sundials_SOURCE_DIR}/src/sunlinsol_lapackband/fsunlinsol_lapackband.c
+    ${sundials_SOURCE_DIR}/src/sunlinsol_lapackdense/fsunlinsol_lapackdense.c
+    )
+ENDIF()
+
 
 # Add source directories to include directories for access to
 # implementation only header files (both for farkode and arkode)
@@ -41,7 +91,8 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 # coming from inexistent user-provided functions)
 
 # Add the build target for the FARKODE library
-ADD_LIBRARY(sundials_farkode_static STATIC ${farkode_SOURCES})
+ADD_LIBRARY(sundials_farkode_static STATIC
+  ${farkode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES})
 
 # Set the library name and make sure it is not deleted
 SET_TARGET_PROPERTIES(sundials_farkode_static

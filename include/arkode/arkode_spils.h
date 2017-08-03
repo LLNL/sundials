@@ -433,11 +433,10 @@ typedef int (*ARKSpilsMassPrecSolveFn)(realtype t, N_Vector r,
  solver.
 
  ARKSpilsSetMassLinearSolver specifies the iterative 
- SUNLinearSolver object (and user-provided function to perform
- the mass-matrix-vector product) that ARKode should use for 
- mass-matrix systems.  This is required if ARKode is solving a
- problem with non-identity mass matrix and the user wishes to 
- use an iterative solver for these systems.
+ SUNLinearSolver object that ARKode should use for mass-matrix 
+ systems.  This is required if ARKode is solving a problem with 
+ non-identity mass matrix and the user wishes to use an iterative 
+ solver for these systems.
 
  NOTE: when solving an implicit or IMEX IVP with non-identity mass
  matrix and iterative linear solver, both the system and mass solvers
@@ -454,10 +453,7 @@ SUNDIALS_EXPORT int ARKSpilsSetLinearSolver(void *arkode_mem,
 
 SUNDIALS_EXPORT int ARKSpilsSetMassLinearSolver(void *arkode_mem, 
                                                 SUNLinearSolver LS,
-                                                booleantype time_dep,
-                                                ARKSpilsMassTimesSetupFn mtsetup,
-                                                ARKSpilsMassTimesVecFn mtimes,
-                                                void *mtimes_data);
+                                                booleantype time_dep);
 
   
 /*---------------------------------------------------------------
@@ -489,10 +485,9 @@ SUNDIALS_EXPORT int ARKSpilsSetMassLinearSolver(void *arkode_mem,
 		approximation routine (no setup).
 
  ARKSpilsSetMassTimes specifies the mtsetup and mtimes functions. 
- Note that mtimes had to be supplied when attaching the iterative 
- linear solver to the ARKSpils interface, so this routine is 
- primarily provided to allow supplying mtsetup or to modify previous 
- inputs.
+ Note that there do not exist built-in finite-difference approximation
+ routines for this, this function MUST be called with non-NULL 'mtimes' 
+ if ARKSpilsSetMassLinearSolver was called.
 
  The return value of ARKSpilsSet* is one of:
     ARKSPILS_SUCCESS      if successful

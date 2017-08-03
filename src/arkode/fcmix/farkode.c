@@ -18,9 +18,8 @@
  * This is the implementation file for the Fortran interface to
  * the ARKODE package.  See farkode.h for usage.
  * NOTE: some routines are necessarily stored elsewhere to avoid
- * linking problems.  Therefore, see also farkpreco.c, farkpsol.c,
- * farkjtimes.c, farkadapt.c and farkexpstab.c for all the 
- * available options.
+ * linking problems.  Therefore, see also the other C files in 
+ * this folder for all of the available options.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -106,10 +105,10 @@ void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
   ARK_arkodemem = NULL;
   Vatol = NULL;
 
-  /* initialize global constants to zero */
+  /* initialize global constants to disable each option */
   ARK_nrtfn = 0;
-  ARK_ls = 0;
-  ARK_mass_ls = 0;
+  ARK_ls = -1;
+  ARK_mass_ls = -1;
 
   /* Create ARKODE object */
   ARK_arkodemem = ARKodeCreate();
@@ -588,29 +587,20 @@ void FARK_DLSMASSINIT(int *time_dep, int *ier) {
   switch(Mtype) {
   case SUNMATRIX_DENSE:
     *ier = ARKDlsSetMassLinearSolver(ARK_arkodemem, F2C_ARKODE_mass_sol, 
-                                     F2C_ARKODE_mass_matrix, *time_dep, 
-                                     FARKDenseMass);
+                                     F2C_ARKODE_mass_matrix, *time_dep);
     break;
   case SUNMATRIX_BAND:
     *ier = ARKDlsSetMassLinearSolver(ARK_arkodemem, F2C_ARKODE_mass_sol, 
-                                     F2C_ARKODE_mass_matrix, *time_dep, 
-                                     FARKBandMass);
+                                     F2C_ARKODE_mass_matrix, *time_dep);
     break;
   case SUNMATRIX_DIAGONAL:
     *ier = ARKDlsSetMassLinearSolver(ARK_arkodemem, F2C_ARKODE_mass_sol, 
-                                     F2C_ARKODE_mass_matrix, *time_dep, 
-                                     FARKDiagMass);
+                                     F2C_ARKODE_mass_matrix, *time_dep);
     break;
   case SUNMATRIX_SPARSE:
     *ier = ARKDlsSetMassLinearSolver(ARK_arkodemem, F2C_ARKODE_mass_sol, 
-                                     F2C_ARKODE_mass_matrix, *time_dep, 
-                                     FARKSparseMass);
+                                     F2C_ARKODE_mass_matrix, *time_dep);
     break;
-  /* case SUNMATRIX_CUSTOM: */
-  /*   *ier = ARKDlsSetMassLinearSolver(ARK_arkodemem, F2C_ARKODE_mass_sol,  */
-  /*                                    F2C_ARKODE_mass_matrix, *time_dep,  */
-  /*                                    FARKCustomMass); */
-  /*   break; */
   default:
     *ier = -1;
   }
@@ -642,8 +632,7 @@ void FARK_SPILSMASSINIT(int *time_dep, int *ier) {
   }
   *ier = ARKSpilsSetMassLinearSolver(ARK_arkodemem, 
                                      F2C_ARKODE_mass_sol, 
-                                     *time_dep, FARKMTSetup, 
-                                     FARKMtimes, NULL);
+                                     *time_dep);
   ARK_mass_ls = ARK_LS_ITERATIVE;
   return;
 }
@@ -702,8 +691,8 @@ void FARK_ARKODE(realtype *tout, realtype *t, realtype *y,
   ARKodeGetTolScaleFactor(ARK_arkodemem, 
 			  &ARK_rout[4]);    /* TOLSFAC */
   ARKodeGetNonlinSolvStats(ARK_arkodemem,
-                          &ARK_iout[10],    /* NNI     */
-                          &ARK_iout[11]);   /* NCFN    */
+                           &ARK_iout[10],   /* NNI     */
+                           &ARK_iout[11]);  /* NCFN    */
   
   /* If root finding is on, load those outputs as well */
   if (ARK_nrtfn != 0)

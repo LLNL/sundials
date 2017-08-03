@@ -177,15 +177,11 @@ int ARKSpilsSetLinearSolver(void *arkode_mem, SUNLinearSolver LS)
 ---------------------------------------------------------------*/
 int ARKSpilsSetMassLinearSolver(void *arkode_mem,
                                 SUNLinearSolver LS,
-                                booleantype time_dep,
-                                ARKSpilsMassTimesSetupFn mtsetup,
-                                ARKSpilsMassTimesVecFn mtimes,
-                                void *mtimes_data)
+                                booleantype time_dep)
 {
   int retval;
   ARKodeMem ark_mem;
   ARKSpilsMassMem arkspils_mem;
-  ATSetupFn arkspils_mtsetup;
 
   /* Return immediately if arkode_mem, LS or mtimes are NULL */
   if (arkode_mem == NULL) {
@@ -194,10 +190,10 @@ int ARKSpilsSetMassLinearSolver(void *arkode_mem,
                     MSGS_ARKMEM_NULL);
     return(ARKSPILS_MEM_NULL);
   }
-  if ( (LS == NULL) || (mtimes == NULL) ){
+  if (LS == NULL) {
     arkProcessError(NULL, ARKSPILS_ILL_INPUT, "ARKSPILS", 
 		    "ARKSpilsSetLinearSolver", 
-                    "LS and mtimes must be non-NULL");
+                    "LS must be non-NULL");
     return(ARKSPILS_ILL_INPUT);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -243,10 +239,10 @@ int ARKSpilsSetMassLinearSolver(void *arkode_mem,
   arkspils_mem->LS = LS;
   arkspils_mem->time_dependent = time_dep;
 
-  /* Set mass-matrix-vector product routine */
-  arkspils_mem->mtsetup = mtsetup;
-  arkspils_mem->mtimes  = mtimes;
-  arkspils_mem->mt_data = mtimes_data;
+  /* Set mass-matrix-vector product routines to NULL */
+  arkspils_mem->mtsetup = NULL;
+  arkspils_mem->mtimes  = NULL;
+  arkspils_mem->mt_data = NULL;
 
   /* Set defaults for preconditioner-related fields */
   arkspils_mem->pset   = NULL;
@@ -262,9 +258,7 @@ int ARKSpilsSetMassLinearSolver(void *arkode_mem,
   arkspils_mem->last_flag = ARKSPILS_SUCCESS;
 
   /* Attach default ARKSpils interface routines to iterative LS */
-  arkspils_mtsetup = (mtsetup == NULL) ? NULL : ARKSpilsMTSetup;
-  retval = SUNLinSolSetATimes(LS, ark_mem, arkspils_mtsetup,
-                              ARKSpilsMTimes);
+  retval = SUNLinSolSetATimes(LS, ark_mem, NULL, NULL);
   if (retval != SUNLS_SUCCESS) {
     arkProcessError(ark_mem, ARKSPILS_SUNLS_FAIL, "ARKSPILS", 
                     "ARKSpilsSetMassLinearSolver", 
