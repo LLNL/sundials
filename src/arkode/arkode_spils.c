@@ -1530,8 +1530,8 @@ int arkSpilsSolve(ARKodeMem ark_mem, N_Vector b, N_Vector ynow,
 
   /* Set scaling vectors for LS to use */
   retval = SUNLinSolSetScalingVectors(arkspils_mem->LS,
-                                      ark_mem->ark_rwt,
-                                      ark_mem->ark_ewt);
+                                      ark_mem->ark_ewt,
+                                      ark_mem->ark_rwt);
 
   /* Store previous nps value in nps_inc */
   nps_inc = arkspils_mem->nps;
@@ -1729,8 +1729,8 @@ int arkSpilsMassSolve(ARKodeMem ark_mem, N_Vector b)
 
   /* Set scaling vectors for LS to use */
   retval = SUNLinSolSetScalingVectors(arkspils_mem->LS,
-                                      ark_mem->ark_rwt,
-                                      ark_mem->ark_ewt);
+                                      ark_mem->ark_ewt,
+                                      ark_mem->ark_rwt);
   if (retval != SUNLS_SUCCESS) {
     arkspils_mem->last_flag = retval;
     return(retval);

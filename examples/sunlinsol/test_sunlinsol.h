@@ -1,7 +1,6 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): David J. Gardner @ LLNL
- *                Daniel R. Reynolds @ SMU
+ * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * LLNS/SMU Copyright Start
  * Copyright (c) 2017, Southern Methodist University and 

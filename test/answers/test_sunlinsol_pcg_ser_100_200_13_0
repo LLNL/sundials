@@ -1,0 +1,44 @@
+
+PCG linear solver test:
+  nprocs = 1
+  local/global problem sizes = 100/100
+  Maximum Krylov subspace dimension = 200
+  Solver Tolerance = 1e-13
+  timing output flag = 0
+
+    PASSED test -- SUNLinSolGetType 
+    PASSED test -- SUNLinSolSetATimes 
+    PASSED test -- SUNLinSolSetPreconditioner 
+    PASSED test -- SUNLinSolSetScalingVectors 
+    PASSED test -- SUNLinSolInitialize 
+    PASSED test -- SUNLinSolSpace, lenrw = 401, leniw = 8
+SUCCESS: SUNPCG module passed all initialization tests
+
+    PASSED test -- SUNLinSolSetup 
+    PASSED test -- SUNLinSolSolve 
+    PASSED test -- SUNLinSolLastFlag (0) 
+    PASSED test -- SUNLinSolNumIters (22) 
+    PASSED test -- SUNLinSolResNorm
+SUCCESS: SUNPCG module, problem 1, passed all tests
+
+    PASSED test -- SUNLinSolSetup 
+    PASSED test -- SUNLinSolSolve 
+    PASSED test -- SUNLinSolLastFlag (0) 
+    PASSED test -- SUNLinSolNumIters (22) 
+    PASSED test -- SUNLinSolResNorm
+SUCCESS: SUNPCG module, problem 2, passed all tests
+
+    PASSED test -- SUNLinSolSetup 
+    PASSED test -- SUNLinSolSolve 
+    PASSED test -- SUNLinSolLastFlag (0) 
+    PASSED test -- SUNLinSolNumIters (189) 
+    PASSED test -- SUNLinSolResNorm
+SUCCESS: SUNPCG module, problem 3, passed all tests
+
+    PASSED test -- SUNLinSolSetup 
+    PASSED test -- SUNLinSolSolve 
+    PASSED test -- SUNLinSolLastFlag (0) 
+    PASSED test -- SUNLinSolNumIters (22) 
+    PASSED test -- SUNLinSolResNorm
+SUCCESS: SUNPCG module, problem 4, passed all tests
+

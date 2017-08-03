@@ -1,7 +1,8 @@
 /*
  * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
- *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
+ * Based on sundials_klu_impl.h and arkode_klu.h/cvode_klu.h/... 
+ *     code, written by Carol S. Woodward @ LLNL
  * -----------------------------------------------------------------
  * LLNS/SMU Copyright Start
  * Copyright (c) 2017, Southern Methodist University and 

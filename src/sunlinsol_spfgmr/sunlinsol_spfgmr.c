@@ -1,7 +1,6 @@
 /*
  * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
- *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
  * Based on sundials_spfgmr.c code, written by Daniel R. Reynolds 
  *                and Hilari C. Tiedeman @ SMU
  * -----------------------------------------------------------------

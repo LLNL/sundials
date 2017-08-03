@@ -1,7 +1,8 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds, Ashley Crawford @ SMU
- *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
+ * Programmer(s): Daniel Reynolds @ SMU
+ * Based on code sundials_spbcgs.h by: Peter Brown and 
+ *     Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * LLNS/SMU Copyright Start
  * Copyright (c) 2017, Southern Methodist University and 
@@ -53,8 +54,9 @@
  *      || bbar - Abar xbar ||_2  <  delta
  * with an input test constant delta.
  *
- * The usage of this SPBCGS solver involves supplying four routines
- * and making three calls.  The user-supplied routines are
+ * The usage of this SPBCGS solver involves supplying up to four 
+ * routines and making up to eleven calls.  The user-supplied 
+ * routines are
  *    atimes (A_data, x, y) to compute y = A x, given x,
  *    psolve (P_data, y, x, lr) to solve P1 x = y or P2 x = y for 
  *           x, given y,
@@ -62,13 +64,15 @@
  *           preparation for calling atimes, and
  *    psetup (P_data) to perform any 'setup' operations in 
  *           preparation for calling psolve.
- * The three user calls are:
+ * The user calls are:
  *    SUNLinearSolver LS = SUNSPBCGS(y, pretype, maxl);
  *           to create the linear solver structure,
  *    flag = SUNLinSolSetATimes(LS, A_data, atsetup, atimes);
  *           to set the matrix-vector product setup/apply routines,
  *    flag = SUNLinSolSetPreconditioner(LS, P_data, psetup, psolve);
  *           to *optionally* set the preconditioner setup/apply routines,
+ *    flag = SUNLinSolSetScalingVectors(LS, s1, s2);
+ *           to *optionally* set the diagonals of the scaling matrices.
  *    flag = SUNLinSolInitialize(LS);
  *           to perform internal solver memory allocations,
  *    flag = SUNLinSolSetup(LS, NULL);
@@ -80,6 +84,8 @@
  *           performed by the solver,
  *    long int lastflag = SUNLinSolLastFlag(LS);
  *           to *optionally* retrieve the last internal solver error flag,
+ *    realtype resnorm = SUNLinSolResNorm(LS);
+ *           to *optionally* retrieve the final linear residual norm,
  *    flag = SUNLinSolFree(LS);
  *           to free the solver memory.
  * Complete details for specifying atsetup, atimes, psetup and psolve 
@@ -135,6 +141,8 @@ extern "C" {
  *     Psetup -- function pointer to preconditioner setup routine
  *     Psolve -- function pointer to preconditioner solve routine
  *     PData -- pointer to structure for Psetup/Psolve
+ *     s1,s2 -- vectors (type N_Vector) which holds the diagonals
+ *         of the scaling matrices S1 and S2, respectively
  *     r -- a vector (type N_Vector) which holds the scaled,
  *         preconditioned linear system residual
  *     r_star -- a vector (type N_Vector) which holds the initial 

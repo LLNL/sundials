@@ -1,7 +1,6 @@
 /*
  * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
- *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
  * Based on sundials_sptfqmr.c code, written by Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * LLNS/SMU Copyright Start
