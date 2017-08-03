@@ -1,7 +1,9 @@
 /*
  * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
- *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
+ *                David Gardner @ LLNL
+ * Based on code sundials_dense.c by: Scott D. Cohen, 
+ *     Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * LLNS/SMU Copyright Start
  * Copyright (c) 2017, Southern Methodist University and 

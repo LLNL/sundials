@@ -1,7 +1,8 @@
 /*
  * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
- *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
+ * Based on codes sundials_superlumt_impl.h and <solver>_superlumt.h
+ *     written by Carol S. Woodward @ LLNL
  * -----------------------------------------------------------------
  * LLNS/SMU Copyright Start
  * Copyright (c) 2017, Southern Methodist University and 

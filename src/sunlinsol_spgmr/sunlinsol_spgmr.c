@@ -1,7 +1,6 @@
 /*
  * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
- *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
  * Based on sundials_spgmr.c code, written by Scott D. Cohen, 
  *                Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------

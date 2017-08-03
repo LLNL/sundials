@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds, Ashley Crawford @ SMU
- *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
+ * Programmer(s): Daniel Reynolds @ SMU
+ * Based on code sundials_sptfqmr.h by: Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * LLNS/SMU Copyright Start
  * Copyright (c) 2017, Southern Methodist University and 

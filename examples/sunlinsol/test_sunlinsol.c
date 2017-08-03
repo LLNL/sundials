@@ -1,7 +1,7 @@
 /*
  * ----------------------------------------------------------------- 
- * Programmer(s): David J. Gardner @ LLNL
- *                Daniel R. Reynolds @ SMU
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *                David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * LLNS/SMU Copyright Start
  * Copyright (c) 2017, Southern Methodist University and 
@@ -356,6 +356,8 @@ int Test_SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   if (failure) {
     printf(">>> FAILED test -- SUNLinSolSolve returned %d on Proc %d \n", 
            failure, myid);
+  }
+  if (failure < 0) {
     N_VDestroy(y);
     return(1);
   }
