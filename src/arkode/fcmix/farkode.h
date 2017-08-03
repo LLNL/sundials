@@ -47,10 +47,10 @@
    FSUNDIAGONALMATINIT        SUNDiagonalMatrix
    FSUNSPARSEMATINIT          SUNSparseMatrix
 
-   FSUNMASSBANDMATINIT        SUNBandMatrix
-   FSUNMASSDENSEMATINIT       SUNDenseMatrix
-   FSUNMASSDIAGONALMATINIT    SUNDiagonalMatrix
-   FSUNMASSSPARSEMATINIT      SUNSparseMatrix
+   FSUNBANDMASSMATINIT        SUNBandMatrix
+   FSUNDENSEMASSMATINIT       SUNDenseMatrix
+   FSUNDIAGONALMASSMATINIT    SUNDiagonalMatrix
+   FSUNSPARSEMASSMATINIT      SUNSparseMatrix
 
    FSUNBANDLINSOLINIT         SUNBandLinearSolver
    FSUNDENSELINSOLINIT        SUNDenseLinearSolver
@@ -1798,7 +1798,7 @@ extern "C" {
   void FARK_DENSESETJAC(int *flag, int *ier);
   void FARK_BANDSETJAC(int *flag, int *ier);
   void FARK_SPARSESETJAC(int *ier);
-  void FARK_DIAGSETJAC(int *ier);
+  void FARK_DIAGSETJAC(int *flag, int *ier);
 
   void FARK_DENSESETMASS(int *ier);
   void FARK_BANDSETMASS(int *ier);

@@ -15,7 +15,7 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Fortran/C interface routines for ARKODE/ARKBAND, for the case 
+ * Fortran/C interface routines for ARKODE/ARKDLS, for the case 
  * of a user-supplied Jacobian approximation routine.                
  *--------------------------------------------------------------*/
 

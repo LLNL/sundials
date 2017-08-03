@@ -38,9 +38,8 @@
 ! 
 ! This program uses the IMEX ARK solver; here the 
 ! implicit systems are solved with a modified Newton iteration
-! with the ARKDENSE dense linear solver.  The Jacobian routine 
-! and right-hand side routines come from the file user-supplied 
-! Jacobian routine.
+! with the SUNDENSE linear solver.  The Jacobian routine and 
+! right-hand side routines are supplied.
 !
 ! Output is printed 10 times throughout the defined time interval.
 ! Run statistics (optional outputs) are printed at the end.
@@ -102,6 +101,10 @@ program driver
      stop
   endif
 
+  ! initialize dense matrix and dense linear solver modules
+  call FSunDenseMatInit(4, NEQ, NEQ, ier)
+  call FSunDenseLinSolInit(4, ier)
+  
   ! initialize ARKode solver to use IMEX integrator, scalar tolerances
   call FARKMalloc(T0, y, 2, 1, rtol, atol, &
                   iout, rout, ipar, rpar, ier)
@@ -127,12 +130,14 @@ program driver
      stop
   endif
 
-  ! specify use of dense linear solver
-  call FARKDense(NEQ, ier)
+  ! attach matrix and linear solver modules to ARKDls interface
+  call FARKDlsInit(ier)
   if (ier < 0) then
-     write(0,*) 'Error in FARKDense = ',ier
+     write(0,*) 'Error in FARKDlsInit = ',ier
      stop
   endif
+
+  ! notify ARKDls module of user-supplied Jacobian construction routine
   call FARKDenseSetJac(1, ier)
   if (ier < 0) then
      write(0,*) 'Error in FARKDenseSetJac = ',ier

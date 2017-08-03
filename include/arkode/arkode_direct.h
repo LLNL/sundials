@@ -166,8 +166,7 @@ SUNDIALS_EXPORT int ARKDlsSetLinearSolver(void *arkode_mem,
 SUNDIALS_EXPORT int ARKDlsSetMassLinearSolver(void *arkode_mem, 
                                               SUNLinearSolver LS,
                                               SUNMatrix M,
-                                              booleantype time_dep,
-                                              ARKDlsMassFn mass);
+                                              booleantype time_dep);
 
 /*---------------------------------------------------------------
  Optional inputs to the ARKDLS linear solver interface:

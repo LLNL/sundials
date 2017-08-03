@@ -143,8 +143,7 @@ int ARKDlsSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
  linear solver and user-supplied routine to fill the mass matrix
 ---------------------------------------------------------------*/
 int ARKDlsSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
-                              SUNMatrix M, booleantype time_dep,
-                              ARKDlsMassFn dmass)
+                              SUNMatrix M, booleantype time_dep)
 {
   ARKodeMem ark_mem;
   ARKDlsMassMem arkdls_mem;
@@ -156,10 +155,10 @@ int ARKDlsSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
                     MSGD_ARKMEM_NULL);
     return(ARKDLS_MEM_NULL);
   }
-  if ( (LS == NULL) || (M == NULL) || (dmass == NULL) ) {
+  if ( (LS == NULL) || (M == NULL) ) {
     arkProcessError(NULL, ARKDLS_ILL_INPUT, "ARKDLS", 
 		    "ARKDlsSetMassLinearSolver",
-                    "Both LS and M and dmass must be non-NULL");
+                    "Both LS and M must be non-NULL");
     return(ARKDLS_ILL_INPUT);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -207,7 +206,7 @@ int ARKDlsSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   arkdls_mem->time_dependent = time_dep;
 
   /* Initialize mass-matrix-related data */
-  arkdls_mem->mass = dmass;
+  arkdls_mem->mass = NULL;
   arkdls_mem->last_flag = ARKDLS_SUCCESS;
 
   /* Initialize counters */

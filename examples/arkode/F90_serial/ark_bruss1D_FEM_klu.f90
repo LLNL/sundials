@@ -47,9 +47,13 @@
 !    a=0.6,  b=2.0,  du=0.025,  dv=0.025,  dw=0.025,  ep=1.d-5
 !
 ! This program solves the problem with the DIRK method, using a 
-! Newton iteration with the ARKKLU and ARKMASSKLU sparse linear 
-! solvers, where we store the Jacobian and mass matrices in 
+! Newton iteration with the SUNKLU sparse linear solvers for both 
+! the system and mass matrices.  These matrices are stored in 
 ! compressed-sparse-row format.
+!
+! This program assumes that SUNDIALS was configured with
+! realtype==double and sunindextype=64bit (should seg-fault
+! otherwise).
 !
 ! Output is printed 10 times throughout the defined time interval.
 ! Run statistics (optional outputs) are printed at the end.
@@ -61,7 +65,7 @@ module UserData
   implicit none
   save
   
-  integer :: N                     ! number of intervals
+  integer*8 :: N                   ! number of intervals
   real*8, allocatable :: x(:)      ! mesh node locations
   real*8 :: a                      ! constant forcing on u
   real*8 :: b                      ! steady-state value of w
@@ -171,8 +175,8 @@ program driver
   ! general problem variables
   real*8, parameter :: T0=0.d0, Tf=10.d0
   real*8    :: dTout, Tout, Tcur, rtol, atol, pi, h, z, rout(6)
-  integer   :: i, it, Nt, ier, idef, ineq, nnz, ordering, sparsetype
-  integer*8 :: NEQ, iout(29)
+  integer   :: i, it, Nt, ier, ordering, sparsetype, time_dep
+  integer*8 :: NEQ, nnz, iout(29)
   real*8, allocatable :: y(:,:), umask(:,:), vmask(:,:), wmask(:,:)
 
   ! dummy real/integer parameters to pass through to supplied functions
@@ -239,6 +243,17 @@ program driver
   ! initialize vector module
   call FNVInitS(4, NEQ, ier)
 
+  ! initialize system and mass matrix modules
+  nnz = 15*NEQ     ! integer number of nonzeros           
+  ordering = 0     ! AMD
+  sparsetype = 1   ! CSR
+  call FSunSparseMatInit(4, NEQ, NEQ, nnz, sparsetype, ier)
+  call FSunSparseMassMatInit(NEQ, NEQ, nnz, sparsetype, ier)
+
+  ! initialize KLU system and mass solvers
+  call FSunKLUInit(4, ier)
+  call FSunMassKLUInit(ier)
+  
   ! initialize ARKode solver
   ipar = 0
   rpar = 0.0
@@ -252,14 +267,11 @@ program driver
   call FARKSetIin('MAX_NSTEPS', 1000, ier)
   call FARKSetResTolerance(1, atol, ier)
 
-  ! specify use of KLU linear solvers
-  ineq = NEQ       ! convert to 'normal' integer type
-  nnz = 15*NEQ     ! integer number of nonzeros           
-  ordering = 0     ! AMD
-  sparsetype = 1   ! CSR
-  call FARKKLU(ineq, nnz, sparsetype, ordering, ier)
+  ! attach matrix and linear solver objects to ARKDls interfaces
+  time_dep = 0
+  call FARKDlsInit(ier)
   call FARKSparseSetJac(ier)
-  call FARKMassKLU(ineq, nnz, sparsetype, ordering, ier)
+  call FARKDlsMassInit(time_dep, ier)
   call FARKSparseSetMass(ier)
 
   ! Open output stream for results
@@ -564,13 +576,14 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
   ! Arguments
   real*8,    intent(in)  :: t, h, rpar(1)
   real*8,    intent(in), dimension(3,N) :: y, fy, wk1, wk2, wk3
-  integer,   intent(in)  :: neq, nnz
+  integer*8, intent(in)  :: neq, nnz
   integer*8, intent(in)  :: ipar(1)
   real*8,    intent(out) :: Jdata(nnz)
-  integer,   intent(out) :: Jcolvals(nnz), Jrowptrs(neq+1), ier
+  integer*8, intent(out) :: Jcolvals(nnz), Jrowptrs(neq+1)
+  integer,   intent(out) :: ier
 
   ! Local data
-  integer :: ix, nz
+  integer :: ix, nz, Nint
   real*8  :: ul, uc, ur, vl, vc, vr, wl, wc, wr, xl, xc, xr
   real*8  :: u1, u2, u3, v1, v2, v3, w1, w2, w3
   real*8  :: f1, f2, f3, df1, df2, df3, dQdf1, dQdf2, dQdf3
@@ -583,6 +596,9 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
      return
   endif
 
+  ! set integer*4 version of N for call to idx()
+  Nint = N
+  
   ! clear out Jacobian matrix data
   Jdata = 0.d0
   nz = 0
@@ -968,12 +984,12 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
   enddo
 
   ! Dirichlet boundary at right
-  Jrowptrs(idx(N,1)+1) = nz
-  Jrowptrs(idx(N,2)+1) = nz
-  Jrowptrs(idx(N,3)+1) = nz
+  Jrowptrs(idx(Nint,1)+1) = nz
+  Jrowptrs(idx(Nint,2)+1) = nz
+  Jrowptrs(idx(Nint,3)+1) = nz
  
   ! signal end of data in CSR matrix
-  Jrowptrs(idx(N,3)+2) = nz
+  Jrowptrs(idx(Nint,3)+2) = nz
 
   ier = 0
   return
@@ -998,13 +1014,14 @@ subroutine farkspmass(t, neq, nnz, Mdata, Mcolvals, Mrowptrs, &
   ! Arguments
   real*8,    intent(in)  :: t, rpar(1)
   real*8,    intent(in), dimension(3,N) :: wk1, wk2, wk3
-  integer,   intent(in)  :: neq, nnz
+  integer*8, intent(in)  :: neq, nnz
   integer*8, intent(in)  :: ipar(1)
   real*8,    intent(out) :: Mdata(nnz)
-  integer,   intent(out) :: Mcolvals(nnz), Mrowptrs(neq+1), ier
+  integer*8, intent(out) :: Mcolvals(nnz), Mrowptrs(neq+1)
+  integer,   intent(out) :: ier
 
   ! Local data
-  integer :: ix, nz
+  integer :: ix, nz, Nint
   real*8  :: xl, xc, xr, Ml, Mc, Mr, ChiL1, ChiL2, ChiL3, ChiR1, ChiR2, ChiR3
   logical :: left, right
 
@@ -1014,11 +1031,14 @@ subroutine farkspmass(t, neq, nnz, Mdata, Mcolvals, Mrowptrs, &
      return
   endif
 
+  ! set integer*4 version of N for call to idx()
+  Nint = N
+  
   ! clear out Jacobian matrix data
   Mdata = 0.d0
+  nz = 0
 
   ! iterate through nodes, filling in matrix by rows
-  nz = 0
   do ix=1,N
 
      ! set booleans to determine whether intervals exist on the left/right */
@@ -1125,7 +1145,7 @@ subroutine farkspmass(t, neq, nnz, Mdata, Mcolvals, Mrowptrs, &
   enddo
 
   ! signal end of data in CSR matrix
-  Mrowptrs(idx(N,3)+2) = nz
+  Mrowptrs(idx(Nint,3)+2) = nz
 
   ier = 0
   return

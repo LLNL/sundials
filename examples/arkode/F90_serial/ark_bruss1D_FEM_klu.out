@@ -52,5 +52,5 @@ ARKode solver parameters:
     Total number of nonlinear iterations =                  1209
     Total number of nonlinear solver convergence failures =                     0
     Total number of error test failures =                     0
-    Total number of mass matrix evaluations =                   157
+    Total number of mass matrix evaluations =                     1
    
