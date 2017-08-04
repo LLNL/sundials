@@ -117,7 +117,7 @@ int CVLapackDense(void *cvode_mem, int N)
     return(CVDLS_ILL_INPUT);
   }
 
-  if (lfree !=NULL) lfree(cv_mem);
+  if (cv_mem->cv_lfree !=NULL) cv_mem->cv_lfree(cv_mem);
 
   /* Set four main function fields in cv_mem */
   cv_mem->cv_linit  = cvLapackDenseInit;
@@ -224,7 +224,7 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
     return(CVDLS_ILL_INPUT);
   }
 
-  if (lfree != NULL) lfree(cv_mem);
+  if (cv_mem->cv_lfree != NULL) cv_mem->cv_lfree(cv_mem);
 
   /* Set four main function fields in cv_mem */  
   cv_mem->cv_linit  = cvLapackBandInit;
@@ -422,7 +422,7 @@ static int cvLapackDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   int intn;
 
   cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
-  intn = (int) n;
+  intn = (int) cvdls_mem->d_n;
 
   bd = N_VGetArrayPointer(b);
 
@@ -516,7 +516,7 @@ static int cvLapackBandSetup(CVodeMem cv_mem, N_Vector tmp1,
   
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
   dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
-  jbad = (cv_mem->cv_nst == 0) || (cv_mem->cv_nst > cvdls_mem->d__nstlj + CVD_MSBJ) ||
+  jbad = (cv_mem->cv_nst == 0) || (cv_mem->cv_nst > cvdls_mem->d_nstlj + CVD_MSBJ) ||
     ((cv_mem->cv_convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
     (cv_mem->cv_convfail == CV_FAIL_OTHER);
   jok = !jbad;

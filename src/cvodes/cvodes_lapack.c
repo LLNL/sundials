@@ -364,14 +364,14 @@ static int cvLapackDenseSetup(void* current_state, N_Vector tmp1,
   dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
   jbad = (cv_mem->cv_nst == 0) ||
     (cv_mem->cv_nst > cvdls_mem->d_nstlj + CVD_MSBJ) ||
-    ((convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
-    (convfail == CV_FAIL_OTHER);
+    ((cv_mem->cv_convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
+    (cv_mem->cv_convfail == CV_FAIL_OTHER);
   jok = !jbad;
   
   if (jok) {
     
     /* If jok = TRUE, use saved copy of J */
-    *jcurPtr = FALSE;
+    cv_mem->cv_jcur = FALSE;
     dcopy_f77(&lenmat, cvdls_mem->d_savedJ->data, &one,
               cvdls_mem->d_M->data, &one);
     
@@ -380,7 +380,7 @@ static int cvLapackDenseSetup(void* current_state, N_Vector tmp1,
     /* If jok = FALSE, call jac routine for new J value */
     cvdls_mem->d_nje++;
     cvdls_mem->d_nstlj = cv_mem->cv_nst;
-    *jcurPtr = TRUE;
+    cv_mem->cv_jcur = TRUE;
     SetToZero(cvdls_mem->d_M);
 
     retval = cvdls_mem->d_djac(cvdls_mem->d_n, cur_state->t,
@@ -528,14 +528,14 @@ static int cvLapackBandSetup(void* current_state, N_Vector tmp1,
   dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
   jbad = (cv_mem->cv_nst == 0) ||
     (cv_mem->cv_nst > cvdls_mem->d_nstlj + CVD_MSBJ) ||
-    ((convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
-    (convfail == CV_FAIL_OTHER);
+    ((cv_mem->cv_convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
+    (cv_mem->cv_convfail == CV_FAIL_OTHER);
   jok = !jbad;
   
   if (jok) {
     
     /* If jok = TRUE, use saved copy of J */
-    *jcurPtr = FALSE;
+    cv_mem->cv_jcur = FALSE;
     dcopy_f77(&lenmat, cvdls_mem->d_savedJ->data, &one,
               cvdls_mem->d_M->data, &one);
     
@@ -544,7 +544,7 @@ static int cvLapackBandSetup(void* current_state, N_Vector tmp1,
     /* If jok = FALSE, call jac routine for new J value */
     cvdls_mem->d_nje++;
     cvdls_mem->d_nstlj = cv_mem->cv_nst;
-    *jcurPtr = TRUE;
+    cv_mem->cv_jcur = TRUE;
     SetToZero(cvdls_mem->d_M); 
 
     retval = cvdls_mem->d_bjac(cvdls_mem->d_n, cvdls_mem->d_mu,

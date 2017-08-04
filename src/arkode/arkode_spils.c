@@ -444,6 +444,7 @@ int ARKSpilsGetWorkSpace(void *arkode_mem, sunindextype *lenrw,
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
   sunindextype lrw1, liw1;
+  long int lrw, liw;
 
   /* Return immediately if arkode_mem or ark_mem->ark_lmem are NULL */
   if (arkode_mem == NULL) {
@@ -465,9 +466,9 @@ int ARKSpilsGetWorkSpace(void *arkode_mem, sunindextype *lenrw,
   *leniw = 10 + 2*liw1;
 
   /* add LS sizes */
-  SUNLinSolSpace(arkspils_mem->LS, &lrw1, &liw1);
-  *lenrw += lrw1;
-  *leniw += liw1;
+  SUNLinSolSpace(arkspils_mem->LS, &lrw, &liw);
+  *lenrw += lrw;
+  *leniw += liw;
 
   return(ARKSPILS_SUCCESS);
 }
@@ -856,6 +857,7 @@ int ARKSpilsGetMassWorkSpace(void *arkode_mem, sunindextype *lenrw,
   ARKodeMem ark_mem;
   ARKSpilsMassMem arkspils_mem;
   sunindextype lrw1, liw1;
+  long int lrw, liw;
 
   /* Return immediately if arkode_mem or ark_mem->ark_mass_mem are NULL */
   if (arkode_mem == NULL) {
@@ -877,9 +879,9 @@ int ARKSpilsGetMassWorkSpace(void *arkode_mem, sunindextype *lenrw,
   *leniw = 8 + liw1;
 
   /* add LS sizes */
-  SUNLinSolSpace(arkspils_mem->LS, &lrw1, &liw1);
-  *lenrw += lrw1;
-  *leniw += liw1;
+  SUNLinSolSpace(arkspils_mem->LS, &lrw, &liw);
+  *lenrw += lrw;
+  *leniw += liw;
 
   return(ARKSPILS_SUCCESS);
 }
