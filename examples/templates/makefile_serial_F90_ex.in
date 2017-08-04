@@ -42,6 +42,7 @@ F90_LIBS    = @F90_LIBS@
 
 LINKFLAGS = -Wl,-rpath,@libdir@
 
+INCLUDES = -I${includedir}
 LIBRARIES = -l@SOLVER_FLIB@ -l@SOLVER_LIB@ -lsundials_fnvecserial -lsundials_nvecserial ${LIBS}
 LIBRARIES_BL = @BLAS_LAPACK_LIBS@
 LIBRARIES_SLUMT = @SUPERLUMT_LIBS@
@@ -56,14 +57,14 @@ OBJECTS = ${EXAMPLES:=.o}
 .SUFFIXES : .o .f90
 
 .f90.o :
-	${F90} ${F90FLAGS} -c $<
+	${F90} ${F90FLAGS} ${INCLUDES} -c $<
 
 # -----------------------------------------------------------------------------------------
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${F90} -o $${i} $${i}.o ${F90_LDFLAGS} ${F90_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LINKFLAGS}" ; \
-	  ${F90} -o $${i} $${i}.o ${F90_LDFLAGS} ${F90_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LINKFLAGS} ; \
+	  echo "${F90} -o $${i} $${i}.o ${F90_LDFLAGS} ${F90_LIBS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LINKFLAGS}" ; \
+	  ${F90} -o $${i} $${i}.o ${F90_LDFLAGS} ${F90_LIBS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LINKFLAGS} ; \
 	done
 
 clean:

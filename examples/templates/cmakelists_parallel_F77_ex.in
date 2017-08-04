@@ -40,9 +40,21 @@ MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 # Set the names of the examples to be built
 SET(examples @EXAMPLES@)
 
+# Set names of examples specific dependency source files
+SET(examples_dependencies @EXAMPLES_DEPENDENCIES@)
+
 # Set name of MPI compiler to be used (F77 or MPIF77)
 SET(MPI_MPIF77 @MPIF77@ CACHE STRING "MPIF77 compiler script")
 SET(CMAKE_Fortran_COMPILER ${MPI_MPIF77})
+
+# Specify path to SUNDIALS header files
+SET(SUNDIALS_INC_DIR
+  @includedir@
+  CACHE STRING
+  "Location of SUNDIALS header files")
+
+# Add path to SUNDIALS header files
+INCLUDE_DIRECTORIES(${SUNDIALS_INC_DIR})
 
 # Set search path for SUNDIALS libraries 
 SET(SUNDIALS_LIB_DIR @libdir@)

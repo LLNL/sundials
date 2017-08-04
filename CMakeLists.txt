@@ -250,14 +250,33 @@ SET(SUNDIALS_PRECISION "double" CACHE STRING "double, single or extended")
 STRING(TOUPPER ${SUNDIALS_PRECISION} SUNDIALS_PRECISION)
 SET(PRECISION_LEVEL "#define SUNDIALS_${SUNDIALS_PRECISION}_PRECISION 1")
 
+# prepare substitution variable FPRECISION_LEVEL for sundials_fconfig.h
+IF(SUNDIALS_PRECISION MATCHES "SINGLE")
+  SET(FPRECISION_LEVEL "4")
+ENDIF(SUNDIALS_PRECISION MATCHES "SINGLE")
+IF(SUNDIALS_PRECISION MATCHES "DOUBLE")
+  SET(FPRECISION_LEVEL "8")
+ENDIF(SUNDIALS_PRECISION MATCHES "DOUBLE")
+IF(SUNDIALS_PRECISION MATCHES "EXTENDED")
+  SET(FPRECISION_LEVEL "16")
+ENDIF(SUNDIALS_PRECISION MATCHES "EXTENDED")
+
 # Option to specify index type
 # ----------------------------
 
 SET(SUNDIALS_INDEX_TYPE "signed_64bit" CACHE STRING "signed_64bit, unsigned_64bit, signed_32bit or unsigned_32bit")
 
-# prepare substitution variable PRECISION_LEVEL for sundials_config.h
+# prepare substitution variable INDEX_TYPE for sundials_config.h
 STRING(TOUPPER ${SUNDIALS_INDEX_TYPE} SUNDIALS_INDEX_TYPE)
 SET(INDEX_TYPE "#define SUNDIALS_${SUNDIALS_INDEX_TYPE}_TYPE 1")
+
+# prepare substitution variable FINDEX_TYPE for sundials_fconfig.h
+IF(SUNDIALS_INDEX_TYPE MATCHES "SIGNED_32BIT")
+  SET(FINDEX_TYPE "4")
+ENDIF(SUNDIALS_INDEX_TYPE MATCHES "SIGNED_32BIT")
+IF(SUNDIALS_INDEX_TYPE MATCHES "SIGNED_64BIT")
+  SET(FINDEX_TYPE "8")
+ENDIF(SUNDIALS_INDEX_TYPE MATCHES "SIGNED_64BIT")
 
 # Option to use the generic math libraries (UNIX only)
 # ----------------------------------------------------
@@ -753,8 +772,10 @@ IF(MPI_ENABLE)
   ENDIF(NOT MPIC_FOUND)
   IF(MPIC_MPI2)
     SET(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 1")
+    SET(FMPI_COMM_F2C ".true.")
   ELSE(MPIC_MPI2)
     SET(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 0")
+    SET(FMPI_COMM_F2C ".false.")
   ENDIF(MPIC_MPI2)
   IF(MPIC_FOUND AND FCMIX_ENABLE)
     INCLUDE(SundialsMPIF)
@@ -843,6 +864,10 @@ ENDIF(PETSC_ENABLE AND MPI_ENABLE)
 CONFIGURE_FILE(
   ${PROJECT_SOURCE_DIR}/include/sundials/sundials_config.in
   ${PROJECT_BINARY_DIR}/include/sundials/sundials_config.h
+  )
+CONFIGURE_FILE(
+  ${PROJECT_SOURCE_DIR}/include/sundials/sundials_fconfig.in
+  ${PROJECT_BINARY_DIR}/include/sundials/sundials_fconfig.h
   )
 
 # Add the include directory in the source tree and the one in
