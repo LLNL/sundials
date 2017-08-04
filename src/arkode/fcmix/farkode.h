@@ -461,7 +461,7 @@
      supply routines to setup and apply the preconditioner.  If 
      supplied, these must have the following form:
 
-       SUBROUTINE FARKPSET(T,Y,FY,JOK,JCUR,GAMMA,H,IPAR,RPAR,V1,V2,V3,IER)
+       SUBROUTINE FARKPSET(T,Y,FY,JOK,JCUR,GAMMA,H,IPAR,RPAR,IER)
 
      This routine must set up the preconditioner P to be used in the 
      subsequent call to FARKPSOL.  The preconditioner (or the product of 
@@ -483,8 +483,6 @@
        H = current time step [realtype, input]
        IPAR = array of user integer data [sunindextype, input/output]
        RPAR = array with user real data [realtype, input/output]
-       V* -- array containing temporary workspace of same size as Y 
-               [realtype, input]
        IER  = return completion flag [int, output]:
                   0 = SUCCESS,
 		 >0 = recoverable failure
@@ -492,9 +490,7 @@
 
      The user-supplied routine FARKPSOL must have the form:
 
-       SUBROUTINE FARKPSOL(T,Y,FY,R,Z,GAMMA,DELTA,LR,IPAR,RPAR,VT,IER)
-
-       DIMENSION Y(*), FY(*), VT(*), R(*), Z(*), IPAR(*), RPAR(*)
+       SUBROUTINE FARKPSOL(T,Y,FY,R,Z,GAMMA,DELTA,LR,IPAR,RPAR,IER)
 
      Typically this routine will use only T, Y, GAMMA, R, LR, and Z.  It
      must solve the preconditioner linear system Pz = r.  The preconditioner
@@ -515,8 +511,6 @@
 		  2 = right preconditioner
        IPAR = array of user integer data [sunindextype, input/output]
        RPAR = array with user real data [realtype, input/output]
-       VT -- array containing temporary workspace of same size as Y 
-               [realtype, input]
        IER  = return completion flag [int, output]:
                   0 = SUCCESS,
 		 >0 = recoverable failure
