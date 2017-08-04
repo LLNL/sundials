@@ -198,7 +198,10 @@ int SUNMatMatvec_Diagonal(SUNMatrix A, N_Vector x, N_Vector y)
 
 int SUNMatSpace_Diagonal(SUNMatrix A, long int *lenrw, long int *leniw)
 {
-  N_VSpace(SM_DATA_DIAG(A), lenrw, leniw);
+  sunindextype lrw1, liw1;
+  N_VSpace(SM_DATA_DIAG(A), &lrw1, &liw1);
+  *lenrw = lrw1;
+  *leniw = liw1;
   return 0;
 }
 
