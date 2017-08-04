@@ -63,6 +63,7 @@
 ! user data structure
 module UserData
   implicit none
+  include "sundials/sundials_fconfig.h"
   save
   
   integer*8 :: N                   ! number of intervals
@@ -167,21 +168,24 @@ end module Quadrature
 ! Main driver program
 !-----------------------------------------------------------------
 program driver
-  use UserData
 
-  ! Declarations
+  ! inclusions
+  use UserData
   implicit none
 
+  ! Declarations
   ! general problem variables
-  real*8, parameter :: T0=0.d0, Tf=10.d0
-  real*8    :: dTout, Tout, Tcur, rtol, atol, pi, h, z, rout(6)
+  real(kind=REALTYPE), parameter :: T0=0.d0, Tf=10.d0
+  real(kind=REALTYPE) :: rtol, atol, rout(6), Tout, Tcur
+  real*8    :: dTout, pi, h, z
   integer   :: i, it, Nt, ier, ordering, sparsetype, time_dep
-  integer*8 :: NEQ, nnz, iout(29)
-  real*8, allocatable :: y(:,:), umask(:,:), vmask(:,:), wmask(:,:)
+  integer(kind=SUNINDEXTYPE) :: NEQ, nnz, iout(29), Iinput
+  real(kind=REALTYPE), allocatable :: y(:,:), umask(:,:)
+  real(kind=REALTYPE), allocatable :: vmask(:,:), wmask(:,:)
 
   ! dummy real/integer parameters to pass through to supplied functions
-  integer*8 :: ipar
-  real*8    :: rpar
+  integer(kind=SUNINDEXTYPE) :: ipar
+  real(kind=REALTYPE)        :: rpar
 
   !-----------------------
 
@@ -263,8 +267,10 @@ program driver
                   iout, rout, ipar, rpar, ier)
 
   ! set optional inputs
-  call FARKSetIin('IMPLICIT', 1, ier)
-  call FARKSetIin('MAX_NSTEPS', 1000, ier)
+  Iinput = 1
+  call FARKSetIin('IMPLICIT', Iinput, ier)
+  Iinput = 1000
+  call FARKSetIin('MAX_NSTEPS', Iinput, ier)
   call FARKSetResTolerance(1, atol, ier)
 
   ! attach matrix and linear solver objects to ARKDls interfaces
@@ -367,11 +373,11 @@ subroutine FARKIFun(t, y, ydot, ipar, rpar, ier)
   implicit none
 
   ! Arguments
-  real*8,  intent(in)   :: t, rpar(1)
-  integer*8, intent(in) :: ipar(1)
+  real(kind=REALTYPE), intent(in)        :: t, rpar(1)
+  integer(kind=SUNINDEXTYPE), intent(in) :: ipar(1)
   integer, intent(out)  :: ier
-  real*8,  intent(in)   :: y(3,N)
-  real*8,  intent(out)  :: ydot(3,N)
+  real(kind=REALTYPE), intent(in)  :: y(3,N)
+  real(kind=REALTYPE), intent(out) :: ydot(3,N)
 
   ! Local data
   integer :: ix
@@ -546,11 +552,11 @@ subroutine farkefun(t, y, ydot, ipar, rpar, ier)
   implicit none
 
   ! Arguments
-  real*8,  intent(in)   :: t, rpar(1)
-  integer*8, intent(in) :: ipar(1)
+  real(kind=REALTYPE),        intent(in) :: t, rpar(1)
+  integer(kind=SUNINDEXTYPE), intent(in) :: ipar(1)
+  real(kind=REALTYPE), intent(in)  :: y(3,N)
+  real(kind=REALTYPE), intent(out) :: ydot(3,N)
   integer, intent(out)  :: ier
-  real*8,  intent(in)   :: y(3,N)
-  real*8,  intent(out)  :: ydot(3,N)
 
   ! return with success (since fully implicit)
   ydot = 0.d0
@@ -574,12 +580,12 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
   implicit none
 
   ! Arguments
-  real*8,    intent(in)  :: t, h, rpar(1)
-  real*8,    intent(in), dimension(3,N) :: y, fy, wk1, wk2, wk3
-  integer*8, intent(in)  :: neq, nnz
-  integer*8, intent(in)  :: ipar(1)
-  real*8,    intent(out) :: Jdata(nnz)
-  integer*8, intent(out) :: Jcolvals(nnz), Jrowptrs(neq+1)
+  real(kind=REALTYPE), intent(in)  :: t, h, rpar(1)
+  real(kind=REALTYPE), intent(in), dimension(3,N) :: y, fy, wk1, wk2, wk3
+  real(kind=REALTYPE), intent(out) :: Jdata(nnz)
+  integer(kind=SUNINDEXTYPE), intent(in)  :: neq, nnz, ipar(1)
+  integer(kind=SUNINDEXTYPE), intent(out) :: Jcolvals(nnz)
+  integer(kind=SUNINDEXTYPE), intent(out) :: Jrowptrs(neq+1)
   integer,   intent(out) :: ier
 
   ! Local data
@@ -1012,13 +1018,13 @@ subroutine farkspmass(t, neq, nnz, Mdata, Mcolvals, Mrowptrs, &
   implicit none
 
   ! Arguments
-  real*8,    intent(in)  :: t, rpar(1)
-  real*8,    intent(in), dimension(3,N) :: wk1, wk2, wk3
-  integer*8, intent(in)  :: neq, nnz
-  integer*8, intent(in)  :: ipar(1)
-  real*8,    intent(out) :: Mdata(nnz)
-  integer*8, intent(out) :: Mcolvals(nnz), Mrowptrs(neq+1)
-  integer,   intent(out) :: ier
+  real(kind=REALTYPE), intent(in)  :: t, rpar(1)
+  real(kind=REALTYPE), intent(in), dimension(3,N) :: wk1, wk2, wk3
+  real(kind=REALTYPE), intent(out) :: Mdata(nnz)
+  integer(kind=SUNINDEXTYPE), intent(in)  :: neq, nnz, ipar(1)
+  integer(kind=SUNINDEXTYPE), intent(out) :: Mcolvals(nnz)
+  integer(kind=SUNINDEXTYPE), intent(out) :: Mrowptrs(neq+1)
+  integer, intent(out) :: ier
 
   ! Local data
   integer :: ix, nz, Nint

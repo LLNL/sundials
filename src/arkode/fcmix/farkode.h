@@ -375,14 +375,14 @@
          T    -- current time [realtype, input]
          Y    -- array containing state variables [realtype, input]
          FY   -- array containing state derivatives [realtype, input]
-         N    -- number of matrix rows/columns in Jacobian [int, input]
-         NNZ  -- allocated length of nonzero storage [int, input]
+         N    -- number of matrix rows/columns in Jacobian [sunindextype, input]
+         NNZ  -- allocated length of nonzero storage [sunindextype, input]
         JDATA -- nonzero values in Jacobian
                  [realtype of length NNZ, output]
        JRVALS -- row [or column] indices for each nonzero in Jacobian
-                 [int of length NNZ, output]
+                 [sunindextype of length NNZ, output]
        JCPTRS -- pointers to each Jacobian column [or row] in preceding 
-                 arrays [int of length N+1, output]
+                 arrays [sunindextype of length N+1, output]
          H    -- current step size [realtype, input]
          IPAR -- array containing integer user data that was passed to
                  FARKMALLOC [sunindextype, input]
@@ -628,14 +628,14 @@
 
      The arguments are:
          T    -- current time [realtype, input]
-         N    -- number of rows/columns in mass matrix [int, input]
-         NNZ  -- allocated length of nonzero storage [int, input]
+         N    -- number of rows/columns in mass matrix [sunindextype, input]
+         NNZ  -- allocated length of nonzero storage [sunindextype, input]
         MDATA -- nonzero values in mass matrix
                  [realtype of length NNZ, output]
        MRVALS -- row [or column] indices for each nonzero in mass matrix
-                 [int of length NNZ, output]
+                 [sunindextype of length NNZ, output]
        MCPTRS -- pointers to each mass matrix column [or row] in preceding 
-                 arrays [int of length N+1, output]
+                 arrays [sunindextype of length N+1, output]
          IPAR -- array containing integer user data that was passed to
                  FARKMALLOC [sunindextype, input]
          RPAR -- array containing real user data that was passed to
@@ -1287,7 +1287,7 @@
 
      to set the integer value VALUE to the optional input specified by the 
      quoted character string KEY. VALUE must be a Fortran integer of size 
-     commensurate with a C "long int".  KEY must be one of the following: 
+     commensurate with a C "sunindextype".  KEY must be one of the following: 
      ORDER, DENSE_ORDER, LINEAR, NONLINEAR, FIXEDPOINT, NEWTON, EXPLICIT, 
      IMPLICIT, IMEX, IRK_TABLE_NUM, ERK_TABLE_NUM, ARK_TABLE_NUM (pass in 
      an int array of length 2, implicit method first), MAX_NSTEPS, 
@@ -1314,15 +1314,15 @@
        CALL FARKSETADAPTIVITYMETHOD(IMETHOD, IDEFAULT, IPQ, PARAMS, IER)
        
      The arguments are:
-       IMETHOD  = the adaptivity method to use
+       IMETHOD  = the adaptivity method to use [integer, input]
        IDEFAULT = flag to use (1) or not (0) the default adaptivity 
-                  parameters
+                  parameters [integer, input]
        IPQ      = flag to use the embedding order p (0) or the method order 
-                  q (1) for error-based step adaptivity
+                  q (1) for error-based step adaptivity [integer, input]
        PARAMS   = if IDEFAULT=0, this should be a realtype array of length 
                   2 containing the custom adaptivity parameters to use in 
-		  the method.
-       IMETHOD  = integer error flag (0 = success, 1 = failure)
+		  the method [realtype, input].
+       IER      = integer error flag (0 = success, 1 = failure) [integer, output]
 
  (9.26) To reset all optional inputs to their default values, make the 
      following call:
