@@ -499,7 +499,6 @@ program driver
   real*8,    parameter :: nlscoef = 1.d-7   ! nonlinear solver tolerance factor
   integer,   parameter :: PCGpretype = 1    ! enable preconditioner
   integer,   parameter :: PCGmaxl = 20      ! max num. PCG iterations
-  real*8,    parameter :: PCGdelt = 0.d0    ! use default solver tolerance factor
 
   ! solution vector and other local variables
   real*8, allocatable :: y(:,:)
@@ -565,6 +564,13 @@ program driver
   allocate(y(nxl,nyl))         ! Create parallel vector for solution 
   y = 0.d0                     ! Set initial conditions 
 
+  ! initialize PCG linear solver module
+  call FSunPCGInit(4, PCGpretype, PCGmaxl, flag)
+  if (flag /= MPI_SUCCESS) then
+     write(0,*) "Error in FSunPCGInit = ", flag
+     call MPI_Finalize(flag)
+  end if
+  
   ! Create the solver memory to use DIRK integrator, scalar tolerances
   call FARKMalloc(T0, y, 0, 1, rtol, atol, iout, rout, ipar, rpar, flag)
   if (flag /= MPI_SUCCESS) then
@@ -592,13 +598,13 @@ program driver
   end if
 
 
-  ! Linear solver specification 
-  call FARKPCG(PCGpretype, PCGmaxl, PCGdelt, flag)  ! Specify the PCG solver 
+  ! attach linear solver module to ARKSpils interface
+  call FARKSpilsInit(flag)
   if (flag < 0) then
-     write(0,*) "Error in FARKPCG = ", flag
+     write(0,*) "Error in FARKSpilsInit = ", flag
      call MPI_Finalize(flag)
   end if
-  call FARKSpilsSetPrec(1, flag)                     ! Enable preconditioning
+  call FARKSpilsSetPrec(1, flag)     ! Signal user-supplied preconditioner
   if (flag < 0) then
      write(0,*) "Error in FARKSpilsSetPrec = ", flag
      call MPI_Finalize(flag)
@@ -828,7 +834,7 @@ end subroutine farkefun
 
 
 subroutine farkpset(t, y, fy, jok, jcur, gamma, hcur, ipar, &
-                    rpar, v1, v2, v3, ierr)
+                    rpar, ierr)
 !-----------------------------------------------------------------
 ! Preconditioner setup routine (fills inverse of Jacobian diagonal)
 !-----------------------------------------------------------------
@@ -839,7 +845,6 @@ subroutine farkpset(t, y, fy, jok, jcur, gamma, hcur, ipar, &
   integer, intent(in)  :: ipar, jok
   integer, intent(out) :: jcur, ierr
   real*8,  intent(in)  :: y(nxl,nyl), fy(nxl,nyl)
-  real*8               :: v1(nxl,nyl), v2(nxl,nyl), v3(nxl,nyl)
   real*8 :: c
 
   ! internals
@@ -856,7 +861,7 @@ end subroutine farkpset
 
 
 subroutine farkpsol(t, y, fy, r, z, gamma, delta, lr, &
-                    ipar, rpar, vt, ierr)
+                    ipar, rpar, ierr)
 !-----------------------------------------------------------------
 ! Preconditioner solve routine
 !-----------------------------------------------------------------
@@ -868,7 +873,6 @@ subroutine farkpsol(t, y, fy, r, z, gamma, delta, lr, &
   integer, intent(out) :: ierr
   real*8,  intent(in)  :: y(nxl,nyl), fy(nxl,nyl), r(nxl,nyl)
   real*8,  intent(out) :: z(nxl,nyl)
-  real*8               :: vt(nxl,nyl)
 
   ! internals
   z = r*d      ! perform Jacobi iteration (whole array operation)
