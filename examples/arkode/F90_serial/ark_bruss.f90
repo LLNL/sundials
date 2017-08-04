@@ -51,26 +51,28 @@
 program driver
   ! Declarations
   implicit none
+  include "sundials/sundials_fconfig.h"
 
   ! general problem variables
-  integer*8, parameter :: NEQ=3
-  real*8,    parameter :: T0=0.d0, Tf=10.d0
-  real*8    :: dTout, Tout, Tcur, rtol, atol, rout(6)
+  integer(kind=SUNINDEXTYPE), parameter :: NEQ=3
+  real(kind=REALTYPE), parameter :: T0=0.d0, Tf=10.d0
+  real(kind=REALTYPE) :: dTout, Tout, Tcur, rtol, atol, rout(6)
   integer   :: it, Nt, ier
-  integer*8 :: iout(22)
-  real*8, dimension(NEQ) :: y
+  integer(kind=SUNINDEXTYPE) :: iout(22)
+  real(kind=REALTYPE), dimension(NEQ) :: y
 
   ! real/integer parameters to pass through to supplied functions
   !    ipar(1) -> unused
   !    rpar(1) -> "a" parameter
   !    rpar(2) -> "b" parameter 
   !    rpar(3) -> "ep" parameter
-  integer*8 :: ipar
-  real*8    :: rpar(3)
+  integer(kind=SUNINDEXTYPE) :: ipar
+  real(kind=REALTYPE) :: rpar(3)
 
   ! solver parameters
-  integer*8 :: order, adapt_method
-  real*8    :: nlscoef
+  integer :: adapt_method
+  integer(kind=SUNINDEXTYPE) :: order
+  real(kind=REALTYPE) :: nlscoef, adapt_params
 
   !-----------------------
   ! set some solver parameters
@@ -124,7 +126,8 @@ program driver
      write(0,*) 'Error in FARKSetIin = ',ier
      stop
   endif
-  call FARKSetAdaptivityMethod(adapt_method, 1, 0, 0, ier)
+  adapt_params = 0.d0
+  call FARKSetAdaptivityMethod(adapt_method, 1, 0, adapt_params, ier)
   if (ier < 0) then
      write(0,*) 'Error in FARKSetAdaptMethod = ',ier
      stop
@@ -206,13 +209,14 @@ subroutine farkifun(t, y, ydot, ipar, rpar, ier)
 
   ! Declarations
   implicit none
+  include "sundials/sundials_fconfig.h"
 
   ! Arguments
-  real*8,    intent(in)  :: t, rpar(3)
-  integer*8, intent(in)  :: ipar(1)
+  real(kind=REALTYPE), intent(in) :: t, rpar(3)
+  integer(kind=SUNINDEXTYPE), intent(in) :: ipar(1)
+  real(kind=REALTYPE), intent(in)  :: y(3)
+  real(kind=REALTYPE), intent(out) :: ydot(3)
   integer,   intent(out) :: ier
-  real*8,    intent(in)  :: y(3)
-  real*8,    intent(out) :: ydot(3)
 
   ! temporary variables
   real*8 :: u, v, w, a, b, ep
@@ -241,13 +245,14 @@ subroutine farkefun(t, y, ydot, ipar, rpar, ier)
 
   ! Declarations
   implicit none
+  include "sundials/sundials_fconfig.h"
 
   ! Arguments
-  real*8,    intent(in)  :: t, rpar(3)
-  integer*8, intent(in)  :: ipar(1)
+  real(kind=REALTYPE), intent(in)  :: t, rpar(3)
+  integer(kind=SUNINDEXTYPE), intent(in) :: ipar(1)
+  real(kind=REALTYPE), intent(in)  :: y(3)
+  real(kind=REALTYPE), intent(out) :: ydot(3)
   integer,   intent(out) :: ier
-  real*8,    intent(in)  :: y(3)
-  real*8,    intent(out) :: ydot(3)
 
   ! temporary variables
   real*8 :: u, v, w, a, b, ep
@@ -276,13 +281,14 @@ subroutine farkdjac(neq,t,y,fy,DJac,h,ipar,rpar,wk1,wk2,wk3,ier)
 
   ! Declarations
   implicit none
+  include "sundials/sundials_fconfig.h"
 
   ! Arguments
-  real*8,    intent(in)  :: t, h, rpar(3)
-  integer*8, intent(in)  :: neq, ipar(1)
+  real(kind=REALTYPE), intent(in) :: t, h, rpar(3)
+  integer(kind=SUNINDEXTYPE), intent(in) :: neq, ipar(1)
   integer,   intent(out) :: ier
-  real*8,    intent(in), dimension(neq) :: y, fy, wk1, wk2, wk3
-  real*8,    intent(out) :: DJac(neq,neq)
+  real(kind=REALTYPE), intent(in), dimension(neq) :: y, fy, wk1, wk2, wk3
+  real(kind=REALTYPE), intent(out) :: DJac(neq,neq)
 
   ! temporary variables
   real*8 :: u, v, w, a, b, ep
