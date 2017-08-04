@@ -50,6 +50,7 @@ MPIF77_LNKR  = @MPIF77_LNKR@
 MPI_LIB_DIR  = @MPI_LIB_DIR@
 MPI_LIBS     = @MPI_LIBS@
 
+INCLUDES = -I${includedir}
 LIBRARIES = -l@SOLVER_FLIB@ -l@SOLVER_LIB@ -lsundials_fnvecparallel -lsundials_nvecparallel ${LIBS}
 LIBRARIES_BL = @BLAS_LAPACK_LIBS@
 LIBRARIES_SLUMT = @SUPERLUMT_LIBS@
@@ -65,14 +66,14 @@ OBJECTS = ${EXAMPLES:=.o}
 .SUFFIXES : .o .f
 
 .f.o :
-	${MPIF77} ${FFLAGS} ${MPI_FLAGS} -I${MPI_INC_DIR} -c $<
+	${MPIF77} ${FFLAGS} ${MPI_FLAGS} -I${MPI_INC_DIR} ${INCLUDES} -c $<
 
 # -----------------------------------------------------------------------------------------
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${MPIF77_LNKR} -o $${i} $${i}.o ${MPI_FLAGS} ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC} ${LINKFLAGS}" ; \
-	  ${MPIF77_LNKR} -o $${i} $${i}.o ${MPI_FLAGS} ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC} ${LINKFLAGS} ; \
+	  echo "${MPIF77_LNKR} -o $${i} $${i}.o ${MPI_FLAGS} ${F77_LDFLAGS} ${F77_LIBS} ${INCLUDES} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC} ${LINKFLAGS}" ; \
+	  ${MPIF77_LNKR} -o $${i} $${i}.o ${MPI_FLAGS} ${F77_LDFLAGS} ${F77_LIBS} ${INCLUDES} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC} ${LINKFLAGS} ; \
 	done
 
 clean:
