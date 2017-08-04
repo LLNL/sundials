@@ -15,50 +15,27 @@ $tar $tarfile $distrobase/doc/arkode/ark_examples.pdf
 fi
 
 $tar $tarfile $distrobase/include/arkode/arkode.h
-$tar $tarfile $distrobase/include/arkode/arkode_band.h
 $tar $tarfile $distrobase/include/arkode/arkode_bandpre.h
 $tar $tarfile $distrobase/include/arkode/arkode_bbdpre.h
-$tar $tarfile $distrobase/include/arkode/arkode_dense.h
 $tar $tarfile $distrobase/include/arkode/arkode_direct.h
-$tar $tarfile $distrobase/include/arkode/arkode_klu.h
-$tar $tarfile $distrobase/include/arkode/arkode_lapack.h
-$tar $tarfile $distrobase/include/arkode/arkode_pcg.h
-$tar $tarfile $distrobase/include/arkode/arkode_sparse.h
-$tar $tarfile $distrobase/include/arkode/arkode_spbcgs.h
-$tar $tarfile $distrobase/include/arkode/arkode_spfgmr.h
-$tar $tarfile $distrobase/include/arkode/arkode_spgmr.h
 $tar $tarfile $distrobase/include/arkode/arkode_spils.h
-$tar $tarfile $distrobase/include/arkode/arkode_sptfqmr.h
-$tar $tarfile $distrobase/include/arkode/arkode_superlumt.h
 
 $tar $tarfile $distrobase/src/arkode/LICENSE
 $tar $tarfile $distrobase/src/arkode/README
 $tar $tarfile $distrobase/src/arkode/CMakeLists.txt
 
 $tar $tarfile $distrobase/src/arkode/arkode.c
-$tar $tarfile $distrobase/src/arkode/arkode_band.c
 $tar $tarfile $distrobase/src/arkode/arkode_bandpre.c
 $tar $tarfile $distrobase/src/arkode/arkode_bandpre_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_bbdpre.c
 $tar $tarfile $distrobase/src/arkode/arkode_bbdpre_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_butcher.c
-$tar $tarfile $distrobase/src/arkode/arkode_dense.c
 $tar $tarfile $distrobase/src/arkode/arkode_direct.c
 $tar $tarfile $distrobase/src/arkode/arkode_direct_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_io.c
-$tar $tarfile $distrobase/src/arkode/arkode_klu.c
-$tar $tarfile $distrobase/src/arkode/arkode_lapack.c
-$tar $tarfile $distrobase/src/arkode/arkode_pcg.c
-$tar $tarfile $distrobase/src/arkode/arkode_sparse.c
-$tar $tarfile $distrobase/src/arkode/arkode_sparse_impl.h
-$tar $tarfile $distrobase/src/arkode/arkode_spbcgs.c
-$tar $tarfile $distrobase/src/arkode/arkode_spfgmr.c
-$tar $tarfile $distrobase/src/arkode/arkode_spgmr.c
 $tar $tarfile $distrobase/src/arkode/arkode_spils.c
 $tar $tarfile $distrobase/src/arkode/arkode_spils_impl.h
-$tar $tarfile $distrobase/src/arkode/arkode_sptfqmr.c
-$tar $tarfile $distrobase/src/arkode/arkode_superlumt.c
 
 echo "   --- Add farkode module to $tarfile"
 
@@ -73,15 +50,11 @@ $tar $tarfile $distrobase/src/arkode/fcmix/farkbp.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkbp.h
 $tar $tarfile $distrobase/src/arkode/fcmix/farkdense.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkdensemass.c
+$tar $tarfile $distrobase/src/arkode/fcmix/farkdiag.c
+$tar $tarfile $distrobase/src/arkode/fcmix/farkdiagmass.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkewt.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkexpstab.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkjtimes.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farkklu.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farklapack.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farklapband.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farklapbandmass.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farklapdense.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farklapdensemass.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkmasspreco.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkmtimes.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkode.c
@@ -91,7 +64,6 @@ $tar $tarfile $distrobase/src/arkode/fcmix/farkroot.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkroot.h
 $tar $tarfile $distrobase/src/arkode/fcmix/farksparse.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farksparsemass.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farksuperlumt.c
 
 echo "   --- Add arkode examples to $tarfile"
 
