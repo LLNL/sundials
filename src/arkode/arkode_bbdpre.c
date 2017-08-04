@@ -66,6 +66,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   ARKSpilsMem arkspils_mem;
   ARKBBDPrecData pdata;
   sunindextype muk, mlk, storage_mu, lrw1, liw1;
+  long int lrw, liw;
   int flag;
 
   if (arkode_mem == NULL) {
@@ -222,8 +223,20 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
 
   /* Set work space sizes and initialize nge */
   N_VSpace(ark_mem->ark_tempv, &lrw1, &liw1);
-  pdata->rpwsize = (long int) (Nlocal*(muk + 2*mlk + storage_mu + 2) + 3*lrw1);
-  pdata->ipwsize = (long int) (Nlocal + 3*liw1);
+  pdata->rpwsize = 3*lrw1;
+  pdata->ipwsize = 3*liw1;
+  N_VSpace(pdata->rlocal, &lrw, &liw);
+  pdata->rpwsize += 2*lrw;
+  pdata->ipwsize += 2*liw;
+  SUNMatSpace(pdata->savedJ, &lrw, &liw);
+  pdata->rpwsize += lrw;
+  pdata->ipwsize += liw;
+  SUNMatSpace(pdata->savedP, &lrw, &liw);
+  pdata->rpwsize += lrw;
+  pdata->ipwsize += liw;
+  SUNLinSolSpace(pdata->LS, &lrw, &liw);
+  pdata->rpwsize += lrw;
+  pdata->ipwsize += liw;
   pdata->nge = 0;
 
   /* make sure s_P_data is free from any previous allocations */
@@ -461,7 +474,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
       return(1);
     }
 
-    retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
+    retval = SUNMatCopy(pdata->savedP, pdata->savedJ);
     if (retval < 0) {
       arkProcessError(ark_mem, -1, "ARKBBDPRE", 
                       "ARKBBDPrecSetup", MSGBBD_SUNMAT_FAIL);
