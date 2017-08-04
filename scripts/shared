@@ -45,7 +45,10 @@ $tar $tarfile $distrobase/config/FindKLU.cmake
 echo "   --- Add shared module to $tarfile"
 
 $tar $tarfile $distrobase/include/sundials/sundials_config.in
+$tar $tarfile $distrobase/include/sundials/sundials_fconfig.in
 $tar $tarfile $distrobase/include/sundials/sundials_types.h
+$tar $tarfile $distrobase/include/sundials/sundials_matrix.h
+$tar $tarfile $distrobase/include/sundials/sundials_linearsolver.h
 $tar $tarfile $distrobase/include/sundials/sundials_math.h
 $tar $tarfile $distrobase/include/sundials/sundials_nvector.h
 $tar $tarfile $distrobase/include/sundials/sundials_fnvector.h
@@ -70,10 +73,30 @@ $tar $tarfile $distrobase/include/nvector/nvector_petsc.h
 $tar $tarfile $distrobase/include/nvector/nvector_pthreads.h
 $tar $tarfile $distrobase/include/nvector/nvector_openmp.h
 
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_dense.h
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_diagonal.h
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_sparse.h
+
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_band.h
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_dense.h
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_diagonal.h
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_klu.h
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_lapackband.h
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_lapackdense.h
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_pcg.h
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_spbcgs.h
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_spfgmr.h
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_spgmr.h
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_sptfqmr.h
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_superlumt.h
+
 $tar $tarfile $distrobase/src/sundials/README
 $tar $tarfile $distrobase/src/sundials/LICENSE
 $tar $tarfile $distrobase/src/sundials/CMakeLists.txt
 $tar $tarfile $distrobase/src/sundials/sundials_math.c
+$tar $tarfile $distrobase/src/sundials/sundials_matrix.c
+$tar $tarfile $distrobase/src/sundials/sundials_linearsolver.c
 $tar $tarfile $distrobase/src/sundials/sundials_nvector.c
 $tar $tarfile $distrobase/src/sundials/sundials_dense.c
 $tar $tarfile $distrobase/src/sundials/sundials_direct.c
@@ -130,6 +153,134 @@ $tar $tarfile $distrobase/src/nvec_pthreads/nvector_pthreads.c
 $tar $tarfile $distrobase/src/nvec_pthreads/fnvector_pthreads.c
 $tar $tarfile $distrobase/src/nvec_pthreads/fnvector_pthreads.h
 
+echo "   --- Add sunmatband module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunmat_band/README
+$tar $tarfile $distrobase/src/sunmat_band/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunmat_band/sunmatrix_band.c
+$tar $tarfile $distrobase/src/sunmat_band/fsunmatrix_band.h
+$tar $tarfile $distrobase/src/sunmat_band/fsunmatrix_band.c
+
+echo "   --- Add sunmatdense module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunmat_dense/README
+$tar $tarfile $distrobase/src/sunmat_dense/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunmat_dense/sunmatrix_dense.c
+$tar $tarfile $distrobase/src/sunmat_dense/fsunmatrix_dense.h
+$tar $tarfile $distrobase/src/sunmat_dense/fsunmatrix_dense.c
+
+echo "   --- Add sunmatdiagonal module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunmat_diagonal/README
+$tar $tarfile $distrobase/src/sunmat_diagonal/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunmat_diagonal/sunmatrix_diagonal.c
+$tar $tarfile $distrobase/src/sunmat_diagonal/fsunmatrix_diagonal.h
+$tar $tarfile $distrobase/src/sunmat_diagonal/fsunmatrix_diagonal.c
+
+echo "   --- Add sunmatsparse module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunmat_sparse/README
+$tar $tarfile $distrobase/src/sunmat_sparse/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunmat_sparse/sunmatrix_sparse.c
+$tar $tarfile $distrobase/src/sunmat_sparse/fsunmatrix_sparse.h
+$tar $tarfile $distrobase/src/sunmat_sparse/fsunmatrix_sparse.c
+
+echo "   --- Add sunlinsolband module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunlinsol_band/README
+$tar $tarfile $distrobase/src/sunlinsol_band/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol_band/sunlinsol_band.c
+$tar $tarfile $distrobase/src/sunlinsol_band/fsunlinsol_band.h
+$tar $tarfile $distrobase/src/sunlinsol_band/fsunlinsol_band.c
+
+echo "   --- Add sunlinsoldense module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunlinsol_dense/README
+$tar $tarfile $distrobase/src/sunlinsol_dense/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol_dense/sunlinsol_dense.c
+$tar $tarfile $distrobase/src/sunlinsol_dense/fsunlinsol_dense.h
+$tar $tarfile $distrobase/src/sunlinsol_dense/fsunlinsol_dense.c
+
+echo "   --- Add sunlinsoldiagonal module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunlinsol_diagonal/README
+$tar $tarfile $distrobase/src/sunlinsol_diagonal/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol_diagonal/sunlinsol_diagonal.c
+$tar $tarfile $distrobase/src/sunlinsol_diagonal/fsunlinsol_diagonal.h
+$tar $tarfile $distrobase/src/sunlinsol_diagonal/fsunlinsol_diagonal.c
+
+echo "   --- Add sunlinsolklu module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunlinsol_klu/README
+$tar $tarfile $distrobase/src/sunlinsol_klu/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol_klu/sunlinsol_klu.c
+$tar $tarfile $distrobase/src/sunlinsol_klu/fsunlinsol_klu.h
+$tar $tarfile $distrobase/src/sunlinsol_klu/fsunlinsol_klu.c
+
+echo "   --- Add sunlinsollapackband module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunlinsol_lapackband/README
+$tar $tarfile $distrobase/src/sunlinsol_lapackband/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol_lapackband/sunlinsol_lapackband.c
+$tar $tarfile $distrobase/src/sunlinsol_lapackband/fsunlinsol_lapackband.h
+$tar $tarfile $distrobase/src/sunlinsol_lapackband/fsunlinsol_lapackband.c
+
+echo "   --- Add sunlinsollapackdense module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunlinsol_lapackdense/README
+$tar $tarfile $distrobase/src/sunlinsol_lapackdense/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol_lapackdense/sunlinsol_lapackdense.c
+$tar $tarfile $distrobase/src/sunlinsol_lapackdense/fsunlinsol_lapackdense.h
+$tar $tarfile $distrobase/src/sunlinsol_lapackdense/fsunlinsol_lapackdense.c
+
+echo "   --- Add sunlinsolpcg module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunlinsol_pcg/README
+$tar $tarfile $distrobase/src/sunlinsol_pcg/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol_pcg/sunlinsol_pcg.c
+$tar $tarfile $distrobase/src/sunlinsol_pcg/fsunlinsol_pcg.h
+$tar $tarfile $distrobase/src/sunlinsol_pcg/fsunlinsol_pcg.c
+
+echo "   --- Add sunlinsolspbcgs module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunlinsol_spbcgs/README
+$tar $tarfile $distrobase/src/sunlinsol_spbcgs/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol_spbcgs/sunlinsol_spbcgs.c
+$tar $tarfile $distrobase/src/sunlinsol_spbcgs/fsunlinsol_spbcgs.h
+$tar $tarfile $distrobase/src/sunlinsol_spbcgs/fsunlinsol_spbcgs.c
+
+echo "   --- Add sunlinsolspfgmr module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunlinsol_spfgmr/README
+$tar $tarfile $distrobase/src/sunlinsol_spfgmr/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol_spfgmr/sunlinsol_spfgmr.c
+$tar $tarfile $distrobase/src/sunlinsol_spfgmr/fsunlinsol_spfgmr.h
+$tar $tarfile $distrobase/src/sunlinsol_spfgmr/fsunlinsol_spfgmr.c
+
+echo "   --- Add sunlinsolspgmr module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunlinsol_spgmr/README
+$tar $tarfile $distrobase/src/sunlinsol_spgmr/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol_spgmr/sunlinsol_spgmr.c
+$tar $tarfile $distrobase/src/sunlinsol_spgmr/fsunlinsol_spgmr.h
+$tar $tarfile $distrobase/src/sunlinsol_spgmr/fsunlinsol_spgmr.c
+
+echo "   --- Add sunlinsolsptfqmr module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunlinsol_sptfqmr/README
+$tar $tarfile $distrobase/src/sunlinsol_sptfqmr/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol_sptfqmr/sunlinsol_sptfqmr.c
+$tar $tarfile $distrobase/src/sunlinsol_sptfqmr/fsunlinsol_sptfqmr.h
+$tar $tarfile $distrobase/src/sunlinsol_sptfqmr/fsunlinsol_sptfqmr.c
+
+echo "   --- Add sunlinsolsuperlumt module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunlinsol_superlumt/README
+$tar $tarfile $distrobase/src/sunlinsol_superlumt/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol_superlumt/sunlinsol_superlumt.c
+$tar $tarfile $distrobase/src/sunlinsol_superlumt/fsunlinsol_superlumt.h
+$tar $tarfile $distrobase/src/sunlinsol_superlumt/fsunlinsol_superlumt.c
+
 echo "   --- Add nvector examples to $tarfile"
 
 $tar $tarfile $distrobase/examples/nvector/serial/test_nvector_serial.c
@@ -146,6 +297,48 @@ $tar $tarfile $distrobase/examples/nvector/pthreads/test_nvector_pthreads.c
 $tar $tarfile $distrobase/examples/nvector/pthreads/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/test_nvector.c
 $tar $tarfile $distrobase/examples/nvector/test_nvector.h
+
+echo "   --- Add sunmatrix examples to $tarfile"
+
+$tar $tarfile $distrobase/examples/sunmatrix/band/test_sunmatrix_band.c
+$tar $tarfile $distrobase/examples/sunmatrix/band/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunmatrix/dense/test_sunmatrix_dense.c
+$tar $tarfile $distrobase/examples/sunmatrix/dense/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunmatrix/diagonal/test_sunmatrix_diagonal.c
+$tar $tarfile $distrobase/examples/sunmatrix/diagonal/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunmatrix/sparse/test_sunmatrix_sparse.c
+$tar $tarfile $distrobase/examples/sunmatrix/sparse/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunmatrix/test_sunmatrix.c
+$tar $tarfile $distrobase/examples/sunmatrix/test_sunmatrix.h
+
+echo "   --- Add sunlinsol examples to $tarfile"
+
+$tar $tarfile $distrobase/examples/sunlinsol/band/test_sunlinsol_band.c
+$tar $tarfile $distrobase/examples/sunlinsol/band/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunlinsol/dense/test_sunlinsol_dense.c
+$tar $tarfile $distrobase/examples/sunlinsol/dense/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunlinsol/diagonal/test_sunlinsol_diagonal.c
+$tar $tarfile $distrobase/examples/sunlinsol/diagonal/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunlinsol/klu/test_sunlinsol_klu.c
+$tar $tarfile $distrobase/examples/sunlinsol/klu/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunlinsol/lapackband/test_sunlinsol_lapackband.c
+$tar $tarfile $distrobase/examples/sunlinsol/lapackband/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunlinsol/lapackdense/test_sunlinsol_lapackdense.c
+$tar $tarfile $distrobase/examples/sunlinsol/lapackdense/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunlinsol/pcg/test_sunlinsol_pcg.c
+$tar $tarfile $distrobase/examples/sunlinsol/pcg/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunlinsol/spbcgs/test_sunlinsol_spbcgs.c
+$tar $tarfile $distrobase/examples/sunlinsol/spbcgs/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunlinsol/spfgmr/test_sunlinsol_spfgmr.c
+$tar $tarfile $distrobase/examples/sunlinsol/spfgmr/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunlinsol/spgmr/test_sunlinsol_spgmr.c
+$tar $tarfile $distrobase/examples/sunlinsol/spgmr/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunlinsol/sptfqmr/test_sunlinsol_sptfqmr.c
+$tar $tarfile $distrobase/examples/sunlinsol/sptfqmr/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunlinsol/superlumt/test_sunlinsol_superlumt.c
+$tar $tarfile $distrobase/examples/sunlinsol/superlumt/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunlinsol/test_sunlinsol.c
+$tar $tarfile $distrobase/examples/sunlinsol/test_sunlinsol.h
 
 echo "   --- Add directory with example Makefile templates to $tarfile"
 
