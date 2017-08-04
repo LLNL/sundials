@@ -1124,7 +1124,7 @@ IF(EXAMPLES_ENABLE)
       ADD_SUBDIRECTORY(examples/arkode/F90_parallel)
     ENDIF(MPIF90_FOUND)
     IF(HYPRE_ENABLE AND HYPRE_FOUND)
-      #ADD_SUBDIRECTORY(examples/arkode/C_parhyp)
+      ADD_SUBDIRECTORY(examples/arkode/C_parhyp)
     ENDIF(HYPRE_ENABLE AND HYPRE_FOUND)
     
   ENDIF(BUILD_ARKODE)
