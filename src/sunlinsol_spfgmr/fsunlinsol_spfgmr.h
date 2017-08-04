@@ -33,11 +33,15 @@ extern "C" {
 #endif
 
 #if defined(SUNDIALS_F77_FUNC)
-#define FSUNSPFGMR_INIT     SUNDIALS_F77_FUNC(fsunspfgmrinit, FSUNSPFGMRINIT)
-#define FSUNMASSSPFGMR_INIT SUNDIALS_F77_FUNC(fsunmassspfgmrinit, FSUNMASSSPFGMRINIT)
+#define FSUNSPFGMR_INIT          SUNDIALS_F77_FUNC(fsunspfgmrinit,          FSUNSPFGMRINIT)
+#define FSUNSPFGMR_SETGSTYPE     SUNDIALS_F77_FUNC(fsunspfgmrsetgstype,     FSUNSPFGMRSETGSTYPE)
+#define FSUNMASSSPFGMR_INIT      SUNDIALS_F77_FUNC(fsunmassspfgmrinit,      FSUNMASSSPFGMRINIT)
+#define FSUNMASSSPFGMR_SETGSTYPE SUNDIALS_F77_FUNC(fsunmassspfgmrsetgstype, FSUNMASSSPFGMRSETGSTYPE)
 #else
-#define FSUNSPFGMR_INIT     fsunspfgmrinit_
-#define FSUNMASSSPFGMR_INIT fsunmassspfgmrinit_
+#define FSUNSPFGMR_INIT         fsunspfgmrinit_
+#define FSUNSPGMR_SETGSTYPE     fsunspfgmrsetgstype_
+#define FSUNMASSSPFGMR_INIT     fsunmassspfgmrinit_
+#define FSUNMASSSPGMR_SETGSTYPE fsunmassspfgmrsetgstype_
 #endif
 
 
@@ -53,11 +57,15 @@ extern SUNLinearSolver F2C_ARKODE_mass_sol;
  * Prototypes of exported functions 
  *
  * FSUNSPFGMR_INIT - initializes SPFGMR linear solver for main problem
+ * FSUNSPFGMR_SETGSTYPE - sets the Gram-Scmidt orthogonalization type for main problem
  * FSUNMASSSPFGMR_INIT - initializes SPFGMR linear solver for mass matrix solve
+ * FSUNMASSSPFGMR_SETGSTYPE - sets the Gram-Scmidt orthogonalization type for mass matrix solve
  */
 
 void FSUNSPFGMR_INIT(int *code, int *pretype, int *maxl, int *ier);
+void FSUNSPFGMR_SETGSTYPE(int *code, int *gstype, int *ier);
 void FSUNMASSSPFGMR_INIT(int *pretype, int *maxl, int *ier);
+void FSUNMASSSPFGMR_SETGSTYPE(int *gstype, int *ier);
 
 #ifdef __cplusplus
 }
