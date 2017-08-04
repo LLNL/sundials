@@ -194,8 +194,8 @@ int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP,
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
   ARKBandPrecData pdata;
-  sunindextype N, ml, mu, smu, lrw1, liw1;
-
+  sunindextype lrw1, liw1;
+  long int lrw, liw;
   
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKBANDPRE", 
@@ -218,14 +218,19 @@ int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP,
   } 
   pdata = (ARKBandPrecData) arkspils_mem->P_data;
 
-  N   = pdata->N;
-  mu  = pdata->mu;
-  ml  = pdata->ml;
-  smu = SUNMIN( N-1, mu + ml );
+  /* sum space requirements for all objects in pdata */
   N_VSpace(ark_mem->ark_tempv, &lrw1, &liw1);
-
-  *leniwBP = (long int) (pdata->N + 2*liw1);
-  *lenrwBP = (long int) (N * ( 2*ml + smu + mu + 2 ) + 2*lrw1);
+  *leniwBP = 4 + 2*liw1;
+  *lenrwBP = 2*lrw1;
+  SUNMatSpace(pdata->savedJ, &lrw, &liw);
+  *leniwBP += liw;
+  *lenrwBP += lrw;
+  SUNMatSpace(pdata->savedP, &lrw, &liw);
+  *leniwBP += liw;
+  *lenrwBP += lrw;
+  SUNLinSolSpace(pdata->LS, &lrw, &liw);
+  *leniwBP += liw;
+  *lenrwBP += lrw;
 
   return(ARKSPILS_SUCCESS);
 }
@@ -358,7 +363,7 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
       return(1);
     }
 
-    retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
+    retval = SUNMatCopy(pdata->savedP, pdata->savedJ);
     if (retval < 0) {
       arkProcessError(ark_mem, -1, "ARKBANDPRE", 
                       "ARKBandPrecSetup", MSGBP_SUNMAT_FAIL);

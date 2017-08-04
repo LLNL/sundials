@@ -934,7 +934,9 @@
           CALL FSUNPCGINIT(4, PRETYPE, MAXL, IER)
           CALL FSUNSPBCGSINIT(4, PRETYPE, MAXL, IER)
           CALL FSUNSPFGMRINIT(4, PRETYPE, MAXL, IER)
+          CALL FSUNSPFGMRSETGSTYPE(4, GSTYPE, IER)
           CALL FSUNSPGMRINIT(4, PRETYPE, MAXL, IER)
+          CALL FSUNSPGMRSETGSTYPE(4, GSTYPE, IER)
           CALL FSUNSPTFQMRINIT(4, PRETYPE, MAXL, IER)
           CALL FSUNSUPERLUMTINIT(4, NUM_THREADS, IER)
           CALL FSUNSUPERLUMTSETORDERING(4, ORD_CHOICE, IER)
@@ -952,9 +954,12 @@
         PRETYPE = type of preconditioning to perform (0=none, 1=left, 
            2=right, 3=both) [int, input]
         MAXL = maximum Krylov subspace dimension [int, input]
+        GSTYPE = choice of Gram-Schmidt orthogonalization algorithm 
+           (0=modified, 1=classical) [int, input]
 	IER = return completion flag [int, output]:
 	          0 = success, 
 		 -1 = failure.
+
 
  (9.5) To initialize a linear solver structure for solving linear systems 
      arising from use of a non-identity mass matrix, the user must make 
@@ -970,7 +975,9 @@
           CALL FSUNMASSPCGINIT(PRETYPE, MAXL, IER)
           CALL FSUNMASSSPBCGSINIT(PRETYPE, MAXL, IER)
           CALL FSUNMASSSPFGMRINIT(PRETYPE, MAXL, IER)
+          CALL FSUNMASSSPFGMRSETGSTYPE(GSTYPE, IER)
           CALL FSUNMASSSPGMRINIT(PRETYPE, MAXL, IER)
+          CALL FSUNMASSSPGMRSETGSTYPE(GSTYPE, IER)
           CALL FSUNMASSSPTFQMRINIT(PRETYPE, MAXL, IER)
           CALL FSUNMASSSUPERLUMTINIT(NUM_THREADS, IER)
           CALL FSUNMASSSUPERLUMTSETORDERING(ORD_CHOICE, IER)
