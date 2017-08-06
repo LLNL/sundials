@@ -144,6 +144,25 @@ SUNDIALS_EXPORT int SUNPCGSetPrecType(SUNLinearSolver S, int pretype)
 }
 
 
+/* ----------------------------------------------------------------------------
+ * Function to set the maximum number of iterations for PCG to use 
+ */
+
+SUNDIALS_EXPORT int SUNPCGSetMaxl(SUNLinearSolver S, int maxl) 
+{
+  /* Check for non-NULL SUNLinearSolver */
+  if (S == NULL) return(SUNLS_MEM_NULL);
+
+  /* Check for legal pretype */ 
+  if (maxl <= 0)
+    maxl = SUNPCG_MAXL_DEFAULT;
+
+  /* Set pretype */
+  PCG_CONTENT(S)->maxl = maxl;
+  return(SUNLS_SUCCESS);
+}
+
+
 /*
  * -----------------------------------------------------------------
  * implementation of linear solver operations

@@ -152,6 +152,25 @@ SUNDIALS_EXPORT int SUNSPBCGSSetPrecType(SUNLinearSolver S, int pretype)
 }
 
 
+/* ----------------------------------------------------------------------------
+ * Function to set the maximum number of iterations for SPBCGS to use 
+ */
+
+SUNDIALS_EXPORT int SUNSPBCGSSetMaxl(SUNLinearSolver S, int maxl) 
+{
+  /* Check for non-NULL SUNLinearSolver */
+  if (S == NULL) return(SUNLS_MEM_NULL);
+
+  /* Check for legal pretype */ 
+  if (maxl <= 0)
+    maxl = SUNSPBCGS_MAXL_DEFAULT;
+
+  /* Set pretype */
+  SPBCGS_CONTENT(S)->maxl = maxl;
+  return(SUNLS_SUCCESS);
+}
+
+
 /*
  * -----------------------------------------------------------------
  * implementation of linear solver operations

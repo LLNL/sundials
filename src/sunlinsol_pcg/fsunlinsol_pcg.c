@@ -85,6 +85,84 @@ void FSUNPCG_INIT(int *code, int *pretype, int *maxl, int *ier)
 }
 
 
+void FSUNPCG_SETPRECTYPE(int *code, int *pretype, int *ier)
+{
+  *ier = 0;
+
+  switch(*code) {
+  case FCMIX_CVODE:
+    if (!F2C_CVODE_linsol) {
+      *ier = -1;
+      return;
+    }
+    *ier = SUNPCGSetPrecType(F2C_CVODE_linsol, *pretype);
+    break;
+  case FCMIX_IDA:
+    if (!F2C_IDA_linsol) {
+      *ier = -1;
+      return;
+    }
+    *ier = SUNPCGSetPrecType(F2C_IDA_linsol, *pretype);
+    break;
+  case FCMIX_KINSOL:
+    if (!F2C_KINSOL_linsol) {
+      *ier = -1;
+      return;
+    }
+    *ier = SUNPCGSetPrecType(F2C_KINSOL_linsol, *pretype);
+    break;
+  case FCMIX_ARKODE:
+    if (!F2C_ARKODE_linsol) {
+      *ier = -1;
+      return;
+    }
+    *ier = SUNPCGSetPrecType(F2C_ARKODE_linsol, *pretype);
+    break;
+  default:
+    *ier = -1;
+  }
+}
+
+
+void FSUNPCG_SETMAXL(int *code, int *maxl, int *ier)
+{
+  *ier = 0;
+
+  switch(*code) {
+  case FCMIX_CVODE:
+    if (!F2C_CVODE_linsol) {
+      *ier = -1;
+      return;
+    }
+    *ier = SUNPCGSetMaxl(F2C_CVODE_linsol, *maxl);
+    break;
+  case FCMIX_IDA:
+    if (!F2C_IDA_linsol) {
+      *ier = -1;
+      return;
+    }
+    *ier = SUNPCGSetMaxl(F2C_IDA_linsol, *maxl);
+    break;
+  case FCMIX_KINSOL:
+    if (!F2C_KINSOL_linsol) {
+      *ier = -1;
+      return;
+    }
+    *ier = SUNPCGSetMaxl(F2C_KINSOL_linsol, *maxl);
+    break;
+  case FCMIX_ARKODE:
+    if (!F2C_ARKODE_linsol) {
+      *ier = -1;
+      return;
+    }
+    *ier = SUNPCGSetMaxl(F2C_ARKODE_linsol, *maxl);
+    break;
+  default:
+    *ier = -1;
+  }
+}
+
+
 void FSUNMASSPCG_INIT(int *pretype, int *maxl, int *ier)
 {
   *ier = 0;
@@ -92,4 +170,26 @@ void FSUNMASSPCG_INIT(int *pretype, int *maxl, int *ier)
   F2C_ARKODE_mass_sol = NULL;
   F2C_ARKODE_mass_sol = SUNPCG(F2C_ARKODE_vec, *pretype, *maxl);
   if (F2C_ARKODE_mass_sol == NULL) *ier = -1;
+}
+
+
+void FSUNMASSPCG_SETPRECTYPE(int *pretype, int *ier)
+{
+  *ier = 0;
+  if (!F2C_ARKODE_mass_sol) {
+      *ier = -1;
+      return;
+  }
+  *ier = SUNPCGSetPrecType(F2C_ARKODE_mass_sol, *pretype);
+}
+
+
+void FSUNMASSPCG_SETMAXL(int *maxl, int *ier)
+{
+  *ier = 0;
+  if (!F2C_ARKODE_mass_sol) {
+      *ier = -1;
+      return;
+  }
+  *ier = SUNPCGSetMaxl(F2C_ARKODE_mass_sol, *maxl);
 }

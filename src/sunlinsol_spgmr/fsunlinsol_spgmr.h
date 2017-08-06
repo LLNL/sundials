@@ -33,15 +33,19 @@ extern "C" {
 #endif
 
 #if defined(SUNDIALS_F77_FUNC)
-#define FSUNSPGMR_INIT          SUNDIALS_F77_FUNC(fsunspgmrinit,          FSUNSPGMRINIT)
-#define FSUNSPGMR_SETGSTYPE     SUNDIALS_F77_FUNC(fsunspgmrsetgstype,     FSUNSPGMRSETGSTYPE)
-#define FSUNMASSSPGMR_INIT      SUNDIALS_F77_FUNC(fsunmassspgmrinit,      FSUNMASSSPGMRINIT)
-#define FSUNMASSSPGMR_SETGSTYPE SUNDIALS_F77_FUNC(fsunmassspgmrsetgstype, FSUNMASSSPGMRSETGSTYPE)
+#define FSUNSPGMR_INIT            SUNDIALS_F77_FUNC(fsunspgmrinit,            FSUNSPGMRINIT)
+#define FSUNSPGMR_SETGSTYPE       SUNDIALS_F77_FUNC(fsunspgmrsetgstype,       FSUNSPGMRSETGSTYPE)
+#define FSUNSPGMR_SETPRECTYPE     SUNDIALS_F77_FUNC(fsunspgmrsetprectype,     FSUNSPGMRSETPRECTYPE)
+#define FSUNMASSSPGMR_INIT        SUNDIALS_F77_FUNC(fsunmassspgmrinit,        FSUNMASSSPGMRINIT)
+#define FSUNMASSSPGMR_SETGSTYPE   SUNDIALS_F77_FUNC(fsunmassspgmrsetgstype,   FSUNMASSSPGMRSETGSTYPE)
+#define FSUNMASSSPGMR_SETPRECTYPE SUNDIALS_F77_FUNC(fsunmassspgmrsetprectype, FSUNMASSSPGMRSETPRECTYPE)
 #else
-#define FSUNSPGMR_INIT          fsunspgmrinit_
-#define FSUNSPGMR_SETGSTYPE     fsunspgmrsetgstype_
-#define FSUNMASSSPGMR_INIT      fsunmassspgmrinit_
-#define FSUNMASSSPGMR_SETGSTYPE fsunmassspgmrsetgstype_
+#define FSUNSPGMR_INIT            fsunspgmrinit_
+#define FSUNSPGMR_SETGSTYPE       fsunspgmrsetgstype_
+#define FSUNSPGMR_SETPRECTYPE     fsunspgmrsetprectype_
+#define FSUNMASSSPGMR_INIT        fsunmassspgmrinit_
+#define FSUNMASSSPGMR_SETGSTYPE   fsunmassspgmrsetgstype_
+#define FSUNMASSSPGMR_SETPRECTYPE fsunmassspgmrsetprectype_
 #endif
 
 
@@ -58,14 +62,20 @@ extern SUNLinearSolver F2C_ARKODE_mass_sol;
  *
  * FSUNSPGMR_INIT - initializes SPGMR linear solver for main problem
  * FSUNSPGMR_SETGSTYPE - sets the Gram-Scmidt orthogonalization type for main problem
+ * FSUNSPGMR_SETPRECTYPE - sets the preconditioning type for main problem
+ *
  * FSUNMASSSPGMR_INIT - initializes SPGMR linear solver for mass matrix solve
  * FSUNMASSSPGMR_SETGSTYPE - sets the Gram-Scmidt orthogonalization type for mass matrix solve
+ * FSUNMASSSPGMR_SETPRECTYPE - sets the preconditioning type for mass matrix solve
  */
 
 void FSUNSPGMR_INIT(int *code, int *pretype, int *maxl, int *ier);
 void FSUNSPGMR_SETGSTYPE(int *code, int *gstype, int *ier);
+void FSUNSPGMR_SETPRECTYPE(int *code, int *pretype, int *ier);
+
 void FSUNMASSSPGMR_INIT(int *pretype, int *maxl, int *ier);
 void FSUNMASSSPGMR_SETGSTYPE(int *gstype, int *ier);
+void FSUNMASSSPGMR_SETPRECTYPE(int *pretype, int *ier);
 
 #ifdef __cplusplus
 }

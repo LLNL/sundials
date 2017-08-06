@@ -181,6 +181,7 @@ typedef struct _SUNLinearSolverContent_PCG *SUNLinearSolverContent_PCG;
 
 SUNDIALS_EXPORT SUNLinearSolver SUNPCG(N_Vector y, int pretype, int maxl);
 SUNDIALS_EXPORT int SUNPCGSetPrecType(SUNLinearSolver S, int pretype);
+SUNDIALS_EXPORT int SUNPCGSetMaxl(SUNLinearSolver S, int maxl);
 
 /*
  * -----------------------------------------------------------------
