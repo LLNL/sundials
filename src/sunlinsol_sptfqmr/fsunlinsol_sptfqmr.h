@@ -33,11 +33,19 @@ extern "C" {
 #endif
 
 #if defined(SUNDIALS_F77_FUNC)
-#define FSUNSPTFQMR_INIT     SUNDIALS_F77_FUNC(fsunsptfqmrinit, FSUNSPTFQMRINIT)
-#define FSUNMASSSPTFQMR_INIT SUNDIALS_F77_FUNC(fsunmasssptfqmrinit, FSUNMASSSPTFQMRINIT)
+#define FSUNSPTFQMR_INIT            SUNDIALS_F77_FUNC(fsunsptfqmrinit,            FSUNSPTFQMRINIT)
+#define FSUNSPTFQMR_SETPRECTYPE     SUNDIALS_F77_FUNC(fsunsptfqmrsetprectype,     FSUNSPTFQMRSETPRECTYPE)
+#define FSUNSPTFQMR_SETMAXL         SUNDIALS_F77_FUNC(fsunsptfqmrsetmaxl,         FSUNSPTFQMRSETMAXL)
+#define FSUNMASSSPTFQMR_INIT        SUNDIALS_F77_FUNC(fsunmasssptfqmrinit,        FSUNMASSSPTFQMRINIT)
+#define FSUNMASSSPTFQMR_SETPRECTYPE SUNDIALS_F77_FUNC(fsunmasssptfqmrsetprectype, FSUNMASSSPTFQMRSETPRECTYPE)
+#define FSUNMASSSPTFQMR_SETMAXL     SUNDIALS_F77_FUNC(fsunmasssptfqmrsetmaxl,     FSUNMASSSPTFQMRSETMAXL)
 #else
-#define FSUNSPTFQMR_INIT     fsunsptfqmrinit_
-#define FSUNMASSSPTFQMR_INIT fsunmasssptfqmrinit_
+#define FSUNSPTFQMR_INIT            fsunsptfqmrinit_
+#define FSUNSPTFQMR_SETPRECTYPE     fsunsptfqmrsetprectype_
+#define FSUNSPTFQMR_SETMAXL         fsunsptfqmrsetmaxl_
+#define FSUNMASSSPTFQMR_INIT        fsunmasssptfqmrinit_
+#define FSUNMASSSPTFQMR_SETPRECTYPE fsunmasssptfqmrsetprectype_
+#define FSUNMASSSPTFQMR_SETMAXL     fsunmasssptfqmrsetmaxl_
 #endif
 
 
@@ -53,11 +61,21 @@ extern SUNLinearSolver F2C_ARKODE_mass_sol;
  * Prototypes of exported functions 
  *
  * FSUNSPTFQMR_INIT - initializes SPTFQMR linear solver for main problem
+ * FSUNSPTFQMR_SETPRECTYPE - sets the preconditioning type for main problem
+ * FSUNSPTFQMR_SETMAXL - sets the max number of iterations for main problem
+ *
  * FSUNMASSSPTFQMR_INIT - initializes SPTFQMR linear solver for mass matrix solve
+ * FSUNMASSSPTFQMR_SETPRECTYPE - sets the preconditioning type for mass matrix solve
+ * FSUNMASSSPTFQMR_SETMAXL - sets the max number of iterations for mass matrix solve
  */
 
 void FSUNSPTFQMR_INIT(int *code, int *pretype, int *maxl, int *ier);
+void FSUNSPTFQMR_SETPRECTYPE(int *code, int *pretype, int *ier);
+void FSUNSPTFQMR_SETMAXL(int *code, int *maxl, int *ier);
+
 void FSUNMASSSPTFQMR_INIT(int *pretype, int *maxl, int *ier);
+void FSUNMASSSPTFQMR_SETPRECTYPE(int *pretype, int *ier);
+void FSUNMASSSPTFQMR_SETMAXL(int *maxl, int *ier);
 
 #ifdef __cplusplus
 }

@@ -186,6 +186,7 @@ typedef struct _SUNLinearSolverContent_SPTFQMR *SUNLinearSolverContent_SPTFQMR;
 
 SUNDIALS_EXPORT SUNLinearSolver SUNSPTFQMR(N_Vector y, int pretype, int maxl);
 SUNDIALS_EXPORT int SUNSPTFQMRSetPrecType(SUNLinearSolver S, int pretype);
+SUNDIALS_EXPORT int SUNSPTFQMRSetMaxl(SUNLinearSolver S, int maxl);
 
 /*
  * -----------------------------------------------------------------

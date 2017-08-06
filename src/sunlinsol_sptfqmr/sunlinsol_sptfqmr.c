@@ -158,6 +158,25 @@ SUNDIALS_EXPORT int SUNSPTFQMRSetPrecType(SUNLinearSolver S, int pretype)
 }
 
 
+/* ----------------------------------------------------------------------------
+ * Function to set the maximum number of iterations for SPTFQMR to use 
+ */
+
+SUNDIALS_EXPORT int SUNSPTFQMRSetMaxl(SUNLinearSolver S, int maxl) 
+{
+  /* Check for non-NULL SUNLinearSolver */
+  if (S == NULL) return(SUNLS_MEM_NULL);
+
+  /* Check for legal pretype */ 
+  if (maxl <= 0)
+    maxl = SUNSPTFQMR_MAXL_DEFAULT;
+
+  /* Set pretype */
+  SPTFQMR_CONTENT(S)->maxl = maxl;
+  return(SUNLS_SUCCESS);
+}
+
+
 /*
  * -----------------------------------------------------------------
  * implementation of linear solver operations
