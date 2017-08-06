@@ -928,20 +928,33 @@
           CALL FSUNDENSELINSOLINIT(4, IER)
           CALL FSUNDIAGLINSOLINIT(4, IER)
           CALL FSUNKLUINIT(4, IER)
-          CALL FSUNKLUSETORDERING(4, ORD_CHOICE, IER)
           CALL FSUNLAPACKBANDINIT(4, IER)
           CALL FSUNLAPACKDENSEINIT(4, IER)
           CALL FSUNPCGINIT(4, PRETYPE, MAXL, IER)
           CALL FSUNSPBCGSINIT(4, PRETYPE, MAXL, IER)
           CALL FSUNSPFGMRINIT(4, PRETYPE, MAXL, IER)
-          CALL FSUNSPFGMRSETGSTYPE(4, GSTYPE, IER)
           CALL FSUNSPGMRINIT(4, PRETYPE, MAXL, IER)
-          CALL FSUNSPGMRSETGSTYPE(4, GSTYPE, IER)
           CALL FSUNSPTFQMRINIT(4, PRETYPE, MAXL, IER)
           CALL FSUNSUPERLUMTINIT(4, NUM_THREADS, IER)
+
+     Or once these have been initialized, their solver parameters may be
+     modified via calls to the functions
+
+          CALL FSUNKLUSETORDERING(4, ORD_CHOICE, IER)
           CALL FSUNSUPERLUMTSETORDERING(4, ORD_CHOICE, IER)
 
-     In each of these, one argument is an int containing the ARKODE solver 
+          CALL FSUNPCGSETPRECTYPE(4, PRETYPE, IER)
+          CALL FSUNPCGSETMAXL(4, MAXL, IER)
+          CALL FSUNSPBCGSSETPRECTYPE(4, PRETYPE, IER)
+          CALL FSUNSPBCGSSETMAXL(4, MAXL, IER)
+          CALL FSUNSPFGMRSETGSTYPE(4, GSTYPE, IER)
+          CALL FSUNSPFGMRSETPRECTYPE(4, PRETYPE, IER)
+          CALL FSUNSPGMRSETGSTYPE(4, GSTYPE, IER)
+          CALL FSUNSPGMRSETPRECTYPE(4, PRETYPE, IER)
+          CALL FSUNSPTFQMRSETPRECTYPE(4, PRETYPE, IER)
+          CALL FSUNSPTFQMRSETMAXL(4, MAXL, IER)
+
+     In all of the above, one argument is an int containing the ARKODE solver 
      ID (4). 
 
      The other arguments are:
@@ -969,19 +982,32 @@
           CALL FSUNMASSDENSELINSOLINIT(IER)
           CALL FSUNMASSDIAGLINSOLINIT(IER)
           CALL FSUNMASSKLUINIT(IER)
-          CALL FSUNMASSKLUSETORDERING(ORD_CHOICE, IER)
           CALL FSUNMASSLAPACKBANDINIT(IER)
           CALL FSUNMASSLAPACKDENSEINIT(IER)
           CALL FSUNMASSPCGINIT(PRETYPE, MAXL, IER)
           CALL FSUNMASSSPBCGSINIT(PRETYPE, MAXL, IER)
           CALL FSUNMASSSPFGMRINIT(PRETYPE, MAXL, IER)
-          CALL FSUNMASSSPFGMRSETGSTYPE(GSTYPE, IER)
           CALL FSUNMASSSPGMRINIT(PRETYPE, MAXL, IER)
-          CALL FSUNMASSSPGMRSETGSTYPE(GSTYPE, IER)
           CALL FSUNMASSSPTFQMRINIT(PRETYPE, MAXL, IER)
           CALL FSUNMASSSUPERLUMTINIT(NUM_THREADS, IER)
-          CALL FSUNMASSSUPERLUMTSETORDERING(ORD_CHOICE, IER)
           
+     Or once these have been initialized, their solver parameters may be
+     modified via calls to the functions
+
+          CALL FSUNMASSKLUSETORDERING(ORD_CHOICE, IER)
+          CALL FSUNMASSSUPERLUMTSETORDERING(ORD_CHOICE, IER)
+
+          CALL FSUNMASSPCGSETPRECTYPE(PRETYPE, IER)
+          CALL FSUNMASSPCGSETMAXL(MAXL, IER)
+          CALL FSUNMASSSPBCGSSETPRECTYPE(PRETYPE, IER)
+          CALL FSUNMASSSPBCGSSETMAXL(MAXL, IER)
+          CALL FSUNMASSSPFGMRSETGSTYPE(GSTYPE, IER)
+          CALL FSUNMASSSPFGMRSETPRECTYPE(PRETYPE, IER)
+          CALL FSUNMASSSPGMRSETGSTYPE(GSTYPE, IER)
+          CALL FSUNMASSSPGMRSETPRECTYPE(PRETYPE, IER)
+          CALL FSUNMASSSPTFQMRSETPRECTYPE(PRETYPE, IER)
+          CALL FSUNMASSSPTFQMRSETMAXL(MAXL, IER)
+
      The arguments have the same meanings as with the Jacobian matrix 
      initialization routines above.
 
@@ -1182,7 +1208,19 @@
      routines will be disabled. The return flag IER=0 if successful, 
      nonzero otherwise.
 
- (9.17) When using a band / dense / sparse / diagonal mass matrix and 
+ (9.17) If the user wishes to use one of ARKode's built-in preconditioning 
+     modules, FARKBP or FARKBBD, then that should be initialized after 
+     creating the ARKSpils interface using one of the calls
+
+       CALL FARKBPINIT(NEQ, MU, ML, IER)
+       CALL FARKBBDINIT(NLOCAL, MUDQ, MLDQ, MU, ML, DQRELY, IER)
+
+     Detailed explanation of the inputs to these functions, as well as any 
+     requirements of user-supplied functions on which these preconditioning 
+     modules rely, may be found in the header files for each module, 
+     farkbp.h or farkbbd.h, respectively.
+
+ (9.18) When using a band / dense / sparse / diagonal mass matrix and 
      corresponding linear solver the user must provide the FARKBMASS / 
      FARKDMASS / FARKSPMASS / FARKDIAGMASS routine for the evaluation of 
      the approximation to the mass matrix.  To indicate that the 
@@ -1197,7 +1235,7 @@
      The int return flag IER=0 if successful, nonzero otherwise.
 
 
- (9.18) When using the ARKSPILS interface for the mass matrix solvers, the 
+ (9.19) When using the ARKSPILS interface for the mass matrix solvers, the 
      user must supply a mass matrix-times-vector routine FARKMTIMES, and 
      an associated 'setup' routine FARKMTSETUP.  After creating the 
      ARKSpilsMass interface, the user must make the following call to 
@@ -1207,7 +1245,7 @@
 
      The int return flag IER=0 if successful, and nonzero otherwise.
 
- (9.19) If the user program includes the FARKMASSPSET and FARKMASSPSOL 
+ (9.20) If the user program includes the FARKMASSPSET and FARKMASSPSOL 
      routines for supplying a preconditioner to an iterative mass matrix 
      linear solver, then after creating the ARKSpilsMass interface, the 
      following call must be made
@@ -1218,7 +1256,7 @@
      routines will be disabled. The return flag IER=0 if successful, 
      nonzero otherwise.
 
- (9.20) To re-initialize the ARKODE solver for the solution of a new problem
+ (9.21) To re-initialize the ARKODE solver for the solution of a new problem
      of the same size as one already solved, make the following call:
 
        CALL FARKREINIT(T0, Y0, IMEX, IATOL, RTOL, ATOL, IER)
@@ -1230,7 +1268,7 @@
      attach the linear system or mass matrix system solvers are only needed 
      if those objects have been re-created.
  
- (9.21) To re-initialize the ARKODE solver for the solution of a new problem
+ (9.22) To re-initialize the ARKODE solver for the solution of a new problem
      of a different size as one already solved, but with the same dynamical 
      time scale and method choice, make the following call:
 
@@ -1268,7 +1306,7 @@
      interface must also be reconstructed, and any options (e.g. setting
      the Jacobian-times-vector product routine) must be specified again.
 
- (9.22) The SUNKLU solver will reuse much of the factorization information 
+ (9.23) The SUNKLU solver will reuse much of the factorization information 
      from one solve to the next.  If at any time the user wants to force a 
      full refactorization or if the number of nonzeros in the Jacobian 
      matrix changes, the user should make the call
@@ -1288,7 +1326,7 @@
           For a value of 2, only symbolic and numeric factorizations will 
           be completed. 
  
- (9.23) To set various integer optional inputs, make the folowing call:
+ (9.24) To set various integer optional inputs, make the folowing call:
 
        CALL FARKSETIIN(KEY, VALUE, IER)
 
@@ -1302,7 +1340,7 @@
      ADAPT_SMALL_NEF or LSETUP_MSBP.  The int return flag IER is 0 if 
      successful, and nonzero otherwise. 
 
- (9.24) To set various real optional inputs, make the following call:
+ (9.25) To set various real optional inputs, make the following call:
 
        CALL FARKSETRIN(KEY, VALUE, IER)
 
@@ -1315,7 +1353,7 @@
      ADAPT_ETAMXF, ADAPT_ETACF, NONLIN_CRDOWN, NONLIN_RDIV, LSETUP_DGMAX, 
      or FIXED_STEP.
 
- (9.25) To set the time step adaptivity method (and its associated 
+ (9.26) To set the time step adaptivity method (and its associated 
      parameters), make the following call: 
 
        CALL FARKSETADAPTIVITYMETHOD(IMETHOD, IDEFAULT, IPQ, PARAMS, IER)
@@ -1331,12 +1369,12 @@
 		  the method [realtype, input].
        IER      = integer error flag (0 = success, 1 = failure) [integer, output]
 
- (9.26) To reset all optional inputs to their default values, make the 
+ (9.27) To reset all optional inputs to their default values, make the 
      following call:
 
        CALL FARKSETDEFAULTS(IER)
 
- (9.27) To set a custom explicit Runge-Kutta table, make the following call:
+ (9.28) To set a custom explicit Runge-Kutta table, make the following call:
 
        CALL FARKSETERKTABLE(S, Q, P, C, A, B, B2, IER)
 
@@ -1394,7 +1432,7 @@
        B2E = array of length S containing the explicit embedding coefficients
            [realtype, input]
 
- (9.28) When using a non-identity mass matrix, to set an absolute residual 
+ (9.29) When using a non-identity mass matrix, to set an absolute residual 
      tolerance (scalar or vector), call:
 
        CALL FARKSETRESTOLERANCE(IATOL, ATOL, IER)
@@ -1408,7 +1446,7 @@
                  0 = SUCCESS,
                 -1 = failure (see printed message for failure details).
 
- (9.29) To set a solver diagnostics output file, make the folowing call:
+ (9.30) To set a solver diagnostics output file, make the folowing call:
 
        CALL FARKSETDIAGNOSTICS(FNAME, FLEN, IER)
 
@@ -1418,7 +1456,7 @@
      int return flag IER is 0 if successful (able to open file), and 
      nonzero otherwise.
 
- (9.30) To close the solver diagnostics output file, make the folowing call:
+ (9.31) To close the solver diagnostics output file, make the folowing call:
 
        CALL FARKSTOPDIAGNOSTICS(IER)
 

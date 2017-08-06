@@ -105,7 +105,7 @@ C
         ENDIF
 C
       CALL FARKMALLOC(T, Y, METH, IATOL, RTOL, ATOL,
-     1               IOUT, ROUT, IPAR, RPAR, IER)
+     1                IOUT, ROUT, IPAR, RPAR, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER

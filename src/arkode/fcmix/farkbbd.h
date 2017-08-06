@@ -41,7 +41,7 @@
 
    Fortran               ARKODE
    --------------        ---------------------------
-   FARKBBDININT          ARKBBDPrecInit
+   FARKBBDINIT           ARKBBDPrecInit
    FARKBBDREINIT         ARKBBDPrecReInit
    FARKBBDOPT            (accesses optional outputs)
    --------------        ---------------------------
