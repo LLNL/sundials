@@ -1098,7 +1098,7 @@ IF(EXAMPLES_ENABLE)
   ENDIF(EXAMPLES_INSTALL)
 
   IF(BUILD_ARKODE)
-    #ADD_SUBDIRECTORY(examples/arkode/C_serial)
+    ADD_SUBDIRECTORY(examples/arkode/C_serial)
     IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/C_openmp)
     ENDIF(OPENMP_FOUND)

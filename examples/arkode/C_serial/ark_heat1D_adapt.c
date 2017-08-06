@@ -35,7 +35,7 @@
  * [0, 1], but as the simulation proceeds the mesh is adapted.
  *
  * This program solves the problem with a DIRK method, solved with 
- * a Newton iteration and PCG linear solver, with a user-supplied 
+ * a Newton iteration and SUNPCG linear solver, with a user-supplied 
  * Jacobian-vector product routine.
  *---------------------------------------------------------------*/
 
@@ -45,9 +45,10 @@
 #include <math.h>
 #include <arkode/arkode.h>            /* prototypes for ARKode fcts., consts. */
 #include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
-#include <arkode/arkode_pcg.h>        /* prototype for ARKPcg solver */
-#include <sundials/sundials_types.h>  /* def. of type 'realtype' */
-#include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc. */
+#include <sunlinsol/sunlinsol_pcg.h>  /* access to PCG SUNLinearSolver        */
+#include <arkode/arkode_spils.h>      /* access to ARKSpils interface         */
+#include <sundials/sundials_types.h>  /* defs. of realtype, sunindextype, etc */
+#include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc.               */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -70,12 +71,12 @@ typedef struct {
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
-            N_Vector fy, void *user_data, N_Vector tmp);
+               N_Vector fy, void *user_data, N_Vector tmp);
 
 /* Private function to check function return values */
 realtype * adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata);
 static int project(sunindextype Nold, realtype *xold, N_Vector yold, 
-		   sunindextype Nnew, realtype *xnew, N_Vector ynew);
+                   sunindextype Nnew, realtype *xnew, N_Vector ynew);
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /* Main Program */
@@ -101,6 +102,7 @@ int main() {
   N_Vector y  = NULL;          /* empty vector for storing solution */
   N_Vector y2 = NULL;          /* empty vector for storing solution */
   N_Vector yt = NULL;          /* empty vector for swapping */
+  SUNLinearSolver LS = NULL;   /* empty linear solver object */
   void *arkode_mem = NULL;     /* empty ARKode memory structure */
   FILE *XFID, *UFID;
   realtype t, olddt, newdt;
@@ -161,11 +163,15 @@ int main() {
   flag = ARKodeSetPredictorMethod(arkode_mem, 0);     /* Set predictor method */
   if (check_flag(&flag, "ARKodeSetPredictorMethod", 1)) return 1;
 
-  /* Linear solver specification */
-  flag = ARKPcg(arkode_mem, 0, N);
-  if (check_flag(&flag, "ARKPcg", 1)) return 1;
-  flag = ARKSpilsSetJacTimesVecFn(arkode_mem, Jac);
-  if (check_flag(&flag, "ARKSpilsSetJacTimesVecFn", 1)) return 1;
+  /* Initialize PCG solver -- no preconditioning, with up to N iterations  */
+  LS = SUNPCG(y, 0, N);
+  if (check_flag((void *)LS, "SUNPCG", 0)) return 1;
+  
+  /* Linear solver interface -- set user-supplied J*v routine (no 'jtsetup' required) */
+  flag = ARKSpilsSetLinearSolver(arkode_mem, LS);        /* Attach linear solver to ARKode */
+  if (check_flag(&flag, "ARKSpilsSetLinearSolver", 1)) return 1;
+  flag = ARKSpilsSetJacTimes(arkode_mem, NULL, Jac);     /* Set the Jacobian routine */
+  if (check_flag(&flag, "ARKSpilsSetJacTimes", 1)) return 1;
 
   /* Main time-stepping loop: calls ARKode to perform the integration, then
      prints results.  Stops when the final time has been reached */
@@ -228,7 +234,7 @@ int main() {
     if (check_flag(&flag, "project", 1)) return 1;
 
     /* delete old vector, old mesh */
-    N_VDestroy_Serial(y);
+    N_VDestroy(y);
     free(udata->x);
     
     /* swap x and xnew so that new mesh is stored in udata structure */
@@ -245,17 +251,17 @@ int main() {
     flag = ARKodeResize(arkode_mem, y, hscale, t, NULL, NULL);
     if (check_flag(&flag, "ARKodeResize", 1)) return 1;
 
-    /* destroy and re-allocate linear solver memory */
-    flag = ARKPcg(arkode_mem, 0, udata->N);
-    if (check_flag(&flag, "ARKPcg", 1)) return 1;
-    flag = ARKSpilsSetJacTimesVecFn(arkode_mem, Jac);
-    if (check_flag(&flag, "ARKSpilsSetJacTimesVecFn", 1)) return 1;
+    /* destroy and re-allocate linear solver memory; reattach to ARKSpils interface */
+    SUNLinSolFree(LS);
+    LS = SUNPCG(y, 0, N);
+    if (check_flag((void *)LS, "SUNPCG", 0)) return 1;
+    flag = ARKSpilsSetLinearSolver(arkode_mem, LS);
+    if (check_flag(&flag, "ARKSpilsSetLinearSolver", 1)) return 1;
+    flag = ARKSpilsSetJacTimes(arkode_mem, NULL, Jac);
+    if (check_flag(&flag, "ARKSpilsSetJacTimes", 1)) return 1;
 
   }
   printf(" ----------------------------------------------------------------------------------------\n");
-
-  /* Free integrator memory */
-  ARKodeFree(&arkode_mem);
 
   /* print some final statistics */
   printf(" Final solver statistics:\n");
@@ -266,9 +272,11 @@ int main() {
   /* Clean up and return with successful completion */
   fclose(UFID);
   fclose(XFID);
-  N_VDestroy_Serial(y);        /* Free vectors */
+  N_VDestroy(y);               /* Free vectors */
   free(udata->x);              /* Free user data */
   free(udata);   
+  ARKodeFree(&arkode_mem);     /* Free integrator memory */
+  SUNLinSolFree(LS);           /* Free linear solver */
 
   return 0;
 }
@@ -317,7 +325,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
 static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y, 
-	       N_Vector fy, void *user_data, N_Vector tmp)
+               N_Vector fy, void *user_data, N_Vector tmp)
 {
   UserData udata = (UserData) user_data;     /* variable shortcuts */
   sunindextype N = udata->N;

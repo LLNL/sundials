@@ -141,7 +141,7 @@ int main()
   printf("   Total number of error test failures = %li\n\n", netf);
 
   /* Clean up and return with successful completion */
-  N_VDestroy_Serial(y);        /* Free y vector */
+  N_VDestroy(y);               /* Free y vector */
   ARKodeFree(&arkode_mem);     /* Free integrator memory */
   return 0;
 }

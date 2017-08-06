@@ -29,7 +29,7 @@ SET(ARKODE_examples
   ark_brusselator_fp
   ark_brusselator1D
   ark_heat1D
-  ark_heat1D_adapt
+  # ark_heat1D_adapt
   ark_KrylovDemo_prec
   ark_robertson
   ark_robertson_root
@@ -45,14 +45,14 @@ SET(ARKODE_examples_BL
 # that use KLU
 
 SET(ARKODE_examples_KLU
-  ark_brusselator1D_klu
+  # ark_brusselator1D_klu
   )
 
 # Add variable ARKODE_examples_SUPERLUMT with the names of the serial ARKODE examples
 # that use SUPERLUMT
 
 SET(ARKODE_examples_SUPERLUMT
-  ark_brusselator1D_FEM_slu
+  # ark_brusselator1D_FEM_slu
   )
 
 # Add variable ARKODE_extras with the names of auxiliary files to install
