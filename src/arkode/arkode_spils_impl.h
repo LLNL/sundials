@@ -42,6 +42,7 @@ typedef struct ARKSpilsMemRec {
   realtype deltar;    /* deltar = delt * LTE                          */
   realtype delta;     /* delta = deltar * sqrtN                       */
 
+  booleantype jbad;   /* heuristic suggestion for pset/JTimes         */
   long int nstlpre;   /* value of nst at the last pset call           */
   long int npe;       /* npe = total number of pset calls             */
   long int nli;       /* nli = total number of linear iterations      */

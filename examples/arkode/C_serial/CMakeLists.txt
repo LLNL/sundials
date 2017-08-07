@@ -29,7 +29,7 @@ SET(ARKODE_examples
   ark_brusselator_fp
   ark_brusselator1D
   ark_heat1D
-  # ark_heat1D_adapt
+  ark_heat1D_adapt
   ark_KrylovDemo_prec
   ark_robertson
   ark_robertson_root

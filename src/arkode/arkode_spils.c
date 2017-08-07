@@ -119,6 +119,7 @@ int ARKSpilsSetLinearSolver(void *arkode_mem, SUNLinearSolver LS)
   arkSpilsInitializeCounters(arkspils_mem);
 
   /* Set default values for the rest of the SPILS parameters */
+  arkspils_mem->jbad = TRUE;
   arkspils_mem->eplifac = ARKSPILS_EPLIN;
   arkspils_mem->last_flag  = ARKSPILS_SUCCESS;
 
@@ -1101,14 +1102,27 @@ int ARKSpilsATSetup(void *arkode_mem)
   ARKSpilsMem arkspils_mem;
   int flag;
 
+  /* Return immediately if arkode_mem or ark_mem->ark_lmem are NULL */
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
+		    "ARKSpilsCallPSetup", MSGS_ARKMEM_NULL);
+    return(ARKSPILS_MEM_NULL);
+  }
   ark_mem = (ARKodeMem) arkode_mem;
+  if (ark_mem->ark_lmem == NULL) {
+    arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKSPILS", 
+		    "ARKSpilsCallPSetup", MSGS_LMEM_NULL);
+    return(ARKSPILS_LMEM_NULL);
+  }
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
 
+  /* Call user-supplied jtsetup routine */
   flag = arkspils_mem->jtsetup(ark_mem->ark_tn, 
                                arkspils_mem->ycur, 
                                arkspils_mem->fcur, 
                                arkspils_mem->j_data);
   arkspils_mem->njtsetup++;
+  
   return(flag);
 }
 
@@ -1165,8 +1179,6 @@ int ARKSpilsATimes(void *arkode_mem, N_Vector v, N_Vector z)
 ---------------------------------------------------------------*/
 int ARKSpilsPSetup(void *arkode_mem)
 {
-  booleantype jbad, jok;
-  realtype dgamma;
   int  retval;
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
@@ -1185,31 +1197,15 @@ int ARKSpilsPSetup(void *arkode_mem)
   }
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
 
-  /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-  dgamma = SUNRabs((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
-  jbad = (ark_mem->ark_nst == 0) || 
-    (ark_mem->ark_nst > arkspils_mem->nstlpre + ARKSPILS_MSBPRE) ||
-    ((ark_mem->ark_convfail == ARK_FAIL_BAD_J) && (dgamma < ARKSPILS_DGMAX)) ||
-    (ark_mem->ark_convfail == ARK_FAIL_OTHER);
-  ark_mem->ark_jcur = jbad;
-  jok = !jbad;
-
-  /* Call user pset routine and possibly reset jcur */
+  /* Call user pset routine to update preconditioner and possibly 
+     reset jcur (pass !jbad as update suggestion) */
   retval = arkspils_mem->pset(ark_mem->ark_tn, 
                               arkspils_mem->ycur, 
                               arkspils_mem->fcur, 
-                              jok,
+                              !(arkspils_mem->jbad),
                               &ark_mem->ark_jcur,
                               ark_mem->ark_gamma, 
                               arkspils_mem->P_data);
-  if (jbad) ark_mem->ark_jcur = TRUE;   /* NECESSARY?? (USER SHOULD SET THIS) */
-
-  /* If jcur = TRUE, increment npe and save nst value */
-  if (ark_mem->ark_jcur) {
-    arkspils_mem->npe++;
-    arkspils_mem->nstlpre = ark_mem->ark_nst;
-  }
-
   return(retval);     
 }
 
@@ -1477,18 +1473,48 @@ int arkSpilsInitialize(ARKodeMem ark_mem)
 int arkSpilsSetup(ARKodeMem ark_mem, N_Vector vtemp1,
                   N_Vector vtemp2, N_Vector vtemp3)
 {
-  int retval;
+  realtype dgamma;
+  int  retval;
   ARKSpilsMem arkspils_mem;
+
+  /* Return immediately if ark_mem or ark_mem->ark_lmem are NULL */
+  if (ark_mem == NULL) {
+    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
+		    "ARKSpilsCallPSetup", MSGS_ARKMEM_NULL);
+    return(ARKSPILS_MEM_NULL);
+  }
+  if (ark_mem->ark_lmem == NULL) {
+    arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKSPILS", 
+		    "ARKSpilsCallPSetup", MSGS_LMEM_NULL);
+    return(ARKSPILS_LMEM_NULL);
+  }
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
 
   /* Set ARKSpils N_Vector pointers to current solution and rhs */
   arkspils_mem->ycur = ark_mem->ark_ycur;
   arkspils_mem->fcur = ark_mem->ark_ftemp;
+
+  /* Use nst, gamma/gammap, and convfail to set J/P eval. flag jok */
+  dgamma = SUNRabs((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
+  arkspils_mem->jbad = (ark_mem->ark_nst == 0) || 
+    (ark_mem->ark_nst > arkspils_mem->nstlpre + ARKSPILS_MSBPRE) ||
+    ((ark_mem->ark_convfail == ARK_FAIL_BAD_J) && (dgamma < ARKSPILS_DGMAX)) ||
+    (ark_mem->ark_convfail == ARK_FAIL_OTHER);
+  ark_mem->ark_jcur = arkspils_mem->jbad;
   
-  /* Call LS setup routine -- note all heuristics regarding 
-   whether to update the preconditioner are handled in the 
-   ARKSpilsPSetup routine (called by the LS) */
+  /* Call LS setup routine -- the LS will call ARKSpilsPSetup, who will 
+     pass the heuristic suggestions above to the user code(s) */
   retval = SUNLinSolSetup(arkspils_mem->LS, NULL);
+
+  /* If user set jcur to TRUE, increment npe and save nst value */
+  if (ark_mem->ark_jcur) {
+    arkspils_mem->npe++;
+    arkspils_mem->nstlpre = ark_mem->ark_nst;
+  }
+
+  /* Update jcur flag if we suggested an update */
+  if (arkspils_mem->jbad) ark_mem->ark_jcur = TRUE;
+
   return(retval);
 }
 

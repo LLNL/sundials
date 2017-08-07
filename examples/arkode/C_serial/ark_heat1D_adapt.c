@@ -163,6 +163,10 @@ int main() {
   flag = ARKodeSetPredictorMethod(arkode_mem, 0);     /* Set predictor method */
   if (check_flag(&flag, "ARKodeSetPredictorMethod", 1)) return 1;
 
+  /* Specify linearly implicit RHS, with time-dependent Jacobian */
+  flag = ARKodeSetLinear(arkode_mem, 1);
+  if (check_flag(&flag, "ARKodeSetLinear", 1)) return 1;
+
   /* Initialize PCG solver -- no preconditioning, with up to N iterations  */
   LS = SUNPCG(y, 0, N);
   if (check_flag((void *)LS, "SUNPCG", 0)) return 1;
@@ -380,19 +384,6 @@ realtype * adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata)
 
   /* create marking array */
   marks = calloc(udata->N-1, sizeof(int));
-
-  /* /\* perform marking:  */
-  /*     0 -> leave alone */
-  /*     1 -> refine */
-  /* realtype ymax, ymin; */
-  /* for (i=0; i<(udata->N-1); i++) { */
-
-  /*   /\* check for refinement *\/ */
-  /*   if (fabs(Y[i+1] - Y[i]) > udata->refine_tol) { */
-  /*     marks[i] = 1; */
-  /*     continue; */
-  /*   } */
-  /* } */
 
   /* perform marking: 
       0 -> leave alone

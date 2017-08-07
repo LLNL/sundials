@@ -4599,13 +4599,13 @@ static int arkNlsNewton(ARKodeMem ark_mem, int nflag)
   }
   
   /* Looping point for attempts at solution of the nonlinear system:
-       Evaluate f at predicted y, store result in ark_mem->ark_ftemp.
-       Call lsetup if indicated, setting statistics and gamma factors.
-       Zero out the correction array (ark_mem->ark_acor).
-       Copy the predicted y (ycur) into the output (ark_mem->ark_y).
-       Performs the modified Newton iteration using the existing lsetup.
-       Repeat process if a recoverable failure occurred (convergence
-	  failure with stale Jacobian). */
+     Evaluate f at predicted y, store result in ark_mem->ark_ftemp.
+     Call lsetup if indicated, setting statistics and gamma factors.
+     Zero out the correction array (ark_mem->ark_acor).
+     Copy the predicted y (ycur) into the output (ark_mem->ark_y).
+     Performs the modified Newton iteration using the existing lsetup.
+     Repeat process if a recoverable failure occurred (convergence
+     failure with stale Jacobian). */
   for(;;) {
 
     if (!ark_mem->ark_explicit) {
@@ -4616,7 +4616,7 @@ static int arkNlsNewton(ARKodeMem ark_mem, int nflag)
       if (retval > 0) return(RHSFUNC_RECVR);
     }
     
-  /* update system matrix/factorization if necessary */
+    /* update system matrix/factorization if necessary */
     if (callSetup) {
 
       /* Solver diagnostics reporting */
@@ -4661,10 +4661,10 @@ static int arkNlsNewton(ARKodeMem ark_mem, int nflag)
 
       /* Evaluate the nonlinear system residual, put result into b */
       retval = arkNlsResid(ark_mem, ark_mem->ark_acor, 
-			   ark_mem->ark_ftemp, b);
+                           ark_mem->ark_ftemp, b);
       if (retval != ARK_SUCCESS) {
-	ier = ARK_RHSFUNC_FAIL;
-	break;
+        ier = ARK_RHSFUNC_FAIL;
+        break;
       }
 
       /* Call the lsolve function */
@@ -4672,18 +4672,18 @@ static int arkNlsNewton(ARKodeMem ark_mem, int nflag)
       ark_mem->ark_nni++;
     
       if (retval < 0) {
-	ier = ARK_LSOLVE_FAIL;
-	break;
+        ier = ARK_LSOLVE_FAIL;
+        break;
       }
     
       /* If lsolve had a recoverable failure and Jacobian data is
 	 not current, signal to try the solution again */
       if (retval > 0) { 
-	if ((!ark_mem->ark_jcur) && (ark_mem->ark_lsetup)) 
-	  ier = TRY_AGAIN;
-	else 
-	  ier = CONV_FAIL;
-	break;
+        if ((!ark_mem->ark_jcur) && (ark_mem->ark_lsetup)) 
+          ier = TRY_AGAIN;
+        else 
+          ier = CONV_FAIL;
+        break;
       }
 
       /* Get WRMS norm of correction; add correction to acor and y */
@@ -4692,14 +4692,14 @@ static int arkNlsNewton(ARKodeMem ark_mem, int nflag)
       N_VLinearSum(ONE, ark_mem->ark_ycur, ONE, ark_mem->ark_acor, ark_mem->ark_y);
 
       /* Compute the nonlinear error estimate.  If m > 0, an estimate of the convergence
-	 rate constant is stored in crate, and used in the subsequent estimates */
+         rate constant is stored in crate, and used in the subsequent estimates */
       if (m > 0) 
-	ark_mem->ark_crate = SUNMAX(ark_mem->ark_crdown*ark_mem->ark_crate, del/delp);
+        ark_mem->ark_crate = SUNMAX(ark_mem->ark_crdown*ark_mem->ark_crate, del/delp);
       dcon = SUNMIN(ark_mem->ark_crate, ONE) * del / ark_mem->ark_nlscoef;
 
       /* compute the forcing term for linear solver tolerance */
       ark_mem->ark_eRNrm = SUNMIN(ark_mem->ark_crate, ONE) * del
-	                 * RCONST(0.1) * ark_mem->ark_nlscoef;
+                         * RCONST(0.1) * ark_mem->ark_nlscoef;
 #ifdef FIXED_LIN_TOL
       /* reset if a fixed linear solver tolerance is desired */
       ark_mem->ark_eRNrm = RCONST(0.1) * ark_mem->ark_nlscoef;
@@ -4714,46 +4714,46 @@ static int arkNlsNewton(ARKodeMem ark_mem, int nflag)
 
       /* Solver diagnostics reporting */
       if (ark_mem->ark_report) 
-	fprintf(ark_mem->ark_diagfp, "    newt  %i  %"RSYM"  %"RSYM"\n", m, del, dcon);
+        fprintf(ark_mem->ark_diagfp, "    newt  %i  %"RSYM"  %"RSYM"\n", m, del, dcon);
     
       if (dcon <= ONE) {
-	ark_mem->ark_jcur = FALSE;
-	ier = ARK_SUCCESS;
-	break;
+        ark_mem->ark_jcur = FALSE;
+        ier = ARK_SUCCESS;
+        break;
       }
 
       /* update Newton iteration counter */
       ark_mem->ark_mnewt = ++m;
     
       /* Stop at maxcor iterations or if iteration seems to be diverging.
-	 If still not converged and Jacobian data is not current, signal 
-	 to try the solution again */
-      if ((m == ark_mem->ark_maxcor) || 
-	  ((m >= 2) && (del > ark_mem->ark_rdiv*delp))) {
-	if ((!ark_mem->ark_jcur) && (ark_mem->ark_lsetup)) 
-	  ier = TRY_AGAIN;
-	else
-	  ier = CONV_FAIL;
-	break;
+         If still not converged and Jacobian data is not current, signal 
+         to try the solution again */
+      if ( (m == ark_mem->ark_maxcor) || 
+           ((m >= 2) && (del > ark_mem->ark_rdiv*delp)) ) {
+        if ((!ark_mem->ark_jcur) && (ark_mem->ark_lsetup)) 
+          ier = TRY_AGAIN;
+        else
+          ier = CONV_FAIL;
+        break;
       }
     
       /* Save norm of correction, evaluate fi, and loop again */
       delp = del;
       if (!ark_mem->ark_explicit) {
-	retval = ark_mem->ark_fi(ark_mem->ark_tn, ark_mem->ark_y, 
-				 ark_mem->ark_ftemp, ark_mem->ark_user_data);
-	ark_mem->ark_nfi++;
-	if (retval < 0) {
-	  ier = ARK_RHSFUNC_FAIL;
-	  break;
-	}
-	if (retval > 0) {
-	  if ((!ark_mem->ark_jcur) && (ark_mem->ark_lsetup)) 
-	    ier = TRY_AGAIN;
-	  else
-	    ier = RHSFUNC_RECVR;
-	  break;
-	}
+        retval = ark_mem->ark_fi(ark_mem->ark_tn, ark_mem->ark_y, 
+                                 ark_mem->ark_ftemp, ark_mem->ark_user_data);
+        ark_mem->ark_nfi++;
+        if (retval < 0) {
+          ier = ARK_RHSFUNC_FAIL;
+          break;
+        }
+        if (retval > 0) {
+          if ((!ark_mem->ark_jcur) && (ark_mem->ark_lsetup)) 
+            ier = TRY_AGAIN;
+          else
+            ier = RHSFUNC_RECVR;
+          break;
+        }
       }
     } 
     /* end modified Newton iteration */
@@ -5079,7 +5079,7 @@ static int arkLs(ARKodeMem ark_mem, int nflag)
   ark_mem->ark_convfail = (nflag == FIRST_CALL) ? ARK_NO_FAILURES : ARK_FAIL_OTHER;
 
   /* Decide whether or not to call setup routine (if one exists) */
-  if (ark_mem->ark_lsetup) {      
+  if (ark_mem->ark_lsetup) {    
     callSetup = (ark_mem->ark_firststage) || 
       (ark_mem->ark_linear_timedep) || (ark_mem->ark_msbp < 0) ||
       (SUNRabs(ark_mem->ark_gamrat-ONE) > ark_mem->ark_dgmax);
