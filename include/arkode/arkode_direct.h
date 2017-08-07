@@ -200,17 +200,22 @@ SUNDIALS_EXPORT int ARKDlsSetMassFn(void *arkode_mem, ARKDlsMassFn mass);
 
  ARKDlsGetWorkSpace   returns the real and integer workspace used
                      by the direct linear solver.
- ARKDlsGetMassWorkSpace   returns the real and integer workspace used
-                     by the mass matrix direct linear solver.
  ARKDlsGetNumJacEvals returns the number of calls made to the
                      Jacobian evaluation routine jac.
- ARKDlsGetNumMassEvals returns the number of calls made to the
-                     mass matrix evaluation routine Mass.
  ARKDlsGetNumRhsEvals returns the number of calls to the user
                      f routine due to finite difference Jacobian
                      evaluation.
  ARKDlsGetLastFlag    returns the last error flag set by any of
                      the ARKDLS interface functions.
+
+ ARKDlsGetMassWorkSpace   returns the real and integer workspace used
+                     by the mass matrix direct linear solver.
+ ARKDlsGetNumMassSetups returns the number of calls made to the
+                     mass matrix solver setup routine
+ ARKDlsGetNumMassSolves returns the number of calls made to the
+                     mass matrix solver 'solve' routine
+ ARKDlsGetNumMassMult returns the number of calls made to the
+                     mass matrix-times-vector routine
  ARKDlsGetLastMassFlag  returns the last error flag set by any of
                      the ARKDLS interface mass matrix functions.
 
@@ -222,26 +227,31 @@ SUNDIALS_EXPORT int ARKDlsSetMassFn(void *arkode_mem, ARKDlsMassFn mass);
 SUNDIALS_EXPORT int ARKDlsGetWorkSpace(void *arkode_mem, 
 				       sunindextype *lenrwLS, 
 				       sunindextype *leniwLS);
-SUNDIALS_EXPORT int ARKDlsGetMassWorkSpace(void *arkode_mem, 
-					   sunindextype *lenrwMLS, 
-					   sunindextype *leniwMLS);
 SUNDIALS_EXPORT int ARKDlsGetNumJacEvals(void *arkode_mem, 
 					 long int *njevals);
-SUNDIALS_EXPORT int ARKDlsGetNumMassEvals(void *arkode_mem, 
-					  long int *nmevals);
 SUNDIALS_EXPORT int ARKDlsGetNumRhsEvals(void *arkode_mem, 
 					 long int *nfevalsLS);
 SUNDIALS_EXPORT int ARKDlsGetLastFlag(void *arkode_mem, 
-				      long int *flag); /* -- REMOVE? */
+				      long int *flag);
+
+SUNDIALS_EXPORT int ARKDlsGetMassWorkSpace(void *arkode_mem, 
+					   sunindextype *lenrwMLS, 
+					   sunindextype *leniwMLS);
+SUNDIALS_EXPORT int ARKDlsGetNumMassSetups(void *arkode_mem, 
+                                           long int *nmsetups);
+SUNDIALS_EXPORT int ARKDlsGetNumMassSolves(void *arkode_mem, 
+                                           long int *nmsolves);
+SUNDIALS_EXPORT int ARKDlsGetNumMassMult(void *arkode_mem, 
+                                         long int *nmmults);
 SUNDIALS_EXPORT int ARKDlsGetLastMassFlag(void *arkode_mem, 
-					  long int *flag); /* -- REMOVE? */
+					  long int *flag);
 
 
 /*---------------------------------------------------------------
  The following function returns the name of the constant 
  associated with a ARKDLS return flag
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT char *ARKDlsGetReturnFlagName(long int flag); /* -- REMOVE? */
+SUNDIALS_EXPORT char *ARKDlsGetReturnFlagName(long int flag);
 
 
 #ifdef __cplusplus

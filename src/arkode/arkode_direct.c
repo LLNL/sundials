@@ -551,36 +551,6 @@ int ARKDlsGetMassWorkSpace(void *arkode_mem, sunindextype *lenrw,
 
 
 /*---------------------------------------------------------------
- ARKDlsGetNumMassEvals returns the number of mass matrix evaluations.
----------------------------------------------------------------*/
-int ARKDlsGetNumMassEvals(void *arkode_mem, long int *nmevals)
-{
-  ARKodeMem ark_mem;
-  ARKDlsMassMem arkdls_mem;
-
-  /* Return immediately if arkode_mem is NULL */
-  if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARKDLS_MEM_NULL, "ARKDLS", 
-		    "ARKDlsGetNumMassEvals", MSGD_ARKMEM_NULL);
-    return(ARKDLS_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-
-  /* Access the ARKDlsMem structure */
-  if (ark_mem->ark_mass_mem == NULL) {
-    arkProcessError(ark_mem, ARKDLS_MASSMEM_NULL, "ARKDLS", 
-		    "ARKDlsGetNumMassEvals", MSGD_MASSMEM_NULL);
-    return(ARKDLS_MASSMEM_NULL);
-  }
-  arkdls_mem = (ARKDlsMassMem) ark_mem->ark_mass_mem;
-
-  *nmevals = arkdls_mem->nme;
-
-  return(ARKDLS_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
  ARKDlsGetNumMassSetups returns the number of mass matrix solver
  'setup' calls
 ---------------------------------------------------------------*/
@@ -1298,7 +1268,6 @@ int arkDlsMassSetup(ARKodeMem ark_mem, N_Vector vtemp1,
                             arkdls_mem->M, 
                             ark_mem->ark_user_data, 
                             vtemp1, vtemp2, vtemp3);
-  arkdls_mem->nme++;
   if (retval < 0) {
     arkProcessError(ark_mem, ARKDLS_MASSFUNC_UNRECVR, "ARKDLS", 
                     "arkDlsMassSetup",  MSGD_MASSFUNC_FAILED);
@@ -1434,7 +1403,6 @@ int arkDlsInitializeCounters(ARKDlsMem arkdls_mem)
 
 int arkDlsInitializeMassCounters(ARKDlsMassMem arkdls_mem)
 {
-  arkdls_mem->nme         = 0;
   arkdls_mem->mass_setups = 0;
   arkdls_mem->mass_solves = 0;
   arkdls_mem->mass_mults  = 0;

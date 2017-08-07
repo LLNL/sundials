@@ -1470,37 +1470,39 @@
      IOUT array that was passed to FARKMALLOC)
 
      Optional outputs specific to the ARKDLS interface:
-        LENRWLS = IOUT(14) from ARKDlsGetWorkSpace (realtype space)
-        LENIWLS = IOUT(15) from ARKDlsGetWorkSpace (integer space)
-        LSTF    = IOUT(16) from ARKDlsGetLastFlag
-        NFELS   = IOUT(17) from ARKDlsGetNumRhsEvals
-        NJED    = IOUT(18) from ARKDlsGetNumJacEvals
+        LENRWLS  = IOUT(14) from ARKDlsGetWorkSpace (realtype space)
+        LENIWLS  = IOUT(15) from ARKDlsGetWorkSpace (integer space)
+        LSTF     = IOUT(16) from ARKDlsGetLastFlag
+        NFELS    = IOUT(17) from ARKDlsGetNumRhsEvals
+        NJED     = IOUT(18) from ARKDlsGetNumJacEvals
 
      Optional outputs specific to the ARKDLSMASS interface:
-        LENRWMS = IOUT(23) from ARKDlsGetMassWorkSpace (realtype space)
-        LENIWMS = IOUT(24) from ARKDlsGetMassWorkSpace (integer space)
-        LSTMF   = IOUT(25) from ARKDlsGetLastMassFlag
-        NME     = IOUT(26) from ARKDlsGetNumMassEvals
+        LENRWMS  = IOUT(23) from ARKDlsGetMassWorkSpace (realtype space)
+        LENIWMS  = IOUT(24) from ARKDlsGetMassWorkSpace (integer space)
+        LSTMF    = IOUT(25) from ARKDlsGetLastMassFlag
+        NMSETUP  = IOUT(26) from ARKDlsGetNumMassSetups
+        NMSOLVES = IOUT(27) from ARKDlsGetNumMassSolves
+        NMMULTS  = IOUT(28) from ARKDlsGetNumMassMult
 
      Optional outputs specific to the ARKSPILS interface:
-        LENRWLS = IOUT(14) from ARKSpilsGetWorkSpace
-        LENIWLS = IOUT(15) from ARKSpilsGetWorkSpace
-        LSTF    = IOUT(16) from ARKSpilsGetLastFlag
-        NFELS   = IOUT(17) from ARKSpilsGetNumRhsEvals
-        NJTV    = IOUT(18) from ARKSpilsGetNumJtimesEvals
-        NPE     = IOUT(19) from ARKSpilsGetNumPrecEvals
-        NPS     = IOUT(20) from ARKSpilsGetNumPrecSolves
-        NLI     = IOUT(21) from ARKSpilsGetNumLinIters
-        NCFL    = IOUT(22) from ARKSpilsGetNumConvFails
+        LENRWLS  = IOUT(14) from ARKSpilsGetWorkSpace
+        LENIWLS  = IOUT(15) from ARKSpilsGetWorkSpace
+        LSTF     = IOUT(16) from ARKSpilsGetLastFlag
+        NFELS    = IOUT(17) from ARKSpilsGetNumRhsEvals
+        NJTV     = IOUT(18) from ARKSpilsGetNumJtimesEvals
+        NPE      = IOUT(19) from ARKSpilsGetNumPrecEvals
+        NPS      = IOUT(20) from ARKSpilsGetNumPrecSolves
+        NLI      = IOUT(21) from ARKSpilsGetNumLinIters
+        NCFL     = IOUT(22) from ARKSpilsGetNumConvFails
  
      Optional outputs specific to the ARKSPILSMASS interface:
-        LENRWMS = IOUT(23) from ARKSpilsGetMassWorkSpace
-        LENIWMS = IOUT(24) from ARKSpilsGetMassWorkSpace
-        LSTMF   = IOUT(25) from ARKSpilsGetLastMassFlag
-        NMPE    = IOUT(26) from ARKSpilsGetNumMassPrecEvals
-        NMPS    = IOUT(27) from ARKSpilsGetNumMassPrecSolves
-        NMLI    = IOUT(28) from ARKSpilsGetNumMassIters
-        NMCFL   = IOUT(29) from ARKSpilsGetNumMassConvFails
+        LENRWMS  = IOUT(23) from ARKSpilsGetMassWorkSpace
+        LENIWMS  = IOUT(24) from ARKSpilsGetMassWorkSpace
+        LSTMF    = IOUT(25) from ARKSpilsGetLastMassFlag
+        NMPE     = IOUT(26) from ARKSpilsGetNumMassPrecEvals
+        NMPS     = IOUT(27) from ARKSpilsGetNumMassPrecSolves
+        NMLI     = IOUT(28) from ARKSpilsGetNumMassIters
+        NMCFL    = IOUT(29) from ARKSpilsGetNumMassConvFails
  
      See the ARKODE manual for more detailed descriptions of any of the 
      above.

@@ -722,7 +722,9 @@ void FARK_ARKODE(realtype *tout, realtype *t, realtype *y,
   case ARK_LS_DIRECT:
     ARKDlsGetMassWorkSpace(ARK_arkodemem, &ARK_iout[22], &ARK_iout[23]);  /* LENRWMS, LENIWMS */
     ARKDlsGetLastMassFlag(ARK_arkodemem, &ARK_iout[24]);                  /* LSTMF */
-    ARKDlsGetNumMassEvals(ARK_arkodemem, &ARK_iout[25]);                  /* NME   */
+    ARKDlsGetNumMassSetups(ARK_arkodemem, &ARK_iout[25]);                 /* NMSETUP */
+    ARKDlsGetNumMassSolves(ARK_arkodemem, &ARK_iout[26]);                 /* NMSOLVES */
+    ARKDlsGetNumMassMult(ARK_arkodemem, &ARK_iout[27]);                   /* NMMULTS */
     break;
   case ARK_LS_ITERATIVE:
     ARKSpilsGetMassWorkSpace(ARK_arkodemem, &ARK_iout[22], &ARK_iout[23]); /* LENRWMS, LENIWMS */

@@ -85,8 +85,6 @@ typedef struct ARKDlsMassMemRec {
 
   booleantype time_dependent;  /* flag stating whether M depends on t   */
   
-  long int nme;           /* nje = no. of calls to mass matrix routine  */
-
   long int mass_setups;   /* number of mass matrix-solver setup calls   */
 
   long int mass_solves;   /* number of mass matrix solve calls          */
