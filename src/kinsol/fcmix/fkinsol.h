@@ -277,8 +277,7 @@
 
        The arguments are:
          IOUT        = array of length at least 15 for integer optional outputs
-                       (declare as INTEGER*4 or INTEGER*8 according to
-                       C type sunindextype)
+                       (declare as INTEGER*8 according to C type long int)
          ROUT        = array of length at least 2 for real optional outputs
          IER         = return completion flag. Values are 0 = success, and
                        -1 = failure.
@@ -680,11 +679,11 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-void FKIN_MALLOC(sunindextype *iout, realtype *rout, int *ier);
+void FKIN_MALLOC(long int *iout, realtype *rout, int *ier);
 void FKIN_CREATE(int *ier);
-void FKIN_INIT(sunindextype *iout, realtype *rout, int *ier);
+void FKIN_INIT(long int *iout, realtype *rout, int *ier);
 
-void FKIN_SETIIN(char key_name[], sunindextype *ival, int *ier);
+void FKIN_SETIIN(char key_name[], long int *ival, int *ier);
 void FKIN_SETRIN(char key_name[], realtype *rval, int *ier);
 void FKIN_SETVIN(char key_name[], realtype *vval, int *ier);
 
@@ -771,7 +770,7 @@ int FKINJtimes(N_Vector v, N_Vector Jv,
 
 extern N_Vector F2C_KINSOL_vec;
 extern void *KIN_kinmem;
-extern sunindextype *KIN_iout;
+extern long int *KIN_iout;
 extern realtype *KIN_rout;
 extern int KIN_ls;
 
