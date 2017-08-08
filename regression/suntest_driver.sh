@@ -34,13 +34,13 @@ nfail=0
 # NOTE: may need to create answer files for different realtypes
 # NOTE: master branch will ignore indextype
 realtype=('double')
-indextype=('signed_64bit')
+indextype=('int64_t')
 
 # real and index types to test
 # NOTE: remove above realtype and indextype arrays and uncomment the 
 # following arrays this after this file is merged from master to develop
 # realtype=('single' 'double' 'extended')
-# indextype=('signed_32bit' 'signed_64bit' 'unsigned_32bit' 'unsigned_64bit')
+# indextype=('int64_t' 'int32_t')
 
 # remove old test directories and logs
 \rm -rf suntest*/ *.log
