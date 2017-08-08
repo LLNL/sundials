@@ -280,7 +280,7 @@ SUNDIALS_EXPORT int IDABBDPrecReInit(void *ida_mem,
  */
 
 SUNDIALS_EXPORT int IDABBDPrecGetWorkSpace(void *ida_mem, 
-                                           sunindextype *lenrwBBDP, sunindextype *leniwBBDP);
+                                           long int *lenrwBBDP, long int *leniwBBDP);
 SUNDIALS_EXPORT int IDABBDPrecGetNumGfnEvals(void *ida_mem, long int *ngevalsBBDP);
 
 /* 

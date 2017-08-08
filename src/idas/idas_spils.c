@@ -334,7 +334,7 @@ int IDASpilsSetJacTimesVecFn(void *ida_mem, IDASpilsJacTimesVecFn jtv)
   return(IDASPILS_SUCCESS);
 }
 
-int IDASpilsGetWorkSpace(void *ida_mem, sunindextype *lenrwLS, sunindextype *leniwLS)
+int IDASpilsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
