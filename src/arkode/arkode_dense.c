@@ -148,7 +148,7 @@ int ARKDense(void *arkode_mem, sunindextype N)
     return(ARKDLS_MEM_FAIL);
   }
   arkdls_mem->d_lpivots = NULL;
-  arkdls_mem->d_lpivots = NewLintArray(N);
+  arkdls_mem->d_lpivots = NewIndexArray(N);
   if (arkdls_mem->d_lpivots == NULL) {
     arkProcessError(ark_mem, ARKDLS_MEM_FAIL, "ARKDENSE", 
                     "ARKDense", MSGD_MEM_FAIL);
@@ -450,7 +450,7 @@ int ARKMassDense(void *arkode_mem, sunindextype N, ARKDlsDenseMassFn dmass)
     return(ARKDLS_MEM_FAIL);
   }
   arkdls_mem->d_lpivots = NULL;
-  arkdls_mem->d_lpivots = NewLintArray(N);
+  arkdls_mem->d_lpivots = NewIndexArray(N);
   if (arkdls_mem->d_lpivots == NULL) {
     arkProcessError(ark_mem, ARKDLS_MEM_FAIL, "ARKDENSE", 
 		    "ARKMassDense", MSGD_MEM_FAIL);

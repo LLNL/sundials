@@ -191,7 +191,7 @@ int CVBand(void *cvode_mem, sunindextype N, sunindextype mupper, sunindextype ml
     return(CVDLS_MEM_FAIL);
   }
   lpivots = NULL;
-  lpivots = NewLintArray(N);
+  lpivots = NewIndexArray(N);
   if (lpivots == NULL) {
     cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVBAND", "CVBand", MSGD_MEM_FAIL);
     DestroyMat(M);

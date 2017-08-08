@@ -191,7 +191,7 @@ int *newIntArray(int n)
   return(v);
 }
 
-sunindextype *NewLintArray(sunindextype N)
+sunindextype *NewIndexArray(sunindextype N)
 {
   sunindextype *vec;
 
@@ -203,7 +203,7 @@ sunindextype *NewLintArray(sunindextype N)
   return(vec);
 }
 
-sunindextype *newLintArray(sunindextype n)
+sunindextype *newIndexArray(sunindextype n)
 {
   sunindextype *v;
 

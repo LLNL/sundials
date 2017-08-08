@@ -181,7 +181,7 @@ int KINDense(void *kinmem, sunindextype N)
   }
 
   lpivots = NULL;
-  lpivots = NewLintArray(N);
+  lpivots = NewIndexArray(N);
   if (lpivots == NULL) {
     KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINDENSE", "KINDense", MSGD_MEM_FAIL);
     DestroyMat(J);

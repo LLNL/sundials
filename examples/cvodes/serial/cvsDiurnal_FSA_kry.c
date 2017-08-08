@@ -635,7 +635,7 @@ static UserData AllocUserData(void)
     for (jz=0; jz < MZ; jz++) {
       (data->P)[jx][jz] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
       (data->Jbd)[jx][jz] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (data->pivot)[jx][jz] = newLintArray(NUM_SPECIES);
+      (data->pivot)[jx][jz] = newIndexArray(NUM_SPECIES);
     }
   }
 

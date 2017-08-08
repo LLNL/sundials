@@ -772,7 +772,7 @@ static WebData AllocUserData(void)
   wdata = (WebData) malloc(sizeof *wdata);
   for(i=0; i < ngrp; i++) {
     (wdata->P)[i] = newDenseMat(ns, ns);
-    (wdata->pivot)[i] = newLintArray(ns);
+    (wdata->pivot)[i] = newIndexArray(ns);
   }
   wdata->rewt = N_VNew_Serial(NEQ);
   return(wdata);
