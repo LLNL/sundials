@@ -38,10 +38,10 @@ extern "C" {
 
   extern void FARK_GLOCFN(sunindextype *NLOC, realtype *T, 
 			  realtype *YLOC, realtype *GLOC,
-			  sunindextype *IPAR, realtype *RPAR,
+			  long int *IPAR, realtype *RPAR,
 			  int *ier);
   extern void FARK_COMMFN(sunindextype *NLOC, realtype *T, 
-			  realtype *Y, sunindextype *IPAR, 
+			  realtype *Y, long int *IPAR, 
 			  realtype *RPAR, int *ier);
 
 #ifdef __cplusplus

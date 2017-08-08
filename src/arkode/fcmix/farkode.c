@@ -43,7 +43,7 @@
 /* Definitions for global variables shared between Fortran/C 
    interface routines */
 void     *ARK_arkodemem;
-sunindextype *ARK_iout;
+long int *ARK_iout;
 realtype *ARK_rout;
 int       ARK_nrtfn;
 int       ARK_ls;
@@ -58,9 +58,9 @@ extern "C" {
 #endif
 
   extern void FARK_IMP_FUN(realtype *T, realtype *Y, realtype *YDOT,
-			   sunindextype *IPAR, realtype *RPAR, int *IER);
+			   long int *IPAR, realtype *RPAR, int *IER);
   extern void FARK_EXP_FUN(realtype *T, realtype *Y, realtype *YDOT,
-			   sunindextype *IPAR, realtype *RPAR, int *IER);
+			   long int *IPAR, realtype *RPAR, int *IER);
 
 #ifdef __cplusplus
 }
@@ -75,8 +75,8 @@ extern "C" {
    for further details */
 void FARK_MALLOC(realtype *t0, realtype *y0, int *imex, 
 		 int *iatol, realtype *rtol, realtype *atol, 
-		 sunindextype *iout, realtype *rout, 
-		 sunindextype *ipar, realtype *rpar, int *ier) {
+		 long int *iout, realtype *rout, 
+		 long int *ipar, realtype *rpar, int *ier) {
 
   N_Vector Vatol;
   FARKUserData ARK_userdata;
@@ -338,7 +338,7 @@ void FARK_SETDEFAULTS(int *ier) {
 
 /* Fortran interface to C "set" routines having integer 
    arguments; see farkode.h for further details */
-void FARK_SETIIN(char key_name[], sunindextype *ival, int *ier) {
+void FARK_SETIIN(char key_name[], long int *ival, int *ier) {
   if (!strncmp(key_name, "ORDER", 5)) 
     *ier = ARKodeSetOrder(ARK_arkodemem, (int) *ival);
   else if (!strncmp(key_name, "DENSE_ORDER", 11)) 

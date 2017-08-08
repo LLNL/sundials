@@ -90,7 +90,7 @@
        YDOT -- array containing state derivatives [realtype, 
                output]
        IPAR -- array containing integer user data that was passed
-               to FARKMALLOC [sunindextype, input]
+               to FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -120,7 +120,7 @@
        FY   -- state derivatives [realtype, input]
        H    -- current step size [realtype, input]
        IPAR -- array containing integer user data that was passed
-               to FARKMALLOC [sunindextype, input]
+               to FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        WORK -- array containing temporary workspace of same size
@@ -166,10 +166,10 @@
         RTOL = scalar relative tolerance [realtype, input]
 	ATOL = scalar/array absolute tolerance [realtype, input]
 	IOUT = array of length 22 for integer optional outputs
-	   [sunindextype, output]
+	   [long int, output]
 	ROUT = array of length 6 for real optional outputs 
 	   [realtype, output]
-	IPAR = array of user integer data [sunindextype, in/out]
+	IPAR = array of user integer data [long int, in/out]
 	RPAR = array with user real data [realtype, in/out]
 	IER  = return completion flag [int, output]:
                   0 = SUCCESS,

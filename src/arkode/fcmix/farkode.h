@@ -228,7 +228,7 @@
        Y    -- array containing state variables [realtype, input]
        YDOT -- array containing state derivatives [realtype, output]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [sunindextype, input]
+               FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -257,7 +257,7 @@
                (NEQ,NEQ), output]
        H    -- current step size [realtype, input]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [sunindextype, input]
+               FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        WK*  -- array containing temporary workspace of same size as Y 
@@ -284,7 +284,7 @@
        DMASS -- 2D array containing the mass matrix entries [realtype 
                 of size (NEQ,NEQ), output]
        IPAR  -- array containing integer user data that was passed to
-                FARKMALLOC [sunindextype, input]
+                FARKMALLOC [long int, input]
        RPAR  -- array containing real user data that was passed to
                 FARKMALLOC [realtype, input]
        WK*   -- array containing temporary workspace of same size as Y 
@@ -320,7 +320,7 @@
                (MDIM,NEQ), output]
        H    -- current step size [realtype, input]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [sunindextype, input]
+               FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        WK*  -- array containing temporary workspace of same size as Y 
@@ -354,7 +354,7 @@
        BMASS -- 2D array containing the mass matrix entries [realtype 
                 of size (MDIM,NEQ), output]
        IPAR  -- array containing integer user data that was passed to
-                FARKMALLOC [sunindextype, input]
+                FARKMALLOC [long int, input]
        RPAR  -- array containing real user data that was passed to
                 FARKMALLOC [realtype, input]
        WK*   -- array containing temporary workspace of same size as Y 
@@ -396,7 +396,7 @@
                  [int of length N+1, output]
          H    -- current step size [realtype, input]
          IPAR -- array containing integer user data that was passed to
-                 FARKMALLOC [sunindextype, input]
+                 FARKMALLOC [long int, input]
          RPAR -- array containing real user data that was passed to
                  FARKMALLOC [realtype, input]
          WK*  -- array containing temporary workspace of same size as Y 
@@ -436,7 +436,7 @@
        MCPTRS -- pointers to each mass matrix column [or row] in preceding arrays
                  [int of length N+1, output]
          IPAR -- array containing integer user data that was passed to
-                 FARKMALLOC [sunindextype, input]
+                 FARKMALLOC [long int, input]
          RPAR -- array containing real user data that was passed to
                  FARKMALLOC [realtype, input]
          WK*  -- array containing temporary workspace of same size as Y 
@@ -467,7 +467,7 @@
        FY   -- array containing state derivatives [realtype, input]
        H    -- current step size [realtype, input]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [sunindextype, input]
+               FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        WORK -- array containing temporary workspace of same size as Y 
@@ -493,7 +493,7 @@
        MV   -- array containing product vector [realtype, output]
        T    -- current time [realtype, input]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [sunindextype, input]
+               FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -514,7 +514,7 @@
        Y    -- array containing state variables [realtype, input]
        EWT  -- array containing the error weight vector [realtype, output]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [sunindextype, input]
+               FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -546,7 +546,7 @@
        P    -- global order of accuracy for RK embedding [int, input]
        HNEW -- predicted next step size [realtype, output]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [sunindextype, input]
+               FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -568,7 +568,7 @@
        T     -- current time [realtype, input]
        HSTAB -- explicitly-stable step size [realtype, output]
        IPAR  -- array containing integer user data that was passed to
-                FARKMALLOC [sunindextype, input]
+                FARKMALLOC [long int, input]
        RPAR  -- array containing real user data that was passed to
                 FARKMALLOC [realtype, input]
        IER   -- return flag [int, output]:
@@ -651,9 +651,9 @@
         RTOL = scalar relative tolerance [realtype, input]
 	ATOL = scalar or array absolute tolerance [realtype, input]
 	IOUT = array of length 22 for integer optional outputs
-	   [sunindextype, output]
+	   [long int, output]
 	ROUT = array of length 6 for real optional outputs [realtype, output]
-	IPAR = array of user integer data [sunindextype, input/output]
+	IPAR = array of user integer data [long int, input/output]
 	RPAR = array with user real data [realtype, input/output]
 	IER  = return completion flag [int, output]:
                   0 = SUCCESS,
@@ -763,7 +763,7 @@
 
      to set the integer value VALUE to the optional input specified by the 
      quoted character string KEY. VALUE must be a Fortran integer of size 
-     commensurate with a C "sunindextype".  KEY must be one of the following: 
+     commensurate with a C "long int".  KEY must be one of the following: 
      ORDER, DENSE_ORDER, LINEAR, NONLINEAR, FIXEDPOINT, NEWTON, EXPLICIT, 
      IMPLICIT, IMEX, IRK_TABLE_NUM, ERK_TABLE_NUM, ARK_TABLE_NUM (pass in an 
      int array of length 2, implicit method first), MAX_NSTEPS, HNIL_WARNS, 
@@ -1697,7 +1697,7 @@
            [realtype, output], 1=yes, 0=no
        GAMMA = Jacobian scaling factor [realtype, input]
        H = current time step [realtype, input]
-       IPAR = array of user integer data [sunindextype, input/output]
+       IPAR = array of user integer data [long int, input/output]
        RPAR = array with user real data [realtype, input/output]
        V* -- array containing temporary workspace of same size as Y 
                [realtype, input]
@@ -1729,7 +1729,7 @@
        LR = flag denoting to solve the right or left preconditioner system
                   1 = left preconditioner
 		  2 = right preconditioner
-       IPAR = array of user integer data [sunindextype, input/output]
+       IPAR = array of user integer data [long int, input/output]
        RPAR = array with user real data [realtype, input/output]
        VT -- array containing temporary workspace of same size as Y 
                [realtype, input]
@@ -1775,7 +1775,7 @@
 
      The arguments are:
        T = current time [realtype, input]
-       IPAR = array of user integer data [sunindextype, input/output]
+       IPAR = array of user integer data [long int, input/output]
        RPAR = array with user real data [realtype, input/output]
        V* -- array containing temporary workspace of same size as Y 
                [realtype, input]
@@ -1804,7 +1804,7 @@
        LR = flag denoting to solve the right or left preconditioner system
                   1 = left preconditioner
 		  2 = right preconditioner
-       IPAR = array of user integer data [sunindextype, input/output]
+       IPAR = array of user integer data [long int, input/output]
        RPAR = array with user real data [realtype, input/output]
        VT -- array containing temporary workspace of same size as Y 
                [realtype, input]
@@ -2092,14 +2092,14 @@ extern "C" {
   /* Type for user data */
   typedef struct {
     realtype *rpar;
-    sunindextype *ipar;
+    long int *ipar;
   } *FARKUserData;
   
   /* Prototypes of exported functions */
   void FARK_MALLOC(realtype *t0, realtype *y0, int *imex, 
 		   int *iatol, realtype *rtol, realtype *atol, 
-		   sunindextype *iout, realtype *rout, 
-		   sunindextype *ipar, realtype *rpar, int *ier);
+		   long int *iout, realtype *rout, 
+		   long int *ipar, realtype *rpar, int *ier);
 
   void FARK_REINIT(realtype *t0, realtype *y0, int *imex,
 		   int *iatol, realtype *rtol, realtype *atol,
@@ -2108,7 +2108,7 @@ extern "C" {
   void FARK_RESIZE(realtype *t0, realtype *y0, realtype *hscale, 
 		   int *itol, realtype *rtol, realtype *atol, int *ier);
 
-  void FARK_SETIIN(char key_name[], sunindextype *ival, int *ier);
+  void FARK_SETIIN(char key_name[], long int *ival, int *ier);
   void FARK_SETRIN(char key_name[], realtype *rval, int *ier);
   void FARK_SETDEFAULTS(int *ier);
   void FARK_SETERKTABLE(int *s, int *q, int *p, realtype *c, realtype *A, 
@@ -2278,7 +2278,7 @@ extern "C" {
   extern N_Vector F2C_ARKODE_vec;     /* defined in FNVECTOR module */
 
   extern void *ARK_arkodemem;     /* defined in farkode.c */
-  extern sunindextype *ARK_iout;      /* defined in farkode.c */
+  extern long int *ARK_iout;      /* defined in farkode.c */
   extern realtype *ARK_rout;      /* defined in farkode.c */
   extern int ARK_nrtfn;           /* defined in farkode.c */
   extern int ARK_ls;              /* defined in farkode.c */
