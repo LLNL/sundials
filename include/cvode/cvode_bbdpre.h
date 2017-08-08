@@ -1,25 +1,26 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
- * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *    Michael Wittman, Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2017, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
  * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
  * All rights reserved.
  * For details, see the LICENSE file.
- * LLNS Copyright End
+ * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
  * This is the header file for the CVBBDPRE module, for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
- * matrix with banded blocks, for use with CVSPGMR/CVSPBCG/CVSPTFQMR, 
- * and the parallel implementation of the NVECTOR module.
+ * matrix with banded blocks, for use with the CVSPILS interface,
+ * and the MPI-parallel implementation of the NVECTOR module.
  *
  * Summary:
  *
@@ -44,14 +45,20 @@
  *   ...
  *   Set y0
  *   ...
+ *   SUNLinearSolver LS = SUNSPBCGS(y0, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNSPFGMR(y0, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNSPGMR(y0, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNSPTFQMR(y0, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNPCG(y0, pretype, maxl);
+ *   ...
  *   cvode_mem = CVodeCreate(...);
  *   ier = CVodeInit(...);
  *   ...
- *   flag = CVSpgmr(cvode_mem, pretype, maxl);
- *      -or-
- *   flag = CVSpbcg(cvode_mem, pretype, maxl);
- *      -or-
- *   flag = CVSptfqmr(cvode_mem, pretype, maxl);
+ *   ier = CVSpilsSetLinearSolver(cvode_mem, LS);
  *   ...
  *   flag = CVBBDPrecInit(cvode_mem, Nlocal, mudq ,mldq,
  *                        mukeep, mlkeep, dqrely, gloc, cfn);
@@ -61,6 +68,11 @@
  *   CVodeFree(&cvode_mem);
  * 
  *   Free y0
+ *   ...
+ *   ARKodeFree(&arkode_mem);
+ *   ...
+ *   SUNLinSolFree(LS);
+ *   ...
  *
  * The user-supplied routines required are:
  *
@@ -100,7 +112,7 @@
  *    associated with this module also include nsetups banded LU
  *    factorizations, nlinsetups cfn calls, and npsolves banded
  *    backsolve calls, where nlinsetups and npsolves are
- *    integrator/CVSPGMR/CVSPBCG/CVSPTFQMR optional outputs.
+ *    integrator/CVSPILS optional outputs.
  * -----------------------------------------------------------------
  */
 
@@ -139,8 +151,8 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef int (*CVLocalFn)(sunindextype Nlocal, realtype t, N_Vector y,
-                         N_Vector g, void *user_data);
+typedef int (*CVLocalFn)(sunindextype Nlocal, realtype t, 
+                         N_Vector y, N_Vector g, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -152,11 +164,12 @@ typedef int (*CVLocalFn)(sunindextype Nlocal, realtype t, N_Vector y,
  *
  * This function takes as input the local vector size Nlocal,
  * the independent variable value t, the dependent variable
- * vector y, and a pointer to the user-defined data block user_data.
- * The user_data parameter is the same as that specified by the user
- * through the CVodeSetUserData routine. The CVCommFn cfn is
- * expected to save communicated data in space defined within the
- * structure user_data. Note: A CVCommFn cfn does not have a return value.
+ * vector y, and a pointer to the user-defined data block 
+ * user_data. The user_data parameter is the same as that 
+ * specified by the user through the CVodeSetUserData routine. 
+ * The CVCommFn cfn is expected to save communicated data in 
+ * space defined within the structure user_data. 
+ * Note: A CVCommFn cfn does not have a return value.
  *
  * Each call to the CVCommFn cfn is preceded by a call to the
  * CVRhsFn f with the same (t,y) arguments. Thus cfn can omit any
@@ -170,8 +183,8 @@ typedef int (*CVLocalFn)(sunindextype Nlocal, realtype t, N_Vector y,
  * -----------------------------------------------------------------
  */
 
-typedef int (*CVCommFn)(sunindextype Nlocal, realtype t, N_Vector y,
-                        void *user_data);
+typedef int (*CVCommFn)(sunindextype Nlocal, realtype t, 
+                        N_Vector y, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -216,22 +229,26 @@ typedef int (*CVCommFn)(sunindextype Nlocal, realtype t, N_Vector y,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal, 
-                                  sunindextype mudq, sunindextype mldq, 
-                                  sunindextype mukeep, sunindextype mlkeep, 
+SUNDIALS_EXPORT int CVBBDPrecInit(void *cvode_mem,
+                                  sunindextype Nlocal, 
+                                  sunindextype mudq,
+                                  sunindextype mldq, 
+                                  sunindextype mukeep,
+                                  sunindextype mlkeep, 
                                   realtype dqrely,
-                                  CVLocalFn gloc, CVCommFn cfn);
+                                  CVLocalFn gloc,
+                                  CVCommFn cfn);
 
 /*
  * -----------------------------------------------------------------
  * Function : CVBBDPrecReInit
  * -----------------------------------------------------------------
  * CVBBDPrecReInit re-initializes the BBDPRE module when solving a
- * sequence of problems of the same size with CVSPGMR/CVBBDPRE or
- * CVSPBCG/CVBBDPRE or CVSPTFQMR/CVBBDPRE provided there is no change 
- * in Nlocal, mukeep, or mlkeep. After solving one problem, and after 
- * calling CVodeReInit to re-initialize the integrator for a subsequent 
- * problem, call CVBBDPrecReInit.
+ * sequence of problems of the same size with CVSPILS/CVBBDPRE 
+ * provided there is no change in Nlocal, mukeep, or mlkeep. After 
+ * solving one problem, and after calling CVodeReInit to 
+ * re-initialize the integrator for a subsequent problem, call 
+ * CVBBDPrecReInit.
  *
  * All arguments have the same names and meanings as those
  * of CVBBDPrecInit.
@@ -244,15 +261,17 @@ SUNDIALS_EXPORT int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBBDPrecReInit(void *cvode_mem, sunindextype mudq, sunindextype mldq,
+SUNDIALS_EXPORT int CVBBDPrecReInit(void *cvode_mem,
+                                    sunindextype mudq,
+                                    sunindextype mldq,
 				    realtype dqrely);
 
 /*
  * -----------------------------------------------------------------
  * BBDPRE optional output extraction routines
  * -----------------------------------------------------------------
- * CVBBDPrecGetWorkSpace returns the BBDPRE real and integer work space
- *                       sizes.
+ * CVBBDPrecGetWorkSpace returns the BBDPRE real and integer work 
+ *                       space sizes.
  * CVBBDPrecGetNumGfnEvals returns the number of calls to gfn.
  *
  * The return value of CVBBDPrecGet* is one of:
@@ -263,8 +282,11 @@ SUNDIALS_EXPORT int CVBBDPrecReInit(void *cvode_mem, sunindextype mudq, sunindex
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBBDPrecGetWorkSpace(void *cvode_mem, sunindextype *lenrwLS, sunindextype *leniwLS);
-SUNDIALS_EXPORT int CVBBDPrecGetNumGfnEvals(void *cvode_mem, long int *ngevalsBBDP);
+SUNDIALS_EXPORT int CVBBDPrecGetWorkSpace(void *cvode_mem,
+                                          long int *lenrwLS,
+                                          long int *leniwLS);
+SUNDIALS_EXPORT int CVBBDPrecGetNumGfnEvals(void *cvode_mem,
+                                            long int *ngevalsBBDP);
 
 #ifdef __cplusplus
 }

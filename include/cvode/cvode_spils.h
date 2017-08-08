@@ -1,23 +1,24 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
- * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *     Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2017, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
  * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
  * All rights reserved.
  * For details, see the LICENSE file.
- * LLNS Copyright End
+ * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
- * This is the common header file for the Scaled, Preconditioned
- * Iterative Linear Solvers in CVODE.
+ * This is the header file for the Scaled, Preconditioned Iterative 
+ * Linear Solver interface in CVODE.
  * -----------------------------------------------------------------
  */
 
@@ -26,6 +27,7 @@
 
 #include <sundials/sundials_iterative.h>
 #include <sundials/sundials_nvector.h>
+#include <sundials/sundials_linearsolver.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -44,14 +46,12 @@ extern "C" {
 #define CVSPILS_ILL_INPUT       -3
 #define CVSPILS_MEM_FAIL        -4
 #define CVSPILS_PMEM_NULL       -5
+#define CVSPILS_SUNLS_FAIL      -6
 
 /*
  * -----------------------------------------------------------------
  * CVSPILS solver constants
  * -----------------------------------------------------------------
- * CVSPILS_MAXL   : default value for the maximum Krylov
- *                  dimension
- *
  * CVSPILS_MSBPRE : maximum number of steps between
  *                  preconditioner evaluations
  *
@@ -65,10 +65,16 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-#define CVSPILS_MAXL   5
 #define CVSPILS_MSBPRE 50
 #define CVSPILS_DGMAX  RCONST(0.2)
 #define CVSPILS_EPLIN  RCONST(0.05)
+
+
+/*
+ * ===============================================================
+ * CVSPILS user-supplied function prototypes
+ * ===============================================================
+ */
 
 /*
  * -----------------------------------------------------------------
@@ -93,7 +99,7 @@ extern "C" {
  * approximation to M.  This function will not be called in
  * advance of every call to PrecSolve, but instead will be called
  * only as often as necessary to achieve convergence within the
- * Newton iteration.  If the PrecSolve function needs no
+ * Inexact Newton iteration.  If the PrecSolve function needs no
  * preparation, the PrecSetup function can be NULL.
  *
  * For greater efficiency, the PrecSetup function may save
@@ -138,11 +144,6 @@ extern "C" {
  * user_data  is a pointer to user data - the same as the user_data
  *         parameter passed to the CVodeSetUserData function.
  *
- * tmp1, tmp2, and tmp3 are pointers to memory allocated
- *                      for N_Vectors which can be used by
- *                      CVSpilsPrecSetupFn as temporary storage or
- *                      work space.
- *
  * NOTE: If the user's preconditioner needs other quantities,
  *       they are accessible as follows: hcur (the current stepsize)
  *       and ewt (the error weight vector) are accessible through
@@ -161,9 +162,7 @@ extern "C" {
 
 typedef int (*CVSpilsPrecSetupFn)(realtype t, N_Vector y, N_Vector fy,
                                   booleantype jok, booleantype *jcurPtr,
-                                  realtype gamma, void *user_data,
-                                  N_Vector tmp1, N_Vector tmp2,
-                                  N_Vector tmp3);
+                                  realtype gamma, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -204,9 +203,6 @@ typedef int (*CVSpilsPrecSetupFn)(realtype t, N_Vector y, N_Vector fy,
  * user_data  is a pointer to user data - the same as the user_data
  *         parameter passed to the CVodeSetUserData function.
  *
- * tmp    is a pointer to memory allocated for an N_Vector
- *        which can be used by PSolve for work space.
- *
  * Returned value:
  * The value to be returned by the PrecSolve function is a flag
  * indicating whether it was successful.  This value should be
@@ -219,7 +215,7 @@ typedef int (*CVSpilsPrecSetupFn)(realtype t, N_Vector y, N_Vector fy,
 typedef int (*CVSpilsPrecSolveFn)(realtype t, N_Vector y, N_Vector fy,
                                   N_Vector r, N_Vector z,
                                   realtype gamma, realtype delta,
-                                  int lr, void *user_data, N_Vector tmp);
+                                  int lr, void *user_data);
 
 /* ---------------------------------------------------------------
  * Type: CVSpilsJacTimesSetupFn
@@ -303,49 +299,40 @@ typedef int (*CVSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
 
 /*
  * =================================================================
- *            P R I V A T E    F U N C T I O N S 
+ *  CVSPILS Exported functions
  * =================================================================
  */
 
 /*
- * ---------------------------------------------------------------
- * CVSpilsCallPSetup determines whether to call the user-supplied 
- * preconditioner setup routine, based on heuristics regarding 
- * previous converence issues, the number of time steps 
- * since it was last updated, etc.
- * ---------------------------------------------------------------
- */
-  
-SUNDIALS_EXPORT int CVSpilsCallPSetup(void *cvode_mem, N_Vector vtemp1,
-                                      N_Vector vtemp2, N_Vector vtemp3);
-  
-/*
- * =================================================================
- *            E X P O R T E D    F U N C T I O N S 
- * =================================================================
+ * -----------------------------------------------------------------
+ * Required inputs to the CVSPILS linear solver interface
+ * -----------------------------------------------------------------
+ *
+ * CVSpilsSetLinearSolver specifies the iterative SUNLinearSolver 
+ * object that CVode should use.  This is required if CVode is 
+ * solving a problem with the Newton nonlinear solver (i.e. not the 
+ * functional iteration).
+ *
+ * NOTE: when solving an implicit or IMEX IVP with non-identity mass
+ * matrix and iterative linear solver, both the system and mass solvers
+ * must be iterative (i.e. you cannot combine a direct system 
+ * solver with an iterative mass matrix solver, etc.).
+ *
+ * The return value is one of:
+ *    CVSPILS_SUCCESS   if successful
+ *    CVSPILS_MEM_NULL  if the CVODE memory was NULL
+ *    CVSPILS_ILL_INPUT if the linear solver memory was NULL
+ *---------------------------------------------------------------
  */
 
+SUNDIALS_EXPORT int CVSpilsSetLinearSolver(void *cvode_mem, 
+                                           SUNLinearSolver LS);
+
+  
 /*
  * -----------------------------------------------------------------
  * Optional inputs to the CVSPILS linear solver
  * -----------------------------------------------------------------
- *
- * CVSpilsSetPrecType resets the type of preconditioner, pretype,
- *                from the value previously set.
- *                This must be one of PREC_NONE, PREC_LEFT, 
- *                PREC_RIGHT, or PREC_BOTH.
- *
- * CVSpilsSetGSType specifies the type of Gram-Schmidt
- *                orthogonalization to be used. This must be one of
- *                the two enumeration constants MODIFIED_GS or
- *                CLASSICAL_GS defined in iterative.h. These correspond
- *                to using modified Gram-Schmidt and classical
- *                Gram-Schmidt, respectively.
- *                Default value is MODIFIED_GS.
- *
- * CVSpilsSetMaxl resets the maximum Krylov subspace size, maxl,
- *                from the value previously set.
- *                An input value <= 0, gives the default value.
  *
  * CVSpilsSetEpsLin specifies the factor by which the tolerance on
  *                the nonlinear iteration is multiplied to get a
@@ -357,8 +344,9 @@ SUNDIALS_EXPORT int CVSpilsCallPSetup(void *cvode_mem, N_Vector vtemp1,
  *
  * CVSpilsSetJacTimesSetupFn specifies the jtsetup function. No default.
  *
- * CVSpilsSetJacTimesVecFn specifies the jtimes function. Default is to 
- *                use an internal finite difference approximation routine.
+ * CVSpilsSetJacTimes specifies the jtsetup and jtimes functions. 
+ *                Default is to use an internal finite difference 
+ *                approximation routine with no extra jtsetup.
  *
  * The return value of CVSpilsSet* is one of:
  *    CVSPILS_SUCCESS   if successful
@@ -368,17 +356,13 @@ SUNDIALS_EXPORT int CVSpilsCallPSetup(void *cvode_mem, N_Vector vtemp1,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVSpilsSetPrecType(void *cvode_mem, int pretype);
-SUNDIALS_EXPORT int CVSpilsSetGSType(void *cvode_mem, int gstype);
-SUNDIALS_EXPORT int CVSpilsSetMaxl(void *cvode_mem, int maxl);
 SUNDIALS_EXPORT int CVSpilsSetEpsLin(void *cvode_mem, realtype eplifac);
 SUNDIALS_EXPORT int CVSpilsSetPreconditioner(void *cvode_mem, 
                                              CVSpilsPrecSetupFn pset,
                                              CVSpilsPrecSolveFn psolve);
-SUNDIALS_EXPORT int CVSpilsSetJacTimesSetupFn(void *cvode_mem, 
-                                              CVSpilsJacTimesSetupFn jtsetup);
-SUNDIALS_EXPORT int CVSpilsSetJacTimesVecFn(void *cvode_mem, 
-                                            CVSpilsJacTimesVecFn jtv);
+SUNDIALS_EXPORT int CVSpilsSetJacTimes(void *cvode_mem,
+                                       CVSpilsJacTimesSetupFn jtsetup,
+                                       CVSpilsJacTimesVecFn jtv);
 
 /*
  * -----------------------------------------------------------------
@@ -415,14 +399,23 @@ SUNDIALS_EXPORT int CVSpilsSetJacTimesVecFn(void *cvode_mem,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVSpilsGetWorkSpace(void *cvode_mem, sunindextype *lenrwLS, sunindextype *leniwLS);
-SUNDIALS_EXPORT int CVSpilsGetNumPrecEvals(void *cvode_mem, long int *npevals);
-SUNDIALS_EXPORT int CVSpilsGetNumPrecSolves(void *cvode_mem, long int *npsolves);
-SUNDIALS_EXPORT int CVSpilsGetNumLinIters(void *cvode_mem, long int *nliters);
-SUNDIALS_EXPORT int CVSpilsGetNumConvFails(void *cvode_mem, long int *nlcfails);
-SUNDIALS_EXPORT int CVSpilsGetNumJtimesEvals(void *cvode_mem, long int *njvevals);
-SUNDIALS_EXPORT int CVSpilsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS); 
-SUNDIALS_EXPORT int CVSpilsGetLastFlag(void *cvode_mem, long int *flag);
+SUNDIALS_EXPORT int CVSpilsGetWorkSpace(void *cvode_mem,
+                                        long int *lenrwLS,
+                                        long int *leniwLS);
+SUNDIALS_EXPORT int CVSpilsGetNumPrecEvals(void *cvode_mem,
+                                           long int *npevals);
+SUNDIALS_EXPORT int CVSpilsGetNumPrecSolves(void *cvode_mem,
+                                            long int *npsolves);
+SUNDIALS_EXPORT int CVSpilsGetNumLinIters(void *cvode_mem,
+                                          long int *nliters);
+SUNDIALS_EXPORT int CVSpilsGetNumConvFails(void *cvode_mem,
+                                           long int *nlcfails);
+SUNDIALS_EXPORT int CVSpilsGetNumJtimesEvals(void *cvode_mem,
+                                             long int *njvevals);
+SUNDIALS_EXPORT int CVSpilsGetNumRhsEvals(void *cvode_mem,
+                                          long int *nfevalsLS); 
+SUNDIALS_EXPORT int CVSpilsGetLastFlag(void *cvode_mem,
+                                       long int *flag);
 
 /*
  * -----------------------------------------------------------------

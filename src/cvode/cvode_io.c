@@ -847,7 +847,7 @@ int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele)
  * Returns integrator work space requirements
  */
 
-int CVodeGetWorkSpace(void *cvode_mem, sunindextype *lenrw, sunindextype *leniw)
+int CVodeGetWorkSpace(void *cvode_mem, long int *lenrw, long int *leniw)
 {
   CVodeMem cv_mem;
 

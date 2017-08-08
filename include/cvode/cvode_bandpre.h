@@ -1,24 +1,26 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
- * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *                Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2017, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
  * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
  * All rights reserved.
  * For details, see the LICENSE file.
- * LLNS Copyright End
+ * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
  * This is the header file for the CVBANDPRE module, which
  * provides a banded difference quotient Jacobian-based
- * preconditioner and solver routines for use with CVSPGMR,
- * CVSPBCG, or CVSPTFQMR.
+ * preconditioner and solver routines for use with the CVSPILS 
+ * interface.
  *
  * Summary:
  * These routines provide a band matrix preconditioner based on
@@ -43,18 +45,26 @@
  *   main program should be as follows:
  *
  *   #include <cvode/cvode_bandpre.h>
- *   #include <nvector_serial.h>
+ *   #include <nvector_serial.h>   (or openmp or pthreads)
+ *   ...
+ *   void *arkode_mem;
  *   ...
  *   Set y0
+ *   ...
+ *   SUNLinearSolver LS = SUNSPBCGS(y0, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNSPFGMR(y0, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNSPGMR(y0, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNSPTFQMR(y0, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNPCG(y0, pretype, maxl);
  *   ...
  *   cvode_mem = CVodeCreate(...);
  *   ier = CVodeInit(...);
  *   ...
- *   flag = CVSptfqmr(cvode_mem, pretype, maxl);
- *     -or-
- *   flag = CVSpgmr(cvode_mem, pretype, maxl);
- *     -or-
- *   flag = CVSpbcg(cvode_mem, pretype, maxl);
+ *   ier = CVSpilsSetLinearSolver(cvode_mem, LS);
  *   ...
  *   flag = CVBandPrecInit(cvode_mem, N, mu, ml);
  *   ...
@@ -63,13 +73,16 @@
  *   Free y0
  *   ...
  *   CVodeFree(&cvode_mem);
+ *   ...
+ *   SUNLinSolFree(LS);
+ *   ...
  *
  * Notes:
  * (1) Include this file for the CVBandPrecData type definition.
- * (2) In the CVBandPrecAlloc call, the arguments N is the
+ * (2) In the CVBandPrecAlloc call, the argument N is the
  *     problem dimension.
- * (3) In the CVBPSp* call, the user is free to specify
- *     the input pretype and the optional input maxl.
+ * (3) In the linear solver creation call call, the user is free to
+ *     specify the input pretype and the optional input maxl.
  * -----------------------------------------------------------------
  */
 
@@ -88,8 +101,8 @@ extern "C" {
  * Function : CVBandPrecInit
  * -----------------------------------------------------------------
  * CVBandPrecInit allocates and initializes the BANDPRE preconditioner
- * module. This functino must be called AFTER one of the SPILS linear
- * solver modules has been attached to the CVODE integrator.
+ * module. This functino must be called AFTER the CVSPILS linear
+ * solver interface has been created.
  *
  * The parameters of CVBandPrecInit are as follows:
  *
@@ -108,14 +121,15 @@ extern "C" {
  *   CVSPILS_ILL_INPUT if an input has an illegal value
  *   CVSPILS_MEM_FAIL if a memory allocation request failed
  *
- * NOTE: The band preconditioner assumes a serial implementation
- *       of the NVECTOR package. Therefore, CVBandPrecInit will
- *       first test for a compatible N_Vector internal
- *       representation by checking for required functions.
+ * NOTE: The band preconditioner assumes a serial/OpenMP/Pthreads
+ *       implementation of the NVECTOR package. Therefore, 
+ *       CVBandPrecInit will first test for a compatible N_Vector 
+ *       internal representation by checking for required functions.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBandPrecInit(void *cvode_mem, sunindextype N, sunindextype mu, sunindextype ml);
+SUNDIALS_EXPORT int CVBandPrecInit(void *cvode_mem, sunindextype N,
+                                   sunindextype mu, sunindextype ml);
 
 /*
  * -----------------------------------------------------------------
@@ -135,8 +149,11 @@ SUNDIALS_EXPORT int CVBandPrecInit(void *cvode_mem, sunindextype N, sunindextype
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBandPrecGetWorkSpace(void *cvode_mem, sunindextype *lenrwLS, sunindextype *leniwLS);
-SUNDIALS_EXPORT int CVBandPrecGetNumRhsEvals(void *cvode_mem, long int *nfevalsBP);
+SUNDIALS_EXPORT int CVBandPrecGetWorkSpace(void *cvode_mem,
+                                           long int *lenrwLS,
+                                           long int *leniwLS);
+SUNDIALS_EXPORT int CVBandPrecGetNumRhsEvals(void *cvode_mem,
+                                             long int *nfevalsBP);
 
 
 #ifdef __cplusplus

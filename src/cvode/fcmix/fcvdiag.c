@@ -1,7 +1,6 @@
 /*
  * ----------------------------------------------------------------- 
  * Programmer(s): Daniel R. Reynolds @ SMU
- *                Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * LLNS/SMU Copyright Start
  * Copyright (c) 2017, Southern Methodist University and 
@@ -17,8 +16,8 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
- * Fortran/C interface routines for CVODE/CVDLS, for the case of 
- * a user-supplied Jacobian approximation routine.                
+ * Fortran/C interface routines for CVODE/CVDLS, for the case
+ * of a user-supplied Jacobian approximation routine.
  * -----------------------------------------------------------------
  */
 
@@ -29,53 +28,48 @@
 #include "cvode_impl.h" /* definition of CVodeMem type                  */
 
 #include <cvode/cvode_direct.h>
-#include <sunmatrix/sunmatrix_band.h>
+#include <sunmatrix/sunmatrix_diagonal.h>
 
-/******************************************************************************/
+/***************************************************************************/
 
 /* Prototype of the Fortran routine */
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FCV_BJAC(sunindextype *N, sunindextype *MU, sunindextype *ML,
-                       sunindextype *EBAND, realtype *T, realtype *Y,
-                       realtype *FY, realtype *BJAC, realtype *H,
-                       long int *IPAR, realtype *RPAR, realtype *V1, 
-                       realtype *V2, realtype *V3, int *IER);
+  extern void FCV_DIAGJAC(realtype *T, realtype *Y, realtype *FY, 
+                          realtype *DJAC, realtype *H, long int *IPAR, 
+                          realtype *RPAR, realtype *V1, realtype *V2, 
+                          realtype *V3, int *ier);
 #ifdef __cplusplus
 }
 #endif
 
 /***************************************************************************/
 
-void FCV_BANDSETJAC(int *flag, int *ier)
+void FCV_DIAGSETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
     *ier = CVDlsSetJacFn(CV_cvodemem, NULL);
   } else {
-    *ier = CVDlsSetJacFn(CV_cvodemem, FCVBandJac);
+    *ier = CVDlsSetJacFn(CV_cvodemem, FCVDiagJac);
   }
 }
 
 /***************************************************************************/
 
-/* C function CVBandJac interfaces between CVODE and a Fortran subroutine
-   FCVBJAC for solution of a linear system with band Jacobian approximation.
-   Addresses of arguments are passed to FCVBJAC, using the accessor routines
-   from the SUNBandMatrix and N_Vector modules.
-   The address passed for J is that of the element in column 0 with row 
-   index -mupper.  An extended bandwith equal to (J->smu) + mlower + 1 is
-   passed as the column dimension of the corresponding array. */
+/* C function CVDiagJac interfaces between CVODE and a Fortran subroutine
+   FCVDiagJAC for solution of a linear system with diagonal Jacobian 
+   approximation.  Addresses of arguments are passed to FCVDIAGJAC, using 
+   accessor functions from the SUNDiagonalMatrix and N_Vector modules. */
 
-int FCVBandJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+int FCVDiagJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector vtemp1, N_Vector vtemp2,
                N_Vector vtemp3)
 {
   int ier;
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
   realtype h;
-  sunindextype N, mupper, mlower, smu, eband;
   FCVUserData CV_userdata;
 
   CVodeGetLastStep(CV_cvodemem, &h);
@@ -86,18 +80,12 @@ int FCVBandJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   v2data  = N_VGetArrayPointer(vtemp2);
   v3data  = N_VGetArrayPointer(vtemp3);
 
-  N = SUNBandMatrix_Columns(J);
-  mupper = SUNBandMatrix_UpperBandwidth(J);
-  mlower = SUNBandMatrix_LowerBandwidth(J);
-  smu = SUNBandMatrix_StoredUpperBandwidth(J);
-  eband = smu + mlower + 1;
-  jacdata = SUNBandMatrix_Column(J,0) - mupper;
+  jacdata = N_VGetArrayPointer(SUNDiagonalMatrix_Diag(J));
 
   CV_userdata = (FCVUserData) user_data;
 
-  FCV_BJAC(&N, &mupper, &mlower, &eband, &t, ydata, fydata,
-           jacdata, &h, CV_userdata->ipar, CV_userdata->rpar,
-           v1data, v2data, v3data, &ier);
-
+  FCV_DIAGJAC(&t, ydata, fydata, jacdata, &h, CV_userdata->ipar,
+              CV_userdata->rpar, v1data, v2data, v3data, &ier); 
   return(ier);
 }
+

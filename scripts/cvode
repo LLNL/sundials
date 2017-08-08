@@ -18,19 +18,9 @@ fi
 
 $tar $tarfile $distrobase/include/cvode/cvode.h
 $tar $tarfile $distrobase/include/cvode/cvode_direct.h
-$tar $tarfile $distrobase/include/cvode/cvode_dense.h
-$tar $tarfile $distrobase/include/cvode/cvode_band.h
-$tar $tarfile $distrobase/include/cvode/cvode_klu.h
-$tar $tarfile $distrobase/include/cvode/cvode_lapack.h
-$tar $tarfile $distrobase/include/cvode/cvode_diag.h
-$tar $tarfile $distrobase/include/cvode/cvode_spgmr.h
-$tar $tarfile $distrobase/include/cvode/cvode_spbcgs.h
-$tar $tarfile $distrobase/include/cvode/cvode_sptfqmr.h
 $tar $tarfile $distrobase/include/cvode/cvode_spils.h
 $tar $tarfile $distrobase/include/cvode/cvode_bandpre.h
 $tar $tarfile $distrobase/include/cvode/cvode_bbdpre.h
-$tar $tarfile $distrobase/include/cvode/cvode_sparse.h
-$tar $tarfile $distrobase/include/cvode/cvode_superlumt.h
 
 $tar $tarfile $distrobase/src/cvode/LICENSE
 $tar $tarfile $distrobase/src/cvode/README
@@ -38,25 +28,13 @@ $tar $tarfile $distrobase/src/cvode/CMakeLists.txt
 
 $tar $tarfile $distrobase/src/cvode/cvode.c
 $tar $tarfile $distrobase/src/cvode/cvode_io.c
-$tar $tarfile $distrobase/src/cvode/cvode_klu.c
 $tar $tarfile $distrobase/src/cvode/cvode_direct.c
-$tar $tarfile $distrobase/src/cvode/cvode_dense.c
-$tar $tarfile $distrobase/src/cvode/cvode_band.c
-$tar $tarfile $distrobase/src/cvode/cvode_lapack.c
-$tar $tarfile $distrobase/src/cvode/cvode_diag.c
 $tar $tarfile $distrobase/src/cvode/cvode_spils.c
-$tar $tarfile $distrobase/src/cvode/cvode_spgmr.c
-$tar $tarfile $distrobase/src/cvode/cvode_spbcgs.c
-$tar $tarfile $distrobase/src/cvode/cvode_sptfqmr.c
-$tar $tarfile $distrobase/src/cvode/cvode_sparse.c
-$tar $tarfile $distrobase/src/cvode/cvode_superlumt.c
 $tar $tarfile $distrobase/src/cvode/cvode_bandpre.c
 $tar $tarfile $distrobase/src/cvode/cvode_bbdpre.c
 $tar $tarfile $distrobase/src/cvode/cvode_impl.h
 $tar $tarfile $distrobase/src/cvode/cvode_direct_impl.h
-$tar $tarfile $distrobase/src/cvode/cvode_diag_impl.h
 $tar $tarfile $distrobase/src/cvode/cvode_spils_impl.h
-$tar $tarfile $distrobase/src/cvode/cvode_sparse_impl.h
 $tar $tarfile $distrobase/src/cvode/cvode_bandpre_impl.h
 $tar $tarfile $distrobase/src/cvode/cvode_bbdpre_impl.h
 
@@ -70,15 +48,11 @@ $tar $tarfile $distrobase/src/cvode/fcmix/fcvpreco.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvjtimes.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvband.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvdense.c
-$tar $tarfile $distrobase/src/cvode/fcmix/fcvlapack.c
-$tar $tarfile $distrobase/src/cvode/fcmix/fcvlapband.c
-$tar $tarfile $distrobase/src/cvode/fcmix/fcvlapdense.c
+$tar $tarfile $distrobase/src/cvode/fcmix/fcvdiag.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvbp.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvbbd.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvroot.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvsparse.c
-$tar $tarfile $distrobase/src/cvode/fcmix/fcvklu.c
-$tar $tarfile $distrobase/src/cvode/fcmix/fcvsuperlumt.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvode.h
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvbp.h
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvbbd.h
