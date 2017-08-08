@@ -2583,7 +2583,7 @@ static int cvNlsNewton(CVodeMem cv_mem, int nflag)
     CV_NO_FAILURES : CV_FAIL_OTHER;
 
   /* Decide whether or not to call setup routine (if one exists) */
-  if (cv_mem->cv_setupNonNull) {      
+  if (cv_mem->cv_lsetup) {      
     callSetup = (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
       (cv_mem->cv_nst == 0) || (cv_mem->cv_nst >= cv_mem->cv_nstlp + MSBP) ||
       (SUNRabs(cv_mem->cv_gamrat-ONE) > DGMAX);
@@ -2678,8 +2678,10 @@ static int cvNewtonIteration(CVodeMem cv_mem)
     /* If lsolve had a recoverable failure and Jacobian data is
        not current, signal to try the solution again            */
     if (retval > 0) { 
-      if ((!cv_mem->cv_jcur) && (cv_mem->cv_setupNonNull)) return(TRY_AGAIN);
-      else                           return(CONV_FAIL);
+      if ((!cv_mem->cv_jcur) && (cv_mem->cv_lsetup))
+        return(TRY_AGAIN);
+      else
+        return(CONV_FAIL);
     }
 
     /* Get WRMS norm of correction; add correction to acor and y */
@@ -2707,8 +2709,10 @@ static int cvNewtonIteration(CVodeMem cv_mem)
        If still not converged and Jacobian data is not current, 
        signal to try the solution again                            */
     if ((m == cv_mem->cv_maxcor) || ((m >= 2) && (del > RDIV*delp))) {
-      if ((!cv_mem->cv_jcur) && (cv_mem->cv_setupNonNull)) return(TRY_AGAIN);
-      else                           return(CONV_FAIL);
+      if ((!cv_mem->cv_jcur) && (cv_mem->cv_lsetup))
+        return(TRY_AGAIN);
+      else
+        return(CONV_FAIL);
     }
     
     /* Save norm of correction, evaluate f, and loop again */
@@ -2718,8 +2722,10 @@ static int cvNewtonIteration(CVodeMem cv_mem)
     cv_mem->cv_nfe++;
     if (retval < 0) return(CV_RHSFUNC_FAIL);
     if (retval > 0) {
-      if ((!cv_mem->cv_jcur) && (cv_mem->cv_setupNonNull)) return(TRY_AGAIN);
-      else                           return(RHSFUNC_RECVR);
+      if ((!cv_mem->cv_jcur) && (cv_mem->cv_lsetup))
+        return(TRY_AGAIN);
+      else
+        return(RHSFUNC_RECVR);
     }
 
   } /* end loop */

@@ -1,20 +1,22 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
+ * Programmer(s): Daniel Reynolds @ SMU
+ *                Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
+ *                   and Dan Shumaker @ LLNL
  * -----------------------------------------------------------------
- * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
- *                and Dan Shumaker @ LLNL
- * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2017, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
  * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
  * All rights reserved.
  * For details, see the LICENSE file.
- * LLNS Copyright End
+ * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
  * Implementation header file for the main CVODE integrator.
  * -----------------------------------------------------------------
@@ -223,7 +225,6 @@ typedef struct CVodeMemRec {
   realtype cv_tolsf;           /* tolerance scale factor                      */
   int cv_qmax_alloc;           /* value of qmax used when allocating memory   */
   int cv_indx_acor;            /* index of the zn vector with saved acor      */
-  booleantype cv_setupNonNull; /* does setup do anything?                     */
 
   booleantype cv_VabstolMallocDone;
   booleantype cv_MallocDone;  
