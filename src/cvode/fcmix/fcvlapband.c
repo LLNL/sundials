@@ -40,7 +40,7 @@ extern "C" {
                        realtype*, realtype*, realtype*,  /* T, Y, FY         */
                        realtype*,                        /* LBJAC            */
                        realtype*,                        /* H                */
-                       sunindextype*, realtype*,             /* IPAR, RPAR       */
+                       long int*, realtype*,             /* IPAR, RPAR       */
                        realtype*, realtype*, realtype*,  /* V1, V2, V3       */
                        int*);                            /* IER              */
 

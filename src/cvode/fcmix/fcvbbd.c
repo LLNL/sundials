@@ -42,14 +42,14 @@
 extern "C" {
 #endif
 
-  extern void FCV_GLOCFN(sunindextype*,                        /* NLOC          */
+  extern void FCV_GLOCFN(sunindextype*,                    /* NLOC          */
                          realtype*, realtype*, realtype*,  /* T, YLOC, GLOC */
-                         sunindextype*, realtype*,             /* IPAR, RPAR    */
+                         long int*, realtype*,             /* IPAR, RPAR    */
                          int *ier);                        /* IER           */
 
-  extern void FCV_COMMFN(sunindextype*,                        /* NLOC          */
+  extern void FCV_COMMFN(sunindextype*,                    /* NLOC          */
                          realtype*, realtype*,             /* T, Y          */
-                         sunindextype*, realtype*,             /* IPAR, RPAR    */
+                         long int*, realtype*,             /* IPAR, RPAR    */
                          int *ier);                        /* IER           */
 
 #ifdef __cplusplus

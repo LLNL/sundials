@@ -42,7 +42,7 @@ extern "C" {
   extern void FCV_JTIMES(realtype*, realtype*,            /* V, JV      */
                          realtype*, realtype*, realtype*, /* T, Y, FY   */
                          realtype*,                       /* H          */
-                         sunindextype*, realtype*,            /* IPAR, RPAR */
+                         long int*, realtype*,            /* IPAR, RPAR */
                          realtype*,                       /* WRK        */
                          int*);                           /* IER        */
 

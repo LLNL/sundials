@@ -45,7 +45,7 @@
 /* Definitions for global variables shared amongst various routines */
 
 void *CV_cvodemem;
-sunindextype *CV_iout;
+long int *CV_iout;
 realtype *CV_rout;
 int CV_nrtfn;
 int CV_ls;
@@ -65,7 +65,7 @@ extern "C" {
   extern void FCV_FUN(realtype*,     /* T    */
                       realtype*,     /* Y    */
                       realtype*,     /* YDOT */
-                      sunindextype*,     /* IPAR */
+                      long int*,     /* IPAR */
                       realtype*,     /* RPAR */
                       int*);         /* IER  */
 #ifdef __cplusplus
@@ -77,8 +77,8 @@ extern "C" {
 void FCV_MALLOC(realtype *t0, realtype *y0, 
                 int *meth, int *itmeth, int *iatol, 
                 realtype *rtol, realtype *atol,
-                sunindextype *iout, realtype *rout,
-                sunindextype *ipar, realtype *rpar,
+                long int *iout, realtype *rout,
+                long int *ipar, realtype *rpar,
                 int *ier)
 {
   int lmm, iter;
@@ -234,7 +234,7 @@ void FCV_REINIT(realtype *t0, realtype *y0,
 
 /***************************************************************************/
 
-void FCV_SETIIN(char key_name[], sunindextype *ival, int *ier)
+void FCV_SETIIN(char key_name[], long int *ival, int *ier)
 {
   if (!strncmp(key_name,"MAX_ORD",7))
     *ier = CVodeSetMaxOrd(CV_cvodemem, (int) *ival);
@@ -475,8 +475,8 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
                           &CV_rout[1],                    /* HU      */ 
                           &CV_rout[2],                    /* HCUR    */ 
                           &CV_rout[3]);                   /* TCUR    */ 
-  CV_iout[8] = (sunindextype) qu;
-  CV_iout[9] = (sunindextype) qcur;
+  CV_iout[8] = (long int) qu;
+  CV_iout[9] = (long int) qcur;
   CVodeGetTolScaleFactor(CV_cvodemem, 
                          &CV_rout[4]);                    /* TOLSFAC */
   CVodeGetNonlinSolvStats(CV_cvodemem,

@@ -197,7 +197,7 @@
  *                 [int of length N+1, output]
  *         H    -- current step size [realtype, input]
  *         IPAR -- array containing integer user data that was passed to
- *                 FCVMALLOC [sunindextype, input]
+ *                 FCVMALLOC [long int, input]
  *         RPAR -- array containing real user data that was passed to
  *                 FCVMALLOC [realtype, input]
  *         WK*  -- array containing temporary workspace of same size as Y 
@@ -296,10 +296,10 @@
  * RTOL   = relative tolerance (scalar)
  * ATOL   = absolute tolerance (scalar or array)
  * IOUT   = array of length 21 for integer optional outputs
- *          (declare as INTEGER*4 or INTEGER*8 according to C type sunindextype)
+ *          (declare as INTEGER*8 according to C type long int)
  * ROUT   = array of length 6 for real optional outputs
  * IPAR   = array with user integer data
- *          (declare as INTEGER*4 or INTEGER*8 according to C type sunindextype)
+ *          (declare as INTEGER*8 according to C type long int)
  * RPAR   = array with user real data
  * IER    = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
  *          See printed message for details in case of failure.
@@ -813,7 +813,7 @@ extern "C" {
 
   typedef struct {
     realtype *rpar;
-    sunindextype *ipar;
+    long int *ipar;
   } *FCVUserData;
 
   /* Prototypes of exported functions */
@@ -821,15 +821,15 @@ extern "C" {
   void FCV_MALLOC(realtype *t0, realtype *y0,
                   int *meth, int *itmeth, int *iatol,
                   realtype *rtol, realtype *atol,
-                  sunindextype *iout, realtype *rout,
-                  sunindextype *ipar, realtype *rpar,
+                  long int *iout, realtype *rout,
+                  long int *ipar, realtype *rpar,
                   int *ier);
 
   void FCV_REINIT(realtype *t0, realtype *y0,
                   int *iatol, realtype *rtol, realtype *atol,
                   int *ier);
 
-  void FCV_SETIIN(char key_name[], sunindextype *ival, int *ier);
+  void FCV_SETIIN(char key_name[], long int *ival, int *ier);
 
   void FCV_SETRIN(char key_name[], realtype *rval, int *ier);
 
@@ -922,7 +922,7 @@ extern "C" {
   extern N_Vector F2C_CVODE_vec;   /* defined in FNVECTOR module */
 
   extern void *CV_cvodemem;        /* defined in fcvode.c */
-  extern sunindextype *CV_iout;        /* defined in fcvode.c */
+  extern long int *CV_iout;        /* defined in fcvode.c */
   extern realtype *CV_rout;        /* defined in fcvode.c */
   extern int CV_nrtfn;             /* defined in fcvode.c */
   extern int CV_ls;                /* defined in fcvode.c */

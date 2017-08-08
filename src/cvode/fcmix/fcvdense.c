@@ -35,11 +35,11 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FCV_DJAC(sunindextype*,                        /* N          */
+  extern void FCV_DJAC(sunindextype*,                    /* N          */
                        realtype*, realtype*, realtype*,  /* T, Y, FY   */
                        realtype*,                        /* DJAC       */
                        realtype*,                        /* H          */ 
-                       sunindextype*, realtype*,             /* IPAR, RPAR */
+                       long int*, realtype*,             /* IPAR, RPAR */
                        realtype*, realtype*, realtype*,  /* V1, V2, V3 */
                        int *ier);                        /* IER        */
 #ifdef __cplusplus
