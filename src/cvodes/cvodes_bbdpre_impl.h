@@ -56,8 +56,8 @@ typedef struct CVBBDPrecDataRec {
 
   /* available for optional output */
 
-  sunindextype rpwsize;
-  sunindextype ipwsize;
+  long int rpwsize;
+  long int ipwsize;
   long int nge;
 
   /* pointer to cvode_mem */

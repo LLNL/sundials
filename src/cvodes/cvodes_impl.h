@@ -333,8 +333,8 @@ typedef struct CVodeMemRec {
   sunindextype cv_liw1;        /* no. of integer words in 1 N_Vector y            */ 
   sunindextype cv_lrw1Q;       /* no. of realtype words in 1 N_Vector yQ          */ 
   sunindextype cv_liw1Q;       /* no. of integer words in 1 N_Vector yQ           */ 
-  sunindextype cv_lrw;         /* no. of realtype words in CVODES work vectors    */
-  sunindextype cv_liw;         /* no. of integer words in CVODES work vectors     */
+  long int cv_lrw;             /* no. of realtype words in CVODES work vectors    */
+  long int cv_liw;             /* no. of integer words in CVODES work vectors     */
 
   /*----------------
     Step size ratios
