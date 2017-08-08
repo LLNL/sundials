@@ -116,7 +116,7 @@ int FARKcfn(sunindextype Nloc, realtype t,
 
 /* Fortran interface to C routines ARKBBDPrecGetWorkSpace and 
    ARKBBDPrecGetNumGfnEvals; see farkbbd.h for further details */
-void FARK_BBDOPT(sunindextype *lenrwbbd, sunindextype *leniwbbd, 
+void FARK_BBDOPT(long int *lenrwbbd, long int *leniwbbd, 
 		 long int *ngebbd)
 {
   ARKBBDPrecGetWorkSpace(ARK_arkodemem, lenrwbbd, leniwbbd);

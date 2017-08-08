@@ -476,8 +476,8 @@ void FARK_BPINIT(sunindextype *N,
 		 sunindextype *mu, 
 		 sunindextype *ml, 
 		 int *ier);
-void FARK_BPOPT(sunindextype *lenrwbp, 
-		sunindextype *leniwbp, 
+void FARK_BPOPT(long int *lenrwbp, 
+		long int *leniwbp, 
 		long int *nfebp);
 
 #ifdef __cplusplus

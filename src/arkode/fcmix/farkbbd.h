@@ -625,7 +625,7 @@ void FARK_BBDINIT(sunindextype *Nloc, sunindextype *mudq,
 		  sunindextype *ml, realtype* dqrely, int *ier);
 void FARK_BBDREINIT(sunindextype *Nloc, sunindextype *mudq, 
 		    sunindextype *mldq, realtype* dqrely, int *ier);
-void FARK_BBDOPT(sunindextype *lenrwbbd, sunindextype *leniwbbd, 
+void FARK_BBDOPT(long int *lenrwbbd, long int *leniwbbd, 
 		 long int *ngebbd);
 
 /* Prototypes: Functions Called by the ARKBBDPRE Module */

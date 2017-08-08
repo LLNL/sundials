@@ -153,7 +153,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
 }
 
 
-int ARKBandPrecGetWorkSpace(void *arkode_mem, sunindextype *lenrwBP, sunindextype *leniwBP)
+int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP, long int *leniwBP)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;

@@ -222,8 +222,8 @@ int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq,
 
 
 /*-------------------------------------------------------------*/
-int ARKBBDPrecGetWorkSpace(void *arkode_mem, sunindextype *lenrwBBDP, 
-			   sunindextype *leniwBBDP)
+int ARKBBDPrecGetWorkSpace(void *arkode_mem, long int *lenrwBBDP, 
+			   long int *leniwBBDP)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
