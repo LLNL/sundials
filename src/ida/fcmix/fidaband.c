@@ -34,11 +34,12 @@
 extern "C" {
 #endif
 
-  extern void FIDA_BJAC(sunindextype*, sunindextype*, sunindextype*, sunindextype*,
-                        realtype*, realtype*, realtype*, realtype*,
-                        realtype*, realtype*, realtype*, realtype*,
-                        sunindextype*, realtype*,
-                        realtype*, realtype*, realtype*, int*);
+  extern void FIDA_BJAC(sunindextype*,                               /* N               */ 
+                        sunindextype*, sunindextype*, sunindextype*, /* MU, ML, EB      */
+                        realtype*, realtype*, realtype*, realtype*,  /* T, YY, YP, RR   */
+                        realtype*, realtype*, realtype*, realtype*,  /* C_J, J, EWT, H  */
+                        long int*, realtype*,                        /* IPAR, RPAR      */
+                        realtype*, realtype*, realtype*, int*);      /* W1, W2, W3, IER */
 
 #ifdef __cplusplus
 }

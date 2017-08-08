@@ -166,7 +166,7 @@
  * RTOL  = relative tolerance (scalar)
  * ATOL  = absolute tolerance (scalar or array)
  * IOUT  = array of length at least 21 for integer optional inputs and outputs
- *          (declare as INTEGER*4 or INTEGER*8 according to C type sunindextype)
+ *          (declare as INTEGER*8 according to C type long int)
  * ROUT  = array of length 6 for real optional inputs and outputs
  *
  *         The optional outputs are:
@@ -192,7 +192,7 @@
  *           UNITRND = ROUT( 6) -> UNIT_ROUNDOFF
  *
  * IPAR  = array with user integer data
- *         (declare as INTEGER*4 or INTEGER*8 according to C type sunindextype)
+ *         (declare as INTEGER*8 according to C type long int)
  * RPAR  = array with user real data
  * IER   = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
  *         See printed message for details in case of failure.

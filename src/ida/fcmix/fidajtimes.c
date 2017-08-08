@@ -36,12 +36,12 @@
 extern "C" {
 #endif
 
-  extern void FIDA_JTIMES(realtype*, realtype*, realtype*,     /* T, Y, YP   */
-                          realtype*, realtype*, realtype*,     /* R, V, FJV  */
-                          realtype*, realtype*, realtype*,     /* CJ, EWT, H */
-                          sunindextype*, realtype*,                /* IPAR, RPAR */
-                          realtype*, realtype*,                /* WK1, WK2   */
-                          int*);                               /* IER        */
+  extern void FIDA_JTIMES(realtype*, realtype*, realtype*, /* T, Y, YP	 */
+			  realtype*, realtype*, realtype*, /* R, V, FJV	 */
+			  realtype*, realtype*, realtype*, /* CJ, EWT, H */
+			  long int*, realtype*,		   /* IPAR, RPAR */
+			  realtype*, realtype*,		   /* WK1, WK2	 */
+			  int*);			   /* IER	 */
 
 #ifdef __cplusplus
 }

@@ -45,14 +45,15 @@
 extern "C" {
 #endif
 
-  extern void FIDA_GLOCFN(sunindextype*, 
-                          realtype*, realtype*, realtype*, realtype*, 
-                          sunindextype*, realtype*,
-                          int*);
-  extern void FIDA_COMMFN(sunindextype*, 
-                          realtype*, realtype*, realtype*, 
-                          sunindextype*, realtype*,
-                          int*);
+  extern void FIDA_GLOCFN(sunindextype*,                              /* N            */
+                          realtype*, realtype*, realtype*, realtype*, /* T, YY, YP, G */
+                          long int*, realtype*,                       /* IPAR, RPAR   */
+                          int*);                                      /* IER          */
+
+  extern void FIDA_COMMFN(sunindextype*,                   /* N          */
+			  realtype*, realtype*, realtype*, /* T, YY, YP  */
+			  long int*, realtype*,            /* IPAR, RPAR */
+			  int*);                           /* IER        */
 
 #ifdef __cplusplus
 }

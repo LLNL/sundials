@@ -34,13 +34,13 @@
 extern "C" {
 #endif
 
-  extern void FIDA_DJAC(sunindextype*, 
-                        realtype*, realtype*, realtype*, realtype*,
-                        realtype*, 
-                        realtype*, realtype*, realtype*,
-                        sunindextype*, realtype*,
-                        realtype*, realtype*, realtype*, 
-                        int*);
+  extern void FIDA_DJAC(sunindextype*,                              /* N             */
+                        realtype*, realtype*, realtype*, realtype*, /* T, YY, YP, RR */
+                        realtype*,                                  /* J             */
+                        realtype*, realtype*, realtype*,            /* C_J, EWT, H   */
+                        long int*, realtype*,                       /* IPAR, RPAR    */
+                        realtype*, realtype*, realtype*,            /* W1, W2, W3    */
+                        int*);                                      /* IER           */
 
 #ifdef __cplusplus
 }
