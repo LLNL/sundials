@@ -6,9 +6,9 @@ LapackDense linear solver test: size 10
     PASSED test -- SUNLinSolSolve 
     PASSED test -- SUNLinSolGetType 
     PASSED test -- SUNLinSolLastFlag (0) 
+    PASSED test -- SUNLinSolSpace, lenrw = 0, leniw = 12
     PASSED test -- SUNLinSolNumIters (0) 
     PASSED test -- SUNLinSolResNorm
-    PASSED test -- SUNLinSolNumPSolves (0) 
     PASSED test -- SUNLinSolSetATimes 
     PASSED test -- SUNLinSolSetPreconditioner 
     PASSED test -- SUNLinSolSetScalingVectors 

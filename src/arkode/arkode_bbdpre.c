@@ -226,9 +226,9 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   N_VSpace(ark_mem->ark_tempv, &lrw1, &liw1);
   pdata->rpwsize = 3*lrw1;
   pdata->ipwsize = 3*liw1;
-  N_VSpace(pdata->rlocal, &lrw, &liw);
-  pdata->rpwsize += 2*lrw;
-  pdata->ipwsize += 2*liw;
+  N_VSpace(pdata->rlocal, &lrw1, &liw1);
+  pdata->rpwsize += 2*lrw1;
+  pdata->ipwsize += 2*liw1;
   SUNMatSpace(pdata->savedJ, &lrw, &liw);
   pdata->rpwsize += lrw;
   pdata->ipwsize += liw;

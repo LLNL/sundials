@@ -45,7 +45,7 @@ C     because y2 has much smaller values. At the end of the run,
 C     various counters of interest are printed.
 C
 C     Note that this problem should only work with SUNDIALS configured
-C     to use 'realtype' as 'double' and 'sunindextype' as '64bit'
+C     to use 'realtype' as 'double' and 'sunindextype' as '32bit'
 C     ----------------------------------------------------------------
 C
       IMPLICIT NONE
@@ -53,7 +53,8 @@ C
       INTEGER*4 IER, LNST, LNST_ATT, LNFE, LNFI, LNSETUP, LNNI, LNCF
       INTEGER*4 LNETF, LNJE, LNGE, METH, ITOL, ITASK, JOUT, NOUT
       INTEGER*4 IERROOT, INFO(2)
-      INTEGER*8 I, IOUT(22), IPAR, NEQ, MXSTEPS, MXNLI, PRED, MXETF
+      INTEGER*4 I, NEQ
+      INTEGER*8 IOUT(22), IPAR, MXSTEPS, MXNLI, PRED, MXETF
       DOUBLE PRECISION RTOL, T, T0, TOUT, H0, NLCONV
       DOUBLE PRECISION Y(3), ATOL(3), ROUT(6), RPAR
 C
@@ -157,8 +158,8 @@ C
 c
       CALL FARKROOTINIT(2, IER)
       IF (IER .NE. 0) THEN
-         WRITE(6,45) IER
- 45      FORMAT(///' SUNDIALS_ERROR: FARKROOTINIT returned IER = ', I5)
+         WRITE(6,38) IER
+ 38      FORMAT(///' SUNDIALS_ERROR: FARKROOTINIT returned IER = ', I5)
          CALL FARKFREE
          STOP
       ENDIF
@@ -309,8 +310,8 @@ C     ----------------------------------------------------------------
 C Fortran routine for dense user-supplied Jacobian.
       IMPLICIT NONE
 C
-      INTEGER*4 IER
-      INTEGER*8 N, IPAR(*)
+      INTEGER*4 IER, N
+      INTEGER*8 IPAR(*)
       DOUBLE PRECISION T, Y(*), FY(*), JAC(N,*), H, RPAR(*)
       DOUBLE PRECISION V1(*), V2(*), V3(*)
 C

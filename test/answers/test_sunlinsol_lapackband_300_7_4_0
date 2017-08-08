@@ -6,9 +6,9 @@ LapackBand linear solver test: size 300, bandwidths 7 4
     PASSED test -- SUNLinSolSolve 
     PASSED test -- SUNLinSolGetType 
     PASSED test -- SUNLinSolLastFlag (0) 
+    PASSED test -- SUNLinSolSpace, lenrw = 0, leniw = 302
     PASSED test -- SUNLinSolNumIters (0) 
     PASSED test -- SUNLinSolResNorm
-    PASSED test -- SUNLinSolNumPSolves (0) 
     PASSED test -- SUNLinSolSetATimes 
     PASSED test -- SUNLinSolSetPreconditioner 
     PASSED test -- SUNLinSolSetScalingVectors 
