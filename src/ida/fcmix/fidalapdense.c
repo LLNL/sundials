@@ -38,7 +38,7 @@ extern "C" {
                         realtype*, realtype*, realtype*, realtype*,
                         realtype*, 
                         realtype*, realtype*, realtype*,
-                        sunindextype*, realtype*,
+                        long int*, realtype*,
                         realtype*, realtype*, realtype*, 
                         int*);
 

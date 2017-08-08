@@ -37,7 +37,7 @@ extern "C" {
   extern void FIDA_BJAC(sunindextype*, sunindextype*, sunindextype*, sunindextype*,
                         realtype*, realtype*, realtype*, realtype*,
                         realtype*, realtype*, realtype*, realtype*,
-                        sunindextype*, realtype*,
+                        long int*, realtype*,
                         realtype*, realtype*, realtype*, int*);
 
 #ifdef __cplusplus
