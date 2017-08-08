@@ -170,13 +170,13 @@ typedef struct KINMemRec {
 
   /* space requirements for vector storage */ 
 
-  sunindextype kin_lrw1;        /* number of realtype-sized memory blocks needed
+  sunindextype kin_lrw1;    /* number of realtype-sized memory blocks needed
 			       for a single N_Vector                           */ 
-  sunindextype kin_liw1;        /* number of int-sized memory blocks needed for
+  sunindextype kin_liw1;    /* number of int-sized memory blocks needed for
 			       a single N_Vecotr                               */ 
-  sunindextype kin_lrw;         /* total number of realtype-sized memory blocks
+  long int kin_lrw;         /* total number of realtype-sized memory blocks
 			       needed for all KINSOL work vectors              */
-  sunindextype kin_liw;         /* total number of int-sized memory blocks needed
+  long int kin_liw;         /* total number of int-sized memory blocks needed
 			       for all KINSOL work vectors                     */
 
   /* linear solver data */

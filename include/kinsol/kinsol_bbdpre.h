@@ -228,7 +228,7 @@ SUNDIALS_EXPORT int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINBBDPrecGetWorkSpace(void *kinmem, sunindextype *lenrwBBDP, sunindextype *leniwBBDP);
+SUNDIALS_EXPORT int KINBBDPrecGetWorkSpace(void *kinmem, long int *lenrwBBDP, long int *leniwBBDP);
 SUNDIALS_EXPORT int KINBBDPrecGetNumGfnEvals(void *kinmem, long int *ngevalsBBDP);
 
 #ifdef __cplusplus

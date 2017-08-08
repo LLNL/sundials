@@ -179,7 +179,7 @@
                        input values in IOPT[] array are to be used for
                        input: 0 = no and 1 = yes.
          IOPT        = array for integer optional inputs and outputs (declare
-                       as INTEGER*4 or INTEGER*8 according to C type sunindextype)
+                       as INTEGER*8
          ROPT        = array of real optional inputs and outputs
          IER         = return completion flag. Values are 0 = success, and
                        -1 = failure.
@@ -292,7 +292,7 @@ extern "C" {
 
 void FKIN_BBDINIT(sunindextype *nlocal, sunindextype *mudq, sunindextype *mldq,
 		  sunindextype *mu, sunindextype *ml, int *ier);
-void FKIN_BBDOPT(sunindextype *lenrpw, sunindextype *lenipw, long int *nge);
+void FKIN_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge);
 
 /*
  * -----------------------------------------------------------------

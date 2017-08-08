@@ -48,7 +48,7 @@
  */
 
 void *KIN_kinmem;
-sunindextype *KIN_iout;
+long int *KIN_iout;
 realtype *KIN_rout;
 int KIN_ls;
 
@@ -111,7 +111,7 @@ void FKIN_CREATE(int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_INIT(sunindextype *iout, realtype *rout, int *ier)
+void FKIN_INIT(long int *iout, realtype *rout, int *ier)
 {
   
   /* Call KINInit */
@@ -137,7 +137,7 @@ void FKIN_INIT(sunindextype *iout, realtype *rout, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_MALLOC(sunindextype *iout, realtype *rout, int *ier)
+void FKIN_MALLOC(long int *iout, realtype *rout, int *ier)
 {
   
   /* check for required vector operations */
@@ -181,7 +181,7 @@ void FKIN_MALLOC(sunindextype *iout, realtype *rout, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_SETIIN(char key_name[], sunindextype *ival, int *ier)
+void FKIN_SETIIN(char key_name[], long int *ival, int *ier)
 {
   if (!strncmp(key_name,"PRNT_LEVEL",10))
     *ier = KINSetPrintLevel(KIN_kinmem, (int) *ival);
