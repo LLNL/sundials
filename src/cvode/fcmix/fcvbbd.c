@@ -139,7 +139,7 @@ int FCVcfn(sunindextype Nloc, realtype t, N_Vector y, void *user_data)
 
 /* C function FCVBBDOPT to access optional outputs from CVBBD_Data */
 
-void FCV_BBDOPT(sunindextype *lenrwbbd, sunindextype *leniwbbd, long int *ngebbd)
+void FCV_BBDOPT(long int *lenrwbbd, long int *leniwbbd, long int *ngebbd)
 {
   CVBBDPrecGetWorkSpace(CV_cvodemem, lenrwbbd, leniwbbd);
   CVBBDPrecGetNumGfnEvals(CV_cvodemem, ngebbd);

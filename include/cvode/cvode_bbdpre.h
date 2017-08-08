@@ -263,7 +263,7 @@ SUNDIALS_EXPORT int CVBBDPrecReInit(void *cvode_mem, sunindextype mudq, sunindex
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBBDPrecGetWorkSpace(void *cvode_mem, sunindextype *lenrwLS, sunindextype *leniwLS);
+SUNDIALS_EXPORT int CVBBDPrecGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
 SUNDIALS_EXPORT int CVBBDPrecGetNumGfnEvals(void *cvode_mem, long int *ngevalsBBDP);
 
 #ifdef __cplusplus

@@ -310,7 +310,7 @@ extern "C" {
 void FCV_BBDINIT(sunindextype *Nloc, sunindextype *mudq, sunindextype *mldq, sunindextype *mu, sunindextype *ml,
                  realtype* dqrely, int *ier);
 void FCV_BBDREINIT(sunindextype *Nloc, sunindextype *mudq, sunindextype *mldq, realtype* dqrely, int *ier);
-void FCV_BBDOPT(sunindextype *lenrwbbd, sunindextype *leniwbbd, long int *ngebbd);
+void FCV_BBDOPT(long int *lenrwbbd, long int *leniwbbd, long int *ngebbd);
 
 /* Prototypes: Functions Called by the CVBBDPRE Module */
 

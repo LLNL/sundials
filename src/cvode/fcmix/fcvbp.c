@@ -52,7 +52,7 @@ void FCV_BPINIT(sunindextype *N, sunindextype *mu, sunindextype *ml, int *ier)
 
 /* C function FCVBPOPT to access optional outputs from CVBANDPRE_Data */
 
-void FCV_BPOPT(sunindextype *lenrwbp, sunindextype *leniwbp, long int *nfebp)
+void FCV_BPOPT(long int *lenrwbp, long int *leniwbp, long int *nfebp)
 {
   CVBandPrecGetWorkSpace(CV_cvodemem, lenrwbp, leniwbp);
   CVBandPrecGetNumRhsEvals(CV_cvodemem, nfebp);
