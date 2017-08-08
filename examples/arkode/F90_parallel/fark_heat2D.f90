@@ -504,7 +504,8 @@ program driver
   ! solution vector and other local variables
   real(kind=REALTYPE), allocatable :: y(:,:)
   real(kind=REALTYPE)    :: rout(6), rpar, t, dTout, tout, urms
-  integer(kind=SUNINDEXTYPE) :: N, Ntot, i, j, iout(22), ipar
+  integer(kind=SUNINDEXTYPE) :: N, Ntot, i, j
+  integer*8 :: iout(22), ipar
   integer   :: flag, ioutput
   logical   :: outproc
   character*100 :: outname
@@ -730,7 +731,7 @@ subroutine farkifun(t, y, ydot, ipar, rpar, ierr)
   real(kind=REALTYPE), intent(in)  :: t, rpar
   real(kind=REALTYPE), intent(in)  :: y(nxl,nyl)
   real(kind=REALTYPE), intent(out) :: ydot(nxl,nyl)
-  integer(kind=SUNINDEXTYPE), intent(in) :: ipar
+  integer*8, intent(in) :: ipar
   real(kind=REALTYPE) :: c1, c2, c3
   integer, intent(out) :: ierr
   integer*8 :: i, j
@@ -819,7 +820,7 @@ subroutine farkefun(t, y, ydot, ipar, rpar, ierr)
   use UserData
   implicit none
   real(kind=REALTYPE), intent(in)  :: t, rpar
-  integer(kind=SUNINDEXTYPE), intent(in) :: ipar
+  integer*8, intent(in) :: ipar
   real(kind=REALTYPE), intent(in)  :: y(nxl,nyl)
   real(kind=REALTYPE), intent(out) :: ydot(nxl,nyl)
   integer, intent(out) :: ierr
@@ -844,7 +845,7 @@ subroutine farkpset(t, y, fy, jok, jcur, gamma, hcur, ipar, &
   implicit none
   real(kind=REALTYPE), intent(in) :: t, gamma, hcur, rpar
   real(kind=REALTYPE), intent(in) :: y(nxl,nyl), fy(nxl,nyl)
-  integer(kind=SUNINDEXTYPE), intent(in) :: ipar
+  integer*8, intent(in) :: ipar
   integer, intent(in) :: jok
   integer, intent(out) :: jcur, ierr
   real(kind=REALTYPE) :: c
@@ -871,7 +872,7 @@ subroutine farkpsol(t, y, fy, r, z, gamma, delta, lr, &
   use UserData
   implicit none
   real(kind=REALTYPE), intent(in)  :: t, gamma, delta, rpar
-  integer(kind=SUNINDEXTYPE), intent(in) :: ipar
+  integer*8, intent(in) :: ipar
   real(kind=REALTYPE), intent(in)  :: y(nxl,nyl), fy(nxl,nyl), r(nxl,nyl)
   real(kind=REALTYPE), intent(out) :: z(nxl,nyl)
   integer, intent(in)  :: lr

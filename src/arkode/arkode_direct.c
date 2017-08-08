@@ -15,7 +15,8 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * This is the implementation file for the ARKDLS linear solvers
+ * This is the implementation file for the ARKDLS linear solver 
+ * interface
  *--------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -23,7 +24,6 @@
 
 #include "arkode_impl.h"
 #include "arkode_direct_impl.h"
-#include "arkode_spils_impl.h"
 #include <sundials/sundials_math.h>
 #include <sunmatrix/sunmatrix_band.h>
 #include <sunmatrix/sunmatrix_dense.h>
@@ -56,12 +56,12 @@ int ARKDlsSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   /* Return immediately if any input is NULL */
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKDLS_MEM_NULL, "ARKDLS", 
-		    "ARKDlsSetLinearSolver", MSGD_ARKMEM_NULL);
+                    "ARKDlsSetLinearSolver", MSGD_ARKMEM_NULL);
     return(ARKDLS_MEM_NULL);
   }
   if ( (LS == NULL)  || (A == NULL) ) {
     arkProcessError(NULL, ARKDLS_ILL_INPUT, "ARKDLS", 
-		    "ARKDlsSetLinearSolver",
+                    "ARKDlsSetLinearSolver",
                     "Both LS and A must be non-NULL");
     return(ARKDLS_ILL_INPUT);
   }
@@ -319,8 +319,8 @@ int ARKDlsSetMassFn(void *arkode_mem, ARKDlsMassFn mass)
  ARKDlsGetWorkSpace returns the length of workspace allocated for 
  the ARKDLS linear solver.
 ---------------------------------------------------------------*/
-int ARKDlsGetWorkSpace(void *arkode_mem, sunindextype *lenrw, 
-                       sunindextype *leniw)
+int ARKDlsGetWorkSpace(void *arkode_mem, long int *lenrw, 
+                       long int *leniw)
 {
   ARKodeMem ark_mem;
   ARKDlsMem arkdls_mem;
@@ -508,8 +508,8 @@ int ARKDlsGetLastFlag(void *arkode_mem, long int *flag)
  ARKDlsGetMassWorkSpace returns the length of workspace allocated 
  for the ARKDLS mass matrix linear solver.
 ---------------------------------------------------------------*/
-int ARKDlsGetMassWorkSpace(void *arkode_mem, sunindextype *lenrw, 
-                           sunindextype *leniw)
+int ARKDlsGetMassWorkSpace(void *arkode_mem, long int *lenrw, 
+                           long int *leniw)
 {
   ARKodeMem ark_mem;
   ARKDlsMassMem arkdls_mem;
@@ -713,6 +713,11 @@ int arkDlsDQJac(realtype t, N_Vector y, N_Vector fy,
 		    "arkDlsDQJac", 
                     "ARKDlsDQJac not implemented for SUNMATRIX_SPARSE");
     retval = ARK_ILL_INPUT;
+  } else {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKDLS", 
+		    "arkDlsDQJac", 
+                    "unrecognized matrix type for ARKDlsDQJac");
+    retval = ARK_ILL_INPUT;
   }
   return(retval);
 }
@@ -758,7 +763,6 @@ int arkDlsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
 
   /* Set minimum increment based on uround and norm of f */
   srur = SUNRsqrt(ark_mem->ark_uround);
-  /* fnorm = N_VWrmsNorm(fy, ark_mem->ark_ewt); */
   fnorm = N_VWrmsNorm(fy, ark_mem->ark_rwt);
   minInc = (fnorm != ZERO) ?
     (MIN_INC_MULT * SUNRabs(ark_mem->ark_h) * ark_mem->ark_uround * N * fnorm) : ONE;
@@ -839,7 +843,6 @@ int arkDlsBandDQJac(realtype t, N_Vector y, N_Vector fy,
 
   /* Set minimum increment based on uround and norm of f */
   srur = SUNRsqrt(ark_mem->ark_uround);
-  /* fnorm = N_VWrmsNorm(fy, ark_mem->ark_ewt); */
   fnorm = N_VWrmsNorm(fy, ark_mem->ark_rwt);
   minInc = (fnorm != ZERO) ?
     (MIN_INC_MULT * SUNRabs(ark_mem->ark_h) * ark_mem->ark_uround * N * fnorm) : ONE;
@@ -885,10 +888,7 @@ int arkDlsBandDQJac(realtype t, N_Vector y, N_Vector fy,
 
  This routine generates a diagonal difference quotient 
  approximation to the Jacobian of f(t,y).  It assumes a diagonal 
- SUNMatrix input (stored in a single N_Vector). This makes it 
- possible to get the address of a column of J via the macro 
- BAND_COL and to write a simple for loop to set each of the 
- elements of a column in succession.
+ SUNMatrix input (stored in a single N_Vector).
 ---------------------------------------------------------------*/
 int arkDlsDiagonalDQJac(realtype t, N_Vector y, N_Vector fy, 
                         SUNMatrix Jac, ARKodeMem ark_mem, N_Vector tmp1)
@@ -1005,12 +1005,12 @@ int arkDlsSetup(ARKodeMem ark_mem, N_Vector vtemp1,
   /* Return immediately if ark_mem or ark_mem->ark_lmem are NULL */
   if (ark_mem == NULL) {
     arkProcessError(NULL, ARKDLS_MEM_NULL, "ARKDLS", 
-		    "arkDlsSetup", MSGD_ARKMEM_NULL);
+                    "arkDlsSetup", MSGD_ARKMEM_NULL);
     return(ARKDLS_MEM_NULL);
   }
   if (ark_mem->ark_lmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_LMEM_NULL, "ARKDLS", 
-		    "arkDlsSetup", MSGD_LMEM_NULL);
+                    "arkDlsSetup", MSGD_LMEM_NULL);
     return(ARKDLS_LMEM_NULL);
   }
   arkdls_mem = (ARKDlsMem) ark_mem->ark_lmem;
@@ -1029,7 +1029,7 @@ int arkDlsSetup(ARKodeMem ark_mem, N_Vector vtemp1,
     retval = SUNMatCopy(arkdls_mem->A, arkdls_mem->savedJ);
     if (retval) {
       arkProcessError(ark_mem, ARKDLS_SUNMAT_FAIL, "ARKDLS", 
-		      "arkDlsSetup",  MSGD_MATCOPY_FAILED);
+                      "arkDlsSetup",  MSGD_MATCOPY_FAILED);
       arkdls_mem->last_flag = ARKDLS_SUNMAT_FAIL;
       return(-1);
     }
@@ -1042,7 +1042,7 @@ int arkDlsSetup(ARKodeMem ark_mem, N_Vector vtemp1,
     retval = SUNMatZero(arkdls_mem->A);
     if (retval) {
       arkProcessError(ark_mem, ARKDLS_SUNMAT_FAIL, "ARKDLS", 
-		      "arkDlsSetup",  MSGD_MATZERO_FAILED);
+                      "arkDlsSetup",  MSGD_MATZERO_FAILED);
       arkdls_mem->last_flag = ARKDLS_SUNMAT_FAIL;
       return(-1);
     }
@@ -1052,7 +1052,7 @@ int arkDlsSetup(ARKodeMem ark_mem, N_Vector vtemp1,
                              arkdls_mem->J_data, vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
       arkProcessError(ark_mem, ARKDLS_JACFUNC_UNRECVR, "ARKDLS", 
-		      "arkDlsSetup",  MSGD_JACFUNC_FAILED);
+                      "arkDlsSetup",  MSGD_JACFUNC_FAILED);
       arkdls_mem->last_flag = ARKDLS_JACFUNC_UNRECVR;
       return(-1);
     }
@@ -1064,7 +1064,7 @@ int arkDlsSetup(ARKodeMem ark_mem, N_Vector vtemp1,
     retval = SUNMatCopy(arkdls_mem->savedJ, arkdls_mem->A);
     if (retval) {
       arkProcessError(ark_mem, ARKDLS_SUNMAT_FAIL, "ARKDLS", 
-		      "arkDlsSetup",  MSGD_MATCOPY_FAILED);
+                      "arkDlsSetup",  MSGD_MATCOPY_FAILED);
       arkdls_mem->last_flag = ARKDLS_SUNMAT_FAIL;
       return(-1);
     }
@@ -1090,7 +1090,7 @@ int arkDlsSetup(ARKodeMem ark_mem, N_Vector vtemp1,
                             arkdls_mass_mem->M);
     if (retval) {
       arkProcessError(ark_mem, ARKDLS_SUNMAT_FAIL, "ARKDLS", 
-		      "arkDlsSetup",  MSGD_MATSCALEADD_FAILED);
+                      "arkDlsSetup",  MSGD_MATSCALEADD_FAILED);
       arkdls_mem->last_flag = ARKDLS_SUNMAT_FAIL;
       return(-1);
     }
@@ -1099,7 +1099,7 @@ int arkDlsSetup(ARKodeMem ark_mem, N_Vector vtemp1,
     retval = SUNMatScaleAddI(-ark_mem->ark_gamma, arkdls_mem->A);
     if (retval) {
       arkProcessError(ark_mem, ARKDLS_SUNMAT_FAIL, "ARKDLS", 
-		      "arkDlsSetup",  MSGD_MATSCALEADDI_FAILED);
+                      "arkDlsSetup",  MSGD_MATSCALEADDI_FAILED);
       arkdls_mem->last_flag = ARKDLS_SUNMAT_FAIL;
       return(-1);
     }

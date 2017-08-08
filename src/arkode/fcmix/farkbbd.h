@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -85,6 +85,7 @@
  user document for more complete information.
  
  (1) User-supplied implicit right-hand side routine: FARKIFUN
+
      If any portion of the ODE system should be treated 
      implicitly (and hence would require a linear solver at all),
      the user must supply the following Fortran routine:
@@ -100,7 +101,7 @@
        YDOT -- array containing state derivatives [realtype, 
                output]
        IPAR -- array containing integer user data that was passed
-               to FARKMALLOC [sunindextype, input]
+               to FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -143,7 +144,7 @@
        GLOC -- array containing local state derivatives 
                [realtype, output]
        IPAR -- array containing integer user data that was passed
-               to FARKMALLOC [sunindextype, input]
+               to FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -171,7 +172,7 @@
        YLOC -- array containing local state variables 
                [realtype, input]
        IPAR -- array containing integer user data that was passed
-               to FARKMALLOC [sunindextype, input]
+               to FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -199,7 +200,7 @@
        FY   -- array containing state derivatives [realtype, input]
        H    -- current step size [realtype, input]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [sunindextype, input]
+               FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -223,7 +224,7 @@
        FY   -- state derivatives [realtype, input]
        H    -- current step size [realtype, input]
        IPAR -- array containing integer user data that was passed
-               to FARKMALLOC [sunindextype, input]
+               to FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        WORK -- array containing temporary workspace of same size
@@ -232,7 +233,7 @@
                   0 if successful, 
                   nonzero if an error.
 
- (4) Initialization:  FNVINITP, generic linear solver 
+ (4) Initialization:  FNVINITP, generic iterative linear solver 
      initialization, FARKMALLOC, FARKSPILSINIT, and FARKBBDINIT.
  
  (4.1) To initialize the parallel vector specification, the user
@@ -244,9 +245,9 @@
      solver ID (4). The other arguments are:
         COMM = the MPI communicator [int, input]
         NLOCAL = local vector size on this processor 
-	   [sunindextype, input]
+           [sunindextype, input]
         NGLOBAL = system size, and the global size of vectors 
-	   (the sum of all values of NLOCAL) [sunindextype, input]
+           (the sum of all values of NLOCAL) [sunindextype, input]
         IER = return completion flag [int, ouptut]. 
                   0 = success, 
                  -1 = failure.
@@ -269,7 +270,7 @@
         PRETYPE = type of preconditioning to perform (0=none, 1=left, 
            2=right, 3=both) [int, input]
         MAXL = maximum Krylov subspace dimension [int, input]
-	IER = return completion flag [int, output]:
+        IER = return completion flag [int, output]:
 	          0 = success, 
 		 -1 = failure.
 
@@ -294,11 +295,11 @@
 		      error weight vector.
         RTOL = scalar relative tolerance [realtype, input]
 	ATOL = scalar/array absolute tolerance [realtype, input]
-	IOUT = array of length 22 for integer optional outputs
-	   [sunindextype, output]
-	ROUT = array of length 6 for real optional outputs 
-	   [realtype, output]
-	IPAR = array of user integer data [sunindextype, in/out]
+	IOUT = array of length at least 29 for integer optional 
+               outputs [long int, output]
+	ROUT = array of length at least 6 for real optional 
+               outputs [realtype, output]
+	IPAR = array of user integer data [long int, in/out]
 	RPAR = array with user real data [realtype, in/out]
 	IER  = return completion flag [int, output]:
                   0 = SUCCESS,
@@ -328,24 +329,24 @@
  
       The arguments are:
         NLOCAL = local vector size on this process 
-	     [sunindextype, input]
+             [sunindextype, input]
         MUDQ = upper half-bandwidth to be used in the computation
              of the local Jacobian blocks by difference 
-	     quotients.  These may be smaller than the true 
-	     half-bandwidths of the Jacobian of the local block 
-	     of g, when smaller values may provide greater 
-	     efficiency [sunindextype, input]
+             quotients.  These may be smaller than the true 
+             half-bandwidths of the Jacobian of the local block 
+             of g, when smaller values may provide greater 
+             efficiency [sunindextype, input]
         MLDQ = lower half-bandwidth to be used in the computation
              of the local Jacobian blocks by difference 
-	     quotients [sunindextype, input]
-	MU = upper half-bandwidth of the band matrix that is
-	     retained as an approximation of the local Jacobian
-	     block (may be smaller than MUDQ) [sunindextype, input]
-	ML = lower half-bandwidth of the band matrix that is
-	     retained as an approximation of the local Jacobian
-	     block (may be smaller than MLDQ) [sunindextype, input]
-	DQRELY = relative increment factor in y for difference 
-	     quotients [realtype, input]
+             quotients [sunindextype, input]
+        MU = upper half-bandwidth of the band matrix that is
+             retained as an approximation of the local Jacobian
+             block (may be smaller than MUDQ) [sunindextype, input]
+        ML = lower half-bandwidth of the band matrix that is
+             retained as an approximation of the local Jacobian
+             block (may be smaller than MLDQ) [sunindextype, input]
+        DQRELY = relative increment factor in y for difference 
+             quotients [realtype, input]
                     0.0 = default (sqrt(unit roundoff))
         IER = return completion flag [int, output]:
                     0 = success
@@ -384,10 +385,10 @@
      preconditioner arguments, then no additional calls are 
      necessary.  
 
-     If there is no change in any of the linear solver arguments, 
-     but the user wishes to modify the values of MUDQ, MLDQ or 
-     DQRELY from the previous call to FARKBBDINIT, then a user 
-     may call:
+     Following the call to FARKREINIT, if there is no change in 
+     any of the linear solver arguments, but the user wishes to 
+     modify the values of MUDQ, MLDQ or DQRELY from the previous 
+     call to FARKBBDINIT, then a user may call:
 
        CALL FARKBBDREINIT(MUDQ, MLDQ, DQRELY, IER)
 
@@ -414,29 +415,30 @@
        TOUT = next value of t at which a solution is desired 
            [realtype, input]
        T = value of t reached by the solver [realtype, output]
-       Y = state variable array on output [realtype, output]
+       Y = state variable array [realtype, output]
        ITASK = task indicator [int, input]:
                  1 = normal mode (overshoot TOUT and interpolate)
-		 2 = one-step mode (return after each internal 
-		     step taken)
-		 3 = normal tstop mode (like 1, but integration 
-		     never proceeds past TSTOP, which must be 
-		     specified through a call to FARKSETRIN using
-		     the key 'STOP_TIME')
-		 4 = one step tstop (like 2, but integration 
-		     never goes past TSTOP)
+                 2 = one-step mode (return after each internal 
+                     step taken)
+                 3 = normal tstop mode (like 1, but integration 
+                     never proceeds past TSTOP, which must be 
+                     specified through a call to FARKSETRIN using
+                     the key 'STOP_TIME')
+                 4 = one step tstop (like 2, but integration 
+                     never goes past TSTOP)
        IER = completion flag [int, output]: 
                   0 = success, 
-		  1 = tstop return, 
-		  2 = root return, 
+                  1 = tstop return, 
+                  2 = root return, 
                   values -1 ... -10 are failure modes (see 
-		     ARKODE manual).
+                    ARKODE manual).
      The current values of the optional outputs are immediately 
      available in the IOUT and ROUT arrays.
  
  (7) Optional outputs: FARKBBDOPT
 
-     Optional outputs specific to the SP* linear solvers are:
+     Optional outputs specific to the ARKSpils linear solver 
+     interface are:
         LENRWLS = IOUT(14) from ARKSpilsGetWorkSpace
         LENIWLS = IOUT(15) from ARKSpilsGetWorkSpace
         LSTF    = IOUT(16) from ARKSpilsGetLastFlag
@@ -477,13 +479,13 @@
            [realtype, output]
        IER = return flag [int, output]: 
                     0 = success
-		   <0 = illegal argument.
+                   <0 = illegal argument.
  
  (9) Memory freeing: FARKFREE
 
      To free the internal memory created by the calls to 
-     FARKMALLOC, FNVINITS / FNVINITOMP / FNVINITPTS, 
-     FARKSPILSINIT and FARKBBDINIT, make the call:
+     FARKMALLOC, FNVINIT*, FARKSPILSINIT and FARKBBDINIT, 
+     make the call:
 
        CALL FARKFREE()
 

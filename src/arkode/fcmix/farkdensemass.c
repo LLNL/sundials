@@ -35,7 +35,7 @@ extern "C" {
 #endif
 
   extern void FARK_DMASS(sunindextype *N, realtype *T, 
-			 realtype *DMASS, sunindextype *IPAR, 
+			 realtype *DMASS, long int *IPAR, 
 			 realtype *RPAR, realtype *V1, 
 			 realtype *V2, realtype *V3, int *ier);
 

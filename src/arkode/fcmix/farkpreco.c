@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -38,11 +38,11 @@ extern "C" {
   extern void FARK_PSET(realtype *T, realtype *Y, realtype *FY,
 			booleantype *JOK, booleantype *JCUR,
 			realtype *GAMMA, realtype *H,
-			sunindextype *IPAR, realtype *RPAR, int *IER);
+			long int *IPAR, realtype *RPAR, int *IER);
   extern void FARK_PSOL(realtype *T, realtype *Y, realtype *FY,
 			realtype *R, realtype *Z, 
 			realtype *GAMMA, realtype *DELTA,
-			int *LR, sunindextype *IPAR, realtype *RPAR, 
+			int *LR, long int *IPAR, realtype *RPAR, 
                         int *IER);
 
 #ifdef __cplusplus

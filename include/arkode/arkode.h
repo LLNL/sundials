@@ -1245,8 +1245,8 @@ SUNDIALS_EXPORT int ARKodeGetDky(void *arkode_mem, realtype t,
    ARK_MEM_NULL  if the arkode memory was NULL
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKodeGetWorkSpace(void *arkode_mem, 
-				       sunindextype *lenrw, 
-				       sunindextype *leniw);
+				       long int *lenrw, 
+				       long int *leniw);
 SUNDIALS_EXPORT int ARKodeGetNumSteps(void *arkode_mem, 
 				      long int *nsteps);
 SUNDIALS_EXPORT int ARKodeGetNumExpSteps(void *arkode_mem, 

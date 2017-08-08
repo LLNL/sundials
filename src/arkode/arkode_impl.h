@@ -394,8 +394,8 @@ typedef struct ARKodeMemRec {
     -----------------------------*/
   sunindextype ark_lrw1;        /* no. of realtype words in 1 N_Vector          */ 
   sunindextype ark_liw1;        /* no. of integer words in 1 N_Vector           */ 
-  sunindextype ark_lrw;         /* no. of realtype words in ARKODE work vectors */
-  sunindextype ark_liw;         /* no. of integer words in ARKODE work vectors  */
+  long int ark_lrw;             /* no. of realtype words in ARKODE work vectors */
+  long int ark_liw;             /* no. of integer words in ARKODE work vectors  */
 
 
   /*-----------------------

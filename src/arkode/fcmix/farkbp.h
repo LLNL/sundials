@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -31,9 +31,8 @@
  solution of the implicit portions of the ODE system
        dy/dt = fe(t,y) + fi(t,y)  
  using a Krylov iterative linear solver via the ARKSPILS 
- interface, and with a banded preconditioner.  This 
- preconditioner can be constructed using either a user-supplied 
- routine, or automatically via finite differencing.
+ interface, and with a banded difference quotient Jacobian-based
+ preconditioner.
  
  The user-callable functions in this package, with the 
  corresponding ARKODE and ARKBBDPRE functions, are as follows: 
@@ -90,7 +89,7 @@
        YDOT -- array containing state derivatives [realtype, 
                output]
        IPAR -- array containing integer user data that was passed
-               to FARKMALLOC [sunindextype, input]
+               to FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -118,7 +117,7 @@
        FY   -- array containing state derivatives [realtype, input]
        H    -- current step size [realtype, input]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [sunindextype, input]
+               FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -142,7 +141,7 @@
        FY   -- state derivatives [realtype, input]
        H    -- current step size [realtype, input]
        IPAR -- array containing integer user data that was passed
-               to FARKMALLOC [sunindextype, input]
+               to FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        WORK -- array containing temporary workspace of same size
@@ -169,7 +168,7 @@
      solver ID (4). The other arguments are:
         NEQ = size of vectors [sunindextype, input]
         NUM_THREADS = number of threads
-	IER = return completion flag [int, output]:
+        IER = return completion flag [int, output]:
 	          0 = success, 
 		 -1 = failure.
  
@@ -217,10 +216,10 @@
         RTOL = scalar relative tolerance [realtype, input]
 	ATOL = scalar/array absolute tolerance [realtype, input]
 	IOUT = array of length 22 for integer optional outputs
-	   [sunindextype, output]
+	   [long int, output]
 	ROUT = array of length 6 for real optional outputs 
 	   [realtype, output]
-	IPAR = array of user integer data [sunindextype, in/out]
+	IPAR = array of user integer data [long int, in/out]
 	RPAR = array with user real data [realtype, in/out]
 	IER  = return completion flag [int, output]:
                   0 = SUCCESS,
@@ -251,10 +250,10 @@
       The arguments are:
         NEQ = problem size [sunindextype, input]
         MU = upper half-bandwidth of the band matrix that is 
-	     retained as an approximation of the Jacobian 
-	     [sunindextype, input]
+             retained as an approximation of the Jacobian 
+             [sunindextype, input]
         ML = lower half-bandwidth of the band matrix approximant
-	     to the Jacobian [sunindextype, input]
+             to the Jacobian [sunindextype, input]
         IER = return completion flag [int, output]:
                     0 = success
                    <0 = an error occurred

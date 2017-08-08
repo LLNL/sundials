@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -79,7 +79,7 @@
  *   ...
  * Notes:
  * (1) Include this file for the ARKBandPrecData type definition.
- * (2) In the ARKBandPrecAlloc call, the arguments N is the
+ * (2) In the ARKBandPrecAlloc call, the argument N is the
  *     problem dimension.
  * (3) In the linear solver creation call, the user is free to 
  *     specify the input pretype and the optional input maxl.

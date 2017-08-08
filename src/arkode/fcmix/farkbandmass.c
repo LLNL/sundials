@@ -38,7 +38,7 @@ extern "C" {
   extern void FARK_BMASS(sunindextype *N, sunindextype *MU, 
                          sunindextype *ML, sunindextype *EBAND, 
                          realtype *T, realtype *BMASS, 
-                         sunindextype *IPAR, realtype *RPAR, 
+                         long int *IPAR, realtype *RPAR, 
                          realtype *V1, realtype *V2, realtype *V3, 
                          int *IER);
 

@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -39,7 +39,7 @@ extern "C" {
                          sunindextype *NNZ, realtype *JDATA, 
                          sunindextype *JRVALS, 
 			 sunindextype *JCPTRS, realtype *H, 
-			 sunindextype *IPAR, realtype *RPAR, 
+			 long int *IPAR, realtype *RPAR, 
 			 realtype *V1, realtype *V2, 
 			 realtype *V3, int *ier);
 
@@ -83,9 +83,9 @@ int FARKSparseJac(realtype t, N_Vector y, N_Vector fy,
   indexvals = SUNSparseMatrix_IndexValues(J);
   indexptrs = SUNSparseMatrix_IndexPointers(J);
 
-  FARK_SPJAC(&t, ydata, fydata, &NP, &NNZ, Jdata, indexvals, indexptrs, 
-             &h, ARK_userdata->ipar, ARK_userdata->rpar, v1data, v2data, 
-             v3data, &ier); 
+  FARK_SPJAC(&t, ydata, fydata, &NP, &NNZ, Jdata, indexvals, 
+             indexptrs, &h, ARK_userdata->ipar, ARK_userdata->rpar, 
+             v1data, v2data, v3data, &ier); 
   return(ier);
 }
 

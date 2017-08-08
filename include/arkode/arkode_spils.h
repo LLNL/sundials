@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -15,8 +15,8 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Common header file for the Scaled, Preconditioned Iterative 
- * Linear Solver interface in ARKODE.
+ * Header file for the Scaled, Preconditioned Iterative Linear 
+ * Solver interface in ARKODE.
  *--------------------------------------------------------------*/
 
 #ifndef _ARKSPILS_H
@@ -96,7 +96,7 @@ extern "C" {
  approximation to M.  This function will not be called in
  advance of every call to PrecSolve, but instead will be called
  only as often as necessary to achieve convergence within the
- Newton iteration.  If the PrecSolve function needs no
+ Inexact Newton iteration.  If the PrecSolve function needs no
  preparation, the PrecSetup function can be NULL.
 
  For greater efficiency, the PrecSetup function may save
@@ -485,9 +485,10 @@ SUNDIALS_EXPORT int ARKSpilsSetMassLinearSolver(void *arkode_mem,
 		approximation routine (no setup).
 
  ARKSpilsSetMassTimes specifies the mtsetup and mtimes functions. 
- Note that there do not exist built-in finite-difference approximation
- routines for this, this function MUST be called with non-NULL 'mtimes' 
- if ARKSpilsSetMassLinearSolver was called.
+                Note that there do not exist built-in finite-
+                difference approximation routines for this, this 
+                function MUST be called with non-NULL 'mtimes' 
+                if ARKSpilsSetMassLinearSolver was called.
 
  The return value of ARKSpilsSet* is one of:
     ARKSPILS_SUCCESS      if successful
@@ -518,37 +519,19 @@ SUNDIALS_EXPORT int ARKSpilsSetMassTimes(void *arkode_mem,
  ARKSpilsGetWorkSpace returns the real and integer workspace used
                 by the SPILS module.
 
- ARKSpilsGetMassWorkSpace returns the real and integer workspace used
-                by the mass matrix SPILS module.
-
  ARKSpilsGetNumPrecEvals returns the number of preconditioner
                  evaluations, i.e. the number of calls made
                  to PrecSetup with jok==FALSE.
 
- ARKSpilsGetNumMassPrecEvals returns the number of mass matrix 
-                 preconditioner evaluations, i.e. the number of 
-                 calls made to MPrecSetup.
-
  ARKSpilsGetNumPrecSolves returns the number of calls made to
                  PrecSolve.
 
- ARKSpilsGetNumMassPrecSolves returns the number of calls made to
-                 MPrecSolve.
-
  ARKSpilsGetNumLinIters returns the number of linear iterations.
-
- ARKSpilsGetNumMassIters returns the number of mass matrix solver
-                  iterations.
 
  ARKSpilsGetNumConvFails returns the number of linear
                  convergence failures.
 
- ARKSpilsGetNumMassConvFails returns the number of mass matrix solver
-                 convergence failures.
-
  ARKSpilsGetNumJtimesEvals returns the number of calls to jtimes.
-
- ARKSpilsGetNumMtimesEvals returns the number of calls to mtimes.
 
  ARKSpilsGetNumRhsEvals returns the number of calls to the user
                  f routine due to finite difference Jacobian
@@ -556,6 +539,24 @@ SUNDIALS_EXPORT int ARKSpilsSetMassTimes(void *arkode_mem,
 
  ARKSpilsGetLastFlag returns the last error flag set by any of
                  the ARKSPILS interface functions.
+
+ ARKSpilsGetMassWorkSpace returns the real and integer workspace used
+                by the mass matrix SPILS module.
+
+ ARKSpilsGetNumMassPrecEvals returns the number of mass matrix 
+                 preconditioner evaluations, i.e. the number of 
+                 calls made to MPrecSetup.
+
+ ARKSpilsGetNumMassPrecSolves returns the number of calls made to
+                 MPrecSolve.
+
+ ARKSpilsGetNumMassIters returns the number of mass matrix solver
+                  iterations.
+
+ ARKSpilsGetNumMassConvFails returns the number of mass matrix solver
+                 convergence failures.
+
+ ARKSpilsGetNumMtimesEvals returns the number of calls to mtimes.
 
  ARKSpilsGetLastMassFlag returns the last error flag set by any of
                  the ARKSPILS interface functions on the mass 
@@ -567,44 +568,45 @@ SUNDIALS_EXPORT int ARKSpilsSetMassTimes(void *arkode_mem,
     ARKSPILS_LMEM_NULL if the linear solver memory was NULL
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKSpilsGetWorkSpace(void *arkode_mem, 
-                                         sunindextype *lenrwLS, 
-                                         sunindextype *leniwLS);
-SUNDIALS_EXPORT int ARKSpilsGetMassWorkSpace(void *arkode_mem, 
-                                             sunindextype *lenrwMLS, 
-                                             sunindextype *leniwMLS);
+                                         long int *lenrwLS, 
+                                         long int *leniwLS);
 SUNDIALS_EXPORT int ARKSpilsGetNumPrecEvals(void *arkode_mem, 
                                             long int *npevals);
-SUNDIALS_EXPORT int ARKSpilsGetNumMassPrecEvals(void *arkode_mem, 
-                                                long int *nmpevals);
 SUNDIALS_EXPORT int ARKSpilsGetNumPrecSolves(void *arkode_mem, 
                                              long int *npsolves);
-SUNDIALS_EXPORT int ARKSpilsGetNumMassPrecSolves(void *arkode_mem, 
-                                                 long int *nmpsolves);
 SUNDIALS_EXPORT int ARKSpilsGetNumLinIters(void *arkode_mem, 
                                            long int *nliters);
-SUNDIALS_EXPORT int ARKSpilsGetNumMassIters(void *arkode_mem, 
-                                            long int *nmiters);
 SUNDIALS_EXPORT int ARKSpilsGetNumConvFails(void *arkode_mem, 
                                             long int *nlcfails);
-SUNDIALS_EXPORT int ARKSpilsGetNumMassConvFails(void *arkode_mem, 
-                                                long int *nmcfails);
 SUNDIALS_EXPORT int ARKSpilsGetNumJtimesEvals(void *arkode_mem, 
                                               long int *njvevals);
-SUNDIALS_EXPORT int ARKSpilsGetNumMtimesEvals(void *arkode_mem, 
-                                              long int *nmvevals);
 SUNDIALS_EXPORT int ARKSpilsGetNumRhsEvals(void *arkode_mem, 
                                            long int *nfevalsLS); 
 SUNDIALS_EXPORT int ARKSpilsGetLastFlag(void *arkode_mem, 
-                                        long int *flag); /* -- REMOVE? */
+                                        long int *flag);
+  
+SUNDIALS_EXPORT int ARKSpilsGetMassWorkSpace(void *arkode_mem, 
+                                             long int *lenrwMLS, 
+                                             long int *leniwMLS);
+SUNDIALS_EXPORT int ARKSpilsGetNumMassPrecEvals(void *arkode_mem, 
+                                                long int *nmpevals);
+SUNDIALS_EXPORT int ARKSpilsGetNumMassPrecSolves(void *arkode_mem, 
+                                                 long int *nmpsolves);
+SUNDIALS_EXPORT int ARKSpilsGetNumMassIters(void *arkode_mem, 
+                                            long int *nmiters);
+SUNDIALS_EXPORT int ARKSpilsGetNumMassConvFails(void *arkode_mem, 
+                                                long int *nmcfails);
+SUNDIALS_EXPORT int ARKSpilsGetNumMtimesEvals(void *arkode_mem, 
+                                              long int *nmvevals);
 SUNDIALS_EXPORT int ARKSpilsGetLastMassFlag(void *arkode_mem, 
-                                            long int *flag); /* -- REMOVE? */
+                                            long int *flag);
 
 
 /*---------------------------------------------------------------
  The following function returns the name of the constant 
  associated with a ARKSPILS return flag
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT char *ARKSpilsGetReturnFlagName(long int flag); /* -- REMOVE? */
+SUNDIALS_EXPORT char *ARKSpilsGetReturnFlagName(long int flag);
 
 #ifdef __cplusplus
 }

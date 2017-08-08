@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -43,7 +43,7 @@
 /* Definitions for global variables shared between Fortran/C 
    interface routines */
 void     *ARK_arkodemem;
-sunindextype *ARK_iout;
+long int *ARK_iout;
 realtype *ARK_rout;
 int       ARK_nrtfn;
 int       ARK_ls;
@@ -58,9 +58,9 @@ extern "C" {
 #endif
 
   extern void FARK_IMP_FUN(realtype *T, realtype *Y, realtype *YDOT,
-			   sunindextype *IPAR, realtype *RPAR, int *IER);
+			   long int *IPAR, realtype *RPAR, int *IER);
   extern void FARK_EXP_FUN(realtype *T, realtype *Y, realtype *YDOT,
-			   sunindextype *IPAR, realtype *RPAR, int *IER);
+			   long int *IPAR, realtype *RPAR, int *IER);
 
 #ifdef __cplusplus
 }
@@ -75,8 +75,8 @@ extern "C" {
    for further details */
 void FARK_MALLOC(realtype *t0, realtype *y0, int *imex, 
 		 int *iatol, realtype *rtol, realtype *atol, 
-		 sunindextype *iout, realtype *rout, 
-		 sunindextype *ipar, realtype *rpar, int *ier) {
+		 long int *iout, realtype *rout, 
+		 long int *ipar, realtype *rpar, int *ier) {
 
   N_Vector Vatol;
   FARKUserData ARK_userdata;
@@ -338,7 +338,7 @@ void FARK_SETDEFAULTS(int *ier) {
 
 /* Fortran interface to C "set" routines having integer 
    arguments; see farkode.h for further details */
-void FARK_SETIIN(char key_name[], sunindextype *ival, int *ier) {
+void FARK_SETIIN(char key_name[], long int *ival, int *ier) {
   if (!strncmp(key_name, "ORDER", 5)) 
     *ier = ARKodeSetOrder(ARK_arkodemem, (int) *ival);
   else if (!strncmp(key_name, "DENSE_ORDER", 11)) 
@@ -829,12 +829,36 @@ void FARK_FREE() {
 
   ARKodeMem ark_mem;
   ark_mem = (ARKodeMem) ARK_arkodemem;
-  free(ark_mem->ark_user_data); ark_mem->ark_user_data = NULL;
 
+  /* free DLS/SPILS interface */
+  if (ark_mem->ark_lfree)
+    ark_mem->ark_lfree(ark_mem);
+  ark_mem->ark_lmem = NULL;
+
+  /* free mass DLS/SPILS interface */
+  if (ark_mem->ark_mfree)
+    ark_mem->ark_mfree(ark_mem);
+  ark_mem->ark_mass_mem = NULL;
+
+  /* free user_data structure */
+  if (ark_mem->ark_user_data)
+    free(ark_mem->ark_user_data);
+  ark_mem->ark_user_data = NULL;
+
+  /* free main integrator memory structure */
   ARKodeFree(&ARK_arkodemem);
 
+  /* free interface vector / matrices / linear solvers */
   N_VSetArrayPointer(NULL, F2C_ARKODE_vec);
   N_VDestroy(F2C_ARKODE_vec);
+  if (F2C_ARKODE_matrix)
+    SUNMatDestroy(F2C_ARKODE_matrix);
+  if (F2C_ARKODE_mass_matrix)
+    SUNMatDestroy(F2C_ARKODE_mass_matrix);
+  if (F2C_ARKODE_linsol)
+    SUNLinSolFree(F2C_ARKODE_linsol);
+  if (F2C_ARKODE_mass_sol)
+    SUNLinSolFree(F2C_ARKODE_mass_sol);
   return;
 }
 

@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -141,14 +141,14 @@
    -------------      ------------------       -----------------------
    FARKIFUN           FARKfi                   ARKRhsFn
    FARKEFUN           FARKfe                   ARKRhsFn
-   FARKDJAC           FARKDenseJac             ARKDlsDenseJacFn
-   FARKDMASS          FARKDenseMass            ARKDlsDenseMassFn
-   FARKBJAC           FARKBandJac              ARKDlsBandJacFn
-   FARKBMASS          FARKBandMass             ARKDlsBandMassFn
-   FARKDIAGJAC        FARKDiagJac              ARKDlsDiagonalJacFn
-   FARKDIAGMASS       FARKDiagMass             ARKDlsDiagonalMassFn
-   FARKSPJAC          FARKSparseJac            ARKSlsSparseJacFn
-   FARKSPMASS         FARKSparseMass           ARKSlsSparseMassFn
+   FARKDJAC           FARKDenseJac             ARKDlsJacFn
+   FARKDMASS          FARKDenseMass            ARKDlsMassFn
+   FARKBJAC           FARKBandJac              ARKDlsJacFn
+   FARKBMASS          FARKBandMass             ARKDlsMassFn
+   FARKDIAGJAC        FARKDiagJac              ARKDlsJacFn
+   FARKDIAGMASS       FARKDiagMass             ARKDlsMassFn
+   FARKSPJAC          FARKSparseJac            ARKSlsJacFn
+   FARKSPMASS         FARKSparseMass           ARKSlsMassFn
    FARKPSET           FARKPSet                 ARKSpilsPrecSetupFn
    FARKPSOL           FARKPSol                 ARKSpilsPrecSolveFn
    FARKMASSPSET       FARKMassPSet             ARKSpilsMassPrecSetupFn
@@ -175,7 +175,7 @@
  
                   Usage of the FARKODE Interface Package
  
- The usage of FARKODE requires calls to five or more interface
+ The usage of FARKODE requires calls to a variety of interface
  functions, depending on the method options selected, and one or more
  user-supplied routines which define the problem to be solved.  These
  function calls and user routines are summarized separately below.
@@ -187,8 +187,8 @@
  documentation on the corresponding function in the ARKODE package.
  
  The number labels on the instructions below end with s for instructions
- that are specific to use with the N_VSerial package; similarly those that 
- end with p are specific to use with the N_VParallel package.
+ that are specific to use with the serial/OpenMP/PThreads package; similarly 
+ those that end with p are specific to use with the N_VParallel package.
 
  -----------------------------------------------------------------------------
 
@@ -222,6 +222,7 @@
  -----------------------------------------------------------------------------
 
  (1) User-supplied right-hand side routines: FARKIFUN and FARKEFUN
+
      The user must in all cases supply at least one of the following 
      Fortran routines:
 
@@ -241,7 +242,7 @@
        Y    -- array containing state variables [realtype, input]
        YDOT -- array containing state derivatives [realtype, output]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [sunindextype, input]
+               FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -271,7 +272,7 @@
                (NEQ,NEQ), output]
        H    -- current step size [realtype, input]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [sunindextype, input]
+               FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        WK*  -- array containing temporary workspace of same size as Y 
@@ -308,7 +309,7 @@
                (MDIM,NEQ), output]
        H    -- current step size [realtype, input]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [sunindextype, input]
+               FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        WK*  -- array containing temporary workspace of same size as Y 
@@ -343,7 +344,7 @@
                size (NEQ), output]
        H    -- current step size [realtype, input]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [sunindextype, input]
+               FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        WK*  -- array containing temporary workspace of same size as Y 
@@ -385,7 +386,7 @@
                  arrays [sunindextype of length N+1, output]
          H    -- current step size [realtype, input]
          IPAR -- array containing integer user data that was passed to
-                 FARKMALLOC [sunindextype, input]
+                 FARKMALLOC [long int, input]
          RPAR -- array containing real user data that was passed to
                  FARKMALLOC [realtype, input]
          WK*  -- array containing temporary workspace of same size as Y 
@@ -417,7 +418,7 @@
        FY   -- array containing state derivatives [realtype, input]
        H    -- current step size [realtype, input]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [sunindextype, input]
+               FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -445,7 +446,7 @@
        FY   -- array containing state derivatives [realtype, input]
        H    -- current step size [realtype, input]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [sunindextype, input]
+               FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        WORK -- array containing temporary workspace of same size as Y 
@@ -457,9 +458,9 @@
  (3) Optional user-supplied preconditioner setup/solve routines: FARKPSET 
    and FARKPSOL
 
-     As an option when using the SP* linear solver, the user may 
-     supply routines to setup and apply the preconditioner.  If 
-     supplied, these must have the following form:
+     As an option when using the ARKSPILS linear solver interface, the 
+     user may supply routines to setup and apply the preconditioner.  
+     If supplied, these must have the following form:
 
        SUBROUTINE FARKPSET(T,Y,FY,JOK,JCUR,GAMMA,H,IPAR,RPAR,IER)
 
@@ -481,11 +482,11 @@
            [realtype, output], 1=yes, 0=no
        GAMMA = Jacobian scaling factor [realtype, input]
        H = current time step [realtype, input]
-       IPAR = array of user integer data [sunindextype, input/output]
+       IPAR = array of user integer data [long int, input/output]
        RPAR = array with user real data [realtype, input/output]
        IER  = return completion flag [int, output]:
                   0 = SUCCESS,
-		 >0 = recoverable failure
+                 >0 = recoverable failure
                  <0 = non-recoverable failure
 
      The user-supplied routine FARKPSOL must have the form:
@@ -508,12 +509,12 @@
        DELTA = desired residual tolerance [realtype, input]
        LR = flag denoting to solve the right or left preconditioner system
                   1 = left preconditioner
-		  2 = right preconditioner
-       IPAR = array of user integer data [sunindextype, input/output]
+                  2 = right preconditioner
+       IPAR = array of user integer data [long int, input/output]
        RPAR = array with user real data [realtype, input/output]
        IER  = return completion flag [int, output]:
                   0 = SUCCESS,
-		 >0 = recoverable failure
+                 >0 = recoverable failure
                  <0 = non-recoverable failure
 
  (4s) Optional user-supplied dense mass matrix routine: FARKDMASS
@@ -533,7 +534,7 @@
        DMASS -- 2D array containing the mass matrix entries [realtype 
                 of size (NEQ,NEQ), output]
        IPAR  -- array containing integer user data that was passed to
-                FARKMALLOC [sunindextype, input]
+                FARKMALLOC [long int, input]
        RPAR  -- array containing real user data that was passed to
                 FARKMALLOC [realtype, input]
        WK*   -- array containing temporary workspace of same size as Y 
@@ -567,7 +568,7 @@
        BMASS -- 2D array containing the mass matrix entries [realtype 
                 of size (MDIM,NEQ), output]
        IPAR  -- array containing integer user data that was passed to
-                FARKMALLOC [sunindextype, input]
+                FARKMALLOC [long int, input]
        RPAR  -- array containing real user data that was passed to
                 FARKMALLOC [realtype, input]
        WK*   -- array containing temporary workspace of same size as Y 
@@ -597,7 +598,7 @@
        DMASS -- 1D array containing the mass matrix entries [realtype 
                 of size (NEQ), output]
        IPAR  -- array containing integer user data that was passed to
-                FARKMALLOC [sunindextype, input]
+                FARKMALLOC [long int, input]
        RPAR  -- array containing real user data that was passed to
                 FARKMALLOC [realtype, input]
        WK*   -- array containing temporary workspace of same size as Y 
@@ -637,7 +638,7 @@
        MCPTRS -- pointers to each mass matrix column [or row] in preceding 
                  arrays [sunindextype of length N+1, output]
          IPAR -- array containing integer user data that was passed to
-                 FARKMALLOC [sunindextype, input]
+                 FARKMALLOC [long int, input]
          RPAR -- array containing real user data that was passed to
                  FARKMALLOC [realtype, input]
          WK*  -- array containing temporary workspace of same size as Y 
@@ -664,7 +665,7 @@
      The arguments are:
        T    -- current time [realtype, input]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [sunindextype, input]
+               FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -688,7 +689,7 @@
        MV   -- array containing product vector [realtype, output]
        T    -- current time [realtype, input]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [sunindextype, input]
+               FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -711,7 +712,7 @@
 
      The arguments are:
        T = current time [realtype, input]
-       IPAR = array of user integer data [sunindextype, input/output]
+       IPAR = array of user integer data [long int, input/output]
        RPAR = array with user real data [realtype, input/output]
        IER  = return completion flag [int, output]:
                   0 = SUCCESS,
@@ -738,7 +739,7 @@
        LR = flag denoting to solve the right or left preconditioner system
                   1 = left preconditioner
 		  2 = right preconditioner
-       IPAR = array of user integer data [sunindextype, input/output]
+       IPAR = array of user integer data [long int, input/output]
        RPAR = array with user real data [realtype, input/output]
        IER  = return completion flag [int, output]:
                   0 = SUCCESS,
@@ -759,7 +760,7 @@
        Y    -- array containing state variables [realtype, input]
        EWT  -- array containing the error weight vector [realtype, output]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [sunindextype, input]
+               FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -792,7 +793,7 @@
        P    -- global order of accuracy for RK embedding [int, input]
        HNEW -- predicted next step size [realtype, output]
        IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [sunindextype, input]
+               FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
@@ -814,7 +815,7 @@
        T     -- current time [realtype, input]
        HSTAB -- explicitly-stable step size [realtype, output]
        IPAR  -- array containing integer user data that was passed to
-                FARKMALLOC [sunindextype, input]
+                FARKMALLOC [long int, input]
        RPAR  -- array containing real user data that was passed to
                 FARKMALLOC [realtype, input]
        IER   -- return flag [int, output]:
@@ -874,7 +875,7 @@
         NGLOBAL = the system size, and the global size of vectors (the sum 
            of all values of NLOCAL) [sunindextype, input]
         NUM_THREADS = number of threads
-	IER = return completion flag [int, output]:
+        IER = return completion flag [int, output]:
 	          0 = success, 
 		 -1 = failure.
 
@@ -904,7 +905,7 @@
            a sparse matrix [sunindextype, input]
         SPARSETYPE = integer denoting use of CSC (0) vs CSR (1) storage 
            for a sparse matrix [int, input]
-	IER = return completion flag [int, output]:
+        IER = return completion flag [int, output]:
 	          0 = success, 
 		 -1 = failure.
 
@@ -969,7 +970,7 @@
         MAXL = maximum Krylov subspace dimension [int, input]
         GSTYPE = choice of Gram-Schmidt orthogonalization algorithm 
            (0=modified, 1=classical) [int, input]
-	IER = return completion flag [int, output]:
+        IER = return completion flag [int, output]:
 	          0 = success, 
 		 -1 = failure.
 
@@ -1028,13 +1029,13 @@
                   1 = scalar, 
                   2 = array,
                   3 = user-supplied function; the user must supply a routine
-		  FARKEWT to compute the error weight vector.
+		      FARKEWT to compute the error weight vector.
         RTOL = scalar relative tolerance [realtype, input]
 	ATOL = scalar or array absolute tolerance [realtype, input]
-	IOUT = array of length 22 for integer optional outputs
-	   [sunindextype, output]
+	IOUT = array of length at least 29 for integer optional outputs
+               [long int, output]
 	ROUT = array of length 6 for real optional outputs [realtype, output]
-	IPAR = array of user integer data [sunindextype, input/output]
+	IPAR = array of user integer data [long int, input/output]
 	RPAR = array with user real data [realtype, input/output]
 	IER  = return completion flag [int, output]:
                   0 = SUCCESS,
@@ -1069,7 +1070,7 @@
            UROUND  = ROUT( 6) from UNIT_ROUNDOFF
      See the ARKODE manual for details. 
 
- (9.7) If a linear solver was created in step (7.4) then it must be 
+ (9.7) If a direct linear solver was created in step (7.4) then it must be 
      attached to ARKode.  If the user called any one of FSUNBANDLINSOLINIT, 
      FSUNDENSELINSOLINIT, FSUNDIAGLINSOLINIT, FSUNKLUINIT, 
      FSUNLAPACKBANDINIT, FSUNLAPACKDENSEINIT, or FSUNSUPERLUMTINIT, then 
@@ -1082,8 +1083,8 @@
                   0 = SUCCESS,
                  -1 = failure (see printed message for failure details).
 
- (9.7) If a linear solver was created in step (7.4) then it must be 
-     attached to ARKode.  If the user called any one of FSUNPCGINIT, 
+ (9.7) If an iterative linear solver was created in step (7.4) then it must 
+     be attached to ARKode.  If the user called any one of FSUNPCGINIT, 
      FSUNSPBCGSINIT, FSUNSPFGMRINIT, FSUNSPGMRINIT, or FSUNSPTFQMRINIT, 
      then this must be attached to the ARKSPILS interface using the command:
 
@@ -1321,7 +1322,7 @@
 
      The arguments are:
         NNZ = the maximum number of nonzeros [int; input]
-	REINIT_TYPE = 1 or 2.  For a value of 1, the matrix will be 
+        REINIT_TYPE = 1 or 2.  For a value of 1, the matrix will be 
           destroyed and a new one will be allocated with NNZ nonzeros.  
           For a value of 2, only symbolic and numeric factorizations will 
           be completed. 
@@ -1332,7 +1333,7 @@
 
      to set the integer value VALUE to the optional input specified by the 
      quoted character string KEY. VALUE must be a Fortran integer of size 
-     commensurate with a C "sunindextype".  KEY must be one of the following: 
+     commensurate with a C "long int".  KEY must be one of the following: 
      ORDER, DENSE_ORDER, LINEAR, NONLINEAR, FIXEDPOINT, NEWTON, EXPLICIT, 
      IMPLICIT, IMEX, IRK_TABLE_NUM, ERK_TABLE_NUM, ARK_TABLE_NUM (pass in 
      an int array of length 2, implicit method first), MAX_NSTEPS, 
@@ -1351,7 +1352,8 @@
      NLCONV_COEF, ADAPT_CFL, ADAPT_SAFETY, ADAPT_BIAS, ADAPT_GROWTH, 
      ADAPT_BOUNDS (pass in a realtype array of length 2), ADAPT_ETAMX1, 
      ADAPT_ETAMXF, ADAPT_ETACF, NONLIN_CRDOWN, NONLIN_RDIV, LSETUP_DGMAX, 
-     or FIXED_STEP.
+     or FIXED_STEP.  The int return flag IER is 0 if successful, and nonzero 
+     otherwise.
 
  (9.26) To set the time step adaptivity method (and its associated 
      parameters), make the following call: 
@@ -1518,7 +1520,7 @@
      The arguments are:
        TOUT = next value of t at which a solution is desired [realtype, input]
        T = value of t reached by the solver [realtype, output]
-       Y = array containing state variables on output (realtype, output]
+       Y = array containing state variables on output [realtype, output]
        ITASK = task indicator [int, input]:
                   1 = normal mode (overshoot TOUT and interpolate)
 		  2 = one-step mode (return after each internal step taken)
@@ -1591,8 +1593,8 @@
 
  (16) Memory freeing: FARKFREE 
 
-     To free the internal memory created by the calls to FARKMALLOC and
-     FNVINITS, FNVINITOMP, FNVINITPTS or FNVINITP, make the call
+     To free the internal memory created by the calls to FARKMALLOC, 
+     FARKDLSINIT/FARKSPILSINIT, and FNVINIT*, make the call
 
        CALL FARKFREE()
  
@@ -1779,14 +1781,14 @@ extern "C" {
   /* Type for user data */
   typedef struct {
     realtype *rpar;
-    sunindextype *ipar;
+    long int *ipar;
   } *FARKUserData;
   
   /* Prototypes of exported functions */
   void FARK_MALLOC(realtype *t0, realtype *y0, int *imex, 
 		   int *iatol, realtype *rtol, realtype *atol, 
-		   sunindextype *iout, realtype *rout, 
-		   sunindextype *ipar, realtype *rpar, int *ier);
+		   long int *iout, realtype *rout, 
+		   long int *ipar, realtype *rpar, int *ier);
 
   void FARK_REINIT(realtype *t0, realtype *y0, int *imex,
 		   int *iatol, realtype *rtol, realtype *atol,
@@ -1796,7 +1798,7 @@ extern "C" {
 		   int *itol, realtype *rtol, realtype *atol, int *ier);
 
   void FARK_SETDEFAULTS(int *ier);
-  void FARK_SETIIN(char key_name[], sunindextype *ival, int *ier);
+  void FARK_SETIIN(char key_name[], long int *ival, int *ier);
   void FARK_SETRIN(char key_name[], realtype *rval, int *ier);
 
   void FARK_SETADAPTMETHOD(int *imethod, int *idefault, int *ipq, 
@@ -1927,7 +1929,7 @@ extern "C" {
   extern SUNLinearSolver F2C_ARKODE_mass_sol; 
 
   extern void *ARK_arkodemem;     /* defined in farkode.c */
-  extern sunindextype *ARK_iout;      /* defined in farkode.c */
+  extern long int *ARK_iout;      /* defined in farkode.c */
   extern realtype *ARK_rout;      /* defined in farkode.c */
   extern int ARK_nrtfn;           /* defined in farkode.c */
   extern int ARK_ls;              /* defined in farkode.c */

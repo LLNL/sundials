@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -53,7 +53,7 @@
       T = independent variable value t  [realtype, input]
       Y = dependent variable array y  [realtype, input]
       G = function value array g(t,y)  [realtype, output]
-      IPAR = user data array [sunindextype, input/output]
+      IPAR = user data array [long int, input/output]
       RPAR = user data array [realtype, input/output]
       IER = return flag [int, output]:
             0 if success

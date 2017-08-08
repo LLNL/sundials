@@ -58,7 +58,7 @@ program driver
   real(kind=REALTYPE), parameter :: T0=0.d0, Tf=10.d0
   real(kind=REALTYPE) :: dTout, Tout, Tcur, rtol, atol, rout(6)
   integer   :: it, Nt, ier
-  integer(kind=SUNINDEXTYPE) :: iout(22)
+  integer*8 :: iout(22)
   real(kind=REALTYPE), dimension(NEQ) :: y
 
   ! real/integer parameters to pass through to supplied functions
@@ -66,7 +66,7 @@ program driver
   !    rpar(1) -> "a" parameter
   !    rpar(2) -> "b" parameter 
   !    rpar(3) -> "ep" parameter
-  integer(kind=SUNINDEXTYPE) :: ipar
+  integer*8 :: ipar
   real(kind=REALTYPE) :: rpar(3)
 
   ! solver parameters
@@ -213,7 +213,7 @@ subroutine farkifun(t, y, ydot, ipar, rpar, ier)
 
   ! Arguments
   real(kind=REALTYPE), intent(in) :: t, rpar(3)
-  integer(kind=SUNINDEXTYPE), intent(in) :: ipar(1)
+  integer*8, intent(in) :: ipar(1)
   real(kind=REALTYPE), intent(in)  :: y(3)
   real(kind=REALTYPE), intent(out) :: ydot(3)
   integer,   intent(out) :: ier
@@ -249,7 +249,7 @@ subroutine farkefun(t, y, ydot, ipar, rpar, ier)
 
   ! Arguments
   real(kind=REALTYPE), intent(in)  :: t, rpar(3)
-  integer(kind=SUNINDEXTYPE), intent(in) :: ipar(1)
+  integer*8, intent(in) :: ipar(1)
   real(kind=REALTYPE), intent(in)  :: y(3)
   real(kind=REALTYPE), intent(out) :: ydot(3)
   integer,   intent(out) :: ier
@@ -285,7 +285,8 @@ subroutine farkdjac(neq,t,y,fy,DJac,h,ipar,rpar,wk1,wk2,wk3,ier)
 
   ! Arguments
   real(kind=REALTYPE), intent(in) :: t, h, rpar(3)
-  integer(kind=SUNINDEXTYPE), intent(in) :: neq, ipar(1)
+  integer*8, intent(in) :: ipar(1)
+  integer(kind=SUNINDEXTYPE), intent(in) :: neq
   integer,   intent(out) :: ier
   real(kind=REALTYPE), intent(in), dimension(neq) :: y, fy, wk1, wk2, wk3
   real(kind=REALTYPE), intent(out) :: DJac(neq,neq)

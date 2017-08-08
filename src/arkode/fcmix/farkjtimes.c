@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -15,10 +15,11 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * The C function FARKJtimes is to interface between the ARKSPILS
- * module and the user-supplied Jacobian-vector product routines
- * FARKJTSETUP and FARKJTIMES. Note the use of the generic names
- * FARK_JTSETUP and FARK_JTIMES in the code below.
+ * The C functions FARKJTSetup and FARKJtimes are to interface 
+ * between the ARKSPILS module and the user-supplied 
+ * Jacobian-vector product routines FARKJTSETUP and FARKJTIMES. 
+ * Note the use of the generic names FARK_JTSETUP and FARK_JTIMES 
+ * in the code below.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -36,12 +37,12 @@ extern "C" {
 #endif
 
   extern void FARK_JTSETUP(realtype *T, realtype *Y, realtype *FY, 
-                           realtype *H, sunindextype *IPAR, 
+                           realtype *H, long int *IPAR, 
                            realtype *RPAR, int *IER);
 
   extern void FARK_JTIMES(realtype *V, realtype *JV, realtype *T, 
 			  realtype *Y, realtype *FY, realtype *H,
-			  sunindextype *IPAR, realtype *RPAR,
+			  long int *IPAR, realtype *RPAR,
 			  realtype *WRK, int *IER);
 
 #ifdef __cplusplus

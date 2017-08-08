@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -36,7 +36,7 @@ extern "C" {
   ARKDLS Constants
 ===============================================================*/
 
-/* ARKDLS return values -- ADJUST CONSTANTS AS NECESSARY */
+/* ARKDLS return values */
 #define ARKDLS_SUCCESS          0
 #define ARKDLS_MEM_NULL        -1
 #define ARKDLS_LMEM_NULL       -2
@@ -87,8 +87,8 @@ extern "C" {
  an unrecoverable error occurred.
 
  NOTE: See the relevant SUNMatrix implementation header files
- and documentation for mechanisms to inquire about matrix 
- dimensions, and to set matrix entries.
+     and documentation for mechanisms to inquire about matrix 
+     dimensions, and for efficient ways to set matrix entries.
                                                                 
  NOTE: If the user's Jacobian routine needs other quantities,   
      they are accessible as follows: hcur (the current stepsize)
@@ -157,7 +157,7 @@ typedef int (*ARKDlsMassFn)(realtype t, SUNMatrix M, void *user_data,
  The return value is one of:
     ARKDLS_SUCCESS   if successful
     ARKDLS_MEM_NULL  if the ARKODE memory was NULL
-    ARKDLS_ILL_INPUT if the linear solver memory was NULL
+    ARKDLS_ILL_INPUT if the arguments are incompatible
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKDlsSetLinearSolver(void *arkode_mem, 
                                           SUNLinearSolver LS,
@@ -199,25 +199,25 @@ SUNDIALS_EXPORT int ARKDlsSetMassFn(void *arkode_mem, ARKDlsMassFn mass);
  Optional outputs from the ARKDLS linear solver:
 
  ARKDlsGetWorkSpace   returns the real and integer workspace used
-                     by the direct linear solver.
+                      by the direct linear solver.
  ARKDlsGetNumJacEvals returns the number of calls made to the
-                     Jacobian evaluation routine jac.
+                      Jacobian evaluation routine jac.
  ARKDlsGetNumRhsEvals returns the number of calls to the user
-                     f routine due to finite difference Jacobian
-                     evaluation.
+                      f routine due to finite difference Jacobian
+                      evaluation.
  ARKDlsGetLastFlag    returns the last error flag set by any of
-                     the ARKDLS interface functions.
+                      the ARKDLS interface functions.
 
- ARKDlsGetMassWorkSpace   returns the real and integer workspace used
-                     by the mass matrix direct linear solver.
+ ARKDlsGetMassWorkSpace returns the real/integer workspace used
+                        by the mass matrix direct linear solver.
  ARKDlsGetNumMassSetups returns the number of calls made to the
-                     mass matrix solver setup routine
+                        mass matrix solver setup routine
  ARKDlsGetNumMassSolves returns the number of calls made to the
-                     mass matrix solver 'solve' routine
- ARKDlsGetNumMassMult returns the number of calls made to the
-                     mass matrix-times-vector routine
+                        mass matrix solver 'solve' routine
+ ARKDlsGetNumMassMult   returns the number of calls made to the
+                        mass matrix-times-vector routine
  ARKDlsGetLastMassFlag  returns the last error flag set by any of
-                     the ARKDLS interface mass matrix functions.
+                        the ARKDLS mass functions
 
  The return value of ARKDlsGet* is one of:
     ARKDLS_SUCCESS   if successful
@@ -225,8 +225,8 @@ SUNDIALS_EXPORT int ARKDlsSetMassFn(void *arkode_mem, ARKDlsMassFn mass);
     ARKDLS_LMEM_NULL if the linear solver memory was NULL
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKDlsGetWorkSpace(void *arkode_mem, 
-				       sunindextype *lenrwLS, 
-				       sunindextype *leniwLS);
+				       long int *lenrwLS, 
+				       long int *leniwLS);
 SUNDIALS_EXPORT int ARKDlsGetNumJacEvals(void *arkode_mem, 
 					 long int *njevals);
 SUNDIALS_EXPORT int ARKDlsGetNumRhsEvals(void *arkode_mem, 
@@ -235,8 +235,8 @@ SUNDIALS_EXPORT int ARKDlsGetLastFlag(void *arkode_mem,
 				      long int *flag);
 
 SUNDIALS_EXPORT int ARKDlsGetMassWorkSpace(void *arkode_mem, 
-					   sunindextype *lenrwMLS, 
-					   sunindextype *leniwMLS);
+					   long int *lenrwMLS, 
+					   long int *leniwMLS);
 SUNDIALS_EXPORT int ARKDlsGetNumMassSetups(void *arkode_mem, 
                                            long int *nmsetups);
 SUNDIALS_EXPORT int ARKDlsGetNumMassSolves(void *arkode_mem, 

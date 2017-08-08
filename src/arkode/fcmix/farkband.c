@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -39,7 +39,7 @@ extern "C" {
                         sunindextype *ML, sunindextype *EBAND, 
                         realtype *T, realtype *Y, realtype *FY,
   			realtype *BJAC, realtype *H,
-  			sunindextype *IPAR, realtype *RPAR,
+  			long int *IPAR, realtype *RPAR,
   			realtype *V1, realtype *V2,
   			realtype *V3, int *IER);
 

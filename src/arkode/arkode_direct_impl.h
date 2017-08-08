@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -15,7 +15,8 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Common implementation header file for the ARKDLS linear solvers.
+ * Implementation header file for the ARKDLS linear solver 
+ * interface
  *--------------------------------------------------------------*/
 
 #ifndef _ARKDLS_IMPL_H
@@ -62,7 +63,7 @@ typedef struct ARKDlsMemRec {
 
   long int nfeDQ;       /* no. of calls to f due to DQ Jacobian approx. */
 
-  long int last_flag;   /* last error return flag -- REMOVE?            */
+  long int last_flag;   /* last error return flag                       */
   
 } *ARKDlsMem;
 
@@ -91,7 +92,7 @@ typedef struct ARKDlsMassMemRec {
 
   long int mass_mults;    /* number of mass matrix product calls        */
 
-  long int last_flag;     /* last error return flag -- REMOVE?          */
+  long int last_flag;     /* last error return flag                     */
   
 } *ARKDlsMassMem;
 

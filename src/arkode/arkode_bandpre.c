@@ -1,8 +1,10 @@
 /*---------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
+ * Based off of cvode_bandpre.c by Scott D. Cohen, 
+ *      Alan C. Hindmarsh, Radu Serban, and Aaron Collier @ LLNL
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -17,7 +19,7 @@
  *---------------------------------------------------------------
  * This file contains implementations of the banded difference
  * quotient Jacobian-based preconditioner and solver routines for
- * use with the ARKSPILS linear solvers..
+ * use with the ARKSPILS linear solver interface.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -486,7 +488,6 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
 
   /* Set minimum increment based on uround and norm of f. */
   srur = SUNRsqrt(ark_mem->ark_uround);
-
   fnorm = N_VWrmsNorm(fy, ark_mem->ark_rwt);
   minInc = (fnorm != ZERO) ?
     (MIN_INC_MULT * SUNRabs(ark_mem->ark_h) * 

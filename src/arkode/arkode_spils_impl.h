@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -15,8 +15,8 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Common implementation header file for the scaled, preconditioned
- * linear solver modules.
+ * Implementation header file for the scaled, preconditioned
+ * linear solver interface.
  *--------------------------------------------------------------*/
 
 #ifndef _ARKSPILS_IMPL_H
@@ -69,7 +69,7 @@ typedef struct ARKSpilsMemRec {
         - pfree == set by the prec. module and called in ARKodeFree  */
   ARKSpilsPrecSetupFn pset;
   ARKSpilsPrecSolveFn psolve;
-  int (*pfree)(ARKodeMem ark_mem); /* -- REMOVE? */
+  int (*pfree)(ARKodeMem ark_mem);
   void *P_data;
 
   /* Jacobian times vector compuation
@@ -84,7 +84,7 @@ typedef struct ARKSpilsMemRec {
   ARKSpilsJacTimesVecFn jtimes;
   void *j_data;
 
-  long int last_flag; /* last error flag returned by any function -- REMOVE? */
+  long int last_flag; /* last error flag returned by any function */
 
 } *ARKSpilsMem;
 
@@ -160,17 +160,17 @@ int ARKSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
                      N_Vector y, N_Vector fy, void *data,
                      N_Vector work);
 
-/* generic linit/lsetup/lsolve/lfree interface routines for ARKode to call */
+/* Generic linit/lsetup/lsolve/lfree interface routines for ARKode to call */
 int arkSpilsInitialize(ARKodeMem ark_mem);
 
 int arkSpilsSetup(ARKodeMem ark_mem, N_Vector vtemp1,
-                N_Vector vtemp2, N_Vector vtemp3); 
+                  N_Vector vtemp2, N_Vector vtemp3); 
 
 int arkSpilsSolve(ARKodeMem ark_mem, N_Vector b, N_Vector ycur, N_Vector fcur);
 
 int arkSpilsFree(ARKodeMem ark_mem);
 
-/* generic minit/msetup/mmult/msolve/mfree routines for ARKode to call */  
+/* Generic minit/msetup/mmult/msolve/mfree routines for ARKode to call */  
 int arkSpilsMassInitialize(ARKodeMem ark_mem);
   
 int arkSpilsMassSetup(ARKodeMem ark_mem, N_Vector vtemp1,
@@ -195,11 +195,8 @@ int arkSpilsInitializeMassCounters(ARKSpilsMassMem arkspils_mem);
 #define MSGS_MEM_FAIL      "A memory request failed."
 #define MSGS_BAD_NVECTOR   "A required vector operation is not implemented."
 #define MSGS_BAD_LSTYPE    "Incompatible linear solver type."
-#define MSGS_BAD_PRETYPE   "Illegal value for pretype. Legal values are PREC_NONE, PREC_LEFT, PREC_RIGHT, and PREC_BOTH."
-#define MSGS_PSOLVE_REQ    "pretype != PREC_NONE, but PSOLVE = NULL is illegal."
 #define MSGS_LMEM_NULL     "Linear solver memory is NULL."
 #define MSGS_MASSMEM_NULL  "Mass matrix solver memory is NULL."
-#define MSGS_BAD_GSTYPE    "Illegal value for gstype. Legal values are MODIFIED_GS and CLASSICAL_GS."
 #define MSGS_BAD_EPLIN     "eplifac < 0 illegal."
 
 #define MSGS_PSET_FAILED   "The preconditioner setup routine failed in an unrecoverable manner."

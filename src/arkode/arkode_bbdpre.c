@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -17,8 +17,9 @@
  *---------------------------------------------------------------
  * This file contains implementations of routines for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
- * matrix with banded blocks, for use with ARKODE, a ARKSPILS 
- * linear solver, and the parallel implementation of NVECTOR.
+ * matrix with banded blocks, for use with ARKODE, the ARKSPILS 
+ * linear solver interface, and the MPI-parallel implementation 
+ * of NVECTOR.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -71,7 +72,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
 
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKBBDPRE", 
-		    "ARKBBDPrecInit", MSGBBD_MEM_NULL);
+                    "ARKBBDPrecInit", MSGBBD_MEM_NULL);
     return(ARKSPILS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -79,7 +80,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   /* Test if the SPILS linear solver interface has been created */
   if (ark_mem->ark_lmem == NULL) {
     arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKBBDPRE", 
-		    "ARKBBDPrecInit", MSGBBD_LMEM_NULL);
+                    "ARKBBDPrecInit", MSGBBD_LMEM_NULL);
     return(ARKSPILS_LMEM_NULL);
   }
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
@@ -87,7 +88,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   /* Test compatibility of NVECTOR package with the BBD preconditioner */
   if(ark_mem->ark_tempv->ops->nvgetarraypointer == NULL) {
     arkProcessError(ark_mem, ARKSPILS_ILL_INPUT, "ARKBBDPRE", 
-		    "ARKBBDPrecInit", MSGBBD_BAD_NVECTOR);
+                    "ARKBBDPrecInit", MSGBBD_BAD_NVECTOR);
     return(ARKSPILS_ILL_INPUT);
   }
 
@@ -96,7 +97,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   pdata = (ARKBBDPrecData) malloc(sizeof *pdata);  
   if (pdata == NULL) {
     arkProcessError(ark_mem, ARKSPILS_MEM_FAIL, "ARKBBDPRE", 
-		    "ARKBBDPrecInit", MSGBBD_MEM_FAIL);
+                    "ARKBBDPrecInit", MSGBBD_MEM_FAIL);
     return(ARKSPILS_MEM_FAIL);
   }
 
@@ -116,7 +117,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   if (pdata->savedJ == NULL) { 
     free(pdata); pdata = NULL; 
     arkProcessError(ark_mem, ARKSPILS_MEM_FAIL, "ARKBBDPRE", 
-		    "ARKBBDPrecInit", MSGBBD_MEM_FAIL);
+                    "ARKBBDPrecInit", MSGBBD_MEM_FAIL);
     return(ARKSPILS_MEM_FAIL); 
   }
 
@@ -128,7 +129,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKSPILS_MEM_FAIL, "ARKBBDPRE", 
-		    "ARKBBDPrecInit", MSGBBD_MEM_FAIL);
+                    "ARKBBDPrecInit", MSGBBD_MEM_FAIL);
     return(ARKSPILS_MEM_FAIL);
   }
 
@@ -140,7 +141,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKSPILS_MEM_FAIL, "ARKBBDPRE", 
-		    "ARKBBDPrecInit", MSGBBD_MEM_FAIL);
+                    "ARKBBDPrecInit", MSGBBD_MEM_FAIL);
     return(ARKSPILS_MEM_FAIL);
   }
   pdata->rlocal = NULL;
@@ -151,7 +152,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKSPILS_MEM_FAIL, "ARKBBDPRE", 
-		    "ARKBBDPrecInit", MSGBBD_MEM_FAIL);
+                    "ARKBBDPrecInit", MSGBBD_MEM_FAIL);
     return(ARKSPILS_MEM_FAIL);
   }
   pdata->tmp1 = NULL;
@@ -163,7 +164,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKSPILS_MEM_FAIL, "ARKBBDPRE", 
-		    "ARKBBDPrecInit", MSGBBD_MEM_FAIL);
+                    "ARKBBDPrecInit", MSGBBD_MEM_FAIL);
     return(ARKSPILS_MEM_FAIL);
   }
   pdata->tmp2 = NULL;
@@ -176,7 +177,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKSPILS_MEM_FAIL, "ARKBBDPRE", 
-		    "ARKBBDPrecInit", MSGBBD_MEM_FAIL);
+                    "ARKBBDPrecInit", MSGBBD_MEM_FAIL);
     return(ARKSPILS_MEM_FAIL);
   }
   pdata->tmp3 = NULL;
@@ -190,7 +191,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKSPILS_MEM_FAIL, "ARKBBDPRE", 
-		    "ARKBBDPrecInit", MSGBBD_MEM_FAIL);
+                    "ARKBBDPrecInit", MSGBBD_MEM_FAIL);
     return(ARKSPILS_MEM_FAIL);
   }
 
@@ -207,7 +208,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKSPILS_MEM_FAIL, "ARKBBDPRE", 
-		    "ARKBBDPrecInit", MSGBBD_MEM_FAIL);
+                    "ARKBBDPrecInit", MSGBBD_MEM_FAIL);
     return(ARKSPILS_MEM_FAIL);
   }
 
@@ -239,7 +240,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   pdata->ipwsize += liw;
   pdata->nge = 0;
 
-  /* make sure s_P_data is free from any previous allocations */
+  /* make sure P_data is free from any previous allocations */
   if (arkspils_mem->pfree) 
     arkspils_mem->pfree(ark_mem);
 
@@ -269,7 +270,7 @@ int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq,
 
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKBBDPRE", 
-		    "ARKBBDPrecReInit", MSGBBD_MEM_NULL);
+                    "ARKBBDPrecReInit", MSGBBD_MEM_NULL);
     return(ARKSPILS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -277,7 +278,7 @@ int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq,
   /* Test if the SPILS linear solver interface has been created */
   if (ark_mem->ark_lmem == NULL) {
     arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKBBDPRE", 
-		    "ARKBBDPrecReInit", MSGBBD_LMEM_NULL);
+                    "ARKBBDPrecReInit", MSGBBD_LMEM_NULL);
     return(ARKSPILS_LMEM_NULL);
   }
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
@@ -285,7 +286,7 @@ int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq,
   /* Test if the preconditioner data is non-NULL */
   if (arkspils_mem->P_data == NULL) {
     arkProcessError(ark_mem, ARKSPILS_PMEM_NULL, "ARKBBDPRE", 
-		    "ARKBBDPrecReInit", MSGBBD_PMEM_NULL);
+                    "ARKBBDPrecReInit", MSGBBD_PMEM_NULL);
     return(ARKSPILS_PMEM_NULL);
   } 
   pdata = (ARKBBDPrecData) arkspils_mem->P_data;
@@ -317,21 +318,21 @@ int ARKBBDPrecGetWorkSpace(void *arkode_mem,
 
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKBBDPRE", 
-		    "ARKBBDPrecGetWorkSpace", MSGBBD_MEM_NULL);
+                    "ARKBBDPrecGetWorkSpace", MSGBBD_MEM_NULL);
     return(ARKSPILS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
   if (ark_mem->ark_lmem == NULL) {
     arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKBBDPRE", 
-		    "ARKBBDPrecGetWorkSpace", MSGBBD_LMEM_NULL);
+                    "ARKBBDPrecGetWorkSpace", MSGBBD_LMEM_NULL);
     return(ARKSPILS_LMEM_NULL);
   }
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
 
   if (arkspils_mem->P_data == NULL) {
     arkProcessError(ark_mem, ARKSPILS_PMEM_NULL, "ARKBBDPRE", 
-		    "ARKBBDPrecGetWorkSpace", MSGBBD_PMEM_NULL);
+                    "ARKBBDPrecGetWorkSpace", MSGBBD_PMEM_NULL);
     return(ARKSPILS_PMEM_NULL);
   } 
   pdata = (ARKBBDPrecData) arkspils_mem->P_data;
@@ -353,21 +354,21 @@ int ARKBBDPrecGetNumGfnEvals(void *arkode_mem,
 
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKBBDPRE", 
-		    "ARKBBDPrecGetNumGfnEvals", MSGBBD_MEM_NULL);
+                    "ARKBBDPrecGetNumGfnEvals", MSGBBD_MEM_NULL);
     return(ARKSPILS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
   if (ark_mem->ark_lmem == NULL) {
     arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKBBDPRE", 
-		    "ARKBBDPrecGetNumGfnEvals", MSGBBD_LMEM_NULL);
+                    "ARKBBDPrecGetNumGfnEvals", MSGBBD_LMEM_NULL);
     return(ARKSPILS_LMEM_NULL);
   }
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
 
   if (arkspils_mem->P_data == NULL) {
     arkProcessError(ark_mem, ARKSPILS_PMEM_NULL, "ARKBBDPRE", 
-		    "ARKBBDPrecGetNumGfnEvals", MSGBBD_PMEM_NULL);
+                    "ARKBBDPrecGetNumGfnEvals", MSGBBD_PMEM_NULL);
     return(ARKSPILS_PMEM_NULL);
   } 
   pdata = (ARKBBDPrecData) arkspils_mem->P_data;
@@ -452,6 +453,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
   /* Otherwise call ARKBBDDQJac for new J value */
   } else {
+    
     *jcurPtr = TRUE;
     retval = SUNMatZero(pdata->savedJ);
     if (retval < 0) {
@@ -467,7 +469,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
                          pdata->tmp2, pdata->tmp3);
     if (retval < 0) {
       arkProcessError(ark_mem, -1, "ARKBBDPRE", "ARKBBDPrecSetup", 
-		      MSGBBD_FUNC_FAILED);
+                      MSGBBD_FUNC_FAILED);
       return(-1);
     }
     if (retval > 0) {
@@ -621,7 +623,6 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
   gtemp_data =  N_VGetArrayPointer(gtemp);
 
   /* Set minimum increment based on uround and norm of g */
-  /* gnorm = N_VWrmsNorm(gy, ark_mem->ark_ewt); */
   gnorm = N_VWrmsNorm(gy, ark_mem->ark_rwt);
   minInc = (gnorm != ZERO) ? 
     (MIN_INC_MULT * SUNRabs(ark_mem->ark_h) *

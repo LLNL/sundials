@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -68,9 +68,10 @@
  *   ...
  *   Free y0
  *   ...
+ *   ARKodeFree(&arkode_mem);
+ *   ...
  *   SUNLinSolFree(LS);
  *   ...
- *   ARKodeFree(&arkode_mem);
  * 
  * The user-supplied routines required are:
  *
@@ -228,7 +229,8 @@ SUNDIALS_EXPORT int ARKBBDPrecInit(void *arkode_mem,
 				   sunindextype mukeep, 
                                    sunindextype mlkeep, 
 				   realtype dqrely,
-				   ARKLocalFn gloc, ARKCommFn cfn);
+				   ARKLocalFn gloc,
+                                   ARKCommFn cfn);
 
 
 /*---------------------------------------------------------------
