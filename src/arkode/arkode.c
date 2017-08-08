@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -359,7 +359,6 @@ int ARKodeInit(void *arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
   ark_mem->ark_nfe          = 0;
   ark_mem->ark_nfi          = 0;
   ark_mem->ark_ncfn         = 0;
-  ark_mem->ark_nmassfails   = 0;
   ark_mem->ark_netf         = 0;
   ark_mem->ark_nni          = 0;
   ark_mem->ark_nsetups      = 0;
@@ -479,7 +478,6 @@ int ARKodeReInit(void *arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
   ark_mem->ark_nfe          = 0;
   ark_mem->ark_nfi          = 0;
   ark_mem->ark_ncfn         = 0;
-  ark_mem->ark_nmassfails   = 0;
   ark_mem->ark_netf         = 0;
   ark_mem->ark_nni          = 0;
   ark_mem->ark_nsetups      = 0;
@@ -1390,7 +1388,6 @@ int ARKode(void *arkode_mem, realtype tout, N_Vector yout,
       retval = ark_mem->ark_msolve(ark_mem, ark_mem->ark_fnew); 
       N_VScale(ONE/ark_mem->ark_h, ark_mem->ark_fnew, ark_mem->ark_fnew);   /* scale result */
       if (retval != ARK_SUCCESS) {
-	ark_mem->ark_nmassfails++;
 	arkProcessError(ark_mem, ARK_MASSSOLVE_FAIL, "ARKODE", 
 			"ARKode", "Mass matrix solver failure");
 	return(ARK_MASSSOLVE_FAIL);
@@ -2174,7 +2171,6 @@ static void arkPrintMem(ARKodeMem ark_mem)
   printf("ark_nfe = %li\n", ark_mem->ark_nfe);
   printf("ark_nfi = %li\n", ark_mem->ark_nfi);
   printf("ark_ncfn = %li\n", ark_mem->ark_ncfn);
-  printf("ark_nmassfails = %li\n", ark_mem->ark_nmassfails);
   printf("ark_netf = %li\n", ark_mem->ark_netf);
   printf("ark_nni = %li\n", ark_mem->ark_nni);
   printf("ark_nsetups = %li\n", ark_mem->ark_nsetups);
@@ -3246,7 +3242,6 @@ static int arkInitialSetup(ARKodeMem ark_mem)
     ier = ark_mem->ark_msolve(ark_mem, ark_mem->ark_fnew); 
     N_VScale(ONE/ark_mem->ark_h, ark_mem->ark_fnew, ark_mem->ark_fnew);   /* scale result */
     if (ier != ARK_SUCCESS) {
-      ark_mem->ark_nmassfails++;
       arkProcessError(ark_mem, ARK_MASSSOLVE_FAIL, "ARKODE", 
 		      "arkInitialSetup", "Mass matrix solver failure");
       return(ARK_MASSSOLVE_FAIL);
@@ -3454,7 +3449,6 @@ static int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
     retval = ark_mem->ark_msolve(ark_mem, ark_mem->ark_tempv); 
     N_VScale(ONE/ark_mem->ark_h, ark_mem->ark_tempv, ark_mem->ark_tempv);
     if (retval != ARK_SUCCESS) {
-      ark_mem->ark_nmassfails++;
       arkProcessError(ark_mem, ARK_MASSSOLVE_FAIL, "ARKODE", 
 		      "arkYddNorm", "Mass matrix solver failure");
       return(ARK_MASSSOLVE_FAIL);
@@ -3814,10 +3808,6 @@ static int arkStep(ARKodeMem ark_mem)
 	  /* check for convergence (on failure, h will have been modified) */
 	  kflag = arkHandleNFlag(ark_mem, &nflag, saved_t, &ncf);
 
-	  /* increment failure counter if necessary */
-	  if (kflag != SOLVE_SUCCESS)
-	    ark_mem->ark_nmassfails++;
-
 	  /* If fixed time-stepping is used, then anything other than a 
 	     successful solve must result in an error */
 	  if (ark_mem->ark_fixedstep && (kflag != SOLVE_SUCCESS)) 
@@ -4171,7 +4161,6 @@ static int arkComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
     /* solve for y update (stored in y) */
     ier = ark_mem->ark_msolve(ark_mem, y); 
     if (ier < 0) {
-      ark_mem->ark_nmassfails++;
       *dsm = 2.0;         /* indicate too much error, step with smaller step */
       N_VScale(ONE, ark_mem->ark_ynew, y);      /* place old solution into y */
       return(CONV_FAIL);
@@ -4200,7 +4189,6 @@ static int arkComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
       /* solve for yerr */
       ier = ark_mem->ark_msolve(ark_mem, yerr); 
       if (ier < 0) {
-	ark_mem->ark_nmassfails++;
 	*dsm = 2.0;         /* indicate too much error, step with smaller step */
 	return(CONV_FAIL);
       }
@@ -4420,7 +4408,6 @@ static int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
     retval = ark_mem->ark_msolve(ark_mem, ark_mem->ark_fnew); 
     N_VScale(ONE/ark_mem->ark_h, ark_mem->ark_fnew, ark_mem->ark_fnew);  /* scale result */
     if (retval != ARK_SUCCESS) {
-      ark_mem->ark_nmassfails++;
       arkProcessError(ark_mem, ARK_MASSSOLVE_FAIL, "ARKODE", 
 		      "arkCompleteStep", "Mass matrix solver failure");
       return(ARK_MASSSOLVE_FAIL);

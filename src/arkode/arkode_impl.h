@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -376,7 +376,6 @@ typedef struct ARKodeMemRec {
   long int ark_nfe;          /* number of fe calls                         */
   long int ark_nfi;          /* number of fi calls                         */
   long int ark_ncfn;         /* number of corrector convergence failures   */
-  long int ark_nmassfails;   /* number of mass matrix solver failures      */
   long int ark_netf;         /* number of error test failures              */
   long int ark_nni;          /* number of Newton iterations performed      */
   long int ark_nsetups;      /* number of setup calls                      */
