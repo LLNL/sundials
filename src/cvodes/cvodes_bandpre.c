@@ -173,7 +173,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N, sunindextype mu, sunindextyp
   return(flag);
 }
 
-int CVBandPrecGetWorkSpace(void *cvode_mem, sunindextype *lenrwBP, sunindextype *leniwBP)
+int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP, long int *leniwBP)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;

@@ -423,8 +423,8 @@ static void PrintOutput(void *cvode_mem, N_Vector u, realtype t)
 
 static void PrintFinalStats(void *cvode_mem, int linsolver)
 {
-  sunindextype lenrw, leniw ;
-  sunindextype lenrwLS, leniwLS;
+  long int lenrw, leniw ;
+  long int lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
   int flag;
@@ -458,8 +458,8 @@ static void PrintFinalStats(void *cvode_mem, int linsolver)
   check_flag(&flag, "CVSpilsGetNumRhsEvals", 1);
 
   printf("\nFinal Statistics.. \n\n");
-  printf("lenrw   = %5ld     leniw   = %5ld\n", (long int) lenrw, (long int) leniw);
-  printf("lenrwLS = %5ld     leniwLS = %5ld\n", (long int) lenrwLS, (long int) leniwLS);
+  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw,   leniw);
+  printf("lenrwLS = %5ld     leniwLS = %5ld\n", lenrwLS, leniwLS);
   printf("nst     = %5ld\n"                  , nst);
   printf("nfe     = %5ld     nfeLS   = %5ld\n"  , nfe, nfeLS);
   printf("nni     = %5ld     nli     = %5ld\n"  , nni, nli);
