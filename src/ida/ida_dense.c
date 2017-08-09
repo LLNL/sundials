@@ -46,35 +46,6 @@ static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
                          N_Vector ycur, N_Vector ypcur, N_Vector rrcur);
 
 static int IDADenseFree(IDAMem IDA_mem);
-
-/* Readability Replacements */
-
-#define res          (IDA_mem->ida_res)
-#define tn           (IDA_mem->ida_tn)
-#define hh           (IDA_mem->ida_hh)
-#define cj           (IDA_mem->ida_cj)
-#define cjratio      (IDA_mem->ida_cjratio)
-#define ewt          (IDA_mem->ida_ewt)
-#define constraints  (IDA_mem->ida_constraints)
-#define linit        (IDA_mem->ida_linit)
-#define lsetup       (IDA_mem->ida_lsetup)
-#define lsolve       (IDA_mem->ida_lsolve)
-#define lperf        (IDA_mem->ida_lperf)
-#define lfree        (IDA_mem->ida_lfree)
-#define lmem         (IDA_mem->ida_lmem)
-#define setupNonNull (IDA_mem->ida_setupNonNull)
-#define vec_tmpl     (IDA_mem->ida_tempv1)
-
-#define mtype        (idadls_mem->d_type)
-#define neq          (idadls_mem->d_n)
-#define jacDQ        (idadls_mem->d_jacDQ)
-#define djac         (idadls_mem->d_djac)
-#define JJ           (idadls_mem->d_J)
-#define lpivots      (idadls_mem->d_lpivots)
-#define nje          (idadls_mem->d_nje)
-#define nreDQ        (idadls_mem->d_nreDQ)
-#define jacdata      (idadls_mem->d_J_data)
-#define last_flag    (idadls_mem->d_last_flag)
                   
 /*
  * -----------------------------------------------------------------
@@ -93,7 +64,7 @@ static int IDADenseFree(IDAMem IDA_mem);
  * and sets the d_jac field to be:
  *   (1) the input parameter djac, if djac != NULL, or                
  *   (2) IDADenseDQJac, if djac == NULL.                             
- * Finally, it allocates memory for JJ and lpivots.
+ * Finally, it allocates memory for J and lpivots.
  * The return value is IDADLS_SUCCESS = 0, IDADLS_LMEM_FAIL = -1,
  * or IDADLS_ILL_INPUT = -2.
  *
@@ -118,20 +89,20 @@ int IDADense(void *ida_mem, sunindextype Neq)
   IDA_mem = (IDAMem) ida_mem;
 
   /* Test if the NVECTOR package is compatible with the DENSE solver */
-  if(vec_tmpl->ops->nvgetarraypointer == NULL ||
-     vec_tmpl->ops->nvsetarraypointer == NULL) {
+  if(IDA_mem->ida_tempv1->ops->nvgetarraypointer == NULL ||
+     IDA_mem->ida_tempv1->ops->nvsetarraypointer == NULL) {
     IDAProcessError(IDA_mem, IDADLS_ILL_INPUT, "IDADENSE", "IDADense", MSGD_BAD_NVECTOR);
     return(IDADLS_ILL_INPUT);
   }
 
-  if (lfree != NULL) lfree(IDA_mem);
+  if (IDA_mem->ida_lfree != NULL) IDA_mem->ida_lfree(IDA_mem);
 
   /* Set five main function fields in IDA_mem. */
-  linit  = IDADenseInit;
-  lsetup = IDADenseSetup;
-  lsolve = IDADenseSolve;
-  lperf  = NULL;
-  lfree  = IDADenseFree;
+  IDA_mem->ida_linit  = IDADenseInit;
+  IDA_mem->ida_lsetup = IDADenseSetup;
+  IDA_mem->ida_lsolve = IDADenseSolve;
+  IDA_mem->ida_lperf  = NULL;
+  IDA_mem->ida_lfree  = IDADenseFree;
 
   /* Get memory for IDADlsMemRec. */
   idadls_mem = NULL;
@@ -142,42 +113,42 @@ int IDADense(void *ida_mem, sunindextype Neq)
   }
 
   /* Set matrix type */
-  mtype = SUNDIALS_DENSE;
+  idadls_mem->d_type = SUNDIALS_DENSE;
 
   /* Set default Jacobian routine and Jacobian data */
-  jacDQ   = TRUE;
-  djac    = NULL;
-  jacdata = NULL;
+  idadls_mem->d_jacDQ   = TRUE;
+  idadls_mem->d_djac    = NULL;
+  idadls_mem->d_J_data = NULL;
 
-  last_flag = IDADLS_SUCCESS;
+  idadls_mem->d_last_flag = IDADLS_SUCCESS;
 
   idaDlsInitializeCounters(idadls_mem);
 
-  setupNonNull = TRUE;
+  IDA_mem->ida_setupNonNull = TRUE;
 
   /* Store problem size */
-  neq = Neq;
+  idadls_mem->d_n = Neq;
 
-  /* Allocate memory for JJ and pivot array. */
-  JJ = NULL;
-  JJ = NewDenseMat(Neq, Neq);
-  if (JJ == NULL) {
+  /* Allocate memory for J and pivot array. */
+  idadls_mem->d_J = NULL;
+  idadls_mem->d_J = NewDenseMat(Neq, Neq);
+  if (idadls_mem->d_J == NULL) {
     IDAProcessError(IDA_mem, IDADLS_MEM_FAIL, "IDADENSE", "IDADense", MSGD_MEM_FAIL);
     free(idadls_mem); idadls_mem = NULL;
     return(IDADLS_MEM_FAIL);
   }
 
-  lpivots = NULL;
-  lpivots = NewIndexArray(Neq);
-  if (lpivots == NULL) {
+  idadls_mem->d_lpivots = NULL;
+  idadls_mem->d_lpivots = NewIndexArray(Neq);
+  if (idadls_mem->d_lpivots == NULL) {
     IDAProcessError(IDA_mem, IDADLS_MEM_FAIL, "IDADENSE", "IDADense", MSGD_MEM_FAIL);
-    DestroyMat(JJ);
+    DestroyMat(idadls_mem->d_J);
     free(idadls_mem); idadls_mem = NULL;
     return(IDADLS_MEM_FAIL);
   }
 
   /* Attach linear solver memory to the integrator memory */
-  lmem = idadls_mem;
+  IDA_mem->ida_lmem = idadls_mem;
 
   return(IDADLS_SUCCESS);
 }
@@ -197,7 +168,7 @@ static int IDADenseInit(IDAMem IDA_mem)
 {
   IDADlsMem idadls_mem;
   
-  idadls_mem = (IDADlsMem) lmem;
+  idadls_mem = (IDADlsMem) IDA_mem->ida_lmem;
 
   idaDlsInitializeCounters(idadls_mem);
   /*
@@ -205,14 +176,14 @@ static int IDADenseInit(IDAMem IDA_mem)
    nreDQ = 0;
   */
 
-  if (jacDQ) {
-    djac = idaDlsDenseDQJac;
-    jacdata = IDA_mem;
+  if (idadls_mem->d_jacDQ) {
+    idadls_mem->d_djac = idaDlsDenseDQJac;
+    idadls_mem->d_J_data = IDA_mem;
   } else {
-    jacdata = IDA_mem->ida_user_data;
+    idadls_mem->d_J_data = IDA_mem->ida_user_data;
   }
   
-  last_flag = 0;
+  idadls_mem->d_last_flag = 0;
   return(0);
 }
 
@@ -235,33 +206,33 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   sunindextype retfac;
   IDADlsMem idadls_mem;
   
-  idadls_mem = (IDADlsMem) lmem;
+  idadls_mem = (IDADlsMem) IDA_mem->ida_lmem;
 
   /* Increment nje counter. */
-  nje++;
+  idadls_mem->d_nje++;
 
-  /* Zero out JJ; call Jacobian routine jac; return if it failed. */
-  SetToZero(JJ);
-  retval = djac(neq, tn, cj, yyp, ypp, rrp, JJ, jacdata, 
+  /* Zero out J; call Jacobian routine jac; return if it failed. */
+  SetToZero(idadls_mem->d_J);
+  retval = idadls_mem->d_djac(idadls_mem->d_n, IDA_mem->ida_tn, IDA_mem->ida_cj, yyp, ypp, rrp, idadls_mem->d_J, idadls_mem->d_J_data, 
                 tmp1, tmp2, tmp3);
   if (retval < 0) {
     IDAProcessError(IDA_mem, IDADLS_JACFUNC_UNRECVR, "IDADENSE", "IDADenseSetup", MSGD_JACFUNC_FAILED);
-    last_flag = IDADLS_JACFUNC_UNRECVR;
+    idadls_mem->d_last_flag = IDADLS_JACFUNC_UNRECVR;
     return(-1);
   }
   if (retval > 0) {
-    last_flag = IDADLS_JACFUNC_RECVR;
+    idadls_mem->d_last_flag = IDADLS_JACFUNC_RECVR;
     return(+1);
   }
 
-  /* Do LU factorization of JJ; return success or fail flag. */
-  retfac = DenseGETRF(JJ, lpivots);
+  /* Do LU factorization of J; return success or fail flag. */
+  retfac = DenseGETRF(idadls_mem->d_J, idadls_mem->d_lpivots);
 
   if (retfac != 0) {
-    last_flag = (long int) retfac;
+    idadls_mem->d_last_flag = (long int) retfac;
     return(+1);
   }
-  last_flag = IDADLS_SUCCESS;
+  idadls_mem->d_last_flag = IDADLS_SUCCESS;
   return(0);
 }
 
@@ -277,16 +248,16 @@ static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   IDADlsMem idadls_mem;
   realtype *bd;
   
-  idadls_mem = (IDADlsMem) lmem;
+  idadls_mem = (IDADlsMem) IDA_mem->ida_lmem;
   
   bd = N_VGetArrayPointer(b);
 
-  DenseGETRS(JJ, lpivots, bd);
+  DenseGETRS(idadls_mem->d_J, idadls_mem->d_lpivots, bd);
 
   /* Scale the correction to account for change in cj. */
-  if (cjratio != ONE) N_VScale(TWO/(ONE + cjratio), b, b);
+  if (IDA_mem->ida_cjratio != ONE) N_VScale(TWO/(ONE + IDA_mem->ida_cjratio), b, b);
 
-  last_flag = 0;
+  idadls_mem->d_last_flag = 0;
   return(0);
 }
 
@@ -298,11 +269,11 @@ static int IDADenseFree(IDAMem IDA_mem)
 {
   IDADlsMem idadls_mem;
 
-  idadls_mem = (IDADlsMem) lmem;
+  idadls_mem = (IDADlsMem) IDA_mem->ida_lmem;
   
-  DestroyMat(JJ);
-  DestroyArray(lpivots);
-  free(lmem); lmem = NULL;
+  DestroyMat(idadls_mem->d_J);
+  DestroyArray(idadls_mem->d_lpivots);
+  free(IDA_mem->ida_lmem); IDA_mem->ida_lmem = NULL;
 
   return(0);
 }

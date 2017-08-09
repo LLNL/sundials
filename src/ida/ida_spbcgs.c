@@ -53,55 +53,6 @@ static int IDASpbcgPerf(IDAMem IDA_mem, int perftask);
 static int IDASpbcgFree(IDAMem IDA_mem);
 
 
-/* Readability Replacements */
-
-#define nst          (IDA_mem->ida_nst)
-#define tn           (IDA_mem->ida_tn)
-#define cj           (IDA_mem->ida_cj)
-#define epsNewt      (IDA_mem->ida_epsNewt)
-#define res          (IDA_mem->ida_res)
-#define user_data    (IDA_mem->ida_user_data)
-#define ewt          (IDA_mem->ida_ewt)
-#define errfp        (IDA_mem->ida_errfp)
-#define linit        (IDA_mem->ida_linit)
-#define lsetup       (IDA_mem->ida_lsetup)
-#define lsolve       (IDA_mem->ida_lsolve)
-#define lperf        (IDA_mem->ida_lperf)
-#define lfree        (IDA_mem->ida_lfree)
-#define lmem         (IDA_mem->ida_lmem)
-#define nni          (IDA_mem->ida_nni)
-#define ncfn         (IDA_mem->ida_ncfn)
-#define setupNonNull (IDA_mem->ida_setupNonNull)
-#define vec_tmpl     (IDA_mem->ida_tempv1)
-
-#define sqrtN     (idaspils_mem->s_sqrtN)
-#define epslin    (idaspils_mem->s_epslin)
-#define ytemp     (idaspils_mem->s_ytemp)
-#define yptemp    (idaspils_mem->s_yptemp)
-#define xx        (idaspils_mem->s_xx)
-#define ycur      (idaspils_mem->s_ycur)
-#define ypcur     (idaspils_mem->s_ypcur)
-#define rcur      (idaspils_mem->s_rcur)
-#define npe       (idaspils_mem->s_npe)
-#define nli       (idaspils_mem->s_nli)
-#define nps       (idaspils_mem->s_nps)
-#define ncfl      (idaspils_mem->s_ncfl)
-#define nst0      (idaspils_mem->s_nst0)
-#define nni0      (idaspils_mem->s_nni0)
-#define nli0      (idaspils_mem->s_nli0)
-#define ncfn0     (idaspils_mem->s_ncfn0)
-#define ncfl0     (idaspils_mem->s_ncfl0)
-#define nwarn     (idaspils_mem->s_nwarn)
-#define njtimes   (idaspils_mem->s_njtimes)
-#define nres      (idaspils_mem->s_nres)
-#define spils_mem (idaspils_mem->s_spils_mem)
-
-#define jtimesDQ  (idaspils_mem->s_jtimesDQ)
-#define jtimes    (idaspils_mem->s_jtimes)
-#define jdata     (idaspils_mem->s_jdata)
-
-#define last_flag (idaspils_mem->s_last_flag)
-
 /*
  * -----------------------------------------------------------------
  * Function : IDASpbcg
@@ -144,19 +95,19 @@ int IDASpbcg(void *ida_mem, int maxl)
   IDA_mem = (IDAMem) ida_mem;
 
   /* Check if N_VDotProd is present */
-  if (vec_tmpl->ops->nvdotprod == NULL) {
+  if (IDA_mem->ida_tempv1->ops->nvdotprod == NULL) {
     IDAProcessError(NULL, IDASPILS_ILL_INPUT, "IDASPBCG", "IDASpbcg", MSGS_BAD_NVECTOR);
     return(IDASPILS_ILL_INPUT);
   }
 
-  if (lfree != NULL) lfree((IDAMem) ida_mem);
+  if (IDA_mem->ida_lfree != NULL) IDA_mem->ida_lfree((IDAMem) ida_mem);
 
   /* Set five main function fields in ida_mem */
-  linit  = IDASpbcgInit;
-  lsetup = IDASpbcgSetup;
-  lsolve = IDASpbcgSolve;
-  lperf  = IDASpbcgPerf;
-  lfree  = IDASpbcgFree;
+  IDA_mem->ida_linit  = IDASpbcgInit;
+  IDA_mem->ida_lsetup = IDASpbcgSetup;
+  IDA_mem->ida_lsolve = IDASpbcgSolve;
+  IDA_mem->ida_lperf  = IDASpbcgPerf;
+  IDA_mem->ida_lfree  = IDASpbcgFree;
 
   /* Get memory for IDASpilsMemRec */
   idaspils_mem = NULL;
@@ -174,9 +125,9 @@ int IDASpbcg(void *ida_mem, int maxl)
   idaspils_mem->s_maxl = maxl1;
 
   /* Set defaults for Jacobian-related fileds */
-  jtimesDQ = TRUE;
-  jtimes   = NULL;
-  jdata    = NULL;
+  idaspils_mem->s_jtimesDQ = TRUE;
+  idaspils_mem->s_jtimes   = NULL;
+  idaspils_mem->s_jdata    = NULL;
 
   /* Set defaults for preconditioner-related fields */
   idaspils_mem->s_pset   = NULL;
@@ -193,55 +144,55 @@ int IDASpbcg(void *ida_mem, int maxl)
   idaSpilsInitializeCounters(idaspils_mem);
 
   /* Set setupNonNull to FALSE */
-  setupNonNull = FALSE;
+  IDA_mem->ida_setupNonNull = FALSE;
 
   /* Allocate memory for ytemp, yptemp, and xx */
 
-  ytemp = N_VClone(vec_tmpl);
-  if (ytemp == NULL) {
+  idaspils_mem->s_ytemp = N_VClone(IDA_mem->ida_tempv1);
+  if (idaspils_mem->s_ytemp == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_FAIL, "IDASPBCG", "IDASpbcg", MSGS_MEM_FAIL);
     free(idaspils_mem); idaspils_mem = NULL;
     return(IDASPILS_MEM_FAIL);
   }
 
-  yptemp = N_VClone(vec_tmpl);
-  if (yptemp == NULL) {
+  idaspils_mem->s_yptemp = N_VClone(IDA_mem->ida_tempv1);
+  if (idaspils_mem->s_yptemp == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_FAIL, "IDASPBCG", "IDASpbcg", MSGS_MEM_FAIL);
-    N_VDestroy(ytemp);
+    N_VDestroy(idaspils_mem->s_ytemp);
     free(idaspils_mem); idaspils_mem = NULL;
     return(IDASPILS_MEM_FAIL);
   }
 
-  xx = N_VClone(vec_tmpl);
-  if (xx == NULL) {
+  idaspils_mem->s_xx = N_VClone(IDA_mem->ida_tempv1);
+  if (idaspils_mem->s_xx == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_FAIL, "IDASPBCG", "IDASpbcg", MSGS_MEM_FAIL);
-    N_VDestroy(ytemp);
-    N_VDestroy(yptemp);
+    N_VDestroy(idaspils_mem->s_ytemp);
+    N_VDestroy(idaspils_mem->s_yptemp);
     free(idaspils_mem); idaspils_mem = NULL;
     return(IDASPILS_MEM_FAIL);
   }
 
   /* Compute sqrtN from a dot product */
-  N_VConst(ONE, ytemp);
-  sqrtN = SUNRsqrt(N_VDotProd(ytemp, ytemp));
+  N_VConst(ONE, idaspils_mem->s_ytemp);
+  idaspils_mem->s_sqrtN = SUNRsqrt(N_VDotProd(idaspils_mem->s_ytemp, idaspils_mem->s_ytemp));
 
   /* Call SpbcgMalloc to allocate workspace for Spbcg */
   spbcg_mem = NULL;
-  spbcg_mem = SpbcgMalloc(maxl1, vec_tmpl);
+  spbcg_mem = SpbcgMalloc(maxl1, IDA_mem->ida_tempv1);
   if (spbcg_mem == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_FAIL, "IDASPBCG", "IDASpbcg", MSGS_MEM_FAIL);
-    N_VDestroy(ytemp);
-    N_VDestroy(yptemp);
-    N_VDestroy(xx);
+    N_VDestroy(idaspils_mem->s_ytemp);
+    N_VDestroy(idaspils_mem->s_yptemp);
+    N_VDestroy(idaspils_mem->s_xx);
     free(idaspils_mem); idaspils_mem = NULL;
     return(IDASPILS_MEM_FAIL);
   }
 
   /* Attach SPBCG memory to spils memory structure */
-  spils_mem = (void *)spbcg_mem;
+  idaspils_mem->s_spils_mem = (void *)spbcg_mem;
 
   /* Attach linear solver memory to the integrator memory */
-  lmem = idaspils_mem;
+  IDA_mem->ida_lmem = idaspils_mem;
 
   return(IDASPILS_SUCCESS);
 }
@@ -252,39 +203,31 @@ int IDASpbcg(void *ida_mem, int maxl)
  * -----------------------------------------------------------------
  */
 
-/* Additional readability Replacements */
-
-#define maxl     (idaspils_mem->s_maxl)
-#define eplifac  (idaspils_mem->s_eplifac)
-#define psolve   (idaspils_mem->s_psolve)
-#define pset     (idaspils_mem->s_pset)
-#define pdata    (idaspils_mem->s_pdata)
-
 static int IDASpbcgInit(IDAMem IDA_mem)
 {
   IDASpilsMem idaspils_mem;
   SpbcgMem spbcg_mem;
 
-  idaspils_mem = (IDASpilsMem) lmem;
-  spbcg_mem = (SpbcgMem) spils_mem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
+  spbcg_mem = (SpbcgMem) idaspils_mem->s_spils_mem;
 
   idaSpilsInitializeCounters(idaspils_mem);
 
   /* Set setupNonNull to TRUE iff there is preconditioning with setup */
-  setupNonNull = (psolve != NULL) && (pset != NULL);
+  IDA_mem->ida_setupNonNull = (idaspils_mem->s_psolve != NULL) && (idaspils_mem->s_pset != NULL);
 
   /* Set Jacobian-related fields, based on jtimesDQ */
-  if (jtimesDQ) {
-    jtimes = IDASpilsDQJtimes;
-    jdata = IDA_mem;
+  if (idaspils_mem->s_jtimesDQ) {
+    idaspils_mem->s_jtimes = IDASpilsDQJtimes;
+    idaspils_mem->s_jdata = IDA_mem;
   } else {
-    jdata = user_data;
+    idaspils_mem->s_jdata = IDA_mem->ida_user_data;
   }
 
   /*  Set maxl in the SPBCG memory in case it was changed by the user */
-  spbcg_mem->l_max  = maxl;
+  spbcg_mem->l_max  = idaspils_mem->s_maxl;
 
-  last_flag = IDASPILS_SUCCESS;
+  idaspils_mem->s_last_flag = IDASPILS_SUCCESS;
 
   return(0);
 }
@@ -296,24 +239,24 @@ static int IDASpbcgSetup(IDAMem IDA_mem,
   int retval;
   IDASpilsMem idaspils_mem;
 
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
   /* Call user setup routine pset and update counter npe */
-  retval = pset(tn, yy_p, yp_p, rr_p, cj, pdata,
+  retval = idaspils_mem->s_pset(IDA_mem->ida_tn, yy_p, yp_p, rr_p, IDA_mem->ida_cj, idaspils_mem->s_pdata,
                 tmp1, tmp2, tmp3);
-  npe++;
+  idaspils_mem->s_npe++;
 
   if (retval < 0) {
     IDAProcessError(IDA_mem, SPBCG_PSET_FAIL_UNREC, "IDASPBCG", "IDASpbcgSetup", MSGS_PSET_FAILED);
-    last_flag = SPBCG_PSET_FAIL_UNREC;
+    idaspils_mem->s_last_flag = SPBCG_PSET_FAIL_UNREC;
     return(-1);
   }
   if (retval > 0) {
-    last_flag = SPBCG_PSET_FAIL_REC;
+    idaspils_mem->s_last_flag = SPBCG_PSET_FAIL_REC;
     return(+1);
   }
 
-  last_flag = SPBCG_SUCCESS;
+  idaspils_mem->s_last_flag = SPBCG_SUCCESS;
 
   return(0);
 }
@@ -341,41 +284,41 @@ static int IDASpbcgSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
   int pretype, nli_inc, nps_inc, retval;
   realtype res_norm;
 
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
-  spbcg_mem = (SpbcgMem)spils_mem;
+  spbcg_mem = (SpbcgMem) idaspils_mem->s_spils_mem;
 
   /* Set SpbcgSolve convergence test constant epslin, in terms of the
      Newton convergence test constant epsNewt and safety factors. The factor
      sqrt(Neq) assures that the Bi-CGSTAB convergence test is applied to the
      WRMS norm of the residual vector, rather than the weighted L2 norm. */
-  epslin = sqrtN*eplifac*epsNewt;
+  idaspils_mem->s_epslin = idaspils_mem->s_sqrtN * idaspils_mem->s_eplifac * IDA_mem->ida_epsNewt;
 
   /* Set vectors ycur, ypcur, and rcur for use by the Atimes and Psolve */
-  ycur = yy_now;
-  ypcur = yp_now;
-  rcur = rr_now;
+  idaspils_mem->s_ycur = yy_now;
+  idaspils_mem->s_ypcur = yp_now;
+  idaspils_mem->s_rcur = rr_now;
 
   /* Set SpbcgSolve inputs pretype and initial guess xx = 0 */  
-  pretype = (psolve == NULL) ? PREC_NONE : PREC_LEFT;
-  N_VConst(ZERO, xx);
+  pretype = (idaspils_mem->s_psolve == NULL) ? PREC_NONE : PREC_LEFT;
+  N_VConst(ZERO, idaspils_mem->s_xx);
   
   /* Call SpbcgSolve and copy xx to bb */
-  retval = SpbcgSolve(spbcg_mem, IDA_mem, xx, bb, pretype, epslin,
+  retval = SpbcgSolve(spbcg_mem, IDA_mem, idaspils_mem->s_xx, bb, pretype, idaspils_mem->s_epslin,
                       IDA_mem, weight, weight, IDASpilsAtimes,
                       IDASpilsPSolve, &res_norm, &nli_inc, &nps_inc);
 
   if (nli_inc == 0) N_VScale(ONE, SPBCG_VTEMP(spbcg_mem), bb);
-  else N_VScale(ONE, xx, bb);
+  else N_VScale(ONE, idaspils_mem->s_xx, bb);
   
   /* Increment counters nli, nps, and return if successful */
-  nli += nli_inc;
-  nps += nps_inc;
-  if (retval != SPBCG_SUCCESS) ncfl++;
+  idaspils_mem->s_nli += nli_inc;
+  idaspils_mem->s_nps += nps_inc;
+  if (retval != SPBCG_SUCCESS) idaspils_mem->s_ncfl++;
 
   /* Interpret return value from SpbcgSolve */
 
-  last_flag = retval;
+  idaspils_mem->s_last_flag = retval;
 
   switch(retval) {
 
@@ -430,32 +373,32 @@ static int IDASpbcgPerf(IDAMem IDA_mem, int perftask)
   long int nstd, nnid;
   booleantype lavd, lcfn, lcfl;
 
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
   if (perftask == 0) {
-    nst0 = nst;  nni0 = nni;  nli0 = nli;
-    ncfn0 = ncfn;  ncfl0 = ncfl;  
-    nwarn = 0;
+    idaspils_mem->s_nst0 = IDA_mem->ida_nst;  idaspils_mem->s_nni0 = IDA_mem->ida_nni;  idaspils_mem->s_nli0 = idaspils_mem->s_nli;
+    idaspils_mem->s_ncfn0 = IDA_mem->ida_ncfn;  idaspils_mem->s_ncfl0 = idaspils_mem->s_ncfl;  
+    idaspils_mem->s_nwarn = 0;
     return(0);
   }
 
-  nstd = nst - nst0;  nnid = nni - nni0;
+  nstd = IDA_mem->ida_nst - idaspils_mem->s_nst0;  nnid = IDA_mem->ida_nni - idaspils_mem->s_nni0;
   if (nstd == 0 || nnid == 0) return(0);
-  avdim = (realtype) ((nli - nli0)/((realtype) nnid));
-  rcfn = (realtype) ((ncfn - ncfn0)/((realtype) nstd));
-  rcfl = (realtype) ((ncfl - ncfl0)/((realtype) nnid));
-  lavd = (avdim > ((realtype) maxl));
+  avdim = (realtype) ((idaspils_mem->s_nli - idaspils_mem->s_nli0)/((realtype) nnid));
+  rcfn = (realtype) ((IDA_mem->ida_ncfn - idaspils_mem->s_ncfn0)/((realtype) nstd));
+  rcfl = (realtype) ((idaspils_mem->s_ncfl - idaspils_mem->s_ncfl0)/((realtype) nnid));
+  lavd = (avdim > ((realtype) idaspils_mem->s_maxl));
   lcfn = (rcfn > PT9);
   lcfl = (rcfl > PT9);
   if (!(lavd || lcfn || lcfl)) return(0);
-  nwarn++;
-  if (nwarn > 10) return(1);
+  idaspils_mem->s_nwarn++;
+  if (idaspils_mem->s_nwarn > 10) return(1);
   if (lavd) 
-    IDAProcessError(IDA_mem, IDA_WARNING, "IDASPBCG", "IDASpbcgPerf", MSGS_AVD_WARN, tn, avdim);
+    IDAProcessError(IDA_mem, IDA_WARNING, "IDASPBCG", "IDASpbcgPerf", MSGS_AVD_WARN, IDA_mem->ida_tn, avdim);
   if (lcfn) 
-    IDAProcessError(IDA_mem, IDA_WARNING, "IDASPBCG", "IDASpbcgPerf", MSGS_CFN_WARN, tn, rcfn);
+    IDAProcessError(IDA_mem, IDA_WARNING, "IDASPBCG", "IDASpbcgPerf", MSGS_CFN_WARN, IDA_mem->ida_tn, rcfn);
   if (lcfl) 
-    IDAProcessError(IDA_mem, IDA_WARNING, "IDASPBCG", "IDASpbcgPerf", MSGS_CFL_WARN, tn, rcfl);
+    IDAProcessError(IDA_mem, IDA_WARNING, "IDASPBCG", "IDASpbcgPerf", MSGS_CFL_WARN, IDA_mem->ida_tn, rcfl);
 
   return(0);
 }
@@ -465,13 +408,13 @@ static int IDASpbcgFree(IDAMem IDA_mem)
   IDASpilsMem idaspils_mem;
   SpbcgMem spbcg_mem;
 
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
-  N_VDestroy(ytemp);
-  N_VDestroy(yptemp);
-  N_VDestroy(xx);
+  N_VDestroy(idaspils_mem->s_ytemp);
+  N_VDestroy(idaspils_mem->s_yptemp);
+  N_VDestroy(idaspils_mem->s_xx);
 
-  spbcg_mem = (SpbcgMem)spils_mem;
+  spbcg_mem = (SpbcgMem) idaspils_mem->s_spils_mem;
   SpbcgFree(spbcg_mem);
 
   if (idaspils_mem->s_pfree != NULL) (idaspils_mem->s_pfree)(IDA_mem);

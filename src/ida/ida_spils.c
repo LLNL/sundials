@@ -37,39 +37,6 @@
 
 #define MAX_ITERS  3  /* max. number of attempts to recover in DQ J*v */
 
-/* Readability Replacements */
-
-#define lrw1      (IDA_mem->ida_lrw1)
-#define liw1      (IDA_mem->ida_liw1)
-#define tn        (IDA_mem->ida_tn)
-#define cj        (IDA_mem->ida_cj)
-#define res       (IDA_mem->ida_res)
-#define user_data (IDA_mem->ida_user_data)
-#define ewt       (IDA_mem->ida_ewt)
-#define lmem      (IDA_mem->ida_lmem)
-
-#define ils_type  (idaspils_mem->s_type)
-#define sqrtN     (idaspils_mem->s_sqrtN)
-#define epslin    (idaspils_mem->s_epslin)
-#define ytemp     (idaspils_mem->s_ytemp)
-#define yptemp    (idaspils_mem->s_yptemp)
-#define xx        (idaspils_mem->s_xx)
-#define ycur      (idaspils_mem->s_ycur)
-#define ypcur     (idaspils_mem->s_ypcur)
-#define rcur      (idaspils_mem->s_rcur)
-#define npe       (idaspils_mem->s_npe)
-#define nli       (idaspils_mem->s_nli)
-#define nps       (idaspils_mem->s_nps)
-#define ncfl      (idaspils_mem->s_ncfl)
-#define njtimes   (idaspils_mem->s_njtimes)
-#define nres      (idaspils_mem->s_nres)
-
-#define jtimesDQ  (idaspils_mem->s_jtimesDQ)
-#define jtimes    (idaspils_mem->s_jtimes)
-#define jdata     (idaspils_mem->s_jdata)
-
-#define last_flag (idaspils_mem->s_last_flag)
-
 /*
  * -----------------------------------------------------------------
  * OPTIONAL INPUT and OUTPUT
@@ -88,13 +55,13 @@ int IDASpilsSetGSType(void *ida_mem, int gstype)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASPILS", "IDASpilsSetGSType", MSGS_LMEM_NULL);
     return(IDASPILS_LMEM_NULL);
   }
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
-  if (ils_type != SPILS_SPGMR) {
+  if (idaspils_mem->s_type != SPILS_SPGMR) {
     IDAProcessError(IDA_mem, IDASPILS_ILL_INPUT, "IDASPILS", "IDASpilsSetGSType", MSGS_BAD_LSTYPE);
     return(IDASPILS_ILL_INPUT);
   }
@@ -122,13 +89,13 @@ int IDASpilsSetMaxRestarts(void *ida_mem, int maxrs)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASPILS", "IDASpilsSetMaxRestarts", MSGS_LMEM_NULL);
     return(IDASPILS_LMEM_NULL);
   }
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
-  if (ils_type != SPILS_SPGMR) {
+  if (idaspils_mem->s_type != SPILS_SPGMR) {
     IDAProcessError(IDA_mem, IDASPILS_ILL_INPUT, "IDASPILS", "IDASpilsSetMaxRestarts", MSGS_BAD_LSTYPE);
     return(IDASPILS_ILL_INPUT);
   }
@@ -156,13 +123,13 @@ int IDASpilsSetMaxl(void *ida_mem, int maxl)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASPILS", "IDASpilsSetMaxl", MSGS_LMEM_NULL);
     return(IDASPILS_LMEM_NULL);
   }
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
-  if (ils_type == SPILS_SPGMR) {
+  if (idaspils_mem->s_type == SPILS_SPGMR) {
     IDAProcessError(IDA_mem, IDASPILS_ILL_INPUT, "IDASPILS", "IDASpilsSetMaxl", MSGS_BAD_LSTYPE);
     return(IDASPILS_ILL_INPUT);
   }
@@ -184,11 +151,11 @@ int IDASpilsSetEpsLin(void *ida_mem, realtype eplifac)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASPILS", "IDASpilsSetEpsLin", MSGS_LMEM_NULL);
     return(IDASPILS_LMEM_NULL);
   }
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
   /* Check for legal maxrs */
   if (eplifac < ZERO) {
@@ -216,11 +183,11 @@ int IDASpilsSetIncrementFactor(void *ida_mem, realtype dqincfac)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASPILS", "IDASpilsSetIncrementFactor", MSGS_LMEM_NULL);
     return(IDASPILS_LMEM_NULL);
   }
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
   /* Check for legal maxrs */
   if (dqincfac <= ZERO) {
@@ -246,11 +213,11 @@ int IDASpilsSetPreconditioner(void *ida_mem,
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASPILS", "IDASpilsSetPreconditioner", MSGS_LMEM_NULL);
     return(IDASPILS_LMEM_NULL);
   }
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
   idaspils_mem->s_pset = pset;
   idaspils_mem->s_psolve = psolve;
@@ -270,17 +237,17 @@ int IDASpilsSetJacTimesVecFn(void *ida_mem, IDASpilsJacTimesVecFn jtv)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASPILS", "IDASpilsSetJacTimesVecFn", MSGS_LMEM_NULL);
     return(IDASPILS_LMEM_NULL);
   }
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
   if (jtv != NULL) {
-    jtimesDQ = FALSE;
-    jtimes = jtv;
+    idaspils_mem->s_jtimesDQ = FALSE;
+    idaspils_mem->s_jtimes = jtv;
   } else {
-    jtimesDQ = TRUE;
+    idaspils_mem->s_jtimesDQ = TRUE;
   }
 
   return(IDASPILS_SUCCESS);
@@ -299,25 +266,25 @@ int IDASpilsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASPILS", "IDASpilsGetWorkSpace", MSGS_LMEM_NULL);
     return(IDASPILS_LMEM_NULL);
   }
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
-  switch(ils_type) {
+  switch(idaspils_mem->s_type) {
   case SPILS_SPGMR:
     maxl = idaspils_mem->s_maxl;
-    *lenrwLS = lrw1*(maxl + 6) + maxl*(maxl + 4) + 1;
-    *leniwLS = liw1*(maxl + 6);
+    *lenrwLS = IDA_mem->ida_lrw1*(maxl + 6) + maxl*(maxl + 4) + 1;
+    *leniwLS = IDA_mem->ida_liw1*(maxl + 6);
     break;
   case SPILS_SPBCG:
-    *lenrwLS = lrw1 * 10;
-    *leniwLS = liw1 * 10;
+    *lenrwLS = IDA_mem->ida_lrw1 * 10;
+    *leniwLS = IDA_mem->ida_liw1 * 10;
     break;
   case SPILS_SPTFQMR:
-    *lenrwLS = lrw1*13;
-    *leniwLS = liw1*13;
+    *lenrwLS = IDA_mem->ida_lrw1*13;
+    *leniwLS = IDA_mem->ida_liw1*13;
     break;
   }
 
@@ -336,13 +303,13 @@ int IDASpilsGetNumPrecEvals(void *ida_mem, long int *npevals)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASPILS", "IDASpilsGetNumPrecEvals", MSGS_LMEM_NULL);
     return(IDASPILS_LMEM_NULL);
   }
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
-  *npevals = npe;
+  *npevals = idaspils_mem->s_npe;
 
   return(IDASPILS_SUCCESS);
 }
@@ -359,13 +326,13 @@ int IDASpilsGetNumPrecSolves(void *ida_mem, long int *npsolves)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASPILS", "IDASpilsGetNumPrecSolves", MSGS_LMEM_NULL);
     return(IDASPILS_LMEM_NULL);
   }
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
-  *npsolves = nps;
+  *npsolves = idaspils_mem->s_nps;
 
   return(IDASPILS_SUCCESS);
 }
@@ -382,13 +349,13 @@ int IDASpilsGetNumLinIters(void *ida_mem, long int *nliters)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASPILS", "IDASpilsGetNumLinIters", MSGS_LMEM_NULL);
     return(IDASPILS_LMEM_NULL);
   }
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
-  *nliters = nli;
+  *nliters = idaspils_mem->s_nli;
 
   return(IDASPILS_SUCCESS);
 }
@@ -405,13 +372,13 @@ int IDASpilsGetNumConvFails(void *ida_mem, long int *nlcfails)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASPILS", "IDASpilsGetNumConvFails", MSGS_LMEM_NULL);
     return(IDASPILS_LMEM_NULL);
   }
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
-  *nlcfails = ncfl;
+  *nlcfails = idaspils_mem->s_ncfl;
 
   return(IDASPILS_SUCCESS);
 }
@@ -428,13 +395,13 @@ int IDASpilsGetNumJtimesEvals(void *ida_mem, long int *njvevals)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASPILS", "IDASpilsGetNumJtimesEvals", MSGS_LMEM_NULL);
     return(IDASPILS_LMEM_NULL);
   }
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
-  *njvevals = njtimes;
+  *njvevals = idaspils_mem->s_njtimes;
 
   return(IDASPILS_SUCCESS);
 }
@@ -451,13 +418,13 @@ int IDASpilsGetNumResEvals(void *ida_mem, long int *nrevalsLS)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASPILS", "IDASpilsGetNumResEvals", MSGS_LMEM_NULL);
     return(IDASPILS_LMEM_NULL);
   }
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
-  *nrevalsLS = nres;
+  *nrevalsLS = idaspils_mem->s_nres;
 
   return(IDASPILS_SUCCESS);
 }
@@ -474,13 +441,13 @@ int IDASpilsGetLastFlag(void *ida_mem, long int *flag)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASPILS", "IDASpilsGetLastFlag", MSGS_LMEM_NULL);
     return(IDASPILS_LMEM_NULL);
   }
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
-  *flag = last_flag;
+  *flag = idaspils_mem->s_last_flag;
 
   return(IDASPILS_SUCCESS);
 }
@@ -523,10 +490,6 @@ char *IDASpilsGetReturnFlagName(long int flag)
  * -----------------------------------------------------------------
  */
 
-#define psolve   (idaspils_mem->s_psolve)
-#define pdata    (idaspils_mem->s_pdata)
-#define dqincfac (idaspils_mem->s_dqincfac)
-
 /*
  * This routine generates the matrix-vector product z = Jv, where
  * J is the system Jacobian, by calling either the user provided
@@ -540,10 +503,10 @@ int IDASpilsAtimes(void *ida_mem, N_Vector v, N_Vector z)
   int jtflag;
 
   IDA_mem = (IDAMem) ida_mem;
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
-  jtflag = jtimes(tn, ycur, ypcur, rcur, v, z, cj, jdata, ytemp, yptemp);
-  njtimes++;
+  jtflag = idaspils_mem->s_jtimes(IDA_mem->ida_tn, idaspils_mem->s_ycur, idaspils_mem->s_ypcur, idaspils_mem->s_rcur, v, z, IDA_mem->ida_cj, idaspils_mem->s_jdata, idaspils_mem->s_ytemp, idaspils_mem->s_yptemp);
+  idaspils_mem->s_njtimes++;
 
   return(jtflag);
 }
@@ -564,9 +527,9 @@ int IDASpilsPSolve(void *ida_mem, N_Vector r, N_Vector z,
   int retval;
 
   IDA_mem = (IDAMem) ida_mem;
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
-  retval = psolve(tn, ycur, ypcur, rcur, r, z, cj, tol, pdata, ytemp);
+  retval = idaspils_mem->s_psolve(IDA_mem->ida_tn, idaspils_mem->s_ycur, idaspils_mem->s_ypcur, idaspils_mem->s_rcur, r, z, IDA_mem->ida_cj, tol, idaspils_mem->s_pdata, idaspils_mem->s_ytemp);
 
   /* This call is counted in nps within the IDASp**Solve routine */
 
@@ -599,17 +562,17 @@ int IDASpilsDQJtimes(realtype tt,
 
   /* data is ida_mem */
   IDA_mem = (IDAMem) data;
-  idaspils_mem = (IDASpilsMem) lmem;
+  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
-  switch(ils_type) {
+  switch(idaspils_mem->s_type) {
   case SPILS_SPGMR:
-    sig = sqrtN*dqincfac;
+    sig = idaspils_mem->s_sqrtN * idaspils_mem->s_dqincfac;
     break;
   case SPILS_SPBCG:
-    sig = dqincfac/N_VWrmsNorm(v, ewt);
+    sig = idaspils_mem->s_dqincfac / N_VWrmsNorm(v, IDA_mem->ida_ewt);
     break;
   case SPILS_SPTFQMR:
-    sig = dqincfac/N_VWrmsNorm(v, ewt);
+    sig = idaspils_mem->s_dqincfac / N_VWrmsNorm(v, IDA_mem->ida_ewt);
     break;
   }
 
@@ -624,8 +587,8 @@ int IDASpilsDQJtimes(realtype tt,
     N_VLinearSum(c_j*sig, v, ONE, yp, yp_tmp);
     
     /* Call res for Jv = F(t, y_tmp, yp_tmp), and return if it failed. */
-    retval = res(tt, y_tmp, yp_tmp, Jv, user_data); 
-    nres++;
+    retval = IDA_mem->ida_res(tt, y_tmp, yp_tmp, Jv, IDA_mem->ida_user_data); 
+    idaspils_mem->s_nres++;
     if (retval == 0) break;
     if (retval < 0)  return(-1);
 
