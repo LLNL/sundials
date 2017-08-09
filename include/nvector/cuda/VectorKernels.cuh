@@ -33,7 +33,7 @@
 #include <cuda_runtime.h>
 
 /// Forward declarations of Vector and ThreadPartitioning classes
-namespace nvec 
+namespace suncudavec
 {
     template <typename T, typename I>
     class Vector;
@@ -44,7 +44,7 @@ namespace nvec
 
 //#define abs(x) ((x)<0 ? -(x) : (x))
 
-namespace nvec
+namespace suncudavec
 {
 namespace math_kernels
 {
@@ -807,7 +807,7 @@ inline cudaError_t compare(T const c, const Vector<T,I>& X, Vector<T,I>& Z)
 
 
 template <typename T, typename I>
-inline T dotProd(const nvec::Vector<T,I>& x, const nvec::Vector<T,I>& y)
+inline T dotProd(const Vector<T,I>& x, const Vector<T,I>& y)
 {
     // Reduction result storage on CPU
     T gpu_result = 0;
@@ -846,7 +846,7 @@ inline T dotProd(const nvec::Vector<T,I>& x, const nvec::Vector<T,I>& y)
 }
     
 template <typename T, typename I>
-inline T maxNorm(const nvec::Vector<T,I>& x)
+inline T maxNorm(const Vector<T,I>& x)
 {
     // Reduction result storage on CPU
     T gpu_result = 0;
@@ -887,7 +887,7 @@ inline T maxNorm(const nvec::Vector<T,I>& x)
 }
     
 template <typename T, typename I>
-inline T wrmsNorm(const nvec::Vector<T,I>& x, const nvec::Vector<T,I>& y)
+inline T wrmsNorm(const Vector<T,I>& x, const Vector<T,I>& y)
 {
     // Reduction result storage on CPU
     T gpu_result = 0;
@@ -926,7 +926,7 @@ inline T wrmsNorm(const nvec::Vector<T,I>& x, const nvec::Vector<T,I>& y)
 }
     
 template <typename T, typename I>
-inline T wrmsNormMask(const nvec::Vector<T,I>& x, const nvec::Vector<T,I>& y, const nvec::Vector<T,I>& id)
+inline T wrmsNormMask(const Vector<T,I>& x, const Vector<T,I>& y, const Vector<T,I>& id)
 {
     // Reduction result storage on CPU
     T gpu_result = 0;
@@ -965,7 +965,7 @@ inline T wrmsNormMask(const nvec::Vector<T,I>& x, const nvec::Vector<T,I>& y, co
 }
 
 template <typename T, typename I>
-inline T findMin(const nvec::Vector<T,I>& x)
+inline T findMin(const Vector<T,I>& x)
 {
     // Reduction result storage on CPU
     T gpu_result = 0;
@@ -1008,7 +1008,7 @@ inline T findMin(const nvec::Vector<T,I>& x)
 
 
 template <typename T, typename I>
-inline T wL2Norm(const nvec::Vector<T,I>& x, const nvec::Vector<T,I>& y)
+inline T wL2Norm(const Vector<T,I>& x, const Vector<T,I>& y)
 {
     // Reduction result storage on CPU
     T gpu_result = 0;
@@ -1048,7 +1048,7 @@ inline T wL2Norm(const nvec::Vector<T,I>& x, const nvec::Vector<T,I>& y)
 
     
 template <typename T, typename I>
-inline T L1Norm(const nvec::Vector<T,I>& x)
+inline T L1Norm(const Vector<T,I>& x)
 {
     // Reduction result storage on CPU
     T gpu_result = 0;
@@ -1088,7 +1088,7 @@ inline T L1Norm(const nvec::Vector<T,I>& x)
 
 
 template <typename T, typename I>
-inline bool invTest(const nvec::Vector<T,I>& x, nvec::Vector<T,I>& z)
+inline bool invTest(const Vector<T,I>& x, Vector<T,I>& z)
 {
     // Reduction result storage on CPU
     T gpu_result = 0;
@@ -1128,7 +1128,7 @@ inline bool invTest(const nvec::Vector<T,I>& x, nvec::Vector<T,I>& z)
 
 
 template <typename T, typename I>
-inline bool constrMask(const nvec::Vector<T,I>& c, const nvec::Vector<T,I>& x, nvec::Vector<T,I>& m)
+inline bool constrMask(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>& m)
 {
     // Reduction result storage on CPU
     T gpu_result = 0.0;
@@ -1168,7 +1168,7 @@ inline bool constrMask(const nvec::Vector<T,I>& c, const nvec::Vector<T,I>& x, n
 
 
 template <typename T, typename I>
-inline T minQuotient(const nvec::Vector<T,I>& num, const nvec::Vector<T,I>& den)
+inline T minQuotient(const Vector<T,I>& num, const Vector<T,I>& den)
 {
     // Reduction result storage on CPU
     T gpu_result = 0;

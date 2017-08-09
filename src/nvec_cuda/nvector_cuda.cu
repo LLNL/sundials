@@ -25,6 +25,10 @@
 #include <nvector/cuda/Vector.hpp>
 #include <nvector/cuda/VectorKernels.cuh>
 
+extern "C" {
+
+using namespace suncudavec;
+
 /* ----------------------------------------------------------------
  * Returns vector type ID. Used to identify vector implementation
  * from abstract N_Vector interface.
@@ -34,9 +38,7 @@ N_Vector_ID N_VGetVectorID_Cuda(N_Vector v)
   return SUNDIALS_NVEC_CUDA;
 }
 
-extern "C" {
-
-N_Vector N_VNewEmpty_Cuda(long int length)
+N_Vector N_VNewEmpty_Cuda(sunindextype length)
 {
   N_Vector v;
   N_Vector_Ops ops;
@@ -57,8 +59,8 @@ N_Vector N_VNewEmpty_Cuda(long int length)
   ops->nvcloneempty      = N_VCloneEmpty_Cuda;
   ops->nvdestroy         = N_VDestroy_Cuda;
   ops->nvspace           = N_VSpace_Cuda;
-//   ops->nvgetarraypointer = N_VGetArrayPointer_Cuda;
-//   ops->nvsetarraypointer = N_VSetArrayPointer_Cuda;
+  ops->nvgetarraypointer = NULL;
+  ops->nvsetarraypointer = NULL;
   ops->nvlinearsum       = N_VLinearSum_Cuda;
   ops->nvconst           = N_VConst_Cuda;
   ops->nvprod            = N_VProd_Cuda;
@@ -90,7 +92,7 @@ N_Vector N_VNewEmpty_Cuda(long int length)
 }
 
 
-N_Vector N_VNew_Cuda(long int length)
+N_Vector N_VNew_Cuda(sunindextype length)
 {
   N_Vector v;
 
@@ -99,7 +101,7 @@ N_Vector N_VNew_Cuda(long int length)
   if (v == NULL)
     return(NULL);
 
-  v->content = new nvec::Vector<realtype, long int>(length);
+  v->content = new Vector<realtype, sunindextype>(length);
 
   return(v);
 }
@@ -108,8 +110,8 @@ N_Vector N_VNew_Cuda(long int length)
 N_Vector N_VMake_Cuda(N_VectorContent_Cuda c)
 {
   N_Vector v;
-  nvec::Vector<realtype, long int>* x = static_cast<nvec::Vector<realtype, long int>*>(c);
-  long int length = x->size();
+  Vector<realtype, sunindextype>* x = static_cast<Vector<realtype, sunindextype>*>(c);
+  sunindextype length = x->size();
 
   v = NULL;
   v = N_VNewEmpty_Cuda(length);
@@ -177,9 +179,9 @@ N_Vector *N_VCloneVectorArrayEmpty_Cuda(int count, N_Vector w)
 /* -----------------------------------------------------------------
  * Function to return the length of the vector.
  */
-long int N_VGetLength_Cuda(N_Vector v)
+sunindextype N_VGetLength_Cuda(N_Vector v)
 {
-  nvec::Vector<realtype, long int>* xd = static_cast<nvec::Vector<realtype, long int>*>(v->content);
+  Vector<realtype, sunindextype>* xd = static_cast<Vector<realtype, sunindextype>*>(v->content);
   return xd->size();
 }
 
@@ -204,7 +206,7 @@ void N_VDestroyVectorArray_Cuda(N_Vector *vs, int count)
 
 realtype *N_VGetHostArrayPointer_Cuda(N_Vector x)
 {
-  nvec::Vector<realtype, long int>* xv = static_cast<nvec::Vector<realtype, long int>*>(x->content);
+  Vector<realtype, sunindextype>* xv = static_cast<Vector<realtype, sunindextype>*>(x->content);
   return (xv->host());
 }
 
@@ -214,7 +216,7 @@ realtype *N_VGetHostArrayPointer_Cuda(N_Vector x)
 
 realtype *N_VGetDeviceArrayPointer_Cuda(N_Vector x)
 {
-  nvec::Vector<realtype, long int>* xv = static_cast<nvec::Vector<realtype, long int>*>(x->content);
+  Vector<realtype, sunindextype>* xv = static_cast<Vector<realtype, sunindextype>*>(x->content);
   return (xv->device());
 }
 
@@ -224,7 +226,7 @@ realtype *N_VGetDeviceArrayPointer_Cuda(N_Vector x)
 
 void N_VCopyToDevice_Cuda(N_Vector x)
 {
-  nvec::Vector<realtype, long int>* xv = static_cast<nvec::Vector<realtype, long int>*>(x->content);
+  Vector<realtype, sunindextype>* xv = static_cast<Vector<realtype, sunindextype>*>(x->content);
   xv->copyToDev();
 }
 
@@ -234,7 +236,7 @@ void N_VCopyToDevice_Cuda(N_Vector x)
 
 void N_VCopyFromDevice_Cuda(N_Vector x)
 {
-  nvec::Vector<realtype, long int>* xv = static_cast<nvec::Vector<realtype, long int>*>(x->content);
+  Vector<realtype, sunindextype>* xv = static_cast<Vector<realtype, sunindextype>*>(x->content);
   xv->copyFromDev();
 }
 
@@ -245,8 +247,8 @@ void N_VCopyFromDevice_Cuda(N_Vector x)
 
 void N_VPrint_Cuda(N_Vector x)
 {
-  long int i;
-  nvec::Vector<realtype, long int>* xd = static_cast<nvec::Vector<realtype, long int>*>(x->content);
+  sunindextype i;
+  Vector<realtype, sunindextype>* xd = static_cast<Vector<realtype, sunindextype>*>(x->content);
 
   for (i = 0; i < xd->size(); i++) {
     std::cout << xd->host()[i] << "\n";
@@ -317,8 +319,8 @@ N_Vector N_VCloneEmpty_Cuda(N_Vector w)
 N_Vector N_VClone_Cuda(N_Vector w)
 {
   N_Vector v;
-  nvec::Vector<realtype, long int>* wdat = static_cast<nvec::Vector<realtype, long int>*>(w->content);
-  nvec::Vector<realtype, long int>* vdat = new nvec::Vector<realtype, long int>(*wdat);
+  Vector<realtype, sunindextype>* wdat = static_cast<Vector<realtype, sunindextype>*>(w->content);
+  Vector<realtype, sunindextype>* vdat = new Vector<realtype, sunindextype>(*wdat);
   v = NULL;
   v = N_VCloneEmpty_Cuda(w);
   if (v == NULL) return(NULL);
@@ -331,7 +333,7 @@ N_Vector N_VClone_Cuda(N_Vector w)
 
 void N_VDestroy_Cuda(N_Vector v)
 {
-  nvec::Vector<realtype, long int>* x = static_cast<nvec::Vector<realtype, long int>*>(v->content);
+  Vector<realtype, sunindextype>* x = static_cast<Vector<realtype, sunindextype>*>(v->content);
   if (x != NULL) {
     if (!x->isClone()) {
       delete x;
@@ -345,105 +347,105 @@ void N_VDestroy_Cuda(N_Vector v)
   return;
 }
 
-void N_VSpace_Cuda(N_Vector X, long int *lrw, long int *liw)
+void N_VSpace_Cuda(N_Vector X, sunindextype *lrw, sunindextype *liw)
 {
-    *lrw = (nvec::extract(X))->size();
-    *liw = 1;
+  *lrw = (extract<realtype, sunindextype>(X))->size();
+  *liw = 1;
 }
 
 void N_VConst_Cuda(realtype a, N_Vector X)
 {
-    nvec::setConst(a, *nvec::extract(X));
+  setConst(a, *extract<realtype, sunindextype>(X));
 }
 
 void N_VLinearSum_Cuda(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector Z)
 {
-    nvec::linearSum(a, *nvec::extract(X), b, *nvec::extract(Y), *nvec::extract(Z));
+  linearSum(a, *extract<realtype, sunindextype>(X), b, *extract<realtype, sunindextype>(Y), *extract<realtype, sunindextype>(Z));
 }
 
 void N_VProd_Cuda(N_Vector X, N_Vector Y, N_Vector Z)
 {
-    nvec::prod(*nvec::extract(X), *nvec::extract(Y), *nvec::extract(Z));
+  prod(*extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(Y), *extract<realtype, sunindextype>(Z));
 }
 
 void N_VDiv_Cuda(N_Vector X, N_Vector Y, N_Vector Z)
 {
-    nvec::div(*nvec::extract(X), *nvec::extract(Y), *nvec::extract(Z));
+  div(*extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(Y), *extract<realtype, sunindextype>(Z));
 }
 
 void N_VScale_Cuda(realtype a, N_Vector X, N_Vector Z)
 {
-    nvec::scale(a, *nvec::extract(X), *nvec::extract(Z));
+  scale(a, *extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(Z));
 }
 
 void N_VAbs_Cuda(N_Vector X, N_Vector Z)
 {
-    nvec::absVal(*nvec::extract(X), *nvec::extract(Z));
+  absVal(*extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(Z));
 }
 
 void N_VInv_Cuda(N_Vector X, N_Vector Z)
 {
-    nvec::inv(*nvec::extract(X), *nvec::extract(Z));
+  inv(*extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(Z));
 }
 
 void N_VAddConst_Cuda(N_Vector X, realtype b, N_Vector Z)
 {
-    nvec::addConst(b, *nvec::extract(X), *nvec::extract(Z));
+  addConst(b, *extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(Z));
 }
 
 realtype N_VDotProd_Cuda(N_Vector X, N_Vector Y)
 {
-    return (nvec::dotProd(*nvec::extract(X), *nvec::extract(Y)));
+  return (dotProd(*extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(Y)));
 }
 
 realtype N_VMaxNorm_Cuda(N_Vector X)
 {
-    return (nvec::maxNorm(*nvec::extract(X)));
+  return (maxNorm(*extract<realtype, sunindextype>(X)));
 }
 
 realtype N_VWrmsNorm_Cuda(N_Vector X, N_Vector W)
 {
-    return (nvec::wrmsNorm(*nvec::extract(X), *nvec::extract(W)));
+  return (wrmsNorm(*extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(W)));
 }
 
 realtype N_VWrmsNormMask_Cuda(N_Vector X, N_Vector W, N_Vector Id)
 {
-    return (nvec::wrmsNormMask(*nvec::extract(X), *nvec::extract(W), *nvec::extract(Id)));
+  return (wrmsNormMask(*extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(W), *extract<realtype, sunindextype>(Id)));
 }
 
 realtype N_VMin_Cuda(N_Vector X)
 {
-    return (nvec::findMin(*nvec::extract(X)));
+  return (findMin(*extract<realtype, sunindextype>(X)));
 }
 
 realtype N_VWL2Norm_Cuda(N_Vector X, N_Vector W)
 {
-    return (nvec::wL2Norm(*nvec::extract(X), *nvec::extract(W)));
+  return (wL2Norm(*extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(W)));
 }
 
 realtype N_VL1Norm_Cuda(N_Vector X)
 {
-    return (nvec::L1Norm(*nvec::extract(X)));
+  return (L1Norm(*extract<realtype, sunindextype>(X)));
 }
 
 void N_VCompare_Cuda(realtype c, N_Vector X, N_Vector Z)
 {
-    nvec::compare(c, *nvec::extract(X), *nvec::extract(Z));
+  compare(c, *extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(Z));
 }
 
 booleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
 {
-    return (booleantype) (nvec::invTest(*nvec::extract(X), *nvec::extract(Z)));
+  return (booleantype) (invTest(*extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(Z)));
 }
 
 booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
 {
-    return (booleantype) (nvec::constrMask(*nvec::extract(C), *nvec::extract(X), *nvec::extract(M)));
+  return (booleantype) (constrMask(*extract<realtype, sunindextype>(C), *extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(M)));
 }
 
 realtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom)
 {
-    return (nvec::minQuotient(*nvec::extract(num), *nvec::extract(denom)));
+  return (minQuotient(*extract<realtype, sunindextype>(num), *extract<realtype, sunindextype>(denom)));
 }
 
 } // extern "C"

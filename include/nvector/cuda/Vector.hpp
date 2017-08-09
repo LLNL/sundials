@@ -33,10 +33,10 @@
 
 #include <nvector/nvector_cuda.h>
 
-namespace nvec
+namespace suncudavec
 {
 
-template <typename T, typename I=int>
+template <typename T, typename I>
 class Vector : public _N_VectorContent_Cuda
 {
 public:
@@ -252,12 +252,29 @@ private:
 
 
 // Vector extractor
-inline nvec::Vector<realtype, long int>* extract(N_Vector v)
+template <typename T, typename I>
+inline Vector<T, I>* extract(N_Vector v)
 { 
-    return static_cast<nvec::Vector<realtype, long int>*>(v->content);
+    return static_cast<Vector<T, I>*>(v->content);
 }
 
-} // namespace nvec
+// Get Vector device data
+template <typename T, typename I>
+inline T* getDevData(N_Vector v)
+{
+  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
+  return vp->device();
+}
+
+// Get Vector length
+template <typename T, typename I>
+inline I getSize(N_Vector v)
+{
+  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
+  return vp->size();
+}
+
+} // namespace suncudavec
 
 
 

@@ -36,10 +36,10 @@
 int main(int argc, char *argv[]) 
 {
   int      fails = 0;  /* counter for test failures  */
-  long int veclen;     /* vector length              */
+  sunindextype veclen;     /* vector length              */
   N_Vector W, X, Y, Z; /* test vectors               */
   int      print_timing;
-  //long int lrw, liw;
+  //sunindextype lrw, liw;
 
 
   /* check input and set vector length */
@@ -124,11 +124,11 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Check vector
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, long int local_length)
+int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 {
   int      failure = 0;
-  long int i;
-  nvec::Vector<double, long int>* xv = nvec::extract(X);
+  sunindextype i;
+  suncudavec::Vector<realtype, sunindextype>* xv = suncudavec::extract<realtype, sunindextype>(X);
   realtype *xdata;
   
   xv->copyFromDev();
@@ -143,25 +143,25 @@ int check_ans(realtype ans, N_Vector X, long int local_length)
 
 booleantype has_data(N_Vector X)
 {
-  nvec::Vector<double, long int>* xv = nvec::extract(X);
+  suncudavec::Vector<realtype, sunindextype>* xv = suncudavec::extract<realtype, sunindextype>(X);
 
   return (xv == NULL ? FALSE : TRUE);
 }
 
-void set_element(N_Vector X, long int i, realtype val)
+void set_element(N_Vector X, sunindextype i, realtype val)
 {
-  nvec::Vector<double, long int>* xv = nvec::extract(X);
+  suncudavec::Vector<realtype, sunindextype>* xv = suncudavec::extract<realtype, sunindextype>(X);
   xv->copyFromDev();
   (xv->host())[i] = val;
   xv->copyToDev();
 }
 
-realtype get_element(N_Vector X, long int i)
+realtype get_element(N_Vector X, sunindextype i)
 {
 //    realtype val;
 //    cudaMemcpy(&val, &(xv->device()[i]), sizeof(realtype), cudaMemcpyDeviceToHost);
 //    return val;
-  nvec::Vector<realtype, long int>* xv = nvec::extract(X);
+  suncudavec::Vector<realtype, sunindextype>* xv = suncudavec::extract<realtype, sunindextype>(X);
   xv->copyFromDev();
   return (xv->host())[i];
 }
