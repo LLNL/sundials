@@ -3,7 +3,13 @@
 %
 \index{portability}
 The \ID{sundials\_types.h} file contains the definition of the type \ID{realtype},
-which is used by the {\sundials} solvers for all floating-point data.
+which is used by the {\sundials} solvers for all floating-point data, the definition 
+of the integer type \ID{sunindextype}, which is used for vector and matrix indices,
+and \ID{booleantype}, which is used for certain logic operations within {\sundials}.
+
+
+\subsection{Floating point types}
+
 The type \id{realtype} can be \id{float}, \id{double}, or \id{long double}, with
 the default being \id{double}.
 The user can change the precision of the {\sundials} solvers arithmetic at the
@@ -43,3 +49,15 @@ with the typedef for \id{realtype}).  Thus, a previously existing
 piece of ANSI {\CC} code can use {\sundials} without modifying the code
 to use \id{realtype}, so long as the {\sundials} libraries use the
 correct precision (for details see \S\ref{ss:configuration_options_nix}).
+
+
+\subsection{Integer types used for vector and matrix indices}
+
+The type \id{sunindextype} can be 64- or 32-bit \emph{signed} integer.
+The default is portable \id{int64\_t} type, and the user can change it 
+to \id{int32\_t} at the configuration stage. The configuration system 
+will detect if the compiler does not support portable types, and it 
+will replace \id{int64\_t} and \id{int32\_t} with \id{long long} and \id{int}, 
+respectively. At this time {\sundials} does not have a configuration option
+for setting unsigned integer types for vector and matrix indices (although
+it would not be difficult to add it, if there is a demand).
