@@ -227,7 +227,7 @@ C     ----------------------------------------------------------------
 C Fortran routine for right-hand side function, fi
       IMPLICIT NONE
 C
-      INTEGER*4 IPAR(*), IER
+      INTEGER*8 IPAR(*), IER
       DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
 C
       YDOT(1) = -0.04D0 * Y(1) + 1.0D4 * Y(2) * Y(3)
@@ -245,7 +245,7 @@ C     ----------------------------------------------------------------
 C Fortran routine for right-hand side function, fe
       IMPLICIT NONE
 C
-      INTEGER*4 IPAR(*), IER
+      INTEGER*8 IPAR(*), IER
       DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
 C
       YDOT(1) = 0.D0
@@ -264,7 +264,7 @@ C Fortran routine for root finding
       IMPLICIT NONE
 C
       DOUBLE PRECISION T, Y(*), G(*), RPAR(*)
-      INTEGER*4 IPAR(*), IER
+      INTEGER*8 IPAR(*), IER
 C
       G(1) = Y(1) - 1.0D-4
       G(2) = Y(3) - 1.0D-2

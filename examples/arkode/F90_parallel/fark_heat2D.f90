@@ -720,13 +720,13 @@ subroutine farkifun(t, y, ydot, ipar, rpar, ierr)
   use UserData
   implicit none
   include "mpif.h"
-  real*8,  intent(in)  :: t, rpar
-  integer, intent(in)  :: ipar
-  integer, intent(out) :: ierr
-  real*8,  intent(in)  :: y(nxl,nyl)
-  real*8,  intent(out) :: ydot(nxl,nyl)
-  real*8    :: c1, c2, c3
-  integer*8 :: i, j
+  real*8,    intent(in)  :: t, rpar
+  integer*8, intent(in)  :: ipar
+  integer,   intent(out) :: ierr
+  real*8,    intent(in)  :: y(nxl,nyl)
+  real*8,    intent(out) :: ydot(nxl,nyl)
+  real*8     :: c1, c2, c3
+  integer*8  :: i, j
   
   ! internals
 
@@ -811,11 +811,11 @@ subroutine farkefun(t, y, ydot, ipar, rpar, ierr)
   ! declarations
   use UserData
   implicit none
-  real*8,  intent(in)  :: t, rpar
-  integer, intent(in)  :: ipar
-  integer, intent(out) :: ierr
-  real*8,  intent(in)  :: y(nxl,nyl)
-  real*8,  intent(out) :: ydot(nxl,nyl)
+  real*8,    intent(in)  :: t, rpar
+  integer*8, intent(in)  :: ipar
+  integer,   intent(out) :: ierr
+  real*8,    intent(in)  :: y(nxl,nyl)
+  real*8,    intent(out) :: ydot(nxl,nyl)
   
   ! internals
 
@@ -835,11 +835,11 @@ subroutine farkpset(t, y, fy, jok, jcur, gamma, hcur, ipar, &
   ! declarations
   use UserData
   implicit none
-  real*8,  intent(in)  :: t, gamma, hcur, rpar
-  integer, intent(in)  :: ipar, jok
-  integer, intent(out) :: jcur, ierr
-  real*8,  intent(in)  :: y(nxl,nyl), fy(nxl,nyl)
-  real*8               :: v1(nxl,nyl), v2(nxl,nyl), v3(nxl,nyl)
+  real*8,    intent(in)  :: t, gamma, hcur, rpar
+  integer*8, intent(in)  :: ipar, jok
+  integer,   intent(out) :: jcur, ierr
+  real*8,    intent(in)  :: y(nxl,nyl), fy(nxl,nyl)
+  real*8                 :: v1(nxl,nyl), v2(nxl,nyl), v3(nxl,nyl)
   real*8 :: c
 
   ! internals
@@ -863,12 +863,12 @@ subroutine farkpsol(t, y, fy, r, z, gamma, delta, lr, &
   ! declarations
   use UserData
   implicit none
-  real*8,  intent(in)  :: t, gamma, delta, rpar
-  integer, intent(in)  :: lr, ipar
-  integer, intent(out) :: ierr
-  real*8,  intent(in)  :: y(nxl,nyl), fy(nxl,nyl), r(nxl,nyl)
-  real*8,  intent(out) :: z(nxl,nyl)
-  real*8               :: vt(nxl,nyl)
+  real*8,    intent(in)  :: t, gamma, delta, rpar
+  integer*8, intent(in)  :: lr, ipar
+  integer,   intent(out) :: ierr
+  real*8,    intent(in)  :: y(nxl,nyl), fy(nxl,nyl), r(nxl,nyl)
+  real*8,    intent(out) :: z(nxl,nyl)
+  real*8                 :: vt(nxl,nyl)
 
   ! internals
   z = r*d      ! perform Jacobi iteration (whole array operation)
