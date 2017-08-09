@@ -292,7 +292,7 @@ extern "C" {
 
 void FKIN_BBDINIT(sunindextype *nlocal, sunindextype *mudq, sunindextype *mldq,
 		  sunindextype *mu, sunindextype *ml, int *ier);
-void FKIN_BBDOPT(sunindextype *lenrpw, sunindextype *lenipw, long int *nge);
+void FKIN_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge);
 
 /*
  * -----------------------------------------------------------------
