@@ -1144,7 +1144,7 @@ int IDAGetEstLocalErrors(void *ida_mem, N_Vector ele)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetWorkSpace(void *ida_mem, sunindextype *lenrw, sunindextype *leniw)
+int IDAGetWorkSpace(void *ida_mem, long int *lenrw, long int *leniw)
 {
   IDAMem IDA_mem;
 
