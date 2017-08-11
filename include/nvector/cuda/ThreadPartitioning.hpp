@@ -28,190 +28,151 @@
 namespace suncudavec
 {
 
-/// Finds next power of two larger than value
-template<class T>
-T nextPow2(T value)
-{
-    //std::cout << "Integer size is " << sizeof(T) << " bytes.\n"; 
-    --value;
-    for(size_t i = 1; i < sizeof(T) * CHAR_BIT; i*=2)
-        value |= value >> i;
-    return ++value;
-}
-
- 
-template<class T, class I=int>
-class ThreadPartitioning
+template<class T, class I>
+class StreamPartitioning
 {
 public:
-    enum KernelTypeEnumeration {STREAM=0, REDUCTION};
+  StreamPartitioning(I N, unsigned block)
+  : block_(block),
+    grid_((N + block - 1) / block)
+  {
+  }
 
-    /// Constructor
-    ThreadPartitioning(KernelTypeEnumeration t, I N) 
-    : grid_(1,1,1), 
-      block_(1,1,1), 
-      shMemSize_(0), 
-      maxThreads_(256), 
-      d_buffer_(NULL), 
-      h_buffer_(NULL),
-      bufferSize_(0),
-      kernelType_(t)
-    {
-        setPartitioning(N);
-    }
-    
-    /// Copy constructor
-    explicit ThreadPartitioning(ThreadPartitioning<T,I>& p) 
-    : grid_(p.grid_), 
-      block_(p.block_), 
-      shMemSize_(p.shMemSize_), 
-      maxThreads_(p.maxThreads_), 
-      d_buffer_(NULL), 
-      h_buffer_(NULL),
-      bufferSize_(0),
-      kernelType_(p.kernelType_)
-    {
-        allocateBuffer();
-    }
-    
+  explicit StreamPartitioning(StreamPartitioning<T, I>& p)
+  : block_(p.block_),
+    grid_(p.grid_)
+  {
+  }
 
+  I grid() const
+  {
+    return grid_;
+  }
 
-    ~ThreadPartitioning()
-    {    
-        cudaError_t err;
-        if (h_buffer_ != NULL) // this if statement is a bad idea, think of something better...
-            free(h_buffer_);
-        if (d_buffer_ != NULL)
-        {
-            err = cudaFree(d_buffer_);
-            if(err != cudaSuccess)
-                std::cout << "Failed to free device vector (error code " << err << ")!\n";
-        }
-    }
+  unsigned block() const
+  {
+    return block_;
+  }
 
-    const dim3& getGrid() const
-    {
-        return grid_;
-    }
-    
-    const dim3& getBlock() const
-    {
-        return block_;
-    }
-    
-    unsigned int getShMemSize()
-    {
-        return shMemSize_;
-    }
-        
-    T* devBuffer()
-    {
-        return d_buffer_;   
-    }
-    
-    const T* devBuffer() const
-    {
-        return d_buffer_;   
-    }
-    
-    T* hostBuffer()
-    {
-        return h_buffer_;   
-    }
-    
-    const T* hostBuffer() const
-    {
-        return h_buffer_;   
-    }
-    
-    void copyFromDevBuffer(unsigned int n) const
-    {
-        cudaError_t err = cudaMemcpy(h_buffer_, d_buffer_, n*sizeof(T), cudaMemcpyDeviceToHost);
-        if(err != cudaSuccess)
-            std::cout << "Failed to copy vector from device to host (error code " << err << ")!\n";
-    }
-
-    int setPartitioning(I N)
-    {
-        switch (kernelType_)
-        {
-        case STREAM:
-            setPartitioningStream(N);
-            break;
-        case REDUCTION:
-            setPartitioningReduce(N);
-            break;
-        }
-        return 0;
-    }
-    
-    int setPartitioningStream(I N)
-    {
-       block_.x = maxThreads_;
-       grid_.x = (N + maxThreads_ - 1) / maxThreads_;
-       
-       return 0;
-    }
-    
-    int setPartitioningReduce(I N)
-    {
-        block_.x = (N < maxThreads_*2) ? nextPow2((N + 1)/ 2) : maxThreads_;
-        grid_.x  = (N + (block_.x * 2 - 1)) / (block_.x * 2);
-        
-        // when there is only one warp per block, we need to allocate two warps
-        // worth of shared memory so that we don't index shared memory out of bounds
-        shMemSize_ = (block_.x <= 32) ? 2 * block_.x * sizeof(T) : block_.x * sizeof(T);
-        
-        // allocate reduction buffer
-        allocateBuffer();
-        return 0;
-    }
-    
-    int setPartitioningReduce(I N, unsigned int& grid, unsigned int& block, unsigned int& shMemSize)
-    {
-        block = (N < maxThreads_*2) ? nextPow2((N + 1)/ 2) : maxThreads_;
-        grid  = (N + (block * 2 - 1)) / (block * 2);
-        
-        // when there is only one warp per block, we need to allocate two warps
-        // worth of shared memory so that we don't index shared memory out of bounds
-        shMemSize = (block <= 32) ? 2 * block * sizeof(T) : block * sizeof(T);
-
-        return 0;
-    }
-    
-    int allocateBuffer()
-    {
-        // Streaming kernel does not need a buffer
-        if (kernelType_ == STREAM)
-            return 0;
-        
-        bufferSize_ = grid_.x * sizeof(T);
-        h_buffer_ = static_cast<T*>(malloc(bufferSize_));
-        if(h_buffer_ == NULL)
-            std::cout << "Failed to allocate host vector!\n";
-
-        cudaError_t err;
-        err = cudaMalloc((void**) &d_buffer_, bufferSize_); 
-        if(err != cudaSuccess)
-            std::cout << "Failed to allocate device vector (error code " << err << ")!\n";
-        
-        return 0;
-    }
-    
-    unsigned int buffSize()
-    {
-        return bufferSize_;
-    }
-   
 private:
-    dim3 grid_;
-    dim3 block_;
-    unsigned int shMemSize_;  ///< Shared memory size
-    unsigned int maxThreads_; ///< Number of threads per block
-    T* d_buffer_;
-    T* h_buffer_;
-    unsigned int bufferSize_;
-    KernelTypeEnumeration kernelType_;
+  unsigned block_;
+  I grid_;
+};
+
+
+template<class T, class I=int>
+class ReducePartitioning
+{
+public:
+  ReducePartitioning(I N, unsigned block)
+  : block_(block),
+    grid_((N + (block_ * 2 - 1)) / (block_ * 2)),
+    shMemSize_(block_*sizeof(T))
+  {
+    allocateBuffer();
+  }
+
+  explicit ReducePartitioning(StreamPartitioning<T, I>& p)
+  : block_(p.block_),
+    grid_(p.grid_),
+    shMemSize_(p.shMemSize_)
+  {
+    allocateBuffer();
+  }
+
+  ~ReducePartitioning()
+  {
+    cudaError_t err;
+    if (bufferSize_ > 0)
+      free(h_buffer_);
+    if (bufferSize_ > 0)
+    {
+      err = cudaFree(d_buffer_);
+      if(err != cudaSuccess)
+        std::cout << "Failed to free device vector (error code " << err << ")!\n";
+    }
+  }
+
+  int setPartitioning(I N, I& grid, unsigned& block, unsigned& shMemSize)
+  {
+    block = block_;
+    grid  = (N + (block * 2 - 1)) / (block * 2);
+    shMemSize = block * sizeof(T);
+
+    return 0;
+  }
+
+  I grid() const
+  {
+    return grid_;
+  }
+
+  unsigned block() const
+  {
+    return block_;
+  }
+
+  unsigned shmem() const
+  {
+    return shMemSize_;
+  }
+
+  unsigned int buffSize()
+  {
+    return bufferSize_;
+  }
+
+  T* devBuffer()
+  {
+    return d_buffer_;
+  }
+
+  const T* devBuffer() const
+  {
+    return d_buffer_;
+  }
+
+  T* hostBuffer()
+  {
+    return h_buffer_;
+  }
+
+  const T* hostBuffer() const
+  {
+    return h_buffer_;
+  }
+
+  void copyFromDevBuffer(unsigned int n) const
+  {
+    cudaError_t err = cudaMemcpy(h_buffer_, d_buffer_, n*sizeof(T), cudaMemcpyDeviceToHost);
+    if(err != cudaSuccess)
+      std::cout << "Failed to copy vector from device to host (error code " << err << ")!\n";
+  }
+
+private:
+  int allocateBuffer()
+  {
+    bufferSize_ = grid_ * sizeof(T);
+    h_buffer_ = static_cast<T*>(malloc(bufferSize_));
+    if(h_buffer_ == NULL)
+      std::cout << "Failed to allocate host vector!\n";
+
+    cudaError_t err;
+    err = cudaMalloc((void**) &d_buffer_, bufferSize_);
+    if(err != cudaSuccess)
+      std::cout << "Failed to allocate device vector (error code " << err << ")!\n";
+
+    return 0;
+  }
+
+private:
+  unsigned block_;
+  I grid_;
+  unsigned shMemSize_;
+  T* d_buffer_;
+  T* h_buffer_;
+  I bufferSize_;
+
 };
 
 

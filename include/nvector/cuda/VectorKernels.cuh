@@ -39,7 +39,10 @@ namespace suncudavec
     class Vector;
 
     template <typename T, typename I>
-    class ThreadPartitioning;
+    class ReducePartitioning;
+
+    template <typename T, typename I>
+    class StreamPartitioning;
 }
 
 //#define abs(x) ((x)<0 ? -(x) : (x))
@@ -688,9 +691,9 @@ template <typename T, typename I>
 inline cudaError_t setConst(T a, Vector<T,I>& X)
 {
     // Set partitioning
-    ThreadPartitioning<T, I>* p = X.partStream();
-    const dim3& grid       = p->getGrid();
-    const dim3& block      = p->getBlock();
+    StreamPartitioning<T, I>* p = X.partStream();
+    const I grid       = p->grid();
+    const unsigned block      = p->block();
 
     math_kernels::setConstKernel<<<grid, block>>>(a, X.device(), X.size());
     return cudaGetLastError();    
@@ -700,9 +703,9 @@ template <typename T, typename I>
 inline cudaError_t linearSum(T a, const Vector<T,I>& X, T b, const Vector<T,I>& Y, Vector<T,I>& Z)
 {
     // Set partitioning
-    ThreadPartitioning<T, I>* p = X.partStream();
-    const dim3& grid       = p->getGrid();
-    const dim3& block      = p->getBlock();
+    StreamPartitioning<T, I>* p = X.partStream();
+    const I grid       = p->grid();
+    const unsigned block      = p->block();
 
     math_kernels::linearSumKernel<<<grid, block>>>(a, X.device(), b, Y.device(), Z.device(), X.size());
     return cudaGetLastError();    
@@ -712,9 +715,9 @@ template <typename T, typename I>
 inline cudaError_t axpy(T a, const Vector<T,I>& X, Vector<T,I>& Y)
 {
     // Set partitioning
-    ThreadPartitioning<T, I>* p = X.partStream();
-    const dim3& grid       = p->getGrid();
-    const dim3& block      = p->getBlock();
+    StreamPartitioning<T, I>* p = X.partStream();
+    const I grid       = p->grid();
+    const unsigned block      = p->block();
 
     math_kernels::axpyKernel<<<grid, block>>>(a, X.device(), Y.device(), X.size());
     return cudaGetLastError();    
@@ -724,9 +727,9 @@ template <typename T, typename I>
 inline cudaError_t prod(const Vector<T,I>& X, const Vector<T,I>& Y, Vector<T,I>& Z)
 {
     // Set partitioning
-    ThreadPartitioning<T, I>* p = X.partStream();
-    const dim3& grid       = p->getGrid();
-    const dim3& block      = p->getBlock();
+    StreamPartitioning<T, I>* p = X.partStream();
+    const I grid       = p->grid();
+    const unsigned block      = p->block();
 
     math_kernels::prodKernel<<<grid, block>>>(X.device(), Y.device(), Z.device(), X.size());
     return cudaGetLastError();    
@@ -736,9 +739,9 @@ template <typename T, typename I>
 inline cudaError_t div(const Vector<T,I>& X, const Vector<T,I>& Y, Vector<T,I>& Z)
 {
     // Set partitioning
-    ThreadPartitioning<T, I>* p = X.partStream();
-    const dim3& grid       = p->getGrid();
-    const dim3& block      = p->getBlock();
+    StreamPartitioning<T, I>* p = X.partStream();
+    const I grid       = p->grid();
+    const unsigned block      = p->block();
 
     math_kernels::divKernel<<<grid, block>>>(X.device(), Y.device(), Z.device(), X.size());
     return cudaGetLastError();    
@@ -748,9 +751,9 @@ template <typename T, typename I>
 inline cudaError_t scale(T const a, const Vector<T,I>& X, Vector<T,I>& Z)
 {
     // Set partitioning
-    ThreadPartitioning<T, I>* p = X.partStream();
-    const dim3& grid       = p->getGrid();
-    const dim3& block      = p->getBlock();
+    StreamPartitioning<T, I>* p = X.partStream();
+    const I grid       = p->grid();
+    const unsigned block      = p->block();
 
     math_kernels::scaleKernel<<<grid, block>>>(a, X.device(), Z.device(), X.size());
     return cudaGetLastError();    
@@ -760,9 +763,9 @@ template <typename T, typename I>
 inline cudaError_t absVal(const Vector<T,I>& X, Vector<T,I>& Z)
 {
     // Set partitioning
-    ThreadPartitioning<T, I>* p = X.partStream();
-    const dim3& grid       = p->getGrid();
-    const dim3& block      = p->getBlock();
+    StreamPartitioning<T, I>* p = X.partStream();
+    const I grid       = p->grid();
+    const unsigned block      = p->block();
 
     math_kernels::absKernel<<<grid, block>>>(X.device(), Z.device(), X.size());
     return cudaGetLastError();    
@@ -772,9 +775,9 @@ template <typename T, typename I>
 inline cudaError_t inv(const Vector<T,I>& X, Vector<T,I>& Z)
 {
     // Set partitioning
-    ThreadPartitioning<T, I>* p = X.partStream();
-    const dim3& grid       = p->getGrid();
-    const dim3& block      = p->getBlock();
+    StreamPartitioning<T, I>* p = X.partStream();
+    const I grid       = p->grid();
+    const unsigned block      = p->block();
 
     math_kernels::invKernel<<<grid, block>>>(X.device(), Z.device(), X.size());
     return cudaGetLastError();    
@@ -784,9 +787,9 @@ template <typename T, typename I>
 inline cudaError_t addConst(T const a, const Vector<T,I>& X, Vector<T,I>& Z)
 {
     // Set partitioning
-    ThreadPartitioning<T, I>* p = X.partStream();
-    const dim3& grid       = p->getGrid();
-    const dim3& block      = p->getBlock();
+    StreamPartitioning<T, I>* p = X.partStream();
+    const I grid       = p->grid();
+    const unsigned block      = p->block();
 
     math_kernels::addConstKernel<<<grid, block>>>(a, X.device(), Z.device(), X.size());
     return cudaGetLastError();    
@@ -797,9 +800,9 @@ template <typename T, typename I>
 inline cudaError_t compare(T const c, const Vector<T,I>& X, Vector<T,I>& Z)
 {
     // Set partitioning
-    ThreadPartitioning<T, I>* p = X.partStream();
-    const dim3& grid       = p->getGrid();
-    const dim3& block      = p->getBlock();
+    StreamPartitioning<T, I>* p = X.partStream();
+    const I grid       = p->grid();
+    const unsigned block      = p->block();
 
     math_kernels::compareKernel<<<grid, block>>>(c, X.device(), Z.device(), X.size());
     return cudaGetLastError();
@@ -813,21 +816,21 @@ inline T dotProd(const Vector<T,I>& x, const Vector<T,I>& y)
     T gpu_result = 0;
     
     // Set partitioning
-    ThreadPartitioning<T, I>* p = x.partReduce();
-    const dim3& grid       = p->getGrid();
-    const dim3& block      = p->getBlock();
-    unsigned int shMemSize = p->getShMemSize();
+    ReducePartitioning<T, I>* p = x.partReduce();
+    I grid       = p->grid();
+    unsigned block      = p->block();
+    unsigned shMemSize = p->shmem();
     
     math_kernels::dotProdKernel<T,I><<< grid, block, shMemSize >>>(x.device(), y.device(), p->devBuffer(), x.size());
     
-    unsigned int n = grid.x * grid.y * grid.z;
+    unsigned n = grid;
     while (n>2048)
     {
         // Recompute partitioning
-        unsigned int grid2;
-        unsigned int block2;
-        unsigned int shMemSize2;
-        p->setPartitioningReduce(n, grid2, block2, shMemSize2);
+        sunindextype grid2;
+        unsigned block2;
+        unsigned shMemSize2;
+        p->setPartitioning(n, grid2, block2, shMemSize2);
         
         // Rerun reduction kernel
         math_kernels::sumReduceKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
@@ -852,21 +855,21 @@ inline T maxNorm(const Vector<T,I>& x)
     T gpu_result = 0;
     
     // Set partitioning
-    ThreadPartitioning<T, I>* p = x.partReduce();
-    const dim3& grid       = p->getGrid();
-    const dim3& block      = p->getBlock();
-    unsigned int shMemSize = p->getShMemSize();
+    ReducePartitioning<T, I>* p = x.partReduce();
+    I grid       = p->grid();
+    unsigned block      = p->block();
+    unsigned shMemSize = p->shmem();
     
     math_kernels::maxNormKernel<T,I><<< grid, block, shMemSize >>>(x.device(), p->devBuffer(), x.size());
     
-    unsigned int n = grid.x * grid.y * grid.z;
+    unsigned n = grid;
     while (n>2048)
     {
         // Recompute partitioning
-        unsigned int grid2;
+      sunindextype grid2;
         unsigned int block2;
-        unsigned int shMemSize2;
-        p->setPartitioningReduce(n, grid2, block2, shMemSize2);
+        unsigned shMemSize2;
+        p->setPartitioning(n, grid2, block2, shMemSize2);
         
         // Rerun reduction kernel
         math_kernels::maxNormKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
@@ -893,21 +896,21 @@ inline T wrmsNorm(const Vector<T,I>& x, const Vector<T,I>& y)
     T gpu_result = 0;
     
     // Set partitioning
-    ThreadPartitioning<T, I>* p = x.partReduce();
-    const dim3& grid       = p->getGrid();
-    const dim3& block      = p->getBlock();
-    unsigned int shMemSize = p->getShMemSize();
+    ReducePartitioning<T, I>* p = x.partReduce();
+    I grid       = p->grid();
+    unsigned block      = p->block();
+    unsigned shMemSize = p->shmem();
     
     math_kernels::wrmsNormKernel<T,I><<< grid, block, shMemSize >>>(x.device(), y.device(), p->devBuffer(), x.size());
     
-    unsigned int n = grid.x * grid.y * grid.z;
+    unsigned n = grid;
     while (n>2048)
     {
         // Recompute partitioning
-        unsigned int grid2;
+      sunindextype grid2;
         unsigned int block2;
-        unsigned int shMemSize2;
-        p->setPartitioningReduce(n, grid2, block2, shMemSize2);
+        unsigned shMemSize2;
+        p->setPartitioning(n, grid2, block2, shMemSize2);
         
         // Rerun reduction kernel
         math_kernels::sumReduceKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
@@ -932,21 +935,21 @@ inline T wrmsNormMask(const Vector<T,I>& x, const Vector<T,I>& y, const Vector<T
     T gpu_result = 0;
 
     // Set partitioning
-    ThreadPartitioning<T, I>* p = x.partReduce();
-    const dim3& grid       = p->getGrid();
-    const dim3& block      = p->getBlock();
-    unsigned int shMemSize = p->getShMemSize();
+    ReducePartitioning<T, I>* p = x.partReduce();
+    I grid       = p->grid();
+    unsigned block      = p->block();
+    unsigned shMemSize = p->shmem();
 
     math_kernels::wrmsNormMaskKernel<T,I><<< grid, block, shMemSize >>>(x.device(), y.device(), id.device(), p->devBuffer(), x.size());
 
-    unsigned int n = grid.x * grid.y * grid.z;
+    unsigned n = grid;
     while (n>2048)
     {
         // Recompute partitioning
-        unsigned int grid2;
+        sunindextype grid2;
         unsigned int block2;
-        unsigned int shMemSize2;
-        p->setPartitioningReduce(n, grid2, block2, shMemSize2);
+        unsigned shMemSize2;
+        p->setPartitioning(n, grid2, block2, shMemSize2);
 
         // Rerun reduction kernel
         math_kernels::sumReduceKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
@@ -972,21 +975,21 @@ inline T findMin(const Vector<T,I>& x)
     T maxVal = std::numeric_limits<T>::max();
 
     // Set partitioning
-    ThreadPartitioning<T, I>* p = x.partReduce();
-    const dim3& grid       = p->getGrid();
-    const dim3& block      = p->getBlock();
-    unsigned int shMemSize = p->getShMemSize();
+    ReducePartitioning<T, I>* p = x.partReduce();
+    I grid       = p->grid();
+    unsigned block      = p->block();
+    unsigned shMemSize = p->shmem();
 
     math_kernels::findMinKernel<T,I><<< grid, block, shMemSize >>>(maxVal, x.device(), p->devBuffer(), x.size());
 
-    unsigned int n = grid.x * grid.y * grid.z;
+    unsigned n = grid;
     while (n>2048)
     {
         // Recompute partitioning
-        unsigned int grid2;
+        sunindextype grid2;
         unsigned int block2;
-        unsigned int shMemSize2;
-        p->setPartitioningReduce(n, grid2, block2, shMemSize2);
+        unsigned shMemSize2;
+        p->setPartitioning(n, grid2, block2, shMemSize2);
 
         // Rerun reduction kernel
         math_kernels::findMinKernel<T,I><<< grid2, block2, shMemSize2 >>>(maxVal, p->devBuffer(), p->devBuffer(), n);
@@ -1014,21 +1017,21 @@ inline T wL2Norm(const Vector<T,I>& x, const Vector<T,I>& y)
     T gpu_result = 0;
 
     // Set partitioning
-    ThreadPartitioning<T, I>* p = x.partReduce();
-    const dim3& grid       = p->getGrid();
-    const dim3& block      = p->getBlock();
-    unsigned int shMemSize = p->getShMemSize();
+    ReducePartitioning<T, I>* p = x.partReduce();
+    I grid       = p->grid();
+    unsigned block      = p->block();
+    unsigned shMemSize = p->shmem();
 
     math_kernels::wrmsNormKernel<T,I><<< grid, block, shMemSize >>>(x.device(), y.device(), p->devBuffer(), x.size());
 
-    unsigned int n = grid.x * grid.y * grid.z;
+    unsigned n = grid;
     while (n>2048)
     {
         // Recompute partitioning
-        unsigned int grid2;
+        sunindextype grid2;
         unsigned int block2;
-        unsigned int shMemSize2;
-        p->setPartitioningReduce(n, grid2, block2, shMemSize2);
+        unsigned shMemSize2;
+        p->setPartitioning(n, grid2, block2, shMemSize2);
 
         // Rerun reduction kernel
         math_kernels::sumReduceKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
@@ -1054,21 +1057,21 @@ inline T L1Norm(const Vector<T,I>& x)
     T gpu_result = 0;
 
     // Set partitioning
-    ThreadPartitioning<T, I>* p = x.partReduce();
-    const dim3& grid       = p->getGrid();
-    const dim3& block      = p->getBlock();
-    unsigned int shMemSize = p->getShMemSize();
+    ReducePartitioning<T, I>* p = x.partReduce();
+    I grid       = p->grid();
+    unsigned block      = p->block();
+    unsigned shMemSize = p->shmem();
 
     math_kernels::L1NormKernel<T,I><<< grid, block, shMemSize >>>(x.device(), p->devBuffer(), x.size());
 
-    unsigned int n = grid.x * grid.y * grid.z;
+    unsigned n = grid;
     while (n>2048)
     {
         // Recompute partitioning
-        unsigned int grid2;
+        sunindextype grid2;
         unsigned int block2;
-        unsigned int shMemSize2;
-        p->setPartitioningReduce(n, grid2, block2, shMemSize2);
+        unsigned shMemSize2;
+        p->setPartitioning(n, grid2, block2, shMemSize2);
 
         // Rerun reduction kernel
         math_kernels::sumReduceKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
@@ -1094,21 +1097,21 @@ inline bool invTest(const Vector<T,I>& x, Vector<T,I>& z)
     T gpu_result = 0;
 
     // Set partitioning
-    ThreadPartitioning<T, I>* p = x.partReduce();
-    const dim3& grid       = p->getGrid();
-    const dim3& block      = p->getBlock();
-    unsigned int shMemSize = p->getShMemSize();
+    ReducePartitioning<T, I>* p = x.partReduce();
+    I grid       = p->grid();
+    unsigned block      = p->block();
+    unsigned shMemSize = p->shmem();
 
     math_kernels::invTestKernel<T,I><<< grid, block, shMemSize >>>(x.device(), z.device(), p->devBuffer(), x.size());
 
-    unsigned int n = grid.x * grid.y * grid.z;
+    unsigned n = grid;
     while (n>2048)
     {
         // Recompute partitioning
-        unsigned int grid2;
+        sunindextype grid2;
         unsigned int block2;
-        unsigned int shMemSize2;
-        p->setPartitioningReduce(n, grid2, block2, shMemSize2);
+        unsigned shMemSize2;
+        p->setPartitioning(n, grid2, block2, shMemSize2);
 
         // Rerun reduction kernel
         math_kernels::sumReduceKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
@@ -1134,21 +1137,21 @@ inline bool constrMask(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>& 
     T gpu_result = 0.0;
 
     // Set partitioning
-    ThreadPartitioning<T, I>* p = x.partReduce();
-    const dim3& grid       = p->getGrid();
-    const dim3& block      = p->getBlock();
-    unsigned int shMemSize = p->getShMemSize();
+    ReducePartitioning<T, I>* p = x.partReduce();
+    I grid       = p->grid();
+    unsigned block      = p->block();
+    unsigned shMemSize = p->shmem();
 
     math_kernels::constrMaskKernel<T,I><<< grid, block, shMemSize >>>(c.device(), x.device(), m.device(), p->devBuffer(), x.size());
 
-    unsigned int n = grid.x * grid.y * grid.z;
+    unsigned n = grid;
     while (n>2048)
     {
         // Recompute partitioning
-        unsigned int grid2;
+        sunindextype grid2;
         unsigned int block2;
-        unsigned int shMemSize2;
-        p->setPartitioningReduce(n, grid2, block2, shMemSize2);
+        unsigned shMemSize2;
+        p->setPartitioning(n, grid2, block2, shMemSize2);
 
         // Rerun reduction kernel
         math_kernels::sumReduceKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
@@ -1175,21 +1178,21 @@ inline T minQuotient(const Vector<T,I>& num, const Vector<T,I>& den)
     T maxVal = std::numeric_limits<T>::max();
 
     // Set partitioning
-    ThreadPartitioning<T, I>* p = num.partReduce();
-    const dim3& grid       = p->getGrid();
-    const dim3& block      = p->getBlock();
-    unsigned int shMemSize = p->getShMemSize();
+    ReducePartitioning<T, I>* p = num.partReduce();
+    I grid       = p->grid();
+    unsigned block      = p->block();
+    unsigned shMemSize = p->shmem();
 
     math_kernels::minQuotientKernel<T,I><<< grid, block, shMemSize >>>(maxVal, num.device(), den.device(), p->devBuffer(), num.size());
 
-    unsigned int n = grid.x * grid.y * grid.z;
+    unsigned n = grid;
     while (n>2048)
     {
         // Recompute partitioning
-        unsigned int grid2;
+        sunindextype grid2;
         unsigned int block2;
-        unsigned int shMemSize2;
-        p->setPartitioningReduce(n, grid2, block2, shMemSize2);
+        unsigned shMemSize2;
+        p->setPartitioning(n, grid2, block2, shMemSize2);
 
         // Rerun reduction kernel
         math_kernels::findMinKernel<T,I><<< grid2, block2, shMemSize2 >>>(maxVal, p->devBuffer(), p->devBuffer(), n);

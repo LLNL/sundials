@@ -49,8 +49,8 @@ public:
       ownDevData_(true)
     {
         // Set partitioning
-        partStream_ = new ThreadPartitioning<T, I>(ThreadPartitioning<T,I>::STREAM, N);
-        partReduce_ = new ThreadPartitioning<T, I>(ThreadPartitioning<T,I>::REDUCTION, N);
+        partStream_ = new StreamPartitioning<T, I>(N, 256);
+        partReduce_ = new ReducePartitioning<T, I>(N, 256);
 
         allocate();
     }
@@ -66,8 +66,8 @@ public:
       ownDevData_(false)
     {
         // Set partitioning
-        partStream_ = new ThreadPartitioning<T, I>(ThreadPartitioning<T,I>::STREAM, N);
-        partReduce_ = new ThreadPartitioning<T, I>(ThreadPartitioning<T,I>::REDUCTION, N);
+        partStream_ = new StreamPartitioning<T, I>(N, 256);
+        partReduce_ = new ReducePartitioning<T, I>(N, 256);
 
         if (data == NULL)
         {
@@ -214,22 +214,22 @@ public:
       // Do not copy to host
     }
 
-    ThreadPartitioning<T, I>* partStream()
+    StreamPartitioning<T, I>* partStream()
     {
         return partStream_;
     }
 
-    ThreadPartitioning<T, I>* partStream() const
+    StreamPartitioning<T, I>* partStream() const
     {
         return partStream_;
     }
 
-    ThreadPartitioning<T, I>* partReduce()
+    ReducePartitioning<T, I>* partReduce()
     {
         return partReduce_;
     }
 
-    ThreadPartitioning<T, I>* partReduce() const
+    ReducePartitioning<T, I>* partReduce() const
     {
         return partReduce_;
     }
@@ -239,8 +239,8 @@ private:
     I mem_size_;
     T* h_vec_;
     T* d_vec_;
-    ThreadPartitioning<T, I>* partStream_;
-    ThreadPartitioning<T, I>* partReduce_;
+    StreamPartitioning<T, I>* partStream_;
+    ReducePartitioning<T, I>* partReduce_;
     bool ownPartitioning_;
     bool isClone_;    ///< temporary, will be removed!
     bool ownHostData_;
