@@ -31,9 +31,9 @@
 
 typedef struct _UserData
 {
-  long int Nx;
-  long int Ny;
-  long int NEQ;
+  sunindextype Nx;
+  sunindextype Ny;
+  sunindextype NEQ;
 
   int block;
   int grid;
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
   if(check_flag(&flag, "CVSpilsSetJacTimesVecFn", 1)) return(1);
 
 
-  printf("Solving diffusion-advection-reaction problem with %d unknowns...\n", data->NEQ);
+  printf("Solving diffusion-advection-reaction problem with %ld unknowns...\n", data->NEQ);
 
   double start_time, stop_time;
   start_time = get_time();
@@ -162,13 +162,13 @@ int main(int argc, char *argv[])
 
 N_Vector SetIC(UserData data)
 {
-  const long int Nx = data->Nx;
+  const sunindextype Nx = data->Nx;
   const realtype hx = data->hx;
   const realtype hy = data->hy;
 
   N_Vector y     = N_VNew_Cuda(data->NEQ);
   realtype *ydat = N_VGetHostArrayPointer_Cuda(y);
-  long int i, j, index;
+  sunindextype i, j, index;
 
   for (index = 0; index < data->NEQ; ++index)
   {
@@ -186,8 +186,8 @@ N_Vector SetIC(UserData data)
 
 UserData SetUserData(int argc, char *argv[])
 {
-  long int dimX = 70; /* Default grid size */
-  long int dimY = 80;
+  sunindextype dimX = 70; /* Default grid size */
+  sunindextype dimY = 80;
   const realtype diffusionConst =  0.01;
   const realtype advectionConst = -10.0;
   const realtype reactionConst  = 100.0;
@@ -231,10 +231,10 @@ UserData SetUserData(int argc, char *argv[])
 }
 
 
-__global__ void phiKernel(const realtype *u, realtype *result, long int NEQ, long int Nx, long int Ny,
+__global__ void phiKernel(const realtype *u, realtype *result, sunindextype NEQ, sunindextype Nx, sunindextype Ny,
                           realtype hordc, realtype verdc, realtype horac, realtype verac)
 {
-  unsigned long int i, j, index;
+  sunindextype i, j, index;
 
   /* Loop over all grid points. */
   index = blockDim.x * blockIdx.x + threadIdx.x;
@@ -273,12 +273,12 @@ __global__ void phiKernel(const realtype *u, realtype *result, long int NEQ, lon
 }
 
 
-__global__ void rhsKernel(const realtype* u, realtype* udot, long int N, realtype reacc)
+__global__ void rhsKernel(const realtype* u, realtype* udot, sunindextype N, realtype reacc)
 {
   const realtype a = -1.0 / 2.0;
 
   /* Loop over all grid points. */
-  long int tid = blockDim.x * blockIdx.x + threadIdx.x;
+  sunindextype tid = blockDim.x * blockIdx.x + threadIdx.x;
 
   if(tid < N)
   {
@@ -303,12 +303,12 @@ int RHS(realtype t, N_Vector u, N_Vector udot, void *user_data)
   return 0;
 }
 
-__global__ void jtvKernel(const realtype* v, realtype* Jv, const realtype* u, long int N, realtype reacc)
+__global__ void jtvKernel(const realtype* v, realtype* Jv, const realtype* u, sunindextype N, realtype reacc)
 {
   const realtype a = -1.0 / 2.0;
 
   /* Loop over all grid points. */
-  long int tid = blockDim.x * blockIdx.x + threadIdx.x;
+  sunindextype tid = blockDim.x * blockIdx.x + threadIdx.x;
 
   if(tid < N)
   {
@@ -367,8 +367,8 @@ static void PrintOutput(void *cvode_mem, N_Vector u, realtype t)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int lenrw, leniw ;
-  long int lenrwLS, leniwLS;
+  sunindextype lenrw, leniw ;
+  sunindextype lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
   int flag;

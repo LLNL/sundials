@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
   if(check_flag(&flag, "CVSpilsSetJacTimesVecFn", 1)) return(1);
 
 
-  printf("Solving diffusion-advection-reaction problem with %d unknowns...\n", data->NEQ);
+  printf("Solving diffusion-advection-reaction problem with %ld unknowns...\n", data->NEQ);
 
   double start_time, stop_time;
   start_time = get_time();

@@ -103,7 +103,7 @@ typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNew_Cuda(long int vec_length);
+SUNDIALS_EXPORT N_Vector N_VNew_Cuda(sunindextype vec_length);
 
 /*
  * -----------------------------------------------------------------
@@ -114,7 +114,7 @@ SUNDIALS_EXPORT N_Vector N_VNew_Cuda(long int vec_length);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNewEmpty_Cuda(long int vec_length);
+SUNDIALS_EXPORT N_Vector N_VNewEmpty_Cuda(sunindextype vec_length);
 
 /*
  * -----------------------------------------------------------------
@@ -168,7 +168,7 @@ SUNDIALS_EXPORT void N_VDestroyVectorArray_Cuda(N_Vector *vs, int count);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT long int N_VGetLength_Cuda(N_Vector v);
+SUNDIALS_EXPORT sunindextype N_VGetLength_Cuda(N_Vector v);
 
 /*
  * -----------------------------------------------------------------
@@ -229,7 +229,7 @@ SUNDIALS_EXPORT void N_VPrint_Cuda(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Cuda(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Cuda(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Cuda(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_Cuda(N_Vector v, long int *lrw, long int *liw);
+SUNDIALS_EXPORT void N_VSpace_Cuda(N_Vector v, sunindextype *lrw, sunindextype *liw);
 // SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Cuda(N_Vector v);
 // SUNDIALS_EXPORT void N_VSetArrayPointer_Cuda(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum_Cuda(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);

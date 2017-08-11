@@ -67,7 +67,7 @@
 #define FIVE RCONST(5.0)
 
 
-__global__ void residualKernel(const double *u, double *udot, long int n, double hordc, double horac, double verdc)
+__global__ void residualKernel(const double *u, double *udot, sunindextype n, double hordc, double horac, double verdc)
 {
   realtype uij, udn, uup, ult, urt, hdiff, hadv, vdiff;
   int i, j, tid;
@@ -95,7 +95,7 @@ __global__ void residualKernel(const double *u, double *udot, long int n, double
 
 }
 
-__global__ void jtvKernel(const double *vdata, double *Jvdata, long int n, double hordc, double horac, double verdc)
+__global__ void jtvKernel(const double *vdata, double *Jvdata, sunindextype n, double hordc, double horac, double verdc)
 {
   int i, j, tid;
 
@@ -306,7 +306,7 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
 static void SetIC(N_Vector u, UserData data)
 {
-  long int i, j, tid;
+  sunindextype i, j, tid;
   realtype x, y, dx, dy;
   realtype *udata = N_VGetHostArrayPointer_Cuda(u);
 
@@ -371,8 +371,8 @@ static void PrintOutput(realtype t, realtype umax, long int nst)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int lenrw, leniw ;
-  long int lenrwLS, leniwLS;
+  sunindextype lenrw, leniw ;
+  sunindextype lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
   int flag;
