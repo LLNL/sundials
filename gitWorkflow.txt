@@ -3,7 +3,7 @@
 
 
 This file describes a typical workflow for SUNDIALS development
-following Gitflow workflow, see: 
+following Gitflow workflow, see:
 https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
 
 * For details on setting up Git and helpful commands for working with
@@ -78,22 +78,22 @@ Example workflow:
 
     Commit changes locally with either of the following depending on
     the detail needed in the commit message:
-    
+
     a) For short commit messages:
        > git commit -m "Short Description of the Commit"
 
     --- OR ---
-    
-    b) For longer commit messages: 
+
+    b) For longer commit messages:
        > git commit
 
        This opens the deault system editor or the editor set in
        .gitconfig, see gitCheatSheet.txt for more information.
 
        The desired format is a short descriptive title for the commit,
-       a blank line, and a detailed commit message. For example, for a
-       commit turning on new regression tests:
-       
+       a blank line, and a detailed commit message. For a commit
+       turning on new regression tests, a commit message could be:
+
            Turning on regression tests with 32bit integers
 
            Turning on test with sunindextype = 32bit_t. The following
@@ -122,7 +122,7 @@ Example workflow:
 
        [ NOTE: You may use the '--rebase' option git 'git pull' to
          replay your local commits on top of the remote changes rather
-         than merging them to keep a cleaner commit history. ]      
+         than merging them to keep a cleaner commit history. ]
 
     b) To make your locally committed changes available on the remote
        copy of the branch:
@@ -167,7 +167,7 @@ Example workflow:
            local branch:
            > git commit
 
-       c4) Push the merge commit to the remote copy of the branch: 
+       c4) Push the merge commit to the remote copy of the branch:
            > git push origin <branchname>
 
  6. Creating a pull request:
@@ -176,7 +176,7 @@ Example workflow:
     PARENT branch follow the intructions in step 5 to pull in any
     changes on the remote PARENT branch before creating a pull
     request.
-    
+
     a) Browse to https://mystash.llnl.gov/projects/SUNDIALS/repos/sunrepo
     b) Click on the branch icon on the left side of screen - you'll
        see a list of all available branches

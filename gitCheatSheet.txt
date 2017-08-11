@@ -4,14 +4,14 @@
 
 This file contains detials on setting up Git and helpful commands for
 working with Git. For information on the Git workflow for SUNDIALS see
-the gitWorkflow.txt file. 
+the gitWorkflow.txt file.
 ____________________________
 
 SSH Keys (optional)
 
-One-time setup of ssh keys (to avoid needing password with each
-repo transaction).
- 
+One-time setup of ssh keys to avoid needing password with each
+repo transaction.
+
 [Taken from: https://myconfluence.llnl.gov/pages/viewpage.action?pageId=99844309]
 
 1. Create your ssh key using the ssh-keygen utility:
@@ -31,21 +31,25 @@ repo transaction).
 
    a) Login to http://mystash.llnl.gov
    b) Click on the profile drop down in the far top right of the
-      window and select "Manage Account"  
+      window and select "Manage Account"
    c) Click on the "SSH keys" link on the left of the screen and then
       "Add key".
    d) Paste your key into the text box. The text of the key is the
-      contents of the file "~/.ssh/id_rsa.pub"
+      contents of the file ~/.ssh/id_rsa.pub
 ____________________________
 
 Git Configuration
+
+Global Git configuration information is stored in ~/.gitconfig and can be
+altered by editing the file manually or with 'git config' commands. More
+information is available at
 
 1. Tell git who you are:
    > git config --global user.email "yourname@example.com"
    > git config --global user.name "Your Name"
 
 2. Recomended: Make your current branch the default branch for 'push'
-   (i.e. don't default push changes to all branches) 
+   (i.e. don't default push changes to all branches)
    > git config --global push.default current
 ____________________________
 
@@ -56,7 +60,7 @@ default. You cannot work directly on the 'master' or 'develop'
 branches as you are not allowed to push to these branches. You must
 branch from 'master' or 'develop' and create a pull request to have
 changes merged into the parent branch. See the gitWorkflow.txt file
-for more information. 
+for more information.
 
 A. Clone the repository with SSH Keys:
    > git clone ssh://git@mybitbucket.llnl.gov:7999/sundials/sunrepo.git
@@ -67,22 +71,173 @@ B. Clone the repository with your OUN and AD password:
    > git clone ssh://YourOUN@mybitbucket.llnl.gov/scm/sundials/sunrepo.git
 ____________________________
 
-Helpful Commands
+Helpful Git Commands
 
-1. List all local branches (* denotes the current branch)
-   > git branch
+Command Help
 
-2. Push branch to remote repository:
-   > git push origin <branchname>
+  Common Git commands used in various situations
+  > git --help
 
-3. List files you've changed and still need to add or commit:
-   > git status
+  Print full man page for a Git command
+  > git <git-command> --help
 
-4. Merge different branch to your 'active' branch:
-   > git merge <branchname>
+  Print description of available options for a Git command
+  > git <git-command> -h
 
-5. See differences unstaged and the last commit:
-   > git diff <filename>
+Graphical Tools (availability depends on Git install)
 
-6. Abandon local changes to a file and get previously committed version
-   > git checkout -- <filename>
+  Visualize history of repo
+  > gitk
+
+  Graphical interface to Git
+  > git gui
+
+Branch
+
+  List all local branches (* denotes the current branch)
+  > git branch
+
+  List all local branches with additional information
+  > git branch -vv
+
+  List all remote branches
+  > git branch -r
+
+  Create a new branch from an existing reference point (e.g. branch, commit
+  hash, etc.)
+  > git branch <new-branch-name> <reference>
+
+  Create a new branch from an existing reference point (e.g. branch, commit
+  hash, etc.) and immediately checkout the new branch
+  > git checkout -b <new-branch-name> <reference>
+
+Add
+
+  Stage local changes to a file for a commit
+  git add <filename>
+
+  Stage changes from a file in chunks
+  git add -p <filename>
+
+  Abandon local changes to a file and get previously committed version
+  > git checkout -- <filename>
+
+Commit
+
+  Commit staged files (opens editor for commit message)
+  > git commit
+
+  The desired format is a short descriptive title for the commit, then blank
+  line, and a detailed commit message. For a commit turning on new regression
+  tests, a commit message could be:
+
+      Turning on regression tests with 32bit integers
+
+      Turning on test with sunindextype = 32bit_t. The following
+      tests fail:
+          *  16 - frak_roberts_dnsL
+          *  17 - ark_bruss
+          *  38 - fcvAdvDiff_bnd
+          *  41 - fcvRoberts_dns
+          *  42 - fcvRoberts_dnsL
+          * 100 - fidaRoberts_dns
+          * 101 - fidaRoberts_dns_openmp
+
+  Commit staged files with short message
+  > git commit -m "short commit message"
+
+  Amending the most recent commit assuming it has not been pushed
+  > git commit --amend
+
+Push / Pull
+
+  Push a branch to the remote repository and set the upstream branch (use on the
+  first push for a new branch)
+  > git push -u origin <branch-name>
+
+  Push a branch to the remote repository (use for pushes on existing branched or
+  subsequent pushes on a new branch)
+  > git push origin <branch-name>
+
+  Pull in changes from a remote branch to the current branch (performs a merge)
+  > git pull origin <branch-name>
+
+  Pull in changes from a remote branch to the current branch and use rebase
+  rather than merging
+  > git pull --rebase origin <branch-name>
+
+Merge
+
+  Merge a different local branch to your current branch
+  > git merge <branch-name>
+
+  Resolving merge conflicts with a visual diff/merge tool
+  > git mergetool
+
+  Find the newest common ancestor (fork point) of two reference points
+  (branches, commits, etc.)
+  > git merge-base <branch1> <branch2>
+
+Status / Diffs
+
+  Print information on current local repo status including unstaged (changed and
+   not added) files, staged (changed and added) files, untracked files, etc.
+  > git status
+
+  Show ALL differences between unstaged changes and the current HEAD
+  > git diff
+
+  Show the differences between unstaged changes and the current HEAD for a
+  specific file
+  > git diff <file-name>
+
+  Show differences between ALL staged files and current HEAD
+  > git diff --staged
+
+  List ALL files changed in current branch compared to different reference
+  point (branch, commit hash, etc.)
+  > git diff --name-only <reference>
+
+  Compare files between two branches
+  > git diff <branch1>..<branch2> -- <filename>
+
+  To view the differences going from the remote file to the local file
+  > git diff remotename/branchname:remote/path/file1.txt local/path/file1.txt
+
+  To view the differences going from the local file to the remote file
+  > git diff HEAD:local/path/file1.txt remotename/branchname:remote/path/file1.txt
+
+  To view the difference files at any two reference points (e.g. branches,
+  commit hashes, etc.)
+  > git diff ref1:path/to/file1 ref2:path/to/file2
+
+  [ NOTE: In the above commands 'diff' can be replaced with 'difftool' if a
+    visual diff tool has been setup with Git. ]
+
+Log
+
+  Show commit log
+  > git log
+
+  Show commit log with more change information
+  > git log --stat
+
+  Show all commits impacting a specific file
+  > git log <file-name>
+
+Stash
+
+  Save uncommitted changes in the stash
+  > git stash save <stash-message>
+
+  View saved changes in the stash
+  > git stash list
+
+  Apply changes from the stash
+  > git stash apply <stash-name>
+
+  Remove changes from the stash
+  > git stash drop <stash-name>
+
+  Show difference between current HEAD and stashed work
+  > git stash show -p <stash-name>
