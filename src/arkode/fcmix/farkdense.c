@@ -33,9 +33,9 @@
 extern "C" {
 #endif
 
-  extern void FARK_DJAC(long int *N, realtype *T, realtype *Y, 
+  extern void FARK_DJAC(sunindextype *N, realtype *T, realtype *Y, 
 			realtype *FY, realtype *DJAC, 
-			realtype *H, long int *IPAR, 
+			realtype *H, sunindextype *IPAR, 
 			realtype *RPAR, realtype *V1, 
 			realtype *V2, realtype *V3, int *ier);
 
@@ -61,7 +61,7 @@ void FARK_DENSESETJAC(int *flag, int *ier)
 
 /* C interface to user-supplied Fortran routine FARKDJAC; see 
    farkode.h for additional information  */
-int FARKDenseJac(long int N, realtype t, N_Vector y, N_Vector fy, 
+int FARKDenseJac(sunindextype N, realtype t, N_Vector y, N_Vector fy, 
                  DlsMat J, void *user_data, N_Vector vtemp1, 
                  N_Vector vtemp2, N_Vector vtemp3)
 {

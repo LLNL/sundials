@@ -117,7 +117,7 @@ static int IDADenseFreeB(IDABMem IDAB_mem);
  * -----------------------------------------------------------------
  */
 
-int IDADense(void *ida_mem, long int Neq)
+int IDADense(void *ida_mem, sunindextype Neq)
 {
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
@@ -180,7 +180,7 @@ int IDADense(void *ida_mem, long int Neq)
   }
 
   lpivots = NULL;
-  lpivots = NewLintArray(Neq);
+  lpivots = NewIndexArray(Neq);
   if (lpivots == NULL) {
     IDAProcessError(IDA_mem, IDADLS_MEM_FAIL, "IDASDENSE", "IDADense", MSGD_MEM_FAIL);
     DestroyMat(JJ);
@@ -240,7 +240,7 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
                          N_Vector tmp3)
 {
   int retval;
-  long int retfac;
+  sunindextype retfac;
   IDADlsMem idadls_mem;
   
   idadls_mem = (IDADlsMem) lmem;
@@ -266,7 +266,7 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   retfac = DenseGETRF(JJ, lpivots);
 
   if (retfac != 0) {
-    last_flag = retfac;
+    last_flag = (long int) retfac;
     return(+1);
   }
   last_flag = IDADLS_SUCCESS;
@@ -327,7 +327,7 @@ static int IDADenseFree(IDAMem IDA_mem)
  * IDADenseB is a wrapper around IDADense.
  */
 
-int IDADenseB(void *ida_mem, int which, long int NeqB)
+int IDADenseB(void *ida_mem, int which, sunindextype NeqB)
 {
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;

@@ -74,16 +74,16 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t,
  * -----------------------------------------------------------------
  */
 
-int CVBBDPrecInit(void *cvode_mem, long int Nlocal, 
-                   long int mudq, long int mldq,
-                   long int mukeep, long int mlkeep, 
+int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal, 
+                   sunindextype mudq, sunindextype mldq,
+                   sunindextype mukeep, sunindextype mlkeep, 
                    realtype dqrely, 
                    CVLocalFn gloc, CVCommFn cfn)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
   CVBBDPrecData pdata;
-  long int muk, mlk, storage_mu;
+  sunindextype muk, mlk, storage_mu;
   int flag;
 
   if (cvode_mem == NULL) {
@@ -144,7 +144,7 @@ int CVBBDPrecInit(void *cvode_mem, long int Nlocal,
   }
   /* Allocate memory for lpivots */
   pdata->lpivots = NULL;
-  pdata->lpivots = NewLintArray(Nlocal);
+  pdata->lpivots = NewIndexArray(Nlocal);
   if (pdata->lpivots == NULL) {
     DestroyMat(pdata->savedP);
     DestroyMat(pdata->savedJ);
@@ -183,13 +183,13 @@ int CVBBDPrecInit(void *cvode_mem, long int Nlocal,
 
 
 int CVBBDPrecReInit(void *cvode_mem, 
-                    long int mudq, long int mldq, 
+                    sunindextype mudq, sunindextype mldq, 
                     realtype dqrely)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
   CVBBDPrecData pdata;
-  long int Nlocal;
+  sunindextype Nlocal;
 
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CVSPILS_MEM_NULL, "CVBBDPRE", "CVBBDPrecReInit", MSGBBD_MEM_NULL);
@@ -225,7 +225,7 @@ int CVBBDPrecReInit(void *cvode_mem,
   return(CVSPILS_SUCCESS);
 }
 
-int CVBBDPrecGetWorkSpace(void *cvode_mem, long int *lenrwBBDP, long int *leniwBBDP)
+int CVBBDPrecGetWorkSpace(void *cvode_mem, sunindextype *lenrwBBDP, sunindextype *leniwBBDP)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
@@ -357,7 +357,7 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
                           realtype gamma, void *bbd_data, 
                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  long int ier;
+  sunindextype ier;
   CVBBDPrecData pdata;
   CVodeMem cv_mem;
   int retval;
@@ -495,7 +495,7 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t,
 {
   CVodeMem cv_mem;
   realtype gnorm, minInc, inc, inc_inv;
-  long int group, i, j, width, ngroups, i1, i2;
+  sunindextype group, i, j, width, ngroups, i1, i2;
   realtype *y_data, *ewt_data, *gy_data, *gtemp_data, *ytemp_data, *col_j;
   int retval;
 

@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 
   void *cvode_mem;
 
-  long int Neq, Np2;
+  sunindextype Neq, Np2;
   int Np;
 
   realtype t0, tf;
@@ -202,6 +202,15 @@ int main(int argc, char *argv[])
 
   printf("ncheck = %d\n", ncheck);
   printf("\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("     y:    %12.4Le %12.4Le %12.4Le", Ith(y,1), Ith(y,2), Ith(y,3));
+  printf("     G:    %12.4Le\n", Ith(yQ,1));
+  printf("\n");
+  printf("     yS1:  %12.4Le %12.4Le %12.4Le\n", Ith(yS[0],1), Ith(yS[0],2), Ith(yS[0],3));
+  printf("     yS2:  %12.4Le %12.4Le %12.4Le\n", Ith(yS[1],1), Ith(yS[1],2), Ith(yS[1],3));
+  printf("\n");
+  printf("   dG/dp:  %12.4Le %12.4Le\n", Ith(yQS[0],1), Ith(yQS[1],1));
+#else
   printf("     y:    %12.4e %12.4e %12.4e", Ith(y,1), Ith(y,2), Ith(y,3));
   printf("     G:    %12.4e\n", Ith(yQ,1));
   printf("\n");
@@ -209,6 +218,7 @@ int main(int argc, char *argv[])
   printf("     yS2:  %12.4e %12.4e %12.4e\n", Ith(yS[1],1), Ith(yS[1],2), Ith(yS[1],3));
   printf("\n");
   printf("   dG/dp:  %12.4e %12.4e\n", Ith(yQS[0],1), Ith(yQS[1],1));
+#endif
   printf("\n");
 
   printf("Final Statistics for forward pb.\n");
@@ -264,13 +274,23 @@ int main(int argc, char *argv[])
   flag = CVodeGetB(cvode_mem, indexB2, &time, yB2);
   flag = CVodeGetQuadB(cvode_mem, indexB2, &time, yQB2);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("   dG/dp:  %12.4Le %12.4Le   (from backward pb. 1)\n", -Ith(yQB1,1), -Ith(yQB1,2));
+  printf("           %12.4Le %12.4Le   (from backward pb. 2)\n", -Ith(yQB2,1), -Ith(yQB2,2));
+#else
   printf("   dG/dp:  %12.4e %12.4e   (from backward pb. 1)\n", -Ith(yQB1,1), -Ith(yQB1,2));
   printf("           %12.4e %12.4e   (from backward pb. 2)\n", -Ith(yQB2,1), -Ith(yQB2,2));
+#endif  
   printf("\n");
   printf("   H = d2G/dp2:\n");
   printf("        (1)            (2)\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("  %12.4Le   %12.4Le\n", -Ith(yQB1,3) , -Ith(yQB2,3));
+  printf("  %12.4Le   %12.4Le\n", -Ith(yQB1,4) , -Ith(yQB2,4));
+#else
   printf("  %12.4e   %12.4e\n", -Ith(yQB1,3) , -Ith(yQB2,3));
   printf("  %12.4e   %12.4e\n", -Ith(yQB1,4) , -Ith(yQB2,4));
+#endif
   printf("\n");
 
   printf("Final Statistics for backward pb. 1\n");
@@ -293,7 +313,11 @@ int main(int argc, char *argv[])
   printf("Finite Difference tests\n");
   printf("-----------------------\n\n");
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("del_p = %Lg\n\n",dp);
+#else
   printf("del_p = %g\n\n",dp);
+#endif
 
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
 
@@ -312,9 +336,13 @@ int main(int argc, char *argv[])
   flag = CVode(cvode_mem, tf, y, &time, CV_NORMAL);
   flag = CVodeGetQuad(cvode_mem, &time, yQ);
   Gp = Ith(yQ,1);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("p1+  y:   %12.4Le %12.4Le %12.4Le", Ith(y,1), Ith(y,2), Ith(y,3));
+  printf("     G:   %12.4Le\n",Ith(yQ,1));
+#else
   printf("p1+  y:   %12.4e %12.4e %12.4e", Ith(y,1), Ith(y,2), Ith(y,3));
   printf("     G:   %12.4e\n",Ith(yQ,1));
-
+#endif  
   data->p1 -= 2.0*dp;
 
   N_VConst(ONE, y);
@@ -324,9 +352,13 @@ int main(int argc, char *argv[])
   flag = CVode(cvode_mem, tf, y, &time, CV_NORMAL);
   flag = CVodeGetQuad(cvode_mem, &time, yQ);
   Gm = Ith(yQ,1);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("p1-  y:   %12.4Le %12.4Le %12.4Le", Ith(y,1), Ith(y,2), Ith(y,3));
+  printf("     G:   %12.4Le\n",Ith(yQ,1));
+#else
   printf("p1-  y:   %12.4e %12.4e %12.4e", Ith(y,1), Ith(y,2), Ith(y,3));
   printf("     G:   %12.4e\n",Ith(yQ,1));
- 
+#endif
   data->p1 += dp;
 
   grdG_fwd[0] = (Gp-G)/dp;
@@ -343,9 +375,13 @@ int main(int argc, char *argv[])
   flag = CVode(cvode_mem, tf, y, &time, CV_NORMAL);
   flag = CVodeGetQuad(cvode_mem, &time, yQ);
   Gp = Ith(yQ,1);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("p2+  y:   %12.4Le %12.4Le %12.4Le", Ith(y,1), Ith(y,2), Ith(y,3));
+  printf("     G:   %12.4Le\n",Ith(yQ,1));
+#else
   printf("p2+  y:   %12.4e %12.4e %12.4e", Ith(y,1), Ith(y,2), Ith(y,3));
   printf("     G:   %12.4e\n",Ith(yQ,1));
- 
+#endif
   data->p2 -= 2.0*dp;
 
   N_VConst(ONE, y);
@@ -355,9 +391,13 @@ int main(int argc, char *argv[])
   flag = CVode(cvode_mem, tf, y, &time, CV_NORMAL);
   flag = CVodeGetQuad(cvode_mem, &time, yQ);
   Gm = Ith(yQ,1);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("p2-  y:   %12.4Le %12.4Le %12.4Le", Ith(y,1), Ith(y,2), Ith(y,3));
+  printf("     G:   %12.4Le\n",Ith(yQ,1));
+#else
   printf("p2-  y:   %12.4e %12.4e %12.4e", Ith(y,1), Ith(y,2), Ith(y,3));
   printf("     G:   %12.4e\n",Ith(yQ,1));
-
+#endif  
   data->p2 += dp;
 
   grdG_fwd[1] = (Gp-G)/dp;
@@ -367,13 +407,21 @@ int main(int argc, char *argv[])
 
   printf("\n");
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("   dG/dp:  %12.4Le %12.4Le   (fwd FD)\n", grdG_fwd[0], grdG_fwd[1]);
+  printf("           %12.4Le %12.4Le   (bck FD)\n", grdG_bck[0], grdG_bck[1]);
+  printf("           %12.4Le %12.4Le   (cntr FD)\n", grdG_cntr[0], grdG_cntr[1]);
+  printf("\n");
+  printf("  H(1,1):  %12.4Le\n", H11);
+  printf("  H(2,2):  %12.4Le\n", H22);
+#else
   printf("   dG/dp:  %12.4e %12.4e   (fwd FD)\n", grdG_fwd[0], grdG_fwd[1]);
   printf("           %12.4e %12.4e   (bck FD)\n", grdG_bck[0], grdG_bck[1]);
   printf("           %12.4e %12.4e   (cntr FD)\n", grdG_cntr[0], grdG_cntr[1]);
   printf("\n");
   printf("  H(1,1):  %12.4e\n", H11);
   printf("  H(2,2):  %12.4e\n", H22);
-
+#endif  
 
   /* Free memory */
 

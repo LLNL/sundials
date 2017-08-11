@@ -117,8 +117,8 @@ static void PrintIntro2(void);
 static void PrintHeader2(void);
 static void PrintOutput2(realtype t, realtype erm, int qu, realtype hu);
 static realtype MaxError(N_Vector y, realtype t);
-static int PrepareNextRun(void *cvode_mem, int lmm, int miter, long int mu,
-                          long int ml);
+static int PrepareNextRun(void *cvode_mem, int lmm, int miter, sunindextype mu,
+                          sunindextype ml);
 static void PrintErrOutput(realtype tol_factor);
 static void PrintFinalStats(void *cvode_mem, int miter, realtype ero);
 static void PrintErrInfo(int nerr);
@@ -126,12 +126,12 @@ static void PrintErrInfo(int nerr);
 /* Functions Called by the Solver */
 
 static int f1(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac1(long int N, realtype tn,
+static int Jac1(sunindextype N, realtype tn,
                 N_Vector y, N_Vector fy, 
                 DlsMat J, void *user_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int f2(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac2(long int N, long int mu, long int ml, 
+static int Jac2(sunindextype N, sunindextype mu, sunindextype ml, 
                 realtype tn, N_Vector y, N_Vector fy, 
                 DlsMat J, void *user_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -331,7 +331,7 @@ static int f1(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   return(0);
 } 
 
-static int Jac1(long int N, realtype tn,
+static int Jac1(sunindextype N, realtype tn,
                 N_Vector y, N_Vector fy, 
                 DlsMat J, void *user_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -515,7 +515,7 @@ static void PrintOutput2(realtype t, realtype erm, int qu, realtype hu)
 
 static int f2(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  long int i, j, k;
+  sunindextype i, j, k;
   realtype d, *ydata, *dydata;
   
   ydata = N_VGetArrayPointer_Serial(y);
@@ -541,7 +541,7 @@ static int f2(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   return(0);
 }
 
-static int Jac2(long int N, long int mu, long int ml, 
+static int Jac2(sunindextype N, sunindextype mu, sunindextype ml, 
                 realtype tn, N_Vector y, N_Vector fy, 
                 DlsMat J, void *user_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -580,7 +580,7 @@ static int Jac2(long int N, long int mu, long int ml,
 
 static realtype MaxError(N_Vector y, realtype t)
 {
-  long int i, j, k;
+  sunindextype i, j, k;
   realtype *ydata, er, ex=ZERO, yt, maxError=ZERO, ifact_inv, jfact_inv=ONE;
   
   if (t == ZERO) return(ZERO);
@@ -603,7 +603,7 @@ static realtype MaxError(N_Vector y, realtype t)
 }
 
 static int PrepareNextRun(void *cvode_mem, int lmm, int miter, 
-                          long int mu, long int ml)
+                          sunindextype mu, sunindextype ml)
 {
   int flag = CV_SUCCESS;
   
@@ -675,8 +675,9 @@ static void PrintErrOutput(realtype tol_factor)
 
 static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
 {
-  long int lenrw, leniw, nst, nfe, nsetups, nni, ncfn, netf;
-  long int lenrwLS, leniwLS, nje, nfeLS;
+  sunindextype lenrw, leniw;
+  sunindextype lenrwLS, leniwLS;
+  long int nst, nfe, nsetups, nni, ncfn, netf, nje, nfeLS;
   int flag;
 
   flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
@@ -695,8 +696,8 @@ static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
   printf("\n Final statistics for this run:\n\n");
-  printf(" CVode real workspace length              = %4ld \n", lenrw);
-  printf(" CVode integer workspace length           = %4ld \n", leniw);
+  printf(" CVode real workspace length              = %4ld \n", (long int) lenrw);
+  printf(" CVode integer workspace length           = %4ld \n", (long int) leniw);
   printf(" Number of steps                          = %4ld \n",  nst);
   printf(" Number of f-s                            = %4ld \n",  nfe);
   printf(" Number of setups                         = %4ld \n",  nsetups);
@@ -732,9 +733,9 @@ static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
       check_flag(&flag, "CVDiagGetWorkSpace", 1);
       break;
     }
-    printf(" Linear solver real workspace length      = %4ld \n", lenrwLS);
-    printf(" Linear solver integer workspace length   = %4ld \n", leniwLS);
-    printf(" Number of Jacobian evaluations           = %4ld  \n", nje);
+    printf(" Linear solver real workspace length      = %4ld \n", (long int) lenrwLS);
+    printf(" Linear solver integer workspace length   = %4ld \n", (long int) leniwLS);
+    printf(" Number of Jacobian evaluations           = %4ld \n", nje);
     printf(" Number of f evals. in linear solver      = %4ld \n\n", nfeLS);
   }
   

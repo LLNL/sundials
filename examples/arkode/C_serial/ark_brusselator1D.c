@@ -57,24 +57,34 @@
 #include <sundials/sundials_types.h>  /* def. of type 'realtype' */
 #include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc. */
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
 /* accessor macros between (x,v) location and 1D NVector array */
 #define IDX(x,v) (3*(x)+v)
 
 /* user data structure */
 typedef struct {
-  long int N;    /* number of intervals     */
-  realtype dx;   /* mesh spacing            */
-  realtype a;    /* constant forcing on u   */
-  realtype b;    /* steady-state value of w */
-  realtype du;   /* diffusion coeff for u   */
-  realtype dv;   /* diffusion coeff for v   */
-  realtype dw;   /* diffusion coeff for w   */
-  realtype ep;   /* stiffness parameter     */
+  sunindextype N;  /* number of intervals     */
+  realtype dx;     /* mesh spacing            */
+  realtype a;      /* constant forcing on u   */
+  realtype b;      /* steady-state value of w */
+  realtype du;     /* diffusion coeff for u   */
+  realtype dv;     /* diffusion coeff for v   */
+  realtype dw;     /* diffusion coeff for w   */
+  realtype ep;     /* stiffness parameter     */
 } *UserData;
 
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(long int N, long int mu, long int ml,
+static int Jac(sunindextype N, sunindextype mu, sunindextype ml,
                realtype t, N_Vector y, N_Vector fy,
                DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -96,7 +106,7 @@ int main()
   int Nvar = 3;                 /* number of solution fields */
   UserData udata = NULL;
   realtype *data;
-  long int N = 201;             /* spatial mesh size */
+  sunindextype N = 201;         /* spatial mesh size */
   realtype a = 0.6;             /* problem parameters */
   realtype b = 2.0;
   realtype du = 0.025;
@@ -105,7 +115,7 @@ int main()
   realtype ep = 1.0e-5;         /* stiffness parameter */
   realtype reltol = 1.0e-6;     /* tolerances */
   realtype abstol = 1.0e-10;
-  long int NEQ, i;
+  sunindextype NEQ, i;
 
   /* general problem variables */
   int flag;                     /* reusable error-checking flag */
@@ -138,11 +148,11 @@ int main()
   /* Initial problem output */
   printf("\n1D Brusselator PDE test problem:\n");
   printf("    N = %li,  NEQ = %li\n", udata->N, NEQ);
-  printf("    problem parameters:  a = %g,  b = %g,  ep = %g\n",
+  printf("    problem parameters:  a = %"GSYM",  b = %"GSYM",  ep = %"GSYM"\n",
       udata->a, udata->b, udata->ep);
-  printf("    diffusion coefficients:  du = %g,  dv = %g,  dw = %g\n",
+  printf("    diffusion coefficients:  du = %"GSYM",  dv = %"GSYM",  dw = %"GSYM"\n",
       udata->du, udata->dv, udata->dw);
-  printf("    reltol = %.1e,  abstol = %.1e\n\n", reltol, abstol);
+  printf("    reltol = %.1"ESYM",  abstol = %.1"ESYM"\n\n", reltol, abstol);
 
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ);           /* Create serial vector for solution */
@@ -206,7 +216,7 @@ int main()
 
   /* output spatial mesh to disk */
   FID = fopen("bruss_mesh.txt","w");
-  for (i=0; i<N; i++)  fprintf(FID,"  %.16e\n", udata->dx*i);
+  for (i=0; i<N; i++)  fprintf(FID,"  %.16"ESYM"\n", udata->dx*i);
   fclose(FID);
 
   /* Open output streams for results, access data array */
@@ -217,9 +227,9 @@ int main()
   /* output initial condition to disk */
   data = N_VGetArrayPointer(y);
   if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
-  for (i=0; i<N; i++)  fprintf(UFID," %.16e", data[IDX(i,0)]);
-  for (i=0; i<N; i++)  fprintf(VFID," %.16e", data[IDX(i,1)]);
-  for (i=0; i<N; i++)  fprintf(WFID," %.16e", data[IDX(i,2)]);
+  for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[IDX(i,0)]);
+  for (i=0; i<N; i++)  fprintf(VFID," %.16"ESYM"", data[IDX(i,1)]);
+  for (i=0; i<N; i++)  fprintf(WFID," %.16"ESYM"", data[IDX(i,2)]);
   fprintf(UFID,"\n");
   fprintf(VFID,"\n");
   fprintf(WFID,"\n");
@@ -241,7 +251,7 @@ int main()
     v = SUNRsqrt(v*v/N);
     w = N_VWL2Norm(y,wmask);
     w = SUNRsqrt(w*w/N);
-    printf("  %10.6f  %10.6f  %10.6f  %10.6f\n", t, u, v, w);
+    printf("  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"\n", t, u, v, w);
     if (flag >= 0) {                                       /* successful solve: update output time */
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;
@@ -251,9 +261,9 @@ int main()
     }
 
     /* output results to disk */
-    for (i=0; i<N; i++)  fprintf(UFID," %.16e", data[IDX(i,0)]);
-    for (i=0; i<N; i++)  fprintf(VFID," %.16e", data[IDX(i,1)]);
-    for (i=0; i<N; i++)  fprintf(WFID," %.16e", data[IDX(i,2)]);
+    for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[IDX(i,0)]);
+    for (i=0; i<N; i++)  fprintf(VFID," %.16"ESYM"", data[IDX(i,1)]);
+    for (i=0; i<N; i++)  fprintf(WFID," %.16"ESYM"", data[IDX(i,2)]);
     fprintf(UFID,"\n");
     fprintf(VFID,"\n");
     fprintf(WFID,"\n");
@@ -311,7 +321,7 @@ int main()
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;      /* access problem data */
-  long int N  = udata->N;                     /* set variable shortcuts */
+  sunindextype N = udata->N;                  /* set variable shortcuts */
   realtype a  = udata->a;
   realtype b  = udata->b;
   realtype ep = udata->ep;
@@ -321,7 +331,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   realtype dx = udata->dx;
   realtype *Ydata=NULL, *dYdata=NULL;
   realtype uconst, vconst, wconst, u, ul, ur, v, vl, vr, w, wl, wr;
-  long int i;
+  sunindextype i;
 
   Ydata = N_VGetArrayPointer(y);     /* access data arrays */
   if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
@@ -357,7 +367,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(long int M, long int mu, long int ml,
+static int Jac(sunindextype M, sunindextype mu, sunindextype ml,
                realtype t, N_Vector y, N_Vector fy, 
                DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -382,9 +392,9 @@ static int Jac(long int M, long int mu, long int ml,
    We add the result into Jac and do not erase what was already there */
 static int LaplaceMatrix(realtype c, DlsMat Jac, UserData udata)
 {
-  long int i;                /* set shortcuts */
-  long int N = udata->N;
+  sunindextype N = udata->N;           /* set shortcuts */
   realtype dx = udata->dx;
+  sunindextype i;
 
   /* iterate over intervals, filling in Jacobian of (L*y) */
   for (i=1; i<N-1; i++) {
@@ -406,10 +416,10 @@ static int LaplaceMatrix(realtype c, DlsMat Jac, UserData udata)
    We add the result into Jac and do not erase what was already there */
 static int ReactionJac(realtype c, N_Vector y, DlsMat Jac, UserData udata)
 {
-  long int N  = udata->N;                      /* set shortcuts */
-  long int i;
-  realtype u, v, w;
+  sunindextype N = udata->N;                      /* set shortcuts */
   realtype ep = udata->ep;
+  sunindextype i;
+  realtype u, v, w;
   realtype *Ydata = N_VGetArrayPointer(y);     /* access solution array */
   if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
 

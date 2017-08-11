@@ -74,7 +74,7 @@
  * but there should be no such messages.
  *
  * Note: This program requires the dense linear solver functions
- * newDenseMat, newLintArray, denseAddIdentity, denseGETRF, denseGETRS, 
+ * newDenseMat, newIndexArray, denseAddIdentity, denseGETRF, denseGETRS, 
  * destroyMat and destroyArray.
  *
  * Note: This program assumes the sequential implementation for the
@@ -160,7 +160,7 @@
 
 typedef struct {
   realtype **P[NGRP];
-  long int *pivot[NGRP];
+  sunindextype *pivot[NGRP];
   int ns, mxns;
   int mp, mq, mx, my, ngrp, ngx, ngy, mxmp;
   int jgx[NGX+1], jgy[NGY+1], jigx[MX], jigy[MY];
@@ -324,13 +324,13 @@ int main()
 static WebData AllocUserData(void)
 {
   int i, ngrp = NGRP;
-  long int ns = NS;
+  sunindextype ns = NS;
   WebData wdata;
   
   wdata = (WebData) malloc(sizeof *wdata);
   for(i=0; i < ngrp; i++) {
     (wdata->P)[i] = newDenseMat(ns, ns);
-    (wdata->pivot)[i] = newLintArray(ns);
+    (wdata->pivot)[i] = newIndexArray(ns);
   }
   wdata->rewt = N_VNew_Serial(NEQ);
   return(wdata);
@@ -571,8 +571,8 @@ static void PrintOutput(void *cvode_mem, realtype t)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int lenrw, leniw ;
-  long int lenrwLS, leniwLS;
+  sunindextype lenrw, leniw ;
+  sunindextype lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
   int flag;
@@ -607,10 +607,10 @@ static void PrintFinalStats(void *cvode_mem)
   check_flag(&flag, "CVSpilsGetNumRhsEvals", 1);
 
   printf("\n\n Final statistics for this run:\n\n");
-  printf(" CVode real workspace length           = %4ld \n", lenrw);
-  printf(" CVode integer workspace length        = %4ld \n", leniw);
-  printf(" CVSPGMR real workspace length         = %4ld \n", lenrwLS);
-  printf(" CVSPGMR integer workspace length      = %4ld \n", leniwLS);
+  printf(" CVode real workspace length           = %4ld \n", (long int) lenrw);
+  printf(" CVode integer workspace length        = %4ld \n", (long int) leniw);
+  printf(" CVSPGMR real workspace length         = %4ld \n", (long int) lenrwLS);
+  printf(" CVSPGMR integer workspace length      = %4ld \n", (long int) leniwLS);
   printf(" Number of steps                       = %4ld \n", nst);
   printf(" Number of f-s                         = %4ld \n", nfe);
   printf(" Number of f-s (SPGMR)                 = %4ld \n", nfeLS);
@@ -751,10 +751,10 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
 {
   realtype ***P;
   int ier;
-  long int **pivot;
+  sunindextype **pivot;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
   int *jxr, *jyr, ngrp, ngx, ngy, mxmp, flag;
-  long int mp;
+  sunindextype mp;
   realtype uround, fac, r, r0, save, srur;
   realtype *f1, *fsave, *cdata, *rewtdata;
   WebData wdata;
@@ -863,9 +863,9 @@ static int PSolve(realtype tn, N_Vector c, N_Vector fc,
                   int lr, void *user_data, N_Vector vtemp)
 {
   realtype   ***P;
-  long int **pivot;
+  sunindextype **pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx;
-  long int mp;
+  sunindextype mp;
   WebData wdata;
   
   wdata = (WebData) user_data;

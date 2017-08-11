@@ -36,7 +36,7 @@
 extern "C" {
 #endif
   extern void FCV_ROOTFN(realtype *, realtype*, realtype*,  /* T, Y, G    */
-                         long int*, realtype*,              /* IPAR, RPAR */
+                         sunindextype*, realtype*,              /* IPAR, RPAR */
                          int *ier);                         /* IER        */
 #ifdef __cplusplus
 }

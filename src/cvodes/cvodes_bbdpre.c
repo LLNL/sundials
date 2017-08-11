@@ -54,9 +54,9 @@ static int cvBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 static int cvBBDPrecFree(CVodeMem cv_mem);
 
 /* Wrapper functions for adjoint code */
-static int cvGlocWrapper(long int NlocalB, realtype t, N_Vector yB, N_Vector gB, 
+static int cvGlocWrapper(sunindextype NlocalB, realtype t, N_Vector yB, N_Vector gB, 
                          void *cvadj_mem);
-static int cvCfnWrapper(long int NlocalB, realtype t, N_Vector yB, void *cvadj_mem);
+static int cvCfnWrapper(sunindextype NlocalB, realtype t, N_Vector yB, void *cvadj_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
 static int cvBBDDQJac(CVBBDPrecData pdata, realtype t, 
@@ -85,16 +85,16 @@ static int CVBBDPrecFreeB(CVodeBMem cvB_mem);
  * -----------------------------------------------------------------
  */
 
-int CVBBDPrecInit(void *cvode_mem, long int Nlocal, 
-                  long int mudq, long int mldq,
-                  long int mukeep, long int mlkeep, 
+int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal, 
+                  sunindextype mudq, sunindextype mldq,
+                  sunindextype mukeep, sunindextype mlkeep, 
                   realtype dqrely, 
                   CVLocalFn gloc, CVCommFn cfn)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
   CVBBDPrecData pdata;
-  long int muk, mlk, storage_mu;
+  sunindextype muk, mlk, storage_mu;
   int flag;
 
   if (cvode_mem == NULL) {
@@ -155,7 +155,7 @@ int CVBBDPrecInit(void *cvode_mem, long int Nlocal,
   }
   /* Allocate memory for lpivots */
   pdata->lpivots = NULL;
-  pdata->lpivots = NewLintArray(Nlocal);
+  pdata->lpivots = NewIndexArray(Nlocal);
   if (pdata->lpivots == NULL) {
     DestroyMat(pdata->savedP);
     DestroyMat(pdata->savedJ);
@@ -194,13 +194,13 @@ int CVBBDPrecInit(void *cvode_mem, long int Nlocal,
 
 
 int CVBBDPrecReInit(void *cvode_mem, 
-                    long int mudq, long int mldq, 
+                    sunindextype mudq, sunindextype mldq, 
                     realtype dqrely)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
   CVBBDPrecData pdata;
-  long int Nlocal;
+  sunindextype Nlocal;
 
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CVSPILS_MEM_NULL, "CVBBDPRE", "CVBBDPrecReInit", MSGBBD_MEM_NULL);
@@ -236,7 +236,7 @@ int CVBBDPrecReInit(void *cvode_mem,
   return(CVSPILS_SUCCESS);
 }
 
-int CVBBDPrecGetWorkSpace(void *cvode_mem, long int *lenrwBBDP, long int *leniwBBDP)
+int CVBBDPrecGetWorkSpace(void *cvode_mem, sunindextype *lenrwBBDP, sunindextype *leniwBBDP)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
@@ -371,7 +371,7 @@ static int cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   CVBBDPrecData pdata;
   CVodeMem cv_mem;
   int retval;
-  long int ier;
+  sunindextype ier;
 
   pdata = (CVBBDPrecData) bbd_data;
 
@@ -507,7 +507,7 @@ static int cvBBDDQJac(CVBBDPrecData pdata, realtype t,
 {
   CVodeMem cv_mem;
   realtype gnorm, minInc, inc, inc_inv;
-  long int group, i, j, width, ngroups, i1, i2;
+  sunindextype group, i, j, width, ngroups, i1, i2;
   realtype *y_data, *ewt_data, *gy_data, *gtemp_data, *ytemp_data, *col_j;
   int retval;
 
@@ -598,9 +598,9 @@ static int cvBBDDQJac(CVBBDPrecData pdata, realtype t,
  * Wrappers for the backward phase around the corresponding CVODES functions
  */
 
-int CVBBDPrecInitB(void *cvode_mem, int which, long int NlocalB, 
-                   long int mudqB, long int mldqB,
-                   long int mukeepB, long int mlkeepB, 
+int CVBBDPrecInitB(void *cvode_mem, int which, sunindextype NlocalB, 
+                   sunindextype mudqB, sunindextype mldqB,
+                   sunindextype mukeepB, sunindextype mlkeepB, 
                    realtype dqrelyB,
                    CVLocalFnB glocB, CVCommFnB cfnB)
 {
@@ -670,7 +670,7 @@ int CVBBDPrecInitB(void *cvode_mem, int which, long int NlocalB,
 }
 
 int CVBBDPrecReInitB(void *cvode_mem, int which, 
-                     long int mudqB, long int mldqB,
+                     sunindextype mudqB, sunindextype mldqB,
                      realtype dqrelyB)
 {
   CVodeMem cv_mem;
@@ -729,7 +729,7 @@ static int CVBBDPrecFreeB(CVodeBMem cvB_mem)
  * provided by the user.
  */
 
-static int cvGlocWrapper(long int NlocalB, realtype t, N_Vector yB, N_Vector gB, void *cvode_mem)
+static int cvGlocWrapper(sunindextype NlocalB, realtype t, N_Vector yB, N_Vector gB, void *cvode_mem)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -765,7 +765,7 @@ static int cvGlocWrapper(long int NlocalB, realtype t, N_Vector yB, N_Vector gB,
  * provided by the user.
  */
 
-static int cvCfnWrapper(long int NlocalB, realtype t, N_Vector yB, void *cvode_mem)
+static int cvCfnWrapper(sunindextype NlocalB, realtype t, N_Vector yB, void *cvode_mem)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;

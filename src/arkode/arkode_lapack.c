@@ -166,7 +166,7 @@ int ARKLapackDense(void *arkode_mem, int N)
   arkDlsInitializeCounters(arkdls_mem);
   
   /* Set problem dimension */
-  arkdls_mem->d_n = (long int) N;
+  arkdls_mem->d_n = (sunindextype) N;
 
   /* Allocate memory for M, pivot array, and savedJ */
   arkdls_mem->d_M = NULL;
@@ -282,11 +282,11 @@ int ARKLapackBand(void *arkode_mem, int N, int mupper, int mlower)
   arkDlsInitializeCounters(arkdls_mem);
   
   /* Load problem dimension */
-  arkdls_mem->d_n = (long int) N;
+  arkdls_mem->d_n = (sunindextype) N;
 
   /* Load half-bandwiths in arkdls_mem */
-  arkdls_mem->d_ml = (long int) mlower;
-  arkdls_mem->d_mu = (long int) mupper;
+  arkdls_mem->d_ml = (sunindextype) mlower;
+  arkdls_mem->d_mu = (sunindextype) mupper;
 
   /* Test ml and mu for legality */
   if ((arkdls_mem->d_ml < 0) || (arkdls_mem->d_mu < 0) || 
@@ -420,7 +420,7 @@ int ARKMassLapackDense(void *arkode_mem, int N,
   ark_mem->ark_MassSetupNonNull = TRUE;
 
   /* Set problem dimension */
-  arkdls_mem->d_n = (long int) N;
+  arkdls_mem->d_n = (sunindextype) N;
 
   /* Allocate memory for M and pivot array */
   arkdls_mem->d_M = NULL;
@@ -525,11 +525,11 @@ int ARKMassLapackBand(void *arkode_mem, int N, int mupper,
   ark_mem->ark_MassSetupNonNull = TRUE;
   
   /* Load problem dimension */
-  arkdls_mem->d_n = (long int) N;
+  arkdls_mem->d_n = (sunindextype) N;
 
   /* Load half-bandwiths in arkdls_mem */
-  arkdls_mem->d_ml = (long int) mlower;
-  arkdls_mem->d_mu = (long int) mupper;
+  arkdls_mem->d_ml = (sunindextype) mlower;
+  arkdls_mem->d_mu = (sunindextype) mupper;
 
   /* Test ml and mu for legality */
   if ((arkdls_mem->d_ml < 0) || (arkdls_mem->d_mu < 0) || 

@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
   UserData data;
   void *cvode_mem;
 
-  long int Neq;
+  sunindextype Neq;
   realtype reltol;
   N_Vector y0, y, abstol;
 

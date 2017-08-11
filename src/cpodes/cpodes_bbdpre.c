@@ -189,7 +189,7 @@ int CPBBDPrecInit(void *cpode_mem, int Nlocal,
 
   /* Allocate memory for pivots */
   pdata->pivots = NULL;
-  pdata->pivots = NewLintArray(Nlocal);
+  pdata->pivots = NewIndexArray(Nlocal);
   if (pdata->savedJ == NULL) {
     DestroyMat(pdata->savedP);
     DestroyMat(pdata->savedJ);

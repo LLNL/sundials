@@ -149,7 +149,7 @@ extern "C" {
  */
   
   
-typedef int (*IDADlsDenseJacFn)(long int N, realtype t, realtype c_j,
+typedef int (*IDADlsDenseJacFn)(sunindextype N, realtype t, realtype c_j,
 				N_Vector y, N_Vector yp, N_Vector r, 
 				DlsMat Jac, void *user_data,
 				N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -237,7 +237,7 @@ typedef int (*IDADlsDenseJacFn)(long int N, realtype t, realtype c_j,
  * -----------------------------------------------------------------
  */
 
-typedef int (*IDADlsBandJacFn)(long int N, long int mupper, long int mlower,
+typedef int (*IDADlsBandJacFn)(sunindextype N, sunindextype mupper, sunindextype mlower,
 			       realtype t, realtype c_j, 
 			       N_Vector y, N_Vector yp, N_Vector r,
 			       DlsMat Jac, void *user_data,
@@ -294,7 +294,7 @@ SUNDIALS_EXPORT int IDADlsSetBandJacFn(void *ida_mem, IDADlsBandJacFn jac);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS);
+SUNDIALS_EXPORT int IDADlsGetWorkSpace(void *ida_mem, sunindextype *lenrwLS, sunindextype *leniwLS);
 SUNDIALS_EXPORT int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals);
 SUNDIALS_EXPORT int IDADlsGetNumResEvals(void *ida_mem, long int *nfevalsLS);
 SUNDIALS_EXPORT int IDADlsGetLastFlag(void *ida_mem, long int *flag);
@@ -329,7 +329,7 @@ SUNDIALS_EXPORT char *IDADlsGetReturnFlagName(long int flag);
  * -----------------------------------------------------------------
  */
 
-typedef int (*IDADlsDenseJacFnB)(long int NeqB, realtype tt, realtype c_jB, 
+typedef int (*IDADlsDenseJacFnB)(sunindextype NeqB, realtype tt, realtype c_jB, 
 				 N_Vector yy, N_Vector yp,
 				 N_Vector yyB, N_Vector ypB, N_Vector rrB,
 				 DlsMat JacB, void *user_dataB, 
@@ -346,7 +346,7 @@ typedef int (*IDADlsDenseJacFnB)(long int NeqB, realtype tt, realtype c_jB,
  * -----------------------------------------------------------------
  */
 
-typedef int (*IDADlsDenseJacFnBS)(long int NeqB, realtype tt, realtype c_jB, 
+typedef int (*IDADlsDenseJacFnBS)(sunindextype NeqB, realtype tt, realtype c_jB, 
 				 N_Vector yy, N_Vector yp,
 				 N_Vector *yS, N_Vector *ypS,
 				 N_Vector yyB, N_Vector ypB, N_Vector rrB,
@@ -363,7 +363,7 @@ typedef int (*IDADlsDenseJacFnBS)(long int NeqB, realtype tt, realtype c_jB,
  * -----------------------------------------------------------------
  */
 
-typedef int (*IDADlsBandJacFnB)(long int NeqB, long int mupperB, long int mlowerB, 
+typedef int (*IDADlsBandJacFnB)(sunindextype NeqB, sunindextype mupperB, sunindextype mlowerB, 
 				realtype tt, realtype c_jB, 
 				N_Vector yy, N_Vector yp,
 				N_Vector yyB, N_Vector ypB, N_Vector rrB,
@@ -380,7 +380,7 @@ typedef int (*IDADlsBandJacFnB)(long int NeqB, long int mupperB, long int mlower
  * -----------------------------------------------------------------
  */
 
-typedef int (*IDADlsBandJacFnBS)(long int NeqB, long int mupperB, long int mlowerB, 
+typedef int (*IDADlsBandJacFnBS)(sunindextype NeqB, sunindextype mupperB, sunindextype mlowerB, 
 				realtype tt, realtype c_jB, 
 				N_Vector yy, N_Vector yp,
 				N_Vector *yS, N_Vector *ypS,

@@ -48,7 +48,7 @@
  */
 
 void *KIN_kinmem;
-long int *KIN_iout;
+sunindextype *KIN_iout;
 realtype *KIN_rout;
 int KIN_ls;
 
@@ -111,7 +111,7 @@ void FKIN_CREATE(int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_INIT(long int *iout, realtype *rout, int *ier)
+void FKIN_INIT(sunindextype *iout, realtype *rout, int *ier)
 {
   
   /* Call KINInit */
@@ -137,7 +137,7 @@ void FKIN_INIT(long int *iout, realtype *rout, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_MALLOC(long int *iout, realtype *rout, int *ier)
+void FKIN_MALLOC(sunindextype *iout, realtype *rout, int *ier)
 {
   
   /* check for required vector operations */
@@ -181,26 +181,26 @@ void FKIN_MALLOC(long int *iout, realtype *rout, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_SETIIN(char key_name[], long int *ival, int *ier)
+void FKIN_SETIIN(char key_name[], sunindextype *ival, int *ier)
 {
   if (!strncmp(key_name,"PRNT_LEVEL",10))
     *ier = KINSetPrintLevel(KIN_kinmem, (int) *ival);
   else if (!strncmp(key_name,"MAX_NITERS",10))
-    *ier = KINSetNumMaxIters(KIN_kinmem, (int) *ival);
+    *ier = KINSetNumMaxIters(KIN_kinmem, (long int) *ival);
   else if (!strncmp(key_name,"ETA_FORM",8))
     *ier = KINSetEtaForm(KIN_kinmem, (int) *ival);
   else if (!strncmp(key_name,"MAA",3))
-    *ier = KINSetMAA(KIN_kinmem, (int) *ival);
+    *ier = KINSetMAA(KIN_kinmem, (long int) *ival);
   else if (!strncmp(key_name,"MAX_SETUPS",10))
-    *ier = KINSetMaxSetupCalls(KIN_kinmem, (int) *ival);
+    *ier = KINSetMaxSetupCalls(KIN_kinmem, (long int) *ival);
   else if (!strncmp(key_name,"MAX_SP_SETUPS",13))
-    *ier = KINSetMaxSubSetupCalls(KIN_kinmem, (int) *ival);
+    *ier = KINSetMaxSubSetupCalls(KIN_kinmem, (long int) *ival);
   else if (!strncmp(key_name,"NO_INIT_SETUP",13))
-    *ier = KINSetNoInitSetup(KIN_kinmem, (int) *ival);
+    *ier = KINSetNoInitSetup(KIN_kinmem, (booleantype) *ival);
   else if (!strncmp(key_name,"NO_MIN_EPS",10))
-    *ier = KINSetNoMinEps(KIN_kinmem, (int) *ival);
+    *ier = KINSetNoMinEps(KIN_kinmem, (booleantype) *ival);
   else if (!strncmp(key_name,"NO_RES_MON",10))
-    *ier = KINSetNoResMon(KIN_kinmem, (int) *ival);
+    *ier = KINSetNoResMon(KIN_kinmem, (booleantype) *ival);
   else {
     *ier = -99;
     printf("FKINSETIIN: Unrecognized key.\n\n");
@@ -274,7 +274,7 @@ void FKIN_SETVIN(char key_name[], realtype *vval, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_DENSE(long int *neq, int *ier)
+void FKIN_DENSE(sunindextype *neq, int *ier)
 {
   *ier = KINDense(KIN_kinmem, *neq);
   KIN_ls = KIN_LS_DENSE;
@@ -286,7 +286,7 @@ void FKIN_DENSE(long int *neq, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
+void FKIN_BAND(sunindextype *neq, sunindextype *mupper, sunindextype *mlower, int *ier)
 {
   *ier = KINBand(KIN_kinmem, *neq, *mupper, *mlower);
   KIN_ls = KIN_LS_BAND;

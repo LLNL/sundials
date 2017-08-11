@@ -115,7 +115,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBandPrecInit(void *cvode_mem, long int N, long int mu, long int ml);
+SUNDIALS_EXPORT int CVBandPrecInit(void *cvode_mem, sunindextype N, sunindextype mu, sunindextype ml);
 
 /*
  * -----------------------------------------------------------------
@@ -135,7 +135,7 @@ SUNDIALS_EXPORT int CVBandPrecInit(void *cvode_mem, long int N, long int mu, lon
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
+SUNDIALS_EXPORT int CVBandPrecGetWorkSpace(void *cvode_mem, sunindextype *lenrwLS, sunindextype *leniwLS);
 SUNDIALS_EXPORT int CVBandPrecGetNumRhsEvals(void *cvode_mem, long int *nfevalsBP);
 
 

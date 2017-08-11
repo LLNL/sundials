@@ -124,7 +124,7 @@ static int IDABandFreeB(IDABMem IDAB_mem);
  * -----------------------------------------------------------------
  */
 
-int IDABand(void *ida_mem, long int Neq, long int mupper, long int mlower)
+int IDABand(void *ida_mem, sunindextype Neq, sunindextype mupper, sunindextype mlower)
 {
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
@@ -197,7 +197,7 @@ int IDABand(void *ida_mem, long int Neq, long int mupper, long int mlower)
   }
 
   lpivots = NULL;
-  lpivots = NewLintArray(Neq);
+  lpivots = NewIndexArray(Neq);
   if (lpivots == NULL) {
     IDAProcessError(IDA_mem, IDADLS_MEM_FAIL, "IDASBAND", "IDABand", MSGD_MEM_FAIL);
     DestroyMat(JJ);
@@ -259,7 +259,7 @@ static int IDABandSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
                         N_Vector tmp3)
 {
   int retval;
-  long int retfac;
+  sunindextype retfac;
   IDADlsMem idadls_mem;
   
   idadls_mem = (IDADlsMem) lmem;
@@ -285,7 +285,7 @@ static int IDABandSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   retfac = BandGBTRF(JJ, lpivots);
   
   if (retfac != 0) {
-    last_flag = retfac;
+    last_flag = (long int) retfac;
     return(+1);
   }
   last_flag = IDADLS_SUCCESS;
@@ -348,7 +348,7 @@ static int IDABandFree(IDAMem IDA_mem)
  */
 
 int IDABandB(void *ida_mem, int which,
-             long int NeqB, long int mupperB, long int mlowerB)
+             sunindextype NeqB, sunindextype mupperB, sunindextype mlowerB)
 {
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;

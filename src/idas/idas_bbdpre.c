@@ -68,11 +68,11 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
 
 /* Wrapper functions for adjoint code */
 
-static int IDAAglocal(long int NlocalB, realtype tt,
+static int IDAAglocal(sunindextype NlocalB, realtype tt,
                       N_Vector yyB, N_Vector ypB, N_Vector gvalB,
                       void *user_dataB);
 
-static int IDAAgcomm(long int NlocalB, realtype tt,
+static int IDAAgcomm(sunindextype NlocalB, realtype tt,
                      N_Vector yyB, N_Vector ypB,
                      void *user_dataB);
 
@@ -99,9 +99,9 @@ static int IDABBDPrecFreeB(IDABMem IDAB_mem);
  * -----------------------------------------------------------------
  */
 
-int IDABBDPrecInit(void *ida_mem, long int Nlocal, 
-                   long int mudq, long int mldq, 
-                   long int mukeep, long int mlkeep, 
+int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal, 
+                   sunindextype mudq, sunindextype mldq, 
+                   sunindextype mukeep, sunindextype mlkeep, 
                    realtype dq_rel_yy, 
                    IDABBDLocalFn Gres, IDABBDCommFn Gcomm)
 {
@@ -109,7 +109,7 @@ int IDABBDPrecInit(void *ida_mem, long int Nlocal,
   IDASpilsMem idaspils_mem;
   IBBDPrecData pdata;
   N_Vector tempv4;
-  long int muk, mlk, storage_mu;
+  sunindextype muk, mlk, storage_mu;
   int flag;
 
   if (ida_mem == NULL) {
@@ -164,7 +164,7 @@ int IDABBDPrecInit(void *ida_mem, long int Nlocal,
 
   /* Allocate memory for lpivots. */
   pdata->lpivots = NULL;
-  pdata->lpivots = NewLintArray(Nlocal);
+  pdata->lpivots = NewIndexArray(Nlocal);
   if (pdata->lpivots == NULL) {
     DestroyMat(pdata->PP);
     free(pdata); pdata = NULL;
@@ -213,13 +213,13 @@ int IDABBDPrecInit(void *ida_mem, long int Nlocal,
 }
 
 int IDABBDPrecReInit(void *ida_mem,
-		     long int mudq, long int mldq, 
+		     sunindextype mudq, sunindextype mldq, 
 		     realtype dq_rel_yy)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
   IBBDPrecData pdata;
-  long int Nlocal;
+  sunindextype Nlocal;
 
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDABBDPRE", "IDABBDPrecReInit", MSGBBD_MEM_NULL);
@@ -255,7 +255,7 @@ int IDABBDPrecReInit(void *ida_mem,
   return(IDASPILS_SUCCESS);
 }
 
-int IDABBDPrecGetWorkSpace(void *ida_mem, long int *lenrwBBDP, long int *leniwBBDP)
+int IDABBDPrecGetWorkSpace(void *ida_mem, sunindextype *lenrwBBDP, sunindextype *leniwBBDP)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
@@ -376,7 +376,7 @@ static int IDABBDPrecSetup(realtype tt,
                            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   int retval;
-  long int ier;
+  sunindextype ier;
   IBBDPrecData pdata;
   IDAMem IDA_mem;
 
@@ -503,7 +503,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   IDAMem IDA_mem;
   realtype inc, inc_inv;
   int retval;
-  long int group, i, j, width, ngroups, i1, i2;
+  sunindextype group, i, j, width, ngroups, i1, i2;
   realtype *ydata, *ypdata, *ytempdata, *yptempdata, *grefdata, *gtempdata;
   realtype *cnsdata = NULL, *ewtdata;
   realtype *col_j, conj, yj, ypj, ewtj;
@@ -629,9 +629,9 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
  * ----------------------------------------------------------------
  */
 
-int IDABBDPrecInitB(void *ida_mem, int which, long int NlocalB,
-                     long int mudqB, long int mldqB,
-                     long int mukeepB, long int mlkeepB,
+int IDABBDPrecInitB(void *ida_mem, int which, sunindextype NlocalB,
+                     sunindextype mudqB, sunindextype mldqB,
+                     sunindextype mukeepB, sunindextype mlkeepB,
                      realtype dq_rel_yyB,
                      IDABBDLocalFnB glocalB, IDABBDCommFnB gcommB)
 {
@@ -702,7 +702,7 @@ int IDABBDPrecInitB(void *ida_mem, int which, long int NlocalB,
 }
 
 int IDABBDPrecReInitB(void *ida_mem, int which,
-                      long int mudqB, long int mldqB, realtype dq_rel_yyB)
+                      sunindextype mudqB, sunindextype mldqB, realtype dq_rel_yyB)
 {
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
@@ -764,7 +764,7 @@ static int IDABBDPrecFreeB(IDABMem IDAB_mem)
  * provided by the user.
  */
 
-static int IDAAglocal(long int NlocalB, realtype tt,
+static int IDAAglocal(sunindextype NlocalB, realtype tt,
                       N_Vector yyB, N_Vector ypB, N_Vector gvalB,
                       void *ida_mem)
 {
@@ -805,7 +805,7 @@ static int IDAAglocal(long int NlocalB, realtype tt,
  * This routine interfaces to the IDACommFnB routine 
  * provided by the user.
  */
-static int IDAAgcomm(long int NlocalB, realtype tt,
+static int IDAAgcomm(sunindextype NlocalB, realtype tt,
                      N_Vector yyB, N_Vector ypB,
                      void *ida_mem)
 {

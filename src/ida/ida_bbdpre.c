@@ -83,9 +83,9 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
  * -----------------------------------------------------------------
  */
 
-int IDABBDPrecInit(void *ida_mem, long int Nlocal, 
-                   long int mudq, long int mldq, 
-                   long int mukeep, long int mlkeep, 
+int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal, 
+                   sunindextype mudq, sunindextype mldq, 
+                   sunindextype mukeep, sunindextype mlkeep, 
                    realtype dq_rel_yy, 
                    IDABBDLocalFn Gres, IDABBDCommFn Gcomm)
 {
@@ -93,7 +93,7 @@ int IDABBDPrecInit(void *ida_mem, long int Nlocal,
   IDASpilsMem idaspils_mem;
   IBBDPrecData pdata;
   N_Vector tempv4;
-  long int muk, mlk, storage_mu;
+  sunindextype muk, mlk, storage_mu;
   int flag;
 
   if (ida_mem == NULL) {
@@ -148,7 +148,7 @@ int IDABBDPrecInit(void *ida_mem, long int Nlocal,
 
   /* Allocate memory for lpivots. */
   pdata->lpivots = NULL;
-  pdata->lpivots = NewLintArray(Nlocal);
+  pdata->lpivots = NewIndexArray(Nlocal);
   if (pdata->lpivots == NULL) {
     DestroyMat(pdata->PP);
     free(pdata); pdata = NULL;
@@ -197,13 +197,13 @@ int IDABBDPrecInit(void *ida_mem, long int Nlocal,
 }
 
 int IDABBDPrecReInit(void *ida_mem,
-		     long int mudq, long int mldq, 
+		     sunindextype mudq, sunindextype mldq, 
 		     realtype dq_rel_yy)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
   IBBDPrecData pdata;
-  long int Nlocal;
+  sunindextype Nlocal;
 
 
   if (ida_mem == NULL) {
@@ -240,7 +240,7 @@ int IDABBDPrecReInit(void *ida_mem,
   return(IDASPILS_SUCCESS);
 }
 
-int IDABBDPrecGetWorkSpace(void *ida_mem, long int *lenrwBBDP, long int *leniwBBDP)
+int IDABBDPrecGetWorkSpace(void *ida_mem, sunindextype *lenrwBBDP, sunindextype *leniwBBDP)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
@@ -489,7 +489,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   IDAMem IDA_mem;
   realtype inc, inc_inv;
   int  retval;
-  long int group, i, j, width, ngroups, i1, i2;
+  sunindextype group, i, j, width, ngroups, i1, i2;
   realtype *ydata, *ypdata, *ytempdata, *yptempdata, *grefdata, *gtempdata;
   realtype *cnsdata = NULL, *ewtdata;
   realtype *col_j, conj, yj, ypj, ewtj;

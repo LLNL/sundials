@@ -363,7 +363,7 @@ int CVSpilsSetJacTimesVecFn(void *cvode_mem, CVSpilsJacTimesVecFn jtv)
  * -----------------------------------------------------------------
  */
 
-int CVSpilsGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
+int CVSpilsGetWorkSpace(void *cvode_mem, sunindextype *lenrwLS, sunindextype *leniwLS)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;

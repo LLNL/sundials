@@ -1,3 +1,5 @@
+# global ignores
+*~
 
 # /
 /.project
@@ -6,8 +8,7 @@
 /.settings
 /.cproject
 /.autotools
-/.kdev4
-/trunk.kdev4
+/*.kdev4
 /.directory
 /.pydevproject
 

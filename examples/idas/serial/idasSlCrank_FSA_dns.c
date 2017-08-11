@@ -180,12 +180,20 @@ int main(void)
 
   IDAGetQuad(mem, &tret, q);
   printf("--------------------------------------------\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("  G = %24.16Lf\n", Ith(q,1));
+#else
   printf("  G = %24.16f\n", Ith(q,1));
+#endif  
   printf("--------------------------------------------\n\n");
   
   IDAGetQuadSens(mem, &tret, qS);
   printf("-------------F O R W A R D------------------\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("   dG/dp:  %12.4Le %12.4Le\n", Ith(qS[0],1), Ith(qS[1],1));
+#else
   printf("   dG/dp:  %12.4e %12.4e\n", Ith(qS[0],1), Ith(qS[1],1));
+#endif  
   printf("--------------------------------------------\n\n");
 
   IDAFree(&mem);
@@ -281,15 +289,27 @@ int main(void)
   printf("\n\n   Checking using Finite Differences \n\n");
 
   printf("---------------BACKWARD------------------\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("   dG/dp:  %12.4Le %12.4Le\n", (G-Gm[0])/dp, (G-Gm[1])/dp);
+#else
   printf("   dG/dp:  %12.4e %12.4e\n", (G-Gm[0])/dp, (G-Gm[1])/dp);
+#endif  
   printf("-----------------------------------------\n\n");
 
   printf("---------------FORWARD-------------------\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("   dG/dp:  %12.4Le %12.4Le\n", (Gp[0]-G)/dp, (Gp[1]-G)/dp);
+#else
   printf("   dG/dp:  %12.4e %12.4e\n", (Gp[0]-G)/dp, (Gp[1]-G)/dp);
+#endif  
   printf("-----------------------------------------\n\n");
 
   printf("--------------CENTERED-------------------\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("   dG/dp:  %12.4Le %12.4Le\n", (Gp[0]-Gm[0])/(TWO*dp) ,(Gp[1]-Gm[1])/(TWO*dp));
+#else
   printf("   dG/dp:  %12.4e %12.4e\n", (Gp[0]-Gm[0])/(TWO*dp) ,(Gp[1]-Gm[1])/(TWO*dp));
+#endif  
   printf("-----------------------------------------\n\n");
 
 

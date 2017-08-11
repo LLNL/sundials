@@ -140,29 +140,30 @@ typedef struct {
 
   /* For preconditioner */
   realtype **P[MXSUB][MYSUB], **Jbd[MXSUB][MYSUB];
-  long int *pivot[MXSUB][MYSUB];
+  sunindextype *pivot[MXSUB][MYSUB];
 
 } *UserData;
 
 /* Private Helper Functions */
 static void InitUserData(int my_pe, MPI_Comm comm, UserData data);
 static void FreeUserData(UserData data);
-static void SetInitialProfiles(HYPRE_IJVector Uij, UserData data, long int local_length, 
-                               long int my_base);
+static void SetInitialProfiles(HYPRE_IJVector Uij, UserData data,
+                               sunindextype local_length, 
+                               sunindextype my_base);
 static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t);
 static void PrintFinalStats(void *arkode_mem);
 static void BSend(MPI_Comm comm, 
                   int my_pe, int isubx, int isuby, 
-                  long int dsizex, long int dsizey,
+                  sunindextype dsizex, sunindextype dsizey,
                   realtype udata[]);
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-                      long int dsizex, long int dsizey,
+                      sunindextype dsizex, sunindextype dsizey,
                       realtype uext[], realtype buffer[]);
 static void BRecvWait(MPI_Request request[], 
                       int isubx, int isuby, 
-                      long int dsizex, realtype uext[],
+                      sunindextype dsizex, realtype uext[],
                       realtype buffer[]);
 static void ucomm(realtype t, N_Vector u, UserData data);
 static void fcalc(realtype t, realtype udata[], realtype dudata[],
@@ -333,7 +334,7 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
     for (ly = 0; ly < MYSUB; ly++) {
       (data->P)[lx][ly] = newDenseMat(NVARS, NVARS);
       (data->Jbd)[lx][ly] = newDenseMat(NVARS, NVARS);
-      (data->pivot)[lx][ly] = newLintArray(NVARS);
+      (data->pivot)[lx][ly] = newIndexArray(NVARS);
     }
   }
 }
@@ -353,11 +354,12 @@ static void FreeUserData(UserData data)
 }
 
 /* Set initial conditions in u */
-static void SetInitialProfiles(HYPRE_IJVector Uij, UserData data, long int local_length, 
-                               long int my_base)
+static void SetInitialProfiles(HYPRE_IJVector Uij, UserData data,
+                               sunindextype local_length, 
+                               sunindextype my_base)
 {
   int isubx, isuby, lx, ly, jx, jy;
-  long int offset;
+  sunindextype offset;
   realtype dx, dy, x, y, cx, cy, xmid, ymid;
   realtype *udata;
   HYPRE_Int *iglobal;
@@ -405,7 +407,8 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
   int flag;
   realtype hu, *udata, tempu[2];
   int npelast;
-  long int i0, i1, nst;
+  sunindextype i0, i1;
+  long int nst;
   MPI_Status status;
   HYPRE_ParVector uhyp;
   
@@ -458,8 +461,8 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
 /* Print final statistics contained in iopt */
 static void PrintFinalStats(void *arkode_mem)
 {
-  long int lenrw, leniw ;
-  long int lenrwLS, leniwLS;
+  sunindextype lenrw, leniw ;
+  sunindextype lenrwLS, leniwLS;
   long int nst, nfe, nfi, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
   int flag;
@@ -493,8 +496,8 @@ static void PrintFinalStats(void *arkode_mem)
   check_flag(&flag, "ARKSpilsGetNumRhsEvals", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
-  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
-  printf("lenrwls = %5ld     leniwls = %5ld\n", lenrwLS, leniwLS);
+  printf("lenrw   = %5ld     leniw   = %5ld\n", (long int) lenrw, (long int) leniw);
+  printf("lenrwls = %5ld     leniwls = %5ld\n", (long int) lenrwLS, (long int) leniwLS);
   printf("nst     = %5ld     nfe     = %5ld\n", nst, nfe);
   printf("nfi     = %5ld     nfels   = %5ld\n", nfi, nfeLS);
   printf("nni     = %5ld     nli     = %5ld\n", nni, nli);
@@ -506,11 +509,11 @@ static void PrintFinalStats(void *arkode_mem)
 /* Routine to send boundary data to neighboring PEs */
 static void BSend(MPI_Comm comm, 
                   int my_pe, int isubx, int isuby, 
-                  long int dsizex, long int dsizey,
+                  sunindextype dsizex, sunindextype dsizey,
                   realtype udata[])
 {
   int i, ly;
-  long int offsetu, offsetbuf;
+  sunindextype offsetu, offsetbuf;
   realtype bufleft[NVARS*MYSUB], bufright[NVARS*MYSUB];
 
   /* If isuby > 0, send data from bottom x-line of u */
@@ -555,10 +558,10 @@ static void BSend(MPI_Comm comm,
 
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-                      long int dsizex, long int dsizey,
+                      sunindextype dsizex, sunindextype dsizey,
                       realtype uext[], realtype buffer[])
 {
-  long int offsetue;
+  sunindextype offsetue;
   /* Have bufleft and bufright use the same buffer */
   realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
 
@@ -596,11 +599,11 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[],
 
 static void BRecvWait(MPI_Request request[], 
                       int isubx, int isuby, 
-                      long int dsizex, realtype uext[],
+                      sunindextype dsizex, realtype uext[],
                       realtype buffer[])
 {
   int i, ly;
-  long int dsizex2, offsetue, offsetbuf;
+  sunindextype dsizex2, offsetue, offsetbuf;
   realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
   MPI_Status status;
 
@@ -651,7 +654,7 @@ static void ucomm(realtype t, N_Vector u, UserData data)
   realtype *udata, *uext, buffer[2*NVARS*MYSUB];
   MPI_Comm comm;
   int my_pe, isubx, isuby;
-  long int nvmxsub, nvmysub;
+  sunindextype nvmxsub, nvmysub;
   MPI_Request request[4];
   HYPRE_ParVector uhyp;
   
@@ -690,7 +693,7 @@ static void fcalc(realtype t, realtype udata[],
   realtype q4coef, dely, verdco, hordco, horaco;
   int i, lx, ly, jy;
   int isubx, isuby;
-  long int nvmxsub, nvmxsub2, offsetu, offsetue;
+  sunindextype nvmxsub, nvmxsub2, offsetu, offsetue;
 
   /* Get subgrid indices, data sizes, extended work array uext */
   isubx = data->isubx;   isuby = data->isuby;
@@ -849,7 +852,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
   int nvmxsub, ier, offset;
-  long int *(*pivot)[MYSUB];
+  sunindextype *(*pivot)[MYSUB];
   int lx, ly, jy, isuby;
   realtype *udata, **a, **j;
   HYPRE_ParVector uhyp;
@@ -942,7 +945,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
 {
   realtype **(*P)[MYSUB];
   int nvmxsub;
-  long int *(*pivot)[MYSUB];
+  sunindextype *(*pivot)[MYSUB];
   int lx, ly;
   realtype *zdata, *v;
   HYPRE_ParVector zhyp;

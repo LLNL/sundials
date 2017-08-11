@@ -130,7 +130,7 @@ typedef struct {
   realtype rhs[NUM_SPECIES];
   MPI_Comm comm;
   realtype rates[2];
-  long int n_local;
+  sunindextype n_local;
 } *UserData;
 
 /* Prototypes for functions called by the IDA Solver. */
@@ -138,11 +138,11 @@ static int res(realtype tt,
                N_Vector uv, N_Vector uvp, N_Vector rr, 
                void *user_data);
 
-static int reslocal(long int Nlocal, realtype tt, 
+static int reslocal(sunindextype Nlocal, realtype tt, 
                     N_Vector uv, N_Vector uvp, N_Vector res, 
                     void *user_data);
 
-static int rescomm(long int Nlocal, realtype tt,
+static int rescomm(sunindextype Nlocal, realtype tt,
                    N_Vector uv, N_Vector uvp, 
                    void *user_data);
 
@@ -168,7 +168,7 @@ static int resB(realtype tt,
                 N_Vector yyB, N_Vector ypB, N_Vector rrB,
                 void *user_dataB);
 
-static int resBlocal(long int Nlocal, realtype tt, 
+static int resBlocal(sunindextype Nlocal, realtype tt, 
                      N_Vector uv, N_Vector uvp, 
                      N_Vector yyB, N_Vector ypB, 
                      N_Vector res, void *user_dataB);
@@ -184,9 +184,9 @@ static void SetInitialProfilesB(N_Vector uv, N_Vector uvp,
                                N_Vector uvB, N_Vector uvpB,
                                 N_Vector residB, UserData data);
 
-static void PrintHeader(int SystemSize, int maxl, 
-                        long int mudq, long int mldq, 
-                        long int mukeep, long int mlkeep,
+static void PrintHeader(sunindextype SystemSize, int maxl, 
+                        sunindextype mudq, sunindextype mldq, 
+                        sunindextype mukeep, sunindextype mlkeep,
                         realtype rtol, realtype atol);
 
 static void PrintOutput(void *mem, N_Vector uv, realtype time,
@@ -212,7 +212,7 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
   void *mem;
   UserData data;
-  long int SystemSize, local_N, mudq, mldq, mukeep, mlkeep;
+  sunindextype SystemSize, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, tout, tret;
   N_Vector uv, uvp, resid, id, uvB, uvpB, residB, qB;
   int thispe, npes, maxl, retval;
@@ -614,15 +614,15 @@ static void SetInitialProfilesB(N_Vector uv, N_Vector uvp,
  * and table headerr
  */
 
-static void PrintHeader(int SystemSize, int maxl, 
-                        long int mudq, long int mldq, 
-                        long int mukeep, long int mlkeep,
+static void PrintHeader(sunindextype SystemSize, int maxl, 
+                        sunindextype mudq, sunindextype mldq, 
+                        sunindextype mukeep, sunindextype mlkeep,
                         realtype rtol, realtype atol)
 {
   printf("\n BRUSSELATOR: chemically reacting system\n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
   printf("     Mesh dimensions: %d x %d\n", MX, MY);
-  printf("Total system size: %d\n",SystemSize);
+  printf("Total system size: %ld\n",(long int) SystemSize);
   printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
   printf("     Processor array: %d x %d\n", NPEX, NPEY);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -635,7 +635,7 @@ static void PrintHeader(int SystemSize, int maxl,
   printf("Linear solver: IDASPGMR     Max. Krylov dimension maxl: %d\n", maxl);
   printf("Preconditioner: band-block-diagonal (IDABBDPRE), with parameters\n");
   printf("     mudq = %ld,  mldq = %ld,  mukeep = %ld,  mlkeep = %ld\n",
-         mudq, mldq, mukeep, mlkeep);
+         (long int) mudq, (long int) mldq, (long int) mukeep, (long int) mlkeep);
 
   printf("-----------------------------------------------------------\n");
   printf("  t        bottom-left  top-right");
@@ -750,7 +750,11 @@ static void PrintSol(void* mem, N_Vector uv, N_Vector uvp,
         
       uvxy  = IJ_Vptr(uv, ix, jy);
       /* uvxy = (&NV_Ith_P(uv, (i)*NUM_SPECIES + (j)*NSMXSUB*npex )); */
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+      fprintf(fout, "%Lg\n%Lg\n", uvxy[0], uvxy[1]);
+#else
       fprintf(fout, "%g\n%g\n", uvxy[0], uvxy[1]);
+#endif      
     }
   }    
   fclose(fout);
@@ -788,7 +792,11 @@ static void PrintAdjSol(N_Vector uvB, N_Vector uvpB, UserData data)
     for (ix=0; ix<mxsub; ix++) {
 
       uvxy  = IJ_Vptr(uvB, ix, jy);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+      fprintf(fout, "%Lg\n%Lg\n", uvxy[0], uvxy[1]);
+#else
       fprintf(fout, "%g\n%g\n", uvxy[0], uvxy[1]);
+#endif      
     }
   }    
   fclose(fout);
@@ -908,7 +916,7 @@ static int res(realtype tt,
 {
   int retval;
   UserData data;
-  long int Nlocal;
+  sunindextype Nlocal;
   
   data = (UserData) user_data;
   
@@ -933,7 +941,7 @@ static int res(realtype tt,
  * and receive-waiting, in routines BRecvPost, BSend, BRecvWait.         
  */
 
-static int rescomm(long int Nlocal, realtype tt, 
+static int rescomm(sunindextype Nlocal, realtype tt, 
                    N_Vector uv, N_Vector uvp,
                    void *user_data)
 {
@@ -1149,7 +1157,7 @@ static void BSend(MPI_Comm comm, int my_pe, int ixsub, int jysub,
  * for use by the preconditioner setup routine.                          
  */
 
-static int reslocal(long int Nlocal, realtype tt, 
+static int reslocal(sunindextype Nlocal, realtype tt, 
                     N_Vector uv, N_Vector uvp, N_Vector rr,
                     void *user_data)
 {
@@ -1316,7 +1324,7 @@ static int resB(realtype tt, N_Vector yy, N_Vector yp,
 {
   UserData data;
   int retval;
-  long int Nlocal;
+  sunindextype Nlocal;
   
   data = (UserData) user_dataB;
 
@@ -1333,7 +1341,7 @@ static int resB(realtype tt, N_Vector yy, N_Vector yp,
 
 
 
-static int resBlocal(long int Nlocal, realtype tt, 
+static int resBlocal(sunindextype Nlocal, realtype tt, 
                      N_Vector uv, N_Vector uvp,
                      N_Vector uvB, N_Vector uvpB, N_Vector rrB,
                      void *user_dataB)

@@ -37,7 +37,7 @@ extern "C" {
 
   extern void FARK_JTIMES(realtype *V, realtype *JV, realtype *T, 
 			  realtype *Y, realtype *FY, realtype *H,
-			  long int *IPAR, realtype *RPAR,
+			  sunindextype *IPAR, realtype *RPAR,
 			  realtype *WRK, int *IER);
 
 #ifdef __cplusplus

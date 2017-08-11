@@ -21214,11 +21214,11 @@ Prints a {\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{\code{DlsMat}}}} matrix t
 
 \end{fulllineitems}
 
-\index{NewLintArray (C function)}
+\index{NewIndexArray (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{linear_solvers/DLS:c.NewLintArray}\pysiglinewithargsret{long int* \bfcode{NewLintArray}}{long int\emph{ N}}{}
-Allocates an array of \code{long int} integers for use as pivots with
+\phantomsection\label{linear_solvers/DLS:c.NewIndexArray}\pysiglinewithargsret{indextype* \bfcode{NewIndexArray}}{indextype\emph{ N}}{}
+Allocates an array of \code{indextype} integers for use as pivots with
 {\hyperref[linear_solvers/DLS:c.DenseGETRF]{\emph{\code{DenseGETRF()}}}} and \code{DenseGETRS()}.
 
 \end{fulllineitems}
@@ -21374,11 +21374,11 @@ Frees the dense matrix \emph{a} allocated by {\hyperref[linear_solvers/DLS:c.new
 
 \end{fulllineitems}
 
-\index{newLintArray (C function)}
+\index{newIndexArray (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{linear_solvers/DLS:c.newLintArray}\pysiglinewithargsret{long int* \bfcode{newLintArray}}{long int\emph{ n}}{}
-Allocates an array of \emph{n} integers of \code{long int} type.  It
+\phantomsection\label{linear_solvers/DLS:c.newIndexArray}\pysiglinewithargsret{indextype* \bfcode{newIndexArray}}{indextype\emph{ n}}{}
+Allocates an array of \emph{n} integers of \code{indextype} type.  It
 returns a pointer to the first element in the array if
 successful. It returns \code{NULL} if the memory request could not be
 satisfied.
@@ -21409,7 +21409,7 @@ to the first element in the array if successful. It returns
 
 \begin{fulllineitems}
 \phantomsection\label{linear_solvers/DLS:c.destroyArray}\pysiglinewithargsret{void \bfcode{destroyArray}}{void*\emph{ v}}{}
-Frees the array \emph{v} allocated by {\hyperref[linear_solvers/DLS:c.newLintArray]{\emph{\code{newLintArray()}}}},
+Frees the array \emph{v} allocated by {\hyperref[linear_solvers/DLS:c.newIndexArray]{\emph{\code{newIndexArray()}}}},
 {\hyperref[linear_solvers/DLS:c.newIntArray]{\emph{\code{newIntArray()}}}}, or {\hyperref[linear_solvers/DLS:c.newRealArray]{\emph{\code{newRealArray()}}}}.
 
 \end{fulllineitems}
@@ -21588,11 +21588,11 @@ Prints a {\hyperref[linear_solvers/DLS:c.DlsMat]{\emph{\code{DlsMat}}}} matrix t
 
 \end{fulllineitems}
 
-\index{NewLintArray (C function)}
+\index{NewIndexArray (C function)}
 
 \begin{fulllineitems}
-\pysiglinewithargsret{long int* \bfcode{NewLintArray}}{long int\emph{ N}}{}
-Allocates an array of \code{long int} integers for use as pivots with
+\pysiglinewithargsret{indextype* \bfcode{NewIndexArray}}{indextype\emph{ N}}{}
+Allocates an array of \code{indextype} integers for use as pivots with
 \code{BandGBRF()} and \code{BandGBRS()}.
 
 \end{fulllineitems}
@@ -21704,11 +21704,11 @@ Frees the band matrix \emph{a} allocated by {\hyperref[linear_solvers/DLS:c.newB
 
 \end{fulllineitems}
 
-\index{newLintArray (C function)}
+\index{newIndexArray (C function)}
 
 \begin{fulllineitems}
-\pysiglinewithargsret{long int* \bfcode{newLintArray}}{long int\emph{ n}}{}
-Allocates an array of \emph{n} integers of type \code{long int}. It returns
+\pysiglinewithargsret{indextype* \bfcode{newIndexArray}}{indextype\emph{ n}}{}
+Allocates an array of \emph{n} integers of type \code{indextype}. It returns
 a pointer to the first element in the array if successful.  It
 returns \code{NULL} if the memory request could not be satisfied.
 
@@ -21738,7 +21738,7 @@ to the first element in the array if successful. It returns
 
 \begin{fulllineitems}
 \pysiglinewithargsret{void \bfcode{destroyArray}}{void*\emph{ v}}{}
-Frees the array \emph{v} allocated by {\hyperref[linear_solvers/DLS:c.newLintArray]{\emph{\code{newLintArray()}}}},
+Frees the array \emph{v} allocated by {\hyperref[linear_solvers/DLS:c.newIndexArray]{\emph{\code{newIndexArray()}}}},
 {\hyperref[linear_solvers/DLS:c.newIntArray]{\emph{\code{newIntArray()}}}}, or {\hyperref[linear_solvers/DLS:c.newRealArray]{\emph{\code{newRealArray()}}}}.
 
 \end{fulllineitems}

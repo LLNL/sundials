@@ -63,7 +63,7 @@ static int CVBoomerAMGSolve(realtype t, N_Vector y, N_Vector fy,
 /* Prototype for CVBoomerAMGFree */
 static void CVBoomerAMGFree(CVodeMem cv_mem);
                       
-static int CVParCsrCreateGammaIdentity(HYPRE_IJMatrix* id_mat, realtype gamma, long int ilower, long int iupper);
+static int CVParCsrCreateGammaIdentity(HYPRE_IJMatrix* id_mat, realtype gamma, sunindextype ilower, sunindextype iupper);
 
 /*
  * -----------------------------------------------------------------
@@ -76,7 +76,7 @@ int CVBoomerAMGInit(void *cvode_mem, int ilower, int iupper, int jlower, int jup
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
   CVBoomerAMGData pdata;
-  long int muk, mlk, storage_mu;
+  sunindextype muk, mlk, storage_mu;
   int flag;
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CVSPILS_MEM_NULL, "CVHYPRE_BOOMERAMG", "CVBoomerAMGInit", MSGBBD_MEM_NULL);
@@ -406,7 +406,7 @@ int CVParCsrSetSpilsJacTimesVecFn(void *cvode_mem, CVSpilsJacTimesVecFn jparcsr)
   return(CVSPILS_SUCCESS);
 }
 
-int CVParCsrCreateGammaIdentity(HYPRE_IJMatrix* id_mat, realtype gamma, long int ilow, long int iup)
+int CVParCsrCreateGammaIdentity(HYPRE_IJMatrix* id_mat, realtype gamma, sunindextype ilow, sunindextype iup)
 {
   int nnz, i;
   double values[5];

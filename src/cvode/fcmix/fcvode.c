@@ -45,7 +45,7 @@
 /* Definitions for global variables shared amongst various routines */
 
 void *CV_cvodemem;
-long int *CV_iout;
+sunindextype *CV_iout;
 realtype *CV_rout;
 int CV_nrtfn;
 int CV_ls;
@@ -65,7 +65,7 @@ extern "C" {
   extern void FCV_FUN(realtype*,     /* T    */
                       realtype*,     /* Y    */
                       realtype*,     /* YDOT */
-                      long int*,     /* IPAR */
+                      sunindextype*,     /* IPAR */
                       realtype*,     /* RPAR */
                       int*);         /* IER  */
 #ifdef __cplusplus
@@ -77,8 +77,8 @@ extern "C" {
 void FCV_MALLOC(realtype *t0, realtype *y0, 
                 int *meth, int *itmeth, int *iatol, 
                 realtype *rtol, realtype *atol,
-                long int *iout, realtype *rout,
-                long int *ipar, realtype *rpar,
+                sunindextype *iout, realtype *rout,
+                sunindextype *ipar, realtype *rpar,
                 int *ier)
 {
   int lmm, iter;
@@ -234,12 +234,12 @@ void FCV_REINIT(realtype *t0, realtype *y0,
 
 /***************************************************************************/
 
-void FCV_SETIIN(char key_name[], long int *ival, int *ier)
+void FCV_SETIIN(char key_name[], sunindextype *ival, int *ier)
 {
   if (!strncmp(key_name,"MAX_ORD",7))
     *ier = CVodeSetMaxOrd(CV_cvodemem, (int) *ival);
   else if (!strncmp(key_name,"MAX_NSTEPS",10))
-    *ier = CVodeSetMaxNumSteps(CV_cvodemem, (int) *ival);
+    *ier = CVodeSetMaxNumSteps(CV_cvodemem, (long int) *ival);
   else if (!strncmp(key_name,"MAX_ERRFAIL",11))
     *ier = CVodeSetMaxErrTestFails(CV_cvodemem, (int) *ival);
   else if (!strncmp(key_name,"MAX_NITERS",10))
@@ -249,7 +249,7 @@ void FCV_SETIIN(char key_name[], long int *ival, int *ier)
   else if (!strncmp(key_name,"HNIL_WARNS",10))
     *ier = CVodeSetMaxHnilWarns(CV_cvodemem, (int) *ival);
   else if (!strncmp(key_name,"STAB_LIM",8))
-    *ier = CVodeSetStabLimDet(CV_cvodemem, (int) *ival);
+    *ier = CVodeSetStabLimDet(CV_cvodemem, (booleantype) *ival);
   else {
     *ier = -99;
     printf("FCVSETIIN: Unrecognized key.\n\n");
@@ -280,7 +280,7 @@ void FCV_SETRIN(char key_name[], realtype *rval, int *ier)
 
 /***************************************************************************/
 
-void FCV_DENSE(long int *neq, int *ier)
+void FCV_DENSE(sunindextype *neq, int *ier)
 {
   /* neq  is the problem size */
 
@@ -291,7 +291,7 @@ void FCV_DENSE(long int *neq, int *ier)
 
 /***************************************************************************/
 
-void FCV_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
+void FCV_BAND(sunindextype *neq, sunindextype *mupper, sunindextype *mlower, int *ier)
 {
   /* 
      neq        is the problem size
@@ -475,8 +475,8 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
                           &CV_rout[1],                    /* HU      */ 
                           &CV_rout[2],                    /* HCUR    */ 
                           &CV_rout[3]);                   /* TCUR    */ 
-  CV_iout[8] = (long int) qu;
-  CV_iout[9] = (long int) qcur;
+  CV_iout[8] = (sunindextype) qu;
+  CV_iout[9] = (sunindextype) qcur;
   CVodeGetTolScaleFactor(CV_cvodemem, 
                          &CV_rout[4]);                    /* TOLSFAC */
   CVodeGetNonlinSolvStats(CV_cvodemem,

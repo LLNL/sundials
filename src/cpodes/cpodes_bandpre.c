@@ -168,7 +168,7 @@ int CPBandPrecInit(void *cpode_mem, int N, int mu, int ml)
 
   /* Allocate memory for pivot array. */
   pdata->pivots = NULL;
-  pdata->pivots = NewLintArray(N);
+  pdata->pivots = NewIndexArray(N);
   if (pdata->savedJ == NULL) {
     DestroyMat(pdata->savedP);
     DestroyMat(pdata->savedJ);

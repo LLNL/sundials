@@ -74,7 +74,7 @@ static int arkMassDenseMultiply(N_Vector v, N_Vector Mv,
        representation by checking that N_VGetArrayPointer and
        N_VSetArrayPointer exist.
 ---------------------------------------------------------------*/
-int ARKDense(void *arkode_mem, long int N)
+int ARKDense(void *arkode_mem, sunindextype N)
 {
   ARKodeMem ark_mem;
   ARKDlsMem arkdls_mem;
@@ -148,7 +148,7 @@ int ARKDense(void *arkode_mem, long int N)
     return(ARKDLS_MEM_FAIL);
   }
   arkdls_mem->d_lpivots = NULL;
-  arkdls_mem->d_lpivots = NewLintArray(N);
+  arkdls_mem->d_lpivots = NewIndexArray(N);
   if (arkdls_mem->d_lpivots == NULL) {
     arkProcessError(ark_mem, ARKDLS_MEM_FAIL, "ARKDENSE", 
                     "ARKDense", MSGD_MEM_FAIL);
@@ -209,7 +209,7 @@ static int arkDenseSetup(ARKodeMem ark_mem, int convfail,
 {
   booleantype jbad, jok;
   realtype dgamma, *Acol_j, *Mcol_j;
-  long int i, j, ier;
+  sunindextype i, j, ier;
   ARKDlsMem arkdls_mem;
   ARKDlsMassMem arkdls_mass_mem;
   int retval;
@@ -296,7 +296,7 @@ static int arkDenseSetup(ARKodeMem ark_mem, int convfail,
   ier = DenseGETRF(arkdls_mem->d_M, arkdls_mem->d_lpivots); 
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  arkdls_mem->d_last_flag = ier;
+  arkdls_mem->d_last_flag = (long int) ier;
   if (ier > 0) return(1);
   return(0);
 }
@@ -376,7 +376,7 @@ static int arkDenseFree(ARKodeMem ark_mem)
        representation by checking that N_VGetArrayPointer and
        N_VSetArrayPointer exist.
 ---------------------------------------------------------------*/
-int ARKMassDense(void *arkode_mem, long int N, ARKDlsDenseMassFn dmass)
+int ARKMassDense(void *arkode_mem, sunindextype N, ARKDlsDenseMassFn dmass)
 {
   ARKodeMem ark_mem;
   ARKDlsMassMem arkdls_mem;
@@ -450,7 +450,7 @@ int ARKMassDense(void *arkode_mem, long int N, ARKDlsDenseMassFn dmass)
     return(ARKDLS_MEM_FAIL);
   }
   arkdls_mem->d_lpivots = NULL;
-  arkdls_mem->d_lpivots = NewLintArray(N);
+  arkdls_mem->d_lpivots = NewIndexArray(N);
   if (arkdls_mem->d_lpivots == NULL) {
     arkProcessError(ark_mem, ARKDLS_MEM_FAIL, "ARKDENSE", 
 		    "ARKMassDense", MSGD_MEM_FAIL);
@@ -496,7 +496,7 @@ static int arkMassDenseInit(ARKodeMem ark_mem)
 static int arkMassDenseSetup(ARKodeMem ark_mem, N_Vector vtemp1, 
 			     N_Vector vtemp2, N_Vector vtemp3)
 {
-  long int ier;
+  sunindextype ier;
   ARKDlsMassMem arkdls_mem;
   int retval;
 
@@ -527,7 +527,7 @@ static int arkMassDenseSetup(ARKodeMem ark_mem, N_Vector vtemp1,
   ier = DenseGETRF(arkdls_mem->d_M_lu, arkdls_mem->d_lpivots); 
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  arkdls_mem->d_last_flag = ier;
+  arkdls_mem->d_last_flag = (long int) ier;
   if (ier > 0) return(1);
   return(0);
 }

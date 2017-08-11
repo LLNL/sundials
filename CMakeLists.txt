@@ -247,6 +247,15 @@ SET(SUNDIALS_PRECISION "double" CACHE STRING "double, single or extended")
 STRING(TOUPPER ${SUNDIALS_PRECISION} SUNDIALS_PRECISION)
 SET(PRECISION_LEVEL "#define SUNDIALS_${SUNDIALS_PRECISION}_PRECISION 1")
 
+# Option to specify index type
+# ----------------------------
+
+SET(SUNDIALS_INDEX_TYPE "int64_t" CACHE STRING "Signed 64-bit (int64_t) or signed 32-bit (int32_t) integer")
+
+# prepare substitution variable INDEX_TYPE for sundials_config.h
+STRING(TOUPPER ${SUNDIALS_INDEX_TYPE} SUNDIALS_INDEX_TYPE)
+SET(INDEX_TYPE "#define SUNDIALS_${SUNDIALS_INDEX_TYPE} 1")
+
 # Option to use the generic math libraries (UNIX only)
 # ----------------------------------------------------
 
@@ -733,7 +742,7 @@ ENDIF(KLU_ENABLE)
 IF(MPI_ENABLE)
   # get run command for mpi (openmpi or OpenMP or Pthreads(default))
   SET(MPI_RUN_COMMAND "mpirun" CACHE STRING "mpirun or srun")
-  SHOW_VARIABLE(MPI_RUN_COMMAND STRING "MPI run command: mpirun or srun" "${MPI_RUN_COMMAND}")
+  SHOW_VARIABLE(MPI_RUN_COMMAND STRING "MPI run command" "${MPI_RUN_COMMAND}")
   INCLUDE(SundialsMPIC)
   IF(NOT MPIC_FOUND)
     PRINT_WARNING("MPI not functional"

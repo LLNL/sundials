@@ -70,7 +70,7 @@
 typedef struct {  
   realtype p[2];
   int thispe, mx, my, ixsub, jysub, npex, npey, mxsub, mysub;
-  long int n_local;
+  sunindextype n_local;
   realtype dx, dy, coeffx, coeffy, coeffxy;
   realtype uext[(MXSUB+2)*(MYSUB+2)];
   MPI_Comm comm;
@@ -81,10 +81,10 @@ typedef struct {
 static int heatres(realtype tres, 
                    N_Vector uu, N_Vector up, N_Vector res, 
                    void *user_data);
-static int rescomm(long int Nlocal, realtype tt, 
+static int rescomm(sunindextype Nlocal, realtype tt, 
                    N_Vector uu, N_Vector up, 
                    void *user_data);
-static int reslocal(long int Nlocal, realtype tres, 
+static int reslocal(sunindextype Nlocal, realtype tres, 
                     N_Vector uu, N_Vector up, N_Vector res,  
                     void *user_data);
 static int BSend(MPI_Comm comm, int thispe, int ixsub,
@@ -103,8 +103,8 @@ static int InitUserData(int thispe, MPI_Comm comm, UserData data);
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
                              N_Vector res, UserData data);
 
-static void PrintHeader(int Neq, realtype rtol, realtype atol,
-                        int mudq, int mukeep,
+static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol,
+                        sunindextype mudq, sunindextype mukeep,
                         booleantype sensi, int sensi_meth, int err_con);
 static void PrintOutput(int id, void *mem, realtype t, N_Vector uu, 
                         booleantype sensi, N_Vector *uuS);
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
   void *mem;
   UserData data;
   int thispe, iout, ier, npes;
-  long int Neq, local_N, mudq, mldq, mukeep, mlkeep;
+  sunindextype Neq, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
 
@@ -374,7 +374,7 @@ static int heatres(realtype tres, N_Vector uu, N_Vector up,
 {
   int retval;
   UserData data;
-  long int Nlocal;
+  sunindextype Nlocal;
   
   data = (UserData) user_data;
   
@@ -395,7 +395,7 @@ static int heatres(realtype tres, N_Vector uu, N_Vector up,
  * communication of data in u needed to calculate G.                 
  */
 
-static int rescomm(long int Nlocal, realtype tt, 
+static int rescomm(sunindextype Nlocal, realtype tt, 
                    N_Vector uu, N_Vector up, void *user_data)
 {
   UserData data;
@@ -432,7 +432,7 @@ static int rescomm(long int Nlocal, realtype tt,
  *  has already been done, and that this data is in the work array uext.  
  */
 
-static int reslocal(long int Nlocal, realtype tres, 
+static int reslocal(sunindextype Nlocal, realtype tres, 
                     N_Vector uu, N_Vector up, N_Vector res,  
                     void *user_data)
 {
@@ -747,15 +747,15 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
  * and table heading
  */
 
-static void PrintHeader(int Neq, realtype rtol, realtype atol,
-                        int mudq, int mukeep,
+static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol,
+                        sunindextype mudq, sunindextype mukeep,
                         booleantype sensi, int sensi_meth, int err_con)
 {
     printf("\nidasHeat2D_FSA_kry_bbd_p: Heat equation, parallel example problem for IDA\n");
     printf("                     Discretized heat equation on 2D unit square.\n");
     printf("                     Zero boundary conditions, polynomial initial conditions.\n");
     printf("                     Mesh dimensions: %d x %d ; ", MX, MY);
-    printf("    Total system size: %d\n\n", Neq);
+    printf("    Total system size: %ld\n\n", (long int) Neq);
 
     printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
     printf("         Processor array: %d x %d\n", NPEX, NPEY);
@@ -771,8 +771,8 @@ static void PrintHeader(int Neq, realtype rtol, realtype atol,
     printf(" all boundary components. \n");
     printf("Linear solver: IDASPGMR.    ");
     printf("Preconditioner: IDABBDPRE - Banded-block-diagonal.\n"); 
-    printf("Difference quotient half-bandwidths = %d",mudq);
-    printf("Retained matrix half-bandwidths = %d \n\n",mukeep);
+    printf("Difference quotient half-bandwidths = %ld",(long int) mudq);
+    printf("Retained matrix half-bandwidths = %ld \n\n",(long int) mukeep);
 
     if (sensi) {
       printf("Sensitivity: YES ");
