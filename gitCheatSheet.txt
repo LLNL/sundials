@@ -1,13 +1,20 @@
 
-               Cheat Sheet for git - 21 June 2017
+               Cheat Sheet for Git - 10 Aug 2017
 
 
-1. One-time setup of ssh keys (to avoid needing password with each
-   repo transaction).
-    
-   [Taken from: https://myconfluence.llnl.gov/pages/viewpage.action?pageId=99844309]
-   
-   Create your ssh key using the ssh-keygen utility:
+This file contains detials on setting up Git and helpful commands for
+working with Git. For information on the Git workflow for SUNDIALS see
+the gitWorkflow.txt file. 
+____________________________
+
+SSH Keys (optional)
+
+One-time setup of ssh keys (to avoid needing password with each
+repo transaction).
+ 
+[Taken from: https://myconfluence.llnl.gov/pages/viewpage.action?pageId=99844309]
+
+1. Create your ssh key using the ssh-keygen utility:
 
    a) Skip this first command if you already have a public/private ssh
       key (i.e. you already have an id_rsa.pub file in your ~/.ssh
@@ -20,7 +27,7 @@
    c) Copy the ssh key to any other machines that you want to be able to SSH to:
       > ssh-copy-id <destination host name>
 
-   Install the key in BitBucket:
+2. Install the key in BitBucket:
 
    a) Login to http://mystash.llnl.gov
    b) Click on the profile drop down in the far top right of the
@@ -29,201 +36,53 @@
       "Add key".
    d) Paste your key into the text box. The text of the key is the
       contents of the file "~/.ssh/id_rsa.pub"
+____________________________
 
-2. Tell git who you are:
+Git Configuration
+
+1. Tell git who you are:
    > git config --global user.email "yourname@example.com"
    > git config --global user.name "Your Name"
 
-3. Recomended: Make your current branch the default branch for 'push'
+2. Recomended: Make your current branch the default branch for 'push'
    (i.e. don't default push changes to all branches) 
    > git config --global push.default current
-
-4. Clone the repository (by default, you will be on the 'develop'
-   branch):
-   > git clone ssh://git@mystash.llnl.gov:7999/sundials/sunrepo.git
-
 ____________________________
 
+Cloning the SUNDIALS Repository
 
-TYPICAL WORKFLOW
+After cloning the repository you will be on the 'develop' branch by
+default. You cannot work directly on the 'master' or 'develop'
+branches as you are not allowed to push to these branches. You must
+branch from 'master' or 'develop' and create a pull request to have
+changes merged into the parent branch. See the gitWorkflow.txt file
+for more information. 
 
-SUNDIALS development follows the Gitflow workflow, see:
-https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
+A. Clone the repository with SSH Keys:
+   > git clone ssh://git@mybitbucket.llnl.gov:7999/sundials/sunrepo.git
 
-In this approach there are two persistent branches in the repository,
-'master' and 'develop'. Changes to either branch are merged in through
-pull requests from short-lived branches. In general, code
-modifications should be done in smaller units of work that engage a
-single issue or feature rather than bundles of many such issues or
-features.
+--- OR ---
 
-* FEATURE BRANCHES: Development of all new features for future
-  releases takes place on feature branches created off of the
-  'develop' branch.
-
-When creating a feature branch to work on, name it with "Feature/"
-followed by a short, descriptive name that describes the single
-feature being addressed in the branch, e.g. "Feature/HypreVector" for
-adding support for a Hypre vector.
-
-* BUGFIX / MAINTENANCE BRANCHES: Patches to the current production
-  release are done on bugfix or maintenance branches created off of
-  the 'master' branch.
-
-When creating a bugfix or maintenance branch to work on, name it with
-either "bugfix/" or "maintenance/" followed by the corresponding JIRA
-ticket if one exists, e.g. "bugfix/SUNDIALS-123", or a short,
-descriptive name for the issue being addressed in the branch,
-e.g. "maintenance/FixingTypos".
-
-After the pull request for a branch is approved, the changes will be
-merged into the 'develop' branch for feature branches and into both
-the 'master' and 'develop' branches for bugfixes and maintenance
-branches. At this point the local and remote versions of the branch
-are no longer needed and should be deleted.
-
-In the following example workflow PARENT is 'develop' for feature
-branches and 'master' for bugfix/maintenance branches (without the
-single quotes).
-
-Example workflow:
-
- 1. Ensure the PARENT branch is up to date:
-    > git checkout PARENT
-    > git pull origin PARENT
-
- 2. Start working on a branch by doing one of the following:
-
-    a) To work on an existing branch, checkout the desired branch:
-       > git checkout <branchname>
-
-    ---OR---
-
-    a) To create a new branch to work on, checkout a branch off of the
-       PARENT branch:
-       > git checkout -b <branchname> PARENT
-
-    b) Push the new branch to the remote repo:
-       > git push -u origin <branchname>
-
-    [ NOTE: You cannot work directly on the 'master' or 'develop'
-    branches as you are not allowed to push to these branches. You
-    must branch from 'master' or 'develop' and create a pull request
-    to merge changes into the parent branch. ]
-
- 3. Modify, add, and commit changes locally (repeat as needed):
-    > emacs <path/filename>
-    > git add <path/filename>
-    > git commit -m "commit message"
-
- 4. (Optional) Collaborating on a branch:
-
-    a) To get changes pushed by others to the remote copy of the
-       branch pull the changes to the local branch:
-       > git pull origin <branchname>
-
-       [ NOTE: your local changes must be committed prior to pulling
-         in changes from the remote copy of the branch ]
-
-       If there is a conflict during the pull (git will tell you),
-       follow the instruction in step 5 part c below to resolve the
-       conflicts.
-
-    b) To make locally committed changes available to other developers
-       push the committed change sets to the remote repo:
-       > git push origin <branchname>
-
-       [ NOTE: if changes exist on the remote copy of the branch that
-         you have not pulled git will not allow you to push. You must
-         first pull the remote changes as descibed in part a and then
-         push your local changes. ]
-
- 5. (Optional) Getting updates on the PARENT branch:
-
-    For longer lived branches it may be necessary to perodically
-    update the branch with changes from the PARENT remote branch:
-
-    a) Update the local copy of the PARENT branch:
-       > git checkout PARENT
-       > git pull origin PARENT
-
-    [ NOTE: your local changes must be committed prior to checking out
-      a the PARENT branch ]
-
-    b) Merge changes into the desired branch
-       > git checkout <branchname>
-       > git merge PARENT
-
-    c) If there are merge conflicts (git will tell you):
-
-       c1) View status of the branch for more info:
-           > git status
-
-       c2) Edit the file(s) to resolve any conflicts, then add the
-           resolved files:
-           > emacs <path/filename>
-           > git add <path/filename>
-
-       c3) When all conflicts are resolved commit the changes to the
-           local branch:
-           > git commit -m "commit message"
-
-       c4) If collaborting on this branch push the merge commit to the
-           remote copy of the branch: 
-           > git push origin <branchname>
-
- 6. Preparing for a pull request:
-
-    a) When the branch is ready to be reviewed for integration into
-       the PARENT branch follow the intructions in step 5 above to
-       pull in any changes on the remote PARENT branch before creating
-       a pull request.
-
-    b) Push the local copy of the branch to the remote copy:
-       > git push origin <branchname>
-
- 7. Create a pull request to have the changes in your branch reviewed
-    and merged into the PARENT branch:
-    a) Browse to https://mystash.llnl.gov/projects/SUNDIALS/repos/sunrepo
-    b) Click on the branch icon on the left side of screen - you'll
-       see a list of all available branches
-    c) Click on your branch - you'll see a 'Compare' screen that lets
-       you pick a branch (source on top) to merge with another branch
-       (target on bottom)
-    d) Select the desired branches and click 'Create pull request'
-    e) Edit the title of the pull request (defaults to branch name),
-       add a description, and select reviewers that can approve the
-       request
-    f) Click 'Create'
-
- 8. The selected reviewers will go over the changes in the pull
-    request and may ask for additional changes before merging the
-    branch. To start work on a different task while the pull request
-    is under review, return to step 1.
-
- 9. After the pull request is merged, delete the local copy the branch:
-    > git checkout PARENT
-    > git branch -D <branchname>
-
+B. Clone the repository with your OUN and AD password:
+   > git clone ssh://YourOUN@mybitbucket.llnl.gov/scm/sundials/sunrepo.git
 ____________________________
 
+Helpful Commands
 
-HELPFUL COMMANDS:
+1. List all local branches (* denotes the current branch)
+   > git branch
 
-1: List all local branches (* denotes the current branch)
-      > git branch
+2. Push branch to remote repository:
+   > git push origin <branchname>
 
-2: Push branch to remote repository:
-      > git push origin <branchname>
+3. List files you've changed and still need to add or commit:
+   > git status
 
-3: List files you've changed and still need to add or commit:
-      > git status
+4. Merge different branch to your 'active' branch:
+   > git merge <branchname>
 
-4: Merge different branch to your 'active' branch:
-      > git merge <branchname>
+5. See differences unstaged and the last commit:
+   > git diff <filename>
 
-5: See differences in local file vs remote file:
-      > git diff <filename>
-
-6: Abandon local changes to a file and get previously committed version
-      > git checkout <filename>
+6. Abandon local changes to a file and get previously committed version
+   > git checkout -- <filename>

@@ -1,0 +1,201 @@
+
+               Git Wrokflow - 10 Aug 2017
+
+
+This file describes a typical workflow for SUNDIALS development
+following Gitflow workflow, see: 
+https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
+
+* For details on setting up Git and helpful commands for working with
+  Git, see the gitCheatSheet.txt file.
+
+In this workflow there are two persistent branches in the repository,
+'master' and 'develop'. Changes to either branch are merged in through
+pull requests from short-lived branches. In general, code
+modifications should be done in smaller units of work that engage a
+single issue or feature rather than bundles of many such issues or
+features.
+
+* FEATURE BRANCHES: Development of all new features for future
+  releases takes place on feature branches created off of the
+  'develop' branch.
+
+When creating a feature branch to work on, name it with a short,
+descriptive name for the single feature being addressed in the branch,
+e.g. "Feature/HypreVector" for adding support for a Hypre vector.
+
+* BUGFIX / MAINTENANCE BRANCHES: Patches to the current production
+  release are done on bugfix or maintenance branches created off of
+  the 'master' branch.
+
+When creating a bugfix or maintenance branch to work on, name it with
+either "bugfix/" or "maintenance/" followed by the corresponding JIRA
+ticket if one exists, e.g. "bugfix/SUNDIALS-123", or a short,
+descriptive name for the issue being addressed in the branch,
+e.g. "maintenance/FixingDocumentation".
+
+After the pull request for a branch is approved, the changes will be
+merged into the 'develop' branch for feature branches and into both
+the 'master' and 'develop' branches for bugfixes and maintenance
+branches. At this point the local and remote versions of the branch
+are no longer needed and should be deleted.
+
+In the following example workflow PARENT is 'develop' for feature
+branches and 'master' for bugfix/maintenance branches (without the
+single quotes).
+
+Example workflow:
+
+ 1. To start working on a branch by doing one of the following:
+
+    a) To work on an existing branch, checkout the desired branch:
+       > git checkout <branchname>
+
+    b) Mmake sure then branch is up to date:
+       > git pull origin <branchname>
+
+    --- OR ---
+
+    a) To create a new branch to work on, first make sure the PARENT
+       branch is up to date:
+       > git checkout PARENT
+       > git pull origin PARENT
+
+    c) Create a new branch off of the PARENT branch:
+       > git checkout -b <branchname> PARENT
+
+    b) Push the new branch to the remote repo:
+       > git push -u origin <branchname>
+
+    [ NOTE: You cannot work directly on the 'master' or 'develop'
+    branches as you are not allowed to push to these branches. You
+    must branch from 'master' or 'develop' and create a pull request
+    to have changes merged into the parent branch. ]
+
+ 3. Modify files with your editor of choice. Stage changes to commit
+    together:
+    > git add <path/filename>
+
+    Commit changes locally with either of the following depending on
+    the detail needed in the commit message:
+    
+    a) For short commit messages:
+       > git commit -m "Short Description of the Commit"
+
+    --- OR ---
+    
+    b) For longer commit messages: 
+       > git commit
+
+       This opens the deault system editor or the editor set in
+       .gitconfig, see gitCheatSheet.txt for more information.
+
+       The desired format is a short descriptive title for the commit,
+       a blank line, and a detailed commit message. For example, for a
+       commit turning on new regression tests:
+       
+           Turning on regression tests with 32bit integers
+
+           Turning on test with sunindextype = 32bit_t. The following
+           tests fail:
+               *  16 - frak_roberts_dnsL
+               *  17 - ark_bruss
+               *  38 - fcvAdvDiff_bnd
+               *  41 - fcvRoberts_dns
+               *  42 - fcvRoberts_dnsL
+               * 100 - fidaRoberts_dns
+               * 101 - fidaRoberts_dns_openmp
+
+ 4. If you are collaborating on a branch with other developers:
+
+    a) To get changes from the remote copy of the branch into your
+       local copy of the branch:
+       > git checkout <branchname>
+       > git pull origin <branchname>
+
+       [ NOTE: your local changes must be committed prior to pulling
+         in changes from the remote copy of the branch ]
+
+       If there is a conflict during the pull (Git will tell you),
+       follow the instruction in step 5c below to resolve the
+       conflicts.
+
+       [ NOTE: You may use the '--rebase' option git 'git pull' to
+         replay your local commits on top of the remote changes rather
+         than merging them to keep a cleaner commit history. ]      
+
+    b) To make your locally committed changes available on the remote
+       copy of the branch:
+       > git push origin <branchname>
+
+       [ NOTE: If changes exist on the remote copy of the branch that
+         you have not pulled yet, git will not allow you to push. You
+         must first pull the remote changes as descibed in 4a and
+         then push your local changes. ]
+
+ 5. If you need updates from the PARENT branch:
+
+    For longer lived branches it may be necessary to perodically
+    update the branch with changes from the PARENT branch:
+
+    a) Update the local copy of the PARENT branch:
+       > git checkout PARENT
+       > git pull origin PARENT
+
+    [ NOTE: your local changes must be committed prior to checking out
+      a different branch than you are currently on ]
+
+    b) Merge changes into the desired branch
+       > git checkout <branchname>
+       > git merge PARENT
+
+    c) If there are merge conflicts (Git will tell you):
+
+       c1) View status of the branch for more info:
+           > git status
+
+       c2) Use your editor of choice to resolve any conflicts, then
+           add the resolved files:
+           > git add <path/filename>
+
+       [ NOTE: If you have setup a mergetool in your .gitconfig file
+         (see gitCheatSheet.txt for details), then use the command
+         'git mergetool' to start the merge. As files are resolved
+         they will automatically be added. ]
+
+       c3) When all conflicts are resolved commit the changes to the
+           local branch:
+           > git commit
+
+       c4) Push the merge commit to the remote copy of the branch: 
+           > git push origin <branchname>
+
+ 6. Creating a pull request:
+
+    When a branch is ready to be reviewed for integration into the
+    PARENT branch follow the intructions in step 5 to pull in any
+    changes on the remote PARENT branch before creating a pull
+    request.
+    
+    a) Browse to https://mystash.llnl.gov/projects/SUNDIALS/repos/sunrepo
+    b) Click on the branch icon on the left side of screen - you'll
+       see a list of all available branches
+    c) Click on your branch - you'll see a 'Compare' screen that lets
+       you pick a branch (source on top) to merge with another branch
+       (target on bottom)
+    d) Select the desired branches and click 'Create pull request'
+    e) Edit the title of the pull request (defaults to branch name),
+       add a description, and select reviewers that can approve the
+       request
+    f) Click 'Create'
+
+ 7. The selected reviewers will go over the changes in the pull
+    request and may ask for additional changes before merging the
+    branch. To start work on a different task while the pull request
+    is under review, return to step 1.
+
+ 8. After the pull request is merged, delete the local copy the branch:
+    > git checkout PARENT
+    > git branch -D <branchname>
+
+____________________________
