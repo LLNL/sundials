@@ -35,11 +35,11 @@
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
-  int      fails = 0;  /* counter for test failures  */
-  sunindextype veclen;     /* vector length              */
+  int fails = 0;       /* counter for test failures  */
+  sunindextype veclen; /* vector length              */
   N_Vector W, X, Y, Z; /* test vectors               */
-//  sunindextype liw, lrw;
-  int      print_timing;
+  /*  sunindextype liw, lrw; */
+  int print_timing;
 
 
   /* check input and set vector length */
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
   SetTiming(print_timing);
 
 
-  printf("\nRunning with vector length %ld \n \n", veclen);
+  printf("\nRunning with vector length %ld \n\n", (long) veclen);
 
   /* Create vectors */
   W = N_VNewEmpty_Raja(veclen);
@@ -102,8 +102,8 @@ int main(int argc, char *argv[])
   fails += Test_N_VConstrMask(X, Y, Z, veclen, 0);
   fails += Test_N_VMinQuotient(X, Y, veclen, 0);
 
-//  N_VSpace_Raja(X, &lrw, &liw);
-//  printf("lrw = %ld, liw = %ld\n", lrw, liw);
+  /*  N_VSpace_Raja(X, &lrw, &liw);               */
+  /*  printf("lrw = %ld, liw = %ld\n", lrw, liw); */
   
   /* Free vectors */
   N_VDestroy_Raja(W);

@@ -35,11 +35,11 @@
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
-  int      fails = 0;  /* counter for test failures  */
-  sunindextype veclen;     /* vector length              */
+  int fails = 0;       /* counter for test failures  */
+  sunindextype veclen; /* vector length              */
   N_Vector W, X, Y, Z; /* test vectors               */
-  int      print_timing;
-  //sunindextype lrw, liw;
+  int print_timing;
+  /* sunindextype lrw, liw; */
 
 
   /* check input and set vector length */
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
   SetTiming(print_timing);
 
 
-  printf("\nRunning with vector length %ld \n \n", veclen);
+  printf("\nRunning with vector length %ld \n\n", (long) veclen);
 
   /* Create vectors */
   W = N_VNewEmpty_Cuda(veclen);
@@ -102,8 +102,8 @@ int main(int argc, char *argv[])
   fails += Test_N_VConstrMask(X, Y, Z, veclen, 0);
   fails += Test_N_VMinQuotient(X, Y, veclen, 0);
 
-//   N_VSpace_Cuda(X, &lrw, &liw);
-//   printf("lrw = %ld, liw = %ld\n", lrw, liw);
+  /*   N_VSpace_Cuda(X, &lrw, &liw);               */
+  /*   printf("lrw = %ld, liw = %ld\n", lrw, liw); */
   
   /* Free vectors */
   N_VDestroy_Cuda(W);
@@ -158,9 +158,6 @@ void set_element(N_Vector X, sunindextype i, realtype val)
 
 realtype get_element(N_Vector X, sunindextype i)
 {
-//    realtype val;
-//    cudaMemcpy(&val, &(xv->device()[i]), sizeof(realtype), cudaMemcpyDeviceToHost);
-//    return val;
   suncudavec::Vector<realtype, sunindextype>* xv = suncudavec::extract<realtype, sunindextype>(X);
   xv->copyFromDev();
   return (xv->host())[i];
