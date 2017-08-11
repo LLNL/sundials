@@ -155,7 +155,7 @@ int ARKBand(void *arkode_mem, sunindextype N, sunindextype mupper, sunindextype 
     return(ARKDLS_MEM_FAIL);
   }
   arkdls_mem->d_lpivots = NULL;
-  arkdls_mem->d_lpivots = NewLintArray(N);
+  arkdls_mem->d_lpivots = NewIndexArray(N);
   if (arkdls_mem->d_lpivots == NULL) {
     arkProcessError(ark_mem, ARKDLS_MEM_FAIL, "ARKBAND", "ARKBand", MSGD_MEM_FAIL);
     DestroyMat(arkdls_mem->d_M);
@@ -474,7 +474,7 @@ int ARKMassBand(void *arkode_mem, sunindextype N, sunindextype mupper,
     return(ARKDLS_MEM_FAIL);
   }
   arkdls_mem->d_lpivots = NULL;
-  arkdls_mem->d_lpivots = NewLintArray(N);
+  arkdls_mem->d_lpivots = NewIndexArray(N);
   if (arkdls_mem->d_lpivots == NULL) {
     arkProcessError(ark_mem, ARKDLS_MEM_FAIL, "ARKBAND", "ARKMassBand", MSGD_MEM_FAIL);
     DestroyMat(arkdls_mem->d_M);

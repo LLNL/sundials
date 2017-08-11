@@ -234,7 +234,7 @@ int CPDense(void *cpode_mem, int N)
     free(cpdls_mem);
     return(CPDLS_MEM_FAIL);
   }
-  pivots = NewLintArray(N);
+  pivots = NewIndexArray(N);
   if (pivots == NULL) {
     cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPDENSE", "CPDense", MSGD_MEM_FAIL);
     DestroyMat(M);
@@ -343,7 +343,7 @@ int CPDenseProj(void *cpode_mem, int Nc, int Ny, int fact_type)
 
   case CPDLS_LU:
     /* Allocate space for pivotsP and K */
-    pivotsP = NewLintArray(Nc);
+    pivotsP = NewIndexArray(Nc);
     if (pivotsP == NULL) {
       cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
       DestroyMat(savedG);

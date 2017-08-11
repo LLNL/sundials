@@ -181,7 +181,7 @@ int CVDense(void *cvode_mem, sunindextype N)
     return(CVDLS_MEM_FAIL);
   }
   lpivots = NULL;
-  lpivots = NewLintArray(N);
+  lpivots = NewIndexArray(N);
   if (lpivots == NULL) {
     cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSDENSE", "CVDense", MSGD_MEM_FAIL);
     DestroyMat(M);

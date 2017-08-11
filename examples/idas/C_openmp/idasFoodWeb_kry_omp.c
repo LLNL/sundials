@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
   webdata->ewt = N_VNew_OpenMP(NEQ, num_threads);
   for (jx = 0; jx < MX; jx++) {
     for (jy = 0; jy < MY; jy++) {
-      (webdata->pivot)[jx][jy] = newLintArray(NUM_SPECIES);
+      (webdata->pivot)[jx][jy] = newIndexArray(NUM_SPECIES);
       (webdata->PP)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
     }
   }

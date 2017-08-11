@@ -186,7 +186,7 @@ int IDABand(void *ida_mem, sunindextype Neq, sunindextype mupper, sunindextype m
   }
 
   lpivots = NULL;
-  lpivots = NewLintArray(Neq);
+  lpivots = NewIndexArray(Neq);
   if (lpivots == NULL) {
     IDAProcessError(IDA_mem, IDADLS_MEM_FAIL, "IDABAND", "IDABand", MSGD_MEM_FAIL);
     DestroyMat(JJ);
