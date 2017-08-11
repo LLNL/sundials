@@ -2,14 +2,14 @@
                Cheat Sheet for Git - 10 Aug 2017
 
 
-This file contains detials on setting up Git and helpful commands for
+This file contains details on setting up Git and helpful commands for
 working with Git. For information on the Git workflow for SUNDIALS see
 the gitWorkflow.txt file.
 ____________________________
 
 SSH Keys (optional)
 
-One-time setup of ssh keys to avoid needing password with each
+One-time setup of ssh keys to avoid needing a password with each
 repo transaction.
 
 [Taken from: https://myconfluence.llnl.gov/pages/viewpage.action?pageId=99844309]
@@ -27,30 +27,102 @@ repo transaction.
    c) Copy the ssh key to any other machines that you want to be able to SSH to:
       > ssh-copy-id <destination host name>
 
-2. Install the key in BitBucket:
+2. Install the key in Bitbucket:
 
-   a) Login to http://mystash.llnl.gov
+   a) Log in to http://mystash.llnl.gov
    b) Click on the profile drop down in the far top right of the
       window and select "Manage Account"
    c) Click on the "SSH keys" link on the left of the screen and then
-      "Add key".
+      "Add key"
    d) Paste your key into the text box. The text of the key is the
       contents of the file ~/.ssh/id_rsa.pub
 ____________________________
 
 Git Configuration
 
-Global Git configuration information is stored in ~/.gitconfig and can be
-altered by editing the file manually or with 'git config' commands. More
-information is available at
+Global Git configuration information is stored in ~/.gitconfig and can
+be set with the 'git config --global' command or by editing the
+.gitconfig file manually. More information is available at
+https://git-scm.com/docs/git-config
 
-1. Tell git who you are:
-   > git config --global user.email "yourname@example.com"
+[ NOTE: Comments in the .gitconfig file begin with # ]
+
+1. Tell Git who you are:
    > git config --global user.name "Your Name"
+   > git config --global user.email "yourname@example.com"
 
-2. Recomended: Make your current branch the default branch for 'push'
-   (i.e. don't default push changes to all branches)
-   > git config --global push.default current
+   --- OR ---
+
+   [user]
+           name = Your Name             # name recorded in commits
+           email = yourname@example.com # email recorded in commits
+
+2. Tell Git to only push changes on your current branch and only if
+   the upstream branch has the same name, i.e. don't default to push
+   changes to all branches or branches with a different name.
+   > git config --global push.default simple
+
+   --- OR ---
+
+   [push]
+        default = "simple" # push current branch to upstream branch with same name
+
+   [ NOTE: 'simple' became the default setting in Git v2.0 ]
+
+3. Tell Git which editor you want to use by default (e.g. emacs):
+   > git config --global core.editor "emacs"
+
+   --- OR ---
+
+   [core]
+        editor = emacs # default editor
+
+4. Enable color output in Git
+   > git config --global color.ui "true"
+
+   --- OR ---
+
+   [color]
+        ui = true # enable color output
+
+The following settings enable using a graphical diff tool resolve
+conflicts during a merge or when viewing diffs between files. These
+settings are optional but may be useful. The settings below are given
+for the meld diff tool. Similar settings can be used with emerge,
+gvimdiff, kdiff3, vimdiff, and tortoisemerge.
+
+1. To add a merge tool (invoked by git mergetool), add the following
+   to the  ~/.gitconfig file:
+
+   [merge]
+           # which merge tool Git should use
+           tool = meld
+   [mergetool]
+           # prompt before each invocation of the merge tool
+           prompt = false
+   [mergetool "meld"]
+           # command to invoke the merge tool for meld 1.3.1
+           cmd = meld "$LOCAL" "$MERGED" "$REMOTE"
+
+   --- OR ---
+
+   [mergetool "meld"]
+           # command to invoke the merge tool for newer versions of
+           # meld which use the '--output' option
+           cmd = meld "$LOCAL" "$MERGED" "$REMOTE" --output "$MERGED"
+
+2. To add a diff tool (invoked by git difftool), add the following to
+   the ~/.gitconfig file:
+
+   [diff]
+           # which diff tool Git should use
+           tool = meld
+   [difftool]
+           # prompt before each invocation of the diff tool
+           prompt = false
+   [difftool "meld"]
+           # command to invoke the diff tool
+           cmd = meld "$LOCAL" "$REMOTE"
 ____________________________
 
 Cloning the SUNDIALS Repository
@@ -68,7 +140,7 @@ A. Clone the repository with SSH Keys:
 --- OR ---
 
 B. Clone the repository with your OUN and AD password:
-   > git clone ssh://YourOUN@mybitbucket.llnl.gov/scm/sundials/sunrepo.git
+   > git clone https://YourOUN@mybitbucket.llnl.gov/scm/sundials/sunrepo.git
 ____________________________
 
 Helpful Git Commands
@@ -84,7 +156,7 @@ Command Help
   Print description of available options for a Git command
   > git <git-command> -h
 
-Graphical Tools (availability depends on Git install)
+Graphical Tools (availability depends the Git installation)
 
   Visualize history of repo
   > gitk
@@ -113,18 +185,22 @@ Branch
 
 Add
 
-  Stage local changes to a file for a commit
-  git add <filename>
+  Stage local changes to a file
+  git add <file-name>
 
   Stage changes from a file in chunks
-  git add -p <filename>
+  git add -p <file-name>
+
+  Unstage a committed file
+  git reset HEAD -- <file-name>
 
   Abandon local changes to a file and get previously committed version
-  > git checkout -- <filename>
+  > git checkout -- <file-name>
 
 Commit
 
-  Commit staged files (opens editor for commit message)
+  Commit staged files (opens editor for commit message, an empty
+  commit message aborts the commit)
   > git commit
 
   The desired format is a short descriptive title for the commit, then blank
@@ -135,7 +211,7 @@ Commit
 
       Turning on test with sunindextype = 32bit_t. The following
       tests fail:
-          *  16 - frak_roberts_dnsL
+          *  16 - fark_roberts_dnsL
           *  17 - ark_bruss
           *  38 - fcvAdvDiff_bnd
           *  41 - fcvRoberts_dns
@@ -146,24 +222,31 @@ Commit
   Commit staged files with short message
   > git commit -m "short commit message"
 
-  Amending the most recent commit assuming it has not been pushed
+  Amend the most recent commit (assuming it has not been pushed) to
+  include the changes in this commit.
   > git commit --amend
+
+  This is useful for adding forgotten changes in the last commit or
+  for editing the commit message in the last commit (if not files are
+  staged).
 
 Push / Pull
 
-  Push a branch to the remote repository and set the upstream branch (use on the
-  first push for a new branch)
+  Push a branch to the remote repository and set the upstream branch
+  (use on the first push after creating a branch)
   > git push -u origin <branch-name>
 
-  Push a branch to the remote repository (use for pushes on existing branched or
-  subsequent pushes on a new branch)
+  Push a branch to the remote repository (use for pushes on existing
+  branched and subsequent pushes on a new branch)
   > git push origin <branch-name>
 
-  Pull in changes from a remote branch to the current branch (performs a merge)
+  Pull in changes from a remote branch to the current branch (performs
+  a merge)
   > git pull origin <branch-name>
 
-  Pull in changes from a remote branch to the current branch and use rebase
-  rather than merging
+  Pull in changes from a remote branch to the current branch and use
+  rebase rather than merging (USE WITH CAUTION, see 'Note on rebasing
+  in gitWorkflow.txt)
   > git pull --rebase origin <branch-name>
 
 Merge
@@ -171,7 +254,7 @@ Merge
   Merge a different local branch to your current branch
   > git merge <branch-name>
 
-  Resolving merge conflicts with a visual diff/merge tool
+  Resolve merge conflicts with a visual diff/merge tool
   > git mergetool
 
   Find the newest common ancestor (fork point) of two reference points
@@ -180,26 +263,27 @@ Merge
 
 Status / Diffs
 
-  Print information on current local repo status including unstaged (changed and
-   not added) files, staged (changed and added) files, untracked files, etc.
+  Print information on current local repo status including unstaged
+  (changed and not added) files, staged (changed and added) files, and
+  untracked files.
   > git status
 
   Show ALL differences between unstaged changes and the current HEAD
   > git diff
 
-  Show the differences between unstaged changes and the current HEAD for a
-  specific file
+  Show the differences between unstaged changes and the current HEAD
+  for a specific file
   > git diff <file-name>
 
   Show differences between ALL staged files and current HEAD
   > git diff --staged
 
-  List ALL files changed in current branch compared to different reference
-  point (branch, commit hash, etc.)
+  List ALL files changed in the current branch compared to different
+  reference point (branch, commit hash, etc.)
   > git diff --name-only <reference>
 
   Compare files between two branches
-  > git diff <branch1>..<branch2> -- <filename>
+  > git diff <branch1>..<branch2> -- <file-name>
 
   To view the differences going from the remote file to the local file
   > git diff remotename/branchname:remote/path/file1.txt local/path/file1.txt
@@ -207,8 +291,8 @@ Status / Diffs
   To view the differences going from the local file to the remote file
   > git diff HEAD:local/path/file1.txt remotename/branchname:remote/path/file1.txt
 
-  To view the difference files at any two reference points (e.g. branches,
-  commit hashes, etc.)
+  To view the differences between files at any two reference points
+  (e.g. branches, commit hashes, etc.)
   > git diff ref1:path/to/file1 ref2:path/to/file2
 
   [ NOTE: In the above commands 'diff' can be replaced with 'difftool' if a
