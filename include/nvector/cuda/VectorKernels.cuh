@@ -823,18 +823,16 @@ inline T dotProd(const Vector<T,I>& x, const Vector<T,I>& y)
     
     math_kernels::dotProdKernel<T,I><<< grid, block, shMemSize >>>(x.device(), y.device(), p->devBuffer(), x.size());
     
-    unsigned n = grid;
-    while (n>2048)
+    I n = grid;
+    I nmax = 2*block;
+    while (n > nmax)
     {
         // Recompute partitioning
-        sunindextype grid2;
-        unsigned block2;
-        unsigned shMemSize2;
-        p->setPartitioning(n, grid2, block2, shMemSize2);
+        p->setPartitioning(n, grid, block, shMemSize);
         
         // Rerun reduction kernel
-        math_kernels::sumReduceKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
-        n = (n + 2*block2 - 1) / (2*block2);
+        math_kernels::sumReduceKernel<T,I><<< grid, block, shMemSize >>>(p->devBuffer(), p->devBuffer(), n);
+        n = grid;
     }
     
     // sum partial sums from each block on CPU
@@ -862,18 +860,16 @@ inline T maxNorm(const Vector<T,I>& x)
     
     math_kernels::maxNormKernel<T,I><<< grid, block, shMemSize >>>(x.device(), p->devBuffer(), x.size());
     
-    unsigned n = grid;
-    while (n>2048)
+    I n = grid;
+    I nmax = 2*block;
+    while (n > nmax)
     {
         // Recompute partitioning
-      sunindextype grid2;
-        unsigned int block2;
-        unsigned shMemSize2;
-        p->setPartitioning(n, grid2, block2, shMemSize2);
+        p->setPartitioning(n, grid, block, shMemSize);
         
         // Rerun reduction kernel
-        math_kernels::maxNormKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
-        n = (n + 2*block2 - 1) / (2*block2);
+        math_kernels::maxNormKernel<T,I><<< grid, block, shMemSize >>>(p->devBuffer(), p->devBuffer(), n);
+        n = grid;
     }
     
     // sum partial sums from each block on CPU
@@ -903,18 +899,16 @@ inline T wrmsNorm(const Vector<T,I>& x, const Vector<T,I>& y)
     
     math_kernels::wrmsNormKernel<T,I><<< grid, block, shMemSize >>>(x.device(), y.device(), p->devBuffer(), x.size());
     
-    unsigned n = grid;
-    while (n>2048)
+    I n = grid;
+    I nmax = 2*block;
+    while (n > nmax)
     {
         // Recompute partitioning
-      sunindextype grid2;
-        unsigned int block2;
-        unsigned shMemSize2;
-        p->setPartitioning(n, grid2, block2, shMemSize2);
+        p->setPartitioning(n, grid, block, shMemSize);
         
         // Rerun reduction kernel
-        math_kernels::sumReduceKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
-        n = (n + 2*block2 - 1) / (2*block2);
+        math_kernels::sumReduceKernel<T,I><<< grid, block, shMemSize >>>(p->devBuffer(), p->devBuffer(), n);
+        n = grid;
     }
     
     // sum partial sums from each block on CPU
@@ -942,18 +936,16 @@ inline T wrmsNormMask(const Vector<T,I>& x, const Vector<T,I>& y, const Vector<T
 
     math_kernels::wrmsNormMaskKernel<T,I><<< grid, block, shMemSize >>>(x.device(), y.device(), id.device(), p->devBuffer(), x.size());
 
-    unsigned n = grid;
-    while (n>2048)
+    I n = grid;
+    I nmax = 2*block;
+    while (n > nmax)
     {
         // Recompute partitioning
-        sunindextype grid2;
-        unsigned int block2;
-        unsigned shMemSize2;
-        p->setPartitioning(n, grid2, block2, shMemSize2);
+        p->setPartitioning(n, grid, block, shMemSize);
 
         // Rerun reduction kernel
-        math_kernels::sumReduceKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
-        n = (n + 2*block2 - 1) / (2*block2);
+        math_kernels::sumReduceKernel<T,I><<< grid, block, shMemSize >>>(p->devBuffer(), p->devBuffer(), n);
+        n = grid;
     }
 
     // sum partial sums from each block on CPU
@@ -982,18 +974,16 @@ inline T findMin(const Vector<T,I>& x)
 
     math_kernels::findMinKernel<T,I><<< grid, block, shMemSize >>>(maxVal, x.device(), p->devBuffer(), x.size());
 
-    unsigned n = grid;
-    while (n>2048)
+    I n = grid;
+    I nmax = 2*block;
+    while (n > nmax)
     {
         // Recompute partitioning
-        sunindextype grid2;
-        unsigned int block2;
-        unsigned shMemSize2;
-        p->setPartitioning(n, grid2, block2, shMemSize2);
+        p->setPartitioning(n, grid, block, shMemSize);
 
         // Rerun reduction kernel
-        math_kernels::findMinKernel<T,I><<< grid2, block2, shMemSize2 >>>(maxVal, p->devBuffer(), p->devBuffer(), n);
-        n = (n + 2*block2 - 1) / (2*block2);
+        math_kernels::findMinKernel<T,I><<< grid, block, shMemSize >>>(maxVal, p->devBuffer(), p->devBuffer(), n);
+        n = grid;
     }
 
     // sum partial sums from each block on CPU
@@ -1024,18 +1014,16 @@ inline T wL2Norm(const Vector<T,I>& x, const Vector<T,I>& y)
 
     math_kernels::wrmsNormKernel<T,I><<< grid, block, shMemSize >>>(x.device(), y.device(), p->devBuffer(), x.size());
 
-    unsigned n = grid;
-    while (n>2048)
+    I n = grid;
+    I nmax = 2*block;
+    while (n > nmax)
     {
         // Recompute partitioning
-        sunindextype grid2;
-        unsigned int block2;
-        unsigned shMemSize2;
-        p->setPartitioning(n, grid2, block2, shMemSize2);
+        p->setPartitioning(n, grid, block, shMemSize);
 
         // Rerun reduction kernel
-        math_kernels::sumReduceKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
-        n = (n + 2*block2 - 1) / (2*block2);
+        math_kernels::sumReduceKernel<T,I><<< grid, block, shMemSize >>>(p->devBuffer(), p->devBuffer(), n);
+        n = grid;
     }
 
     // sum partial sums from each block on CPU
@@ -1064,18 +1052,16 @@ inline T L1Norm(const Vector<T,I>& x)
 
     math_kernels::L1NormKernel<T,I><<< grid, block, shMemSize >>>(x.device(), p->devBuffer(), x.size());
 
-    unsigned n = grid;
-    while (n>2048)
+    I n = grid;
+    I nmax = 2*block;
+    while (n > nmax)
     {
         // Recompute partitioning
-        sunindextype grid2;
-        unsigned int block2;
-        unsigned shMemSize2;
-        p->setPartitioning(n, grid2, block2, shMemSize2);
+        p->setPartitioning(n, grid, block, shMemSize);
 
         // Rerun reduction kernel
-        math_kernels::sumReduceKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
-        n = (n + 2*block2 - 1) / (2*block2);
+        math_kernels::sumReduceKernel<T,I><<< grid, block, shMemSize >>>(p->devBuffer(), p->devBuffer(), n);
+        n = grid;
     }
 
     // sum partial sums from each block on CPU
@@ -1104,18 +1090,16 @@ inline bool invTest(const Vector<T,I>& x, Vector<T,I>& z)
 
     math_kernels::invTestKernel<T,I><<< grid, block, shMemSize >>>(x.device(), z.device(), p->devBuffer(), x.size());
 
-    unsigned n = grid;
-    while (n>2048)
+    I n = grid;
+    I nmax = 2*block;
+    while (n > nmax)
     {
         // Recompute partitioning
-        sunindextype grid2;
-        unsigned int block2;
-        unsigned shMemSize2;
-        p->setPartitioning(n, grid2, block2, shMemSize2);
+        p->setPartitioning(n, grid, block, shMemSize);
 
         // Rerun reduction kernel
-        math_kernels::sumReduceKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
-        n = (n + 2*block2 - 1) / (2*block2);
+        math_kernels::sumReduceKernel<T,I><<< grid, block, shMemSize >>>(p->devBuffer(), p->devBuffer(), n);
+        n = grid;
     }
 
     // sum partial sums from each block on CPU
@@ -1144,18 +1128,16 @@ inline bool constrMask(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>& 
 
     math_kernels::constrMaskKernel<T,I><<< grid, block, shMemSize >>>(c.device(), x.device(), m.device(), p->devBuffer(), x.size());
 
-    unsigned n = grid;
-    while (n>2048)
+    I n = grid;
+    I nmax = 2*block;
+    while (n > nmax)
     {
         // Recompute partitioning
-        sunindextype grid2;
-        unsigned int block2;
-        unsigned shMemSize2;
-        p->setPartitioning(n, grid2, block2, shMemSize2);
+        p->setPartitioning(n, grid, block, shMemSize);
 
         // Rerun reduction kernel
-        math_kernels::sumReduceKernel<T,I><<< grid2, block2, shMemSize2 >>>(p->devBuffer(), p->devBuffer(), n);
-        n = (n + 2*block2 - 1) / (2*block2);
+        math_kernels::sumReduceKernel<T,I><<< grid, block, shMemSize >>>(p->devBuffer(), p->devBuffer(), n);
+        n = grid;
     }
 
     // sum partial sums from each block on CPU
@@ -1185,18 +1167,16 @@ inline T minQuotient(const Vector<T,I>& num, const Vector<T,I>& den)
 
     math_kernels::minQuotientKernel<T,I><<< grid, block, shMemSize >>>(maxVal, num.device(), den.device(), p->devBuffer(), num.size());
 
-    unsigned n = grid;
-    while (n>2048)
+    I n = grid;
+    I nmax = 2*block;
+    while (n > nmax)
     {
         // Recompute partitioning
-        sunindextype grid2;
-        unsigned int block2;
-        unsigned shMemSize2;
-        p->setPartitioning(n, grid2, block2, shMemSize2);
+        p->setPartitioning(n, grid, block, shMemSize);
 
         // Rerun reduction kernel
-        math_kernels::findMinKernel<T,I><<< grid2, block2, shMemSize2 >>>(maxVal, p->devBuffer(), p->devBuffer(), n);
-        n = (n + 2*block2 - 1) / (2*block2);
+        math_kernels::findMinKernel<T,I><<< grid, block, shMemSize >>>(maxVal, p->devBuffer(), p->devBuffer(), n);
+        n = grid;
     }
 
     // sum partial sums from each block on CPU
