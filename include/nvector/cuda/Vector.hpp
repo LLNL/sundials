@@ -214,24 +214,14 @@ public:
       // Do not copy to host
     }
 
-    StreamPartitioning<T, I>* partStream()
+    StreamPartitioning<T, I>& partStream() const
     {
-        return partStream_;
+        return *partStream_;
     }
 
-    StreamPartitioning<T, I>* partStream() const
+    ReducePartitioning<T, I>& partReduce() const
     {
-        return partStream_;
-    }
-
-    ReducePartitioning<T, I>* partReduce()
-    {
-        return partReduce_;
-    }
-
-    ReducePartitioning<T, I>* partReduce() const
-    {
-        return partReduce_;
+        return *partReduce_;
     }
 
 private:
