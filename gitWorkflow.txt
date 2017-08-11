@@ -46,13 +46,15 @@ single quotes).
 
 Example workflow:
 
- 1. To start working on a branch by doing one of the following:
+ 1. You cannot work directly on the 'master' or 'develop' branches as
+    you are not allowed to push changes to these branches. To start
+    working you must do one of the following:
 
     a) To work on an existing branch, checkout the desired branch:
-       > git checkout <branchname>
+       > git checkout <branch-name>
 
-    b) Mmake sure then branch is up to date:
-       > git pull origin <branchname>
+    b) Make sure then branch is up to date:
+       > git pull origin <branch-name>
 
     --- OR ---
 
@@ -62,19 +64,17 @@ Example workflow:
        > git pull origin PARENT
 
     c) Create a new branch off of the PARENT branch:
-       > git checkout -b <branchname> PARENT
+       > git checkout -b <branch-name> PARENT
 
     b) Push the new branch to the remote repo:
-       > git push -u origin <branchname>
+       > git push -u origin <branch-name>
 
-    [ NOTE: You cannot work directly on the 'master' or 'develop'
-    branches as you are not allowed to push to these branches. You
-    must branch from 'master' or 'develop' and create a pull request
-    to have changes merged into the parent branch. ]
+    [ NOTE: When checking out a branch, any local changed must be
+      committed (or stashed) prior to switching branches ]
 
- 3. Modify files with your editor of choice. Stage changes to commit
-    together:
-    > git add <path/filename>
+ 3. Modify files with your editor of choice then stage the files
+    you want to commit with:
+    > git add <path/file-name>
 
     Commit changes locally with either of the following depending on
     the detail needed in the commit message:
@@ -87,12 +87,13 @@ Example workflow:
     b) For longer commit messages:
        > git commit
 
-       This opens the deault system editor or the editor set in
+       This opens the default system editor or the editor set in
        .gitconfig, see gitCheatSheet.txt for more information.
 
-       The desired format is a short descriptive title for the commit,
-       a blank line, and a detailed commit message. For a commit
-       turning on new regression tests, a commit message could be:
+       The format for Git commit messages is a short descriptive title
+       for the commit, a blank line, and a detailed commit
+       message. For a commit turning on new regression tests, a commit
+       message could be:
 
            Turning on regression tests with 32bit integers
 
@@ -110,70 +111,73 @@ Example workflow:
 
     a) To get changes from the remote copy of the branch into your
        local copy of the branch:
-       > git checkout <branchname>
-       > git pull origin <branchname>
+       > git checkout <branch-name>
+       > git pull origin <branch-name>
 
        [ NOTE: your local changes must be committed prior to pulling
-         in changes from the remote copy of the branch ]
+         in changes ]
 
        If there is a conflict during the pull (Git will tell you),
        follow the instruction in step 5c below to resolve the
        conflicts.
 
-       [ NOTE: You may use the '--rebase' option git 'git pull' to
-         replay your local commits on top of the remote changes rather
-         than merging them to keep a cleaner commit history. ]
-
     b) To make your locally committed changes available on the remote
        copy of the branch:
-       > git push origin <branchname>
+       > git push origin <branch-name>
 
        [ NOTE: If changes exist on the remote copy of the branch that
          you have not pulled yet, git will not allow you to push. You
-         must first pull the remote changes as descibed in 4a and
+         must first pull the remote changes as described in 4a and
          then push your local changes. ]
 
  5. If you need updates from the PARENT branch:
 
-    For longer lived branches it may be necessary to perodically
+    For longer lived branches it may be necessary to periodically
     update the branch with changes from the PARENT branch:
 
-    a) Update the local copy of the PARENT branch:
-       > git checkout PARENT
+    a) Get changes from the remote PARENT branch and merge them into
+       the current branch:
        > git pull origin PARENT
 
-    [ NOTE: your local changes must be committed prior to checking out
-      a different branch than you are currently on ]
+       [ NOTE: your local changes must be committed prior to pulling
+         in changes ]
 
     b) Merge changes into the desired branch
-       > git checkout <branchname>
+       > git checkout <branch-name>
        > git merge PARENT
 
     c) If there are merge conflicts (Git will tell you):
 
-       c1) View status of the branch for more info:
+       c1) View the status of the branch for more info:
            > git status
 
        c2) Use your editor of choice to resolve any conflicts, then
            add the resolved files:
-           > git add <path/filename>
+           > git add <path/file-name>
 
-       [ NOTE: If you have setup a mergetool in your .gitconfig file
-         (see gitCheatSheet.txt for details), then use the command
-         'git mergetool' to start the merge. As files are resolved
-         they will automatically be added. ]
+           --- OR ---
+
+           If you have setup a merge tool in your .gitconfig file (see
+           gitCheatSheet.txt for details), start the merge tool:
+           > git mergetool
+
+           Git will open each conflicted file in the merge tool one at
+           a time. Resolve the conflicts, save the merged file, and
+           close the merge tool. Git will then open the next
+           conflicted file. As files are resolved and saved they will
+           be automatically added to the merge commit.
 
        c3) When all conflicts are resolved commit the changes to the
            local branch:
            > git commit
 
        c4) Push the merge commit to the remote copy of the branch:
-           > git push origin <branchname>
+           > git push origin <branch-name>
 
  6. Creating a pull request:
 
     When a branch is ready to be reviewed for integration into the
-    PARENT branch follow the intructions in step 5 to pull in any
+    PARENT branch follow the instructions in step 5 to pull in any
     changes on the remote PARENT branch before creating a pull
     request.
 
@@ -196,6 +200,68 @@ Example workflow:
 
  8. After the pull request is merged, delete the local copy the branch:
     > git checkout PARENT
-    > git branch -D <branchname>
+    > git branch -D <branch-name>
 
 ____________________________
+
+Notes on rebasing
+
+Rebasing is an alternative to merging that replays commits one at a
+time on top of the HEAD of another branch (e.g the remote copy of a
+local branch or the branch's parent). This rewrites the commit history
+by reapplying old changes in a new commit to keep the history linear
+and avoid a merge commit. Rewriting history is potentially dangerous
+and should be done with caution.
+
+1. In step 4a using the '--rebase' option will replay your local
+   commits on top of the remote branch:
+   > git pull --rebase origin <branch-name>
+
+   If there are conflicts (Git will tell you), follow the steps below
+   to resolve them:
+
+   a) View the status of the branch for more info:
+      > git status
+
+   b) Use your editor of choice to resolve any conflicts, then add the
+      resolved files:
+      > git add <path/file-name>
+
+      --- OR ---
+
+      If you have setup a merge tool in your .gitconfig file (see
+      gitCheatSheet.txt for details), start the merge tool:
+      > git mergetool
+
+      Git will open each conflicted file in the merge tool one at a
+      time. Resolve the conflicts, save the merged file, and close the
+      merge tool. Git will then open the next conflicted file.
+
+      As files are resolved and saved they will be automatically added
+      to the new commit of the old commit being reapplied.
+
+   c) When all conflicts are resolved in this step of the rebase move
+      on to the next commit to reapply:
+      > git rebase --continue
+
+   After the rebase is complete all of your local changes have been
+   applied on top of the remote branch as new commits.
+
+   At this point you may continue working locally or push your changes
+   to the remote copy of the branch:
+   > git push origin <branch-name>
+
+   If you choose to continue to working locally and do another 'git
+   pull --rebase' later you will likely have to re-resolve conflicts
+   that occurred in the previous rebase. In this case 'git rerere' can
+   be used to have Git remember how conflicts were resolved.
+
+2. In step 5 you should *NOT* use 'git pull --rebase'. In this case
+   ALL of the commits (local and remote) on <branch-name> will be
+   replayed on the PARENT branch.
+
+   Unlike case 1 above where only local changes are being rebased,
+   this case is rewriting commits that have been pushed and is
+   therefore changing the history that others have pulled and are
+   working on. This will cause significant problems for other
+   developers and muddy the commit history.
