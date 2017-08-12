@@ -15,12 +15,6 @@
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * This software contains source code provided by NVIDIA Corporation.
- * Reduction CUDA kernels in nvector are based in part on "reduction"
- * example in NVIDIA Corporation CUDA Samples. The NVIDIA CUDA Samples
- * License Agreement is available in Chapter 2 in NVIDIA-EULA.txt
- * document.
- * -----------------------------------------------------------------
  */
 
 
@@ -28,82 +22,22 @@
 #define _VECTOR_KERNELS_CUH_
 
 #include <limits>
-
-// For the CUDA runtime routines (prefixed with "cuda_")
 #include <cuda_runtime.h>
 
-/// Forward declarations of Vector and ThreadPartitioning classes
-namespace suncudavec
-{
-    template <typename T, typename I>
-    class Vector;
-
-    template <typename T, typename I>
-    class ReducePartitioning;
-
-    template <typename T, typename I>
-    class StreamPartitioning;
-}
-
-//#define abs(x) ((x)<0 ? -(x) : (x))
 
 namespace suncudavec
 {
+
+/* -----------------------------------------------------------------
+ * The namespace for CUDA kernels
+ *
+ * Reduction CUDA kernels in nvector are based in part on "reduction"
+ * example in NVIDIA Corporation CUDA Samples, and parallel reduction
+ * examples in textbook by J. Cheng at al. "CUDA C Programming".
+ * -----------------------------------------------------------------
+ */
 namespace math_kernels
 {
-// Utility class used to avoid linker errors with extern
-// unsized shared memory arrays with templated type
-template<class T>
-struct SharedMemory
-{
-    __device__ inline operator T *()
-    {
-        extern __shared__ float sundials_shmem_ptr[];
-        return (T *) sundials_shmem_ptr;
-    }
-    
-    __device__ inline operator const T *() const
-    {
-        extern __shared__ float sundials_shmem_ptr[];
-        return (T *) sundials_shmem_ptr;
-    }
-};
-
-// specialize for double to avoid unaligned memory
-// access compile errors
-template<>
-struct SharedMemory<double>
-{
-    __device__ inline operator double *()
-    {
-        extern __shared__ double sundials_shmem_ptr_double[];
-        return (double *) sundials_shmem_ptr_double;
-    }
-
-    __device__ inline operator const double *() const
-    {
-        extern __shared__ double sundials_shmem_ptr_double[];
-        return (double *) sundials_shmem_ptr_double;
-    }
-};
-        
-// specialize for long double to avoid unaligned memory
-// access compile errors
-template<>
-struct SharedMemory<long double>
-{
-    __device__ inline operator long double *()
-    {
-        extern __shared__ long double sundials_shmem_ptr_long_double[];
-        return (long double *) sundials_shmem_ptr_long_double;
-    }
-
-    __device__ inline operator const long double *() const
-    {
-        extern __shared__ long double sundials_shmem_ptr_long_double[];
-        return (long double *) sundials_shmem_ptr_long_double;
-    }
-};
 
 
 /**
@@ -142,18 +76,10 @@ linearSumKernel(T a, const T *X, T b, const T *Y, T *Z, I n)
 }
 
 
-template <typename T, typename I>
-__global__ void
-axpyKernel(T a, const T *X, T *Y, I n)
-{
-    I i = blockDim.x * blockIdx.x + threadIdx.x;
-    
-    if (i < n)
-    {
-        Y[i] += a*X[i];
-    }
-}
-
+/**
+ * Elementwise product of two vectors.
+ *
+ */
 
 template <typename T, typename I>
 __global__ void
@@ -168,6 +94,11 @@ prodKernel(const T *X, const T *Y, T *Z, I n)
 }
 
 
+/**
+ * Elementwise division of two vectors.
+ *
+ */
+
 template <typename T, typename I>
 __global__ void
 divKernel(const T *X, const T *Y, T *Z, I n)
@@ -180,6 +111,11 @@ divKernel(const T *X, const T *Y, T *Z, I n)
     }
 }
 
+
+/**
+ * Scale vector with scalar value 'a'.
+ *
+ */
 
 template <typename T, typename I>
 __global__ void
@@ -194,6 +130,11 @@ scaleKernel(T a, const T *X, T *Z, I n)
 }
 
 
+/**
+ * Stores absolute values of vector X elements into vector Z.
+ *
+ */
+
 template <typename T, typename I>
 __global__ void
 absKernel(const T *X, T *Z, I n)
@@ -206,6 +147,11 @@ absKernel(const T *X, T *Z, I n)
     }
 }
 
+
+/**
+ * Elementwise inversion.
+ *
+ */
 
 template <typename T, typename I>
 __global__ void
@@ -220,6 +166,11 @@ invKernel(const T *X, T *Z, I n)
 }
 
 
+/**
+ * Add constant 'c' to each vector element.
+ *
+ */
+
 template <typename T, typename I>
 __global__ void
 addConstKernel(T a, const T *X, T *Z, I n)
@@ -232,6 +183,11 @@ addConstKernel(T a, const T *X, T *Z, I n)
     }
 }
 
+
+/**
+ * Compare absolute values of vector 'X' with constant 'c'.
+ *
+ */
 
 template <typename T, typename I>
 __global__ void
@@ -249,391 +205,361 @@ compareKernel(T c, const T *X, T *Z, I n)
 /*
  * Sums all elements of the vector.
  *    
- * It is based off reduce3 kernel from CUDA examples. Uses n/2 threads.
- * Performs the first level of reduction when reading from global memory.
- *
  */
 template <typename T, typename I>
 __global__ void
-sumReduceKernel(const T *g_idata, T *g_odata, I n)
+sumReduceKernel(const T *x, T *out, I n)
 {
-    T *sdata = SharedMemory<T>();
-    
-    // perform first level of reduction,
-    // reading from global memory, writing to shared memory
-    I tid = threadIdx.x;
-    I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
-    
-    T mySum = (i < n) ? g_idata[i] : 0;
-    
-    if (i + blockDim.x < n)
-        mySum += g_idata[i+blockDim.x];
-    
-    sdata[tid] = mySum;
-    __syncthreads();
-    
-    // do reduction in shared mem (blockDim.x is a power of 2)
-    for (I s=blockDim.x/2; s>0; s>>=1)
-    {
-        if (tid < s)
-        {
-            sdata[tid] = mySum = mySum + sdata[tid + s];
-        }
-        
-        __syncthreads();
+  extern __shared__ T shmem[];
+
+  I tid = threadIdx.x;
+  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+
+  T sum = 0.0;
+
+  // First reduction step before storing data in shared memory.
+  if (i < n)
+    sum = x[i];
+  if (i + blockDim.x < n)
+    sum += x[i+blockDim.x];
+  shmem[tid] = sum;
+  __syncthreads();
+
+  // Perform reduction block-wise in shared memory.
+  for (I j = blockDim.x/2; j > 0; j >>= 1) {
+    if (tid < j) {
+      sum += shmem[tid + j];
+      shmem[tid] = sum;
     }
-    
-    // write result for this block to global mem
-    if (tid == 0) g_odata[blockIdx.x] = mySum;
+    __syncthreads();
+  }
+
+  // Copy reduction result for each block to global memory
+  if (tid == 0)
+    out[blockIdx.x] = sum;
 }
 
 
 /*
  * Dot product of two vectors.
  *    
- * It is based off reduce3 kernel from CUDA examples. Uses n/2 threads.
- * Performs the first level of reduction when reading from global memory.
- *
  */
 template <typename T, typename I>
 __global__ void
-dotProdKernel(const T *g_idata1, const T *g_idata2, T *g_odata, I n)
+dotProdKernel(const T *x, const T *y, T *out, I n)
 {
-    T *sdata = SharedMemory<T>();
-    
-    // perform first level of reduction,
-    // reading from global memory, writing to shared memory
-    I tid = threadIdx.x;
-    I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
-    
-    T mySum = (i < n) ? g_idata1[i] * g_idata2[i] : 0;
-    
-    if (i + blockDim.x < n)
-        mySum += ( g_idata1[i+blockDim.x] * g_idata2[i+blockDim.x]);
-    
-    sdata[tid] = mySum;
-    __syncthreads();
-    
-    // do reduction in shared mem
-    for (I s=blockDim.x/2; s>0; s>>=1)
-    {
-        if (tid < s)
-        {
-            sdata[tid] = mySum = mySum + sdata[tid + s];
-        }
-        
-        __syncthreads();
+  extern __shared__ T shmem[];
+
+  I tid = threadIdx.x;
+  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+
+  T sum = 0.0;
+
+  // First reduction step before storing data in shared memory.
+  if (i < n)
+    sum = x[i] * y[i];
+  if (i + blockDim.x < n)
+    sum += ( x[i+blockDim.x] * y[i+blockDim.x]);
+  shmem[tid] = sum;
+  __syncthreads();
+
+  // Perform blockwise reduction in shared memory
+  for (I j = blockDim.x/2; j > 0; j >>= 1) {
+    if (tid < j) {
+      sum += shmem[tid + j];
+      shmem[tid] = sum;
     }
-    
-    // write result for this block to global mem
-    if (tid == 0) g_odata[blockIdx.x] = mySum;
+    __syncthreads();
+  }
+
+  // Copy reduction result for each block to global memory
+  if (tid == 0)
+    out[blockIdx.x] = sum;
 }
 
 
 /*
  * Finds max norm the vector.
  *    
- * It is based off reduce3 kernel from CUDA examples. Uses n/2 threads.
- * Performs the first level of reduction when reading from global memory.
- *
  */
 template <typename T, typename I>
 __global__ void
-maxNormKernel(const T *g_idata, T *g_odata, I n)
+maxNormKernel(const T *x, T *out, I n)
 {
-    T *sdata = SharedMemory<T>();
-    
-    // perform first level of reduction,
-    // reading from global memory, writing to shared memory
-    I tid = threadIdx.x;
-    I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
-    
-    T maximum = (i < n) ? abs(g_idata[i]) : 0;
-    
-    if (i + blockDim.x < n)
-        maximum = (abs(g_idata[i+blockDim.x]) > maximum) ? abs(g_idata[i+blockDim.x]) : maximum;
-    
-    sdata[tid] = maximum;
-    __syncthreads();
-    
-    // do reduction in shared mem (blockDim.x is a power of 2)
-    for (I s=blockDim.x/2; s>0; s>>=1)
-    {
-        if (tid < s)
-        {
-            sdata[tid] = maximum = sdata[tid + s] > maximum ? sdata[tid + s] : maximum;
-        }
-        
-        __syncthreads();
+  extern __shared__ T shmem[];
+
+  I tid = threadIdx.x;
+  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+
+  T maximum = 0.0;
+
+  // First reduction step before storing data in shared memory.
+  if (i < n)
+    maximum = abs(x[i]);
+  if (i + blockDim.x < n)
+    maximum = max(abs(x[i+blockDim.x]), maximum);
+  shmem[tid] = maximum;
+  __syncthreads();
+
+  // Perform reduction block-wise in shared memory.
+  for (I j = blockDim.x/2; j > 0; j >>= 1) {
+    if (tid < j) {
+      maximum = max(shmem[tid + j], maximum);
+      shmem[tid] = maximum;
     }
-    
-    // write result for this block to global mem
-    if (tid == 0) g_odata[blockIdx.x] = maximum;
+    __syncthreads();
+  }
+
+  // Copy reduction result for each block to global memory
+  if (tid == 0)
+    out[blockIdx.x] = maximum;
 }
 
 
 /*
  * Weighted root mean square norm of a vector.
  *    
- * It is based off reduce3 kernel from CUDA examples. Uses n/2 threads.
- * Performs the first level of reduction when reading from global memory.
- *
  */
 template <typename T, typename I>
 __global__ void
-wrmsNormKernel(const T *g_idata1, const T *g_idata2, T *g_odata, I n)
+wrmsNormKernel(const T *x, const T *w, T *out, I n)
 {
-    T *sdata = SharedMemory<T>();
-    
-    // perform first level of reduction,
-    // reading from global memory, writing to shared memory
-    I tid = threadIdx.x;
-    I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
-    
-    T mySum = (i < n) ? g_idata1[i] * g_idata2[i] * g_idata1[i] * g_idata2[i] : 0;
-    
-    if (i + blockDim.x < n)
-        mySum += ( g_idata1[i+blockDim.x] * g_idata2[i+blockDim.x] * g_idata1[i+blockDim.x] * g_idata2[i+blockDim.x] );
-    
-    sdata[tid] = mySum;
-    __syncthreads();
-    
-    // do reduction in shared mem
-    for (I s=blockDim.x/2; s>0; s>>=1)
-    {
-        if (tid < s)
-        {
-            sdata[tid] = mySum = mySum + sdata[tid + s];
-        }
-        
-        __syncthreads();
+  extern __shared__ T shmem[];
+
+  I tid = threadIdx.x;
+  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+
+  T sum = 0.0;
+
+  // First reduction step before storing data in shared memory.
+  if (i < n)
+    sum = x[i] * w[i] * x[i] * w[i];
+  if (i + blockDim.x < n)
+    sum += ( x[i+blockDim.x] * w[i+blockDim.x] * x[i+blockDim.x] * w[i+blockDim.x] );
+
+  shmem[tid] = sum;
+  __syncthreads();
+
+  // Perform reduction block-wise in shared memory.
+  for (I j = blockDim.x/2; j > 0; j >>= 1)
+  {
+    if (tid < j) {
+      sum += shmem[tid + j];
+      shmem[tid] = sum;
     }
-    
-    // write result for this block to global mem
-    if (tid == 0) g_odata[blockIdx.x] = mySum;
+    __syncthreads();
+  }
+
+  // Copy reduction result for each block to global memory
+  if (tid == 0)
+    out[blockIdx.x] = sum;
 }
 
 /*
- * Weighted root mean square notm of a vector.
- *
- * It is based off reduce3 kernel from CUDA examples. Uses n/2 threads.
- * Performs the first level of reduction when reading from global memory.
+ * Weighted root mean square norm of a vector values selected by id.
  *
  */
 template <typename T, typename I>
 __global__ void
-wrmsNormMaskKernel(const T *g_idata1, const T *g_idata2, const T *g_id, T *g_odata, I n)
+wrmsNormMaskKernel(const T *x, const T *w, const T *id, T *out, I n)
 {
-    T *sdata = SharedMemory<T>();
+  extern __shared__ T shmem[];
 
-    // perform first level of reduction,
-    // reading from global memory, writing to shared memory
-    I tid = threadIdx.x;
-    I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+  I tid = threadIdx.x;
+  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
 
-    T mySum = (i < n && g_id[i] > 0.0) ? g_idata1[i] * g_idata2[i] * g_idata1[i] * g_idata2[i] : 0.0;
+  T sum = 0.0;
 
-    if ((i + blockDim.x < n) && (g_id[i] > 0.0))
-        mySum += ( g_idata1[i+blockDim.x] * g_idata2[i+blockDim.x] * g_idata1[i+blockDim.x] * g_idata2[i+blockDim.x]);
+  // First reduction step before storing data in shared memory.
+  if (i < n && id[i] > 0.0)
+    sum = x[i] * w[i] * x[i] * w[i];
+  if ((i + blockDim.x < n) && (id[i] > 0.0))
+    sum += ( x[i+blockDim.x] * w[i+blockDim.x] * x[i+blockDim.x] * w[i+blockDim.x]);
+  shmem[tid] = sum;
+  __syncthreads();
 
-    sdata[tid] = mySum;
-    __syncthreads();
-
-    // do reduction in shared mem
-    for (I s=blockDim.x/2; s>0; s>>=1)
-    {
-        if (tid < s)
-        {
-            sdata[tid] = mySum = mySum + sdata[tid + s];
-        }
-
-        __syncthreads();
+  // Perform reduction block-wise in shared memory.
+  for (I j = blockDim.x/2; j > 0; j >>= 1) {
+    if (tid < j) {
+      sum += shmem[tid + j];
+      shmem[tid] = sum;
     }
+    __syncthreads();
+  }
 
-    // write result for this block to global mem
-    if (tid == 0) g_odata[blockIdx.x] = mySum;
+  // Copy reduction result for each block to global memory
+  if (tid == 0)
+    out[blockIdx.x] = sum;
 }
 
 /*
  * Finds min value in the vector.
  *    
- * It is based off reduce3 kernel from CUDA examples. Uses n/2 threads.
- * Performs the first level of reduction when reading from global memory.
- *
  */
 template <typename T, typename I>
 __global__ void
-findMinKernel(T MAX, const T *g_idata, T *g_odata, I n)
+findMinKernel(T MAX_VAL, const T *x, T *out, I n)
 {
-    T *sdata = SharedMemory<T>();
-    
-    // perform first level of reduction,
-    // reading from global memory, writing to shared memory
-    I tid = threadIdx.x;
-    I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
-    
-    T minimum = (i < n) ? g_idata[i] : MAX;
-    
-    if (i + blockDim.x < n)
-        minimum = (g_idata[i+blockDim.x]) < minimum ? g_idata[i+blockDim.x] : minimum;
-    
-    sdata[tid] = minimum;
-    __syncthreads();
-    
-    // do reduction in shared mem (blockDim.x is a power of 2)
-    for (I s=blockDim.x/2; s>0; s>>=1)
-    {
-        if (tid < s)
-        {
-            sdata[tid] = minimum = sdata[tid + s] < minimum ? sdata[tid + s] : minimum;
-        }
-        
-        __syncthreads();
+  extern __shared__ T shmem[];
+
+  I tid = threadIdx.x;
+  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+
+  T minimum = MAX_VAL;
+
+  // First reduction step before storing data in shared memory.
+  if (i < n)
+    minimum = x[i];
+  if (i + blockDim.x < n)
+    minimum = min((x[i+blockDim.x]), minimum);
+  shmem[tid] = minimum;
+  __syncthreads();
+
+  // Perform reduction block-wise in shared memory.
+  for (I j = blockDim.x/2; j > 0; j >>= 1) {
+    if (tid < j) {
+      minimum = min(shmem[tid + j], minimum);
+      shmem[tid] = minimum;
     }
-    
-    // write result for this block to global mem
-    if (tid == 0) g_odata[blockIdx.x] = minimum;
+    __syncthreads();
+  }
+
+  // Copy reduction result for each block to global memory
+  if (tid == 0)
+    out[blockIdx.x] = minimum;
 }
 
 
 /*
  * Weighted root mean square notm of a vector.
  *
- * It is based off reduce3 kernel from CUDA examples. Uses n/2 threads.
- * Performs the first level of reduction when reading from global memory.
- *
  */
 template <typename T, typename I>
 __global__ void
-L1NormKernel(const T *g_idata1, T *g_odata, I n)
+L1NormKernel(const T *x, T *out, I n)
 {
-    T *sdata = SharedMemory<T>();
+  extern __shared__ T shmem[];
 
-    // perform first level of reduction,
-    // reading from global memory, writing to shared memory
-    I tid = threadIdx.x;
-    I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+  I tid = threadIdx.x;
+  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
 
-    T mySum = (i < n) ? abs(g_idata1[i]) : 0.0;
+  T sum = 0.0;
+  // First reduction step before storing data in shared memory.
+  if (i < n)
+    sum = abs(x[i]);
+  if (i + blockDim.x < n)
+    sum += abs(x[i+blockDim.x]);
+  shmem[tid] = sum;
+  __syncthreads();
 
-    if (i + blockDim.x < n)
-        mySum += abs(g_idata1[i+blockDim.x]);
-
-    sdata[tid] = mySum;
+  // Perform reduction block-wise in shared memory.
+  for (I j = blockDim.x/2; j > 0; j >>= 1) {
+    if (tid < j) {
+      sum += shmem[tid + j];
+      shmem[tid] = sum;
+    }
     __syncthreads();
+  }
 
-    // do reduction in shared mem
-    for (I s=blockDim.x/2; s>0; s>>=1)
-    {
-        if (tid < s)
-        {
-            sdata[tid] = mySum = mySum + sdata[tid + s];
-        }
-
-        __syncthreads();
-    }
-
-    // write result for this block to global mem
-    if (tid == 0) g_odata[blockIdx.x] = mySum;
-}
-
-
-template <typename T, typename I>
-__global__ void
-invTestKernel(const T *g_idata, T *g_odata1, T *g_buffer, I n)
-{
-    T *sdata = SharedMemory<T>();
-
-    // perform first level of reduction,
-    // reading from global memory, writing to shared memory
-    I tid = threadIdx.x;
-    I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
-
-    T mySum; // = (i < n) ? g_idata[i] : 0;
-
-    if (i < n && g_idata[i] == 0.0)
-    {
-      mySum = 1.0;
-    }
-    else
-    {
-      mySum = 0.0;
-      g_odata1[i] = 1.0/g_idata[i];
-    }
-
-    if (i + blockDim.x < n && g_idata[i + blockDim.x] == 0.0)
-    {
-      mySum += 1.0;
-    }
-    else
-    {
-      g_odata1[i + blockDim.x] = 1.0/g_idata[i + blockDim.x];
-    }
-
-    sdata[tid] = mySum;
-    __syncthreads();
-
-    // do reduction in shared mem (blockDim.x is a power of 2)
-    for (I s=blockDim.x/2; s>0; s>>=1)
-    {
-        if (tid < s)
-        {
-            sdata[tid] = mySum = mySum + sdata[tid + s];
-        }
-
-        __syncthreads();
-    }
-
-    // write result for this block to global mem
-    if (tid == 0) g_buffer[blockIdx.x] = mySum;
+  // Copy reduction result for each block to global memory
+  if (tid == 0)
+    out[blockIdx.x] = sum;
 }
 
 /*
- * Checks if inequality constraints are satisfied.
- *
- * It is based off reduce3 kernel from CUDA examples. Uses n/2 threads.
- * Performs the first level of reduction when reading from global memory.
+ * Vector inverse  z[i] = 1/x[i] with check for zeros. Reduction is performed
+ * to flag the result if any x[i] = 0.
  *
  */
 template <typename T, typename I>
 __global__ void
-constrMaskKernel(const T *g_c, const T *g_x, T *g_m, T *g_odata, I n)
+invTestKernel(const T *x, T *z, T *out, I n)
 {
-    T *sdata = SharedMemory<T>();
+  extern __shared__ T shmem[];
 
-    // perform first level of reduction,
-    // reading from global memory, writing to shared memory
-    // computing mask for failed constarints g_m on the fly
-    I tid = threadIdx.x;
-    I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+  I tid = threadIdx.x;
+  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
 
-    // test1 = true if test failed
-    bool test1 = (abs(g_c[i]) > 1.5 && g_c[i]*g_x[i] <= 0.0) ||
-                 (abs(g_c[i]) > 0.5 && g_c[i]*g_x[i] <  0.0);
-    T mySum = g_m[i] = (i < n && test1) ? 1.0 : 0.0;
+  T flag;
 
-    // test2 = true if test failed
-    bool test2 = (abs(g_c[i + blockDim.x]) > 1.5 && g_c[i + blockDim.x]*g_x[i + blockDim.x] <= 0.0) ||
-                 (abs(g_c[i + blockDim.x]) > 0.5 && g_c[i + blockDim.x]*g_x[i + blockDim.x] <  0.0);
-    g_m[i+blockDim.x] = (i+blockDim.x < n && test2) ? 1.0 : 0.0;
-    mySum += g_m[i+blockDim.x];
+  // First reduction step before storing data in shared memory.
+  if (i < n && x[i] == 0.0) {
+    flag = 1.0;
+  } else {
+    flag = 0.0;
+    z[i] = 1.0/x[i];
+  }
 
-    sdata[tid] = mySum;
-    __syncthreads();
+  if (i + blockDim.x < n && x[i + blockDim.x] == 0.0)
+  {
+    flag += 1.0;
+  }
+  else
+  {
+    z[i + blockDim.x] = 1.0/x[i + blockDim.x];
+  }
 
-    // do reduction in shared mem (blockDim.x is a power of 2)
-    for (I s=blockDim.x/2; s>0; s>>=1)
-    {
-        if (tid < s)
-        {
-            sdata[tid] = mySum = mySum + sdata[tid + s];
-        }
+  shmem[tid] = flag;
+  __syncthreads();
 
-        __syncthreads();
+  // Inverse calculation is done. Perform reduction block-wise in shared
+  // to find if any x[i] = 0.
+  for (I j = blockDim.x/2; j > 0; j >>= 1) {
+    if (tid < j) {
+      flag += shmem[tid + j];
+      shmem[tid] = flag;
     }
+    __syncthreads();
+  }
 
-    // write result for this block to global mem
-    if (tid == 0) g_odata[blockIdx.x] = mySum;
+  // Copy reduction result for each block to global memory
+  if (tid == 0)
+    out[blockIdx.x] = flag;
+}
+
+/*
+ * Checks if inequality constraints are satisfied. Constraint check
+ * results are stored in vector 'm'. A reduction is performed to set a
+ * flag > 0 if any of the constraints is violated.
+ *
+ */
+template <typename T, typename I>
+__global__ void
+constrMaskKernel(const T *c, const T *x, T *m, T *out, I n)
+{
+  extern __shared__ T shmem[];
+
+  I tid = threadIdx.x;
+  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+
+  // First reduction step before storing data in shared memory.
+
+  // test1 = true if test failed
+  bool test1 = (abs(c[i]) > 1.5 && c[i]*x[i] <= 0.0) ||
+      (abs(c[i]) > 0.5 && c[i]*x[i] <  0.0);
+  T sum = m[i] = (i < n && test1) ? 1.0 : 0.0;
+
+  // test2 = true if test failed
+  bool test2 = (abs(c[i + blockDim.x]) > 1.5 && c[i + blockDim.x]*x[i + blockDim.x] <= 0.0) ||
+      (abs(c[i + blockDim.x]) > 0.5 && c[i + blockDim.x]*x[i + blockDim.x] <  0.0);
+  m[i+blockDim.x] = (i+blockDim.x < n && test2) ? 1.0 : 0.0;
+  sum += m[i+blockDim.x];
+
+  shmem[tid] = sum;
+  __syncthreads();
+
+  // Perform reduction block-wise in shared memory.
+  for (I j = blockDim.x/2; j > 0; j >>= 1) {
+    if (tid < j) {
+      sum += shmem[tid + j];
+      shmem[tid] = sum;
+    }
+    __syncthreads();
+  }
+
+  // Copy reduction result for each block to global memory
+  if (tid == 0)
+    out[blockIdx.x] = sum;
 }
 
 
@@ -641,58 +567,51 @@ constrMaskKernel(const T *g_c, const T *g_x, T *g_m, T *g_odata, I n)
 /*
  * Finds minimum component-wise quotient.
  *
- * TODO: Replace '0.0' with 'ZERO'
- *
- * It is based off reduce3 kernel from CUDA examples. Uses n/2 threads.
- * Performs the first level of reduction when reading from global memory.
- *
  */
 template <typename T, typename I>
 __global__ void
 minQuotientKernel(const T MAX_VAL, const T *num, const T *den, T *min_quotient, I n)
 {
-    T *sdata = SharedMemory<T>();
+  extern __shared__ T shmem[];
 
-    I tid = threadIdx.x;
-    I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+  I tid = threadIdx.x;
+  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
 
-    // Initialize "minimum" to maximum floating point value.
-    T minimum = MAX_VAL;
-    const T zero = static_cast<T>(0.0);
+  // Initialize "minimum" to maximum floating point value.
+  T minimum = MAX_VAL;
+  const T zero = static_cast<T>(0.0);
 
-    // Load vector quotient in the shared memory. Skip if the denominator
-    // value is zero.
-    if (i < n && den[i] != zero)
-      minimum = num[i]/den[i];
+  // Load vector quotient in the shared memory. Skip if the denominator
+  // value is zero.
+  if (i < n && den[i] != zero)
+    minimum = num[i]/den[i];
 
-    // First level of reduction is upon storing values to shared memory.
-    if (i + blockDim.x < n && den[i + blockDim.x] != zero)
-        minimum = min(num[i+blockDim.x]/den[i+blockDim.x], minimum);
+  // First level of reduction is upon storing values to shared memory.
+  if (i + blockDim.x < n && den[i + blockDim.x] != zero)
+    minimum = min(num[i+blockDim.x]/den[i+blockDim.x], minimum);
 
-    sdata[tid] = minimum;
-    __syncthreads();
+  shmem[tid] = minimum;
+  __syncthreads();
 
-    // Perform reduction block-wise in shared memory.
-    for (I s = blockDim.x/2; s > 0; s >>= 1)
-    {
-        if (tid < s)
-        {
-          minimum = min(sdata[tid + s], minimum);
-          sdata[tid] = minimum; // = sdata[tid + s] < minimum ? sdata[tid + s] : minimum;
-        }
-
-        __syncthreads();
+  // Perform reduction block-wise in shared memory.
+  for (I j = blockDim.x/2; j > 0; j >>= 1) {
+    if (tid < j) {
+      minimum = min(shmem[tid + j], minimum);
+      shmem[tid] = minimum;
     }
+    __syncthreads();
+  }
 
-    // Copy reduction result for each block to global memory
-    if (tid == 0)
-      min_quotient[blockIdx.x] = minimum;
+  // Copy reduction result for each block to global memory
+  if (tid == 0)
+    min_quotient[blockIdx.x] = minimum;
 }
 
 
-
-
 } // namespace math_kernels
+
+
+
 
 template <typename T, typename I>
 inline cudaError_t setConst(T a, Vector<T,I>& X)
@@ -715,18 +634,6 @@ inline cudaError_t linearSum(T a, const Vector<T,I>& X, T b, const Vector<T,I>& 
   const unsigned block        = p.block();
 
   math_kernels::linearSumKernel<<<grid, block>>>(a, X.device(), b, Y.device(), Z.device(), X.size());
-  return cudaGetLastError();
-}
-
-template <typename T, typename I>
-inline cudaError_t axpy(T a, const Vector<T,I>& X, Vector<T,I>& Y)
-{
-  // Set partitioning
-  StreamPartitioning<T, I>& p = X.partStream();
-  const I grid                = p.grid();
-  const unsigned block        = p.block();
-
-  math_kernels::axpyKernel<<<grid, block>>>(a, X.device(), Y.device(), X.size());
   return cudaGetLastError();
 }
 
