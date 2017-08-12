@@ -105,8 +105,7 @@ struct SharedMemory<long double>
     }
 };
 
-        
-    
+
 /**
  * Sets all elements of the vector X to constant value a.
  * 
@@ -650,36 +649,44 @@ constrMaskKernel(const T *g_c, const T *g_x, T *g_m, T *g_odata, I n)
  */
 template <typename T, typename I>
 __global__ void
-minQuotientKernel(T MAX, const T *g_idata1, const T *g_idata2, T *g_odata, I n)
+minQuotientKernel(const T MAX_VAL, const T *num, const T *den, T *min_quotient, I n)
 {
     T *sdata = SharedMemory<T>();
 
-    // perform first level of reduction,
-    // reading from global memory, writing to shared memory
     I tid = threadIdx.x;
     I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
 
-    T minimum = (i < n && g_idata2[i] != 0.0) ? g_idata1[i]/g_idata2[i] : MAX;
+    // Initialize "minimum" to maximum floating point value.
+    T minimum = MAX_VAL;
+    const T zero = static_cast<T>(0.0);
 
-    if (i + blockDim.x < n && g_idata2[i + blockDim.x] != 0.0)
-        minimum = (g_idata1[i+blockDim.x]/g_idata2[i+blockDim.x]) < minimum ? g_idata1[i+blockDim.x]/g_idata2[i+blockDim.x] : minimum;
+    // Load vector quotient in the shared memory. Skip if the denominator
+    // value is zero.
+    if (i < n && den[i] != zero)
+      minimum = num[i]/den[i];
+
+    // First level of reduction is upon storing values to shared memory.
+    if (i + blockDim.x < n && den[i + blockDim.x] != zero)
+        minimum = min(num[i+blockDim.x]/den[i+blockDim.x], minimum);
 
     sdata[tid] = minimum;
     __syncthreads();
 
-    // do reduction in shared mem (blockDim.x is a power of 2)
-    for (I s=blockDim.x/2; s>0; s>>=1)
+    // Perform reduction block-wise in shared memory.
+    for (I s = blockDim.x/2; s > 0; s >>= 1)
     {
         if (tid < s)
         {
-            sdata[tid] = minimum = sdata[tid + s] < minimum ? sdata[tid + s] : minimum;
+          minimum = min(sdata[tid + s], minimum);
+          sdata[tid] = minimum; // = sdata[tid + s] < minimum ? sdata[tid + s] : minimum;
         }
 
         __syncthreads();
     }
 
-    // write result for this block to global mem
-    if (tid == 0) g_odata[blockIdx.x] = minimum;
+    // Copy reduction result for each block to global memory
+    if (tid == 0)
+      min_quotient[blockIdx.x] = minimum;
 }
 
 
@@ -690,131 +697,128 @@ minQuotientKernel(T MAX, const T *g_idata1, const T *g_idata2, T *g_odata, I n)
 template <typename T, typename I>
 inline cudaError_t setConst(T a, Vector<T,I>& X)
 {
-    // Set partitioning
-    StreamPartitioning<T, I>& p = X.partStream();
-    const I grid                = p.grid();
-    const unsigned block        = p.block();
+  // Set partitioning
+  StreamPartitioning<T, I>& p = X.partStream();
+  const I grid                = p.grid();
+  const unsigned block        = p.block();
 
-    math_kernels::setConstKernel<<<grid, block>>>(a, X.device(), X.size());
-    return cudaGetLastError();    
+  math_kernels::setConstKernel<<<grid, block>>>(a, X.device(), X.size());
+  return cudaGetLastError();
 }
 
 template <typename T, typename I>
 inline cudaError_t linearSum(T a, const Vector<T,I>& X, T b, const Vector<T,I>& Y, Vector<T,I>& Z)
 {
-    // Set partitioning
-    StreamPartitioning<T, I>& p = X.partStream();
-    const I grid                = p.grid();
-    const unsigned block        = p.block();
+  // Set partitioning
+  StreamPartitioning<T, I>& p = X.partStream();
+  const I grid                = p.grid();
+  const unsigned block        = p.block();
 
-    math_kernels::linearSumKernel<<<grid, block>>>(a, X.device(), b, Y.device(), Z.device(), X.size());
-    return cudaGetLastError();    
+  math_kernels::linearSumKernel<<<grid, block>>>(a, X.device(), b, Y.device(), Z.device(), X.size());
+  return cudaGetLastError();
 }
 
 template <typename T, typename I>
 inline cudaError_t axpy(T a, const Vector<T,I>& X, Vector<T,I>& Y)
 {
-    // Set partitioning
-    StreamPartitioning<T, I>& p = X.partStream();
-    const I grid                = p.grid();
-    const unsigned block        = p.block();
+  // Set partitioning
+  StreamPartitioning<T, I>& p = X.partStream();
+  const I grid                = p.grid();
+  const unsigned block        = p.block();
 
-    math_kernels::axpyKernel<<<grid, block>>>(a, X.device(), Y.device(), X.size());
-    return cudaGetLastError();    
+  math_kernels::axpyKernel<<<grid, block>>>(a, X.device(), Y.device(), X.size());
+  return cudaGetLastError();
 }
 
 template <typename T, typename I>
 inline cudaError_t prod(const Vector<T,I>& X, const Vector<T,I>& Y, Vector<T,I>& Z)
 {
-    // Set partitioning
+  // Set partitioning
   StreamPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
-    math_kernels::prodKernel<<<grid, block>>>(X.device(), Y.device(), Z.device(), X.size());
-    return cudaGetLastError();    
+  math_kernels::prodKernel<<<grid, block>>>(X.device(), Y.device(), Z.device(), X.size());
+  return cudaGetLastError();
 }
 
 template <typename T, typename I>
 inline cudaError_t div(const Vector<T,I>& X, const Vector<T,I>& Y, Vector<T,I>& Z)
 {
-    // Set partitioning
+  // Set partitioning
   StreamPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
-    math_kernels::divKernel<<<grid, block>>>(X.device(), Y.device(), Z.device(), X.size());
-    return cudaGetLastError();    
+  math_kernels::divKernel<<<grid, block>>>(X.device(), Y.device(), Z.device(), X.size());
+  return cudaGetLastError();
 }
 
 template <typename T, typename I>
 inline cudaError_t scale(T const a, const Vector<T,I>& X, Vector<T,I>& Z)
 {
-    // Set partitioning
+  // Set partitioning
   StreamPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
-    math_kernels::scaleKernel<<<grid, block>>>(a, X.device(), Z.device(), X.size());
-    return cudaGetLastError();    
+  math_kernels::scaleKernel<<<grid, block>>>(a, X.device(), Z.device(), X.size());
+  return cudaGetLastError();
 }
 
 template <typename T, typename I>
 inline cudaError_t absVal(const Vector<T,I>& X, Vector<T,I>& Z)
 {
-    // Set partitioning
+  // Set partitioning
   StreamPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
-    math_kernels::absKernel<<<grid, block>>>(X.device(), Z.device(), X.size());
-    return cudaGetLastError();    
+  math_kernels::absKernel<<<grid, block>>>(X.device(), Z.device(), X.size());
+  return cudaGetLastError();
 }
 
 template <typename T, typename I>
 inline cudaError_t inv(const Vector<T,I>& X, Vector<T,I>& Z)
 {
-    // Set partitioning
+  // Set partitioning
   StreamPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
-    math_kernels::invKernel<<<grid, block>>>(X.device(), Z.device(), X.size());
-    return cudaGetLastError();    
+  math_kernels::invKernel<<<grid, block>>>(X.device(), Z.device(), X.size());
+  return cudaGetLastError();
 }
 
 template <typename T, typename I>
 inline cudaError_t addConst(T const a, const Vector<T,I>& X, Vector<T,I>& Z)
 {
-    // Set partitioning
+  // Set partitioning
   StreamPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
-    math_kernels::addConstKernel<<<grid, block>>>(a, X.device(), Z.device(), X.size());
-    return cudaGetLastError();    
+  math_kernels::addConstKernel<<<grid, block>>>(a, X.device(), Z.device(), X.size());
+  return cudaGetLastError();
 }
 
-    
+
 template <typename T, typename I>
 inline cudaError_t compare(T const c, const Vector<T,I>& X, Vector<T,I>& Z)
 {
-    // Set partitioning
+  // Set partitioning
   StreamPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
-    math_kernels::compareKernel<<<grid, block>>>(c, X.device(), Z.device(), X.size());
-    return cudaGetLastError();
+  math_kernels::compareKernel<<<grid, block>>>(c, X.device(), Z.device(), X.size());
+  return cudaGetLastError();
 }
 
 
 template <typename T, typename I>
 inline T dotProd(const Vector<T,I>& x, const Vector<T,I>& y)
 {
-    // Reduction result storage on CPU
-    T gpu_result = 0;
-    
     // Set partitioning
     ReducePartitioning<T, I>& p = x.partReduce();
     I grid                      = p.grid();
@@ -835,11 +839,11 @@ inline T dotProd(const Vector<T,I>& x, const Vector<T,I>& y)
         n = grid;
     }
     
-    // sum partial sums from each block on CPU
-    // copy result from device to host
+    // Finish reduction on CPU if there are less than two blocks of data left.
     p.copyFromDevBuffer(n);
     
-    for (unsigned int i=0; i<n; i++)
+    T gpu_result = p.hostBuffer()[0];
+    for (unsigned int i=1; i<n; i++)
     {
         gpu_result += p.hostBuffer()[i];
     }
@@ -849,9 +853,6 @@ inline T dotProd(const Vector<T,I>& x, const Vector<T,I>& y)
 template <typename T, typename I>
 inline T maxNorm(const Vector<T,I>& x)
 {
-    // Reduction result storage on CPU
-    T gpu_result = 0;
-    
     // Set partitioning
     ReducePartitioning<T, I>& p = x.partReduce();
     I grid                      = p.grid();
@@ -867,37 +868,33 @@ inline T maxNorm(const Vector<T,I>& x)
         // Recompute partitioning
         p.setPartitioning(n, grid, block, shMemSize);
         
-        // Rerun reduction kernel
+        // (Re)run reduction kernel
         math_kernels::maxNormKernel<T,I><<< grid, block, shMemSize >>>(p.devBuffer(), p.devBuffer(), n);
         n = grid;
     }
     
-    // sum partial sums from each block on CPU
-    // copy result from device to host
+    // Finish reduction on CPU if there are less than two blocks of data left.
     p.copyFromDevBuffer(n);
     
-    gpu_result = p.hostBuffer()[0];
+    T gpu_result = p.hostBuffer()[0];
     for (unsigned int i=1; i<n; i++)
     {
-        if (p.hostBuffer()[i])
+        if (p.hostBuffer()[i] > gpu_result)
             gpu_result = p.hostBuffer()[i];
     }
     return gpu_result;
 }
     
 template <typename T, typename I>
-inline T wrmsNorm(const Vector<T,I>& x, const Vector<T,I>& y)
+inline T wrmsNorm(const Vector<T,I>& x, const Vector<T,I>& w)
 {
-    // Reduction result storage on CPU
-    T gpu_result = 0;
-    
     // Set partitioning
     ReducePartitioning<T, I>& p = x.partReduce();
     I grid                      = p.grid();
     unsigned block              = p.block();
     unsigned shMemSize          = p.shmem();
     
-    math_kernels::wrmsNormKernel<T,I><<< grid, block, shMemSize >>>(x.device(), y.device(), p.devBuffer(), x.size());
+    math_kernels::wrmsNormKernel<T,I><<< grid, block, shMemSize >>>(x.device(), w.device(), p.devBuffer(), x.size());
     
     I n = grid;
     I nmax = 2*block;
@@ -906,16 +903,16 @@ inline T wrmsNorm(const Vector<T,I>& x, const Vector<T,I>& y)
         // Recompute partitioning
         p.setPartitioning(n, grid, block, shMemSize);
         
-        // Rerun reduction kernel
+        // (Re)run reduction kernel
         math_kernels::sumReduceKernel<T,I><<< grid, block, shMemSize >>>(p.devBuffer(), p.devBuffer(), n);
         n = grid;
     }
     
-    // sum partial sums from each block on CPU
-    // copy result from device to host
+    // Finish reduction on CPU if there are less than two blocks of data left.
     p.copyFromDevBuffer(n);
-    
-    for (unsigned int i=0; i<n; i++)
+
+    T gpu_result = p.hostBuffer()[0];
+    for (unsigned int i=1; i<n; i++)
     {
         gpu_result += p.hostBuffer()[i];
     }
@@ -923,18 +920,15 @@ inline T wrmsNorm(const Vector<T,I>& x, const Vector<T,I>& y)
 }
     
 template <typename T, typename I>
-inline T wrmsNormMask(const Vector<T,I>& x, const Vector<T,I>& y, const Vector<T,I>& id)
+inline T wrmsNormMask(const Vector<T,I>& x, const Vector<T,I>& w, const Vector<T,I>& id)
 {
-    // Reduction result storage on CPU
-    T gpu_result = 0;
-
     // Set partitioning
     ReducePartitioning<T, I>& p = x.partReduce();
     I grid                      = p.grid();
     unsigned block              = p.block();
     unsigned shMemSize          = p.shmem();
 
-    math_kernels::wrmsNormMaskKernel<T,I><<< grid, block, shMemSize >>>(x.device(), y.device(), id.device(), p.devBuffer(), x.size());
+    math_kernels::wrmsNormMaskKernel<T,I><<< grid, block, shMemSize >>>(x.device(), w.device(), id.device(), p.devBuffer(), x.size());
 
     I n = grid;
     I nmax = 2*block;
@@ -943,16 +937,16 @@ inline T wrmsNormMask(const Vector<T,I>& x, const Vector<T,I>& y, const Vector<T
         // Recompute partitioning
         p.setPartitioning(n, grid, block, shMemSize);
 
-        // Rerun reduction kernel
+        // (Re)run reduction kernel
         math_kernels::sumReduceKernel<T,I><<< grid, block, shMemSize >>>(p.devBuffer(), p.devBuffer(), n);
         n = grid;
     }
 
-    // sum partial sums from each block on CPU
-    // copy result from device to host
+    // Finish reduction on CPU if there are less than two blocks of data left.
     p.copyFromDevBuffer(n);
 
-    for (unsigned int i=0; i<n; i++)
+    T gpu_result = p.hostBuffer()[0];
+    for (unsigned int i=1; i<n; i++)
     {
         gpu_result += p.hostBuffer()[i];
     }
@@ -962,8 +956,6 @@ inline T wrmsNormMask(const Vector<T,I>& x, const Vector<T,I>& y, const Vector<T
 template <typename T, typename I>
 inline T findMin(const Vector<T,I>& x)
 {
-    // Reduction result storage on CPU
-    T gpu_result = 0;
     T maxVal = std::numeric_limits<T>::max();
 
     // Set partitioning
@@ -986,14 +978,13 @@ inline T findMin(const Vector<T,I>& x)
         n = grid;
     }
 
-    // sum partial sums from each block on CPU
-    // copy result from device to host
+    // Finish reduction on CPU if there are less than two blocks of data left.
     p.copyFromDevBuffer(n);
 
-    gpu_result = p.hostBuffer()[0];
+    T gpu_result = p.hostBuffer()[0];
     for (unsigned int i=1; i<n; i++)
     {
-        if (p.hostBuffer()[i])
+        if (p.hostBuffer()[i] < gpu_result)
             gpu_result = p.hostBuffer()[i];
     }
     return gpu_result;
@@ -1003,9 +994,6 @@ inline T findMin(const Vector<T,I>& x)
 template <typename T, typename I>
 inline T wL2Norm(const Vector<T,I>& x, const Vector<T,I>& y)
 {
-    // Reduction result storage on CPU
-    T gpu_result = 0;
-
     // Set partitioning
     ReducePartitioning<T, I>& p = x.partReduce();
     I grid                      = p.grid();
@@ -1026,11 +1014,11 @@ inline T wL2Norm(const Vector<T,I>& x, const Vector<T,I>& y)
         n = grid;
     }
 
-    // sum partial sums from each block on CPU
-    // copy result from device to host
+    // Finish reduction on CPU if there are less than two blocks of data left.
     p.copyFromDevBuffer(n);
 
-    for (unsigned int i=0; i<n; i++)
+    T gpu_result = p.hostBuffer()[0];
+    for (unsigned int i=1; i<n; i++)
     {
         gpu_result += p.hostBuffer()[i];
     }
@@ -1041,9 +1029,6 @@ inline T wL2Norm(const Vector<T,I>& x, const Vector<T,I>& y)
 template <typename T, typename I>
 inline T L1Norm(const Vector<T,I>& x)
 {
-    // Reduction result storage on CPU
-    T gpu_result = 0;
-
     // Set partitioning
     ReducePartitioning<T, I>& p = x.partReduce();
     I grid                      = p.grid();
@@ -1064,11 +1049,11 @@ inline T L1Norm(const Vector<T,I>& x)
         n = grid;
     }
 
-    // sum partial sums from each block on CPU
-    // copy result from device to host
+    // Finish reduction on CPU if there are less than two blocks of data left.
     p.copyFromDevBuffer(n);
 
-    for (unsigned int i=0; i<n; i++)
+    T gpu_result = p.hostBuffer()[0];
+    for (unsigned int i=1; i<n; i++)
     {
         gpu_result += p.hostBuffer()[i];
     }
@@ -1079,9 +1064,6 @@ inline T L1Norm(const Vector<T,I>& x)
 template <typename T, typename I>
 inline bool invTest(const Vector<T,I>& x, Vector<T,I>& z)
 {
-    // Reduction result storage on CPU
-    T gpu_result = 0;
-
     // Set partitioning
     ReducePartitioning<T, I>& p = x.partReduce();
     I grid                      = p.grid();
@@ -1102,11 +1084,11 @@ inline bool invTest(const Vector<T,I>& x, Vector<T,I>& z)
         n = grid;
     }
 
-    // sum partial sums from each block on CPU
-    // copy result from device to host
+    // Finish reduction on CPU if there are less than two blocks of data left.
     p.copyFromDevBuffer(n);
 
-    for (unsigned int i=0; i<n; i++)
+    T gpu_result = p.hostBuffer()[0];
+    for (unsigned int i=1; i<n; i++)
     {
         gpu_result += p.hostBuffer()[i];
     }
@@ -1117,9 +1099,6 @@ inline bool invTest(const Vector<T,I>& x, Vector<T,I>& z)
 template <typename T, typename I>
 inline bool constrMask(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>& m)
 {
-    // Reduction result storage on CPU
-    T gpu_result = 0.0;
-
     // Set partitioning
     ReducePartitioning<T, I>& p = x.partReduce();
     I grid                      = p.grid();
@@ -1140,11 +1119,11 @@ inline bool constrMask(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>& 
         n = grid;
     }
 
-    // sum partial sums from each block on CPU
-    // copy result from device to host
+    // Finish reduction on CPU if there are less than two blocks of data left.
     p.copyFromDevBuffer(n);
 
-    for (unsigned int i=0; i<n; i++)
+    T gpu_result = p.hostBuffer()[0];
+    for (unsigned int i=1; i<n; i++)
     {
         gpu_result += p.hostBuffer()[i];
     }
@@ -1155,8 +1134,6 @@ inline bool constrMask(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>& 
 template <typename T, typename I>
 inline T minQuotient(const Vector<T,I>& num, const Vector<T,I>& den)
 {
-    // Reduction result storage on CPU
-    T gpu_result = 0;
     // Starting value for min reduction
     T maxVal = std::numeric_limits<T>::max();
 
@@ -1168,6 +1145,7 @@ inline T minQuotient(const Vector<T,I>& num, const Vector<T,I>& den)
 
     math_kernels::minQuotientKernel<T,I><<< grid, block, shMemSize >>>(maxVal, num.device(), den.device(), p.devBuffer(), num.size());
 
+    // All quotients are computed by now. Find the minimum.
     I n = grid;
     I nmax = 2*block;
     while (n > nmax)
@@ -1180,11 +1158,10 @@ inline T minQuotient(const Vector<T,I>& num, const Vector<T,I>& den)
         n = grid;
     }
 
-    // sum partial sums from each block on CPU
-    // copy result from device to host
+    // Finish reduction on CPU if there are less than two blocks of data left.
     p.copyFromDevBuffer(n);
 
-    gpu_result = p->hostBuffer()[0];
+    T gpu_result = p.hostBuffer()[0];
     for (unsigned int i=1; i<n; i++)
     {
         if (p.hostBuffer()[i] < gpu_result)
