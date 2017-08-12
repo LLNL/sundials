@@ -1,0 +1,157 @@
+% This is a shared SUNDIALS TEX file with description of
+% the CUDA nvector implementation
+%
+The {\nveccuda} module is an experimental implementation of {\nvector} in {\cuda} language. 
+It allows for {\sundials} vector kernels to run on GPU devices. It is intended for users 
+who are already familiar with {\cuda} and GPU programming. 
+
+
+It defines the {\em content} field of a \id{N\_Vector} to be a structure containing
+the global and local lengths of the vector, a pointer to the {\cuda} vector,
+an {\mpi} communicator, and a boolean flag {\em own\_data} indicating ownership of 
+the wrapped {\cuda} vector.
+%%
+\begin{verbatim} 
+struct _N_VectorContent_Cuda {
+};
+\end{verbatim}
+%%
+%%--------------------------------------------
+
+The header file to be included when using this module is \id{nvector\_cuda.h}.
+Unlike native {\sundials} vector types, {\nveccuda} does not provide macros 
+to access its member variables.
+Note that {\nveccuda} requires {\sundials} to be built with {\mpi} support.
+
+
+%%
+%%--------------------------------------------
+%%
+The {\nveccuda} module defines implementations of all vector operations listed 
+in Table \ref{t:nvecops}, except for \verb|N_VGetArrayPointer| and 
+\verb|N_VSetArrayPointer|. As such, this vector cannot be used with {\sundials} Fortran interfaces.
+When access to raw vector data is needed, it is 
+recommended to extract the {\cuda} vector first, and then use {\cuda} 
+methods to access the data. Usage examples of {\nveccuda} are provided in 
+example programs for {\cvode} \cite{cvode_ex}.
+
+The names of vector operations are obtained from those in 
+Table \ref{t:nvecops} by appending the suffix \id{\_Cuda} (e.g. \id{N\_VDestroy\_Cuda}).
+The module {\nveccuda}  provides the following additional user-callable routines:
+%%
+%%
+\begin{itemize}
+
+  
+%%--------------------------------------
+
+\item \ID{N\_VNewEmpty\_Cuda}
+ 
+  This function creates a new {\nvector} wrapper with the pointer to
+  the wrapped {\cuda} vector set to (\id{NULL}). It is used by the 
+  \id{N\_VMake\_Cuda} and \id{N\_VClone\_Cuda} implementations. 
+
+\begin{verbatim}
+N_Vector N_VNewEmpty_Cuda(MPI_Comm comm, 
+                           long int local_length, 
+                           long int global_length);
+\end{verbatim}
+
+  
+%%--------------------------------------
+
+\item \ID{N\_VMake\_Cuda}
+  
+  This function creates and allocates memory for an {\nveccuda}
+  wrapper around a user-provided {\cuda} vector. It does {\em not} 
+  allocate memory for the vector \id{pvec} itself.
+
+\begin{verbatim}
+N_Vector N_VMake_Cuda(Vec *pvec);
+\end{verbatim}
+
+%%--------------------------------------
+
+\item \ID{N\_VGetVector\_Cuda}
+  
+  This function returns a pointer to the underlying {\cuda} vector.
+
+\begin{verbatim}
+Vec *N_VGetVector_Cuda(N_Vector v);
+\end{verbatim}
+
+%%--------------------------------------
+
+
+\item \ID{N\_VCloneVectorArray\_Cuda}
+ 
+  This function creates (by cloning) an array of \id{count} {\nveccuda} vectors.
+ 
+\begin{verbatim}
+N_Vector *N_VCloneVectorArray_Cuda(int count, N_Vector w);
+\end{verbatim}
+
+%%--------------------------------------
+
+\item \ID{N\_VCloneVectorArrayEmpty\_Cuda}
+ 
+  This function creates (by cloning) an array of \id{count} {\nveccuda} vectors,
+  each with pointers to {\cuda} vectors set to (\id{NULL}).
+ 
+\begin{verbatim}
+N_Vector *N_VCloneEmptyVectorArray_Cuda(int count, N_Vector w);
+\end{verbatim}
+
+%%--------------------------------------
+
+\item \ID{N\_VDestroyVectorArray\_Cuda}
+ 
+ This function frees memory allocated for the array of \id{count} variables of
+ type \id{N\_Vector} created with \id{N\_VCloneVectorArray\_Cuda} or with
+ \id{N\_VCloneVectorArrayEmpty\_Cuda}.
+ 
+
+ \verb|void N_VDestroyVectorArray_Cuda(N_Vector *vs, int count);|
+
+
+%%--------------------------------------
+
+\item \ID{N\_VPrint\_Cuda}
+  
+  This function prints the content of a wrapped {\cuda} vector to stdout.
+ 
+    
+  \verb|void N_VPrint_Cuda(N_Vector v);|
+
+
+\end{itemize}
+%%
+%%------------------------------------
+%%
+\paragraph{\bf Notes} 
+           
+\begin{itemize}
+                                        
+\item
+  When there is a need to access components of an \id{N\_Vector\_Cuda}, \id{v}, 
+  it is recommeded to extract the {\cuda} vector via       
+  \id{x\_vec = N\_VGetVector\_Cuda(v)} and then access components using 
+  appropriate {\cuda} functions.        
+                                                               
+\item
+  {\warn}The functions \id{N\_VNewEmpty\_Cuda}, \id{N\_VMake\_Cuda}, and
+  \id{N\_VCloneVectorArrayEmpty\_Cuda} set the field {\em own\_data} to \id{FALSE}.   
+  \id{N\_VDestroy\_Cuda} and \id{N\_VDestroyVectorArray\_Cuda}
+  will not attempt to free the pointer {\em pvec} for any \id{N\_Vector} with
+  {\em own\_data} set to \id{FALSE}. In such a case, it is the user's responsibility to
+  deallocate the {\em pvec} pointer.
+
+\item
+  {\warn}To maximize efficiency, vector operations in the {\nveccuda} implementation
+  that have more than one \id{N\_Vector} argument do not check for
+  consistent internal representations of these vectors. It is the user's 
+  responsibility to ensure that such routines are called with \id{N\_Vector}
+  arguments that were all created with the same internal representations.
+
+\end{itemize}
+
