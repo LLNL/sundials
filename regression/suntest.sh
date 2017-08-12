@@ -1,11 +1,11 @@
 #!/bin/bash
 # -------------------------------------------------------------------------------
-# Programmer(s): David J. Gardner @ LLNL 
+# Programmer(s): David J. Gardner @ LLNL
 # -------------------------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
@@ -31,7 +31,7 @@ export OMP_NUM_THREADS=4
 umask 002
 
 # path to installed libraries
-# NOTE: Will need to change some paths based on realtype/indextype when 
+# NOTE: Will need to change some paths based on realtype/indextype when
 # options other than double and long int are used for testing
 APPDIR=/usr/casc/sundials/apps/rh6
 MPIDIR=${APPDIR}/openmpi/1.8.8/bin
@@ -47,7 +47,7 @@ mkdir suntest_${realtype}_${indextype}
 cd suntest_${realtype}_${indextype}
 
 # configure sundials with CMake
-# Note the -LAH flag lists the non-advanced cached variables (L), 
+# Note the -LAH flag lists the non-advanced cached variables (L),
 # the dvanced variables (A), and help for each variable (H). This
 # will not print any system variables.
 echo "START CMAKE"
@@ -94,6 +94,10 @@ cmake \
     -D SUPERLUMT_INCLUDE_DIR="${SUPERLUMTDIR}/SRC" \
     -D SUPERLUMT_LIBRARY_DIR="${SUPERLUMTDIR}/lib" \
     -D SUPERLUMT_THREAD_TYPE=Pthread \
+    \
+    -D CUDA_ENABLE=OFF \
+    \
+    -D RAJA_ENABLE=OFF \
     \
     -LAH \
     ../../. 2>&1 | tee configure.log
