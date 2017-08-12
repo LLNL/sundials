@@ -55,33 +55,6 @@ public:
         allocate();
     }
 
-    /// This is temporary solution will be removed.
-    /// Use only if you know what you are doing.
-    Vector(I N, T* data)
-    : size_(N),
-      mem_size_(N*sizeof(T)),
-      ownPartitioning_(true),
-      isClone_(false),
-      ownHostData_(false),
-      ownDevData_(false)
-    {
-        // Set partitioning
-        partStream_ = new StreamPartitioning<T, I>(N, 256);
-        partReduce_ = new ReducePartitioning<T, I>(N, 256);
-
-        if (data == NULL)
-        {
-          h_vec_ = NULL;
-          d_vec_ = NULL;
-        }
-        else
-        {
-          // Sets pointer to device memory and allocates host memory of size N
-          allocate(data);
-          ownHostData_ = true;
-        }
-    }
-
     /// Copy constructor does not copy values
     explicit Vector(const Vector& v)
     : size_(v.size()),
@@ -116,18 +89,6 @@ public:
         err = cudaMalloc((void**) &d_vec_, mem_size_);
         if(err != cudaSuccess)
             std::cout << "Failed to allocate device vector (error code " << err << ")!\n";
-    }
-
-    /// This is temporary solution! Use only if you know what you are doing.
-    void allocate(T* data)
-    {
-      // Allocate host data
-      h_vec_ = static_cast<T*>(malloc(mem_size_));
-      if(h_vec_ == NULL)
-        std::cout << "Failed to allocate host vector!\n";
-
-      // Set pointer to device data
-      d_vec_ = data;
     }
 
     void clear()
@@ -188,32 +149,6 @@ public:
             std::cout << "Failed to copy vector from device to host (error code " << err << ")!\n";
     }
 
-    /// This is dangerous function and is here only temporary. It will be removed.
-    void setFromHost(T* h_vec)
-    {
-      if (ownHostData_)
-      {
-        free(h_vec_);
-        ownHostData_ = false;
-      }
-      h_vec_ = h_vec;
-      copyToDev();
-    }
-
-    /// This is dangerous function and is here only temporary. It will be removed.
-    void setFromDevice(T* d_vec)
-    {
-      if(ownDevData_)
-      {
-        cudaError_t err = cudaFree(d_vec_);
-        if(err != cudaSuccess)
-          std::cout << "Failed to free device vector (error code " << err << ")!\n";
-        ownDevData_ = false;
-      }
-      d_vec_ = d_vec;
-      // Do not copy to host
-    }
-
     StreamPartitioning<T, I>& partStream() const
     {
         return *partStream_;
@@ -243,16 +178,16 @@ private:
 
 // Vector extractor
 template <typename T, typename I>
-inline Vector<T, I>* extract(N_Vector v)
+inline Vector<T, I> *extract(N_Vector v)
 { 
     return static_cast<Vector<T, I>*>(v->content);
 }
 
 // Get Vector device data
 template <typename T, typename I>
-inline T* getDevData(N_Vector v)
+inline T *getDevData(N_Vector v)
 {
-  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
+  Vector<T,I> *vp = static_cast<Vector<T, I>*>(v->content);
   return vp->device();
 }
 
@@ -260,7 +195,7 @@ inline T* getDevData(N_Vector v)
 template <typename T, typename I>
 inline I getSize(N_Vector v)
 {
-  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
+  Vector<T,I> *vp = static_cast<Vector<T, I>*>(v->content);
   return vp->size();
 }
 
