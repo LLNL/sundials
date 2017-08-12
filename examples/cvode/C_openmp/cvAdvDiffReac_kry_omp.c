@@ -23,8 +23,8 @@
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 
-#define SUNDIALS_HAVE_POSIX_TIMERS
-#define _POSIX_TIMERS
+//#define SUNDIALS_HAVE_POSIX_TIMERS
+//#define _POSIX_TIMERS
 
 #if defined( SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
 #include <time.h>
@@ -35,9 +35,9 @@
 
 typedef struct
 {
-  long int Nx;
-  long int Ny;
-  long int NEQ;
+  sunindextype Nx;
+  sunindextype Ny;
+  sunindextype NEQ;
 
   int num_threads;
 
@@ -56,7 +56,7 @@ typedef struct
 
 static N_Vector SetIC(UserData data);
 static UserData SetUserData(int argc, char *argv[]);
-static void Phiu(N_Vector u, N_Vector result, long int NEQ, long int Nx, long int Ny,
+static void Phiu(N_Vector u, N_Vector result, sunindextype NEQ, sunindextype Nx, sunindextype Ny,
                  realtype hordc, realtype verdc, realtype horac, realtype verac);
 static int RHS(realtype t, N_Vector u, N_Vector udot, void *userData);
 static int Jtv(N_Vector v, N_Vector Jv, realtype t, N_Vector u, N_Vector fu, void *userData, N_Vector tmp);
@@ -162,13 +162,13 @@ int main(int argc, char *argv[])
 
 N_Vector SetIC(UserData data)
 {
-  const long int Nx = data->Nx;
+  const sunindextype Nx = data->Nx;
   const realtype hx = data->hx;
   const realtype hy = data->hy;
 
   N_Vector y = N_VNew_OpenMP(data->NEQ, 4);
   realtype *ydat = N_VGetArrayPointer(y);
-  long int i, j, index;
+  sunindextype i, j, index;
 
   for (index = 0; index < data->NEQ; ++index)
   {
@@ -185,8 +185,8 @@ N_Vector SetIC(UserData data)
 
 UserData SetUserData(int argc, char *argv[])
 {
-  long int dimX = 70; /* Default grid size */
-  long int dimY = 80;
+  sunindextype dimX = 70; /* Default grid size */
+  sunindextype dimY = 80;
   const realtype diffusionConst =  0.01;
   const realtype advectionConst = -10.0;
   const realtype reactionConst  = 100.0;
@@ -232,13 +232,13 @@ UserData SetUserData(int argc, char *argv[])
 }
 
 
-void Phiu(N_Vector u, N_Vector result, long int NEQ, long int Nx, long int Ny,
+void Phiu(N_Vector u, N_Vector result, sunindextype NEQ, sunindextype Nx, sunindextype Ny,
           realtype hordc, realtype verdc, realtype horac, realtype verac)
 {
   const realtype *uData = N_VGetArrayPointer(u);
   realtype *resultData = N_VGetArrayPointer(result);
 
-  long int i, j, index;
+  sunindextype i, j, index;
 
   realtype uij;
   realtype ult;
@@ -281,7 +281,7 @@ int RHS(realtype t, N_Vector u, N_Vector udot, void *user_data)
   realtype *udotdata = N_VGetArrayPointer(udot);
 
   const realtype a = -1.0 / 2.0;
-  long int i;
+  sunindextype i;
 
   Phiu(u, udot, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac);
 
@@ -302,7 +302,7 @@ int Jtv(N_Vector v, N_Vector Jv, realtype t, N_Vector u, N_Vector fu, void *user
   realtype *Jvdata = N_VGetArrayPointer(Jv);
 
   const realtype a = -1.0 / 2.0;
-  long int i;
+  sunindextype i;
 
   Phiu(v, Jv, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac);
 
@@ -347,8 +347,8 @@ static void PrintOutput(void *cvode_mem, N_Vector u, realtype t)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int lenrw, leniw ;
-  long int lenrwLS, leniwLS;
+  sunindextype lenrw, leniw ;
+  sunindextype lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
   int flag;
