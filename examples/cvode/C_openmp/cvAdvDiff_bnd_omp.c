@@ -1,5 +1,4 @@
-/*
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds and Ting Yan @ SMU
  *     Based on cvAdvDiff_bnd.c and parallelized with OpenMP
  * -----------------------------------------------------------------
@@ -106,7 +105,7 @@ static void PrintFinalStats(void *cvode_mem);
 
 /* Private function to check function return values */
 
-static int check_flag(void *flagvalue, char *funcname, int opt);
+static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /* Functions Called by the Solver */
 
@@ -144,7 +143,7 @@ int main(int argc, char *argv[])
 #ifdef _OPENMP
   num_threads = omp_get_max_threads();  /* Overwrite with OMP_NUM_THREADS environment variable */
 #endif
-  if (argc > 1)        /* overwrithe with command line value, if supplied */
+  if (argc > 1)        /* overwrite with command line value, if supplied */
     num_threads = strtol(argv[1], NULL, 0);
 
   /* Create an OpenMP vector */
@@ -190,7 +189,7 @@ int main(int argc, char *argv[])
   A = SUNBandMatrix(NEQ, MY, MY, 2*MY);
   if(check_flag((void *)A, "SUNBandMatrix", 0)) return(1);
 
-  /* Created banded SUNLinearSolver object for use by CVode */
+  /* Create banded SUNLinearSolver object for use by CVode */
   LS = SUNBandLinearSolver(u, A);
   if(check_flag((void *)LS, "SUNBandLinearSolver", 0)) return(1);
   
@@ -214,7 +213,7 @@ int main(int argc, char *argv[])
     check_flag(&flag, "CVodeGetNumSteps", 1);
     PrintOutput(t, umax, nst);
   }
- 
+
   PrintFinalStats(cvode_mem);  /* Print some final statistics   */
   printf("num_threads = %i\n\n", num_threads);
    
@@ -437,7 +436,7 @@ static void PrintFinalStats(void *cvode_mem)
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
 
-static int check_flag(void *flagvalue, char *funcname, int opt)
+static int check_flag(void *flagvalue, const char *funcname, int opt)
 {
   int *errflag;
 

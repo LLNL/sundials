@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -20,7 +16,7 @@
  * While integrating the system, we also use the rootfinding
  * feature to find the points at which y1 = 1e-4 or at which
  * y3 = 0.01. This program solves the problem with the BDF method,
- * Newton iteration with the CVDENSE dense linear solver, and a
+ * Newton iteration with the SUNDENSE dense linear solver, and a
  * user-supplied Jacobian routine.
  * It uses a user-supplied function to compute the error weights
  * required for the WRMS norm calculations.
@@ -31,14 +27,15 @@
 
 #include <stdio.h>
 
-/* Header files with a description of contents used here */
+/* Header files with a description of contents used */
 
-#include <cvode/cvode.h>             /* prototypes for CVODE fcts. and consts. */
-#include <cvode/cvode_dense.h>       /* prototype for CVDense */
-#include <nvector/nvector_serial.h>  /* serial N_Vector types, functions, and macros */
-#include <sundials/sundials_dense.h> /* definitions DlsMat and DENSE_ELEM */
-#include <sundials/sundials_types.h> /* definition of type realtype */
-#include <sundials/sundials_math.h>  /* definition of ABS */
+#include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts.  */
+#include <nvector/nvector_serial.h>    /* serial N_Vector types, fcts., macros */
+#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
+#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
+#include <cvode/cvode_direct.h>        /* access to CVDls interface            */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>    /* definition of ABS */
 
 /* User-defined vector and matrix accessor macros: Ith, IJth */
 
@@ -52,11 +49,11 @@
 
    IJth(A,i,j) references the (i,j)th element of the dense matrix A, where
    i and j are in the range [1..NEQ]. The IJth macro is defined using the
-   DENSE_ELEM macro in dense.h. DENSE_ELEM numbers rows and columns of a
-   dense matrix starting from 0. */
+   SM_ELEMENT_D macro in dense.h. SM_ELEMENT_D numbers rows and columns of 
+   a dense matrix starting from 0. */
 
-#define Ith(v,i)    NV_Ith_S(v,i-1)       /* Ith numbers components 1..NEQ */
-#define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1) /* IJth numbers rows,cols 1..NEQ */
+#define Ith(v,i)    NV_Ith_S(v,i-1)         /* Ith numbers components 1..NEQ */
+#define IJth(A,i,j) SM_ELEMENT_D(A,i-1,j-1) /* IJth numbers rows,cols 1..NEQ */
 
 
 /* Problem Constants */
@@ -74,6 +71,7 @@
 #define TMULT RCONST(10.0)     /* output time factor     */
 #define NOUT  12               /* number of output times */
 
+#define ZERO  RCONST(0.0)
 
 /* Functions Called by the Solver */
 
@@ -81,9 +79,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 static int g(realtype t, N_Vector y, realtype *gout, void *user_data);
 
-static int Jac(sunindextype N, realtype t,
-               N_Vector y, N_Vector fy, DlsMat J, void *user_data,
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, 
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 static int ewt(N_Vector y, N_Vector w, void *user_data);
 
@@ -111,11 +108,15 @@ int main()
 {
   realtype t, tout;
   N_Vector y;
+  SUNMatrix A;
+  SUNLinearSolver LS;
   void *cvode_mem;
   int flag, flagr, iout;
   int rootsfound[2];
 
   y = NULL;
+  A = NULL;
+  LS = NULL;
   cvode_mem = NULL;
 
   /* Create serial vector of length NEQ for I.C. */
@@ -146,13 +147,21 @@ int main()
   flag = CVodeRootInit(cvode_mem, 2, g);
   if (check_flag(&flag, "CVodeRootInit", 1)) return(1);
 
-  /* Call CVDense to specify the CVDENSE dense linear solver */
-  flag = CVDense(cvode_mem, NEQ);
-  if (check_flag(&flag, "CVDense", 1)) return(1);
+  /* Create dense SUNMatrix for use in linear solves */
+  A = SUNDenseMatrix(NEQ, NEQ);
+  if(check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
 
-  /* Set the Jacobian routine to Jac (user-supplied) */
-  flag = CVDlsSetDenseJacFn(cvode_mem, Jac);
-  if (check_flag(&flag, "CVDlsSetDenseJacFn", 1)) return(1);
+  /* Create dense SUNLinearSolver object for use by CVode */
+  LS = SUNDenseLinearSolver(y, A);
+  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+
+  /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
+  flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
+  if(check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
+
+  /* Set the user-supplied Jacobian routine Jac */
+  flag = CVDlsSetJacFn(cvode_mem, Jac);
+  if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   /* In loop, call CVode, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached.  */
@@ -165,7 +174,7 @@ int main()
 
     if (flag == CV_ROOT_RETURN) {
       flagr = CVodeGetRootInfo(cvode_mem, rootsfound);
-      check_flag(&flagr, "CVodeGetRootInfo", 1);
+      if (check_flag(&flagr, "CVodeGetRootInfo", 1)) return(1);
       PrintRootInfo(rootsfound[0],rootsfound[1]);
     }
 
@@ -186,6 +195,12 @@ int main()
 
   /* Free integrator memory */
   CVodeFree(&cvode_mem);
+
+  /* Free the linear solver memory */
+  SUNLinSolFree(LS);
+
+  /* Free the matrix memory */
+  SUNMatDestroy(A);
 
   return(0);
 }
@@ -211,7 +226,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   yd3 = Ith(ydot,3) = RCONST(3.0e7)*y2*y2;
         Ith(ydot,2) = -yd1 - yd3;
 
-  return(0);      
+  return(0);
 }
 
 /*
@@ -233,9 +248,8 @@ static int g(realtype t, N_Vector y, realtype *gout, void *user_data)
  * Jacobian routine. Compute J(t,y) = df/dy. *
  */
 
-static int Jac(sunindextype N, realtype t,
-               N_Vector y, N_Vector fy, DlsMat J, void *user_data,
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, 
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y1, y2, y3;
 
@@ -244,10 +258,14 @@ static int Jac(sunindextype N, realtype t,
   IJth(J,1,1) = RCONST(-0.04);
   IJth(J,1,2) = RCONST(1.0e4)*y3;
   IJth(J,1,3) = RCONST(1.0e4)*y2;
+
   IJth(J,2,1) = RCONST(0.04); 
   IJth(J,2,2) = RCONST(-1.0e4)*y3-RCONST(6.0e7)*y2;
   IJth(J,2,3) = RCONST(-1.0e4)*y2;
+
+  IJth(J,3,1) = ZERO;
   IJth(J,3,2) = RCONST(6.0e7)*y2;
+  IJth(J,3,3) = ZERO;
 
   return(0);
 }

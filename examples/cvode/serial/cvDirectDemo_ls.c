@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -30,8 +26,8 @@
  * called for each of the remaining seven runs.
  *
  * Notes: This program demonstrates the usage of the sequential
- * macros NV_Ith_S, DENSE_ELEM, BAND_COL, and
- * BAND_COL_ELEM. The NV_Ith_S macro is used to reference the
+ * macros NV_Ith_S, SM_ELEMENT_D, SM_COLUMN_B, and
+ * SM_COLUMN_ELEMENT_B. The NV_Ith_S macro is used to reference the
  * components of an N_Vector. It works for any size N=NEQ, but
  * due to efficiency concerns it should only by used when the
  * problem size is small. The Problem 1 right hand side and
@@ -43,15 +39,14 @@
  * gives a more efficient means (than the NV_Ith_S macro) to
  * access the components of an N_Vector and should be used when the
  * problem size is large. The Problem 2 right hand side function f2
- * uses the N_VGetArrayPointer_Serial function. The DENSE_ELEM macro 
- * used in Jac1 gives access to an element of a dense matrix of type 
- * DlsMat. It should be used only when the problem size is small (the 
- * size of a DlsMat is NEQ x NEQ) due to efficiency concerns. For
- * larger problem sizes, the macro DENSE_COL can be used in order
- * to work directly with a column of a DlsMat. The BAND_COL and
- * BAND_COL_ELEM allow efficient columnwise access to the elements
- * of a band matrix of type DlsMat. These macros are used in the
- * Jac2 function.
+ * uses the N_VGetArrayPointer_Serial function. The SM_ELEMENT_D macro 
+ * used in Jac1 gives access to an element of a dense SUNMatrix. It 
+ * should be used only when the problem size is small (the 
+ * size of a Dense SUNMatrix is NEQ x NEQ) due to efficiency concerns. For
+ * larger problem sizes, the macro SM_COLUMN_D can be used in order
+ * to work directly with a column of a Dense SUNMatrix. The SM_COLUMN_B and
+ * SM_COLUMN_ELEMENT_B allow efficient columnwise access to the elements
+ * of a Banded SUNMatix. These macros are used in the Jac2 function.
  * -----------------------------------------------------------------
  */
 

@@ -1129,7 +1129,7 @@ IF(EXAMPLES_ENABLE)
   ENDIF(BUILD_ARKODE)
   
   IF(BUILD_CVODE)
-    #ADD_SUBDIRECTORY(examples/cvode/serial)
+    ADD_SUBDIRECTORY(examples/cvode/serial)
     IF(FCMIX_ENABLE AND F77_FOUND)
       #ADD_SUBDIRECTORY(examples/cvode/fcmix_serial)
     ENDIF(FCMIX_ENABLE AND F77_FOUND)
