@@ -271,7 +271,7 @@ The form of the call to this function is
   \item[cvode\_mem] (\id{void *}) 
     is the pointer to the {\cvodes} memory block returned by a previous call to
     \id{CVodeCreate}.
-  \item[Nd] (\id{long int}) 
+  \item[Nd] (\id{sunindextype}) 
     is the number of integration steps between two consecutive checkpoints.
   \item[interpType] (\id{int})
     specifies the type of interpolation used and can be \Id{CV\_POLYNOMIAL}
@@ -2257,7 +2257,7 @@ through a call to \id{CVDlsSetDenseJacFnB} or \id{CVDlsSetDenseJacFnBS}
 \index{Jacobian approximation function!dense!user-supplied (backward)}
 \usfunction{CVDlsDenseJacFnB}
 {
-  typedef int (*CVDlsDenseJacFnB)(&long int NeqB, realtype t, N\_Vector y, \\
+  typedef int (*CVDlsDenseJacFnB)(&sunindextype NeqB, realtype t, N\_Vector y, \\
                                  &N\_Vector yB, N\_Vector fyB, \\
                                  &DlsMat JacB, void *user\_dataB, \\
                                  &N\_Vector tmp1B, N\_Vector tmp2B, \\
@@ -2320,7 +2320,7 @@ through a call to \id{CVDlsSetDenseJacFnB} or \id{CVDlsSetDenseJacFnBS}
 \index{Jacobian approximation function!dense!user-supplied (backward)}
 \usfunction{CVDlsDenseJacFnBS}
 {
-  typedef int (*CVDlsDenseJacFnBS)(&long int NeqB, realtype t, N\_Vector y, \\
+  typedef int (*CVDlsDenseJacFnBS)(&sunindextype NeqB, realtype t, N\_Vector y, \\
                                  &N\_Vector *yS, N\_Vector yB, N\_Vector fyB, \\
                                  &DlsMat JacB, void *user\_dataB, \\
                                  &N\_Vector tmp1B, N\_Vector tmp2B, \\
@@ -2396,8 +2396,8 @@ through a call to \id{CVDlsSetBandJacFnB} or \id{CVDlsSetBandJacFnBS}
 %%
 \usfunction{CVDlsBandJacFnB}
 {
- typedef int (*CVDlsBandJacFnB)(&long int NeqB,\\
-                             &long int mupperB, long int mlowerB,\\
+ typedef int (*CVDlsBandJacFnB)(&sunindextype NeqB,\\
+                             &sunindextype mupperB, sunindextype mlowerB,\\
                              &realtype t, N\_Vector y, \\
                              &N\_Vector yB, N\_Vector fyB, \\
                              &DlsMat JacB, void *user\_dataB, \\
@@ -2464,8 +2464,8 @@ through a call to \id{CVDlsSetBandJacFnB} or \id{CVDlsSetBandJacFnBS}
 %%
 \usfunction{CVDlsBandJacFnBS}
 {
- typedef int (*CVDlsBandJacFnBS)(&long int NeqB,\\
-                             &long int mupperB, long int mlowerB,\\
+ typedef int (*CVDlsBandJacFnBS)(&sunindextype NeqB,\\
+                             &sunindextype mupperB, sunindextype mlowerB,\\
                              &realtype t, N\_Vector y, N\_Vector *yS,\\
                              &N\_Vector yB, N\_Vector fyB, \\
                              &DlsMat JacB, void *user\_dataB, \\
@@ -3071,11 +3071,11 @@ to the {\cvbandpre} module initialization function must be made.
     pointer to the {\cvodes} memory block.
   \item[which] (\id{int})
     the identifier of the backward problem.
-  \item[nB] (\id{long int})
+  \item[nB] (\id{sunindextype})
     backward problem dimension.
-  \item[muB] (\id{long int})
+  \item[muB] (\id{sunindextype})
     upper half-bandwidth of the backward problem Jacobian approximation.
-  \item[mlB] (\id{long int})
+  \item[mlB] (\id{sunindextype})
     lower half-bandwidth of the backward problem Jacobian approximation.
   \end{args}
 }
@@ -3144,15 +3144,15 @@ by calling the appropriate function (see \S\ref{sss:lin_solv_b}).
     pointer to the {\cvodes} memory block.
   \item[which] (\id{int})
     the identifier of the backward problem.
-  \item[NlocalB] (\id{long int})
+  \item[NlocalB] (\id{sunindextype})
     local vector dimension for the backward problem.
-  \item[mudqB] (\id{long int})
+  \item[mudqB] (\id{sunindextype})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mldqB] (\id{long int})
+  \item[mldqB] (\id{sunindextype})
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mukeepB] (\id{long int})
+  \item[mukeepB] (\id{sunindextype})
     upper half-bandwidth of the retained banded approximate Jacobian block.
-  \item[mlkeepB] (\id{long int})
+  \item[mlkeepB] (\id{sunindextype})
     lower half-bandwidth of the retained banded approximate Jacobian block.
   \item[dqrelyB] (\id{realtype})
     the relative increment in components of \id{yB} used in the difference quotient
@@ -3202,9 +3202,9 @@ function:
     pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
   \item[which] (\id{int})
     the identifier of the backward problem.
-  \item[mudqB] (\id{long int})
+  \item[mudqB] (\id{sunindextype})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mldqB] (\id{long int})
+  \item[mldqB] (\id{sunindextype})
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
   \item[dqrelyB] (\id{realtype})
     the relative increment in components of \id{yB} used in the difference quotient
@@ -3247,7 +3247,7 @@ The prototypes for these two functions are described below.
 %%
 \usfunction{CVBBDLocalFnB}
 {
-  typedef int (*CVBBDLocalFnB)(&long int NlocalB, realtype t, N\_Vector y,\\
+  typedef int (*CVBBDLocalFnB)(&sunindextype NlocalB, realtype t, N\_Vector y,\\
                                &N\_Vector yB, N\_Vector gB, void *user\_dataB);
 }
 {
@@ -3293,7 +3293,7 @@ The prototypes for these two functions are described below.
 %%
 \usfunction{CVBBDCommFnB}
 {
-  typedef int (*CVBBDCommFnB)(&long int NlocalB, realtype t, N\_Vector y,\\
+  typedef int (*CVBBDCommFnB)(&sunindextype NlocalB, realtype t, N\_Vector y,\\
                               &N\_Vector yB, void *user\_dataB);
 }
 {

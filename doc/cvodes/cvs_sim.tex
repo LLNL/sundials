@@ -179,7 +179,7 @@ function to be called or macro to be referenced.
   This generally includes the problem size \id{N}, and may include
   the local vector length \id{Nlocal}.
 
-  Note: The variables \id{N} and \id{Nlocal} should be of type \id{long int}.
+  Note: The variables \id{N} and \id{Nlocal} should be of type \id{sunindextype}.
 
 \item
   {\bf Set vector of initial values}
@@ -725,7 +725,7 @@ and {\sptfqmr}, are described separately in Chapter \ref{s:gen_linsolv}.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[N] (\id{long int})
+  \item[N] (\id{sunindextype})
     problem dimension.
   \end{args}
 }
@@ -796,11 +796,11 @@ and {\sptfqmr}, are described separately in Chapter \ref{s:gen_linsolv}.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[N] (\id{long int})
+  \item[N] (\id{sunindextype})
     problem dimension.
-  \item[mupper] (\id{long int})
+  \item[mupper] (\id{sunindextype})
     upper half-bandwidth of the problem Jacobian (or of the approximation of it).
-  \item[mlower] (\id{long int})
+  \item[mlower] (\id{sunindextype})
     lower half-bandwidth of the problem Jacobian (or of the approximation of it).
   \end{args}
 }
@@ -1566,7 +1566,7 @@ flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[mxsteps] (\id{long int})
+  \item[mxsteps] (\id{sunindextype})
     maximum allowed number of steps.
   \end{args}
 }
@@ -2825,9 +2825,9 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[lenrw] (\id{long int})
+  \item[lenrw] (\id{sunindextype})
     the number of \id{realtype} values in the {\cvodes} workspace.
-  \item[leniw] (\id{long int})
+  \item[leniw] (\id{sunindextype})
     the number of integer values in the {\cvodes} workspace.
   \end{args}
 }
@@ -2853,7 +2853,7 @@ These optional output functions are described next.
   where $N_r$ is the number of real words in one \id{N\_Vector} ($\approx N$).
 
   The size of the integer workspace (without distinction between \id{int} 
-  and \id{long int} words) is given by:
+  and \id{sunindextype} words) is given by:
   \begin{itemize}
   \item base value: \id{leniw} $= 40 + ($\id{maxord+5}$)*N_i ~ + ~ $\id{nrtfn};  
   \item using \id{CVodeSVtolerances}: \id{leniw} $=$ \id{leniw} $+ N_i$;
@@ -3556,9 +3556,9 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[lenrwLS] (\id{long int})
+  \item[lenrwLS] (\id{sunindextype})
     the number of \id{realtype} values in the {\cvdls} workspace.
-  \item[leniwLS] (\id{long int})
+  \item[leniwLS] (\id{sunindextype})
     the number of integer values in the {\cvdls} workspace.
   \end{args}
 }
@@ -3740,9 +3740,9 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[lenrwLS] (\id{long int})
+  \item[lenrwLS] (\id{sunindextype})
     the number of \id{realtype} values in the {\cvdiag} workspace.
-  \item[leniwLS] (\id{long int})
+  \item[leniwLS] (\id{sunindextype})
     the number of integer values in the {\cvdiag} workspace.
   \end{args}
 }
@@ -3984,9 +3984,9 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[lenrwLS] (\id{long int})
+  \item[lenrwLS] (\id{sunindextype})
     the number of \id{realtype} values in the {\cvspils} workspace.
-  \item[leniwLS] (\id{long int})
+  \item[leniwLS] (\id{sunindextype})
     the number of integer values in the {\cvspils} workspace.
   \end{args}
 }
@@ -4581,7 +4581,7 @@ the user may provide a function of type \Id{CVDlsDenseJacFn} defined by:
 %%
 \usfunction{CVDlsDenseJacFn}
 {
-  typedef (*CVDlsDenseJacFn)(&long int N, realtype t, N\_Vector y,\\
+  typedef (*CVDlsDenseJacFn)(&sunindextype N, realtype t, N\_Vector y,\\
                              &N\_Vector fy, DlsMat Jac, void *user\_data,\\
                              &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
@@ -4658,7 +4658,7 @@ the user may provide a function of type \Id{CVDlsDenseJacFn} defined by:
   \S\ref{sss:optout_main}. The unit roundoff can be accessed as
   \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
   
-  For the sake of uniformity, the argument \id{N} is of type \id{long int},
+  For the sake of uniformity, the argument \id{N} is of type \id{sunindextype},
   even in the case that the Lapack dense solver is to be used.
 }
 \index{Jacobian approximation function!dense!user-supplied|)}
@@ -4676,7 +4676,7 @@ the user may provide a function of type \Id{CVDlsBandJacFn} defined as follows:
 %%
 \usfunction{CVDlsBandJacFn}
 {
- typedef int (*CVBandJacFn)(&long int N, long int mupper, long int mlower,\\
+ typedef int (*CVBandJacFn)(&sunindextype N, sunindextype mupper, sunindextype mlower,\\
                             &realtype t, N\_Vector y, N\_Vector fy, \\ 
                             &DlsMat Jac, void *user\_data, \\
                             &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
@@ -4765,7 +4765,7 @@ the user may provide a function of type \Id{CVDlsBandJacFn} defined as follows:
   \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 
   For the sake of uniformity, the arguments \id{N}, \id{mlower}, and \id{mupper} are
-  of type \id{long int}, even in the case that the Lapack band solver is to be used.
+  of type \id{sunindextype}, even in the case that the Lapack band solver is to be used.
 }
 \index{half-bandwidths|)}
 \index{Jacobian approximation function!band!user-supplied|)}
@@ -5850,11 +5850,11 @@ by calling the following function:
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[N] (\id{long int})
+  \item[N] (\id{sunindextype})
     problem dimension.
-  \item[mu] (\id{long int})
+  \item[mu] (\id{sunindextype})
     upper half-bandwidth of the Jacobian approximation.
-  \item[ml] (\id{long int})
+  \item[ml] (\id{sunindextype})
     lower half-bandwidth of the Jacobian approximation.
   \end{args}
 }
@@ -5901,9 +5901,9 @@ the {\cvbandpre} module:
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[lenrwBP] (\id{long int})
+  \item[lenrwBP] (\id{sunindextype})
     the number of \id{realtype} values in the {\cvbandpre} workspace.
-  \item[leniwBP] (\id{long int})
+  \item[leniwBP] (\id{sunindextype})
     the number of integer values in the {\cvbandpre} workspace.
   \end{args}
 }
@@ -6066,7 +6066,7 @@ that are then used by \id{gloc}, which should not do any communication.
 %%
 \usfunction{CVLocalFn}
 {
-  typedef int (*CVLocalFn)(&long int Nlocal, realtype t, N\_Vector y, \\
+  typedef int (*CVLocalFn)(&sunindextype Nlocal, realtype t, N\_Vector y, \\
                            &N\_Vector glocal, void *user\_data);
 }
 {
@@ -6105,7 +6105,7 @@ that are then used by \id{gloc}, which should not do any communication.
 %%
 \usfunction{CVCommFn}
 {
-  typedef int (*CVCommFn)(&long int Nlocal, realtype t,  \\
+  typedef int (*CVCommFn)(&sunindextype Nlocal, realtype t,  \\
                           &N\_Vector y, void *user\_data);
 }
 {
@@ -6253,15 +6253,15 @@ the {\cvbbdpre} preconditioner module are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[local\_N] (\id{long int})
+  \item[local\_N] (\id{sunindextype})
     local vector length.
-  \item[mudq] (\id{long int})
+  \item[mudq] (\id{sunindextype})
     upper half-bandwidth to be used in the difference quotient Jacobian approximation.
-  \item[mldq] (\id{long int})
+  \item[mldq] (\id{sunindextype})
     lower half-bandwidth to be used in the difference quotient Jacobian approximation.
-  \item[mukeep] (\id{long int})
+  \item[mukeep] (\id{sunindextype})
     upper half-bandwidth of the retained banded approximate Jacobian block.
-  \item[mlkeep] (\id{long int})
+  \item[mlkeep] (\id{sunindextype})
     lower half-bandwidth of the retained banded approximate Jacobian block.
   \item[dqrely] (\id{realtype})
     the relative increment in components of \id{y} used in the difference quotient
@@ -6331,9 +6331,9 @@ the corresponding \id{CVSpils***Set***} functions, must also be made (in the pro
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[mudq] (\id{long int})
+  \item[mudq] (\id{sunindextype})
     upper half-bandwidth to be used in the difference quotient Jacobian approximation.
-  \item[mldq] (\id{long int})
+  \item[mldq] (\id{sunindextype})
     lower half-bandwidth to be used in the difference quotient Jacobian approximation.
   \item[dqrely] (\id{realtype})
     the relative increment in components of \id{y} used in the difference quotient
@@ -6381,9 +6381,9 @@ the {\cvbbdpre} module:
   \begin{args}[lenrwBBDP]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[lenrwBBDP] (\id{long int})
+  \item[lenrwBBDP] (\id{sunindextype})
     local number of \id{realtype} values in the {\cvbbdpre} workspace.
-  \item[leniwBBDP] (\id{long int})
+  \item[leniwBBDP] (\id{sunindextype})
     local number of integer values in the {\cvbbdpre} workspace.
   \end{args}
 }

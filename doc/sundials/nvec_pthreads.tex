@@ -20,7 +20,7 @@ Operations on the vector are threaded using POSIX threads
 %%
 \begin{verbatim} 
 struct _N_VectorContent_Pthreads {
-  long int length;
+  sunindextype length;
   booleantype own_data;
   realtype *data;
   int num_threads;
@@ -113,7 +113,7 @@ The module {\nvecpthreads} provides the following additional user-callable routi
 
   
 
-  \verb|N_Vector N_VNew_Pthreads(long int vec_length, int num_threads);|
+  \verb|N_Vector N_VNew_Pthreads(sunindextype vec_length, int num_threads);|
 
 %%--------------------------------------
 
@@ -123,7 +123,7 @@ The module {\nvecpthreads} provides the following additional user-callable routi
 
   
 
-  \verb|N_Vector N_VNewEmpty_Pthreads(long int vec_length, int num_threads);|
+  \verb|N_Vector N_VNewEmpty_Pthreads(sunindextype vec_length, int num_threads);|
 
 %%--------------------------------------
 
@@ -134,7 +134,7 @@ The module {\nvecpthreads} provides the following additional user-callable routi
 
  (This function does {\em not} allocate memory for \id{v\_data} itself.)
 
- \verb|N_Vector N_VMake_Pthreads(long int vec_length, realtype *v_data, int num_threads);|
+ \verb|N_Vector N_VMake_Pthreads(sunindextype vec_length, realtype *v_data, int num_threads);|
 
 %%--------------------------------------
 
@@ -177,7 +177,7 @@ The module {\nvecpthreads} provides the following additional user-callable routi
 
  
  
- \verb|long int N_VGetLength_Pthreads(N_Vector v);|
+ \verb|sunindextype N_VGetLength_Pthreads(N_Vector v);|
 
 %%--------------------------------------
 
@@ -226,6 +226,6 @@ module also includes a Fortran-callable function
 \id{FNVINITPTS(code, NEQ, NUMTHREADS, IER)}, to initialize this
 module.  Here \id{code} is an input solver id
 (1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol}, 4 for {\arkode}); NEQ is
-the problem size (declared so as to match C type \id{long int});
+the problem size (declared so as to match C type \id{sunindextype});
 NUMTHREADS is the number of threads; and IER is an error return flag
 equal 0 for success and -1 for failure.

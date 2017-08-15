@@ -267,7 +267,7 @@ The form of the call to this function is
   \item[ida\_mem] (\id{void *}) 
     is the pointer to the {\idas} memory block returned by a previous call
     to \id{IDACreate}.
-  \item[Nd] (\id{long int}) 
+  \item[Nd] (\id{sunindextype}) 
     is the number of integration steps between two consecutive checkpoints.
   \item[interpType] (\id{int})
     specifies the type of interpolation used and can be \Id{IDA\_POLYNOMIAL}
@@ -2441,7 +2441,7 @@ through a call to \id{IDADlsSetDenseJacFnB} or \id{IDADlsSetDenseJacFnBS}
 \index{Jacobian approximation function!dense!user-supplied (backward)}
 \usfunction{IDADlsDenseJacFnB}
 {
-  typedef int (*IDADlsDenseJacFnB)(&long int NeqB, realtype tt,\\
+  typedef int (*IDADlsDenseJacFnB)(&sunindextype NeqB, realtype tt,\\
                                &realtype cjB, N\_Vector yy, N\_Vector yp,\\
                                &N\_Vector yB, N\_Vector ypB,\\
                                &N\_Vector resvalB,\\
@@ -2513,7 +2513,7 @@ through a call to \id{IDADlsSetDenseJacFnB} or \id{IDADlsSetDenseJacFnBS}
 \index{Jacobian approximation function!dense!user-supplied (backward)}
 \usfunction{IDADlsDenseJacFnBS}
 {
-  typedef int (*IDADlsDenseJacFnBS)(&long int NeqB, realtype tt,\\
+  typedef int (*IDADlsDenseJacFnBS)(&sunindextype NeqB, realtype tt,\\
                                &realtype cjB, N\_Vector yy, N\_Vector yp,\\
                                &N\_Vector *yS, N\_Vector *ypS,\\
                                &N\_Vector yB, N\_Vector ypB,\\
@@ -2604,8 +2604,8 @@ two types:
 %%
 \usfunction{IDADlsBandJacFnB}
 {
- typedef int (*IDADlsBandJacFnB)(&long int NeqB,\\
-                                 &long int mupperB, long int mlowerB,\\
+ typedef int (*IDADlsBandJacFnB)(&sunindextype NeqB,\\
+                                 &sunindextype mupperB, sunindextype mlowerB,\\
                                  &realtype tt, realtype cjB,\\
                                  &N\_Vector yy, N\_Vector yp,\\
                                  &N\_Vector yB, N\_Vector ypB,\\
@@ -2681,8 +2681,8 @@ two types:
 
 \usfunction{IDADlsBandJacFnBS}
 {
- typedef int (*IDADlsBandJacFnBS)(&long int NeqB,\\
-                                 &long int mupperB, long int mlowerB,\\
+ typedef int (*IDADlsBandJacFnBS)(&sunindextype NeqB,\\
+                                 &sunindextype mupperB, sunindextype mlowerB,\\
                                  &realtype tt, realtype cjB,\\
                                  &N\_Vector yy, N\_Vector yp,\\
                                  &N\_Vector *yS, N\_Vector *ypS,\\
@@ -3369,15 +3369,15 @@ by calling the appropriate function (see \S\ref{sss:lin_solv_b}).
     pointer to the {\idas} memory block.
   \item[which] (\id{int})
     the identifier of the backward problem.
-  \item[NlocalB] (\id{long int})
+  \item[NlocalB] (\id{sunindextype})
     local vector dimension for the backward problem.
-  \item[mudqB] (\id{long int})
+  \item[mudqB] (\id{sunindextype})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mldqB] (\id{long int})
+  \item[mldqB] (\id{sunindextype})
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mukeepB] (\id{long int})
+  \item[mukeepB] (\id{sunindextype})
     upper half-bandwidth of the retained banded approximate Jacobian block.
-  \item[mlkeepB] (\id{long int})
+  \item[mlkeepB] (\id{sunindextype})
     lower half-bandwidth of the retained banded approximate Jacobian block.
   \item[dqrelyB] (\id{realtype})
     the relative increment in components of \id{yB} used in the difference quotient
@@ -3430,9 +3430,9 @@ following function:
     pointer to the {\idas} memory block returned by \id{IDACreate}.
   \item[which] (\id{int})
     the identifier of the backward problem.
-  \item[mudqB] (\id{long int})
+  \item[mudqB] (\id{sunindextype})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mldqB] (\id{long int})
+  \item[mldqB] (\id{sunindextype})
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
   \item[dqrelyB] (\id{realtype})
     the relative increment in components of \id{yB} used in the difference quotient
@@ -3475,7 +3475,7 @@ The prototypes for these two functions are described below.
 %%
 \usfunction{IDABBDLocalFnB}
 {
-  typedef int (*IDABBDLocalFnB)(&long int NlocalB, realtype t,  \\
+  typedef int (*IDABBDLocalFnB)(&sunindextype NlocalB, realtype t,  \\
                                 &N\_Vector y, N\_Vector yp, \\
                                 &N\_Vector yB, N\_Vector ypB, \\
                                 &N\_Vector gB, void *user\_dataB);
@@ -3527,7 +3527,7 @@ The prototypes for these two functions are described below.
 %%
 \usfunction{IDABBDCommFnB}
 {
-  typedef int (*IDABBDCommFnB)(&long int NlocalB, realtype t,  \\
+  typedef int (*IDABBDCommFnB)(&sunindextype NlocalB, realtype t,  \\
                            &N\_Vector y, N\_Vector yp, \\
                            &N\_Vector yB, N\_Vector ypB, \\
                            &void *user\_dataB);

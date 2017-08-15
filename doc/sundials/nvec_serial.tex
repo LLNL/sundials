@@ -10,7 +10,7 @@ of {\em data}.
 %%
 \begin{verbatim} 
 struct _N_VectorContent_Serial {
-  long int length;
+  sunindextype length;
   booleantype own_data;
   realtype *data;
 };
@@ -97,7 +97,7 @@ The module {\nvecs} provides the following additional user-callable routines:
 
   
 
-  \verb|N_Vector N_VNew_Serial(long int vec_length);|
+  \verb|N_Vector N_VNew_Serial(sunindextype vec_length);|
 
 %%--------------------------------------
 
@@ -107,7 +107,7 @@ The module {\nvecs} provides the following additional user-callable routines:
 
   
 
-  \verb|N_Vector N_VNewEmpty_Serial(long int vec_length);|
+  \verb|N_Vector N_VNewEmpty_Serial(sunindextype vec_length);|
 
 %%--------------------------------------
 
@@ -118,7 +118,7 @@ The module {\nvecs} provides the following additional user-callable routines:
 
  (This function does {\em not} allocate memory for \id{v\_data} itself.)
 
- \verb|N_Vector N_VMake_Serial(long int vec_length, realtype *v_data);|
+ \verb|N_Vector N_VMake_Serial(sunindextype vec_length, realtype *v_data);|
 
 %%--------------------------------------
 
@@ -161,7 +161,7 @@ The module {\nvecs} provides the following additional user-callable routines:
 
  
  
- \verb|long int N_VGetLength_Serial(N_Vector v);|
+ \verb|sunindextype N_VGetLength_Serial(N_Vector v);|
 
 %%--------------------------------------
 
@@ -209,5 +209,5 @@ For solvers that include a Fortran interface module, the {\nvecs} module
 also includes a Fortran-callable function \id{FNVINITS(code, NEQ, IER)},
 to initialize this {\nvecs} module.  Here \id{code} is an input solver id
 (1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol}, 4 for {\arkode}); NEQ is
-the problem size (declared so as to match C type \id{long int}); and
+the problem size (declared so as to match C type \id{sunindextype}); and
 IER is an error return flag equal 0 for success and -1 for failure.
