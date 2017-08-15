@@ -27,8 +27,7 @@ SET(sunmatrix_band_examples
 SET(sunmatrix_band_dependencies
   test_sunmatrix
   sundials_nvector
-  sundials_sunmatrix
-  sundials_sunmatrixband
+  sundials_matrix
 )
 
 # Add source directory to include directories
@@ -80,7 +79,7 @@ IF(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER_LIB "sundials_sunmatrixband")
   LIST2STRING(sunmatrix_band_examples EXAMPLES)
-  LIST2STRING(sunmatrix_examples_dependencies EXAMPLES_DEPENDENCIES)
+  LIST2STRING(sunmatrix_band_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

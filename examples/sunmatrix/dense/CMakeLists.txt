@@ -27,8 +27,7 @@ SET(sunmatrix_dense_examples
 SET(sunmatrix_dense_dependencies
   test_sunmatrix
   sundials_nvector
-  sundials_sunmatrix
-  sundials_sunmatrixdense
+  sundials_matrix
 )
 
 # Add source directory to include directories
@@ -79,7 +78,7 @@ IF(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER_LIB "sundials_sunmatrixdense")
   LIST2STRING(sunmatrix_dense_examples EXAMPLES)
-  LIST2STRING(sunmatrix_examples_dependencies EXAMPLES_DEPENDENCIES)
+  LIST2STRING(sunmatrix_dense_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

@@ -26,11 +26,8 @@ SET(sunlinsol_superlumt_examples
 SET(sunlinsol_superlumt_dependencies
   test_sunlinsol
   sundials_nvector
-  sundials_sunmatrix
-  sundials_sunmatrixdense
-  sundials_sunmatrixsparse
-  sundials_sunlinsol
-  sundials_sunlinsolsuperlumt
+  sundials_matrix
+  sundials_linearsolver
 )
 
 # Add source directory to include directories
@@ -41,19 +38,19 @@ INCLUDE_DIRECTORIES(. ..)
 
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(NVECS_LIB sundials_nvecserial_static)
-  SET(SUNMATD_LIB sundials_sunmatrixdense_static)
-  SET(SUNMATS_LIB sundials_sunmatrixsparse_static)
-  SET(SUNLINSOLK_LIB sundials_sunlinsolsuperlumt_static)
+  SET(SUNMATS_LIB sundials_sunmatrixdense_static)
+  LIST(APPEND SUNMATS_LIB sundials_sunmatrixsparse_static)
+  SET(SUNLINSOLS_LIB sundials_sunlinsolsuperlumt_static)
 ELSE(LINK_LIBRARY_TYPE MATCHES "static")
   SET(NVECS_LIB sundials_nvecserial_shared)
-  SET(SUNMATD_LIB sundials_sunmatrixdense_shared)
-  SET(SUNMATS_LIB sundials_sunmatrixsparse_shared)
-  SET(SUNLINSOLK_LIB sundials_sunlinsolsuperlumt_shared)
+  SET(SUNMATS_LIB sundials_sunmatrixdense_shared)
+  LIST(APPEND SUNMATS_LIB sundials_sunmatrixsparse_shared)
+  SET(SUNLINSOLS_LIB sundials_sunlinsolsuperlumt_shared)
 ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 
 # Set-up linker flags and link libraries
 
-SET(SUNDIALS_LIBS ${NVECS_LIB} ${SUNMATD_LIB} ${SUNMATS_LIB} ${SUNLINSOLK_LIB} ${EXTRA_LINK_LIBS} ${SUPERLUMT_LIBRARIES})
+SET(SUNDIALS_LIBS ${NVECS_LIB} ${SUNMATS_LIB} ${SUNLINSOLS_LIB} ${EXTRA_LINK_LIBS} ${SUPERLUMT_LIBRARIES})
 
 # Add the build and install targets for each sunlinsol example
 
@@ -85,8 +82,9 @@ IF(EXAMPLES_INSTALL)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER_LIB "sundials_sunlinsolsuperlumt")
+  SET(LIBS "${LIBS} -lsundials_sunmatrixdense -lsundials_sunmatrixsparse")
   LIST2STRING(sunlinsol_superlumt_examples EXAMPLES)
-  LIST2STRING(sunlinsol_examples_dependencies EXAMPLES_DEPENDENCIES)
+  LIST2STRING(sunlinsol_superlumt_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

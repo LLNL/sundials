@@ -43,13 +43,11 @@
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
 #include <sunmatrix/sunmatrix_sparse.h>
+
 /* assume SuperLU_MT library was built with compatible index type */  
 #if defined(SUNDIALS_INT64_T)
 #define _LONGINT
 #endif
-#include <nvector/nvector_serial.h>
-#include <nvector/nvector_openmp.h>
-#include <nvector/nvector_pthreads.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {

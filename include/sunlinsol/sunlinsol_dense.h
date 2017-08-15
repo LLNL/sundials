@@ -48,10 +48,6 @@
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_dense.h>
 #include <sunmatrix/sunmatrix_dense.h>
-#include <nvector/nvector_serial.h>
-#include <nvector/nvector_openmp.h>
-#include <nvector/nvector_pthreads.h>
-
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
