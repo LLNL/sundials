@@ -62,7 +62,7 @@ extern "C" {
 #endif
 
 /* Catch to disable LAPACK linear solvers with incompatible sunindextype */
-#if defined(SUNDIALS_SIGNED_32BIT_TYPE)
+#if defined(SUNDIALS_INT32_T)
 #else  /* incompatible sunindextype for LAPACK */
 #error  Incompatible sunindextype for LAPACK; disable LAPACK and rebuild
 #endif

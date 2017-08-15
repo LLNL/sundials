@@ -44,7 +44,7 @@
 #include <sundials/sundials_nvector.h>
 #include <sunmatrix/sunmatrix_sparse.h>
 /* assume SuperLU_MT library was built with compatible index type */  
-#if defined(SUNDIALS_SIGNED_64BIT_TYPE)
+#if defined(SUNDIALS_INT64_T)
 #define _LONGINT
 #endif
 #include <nvector/nvector_serial.h>

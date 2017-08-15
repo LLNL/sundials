@@ -116,13 +116,13 @@ SUNLinearSolver SUNKLU(N_Vector y, SUNMatrix A)
   /* Fill content */
   content->last_flag = 0;
   content->first_factorize = 1;
-#if defined(SUNDIALS_SIGNED_64BIT_TYPE)
+#if defined(SUNDIALS_INT64_T)
   if (SUNSparseMatrix_SparseType(A) == CSC_MAT) {
     content->klu_solver = &klu_l_solve;
   } else {
     content->klu_solver = &klu_l_tsolve;
   }
-#elif defined(SUNDIALS_SIGNED_32BIT_TYPE)
+#elif defined(SUNDIALS_INT32_T)
   if (SUNSparseMatrix_SparseType(A) == CSC_MAT) {
     content->klu_solver = &klu_solve;
   } else {

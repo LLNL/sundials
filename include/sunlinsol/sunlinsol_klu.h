@@ -56,7 +56,7 @@ extern "C" {
 #define SUNKLU_ORDERING_DEFAULT  1    /* COLAMD */
 
 /* Interfaces to match 'sunindextype' with the correct KLU types/functions */
-#if defined(SUNDIALS_SIGNED_64BIT_TYPE)
+#if defined(SUNDIALS_INT64_T)
 #define sun_klu_symbolic      klu_l_symbolic
 #define sun_klu_numeric       klu_l_numeric
 #define sun_klu_common        klu_l_common
@@ -68,7 +68,7 @@ extern "C" {
 #define sun_klu_defaults      klu_l_defaults
 #define sun_klu_free_symbolic klu_l_free_symbolic
 #define sun_klu_free_numeric  klu_l_free_numeric
-#elif defined(SUNDIALS_SIGNED_32BIT_TYPE)
+#elif defined(SUNDIALS_INT32_T)
 #define sun_klu_symbolic      klu_symbolic
 #define sun_klu_numeric       klu_numeric
 #define sun_klu_common        klu_common
