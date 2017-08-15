@@ -106,19 +106,29 @@ typedef long double realtype;
  * Type : sunindextype
  *------------------------------------------------------------------
  * Defines integer type to be used for vector and matrix indices.
- * User can build sundials to use 32- or 64-bit integers, signed
- * or unsigned.
+ * User can build sundials to use 32- or 64-bit signed integers.
+ * If compiler does not support portable data types, 'int' is used
+ * in place of 32- and 'long long' is used in place of 64-bit 
+ * integer.
  *------------------------------------------------------------------
  */
 
-#if defined(SUNDIALS_SIGNED_64BIT_TYPE)
+#if defined(SUNDIALS_INT64_T)
+
+#if __STDC_VERSION__ >= 199901L
 typedef int64_t sunindextype;
-#elif defined(SUNDIALS_UNSIGNED_64BIT_TYPE)
-typedef uint64_t sunindextype;
-#elif defined(SUNDIALS_SIGNED_32BIT_TYPE)
+#else
+typedef long long sunindextype;
+#endif
+
+#elif defined(SUNDIALS_INT32_T)
+
+#if __STDC_VERSION__ >= 199901L
 typedef int32_t sunindextype;
-#elif defined(SUNDIALS_UNSIGNED_32BIT_TYPE)
-typedef uint32_t
+#else
+typedef int sunindextype;
+#endif
+
 #endif
 
 

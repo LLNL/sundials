@@ -264,11 +264,11 @@ ENDIF(SUNDIALS_PRECISION MATCHES "EXTENDED")
 # Option to specify index type
 # ----------------------------
 
-SET(SUNDIALS_INDEX_TYPE "signed_64bit" CACHE STRING "signed_64bit, unsigned_64bit, signed_32bit or unsigned_32bit")
+SET(SUNDIALS_INDEX_TYPE "int64_t" CACHE STRING "Signed 64-bit (int64_t) or signed 32-bit (int32_t) integer")
 
 # prepare substitution variable INDEX_TYPE for sundials_config.h
 STRING(TOUPPER ${SUNDIALS_INDEX_TYPE} SUNDIALS_INDEX_TYPE)
-SET(INDEX_TYPE "#define SUNDIALS_${SUNDIALS_INDEX_TYPE}_TYPE 1")
+SET(INDEX_TYPE "#define SUNDIALS_${SUNDIALS_INDEX_TYPE} 1")
 
 # prepare substitution variable FINDEX_TYPE for sundials_fconfig.h
 IF(SUNDIALS_INDEX_TYPE MATCHES "SIGNED_32BIT")

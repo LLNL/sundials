@@ -135,7 +135,7 @@ N_Vector N_VNewEmpty_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc,
     content->n1[ig] = Nspc[ig] * tmp;
     n += Nspc[ig] * tmp;
   }
-  MPI_Allreduce(&n, &N, 1, SPVEC_INTEGER_MPI_TYPE, MPI_SUM, comm);
+  MPI_Allreduce(&n, &N, 1, PVEC_INTEGER_MPI_TYPE, MPI_SUM, comm);
 
   content->n    = n;
   content->N    = N;
@@ -1056,7 +1056,7 @@ realtype N_VDotProd_SpcParallel(N_Vector x, N_Vector y)
 
   /* obtain global sum from local sums */
   gsum = ZERO;
-  MPI_Allreduce(&sum, &gsum, 1, SPVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+  MPI_Allreduce(&sum, &gsum, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
 
   return(gsum);
 }
@@ -1107,7 +1107,7 @@ realtype N_VMaxNorm_SpcParallel(N_Vector x)
 
   /* Obtain global max from local maxima */
   gmax = ZERO;  
-  MPI_Allreduce(&max, &gmax, 1, SPVEC_REAL_MPI_TYPE, MPI_MAX, comm);
+  MPI_Allreduce(&max, &gmax, 1, PVEC_REAL_MPI_TYPE, MPI_MAX, comm);
 
   return(gmax);
 }
@@ -1162,7 +1162,7 @@ realtype N_VWrmsNorm_SpcParallel(N_Vector x, N_Vector w)
 
   /* Obtain global sum from local sums */
   gsum = ZERO;
-  MPI_Allreduce(&sum, &gsum, 1, SPVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+  MPI_Allreduce(&sum, &gsum, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
 
   /* scale correctly and return */
   return(SUNRsqrt(gsum / Nglobal));
@@ -1219,7 +1219,7 @@ realtype N_VWrmsNormMask_SpcParallel(N_Vector x, N_Vector w, N_Vector id)
 
   /* Obtain global sum from local sums */
   gsum = ZERO;
-  MPI_Allreduce(&sum, &gsum, 1, SPVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+  MPI_Allreduce(&sum, &gsum, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
 
   /* scale result and return */
   return(SUNRsqrt(gsum / Nglobal));
@@ -1270,7 +1270,7 @@ realtype N_VMin_SpcParallel(N_Vector x)
 
   /* Obtain global min from local mins */
   gmin = BIG_REAL;
-  MPI_Allreduce(&min, &gmin, 1, SPVEC_REAL_MPI_TYPE, MPI_MIN, comm);
+  MPI_Allreduce(&min, &gmin, 1, PVEC_REAL_MPI_TYPE, MPI_MIN, comm);
 
   return(gmin);
 }
@@ -1324,7 +1324,7 @@ realtype N_VWL2Norm_SpcParallel(N_Vector x, N_Vector w)
 
   /* Obtain global sum from local sums */
   gsum = ZERO;
-  MPI_Allreduce(&sum, &gsum, 1, SPVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+  MPI_Allreduce(&sum, &gsum, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
 
   return(SUNRsqrt(gsum));
 }
@@ -1375,7 +1375,7 @@ realtype N_VL1Norm_SpcParallel(N_Vector x)
 
   /* Obtain global sum from local sums */
   gsum = ZERO;
-  MPI_Allreduce(&sum, &gsum, 1, SPVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+  MPI_Allreduce(&sum, &gsum, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
 
   return(gsum);
 }
@@ -1472,7 +1472,7 @@ booleantype N_VInvTest_SpcParallel(N_Vector x, N_Vector z)
   }
 
   /* Obtain global return value from local values */
-  MPI_Allreduce(&val, &gval, 1, SPVEC_REAL_MPI_TYPE, MPI_MIN, comm);
+  MPI_Allreduce(&val, &gval, 1, PVEC_REAL_MPI_TYPE, MPI_MIN, comm);
 
   if (gval == ZERO)  return(FALSE);
   else               return(TRUE);
@@ -1612,7 +1612,7 @@ realtype N_VMinQuotient_SpcParallel(N_Vector x, N_Vector y)
 
   /* Obtain global min from local minima */
   gmin = BIG_REAL;
-  MPI_Allreduce(&min, &gmin, 1, SPVEC_REAL_MPI_TYPE, MPI_MIN, comm);
+  MPI_Allreduce(&min, &gmin, 1, PVEC_REAL_MPI_TYPE, MPI_MIN, comm);
 
   return(gmin);
 }
