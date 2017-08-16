@@ -84,6 +84,7 @@ SUNLinearSolver SUNPCG(N_Vector y, int pretype, int maxl)
   ops->solve             = SUNLinSolSolve_PCG;
   ops->numiters          = SUNLinSolNumIters_PCG;
   ops->resnorm           = SUNLinSolResNorm_PCG;
+  ops->resid             = SUNLinSolResid_PCG;
   ops->lastflag          = SUNLinSolLastFlag_PCG;  
   ops->space             = SUNLinSolSpace_PCG;  
   ops->free              = SUNLinSolFree_PCG;
@@ -428,6 +429,13 @@ realtype SUNLinSolResNorm_PCG(SUNLinearSolver S)
   /* return the stored 'resnorm' value */
   if (S == NULL) return(-ONE);
   return (PCG_CONTENT(S)->resnorm);
+}
+
+
+N_Vector SUNLinSolResid_PCG(SUNLinearSolver S)
+{
+  /* return the stored 'r' vector */
+  return (PCG_CONTENT(S)->r);
 }
 
 

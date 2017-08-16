@@ -85,6 +85,7 @@ SUNLinearSolver SUNSPTFQMR(N_Vector y, int pretype, int maxl)
   ops->solve             = SUNLinSolSolve_SPTFQMR;
   ops->numiters          = SUNLinSolNumIters_SPTFQMR;
   ops->resnorm           = SUNLinSolResNorm_SPTFQMR;
+  ops->resid             = SUNLinSolResid_SPTFQMR;
   ops->lastflag          = SUNLinSolLastFlag_SPTFQMR;  
   ops->space             = SUNLinSolSpace_SPTFQMR;  
   ops->free              = SUNLinSolFree_SPTFQMR;
@@ -677,6 +678,13 @@ realtype SUNLinSolResNorm_SPTFQMR(SUNLinearSolver S)
   /* return the stored 'resnorm' value */
   if (S == NULL) return(-ONE);
   return (SPTFQMR_CONTENT(S)->resnorm);
+}
+
+
+N_Vector SUNLinSolResid_SPTFQMR(SUNLinearSolver S)
+{
+  /* return the stored 'vtemp1' vector */
+  return (SPTFQMR_CONTENT(S)->vtemp1);
 }
 
 

@@ -152,6 +152,7 @@ struct _generic_SUNLinearSolver_Ops {
   realtype             (*resnorm)(SUNLinearSolver);
   long int             (*lastflag)(SUNLinearSolver);
   int                  (*space)(SUNLinearSolver, long int*, long int*);
+  N_Vector             (*resid)(SUNLinearSolver);
   int                  (*free)(SUNLinearSolver);
 };
  
@@ -242,12 +243,20 @@ struct _generic_SUNLinearSolver {
  * SUNLinSolResNorm (iterative methods only)
  *   Returns the final residual norm from the last 'Solve' call.
  *
- * SUNLinSolLastFlag
+ * SUNLinSolResid (iterative methods only)
+ *   If an iterative method computes the preconditioned initial 
+ *   residual and returns with a successful solve without performing 
+ *   any iterations (i.e. either the initial guess or the 
+ *   preconditioner is sufficiently accurate), then this 
+ *   function may be called.  It should return the N_Vector 
+ *   containing the preconditioned initial residual.
+ *
+ * SUNLinSolLastFlag (optional)
  *   Returns the last error flag encountered within the linear solver,
  *   allowing the user to investigate linear solver issues after 
  *   failed solves.
  *
- * SUNLinSolSpace
+ * SUNLinSolSpace (optional)
  *   Returns the integer and real workspace sizes for the linear
  *   solver.
  *
@@ -277,6 +286,7 @@ struct _generic_SUNLinearSolver {
  *  Solve               M I P#    M I P# S   M I P#      M I P
  *  NumIters            I         I S+       I           I
  *  ResNorm             I         I S+       I           I
+ *  Resid                                    I
  *  LastFlag^
  *  Space               M I P#    M I P# S   M I P#      M I P
  *  Free                M I P#    M I P# S   M I P#      M I P
@@ -311,6 +321,8 @@ SUNDIALS_EXPORT int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 SUNDIALS_EXPORT int SUNLinSolNumIters(SUNLinearSolver S);
   
 SUNDIALS_EXPORT realtype SUNLinSolResNorm(SUNLinearSolver S);
+  
+SUNDIALS_EXPORT N_Vector SUNLinSolResid(SUNLinearSolver S);
   
 SUNDIALS_EXPORT long int SUNLinSolLastFlag(SUNLinearSolver S);
   

@@ -104,17 +104,18 @@ SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
 
   /* Attach operations */
   ops->gettype           = SUNLinSolGetType_SuperLUMT;
-  ops->setatimes         = SUNLinSolSetATimes_SuperLUMT;
-  ops->setpreconditioner = SUNLinSolSetPreconditioner_SuperLUMT;
-  ops->setscalingvectors = SUNLinSolSetScalingVectors_SuperLUMT;
   ops->initialize        = SUNLinSolInitialize_SuperLUMT;
   ops->setup             = SUNLinSolSetup_SuperLUMT;
   ops->solve             = SUNLinSolSolve_SuperLUMT;
-  ops->numiters          = SUNLinSolNumIters_SuperLUMT;
-  ops->resnorm           = SUNLinSolResNorm_SuperLUMT;
   ops->lastflag          = SUNLinSolLastFlag_SuperLUMT;
   ops->space             = SUNLinSolSpace_SuperLUMT;
   ops->free              = SUNLinSolFree_SuperLUMT;
+  ops->setatimes         = NULL;
+  ops->setpreconditioner = NULL;
+  ops->setscalingvectors = NULL;
+  ops->numiters          = NULL;
+  ops->resnorm           = NULL;
+  ops->resid             = NULL;
 
   /* Create content */
   content = NULL;
@@ -237,36 +238,6 @@ int SUNLinSolInitialize_SuperLUMT(SUNLinearSolver S)
 }
 
 
-int SUNLinSolSetATimes_SuperLUMT(SUNLinearSolver S, void* A_data, 
-                                 ATSetupFn ATSetup, ATimesFn ATimes)
-{
-  /* direct solvers do not utilize an 'ATimes' routine, 
-     so return an error is this routine is ever called */
-  LASTFLAG(S) = SUNLS_ILL_INPUT;
-  return(LASTFLAG(S));
-}
-
-
-int SUNLinSolSetPreconditioner_SuperLUMT(SUNLinearSolver S, void* P_data,
-                                         PSetupFn Pset, PSolveFn Psol)
-{
-  /* direct solvers do not utilize preconditioning, 
-     so return an error is this routine is ever called */
-  LASTFLAG(S) = SUNLS_ILL_INPUT;
-  return(LASTFLAG(S));
-}
-
-
-int SUNLinSolSetScalingVectors_SuperLUMT(SUNLinearSolver S, N_Vector s1,
-                                         N_Vector s2)
-{
-  /* direct solvers do not utilize scaling, 
-     so return an error is this routine is ever called */
-  LASTFLAG(S) = SUNLS_ILL_INPUT;
-  return(LASTFLAG(S));
-}
-
-
 int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A)
 {
   sunindextype retval;
@@ -368,20 +339,6 @@ int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   
   LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
-}
-
-
-int SUNLinSolNumIters_SuperLUMT(SUNLinearSolver S)
-{
-  /* direct solvers do not perform 'iterations' */
-  return(0);
-}
-
-
-realtype SUNLinSolResNorm_SuperLUMT(SUNLinearSolver S)
-{
-  /* direct solvers do not measure the linear residual */
-  return(ZERO);
 }
 
 

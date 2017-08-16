@@ -90,17 +90,18 @@ SUNLinearSolver SUNBandLinearSolver(N_Vector y, SUNMatrix A)
 
   /* Attach operations */
   ops->gettype           = SUNLinSolGetType_Band;
-  ops->setatimes         = SUNLinSolSetATimes_Band;
-  ops->setpreconditioner = SUNLinSolSetPreconditioner_Band;
-  ops->setscalingvectors = SUNLinSolSetScalingVectors_Band;
   ops->initialize        = SUNLinSolInitialize_Band;
   ops->setup             = SUNLinSolSetup_Band;
   ops->solve             = SUNLinSolSolve_Band;
-  ops->numiters          = SUNLinSolNumIters_Band;
-  ops->resnorm           = SUNLinSolResNorm_Band;
   ops->lastflag          = SUNLinSolLastFlag_Band;
   ops->space             = SUNLinSolSpace_Band;
   ops->free              = SUNLinSolFree_Band;
+  ops->setatimes         = NULL;
+  ops->setpreconditioner = NULL;
+  ops->setscalingvectors = NULL;
+  ops->numiters          = NULL;
+  ops->resnorm           = NULL;
+  ops->resid             = NULL;
 
   /* Create content */
   content = NULL;
@@ -138,33 +139,6 @@ int SUNLinSolInitialize_Band(SUNLinearSolver S)
 {
   /* all solver-specific memory has already been allocated */
   LASTFLAG(S) = SUNLS_SUCCESS;
-  return(LASTFLAG(S));
-}
-
-int SUNLinSolSetATimes_Band(SUNLinearSolver S, void* A_data, 
-                            ATSetupFn ATSetup, ATimesFn ATimes)
-{
-  /* direct solvers do not utilize an 'ATimes' routine, 
-     so return an error is this routine is ever called */
-  LASTFLAG(S) = SUNLS_ILL_INPUT;
-  return(LASTFLAG(S));
-}
-
-int SUNLinSolSetPreconditioner_Band(SUNLinearSolver S, void* P_data,
-                                    PSetupFn Pset, PSolveFn Psol)
-{
-  /* direct solvers do not utilize preconditioning, 
-     so return an error is this routine is ever called */
-  LASTFLAG(S) = SUNLS_ILL_INPUT;
-  return(LASTFLAG(S));
-}
-
-int SUNLinSolSetScalingVectors_Band(SUNLinearSolver S, N_Vector s1,
-                                    N_Vector s2)
-{
-  /* direct solvers do not utilize scaling, 
-     so return an error is this routine is ever called */
-  LASTFLAG(S) = SUNLS_ILL_INPUT;
   return(LASTFLAG(S));
 }
 
@@ -239,18 +213,6 @@ int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
             SM_LBAND_B(A), pivots, xdata);
   LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
-}
-
-int SUNLinSolNumIters_Band(SUNLinearSolver S)
-{
-  /* direct solvers do not perform 'iterations' */
-  return(0);
-}
-
-realtype SUNLinSolResNorm_Band(SUNLinearSolver S)
-{
-  /* direct solvers do not check linear residual */
-  return(ZERO);
 }
 
 long int SUNLinSolLastFlag_Band(SUNLinearSolver S)

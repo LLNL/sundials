@@ -90,20 +90,9 @@ SUNDIALS_EXPORT SUNLinearSolver SUNDiagonalLinearSolver(N_Vector y,
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_Diagonal(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_Diagonal(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSetATimes_Diagonal(SUNLinearSolver S, void* A_data,
-                                                ATSetupFn ATSetup, ATimesFn ATimes);
-SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_Diagonal(SUNLinearSolver S,
-                                                        void* P_data,
-                                                        PSetupFn Pset,
-                                                        PSolveFn Psol);
-SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_Diagonal(SUNLinearSolver S,
-                                                        N_Vector s1,
-                                                        N_Vector s2);
 SUNDIALS_EXPORT int SUNLinSolSetup_Diagonal(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_Diagonal(SUNLinearSolver S, SUNMatrix A,
                                             N_Vector x, N_Vector b, realtype tol);
-SUNDIALS_EXPORT int SUNLinSolNumIters_Diagonal(SUNLinearSolver S);
-SUNDIALS_EXPORT realtype SUNLinSolResNorm_Diagonal(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_Diagonal(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_Diagonal(SUNLinearSolver S,
                                             long int *lenrwLS,

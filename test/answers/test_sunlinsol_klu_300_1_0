@@ -7,10 +7,5 @@ KLU linear solver test: size 300, type 1
     PASSED test -- SUNLinSolGetType 
     PASSED test -- SUNLinSolLastFlag (0) 
     PASSED test -- SUNLinSolSpace, lenrw = 0, leniw = 2
-    PASSED test -- SUNLinSolNumIters (0) 
-    PASSED test -- SUNLinSolResNorm
-    PASSED test -- SUNLinSolSetATimes 
-    PASSED test -- SUNLinSolSetPreconditioner 
-    PASSED test -- SUNLinSolSetScalingVectors 
 SUCCESS: SUNLinSol module passed all tests 
  

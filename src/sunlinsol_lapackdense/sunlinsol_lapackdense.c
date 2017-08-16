@@ -89,17 +89,18 @@ SUNLinearSolver SUNLapackDense(N_Vector y, SUNMatrix A)
 
   /* Attach operations */
   ops->gettype           = SUNLinSolGetType_LapackDense;
-  ops->setatimes         = SUNLinSolSetATimes_LapackDense;
-  ops->setpreconditioner = SUNLinSolSetPreconditioner_LapackDense;
-  ops->setscalingvectors = SUNLinSolSetScalingVectors_LapackDense;
   ops->initialize        = SUNLinSolInitialize_LapackDense;
   ops->setup             = SUNLinSolSetup_LapackDense;
   ops->solve             = SUNLinSolSolve_LapackDense;
-  ops->numiters          = SUNLinSolNumIters_LapackDense;
-  ops->resnorm           = SUNLinSolResNorm_LapackDense;
   ops->lastflag          = SUNLinSolLastFlag_LapackDense;
   ops->space             = SUNLinSolSpace_LapackDense;
   ops->free              = SUNLinSolFree_LapackDense;
+  ops->setatimes         = NULL;
+  ops->setpreconditioner = NULL;
+  ops->setscalingvectors = NULL;
+  ops->numiters          = NULL;
+  ops->resnorm           = NULL;
+  ops->resid             = NULL;
 
   /* Create content */
   content = NULL;
@@ -140,36 +141,6 @@ int SUNLinSolInitialize_LapackDense(SUNLinearSolver S)
 {
   /* all solver-specific memory has already been allocated */
   LASTFLAG(S) = SUNLS_SUCCESS;
-  return(LASTFLAG(S));
-}
-
-
-int SUNLinSolSetATimes_LapackDense(SUNLinearSolver S, void* A_data, 
-                                   ATSetupFn ATSetup, ATimesFn ATimes)
-{
-  /* direct solvers do not utilize an 'ATimes' routine, 
-     so return an error is this routine is ever called */
-  LASTFLAG(S) = SUNLS_ILL_INPUT;
-  return(LASTFLAG(S));
-}
-
-
-int SUNLinSolSetPreconditioner_LapackDense(SUNLinearSolver S, void* P_data,
-                                           PSetupFn Pset, PSolveFn Psol)
-{
-  /* direct solvers do not utilize preconditioning, 
-     so return an error is this routine is ever called */
-  LASTFLAG(S) = SUNLS_ILL_INPUT;
-  return(LASTFLAG(S));
-}
-
-
-int SUNLinSolSetScalingVectors_LapackDense(SUNLinearSolver S, N_Vector s1,
-                                           N_Vector s2)
-{
-  /* direct solvers do not utilize scaling, 
-     so return an error is this routine is ever called */
-  LASTFLAG(S) = SUNLS_ILL_INPUT;
   return(LASTFLAG(S));
 }
 
@@ -230,20 +201,6 @@ int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
-}
-
-
-int SUNLinSolNumIters_LapackDense(SUNLinearSolver S)
-{
-  /* direct solvers do not perform 'iterations' */
-  return(0);
-}
-
-
-realtype SUNLinSolResNorm_LapackDense(SUNLinearSolver S)
-{
-  /* direct solvers do not measure the linear residual */
-  return(ZERO);
 }
 
 

@@ -172,26 +172,47 @@ int Test_SUNLinSolResNorm(SUNLinearSolver S, int myid)
 
 
 /* ----------------------------------------------------------------------
+ * SUNLinSolResid Test
+ * --------------------------------------------------------------------*/
+int Test_SUNLinSolResid(SUNLinearSolver S, int myid)
+{
+  double start_time, stop_time;
+  N_Vector resid;
+
+  /* this test can fail if the function returns NULL */
+  start_time = get_time();
+  resid = SUNLinSolResid(S);
+  stop_time = get_time();   
+
+  /* this test can also fail if the return value is negative */
+  if (resid == NULL){
+    printf(">>> FAILED test -- SUNLinSolResid returned NULL N_Vector on Proc %d \n", 
+           myid);
+    return(1);
+  }
+  else if (myid == 0) {
+    printf("    PASSED test -- SUNLinSolResid\n");
+    PRINT_TIME("    SUNLinSolResid Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  return(0);
+}
+
+
+/* ----------------------------------------------------------------------
  * SUNLinSolSetATimes Test
  * --------------------------------------------------------------------*/
 int Test_SUNLinSolSetATimes(SUNLinearSolver S, void *ATdata,
-                            ATSetupFn ATSetup, ATimesFn ATimes,
-                            booleantype shouldpass, int myid)
+                            ATSetupFn ATSetup, ATimesFn ATimes, int myid)
 {
-  int     ierr, failure;
+  int     failure;
   double  start_time, stop_time;
 
   /* try calling SetATimes routine: should pass/fail based on expected input */
   start_time = get_time();
-  ierr = SUNLinSolSetATimes(S, ATdata, ATSetup, ATimes);
+  failure = SUNLinSolSetATimes(S, ATdata, ATSetup, ATimes);
   stop_time = get_time(); 
 
-  failure = 0;
-  if (shouldpass && ierr)
-    failure = 1;
-  if (!shouldpass && !ierr)
-    failure = 1;
-  
   if (failure) {
     printf(">>> FAILED test -- SUNLinSolSetATimes returned %d on Proc %d \n", 
            failure, myid);
@@ -210,23 +231,16 @@ int Test_SUNLinSolSetATimes(SUNLinearSolver S, void *ATdata,
  * SUNLinSolSetPreconditioner
  * --------------------------------------------------------------------*/
 int Test_SUNLinSolSetPreconditioner(SUNLinearSolver S, void *Pdata,
-                                    PSetupFn PSetup, PSolveFn PSolve,
-                                    booleantype shouldpass, int myid)
+                                    PSetupFn PSetup, PSolveFn PSolve, int myid)
 {
-  int       ierr, failure;
+  int       failure;
   double    start_time, stop_time;
 
   /* try calling SetPreconditioner routine: should pass/fail based on expected input */
   start_time = get_time();
-  ierr = SUNLinSolSetPreconditioner(S, Pdata, PSetup, PSolve);
+  failure = SUNLinSolSetPreconditioner(S, Pdata, PSetup, PSolve);
   stop_time = get_time(); 
 
-  failure = 0;
-  if (shouldpass && ierr)
-    failure = 1;
-  if (!shouldpass && !ierr)
-    failure = 1;
-  
   if (failure) {
     printf(">>> FAILED test -- SUNLinSolSetPreconditioner returned %d on Proc %d \n", 
            failure, myid);
@@ -245,23 +259,16 @@ int Test_SUNLinSolSetPreconditioner(SUNLinearSolver S, void *Pdata,
  * SUNLinSolSetScalingVectors
  * --------------------------------------------------------------------*/
 int Test_SUNLinSolSetScalingVectors(SUNLinearSolver S, N_Vector s1,
-                                    N_Vector s2, booleantype shouldpass,
-                                    int myid)
+                                    N_Vector s2, int myid)
 {
-  int       ierr, failure;
+  int       failure;
   double    start_time, stop_time;
 
   /* try calling SetScalingVectors routine: should pass/fail based on expected input */
   start_time = get_time();
-  ierr = SUNLinSolSetScalingVectors(S, s1, s2);
+  failure = SUNLinSolSetScalingVectors(S, s1, s2);
   stop_time = get_time(); 
 
-  failure = 0;
-  if (shouldpass && ierr)
-    failure = 1;
-  if (!shouldpass && !ierr)
-    failure = 1;
-  
   if (failure) {
     printf(">>> FAILED test -- SUNLinSolSetScalingVectors returned %d on Proc %d \n", 
            failure, myid);

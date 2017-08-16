@@ -89,17 +89,18 @@ SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A)
 
   /* Attach operations */
   ops->gettype           = SUNLinSolGetType_LapackBand;
-  ops->setatimes         = SUNLinSolSetATimes_LapackBand;
-  ops->setpreconditioner = SUNLinSolSetPreconditioner_LapackBand;
-  ops->setscalingvectors = SUNLinSolSetScalingVectors_LapackBand;
   ops->initialize        = SUNLinSolInitialize_LapackBand;
   ops->setup             = SUNLinSolSetup_LapackBand;
   ops->solve             = SUNLinSolSolve_LapackBand;
-  ops->numiters          = SUNLinSolNumIters_LapackBand;
-  ops->resnorm           = SUNLinSolResNorm_LapackBand;
-  ops->space             = SUNLinSolSpace_LapackBand;
   ops->lastflag          = SUNLinSolLastFlag_LapackBand;
+  ops->space             = SUNLinSolSpace_LapackBand;
   ops->free              = SUNLinSolFree_LapackBand;
+  ops->setatimes         = NULL;
+  ops->setpreconditioner = NULL;
+  ops->setscalingvectors = NULL;
+  ops->numiters          = NULL;
+  ops->resnorm           = NULL;
+  ops->resid             = NULL;
 
   /* Create content */
   content = NULL;
@@ -139,36 +140,6 @@ int SUNLinSolInitialize_LapackBand(SUNLinearSolver S)
 {
   /* all solver-specific memory has already been allocated */
   LASTFLAG(S) = SUNLS_SUCCESS;
-  return(LASTFLAG(S));
-}
-
-
-int SUNLinSolSetATimes_LapackBand(SUNLinearSolver S, void* A_data, 
-                                  ATSetupFn ATSetup, ATimesFn ATimes)
-{
-  /* direct solvers do not utilize an 'ATimes' routine, 
-     so return an error is this routine is ever called */
-  LASTFLAG(S) = SUNLS_ILL_INPUT;
-  return(LASTFLAG(S));
-}
-
-
-int SUNLinSolSetPreconditioner_LapackBand(SUNLinearSolver S, void* P_data,
-                                          PSetupFn Pset, PSolveFn Psol)
-{
-  /* direct solvers do not utilize preconditioning, 
-     so return an error is this routine is ever called */
-  LASTFLAG(S) = SUNLS_ILL_INPUT;
-  return(LASTFLAG(S));
-}
-
-
-int SUNLinSolSetScalingVectors_LapackBand(SUNLinearSolver S, N_Vector s1,
-                                          N_Vector s2)
-{
-  /* direct solvers do not utilize scaling, 
-     so return an error is this routine is ever called */
-  LASTFLAG(S) = SUNLS_ILL_INPUT;
   return(LASTFLAG(S));
 }
 
@@ -238,20 +209,6 @@ int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
-}
-
-
-int SUNLinSolNumIters_LapackBand(SUNLinearSolver S)
-{
-  /* direct solvers do not perform 'iterations' */
-  return(0);
-}
-
-
-realtype SUNLinSolResNorm_LapackBand(SUNLinearSolver S)
-{
-  /* direct solvers do not measure the linear residual */
-  return(ZERO);
 }
 
 

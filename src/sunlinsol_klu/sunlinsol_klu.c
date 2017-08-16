@@ -96,17 +96,18 @@ SUNLinearSolver SUNKLU(N_Vector y, SUNMatrix A)
 
   /* Attach operations */
   ops->gettype           = SUNLinSolGetType_KLU;
-  ops->setatimes         = SUNLinSolSetATimes_KLU;
-  ops->setpreconditioner = SUNLinSolSetPreconditioner_KLU;
-  ops->setscalingvectors = SUNLinSolSetScalingVectors_KLU;
   ops->initialize        = SUNLinSolInitialize_KLU;
   ops->setup             = SUNLinSolSetup_KLU;
   ops->solve             = SUNLinSolSolve_KLU;
-  ops->numiters          = SUNLinSolNumIters_KLU;
-  ops->resnorm           = SUNLinSolResNorm_KLU;
   ops->lastflag          = SUNLinSolLastFlag_KLU;
   ops->space             = SUNLinSolSpace_KLU;
   ops->free              = SUNLinSolFree_KLU;
+  ops->setatimes         = NULL;
+  ops->setpreconditioner = NULL;
+  ops->setscalingvectors = NULL;
+  ops->numiters          = NULL;
+  ops->resnorm           = NULL;
+  ops->resid             = NULL;
 
   /* Create content */
   content = NULL;
@@ -232,36 +233,6 @@ int SUNLinSolInitialize_KLU(SUNLinearSolver S)
   FIRSTFACTORIZE(S) = 1;
  
   LASTFLAG(S) = SUNLS_SUCCESS;
-  return(LASTFLAG(S));
-}
-
-
-int SUNLinSolSetATimes_KLU(SUNLinearSolver S, void* A_data, 
-                           ATSetupFn ATSetup, ATimesFn ATimes)
-{
-  /* direct solvers do not utilize an 'ATimes' routine, 
-     so return an error is this routine is ever called */
-  LASTFLAG(S) = SUNLS_ILL_INPUT;
-  return(LASTFLAG(S));
-}
-
-
-int SUNLinSolSetPreconditioner_KLU(SUNLinearSolver S, void* P_data,
-                                    PSetupFn Pset, PSolveFn Psol)
-{
-  /* direct solvers do not utilize preconditioning, 
-     so return an error is this routine is ever called */
-  LASTFLAG(S) = SUNLS_ILL_INPUT;
-  return(LASTFLAG(S));
-}
-
-
-int SUNLinSolSetScalingVectors_KLU(SUNLinearSolver S, N_Vector s1,
-                                   N_Vector s2)
-{
-  /* direct solvers do not utilize scaling, 
-     so return an error is this routine is ever called */
-  LASTFLAG(S) = SUNLS_ILL_INPUT;
   return(LASTFLAG(S));
 }
 
@@ -405,20 +376,6 @@ int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
-}
-
-
-int SUNLinSolNumIters_KLU(SUNLinearSolver S)
-{
-  /* direct solvers do not perform 'iterations' */
-  return(0);
-}
-
-
-realtype SUNLinSolResNorm_KLU(SUNLinearSolver S)
-{
-  /* direct solvers do not measure the linear residual */
-  return(ZERO);
 }
 
 

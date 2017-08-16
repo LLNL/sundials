@@ -20,6 +20,7 @@ SUCCESS: SUNSPBCGS module passed all initialization tests
     PASSED test -- SUNLinSolLastFlag (0) 
     PASSED test -- SUNLinSolNumIters (4) 
     PASSED test -- SUNLinSolResNorm
+    PASSED test -- SUNLinSolResid
 SUCCESS: SUNSPBCGS module, problem 1, passed all tests
 
     PASSED test -- SUNLinSolSetup 
@@ -27,6 +28,7 @@ SUCCESS: SUNSPBCGS module, problem 1, passed all tests
     PASSED test -- SUNLinSolLastFlag (0) 
     PASSED test -- SUNLinSolNumIters (4) 
     PASSED test -- SUNLinSolResNorm
+    PASSED test -- SUNLinSolResid
 SUCCESS: SUNSPBCGS module, problem 2, passed all tests
 
     PASSED test -- SUNLinSolSetup 
@@ -34,6 +36,7 @@ SUCCESS: SUNSPBCGS module, problem 2, passed all tests
     PASSED test -- SUNLinSolLastFlag (0) 
     PASSED test -- SUNLinSolNumIters (4) 
     PASSED test -- SUNLinSolResNorm
+    PASSED test -- SUNLinSolResid
 SUCCESS: SUNSPBCGS module, problem 3, passed all tests
 
     PASSED test -- SUNLinSolSetup 
@@ -41,6 +44,7 @@ SUCCESS: SUNSPBCGS module, problem 3, passed all tests
     PASSED test -- SUNLinSolLastFlag (0) 
     PASSED test -- SUNLinSolNumIters (4) 
     PASSED test -- SUNLinSolResNorm
+    PASSED test -- SUNLinSolResid
 SUCCESS: SUNSPBCGS module, problem 4, passed all tests
 
     PASSED test -- SUNLinSolSetup 
@@ -48,6 +52,7 @@ SUCCESS: SUNSPBCGS module, problem 4, passed all tests
     PASSED test -- SUNLinSolLastFlag (0) 
     PASSED test -- SUNLinSolNumIters (4) 
     PASSED test -- SUNLinSolResNorm
+    PASSED test -- SUNLinSolResid
 SUCCESS: SUNSPBCGS module, problem 5, passed all tests
 
     PASSED test -- SUNLinSolSetup 
@@ -55,5 +60,6 @@ SUCCESS: SUNSPBCGS module, problem 5, passed all tests
     PASSED test -- SUNLinSolLastFlag (0) 
     PASSED test -- SUNLinSolNumIters (4) 
     PASSED test -- SUNLinSolResNorm
+    PASSED test -- SUNLinSolResid
 SUCCESS: SUNSPBCGS module, problem 6, passed all tests
 

@@ -210,6 +210,7 @@ SUNDIALS_EXPORT int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A,
                                           N_Vector x, N_Vector b, realtype tol);
 SUNDIALS_EXPORT int SUNLinSolNumIters_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm_SPTFQMR(SUNLinearSolver S);
+SUNDIALS_EXPORT N_Vector SUNLinSolResid_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_SPTFQMR(SUNLinearSolver S, 
                                            long int *lenrwLS, 

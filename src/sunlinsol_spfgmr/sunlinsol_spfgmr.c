@@ -86,6 +86,7 @@ SUNLinearSolver SUNSPFGMR(N_Vector y, int pretype, int maxl)
   ops->solve             = SUNLinSolSolve_SPFGMR;
   ops->numiters          = SUNLinSolNumIters_SPFGMR;
   ops->resnorm           = SUNLinSolResNorm_SPFGMR;
+  ops->resid             = SUNLinSolResid_SPFGMR;
   ops->lastflag          = SUNLinSolLastFlag_SPFGMR;  
   ops->space             = SUNLinSolSpace_SPFGMR;  
   ops->free              = SUNLinSolFree_SPFGMR;
@@ -567,6 +568,13 @@ realtype SUNLinSolResNorm_SPFGMR(SUNLinearSolver S)
   /* return the stored 'resnorm' value */
   if (S == NULL) return(-ONE);
   return (SPFGMR_CONTENT(S)->resnorm);
+}
+
+
+N_Vector SUNLinSolResid_SPFGMR(SUNLinearSolver S)
+{
+  /* return the stored 'vtemp' vector */
+  return (SPFGMR_CONTENT(S)->vtemp);
 }
 
 

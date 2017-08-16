@@ -142,7 +142,7 @@ SUNDIALS_EXPORT SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A,
                                              int num_threads);
 
 SUNDIALS_EXPORT int SUNSuperLUMTSetOrdering(SUNLinearSolver S,
-                                      int ordering_choice);
+                                            int ordering_choice);
 
 /*
  * -----------------------------------------------------------------
@@ -152,20 +152,9 @@ SUNDIALS_EXPORT int SUNSuperLUMTSetOrdering(SUNLinearSolver S,
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_SuperLUMT(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSetATimes_SuperLUMT(SUNLinearSolver S, void* A_data,
-                                           ATSetupFn ATSetup, ATimesFn ATimes);
-SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_SuperLUMT(SUNLinearSolver S,
-                                                   void* P_data,
-                                                   PSetupFn Pset,
-                                                   PSolveFn Psol);
-SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_SuperLUMT(SUNLinearSolver S,
-                                                   N_Vector s1,
-                                                   N_Vector s2);
 SUNDIALS_EXPORT int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A,
                                        N_Vector x, N_Vector b, realtype tol);
-SUNDIALS_EXPORT int SUNLinSolNumIters_SuperLUMT(SUNLinearSolver S);
-SUNDIALS_EXPORT realtype SUNLinSolResNorm_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_SuperLUMT(SUNLinearSolver S, 
                                              long int *lenrwLS, 

@@ -89,17 +89,18 @@ SUNLinearSolver SUNDenseLinearSolver(N_Vector y, SUNMatrix A)
 
   /* Attach operations */
   ops->gettype           = SUNLinSolGetType_Dense;
-  ops->setatimes         = SUNLinSolSetATimes_Dense;
-  ops->setpreconditioner = SUNLinSolSetPreconditioner_Dense;
-  ops->setscalingvectors = SUNLinSolSetScalingVectors_Dense;
   ops->initialize        = SUNLinSolInitialize_Dense;
   ops->setup             = SUNLinSolSetup_Dense;
   ops->solve             = SUNLinSolSolve_Dense;
-  ops->numiters          = SUNLinSolNumIters_Dense;
-  ops->resnorm           = SUNLinSolResNorm_Dense;
   ops->lastflag          = SUNLinSolLastFlag_Dense;
   ops->space             = SUNLinSolSpace_Dense;
   ops->free              = SUNLinSolFree_Dense;
+  ops->setatimes         = NULL;
+  ops->setpreconditioner = NULL;
+  ops->setscalingvectors = NULL;
+  ops->numiters          = NULL;
+  ops->resnorm           = NULL;
+  ops->resid             = NULL;
 
   /* Create content */
   content = NULL;
@@ -137,33 +138,6 @@ int SUNLinSolInitialize_Dense(SUNLinearSolver S)
 {
   /* all solver-specific memory has already been allocated */
   LASTFLAG(S) = SUNLS_SUCCESS;
-  return(LASTFLAG(S));
-}
-
-int SUNLinSolSetATimes_Dense(SUNLinearSolver S, void* A_data,
-                             ATSetupFn ATSetup, ATimesFn ATimes)
-{
-  /* direct solvers do not utilize an 'ATimes' routine, 
-     so return an error is this routine is ever called */
-  LASTFLAG(S) = SUNLS_ILL_INPUT;
-  return(LASTFLAG(S));
-}
-
-int SUNLinSolSetPreconditioner_Dense(SUNLinearSolver S, void* P_data,
-                                     PSetupFn Pset, PSolveFn Psol)
-{
-  /* direct solvers do not utilize preconditioning, 
-     so return an error is this routine is ever called */
-  LASTFLAG(S) = SUNLS_ILL_INPUT;
-  return(LASTFLAG(S));
-}
-
-int SUNLinSolSetScalingVectors_Dense(SUNLinearSolver S, N_Vector s1,
-                                     N_Vector s2)
-{
-  /* direct solvers do not utilize scaling, 
-     so return an error is this routine is ever called */
-  LASTFLAG(S) = SUNLS_ILL_INPUT;
   return(LASTFLAG(S));
 }
 
@@ -230,18 +204,6 @@ int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   denseGETRS(A_cols, SUNDenseMatrix_Rows(A), pivots, xdata);
   LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
-}
-
-int SUNLinSolNumIters_Dense(SUNLinearSolver S)
-{
-  /* direct solvers do not perform 'iterations' */
-  return(0);
-}
-
-realtype SUNLinSolResNorm_Dense(SUNLinearSolver S)
-{
-  /* direct solvers do not measure the linear residual */
-  return(ZERO);
 }
 
 long int SUNLinSolLastFlag_Dense(SUNLinearSolver S)

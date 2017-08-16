@@ -19,6 +19,7 @@ SUCCESS: SUNPCG module passed all initialization tests
     PASSED test -- SUNLinSolLastFlag (0) 
     PASSED test -- SUNLinSolNumIters (22) 
     PASSED test -- SUNLinSolResNorm
+    PASSED test -- SUNLinSolResid
 SUCCESS: SUNPCG module, problem 1, passed all tests
 
     PASSED test -- SUNLinSolSetup 
@@ -26,6 +27,7 @@ SUCCESS: SUNPCG module, problem 1, passed all tests
     PASSED test -- SUNLinSolLastFlag (0) 
     PASSED test -- SUNLinSolNumIters (22) 
     PASSED test -- SUNLinSolResNorm
+    PASSED test -- SUNLinSolResid
 SUCCESS: SUNPCG module, problem 2, passed all tests
 
     PASSED test -- SUNLinSolSetup 
@@ -33,6 +35,7 @@ SUCCESS: SUNPCG module, problem 2, passed all tests
     PASSED test -- SUNLinSolLastFlag (0) 
     PASSED test -- SUNLinSolNumIters (189) 
     PASSED test -- SUNLinSolResNorm
+    PASSED test -- SUNLinSolResid
 SUCCESS: SUNPCG module, problem 3, passed all tests
 
     PASSED test -- SUNLinSolSetup 
@@ -40,5 +43,6 @@ SUCCESS: SUNPCG module, problem 3, passed all tests
     PASSED test -- SUNLinSolLastFlag (0) 
     PASSED test -- SUNLinSolNumIters (22) 
     PASSED test -- SUNLinSolResNorm
+    PASSED test -- SUNLinSolResid
 SUCCESS: SUNPCG module, problem 4, passed all tests
 

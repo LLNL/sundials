@@ -85,6 +85,7 @@ SUNLinearSolver SUNSPBCGS(N_Vector y, int pretype, int maxl)
   ops->solve             = SUNLinSolSolve_SPBCGS;
   ops->numiters          = SUNLinSolNumIters_SPBCGS;
   ops->resnorm           = SUNLinSolResNorm_SPBCGS;
+  ops->resid             = SUNLinSolResid_SPBCGS;
   ops->lastflag          = SUNLinSolLastFlag_SPBCGS;  
   ops->space             = SUNLinSolSpace_SPBCGS;  
   ops->free              = SUNLinSolFree_SPBCGS;
@@ -558,6 +559,13 @@ realtype SUNLinSolResNorm_SPBCGS(SUNLinearSolver S)
   /* return the stored 'resnorm' value */
   if (S == NULL) return(-ONE);
   return (SPBCGS_CONTENT(S)->resnorm);
+}
+
+
+N_Vector SUNLinSolResid_SPBCGS(SUNLinearSolver S)
+{
+  /* return the stored 'r' vector */
+  return (SPBCGS_CONTENT(S)->r);
 }
 
 

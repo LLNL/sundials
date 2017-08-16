@@ -47,13 +47,13 @@ extern "C" {
   int Test_SUNLinSolSpace(SUNLinearSolver S, int myid);
   int Test_SUNLinSolNumIters(SUNLinearSolver S, int myid);
   int Test_SUNLinSolResNorm(SUNLinearSolver S, int myid);
-  int Test_SUNLinSolSetATimes(SUNLinearSolver S, void *ATdata, ATSetupFn ATSetup,
-                              ATimesFn ATimes, booleantype shouldpass, int myid);
+  int Test_SUNLinSolResid(SUNLinearSolver S, int myid);
+  int Test_SUNLinSolSetATimes(SUNLinearSolver S, void *ATdata,
+                              ATSetupFn ATSetup, ATimesFn ATimes, int myid);
   int Test_SUNLinSolSetPreconditioner(SUNLinearSolver S, void *Pdata,
-                                      PSetupFn PSetup, PSolveFn PSolve,
-                                      booleantype shouldpass, int myid);
-  int Test_SUNLinSolSetScalingVectors(SUNLinearSolver S, N_Vector s1, N_Vector s2,
-                                      booleantype shouldpass, int myid);
+                                      PSetupFn PSetup, PSolveFn PSolve, int myid);
+  int Test_SUNLinSolSetScalingVectors(SUNLinearSolver S, N_Vector s1, 
+                                      N_Vector s2, int myid);
   int Test_SUNLinSolInitialize(SUNLinearSolver S, int myid);
   int Test_SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A, int myid);
   int Test_SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,

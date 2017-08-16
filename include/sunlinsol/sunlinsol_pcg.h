@@ -205,6 +205,7 @@ SUNDIALS_EXPORT int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul,
                                        N_Vector x, N_Vector b, realtype tol);
 SUNDIALS_EXPORT int SUNLinSolNumIters_PCG(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm_PCG(SUNLinearSolver S);
+SUNDIALS_EXPORT N_Vector SUNLinSolResid_PCG(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_PCG(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_PCG(SUNLinearSolver S, 
                                        long int *lenrwLS, 

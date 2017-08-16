@@ -136,11 +136,6 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, myid);
   fails += Test_SUNLinSolLastFlag(LS, myid);
   fails += Test_SUNLinSolSpace(LS, myid);
-  fails += Test_SUNLinSolNumIters(LS, myid);
-  fails += Test_SUNLinSolResNorm(LS, myid);
-  fails += Test_SUNLinSolSetATimes(LS, NULL, NULL, NULL, FALSE, myid);
-  fails += Test_SUNLinSolSetPreconditioner(LS, NULL, NULL, NULL, FALSE, myid);
-  fails += Test_SUNLinSolSetScalingVectors(LS, x, b, FALSE, myid);
 
   /* Print result */
   if (fails) 

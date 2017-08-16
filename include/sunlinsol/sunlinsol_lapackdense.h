@@ -110,20 +110,9 @@ SUNDIALS_EXPORT SUNLinearSolver SUNLapackDense(N_Vector y, SUNMatrix A);
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_LapackDense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_LapackDense(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSetATimes_LapackDense(SUNLinearSolver S, void* A_data,
-                                                   ATSetupFn ATSetup, ATimesFn ATimes);
-SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_LapackDense(SUNLinearSolver S,
-                                                           void* P_data,
-                                                           PSetupFn Pset,
-                                                           PSolveFn Psol);
-SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_LapackDense(SUNLinearSolver S,
-                                                           N_Vector s1,
-                                                           N_Vector s2);
 SUNDIALS_EXPORT int SUNLinSolSetup_LapackDense(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A,
                                                N_Vector x, N_Vector b, realtype tol);
-SUNDIALS_EXPORT int SUNLinSolNumIters_LapackDense(SUNLinearSolver S);
-SUNDIALS_EXPORT realtype SUNLinSolResNorm_LapackDense(SUNLinearSolver S);
 SUNDIALS_EXPORT long int SUNLinSolLastFlag_LapackDense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_LapackDense(SUNLinearSolver S,
                                                long int *lenrwLS,
