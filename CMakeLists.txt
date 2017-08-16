@@ -346,7 +346,7 @@ OPTION(LAPACK_ENABLE "Enable Lapack support" OFF)
 IF(LAPACK_ENABLE AND 
   (SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE"))
 
-  PRINT_WARNING("LAPACK is not compatible with ${SUNDIALS_PRECISION} precision"  
+  PRINT_WARNING("LAPACK is not compatible with ${SUNDIALS_PRECISION} precision"
                 "Disabling LAPACK")
 
   # disable LAPACK
@@ -533,6 +533,41 @@ OPTION(EXAMPLES_ENABLE "Build the SUNDIALS examples" ON)
 IF(EXAMPLES_ENABLE)
 
   # If examples are enabled, set different options
+
+  IF(FCMIX_ENABLE)
+
+    # enable F77 examples
+    SET(F77_EXAMPLES TRUE)
+   
+    IF(SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE")
+
+      # disable F77 examples for extended or single precision
+      PRINT_WARNING("F77 examples are not compatible with ${SUNDIALS_PRECISION} precision"
+                    "Fortran interface is enabled but F77 examples will not be built")
+      SET(F77_EXAMPLES FALSE)
+
+    ELSEIF(NOT LAPACK_ENABLE AND SUNDIALS_INDEX_TYPE MATCHES "INT32_T")  
+
+      # disable F77 examples for 32-bit integers unless LAPACK is enabled
+      # logic in examples' CMakeLists.txt will only add LAPACK F77 examples
+      PRINT_WARNING("F77 examples are not compatible with ${SUNDIALS_INDEX_TYPE} integers"
+                    "Fortan interface is enabled but F77 examples will not be built")
+      SET(F77_EXAMPLES FALSE)
+
+    ELSEIF(LAPACK_ENABLE)
+
+      # warn user that most only LAPACK F77 examples will be enabled
+      # logic in examples' CMakeLists.txt will disable other F77 examples
+      PRINT_WARNING("Most F77 examples are not compatible with ${SUNDIALS_INDEX_TYPE} integers"
+                    "Fortan interface is enabled but only F77 LAPACK examples will be built")
+    ENDIF()
+
+  ELSE()
+
+    # disable F77 examples
+    SET(F77_EXAMPLES FALSE)
+
+  ENDIF()
 
   # The examples will be linked with the library corresponding to the build type.
   # Whenever building shared libraries, use them to link the examples.
@@ -768,7 +803,7 @@ ENDIF(LAPACK_ENABLE)
 # libraries to link against them.
 
 ###########################################################################################
-# NOTE: Need to add check that it was built with the right integer type
+# NOTE: Need to add check that SuperLU_MT was built with the right integer type
 ###########################################################################################
 
 IF(SUPERLUMT_ENABLE)
@@ -1048,18 +1083,21 @@ IF(EXAMPLES_ENABLE)
     ENABLE_TESTING()
   ENDIF(TESTRUNNER)
 
+  # set variables used in generating CMake and Makefiles for examples
   IF(EXAMPLES_INSTALL)
+
     SET(SHELL "sh")
     SET(prefix "${CMAKE_INSTALL_PREFIX}")
     SET(exec_prefix "${CMAKE_INSTALL_PREFIX}")
     SET(includedir "${prefix}/include")
     SET(libdir "${exec_prefix}/lib")
     SET(CPP "${CMAKE_C_COMPILER}")
-    SET(CC "${CMAKE_C_COMPILER}")
     SET(CPPFLAGS "${CMAKE_C_FLAGS_RELEASE}")
+    SET(CC "${CMAKE_C_COMPILER}")
     SET(CFLAGS "${CMAKE_C_FLAGS_RELEASE}")
     SET(LDFLAGS "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
     LIST2STRING(EXTRA_LINK_LIBS LIBS)
+    
     IF(CXX_FOUND)
       SET(CXX "${CMAKE_CXX_COMPILER}")
       SET(CXX_LNKR "${CMAKE_CXX_COMPILER}")
@@ -1067,6 +1105,7 @@ IF(EXAMPLES_ENABLE)
       SET(CXX_LDFLAGS "${CMAKE_CXX_FLAGS_RELEASE}")
       LIST2STRING(EXTRA_LINK_LIBS CXX_LIBS)
     ENDIF(CXX_FOUND)
+
     IF(F77_FOUND)
       SET(F77 "${CMAKE_Fortran_COMPILER}")
       SET(F77_LNKR "${CMAKE_Fortran_COMPILER}")
@@ -1074,6 +1113,7 @@ IF(EXAMPLES_ENABLE)
       SET(F77_LDFLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
       LIST2STRING(EXTRA_LINK_LIBS F77_LIBS)
     ENDIF(F77_FOUND)
+
     IF(F90_FOUND)
       SET(F90 "${CMAKE_Fortran_COMPILER}")
       SET(F90_LNKR "${CMAKE_Fortran_COMPILER}")
@@ -1081,17 +1121,21 @@ IF(EXAMPLES_ENABLE)
       SET(F90_LDFLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
       LIST2STRING(EXTRA_LINK_LIBS F90_LIBS)
     ENDIF(F90_FOUND)
+
     IF(SUPERLUMT_FOUND)
       LIST2STRING(SUPERLUMT_LIBRARIES SUPERLUMT_LIBS)
       SET(SUPERLUMT_LIBS "${SUPERLUMT_LINKER_FLAGS} ${SUPERLUMT_LIBS}")
     ENDIF(SUPERLUMT_FOUND)
+
     IF(KLU_FOUND)
       LIST2STRING(KLU_LIBRARIES KLU_LIBS)
       SET(KLU_LIBS "${KLU_LINKER_FLAGS} ${KLU_LIBS}")
     ENDIF(KLU_FOUND)
+
     IF(LAPACK_FOUND)
       LIST2STRING(LAPACK_LIBRARIES BLAS_LAPACK_LIBS)
     ENDIF(LAPACK_FOUND)
+
     IF(MPIC_FOUND)
       IF(MPI_MPICC)
         SET(MPICC "${MPI_MPICC}")
@@ -1109,6 +1153,7 @@ IF(EXAMPLES_ENABLE)
       SET(HYPRE_LIB_DIR "${HYPRE_LIBRARY_DIR}")
       SET(HYPRE_LIBS "${HYPRE_LIBRARIES}")
     ENDIF(MPIC_FOUND)
+
     IF(MPICXX_FOUND)
       IF(MPI_MPICXX)
         SET(MPICXX "${MPI_MPICXX}")
@@ -1117,6 +1162,7 @@ IF(EXAMPLES_ENABLE)
         LIST2STRING(MPI_LIBRARIES MPI_LIBS)
       ENDIF(MPI_MPICXX)
     ENDIF(MPICXX_FOUND)
+
     IF(MPIF_FOUND)
       IF(MPI_MPIF77)
         SET(MPIF77 "${MPI_MPIF77}")
@@ -1129,6 +1175,7 @@ IF(EXAMPLES_ENABLE)
         LIST2STRING(MPI_LIBRARIES MPI_LIBS)
       ENDIF(MPI_MPIF77)
     ENDIF(MPIF_FOUND)
+
     IF(MPIF90_FOUND)
       IF(MPI_MPIF90)
         SET(MPIF90 "${MPI_MPIF90}")
@@ -1139,125 +1186,176 @@ IF(EXAMPLES_ENABLE)
         LIST2STRING(MPI_LIBRARIES MPI_LIBS)
       ENDIF(MPI_MPIF90)
     ENDIF(MPIF90_FOUND)
+
   ENDIF(EXAMPLES_INSTALL)
 
+  # add ARKode examples
   IF(BUILD_ARKODE)
+
     ADD_SUBDIRECTORY(examples/arkode/C_serial)
+
     IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/C_openmp)
-    ENDIF(OPENMP_FOUND)
+    ENDIF()
+
     IF(CXX_ENABLE AND CXX_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/CXX_serial)
-    ENDIF(CXX_ENABLE AND CXX_FOUND)
-    IF(FCMIX_ENABLE AND F77_FOUND)
+    ENDIF()
+
+    IF(F77_EXAMPLES AND F77_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/F77_serial)
-    ENDIF(FCMIX_ENABLE AND F77_FOUND)
+    ENDIF()
+
     IF(F90_ENABLE AND F90_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/F90_serial)
-    ENDIF(F90_ENABLE AND F90_FOUND)
+    ENDIF()
+
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/C_parallel)
-    ENDIF(MPIC_FOUND)
+    ENDIF()
+
     IF(MPICXX_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/CXX_parallel)
-    ENDIF(MPICXX_FOUND)
-    IF(MPIF_FOUND)
+    ENDIF()
+
+    IF(F77_EXAMPLES AND MPIF_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/F77_parallel)
-    ENDIF(MPIF_FOUND)
+    ENDIF()
+
     IF(MPIF90_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/F90_parallel)
-    ENDIF(MPIF90_FOUND)
+    ENDIF()
+
     IF(HYPRE_ENABLE AND HYPRE_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/C_parhyp)
-    ENDIF(HYPRE_ENABLE AND HYPRE_FOUND)
-    
+    ENDIF()    
+
   ENDIF(BUILD_ARKODE)
   
+  # add CVODE examples
   IF(BUILD_CVODE)
+
     ADD_SUBDIRECTORY(examples/cvode/serial)
-    IF(FCMIX_ENABLE AND F77_FOUND)
+
+    IF(F77_EXAMPLES AND F77_FOUND)
       ADD_SUBDIRECTORY(examples/cvode/fcmix_serial)
-    ENDIF(FCMIX_ENABLE AND F77_FOUND)
+    ENDIF()
+
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/cvode/parallel)
-    ENDIF(MPIC_FOUND)
-    IF(MPIF_FOUND)
+    ENDIF()
+
+    IF(F77_EXAMPLES AND MPIF_FOUND)
       ADD_SUBDIRECTORY(examples/cvode/fcmix_parallel)
-    ENDIF(MPIF_FOUND)
+    ENDIF()
+
     IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/cvode/C_openmp)
-    ENDIF(OPENMP_FOUND)
+    ENDIF()
+
     IF(HYPRE_ENABLE AND HYPRE_FOUND)
       ADD_SUBDIRECTORY(examples/cvode/parhyp)
-    ENDIF(HYPRE_ENABLE AND HYPRE_FOUND)
+    ENDIF()
+
   ENDIF(BUILD_CVODE)
   
-  IF(BUILD_CVODES)	
+  # add CVODES Examples
+  IF(BUILD_CVODES)
+
     ADD_SUBDIRECTORY(examples/cvodes/serial)
+
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/cvodes/parallel)
-    ENDIF(MPIC_FOUND)
+    ENDIF()
+
     IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/cvodes/C_openmp)
-    ENDIF(OPENMP_FOUND)
+    ENDIF()
+
   ENDIF(BUILD_CVODES)
   
+  # add IDA examples
   IF(BUILD_IDA)
+
     ADD_SUBDIRECTORY(examples/ida/serial)
-    IF(FCMIX_ENABLE AND F77_FOUND)
+
+    IF(F77_EXAMPLES AND F77_FOUND)
       ADD_SUBDIRECTORY(examples/ida/fcmix_serial)
+
       IF(OPENMP_FOUND)
         ADD_SUBDIRECTORY(examples/ida/fcmix_openmp)
-      ENDIF(OPENMP_FOUND)
+      ENDIF()
+
       IF(PTHREADS_FOUND)
 	ADD_SUBDIRECTORY(examples/ida/fcmix_pthreads)
-      ENDIF(PTHREADS_FOUND)
-    ENDIF(FCMIX_ENABLE AND F77_FOUND)
+      ENDIF()
+    ENDIF()
+
     IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/ida/C_openmp)
-    ENDIF(OPENMP_FOUND)
+    ENDIF()
+
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/ida/parallel)
-    ENDIF(MPIC_FOUND)
+    ENDIF()
+
     IF(PETSC_FOUND)
       ADD_SUBDIRECTORY(examples/ida/petsc)
-    ENDIF(PETSC_FOUND)
-    IF(MPIF_FOUND)
+    ENDIF()
+
+    IF(F77_EXAMPLES AND MPIF_FOUND)
       ADD_SUBDIRECTORY(examples/ida/fcmix_parallel)
-    ENDIF(MPIF_FOUND)
+    ENDIF()
+
   ENDIF(BUILD_IDA)
   
-  IF(BUILD_IDAS)	
+  # add IDAS examples
+  IF(BUILD_IDAS)
+
     ADD_SUBDIRECTORY(examples/idas/serial)
+
     IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/idas/C_openmp)
-    ENDIF(OPENMP_FOUND)
+    ENDIF()
+
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/idas/parallel)
-    ENDIF(MPIC_FOUND)
-  ENDIF(BUILD_IDAS)
+    ENDIF()
 
-  IF(BUILD_KINSOL)	
+  ENDIF(BUILD_IDAS)
+  
+  # add KINSOL examples
+  IF(BUILD_KINSOL)
+
     ADD_SUBDIRECTORY(examples/kinsol/serial)
+
     IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/kinsol/C_openmp) # the only example here need special handling from testrunner (not yet implemented)
     ENDIF(OPENMP_FOUND)
-    IF(FCMIX_ENABLE AND F77_FOUND)
+
+    IF(F77_EXAMPLES AND F77_FOUND)
       ADD_SUBDIRECTORY(examples/kinsol/fcmix_serial)
-    ENDIF(FCMIX_ENABLE AND F77_FOUND)
+    ENDIF()
+
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/kinsol/parallel)
-    ENDIF(MPIC_FOUND)
-    IF(MPIF_FOUND)
+    ENDIF()
+
+    IF(F77_EXAMPLES AND MPIF_FOUND)
       ADD_SUBDIRECTORY(examples/kinsol/fcmix_parallel)
-    ENDIF(MPIF_FOUND)
+    ENDIF()
+
   ENDIF(BUILD_KINSOL)
 
-  IF(BUILD_CPODES)	
+  # add CPODES examples
+  IF(BUILD_CPODES)
+
     ADD_SUBDIRECTORY(examples/cpodes/serial)
+
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/cpodes/parallel)
-    ENDIF(MPIC_FOUND)
+    ENDIF()
+
   ENDIF(BUILD_CPODES)
 
   # Always add the nvector serial examples
