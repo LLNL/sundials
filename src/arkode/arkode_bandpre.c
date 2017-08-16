@@ -221,18 +221,28 @@ int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP,
   pdata = (ARKBandPrecData) arkspils_mem->P_data;
 
   /* sum space requirements for all objects in pdata */
-  N_VSpace(ark_mem->ark_tempv, &lrw1, &liw1);
-  *leniwBP = 4 + 2*liw1;
-  *lenrwBP = 2*lrw1;
-  SUNMatSpace(pdata->savedJ, &lrw, &liw);
-  *leniwBP += liw;
-  *lenrwBP += lrw;
-  SUNMatSpace(pdata->savedP, &lrw, &liw);
-  *leniwBP += liw;
-  *lenrwBP += lrw;
-  SUNLinSolSpace(pdata->LS, &lrw, &liw);
-  *leniwBP += liw;
-  *lenrwBP += lrw;
+  *leniwBP = 4;
+  *lenrwBP = 0;
+  if (ark_mem->ark_tempv->ops->nvspace) {
+    N_VSpace(ark_mem->ark_tempv, &lrw1, &liw1);
+    *leniwBP += 2*liw1;
+    *lenrwBP += 2*lrw1;
+  }
+  if (pdata->savedJ->ops->space) {
+    SUNMatSpace(pdata->savedJ, &lrw, &liw);
+    *leniwBP += liw;
+    *lenrwBP += lrw;
+  }
+  if (pdata->savedP->ops->space) {
+    SUNMatSpace(pdata->savedP, &lrw, &liw);
+    *leniwBP += liw;
+    *lenrwBP += lrw;
+  }
+  if (pdata->LS->ops->space) {
+    SUNLinSolSpace(pdata->LS, &lrw, &liw);
+    *leniwBP += liw;
+    *lenrwBP += lrw;
+  }
 
   return(ARKSPILS_SUCCESS);
 }

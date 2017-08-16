@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -1358,10 +1355,10 @@ void IDAFree(void **ida_mem)
     IDA_mem->ida_lfree(IDA_mem);
 
   if (IDA_mem->ida_nrtfn > 0) {
-    free(IDA_mem->ida_glo); IDA_mem->ida_glo = NULL; 
-    free(IDA_mem->ida_ghi);  IDA_mem->ida_ghi = NULL;
-    free(IDA_mem->ida_grout);  IDA_mem->ida_grout = NULL;
-    free(IDA_mem->ida_iroots); IDA_mem->ida_iroots = NULL;
+    free(IDA_mem->ida_glo);     IDA_mem->ida_glo = NULL; 
+    free(IDA_mem->ida_ghi);     IDA_mem->ida_ghi = NULL;
+    free(IDA_mem->ida_grout);   IDA_mem->ida_grout = NULL;
+    free(IDA_mem->ida_iroots);  IDA_mem->ida_iroots = NULL;
     free(IDA_mem->ida_rootdir); IDA_mem->ida_rootdir = NULL;
     free(IDA_mem->ida_gactive); IDA_mem->ida_gactive = NULL;
   }
@@ -2189,7 +2186,7 @@ static int IDANls(IDAMem IDA_mem)
   if (IDA_mem->ida_nst == 0){
     IDA_mem->ida_cjold = IDA_mem->ida_cj;
     IDA_mem->ida_ss = TWENTY;
-    if (IDA_mem->ida_setupNonNull) callSetup = TRUE;
+    if (IDA_mem->ida_lsetup) callSetup = TRUE;
   }
 
   IDA_mem->ida_mm = IDA_mem->ida_tempv2;
@@ -2197,7 +2194,7 @@ static int IDANls(IDAMem IDA_mem)
 
   /* Decide if lsetup is to be called */
 
-  if (IDA_mem->ida_setupNonNull){
+  if (IDA_mem->ida_lsetup) {
     IDA_mem->ida_cjratio = IDA_mem->ida_cj / IDA_mem->ida_cjold;
     temp1 = (ONE - XRATE) / (ONE + XRATE);
     temp2 = ONE/temp1;
@@ -2238,7 +2235,7 @@ static int IDANls(IDAMem IDA_mem)
 
     /* Retry the current step on recoverable failure with old Jacobian data. */
 
-    tryAgain = (retval>0) && (IDA_mem->ida_setupNonNull) && (!callSetup);
+    tryAgain = (retval>0) && (IDA_mem->ida_lsetup) && (!callSetup);
 
     if (tryAgain){
       callSetup = TRUE;
@@ -2354,8 +2351,9 @@ static int IDANewtonIter(IDAMem IDA_mem)
     N_VScale(ONE, IDA_mem->ida_delta, IDA_mem->ida_savres);
 
     /* Call the lsolve function to get correction vector delta. */
-    retval = IDA_mem->ida_lsolve(IDA_mem, IDA_mem->ida_delta, IDA_mem->ida_ewt,
-                                 IDA_mem->ida_yy, IDA_mem->ida_yp, IDA_mem->ida_savres); 
+    retval = IDA_mem->ida_lsolve(IDA_mem, IDA_mem->ida_delta,
+                                 IDA_mem->ida_ewt, IDA_mem->ida_yy,
+                                 IDA_mem->ida_yp, IDA_mem->ida_savres); 
     if (retval < 0) return(IDA_LSOLVE_FAIL);
     if (retval > 0) return(IDA_LSOLVE_RECVR);
 

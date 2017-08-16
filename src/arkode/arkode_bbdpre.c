@@ -215,7 +215,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   /* initialize band linear solver object */
   SUNLinSolInitialize(pdata->LS);
   
-  /* Set pdata->dqrely based on input dqrely (0 implies default). */
+  /* Set dqrely based on input dqrely (0 implies default). */
   pdata->dqrely = (dqrely > ZERO) ? 
     dqrely : SUNRsqrt(ark_mem->ark_uround);
 
@@ -223,21 +223,33 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   pdata->n_local = Nlocal;
 
   /* Set work space sizes and initialize nge */
-  N_VSpace(ark_mem->ark_tempv, &lrw1, &liw1);
-  pdata->rpwsize = 3*lrw1;
-  pdata->ipwsize = 3*liw1;
-  N_VSpace(pdata->rlocal, &lrw1, &liw1);
-  pdata->rpwsize += 2*lrw1;
-  pdata->ipwsize += 2*liw1;
-  SUNMatSpace(pdata->savedJ, &lrw, &liw);
-  pdata->rpwsize += lrw;
-  pdata->ipwsize += liw;
-  SUNMatSpace(pdata->savedP, &lrw, &liw);
-  pdata->rpwsize += lrw;
-  pdata->ipwsize += liw;
-  SUNLinSolSpace(pdata->LS, &lrw, &liw);
-  pdata->rpwsize += lrw;
-  pdata->ipwsize += liw;
+  pdata->rpwsize = 0;
+  pdata->ipwsize = 0;
+  if (ark_mem->ark_tempv->ops->nvspace) {
+    N_VSpace(ark_mem->ark_tempv, &lrw1, &liw1);
+    pdata->rpwsize += 3*lrw1;
+    pdata->ipwsize += 3*liw1;
+  }
+  if (pdata->rlocal->ops->nvspace) {
+    N_VSpace(pdata->rlocal, &lrw1, &liw1);
+    pdata->rpwsize += 2*lrw1;
+    pdata->ipwsize += 2*liw1;
+  }
+  if (pdata->savedJ->ops->space) {
+    SUNMatSpace(pdata->savedJ, &lrw, &liw);
+    pdata->rpwsize += lrw;
+    pdata->ipwsize += liw;
+  }
+  if (pdata->savedP->ops->space) {
+    SUNMatSpace(pdata->savedP, &lrw, &liw);
+    pdata->rpwsize += lrw;
+    pdata->ipwsize += liw;
+  }
+  if (pdata->LS->ops->space) {
+    SUNLinSolSpace(pdata->LS, &lrw, &liw);
+    pdata->rpwsize += lrw;
+    pdata->ipwsize += liw;
+  }
   pdata->nge = 0;
 
   /* make sure P_data is free from any previous allocations */
@@ -296,7 +308,7 @@ int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq,
   pdata->mudq = SUNMIN(Nlocal-1, SUNMAX(0,mudq));
   pdata->mldq = SUNMIN(Nlocal-1, SUNMAX(0,mldq));
 
-  /* Set pdata->dqrely based on input dqrely (0 implies default). */
+  /* Set dqrely based on input dqrely (0 implies default). */
   pdata->dqrely = (dqrely > ZERO) ? 
     dqrely : SUNRsqrt(ark_mem->ark_uround);
 
@@ -518,8 +530,8 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
  z is the output vector computed by ARKBBDPrecSolve.
 
- The value returned by the ARKBBDPrecSolve function is always 0,
- indicating success.
+ The value returned by the ARKBBDPrecSolve function is the same 
+ as the value returned from the linear solver object.
 ---------------------------------------------------------------*/
 static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy, 
 			   N_Vector r, N_Vector z, 
@@ -580,11 +592,11 @@ static int ARKBBDPrecFree(ARKodeMem ark_mem)
 
  This routine generates a banded difference quotient approximation
  to the local block of the Jacobian of g(t,y). It assumes that a
- band matrix of type DlsMat is stored columnwise, and that elements
- within each column are contiguous. All matrix elements are generated
- as difference quotients, by way of calls to the user routine gloc.
- By virtue of the band structure, the number of these calls is
- bandwidth + 1, where bandwidth = mldq + mudq + 1.
+ band matrix of type SUNMatrix is stored columnwise, and that 
+ elements within each column are contiguous. All matrix elements 
+ are generated as difference quotients, by way of calls to the 
+ user routine gloc.  By virtue of the band structure, the number 
+ of these calls is bandwidth + 1, where bandwidth = mldq + mudq + 1.
  But the band matrix kept has bandwidth = mlkeep + mukeep + 1.
  This routine also assumes that the local elements of a vector are
  stored contiguously.

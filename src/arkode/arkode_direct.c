@@ -254,14 +254,14 @@ int ARKDlsSetJacFn(void *arkode_mem, ARKDlsJacFn jac)
   /* Return immediately if arkode_mem is NULL */
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKDLS_MEM_NULL, "ARKDLS", 
-		    "ARKDlsSetDenseJacFn", MSGD_ARKMEM_NULL);
+		    "ARKDlsSetJacFn", MSGD_ARKMEM_NULL);
     return(ARKDLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
   if (ark_mem->ark_lmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_LMEM_NULL, "ARKDLS", 
-		    "ARKDlsSetDenseJacFn", MSGD_LMEM_NULL);
+		    "ARKDlsSetJacFn", MSGD_LMEM_NULL);
     return(ARKDLS_LMEM_NULL);
   }
   arkdls_mem = (ARKDlsMem) ark_mem->ark_lmem;
@@ -317,7 +317,7 @@ int ARKDlsSetMassFn(void *arkode_mem, ARKDlsMassFn mass)
 
 /*---------------------------------------------------------------
  ARKDlsGetWorkSpace returns the length of workspace allocated for 
- the ARKDLS linear solver.
+ the ARKDLS linear solver interface.
 ---------------------------------------------------------------*/
 int ARKDlsGetWorkSpace(void *arkode_mem, long int *lenrw, 
                        long int *leniw)
@@ -343,19 +343,29 @@ int ARKDlsGetWorkSpace(void *arkode_mem, long int *lenrw,
   arkdls_mem = (ARKDlsMem) ark_mem->ark_lmem;
 
   /* initialize outputs with requirements from ARKDlsMem structure */
-  N_VSpace(arkdls_mem->x, &lrw1, &liw1);
-  *lenrw = lrw1;
-  *leniw = liw1 + 4;
+  *lenrw = 0;
+  *leniw = 4;
 
+  /* add NVector sizes */
+  if (arkdls_mem->x->ops->nvspace) {
+    N_VSpace(arkdls_mem->x, &lrw1, &liw1);
+    *lenrw += lrw1;
+    *leniw += liw1;
+  }
+  
   /* add SUNMatrix size (only account for the one owned by Dls interface) */
-  SUNMatSpace(arkdls_mem->savedJ, &lrw, &liw);
-  *lenrw += lrw;
-  *leniw += liw;
+  if (arkdls_mem->savedJ->ops->space) {
+    SUNMatSpace(arkdls_mem->savedJ, &lrw, &liw);
+    *lenrw += lrw;
+    *leniw += liw;
+  }
 
   /* add LS sizes */
-  SUNLinSolSpace(arkdls_mem->LS, &lrw, &liw);
-  *lenrw += lrw;
-  *leniw += liw;
+  if (arkdls_mem->LS->ops->space) {
+    SUNLinSolSpace(arkdls_mem->LS, &lrw, &liw);
+    *lenrw += lrw;
+    *leniw += liw;
+  }
 
   return(ARKDLS_SUCCESS);
 }
@@ -532,20 +542,30 @@ int ARKDlsGetMassWorkSpace(void *arkode_mem, long int *lenrw,
   arkdls_mem = (ARKDlsMassMem) ark_mem->ark_mass_mem;
 
   /* initialize outputs with requirements from ARKDlsMem structure */
-  N_VSpace(arkdls_mem->x, &lrw1, &liw1);
-  *lenrw = lrw1;
-  *leniw = liw1 + 6;
+  *lenrw = 0;
+  *leniw = 6;
 
+  /* add NVector sizes */
+  if (arkdls_mem->x->ops->nvspace) {
+    N_VSpace(arkdls_mem->x, &lrw1, &liw1);
+    *lenrw += lrw1;
+    *leniw += liw1;
+  }
+  
   /* add SUNMatrix size (only account for the one owned by Dls interface) */
-  SUNMatSpace(arkdls_mem->M_lu, &lrw, &liw);
-  *lenrw += lrw;
-  *leniw += liw;
+  if (arkdls_mem->M_lu->ops->space) {
+    SUNMatSpace(arkdls_mem->M_lu, &lrw, &liw);
+    *lenrw += lrw;
+    *leniw += liw;
+  }
 
   /* add LS sizes */
-  SUNLinSolSpace(arkdls_mem->LS, &lrw, &liw);
-  *lenrw += lrw;
-  *leniw += liw;
-
+  if (arkdls_mem->LS->ops->space) {
+    SUNLinSolSpace(arkdls_mem->LS, &lrw, &liw);
+    *lenrw += lrw;
+    *leniw += liw;
+  }
+  
   return(ARKDLS_SUCCESS);
 }
 
@@ -704,19 +724,19 @@ int arkDlsDQJac(realtype t, N_Vector y, N_Vector fy,
 
   if (SUNMatGetID(Jac) == SUNMATRIX_DENSE) {
     retval = arkDlsDenseDQJac(t, y, fy, Jac, ark_mem, tmp1);
-  } else if (SUNMatGetID(arkdls_mem->A) == SUNMATRIX_BAND) {
+  } else if (SUNMatGetID(Jac) == SUNMATRIX_BAND) {
     retval = arkDlsBandDQJac(t, y, fy, Jac, ark_mem, tmp1, tmp2);
-  } else if (SUNMatGetID(arkdls_mem->A) == SUNMATRIX_DIAGONAL) {
+  } else if (SUNMatGetID(Jac) == SUNMATRIX_DIAGONAL) {
     retval = arkDlsDiagonalDQJac(t, y, fy, Jac, ark_mem, tmp1);
-  } else if (SUNMatGetID(arkdls_mem->A) == SUNMATRIX_SPARSE) {
+  } else if (SUNMatGetID(Jac) == SUNMATRIX_SPARSE) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKDLS", 
 		    "arkDlsDQJac", 
-                    "ARKDlsDQJac not implemented for SUNMATRIX_SPARSE");
+                    "arkDlsDQJac not implemented for SUNMATRIX_SPARSE");
     retval = ARK_ILL_INPUT;
   } else {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKDLS", 
 		    "arkDlsDQJac", 
-                    "unrecognized matrix type for ARKDlsDQJac");
+                    "unrecognized matrix type for arkDlsDQJac");
     retval = ARK_ILL_INPUT;
   }
   return(retval);

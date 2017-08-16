@@ -462,14 +462,22 @@ int ARKSpilsGetWorkSpace(void *arkode_mem, long int *lenrw,
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
 
   /* start with fixed sizes plus NVectors */
-  N_VSpace(ark_mem->ark_tempv, &lrw1, &liw1);
-  *lenrw = 4 + 2*lrw1;
-  *leniw = 10 + 2*liw1;
+  *lenrw = 4;
+  *leniw = 10;
+
+  /* add NVector sizes */
+  if (ark_mem->ark_tempv->ops->nvspace) {
+    N_VSpace(ark_mem->ark_tempv, &lrw1, &liw1);
+    *lenrw += 2*lrw1;
+    *leniw += 2*liw1;
+  }
 
   /* add LS sizes */
-  SUNLinSolSpace(arkspils_mem->LS, &lrw, &liw);
-  *lenrw += lrw;
-  *leniw += liw;
+  if (arkspils_mem->LS->ops->space) {
+    SUNLinSolSpace(arkspils_mem->LS, &lrw, &liw);
+    *lenrw += lrw;
+    *leniw += liw;
+  }
 
   return(ARKSPILS_SUCCESS);
 }
@@ -582,6 +590,34 @@ int ARKSpilsGetNumConvFails(void *arkode_mem, long int *nlcfails)
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
 
   *nlcfails = arkspils_mem->ncfl;
+
+  return(ARKSPILS_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+ ARKSpilsGetNumJTSetupEvals
+---------------------------------------------------------------*/
+int ARKSpilsGetNumJTSetupEvals(void *arkode_mem, long int *njtsetups)
+{
+  ARKodeMem ark_mem;
+  ARKSpilsMem arkspils_mem;
+
+  /* Return immediately if arkode_mem or ark_mem->ark_lmem are NULL */
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
+                    "ARKSpilsGetNumJTSetupEvals", MSGS_ARKMEM_NULL);
+    return(ARKSPILS_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  if (ark_mem->ark_lmem == NULL) {
+    arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKSPILS", 
+                    "ARKSpilsGetNumJTSetupEvals", MSGS_LMEM_NULL);
+    return(ARKSPILS_LMEM_NULL);
+  }
+  arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
+
+  *njtsetups = arkspils_mem->njtsetup;
 
   return(ARKSPILS_SUCCESS);
 }
@@ -874,15 +910,23 @@ int ARKSpilsGetMassWorkSpace(void *arkode_mem, long int *lenrw,
   }
   arkspils_mem = (ARKSpilsMassMem) ark_mem->ark_mass_mem;
 
-  /* start with fixed sizes plus NVectors */
-  N_VSpace(ark_mem->ark_tempv, &lrw1, &liw1);
-  *lenrw = 4 + lrw1;
-  *leniw = 8 + liw1;
+  /* start with fixed sizes */
+  *lenrw = 4;
+  *leniw = 8;
 
+  /* add NVector sizes */
+  if (ark_mem->ark_tempv->ops->nvspace) {
+    N_VSpace(ark_mem->ark_tempv, &lrw1, &liw1);
+    *lenrw += lrw1;
+    *leniw += liw1;
+  }
+  
   /* add LS sizes */
-  SUNLinSolSpace(arkspils_mem->LS, &lrw, &liw);
-  *lenrw += lrw;
-  *leniw += liw;
+  if (arkspils_mem->LS->ops->space) {
+    SUNLinSolSpace(arkspils_mem->LS, &lrw, &liw);
+    *lenrw += lrw;
+    *leniw += liw;
+  }
 
   return(ARKSPILS_SUCCESS);
 }
@@ -1212,14 +1256,14 @@ int ARKSpilsPSetup(void *arkode_mem)
 /*---------------------------------------------------------------
  ARKSpilsPSolve:
 
- This routine interfaces between the generic Sp***Solve routine
- (within the SPGMR, SPBCG, SPTFQMR, SPFGMR or PCG solver) and the 
- user's psolve routine.  It passes to psolve all required state 
- information from arkode_mem.  Its return value is the same as 
- that returned by psolve. Note that the generic SP*** solver 
- guarantees that ARKSpilsPSolve will not be called in the case 
- in which preconditioning is not done. This is the only case in 
- which the user's psolve routine is allowed to be NULL.
+ This routine interfaces between the generic SUNLinSolSolve 
+ routine and the user's psolve routine.  It passes to psolve all 
+ required state information from arkode_mem.  Its return value 
+ is the same as that returned by psolve. Note that the generic 
+ SUNLinSol solver guarantees that ARKSpilsPSolve will not be 
+ called in the case in which preconditioning is not done. This 
+ is the only case in which the user's psolve routine is allowed 
+ to be NULL.
 ---------------------------------------------------------------*/
 int ARKSpilsPSolve(void *arkode_mem, N_Vector r, N_Vector z,
                    realtype tol, int lr)
@@ -1655,6 +1699,9 @@ int arkSpilsFree(ARKodeMem ark_mem)
   arkspils_mem->ycur = NULL;
   arkspils_mem->fcur = NULL;
 
+  /* Free preconditioner memory (if applicable) */
+  if (arkspils_mem->pfree)  arkspils_mem->pfree(ark_mem);
+  
   /* free ARKSpils interface structure */
   free(ark_mem->ark_lmem);
   

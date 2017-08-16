@@ -1,20 +1,21 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
- * Programmer(s): Alan C. Hindmarsh, Radu Serban and
- *                Aaron Collier @ LLNL
+ * Programmer(s): Daniel R. Reynolds @ SMU,
+ *      Alan C. Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2017, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
  * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
  * All rights reserved.
  * For details, see the LICENSE file.
- * LLNS Copyright End
+ * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
  * This is the header file for the IDABBDPRE module, for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
@@ -40,17 +41,25 @@
  *   #include <ida/ida_bbdpre.h>
  *   #include <nvector_parallel.h>
  *   ...
+ *   void *ida_mem;
+ *   ...
  *   y0  = N_VNew_Parallel(...);
  *   yp0 = N_VNew_Parallel(...);
+ *   ...
+ *   SUNLinearSolver LS = SUNSPBCGS(y0, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNSPFGMR(y0, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNSPGMR(y0, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNSPTFQMR(y0, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNPCG(y0, pretype, maxl);
  *   ...
  *   ida_mem = IDACreate(...);
  *   ier = IDAInit(...);
  *   ...
- *   flag = IDASptfqmr(ida_mem, maxl);
- *       -or-
- *   flag = IDASpgmr(ida_mem, maxl);
- *       -or-
- *   flag = IDASpbcg(ida_mem, maxl);
+ *   ier = IDASpilsSetLinearSolver(ida_mem, LS);
  *   ...
  *   flag = IDABBDPrecInit(ida_mem, Nlocal, mudq, mldq,
  *                         mukeep, mlkeep, dq_rel_yy, Gres, Gcomm);
@@ -61,6 +70,9 @@
  *
  *   N_VDestroy(y0);
  *   N_VDestroy(yp0);
+ *   ...
+ *   SUNLinSolFree(LS);
+ *   ...
  *
  * The user-supplied routines required are:
  *
@@ -128,10 +140,11 @@ extern "C" {
  * the current solution vector yy, the current solution
  * derivative vector yp, and a pointer to the user-defined data
  * block user_data. It is to compute the local part of G(t,y,y')
- * and store it in the vector gval. (Providing memory for yy and
- * gval is handled within this preconditioner module.) It is
- * expected that this routine will save communicated data in work
- * space defined by the user, and made available to the
+ * and store it in the vector gval. 
+ * (Allocation of memory for yy and gval is handled within the 
+ * preconditioner module.) 
+ * It is expected that this routine will save communicated data 
+ * in work space defined by the user, and made available to the
  * preconditioner function for the problem. The user_data
  * parameter is the same as that passed by the user to the
  * IDASetUserdata routine.
@@ -220,11 +233,15 @@ typedef int (*IDABBDCommFn)(sunindextype Nlocal, realtype tt,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
-                                   sunindextype mudq, sunindextype mldq,
-                                   sunindextype mukeep, sunindextype mlkeep,
+SUNDIALS_EXPORT int IDABBDPrecInit(void *ida_mem,
+                                   sunindextype Nlocal,
+                                   sunindextype mudq,
+                                   sunindextype mldq,
+                                   sunindextype mukeep,
+                                   sunindextype mlkeep,
                                    realtype dq_rel_yy,
-                                   IDABBDLocalFn Gres, IDABBDCommFn Gcomm);
+                                   IDABBDLocalFn Gres,
+                                   IDABBDCommFn Gcomm);
 
 /*
  * -----------------------------------------------------------------
@@ -249,7 +266,8 @@ SUNDIALS_EXPORT int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
  */
 
 SUNDIALS_EXPORT int IDABBDPrecReInit(void *ida_mem,
-				     sunindextype mudq, sunindextype mldq,
+				     sunindextype mudq,
+                                     sunindextype mldq,
 				     realtype dq_rel_yy);
 
 /*
@@ -270,8 +288,10 @@ SUNDIALS_EXPORT int IDABBDPrecReInit(void *ida_mem,
  */
 
 SUNDIALS_EXPORT int IDABBDPrecGetWorkSpace(void *ida_mem, 
-                                           long int *lenrwBBDP, long int *leniwBBDP);
-SUNDIALS_EXPORT int IDABBDPrecGetNumGfnEvals(void *ida_mem, long int *ngevalsBBDP);
+                                           long int *lenrwBBDP,
+                                           long int *leniwBBDP);
+SUNDIALS_EXPORT int IDABBDPrecGetNumGfnEvals(void *ida_mem,
+                                             long int *ngevalsBBDP);
 
 #ifdef __cplusplus
 }

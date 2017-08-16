@@ -349,14 +349,22 @@ int CVSpilsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
   cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
 
   /* start with fixed sizes plus NVectors */
-  N_VSpace(cv_mem->cv_tempv, &lrw1, &liw1);
-  *lenrwLS = 4 + 2*lrw1;
-  *leniwLS = 10 + 2*liw1;
+  *lenrwLS = 4;
+  *leniwLS = 10;
+
+  /* add NVector sizes */
+  if (cv_mem->cv_tempv->ops->nvspace) {
+    N_VSpace(cv_mem->cv_tempv, &lrw1, &liw1);
+    *lenrwLS += 2*lrw1;
+    *leniwLS += 2*liw1;
+  }
 
   /* add LS sizes */
-  SUNLinSolSpace(cvspils_mem->LS, &lrw, &liw);
-  *lenrwLS += lrw;
-  *leniwLS += liw;
+  if (cvspils_mem->LS->ops->space) {
+    SUNLinSolSpace(cvspils_mem->LS, &lrw, &liw);
+    *lenrwLS += lrw;
+    *leniwLS += liw;
+  }
 
   return(CVSPILS_SUCCESS);
 }
@@ -744,14 +752,14 @@ int CVSpilsPSetup(void *cvode_mem)
  * -----------------------------------------------------------------
  * CVSpilsPSolve
  * -----------------------------------------------------------------
- * This routine interfaces between the generic Sp***Solve routine
- * (within the SPGMR, SPBCG, or SPTFQMR solver) and the
- * user's psolve routine.  It passes to psolve all required state 
- * information from cvode_mem.  Its return value is the same as that
- * returned by psolve. Note that the generic SP*** solver guarantees
- * that CVSpilsPSolve will not be called in the case in which
- * preconditioning is not done. This is the only case in which the
- * user's psolve routine is allowed to be NULL.
+ * This routine interfaces between the generic SUNLinSolSolve 
+ * routine and the user's psolve routine.  It passes to psolve all
+ * required state information from cvode_mem.  Its return value is 
+ * the same as that returned by psolve. Note that the generic 
+ * SUNLinSol solver guarantees that CVSpilsPSolve will not be called 
+ * in the case in which preconditioning is not done. This is the 
+ * only case in which the user's psolve routine is allowed to be 
+ * NULL.
  * -----------------------------------------------------------------
  */
 
@@ -931,7 +939,7 @@ int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 {
   realtype bnorm, res_norm;
   CVSpilsMem cvspils_mem;
-  int nli_inc, nps_inc, retval;
+  int nli_inc, retval;
   
   cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
 
@@ -957,9 +965,6 @@ int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                                       weight,
                                       weight);
 
-  /* Store previous nps value in nps_inc */
-  nps_inc = cvspils_mem->nps;
-  
   /* Call solver, and copy x to b */
   retval = SUNLinSolSolve(cvspils_mem->LS, NULL, cvspils_mem->x,
                           b, cvspils_mem->delta);
@@ -968,7 +973,6 @@ int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   /* Retrieve solver statistics */
   res_norm = SUNLinSolResNorm(cvspils_mem->LS);
   nli_inc  = SUNLinSolNumIters(cvspils_mem->LS);
-  nps_inc  = cvspils_mem->nps - nps_inc;
   
   /* Increment counters nli and ncfl */
   cvspils_mem->nli += nli_inc;
@@ -1056,6 +1060,9 @@ int cvSpilsFree(CVodeMem cv_mem)
   cvspils_mem->ycur = NULL;
   cvspils_mem->fcur = NULL;
 
+  /* Free preconditioner memory (if applicable) */
+  if (cvspils_mem->pfree)  cvspils_mem->pfree(cv_mem);
+  
   /* free CVSpils interface structure */
   free(cv_mem->cv_lmem);
   

@@ -168,14 +168,14 @@ int CVDlsSetJacFn(void *cvode_mem, CVDlsJacFn jac)
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CVDLS_MEM_NULL, "CVDLS",
-                   "CVDlsSetDenseJacFn", MSGD_CVMEM_NULL);
+                   "CVDlsSetJacFn", MSGD_CVMEM_NULL);
     return(CVDLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVDLS_LMEM_NULL, "CVDLS",
-                   "CVDlsSetDenseJacFn", MSGD_LMEM_NULL);
+                   "CVDlsSetJacFn", MSGD_LMEM_NULL);
     return(CVDLS_LMEM_NULL);
   }
   cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
@@ -221,19 +221,29 @@ int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
   cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
   /* initialize outputs with requirements from CVDlsMem structure */
-  N_VSpace(cvdls_mem->x, &lrw1, &liw1);
-  *lenrwLS = lrw1;
-  *leniwLS = liw1 + 4;
+  *lenrwLS = 0;
+  *leniwLS = 4;
 
+  /* add NVector size */
+  if (cvdls_mem->x->ops->nvspace) {
+    N_VSpace(cvdls_mem->x, &lrw1, &liw1);
+    *lenrwLS = lrw1;
+    *leniwLS = liw1;
+  }
+  
   /* add SUNMatrix size (only account for the one owned by Dls interface) */
-  SUNMatSpace(cvdls_mem->savedJ, &lrw, &liw);
-  *lenrwLS += lrw;
-  *leniwLS += liw;
+  if (cvdls_mem->savedJ->ops->space) {
+    SUNMatSpace(cvdls_mem->savedJ, &lrw, &liw);
+    *lenrwLS += lrw;
+    *leniwLS += liw;
+  }
 
   /* add LS sizes */
-  SUNLinSolSpace(cvdls_mem->LS, &lrw, &liw);
-  *lenrwLS += lrw;
-  *leniwLS += liw;
+  if (cvdls_mem->LS->ops->space) {
+    SUNLinSolSpace(cvdls_mem->LS, &lrw, &liw);
+    *lenrwLS += lrw;
+    *leniwLS += liw;
+  }
 
   return(CVDLS_SUCCESS);
 }
@@ -401,19 +411,19 @@ int cvDlsDQJac(realtype t, N_Vector y, N_Vector fy,
 
   if (SUNMatGetID(Jac) == SUNMATRIX_DENSE) {
     retval = cvDlsDenseDQJac(t, y, fy, Jac, cv_mem, tmp1);
-  } else if (SUNMatGetID(cvdls_mem->A) == SUNMATRIX_BAND) {
+  } else if (SUNMatGetID(Jac) == SUNMATRIX_BAND) {
     retval = cvDlsBandDQJac(t, y, fy, Jac, cv_mem, tmp1, tmp2);
-  } else if (SUNMatGetID(cvdls_mem->A) == SUNMATRIX_DIAGONAL) {
+  } else if (SUNMatGetID(Jac) == SUNMATRIX_DIAGONAL) {
     retval = cvDlsDiagonalDQJac(t, y, fy, Jac, cv_mem, tmp1);
-  } else if (SUNMatGetID(cvdls_mem->A) == SUNMATRIX_SPARSE) {
+  } else if (SUNMatGetID(Jac) == SUNMATRIX_SPARSE) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVDLS", 
-		    "cvDlsDQJac", 
-                    "CVDlsDQJac not implemented for SUNMATRIX_SPARSE");
+                   "cvDlsDQJac", 
+                   "cvDlsDQJac not implemented for SUNMATRIX_SPARSE");
     retval = CV_ILL_INPUT;
   } else {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVDLS", 
-		    "cvDlsDQJac", 
-                    "unrecognized matrix type for CVDlsDQJac");
+                   "cvDlsDQJac", 
+                   "unrecognized matrix type for cvDlsDQJac");
     retval = CV_ILL_INPUT;
   }
   return(retval);

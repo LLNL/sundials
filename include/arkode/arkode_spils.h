@@ -227,7 +227,7 @@ typedef int (*ARKSpilsPrecSolveFn)(realtype t, N_Vector y,
  Each call to the JacTimesSetup function is preceded by a call 
  to the RhsFn fi with the same (t,y) arguments.  Thus the 
  JacTimesSetup function can use any auxiliary data that is 
- computed and saved by the f function and made accessible to 
+ computed and saved by the fi function and made accessible to 
  JacTimesSetup.
 
  A function JacTimesSetup must have the prototype given below.

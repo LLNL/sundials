@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision$
-# $Date$
-# ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -957,7 +954,7 @@ ENDIF(BUILD_CVODES)
 IF(BUILD_IDA)	
   ADD_SUBDIRECTORY(src/ida)
   IF(FCMIX_ENABLE AND F77_FOUND)
-    ADD_SUBDIRECTORY(src/ida/fcmix)
+    #ADD_SUBDIRECTORY(src/ida/fcmix)
   ENDIF(FCMIX_ENABLE AND F77_FOUND)
 ENDIF(BUILD_IDA)
 
@@ -1159,27 +1156,27 @@ IF(EXAMPLES_ENABLE)
   ENDIF(BUILD_CVODES)
   
   IF(BUILD_IDA)
-    ADD_SUBDIRECTORY(examples/ida/serial)
+    #ADD_SUBDIRECTORY(examples/ida/serial)
     IF(FCMIX_ENABLE AND F77_FOUND)
-      ADD_SUBDIRECTORY(examples/ida/fcmix_serial)
+      #ADD_SUBDIRECTORY(examples/ida/fcmix_serial)
       IF(OPENMP_FOUND)
-        ADD_SUBDIRECTORY(examples/ida/fcmix_openmp)
+        #ADD_SUBDIRECTORY(examples/ida/fcmix_openmp)
       ENDIF(OPENMP_FOUND)
       IF(PTHREADS_FOUND)
-	ADD_SUBDIRECTORY(examples/ida/fcmix_pthreads)
+	#ADD_SUBDIRECTORY(examples/ida/fcmix_pthreads)
       ENDIF(PTHREADS_FOUND)
     ENDIF(FCMIX_ENABLE AND F77_FOUND)
     IF(OPENMP_FOUND)
-      ADD_SUBDIRECTORY(examples/ida/C_openmp)
+      #ADD_SUBDIRECTORY(examples/ida/C_openmp)
     ENDIF(OPENMP_FOUND)
     IF(MPIC_FOUND)
-      ADD_SUBDIRECTORY(examples/ida/parallel)
+      #ADD_SUBDIRECTORY(examples/ida/parallel)
     ENDIF(MPIC_FOUND)
     IF(PETSC_FOUND)
-      ADD_SUBDIRECTORY(examples/ida/petsc)
+      #ADD_SUBDIRECTORY(examples/ida/petsc)
     ENDIF(PETSC_FOUND)
     IF(MPIF_FOUND)
-      ADD_SUBDIRECTORY(examples/ida/fcmix_parallel)
+      #ADD_SUBDIRECTORY(examples/ida/fcmix_parallel)
     ENDIF(MPIF_FOUND)
   ENDIF(BUILD_IDA)
   

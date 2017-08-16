@@ -226,21 +226,33 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   pdata->n_local = Nlocal;
 
   /* Set work space sizes and initialize nge */
-  N_VSpace(cv_mem->cv_tempv, &lrw1, &liw1);
-  pdata->rpwsize = 3*lrw1;
-  pdata->ipwsize = 3*liw1;
-  N_VSpace(pdata->rlocal, &lrw1, &liw1);
-  pdata->rpwsize += 2*lrw1;
-  pdata->ipwsize += 2*liw1;
-  SUNMatSpace(pdata->savedJ, &lrw, &liw);
-  pdata->rpwsize += lrw;
-  pdata->ipwsize += liw;
-  SUNMatSpace(pdata->savedP, &lrw, &liw);
-  pdata->rpwsize += lrw;
-  pdata->ipwsize += liw;
-  SUNLinSolSpace(pdata->LS, &lrw, &liw);
-  pdata->rpwsize += lrw;
-  pdata->ipwsize += liw;
+  pdata->rpwsize = 0;
+  pdata->ipwsize = 0;
+  if (cv_mem->cv_tempv->ops->nvspace) {
+    N_VSpace(cv_mem->cv_tempv, &lrw1, &liw1);
+    pdata->rpwsize += 3*lrw1;
+    pdata->ipwsize += 3*liw1;
+  }
+  if (pdata->rlocal->ops->nvspace) {
+    N_VSpace(pdata->rlocal, &lrw1, &liw1);
+    pdata->rpwsize += 2*lrw1;
+    pdata->ipwsize += 2*liw1;
+  }
+  if (pdata->savedJ->ops->space) {
+    SUNMatSpace(pdata->savedJ, &lrw, &liw);
+    pdata->rpwsize += lrw;
+    pdata->ipwsize += liw;
+  }
+  if (pdata->savedP->ops->space) {
+    SUNMatSpace(pdata->savedP, &lrw, &liw);
+    pdata->rpwsize += lrw;
+    pdata->ipwsize += liw;
+  }
+  if (pdata->LS->ops->space) {
+    SUNLinSolSpace(pdata->LS, &lrw, &liw);
+    pdata->rpwsize += lrw;
+    pdata->ipwsize += liw;
+  }
   pdata->nge = 0;
 
   /* make sure P_data is free from any previous allocations */

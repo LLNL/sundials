@@ -274,15 +274,14 @@ typedef struct IDAMemRec {
 /*
  * -----------------------------------------------------------------
  * int (*ida_lsetup)(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,   
- *                  N_Vector resp,                                 
- *            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);  
+ *                   N_Vector resp, N_Vector tempv1, 
+ *                   N_Vector tempv2, N_Vector tempv3);  
  * -----------------------------------------------------------------
  * The job of ida_lsetup is to prepare the linear solver for       
  * subsequent calls to ida_lsolve. Its parameters are as follows:  
  *                                                                 
  * idamem - problem memory pointer of type IDAMem. See the big     
  *          typedef earlier in this file.                          
- *                                                                 
  *                                                                 
  * yyp   - the predicted y vector for the current IDA internal     
  *         step.                                                   
@@ -304,7 +303,7 @@ typedef struct IDAMemRec {
 /*
  * -----------------------------------------------------------------
  * int (*ida_lsolve)(IDAMem IDA_mem, N_Vector b, N_Vector weight,  
- *               N_Vector ycur, N_Vector ypcur, N_Vector rescur);  
+ *                   N_Vector ycur, N_Vector ypcur, N_Vector rescur);  
  * -----------------------------------------------------------------
  * ida_lsolve must solve the linear equation P x = b, where        
  * P is some approximation to the system Jacobian                  

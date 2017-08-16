@@ -79,8 +79,8 @@ extern "C" {
      parameter passed to ARKodeSetUserData.
 
  tmp1, tmp2, and tmp3 are pointers to memory allocated for
- vectors of length N which can be used by a ARKDlsJacFn
- as temporary storage or work space.
+     vectors of length N which can be used by a ARKDlsJacFn
+     as temporary storage or work space.
 
  A ARKDlsJacFn should return 0 if successful, a positive 
  value if a recoverable error occurred, and a negative value if 
