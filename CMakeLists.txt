@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision$
-# $Date$
-# ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -139,8 +136,13 @@ ENDMACRO(ADD_PREFIX)
 # due to some failure.
 
 MACRO(PRINT_WARNING message action)
-  MESSAGE("WARNING: ${message}.\n   ${action}.")
-ENDMACRO(PRINT_WARNING)
+  SET(WMSG
+  "************************************************************\n"
+  "WARNING: ${message}\n"
+  "${action}\n"
+  "************************************************************")
+  MESSAGE(WARNING ${WMSG})
+ENDMACRO()
 
 # Returns an unquoted string.  Note that CMake will readily turn such
 # strings back into lists, due to the duality of lists and
@@ -234,7 +236,9 @@ ENDIF(BUILD_SHARED_LIBS AND WIN32)
 # Make sure we build at least one type of libraries
 IF(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
   PRINT_WARNING("Both static and shared library generation were disabled"
-    "Building static libraries was re-enabled")
+                "Building static libraries was re-enabled")
+
+  # re-enable static libraries
   SET(BUILD_STATIC_LIBS ON CACHE BOOL "Build static libraries" FORCE)
 ENDIF(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
 
@@ -333,6 +337,32 @@ ENDIF(BUILD_ARKODE AND EXAMPLES_ENABLE)
 
 OPTION(LAPACK_ENABLE "Enable Lapack support" OFF)
 
+###########################################################################################
+# NOTE: Remove 'OR SUNDIALS_PRECISION MATCHES "SINGLE"' for new linear
+# solver API interface to LAPACK
+###########################################################################################
+
+# LAPACK interface does not support single or extended precision
+IF(LAPACK_ENABLE AND 
+  (SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE"))
+
+  PRINT_WARNING("LAPACK is not compatible with ${SUNDIALS_PRECISION} precision"  
+                "Disabling LAPACK")
+
+  # disable LAPACK
+  SET(LAPACK_ENABLE OFF CACHE BOOL "LAPACK is disabled" FORCE)
+ENDIF()
+
+# LAPACK does not support 64-bit integer index types
+IF(LAPACK_ENABLE AND SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
+
+  PRINT_WARNING("LAPACK is not compatible with ${SUNDIALS_INDEX_TYPE} integers"
+                "Disabling LAPACK")
+
+  # disable LAPACK
+  SET(LAPACK_ENABLE OFF CACHE BOOL "LAPACK is disabled" FORCE)
+ENDIF()
+
 IF(NOT LAPACK_ENABLE)
   HIDE_VARIABLE(SUNDIALS_F77_FUNC_CASE)
   HIDE_VARIABLE(SUNDIALS_F77_FUNC_UNDERSCORES)
@@ -344,6 +374,42 @@ ENDIF(NOT LAPACK_ENABLE)
 # -------------------------------------------------------------
 
 OPTION(SUPERLUMT_ENABLE "Enable SUPERLUMT support" OFF)
+
+###########################################################################################
+# NOTE: Remove 'OR SUNDIALS_PRECISION MATCHES "SINGLE"' for new linear
+# solver API interface to SuperLU_MT
+###########################################################################################
+
+# SuperLU_MT interface does not support single or extended precision
+IF(SUPERLUMT_ENABLE AND
+  (SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE"))
+
+  PRINT_WARNING("SuperLU_MT is not compatible with ${SUNDIALS_PRECISION} precision"
+                "Disabling SuperLU_MT")
+
+  # disable SuperLU_MT
+  SET(SUPERLUMT_ENABLE OFF CACHE BOOL "SuperLU_MT is disabled" FORCE)
+ENDIF()
+
+###########################################################################################
+# NOTE: Remove check on int64_t for new linear solver API interface to
+# SuperLU_MT
+###########################################################################################
+
+###########################################################################################
+# NOTE: Need to add check below (when testing SuperLU_MT) that it was
+# built with the right integer type
+###########################################################################################
+
+# SuperLU_MT interface is not compatible with 64-bit integer index type
+IF(SUPERLUMT_ENABLE AND SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
+
+  PRINT_WARNING("SuperLU_MT is not compatible with ${SUNDIALS_INDEX_TYPE} integers" 
+                "Disabling SuperLU_MT")
+
+  # disable SuperLU_MT
+  SET(SUPERLUMT_ENABLE OFF CACHE BOOL "SuperLU_MT is disabled" FORCE)
+ENDIF()
 
 IF(NOT SUPERLUMT_ENABLE)
   HIDE_VARIABLE(SUPERLUMT_THREAD_TYPE)
@@ -357,6 +423,31 @@ ENDIF(NOT SUPERLUMT_ENABLE)
 # -------------------------------------------------------------
 
 OPTION(KLU_ENABLE "Enable KLU support" OFF)
+
+# KLU does not support single or extended precision
+IF(KLU_ENABLE AND
+  (SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE"))
+
+  PRINT_WARNING("KLU is not compatible with ${SUNDIALS_PRECISION} precision"
+                "Disabling KLU")
+
+  # disable KLU
+  SET(KLU_ENABLE OFF CACHE BOOL "KLU is disabled" FORCE)
+ENDIF()
+
+###########################################################################################
+# NOTE: Remove check on int64_t for new linear solver API interface to KLU 
+###########################################################################################
+
+# KLU interface is not compatible with 64-bit integer index type
+IF(KLU_ENABLE AND SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
+
+  PRINT_WARNING("KLU is not compatible with ${SUNDIALS_INDEX_TYPE} integers"
+                "Disabling KLU")
+
+  # disable KLU
+  SET(KLU_ENABLE OFF CACHE BOOL "KLU is disabled" FORCE)
+ENDIF()
 
 IF(NOT KLU_ENABLE)
   HIDE_VARIABLE(KLU_LIBRARY_DIR)
@@ -462,7 +553,7 @@ IF(EXAMPLES_ENABLE)
     
     IF(NOT EXAMPLES_INSTALL_PATH)
       PRINT_WARNING("The example installation path is empty"
-        "Example installation path was reset to its default value")
+                    "Example installation path was reset to its default value")
       SET(EXAMPLES_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/examples" CACHE STRING
         "Output directory for installing example files" FORCE)
     ENDIF(NOT EXAMPLES_INSTALL_PATH)
@@ -508,7 +599,7 @@ IF(FCMIX_ENABLE OR LAPACK_ENABLE)
   INCLUDE(SundialsFortran)
   IF(NOT F77_FOUND AND FCMIX_ENABLE)
     PRINT_WARNING("Fortran compiler not functional"
-      "FCMIX support will not be provided")
+                  "FCMIX support will not be provided")
   ENDIF(NOT F77_FOUND AND FCMIX_ENABLE)
 ENDIF(FCMIX_ENABLE OR LAPACK_ENABLE)
 
@@ -522,7 +613,7 @@ IF(F90_ENABLE AND BUILD_ARKODE)
   INCLUDE(SundialsFortran90)
   IF(NOT F90_FOUND AND F90_ENABLE)
     PRINT_WARNING("Fortran90 compiler not functional"
-      "F90 support will not be provided")
+                  "F90 support will not be provided")
   ENDIF(NOT F90_FOUND AND F90_ENABLE)
 ENDIF(F90_ENABLE AND BUILD_ARKODE)
 
@@ -536,7 +627,7 @@ IF(CXX_ENABLE AND BUILD_ARKODE)
   INCLUDE(SundialsCXX)
   IF(NOT CXX_FOUND AND CXX_ENABLE)
     PRINT_WARNING("C++ compiler not functional"
-      "C++ support will not be provided")
+                  "C++ support will not be provided")
   ENDIF(NOT CXX_FOUND AND CXX_ENABLE)
 ENDIF(CXX_ENABLE AND BUILD_ARKODE)
 
@@ -657,12 +748,11 @@ IF(LAPACK_ENABLE)
 
   IF(LAPACK_LIBRARIES AND NOT LAPACK_FOUND)
     PRINT_WARNING("LAPACK not functional"
-      "Blas/Lapack support will not be provided")
+                  "Blas/Lapack support will not be provided")
   ELSE(LAPACK_LIBRARIES AND NOT LAPACK_FOUND)
     #set sundials_config.h symbol via sundials_config.in
     SET(SUNDIALS_BLAS_LAPACK TRUE)
   ENDIF(LAPACK_LIBRARIES AND NOT LAPACK_FOUND)
-  
 
 ELSE(LAPACK_ENABLE)
 
@@ -676,6 +766,10 @@ ENDIF(LAPACK_ENABLE)
 
 # If SUPERLUMT is needed, first try to find the appropriate
 # libraries to link against them.
+
+###########################################################################################
+# NOTE: Need to add check that it was built with the right integer type
+###########################################################################################
 
 IF(SUPERLUMT_ENABLE)
 
@@ -695,7 +789,7 @@ IF(SUPERLUMT_ENABLE)
 
   IF(SUPERLUMT_LIBRARIES AND NOT SUPERLUMT_FOUND)
     PRINT_WARNING("SUPERLUMT not functional - support will not be provided"
-      "Double check spelling specified libraries (search is case sensitive)")
+                  "Double check spelling specified libraries (search is case sensitive)")
   ENDIF(SUPERLUMT_LIBRARIES AND NOT SUPERLUMT_FOUND)
 
 ELSE(SUPERLUMT_ENABLE)
@@ -730,7 +824,7 @@ IF(KLU_ENABLE)
 
   IF(KLU_LIBRARIES AND NOT KLU_FOUND) 
     PRINT_WARNING("KLU not functional - support will not be provided" 
-      "Double check spelling of include path and specified libraries (search is case sensitive)")
+                  "Double check spelling of include path and specified libraries (search is case sensitive)")
   ENDIF(KLU_LIBRARIES AND NOT KLU_FOUND)
 
 ENDIF(KLU_ENABLE)
@@ -746,7 +840,7 @@ IF(MPI_ENABLE)
   INCLUDE(SundialsMPIC)
   IF(NOT MPIC_FOUND)
     PRINT_WARNING("MPI not functional"
-      "Parallel support will not be provided")
+                  "Parallel support will not be provided")
   ENDIF(NOT MPIC_FOUND)
   IF(MPIC_MPI2)
     SET(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 1")
@@ -769,7 +863,7 @@ ENDIF(MPI_ENABLE)
 #-------------------------------------------------------------
 IF(HYPRE_ENABLE AND NOT MPI_ENABLE)
     PRINT_WARNING("MPI not enabled - HYPRE support will not be provided" 
-      "Set MPI_ENABLE to ON to use parhyp")
+                  "Set MPI_ENABLE to ON to use parhyp")
 ENDIF(HYPRE_ENABLE AND NOT MPI_ENABLE)
 
 IF(HYPRE_ENABLE AND MPI_ENABLE)
@@ -788,7 +882,7 @@ IF(HYPRE_ENABLE AND MPI_ENABLE)
 
   IF(HYPRE_LIBRARIES AND NOT HYPRE_FOUND) 
     PRINT_WARNING("HYPRE not functional - support will not be provided" 
-      "Found hypre library, test code does not work")
+                  "Found hypre library, test code does not work")
   ENDIF(HYPRE_LIBRARIES AND NOT HYPRE_FOUND)
   
 ENDIF(HYPRE_ENABLE AND MPI_ENABLE)
@@ -798,7 +892,7 @@ ENDIF(HYPRE_ENABLE AND MPI_ENABLE)
 # -------------------------------------------------------------
 IF(PETSC_ENABLE AND NOT MPI_ENABLE)
     PRINT_WARNING("MPI not enabled - PETSc support will not be provided" 
-      "Set MPI_ENABLE to ON to use PETSc.")
+                  "Set MPI_ENABLE to ON to use PETSc.")
 ENDIF(PETSC_ENABLE AND NOT MPI_ENABLE)
 
 IF(PETSC_ENABLE AND MPI_ENABLE)
@@ -817,7 +911,7 @@ IF(PETSC_ENABLE AND MPI_ENABLE)
 
   IF(PETSC_LIBRARIES AND NOT PETSC_FOUND) 
     PRINT_WARNING("PETSC not functional - support will not be provided" 
-      "Double check spelling specified libraries (search is case sensitive)")
+                  "Double check spelling specified libraries (search is case sensitive)")
   ENDIF(PETSC_LIBRARIES AND NOT PETSC_FOUND)
 
 ENDIF(PETSC_ENABLE AND MPI_ENABLE)
