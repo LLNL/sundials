@@ -34,14 +34,15 @@
 extern "C" {
 #endif
 
+ 
   extern void FARK_SPJAC(realtype *T, realtype *Y, 
-			 realtype *FY, sunindextype *N, 
-                         sunindextype *NNZ, realtype *JDATA, 
-                         sunindextype *JRVALS, 
-			 sunindextype *JCPTRS, realtype *H, 
-			 long int *IPAR, realtype *RPAR, 
-			 realtype *V1, realtype *V2, 
-			 realtype *V3, int *ier);
+			 realtype *FY, long int *N, 
+                         long int *NNZ, realtype *JDATA, 
+                         long int *JRVALS, long int *JCPTRS, 
+			 realtype *H,  long int *IPAR,
+                         realtype *RPAR, realtype *V1,
+                         realtype *V2, realtype *V3,
+                         int *ier);
 
 #ifdef __cplusplus
 }
@@ -53,7 +54,14 @@ extern "C" {
    farkode.h for further information */
 void FARK_SPARSESETJAC(int *ier)
 {
+#if defined(SUNDIALS_INT32_T)
+  arkProcessError((ARKodeMem) ARK_arkodemem, ARK_ILL_INPUT, "ARKODE",
+                  "FARKSPARSESETJAC", 
+                  "Sparse Fortran users must configure SUNDIALS with 64-bit integers.");
+  *ier = 1;
+#else  
   *ier = ARKDlsSetJacFn(ARK_arkodemem, FARKSparseJac);
+#endif
 }
 
 /*=============================================================*/
@@ -67,7 +75,7 @@ int FARKSparseJac(realtype t, N_Vector y, N_Vector fy,
   int ier;
   realtype *ydata, *fydata, *v1data, *v2data, *v3data, *Jdata;
   realtype h;
-  sunindextype NP, NNZ, *indexvals, *indexptrs; 
+  long int NP, NNZ, *indexvals, *indexptrs; 
   FARKUserData ARK_userdata;
 
   ARKodeGetLastStep(ARK_arkodemem, &h);

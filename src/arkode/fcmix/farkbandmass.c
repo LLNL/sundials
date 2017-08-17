@@ -35,8 +35,8 @@
 extern "C" {
 #endif
 
-  extern void FARK_BMASS(sunindextype *N, sunindextype *MU, 
-                         sunindextype *ML, sunindextype *EBAND, 
+  extern void FARK_BMASS(long int *N, long int *MU, 
+                         long int *ML, long int *EBAND, 
                          realtype *T, realtype *BMASS, 
                          long int *IPAR, realtype *RPAR, 
                          realtype *V1, realtype *V2, realtype *V3, 
@@ -64,7 +64,7 @@ int FARKBandMass(realtype t, SUNMatrix M, void *user_data,
 {
   int ier;
   realtype *massdata, *v1data, *v2data, *v3data;
-  sunindextype N, mupper, mlower, smu, eband;
+  long int N, mupper, mlower, smu, eband;
   FARKUserData ARK_userdata;
 
   v1data  = N_VGetArrayPointer(vtemp1);

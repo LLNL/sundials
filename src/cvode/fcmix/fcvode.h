@@ -171,10 +171,11 @@
  * accepts values of 32-bit signed and 64-bit signed.  This choice dictates 
  * the size of a SUNDIALS 'sunindextype' variable.
  *   int      -- equivalent to an INTEGER or INTEGER*4 in Fortran
- *   long int -- equivalent to an INTEGER*8 in Fortran
+ *   long int -- equivalent to an INTEGER*8 in Fortran (Linux/UNIX/OSX), or 
+ *               equivalent to an INTEGER in Windows
  *   sunindextype -- this will depend on the SUNDIALS configuration:
- *                 32-bit -- equivalent to an INTEGER or INTEGER*4 in Fortran
- *                 64-bit -- equivalent to an INTEGER*8 in Fortran
+ *               32-bit -- equivalent to an INTEGER or INTEGER*4 in Fortran
+ *               64-bit -- equivalent to an INTEGER*8 in Fortran
  *	      
  * Real numbers:  At compilation, SUNDIALS allows the configuration option 
  * '--with-precision', that accepts values of 'single', 'double' or 
@@ -214,13 +215,13 @@
  *   supply a routine that computes a dense approximation of the system Jacobian 
  *   J = df/dy. If supplied, it must have the following form:
  *
- *       SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, H, IPAR, RPAR, WK1, WK2, WK3, IER)
+ *       SUBROUTINE FCVDJAC(NEQ, T, Y, FY, DJAC, H, IPAR, RPAR, WK1, WK2, WK3, IER)
  *
  *   Typically this routine will use only NEQ, T, Y, and DJAC. It must compute
  *   the Jacobian and store it columnwise in DJAC.
  *
  *   The arguments are:
- *       NEQ  -- number of rows in the matrix [sunindextype, input]
+ *       NEQ  -- number of rows in the matrix [long int, input]
  *       T    -- current time [realtype, input]
  *       Y    -- array containing state variables [realtype, input]
  *       FY   -- array containing state derivatives [realtype, input]
@@ -244,8 +245,8 @@
  *   may supply a routine that computes a band approximation of the system 
  *   Jacobian J = df/dy. If supplied, it must have the following form:
  *
- *       SUBROUTINE FCVBJAC (NEQ, MU, ML, MDIM, T, Y, FY, BJAC, H,
- *      1                    IPAR, RPAR, WK1, WK2, WK3, IER)
+ *       SUBROUTINE FCVBJAC(NEQ, MU, ML, MDIM, T, Y, FY, BJAC, H,
+ *      1                   IPAR, RPAR, WK1, WK2, WK3, IER)
  *
  *   Typically this routine will use only NEQ, MU, ML, T, Y, and BJAC. 
  *   It must load the MDIM by N array BJAC with the Jacobian matrix at the
@@ -253,10 +254,10 @@
  *   with k = i - j + MU + 1 (k = 1 ... ML+MU+1) and j = 1 ... N.
  *
  *   The arguments are:
- *       NEQ  -- number of rows in the matrix [sunindextype, input]
- *       MU   -- upper half-bandwidth of the matrix [sunindextype, input]
- *       ML   -- lower half-bandwidth of the matrix [sunindextype, input]
- *       MDIM -- leading dimension of BJAC array [sunindextype, input]
+ *       NEQ  -- number of rows in the matrix [long int, input]
+ *       MU   -- upper half-bandwidth of the matrix [long int, input]
+ *       ML   -- lower half-bandwidth of the matrix [long int, input]
+ *       MDIM -- leading dimension of BJAC array [long int, input]
  *       T    -- current time [realtype, input]
  *       Y    -- array containing state variables [realtype, input]
  *       FY   -- array containing state derivatives [realtype, input]
@@ -324,7 +325,7 @@
  *   with storage for NNZ nonzeros, stored in the arrays JDATA (nonzero
  *   values), JRVALS (row [or column] indices for each nonzero), JCOLPTRS (indices 
  *   for start of each column [or row]), with the Jacobian matrix at the current
- *   (t,y) in CSC [or CSR] form (see sundials_sparse.h for more information).
+ *   (t,y) in CSC [or CSR] form (see sunmatrix_sparse.h for more information).
  *
  *   The arguments are:
  *         T    -- current time [realtype, input]
@@ -350,6 +351,9 @@
  *                   >0 if a recoverable error occurred,
  *                   <0 if an unrecoverable error ocurred.
  *
+ *   NOTE: this may ONLY be used if SUNDIALS has been configured with 
+ *   long int set to 64-bit integers.
+ * 
  * (2) Optional user-supplied Jacobian-vector product setup routine: 
  *   FCVJTSETUP
  *
@@ -537,12 +541,12 @@
  *   ID (1). 
  *
  *   The other arguments are:
- *        NEQ = size of vectors [sunindextype, input]
+ *        NEQ = size of vectors [long int, input]
  *        COMM = the MPI communicator [int, input]
  *        NLOCAL = local size of vectors on this processor 
- *           [sunindextype, input]
+ *           [long int, input]
  *        NGLOBAL = the system size, and the global size of vectors (the sum 
- *           of all values of NLOCAL) [sunindextype, input]
+ *           of all values of NLOCAL) [long int, input]
  *        NUM_THREADS = number of threads
  *        IER = return completion flag [int, output]:
  *	          0 = success, 
@@ -562,16 +566,16 @@
  *
  *   The other arguments are:
  *
- *        M = the number of rows of the matrix [sunindextype, input]
- *        N = the number of columns of the matrix [sunindextype, input]
+ *        M = the number of rows of the matrix [long int, input]
+ *        N = the number of columns of the matrix [long int, input]
  *        MU = the number of upper bands (diagonal not included) in a banded 
- *           matrix [sunindextype, input]
+ *           matrix [long int, input]
  *        ML = the number of lower bands (diagonal not included) in a banded 
- *           matrix [sunindextype, input]
+ *           matrix [long int, input]
  *        SMU = the number of upper bands to store (diagonal not included) 
- *           for factorization of a banded matrix [sunindextype, input]
+ *           for factorization of a banded matrix [long int, input]
  *        NNZ = the storage size (upper bound on the number of nonzeros) for 
- *           a sparse matrix [sunindextype, input]
+ *           a sparse matrix [long int, input]
  *        SPARSETYPE = integer denoting use of CSC (0) vs CSR (1) storage 
  *           for a sparse matrix [int, input]
  *        IER = return completion flag [int, output]:
@@ -618,7 +622,7 @@
  *   The other arguments are:
  *
  *        NNZ = the storage size (upper bound on the number of nonzeros) for 
- *           a sparse matrix [sunindextype, input]
+ *           a sparse matrix [long int, input]
  *        ORD_CHOICE = integer denoting ordering choice (see 
  *           SUNKLUSetOrdering and SUNSuperLUMTSetOrdering documentation 
  *           for details) [int, input]
@@ -743,6 +747,17 @@
  *
  *   with the int FLAG=1 to specify that FCVDJAC is provided and should be 
  *   used; FLAG=0 specifies a reset to the internal finite difference 
+ *   Jacobian approximation.  The int return flag IER=0 if successful, and 
+ *   nonzero otherwise.
+ * 
+ *   If the user program includes the FCVDIAGJAC routine for the evaluation 
+ *   of the diagonal approximation to the Jacobian, then after the call to 
+ *   FCVDLSINIT, the following call must be made 
+ *
+ *       CALL FCVDIAGSETJAC(FLAG, IER)
+ *
+ *   with the int FLAG=1 to specify that FCVDIAGJAC is provided and should 
+ *   be used; FLAG=0 specifies a reset to the internal finite difference 
  *   Jacobian approximation.  The int return flag IER=0 if successful, and 
  *   nonzero otherwise.
  * 

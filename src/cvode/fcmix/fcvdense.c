@@ -38,7 +38,7 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FCV_DJAC(sunindextype *N, realtype *T, realtype *Y,
+  extern void FCV_DJAC(long int *N, realtype *T, realtype *Y,
                        realtype *FY, realtype *DJAC, realtype *H,
                        long int *IPAR, realtype *RPAR, realtype *V1, 
                        realtype *V2, realtype *V3, int *ier);
@@ -71,7 +71,7 @@ int FCVDenseJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   int ier;
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
   realtype h;
-  sunindextype N;
+  long int N;
   FCVUserData CV_userdata;
 
   CVodeGetLastStep(CV_cvodemem, &h);

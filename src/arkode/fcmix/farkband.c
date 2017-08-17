@@ -35,8 +35,8 @@
 extern "C" {
 #endif
 
-  extern void FARK_BJAC(sunindextype *N, sunindextype *MU, 
-                        sunindextype *ML, sunindextype *EBAND, 
+  extern void FARK_BJAC(long int *N, long int *MU, 
+                        long int *ML, long int *EBAND, 
                         realtype *T, realtype *Y, realtype *FY,
   			realtype *BJAC, realtype *H,
   			long int *IPAR, realtype *RPAR,
@@ -69,11 +69,11 @@ int FARKBandJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                 void *user_data, N_Vector vtemp1, N_Vector vtemp2, 
 		N_Vector vtemp3)
 {
-  int ier;
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
   realtype h;
-  sunindextype N, mupper, mlower, smu, eband;
+  long int N, mupper, mlower, smu, eband;
   FARKUserData ARK_userdata;
+  int ier = 0;
 
   ARKodeGetLastStep(ARK_arkodemem, &h);
   ydata   = N_VGetArrayPointer(y);

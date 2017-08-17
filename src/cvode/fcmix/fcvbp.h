@@ -163,7 +163,7 @@
  *
  *   where the first argument is an int containing the CVODE 
  *   solver ID (4). The other arguments are:
- *        NEQ = size of vectors [sunindextype, input]
+ *        NEQ = size of vectors [long int, input]
  *        NUM_THREADS = number of threads
  *        IER = return completion flag [int, output]:
  *	          0 = success, 
@@ -245,11 +245,11 @@
  *       CALL FCVBPINIT(NEQ, MU, ML, IER)
  *
  *   The arguments are:
- *        NEQ = problem size [sunindextype, input]
+ *        NEQ = problem size [long int, input]
  *        MU = upper half-bandwidth of the band matrix that is retained as 
- *             an approximation of the Jacobian [sunindextype, input]
+ *             an approximation of the Jacobian [long int, input]
  *        ML = lower half-bandwidth of the band matrix approximant
- *             to the Jacobian [sunindextype, input]
+ *             to the Jacobian [long int, input]
  *        IER = return completion flag [int, output]:
  *                    0 = success
  *                   <0 = an error occurred
@@ -367,8 +367,8 @@ extern "C" {
 #endif
 
 /* Prototypes of exported function */
-void FCV_BPINIT(sunindextype *N, sunindextype *mu,
-                sunindextype *ml, int *ier);
+void FCV_BPINIT(long int *N, long int *mu,
+                long int *ml, int *ier);
 void FCV_BPOPT(long int *lenrwbp, long int *leniwbp,
                long int *nfebp);
 

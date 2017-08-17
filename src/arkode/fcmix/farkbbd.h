@@ -137,7 +137,7 @@
      mathematically identical to fi is allowed).  
 
      The arguments are:
-       NLOC -- local problem size [sunindextype, input]
+       NLOC -- local problem size [long int, input]
        T    -- current time [realtype, input]
        YLOC -- array containing local state variables 
                [realtype, input]
@@ -167,7 +167,7 @@
      by FARKIFUN if relevant to the evaluation of g.
 
      The arguments are:
-       NLOC -- local problem size [sunindextype, input]
+       NLOC -- local problem size [long int, input]
        T    -- current time [realtype, input]
        YLOC -- array containing local state variables 
                [realtype, input]
@@ -213,8 +213,7 @@
        SUBROUTINE FARKJTIMES(V, FJV, T, Y, FY, H, IPAR, RPAR, WORK, IER)
 
      Typically this routine will use only NEQ, T, Y, V, and FJV. 
-     It must compute the product vector J*v where the vector V, 
-     and store the product in FJV.  
+     It must compute the product vector J*v, and store the product in FJV.  
 
      The arguments are:
        V    -- vector to multiply [realtype, input]
@@ -245,9 +244,9 @@
      solver ID (4). The other arguments are:
         COMM = the MPI communicator [int, input]
         NLOCAL = local vector size on this processor 
-           [sunindextype, input]
+           [long int, input]
         NGLOBAL = system size, and the global size of vectors 
-           (the sum of all values of NLOCAL) [sunindextype, input]
+           (the sum of all values of NLOCAL) [long int, input]
         IER = return completion flag [int, ouptut]. 
                   0 = success, 
                  -1 = failure.
@@ -329,22 +328,22 @@
  
       The arguments are:
         NLOCAL = local vector size on this process 
-             [sunindextype, input]
+             [long int, input]
         MUDQ = upper half-bandwidth to be used in the computation
              of the local Jacobian blocks by difference 
              quotients.  These may be smaller than the true 
              half-bandwidths of the Jacobian of the local block 
              of g, when smaller values may provide greater 
-             efficiency [sunindextype, input]
+             efficiency [long int, input]
         MLDQ = lower half-bandwidth to be used in the computation
              of the local Jacobian blocks by difference 
-             quotients [sunindextype, input]
+             quotients [long int, input]
         MU = upper half-bandwidth of the band matrix that is
              retained as an approximation of the local Jacobian
-             block (may be smaller than MUDQ) [sunindextype, input]
+             block (may be smaller than MUDQ) [long int, input]
         ML = lower half-bandwidth of the band matrix that is
              retained as an approximation of the local Jacobian
-             block (may be smaller than MLDQ) [sunindextype, input]
+             block (may be smaller than MLDQ) [long int, input]
         DQRELY = relative increment factor in y for difference 
              quotients [realtype, input]
                     0.0 = default (sqrt(unit roundoff))
@@ -484,7 +483,7 @@
  (9) Memory freeing: FARKFREE
 
      To free the internal memory created by the calls to 
-     FARKMALLOC, FNVINIT*, FARKSPILSINIT and FARKBBDINIT, 
+     FARKMALLOC, FNVINITP, FARKSPILSINIT and FARKBBDINIT, 
      make the call:
 
        CALL FARKFREE()
@@ -522,18 +521,18 @@ extern "C" {
 #endif
 
 /* Prototypes of exported functions */
-void FARK_BBDINIT(sunindextype *Nloc, sunindextype *mudq, 
-		  sunindextype *mldq, sunindextype *mu, 
-		  sunindextype *ml, realtype* dqrely, int *ier);
-void FARK_BBDREINIT(sunindextype *mudq, sunindextype *mldq, 
+void FARK_BBDINIT(long int *Nloc, long int *mudq, 
+		  long int *mldq, long int *mu, 
+		  long int *ml, realtype* dqrely, int *ier);
+void FARK_BBDREINIT(long int *mudq, long int *mldq, 
 		    realtype* dqrely, int *ier);
 void FARK_BBDOPT(long int *lenrwbbd, long int *leniwbbd, 
 		 long int *ngebbd);
 
 /* Prototypes: Functions Called by the ARKBBDPRE Module */
-int FARKgloc(sunindextype Nloc, realtype t, N_Vector yloc, 
+int FARKgloc(long int Nloc, realtype t, N_Vector yloc, 
 	     N_Vector gloc, void *user_data);
-int FARKcfn(sunindextype Nloc, realtype t, N_Vector y, 
+int FARKcfn(long int Nloc, realtype t, N_Vector y, 
 	    void *user_data);
 
 #ifdef __cplusplus

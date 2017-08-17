@@ -33,10 +33,10 @@ extern "C" {
 #endif
  
 extern void FCV_SPJAC(realtype *T, realtype *Y, 
-                      realtype *FY, sunindextype *N,
-                      sunindextype *NNZ, realtype *JDATA,
-                      sunindextype *JRVALS, 
-                      sunindextype *JCPTRS, realtype *H, 
+                      realtype *FY, long int *N,
+                      long int *NNZ, realtype *JDATA,
+                      long int *JRVALS, 
+                      long int *JCPTRS, realtype *H, 
 		      long int *IPAR, realtype *RPAR, 
                       realtype *V1, realtype *V2, 
                       realtype *V3, int *ier);
@@ -51,7 +51,14 @@ extern void FCV_SPJAC(realtype *T, realtype *Y,
    fcvode.h for further information */
 void FCV_SPARSESETJAC(int *ier)
 {
+#if defined(SUNDIALS_INT32_T)
+  cvProcessError((CVodeMem) CV_cvodemem, CV_ILL_INPUT, "CVODE",
+                  "FCVSPARSESETJAC", 
+                  "Sparse Fortran users must configure SUNDIALS with 64-bit integers.");
+  *ier = 1;
+#else  
   *ier = CVDlsSetJacFn(CV_cvodemem, FCVSparseJac);
+#endif
 }
 
 /*=============================================================*/
@@ -65,7 +72,7 @@ int FCVSparseJac(realtype t, N_Vector y, N_Vector fy,
   int ier;
   realtype *ydata, *fydata, *v1data, *v2data, *v3data, *Jdata;
   realtype h;
-  sunindextype NP, NNZ, *indexvals, *indexptrs; 
+  long int NP, NNZ, *indexvals, *indexptrs; 
   FCVUserData CV_userdata;
 
   CVodeGetLastStep(CV_cvodemem, &h);

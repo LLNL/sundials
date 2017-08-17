@@ -34,7 +34,7 @@
 
 /***************************************************************************/
 
-void FCV_BPINIT(sunindextype *N, sunindextype *mu, sunindextype *ml, int *ier)
+void FCV_BPINIT(long int *N, long int *mu, long int *ml, int *ier)
 {
   /* 
      Call CVBandPrecInit to initialize the CVBANDPRE module:

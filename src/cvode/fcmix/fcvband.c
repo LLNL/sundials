@@ -38,8 +38,8 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FCV_BJAC(sunindextype *N, sunindextype *MU, sunindextype *ML,
-                       sunindextype *EBAND, realtype *T, realtype *Y,
+  extern void FCV_BJAC(long int *N, long int *MU, long int *ML,
+                       long int *EBAND, realtype *T, realtype *Y,
                        realtype *FY, realtype *BJAC, realtype *H,
                        long int *IPAR, realtype *RPAR, realtype *V1, 
                        realtype *V2, realtype *V3, int *IER);
@@ -75,7 +75,7 @@ int FCVBandJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   int ier;
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
   realtype h;
-  sunindextype N, mupper, mlower, smu, eband;
+  long int N, mupper, mlower, smu, eband;
   FCVUserData CV_userdata;
 
   CVodeGetLastStep(CV_cvodemem, &h);

@@ -74,6 +74,9 @@ int FARKJTSetup(realtype t, N_Vector y, N_Vector fy, void *user_data)
   FARKUserData ARK_userdata;
   int ier = 0;
   
+  /* Initialize all pointers to NULL */
+  ydata = fydata = NULL;
+  
   ARKodeGetLastStep(ARK_arkodemem, &h);
   ydata  = N_VGetArrayPointer(y);
   fydata = N_VGetArrayPointer(fy);
@@ -94,6 +97,9 @@ int FARKJtimes(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
   FARKUserData ARK_userdata;
   int ier = 0;
   
+  /* Initialize all pointers to NULL */
+  vdata = Jvdata = ydata = fydata = wkdata = NULL;
+
   ARKodeGetLastStep(ARK_arkodemem, &h);
 
   vdata  = N_VGetArrayPointer(v);

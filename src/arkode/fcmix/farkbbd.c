@@ -36,11 +36,11 @@
 extern "C" {
 #endif
 
-  extern void FARK_GLOCFN(sunindextype *NLOC, realtype *T, 
+  extern void FARK_GLOCFN(long int *NLOC, realtype *T, 
 			  realtype *YLOC, realtype *GLOC,
 			  long int *IPAR, realtype *RPAR,
 			  int *ier);
-  extern void FARK_COMMFN(sunindextype *NLOC, realtype *T, 
+  extern void FARK_COMMFN(long int *NLOC, realtype *T, 
 			  realtype *Y, long int *IPAR, 
 			  realtype *RPAR, int *ier);
 
@@ -52,9 +52,9 @@ extern "C" {
 
 /* Fortran interface to C routine ARKBBDPrecInit; see farkbbd.h 
    for further details. */
-void FARK_BBDINIT(sunindextype *Nloc, sunindextype *mudq,
-                  sunindextype *mldq, sunindextype *mu,
-                  sunindextype *ml, realtype* dqrely, 
+void FARK_BBDINIT(long int *Nloc, long int *mudq,
+                  long int *mldq, long int *mu,
+                  long int *ml, realtype* dqrely, 
 		  int *ier)
 {
   /* Notes: FARKgloc is a pointer to the ARKLocalFn function, 
@@ -68,7 +68,7 @@ void FARK_BBDINIT(sunindextype *Nloc, sunindextype *mudq,
 
 /* Fortran interface to C routine ARKBBDPrecReInit; see farkbbd.h 
    for further details. */
-void FARK_BBDREINIT(sunindextype *mudq, sunindextype *mldq,
+void FARK_BBDREINIT(long int *mudq, long int *mldq,
                     realtype* dqrely, int *ier)
 {
   *ier = ARKBBDPrecReInit(ARK_arkodemem, *mudq, *mldq, *dqrely);
@@ -79,12 +79,15 @@ void FARK_BBDREINIT(sunindextype *mudq, sunindextype *mldq,
 
 /* C interface to user-supplied Fortran routine FARKGLOCFN; see 
    farkbbd.h for further details. */
-int FARKgloc(sunindextype Nloc, realtype t, N_Vector yloc, 
+int FARKgloc(long int Nloc, realtype t, N_Vector yloc, 
 	     N_Vector gloc, void *user_data)
 {
-  int ier;
   realtype *yloc_data, *gloc_data;
   FARKUserData ARK_userdata;
+  int ier = 0;
+
+  /* Initialize all pointers to NULL */
+  yloc_data = gloc_data = NULL;
 
   yloc_data = N_VGetArrayPointer(yloc);
   gloc_data = N_VGetArrayPointer(gloc);
@@ -99,11 +102,14 @@ int FARKgloc(sunindextype Nloc, realtype t, N_Vector yloc,
 
 /* C interface to user-supplied Fortran routine FARKCOMMFN; see 
    farkbbd.h for further details. */
-int FARKcfn(sunindextype Nloc, realtype t, N_Vector y, void *user_data)
+int FARKcfn(long int Nloc, realtype t, N_Vector y, void *user_data)
 {
-  int ier;
   realtype *yloc;
   FARKUserData ARK_userdata;
+  int ier = 0;
+
+  /* Initialize all pointers to NULL */
+  yloc = NULL;
 
   yloc = N_VGetArrayPointer(y);
   ARK_userdata = (FARKUserData) user_data;

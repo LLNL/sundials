@@ -34,9 +34,9 @@
 extern "C" {
 #endif
 
-  extern void FARK_SPMASS(realtype *T, sunindextype *N, 
-                          sunindextype *NNZ, realtype *MDATA, 
-                          sunindextype *MRVALS, sunindextype *MCPTRS, 
+  extern void FARK_SPMASS(realtype *T, long int *N, 
+                          long int *NNZ, realtype *MDATA, 
+                          long int *MRVALS, long int *MCPTRS, 
                           long int *IPAR, realtype *RPAR, 
                           realtype *V1, realtype *V2, realtype *V3, 
                           int *ier);
@@ -64,7 +64,7 @@ int FARKSparseMass(realtype t, SUNMatrix MassMat, void *user_data,
   int ier;
   realtype *v1data, *v2data, *v3data, *Mdata;
   FARKUserData ARK_userdata;
-  sunindextype NP, NNZ, *indexvals, *indexptrs;
+  long int NP, NNZ, *indexvals, *indexptrs;
 
   v1data = N_VGetArrayPointer(vtemp1);
   v2data = N_VGetArrayPointer(vtemp2);

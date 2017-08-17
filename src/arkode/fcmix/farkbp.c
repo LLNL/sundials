@@ -31,8 +31,8 @@
 
 /* Fortran interface to C routine ARKBandPrecInit; see farkbp.h 
    for additional information */
-void FARK_BPINIT(sunindextype *N, sunindextype *mu, 
-		 sunindextype *ml, int *ier)
+void FARK_BPINIT(long int *N, long int *mu, 
+		 long int *ml, int *ier)
 {
   *ier = ARKBandPrecInit(ARK_arkodemem, *N, *mu, *ml);
   return;

@@ -577,41 +577,20 @@ void FARK_DLSINIT(int *ier) {
 /* Fortran interface to C routine ARKDlsSetMassLinearSolver; see 
    farkode.h for further details */
 void FARK_DLSMASSINIT(int *time_dep, int *ier) {
-  SUNMatrix_ID Mtype;
   if ( (ARK_arkodemem == NULL) || (F2C_ARKODE_mass_sol == NULL) || 
        (F2C_ARKODE_mass_matrix == NULL) ) {
     *ier = -1;
     return;
   }
-  Mtype = SUNMatGetID(F2C_ARKODE_mass_matrix);
-  switch(Mtype) {
-  case SUNMATRIX_DENSE:
-    *ier = ARKDlsSetMassLinearSolver(ARK_arkodemem, F2C_ARKODE_mass_sol, 
-                                     F2C_ARKODE_mass_matrix, *time_dep);
-    break;
-  case SUNMATRIX_BAND:
-    *ier = ARKDlsSetMassLinearSolver(ARK_arkodemem, F2C_ARKODE_mass_sol, 
-                                     F2C_ARKODE_mass_matrix, *time_dep);
-    break;
-  case SUNMATRIX_DIAGONAL:
-    *ier = ARKDlsSetMassLinearSolver(ARK_arkodemem, F2C_ARKODE_mass_sol, 
-                                     F2C_ARKODE_mass_matrix, *time_dep);
-    break;
-  case SUNMATRIX_SPARSE:
-    *ier = ARKDlsSetMassLinearSolver(ARK_arkodemem, F2C_ARKODE_mass_sol, 
-                                     F2C_ARKODE_mass_matrix, *time_dep);
-    break;
-  default:
-    *ier = -1;
-  }
-
+  *ier = ARKDlsSetMassLinearSolver(ARK_arkodemem, F2C_ARKODE_mass_sol, 
+                                   F2C_ARKODE_mass_matrix, *time_dep);
   ARK_mass_ls = ARK_LS_DIRECT;
   return;
 }
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKSilsSetLinearSolver; see 
+/* Fortran interface to C routine ARKSpilsSetLinearSolver; see 
    farkode.h for further details */
 void FARK_SPILSINIT(int *ier) {
   if ( (ARK_arkodemem == NULL) || (F2C_ARKODE_linsol == NULL) ) {
@@ -642,16 +621,18 @@ void FARK_SPILSMASSINIT(int *time_dep, int *ier) {
 /* Fortran interfaces to C "set" routines for the ARKSpils solver; 
    see farkode.h for further details */
 void FARK_SPILSSETEPSLIN(realtype *eplifac, int *ier) {
-
-  *ier = ARKSpilsSetEpsLin(ARK_arkodemem, *eplifac);
-  if (*ier != ARKSPILS_SUCCESS) return;
+  if (ARK_ls == ARK_LS_ITERATIVE)
+    *ier = ARKSpilsSetEpsLin(ARK_arkodemem, *eplifac);
+  else
+    *ier = 1;
   return;
 }
 
 void FARK_SPILSSETMASSEPSLIN(realtype *eplifac, int *ier) {
-
-  *ier = ARKSpilsSetMassEpsLin(ARK_arkodemem, *eplifac);
-  if (*ier != ARKSPILS_SUCCESS) return;
+  if (ARK_mass_ls == ARK_LS_ITERATIVE)
+    *ier = ARKSpilsSetMassEpsLin(ARK_arkodemem, *eplifac);
+  else
+    *ier = 1;
   return;
 }
 

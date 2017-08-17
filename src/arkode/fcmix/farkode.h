@@ -29,8 +29,8 @@
  in a mixed Fortran/C setting.  While ARKODE is written in C, it
  is assumed here that the user's calling program and user-supplied
  problem-defining routines are written in Fortran.  This package 
- provides the necessary interface to ARKODE any acceptable NVECTOR
- implementation.
+ provides the necessary interface to ARKODE for any acceptable 
+ NVECTOR implementation.
  
  A summary of the user-callable functions, with the corresponding 
  ARKODE functions, are as follows:
@@ -100,6 +100,7 @@
 
    FARKDLSINIT                ARKDlsSetLinearSolver
    FARKDENSESETJAC            ARKDlsSetJacFn
+   FARKDIAGSETJAC             ARKDlsSetJacFn
    FARKBANDSETJAC             ARKDlsSetJacFn
    FARKSPARSESETJAC           ARKDlsSetJacFn
 
@@ -115,12 +116,10 @@
    FARKSPILSSETEPSLIN         ARKSpilsSetEpsLin
    FARKSPILSSETSMASSEPSLIN    ARKSpilsSetMassEpsLin
 
-   FARKSPILSSETJAC            ARKSpilsSetJacTimesSetupFn & 
-                                ARKSpilsSetJacTimesVecFn
+   FARKSPILSSETJAC            ARKSpilsSetJacTimes
    FARKSPILSSETPREC           ARKSpilsSetPreconditioner
 
-   FARKSPILSSETMASS           ARKSpilsSetMassTimesSetupFn & 
-                                ARKSpilsSetMassTimesVecFn
+   FARKSPILSSETMASS           ARKSpilsSetMassTimes
    FARKSPILSSETMASSPREC       ARKSpilsSetMassPreconditioner
  
    FARKODE                    ARKode, ARKodeGet*, and ARK*Get*
@@ -187,8 +186,8 @@
  documentation on the corresponding function in the ARKODE package.
  
  The number labels on the instructions below end with s for instructions
- that are specific to use with the serial/OpenMP/PThreads package; similarly 
- those that end with p are specific to use with the N_VParallel package.
+ that are specific to use with the serial/OpenMP/PThreads NVector package; 
+ similarly those that end with p are specific to use with the N_VParallel package.
 
  -----------------------------------------------------------------------------
 
@@ -205,10 +204,11 @@
  accepts values of 32-bit signed and 64-bit signed.  This choice dictates 
  the size of a SUNDIALS 'sunindextype' variable.
    int      -- equivalent to an INTEGER or INTEGER*4 in Fortran
-   long int -- equivalent to an INTEGER*8 in Fortran
+   long int -- equivalent to an INTEGER*8 in Fortran (Linux/UNIX/OSX), or 
+               equivalent to an INTEGER in Windows
    sunindextype -- this will depend on the SUNDIALS configuration:
-                 32-bit -- equivalent to an INTEGER or INTEGER*4 in Fortran
-                 64-bit -- equivalent to an INTEGER*8 in Fortran
+               32-bit -- equivalent to an INTEGER or INTEGER*4 in Fortran
+               64-bit -- equivalent to an INTEGER*8 in Fortran
 	      
  Real numbers:  At compilation, SUNDIALS allows the configuration option 
  '--with-precision', that accepts values of 'single', 'double' or 
@@ -264,7 +264,7 @@
      compute the Jacobian and store it column-wise in DJAC.
 
      The arguments are:
-       NEQ  -- number of rows in the matrix [sunindextype, input]
+       NEQ  -- number of rows in the matrix [long int, input]
        T    -- current time [realtype, input]
        Y    -- array containing state variables [realtype, input]
        FY   -- array containing state derivatives [realtype, input]
@@ -298,10 +298,10 @@
      J(i,j)  with k = i - j + MU + 1 (k = 1 ... ML+MU+1) and j = 1 ... N.
 
      The arguments are:
-       NEQ  -- number of rows in the matrix [sunindextype, input]
-       MU   -- upper half-bandwidth of the matrix [sunindextype, input]
-       ML   -- lower half-bandwidth of the matrix [sunindextype, input]
-       MDIM -- leading dimension of BJAC array [sunindextype, input]
+       NEQ  -- number of rows in the matrix [long int, input]
+       MU   -- upper half-bandwidth of the matrix [long int, input]
+       ML   -- lower half-bandwidth of the matrix [long int, input]
+       MDIM -- leading dimension of BJAC array [long int, input]
        T    -- current time [realtype, input]
        Y    -- array containing state variables [realtype, input]
        FY   -- array containing state derivatives [realtype, input]
@@ -370,20 +370,20 @@
      in the arrays JDATA (nonzero values), JRVALS (row [or column] indices 
      for each nonzero), JCOLPTRS (indices for start of each column 
      [or row]), with the Jacobian matrix at the current (t,y) in CSC [or 
-     CSR] format (see sundials_sparse.h for more information).
+     CSR] format (see sunmatrix_sparse.h for more information).
 
      The arguments are:
          T    -- current time [realtype, input]
          Y    -- array containing state variables [realtype, input]
          FY   -- array containing state derivatives [realtype, input]
-         N    -- number of matrix rows/columns in Jacobian [sunindextype, input]
-         NNZ  -- allocated length of nonzero storage [sunindextype, input]
+         N    -- number of matrix rows/columns in Jacobian [long int, input]
+         NNZ  -- allocated length of nonzero storage [long int, input]
         JDATA -- nonzero values in Jacobian
                  [realtype of length NNZ, output]
        JRVALS -- row [or column] indices for each nonzero in Jacobian
-                 [sunindextype of length NNZ, output]
+                 [long int of length NNZ, output]
        JCPTRS -- pointers to each Jacobian column [or row] in preceding 
-                 arrays [sunindextype of length N+1, output]
+                 arrays [long int of length N+1, output]
          H    -- current step size [realtype, input]
          IPAR -- array containing integer user data that was passed to
                  FARKMALLOC [long int, input]
@@ -395,6 +395,9 @@
                     0 if successful, 
                    >0 if a recoverable error occurred,
                    <0 if an unrecoverable error ocurred.
+ 
+     NOTE: this may ONLY be used if SUNDIALS has been configured with 
+     sunindextype set to 64-bit integers.
  
  (2) Optional user-supplied Jacobian-vector product setup routine: 
      FARKJTSETUP
@@ -427,10 +430,10 @@
  
  (2) Optional user-supplied Jacobian-vector product routine: FARKJTIMES
 
-     As an option when using the SP* linear solver, the user may supply a
-     routine that computes the product of the system Jacobian 
-     J = dfi(t,y)/dy and a given vector v.  If supplied, it must have the 
-     following form:
+     As an option when using the ARKSpils linear solver interface, the 
+     user may supply a routine that computes the product of the system 
+     Jacobian J = dfi(t,y)/dy and a given vector v.  If supplied, it 
+     must have the following form:
 
        SUBROUTINE FARKJTIMES(V, JV, T, Y, FY, H, IPAR, RPAR, WORK, IER)
 
@@ -477,7 +480,7 @@
        JOK = flag indicating whether Jacobian-related data needs to be 
            recomputed [int, input]:
                   0 = recompute, 
-		  1 = reuse with the current value of GAMMA
+                  1 = reuse with the current value of GAMMA
        JCUR = return flag to denote if Jacobian data was recomputed
            [realtype, output], 1=yes, 0=no
        GAMMA = Jacobian scaling factor [realtype, input]
@@ -529,7 +532,7 @@
      the mass matrix and store it column-wise in DMASS.
 
      The arguments are:
-       NEQ   -- number of rows in the matrix [sunindextype, input]
+       NEQ   -- number of rows in the matrix [long int, input]
        T     -- current time [realtype, input]
        DMASS -- 2D array containing the mass matrix entries [realtype 
                 of size (NEQ,NEQ), output]
@@ -560,10 +563,10 @@
      j = 1 ... N.
 
      The arguments are:
-       NEQ   -- number of rows in the matrix [sunindextype, input]
-       MU    -- upper half-bandwidth of the matrix [sunindextype, input]
-       ML    -- lower half-bandwidth of the matrix [sunindextype, input]
-       MDIM  -- leading dimension of BMASS array [sunindextype, input]
+       NEQ   -- number of rows in the matrix [long int, input]
+       MU    -- upper half-bandwidth of the matrix [long int, input]
+       ML    -- lower half-bandwidth of the matrix [long int, input]
+       MDIM  -- leading dimension of BMASS array [long int, input]
        T     -- current time [realtype, input]
        BMASS -- 2D array containing the mass matrix entries [realtype 
                 of size (MDIM,NEQ), output]
@@ -593,7 +596,7 @@
      element M(k,k)  with k = 1 ... NEQ.
 
      The arguments are:
-       NEQ   -- number of rows in the matrix [sunindextype, input]
+       NEQ   -- number of rows in the matrix [long int, input]
        T     -- current time [realtype, input]
        DMASS -- 1D array containing the mass matrix entries [realtype 
                 of size (NEQ), output]
@@ -629,14 +632,14 @@
 
      The arguments are:
          T    -- current time [realtype, input]
-         N    -- number of rows/columns in mass matrix [sunindextype, input]
-         NNZ  -- allocated length of nonzero storage [sunindextype, input]
+         N    -- number of rows/columns in mass matrix [long int, input]
+         NNZ  -- allocated length of nonzero storage [long int, input]
         MDATA -- nonzero values in mass matrix
                  [realtype of length NNZ, output]
        MRVALS -- row [or column] indices for each nonzero in mass matrix
-                 [sunindextype of length NNZ, output]
+                 [long int of length NNZ, output]
        MCPTRS -- pointers to each mass matrix column [or row] in preceding 
-                 arrays [sunindextype of length N+1, output]
+                 arrays [long int of length N+1, output]
          IPAR -- array containing integer user data that was passed to
                  FARKMALLOC [long int, input]
          RPAR -- array containing real user data that was passed to
@@ -868,16 +871,16 @@
      ID (4). 
 
      The other arguments are:
-        NEQ = size of vectors [sunindextype, input]
+        NEQ = size of vectors [long int, input]
         COMM = the MPI communicator [int, input]
         NLOCAL = local size of vectors on this processor 
-           [sunindextype, input]
+           [long int, input]
         NGLOBAL = the system size, and the global size of vectors (the sum 
-           of all values of NLOCAL) [sunindextype, input]
+           of all values of NLOCAL) [long int, input]
         NUM_THREADS = number of threads
         IER = return completion flag [int, output]:
-	          0 = success, 
-		 -1 = failure.
+                  0 = success, 
+                 -1 = failure.
 
  (9.2) To initialize a band/dense/diagonal/sparse matrix structure for 
      storing the system Jacobian and for use within a direct linear solver,
@@ -893,21 +896,21 @@
 
      The other arguments are:
 
-        M = the number of rows of the matrix [sunindextype, input]
-        N = the number of columns of the matrix [sunindextype, input]
+        M = the number of rows of the matrix [long int, input]
+        N = the number of columns of the matrix [long int, input]
         MU = the number of upper bands (diagonal not included) in a banded 
-           matrix [sunindextype, input]
+           matrix [long int, input]
         ML = the number of lower bands (diagonal not included) in a banded 
-           matrix [sunindextype, input]
+           matrix [long int, input]
         SMU = the number of upper bands to store (diagonal not included) 
-           for factorization of a banded matrix [sunindextype, input]
+           for factorization of a banded matrix [long int, input]
         NNZ = the storage size (upper bound on the number of nonzeros) for 
-           a sparse matrix [sunindextype, input]
+           a sparse matrix [long int, input]
         SPARSETYPE = integer denoting use of CSC (0) vs CSR (1) storage 
            for a sparse matrix [int, input]
         IER = return completion flag [int, output]:
-	          0 = success, 
-		 -1 = failure.
+                  0 = success, 
+                 -1 = failure.
 
  (9.3) To initialize a band/dense/diagonal/sparse matrix structure for 
      storing the mass matrix and for use within a direct mass matrix linear 
@@ -961,7 +964,7 @@
      The other arguments are:
 
         NNZ = the storage size (upper bound on the number of nonzeros) for 
-           a sparse matrix [sunindextype, input]
+           a sparse matrix [long int, input]
         ORD_CHOICE = integer denoting ordering choice (see 
            SUNKLUSetOrdering and SUNSuperLUMTSetOrdering documentation 
            for details) [int, input]
@@ -971,9 +974,8 @@
         GSTYPE = choice of Gram-Schmidt orthogonalization algorithm 
            (0=modified, 1=classical) [int, input]
         IER = return completion flag [int, output]:
-	          0 = success, 
-		 -1 = failure.
-
+                  0 = success, 
+                 -1 = failure.
 
  (9.5) To initialize a linear solver structure for solving linear systems 
      arising from use of a non-identity mass matrix, the user must make 
@@ -1020,8 +1022,8 @@
 
      The arguments are:
         T0 = initial value of t [realtype, input]
-	Y0 = array of initial conditions [realtype, input]
-	IMEX = flag denoting basic integration method [int, input]: 
+        Y0 = array of initial conditions [realtype, input]
+        IMEX = flag denoting basic integration method [int, input]: 
                   0 = implicit, 
                   1 = explicit, 
                   2 = imex
@@ -1029,15 +1031,15 @@
                   1 = scalar, 
                   2 = array,
                   3 = user-supplied function; the user must supply a routine
-		      FARKEWT to compute the error weight vector.
+                      FARKEWT to compute the error weight vector.
         RTOL = scalar relative tolerance [realtype, input]
-	ATOL = scalar or array absolute tolerance [realtype, input]
-	IOUT = array of length at least 29 for integer optional outputs
+        ATOL = scalar or array absolute tolerance [realtype, input]
+        IOUT = array of length at least 29 for integer optional outputs
                [long int, output]
-	ROUT = array of length 6 for real optional outputs [realtype, output]
-	IPAR = array of user integer data [long int, input/output]
-	RPAR = array with user real data [realtype, input/output]
-	IER  = return completion flag [int, output]:
+        ROUT = array of length 6 for real optional outputs [realtype, output]
+        IPAR = array of user integer data [long int, input/output]
+        RPAR = array with user real data [realtype, input/output]
+        IER  = return completion flag [int, output]:
                   0 = SUCCESS,
                  -1 = failure (see printed message for failure details).
 
@@ -1175,6 +1177,17 @@
 
      with the int FLAG=1 to specify that FARKDJAC is provided and should be 
      used; FLAG=0 specifies a reset to the internal finite difference 
+     Jacobian approximation.  The int return flag IER=0 if successful, and 
+     nonzero otherwise.
+ 
+     If the user program includes the FARKDIAGJAC routine for the evaluation 
+     of the diagonal approximation to the Jacobian, then after the call to 
+     FARKDLSINIT, the following call must be made 
+
+       CALL FARKDIAGSETJAC(FLAG, IER)
+
+     with the int FLAG=1 to specify that FARKDIAGJAC is provided and should 
+     be used; FLAG=0 specifies a reset to the internal finite difference 
      Jacobian approximation.  The int return flag IER=0 if successful, and 
      nonzero otherwise.
  
@@ -1523,16 +1536,16 @@
        Y = array containing state variables on output [realtype, output]
        ITASK = task indicator [int, input]:
                   1 = normal mode (overshoot TOUT and interpolate)
-		  2 = one-step mode (return after each internal step taken)
-		  3 = normal tstop mode (like 1, but integration never 
-		      proceeds past TSTOP, which must be specified through a 
-		      call to FARKSETRIN using the key 'STOP_TIME')
-		  4 = one step tstop (like 2, but integration never goes 
-		      past TSTOP)
+                  2 = one-step mode (return after each internal step taken)
+                  3 = normal tstop mode (like 1, but integration never 
+                      proceeds past TSTOP, which must be specified through a 
+                      call to FARKSETRIN using the key 'STOP_TIME')
+                  4 = one step tstop (like 2, but integration never goes 
+                      past TSTOP)
        IER = completion flag [int, output]: 
                   0 = success, 
-		  1 = tstop return, 
-		  2 = root return, 
+                  1 = tstop return, 
+                  2 = root return, 
                   values -1 ... -10 are failure modes (see ARKODE manual).
      The current values of the optional outputs are immediately available in
      the IOUT and ROUT arrays.
@@ -1594,7 +1607,8 @@
  (16) Memory freeing: FARKFREE 
 
      To free the internal memory created by the calls to FARKMALLOC, 
-     FARKDLSINIT/FARKSPILSINIT, and FNVINIT*, make the call
+     FARKDLSINIT/FARKSPILSINIT, the generic linear solver and matrix modules, 
+     and FNVINIT*, make the call
 
        CALL FARKFREE()
  
@@ -1609,6 +1623,8 @@
 #include <sundials/sundials_matrix.h>        /* definition of type SUNMatrix */
 #include <sundials/sundials_nvector.h>       /* definition of type N_Vector */
 #include <sundials/sundials_types.h>         /* definition of type realtype */
+
+/*=============================================================*/
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
