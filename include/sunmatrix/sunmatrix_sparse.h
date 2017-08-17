@@ -53,9 +53,6 @@
 #include <sundials/sundials_matrix.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmatrix/sunmatrix_band.h>
-#include <nvector/nvector_serial.h>
-#include <nvector/nvector_openmp.h>
-#include <nvector/nvector_pthreads.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {

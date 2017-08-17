@@ -1,4 +1,3 @@
-Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG
 Krylov example problem:
 
  Kinetics-transport, NEQ =  200

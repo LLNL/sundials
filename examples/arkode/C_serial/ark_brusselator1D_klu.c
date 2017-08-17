@@ -416,7 +416,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
     return 1;
   }
 
-  /* Add in the Jacobian of the reaction terms matrix */
+  /* Create matrix for Jacobian of the reaction terms if necessary */
   if (udata->R == NULL) {
     udata->R = SUNSparseMatrix(SUNSparseMatrix_Rows(J),
                                SUNSparseMatrix_Columns(J),
@@ -427,7 +427,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
     }
   }
       
-  /* Add in the Jacobian of the reaction terms matrix */
+  /* Compute the Jacobian of the reaction terms */
   if (ReactionJac(y, udata->R, udata)) {
     printf("Jacobian calculation error in calling ReactionJac!\n");
     return 1;

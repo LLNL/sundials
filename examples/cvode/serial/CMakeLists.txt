@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision$
-# $Date$
-# ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -20,11 +17,11 @@
 
 SET(CVODE_examples
   cvAdvDiff_bnd
-  cvDirectDemo_ls
-  cvDiurnal_kry_bp
-  cvDiurnal_kry
-  cvKrylovDemo_ls
-  cvKrylovDemo_prec
+  #cvDirectDemo_ls
+  #cvDiurnal_kry_bp
+  #cvDiurnal_kry
+  #cvKrylovDemo_ls
+  #cvKrylovDemo_prec
   cvRoberts_dns
   cvRoberts_dns_uw
   )

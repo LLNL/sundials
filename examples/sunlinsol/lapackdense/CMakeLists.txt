@@ -26,10 +26,8 @@ SET(sunlinsol_lapackdense_examples
 SET(sunlinsol_lapackdense_dependencies
   test_sunlinsol
   sundials_nvector
-  sundials_sunmatrix
-  sundials_sunmatrixdense
-  sundials_sunlinsol
-  sundials_sunlinsollapackdense
+  sundials_matrix
+  sundials_linearsolver
 )
 
 # Add source directory to include directories
@@ -39,18 +37,18 @@ INCLUDE_DIRECTORIES(. ..)
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 
 IF(LINK_LIBRARY_TYPE MATCHES "static")
-  SET(NVECS_LIB sundials_nvecserial_static)
-  SET(SUNMATB_LIB sundials_sunmatrixdense_static)
-  SET(SUNLINSOLB_LIB sundials_sunlinsollapackdense_static)
+  SET(NVEC_LIB sundials_nvecserial_static)
+  SET(SUNMAT_LIB sundials_sunmatrixdense_static)
+  SET(SUNLINSOL_LIB sundials_sunlinsollapackdense_static)
 ELSE(LINK_LIBRARY_TYPE MATCHES "static")
-  SET(NVECS_LIB sundials_nvecserial_shared)
-  SET(SUNMATB_LIB sundials_sunmatrixdense_shared)
-  SET(SUNLINSOLB_LIB sundials_sunlinsollapackdense_shared)
+  SET(NVEC_LIB sundials_nvecserial_shared)
+  SET(SUNMAT_LIB sundials_sunmatrixdense_shared)
+  SET(SUNLINSOL_LIB sundials_sunlinsollapackdense_shared)
 ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 
 # Set-up linker flags and link libraries
 
-SET(SUNDIALS_LIBS ${NVECS_LIB} ${SUNMATB_LIB} ${SUNLINSOLB_LIB} ${EXTRA_LINK_LIBS} ${LAPACK_LIBRARIES})
+SET(SUNDIALS_LIBS ${NVEC_LIB} ${SUNMAT_LIB} ${SUNLINSOL_LIB} ${EXTRA_LINK_LIBS} ${LAPACK_LIBRARIES})
 
 # Add the build and install targets for each sunlinsol example
 
@@ -82,8 +80,9 @@ IF(EXAMPLES_INSTALL)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER_LIB "sundials_sunlinsollapackdense")
+  SET(LIBS "${LIBS} -lsundials_sunmatrixdense")
   LIST2STRING(sunlinsol_lapackdense_examples EXAMPLES)
-  LIST2STRING(sunlinsol_examples_dependencies EXAMPLES_DEPENDENCIES)
+  LIST2STRING(sunlinsol_lapackdense_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

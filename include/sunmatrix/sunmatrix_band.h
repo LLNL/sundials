@@ -50,9 +50,6 @@
 #define _SUNMATRIX_BAND_H
 
 #include <sundials/sundials_matrix.h>
-#include <nvector/nvector_serial.h>
-#include <nvector/nvector_openmp.h>
-#include <nvector/nvector_pthreads.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {

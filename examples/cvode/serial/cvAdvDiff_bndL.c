@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example problem:
@@ -34,10 +30,13 @@
 
 /* Header files with a description of contents used in cvbanx.c */
 
-#include <cvode/cvode.h>             /* prototypes for CVODE fcts. and consts. */
-#include <cvode/cvode_lapack.h>      /* prototype for CVLapackBand */
-#include <nvector/nvector_serial.h>  /* serial N_Vector types, fcts., and macros */
-#include <sundials/sundials_math.h>  /* definition of ABS and EXP */
+#include <cvode/cvode.h>                     /* prototypes for CVODE fcts., consts.  */
+#include <nvector/nvector_serial.h>          /* serial N_Vector types, fcts., macros */
+#include <sunmatrix/sunmatrix_band.h>        /* access to band SUNMatrix             */
+#include <sunlinsol/sunlinsol_lapackband.h>  /* access to band SUNLinearSolver       */
+#include <cvode/cvode_direct.h>              /* access to CVDls interface            */
+#include <sundials/sundials_types.h>         /* definition of type realtype          */
+#include <sundials/sundials_math.h>          /* definition of ABS and EXP            */
 
 /* Problem Constants */
 
@@ -91,9 +90,8 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 /* Functions Called by the Solver */
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
-static int Jac(sunindextype N, sunindextype mu, sunindextype ml,
-               realtype t, N_Vector u, N_Vector fu, 
-               DlsMat J, void *user_data,
+static int Jac(realtype t, N_Vector u, N_Vector fu, 
+               SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
@@ -107,12 +105,16 @@ int main(void)
   realtype dx, dy, reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
+  SUNMatrix A;
+  SUNLinearSolver LS;
   void *cvode_mem;
   int iout, flag;
   long int nst;
 
   u = NULL;
   data = NULL;
+  A = NULL;
+  LS = NULL;
   cvode_mem = NULL;
 
   /* Create a serial vector */
@@ -153,15 +155,25 @@ int main(void)
   flag = CVodeSetUserData(cvode_mem, data);
   if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
-  /* Call CVLapackBand to specify the CVBAND band linear solver */
-  flag = CVLapackBand(cvode_mem, NEQ, MY, MY);
-  if(check_flag(&flag, "CVLapackBand", 1)) return(1);
+  /* Create banded SUNMatrix for use in linear solves -- since this will be factored, 
+     set the storage bandwidth to be the sum of upper and lower bandwidths */
+  A = SUNBandMatrix(NEQ, MY, MY, 2*MY);
+  if(check_flag((void *)A, "SUNBandMatrix", 0)) return(1);
+
+  /* Create SUNLapackBand solver object for use by CVode */
+  LS = SUNLapackBand(u, A);
+  if(check_flag((void *)LS, "SUNLapackBand", 0)) return(1);
+  
+  /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
+  flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
+  if(check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine Jac */
-  flag = CVDlsSetBandJacFn(cvode_mem, Jac);
-  if(check_flag(&flag, "CVDlsSetBandJacFn", 1)) return(1);
+  flag = CVDlsSetJacFn(cvode_mem, Jac);
+  if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   /* In loop over output points: call CVode, print results, test for errors */
+
   umax = N_VMaxNorm(u);
   PrintHeader(reltol, abstol, umax);
   for(iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
@@ -235,9 +247,8 @@ static int f(realtype t, N_Vector u,N_Vector udot, void *user_data)
 
 /* Jacobian routine. Compute J(t,u). */
 
-static int Jac(sunindextype N, sunindextype mu, sunindextype ml,
-               realtype t, N_Vector u, N_Vector fu, 
-               DlsMat J, void *user_data,
+static int Jac(realtype t, N_Vector u, N_Vector fu, 
+               SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   int i, j, k;
@@ -263,15 +274,15 @@ static int Jac(sunindextype N, sunindextype mu, sunindextype ml,
   for (j=1; j <= MY; j++) {
     for (i=1; i <= MX; i++) {
       k = j-1 + (i-1)*MY;
-      kthCol = BAND_COL(J,k);
+      kthCol = SUNBandMatrix_Column(J,k);
 
       /* set the kth column of J */
 
-      BAND_COL_ELEM(kthCol,k,k) = -TWO*(verdc+hordc);
-      if (i != 1)  BAND_COL_ELEM(kthCol,k-MY,k) = hordc + horac;
-      if (i != MX) BAND_COL_ELEM(kthCol,k+MY,k) = hordc - horac;
-      if (j != 1)  BAND_COL_ELEM(kthCol,k-1,k)  = verdc;
-      if (j != MY) BAND_COL_ELEM(kthCol,k+1,k)  = verdc;
+      SM_COLUMN_ELEMENT_B(kthCol,k,k) = -TWO*(verdc+hordc);
+      if (i != 1)  SM_COLUMN_ELEMENT_B(kthCol,k-MY,k) = hordc + horac;
+      if (i != MX) SM_COLUMN_ELEMENT_B(kthCol,k+MY,k) = hordc - horac;
+      if (j != 1)  SM_COLUMN_ELEMENT_B(kthCol,k-1,k)  = verdc;
+      if (j != MY) SM_COLUMN_ELEMENT_B(kthCol,k+1,k)  = verdc;
     }
   }
 
@@ -323,8 +334,8 @@ static void PrintHeader(realtype reltol, realtype abstol, realtype umax)
   printf("Tolerance parameters: reltol = %Lg   abstol = %Lg\n\n", reltol, abstol);
   printf("At t = %Lg      max.norm(u) =%14.6Le \n", T0, umax);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("Tolerance parameters: reltol = %lg   abstol = %lg\n\n", reltol, abstol);
-  printf("At t = %lg      max.norm(u) =%14.6le \n", T0, umax);
+  printf("Tolerance parameters: reltol = %g   abstol = %g\n\n", reltol, abstol);
+  printf("At t = %g      max.norm(u) =%14.6e \n", T0, umax);
 #else
   printf("Tolerance parameters: reltol = %g   abstol = %g\n\n", reltol, abstol);
   printf("At t = %g      max.norm(u) =%14.6e \n", T0, umax);
@@ -340,7 +351,7 @@ static void PrintOutput(realtype t, realtype umax, long int nst)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %4.2Lf   max.norm(u) =%14.6Le   nst = %4ld\n", t, umax, nst);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("At t = %4.2f   max.norm(u) =%14.6le   nst = %4ld\n", t, umax, nst);
+  printf("At t = %4.2f   max.norm(u) =%14.6e   nst = %4ld\n", t, umax, nst);
 #else
   printf("At t = %4.2f   max.norm(u) =%14.6e   nst = %4ld\n", t, umax, nst);
 #endif
@@ -376,7 +387,7 @@ static void PrintFinalStats(void *cvode_mem)
   printf("\nFinal Statistics:\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n",
 	 nst, nfe, nsetups, nfeLS, nje);
-  printf("nni = %-6ld ncfn = %-6ld netf = %ld\n \n",
+  printf("nni = %-6ld ncfn = %-6ld netf = %ld\n",
 	 nni, ncfn, netf);
 
   return;
