@@ -89,23 +89,22 @@ void FSUNKLU_REINIT(int *code, long int *NNZ, int *reinit_type, int *ier)
 {
   *ier = 0;
 
-  sunindextype nnz = (sunindextype) *NNZ;
   switch(*code) {
   case FCMIX_CVODE:
     *ier = SUNKLUReInit(F2C_CVODE_linsol, F2C_CVODE_matrix,
-                        nnz, *reinit_type);
+                        *NNZ, *reinit_type);
     break;
   case FCMIX_IDA:
     *ier = SUNKLUReInit(F2C_IDA_linsol, F2C_IDA_matrix,
-                        nnz, *reinit_type);
+                        *NNZ, *reinit_type);
     break;
   case FCMIX_KINSOL:
     *ier = SUNKLUReInit(F2C_KINSOL_linsol, F2C_KINSOL_matrix,
-                        nnz, *reinit_type);
+                        *NNZ, *reinit_type);
     break;
   case FCMIX_ARKODE:
     *ier = SUNKLUReInit(F2C_ARKODE_linsol, F2C_ARKODE_matrix,
-                        nnz, *reinit_type);
+                        *NNZ, *reinit_type);
     break;
   default:
     *ier = -1;
@@ -150,9 +149,8 @@ void FSUNMASSKLU_INIT(int *ier)
 void FSUNMASSKLU_REINIT(long int *NNZ, int *reinit_type, int *ier)
 {
   *ier = 0;
-  sunindextype nnz = (sunindextype) *NNZ;
   *ier = SUNKLUReInit(F2C_ARKODE_mass_sol, F2C_ARKODE_mass_matrix,
-                      nnz, *reinit_type);
+                      *NNZ, *reinit_type);
 }
 
 

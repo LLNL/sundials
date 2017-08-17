@@ -46,29 +46,25 @@ void FSUNSPARSEMAT_INIT(int *code, long int *M, long int *N,
   case FCMIX_CVODE:
     if (F2C_CVODE_matrix)  SUNMatDestroy(F2C_CVODE_matrix);
     F2C_CVODE_matrix = NULL;
-    F2C_CVODE_matrix = SUNSparseMatrix((sunindextype) *M, (sunindextype) *N,
-                                       (sunindextype) *NNZ, *sparsetype);
+    F2C_CVODE_matrix = SUNSparseMatrix(*M, *N, *NNZ, *sparsetype);
     if (F2C_CVODE_matrix == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
     if (F2C_IDA_matrix)  SUNMatDestroy(F2C_IDA_matrix);
     F2C_IDA_matrix = NULL;
-    F2C_IDA_matrix = SUNSparseMatrix((sunindextype) *M, (sunindextype) *N,
-                                     (sunindextype) *NNZ, *sparsetype);
+    F2C_IDA_matrix = SUNSparseMatrix(*M, *N, *NNZ, *sparsetype);
     if (F2C_IDA_matrix == NULL) *ier = -1;
     break;
   case FCMIX_KINSOL:
     if (F2C_KINSOL_matrix)  SUNMatDestroy(F2C_KINSOL_matrix);
     F2C_KINSOL_matrix = NULL;
-    F2C_KINSOL_matrix = SUNSparseMatrix((sunindextype) *M, (sunindextype) *N,
-                                        (sunindextype) *NNZ, *sparsetype);
+    F2C_KINSOL_matrix = SUNSparseMatrix(*M, *N, *NNZ, *sparsetype);
     if (F2C_KINSOL_matrix == NULL) *ier = -1;
     break;
   case FCMIX_ARKODE:
     if (F2C_ARKODE_matrix)  SUNMatDestroy(F2C_ARKODE_matrix);
     F2C_ARKODE_matrix = NULL;
-    F2C_ARKODE_matrix = SUNSparseMatrix((sunindextype) *M, (sunindextype) *N,
-                                        (sunindextype) *NNZ, *sparsetype);
+    F2C_ARKODE_matrix = SUNSparseMatrix(*M, *N, *NNZ, *sparsetype);
     if (F2C_ARKODE_matrix == NULL) *ier = -1;
     break;
   default:
@@ -82,9 +78,6 @@ void FSUNSPARSEMASSMAT_INIT(long int *M, long int *N, long int *NNZ,
   *ier = 0;
   if (F2C_ARKODE_mass_matrix)  SUNMatDestroy(F2C_ARKODE_mass_matrix);
   F2C_ARKODE_mass_matrix = NULL;
-  F2C_ARKODE_mass_matrix = SUNSparseMatrix((sunindextype) *M, 
-                                           (sunindextype) *N,
-                                           (sunindextype) *NNZ, 
-                                           *sparsetype);
+  F2C_ARKODE_mass_matrix = SUNSparseMatrix(*M, *N, *NNZ, *sparsetype);
   if (F2C_ARKODE_mass_matrix == NULL) *ier = -1;
 }
