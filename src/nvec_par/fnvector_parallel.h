@@ -1,14 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
@@ -71,8 +68,8 @@ extern N_Vector F2C_KINSOL_vec;
 
 extern N_Vector F2C_ARKODE_vec;
 
-/* 
- * Prototypes of exported functions 
+/*
+ * Prototypes of exported functions
  *
  * FNV_INITP    - initializes parallel vector operations for main problem
  * FNV_INITP_Q  - initializes parallel vector operations for quadratures
@@ -86,10 +83,10 @@ extern N_Vector F2C_ARKODE_vec;
 #define MPI_Fint int
 #endif
 
-void FNV_INITP(MPI_Fint *comm, int *code, sunindextype *L, sunindextype *N, int *ier);
-void FNV_INITP_Q(MPI_Fint *comm, int *code, sunindextype *Lq, sunindextype *Nq, int *ier);
-void FNV_INITP_B(MPI_Fint *comm, int *code, sunindextype *LB, sunindextype *NB, int *ier);
-void FNV_INITP_QB(MPI_Fint *comm, int *code, sunindextype *LqB, sunindextype *NqB, int *ier);
+void FNV_INITP(MPI_Fint *comm, int *code, long int *L, long int *N, int *ier);
+void FNV_INITP_Q(MPI_Fint *comm, int *code, long int *Lq, long int *Nq, int *ier);
+void FNV_INITP_B(MPI_Fint *comm, int *code, long int *LB, long int *NB, int *ier);
+void FNV_INITP_QB(MPI_Fint *comm, int *code, long int *LqB, long int *NqB, int *ier);
 void FNV_INITP_S(int *code, int *Ns, int *ier);
 
 #ifdef __cplusplus

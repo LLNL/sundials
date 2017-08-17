@@ -1,14 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
@@ -46,7 +43,7 @@ N_Vector F2C_ARKODE_vec;
 
 /* Fortran callable interfaces */
 
-void FNV_INITS(int *code, sunindextype *N, int *ier)
+void FNV_INITS(int *code, long int *N, int *ier)
 {
   *ier = 0;
 
@@ -76,7 +73,7 @@ void FNV_INITS(int *code, sunindextype *N, int *ier)
   }
 }
 
-void FNV_INITS_Q(int *code, sunindextype *Nq, int *ier)
+void FNV_INITS_Q(int *code, long int *Nq, int *ier)
 {
   *ier = 0;
 
@@ -96,7 +93,7 @@ void FNV_INITS_Q(int *code, sunindextype *Nq, int *ier)
   }
 }
 
-void FNV_INITS_B(int *code, sunindextype *NB, int *ier)
+void FNV_INITS_B(int *code, long int *NB, int *ier)
 {
   *ier = 0;
 
@@ -116,7 +113,7 @@ void FNV_INITS_B(int *code, sunindextype *NB, int *ier)
   }
 }
 
-void FNV_INITS_QB(int *code, sunindextype *NqB, int *ier)
+void FNV_INITS_QB(int *code, long int *NqB, int *ier)
 {
   *ier = 0;
 
@@ -155,5 +152,3 @@ void FNV_INITS_S(int *code, int *Ns, int *ier)
     *ier = -1;
   }
 }
-
-
