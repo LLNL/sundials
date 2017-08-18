@@ -237,8 +237,6 @@ ENDIF(BUILD_SHARED_LIBS AND WIN32)
 IF(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
   PRINT_WARNING("Both static and shared library generation were disabled"
                 "Building static libraries was re-enabled")
-
-  # re-enable static libraries
   SET(BUILD_STATIC_LIBS ON CACHE BOOL "Build static libraries" FORCE)
 ENDIF(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
 
@@ -302,6 +300,14 @@ ELSE(BUILD_ARKODE OR BUILD_CVODE OR BUILD_IDA OR BUILD_KINSOL)
   HIDE_VARIABLE(FCMIX_ENABLE)
 ENDIF(BUILD_ARKODE OR BUILD_CVODE OR BUILD_IDA OR BUILD_KINSOL)
 
+# Fortran interface does not support single or extended precision
+IF(FCMIX_ENABLE AND
+  (SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE"))
+  PRINT_WARNING("The Fortran interface is not compatible with ${SUNDIALS_PRECISION} precision"
+                "Disabling FCMIX")
+  SET(FCMIX_ENABLE OFF CACHE BOOL "FCMIX is disabled" FORCE)
+ENDIF()
+
 # -------------------------------------------------------------
 # Enable Fortran90 support?
 # -------------------------------------------------------------
@@ -337,31 +343,19 @@ ENDIF(BUILD_ARKODE AND EXAMPLES_ENABLE)
 
 OPTION(LAPACK_ENABLE "Enable Lapack support" OFF)
 
-###########################################################################################
-# NOTE: Remove 'OR SUNDIALS_PRECISION MATCHES "SINGLE"' for new linear
-# solver API interface to LAPACK
-###########################################################################################
-
-# LAPACK interface does not support single or extended precision
-IF(LAPACK_ENABLE AND 
-  (SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE"))
-
+# LAPACK does not support extended precision
+IF(LAPACK_ENABLE AND SUNDIALS_PRECISION MATCHES "EXTENDED")
   PRINT_WARNING("LAPACK is not compatible with ${SUNDIALS_PRECISION} precision"
                 "Disabling LAPACK")
-
-  # disable LAPACK
   SET(LAPACK_ENABLE OFF CACHE BOOL "LAPACK is disabled" FORCE)
 ENDIF()
 
 # LAPACK does not support 64-bit integer index types
-IF(LAPACK_ENABLE AND SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
-
-  PRINT_WARNING("LAPACK is not compatible with ${SUNDIALS_INDEX_TYPE} integers"
-                "Disabling LAPACK")
-
-  # disable LAPACK
-  SET(LAPACK_ENABLE OFF CACHE BOOL "LAPACK is disabled" FORCE)
-ENDIF()
+# IF(LAPACK_ENABLE AND SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
+#   PRINT_WARNING("LAPACK is not compatible with ${SUNDIALS_INDEX_TYPE} integers"
+#                 "Disabling LAPACK")
+#   SET(LAPACK_ENABLE OFF CACHE BOOL "LAPACK is disabled" FORCE)
+# ENDIF()
 
 IF(NOT LAPACK_ENABLE)
   HIDE_VARIABLE(SUNDIALS_F77_FUNC_CASE)
@@ -375,39 +369,10 @@ ENDIF(NOT LAPACK_ENABLE)
 
 OPTION(SUPERLUMT_ENABLE "Enable SUPERLUMT support" OFF)
 
-###########################################################################################
-# NOTE: Remove 'OR SUNDIALS_PRECISION MATCHES "SINGLE"' for new linear
-# solver API interface to SuperLU_MT
-###########################################################################################
-
-# SuperLU_MT interface does not support single or extended precision
-IF(SUPERLUMT_ENABLE AND
-  (SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE"))
-
+# SuperLU_MT does not support extended precision
+IF(SUPERLUMT_ENABLE AND SUNDIALS_PRECISION MATCHES "EXTENDED")
   PRINT_WARNING("SuperLU_MT is not compatible with ${SUNDIALS_PRECISION} precision"
                 "Disabling SuperLU_MT")
-
-  # disable SuperLU_MT
-  SET(SUPERLUMT_ENABLE OFF CACHE BOOL "SuperLU_MT is disabled" FORCE)
-ENDIF()
-
-###########################################################################################
-# NOTE: Remove check on int64_t for new linear solver API interface to
-# SuperLU_MT
-###########################################################################################
-
-###########################################################################################
-# NOTE: Need to add check below (when testing SuperLU_MT) that it was
-# built with the right integer type
-###########################################################################################
-
-# SuperLU_MT interface is not compatible with 64-bit integer index type
-IF(SUPERLUMT_ENABLE AND SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
-
-  PRINT_WARNING("SuperLU_MT is not compatible with ${SUNDIALS_INDEX_TYPE} integers" 
-                "Disabling SuperLU_MT")
-
-  # disable SuperLU_MT
   SET(SUPERLUMT_ENABLE OFF CACHE BOOL "SuperLU_MT is disabled" FORCE)
 ENDIF()
 
@@ -426,26 +391,9 @@ OPTION(KLU_ENABLE "Enable KLU support" OFF)
 
 # KLU does not support single or extended precision
 IF(KLU_ENABLE AND
-  (SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE"))
-
+  (SUNDIALS_PRECISION MATCHES "SINGLE" OR SUNDIALS_PRECISION MATCHES "EXTENDED"))
   PRINT_WARNING("KLU is not compatible with ${SUNDIALS_PRECISION} precision"
                 "Disabling KLU")
-
-  # disable KLU
-  SET(KLU_ENABLE OFF CACHE BOOL "KLU is disabled" FORCE)
-ENDIF()
-
-###########################################################################################
-# NOTE: Remove check on int64_t for new linear solver API interface to KLU 
-###########################################################################################
-
-# KLU interface is not compatible with 64-bit integer index type
-IF(KLU_ENABLE AND SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
-
-  PRINT_WARNING("KLU is not compatible with ${SUNDIALS_INDEX_TYPE} integers"
-                "Disabling KLU")
-
-  # disable KLU
   SET(KLU_ENABLE OFF CACHE BOOL "KLU is disabled" FORCE)
 ENDIF()
 
@@ -533,41 +481,6 @@ OPTION(EXAMPLES_ENABLE "Build the SUNDIALS examples" ON)
 IF(EXAMPLES_ENABLE)
 
   # If examples are enabled, set different options
-
-  IF(FCMIX_ENABLE)
-
-    # enable F77 examples
-    SET(F77_EXAMPLES TRUE)
-   
-    IF(SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE")
-
-      # disable F77 examples for extended or single precision
-      PRINT_WARNING("F77 examples are not compatible with ${SUNDIALS_PRECISION} precision"
-                    "Fortran interface is enabled but F77 examples will not be built")
-      SET(F77_EXAMPLES FALSE)
-
-    ELSEIF(NOT LAPACK_ENABLE AND SUNDIALS_INDEX_TYPE MATCHES "INT32_T")  
-
-      # disable F77 examples for 32-bit integers unless LAPACK is enabled
-      # logic in examples' CMakeLists.txt will only add LAPACK F77 examples
-      PRINT_WARNING("F77 examples are not compatible with ${SUNDIALS_INDEX_TYPE} integers"
-                    "Fortan interface is enabled but F77 examples will not be built")
-      SET(F77_EXAMPLES FALSE)
-
-    ELSEIF(LAPACK_ENABLE)
-
-      # warn user that most only LAPACK F77 examples will be enabled
-      # logic in examples' CMakeLists.txt will disable other F77 examples
-      PRINT_WARNING("Most F77 examples are not compatible with ${SUNDIALS_INDEX_TYPE} integers"
-                    "Fortan interface is enabled but only F77 LAPACK examples will be built")
-    ENDIF()
-
-  ELSE()
-
-    # disable F77 examples
-    SET(F77_EXAMPLES FALSE)
-
-  ENDIF()
 
   # The examples will be linked with the library corresponding to the build type.
   # Whenever building shared libraries, use them to link the examples.
@@ -1191,171 +1104,128 @@ IF(EXAMPLES_ENABLE)
 
   # add ARKode examples
   IF(BUILD_ARKODE)
-
     ADD_SUBDIRECTORY(examples/arkode/C_serial)
-
     IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/C_openmp)
-    ENDIF()
-
+    ENDIF(OPENMP_FOUND)
     IF(CXX_ENABLE AND CXX_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/CXX_serial)
-    ENDIF()
-
-    IF(F77_EXAMPLES AND F77_FOUND)
+    ENDIF(CXX_ENABLE AND CXX_FOUND)
+    IF(FCMIX_ENABLE AND F77_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/F77_serial)
-    ENDIF()
-
+    ENDIF(FCMIX_ENABLE AND F77_FOUND)
     IF(F90_ENABLE AND F90_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/F90_serial)
-    ENDIF()
-
+    ENDIF(F90_ENABLE AND F90_FOUND)
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/C_parallel)
-    ENDIF()
-
+    ENDIF(MPIC_FOUND)
     IF(MPICXX_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/CXX_parallel)
-    ENDIF()
-
-    IF(F77_EXAMPLES AND MPIF_FOUND)
+    ENDIF(MPICXX_FOUND)
+    IF(MPIF_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/F77_parallel)
-    ENDIF()
-
+    ENDIF(MPIF_FOUND)
     IF(MPIF90_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/F90_parallel)
-    ENDIF()
-
+    ENDIF(MPIF90_FOUND)
     IF(HYPRE_ENABLE AND HYPRE_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/C_parhyp)
-    ENDIF()    
-
+    ENDIF(HYPRE_ENABLE AND HYPRE_FOUND)
+    
   ENDIF(BUILD_ARKODE)
   
   # add CVODE examples
   IF(BUILD_CVODE)
-
     ADD_SUBDIRECTORY(examples/cvode/serial)
-
-    IF(F77_EXAMPLES AND F77_FOUND)
+    IF(FCMIX_ENABLE AND F77_FOUND)
       ADD_SUBDIRECTORY(examples/cvode/fcmix_serial)
-    ENDIF()
-
+    ENDIF(FCMIX_ENABLE AND F77_FOUND)
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/cvode/parallel)
-    ENDIF()
-
-    IF(F77_EXAMPLES AND MPIF_FOUND)
+    ENDIF(MPIC_FOUND)
+    IF(MPIF_FOUND)
       ADD_SUBDIRECTORY(examples/cvode/fcmix_parallel)
-    ENDIF()
-
+    ENDIF(MPIF_FOUND)
     IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/cvode/C_openmp)
-    ENDIF()
-
+    ENDIF(OPENMP_FOUND)
     IF(HYPRE_ENABLE AND HYPRE_FOUND)
       ADD_SUBDIRECTORY(examples/cvode/parhyp)
-    ENDIF()
-
+    ENDIF(HYPRE_ENABLE AND HYPRE_FOUND)
   ENDIF(BUILD_CVODE)
   
   # add CVODES Examples
   IF(BUILD_CVODES)
-
     ADD_SUBDIRECTORY(examples/cvodes/serial)
-
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/cvodes/parallel)
-    ENDIF()
-
+    ENDIF(MPIC_FOUND)
     IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/cvodes/C_openmp)
-    ENDIF()
-
+    ENDIF(OPENMP_FOUND)
   ENDIF(BUILD_CVODES)
   
   # add IDA examples
   IF(BUILD_IDA)
-
     ADD_SUBDIRECTORY(examples/ida/serial)
-
-    IF(F77_EXAMPLES AND F77_FOUND)
+    IF(FCMIX_ENABLE AND F77_FOUND)
       ADD_SUBDIRECTORY(examples/ida/fcmix_serial)
-
       IF(OPENMP_FOUND)
         ADD_SUBDIRECTORY(examples/ida/fcmix_openmp)
-      ENDIF()
-
+      ENDIF(OPENMP_FOUND)
       IF(PTHREADS_FOUND)
 	ADD_SUBDIRECTORY(examples/ida/fcmix_pthreads)
-      ENDIF()
-    ENDIF()
-
+      ENDIF(PTHREADS_FOUND)
+    ENDIF(FCMIX_ENABLE AND F77_FOUND)
     IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/ida/C_openmp)
-    ENDIF()
-
+    ENDIF(OPENMP_FOUND)
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/ida/parallel)
-    ENDIF()
-
+    ENDIF(MPIC_FOUND)
     IF(PETSC_FOUND)
       ADD_SUBDIRECTORY(examples/ida/petsc)
-    ENDIF()
-
-    IF(F77_EXAMPLES AND MPIF_FOUND)
+    ENDIF(PETSC_FOUND)
+    IF(MPIF_FOUND)
       ADD_SUBDIRECTORY(examples/ida/fcmix_parallel)
-    ENDIF()
-
+    ENDIF(MPIF_FOUND)
   ENDIF(BUILD_IDA)
   
   # add IDAS examples
   IF(BUILD_IDAS)
-
     ADD_SUBDIRECTORY(examples/idas/serial)
-
     IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/idas/C_openmp)
-    ENDIF()
-
+    ENDIF(OPENMP_FOUND)
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/idas/parallel)
-    ENDIF()
-
+    ENDIF(MPIC_FOUND)
   ENDIF(BUILD_IDAS)
-  
+
   # add KINSOL examples
   IF(BUILD_KINSOL)
-
     ADD_SUBDIRECTORY(examples/kinsol/serial)
-
     IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/kinsol/C_openmp) # the only example here need special handling from testrunner (not yet implemented)
     ENDIF(OPENMP_FOUND)
-
-    IF(F77_EXAMPLES AND F77_FOUND)
+    IF(FCMIX_ENABLE AND F77_FOUND)
       ADD_SUBDIRECTORY(examples/kinsol/fcmix_serial)
-    ENDIF()
-
+    ENDIF(FCMIX_ENABLE AND F77_FOUND)
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/kinsol/parallel)
-    ENDIF()
-
-    IF(F77_EXAMPLES AND MPIF_FOUND)
+    ENDIF(MPIC_FOUND)
+    IF(MPIF_FOUND)
       ADD_SUBDIRECTORY(examples/kinsol/fcmix_parallel)
-    ENDIF()
-
+    ENDIF(MPIF_FOUND)
   ENDIF(BUILD_KINSOL)
 
   # add CPODES examples
   IF(BUILD_CPODES)
-
     ADD_SUBDIRECTORY(examples/cpodes/serial)
-
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/cpodes/parallel)
-    ENDIF()
-
+    ENDIF(MPIC_FOUND)
   ENDIF(BUILD_CPODES)
 
   # Always add the nvector serial examples
