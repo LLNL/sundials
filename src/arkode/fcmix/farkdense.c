@@ -2,13 +2,13 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2015, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
@@ -33,10 +33,10 @@
 extern "C" {
 #endif
 
-  extern void FARK_DJAC(sunindextype *N, realtype *T, realtype *Y, 
-			realtype *FY, realtype *DJAC, 
-			realtype *H, long int *IPAR, 
-			realtype *RPAR, realtype *V1, 
+  extern void FARK_DJAC(long int *N, realtype *T, realtype *Y, 
+			realtype *FY, realtype *DJAC,
+			realtype *H, long int *IPAR,
+			realtype *RPAR, realtype *V1,
 			realtype *V2, realtype *V3, int *ier);
 
 #ifdef __cplusplus
@@ -45,7 +45,7 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKDlsSetDenseJacFn; see 
+/* Fortran interface to C routine ARKDlsSetDenseJacFn; see
    farkode.h for additional information */
 void FARK_DENSESETJAC(int *flag, int *ier)
 {
@@ -59,10 +59,10 @@ void FARK_DENSESETJAC(int *flag, int *ier)
 
 /*=============================================================*/
 
-/* C interface to user-supplied Fortran routine FARKDJAC; see 
+/* C interface to user-supplied Fortran routine FARKDJAC; see
    farkode.h for additional information  */
-int FARKDenseJac(sunindextype N, realtype t, N_Vector y, N_Vector fy, 
-                 DlsMat J, void *user_data, N_Vector vtemp1, 
+int FARKDenseJac(long int N, realtype t, N_Vector y, N_Vector fy,
+                 DlsMat J, void *user_data, N_Vector vtemp1,
                  N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier;
@@ -79,9 +79,9 @@ int FARKDenseJac(sunindextype N, realtype t, N_Vector y, N_Vector fy,
   jacdata = DENSE_COL(J,0);
   ARK_userdata = (FARKUserData) user_data;
 
-  FARK_DJAC(&N, &t, ydata, fydata, jacdata, &h, 
-            ARK_userdata->ipar, ARK_userdata->rpar, v1data, 
-            v2data, v3data, &ier); 
+  FARK_DJAC(&N, &t, ydata, fydata, jacdata, &h,
+            ARK_userdata->ipar, ARK_userdata->rpar, v1data,
+            v2data, v3data, &ier);
   return(ier);
 }
 

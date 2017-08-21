@@ -2,13 +2,13 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2015, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
@@ -33,9 +33,9 @@
 extern "C" {
 #endif
 
-  extern void FARK_DMASS(sunindextype *N, realtype *T, 
-			 realtype *DMASS, long int *IPAR, 
-			 realtype *RPAR, realtype *V1, 
+  extern void FARK_DMASS(long int *N, realtype *T, 
+			 realtype *DMASS, long int *IPAR,
+			 realtype *RPAR, realtype *V1,
 			 realtype *V2, realtype *V3, int *ier);
 
 #ifdef __cplusplus
@@ -44,7 +44,7 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface routine to ARKDlsSetDenseMassFn; see 
+/* Fortran interface routine to ARKDlsSetDenseMassFn; see
    farkode.h for further details */
 void FARK_LAPACKDENSESETMASS(int *ier)
 {
@@ -53,10 +53,10 @@ void FARK_LAPACKDENSESETMASS(int *ier)
 
 /*=============================================================*/
 
-/* C interface to user-supplied Fortran routine FARKDMASS; see 
+/* C interface to user-supplied Fortran routine FARKDMASS; see
    farkode.h for additional information  */
-int FARKLapackDenseMass(sunindextype N, realtype t, DlsMat M, 
-			void *user_data, N_Vector vtemp1, 
+int FARKLapackDenseMass(long int N, realtype t, DlsMat M,
+			void *user_data, N_Vector vtemp1,
 			N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier;
@@ -69,12 +69,11 @@ int FARKLapackDenseMass(sunindextype N, realtype t, DlsMat M,
   massdata = DENSE_COL(M,0);
   ARK_userdata = (FARKUserData) user_data;
 
-  FARK_DMASS(&N, &t, massdata, ARK_userdata->ipar, ARK_userdata->rpar, 
-	     v1data, v2data, v3data, &ier); 
+  FARK_DMASS(&N, &t, massdata, ARK_userdata->ipar, ARK_userdata->rpar,
+	     v1data, v2data, v3data, &ier);
   return(ier);
 }
 
 /*===============================================================
    EOF
 ===============================================================*/
-
