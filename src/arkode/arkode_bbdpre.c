@@ -29,6 +29,7 @@
 #include "arkode_bbdpre_impl.h"
 #include "arkode_spils_impl.h"
 #include <sundials/sundials_math.h>
+#include <nvector/nvector_serial.h>
 
 
 #define MIN_INC_MULT RCONST(1000.0)

@@ -35,6 +35,7 @@
 #include "ida_spils_impl.h"
 #include "ida_bbdpre_impl.h"
 #include <sundials/sundials_math.h>
+#include <nvector/nvector_serial.h>
 
 
 #define ZERO RCONST(0.0)
