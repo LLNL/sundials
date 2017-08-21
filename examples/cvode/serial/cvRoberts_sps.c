@@ -28,12 +28,12 @@
 
 /* Header files with a description of contents used */
 
-#include <cvode/cvode.h>                /* prototypes for CVODE fcts., consts.  */
-#include <nvector/nvector_serial.h>     /* serial N_Vector types, fcts., macros */
-#include <sunmatrix/sunmatrix_sparse.h> /* access to sparse SUNMatrix           */
-#include <sunlinsol/sunlinsol_klu.h>    /* access to KLU sparse direct solver   */
-#include <cvode/cvode_direct.h>         /* access to CVDls interface            */
-#include <sundials/sundials_types.h>    /* defs. of realtype, sunindextype      */
+#include <cvode/cvode.h>                    /* prototypes for CVODE fcts., consts.  */
+#include <nvector/nvector_serial.h>         /* serial N_Vector types, fcts., macros */
+#include <sunmatrix/sunmatrix_sparse.h>     /* access to sparse SUNMatrix           */
+#include <sunlinsol/sunlinsol_superlumt.h>  /* access to SuperLUMT linear solver    */
+#include <cvode/cvode_direct.h>             /* access to CVDls interface            */
+#include <sundials/sundials_types.h>        /* defs. of realtype, sunindextype      */
 
 /* User-defined vector and matrix accessor macro: Ith */
 
@@ -152,8 +152,8 @@ int main()
   A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
   if(check_flag((void *)A, "SUNSparseMatrix", 0)) return(1);
 
-  /* Create SuperLUMT solver object for use by CVode */
-  LS = SUNSuperLUMT(y, A);
+  /* Create SuperLUMT solver object for use by CVode (one thread) */
+  LS = SUNSuperLUMT(y, A, 1);
   if(check_flag((void *)LS, "SUNSuperLUMT", 0)) return(1);
 
   /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
