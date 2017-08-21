@@ -26,23 +26,28 @@
  * and is applied in a symmetric fashion on both the right and left.  
  * Scaling is also allowed and is applied symmetrically.  We denote
  * the preconditioner and scaling matrices as follows:
- *   P = preconditioner
- *   S = diagonal matrix of scale factors for P-inverse*b and P*x
+ *   P = preconditioner (assumed symmetric)
+ *   S = diagonal matrix of scale factors 
  * The matrices A and P are not required explicitly; only routines 
- * that provide A and P-inverse as operators are required.
+ * that provide A and P-inverse as operators are required.  The 
+ * diagonal of the matrix S is held in a single N_Vector, supplied
+ * by the user of this module.
  *
  * In this notation, PCG applies the underlying algorithm to
  * the equivalent transformed system
  *   Abar xbar = bbar , where
- *   Abar = S (P-inverse) A (P-inverse) (S-inverse) ,
- *   bbar = S (P-inverse) b , and   xbar = S P x .
+ *   Abar = S (P-inverse) A (P-inverse) S ,
+ *   bbar = S (P-inverse) b , and   xbar = (S-inverse) P x .
  *
- * The scaling matrix must be chosen so that the vectors 
- * (S P-inverse b) and (S P x) have dimensionless components.
+ * The scaling matrix must be chosen so that the vectors
+ * (S P-inverse b) and (S-inverse P x) have dimensionless 
+ * components.
  *
  * The stopping test for the PCG iterations is on the L2 norm of
  * the scaled preconditioned residual:
  *      || bbar - Abar xbar ||_2  <  delta
+ *  <=>
+ *      || S (P-inverse) b - S (P-inverse) A x ||_2  <  delta
  *  <=>
  *      || P-inverse b - (P-inverse) A x ||_S  <  delta
  * where || v ||_S =  sqrt(v' S' S v) with an input test constant 

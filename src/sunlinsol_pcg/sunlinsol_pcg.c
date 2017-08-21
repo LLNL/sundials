@@ -355,7 +355,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
     (*nli)++;
 
     /* Generate Ap = A*p */
-    ier = atimes(A_data, p, Ap );
+    ier = atimes(A_data, p, Ap);
     if (ier != 0) {
       LASTFLAG(S) = (ier < 0) ? 
         SUNLS_ATIMES_FAIL_UNREC : SUNLS_ATIMES_FAIL_REC;

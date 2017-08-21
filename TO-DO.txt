@@ -38,3 +38,9 @@
 6. Add in checks to ARKode initialization (and other solvers) to
    ensure that when a sparse matrix is used, the Jacobian construction
    function is provided.
+
+
+7. Revisit scaling vectors with PCG (without preconditioning) -- this
+   seems to work improperly now.  Perhaps it is the testing code, or
+   maybe the solver itself.
+   
