@@ -14,9 +14,6 @@ C
 C     All rights reserved.
 C     For details, see the LICENSE file.
 C     LLNS/SMU Copyright End
-C     Copyright (c) 2013, Southern Methodist University.
-C     All rights reserved.
-C     For details, see the LICENSE file.
 C     ----------------------------------------------------------------
 C     FARKODE Example Problem: Robertson kinetics, Lapack linear solver
 C                             with dense user Jacobian.
