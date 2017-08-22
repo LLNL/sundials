@@ -701,7 +701,7 @@ int IDASpilsATSetup(void *ida_mem)
 
 
 /*---------------------------------------------------------------
-  IDASpilsAtimes:
+  IDASpilsATimes:
 
   This routine generates the matrix-vector product z = Jv, where
   J is the system Jacobian, by calling either the user provided
@@ -709,7 +709,7 @@ int IDASpilsATSetup(void *ida_mem)
   the same as the value returned by jtimes -- 
   0 if successful, nonzero otherwise.
   ---------------------------------------------------------------*/
-int IDASpilsAtimes(void *ida_mem, N_Vector v, N_Vector z)
+int IDASpilsATimes(void *ida_mem, N_Vector v, N_Vector z)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;

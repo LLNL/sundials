@@ -72,7 +72,6 @@ typedef struct IDAMemRec {
   void          *ida_edata;          /* user pointer passed to efun           */
   
 
-  booleantype    ida_setupNonNull;   /* Does setup do something?              */
   booleantype    ida_constraintsSet; /* constraints vector present: 
                                         do constraints calc                   */
   booleantype    ida_suppressalg;    /* true means suppress algebraic vars

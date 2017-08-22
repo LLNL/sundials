@@ -318,7 +318,7 @@ static int IDAnlsIC (IDAMem IDA_mem)
   for(nj = 1; nj <= IDA_mem->ida_maxnj; nj++) {
 
     /* If there is a setup routine, call it. */
-    if(IDA_mem->ida_setupNonNull) {
+    if(IDA_mem->ida_lsetup) {
       IDA_mem->ida_nsetups++;
       retval = IDA_mem->ida_lsetup(IDA_mem, IDA_mem->ida_yy0,
                                    IDA_mem->ida_yp0, IDA_mem->ida_delta,
@@ -332,7 +332,7 @@ static int IDAnlsIC (IDAMem IDA_mem)
     if(retval == IDA_SUCCESS) return(IDA_SUCCESS);
 
     /* If converging slowly and lsetup is nontrivial, retry. */
-    if(retval == IC_SLOW_CONVRG && IDA_mem->ida_setupNonNull) {
+    if(retval == IC_SLOW_CONVRG && IDA_mem->ida_lsetup) {
       N_VScale(ONE, IDA_mem->ida_savres, IDA_mem->ida_delta);
       continue;
     } else {

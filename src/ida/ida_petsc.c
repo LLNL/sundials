@@ -144,7 +144,7 @@ int IDAPETScKSP(void *ida_mem, MPI_Comm comm, Mat *JacMat)
   IDA_mem->ida_lfree  = IDAPETScKSPFree;
 
   /* Set setupNonNull to TRUE */
-  IDA_mem->ida_setupNonNull = TRUE;
+  /* IDA_mem->ida_setupNonNull = TRUE; */
 
   /* Get memory for IDAPETScMemRec. */
   idapetsc_mem = (IDAPETScMem) malloc(sizeof(struct IDAPETScMemRec));
