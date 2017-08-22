@@ -35,12 +35,15 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <cvode/cvode.h>             /* main integrator header file */
-#include <cvode/cvode_spgmr.h>       /* prototypes & constants for CVSPGMR solver */
-#include <cvode/cvode_bandpre.h>     /* prototypes & constants for CVBANDPRE module */
-#include <nvector/nvector_serial.h>  /* serial N_Vector types, fct. and macros */
-#include <sundials/sundials_types.h> /* definition of realtype */
-#include <sundials/sundials_math.h>  /* contains the macros ABS, SUNSQR, and EXP */
+/* Header files with a description of contents used */
+
+#include <cvode/cvode.h>               /* main integrator header file */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
+#include <cvode/cvode_spils.h>         /* access to CVSpils interface          */
+#include <cvode/cvode_bandpre.h>       /* access to CVBANDPRE module */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>    /* contains the macros ABS, SUNSQR, EXP */
 
 /* Problem Constants */
 
@@ -102,7 +105,7 @@
    contiguous within vdata.
 
    IJth(a,i,j) references the (i,j)th entry of the small matrix realtype **a,
-   where 1 <= i,j <= NUM_SPECIES. The small matrix routines in dense.h
+   where 1 <= i,j <= NUM_SPECIES. The small matrix routines in cvode_bandpre.h
    work with matrices stored by column in a 2-dimensional array. In C,
    arrays are indexed starting at 0, not 1. */
 
@@ -142,12 +145,14 @@ int main()
   realtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
+  SUNLinearSolver LS;
   void *cvode_mem;
   int flag, iout, jpre;
   sunindextype ml, mu;
 
   u = NULL;
   data = NULL;
+  LS = NULL;
   cvode_mem = NULL;
 
   /* Allocate and initialize u, and set problem data and tolerances */ 
@@ -180,10 +185,14 @@ int main()
   flag = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_flag(&flag, "CVodeSStolerances", 1)) return(1);
 
-  /* Call CVSpgmr to specify the linear solver CVSPGMR 
-     with left preconditioning and the maximum Krylov dimension maxl */
-  flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
-  if(check_flag(&flag, "CVSpgmr", 1)) return(1);
+  /* Call SUNSPGMR to specify the linear solver SUNSPGMR 
+   * with left preconditioning and the maximum Krylov dimension maxl */
+  LS = SUNSPGMR(u, PREC_LEFT, 0);
+  if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
+
+  /* Call CVSpilsSetLinearSolver to attach the linear sovler to CVode */
+  flag = CVSpilsSetLinearSolver(cvode_mem, LS);
+  if (check_flag(&flag, "CVSpilsSetLinearSolver", 1)) return 1;
 
   /* Call CVBandPreInit to initialize band preconditioner */
   ml = mu = 2;
@@ -205,8 +214,8 @@ int main()
       flag = CVodeReInit(cvode_mem, T0, u);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
 
-      flag = CVSpilsSetPrecType(cvode_mem, PREC_RIGHT);
-      if(check_flag(&flag, "CVSpilsSetPrecType", 1)) return(1);
+      flag = SUNSPGMRSetPrecType(LS, PREC_RIGHT);
+      if(check_flag(&flag, "SUNSPGMRSetPrecType", 1)) return(1);
 
       flag = CVBandPrecInit(cvode_mem, NEQ, mu, ml);
       if(check_flag(&flag, "CVBandPrecInit", 0)) return(1);
@@ -239,6 +248,7 @@ int main()
   N_VDestroy_Serial(u);
   free(data);
   CVodeFree(&cvode_mem);
+  SUNLinSolFree(LS);
 
   return(0);
 }
@@ -275,11 +285,11 @@ static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy)
 
   /* Load initial profiles of c1 and c2 into u vector */
 
-  for (jy = 0; jy < MY; jy++) {
+  for (jy=0; jy < MY; jy++) {
     y = YMIN + jy*dy;
     cy = SUNSQR(RCONST(0.1)*(y - YMID));
     cy = ONE - cy + RCONST(0.5)*SUNSQR(cy);
-    for (jx = 0; jx < MX; jx++) {
+    for (jx=0; jx < MX; jx++) {
       x = XMIN + jx*dx;
       cx = SUNSQR(RCONST(0.1)*(x - XMID));
       cx = ONE - cx + RCONST(0.5)*SUNSQR(cx);
@@ -301,7 +311,7 @@ static void PrintIntro(sunindextype mu, sunindextype ml)
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
 
-static void PrintOutput(void *cvode_mem, N_Vector u,realtype t)
+static void PrintOutput(void *cvode_mem, N_Vector u, realtype t)
 {
   long int nst;
   int qu, flag;
@@ -440,16 +450,16 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
  *-------------------------------
  */
 
-/* f routine. Compute f(t,u). */
+/* f routine. Compute RHS function f(t,u). */
 
-static int f(realtype t, N_Vector u, N_Vector udot,void *user_data)
+static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
   realtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
   realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
   realtype q4coef, dely, verdco, hordco, horaco;
   realtype *udata, *dudata;
-  int idn, iup, ileft, iright, jx, jy;
+  int jx, jy, idn, iup, ileft, iright;
   UserData data;
 
   data = (UserData) user_data;
@@ -477,7 +487,7 @@ static int f(realtype t, N_Vector u, N_Vector udot,void *user_data)
 
   /* Loop over all grid points. */
 
-  for (jy = 0; jy < MY; jy++) {
+  for (jy=0; jy < MY; jy++) {
 
     /* Set vertical diffusion coefficients at jy +- 1/2 */
 
@@ -487,7 +497,7 @@ static int f(realtype t, N_Vector u, N_Vector udot,void *user_data)
     cyup = verdco*SUNRexp(RCONST(0.2)*yup);
     idn = (jy == 0) ? 1 : -1;
     iup = (jy == MY-1) ? -1 : 1;
-    for (jx = 0; jx < MX; jx++) {
+    for (jx=0; jx < MX; jx++) {
 
       /* Extract c1 and c2, and set kinetic rate terms. */
 
