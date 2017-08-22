@@ -74,7 +74,7 @@
  * options are tested.
  * In the series of runs, ARKodeInit, SUNSPGMR and 
  * ARKDlsSetLinearSolver are called only for the first run, whereas 
- * ARKodeReInit, SUNSPGMRSetPrecType and SUNSPGMRSetGSType are called 
+ * ARKodeReInit, SUNSPGMRSetPrecType, and SUNSPGMRSetGSType are called
  * for each of the remaining three runs.
  *
  * A problem description, performance statistics at selected output
@@ -88,8 +88,8 @@
  * destroyMat and destroyArray.
  *
  * Note: This program assumes the sequential implementation for the
- * type N_Vector and uses the N_VGetArrayPointer_Serial to gain access 
- * to the contiguous array of components of an N_Vector.
+ * type N_Vector and uses the N_VGetArrayPointer function to gain
+ * access to the contiguous array of components of an N_Vector.
  *-------------------------------------------------------------------
  * Reference: Peter N. Brown and Alan C. Hindmarsh, Reduced Storage
  * Matrix Methods in Stiff ODE Systems, J. Appl. Math. & Comp., 31
@@ -214,7 +214,7 @@ static void v_zero(realtype u[], int n);
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 static int Precond(realtype tn, N_Vector c, N_Vector fc, booleantype jok, 
-		   booleantype *jcurPtr, realtype gamma, void *user_data);
+                   booleantype *jcurPtr, realtype gamma, void *user_data);
 
 static int PSolve(realtype tn, N_Vector c, N_Vector fc, N_Vector r, N_Vector z,
                   realtype gamma, realtype delta, int lr, void *user_data);
@@ -277,20 +277,20 @@ int main()
         if(check_flag(&flag, "ARKodeInit", 1)) return(1);
 
         flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
-        if (check_flag(&flag, "ARKodeSStolerances", 1)) return(1);
+        if(check_flag(&flag, "ARKodeSStolerances", 1)) return(1);
 
-	flag = ARKodeSetMaxNumSteps(arkode_mem, 1000);
-	if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) return(1);
+        flag = ARKodeSetMaxNumSteps(arkode_mem, 1000);
+        if(check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) return(1);
 
-	flag = ARKodeSetNonlinConvCoef(arkode_mem, 1.e-3);
-	if (check_flag(&flag, "ARKodeSetNonlinConvCoef", 1)) return(1);
+        flag = ARKodeSetNonlinConvCoef(arkode_mem, 1.e-3);
+        if(check_flag(&flag, "ARKodeSetNonlinConvCoef", 1)) return(1);
 
         LS = SUNSPGMR(c, jpre, MAXL);
         if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
 
         flag = ARKSpilsSetLinearSolver(arkode_mem, LS);
-        if (check_flag(&flag, "ARKSpilsSetLinearSolver", 1)) return 1;
-        
+        if(check_flag(&flag, "ARKSpilsSetLinearSolver", 1)) return 1;
+
         flag = SUNSPGMRSetGSType(LS, gstype);
         if(check_flag(&flag, "SUNSPGMRSetGSType", 1)) return(1);
 
@@ -763,8 +763,8 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
  of a block-diagonal preconditioner. The blocks are of size mp, and
  there are ngrp=ngx*ngy blocks computed in the block-grouping scheme.
 */ 
-static int Precond(realtype t, N_Vector c, N_Vector fc, booleantype jok, 
-		   booleantype *jcurPtr, realtype gamma, void *user_data)
+static int Precond(realtype t, N_Vector c, N_Vector fc, booleantype jok,
+                   booleantype *jcurPtr, realtype gamma, void *user_data)
 {
   realtype ***P;
   int ier;
@@ -874,7 +874,7 @@ static void fblock(realtype t, realtype cdata[], int jx, int jy,
   Then it computes ((I - gamma*Jr)-inverse)*z, using LU factors of the
   blocks in P, and pivot information in pivot, and returns the result in z.
 */
-static int PSolve(realtype tn, N_Vector c, N_Vector fc, N_Vector r, N_Vector z, 
+static int PSolve(realtype tn, N_Vector c, N_Vector fc, N_Vector r, N_Vector z,
                   realtype gamma, realtype delta, int lr, void *user_data)
 {
   realtype   ***P;

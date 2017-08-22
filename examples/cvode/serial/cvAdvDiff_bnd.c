@@ -188,9 +188,11 @@ int main(void)
 
   PrintFinalStats(cvode_mem);  /* Print some final statistics   */
 
-  N_VDestroy_Serial(u);   /* Free the u vector */
+  N_VDestroy_Serial(u);   /* Free the u vector          */
   CVodeFree(&cvode_mem);  /* Free the integrator memory */
-  free(data);             /* Free the user data */
+  SUNLinSolFree(LS);      /* Free linear solver memory  */
+  SUNMatDestroy(A);       /* Free the matrix memory     */
+  free(data);             /* Free the user data         */
 
   return(0);
 }

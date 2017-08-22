@@ -28,7 +28,7 @@
 
 /* Header files with a description of contents used */
 
-#include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts.  */
+#include <cvode/cvode.h>               /* main integrator header file          */
 #include <nvector/nvector_serial.h>    /* serial N_Vector types, fcts., macros */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
