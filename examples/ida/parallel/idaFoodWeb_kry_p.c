@@ -1,19 +1,15 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *         Allan Taylor, Alan Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example program for IDA: Food web, parallel, GMRES, user
  * preconditioner.
  *
- * This example program for IDA uses IDASPGMR as the linear solver.
+ * This example program for IDA uses SUNSPGMR as the linear solver.
  * It is written for a parallel computer system and uses a
  * block-diagonal preconditioner (setup and solve routines) for the
- * IDASPGMR package. It was originally run on a Sun SPARC cluster
- * and used MPICH.
+ * SUNSPGMR package. 
  *
  * The mathematical problem solved in this example is a DAE system
  * that arises from a system of partial differential equations after
@@ -72,9 +68,9 @@
  * submeshes, processor by processor, with an MXSUB by MYSUB mesh
  * on each of NPEX * NPEY processors.
  *
- * The DAE system is solved by IDA using the IDASPGMR linear
+ * The DAE system is solved by IDA using the SUNSPGMR linear
  * solver, which uses the preconditioned GMRES iterative method to
- * solve linear systems. The precondtioner supplied to IDASPGMR is
+ * solve linear systems. The precondtioner supplied to SUNSPGMR is
  * the block-diagonal part of the Jacobian with ns by ns blocks
  * arising from the reaction terms only. Output is printed at
  * t = 0, .001, .01, .1, .4, .7, 1.
@@ -102,7 +98,8 @@
 #include <math.h>
 
 #include <ida/ida.h>
-#include <ida/ida_spgmr.h>
+#include <ida/ida_spils.h>
+#include <sunlinsol/sunlinsol_spgmr.h>
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_dense.h>
 #include <sundials/sundials_types.h>
@@ -180,14 +177,12 @@ static int resweb(realtype time,
 
 static int Precondbd(realtype tt, 
                      N_Vector cc, N_Vector cp, N_Vector rr, 
-                     realtype cj, void *user_data,
-                     N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+                     realtype cj, void *user_data);
 
 static int PSolvebd(realtype tt, 
                     N_Vector cc, N_Vector cp, N_Vector rr, 
                     N_Vector rvec, N_Vector zvec,
-                    realtype cj, realtype delta, void *user_data, 
-                    N_Vector tempv);
+                    realtype cj, realtype delta, void *user_data);
 
 static int rescomm(N_Vector cc, N_Vector cp, void *user_data);
 
@@ -243,6 +238,7 @@ int main(int argc, char *argv[])
 {
   MPI_Comm comm;
   void *mem;
+  SUNLinearSolver LS;
   UserData webdata;
   sunindextype SystemSize, local_N;
   realtype rtol, atol, t0, tout, tret;
@@ -251,6 +247,7 @@ int main(int argc, char *argv[])
 
   cc = cp = res = id = NULL;
   webdata = NULL;
+  LS = NULL;
   mem = NULL;
 
   /* Set communicator, and get processor number and total number of PE's. */
@@ -326,13 +323,16 @@ int main(int argc, char *argv[])
 
   webdata->ida_mem = mem;
 
-  /* Call IDASpgmr to specify the IDA linear solver IDASPGMR and specify
-     the preconditioner routines supplied (Precondbd and PSolvebd).
-     maxl (max. Krylov subspace dim.) is set to 16. */
+  /* Call SUNSPGMR and IDASpilsSetLinearSolver to specify the linear solver 
+     to IDA, and specify the preconditioner routines supplied (Precondbd 
+     and PSolvebd).  maxl (max. Krylov subspace dim.) is set to 16. */
 
   maxl = 16;
-  flag = IDASpgmr(mem, maxl);
-  if (check_flag(&flag, "IDASpgmr", 1, thispe)) 
+  LS = SUNSPGMR(cc, PREC_LEFT, maxl);
+  if (check_flag((void *)LS, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
+
+  flag = IDASpilsSetLinearSolver(mem, LS);
+  if (check_flag(&flag, "IDASpilsSetLinearSolver", 1, thispe)) 
     MPI_Abort(comm, 1);
 
   flag = IDASpilsSetPreconditioner(mem, Precondbd, PSolvebd);
@@ -375,7 +375,8 @@ int main(int argc, char *argv[])
   N_VDestroy_Parallel(id);
 
   IDAFree(&mem);
-
+  SUNLinSolFree(LS);
+  
   FreeUserData(webdata);
 
   MPI_Finalize();
@@ -573,7 +574,7 @@ static void PrintHeader(sunindextype SystemSize, int maxl,
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: IDASPGMR     Max. Krylov dimension maxl: %d\n", maxl);
+  printf("Linear solver: SUNSPGMR     Max. Krylov dimension maxl: %d\n", maxl);
   printf("Preconditioner: block diagonal, block size ns,"); 
   printf(" via difference quotients\n");
   printf("CalcIC called to correct initial predator concentrations \n\n");
@@ -1124,8 +1125,7 @@ static realtype dotprod(int size, realtype *x1, realtype *x2)
 
 static int Precondbd(realtype tt, N_Vector cc,
                      N_Vector cp, N_Vector rr, 
-                     realtype cj, void *user_data,
-                     N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
+                     realtype cj, void *user_data)
 {
   int flag, thispe;
   realtype uround;
@@ -1201,7 +1201,7 @@ static int PSolvebd(realtype tt, N_Vector cc,
                  N_Vector cp, N_Vector rr, 
                  N_Vector rvec, N_Vector zvec,
                  realtype cj, realtype delta,
-                 void *user_data, N_Vector tempv)
+                 void *user_data)
 {
   realtype **Pxy, *zxy;
  sunindextype *pivot, ix, jy;
