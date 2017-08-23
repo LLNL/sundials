@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -320,18 +317,18 @@ extern "C" {
 
 /* Prototypes of exported functions */
 
-void FIDA_BBDINIT(sunindextype *Nloc, sunindextype *mudq, sunindextype *mldq,
-                  sunindextype *mu, sunindextype *ml, realtype *dqrely, int *ier);
+void FIDA_BBDINIT(long int *Nloc, long int *mudq, long int *mldq,
+                  long int *mu, long int *ml, realtype *dqrely, int *ier);
 
-void FIDA_BBDREINIT(sunindextype *Nloc, sunindextype *mudq, sunindextype *mldq,
+void FIDA_BBDREINIT(long int *Nloc, long int *mudq, long int *mldq,
 		    realtype *dqrely, int *ier);
 
 void FIDA_BBDOPT(long int *lenrwbbd, long int *leniwbbd, long int *ngebbd);
 
 /* Prototypes: Functions Called by the IDABBD Module */
 
-int FIDAgloc(sunindextype Nloc, realtype t, N_Vector yy, N_Vector yp, N_Vector gval, void *user_data);
-int FIDAcfn(sunindextype Nloc, realtype t, N_Vector yy, N_Vector yp, void *user_data);
+int FIDAgloc(long int Nloc, realtype t, N_Vector yy, N_Vector yp, N_Vector gval, void *user_data);
+int FIDAcfn(long int Nloc, realtype t, N_Vector yy, N_Vector yp, void *user_data);
 
 #ifdef __cplusplus
 }

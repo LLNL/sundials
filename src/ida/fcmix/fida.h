@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  *                Daniel R. Reynolds @ SMU
@@ -809,9 +806,9 @@ void FIDA_SETVIN(char key_name[], realtype *vval, int *ier);
 void FIDA_TOLREINIT(int *iatol, realtype *rtol, realtype *atol, int *ier);
 void FIDA_CALCIC(int *icopt, realtype *tout1, int *ier);
 
-void FIDA_DENSE(sunindextype *neq, int *ier);
+void FIDA_DENSE(long int *neq, int *ier);
 void FIDA_DENSESETJAC(int *flag, int *ier);
-void FIDA_BAND(sunindextype *neq, sunindextype *mupper, sunindextype *mlower, int *ier);
+void FIDA_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
 void FIDA_BANDSETJAC(int *flag, int *ier);
 
 void FIDA_LAPACKDENSE(int *neq, int *ier);
@@ -847,23 +844,23 @@ void FIDA_GETESTLOCALERR(realtype *ele, int *ier);
 
 int FIDAresfn(realtype t, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data);
 
-int FIDADenseJac(sunindextype N, realtype t, realtype c_j, 
+int FIDADenseJac(long int N, realtype t, realtype c_j, 
                  N_Vector yy, N_Vector yp, N_Vector rr,
                  DlsMat Jac, void *user_data,
                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-int FIDABandJac(sunindextype N, sunindextype mupper, sunindextype mlower,
+int FIDABandJac(long int N, long int mupper, long int mlower,
                 realtype t, realtype c_j, 
                 N_Vector yy, N_Vector yp, N_Vector rr,
                 DlsMat Jac, void *user_data,
                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-int FIDALapackDenseJac(sunindextype N, realtype t, realtype c_j, 
+int FIDALapackDenseJac(long int N, realtype t, realtype c_j, 
                        N_Vector yy, N_Vector yp, N_Vector rr,
                        DlsMat Jac, void *user_data,
                        N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-int FIDALapackBandJac(sunindextype N, sunindextype mupper, sunindextype mlower,
+int FIDALapackBandJac(long int N, long int mupper, long int mlower,
                       realtype t, realtype c_j, 
                       N_Vector yy, N_Vector yp, N_Vector rr,
                       DlsMat J, void *user_data,

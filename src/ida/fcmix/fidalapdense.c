@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -34,7 +31,7 @@
 extern "C" {
 #endif
 
-  extern void FIDA_DJAC(sunindextype*,                              /* N             */
+  extern void FIDA_DJAC(long int*,                                  /* N             */
                         realtype*, realtype*, realtype*, realtype*, /* T, YY, YP, RR */
                         realtype*,                                  /* J             */
                         realtype*, realtype*, realtype*,            /* C_J, EWT, H   */
@@ -70,7 +67,7 @@ void FIDA_LAPACKDENSESETJAC(int *flag, int *ier)
 
 /*************************************************/
 
-int FIDALapackDenseJac(sunindextype N, realtype t, realtype c_j, 
+int FIDALapackDenseJac(long int N, realtype t, realtype c_j, 
                        N_Vector yy, N_Vector yp, N_Vector rr,
                        DlsMat Jac, void *user_data,
                        N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)

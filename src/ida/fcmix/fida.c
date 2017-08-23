@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -461,7 +458,7 @@ void FIDA_SPGMR(int *maxl, int *gstype, int *maxrs,
 
 /*************************************************/
 
-void FIDA_DENSE(sunindextype *neq, int *ier)
+void FIDA_DENSE(long int *neq, int *ier)
 {
 
   *ier = 0;
@@ -475,7 +472,7 @@ void FIDA_DENSE(sunindextype *neq, int *ier)
 
 /*************************************************/
 
-void FIDA_BAND(sunindextype *neq, sunindextype *mupper, sunindextype *mlower, int *ier)
+void FIDA_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
 {
 
   *ier = 0;
