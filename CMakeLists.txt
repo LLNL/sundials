@@ -424,6 +424,15 @@ ENDIF(NOT MPI_ENABLE)
 # -------------------------------------------------------------
 
 OPTION(HYPRE_ENABLE "Enable Hypre support" OFF)
+
+# As of version 2.11.2 hypre does not support single or extended precision
+IF(HYPRE_ENABLE AND
+  (SUNDIALS_PRECISION MATCHES "SINGLE" OR SUNDIALS_PRECISION MATCHES "EXTENDED"))
+  PRINT_WARNING("hypre is not compatible with ${SUNDIALS_PRECISION} precision"
+                "Disabling hypre")
+  SET(HYPRE_ENABLE OFF CACHE BOOL "hypre is disabled" FORCE)
+ENDIF()
+
 IF(NOT MPI_ENABLE)
   HIDE_VARIABLE(HYPRE_INCLUDE_DIR)
   HIDE_VARIABLE(HYPRE_LIBRARY_DIR)
@@ -814,6 +823,10 @@ IF(HYPRE_ENABLE AND NOT MPI_ENABLE)
                   "Set MPI_ENABLE to ON to use parhyp")
 ENDIF(HYPRE_ENABLE AND NOT MPI_ENABLE)
 
+###########################################################################################
+# NOTE: Need to add check that hypre was built with the right precision and integer type
+###########################################################################################
+
 IF(HYPRE_ENABLE AND MPI_ENABLE)
   SHOW_VARIABLE(HYPRE_INCLUDE_DIR PATH "HYPRE include directory"
     "${HYPRE_INCLUDE_DIR}") 
@@ -842,6 +855,10 @@ IF(PETSC_ENABLE AND NOT MPI_ENABLE)
     PRINT_WARNING("MPI not enabled - PETSc support will not be provided" 
                   "Set MPI_ENABLE to ON to use PETSc.")
 ENDIF(PETSC_ENABLE AND NOT MPI_ENABLE)
+
+###########################################################################################
+# NOTE: Need to add check that PETSc was built with the right precision and integer type
+###########################################################################################
 
 IF(PETSC_ENABLE AND MPI_ENABLE)
   SHOW_VARIABLE(PETSC_INCLUDE_DIR PATH "PETSc include directory"
