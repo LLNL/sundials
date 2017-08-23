@@ -676,13 +676,13 @@ int IDASpilsATSetup(void *ida_mem)
   /* Return immediately if ida_mem or ida_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASPILS", 
-                    "IDASpilsCallPSetup", MSGS_IDAMEM_NULL);
+                    "IDASpilsATSetup", MSGS_IDAMEM_NULL);
     return(IDASPILS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASPILS", 
-                    "IDASpilsCallPSetup", MSGS_LMEM_NULL);
+                    "IDASpilsATSetup", MSGS_LMEM_NULL);
     return(IDASPILS_LMEM_NULL);
   }
   idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
@@ -769,6 +769,7 @@ int IDASpilsPSetup(void *ida_mem)
                               idaspils_mem->rcur, 
                               IDA_mem->ida_cj, 
                               idaspils_mem->pdata);
+  idaspils_mem->npe++;
   return(retval);
 }
 
