@@ -192,10 +192,10 @@ int main(int argc, char *argv[])
   N_Vector u;
   UserData data;
   void *arkode_mem;
-  int iout, flag;
+  int iout, flag, my_pe, npes;
   MPI_Comm comm;
   
-  HYPRE_Int local_N, npes, my_pe;
+  HYPRE_Int local_N;
   HYPRE_ParVector Upar; /* Declare HYPRE parallel vector */
   HYPRE_IJVector  Uij;  /* Declare "IJ" interface to HYPRE vector */
 

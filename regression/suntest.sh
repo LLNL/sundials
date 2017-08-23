@@ -86,10 +86,16 @@ fi
 
 # hypre
 HYPRESTATUS=ON
-HYPREDIR=${APPDIR}/hypre/2.11.1
 
-# only testing hypre with doubles and 64-bit indices at this time
-if [ "$realtype" != "double" ] || [ "$indextype" != "int64_t" ]; then
+# hypre index type must be set a build time
+if [ "$indextype" == "int32_t" ]; then
+    HYPREDIR=${APPDIR}/hypre/2.11.1
+else
+    HYPREDIR=${APPDIR}/hypre/2.11.1_long_int
+fi
+
+# only testing hypre with double precision at this time
+if [ "$realtype" != "double" ]; then
     HYPRESTATUS=OFF
 fi
 
@@ -98,7 +104,7 @@ PETSCSTATUS=ON
 PETSCDIR=${APPDIR}/petsc/3.7.2
 
 # only testing PETSc with doubles and 64-bit indices at this time
-if [ "$realtype" != "double" ] || [ "$indextype" != "int64_t" ]; then
+if [ "$realtype" != "double" ]; then
     PETSCSTATUS=OFF
 fi
 
