@@ -40,6 +40,7 @@
  * The user's calling program should have the following form:
  *
  *   #include <nvector_parallel.h>
+ *   #include <arkode/arkode_spils.h>
  *   #include <arkode/arkode_bbdpre.h>
  *   ...
  *   void *arkode_mem;

@@ -39,6 +39,7 @@
  * The user's calling program should have the following form:
  *
  *   #include <nvector_parallel.h>
+ *   #include <cvode/cvode_spils.h>
  *   #include <cvode/cvode_bbdpre.h>
  *   ...
  *   void *cvode_mem;

@@ -224,9 +224,7 @@ typedef int (*CVSpilsPrecSolveFn)(realtype t, N_Vector y, N_Vector fy,
  * JacTimesSetup and the user-supplied Jacobian-times-vector 
  * product function JTimes together must generate the product
  * J*v for v, where J is the Jacobian df/dy, or an approximation 
- * to it, and v is a given vector. It should return 0 if 
- * successful a positive value for a recoverable error or a
- * negative value for an unrecoverable failure.
+ * to it, and v is a given vector. 
  *
  * Each call to the JacTimesSetup function is preceded by a call 
  * to the RhsFn fi with the same (t,y) arguments.  Thus the 
@@ -312,11 +310,6 @@ typedef int (*CVSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
  * object that CVode should use.  This is required if CVode is 
  * solving a problem with the Newton nonlinear solver (i.e. not the 
  * functional iteration).
- *
- * NOTE: when solving an implicit or IMEX IVP with non-identity mass
- * matrix and iterative linear solver, both the system and mass solvers
- * must be iterative (i.e. you cannot combine a direct system 
- * solver with an iterative mass matrix solver, etc.).
  *
  * The return value is one of:
  *    CVSPILS_SUCCESS   if successful

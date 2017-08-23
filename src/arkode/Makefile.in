@@ -37,8 +37,6 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
-LAPACK_ENABLED = @LAPACK_ENABLED@
-
 top_srcdir = $(srcdir)/../..
 
 INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include

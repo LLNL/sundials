@@ -128,7 +128,7 @@ typedef int (*CVDlsJacFn)(realtype t, N_Vector y, N_Vector fy,
  * -----------------------------------------------------------------
  *
  * CVDlsSetLinearSolver specifies the direct SUNLinearSolver object
- * that should be uses.  This is required if CVode is solving a 
+ * that should be used.  This is required if CVode is solving a 
  * problem using the Newton nonlinear solver (not the function 
  * iteration).
  *
