@@ -1,19 +1,15 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *         Allan Taylor, Alan Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example program for IDA: Food web, parallel, GMRES, IDABBD
  * preconditioner.
  *
- * This example program for IDA uses IDASPGMR as the linear solver.
+ * This example program for IDA uses SUNSPGMR as the linear solver.
  * It is written for a parallel computer system and uses the
  * IDABBDPRE band-block-diagonal preconditioner module for the
- * IDASPGMR package. It was originally run on a Sun SPARC cluster
- * and used MPICH.
+ * SUNSPGMR package. 
  *
  * The mathematical problem solved in this example is a DAE system
  * that arises from a system of partial differential equations after
@@ -72,7 +68,7 @@
  * submeshes, processor by processor, with an MXSUB by MYSUB mesh
  * on each of NPEX * NPEY processors.
  *
- * The DAE system is solved by IDA using the IDASPGMR linear solver,
+ * The DAE system is solved by IDA using the SUNSPGMR linear solver,
  * in conjunction with the preconditioner module IDABBDPRE. The
  * preconditioner uses a 5-diagonal band-block-diagonal
  * approximation (half-bandwidths = 2). Output is printed at
@@ -101,8 +97,9 @@
 #include <math.h>
 
 #include <ida/ida.h>
-#include <ida/ida_spgmr.h>
+#include <ida/ida_spils.h>
 #include <ida/ida_bbdpre.h>
+#include <sunlinsol/sunlinsol_spgmr.h>
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_dense.h>
 #include <sundials/sundials_types.h>
@@ -230,6 +227,7 @@ int main(int argc, char *argv[])
 {
   MPI_Comm comm;
   void *mem;
+  SUNLinearSolver LS;
   UserData webdata;
   sunindextype SystemSize, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, tout, tret;
@@ -238,6 +236,7 @@ int main(int argc, char *argv[])
 
   cc = cp = res = id = NULL;
   webdata = NULL;
+  LS = NULL;
   mem = NULL;
 
   /* Set communicator, and get processor number and total number of PE's. */
@@ -311,11 +310,13 @@ int main(int argc, char *argv[])
   retval = IDASStolerances(mem, rtol, atol);
   if(check_flag(&retval, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
-  /* Call IDASpgmr to specify the IDA linear solver IDASPGMR */
+  /* Call SUNSPGMR and IDASpilsSetLinearSolver to specify the linear solver */
 
   maxl = 16;
-  retval = IDASpgmr(mem, maxl);
-  if(check_flag(&retval, "IDASpgmr", 1, thispe)) MPI_Abort(comm, 1);
+  LS = SUNSPGMR(cc, PREC_LEFT, maxl);
+  if(check_flag((void *)LS, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
+  retval = IDASpilsSetLinearSolver(mem, LS);
+  if(check_flag(&retval, "IDASpilsSetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Call IDABBDPrecInit to initialize the band-block-diagonal preconditioner.
      The half-bandwidths for the difference quotient evaluation are exact
@@ -365,6 +366,7 @@ int main(int argc, char *argv[])
   N_VDestroy_Parallel(id);
 
   IDAFree(&mem);
+  SUNLinSolFree(LS);
 
   destroyMat(webdata->acoef);
   N_VDestroy_Parallel(webdata->rates);
@@ -524,7 +526,7 @@ static void PrintHeader(sunindextype SystemSize, int maxl,
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: IDASPGMR     Max. Krylov dimension maxl: %d\n", maxl);
+  printf("Linear solver: SUNSPGMR     Max. Krylov dimension maxl: %d\n", maxl);
   printf("Preconditioner: band-block-diagonal (IDABBDPRE), with parameters\n");
   printf("     mudq = %ld,  mldq = %ld,  mukeep = %ld,  mlkeep = %ld\n",
          (long int) mudq, (long int) mldq, (long int) mukeep, (long int) mlkeep);

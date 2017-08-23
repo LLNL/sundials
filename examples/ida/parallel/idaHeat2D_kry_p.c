@@ -1,15 +1,12 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *         Allan Taylor, Alan Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example problem for IDA: 2D heat equation, parallel, GMRES.
  *
  * This example solves a discretized 2D heat equation problem.
- * This version uses the Krylov solver IDASpgmr.
+ * This version uses the Krylov solver SUNSPGMR.
  *
  * The DAE system solved is a spatial discretization of the PDE
  *          du/dt = d^2u/dx^2 + d^2u/dy^2
@@ -25,9 +22,9 @@
  * processors.
  *
  * The system is solved with IDA using the Krylov linear solver
- * IDASPGMR. The preconditioner uses the diagonal elements of the
+ * SUNSPGMR. The preconditioner uses the diagonal elements of the
  * Jacobian only. Routines for preconditioning, required by
- * IDASPGMR, are supplied here. The constraints u >= 0 are posed
+ * SUNSPGMR, are supplied here. The constraints u >= 0 are posed
  * for all components. Local error testing on the boundary values
  * is suppressed. Output is taken at t = 0, .01, .02, .04,
  * ..., 10.24.
@@ -39,7 +36,8 @@
 #include <math.h>
 
 #include <ida/ida.h>
-#include <ida/ida_spgmr.h>
+#include <ida/ida_spils.h>
+#include <sunlinsol/sunlinsol_spgmr.h>
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
@@ -98,13 +96,11 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
 int PsolveHeat(realtype tt, 
                N_Vector uu, N_Vector up, N_Vector rr, 
                N_Vector rvec, N_Vector zvec,
-               realtype c_j, realtype delta, void *user_data, 
-               N_Vector tmp);
+               realtype c_j, realtype delta, void *user_data);
 
 int PsetupHeat(realtype tt, 
                N_Vector yy, N_Vector yp, N_Vector rr, 
-               realtype c_j, void *user_data,
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+               realtype c_j, void *user_data);
 
 /* Private function to check function return values */
 
@@ -131,6 +127,7 @@ int main(int argc, char *argv[])
 {
   MPI_Comm comm;
   void *mem;
+  SUNLinearSolver LS;
   UserData data;
   int iout, thispe, ier, npes;
   sunindextype Neq, local_N;
@@ -138,6 +135,7 @@ int main(int argc, char *argv[])
   N_Vector uu, up, constraints, id, res;
 
   mem = NULL;
+  LS = NULL;
   data = NULL;
   uu = up = constraints = id = res = NULL;
 
@@ -235,10 +233,13 @@ int main(int argc, char *argv[])
   ier = IDASStolerances(mem, rtol, atol);
   if(check_flag(&ier, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
-  /* Call IDASpgmr to specify the linear solver. */
+  /* Call SUNSPGMR and IDASetLinearSolver to specify the linear solver. */
 
-  ier = IDASpgmr(mem, 0);
-  if(check_flag(&ier, "IDASpgmr", 1, thispe)) MPI_Abort(comm, 1);
+  LS = SUNSPGMR(uu, PREC_LEFT, 0);  /* use default maxl */
+  if(check_flag((void *)LS, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
+
+  ier = IDASpilsSetLinearSolver(mem, LS);
+  if(check_flag(&ier, "IDASpilsSetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat);
   if(check_flag(&ier, "IDASpilsSetPreconditioner", 1, thispe)) MPI_Abort(comm, 1);
@@ -266,6 +267,7 @@ int main(int argc, char *argv[])
   /* Free memory */
 
   IDAFree(&mem);
+  SUNLinSolFree(LS);
 
   N_VDestroy_Parallel(id);
   N_VDestroy_Parallel(res);
@@ -339,8 +341,7 @@ int resHeat(realtype tt,
 
 int PsetupHeat(realtype tt, 
                N_Vector yy, N_Vector yp, N_Vector rr, 
-               realtype c_j, void *user_data,
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+               realtype c_j, void *user_data)
 {
   realtype *ppv, pelinv;
   sunindextype lx, ly, ixbegin, ixend, jybegin, jyend, locu, mxsub, mysub;
@@ -394,8 +395,7 @@ int PsetupHeat(realtype tt,
 int PsolveHeat(realtype tt, 
                N_Vector uu, N_Vector up, N_Vector rr, 
                N_Vector rvec, N_Vector zvec,
-               realtype c_j, realtype delta, void *user_data, 
-               N_Vector tmp)
+               realtype c_j, realtype delta, void *user_data)
 {
   UserData data;
 
@@ -781,7 +781,7 @@ static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
   printf("Constraints set to force all solution components >= 0. \n");
   printf("SUPPRESSALG = TRUE to suppress local error testing on ");
   printf("all boundary components. \n");
-  printf("Linear solver: IDASPGMR  ");
+  printf("Linear solver: SUNSPGMR  ");
   printf("Preconditioner: diagonal elements only.\n"); 
   
   /* Print output table heading and initial line of table. */
