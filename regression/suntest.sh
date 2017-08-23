@@ -101,9 +101,15 @@ fi
 
 # PETSc
 PETSCSTATUS=ON
-PETSCDIR=${APPDIR}/petsc/3.7.2
 
-# only testing PETSc with doubles and 64-bit indices at this time
+# PETSc index type must be set a build time
+if [ "$indextype" == "int32_t" ]; then
+    PETSCDIR=${APPDIR}/petsc/3.7.2
+else
+    PETSCDIR=${APPDIR}/petsc/3.7.2_long_int
+fi
+
+# only testing PETSc with double precision at this time
 if [ "$realtype" != "double" ]; then
     PETSCSTATUS=OFF
 fi
