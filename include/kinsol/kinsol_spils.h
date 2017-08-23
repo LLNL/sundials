@@ -1,20 +1,22 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
- * Programmer(s): Scott Cohen, Alan Hindmarsh, Radu Serban, and
- *                Aaron Collier @ LLNL
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *                Scott Cohen, Alan Hindmarsh, Radu Serban, 
+ *                  and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2017, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
  * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
  * All rights reserved.
  * For details, see the LICENSE file.
- * LLNS Copyright End
+ * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
  * This is the common header file for the Scaled Preconditioned
  * Iterative Linear Solvers in KINSOL.
@@ -26,6 +28,7 @@
 
 #include <sundials/sundials_iterative.h>
 #include <sundials/sundials_nvector.h>
+#include <sundials/sundials_linearsolver.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -37,13 +40,14 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-#define KINSPILS_SUCCESS    0
+#define KINSPILS_SUCCESS     0
 
-#define KINSPILS_MEM_NULL  -1
-#define KINSPILS_LMEM_NULL -2
-#define KINSPILS_ILL_INPUT -3
-#define KINSPILS_MEM_FAIL  -4
-#define KINSPILS_PMEM_NULL -5
+#define KINSPILS_MEM_NULL   -1
+#define KINSPILS_LMEM_NULL  -2
+#define KINSPILS_ILL_INPUT  -3
+#define KINSPILS_MEM_FAIL   -4
+#define KINSPILS_PMEM_NULL  -5
+#define KINSPILS_SUNLS_FAIL -6
 
 /*
  * -----------------------------------------------------------------
@@ -93,8 +97,6 @@ extern "C" {
  *
  *  user_data  pointer to user-allocated data memory block
  *
- *  vtemp1/vtemp2  available scratch vectors (temporary storage)
- *
  * If successful, the function should return 0 (zero). If an error
  * occurs, then the routine should return a non-zero integer value.
  * -----------------------------------------------------------------
@@ -102,8 +104,7 @@ extern "C" {
 
 typedef int (*KINSpilsPrecSetupFn)(N_Vector uu, N_Vector uscale,
                                    N_Vector fval, N_Vector fscale,
-                                   void *user_data, N_Vector vtemp1,
-				   N_Vector vtemp2);
+                                   void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -133,8 +134,6 @@ typedef int (*KINSpilsPrecSetupFn)(N_Vector uu, N_Vector uscale,
  *
  *  user_data  pointer to user-allocated data memory block
  *
- *  vtemp  available scratch vector (volatile storage)
- *
  * If successful, the function should return 0 (zero). If a
  * recoverable error occurs, then the subroutine should return
  * a positive integer value (in this case, KINSOL attempts to
@@ -147,8 +146,7 @@ typedef int (*KINSpilsPrecSetupFn)(N_Vector uu, N_Vector uscale,
 
 typedef int (*KINSpilsPrecSolveFn)(N_Vector uu, N_Vector uscale, 
                                    N_Vector fval, N_Vector fscale, 
-                                   N_Vector vv, void *user_data,
-                                   N_Vector vtemp);
+                                   N_Vector vv, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -186,6 +184,34 @@ typedef int (*KINSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv,
 
 
 
+/*
+ * =================================================================
+ *  KINSPILS Exported functions
+ * =================================================================
+ */
+
+/*
+ * -----------------------------------------------------------------
+ * Required inputs to the KINSPILS linear solver interface
+ * -----------------------------------------------------------------
+ *
+ * KINSpilsSetLinearSolver specifies the iterative SUNLinearSolver 
+ * object that KINSOL should use.  This is required if KINSOL is 
+ * solving a problem with the Newton or Picard nonlinear solvers 
+ * with an iterative linear solver (i.e. not the fixed-point or
+ * accelerated fixed-point solvers).
+ *
+ * The return value is one of:
+ *    KINSPILS_SUCCESS   if successful
+ *    KINSPILS_MEM_NULL  if the KINSOL memory was NULL
+ *    KINSPILS_ILL_INPUT if the linear solver memory was NULL
+ *---------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int KINSpilsSetLinearSolver(void *kinmem, 
+                                            SUNLinearSolver LS);
+
+  
 
 
 /*
