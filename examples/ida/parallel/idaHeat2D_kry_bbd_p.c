@@ -1,16 +1,13 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *         Allan Taylor, Alan Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example problem for IDA: 2D heat equation, parallel, GMRES,
  * IDABBDPRE.
  *
  * This example solves a discretized 2D heat equation problem.
- * This version uses the Krylov solver IDASpgmr and BBD
+ * This version uses the Krylov solver SUNSPGMR and BBD
  * preconditioning.
  *
  * The DAE system solved is a spatial discretization of the PDE
@@ -27,7 +24,7 @@
  * processors.
  *
  * The system is solved with IDA using the Krylov linear solver
- * IDASPGMR in conjunction with the preconditioner module IDABBDPRE.
+ * SUNSPGMR in conjunction with the preconditioner module IDABBDPRE.
  * The preconditioner uses a tridiagonal approximation
  * (half-bandwidths = 1). The constraints u >= 0 are posed for all
  * components. Local error testing on the boundary values is
@@ -40,8 +37,9 @@
 #include <math.h>
 
 #include <ida/ida.h>
-#include <ida/ida_spgmr.h>
+#include <ida/ida_spils.h>
 #include <ida/ida_bbdpre.h>
+#include <sunlinsol/sunlinsol_spgmr.h>
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
@@ -125,6 +123,7 @@ int main(int argc, char *argv[])
 {
   MPI_Comm comm;
   void *mem;
+  SUNLinearSolver LS;
   UserData data;
   int thispe, iout, ier, npes;
   sunindextype Neq, local_N, mudq, mldq, mukeep, mlkeep;
@@ -132,6 +131,7 @@ int main(int argc, char *argv[])
   N_Vector uu, up, constraints, id, res;
 
   mem = NULL;
+  LS = NULL;
   data = NULL;
   uu = up = constraints = id = res = NULL;
 
@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
 
   /* Scalar relative and absolute tolerance. */
 
-  rtol = ZERO;
+  rtol = RCONST(1.0e-3);
   atol = RCONST(1.0e-3);
 
   /* Call IDACreate and IDAMalloc to initialize solution */
@@ -231,9 +231,12 @@ int main(int argc, char *argv[])
    * ----------------------------- 
    */
 
-  /* Call IDASpgmr to specify the linear solver. */
-  ier = IDASpgmr(mem, 0);
-  if(check_flag(&ier, "IDASpgmr", 1, thispe)) MPI_Abort(comm, 1);
+  /* Call SUNSPGMR and IDASpilsSetLinearSolver to specify the linear solver. */
+  LS = SUNSPGMR(uu, PREC_LEFT, 0);  /* 0 indicates to use default maxl value*/
+  if(check_flag((void *)LS, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
+
+  ier = IDASpilsSetLinearSolver(mem, LS);
+  if(check_flag(&ier, "IDASpilsSetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
   
   /* Call IDABBDPrecInit to initialize BBD preconditioner. */
   ier = IDABBDPrecInit(mem, local_N, mudq, mldq, mukeep, mlkeep, 
@@ -294,6 +297,7 @@ int main(int argc, char *argv[])
 
   /* Free Memory */
   IDAFree(&mem);
+  SUNLinSolFree(LS);
   free(data);
   N_VDestroy_Parallel(id);
   N_VDestroy_Parallel(res);
@@ -718,7 +722,7 @@ static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
     printf("Constraints set to force all solution components >= 0. \n");
     printf("SUPPRESSALG = TRUE to suppress local error testing on");
     printf(" all boundary components. \n");
-    printf("Linear solver: IDASPGMR.    ");
+    printf("Linear solver: SUNSPGMR.    ");
     printf("Preconditioner: IDABBDPRE - Banded-block-diagonal.\n"); 
 
 }
