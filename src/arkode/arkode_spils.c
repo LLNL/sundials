@@ -1149,13 +1149,13 @@ int ARKSpilsATSetup(void *arkode_mem)
   /* Return immediately if arkode_mem or ark_mem->ark_lmem are NULL */
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
-                    "ARKSpilsCallPSetup", MSGS_ARKMEM_NULL);
+                    "ARKSpilsATSetup", MSGS_ARKMEM_NULL);
     return(ARKSPILS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->ark_lmem == NULL) {
     arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKSPILS", 
-                    "ARKSpilsCallPSetup", MSGS_LMEM_NULL);
+                    "ARKSpilsATSetup", MSGS_LMEM_NULL);
     return(ARKSPILS_LMEM_NULL);
   }
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
