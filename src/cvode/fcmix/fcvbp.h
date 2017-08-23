@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -238,7 +235,7 @@ extern "C" {
 #endif
 
 /* Prototypes of exported function */
-void FCV_BPINIT(sunindextype *N, sunindextype *mu, sunindextype *ml, int *ier);
+void FCV_BPINIT(long int *N, long int *mu, long int *ml, int *ier);
 void FCV_BPOPT(long int *lenrwbp, long int *leniwbp, long int *nfebp);
 
 #ifdef __cplusplus

@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -837,10 +834,10 @@ extern "C" {
 
   void FCV_DIAG(int *ier);
 
-  void FCV_DENSE(sunindextype *neq, int *ier);
+  void FCV_DENSE(long int *neq, int *ier);
   void FCV_DENSESETJAC(int *flag, int *ier);
 
-  void FCV_BAND(sunindextype *neq, sunindextype *mupper, sunindextype *mlower, int *ier);
+  void FCV_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
   void FCV_BANDSETJAC(int *flag, int *ier);
 
   void FCV_LAPACKDENSE(int *neq, int *ier);
@@ -879,21 +876,21 @@ extern "C" {
   
   int FCVf(realtype t, N_Vector y, N_Vector ydot, void *user_data);
   
-  int FCVDenseJac(sunindextype N, realtype t, 
+  int FCVDenseJac(long int N, realtype t, 
                   N_Vector y, N_Vector fy, 
                   DlsMat J, void *user_data,
                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
-  int FCVBandJac(sunindextype N, sunindextype mupper, sunindextype mlower,
+  int FCVBandJac(long int N, long int mupper, long int mlower,
                  realtype t, N_Vector y, N_Vector fy,
                  DlsMat J, void *user_data,
                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
-  int FCVLapackDenseJac(sunindextype N, realtype t,
+  int FCVLapackDenseJac(long int N, realtype t,
                         N_Vector y, N_Vector fy, 
                         DlsMat Jac, void *user_data,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-  int FCVLapackBandJac(sunindextype N, sunindextype mupper, sunindextype mlower,
+  int FCVLapackBandJac(long int N, long int mupper, long int mlower,
                        realtype t, N_Vector y, N_Vector fy, 
                        DlsMat Jac, void *user_data,
                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);

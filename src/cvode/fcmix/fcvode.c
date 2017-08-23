@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -280,7 +277,7 @@ void FCV_SETRIN(char key_name[], realtype *rval, int *ier)
 
 /***************************************************************************/
 
-void FCV_DENSE(sunindextype *neq, int *ier)
+void FCV_DENSE(long int *neq, int *ier)
 {
   /* neq  is the problem size */
 
@@ -291,7 +288,7 @@ void FCV_DENSE(sunindextype *neq, int *ier)
 
 /***************************************************************************/
 
-void FCV_BAND(sunindextype *neq, sunindextype *mupper, sunindextype *mlower, int *ier)
+void FCV_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
 {
   /* 
      neq        is the problem size
