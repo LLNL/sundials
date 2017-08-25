@@ -101,7 +101,7 @@ SUNLinearSolver SUNSPFGMR(N_Vector y, int pretype, int maxl)
   content->maxl = maxl;
   content->pretype = pretype;
   content->gstype = SUNSPFGMR_GSTYPE_DEFAULT;
-  content->max_restarts = 0;
+  content->max_restarts = SUNSPFGMR_MAXRS_DEFAULT;
   content->numiters = 0;
   content->resnorm = ZERO;
   content->xcor = N_VClone(y);
@@ -171,6 +171,25 @@ SUNDIALS_EXPORT int SUNSPFGMRSetGSType(SUNLinearSolver S, int gstype)
 }
 
 
+/* ----------------------------------------------------------------------------
+ * Function to set the maximum number of FGMRES restarts to allow
+ */
+
+SUNDIALS_EXPORT int SUNSPFGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
+{
+  /* Illegal maxrs implies use of default value */ 
+  if (maxrs < 0)
+    maxrs = SUNSPFGMR_MAXRS_DEFAULT;
+
+  /* Check for non-NULL SUNLinearSolver */
+  if (S == NULL) return(SUNLS_MEM_NULL);
+
+  /* Set max_restarts */
+  SPFGMR_CONTENT(S)->max_restarts = maxrs;
+  return(SUNLS_SUCCESS);
+}
+
+
 /*
  * -----------------------------------------------------------------
  * implementation of linear solver operations
@@ -193,7 +212,7 @@ int SUNLinSolInitialize_SPFGMR(SUNLinearSolver S)
 
   /* ensure valid options */
   if (content->max_restarts < 0) 
-    content->max_restarts = 0;
+    content->max_restarts = SUNSPFGMR_MAXRS_DEFAULT;
   if ( (content->pretype != PREC_LEFT) && 
        (content->pretype != PREC_RIGHT) && 
        (content->pretype != PREC_BOTH) )

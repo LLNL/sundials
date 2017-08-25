@@ -118,6 +118,7 @@ extern "C" {
 
 /* Default SPGMR solver parameters */
 #define SUNSPGMR_MAXL_DEFAULT    5
+#define SUNSPGMR_MAXRS_DEFAULT   0
 #define SUNSPGMR_GSTYPE_DEFAULT  MODIFIED_GS
 
 /*
@@ -128,6 +129,8 @@ extern "C" {
  * structure contains:
  *     maxl -- number of GMRES basis vectors to use
  *     pretype -- flag for type of preconditioning to employ
+ *     gstype -- flag for type of Gram-Schmidt orthogonalization
+ *     max_restarts -- number of GMRES restarts to allow
  *     last_flag -- last error return flag from internal setup/solve
  *     ATSetup -- function pointer to setup routine for ATimes data
  *     ATimes -- function pointer to ATimes routine
@@ -203,6 +206,7 @@ typedef struct _SUNLinearSolverContent_SPGMR *SUNLinearSolverContent_SPGMR;
 SUNDIALS_EXPORT SUNLinearSolver SUNSPGMR(N_Vector y, int pretype, int maxl);
 SUNDIALS_EXPORT int SUNSPGMRSetPrecType(SUNLinearSolver S, int pretype);
 SUNDIALS_EXPORT int SUNSPGMRSetGSType(SUNLinearSolver S, int gstype);
+SUNDIALS_EXPORT int SUNSPGMRSetMaxRestarts(SUNLinearSolver S, int maxrs);
 
 /*
  * -----------------------------------------------------------------
