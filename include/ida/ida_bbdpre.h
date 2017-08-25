@@ -19,8 +19,8 @@
  * -----------------------------------------------------------------
  * This is the header file for the IDABBDPRE module, for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
- * matrix with banded blocks, for use with IDA and
- * IDASPGMR/IDASPBCG/IDASPTFQMR.
+ * matrix with banded blocks, for use with IDA and the
+ * IDASpils solver interface.
  *
  * Summary:
  *
@@ -39,6 +39,7 @@
  * The user's calling program should have the following form:
  *
  *   #include <ida/ida_bbdpre.h>
+ *   #include <ida/ida_spils.h>
  *   #include <nvector_parallel.h>
  *   ...
  *   void *ida_mem;
@@ -67,7 +68,7 @@
  *   ier = IDASolve(...);
  *   ...
  *   IDAFree(&ida_mem);
- *
+ *   ...
  *   N_VDestroy(y0);
  *   N_VDestroy(yp0);
  *   ...
@@ -249,10 +250,10 @@ SUNDIALS_EXPORT int IDABBDPrecInit(void *ida_mem,
  * -----------------------------------------------------------------
  * IDABBDPrecReInit reinitializes the IDABBDPRE module when
  * solving a sequence of problems of the same size with
- * IDASPGMR/IDABBDPRE, IDASPBCG/IDABBDPRE, or IDASPTFQMR/IDABBDPRE
- * provided there is no change in Nlocal, mukeep, or mlkeep. After
- * solving one problem, and after calling IDAReInit to reinitialize
- * the integrator for a subsequent problem, call IDABBDPrecReInit.
+ * IDASPILS/IDABBDPRE provided there is no change in Nlocal, mukeep, 
+ * or mlkeep. After solving one problem, and after calling IDAReInit 
+ * to reinitialize the integrator for a subsequent problem, call 
+ * IDABBDPrecReInit.
  *
  * All arguments have the same names and meanings as those
  * of IDABBDPrecInit.

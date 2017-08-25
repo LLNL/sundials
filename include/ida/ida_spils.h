@@ -307,7 +307,7 @@ SUNDIALS_EXPORT int IDASpilsSetIncrementFactor(void *ida_mem,
 
 
 /*---------------------------------------------------------------
-  Optional outputs from the IDASPILS linear solver:
+  Optional outputs from the IDASPILS linear solver interface:
                                                                  
   IDASpilsGetWorkSpace returns the real and integer workspace used 
       by IDASPILS.                                                  
