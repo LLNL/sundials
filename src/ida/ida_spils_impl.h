@@ -69,7 +69,7 @@ typedef struct IDASpilsMemRec {
   /* Preconditioner computation
      (a) user-provided:
          - pdata == user_data
-         - pfree == NULL (the user dealocates memory for f_data)
+         - pfree == NULL (the user dealocates memory)
      (b) internal preconditioner module
          - pdata == ida_mem
          - pfree == set by the prec. module and called in idaSpilsFree */
