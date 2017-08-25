@@ -73,7 +73,7 @@ c The following declaration specification should match C type long int.
       double precision constr(nlocalg), uu(nlocalg), up(nlocalg)
       double precision res(nlocalg), id(nlocalg)
 c
-      data atol/1.0d-3/, rtol/1.0d-3/
+      data atol/1.0d-3/, rtol/0.0d0/
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
      &              nlocal, neq, mx, my, mxsub, mysub, npex, npey,
@@ -178,10 +178,17 @@ c
          call mpi_abort(mpi_comm_world, 1, ier)
          stop
       endif
-      call fidaspilsinit(ier)
+      call fsunspgmrsetmaxrs(2, 5, ier)
       if (ier .ne. 0) then
          write(*,9) ier
- 9       format(///' SUNDIALS_ERROR: FIDASPILSINIT returned IER = ', i5)
+ 9       format(///' SUNDIALS_ERROR: FSUNSPGMRSETMAXRS IER = ', i5)
+         call mpi_abort(mpi_comm_world, 1, ier)
+         stop
+      endif
+      call fidaspilsinit(ier)
+      if (ier .ne. 0) then
+         write(*,10) ier
+ 10       format(///' SUNDIALS_ERROR: FIDASPILSINIT IER = ', i5)
          call mpi_abort(mpi_comm_world, 1, ier)
          stop
       endif
@@ -190,8 +197,8 @@ c Initialize and attach BBD preconditioner module
 c
       call fidabbdinit(nlocal, mudq, mldq, mukeep, mlkeep, dqrely, ier)
       if (ier .ne. 0) then
-         write(*,10) ier
- 10       format(///' SUNDIALS_ERROR: FIDABBDINIT returned IER = ', i5)
+         write(*,11) ier
+ 11       format(///' SUNDIALS_ERROR: FIDABBDINIT returned IER = ', i5)
          call mpi_abort(mpi_comm_world, 1, ier)
          stop
       endif
@@ -204,22 +211,22 @@ c
       endif
 c
       tout = t1
-      do 11 jout = 1, nout
+      do 12 jout = 1, nout
 c
          call fidasolve(tout, tret, uu, up, itask, ier)
 c
          call prntoutput(tret, uu, iout, rout)
 c
          if (ier .ne. 0) then
-            write(*,12) ier
- 12         format(///' SUNDIALS_ERROR: FIDASOLVE returned IER = ', i5)
+            write(*,13) ier
+ 13         format(///' SUNDIALS_ERROR: FIDASOLVE returned IER = ', i5)
             call fidafree
             stop
          endif
 c
          tout = tout*2.0d0
 c
- 11   continue
+ 12   continue
 c
 c Print statistics
 c
@@ -236,14 +243,14 @@ c
 c
       call fidareinit(t0, uu, up, iatol, rtol, atol, ier)
       if (ier .ne. 0) then
-         write(*,33) ier
- 33      format(///' SUNDIALS_ERROR: FIDAREINIT returned IER = ', i5)
+         write(*,43) ier
+ 43      format(///' SUNDIALS_ERROR: FIDAREINIT returned IER = ', i5)
       endif
 c
       call fidabbdreinit(nlocal, mudq, mldq, dqrely, ier)
       if (ier .ne. 0) then
-         write(*,34) ier
- 34      format(///' SUNDIALS_ERROR: FIDABBDREINIT returned IER = ', i5)
+         write(*,44) ier
+ 44      format(///' SUNDIALS_ERROR: FIDABBDREINIT returned IER = ', i5)
          call fidafree
          stop
       endif
@@ -255,22 +262,22 @@ c
       endif
 c
       tout = t1
-      do 13 jout = 1, nout
+      do 14 jout = 1, nout
 c
          call fidasolve(tout, tret, uu, up, itask, ier)
 c
          call prntoutput(tret, uu, iout, rout)
 c
          if (ier .ne. 0) then
-            write(*,14) ier
- 14         format(///' SUNDIALS_ERROR: FIDASOLVE returned IER = ', i5)
+            write(*,15) ier
+ 15         format(///' SUNDIALS_ERROR: FIDASOLVE returned IER = ', i5)
             call fidafree
             stop
          endif
 c
          tout = tout*2.0d0
 c
- 13   continue
+ 14   continue
 c
 c Print statistics
 c
@@ -327,16 +334,16 @@ c
       jybegin = mysub*jysub
       jyend = mysub*(jysub+1)-1
 c
-      do 15 i = 1, nlocal
+      do 16 i = 1, nlocal
          id(i) = 1.0d0
- 15   continue
+ 16   continue
 c
       jloc = 0
-      do 16 j = jybegin, jyend
+      do 17 j = jybegin, jyend
          yfact = dy*dble(j)
          offset = jloc*mxsub
          iloc = 0
-         do 17 i = ixbegin, ixend
+         do 18 i = ixbegin, ixend
             xfact = dx*dble(i)
             loc = offset+iloc
             uu(loc+1) = 16.0d0*xfact*(1.0d0-xfact)*yfact*(1.0d0-yfact)
@@ -347,20 +354,20 @@ c
                id(loc+1) = 0.0d0
             endif
             iloc = iloc+1
- 17      continue
+ 18      continue
          jloc = jloc+1
- 16   continue
+ 17   continue
 c
-      do 18 i = 1, nlocal
+      do 19 i = 1, nlocal
          up(i) = 0.0d0
          constr(i) = 1.0d0
- 18   continue
+ 19   continue
 c
       call fidaresfun(0.0d0, uu, up, res, ipar, rpar, reserr)
 c
-      do 19 i = 1, nlocal
+      do 20 i = 1, nlocal
          up(i) = -1.0d0*res(i)
- 19   continue
+ 20   continue
 c
       return
       end
@@ -468,19 +475,19 @@ c
 c
       mxsub2 = mxsub+2
 c
-      do 20 i = 1, nlocal
+      do 21 i = 1, nlocal
          res(i) = u(i)
- 20   continue
+ 21   continue
 c
       offsetu = 0
       offsetue = mxsub2+1
-      do 21 ly = 0, mysub-1
-         do 22 lx = 0, mxsub-1
+      do 22 ly = 0, mysub-1
+         do 23 lx = 0, mxsub-1
             uext(offsetue+lx+1) = u(offsetu+lx+1)
- 22      continue
+ 23      continue
          offsetu = offsetu+mxsub
          offsetue = offsetue+mxsub2
- 21   continue
+ 22   continue
 c
       ixbegin = 0
       ixend = mxsub-1
@@ -499,16 +506,16 @@ c
          jyend = jyend-1
       endif
 c
-      do 23 ly = jybegin, jyend
-         do 24 lx = ixbegin, ixend
+      do 24 ly = jybegin, jyend
+         do 25 lx = ixbegin, ixend
             locu = lx+ly*mxsub
             locue = (lx+1)+(ly+1)*mxsub2
             termx = coeffx*(uext(locue)+uext(locue+2))
             termy = coeffy*(uext(locue-mxsub2+1)+uext(locue+mxsub2+1))
             termctr = coeffxy*uext(locue+1)
             res(locu+1) = up(locu+1)-(termx+termy-termctr)
- 24      continue
- 23   continue
+ 25      continue
+ 24   continue
 c
       return
       end
@@ -553,19 +560,19 @@ c
       endif
 c
       if (ixsub .ne. 0) then
-         do 25 ly = 0, mysub-1
+         do 26 ly = 0, mysub-1
             offsetu = ly*dsizex
             bufleft(ly+1) = uarray(offsetu+1)
- 25      continue
+ 26      continue
          call mpi_send(bufleft(1), dsizey, mpi_double_precision,
      &                 thispe-1, 0, mpi_comm_world, ier)
       endif
 c
       if (ixsub .ne. npex-1) then
-         do 26 ly = 0, mysub-1
+         do 27 ly = 0, mysub-1
             offsetu = ly*mxsub+(mxsub-1)
             bufright(ly+1) = uarray(offsetu+1)
- 26      continue
+ 27      continue
          call mpi_send(bufright(1), dsizey, mpi_double_precision,
      &                 thispe+1, 0, mpi_comm_world, ier)
       endif
@@ -669,18 +676,18 @@ c
 c
       if (ixsub .ne. 0) then
          call mpi_wait(request(3), status, ier)
-         do 27 ly = 0, mysub-1
+         do 28 ly = 0, mysub-1
             offsetue = (ly+1)*dsizex2
             uext(offsetue+1) = buffer(ly+1)
- 27      continue
+ 28      continue
       endif
 c
       if (ixsub .ne. npex-1) then
          call mpi_wait(request(4), status, ier)
-         do 28 ly = 0, mysub-1
+         do 29 ly = 0, mysub-1
             offsetue = (ly+2)*dsizex2-1
             uext(offsetue+1) = buffer(ly+mysub+1)
- 28      continue
+ 29      continue
       endif
 c
       return
@@ -714,11 +721,11 @@ c
 c
       if (thispe .eq. 0) then
          call fidabbdopt(lenrwbbd, leniwbbd, ngebbd)
-         write(*,29) tret, umax, iout(9), iout(3), iout(7),
+         write(*,30) tret, umax, iout(9), iout(3), iout(7),
      &               iout(20), iout(4), iout(16), ngebbd, rout(2),
      &               iout(18), iout(19)
- 29      format(' ', e10.4, ' ', e13.5, '  ', i1, '  ', i2,
-     &          '  ', i3, '  ', i3, '  ', i2,'+',i3, '  ',
+ 30      format(' ', e10.4, ' ', e13.5, '  ', i1, '  ', i2,
+     &          '  ', i3, '  ', i3, '  ', i2,'+',i2, '  ',
      &          i3, '  ', e9.2, '  ', i2, '  ', i3)
       endif
 c
@@ -752,9 +759,9 @@ c
 c
       temp = 0.0d0
 c
-      do 30 i = 1, nlocal
+      do 31 i = 1, nlocal
          temp = max(abs(u(i)), temp)
- 30   continue
+ 31   continue
 c
       call mpi_allreduce(temp, unorm, 1, mpi_double_precision,
      &                   mpi_max, mpi_comm_world, ier)
@@ -786,8 +793,8 @@ c
      &              nlocal, neq, mx, my, mxsub, mysub, npex, npey,
      &              ixsub, jysub, thispe
 c
-      write(*,31) mx, my, neq, mxsub, mysub, npex, npey, rtol, atol
- 31   format(/'fidaHeat2D_kry_bbd_p: Heat equation, parallel example',
+      write(*,32) mx, my, neq, mxsub, mysub, npex, npey, rtol, atol
+ 32   format(/'fidaHeat2D_kry_bbd_p: Heat equation, parallel example',
      &     ' for FIDA', /, 16x,'Discretized heat equation',
      &     ' on 2D unit square.', /, 16x,'Zero boundary',
      &     ' conditions, polynomial conditions.', /,
@@ -815,8 +822,8 @@ c The following declaration specification should match C type long int.
       integer*8 mudq, mukeep
       integer num
 c
-      write(*,32) num, mudq, mukeep
- 32   format(//, 'Case ', i2, /, '  Difference quotient half-',
+      write(*,33) num, mudq, mukeep
+ 33   format(//, 'Case ', i2, /, '  Difference quotient half-',
      &     'bandwidths =', i2, /, '  Retained matrix half-bandwidths =',
      &     i2, //, 'Output Summary',/,'  umax = max-norm of solution',
      &     /,'  nre = nre + nreLS (total number of RES evals.)',
@@ -837,8 +844,8 @@ c
 c The following declaration specification should match C type long int.
       integer*8 iout(*)
 c
-      write(*,33) iout(5), iout(6), iout(21)
- 33   format(/, 'Error test failures            =', i3, /,
+      write(*,34) iout(5), iout(6), iout(21)
+ 34   format(/, 'Error test failures            =', i3, /,
      &     'Nonlinear convergence failures =', i3, /,
      &     'Linear convergence failures    =', i3)
 c

@@ -324,12 +324,15 @@ int main(int argc, char *argv[])
   webdata->ida_mem = mem;
 
   /* Call SUNSPGMR and IDASpilsSetLinearSolver to specify the linear solver 
-     to IDA, and specify the preconditioner routines supplied (Precondbd 
-     and PSolvebd).  maxl (max. Krylov subspace dim.) is set to 16. */
+     to IDA, and specify the supplied [left] preconditioner routines 
+     (Precondbd & PSolvebd).  maxl (Krylov subspace dim.) is set to 16. */
 
   maxl = 16;
   LS = SUNSPGMR(cc, PREC_LEFT, maxl);
   if (check_flag((void *)LS, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
+
+  flag = SUNSPGMRSetMaxRestarts(LS, 5);  /* IDA recommends allowing up to 5 restarts */
+  if(check_flag(&flag, "SUNSPGMRSetMaxRestarts", 1, thispe)) MPI_Abort(comm, 1);
 
   flag = IDASpilsSetLinearSolver(mem, LS);
   if (check_flag(&flag, "IDASpilsSetLinearSolver", 1, thispe)) 

@@ -37,6 +37,7 @@
 #include <math.h>
 
 #include <cvode/cvode.h>                 /* main integrator header file       */
+#include <cvode/cvode_spils.h>           /* access to CVSpils interface       */
 #include <sunlinsol/sunlinsol_spgmr.h>   /* access to SPGMR SUNLinearSolver   */
 #include <sunlinsol/sunlinsol_spbcgs.h>  /* access to SPBCGS SUNLinearSolver  */
 #include <sunlinsol/sunlinsol_sptfqmr.h> /* access to SPTFQMR SUNLinearSolver */

@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
 
   /* Scalar relative and absolute tolerance. */
 
-  rtol = RCONST(1.0e-3);
+  rtol = ZERO;
   atol = RCONST(1.0e-3);
 
   /* Call IDACreate and IDAMalloc to initialize solution */
@@ -232,8 +232,12 @@ int main(int argc, char *argv[])
    */
 
   /* Call SUNSPGMR and IDASpilsSetLinearSolver to specify the linear solver. */
-  LS = SUNSPGMR(uu, PREC_LEFT, 0);  /* 0 indicates to use default maxl value*/
+  LS = SUNSPGMR(uu, PREC_LEFT, 0);  /* IDA recommends left-preconditioning only;
+                                       0 indicates to use default maxl value */
   if(check_flag((void *)LS, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
+
+  ier = SUNSPGMRSetMaxRestarts(LS, 5);  /* IDA recommends allowing up to 5 restarts */
+  if(check_flag(&ier, "SUNSPGMRSetMaxRestarts", 1, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASpilsSetLinearSolver(mem, LS);
   if(check_flag(&ier, "IDASpilsSetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
