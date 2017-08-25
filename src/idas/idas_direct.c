@@ -70,45 +70,6 @@ static int idaDlsBandJacBSWrapper(sunindextype NeqB, sunindextype mupperB, sunin
                                   DlsMat JacB, void *ida_mem,
                                   N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
-/*
- * =================================================================
- * READIBILITY REPLACEMENTS
- * =================================================================
- */
-
-#define res            (IDA_mem->ida_res)
-#define user_data      (IDA_mem->ida_user_data)
-#define uround         (IDA_mem->ida_uround)
-#define nst            (IDA_mem->ida_nst)
-#define tn             (IDA_mem->ida_tn)
-#define hh             (IDA_mem->ida_hh)
-#define cj             (IDA_mem->ida_cj)
-#define cjratio        (IDA_mem->ida_cjratio)
-#define ewt            (IDA_mem->ida_ewt)
-#define constraints    (IDA_mem->ida_constraints)
-
-#define linit          (IDA_mem->ida_linit)
-#define lsetup         (IDA_mem->ida_lsetup)
-#define lsolve         (IDA_mem->ida_lsolve)
-#define lfree          (IDA_mem->ida_lfree)
-#define lperf          (IDA_mem->ida_lperf)
-#define lmem           (IDA_mem->ida_lmem)
-#define tempv          (IDA_mem->ida_tempv1)
-#define setupNonNull   (IDA_mem->ida_setupNonNull)
-
-#define mtype          (idadls_mem->d_type)
-#define n              (idadls_mem->d_n)
-#define ml             (idadls_mem->d_ml)
-#define mu             (idadls_mem->d_mu)
-#define smu            (idadls_mem->d_smu)
-#define jacDQ          (idadls_mem->d_jacDQ)
-#define djac           (idadls_mem->d_djac)
-#define bjac           (idadls_mem->d_bjac)
-#define M              (idadls_mem->d_J)
-#define pivots         (idadls_mem->d_pivots)
-#define nje            (idadls_mem->d_nje)
-#define nreDQ          (idadls_mem->d_nreDQ)
-#define last_flag      (idadls_mem->d_last_flag)
 
 /* 
  * =================================================================
@@ -131,17 +92,17 @@ int IDADlsSetDenseJacFn(void *ida_mem, IDADlsDenseJacFn jac)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDASDLS", "IDADlsSetDenseJacFn", MSGD_LMEM_NULL);
     return(IDADLS_LMEM_NULL);
   }
-  idadls_mem = (IDADlsMem) lmem;
+  idadls_mem = (IDADlsMem) IDA_mem->ida_lmem;
 
   if (jac != NULL) {
-    jacDQ = FALSE;
-    djac = jac;
+    idadls_mem->d_jacDQ = FALSE;
+    idadls_mem->d_djac = jac;
   } else {
-    jacDQ = TRUE;
+    idadls_mem->d_jacDQ = TRUE;
   }
 
   return(IDADLS_SUCCESS);
@@ -162,17 +123,17 @@ int IDADlsSetBandJacFn(void *ida_mem, IDADlsBandJacFn jac)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDASDLS", "IDADlsSetBandJacFn", MSGD_LMEM_NULL);
     return(IDADLS_LMEM_NULL);
   }
-  idadls_mem = (IDADlsMem) lmem;
+  idadls_mem = (IDADlsMem) IDA_mem->ida_lmem;
 
   if (jac != NULL) {
-    jacDQ = FALSE;
-    bjac = jac;
+    idadls_mem->d_jacDQ = FALSE;
+    idadls_mem->d_bjac = jac;
   } else {
-    jacDQ = TRUE;
+    idadls_mem->d_jacDQ = TRUE;
   }
 
   return(IDADLS_SUCCESS);
@@ -194,18 +155,18 @@ int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDASDLS", "IDADlsGetWorkSpace", MSGD_LMEM_NULL);
     return(IDADLS_LMEM_NULL);
   }
-  idadls_mem = (IDADlsMem) lmem;
+  idadls_mem = (IDADlsMem) IDA_mem->ida_lmem;
 
-  if (mtype == SUNDIALS_DENSE) {
-    *lenrwLS = n*n;
-    *leniwLS = n;
-  } else if (mtype == SUNDIALS_BAND) {
-    *lenrwLS = n*(smu + ml + 1);
-    *leniwLS = n;
+  if (idadls_mem->d_type == SUNDIALS_DENSE) {
+    *lenrwLS = idadls_mem->d_n * idadls_mem->d_n;
+    *leniwLS = idadls_mem->d_n;
+  } else if (idadls_mem->d_type == SUNDIALS_BAND) {
+    *lenrwLS = idadls_mem->d_n * (idadls_mem->d_smu + idadls_mem->d_ml + 1);
+    *leniwLS = idadls_mem->d_n;
   }
     
   return(IDADLS_SUCCESS);
@@ -226,13 +187,13 @@ int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDASDLS", "IDADlsGetNumJacEvals", MSGD_LMEM_NULL);
     return(IDADLS_LMEM_NULL);
   }
-  idadls_mem = (IDADlsMem) lmem;
+  idadls_mem = (IDADlsMem) IDA_mem->ida_lmem;
 
-  *njevals = nje;
+  *njevals = idadls_mem->d_nje;
 
   return(IDADLS_SUCCESS);
 }
@@ -253,13 +214,13 @@ int IDADlsGetNumResEvals(void *ida_mem, long int *nrevalsLS)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDASDLS", "IDADlsGetNumFctEvals", MSGD_LMEM_NULL);
     return(IDADLS_LMEM_NULL);
   }
-  idadls_mem = (IDADlsMem) lmem;
+  idadls_mem = (IDADlsMem) IDA_mem->ida_lmem;
 
-  *nrevalsLS = nreDQ;
+  *nrevalsLS = idadls_mem->d_nreDQ;
 
   return(IDADLS_SUCCESS);
 }
@@ -318,13 +279,13 @@ int IDADlsGetLastFlag(void *ida_mem, long int *flag)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (lmem == NULL) {
+  if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDASDLS", "IDADlsGetLastFlag", MSGD_LMEM_NULL);
     return(IDADLS_LMEM_NULL);
   }
-  idadls_mem = (IDADlsMem) lmem;
+  idadls_mem = (IDADlsMem) IDA_mem->ida_lmem;
 
-  *flag = last_flag;
+  *flag = idadls_mem->d_last_flag;
 
   return(IDADLS_SUCCESS);
 }
@@ -365,7 +326,7 @@ int idaDlsDenseDQJac(sunindextype N, realtype tt, realtype c_j,
 
   /* data points to IDA_mem */
   IDA_mem = (IDAMem) data;
-  idadls_mem = (IDADlsMem) lmem;
+  idadls_mem = (IDADlsMem) IDA_mem->ida_lmem;
 
   /* Save pointer to the array in tmp2 */
   tmp2_data = N_VGetArrayPointer(tmp2);
@@ -375,12 +336,13 @@ int idaDlsDenseDQJac(sunindextype N, realtype tt, realtype c_j,
   jthCol = tmp2;
 
   /* Obtain pointers to the data for ewt, yy, yp. */
-  ewt_data = N_VGetArrayPointer(ewt);
+  ewt_data = N_VGetArrayPointer(IDA_mem->ida_ewt);
   y_data   = N_VGetArrayPointer(yy);
   yp_data  = N_VGetArrayPointer(yp);
-  if(constraints!=NULL) cns_data = N_VGetArrayPointer(constraints);
+  if(IDA_mem->ida_constraints!=NULL)
+    cns_data = N_VGetArrayPointer(IDA_mem->ida_constraints);
 
-  srur = SUNRsqrt(uround);
+  srur = SUNRsqrt(IDA_mem->ida_uround);
 
   for (j=0; j < N; j++) {
 
@@ -395,13 +357,13 @@ int idaDlsDenseDQJac(sunindextype N, realtype tt, realtype c_j,
     adjustments using yp_j and ewt_j if this is small, and a further
     adjustment to give it the same sign as hh*yp_j. */
 
-    inc = SUNMAX( srur * SUNMAX( SUNRabs(yj), SUNRabs(hh*ypj) ) , ONE/ewt_data[j] );
+    inc = SUNMAX( srur * SUNMAX( SUNRabs(yj), SUNRabs(IDA_mem->ida_hh*ypj) ), ONE/ewt_data[j] );
 
-    if (hh*ypj < ZERO) inc = -inc;
+    if (IDA_mem->ida_hh * ypj < ZERO) inc = -inc;
     inc = (yj + inc) - yj;
 
     /* Adjust sign(inc) again if y_j has an inequality constraint. */
-    if (constraints != NULL) {
+    if (IDA_mem->ida_constraints != NULL) {
       conj = cns_data[j];
       if (SUNRabs(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
       else if (SUNRabs(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
@@ -411,9 +373,9 @@ int idaDlsDenseDQJac(sunindextype N, realtype tt, realtype c_j,
     y_data[j] += inc;
     yp_data[j] += c_j*inc;
 
-    retval = res(tt, yy, yp, rtemp, user_data);
+    retval = IDA_mem->ida_res(tt, yy, yp, rtemp, IDA_mem->ida_user_data);
 
-    nreDQ++;
+    idadls_mem->d_nreDQ++;
     if (retval != 0) break;
 
     /* Construct difference quotient in jthCol */
@@ -468,7 +430,7 @@ int idaDlsBandDQJac(sunindextype N, sunindextype mupper, sunindextype mlower,
 
   /* data points to IDA_mem */
   IDA_mem = (IDAMem) data;
-  idadls_mem = (IDADlsMem) lmem;
+  idadls_mem = (IDADlsMem) IDA_mem->ida_lmem;
 
   rtemp = tmp1; /* Rename work vector for use as the perturbed residual. */
 
@@ -479,7 +441,7 @@ int idaDlsBandDQJac(sunindextype N, sunindextype mupper, sunindextype mlower,
 
   /* Obtain pointers to the data for all eight vectors used.  */
 
-  ewt_data = N_VGetArrayPointer(ewt);
+  ewt_data = N_VGetArrayPointer(IDA_mem->ida_ewt);
   r_data   = N_VGetArrayPointer(rr);
   y_data   = N_VGetArrayPointer(yy);
   yp_data  = N_VGetArrayPointer(yp);
@@ -488,7 +450,8 @@ int idaDlsBandDQJac(sunindextype N, sunindextype mupper, sunindextype mlower,
   ytemp_data  = N_VGetArrayPointer(ytemp);
   yptemp_data = N_VGetArrayPointer(yptemp);
 
-  if (constraints != NULL) cns_data = N_VGetArrayPointer(constraints);
+  if (IDA_mem->ida_constraints != NULL)
+    cns_data = N_VGetArrayPointer(IDA_mem->ida_constraints);
 
   /* Initialize ytemp and yptemp. */
 
@@ -497,7 +460,7 @@ int idaDlsBandDQJac(sunindextype N, sunindextype mupper, sunindextype mlower,
 
   /* Compute miscellaneous values for the Jacobian computation. */
 
-  srur = SUNRsqrt(uround);
+  srur = SUNRsqrt(IDA_mem->ida_uround);
   width = mlower + mupper + 1;
   ngroups = SUNMIN(width, N);
 
@@ -515,14 +478,14 @@ int idaDlsBandDQJac(sunindextype N, sunindextype mupper, sunindextype mlower,
         adjustments using ypj and ewtj if this is small, and a further
         adjustment to give it the same sign as hh*ypj. */
 
-        inc = SUNMAX( srur * SUNMAX( SUNRabs(yj), SUNRabs(hh*ypj) ) , ONE/ewtj );
+        inc = SUNMAX( srur * SUNMAX( SUNRabs(yj), SUNRabs(IDA_mem->ida_hh * ypj) ), ONE/ewtj );
 
-        if (hh*ypj < ZERO) inc = -inc;
+        if (IDA_mem->ida_hh * ypj < ZERO) inc = -inc;
         inc = (yj + inc) - yj;
 
         /* Adjust sign(inc) again if yj has an inequality constraint. */
 
-        if (constraints != NULL) {
+        if (IDA_mem->ida_constraints != NULL) {
           conj = cns_data[j];
           if (SUNRabs(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
           else if (SUNRabs(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
@@ -530,14 +493,14 @@ int idaDlsBandDQJac(sunindextype N, sunindextype mupper, sunindextype mlower,
 
         /* Increment yj and ypj. */
 
-        ytemp_data[j] += inc;
-        yptemp_data[j] += cj*inc;
+        ytemp_data[j]  += inc;
+        yptemp_data[j] += IDA_mem->ida_cj * inc;
     }
 
     /* Call res routine with incremented arguments. */
 
-    retval = res(tt, ytemp, yptemp, rtemp, user_data);
-    nreDQ++;
+    retval = IDA_mem->ida_res(tt, ytemp, yptemp, rtemp, IDA_mem->ida_user_data);
+    idadls_mem->d_nreDQ++;
     if (retval != 0) break;
 
     /* Loop over the indices j in this group again. */
@@ -553,10 +516,10 @@ int idaDlsBandDQJac(sunindextype N, sunindextype mupper, sunindextype mlower,
       
       /* Set increment inc exactly as above. */
 
-      inc = SUNMAX( srur * SUNMAX( SUNRabs(yj), SUNRabs(hh*ypj) ) , ONE/ewtj );
-      if (hh*ypj < ZERO) inc = -inc;
+      inc = SUNMAX( srur * SUNMAX( SUNRabs(yj), SUNRabs(IDA_mem->ida_hh * ypj) ), ONE/ewtj );
+      if (IDA_mem->ida_hh * ypj < ZERO) inc = -inc;
       inc = (yj + inc) - yj;
-      if (constraints != NULL) {
+      if (IDA_mem->ida_constraints != NULL) {
         conj = cns_data[j];
         if (SUNRabs(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
         else if (SUNRabs(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
@@ -592,14 +555,6 @@ int idaDlsInitializeCounters(IDADlsMem idadls_mem)
  * BACKWARD INTEGRATION SUPPORT
  * =================================================================
  */
-
-/* Additional readability replacements */
-#define yyTmp       (IDAADJ_mem->ia_yyTmp)
-#define ypTmp       (IDAADJ_mem->ia_ypTmp)
-#define yySTmp      (IDAADJ_mem->ia_yySTmp)
-#define ypSTmp      (IDAADJ_mem->ia_ypSTmp)
-#define noInterp    (IDAADJ_mem->ia_noInterp)
-#define interpSensi (IDAADJ_mem->ia_interpSensi)
 
 /*
  * -----------------------------------------------------------------
@@ -875,8 +830,8 @@ static int idaDlsDenseJacBWrapper(sunindextype NeqB, realtype tt, realtype c_jB,
   idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
   /* Forward solution from interpolation */
-  if (noInterp == FALSE) {
-    flag = IDAADJ_mem->ia_getY(IDA_mem, tt, yyTmp, ypTmp, NULL, NULL);
+  if (IDAADJ_mem->ia_noInterp == FALSE) {
+    flag = IDAADJ_mem->ia_getY(IDA_mem, tt, IDAADJ_mem->ia_yyTmp, IDAADJ_mem->ia_ypTmp, NULL, NULL);
     if (flag != IDA_SUCCESS) {
       IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASDLS", "idaDlsDenseJacBWrapper", MSGD_BAD_T);
       return(-1);
@@ -885,7 +840,7 @@ static int idaDlsDenseJacBWrapper(sunindextype NeqB, realtype tt, realtype c_jB,
 
   /* Call user's adjoint dense djacB routine */
   flag = idadlsB_mem->d_djacB(NeqB, tt, c_jB, 
-                              yyTmp, ypTmp, 
+                              IDAADJ_mem->ia_yyTmp, IDAADJ_mem->ia_ypTmp, 
                               yyB, ypB, rrB, 
                               JacB, IDAB_mem->ida_user_data, 
                               tmp1B, tmp2B, tmp3B);
@@ -921,11 +876,11 @@ static int idaDlsDenseJacBSWrapper(sunindextype NeqB, realtype tt, realtype c_jB
   idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
   /* Get forward solution from interpolation. */
-  if( noInterp == FALSE) {
-    if (interpSensi)
-      flag = IDAADJ_mem->ia_getY(IDA_mem, tt, yyTmp, ypTmp, yySTmp, ypSTmp);
+  if( IDAADJ_mem->ia_noInterp == FALSE) {
+    if (IDAADJ_mem->ia_interpSensi)
+      flag = IDAADJ_mem->ia_getY(IDA_mem, tt, IDAADJ_mem->ia_yyTmp, IDAADJ_mem->ia_ypTmp, IDAADJ_mem->ia_yySTmp, IDAADJ_mem->ia_ypSTmp);
     else
-      flag = IDAADJ_mem->ia_getY(IDA_mem, tt, yyTmp, ypTmp, NULL, NULL);
+      flag = IDAADJ_mem->ia_getY(IDA_mem, tt, IDAADJ_mem->ia_yyTmp, IDAADJ_mem->ia_ypTmp, NULL, NULL);
   
     if (flag != IDA_SUCCESS) {
       IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASDLS", "idaDlsDenseJacBSWrapper", MSGD_BAD_T);
@@ -935,7 +890,7 @@ static int idaDlsDenseJacBSWrapper(sunindextype NeqB, realtype tt, realtype c_jB
 
   /* Call user's adjoint dense djacBS routine */
   flag = idadlsB_mem->d_djacBS(NeqB, tt, c_jB, 
-                              yyTmp, ypTmp, yySTmp, ypSTmp, 
+                              IDAADJ_mem->ia_yyTmp, IDAADJ_mem->ia_ypTmp, IDAADJ_mem->ia_yySTmp, IDAADJ_mem->ia_ypSTmp, 
                               yyB, ypB, rrB, 
                               JacB, IDAB_mem->ida_user_data, 
                               tmp1B, tmp2B, tmp3B);
@@ -972,8 +927,8 @@ static int idaDlsBandJacBWrapper(sunindextype NeqB, sunindextype mupperB, sunind
   idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
   /* Forward solution from interpolation */
-  if (noInterp == FALSE) {
-    flag = IDAADJ_mem->ia_getY(IDA_mem, tt, yyTmp, ypTmp, NULL, NULL);
+  if (IDAADJ_mem->ia_noInterp == FALSE) {
+    flag = IDAADJ_mem->ia_getY(IDA_mem, tt, IDAADJ_mem->ia_yyTmp, IDAADJ_mem->ia_ypTmp, NULL, NULL);
     if (flag != IDA_SUCCESS) {
       IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASDLS", "idaDlsBandJacBWrapper", MSGD_BAD_T);
       return(-1);
@@ -983,7 +938,7 @@ static int idaDlsBandJacBWrapper(sunindextype NeqB, sunindextype mupperB, sunind
   /* Call user's adjoint band bjacB routine */
   flag = idadlsB_mem->d_bjacB(NeqB, mupperB, mlowerB, 
                               tt, c_jB,
-                              yyTmp, ypTmp, 
+                              IDAADJ_mem->ia_yyTmp, IDAADJ_mem->ia_ypTmp, 
                               yyB, ypB, rrB,
                               JacB, IDAB_mem->ida_user_data, 
                               tmp1B, tmp2B, tmp3B);
@@ -1020,11 +975,11 @@ static int idaDlsBandJacBSWrapper(sunindextype NeqB, sunindextype mupperB, sunin
   idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
   /* Get forward solution from interpolation. */
-  if( noInterp == FALSE) {
-    if (interpSensi)
-      flag = IDAADJ_mem->ia_getY(IDA_mem, tt, yyTmp, ypTmp, yySTmp, ypSTmp);
+  if( IDAADJ_mem->ia_noInterp == FALSE) {
+    if (IDAADJ_mem->ia_interpSensi)
+      flag = IDAADJ_mem->ia_getY(IDA_mem, tt, IDAADJ_mem->ia_yyTmp, IDAADJ_mem->ia_ypTmp, IDAADJ_mem->ia_yySTmp, IDAADJ_mem->ia_ypSTmp);
     else
-      flag = IDAADJ_mem->ia_getY(IDA_mem, tt, yyTmp, ypTmp, NULL, NULL);
+      flag = IDAADJ_mem->ia_getY(IDA_mem, tt, IDAADJ_mem->ia_yyTmp, IDAADJ_mem->ia_ypTmp, NULL, NULL);
   
     if (flag != IDA_SUCCESS) {
       IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASDLS", "idaDlsBandJacBSWrapper", MSGD_BAD_T);
@@ -1035,7 +990,7 @@ static int idaDlsBandJacBSWrapper(sunindextype NeqB, sunindextype mupperB, sunin
   /* Call user's adjoint band bjacBS routine */
   flag = idadlsB_mem->d_bjacBS(NeqB, mupperB, mlowerB, 
                               tt, c_jB,
-                              yyTmp, ypTmp, yySTmp, ypSTmp, 
+                              IDAADJ_mem->ia_yyTmp, IDAADJ_mem->ia_ypTmp, IDAADJ_mem->ia_yySTmp, IDAADJ_mem->ia_ypSTmp, 
                               yyB, ypB, rrB,
                               JacB, IDAB_mem->ida_user_data, 
                               tmp1B, tmp2B, tmp3B);
