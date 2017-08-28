@@ -1188,7 +1188,7 @@ IF(EXAMPLES_ENABLE)
       ADD_SUBDIRECTORY(examples/idas/C_openmp)
     ENDIF(OPENMP_FOUND)
     IF(MPIC_FOUND)
-      #ADD_SUBDIRECTORY(examples/idas/parallel)
+      ADD_SUBDIRECTORY(examples/idas/parallel)
     ENDIF(MPIC_FOUND)
   ENDIF(BUILD_IDAS)
 

@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision$
-# $Date$
-# ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -21,14 +18,13 @@
 # "name\;nodes\;tasks"
 SET(IDAS_examples
   "idasBruss_ASAp_kry_bbd_p\;1\;4"
-  "idasBruss_FSA_kry_bbd_p\;1\;4"
-  "idasBruss_kry_bbd_p\;1\;4"
-  "idasFoodWeb_kry_bbd_p\;1\;4"
-  "idasFoodWeb_kry_p\;1\;4"
-  "idasHeat2D_FSA_kry_bbd_p\;1\;4\;-sensi stg t"
-  "idasHeat2D_kry_bbd_p\;1\;4"
-  "idasHeat2D_kry_p\;1\;4"
-
+  # "idasBruss_FSA_kry_bbd_p\;1\;4"
+  # "idasBruss_kry_bbd_p\;1\;4"
+  # "idasFoodWeb_kry_bbd_p\;1\;4"
+  # "idasFoodWeb_kry_p\;1\;4"
+  # "idasHeat2D_FSA_kry_bbd_p\;1\;4\;-sensi stg t"
+  # "idasHeat2D_kry_bbd_p\;1\;4"
+  # "idasHeat2D_kry_p\;1\;4"
   )
 
 # Check whether we use MPI compiler scripts.

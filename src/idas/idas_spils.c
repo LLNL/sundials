@@ -1958,3 +1958,20 @@ static int IDAAspilsJacTimesVecBS(realtype tt, N_Vector yyB, N_Vector ypB,
                                  IDAB_mem->ida_user_data, tmp1B, tmp2B);
   return(flag);
 }
+
+
+/*---------------------------------------------------------------*/
+int idaSpilsFreeB(IDABMem IDAB_mem)
+{
+  IDASpilsMemB idaspilsB_mem;
+
+  /* Return immediately if IDAB_mem or IDAB_mem->ida_lmem are NULL */
+  if (IDAB_mem == NULL)  return (IDASPILS_SUCCESS);
+  if (IDAB_mem->ida_lmem == NULL)  return(IDASPILS_SUCCESS);
+  idaspilsB_mem = (IDASpilsMemB) IDAB_mem->ida_lmem;
+
+  /* free IDASpils interface structure */
+  free(IDAB_mem->ida_lmem);
+  
+  return(IDASPILS_SUCCESS);
+}
