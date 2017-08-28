@@ -596,7 +596,7 @@ static int IDANewtonIC(IDAMem IDA_mem)
   if(retval > 0) return(IC_FAIL_RECOV);
 
   /* Compute the norm of the step. */
-  fnorm = IDAWrmsNorm(IDA_mem, delta, IDA_mem->ida_ewt, FALSE);
+  fnorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delta, IDA_mem->ida_ewt, FALSE);
 
   /* Call the lsolve function to get correction vectors deltaS. */
   if (sensi_sim) {

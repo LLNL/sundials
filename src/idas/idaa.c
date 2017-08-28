@@ -1697,7 +1697,7 @@ static CkpntMem IDAAckpntNew(IDAMem IDA_mem)
   ck_mem->ck_hh        = IDA_mem->ida_hh;
   ck_mem->ck_hused     = IDA_mem->ida_hused;
   ck_mem->ck_rr        = IDA_mem->ida_rr;
-  cjck_mem->ck_        = IDA_mem->ida_cj;
+  ck_mem->ck_cj        = IDA_mem->ida_cj;
   ck_mem->ck_cjlast    = IDA_mem->ida_cjlast;
   ck_mem->ck_cjold     = IDA_mem->ida_cjold;
   ck_mem->ck_cjratio   = IDA_mem->ida_cjratio;
@@ -2804,7 +2804,7 @@ static int IDAApolynomialGetY(IDAMem IDA_mem, realtype t,
     /* Store 0-th order DD */
     if (dir == 1) {
       for(j=0;j<=order;j++) {
-        T[j] = dt_mem[base-j]->t;
+        IDAADJ_mem->ia_T[j] = dt_mem[base-j]->t;
         content = (PolynomialDataMem) (dt_mem[base-j]->content);
         N_VScale(ONE, content->y, IDAADJ_mem->ia_Y[j]);
         

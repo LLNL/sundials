@@ -4242,7 +4242,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
                           MSG_BAD_TSTOP, IDA_mem->ida_tstop, IDA_mem->ida_tn);
           return(IDA_ILL_INPUT);
         }
-        *tret = IDA_mem->ida_tretlast = tstop;
+        *tret = IDA_mem->ida_tretlast = IDA_mem->ida_tstop;
         IDA_mem->ida_tstopset = FALSE;
         return(IDA_TSTOP_RETURN);
       }
@@ -4765,7 +4765,7 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
   if ( (IDA_mem->ida_hh != IDA_mem->ida_hused) ||
        (IDA_mem->ida_kk != IDA_mem->ida_kused) )
     IDA_mem->ida_ns = 0;
-  IDA_mem->ida_ns = SUNMIN(IDA_mem->ida_ns+1,kused+2);
+  IDA_mem->ida_ns = SUNMIN(IDA_mem->ida_ns+1, IDA_mem->ida_kused+2);
   if (IDA_mem->ida_kk+1 >= IDA_mem->ida_ns) {
     IDA_mem->ida_beta[0] = ONE;
     IDA_mem->ida_alpha[0] = ONE;
@@ -5849,7 +5849,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
       
       /* Reduce step size for a new prediction
          Note that if nflag=IDA_CONSTR_RECVR then rr was already set in IDANls */
-      if (nflag != IDA_CONSTR_RECVR) rr = QUARTER;
+      if (nflag != IDA_CONSTR_RECVR) IDA_mem->ida_rr = QUARTER;
       IDA_mem->ida_hh *= IDA_mem->ida_rr;
 
       /* Test if there were too many convergence failures */

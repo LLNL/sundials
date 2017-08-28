@@ -504,7 +504,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
 
   /* Call gcomm and glocal to get base value of G(t,y,y'). */
 
-  if (gcomm != NULL) {
+  if (pdata->gcomm != NULL) {
     retval = pdata->gcomm(pdata->n_local, tt, yy, yp, IDA_mem->ida_user_data);
     if (retval != 0) return(retval);
   }
