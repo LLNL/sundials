@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
  * --------------------------------------------------------------------
@@ -32,7 +29,7 @@
  * neq = 2*MX*MY.
  *
  * The solution is done with the BDF/GMRES method (i.e. using the
- * CVSPGMR linear solver) and a block-diagonal matrix with banded
+ * SUNSPGMR linear solver) and a block-diagonal matrix with banded
  * blocks as a preconditioner, using the CVBBDPRE module.
  * Each block is generated using difference quotients, with
  * half-bandwidths mudq = mldq = 2*MXSUB, but the retained banded
@@ -55,14 +52,15 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <cvode/cvode.h>              /* prototypes for CVODE fcts. */
-#include <cvode/cvode_spgmr.h>        /* prototypes and constants for CVSPGMR */
-#include <cvode/cvode_bbdpre.h>       /* prototypes for CVBBDPRE module */
-#include <nvector/nvector_parallel.h> /* def. of N_Vector */
-#include <sundials/sundials_types.h>  /* definitions of realtype, booleantype */
-#include <sundials/sundials_math.h>   /* definition of macros SUNSQR and EXP */
+#include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts.  */
+#include <nvector/nvector_parallel.h>  /* access to MPI-parallel N_Vector      */
+#include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
+#include <cvode/cvode_spils.h>         /* access to CVSpils interface          */
+#include <cvode/cvode_bbdpre.h>        /* access to CVBBDPRE module            */
+#include <sundials/sundials_types.h>   /* definitions of realtype, booleantype */
+#include <sundials/sundials_math.h>    /* definition of macros SUNSQR and EXP  */
 
-#include <mpi.h>                      /* MPI constants and types */
+#include <mpi.h> /* MPI constants and types */
 
 
 /* Problem Constants */
@@ -163,6 +161,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 int main(int argc, char *argv[])
 {
   UserData data;
+  SUNLinearSolver LS;
   void *cvode_mem;
   realtype abstol, reltol, t, tout;
   N_Vector u;
@@ -171,6 +170,7 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
 
   data = NULL;
+  LS = NULL;
   cvode_mem = NULL;
   u = NULL;
 
@@ -226,17 +226,21 @@ int main(int argc, char *argv[])
   flag = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_flag(&flag, "CVodeSStolerances", 1, my_pe)) return(1);
 
-  /* Call CVSpgmr to specify the linear solver CVSPGMR with left
-     preconditioning and the default maximum Krylov dimension maxl  */
-  flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
-  if(check_flag(&flag, "CVBBDSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
+  /* Create SPGMR solver structure -- use left preconditioning 
+     and the default Krylov dimension maxl */
+  LS = SUNSPGMR(u, PREC_LEFT, 0);
+  if (check_flag((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+
+  /* Attach SPGMR solver structure to CVSpils interface */
+  flag = CVSpilsSetLinearSolver(cvode_mem, LS);
+  if (check_flag(&flag, "CVSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Initialize BBD preconditioner */
   mudq = mldq = NVARS*MXSUB;
   mukeep = mlkeep = NVARS;
   flag = CVBBDPrecInit(cvode_mem, local_N, mudq, mldq, 
                        mukeep, mlkeep, ZERO, flocal, NULL);
-  if(check_flag(&flag, "CVBBDPrecAlloc", 1, my_pe)) MPI_Abort(comm, 1);
+  if(check_flag(&flag, "CVBBDPrecInit", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Print heading */
   if (my_pe == 0) PrintIntro(npes, mudq, mldq, mukeep, mlkeep);
@@ -256,8 +260,8 @@ int main(int argc, char *argv[])
     flag = CVBBDPrecReInit(cvode_mem, mudq, mldq, ZERO);
     if(check_flag(&flag, "CVBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVSpilsSetPrecType(cvode_mem, PREC_RIGHT);
-    check_flag(&flag, "CVSpilsSetPrecType", 1, my_pe);
+    flag = SUNSPGMRSetPrecType(LS, PREC_RIGHT);
+    check_flag(&flag, "SUNSPGMRSetPrecType", 1, my_pe);
 
     if (my_pe == 0) {
       printf("\n\n-------------------------------------------------------");
@@ -290,6 +294,7 @@ int main(int argc, char *argv[])
   N_VDestroy_Parallel(u);
   free(data);
   CVodeFree(&cvode_mem);
+  SUNLinSolFree(LS);
 
   MPI_Finalize();
 
@@ -339,7 +344,7 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 
   /* Set pointer to data array in vector u */
 
-  uarray = N_VGetArrayPointer_Parallel(u);
+  uarray = N_VGetArrayPointer(u);
 
   /* Get mesh spacings, and subgrid indices for this PE */
 
@@ -398,7 +403,7 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
   MPI_Status status;
 
   npelast = NPEX*NPEY - 1;
-  uarray = N_VGetArrayPointer_Parallel(u);
+  uarray = N_VGetArrayPointer(u);
 
   /* Send c1,c2 at top right mesh point to PE 0 */
   if (my_pe == npelast) {
@@ -496,7 +501,7 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVBBDPrecGetNumGfnEvals(cvode_mem, &ngevalsBBDP);
   check_flag(&flag, "CVBBDPrecGetNumGfnEvals", 1, 0);
   printf("In CVBBDPRE: real/integer local work space sizes = %ld, %ld\n",
-	 lenrwBBDP, leniwBBDP);  
+	 lenrwBBDP, leniwBBDP);
   printf("             no. flocal evals. = %ld\n",ngevalsBBDP);
 }
  
@@ -658,7 +663,7 @@ static void fucomm(realtype t, N_Vector u, void *user_data)
   MPI_Request request[4];
 
   data = (UserData) user_data;
-  uarray = N_VGetArrayPointer_Parallel(u);
+  uarray = N_VGetArrayPointer(u);
 
   /* Get comm, my_pe, subgrid indices, data sizes, extended array uext */
 
@@ -723,8 +728,8 @@ static int flocal(sunindextype Nlocal, realtype t, N_Vector u,
   UserData data;
   realtype *uarray, *duarray;
 
-  uarray = N_VGetArrayPointer_Parallel(u);
-  duarray = N_VGetArrayPointer_Parallel(udot);
+  uarray = N_VGetArrayPointer(u);
+  duarray = N_VGetArrayPointer(udot);
 
   /* Get subgrid indices, array sizes, extended work array uext */
 
