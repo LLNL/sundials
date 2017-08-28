@@ -72,13 +72,11 @@ typedef struct {
 
 /* Prototypes of user-supplied and supporting functions */
 
-static int heatres(realtype tres, 
-                   N_Vector uu, N_Vector up, N_Vector res, 
-                   void *user_data);
+static int heatres(realtype tres, N_Vector uu, N_Vector up,
+                   N_Vector res, void *user_data);
 
 static int rescomm(sunindextype Nlocal, realtype tt, 
-                   N_Vector uu, N_Vector up, 
-                   void *user_data);
+                   N_Vector uu, N_Vector up, void *user_data);
 
 static int reslocal(sunindextype Nlocal, realtype tres, 
                     N_Vector uu, N_Vector up, N_Vector res,  
@@ -107,9 +105,9 @@ static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol);
 
 static void PrintCase(int case_number, int mudq, int mukeep);
 
-static void PrintOutput(int id, void *mem, realtype t, N_Vector uu);
+static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu);
 
-static void PrintFinalStats(void *mem);
+static void PrintFinalStats(void *ida_mem);
 
 static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 
@@ -122,7 +120,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 int main(int argc, char *argv[])
 {
   MPI_Comm comm;
-  void *mem;
+  void *ida_mem;
   SUNLinearSolver LS;
   UserData data;
   int thispe, iout, ier, npes;
@@ -130,7 +128,7 @@ int main(int argc, char *argv[])
   realtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
 
-  mem = NULL;
+  ida_mem = NULL;
   LS = NULL;
   data = NULL;
   uu = up = constraints = id = res = NULL;
@@ -194,26 +192,26 @@ int main(int argc, char *argv[])
 
   /* Call IDACreate and IDAMalloc to initialize solution */
 
-  mem = IDACreate();
-  if(check_flag((void *)mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
+  ida_mem = IDACreate();
+  if(check_flag((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetUserData(mem, data);
+  ier = IDASetUserData(ida_mem, data);
   if(check_flag(&ier, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetSuppressAlg(mem, TRUE);
+  ier = IDASetSuppressAlg(ida_mem, TRUE);
   if(check_flag(&ier, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetId(mem, id);
+  ier = IDASetId(ida_mem, id);
   if(check_flag(&ier, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetConstraints(mem, constraints);
+  ier = IDASetConstraints(ida_mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
   N_VDestroy_Parallel(constraints);
 
-  ier = IDAInit(mem, heatres, t0, uu, up);
+  ier = IDAInit(ida_mem, heatres, t0, uu, up);
   if(check_flag(&ier, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASStolerances(mem, rtol, atol);
+  ier = IDASStolerances(ida_mem, rtol, atol);
   if(check_flag(&ier, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
   mudq = MXSUB;
@@ -239,11 +237,11 @@ int main(int argc, char *argv[])
   ier = SUNSPGMRSetMaxRestarts(LS, 5);  /* IDA recommends allowing up to 5 restarts */
   if(check_flag(&ier, "SUNSPGMRSetMaxRestarts", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASpilsSetLinearSolver(mem, LS);
+  ier = IDASpilsSetLinearSolver(ida_mem, LS);
   if(check_flag(&ier, "IDASpilsSetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
   
   /* Call IDABBDPrecInit to initialize BBD preconditioner. */
-  ier = IDABBDPrecInit(mem, local_N, mudq, mldq, mukeep, mlkeep, 
+  ier = IDABBDPrecInit(ida_mem, local_N, mudq, mldq, mukeep, mlkeep, 
                        ZERO, reslocal, NULL);
   if(check_flag(&ier, "IDABBDPrecAlloc", 1, thispe)) MPI_Abort(comm, 1);
 
@@ -253,15 +251,15 @@ int main(int argc, char *argv[])
   /* Loop over tout, call IDASolve, print output. */
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) { 
     
-    ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
+    ier = IDASolve(ida_mem, tout, &tret, uu, up, IDA_NORMAL);
     if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
 
-    PrintOutput(thispe, mem, tret, uu);
+    PrintOutput(thispe, ida_mem, tret, uu);
     
   }
 
   /* Print final statistics */
-  if (thispe == 0) PrintFinalStats(mem);
+  if (thispe == 0) PrintFinalStats(ida_mem);
   
   /*
    * ----------------------------- 
@@ -276,11 +274,11 @@ int main(int argc, char *argv[])
   SetInitialProfile(uu, up, id, res, data);
 
   /* Call IDAReInit to re-initialize IDA. */
-  ier = IDAReInit(mem, t0, uu, up);
+  ier = IDAReInit(ida_mem, t0, uu, up);
   if(check_flag(&ier, "IDAReInit", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Call IDABBDPrecReInit to re-initialize BBD preconditioner. */
-  ier = IDABBDPrecReInit(mem, mudq, mldq, ZERO);
+  ier = IDABBDPrecReInit(ida_mem, mudq, mldq, ZERO);
   if(check_flag(&ier, "IDABBDPrecReInit", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Print output heading (on processor 0 only). */
@@ -289,18 +287,18 @@ int main(int argc, char *argv[])
   /* Loop over tout, call IDASolve, print output. */
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) { 
     
-    ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
+    ier = IDASolve(ida_mem, tout, &tret, uu, up, IDA_NORMAL);
     if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
 
-    PrintOutput(thispe, mem, tret, uu);
+    PrintOutput(thispe, ida_mem, tret, uu);
     
   }
   
   /* Print final statistics */
-  if (thispe == 0) PrintFinalStats(mem);
+  if (thispe == 0) PrintFinalStats(ida_mem);
 
   /* Free Memory */
-  IDAFree(&mem);
+  IDAFree(&ida_mem);
   SUNLinSolFree(LS);
   free(data);
   N_VDestroy_Parallel(id);
@@ -751,7 +749,7 @@ static void PrintCase(int case_number, int mudq, int mukeep)
  * Print integrator statistics and max-norm of solution
  */
 
-static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
+static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu)
 {
   realtype umax, hused;
   int kused, ier;
@@ -761,25 +759,25 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
   
   if (id == 0) {
 
-    ier = IDAGetLastOrder(mem, &kused);
+    ier = IDAGetLastOrder(ida_mem, &kused);
     check_flag(&ier, "IDAGetLastOrder", 1, id);
-    ier = IDAGetNumSteps(mem, &nst);
+    ier = IDAGetNumSteps(ida_mem, &nst);
     check_flag(&ier, "IDAGetNumSteps", 1, id);
-    ier = IDAGetNumNonlinSolvIters(mem, &nni);
+    ier = IDAGetNumNonlinSolvIters(ida_mem, &nni);
     check_flag(&ier, "IDAGetNumNonlinSolvIters", 1, id);
-    ier = IDAGetNumResEvals(mem, &nre);
+    ier = IDAGetNumResEvals(ida_mem, &nre);
     check_flag(&ier, "IDAGetNumResEvals", 1, id);
-    ier = IDAGetLastStep(mem, &hused);
+    ier = IDAGetLastStep(ida_mem, &hused);
     check_flag(&ier, "IDAGetLastStep", 1, id);
-    ier = IDASpilsGetNumLinIters(mem, &nli);
+    ier = IDASpilsGetNumLinIters(ida_mem, &nli);
     check_flag(&ier, "IDASpilsGetNumLinIters", 1, id);
-    ier = IDASpilsGetNumResEvals(mem, &nreLS);
+    ier = IDASpilsGetNumResEvals(ida_mem, &nreLS);
     check_flag(&ier, "IDASpilsGetNumResEvals", 1, id);
-    ier = IDABBDPrecGetNumGfnEvals(mem, &nge);
+    ier = IDABBDPrecGetNumGfnEvals(ida_mem, &nge);
     check_flag(&ier, "IDABBDPrecGetNumGfnEvals", 1, id);
-    ier = IDASpilsGetNumPrecEvals(mem, &npe);
+    ier = IDASpilsGetNumPrecEvals(ida_mem, &npe);
     check_flag(&ier, "IDASpilsGetPrecEvals", 1, id);
-    ier = IDASpilsGetNumPrecSolves(mem, &nps);
+    ier = IDASpilsGetNumPrecSolves(ida_mem, &nps);
     check_flag(&ier, "IDASpilsGetNumPrecSolves", 1, id);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -800,13 +798,13 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
  * Print some final integrator statistics
  */
 
-static void PrintFinalStats(void *mem)
+static void PrintFinalStats(void *ida_mem)
 {
   long int netf, ncfn, ncfl;
 
-  IDAGetNumErrTestFails(mem, &netf);
-  IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-  IDASpilsGetNumConvFails(mem, &ncfl);
+  IDAGetNumErrTestFails(ida_mem, &netf);
+  IDAGetNumNonlinSolvConvFails(ida_mem, &ncfn);
+  IDASpilsGetNumConvFails(ida_mem, &ncfl);
 
   printf("\nError test failures            = %ld\n", netf);
   printf("Nonlinear convergence failures = %ld\n", ncfn);

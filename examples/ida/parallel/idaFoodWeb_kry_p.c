@@ -175,13 +175,11 @@ static int resweb(realtype time,
                   N_Vector cc, N_Vector cp, N_Vector resval, 
                   void *user_data);
 
-static int Precondbd(realtype tt, 
-                     N_Vector cc, N_Vector cp, N_Vector rr, 
-                     realtype cj, void *user_data);
+static int Precondbd(realtype tt, N_Vector cc, N_Vector cp,
+                     N_Vector rr, realtype cj, void *user_data);
 
-static int PSolvebd(realtype tt, 
-                    N_Vector cc, N_Vector cp, N_Vector rr, 
-                    N_Vector rvec, N_Vector zvec,
+static int PSolvebd(realtype tt, N_Vector cc, N_Vector cp, 
+                    N_Vector rr, N_Vector rvec, N_Vector zvec,
                     realtype cj, realtype delta, void *user_data);
 
 static int rescomm(N_Vector cc, N_Vector cp, void *user_data);
@@ -221,10 +219,10 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
 static void PrintHeader(sunindextype SystemSize, int maxl, 
                         realtype rtol, realtype atol);
 
-static void PrintOutput(void *mem, N_Vector cc, realtype time,
+static void PrintOutput(void *ida_mem, N_Vector cc, realtype time,
                         UserData webdata, MPI_Comm comm);
 
-static void PrintFinalStats(void *mem);
+static void PrintFinalStats(void *ida_mem);
 
 static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 
@@ -237,7 +235,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 int main(int argc, char *argv[])
 {
   MPI_Comm comm;
-  void *mem;
+  void *ida_mem;
   SUNLinearSolver LS;
   UserData webdata;
   sunindextype SystemSize, local_N;
@@ -248,7 +246,7 @@ int main(int argc, char *argv[])
   cc = cp = res = id = NULL;
   webdata = NULL;
   LS = NULL;
-  mem = NULL;
+  ida_mem = NULL;
 
   /* Set communicator, and get processor number and total number of PE's. */
 
@@ -306,22 +304,22 @@ int main(int argc, char *argv[])
   /* Call IDACreate and IDAMalloc to initialize IDA.
      A pointer to IDA problem memory is returned and stored in idamem. */
 
-  mem = IDACreate();
-  if (check_flag((void *)mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
+  ida_mem = IDACreate();
+  if (check_flag((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
-  flag = IDASetUserData(mem, webdata);
+  flag = IDASetUserData(ida_mem, webdata);
   if (check_flag(&flag, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
 
-  flag = IDASetId(mem, id);
+  flag = IDASetId(ida_mem, id);
   if (check_flag(&flag, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
 
-  flag = IDAInit(mem, resweb, t0, cc, cp);
+  flag = IDAInit(ida_mem, resweb, t0, cc, cp);
   if (check_flag(&flag, "IDAinit", 1, thispe)) MPI_Abort(comm, 1);
 
-  flag = IDASStolerances(mem, rtol, atol);
+  flag = IDASStolerances(ida_mem, rtol, atol);
   if (check_flag(&flag, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
-  webdata->ida_mem = mem;
+  webdata->ida_mem = ida_mem;
 
   /* Call SUNSPGMR and IDASpilsSetLinearSolver to specify the linear solver 
      to IDA, and specify the supplied [left] preconditioner routines 
@@ -334,34 +332,34 @@ int main(int argc, char *argv[])
   flag = SUNSPGMRSetMaxRestarts(LS, 5);  /* IDA recommends allowing up to 5 restarts */
   if(check_flag(&flag, "SUNSPGMRSetMaxRestarts", 1, thispe)) MPI_Abort(comm, 1);
 
-  flag = IDASpilsSetLinearSolver(mem, LS);
+  flag = IDASpilsSetLinearSolver(ida_mem, LS);
   if (check_flag(&flag, "IDASpilsSetLinearSolver", 1, thispe)) 
     MPI_Abort(comm, 1);
 
-  flag = IDASpilsSetPreconditioner(mem, Precondbd, PSolvebd);
+  flag = IDASpilsSetPreconditioner(ida_mem, Precondbd, PSolvebd);
   if (check_flag(&flag, "IDASpilsSetPreconditioner", 1, thispe)) 
     MPI_Abort(comm, 1);
   
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
   tout = RCONST(0.001);
-  flag = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
+  flag = IDACalcIC(ida_mem, IDA_YA_YDP_INIT, tout);
   if (check_flag(&flag, "IDACalcIC", 1, thispe)) 
     MPI_Abort(comm, 1);
 
   /* On PE 0, print heading, basic parameters, initial values. */
 
   if (thispe == 0) PrintHeader(SystemSize, maxl, rtol, atol);
-  PrintOutput(mem, cc, t0, webdata, comm);
+  PrintOutput(ida_mem, cc, t0, webdata, comm);
   
   /* Loop over iout, call IDASolve (normal mode), print selected output. */
 
   for (iout = 1; iout <= NOUT; iout++) {
     
-    flag = IDASolve(mem, tout, &tret, cc, cp, IDA_NORMAL);
+    flag = IDASolve(ida_mem, tout, &tret, cc, cp, IDA_NORMAL);
     if (check_flag(&flag, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
 
-    PrintOutput(mem, cc, tret, webdata, comm);
+    PrintOutput(ida_mem, cc, tret, webdata, comm);
     
     if (iout < 3) tout *= TMULT; 
     else          tout += TADD;
@@ -369,7 +367,7 @@ int main(int argc, char *argv[])
   }
   
   /* On PE 0, print final set of statistics. */
-  if (thispe == 0) PrintFinalStats(mem);
+  if (thispe == 0) PrintFinalStats(ida_mem);
 
   /* Free memory. */
 
@@ -377,7 +375,7 @@ int main(int argc, char *argv[])
   N_VDestroy_Parallel(cp);
   N_VDestroy_Parallel(id);
 
-  IDAFree(&mem);
+  IDAFree(&ida_mem);
   SUNLinSolFree(LS);
   
   FreeUserData(webdata);
@@ -595,7 +593,7 @@ static void PrintHeader(sunindextype SystemSize, int maxl,
  * (NOTE: This routine is specific to the case NUM_SPECIES = 2.)         
  */
 
-static void PrintOutput(void *mem, N_Vector cc, realtype tt,
+static void PrintOutput(void *ida_mem, N_Vector cc, realtype tt,
                         UserData webdata, MPI_Comm comm)
 {
   MPI_Status status;
@@ -623,11 +621,11 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
     if (npelast != 0)
       MPI_Recv(&clast[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
     
-    flag = IDAGetLastOrder(mem, &kused);
+    flag = IDAGetLastOrder(ida_mem, &kused);
     check_flag(&flag, "IDAGetLastOrder", 1, thispe);
-    flag = IDAGetNumSteps(mem, &nst);
+    flag = IDAGetNumSteps(ida_mem, &nst);
     check_flag(&flag, "IDAGetNumSteps", 1, thispe);
-    flag = IDAGetLastStep(mem, &hused);
+    flag = IDAGetLastStep(ida_mem, &hused);
     check_flag(&flag, "IDAGetLastStep", 1, thispe);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -655,31 +653,31 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
  * PrintFinalStats: Print final run data contained in iopt.              
  */
 
-static void PrintFinalStats(void *mem)
+static void PrintFinalStats(void *ida_mem)
 {
   long int nst, nre, nreLS, netf, ncfn, nni, ncfl, nli, npe, nps;
   int flag;
 
-  flag = IDAGetNumSteps(mem, &nst);
+  flag = IDAGetNumSteps(ida_mem, &nst);
   check_flag(&flag, "IDAGetNumSteps", 1, 0);
-  flag = IDAGetNumResEvals(mem, &nre);
+  flag = IDAGetNumResEvals(ida_mem, &nre);
   check_flag(&flag, "IDAGetNumResEvals", 1, 0);
-  flag = IDAGetNumErrTestFails(mem, &netf);
+  flag = IDAGetNumErrTestFails(ida_mem, &netf);
   check_flag(&flag, "IDAGetNumErrTestFails", 1, 0);
-  flag = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  flag = IDAGetNumNonlinSolvConvFails(ida_mem, &ncfn);
   check_flag(&flag, "IDAGetNumNonlinSolvConvFails", 1, 0);
-  flag = IDAGetNumNonlinSolvIters(mem, &nni);
+  flag = IDAGetNumNonlinSolvIters(ida_mem, &nni);
   check_flag(&flag, "IDAGetNumNonlinSolvIters", 1, 0);
 
-  flag = IDASpilsGetNumConvFails(mem, &ncfl);
+  flag = IDASpilsGetNumConvFails(ida_mem, &ncfl);
   check_flag(&flag, "IDASpilsGetNumConvFails", 1, 0);
-  flag = IDASpilsGetNumLinIters(mem, &nli);
+  flag = IDASpilsGetNumLinIters(ida_mem, &nli);
   check_flag(&flag, "IDASpilsGetNumLinIters", 1, 0);
-  flag = IDASpilsGetNumPrecEvals(mem, &npe);
+  flag = IDASpilsGetNumPrecEvals(ida_mem, &npe);
   check_flag(&flag, "IDASpilsGetNumPrecEvals", 1, 0);
-  flag = IDASpilsGetNumPrecSolves(mem, &nps);
+  flag = IDASpilsGetNumPrecSolves(ida_mem, &nps);
   check_flag(&flag, "IDASpilsGetNumPrecSolves", 1, 0);
-  flag = IDASpilsGetNumResEvals(mem, &nreLS);
+  flag = IDASpilsGetNumResEvals(ida_mem, &nreLS);
   check_flag(&flag, "IDASpilsGetNumResEvals", 1, 0);
 
   printf("-----------------------------------------------------------\n");
@@ -1126,9 +1124,8 @@ static realtype dotprod(int size, realtype *x1, realtype *x2)
  * Each block is LU-factored, for later solution of the linear systems.  
  */
 
-static int Precondbd(realtype tt, N_Vector cc,
-                     N_Vector cp, N_Vector rr, 
-                     realtype cj, void *user_data)
+static int Precondbd(realtype tt, N_Vector cc, N_Vector cp, 
+                     N_Vector rr, realtype cj, void *user_data)
 {
   int flag, thispe;
   realtype uround;
@@ -1136,7 +1133,7 @@ static int Precondbd(realtype tt, N_Vector cc,
   realtype inc, sqru, fac, perturb_rates[NUM_SPECIES];
   int is, js, ix, jy, ret;
   UserData webdata;
-  void *mem;
+  void *ida_mem;
   N_Vector ewt;
   realtype hh;
 
@@ -1145,11 +1142,11 @@ static int Precondbd(realtype tt, N_Vector cc,
   sqru = SUNRsqrt(uround);
   thispe = webdata->thispe;
 
-  mem = webdata->ida_mem;
+  ida_mem = webdata->ida_mem;
   ewt = webdata->ewt;
-  flag = IDAGetErrWeights(mem, ewt);
+  flag = IDAGetErrWeights(ida_mem, ewt);
   check_flag(&flag, "IDAGetErrWeights", 1, thispe);
-  flag = IDAGetCurrentStep(mem, &hh);
+  flag = IDAGetCurrentStep(ida_mem, &hh);
   check_flag(&flag, "IDAGetCurrentStep", 1, thispe);
 
   for (jy = 0; jy < mysub; jy++) {
@@ -1200,14 +1197,12 @@ static int Precondbd(realtype tt, N_Vector cc,
  * preconditioner PP, to compute the solution of PP * zvec = rvec.       
  */
 
-static int PSolvebd(realtype tt, N_Vector cc,
-                 N_Vector cp, N_Vector rr, 
-                 N_Vector rvec, N_Vector zvec,
-                 realtype cj, realtype delta,
-                 void *user_data)
+static int PSolvebd(realtype tt, N_Vector cc, N_Vector cp,
+                    N_Vector rr, N_Vector rvec, N_Vector zvec,
+                    realtype cj, realtype delta, void *user_data)
 {
   realtype **Pxy, *zxy;
- sunindextype *pivot, ix, jy;
+  sunindextype *pivot, ix, jy;
   UserData webdata;
 
   webdata = (UserData)user_data;
