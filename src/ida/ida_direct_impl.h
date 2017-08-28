@@ -61,10 +61,10 @@ typedef struct IDADlsMemRec {
   ---------------------------------------------------------------*/
  
 /* difference-quotient Jacobian approximation routines */
-int idaDlsDQJac(realtype tt, realtype c_j,
-                N_Vector yy, N_Vector yp, N_Vector rr, 
-                SUNMatrix Jac, void *data, N_Vector tmp1, 
-                N_Vector tmp2, N_Vector tmp3);
+int idaDlsDQJac(realtype tt, realtype c_j, N_Vector yy, 
+                N_Vector yp, N_Vector rr, SUNMatrix Jac, 
+                void *data, N_Vector tmp1, N_Vector tmp2, 
+                N_Vector tmp3);
 int idaDlsDenseDQJac(realtype tt, realtype c_j, N_Vector yy,
                      N_Vector yp, N_Vector rr, SUNMatrix Jac,
                      IDAMem IDA_mem, N_Vector tmp1);
@@ -90,11 +90,9 @@ int idaDlsFree(IDAMem IDA_mem);
 int idaDlsInitializeCounters(IDADlsMem idadls_mem);
 
 
-/*
- * =================================================================
- * E R R O R   M E S S A G E S
- * =================================================================
- */
+/*=================================================================
+  Error Messages
+  =================================================================*/
 
 #define MSGD_IDAMEM_NULL "Integrator memory is NULL."
 #define MSGD_BAD_NVECTOR "A required vector operation is not implemented."

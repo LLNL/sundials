@@ -259,14 +259,14 @@ int IDADlsGetNumResEvals(void *ida_mem, long int *nrevalsLS)
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDADLS_MEM_NULL, "IDADLS",
-                    "IDADlsGetNumFctEvals", MSGD_IDAMEM_NULL);
+                    "IDADlsGetNumResEvals", MSGD_IDAMEM_NULL);
     return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDADLS",
-                    "IDADlsGetNumFctEvals", MSGD_LMEM_NULL);
+                    "IDADlsGetNumResEvals", MSGD_LMEM_NULL);
     return(IDADLS_LMEM_NULL);
   }
   idadls_mem = (IDADlsMem) IDA_mem->ida_lmem;
@@ -401,6 +401,7 @@ int idaDlsDQJac(realtype t, realtype c_j, N_Vector y,
   return(retval);
 }
 
+
 /*---------------------------------------------------------------
   idaDlsDenseDQJac 
 
@@ -432,7 +433,7 @@ int idaDlsDenseDQJac(realtype tt, realtype c_j, N_Vector yy,
   N = SUNDenseMatrix_Rows(Jac);
 
   /* Rename work vectors for readibility */
-  rtemp  = tmp1;
+  rtemp = tmp1;
 
   /* Create an empty vector for matrix column calculations */
   jthCol = N_VCloneEmpty(tmp1);
@@ -779,8 +780,7 @@ int idaDlsFree(IDAMem IDA_mem)
 
 
 /*---------------------------------------------------------------
-  idaDlsInitialize performs remaining initializations specific
-  to the direct linear solver interface (and solver itself)
+  idaDlsInitializeCounters resets counters for the DLS interface
   ---------------------------------------------------------------*/
 int idaDlsInitializeCounters(IDADlsMem idadls_mem)
 {

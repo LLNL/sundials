@@ -317,14 +317,14 @@ int IDASpilsSetJacTimes(void *ida_mem,
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASPILS",
-                    "IDASpilsSetJacTimesVecFn", MSGS_IDAMEM_NULL);
+                    "IDASpilsSetJacTimes", MSGS_IDAMEM_NULL);
     return(IDASPILS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASPILS",
-                    "IDASpilsSetJacTimesVecFn", MSGS_LMEM_NULL);
+                    "IDASpilsSetJacTimes", MSGS_LMEM_NULL);
     return(IDASPILS_LMEM_NULL);
   }
   idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
@@ -669,7 +669,7 @@ char *IDASpilsGetReturnFlagName(long int flag)
   ---------------------------------------------------------------*/
 int IDASpilsATSetup(void *ida_mem)
 {
-  IDAMem   IDA_mem;
+  IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
   int flag;
 
@@ -803,7 +803,6 @@ int IDASpilsPSolve(void *ida_mem, N_Vector r, N_Vector z,
                                 IDA_mem->ida_cj, tol,
                                 idaspils_mem->pdata);
   idaspils_mem->nps++;
-
   return(retval);
 }
 
@@ -866,6 +865,7 @@ int IDASpilsDQJtimes(realtype tt, N_Vector yy, N_Vector yp,
 
   return(0);
 }
+
 
 /*---------------------------------------------------------------
  idaSpilsInitialize performs remaining initializations specific
@@ -1121,10 +1121,8 @@ int idaSpilsFree(IDAMem IDA_mem)
 
 
 /*---------------------------------------------------------------
- idaSpilsInitializeCounters and idaSpilsInitializeMassCounters:
-
- These routines reset all counters from an IDASpilsMem or 
- IDASpilsMassMem structure.
+ idaSpilsInitializeCounters resets all counters from an 
+ IDASpilsMem structure.
 ---------------------------------------------------------------*/
 int idaSpilsInitializeCounters(IDASpilsMem idaspils_mem)
 {

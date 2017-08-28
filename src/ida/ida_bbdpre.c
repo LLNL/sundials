@@ -423,7 +423,6 @@ int IDABBDPrecGetNumGfnEvals(void *ida_mem,
    > 0    for a recoverable error (step will be retried), or
    < 0    for a nonrecoverable error (step fails).
  ----------------------------------------------------------------*/
-
 static int IDABBDPrecSetup(realtype tt, N_Vector yy, N_Vector yp,
                            N_Vector rr, realtype c_j, void *bbd_data)
 {
@@ -553,7 +552,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
 {
   IDAMem IDA_mem;
   realtype inc, inc_inv;
-  int  retval;
+  int retval;
   sunindextype group, i, j, width, ngroups, i1, i2;
   realtype *ydata, *ypdata, *ytempdata, *yptempdata, *grefdata, *gtempdata;
   realtype *cnsdata = NULL, *ewtdata;
@@ -635,7 +634,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
       /* Set increment inc as before .*/
       inc = pdata->rel_yy *
         SUNMAX(SUNRabs(yj), SUNMAX( SUNRabs(IDA_mem->ida_hh*ypj), ONE/ewtj));
-      if (IDA_mem->ida_hh*ypj < ZERO) inc = -inc;
+      if (IDA_mem->ida_hh*ypj < ZERO)  inc = -inc;
       inc = (yj + inc) - yj;
       if (IDA_mem->ida_constraints != NULL) {
         conj = cnsdata[j];

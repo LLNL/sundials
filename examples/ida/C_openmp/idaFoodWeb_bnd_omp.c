@@ -69,12 +69,12 @@
  *
  * Execution:
  *
- * If the user want to use the default value or the number of threads 
- * from environment value:
+ * To use the default value for the number of threads from 
+ * the OMP_NUM_THREADS environment value:
  *      % ./idaFoodWeb_bnd_omp 
- * If the user want to specify the number of threads to use
+ * To specify the number of threads at the command line, use
  *      % ./idaFoodWeb_bnd_omp num_threads
- * where num_threads is the number of threads the user want to use 
+ * where num_threads is the desired number of threads. 
  *
  * -----------------------------------------------------------------
  * References:
@@ -353,7 +353,7 @@ static int resweb(realtype tt, N_Vector cc, N_Vector cp,
   
   /* Loop over all grid points, setting residual values appropriately
      for differential or algebraic components.                        */
-#pragma omp parallel for default(shared) private(jy, yloc, jx, loc, is) schedule(static) 
+#pragma omp parallel for default(shared) private(jy, yloc, jx, loc, is) schedule(static) num_threads(webdata->nthreads)
   for (jy = 0; jy < MY; jy++) {
     yloc = NSMX * jy;
     for (jx = 0; jx < MX; jx++) {
@@ -498,7 +498,8 @@ static void PrintHeader(sunindextype mu, sunindextype ml, realtype rtol, realtyp
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: IDABAND,  Band parameters mu = %ld, ml = %ld\n", (long int) mu, (long int) ml);
+  printf("Linear solver: SUNBAND,  Band parameters mu = %ld, ml = %ld\n",
+         (long int) mu, (long int) ml);
   printf("CalcIC called to correct initial predator concentrations.\n\n");
   printf("-----------------------------------------------------------\n");
   printf("  t        bottom-left  top-right");
@@ -617,7 +618,7 @@ static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate,
       WebRates(xx, yy, cxy, ratesxy, webdata);
       
       /* Loop over species, do differencing, load crate segment. */
-#pragma omp parallel for default(shared) private(is, dcyli, dcyui, dcxli, dcxui) schedule(static)
+#pragma omp parallel for default(shared) private(is, dcyli, dcyui, dcxli, dcxui) schedule(static) num_threads(webdata->nthreads)
       for (is = 0; is < NUM_SPECIES; is++) {
         
         /* Differencing in y. */

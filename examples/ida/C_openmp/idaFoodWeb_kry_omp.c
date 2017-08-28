@@ -69,12 +69,12 @@
  *
  * Execution:
  *
- * If the user want to use the default value or the number of threads 
- * from environment value:
+ * To use the default value for the number of threads from 
+ * the OMP_NUM_THREADS environment value:
  *      % ./idaFoodWeb_kry_omp 
- * If the user want to specify the number of threads to use
+ * To specify the number of threads at the command line, use
  *      % ./idaFoodWeb_kry_omp num_threads
- * where num_threads is the number of threads the user want to use 
+ * where num_threads is the desired number of threads. 
  *
  * -----------------------------------------------------------------
  * References:
@@ -621,7 +621,7 @@ static void PrintHeader(int maxl, realtype rtol, realtype atol)
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: IDASpgmr,  Spgmr parameters maxl = %d\n",maxl);
+  printf("Linear solver: SUNSPGMR, maxl = %d\n",maxl);
   printf("CalcIC called to correct initial predator concentrations.\n\n");
   printf("-----------------------------------------------------------\n");
   printf("  t        bottom-left  top-right");
