@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -4865,14 +4862,14 @@ static int IDANls(IDAMem IDA_mem)
     IDA_mem->ida_cjold = IDA_mem->ida_cj;
     IDA_mem->ida_ss = TWENTY;
     IDA_mem->ida_ssS = TWENTY;
-    if (IDA_mem->ida_setupNonNull) callSetup = TRUE;
+    if (IDA_mem->ida_lsetup) callSetup = TRUE;
   }
 
   IDA_mem->ida_mm = IDA_mem->ida_tempv2;
   tempv3 = IDA_mem->ida_ee;
 
   /* Decide if lsetup is to be called */
-  if (IDA_mem->ida_setupNonNull){
+  if (IDA_mem->ida_lsetup){
     IDA_mem->ida_cjratio = IDA_mem->ida_cj / IDA_mem->ida_cjold;
     temp1 = (ONE - XRATE) / (ONE + XRATE);
     temp2 = ONE/temp1;
@@ -4926,7 +4923,7 @@ static int IDANls(IDAMem IDA_mem)
     retval = IDANewtonIter(IDA_mem);
 
     /* Retry the current step on recoverable failure with old Jacobian data. */
-    tryAgain = (retval>0)&&(IDA_mem->ida_setupNonNull) &&(!callSetup);
+    tryAgain = (retval>0) && (IDA_mem->ida_lsetup) && (!callSetup);
 
     if (tryAgain){
       callSetup = TRUE;
@@ -5220,7 +5217,7 @@ static int IDASensNls(IDAMem IDA_mem)
     retval = IDASensNewtonIter(IDA_mem);
 
     /* Retry the current step on recoverable failure with old Jacobian data */
-    tryAgain = (retval>0) && (IDA_mem->ida_setupNonNull) && (!callSetup);
+    tryAgain = (retval>0) && (IDA_mem->ida_lsetup) && (!callSetup);
 
     if (tryAgain) {
       callSetup = TRUE;

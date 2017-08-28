@@ -395,7 +395,6 @@ typedef struct IDAMemRec {
     Saved Values
     ------------*/
 
-  booleantype    ida_setupNonNull;   /* Does setup do something?              */
   booleantype    ida_constraintsSet; /* constraints vector present            */
   booleantype    ida_suppressalg;    /* TRUE if suppressing algebraic vars.
 					in local error tests                  */
@@ -770,15 +769,14 @@ struct IDAadjMemRec {
 /*
  * -----------------------------------------------------------------
  * int (*ida_lsetup)(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,   
- *                  N_Vector resp,                                 
- *            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);  
+ *                  N_Vector resp, N_Vector tempv1, 
+ *                  N_Vector tempv2, N_Vector tempv3);  
  * -----------------------------------------------------------------
  * The job of ida_lsetup is to prepare the linear solver for       
  * subsequent calls to ida_lsolve. Its parameters are as follows:  
  *                                                                 
  * idamem - problem memory pointer of type IDAMem. See the big     
  *          typedef earlier in this file.                          
- *                                                                 
  *                                                                 
  * yyp   - the predicted y vector for the current IDA internal     
  *         step.                                                   
@@ -828,6 +826,17 @@ struct IDAadjMemRec {
  * -----------------------------------------------------------------
  */                                                                 
 
+/*
+ * -----------------------------------------------------------------
+ * int (*ida_lfree)(IDAMem IDA_mem);                               
+ * -----------------------------------------------------------------
+ * ida_lfree should free up any memory allocated by the linear     
+ * solver. This routine is called once a problem has been          
+ * completed and the linear solver is no longer needed.  It should 
+ * return 0 upon success, nonzero on failure.
+ * -----------------------------------------------------------------
+ */
+  
 /*
  * =================================================================
  *   I D A S    I N T E R N A L   F U N C T I O N S
