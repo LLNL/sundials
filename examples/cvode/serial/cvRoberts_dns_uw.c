@@ -27,15 +27,13 @@
 
 #include <stdio.h>
 
-/* Header files with a description of contents used */
-
 #include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts.  */
-#include <nvector/nvector_serial.h>    /* serial N_Vector types, fcts., macros */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
 #include <cvode/cvode_direct.h>        /* access to CVDls interface            */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
-#include <sundials/sundials_math.h>    /* definition of ABS */
+#include <sundials/sundials_math.h>    /* definition of ABS                    */
 
 /* User-defined vector and matrix accessor macros: Ith, IJth */
 

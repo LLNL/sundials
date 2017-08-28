@@ -28,10 +28,8 @@
 #include <stdlib.h>
 #include <math.h>
 
-/* Header files with a description of contents used in cvbanx.c */
-
 #include <cvode/cvode.h>                     /* prototypes for CVODE fcts., consts.  */
-#include <nvector/nvector_serial.h>          /* serial N_Vector types, fcts., macros */
+#include <nvector/nvector_serial.h>          /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_band.h>        /* access to band SUNMatrix             */
 #include <sunlinsol/sunlinsol_lapackband.h>  /* access to band SUNLinearSolver       */
 #include <cvode/cvode_direct.h>              /* access to CVDls interface            */

@@ -54,10 +54,8 @@
 #include <stdlib.h>
 #include <math.h>
 
-/* Header files with a description of contents used */
-
-#include <cvode/cvode.h>                  /* main integrator header file              */
-#include <nvector/nvector_serial.h>       /* serial N_Vector types, fct. and macros   */
+#include <cvode/cvode.h>                  /* prototypes for CVODE fcts., consts.      */
+#include <nvector/nvector_serial.h>       /* access to serial N_Vector                */
 #include <sunmatrix/sunmatrix_dense.h>    /* access to dense SUNMatrix                */
 #include <sunlinsol/sunlinsol_dense.h>    /* access to dense SUNLinearSolver          */
 #include <sunmatrix/sunmatrix_band.h>     /* access to band SUNMatrix                 */

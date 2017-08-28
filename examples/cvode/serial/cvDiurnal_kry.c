@@ -33,9 +33,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-/* Header files with a description of contents used */
-
-#include <cvode/cvode.h>               /* main integrator header file          */
+#include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts.  */
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
 #include <cvode/cvode_spils.h>         /* access to CVSpils interface          */
