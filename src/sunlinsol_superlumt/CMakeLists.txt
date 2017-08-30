@@ -65,24 +65,30 @@ ENDIF(BUILD_SHARED_LIBS)
 # Install the SUNLINSOLSUPERLUMT header files
 INSTALL(FILES ${sunlinsolsuperlumt_HEADERS} DESTINATION include/sunlinsol)
 
-# If FCMIX is enabled, build and install the FSUNLINSOLSUPERLUMT library
-IF(FCMIX_ENABLE AND F77_FOUND)
-  SET(fsunlinsolsuperlumt_SOURCES fsunlinsol_superlumt.c)
-  IF(BUILD_STATIC_LIBS)
-    ADD_LIBRARY(sundials_fsunlinsolsuperlumt_static STATIC ${fsunlinsolsuperlumt_SOURCES})
-    SET_TARGET_PROPERTIES(sundials_fsunlinsolsuperlumt_static
-      PROPERTIES OUTPUT_NAME sundials_fsunlinsolsuperlumt CLEAN_DIRECT_OUTPUT 1)
-    INSTALL(TARGETS sundials_fsunlinsolsuperlumt_static DESTINATION lib)
-  ENDIF(BUILD_STATIC_LIBS)
-  IF(BUILD_SHARED_LIBS)
-    ADD_LIBRARY(sundials_fsunlinsolsuperlumt_shared ${fsunlinsolsuperlumt_SOURCES})
-    SET_TARGET_PROPERTIES(sundials_fsunlinsolsuperlumt_shared
-      PROPERTIES OUTPUT_NAME sundials_fsunlinsolsuperlumt CLEAN_DIRECT_OUTPUT 1)
-    SET_TARGET_PROPERTIES(sundials_fsunlinsolsuperlumt_shared 
-      PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
-    INSTALL(TARGETS sundials_fsunlinsolsuperlumt_shared DESTINATION lib)
-  ENDIF(BUILD_SHARED_LIBS)
-ENDIF(FCMIX_ENABLE AND F77_FOUND)
+# If FCMIX is enabled and building with 64-bit indices, then build and install 
+# the FSUNLINSOLSUPERLUMT library
+IF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
+  PRINT_WARNING("The Fortran interface to SuperLU_MT is not compatible with ${SUNDIALS_INDEX_TYPE} integers"
+                "Fortran interfaces to SuperLU_MT will not be built")
+ELSE()
+  IF(FCMIX_ENABLE AND F77_FOUND)
+    SET(fsunlinsolsuperlumt_SOURCES fsunlinsol_superlumt.c)
+    IF(BUILD_STATIC_LIBS)
+      ADD_LIBRARY(sundials_fsunlinsolsuperlumt_static STATIC ${fsunlinsolsuperlumt_SOURCES})
+      SET_TARGET_PROPERTIES(sundials_fsunlinsolsuperlumt_static
+        PROPERTIES OUTPUT_NAME sundials_fsunlinsolsuperlumt CLEAN_DIRECT_OUTPUT 1)
+      INSTALL(TARGETS sundials_fsunlinsolsuperlumt_static DESTINATION lib)
+    ENDIF(BUILD_STATIC_LIBS)
+    IF(BUILD_SHARED_LIBS)
+      ADD_LIBRARY(sundials_fsunlinsolsuperlumt_shared ${fsunlinsolsuperlumt_SOURCES})
+      SET_TARGET_PROPERTIES(sundials_fsunlinsolsuperlumt_shared
+        PROPERTIES OUTPUT_NAME sundials_fsunlinsolsuperlumt CLEAN_DIRECT_OUTPUT 1)
+      SET_TARGET_PROPERTIES(sundials_fsunlinsolsuperlumt_shared 
+        PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
+      INSTALL(TARGETS sundials_fsunlinsolsuperlumt_shared DESTINATION lib)
+    ENDIF(BUILD_SHARED_LIBS)
+  ENDIF(FCMIX_ENABLE AND F77_FOUND)
+ENDIF()
 
 #
 MESSAGE(STATUS "Added SUNLINSOL_SUPERLUMT module")
