@@ -1153,7 +1153,7 @@ IF(EXAMPLES_ENABLE)
       #ADD_SUBDIRECTORY(examples/cvodes/parallel)
     ENDIF(MPIC_FOUND)
     IF(OPENMP_FOUND)
-      #ADD_SUBDIRECTORY(examples/cvodes/C_openmp)
+      ADD_SUBDIRECTORY(examples/cvodes/C_openmp)
     ENDIF(OPENMP_FOUND)
   ENDIF(BUILD_CVODES)
   

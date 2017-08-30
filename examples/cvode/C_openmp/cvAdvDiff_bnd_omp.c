@@ -5,7 +5,7 @@
  * Example problem:
  *
  * The following is a simple example problem with a banded Jacobian,
- * with the program for its solution by CVODE.
+ * solved using CVODE.
  * The problem is the semi-discrete form of the advection-diffusion
  * equation in 2-D:
  *   du/dt = d^2 u / dx^2 + .5 du/dx + d^2 u / dy^2
@@ -36,14 +36,13 @@
  * The environment variable can be over-ridden with a command line
  * argument specifying the number of threads to use, e.g:
  *      % ./cvAdvDiff_bnd_omp 5
- * -----------------------------------------------------------------
- */
+ * ----------------------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-/* Header files with a description of contents used in cvbanx.c */
+/* Header files with a description of contents */
 
 #include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts. */
 #include <nvector/nvector_openmp.h>    /* serial N_Vector types, fcts., macros */
@@ -110,9 +109,8 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 /* Functions Called by the Solver */
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
-static int Jac(realtype t, N_Vector u, N_Vector fu, 
-               SUNMatrix J, void *user_data,
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Jac(realtype t, N_Vector u, N_Vector fu, SUNMatrix J, 
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
  *-------------------------------
