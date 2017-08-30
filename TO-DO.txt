@@ -50,4 +50,11 @@
    correctly, although my results differ from the 'answer' file.
    Perhaps this problem should be investigated more thoroughly and
    added back in? 
+  
+
+9. I added in the ability to update DGMAX and MSBP in CVODE(S); check
+   that these are also user modifiable in ARKode.  Also add the
+   corresponding "set" routines to the FCVODE and FARKODE interfaces.
+
+
    
