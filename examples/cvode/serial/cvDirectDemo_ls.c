@@ -689,6 +689,10 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
       /* Use a difference quotient Jacobian */
       flag = CVDlsSetJacFn(cvode_mem, NULL);
       if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
+
+      /* Recompute the Jacobian at every time step */
+      flag = CVDlsSetMSBJ(cvode_mem, 0);
+      if(check_flag(&flag, "CVDlsSetMSBJ", 1)) return(1);
       break;
 
     case BAND_USER : 
@@ -781,33 +785,12 @@ static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
   printf(" Number of error test failures            = %4ld \n\n",netf);
   
   if (miter != FUNC) {
-    switch(miter) {
-    case DENSE_USER :
-    case DENSE_DQ   :
-      flag = CVDlsGetNumJacEvals(cvode_mem, &nje);
-      check_flag(&flag, "CVDlsGetNumJacEvals", 1);
-      flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
-      check_flag(&flag, "CVDlsGetNumRhsEvals", 1);
-      flag = CVDlsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-      check_flag(&flag, "CVDlsGetWorkSpace", 1);
-      break;
-    case BAND_USER  :
-    case BAND_DQ    :
-      flag = CVDlsGetNumJacEvals(cvode_mem, &nje);
-      check_flag(&flag, "CVDlsGetNumJacEvals", 1);
-      flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
-      check_flag(&flag, "CVDlsGetNumRhsEvals", 1);
-      flag = CVDlsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-      check_flag(&flag, "CVDlsGetWorkSpace", 1);
-      break;  
-    case DIAG       :
-      nje = nsetups;
-      flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
-      check_flag(&flag, "CVDlsGetNumRhsEvals", 1);
-      flag = CVDlsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-      check_flag(&flag, "CVDlsGetWorkSpace", 1);
-      break;
-    }
+    flag = CVDlsGetNumJacEvals(cvode_mem, &nje);
+    check_flag(&flag, "CVDlsGetNumJacEvals", 1);
+    flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
+    check_flag(&flag, "CVDlsGetNumRhsEvals", 1);
+    flag = CVDlsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+    check_flag(&flag, "CVDlsGetWorkSpace", 1);
     printf(" Linear solver real workspace length      = %4ld \n", lenrwLS);
     printf(" Linear solver integer workspace length   = %4ld \n", leniwLS);
     printf(" Number of Jacobian evaluations           = %4ld \n", nje);
