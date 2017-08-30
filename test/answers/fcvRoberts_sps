@@ -1,6 +1,6 @@
 Superlu_mt example problem:
 
-Robertson kinetics, NEQ =  3
+ Robertson kinetics, NEQ =  3
 
 
 At t =   0.2640E+00   y =   0.989965E+00  0.347056E-04  0.100000E-01
@@ -25,7 +25,7 @@ Final value of ydot =  -0.166627E-17 -0.666508E-23  0.166628E-17
 
 Final statistics:
 
- No. steps =  364    No. f-s = 2056   No. J-s =   18    No. LU-s =   98
+ No. steps =  364   No. f-s = 2056   No. J-s =   18   No. LU-s =   98
  No. nonlinear iterations = 2055
  No. nonlinear convergence failures =    0
  No. error test failures =   13

@@ -52,6 +52,15 @@ ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 
 SET(SUNDIALS_LIBS ${NVECS_LIB} ${SUNMATS_LIB} ${SUNLINSOLS_LIB} ${EXTRA_LINK_LIBS} ${SUPERLUMT_LIBRARIES})
 
+########################################################################
+# TEMPORARY FIX FOR TESTING SINCE SUPERLU_MT IS BUILT WITH LAPACK BLAS #
+# THIS WILL BE REPLACED WHEN A SEPARATE BLAS FLAG IS ADDED TO THE MAIN #
+# CMAKE FILE                                                           #
+########################################################################
+IF(LAPACK_FOUND)
+  LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
+ENDIF(LAPACK_FOUND)
+
 # Add the build and install targets for each sunlinsol example
 
 FOREACH(example ${sunlinsol_superlumt_examples})

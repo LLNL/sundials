@@ -26,10 +26,8 @@
 
 #include <stdio.h>
 
-/* Header files with a description of contents used */
-
 #include <cvode/cvode.h>                    /* prototypes for CVODE fcts., consts.  */
-#include <nvector/nvector_serial.h>         /* serial N_Vector types, fcts., macros */
+#include <nvector/nvector_serial.h>         /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_sparse.h>     /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_superlumt.h>  /* access to SuperLUMT linear solver    */
 #include <cvode/cvode_direct.h>             /* access to CVDls interface            */

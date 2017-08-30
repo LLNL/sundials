@@ -36,9 +36,11 @@ SET(FARKODE_examples_BL
 # Add variable FARKODE_examples_KLU with the names of the serial FARKODE examples
 # that use KLU
 
-SET(FARKODE_examples_KLU
-  ark_bruss1D_FEM_klu
-  )
+IF(SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
+  SET(FARKODE_examples_KLU
+    ark_bruss1D_FEM_klu
+    )
+ENDIF()
 
 # Add variable ARKODE_extras with the names of auxiliary files to install
 

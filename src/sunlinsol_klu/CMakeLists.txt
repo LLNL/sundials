@@ -65,24 +65,30 @@ ENDIF(BUILD_SHARED_LIBS)
 # Install the SUNLINSOLKLU header files
 INSTALL(FILES ${sunlinsolklu_HEADERS} DESTINATION include/sunlinsol)
 
-# If FCMIX is enabled, build and install the FSUNLINSOLKLU library
-IF(FCMIX_ENABLE AND F77_FOUND)
-  SET(fsunlinsolklu_SOURCES fsunlinsol_klu.c)
-  IF(BUILD_STATIC_LIBS)
-    ADD_LIBRARY(sundials_fsunlinsolklu_static STATIC ${fsunlinsolklu_SOURCES})
-    SET_TARGET_PROPERTIES(sundials_fsunlinsolklu_static
-      PROPERTIES OUTPUT_NAME sundials_fsunlinsolklu CLEAN_DIRECT_OUTPUT 1)
-    INSTALL(TARGETS sundials_fsunlinsolklu_static DESTINATION lib)
-  ENDIF(BUILD_STATIC_LIBS)
-  IF(BUILD_SHARED_LIBS)
-    ADD_LIBRARY(sundials_fsunlinsolklu_shared ${fsunlinsolklu_SOURCES})
-    SET_TARGET_PROPERTIES(sundials_fsunlinsolklu_shared
-      PROPERTIES OUTPUT_NAME sundials_fsunlinsolklu CLEAN_DIRECT_OUTPUT 1)
-    SET_TARGET_PROPERTIES(sundials_fsunlinsolklu_shared 
-      PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
-    INSTALL(TARGETS sundials_fsunlinsolklu_shared DESTINATION lib)
-  ENDIF(BUILD_SHARED_LIBS)
-ENDIF(FCMIX_ENABLE AND F77_FOUND)
+# If FCMIX is enabled and building with 64-bit indices, then build and install 
+# the FSUNLINSOLKLU library
+IF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
+  PRINT_WARNING("The Fortran interface to KLU is not compatible with ${SUNDIALS_INDEX_TYPE} integers"
+                "Fortran interfaces to KLU will not be built")
+ELSE()
+  IF(FCMIX_ENABLE AND F77_FOUND)
+    SET(fsunlinsolklu_SOURCES fsunlinsol_klu.c)
+    IF(BUILD_STATIC_LIBS)
+      ADD_LIBRARY(sundials_fsunlinsolklu_static STATIC ${fsunlinsolklu_SOURCES})
+      SET_TARGET_PROPERTIES(sundials_fsunlinsolklu_static
+        PROPERTIES OUTPUT_NAME sundials_fsunlinsolklu CLEAN_DIRECT_OUTPUT 1)
+      INSTALL(TARGETS sundials_fsunlinsolklu_static DESTINATION lib)
+    ENDIF(BUILD_STATIC_LIBS)
+    IF(BUILD_SHARED_LIBS)
+      ADD_LIBRARY(sundials_fsunlinsolklu_shared ${fsunlinsolklu_SOURCES})
+      SET_TARGET_PROPERTIES(sundials_fsunlinsolklu_shared
+        PROPERTIES OUTPUT_NAME sundials_fsunlinsolklu CLEAN_DIRECT_OUTPUT 1)
+      SET_TARGET_PROPERTIES(sundials_fsunlinsolklu_shared 
+        PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
+      INSTALL(TARGETS sundials_fsunlinsolklu_shared DESTINATION lib)
+    ENDIF(BUILD_SHARED_LIBS)
+  ENDIF(FCMIX_ENABLE AND F77_FOUND)
+ENDIF()
 
 #
 MESSAGE(STATUS "Added SUNLINSOL_KLU module")

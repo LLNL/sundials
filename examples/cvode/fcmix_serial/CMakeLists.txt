@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision$
-# $Date$
-# ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -26,13 +23,15 @@ SET(FCVODE_examples
   fcvRoberts_dns
   )
 
-SET(FCVODE_examples_KLU
-  fcvRoberts_klu
-  )
+IF(SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
+  SET(FCVODE_examples_KLU
+    fcvRoberts_klu
+    )
 
-SET(FCVODE_examples_SUPERLUMT
-  fcvRoberts_sps
-  )
+  SET(FCVODE_examples_SUPERLUMT
+    fcvRoberts_sps
+    )
+ENDIF()
 
 # Add variable fcvode_bl_examples with the names of the serial FCVODE examples
 # that use Lapack
