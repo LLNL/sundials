@@ -33,13 +33,11 @@ extern "C" {
 #endif
 
 
-/*
- * -----------------------------------------------------------------
- * Types : CVSpilsMemRec, CVSpilsMem
- * -----------------------------------------------------------------
- * The type CVSpilsMem is pointer to a CVSpilsMemRec.
- * -----------------------------------------------------------------
- */
+/*-----------------------------------------------------------------
+  Types : CVSpilsMemRec, CVSpilsMem
+  -----------------------------------------------------------------
+  The type CVSpilsMem is pointer to a CVSpilsMemRec.
+  -----------------------------------------------------------------*/
 
 typedef struct CVSpilsMemRec {
 
@@ -48,7 +46,7 @@ typedef struct CVSpilsMemRec {
   realtype deltar;    /* deltar = delt * tq4                          */
   realtype delta;     /* delta = deltar * sqrtN                       */
 
-  booleantype jbad;   /* heuristic suggestion for pset/JTimes         */
+  booleantype jbad;   /* heuristic suggestion for pset/jtsetup        */
   long int nstlpre;   /* value of nst at the last pset call           */
   long int npe;       /* npe = total number of pset calls             */
   long int nli;       /* nli = total number of linear iterations      */
@@ -72,8 +70,7 @@ typedef struct CVSpilsMemRec {
    *     - pfree == NULL (the user dealocates memory for user_data)
    * (b) internal preconditioner module
    *     - P_data == cvode_mem
-   *     - pfree == set by the prec. module and called in CVodeFree
-   */
+   *     - pfree == set by the prec. module and called in CVodeFree */
   CVSpilsPrecSetupFn pset;
   CVSpilsPrecSolveFn psolve;
   int (*pfree)(CVodeMem cv_mem);
@@ -85,8 +82,7 @@ typedef struct CVSpilsMemRec {
    *     - jtimesDQ == FALSE
    * (b) internal jtimes
    *     - j_data == cvode_mem
-   *     - jtimesDQ == TRUE
-   */
+   *     - jtimesDQ == TRUE */
   booleantype jtimesDQ;
   CVSpilsJacTimesSetupFn jtsetup;
   CVSpilsJacTimesVecFn jtimes;
@@ -96,11 +92,9 @@ typedef struct CVSpilsMemRec {
 
 } *CVSpilsMem;
 
-/*
- * -----------------------------------------------------------------
- * Prototypes of internal functions
- * -----------------------------------------------------------------
- */
+/*-----------------------------------------------------------------
+  Prototypes of internal functions
+  -----------------------------------------------------------------*/
 
 /* Interface routines called by system SUNLinearSolver */
 int CVSpilsATSetup(void *cv_mem);
@@ -116,8 +110,9 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 
 /* Generic linit/lsetup/lsolve/lfree interface routines for CVode to call */
 int cvSpilsInitialize(CVodeMem cv_mem);
-int cvSpilsSetup(CVodeMem cv_mem, N_Vector vtemp1,
-                 N_Vector vtemp2, N_Vector vtemp3); 
+int cvSpilsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
+                 N_Vector fpred, booleantype *jcurPtr,
+                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
 int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                  N_Vector ycur, N_Vector fcur);
 int cvSpilsFree(CVodeMem cv_mem);
@@ -126,11 +121,9 @@ int cvSpilsFree(CVodeMem cv_mem);
 int cvSpilsInitializeCounters(CVSpilsMem cvspils_mem);
 
 
-/*
- * -----------------------------------------------------------------
- * Error Messages
- * -----------------------------------------------------------------
- */
+/*-----------------------------------------------------------------
+  Error Messages
+  -----------------------------------------------------------------*/
 
 #define MSGS_CVMEM_NULL  "Integrator memory is NULL."
 #define MSGS_MEM_FAIL    "A memory request failed."

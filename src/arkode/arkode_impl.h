@@ -416,7 +416,8 @@ typedef struct ARKodeMemRec {
     Linear Solver Data 
     ------------------*/
   int (*ark_linit)(struct ARKodeMemRec *ark_mem);
-  int (*ark_lsetup)(struct ARKodeMemRec *ark_mem, N_Vector vtemp1,
+  int (*ark_lsetup)(struct ARKodeMemRec *ark_mem, int convfail, N_Vector ypred,
+		    N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
 		    N_Vector vtemp2, N_Vector vtemp3); 
   int (*ark_lsolve)(struct ARKodeMemRec *ark_mem, N_Vector b,
                     N_Vector ycur, N_Vector fcur);
@@ -445,7 +446,6 @@ typedef struct ARKodeMemRec {
   realtype    ark_tnew;         /* time of last successful step               */
   realtype    ark_hold;         /* last successful h value used               */
   booleantype ark_jcur;         /* is Jacobian info. for lin. solver current? */
-  int         ark_convfail;     /* flag storing previous solver failure mode  */
   realtype    ark_tolsf;        /* tolerance scale factor                     */
   booleantype ark_VabstolMallocDone;
   booleantype ark_VRabstolMallocDone;
@@ -541,7 +541,9 @@ typedef struct ARKodeMemRec {
 ---------------------------------------------------------------*/
   
 /*---------------------------------------------------------------
- int (*ark_lsetup)(ARKodeMem ark_mem, N_Vector vtemp1, 
+ int (*ark_lsetup)(ARKodeMem ark_mem, int convfail, 
+                   N_Vector ypred, N_Vector fpred, 
+		   booleantype *jcurPtr, N_Vector vtemp1, 
 		   N_Vector vtemp2, N_Vector vtemp3);
  -----------------------------------------------------------------
  The job of ark_lsetup is to prepare the linear solver interface 
@@ -552,45 +554,33 @@ typedef struct ARKodeMemRec {
  ark_mem - problem memory pointer of type ARKodeMem. See the
           typedef earlier in this file.
 
+ convfail - a flag to indicate any problem that occurred during
+            the solution of the nonlinear equation on the
+            current time step for which the linear solver is
+            being used. This flag can be used to help decide
+            whether the Jacobian data kept by a ARKODE linear
+            solver needs to be updated or not.
+            Its possible values have been documented above.
+
+ ypred - the predicted y vector for the current ARKODE internal
+         step.
+
+ fpred - f(tn, ypred).
+
+ jcurPtr - a pointer to a boolean to be filled in by ark_lsetup.
+           The function should set *jcurPtr=TRUE if its Jacobian
+           data is current after the call and should set
+           *jcurPtr=FALSE if its Jacobian data is not current.
+           Note: If ark_lsetup calls for re-evaluation of
+           Jacobian data (based on convfail and ARKODE state
+           data), it should return *jcurPtr=TRUE always;
+           otherwise an infinite loop can result.
+
  vtemp1 - temporary N_Vector provided for use by ark_lsetup.
 
  vtemp3 - temporary N_Vector provided for use by ark_lsetup.
 
  vtemp3 - temporary N_Vector provided for use by ark_lsetup.
-
-
- Additional flags and vectors that are set within the ARKode 
- memory structure, and that may be of use when determining 
- linear solver 'setup' logic (e.g. for a modified Newton 
- method, to lag a preconditioner for a specific number of 
- time steps, or to use when updating a Jacobian matrix or 
- preconditioner) include:
-
- ark_convfail - a flag to indicate any problem that occurred 
-          during the solution of the nonlinear equation on 
-          the current time step for which the linear solver 
-          is being used. This flag can be used to help 
-          decide whether the Jacobian data kept by a ARKODE 
-          linear solver needs to be updated or not.
-          Its possible values have been documented above.
-
- ark_tn - the independent variable 'time' for the predicted 
-          y vector.
-
- ark_ycur - the predicted y(ark_tn) vector for the current 
-          ARKODE internal stage/step.
-
- ark_ftemp - fi(tn, ypred).
-
- ark_jcur - a boolean to be filled in by ark_lsetup.
-           The function should set *jcurPtr=TRUE if its 
-           Jacobian data is current after the call and should 
-           set ark_jcur=FALSE if its Jacobian data is not 
-           current. 
-           Note: If ark_lsetup calls for re-evaluation of 
-           Jacobian data (based on convfail and ARKODE state
-           data), it should return ark_jcur=TRUE always;
-           otherwise an infinite loop can result.
 
  The ark_lsetup routine should return 0 if successful, a positive
  value for a recoverable error, and a negative value for an

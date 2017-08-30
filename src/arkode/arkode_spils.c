@@ -1514,8 +1514,9 @@ int arkSpilsInitialize(ARKodeMem ark_mem)
 /*---------------------------------------------------------------
  arkSpilsSetup calls the LS 'setup' routine.
 ---------------------------------------------------------------*/
-int arkSpilsSetup(ARKodeMem ark_mem, N_Vector vtemp1,
-                  N_Vector vtemp2, N_Vector vtemp3)
+int arkSpilsSetup(ARKodeMem ark_mem, int convfail, N_Vector ypred,
+                  N_Vector fpred, booleantype *jcurPtr, 
+                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   realtype dgamma;
   int  retval;
@@ -1535,29 +1536,29 @@ int arkSpilsSetup(ARKodeMem ark_mem, N_Vector vtemp1,
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
 
   /* Set ARKSpils N_Vector pointers to current solution and rhs */
-  arkspils_mem->ycur = ark_mem->ark_ycur;
-  arkspils_mem->fcur = ark_mem->ark_ftemp;
+  arkspils_mem->ycur = ypred;
+  arkspils_mem->fcur = fpred;
 
   /* Use nst, gamma/gammap, and convfail to set J/P eval. flag jok */
   dgamma = SUNRabs((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
   arkspils_mem->jbad = (ark_mem->ark_nst == 0) || 
     (ark_mem->ark_nst > arkspils_mem->nstlpre + ARKSPILS_MSBPRE) ||
-    ((ark_mem->ark_convfail == ARK_FAIL_BAD_J) && (dgamma < ARKSPILS_DGMAX)) ||
-    (ark_mem->ark_convfail == ARK_FAIL_OTHER);
-  ark_mem->ark_jcur = arkspils_mem->jbad;
+    ((convfail == ARK_FAIL_BAD_J) && (dgamma < ARKSPILS_DGMAX)) ||
+    (convfail == ARK_FAIL_OTHER);
+  *jcurPtr = arkspils_mem->jbad;
   
   /* Call LS setup routine -- the LS will call ARKSpilsPSetup, who will 
      pass the heuristic suggestions above to the user code(s) */
   retval = SUNLinSolSetup(arkspils_mem->LS, NULL);
 
   /* If user set jcur to TRUE, increment npe and save nst value */
-  if (ark_mem->ark_jcur) {
+  if (*jcurPtr) {
     arkspils_mem->npe++;
     arkspils_mem->nstlpre = ark_mem->ark_nst;
   }
 
-  /* Update jcur flag if we suggested an update */
-  if (arkspils_mem->jbad) ark_mem->ark_jcur = TRUE;
+  /* Update jcurPtr flag if we suggested an update */
+  if (arkspils_mem->jbad) *jcurPtr = TRUE;
 
   return(retval);
 }

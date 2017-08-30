@@ -1013,8 +1013,9 @@ int arkDlsInitialize(ARKodeMem ark_mem)
     A = M-gamma*J.
  This routine then calls the LS 'setup' routine with A.
 ---------------------------------------------------------------*/
-int arkDlsSetup(ARKodeMem ark_mem, N_Vector vtemp1,
-                N_Vector vtemp2, N_Vector vtemp3)
+int arkDlsSetup(ARKodeMem ark_mem, int convfail, N_Vector ypred,
+                N_Vector fpred, booleantype *jcurPtr, 
+                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   booleantype jbad, jok;
   realtype dgamma;
@@ -1039,13 +1040,13 @@ int arkDlsSetup(ARKodeMem ark_mem, N_Vector vtemp1,
   dgamma = SUNRabs((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
   jbad = (ark_mem->ark_nst == 0) || 
     (ark_mem->ark_nst > arkdls_mem->nstlj + ARKD_MSBJ) ||
-    ((ark_mem->ark_convfail == ARK_FAIL_BAD_J) && (dgamma < ARKD_DGMAX)) ||
-    (ark_mem->ark_convfail == ARK_FAIL_OTHER);
+    ((convfail == ARK_FAIL_BAD_J) && (dgamma < ARKD_DGMAX)) ||
+    (convfail == ARK_FAIL_OTHER);
   jok = !jbad;
  
   /* If jok = TRUE, use saved copy of J */
   if (jok) {
-    ark_mem->ark_jcur = FALSE;
+    *jcurPtr = FALSE;
     retval = SUNMatCopy(arkdls_mem->A, arkdls_mem->savedJ);
     if (retval) {
       arkProcessError(ark_mem, ARKDLS_SUNMAT_FAIL, "ARKDLS", 
@@ -1058,7 +1059,7 @@ int arkDlsSetup(ARKodeMem ark_mem, N_Vector vtemp1,
   } else {
     arkdls_mem->nje++;
     arkdls_mem->nstlj = ark_mem->ark_nst;
-    ark_mem->ark_jcur = TRUE;
+    *jcurPtr = TRUE;
     retval = SUNMatZero(arkdls_mem->A);
     if (retval) {
       arkProcessError(ark_mem, ARKDLS_SUNMAT_FAIL, "ARKDLS", 
@@ -1067,8 +1068,7 @@ int arkDlsSetup(ARKodeMem ark_mem, N_Vector vtemp1,
       return(-1);
     }
 
-    retval = arkdls_mem->jac(ark_mem->ark_tn, ark_mem->ark_ycur, 
-                             ark_mem->ark_ftemp, arkdls_mem->A, 
+    retval = arkdls_mem->jac(ark_mem->ark_tn, ypred, fpred, arkdls_mem->A, 
                              arkdls_mem->J_data, vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
       arkProcessError(ark_mem, ARKDLS_JACFUNC_UNRECVR, "ARKDLS", 

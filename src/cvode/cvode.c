@@ -521,10 +521,6 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
 
   cv_mem->cv_irfnd   = 0;
 
-  /* Initialize convergence failure flag */
-
-  cv_mem->cv_convfail = CV_NO_FAILURES;
-  
   /* Initialize other integrator optional outputs */
 
   cv_mem->cv_h0u      = ZERO;
@@ -2571,7 +2567,7 @@ static int cvNlsFunctional(CVodeMem cv_mem)
 static int cvNlsNewton(CVodeMem cv_mem, int nflag)
 {
   N_Vector vtemp1, vtemp2, vtemp3;
-  int retval, ier;
+  int convfail, retval, ier;
   booleantype callSetup;
   
   vtemp1 = cv_mem->cv_acor;  /* rename acor as vtemp1 for readability  */
@@ -2579,7 +2575,7 @@ static int cvNlsNewton(CVodeMem cv_mem, int nflag)
   vtemp3 = cv_mem->cv_tempv; /* rename tempv as vtemp3 for readability */
   
   /* Set flag convfail, input to lsetup for its evaluation decision */
-  cv_mem->cv_convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
+  convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
     CV_NO_FAILURES : CV_FAIL_OTHER;
 
   /* Decide whether or not to call setup routine (if one exists) */
@@ -2606,7 +2602,9 @@ static int cvNlsNewton(CVodeMem cv_mem, int nflag)
     if (retval > 0) return(RHSFUNC_RECVR);
 
     if (callSetup) {
-      ier = cv_mem->cv_lsetup(cv_mem, vtemp1, vtemp2, vtemp3);
+      ier = cv_mem->cv_lsetup(cv_mem, convfail, cv_mem->cv_zn[0],
+                              cv_mem->cv_ftemp, &(cv_mem->cv_jcur),
+                              vtemp1, vtemp2, vtemp3);
       cv_mem->cv_nsetups++;
       callSetup = FALSE;
       cv_mem->cv_gamrat = cv_mem->cv_crate = ONE; 
@@ -2630,7 +2628,7 @@ static int cvNlsNewton(CVodeMem cv_mem, int nflag)
     if (ier != TRY_AGAIN) return(ier);
     
     callSetup = TRUE;
-    cv_mem->cv_convfail = CV_FAIL_BAD_J;
+    convfail = CV_FAIL_BAD_J;
   }
 }
 

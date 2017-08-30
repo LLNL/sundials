@@ -817,8 +817,7 @@ int idaDlsInitializeCounters(IDADlsMem idadls_mem)
 
 /*---------------------------------------------------------------
   IDADlsSetLinearSolverB specifies the direct linear solver for 
-  backward integration (should be of the same type as for the 
-  forward problem)
+  backward integration
   ---------------------------------------------------------------*/
 int IDADlsSetLinearSolverB(void *ida_mem, int which,
                            SUNLinearSolver LS, SUNMatrix A)
@@ -877,8 +876,9 @@ int IDADlsSetLinearSolverB(void *ida_mem, int which,
   IDAB_mem->ida_lmem  = idadlsB_mem;
   IDAB_mem->ida_lfree = idaDlsFreeB;
 
-  /* initialize jacB pointer */
-  idadlsB_mem->jacB = NULL;
+  /* initialize jacB and jacBS pointers */
+  idadlsB_mem->jacB  = NULL;
+  idadlsB_mem->jacBS = NULL;
 
   /* set the linear solver for this backward problem */
   ida_memB = (void *)IDAB_mem->IDA_mem;
@@ -1033,8 +1033,8 @@ int idaDlsFreeB(IDABMem IDAB_mem)
   if (IDAB_mem->ida_lmem == NULL)  return(IDADLS_SUCCESS);
   idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
-  /* free IDADls interface structure */
-  free(IDAB_mem->ida_lmem);
+  /* free IDADlsMemB interface structure */
+  free(idadlsB_mem);
   
   return(IDADLS_SUCCESS);
 }

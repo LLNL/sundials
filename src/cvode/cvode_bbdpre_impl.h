@@ -32,15 +32,13 @@
 extern "C" {
 #endif
 
-/*
- * -----------------------------------------------------------------
- * Type: CVBBDPrecData
- * -----------------------------------------------------------------
- */
+/*-----------------------------------------------------------------
+  Type: CVBBDPrecData
+  -----------------------------------------------------------------*/
 
 typedef struct CVBBDPrecDataRec {
 
-  /* passed by user to CVBBDPrecAlloc and used by PrecSetup/PrecSolve */
+  /* passed by user to CVBBDPrecInit and used by PrecSetup/PrecSolve */
   sunindextype mudq, mldq, mukeep, mlkeep;
   realtype dqrely;
   CVLocalFn gloc;
@@ -56,7 +54,7 @@ typedef struct CVBBDPrecDataRec {
   N_Vector zlocal;
   N_Vector rlocal;
 
-  /* set by CVBBDPrecAlloc and used by CVBBDPrecSetup */
+  /* set by CVBBDPrecInit and used by CVBBDPrecSetup */
   sunindextype n_local;
 
   /* available for optional output */
@@ -69,11 +67,9 @@ typedef struct CVBBDPrecDataRec {
 
 } *CVBBDPrecData;
 
-/*
- * -----------------------------------------------------------------
- * CVBBDPRE error messages
- * -----------------------------------------------------------------
- */
+/*-----------------------------------------------------------------
+  CVBBDPRE error messages
+  -----------------------------------------------------------------*/
 
 #define MSGBBD_MEM_NULL    "Integrator memory is NULL."
 #define MSGBBD_LMEM_NULL   "Linear solver memory is NULL. One of the SPILS linear solvers must be attached."

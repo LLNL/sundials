@@ -1198,8 +1198,7 @@ int idaSpilsInitializeCounters(IDASpilsMem idaspils_mem)
   ---------------------------------------------------------------*/
 
 /* IDASpilsSetLinearSolverB specifies the iterative linear solver 
-   for backward integration (should be of the same type as for 
-   the forward problem) */
+   for backward integration */
 int IDASpilsSetLinearSolverB(void *ida_mem, int which,
                              SUNLinearSolver LS)
 {
@@ -1283,7 +1282,6 @@ int IDASpilsSetLinearSolverB(void *ida_mem, int which,
   IDASSPILS Exported functions -- Optional input/output
   ---------------------------------------------------------------*/
 
-/*---------------------------------------------------------------*/
 int IDASpilsSetEpsLinB(void *ida_mem, int which, realtype eplifacB)
 {
   IDAadjMem IDAADJ_mem;
@@ -1501,7 +1499,7 @@ int IDASpilsSetPreconditionerBS(void *ida_mem, int which,
   idaspilsB_mem->psetBS   = psetupBS;
   idaspilsB_mem->psolveBS = psolveBS;
 
-  /* Notify SPILS solver interface of user routines */
+  /* Call the corresponding "set" routine for the backward problem */
   idaspils_psetup = (psetupBS == NULL) ? NULL : IDAAspilsPrecSetupBS;
   idaspils_psolve = (psolveBS == NULL) ? NULL : IDAAspilsPrecSolveBS;
   return IDASpilsSetPreconditioner(ida_memB, idaspils_psetup, idaspils_psolve);
@@ -1970,8 +1968,8 @@ int idaSpilsFreeB(IDABMem IDAB_mem)
   if (IDAB_mem->ida_lmem == NULL)  return(IDASPILS_SUCCESS);
   idaspilsB_mem = (IDASpilsMemB) IDAB_mem->ida_lmem;
 
-  /* free IDASpils interface structure */
-  free(IDAB_mem->ida_lmem);
+  /* free IDASpilsMemB interface structure */
+  free(idaspilsB_mem);
   
   return(IDASPILS_SUCCESS);
 }

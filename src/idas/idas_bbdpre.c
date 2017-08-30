@@ -684,8 +684,8 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
 int IDABBDPrecInitB(void *ida_mem, int which, sunindextype NlocalB,
                     sunindextype mudqB, sunindextype mldqB,
                     sunindextype mukeepB, sunindextype mlkeepB,
-                    realtype dq_rel_yyB,
-                    IDABBDLocalFnB glocalB, IDABBDCommFnB gcommB)
+                    realtype dq_rel_yyB, IDABBDLocalFnB glocalB, 
+                    IDABBDCommFnB gcommB)
 {
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
@@ -733,7 +733,7 @@ int IDABBDPrecInitB(void *ida_mem, int which, sunindextype NlocalB,
   if (flag != IDA_SUCCESS) return(flag);
 
   /* Allocate memory for IDABBDPrecDataB to store the user-provided
-   * functions which will be called from the wrappers */
+     functions which will be called from the wrappers */
   idabbdB_mem = NULL;
   idabbdB_mem = (IDABBDPrecDataB) malloc(sizeof(* idabbdB_mem));
   if (idabbdB_mem == NULL) {
@@ -845,7 +845,8 @@ static int IDAAglocal(sunindextype NlocalB, realtype tt, N_Vector yyB,
     flag = IDAADJ_mem->ia_getY(IDA_mem, tt, IDAADJ_mem->ia_yyTmp,
                                IDAADJ_mem->ia_ypTmp, NULL, NULL);
     if (flag != IDA_SUCCESS) {
-      IDAProcessError(IDA_mem, -1, "IDASBBDPRE", "IDAAglocal", MSGBBD_BAD_T);
+      IDAProcessError(IDA_mem, -1, "IDASBBDPRE", "IDAAglocal",
+                      MSGBBD_BAD_T);
       return(-1);
     } 
   }
@@ -886,7 +887,8 @@ static int IDAAgcomm(sunindextype NlocalB, realtype tt,
     flag = IDAADJ_mem->ia_getY(IDA_mem, tt, IDAADJ_mem->ia_yyTmp,
                                IDAADJ_mem->ia_ypTmp, NULL, NULL);
     if (flag != IDA_SUCCESS) {
-      IDAProcessError(IDA_mem, -1, "IDASBBDPRE", "IDAAgcomm", MSGBBD_BAD_T);
+      IDAProcessError(IDA_mem, -1, "IDASBBDPRE", "IDAAgcomm",
+                      MSGBBD_BAD_T);
       return(-1);
     } 
   }

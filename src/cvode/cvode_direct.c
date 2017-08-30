@@ -22,11 +22,9 @@
  * -----------------------------------------------------------------
  */
 
-/* 
- * =================================================================
- * IMPORTED HEADER FILES
- * =================================================================
- */
+/*=================================================================
+  IMPORTED HEADER FILES
+  =================================================================*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,11 +37,9 @@
 #include <sunmatrix/sunmatrix_diagonal.h>
 #include <sunmatrix/sunmatrix_sparse.h>
 
-/* 
- * =================================================================
- * FUNCTION SPECIFIC CONSTANTS
- * =================================================================
- */
+/*=================================================================
+  FUNCTION SPECIFIC CONSTANTS
+  =================================================================*/
 
 /* Constant for DQ Jacobian approximation */
 #define MIN_INC_MULT RCONST(1000.0)
@@ -52,11 +48,9 @@
 #define ONE          RCONST(1.0)
 #define TWO          RCONST(2.0)
 
-/* 
- * =================================================================
- * EXPORTED FUNCTIONS -- REQUIRED
- * =================================================================
- */
+/*=================================================================
+  EXPORTED FUNCTIONS -- REQUIRED
+  =================================================================*/
 
 /*---------------------------------------------------------------
  CVDlsSetLinearSolver specifies the direct linear solver.
@@ -121,6 +115,8 @@ int CVDlsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   cvdls_mem->jac = cvDlsDQJac;
   cvdls_mem->J_data = cv_mem;
   cvdls_mem->last_flag = CVDLS_SUCCESS;
+  cvdls_mem->msbj = CVD_MSBJ;
+  cvdls_mem->dgmax = CVD_DGMAX;
 
   /* Initialize counters */
   cvDlsInitializeCounters(cvdls_mem);
@@ -157,9 +153,7 @@ int CVDlsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
  * =================================================================
  */
               
-/*
- * CVDlsSetJacFn specifies the Jacobian function.
- */
+/* CVDlsSetJacFn specifies the Jacobian function. */
 int CVDlsSetJacFn(void *cvode_mem, CVDlsJacFn jac)
 {
   CVodeMem cv_mem;
@@ -193,10 +187,71 @@ int CVDlsSetJacFn(void *cvode_mem, CVDlsJacFn jac)
   return(CVDLS_SUCCESS);
 }
 
-/*
- * CVDlsGetWorkSpace returns the length of workspace allocated for the
- * CVDLS linear solver.
- */
+
+/* CVDlsSetMSBJ specifies the MSBJ parameter. */
+int CVDlsSetMSBJ(void *cvode_mem, int msbj)
+{
+  CVodeMem cv_mem;
+  CVDlsMem cvdls_mem;
+
+  /* Return immediately if cvode_mem is NULL */
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CVDLS_MEM_NULL, "CVDLS",
+                   "CVDlsSetMSBJ", MSGD_CVMEM_NULL);
+    return(CVDLS_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (cv_mem->cv_lmem == NULL) {
+    cvProcessError(cv_mem, CVDLS_LMEM_NULL, "CVDLS",
+                   "CVDlsSetMSBJ", MSGD_LMEM_NULL);
+    return(CVDLS_LMEM_NULL);
+  }
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
+
+  if (msbj < 0) {
+    cvdls_mem->msbj = CVD_MSBJ;
+  } else {
+    cvdls_mem->msbj = msbj;
+  }
+
+  return(CVDLS_SUCCESS);
+}
+
+
+/* CVDlsSetDGMax specifies the dgmax parameter. */
+int CVDlsSetDGMax(void *cvode_mem, realtype dgmax)
+{
+  CVodeMem cv_mem;
+  CVDlsMem cvdls_mem;
+
+  /* Return immediately if cvode_mem is NULL */
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CVDLS_MEM_NULL, "CVDLS",
+                   "CVDlsSetDGMax", MSGD_CVMEM_NULL);
+    return(CVDLS_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (cv_mem->cv_lmem == NULL) {
+    cvProcessError(cv_mem, CVDLS_LMEM_NULL, "CVDLS",
+                   "CVDlsSetDGMax", MSGD_LMEM_NULL);
+    return(CVDLS_LMEM_NULL);
+  }
+  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
+
+  if (dgmax < ZERO) {
+    cvdls_mem->dgmax = CVD_DGMAX;
+  } else {
+    cvdls_mem->dgmax = dgmax;
+  }
+
+  return(CVDLS_SUCCESS);
+}
+
+
+/* CVDlsGetWorkSpace returns the length of workspace allocated for the
+   CVDLS linear solver. */
 int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
                       long int *leniwLS)
 {
@@ -248,9 +303,8 @@ int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
   return(CVDLS_SUCCESS);
 }
 
-/*
- * CVDlsGetNumJacEvals returns the number of Jacobian evaluations.
- */
+
+/* CVDlsGetNumJacEvals returns the number of Jacobian evaluations. */
 int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals)
 {
   CVodeMem cv_mem;
@@ -276,10 +330,9 @@ int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals)
   return(CVDLS_SUCCESS);
 }
 
-/*
- * CVDlsGetNumRhsEvals returns the number of calls to the ODE function
- * needed for the DQ Jacobian approximation.
- */
+
+/* CVDlsGetNumRhsEvals returns the number of calls to the ODE function
+   needed for the DQ Jacobian approximation. */
 int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
 {
   CVodeMem cv_mem;
@@ -305,10 +358,9 @@ int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
   return(CVDLS_SUCCESS);
 }
 
-/*
- * CVDlsGetReturnFlagName returns the name associated with a CVDLS
- * return value.
- */
+
+/* CVDlsGetReturnFlagName returns the name associated with a CVDLS
+   return value. */
 char *CVDlsGetReturnFlagName(long int flag)
 {
   char *name;
@@ -347,9 +399,8 @@ char *CVDlsGetReturnFlagName(long int flag)
   return(name);
 }
 
-/*
- * CVDlsGetLastFlag returns the last flag set in a CVDLS function.
- */
+
+/* CVDlsGetLastFlag returns the last flag set in a CVDLS function. */
 int CVDlsGetLastFlag(void *cvode_mem, long int *flag)
 {
   CVodeMem cv_mem;
@@ -376,22 +427,18 @@ int CVDlsGetLastFlag(void *cvode_mem, long int *flag)
 }
 
 
-/* 
- * =================================================================
- * CVDLS PRIVATE FUNCTIONS
- * =================================================================
- */
+/*=================================================================
+  CVDLS PRIVATE FUNCTIONS
+  =================================================================*/
 
 
-/*
- * -----------------------------------------------------------------
- * cvDlsDQJac 
- * -----------------------------------------------------------------
- * This routine is a wrapper for the Dense, Band and Diagonal 
- * implementations of the difference quotient Jacobian 
- * approximation routines.
- * ---------------------------------------------------------------
- */
+/*-----------------------------------------------------------------
+  cvDlsDQJac 
+  -----------------------------------------------------------------
+  This routine is a wrapper for the Dense, Band and Diagonal 
+  implementations of the difference quotient Jacobian 
+  approximation routines.
+  ---------------------------------------------------------------*/
 int cvDlsDQJac(realtype t, N_Vector y, N_Vector fy, 
                SUNMatrix Jac, void *cvode_mem, N_Vector tmp1, 
                N_Vector tmp2, N_Vector tmp3)
@@ -414,7 +461,7 @@ int cvDlsDQJac(realtype t, N_Vector y, N_Vector fy,
   } else if (SUNMatGetID(Jac) == SUNMATRIX_BAND) {
     retval = cvDlsBandDQJac(t, y, fy, Jac, cv_mem, tmp1, tmp2);
   } else if (SUNMatGetID(Jac) == SUNMATRIX_DIAGONAL) {
-    retval = cvDlsDiagonalDQJac(t, y, fy, Jac, cv_mem, tmp1);
+    retval = cvDlsDiagonalDQJac(t, y, fy, Jac, cv_mem, tmp1, tmp2, tmp3);
   } else if (SUNMatGetID(Jac) == SUNMATRIX_SPARSE) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVDLS", 
                    "cvDlsDQJac", 
@@ -429,21 +476,19 @@ int cvDlsDQJac(realtype t, N_Vector y, N_Vector fy,
   return(retval);
 }
 
-/*
- * -----------------------------------------------------------------
- * cvDlsDenseDQJac 
- * -----------------------------------------------------------------
- * This routine generates a dense difference quotient approximation to
- * the Jacobian of f(t,y). It assumes that a dense matrix of type
- * DlsMat is stored column-wise, and that elements within each column
- * are contiguous. The address of the jth column of J is obtained via
- * the macro DENSE_COL and this pointer is associated with an N_Vector
- * using the N_VGetArrayPointer/N_VSetArrayPointer functions. 
- * Finally, the actual computation of the jth column of the Jacobian is 
- * done with a call to N_VLinearSum.
- * -----------------------------------------------------------------
- */ 
 
+/*-----------------------------------------------------------------
+  cvDlsDenseDQJac 
+  -----------------------------------------------------------------
+  This routine generates a dense difference quotient approximation 
+  to the Jacobian of f(t,y). It assumes that a dense SUNMatrix is 
+  stored column-wise, and that elements within each column are 
+  contiguous. The address of the jth column of J is obtained via
+  the accessor function SUNDenseMatrix_Column, and this pointer 
+  is associated with an N_Vector using the N_VSetArrayPointer
+  function.  Finally, the actual computation of the jth column of 
+  the Jacobian is done with a call to N_VLinearSum.
+  -----------------------------------------------------------------*/ 
 int cvDlsDenseDQJac(realtype t, N_Vector y, N_Vector fy, 
                     SUNMatrix Jac, CVodeMem cv_mem, N_Vector tmp1)
 {
@@ -505,18 +550,18 @@ int cvDlsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
   return(retval);
 }
 
-/*
- * -----------------------------------------------------------------
- * cvDlsBandDQJac
- * -----------------------------------------------------------------
- * This routine generates a banded difference quotient approximation to
- * the Jacobian of f(t,y).  It assumes that a band matrix of type
- * DlsMat is stored column-wise, and that elements within each column
- * are contiguous. This makes it possible to get the address of a column
- * of J via the macro BAND_COL and to write a simple for loop to set
- * each of the elements of a column in succession.
- * -----------------------------------------------------------------
- */
+
+/*-----------------------------------------------------------------
+  cvDlsBandDQJac
+  -----------------------------------------------------------------
+  This routine generates a banded difference quotient approximation 
+  to the Jacobian of f(t,y).  It assumes that a band SUNMatrix is 
+  stored column-wise, and that elements within each column are 
+  contiguous. This makes it possible to get the address of a column
+  of J via the accessor function SUNBandMatrix_Column, and to write 
+  a simple for loop to set each of the elements of a column in 
+  succession.
+  -----------------------------------------------------------------*/
 int cvDlsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac, 
                    CVodeMem cv_mem, N_Vector tmp1, N_Vector tmp2)
 {
@@ -591,58 +636,64 @@ int cvDlsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
 }
 
 
-/*
- * -----------------------------------------------------------------
- * cvDlsDiagonalDQJac
- * -----------------------------------------------------------------
- * This routine generates a diagonal difference quotient 
- * approximation to the Jacobian of f(t,y).  It assumes a diagonal 
- * SUNMatrix input (stored in a single N_Vector). 
- * -----------------------------------------------------------------
- */
+/*-----------------------------------------------------------------
+  cvDlsDiagonalDQJac
+  -----------------------------------------------------------------
+  This routine generates a diagonal difference quotient 
+  approximation to the Jacobian of f(t,y).  It assumes a diagonal 
+  SUNMatrix input (stored in a single N_Vector). 
+  -----------------------------------------------------------------*/
 int cvDlsDiagonalDQJac(realtype t, N_Vector y, N_Vector fy, 
-                       SUNMatrix Jac, CVodeMem cv_mem, N_Vector tmp1)
+                       SUNMatrix Jac, CVodeMem cv_mem,
+                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   int retval;
-  realtype fract, fract_inv;
-  N_Vector ytemp, Jdiag;
+  realtype r;
+  N_Vector ftemp, ytemp, Jdiag, bit;
   CVDlsMem cvdls_mem;
   
   /* access DlsMem interface structure */
   cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
-  /* Set shortcut names to temporary work and output vectors */
-  ytemp = tmp1;
-  Jdiag = SUNDiagonalMatrix_Diag(Jac);
+  /* Rename work vectors for use as temporary values of y and f */
+  ftemp = tmp1;
+  ytemp = tmp2;
+  bit   = tmp3;
 
-  /* Form y with perturbation */
-  fract = SUNRpowerR(UNIT_ROUNDOFF, RCONST(0.25));
-  fract_inv = ONE/fract;
-  N_VConst(fract, ytemp);
-  N_VDiv(ytemp, cv_mem->cv_ewt, ytemp);
-  N_VLinearSum(ONE, y, ONE, ytemp, ytemp);  /* ytemp = y + fract/ewt */
+  /* Access Jacobian diagonal */
+  Jdiag = SUNDiagonalMatrix_Diag(Jac);
+  
+  /* Form ytemp with perturbation = FRACT*(func. iter. correction) */
+  r = RCONST(0.1);
+  N_VLinearSum(cv_mem->cv_h, fy, -ONE, cv_mem->cv_zn[1], ftemp);
+  N_VLinearSum(r, ftemp, ONE, y, ytemp);
 
   /* Evaluate f at perturbed y */
   retval = cv_mem->cv_f(t, ytemp, Jdiag, cv_mem->cv_user_data);
   cvdls_mem->nfeDQ++;
   if (retval != 0)  return(retval);
 
-  /* Finish off difference */
-  N_VLinearSum(fract_inv, Jdiag, -fract_inv, fy, Jdiag);
-  N_VProd(cv_mem->cv_ewt, Jdiag, Jdiag);   /* Jdiag = ewt/fract.*(ftemp - f) */
+  /* Construct M = diag(deltaf_i/deltay_i) */
+  N_VLinearSum(ONE, Jdiag, -ONE, fy, Jdiag);
+  N_VProd(ftemp, cv_mem->cv_ewt, ytemp);
+  /* Protect against deltay_i being at roundoff level */
+  N_VCompare(cv_mem->cv_uround, ytemp, bit);
+  N_VProd(ftemp, bit, ytemp);
+  N_VAddConst(bit, -ONE, ftemp);
+  N_VLinearSum(r, ytemp, -ONE, ftemp, ytemp);
+  N_VDiv(Jdiag, ytemp, Jdiag);
+  N_VProd(Jdiag, bit, Jdiag);
 
-  return(retval);
+  return(CVDLS_SUCCESS);
 }
 
 
-/*
- * -----------------------------------------------------------------
- * cvDlsInitialize
- * -----------------------------------------------------------------
- * This routine performs remaining initializations specific
- * to the direct linear solver interface (and solver itself)
- * -----------------------------------------------------------------
- */
+/*-----------------------------------------------------------------
+  cvDlsInitialize
+  -----------------------------------------------------------------
+  This routine performs remaining initializations specific
+  to the direct linear solver interface (and solver itself)
+  -----------------------------------------------------------------*/
 int cvDlsInitialize(CVodeMem cv_mem)
 {
   CVDlsMem cvdls_mem;
@@ -665,21 +716,20 @@ int cvDlsInitialize(CVodeMem cv_mem)
 }
 
 
-/*
- * -----------------------------------------------------------------
- * cvDlsSetup
- * -----------------------------------------------------------------
- * This routine determines whether to update a Jacobian matrix (or
- * use a stored version), based on heuristics regarding previous 
- * convergence issues, the number of time steps since it was last
- * updated, etc.; it then creates the system matrix from this, the
- * 'gamma' factor and the identity matrix, 
- *   A = I-gamma*J.
- * This routine then calls the LS 'setup' routine with A.
- * -----------------------------------------------------------------
- */
-int cvDlsSetup(CVodeMem cv_mem, N_Vector vtemp1,
-                N_Vector vtemp2, N_Vector vtemp3)
+/*-----------------------------------------------------------------
+  cvDlsSetup
+  -----------------------------------------------------------------
+  This routine determines whether to update a Jacobian matrix (or
+  use a stored version), based on heuristics regarding previous 
+  convergence issues, the number of time steps since it was last
+  updated, etc.; it then creates the system matrix from this, the
+  'gamma' factor and the identity matrix, 
+    A = I-gamma*J.
+  This routine then calls the LS 'setup' routine with A.
+  -----------------------------------------------------------------*/
+int cvDlsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
+               N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
+               N_Vector vtemp2, N_Vector vtemp3)
 {
   booleantype jbad, jok;
   realtype dgamma;
@@ -702,14 +752,14 @@ int cvDlsSetup(CVodeMem cv_mem, N_Vector vtemp1,
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
   dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
   jbad = (cv_mem->cv_nst == 0) || 
-    (cv_mem->cv_nst > cvdls_mem->nstlj + CVD_MSBJ) ||
-    ((cv_mem->cv_convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
-    (cv_mem->cv_convfail == CV_FAIL_OTHER);
+    (cv_mem->cv_nst > cvdls_mem->nstlj + cvdls_mem->msbj) ||
+    ((convfail == CV_FAIL_BAD_J) && (dgamma < cvdls_mem->dgmax)) ||
+    (convfail == CV_FAIL_OTHER);
   jok = !jbad;
  
   /* If jok = TRUE, use saved copy of J */
   if (jok) {
-    cv_mem->cv_jcur = FALSE;
+    *jcurPtr = FALSE;
     retval = SUNMatCopy(cvdls_mem->A, cvdls_mem->savedJ);
     if (retval) {
       cvProcessError(cv_mem, CVDLS_SUNMAT_FAIL, "CVDLS", 
@@ -722,7 +772,7 @@ int cvDlsSetup(CVodeMem cv_mem, N_Vector vtemp1,
   } else {
     cvdls_mem->nje++;
     cvdls_mem->nstlj = cv_mem->cv_nst;
-    cv_mem->cv_jcur = TRUE;
+    *jcurPtr = TRUE;
     retval = SUNMatZero(cvdls_mem->A);
     if (retval) {
       cvProcessError(cv_mem, CVDLS_SUNMAT_FAIL, "CVDLS", 
@@ -731,8 +781,8 @@ int cvDlsSetup(CVodeMem cv_mem, N_Vector vtemp1,
       return(-1);
     }
 
-    retval = cvdls_mem->jac(cv_mem->cv_tn, cv_mem->cv_zn[0], 
-                            cv_mem->cv_ftemp, cvdls_mem->A, 
+    retval = cvdls_mem->jac(cv_mem->cv_tn, ypred, 
+                            fpred, cvdls_mem->A, 
                             cvdls_mem->J_data, vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
       cvProcessError(cv_mem, CVDLS_JACFUNC_UNRECVR, "CVDLS", 
@@ -771,15 +821,13 @@ int cvDlsSetup(CVodeMem cv_mem, N_Vector vtemp1,
 }
 
 
-/*
- * -----------------------------------------------------------------
- * cvDlsSolve
- * -----------------------------------------------------------------
- * This routine interfaces between CVode and the generic 
- * SUNLinearSolver object LS, by calling the solver and scaling 
- * the solution appropriately when gamrat != 1.
- * -----------------------------------------------------------------
- */
+/*-----------------------------------------------------------------
+  cvDlsSolve
+  -----------------------------------------------------------------
+  This routine interfaces between CVode and the generic 
+  SUNLinearSolver object LS, by calling the solver and scaling 
+  the solution appropriately when gamrat != 1.
+  -----------------------------------------------------------------*/
 int cvDlsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                N_Vector ycur, N_Vector fcur)
 {
@@ -813,14 +861,12 @@ int cvDlsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 }
 
 
-/*
- * -----------------------------------------------------------------
- * cvDlsFree
- * -----------------------------------------------------------------
- * This routine frees memory associates with the CVDls solver 
- * interface.
- * -----------------------------------------------------------------
- */
+/*-----------------------------------------------------------------
+  cvDlsFree
+  -----------------------------------------------------------------
+  This routine frees memory associates with the CVDls solver 
+  interface.
+  -----------------------------------------------------------------*/
 int cvDlsFree(CVodeMem cv_mem)
 {
   CVDlsMem cvdls_mem;
@@ -852,13 +898,11 @@ int cvDlsFree(CVodeMem cv_mem)
 }
 
 
-/*
- * -----------------------------------------------------------------
- * cvDlsInitializeCounters
- * -----------------------------------------------------------------
- * This routine resets the counters inside the CVDlsMem object.
- * -----------------------------------------------------------------
- */
+/*-----------------------------------------------------------------
+  cvDlsInitializeCounters
+  -----------------------------------------------------------------
+  This routine resets the counters inside the CVDlsMem object.
+  -----------------------------------------------------------------*/
 int cvDlsInitializeCounters(CVDlsMem cvdls_mem)
 {
   cvdls_mem->nje   = 0;

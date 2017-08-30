@@ -163,8 +163,9 @@ int ARKSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 /* Generic linit/lsetup/lsolve/lfree interface routines for ARKode to call */
 int arkSpilsInitialize(ARKodeMem ark_mem);
 
-int arkSpilsSetup(ARKodeMem ark_mem, N_Vector vtemp1,
-                  N_Vector vtemp2, N_Vector vtemp3); 
+int arkSpilsSetup(ARKodeMem ark_mem, int convfail, N_Vector ypred,
+                  N_Vector fpred, booleantype *jcurPtr, 
+                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
 
 int arkSpilsSolve(ARKodeMem ark_mem, N_Vector b, N_Vector ycur, N_Vector fcur);
 

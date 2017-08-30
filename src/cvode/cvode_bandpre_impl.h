@@ -33,11 +33,9 @@
 extern "C" {
 #endif
 
-/*
- * -----------------------------------------------------------------
- * Type: CVBandPrecData
- * -----------------------------------------------------------------
- */
+/*-----------------------------------------------------------------
+  Type: CVBandPrecData
+  -----------------------------------------------------------------*/
 
 typedef struct CVBandPrecDataRec {
 
@@ -60,11 +58,9 @@ typedef struct CVBandPrecDataRec {
 
 } *CVBandPrecData;
 
-/*
- * -----------------------------------------------------------------
- * CVBANDPRE error messages
- * -----------------------------------------------------------------
- */
+/*-----------------------------------------------------------------
+  CVBANDPRE error messages
+  -----------------------------------------------------------------*/
 
 #define MSGBP_MEM_NULL       "Integrator memory is NULL."
 #define MSGBP_LMEM_NULL      "Linear solver memory is NULL. One of the SPILS linear solvers must be attached."

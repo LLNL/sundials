@@ -49,20 +49,18 @@ static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
 static int CVBandPrecFree(CVodeMem cv_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
-static int CVBandPDQJac(CVBandPrecData pdata,
-                        realtype t, N_Vector y, N_Vector fy, 
-                        N_Vector ftemp, N_Vector ytemp);
+static int CVBandPDQJac(CVBandPrecData pdata, realtype t, N_Vector y, 
+                        N_Vector fy, N_Vector ftemp, N_Vector ytemp);
 
-/*
- * -----------------------------------------------------------------
- * Initialization, Free, and Get Functions
- * NOTE: The band linear solver assumes a serial implementation
- *       of the NVECTOR package. Therefore, CVBandPrecInit will
- *       first test for a compatible N_Vector internal representation
- *       by checking that the function N_VGetArrayPointer exists.
- * -----------------------------------------------------------------
- */
 
+/*-----------------------------------------------------------------
+  Initialization, Free, and Get Functions
+  NOTE: The band linear solver assumes a serial/OpenMP/Pthreads 
+        implementation of the NVECTOR package. Therefore, 
+        CVBandPrecInit will first test for a compatible N_Vector 
+        internal representation by checking that the function 
+        N_VGetArrayPointer exists.
+  -----------------------------------------------------------------*/
 int CVBandPrecInit(void *cvode_mem, sunindextype N,
                    sunindextype mu, sunindextype ml)
 {
@@ -79,7 +77,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  /* Test if one of the SPILS linear solvers has been attached */
+  /* Test if the SPILS linear solver interface has been attached */
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVBANDPRE",
                    "CVBandPrecInit", MSGBP_LMEM_NULL);
@@ -191,6 +189,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
   return(flag);
 }
 
+
 int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP, 
                             long int *leniwBP)
 {
@@ -248,6 +247,7 @@ int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP,
   return(CVSPILS_SUCCESS);
 }
 
+
 int CVBandPrecGetNumRhsEvals(void *cvode_mem, long int *nfevalsBP)
 {
   CVodeMem cv_mem;
@@ -280,50 +280,48 @@ int CVBandPrecGetNumRhsEvals(void *cvode_mem, long int *nfevalsBP)
   return(CVSPILS_SUCCESS);
 }
 
-/*
- * -----------------------------------------------------------------
- * CVBandPrecSetup
- * -----------------------------------------------------------------
- * Together CVBandPrecSetup and CVBandPrecSolve use a banded
- * difference quotient Jacobian to create a preconditioner.
- * CVBandPrecSetup calculates a new J, if necessary, then
- * calculates P = I - gamma*J, and does an LU factorization of P.
- *
- * The parameters of CVBandPrecSetup are as follows:
- *
- * t       is the current value of the independent variable.
- *
- * y       is the current value of the dependent variable vector,
- *         namely the predicted value of y(t).
- *
- * fy      is the vector f(t,y).
- *
- * jok     is an input flag indicating whether Jacobian-related
- *         data needs to be recomputed, as follows:
- *           jok == FALSE means recompute Jacobian-related data
- *                  from scratch.
- *           jok == TRUE means that Jacobian data from the
- *                  previous PrecSetup call will be reused
- *                  (with the current value of gamma).
- *         A CVBandPrecSetup call with jok == TRUE should only
- *         occur after a call with jok == FALSE.
- *
- * *jcurPtr is a pointer to an output integer flag which is
- *          set by CVBandPrecond as follows:
- *            *jcurPtr = TRUE if Jacobian data was recomputed.
- *            *jcurPtr = FALSE if Jacobian data was not recomputed,
- *                       but saved data was reused.
- *
- * gamma   is the scalar appearing in the Newton matrix.
- *
- * bp_data is a pointer to preconditoner data (set by CVBandPrecInit)
- *
- * The value to be returned by the CVBandPrecSetup function is
- *   0  if successful, or
- *   1  if the band factorization failed.
- * -----------------------------------------------------------------
- */
 
+/*-----------------------------------------------------------------
+  CVBandPrecSetup
+  -----------------------------------------------------------------
+  Together CVBandPrecSetup and CVBandPrecSolve use a banded
+  difference quotient Jacobian to create a preconditioner.
+  CVBandPrecSetup calculates a new J, if necessary, then
+  calculates P = I - gamma*J, and does an LU factorization of P.
+ 
+  The parameters of CVBandPrecSetup are as follows:
+ 
+  t       is the current value of the independent variable.
+ 
+  y       is the current value of the dependent variable vector,
+          namely the predicted value of y(t).
+ 
+  fy      is the vector f(t,y).
+ 
+  jok     is an input flag indicating whether Jacobian-related
+          data needs to be recomputed, as follows:
+            jok == FALSE means recompute Jacobian-related data
+                   from scratch.
+            jok == TRUE means that Jacobian data from the
+                   previous PrecSetup call will be reused
+                   (with the current value of gamma).
+          A CVBandPrecSetup call with jok == TRUE should only
+          occur after a call with jok == FALSE.
+ 
+  *jcurPtr is a pointer to an output integer flag which is
+           set by CVBandPrecSetup as follows:
+             *jcurPtr = TRUE if Jacobian data was recomputed.
+             *jcurPtr = FALSE if Jacobian data was not recomputed,
+                        but saved data was reused.
+ 
+  gamma   is the scalar appearing in the Newton matrix.
+ 
+  bp_data is a pointer to preconditoner data (set by CVBandPrecInit)
+ 
+  The value to be returned by the CVBandPrecSetup function is
+    0  if successful, or
+    1  if the band factorization failed.
+  -----------------------------------------------------------------*/
 static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy, 
                            booleantype jok, booleantype *jcurPtr, 
                            realtype gamma, void *bp_data)
@@ -335,7 +333,6 @@ static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
   /* Assume matrix and lpivots have already been allocated. */
   pdata = (CVBandPrecData) bp_data;
-
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
   if (jok) {
@@ -402,30 +399,27 @@ static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   return(ier);
 }
 
-/*
- * -----------------------------------------------------------------
- * CVBandPrecSolve
- * -----------------------------------------------------------------
- * CVBandPrecSolve solves a linear system P z = r, where P is the
- * matrix computed by CVBandPrecond.
- *
- * The parameters of CVBandPrecSolve used here are as follows:
- *
- * r is the right-hand side vector of the linear system.
- *
- * bp_data is a pointer to preconditoner data (set by CVBandPrecInit)
- *
- * z is the output vector computed by CVBandPrecSolve.
- *
- * The value returned by the CVBandPrecSolve function is always 0,
- * indicating success.
- * -----------------------------------------------------------------
- */ 
 
+/*-----------------------------------------------------------------
+  CVBandPrecSolve
+  -----------------------------------------------------------------
+  CVBandPrecSolve solves a linear system P z = r, where P is the
+  matrix computed by CVBandPrecond.
+ 
+  The parameters of CVBandPrecSolve used here are as follows:
+ 
+  r is the right-hand side vector of the linear system.
+ 
+  bp_data is a pointer to preconditoner data (set by CVBandPrecInit)
+ 
+  z is the output vector computed by CVBandPrecSolve.
+ 
+  The value returned by the CVBandPrecSolve function is always 0,
+  indicating success.
+  -----------------------------------------------------------------*/ 
 static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy, 
-                           N_Vector r, N_Vector z, 
-                           realtype gamma, realtype delta,
-                           int lr, void *bp_data)
+                           N_Vector r, N_Vector z, realtype gamma, 
+                           realtype delta, int lr, void *bp_data)
 {
   CVBandPrecData pdata;
   int retval;
@@ -462,22 +456,20 @@ static int CVBandPrecFree(CVodeMem cv_mem)
   return(0);
 }
 
-/*
- * -----------------------------------------------------------------
- * CVBandPDQJac
- * -----------------------------------------------------------------
- * This routine generates a banded difference quotient approximation to
- * the Jacobian of f(t,y). It assumes that a band matrix of type
- * DlsMat is stored column-wise, and that elements within each column
- * are contiguous. This makes it possible to get the address of a column
- * of J via the macro BAND_COL and to write a simple for loop to set
- * each of the elements of a column in succession.
- * -----------------------------------------------------------------
- */
 
-static int CVBandPDQJac(CVBandPrecData pdata, 
-                        realtype t, N_Vector y, N_Vector fy, 
-                        N_Vector ftemp, N_Vector ytemp)
+/*-----------------------------------------------------------------
+  CVBandPDQJac
+  -----------------------------------------------------------------
+  This routine generates a banded difference quotient approximation 
+  to the Jacobian of f(t,y). It assumes that a band SUNMatrix is 
+  stored column-wise, and that elements within each column are 
+  contiguous. This makes it possible to get the address of a column
+  of J via the accessor function SUNBandMatrix_Column() and to 
+  write a simple for loop to set each of the elements of a column 
+  in succession.
+  -----------------------------------------------------------------*/
+static int CVBandPDQJac(CVBandPrecData pdata, realtype t, N_Vector y, 
+                        N_Vector fy, N_Vector ftemp, N_Vector ytemp)
 {
   CVodeMem cv_mem;
   realtype fnorm, minInc, inc, inc_inv, srur;
@@ -527,10 +519,9 @@ static int CVBandPDQJac(CVBandPrecData pdata,
       inc = SUNMAX(srur*SUNRabs(y_data[j]), minInc/ewt_data[j]);
       inc_inv = ONE/inc;
       i1 = SUNMAX(0, j-pdata->mu);
-      i2 = SUNMIN(j+pdata->ml, pdata->N-1);
+      i2 = SUNMIN(j + pdata->ml, pdata->N - 1);
       for (i=i1; i <= i2; i++)
-        SM_COLUMN_ELEMENT_B(col_j,i,j) =
-          inc_inv * (ftemp_data[i] - fy_data[i]);
+        SM_COLUMN_ELEMENT_B(col_j,i,j) = inc_inv * (ftemp_data[i] - fy_data[i]);
     }
   }
 

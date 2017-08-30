@@ -116,8 +116,9 @@ int arkDlsDiagonalDQJac(realtype t, N_Vector y, N_Vector fy,
 /* generic linit/lsetup/lsolve/lfree interface routines for ARKode to call */
 int arkDlsInitialize(ARKodeMem ark_mem);
 
-int arkDlsSetup(ARKodeMem ark_mem, N_Vector vtemp1,
-                N_Vector vtemp2, N_Vector vtemp3); 
+int arkDlsSetup(ARKodeMem ark_mem, int convfail, N_Vector ypred,
+                N_Vector fpred, booleantype *jcurPtr, 
+                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
 
 int arkDlsSolve(ARKodeMem ark_mem, N_Vector b, N_Vector ycur, N_Vector fcur);
 
