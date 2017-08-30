@@ -36,18 +36,44 @@ include(CMakeDetermineFortranCompiler)
 
 if(CMAKE_Fortran_COMPILER)
   message(STATUS "Searching for a Fortran compiler... ${CMAKE_Fortran_COMPILER}")
+
   # Enable the language for next steps
   enable_language(Fortran)
-  mark_as_advanced(CLEAR 
+
+  # show some cache variables
+  MARK_AS_ADVANCED(CLEAR
     CMAKE_Fortran_COMPILER
-    CMAKE_Fortran_FLAGS
+    CMAKE_Fortran_FLAGS)
+
+  # hide all build type specific flags
+  MARK_AS_ADVANCED(FORCE
     CMAKE_Fortran_FLAGS_DEBUG
     CMAKE_Fortran_FLAGS_MINSIZEREL
     CMAKE_Fortran_FLAGS_RELEASE
-    CMAKE_Fortran_FLAGS_RELWITHDEB)
+    CMAKE_Fortran_FLAGS_RELWITHDEBINFO)
+
+  # only show flags for the current build type
+  # these flags are appended to CMAKE_Fortran_FLAGS
+  IF(CMAKE_BUILD_TYPE)
+    IF(CMAKE_BUILD_TYPE MATCHES "Debug")
+      MESSAGE("Appending Fortran debug flags")
+      MARK_AS_ADVANCED(CLEAR CMAKE_Fortran_FLAGS_DEBUG)
+    ELSEIF(CMAKE_BUILD_TYPE MATCHES "MinSizeRel")
+      MESSAGE("Appending Fortran min size release flags")
+      MARK_AS_ADVANCED(CLEAR CAKE_Fortran_FLAGS_MINSIZEREL)
+    ELSEIF(CMAKE_BUILD_TYPE MATCHES "Release")
+      MESSAGE("Appending Fortran release flags")
+      MARK_AS_ADVANCED(CLEAR CMAKE_Fortran_FLAGS_RELEASE)
+    ELSEIF(CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
+      MESSAGE("Appending Fortran release with debug info flags")
+      MARK_AS_ADVANCED(CLEAR CMAKE_Fortran_FLAGS_RELWITHDEBINFO)
+    ENDIF()
+  ENDIF()
+
   # Create the FortranTest directory
   set(FortranTest_DIR ${PROJECT_BINARY_DIR}/FortranTest)
   file(MAKE_DIRECTORY ${FortranTest_DIR})
+
   # Create a CMakeLists.txt file which will generate the "flib" library
   # and an executable "ftest"
   file(WRITE ${FortranTest_DIR}/CMakeLists.txt
@@ -63,6 +89,7 @@ if(CMAKE_Fortran_COMPILER)
     "ADD_LIBRARY(flib flib.f)\n"
     "ADD_EXECUTABLE(ftest ftest.f)\n"
     "TARGET_LINK_LIBRARIES(ftest flib)\n")
+
   # Create the Fortran source flib.f which defines two subroutines, "mysub" and "my_sub"
   file(WRITE ${FortranTest_DIR}/flib.f
     "        SUBROUTINE mysub\n"
@@ -71,22 +98,27 @@ if(CMAKE_Fortran_COMPILER)
     "        SUBROUTINE my_sub\n"
     "        RETURN\n"
     "        END\n")
+
   # Create the Fortran source ftest.f which calls "mysub" and "my_sub"
   file(WRITE ${FortranTest_DIR}/ftest.f
     "        PROGRAM ftest\n"
     "        CALL mysub()\n"
     "        CALL my_sub()\n"
     "        END\n")
+
   # Use TRY_COMPILE to make the targets "flib" and "ftest"
   try_compile(FTEST_OK ${FortranTest_DIR} ${FortranTest_DIR}
     ftest OUTPUT_VARIABLE MY_OUTPUT)
+
   # To ensure we do not use stuff from the previous attempts, 
   # we must remove the CMakeFiles directory.
   file(REMOVE_RECURSE ${FortranTest_DIR}/CMakeFiles)
+
   # Proceed based on test results
   if(FTEST_OK)
     message(STATUS "Trying to compile and link a simple Fortran program... OK")
     set(F77_FOUND TRUE)
+
     # Infer Fortran name-mangling scheme for symbols WITHOUT underscores.
     # Overwrite CMakeLists.txt with one which will generate the "ctest1" executable
     file(WRITE ${FortranTest_DIR}/CMakeLists.txt
@@ -102,11 +134,13 @@ if(CMAKE_Fortran_COMPILER)
       "ADD_EXECUTABLE(ctest1 ctest1.c)\n"
       "FIND_LIBRARY(FLIB flib ${FortranTest_DIR})\n"
       "TARGET_LINK_LIBRARIES(ctest1 \${FLIB})\n")
+
     # Define the list "options" of all possible schemes that we want to consider
     # Get its length and initialize the counter "iopt" to zero
     set(options mysub mysub_ mysub__ MYSUB MYSUB_ MYSUB__)
     list(LENGTH options imax)
     set(iopt 0)
+
     # We will attempt to sucessfully generate the "ctest1" executable as long as
     # there still are entries in the "options" list
     while(${iopt} LESS ${imax})   
@@ -132,6 +166,7 @@ if(CMAKE_Fortran_COMPILER)
         math(EXPR iopt ${iopt}+1)
       endif(CTEST_OK)
     endwhile(${iopt} LESS ${imax})   
+
     # Infer Fortran name-mangling scheme for symbols WITH underscores.
     # Practically a duplicate of the previous steps.
     file(WRITE ${FortranTest_DIR}/CMakeLists.txt
@@ -147,6 +182,7 @@ if(CMAKE_Fortran_COMPILER)
       "ADD_EXECUTABLE(ctest2 ctest2.c)\n"
       "FIND_LIBRARY(FLIB flib ${FortranTest_DIR})\n"
       "TARGET_LINK_LIBRARIES(ctest2 \${FLIB})\n")
+
     set(options my_sub my_sub_ my_sub__ MY_SUB MY_SUB_ MY_SUB__)
     list(LENGTH options imax)
     set(iopt 0)
@@ -163,6 +199,7 @@ if(CMAKE_Fortran_COMPILER)
         math(EXPR iopt ${iopt}+1)
       endif(CTEST_OK)
     endwhile(${iopt} LESS ${imax})   
+
     # Proceed based on whether the previous tests were successfull or not
     if(CMAKE_Fortran_SCHEME_NO_UNDERSCORES AND CMAKE_Fortran_SCHEME_WITH_UNDERSCORES)
       message(STATUS "Determining Fortran name-mangling scheme... OK")
@@ -170,9 +207,11 @@ if(CMAKE_Fortran_COMPILER)
     else(CMAKE_Fortran_SCHEME_NO_UNDERSCORES AND CMAKE_Fortran_SCHEME_WITH_UNDERSCORES)
       message(STATUS "Determining Fortran name-mangling scheme... FAILED")
     endif(CMAKE_Fortran_SCHEME_NO_UNDERSCORES AND CMAKE_Fortran_SCHEME_WITH_UNDERSCORES)
+    
   else(FTEST_OK)
     message(STATUS "Trying to compile and link a simple Fortran program... FAILED")
   endif(FTEST_OK)
+
 else(CMAKE_Fortran_COMPILER)
   message(STATUS "Searching for a Fortran compiler... FAILED")
 endif(CMAKE_Fortran_COMPILER)

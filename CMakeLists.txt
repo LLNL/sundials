@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision$
-# $Date$
-# ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -46,21 +43,42 @@ SET(PACKAGE_VERSION "2.7.0")
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Prohibit in-source build
-
 IF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
   MESSAGE(FATAL_ERROR "In-source build prohibited.")
 ENDIF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 
-# Hide/show some cache variables
-
+# Hide some cache variables
 MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
+
+# Show some cache variables
 MARK_AS_ADVANCED(CLEAR
   CMAKE_C_COMPILER
-  CMAKE_C_FLAGS
+  CMAKE_C_FLAGS)
+
+# Hide all build type specific flags
+MARK_AS_ADVANCED(FORCE
   CMAKE_C_FLAGS_DEBUG
   CMAKE_C_FLAGS_MINSIZEREL
   CMAKE_C_FLAGS_RELEASE
-  CMAKE_C_FLAGS_RELWITHDEB)
+  CMAKE_C_FLAGS_RELWITHDEBINFO)
+
+# Only show flags for the current build type
+# These flags are appended to CMAKE_C_FLAGS
+IF(CMAKE_BUILD_TYPE)
+  IF(CMAKE_BUILD_TYPE MATCHES "Debug")
+    MESSAGE("Appending C debug flags")
+    MARK_AS_ADVANCED(CLEAR CMAKE_C_FLAGS_DEBUG)
+  ELSEIF(CMAKE_BUILD_TYPE MATCHES "MinSizeRel")
+    MESSAGE("Appending C min size release flags")
+    MARK_AS_ADVANCED(CLEAR CAKE_C_FLAGS_MINSIZEREL)
+  ELSEIF(CMAKE_BUILD_TYPE MATCHES "Release")
+    MESSAGE("Appending C release flags")
+    MARK_AS_ADVANCED(CLEAR CMAKE_C_FLAGS_RELEASE)
+  ELSEIF(CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
+    MESSAGE("Appending C release with debug info flags")
+    MARK_AS_ADVANCED(CLEAR CMAKE_C_FLAGS_RELWITHDEBINFO)
+  ENDIF()
+ENDIF()
 
 # Specify the VERSION and SOVERSION for shared libraries
 
