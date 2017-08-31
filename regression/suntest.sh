@@ -75,8 +75,8 @@ cmake \
     -D MPI_MPIF90="${MPIDIR}/mpif90" \
     -D MPI_RUN_COMMAND="${MPIDIR}/mpirun" \
     \
-    -D LAPACK_ENABLE=ON \
-    -D LAPACK_LIBRARIES="${LAPACKDIR}/liblapack.so;${LAPACKDIR}/libblas.so;" \
+    -D TPL_ENABLE_LAPACK=ON \
+    -D TPL_LAPACK_LIBRARIES="${LAPACKDIR}/liblapack.so;${LAPACKDIR}/libblas.so;" \
     \
     -D KLU_ENABLE=ON \
     -D KLU_INCLUDE_DIR="${KLUDIR}/include" \

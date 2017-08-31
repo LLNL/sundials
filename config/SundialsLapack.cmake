@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision$
-# $Date$
-# ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # Copyright (c) 2008, The Regents of the University of California.
@@ -18,24 +15,26 @@ SET(LAPACK_FOUND FALSE)
 # If LAPACK libraries are undefined, try to find them (if we have
 # a working Fortran compiler) or look for them in the most
 # obvious place...
-if(NOT LAPACK_LIBRARIES)
+if(NOT TPL_LAPACK_LIBRARIES)
   if(F77_FOUND)
     include(FindLAPACK)
   else(F77_FOUND)
-    find_library(LAPACK_LIBRARIES
+    find_library(TPL_LAPACK_LIBRARIES
       NAMES lapack
       PATHS /usr/lib /usr/local/lib
       "$ENV{ProgramFiles}/LAPACK/Lib"
       )
   endif(F77_FOUND)
-endif(NOT LAPACK_LIBRARIES)
+endif(NOT TPL_LAPACK_LIBRARIES)
 
 # If we have the LAPACK libraries, test them
-if(LAPACK_LIBRARIES)
+if(TPL_LAPACK_LIBRARIES)
   message(STATUS "Looking for LAPACK libraries... OK")
+
   # Create the LapackTest directory
   set(LapackTest_DIR ${PROJECT_BINARY_DIR}/LapackTest)
   file(MAKE_DIRECTORY ${LapackTest_DIR})
+
   # Create a CMakeLists.txt file 
   file(WRITE ${LapackTest_DIR}/CMakeLists.txt
     "CMAKE_MINIMUM_REQUIRED(VERSION 2.4)\n"
@@ -48,7 +47,8 @@ if(LAPACK_LIBRARIES)
     "SET(CMAKE_C_FLAGS_RELWITHDEBUGINFO \"${CMAKE_C_FLAGS_RELWITHDEBUGINFO}\")\n"
     "SET(CMAKE_C_FLAGS_MINSIZE \"${CMAKE_C_FLAGS_MINSIZE}\")\n"
     "ADD_EXECUTABLE(ltest ltest.c)\n"
-    "TARGET_LINK_LIBRARIES(ltest ${LAPACK_LIBRARIES})\n")    
+    "TARGET_LINK_LIBRARIES(ltest ${TPL_LAPACK_LIBRARIES})\n")
+
   # Create a C source file which calls a Blas function (dcopy) and an Lapack function (dgetrf)
   file(WRITE ${LapackTest_DIR}/ltest.c
     "${F77_MANGLE_MACRO1}\n"
@@ -63,12 +63,15 @@ if(LAPACK_LIBRARIES)
     "dgetrf_f77(&n, &n, &x, &n, &n, &n);\n"
     "return(0);\n"
     "}\n")
+
   # Attempt to link the "ltest" executable
   try_compile(LTEST_OK ${LapackTest_DIR} ${LapackTest_DIR}
     ltest OUTPUT_VARIABLE MY_OUTPUT)    
+
   # To ensure we do not use stuff from the previous attempts, 
   # we must remove the CMakeFiles directory.
   file(REMOVE_RECURSE ${LapackTest_DIR}/CMakeFiles)
+
   # Process test result
   if(LTEST_OK)
     message(STATUS "Checking if Lapack works... OK")
@@ -76,6 +79,7 @@ if(LAPACK_LIBRARIES)
   else(LTEST_OK)
     message(STATUS "Checking if Lapack works... FAILED")
   endif(LTEST_OK)
-else(LAPACK_LIBRARIES)
+
+else(TPL_LAPACK_LIBRARIES)
   message(STATUS "Looking for LAPACK libraries... FAILED")
-endif(LAPACK_LIBRARIES)
+endif(TPL_LAPACK_LIBRARIES)

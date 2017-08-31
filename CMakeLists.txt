@@ -349,13 +349,13 @@ ENDIF(BUILD_ARKODE AND EXAMPLES_ENABLE)
 # Enable BLAS/LAPACK support?
 # -------------------------------------------------------------
 
-OPTION(LAPACK_ENABLE "Enable Lapack support" OFF)
+OPTION(TPL_ENABLE_LAPACK "Enable Lapack support" OFF)
 
-IF(NOT LAPACK_ENABLE)
+IF(NOT TPL_ENABLE_LAPACK)
   HIDE_VARIABLE(SUNDIALS_F77_FUNC_CASE)
   HIDE_VARIABLE(SUNDIALS_F77_FUNC_UNDERSCORES)
-  HIDE_VARIABLE(LAPACK_LIBRARIES)
-ENDIF(NOT LAPACK_ENABLE)
+  HIDE_VARIABLE(TPL_LAPACK_LIBRARIES)
+ENDIF()
 
 # -------------------------------------------------------------
 # Enable SUPERLUMT support?
@@ -522,13 +522,13 @@ ENDIF(APPLE)
 # (b) LAPACK is enabled (for the name-mangling scheme)
 # -------------------------------------------------------------
 
-IF(FCMIX_ENABLE OR LAPACK_ENABLE)
+IF(FCMIX_ENABLE OR TPL_ENABLE_LAPACK)
   INCLUDE(SundialsFortran)
   IF(NOT F77_FOUND AND FCMIX_ENABLE)
     PRINT_WARNING("Fortran compiler not functional"
       "FCMIX support will not be provided")
   ENDIF(NOT F77_FOUND AND FCMIX_ENABLE)
-ENDIF(FCMIX_ENABLE OR LAPACK_ENABLE)
+ENDIF(FCMIX_ENABLE OR TPL_ENABLE_LAPACK)
 
 # -------------------------------------------------------------
 # A Fortran90 compiler is needed if:
@@ -569,7 +569,7 @@ ENDIF(CXX_ENABLE AND BUILD_ARKODE)
 # Note: the default scheme is lower case - one underscore
 # -------------------------------------------------------------
 
-IF(LAPACK_ENABLE AND NOT F77SCHEME_FOUND)
+IF(TPL_ENABLE_LAPACK AND NOT F77SCHEME_FOUND)
   # Specify the case for the Fortran name-mangling scheme
   SHOW_VARIABLE(SUNDIALS_F77_FUNC_CASE STRING
     "case of Fortran function names (lower/upper)"
@@ -607,7 +607,7 @@ IF(LAPACK_ENABLE AND NOT F77SCHEME_FOUND)
   SET(CMAKE_Fortran_SCHEME_WITH_UNDERSCORES "my_sub_")
   # We now "have" a scheme.
   SET(F77SCHEME_FOUND TRUE)
-ENDIF(LAPACK_ENABLE AND NOT F77SCHEME_FOUND)
+ENDIF(TPL_ENABLE_LAPACK AND NOT F77SCHEME_FOUND)
 
 # -------------------------------------------------------------
 # If we have a name-mangling scheme (either automatically
@@ -666,7 +666,7 @@ ENDIF(F77SCHEME_FOUND)
 # If LAPACK is needed, first try to find the appropriate
 # libraries and linker flags needed to link against them.
 
-IF(LAPACK_ENABLE)
+IF(TPL_ENABLE_LAPACK)
 
   # find BLAS and LAPACK Libraries
   INCLUDE(SundialsLapack)
@@ -674,19 +674,13 @@ IF(LAPACK_ENABLE)
   SHOW_VARIABLE(LAPACK_LIBRARIES STRING "Blas and Lapack libraries" "${LAPACK_LIBRARIES}")
 
   IF(LAPACK_LIBRARIES AND NOT LAPACK_FOUND)
-    PRINT_WARNING("LAPACK not functional"
-      "Blas/Lapack support will not be provided")
-  ELSE(LAPACK_LIBRARIES AND NOT LAPACK_FOUND)
+    PRINT_WARNING("LAPACK not functional" "Blas/Lapack support will not be provided")
+  ELSE()
     #set sundials_config.h symbol via sundials_config.in
     SET(SUNDIALS_BLAS_LAPACK TRUE)
-  ENDIF(LAPACK_LIBRARIES AND NOT LAPACK_FOUND)
-  
+  ENDIF()
 
-ELSE(LAPACK_ENABLE)
-
-  HIDE_VARIABLE(LAPACK_LIBRARIES)
-
-ENDIF(LAPACK_ENABLE)
+ENDIF()
 
 # -------------------------------------------------------------
 # Find (and test) the SUPERLUMT libraries
