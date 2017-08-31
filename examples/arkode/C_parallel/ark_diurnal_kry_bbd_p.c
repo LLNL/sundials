@@ -250,7 +250,8 @@ int main(int argc, char *argv[])
   /* Loop over jpre (= PREC_LEFT, PREC_RIGHT), and solve the problem */
   for (jpre=PREC_LEFT; jpre<=PREC_RIGHT; jpre++) {
 
-    /* On second run, re-initialize u, the integrator, ARKBBDPRE, and ARKSPGMR */
+    /* On second run, re-initialize u, the integrator, ARKBBDPRE, 
+       and preconditioning type */
     if (jpre == PREC_RIGHT) {
 
       SetInitialProfiles(u, data);
