@@ -590,6 +590,26 @@ void FARK_DLSMASSINIT(int *time_dep, int *ier) {
 
 /*=============================================================*/
 
+/* Fortran interfaces to C "set" routines for the ARKDls solver; 
+   see farkode.h for further details */
+void FARK_DLSSETDGMAX(realtype *dgmax, int *ier) {
+  if (ARK_ls == ARK_LS_DIRECT)
+    *ier = ARKDlsSetDGMax(ARK_arkodemem, *dgmax);
+  else
+    *ier = 1;
+  return;
+}
+
+void FARK_DLSSETMSBJ(int *msbj, int *ier) {
+  if (ARK_ls == ARK_LS_DIRECT)
+    *ier = ARKDlsSetMSBJ(ARK_arkodemem, *msbj);
+  else
+    *ier = 1;
+  return;
+}
+
+/*=============================================================*/
+
 /* Fortran interface to C routine ARKSpilsSetLinearSolver; see 
    farkode.h for further details */
 void FARK_SPILSINIT(int *ier) {

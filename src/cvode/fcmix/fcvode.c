@@ -292,6 +292,22 @@ void FCV_DLSINIT(int *ier) {
   return;
 }
 
+void FCV_DLSSETDGMAX(realtype *dgmax, int *ier) {
+  if (CV_ls == CV_LS_DIRECT)
+    *ier = CVDlsSetDGMax(CV_cvodemem, *dgmax);
+  else
+    *ier = 1;
+  return;
+}
+
+void FCV_DLSSETMSBJ(int *msbj, int *ier) {
+  if (CV_ls == CV_LS_DIRECT)
+    *ier = CVDlsSetMSBJ(CV_cvodemem, *msbj);
+  else
+    *ier = 1;
+  return;
+}
+
 /***************************************************************************/
 
 void FCV_SPILSINIT(int *ier) {

@@ -184,6 +184,14 @@ SUNDIALS_EXPORT int ARKDlsSetMassLinearSolver(void *arkode_mem,
  this routine is provided to allow changing this function after it 
  is initially set.
 
+ ARKDlsSetMSBJ specifies the maximum number of steps to take 
+ between Jacobian evaluations.  A negative value indicates to use
+ the default.
+ 
+ ARKDlsSetDGMax specifies the maximum change in gamma between 
+ Jacobian evaluations.  A negative value indicates to use the 
+ default.
+ 
  The return value is one of:
     ARKDLS_SUCCESS   if successful
     ARKDLS_MEM_NULL  if the ARKODE memory was NULL
@@ -191,8 +199,9 @@ SUNDIALS_EXPORT int ARKDlsSetMassLinearSolver(void *arkode_mem,
     ARKDLS_MASSMEM_NULL if the mass matrix solver memory was NULL
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKDlsSetJacFn(void *arkode_mem, ARKDlsJacFn jac);
-
 SUNDIALS_EXPORT int ARKDlsSetMassFn(void *arkode_mem, ARKDlsMassFn mass);
+SUNDIALS_EXPORT int CVDlsSetMSBJ(void *arkode_mem, int msbj);
+SUNDIALS_EXPORT int CVDlsSetDGMax(void *arkode_mem, realtype dgmax);
 
 
 /*---------------------------------------------------------------
