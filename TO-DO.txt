@@ -10,32 +10,26 @@
    arguments (second is a copy of the first) to match N_Vector and
    previous matrix operations. 
 
-4. Verify that we properly check the following:  when <solver>Dls
-   initialization occurs (not creation), if a matrix is used that
-   cannot be approximated via difference quotients (sparse matrices,
-   diagonal for some integrators), the Jacobian construction function
-   is provided.
-
-5. Revisit scaling vectors with PCG (without preconditioning) -- this
+4. Revisit scaling vectors with PCG (without preconditioning) -- this
    seems to work improperly now.  Perhaps it is the testing code, or
    maybe the solver itself.
   
-6. idaFoodWeb_kry_omp had been explicitly disabled from our testing
+5. idaFoodWeb_kry_omp had been explicitly disabled from our testing
    (in the examples/ida/C_openmp/CMakeLists.txt file).  Why?  It runs
    correctly, although my results differ from the 'answer' file.
    Perhaps this problem should be investigated more thoroughly and
    added back in? 
   
-7. I added in the ability to update DGMAX and MSBP in CVODE(S); check
+6. I added in the ability to update DGMAX and MSBP in CVODE(S); check
    that these are also user modifiable in ARKode.  Also add the
    corresponding "set" routines to the FCVODE and FARKODE interfaces.
 
-8. Add new documentation on SUNMatrix and SUNLinearSolver modules.
+7. Add new documentation on SUNMatrix and SUNLinearSolver modules.
 
-9. Update documentation on Dls and Spils interfaces for all
+8. Update documentation on Dls and Spils interfaces for all
    integrators.
 
-10. Revisit CVODE(S) 'diagonal' linear solver interface w.r.t. J and
+9. Revisit CVODE(S) 'diagonal' linear solver interface w.r.t. J and
    gamma updates.  It currently supports lagging both for a
    user-defined number of steps, but old interface always lagged J
    but forced use of the current gamma (through unraveling M-inverse =
@@ -52,7 +46,7 @@
    setting the parameter.  The parameter would then be used inside the
    diagonal DQ approximation routine.
    
-11. Revisit the question of the differencing parameter used in the
+10. Revisit the question of the differencing parameter used in the
    IDADls and IDASDls interfaces.  Previously we had different
    increments for GMRES than for BiCGStab and TFQMR; currently these
    all use the GMRES value, but that value seems off in general (see
@@ -61,7 +55,7 @@
    internal check to see if the LS object is actually a SUNSPGMR
    object (perhaps check if LS->ops->solve == SUNLinSolSolve_SPGMR ?)
 
-12. Test whether LAPACK can solve NxN problems where although N can be
+11. Test whether LAPACK can solve NxN problems where although N can be
    stored as an int32_t, N^2 cannot.  Our old interface stored all
    integers relating to dense/band matrices as 64-bit, but called
    LAPACK with 32-bit 'N' values -- was this nonsense?  If LAPACK can
@@ -70,7 +64,7 @@
    use 64-bit integers for the actual 1D data array, to match our
    previous support.
 
-13. Add <solver>Cls interfaces to all integrators for 'custom' linear
+12. Add <solver>Cls interfaces to all integrators for 'custom' linear
    solvers.  These should:
    - assume a SUNMatrix object is provided
    - assume an iterative linear solve is performed
