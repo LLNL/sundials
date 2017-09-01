@@ -1,0 +1,130 @@
+%% This is a shared SUNDIALS TEX file with a description of the
+%% diagonal sunmatrix implementation
+%%
+
+The diagonal implementation of the {\sunmatrix} module provided with
+{\sundials}, {\sunmatdiag}, defines the {\em content} field
+of \id{SUNMatrix} to be the following structure:
+%%
+\begin{verbatim} 
+struct _SUNMatrixContent_Diagonal {
+  N_Vector d;
+};
+\end{verbatim}
+%%
+The entry of the \emph{content} field contain the following
+information:
+\begin{description}
+  \item[d] - generic {\nvector} object containing the diagonal of the
+  {\sunmatrix}.
+\end{description}
+
+\noindent The header file to be included when using this module 
+is \id{sunmatrix/sunmatrix\_diagonal.h}. \\
+
+\noindent The following two macros are provided to access the
+content of a {\sunmatdiag} matrix. The prefix \id{SM\_} in the names
+denotes that these macros are for \emph{SUNMatrix} implementations,
+and the suffix \id{\_DIAG} denotes that these are specific to
+the \emph{diagonal} version.
+%%
+\begin{itemize}
+
+\item \ID{SM\_CONTENT\_DIAG}
+    
+  This routine gives access to the contents of the
+  diagonal \id{SUNMatrix}.
+  
+  The assignment \id{A\_cont} $=$ \id{SM\_CONTENT\_DIAG(A)} sets
+  \id{A\_cont} to be a pointer to the diagonal \id{SUNMatrix} content
+  structure.                                             
+                                                            
+  Implementation: 
+  
+  \verb|#define SM_CONTENT_DIAG(A)  ( (SUNMatrixContent_Diagonal)(A->content) )|
+  
+\item \ID{SM\_DATA\_DIAG}
+                                                            
+  This macro gives access to the {\nvector} \id{d} that defines the
+  diagonal matrix.
+
+  The assignment \id{A\_data = SM\_DATA\_DIAG(A)} sets \id{A\_data} to be     
+  the {\nvector} storing the matrix diagonal.  The
+  assignment \id{SM\_DATA\_DIAG(A) = A\_data} sets the {\nvector}
+  matrix diagonal to \id{A\_data}.
+  
+  Implementation:
+
+  \verb|#define SM_DATA_DIAG(A)     ( SM_CONTENT_DIAG(A)->d )|
+
+\end{itemize}
+%%
+%%----------------------------------------------
+%%
+The {\sunmatdiag} module defines diagonal implementations of all
+matrix operations listed in Table \ref{t:sunmatops}. Their names are
+obtained from those in Table \ref{t:sunmatops} by appending the
+suffix \id{\_Diagonal} (e.g. \id{SUNMatCopy\_Diagonal}). 
+The module {\sunmatdiag} provides the following additional
+user-callable routines: 
+%%
+\begin{itemize}
+
+%%--------------------------------------
+
+\item \ID{SUNDiagonalMatrix}
+
+  This function creates and allocates memory for a diagonal \id{SUNMatrix}.
+  It argument is a template {\nvector} object.
+
+  \verb|SUNMatrix SUNDiagonalMatrix(N_Vector tmpl);|
+
+%%--------------------------------------
+
+\item \ID{SUNDiagonalMatrix\_Diag}
+
+  This function returns the {\nvector} containing the diagonal of
+  the \id{SUNMatrix}. 
+ 
+  \verb|N_Vector SUNDiagonalMatrix_Diag(SUNMatrix A);|
+
+\end{itemize}
+%%
+%%------------------------------------
+%%
+\paragraph{\bf Notes}                                                      
+           
+\begin{itemize}
+                                        
+\item
+  To access the components of a diagonal \id{SUNMatrix} \id{A}, you
+  must first retrieve the {\nvector} containing the matrix diagonal
+  via \id{A\_data = SM\_DATA\_DIAG(A)} or\\
+  \id{A\_data = SUNDiagonalMatrix\_Diag(A)}, and then access the
+  entries of the {\nvector} using whichever macros or functions are
+  appropriate for that {\nvector} implementation.
+
+\item
+  Within the \id{SUNMatMatvec\_Diagonal} routine, internal consistency
+  checks are performed to ensure that the matrix is called with
+  consistent {\nvector} implementations.  This consistency check
+  merely ensures that the matrix diagonal, as well as the input 
+  {\nvector} objects \id{x} and \id{y} all have
+  identical \id{N\_Vector\_ID}.  As such, this routine may be used
+  with any {\sundials}-supplied or user-supplied {\nvector}
+  implementation. 
+
+\end{itemize}
+
+For solvers that include a Fortran interface module, the {\sunmatdiag}
+module also includes the Fortran-callable
+function \id{FSUNDiagonalMatInit(code, ier)} to initialize
+this {\sunmatdiag} module for a given {\sundials} solver.
+Here \id{code} is an input solver id (1 for {\cvode}, 2 for {\ida}, 3
+for {\kinsol}, 4 for {\arkode}); and \id{ier} is an error return flag 
+equal 0 for success and -1 for failure (declared so as to match C type
+\id{int}).  This routine must be called \emph{after} a corresponding
+{\nvector} has been initialized by a call to \id{FNVInit*}.
+Additionally, when using {\arkode} with non-identity mass matrix, the
+Fortran-callable function \id{FSUNDiagonalMassMatInit(ier)}  
+initializes this {\sunmatdiag} module for storing the mass matrix.
