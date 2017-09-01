@@ -55,31 +55,6 @@ MARK_AS_ADVANCED(CLEAR
   CMAKE_C_COMPILER
   CMAKE_C_FLAGS)
 
-# Hide all build type specific flags
-MARK_AS_ADVANCED(FORCE
-  CMAKE_C_FLAGS_DEBUG
-  CMAKE_C_FLAGS_MINSIZEREL
-  CMAKE_C_FLAGS_RELEASE
-  CMAKE_C_FLAGS_RELWITHDEBINFO)
-
-# Only show flags for the current build type
-# These flags are appended to CMAKE_C_FLAGS
-IF(CMAKE_BUILD_TYPE)
-  IF(CMAKE_BUILD_TYPE MATCHES "Debug")
-    MESSAGE("Appending C debug flags")
-    MARK_AS_ADVANCED(CLEAR CMAKE_C_FLAGS_DEBUG)
-  ELSEIF(CMAKE_BUILD_TYPE MATCHES "MinSizeRel")
-    MESSAGE("Appending C min size release flags")
-    MARK_AS_ADVANCED(CLEAR CAKE_C_FLAGS_MINSIZEREL)
-  ELSEIF(CMAKE_BUILD_TYPE MATCHES "Release")
-    MESSAGE("Appending C release flags")
-    MARK_AS_ADVANCED(CLEAR CMAKE_C_FLAGS_RELEASE)
-  ELSEIF(CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
-    MESSAGE("Appending C release with debug info flags")
-    MARK_AS_ADVANCED(CLEAR CMAKE_C_FLAGS_RELWITHDEBINFO)
-  ENDIF()
-ENDIF()
-
 # Specify the VERSION and SOVERSION for shared libraries
 
 SET(arkodelib_VERSION "1.1.0")
@@ -220,12 +195,48 @@ ENDIF(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/kinsol")
 #  SET(BUILD_CPODES OFF)
 #ENDIF(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/cpodes")
 
-# -------------------------------------------------------------
-# Other configuration options
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
+# Enable examples?
+# ---------------------------------------------------------------
+OPTION(EXAMPLES_ENABLE "Build the SUNDIALS examples" ON)
 
-# Option that allows users to build static and/or shared libraries
-# ----------------------------------------------------------------
+# ---------------------------------------------------------------
+# xSDK specific options
+# ---------------------------------------------------------------
+INCLUDE(SundialsXSDK)
+
+# ---------------------------------------------------------------
+# build type specific options
+# ---------------------------------------------------------------
+
+# Hide all build type specific flags
+MARK_AS_ADVANCED(FORCE
+  CMAKE_C_FLAGS_DEBUG
+  CMAKE_C_FLAGS_MINSIZEREL
+  CMAKE_C_FLAGS_RELEASE
+  CMAKE_C_FLAGS_RELWITHDEBINFO)
+
+# Only show flags for the current build type
+# These flags are appended to CMAKE_C_FLAGS
+IF(CMAKE_BUILD_TYPE)
+  IF(CMAKE_BUILD_TYPE MATCHES "Debug")
+    MESSAGE("Appending C debug flags")
+    MARK_AS_ADVANCED(CLEAR CMAKE_C_FLAGS_DEBUG)
+  ELSEIF(CMAKE_BUILD_TYPE MATCHES "MinSizeRel")
+    MESSAGE("Appending C min size release flags")
+    MARK_AS_ADVANCED(CLEAR CAKE_C_FLAGS_MINSIZEREL)
+  ELSEIF(CMAKE_BUILD_TYPE MATCHES "Release")
+    MESSAGE("Appending C release flags")
+    MARK_AS_ADVANCED(CLEAR CMAKE_C_FLAGS_RELEASE)
+  ELSEIF(CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
+    MESSAGE("Appending C release with debug info flags")
+    MARK_AS_ADVANCED(CLEAR CMAKE_C_FLAGS_RELWITHDEBINFO)
+  ENDIF()
+ENDIF()
+
+# ---------------------------------------------------------------
+# Options to build static and/or shared libraries
+# ---------------------------------------------------------------
 
 OPTION(BUILD_STATIC_LIBS "Build static libraries" ON)
 OPTION(BUILD_SHARED_LIBS "Build shared libraries" ON)
@@ -256,26 +267,64 @@ IF(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
   SET(BUILD_STATIC_LIBS ON CACHE BOOL "Build static libraries" FORCE)
 ENDIF(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
 
+# ---------------------------------------------------------------
 # Option to specify precision
-# ---------------------------
+# ---------------------------------------------------------------
 
-SET(SUNDIALS_PRECISION "double" CACHE STRING "double, single or extended")
+IF(NOT XSDK_PRECISION)
+
+  SET(SUNDIALS_PRECISION "double" CACHE STRING "single, double, or extended")
+  MARK_AS_ADVANCED(CLEAR SUNDIALS_PRECISION)
+
+ELSE()
+
+  MESSAGE("Replacing SUNDIALS_PRECISION with XSDK_PRECISION")
+  IF(XSDK_PRECISION MATCHES "quad")
+    SET(SUNDIALS_PRECISION "extended" CACHE STRING 
+      "single, double, or extended" FORCE)
+  ELSE()
+    SET(SUNDIALS_PRECISION ${XSDK_PRECISION} CACHE STRING 
+      "single, double, or extended" FORCE)
+  ENDIF()
+  MARK_AS_ADVANCED(FORCE SUNDIALS_PRECISION)
+
+ENDIF()
 
 # prepare substitution variable PRECISION_LEVEL for sundials_config.h
 STRING(TOUPPER ${SUNDIALS_PRECISION} SUNDIALS_PRECISION)
 SET(PRECISION_LEVEL "#define SUNDIALS_${SUNDIALS_PRECISION}_PRECISION 1")
 
+# ---------------------------------------------------------------
 # Option to specify index type
-# ----------------------------
+# ---------------------------------------------------------------
 
-SET(SUNDIALS_INDEX_TYPE "int64_t" CACHE STRING "Signed 64-bit (int64_t) or signed 32-bit (int32_t) integer")
+IF(NOT XSDK_INDEX_SIZE)
+
+  SET(SUNDIALS_INDEX_TYPE "int64_t" CACHE STRING 
+    "Signed 64-bit (int64_t) or signed 32-bit (int32_t) integer")
+  MARK_AS_ADVANCED(CLEAR SUNDIALS_INDEX_TYPE)
+
+ELSE()
+
+  MESSAGE("Replacing SUNDIALS_INDEX_TYPE with XSDK_INDEX_SIZE")
+  IF(XSDK_INDEX_SIZE MATCHES "32")
+    SET(SUNDIALS_INDEX_TYPE "int32_t" CACHE STRING 
+      "Signed 64-bit (int64_t) or signed 32-bit (int32_t) integer" FORCE)
+  ELSE()
+    SET(SUNDIALS_INDEX_TYPE "int64_t" CACHE STRING 
+      "Signed 64-bit (int64_t) or signed 32-bit (int32_t) integer" FORCE)
+  ENDIF()
+  MARK_AS_ADVANCED(FORCE SUNDIALS_INDEX_TYPE)
+
+ENDIF()
 
 # prepare substitution variable INDEX_TYPE for sundials_config.h
 STRING(TOUPPER ${SUNDIALS_INDEX_TYPE} SUNDIALS_INDEX_TYPE)
 SET(INDEX_TYPE "#define SUNDIALS_${SUNDIALS_INDEX_TYPE} 1")
 
+# ---------------------------------------------------------------
 # Option to use the generic math libraries (UNIX only)
-# ----------------------------------------------------
+# ---------------------------------------------------------------
 
 IF(UNIX)
   OPTION(USE_GENERIC_MATH "Use generic (std-c) math libraries" ON)
@@ -303,22 +352,34 @@ if(SUNDIALS_POSIX_TIMERS)
   endif()
 endif()
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Enable Fortran support?
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 # FCMIX support is an option only if at least one solver that 
 # provides such an interface is built.
 
-IF(BUILD_ARKODE OR BUILD_CVODE OR BUILD_IDA OR BUILD_KINSOL)
-  SHOW_VARIABLE(FCMIX_ENABLE BOOL "Enable Fortran-C support" OFF)
-ELSE(BUILD_ARKODE OR BUILD_CVODE OR BUILD_IDA OR BUILD_KINSOL)
-  HIDE_VARIABLE(FCMIX_ENABLE)
-ENDIF(BUILD_ARKODE OR BUILD_CVODE OR BUILD_IDA OR BUILD_KINSOL)
+IF(NOT DEFINED XSDK_ENABLE_FORTRAN)
 
-# -------------------------------------------------------------
+  IF(BUILD_ARKODE OR BUILD_CVODE OR BUILD_IDA OR BUILD_KINSOL)
+    SHOW_VARIABLE(FCMIX_ENABLE BOOL "Enable Fortran-C support" OFF)
+  ELSE()
+    HIDE_VARIABLE(FCMIX_ENABLE)
+  ENDIF()
+  MARK_AS_ADVANCED(CLEAR FCMIX_ENABLE)
+
+ELSE()
+
+  MESSAGE("Replacing FCMIX_ENABLE with XSDK_ENABLE_FORTRAN")
+  SET(FCMIX_ENABLE ${XSDK_ENABLE_FORTRAN} CACHE BOOL 
+    "Enable Fortran-C support" FORCE)
+  MARK_AS_ADVANCED(FORCE FCMIX_ENABLE)
+
+ENDIF()
+
+# ---------------------------------------------------------------
 # Enable Fortran90 support?
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 # F90 support is an option only if ARKode is built and 
 # examples are enabled
@@ -451,11 +512,9 @@ IF(NOT PETSC_ENABLE)
   SET (PETSC_DISABLED TRUE CACHE INTERNAL "GUI - return when first set")
 ENDIF(NOT PETSC_ENABLE)
 
-# -------------------------------------------------------------
-# Enable examples?
-# -------------------------------------------------------------
-
-OPTION(EXAMPLES_ENABLE "Build the SUNDIALS examples" ON)
+# ---------------------------------------------------------------
+# Install examples?
+# ---------------------------------------------------------------
 
 IF(EXAMPLES_ENABLE)
 
