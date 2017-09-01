@@ -43,6 +43,11 @@ nvec_pthreads.tex \
 nvec_parhyp.tex \
 spils_constants.tex \
 sun_org.tex \
+sunmatrix_generic.tex \
+sunmatrix_band.tex \
+sunmatrix_dense.tex \
+sunmatrix_diag.tex \
+sunmatrix_sparse.tex \
 types.tex \
 ug.tex \
 biblio.bib
