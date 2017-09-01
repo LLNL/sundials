@@ -84,14 +84,14 @@ int Test_SUNMatClone(SUNMatrix A, int myid)
   B = SUNMatClone(A);
   stop_time = get_time();   
 
-  /* check cloned vector */
+  /* check cloned matrix */
   if (B == NULL) {
     printf(">>> FAILED test -- SUNMatClone, Proc %d \n", myid);
     printf("    After SUNMatClone, B == NULL \n \n");
     return(1);
   } 
 
-  /* check cloned vector data */
+  /* check cloned matrix data */
   if (!has_data(B)) {
     printf(">>> FAILED test -- SUNMatClone, Proc %d \n", myid);
     printf("    Matrix data == NULL \n \n");

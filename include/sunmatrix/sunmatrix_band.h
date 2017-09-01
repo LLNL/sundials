@@ -285,6 +285,9 @@ SUNDIALS_EXPORT void SUNBandMatrix_Print(SUNMatrix A, FILE* outfile);
  * SUNBandMatrix_StoredUpperBandwidth
  *    Returns the number of stored upper bands in the banded matrix
  *
+ * SUNBandMatrix_LDim
+ *    Returns the length of the leading dimension of A.
+ *
  * SUNBandMatrix_Data
  *    Returns a pointer to the data array for the banded matrix
  *
