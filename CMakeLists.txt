@@ -14,9 +14,9 @@
 # Top level CMakeLists.txt for SUNDIALS (for cmake build system)
 
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Initial commands
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 # Require a fairly recent cmake version
 
@@ -85,9 +85,9 @@ SET(nveclib_SOVERSION "2")
 
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/config)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # MACRO definitions
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 # Macros to hide/show cached variables.
 # These two macros can be used to "hide" or "show" in the
@@ -145,9 +145,9 @@ MACRO(LIST2STRING alist astring)
   ENDFOREACH(elem)
 ENDMACRO(LIST2STRING)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Which modules to build?
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 # For each SUNDIALS solver available (i.e. for which we have the
 # sources), give the user the option of enabling/disabling it.
@@ -393,9 +393,9 @@ ELSE(BUILD_ARKODE AND EXAMPLES_ENABLE AND FCMIX_ENABLE)
   HIDE_VARIABLE(F90_ENABLE)
 ENDIF(BUILD_ARKODE AND EXAMPLES_ENABLE AND FCMIX_ENABLE)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Enable C++ support?
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 # C++ support is an option only if ARKode is built and 
 # examples are enabled
@@ -406,9 +406,9 @@ ELSE(BUILD_ARKODE AND EXAMPLES_ENABLE)
   HIDE_VARIABLE(CXX_ENABLE)
 ENDIF(BUILD_ARKODE AND EXAMPLES_ENABLE)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Enable BLAS/LAPACK support?
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 OPTION(TPL_ENABLE_LAPACK "Enable Lapack support" OFF)
 
@@ -418,9 +418,9 @@ IF(NOT TPL_ENABLE_LAPACK)
   HIDE_VARIABLE(TPL_LAPACK_LIBRARIES)
 ENDIF()
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Enable SUPERLUMT support?
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 OPTION(SUPERLUMT_ENABLE "Enable SUPERLUMT support" OFF)
 
@@ -431,9 +431,9 @@ IF(NOT SUPERLUMT_ENABLE)
   SET (SUPERLUMT_DISABLED TRUE CACHE INTERNAL "GUI - return when first set")
 ENDIF(NOT SUPERLUMT_ENABLE)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Enable KLU support?
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 OPTION(KLU_ENABLE "Enable KLU support" OFF)
 
@@ -443,9 +443,9 @@ IF(NOT KLU_ENABLE)
   SET (KLU_DISABLED TRUE CACHE INTERNAL "GUI - return when first set")
 ENDIF(NOT KLU_ENABLE)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Enable MPI support?
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 OPTION(MPI_ENABLE "Enable MPI support" OFF)
 
@@ -459,9 +459,9 @@ IF(NOT MPI_ENABLE)
   HIDE_VARIABLE(MPI_MPIF90)
 ENDIF(NOT MPI_ENABLE)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Enable HYPRE Vector support?
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 OPTION(HYPRE_ENABLE "Enable Hypre support" OFF)
 IF(NOT MPI_ENABLE)
@@ -470,9 +470,9 @@ IF(NOT MPI_ENABLE)
   SET (HYPRE_DISABLED TRUE CACHE INTERNAL "GUI - return when first set")
 ENDIF(NOT MPI_ENABLE)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Enable OpenMP support?
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 OPTION(OPENMP_ENABLE "Enable OpenMP support" OFF)
 
@@ -483,9 +483,9 @@ IF(OPENMP_ENABLE)
   ENDIF(NOT OPENMP_FOUND)
 ENDIF(OPENMP_ENABLE)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Enable Pthread support?
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 OPTION(PTHREAD_ENABLE "Enable Pthreads support" OFF)
 
@@ -500,9 +500,9 @@ IF(PTHREAD_ENABLE)
   endif()
 ENDIF(PTHREAD_ENABLE)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Enable PETSc support?
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 OPTION(PETSC_ENABLE "Enable PETSC support" OFF)
 
@@ -560,9 +560,9 @@ ELSE(EXAMPLES_ENABLE)
   
 ENDIF(EXAMPLES_ENABLE)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Add any other necessary compiler flags & definitions
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 # Under Windows, add compiler directive to inhibit warnings
 # about use of unsecure functions
@@ -575,11 +575,11 @@ IF(APPLE)
   SET(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -undefined dynamic_lookup")
 ENDIF(APPLE)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # A Fortran compiler is needed if:
 # (a) FCMIX is enabled
 # (b) LAPACK is enabled (for the name-mangling scheme)
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 IF(FCMIX_ENABLE OR TPL_ENABLE_LAPACK)
   INCLUDE(SundialsFortran)
@@ -589,11 +589,11 @@ IF(FCMIX_ENABLE OR TPL_ENABLE_LAPACK)
   ENDIF(NOT F77_FOUND AND FCMIX_ENABLE)
 ENDIF(FCMIX_ENABLE OR TPL_ENABLE_LAPACK)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # A Fortran90 compiler is needed if:
 # (a) F90 is enabled, and
 # (b) ARKODE examples are enabled
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 IF(F90_ENABLE AND BUILD_ARKODE)
   INCLUDE(SundialsFortran90)
@@ -603,11 +603,11 @@ IF(F90_ENABLE AND BUILD_ARKODE)
   ENDIF(NOT F90_FOUND AND F90_ENABLE)
 ENDIF(F90_ENABLE AND BUILD_ARKODE)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # A C++ compiler is needed if:
 # (a) C++ is enabled, and
 # (b) ARKODE examples are enabled
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 IF(CXX_ENABLE AND BUILD_ARKODE)
   INCLUDE(SundialsCXX)
@@ -617,7 +617,7 @@ IF(CXX_ENABLE AND BUILD_ARKODE)
   ENDIF(NOT CXX_FOUND AND CXX_ENABLE)
 ENDIF(CXX_ENABLE AND BUILD_ARKODE)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Check if we need an alternate way of specifying the Fortran
 # name-mangling scheme if we were unable to infer it using a
 # compiler. 
@@ -626,7 +626,7 @@ ENDIF(CXX_ENABLE AND BUILD_ARKODE)
 # that do not themselves contain underscores (recall that this is all
 # we really need for the interfaces to LAPACK).
 # Note: the default scheme is lower case - one underscore
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 IF(TPL_ENABLE_LAPACK AND NOT F77SCHEME_FOUND)
   # Specify the case for the Fortran name-mangling scheme
@@ -668,11 +668,11 @@ IF(TPL_ENABLE_LAPACK AND NOT F77SCHEME_FOUND)
   SET(F77SCHEME_FOUND TRUE)
 ENDIF(TPL_ENABLE_LAPACK AND NOT F77SCHEME_FOUND)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # If we have a name-mangling scheme (either automatically
 # inferred or provided by the user), set the SUNDIALS 
 # compiler preprocessor macro definitions.
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 SET(F77_MANGLE_MACRO1 "")
 SET(F77_MANGLE_MACRO2 "")
@@ -718,9 +718,9 @@ IF(F77SCHEME_FOUND)
   ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MY_SUB__")
 ENDIF(F77SCHEME_FOUND)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Find (and test) the Lapack libraries
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 # If LAPACK is needed, first try to find the appropriate
 # libraries and linker flags needed to link against them.
@@ -741,9 +741,9 @@ IF(TPL_ENABLE_LAPACK)
 
 ENDIF()
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Find (and test) the SUPERLUMT libraries
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 # If SUPERLUMT is needed, first try to find the appropriate
 # libraries to link against them.
@@ -777,9 +777,9 @@ ELSE(SUPERLUMT_ENABLE)
 
 ENDIF(SUPERLUMT_ENABLE)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Find (and test) the KLU libraries
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 # If KLU is requested, first try to find the appropriate libraries to
 # link against them.
@@ -806,9 +806,9 @@ IF(KLU_ENABLE)
 
 ENDIF(KLU_ENABLE)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Decide how to compile MPI codes.
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 IF(MPI_ENABLE)
   # get run command for mpi (openmpi or OpenMP or Pthreads(default))
@@ -835,9 +835,9 @@ IF(MPI_ENABLE)
   ENDIF(MPIC_FOUND AND F90_ENABLE)
 ENDIF(MPI_ENABLE)
 
-#-------------------------------------------------------------
+# ---------------------------------------------------------------
 # Find the Hypre libraries
-#-------------------------------------------------------------
+# ---------------------------------------------------------------
 IF(HYPRE_ENABLE AND NOT MPI_ENABLE)
     PRINT_WARNING("MPI not enabled - HYPRE support will not be provided" 
       "Set MPI_ENABLE to ON to use parhyp")
@@ -864,9 +864,9 @@ IF(HYPRE_ENABLE AND MPI_ENABLE)
   
 ENDIF(HYPRE_ENABLE AND MPI_ENABLE)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Find (and test) the PETSc libraries
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 IF(PETSC_ENABLE AND NOT MPI_ENABLE)
     PRINT_WARNING("MPI not enabled - PETSc support will not be provided" 
       "Set MPI_ENABLE to ON to use PETSc.")
@@ -894,17 +894,17 @@ IF(PETSC_ENABLE AND MPI_ENABLE)
 ENDIF(PETSC_ENABLE AND MPI_ENABLE)
 
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # If using MPI with C++, disable C++ extensions (for known wrappers)
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 # IF(MPICXX_FOUND)
 #   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMPICH_SKIP_MPICXX -DOMPI_SKIP_MPICXX -DLAM_BUILDING")
 # ENDIF(MPICXX_FOUND)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Configure the header file sundials_config.h
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 # All required substitution variables should be available at this point.
 # Generate the header file and place it in the binary dir.
@@ -921,9 +921,9 @@ ELSE(SUPERLUMT_FOUND)
   INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR}/include)
 ENDIF(SUPERLUMT_FOUND)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Add selected modules to the build system
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 # Shared components
 
@@ -1003,9 +1003,9 @@ IF(BUILD_CPODES)
   ADD_SUBDIRECTORY(src/cpodes)
 ENDIF(BUILD_CPODES)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 # Include the subdirectories corresponding to various examples
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 # If building and installing the examples is enabled, include
 # the subdirectories for those examples that will be built.
@@ -1262,9 +1262,9 @@ IF(EXAMPLES_ENABLE)
   
 ENDIF(EXAMPLES_ENABLE)
 
-#----------------------------------
+# ---------------------------------------------------------------
 # Install configuration header file
-#----------------------------------
+# ---------------------------------------------------------------
 
 # install configured header file
 INSTALL(
