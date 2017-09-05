@@ -157,7 +157,7 @@ ENDMACRO(LIST2STRING)
 # ---------------------------------------------------------------
 # Check for deprecated CMake variables
 # ---------------------------------------------------------------
-INCLUDE(SundialsDeprecated)
+#INCLUDE(SundialsDeprecated)
 
 # ---------------------------------------------------------------
 # Which modules to build?
