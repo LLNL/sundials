@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision: 4341 $
-# $Date: 2015-02-03 10:53:47 -0800 (Tue, 03 Feb 2015) $
-# ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -53,7 +50,7 @@ ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 SET(SUNDIALS_LIBS ${CVODE_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
 SET(HYPRE_LIBS ${HYPRE_LIBRARIES})
 IF(LAPACK_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${TPL_LAPACK_LIBRARIES})
+  LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
 ENDIF(LAPACK_FOUND)
 
 IF(KLU_FOUND)

@@ -155,6 +155,11 @@ MACRO(LIST2STRING alist astring)
 ENDMACRO(LIST2STRING)
 
 # ---------------------------------------------------------------
+# Check for deprecated CMake variables
+# ---------------------------------------------------------------
+INCLUDE(SundialsDeprecated)
+
+# ---------------------------------------------------------------
 # Which modules to build?
 # ---------------------------------------------------------------
 
@@ -378,12 +383,12 @@ ENDIF(BUILD_ARKODE AND EXAMPLES_ENABLE)
 # Enable BLAS/LAPACK support?
 # ---------------------------------------------------------------
 
-OPTION(TPL_ENABLE_LAPACK "Enable Lapack support" OFF)
+OPTION(LAPACK_ENABLE "Enable Lapack support" OFF)
 
-IF(NOT TPL_ENABLE_LAPACK)
+IF(NOT LAPACK_ENABLE)
   HIDE_VARIABLE(SUNDIALS_F77_FUNC_CASE)
   HIDE_VARIABLE(SUNDIALS_F77_FUNC_UNDERSCORES)
-  HIDE_VARIABLE(TPL_LAPACK_LIBRARIES)
+  HIDE_VARIABLE(LAPACK_LIBRARIES)
 ENDIF()
 
 # ---------------------------------------------------------------
@@ -549,13 +554,13 @@ ENDIF(APPLE)
 # (b) LAPACK is enabled (for the name-mangling scheme)
 # ---------------------------------------------------------------
 
-IF(FCMIX_ENABLE OR TPL_ENABLE_LAPACK)
+IF(FCMIX_ENABLE OR LAPACK_ENABLE)
   INCLUDE(SundialsFortran)
   IF(NOT F77_FOUND AND FCMIX_ENABLE)
     PRINT_WARNING("Fortran compiler not functional"
       "FCMIX support will not be provided")
   ENDIF(NOT F77_FOUND AND FCMIX_ENABLE)
-ENDIF(FCMIX_ENABLE OR TPL_ENABLE_LAPACK)
+ENDIF(FCMIX_ENABLE OR LAPACK_ENABLE)
 
 # ---------------------------------------------------------------
 # A Fortran90 compiler is needed if:
@@ -596,7 +601,7 @@ ENDIF(CXX_ENABLE AND BUILD_ARKODE)
 # Note: the default scheme is lower case - one underscore
 # ---------------------------------------------------------------
 
-IF(TPL_ENABLE_LAPACK AND NOT F77SCHEME_FOUND)
+IF(LAPACK_ENABLE AND NOT F77SCHEME_FOUND)
   # Specify the case for the Fortran name-mangling scheme
   SHOW_VARIABLE(SUNDIALS_F77_FUNC_CASE STRING
     "case of Fortran function names (lower/upper)"
@@ -634,7 +639,7 @@ IF(TPL_ENABLE_LAPACK AND NOT F77SCHEME_FOUND)
   SET(CMAKE_Fortran_SCHEME_WITH_UNDERSCORES "my_sub_")
   # We now "have" a scheme.
   SET(F77SCHEME_FOUND TRUE)
-ENDIF(TPL_ENABLE_LAPACK AND NOT F77SCHEME_FOUND)
+ENDIF(LAPACK_ENABLE AND NOT F77SCHEME_FOUND)
 
 # ---------------------------------------------------------------
 # If we have a name-mangling scheme (either automatically
@@ -693,11 +698,12 @@ ENDIF(F77SCHEME_FOUND)
 # If LAPACK is needed, first try to find the appropriate
 # libraries and linker flags needed to link against them.
 
-IF(TPL_ENABLE_LAPACK)
+IF(LAPACK_ENABLE)
 
   # find BLAS and LAPACK Libraries
   INCLUDE(SundialsLapack)
 
+  # show after include so FindLapack can locate LAPCK_LIBRARIES if necessary
   SHOW_VARIABLE(LAPACK_LIBRARIES STRING "Blas and Lapack libraries" "${LAPACK_LIBRARIES}")
 
   IF(LAPACK_LIBRARIES AND NOT LAPACK_FOUND)

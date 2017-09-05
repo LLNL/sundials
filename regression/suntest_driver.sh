@@ -62,7 +62,8 @@ for ((i=0; i<${#realtype[@]}; i++)); do
         echo -e "TEST: ./suntest.sh ${realtype[i]} ${indextype[j]} $buildthreads \n"
 
         # run tests
-        ./suntest.sh ${realtype[i]} ${indextype[j]} $buildthreads
+        # ./suntest.sh ${realtype[i]} ${indextype[j]} $buildthreads
+        ./suntest_xsdk.sh ${realtype[i]} ${indextype[j]} $buildthreads
 
         # check return flag
         if [ $? -ne 0 ]; then

@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision$
-# $Date$
-# ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -58,7 +55,7 @@ SET(FCVODE_LIB sundials_fcvode_static)
 
 SET(SUNDIALS_LIBS ${FCVODE_LIB} ${CVODE_LIB} ${FNVECP_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
 IF(LAPACK_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${TPL_LAPACK_LIBRARIES})
+  LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
 ENDIF(LAPACK_FOUND)
 
 IF(KLU_FOUND)

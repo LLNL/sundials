@@ -1,7 +1,4 @@
 # -----------------------------------------------------------------
-# $Revision$
-# $Date$
-# -----------------------------------------------------------------
 # Programmer: Radu Serban @ LLNL
 # -----------------------------------------------------------------
 # Copyright (c) 2007, The Regents of the University of California.
@@ -17,8 +14,8 @@
 #
 # Note: if the solver was successfully configured with Blas/Lapack
 # support, the Blas/Lapack libraries are specified through the 
-# variable TPL_LAPACK_LIBRARIES. Otherwise, this variable should contain
-# an empty string or TPL_LAPACK_LIBRARIES-NOTFOUND. If this variable
+# variable LAPACK_LIBRARIES. Otherwise, this variable should contain
+# an empty string or LAPACK_LIBRARIES-NOTFOUND. If this variable
 # contains a valid library entry, we add it to each example traget
 # whether they use the Lapack module or not. This is done in order
 # to address the case in which the SUNDIALS libraries are shared 
@@ -66,7 +63,7 @@ FIND_LIBRARY(SUNDIALS_NVEC_FLIB
 SET(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")
 
 # Set other libraries libraries
-SET(TPL_LAPACK_LIBRARIES @BLAS_LAPACK_LIBS@ CACHE STRING "Lapack libraries")
+SET(LAPACK_LIBRARIES @BLAS_LAPACK_LIBS@ CACHE STRING "Lapack libraries")
 SET(SUPERLUMT_LIBRARIES @SUPERLUMT_LIBRARIES@ CACHE STRING "SuperLUMT libraries")
 SET(KLU_LIBRARIES @KLU_LIBRARIES@ CACHE STRING "KLU libraries")
 SET(PETSC_LIBRARIES @PETSC_LIBRARIES@ CACHE STRING "PETSC libraries")
@@ -76,9 +73,9 @@ SET(SUNDIALS_LIBS
   ${SUNDIALS_SOLVER_FLIB} ${SUNDIALS_SOLVER_LIB}
   ${SUNDIALS_NVEC_FLIB} ${SUNDIALS_NVEC_LIB}
   ${SUNDIALS_EXTRA_LIB})
-IF(TPL_LAPACK_LIBRARIES)
-  LIST(APPEND SUNDIALS_LIBS ${TPL_LAPACK_LIBRARIES})
-ENDIF(TPL_LAPACK_LIBRARIES)
+IF(LAPACK_LIBRARIES)
+  LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
+ENDIF(LAPACK_LIBRARIES)
 
 IF(SUPERLUMT_LIBRARIES)
   LIST(APPEND SUNDIALS_LIBS ${SUPERLUMT_LIBRARIES})

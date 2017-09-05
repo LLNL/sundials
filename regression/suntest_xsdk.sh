@@ -12,7 +12,8 @@
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # -------------------------------------------------------------------------------
-# SUNDIALS regression testing script with all external libraries enabled
+# xsdk variant of the SUNDIALS regression testing script with all external 
+# libraries enabled
 # -------------------------------------------------------------------------------
 
 # check number of inputs
@@ -23,6 +24,17 @@ fi
 realtype=$1     # required, precision for realtypes
 indextype=$2    # required, integer type for indices
 buildthreads=$3 # optional, number of build threads (if empty will use all threads)
+
+# adjust input values for xSDK build
+if [ $realtype == "extended" ]; then
+    realtype="quad"
+fi
+
+if [ $indextype == "int32_t" ]; then
+    indextype="32"
+else
+    indextype="64"
+fi
 
 # number of threads in OpenMP examples
 export OMP_NUM_THREADS=4
@@ -52,11 +64,11 @@ cd suntest_${realtype}_${indextype}
 # will not print any system variables.
 echo "START CMAKE"
 cmake \
-    -D SUNDIALS_PRECISION=$realtype \
-    -D SUNDIALS_INDEX_TYPE=$indextype \
+    -D XSDK_PRECISION=$realtype \
+    -D XSDK_INDEX_SIZE=$indextype \
     \
     -D CXX_ENABLE=ON \
-    -D FCMIX_ENABLE=ON \
+    -D XSDK_ENABLE_FORTRAN=ON \
     -D F90_ENABLE=ON \
     \
     -D OPENMP_ENABLE=ON \
@@ -75,8 +87,8 @@ cmake \
     -D MPI_MPIF90="${MPIDIR}/mpif90" \
     -D MPI_RUN_COMMAND="${MPIDIR}/mpirun" \
     \
-    -D LAPACK_ENABLE=ON \
-    -D LAPACK_LIBRARIES="${LAPACKDIR}/liblapack.so;${LAPACKDIR}/libblas.so;" \
+    -D TPL_ENABLE_LAPACK=ON \
+    -D TPL_LAPACK_LIBRARIES="${LAPACKDIR}/liblapack.so;${LAPACKDIR}/libblas.so;" \
     \
     -D KLU_ENABLE=ON \
     -D KLU_INCLUDE_DIR="${KLUDIR}/include" \

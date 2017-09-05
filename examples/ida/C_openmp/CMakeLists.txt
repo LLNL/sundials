@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision:  $
-# $Date:  $
-# ---------------------------------------------------------------
 # Programmer: Ting Yan @ SMU
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -44,7 +41,7 @@ ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 IF(LAPACK_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${TPL_LAPACK_LIBRARIES})
+  LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
 ENDIF(LAPACK_FOUND)
 
 IF(KLU_FOUND)

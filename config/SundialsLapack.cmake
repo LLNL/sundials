@@ -1,34 +1,37 @@
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
-# Copyright (c) 2008, The Regents of the University of California.
+# LLNS Copyright Start
+# Copyright (c) 2014, Lawrence Livermore National Security
+# This work was performed under the auspices of the U.S. Department 
+# of Energy by Lawrence Livermore National Laboratory in part under 
+# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
 # For details, see the LICENSE file.
+# LLNS Copyright End
 # ---------------------------------------------------------------
 # BLAS/LAPACK tests for SUNDIALS CMake-based configuration.
-#
-# 
 
 SET(LAPACK_FOUND FALSE)
 
 # If LAPACK libraries are undefined, try to find them (if we have
 # a working Fortran compiler) or look for them in the most
 # obvious place...
-if(NOT TPL_LAPACK_LIBRARIES)
+if(NOT LAPACK_LIBRARIES)
   if(F77_FOUND)
     include(FindLAPACK)
   else(F77_FOUND)
-    find_library(TPL_LAPACK_LIBRARIES
+    find_library(LAPACK_LIBRARIES
       NAMES lapack
       PATHS /usr/lib /usr/local/lib
       "$ENV{ProgramFiles}/LAPACK/Lib"
       )
   endif(F77_FOUND)
-endif(NOT TPL_LAPACK_LIBRARIES)
+endif()
 
 # If we have the LAPACK libraries, test them
-if(TPL_LAPACK_LIBRARIES)
+if(LAPACK_LIBRARIES)
   message(STATUS "Looking for LAPACK libraries... OK")
 
   # Create the LapackTest directory
@@ -47,7 +50,7 @@ if(TPL_LAPACK_LIBRARIES)
     "SET(CMAKE_C_FLAGS_RELWITHDEBUGINFO \"${CMAKE_C_FLAGS_RELWITHDEBUGINFO}\")\n"
     "SET(CMAKE_C_FLAGS_MINSIZE \"${CMAKE_C_FLAGS_MINSIZE}\")\n"
     "ADD_EXECUTABLE(ltest ltest.c)\n"
-    "TARGET_LINK_LIBRARIES(ltest ${TPL_LAPACK_LIBRARIES})\n")
+    "TARGET_LINK_LIBRARIES(ltest ${LAPACK_LIBRARIES})\n")
 
   # Create a C source file which calls a Blas function (dcopy) and an Lapack function (dgetrf)
   file(WRITE ${LapackTest_DIR}/ltest.c
@@ -74,12 +77,12 @@ if(TPL_LAPACK_LIBRARIES)
 
   # Process test result
   if(LTEST_OK)
-    message(STATUS "Checking if Lapack works... OK")
+    message(STATUS "Checking if LAPACK works... OK")
     set(LAPACK_FOUND TRUE)
   else(LTEST_OK)
-    message(STATUS "Checking if Lapack works... FAILED")
+    message(STATUS "Checking if LAPACK works... FAILED")
   endif(LTEST_OK)
 
-else(TPL_LAPACK_LIBRARIES)
+else(LAPACK_LIBRARIES)
   message(STATUS "Looking for LAPACK libraries... FAILED")
-endif(TPL_LAPACK_LIBRARIES)
+endif(LAPACK_LIBRARIES)
