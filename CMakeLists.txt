@@ -96,19 +96,28 @@ SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/config)
 # Note that once a variable is modified, it will preserve its
 # value (hidding it merely makes it internal)
 
+# hide variable (set as internal) and retain its value
 MACRO(HIDE_VARIABLE var)
   IF(DEFINED ${var})
     SET(${var} "${${var}}" CACHE INTERNAL "")
   ENDIF(DEFINED ${var})
 ENDMACRO(HIDE_VARIABLE)
 
+# show variable (set as cache)
 MACRO(SHOW_VARIABLE var type doc default)
   IF(DEFINED ${var})
+    # ignore default value and force to current variable value
     SET(${var} "${${var}}" CACHE "${type}" "${doc}" FORCE)
   ELSE(DEFINED ${var})
+    # set to variable to default value
     SET(${var} "${default}" CACHE "${type}" "${doc}")
   ENDIF(DEFINED ${var})
 ENDMACRO(SHOW_VARIABLE)
+
+# show variable (set as cache) and overwrite (force) its value
+MACRO(FORCE_VARIABLE var type doc val)
+  SET(${var} "${val}" CACHE "${type}" "${doc}" FORCE)
+ENDMACRO(FORCE_VARIABLE)
 
 # Macros to append a common suffix or prefix to the elements of a list
 
@@ -271,24 +280,8 @@ ENDIF(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
 # Option to specify precision
 # ---------------------------------------------------------------
 
-IF(NOT XSDK_PRECISION)
-
-  SET(SUNDIALS_PRECISION "double" CACHE STRING "single, double, or extended")
-  MARK_AS_ADVANCED(CLEAR SUNDIALS_PRECISION)
-
-ELSE()
-
-  MESSAGE("Replacing SUNDIALS_PRECISION with XSDK_PRECISION")
-  IF(XSDK_PRECISION MATCHES "quad")
-    SET(SUNDIALS_PRECISION "extended" CACHE STRING 
-      "single, double, or extended" FORCE)
-  ELSE()
-    SET(SUNDIALS_PRECISION ${XSDK_PRECISION} CACHE STRING 
-      "single, double, or extended" FORCE)
-  ENDIF()
-  MARK_AS_ADVANCED(FORCE SUNDIALS_PRECISION)
-
-ENDIF()
+SET(DOCSTR "single, double, or extended")
+SHOW_VARIABLE(SUNDIALS_PRECISION STRING "${DOCSTR}" "double")
 
 # prepare substitution variable PRECISION_LEVEL for sundials_config.h
 STRING(TOUPPER ${SUNDIALS_PRECISION} SUNDIALS_PRECISION)
@@ -298,25 +291,8 @@ SET(PRECISION_LEVEL "#define SUNDIALS_${SUNDIALS_PRECISION}_PRECISION 1")
 # Option to specify index type
 # ---------------------------------------------------------------
 
-IF(NOT XSDK_INDEX_SIZE)
-
-  SET(SUNDIALS_INDEX_TYPE "int64_t" CACHE STRING 
-    "Signed 64-bit (int64_t) or signed 32-bit (int32_t) integer")
-  MARK_AS_ADVANCED(CLEAR SUNDIALS_INDEX_TYPE)
-
-ELSE()
-
-  MESSAGE("Replacing SUNDIALS_INDEX_TYPE with XSDK_INDEX_SIZE")
-  IF(XSDK_INDEX_SIZE MATCHES "32")
-    SET(SUNDIALS_INDEX_TYPE "int32_t" CACHE STRING 
-      "Signed 64-bit (int64_t) or signed 32-bit (int32_t) integer" FORCE)
-  ELSE()
-    SET(SUNDIALS_INDEX_TYPE "int64_t" CACHE STRING 
-      "Signed 64-bit (int64_t) or signed 32-bit (int32_t) integer" FORCE)
-  ENDIF()
-  MARK_AS_ADVANCED(FORCE SUNDIALS_INDEX_TYPE)
-
-ENDIF()
+SET(DOCSTR "Signed 64-bit (int64_t) or signed 32-bit (int32_t) integer")
+SHOW_VARIABLE(SUNDIALS_INDEX_TYPE STRING "${DOCSTR}" "int64_t")
 
 # prepare substitution variable INDEX_TYPE for sundials_config.h
 STRING(TOUPPER ${SUNDIALS_INDEX_TYPE} SUNDIALS_INDEX_TYPE)
@@ -356,25 +332,17 @@ endif()
 # Enable Fortran support?
 # ---------------------------------------------------------------
 
-# FCMIX support is an option only if at least one solver that 
-# provides such an interface is built.
+# Fortran interface is disabled by default
+SET(DOCSTR "Enable Fortran-C support")
+SHOW_VARIABLE(FCMIX_ENABLE BOOL "${DOCSTR}" OFF)
 
-IF(NOT DEFINED XSDK_ENABLE_FORTRAN)
-
-  IF(BUILD_ARKODE OR BUILD_CVODE OR BUILD_IDA OR BUILD_KINSOL)
-    SHOW_VARIABLE(FCMIX_ENABLE BOOL "Enable Fortran-C support" OFF)
-  ELSE()
-    HIDE_VARIABLE(FCMIX_ENABLE)
+# Check that at least one solver with a Fortran interface is built
+IF(NOT BUILD_ARKODE AND NOT BUILD_CVODE AND NOT BUILD_IDA AND NOT BUILD_KINSOL)
+  IF(FCMIX_ENABLE)
+    PRINT_WARNING("Enabled packages do not support Fortran" "Disabeling FCMIX")
+    FORCE_VARIABLE(FCMIX_ENABLE BOOL "${DOCSTR}" OFF)
   ENDIF()
-  MARK_AS_ADVANCED(CLEAR FCMIX_ENABLE)
-
-ELSE()
-
-  MESSAGE("Replacing FCMIX_ENABLE with XSDK_ENABLE_FORTRAN")
-  SET(FCMIX_ENABLE ${XSDK_ENABLE_FORTRAN} CACHE BOOL 
-    "Enable Fortran-C support" FORCE)
-  MARK_AS_ADVANCED(FORCE FCMIX_ENABLE)
-
+  HIDE_VARIABLE(FCMIX_ENABLE)
 ENDIF()
 
 # ---------------------------------------------------------------
