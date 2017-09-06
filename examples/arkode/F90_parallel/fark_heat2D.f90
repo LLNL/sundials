@@ -836,7 +836,8 @@ subroutine farkpset(t, y, fy, jok, jcur, gamma, hcur, ipar, &
   use UserData
   implicit none
   real*8,    intent(in)  :: t, gamma, hcur, rpar
-  integer*8, intent(in)  :: ipar, jok
+  integer,   intent(in)  :: jok
+  integer*8, intent(in)  :: ipar
   integer,   intent(out) :: jcur, ierr
   real*8,    intent(in)  :: y(nxl,nyl), fy(nxl,nyl)
   real*8                 :: v1(nxl,nyl), v2(nxl,nyl), v3(nxl,nyl)
@@ -864,7 +865,8 @@ subroutine farkpsol(t, y, fy, r, z, gamma, delta, lr, &
   use UserData
   implicit none
   real*8,    intent(in)  :: t, gamma, delta, rpar
-  integer*8, intent(in)  :: lr, ipar
+  integer,   intent(in)  :: lr
+  integer*8, intent(in)  :: ipar
   integer,   intent(out) :: ierr
   real*8,    intent(in)  :: y(nxl,nyl), fy(nxl,nyl), r(nxl,nyl)
   real*8,    intent(out) :: z(nxl,nyl)
