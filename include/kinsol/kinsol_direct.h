@@ -53,9 +53,8 @@ extern "C" {
 
 /* Additional last_flag values */
 
-#define KINDLS_JACFUNC_UNRECVR  -5
-#define KINDLS_JACFUNC_RECVR    -6
-#define KINDLS_SUNMAT_FAIL      -7
+#define KINDLS_JACFUNC_ERR      -5
+#define KINDLS_SUNMAT_FAIL      -6
 
 /*
  * =================================================================
@@ -81,14 +80,13 @@ extern "C" {
  *            an approximation to the Jacobian matrix 
  *            J = (dF_i/dy_j).
  *
- * user_data   - pointer to user data - the same as the user_data
- *            parameter passed to KINSetFdata.
+ * user_data  - pointer to user data - the same as the user_data
+ *              parameter passed to KINSetFdata.
  *
  * tmp1, tmp2 - available scratch vectors (volatile storage)
  *
- * A KINDlsJacFn should return 0 if successful, a positive 
- * value if a recoverable error occurred, and a negative value if 
- * an unrecoverable error occurred.
+ * A KINDlsJacFn should return 0 if successful or a non-zero value
+ * otherwise.
  *
  * -----------------------------------------------------------------
  *
@@ -167,7 +165,7 @@ SUNDIALS_EXPORT int KINDlsSetJacFn(void *kinmem, KINDlsJacFn jac);
  * KINDlsGetLastFlag     returns the last error flag set by any of
  *                       the KINDLS interface functions.
  * KINDlsGetReturnFlagName returns the name of the constant
- *                       associated with a KINDLS return flag
+ *                         associated with a KINDLS return flag
  *
  * The return value of KINDlsGet* is one of:
  *    KINDLS_SUCCESS   if successful
@@ -176,9 +174,9 @@ SUNDIALS_EXPORT int KINDlsSetJacFn(void *kinmem, KINDlsJacFn jac);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINDlsGetWorkSpace(void *kinmem, long int *lenrwB, long int *leniwB);
-SUNDIALS_EXPORT int KINDlsGetNumJacEvals(void *kinmem, long int *njevalsB);
-SUNDIALS_EXPORT int KINDlsGetNumFuncEvals(void *kinmem, long int *nfevalsB);
+SUNDIALS_EXPORT int KINDlsGetWorkSpace(void *kinmem, long int *lenrw, long int *leniw);
+SUNDIALS_EXPORT int KINDlsGetNumJacEvals(void *kinmem, long int *njevals);
+SUNDIALS_EXPORT int KINDlsGetNumFuncEvals(void *kinmem, long int *nfevals);
 SUNDIALS_EXPORT int KINDlsGetLastFlag(void *kinmem, long int *flag);
 SUNDIALS_EXPORT char *KINDlsGetReturnFlagName(long int flag);
 
