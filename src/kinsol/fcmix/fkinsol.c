@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -48,7 +45,7 @@
  */
 
 void *KIN_kinmem;
-sunindextype *KIN_iout;
+long int *KIN_iout;
 realtype *KIN_rout;
 int KIN_ls;
 
@@ -111,7 +108,7 @@ void FKIN_CREATE(int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_INIT(sunindextype *iout, realtype *rout, int *ier)
+void FKIN_INIT(long int *iout, realtype *rout, int *ier)
 {
   
   /* Call KINInit */
@@ -137,7 +134,7 @@ void FKIN_INIT(sunindextype *iout, realtype *rout, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_MALLOC(sunindextype *iout, realtype *rout, int *ier)
+void FKIN_MALLOC(long int *iout, realtype *rout, int *ier)
 {
   
   /* check for required vector operations */
@@ -181,7 +178,7 @@ void FKIN_MALLOC(sunindextype *iout, realtype *rout, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_SETIIN(char key_name[], sunindextype *ival, int *ier)
+void FKIN_SETIIN(char key_name[], long int *ival, int *ier)
 {
   if (!strncmp(key_name,"PRNT_LEVEL",10))
     *ier = KINSetPrintLevel(KIN_kinmem, (int) *ival);
@@ -274,7 +271,7 @@ void FKIN_SETVIN(char key_name[], realtype *vval, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_DENSE(sunindextype *neq, int *ier)
+void FKIN_DENSE(long int *neq, int *ier)
 {
   *ier = KINDense(KIN_kinmem, *neq);
   KIN_ls = KIN_LS_DENSE;
@@ -286,7 +283,7 @@ void FKIN_DENSE(sunindextype *neq, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_BAND(sunindextype *neq, sunindextype *mupper, sunindextype *mlower, int *ier)
+void FKIN_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
 {
   *ier = KINBand(KIN_kinmem, *neq, *mupper, *mlower);
   KIN_ls = KIN_LS_BAND;

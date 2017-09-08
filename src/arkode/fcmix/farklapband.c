@@ -2,21 +2,21 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2015, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Fortran/C interface routines for ARKODE/ARKLAPACKBAND, for the 
- * case of a user-supplied Jacobian approximation routine.                
+ * Fortran/C interface routines for ARKODE/ARKLAPACKBAND, for the
+ * case of a user-supplied Jacobian approximation routine.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -33,12 +33,12 @@
 extern "C" {
 #endif
 
-  extern void FARK_BJAC(sunindextype *N, sunindextype *MU, sunindextype *ML, 
-			sunindextype *EBAND, realtype *T, 
+  extern void FARK_BJAC(long int *N, long int *MU, long int *ML,
+			long int *EBAND, realtype *T,
 			realtype *Y, realtype *FY,
 			realtype *LBJAC, realtype *H,
-			sunindextype *IPAR, realtype *RPAR,
-			realtype *V1, realtype *V2, 
+			long int *IPAR, realtype *RPAR,
+			realtype *V1, realtype *V2,
 			realtype *V3, int *IER);
 
 #ifdef __cplusplus
@@ -47,7 +47,7 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface routine to ARKDlsSetBandJacFn; see farkode.h 
+/* Fortran interface routine to ARKDlsSetBandJacFn; see farkode.h
    for further details */
 void FARK_LAPACKBANDSETJAC(int *flag, int *ier)
 {
@@ -61,25 +61,25 @@ void FARK_LAPACKBANDSETJAC(int *flag, int *ier)
 
 /*=============================================================*/
 
-/* The C function FARKLapackBandJac interfaces between ARKODE 
-   and a Fortran subroutine FARKBJAC for the solution of a 
+/* The C function FARKLapackBandJac interfaces between ARKODE
+   and a Fortran subroutine FARKBJAC for the solution of a
    linear system using Lapack with band Jacobian approximation.
-   Addresses of arguments are passed to FARKBJAC, using the 
-   macro BAND_COL and the routine N_VGetArrayPointer from 
-   NVECTOR. The address passed for J is that of the element in 
+   Addresses of arguments are passed to FARKBJAC, using the
+   macro BAND_COL and the routine N_VGetArrayPointer from
+   NVECTOR. The address passed for J is that of the element in
    column 0 with row index -mupper.  An extended bandwith equal
-   to (J->smu) + mlower + 1 is passed as the column dimension 
+   to (J->smu) + mlower + 1 is passed as the column dimension
    of the corresponding array */
-int FARKLapackBandJac(sunindextype N, sunindextype mupper, 
-		      sunindextype mlower, realtype t, N_Vector y, 
+int FARKLapackBandJac(long int N, long int mupper,
+		      long int mlower, realtype t, N_Vector y,
 		      N_Vector fy, DlsMat J, void *user_data,
-		      N_Vector vtemp1, N_Vector vtemp2, 
+		      N_Vector vtemp1, N_Vector vtemp2,
 		      N_Vector vtemp3)
 {
   int ier;
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
   realtype h;
-  sunindextype eband;
+  long int eband;
   FARKUserData ARK_userdata;
 
   ARKodeGetLastStep(ARK_arkodemem, &h);
@@ -92,8 +92,8 @@ int FARKLapackBandJac(sunindextype N, sunindextype mupper,
   jacdata = BAND_COL(J,0) - mupper;
   ARK_userdata = (FARKUserData) user_data;
 
-  FARK_BJAC(&N, &mupper, &mlower, &eband, &t, ydata, fydata, 
-	    jacdata, &h, ARK_userdata->ipar, ARK_userdata->rpar, 
+  FARK_BJAC(&N, &mupper, &mlower, &eband, &t, ydata, fydata,
+	    jacdata, &h, ARK_userdata->ipar, ARK_userdata->rpar,
 	    v1data, v2data, v3data, &ier);
   return(ier);
 }

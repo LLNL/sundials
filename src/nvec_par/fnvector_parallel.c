@@ -1,22 +1,19 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * This file (companion of nvector_parallel.h) contains the 
- * implementation needed for the Fortran initialization of parallel 
+ * This file (companion of nvector_parallel.h) contains the
+ * implementation needed for the Fortran initialization of parallel
  * vector operations.
  * -----------------------------------------------------------------
  */
@@ -50,7 +47,7 @@ N_Vector F2C_ARKODE_vec;
 
 /* Fortran callable interfaces */
 
-void FNV_INITP(MPI_Fint *comm, int *code, sunindextype *L, sunindextype *N, int *ier)
+void FNV_INITP(MPI_Fint *comm, int *code, long int *L, long int *N, int *ier)
 {
   MPI_Comm F2C_comm;
 
@@ -88,7 +85,7 @@ void FNV_INITP(MPI_Fint *comm, int *code, sunindextype *L, sunindextype *N, int 
   }
 }
 
-void FNV_INITP_Q(MPI_Fint *comm, int *code, sunindextype *Lq, sunindextype *Nq, int *ier)
+void FNV_INITP_Q(MPI_Fint *comm, int *code, long int *Lq, long int *Nq, int *ier)
 {
   MPI_Comm F2C_comm;
 
@@ -116,7 +113,7 @@ void FNV_INITP_Q(MPI_Fint *comm, int *code, sunindextype *Lq, sunindextype *Nq, 
   }
 }
 
-void FNV_INITP_B(MPI_Fint *comm, int *code, sunindextype *LB, sunindextype *NB, int *ier)
+void FNV_INITP_B(MPI_Fint *comm, int *code, long int *LB, long int *NB, int *ier)
 {
   MPI_Comm F2C_comm;
 
@@ -144,7 +141,7 @@ void FNV_INITP_B(MPI_Fint *comm, int *code, sunindextype *LB, sunindextype *NB, 
   }
 }
 
-void FNV_INITP_QB(MPI_Fint *comm, int *code, sunindextype *LqB, sunindextype *NqB, int *ier)
+void FNV_INITP_QB(MPI_Fint *comm, int *code, long int *LqB, long int *NqB, int *ier)
 {
   MPI_Comm F2C_comm;
 

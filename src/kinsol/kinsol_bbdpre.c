@@ -216,7 +216,7 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
  *-----------------------------------------------------------------
  */
 
-int KINBBDPrecGetWorkSpace(void *kinmem, sunindextype *lenrwBBDP, sunindextype *leniwBBDP)
+int KINBBDPrecGetWorkSpace(void *kinmem, long int *lenrwBBDP, long int *leniwBBDP)
 {
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;

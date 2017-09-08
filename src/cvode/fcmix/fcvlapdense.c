@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -35,11 +32,11 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FCV_DJAC(sunindextype*,                        /* N          */
+  extern void FCV_DJAC(long int*,                        /* N          */
                        realtype*, realtype*, realtype*,  /* T, Y, FY   */
                        realtype*,                        /* LDJAC      */
                        realtype*,                        /* H          */ 
-                       sunindextype*, realtype*,             /* IPAR, RPAR */
+                       long int*, realtype*,             /* IPAR, RPAR */
                        realtype*, realtype*, realtype*,  /* V1, V2, V3 */
                        int *ier);                        /* IER        */
 #ifdef __cplusplus
@@ -67,7 +64,7 @@ void FCV_LAPACKDENSESETJAC(int *flag, int *ier)
  * Auxiliary data is assumed to be communicated by Common. 
  */
 
-int FCVLapackDenseJac(sunindextype N, realtype t,
+int FCVLapackDenseJac(long int N, realtype t,
                       N_Vector y, N_Vector fy, 
                       DlsMat J, void *user_data,
                       N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)

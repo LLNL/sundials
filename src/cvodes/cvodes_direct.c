@@ -179,7 +179,7 @@ int CVDlsSetBandJacFn(void *cvode_mem, CVDlsBandJacFn jac)
  * CVDlsGetWorkSpace returns the length of workspace allocated for the
  * CVDLS linear solver.
  */
-int CVDlsGetWorkSpace(void *cvode_mem, sunindextype *lenrwLS, sunindextype *leniwLS)
+int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
 {
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;

@@ -199,7 +199,7 @@ SUNDIALS_EXPORT int IDAPETScSetIncrementFactor(void *ida_mem, realtype dqincfac)
  * -----------------------------------------------------------------
  */                                                                
 
-SUNDIALS_EXPORT int IDAPETScGetWorkSpace(void *ida_mem, sunindextype *lenrwLS, sunindextype *leniwLS);
+SUNDIALS_EXPORT int IDAPETScGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS);
 SUNDIALS_EXPORT int IDAPETScGetNumPrecEvals(void *ida_mem, long int *npevals);
 SUNDIALS_EXPORT int IDAPETScGetNumPrecSolves(void *ida_mem, long int *npsolves);
 SUNDIALS_EXPORT int IDAPETScGetNumLinIters(void *ida_mem, long int *nliters);

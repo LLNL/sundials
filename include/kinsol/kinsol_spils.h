@@ -305,7 +305,7 @@ SUNDIALS_EXPORT int KINSpilsSetJacTimesVecFn(void *kinmem,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINSpilsGetWorkSpace(void *kinmem, sunindextype *lenrwSG, sunindextype *leniwSG);
+SUNDIALS_EXPORT int KINSpilsGetWorkSpace(void *kinmem, long int *lenrwSG, long int *leniwSG);
 SUNDIALS_EXPORT int KINSpilsGetNumPrecEvals(void *kinmem, long int *npevals);
 SUNDIALS_EXPORT int KINSpilsGetNumPrecSolves(void *kinmem, long int *npsolves);
 SUNDIALS_EXPORT int KINSpilsGetNumLinIters(void *kinmem, long int *nliters);

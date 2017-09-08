@@ -1,14 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
@@ -67,8 +64,8 @@ extern N_Vector F2C_KINSOL_vec;
 
 extern N_Vector F2C_ARKODE_vec;
 
-/* 
- * Prototypes of exported functions 
+/*
+ * Prototypes of exported functions
  *
  * FNV_INITSPCP    - initializes parallel vector operations for main problem
  * FNV_INITSPCP_Q  - initializes parallel vector operations for quadratures
@@ -82,25 +79,25 @@ extern N_Vector F2C_ARKODE_vec;
 #define MPI_Fint int
 #endif
 
-void FNV_INITSPCP(MPI_Fint *comm, int *code, 
+void FNV_INITSPCP(MPI_Fint *comm, int *code,
 		  int *Ngrp, int *Nspc,
-		  sunindextype *Nx, sunindextype *Ny, sunindextype *Nz,
-		  sunindextype *NGx, sunindextype *NGy, sunindextype *NGz,
+		  long int *Nx, long int *Ny, long int *Nz,
+		  long int *NGx, long int *NGy, long int *NGz,
 		  int *ier);
-void FNV_INITSPCP_Q(MPI_Fint *comm, int *code, 
+void FNV_INITSPCP_Q(MPI_Fint *comm, int *code,
 		    int *NgrpQ, int *NspcQ,
-		    sunindextype *NxQ, sunindextype *NyQ, sunindextype *NzQ,
-		    sunindextype *NGxQ, sunindextype *NGyQ, sunindextype *NGzQ,
+		    long int *NxQ, long int *NyQ, long int *NzQ,
+		    long int *NGxQ, long int *NGyQ, long int *NGzQ,
 		    int *ier);
-void FNV_INITSPCP_B(MPI_Fint *comm, int *code, 
+void FNV_INITSPCP_B(MPI_Fint *comm, int *code,
 		    int *NgrpB, int *NspcB,
-		    sunindextype *NxB, sunindextype *NyB, sunindextype *NzB,
-		    sunindextype *NGxB, sunindextype *NGyB, sunindextype *NGzB,
+		    long int *NxB, long int *NyB, long int *NzB,
+		    long int *NGxB, long int *NGyB, long int *NGzB,
 		    int *ier);
-void FNV_INITSPCP_QB(MPI_Fint *comm, int *code, 
+void FNV_INITSPCP_QB(MPI_Fint *comm, int *code,
 		     int *NgrpQB, int *NspcQB,
-		     sunindextype *NxQB, sunindextype *NyQB, sunindextype *NzQB,
-		     sunindextype *NGxQB, sunindextype *NGyQB, sunindextype *NGzQB,
+		     long int *NxQB, long int *NyQB, long int *NzQB,
+		     long int *NGxQB, long int *NGyQB, long int *NGzQB,
 		     int *ier);
 void FNV_INITSPCP_S(int *code, int *Ns, int *ier);
 

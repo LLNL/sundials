@@ -308,7 +308,7 @@ static void PrintOutput(N_Vector u)
 static void PrintFinalStats(void *kmem)
 {
   long int nni, nfe, nje, nfeD;
-  sunindextype lenrw, leniw, lenrwB, leniwB;
+  long int lenrw, leniw, lenrwB, leniwB;
   long int nbcfails, nbacktr;
   int flag;
   
@@ -348,8 +348,8 @@ static void PrintFinalStats(void *kmem)
   printf("nbcfails = %6ld    nbacktr = %6ld \n", nbcfails, nbacktr);
   printf("nje      = %6ld    nfeB    = %6ld \n", nje, nfeD);
   printf("\n");
-  printf("lenrw    = %6ld    leniw   = %6ld \n", (long int) lenrw, (long int) leniw);
-  printf("lenrwB   = %6ld    leniwB  = %6ld \n", (long int) lenrwB, (long int) leniwB);
+  printf("lenrw    = %6ld    leniw   = %6ld \n", lenrw,  leniw);
+  printf("lenrwB   = %6ld    leniwB  = %6ld \n", lenrwB, leniwB);
   
 }
 

@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
@@ -39,7 +36,7 @@ extern "C" {
                           realtype*,  /* Y    */
                           realtype*,  /* YP   */
                           realtype*,  /* G    */
-                          sunindextype*,  /* IPAR */
+                          long int*,  /* IPAR */
                           realtype*,  /* RPAR */
                           int*);      /* IER  */
 #ifdef __cplusplus

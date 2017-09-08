@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -38,7 +35,7 @@
 extern "C" {
 #endif
 
-extern void FK_DJAC(sunindextype*, realtype*, realtype*, realtype*,
+extern void FK_DJAC(long int*, realtype*, realtype*, realtype*,
                     realtype*, realtype*, int*);
 
 #ifdef __cplusplus
@@ -75,7 +72,7 @@ void FKIN_LAPACKDENSESETJAC(int *flag, int *ier)
  * ----------------------------------------------------------------
  */
 
-int FKINLapackDenseJac(sunindextype N, N_Vector uu, N_Vector fval,
+int FKINLapackDenseJac(long int N, N_Vector uu, N_Vector fval,
                        DlsMat J, void *user_data, N_Vector vtemp1, N_Vector vtemp2)
 {
   realtype *uu_data, *fval_data, *jacdata, *v1_data, *v2_data;
