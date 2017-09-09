@@ -53,10 +53,10 @@ MPIDIR=${APPDIR}/openmpi/1.8.8/bin
 LAPACKSTATUS=ON
 LAPACKDIR=${APPDIR}/lapack/3.6.0/lib64
 
-# LAPACK does not support extended precision or 64-bit indices (UNCOMMENT LINES BELOW FOR NEW LINEAR SOLVER API)
-# if [ "$realtype" == "extended" ] || [ "$indextype" == "int64_t" ]; then
-#     LAPACKSTATUS=OFF
-# fi
+# LAPACK does not support extended precision or 64-bit indices
+if [ "$realtype" == "extended" ] || [ "$indextype" == "int64_t" ]; then
+    LAPACKSTATUS=OFF
+fi
 
 # KLU
 KLUSTATUS=ON
@@ -74,9 +74,7 @@ SUPERLUMTSTATUS=ON
 if [ "$indextype" == "int32_t" ]; then
     SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1
 else
-    SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1
-    # REMOVE LINE ABOVE AND UNCOMMENT LINE BELOW FOR NEW LINEAR SOLVER API
-    # SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1_long_int
+    SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1_long_int
 fi
 
 # SuperLU MT does not support extended precision
