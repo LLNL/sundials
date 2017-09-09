@@ -139,8 +139,13 @@ ENDMACRO(ADD_PREFIX)
 # due to some failure.
 
 MACRO(PRINT_WARNING message action)
-  MESSAGE("WARNING: ${message}.\n   ${action}.")
-ENDMACRO(PRINT_WARNING)
+  SET(WMSG
+  "************************************************************\n"
+  "WARNING: ${message}\n"
+  "${action}\n"
+  "************************************************************")
+  MESSAGE(WARNING ${WMSG})
+ENDMACRO()
 
 # Returns an unquoted string.  Note that CMake will readily turn such
 # strings back into lists, due to the duality of lists and
@@ -234,7 +239,7 @@ ENDIF(BUILD_SHARED_LIBS AND WIN32)
 # Make sure we build at least one type of libraries
 IF(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
   PRINT_WARNING("Both static and shared library generation were disabled"
-    "Building static libraries was re-enabled")
+                "Building static libraries was re-enabled")
   SET(BUILD_STATIC_LIBS ON CACHE BOOL "Build static libraries" FORCE)
 ENDIF(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
 
@@ -317,6 +322,14 @@ ELSE(BUILD_ARKODE OR BUILD_CVODE OR BUILD_IDA OR BUILD_KINSOL)
   HIDE_VARIABLE(FCMIX_ENABLE)
 ENDIF(BUILD_ARKODE OR BUILD_CVODE OR BUILD_IDA OR BUILD_KINSOL)
 
+# Fortran interface does not support single or extended precision
+IF(FCMIX_ENABLE AND
+  (SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE"))
+  PRINT_WARNING("The Fortran interface is not compatible with ${SUNDIALS_PRECISION} precision"
+                "Disabling FCMIX")
+  SET(FCMIX_ENABLE OFF CACHE BOOL "FCMIX is disabled" FORCE)
+ENDIF()
+
 # -------------------------------------------------------------
 # Enable Fortran90 support?
 # -------------------------------------------------------------
@@ -352,6 +365,20 @@ ENDIF(BUILD_ARKODE AND EXAMPLES_ENABLE)
 
 OPTION(LAPACK_ENABLE "Enable Lapack support" OFF)
 
+# LAPACK does not support extended precision
+IF(LAPACK_ENABLE AND SUNDIALS_PRECISION MATCHES "EXTENDED")
+  PRINT_WARNING("LAPACK is not compatible with ${SUNDIALS_PRECISION} precision"
+                "Disabling LAPACK")
+  SET(LAPACK_ENABLE OFF CACHE BOOL "LAPACK is disabled" FORCE)
+ENDIF()
+
+# LAPACK does not support 64-bit integer index types
+# IF(LAPACK_ENABLE AND SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
+#   PRINT_WARNING("LAPACK is not compatible with ${SUNDIALS_INDEX_TYPE} integers"
+#                 "Disabling LAPACK")
+#   SET(LAPACK_ENABLE OFF CACHE BOOL "LAPACK is disabled" FORCE)
+# ENDIF()
+
 IF(NOT LAPACK_ENABLE)
   HIDE_VARIABLE(SUNDIALS_F77_FUNC_CASE)
   HIDE_VARIABLE(SUNDIALS_F77_FUNC_UNDERSCORES)
@@ -363,6 +390,13 @@ ENDIF(NOT LAPACK_ENABLE)
 # -------------------------------------------------------------
 
 OPTION(SUPERLUMT_ENABLE "Enable SUPERLUMT support" OFF)
+
+# SuperLU_MT does not support extended precision
+IF(SUPERLUMT_ENABLE AND SUNDIALS_PRECISION MATCHES "EXTENDED")
+  PRINT_WARNING("SuperLU_MT is not compatible with ${SUNDIALS_PRECISION} precision"
+                "Disabling SuperLU_MT")
+  SET(SUPERLUMT_ENABLE OFF CACHE BOOL "SuperLU_MT is disabled" FORCE)
+ENDIF()
 
 IF(NOT SUPERLUMT_ENABLE)
   HIDE_VARIABLE(SUPERLUMT_THREAD_TYPE)
@@ -376,6 +410,14 @@ ENDIF(NOT SUPERLUMT_ENABLE)
 # -------------------------------------------------------------
 
 OPTION(KLU_ENABLE "Enable KLU support" OFF)
+
+# KLU does not support single or extended precision
+IF(KLU_ENABLE AND
+  (SUNDIALS_PRECISION MATCHES "SINGLE" OR SUNDIALS_PRECISION MATCHES "EXTENDED"))
+  PRINT_WARNING("KLU is not compatible with ${SUNDIALS_PRECISION} precision"
+                "Disabling KLU")
+  SET(KLU_ENABLE OFF CACHE BOOL "KLU is disabled" FORCE)
+ENDIF()
 
 IF(NOT KLU_ENABLE)
   HIDE_VARIABLE(KLU_LIBRARY_DIR)
@@ -404,6 +446,15 @@ ENDIF(NOT MPI_ENABLE)
 # -------------------------------------------------------------
 
 OPTION(HYPRE_ENABLE "Enable Hypre support" OFF)
+
+# As of version 2.11.2 hypre does not support single or extended precision
+IF(HYPRE_ENABLE AND
+  (SUNDIALS_PRECISION MATCHES "SINGLE" OR SUNDIALS_PRECISION MATCHES "EXTENDED"))
+  PRINT_WARNING("hypre is not compatible with ${SUNDIALS_PRECISION} precision"
+                "Disabling hypre")
+  SET(HYPRE_ENABLE OFF CACHE BOOL "hypre is disabled" FORCE)
+ENDIF()
+
 IF(NOT MPI_ENABLE)
   HIDE_VARIABLE(HYPRE_INCLUDE_DIR)
   HIDE_VARIABLE(HYPRE_LIBRARY_DIR)
@@ -481,7 +532,7 @@ IF(EXAMPLES_ENABLE)
 
     IF(NOT EXAMPLES_INSTALL_PATH)
       PRINT_WARNING("The example installation path is empty"
-        "Example installation path was reset to its default value")
+                    "Example installation path was reset to its default value")
       SET(EXAMPLES_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/examples" CACHE STRING
         "Output directory for installing example files" FORCE)
     ENDIF(NOT EXAMPLES_INSTALL_PATH)
@@ -527,7 +578,7 @@ IF(FCMIX_ENABLE OR LAPACK_ENABLE)
   INCLUDE(SundialsFortran)
   IF(NOT F77_FOUND AND FCMIX_ENABLE)
     PRINT_WARNING("Fortran compiler not functional"
-      "FCMIX support will not be provided")
+                  "FCMIX support will not be provided")
   ENDIF(NOT F77_FOUND AND FCMIX_ENABLE)
 ENDIF(FCMIX_ENABLE OR LAPACK_ENABLE)
 
@@ -541,7 +592,7 @@ IF(F90_ENABLE AND BUILD_ARKODE)
   INCLUDE(SundialsFortran90)
   IF(NOT F90_FOUND AND F90_ENABLE)
     PRINT_WARNING("Fortran90 compiler not functional"
-      "F90 support will not be provided")
+                  "F90 support will not be provided")
   ENDIF(NOT F90_FOUND AND F90_ENABLE)
 ENDIF(F90_ENABLE AND BUILD_ARKODE)
 
@@ -555,7 +606,7 @@ IF(CXX_ENABLE AND BUILD_ARKODE)
   INCLUDE(SundialsCXX)
   IF(NOT CXX_FOUND AND CXX_ENABLE)
     PRINT_WARNING("C++ compiler not functional"
-      "C++ support will not be provided")
+                  "C++ support will not be provided")
   ENDIF(NOT CXX_FOUND AND CXX_ENABLE)
 ENDIF(CXX_ENABLE AND BUILD_ARKODE)
 
@@ -676,12 +727,11 @@ IF(LAPACK_ENABLE)
 
   IF(LAPACK_LIBRARIES AND NOT LAPACK_FOUND)
     PRINT_WARNING("LAPACK not functional"
-      "Blas/Lapack support will not be provided")
+                  "Blas/Lapack support will not be provided")
   ELSE(LAPACK_LIBRARIES AND NOT LAPACK_FOUND)
     #set sundials_config.h symbol via sundials_config.in
     SET(SUNDIALS_BLAS_LAPACK TRUE)
   ENDIF(LAPACK_LIBRARIES AND NOT LAPACK_FOUND)
-
 
 ELSE(LAPACK_ENABLE)
 
@@ -695,6 +745,10 @@ ENDIF(LAPACK_ENABLE)
 
 # If SUPERLUMT is needed, first try to find the appropriate
 # libraries to link against them.
+
+###########################################################################################
+# NOTE: Need to add check that SuperLU_MT was built with the right integer type
+###########################################################################################
 
 IF(SUPERLUMT_ENABLE)
 
@@ -714,7 +768,7 @@ IF(SUPERLUMT_ENABLE)
 
   IF(SUPERLUMT_LIBRARIES AND NOT SUPERLUMT_FOUND)
     PRINT_WARNING("SUPERLUMT not functional - support will not be provided"
-      "Double check spelling specified libraries (search is case sensitive)")
+                  "Double check spelling specified libraries (search is case sensitive)")
   ENDIF(SUPERLUMT_LIBRARIES AND NOT SUPERLUMT_FOUND)
 
 ELSE(SUPERLUMT_ENABLE)
@@ -749,7 +803,7 @@ IF(KLU_ENABLE)
 
   IF(KLU_LIBRARIES AND NOT KLU_FOUND)
     PRINT_WARNING("KLU not functional - support will not be provided"
-      "Double check spelling of include path and specified libraries (search is case sensitive)")
+                  "Double check spelling of include path and specified libraries (search is case sensitive)")
   ENDIF(KLU_LIBRARIES AND NOT KLU_FOUND)
 
 ENDIF(KLU_ENABLE)
@@ -765,7 +819,7 @@ IF(MPI_ENABLE)
   INCLUDE(SundialsMPIC)
   IF(NOT MPIC_FOUND)
     PRINT_WARNING("MPI not functional"
-      "Parallel support will not be provided")
+                  "Parallel support will not be provided")
   ENDIF(NOT MPIC_FOUND)
   IF(MPIC_MPI2)
     SET(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 1")
@@ -792,8 +846,12 @@ ENDIF(MPI_ENABLE)
 #-------------------------------------------------------------
 IF(HYPRE_ENABLE AND NOT MPI_ENABLE)
     PRINT_WARNING("MPI not enabled - HYPRE support will not be provided"
-      "Set MPI_ENABLE to ON to use parhyp")
+                  "Set MPI_ENABLE to ON to use parhyp")
 ENDIF(HYPRE_ENABLE AND NOT MPI_ENABLE)
+
+###########################################################################################
+# NOTE: Need to add check that hypre was built with the right precision and integer type
+###########################################################################################
 
 IF(HYPRE_ENABLE AND MPI_ENABLE)
   SHOW_VARIABLE(HYPRE_INCLUDE_DIR PATH "HYPRE include directory"
@@ -811,7 +869,7 @@ IF(HYPRE_ENABLE AND MPI_ENABLE)
 
   IF(HYPRE_LIBRARIES AND NOT HYPRE_FOUND)
     PRINT_WARNING("HYPRE not functional - support will not be provided"
-      "Found hypre library, test code does not work")
+                  "Found hypre library, test code does not work")
   ENDIF(HYPRE_LIBRARIES AND NOT HYPRE_FOUND)
 
 ENDIF(HYPRE_ENABLE AND MPI_ENABLE)
@@ -821,8 +879,12 @@ ENDIF(HYPRE_ENABLE AND MPI_ENABLE)
 # -------------------------------------------------------------
 IF(PETSC_ENABLE AND NOT MPI_ENABLE)
     PRINT_WARNING("MPI not enabled - PETSc support will not be provided"
-      "Set MPI_ENABLE to ON to use PETSc.")
+                  "Set MPI_ENABLE to ON to use PETSc.")
 ENDIF(PETSC_ENABLE AND NOT MPI_ENABLE)
+
+###########################################################################################
+# NOTE: Need to add check that PETSc was built with the right precision and integer type
+###########################################################################################
 
 IF(PETSC_ENABLE AND MPI_ENABLE)
   SHOW_VARIABLE(PETSC_INCLUDE_DIR PATH "PETSc include directory"
@@ -840,7 +902,7 @@ IF(PETSC_ENABLE AND MPI_ENABLE)
 
   IF(PETSC_LIBRARIES AND NOT PETSC_FOUND)
     PRINT_WARNING("PETSC not functional - support will not be provided"
-      "Double check spelling specified libraries (search is case sensitive)")
+                  "Double check spelling specified libraries (search is case sensitive)")
   ENDIF(PETSC_LIBRARIES AND NOT PETSC_FOUND)
 
 ENDIF(PETSC_ENABLE AND MPI_ENABLE)
@@ -1003,18 +1065,21 @@ IF(EXAMPLES_ENABLE)
     ENABLE_TESTING()
   ENDIF(TESTRUNNER)
 
+  # set variables used in generating CMake and Makefiles for examples
   IF(EXAMPLES_INSTALL)
+
     SET(SHELL "sh")
     SET(prefix "${CMAKE_INSTALL_PREFIX}")
     SET(exec_prefix "${CMAKE_INSTALL_PREFIX}")
     SET(includedir "${prefix}/include")
     SET(libdir "${exec_prefix}/lib")
     SET(CPP "${CMAKE_C_COMPILER}")
-    SET(CC "${CMAKE_C_COMPILER}")
     SET(CPPFLAGS "${CMAKE_C_FLAGS_RELEASE}")
+    SET(CC "${CMAKE_C_COMPILER}")
     SET(CFLAGS "${CMAKE_C_FLAGS_RELEASE}")
     SET(LDFLAGS "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
     LIST2STRING(EXTRA_LINK_LIBS LIBS)
+    
     IF(CXX_FOUND)
       SET(CXX "${CMAKE_CXX_COMPILER}")
       SET(CXX_LNKR "${CMAKE_CXX_COMPILER}")
@@ -1022,6 +1087,7 @@ IF(EXAMPLES_ENABLE)
       SET(CXX_LDFLAGS "${CMAKE_CXX_FLAGS_RELEASE}")
       LIST2STRING(EXTRA_LINK_LIBS CXX_LIBS)
     ENDIF(CXX_FOUND)
+
     IF(F77_FOUND)
       SET(F77 "${CMAKE_Fortran_COMPILER}")
       SET(F77_LNKR "${CMAKE_Fortran_COMPILER}")
@@ -1029,6 +1095,7 @@ IF(EXAMPLES_ENABLE)
       SET(F77_LDFLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
       LIST2STRING(EXTRA_LINK_LIBS F77_LIBS)
     ENDIF(F77_FOUND)
+
     IF(F90_FOUND)
       SET(F90 "${CMAKE_Fortran_COMPILER}")
       SET(F90_LNKR "${CMAKE_Fortran_COMPILER}")
@@ -1036,17 +1103,21 @@ IF(EXAMPLES_ENABLE)
       SET(F90_LDFLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
       LIST2STRING(EXTRA_LINK_LIBS F90_LIBS)
     ENDIF(F90_FOUND)
+
     IF(SUPERLUMT_FOUND)
       LIST2STRING(SUPERLUMT_LIBRARIES SUPERLUMT_LIBS)
       SET(SUPERLUMT_LIBS "${SUPERLUMT_LINKER_FLAGS} ${SUPERLUMT_LIBS}")
     ENDIF(SUPERLUMT_FOUND)
+
     IF(KLU_FOUND)
       LIST2STRING(KLU_LIBRARIES KLU_LIBS)
       SET(KLU_LIBS "${KLU_LINKER_FLAGS} ${KLU_LIBS}")
     ENDIF(KLU_FOUND)
+
     IF(LAPACK_FOUND)
       LIST2STRING(LAPACK_LIBRARIES BLAS_LAPACK_LIBS)
     ENDIF(LAPACK_FOUND)
+
     IF(MPIC_FOUND)
       IF(MPI_MPICC)
         SET(MPICC "${MPI_MPICC}")
@@ -1064,6 +1135,7 @@ IF(EXAMPLES_ENABLE)
       SET(HYPRE_LIB_DIR "${HYPRE_LIBRARY_DIR}")
       SET(HYPRE_LIBS "${HYPRE_LIBRARIES}")
     ENDIF(MPIC_FOUND)
+
     IF(MPICXX_FOUND)
       IF(MPI_MPICXX)
         SET(MPICXX "${MPI_MPICXX}")
@@ -1072,6 +1144,7 @@ IF(EXAMPLES_ENABLE)
         LIST2STRING(MPI_LIBRARIES MPI_LIBS)
       ENDIF(MPI_MPICXX)
     ENDIF(MPICXX_FOUND)
+
     IF(MPIF_FOUND)
       IF(MPI_MPIF77)
         SET(MPIF77 "${MPI_MPIF77}")
@@ -1084,6 +1157,7 @@ IF(EXAMPLES_ENABLE)
         LIST2STRING(MPI_LIBRARIES MPI_LIBS)
       ENDIF(MPI_MPIF77)
     ENDIF(MPIF_FOUND)
+
     IF(MPIF90_FOUND)
       IF(MPI_MPIF90)
         SET(MPIF90 "${MPI_MPIF90}")
@@ -1094,8 +1168,10 @@ IF(EXAMPLES_ENABLE)
         LIST2STRING(MPI_LIBRARIES MPI_LIBS)
       ENDIF(MPI_MPIF90)
     ENDIF(MPIF90_FOUND)
+
   ENDIF(EXAMPLES_INSTALL)
 
+  # add ARKode examples
   IF(BUILD_ARKODE)
     ADD_SUBDIRECTORY(examples/arkode/C_serial)
     IF(OPENMP_FOUND)
@@ -1128,6 +1204,7 @@ IF(EXAMPLES_ENABLE)
 
   ENDIF(BUILD_ARKODE)
 
+  # add CVODE examples
   IF(BUILD_CVODE)
     ADD_SUBDIRECTORY(examples/cvode/serial)
     IF(FCMIX_ENABLE AND F77_FOUND)
@@ -1147,6 +1224,7 @@ IF(EXAMPLES_ENABLE)
     ENDIF(HYPRE_ENABLE AND HYPRE_FOUND)
   ENDIF(BUILD_CVODE)
 
+  # add CVODES Examples
   IF(BUILD_CVODES)
     #ADD_SUBDIRECTORY(examples/cvodes/serial)
     IF(MPIC_FOUND)
@@ -1157,6 +1235,7 @@ IF(EXAMPLES_ENABLE)
     ENDIF(OPENMP_FOUND)
   ENDIF(BUILD_CVODES)
 
+  # add IDA examples
   IF(BUILD_IDA)
     #ADD_SUBDIRECTORY(examples/ida/serial)
     IF(FCMIX_ENABLE AND F77_FOUND)
@@ -1182,6 +1261,7 @@ IF(EXAMPLES_ENABLE)
     ENDIF(MPIF_FOUND)
   ENDIF(BUILD_IDA)
 
+  # add IDAS examples
   IF(BUILD_IDAS)
     #ADD_SUBDIRECTORY(examples/idas/serial)
     IF(OPENMP_FOUND)
@@ -1192,6 +1272,7 @@ IF(EXAMPLES_ENABLE)
     ENDIF(MPIC_FOUND)
   ENDIF(BUILD_IDAS)
 
+  # add KINSOL examples
   IF(BUILD_KINSOL)
     #ADD_SUBDIRECTORY(examples/kinsol/serial)
     IF(OPENMP_FOUND)
@@ -1208,6 +1289,7 @@ IF(EXAMPLES_ENABLE)
     ENDIF(MPIF_FOUND)
   ENDIF(BUILD_KINSOL)
 
+  # add CPODES examples
   IF(BUILD_CPODES)
     ADD_SUBDIRECTORY(examples/cpodes/serial)
     IF(MPIC_FOUND)

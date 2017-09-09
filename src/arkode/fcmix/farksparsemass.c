@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -15,8 +15,8 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Fortran/C interface routines for ARKODE/ARKDLS, for the case 
- * of a user-supplied mass-matrix approximation routine.                
+ * Fortran/C interface routines for ARKODE/ARKDLS, for the case
+ * of a user-supplied mass-matrix approximation routine.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>

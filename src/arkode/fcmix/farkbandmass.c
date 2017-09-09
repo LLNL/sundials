@@ -2,21 +2,21 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2015, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Fortran/C interface routines for ARKODE/ARKDLS, for the case 
- * of a user-supplied mass-matrix approximation routine.                
+ * Fortran/C interface routines for ARKODE/ARKDLS, for the case
+ * of a user-supplied mass-matrix approximation routine.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -37,8 +37,8 @@ extern "C" {
 
   extern void FARK_BMASS(long int *N, long int *MU, 
                          long int *ML, long int *EBAND, 
-                         realtype *T, realtype *BMASS, 
-                         long int *IPAR, realtype *RPAR, 
+                         realtype *T, realtype *BMASS,
+                         long int *IPAR, realtype *RPAR,
                          realtype *V1, realtype *V2, realtype *V3, 
                          int *IER);
 
@@ -48,7 +48,7 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface routine to ARKDlsSetMassFn; see farkode.h 
+/* Fortran interface routine to ARKDlsSetMassFn; see farkode.h
    for further details */
 void FARK_BANDSETMASS(int *ier)
 {
@@ -57,9 +57,9 @@ void FARK_BANDSETMASS(int *ier)
 
 /*=============================================================*/
 
-/* C interface to user-supplied Fortran subroutine FARKBMASS; see 
+/* C interface to user-supplied Fortran subroutine FARKBMASS; see
    farkode.h for further details */
-int FARKBandMass(realtype t, SUNMatrix M, void *user_data, 
+int FARKBandMass(realtype t, SUNMatrix M, void *user_data,
 		 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier;
@@ -78,8 +78,8 @@ int FARKBandMass(realtype t, SUNMatrix M, void *user_data,
   massdata = SUNBandMatrix_Column(M,0) - mupper;
   ARK_userdata = (FARKUserData) user_data;
 
-  FARK_BMASS(&N, &mupper, &mlower, &eband, &t, massdata, 
-	     ARK_userdata->ipar, ARK_userdata->rpar, v1data, 
+  FARK_BMASS(&N, &mupper, &mlower, &eband, &t, massdata,
+	     ARK_userdata->ipar, ARK_userdata->rpar, v1data,
 	     v2data, v3data, &ier);
   return(ier);
 }

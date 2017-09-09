@@ -39,8 +39,7 @@ c
       implicit none
 c
 c The following declaration specification should match C type long int.
-      integer*8 neq
-      integer*8 iout(25), ipar
+      integer*8 neq, iout(25), ipar
       integer ier, ierroot, info(2)
       double precision rout(10), rpar
       integer iatol, nout, jout, itask
@@ -161,7 +160,7 @@ c
         if (ier .eq. 2) then
           call fidarootinfo(2, info, ierroot)
           if (ierroot .lt. 0) then
-            write(6,55) ier
+            write(6,55) ierroot
  55         format(///' SUNDIALS_ERROR: FIDAROOTINFO returned IER = ',
      1             i5)
             call fidarootfree
@@ -198,7 +197,7 @@ c
       implicit none
 c
 c The following declaration specification should match C type long int.
-      integer*4 ipar(*)
+      integer*8 ipar(*)
       integer reserr
       double precision tres, rpar(*)
       double precision y(*), yp(*), res(*)
@@ -221,7 +220,7 @@ c
       implicit none
 c
 c The following declaration specification should match C type long int.
-      integer*4 neq, ipar(*)
+      integer*8 neq, ipar(*)
       integer djacerr
       double precision t, h, cj, rpar(*)
       double precision y(*), yp(*), r(*), ewt(*), jac(neq,neq)
@@ -249,7 +248,7 @@ c Fortran routine for rootfinding
       implicit none
 c
 c The following declaration specification should match C type long int.
-      integer*4 ipar(*)
+      integer*8 ipar(*)
       integer ier
       double precision t, y(*), yp(*), g(*), rpar(*)
 c

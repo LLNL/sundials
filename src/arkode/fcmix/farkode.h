@@ -2,13 +2,13 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
@@ -16,25 +16,25 @@
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
  * This is the header file for FARKODE, the Fortran interface to
- * the ARKODE package.                                            
+ * the ARKODE package.
  *--------------------------------------------------------------*/
 
 /*===============================================================
                 FARKODE Interface Package
 
- The FARKODE Interface Package is a package of C functions which 
- support the use of the ARKODE solver, for the solution of ODE 
- systems 
-         M(t) dy/dt = fe(t,y) + fi(t,y), 
+ The FARKODE Interface Package is a package of C functions which
+ support the use of the ARKODE solver, for the solution of ODE
+ systems
+         M(t) dy/dt = fe(t,y) + fi(t,y),
  in a mixed Fortran/C setting.  While ARKODE is written in C, it
  is assumed here that the user's calling program and user-supplied
- problem-defining routines are written in Fortran.  This package 
- provides the necessary interface to ARKODE for any acceptable 
+ problem-defining routines are written in Fortran.  This package
+ provides the necessary interface to ARKODE for any acceptable
  NVECTOR implementation.
- 
- A summary of the user-callable functions, with the corresponding 
+
+ A summary of the user-callable functions, with the corresponding
  ARKODE functions, are as follows:
- 
+
    Fortran                    ARKODE
    ---------------------      --------------------------------
    FNVINITS                   N_VNew_Serial
@@ -80,7 +80,7 @@
    FSUNMASSSPTFQMRINIT        SUNSPTFQMR
    FSUNMASSSUPERLUMTINIT      SUNSuperLUMT
 
-   FARKMALLOC                 ARKodeCreate, ARKodeSetUserData, 
+   FARKMALLOC                 ARKodeCreate, ARKodeSetUserData,
                                  and ARKodeInit
    FARKREINIT                 ARKReInit
    FARKRESIZE                 ARKResize
@@ -122,7 +122,7 @@
 
    FARKSPILSSETMASS           ARKSpilsSetMassTimes
    FARKSPILSSETMASSPREC       ARKSpilsSetMassPreconditioner
- 
+
    FARKODE                    ARKode, ARKodeGet*, and ARK*Get*
    FARKDKY                    ARKodeGetDky
 
@@ -133,7 +133,7 @@
    FARKFREE                   ARKodeFree
    ---------------------      --------------------------------
 
- 
+
  The user-supplied functions, each listed with the corresponding interface
  function which calls it (and its type within ARKODE), are as follows:
 
@@ -165,27 +165,27 @@
  In contrast to the case of direct use of ARKODE, and of most Fortran ODE
  solvers, the names of all user-supplied routines here are fixed, in
  order to maximize portability for the resulting mixed-language program.
- 
+
  Important note on portability:  In this package, the names of the 
  interface functions, and the names of the Fortran user routines called by
  them, appear as dummy names which are mapped to actual values by a series 
  of definitions, in this and other header files.
- 
+
  =============================================================================
- 
+
                   Usage of the FARKODE Interface Package
- 
+
  The usage of FARKODE requires calls to a variety of interface
  functions, depending on the method options selected, and one or more
  user-supplied routines which define the problem to be solved.  These
  function calls and user routines are summarized separately below.
- 
+
  Some details are omitted, and the user is referred to the ARKODE user 
  documentation for more complete information.  Information on the arguments 
  of any given user-callable interface routine, or of a given user-supplied 
  function called by an interface function, can be found in the 
  documentation on the corresponding function in the ARKODE package.
- 
+
  The number labels on the instructions below end with s for instructions
  that are specific to use with the serial/OpenMP/PThreads NVector package; 
  similarly those that end with p are specific to use with the N_VParallel package.
@@ -199,7 +199,7 @@
  depending on your computer architecture and on how SUNDIALS was compiled.  
  A Fortran user should take care that all arguments passed through this 
  Fortran/C interface are declared of the appropriate type.
- 
+
  Integers: SUNDIALS uses 'int', 'long int' and 'sunindextype' types.  At 
  compilation, SUNDIALS allows the configuration of the 'index' type, that 
  accepts values of 32-bit signed and 64-bit signed.  This choice dictates 
@@ -229,15 +229,15 @@
 
        SUBROUTINE FARKIFUN(T, Y, YDOT, IPAR, RPAR, IER)
 
-     Sets the YDOT array to fi(T,Y), the implicit portion of the right-hand 
-     side of the ODE system, as function of time T and the state variable 
+     Sets the YDOT array to fi(T,Y), the implicit portion of the right-hand
+     side of the ODE system, as function of time T and the state variable
      array Y.
 
        SUBROUTINE FARKEFUN(T, Y, YDOT, IPAR, RPAR, IER)
 
-     Sets the YDOT array to fe(t,y), the explicit portion of the right-hand 
-     side of the ODE system, as function of time T and the state variable 
-     array Y.  
+     Sets the YDOT array to fe(t,y), the explicit portion of the right-hand
+     side of the ODE system, as function of time T and the state variable
+     array Y.
 
      The arguments are:
        Y    -- array containing state variables [realtype, input]
@@ -247,10 +247,10 @@
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
-                  0 if successful, 
+                  0 if successful,
                  >0 if a recoverable error occurred,
                  <0 if an unrecoverable error ocurred.
- 
+
  (2s) Optional user-supplied dense Jacobian approximation routine: FARKDJAC
 
      As an option when using the Dense or LapackDense linear solvers, the 
@@ -258,7 +258,7 @@
      system Jacobian J = dfi(t,y)/dy.  If supplied, it must have the 
      following form:
 
-       SUBROUTINE FARKDJAC(NEQ, T, Y, FY, DJAC, H, IPAR, RPAR, WK1, WK2, 
+       SUBROUTINE FARKDJAC(NEQ, T, Y, FY, DJAC, H, IPAR, RPAR, WK1, WK2,
       &                    WK3, IER)
 
      Typically this routine will use only NEQ, T, Y, and DJAC. It must 
@@ -276,13 +276,13 @@
                FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
-       WK*  -- array containing temporary workspace of same size as Y 
+       WK*  -- array containing temporary workspace of same size as Y
                [realtype, input]
        IER  -- return flag [int, output]:
-                  0 if successful, 
+                  0 if successful,
                  >0 if a recoverable error occurred,
                  <0 if an unrecoverable error ocurred.
- 
+
  (2s) Optional user-supplied band Jacobian approximation routine: FARKBJAC
 
      As an option when using the Band or LapackBand linear solvers, the 
@@ -293,9 +293,9 @@
        SUBROUTINE FARKBJAC(NEQ, MU, ML, MDIM, T, Y, FY, BJAC, H,
       &                    IPAR, RPAR, WK1, WK2, WK3, IER)
 
-     Typically this routine will use only NEQ, MU, ML, T, Y, and BJAC. It 
+     Typically this routine will use only NEQ, MU, ML, T, Y, and BJAC. It
      must load the MDIM by N array BJAC with the Jacobian matrix at the
-     current (t,y) in band form.  Store in BJAC(k,j) the Jacobian element 
+     current (t,y) in band form.  Store in BJAC(k,j) the Jacobian element
      J(i,j)  with k = i - j + MU + 1 (k = 1 ... ML+MU+1) and j = 1 ... N.
 
      The arguments are:
@@ -313,10 +313,10 @@
                FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
-       WK*  -- array containing temporary workspace of same size as Y 
+       WK*  -- array containing temporary workspace of same size as Y
                [realtype, input]
        IER  -- return flag [int, output]:
-                  0 if successful, 
+                  0 if successful,
                  >0 if a recoverable error occurred,
                  <0 if an unrecoverable error ocurred.
  
@@ -362,7 +362,7 @@
      [or compressed-sparse-row] approximation of the system Jacobian 
      J = dfi(t,y)/dy.  This routine must have the following form:
 
-       SUBROUTINE FARKSPJAC(T, Y, FY, N, NNZ, JDATA, JRVALS, 
+       SUBROUTINE FARKSPJAC(T, Y, FY, N, NNZ, JDATA, JRVALS,
       &                     JCPTRS, H, IPAR, RPAR, WK1, WK2, WK3, IER)
 
      Typically this routine will use only M, N, NNZ, JDATA, JRVALS and 
@@ -390,10 +390,10 @@
                  FARKMALLOC [long int, input]
          RPAR -- array containing real user data that was passed to
                  FARKMALLOC [realtype, input]
-         WK*  -- array containing temporary workspace of same size as Y 
+         WK*  -- array containing temporary workspace of same size as Y
                  [realtype, input]
          IER  -- return flag [int, output]:
-                    0 if successful, 
+                    0 if successful,
                    >0 if a recoverable error occurred,
                    <0 if an unrecoverable error ocurred.
  
@@ -453,12 +453,12 @@
                FARKMALLOC [long int, input]
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
-       WORK -- array containing temporary workspace of same size as Y 
+       WORK -- array containing temporary workspace of same size as Y
                [realtype, input]
        IER  -- return flag [int, output]:
                   0 if successful, 
                   nonzero if an error.
- 
+
  (3) Optional user-supplied preconditioner setup/solve routines: FARKPSET 
    and FARKPSOL
 
@@ -620,7 +620,7 @@
      (possibly time-dependent) system mass matrix M(t).  If supplied, 
      it must have the following form:
 
-       SUBROUTINE FARKSPMASS(T, N, NNZ, MDATA, MRVALS, MCPTRS, 
+       SUBROUTINE FARKSPMASS(T, N, NNZ, MDATA, MRVALS, MCPTRS,
       &                      IPAR, RPAR, WK1, WK2, WK3, IER)
 
      Typically this routine will use only M, N, NNZ, MDATA, MRVALS and 
@@ -645,10 +645,10 @@
                  FARKMALLOC [long int, input]
          RPAR -- array containing real user data that was passed to
                  FARKMALLOC [realtype, input]
-         WK*  -- array containing temporary workspace of same size as Y 
+         WK*  -- array containing temporary workspace of same size as Y
                  [realtype, input]
          IER  -- return flag [int, output]:
-                    0 if successful, 
+                    0 if successful,
                    >0 if a recoverable error occurred,
                    <0 if an unrecoverable error ocurred.
  
@@ -673,13 +673,13 @@
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
-                  0 if successful, 
+                  0 if successful,
                   nonzero if an error.
- 
+
  (4) User-supplied mass-matrix-vector product routine: FARKMTIMES
 
      Required when using the SP* linear solvers, the user should supply a
-     routine that computes the product of the system mass matrix M and a 
+     routine that computes the product of the system mass matrix M and a
      given vector v.  It must have the following form:
 
        SUBROUTINE FARKMTIMES(V, MV, T, IPAR, RPAR, IER)
@@ -697,7 +697,7 @@
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
-                  0 if successful, 
+                  0 if successful,
                   nonzero if an error.
  
  (5) Optional user-supplied mass matrix preconditioner setup/solve 
@@ -801,7 +801,7 @@
        RPAR -- array containing real user data that was passed to
                FARKMALLOC [realtype, input]
        IER  -- return flag [int, output]:
-                  0 if successful, 
+                  0 if successful,
                   nonzero if an error.
 
  (8) Optional user-supplied explicitly stable time step routine: FARKEXPSTAB
@@ -812,7 +812,7 @@
 
        SUBROUTINE FARKEXPSTAB(Y, T, HSTAB, IPAR, RPAR, IER)
 
-     It must store the explicitly stable step size in the ouptut HSTAB. 
+     It must store the explicitly stable step size in the ouptut HSTAB.
 
      The arguments are:
        Y     -- array containing state variables [realtype, input]
@@ -823,7 +823,7 @@
        RPAR  -- array containing real user data that was passed to
                 FARKMALLOC [realtype, input]
        IER   -- return flag [int, output]:
-                  0 if successful, 
+                  0 if successful,
                   nonzero if an error.
 
  -----------------------------------------------------------------------------
@@ -1018,7 +1018,7 @@
  (9.6) To set various problem and solution parameters and allocate
      internal memory, make the following call:
 
-       CALL FARKMALLOC(T0, Y0, IMEX, IATOL, RTOL, ATOL, IOUT, ROUT, 
+       CALL FARKMALLOC(T0, Y0, IMEX, IATOL, RTOL, ATOL, IOUT, ROUT,
       &                IPAR, RPAR, IER)
 
      The arguments are:
@@ -1028,8 +1028,8 @@
                   0 = implicit, 
                   1 = explicit, 
                   2 = imex
-        IATOL = type for absolute tolerance ATOL [int, input]: 
-                  1 = scalar, 
+        IATOL = type for absolute tolerance ATOL [int, input]:
+                  1 = scalar,
                   2 = array,
                   3 = user-supplied function; the user must supply a routine
                       FARKEWT to compute the error weight vector.
@@ -1071,7 +1071,7 @@
            TCUR    = ROUT( 4) from ARKodeGetCurrentTime
            TOLSF   = ROUT( 5) from ARKodeGetTolScaleFactor
            UROUND  = ROUT( 6) from UNIT_ROUNDOFF
-     See the ARKODE manual for details. 
+     See the ARKODE manual for details.
 
  (9.7) If a direct linear solver was created in step (7.4) then it must be 
      attached to ARKode.  If the user called any one of FSUNBANDLINSOLINIT, 
@@ -1295,12 +1295,12 @@
 	HSCALE = desired step size scale factor [realtype, input]
 	          1.0 is the default
 		  any value <= 0.0 results in the default.
-        ITOL = flag denoting that a new relative tolerance and vector of 
+        ITOL = flag denoting that a new relative tolerance and vector of
 	   absolute tolerances are supplied in the RTOL and ATOL arguments
-	   [int, input]: 
-                  0 = retain the current relative tolerance and current 
+	   [int, input]:
+                  0 = retain the current relative tolerance and current
 		      scalar-valued or user-supplied function
-                  1 = RTOL contains the new scalar-valued relative tolerance 
+                  1 = RTOL contains the new scalar-valued relative tolerance
                       and ATOL contains a new array of absolute tolerances
 	RTOL = scalar-valued relative tolerance [realtype, input]
 	ATOL = array of absolute tolerances [realtype, input]
@@ -1373,7 +1373,7 @@
      parameters), make the following call: 
 
        CALL FARKSETADAPTIVITYMETHOD(IMETHOD, IDEFAULT, IPQ, PARAMS, IER)
-       
+
      The arguments are:
        IMETHOD  = the adaptivity method to use [integer, input]
        IDEFAULT = flag to use (1) or not (0) the default adaptivity 
@@ -1399,7 +1399,7 @@
        Q = the global order of accuracy of the method [int, input]
        P = the global order of accuracy of the embedding [int, input]
        C = array of length S containing the stage times [realtype, input]
-       A = array of length S*S containing the ERK coefficients (stored in 
+       A = array of length S*S containing the ERK coefficients (stored in
            row-major, "C", order) [realtype, input]
        B = array of length S containing the solution coefficients
            [realtype, input]
@@ -1416,7 +1416,7 @@
        Q = the global order of accuracy of the method [int, input]
        P = the global order of accuracy of the embedding [int, input]
        C = array of length S containing the stage times [realtype, input]
-       A = array of length S*S containing the DIRK coefficients (stored in 
+       A = array of length S*S containing the DIRK coefficients (stored in
            row-major, "C", order) [realtype, input]
        B = array of length S containing the solution coefficients
            [realtype, input]
@@ -1435,9 +1435,9 @@
            [realtype, input]
        CE = array of length S containing the explicit stage times
            [realtype, input]
-       AI = array of length S*S containing the DIRK coefficients (stored in 
+       AI = array of length S*S containing the DIRK coefficients (stored in
            row-major, "C", order) [realtype, input]
-       AE = array of length S*S containing the ERK coefficients (stored in 
+       AE = array of length S*S containing the ERK coefficients (stored in
            row-major, "C", order) [realtype, input]
        BI = array of length S containing the implicit solution coefficients
            [realtype, input]
@@ -1454,8 +1454,8 @@
        CALL FARKSETRESTOLERANCE(IATOL, ATOL, IER)
 
      The arguments are:
-       IATOL = type for absolute tolerance ATOL [int, input]: 
-                 1 = scalar, 
+       IATOL = type for absolute tolerance ATOL [int, input]:
+                 1 = scalar,
                  2 = array
 	ATOL = scalar or array absolute residual tolerance [realtype, input]
 	IER  = return completion flag [int, output]:
@@ -1804,7 +1804,7 @@ extern "C" {
     realtype *rpar;
     long int *ipar;
   } *FARKUserData;
-  
+
   /* Prototypes of exported functions */
   void FARK_MALLOC(realtype *t0, realtype *y0, int *imex, 
 		   int *iatol, realtype *rtol, realtype *atol, 
@@ -1815,7 +1815,7 @@ extern "C" {
 		   int *iatol, realtype *rtol, realtype *atol,
 		   int *ier);
 
-  void FARK_RESIZE(realtype *t0, realtype *y0, realtype *hscale, 
+  void FARK_RESIZE(realtype *t0, realtype *y0, realtype *hscale,
 		   int *itol, realtype *rtol, realtype *atol, int *ier);
 
   void FARK_SETDEFAULTS(int *ier);
@@ -1827,7 +1827,7 @@ extern "C" {
 
   void FARK_SETERKTABLE(int *s, int *q, int *p, realtype *c, realtype *A, 
 			realtype *b, realtype *b2, int *ier);
-  void FARK_SETIRKTABLE(int *s, int *q, int *p, realtype *c, 
+  void FARK_SETIRKTABLE(int *s, int *q, int *p, realtype *c,
 			realtype *A, realtype *b, realtype *b2, int *ier);
   void FARK_SETARKTABLES(int *s, int *q, int *p, realtype *ci, 
                          realtype *ce, realtype *Ai, realtype *Ae, 
@@ -1935,11 +1935,11 @@ extern "C" {
   int FARKMTSetup(realtype t, void *user_data);
   
   int FARKMtimes(N_Vector v, N_Vector Mv, realtype t, void *user_data);
-  
+
   int FARKEwt(N_Vector y, N_Vector ewt, void *user_data);
 
-  int FARKAdapt(N_Vector y, realtype t, realtype h1, realtype h2, 
-		realtype h3, realtype e1, realtype e2, realtype e3, 
+  int FARKAdapt(N_Vector y, realtype t, realtype h1, realtype h2,
+		realtype h3, realtype e1, realtype e2, realtype e3,
 		int q, int p, realtype *hnew, void *user_data);
 
   int FARKExpStab(N_Vector y, realtype t, realtype *hstab, void *user_data);

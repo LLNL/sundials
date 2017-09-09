@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -274,7 +271,7 @@ void FKIN_SETVIN(char key_name[], realtype *vval, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_DENSE(sunindextype *neq, int *ier)
+void FKIN_DENSE(long int *neq, int *ier)
 {
   *ier = KINDense(KIN_kinmem, *neq);
   KIN_ls = KIN_LS_DENSE;
@@ -286,7 +283,7 @@ void FKIN_DENSE(sunindextype *neq, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_BAND(sunindextype *neq, sunindextype *mupper, sunindextype *mlower, int *ier)
+void FKIN_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
 {
   *ier = KINBand(KIN_kinmem, *neq, *mupper, *mlower);
   KIN_ls = KIN_LS_BAND;

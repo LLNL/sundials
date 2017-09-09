@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
  *                Daniel R. Reynolds @ SMU
@@ -687,10 +684,10 @@ void FKIN_SETIIN(char key_name[], long int *ival, int *ier);
 void FKIN_SETRIN(char key_name[], realtype *rval, int *ier);
 void FKIN_SETVIN(char key_name[], realtype *vval, int *ier);
 
-void FKIN_DENSE(sunindextype *neq, int *ier);
+void FKIN_DENSE(long int *neq, int *ier);
 void FKIN_DENSESETJAC(int *flag, int *ier);
 
-void FKIN_BAND(sunindextype *neq, sunindextype *mupper, sunindextype *mlower, int *ier);
+void FKIN_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
 void FKIN_BANDSETJAC(int *flag, int *ier);
 
 void FKIN_LAPACKDENSE(int *neq, int *ier);
@@ -724,22 +721,22 @@ void FKIN_FREE(void);
 
 int FKINfunc(N_Vector uu, N_Vector fval, void *user_data);
 
-int FKINDenseJac(sunindextype N,
+int FKINDenseJac(long int N,
                  N_Vector uu, N_Vector fval,
                  DlsMat J, void *user_data, 
                  N_Vector vtemp1, N_Vector vtemp2);
 
-int FKINBandJac(sunindextype N, sunindextype mupper, sunindextype mlower,
+int FKINBandJac(long int N, long int mupper, long int mlower,
                 N_Vector uu, N_Vector fval, 
                 DlsMat J, void *user_data,
                 N_Vector vtemp1, N_Vector vtemp2);
 
-int FKINLapackDenseJac(sunindextype N,
+int FKINLapackDenseJac(long int N,
                        N_Vector uu, N_Vector fval,
                        DlsMat J, void *user_data, 
                        N_Vector vtemp1, N_Vector vtemp2);
 
-int FKINLapackBandJac(sunindextype N, sunindextype mupper, sunindextype mlower,
+int FKINLapackBandJac(long int N, long int mupper, long int mlower,
                       N_Vector uu, N_Vector fval, 
                       DlsMat J, void *user_data,
                       N_Vector vtemp1, N_Vector vtemp2);

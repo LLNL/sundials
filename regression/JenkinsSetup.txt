@@ -114,7 +114,15 @@ mark the start and end of a collapsible section.
    Section ends with:   (make test returned .*)
    Check the box next to "Collapse Sections by default"
 
-6) Click "Save"
+7) To create a INSTALLING section, click on "Add Console Section" and
+   enter/do the following:
+
+   Section name:        INSTALLING
+   Section starts with: START INSTALL
+   Section ends with:   (make install returned .*)
+   Check the box next to "Collapse Sections by default"
+
+8) Click "Save"
 
 =======================================================================
 
