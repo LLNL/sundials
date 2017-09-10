@@ -342,11 +342,11 @@ SUNDIALS_EXPORT int ARKDlsSetBandMassFn(void *arkode_mem,
     ARKDLS_LMEM_NULL if the linear solver memory was NULL
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKDlsGetWorkSpace(void *arkode_mem, 
-				       sunindextype *lenrwLS, 
-				       sunindextype *leniwLS);
+				       long int *lenrwLS, 
+				       long int *leniwLS);
 SUNDIALS_EXPORT int ARKDlsGetMassWorkSpace(void *arkode_mem, 
-					   sunindextype *lenrwMLS, 
-					   sunindextype *leniwMLS);
+					   long int *lenrwMLS, 
+					   long int *leniwMLS);
 SUNDIALS_EXPORT int ARKDlsGetNumJacEvals(void *arkode_mem, 
 					 long int *njevals);
 SUNDIALS_EXPORT int ARKDlsGetNumMassEvals(void *arkode_mem, 

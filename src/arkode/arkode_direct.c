@@ -181,7 +181,7 @@ int ARKDlsSetBandMassFn(void *arkode_mem, ARKDlsBandMassFn mass)
  ARKDlsGetWorkSpace returns the length of workspace allocated for 
  the ARKDLS linear solver.
 ---------------------------------------------------------------*/
-int ARKDlsGetWorkSpace(void *arkode_mem, sunindextype *lenrwLS, sunindextype *leniwLS)
+int ARKDlsGetWorkSpace(void *arkode_mem, long int *lenrwLS, long int *leniwLS)
 {
   ARKodeMem ark_mem;
   ARKDlsMem arkdls_mem;
@@ -217,8 +217,8 @@ int ARKDlsGetWorkSpace(void *arkode_mem, sunindextype *lenrwLS, sunindextype *le
  ARKDlsGetMassWorkSpace returns the length of workspace allocated 
  for the ARKDLS mass matrix linear solver.
 ---------------------------------------------------------------*/
-int ARKDlsGetMassWorkSpace(void *arkode_mem, sunindextype *lenrwMLS, 
-			   sunindextype *leniwMLS)
+int ARKDlsGetMassWorkSpace(void *arkode_mem, long int *lenrwMLS, 
+			   long int *leniwMLS)
 {
   ARKodeMem ark_mem;
   ARKDlsMassMem arkdls_mem;

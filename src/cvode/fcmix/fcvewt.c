@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -34,7 +31,7 @@
 extern "C" {
 #endif
   extern void FCV_EWT(realtype*, realtype*,  /* Y, EWT */ 
-                      sunindextype*, realtype*,  /* IPAR, RPAR */
+                      long int*, realtype*,  /* IPAR, RPAR */
                       int*);                 /* IER */
 #ifdef __cplusplus
 }

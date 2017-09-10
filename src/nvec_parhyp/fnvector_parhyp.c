@@ -1,22 +1,19 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date: 2016-01-13
- * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Alan Hindmarsh @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * This file (companion of nvector_parhyp.h) contains the 
- * implementation needed for the Fortran initialization of ParHyp 
+ * This file (companion of nvector_parhyp.h) contains the
+ * implementation needed for the Fortran initialization of ParHyp
  * vector operations.
  * -----------------------------------------------------------------
  */
@@ -42,7 +39,7 @@ N_Vector F2C_ARKODE_vec;
 
 /* Fortran callable interface */
 
-void FNV_INITPH(MPI_Fint *comm, int *code, sunindextype *L, sunindextype *N, int *ier)
+void FNV_INITPH(MPI_Fint *comm, int *code, long int *L, long int *N, int *ier)
 {
   MPI_Comm F2C_comm;
 

@@ -34,7 +34,7 @@ nfail=0
 # NOTE: may need to create answer files for different realtypes
 # NOTE: master branch will ignore indextype
 realtype=('double')
-indextype=('int64_t')
+indextype=('int32_t' 'int64_t')
 
 # real and index types to test
 # NOTE: remove above realtype and indextype arrays and uncomment the 
