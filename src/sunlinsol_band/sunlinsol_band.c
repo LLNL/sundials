@@ -73,6 +73,11 @@ SUNLinearSolver SUNBandLinearSolver(N_Vector y, SUNMatrix A)
        (N_VGetVectorID(y) != SUNDIALS_NVEC_PTHREADS) )
     return(NULL);
 
+  /* Check that A has appropriate storage upper bandwidth for factorization */
+  if (SUNBandMatrix_StoredUpperBandwidth(A) <
+      SUNMIN(MatrixRows-1, SUNBandMatrix_LowerBandwidth(A)+SUNBandMatrix_UpperBandwidth(A)))
+    return(NULL);
+
   /* optimally this function would be replaced with a generic N_Vector routine */
   VecLength = GlobalVectorLength_BandLS(y);
   if (MatrixRows != VecLength)

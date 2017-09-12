@@ -63,7 +63,8 @@ SUNLinearSolver SUNDiagonalLinearSolver(N_Vector y, SUNMatrix A)
     return(NULL);
 
   /* verify that supplied N_Vector implements all required operations */
-  if (y->ops->nvinvtest == NULL)  return(NULL);
+  if ((y->ops->nvinvtest == NULL) || (y->ops->nvprod == NULL))
+    return(NULL);
   
   /* It would be great if we could verify that the dimensions of A 
      and y match, but since there is no generic 'length' N_Vector 
