@@ -84,7 +84,7 @@ A particular implementation of the {\sunmatrix} module must:
 
   Note that the names of these routines should be unique to that
   implementation in order to permit using more than one {\sunmatrix}
-  module (each with different \id{SUNmatrix} internal data
+  module (each with different \id{SUNMatrix} internal data
   representations) in the same code. 
 \item Define and implement user-callable constructor and destructor
   routines to create and free a \id{SUNMatrix} with
@@ -158,8 +158,9 @@ internal data.
 %%
 \id{SUNMatSpace} & \id{ier = SUNMatSpace(A, \&lrw, \&liw);} \\
 & Returns the storage requirements for the matrix \id{A}.  \id{lrw}
-contains the number of realtype words and \id{liw} contains the number
-of integer words.  The return value is an integer flag denoting
+is a \id{long int} containing the number of realtype words
+and \id{liw} is a \id{long int} containing the number of integer
+words.  The return value is an integer flag denoting
 success/failure of the operation.
 
 This function is advisory only, for use in determining a user's total

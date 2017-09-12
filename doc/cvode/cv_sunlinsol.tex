@@ -1,0 +1,59 @@
+%===================================================================================
+\chapter{Description of the SUNLinearSolver module}\label{s:sunlinsol}
+%===================================================================================
+\index{SUNLinearSolver@\texttt{SUNLinearSolver} module}
+\input{sunlinsol_generic}
+
+
+%---------------------------------------------------------------------------
+\section{SUNLinearSolver functions used by CVODE}
+
+In Table \ref{t:sunlinsoluse} below, we list the linear solver
+functions in the {\sunlinsol} module used within the {\cvode} package.
+The table also shows, for each function, which of the code modules uses
+the function.  In general, the main {\cvode} integrator considers
+three categories of linear solvers, \emph{direct}, \emph{iterative}
+and \emph{custom}, with interfaces accessible in the {\cvode} header
+files \id{cvode\_direct.h} ({\cvdls}), \id{cvode\_spils.h}
+({\cvspils}) and \id{cvode\_customls.h} ({\cvcls}), respectively.
+Hence, the the table columns reference the use of {\sunlinsol}
+functions by each of these solver interfaces.
+
+As with the {\sunmatrix} module, we emphasize that the {\cvode} user
+does not need to know detailed usage of linear solver functions by the
+{\cvode} code modules in order to use {\cvode}. The information is
+presented as an implementation detail for the interested reader.
+
+\begin{table}[htb]
+\centering
+\caption{List of linear solver functions usage by {\cvode} code modules}\label{t:sunlinsoluse}
+\medskip
+\begin{tabular}{|r|c|c|c|} \hline
+                                             & 
+\begin{sideways}{\cvdls}      \end{sideways} & 
+\begin{sideways}{\cvspils}    \end{sideways} & 
+\begin{sideways}{\cvcls}      \end{sideways} \\ \hline\hline
+%                                 DLS  SPILS    CLS
+\id{SUNLinSolGetType}           & \cm & \cm & $\dagger$ \\ \hline
+\id{SUNLinSolSetATimes}         &     & \cm & $\dagger$ \\ \hline
+\id{SUNLinSolSetPreconditioner} &     & \cm & $\dagger$ \\ \hline
+\id{SUNLinSolSetScalingVectors} &     & \cm & $\dagger$ \\ \hline
+\id{SUNLinSolInitialize}        & \cm & \cm & \cm       \\ \hline
+\id{SUNLinSolSetup}             & \cm & \cm & \cm       \\ \hline
+\id{SUNLinSolSolve}             & \cm & \cm & \cm       \\ \hline
+\id{SUNLinSolNumIters}          &     & \cm & $\dagger$ \\ \hline
+\id{SUNLinSolResNorm}           &     & \cm & $\dagger$ \\ \hline
+\id{SUNLinSolResid}             &     & \cm & $\dagger$ \\ \hline
+\id{SUNLinSolLastFlag}          &     &     &           \\ \hline
+\id{SUNLinSolFree}              & \cm & \cm & \cm       \\ \hline
+\id{SUNLinSolSpace}             & \cm & \cm & $\dagger$ \\ \hline
+\end{tabular}
+\end{table}
+
+The linear solver functions listed in Table \ref{t:sunlinsolops} with
+a $\dagger$ symbol are optionally used, in that these are only called
+if they are implemented in the {\sunlinsol} module that is being used
+(i.e.~their function pointers are non-\id{NULL}).  Also, although
+{\cvode} does not call the \id{SUNLinSolLastFlag} directly, this
+routine is available for users to query linear solver issues directly.
+

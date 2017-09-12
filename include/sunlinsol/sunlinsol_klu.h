@@ -135,7 +135,7 @@ typedef struct _SUNLinearSolverContent_KLU *SUNLinearSolverContent_KLU;
  *      structure of the linear system has changed which would 
  *      require a new symbolic (and numeric factorization).
  *
- *      The reinit_type argumenmt governs the level of 
+ *      The reinit_type argument governs the level of 
  *      reinitialization:
  *
  *      reinit_type = 1: The Jacobian matrix will be destroyed and 
@@ -148,7 +148,8 @@ typedef struct _SUNLinearSolverContent_KLU *SUNLinearSolverContent_KLU;
  *                       will be completed.  It is assumed that the 
  *                       Jacobian size has not exceeded the size of 
  *                       nnz given in the sparse matrix provided to
- *                       the original constructor routine.
+ *                       the original constructor routine (or the 
+ *                       previous SUNKLUReInit call) 
  *
  *      This routine assumes no other changes to solver use are 
  *      necessary.

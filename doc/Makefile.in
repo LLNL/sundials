@@ -48,6 +48,19 @@ sunmatrix_band.tex \
 sunmatrix_dense.tex \
 sunmatrix_diag.tex \
 sunmatrix_sparse.tex \
+sunlinsol_generic.tex \
+sunlinsol_band.tex \
+sunlinsol_dense.tex \
+sunlinsol_diagonal.tex \
+sunlinsol_klu.tex \
+sunlinsol_lapackband.tex \
+sunlinsol_lapackdense.tex \
+sunlinsol_pcg.tex \
+sunlinsol_spbcgs.tex \
+sunlinsol_spfgmr.tex \
+sunlinsol_spgmr.tex \
+sunlinsol_sptfqmr.tex \
+sunlinsol_superlumt.tex \
 types.tex \
 ug.tex \
 biblio.bib

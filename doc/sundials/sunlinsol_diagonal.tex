@@ -1,0 +1,95 @@
+%% This is a shared SUNDIALS TEX file with a description of the
+%% diagonal sunlinsol implementation
+%%
+
+The diagonal implementation of the {\sunlinsol} module provided with
+{\sundials}, {\sunlinsoldiag}, is designed to be used with the
+corresponding {\sunmatdiag} matrix type (and any of the {\nvector}
+implementations).  The {\sunlinsoldiag} module defines the
+{\em content} field of a \id{SUNLinearSolver} to be the following
+structure:
+%%
+\begin{verbatim} 
+struct _SUNLinearSolverContent_Diagonal {
+  long int last_flag;
+};
+\end{verbatim}
+%%
+The entry of the \emph{content} field consists of only a long integer
+containing the last error return flag from {\sunlinsoldiag} functions.
+
+This solver is constructed to perform the following operations:
+\begin{itemize}
+\item In the ``setup'' call, this inverts a diagonal matrix using the
+  {\nvector} routine \id{N\_VInvTest}.  This inverse is stored
+  in-place on the input {\sunmatdiag} object $A$.
+\item In the ``solve'' call, this performs the diagonal solve using
+  the matrix inverse by calling the {\nvector} routine \id{N\_VProd}.
+\end{itemize}
+
+\noindent The header file to be included when using this module 
+is \id{sunlinsol/sunlinsol\_diagonal.h}. \\
+%%
+%%----------------------------------------------
+%%
+The {\sunlinsoldiag} module defines diagonal implementations of all
+``direct'' linear solver operations listed in Table \ref{t:sunlinsolops}:
+\begin{itemize}
+\item \id{SUNLinSolGetType\_Diagonal}
+\item \id{SUNLinSolInitialize\_Diagonal} -- this does nothing, since all
+  consistency checks were performed at solver creation.
+\item \id{SUNLinSolSetup\_Diagonal} -- this inverts the input diagonal
+  matrix.
+\item \id{SUNLinSolSolve\_Diagonal} -- this multiplies with the input
+  diagonal matrix.
+\item \id{SUNLinSolLastFlag\_Diagonal}
+\item \id{SUNLinSolSpace\_Diagonal} -- this only returns information for
+  the storage \emph{within} the solver object, i.e.~storage
+  for \id{last\_flag}.
+\item \id{SUNLinSolFree\_Diagonal}
+\end{itemize}
+The module {\sunlinsoldiag} provides the following additional
+user-callable routine: 
+%%
+\begin{itemize}
+
+%%--------------------------------------
+
+\item \ID{SUNDiagonalLinearSolver}
+
+  This function creates and allocates memory for a diagonal
+  \id{SUNLinearSolver}.  Its arguments are an {\nvector} and
+  {\sunmatrix}, that it uses to assess compatibility with the linear
+  solver implementation.
+
+  This routine will perform consistency checks to ensure that it is
+  called with consistent {\nvector} and {\sunmatrix} implementations.
+  Since a {\sunmatdiag} merely contains a {\nvector}, then this checks
+  that both the input {\nvector} and the {\sunmatdiag} {\nvector}
+  have the same vector type.  If these do not match, then this routine
+  will return \id{NULL}.
+
+  Additionally, this routine checks that both of the requisite
+  {\nvector} operations, \id{N\_VInvTest} and \id{N\_VProd}, are
+  supplied by the {\nvector} implementation.  If either are missing,
+  then this routine will return \id{NULL}.
+
+  \verb|SUNLinearSolver SUNDiagonalLinearSolver(N_Vector y, SUNMatrix A);|
+
+\end{itemize}
+%%
+%%------------------------------------
+%%
+For solvers that include a Fortran interface module, the {\sunlinsoldiag}
+module also includes the Fortran-callable
+function \id{FSUNDiagLinSolInit(code, ier)} to initialize
+this {\sunlinsoldiag} module for a given {\sundials} solver.
+Here \id{code} is an input solver id (1 for {\cvode}, 2 for {\ida}, 3
+for {\kinsol}, 4 for {\arkode}); \id{ier} is an error return flag 
+equal 0 for success and -1 for failure (declared so as to match C type
+\id{int}).  This routine must be called \emph{after} both the
+{\nvector} and {\sunmatrix} objects have been initialized.
+Additionally, when using {\arkode} with non-identity mass matrix, the
+Fortran-callable function \id{FSUNMassDiagLinSolInit(ier)}  
+initializes this {\sunlinsoldiag} module for solving mass matrix
+linear systems.
