@@ -1,0 +1,209 @@
+%% This is a shared SUNDIALS TEX file with a description of the
+%% sptfqmr sunlinsol implementation
+%%
+
+The {\sptfqmr} (Scaled, Preconditioned, Transpose-Free Quasi-Minimum
+Residual \cite{Fre:93}) implementation of the {\sunlinsol} module 
+provided with {\sundials}, {\sunlinsolsptfqmr}, is an iterative linear
+solver that is designed to be compatible with any {\nvector}
+implementation (serial, threaded, parallel, user-supplied) that
+supports a minimal subset of operations (\id{N\_VClone}, 
+\id{N\_VDotProd}, \id{N\_VScale}, \id{N\_VLinearSum}, \id{N\_VProd},
+\id{N\_VConst}, \id{N\_VDiv} and \id{N\_VDestroy}).  Unlike the
+{\spgmr} and {\spfgmr} algorithms, {\spbcg} requires a fixed amount of
+memory that does not scale with the number of allowed iterations.
+
+The {\sunlinsolsptfqmr} module defines the {\em content} field of a
+\id{SUNLinearSolver} to be the following structure:
+%%
+\begin{verbatim} 
+struct _SUNLinearSolverContent_SPTFQMR {
+  int maxl;
+  int pretype;
+  int numiters;
+  realtype resnorm;
+  long int last_flag;
+  ATSetupFn ATSetup;
+  ATimesFn ATimes;
+  void* ATData;
+  PSetupFn Psetup;
+  PSolveFn Psolve;
+  void* PData;
+  N_Vector s1;
+  N_Vector s2;
+  N_Vector r_star;
+  N_Vector q;
+  N_Vector d;
+  N_Vector v;
+  N_Vector p;
+  N_Vector *r;
+  N_Vector u;
+  N_Vector vtemp1;
+  N_Vector vtemp2;
+  N_Vector vtemp3;
+};
+\end{verbatim}
+%%
+These entries of the \emph{content} field contain the following
+information:
+\begin{description}
+  \item[maxl] - number of TFQMR basis vectors to use (default is 5)
+  \item[pretype] - flag for type of preconditioning to employ
+    (default is none)
+  \item[numiters] - number of iterations from most-recent solve
+  \item[resnorm] - final linear residual norm from most-recent solve
+  \item[last\_flag] - last error return flag from internal function
+  \item[ATSetup] - function pointer to setup routine for \id{ATimes} data
+  \item[ATimes] - function pointer to perform $Av$ product
+  \item[ATData] - pointer to structure for \id{ATSetup}, \id{ATimes}
+  \item[Psetup] - function pointer to preconditioner setup routine
+  \item[Psolve] - function pointer to preconditioner solve routine
+  \item[PData] - pointer to structure for \id{Psetup}, \id{Psolve}
+  \item[s1, s2] - vector pointers for supplied scaling matrices
+    (default are \id{NULL})
+  \item[r\_star] - a {\nvector} which holds the initial scaled,
+    preconditioned linear system residual 
+  \item[q, d, v, p, u] - {\nvector}s used for workspace by the SPTFQMR
+    algorithm
+  \item [r] - array of two {\nvector}s used for workspace within the
+    SPTFQMR algorithm 
+  \item[vtemp1, vtemp2, vtemp3] - temporary vector storage
+\end{description}
+
+This solver is constructed to perform the following operations:
+\begin{itemize}
+\item During construction all {\nvector} solver data is allocated,
+  with vectors cloned from a template {\nvector} that is input, and
+  default solver parameters are set.
+\item User-facing ``set'' routines may be called to modify default
+  solver parameters.
+\item Additional ``set'' routines are called by the {\sundials} solver
+  that interfaces with {\sunlinsolsptfqmr} to supply the \id{ATSetup},
+  \id{ATimes}, \id{PSetup} and \id{Psolve} function pointers and
+  \id{s1} and \id{s2} scaling vectors.
+\item In the ``initialize'' call, the solver parameters are checked
+  for validity.
+\item In the ``setup'' call, any non-\id{NULL} \id{ATSetup} and
+  \id{PSetup} functions are called.  Typically, these are provided by
+  the {\sundials} solvers themselves, that translate between the
+  generic \id{ATSetup} and \id{PSetup} functions and the
+  solver-specific routines (solver-supplied or user-supplied).
+\item In the ``solve'' call the TFQMR iteration is performed.  This
+  will include scaling and preconditioning if those options have been
+  supplied.
+\end{itemize}
+
+\noindent The header file to be included when using this module 
+is \id{sunlinsol/sunlinsol\_sptfqmr.h}. \\
+%%
+%%----------------------------------------------
+%%
+The {\sunlinsolsptfqmr} module defines implementations of all
+``iterative'' linear solver operations listed in Table
+\ref{t:sunlinsolops}:
+\begin{itemize}
+\item \id{SUNLinSolGetType\_SPTFQMR}
+\item \id{SUNLinSolInitialize\_SPTFQMR}
+\item \id{SUNLinSolSetATimes\_SPTFQMR}
+\item \id{SUNLinSolSetPreconditioner\_SPTFQMR}
+\item \id{SUNLinSolSetScalingVectors\_SPTFQMR}
+\item \id{SUNLinSolSetup\_SPTFQMR}
+\item \id{SUNLinSolSolve\_SPTFQMR}
+\item \id{SUNLinSolNumIters\_SPTFQMR}
+\item \id{SUNLinSolResNorm\_SPTFQMR}
+\item \id{SUNLinSolResid\_SPTFQMR}
+\item \id{SUNLinSolLastFlag\_SPTFQMR}
+\item \id{SUNLinSolSpace\_SPTFQMR}
+\item \id{SUNLinSolFree\_SPTFQMR}
+\end{itemize}
+The module {\sunlinsolsptfqmr} provides the following additional
+user-callable routines: 
+%%
+\begin{itemize}
+
+%%--------------------------------------
+
+\item \ID{SUNSPTFQMR}
+
+  This function creates and allocates memory for a {\sptfqmr}
+  \id{SUNLinearSolver}.  Its arguments are an {\nvector}, the desired
+  type of preconditioning, and the number of linear iterations to
+  allow.
+
+  This routine will perform consistency checks to ensure that it is
+  called with a consistent {\nvector} implementation (i.e.~that it
+  supplies the requisite vector operations).  If \id{y} is
+  incompatible then this routine will return \id{NULL}.
+
+  A \id{maxl} argument that is $\le0$ will result in the default
+  value (5).
+
+  Allowable inputs for \id{pretype} are \id{PREC\_NONE} (0),
+  \id{PREC\_LEFT} (1), \id{PREC\_RIGHT} (2) and \id{PREC\_BOTH} (3);
+  any other integer input will result in the default (no
+  preconditioning).  We note that some {\sundials} solvers are
+  designed to only work with right preconditioning ({\kinsol}, {\ida},
+  {\idas}).  While it is possible to configure a {\sunlinsolsptfqmr}
+  object to use \id{PREC\_LEFT} or \id{PREC\_BOTH} with these solvers,
+  this use mode is not supported and may result in inferior
+  performance.
+
+  \verb|SUNLinearSolver SUNSPTFQMR(N_Vector y, int pretype, int maxl);|
+
+%%--------------------------------------
+
+\item \ID{SUNSPTFQMRSetPrecType}
+
+  This function updates the type of preconditioning to use.  Supported
+  values are \id{PREC\_NONE} (0), \id{PREC\_LEFT} (1),
+  \id{PREC\_RIGHT} (2) and \id{PREC\_BOTH} (3).  
+
+  This routine will return with one of the error codes
+  \id{SUNLS\_ILL\_INPUT} (illegal \id{pretype}), \id{SUNLS\_MEM\_NULL}
+  (\id{S} is \id{NULL}) or \id{SUNLS\_SUCCESS}.
+  
+  \verb|int SUNSPTFQMRSetPrecType(SUNLinearSolver S, int pretype);|
+
+%%--------------------------------------
+
+\item \ID{SUNSPTFQMRSetMaxl}
+
+  This function updates the number of linear solver iterations to allow.  
+
+  A \id{maxl} argument that is $\le0$ will result in the default
+  value (5).
+
+  This routine will return with one of the error codes
+  \id{SUNLS\_MEM\_NULL} (\id{S} is \id{NULL}) or \id{SUNLS\_SUCCESS}.
+  
+  \verb|int SUNSPTFQMRSetMaxl(SUNLinearSolver S, int maxl);|
+
+\end{itemize}
+%%
+%%------------------------------------
+%%
+For solvers that include a Fortran interface module, the
+{\sunlinsolsptfqmr} module also includes the Fortran-callable
+function \id{FSUNSPTFQMRInit(code, pretype, maxl, ier)} to initialize
+this {\sunlinsolsptfqmr} module for a given {\sundials} solver.
+Here \id{code} is an input solver id (1 for {\cvode}, 2 for {\ida}, 3
+for {\kinsol}, 4 for {\arkode}); \id{pretype} and \id{maxl} are the
+same as for the C function \ID{SUNSPTFQMR}; \id{ier} is an error return
+flag equal 0 for success and -1 for failure.  All of these input
+arguments should be declared so as to match C type \id{int}).  This
+routine must be called \emph{after} the {\nvector} object has been
+initialized.  Additionally, when using {\arkode} with non-identity
+mass matrix, the Fortran-callable function 
+\id{FSUNMassSPTFQMRInit(pretype, maxl, ier)} initializes this
+{\sunlinsolsptfqmr} module for solving mass matrix linear systems.
+
+The \id{SUNSPTFQMRSetPrecType} and \id{SUNSPTFQMRSetMaxl} routines also
+support Fortran interfaces for the system and mass matrix solvers:
+\begin{itemize}
+\item \id{FSUNSPTFQMRSetPrecType(code, pretype, ier)} -- all arguments
+  should be commensurate with a C \id{int}
+\item \id{FSUNMassSPTFQMRSetPrecType(pretype, ier)}
+\item \id{FSUNSPTFQMRSetMaxl(code, maxl, ier)} -- all arguments
+  should be commensurate with a C \id{int}
+\item \id{FSUNMassSPTFQMRSetMaxl(maxl, ier)}
+\end{itemize}

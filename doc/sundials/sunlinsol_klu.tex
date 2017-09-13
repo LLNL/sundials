@@ -84,8 +84,10 @@ following operations:
   can be called by the user to force a full refactorization at the
   next ``setup'' call. 
 \item In the ``solve'' call, this performs pivoting, forward and
-  backward substitution using the stored \id{pivots} array and the
-  sparse $LU$ factors.
+  backward substitution using the stored {\klu} data structures.  We
+  note that in this solve {\klu} operates on the native data arrays
+  for the right-hand side and solution vectors, without requiring
+  costly data copies.
 \end{itemize}
 
 
@@ -94,13 +96,13 @@ is \id{sunlinsol/sunlinsol\_klu.h}. \\
 %%
 %%----------------------------------------------
 %%
-The {\sunlinsolklu} module defines dense implementations of all
+The {\sunlinsolklu} module defines implementations of all
 ``direct'' linear solver operations listed in
 Table \ref{t:sunlinsolops}:
 \begin{itemize}
 \item \id{SUNLinSolGetType\_KLU}
 \item \id{SUNLinSolInitialize\_KLU} -- this sets the
-  \id{first\_factorize} flag to 1, forcing bot symbolic and numerical
+  \id{first\_factorize} flag to 1, forcing both symbolic and numerical
   factorizations on the subsequent ``setup'' call.
 \item \id{SUNLinSolSetup\_KLU} -- this performs either a $LU$
   factorization or refactorization of the input matrix.
@@ -216,9 +218,8 @@ routine must be called \emph{after} both the {\nvector} and
 \id{FSUNMassKLUInit(ier)} initializes this {\sunlinsolklu} module for
 solving mass matrix linear systems.
 
-Additionally, the \id{SUNKLUReInit} and \ID{SUNKLUSetOrdering}
-routines also support Fortran interfaces for the system and mass
-matrix solvers:
+The \id{SUNKLUReInit} and \ID{SUNKLUSetOrdering} routines also support
+Fortran interfaces for the system and mass matrix solvers:
 \begin{itemize}
 \item \id{FSUNKLUReInit(code, NNZ, reinit\_type, ier)} -- \id{NNZ}
   should be commensurate with a C \id{long int}, and \id{reinit\_type}
