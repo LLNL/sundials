@@ -24,8 +24,8 @@
  *
  * The SPBCGS algorithm solves a linear system A x = b.
  * Preconditioning is allowed on the left, right, or both.
- * Scaling is allowed on both sides, and restarts are also allowed.
- * We denote the preconditioner and scaling matrices as follows:
+ * Scaling is allowed on both sides.  We denote the preconditioner 
+ * and scaling matrices as follows:
  *   P1 = left preconditioner
  *   P2 = right preconditioner
  *   S1 = diagonal matrix of scale factors for P1-inverse b
@@ -131,6 +131,8 @@ extern "C" {
  * structure contains:
  *     maxl -- number of BiCGStab iterations to allow
  *     pretype -- flag for type of preconditioning to employ
+ *     numiters -- number of iterations from most-recent solve
+ *     resnorm -- final linear residual norm from most-recent solve
  *     last_flag -- last error return flag from internal setup/solve
  *     ATSetup -- function pointer to setup routine for ATimes data
  *     ATimes -- function pointer to ATimes routine
@@ -154,7 +156,6 @@ extern "C" {
 struct _SUNLinearSolverContent_SPBCGS {
   int maxl;
   int pretype;
-  int max_restarts;
   int numiters;
   realtype resnorm;
   long int last_flag;
@@ -186,6 +187,13 @@ typedef struct _SUNLinearSolverContent_SPBCGS *SUNLinearSolverContent_SPBCGS;
  * 
  * CONSTRUCTOR:
  *    SUNSPBCGS creates and allocates memory for a SPBCGS solver
+ *
+ * "SET" ROUTINES:
+ *    SUNSPBCGSSetPrecType updates the type of preconditioning to 
+ *       use.  Supported values are PREC_NONE, PREC_LEFT, PREC_RIGHT 
+ *       and PREC_BOTH.
+ *    SUNSPBCGSSetMaxl updates the maximum number of iterations to 
+ *       allow in the solver.
  * -----------------------------------------------------------------
  */
 

@@ -125,6 +125,8 @@ extern "C" {
  * structure contains:
  *     maxl -- number of BiCGStab iterations to allow
  *     pretype -- flag for type of preconditioning to employ
+ *     numiters -- number of iterations from most-recent solve
+ *     resnorm -- final linear residual norm from most-recent solve
  *     last_flag -- last error return flag from internal setup/solve
  *     ATSetup -- function pointer to setup routine for ATimes data
  *     ATimes -- function pointer to ATimes routine
@@ -132,10 +134,13 @@ extern "C" {
  *     Psetup -- function pointer to preconditioner setup routine
  *     Psolve -- function pointer to preconditioner solve routine
  *     PData -- pointer to structure for Psetup/Psolve
+ *     s1, s2 -- vector pointers for supplied scaling matrices
  *     r_star -- a vector (type N_Vector) which holds the initial 
  *         scaled, preconditioned linear system residual
- *     p, d, v, p, u and r -- vectors (type N_Vector) used for 
- *         workspace by the SPTFQMR algorithm.
+ *     q, d, v, p and u -- vectors (type N_Vector) used for 
+ *         workspace by the SPTFQMR algorithm
+ *     r -- array of vectors (type N_Vector) used for workspace 
+ *         within the SPTFQMR algorithm
  *     vtemp1/vtemp2/vtemp3 -- scratch vectors (type N_Vector) used
  *         as temporary vector storage during calculations.
  * -----------------------------------------------------------------
@@ -144,7 +149,6 @@ extern "C" {
 struct _SUNLinearSolverContent_SPTFQMR {
   int maxl;
   int pretype;
-  int max_restarts;
   int numiters;
   realtype resnorm;
   long int last_flag;
@@ -178,6 +182,13 @@ typedef struct _SUNLinearSolverContent_SPTFQMR *SUNLinearSolverContent_SPTFQMR;
  * 
  * CONSTRUCTOR:
  *    SUNSPTFQMR creates and allocates memory for a SPTFQMR solver
+ *
+ * "SET" ROUTINES:
+ *    SUNSPTFQMRSSetPrecType updates the type of preconditioning to 
+ *       use.  Supported values are PREC_NONE, PREC_LEFT, PREC_RIGHT 
+ *       and PREC_BOTH.
+ *    SUNSPTFQMRSetMaxl updates the maximum number of iterations to 
+ *       allow in the solver.
  * -----------------------------------------------------------------
  */
 

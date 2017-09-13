@@ -65,6 +65,13 @@ SUNLinearSolver SUNSPTFQMR(N_Vector y, int pretype, int maxl)
   if (maxl <= 0)
     maxl = SUNSPTFQMR_MAXL_DEFAULT;
 
+  /* check that the supplied N_Vector supports all requisite operations */
+  if ( (y->ops->nvclone == NULL) || (y->ops->nvdestroy == NULL) ||
+       (y->ops->nvlinearsum == NULL) || (y->ops->nvconst == NULL) ||
+       (y->ops->nvprod == NULL) || (y->ops->nvdiv == NULL) ||
+       (y->ops->nvscale == NULL) || (y->ops->nvdotprod == NULL) )
+    return(NULL);
+
   /* Create linear solver */
   S = NULL;
   S = (SUNLinearSolver) malloc(sizeof *S);
@@ -701,7 +708,10 @@ int SUNLinSolSpace_SPTFQMR(SUNLinearSolver S,
                            long int *leniwLS)
 {
   sunindextype liw1, lrw1;
-  N_VSpace(SPTFQMR_CONTENT(S)->vtemp1, &lrw1, &liw1);
+  if (SPGMR_CONTENT(S)->vtemp1->ops->nvspace)
+    N_VSpace(SPFGMR_CONTENT(S)->vtemp1, &lrw1, &liw1);
+  else
+    lrw1 = liw1 = 0;
   *lenrwLS = lrw1*11;
   *leniwLS = liw1*11;
   return(SUNLS_SUCCESS);

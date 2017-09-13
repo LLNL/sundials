@@ -58,13 +58,20 @@ SUNLinearSolver SUNSPFGMR(N_Vector y, int pretype, int maxl)
   SUNLinearSolverContent_SPFGMR content;
   
   /* set preconditioning flag (enabling any preconditioner implies right 
-     preconditioning, since FGMRES does not support left preconditioning) */
+     preconditioning, since SPFGMR does not support left preconditioning) */
   pretype = ( (pretype == PREC_LEFT)  ||
               (pretype == PREC_RIGHT) ||
               (pretype == PREC_BOTH) ) ? PREC_RIGHT : PREC_NONE;
 
   /* if maxl input is illegal, set to default */
   if (maxl <= 0)  maxl = SUNSPFGMR_MAXL_DEFAULT;
+
+  /* check that the supplied N_Vector supports all requisite operations */
+  if ( (y->ops->nvclone == NULL) || (y->ops->nvdestroy == NULL) ||
+       (y->ops->nvlinearsum == NULL) || (y->ops->nvconst == NULL) ||
+       (y->ops->nvprod == NULL) || (y->ops->nvdiv == NULL) ||
+       (y->ops->nvscale == NULL) || (y->ops->nvdotprod == NULL) )
+    return(NULL);
 
   /* Create linear solver */
   S = NULL;
@@ -612,7 +619,10 @@ int SUNLinSolSpace_SPFGMR(SUNLinearSolver S,
   int maxl;
   sunindextype liw1, lrw1;
   maxl = SPFGMR_CONTENT(S)->maxl;
-  N_VSpace(SPFGMR_CONTENT(S)->vtemp, &lrw1, &liw1);
+  if (SPGMR_CONTENT(S)->vtemp->ops->nvspace)
+    N_VSpace(SPFGMR_CONTENT(S)->vtemp, &lrw1, &liw1);
+  else
+    lrw1 = liw1 = 0;
   *lenrwLS = lrw1*(2*maxl + 4) + maxl*(maxl + 4) + 1;
   *leniwLS = liw1*(2*maxl + 4);
   return(SUNLS_SUCCESS);

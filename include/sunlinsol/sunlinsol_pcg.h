@@ -131,7 +131,8 @@ extern "C" {
  * structure contains:
  *     maxl -- number of PCG iterations to use
  *     pretype -- flag for use of preconditioning
- *     numiters -- number of PCG iterations used in the last solve
+ *     numiters -- number of iterations from most-recent solve
+ *     resnorm -- final linear residual norm from most-recent solve
  *     last_flag -- last error return flag from internal setup/solve
  *     ATSetup -- function pointer to setup routine for ATimes data
  *     ATimes -- function pointer to ATimes routine

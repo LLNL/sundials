@@ -200,6 +200,18 @@ typedef struct _SUNLinearSolverContent_SPFGMR *SUNLinearSolverContent_SPFGMR;
  * 
  * CONSTRUCTOR:
  *    SUNSPFGMR creates and allocates memory for a SPFGMR solver
+ *
+ * "SET" ROUTINES:
+ *    SUNSPFGMRSetPrecType updates whether to use preconditioning.  
+ *       Since only right preconditioning is supported, the inputs 
+ *       PREC_LEFT, PREC_RIGHT and PREC_BOTH all result in 
+ *       PREC_RIGHT.  All other input values default to PREC_NONE.
+ *    SUNSPFGMRSetGSType sets the type of Gram-Schmidt 
+ *       orthogonalization to use.  Supported values are MODIFIED_GS 
+ *       and CLASSICAL_GS.
+ *    SUNSPFGMRSetMaxRestarts sets the number of FGMRES restarts to 
+ *       allow.  A negative input will result in the default of 0.
+ *
  * -----------------------------------------------------------------
  */
 

@@ -65,6 +65,13 @@ SUNLinearSolver SUNSPBCGS(N_Vector y, int pretype, int maxl)
   if (maxl <= 0)
     maxl = SUNSPBCGS_MAXL_DEFAULT;
 
+  /* check that the supplied N_Vector supports all requisite operations */
+  if ( (y->ops->nvclone == NULL) || (y->ops->nvdestroy == NULL) ||
+       (y->ops->nvlinearsum == NULL) || (y->ops->nvprod == NULL) ||
+       (y->ops->nvdiv == NULL) || (y->ops->nvscale == NULL) ||
+       (y->ops->nvdotprod == NULL) )
+    return(NULL);
+
   /* Create linear solver */
   S = NULL;
   S = (SUNLinearSolver) malloc(sizeof *S);
@@ -582,7 +589,10 @@ int SUNLinSolSpace_SPBCGS(SUNLinearSolver S,
                           long int *leniwLS)
 {
   sunindextype liw1, lrw1;
-  N_VSpace(SPBCGS_CONTENT(S)->vtemp, &lrw1, &liw1);
+  if (SPGMR_CONTENT(S)->vtemp->ops->nvspace)
+    N_VSpace(SPFGMR_CONTENT(S)->vtemp, &lrw1, &liw1);
+  else
+    lrw1 = liw1 = 0;
   *lenrwLS = lrw1*9;
   *leniwLS = liw1*9;
   return(SUNLS_SUCCESS);

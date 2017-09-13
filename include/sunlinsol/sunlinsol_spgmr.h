@@ -131,6 +131,8 @@ extern "C" {
  *     pretype -- flag for type of preconditioning to employ
  *     gstype -- flag for type of Gram-Schmidt orthogonalization
  *     max_restarts -- number of GMRES restarts to allow
+ *     numiters -- number of iterations from most-recent solve
+ *     resnorm -- final linear residual norm from most-recent solve
  *     last_flag -- last error return flag from internal setup/solve
  *     ATSetup -- function pointer to setup routine for ATimes data
  *     ATimes -- function pointer to ATimes routine
@@ -138,8 +140,9 @@ extern "C" {
  *     Psetup -- function pointer to preconditioner setup routine
  *     Psolve -- function pointer to preconditioner solve routine
  *     PData -- pointer to structure for Psetup/Psolve
+ *     s1, s2 -- vector pointers for supplied scaling matrices
  *     V -- the array of Krylov basis vectors v_1, ..., v_(maxl+1),
- *         stored in V[0], ..., V[l_max]. Each v_i is a vector of 
+ *         stored in V[0], ..., V[maxl]. Each v_i is a vector of 
  *         type N_Vector.
  *     Hes -- the (maxl+1) x maxl Hessenberg matrix. It is stored
  *         row-wise so that the (i,j)th element is given by Hes[i][j].
@@ -161,8 +164,7 @@ extern "C" {
  *         preconditioned correction to the initial guess
  *     yg -- a length (maxl+1) array of realtype used to hold "short"
  *         vectors (e.g. y and g).
- *     vtemp -- a vector (type N_Vector) used as temporary vector
- *         storage during calculations.
+ *     vtemp -- a vector used as temporary vector storage
  * -----------------------------------------------------------------
  */
   
@@ -200,6 +202,17 @@ typedef struct _SUNLinearSolverContent_SPGMR *SUNLinearSolverContent_SPGMR;
  * 
  * CONSTRUCTOR:
  *    SUNSPGMR creates and allocates memory for a SPGMR solver
+ *
+ * "SET" ROUTINES:
+ *    SUNSPGMRSetPrecType updates the type of preconditioning to 
+ *       use.  Supported values are PREC_NONE, PREC_LEFT, PREC_RIGHT 
+ *       and PREC_BOTH.
+ *    SUNSPGMRSetGSType sets the type of Gram-Schmidt 
+ *       orthogonalization to use.  Supported values are MODIFIED_GS 
+ *       and CLASSICAL_GS.
+ *    SUNSPGMRSetMaxRestarts sets the number of GMRES restarts to 
+ *       allow.  A negative input will result in the default of 0.
+ * 
  * -----------------------------------------------------------------
  */
 

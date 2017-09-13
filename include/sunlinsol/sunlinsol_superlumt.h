@@ -89,14 +89,16 @@ extern "C" {
  * The SuperLUMT implementation of the SUNLinearSolver 'content' 
  * structure contains:
  *     last_flag -- last error return flag from internal setup/solve
+ *     first_factorize -- flag indicating whether the factorization 
+ *       has ever been performed
  *     A, AC, L, U, B -- SuperMatrix pointers used in solve
  *     Gstat -- GStat_t object used in solve
  *     perm_r, perm_c -- permutation arrays used in solve
+ *     N -- size of the linear system
  *     num_threads -- number of OpenMP/Pthreads threads to use
  *     diag_pivot_thresh -- threshold on diagonal pivoting
  *     ordering -- flag for reordering algorithm to use
  *     options -- pointer to SuperLUMT options structure
- *     slumt_solver -- ptr to SuperLUMT function to handle CSR/CSC
  * -----------------------------------------------------------------
  */
   
