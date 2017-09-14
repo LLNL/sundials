@@ -21,7 +21,7 @@ struct _SUNMatrixContent_Band {
 \end{verbatim}
 %%
 A diagram of the underlying data representation in a banded matrix is
-shown in Figure \ref{f:bandmat}.  A more complete description of the
+shown in Figure \ref{f:sunbandmat}.  A more complete description of the
 parts of this \emph{content} field is given below:
 \begin{description}
   \item[M] - number of rows
@@ -67,7 +67,7 @@ parts of this \emph{content} field is given below:
   numbered from $0$ to $N-1$ and the ($i,j$)-th element of \id{A} is
   denoted \id{A(i,j)}. The greyed out areas of the underlying
   component storage are used by the associated {\sunlinsolband}
-  linear solver.}\label{f:bandmat}
+  linear solver.}\label{f:sunbandmat}
 \end{figure}
 
 \noindent The header file to be included when using this module 

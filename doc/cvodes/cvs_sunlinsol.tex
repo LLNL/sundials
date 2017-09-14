@@ -6,27 +6,27 @@
 
 
 %---------------------------------------------------------------------------
-\section{SUNLinearSolver functions used by CVODE}
+\section{SUNLinearSolver functions used by CVODES}
 
 In Table \ref{t:sunlinsoluse} below, we list the linear solver
-functions in the {\sunlinsol} module used within the {\cvode} package.
+functions in the {\sunlinsol} module used within the {\cvodes} package.
 The table also shows, for each function, which of the code modules uses
-the function.  In general, the main {\cvode} integrator considers
+the function.  In general, the main {\cvodes} integrator considers
 three categories of linear solvers, \emph{direct}, \emph{iterative}
-and \emph{custom}, with interfaces accessible in the {\cvode} header
-files \id{cvode\_direct.h} ({\cvdls}), \id{cvode\_spils.h}
-({\cvspils}) and \id{cvode\_customls.h} ({\cvcls}), respectively.
+and \emph{custom}, with interfaces accessible in the {\cvodes} header
+files \id{cvodes\_direct.h} ({\cvdls}), \id{cvodes\_spils.h}
+({\cvspils}) and \id{cvodes\_customls.h} ({\cvcls}), respectively.
 Hence, the the table columns reference the use of {\sunlinsol}
 functions by each of these solver interfaces.
 
-As with the {\sunmatrix} module, we emphasize that the {\cvode} user
+As with the {\sunmatrix} module, we emphasize that the {\cvodes} user
 does not need to know detailed usage of linear solver functions by the
-{\cvode} code modules in order to use {\cvode}. The information is
+{\cvodes} code modules in order to use {\cvodes}. The information is
 presented as an implementation detail for the interested reader.
 
 \begin{table}[htb]
 \centering
-\caption{List of linear solver functions usage by {\cvode} code modules}\label{t:sunlinsoluse}
+\caption{List of linear solver functions usage by {\cvodes} code modules}\label{t:sunlinsoluse}
 \medskip
 \begin{tabular}{|r|c|c|c|} \hline
                                              & 
@@ -54,6 +54,5 @@ The linear solver functions listed in Table \ref{t:sunlinsolops} with
 a $\dagger$ symbol are optionally used, in that these are only called
 if they are implemented in the {\sunlinsol} module that is being used
 (i.e.~their function pointers are non-\id{NULL}).  Also, although
-{\cvode} does not call the \id{SUNLinSolLastFlag} directly, this
+{\cvodes} does not call the \id{SUNLinSolLastFlag} directly, this
 routine is available for users to query linear solver issues directly.
-

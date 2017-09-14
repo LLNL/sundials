@@ -6,24 +6,24 @@
 
 
 %---------------------------------------------------------------------------
-\section{SUNMatrix functions used by CVODE}
+\section{SUNMatrix functions used by CVODES}
 
 In Table \ref{t:sunmatuse} below, we list the matrix functions in the 
-{\sunmatrix} module used within the {\cvode} package.
+{\sunmatrix} module used within the {\cvodes} package.
 The table also shows, for each function, which of the code modules uses
-the function. Neither the main {\cvode} integrator or the {\cvspils}
+the function. Neither the main {\cvodes} integrator or the {\cvspils}
 interface call {\sunmatrix} functions directly, so the table columns
 are specific to the {\cvdls} direct solver interface and the
 {\cvbandpre} and {\cvbbdpre} preconditioner modules.
 
-At this point, we should emphasize that the {\cvode} user does not need to know 
-anything about the usage of matrix functions by the {\cvode} code modules in order 
-to use {\cvode}. The information is presented as an implementation detail for the 
+At this point, we should emphasize that the {\cvodes} user does not need to know 
+anything about the usage of matrix functions by the {\cvodes} code modules in order 
+to use {\cvodes}. The information is presented as an implementation detail for the 
 interested reader.
 
 \begin{table}[htb]
 \centering
-\caption{List of matrix functions usage by {\cvode} code modules}\label{t:sunmatuse}
+\caption{List of matrix functions usage by {\cvodes} code modules}\label{t:sunmatuse}
 \medskip
 \begin{tabular}{|r|c|c|c|} \hline
                                              & 
@@ -46,7 +46,7 @@ a $\dagger$ symbol are optionally used, in that these are only called
 if they are implemented in the {\sunmatrix} module that is being used
 (i.e.~their function pointers are non-\id{NULL}).  The matrix
 functions listed in Table \ref{t:sunmatops} that are {\em not} used by 
-{\cvode} are: \id{SUNMatScaleAdd} and \id{SUNMatMatvec}.
-Therefore a user-supplied {\sunmatrix} module for {\cvode} could omit
+{\cvodes} are: \id{SUNMatScaleAdd} and \id{SUNMatMatvec}.
+Therefore a user-supplied {\sunmatrix} module for {\cvodes} could omit
 these functions.
 

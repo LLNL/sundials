@@ -28,7 +28,7 @@ struct _SUNMatrixContent_Sparse {
 \end{verbatim}
 %%
 A diagram of the underlying data representation for a
-CSC matrix is shown in Figure \ref{f:cscmat} (the CSR format is
+CSC matrix is shown in Figure \ref{f:sparsemat} (the CSR format is
 similar).  A more complete description of the parts of
 this \emph{content} field is given below: 
 \begin{description}
@@ -137,7 +137,7 @@ number of nonzeroes here.
   final nonzero entry.  Here, although \id{NNZ} values are allocated,
   only \id{nz} are actually filled in; the greyed-out portions
   of \id{data} and \id{indexvals} indicate extra allocated
-  space.}\label{f:cscmat} 
+  space.}\label{f:sparsemat} 
 \end{figure}
 
 \noindent The header file to be included when using this module 
