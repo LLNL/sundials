@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Carol Woodward @ LLNL
  * -----------------------------------------------------------------
  * Example problem:
@@ -26,12 +22,9 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <kinsol/kinsol.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
-
-/* Problem Constants */
+#include <kinsol/kinsol.h>           /* access to KINSOL func., consts. */
+#include <nvector/nvector_serial.h>  /* access to serial N_Vector       */
+#include <sundials/sundials_types.h> /* defs. of realtype, sunindextype */
 
 /* Problem Constants */
 

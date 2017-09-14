@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * This example solves a 2D elliptic PDE
@@ -12,8 +8,8 @@
  * subject to homogeneous Dirichelt boundary conditions.
  * The PDE is discretized on a uniform NX+2 by NY+2 grid with
  * central differencing, and with boundary values eliminated,
- * leaving an system of size NEQ = NX*NY.
- * The nonlinear system is solved by KINSOL using the BAND linear
+ * leaving a system of size NEQ = NX*NY.
+ * The nonlinear system is solved by KINSOL using the SUNBAND linear
  * solver.
  * -----------------------------------------------------------------
  */
@@ -22,11 +18,13 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <kinsol/kinsol.h>
-#include <kinsol/kinsol_band.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
+#include <kinsol/kinsol.h>             /* access to KINSOL func., consts. */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector       */
+#include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix        */
+#include <kinsol/kinsol_direct.h>      /* access to KINDls interface      */
+#include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver  */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype */
+#include <sundials/sundials_math.h>    /* access to SUNRexp               */
 
 /* Problem Constants */
 
@@ -72,9 +70,13 @@ int main()
   N_Vector y, scale;
   int mset, msubset, flag;
   void *kmem;
+  SUNMatrix J;
+  SUNLinearSolver LS;
 
   y = scale = NULL;
   kmem = NULL;
+  J = NULL;
+  LS = NULL;
 
   /* -------------------------
    * Print problem description
@@ -119,11 +121,25 @@ int main()
   if (check_flag(&flag, "KINSetFuncNormTol", 1)) return(1);
 
   /* -------------------------
+   * Create band SUNMatrix
+   * ------------------------- */
+
+  J = SUNBandMatrix(NEQ, NX, NX, 2*NX);
+  if(check_flag((void *)J, "SUNBandMatrix", 0)) return(1);
+
+  /* ---------------------------
+   * Create band SUNLinearSolver
+   * --------------------------- */
+
+  LS = SUNBandLinearSolver(y, J);
+  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+
+  /* -------------------------
    * Attach band linear solver 
    * ------------------------- */
 
-  flag = KINBand(kmem, NEQ, NX, NX);
-  if (check_flag(&flag, "KINBand", 1)) return(1);
+  flag = KINDlsSetLinearSolver(kmem, LS, J);
+  if(check_flag(&flag, "KINDlsSetLinearSolver", 1)) return(1);
 
   /* ------------------------------
    * Parameters for Modified Newton
@@ -187,6 +203,8 @@ int main()
   N_VDestroy_Serial(y);
   N_VDestroy_Serial(scale);
   KINFree(&kmem);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(J);
 
   return(0);
 }
