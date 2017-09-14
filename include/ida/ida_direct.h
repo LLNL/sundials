@@ -181,7 +181,7 @@ SUNDIALS_EXPORT int IDADlsGetNumResEvals(void *ida_mem,
 SUNDIALS_EXPORT int IDADlsGetLastFlag(void *ida_mem,
                                       long int *flag);
 
-  
+
 /*---------------------------------------------------------------
  The following function returns the name of the constant 
  associated with a IDADLS return flag

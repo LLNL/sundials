@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
@@ -57,7 +54,7 @@
  *   Y  = dependent variable vector y  [input]
  *   YP = dependent variable derivative vector y'  [input]
  *   G  = function values g(t,y,y')  [output]
- *   IPAR, RPAR = user (integer and real) data [input/output]
+ *   IPAR, RPAR = user (long int and realtype) data [input/output]
  *   IER = return flag (set on 0 if successful, non-zero if an error occurred)
  *
  * 2. After calling FIDAMALLOC but prior to calling FIDASOLVE, the user must
