@@ -619,7 +619,7 @@ int SUNLinSolSpace_SPFGMR(SUNLinearSolver S,
   int maxl;
   sunindextype liw1, lrw1;
   maxl = SPFGMR_CONTENT(S)->maxl;
-  if (SPGMR_CONTENT(S)->vtemp->ops->nvspace)
+  if (SPFGMR_CONTENT(S)->vtemp->ops->nvspace)
     N_VSpace(SPFGMR_CONTENT(S)->vtemp, &lrw1, &liw1);
   else
     lrw1 = liw1 = 0;

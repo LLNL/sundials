@@ -668,7 +668,7 @@ int SUNLinSolSpace_SPGMR(SUNLinearSolver S,
   sunindextype liw1, lrw1;
   maxl = SPGMR_CONTENT(S)->maxl;
   if (SPGMR_CONTENT(S)->vtemp->ops->nvspace)
-    N_VSpace(SPFGMR_CONTENT(S)->vtemp, &lrw1, &liw1);
+    N_VSpace(SPGMR_CONTENT(S)->vtemp, &lrw1, &liw1);
   else
     lrw1 = liw1 = 0;
   *lenrwLS = lrw1*(maxl + 5) + maxl*(maxl + 4) + 1;

@@ -200,8 +200,8 @@ SUNDIALS_EXPORT int ARKDlsSetMassLinearSolver(void *arkode_mem,
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKDlsSetJacFn(void *arkode_mem, ARKDlsJacFn jac);
 SUNDIALS_EXPORT int ARKDlsSetMassFn(void *arkode_mem, ARKDlsMassFn mass);
-SUNDIALS_EXPORT int CVDlsSetMSBJ(void *arkode_mem, int msbj);
-SUNDIALS_EXPORT int CVDlsSetDGMax(void *arkode_mem, realtype dgmax);
+SUNDIALS_EXPORT int ARKDlsSetMSBJ(void *arkode_mem, int msbj);
+SUNDIALS_EXPORT int ARKDlsSetDGMax(void *arkode_mem, realtype dgmax);
 
 
 /*---------------------------------------------------------------

@@ -589,8 +589,8 @@ int SUNLinSolSpace_SPBCGS(SUNLinearSolver S,
                           long int *leniwLS)
 {
   sunindextype liw1, lrw1;
-  if (SPGMR_CONTENT(S)->vtemp->ops->nvspace)
-    N_VSpace(SPFGMR_CONTENT(S)->vtemp, &lrw1, &liw1);
+  if (SPBCGS_CONTENT(S)->vtemp->ops->nvspace)
+    N_VSpace(SPBCGS_CONTENT(S)->vtemp, &lrw1, &liw1);
   else
     lrw1 = liw1 = 0;
   *lenrwLS = lrw1*9;

@@ -708,8 +708,8 @@ int SUNLinSolSpace_SPTFQMR(SUNLinearSolver S,
                            long int *leniwLS)
 {
   sunindextype liw1, lrw1;
-  if (SPGMR_CONTENT(S)->vtemp1->ops->nvspace)
-    N_VSpace(SPFGMR_CONTENT(S)->vtemp1, &lrw1, &liw1);
+  if (SPTFQMR_CONTENT(S)->vtemp1->ops->nvspace)
+    N_VSpace(SPTFQMR_CONTENT(S)->vtemp1, &lrw1, &liw1);
   else
     lrw1 = liw1 = 0;
   *lenrwLS = lrw1*11;
