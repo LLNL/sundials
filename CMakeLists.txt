@@ -92,7 +92,7 @@ INCLUDE(SundialsCMakeMacros)
 # ---------------------------------------------------------------
 # Check for deprecated SUNDIALS CMake options/variables
 # ---------------------------------------------------------------
-#INCLUDE(SundialsDeprecated)
+INCLUDE(SundialsDeprecated)
 
 # ---------------------------------------------------------------
 # Which modules to build?
@@ -179,10 +179,51 @@ IF(CMAKE_BUILD_TYPE)
 ENDIF()
 
 # ---------------------------------------------------------------
-# Enable examples?
+# Option to specify precision (realtype)
 # ---------------------------------------------------------------
 
-OPTION(EXAMPLES_ENABLE "Build the SUNDIALS examples" ON)
+SET(DOCSTR "single, double, or extended")
+SHOW_VARIABLE(SUNDIALS_PRECISION STRING "${DOCSTR}" "double")
+
+# prepare substitution variable PRECISION_LEVEL for sundials_config.h
+STRING(TOUPPER ${SUNDIALS_PRECISION} SUNDIALS_PRECISION)
+SET(PRECISION_LEVEL "#define SUNDIALS_${SUNDIALS_PRECISION}_PRECISION 1")
+
+# ---------------------------------------------------------------
+# Option to specify index type
+# ---------------------------------------------------------------
+
+SET(DOCSTR "Signed 64-bit (int64_t) or signed 32-bit (int32_t) integer")
+SHOW_VARIABLE(SUNDIALS_INDEX_TYPE STRING "${DOCSTR}" "int64_t")
+
+# prepare substitution variable INDEX_TYPE for sundials_config.h
+STRING(TOUPPER ${SUNDIALS_INDEX_TYPE} SUNDIALS_INDEX_TYPE)
+SET(INDEX_TYPE "#define SUNDIALS_${SUNDIALS_INDEX_TYPE} 1")
+
+# ---------------------------------------------------------------
+# Enable Fortran interface?
+# ---------------------------------------------------------------
+
+# Fortran interface is disabled by default
+SET(DOCSTR "Enable Fortran-C support")
+SHOW_VARIABLE(FCMIX_ENABLE BOOL "${DOCSTR}" OFF)
+
+# Check that at least one solver with a Fortran interface is built
+IF(NOT BUILD_ARKODE AND NOT BUILD_CVODE AND NOT BUILD_IDA AND NOT BUILD_KINSOL)
+  IF(FCMIX_ENABLE)
+    PRINT_WARNING("Enabled packages do not support Fortran" "Disabeling FCMIX")
+    FORCE_VARIABLE(FCMIX_ENABLE BOOL "${DOCSTR}" OFF)
+  ENDIF()
+  HIDE_VARIABLE(FCMIX_ENABLE)
+ENDIF()
+
+# Fortran interface does not support single or extended precision
+IF(FCMIX_ENABLE AND
+  (SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE"))
+  PRINT_WARNING("The Fortran interface is not compatible with ${SUNDIALS_PRECISION} precision"
+                "Disabling FCMIX")
+  SET(FCMIX_ENABLE OFF CACHE BOOL "FCMIX is disabled" FORCE)
+ENDIF()
 
 # ---------------------------------------------------------------
 # Options to build static and/or shared libraries
@@ -216,28 +257,6 @@ IF(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
                 "Building static libraries was re-enabled")
   FORCE_VARIABLE(BUILD_STATIC_LIBS BOOL "Build static libraries" ON)
 ENDIF(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
-
-# ---------------------------------------------------------------
-# Option to specify precision (realtype)
-# ---------------------------------------------------------------
-
-SET(DOCSTR "single, double, or extended")
-SHOW_VARIABLE(SUNDIALS_PRECISION STRING "${DOCSTR}" "double")
-
-# prepare substitution variable PRECISION_LEVEL for sundials_config.h
-STRING(TOUPPER ${SUNDIALS_PRECISION} SUNDIALS_PRECISION)
-SET(PRECISION_LEVEL "#define SUNDIALS_${SUNDIALS_PRECISION}_PRECISION 1")
-
-# ---------------------------------------------------------------
-# Option to specify index type
-# ---------------------------------------------------------------
-
-SET(DOCSTR "Signed 64-bit (int64_t) or signed 32-bit (int32_t) integer")
-SHOW_VARIABLE(SUNDIALS_INDEX_TYPE STRING "${DOCSTR}" "int64_t")
-
-# prepare substitution variable INDEX_TYPE for sundials_config.h
-STRING(TOUPPER ${SUNDIALS_INDEX_TYPE} SUNDIALS_INDEX_TYPE)
-SET(INDEX_TYPE "#define SUNDIALS_${SUNDIALS_INDEX_TYPE} 1")
 
 # ---------------------------------------------------------------
 # Option to use the generic math libraries (UNIX only)
@@ -306,65 +325,6 @@ IF(PTHREAD_ENABLE)
     message(STATUS "Disabling Pthreads support, could not determine compiler flags")
   endif()
 ENDIF(PTHREAD_ENABLE)
-
-
-# ===============================================================
-# Options for other languages
-# ===============================================================
-
-# ---------------------------------------------------------------
-# Enable Fortran support?
-# ---------------------------------------------------------------
-
-# Fortran interface is disabled by default
-SET(DOCSTR "Enable Fortran-C support")
-SHOW_VARIABLE(FCMIX_ENABLE BOOL "${DOCSTR}" OFF)
-
-# Check that at least one solver with a Fortran interface is built
-IF(NOT BUILD_ARKODE AND NOT BUILD_CVODE AND NOT BUILD_IDA AND NOT BUILD_KINSOL)
-  IF(FCMIX_ENABLE)
-    PRINT_WARNING("Enabled packages do not support Fortran" "Disabeling FCMIX")
-    FORCE_VARIABLE(FCMIX_ENABLE BOOL "${DOCSTR}" OFF)
-  ENDIF()
-  HIDE_VARIABLE(FCMIX_ENABLE)
-ENDIF()
-
-# Fortran interface does not support single or extended precision
-IF(FCMIX_ENABLE AND
-  (SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE"))
-  PRINT_WARNING("The Fortran interface is not compatible with ${SUNDIALS_PRECISION} precision"
-                "Disabling FCMIX")
-  SET(FCMIX_ENABLE OFF CACHE BOOL "FCMIX is disabled" FORCE)
-ENDIF()
-
-# ---------------------------------------------------------------
-# Enable Fortran90 support?
-# ---------------------------------------------------------------
-
-# F90 support is an option only if ARKode is built and 
-# examples are enabled
-
-IF(BUILD_ARKODE AND EXAMPLES_ENABLE AND FCMIX_ENABLE)
-  SHOW_VARIABLE(F90_ENABLE BOOL "Enable Fortran90 ARKode examples" OFF)
-ELSE(BUILD_ARKODE AND EXAMPLES_ENABLE AND FCMIX_ENABLE)
-  # # set back to OFF (in case was ON)
-  # SET(F90_ENABLE OFF)
-  # HIDE_VARIABLE(F90_ENABLE AND FCMIX_ENABLE)
-  HIDE_VARIABLE(F90_ENABLE)
-ENDIF(BUILD_ARKODE AND EXAMPLES_ENABLE AND FCMIX_ENABLE)
-
-# ---------------------------------------------------------------
-# Enable C++ support?
-# ---------------------------------------------------------------
-
-# C++ support is an option only if ARKode is built and 
-# examples are enabled
-
-IF(BUILD_ARKODE AND EXAMPLES_ENABLE)
-  SHOW_VARIABLE(CXX_ENABLE BOOL "Enable C++ ARKode examples" OFF)
-ELSE(BUILD_ARKODE AND EXAMPLES_ENABLE)
-  HIDE_VARIABLE(CXX_ENABLE)
-ENDIF(BUILD_ARKODE AND EXAMPLES_ENABLE)
 
 
 # ===============================================================
@@ -453,10 +413,69 @@ ENDIF()
 # ===============================================================
 
 # ---------------------------------------------------------------
+# Enable examples?
+# ---------------------------------------------------------------
+
+# Enable C examples (on by default)
+OPTION(EXAMPLES_ENABLE_C "Build SUNDIALS C examples" ON)
+
+# F77 examples (on by default) are an option only if the Fortran
+# interface is enabled
+SET(DOCSTR "Build SUNDIALS Fortran examples")
+IF(FCMIX_ENABLE)
+  OPTION(EXAMPLES_ENABLE_F77 "${DOCSTR}" ON)
+ELSE()
+  # set back to OFF (in case was ON)
+  IF(EXAMPLES_ENABLE_F77)
+    PRINT_WARNING("EXAMPLES_ENABLE_F77 is ON but FCMIX is OFF"
+                  "Disabeling EXAMPLES_ENABLE_F77")
+    FORCE_VARIABLE(EXAMPLES_ENABLE_F77 BOOL "${DOCSTR}" OFF)
+  ENDIF()
+  HIDE_VARIABLE(EXAMPLES_ENABLE_F77)
+ENDIF()
+
+# C++ examples (off by default) are an option only if ARKode is
+# built and examples are enabled
+SET(DOCSTR "Build ARKode C++ examples")
+IF(BUILD_ARKODE)
+  SHOW_VARIABLE(EXAMPLES_ENABLE_CXX BOOL "${DOCSTR}" OFF)
+ELSE()
+  # set back to OFF (in case was ON)
+  IF(EXAMPLES_ENABLE_CXX)
+    PRINT_WARNING("EXAMPLES_ENABLE_CXX is ON but BUILD_ARKODE is OFF"
+                  "Disabeling EXAMPLES_ENABLE_CXX")
+    FORCE_VARIABLE(EXAMPLES_ENABLE_CXX BOOL "${DOCSTR}" OFF)
+  ENDIF()
+  HIDE_VARIABLE(EXAMPLES_ENABLE_CXX)
+ENDIF()
+
+# F90 examples (off by default) are an option only if ARKode is
+# built, examples are enabled, and the Fortran interface is enabled
+SET(DOCSTR "Build ARKode F90 examples")
+IF(FCMIX_ENABLE AND BUILD_ARKODE)
+  SHOW_VARIABLE(EXAMPLES_ENABLE_F90 BOOL "${DOCSTR}" OFF)
+ELSE()
+  # set back to OFF (in case was ON)
+  IF(EXAMPLES_ENABLE_F90)
+    PRINT_WARNING("EXAMPLES_ENABLE_F90 is ON but FCMIX or BUILD_ARKODE is OFF"
+                  "Disabeling EXAMPLES_ENABLE_F90")
+    FORCE_VARIABLE(EXAMPLES_ENABLE_F90 BOOL "${DOCSTR}" OFF)
+  ENDIF()
+  HIDE_VARIABLE(EXAMPLES_ENABLE_F90)
+ENDIF()
+
+# If any of the above examples are enabled set EXAMPLES_ENABLED to TRUE
+IF(EXAMPLES_ENABLE_C OR EXAMPLES_ENABLE_F77 OR EXAMPLES_ENABLE_CXX OR EXAMPLES_ENABLE_F90)
+  SET(EXAMPLES_ENABLED TRUE)
+ELSE()
+  SET(EXAMPLES_ENABLED FALSE)
+ENDIF()
+
+# ---------------------------------------------------------------
 # Install examples?
 # ---------------------------------------------------------------
 
-IF(EXAMPLES_ENABLE)
+IF(EXAMPLES_ENABLED)
 
   # If examples are enabled, set different options
 
@@ -468,7 +487,7 @@ IF(EXAMPLES_ENABLE)
     SET(LINK_LIBRARY_TYPE "static")
   ENDIF(BUILD_SHARED_LIBS)
 
-  # Check if example files are to be exported
+  # Enabel installing examples by default
   SHOW_VARIABLE(EXAMPLES_INSTALL BOOL "Install example files" ON)
 
   # If examples are to be exported, check where we should install them.
@@ -490,7 +509,7 @@ IF(EXAMPLES_ENABLE)
 
   ENDIF(EXAMPLES_INSTALL)
 
-ELSE(EXAMPLES_ENABLE)
+ELSE(EXAMPLES_ENABLED)
 
   # If examples are disabled, hide all options related to
   # building and installing the SUNDIALS examples
@@ -498,7 +517,7 @@ ELSE(EXAMPLES_ENABLE)
   HIDE_VARIABLE(EXAMPLES_INSTALL)
   HIDE_VARIABLE(EXAMPLES_INSTALL_PATH)
   
-ENDIF(EXAMPLES_ENABLE)
+ENDIF(EXAMPLES_ENABLED)
 
 
 # ===============================================================
@@ -527,36 +546,34 @@ IF(FCMIX_ENABLE OR LAPACK_ENABLE)
   IF(NOT F77_FOUND AND FCMIX_ENABLE)
     PRINT_WARNING("Fortran compiler not functional"
                   "FCMIX support will not be provided")
-  ENDIF(NOT F77_FOUND AND FCMIX_ENABLE)
-ENDIF(FCMIX_ENABLE OR LAPACK_ENABLE)
+  ENDIF()
+ENDIF()
 
 # ---------------------------------------------------------------
 # A Fortran90 compiler is needed if:
-# (a) F90 is enabled, and
-# (b) ARKODE examples are enabled
+# (a) F90 ARKODE examples are enabled
 # ---------------------------------------------------------------
 
-IF(F90_ENABLE AND BUILD_ARKODE)
+IF(EXAMPLES_ENABLE_F90)
   INCLUDE(SundialsFortran90)
-  IF(NOT F90_FOUND AND F90_ENABLE)
+  IF(NOT F90_FOUND)
     PRINT_WARNING("Fortran90 compiler not functional"
                   "F90 support will not be provided")
-  ENDIF(NOT F90_FOUND AND F90_ENABLE)
-ENDIF(F90_ENABLE AND BUILD_ARKODE)
+  ENDIF()
+ENDIF()
 
 # ---------------------------------------------------------------
 # A C++ compiler is needed if:
-# (a) C++ is enabled, and
-# (b) ARKODE examples are enabled
+# (a) C++ ARKODE examples are enabled
 # ---------------------------------------------------------------
 
-IF(CXX_ENABLE AND BUILD_ARKODE)
+IF(EXAMPLES_ENABLE_CXX)
   INCLUDE(SundialsCXX)
-  IF(NOT CXX_FOUND AND CXX_ENABLE)
+  IF(NOT CXX_FOUND)
     PRINT_WARNING("C++ compiler not functional"
                   "C++ support will not be provided")
-  ENDIF(NOT CXX_FOUND AND CXX_ENABLE)
-ENDIF(CXX_ENABLE AND BUILD_ARKODE)
+  ENDIF()
+ENDIF()
 
 # ---------------------------------------------------------------
 # Check if we need an alternate way of specifying the Fortran
@@ -666,25 +683,28 @@ ENDIF(F77SCHEME_FOUND)
 IF(MPI_ENABLE)
   # show command to run MPI codes (defaults to mpirun)
   SHOW_VARIABLE(MPI_RUN_COMMAND STRING "MPI run command" "mpirun")
+
   INCLUDE(SundialsMPIC)
-  IF(NOT MPIC_FOUND)
+  IF(MPIC_FOUND)
+    IF(CXX_FOUND AND EXAMPLES_ENABLE_CXX)
+      INCLUDE(SundialsMPICXX)
+    ENDIF()
+    IF(F77_FOUND AND EXAMPLES_ENABLE_F77)
+      INCLUDE(SundialsMPIF)
+    ENDIF()
+    IF(F90_FOUND AND EXAMPLES_ENABLE_F90)
+      INCLUDE(SundialsMPIF90)
+    ENDIF()
+  ELSE()
     PRINT_WARNING("MPI not functional"
                   "Parallel support will not be provided")
-  ENDIF(NOT MPIC_FOUND)
+  ENDIF()
+
   IF(MPIC_MPI2)
     SET(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 1")
-  ELSE(MPIC_MPI2)
+  ELSE()
     SET(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 0")
-  ENDIF(MPIC_MPI2)
-  IF(MPIC_FOUND AND FCMIX_ENABLE)
-    INCLUDE(SundialsMPIF)
-  ENDIF(MPIC_FOUND AND FCMIX_ENABLE)
-  IF(MPIC_FOUND AND CXX_ENABLE)
-    INCLUDE(SundialsMPICXX)
-  ENDIF(MPIC_FOUND AND CXX_ENABLE)
-  IF(MPIC_FOUND AND F90_ENABLE)
-    INCLUDE(SundialsMPIF90)
-  ENDIF(MPIC_FOUND AND F90_ENABLE)
+  ENDIF()
 
 ELSE()
 
@@ -914,9 +934,9 @@ IF(MPIC_FOUND)
   ADD_SUBDIRECTORY(src/nvec_par)
 ENDIF(MPIC_FOUND)
 
-IF(SUNDIALS_HYPRE)
+IF(HYPRE_FOUND)
   ADD_SUBDIRECTORY(src/nvec_parhyp)
-ENDIF(SUNDIALS_HYPRE)
+ENDIF(HYPRE_FOUND)
 
 IF(OPENMP_FOUND)
   ADD_SUBDIRECTORY(src/nvec_openmp)	
@@ -1001,7 +1021,7 @@ ENDIF(BUILD_CPODES)
 
 INCLUDE(SundialsAddTest)
 HIDE_VARIABLE(TESTRUNNER)
-IF(EXAMPLES_ENABLE)
+IF(EXAMPLES_ENABLED)
   IF(TESTRUNNER)
     ENABLE_TESTING()
   ENDIF(TESTRUNNER)
@@ -1117,151 +1137,152 @@ IF(EXAMPLES_ENABLE)
     ADD_SUBDIRECTORY(examples/arkode/C_serial)
     IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/C_openmp)
-    ENDIF(OPENMP_FOUND)
-    IF(CXX_ENABLE AND CXX_FOUND)
+    ENDIF()
+    IF(EXAMPLES_ENABLE_CXX AND CXX_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/CXX_serial)
-    ENDIF(CXX_ENABLE AND CXX_FOUND)
-    IF(FCMIX_ENABLE AND F77_FOUND)
+    ENDIF()
+    IF(EXAMPLES_ENABLE_F77 AND F77_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/F77_serial)
-    ENDIF(FCMIX_ENABLE AND F77_FOUND)
-    IF(F90_ENABLE AND F90_FOUND)
+    ENDIF()
+    IF(EXAMPLES_ENABLE_F90 AND F90_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/F90_serial)
-    ENDIF(F90_ENABLE AND F90_FOUND)
+    ENDIF()
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/C_parallel)
-    ENDIF(MPIC_FOUND)
-    IF(MPICXX_FOUND)
+    ENDIF()
+    IF(EXAMPLES_ENABLE_CXX AND MPICXX_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/CXX_parallel)
-    ENDIF(MPICXX_FOUND)
-    IF(MPIF_FOUND)
+    ENDIF()
+    IF(EXAMPLES_ENABLE_F77 AND MPIF_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/F77_parallel)
-    ENDIF(MPIF_FOUND)
-    IF(MPIF90_FOUND)
+    ENDIF()
+    IF(EXAMPLES_ENABLE_F90 AND MPIF90_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/F90_parallel)
-    ENDIF(MPIF90_FOUND)
+    ENDIF()
     IF(HYPRE_ENABLE AND HYPRE_FOUND)
       ADD_SUBDIRECTORY(examples/arkode/C_parhyp)
-    ENDIF(HYPRE_ENABLE AND HYPRE_FOUND)
+    ENDIF()
     
   ENDIF(BUILD_ARKODE)
   
   # add CVODE examples
   IF(BUILD_CVODE)
     ADD_SUBDIRECTORY(examples/cvode/serial)
-    IF(FCMIX_ENABLE AND F77_FOUND)
+    IF(EXAMPLES_ENABLE_F77 AND F77_FOUND)
       ADD_SUBDIRECTORY(examples/cvode/fcmix_serial)
-    ENDIF(FCMIX_ENABLE AND F77_FOUND)
+    ENDIF()
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/cvode/parallel)
-    ENDIF(MPIC_FOUND)
-    IF(MPIF_FOUND)
+    ENDIF()
+    IF(EXAMPLES_ENABLE_F77 AND MPIF_FOUND)
       ADD_SUBDIRECTORY(examples/cvode/fcmix_parallel)
-    ENDIF(MPIF_FOUND)
+    ENDIF()
     IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/cvode/C_openmp)
-    ENDIF(OPENMP_FOUND)
+    ENDIF()
     IF(HYPRE_ENABLE AND HYPRE_FOUND)
       ADD_SUBDIRECTORY(examples/cvode/parhyp)
-    ENDIF(HYPRE_ENABLE AND HYPRE_FOUND)
-  ENDIF(BUILD_CVODE)
+    ENDIF()
+  ENDIF()
   
   # add CVODES Examples
   IF(BUILD_CVODES)
     ADD_SUBDIRECTORY(examples/cvodes/serial)
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/cvodes/parallel)
-    ENDIF(MPIC_FOUND)
+    ENDIF()
     IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/cvodes/C_openmp)
-    ENDIF(OPENMP_FOUND)
-  ENDIF(BUILD_CVODES)
+    ENDIF()
+  ENDIF()
   
   # add IDA examples
   IF(BUILD_IDA)
     ADD_SUBDIRECTORY(examples/ida/serial)
-    IF(FCMIX_ENABLE AND F77_FOUND)
+    IF(EXAMPLES_ENABLE_F77 AND F77_FOUND)
       ADD_SUBDIRECTORY(examples/ida/fcmix_serial)
       IF(OPENMP_FOUND)
         ADD_SUBDIRECTORY(examples/ida/fcmix_openmp)
-      ENDIF(OPENMP_FOUND)
+      ENDIF()
       IF(PTHREADS_FOUND)
 	ADD_SUBDIRECTORY(examples/ida/fcmix_pthreads)
-      ENDIF(PTHREADS_FOUND)
-    ENDIF(FCMIX_ENABLE AND F77_FOUND)
+      ENDIF()
+    ENDIF()
     IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/ida/C_openmp)
-    ENDIF(OPENMP_FOUND)
+    ENDIF()
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/ida/parallel)
-    ENDIF(MPIC_FOUND)
+    ENDIF()
     IF(PETSC_FOUND)
       ADD_SUBDIRECTORY(examples/ida/petsc)
-    ENDIF(PETSC_FOUND)
-    IF(MPIF_FOUND)
+    ENDIF()
+    IF(EXAMPLES_ENABLE_F77 AND MPIF_FOUND)
       ADD_SUBDIRECTORY(examples/ida/fcmix_parallel)
-    ENDIF(MPIF_FOUND)
-  ENDIF(BUILD_IDA)
+    ENDIF()
+  ENDIF()
   
   # add IDAS examples
   IF(BUILD_IDAS)
     ADD_SUBDIRECTORY(examples/idas/serial)
     IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/idas/C_openmp)
-    ENDIF(OPENMP_FOUND)
+    ENDIF()
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/idas/parallel)
-    ENDIF(MPIC_FOUND)
-  ENDIF(BUILD_IDAS)
+    ENDIF()
+  ENDIF()
 
   # add KINSOL examples
   IF(BUILD_KINSOL)
     ADD_SUBDIRECTORY(examples/kinsol/serial)
     IF(OPENMP_FOUND)
-      ADD_SUBDIRECTORY(examples/kinsol/C_openmp) # the only example here need special handling from testrunner (not yet implemented)
-    ENDIF(OPENMP_FOUND)
-    IF(FCMIX_ENABLE AND F77_FOUND)
+      # the only example here need special handling from testrunner (not yet implemented)
+      ADD_SUBDIRECTORY(examples/kinsol/C_openmp)
+    ENDIF()
+    IF(EXAMPLES_ENABLE_F77 AND F77_FOUND)
       ADD_SUBDIRECTORY(examples/kinsol/fcmix_serial)
-    ENDIF(FCMIX_ENABLE AND F77_FOUND)
+    ENDIF()
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/kinsol/parallel)
-    ENDIF(MPIC_FOUND)
-    IF(MPIF_FOUND)
+    ENDIF()
+    IF(EXAMPLES_ENABLE_F77 AND MPIF_FOUND)
       ADD_SUBDIRECTORY(examples/kinsol/fcmix_parallel)
-    ENDIF(MPIF_FOUND)
-  ENDIF(BUILD_KINSOL)
+    ENDIF()
+  ENDIF()
 
   # add CPODES examples
   IF(BUILD_CPODES)
     ADD_SUBDIRECTORY(examples/cpodes/serial)
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/cpodes/parallel)
-    ENDIF(MPIC_FOUND)
-  ENDIF(BUILD_CPODES)
+    ENDIF()
+  ENDIF()
 
   # Always add the nvector serial examples
   ADD_SUBDIRECTORY(examples/nvector/serial)
 
   IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/nvector/parallel)
-  ENDIF(MPIC_FOUND)
+  ENDIF()
   
   IF(SUNDIALS_HYPRE)
       ADD_SUBDIRECTORY(examples/nvector/parhyp)
-  ENDIF(SUNDIALS_HYPRE)
+  ENDIF()
 
   IF(PTHREADS_FOUND)
       ADD_SUBDIRECTORY(examples/nvector/pthreads)
-  ENDIF(PTHREADS_FOUND)
+  ENDIF()
 
   IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/nvector/C_openmp)
-  ENDIF(OPENMP_FOUND)
+  ENDIF()
   
   IF(PETSC_FOUND)
       ADD_SUBDIRECTORY(examples/nvector/petsc)
-  ENDIF(PETSC_FOUND)
+  ENDIF()
   
-ENDIF(EXAMPLES_ENABLE)
+ENDIF(EXAMPLES_ENABLED)
 
 # ---------------------------------------------------------------
 # Install configuration header file
