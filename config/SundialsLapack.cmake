@@ -28,6 +28,12 @@ if(NOT LAPACK_LIBRARIES)
       "$ENV{ProgramFiles}/LAPACK/Lib"
       )
   endif(F77_FOUND)
+
+  # If the xSDK flag is used, set it to what was found
+  if(LAPACK_LIBRARIES AND TPL_ENABLE_LAPACK)
+    SET(DOCSTR "Lapack library")
+    FORCE_VARIABLE(TPL_LAPACK_LIBRARIES STRING "${DOCSTR}" "${LAPACK_LIBRARIES}")
+  endif()
 endif()
 
 # If we have the LAPACK libraries, test them
