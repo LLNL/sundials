@@ -36,11 +36,24 @@ else
     indextype="64"
 fi
 
+# create install directory
+\rm -rf install_${realtype}_${indextype}
+mkdir install_${realtype}_${indextype}
+
+# create and move to build directory
+\rm -rf build_${realtype}_${indextype}
+mkdir build_${realtype}_${indextype}
+cd build_${realtype}_${indextype}
+
 # number of threads in OpenMP examples
 export OMP_NUM_THREADS=4
 
 # set file permissions (rwxrwxr-x)
 umask 002
+
+# -------------------------------------------------------------------------------
+# Installed Third Party Libraries
+# -------------------------------------------------------------------------------
 
 # path to installed libraries
 # NOTE: Will need to change some paths based on realtype/indextype when 
@@ -53,20 +66,25 @@ LAPACKDIR=${APPDIR}/lapack/3.6.0/lib64
 PETSCDIR=${APPDIR}/petsc/3.7.2
 SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1
 
-# create build directory
-\rm -rf suntest_${realtype}_${indextype}
-mkdir suntest_${realtype}_${indextype}
-cd suntest_${realtype}_${indextype}
+# -------------------------------------------------------------------------------
+# Configure SUNDIALS with CMake
+# -------------------------------------------------------------------------------
 
-# configure sundials with CMake
-# Note the -LAH flag lists the non-advanced cached variables (L), 
-# the dvanced variables (A), and help for each variable (H). This
-# will not print any system variables.
+# The '-LAH' flag lists the non-advanced cached variables (L), the advanced
+# variables (A), and help for each variable (H). This will not print any system
+# variables.
+
+# The CMake option '-D CMAKE_VERBOSE_MAKEFILE=ON' enables additional output during
+# compile time which is useful for debugging build issues.
+
 echo "START CMAKE"
 cmake \
+    -D CMAKE_INSTALL_PREFIX="../install_${realtype}_${indextype}" \
+    \
     -D XSDK_PRECISION=$realtype \
     -D XSDK_INDEX_SIZE=$indextype \
     \
+    -D EXAMPLES_ENABLE=ON \
     -D CXX_ENABLE=ON \
     -D XSDK_ENABLE_FORTRAN=ON \
     -D F90_ENABLE=ON \
@@ -102,10 +120,10 @@ cmake \
     -D PETSC_INCLUDE_DIR="${PETSCDIR}/include" \
     -D PETSC_LIBRARY_DIR="${PETSCDIR}/lib" \
     \
-    -D SUPERLUMT_ENABLE=ON \
-    -D SUPERLUMT_INCLUDE_DIR="${SUPERLUMTDIR}/SRC" \
-    -D SUPERLUMT_LIBRARY_DIR="${SUPERLUMTDIR}/lib" \
-    -D SUPERLUMT_THREAD_TYPE=Pthread \
+    -D TPL_ENABLE_SUPERLUMT=ON \
+    -D TPL_SUPERLUMT_INCLUDE_DIRS="${SUPERLUMTDIR}/SRC" \
+    -D TPL_SUPERLUMT_LIBRARIES="${SUPERLUMTDIR}/lib/libsuperlu_mt_PTHREAD.a" \
+    -D TPL_SUPERLUMT_THREAD_TYPE=Pthread \
     \
     -LAH \
     ../../. 2>&1 | tee configure.log
@@ -115,7 +133,10 @@ rc=${PIPESTATUS[0]}
 echo -e "\ncmake returned $rc\n" | tee -a configure.log
 if [ $rc -ne 0 ]; then exit 1; fi
 
-# build sundials
+# -------------------------------------------------------------------------------
+# Make SUNDIALS
+# -------------------------------------------------------------------------------
+
 echo "START MAKE"
 make -j $buildthreads 2>&1 | tee make.log
 
@@ -123,6 +144,10 @@ make -j $buildthreads 2>&1 | tee make.log
 rc=${PIPESTATUS[0]}
 echo -e "\nmake returned $rc\n" | tee -a make.log
 if [ $rc -ne 0 ]; then exit 1; fi
+
+# -------------------------------------------------------------------------------
+# Test SUNDIALS
+# -------------------------------------------------------------------------------
 
 # test sundials
 echo "START TEST"
@@ -132,6 +157,10 @@ make test 2>&1 | tee test.log
 rc=${PIPESTATUS[0]}
 echo -e "\nmake test returned $rc\n" | tee -a test.log
 if [ $rc -ne 0 ]; then exit 1; fi
+
+# -------------------------------------------------------------------------------
+# Return
+# -------------------------------------------------------------------------------
 
 # if we make it here all tests have passed
 exit 0
