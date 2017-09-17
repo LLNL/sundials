@@ -166,7 +166,7 @@ int KINDlsSetBandJacFn(void *kinmem, KINDlsBandJacFn jac)
  * -----------------------------------------------------------------
  */
 
-int KINDlsGetWorkSpace(void *kinmem, sunindextype *lenrwLS, sunindextype *leniwLS)
+int KINDlsGetWorkSpace(void *kinmem, long int *lenrwLS, long int *leniwLS)
 {
   KINMem kin_mem;
   KINDlsMem kindls_mem;

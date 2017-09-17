@@ -259,8 +259,8 @@ SUNDIALS_EXPORT int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq,
 ---------------------------------------------------------------*/
 
 SUNDIALS_EXPORT int ARKBBDPrecGetWorkSpace(void *arkode_mem, 
-					   sunindextype *lenrwLS, 
-					   sunindextype *leniwLS);
+					   long int *lenrwLS, 
+					   long int *leniwLS);
 SUNDIALS_EXPORT int ARKBBDPrecGetNumGfnEvals(void *arkode_mem, 
 					     long int *ngevalsBBDP);
 

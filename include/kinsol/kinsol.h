@@ -740,7 +740,7 @@ SUNDIALS_EXPORT int KINSol(void *kinmem, N_Vector uu, int strategy,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINGetWorkSpace(void *kinmem, sunindextype *lenrw, sunindextype *leniw);
+SUNDIALS_EXPORT int KINGetWorkSpace(void *kinmem, long int *lenrw, long int *leniw);
 SUNDIALS_EXPORT int KINGetNumNonlinSolvIters(void *kinmem, long int *nniters);
 SUNDIALS_EXPORT int KINGetNumFuncEvals(void *kinmem, long int *nfevals);
 SUNDIALS_EXPORT int KINGetNumBetaCondFails(void *kinmem, long int *nbcfails); 

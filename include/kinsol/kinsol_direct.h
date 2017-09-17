@@ -254,7 +254,7 @@ SUNDIALS_EXPORT int KINDlsSetBandJacFn(void *kinmem, KINDlsBandJacFn jac);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINDlsGetWorkSpace(void *kinmem, sunindextype *lenrwB, sunindextype *leniwB);
+SUNDIALS_EXPORT int KINDlsGetWorkSpace(void *kinmem, long int *lenrwB, long int *leniwB);
 SUNDIALS_EXPORT int KINDlsGetNumJacEvals(void *kinmem, long int *njevalsB);
 SUNDIALS_EXPORT int KINDlsGetNumFuncEvals(void *kinmem, long int *nfevalsB);
 SUNDIALS_EXPORT int KINDlsGetLastFlag(void *kinmem, long int *flag);

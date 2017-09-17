@@ -165,8 +165,6 @@ SUNDIALS_EXPORT int IDASlsSetSparseJacFn(void *ida_mem, IDASlsSparseJacFn jac);
  * Optional outputs from the IDASLS linear solver
  * -----------------------------------------------------------------
  *
- * IDASlsGetWorkSpace   returns the real and integer workspace used
- *                      by the direct linear solver.
  * IDASlsGetNumJacEvals returns the number of calls made to the
  *                      Jacobian evaluation routine jac.
  * IDASlsGetLastFlag    returns the last error flag set by any of

@@ -334,8 +334,8 @@ static void PrintOutput(void *cvode_mem, N_Vector u, realtype t)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  sunindextype lenrw, leniw ;
-  sunindextype lenrwLS, leniwLS;
+  long int lenrw, leniw ;
+  long int lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
   int flag;

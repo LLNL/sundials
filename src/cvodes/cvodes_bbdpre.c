@@ -236,7 +236,7 @@ int CVBBDPrecReInit(void *cvode_mem,
   return(CVSPILS_SUCCESS);
 }
 
-int CVBBDPrecGetWorkSpace(void *cvode_mem, sunindextype *lenrwBBDP, sunindextype *leniwBBDP)
+int CVBBDPrecGetWorkSpace(void *cvode_mem, long int *lenrwBBDP, long int *leniwBBDP)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;

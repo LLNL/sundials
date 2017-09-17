@@ -428,9 +428,9 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
 /* Print final statistics contained in iopt */
 static void PrintFinalStats(void *arkode_mem)
 {
-  sunindextype lenrw, leniw ;
-  sunindextype lenrwLS, leniwLS;
-  sunindextype lenrwBBDP, leniwBBDP;
+  long int lenrw, leniw ;
+  long int lenrwLS, leniwLS;
+  long int lenrwBBDP, leniwBBDP;
   long int nst, nfe, nfi, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS, ngevalsBBDP;
   int flag;
@@ -464,8 +464,8 @@ static void PrintFinalStats(void *arkode_mem)
   check_flag(&flag, "ARKSpilsGetNumRhsEvals", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
-  printf("lenrw   = %5ld     leniw   = %5ld\n", (long int) lenrw, (long int) leniw);
-  printf("lenrwls = %5ld     leniwls = %5ld\n", (long int) lenrwLS, (long int) leniwLS);
+  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw,   leniw);
+  printf("lenrwls = %5ld     leniwls = %5ld\n", lenrwLS, leniwLS);
   printf("nst     = %5ld     nfe     = %5ld\n", nst, nfe);
   printf("nfe     = %5ld     nfels   = %5ld\n", nfi, nfeLS);
   printf("nni     = %5ld     nli     = %5ld\n", nni, nli);

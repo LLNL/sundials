@@ -360,7 +360,7 @@ SUNDIALS_EXPORT int CVSpilsSetJacTimesVecFn(void *cvode_mem,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVSpilsGetWorkSpace(void *cvode_mem, sunindextype *lenrwLS, sunindextype *leniwLS);
+SUNDIALS_EXPORT int CVSpilsGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
 SUNDIALS_EXPORT int CVSpilsGetNumPrecEvals(void *cvode_mem, long int *npevals);
 SUNDIALS_EXPORT int CVSpilsGetNumPrecSolves(void *cvode_mem, long int *npsolves);
 SUNDIALS_EXPORT int CVSpilsGetNumLinIters(void *cvode_mem, long int *nliters);

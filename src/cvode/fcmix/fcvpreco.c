@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -41,7 +38,7 @@ extern "C" {
   extern void FCV_PSET(realtype*, realtype*, realtype*,  /* T, Y, FY */
                        booleantype*, booleantype*,       /* JOK, JCUR */
                        realtype*, realtype*,             /* GAMMA, H */
-                       sunindextype*, realtype*,             /* IPAR, RPAR */
+                       long int*, realtype*,             /* IPAR, RPAR */
                        realtype*, realtype*, realtype*,  /* W1, W2, W3 */
                        int*);                            /* IER */
 
@@ -49,7 +46,7 @@ extern "C" {
                        realtype*, realtype*,             /* R, Z */
                        realtype*, realtype*,             /* GAMMA, DELTA */
                        int*,                             /* LR */
-                       sunindextype*, realtype*,             /* IPAR, RPAR */
+                       long int*, realtype*,             /* IPAR, RPAR */
                        realtype*,                        /* WRK */
                        int*);                            /* IER */
 

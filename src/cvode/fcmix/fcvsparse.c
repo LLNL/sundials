@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
  * Programmer(s): Carol Woodward @ LLNL
  *                Ting Yan and Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
@@ -34,7 +31,7 @@ extern void FCV_SPJAC(realtype *T, realtype *Y,
 		       realtype *FY, int *N, int *NNZ, 
 		       realtype *JDATA, int *JRVALS, 
 		       int *JCPTRS, realtype *H, 
-		       sunindextype *IPAR, realtype *RPAR, 
+		       long int *IPAR, realtype *RPAR, 
 		       realtype *V1, realtype *V2, 
 		       realtype *V3, int *ier);
  

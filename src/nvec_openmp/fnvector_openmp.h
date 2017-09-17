@@ -1,14 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
  * Programmer(s): Steven Smith @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
@@ -71,8 +68,8 @@ extern N_Vector F2C_KINSOL_vec;
 
 extern N_Vector F2C_ARKODE_vec;
 
-/* 
- * Prototypes of exported functions 
+/*
+ * Prototypes of exported functions
  *
  * FNV_INITOMP    - initializes openmp vector operations for main problem
  * FNV_INITOMP_Q  - initializes openmp vector operations for quadratures
@@ -82,11 +79,11 @@ extern N_Vector F2C_ARKODE_vec;
  *
  */
 
-void FNV_INITOMP(int *code, sunindextype *neq, int *num_threads, int *ier);
-void FNV_INITOMP_Q(int *code, sunindextype *Nq, int *num_threads, int *ier);
+void FNV_INITOMP(int *code, long int *neq, int *num_threads, int *ier);
+void FNV_INITOMP_Q(int *code, long int *Nq, int *num_threads, int *ier);
 void FNV_INITOMP_S(int *code, int *Ns, int *ier);
-void FNV_INITOMP_B(int *code, sunindextype *NB, int *num_threads, int *ier);
-void FNV_INITOMP_QB(int *code, sunindextype *NqB, int *num_threads, int *ier);
+void FNV_INITOMP_B(int *code, long int *NB, int *num_threads, int *ier);
+void FNV_INITOMP_QB(int *code, long int *NqB, int *num_threads, int *ier);
 
 #ifdef __cplusplus
 }

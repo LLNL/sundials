@@ -483,11 +483,11 @@ SUNDIALS_EXPORT int ARKSpilsSetMassTimesVecFn(void *arkode_mem,
     ARKSPILS_LMEM_NULL if the linear solver memory was NULL
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKSpilsGetWorkSpace(void *arkode_mem, 
-					 sunindextype *lenrwLS, 
-					 sunindextype *leniwLS);
+					 long int *lenrwLS, 
+					 long int *leniwLS);
 SUNDIALS_EXPORT int ARKSpilsGetMassWorkSpace(void *arkode_mem, 
-					     sunindextype *lenrwMLS, 
-					     sunindextype *leniwMLS);
+					     long int *lenrwMLS, 
+					     long int *leniwMLS);
 SUNDIALS_EXPORT int ARKSpilsGetNumPrecEvals(void *arkode_mem, 
 					    long int *npevals);
 SUNDIALS_EXPORT int ARKSpilsGetNumMassPrecEvals(void *arkode_mem, 

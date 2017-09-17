@@ -1,6 +1,3 @@
-# global ignores
-*~
-
 # /
 /.project
 /build
@@ -19,3 +16,7 @@
 *.orig
 *.nvvp
 *.ptp-sync*
+*~
+
+## OS X ##
+.DS_Store

@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  *                Daniel R. Reynolds @ SMU
@@ -202,7 +199,7 @@
  *                 [int of length N+1, output]
  *         H    -- current step size [realtype, input]
  *         IPAR -- array containing integer user data that was passed to
- *                 FIDAMALLOC [sunindextype, input]
+ *                 FIDAMALLOC [long int, input]
  *         RPAR -- array containing real user data that was passed to
  *                 FIDAMALLOC [realtype, input]
  *         WK*  -- array containing temporary workspace of same size as Y 
@@ -220,7 +217,7 @@
  *       DIMENSION Y(*), EWT(*)
  * It must store the error weights in EWT, given the current solution vector Y.
  * On return, set IER = 0 if successful, and nonzero otherwise.
- * IPAR and RPAR are user (integer and real) arrays passed to FIDAMALLOC.
+ * IPAR and RPAR are user (long int and realtype) arrays passed to FIDAMALLOC.
  *
  * -----------------------------------------------------------------------------
  *
@@ -290,10 +287,10 @@
  * RTOL  = relative tolerance (scalar)
  * ATOL  = absolute tolerance (scalar or array)
  * IOUT  = array of length at least 21 for integer optional outputs
- *          (declare as INTEGER*4 or INTEGER*8 according to C type sunindextype)
+ *          (declare as INTEGER*8 according to C type long int)
  * ROUT  = array of length at least 6 for real optional outputs
  * IPAR  = array with user integer data
- *          (declare as INTEGER*4 or INTEGER*8 according to C type sunindextype)
+ *          (declare as INTEGER*8 according to C type long int)
  * RPAR  = array with user real data
  * IER   = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
  *         See printed message for details in case of failure.
@@ -637,7 +634,7 @@
  * by FIDAPSOL.  On return, set IER = 0 if FIDAPSET was successful, set IER
  * positive if a recoverable error occurred, and set IER negative if a
  * non-recoverable error occurred.
- * IPAR and RPAR are user (integer and real) arrays passed to FIDAMALLOC.
+ * IPAR and RPAR are user (long int and realtype) arrays passed to FIDAMALLOC.
  *
  * -----------------------------------------------------------------------------
  *
@@ -786,21 +783,21 @@ extern "C" {
 
 typedef struct {
   realtype *rpar;
-  sunindextype *ipar;
+  long int *ipar;
 } *FIDAUserData;
 
 /* Prototypes of exported functions */
 
 void FIDA_MALLOC(realtype *t0, realtype *yy0, realtype *yp0,
                  int *iatol, realtype *rtol, realtype *atol,
-                 sunindextype *iout, realtype *rout,
-                 sunindextype *ipar, realtype *rpar,
+                 long int *iout, realtype *rout,
+                 long int *ipar, realtype *rpar,
                  int *ier);
 void FIDA_REINIT(realtype *t0, realtype *yy0, realtype *yp0,
                  int *iatol, realtype *rtol, realtype *atol,
                  int *ier);
 
-void FIDA_SETIIN(char key_name[], sunindextype *ival, int *ier);
+void FIDA_SETIIN(char key_name[], long int *ival, int *ier);
 
 void FIDA_SETRIN(char key_name[], realtype *rval, int *ier);
 
@@ -809,9 +806,9 @@ void FIDA_SETVIN(char key_name[], realtype *vval, int *ier);
 void FIDA_TOLREINIT(int *iatol, realtype *rtol, realtype *atol, int *ier);
 void FIDA_CALCIC(int *icopt, realtype *tout1, int *ier);
 
-void FIDA_DENSE(sunindextype *neq, int *ier);
+void FIDA_DENSE(long int *neq, int *ier);
 void FIDA_DENSESETJAC(int *flag, int *ier);
-void FIDA_BAND(sunindextype *neq, sunindextype *mupper, sunindextype *mlower, int *ier);
+void FIDA_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
 void FIDA_BANDSETJAC(int *flag, int *ier);
 
 void FIDA_LAPACKDENSE(int *neq, int *ier);
@@ -847,23 +844,23 @@ void FIDA_GETESTLOCALERR(realtype *ele, int *ier);
 
 int FIDAresfn(realtype t, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data);
 
-int FIDADenseJac(sunindextype N, realtype t, realtype c_j, 
+int FIDADenseJac(long int N, realtype t, realtype c_j, 
                  N_Vector yy, N_Vector yp, N_Vector rr,
                  DlsMat Jac, void *user_data,
                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-int FIDABandJac(sunindextype N, sunindextype mupper, sunindextype mlower,
+int FIDABandJac(long int N, long int mupper, long int mlower,
                 realtype t, realtype c_j, 
                 N_Vector yy, N_Vector yp, N_Vector rr,
                 DlsMat Jac, void *user_data,
                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-int FIDALapackDenseJac(sunindextype N, realtype t, realtype c_j, 
+int FIDALapackDenseJac(long int N, realtype t, realtype c_j, 
                        N_Vector yy, N_Vector yp, N_Vector rr,
                        DlsMat Jac, void *user_data,
                        N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-int FIDALapackBandJac(sunindextype N, sunindextype mupper, sunindextype mlower,
+int FIDALapackBandJac(long int N, long int mupper, long int mlower,
                       realtype t, realtype c_j, 
                       N_Vector yy, N_Vector yp, N_Vector rr,
                       DlsMat J, void *user_data,
@@ -896,7 +893,7 @@ extern N_Vector F2C_IDA_vec;    /* defined in FNVECTOR module */
 extern N_Vector F2C_IDA_ypvec;  /* defined in fida.c */
 extern N_Vector F2C_IDA_ewtvec; /* defined in fida.c */
 extern void *IDA_idamem;        /* defined in fida.c */
-extern sunindextype *IDA_iout;      /* defined in fida.c */
+extern long int *IDA_iout;      /* defined in fida.c */
 extern realtype *IDA_rout;      /* defined in fida.c */  
 extern int IDA_ls;              /* defined in fida.c */
 extern int IDA_nrtfn;           /* defined in fida.c */
