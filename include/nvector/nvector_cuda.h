@@ -63,10 +63,11 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-/* CUDA implementation of the N_Vector 'content' structure
-   contains the length of the vector, a pointer to an array
-   of 'realtype' components, and a flag indicating ownership of
-   the data */
+/*
+ * CUDA implementation of the N_Vector 'content' is in C++ class
+ * Vector. The class inherits from structure _N_VectorContent_Cuda
+ * to create C <--> C++ interface.
+ */
 
 struct _N_VectorContent_Cuda {};
 
@@ -230,8 +231,7 @@ SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Cuda(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Cuda(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Cuda(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace_Cuda(N_Vector v, sunindextype *lrw, sunindextype *liw);
-// SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Cuda(N_Vector v);
-// SUNDIALS_EXPORT void N_VSetArrayPointer_Cuda(realtype *v_data, N_Vector v);
+
 SUNDIALS_EXPORT void N_VLinearSum_Cuda(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VConst_Cuda(realtype c, N_Vector z);
 SUNDIALS_EXPORT void N_VProd_Cuda(N_Vector x, N_Vector y, N_Vector z);
