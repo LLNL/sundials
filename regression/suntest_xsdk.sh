@@ -114,9 +114,9 @@ cmake \
     -D TPL_KLU_INCLUDE_DIRS="${KLUDIR}/include" \
     -D TPL_KLU_LIBRARIES="${KLUDIR}/lib/libklu.a" \
     \
-    -D HYPRE_ENABLE=ON \
-    -D HYPRE_INCLUDE_DIR="${HYPREDIR}/include" \
-    -D HYPRE_LIBRARY_DIR="${HYPREDIR}/lib" \
+    -D TPL_ENABLE_HYPRE=ON \
+    -D TPL_HYPRE_INCLUDE_DIRS="${HYPREDIR}/include" \
+    -D TPL_HYPRE_LIBRARIES="${HYPREDIR}/lib/libHYPRE.a" \
     \
     -D PETSC_ENABLE=ON \
     -D PETSC_INCLUDE_DIR="${PETSCDIR}/include" \
