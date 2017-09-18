@@ -404,7 +404,7 @@ OPTION(PETSC_ENABLE "Enable PETSc support" OFF)
 IF(PETSC_ENABLE AND NOT MPI_ENABLE)
   PRINT_WARNING("MPI not enabled - Disabling PETSc" 
                 "Set MPI_ENABLE to ON to use PETSc")
-  FORCE_VARIABLE(HYPRE_ENABLE BOOL "Enable PETSc support" OFF)
+  FORCE_VARIABLE(PETSC_ENABLE BOOL "Enable PETSc support" OFF)
 ENDIF()
 
 
