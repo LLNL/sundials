@@ -84,10 +84,12 @@ cmake \
     -D XSDK_PRECISION=$realtype \
     -D XSDK_INDEX_SIZE=$indextype \
     \
-    -D EXAMPLES_ENABLE=ON \
-    -D CXX_ENABLE=ON \
     -D XSDK_ENABLE_FORTRAN=ON \
-    -D F90_ENABLE=ON \
+    \
+    -D EXAMPLES_ENABLE_C=ON \
+    -D EXAMPLES_ENABLE_CXX=ON \
+    -D EXAMPLES_ENABLE_F77=ON \
+    -D EXAMPLES_ENABLE_F90=ON \
     \
     -D OPENMP_ENABLE=ON \
     -D PTHREAD_ENABLE=ON \
