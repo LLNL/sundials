@@ -332,7 +332,12 @@ ENDIF(PTHREAD_ENABLE)
 # ===============================================================
 
 # ---------------------------------------------------------------
-# Enable BLAS/LAPACK support?
+# Enable BLAS support?
+# ---------------------------------------------------------------
+OPTION(BLAS_ENABLE "Enable BLAS support" OFF)
+
+# ---------------------------------------------------------------
+# Enable LAPACK/BLAS support?
 # ---------------------------------------------------------------
 OPTION(LAPACK_ENABLE "Enable Lapack support" OFF)
 
@@ -538,10 +543,11 @@ ENDIF(APPLE)
 # ---------------------------------------------------------------
 # A Fortran compiler is needed if:
 # (a) FCMIX is enabled
-# (b) LAPACK is enabled (for the name-mangling scheme)
+# (b) BLAS is enabled (for the name-mangling scheme)
+# (c) LAPACK is enabled (for the name-mangling scheme)
 # ---------------------------------------------------------------
 
-IF(FCMIX_ENABLE OR LAPACK_ENABLE)
+IF(FCMIX_ENABLE OR BLAS_ENABLE OR LAPACK_ENABLE)
   INCLUDE(SundialsFortran)
   IF(NOT F77_FOUND AND FCMIX_ENABLE)
     PRINT_WARNING("Fortran compiler not functional"
@@ -586,7 +592,7 @@ ENDIF()
 # Note: the default scheme is lower case - one underscore
 # ---------------------------------------------------------------
 
-IF(LAPACK_ENABLE AND NOT F77SCHEME_FOUND)
+IF(BLAS_ENABLE OR LAPACK_ENABLE AND NOT F77SCHEME_FOUND)
   # Specify the case for the Fortran name-mangling scheme
   SHOW_VARIABLE(SUNDIALS_F77_FUNC_CASE STRING
     "case of Fortran function names (lower/upper)"
@@ -624,7 +630,7 @@ IF(LAPACK_ENABLE AND NOT F77SCHEME_FOUND)
   SET(CMAKE_Fortran_SCHEME_WITH_UNDERSCORES "my_sub_")
   # We now "have" a scheme.
   SET(F77SCHEME_FOUND TRUE)
-ENDIF(LAPACK_ENABLE AND NOT F77SCHEME_FOUND)
+ENDIF(BLAS_ENABLE OR LAPACK_ENABLE AND NOT F77SCHEME_FOUND)
 
 # ---------------------------------------------------------------
 # If we have a name-mangling scheme (either automatically
@@ -732,6 +738,39 @@ ENDIF(MPI_ENABLE)
 # ===============================================================
 
 # ---------------------------------------------------------------
+# Find (and test) the BLAS libraries
+# ---------------------------------------------------------------
+
+# If BLAS is needed, first try to find the appropriate
+# libraries and linker flags needed to link against them.
+
+IF(BLAS_ENABLE)
+
+  # find BLAS
+  INCLUDE(SundialsBlas)
+
+  # show after include so FindBlas can locate BLAS_LIBRARIES if necessary
+  SHOW_VARIABLE(BLAS_LIBRARIES STRING "Blas libraries" "${BLAS_LIBRARIES}")
+
+  IF(BLAS_LIBRARIES AND NOT BLAS_FOUND)
+    PRINT_WARNING("BLAS not functional"
+                  "BLAS support will not be provided")
+  ELSE()
+    #set sundials_config.h symbol via sundials_config.in
+    SET(SUNDIALS_BLAS TRUE)
+  ENDIF()
+
+ELSE()
+
+  IF(NOT LAPACK_ENABLE)
+    HIDE_VARIABLE(SUNDIALS_F77_FUNC_CASE)
+    HIDE_VARIABLE(SUNDIALS_F77_FUNC_UNDERSCORES)
+  ENDIF()
+  HIDE_VARIABLE(BLAS_LIBRARIES)
+
+ENDIF()
+
+# ---------------------------------------------------------------
 # Find (and test) the Lapack libraries
 # ---------------------------------------------------------------
 
@@ -740,11 +779,11 @@ ENDIF(MPI_ENABLE)
 
 IF(LAPACK_ENABLE)
 
-  # find BLAS and LAPACK Libraries
+  # find LAPACK and BLAS Libraries
   INCLUDE(SundialsLapack)
 
   # show after include so FindLapack can locate LAPCK_LIBRARIES if necessary
-  SHOW_VARIABLE(LAPACK_LIBRARIES STRING "Blas and Lapack libraries" "${LAPACK_LIBRARIES}")
+  SHOW_VARIABLE(LAPACK_LIBRARIES STRING "Lapack and Blas libraries" "${LAPACK_LIBRARIES}")
 
   IF(LAPACK_LIBRARIES AND NOT LAPACK_FOUND)
     PRINT_WARNING("LAPACK not functional"
@@ -756,8 +795,10 @@ IF(LAPACK_ENABLE)
 
 ELSE()
 
-  HIDE_VARIABLE(SUNDIALS_F77_FUNC_CASE)
-  HIDE_VARIABLE(SUNDIALS_F77_FUNC_UNDERSCORES)
+  IF(NOT BLAS_ENABLE)
+    HIDE_VARIABLE(SUNDIALS_F77_FUNC_CASE)
+    HIDE_VARIABLE(SUNDIALS_F77_FUNC_UNDERSCORES)
+  ENDIF()
   HIDE_VARIABLE(LAPACK_LIBRARIES)
 
 ENDIF()
@@ -1075,8 +1116,12 @@ IF(EXAMPLES_ENABLED)
       SET(KLU_LIBS "${KLU_LINKER_FLAGS} ${KLU_LIBS}")
     ENDIF(KLU_FOUND)
 
+    IF(BLAS_FOUND)
+      LIST2STRING(BLAS_LIBRARIES BLAS_LIBS)
+    ENDIF(BLAS_FOUND)
+
     IF(LAPACK_FOUND)
-      LIST2STRING(LAPACK_LIBRARIES BLAS_LAPACK_LIBS)
+      LIST2STRING(LAPACK_LIBRARIES LAPACK_LIBS)
     ENDIF(LAPACK_FOUND)
 
     IF(MPIC_FOUND)
