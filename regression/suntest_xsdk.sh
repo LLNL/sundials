@@ -110,9 +110,9 @@ cmake \
     -D TPL_ENABLE_LAPACK=ON \
     -D TPL_LAPACK_LIBRARIES="${LAPACKDIR}/liblapack.so;${LAPACKDIR}/libblas.so;" \
     \
-    -D KLU_ENABLE=ON \
-    -D KLU_INCLUDE_DIR="${KLUDIR}/include" \
-    -D KLU_LIBRARY_DIR="${KLUDIR}/lib" \
+    -D TPL_ENABLE_KLU=ON \
+    -D TPL_KLU_INCLUDE_DIRS="${KLUDIR}/include" \
+    -D TPL_KLU_LIBRARIES="${KLUDIR}/lib/libklu.a" \
     \
     -D HYPRE_ENABLE=ON \
     -D HYPRE_INCLUDE_DIR="${HYPREDIR}/include" \
