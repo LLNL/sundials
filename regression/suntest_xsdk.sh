@@ -56,15 +56,75 @@ umask 002
 # -------------------------------------------------------------------------------
 
 # path to installed libraries
-# NOTE: Will need to change some paths based on realtype/indextype when 
-# options other than double and long int are used for testing
 APPDIR=/usr/casc/sundials/apps/rh6
+
+# MPI
 MPIDIR=${APPDIR}/openmpi/1.8.8/bin
-KLUDIR=${APPDIR}/suitesparse/4.5.3
-HYPREDIR=${APPDIR}/hypre/2.11.1
+
+# LAPACK
+LAPACKSTATUS=ON
 LAPACKDIR=${APPDIR}/lapack/3.6.0/lib64
-PETSCDIR=${APPDIR}/petsc/3.7.2
-SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1
+
+# LAPACK does not support extended precision or 64-bit indices (UNCOMMENT LINES BELOW FOR NEW LINEAR SOLVER API)
+# if [ "$realtype" == "extended" ] || [ "$indextype" == "int64_t" ]; then
+#     LAPACKSTATUS=OFF
+# fi
+
+# KLU
+KLUSTATUS=ON
+KLUDIR=${APPDIR}/suitesparse/4.5.3
+
+# KLU does not support single or extended precision
+if [ "$realtype" == "single" ] || [ "$realtype" == "extended" ]; then
+    KLUSTATUS=OFF
+fi
+
+# SuperLU_MT
+SUPERLUMTSTATUS=ON
+
+# SuperLU MT index type must be set a build time
+if [ "$indextype" == "int32_t" ]; then
+    SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1
+else
+    SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1
+    # REMOVE LINE ABOVE AND UNCOMMENT LINE BELOW FOR NEW LINEAR SOLVER API
+    # SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1_long_int
+fi
+
+# SuperLU MT does not support extended precision
+if [ "$realtype" == "extended" ]; then
+    SUPERLUMTSTATUS=OFF
+fi
+
+# hypre
+HYPRESTATUS=ON
+
+# hypre index type must be set a build time
+if [ "$indextype" == "int32_t" ]; then
+    HYPREDIR=${APPDIR}/hypre/2.11.1
+else
+    HYPREDIR=${APPDIR}/hypre/2.11.1_long_int
+fi
+
+# only testing hypre with double precision at this time
+if [ "$realtype" != "double" ]; then
+    HYPRESTATUS=OFF
+fi
+
+# PETSc
+PETSCSTATUS=ON
+
+# PETSc index type must be set a build time
+if [ "$indextype" == "int32_t" ]; then
+    PETSCDIR=${APPDIR}/petsc/3.7.2
+else
+    PETSCDIR=${APPDIR}/petsc/3.7.2_long_int
+fi
+
+# only testing PETSc with double precision at this time
+if [ "$realtype" != "double" ]; then
+    PETSCSTATUS=OFF
+fi
 
 # -------------------------------------------------------------------------------
 # Configure SUNDIALS with CMake
@@ -159,6 +219,25 @@ make test 2>&1 | tee test.log
 rc=${PIPESTATUS[0]}
 echo -e "\nmake test returned $rc\n" | tee -a test.log
 if [ $rc -ne 0 ]; then exit 1; fi
+
+# -------------------------------------------------------------------------------
+# Install SUNDIALS
+# -------------------------------------------------------------------------------
+
+# install sundials
+echo "START INSTALL"
+make install 2>&1 | tee install.log
+
+# check make install return code
+rc=${PIPESTATUS[0]}
+echo -e "\nmake install returned $rc\n" | tee -a install.log
+if [ $rc -ne 0 ]; then exit 1; fi
+
+# -------------------------------------------------------------------------------
+# Test SUNDIALS Install
+# -------------------------------------------------------------------------------
+
+# add make test_install here
 
 # -------------------------------------------------------------------------------
 # Return
