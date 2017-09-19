@@ -39,6 +39,23 @@ include(CMakeDetermineFortranCompiler)
 if(CMAKE_Fortran_COMPILER)
   message(STATUS "Searching for a Fortran compiler... ${CMAKE_Fortran_COMPILER}")
 
+  # If Fortran compiler flags are set using environemnt variables and both FFLAGS
+  # and FCFLAGS are used, then check if the variables are the same. If they are
+  # not the same then a fatal error occurs.
+  # 
+  # NOTE: This check must occur before 'enable_language(Fortran)' as it will use
+  # the value of FFLAGS to set CMAKE_Fortran_FLAGS
+  SET(ENV_FFLAGS "$ENV{FFLAGS}")
+  SET(ENV_FCFLAGS "$ENV{FCFLAGS}")
+  IF ((NOT "${ENV_FFLAGS}" STREQUAL "") AND
+      (NOT "${ENV_FCFLAGS}" STREQUAL "") AND
+      ("${CMAKE_Fortran_FLAGS}" STREQUAL ""))
+    # check if environment variables are equal
+    IF (NOT "${ENV_FFLAGS}" STREQUAL "${ENV_FCFLAGS}")
+      PRINT_ERROR("FFLAGS='${ENV_FFLAGS}' and FCFLAGS='${ENV_FCFLAGS}' are both set but are not equal.")
+    ENDIF()
+  ENDIF()
+
   # Enable the language for next steps
   enable_language(Fortran)
 

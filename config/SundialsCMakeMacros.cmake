@@ -15,6 +15,13 @@
 # CMake macros used throughout the SUNDIALS build system
 
 
+# Print variable and value
+IF (NOT COMMAND PRINT_VARIABLE)
+  FUNCTION(PRINT_VARIABLE var)
+    MESSAGE("${var} = '${${var}}'")
+  ENDFUNCTION()
+ENDIF()
+
 # Macros to hide/show cached variables.
 # These two macros can be used to "hide" or "show" in the
 # list of cached variables various variables and/or options 
@@ -68,12 +75,23 @@ ENDMACRO(ADD_PREFIX)
 # due to some failure.
 
 MACRO(PRINT_WARNING message action)
-  SET(WMSG
-  "************************************************************\n"
+  SET(MSG
+  "------------------------------------------------------------\n"
   "WARNING: ${message}\n"
   "${action}\n"
+  "------------------------------------------------------------")
+  MESSAGE(WARNING ${MSG})
+ENDMACRO()
+
+# Macro to print fatal error messages. Fatal errors will NOT allow
+# a makefile to be generated
+
+MACRO(PRINT_ERROR message)
+  SET(MSG
+  "************************************************************\n"
+  "ERROR: ${message}\n"
   "************************************************************")
-  MESSAGE(WARNING ${WMSG})
+  MESSAGE(FATAL_ERROR ${MSG})
 ENDMACRO()
 
 # Returns an unquoted string.  Note that CMake will readily turn such
