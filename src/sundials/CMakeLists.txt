@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision$
-# $Date$
-# ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -26,10 +23,11 @@ SET(sundials_HEADERS
   sundials_band.h
   sundials_dense.h
   sundials_direct.h
+  sundials_fnvector.h
   sundials_iterative.h
   sundials_math.h
+  sundials_mpi_types.h
   sundials_nvector.h
-  sundials_fnvector.h
   sundials_pcg.h
   sundials_sparse.h
   sundials_spbcgs.h
