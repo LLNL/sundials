@@ -61,6 +61,10 @@ APPDIR=/usr/casc/sundials/apps/rh6
 # MPI
 MPIDIR=${APPDIR}/openmpi/1.8.8/bin
 
+# BLAS
+BLASSTATUS=ON
+BLASDIR=${APPDIR}/lapack/3.6.0/lib64
+
 # LAPACK
 LAPACKSTATUS=ON
 LAPACKDIR=${APPDIR}/lapack/3.6.0/lib64
@@ -167,8 +171,11 @@ cmake \
     -D MPI_MPIF90="${MPIDIR}/mpif90" \
     -D MPI_RUN_COMMAND="${MPIDIR}/mpirun" \
     \
+    -D TPL_ENABLE_BLAS=ON \
+    -D TPL_BLAS_LIBRARIES="${LAPACKDIR}/libblas.so" \
+    \
     -D TPL_ENABLE_LAPACK=ON \
-    -D TPL_LAPACK_LIBRARIES="${LAPACKDIR}/liblapack.so;${LAPACKDIR}/libblas.so;" \
+    -D TPL_LAPACK_LIBRARIES="${LAPACKDIR}/liblapack.so" \
     \
     -D TPL_ENABLE_KLU=ON \
     -D TPL_KLU_INCLUDE_DIRS="${KLUDIR}/include" \
