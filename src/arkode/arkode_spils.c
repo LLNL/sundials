@@ -124,7 +124,7 @@ int ARKSpilsSetLinearSolver(void *arkode_mem, SUNLinearSolver LS)
   arkspils_mem->last_flag = ARKSPILS_SUCCESS;
 
   /* Attach default ARKSpils interface routines to iterative LS */
-  retval = SUNLinSolSetATimes(LS, ark_mem, NULL, ARKSpilsATimes);
+  retval = SUNLinSolSetATimes(LS, ark_mem, ARKSpilsATimes);
   if (retval != SUNLS_SUCCESS) {
     arkProcessError(ark_mem, ARKSPILS_SUNLS_FAIL, "ARKSPILS", 
                     "ARKSpilsSetLinearSolver", 
@@ -259,7 +259,7 @@ int ARKSpilsSetMassLinearSolver(void *arkode_mem,
   arkspils_mem->last_flag = ARKSPILS_SUCCESS;
 
   /* Attach default ARKSpils interface routines to iterative LS */
-  retval = SUNLinSolSetATimes(LS, ark_mem, NULL, NULL);
+  retval = SUNLinSolSetATimes(LS, ark_mem, NULL);
   if (retval != SUNLS_SUCCESS) {
     arkProcessError(ark_mem, ARKSPILS_SUNLS_FAIL, "ARKSPILS", 
                     "ARKSpilsSetMassLinearSolver", 
@@ -392,7 +392,6 @@ int ARKSpilsSetJacTimes(void *arkode_mem,
   int retval;
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
-  ATSetupFn arkspils_atsetup;
 
   /* Return immediately if arkode_mem or ark_mem->ark_lmem are NULL */
   if (arkode_mem == NULL) {
@@ -418,12 +417,8 @@ int ARKSpilsSetJacTimes(void *arkode_mem,
   }
   arkspils_mem->jtsetup = jtsetup;
 
-  /* notify iterative linear solver to call ARKSpils interface routines;
-   non-NULL jtsetup implies use of ARKSpilsATSetup interface routine;
-   ARKSpilsATimes should always be used */
-  arkspils_atsetup = (jtsetup == NULL) ? NULL : ARKSpilsATSetup;
-  retval = SUNLinSolSetATimes(arkspils_mem->LS, ark_mem, 
-                              arkspils_atsetup, ARKSpilsATimes);
+  /* notify iterative linear solver to call ARKSpils interface routines */
+  retval = SUNLinSolSetATimes(arkspils_mem->LS, ark_mem, ARKSpilsATimes);
   if (retval != SUNLS_SUCCESS) {
     arkProcessError(ark_mem, ARKSPILS_SUNLS_FAIL, "ARKSPILS", 
                     "ARKSpilsSetJacTimes", 
@@ -839,7 +834,6 @@ int ARKSpilsSetMassTimes(void *arkode_mem,
   int retval;
   ARKodeMem ark_mem;
   ARKSpilsMassMem arkspils_mem;
-  ATSetupFn arkspils_mtsetup;
 
   /* Return immediately if arkode_mem, ark_mem->ark_mass_mem or mtimes are NULL */
   if (arkode_mem == NULL) {
@@ -867,12 +861,8 @@ int ARKSpilsSetMassTimes(void *arkode_mem,
   arkspils_mem->mtimes  = mtimes;
   arkspils_mem->mt_data = mtimes_data;
 
-  /* notify iterative linear solver to call ARKSpils interface routines;
-   non-NULL mtsetup implies use of ARKSpilsMTSetup interface routine;
-   ARKSpilsMTimes should always be used */
-  arkspils_mtsetup = (mtsetup == NULL) ? NULL : ARKSpilsMTSetup;
-  retval = SUNLinSolSetATimes(arkspils_mem->LS, ark_mem, 
-                              arkspils_mtsetup, ARKSpilsMTimes);
+  /* notify iterative linear solver to call ARKSpils interface routines */
+  retval = SUNLinSolSetATimes(arkspils_mem->LS, ark_mem, ARKSpilsMTimes);
   if (retval != SUNLS_SUCCESS) {
     arkProcessError(ark_mem, ARKSPILS_SUNLS_FAIL, "ARKSPILS", 
                     "ARKSpilsSetMassTimes", 
@@ -1133,45 +1123,6 @@ int ARKSpilsGetLastMassFlag(void *arkode_mem, long int *flag)
 ===============================================================*/
 
 /*---------------------------------------------------------------
- ARKSpilsATSetup:
-
- This routine provides a generic interface for calling a user-
- supplied setup routine to prepare for subsequent calls to a 
- user-supplied Jacobian-vector product routine.  The return value 
- is 0 if successful, nonzero otherwise.
----------------------------------------------------------------*/
-int ARKSpilsATSetup(void *arkode_mem)
-{
-  ARKodeMem   ark_mem;
-  ARKSpilsMem arkspils_mem;
-  int flag;
-
-  /* Return immediately if arkode_mem or ark_mem->ark_lmem are NULL */
-  if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
-                    "ARKSpilsATSetup", MSGS_ARKMEM_NULL);
-    return(ARKSPILS_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->ark_lmem == NULL) {
-    arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKSPILS", 
-                    "ARKSpilsATSetup", MSGS_LMEM_NULL);
-    return(ARKSPILS_LMEM_NULL);
-  }
-  arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
-
-  /* Call user-supplied jtsetup routine */
-  flag = arkspils_mem->jtsetup(ark_mem->ark_tn, 
-                               arkspils_mem->ycur, 
-                               arkspils_mem->fcur, 
-                               arkspils_mem->j_data);
-  arkspils_mem->njtsetup++;
-  
-  return(flag);
-}
-
-
-/*---------------------------------------------------------------
  ARKSpilsATimes:
 
  This routine generates the matrix-vector product z = Av, where
@@ -1308,47 +1259,6 @@ int ARKSpilsPSolve(void *arkode_mem, N_Vector r, N_Vector z,
 
   return(retval);     
 }
-
-/*---------------------------------------------------------------
- ARKSpilsMTSetup:
-
- This routine provides a generic interface for calling a user-
- supplied setup routine to prepare for subsequent calls to a 
- user-supplied mass matrix-vector product routine.  The return
- value is 0 if successful, nonzero otherwise.
----------------------------------------------------------------*/
-int ARKSpilsMTSetup(void *arkode_mem)
-{
-  ARKodeMem       ark_mem;
-  ARKSpilsMassMem arkspils_mem;
-  int retval;
-
-  /* Return immediately if arkode_mem or ark_mem->ark_mass_mem are NULL */
-  if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
-		    "ARKSpilsMTSetup", MSGS_ARKMEM_NULL);
-    return(ARKSPILS_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->ark_mass_mem == NULL) {
-    arkProcessError(ark_mem, ARKSPILS_MASSMEM_NULL, "ARKSPILS", 
-		    "ARKSpilsMTSetup", MSGS_MASSMEM_NULL);
-    return(ARKSPILS_MASSMEM_NULL);
-  }
-  arkspils_mem = (ARKSpilsMassMem) ark_mem->ark_mass_mem;
-
-  /* only proceed if the mass matrix is time-dependent or if 
-     mtsetup has not been called previously */
-  if (!arkspils_mem->time_dependent && arkspils_mem->nmtsetup) 
-    return(0);
-  
-  /* call user-supplied mtsetup routine and increment counter */
-  retval = arkspils_mem->mtsetup(ark_mem->ark_tn, 
-                                 arkspils_mem->mt_data);
-  arkspils_mem->nmtsetup++;
-  return(retval);
-}
-
 
 /*---------------------------------------------------------------
  ARKSpilsMTimes:
@@ -1701,6 +1611,18 @@ int arkSpilsSolve(ARKodeMem ark_mem, N_Vector b, N_Vector ynow,
 
   /* Store previous nps value in nps_inc */
   nps_inc = arkspils_mem->nps;
+
+  /* If a user-provided jtsetup routine is supplied, call that here */
+  if (arkspils_mem->jtsetup) {
+    retval = arkspils_mem->jtsetup(ark_mem->ark_tn, ynow, fnow, 
+                                 arkspils_mem->j_data);
+    arkspils_mem->njtsetup++;
+    if (retval != 0) {
+      arkProcessError(ark_mem, retval, "ARKSPILS", 
+                      "arkSpilsSolve", MSGS_JTSETUP_FAILED);
+      return(retval);
+    }
+  }
   
   /* Call solver, and copy x to b */
   retval = SUNLinSolSolve(arkspils_mem->LS, NULL, arkspils_mem->x,
@@ -1940,6 +1862,19 @@ int arkSpilsMassSolve(ARKodeMem ark_mem, N_Vector b)
 
   /* Store previous nps value in nps_inc */
   nps_inc = arkspils_mem->nps;
+
+  /* If a user-provided mtsetup routine is supplied, the mass 
+     matrix is time-dependent, call that here */
+  if (!arkspils_mem->time_dependent && arkspils_mem->nmtsetup) {
+    retval = arkspils_mem->mtsetup(ark_mem->ark_tn, 
+                                   arkspils_mem->mt_data);
+    arkspils_mem->nmtsetup++;
+    if (retval != 0) {
+      arkProcessError(ark_mem, retval, "ARKSPILS", 
+                      "arkSpilsMassSolve", MSGS_MTSETUP_FAILED);
+      return(retval);
+    }
+  }
   
   /* Call solver, and copy x to b */
   retval = SUNLinSolSolve(arkspils_mem->LS, NULL, arkspils_mem->x,
@@ -2024,7 +1959,7 @@ int arkSpilsMassFree(ARKodeMem ark_mem)
   arkspils_mem = (ARKSpilsMassMem) ark_mem->ark_mass_mem;
 
   /* detach ARKSpils interface routines from LS object (ignore return values) */
-  SUNLinSolSetATimes(arkspils_mem->LS, NULL, NULL, NULL);
+  SUNLinSolSetATimes(arkspils_mem->LS, NULL, NULL);
   SUNLinSolSetPreconditioner(arkspils_mem->LS, NULL, NULL, NULL);
 
   /* Free N_Vector memory */
@@ -2064,10 +1999,12 @@ int arkSpilsInitializeCounters(ARKSpilsMem arkspils_mem)
 
 int arkSpilsInitializeMassCounters(ARKSpilsMassMem arkspils_mem)
 {
-  arkspils_mem->npe  = 0;
-  arkspils_mem->nli  = 0;
-  arkspils_mem->nps  = 0;
-  arkspils_mem->ncfl = 0;
+  arkspils_mem->npe      = 0;
+  arkspils_mem->nli      = 0;
+  arkspils_mem->nps      = 0;
+  arkspils_mem->ncfl     = 0;
+  arkspils_mem->nmtsetup = 0;
+  arkspils_mem->nmtimes  = 0;
   return(0); 
 }
 

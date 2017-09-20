@@ -43,8 +43,6 @@ typedef struct {
 } UserData;
 
 /* private functions */
-/*    matrix-vector product setup */
-int ATSetup(void* ProbData);
 /*    matrix-vector product  */
 int ATimes(void* ProbData, N_Vector v, N_Vector z);
 /*    preconditioner setup */
@@ -159,7 +157,7 @@ int main(int argc, char *argv[])
   /* Create PCG linear solver */
   LS = SUNPCG(x, PREC_RIGHT, maxl);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_ITERATIVE, 0);
-  fails += Test_SUNLinSolSetATimes(LS, &ProbData, ATSetup, ATimes, 0);
+  fails += Test_SUNLinSolSetATimes(LS, &ProbData, ATimes, 0);
   fails += Test_SUNLinSolSetPreconditioner(LS, &ProbData, PSetup, PSolve, 0);
   fails += Test_SUNLinSolSetScalingVectors(LS, ProbData.s, NULL, 0);
   fails += Test_SUNLinSolInitialize(LS, 0);
@@ -308,9 +306,6 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Private helper functions
  * --------------------------------------------------------------------*/
-
-/* matrix-vector product setup -- nothing to do here since everything is already stored */
-int ATSetup(void* Data) { return 0; }
 
 /* matrix-vector product  */
 int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)

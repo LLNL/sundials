@@ -91,8 +91,7 @@ is defined as
 \begin{verbatim}
 struct _generic_SUNLinearSolver_Ops {
   SUNLinearSolver_Type (*gettype)(SUNLinearSolver);
-  int                  (*setatimes)(SUNLinearSolver, void*, 
-                                    ATSetupFn, ATimesFn);
+  int                  (*setatimes)(SUNLinearSolver, void*, ATimesFn);
   int                  (*setpreconditioner)(SUNLinearSolver, void*, 
                                             PSetupFn, PSolveFn);
   int                  (*setscalingvectors)(SUNLinearSolver,
@@ -259,17 +258,16 @@ SUNLINEARSOLVER\_CUSTOM      & Custom solvers     & 2 \\
   zero for a successful call, and a negative value for a failure.
 \\[2mm]
 %%
-\id{SUNLinSolSetATimes} & \id{ier = SUNLinSolSetATimes(LS, A\_data, ATSetup, ATimes);} \\
+\id{SUNLinSolSetATimes} & \id{ier = SUNLinSolSetATimes(LS, A\_data, ATimes);} \\
 & (Iterative/Custom linear solvers only)
-  Provides \id{ATSetupFn} and \id{ATimesFn} function pointers, as well
-  as a \id{void *} pointer to a data structure used by these routines,
-  to a linear solver object.  This function will be called by a
-  {\sundials} solver, who will either provide this via
-  difference-quotients and vector operations, or by calling
-  integrator-specific, user-supplied routines.  This routine should
-  return zero for a successful call, and a negative value for a
-  failure, ideally returning one of the generic error codes listed in
-  Table \ref{t:sunlinsolerr}. 
+  Provides \id{ATimesFn} function pointer, as well as a \id{void *} pointer 
+  to a data structure used by this routines, to a linear solver object.
+  This function will be called by a {\sundials} solver, who will
+  either provide this via difference-quotients and vector operations,
+  or by calling integrator-specific, user-supplied routines.  This
+  routine should return zero for a successful call, and a negative
+  value for a failure, ideally returning one of the generic error
+  codes listed in Table \ref{t:sunlinsolerr}. 
 \\[2mm]
 %%
 \id{SUNLinSolSetPreconditioner} & \id{ier = SUNLinSolSetPreconditioner(LS, Pdata, Pset, Psol);} \\
@@ -377,31 +375,27 @@ SUNLINEARSOLVER\_CUSTOM      & Custom solvers     & 2 \\
 \id{SUNLS\_MEM\_FAIL} & \id{-3} & failed memory access or allocation
 \\[2mm]
 %%
-\id{SUNLS\_ASET\_FAIL\_UNREC} & \id{-4} & an unrecoverable failure
-  occurred in the \id{ATSetup} routine
-\\[2mm]
-%%
-\id{SUNLS\_ATIMES\_FAIL\_UNREC} & \id{-5} & an unrecoverable failure
+\id{SUNLS\_ATIMES\_FAIL\_UNREC} & \id{-4} & an unrecoverable failure
   occurred in the \id{ATimes} routine
 \\[2mm]
 %%
-\id{SUNLS\_PSET\_FAIL\_UNREC} & \id{-6} & an unrecoverable failure
+\id{SUNLS\_PSET\_FAIL\_UNREC} & \id{-5} & an unrecoverable failure
   occurred in the \id{Pset} routine
 \\[2mm]
 %%
-\id{SUNLS\_PSOLVE\_FAIL\_UNREC} & \id{-7} & an unrecoverable failure
+\id{SUNLS\_PSOLVE\_FAIL\_UNREC} & \id{-6} & an unrecoverable failure
   occurred in the \id{Psolve} routine
 \\[2mm]
 %%
-\id{SUNLS\_PACKAGE\_FAIL\_UNREC} & \id{-8} & an unrecoverable failure
+\id{SUNLS\_PACKAGE\_FAIL\_UNREC} & \id{-7} & an unrecoverable failure
   occurred in an external linear solver package
 \\[2mm]
 %%
-\id{SUNLS\_GS\_FAIL} & \id{-9} & a failure occurred during
+\id{SUNLS\_GS\_FAIL} & \id{-8} & a failure occurred during
   Gram-Schmidt orthogonalization ({\sunlinsolspgmr}/{\sunlinsolspfgmr})
 \\[2mm]
 %%
-\id{SUNLS\_QRSOL\_FAIL} & \id{-10} & a singular $R$ matrix was
+\id{SUNLS\_QRSOL\_FAIL} & \id{-9} & a singular $R$ matrix was
   encountered in a QR factorization ({\sunlinsolspgmr}/{\sunlinsolspfgmr})
 \\[2mm]
 \hline
@@ -414,31 +408,27 @@ SUNLINEARSOLVER\_CUSTOM      & Custom solvers     & 2 \\
 converge (and the residual was not reduced)
 \\[2mm]
 %%
-\id{SUNLS\_ASET\_FAIL\_REC} & \id{3} & a recoverable failure occurred
-  in the \id{ATSetup} routine
-\\[2mm]
-%%
-\id{SUNLS\_ATIMES\_FAIL\_REC} & \id{4} & a recoverable failure occurred
+\id{SUNLS\_ATIMES\_FAIL\_REC} & \id{3} & a recoverable failure occurred
   in the \id{ATimes} routine
 \\[2mm]
 %%
-\id{SUNLS\_PSET\_FAIL\_REC} & \id{5} & a recoverable failure occurred
+\id{SUNLS\_PSET\_FAIL\_REC} & \id{4} & a recoverable failure occurred
   in the \id{Pset} routine
 \\[2mm]
 %%
-\id{SUNLS\_PSOLVE\_FAIL\_REC} & \id{6} & a recoverable failure occurred
+\id{SUNLS\_PSOLVE\_FAIL\_REC} & \id{5} & a recoverable failure occurred
   in the \id{Psolve} routine
 \\[2mm]
 %%
-\id{SUNLS\_PACKAGE\_FAIL\_REC} & \id{7} &  a recoverable failure
+\id{SUNLS\_PACKAGE\_FAIL\_REC} & \id{6} &  a recoverable failure
   occurred in an external linear solver package
 \\[2mm]
 %%
-\id{SUNLS\_QRFACT\_FAIL} & \id{8} & a singular matrix was encountered
+\id{SUNLS\_QRFACT\_FAIL} & \id{7} & a singular matrix was encountered
   during a QR factorization ({\sunlinsolspgmr}/{\sunlinsolspfgmr})
 \\[2mm]
 %%
-\id{SUNLS\_LUFACT\_FAIL} & \id{9} & a singular matrix was encountered
+\id{SUNLS\_LUFACT\_FAIL} & \id{8} & a singular matrix was encountered
   during a ({\sunlinsoldense}/{\sunlinsolband}/{\sunlinsoldiag})
 \\[2mm]
 %%

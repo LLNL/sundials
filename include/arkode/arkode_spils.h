@@ -531,6 +531,8 @@ SUNDIALS_EXPORT int ARKSpilsSetMassTimes(void *arkode_mem,
  ARKSpilsGetNumConvFails returns the number of linear
                  convergence failures.
 
+ ARKSpilsGetNumJTSetupEvals returns the number of calls to jtsetup.
+ 
  ARKSpilsGetNumJtimesEvals returns the number of calls to jtimes.
 
  ARKSpilsGetNumRhsEvals returns the number of calls to the user
@@ -578,6 +580,8 @@ SUNDIALS_EXPORT int ARKSpilsGetNumLinIters(void *arkode_mem,
                                            long int *nliters);
 SUNDIALS_EXPORT int ARKSpilsGetNumConvFails(void *arkode_mem, 
                                             long int *nlcfails);
+SUNDIALS_EXPORT int ARKSpilsGetNumJTSetupEvals(void *arkode_mem,
+                                               long int *njtsetups);
 SUNDIALS_EXPORT int ARKSpilsGetNumJtimesEvals(void *arkode_mem, 
                                               long int *njvevals);
 SUNDIALS_EXPORT int ARKSpilsGetNumRhsEvals(void *arkode_mem, 

@@ -53,26 +53,24 @@
  *      || bbar - Abar xbar ||_2  <  delta
  * with an input test constant delta.
  *
- * The usage of this SPTFQMR solver involves supplying four routines
- * and making three calls.  The user-supplied routines are
+ * The usage of this SPTFQMR solver involves supplying up to three 
+ * routines and making a variety of calls.  The user-supplied routines are
  *    atimes (A_data, x, y) to compute y = A x, given x,
  *    psolve (P_data, y, x, lr) to solve P1 x = y or P2 x = y for 
  *           x, given y,
- *    atsetup (A_data) to perform any 'setup' operations in 
- *           preparation for calling atimes, and
  *    psetup (P_data) to perform any 'setup' operations in 
  *           preparation for calling psolve.
  * The three user calls are:
  *    SUNLinearSolver LS = SUNSPTFQMR(y, pretype, maxl);
  *           to create the linear solver structure,
- *    flag = SUNLinSolSetATimes(LS, A_data, atsetup, atimes);
+ *    flag = SUNLinSolSetATimes(LS, A_data, atimes);
  *           to set the matrix-vector product setup/apply routines,
  *    flag = SUNLinSolSetPreconditioner(LS, P_data, psetup, psolve);
  *           to *optionally* set the preconditioner setup/apply routines,
  *    flag = SUNLinSolInitialize(LS);
  *           to perform internal solver memory allocations,
  *    flag = SUNLinSolSetup(LS, NULL);
- *           to call the atsetup and psetup routines (if non-NULL);
+ *           to call the psetup routine (if non-NULL);
  *    flag = SUNLinSolSolve(LS, NULL, x, b, w, tol);
  *           to solve the linear system to the tolerance 'tol'
  *    long int nli = SUNLinSolNumIters(LS);
@@ -82,7 +80,7 @@
  *           to *optionally* retrieve the last internal solver error flag,
  *    flag = SUNLinSolFree(LS);
  *           to free the solver memory.
- * Complete details for specifying atsetup, atimes, psetup and psolve 
+ * Complete details for specifying atimes, psetup and psolve 
  * and for the usage calls are given below.
  *
  * -----------------------------------------------------------------
@@ -128,9 +126,8 @@ extern "C" {
  *     numiters -- number of iterations from most-recent solve
  *     resnorm -- final linear residual norm from most-recent solve
  *     last_flag -- last error return flag from internal setup/solve
- *     ATSetup -- function pointer to setup routine for ATimes data
  *     ATimes -- function pointer to ATimes routine
- *     ATData -- pointer to structure for ATSetup/ATimes
+ *     ATData -- pointer to structure for ATimes
  *     Psetup -- function pointer to preconditioner setup routine
  *     Psolve -- function pointer to preconditioner solve routine
  *     PData -- pointer to structure for Psetup/Psolve
@@ -153,7 +150,6 @@ struct _SUNLinearSolverContent_SPTFQMR {
   realtype resnorm;
   long int last_flag;
 
-  ATSetupFn ATSetup;
   ATimesFn ATimes;
   void* ATData;
   PSetupFn Psetup;
@@ -205,17 +201,17 @@ SUNDIALS_EXPORT int SUNSPTFQMRSetMaxl(SUNLinearSolver S, int maxl);
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetATimes_SPTFQMR(SUNLinearSolver S, void* A_data,
-                                              ATSetupFn ATSetup, ATimesFn ATimes);
+                                               ATimesFn ATimes);
 SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_SPTFQMR(SUNLinearSolver S,
-                                                      void* P_data,
-                                                      PSetupFn Pset,
-                                                      PSolveFn Psol);
+                                                       void* P_data,
+                                                       PSetupFn Pset,
+                                                       PSolveFn Psol);
 SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_SPTFQMR(SUNLinearSolver S,
-                                                      N_Vector s1,
-                                                      N_Vector s2);
+                                                       N_Vector s1,
+                                                       N_Vector s2);
 SUNDIALS_EXPORT int SUNLinSolSetup_SPTFQMR(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A,
-                                          N_Vector x, N_Vector b, realtype tol);
+                                           N_Vector x, N_Vector b, realtype tol);
 SUNDIALS_EXPORT int SUNLinSolNumIters_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT N_Vector SUNLinSolResid_SPTFQMR(SUNLinearSolver S);

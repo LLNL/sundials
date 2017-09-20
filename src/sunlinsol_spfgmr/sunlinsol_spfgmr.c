@@ -117,7 +117,6 @@ SUNLinearSolver SUNSPFGMR(N_Vector y, int pretype, int maxl)
   if (content->vtemp == NULL)  return(NULL);
   content->s1 = NULL;
   content->s2 = NULL;
-  content->ATSetup = NULL;
   content->ATimes = NULL;
   content->ATData = NULL;
   content->Psetup = NULL;
@@ -287,12 +286,11 @@ int SUNLinSolInitialize_SPFGMR(SUNLinearSolver S)
 
 
 int SUNLinSolSetATimes_SPFGMR(SUNLinearSolver S, void* ATData, 
-                            ATSetupFn ATSetup, ATimesFn ATimes)
+                              ATimesFn ATimes)
 {
-  /* set function pointers to integrator-supplied ATSetup 
-     and ATimes routines and data, and return with success */
+  /* set function pointers to integrator-supplied ATimes routine 
+     and data, and return with success */
   if (S == NULL) return(SUNLS_MEM_NULL);
-  SPFGMR_CONTENT(S)->ATSetup = ATSetup;
   SPFGMR_CONTENT(S)->ATimes = ATimes;
   SPFGMR_CONTENT(S)->ATData = ATData;
   LASTFLAG(S) = SUNLS_SUCCESS;
@@ -333,21 +331,12 @@ int SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
 
   /* Set shortcuts to SPFGMR memory structures */
   if (S == NULL) return(SUNLS_MEM_NULL);
-  ATSetupFn ATSetup = SPFGMR_CONTENT(S)->ATSetup;
   PSetupFn Psetup = SPFGMR_CONTENT(S)->Psetup;
   void* ATData = SPFGMR_CONTENT(S)->ATData;
   void* PData = SPFGMR_CONTENT(S)->PData;
   
   /* no solver-specific setup is required, but if user-supplied 
-     ATSetup or Psetup routines exist, call those here */
-  if (ATSetup != NULL) {
-    ier = ATSetup(ATData);
-    if (ier != 0) {
-      LASTFLAG(S) = (ier < 0) ? 
-	SUNLS_ASET_FAIL_UNREC : SUNLS_ASET_FAIL_REC;
-      return(LASTFLAG(S));
-    }
-  }
+     Psetup routine exists, call that here */
   if (Psetup != NULL) {
     ier = Psetup(PData);
     if (ier != 0) {

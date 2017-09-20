@@ -177,7 +177,7 @@ int CVSpilsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS)
   cvspils_mem->last_flag = CVSPILS_SUCCESS;
 
   /* Attach default CVSpils interface routines to iterative LS */
-  retval = SUNLinSolSetATimes(LS, cv_mem, NULL, CVSpilsATimes);
+  retval = SUNLinSolSetATimes(LS, cv_mem, CVSpilsATimes);
   if (retval != SUNLS_SUCCESS) {
     cvProcessError(cv_mem, CVSPILS_SUNLS_FAIL, "CVSSPILS", 
                     "CVSpilsSetLinearSolver", 
@@ -295,7 +295,7 @@ int CVSpilsSetPreconditioner(void *cvode_mem,
   retval = SUNLinSolSetPreconditioner(cvspils_mem->LS, cv_mem, 
                                       cvspils_psetup, cvspils_psolve);
   if (retval != SUNLS_SUCCESS) {
-    cvProcessError(cv_mem, CVSPILS_SUNLS_FAIL, "CVSPILS", 
+    cvProcessError(cv_mem, CVSPILS_SUNLS_FAIL, "CVSSPILS", 
                    "CVSpilsSetPreconditioner", 
                    "Error in calling SUNLinSolSetPreconditioner");
     return(CVSPILS_SUNLS_FAIL);
@@ -312,7 +312,6 @@ int CVSpilsSetJacTimes(void *cvode_mem,
   int retval;
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
-  ATSetupFn cvspils_atsetup;
 
   /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
   if (cvode_mem == NULL) {
@@ -338,14 +337,10 @@ int CVSpilsSetJacTimes(void *cvode_mem,
   }
   cvspils_mem->jtsetup = jtsetup;
 
-  /* notify iterative linear solver to call CVSpils interface routines;
-   non-NULL jtsetup implies use of CVSpilsATSetup interface routine;
-   CVSpilsATimes should always be used */
-  cvspils_atsetup = (jtsetup == NULL) ? NULL : CVSpilsATSetup;
-  retval = SUNLinSolSetATimes(cvspils_mem->LS, cv_mem, 
-                              cvspils_atsetup, CVSpilsATimes);
+  /* notify iterative linear solver to call CVSpils interface routines */
+  retval = SUNLinSolSetATimes(cvspils_mem->LS, cv_mem, CVSpilsATimes);
   if (retval != SUNLS_SUCCESS) {
-    cvProcessError(cv_mem, CVSPILS_SUNLS_FAIL, "CVSPILS", 
+    cvProcessError(cv_mem, CVSPILS_SUNLS_FAIL, "CVSSPILS", 
                     "CVSpilsSetJacTimes", 
                     "Error in calling SUNLinSolSetATimes");
     return(CVSPILS_SUNLS_FAIL);
@@ -500,6 +495,31 @@ int CVSpilsGetNumConvFails(void *cvode_mem, long int *nlcfails)
 }
 
 
+int CVSpilsGetNumJTSetupEvals(void *cvode_mem, long int *njtsetups)
+{
+  CVodeMem cv_mem;
+  CVSpilsMem cvspils_mem;
+
+  /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSSPILS",
+                   "CVSpilsGetNumJTSetupEvals", MSGS_CVMEM_NULL);
+    return(CVSPILS_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+  if (cv_mem->cv_lmem == NULL) {
+    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSSPILS",
+                   "CVSpilsGetNumJTSetupEvals", MSGS_LMEM_NULL);
+    return(CVSPILS_LMEM_NULL);
+  }
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
+
+  *njtsetups = cvspils_mem->njtsetup;
+
+  return(CVSPILS_SUCCESS);
+}
+
+
 int CVSpilsGetNumJtimesEvals(void *cvode_mem, long int *njvevals)
 {
   CVodeMem cv_mem;
@@ -620,45 +640,6 @@ char *CVSpilsGetReturnFlagName(long int flag)
   CVSSPILS private functions
   -----------------------------------------------------------------*/
 
-/*---------------------------------------------------------------
-  CVSpilsATSetup:
-
-  This routine provides a generic interface for calling a user-
-  supplied setup routine to prepare for subsequent calls to a 
-  user-supplied Jacobian-vector product routine.  The return value 
-  is 0 if successful, nonzero otherwise.
-  ---------------------------------------------------------------*/
-int CVSpilsATSetup(void *cvode_mem)
-{
-  CVodeMem   cv_mem;
-  CVSpilsMem cvspils_mem;
-  int flag;
-
-  /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
-  if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSSPILS", 
-                   "CVSpilsATSetup", MSGS_CVMEM_NULL);
-    return(CVSPILS_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-  if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSSPILS", 
-                   "CVSpilsATSetup", MSGS_LMEM_NULL);
-    return(CVSPILS_LMEM_NULL);
-  }
-  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
-
-  /* Call user-supplied jtsetup routine */
-  flag = cvspils_mem->jtsetup(cv_mem->cv_tn, 
-                              cvspils_mem->ycur, 
-                              cvspils_mem->fcur, 
-                              cvspils_mem->j_data);
-  cvspils_mem->njtsetup++;
-
-  return(flag);
-}
-
-
 /*-----------------------------------------------------------------
   CVSpilsATimes
 
@@ -720,13 +701,13 @@ int CVSpilsPSetup(void *cvode_mem)
 
   /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", 
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSSPILS", 
                    "CVSpilsPSetup", MSGS_CVMEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
   if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", 
+    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSSPILS", 
                    "CVSpilsPSetup", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
@@ -766,13 +747,13 @@ int CVSpilsPSolve(void *cvode_mem, N_Vector r, N_Vector z,
 
   /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", 
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSSPILS", 
                    "CVSpilsPSolve", MSGS_CVMEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
   if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", 
+    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSSPILS", 
                    "CVSpilsPSolve", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
@@ -807,13 +788,13 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 
   /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", 
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSSPILS", 
                    "CVSpilsDQJtimes", MSGS_CVMEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
   if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", 
+    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSSPILS", 
                    "CVSpilsDQJtimes", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
@@ -859,12 +840,12 @@ int cvSpilsInitialize(CVodeMem cv_mem)
 
   /* Return immediately if cv_mem or cv_mem->cv_lmem are NULL */
   if (cv_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", 
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSSPILS", 
                    "cvSpilsInitialize", MSGS_CVMEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", 
+    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSSPILS", 
                    "cvSpilsInitialize", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
@@ -902,12 +883,12 @@ int cvSpilsSetup(CVodeMem cv_mem, int convfail, N_Vector y,
 
   /* Return immediately if cv_mem or cv_mem->cv_lmem are NULL */
   if (cv_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", 
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSSPILS", 
                    "cvSpilsSetup", MSGS_CVMEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", 
+    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSSPILS", 
                    "cvSpilsSetup", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
@@ -959,12 +940,12 @@ int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   
   /* Return immediately if cv_mem or cv_mem->cv_lmem are NULL */
   if (cv_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", 
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSSPILS", 
                    "cvSpilsSolve", MSGS_CVMEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", 
+    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSSPILS", 
                    "cvSpilsSolve", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
@@ -992,6 +973,18 @@ int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                                       weight,
                                       weight);
 
+  /* If a user-provided jtsetup routine is supplied, call that here */
+  if (cvspils_mem->jtsetup) {
+    retval = cvspils_mem->jtsetup(cv_mem->cv_tn, ynow, fnow, 
+                                  cvspils_mem->j_data);
+    cvspils_mem->njtsetup++;
+    if (retval != 0) {
+      cvProcessError(cv_mem, retval, "CVSSPILS", 
+                      "cvSpilsSolve", MSGS_JTSETUP_FAILED);
+      return(retval);
+    }
+  }
+  
   /* Call solver, and copy x to b */
   retval = SUNLinSolSolve(cvspils_mem->LS, NULL, cvspils_mem->x,
                           b, cvspils_mem->delta);
@@ -1035,18 +1028,18 @@ int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
     return(-1);
     break;
   case SUNLS_PACKAGE_FAIL_UNREC:
-    cvProcessError(cv_mem, SUNLS_PACKAGE_FAIL_UNREC, "CVSPILS", 
+    cvProcessError(cv_mem, SUNLS_PACKAGE_FAIL_UNREC, "CVSSPILS", 
                    "cvSpilsSolve",
                     "Failure in SUNLinSol external package");
     return(-1);
     break;
   case SUNLS_ATIMES_FAIL_UNREC:
-    cvProcessError(cv_mem, SUNLS_ATIMES_FAIL_UNREC, "CVSPILS", 
+    cvProcessError(cv_mem, SUNLS_ATIMES_FAIL_UNREC, "CVSSPILS", 
                    "cvSpilsSolve", MSGS_JTIMES_FAILED);    
     return(-1);
     break;
   case SUNLS_PSOLVE_FAIL_UNREC:
-    cvProcessError(cv_mem, SUNLS_PSOLVE_FAIL_UNREC, "CVSPILS", 
+    cvProcessError(cv_mem, SUNLS_PSOLVE_FAIL_UNREC, "CVSSPILS", 
                    "cvSpilsSolve", MSGS_PSOLVE_FAILED);
     return(-1);
     break;

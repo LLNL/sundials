@@ -49,7 +49,7 @@ extern "C" {
   int Test_SUNLinSolResNorm(SUNLinearSolver S, int myid);
   int Test_SUNLinSolResid(SUNLinearSolver S, int myid);
   int Test_SUNLinSolSetATimes(SUNLinearSolver S, void *ATdata,
-                              ATSetupFn ATSetup, ATimesFn ATimes, int myid);
+                              ATimesFn ATimes, int myid);
   int Test_SUNLinSolSetPreconditioner(SUNLinearSolver S, void *Pdata,
                                       PSetupFn PSetup, PSolveFn PSolve, int myid);
   int Test_SUNLinSolSetScalingVectors(SUNLinearSolver S, N_Vector s1, 

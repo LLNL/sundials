@@ -124,7 +124,7 @@ int KINSpilsSetLinearSolver(void *kinmem, SUNLinearSolver LS)
   kinspils_mem->last_flag = KINSPILS_SUCCESS;
 
   /* Attach default KINSpils interface routines to iterative LS */
-  retval = SUNLinSolSetATimes(LS, kin_mem, NULL, KINSpilsATimes);
+  retval = SUNLinSolSetATimes(LS, kin_mem, KINSpilsATimes);
   if (retval != SUNLS_SUCCESS) {
     KINProcessError(kin_mem, KINSPILS_SUNLS_FAIL, "KINSPILS",
                     "KINSpilsSetLinearSolver",
@@ -231,8 +231,7 @@ int KINSpilsSetJacTimesVecFn(void *kinmem, KINSpilsJacTimesVecFn jtv)
   }
 
   /* notify iterative linear solver to call KINSpils interface routines */
-  retval = SUNLinSolSetATimes(kinspils_mem->LS, kin_mem, 
-                              NULL, KINSpilsATimes);
+  retval = SUNLinSolSetATimes(kinspils_mem->LS, kin_mem, KINSpilsATimes);
   if (retval != SUNLS_SUCCESS) {
     KINProcessError(kin_mem, KINSPILS_SUNLS_FAIL, "KINSPILS", 
                     "KINSpilsSetJacTimes", 
@@ -583,7 +582,7 @@ int KINSpilsPSetup(void *kinmem)
   int         retval;
 
   /* Return immediately if kin_mem or kin_mem->kin_lmem are NULL */
-  if (kin_mem == NULL) {
+  if (kinmem == NULL) {
     KINProcessError(NULL, KINSPILS_MEM_NULL, "KINSPILS", 
 		    "KINSpilsPSetup", MSGS_KINMEM_NULL);
     return(KINSPILS_MEM_NULL);
@@ -624,7 +623,7 @@ int KINSpilsPSolve(void *kinmem, N_Vector r, N_Vector z,
   int retval;
 
   /* Return immediately if kin_mem or kin_mem->kin_lmem are NULL */
-  if (kin_mem == NULL) {
+  if (kinmem == NULL) {
     KINProcessError(NULL, KINSPILS_MEM_NULL, "KINSPILS", 
 		    "KINSpilsPSolve", MSGS_KINMEM_NULL);
     return(KINSPILS_MEM_NULL);
@@ -677,7 +676,7 @@ int KINSpilsDQJtimes(N_Vector v, N_Vector Jv, N_Vector u,
   int retval;
 
   /* Return immediately if kin_mem or kin_mem->kin_lmem are NULL */
-  if (kin_mem == NULL) {
+  if (kinmem == NULL) {
     KINProcessError(NULL, KINSPILS_MEM_NULL, "KINSPILS", 
 		    "KINSpilsDQJtimes", MSGS_KINMEM_NULL);
     return(KINSPILS_MEM_NULL);

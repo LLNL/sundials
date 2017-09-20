@@ -2177,6 +2177,7 @@ No. of linear iterations & \id{CVSpilsGetNumLinIters} \\
 No. of linear convergence failures & \id{CVSpilsGetNumConvFails} \\
 No. of preconditioner evaluations & \id{CVSpilsGetNumPrecEvals} \\
 No. of preconditioner solves & \id{CVSpilsGetNumPrecSolves} \\
+No. of Jacobian-vector setup evaluations & \id{CVSpilsGetNumJTSetupEvals} \\
 No. of Jacobian-vector product evaluations & \id{CVSpilsGetNumJtimesEvals} \\
 No. of r.h.s. calls for finite diff. Jacobian-vector evals. & \id{CVSpilsGetNumRhsEvals} \\ 
 Last return from a linear solver function & \id{CVSpilsGetLastFlag} \\ 
@@ -3253,6 +3254,37 @@ the name of an optional output from the main solver, a suffix \id{LS}
     pointer to the {\cvode} memory block.
   \item[npsolves] (\id{long int})
     the current number of calls to \id{psolve}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVSPILS\_LMEM\_NULL]
+  \item[\Id{CVSPILS\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{CVSPILS\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVSPILS\_LMEM\_NULL}]
+    The {\cvspils} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{CVSpilsGetNumJTSetupEvals}
+{
+  flag = CVSpilsGetNumJTSetupEvals(cvode\_mem, \&njtsetup);
+}
+{
+  The function \ID{CVSpilsGetNumJTSetupEvals} returns the
+  cumulative number made to the Jacobian-vector product setup
+  function, \id{jtsetup}.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[njtsetup] (\id{long int})
+    the current number of calls to \id{jtsetup}.
   \end{args}
 }
 {

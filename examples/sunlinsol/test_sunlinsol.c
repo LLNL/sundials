@@ -203,14 +203,14 @@ int Test_SUNLinSolResid(SUNLinearSolver S, int myid)
  * SUNLinSolSetATimes Test
  * --------------------------------------------------------------------*/
 int Test_SUNLinSolSetATimes(SUNLinearSolver S, void *ATdata,
-                            ATSetupFn ATSetup, ATimesFn ATimes, int myid)
+                            ATimesFn ATimes, int myid)
 {
   int     failure;
   double  start_time, stop_time;
 
   /* try calling SetATimes routine: should pass/fail based on expected input */
   start_time = get_time();
-  failure = SUNLinSolSetATimes(S, ATdata, ATSetup, ATimes);
+  failure = SUNLinSolSetATimes(S, ATdata, ATimes);
   stop_time = get_time(); 
 
   if (failure) {

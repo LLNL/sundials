@@ -348,6 +348,8 @@ SUNDIALS_EXPORT int CVSpilsSetJacTimes(void *cvode_mem,
   CVSpilsGetNumConvFails returns the number of linear
                   convergence failures.
  
+  CVSpilsGetNumJTSetupEvals returns the number of calls to jtsetup.
+ 
   CVSpilsGetNumJtimesEvals returns the number of calls to jtimes.
  
   CVSpilsGetNumRhsEvals returns the number of calls to the user
@@ -374,6 +376,8 @@ SUNDIALS_EXPORT int CVSpilsGetNumLinIters(void *cvode_mem,
                                           long int *nliters);
 SUNDIALS_EXPORT int CVSpilsGetNumConvFails(void *cvode_mem,
                                            long int *nlcfails);
+SUNDIALS_EXPORT int CVSpilsGetNumJTSetupEvals(void *cvode_mem,
+                                              long int *njtsetups);
 SUNDIALS_EXPORT int CVSpilsGetNumJtimesEvals(void *cvode_mem,
                                              long int *njvevals);
 SUNDIALS_EXPORT int CVSpilsGetNumRhsEvals(void *cvode_mem,

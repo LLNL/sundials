@@ -73,18 +73,6 @@ enum { PREC_NONE, PREC_LEFT, PREC_RIGHT, PREC_BOTH };
 
 enum { MODIFIED_GS = 1, CLASSICAL_GS = 2 };
 
-/* 
- * -----------------------------------------------------------------
- * Type: ATSetupFn
- * -----------------------------------------------------------------
- * An ATSetupFn integrator-supplied routine that accesses data
- * stored in the integrator memory structure (A_data), and calls 
- * the user-supplied, integrator-specific ATimes setup routine. 
- * -----------------------------------------------------------------
- */
- 
-typedef int (*ATSetupFn)(void *A_data);
-
 /*
  * -----------------------------------------------------------------
  * Type: ATimesFn                                                 

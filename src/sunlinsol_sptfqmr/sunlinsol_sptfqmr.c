@@ -130,7 +130,6 @@ SUNLinearSolver SUNSPTFQMR(N_Vector y, int pretype, int maxl)
   if (content->vtemp3 == NULL)  return(NULL);
   content->s1 = NULL;
   content->s2 = NULL;
-  content->ATSetup = NULL;
   content->ATimes = NULL;
   content->ATData = NULL;
   content->Psetup = NULL;
@@ -220,12 +219,11 @@ int SUNLinSolInitialize_SPTFQMR(SUNLinearSolver S)
 
 
 int SUNLinSolSetATimes_SPTFQMR(SUNLinearSolver S, void* ATData, 
-                               ATSetupFn ATSetup, ATimesFn ATimes)
+                               ATimesFn ATimes)
 {
-  /* set function pointers to integrator-supplied ATSetup 
-     and ATimes routines and data, and return with success */
+  /* set function pointers to integrator-supplied ATimes routine
+     and data, and return with success */
   if (S == NULL) return(SUNLS_MEM_NULL);
-  SPTFQMR_CONTENT(S)->ATSetup = ATSetup;
   SPTFQMR_CONTENT(S)->ATimes = ATimes;
   SPTFQMR_CONTENT(S)->ATData = ATData;
   LASTFLAG(S) = SUNLS_SUCCESS;
@@ -267,21 +265,12 @@ int SUNLinSolSetup_SPTFQMR(SUNLinearSolver S, SUNMatrix A)
 
   /* Set shortcuts to SPTFQMR memory structures */
   if (S == NULL) return(SUNLS_MEM_NULL);
-  ATSetupFn ATSetup = SPTFQMR_CONTENT(S)->ATSetup;
   PSetupFn Psetup = SPTFQMR_CONTENT(S)->Psetup;
   void* ATData = SPTFQMR_CONTENT(S)->ATData;
   void* PData = SPTFQMR_CONTENT(S)->PData;
   
   /* no solver-specific setup is required, but if user-supplied 
-     ATSetup or Psetup routines exist, call those here */
-  if (ATSetup != NULL) {
-    ier = ATSetup(ATData);
-    if (ier != 0) {
-      LASTFLAG(S) = (ier < 0) ? 
-	SUNLS_ASET_FAIL_UNREC : SUNLS_ASET_FAIL_REC;
-      return(LASTFLAG(S));
-    }
-  }
+     Psetup routine exists, call that here */
   if (Psetup != NULL) {
     ier = Psetup(PData);
     if (ier != 0) {
@@ -297,7 +286,7 @@ int SUNLinSolSetup_SPTFQMR(SUNLinearSolver S, SUNMatrix A)
 
 
 int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
-                         N_Vector b, realtype delta)
+                           N_Vector b, realtype delta)
 {
   /* local data and shortcut variables */
   realtype alpha, tau, eta, beta, c, sigma, v_bar, omega;

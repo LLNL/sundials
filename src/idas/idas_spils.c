@@ -175,7 +175,7 @@ int IDASpilsSetLinearSolver(void *ida_mem, SUNLinearSolver LS)
   idaspils_mem->last_flag = IDASPILS_SUCCESS;
 
   /* Attach default IDASpils interface routines to iterative LS */
-  retval = SUNLinSolSetATimes(LS, IDA_mem, NULL, IDASpilsATimes);
+  retval = SUNLinSolSetATimes(LS, IDA_mem, IDASpilsATimes);
   if (retval != SUNLS_SUCCESS) {
     IDAProcessError(IDA_mem, IDASPILS_SUNLS_FAIL, "IDASSPILS", 
                     "IDASpilsSetLinearSolver", 
@@ -358,7 +358,6 @@ int IDASpilsSetJacTimes(void *ida_mem,
   int retval;
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
-  ATSetupFn idaspils_atsetup;
 
   /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
@@ -384,12 +383,8 @@ int IDASpilsSetJacTimes(void *ida_mem,
   }
   idaspils_mem->jtsetup = jtsetup;
 
-  /* notify iterative linear solver to call IDASpils interface routines;
-   non-NULL jtsetup implies use of IDASpilsATSetup interface routine;
-   IDASpilsATimes should always be used */
-  idaspils_atsetup = (jtsetup == NULL) ? NULL : IDASpilsATSetup;
-  retval = SUNLinSolSetATimes(idaspils_mem->LS, IDA_mem, 
-                              idaspils_atsetup, IDASpilsATimes);
+  /* notify iterative linear solver to call IDASpils interface routines */
+  retval = SUNLinSolSetATimes(idaspils_mem->LS, IDA_mem, IDASpilsATimes);
   if (retval != SUNLS_SUCCESS) {
     IDAProcessError(IDA_mem, IDASPILS_SUNLS_FAIL, "IDASSPILS", 
                     "IDASpilsSetJacTimes", 
@@ -696,47 +691,6 @@ char *IDASpilsGetReturnFlagName(long int flag)
   -----------------------------------------------------------------*/
 
 /*---------------------------------------------------------------
-  IDASpilsATSetup:
-
-  This routine provides a generic interface for calling a user-
-  supplied setup routine to prepare for subsequent calls to a 
-  user-supplied Jacobian-vector product routine.  The return 
-  value is 0 if successful, nonzero otherwise.
-  ---------------------------------------------------------------*/
-int IDASpilsATSetup(void *ida_mem)
-{
-  IDAMem IDA_mem;
-  IDASpilsMem idaspils_mem;
-  int flag;
-
-  /* Return immediately if ida_mem or ida_mem->ida_lmem are NULL */
-  if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS", 
-                    "IDASpilsATSetup", MSGS_IDAMEM_NULL);
-    return(IDASPILS_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-  if (IDA_mem->ida_lmem == NULL) {
-    IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS", 
-                    "IDASpilsATSetup", MSGS_LMEM_NULL);
-    return(IDASPILS_LMEM_NULL);
-  }
-  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
-
-  /* Call user-supplied jtsetup routine */
-  flag = idaspils_mem->jtsetup(IDA_mem->ida_tn, 
-                               idaspils_mem->ycur, 
-                               idaspils_mem->ypcur, 
-                               idaspils_mem->rcur,
-                               IDA_mem->ida_cj,
-                               idaspils_mem->jdata);
-  idaspils_mem->njtsetup++;
-  
-  return(flag);
-}
-
-
-/*---------------------------------------------------------------
   IDASpilsATimes:
 
   This routine generates the matrix-vector product z = Jv, where
@@ -1004,8 +958,7 @@ int idaSpilsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
   idaspils_mem->ypcur = yp;
   idaspils_mem->rcur  = r;
 
-  /* Call LS setup routine -- the LS will call IDASpilsJTSetup 
-     and IDASpilsPSetup if applicable */
+  /* Call LS setup routine -- the LS will call IDASpilsPSetup if applicable */
   retval = SUNLinSolSetup(idaspils_mem->LS, NULL);
   return(retval);
 }
@@ -1056,6 +1009,18 @@ int idaSpilsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   /* Set scaling vectors for LS to use */
   retval = SUNLinSolSetScalingVectors(idaspils_mem->LS, weight, weight);
 
+  /* If a user-provided jtsetup routine is supplied, call that here */
+  if (idaspils_mem->jtsetup) {
+    retval = idaspils_mem->jtsetup(IDA_mem->ida_tn, ycur, ypcur, rescur,
+                                   IDA_mem->ida_cj, idaspils_mem->jdata);
+    idaspils_mem->njtsetup++;
+    if (retval != 0) {
+      IDAProcessError(IDA_mem, retval, "IDASPILS", 
+                      "idaSpilsSolve", MSGS_JTSETUP_FAILED);
+      return(retval);
+    }
+  }
+  
   /* Call solver */
   retval = SUNLinSolSolve(idaspils_mem->LS, NULL, idaspils_mem->x,
                           b, idaspils_mem->epslin);

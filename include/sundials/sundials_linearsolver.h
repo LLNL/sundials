@@ -138,8 +138,7 @@ typedef struct _generic_SUNLinearSolver *SUNLinearSolver;
 /* Structure containing function pointers to linear solver operations */  
 struct _generic_SUNLinearSolver_Ops {
   SUNLinearSolver_Type (*gettype)(SUNLinearSolver);
-  int                  (*setatimes)(SUNLinearSolver, void*, 
-                                    ATSetupFn, ATimesFn);
+  int                  (*setatimes)(SUNLinearSolver, void*, ATimesFn);
   int                  (*setpreconditioner)(SUNLinearSolver, void*, 
                                             PSetupFn, PSolveFn);
   int                  (*setscalingvectors)(SUNLinearSolver,
@@ -174,15 +173,15 @@ struct _generic_SUNLinearSolver {
  *   enumeration SUNLinearSolver_Type.
  *
  * SUNLinSolSetATimes (iterative methods only)
- *   Sets the function pointers for ATSetup and ATimes inside of an
- *   iterative linear solver object.  This function should only be 
- *   called by a main integrator, who will either provide this via 
+ *   Sets the function pointer for ATimes inside of an iterative 
+ *   linear solver object.  This function should only be called by a 
+ *   main integrator, who will either provide this via 
  *   difference-quotients and vector operations, or by translating 
- *   between the generic ATSetup and ATimes calls and the 
- *   integrator-specific, user-supplied routines.  This should return
- *   zero for a successful call, and a negative value for a failure.  
- *   Ideally, this should return one of the generic SUNLS_* error 
- *   codes listed at the bottom of this file.
+ *   between the generic ATimes call and the integrator-specific, 
+ *   user-supplied routines.  This should return zero for a 
+ *   successful call, and a negative value for a failure.  Ideally, 
+ *   this should return one of the generic SUNLS_* error codes 
+ *   listed at the bottom of this file.
  *
  * SUNLinSolSetPreconditioner (iterative methods only)
  *   Sets function pointers for PSetup and PSolve routines inside 
@@ -303,7 +302,7 @@ struct _generic_SUNLinearSolver {
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver S);
 
 SUNDIALS_EXPORT int SUNLinSolSetATimes(SUNLinearSolver S, void* A_data,
-                                       ATSetupFn ATSetup, ATimesFn ATimes);
+                                       ATimesFn ATimes);
   
 SUNDIALS_EXPORT int SUNLinSolSetPreconditioner(SUNLinearSolver S, void* P_data,
                                                PSetupFn Pset, PSolveFn Psol);
@@ -343,23 +342,21 @@ SUNDIALS_EXPORT int SUNLinSolFree(SUNLinearSolver S);
 #define SUNLS_MEM_NULL           -1  /* mem argument is NULL          */
 #define SUNLS_ILL_INPUT          -2  /* illegal function input        */
 #define SUNLS_MEM_FAIL           -3  /* failed memory access          */
-#define SUNLS_ASET_FAIL_UNREC    -4  /* atsetup unrecoverable failure */
-#define SUNLS_ATIMES_FAIL_UNREC  -5  /* atimes unrecoverable failure  */
-#define SUNLS_PSET_FAIL_UNREC    -6  /* pset unrecoverable failure    */
-#define SUNLS_PSOLVE_FAIL_UNREC  -7  /* psolve unrecoverable failure  */
-#define SUNLS_PACKAGE_FAIL_UNREC -8  /* external package unrec. fail  */
-#define SUNLS_GS_FAIL            -9  /* Gram-Schmidt failure          */        
-#define SUNLS_QRSOL_FAIL        -10  /* QRsol found singular R        */
+#define SUNLS_ATIMES_FAIL_UNREC  -4  /* atimes unrecoverable failure  */
+#define SUNLS_PSET_FAIL_UNREC    -5  /* pset unrecoverable failure    */
+#define SUNLS_PSOLVE_FAIL_UNREC  -6  /* psolve unrecoverable failure  */
+#define SUNLS_PACKAGE_FAIL_UNREC -7  /* external package unrec. fail  */
+#define SUNLS_GS_FAIL            -8  /* Gram-Schmidt failure          */        
+#define SUNLS_QRSOL_FAIL         -9  /* QRsol found singular R        */
 
 #define SUNLS_RES_REDUCED         1  /* nonconv. solve, resid reduced */
 #define SUNLS_CONV_FAIL           2  /* nonconvergent solve           */
-#define SUNLS_ASET_FAIL_REC       3  /* atsetup failed recoverably    */
-#define SUNLS_ATIMES_FAIL_REC     4  /* atimes failed recoverably     */
-#define SUNLS_PSET_FAIL_REC       5  /* pset failed recoverably       */
-#define SUNLS_PSOLVE_FAIL_REC     6  /* psolve failed recoverably     */
-#define SUNLS_PACKAGE_FAIL_REC    7  /* external package recov. fail  */
-#define SUNLS_QRFACT_FAIL         8  /* QRfact found singular matrix  */
-#define SUNLS_LUFACT_FAIL         9  /* LUfact found singular matrix  */
+#define SUNLS_ATIMES_FAIL_REC     3  /* atimes failed recoverably     */
+#define SUNLS_PSET_FAIL_REC       4  /* pset failed recoverably       */
+#define SUNLS_PSOLVE_FAIL_REC     5  /* psolve failed recoverably     */
+#define SUNLS_PACKAGE_FAIL_REC    6  /* external package recov. fail  */
+#define SUNLS_QRFACT_FAIL         7  /* QRfact found singular matrix  */
+#define SUNLS_LUFACT_FAIL         8  /* LUfact found singular matrix  */
 
 #ifdef __cplusplus
 }

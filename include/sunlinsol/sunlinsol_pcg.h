@@ -53,20 +53,18 @@
  * where || v ||_S =  sqrt(v' S' S v) with an input test constant 
  * delta.
  *
- * The usage of this PCG solver involves supplying up to four 
- * routines and making up to eleven calls.  The user-supplied 
+ * The usage of this PCG solver involves supplying up to three
+ * routines and making a variety of calls.  The user-supplied 
  * routines are
  *    atimes (A_data, x, y) to compute y = A x, given x,
  *    psolve (P_data, y, x, lr) to solve P1 x = y or P2 x = y for 
  *           x, given y,
- *    atsetup (A_data) to perform any 'setup' operations in 
- *           preparation for calling atimes, and
  *    psetup (P_data) to perform any 'setup' operations in 
  *           preparation for calling psolve.
  * The user calls are:
  *    SUNLinearSolver LS = SUNPCG(y, pretype, maxl);
  *           to create the linear solver structure,
- *    flag = SUNLinSolSetATimes(LS, A_data, atsetup, atimes);
+ *    flag = SUNLinSolSetATimes(LS, A_data, atimes);
  *           to set the matrix-vector product setup/apply routines,
  *    flag = SUNLinSolSetPreconditioner(LS, P_data, psetup, psolve);
  *           to *optionally* set the preconditioner setup/apply routines,
@@ -76,7 +74,7 @@
  *    flag = SUNLinSolInitialize(LS);
  *           to perform internal solver memory allocations,
  *    flag = SUNLinSolSetup(LS, NULL);
- *           to call the atsetup and psetup routines (if non-NULL);
+ *           to call the psetup routine (if non-NULL);
  *    flag = SUNLinSolSolve(LS, NULL, x, b, w, tol);
  *           to solve the linear system to the tolerance 'tol'
  *    long int nli = SUNLinSolNumIters(LS);
@@ -88,7 +86,7 @@
  *           to *optionally* retrieve the final linear residual norm,
  *    flag = SUNLinSolFree(LS);
  *           to free the solver memory.
- * Complete details for specifying atsetup, atimes, psetup and psolve 
+ * Complete details for specifying atimes, psetup and psolve 
  * and for the usage calls are given below.
  *
  * -----------------------------------------------------------------
@@ -134,9 +132,8 @@ extern "C" {
  *     numiters -- number of iterations from most-recent solve
  *     resnorm -- final linear residual norm from most-recent solve
  *     last_flag -- last error return flag from internal setup/solve
- *     ATSetup -- function pointer to setup routine for ATimes data
  *     ATimes -- function pointer to ATimes routine
- *     ATData -- pointer to structure for ATSetup/ATimes
+ *     ATData -- pointer to structure for ATimes
  *     Psetup -- function pointer to preconditioner setup routine
  *     Psolve -- function pointer to preconditioner solve routine
  *     PData -- pointer to structure for Psetup/Psolve
@@ -156,7 +153,6 @@ struct _SUNLinearSolverContent_PCG {
   realtype resnorm;
   long int last_flag;
 
-  ATSetupFn ATSetup;
   ATimesFn ATimes;
   void* ATData;
   PSetupFn Psetup;
@@ -195,7 +191,7 @@ SUNDIALS_EXPORT int SUNPCGSetMaxl(SUNLinearSolver S, int maxl);
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_PCG(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_PCG(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetATimes_PCG(SUNLinearSolver S, void* A_data,
-                                           ATSetupFn ATSetup, ATimesFn ATimes);
+                                           ATimesFn ATimes);
 SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_PCG(SUNLinearSolver S,
                                                    void* P_data,
                                                    PSetupFn Pset,

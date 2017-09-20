@@ -142,14 +142,12 @@ typedef struct ARKSpilsMassMemRec {
 ---------------------------------------------------------------*/
 
 /* Interface routines called by system SUNLinearSolver */
-int ARKSpilsATSetup(void *ark_mem);
 int ARKSpilsATimes(void *ark_mem, N_Vector v, N_Vector z);
 int ARKSpilsPSetup(void *ark_mem);
 int ARKSpilsPSolve(void *ark_mem, N_Vector r, N_Vector z,
                    realtype tol, int lr);
 
 /* Interface routines called by mass SUNLinearSolver */
-int ARKSpilsMTSetup(void *ark_mem);
 int ARKSpilsMTimes(void *ark_mem, N_Vector v, N_Vector z);
 int ARKSpilsMPSetup(void *ark_mem);
 int ARKSpilsMPSolve(void *ark_mem, N_Vector r, N_Vector z,
@@ -202,8 +200,10 @@ int arkSpilsInitializeMassCounters(ARKSpilsMassMem arkspils_mem);
 
 #define MSGS_PSET_FAILED   "The preconditioner setup routine failed in an unrecoverable manner."
 #define MSGS_PSOLVE_FAILED "The preconditioner solve routine failed in an unrecoverable manner."
+#define MSGS_JTSETUP_FAILED "The Jacobian x vector setup routine failed in an unrecoverable manner."
 #define MSGS_JTIMES_FAILED "The Jacobian x vector routine failed in an unrecoverable manner."
-#define MSGS_MTIMES_FAILED "The mass matrix * vector routine failed in an unrecoverable manner."
+#define MSGS_MTSETUP_FAILED "The mass matrix x vector setup routine failed in an unrecoverable manner."
+#define MSGS_MTIMES_FAILED "The mass matrix x vector routine failed in an unrecoverable manner."
 
 
 #ifdef __cplusplus

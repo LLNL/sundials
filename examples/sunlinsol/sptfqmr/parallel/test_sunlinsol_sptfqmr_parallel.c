@@ -48,8 +48,6 @@ typedef struct {
 } UserData;
 
 /* private functions */
-/*    matrix-vector product setup */
-int ATSetup(void* ProbData);
 /*    matrix-vector product  */
 int ATimes(void* ProbData, N_Vector v, N_Vector z);
 /*    preconditioner setup */
@@ -188,8 +186,7 @@ int main(int argc, char *argv[])
   LS = SUNSPTFQMR(x, pretype, maxl);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_ITERATIVE,
                                  ProbData.myid);
-  fails += Test_SUNLinSolSetATimes(LS, &ProbData, ATSetup, ATimes,
-                                   ProbData.myid);
+  fails += Test_SUNLinSolSetATimes(LS, &ProbData, ATimes, ProbData.myid);
   fails += Test_SUNLinSolSetPreconditioner(LS, &ProbData, PSetup,
                                            PSolve, ProbData.myid);
   fails += Test_SUNLinSolSetScalingVectors(LS, ProbData.s1, ProbData.s2,
@@ -402,9 +399,6 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Private helper functions
  * --------------------------------------------------------------------*/
-
-/* matrix-vector product setup -- nothing to do here since everything is already stored */
-int ATSetup(void* Data) { return 0; }
 
 /* matrix-vector product  */
 int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)

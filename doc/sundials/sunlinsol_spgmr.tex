@@ -23,7 +23,6 @@ struct _SUNLinearSolverContent_SPGMR {
   int numiters;
   realtype resnorm;
   long int last_flag;
-  ATSetupFn ATSetup;
   ATimesFn ATimes;
   void* ATData;
   PSetupFn Psetup;
@@ -53,9 +52,8 @@ information:
   \item[numiters] - number of iterations from most-recent solve
   \item[resnorm] - final linear residual norm from most-recent solve
   \item[last\_flag] - last error return flag from internal function
-  \item[ATSetup] - function pointer to setup routine for \id{ATimes} data
   \item[ATimes] - function pointer to perform $Av$ product
-  \item[ATData] - pointer to structure for \id{ATSetup}, \id{ATimes}
+  \item[ATData] - pointer to structure for \id{ATimes}
   \item[Psetup] - function pointer to preconditioner setup routine
   \item[Psolve] - function pointer to preconditioner solve routine
   \item[PData] - pointer to structure for \id{Psetup}, \id{Psolve}
@@ -98,16 +96,16 @@ This solver is constructed to perform the following operations:
 \item User-facing ``set'' routines may be called to modify default
   solver parameters.
 \item Additional ``set'' routines are called by the {\sundials} solver
-  that interfaces with {\sunlinsolspgmr} to supply the \id{ATSetup},
+  that interfaces with {\sunlinsolspgmr} to supply the 
   \id{ATimes}, \id{PSetup} and \id{Psolve} function pointers and
   \id{s1} and \id{s2} scaling vectors.
 \item In the ``initialize'' call, the remaining solver data is
   allocated (\id{V}, \id{Hes}, \id{givens}, \id{yg} )
-\item In the ``setup'' call, any non-\id{NULL} \id{ATSetup} and
-  \id{PSetup} functions are called.  Typically, these are provided by
-  the {\sundials} solvers themselves, that translate between the
-  generic \id{ATSetup} and \id{PSetup} functions and the
-  solver-specific routines (solver-supplied or user-supplied).
+\item In the ``setup'' call, any non-\id{NULL} 
+  \id{PSetup} function is called.  Typically, this is provided by
+  the {\sundials} solver itself, that translates between the
+  generic \id{PSetup} function and the
+  solver-specific routine (solver-supplied or user-supplied).
 \item In the ``solve'' call the GMRES iteration is performed.  This
   will include scaling, preconditioning and restarts if those options
   have been supplied.

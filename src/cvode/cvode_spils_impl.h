@@ -97,7 +97,6 @@ typedef struct CVSpilsMemRec {
   -----------------------------------------------------------------*/
 
 /* Interface routines called by system SUNLinearSolver */
-int CVSpilsATSetup(void *cv_mem);
 int CVSpilsATimes(void *cv_mem, N_Vector v, N_Vector z);
 int CVSpilsPSetup(void *cv_mem);
 int CVSpilsPSolve(void *cv_mem, N_Vector r, N_Vector z,
@@ -134,6 +133,7 @@ int cvSpilsInitializeCounters(CVSpilsMem cvspils_mem);
 
 #define MSGS_PSET_FAILED "The preconditioner setup routine failed in an unrecoverable manner."
 #define MSGS_PSOLVE_FAILED "The preconditioner solve routine failed in an unrecoverable manner."
+#define MSGS_JTSETUP_FAILED "The Jacobian x vector setup routine failed in an unrecoverable manner."
 #define MSGS_JTIMES_FAILED "The Jacobian x vector routine failed in an unrecoverable manner."
 
 

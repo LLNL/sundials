@@ -98,7 +98,6 @@ typedef struct IDASpilsMemRec {
   -----------------------------------------------------------------*/
 
 /* Interface routines called by system SUNLinearSolver */
-int IDASpilsATSetup(void *ida_mem);
 int IDASpilsATimes(void *ida_mem, N_Vector v, N_Vector z);
 int IDASpilsPSetup(void *ida_mem);
 int IDASpilsPSolve(void *ida_mem, N_Vector r, N_Vector z,

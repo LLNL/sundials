@@ -4,17 +4,9 @@
    - CVODES serial
    - KINSOL
 
-2. Revisit ATSetup idea.  It is currently not called frequently enough
-   to support the main use: for iterative linear solvers, allow a user
-   to precompute some information regarding J so that they can
-   subsequently perform (multiple) J*v evaluations.  This should be
-   done at EVERY Newton iteration, not as infrequently as we currently
-   call lsetup() (or PSetup()).  Perhaps add an lupdate() routine to
-   all integrator interfaces; this would be NULL for Dls and
-   ATSetup-free Spils interfaces, but would be non-NULL if a
-   user-provided ATSetup routine exists; it would be called *inside*
-   the Newton iteration so that iterative methods could use current
-   Jacobian information at each Newton step.
+2. Look back through meeting notes to see what David did for
+   'lsetup' in KINSOL that I did not do for the other integrators.
+   Implement this efficiency improvement throughout SUNDIALS.
 
 3. Update documentation on Dls and Spils interfaces for all
    integrators.  [CVODE is finished]

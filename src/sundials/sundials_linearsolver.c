@@ -40,10 +40,10 @@ SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver S)
 }
 
 int SUNLinSolSetATimes(SUNLinearSolver S, void* A_data,
-                       ATSetupFn ATSetup, ATimesFn ATimes)
+                       ATimesFn ATimes)
 {
   if (S->ops->setatimes)
-    return ((int) S->ops->setatimes(S, A_data, ATSetup, ATimes));
+    return ((int) S->ops->setatimes(S, A_data, ATimes));
   else
     return SUNLS_SUCCESS;
 }
