@@ -44,8 +44,8 @@ extern void FK_JTIMES(realtype* vdata, realtype* Jvdata, int* new_uu,
   ------------------------------------------------------------------*/
 void FKIN_SPILSSETJAC(int *flag, int *ier)
 {
-  if ((*flag) == 0) KINSpilsSetJacTimes(KIN_kinmem, NULL, NULL);
-  else              KINSpilsSetJacTimes(KIN_kinmem, NULL, FKINJtimes);
+  if ((*flag) == 0) KINSpilsSetJacTimesVecFn(KIN_kinmem, NULL);
+  else              KINSpilsSetJacTimesVecFn(KIN_kinmem, FKINJtimes);
 
   return;
 }

@@ -31,7 +31,7 @@
 extern "C" {
 #endif
  
-extern void FKIN_SPJAC(realtype *Y, realtype *FY, int *N,
+extern void FKIN_SPJAC(realtype *Y, realtype *FY, long int *N,
                        long int *NNZ, realtype *JDATA,
                        long int *JRVALS, long int *JCPTRS,
                        realtype *V1, realtype *V2, int *ier);
