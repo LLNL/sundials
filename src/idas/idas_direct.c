@@ -156,14 +156,13 @@ int IDADlsSetJacFn(void *ida_mem, IDADlsJacFn jac)
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDADLS_MEM_NULL, "IDASDLS",
                     "IDADlsSetJacFn", MSGD_IDAMEM_NULL);
     return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDASDLS",
                     "IDADlsSetJacFn", MSGD_LMEM_NULL);
@@ -198,14 +197,13 @@ int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS,
   long int lrw, liw;
   int flag;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDADLS_MEM_NULL, "IDASDLS",
                     "IDADlsGetWorkSpace", MSGD_IDAMEM_NULL);
     return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDASDLS",
                     "IDADlsGetWorkSpace", MSGD_LMEM_NULL);
@@ -243,14 +241,13 @@ int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals)
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDADLS_MEM_NULL, "IDASDLS",
                     "IDADlsGetNumJacEvals", MSGD_IDAMEM_NULL);
     return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDASDLS",
                     "IDADlsGetNumJacEvals", MSGD_LMEM_NULL);
@@ -273,14 +270,13 @@ int IDADlsGetNumResEvals(void *ida_mem, long int *nrevalsLS)
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDADLS_MEM_NULL, "IDASDLS",
                     "IDADlsGetNumResEvals", MSGD_IDAMEM_NULL);
     return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDASDLS",
                     "IDADlsGetNumResEvals", MSGD_LMEM_NULL);
@@ -345,14 +341,13 @@ int IDADlsGetLastFlag(void *ida_mem, long int *flag)
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDADLS_MEM_NULL, "IDASDLS",
                     "IDADlsGetLastFlag", MSGD_IDAMEM_NULL);
     return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDASDLS",
                     "IDADlsGetLastFlag", MSGD_LMEM_NULL);
@@ -657,6 +652,17 @@ int idaDlsInitialize(IDAMem IDA_mem)
 {
   IDADlsMem idadls_mem;
 
+  /* Return immediately if IDA_mem or IDA_mem->ida_lmem are NULL */
+  if (IDA_mem == NULL) {
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDASDLS", 
+                    "idaDlsInitialize", MSGD_IDAMEM_NULL);
+    return(IDADLS_MEM_NULL);
+  }
+  if (IDA_mem->ida_lmem == NULL) {
+    IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDASDLS", 
+                    "idaDlsInitialize", MSGD_LMEM_NULL);
+    return(IDADLS_LMEM_NULL);
+  }
   idadls_mem = (IDADlsMem) IDA_mem->ida_lmem;
   
   idaDlsInitializeCounters(idadls_mem);
@@ -1067,13 +1073,36 @@ static int idaDlsJacBWrapper(realtype tt, realtype c_jB, N_Vector yyB,
   sunindextype NeqB;
   int flag;
 
+  /* Is ida_mem allright? */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDASDLS",
+                    "idaDlsJacBWrapper", MSGD_CAMEM_NULL);
+    return(IDADLS_MEM_NULL);
+  }
   IDA_mem = (IDAMem) ida_mem;
+
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDADLS_NO_ADJ, "IDASDLS",
+                    "idaDlsJacBWrapper",  MSGD_NO_ADJ);
+    return(IDADLS_NO_ADJ);
+  }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Get current backward problem. */
+  if (IDAADJ_mem->ia_bckpbCrt == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDADLS_LMEMB_NULL, 
+                    "IDASDLS", "idaDlsJacBWrapper", MSGD_LMEMB_NULL);
+    return(IDADLS_LMEMB_NULL);
+  }
   IDAB_mem = IDAADJ_mem->ia_bckpbCrt;
   
   /* Get linear solver's data for this backward problem. */
+  if (IDAB_mem->ida_lmem == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDADLS_LMEMB_NULL, 
+                    "IDASDLS", "idaDlsJacBWrapper", MSGD_LMEMB_NULL);
+    return(IDADLS_LMEMB_NULL);
+  }
   idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
   /* Forward solution from interpolation */
@@ -1113,13 +1142,36 @@ static int idaDlsJacBSWrapper(realtype tt, realtype c_jB, N_Vector yyB,
   IDADlsMemB idadlsB_mem;
   int flag;
 
+  /* Is ida_mem allright? */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDASDLS",
+                    "idaDlsJacBSWrapper", MSGD_CAMEM_NULL);
+    return(IDADLS_MEM_NULL);
+  }
   IDA_mem = (IDAMem) ida_mem;
+
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDADLS_NO_ADJ, "IDASDLS",
+                    "idaDlsJacBSWrapper",  MSGD_NO_ADJ);
+    return(IDADLS_NO_ADJ);
+  }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Get current backward problem. */
+  if (IDAADJ_mem->ia_bckpbCrt == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDADLS_LMEMB_NULL, 
+                    "IDASDLS", "idaDlsJacBSWrapper", MSGD_LMEMB_NULL);
+    return(IDADLS_LMEMB_NULL);
+  }
   IDAB_mem = IDAADJ_mem->ia_bckpbCrt;
   
   /* Get linear solver's data for this backward problem. */
+  if (IDAB_mem->ida_lmem == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDADLS_LMEMB_NULL, 
+                    "IDASDLS", "idaDlsJacBSWrapper", MSGD_LMEMB_NULL);
+    return(IDADLS_LMEMB_NULL);
+  }
   idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
   /* Get forward solution from interpolation. */

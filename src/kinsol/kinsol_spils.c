@@ -166,14 +166,13 @@ int KINSpilsSetPreconditioner(void *kinmem,
   PSetupFn kinspils_psetup;
   PSolveFn kinspils_psolve;
 
-  /* Return immediately if kinmem is NULL */
+  /* Return immediately if kinmem or kin_mem->kin_lmem are NULL */
   if (kinmem == NULL) {
     KINProcessError(NULL, KINSPILS_MEM_NULL, "KINSPILS",
                     "KINSpilsSetPreconditioner", MSGS_KINMEM_NULL);
     return(KINSPILS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
-
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINSPILS",
                     "KINSpilsSetPreconditioner", MSGS_LMEM_NULL);
@@ -208,14 +207,13 @@ int KINSpilsSetJacTimesVecFn(void *kinmem, KINSpilsJacTimesVecFn jtv)
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
 
-  /* Return immediately if kinmem is NULL */
+  /* Return immediately if kinmem or kin_mem->kin_lmem are NULL */
   if (kinmem == NULL) {
     KINProcessError(NULL, KINSPILS_MEM_NULL, "KINSPILS",
                     "KINSpilsSetJacTimesVecFn", MSGS_KINMEM_NULL);
     return(KINSPILS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
-
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINSPILS",
                     "KINSpilsSetJacTimesVecFn", MSGS_LMEM_NULL);
@@ -257,14 +255,13 @@ int KINSpilsGetWorkSpace(void *kinmem, long int *lenrwLS,
   long int lrw, liw;
   int flag;
 
-  /* Return immediately if kinmem is NULL */
+  /* Return immediately if kinmem or kin_mem->kin_lmem are NULL */
   if (kinmem == NULL) {
     KINProcessError(NULL, KINSPILS_MEM_NULL, "KINSPILS",
                     "KINSpilsGetWorkSpace", MSGS_KINMEM_NULL);
     return(KINSPILS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
-
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINSPILS_LMEM_NULL,
                     "KINSPILS", "KINSpilsGetWorkSpace", MSGS_LMEM_NULL);
@@ -302,14 +299,13 @@ int KINSpilsGetNumPrecEvals(void *kinmem, long int *npevals)
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
 
-  /* Return immediately if kinmem is NULL */
+  /* Return immediately if kinmem or kin_mem->kin_lmem are NULL */
   if (kinmem == NULL) {
     KINProcessError(NULL, KINSPILS_MEM_NULL, "KINSPILS",
                     "KINSpilsGetNumPrecEvals", MSGS_KINMEM_NULL);
     return(KINSPILS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
-
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINSPILS",
                     "KINSpilsGetNumPrecEvals", MSGS_LMEM_NULL);
@@ -331,14 +327,13 @@ int KINSpilsGetNumPrecSolves(void *kinmem, long int *npsolves)
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
 
-  /* Return immediately if kinmem is NULL */
+  /* Return immediately if kinmem or kin_mem->kin_lmem are NULL */
   if (kinmem == NULL) {
     KINProcessError(NULL, KINSPILS_MEM_NULL, "KINSPILS",
                     "KINSpilsGetNumPrecSolves", MSGS_KINMEM_NULL);
     return(KINSPILS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
-
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINSPILS",
                     "KINSpilsGetNumPrecSolves", MSGS_LMEM_NULL);
@@ -360,14 +355,13 @@ int KINSpilsGetNumLinIters(void *kinmem, long int *nliters)
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
 
-  /* Return immediately if kinmem is NULL */
+  /* Return immediately if kinmem or kin_mem->kin_lmem are NULL */
   if (kinmem == NULL) {
     KINProcessError(NULL, KINSPILS_MEM_NULL, "KINSPILS",
                     "KINSpilsGetNumLinIters", MSGS_KINMEM_NULL);
     return(KINSPILS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
-
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINSPILS",
                     "KINSpilsGetNumLinIters", MSGS_LMEM_NULL);
@@ -389,14 +383,13 @@ int KINSpilsGetNumConvFails(void *kinmem, long int *nlcfails)
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
 
-  /* Return immediately if kinmem is NULL */
+  /* Return immediately if kinmem or kin_mem->kin_lmem are NULL */
   if (kinmem == NULL) {
     KINProcessError(NULL, KINSPILS_MEM_NULL, "KINSPILS",
                     "KINSpilsGetNumConvFails", MSGS_KINMEM_NULL);
     return(KINSPILS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
-
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINSPILS",
                     "KINSpilsGetNumConvFails", MSGS_LMEM_NULL);
@@ -418,14 +411,13 @@ int KINSpilsGetNumJtimesEvals(void *kinmem, long int *njvevals)
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
 
-  /* Return immediately if kinmem is NULL */
+  /* Return immediately if kinmem or kin_mem->kin_lmem are NULL */
   if (kinmem == NULL) {
     KINProcessError(NULL, KINSPILS_MEM_NULL, "KINSPILS",
                     "KINSpilsGetNumJtimesEvals", MSGS_KINMEM_NULL);
     return(KINSPILS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
-
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINSPILS",
                     "KINSpilsGetNumJtimesEvals", MSGS_LMEM_NULL);
@@ -447,14 +439,13 @@ int KINSpilsGetNumFuncEvals(void *kinmem, long int *nfevals)
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
 
-  /* Return immediately if kinmem is NULL */
+  /* Return immediately if kinmem or kin_mem->kin_lmem are NULL */
   if (kinmem == NULL) {
     KINProcessError(NULL, KINSPILS_MEM_NULL, "KINSPILS",
                     "KINSpilsGetNumFuncEvals", MSGS_KINMEM_NULL);
     return(KINSPILS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
-
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINSPILS",
                     "KINSpilsGetNumFuncEvals", MSGS_LMEM_NULL);
@@ -476,14 +467,13 @@ int KINSpilsGetLastFlag(void *kinmem, long int *flag)
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
 
-  /* Return immediately if kinmem is NULL */
+  /* Return immediately if kinmem or kin_mem->kin_lmem are NULL */
   if (kinmem == NULL) {
     KINProcessError(NULL, KINSPILS_MEM_NULL, "KINSPILS",
                     "KINSpilsGetLastFlag", MSGS_KINMEM_NULL);
     return(KINSPILS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
-
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINSPILS",
                     "KINSpilsGetLastFlag", MSGS_LMEM_NULL);
@@ -556,14 +546,13 @@ int KINSpilsATimes(void *kinmem, N_Vector v, N_Vector z)
   /* Return immediately if kin_mem or kin_mem->kin_lmem are NULL */
   if (kinmem == NULL) {
     KINProcessError(NULL, KINSPILS_MEM_NULL, "KINSPILS", 
-                    "KINSpilsATSetup", MSGS_KINMEM_NULL);
+                    "KINSpilsATimes", MSGS_KINMEM_NULL);
     return(KINSPILS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
-
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINSPILS", 
-                    "KINSpilsATSetup", MSGS_LMEM_NULL);
+                    "KINSpilsATimes", MSGS_LMEM_NULL);
     return(KINSPILS_LMEM_NULL);
   }
   kinspils_mem = (KINSpilsMem) kin_mem->kin_lmem;
@@ -596,14 +585,13 @@ int KINSpilsPSetup(void *kinmem)
   /* Return immediately if kin_mem or kin_mem->kin_lmem are NULL */
   if (kin_mem == NULL) {
     KINProcessError(NULL, KINSPILS_MEM_NULL, "KINSPILS", 
-		    "KINSpilsCallPSetup", MSGS_KINMEM_NULL);
+		    "KINSpilsPSetup", MSGS_KINMEM_NULL);
     return(KINSPILS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
-
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINSPILS", 
-		    "KINSpilsCallPSetup", MSGS_LMEM_NULL);
+		    "KINSpilsPSetup", MSGS_LMEM_NULL);
     return(KINSPILS_LMEM_NULL);
   }
   kinspils_mem = (KINSpilsMem) kin_mem->kin_lmem;
@@ -635,7 +623,18 @@ int KINSpilsPSolve(void *kinmem, N_Vector r, N_Vector z,
   KINSpilsMem kinspils_mem;
   int retval;
 
+  /* Return immediately if kin_mem or kin_mem->kin_lmem are NULL */
+  if (kin_mem == NULL) {
+    KINProcessError(NULL, KINSPILS_MEM_NULL, "KINSPILS", 
+		    "KINSpilsPSolve", MSGS_KINMEM_NULL);
+    return(KINSPILS_MEM_NULL);
+  }
   kin_mem = (KINMem) kinmem;
+  if (kin_mem->kin_lmem == NULL) {
+    KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINSPILS", 
+		    "KINSpilsPSolve", MSGS_LMEM_NULL);
+    return(KINSPILS_LMEM_NULL);
+  }
   kinspils_mem = (KINSpilsMem) kin_mem->kin_lmem;
   
   /* copy the rhs into z before the psolve call */   
@@ -669,16 +668,26 @@ int KINSpilsPSolve(void *kinmem, N_Vector r, N_Vector z,
         a recovery may still be possible even if the system function
         fails (recoverably).
   ------------------------------------------------------------------*/
-int KINSpilsDQJtimes(N_Vector v, N_Vector Jv,
-                     N_Vector u, booleantype *new_u, 
-                     void *data)
+int KINSpilsDQJtimes(N_Vector v, N_Vector Jv, N_Vector u, 
+                     booleantype *new_u, void *kinmem)
 {
   realtype sigma, sigma_inv, sutsv, sq1norm, sign, vtv;
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
   int retval;
 
-  kin_mem = (KINMem) data;
+  /* Return immediately if kin_mem or kin_mem->kin_lmem are NULL */
+  if (kin_mem == NULL) {
+    KINProcessError(NULL, KINSPILS_MEM_NULL, "KINSPILS", 
+		    "KINSpilsDQJtimes", MSGS_KINMEM_NULL);
+    return(KINSPILS_MEM_NULL);
+  }
+  kin_mem = (KINMem) kinmem;
+  if (kin_mem->kin_lmem == NULL) {
+    KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINSPILS", 
+		    "KINSpilsDQJtimes", MSGS_LMEM_NULL);
+    return(KINSPILS_LMEM_NULL);
+  }
   kinspils_mem = (KINSpilsMem) kin_mem->kin_lmem;
 
   /* scale the vector v and put Du*v into vtemp1 */
@@ -727,6 +736,17 @@ int kinSpilsInitialize(KINMem kin_mem)
   int retval;
   KINSpilsMem kinspils_mem;
 
+  /* Return immediately if kin_mem or kin_mem->kin_lmem are NULL */
+  if (kin_mem == NULL) {
+    KINProcessError(NULL, KINSPILS_MEM_NULL, "KINSPILS",
+		    "kinSpilsInitialize", MSGS_KINMEM_NULL);
+    return(KINSPILS_MEM_NULL);
+  }
+  if (kin_mem->kin_lmem == NULL) {
+    KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINSPILS",
+		    "kinSpilsInitialize", MSGS_LMEM_NULL);
+    return(KINSPILS_LMEM_NULL);
+  }
   kinspils_mem = (KINSpilsMem) kin_mem->kin_lmem;
   
   /* initialize counters */
@@ -808,6 +828,17 @@ int kinSpilsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   int nli_inc, retval;
   realtype res_norm;
   
+  /* Return immediately if kin_mem or kin_mem->kin_lmem are NULL */
+  if (kin_mem == NULL) {
+    KINProcessError(NULL, KINSPILS_MEM_NULL, "KINSPILS",
+		    "kinSpilsSolve", MSGS_KINMEM_NULL);
+    return(KINSPILS_MEM_NULL);
+  }
+  if (kin_mem->kin_lmem == NULL) {
+    KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINSPILS",
+		    "kinSpilsSolve", MSGS_LMEM_NULL);
+    return(KINSPILS_LMEM_NULL);
+  }
   kinspils_mem = (KINSpilsMem) kin_mem->kin_lmem;
 
   /* Set initial guess x = 0 to LS */  

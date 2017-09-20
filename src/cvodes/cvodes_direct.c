@@ -172,14 +172,13 @@ int CVDlsSetJacFn(void *cvode_mem, CVDlsJacFn jac)
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
 
-  /* Return immediately if cvode_mem is NULL */
+  /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CVDLS_MEM_NULL, "CVSDLS",
                    "CVDlsSetJacFn", MSGD_CVMEM_NULL);
     return(CVDLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVDLS_LMEM_NULL, "CVSDLS",
                    "CVDlsSetJacFn", MSGD_LMEM_NULL);
@@ -207,14 +206,13 @@ int CVDlsSetMSBJ(void *cvode_mem, int msbj)
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
 
-  /* Return immediately if cvode_mem is NULL */
+  /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CVDLS_MEM_NULL, "CVSDLS",
                    "CVDlsSetMSBJ", MSGD_CVMEM_NULL);
     return(CVDLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVDLS_LMEM_NULL, "CVSDLS",
                    "CVDlsSetMSBJ", MSGD_LMEM_NULL);
@@ -238,14 +236,13 @@ int CVDlsSetDGMax(void *cvode_mem, realtype dgmax)
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
 
-  /* Return immediately if cvode_mem is NULL */
+  /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CVDLS_MEM_NULL, "CVSDLS",
                    "CVDlsSetDGMax", MSGD_CVMEM_NULL);
     return(CVDLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVDLS_LMEM_NULL, "CVSDLS",
                    "CVDlsSetDGMax", MSGD_LMEM_NULL);
@@ -274,14 +271,13 @@ int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
   long int lrw, liw;
   int flag;
 
-  /* Return immediately if cvode_mem is NULL */
+  /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CVDLS_MEM_NULL, "CVSDLS",
                    "CVDlsGetWorkSpace", MSGD_CVMEM_NULL);
     return(CVDLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVDLS_LMEM_NULL, "CVSDLS",
                    "CVDlsGetWorkSpace", MSGD_LMEM_NULL);
@@ -323,14 +319,13 @@ int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals)
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
 
-  /* Return immediately if cvode_mem is NULL */
+  /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CVDLS_MEM_NULL, "CVSDLS",
                    "CVDlsGetNumJacEvals", MSGD_CVMEM_NULL);
     return(CVDLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVDLS_LMEM_NULL, "CVSDLS",
                    "CVDlsGetNumJacEvals", MSGD_LMEM_NULL);
@@ -350,14 +345,13 @@ int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
 
-  /* Return immediately if cvode_mem is NULL */
+  /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CVDLS_MEM_NULL, "CVSDLS",
                    "CVDlsGetNumRhsEvals", MSGD_CVMEM_NULL);
     return(CVDLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVDLS_LMEM_NULL, "CVSDLS",
                    "CVDlsGetNumRhsEvals", MSGD_LMEM_NULL);
@@ -416,14 +410,13 @@ int CVDlsGetLastFlag(void *cvode_mem, long int *flag)
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
 
-  /* Return immediately if cvode_mem is NULL */
+  /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CVDLS_MEM_NULL, "CVSDLS",
                    "CVDlsGetLastFlag", MSGD_CVMEM_NULL);
     return(CVDLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVDLS_LMEM_NULL, "CVSDLS",
                    "CVDlsGetLastFlag", MSGD_LMEM_NULL);
@@ -706,6 +699,18 @@ int cvDlsDiagonalDQJac(realtype t, N_Vector y, N_Vector fy,
 int cvDlsInitialize(CVodeMem cv_mem)
 {
   CVDlsMem cvdls_mem;
+
+  /* Return immediately if cv_mem or cv_mem->cv_lmem are NULL */
+  if (cv_mem == NULL) {
+    cvProcessError(NULL, CVDLS_MEM_NULL, "CVSDLS", 
+                    "cvDlsInitialize", MSGD_CVMEM_NULL);
+    return(CVDLS_MEM_NULL);
+  }
+  if (cv_mem->cv_lmem == NULL) {
+    cvProcessError(cv_mem, CVDLS_LMEM_NULL, "CVSDLS", 
+                    "cvDlsInitialize", MSGD_LMEM_NULL);
+    return(CVDLS_LMEM_NULL);
+  }
   cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
  
   cvDlsInitializeCounters(cvdls_mem);
@@ -1271,12 +1276,34 @@ static int cvDlsJacBWrapper(realtype t, N_Vector yB, N_Vector fyB,
   CVDlsMemB cvdlsB_mem;
   int retval, flag;
 
+  /* Check if cvode_mem exists */
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CVDLS_MEM_NULL, "CVSDLS",
+                   "cvDlsJacBWrapper", MSGD_CVMEM_NULL);
+    return(CVDLS_MEM_NULL);
+  }
   cv_mem = (CVodeMem) cvode_mem;
 
+  /* Was ASA initialized? */
+  if (cv_mem->cv_adjMallocDone == FALSE) {
+    cvProcessError(cv_mem, CVDLS_NO_ADJ, "CVSDLS",
+                   "cvDlsJacBWrapper", MSGD_NO_ADJ);
+    return(CVDLS_NO_ADJ);
+  } 
   ca_mem = cv_mem->cv_adj_mem;
 
+  if (ca_mem->ca_bckpbCrt == NULL) {
+    cvProcessError(cv_mem, CVDLS_LMEMB_NULL, "CVSDLS",
+                   "cvDlsJacBWrapper", MSGD_LMEMB_NULL);
+    return(CVDLS_LMEMB_NULL);
+  }
   cvB_mem = ca_mem->ca_bckpbCrt;
 
+  if (cvB_mem->cv_lmem == NULL) {
+    cvProcessError(cv_mem, CVDLS_LMEMB_NULL, "CVSDLS",
+                   "cvDlsJacBWrapper", MSGD_LMEMB_NULL);
+    return(CVDLS_LMEMB_NULL);
+  }
   cvdlsB_mem = (CVDlsMemB) (cvB_mem->cv_lmem);
 
   /* Forward solution from interpolation */
@@ -1307,12 +1334,34 @@ static int cvDlsJacBSWrapper(realtype t, N_Vector yB, N_Vector fyB,
   CVDlsMemB cvdlsB_mem;
   int retval, flag;
 
+  /* Check if cvode_mem exists */
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CVDLS_MEM_NULL, "CVSDLS",
+                   "cvDlsJacBSWrapper", MSGD_CVMEM_NULL);
+    return(CVDLS_MEM_NULL);
+  }
   cv_mem = (CVodeMem) cvode_mem;
 
+  /* Was ASA initialized? */
+  if (cv_mem->cv_adjMallocDone == FALSE) {
+    cvProcessError(cv_mem, CVDLS_NO_ADJ, "CVSDLS",
+                   "cvDlsJacBSWrapper", MSGD_NO_ADJ);
+    return(CVDLS_NO_ADJ);
+  } 
   ca_mem = cv_mem->cv_adj_mem;
 
+  if (ca_mem->ca_bckpbCrt == NULL) {
+    cvProcessError(cv_mem, CVDLS_LMEMB_NULL, "CVSDLS",
+                   "cvDlsJacBSWrapper", MSGD_LMEMB_NULL);
+    return(CVDLS_LMEMB_NULL);
+  }
   cvB_mem = ca_mem->ca_bckpbCrt;
 
+  if (cvB_mem->cv_lmem == NULL) {
+    cvProcessError(cv_mem, CVDLS_LMEMB_NULL, "CVSDLS",
+                   "cvDlsJacBSWrapper", MSGD_LMEMB_NULL);
+    return(CVDLS_LMEMB_NULL);
+  }
   cvdlsB_mem = (CVDlsMemB) (cvB_mem->cv_lmem);
 
   /* Forward solution from interpolation */
@@ -1332,5 +1381,3 @@ static int cvDlsJacBSWrapper(realtype t, N_Vector yB, N_Vector fyB,
                              tmp1B, tmp2B, tmp3B);
   return(retval);
 }
-
-

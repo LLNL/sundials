@@ -141,14 +141,13 @@ int IDADlsSetJacFn(void *ida_mem, IDADlsJacFn jac)
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDADLS_MEM_NULL, "IDADLS",
                     "IDADlsSetJacFn", MSGD_IDAMEM_NULL);
     return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDADLS",
                     "IDADlsSetJacFn", MSGD_LMEM_NULL);
@@ -182,14 +181,13 @@ int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS,
   long int lrw, liw;
   int flag;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDADLS_MEM_NULL, "IDADLS",
                     "IDADlsGetWorkSpace", MSGD_IDAMEM_NULL);
     return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDADLS",
                     "IDADlsGetWorkSpace", MSGD_LMEM_NULL);
@@ -227,14 +225,13 @@ int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals)
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDADLS_MEM_NULL, "IDADLS",
                     "IDADlsGetNumJacEvals", MSGD_IDAMEM_NULL);
     return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDADLS",
                     "IDADlsGetNumJacEvals", MSGD_LMEM_NULL);
@@ -257,14 +254,13 @@ int IDADlsGetNumResEvals(void *ida_mem, long int *nrevalsLS)
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDADLS_MEM_NULL, "IDADLS",
                     "IDADlsGetNumResEvals", MSGD_IDAMEM_NULL);
     return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDADLS",
                     "IDADlsGetNumResEvals", MSGD_LMEM_NULL);
@@ -329,14 +325,13 @@ int IDADlsGetLastFlag(void *ida_mem, long int *flag)
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDADLS_MEM_NULL, "IDADLS",
                     "IDADlsGetLastFlag", MSGD_IDAMEM_NULL);
     return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDADLS",
                     "IDADlsGetLastFlag", MSGD_LMEM_NULL);
@@ -637,6 +632,17 @@ int idaDlsInitialize(IDAMem IDA_mem)
 {
   IDADlsMem idadls_mem;
 
+  /* Return immediately if IDA_mem or IDA_mem->ida_lmem are NULL */
+  if (IDA_mem == NULL) {
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDADLS", 
+                    "idaDlsInitialize", MSGD_IDAMEM_NULL);
+    return(IDADLS_MEM_NULL);
+  }
+  if (IDA_mem->ida_lmem == NULL) {
+    IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDADLS", 
+                    "idaDlsInitialize", MSGD_LMEM_NULL);
+    return(IDADLS_LMEM_NULL);
+  }
   idadls_mem = (IDADlsMem) IDA_mem->ida_lmem;
   
   idaDlsInitializeCounters(idadls_mem);

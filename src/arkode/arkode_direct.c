@@ -1024,6 +1024,17 @@ int arkDlsInitialize(ARKodeMem ark_mem)
   ARKDlsMem arkdls_mem;
   ARKDlsMassMem arkdls_mass_mem;
 
+  /* Return immediately if ark_mem or ark_mem->ark_lmem are NULL */
+  if (ark_mem == NULL) {
+    arkProcessError(NULL, ARKDLS_MEM_NULL, "ARKDLS", 
+                    "arkDlsInitialize", MSGD_ARKMEM_NULL);
+    return(ARKDLS_MEM_NULL);
+  }
+  if (ark_mem->ark_lmem == NULL) {
+    arkProcessError(ark_mem, ARKDLS_LMEM_NULL, "ARKDLS", 
+		    "arkDlsInitialize", MSGD_LMEM_NULL);
+    return(ARKDLS_LMEM_NULL);
+  }
   arkdls_mem = (ARKDlsMem) ark_mem->ark_lmem;
   
   arkDlsInitializeCounters(arkdls_mem);
@@ -1282,6 +1293,17 @@ int arkDlsMassInitialize(ARKodeMem ark_mem)
 {
   ARKDlsMassMem arkdls_mem;
 
+  /* Return immediately if ark_mem or ark_mem->ark_mass_mem are NULL */
+  if (ark_mem == NULL) {
+    arkProcessError(NULL, ARKDLS_MEM_NULL, "ARKDLS", 
+		    "arkDlsMassInitialize", MSGD_ARKMEM_NULL);
+    return(ARKDLS_MEM_NULL);
+  }
+  if (ark_mem->ark_mass_mem == NULL) {
+    arkProcessError(ark_mem, ARKDLS_MASSMEM_NULL, "ARKDLS", 
+		    "arkDlsMassInitialize", MSGD_MASSMEM_NULL);
+    return(ARKDLS_MASSMEM_NULL);
+  }
   arkdls_mem = (ARKDlsMassMem) ark_mem->ark_mass_mem;
   
   arkDlsInitializeMassCounters(arkdls_mem);

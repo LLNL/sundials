@@ -309,14 +309,13 @@ int ARKSpilsSetEpsLin(void *arkode_mem, realtype eplifac)
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
 
-  /* Return immediately if arkode_mem is NULL */
+  /* Return immediately if arkode_mem or ark_mem->ark_lmem are NULL */
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
 		    "ARKSpilsSetEpsLin", MSGS_ARKMEM_NULL);
     return(ARKSPILS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-
   if (ark_mem->ark_lmem == NULL) {
     arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKSPILS", 
 		    "ARKSpilsSetEpsLin", MSGS_LMEM_NULL);
@@ -756,14 +755,13 @@ int ARKSpilsSetMassEpsLin(void *arkode_mem, realtype eplifac)
   ARKodeMem ark_mem;
   ARKSpilsMassMem arkspils_mem;
 
-  /* Return immediately if arkode_mem is NULL */
+  /* Return immediately if arkode_mem or ark_mem->ark_mass_mem are NULL */
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
 		    "ARKSpilsSetMassEpsLin", MSGS_ARKMEM_NULL);
     return(ARKSPILS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-
   if (ark_mem->ark_mass_mem == NULL) {
     arkProcessError(ark_mem, ARKSPILS_MASSMEM_NULL, "ARKSPILS", 
 		    "ARKSpilsSetMassEpsLin", MSGS_MASSMEM_NULL);
@@ -1190,7 +1188,18 @@ int ARKSpilsATimes(void *arkode_mem, N_Vector v, N_Vector z)
   ARKSpilsMem arkspils_mem;
   int jtflag, mtflag;
 
+  /* Return immediately if arkode_mem or ark_mem->ark_lmem are NULL */
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
+                    "ARKSpilsATimes", MSGS_ARKMEM_NULL);
+    return(ARKSPILS_MEM_NULL);
+  }
   ark_mem = (ARKodeMem) arkode_mem;
+  if (ark_mem->ark_lmem == NULL) {
+    arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKSPILS", 
+                    "ARKSpilsATimes", MSGS_LMEM_NULL);
+    return(ARKSPILS_LMEM_NULL);
+  }
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
 
   jtflag = arkspils_mem->jtimes(v, z, ark_mem->ark_tn, 
@@ -1232,13 +1241,13 @@ int ARKSpilsPSetup(void *arkode_mem)
   /* Return immediately if arkode_mem or ark_mem->ark_lmem are NULL */
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
-		    "ARKSpilsCallPSetup", MSGS_ARKMEM_NULL);
+		    "ARKSpilsPSetup", MSGS_ARKMEM_NULL);
     return(ARKSPILS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->ark_lmem == NULL) {
     arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKSPILS", 
-		    "ARKSpilsCallPSetup", MSGS_LMEM_NULL);
+		    "ARKSpilsPSetup", MSGS_LMEM_NULL);
     return(ARKSPILS_LMEM_NULL);
   }
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
@@ -1274,7 +1283,18 @@ int ARKSpilsPSolve(void *arkode_mem, N_Vector r, N_Vector z,
   ARKSpilsMem arkspils_mem;
   int retval;
 
+  /* Return immediately if arkode_mem or ark_mem->ark_lmem are NULL */
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
+		    "ARKSpilsPSolve", MSGS_ARKMEM_NULL);
+    return(ARKSPILS_MEM_NULL);
+  }
   ark_mem = (ARKodeMem) arkode_mem;
+  if (ark_mem->ark_lmem == NULL) {
+    arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKSPILS", 
+		    "ARKSpilsPSolve", MSGS_LMEM_NULL);
+    return(ARKSPILS_LMEM_NULL);
+  }
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
 
   /* call the user-supplied psolve routine, and accumulate count */
@@ -1303,7 +1323,18 @@ int ARKSpilsMTSetup(void *arkode_mem)
   ARKSpilsMassMem arkspils_mem;
   int retval;
 
+  /* Return immediately if arkode_mem or ark_mem->ark_mass_mem are NULL */
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
+		    "ARKSpilsMTSetup", MSGS_ARKMEM_NULL);
+    return(ARKSPILS_MEM_NULL);
+  }
   ark_mem = (ARKodeMem) arkode_mem;
+  if (ark_mem->ark_mass_mem == NULL) {
+    arkProcessError(ark_mem, ARKSPILS_MASSMEM_NULL, "ARKSPILS", 
+		    "ARKSpilsMTSetup", MSGS_MASSMEM_NULL);
+    return(ARKSPILS_MASSMEM_NULL);
+  }
   arkspils_mem = (ARKSpilsMassMem) ark_mem->ark_mass_mem;
 
   /* only proceed if the mass matrix is time-dependent or if 
@@ -1333,7 +1364,18 @@ int ARKSpilsMTimes(void *arkode_mem, N_Vector v, N_Vector z)
   ARKSpilsMassMem arkspils_mem;
   int retval;
 
+  /* Return immediately if arkode_mem or ark_mem->ark_mass_mem are NULL */
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
+		    "ARKSpilsMTimes", MSGS_ARKMEM_NULL);
+    return(ARKSPILS_MEM_NULL);
+  }
   ark_mem = (ARKodeMem) arkode_mem;
+  if (ark_mem->ark_mass_mem == NULL) {
+    arkProcessError(ark_mem, ARKSPILS_MASSMEM_NULL, "ARKSPILS", 
+		    "ARKSpilsMTimes", MSGS_MASSMEM_NULL);
+    return(ARKSPILS_MASSMEM_NULL);
+  }
   arkspils_mem = (ARKSpilsMassMem) ark_mem->ark_mass_mem;
 
   /* call user-supplied mtimes routine and increment counter */
@@ -1361,7 +1403,18 @@ int ARKSpilsMPSetup(void *arkode_mem)
   ARKSpilsMassMem arkspils_mem;
   int retval;
 
+  /* Return immediately if arkode_mem or ark_mem->ark_mass_mem are NULL */
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
+		    "ARKSpilsMPSetup", MSGS_ARKMEM_NULL);
+    return(ARKSPILS_MEM_NULL);
+  }
   ark_mem = (ARKodeMem) arkode_mem;
+  if (ark_mem->ark_mass_mem == NULL) {
+    arkProcessError(ark_mem, ARKSPILS_MASSMEM_NULL, "ARKSPILS", 
+		    "ARKSpilsMPSetup", MSGS_MASSMEM_NULL);
+    return(ARKSPILS_MASSMEM_NULL);
+  }
   arkspils_mem = (ARKSpilsMassMem) ark_mem->ark_mass_mem;
 
   /* only proceed if the mass matrix is time-dependent or if 
@@ -1396,7 +1449,18 @@ int ARKSpilsMPSolve(void *arkode_mem, N_Vector r, N_Vector z,
   ARKSpilsMassMem arkspils_mem;
   int retval;
 
+  /* Return immediately if arkode_mem or ark_mem->ark_mass_mem are NULL */
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
+		    "ARKSpilsMPSolve", MSGS_ARKMEM_NULL);
+    return(ARKSPILS_MEM_NULL);
+  }
   ark_mem = (ARKodeMem) arkode_mem;
+  if (ark_mem->ark_mass_mem == NULL) {
+    arkProcessError(ark_mem, ARKSPILS_MASSMEM_NULL, "ARKSPILS", 
+		    "ARKSpilsMPSolve", MSGS_MASSMEM_NULL);
+    return(ARKSPILS_MASSMEM_NULL);
+  }
   arkspils_mem = (ARKSpilsMassMem) ark_mem->ark_mass_mem;
 
   /* call the user-supplied psolve routine, and accumulate count */
@@ -1417,15 +1481,25 @@ int ARKSpilsMPSolve(void *arkode_mem, N_Vector r, N_Vector z,
 ---------------------------------------------------------------*/
 int ARKSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t, 
 		     N_Vector y, N_Vector fy,
-		     void *data, N_Vector work)
+		     void *arkode_mem, N_Vector work)
 {
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
   realtype sig, siginv;
   int iter, retval;
 
-  /* data is arkode_mem */
-  ark_mem = (ARKodeMem) data;
+  /* Return immediately if arkode_mem or ark_mem->ark_lmem are NULL */
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
+		    "ARKSpilsDQJtimes", MSGS_ARKMEM_NULL);
+    return(ARKSPILS_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  if (ark_mem->ark_lmem == NULL) {
+    arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKSPILS", 
+		    "ARKSpilsDQJtimes", MSGS_LMEM_NULL);
+    return(ARKSPILS_LMEM_NULL);
+  }
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
 
   /* Initialize perturbation to 1/||v|| */
@@ -1466,6 +1540,18 @@ int arkSpilsInitialize(ARKodeMem ark_mem)
 {
   int retval;
   ARKSpilsMem arkspils_mem;
+
+  /* Return immediately if ark_mem or ark_mem->ark_lmem are NULL */
+  if (ark_mem == NULL) {
+    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
+		    "arkSpilsInitialize", MSGS_ARKMEM_NULL);
+    return(ARKSPILS_MEM_NULL);
+  }
+  if (ark_mem->ark_lmem == NULL) {
+    arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKSPILS", 
+		    "arkSpilsInitialize", MSGS_LMEM_NULL);
+    return(ARKSPILS_LMEM_NULL);
+  }
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
   
   arkSpilsInitializeCounters(arkspils_mem);
@@ -1578,6 +1664,17 @@ int arkSpilsSolve(ARKodeMem ark_mem, N_Vector b, N_Vector ynow,
   ARKSpilsMem arkspils_mem;
   int nli_inc, nps_inc, retval;
   
+  /* Return immediately if ark_mem or ark_mem->ark_lmem are NULL */
+  if (ark_mem == NULL) {
+    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
+		    "arkSpilsSolve", MSGS_ARKMEM_NULL);
+    return(ARKSPILS_MEM_NULL);
+  }
+  if (ark_mem->ark_lmem == NULL) {
+    arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKSPILS", 
+		    "arkSpilsSolve", MSGS_LMEM_NULL);
+    return(ARKSPILS_LMEM_NULL);
+  }
   arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
 
   /* Test norm(b); if small, return x = 0 or x = b */
@@ -1719,6 +1816,18 @@ int arkSpilsFree(ARKodeMem ark_mem)
 int arkSpilsMassInitialize(ARKodeMem ark_mem)
 {
   ARKSpilsMassMem arkspils_mem;
+
+  /* Return immediately if ark_mem or ark_mem->ark_mass_mem are NULL */
+  if (ark_mem == NULL) {
+    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
+		    "arkSpilsMassInitialize", MSGS_ARKMEM_NULL);
+    return(ARKSPILS_MEM_NULL);
+  }
+  if (ark_mem->ark_mass_mem == NULL) {
+    arkProcessError(ark_mem, ARKSPILS_MASSMEM_NULL, "ARKSPILS", 
+		    "arkSpilsMassInitialize", MSGS_MASSMEM_NULL);
+    return(ARKSPILS_MASSMEM_NULL);
+  }
   arkspils_mem = (ARKSpilsMassMem) ark_mem->ark_mass_mem;
   
   arkSpilsInitializeMassCounters(arkspils_mem);
@@ -1753,6 +1862,18 @@ int arkSpilsMassSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 {
   int retval;
   ARKSpilsMassMem arkspils_mem;
+
+  /* Return immediately if ark_mem or ark_mem->ark_mass_mem are NULL */
+  if (ark_mem == NULL) {
+    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
+		    "arkSpilsMassSetup", MSGS_ARKMEM_NULL);
+    return(ARKSPILS_MEM_NULL);
+  }
+  if (ark_mem->ark_mass_mem == NULL) {
+    arkProcessError(ark_mem, ARKSPILS_MASSMEM_NULL, "ARKSPILS", 
+		    "arkSpilsMassSetup", MSGS_MASSMEM_NULL);
+    return(ARKSPILS_MASSMEM_NULL);
+  }
   arkspils_mem = (ARKSpilsMassMem) ark_mem->ark_mass_mem;
 
   /* Call LS setup routine */
@@ -1767,6 +1888,12 @@ int arkSpilsMassSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 int arkSpilsMassMult(ARKodeMem ark_mem, N_Vector v, N_Vector Mv)
 {
   int retval;
+  /* Return immediately if ark_mem is  NULL */
+  if (ark_mem == NULL) {
+    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
+		    "arkSpilsMassMult", MSGS_ARKMEM_NULL);
+    return(ARKSPILS_MEM_NULL);
+  }
   retval = ARKSpilsMTimes(ark_mem, v, Mv);
   return(retval);
 }
@@ -1784,6 +1911,17 @@ int arkSpilsMassSolve(ARKodeMem ark_mem, N_Vector b)
   ARKSpilsMassMem arkspils_mem;
   int nli_inc, nps_inc, retval;
   
+  /* Return immediately if ark_mem or ark_mem->ark_mass_mem are NULL */
+  if (ark_mem == NULL) {
+    arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKSPILS", 
+		    "arkSpilsMassSolve", MSGS_ARKMEM_NULL);
+    return(ARKSPILS_MEM_NULL);
+  }
+  if (ark_mem->ark_mass_mem == NULL) {
+    arkProcessError(ark_mem, ARKSPILS_MASSMEM_NULL, "ARKSPILS", 
+		    "arkSpilsMassSolve", MSGS_MASSMEM_NULL);
+    return(ARKSPILS_MASSMEM_NULL);
+  }
   arkspils_mem = (ARKSpilsMassMem) ark_mem->ark_mass_mem;
 
   /* Set input tolerance and initial guess x = 0 to LS */  

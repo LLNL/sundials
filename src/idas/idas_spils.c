@@ -243,14 +243,13 @@ int IDASpilsSetEpsLin(void *ida_mem, realtype eplifac)
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS",
                     "IDASpilsSetEpsLin", MSGS_IDAMEM_NULL);
     return(IDASPILS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS",
                     "IDASpilsSetEpsLin", MSGS_LMEM_NULL);
@@ -280,14 +279,13 @@ int IDASpilsSetIncrementFactor(void *ida_mem, realtype dqincfac)
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS",
                     "IDASpilsSetIncrementFactor", MSGS_IDAMEM_NULL);
     return(IDASPILS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS",
                     "IDASpilsSetIncrementFactor", MSGS_LMEM_NULL);
@@ -319,14 +317,13 @@ int IDASpilsSetPreconditioner(void *ida_mem,
   PSetupFn idaspils_psetup;
   PSolveFn idaspils_psolve;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS",
                     "IDASpilsSetPreconditioner", MSGS_IDAMEM_NULL);
     return(IDASPILS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS",
                     "IDASpilsSetPreconditioner", MSGS_LMEM_NULL);
@@ -363,14 +360,13 @@ int IDASpilsSetJacTimes(void *ida_mem,
   IDASpilsMem idaspils_mem;
   ATSetupFn idaspils_atsetup;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS",
                     "IDASpilsSetJacTimes", MSGS_IDAMEM_NULL);
     return(IDASPILS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS",
                     "IDASpilsSetJacTimes", MSGS_LMEM_NULL);
@@ -415,14 +411,13 @@ int IDASpilsGetWorkSpace(void *ida_mem, long int *lenrwLS,
   long int lrw, liw;
   int flag;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS",
                     "IDASpilsGetWorkSpace", MSGS_IDAMEM_NULL);
     return(IDASPILS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS",
                     "IDASpilsGetWorkSpace", MSGS_LMEM_NULL);
@@ -458,14 +453,13 @@ int IDASpilsGetNumPrecEvals(void *ida_mem, long int *npevals)
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS",
                     "IDASpilsGetNumPrecEvals", MSGS_IDAMEM_NULL);
     return(IDASPILS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS",
                     "IDASpilsGetNumPrecEvals", MSGS_LMEM_NULL);
@@ -485,14 +479,13 @@ int IDASpilsGetNumPrecSolves(void *ida_mem, long int *npsolves)
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS",
                     "IDASpilsGetNumPrecSolves", MSGS_IDAMEM_NULL);
     return(IDASPILS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS",
                     "IDASpilsGetNumPrecSolves", MSGS_LMEM_NULL);
@@ -512,14 +505,13 @@ int IDASpilsGetNumLinIters(void *ida_mem, long int *nliters)
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS",
                     "IDASpilsGetNumLinIters", MSGS_IDAMEM_NULL);
     return(IDASPILS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS",
                     "IDASpilsGetNumLinIters", MSGS_LMEM_NULL);
@@ -539,14 +531,13 @@ int IDASpilsGetNumConvFails(void *ida_mem, long int *nlcfails)
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS",
                     "IDASpilsGetNumConvFails", MSGS_IDAMEM_NULL);
     return(IDASPILS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS",
                     "IDASpilsGetNumConvFails", MSGS_LMEM_NULL);
@@ -566,14 +557,13 @@ int IDASpilsGetNumJTSetupEvals(void *ida_mem, long int *njtsetups)
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS",
                     "IDASpilsGetNumJTSetupEvals", MSGS_IDAMEM_NULL);
     return(IDASPILS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS",
                     "IDASpilsGetNumJTSetupEvals", MSGS_LMEM_NULL);
@@ -593,14 +583,13 @@ int IDASpilsGetNumJtimesEvals(void *ida_mem, long int *njvevals)
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS",
                     "IDASpilsGetNumJtimesEvals", MSGS_IDAMEM_NULL);
     return(IDASPILS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS",
                     "IDASpilsGetNumJtimesEvals", MSGS_LMEM_NULL);
@@ -620,14 +609,13 @@ int IDASpilsGetNumResEvals(void *ida_mem, long int *nrevalsLS)
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS",
                     "IDASpilsGetNumResEvals", MSGS_IDAMEM_NULL);
     return(IDASPILS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS",
                     "IDASpilsGetNumResEvals", MSGS_LMEM_NULL);
@@ -647,14 +635,13 @@ int IDASpilsGetLastFlag(void *ida_mem, long int *flag)
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
 
-  /* Return immediately if ida_mem is NULL */
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS",
                     "IDASpilsGetLastFlag", MSGS_IDAMEM_NULL);
     return(IDASPILS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS",
                     "IDASpilsGetLastFlag", MSGS_LMEM_NULL);
@@ -764,7 +751,18 @@ int IDASpilsATimes(void *ida_mem, N_Vector v, N_Vector z)
   IDASpilsMem idaspils_mem;
   int jtflag;
 
+  /* Return immediately if ida_mem or ida_mem->ida_lmem are NULL */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS", 
+                    "IDASpilsATimes", MSGS_IDAMEM_NULL);
+    return(IDASPILS_MEM_NULL);
+  }
   IDA_mem = (IDAMem) ida_mem;
+  if (IDA_mem->ida_lmem == NULL) {
+    IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS", 
+                    "IDASpilsATimes", MSGS_LMEM_NULL);
+    return(IDASPILS_LMEM_NULL);
+  }
   idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
   jtflag = idaspils_mem->jtimes(IDA_mem->ida_tn,
@@ -800,13 +798,13 @@ int IDASpilsPSetup(void *ida_mem)
   /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS", 
-		    "IDASpilsCallPSetup", MSGS_IDAMEM_NULL);
+		    "IDASpilsPSetup", MSGS_IDAMEM_NULL);
     return(IDASPILS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
   if (IDA_mem->ida_lmem == NULL) {
     IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS", 
-		    "IDASpilsCallPSetup", MSGS_LMEM_NULL);
+		    "IDASpilsPSetup", MSGS_LMEM_NULL);
     return(IDASPILS_LMEM_NULL);
   }
   idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
@@ -843,7 +841,18 @@ int IDASpilsPSolve(void *ida_mem, N_Vector r, N_Vector z,
   IDASpilsMem idaspils_mem;
   int retval;
 
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS", 
+		    "IDASpilsPSolve", MSGS_IDAMEM_NULL);
+    return(IDASPILS_MEM_NULL);
+  }
   IDA_mem = (IDAMem) ida_mem;
+  if (IDA_mem->ida_lmem == NULL) {
+    IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS", 
+		    "IDASpilsPSolve", MSGS_LMEM_NULL);
+    return(IDASPILS_LMEM_NULL);
+  }
   idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
   retval = idaspils_mem->psolve(IDA_mem->ida_tn,
@@ -873,7 +882,7 @@ int IDASpilsPSolve(void *ida_mem, N_Vector r, N_Vector z,
   ---------------------------------------------------------------*/
 int IDASpilsDQJtimes(realtype tt, N_Vector yy, N_Vector yp,
                      N_Vector rr, N_Vector v, N_Vector Jv, 
-                     realtype c_j, void *data, N_Vector work1, 
+                     realtype c_j, void *ida_mem, N_Vector work1, 
                      N_Vector work2)
 {
   IDAMem IDA_mem;
@@ -882,8 +891,18 @@ int IDASpilsDQJtimes(realtype tt, N_Vector yy, N_Vector yp,
   realtype sig=ZERO, siginv;
   int iter, retval;
 
-  /* data is ida_mem */
-  IDA_mem = (IDAMem) data;
+  /* Return immediately if ida_mem or IDA_mem->ida_lmem are NULL */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS", 
+		    "IDASpilsDQJtimes", MSGS_IDAMEM_NULL);
+    return(IDASPILS_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+  if (IDA_mem->ida_lmem == NULL) {
+    IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS", 
+		    "IDASpilsDQJtimes", MSGS_LMEM_NULL);
+    return(IDASPILS_LMEM_NULL);
+  }
   idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
   sig = idaspils_mem->sqrtN * idaspils_mem->dqincfac;  /* GMRES */
@@ -926,6 +945,18 @@ int idaSpilsInitialize(IDAMem IDA_mem)
 {
   int retval;
   IDASpilsMem idaspils_mem;
+
+  /* Return immediately if IDA_mem or IDA_mem->ida_lmem are NULL */
+  if (IDA_mem == NULL) {
+    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS", 
+		    "idaSpilsInitialize", MSGS_IDAMEM_NULL);
+    return(IDASPILS_MEM_NULL);
+  }
+  if (IDA_mem->ida_lmem == NULL) {
+    IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS", 
+		    "idaSpilsInitialize", MSGS_LMEM_NULL);
+    return(IDASPILS_LMEM_NULL);
+  }
   idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
   
   idaSpilsInitializeCounters(idaspils_mem);
@@ -993,6 +1024,17 @@ int idaSpilsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   IDASpilsMem idaspils_mem;
   int nli_inc, retval;
   
+  /* Return immediately if IDA_mem or IDA_mem->ida_lmem are NULL */
+  if (IDA_mem == NULL) {
+    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS", 
+		    "idaSpilsSolve", MSGS_IDAMEM_NULL);
+    return(IDASPILS_MEM_NULL);
+  }
+  if (IDA_mem->ida_lmem == NULL) {
+    IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS", 
+		    "idaSpilsSolve", MSGS_LMEM_NULL);
+    return(IDASPILS_LMEM_NULL);
+  }
   idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
   /* Set convergence test constant epslin, in terms of the
@@ -1087,6 +1129,17 @@ int idaSpilsPerf(IDAMem IDA_mem, int perftask)
   long int nstd, nnid;
   booleantype lcfn, lcfl;
 
+  /* Return immediately if IDA_mem or IDA_mem->ida_lmem are NULL */
+  if (IDA_mem == NULL) {
+    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS", 
+		    "idaSpilsPerf", MSGS_IDAMEM_NULL);
+    return(IDASPILS_MEM_NULL);
+  }
+  if (IDA_mem->ida_lmem == NULL) {
+    IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASSPILS", 
+		    "idaSpilsPerf", MSGS_LMEM_NULL);
+    return(IDASPILS_LMEM_NULL);
+  }
   idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
 
   /* when perftask == 0, store current performance statistics */
@@ -1653,9 +1706,36 @@ static int IDAAspilsPrecSetupB(realtype tt, N_Vector yyB, N_Vector ypB,
   IDABMem IDAB_mem;
   int flag;
 
+  /* Check if ida_mem is allright. */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS", 
+                    "IDAAspilsPrecSetupB", MSGS_IDAMEM_NULL);
+    return(IDASPILS_MEM_NULL);
+  }
   IDA_mem = (IDAMem) ida_mem;
+
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDASPILS_NO_ADJ, "IDASSPILS", 
+                    "IDAAspilsPrecSetupB",  MSGS_NO_ADJ);
+    return(IDASPILS_NO_ADJ);
+  }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
+
+  /* Get current backward problem. */
+  if (IDAADJ_mem->ia_bckpbCrt == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDASPILS_LMEMB_NULL, 
+                    "IDASSPILS", "IDAAspilsPrecSetupB", MSGS_LMEMB_NULL);
+    return(IDASPILS_LMEMB_NULL);
+  }
   IDAB_mem = IDAADJ_mem->ia_bckpbCrt;
+
+  /* Get linear solver's data for this backward problem. */
+  if (IDAB_mem->ida_lmem == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDASPILS_LMEMB_NULL, 
+                    "IDASSPILS", "IDAAspilsPrecSetupB", MSGS_LMEMB_NULL);
+    return(IDASPILS_LMEMB_NULL);
+  }
   idaspilsB_mem = (IDASpilsMemB) IDAB_mem->ida_lmem;
   
   /* Get forward solution from interpolation. */
@@ -1687,11 +1767,38 @@ static int IDAAspilsPrecSetupBS(realtype tt, N_Vector yyB, N_Vector ypB,
   IDABMem IDAB_mem;
   int flag;
 
+  /* Check if ida_mem is allright. */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS", 
+                    "IDAAspilsPrecSetupBS", MSGS_IDAMEM_NULL);
+    return(IDASPILS_MEM_NULL);
+  }
   IDA_mem = (IDAMem) ida_mem;
+
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDASPILS_NO_ADJ, "IDASSPILS", 
+                    "IDAAspilsPrecSetupBS",  MSGS_NO_ADJ);
+    return(IDASPILS_NO_ADJ);
+  }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
+
+  /* Get current backward problem. */
+  if (IDAADJ_mem->ia_bckpbCrt == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDASPILS_LMEMB_NULL, 
+                    "IDASSPILS", "IDAAspilsPrecSetupBS", MSGS_LMEMB_NULL);
+    return(IDASPILS_LMEMB_NULL);
+  }
   IDAB_mem = IDAADJ_mem->ia_bckpbCrt;
+
+  /* Get linear solver's data for this backward problem. */
+  if (IDAB_mem->ida_lmem == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDASPILS_LMEMB_NULL, 
+                    "IDASSPILS", "IDAAspilsPrecSetupBS", MSGS_LMEMB_NULL);
+    return(IDASPILS_LMEMB_NULL);
+  }
   idaspilsB_mem = (IDASpilsMemB) IDAB_mem->ida_lmem;
-  
+
   /* Get forward solution from interpolation. */
   if( IDAADJ_mem->ia_noInterp == FALSE) {
     if (IDAADJ_mem->ia_interpSensi)
@@ -1731,11 +1838,38 @@ static int IDAAspilsPrecSolveB(realtype tt, N_Vector yyB, N_Vector ypB,
   IDABMem IDAB_mem;
   int flag;
 
+  /* Check if ida_mem is allright. */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS", 
+                    "IDAAspilsPrecSolveB", MSGS_IDAMEM_NULL);
+    return(IDASPILS_MEM_NULL);
+  }
   IDA_mem = (IDAMem) ida_mem;
+
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDASPILS_NO_ADJ, "IDASSPILS", 
+                    "IDAAspilsPrecSolveB",  MSGS_NO_ADJ);
+    return(IDASPILS_NO_ADJ);
+  }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
+
+  /* Get current backward problem. */
+  if (IDAADJ_mem->ia_bckpbCrt == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDASPILS_LMEMB_NULL, 
+                    "IDASSPILS", "IDAAspilsPrecSolveB", MSGS_LMEMB_NULL);
+    return(IDASPILS_LMEMB_NULL);
+  }
   IDAB_mem = IDAADJ_mem->ia_bckpbCrt;
+
+  /* Get linear solver's data for this backward problem. */
+  if (IDAB_mem->ida_lmem == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDASPILS_LMEMB_NULL, 
+                    "IDASSPILS", "IDAAspilsPrecSolveB", MSGS_LMEMB_NULL);
+    return(IDASPILS_LMEMB_NULL);
+  }
   idaspilsB_mem = (IDASpilsMemB) IDAB_mem->ida_lmem;
-  
+
   /* Get forward solution from interpolation. */
   if (IDAADJ_mem->ia_noInterp==FALSE) {
     flag = IDAADJ_mem->ia_getY(IDA_mem, tt, IDAADJ_mem->ia_yyTmp,
@@ -1767,11 +1901,38 @@ static int IDAAspilsPrecSolveBS(realtype tt, N_Vector yyB, N_Vector ypB,
   IDABMem IDAB_mem;
   int flag;
 
+  /* Check if ida_mem is allright. */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS", 
+                    "IDAAspilsPrecSolveBS", MSGS_IDAMEM_NULL);
+    return(IDASPILS_MEM_NULL);
+  }
   IDA_mem = (IDAMem) ida_mem;
+
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDASPILS_NO_ADJ, "IDASSPILS", 
+                    "IDAAspilsPrecSolveBS",  MSGS_NO_ADJ);
+    return(IDASPILS_NO_ADJ);
+  }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
+
+  /* Get current backward problem. */
+  if (IDAADJ_mem->ia_bckpbCrt == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDASPILS_LMEMB_NULL, 
+                    "IDASSPILS", "IDAAspilsPrecSolveBS", MSGS_LMEMB_NULL);
+    return(IDASPILS_LMEMB_NULL);
+  }
   IDAB_mem = IDAADJ_mem->ia_bckpbCrt;
+
+  /* Get linear solver's data for this backward problem. */
+  if (IDAB_mem->ida_lmem == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDASPILS_LMEMB_NULL, 
+                    "IDASSPILS", "IDAAspilsPrecSolveBS", MSGS_LMEMB_NULL);
+    return(IDASPILS_LMEMB_NULL);
+  }
   idaspilsB_mem = (IDASpilsMemB) IDAB_mem->ida_lmem;
-  
+
   /* Get forward solution from interpolation. */
   if( IDAADJ_mem->ia_noInterp == FALSE) {
     if (IDAADJ_mem->ia_interpSensi)
@@ -1810,11 +1971,38 @@ static int IDAAspilsJacTimesSetupB(realtype tt, N_Vector yyB, N_Vector ypB,
   IDABMem IDAB_mem;
   int flag;
 
+  /* Check if ida_mem is allright. */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS", 
+                    "IDAAspilsJacTimesSetupB", MSGS_IDAMEM_NULL);
+    return(IDASPILS_MEM_NULL);
+  }
   IDA_mem = (IDAMem) ida_mem;
+
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDASPILS_NO_ADJ, "IDASSPILS", 
+                    "IDAAspilsJacTimesSetupB",  MSGS_NO_ADJ);
+    return(IDASPILS_NO_ADJ);
+  }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
+
+  /* Get current backward problem. */
+  if (IDAADJ_mem->ia_bckpbCrt == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDASPILS_LMEMB_NULL, 
+                    "IDASSPILS", "IDAAspilsJacTimesSetupB", MSGS_LMEMB_NULL);
+    return(IDASPILS_LMEMB_NULL);
+  }
   IDAB_mem = IDAADJ_mem->ia_bckpbCrt;
+
+  /* Get linear solver's data for this backward problem. */
+  if (IDAB_mem->ida_lmem == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDASPILS_LMEMB_NULL, 
+                    "IDASSPILS", "IDAAspilsJacTimesSetupB", MSGS_LMEMB_NULL);
+    return(IDASPILS_LMEMB_NULL);
+  }
   idaspilsB_mem = (IDASpilsMemB) IDAB_mem->ida_lmem;
-  
+
   /* Get forward solution from interpolation. */
   if (IDAADJ_mem->ia_noInterp==FALSE) {
     flag = IDAADJ_mem->ia_getY(IDA_mem, tt, IDAADJ_mem->ia_yyTmp,
@@ -1844,11 +2032,38 @@ static int IDAAspilsJacTimesSetupBS(realtype tt, N_Vector yyB, N_Vector ypB,
   IDABMem IDAB_mem;
   int flag;
 
+  /* Check if ida_mem is allright. */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS", 
+                    "IDAAspilsJacTimesSetupBS", MSGS_IDAMEM_NULL);
+    return(IDASPILS_MEM_NULL);
+  }
   IDA_mem = (IDAMem) ida_mem;
+
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDASPILS_NO_ADJ, "IDASSPILS", 
+                    "IDAAspilsJacTimesSetupBS",  MSGS_NO_ADJ);
+    return(IDASPILS_NO_ADJ);
+  }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
+
+  /* Get current backward problem. */
+  if (IDAADJ_mem->ia_bckpbCrt == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDASPILS_LMEMB_NULL, 
+                    "IDASSPILS", "IDAAspilsJacTimesSetupBS", MSGS_LMEMB_NULL);
+    return(IDASPILS_LMEMB_NULL);
+  }
   IDAB_mem = IDAADJ_mem->ia_bckpbCrt;
+
+  /* Get linear solver's data for this backward problem. */
+  if (IDAB_mem->ida_lmem == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDASPILS_LMEMB_NULL, 
+                    "IDASSPILS", "IDAAspilsJacTimesSetupBS", MSGS_LMEMB_NULL);
+    return(IDASPILS_LMEMB_NULL);
+  }
   idaspilsB_mem = (IDASpilsMemB) IDAB_mem->ida_lmem;
-  
+
   /* Get forward solution from interpolation. */
   if( IDAADJ_mem->ia_noInterp == FALSE) {
     if (IDAADJ_mem->ia_interpSensi)
@@ -1889,11 +2104,38 @@ static int IDAAspilsJacTimesVecB(realtype tt, N_Vector yyB, N_Vector ypB,
   IDABMem IDAB_mem;
   int flag;
 
+  /* Check if ida_mem is allright. */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS", 
+                    "IDAAspilsJacTimesVecB", MSGS_IDAMEM_NULL);
+    return(IDASPILS_MEM_NULL);
+  }
   IDA_mem = (IDAMem) ida_mem;
+
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDASPILS_NO_ADJ, "IDASSPILS", 
+                    "IDAAspilsJacTimesVecB",  MSGS_NO_ADJ);
+    return(IDASPILS_NO_ADJ);
+  }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
+
+  /* Get current backward problem. */
+  if (IDAADJ_mem->ia_bckpbCrt == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDASPILS_LMEMB_NULL, 
+                    "IDASSPILS", "IDAAspilsJacTimesVecB", MSGS_LMEMB_NULL);
+    return(IDASPILS_LMEMB_NULL);
+  }
   IDAB_mem = IDAADJ_mem->ia_bckpbCrt;
+
+  /* Get linear solver's data for this backward problem. */
+  if (IDAB_mem->ida_lmem == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDASPILS_LMEMB_NULL, 
+                    "IDASSPILS", "IDAAspilsJacTimesVecB", MSGS_LMEMB_NULL);
+    return(IDASPILS_LMEMB_NULL);
+  }
   idaspilsB_mem = (IDASpilsMemB) IDAB_mem->ida_lmem;
-  
+
   /* Get forward solution from interpolation. */
   if (IDAADJ_mem->ia_noInterp==FALSE) {
     flag = IDAADJ_mem->ia_getY(IDA_mem, tt, IDAADJ_mem->ia_yyTmp,
@@ -1926,11 +2168,38 @@ static int IDAAspilsJacTimesVecBS(realtype tt, N_Vector yyB, N_Vector ypB,
   IDABMem IDAB_mem;
   int flag;
 
+  /* Check if ida_mem is allright. */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASSPILS", 
+                    "IDAAspilsJacTimesVecBS", MSGS_IDAMEM_NULL);
+    return(IDASPILS_MEM_NULL);
+  }
   IDA_mem = (IDAMem) ida_mem;
+
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDASPILS_NO_ADJ, "IDASSPILS", 
+                    "IDAAspilsJacTimesVecBS",  MSGS_NO_ADJ);
+    return(IDASPILS_NO_ADJ);
+  }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
+
+  /* Get current backward problem. */
+  if (IDAADJ_mem->ia_bckpbCrt == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDASPILS_LMEMB_NULL, 
+                    "IDASSPILS", "IDAAspilsJacTimesVecBS", MSGS_LMEMB_NULL);
+    return(IDASPILS_LMEMB_NULL);
+  }
   IDAB_mem = IDAADJ_mem->ia_bckpbCrt;
+
+  /* Get linear solver's data for this backward problem. */
+  if (IDAB_mem->ida_lmem == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDASPILS_LMEMB_NULL, 
+                    "IDASSPILS", "IDAAspilsJacTimesVecBS", MSGS_LMEMB_NULL);
+    return(IDASPILS_LMEMB_NULL);
+  }
   idaspilsB_mem = (IDASpilsMemB) IDAB_mem->ida_lmem;
-  
+
   /* Get forward solution from interpolation. */
   if( IDAADJ_mem->ia_noInterp == FALSE) {
     if (IDAADJ_mem->ia_interpSensi)

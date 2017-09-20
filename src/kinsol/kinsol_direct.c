@@ -131,14 +131,13 @@ int KINDlsSetJacFn(void *kinmem, KINDlsJacFn jac)
   KINMem kin_mem;
   KINDlsMem kindls_mem;
 
-  /* Return immediately if kinmem is NULL */
+  /* Return immediately if kinmem or kin_mem->kin_lmem are NULL */
   if (kinmem == NULL) {
     KINProcessError(NULL, KINDLS_MEM_NULL, "KINDLS",
                     "KINDlsSetJacFn", MSGD_KINMEM_NULL);
     return(KINDLS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
-
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINDLS_LMEM_NULL, "KINDLS",
                     "KINDlsSetJacFn", MSGD_LMEM_NULL);
@@ -172,14 +171,13 @@ int KINDlsGetWorkSpace(void *kinmem, long int *lenrwLS,
   long int lrw, liw;
   int flag;
 
-  /* Return immediately if kinmem is NULL */
+  /* Return immediately if kinmem or kin_mem->kin_lmem are NULL */
   if (kinmem == NULL) {
     KINProcessError(NULL, KINDLS_MEM_NULL, "KINDLS", 
                     "KINDlsGetWorkSpace", MSGD_KINMEM_NULL);
     return(KINDLS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
-
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINDLS_LMEM_NULL, "KINDLS",
                     "KINGetWorkSpace", MSGD_LMEM_NULL);
@@ -210,14 +208,13 @@ int KINDlsGetNumJacEvals(void *kinmem, long int *njevals)
   KINMem kin_mem;
   KINDlsMem kindls_mem;
 
-  /* Return immediately if kinmem is NULL */
+  /* Return immediately if kinmem or kin_mem->kin_lmem are NULL */
   if (kinmem == NULL) {
     KINProcessError(NULL, KINDLS_MEM_NULL, "KINDLS",
                     "KINDlsGetNumJacEvals", MSGD_KINMEM_NULL);
     return(KINDLS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
-
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINDLS_LMEM_NULL, "KINDLS",
                     "KINDlsGetNumJacEvals", MSGD_LMEM_NULL);
@@ -240,14 +237,13 @@ int KINDlsGetNumFuncEvals(void *kinmem, long int *nfevals)
   KINMem kin_mem;
   KINDlsMem kindls_mem;
 
-  /* Return immediately if kinmem is NULL */
+  /* Return immediately if kinmem or kin_mem->kin_lmem are NULL */
   if (kinmem == NULL) {
     KINProcessError(NULL, KINDLS_MEM_NULL, "KINDLS",
                     "KINDlsGetNumFuncEvals", MSGD_KINMEM_NULL);
     return(KINDLS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
-
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINDLS_LMEM_NULL,
                     "KINDLS", "KINDlsGetNumGuncEvals", MSGD_LMEM_NULL);
@@ -269,14 +265,13 @@ int KINDlsGetLastFlag(void *kinmem, long int *flag)
   KINMem kin_mem;
   KINDlsMem kindls_mem;
 
-  /* Return immediately if kinmem is NULL */
+  /* Return immediately if kinmem or kin_mem->kin_lmem are NULL */
   if (kinmem == NULL) {
     KINProcessError(NULL, KINDLS_MEM_NULL, "KINDLS",
                     "KINDlsGetLastFlag", MSGD_KINMEM_NULL);
     return(KINDLS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
-
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINDLS_LMEM_NULL, "KINDLS",
                     "KINDlsGetLastFlag", MSGD_LMEM_NULL);
@@ -560,7 +555,17 @@ int kinDlsInitialize(KINMem kin_mem)
 {
   KINDlsMem kindls_mem;
 
-  /* access DlsMem interface structure */
+  /* Return immediately if kin_mem or kin_mem->kin_lmem are NULL */
+  if (kin_mem == NULL) {
+    KINProcessError(NULL, KINDLS_MEM_NULL, "KINDLS", 
+                    "kinDlsInitialize", MSGD_KINMEM_NULL);
+    return(KINDLS_MEM_NULL);
+  }
+  if (kin_mem->kin_lmem == NULL) {
+    KINProcessError(kin_mem, KINDLS_LMEM_NULL, "KINDLS", 
+                    "kinDlsInitialize", MSGD_LMEM_NULL);
+    return(KINDLS_LMEM_NULL);
+  }
   kindls_mem = (KINDlsMem) kin_mem->kin_lmem;
   
   kinDlsInitializeCounters(kindls_mem);
@@ -576,7 +581,7 @@ int kinDlsInitialize(KINMem kin_mem)
 
   if ( (kin_mem->kin_globalstrategy == KIN_PICARD) && kindls_mem->jacDQ ) {
     KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL",
-                    "KINDenseInit", MSG_NOL_FAIL);
+                    "kinDlsInitialize", MSG_NOL_FAIL);
     return(KIN_ILL_INPUT);
   }
 
