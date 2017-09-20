@@ -723,6 +723,7 @@ int KINSpilsDQJtimes(N_Vector v, N_Vector Jv,
   ------------------------------------------------------------------*/
 int kinSpilsInitialize(KINMem kin_mem)
 {
+  int retval;
   KINSpilsMem kinspils_mem;
 
   kinspils_mem = (KINSpilsMem) kin_mem->kin_lmem;
@@ -750,6 +751,12 @@ int kinSpilsInitialize(KINMem kin_mem)
       (kinspils_mem->pset == NULL)) {
     kin_mem->kin_lsetup = NULL;
   }
+
+  /* Set scaling vectors assuming RIGHT preconditioning */
+  /* NOTE: retval is non-zero only if LS == NULL        */
+  retval = SUNLinSolSetScalingVectors(kinspils_mem->LS,
+                                      kin_mem->kin_fscale,
+                                      kin_mem->kin_fscale);
 
   /* Call LS initialize routine */
   kinspils_mem->last_flag = SUNLinSolInitialize(kinspils_mem->LS);
