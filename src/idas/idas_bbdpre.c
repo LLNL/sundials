@@ -232,7 +232,21 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
   }
 
   /* initialize band linear solver object */
-  SUNLinSolInitialize(pdata->LS);
+  flag = SUNLinSolInitialize(pdata->LS);
+  if (flag != SUNLS_SUCCESS) {
+    N_VDestroy(pdata->zlocal);
+    N_VDestroy(pdata->rlocal);
+    N_VDestroy(pdata->tempv1);
+    N_VDestroy(pdata->tempv2);
+    N_VDestroy(pdata->tempv3);
+    N_VDestroy(pdata->tempv4);
+    SUNMatDestroy(pdata->PP);
+    SUNLinSolFree(pdata->LS);
+    free(pdata); pdata = NULL;
+    IDAProcessError(IDA_mem, IDASPILS_SUNLS_FAIL, "IDASBBDPRE",
+                    "IDABBDPrecInit", MSGBBD_SUNLS_FAIL);
+    return(IDASPILS_SUNLS_FAIL);
+  }
  
   /* Set rel_yy based on input value dq_rel_yy (0 implies default). */
   pdata->rel_yy = (dq_rel_yy > ZERO) ?
@@ -255,12 +269,12 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
     pdata->ipwsize += 2*liw1;
   }
   if (pdata->PP->ops->space) {
-    SUNMatSpace(pdata->PP, &lrw, &liw);
+    flag = SUNMatSpace(pdata->PP, &lrw, &liw);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }
   if (pdata->LS->ops->space) {
-    SUNLinSolSpace(pdata->LS, &lrw, &liw);
+    flag = SUNLinSolSpace(pdata->LS, &lrw, &liw);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }

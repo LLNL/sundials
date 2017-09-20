@@ -394,6 +394,7 @@ int ARKDlsGetWorkSpace(void *arkode_mem, long int *lenrw,
   ARKDlsMem arkdls_mem;
   sunindextype lrw1, liw1;
   long int lrw, liw;
+  int flag;
 
   /* Return immediately if arkode_mem is NULL */
   if (arkode_mem == NULL) {
@@ -423,14 +424,14 @@ int ARKDlsGetWorkSpace(void *arkode_mem, long int *lenrw,
   
   /* add SUNMatrix size (only account for the one owned by Dls interface) */
   if (arkdls_mem->savedJ->ops->space) {
-    SUNMatSpace(arkdls_mem->savedJ, &lrw, &liw);
+    flag = SUNMatSpace(arkdls_mem->savedJ, &lrw, &liw);
     *lenrw += lrw;
     *leniw += liw;
   }
 
   /* add LS sizes */
   if (arkdls_mem->LS->ops->space) {
-    SUNLinSolSpace(arkdls_mem->LS, &lrw, &liw);
+    flag = SUNLinSolSpace(arkdls_mem->LS, &lrw, &liw);
     *lenrw += lrw;
     *leniw += liw;
   }
@@ -593,6 +594,7 @@ int ARKDlsGetMassWorkSpace(void *arkode_mem, long int *lenrw,
   ARKDlsMassMem arkdls_mem;
   sunindextype lrw1, liw1;
   long int lrw, liw;
+  int flag;
 
   /* Return immediately if arkode_mem is NULL */
   if (arkode_mem == NULL) {
@@ -622,14 +624,14 @@ int ARKDlsGetMassWorkSpace(void *arkode_mem, long int *lenrw,
   
   /* add SUNMatrix size (only account for the one owned by Dls interface) */
   if (arkdls_mem->M_lu->ops->space) {
-    SUNMatSpace(arkdls_mem->M_lu, &lrw, &liw);
+    flag = SUNMatSpace(arkdls_mem->M_lu, &lrw, &liw);
     *lenrw += lrw;
     *leniw += liw;
   }
 
   /* add LS sizes */
   if (arkdls_mem->LS->ops->space) {
-    SUNLinSolSpace(arkdls_mem->LS, &lrw, &liw);
+    flag = SUNLinSolSpace(arkdls_mem->LS, &lrw, &liw);
     *lenrw += lrw;
     *leniw += liw;
   }

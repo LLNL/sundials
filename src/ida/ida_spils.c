@@ -364,6 +364,7 @@ int IDASpilsGetWorkSpace(void *ida_mem, long int *lenrwLS,
   IDASpilsMem idaspils_mem;
   sunindextype lrw1, liw1;
   long int lrw, liw;
+  int flag;
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
@@ -393,7 +394,7 @@ int IDASpilsGetWorkSpace(void *ida_mem, long int *lenrwLS,
 
   /* add LS sizes */
   if (idaspils_mem->LS->ops->space) {
-    SUNLinSolSpace(idaspils_mem->LS, &lrw, &liw);
+    flag = SUNLinSolSpace(idaspils_mem->LS, &lrw, &liw);
     *lenrwLS += lrw;
     *leniwLS += liw;
   }

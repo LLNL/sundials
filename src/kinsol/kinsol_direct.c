@@ -170,6 +170,7 @@ int KINDlsGetWorkSpace(void *kinmem, long int *lenrwLS,
   KINMem kin_mem;
   KINDlsMem kindls_mem;
   long int lrw, liw;
+  int flag;
 
   /* Return immediately if kinmem is NULL */
   if (kinmem == NULL) {
@@ -192,7 +193,7 @@ int KINDlsGetWorkSpace(void *kinmem, long int *lenrwLS,
 
   /* add LS sizes */
   if (kindls_mem->LS->ops->space) {
-    SUNLinSolSpace(kindls_mem->LS, &lrw, &liw);
+    flag = SUNLinSolSpace(kindls_mem->LS, &lrw, &liw);
     *lenrwLS += lrw;
     *leniwLS += liw;
   }
@@ -620,9 +621,9 @@ int kinDlsSetup(KINMem kin_mem)
   /* Zero out J; call Jacobian routine jac; return if it failed. */
   retval = SUNMatZero(kindls_mem->J);
   if (retval != 0) {
-    KINProcessError(kin_mem, KINDLS_JACFUNC_ERR, "KINDLS",
+    KINProcessError(kin_mem, KINDLS_SUNMAT_FAIL, "KINDLS",
                     "kinDlsSetup", MSGD_MATZERO_FAILED);
-    kindls_mem->last_flag = KINDLS_JACFUNC_ERR;
+    kindls_mem->last_flag = KINDLS_SUNMAT_FAIL;
     return(-1);
   }
 

@@ -259,6 +259,7 @@ int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
   CVDlsMem cvdls_mem;
   sunindextype lrw1, liw1;
   long int lrw, liw;
+  int flag;
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
@@ -288,14 +289,14 @@ int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
   
   /* add SUNMatrix size (only account for the one owned by Dls interface) */
   if (cvdls_mem->savedJ->ops->space) {
-    SUNMatSpace(cvdls_mem->savedJ, &lrw, &liw);
+    flag = SUNMatSpace(cvdls_mem->savedJ, &lrw, &liw);
     *lenrwLS += lrw;
     *leniwLS += liw;
   }
 
   /* add LS sizes */
   if (cvdls_mem->LS->ops->space) {
-    SUNLinSolSpace(cvdls_mem->LS, &lrw, &liw);
+    flag = SUNLinSolSpace(cvdls_mem->LS, &lrw, &liw);
     *lenrwLS += lrw;
     *leniwLS += liw;
   }

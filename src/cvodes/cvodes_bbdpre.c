@@ -227,7 +227,21 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   }
 
   /* initialize band linear solver object */
-  SUNLinSolInitialize(pdata->LS);
+  flag = SUNLinSolInitialize(pdata->LS);
+  if (flag != SUNLS_SUCCESS) {
+    N_VDestroy(pdata->tmp1);
+    N_VDestroy(pdata->tmp2);
+    N_VDestroy(pdata->tmp3);
+    N_VDestroy(pdata->zlocal);
+    N_VDestroy(pdata->rlocal);
+    SUNMatDestroy(pdata->savedP);
+    SUNMatDestroy(pdata->savedJ);
+    SUNLinSolFree(pdata->LS);
+    free(pdata); pdata = NULL;
+    cvProcessError(cv_mem, CVSPILS_SUNLS_FAIL, "CVSBBDPRE", 
+                   "CVBBDPrecInit", MSGBBD_SUNLS_FAIL);
+    return(CVSPILS_SUNLS_FAIL);
+  }
 
   /* Set pdata->dqrely based on input dqrely (0 implies default). */
   pdata->dqrely = (dqrely > ZERO) ?
@@ -250,17 +264,17 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
     pdata->ipwsize += 2*liw1;
   }
   if (pdata->savedJ->ops->space) {
-    SUNMatSpace(pdata->savedJ, &lrw, &liw);
+    flag = SUNMatSpace(pdata->savedJ, &lrw, &liw);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }
   if (pdata->savedP->ops->space) {
-    SUNMatSpace(pdata->savedP, &lrw, &liw);
+    flag = SUNMatSpace(pdata->savedP, &lrw, &liw);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }
   if (pdata->LS->ops->space) {
-    SUNLinSolSpace(pdata->LS, &lrw, &liw);
+    flag = SUNLinSolSpace(pdata->LS, &lrw, &liw);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }

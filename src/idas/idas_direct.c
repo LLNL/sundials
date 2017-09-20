@@ -196,6 +196,7 @@ int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS,
   IDADlsMem idadls_mem;
   sunindextype lrw1, liw1;
   long int lrw, liw;
+  int flag;
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
@@ -225,7 +226,7 @@ int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS,
 
   /* add LS sizes */
   if (idadls_mem->LS->ops->space) {
-    SUNLinSolSpace(idadls_mem->LS, &lrw, &liw);
+    flag = SUNLinSolSpace(idadls_mem->LS, &lrw, &liw);
     *lenrwLS += lrw;
     *leniwLS += liw;
   }
@@ -711,6 +712,13 @@ int idaDlsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
 
   /* Zero out J; call Jacobian routine jac; return if it failed. */
   retval = SUNMatZero(idadls_mem->J);
+  if (retval != 0) {
+    IDAProcessError(IDA_mem, IDADLS_SUNMAT_FAIL, "IDADLS",
+                    "idaDlsSetup", MSGD_MATZERO_FAILED);
+    idadls_mem->last_flag = IDADLS_SUNMAT_FAIL;
+    return(-1);
+  }
+
   retval = idadls_mem->jac(IDA_mem->ida_tn, IDA_mem->ida_cj, y,
                            yp, r, idadls_mem->J,
                            idadls_mem->J_data, vt1, vt2, vt3);

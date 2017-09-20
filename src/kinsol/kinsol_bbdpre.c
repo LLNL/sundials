@@ -207,7 +207,20 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   }
 
   /* initialize band linear solver object */
-  SUNLinSolInitialize(pdata->LS);
+  flag = SUNLinSolInitialize(pdata->LS);
+  if (flag != SUNLS_SUCCESS) {
+    N_VDestroy(pdata->zlocal);
+    N_VDestroy(pdata->rlocal);
+    N_VDestroy(pdata->tempv1);
+    N_VDestroy(pdata->tempv2);
+    N_VDestroy(pdata->tempv3);
+    SUNMatDestroy(pdata->PP);
+    SUNLinSolFree(pdata->LS);
+    free(pdata); pdata = NULL;
+    KINProcessError(kin_mem, KINSPILS_SUNLS_FAIL, "KINBBDPRE",
+                    "KINBBDPrecInit", MSGBBD_SUNLS_FAIL);
+    return(KINSPILS_SUNLS_FAIL);
+  }
 
   /* Set rel_uu based on input value dq_rel_uu (0 implies default) */
   pdata->rel_uu = (dq_rel_uu > ZERO) ? dq_rel_uu : SUNRsqrt(kin_mem->kin_uround);
@@ -234,12 +247,12 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
     pdata->ipwsize += liw1;
   }
   if (pdata->PP->ops->space) {
-    SUNMatSpace(pdata->PP, &lrw, &liw);
+    flag = SUNMatSpace(pdata->PP, &lrw, &liw);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }
   if (pdata->LS->ops->space) {
-    SUNLinSolSpace(pdata->LS, &lrw, &liw);
+    flag = SUNLinSolSpace(pdata->LS, &lrw, &liw);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }

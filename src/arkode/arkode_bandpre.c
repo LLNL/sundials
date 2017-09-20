@@ -170,7 +170,18 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   }
 
   /* initialize band linear solver object */
-  SUNLinSolInitialize(pdata->LS);
+  flag = SUNLinSolInitialize(pdata->LS);
+  if (flag != SUNLS_SUCCESS) {
+    SUNLinSolFree(pdata->LS);
+    SUNMatDestroy(pdata->savedP);
+    SUNMatDestroy(pdata->savedJ);
+    N_VDestroy(pdata->tmp1);
+    N_VDestroy(pdata->tmp2);
+    free(pdata); pdata = NULL;
+    arkProcessError(ark_mem, ARKSPILS_SUNLS_FAIL, "ARKBANDPRE", 
+                    "ARKBandPrecInit", MSGBP_SUNLS_FAIL);
+    return(ARKSPILS_SUNLS_FAIL);
+  }
   
   /* make sure s_P_data is free from any previous allocations */
   if (arkspils_mem->pfree)
@@ -198,6 +209,7 @@ int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP,
   ARKBandPrecData pdata;
   sunindextype lrw1, liw1;
   long int lrw, liw;
+  int flag;
   
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKBANDPRE", 
@@ -229,17 +241,17 @@ int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP,
     *lenrwBP += 2*lrw1;
   }
   if (pdata->savedJ->ops->space) {
-    SUNMatSpace(pdata->savedJ, &lrw, &liw);
+    flag = SUNMatSpace(pdata->savedJ, &lrw, &liw);
     *leniwBP += liw;
     *lenrwBP += lrw;
   }
   if (pdata->savedP->ops->space) {
-    SUNMatSpace(pdata->savedP, &lrw, &liw);
+    flag = SUNMatSpace(pdata->savedP, &lrw, &liw);
     *leniwBP += liw;
     *lenrwBP += lrw;
   }
   if (pdata->LS->ops->space) {
-    SUNLinSolSpace(pdata->LS, &lrw, &liw);
+    flag = SUNLinSolSpace(pdata->LS, &lrw, &liw);
     *leniwBP += liw;
     *lenrwBP += lrw;
   }
