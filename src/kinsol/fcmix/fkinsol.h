@@ -1,8 +1,8 @@
-/*
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
  *                Daniel R. Reynolds @ SMU
+ *                David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
@@ -16,8 +16,7 @@
  * -----------------------------------------------------------------
  * This is the header file for the FKINSOL Interface Package.
  * See below for usage details.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 /***************************************************************************
 
@@ -577,26 +576,23 @@
 #ifndef _FKINSOL_H
 #define _FKINSOL_H
 
-/*
- * -----------------------------------------------------------------
- * header files
- * -----------------------------------------------------------------
- */
+/*------------------------------------------------------------------
+  header files
+  ------------------------------------------------------------------*/
+
 #include <kinsol/kinsol.h>
-#include <sundials/sundials_direct.h>  /* definition of type DlsMat   */
-#include <sundials/sundials_sparse.h>  /* definition of type SlsMat   */
-#include <sundials/sundials_nvector.h> /* definition of type N_Vector */
-#include <sundials/sundials_types.h>   /* definition of type realtype */
+#include <sundials/sundials_linearsolver.h> /* definition of SUNLinearSolver */
+#include <sundials/sundials_matrix.h>       /* definition of SUNMatrix       */
+#include <sundials/sundials_nvector.h>      /* definition of type N_Vector   */
+#include <sundials/sundials_types.h>        /* definition of type realtype   */
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-/*
- * -----------------------------------------------------------------
- * generic names are translated through the define statements below
- * -----------------------------------------------------------------
- */
+/*------------------------------------------------------------------
+  generic names are translated through the define statements below
+  ------------------------------------------------------------------*/
 
 #if defined(SUNDIALS_F77_FUNC)
 
@@ -606,32 +602,22 @@ extern "C" {
 #define FKIN_SETIIN         SUNDIALS_F77_FUNC(fkinsetiin, FKINSETIIN)
 #define FKIN_SETRIN         SUNDIALS_F77_FUNC(fkinsetrin, FKINSETRIN)
 #define FKIN_SETVIN         SUNDIALS_F77_FUNC(fkinsetvin, FKINSETVIN)
-#define FKIN_DENSE          SUNDIALS_F77_FUNC(fkindense, FKINDENSE)
-#define FKIN_DENSESETJAC    SUNDIALS_F77_FUNC(fkindensesetjac, FKINDENSESETJAC)
-#define FKIN_BAND           SUNDIALS_F77_FUNC(fkinband, FKINBAND)
-#define FKIN_BANDSETJAC     SUNDIALS_F77_FUNC(fkinbandsetjac, FKINBANDSETJAC)
-#define FKIN_LAPACKDENSE       SUNDIALS_F77_FUNC(fkinlapackdense, FKINLAPACKDENSE)
-#define FKIN_LAPACKDENSESETJAC SUNDIALS_F77_FUNC(fkinlapackdensesetjac, FKINLAPACKDENSESETJAC)
-#define FKIN_LAPACKBAND        SUNDIALS_F77_FUNC(fkinlapackband, FKINLAPACKBAND)
-#define FKIN_LAPACKBANDSETJAC  SUNDIALS_F77_FUNC(fkinlapackbandsetjac, FKINLAPACKBANDSETJAC)
-#define FKIN_KLU            SUNDIALS_F77_FUNC(fkinklu, FKLUKLU)
-#define FKIN_KLUREINIT      SUNDIALS_F77_FUNC(fkinklureinit, FKLUKLUREINIT)
-#define FKIN_SUPERLUMT      SUNDIALS_F77_FUNC(fkinsuperlumt, FKLUSUPERLUMT)
-#define FKIN_SPARSESETJAC   SUNDIALS_F77_FUNC(fkinsparsesetjac, FKINSPARSESETJAC)  
-#define FKIN_SPTFQMR        SUNDIALS_F77_FUNC(fkinsptfqmr, FKINSPTFQMR)
-#define FKIN_SPBCG          SUNDIALS_F77_FUNC(fkinspbcg, FKINSPBCG)
-#define FKIN_SPGMR          SUNDIALS_F77_FUNC(fkinspgmr, FKINSPGMR)
-#define FKIN_SPFGMR         SUNDIALS_F77_FUNC(fkinspfgmr, FKINSPFGMR)
-#define FKIN_SPILSSETJAC    SUNDIALS_F77_FUNC(fkinspilssetjac, FKINSPILSSETJAC)
-#define FKIN_SPILSSETPREC   SUNDIALS_F77_FUNC(fkinspilssetprec, FKINSPILSSETPREC)
 #define FKIN_SOL            SUNDIALS_F77_FUNC(fkinsol, FKINSOL)
 #define FKIN_FREE           SUNDIALS_F77_FUNC(fkinfree, FKINFREE)
-#define FK_FUN              SUNDIALS_F77_FUNC(fkfun, FKFUN)
+#define FKIN_DLSINIT        SUNDIALS_F77_FUNC(fkindlsinit, FKINDLSINIT)
+#define FKIN_SPILSINIT      SUNDIALS_F77_FUNC(fkinspilsinit, FKINSPILSINIT)
+#define FKIN_DENSESETJAC    SUNDIALS_F77_FUNC(fkindensesetjac, FKINDENSESETJAC)
+#define FK_DJAC             SUNDIALS_F77_FUNC(fkdjac, FKDJAC)
+#define FKIN_BANDSETJAC     SUNDIALS_F77_FUNC(fkinbandsetjac, FKINBANDSETJAC)
+#define FK_BJAC             SUNDIALS_F77_FUNC(fkbjac, FKBJAC)
+#define FKIN_SPARSESETJAC   SUNDIALS_F77_FUNC(fkinsparsesetjac, FKINSPARSESETJAC)  
+#define FKIN_SPJAC          SUNDIALS_F77_FUNC(fkinspjac, FKINSPJAC)
+#define FKIN_SPILSSETJAC    SUNDIALS_F77_FUNC(fkinspilssetjac, FKINSPILSSETJAC)
+#define FK_JTIMES           SUNDIALS_F77_FUNC(fkjtimes, FKJTIMES)
+#define FKIN_SPILSSETPREC   SUNDIALS_F77_FUNC(fkinspilssetprec, FKINSPILSSETPREC)
 #define FK_PSET             SUNDIALS_F77_FUNC(fkpset, FKPSET)
 #define FK_PSOL             SUNDIALS_F77_FUNC(fkpsol, FKPSOL)
-#define FK_JTIMES           SUNDIALS_F77_FUNC(fkjtimes, FKJTIMES)
-#define FK_DJAC             SUNDIALS_F77_FUNC(fkdjac, FKDJAC)
-#define FK_BJAC             SUNDIALS_F77_FUNC(fkbjac, FKBJAC)
+#define FK_FUN              SUNDIALS_F77_FUNC(fkfun, FKFUN)
 
 #else
 
@@ -641,40 +627,28 @@ extern "C" {
 #define FKIN_SETIIN         fkinsetiin_
 #define FKIN_SETRIN         fkinsetrin_
 #define FKIN_SETVIN         fkinsetvin_
-#define FKIN_DENSE          fkindense_
-#define FKIN_DENSESETJAC    fkindensesetjac_
-#define FKIN_BAND           fkinband_
-#define FKIN_BANDSETJAC     fkinbandsetjac_
-#define FKIN_LAPACKDENSE       fkinlapackdense_
-#define FKIN_LAPACKDENSESETJAC fkinlapackdensesetjac_
-#define FKIN_LAPACKBAND        fkinlapackband_
-#define FKIN_LAPACKBANDSETJAC  fkinlapackbandsetjac_
-#define FKIN_KLU            fkinklu_
-#define FKIN_KLUREINIT      fkinklureinit_
-#define FKIN_SUPERLUMT      fkinsuperlumt_
-#define FKIN_SPARSESETJAC   fkinsparsesetjac_
-#define FKIN_SPTFQMR        fkinsptfqmr_
-#define FKIN_SPBCG          fkinspbcg_
-#define FKIN_SPGMR          fkinspgmr_
-#define FKIN_SPFGMR         fkinspfgmr_
-#define FKIN_SPILSSETJAC    fkinspilssetjac_
-#define FKIN_SPILSSETPREC   fkinspilssetprec_
 #define FKIN_SOL            fkinsol_
 #define FKIN_FREE           fkinfree_
-#define FK_FUN              fkfun_
+#define FKIN_DLSINIT        fkindlsinit_
+#define FKIN_SPILSINIT      fkinspilsinit_
+#define FKIN_DENSESETJAC    fkindensesetjac_
+#define FK_DJAC             fkdjac_
+#define FKIN_BANDSETJAC     fkinbandsetjac_
+#define FK_BJAC             fkbjac_
+#define FKIN_SPARSESETJAC   fkinsparsesetjac_
+#define FKIN_SPJAC          fkinspjac_
+#define FKIN_SPILSSETJAC    fkinspilssetjac_
+#define FK_JTIMES           fkjtimes_
+#define FKIN_SPILSSETPREC   fkinspilssetprec_
 #define FK_PSET             fkpset_
 #define FK_PSOL             fkpsol_
-#define FK_JTIMES           fkjtimes_
-#define FK_DJAC             fkdjac_
-#define FK_BJAC             fkbjac_
+#define FK_FUN              fkfun_
 
 #endif
 
-/*
- * -----------------------------------------------------------------
- * Prototypes : exported functions
- * -----------------------------------------------------------------
- */
+/*------------------------------------------------------------------
+  Prototypes : exported functions
+  ------------------------------------------------------------------*/
 
 void FKIN_MALLOC(long int *iout, realtype *rout, int *ier);
 void FKIN_CREATE(int *ier);
@@ -684,27 +658,12 @@ void FKIN_SETIIN(char key_name[], long int *ival, int *ier);
 void FKIN_SETRIN(char key_name[], realtype *rval, int *ier);
 void FKIN_SETVIN(char key_name[], realtype *vval, int *ier);
 
-void FKIN_DENSE(long int *neq, int *ier);
+void FKIN_DLSINIT(int *ier);
 void FKIN_DENSESETJAC(int *flag, int *ier);
-
-void FKIN_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
 void FKIN_BANDSETJAC(int *flag, int *ier);
-
-void FKIN_LAPACKDENSE(int *neq, int *ier);
-void FKIN_LAPACKDENSESETJAC(int *flag, int *ier);
-void FKIN_LAPACKBAND(int *neq, int *mupper, int *mlower, int *ier);
-void FKIN_LAPACKBANDSETJAC(int *flag, int *ier);
-
-void FKIN_KLU(int *neq, int *nnz, int *sparsetype, int *ordering, int *ier);
-void FKIN_KLUREINIT(int *neq, int *nnz, int *reinit_type, int *ier);
-void FKIN_SUPERLUMT(int *nthreads, int *neq, int *nnz, int *ordering, int *ier);
 void FKIN_SPARSESETJAC(int *ier);
 
-void FKIN_SPTFQMR(int *maxl, int *ier);
-void FKIN_SPBCG(int *maxl, int *ier);
-void FKIN_SPGMR(int *maxl, int *maxlrst, int *ier);
-void FKIN_SPFGMR(int *maxl, int *maxlrst, int *ier);
-
+void FKIN_SPILSINIT(int *ier);
 void FKIN_SPILSSETJAC(int *flag, int *ier);
 void FKIN_SPILSSETPREC(int *flag, int *ier);
 
@@ -713,70 +672,48 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
 
 void FKIN_FREE(void);
 
-/*
- * -----------------------------------------------------------------
- * Prototypes : functions called by the solver
- * -----------------------------------------------------------------
- */
+/*------------------------------------------------------------------
+  Prototypes : functions called by the solver
+  ------------------------------------------------------------------*/
 
 int FKINfunc(N_Vector uu, N_Vector fval, void *user_data);
 
-int FKINDenseJac(long int N,
-                 N_Vector uu, N_Vector fval,
-                 DlsMat J, void *user_data, 
-                 N_Vector vtemp1, N_Vector vtemp2);
+int FKINDenseJac(N_Vector uu, N_Vector fval, SUNMatrix J,
+                 void *user_data, N_Vector vtemp1, N_Vector vtemp2);
 
-int FKINBandJac(long int N, long int mupper, long int mlower,
-                N_Vector uu, N_Vector fval, 
-                DlsMat J, void *user_data,
-                N_Vector vtemp1, N_Vector vtemp2);
+int FKINBandJac(N_Vector uu, N_Vector fval, SUNMatrix J,
+                void *user_data, N_Vector vtemp1, N_Vector vtemp2);
 
-int FKINLapackDenseJac(long int N,
-                       N_Vector uu, N_Vector fval,
-                       DlsMat J, void *user_data, 
-                       N_Vector vtemp1, N_Vector vtemp2);
-
-int FKINLapackBandJac(long int N, long int mupper, long int mlower,
-                      N_Vector uu, N_Vector fval, 
-                      DlsMat J, void *user_data,
-                      N_Vector vtemp1, N_Vector vtemp2);
-
-int FKINSparseJac(N_Vector y, N_Vector fval, SlsMat J,
+int FKINSparseJac(N_Vector uu, N_Vector fval, SUNMatrix J,
 		  void *user_data, N_Vector vtemp1, N_Vector vtemp2);
+
+int FKINJtimes(N_Vector v, N_Vector Jv, N_Vector uu,
+               booleantype *new_uu, void *user_data);
 
 int FKINPSet(N_Vector uu, N_Vector uscale,
              N_Vector fval, N_Vector fscale,
-             void *user_data,
-             N_Vector vtemp1, N_Vector vtemp2);
+             void *user_data);
 
 int FKINPSol(N_Vector uu, N_Vector uscale, 
              N_Vector fval, N_Vector fscale, 
-             N_Vector vv, void *user_data,
-             N_Vector vtemp);
+             N_Vector vv, void *user_data);
 
-int FKINJtimes(N_Vector v, N_Vector Jv,
-               N_Vector uu, booleantype *new_uu, 
-               void *user_data);
+/*------------------------------------------------------------------
+  declarations for global variables shared amongst various routines
+  ------------------------------------------------------------------*/
 
-/*
- * -----------------------------------------------------------------
- * declarations for global variables shared amongst various
- * routines
- * -----------------------------------------------------------------
- */
-
-extern N_Vector F2C_KINSOL_vec;
-extern void *KIN_kinmem;
-extern long int *KIN_iout;
-extern realtype *KIN_rout;
-extern int KIN_ls;
+extern N_Vector F2C_KINSOL_vec;           /* defined in FNVECTOR module   */
+extern SUNMatrix F2C_KINSOL_matrix;       /* defined in FSUNMATRIX module */
+extern SUNLinearSolver F2C_KINSOL_linsol; /* defined in FSUNLINSOL module */
+extern void *KIN_kinmem;                  /* defined in fkinsol.c         */
+extern long int *KIN_iout;                /* defined in fkinsol.c         */
+extern realtype *KIN_rout;                /* defined in fkinsol.c         */
+extern int KIN_ls;                        /* defined in fkinsol.c         */
 
 /* Linear solver IDs */
-
-  enum { KIN_LS_SPGMR = 1, KIN_LS_SPFGMR = 2, KIN_LS_SPBCG = 3, KIN_LS_SPTFQMR = 4, 
-	 KIN_LS_DENSE = 5, KIN_LS_BAND  = 6,
-	 KIN_LS_LAPACKDENSE = 7, KIN_LS_LAPACKBAND = 8,
-         KIN_LS_KLU = 9, KIN_LS_SUPERLUMT = 10 };
+enum { KIN_LS_ITERATIVE = 0,
+       KIN_LS_DIRECT = 1,
+       KIN_LS_CUSTOM = 2 };
 
 #ifdef __cplusplus
 }
