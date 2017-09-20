@@ -141,7 +141,9 @@ cmake \
     -D CMAKE_CXX_COMPILER="/usr/bin/c++" \
     -D CMAKE_Fortran_COMPILER="/usr/bin/gfortran" \
     \
-    -D CMAKE_C_FLAGS='-Wall -std=c99 -pedantic' \
+    -D CMAKE_C_FLAGS='-g -Wall -std=c99 -pedantic' \
+    -D CMAKE_CXX_FLAGS='-g' \
+    -D CMAKE_Fortran_FLAGS='-g' \
     \
     -D MPI_ENABLE=ON \
     -D MPI_MPICC="${MPIDIR}/mpicc" \
