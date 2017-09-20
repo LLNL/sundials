@@ -10,20 +10,30 @@
    arguments (second is a copy of the first) to match N_Vector and
    previous matrix operations. 
 
-4. Revisit scaling vectors with PCG (without preconditioning) -- this
+4. Revisit ATSetup idea.  It is currently not called frequently enough
+   to support the main use: for iterative linear solvers, allow a user
+   to precompute some information regarding J so that they can
+   subsequently perform (multiple) J*v evaluations.  This should be
+   done at EVERY Newton iteration, not as infrequently as we currently
+   call lsetup() (or PSetup()).  Perhaps add an lupdate() routine to
+   all integrator interfaces; this would be NULL for Dls and
+   ATSetup-free Spils interfaces, but would be non-NULL if a
+   user-provided ATSetup routine exists; it would be called *inside*
+   the Newton iteration so that iterative methods could use current
+   Jacobian information at each Newton step.
+
+5. Revisit scaling vectors with PCG (without preconditioning) -- this
    seems to work improperly now.  Perhaps it is the testing code, or
    maybe the solver itself.
   
-5. idaFoodWeb_kry_omp had been explicitly disabled from our testing
+6. idaFoodWeb_kry_omp had been explicitly disabled from our testing
    (in the examples/ida/C_openmp/CMakeLists.txt file).  Why?  It runs
    correctly, although my results differ from the 'answer' file.
    Perhaps this problem should be investigated more thoroughly and
    added back in? 
   
-6. Add new documentation on SUNMatrix and SUNLinearSolver modules.
-
 7. Update documentation on Dls and Spils interfaces for all
-   integrators.
+   integrators.  [CVODE is finished]
 
 8. Revisit CVODE(S) 'diagonal' linear solver interface w.r.t. J and
    gamma updates.  It currently supports lagging both for a
