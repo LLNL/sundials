@@ -61,17 +61,17 @@ APPDIR=/usr/casc/sundials/apps/rh6
 # MPI
 MPIDIR=${APPDIR}/openmpi/1.8.8/bin
 
-# BLAS
+# LAPACK / BLAS
 BLASSTATUS=ON
 BLASDIR=${APPDIR}/lapack/3.6.0/lib64
 
-# LAPACK
 LAPACKSTATUS=ON
 LAPACKDIR=${APPDIR}/lapack/3.6.0/lib64
 
-# LAPACK does not support extended precision or 64-bit indices (UNCOMMENT LINES BELOW FOR NEW LINEAR SOLVER API)
+# LAPACK/BLAS does not support extended precision or 64-bit indices (UNCOMMENT LINES BELOW FOR NEW LINEAR SOLVER API)
 # if [ "$realtype" == "extended" ] || [ "$indextype" == "int64_t" ]; then
 #     LAPACKSTATUS=OFF
+#     BLASSTATUS=OFF
 # fi
 
 # KLU
@@ -132,14 +132,16 @@ fi
 
 # -------------------------------------------------------------------------------
 # Configure SUNDIALS with CMake
-# -------------------------------------------------------------------------------
-
+#
+# NOTE: Helpful options for debugging CMake
+#
 # The '-LAH' flag lists the non-advanced cached variables (L), the advanced
 # variables (A), and help for each variable (H). This will not print any system
 # variables.
-
+#
 # The CMake option '-D CMAKE_VERBOSE_MAKEFILE=ON' enables additional output during
 # compile time which is useful for debugging build issues.
+# -------------------------------------------------------------------------------
 
 echo "START CMAKE"
 cmake \
@@ -171,30 +173,29 @@ cmake \
     -D MPI_MPIF90="${MPIDIR}/mpif90" \
     -D MPI_RUN_COMMAND="${MPIDIR}/mpirun" \
     \
-    -D TPL_ENABLE_BLAS=ON \
-    -D TPL_BLAS_LIBRARIES="${LAPACKDIR}/libblas.so" \
+    -D TPL_ENABLE_BLAS="${BLASSTATUS}" \
+    -D TPL_BLAS_LIBRARIES="${BLASDIR}/libblas.so" \
     \
-    -D TPL_ENABLE_LAPACK=ON \
+    -D TPL_ENABLE_LAPACK="${LAPACKSTATUS}" \
     -D TPL_LAPACK_LIBRARIES="${LAPACKDIR}/liblapack.so" \
     \
-    -D TPL_ENABLE_KLU=ON \
+    -D TPL_ENABLE_KLU="${KLUSTATUS}" \
     -D TPL_KLU_INCLUDE_DIRS="${KLUDIR}/include" \
     -D TPL_KLU_LIBRARIES="${KLUDIR}/lib/libklu.a" \
     \
-    -D TPL_ENABLE_HYPRE=ON \
+    -D TPL_ENABLE_HYPRE="${HYPRESTATUS}" \
     -D TPL_HYPRE_INCLUDE_DIRS="${HYPREDIR}/include" \
     -D TPL_HYPRE_LIBRARIES="${HYPREDIR}/lib/libHYPRE.a" \
     \
-    -D TPL_ENABLE_PETSC=ON \
+    -D TPL_ENABLE_PETSC="${PETSCSTATUS}" \
     -D TPL_PETSC_INCLUDE_DIRS="${PETSCDIR}/include" \
     -D TPL_PETSC_LIBRARIES="${PETSCDIR}/lib/libpetsc.so" \
     \
-    -D TPL_ENABLE_SUPERLUMT=ON \
+    -D TPL_ENABLE_SUPERLUMT="${SUPERLUMTSTATUS}" \
     -D TPL_SUPERLUMT_INCLUDE_DIRS="${SUPERLUMTDIR}/SRC" \
     -D TPL_SUPERLUMT_LIBRARIES="${SUPERLUMTDIR}/lib/libsuperlu_mt_PTHREAD.a" \
     -D TPL_SUPERLUMT_THREAD_TYPE=Pthread \
     \
-    -LAH \
     ../../. 2>&1 | tee configure.log
 
 # check cmake return code

@@ -49,13 +49,17 @@ APPDIR=/usr/casc/sundials/apps/rh6
 # MPI
 MPIDIR=${APPDIR}/openmpi/1.8.8/bin
 
-# LAPACK
+# LAPACK / BLAS
+BLASSTATUS=ON
+BLASDIR=${APPDIR}/lapack/3.6.0/lib64
+
 LAPACKSTATUS=ON
 LAPACKDIR=${APPDIR}/lapack/3.6.0/lib64
 
-# LAPACK does not support extended precision or 64-bit indices (UNCOMMENT LINES BELOW FOR NEW LINEAR SOLVER API)
+# LAPACK/BLAS does not support extended precision or 64-bit indices (UNCOMMENT LINES BELOW FOR NEW LINEAR SOLVER API)
 # if [ "$realtype" == "extended" ] || [ "$indextype" == "int64_t" ]; then
 #     LAPACKSTATUS=OFF
+#     BLASSTATUS=OFF
 # fi
 
 # KLU
@@ -116,14 +120,16 @@ fi
 
 # -------------------------------------------------------------------------------
 # Configure SUNDIALS with CMake
-# -------------------------------------------------------------------------------
-
-# The '-LAH' flag lists the non-advanced cached variables (L), the advanced 
-# variables (A), and help for each variable (H). This will not print any system 
-# variables. 
-
+#
+# NOTE: Helpful options for debugging CMake
+#
+# The '-LAH' flag lists the non-advanced cached variables (L), the advanced
+# variables (A), and help for each variable (H). This will not print any system
+# variables.
+#
 # The CMake option '-D CMAKE_VERBOSE_MAKEFILE=ON' enables additional output during
 # compile time which is useful for debugging build issues.
+# -------------------------------------------------------------------------------
 
 echo "START CMAKE"
 cmake \
@@ -155,8 +161,11 @@ cmake \
     -D MPI_MPIF90="${MPIDIR}/mpif90" \
     -D MPI_RUN_COMMAND="${MPIDIR}/mpirun" \
     \
+    -D BLAS_ENABLE="${BLASSTATUS}" \
+    -D BLAS_LIBRARIES="${BLASDIR}/libblas.so" \
+    \
     -D LAPACK_ENABLE="${LAPACKSTATUS}" \
-    -D LAPACK_LIBRARIES="${LAPACKDIR}/liblapack.so;${LAPACKDIR}/libblas.so;" \
+    -D LAPACK_LIBRARIES="${LAPACKDIR}/liblapack.so" \
     \
     -D KLU_ENABLE="${KLUSTATUS}" \
     -D KLU_INCLUDE_DIR="${KLUDIR}/include" \
@@ -174,9 +183,6 @@ cmake \
     -D SUPERLUMT_INCLUDE_DIR="${SUPERLUMTDIR}/SRC" \
     -D SUPERLUMT_LIBRARY_DIR="${SUPERLUMTDIR}/lib" \
     -D SUPERLUMT_THREAD_TYPE=Pthread \
-    \
-    -LAH \
-    -D CMAKE_VERBOSE_MAKEFILE=ON \
     \
     ../../. 2>&1 | tee configure.log
 
