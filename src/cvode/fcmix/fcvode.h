@@ -50,11 +50,6 @@
  *   FSUNDIAGONALMATINIT        SUNDiagonalMatrix
  *   FSUNSPARSEMATINIT          SUNSparseMatrix
  *
- *   FSUNBANDMASSMATINIT        SUNBandMatrix
- *   FSUNDENSEMASSMATINIT       SUNDenseMatrix
- *   FSUNDIAGONALMASSMATINIT    SUNDiagonalMatrix
- *   FSUNSPARSEMASSMATINIT      SUNSparseMatrix
- *
  *   FSUNBANDLINSOLINIT         SUNBandLinearSolver
  *   FSUNDENSELINSOLINIT        SUNDenseLinearSolver
  *   FSUNDIAGLINSOLINIT         SUNDiagonalLinearSolver
@@ -69,20 +64,6 @@
  *   FSUNSPTFQMRINIT            SUNSPTFQMR
  *   FSUNSUPERLUMTINIT          SUNSuperLUMT
  *
- *   FSUNMASSBANDLINSOLINIT     SUNBandLinearSolver
- *   FSUNMASSDENSELINSOLINIT    SUNDenseLinearSolver
- *   FSUNMASSDIAGLINSOLINIT     SUNDiagonalLinearSolver
- *   FSUNMASSKLUINIT            SUNKLU
- *   FSUNMASSKLUREINIT          SUNKLUReinit
- *   FSUNMASSLAPACKBANDINIT     SUNLapackBand
- *   FSUNMASSLAPACKDENSEINIT    SUNLapackDense
- *   FSUNMASSPCGINIT            SUNPCG
- *   FSUNMASSSPBCGSINIT         SUNSPBCGS
- *   FSUNMASSSPFGMRINIT         SUNSPFGMR
- *   FSUNMASSSPGMRINIT          SUNSPGMR
- *   FSUNMASSSPTFQMRINIT        SUNSPTFQMR
- *   FSUNMASSSUPERLUMTINIT      SUNSuperLUMT
- * 
  *   FCVMALLOC                  CVodeCreate, CVodeSetUserData,
  *                                 and CVodeInit
  *   FCVREINIT                  CVReInit
@@ -93,14 +74,14 @@
  *   FCVDLSINIT                 CVDlsSetLinearSolver
  *   FCVDENSESETJAC             CVDlsSetJacFn
  *   FCVBANDSETJAC              CVDlsSetJacFn
+ *   FCVDIAGSETJAC              CVDlsSetJacFn
  *   FCVSPARSESETJAC            CVDlsSetJacFn
  *   FCVDLSSETMSBJ              CVDlsSetMSBJ
  *   FCVDLSSETDGMAX             CVDlsSetDGMax
  *
  *   FCVSPILSINIT               CVSpilsSetLinearSolver
  *   FCVSPILSSETEPSLIN          CVSpilsSetEpsLin
- *   FCVSPILSSETJAC             CVSpilsSetJacTimesSetupFn & 
- *                                 CVSpilsSetJacTimesVecFn
+ *   FCVSPILSSETJAC             CVSpilsSetJacTimes
  *   FCVSPILSSETPREC            CVSpilsSetPreconditioner
  *
  *   FCVODE                     CVode, CVodeGet*, and CV*Get*
@@ -502,8 +483,6 @@
  * (5) Initialization:  FNVINITS / FNVINITP / FNVINITOMP / FNVINITPTS, 
  *                      FSUNBANDMATINIT / FSUNDENSEMATINIT / 
  *                         FSUNDIAGONALMATINIT / FSUNSPARSEMATINIT,
- *                      FSUNBANDMASSMATINIT / FSUNDENSEMASSMATINIT
- *                         FSUNDIAGONALMASSMATINIT / FSUNSPARSEMASSMATINIT,
  *                      FSUNBANDLINSOLINIT / FSUNDENSELINSOLINIT / 
  *                         FSUNDIAGLINSOLINIT / FSUNKLUINIT / FSUNKLUREINIT /
  *                         FSUNKLUSETORDERING / FSUNLAPACKBANDINIT / 
@@ -511,14 +490,6 @@
  *                         FSUNSPBCGSINIT / FSUNSPFGMRINIT / FSUNSPGMRINIT / 
  *                         FSUNSPTFQMRINIT / FSUNSUPERLUMTINIT /
  *                         FSUNSUPERLUMTSETORDERING,
- *                      FSUNMASSBANDLINSOLINIT / FSUNMASSDENSELINSOLINIT /
- *                         FSUNMASSDIAGLINSOLINIT / FSUNMASSKLUINIT / 
- *                         FSUNMASSKLUREINIT / FSUNMASSKLUSETORDERING / 
- *                         FSUNMASSLAPACKBANDINIT / FSUNMASSLAPACKDENSEINIT / 
- *                         FSUNMASSPCGINIT / FSUNMASSSPBCGSINIT / 
- *                         FSUNMASSSPFGMRINIT / FSUNMASSSPGMRINIT / 
- *                         FSUNMASSSPTFQMRINIT / FSUNMASSSUPERLUMTINIT /
- *                         FSUNMASSSUPERLUMTSETORDERING,
  *                      FCVMALLOC,
  *                      FCVDLSINIT / FCVSPILSINIT,
  *                      FCVREINIT
@@ -676,7 +647,7 @@
  * 
  *   The optional outputs are:
  *           LENRW   = IOUT( 1) from CVodeGetWorkSpace
- *           LENIW   = IOUT( 2) from CVodeGetWorkSpace
+*           LENIW   = IOUT( 2) from CVodeGetWorkSpace
  *           NST     = IOUT( 3) from CVodeGetNumSteps
  *           NFE     = IOUT( 4) from CVodeGetNumRhsEvals
  *           NETF    = IOUT( 5) from CVodeGetNumErrTestFails
@@ -819,8 +790,7 @@
  *   FCVREINIT performs the same initializations as FCVMALLOC, but does no memory 
  *   allocation, using instead the existing internal memory created by the
  *   previous FCVMALLOC call.  The subsequent calls to 
- *   attach the linear system or mass matrix system solvers are only needed 
- *   if those objects have been re-created.
+ *   attach the linear system solver is only needed if that object has been re-created.
  * 
  * (5.12) The SUNKLU solver will reuse much of the factorization information 
  *   from one solve to the next.  If at any time the user wants to force a 
