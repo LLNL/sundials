@@ -276,10 +276,6 @@ int main(int argc, char *argv[])
   flag = SUNSPGMRSetMaxRestarts(LS, maxlrst);
   if (check_flag(&flag, "SUNSPGMRSpilsSetMaxRestarts", 1)) return(1);
 
-  /* Set scaling vectors */
-  flag = SUNLinSolSetScalingVectors(LS, sc, sc);
-  if (check_flag(&flag, "SUNLinSolSetScalingVectors", 1)) return(1);
-
   /* Specify the preconditioner setup and solve routines */
   flag = KINSpilsSetPreconditioner(kmem,
 				   PrecSetupBD,

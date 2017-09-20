@@ -340,10 +340,6 @@ int main(void)
 
     }
 
-    /* Set scaling vectors */
-    flag = SUNLinSolSetScalingVectors(LS, sc, sc);
-    if (check_flag(&flag, "SUNLinSolSetScalingVectors", 1)) return(1);
-
     /* Set preconditioner functions */
     flag = KINSpilsSetPreconditioner(kmem, PrecSetupBD, PrecSolveBD);
     if (check_flag(&flag, "KINSpilsSetPreconditioner", 1)) return(1);

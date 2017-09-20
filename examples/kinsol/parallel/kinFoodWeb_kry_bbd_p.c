@@ -288,10 +288,6 @@ int main(int argc, char *argv[])
   maxlrst = 2;
   flag = SUNSPGMRSetMaxRestarts(LS, maxlrst);
   if (check_flag(&flag, "SUNSPGMRSpilsSetMaxRestarts", 1, my_pe)) MPI_Abort(comm, 1);
-
-  /* Set scaling vectors */
-  flag = SUNLinSolSetScalingVectors(LS, sc, sc);
-  if (check_flag(&flag, "SUNLinSolSetScalingVectors", 1, my_pe)) MPI_Abort(comm, 1);
   
   /* Call KINBBDPrecInit to initialize and allocate memory for the
      band-block-diagonal preconditioner, and specify the local and

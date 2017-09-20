@@ -1135,13 +1135,11 @@ int FIDAJtimes(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
                N_Vector vtemp1, N_Vector vtemp2);
 
 int FIDAPSet(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
-             realtype c_j, void *user_data,
-             N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+             realtype c_j, void *user_data);
 
 int FIDAPSol(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
              N_Vector rvec, N_Vector zvec,
-             realtype c_j, realtype delta, void *user_data,
-             N_Vector vtemp1);
+             realtype c_j, realtype delta, void *user_data);
 
 int FIDAEwtSet(N_Vector yy, N_Vector ewt, void *user_data);
 

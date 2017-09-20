@@ -51,7 +51,7 @@ extern void FIDA_SPJAC(realtype *T, realtype *CJ, realtype *Y,
 void FIDA_SPARSESETJAC(int *ier)
 {
 #if defined(SUNDIALS_INT32_T)
-  arkProcessError((IDAMem) IDA_idamem, IDA_ILL_INPUT, "IDA",
+  IDAProcessError((IDAMem) IDA_idamem, IDA_ILL_INPUT, "IDA",
                   "FIDASPARSESETJAC", 
                   "Sparse Fortran users must configure SUNDIALS with 64-bit integers.");
   *ier = 1;
