@@ -32,7 +32,7 @@ methods, based on formulas of the form
 Here the $y^n$ are computed approximations to $y(t_n)$, and
 $h_n = t_n - t_{n-1}$ is the step size.  The user of {\cvode} must choose
 appropriately one of two multistep methods.  For nonstiff problems,
-{\cvode} includes the Adams-Moulton formulas \index{Adams method},
+{\cvode} includes the Adams-Moulton formulas\index{Adams method},
 characterized by $K_1 = 1$
 and $K_2 = q$ above, where the order $q$ varies between $1$ and $12$.
 For stiff problems, {\cvode} includes the Backward Differentiation
@@ -75,14 +75,10 @@ computed explicitly from the available history data.
 For the solution of the linear systems within the Newton corrections, 
 {\cvode} provides several choices, including the option of an user-supplied
 linear solver module. The linear solver modules distributed with {\sundials}
-are organized in three families, a {\em direct} family comprising direct linear 
-solvers for dense or banded matrices, a {\em sparse} family comprising
-direct linear solvers for matrices stored in compressed-sparse-column
-format, and a {\em spils} family comprising 
-scaled preconditioned iterative (Krylov) linear solvers. 
-%%
-In addition, {\cvode} also provides a linear solver module which only uses
-a diagonal approximation of the Jacobian matrix. 
+are organized in two families, a {\em direct} family comprising direct linear 
+solvers for dense, banded, diagonal or sparse matrices, and a {\em spils}
+family comprising scaled preconditioned iterative (Krylov) linear
+solvers. 
 %%
 The methods offered through these modules are as follows:
 \begin{itemize}
@@ -94,25 +90,29 @@ The methods offered through these modules are as follows:
   library \cite{DaPa:10,KLU_site}, or the thread-enabled SuperLU\_MT sparse
   solver library \cite{Li:05,DGL:99,SuperLUMT_site} (serial or threaded 
   vector modules only) [Note that users will need to download and install the 
-  KLU or SuperLU\_MT packages independent of {\cvode}],
-\item a diagonal approximate Jacobian solver,
+  {\klu} or {\superlumt} packages independent of {\cvode}],
+\item diagonal approximate Jacobian solver,
 \item {\spgmr}, a scaled preconditioned GMRES (Generalized Minimal Residual method)
-  solver without restarts,
+  solver,
+\item {\spfgmr}, a scaled preconditioned FGMRES (Flexible Generalized
+  Minimal Residual method) solver,
 \item {\spbcg}, a scaled preconditioned Bi-CGStab (Bi-Conjugate Gradient Stable
-  method) solver, or
+  method) solver,
 \item {\sptfqmr}, a scaled preconditioned TFQMR (Transpose-Free Quasi-Minimal
-  Residual method) solver.
+  Residual method) solver, or
+\item {\pcg}, a scaled preconditioned CG (Conjugate Gradient method) solver.
 \end{itemize}
 For large stiff systems, where direct methods are not feasible, the
-combination of a BDF integrator and any of the preconditioned Krylov
-methods ({\spgmr}, {\spbcg}, or {\sptfqmr}) yields a powerful tool
+combination of a BDF integrator and a preconditioned Krylov
+method yields a powerful tool
 because it combines established methods for stiff integration,
 nonlinear iteration, and Krylov (linear) iteration with a
 problem-specific treatment of the dominant source of stiffness, in the
 form of the user-supplied preconditioner matrix \cite{BrHi:89}.
 %%
-Note that the direct linear solvers (dense, band and sparse) can only be 
-used with the serial and threaded vector representations.
+Note that the dense, band and sparse direct linear solvers can only be 
+used with the serial and threaded vector representations.  The
+diagonal solver can be used with any vector representation.
 
 % WRMS Norm
 %----------
@@ -215,8 +215,8 @@ be less than $0.05 \cdot (0.1 \epsilon)$.
 
 % Jacobian DQ approximations
 %---------------------------
-With the direct dense and band methods, the Jacobian may be supplied
-by a user routine, or approximated by difference quotients,
+With the direct dense, band and diagonal methods, the Jacobian may be
+supplied by a user routine, or approximated by difference quotients,
 at the user's option.  In the latter case, we use the usual
 approximation
 \[ J_{ij} = [f_i(t,y+\sigma_j e_j) - f_i(t,y)]/\sigma_j \, . \]
@@ -227,10 +227,11 @@ and $W_j$ is the error weight defined in (\ref{e:errwt}).  In the dense
 case, this scheme requires $N$ evaluations of $f$, one for each column
 of $J$.  In the band case, the columns of $J$ are computed in groups,
 by the Curtis-Powell-Reid algorithm, with the number of $f$ evaluations
-equal to the bandwidth.
+equal to the bandwidth.  In the diagonal case, this scheme requires 1
+evaluation of $f$.
 
 We note that with the sparse direct solvers, the Jacobian {\em must}
-be supplied by a user routine in compressed-sparse-column format.
+be supplied by a user routine.
 
 In the case of a Krylov method, preconditioning may be used on the left, on the
 right, or both, with user-supplied routines for the preconditioning
@@ -347,18 +348,18 @@ difficult.  Good choices are often problem-dependent (for example, see
 \cite{BrHi:89} for an extensive study of preconditioners for
 reaction-transport systems).
 
-The {\cvode} solver allow for preconditioning either
-side, or on both sides, although we know of no situation where
-preconditioning on both sides is clearly superior to
+Most of the iterative linear solvers supplied with {\sundials} allow
+for preconditioning either side, or on both sides, although we know of
+no situation where preconditioning on both sides is clearly superior to
 preconditioning on one side only (with the product $P_L P_R$).
-Moreover, for a given preconditioner matrix, the merits of left vs. right
+Moreover, for a given preconditioner matrix, the merits of left vs.~right
 preconditioning are unclear in general, and the user should experiment
 with both choices.  Performance will differ because the inverse of the
 left preconditioner is included in the linear system residual whose
 norm is being tested in the Krylov algorithm.  As a rule, however, if
 the preconditioner is the product of two matrices, we recommend that
 preconditioning be done either on the left only or the right only,
-rather than using one factor on each side. 
+rather than using one factor on each side.  
 
 Typical preconditioners used with {\cvode} are based on approximations
 to the system Jacobian, $J = \partial f / \partial y$.  Since the

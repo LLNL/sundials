@@ -30,24 +30,30 @@ preconditioner matrix~\cite{BrHi:89}.  The capabilities of both
 {\vode} and {\vodpk} have been combined in the {\CC}-language package
 {\cvode}\index{CVODE@{\cvode}}~\cite{CoHi:96}.
 
-At present, {\cvode} contains three Krylov methods that can be used
-in conjuction with Newton iteration:
-the GMRES (Generalized Minimal RESidual)~\cite{SaSc:86},
-Bi-CGStab (Bi-Conjugate Gradient Stabilized)~\cite{Van:92}, and
-TFQMR (Transpose-Free Quasi-Minimal Residual) linear iterative 
-methods~\cite{Fre:93}.  As Krylov methods, these require almost no 
+At present, {\cvode} may utilize a variety of Krylov methods provided
+in {\sundials} that can be used in conjuction with Newton iteration:
+these include the GMRES (Generalized Minimal RESidual)~\cite{SaSc:86},
+FGMRES (Flexible Generalized Minimum RESidual)~\cite{Saa:93},
+Bi-CGStab (Bi-Conjugate Gradient Stabilized)~\cite{Van:92}, TFQMR
+(Transpose-Free Quasi-Minimal Residual)~\cite{Fre:93}, and PCG
+(Preconditioned Conjugate Gradient)~\cite{HeSt:52} linear iterative
+methods.  As Krylov methods, these require almost no  
 matrix storage for solving the Newton equations as compared to direct 
 methods. However, the algorithms allow for a user-supplied preconditioner
 matrix, and for most problems preconditioning is essential for an
 efficient solution.
 For very large stiff ODE systems, the Krylov methods are preferable over
 direct linear solver methods, and are often the only feasible choice.
-Among the three Krylov methods in {\cvode}, we recommend GMRES as the
+Among the Krylov methods in {\sundials}, we recommend GMRES as the
 best overall choice.  However, users are encouraged to compare all
-three, especially if encountering convergence failures with GMRES.
-Bi-CGFStab and TFQMR have an advantage in storage requirements, in
+options, especially if encountering convergence failures with GMRES.
+Bi-CGStab and TFQMR have an advantage in storage requirements, in
 that the number of workspace vectors they require is fixed, while that
-number for GMRES depends on the desired Krylov subspace size.
+number for GMRES depends on the desired Krylov subspace size.  FGMRES
+has an advantage in that it is designed to support preconditioners
+that vary between iterations (e.g.~iterative methods).  PCG exhibits
+rapid convergence and minimal workspace vectors, but only works for
+symmetric linear systems.
 
 In the process of translating the {\vode} and {\vodpk} algorithms into
 {\CC}, the overall {\cvode} organization has been changed considerably.
@@ -61,9 +67,9 @@ solver, resulting in {\pvode}\index{PVODE@{\pvode}}~\cite{ByHi:99},
 the parallel variant of {\cvode}.  \index{CVODE@{\cvode}!relationship
 to {\vode}, {\vodpk}|)}
 
-\index{CVODE@{\cvode}!relationship to {\cvode}, {\pvode}|(} Recently,
-the functionality of {\cvode} and {\pvode} has been combined into one
-single code, simply called {\cvode}. Development of the new version of
+\index{CVODE@{\cvode}!relationship to {\cvode}, {\pvode}|(} Around 2002,
+the functionality of {\cvode} and {\pvode} were combined into one
+single code, simply called {\cvode}. Development of this version of
 {\cvode} was concurrent with a redesign of the vector operations
 module across the {\sundials} suite. The key feature of the
 {\nvector} module is that it is written in terms of abstract vector
@@ -323,8 +329,8 @@ to (a) use a package preconditioner (\S\ref{ss:preconds}), (b) supply
 his/her own Jacobian or preconditioner routines (\S\ref{ss:user_fct_sim}),
 (c) do multiple runs of problems of the same size (\S\ref{sss:cvreinit}), 
 (d) supply a new {\nvector} module (Chapter \ref{s:nvector}), or even 
-(e) supply a different linear solver module
-(\S\ref{ss:cvode_org} and Chapter \ref{s:new_linsolv}).
+(e) supply new {\sunlinsol} and/or {\sunmatrix} modules (Chapters
+\ref{s:sunmatrix} and \ref{s:sunlinsol}).
 
 The structure of this document is as follows:
 \begin{itemize}
@@ -357,11 +363,40 @@ The structure of this document is as follows:
   based on openMP \index{openMP} (\S\ref{ss:nvec_openmp}) 
   and Pthreads \index{Pthreads} (\S\ref{ss:nvec_pthreads}), respectively.
 \item
-  Chapter \ref{s:new_linsolv} describes the interfaces to the linear
-  solver modules, so that a user can provide his/her own such module.
+  Chapter \ref{s:sunmatrix} gives a brief overview of the generic
+  {\sunmatrix} module shared among the various components of
+  {\sundials}, and details on the {\sunmatrix} implementations
+  provided with {\sundials}: 
+  a dense implementation (\S\ref{ss:sunmat_dense}),
+  a banded implementation (\S\ref{ss:sunmat_band}),
+  a diagonal implementation (\S\ref{ss:sunmat_diag}) and
+  a sparse implementation (\S\ref{ss:sunmat_sparse}).
 \item
-  Chapter \ref{s:gen_linsolv} describes in detail the generic linear
-  solvers shared by all {\sundials} solvers.
+  Chapter \ref{s:sunlinsol} gives a brief overview of the generic
+  {\sunlinsol} module shared among the various components of
+  {\sundials}.  This chapter contains details on the {\sunlinsol}
+  implementations provided with {\sundials}: 
+  a dense implementation (\S\ref{ss:sunlinsol_dense}),
+  a banded implementation (\S\ref{ss:sunlinsol_band}),
+  a diagonal implementation (\S\ref{ss:sunlinsol_diag}),
+  a GMRES implementation (\S\ref{ss:sunlinsol_spgmr}),
+  a FGMRES implementation (\S\ref{ss:sunlinsol_spfgmr}),
+  a Bi-CGStab implementation (\S\ref{ss:sunlinsol_spbcgs}),
+  a TFQMR implementation (\S\ref{ss:sunlinsol_sptfqmr}),
+  and a PCG implementation (\S\ref{ss:sunlinsol_pcg}).  The chapter
+  also contains details on the {\sunlinsol} implementations provided
+  with {\sundials} that interface with external linear solver
+  libraries:
+  a dense LAPACK interface (\S\ref{ss:sunlinsol_lapdense}),
+  a banded LAPACK interface (\S\ref{ss:sunlinsol_lapband}),
+  a sparse {\klu} interface (\S\ref{ss:sunlinsol_klu}),
+  and a sparse {\superlumt} interface (\S\ref{ss:sunlinsol_klu}).
+%% \item
+%%   Chapter \ref{s:new_linsolv} describes the interfaces to the linear
+%%   solver modules, so that a user can provide his/her own such module.
+%% \item
+%%   Chapter \ref{s:gen_linsolv} describes in detail the generic linear
+%%   solvers shared by all {\sundials} solvers.
 \item
   Finally, in the appendices, we provide detailed instructions for the installation
   of {\cvode}, within the structure of {\sundials} (Appendix \ref{c:install}), as well
@@ -373,7 +408,7 @@ Finally, the reader should be aware of the following notational conventions
 in this user guide:  program listings and identifiers (such as \id{CVodeInit}) 
 within textual explanations appear in typewriter type style; 
 fields in {\CC} structures (such as {\em content}) appear in italics;
-and packages or modules, such as {\cvdense}, are written in all capitals. 
+and packages or modules, such as {\cvdls}, are written in all capitals. 
 Usage and installation instructions that constitute important warnings
 are marked with a triangular symbol {\warn} in the margin.
 

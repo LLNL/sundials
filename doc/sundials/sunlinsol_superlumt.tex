@@ -6,7 +6,10 @@ The {\superlumt} implementation of the {\sunlinsol} module provided with
 {\sundials}, {\sunlinsolslumt}, is designed to be used with the
 corresponding {\sunmatsparse} matrix type, and one of the serial or
 shared-memory {\nvector} implementations ({\nvecs}, {\nvecopenmp} or 
-{\nvecpthreads}).  The {\sunlinsolslumt} module defines the {\em
+{\nvecpthreads}).  While these are compatible, it is not recommended
+to use a threaded vector module with {\sunlinsolslumt} unless it is
+the {\nvecopenmp} module and the {\superlumt} library has also been
+compiled with OpenMP. The {\sunlinsolslumt} module defines the {\em
 content} field of a \id{SUNLinearSolver} to be the following structure:
 %%
 \begin{verbatim} 

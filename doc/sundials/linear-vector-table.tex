@@ -4,14 +4,12 @@ For example, if solving a dense system, we suggest using the Lapack solvers
 if the size of the linear system is $> 50,000$. (Thanks to A. Nicolai for 
 his testing and recommendation.)
 Table \ref{t:solver-vector} shows the linear solver interfaces
-available in {\sundials} packages and the vector implementations
-required for use.  As an example, one cannot use the {\sundials} package
-specific dense direct
-solver interfaces  with the \mpi-based vector implementation.  However, 
-as discussed in Chapter \ref{s:gen_linsolv} the direct dense, direct band, 
-and iterative spils solvers provided with
-{\sundials} are written in a way that allows a user to develop 
-their own solvers around them should a user so desire.  
+available as {\sunlinsol} modules and the vector implementations
+required for use.  As an example, one cannot use the dense direct
+solver interfaces with the \mpi-based vector implementation.  However,
+as discussed in Chapter \ref{s:sunlinsol} the {\sundials} packages
+operate on generic {\sunlinsol} objects, allowing a user to develop  
+their own solvers should they so desire.  
 
 \begin{table}[htb]
   %\xentrystretch{2.5}
@@ -33,6 +31,7 @@ their own solvers around them should a user so desire.
 %   Interface     &          & (MPI)     &          &            &  Vector     & Vector   & Supplied \\ 
     Dense         &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\ 
     Band          &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
+    Diagonal      &  \cm     & \cm       & \cm      &  \cm       & \cm         &  \cm     & \cm      \\ 
     LapackDense   &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
     LapackBand    &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
     \klu          &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
@@ -41,6 +40,7 @@ their own solvers around them should a user so desire.
     \spfgmr       &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\
     \spbcg        &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\
     \sptfqmr      &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\ 
+    \pcg          &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\
     User supplied &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\ 
     \hline
     \end{xtabular}
