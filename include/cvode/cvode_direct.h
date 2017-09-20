@@ -120,6 +120,7 @@ typedef int (*CVDlsJacFn)(realtype t, N_Vector y, N_Vector fy,
   The return value is one of:
      CVDLS_SUCCESS   if successful
      CVDLS_MEM_NULL  if the CVODE memory was NULL
+     CVDLS_MEM_FAIL  if the a memory allocation request failed
      CVDLS_ILL_INPUT if the arguments are incompatible
   -----------------------------------------------------------------*/
 SUNDIALS_EXPORT int CVDlsSetLinearSolver(void *cvode_mem, 

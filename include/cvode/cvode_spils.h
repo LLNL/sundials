@@ -291,6 +291,7 @@ typedef int (*CVSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
   The return value is one of:
      CVSPILS_SUCCESS   if successful
      CVSPILS_MEM_NULL  if the CVODE memory was NULL
+     CVSPILS_MEM_FAIL  if the a memory allocation request failed
      CVSPILS_ILL_INPUT if the linear solver memory was NULL
  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int CVSpilsSetLinearSolver(void *cvode_mem, 
