@@ -300,7 +300,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
     cerr << "matmul error\n";
     return 1;
   }
-  SUNMatCopy(J, D);
+  SUNMatCopy(D, J);
 
   return 0;                        // Return with success
 }

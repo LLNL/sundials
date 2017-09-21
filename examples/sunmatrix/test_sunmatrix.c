@@ -99,7 +99,7 @@ int Test_SUNMatClone(SUNMatrix A, int myid)
     return(1);
   }    
 
-  failure = SUNMatCopy(B, A);
+  failure = SUNMatCopy(A, B);
   if (failure) {
     printf(">>> FAILED test -- SUNMatCopy, Proc %d \n", myid);
     SUNMatDestroy(B);
@@ -183,7 +183,7 @@ int Test_SUNMatCopy(SUNMatrix A, int myid)
 
   /* copy matrix data */
   start_time = get_time();
-  failure = SUNMatCopy(B, A);
+  failure = SUNMatCopy(A, B);
   stop_time = get_time(); 
 
   if (failure) {
@@ -232,7 +232,7 @@ int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid)
 
   /* protect A */
   B = SUNMatClone(A);
-  failure = SUNMatCopy(B,A);
+  failure = SUNMatCopy(A, B);
   if (failure) {
     printf(">>> FAILED test -- SUNMatCopy returned %d on Proc %d \n", 
            failure, myid);
@@ -274,7 +274,7 @@ int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid)
 
     /* protect A and I */
     D = SUNMatClone(A);
-    failure = SUNMatCopy(D,A);
+    failure = SUNMatCopy(A, D);
     if (failure) {
       printf(">>> FAILED test -- SUNMatCopy returned %d on Proc %d \n", 
              failure, myid);
@@ -283,7 +283,7 @@ int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid)
       return(1);
     }
     C = SUNMatClone(I);
-    failure = SUNMatCopy(C,I);
+    failure = SUNMatCopy(I, C);
     if (failure) {
       printf(">>> FAILED test -- SUNMatCopy returned %d on Proc %d \n", 
              failure, myid);
@@ -357,7 +357,7 @@ int Test_SUNMatScaleAddI(SUNMatrix A, SUNMatrix I, int myid)
   /* protect A */
   B = SUNMatClone(A);
   
-  failure = SUNMatCopy(B,I);
+  failure = SUNMatCopy(I, B);
   if (failure) {
     printf(">>> FAILED test -- SUNMatCopy returned %d on Proc %d \n", 
            failure, myid);
@@ -413,7 +413,7 @@ int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
     
     /* protect A */
     B = SUNMatClone(A);
-    failure = SUNMatCopy(B,A);
+    failure = SUNMatCopy(A, B);
     if (failure) {
       printf(">>> FAILED test -- SUNMatCopy returned %d on Proc %d \n", 
              failure, myid);

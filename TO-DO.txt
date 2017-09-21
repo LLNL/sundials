@@ -4,14 +4,10 @@
    - CVODES serial
    - KINSOL
 
-2. Look back through meeting notes to see what David did for
-   'lsetup' in KINSOL that I did not do for the other integrators.
-   Implement this efficiency improvement throughout SUNDIALS.
-
-3. Update documentation on Dls and Spils interfaces for all
+2. Update documentation on Dls and Spils interfaces for all
    integrators.  [CVODE is finished]
 
-4. Revisit CVODE(S) 'diagonal' linear solver interface w.r.t. J and
+3. Revisit CVODE(S) 'diagonal' linear solver interface w.r.t. J and
    gamma updates.  It currently supports lagging both for a
    user-defined number of steps, but old interface always lagged J
    but forced use of the current gamma (through unraveling M-inverse =
@@ -28,21 +24,17 @@
    setting the parameter.  The parameter would then be used inside the
    diagonal DQ approximation routine.
    
-5. Consider update to SUNMatrix 'copy' routine to swap order of
-   arguments (second is a copy of the first) to match N_Vector and
-   previous matrix operations. 
-
-6. Revisit scaling vectors with PCG (without preconditioning) -- this
+4. Revisit scaling vectors with PCG (without preconditioning) -- this
    seems to work improperly now.  Perhaps it is the testing code, or
    maybe the solver itself.
   
-7. idaFoodWeb_kry_omp had been explicitly disabled from our testing
+5. idaFoodWeb_kry_omp had been explicitly disabled from our testing
    (in the examples/ida/C_openmp/CMakeLists.txt file).  Why?  It runs
    correctly, although my results differ from the 'answer' file.
    Perhaps this problem should be investigated more thoroughly and
    added back in? 
   
-8. Revisit the question of the differencing parameter used in the
+6. Revisit the question of the differencing parameter used in the
    IDADls and IDASDls interfaces.  Previously we had different
    increments for GMRES than for BiCGStab and TFQMR; currently these
    all use the GMRES value, but that value seems off in general (see
@@ -51,7 +43,7 @@
    internal check to see if the LS object is actually a SUNSPGMR
    object (perhaps check if LS->ops->solve == SUNLinSolSolve_SPGMR ?)
 
-9. Test whether LAPACK can solve NxN problems where although N can be
+7. Test whether LAPACK can solve NxN problems where although N can be
    stored as an int32_t, N^2 cannot.  Our old interface stored all
    integers relating to dense/band matrices as 64-bit, but called
    LAPACK with 32-bit 'N' values -- was this nonsense?  If LAPACK can
@@ -60,7 +52,7 @@
    use 64-bit integers for the actual 1D data array, to match our
    previous support.
 
-10. Add <solver>Cls interfaces to all integrators for 'custom' linear
+8. Add <solver>Cls interfaces to all integrators for 'custom' linear
    solvers.  These should:
    - assume a SUNMatrix object is provided
    - assume an iterative linear solve is performed

@@ -288,31 +288,31 @@ int SUNMatCopy_Band(SUNMatrix A, SUNMatrix B)
   if (!SMCompatible_Band(A, B))
     return 1;
 
-  /* Grow A if B's bandwidth is larger */
-  if ( (SM_UBAND_B(B) > SM_UBAND_B(A)) ||
-       (SM_LBAND_B(B) > SM_LBAND_B(A)) ) {
-    ml  = SUNMAX(SM_LBAND_B(A),SM_LBAND_B(B));
-    mu  = SUNMAX(SM_UBAND_B(A),SM_UBAND_B(B));
-    smu = SUNMAX(SM_SUBAND_B(A),SM_SUBAND_B(B));
+  /* Grow B if A's bandwidth is larger */
+  if ( (SM_UBAND_B(A) > SM_UBAND_B(B)) ||
+       (SM_LBAND_B(A) > SM_LBAND_B(B)) ) {
+    ml  = SUNMAX(SM_LBAND_B(B),SM_LBAND_B(A));
+    mu  = SUNMAX(SM_UBAND_B(B),SM_UBAND_B(A));
+    smu = SUNMAX(SM_SUBAND_B(B),SM_SUBAND_B(A));
     colSize = smu + ml + 1;
-    SM_CONTENT_B(A)->mu = mu;
-    SM_CONTENT_B(A)->ml = ml;
-    SM_CONTENT_B(A)->s_mu = smu;
-    SM_CONTENT_B(A)->ldim = colSize;
-    SM_CONTENT_B(A)->ldata = SM_COLUMNS_B(A) * colSize;
-    SM_CONTENT_B(A)->data = realloc(SM_CONTENT_B(A)->data, SM_COLUMNS_B(A) * colSize*sizeof(realtype));
-    for (j=0; j<SM_COLUMNS_B(A); j++)
-      SM_CONTENT_B(A)->cols[j] = SM_CONTENT_B(A)->data + j * colSize;   
+    SM_CONTENT_B(B)->mu = mu;
+    SM_CONTENT_B(B)->ml = ml;
+    SM_CONTENT_B(B)->s_mu = smu;
+    SM_CONTENT_B(B)->ldim = colSize;
+    SM_CONTENT_B(B)->ldata = SM_COLUMNS_B(B) * colSize;
+    SM_CONTENT_B(B)->data = realloc(SM_CONTENT_B(B)->data, SM_COLUMNS_B(B) * colSize*sizeof(realtype));
+    for (j=0; j<SM_COLUMNS_B(B); j++)
+      SM_CONTENT_B(B)->cols[j] = SM_CONTENT_B(B)->data + j * colSize;   
   }
   
   /* Perform operation */
-  if (SUNMatZero_Band(A) != 0)
+  if (SUNMatZero_Band(B) != 0)
     return 1;
-  for (j=0; j<SM_COLUMNS_B(A); j++) {
-    A_colj = SM_COLUMN_B(A,j);
+  for (j=0; j<SM_COLUMNS_B(B); j++) {
     B_colj = SM_COLUMN_B(B,j);
-    for (i=-SM_UBAND_B(B); i<=SM_LBAND_B(B); i++)
-      A_colj[i] = B_colj[i];
+    A_colj = SM_COLUMN_B(A,j);
+    for (i=-SM_UBAND_B(A); i<=SM_LBAND_B(A); i++)
+      B_colj[i] = A_colj[i];
   }
   return 0;
 }

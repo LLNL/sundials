@@ -245,7 +245,7 @@ int SUNMatCopy_Dense(SUNMatrix A, SUNMatrix B)
   /* Perform operation */
   for (j=0; j<SM_COLUMNS_D(A); j++)
     for (i=0; i<SM_ROWS_D(A); i++)
-      SM_ELEMENT_D(A,i,j) = SM_ELEMENT_D(B,i,j);
+      SM_ELEMENT_D(B,i,j) = SM_ELEMENT_D(A,i,j);
   return 0;
 }
 

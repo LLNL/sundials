@@ -774,7 +774,7 @@ int cvDlsSetup(CVodeMem cv_mem, int convfail, N_Vector y,
   /* If jok = TRUE, use saved copy of J */
   if (jok) {
     *jcurPtr = FALSE;
-    retval = SUNMatCopy(cvdls_mem->A, cvdls_mem->savedJ);
+    retval = SUNMatCopy(cvdls_mem->savedJ, cvdls_mem->A);
     if (retval) {
       cvProcessError(cv_mem, CVDLS_SUNMAT_FAIL, "CVSDLS", 
                       "cvDlsSetup",  MSGD_MATCOPY_FAILED);
@@ -808,7 +808,7 @@ int cvDlsSetup(CVodeMem cv_mem, int convfail, N_Vector y,
       return(1);
     }
 
-    retval = SUNMatCopy(cvdls_mem->savedJ, cvdls_mem->A);
+    retval = SUNMatCopy(cvdls_mem->A, cvdls_mem->savedJ);
     if (retval) {
       cvProcessError(cv_mem, CVDLS_SUNMAT_FAIL, "CVSDLS", 
                       "cvDlsSetup",  MSGD_MATCOPY_FAILED);

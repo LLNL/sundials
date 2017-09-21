@@ -162,7 +162,7 @@ int SUNMatCopy_Diagonal(SUNMatrix A, SUNMatrix B)
     return 1;
 
   /* Perform operation */
-  N_VScale(ONE, SM_DATA_DIAG(B), SM_DATA_DIAG(A));
+  N_VScale(ONE, SM_DATA_DIAG(A), SM_DATA_DIAG(B));
   return 0;
 }
 

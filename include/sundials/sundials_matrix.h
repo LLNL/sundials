@@ -133,8 +133,8 @@ struct _generic_SUNMatrix {
  *   and B have different types and/or dimensions.
  *
  * SUNMatCopy
- *   Performs the operation A = B.  Returns an error if A and B have 
- *   different types and/or dimensions.
+ *   Performs the operation B = A.  Should return an error if A and 
+ *   B have different types and/or dimensions.
  *
  * SUNMatScaleAddI
  *   Performs the operation A = c*A + I.  Returns an error if A is '

@@ -1128,7 +1128,7 @@ int arkDlsSetup(ARKodeMem ark_mem, int convfail, N_Vector ypred,
   /* If jok = TRUE, use saved copy of J */
   if (jok) {
     *jcurPtr = FALSE;
-    retval = SUNMatCopy(arkdls_mem->A, arkdls_mem->savedJ);
+    retval = SUNMatCopy(arkdls_mem->savedJ, arkdls_mem->A);
     if (retval) {
       arkProcessError(ark_mem, ARKDLS_SUNMAT_FAIL, "ARKDLS", 
                       "arkDlsSetup",  MSGD_MATCOPY_FAILED);
@@ -1162,7 +1162,7 @@ int arkDlsSetup(ARKodeMem ark_mem, int convfail, N_Vector ypred,
       return(1);
     }
 
-    retval = SUNMatCopy(arkdls_mem->savedJ, arkdls_mem->A);
+    retval = SUNMatCopy(arkdls_mem->A, arkdls_mem->savedJ);
     if (retval) {
       arkProcessError(ark_mem, ARKDLS_SUNMAT_FAIL, "ARKDLS", 
                       "arkDlsSetup",  MSGD_MATCOPY_FAILED);
@@ -1392,7 +1392,7 @@ int arkDlsMassSetup(ARKodeMem ark_mem, N_Vector vtemp1,
   }
 
   /* Copy M into M_lu for factorization */
-  retval = SUNMatCopy(arkdls_mem->M_lu, arkdls_mem->M);
+  retval = SUNMatCopy(arkdls_mem->M, arkdls_mem->M_lu);
   
   /* Call generic linear solver 'setup' with this system matrix, and
      return success/failure flag */

@@ -478,7 +478,7 @@ int SUNMatZero_Sparse(SUNMatrix A)
   return 0;
 }
 
-int SUNMatCopy_Sparse(SUNMatrix B, SUNMatrix A)
+int SUNMatCopy_Sparse(SUNMatrix A, SUNMatrix B)
 {
   sunindextype i, A_nz;
 

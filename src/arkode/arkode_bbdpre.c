@@ -468,7 +468,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   /* If jok = TRUE, use saved copy of J */
   if (jok) {
     *jcurPtr = FALSE;
-    retval = SUNMatCopy(pdata->savedP, pdata->savedJ);
+    retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
     if (retval < 0) {
       arkProcessError(ark_mem, -1, "ARKBBDPRE", 
                       "ARKBBDPrecSetup", MSGBBD_SUNMAT_FAIL);
@@ -503,7 +503,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
       return(1);
     }
 
-    retval = SUNMatCopy(pdata->savedP, pdata->savedJ);
+    retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
     if (retval < 0) {
       arkProcessError(ark_mem, -1, "ARKBBDPRE", 
                       "ARKBBDPrecSetup", MSGBBD_SUNMAT_FAIL);
