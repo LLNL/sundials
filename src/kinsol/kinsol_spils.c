@@ -759,6 +759,7 @@ int kinSpilsInitialize(KINMem kin_mem)
     kinspils_mem->jdata   = kin_mem->kin_user_data;
   }
 
+  /* the Picard iteration is incompatible with a difference-quotient J*v */
   if ( (kin_mem->kin_globalstrategy == KIN_PICARD) && kinspils_mem->jtimesDQ ) {
     KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL",
                     "kinSpilsInitialize", MSG_NOL_FAIL);

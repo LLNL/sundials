@@ -803,6 +803,10 @@ int cvSpilsInitialize(CVodeMem cv_mem)
     cvspils_mem->j_data = cv_mem->cv_user_data;
   }
 
+  /* if psetup is not present, then cvSpilsSetup does not need to be 
+     called, so set the lsetup function to NULL */
+  if (cvspils_mem->pset == NULL)  cv_mem->cv_lsetup = NULL;
+
   /* Call LS initialize routine */
   cvspils_mem->last_flag = SUNLinSolInitialize(cvspils_mem->LS);
   return(cvspils_mem->last_flag);

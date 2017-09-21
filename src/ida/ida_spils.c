@@ -874,6 +874,10 @@ int idaSpilsInitialize(IDAMem IDA_mem)
     idaspils_mem->jdata   = IDA_mem->ida_user_data;
   }
 
+  /* if psetup is not present, then idaSpilsSetup does not need to be 
+     called, so set the lsetup function to NULL */
+  if (idaspils_mem->pset == NULL)  IDA_mem->ida_lsetup = NULL;
+
   /* Call LS initialize routine */
   idaspils_mem->last_flag = SUNLinSolInitialize(idaspils_mem->LS);
   return(idaspils_mem->last_flag);

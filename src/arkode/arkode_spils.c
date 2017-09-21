@@ -1475,6 +1475,10 @@ int arkSpilsInitialize(ARKodeMem ark_mem)
     arkspils_mem->j_data = ark_mem->ark_user_data;
   }
 
+  /* if psetup is not present, then arkSpilsSetup does not need to be 
+     called, so set the lsetup function to NULL */
+  if (arkspils_mem->pset == NULL)  ark_mem->ark_lsetup = NULL;
+
   /* Ensure that if a mass matrix / solver are used, that system 
      and mass matrix solver types match (and both are set up) */
   if (ark_mem->ark_mass_matrix) {
@@ -1769,6 +1773,10 @@ int arkSpilsMassInitialize(ARKodeMem ark_mem)
     arkspils_mem->last_flag = ARKSPILS_ILL_INPUT;
     return(-1);
   }
+
+  /* if psetup is not present, then arkSpilsMassSetup does not need 
+     to be called, so set the msetup function to NULL */
+  if (arkspils_mem->pset == NULL)  ark_mem->ark_msetup = NULL;
 
   /* Call LS initialize routine */
   arkspils_mem->last_flag = SUNLinSolInitialize(arkspils_mem->LS);
