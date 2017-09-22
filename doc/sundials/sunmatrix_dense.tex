@@ -37,7 +37,7 @@ information:
 \noindent The header file to be included when using this module 
 is \id{sunmatrix/sunmatrix\_dense.h}. \\
 
-\noindent The following eight macros are provided to access the
+\noindent The following macros are provided to access the
 content of a {\sunmatdense} matrix. The prefix \id{SM\_} in the names
 denotes that these macros are for \emph{SUNMatrix} implementations,
 and the suffix \id{\_D} denotes that these are specific to
@@ -60,7 +60,7 @@ the \emph{dense} version.
   
 \item \ID{SM\_ROWS\_D}, \ID{SM\_COLUMNS\_D}, and \ID{SM\_LDATA\_D}
 
-  These macros give individual access various lengths relevant to the
+  These macros give individual access to various lengths relevant to the
   content of a dense \id{SUNMatrix}.                        
                                                                
   These may be used either to retrieve or to set these values.  For
@@ -106,16 +106,16 @@ the \emph{dense} version.
   the data array of a dense \id{SUNMatrix}.
 
   The assignment \id{col\_j = SM\_COLUMN\_D(A,j)} sets \id{col\_j} to be
-  a pointer to the first entry of the \id{j}-th column of the $M \times N$
-  dense matrix \id{A}, $0 \le$ \id{j} $< N$.  The type of the
+  a pointer to the first entry of the \id{j}-th column of the $\id{M} \times \id{N}$
+  dense matrix \id{A} (with $0 \le \id{j} < \id{N}$).  The type of the
   expression \id{SM\_COLUMN\_D(A,j)} is \id{realtype *}.  The pointer
   returned by the call \id{SM\_COLUMN\_D(A,j)} can be treated as  
-  an array which is indexed from $0$ to $M-1$.
+  an array which is indexed from $0$ to $\id{M}-1$.
 
   The assignments \id{SM\_ELEMENT\_D(A,i,j) = a\_ij} and \id{a\_ij =
   SM\_ELEMENT\_D(A,i,j)} reference the (\id{i},\id{j})-th element of the
-  $M \times N$ dense matrix \id{A}, where $0 \le$ \id{i} $< M$ and
-  $0\le $ \id{j} $< N$.
+  $\id{M} \times \id{N}$ dense matrix \id{A} (with $0 \le \id{i} < \id{M}$ and
+  $0 \le \id{j} < \id{N}$).
 
   Implementation:
 
@@ -140,7 +140,7 @@ user-callable routines:
 
 \item \ID{SUNDenseMatrix}
 
-  This function creates and allocates memory for a dense \id{SUNMatrix}.
+  This constructor function creates and allocates memory for a dense \id{SUNMatrix}.
   Its arguments are the number of rows, \id{M}, and columns, \id{N}, for
   the dense matrix.
 
@@ -203,7 +203,7 @@ user-callable routines:
 
   This function returns a pointer to the first entry of the jth
   column of the dense \id{SUNMatrix}.  The resulting pointer should
-  be indexed over the range $0$ to $M-1$.
+  be indexed over the range $0$ to $\id{M}-1$.
  
   \verb|realtype* SUNDenseMatrix_Column(SUNMatrix A, sunindextype j);|
 
@@ -238,7 +238,7 @@ user-callable routines:
   {\warn} Within the \id{SUNMatMatvec\_Dense} routine, internal
   consistency checks are performed to ensure that the matrix is called
   with consistent {\nvector} implementations.  These are currently
-  limited to: {\nvecs}, {\nvecopenmp} and {\nvecpthreads}.  As additional
+  limited to: {\nvecs}, {\nvecopenmp}, and {\nvecpthreads}.  As additional
   compatible vector implementations are added to {\sundials}, these
   will be included within this compatibility check.
 
@@ -248,11 +248,12 @@ For solvers that include a Fortran interface module, the {\sunmatdense}
 module also includes the Fortran-callable
 function \id{FSUNDenseMatInit(code, M, N, ier)} to initialize
 this {\sunmatdense} module for a given {\sundials} solver.
-Here \id{code} is an input solver id (1 for {\cvode}, 2 for {\ida}, 3
+Here \id{code} is an integer input solver id (1 for {\cvode}, 2 for {\ida}, 3
 for {\kinsol}, 4 for {\arkode}); \id{M} and \id{N} are the
-corresponding dense matrix construction arguments (declared so as to
+corresponding dense matrix construction arguments (declared to
 match C type \id{long int}); and \id{ier} is an error return flag 
-equal 0 for success and -1 for failure (declared so as to match C type
-\id{int}). Additionally, when using {\arkode} with non-identity mass
-matrix, the Fortran-callable function \id{FSUNDenseMassMatInit(M, N, ier)} 
-initializes this {\sunmatdense} module for storing the mass matrix.
+equal to 0 for success and -1 for failure. Both \id{code} and \id{ier}
+are declared to match C type \id{int}. Additionally, when using
+{\arkode} with a non-identity mass matrix, the Fortran-callable
+function \id{FSUNDenseMassMatInit(M, N, ier)} initializes this
+{\sunmatdense} module for storing the mass matrix. 

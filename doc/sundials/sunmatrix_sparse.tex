@@ -37,8 +37,9 @@ this \emph{content} field is given below:
   \item[NNZ]  - maximum number of nonzero entries in the matrix
     (allocated length of \id{data} and \id{rowvals} arrays)
   \item[NP]  - number of index pointers (e.g. number of column pointers for 
-    CSC matrix). For CSC matrices $NP=N$, and for CSR matrices $NP=M$. This 
-    value is set automatically based the input for \verb|sparsetype|. 
+    CSC matrix). For CSC matrices $\id{NP}=\id{N}$, and for CSR
+    matrices $\id{NP}=\id{M}$. This value is set automatically based
+    the input for \verb|sparsetype|.
   \item[data]  - pointer to a contiguous block of \id{realtype}
     variables (of length \id{NNZ}), containing the values of the
     nonzero entries in the matrix
@@ -124,14 +125,14 @@ number of nonzeroes here.
 \centerline{\includegraphics[width=4.5 in]{cscmat}}
 \caption[Diagram of the storage for a compressed-sparse-column matrix] 
   {Diagram of the storage for a compressed-sparse-column
-  matrix. Here \id{A} is an $M \times N$ sparse matrix with storage
+  matrix. Here \id{A} is an $\id{M} \times \id{N}$ sparse matrix with storage
   for up to \id{NNZ} nonzero entries (the allocated length of
   both \id{data} and \id{indexvals}).  The entries in \id{indexvals}
-  may assume values from $0$ to $M-1$, corresponding to the row index
+  may assume values from $0$ to $\id{M}-1$, corresponding to the row index
   (zero-based) of each nonzero value.  The entries in \id{data} contain
   the values of the nonzero entries, with the row $i$, column $j$
   entry of \id{A} (again, zero-based) denoted as \id{A(i,j)}.
-  The \id{indexptrs} array contains $N+1$ entries; the first $N$
+  The \id{indexptrs} array contains $\id{N}+1$ entries; the first $\id{N}$
   denote the starting index of each column within the \id{indexvals}
   and \id{data} arrays, while the final entry points one past the
   final nonzero entry.  Here, although \id{NNZ} values are allocated,
@@ -143,7 +144,7 @@ number of nonzeroes here.
 \noindent The header file to be included when using this module 
 is \id{sunmatrix/sunmatrix\_sparse.h}. \\
 
-\noindent The following nine macros are provided to access the
+\noindent The following macros are provided to access the
 content of a {\sunmatsparse} matrix. The prefix \id{SM\_} in the names
 denotes that these macros are for \emph{SUNMatrix} implementations,
 and the suffix \id{\_S} denotes that these are specific to
@@ -166,7 +167,7 @@ the \emph{sparse} version.
   
 \item \ID{SM\_ROWS\_S}, \ID{SM\_COLUMNS\_S}, \ID{SM\_NNZ\_S}, \ID{SM\_NP\_S}, and \ID{SM\_SPARSETYPE\_S}
 
-  These macros give individual access various lengths relevant to the
+  These macros give individual access to various lengths relevant to the
   content of a sparse \id{SUNMatrix}.
                                                                
   These may be used either to retrieve or to set these values.  For
@@ -294,8 +295,8 @@ SUNMatrix SUNSparseFromBandMatrix(SUNMatrix A, realtype droptol,
 
   This function reallocates internal storage arrays in a sparse matrix
   so that the resulting sparse matrix has no wasted space (i.e.~the
-  number of allocated space for nonzeros equals the actual number of
-  nonzeros, \id{indexptrs[NP]}.  Returns 0 on success and 
+  space allocated for nonzero entries equals the actual number of
+  nonzeros, \id{indexptrs[NP]}). Returns 0 on success and 
   1 on failure (e.g.~if the input matrix is not sparse).
 
   \verb|int SUNSparseMatrix_Realloc(SUNMatrix A);|
@@ -331,7 +332,8 @@ SUNMatrix SUNSparseFromBandMatrix(SUNMatrix A, realtype droptol,
 
 \item \ID{SUNSparseMatrix\_NNZ}
 
-  This function returns the allocated nonzero storage for the sparse \id{SUNMatrix}.
+  This function returns the number of entries allocated for nonzero
+  storage for the sparse \id{SUNMatrix}.
  
   \verb|sunindextype SUNSparseMatrix_NNZ(SUNMatrix A);|
 
@@ -378,9 +380,9 @@ SUNMatrix SUNSparseFromBandMatrix(SUNMatrix A, realtype droptol,
 \item \ID{SUNSparseMatrix\_IndexPointers}
 
   This function returns a pointer to the index pointer array for the
-  sparse \id{SUNMatrix}: for CSR this is the location of the first
+  sparse \id{SUNMatrix}: for CSR format this is the location of the first
   entry of each row in the \id{data} and \id{indexvalues} arrays, for
-  CSC this is the location of the first entry of each column.
+  CSC format this is the location of the first entry of each column.
  
   \verb|sunindextype* SUNSparseMatrix_IndexPointers(SUNMatrix A);|
 
@@ -391,7 +393,7 @@ SUNMatrix SUNSparseFromBandMatrix(SUNMatrix A, realtype droptol,
 {\warn} Within the \id{SUNMatMatvec\_Sparse} routine, internal
 consistency checks are performed to ensure that the matrix is called
 with consistent {\nvector} implementations.  These are currently
-limited to: {\nvecs}, {\nvecopenmp} and {\nvecpthreads}.  As
+limited to: {\nvecs}, {\nvecopenmp}, and {\nvecpthreads}.  As
 additional compatible vector implementations are added to {\sundials},
 these will be included within this compatibility check. 
 
@@ -403,12 +405,12 @@ initialize this {\sunmatsparse} module for a given {\sundials} solver.
 Here \id{code} is an integer input for the solver id (1 for {\cvode},
 2 for {\ida}, 3 for {\kinsol}, 4 for {\arkode}); \id{M}, \id{N}
 and \id{NNZ} are the corresponding sparse matrix construction
-arguments (declared so as to match C type \id{long
+arguments (declared to match C type \id{long
 int}); \id{sparsetype} is an integer flag indicating the sparse
 storage type (0 for CSC, 1 for CSR); and \id{ier} is an error return
-flag equal 0 for success and -1 for failure.  Each of \id{code},
+flag equal to 0 for success and -1 for failure. Each of \id{code},
 \id{sparsetype} and \id{ier} are declared so as to match C
-type \id{int}. Additionally, when using {\arkode} with non-identity
+type \id{int}. Additionally, when using {\arkode} with a non-identity
 mass matrix, the Fortran-callable
 function \id{FSUNSparseMassMatInit(M, N, NNZ, sparsetype, ier)} 
 initializes this {\sunmatsparse} module for storing the mass matrix.
