@@ -27,14 +27,14 @@ information:
 
 This solver is constructed to perform the following operations:
 \begin{itemize}
-\item In the ``setup'' call, this performs a $LU$ factorization with
+\item The ``setup'' call performs a $LU$ factorization with
   partial (row) pivoting ($\mathcal O(N^3)$ cost), $PA=LU$, where $P$
   is a permutation matrix, $L$ is a lower triangular matrix with 1's
   on the diagonal, and $U$ is an upper triangular matrix.  This
   factorization is stored in-place on the input {\sunmatdense} object
   $A$, with pivoting information encoding $P$ stored in
   the \id{pivots} array.
-\item In the ``solve'' call, this performs pivoting, forward and
+\item The ``solve'' call performs pivoting and forward and
   backward substitution using the stored \id{pivots} array and the
   $LU$ factors held in the {\sunmatdense} object ($\mathcal O(N^2)$
   cost).
@@ -51,18 +51,18 @@ Table \ref{t:sunlinsolops}:
 \begin{itemize}
 \item \id{SUNLinSolGetType\_Dense}
 \item \id{SUNLinSolInitialize\_Dense} -- this does nothing, since all
-  consistency checks were performed at solver creation.
+  consistency checks are performed at solver creation.
 \item \id{SUNLinSolSetup\_Dense} -- this performs the $LU$ factorization.
 \item \id{SUNLinSolSolve\_Dense} -- this uses the $LU$ factors
   and \id{pivots} array to perform the solve.
 \item \id{SUNLinSolLastFlag\_Dense}
 \item \id{SUNLinSolSpace\_Dense} -- this only returns information for
   the storage \emph{within} the solver object, i.e.~storage
-  for \id{N}, \id{last\_flag} and \id{pivots}.
+  for \id{N}, \id{last\_flag}, and \id{pivots}.
 \item \id{SUNLinSolFree\_Dense}
 \end{itemize}
 The module {\sunlinsoldense} provides the following additional
-user-callable routine: 
+user-callable constructor routine: 
 %%
 \begin{itemize}
 
@@ -77,8 +77,8 @@ user-callable routine:
 
   This routine will perform consistency checks to ensure that it is
   called with consistent {\nvector} and {\sunmatrix} implementations.
-  These are currently limited to the {\sunmatdense} matrix type, and
-  the {\nvecs}, {\nvecopenmp} and {\nvecpthreads} vector types.  As
+  These are currently limited to the {\sunmatdense} matrix type and
+  the {\nvecs}, {\nvecopenmp}, and {\nvecpthreads} vector types.  As
   additional compatible matrix and vector implementations are added to
   {\sundials}, these will be included within this compatibility check.
 
@@ -95,12 +95,12 @@ For solvers that include a Fortran interface module, the {\sunlinsoldense}
 module also includes the Fortran-callable
 function \id{FSUNDenseLinSolInit(code, ier)} to initialize
 this {\sunlinsoldense} module for a given {\sundials} solver.
-Here \id{code} is an input solver id (1 for {\cvode}, 2 for {\ida}, 3
+Here \id{code} is an integer input solver id (1 for {\cvode}, 2 for {\ida}, 3
 for {\kinsol}, 4 for {\arkode}); \id{ier} is an error return flag 
-equal 0 for success and -1 for failure (declared so as to match C type
-\id{int}).  This routine must be called \emph{after} both the
-{\nvector} and {\sunmatrix} objects have been initialized.
-Additionally, when using {\arkode} with non-identity mass matrix, the
-Fortran-callable function \id{FSUNMassDenseLinSolInit(ier)}  
-initializes this {\sunlinsoldense} module for solving mass matrix
-linear systems.
+equal to 0 for success and -1 for failure. Both \id{code} and \id{ier}
+are declared to match C type \id{int}. This routine must be
+called \emph{after} both the {\nvector} and {\sunmatrix} objects have
+been initialized. Additionally, when using {\arkode} with a non-identity
+mass matrix, the Fortran-callable
+function \id{FSUNMassDenseLinSolInit(ier)} initializes this
+{\sunlinsoldense} module for solving mass matrix linear systems.

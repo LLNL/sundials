@@ -5,7 +5,7 @@
 The {\klu} implementation of the {\sunlinsol} module provided with
 {\sundials}, {\sunlinsolklu}, is designed to be used with the
 corresponding {\sunmatsparse} matrix type, and one of the serial or
-shared-memory {\nvector} implementations ({\nvecs}, {\nvecopenmp} or 
+shared-memory {\nvector} implementations ({\nvecs}, {\nvecopenmp}, or 
 {\nvecpthreads}).  The {\sunlinsolklu} module defines the {\em
 content} field of a \id{SUNLinearSolver} to be the following structure:
 %%
@@ -37,7 +37,7 @@ information:
 
 {\warn} The {\sunlinsolklu} module is a {\sunlinsol} wrapper for
 the {\klu} sparse matrix factorization and solver library written by Tim
-Davis \cite{KLU_site,DaPa:10}.  Therfore in order to use the
+Davis \cite{KLU_site,DaPa:10}.  In order to use the
 {\sunlinsolklu} interface to {\klu}, it is assumed that {\klu} has
 been installed on the system prior to installation of {\sundials}, and
 that {\sundials} has been configured appropriately to link with {\klu}
@@ -45,7 +45,7 @@ that {\sundials} has been configured appropriately to link with {\klu}
 wrapper only supports double-precision calculations, and therefore
 cannot be compiled if {\sundials} is configured to have \id{realtype}
 set to either \id{extended} or \id{single} (see Section \ref{s:types}).
-Since the {\klu} library supports both 64-bit and 128-bit integers, this
+Since the {\klu} library supports both 32-bit and 64-bit integers, this
 interface will be compiled for either of the available \id{sunindextype} options.
 
 The {\klu} library has a symbolic factorization routine that computes
@@ -67,13 +67,13 @@ be done instead of the refactor.
 
 Since the linear systems that arise within the context of {\sundials}
 calculations will typically have identical sparsity patterns, the
-{\sunlinsolklu} module is therfore constructed to perform the
+{\sunlinsolklu} module is constructed to perform the
 following operations:
 \begin{itemize}
-\item The first time that the ``setup'' routine is called, this
+\item The first time that the ``setup'' routine is called, it
   performs the symbolic factorization, followed by an initial
   numerical factorization.  
-\item On subsequent calls to the ``setup'' routine, this calls the
+\item On subsequent calls to the ``setup'' routine, it calls the
   appropriate {\klu} ``refactor'' routine, followed by estimates of
   the numerical conditioning using the relevant ``rcond'', and if
   necessary ``condest'', routine(s).  If these estimates of the
@@ -83,7 +83,7 @@ following operations:
 \item The module includes the routine \id{SUNKLUReInit}, that 
   can be called by the user to force a full refactorization at the
   next ``setup'' call. 
-\item In the ``solve'' call, this performs pivoting, forward and
+\item The ``solve'' call performs pivoting and forward and
   backward substitution using the stored {\klu} data structures.  We
   note that in this solve {\klu} operates on the native data arrays
   for the right-hand side and solution vectors, without requiring
@@ -125,7 +125,7 @@ user-callable routines:
 
 \item \ID{SUNKLU}
 
-  This function creates and allocates memory for a {\sunlinsolklu}
+  This constructor function creates and allocates memory for a {\sunlinsolklu}
   object.  Its arguments are an {\nvector} and {\sunmatrix}, that it
   uses to determine the linear system size and to assess compatibility
   with the linear solver implementation. 
@@ -133,8 +133,8 @@ user-callable routines:
   This routine will perform consistency checks to ensure that it is
   called with consistent {\nvector} and {\sunmatrix} implementations.
   These are currently limited to the {\sunmatsparse} matrix type
-  (using either CSR or CSC storage formats), and the {\nvecs},
-  {\nvecopenmp} and {\nvecpthreads} vector types.  As additional
+  (using either CSR or CSC storage formats) and the {\nvecs},
+  {\nvecopenmp}, and {\nvecpthreads} vector types.  As additional
   compatible matrix and vector implementations are added to
   {\sundials}, these will be included within this compatibility
   check. 
@@ -209,12 +209,13 @@ For solvers that include a Fortran interface module, the
 {\sunlinsolklu} module also includes the Fortran-callable
 function \id{FSUNKLUInit(code, ier)} to initialize this
 {\sunlinsolklu} module for a given {\sundials} solver.  Here \id{code}
-is an input solver id (1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol},
-4 for {\arkode}); \id{ier} is an error return flag equal 0 for success
-and -1 for failure (declared so as to match C type \id{int}).  This
+is an integer input solver id (1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol},
+4 for {\arkode}); \id{ier} is an error return flag equal to 0 for success
+and -1 for failure. Both \id{code} and \id{ier}
+are declared to match C type \id{int}. This
 routine must be called \emph{after} both the {\nvector} and
 {\sunmatrix} objects have been initialized.  Additionally, when using
-{\arkode} with non-identity mass matrix, the Fortran-callable function
+{\arkode} with a non-identity mass matrix, the Fortran-callable function
 \id{FSUNMassKLUInit(ier)} initializes this {\sunlinsolklu} module for
 solving mass matrix linear systems.
 
@@ -222,7 +223,7 @@ The \id{SUNKLUReInit} and \ID{SUNKLUSetOrdering} routines also support
 Fortran interfaces for the system and mass matrix solvers:
 \begin{itemize}
 \item \id{FSUNKLUReInit(code, NNZ, reinit\_type, ier)} -- \id{NNZ}
-  should be commensurate with a C \id{long int}, and \id{reinit\_type}
+  should be commensurate with a C \id{long int} and \id{reinit\_type}
   should be commensurate with a C \id{int}
 \item \id{FSUNMassKLUReInit(NNZ, reinit\_type, ier)}
 \item \id{FSUNKLUSetOrdering(code, ordering, ier)} -- \id{ordering}
