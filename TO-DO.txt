@@ -2,7 +2,6 @@
    - IDA serial
    - IDAS serial
    - CVODES serial
-   - KINSOL
 
 2. Look back through meeting notes to see what David did for
    'lsetup' in KINSOL that I did not do for the other integrators.
