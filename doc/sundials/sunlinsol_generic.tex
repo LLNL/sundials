@@ -14,16 +14,16 @@ they provide their own {\nvector} and/or {\sunmatrix} modules, and the
 customized linear solver leverages these additional data structures
 to create highly efficient and/or scalable solvers for their
 particular problem.  Additionally, {\sundials} provides native
-implementations of eight {\sunlinsol} modules, as well as four
-{\sunlinsol} modules that interface between {\sundials} and external
+implementations {\sunlinsol} modules, as well as {\sunlinsol} modules
+that interface between {\sundials} and external
 linear solver libraries.
 
 The various {\sundials} solvers have been designed to specifically
-leverage the use of either \emph{direct} linear solvers
-or \emph{scaled, preconditioned, iterative} linear solvers, through
+leverage the use of either \emph{direct linear solvers}
+or \emph{scaled, preconditioned, iterative linear solvers}, through
 their ``Dls'' and ``Spils'' interfaces, respectively.  Additionally,
 {\sundials} solvers can make use of user-supplied custom linear
-solvers, whether these be problem-specific or come from external
+solvers, whether these are problem-specific or come from external
 solver libraries.
 
 For iterative (and possibly custom) linear solvers, the {\sundials}
@@ -135,7 +135,7 @@ order to support both direct and iterative linear solver types, the
 generic {\sunlinsol} module defines linear solver routines (or 
 arguments) that may be specific to individual use cases.  As such,
 for each routine we specify its intended use.  If a custom
-{\sunlinsol} module is to be provided, the function pointers for
+{\sunlinsol} module is provided, the function pointers for
 non-required routines may be set to \id{NULL} to indicate that they
 are not provided.
 
@@ -159,7 +159,7 @@ A particular implementation of the {\sunlinsol} module must:
   set various configuration options for tuning the linear solver to a
   particular problem).
 \item Optionally, provide functions as needed for that particular
-  implementation to be used to access different parts in the {\em
+  implementation to access different parts in the {\em
   content} field of the newly defined \id{SUNLinearSolver} object
   (e.g., routines to return various statistics from the solver).
 \end{itemize}
@@ -207,7 +207,7 @@ SUNLINEARSOLVER\_CUSTOM      & Custom solvers     & 2 \\
 %%
 \id{SUNLinSolGetType} & \id{type = SUNLinSolGetType(LS);} \\ 
 & Returns the type identifier for the linear solver \id{LS}. It is
-  used to determine the solver type (direct, iterative or custom) from
+  used to determine the solver type (direct, iterative, or custom) from
   the abstract \id{SUNLinearSolver} interface.  This is used to assess
   compatibility with {\sundials}-provided linear solver interfaces.
   Returned values are given in the Table \ref{t:linsolIDs}. 
@@ -261,10 +261,10 @@ SUNLINEARSOLVER\_CUSTOM      & Custom solvers     & 2 \\
 \id{SUNLinSolSetATimes} & \id{ier = SUNLinSolSetATimes(LS, A\_data, ATimes);} \\
 & (Iterative/Custom linear solvers only)
   Provides \id{ATimesFn} function pointer, as well as a \id{void *} pointer 
-  to a data structure used by this routines, to a linear solver object.
-  This function will be called by a {\sundials} solver, who will
-  either provide this via difference-quotients and vector operations,
-  or by calling integrator-specific, user-supplied routines.  This
+  to a data structure used by this routine, to a linear solver object.
+  {\sundials} solvers will call this function to set the matrix-vector
+  product function to either a solver-provided difference-quotient via
+  vector operations or a user-supplied solver-specific routine. This
   routine should return zero for a successful call, and a negative
   value for a failure, ideally returning one of the generic error
   codes listed in Table \ref{t:sunlinsolerr}. 
@@ -276,8 +276,8 @@ SUNLINEARSOLVER\_CUSTOM      & Custom solvers     & 2 \\
   implement the preconditioner solves $P_1^{-1}$ and $P_2^{-1}$ from
   equations \eqref{eq:transformed_linear_system}-\eqref{eq:transformed_linear_system_components}.
   This routine will be called by a {\sundials} 
-  solver, who will provide translation between the generic \id{Pset}
-  and \id{Psol} calls and the integrator-specific, integrator- or
+  solver, which will provide translation between the generic \id{Pset}
+  and \id{Psol} calls and the integrator-specific and integrator- or
   user-supplied routines.  This routine should return zero for a
   successful call, and a negative value for a failure, ideally
   returning one of the generic error codes listed in
@@ -287,7 +287,7 @@ SUNLINEARSOLVER\_CUSTOM      & Custom solvers     & 2 \\
 \id{SUNLinSolSetScalingVectors} & \id{ier = SUNLinSolSetScalingVectors(LS, s1, s2);} \\
 & (Optional; Iterative/Custom linear solvers only)
   Sets pointers to left/right scaling vectors for the linear system
-  solve.  Here, s1 is an {\nvector} of positive scale factors
+  solve.  Here, \id{s1} is an {\nvector} of positive scale factors
   containing the diagonal of the matrix $S_1$ from
   equations \eqref{eq:transformed_linear_system}-\eqref{eq:transformed_linear_system_components}.
   Similarly, \id{s2} is an {\nvector} containing the diagonal of $S_2$
