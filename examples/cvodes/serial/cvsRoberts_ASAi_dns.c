@@ -198,15 +198,23 @@ int main(int argc, char *argv[])
   /* Create and allocate CVODES memory for forward run */
   printf("Create and allocate CVODES memory for forward runs\n");
 
+  /* Call CVodeCreate to create the solver memory and specify the 
+     Backward Differentiation Formula and the use of a Newton iteration */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
+  /* Call CVodeInit to initialize the integrator memory and specify the
+     user's right hand side function in y'=f(t,y), the initial time T0, and
+     the initial dependent variable vector y. */
   flag = CVodeInit(cvode_mem, f, T0, y);
   if (check_flag(&flag, "CVodeInit", 1)) return(1);
 
+  /* Call CVodeWFtolerances to specify a user-supplied function ewt that sets
+     the multiplicative error weights w_i for use in the weighted RMS norm */
   flag = CVodeWFtolerances(cvode_mem, ewt);
   if (check_flag(&flag, "CVodeWFtolerances", 1)) return(1);
 
+  /* Attach user data */
   flag = CVodeSetUserData(cvode_mem, data);
   if (check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
@@ -214,30 +222,40 @@ int main(int argc, char *argv[])
   A = SUNDenseMatrix(NEQ, NEQ);
   if (check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
 
-  /* Create dense SUNLinearSolver object for use by CVode */
+  /* Create dense SUNLinearSolver object */
   LS = SUNDenseLinearSolver(y, A);
   if (check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
 
-  /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
+  /* Attach the matrix and linear solver */
   flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
   if (check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
 
-  /* Set the user-supplied Jacobian routine JacB */
+  /* Set the user-supplied Jacobian routine Jac */
   flag = CVDlsSetJacFn(cvode_mem, Jac);
   if (check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
+  /* Call CVodeQuadInit to allocate initernal memory and initialize
+     quadrature integration*/
   flag = CVodeQuadInit(cvode_mem, fQ, q);
   if (check_flag(&flag, "CVodeQuadInit", 1)) return(1);
 
-  flag = CVodeQuadSStolerances(cvode_mem, reltolQ, abstolQ);
-  if (check_flag(&flag, "CVodeQuadSStolerances", 1)) return(1);
-
+  /* Call CVodeSetQuadErrCon to specify whether or not the quadrature variables
+     are to be used in the step size control mechanism within CVODES. Call
+     CVodeQuadSStolerances or CVodeQuadSVtolerances to specify the integration
+     tolerances for the quadrature variables. */
   flag = CVodeSetQuadErrCon(cvode_mem, TRUE);
   if (check_flag(&flag, "CVodeSetQuadErrCon", 1)) return(1);
 
+  /* Call CVodeQuadSStolerances to specify scalar relative and absolute
+     tolerances. */
+  flag = CVodeQuadSStolerances(cvode_mem, reltolQ, abstolQ);
+  if (check_flag(&flag, "CVodeQuadSStolerances", 1)) return(1);
+
   /* Allocate global memory */
 
-  steps = STEPS;
+  /* Call CVodeAdjInit to update CVODES memory block by allocting the internal 
+     memory needed for backward integration.*/
+  steps = STEPS; /* no. of integration steps between two consecutive ckeckpoints*/
   flag = CVodeAdjInit(cvode_mem, steps, CV_HERMITE);
   /*
   flag = CVodeAdjInit(cvode_mem, steps, CV_POLYNOMIAL);
@@ -246,7 +264,9 @@ int main(int argc, char *argv[])
 
   /* Perform forward run */
   printf("Forward integration ... ");
-  
+
+  /* Call CVodeF to integrate the forward problem over an interval in time and
+     saves checkpointing data */
   flag = CVodeF(cvode_mem, TOUT, y, &time, CV_NORMAL, &ncheck);
   if (check_flag(&flag, "CVodeF", 1)) return(1);
   flag = CVodeGetNumSteps(cvode_mem, &nst);
@@ -317,15 +337,21 @@ int main(int argc, char *argv[])
   /* Create and allocate CVODES memory for backward run */
   printf("Create and allocate CVODES memory for backward run\n");
 
+  /* Call CVodeCreateB to specify the solution method for the backward 
+     problem. */
   flag = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB);
   if (check_flag(&flag, "CVodeCreateB", 1)) return(1);
 
+  /* Call CVodeInitB to allocate internal memory and initialize the 
+     backward problem. */
   flag = CVodeInitB(cvode_mem, indexB, fB, TB1, yB);
   if (check_flag(&flag, "CVodeInitB", 1)) return(1);
 
+  /* Set the scalar relative and absolute tolerances. */
   flag = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
   if (check_flag(&flag, "CVodeSStolerancesB", 1)) return(1);
 
+  /* Attach the user data for backward problem. */
   flag = CVodeSetUserDataB(cvode_mem, indexB, data);
   if (check_flag(&flag, "CVodeSetUserDataB", 1)) return(1);
 
@@ -333,26 +359,34 @@ int main(int argc, char *argv[])
   AB = SUNDenseMatrix(NEQ, NEQ);
   if (check_flag((void *)AB, "SUNDenseMatrix", 0)) return(1);
 
-  /* Create dense SUNLinearSolver object for use by CVode */
+  /* Create dense SUNLinearSolver object */
   LSB = SUNDenseLinearSolver(yB, AB);
   if (check_flag((void *)LSB, "SUNDenseLinearSolver", 0)) return(1);
 
-  /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
+  /* Attach the matrix and linear solver */
   flag = CVDlsSetLinearSolverB(cvode_mem, indexB, LSB, AB);
   if (check_flag(&flag, "CVDlsSetLinearSolverB", 1)) return(1);
 
-  /* Set the user-supplied Jacobian routine Jac */
+  /* Set the user-supplied Jacobian routine JacB */
   flag = CVDlsSetJacFnB(cvode_mem, indexB, JacB);
   if (check_flag(&flag, "CVDlsSetJacFnB", 1)) return(1);
 
+  /* Call CVodeQuadInitB to allocate internal memory and initialize backward
+     quadrature integration. */
   flag = CVodeQuadInitB(cvode_mem, indexB, fQB, qB);
   if (check_flag(&flag, "CVodeQuadInitB", 1)) return(1);
 
-  flag = CVodeQuadSStolerancesB(cvode_mem, indexB, reltolB, abstolQB);
-  if (check_flag(&flag, "CVodeQuadSStolerancesB", 1)) return(1);
-
+  /* Call CVodeSetQuadErrCon to specify whether or not the quadrature variables
+     are to be used in the step size control mechanism within CVODES. Call
+     CVodeQuadSStolerances or CVodeQuadSVtolerances to specify the integration
+     tolerances for the quadrature variables. */
   flag = CVodeSetQuadErrConB(cvode_mem, indexB, TRUE);
   if (check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);
+
+  /* Call CVodeQuadSStolerancesB to specify the scalar relative and absolute tolerances
+     for the backward problem. */
+  flag = CVodeQuadSStolerancesB(cvode_mem, indexB, reltolB, abstolQB);
+  if (check_flag(&flag, "CVodeQuadSStolerancesB", 1)) return(1);
 
   /* Backward Integration */
 
@@ -360,12 +394,16 @@ int main(int argc, char *argv[])
 
   /* First get results at t = TBout1 */
 
+  /* Call CVodeB to integrate the backward ODE problem. */
   flag = CVodeB(cvode_mem, TBout1, CV_NORMAL);
   if (check_flag(&flag, "CVodeB", 1)) return(1);
 
+  /* Call CVodeGetB to get yB of the backward ODE problem. */
   flag = CVodeGetB(cvode_mem, indexB, &time, yB);
   if (check_flag(&flag, "CVodeGetB", 1)) return(1);
 
+  /* Call CVodeGetAdjY to get the interpolated value of the forward solution
+     y during a backward integration. */
   flag = CVodeGetAdjY(cvode_mem, TBout1, y);
   if (check_flag(&flag, "CVodeGetAdjY", 1)) return(1);
 
@@ -381,6 +419,8 @@ int main(int argc, char *argv[])
   flag = CVodeGetB(cvode_mem, indexB, &time, yB);
   if (check_flag(&flag, "CVodeGetB", 1)) return(1);
 
+  /* Call CVodeGetQuadB to get the quadrature solution vector after a 
+     successful return from CVodeB. */
   flag = CVodeGetQuadB(cvode_mem, indexB, &time, qB);
   if (check_flag(&flag, "CVodeGetQuadB", 1)) return(1);
 
@@ -614,16 +654,9 @@ static int JacB(realtype t, N_Vector y, N_Vector yB, N_Vector fyB, SUNMatrix JB,
 static int fQB(realtype t, N_Vector y, N_Vector yB, 
                N_Vector qBdot, void *user_dataB)
 {
-  UserData data;
   realtype y1, y2, y3;
-  realtype p1, p2, p3;
   realtype l1, l2, l3;
   realtype l21, l32, y23;
-
-  data = (UserData) user_dataB;
-
-  /* The p vector */
-  p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
 
   /* The y vector */
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);

@@ -5,8 +5,9 @@
  * Example problem:
  *
  * The following is a simple example problem, with the coding
- * needed for its solution by CVODES. The problem is from chemical
- * kinetics, and consists of the following three rate equations:
+ * needed for its solution by CVODES for Forward Sensitivity 
+ * Analysis. The problem is from chemical kinetics, and consists
+ * of the following three rate equations:
  *    dy1/dt = -p1*y1 + p2*y2*y3
  *    dy2/dt =  p1*y1 - p2*y2*y3 - p3*(y2)^2
  *    dy3/dt =  p3*(y2)^2
@@ -191,23 +192,37 @@ int main(int argc, char *argv[])
   /* Sensitivity-related settings */
   if (sensi) {
 
+    /* Set parameter scaling factor */
     pbar[0] = data->p[0];
     pbar[1] = data->p[1];
     pbar[2] = data->p[2];
 
+    /* Set sensitivity initial conditions */
     yS = N_VCloneVectorArray(NS, y);
     if (check_flag((void *)yS, "N_VCloneVectorArray", 0)) return(1);
     for (is=0;is<NS;is++) N_VConst(ZERO, yS[is]);
 
+    /* Call CVodeSensInit1 to activate forward sensitivity computations
+       and allocate internal memory for COVEDS related to sensitivity
+       calculations. Computes the right-hand sides of the sensitivity
+       ODE, one at a time */
     flag = CVodeSensInit1(cvode_mem, NS, sensi_meth, fS, yS);
     if(check_flag(&flag, "CVodeSensInit", 1)) return(1);
 
+    /* Call CVodeSensEEtolerances to estimate tolerances for sensitivity 
+       variables based on the rolerances supplied for states variables and 
+       the scaling factor pbar */
     flag = CVodeSensEEtolerances(cvode_mem);
     if(check_flag(&flag, "CVodeSensEEtolerances", 1)) return(1);
 
+    /* Set sensitivity analysis optional inputs */
+    /* Call CVodeSetSensErrCon to specify the error control strategy for 
+       sensitivity variables */
     flag = CVodeSetSensErrCon(cvode_mem, err_con);
     if (check_flag(&flag, "CVodeSetSensErrCon", 1)) return(1);
 
+    /* Call CVodeSetSensParams to specify problem parameter information for 
+       sensitivity calculations */
     flag = CVodeSetSensParams(cvode_mem, NULL, pbar, NULL);
     if (check_flag(&flag, "CVodeSetSensParams", 1)) return(1);
 
@@ -243,6 +258,8 @@ int main(int argc, char *argv[])
 
     PrintOutput(cvode_mem, t, y);
 
+    /* Call CVodeGetSens to get the sensitivity solution vector after a
+       successful return from CVode */
     if (sensi) {
       flag = CVodeGetSens(cvode_mem, &t, yS);
       if (check_flag(&flag, "CVodeGetSens", 1)) break;

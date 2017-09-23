@@ -40,20 +40,20 @@ SET(CVODES_examples
 # Add variable CVODES_examples_BL with the names of the serial CVODES examples
 # that use Lapack
 SET(CVODES_examples_BL
-  # cvsAdvDiff_bndL
-  # cvsRoberts_dnsL
+  cvsAdvDiff_bndL
+  cvsRoberts_dnsL
   )
 
 SET(CVODES_examples_KLU
-  # cvsRoberts_klu
-  # cvsRoberts_ASAi_klu
-  # "cvsRoberts_FSA_klu\;-sensi stg1 t"
+  cvsRoberts_klu
+  cvsRoberts_ASAi_klu
+  "cvsRoberts_FSA_klu\;-sensi stg1 t"
   )
 
 SET(CVODES_examples_SUPERLUMT
-  # cvsRoberts_sps
-  # cvsRoberts_ASAi_sps
-  # "cvsRoberts_FSA_sps\;-sensi stg1 t"
+  cvsRoberts_sps
+  cvsRoberts_ASAi_sps
+  "cvsRoberts_FSA_sps\;-sensi stg1 t"
   )
 
 # Specify libraries to link against (through the target that was used to 
