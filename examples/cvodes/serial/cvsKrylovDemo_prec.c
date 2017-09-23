@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* --------------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * --------------------------------------------------------------------
@@ -49,7 +45,7 @@
  *
  * The resulting ODE system is stiff.
  *
- * The ODE system is solved using Newton iteration and the CVSPGMR
+ * The ODE system is solved using Newton iteration and the SUNSPGMR
  * linear solver (scaled preconditioned GMRES).
  *
  * The preconditioner matrix used is the product of two matrices:
@@ -63,9 +59,10 @@
  * The product preconditoner is applied on the left and on the
  * right. In each case, both the modified and classical Gram-Schmidt
  * options are tested.
- * In the series of runs, CVodeInit and CVSpgmr are called only
- * for the first run, whereas CVodeReInit and CVReInitSpgmr are
- * called for each of the remaining three runs.
+ * In the series of runs, CVodeInit, SUNSPGMR, and 
+ * CVDlsSetLinearSolver are called only for the first run, whereas 
+ * CVodeReInit, SUNSPGMRSetPrecType, and SUNSPGMRSetGSType are called
+ * for each of the remaining three runs.
  *
  * A problem description, performance statistics at selected output
  * times, and final statistics are written to standard output.
@@ -78,26 +75,26 @@
  * destroyMat and destroyArray.
  *
  * Note: This program assumes the sequential implementation for the
- * type N_Vector and uses the N_VGetArrayPointer_Serial function to 
- * gain access to the contiguous array of components of an N_Vector.
+ * type N_Vector and uses the N_VGetArrayPointer function to gain
+ * access to the contiguous array of components of an N_Vector.
  * --------------------------------------------------------------------
  * Reference: Peter N. Brown and Alan C. Hindmarsh, Reduced Storage
  * Matrix Methods in Stiff ODE Systems, J. Appl. Math. & Comp., 31
  * (1989), pp. 40-91.  Also available as Lawrence Livermore National
  * Laboratory Report UCRL-95088, Rev. 1, June 1987.
- * --------------------------------------------------------------------
- */
+ * --------------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-#include <cvodes/cvodes.h>           /* main integrator header file */
-#include <cvodes/cvodes_spgmr.h>     /* prototypes & constants for CVSPGMR solver */
-#include <nvector/nvector_serial.h>  /* serial N_Vector types, fct. and macros */
-#include <sundials/sundials_dense.h> /* use generic DENSE solver in preconditioning */
-#include <sundials/sundials_types.h> /* definition of realtype */
-#include <sundials/sundials_math.h>  /* contains the macros ABS and SUNSQR */
+#include <cvodes/cvodes.h>                /* main integrator header file                 */
+#include <sunlinsol/sunlinsol_spgmr.h>  /* access to SPGMR SUNLinearSolver             */
+#include <cvodes/cvodes_spils.h>          /* access to CVSpils interface                 */
+#include <nvector/nvector_serial.h>     /* serial N_Vector types, fct. and macros      */
+#include <sundials/sundials_dense.h>    /* use generic DENSE solver in preconditioning */
+#include <sundials/sundials_types.h>    /* definition of realtype                      */
+#include <sundials/sundials_math.h>     /* contains the macros ABS and SUNSQR          */
 
 /* Constants */
 
@@ -140,7 +137,7 @@
 #define RTOL RCONST(1.0e-5)
 #define ATOL RCONST(1.0e-5)
 
-/* CVSpgmr Constants */
+/* Spgmr/SPILS Constants */
 
 #define MAXL 0     /* => use default = MIN(NEQ, 5)            */
 #define DELT ZERO  /* => use default = 0.05                   */
@@ -168,6 +165,7 @@ typedef struct {
   realtype acoef[NS][NS], bcoef[NS], diff[NS];
   realtype cox[NS], coy[NS], dx, dy, srur;
   realtype fsave[NEQ];
+  N_Vector tmp;
   N_Vector rewt;
   void *cvode_mem;
 } *WebData;
@@ -188,7 +186,7 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
 		     realtype rate[], WebData wdata);
 static void fblock (realtype t, realtype cdata[], int jx, int jy,
 		    realtype cdotdata[], WebData wdata);
-static void GSIter(realtype gamma, N_Vector z, N_Vector x,WebData wdata);
+static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata);
 
 /* Small Vector Kernels */
 
@@ -202,15 +200,11 @@ static void v_zero(realtype u[], int n);
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
-static int Precond(realtype tn, N_Vector c, N_Vector fc,
-		   booleantype jok, booleantype *jcurPtr, realtype gamma,
-		   void *user_data, N_Vector vtemp1, N_Vector vtemp2,
-                   N_Vector vtemp3);
+static int Precond(realtype tn, N_Vector c, N_Vector fc, booleantype jok, 
+                   booleantype *jcurPtr, realtype gamma, void *user_data);
 
-static int PSolve(realtype tn, N_Vector c, N_Vector fc,
-                  N_Vector r, N_Vector z,
-                  realtype gamma, realtype delta,
-                  int lr, void *user_data, N_Vector vtemp);
+static int PSolve(realtype tn, N_Vector c, N_Vector fc, N_Vector r, N_Vector z,
+                  realtype gamma, realtype delta, int lr, void *user_data);
 
 /* Private function to check function return values */
 
@@ -223,6 +217,7 @@ int main()
   realtype abstol=ATOL, reltol=RTOL, t, tout;
   N_Vector c;
   WebData wdata;
+  SUNLinearSolver LS;
   void *cvode_mem;
   booleantype firstrun;
   int jpre, gstype, flag;
@@ -230,6 +225,7 @@ int main()
 
   c = NULL;
   wdata = NULL;
+  LS = NULL;
   cvode_mem = NULL;
 
   /* Initializations */
@@ -252,7 +248,7 @@ int main()
       CInit(c, wdata);
       PrintHeader(jpre, gstype);
 
-      /* Call CVodeInit or CVodeReInit, then CVSpgmr to set up problem */
+      /* Call CVodeInit or CVodeReInit, then SUNSPGMR to set up problem */
       
       firstrun = (jpre == PREC_LEFT) && (gstype == MODIFIED_GS);
       if (firstrun) {
@@ -268,13 +264,16 @@ int main()
         if(check_flag(&flag, "CVodeInit", 1)) return(1);
 
         flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-        if (check_flag(&flag, "CVodeSStolerances", 1)) return(1);
+        if(check_flag(&flag, "CVodeSStolerances", 1)) return(1);
 
-        flag = CVSpgmr(cvode_mem, jpre, MAXL);
-        if(check_flag(&flag, "CVSpgmr", 1)) return(1);
+        LS = SUNSPGMR(c, jpre, MAXL);
+        if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
 
-        flag = CVSpilsSetGSType(cvode_mem, gstype);
-        if(check_flag(&flag, "CVSpilsSetGSType", 1)) return(1);
+        flag = CVSpilsSetLinearSolver(cvode_mem, LS);
+        if(check_flag(&flag, "CVSpilsSetLinearSolver", 1)) return 1;
+
+        flag = SUNSPGMRSetGSType(LS, gstype);
+        if(check_flag(&flag, "SUNSPGMRSetGSType", 1)) return(1);
 
         flag = CVSpilsSetEpsLin(cvode_mem, DELT);
         if(check_flag(&flag, "CVSpilsSetEpsLin", 1)) return(1);
@@ -287,10 +286,10 @@ int main()
         flag = CVodeReInit(cvode_mem, T0, c);
         if(check_flag(&flag, "CVodeReInit", 1)) return(1);
 
-        flag = CVSpilsSetPrecType(cvode_mem, jpre);
-        check_flag(&flag, "CVSpilsSetPrecType", 1);
-        flag = CVSpilsSetGSType(cvode_mem, gstype);
-        if(check_flag(&flag, "CVSpilsSetGSType", 1)) return(1);
+        flag = SUNSPGMRSetPrecType(LS, jpre);
+        check_flag(&flag, "SUNSPGMRSetPrecType", 1);
+        flag = SUNSPGMRSetGSType(LS, gstype);
+        if(check_flag(&flag, "SUNSPGMRSetGSType", 1)) return(1);
 
       }
       
@@ -315,7 +314,8 @@ int main()
 
   /* Free all memory */
   CVodeFree(&cvode_mem);
-  N_VDestroy_Serial(c);
+  N_VDestroy(c);
+  SUNLinSolFree(LS);
   FreeUserData(wdata);
 
   return(0);
@@ -333,6 +333,7 @@ static WebData AllocUserData(void)
     (wdata->pivot)[i] = newIndexArray(ns);
   }
   wdata->rewt = N_VNew_Serial(NEQ);
+  wdata->tmp = N_VNew_Serial(NEQ);
   return(wdata);
 }
 
@@ -422,7 +423,7 @@ static void CInit(N_Vector c, WebData wdata)
   int jx, jy, ns, mxns, ioff, iyoff, i, ici;
   realtype argx, argy, x, y, dx, dy, x_factor, y_factor, *cdata;
   
-  cdata = N_VGetArrayPointer_Serial(c);
+  cdata = N_VGetArrayPointer(c);
   ns = wdata->ns;
   mxns = wdata->mxns;
   dx = wdata->dx;
@@ -448,7 +449,7 @@ static void CInit(N_Vector c, WebData wdata)
 
 static void PrintIntro(void)
 {
-  printf("\n\nDemonstration program for CVODES - CVSPGMR linear solver\n\n");
+  printf("\n\nDemonstration program for CVODES - SPGMR linear solver\n\n");
   printf("Food web problem with ns species, ns = %d\n", NS);
   printf("Predator-prey interaction and diffusion on a 2-D square\n\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -514,7 +515,7 @@ static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t)
   int i, jx ,jy;
   realtype *cdata;
   
-  cdata = N_VGetArrayPointer_Serial(c);
+  cdata = N_VGetArrayPointer(c);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("c values at t = %Lg:\n\n", t);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
@@ -609,8 +610,8 @@ static void PrintFinalStats(void *cvode_mem)
   printf("\n\n Final statistics for this run:\n\n");
   printf(" CVode real workspace length           = %4ld \n", lenrw);
   printf(" CVode integer workspace length        = %4ld \n", leniw);
-  printf(" CVSPGMR real workspace length         = %4ld \n", lenrwLS);
-  printf(" CVSPGMR integer workspace length      = %4ld \n", leniwLS);
+  printf(" CVSPILS real workspace length         = %4ld \n", lenrwLS);
+  printf(" CVSPILS integer workspace length      = %4ld \n", leniwLS);
   printf(" Number of steps                       = %4ld \n", nst);
   printf(" Number of f-s                         = %4ld \n", nfe);
   printf(" Number of f-s (SPGMR)                 = %4ld \n", nfeLS);
@@ -644,7 +645,8 @@ static void FreeUserData(WebData wdata)
     destroyMat((wdata->P)[i]);
     destroyArray((wdata->pivot)[i]);
   }
-  N_VDestroy_Serial(wdata->rewt);
+  N_VDestroy(wdata->rewt);
+  N_VDestroy(wdata->tmp);
   free(wdata);
 }
 
@@ -661,8 +663,8 @@ static int f(realtype t, N_Vector c, N_Vector cdot,void *user_data)
   WebData wdata;
   
   wdata = (WebData) user_data;
-  cdata = N_VGetArrayPointer_Serial(c);
-  cdotdata = N_VGetArrayPointer_Serial(cdot);
+  cdata = N_VGetArrayPointer(c);
+  cdotdata = N_VGetArrayPointer(cdot);
   
   mxns = wdata->mxns;
   ns = wdata->ns;
@@ -744,13 +746,12 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
  of a block-diagonal preconditioner. The blocks are of size mp, and
  there are ngrp=ngx*ngy blocks computed in the block-grouping scheme.
 */ 
-static int Precond(realtype t, N_Vector c, N_Vector fc,
-		   booleantype jok, booleantype *jcurPtr, realtype gamma,
-		   void *user_data, N_Vector vtemp1, N_Vector vtemp2,
-                   N_Vector vtemp3)
+static int Precond(realtype t, N_Vector c, N_Vector fc, booleantype jok,
+                   booleantype *jcurPtr, realtype gamma, void *user_data)
 {
   realtype ***P;
-  sunindextype **pivot, ier;
+  int ier;
+  sunindextype **pivot;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
   int *jxr, *jyr, ngrp, ngx, ngy, mxmp, flag;
   sunindextype mp;
@@ -762,11 +763,11 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
   
   wdata = (WebData) user_data;
   cvode_mem = wdata->cvode_mem;
-  cdata = N_VGetArrayPointer_Serial(c);
+  cdata = N_VGetArrayPointer(c);
   rewt = wdata->rewt;
   flag = CVodeGetErrWeights(cvode_mem, rewt);
   if(check_flag(&flag, "CVodeGetErrWeights", 1)) return(1);
-  rewtdata = N_VGetArrayPointer_Serial(rewt);
+  rewtdata = N_VGetArrayPointer(rewt);
 
   uround = UNIT_ROUNDOFF;
 
@@ -786,7 +787,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
      Here, fsave contains the base value of the rate vector and 
      r0 is a minimum increment factor for the difference quotient. */
   
-  f1 = N_VGetArrayPointer_Serial(vtemp1);
+  f1 = N_VGetArrayPointer(wdata->tmp);
   
   fac = N_VWrmsNorm (fc, rewt);
   r0 = RCONST(1000.0)*SUNRabs(gamma)*uround*NEQ*fac;
@@ -856,10 +857,8 @@ static void fblock(realtype t, realtype cdata[], int jx, int jy,
   Then it computes ((I - gamma*Jr)-inverse)*z, using LU factors of the
   blocks in P, and pivot information in pivot, and returns the result in z.
 */
-static int PSolve(realtype tn, N_Vector c, N_Vector fc,
-                  N_Vector r, N_Vector z,
-                  realtype gamma, realtype delta,
-                  int lr, void *user_data, N_Vector vtemp)
+static int PSolve(realtype tn, N_Vector c, N_Vector fc, N_Vector r, N_Vector z,
+                  realtype gamma, realtype delta, int lr, void *user_data)
 {
   realtype   ***P;
   sunindextype **pivot;
@@ -873,7 +872,7 @@ static int PSolve(realtype tn, N_Vector c, N_Vector fc,
   
   /* call GSIter for Gauss-Seidel iterations */
   
-  GSIter(gamma, z, vtemp, wdata);
+  GSIter(gamma, z, wdata->tmp, wdata);
   
   /* Do backsolves for inverse of block-diagonal preconditioner factor */
   
@@ -892,7 +891,7 @@ static int PSolve(realtype tn, N_Vector c, N_Vector fc,
     for (jx = 0; jx < mx; jx++) {
       igx = jigx[jx];
       ig = igx + igy*ngx;
-      denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer_Serial(z)[iv]));
+      denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer(z)[iv]));
       iv += mp;
     }
   }
@@ -916,8 +915,8 @@ static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata)
   realtype beta[NS], beta2[NS], cof1[NS], gam[NS], gam2[NS];
   realtype temp, *cox, *coy, *xd, *zd;
   
-  xd = N_VGetArrayPointer_Serial(x);
-  zd = N_VGetArrayPointer_Serial(z);
+  xd = N_VGetArrayPointer(x);
+  zd = N_VGetArrayPointer(z);
   ns = wdata->ns;
   mx = wdata->mx;
   my = wdata->my;

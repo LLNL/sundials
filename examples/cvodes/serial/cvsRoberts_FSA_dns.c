@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -42,23 +38,24 @@
  *    % cvsRoberts_FSA_dns -sensi sensi_meth err_con
  * where sensi_meth is one of {sim, stg, stg1} and err_con is one of
  * {t, f}.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <cvodes/cvodes.h>           /* prototypes for CVODES fcts. and consts. */
-#include <cvodes/cvodes_dense.h>     /* prototype for CVDENSE fcts. and constants */
-#include <nvector/nvector_serial.h>  /* defs. of serial NVECTOR fcts. and macros  */
-#include <sundials/sundials_types.h> /* def. of type realtype */
-#include <sundials/sundials_math.h>  /* definition of ABS */
+#include <cvodes/cvodes.h>             /* prototypes for CVODE fcts., consts.  */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
+#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
+#include <cvodes/cvodes_direct.h>      /* access to CVDls interface            */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>    /* definition of ABS */
 
 /* Accessor macros */
 
-#define Ith(v,i)    NV_Ith_S(v,i-1)       /* i-th vector component i=1..NEQ */
-#define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1) /* (i,j)-th matrix component i,j=1..NEQ */
+#define Ith(v,i)    NV_Ith_S(v,i-1)         /* i-th vector component i=1..NEQ */
+#define IJth(A,i,j) SM_ELEMENT_D(A,i-1,j-1) /* (i,j)-th matrix component i,j=1..NEQ */
 
 /* Problem Constants */
 
@@ -90,13 +87,11 @@ typedef struct {
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
-static int Jac(sunindextype N, realtype t,
-               N_Vector y, N_Vector fy, 
-               DlsMat J, void *user_data, 
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot, 
-              int iS, N_Vector yS, N_Vector ySdot, 
+static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
+              int iS, N_Vector yS, N_Vector ySdot,
               void *user_data, N_Vector tmp1, N_Vector tmp2);
 
 static int ewt(N_Vector y, N_Vector w, void *user_data);
@@ -120,6 +115,8 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 int main(int argc, char *argv[])
 {
+  SUNMatrix A;
+  SUNLinearSolver LS;
   void *cvode_mem;
   UserData data;
   realtype t, tout;
@@ -134,8 +131,10 @@ int main(int argc, char *argv[])
 
   cvode_mem = NULL;
   data      = NULL;
-  y         =  NULL;
+  y         = NULL;
   yS        = NULL;
+  A         = NULL;
+  LS        = NULL;
 
   /* Process arguments */
   ProcessArgs(argc, argv, &sensi, &sensi_meth, &err_con);
@@ -171,12 +170,21 @@ int main(int argc, char *argv[])
   flag = CVodeSetUserData(cvode_mem, data);
   if (check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
-  /* Attach linear solver */
-  flag = CVDense(cvode_mem, NEQ);
-  if (check_flag(&flag, "CVDense", 1)) return(1);
+  /* Create dense SUNMatrix */
+  A = SUNDenseMatrix(NEQ, NEQ);
+  if (check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
 
-  flag = CVDlsSetDenseJacFn(cvode_mem, Jac);
-  if (check_flag(&flag, "CVDlsSetDenseJacFn", 1)) return(1);
+  /* Create dense SUNLinearSolver */
+  LS = SUNDenseLinearSolver(y, A);
+  if (check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
+  if (check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
+
+  /* Set the user-supplied Jacobian routine Jac */
+  flag = CVDlsSetJacFn(cvode_mem, Jac);
+  if (check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   printf("\n3-species chemical kinetics problem\n");
 
@@ -187,8 +195,8 @@ int main(int argc, char *argv[])
     pbar[1] = data->p[1];
     pbar[2] = data->p[2];
 
-    yS = N_VCloneVectorArray_Serial(NS, y);
-    if (check_flag((void *)yS, "N_VCloneVectorArray_Serial", 0)) return(1);
+    yS = N_VCloneVectorArray(NS, y);
+    if (check_flag((void *)yS, "N_VCloneVectorArray", 0)) return(1);
     for (is=0;is<NS;is++) N_VConst(ZERO, yS[is]);
 
     flag = CVodeSensInit1(cvode_mem, NS, sensi_meth, fS, yS);
@@ -250,12 +258,14 @@ int main(int argc, char *argv[])
 
   /* Free memory */
 
-  N_VDestroy_Serial(y);                    /* Free y vector */
+  N_VDestroy(y);                    /* Free y vector */
   if (sensi) {
-    N_VDestroyVectorArray_Serial(yS, NS);  /* Free yS vector */
+    N_VDestroyVectorArray(yS, NS);  /* Free yS vector */
   }
   free(data);                              /* Free user data */
   CVodeFree(&cvode_mem);                   /* Free CVODES memory */
+  SUNLinSolFree(LS);                       /* Free the linear solver memory */
+  SUNMatDestroy(A);                        /* Free the matrix memory */
 
   return(0);
 }
@@ -292,10 +302,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
  * Jacobian routine. Compute J(t,y). 
  */
 
-static int Jac(sunindextype N, realtype t,
-               N_Vector y, N_Vector fy, 
-               DlsMat J, void *user_data, 
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y1, y2, y3;
   UserData data;
@@ -451,7 +459,7 @@ static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
   int qu, flag;
   realtype hu, *udata;
   
-  udata = N_VGetArrayPointer_Serial(u);
+  udata = N_VGetArrayPointer(u);
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);
   check_flag(&flag, "CVodeGetNumSteps", 1);
@@ -488,7 +496,7 @@ static void PrintOutputS(N_Vector *uS)
 {
   realtype *sdata;
 
-  sdata = N_VGetArrayPointer_Serial(uS[0]);
+  sdata = N_VGetArrayPointer(uS[0]);
   printf("                  Sensitivity 1  ");
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -499,7 +507,7 @@ static void PrintOutputS(N_Vector *uS)
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
 #endif
   
-  sdata = N_VGetArrayPointer_Serial(uS[1]);
+  sdata = N_VGetArrayPointer(uS[1]);
   printf("                  Sensitivity 2  ");
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -510,7 +518,7 @@ static void PrintOutputS(N_Vector *uS)
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
 #endif
 
-  sdata = N_VGetArrayPointer_Serial(uS[2]);
+  sdata = N_VGetArrayPointer(uS[2]);
   printf("                  Sensitivity 3  ");
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)

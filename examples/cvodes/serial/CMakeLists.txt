@@ -1,9 +1,6 @@
-# ---------------------------------------------------------------
-# $Revision$
-# $Date$
-# ---------------------------------------------------------------
+# ------------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
-# ---------------------------------------------------------------
+# ------------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
 # This work was performed under the auspices of the U.S. Department 
@@ -13,50 +10,50 @@
 # All rights reserved.
 # For details, see the LICENSE file.
 # LLNS Copyright End
-# ---------------------------------------------------------------
+# ------------------------------------------------------------------
 # CMakeLists.txt file for CVODES serial examples
 
 # Add variable CVODES_examples with the names of the serial CVODES examples
 # This is a list of tuples, first element is example name.
 # Optional second argument is test arguments
-SET(CVODES_examples 
-   cvsAdvDiff_ASAi_bnd
-   cvsAdvDiff_bnd
+SET(CVODES_examples
+  cvsAdvDiff_ASAi_bnd
+  cvsAdvDiff_bnd
   "cvsAdvDiff_FSA_non\;-sensi stg t"
   "cvsAdvDiff_FSA_non\;-sensi sim t"
-   cvsDirectDemo_ls
+  cvsDirectDemo_ls
   "cvsDiurnal_FSA_kry\;-sensi stg t"
   "cvsDiurnal_FSA_kry\;-sensi sim t"
-   cvsDiurnal_kry_bp
-   cvsDiurnal_kry
-   cvsFoodWeb_ASAi_kry
-   cvsFoodWeb_ASAp_kry
-   cvsHessian_ASA_FSA
-   cvsKrylovDemo_ls
-   cvsKrylovDemo_prec
-   cvsRoberts_ASAi_dns
-   cvsRoberts_dns
-   cvsRoberts_dns_uw
-   "cvsRoberts_FSA_dns\;-sensi stg1 t"
+  cvsDiurnal_kry_bp
+  cvsDiurnal_kry
+  cvsFoodWeb_ASAi_kry
+  cvsFoodWeb_ASAp_kry
+  cvsHessian_ASA_FSA
+  cvsKrylovDemo_ls
+  cvsKrylovDemo_prec
+  cvsRoberts_ASAi_dns
+  cvsRoberts_dns
+  cvsRoberts_dns_uw
+  "cvsRoberts_FSA_dns\;-sensi stg1 t"
   )
 
 # Add variable CVODES_examples_BL with the names of the serial CVODES examples
 # that use Lapack
 SET(CVODES_examples_BL
-  cvsAdvDiff_bndL
-  cvsRoberts_dnsL
+  # cvsAdvDiff_bndL
+  # cvsRoberts_dnsL
   )
 
 SET(CVODES_examples_KLU
-  cvsRoberts_klu
-  cvsRoberts_ASAi_klu
-  "cvsRoberts_FSA_klu\;-sensi stg1 t"
+  # cvsRoberts_klu
+  # cvsRoberts_ASAi_klu
+  # "cvsRoberts_FSA_klu\;-sensi stg1 t"
   )
- 
+
 SET(CVODES_examples_SUPERLUMT
-  cvsRoberts_sps
-  cvsRoberts_ASAi_sps
-  "cvsRoberts_FSA_sps\;-sensi stg1 t"
+  # cvsRoberts_sps
+  # cvsRoberts_ASAi_sps
+  # "cvsRoberts_FSA_sps\;-sensi stg1 t"
   )
 
 # Specify libraries to link against (through the target that was used to 

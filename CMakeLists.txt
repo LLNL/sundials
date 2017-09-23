@@ -1226,7 +1226,7 @@ IF(EXAMPLES_ENABLE)
 
   # add CVODES Examples
   IF(BUILD_CVODES)
-    #ADD_SUBDIRECTORY(examples/cvodes/serial)
+    ADD_SUBDIRECTORY(examples/cvodes/serial)
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/cvodes/parallel)
     ENDIF(MPIC_FOUND)

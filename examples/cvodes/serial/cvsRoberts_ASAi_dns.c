@@ -1,14 +1,10 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
@@ -54,22 +50,23 @@
  * where
  *   d(phi)/dt = g(t,y,p)
  *   phi(t1) = 0
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <cvodes/cvodes.h>
-#include <cvodes/cvodes_dense.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
+#include <cvodes/cvodes.h>             /* prototypes for CVODE fcts., consts.  */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
+#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
+#include <cvodes/cvodes_direct.h>      /* access to CVDls interface            */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Accessor macros */
 
-#define Ith(v,i)    NV_Ith_S(v,i-1)       /* i-th vector component, i=1..NEQ */
-#define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1) /* (i,j)-th matrix el., i,j=1..NEQ */
+#define Ith(v,i)    NV_Ith_S(v,i-1)         /* i-th vector component, i=1..NEQ */
+#define IJth(A,i,j) SM_ELEMENT_D(A,i-1,j-1) /* (i,j)-th matrix el., i,j=1..NEQ */
 
 /* Problem Constants */
 
@@ -107,19 +104,15 @@ typedef struct {
 /* Prototypes of user-supplied functions */
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(sunindextype N, realtype t,
-               N_Vector y, N_Vector fy, 
-               DlsMat J, void *user_data, 
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data);
 static int ewt(N_Vector y, N_Vector w, void *user_data);
 
 static int fB(realtype t, N_Vector y, 
               N_Vector yB, N_Vector yBdot, void *user_dataB);
-static int JacB(sunindextype NB, realtype t,
-                N_Vector y, N_Vector yB, N_Vector fyB,
-                DlsMat JB, void *user_dataB,
-                N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+static int JacB(realtype t, N_Vector y, N_Vector yB, N_Vector fyB, SUNMatrix JB,
+                void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 static int fQB(realtype t, N_Vector y, N_Vector yB, 
                N_Vector qBdot, void *user_dataB);
 
@@ -141,6 +134,8 @@ int main(int argc, char *argv[])
 {
   UserData data;
 
+  SUNMatrix A, AB;
+  SUNLinearSolver LS, LSB;
   void *cvode_mem;
 
   realtype reltolQ, abstolQ;
@@ -161,6 +156,8 @@ int main(int argc, char *argv[])
   CVadjCheckPointRec *ckpnt;
 
   data = NULL;
+  A = AB = NULL;
+  LS = LSB = NULL;
   cvode_mem = NULL;
   ckpnt = NULL;
   y = yB = qB = NULL;
@@ -213,11 +210,21 @@ int main(int argc, char *argv[])
   flag = CVodeSetUserData(cvode_mem, data);
   if (check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
-  flag = CVDense(cvode_mem, NEQ);
-  if (check_flag(&flag, "CVDense", 1)) return(1);
+  /* Create dense SUNMatrix for use in linear solves */
+  A = SUNDenseMatrix(NEQ, NEQ);
+  if (check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
 
-  flag = CVDlsSetDenseJacFn(cvode_mem, Jac);
-  if (check_flag(&flag, "CVDlsSetDenseJacFn", 1)) return(1);
+  /* Create dense SUNLinearSolver object for use by CVode */
+  LS = SUNDenseLinearSolver(y, A);
+  if (check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+
+  /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
+  flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
+  if (check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
+
+  /* Set the user-supplied Jacobian routine JacB */
+  flag = CVDlsSetJacFn(cvode_mem, Jac);
+  if (check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   flag = CVodeQuadInit(cvode_mem, fQ, q);
   if (check_flag(&flag, "CVodeQuadInit", 1)) return(1);
@@ -322,11 +329,21 @@ int main(int argc, char *argv[])
   flag = CVodeSetUserDataB(cvode_mem, indexB, data);
   if (check_flag(&flag, "CVodeSetUserDataB", 1)) return(1);
 
-  flag = CVDenseB(cvode_mem, indexB, NEQ);
-  if (check_flag(&flag, "CVDenseB", 1)) return(1);
+  /* Create dense SUNMatrix for use in linear solves */
+  AB = SUNDenseMatrix(NEQ, NEQ);
+  if (check_flag((void *)AB, "SUNDenseMatrix", 0)) return(1);
 
-  flag = CVDlsSetDenseJacFnB(cvode_mem, indexB, JacB);
-  if (check_flag(&flag, "CVDlsSetDenseJacFnB", 1)) return(1);
+  /* Create dense SUNLinearSolver object for use by CVode */
+  LSB = SUNDenseLinearSolver(yB, AB);
+  if (check_flag((void *)LSB, "SUNDenseLinearSolver", 0)) return(1);
+
+  /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
+  flag = CVDlsSetLinearSolverB(cvode_mem, indexB, LSB, AB);
+  if (check_flag(&flag, "CVDlsSetLinearSolverB", 1)) return(1);
+
+  /* Set the user-supplied Jacobian routine Jac */
+  flag = CVDlsSetJacFnB(cvode_mem, indexB, JacB);
+  if (check_flag(&flag, "CVDlsSetJacFnB", 1)) return(1);
 
   flag = CVodeQuadInitB(cvode_mem, indexB, fQB, qB);
   if (check_flag(&flag, "CVodeQuadInitB", 1)) return(1);
@@ -427,10 +444,14 @@ int main(int argc, char *argv[])
   printf("Free memory\n\n");
 
   CVodeFree(&cvode_mem);
-  N_VDestroy_Serial(y); 
-  N_VDestroy_Serial(q);
-  N_VDestroy_Serial(yB);
-  N_VDestroy_Serial(qB);
+  N_VDestroy(y); 
+  N_VDestroy(q);
+  N_VDestroy(yB);
+  N_VDestroy(qB);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
+  SUNLinSolFree(LSB);
+  SUNMatDestroy(AB);
 
   if (ckpnt != NULL) free(ckpnt);
   free(data);
@@ -470,10 +491,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
  * Jacobian routine. Compute J(t,y). 
 */
 
-static int Jac(sunindextype N, realtype t,
-               N_Vector y, N_Vector fy, 
-               DlsMat J, void *user_data, 
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y1, y2, y3;
   UserData data;
@@ -485,7 +504,7 @@ static int Jac(sunindextype N, realtype t,
  
   IJth(J,1,1) = -p1;  IJth(J,1,2) = p2*y3;          IJth(J,1,3) = p2*y2;
   IJth(J,2,1) =  p1;  IJth(J,2,2) = -p2*y3-2*p3*y2; IJth(J,2,3) = -p2*y2;
-                      IJth(J,3,2) = 2*p3*y2;
+  IJth(J,3,1) = ZERO; IJth(J,3,2) = 2*p3*y2;        IJth(J,3,3) = ZERO;
 
   return(0);
 }
@@ -565,10 +584,8 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *user_da
  * JacB routine. Compute JB(t,y,yB). 
  */
 
-static int JacB(sunindextype NB, realtype t,
-                N_Vector y, N_Vector yB, N_Vector fyB,
-                DlsMat JB, void *user_dataB,
-                N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
+static int JacB(realtype t, N_Vector y, N_Vector yB, N_Vector fyB, SUNMatrix JB,
+                void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   UserData data;
   realtype y1, y2, y3;
@@ -583,10 +600,9 @@ static int JacB(sunindextype NB, realtype t,
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
 
   /* Load JB */
-  IJth(JB,1,1) = p1;     IJth(JB,1,2) = -p1; 
-  IJth(JB,2,1) = -p2*y3; IJth(JB,2,2) = p2*y3+2.0*p3*y2;
-                         IJth(JB,2,3) = RCONST(-2.0)*p3*y2;
-  IJth(JB,3,1) = -p2*y2; IJth(JB,3,2) = p2*y2;
+  IJth(JB,1,1) = p1;     IJth(JB,1,2) = -p1;             IJth(JB,1,3) = ZERO;
+  IJth(JB,2,1) = -p2*y3; IJth(JB,2,2) = p2*y3+2.0*p3*y2; IJth(JB,2,3) = RCONST(-2.0)*p3*y2;
+  IJth(JB,3,1) = -p2*y2; IJth(JB,3,2) = p2*y2;           IJth(JB,3,3) = ZERO;
 
   return(0);
 }
