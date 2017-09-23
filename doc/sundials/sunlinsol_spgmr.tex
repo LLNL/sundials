@@ -158,12 +158,13 @@ user-callable routines:
   Allowable inputs for \id{pretype} are \id{PREC\_NONE} (0),
   \id{PREC\_LEFT} (1), \id{PREC\_RIGHT} (2) and \id{PREC\_BOTH} (3);
   any other integer input will result in the default (no
-  preconditioning).  We note that some {\sundials} solvers are
-  designed to only work with right preconditioning ({\kinsol}, {\ida}, and
-  {\idas}).  While it is possible to configure a {\sunlinsolspgmr}
-  object to use \id{PREC\_LEFT} or \id{PREC\_BOTH} with these solvers,
-  this use mode is not supported and may result in inferior
-  performance.
+  preconditioning).
+  We note that some {\sundials} solvers are designed to only work
+  with left preconditioning ({\ida} and {\idas}) and others with only
+  right preconditioning ({\kinsol}). While it is possible to configure
+  a {\sunlinsolspgmr} object to use any of the preconditioning options
+  with these solvers, this use mode is not supported and may result in
+  inferior performance.
 
   \verb|SUNLinearSolver SUNSPGMR(N_Vector y, int pretype, int maxl);|
 
