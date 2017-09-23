@@ -36,7 +36,7 @@
 #include <math.h>
 
 #include <idas/idas.h>
-#include <ida/ida_spils.h>
+#include <idas/idas_spils.h>
 #include <sunlinsol/sunlinsol_spgmr.h>
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_types.h>
