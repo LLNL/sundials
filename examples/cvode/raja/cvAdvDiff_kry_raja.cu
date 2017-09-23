@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4272 $
- * $Date: 2014-12-02 11:19:41 -0800 (Tue, 02 Dec 2014) $
- * -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * Acknowledgements: This example is based on cvAdvDiff_bnd 
@@ -45,30 +42,9 @@
 
 #include <RAJA/RAJA.hpp>
 
-#define SUNDIALS_HAVE_POSIX_TIMERS
-#define _POSIX_TIMERS
 
-#if defined( SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
-#include <time.h>
-#include <unistd.h>
-#endif
+/* Real Constants */
 
-//#include <cvode/cvode.h>             /* prototypes for CVODE fcts., consts. */
-////#include <cvode/cvode_band.h>        /* prototype for CVBand */
-//#include <cvode/cvode_spgmr.h>       /* prototypes & constants for CVSPGMR */
-////#include <sundials/sundials_band.h>  /* definitions of type DlsMat and macros */
-//#include <sundials/sundials_types.h> /* definition of type realtype */
-//#include <sundials/sundials_math.h>  /* definition of ABS and EXP */
-//
-//#include <nvector/nvector_raja.h>
-
-/* Problem Constants */
-
-#define XMAX  RCONST(2.0)    /* domain boundaries         */
-#define YMAX  RCONST(1.0)
-#define MX    10             /* mesh dimensions           */
-#define MY    5
-#define NEQ   MX*MY          /* number of equations       */
 #define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance */
 #define T0    RCONST(0.0)    /* initial time              */
 #define T1    RCONST(0.1)    /* first output time         */
@@ -82,31 +58,32 @@
 #define FIVE RCONST(5.0)
 
 
-/* Type : UserData (contains grid constants) */
+/* Type : UserData (contains model and discretization parameters) */
 
 typedef struct {
-  sunindextype neq;
-  realtype dx, dy;
+  sunindextype MX, MY, NEQ;
+  realtype dx, dy, XMAX, YMAX;
   realtype hdcoef, hacoef, vdcoef;
 } *UserData;
 
-/* Private Helper Functions */
+/* Problem setup and initialization functions */
 static UserData SetUserData(int argc, char** argv);
 static void SetIC(N_Vector u, UserData data);
-static void PrintHeader(realtype reltol, realtype abstol, realtype umax);
-static void PrintOutput(realtype t, realtype umax, long int nst);
-static void PrintFinalStats(void *cvode_mem);
-
-/* Private function to check function return values */
-
-static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /* Functions Called by the Solver */
-
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 static int jtv(N_Vector v, N_Vector Jv, realtype t,
                N_Vector u, N_Vector fu,
                void *user_data, N_Vector tmp);
+
+/* Private Helper Functions */
+static void PrintHeader(realtype reltol, realtype abstol, realtype umax, UserData data);
+static void PrintOutput(realtype t, realtype umax, long int nst);
+static void PrintFinalStats(void *cvode_mem);
+
+/* Private function to check function return values */
+static int check_flag(void *flagvalue, const char *funcname, int opt);
+
 
 /*
  *-------------------------------
@@ -116,7 +93,7 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
 int main(int argc, char** argv)
 {
-  realtype dx, dy, reltol, abstol, t, tout, umax;
+  realtype reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
   void *cvode_mem;
@@ -127,22 +104,17 @@ int main(int argc, char** argv)
   data = NULL;
   cvode_mem = NULL;
 
-  /* Create a CUDA vector */
-
-  u = N_VNew_Raja(NEQ);  /* Allocate u vector */
-  if(check_flag((void*)u, "N_VNew_Serial", 0)) return(1);
-
-  reltol = ZERO;  /* Set the tolerances */
-  abstol = ATOL;
-
-//  data = (UserData) malloc(sizeof *data);  /* Allocate data memory */
+  /* Set model parameters */
   data = SetUserData(argc, argv);
   if(check_flag((void *)data, "malloc", 2)) return(1);
-//  data->dx = XMAX/(MX+1);  /* Set grid coefficients in data */
-//  data->dy = YMAX/(MY+1);
-//  data->hdcoef = ONE/(data->dx*data->dx);
-//  data->hacoef = HALF/(TWO*data->dx);
-//  data->vdcoef = ONE/(data->dy*data->dy);
+
+  /* Set the tolerances */
+  reltol = ZERO;
+  abstol = ATOL;
+
+  /* Create a RAJA vector with initial values */
+  u = N_VNew_Raja(data->NEQ);  /* Allocate u vector */
+  if(check_flag((void*)u, "N_VNew_Raja", 0)) return(1);
 
   SetIC(u, data);  /* Initialize u vector */
 
@@ -178,7 +150,7 @@ int main(int argc, char** argv)
   /* In loop over output points: call CVode, print results, test for errors */
 
   umax = N_VMaxNorm(u);
-  PrintHeader(reltol, abstol, umax);
+  PrintHeader(reltol, abstol, umax, data);
   for(iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
     flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
     if(check_flag(&flag, "CVode", 1)) break;
@@ -198,75 +170,101 @@ int main(int argc, char** argv)
 }
 
 /*
- *-------------------------------
- * Functions called by the solver
- *-------------------------------
+ *-------------------------------------------
+ * Problem setup and initialization functions
+ *-------------------------------------------
  */
+
+/* Set model and discretization parameters */
 
 UserData SetUserData(int argc, char *argv[])
 {
-  const int maxthreads = 256;
+  const sunindextype MX = 10;
+  const sunindextype MY = 5;
+  const realtype XMAX = RCONST(2.0);    /* domain boundaries         */
+  const realtype YMAX = RCONST(1.0);
 
   /* Allocate user data structure */
   UserData ud = (UserData) malloc(sizeof *ud);
   if(check_flag((void*) ud, "AllocUserData", 2)) return(NULL);
 
+  ud->MX  = MX;
+  ud->MY  = MY;
+  ud->NEQ = MX*MY;
+  ud->XMAX = XMAX;
+  ud->YMAX = YMAX;
   ud->dx = XMAX/(MX+1);  /* Set grid coefficients in data */
   ud->dy = YMAX/(MY+1);
   ud->hdcoef = ONE/(ud->dx*ud->dx);
   ud->hacoef = HALF/(TWO*ud->dx);
   ud->vdcoef = ONE/(ud->dy*ud->dy);
 
-//  ud->Nx = dimX + 1;
-//  ud->Ny = dimY + 1;
-//  ud->NEQ = ud->Nx * ud->Ny;
-//
-//  /* Set thread partitioning for GPU execution */
-//  ud->block = maxthreads;
-//  ud->grid  = (ud->NEQ + maxthreads - 1) / maxthreads;
-//
-//  /* Compute cell sizes */
-//  ud->hx = 1.0/((realtype) dimX);
-//  ud->hy = 1.0/((realtype) dimY);
-//
-//  /* Compute diffusion coefficients */
-//  ud->hordc = diffusionConst/(ud->hx * ud->hx);
-//  ud->verdc = diffusionConst/(ud->hy * ud->hy);
-//
-//  /* Compute advection coefficient */
-//  ud->horac = advectionConst/(2.0 * ud->hx);
-//  ud->verac = advectionConst/(2.0 * ud->hy);
-//
-//  /* Set reaction coefficient */
-//  ud->reacc = reactionConst;
-
   return ud;
 }
 
+
+/* Set initial conditions in u vector */
+
+static void SetIC(N_Vector u, UserData data)
+{
+  /* Extract needed constants from data */
+
+  const realtype dx = data->dx;
+  const realtype dy = data->dy;
+  const realtype xmax = data->XMAX;
+  const realtype ymax = data->YMAX;
+  const sunindextype MY = data->MY;
+  const sunindextype NEQ = data->NEQ;
+
+  /* Extract pointer to solution vector data on the host */
+  realtype *udata = sunrajavec::extract<realtype, sunindextype>(u)->host();
+
+  sunindextype i, j, tid;
+  realtype x, y;//, dx, dy;
+
+
+  /* Load initial profile into u vector */
+
+  for (tid=0; tid < NEQ; tid++) {
+    i = tid / MY;
+    j = tid % MY;
+
+    x = (i+1)*dx;
+    y = (j+1)*dy;
+
+    udata[tid] = x*(xmax - x)*y*(ymax - y)*SUNRexp(FIVE*x*y);
+  }
+  sunrajavec::extract<realtype, sunindextype>(u)->copyToDev();
+}
+
+
+/*
+ *-------------------------------
+ * Functions called by the solver
+ *-------------------------------
+ */
 
 /* f routine. Compute f(t,u). */
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
-  realtype hordc, horac, verdc;
-  UserData data;
+  UserData data = (UserData) user_data;
 
-  sunindextype zero = 0;
-  sunindextype neq = NEQ;
-//  int maxthreads = 256;
+  /* Extract needed constants from data */
+  const sunindextype MX  = data->MX;
+  const sunindextype MY  = data->MY;
+  const sunindextype NEQ = data->NEQ;
+  const realtype hordc   = data->hdcoef;
+  const realtype horac   = data->hacoef;
+  const realtype verdc   = data->vdcoef;
 
-
+  /* Extract pointers to vector data */
   const realtype *udata = sunrajavec::extract<realtype, sunindextype>(u)->device();
   realtype *dudata    = sunrajavec::extract<realtype, sunindextype>(udot)->device();
 
-  /* Extract needed constants from data */
+  const sunindextype zero = 0;
 
-  data = (UserData) user_data;
-  hordc = data->hdcoef;
-  horac = data->hacoef;
-  verdc = data->vdcoef;
-
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, neq, [=] __device__(sunindextype index) {
+  RAJA::forall<RAJA::cuda_exec<256> >(zero, NEQ, [=] __device__(sunindextype index) {
     sunindextype i = index/MY;
     sunindextype j = index%MY;
 
@@ -286,24 +284,6 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
     dudata[index] = hdiff + hadv + vdiff;
   });
 
-//  if (tid < MX*MY) {
-//    i = tid/MY;
-//    j = tid%MY;
-//
-//    uij = u[tid];
-//    udn = (j ==    0) ? ZERO : u[tid - 1];
-//    uup = (j == MY-1) ? ZERO : u[tid + 1];
-//    ult = (i ==    0) ? ZERO : u[tid - MY];
-//    urt = (i == MX-1) ? ZERO : u[tid + MY];
-//
-//    /* Set diffusion and advection terms and load into udot */
-//
-//    hdiff = hordc*(ult - TWO*uij + urt);
-//    hadv  = horac*(urt - ult);
-//    vdiff = verdc*(uup - TWO*uij + udn);
-//    udot[tid] = hdiff + hadv + vdiff;
-//  }
-
   return(0);
 }
 
@@ -314,24 +294,25 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
                N_Vector u, N_Vector fu,
                void *user_data, N_Vector tmp)
 {
-  realtype hordc, horac, verdc;
-  UserData data;
+  UserData data = (UserData) user_data;
 
-  sunindextype zero = 0;
-  sunindextype neq = NEQ;
-  int maxthreads = 256;
+  /* Extract needed constants from data */
+  const sunindextype MX  = data->MX;
+  const sunindextype MY  = data->MY;
+  const sunindextype NEQ = data->NEQ;
+  const realtype hordc   = data->hdcoef;
+  const realtype horac   = data->hacoef;
+  const realtype verdc   = data->vdcoef;
 
+  /* Extract pointers to vector data */
   const realtype *vdata = sunrajavec::extract<realtype, sunindextype>(v)->device();
   realtype *Jvdata    = sunrajavec::extract<realtype, sunindextype>(Jv)->device();
 
+  const sunindextype zero = 0;
+
   N_VConst(ZERO, Jv);
 
-  data = (UserData) user_data;
-  hordc = data->hdcoef;
-  horac = data->hacoef;
-  verdc = data->vdcoef;
-  
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, neq, [=] __device__(sunindextype index) {
+  RAJA::forall<RAJA::cuda_exec<256> >(zero, NEQ, [=] __device__(sunindextype index) {
     sunindextype i = index/MY;
     sunindextype j = index%MY;
 
@@ -351,40 +332,13 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
  *-------------------------------
  */
 
-/* Set initial conditions in u vector */
-
-static void SetIC(N_Vector u, UserData data)
-{
-  sunindextype i, j, tid;
-  realtype x, y, dx, dy;
-  realtype *udata = sunrajavec::extract<realtype, sunindextype>(u)->host();
-
-  /* Extract needed constants from data */
-
-  dx = data->dx;
-  dy = data->dy;
-
-  /* Load initial profile into u vector */
-
-  for (tid=0; tid <MY*MX; tid++) {
-    i = tid/MY;
-    j = tid%MY;
-    
-    x = (i+1)*dx;
-    y = (j+1)*dy;
-    
-    udata[tid] = x*(XMAX - x)*y*(YMAX - y)*SUNRexp(FIVE*x*y);
-  }
-  sunrajavec::extract<realtype, sunindextype>(u)->copyToDev();
-}
-
 /* Print first lines of output (problem description) */
 
-static void PrintHeader(realtype reltol, realtype abstol, realtype umax)
+static void PrintHeader(realtype reltol, realtype abstol, realtype umax, UserData data)
 {
   printf("\n2-D Advection-Diffusion Equation\n");
-  printf("Mesh dimensions = %d X %d\n", MX, MY);
-  printf("Total system size = %d\n", NEQ);
+  printf("Mesh dimensions = %d X %d\n", data->MX, data->MY);
+  printf("Total system size = %d\n", data->NEQ);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters: reltol = %Lg   abstol = %Lg\n\n",
          reltol, abstol);

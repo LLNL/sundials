@@ -58,6 +58,7 @@ ENDIF(SUPERLUMT_FOUND)
 # Add the build and install targets for each CVODE example
 
 FOREACH(example ${CVODE_examples})
+  set_source_files_properties(${example}.cu PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
   CUDA_ADD_EXECUTABLE(${example} ${example}.cu)
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
   SUNDIALS_ADD_TEST(${example} ${example})

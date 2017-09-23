@@ -21,6 +21,9 @@ INSTALL(CODE "MESSAGE(\"\nInstall NVECTOR_CUDA\n\")")
 # Add variable nveccuda_SOURCES with the sources for the NVECSERIAL lib
 SET(nveccuda_SOURCES nvector_cuda.cu)
 
+# Tell compiler it is a CUDA source
+set_source_files_properties(${nvecraja_SOURCES} PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
+
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the NVECCUDA library
 SET(shared_SOURCES 

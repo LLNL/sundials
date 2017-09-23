@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4272 $
- * $Date: 2014-12-02 11:19:41 -0800 (Tue, 02 Dec 2014) $
- * -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * Acknowledgements: This example is based on cvAdvDiff_bnd 
@@ -36,24 +33,15 @@
 #include <stdlib.h>
 #include <math.h>
 
-/* Header files with a description of contents used in cvbanx.c */
-
 #include <cvode/cvode.h>             /* prototypes for CVODE fcts., consts. */
-#include <cvode/cvode_band.h>        /* prototype for CVBand */
 #include <cvode/cvode_spgmr.h>       /* prototypes & constants for CVSPGMR */
-#include <sundials/sundials_band.h>  /* definitions of type DlsMat and macros */
 #include <sundials/sundials_types.h> /* definition of type realtype */
 #include <sundials/sundials_math.h>  /* definition of ABS and EXP */
 
 #include <nvector/nvector_cuda.h>
 
-/* Problem Constants */
+/* Real Constants */
 
-#define XMAX  RCONST(2.0)    /* domain boundaries         */
-#define YMAX  RCONST(1.0)
-#define MX    10             /* mesh dimensions           */
-#define MY    5
-#define NEQ   MX*MY          /* number of equations       */
 #define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance */
 #define T0    RCONST(0.0)    /* initial time              */
 #define T1    RCONST(0.1)    /* first output time         */
@@ -66,8 +54,11 @@
 #define TWO  RCONST(2.0)
 #define FIVE RCONST(5.0)
 
+/*
+ * CUDA kernels
+ */
 
-__global__ void residualKernel(const double *u, double *udot, sunindextype n, double hordc, double horac, double verdc)
+__global__ void residualKernel(const double *u, double *udot, sunindextype MX, sunindextype MY, double hordc, double horac, double verdc)
 {
   realtype uij, udn, uup, ult, urt, hdiff, hadv, vdiff;
   int i, j, tid;
@@ -95,7 +86,7 @@ __global__ void residualKernel(const double *u, double *udot, sunindextype n, do
 
 }
 
-__global__ void jtvKernel(const double *vdata, double *Jvdata, sunindextype n, double hordc, double horac, double verdc)
+__global__ void jtvKernel(const double *vdata, double *Jvdata, sunindextype MX, sunindextype MY, double hordc, double horac, double verdc)
 {
   int i, j, tid;
 
@@ -120,29 +111,32 @@ __global__ void jtvKernel(const double *vdata, double *Jvdata, sunindextype n, d
 
 }
 
-/* Type : UserData (contains grid constants) */
+/* Type : UserData (contains model and discretization parameters) */
 
 typedef struct {
-  realtype dx, dy, hdcoef, hacoef, vdcoef;
+  sunindextype MX, MY, NEQ;
+  realtype dx, dy, XMAX, YMAX;
+  realtype hdcoef, hacoef, vdcoef;
 } *UserData;
 
-/* Private Helper Functions */
-
+/* Problem setup and initialization functions */
+static UserData SetUserData(int argc, char** argv);
 static void SetIC(N_Vector u, UserData data);
-static void PrintHeader(realtype reltol, realtype abstol, realtype umax);
-static void PrintOutput(realtype t, realtype umax, long int nst);
-static void PrintFinalStats(void *cvode_mem);
-
-/* Private function to check function return values */
-
-static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /* Functions Called by the Solver */
-
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 static int jtv(N_Vector v, N_Vector Jv, realtype t,
                N_Vector u, N_Vector fu,
                void *user_data, N_Vector tmp);
+
+/* Private Helper Functions */
+static void PrintHeader(realtype reltol, realtype abstol, realtype umax, UserData data);
+static void PrintOutput(realtype t, realtype umax, long int nst);
+static void PrintFinalStats(void *cvode_mem);
+
+/* Private function to check function return values */
+static int check_flag(void *flagvalue, const char *funcname, int opt);
+
 
 /*
  *-------------------------------
@@ -150,9 +144,9 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
  *-------------------------------
  */
 
-int main(void)
+int main(int argc, char** argv)
 {
-  realtype dx, dy, reltol, abstol, t, tout, umax;
+  realtype reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
   void *cvode_mem;
@@ -163,21 +157,16 @@ int main(void)
   data = NULL;
   cvode_mem = NULL;
 
-  /* Create a CUDA vector */
-
-  u = N_VNew_Cuda(NEQ);  /* Allocate u vector */
-  if(check_flag((void*)u, "N_VNew_Serial", 0)) return(1);
+  /* Set model parameters */
+  data = SetUserData(argc, argv);
+  if(check_flag((void *)data, "malloc", 2)) return(1);
 
   reltol = ZERO;  /* Set the tolerances */
   abstol = ATOL;
 
-  data = (UserData) malloc(sizeof *data);  /* Allocate data memory */
-  if(check_flag((void *)data, "malloc", 2)) return(1);
-  dx = data->dx = XMAX/(MX+1);  /* Set grid coefficients in data */
-  dy = data->dy = YMAX/(MY+1);
-  data->hdcoef = ONE/(dx*dx);
-  data->hacoef = HALF/(TWO*dx);
-  data->vdcoef = ONE/(dy*dy);
+  /* Create a CUDA vector with initial values */
+  u = N_VNew_Cuda(data->NEQ);  /* Allocate u vector */
+  if(check_flag((void*)u, "N_VNew_Cuda", 0)) return(1);
 
   SetIC(u, data);  /* Initialize u vector */
 
@@ -213,7 +202,7 @@ int main(void)
   /* In loop over output points: call CVode, print results, test for errors */
 
   umax = N_VMaxNorm(u);
-  PrintHeader(reltol, abstol, umax);
+  PrintHeader(reltol, abstol, umax, data);
   for(iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
     flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
     if(check_flag(&flag, "CVode", 1)) break;
@@ -225,12 +214,80 @@ int main(void)
 
   PrintFinalStats(cvode_mem);  /* Print some final statistics   */
 
-  N_VDestroy(u);   /* Free the u vector */
+  N_VDestroy(u);          /* Free the u vector */
   CVodeFree(&cvode_mem);  /* Free the integrator memory */
   free(data);             /* Free the user data */
 
   return(0);
 }
+
+/*
+ *-------------------------------------------
+ * Problem setup and initialization functions
+ *-------------------------------------------
+ */
+
+/* Set model and discretization parameters */
+
+UserData SetUserData(int argc, char *argv[])
+{
+  const sunindextype MX = 10;
+  const sunindextype MY = 5;
+  const realtype XMAX = RCONST(2.0);    /* domain boundaries         */
+  const realtype YMAX = RCONST(1.0);
+
+  /* Allocate user data structure */
+  UserData ud = (UserData) malloc(sizeof *ud);
+  if(check_flag((void*) ud, "AllocUserData", 2)) return(NULL);
+
+  ud->MX  = MX;
+  ud->MY  = MY;
+  ud->NEQ = MX*MY;
+  ud->XMAX = XMAX;
+  ud->YMAX = YMAX;
+  ud->dx = XMAX/(MX+1);  /* Set grid coefficients in data */
+  ud->dy = YMAX/(MY+1);
+  ud->hdcoef = ONE/(ud->dx*ud->dx);
+  ud->hacoef = HALF/(TWO*ud->dx);
+  ud->vdcoef = ONE/(ud->dy*ud->dy);
+
+  return ud;
+}
+
+/* Set initial conditions in u vector */
+
+static void SetIC(N_Vector u, UserData data)
+{
+  /* Extract needed constants from data */
+
+  const realtype dx = data->dx;
+  const realtype dy = data->dy;
+  const realtype xmax = data->XMAX;
+  const realtype ymax = data->YMAX;
+  const sunindextype MY = data->MY;
+  const sunindextype NEQ = data->NEQ;
+
+  /* Extract pointer to solution vector data on the host */
+  realtype *udata = N_VGetHostArrayPointer_Cuda(u);
+
+  sunindextype i, j, tid;
+  realtype x, y;
+
+
+  /* Load initial profile into u vector */
+
+  for (tid=0; tid < NEQ; tid++) {
+    i = tid / MY;
+    j = tid % MY;
+
+    x = (i+1)*dx;
+    y = (j+1)*dy;
+
+    udata[tid] = x*(xmax - x)*y*(ymax - y)*SUNRexp(FIVE*x*y);
+  }
+  N_VCopyToDevice_Cuda(u);
+}
+
 
 /*
  *-------------------------------
@@ -242,25 +299,23 @@ int main(void)
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
-  realtype hordc, horac, verdc;
-  realtype *udata, *dudata;
-  UserData data;
-
-  int maxthreads = 256;
-  int block = maxthreads;
-  int grid = (MX*MY + maxthreads - 1) / maxthreads;
-
-  udata  = N_VGetDeviceArrayPointer_Cuda(u);
-  dudata = N_VGetDeviceArrayPointer_Cuda(udot);
+  UserData data = (UserData) user_data;
 
   /* Extract needed constants from data */
+  const sunindextype MX  = data->MX;
+  const sunindextype MY  = data->MY;
+  const realtype hordc   = data->hdcoef;
+  const realtype horac   = data->hacoef;
+  const realtype verdc   = data->vdcoef;
 
-  data = (UserData) user_data;
-  hordc = data->hdcoef;
-  horac = data->hacoef;
-  verdc = data->vdcoef;
+  /* Extract pointers to vector data */
+  const realtype *udata = N_VGetDeviceArrayPointer_Cuda(u);
+  realtype *dudata      = N_VGetDeviceArrayPointer_Cuda(udot);
 
-  residualKernel<<<grid,block>>>(udata, dudata, MX*MY, hordc, horac, verdc);
+  unsigned block = 256;
+  unsigned grid = (MX*MY + block - 1) / block;
+
+  residualKernel<<<grid,block>>>(udata, dudata, MX, MY, hordc, horac, verdc);
 
   return(0);
 }
@@ -272,26 +327,25 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
                N_Vector u, N_Vector fu,
                void *user_data, N_Vector tmp)
 {
-  realtype hordc, horac, verdc;
-  UserData data;
-  realtype *Jvdata;
-  realtype *vdata;
+  UserData data = (UserData) user_data;
 
-  int maxthreads = 256;
-  int block = maxthreads;
-  int grid = (MX*MY + maxthreads - 1) / maxthreads;
+  /* Extract needed constants from data */
+  const sunindextype MX  = data->MX;
+  const sunindextype MY  = data->MY;
+  const realtype hordc   = data->hdcoef;
+  const realtype horac   = data->hacoef;
+  const realtype verdc   = data->vdcoef;
+
+  /* Extract pointers to vector data */
+  const realtype *vdata = N_VGetDeviceArrayPointer_Cuda(v);
+  realtype *Jvdata      = N_VGetDeviceArrayPointer_Cuda(Jv);
+
+  unsigned block = 256;
+  unsigned grid = (MX*MY + block - 1) / block;
 
   N_VConst(ZERO, Jv);
 
-  data = (UserData) user_data;
-  hordc = data->hdcoef;
-  horac = data->hacoef;
-  verdc = data->vdcoef;
-  
-  Jvdata = N_VGetDeviceArrayPointer_Cuda(Jv);
-  vdata  = N_VGetDeviceArrayPointer_Cuda(v);
-  
-  jtvKernel<<<grid,block>>>(vdata, Jvdata, MX*MY, hordc, horac, verdc);
+  jtvKernel<<<grid,block>>>(vdata, Jvdata, MX, MY, hordc, horac, verdc);
 
   return(0);
 }
@@ -302,40 +356,13 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
  *-------------------------------
  */
 
-/* Set initial conditions in u vector */
-
-static void SetIC(N_Vector u, UserData data)
-{
-  sunindextype i, j, tid;
-  realtype x, y, dx, dy;
-  realtype *udata = N_VGetHostArrayPointer_Cuda(u);
-
-  /* Extract needed constants from data */
-
-  dx = data->dx;
-  dy = data->dy;
-
-  /* Load initial profile into u vector */
-
-  for (tid=0; tid <MY*MX; tid++) {
-    i = tid/MY;
-    j = tid%MY;
-    
-    x = (i+1)*dx;
-    y = (j+1)*dy;
-    
-    udata[tid] = x*(XMAX - x)*y*(YMAX - y)*SUNRexp(FIVE*x*y);
-  }
-  N_VCopyToDevice_Cuda(u);
-}
-
 /* Print first lines of output (problem description) */
 
-static void PrintHeader(realtype reltol, realtype abstol, realtype umax)
+static void PrintHeader(realtype reltol, realtype abstol, realtype umax, UserData data)
 {
   printf("\n2-D Advection-Diffusion Equation\n");
-  printf("Mesh dimensions = %d X %d\n", MX, MY);
-  printf("Total system size = %d\n", NEQ);
+  printf("Mesh dimensions = %d X %d\n", data->MX, data->MY);
+  printf("Total system size = %d\n", data->NEQ);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters: reltol = %Lg   abstol = %Lg\n\n",
          reltol, abstol);
