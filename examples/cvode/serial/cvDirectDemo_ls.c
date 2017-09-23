@@ -47,8 +47,7 @@
  * to work directly with a column of a Dense SUNMatrix. The SM_COLUMN_B and
  * SM_COLUMN_ELEMENT_B allow efficient columnwise access to the elements
  * of a Banded SUNMatix. These macros are used in the Jac2 function.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -276,7 +275,7 @@ static int Problem1(void)
   }
 
   CVodeFree(&cvode_mem);
-  N_VDestroy_Serial(y);
+  N_VDestroy(y);
 
   return(nerr);
 }
@@ -474,7 +473,7 @@ static int Problem2(void)
   }
 
   CVodeFree(&cvode_mem);
-  N_VDestroy_Serial(y);
+  N_VDestroy(y);
 
   return(nerr);
 }
@@ -520,8 +519,8 @@ static int f2(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   sunindextype i, j, k;
   realtype d, *ydata, *dydata;
   
-  ydata = N_VGetArrayPointer_Serial(y);
-  dydata = N_VGetArrayPointer_Serial(ydot);
+  ydata  = N_VGetArrayPointer(y);
+  dydata = N_VGetArrayPointer(ydot);
 
   /*
      Excluding boundaries, 
@@ -585,7 +584,7 @@ static realtype MaxError(N_Vector y, realtype t)
   
   if (t == ZERO) return(ZERO);
 
-  ydata = N_VGetArrayPointer_Serial(y);
+  ydata = N_VGetArrayPointer(y);
   if (t <= THIRTY) ex = SUNRexp(-TWO*t);
   
   for (j = 0; j < P2_MESHY; j++) {
@@ -607,9 +606,6 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
                           SUNLinearSolver LS)
 {
   int flag = CV_SUCCESS;
-
-  /* if(LS != NULL) SUNLinSolFree(LS); */
-  /* if(A  != NULL) SUNMatDestroy(A); */
   
   printf("\n\n-------------------------------------------------------------");
   
