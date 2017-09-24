@@ -1377,7 +1377,7 @@ flag = KINSetNumMaxIters(kin\_mem, mxiter);
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[mxiter] (\id{sunindextype})
+  \item[mxiter] (\id{long int})
     maximum number of nonlinear iterations.
   \end{args}
 }
@@ -1482,7 +1482,7 @@ flag = KINSetMaxSetupCalls(kin\_mem, msbset);
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[msbset] (\id{sunindextype})
+  \item[msbset] (\id{long int})
     maximum number of nonlinear iterations without a call to the
     preconditioner or Jacobian setup function.  Pass 0 to indicate the default.
   \end{args}
@@ -1515,7 +1515,7 @@ flag = KINSetMaxSubSetupCalls(kin\_mem, msbsetsub);
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[msbsetsub] (\id{sunindextype})
+  \item[msbsetsub] (\id{long int})
     maximum number of nonlinear iterations without checking the
     nonlinear residual.  Pass 0 to indicate the default.
   \end{args}
@@ -2006,7 +2006,7 @@ flag = KINSetMAA(kin\_mem, maa);
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[maa] (\id{sunindextype})
+  \item[maa] (\id{long int})
     subspace size for various methods.  A value of 0 means no acceleration,
     while a positive value means acceleration will be done.
   \end{args}
@@ -2624,9 +2624,9 @@ These optional output functions are described next.
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[lenrw] (\id{sunindextype})
+  \item[lenrw] (\id{long int})
     the number of \id{realtype} values in the {\kinsol} workspace.
-  \item[leniw] (\id{sunindextype})
+  \item[leniw] (\id{long int})
     the number of integer values in the {\kinsol} workspace.
   \end{args}
 }
@@ -2646,7 +2646,7 @@ These optional output functions are described next.
   an additional $N$ words if constraint checking is enabled (see \id{KINSetConstraints}).
 
   The actual size of the integer workspace (without distinction between \id{int} 
-  and \id{sunindextype}) is $22 + 5 N$ (increased by $N$ if constraint checking is enabled).
+  and \id{long int}) is $22 + 5 N$ (increased by $N$ if constraint checking is enabled).
 }
 %%
 %%
@@ -2850,9 +2850,9 @@ and last return value from a {\kindls} function.
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[lenrwLS] (\id{sunindextype})
+  \item[lenrwLS] (\id{long int})
     the number of \id{realtype} values in the {\kindls} workspace.
-  \item[leniwLS] (\id{sunindextype})
+  \item[leniwLS] (\id{long int})
     the number of integer values in the {\kindls} workspace.
   \end{args}
 }
@@ -3114,9 +3114,9 @@ return value from a linear solver function.
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[lenrwLS] (\id{sunindextype})
+  \item[lenrwLS] (\id{long int})
     the number of \id{realtype} values in the linear solver workspace.
-  \item[leniwLS] (\id{sunindextype})
+  \item[leniwLS] (\id{long int})
     the number of integer values in the linear solver workspace.
   \end{args}
 }
@@ -4308,9 +4308,9 @@ the {\kinbbdpre} module:
   \begin{args}[lenrwBBDP]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[lenrwBBDP] (\id{sunindextype})
+  \item[lenrwBBDP] (\id{long int})
     local number of \id{realtype} values in the {\kinbbdpre} workspace.
-  \item[leniwBBDP] (\id{sunindextype})
+  \item[leniwBBDP] (\id{long int})
     local number of integer values in the {\kinbbdpre} workspace.
   \end{args}
 }
