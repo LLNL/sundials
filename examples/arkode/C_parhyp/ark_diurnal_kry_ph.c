@@ -192,10 +192,10 @@ int main(int argc, char *argv[])
   N_Vector u;
   UserData data;
   void *arkode_mem;
-  int iout, flag;
+  int iout, flag, my_pe, npes;
   MPI_Comm comm;
   
-  HYPRE_Int local_N, npes, my_pe;
+  HYPRE_Int local_N;
   HYPRE_ParVector Upar; /* Declare HYPRE parallel vector */
   HYPRE_IJVector  Uij;  /* Declare "IJ" interface to HYPRE vector */
 
@@ -461,8 +461,8 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
 /* Print final statistics contained in iopt */
 static void PrintFinalStats(void *arkode_mem)
 {
-  sunindextype lenrw, leniw ;
-  sunindextype lenrwLS, leniwLS;
+  long int lenrw, leniw ;
+  long int lenrwLS, leniwLS;
   long int nst, nfe, nfi, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
   int flag;
@@ -496,8 +496,8 @@ static void PrintFinalStats(void *arkode_mem)
   check_flag(&flag, "ARKSpilsGetNumRhsEvals", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
-  printf("lenrw   = %5ld     leniw   = %5ld\n", (long int) lenrw, (long int) leniw);
-  printf("lenrwls = %5ld     leniwls = %5ld\n", (long int) lenrwLS, (long int) leniwLS);
+  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw,   leniw);
+  printf("lenrwls = %5ld     leniwls = %5ld\n", lenrwLS, leniwLS);
   printf("nst     = %5ld     nfe     = %5ld\n", nst, nfe);
   printf("nfi     = %5ld     nfels   = %5ld\n", nfi, nfeLS);
   printf("nni     = %5ld     nli     = %5ld\n", nni, nli);

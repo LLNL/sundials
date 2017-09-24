@@ -571,8 +571,8 @@ static void PrintOutput(void *cvode_mem, realtype t)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  sunindextype lenrw, leniw ;
-  sunindextype lenrwLS, leniwLS;
+  long int lenrw, leniw ;
+  long int lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
   int flag;
@@ -607,10 +607,10 @@ static void PrintFinalStats(void *cvode_mem)
   check_flag(&flag, "CVSpilsGetNumRhsEvals", 1);
 
   printf("\n\n Final statistics for this run:\n\n");
-  printf(" CVode real workspace length           = %4ld \n", (long int) lenrw);
-  printf(" CVode integer workspace length        = %4ld \n", (long int) leniw);
-  printf(" CVSPGMR real workspace length         = %4ld \n", (long int) lenrwLS);
-  printf(" CVSPGMR integer workspace length      = %4ld \n", (long int) leniwLS);
+  printf(" CVode real workspace length           = %4ld \n", lenrw);
+  printf(" CVode integer workspace length        = %4ld \n", leniw);
+  printf(" CVSPGMR real workspace length         = %4ld \n", lenrwLS);
+  printf(" CVSPGMR integer workspace length      = %4ld \n", leniwLS);
   printf(" Number of steps                       = %4ld \n", nst);
   printf(" Number of f-s                         = %4ld \n", nfe);
   printf(" Number of f-s (SPGMR)                 = %4ld \n", nfeLS);

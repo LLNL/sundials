@@ -25,9 +25,10 @@ IF(EXAMPLES_ENABLE)
 
   find_package(PythonInterp)
   IF(${PYTHON_VERSION_MAJOR} LESS 3)
-      IF(${PYTHON_VERSION_MINOR} LESS 7)
-	message( WARNING "***************************************************************************\nWARNING\nPython version must be 2.7.x or greater in order to run regression tests.\nExamples will build but 'make test' will fail.\n***************************************************************************")
-      ENDIF()
+    IF(${PYTHON_VERSION_MINOR} LESS 7)
+      PRINT_WARNING("Python version must be 2.7.x or greater to run regression tests"
+                    "Examples will build but 'make test' will fail.")
+    ENDIF()
   ENDIF()
 
   FIND_PROGRAM(TESTRUNNER testRunner PATHS test)

@@ -300,7 +300,7 @@ SUNDIALS_EXPORT int IDASpilsSetIncrementFactor(void *ida_mem, realtype dqincfac)
  * -----------------------------------------------------------------
  */                                                                
 
-SUNDIALS_EXPORT int IDASpilsGetWorkSpace(void *ida_mem, sunindextype *lenrwLS, sunindextype *leniwLS);
+SUNDIALS_EXPORT int IDASpilsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS);
 SUNDIALS_EXPORT int IDASpilsGetNumPrecEvals(void *ida_mem, long int *npevals);
 SUNDIALS_EXPORT int IDASpilsGetNumPrecSolves(void *ida_mem, long int *npsolves);
 SUNDIALS_EXPORT int IDASpilsGetNumLinIters(void *ida_mem, long int *nliters);

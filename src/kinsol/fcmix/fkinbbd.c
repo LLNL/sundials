@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -53,8 +50,8 @@
 extern "C" {
 #endif
 
-extern void FK_LOCFN(sunindextype*, realtype*, realtype*, int*);
-extern void FK_COMMFN(sunindextype*, realtype*, int*);
+extern void FK_LOCFN(long int*, realtype*, realtype*, int*);
+extern void FK_COMMFN(long int*, realtype*, int*);
 
 #ifdef __cplusplus
 }
@@ -66,8 +63,8 @@ extern void FK_COMMFN(sunindextype*, realtype*, int*);
  * ----------------------------------------------------------------
  */
 
-void FKIN_BBDINIT(sunindextype *nlocal, sunindextype *mudq, sunindextype *mldq,
-		  sunindextype *mu, sunindextype *ml, int *ier)
+void FKIN_BBDINIT(long int *nlocal, long int *mudq, long int *mldq,
+		  long int *mu, long int *ml, int *ier)
 {
   *ier = KINBBDPrecInit(KIN_kinmem, *nlocal, *mudq, *mldq,
                         *mu, *ml, ZERO, FKINgloc, FKINgcomm);
@@ -84,7 +81,7 @@ void FKIN_BBDINIT(sunindextype *nlocal, sunindextype *mudq, sunindextype *mldq,
  * ----------------------------------------------------------------
  */
 
-int FKINgloc(sunindextype Nloc, N_Vector uu, N_Vector gval, void *user_data)
+int FKINgloc(long int Nloc, N_Vector uu, N_Vector gval, void *user_data)
 {
   realtype *uloc, *gloc;
   int ier;
@@ -110,7 +107,7 @@ int FKINgloc(sunindextype Nloc, N_Vector uu, N_Vector gval, void *user_data)
  * ----------------------------------------------------------------
  */
 
-int FKINgcomm(sunindextype Nloc, N_Vector uu, void *user_data)
+int FKINgcomm(long int Nloc, N_Vector uu, void *user_data)
 {
   realtype *uloc;
   int ier;
@@ -133,7 +130,7 @@ int FKINgcomm(sunindextype Nloc, N_Vector uu, void *user_data)
  * ----------------------------------------------------------------
  */
 
-void FKIN_BBDOPT(sunindextype *lenrpw, sunindextype *lenipw, long int *nge)
+void FKIN_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge)
 {
   KINBBDPrecGetWorkSpace(KIN_kinmem, lenrpw, lenipw);
   KINBBDPrecGetNumGfnEvals(KIN_kinmem, nge);

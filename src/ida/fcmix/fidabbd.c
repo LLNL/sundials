@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -45,14 +42,15 @@
 extern "C" {
 #endif
 
-  extern void FIDA_GLOCFN(sunindextype*, 
-                          realtype*, realtype*, realtype*, realtype*, 
-                          sunindextype*, realtype*,
-                          int*);
-  extern void FIDA_COMMFN(sunindextype*, 
-                          realtype*, realtype*, realtype*, 
-                          sunindextype*, realtype*,
-                          int*);
+  extern void FIDA_GLOCFN(long int*,                                  /* N            */
+                          realtype*, realtype*, realtype*, realtype*, /* T, YY, YP, G */
+                          long int*, realtype*,                       /* IPAR, RPAR   */
+                          int*);                                      /* IER          */
+
+  extern void FIDA_COMMFN(long int*,                       /* N          */
+			  realtype*, realtype*, realtype*, /* T, YY, YP  */
+			  long int*, realtype*,            /* IPAR, RPAR */
+			  int*);                           /* IER        */
 
 #ifdef __cplusplus
 }
@@ -60,8 +58,8 @@ extern "C" {
 
 /*************************************************/
 
-void FIDA_BBDINIT(sunindextype *Nloc, sunindextype *mudq, sunindextype *mldq,
-		  sunindextype *mu, sunindextype *ml, realtype *dqrely, int *ier)
+void FIDA_BBDINIT(long int *Nloc, long int *mudq, long int *mldq,
+		  long int *mu, long int *ml, realtype *dqrely, int *ier)
 {
   *ier = IDABBDPrecInit(IDA_idamem, *Nloc, *mudq, *mldq, *mu, *ml,
                         *dqrely, (IDABBDLocalFn) FIDAgloc, (IDABBDCommFn) FIDAcfn);
@@ -71,7 +69,7 @@ void FIDA_BBDINIT(sunindextype *Nloc, sunindextype *mudq, sunindextype *mldq,
 
 /*************************************************/
 
-void FIDA_BBDREINIT(sunindextype *Nloc, sunindextype *mudq, sunindextype *mldq,
+void FIDA_BBDREINIT(long int *Nloc, long int *mudq, long int *mldq,
 		    realtype *dqrely, int *ier)
 {
   *ier = 0;
@@ -83,7 +81,7 @@ void FIDA_BBDREINIT(sunindextype *Nloc, sunindextype *mudq, sunindextype *mldq,
 
 /*************************************************/
 
-int FIDAgloc(sunindextype Nloc, realtype t, N_Vector yy, N_Vector yp,
+int FIDAgloc(long int Nloc, realtype t, N_Vector yy, N_Vector yp,
 	     N_Vector gval, void *user_data)
 {
   realtype *yy_data, *yp_data, *gval_data;
@@ -115,7 +113,7 @@ int FIDAgloc(sunindextype Nloc, realtype t, N_Vector yy, N_Vector yp,
 
 /*************************************************/
 
-int FIDAcfn(sunindextype Nloc, realtype t, N_Vector yy, N_Vector yp,
+int FIDAcfn(long int Nloc, realtype t, N_Vector yy, N_Vector yp,
 	    void *user_data)
 {
   realtype *yy_data, *yp_data;
@@ -146,7 +144,7 @@ int FIDAcfn(sunindextype Nloc, realtype t, N_Vector yy, N_Vector yp,
 
 /*************************************************/
 
-void FIDA_BBDOPT(sunindextype *lenrwbbd, sunindextype *leniwbbd, long int *ngebbd)
+void FIDA_BBDOPT(long int *lenrwbbd, long int *leniwbbd, long int *ngebbd)
 {
   IDABBDPrecGetWorkSpace(IDA_idamem, lenrwbbd, leniwbbd);
   IDABBDPrecGetNumGfnEvals(IDA_idamem, ngebbd);

@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -35,17 +32,17 @@
 extern "C" {
 #endif
 
-  extern void FIDA_PSET(realtype*, realtype*, realtype*, realtype*,
-                        realtype*, realtype*, realtype*, 
-                        sunindextype*, realtype*,
-                        realtype*, realtype*, realtype*, 
-                        int*);
+  extern void FIDA_PSET(realtype*, realtype*, realtype*, realtype*, /* T, YY, YP, RR */
+			realtype*, realtype*, realtype*,            /* C_J, EWT, H   */
+			long int*, realtype*,                       /* IPAR, RPAR    */
+			realtype*, realtype*, realtype*,            /* W1, W2, W3    */
+			int*);                                      /* IER           */ 
   
-  extern void FIDA_PSOL(realtype*, realtype*, realtype*, realtype*,
-                        realtype*, realtype*, realtype*, realtype*,
-                        realtype*, 
-                        sunindextype*, realtype*,
-                        realtype*, int*);
+  extern void FIDA_PSOL(realtype*, realtype*, realtype*, realtype*, /* T, YY, YP, RR    */
+			realtype*, realtype*, realtype*, realtype*, /* R, Z, C_J, DELTA */
+			realtype*,                                  /* EWT              */
+			long int*, realtype*,                       /* IPAR, RPAR       */
+			realtype*, int*);                           /* w1, IER          */
 
 #ifdef __cplusplus
 }

@@ -361,7 +361,7 @@ static void PrintOutput(N_Vector u)
 static void PrintFinalStats(void *kmem)
 {
   long int nni, nfe, nje, nfeD;
-  sunindextype lenrwB, leniwB;
+  long int lenrwB, leniwB;
   int flag;
   
   /* Main solver statistics */
@@ -387,7 +387,7 @@ static void PrintFinalStats(void *kmem)
   printf("nni      = %6ld    nfe     = %6ld \n", nni, nfe);
   printf("nje      = %6ld    nfeB    = %6ld \n", nje, nfeD);
   printf("\n");
-  printf("lenrwB   = %6ld    leniwB  = %6ld \n", (long int) lenrwB, (long int) leniwB);
+  printf("lenrwB   = %6ld    leniwB  = %6ld \n", lenrwB, leniwB);
   
 }
 

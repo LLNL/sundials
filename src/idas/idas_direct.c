@@ -182,7 +182,7 @@ int IDADlsSetBandJacFn(void *ida_mem, IDADlsBandJacFn jac)
  * IDADlsGetWorkSpace returns the length of workspace allocated for the
  * IDALAPACK linear solver.
  */
-int IDADlsGetWorkSpace(void *ida_mem, sunindextype *lenrwLS, sunindextype *leniwLS)
+int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
 {
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;

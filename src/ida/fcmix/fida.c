@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -44,7 +41,7 @@
 N_Vector F2C_IDA_ypvec, F2C_IDA_ewtvec;
 
 void *IDA_idamem;
-sunindextype *IDA_iout;
+long int *IDA_iout;
 realtype *IDA_rout;
 int IDA_ls;
 int IDA_nrtfn;
@@ -66,7 +63,7 @@ extern "C" {
                           realtype*,    /* Y    */
                           realtype*,    /* YP   */
                           realtype*,    /* R    */
-                          sunindextype*,    /* IPAR */
+                          long int*,    /* IPAR */
                           realtype*,    /* RPAR */
                           int*);        /* IER  */
 
@@ -78,8 +75,8 @@ extern "C" {
 
 void FIDA_MALLOC(realtype *t0, realtype *yy0, realtype *yp0,
                  int *iatol, realtype *rtol, realtype *atol,
-                 sunindextype *iout, realtype *rout, 
-                 sunindextype *ipar, realtype *rpar,
+                 long int *iout, realtype *rout, 
+                 long int *ipar, realtype *rpar,
                  int *ier)
 {
   N_Vector Vatol;
@@ -251,7 +248,7 @@ void FIDA_REINIT(realtype *t0, realtype *yy0, realtype *yp0,
 
 /*************************************************/
 
-void FIDA_SETIIN(char key_name[], sunindextype *ival, int *ier)
+void FIDA_SETIIN(char key_name[], long int *ival, int *ier)
 {
   if (!strncmp(key_name,"MAX_ORD",7))
     *ier = IDASetMaxOrd(IDA_idamem, (int) *ival);
@@ -461,7 +458,7 @@ void FIDA_SPGMR(int *maxl, int *gstype, int *maxrs,
 
 /*************************************************/
 
-void FIDA_DENSE(sunindextype *neq, int *ier)
+void FIDA_DENSE(long int *neq, int *ier)
 {
 
   *ier = 0;
@@ -475,7 +472,7 @@ void FIDA_DENSE(sunindextype *neq, int *ier)
 
 /*************************************************/
 
-void FIDA_BAND(sunindextype *neq, sunindextype *mupper, sunindextype *mlower, int *ier)
+void FIDA_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
 {
 
   *ier = 0;
@@ -610,8 +607,8 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
                         &IDA_rout[1],           /* HLAST */
                         &IDA_rout[2],           /* HCUR */
                         &IDA_rout[3]);          /* TCUR */
-  IDA_iout[8] = (sunindextype) klast;
-  IDA_iout[9] = (sunindextype) kcur;
+  IDA_iout[8] = (long int) klast;
+  IDA_iout[9] = (long int) kcur;
   IDAGetNonlinSolvStats(IDA_idamem,
                         &IDA_iout[6],           /* NNI */
                         &IDA_iout[5]);          /* NCFN */
