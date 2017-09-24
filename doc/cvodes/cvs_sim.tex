@@ -1566,7 +1566,7 @@ flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[mxsteps] (\id{sunindextype})
+  \item[mxsteps] (\id{long int})
     maximum allowed number of steps.
   \end{args}
 }
@@ -2825,9 +2825,9 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[lenrw] (\id{sunindextype})
+  \item[lenrw] (\id{long int})
     the number of \id{realtype} values in the {\cvodes} workspace.
-  \item[leniw] (\id{sunindextype})
+  \item[leniw] (\id{long int})
     the number of integer values in the {\cvodes} workspace.
   \end{args}
 }
@@ -2853,7 +2853,7 @@ These optional output functions are described next.
   where $N_r$ is the number of real words in one \id{N\_Vector} ($\approx N$).
 
   The size of the integer workspace (without distinction between \id{int} 
-  and \id{sunindextype} words) is given by:
+  and \id{long int} words) is given by:
   \begin{itemize}
   \item base value: \id{leniw} $= 40 + ($\id{maxord+5}$)*N_i ~ + ~ $\id{nrtfn};  
   \item using \id{CVodeSVtolerances}: \id{leniw} $=$ \id{leniw} $+ N_i$;
@@ -3556,9 +3556,9 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[lenrwLS] (\id{sunindextype})
+  \item[lenrwLS] (\id{long int})
     the number of \id{realtype} values in the {\cvdls} workspace.
-  \item[leniwLS] (\id{sunindextype})
+  \item[leniwLS] (\id{long int})
     the number of integer values in the {\cvdls} workspace.
   \end{args}
 }
@@ -3740,9 +3740,9 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[lenrwLS] (\id{sunindextype})
+  \item[lenrwLS] (\id{long int})
     the number of \id{realtype} values in the {\cvdiag} workspace.
-  \item[leniwLS] (\id{sunindextype})
+  \item[leniwLS] (\id{long int})
     the number of integer values in the {\cvdiag} workspace.
   \end{args}
 }
@@ -3984,9 +3984,9 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[lenrwLS] (\id{sunindextype})
+  \item[lenrwLS] (\id{long int})
     the number of \id{realtype} values in the {\cvspils} workspace.
-  \item[leniwLS] (\id{sunindextype})
+  \item[leniwLS] (\id{long int})
     the number of integer values in the {\cvspils} workspace.
   \end{args}
 }
@@ -5901,9 +5901,9 @@ the {\cvbandpre} module:
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[lenrwBP] (\id{sunindextype})
+  \item[lenrwBP] (\id{long int})
     the number of \id{realtype} values in the {\cvbandpre} workspace.
-  \item[leniwBP] (\id{sunindextype})
+  \item[leniwBP] (\id{long int})
     the number of integer values in the {\cvbandpre} workspace.
   \end{args}
 }
@@ -6381,9 +6381,9 @@ the {\cvbbdpre} module:
   \begin{args}[lenrwBBDP]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[lenrwBBDP] (\id{sunindextype})
+  \item[lenrwBBDP] (\id{long int})
     local number of \id{realtype} values in the {\cvbbdpre} workspace.
-  \item[leniwBBDP] (\id{sunindextype})
+  \item[leniwBBDP] (\id{long int})
     local number of integer values in the {\cvbbdpre} workspace.
   \end{args}
 }
