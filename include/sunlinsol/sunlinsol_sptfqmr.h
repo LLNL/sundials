@@ -23,7 +23,7 @@
  *
  * The SPTFQMR algorithm solves a linear system A x = b.
  * Preconditioning is allowed on the left, right, or both.
- * Scaling is allowed on both sides, and restarts are also allowed.
+ * Scaling is allowed on both sides.
  * We denote the preconditioner and scaling matrices as follows:
  *   P1 = left preconditioner
  *   P2 = right preconditioner
