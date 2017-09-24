@@ -1237,7 +1237,7 @@ IF(EXAMPLES_ENABLE)
 
   # add IDA examples
   IF(BUILD_IDA)
-    #ADD_SUBDIRECTORY(examples/ida/serial)
+    ADD_SUBDIRECTORY(examples/ida/serial)
     IF(FCMIX_ENABLE AND F77_FOUND)
       ADD_SUBDIRECTORY(examples/ida/fcmix_serial)
       IF(OPENMP_FOUND)

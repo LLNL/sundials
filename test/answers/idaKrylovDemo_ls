@@ -9,7 +9,7 @@ idaKrylovDemo_ls: Heat equation, serial example problem for IDA
 
 Tolerance parameters:  rtol = 0   atol = 0.001
 Constraints set to force all solution components >= 0. 
-Linear solver: IDASPGMR, preconditioner using diagonal elements. 
+Linear solver: SPGMR, preconditioner using diagonal elements. 
 
    Output Summary (umax = max-norm of solution) 
 
@@ -34,7 +34,7 @@ Linear convergence failures    = 0
 ======================================================================
 
  ------- 
-| SPBCG |
+| SPBCGS |
  -------
 
 idaKrylovDemo_ls: Heat equation, serial example problem for IDA
@@ -44,7 +44,7 @@ idaKrylovDemo_ls: Heat equation, serial example problem for IDA
 
 Tolerance parameters:  rtol = 0   atol = 0.001
 Constraints set to force all solution components >= 0. 
-Linear solver: IDASPBCG, preconditioner using diagonal elements. 
+Linear solver: SPBCG, preconditioner using diagonal elements. 
 
    Output Summary (umax = max-norm of solution) 
 
@@ -79,7 +79,7 @@ idaKrylovDemo_ls: Heat equation, serial example problem for IDA
 
 Tolerance parameters:  rtol = 0   atol = 0.001
 Constraints set to force all solution components >= 0. 
-Linear solver: IDASPTFQMR, preconditioner using diagonal elements. 
+Linear solver: SPTFQMR, preconditioner using diagonal elements. 
 
    Output Summary (umax = max-norm of solution) 
 
