@@ -1573,13 +1573,13 @@ static realtype VAllReduce_Parallel_Grid(realtype d, int op, MPI_Comm comm)
   realtype out;
 
   switch (op) {
-   case 1: MPI_Allreduce(&d, &out, 1, PGVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+   case 1: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
            break;
 
-   case 2: MPI_Allreduce(&d, &out, 1, PGVEC_REAL_MPI_TYPE, MPI_MAX, comm);
+   case 2: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MAX, comm);
            break;
 
-   case 3: MPI_Allreduce(&d, &out, 1, PGVEC_REAL_MPI_TYPE, MPI_MIN, comm);
+   case 3: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MIN, comm);
            break;
 
    default: break;
