@@ -196,6 +196,55 @@ void N_VDestroyVectorArray_Raja(N_Vector *vs, int count)
   return;
 }
 
+/* -----------------------------------------------------------------
+ * Function to return the length of the vector.
+ */
+sunindextype N_VGetLength_Raja(N_Vector v)
+{
+  sunrajavec::Vector<realtype, sunindextype>* xd = static_cast<sunrajavec::Vector<realtype, sunindextype>*>(v->content);
+  return xd->size();
+}
+
+/* ----------------------------------------------------------------------------
+ * Return pointer to the raw host data
+ */
+
+realtype *N_VGetHostArrayPointer_Raja(N_Vector x)
+{
+  sunrajavec::Vector<realtype, sunindextype>* xv = static_cast<sunrajavec::Vector<realtype, sunindextype>*>(x->content);
+  return (xv->host());
+}
+
+/* ----------------------------------------------------------------------------
+ * Return pointer to the raw device data
+ */
+
+realtype *N_VGetDeviceArrayPointer_Raja(N_Vector x)
+{
+  sunrajavec::Vector<realtype, sunindextype>* xv = static_cast<sunrajavec::Vector<realtype, sunindextype>*>(x->content);
+  return (xv->device());
+}
+
+/* ----------------------------------------------------------------------------
+ * Copy vector data to the device
+ */
+
+void N_VCopyToDevice_Raja(N_Vector x)
+{
+  sunrajavec::Vector<realtype, sunindextype>* xv = static_cast<sunrajavec::Vector<realtype, sunindextype>*>(x->content);
+  xv->copyToDev();
+}
+
+/* ----------------------------------------------------------------------------
+ * Copy vector data from the device to the host
+ */
+
+void N_VCopyFromDevice_Raja(N_Vector x)
+{
+  sunrajavec::Vector<realtype, sunindextype>* xv = static_cast<sunrajavec::Vector<realtype, sunindextype>*>(x->content);
+  xv->copyFromDev();
+}
+
 
 /* ----------------------------------------------------------------------------
  * Function to print the a serial vector

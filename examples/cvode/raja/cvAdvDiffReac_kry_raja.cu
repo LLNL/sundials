@@ -170,7 +170,7 @@ N_Vector SetIC(UserData data)
   const realtype hy = data->hy;
 
   N_Vector u = N_VNew_Raja(data->NEQ);
-  realtype *udat = sunrajavec::extract<realtype, sunindextype>(u)->host();
+  realtype *udat = N_VGetHostArrayPointer_Raja(u);
 
   sunindextype i, j, index;
 
@@ -184,7 +184,7 @@ N_Vector SetIC(UserData data)
     realtype tmp = (1 - x) * x * (1 - y) * y;
     udat[index] = (256.0 * tmp * tmp) + 0.3;
   }
-  sunrajavec::extract<realtype, sunindextype>(u)->copyToDev();
+  N_VCopyToDevice_Raja(u);
   return u;
 }
 
@@ -267,8 +267,8 @@ int RHS(realtype t, N_Vector u, N_Vector udot, void *user_data)
   UserData data = (UserData) user_data;
   const sunindextype NEQ = data->NEQ;
   const realtype reacc = data->reacc;
-  const realtype *udata = sunrajavec::extract<realtype, sunindextype>(u)->device();
-  realtype *udotdata    = sunrajavec::extract<realtype, sunindextype>(udot)->device();
+  const realtype *udata = N_VGetDeviceArrayPointer_Raja(u);
+  realtype *udotdata    = N_VGetDeviceArrayPointer_Raja(udot);
   const sunindextype zero = 0;
 
   phiRaja(udata, udotdata, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac);
@@ -288,9 +288,9 @@ int Jtv(N_Vector v, N_Vector Jv, realtype t, N_Vector u, N_Vector fu, void *user
   const realtype reacc = data->reacc;
   const sunindextype zero = 0;
 
-  const realtype *udata  = sunrajavec::extract<realtype, sunindextype>(u)->device();
-  const realtype *vdata  = sunrajavec::extract<realtype, sunindextype>(v)->device();
-  realtype *Jvdata       = sunrajavec::extract<realtype, sunindextype>(Jv)->device();
+  const realtype *udata = N_VGetDeviceArrayPointer_Raja(u);
+  const realtype *vdata = N_VGetDeviceArrayPointer_Raja(v);
+  realtype *Jvdata    = N_VGetDeviceArrayPointer_Raja(Jv);
 
   phiRaja(vdata, Jvdata, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac);
   RAJA::forall<RAJA::cuda_exec<256> >(zero, NEQ, [=] __device__(sunindextype index) {

@@ -217,7 +217,7 @@ static void SetIC(N_Vector u, UserData data)
   const sunindextype NEQ = data->NEQ;
 
   /* Extract pointer to solution vector data on the host */
-  realtype *udata = sunrajavec::extract<realtype, sunindextype>(u)->host();
+  realtype *udata = N_VGetHostArrayPointer_Raja(u);
 
   sunindextype i, j, tid;
   realtype x, y;//, dx, dy;
@@ -234,7 +234,7 @@ static void SetIC(N_Vector u, UserData data)
 
     udata[tid] = x*(xmax - x)*y*(ymax - y)*SUNRexp(FIVE*x*y);
   }
-  sunrajavec::extract<realtype, sunindextype>(u)->copyToDev();
+  N_VCopyToDevice_Raja(u);
 }
 
 
@@ -259,8 +259,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   const realtype verdc   = data->vdcoef;
 
   /* Extract pointers to vector data */
-  const realtype *udata = sunrajavec::extract<realtype, sunindextype>(u)->device();
-  realtype *dudata    = sunrajavec::extract<realtype, sunindextype>(udot)->device();
+  const realtype *udata = N_VGetDeviceArrayPointer_Raja(u);
+  realtype *dudata      = N_VGetDeviceArrayPointer_Raja(udot);
 
   const sunindextype zero = 0;
 
@@ -305,8 +305,8 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
   const realtype verdc   = data->vdcoef;
 
   /* Extract pointers to vector data */
-  const realtype *vdata = sunrajavec::extract<realtype, sunindextype>(v)->device();
-  realtype *Jvdata    = sunrajavec::extract<realtype, sunindextype>(Jv)->device();
+  const realtype *vdata = N_VGetDeviceArrayPointer_Raja(v);
+  realtype *Jvdata      = N_VGetDeviceArrayPointer_Raja(Jv);
 
   const sunindextype zero = 0;
 

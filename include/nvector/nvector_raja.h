@@ -76,7 +76,7 @@ typedef struct _N_VectorContent_Raja *N_VectorContent_Raja;
 
 /*
  * -----------------------------------------------------------------
- * PART II: functions exported by nvector_cuda
+ * PART II: functions exported by nvector_raja
  * 
  * CONSTRUCTORS:
  *    N_VNew_Raja
@@ -88,6 +88,9 @@ typedef struct _N_VectorContent_Raja *N_VectorContent_Raja;
  *    N_VDestroy_Raja
  *    N_VDestroyVectorArray_Raja
  * OTHER:
+ *    N_VGetLength_Raja
+ *    N_VGetHostArrayPointer_Raja
+ *    N_VGetDeviceArrayPointer_Raja
  *    N_VPrint_Raja
  * -----------------------------------------------------------------
  */
@@ -156,6 +159,56 @@ SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_Raja(int count, N_Vector w);
  */
 
 SUNDIALS_EXPORT void N_VDestroyVectorArray_Raja(N_Vector *vs, int count);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VGetLength_Raja
+ * -----------------------------------------------------------------
+ * This function returns the length of the vector.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT sunindextype N_VGetLength_Raja(N_Vector v);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VGetHostArrayPointer_Raja
+ * -----------------------------------------------------------------
+ * This function returns pointer to the host raw data.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT realtype *N_VGetHostArrayPointer_Raja(N_Vector v);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VGetDeviceArrayPointer_Raja
+ * -----------------------------------------------------------------
+ * This function returns pointer to the device raw data.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT realtype *N_VGetDeviceArrayPointer_Raja(N_Vector v);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VCopyTotDevice_Raja
+ * -----------------------------------------------------------------
+ * This function copies host data to the device.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT void N_VCopyToDevice_Raja(N_Vector v);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VCopyTotDevice_Raja
+ * -----------------------------------------------------------------
+ * This function copies vector data from the device to the host.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT void N_VCopyFromDevice_Raja(N_Vector v);
 
 /*
  * -----------------------------------------------------------------
