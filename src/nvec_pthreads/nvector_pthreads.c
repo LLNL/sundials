@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): David J. Gardner @ LLNL
  * ----------------------------------------------------------------- 
  * Acknowledgements: This NVECTOR module is based on the NVECTOR 
@@ -23,8 +19,7 @@
  * This is the implementation file for a POSIX Threads (Pthreads)
  * implementation of the NVECTOR package using a LOCAL array of 
  * structures to pass data to threads.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -461,7 +456,7 @@ void N_VDestroy_Pthreads(N_Vector v)
  * Get storage requirement for vector
  */
 
-void N_VSpace_Pthreads(N_Vector v, sunindextype *lrw, sunindextype *liw)
+void N_VSpace_Pthreads(N_Vector v, long int *lrw, long int *liw)
 {
   *lrw = NV_LENGTH_PT(v);
   *liw = 1;

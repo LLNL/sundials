@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): Daniel R. Reynolds and Radu Serban @LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -14,8 +10,7 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS Copyright End
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #ifndef _NVECTOR_SPCPARALLEL_H
 #define _NVECTOR_SPCPARALLEL_H
@@ -43,15 +38,15 @@ extern "C" {
 struct _N_VectorContent_SpcParallel {
   int Ngrp;              /* number of variable groups               */
   int *Nspc;             /* number of species in each group         */
-  sunindextype Nx;           /* local x-mesh vector length              */
-  sunindextype Ny;           /* local y-mesh vector length              */
-  sunindextype Nz;           /* local z-mesh vector length              */
-  sunindextype NGx;          /* x-width of ghost boundary               */
-  sunindextype NGy;          /* y-width of ghost boundary               */
-  sunindextype NGz;          /* z-width of ghost boundary               */
-  sunindextype *n1;          /* local vector lengths for each group     */
-  sunindextype n;            /* local vector length                     */
-  sunindextype N;            /* global vector length                    */
+  sunindextype Nx;       /* local x-mesh vector length              */
+  sunindextype Ny;       /* local y-mesh vector length              */
+  sunindextype Nz;       /* local z-mesh vector length              */
+  sunindextype NGx;      /* x-width of ghost boundary               */
+  sunindextype NGy;      /* y-width of ghost boundary               */
+  sunindextype NGz;      /* z-width of ghost boundary               */
+  sunindextype *n1;      /* local vector lengths for each group     */
+  sunindextype n;        /* local vector length                     */
+  sunindextype N;        /* global vector length                    */
   realtype *data;        /* local data array                        */
   realtype **gdata;      /* pointers in data at start of group data */
   booleantype own_data;  /* flag for ownership of data              */
@@ -63,7 +58,7 @@ typedef struct _N_VectorContent_SpcParallel *N_VectorContent_SpcParallel;
 /*
  * -----------------------------------------------------------------
  * PART II: Macros                                              
- * --------------------------------------------------------------
+ * -----------------------------------------------------------------
  * Notes
  *
  * When looping over the components of an N_Vector v, it is
@@ -255,7 +250,7 @@ SUNDIALS_EXPORT void N_VPrint_SpcParallel(N_Vector v, char *fname);
 SUNDIALS_EXPORT N_Vector    N_VCloneEmpty_SpcParallel(N_Vector);
 SUNDIALS_EXPORT N_Vector    N_VClone_SpcParallel(N_Vector);
 SUNDIALS_EXPORT void        N_VDestroy_SpcParallel(N_Vector);
-SUNDIALS_EXPORT void        N_VSpace_SpcParallel(N_Vector, sunindextype *, sunindextype *);
+SUNDIALS_EXPORT void        N_VSpace_SpcParallel(N_Vector, long int *, long int *);
 SUNDIALS_EXPORT realtype   *N_VGetArrayPointer_SpcParallel(N_Vector);
 SUNDIALS_EXPORT void        N_VSetArrayPointer_SpcParallel(realtype *, N_Vector);
 SUNDIALS_EXPORT void        N_VLinearSum_SpcParallel(realtype, N_Vector, realtype, N_Vector, N_Vector);

@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4378 $
- * $Date: 2015-02-19 10:55:14 -0800 (Thu, 19 Feb 2015) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Jean M. Sexton @ SMU
  *                Slaven Peles @ LLNL
  * ----------------------------------------------------------------- 
@@ -47,8 +43,7 @@
  *
  *     (which stores the result of the operation a*x+b*y in y)
  *     is legal.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #ifndef _NVECTOR_PARHYP_H
 #define _NVECTOR_PARHYP_H
@@ -80,8 +75,8 @@ extern "C" {
 struct _N_VectorContent_ParHyp {
   sunindextype local_length;      /* local vector length         */
   sunindextype global_length;     /* global vector length        */
-  booleantype own_parvector;  /* ownership of HYPRE vector   */
-  MPI_Comm comm;              /* pointer to MPI communicator */
+  booleantype own_parvector;      /* ownership of HYPRE vector   */
+  MPI_Comm comm;                  /* pointer to MPI communicator */
 
   hypre_ParVector *x;   /* The actual hypre_ParVector object */
 };
@@ -196,7 +191,7 @@ SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_ParHyp(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_ParHyp(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_ParHyp(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_ParHyp(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_ParHyp(N_Vector v, sunindextype *lrw, sunindextype *liw);
+SUNDIALS_EXPORT void N_VSpace_ParHyp(N_Vector v, long int *lrw, long int *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_ParHyp(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_ParHyp(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);

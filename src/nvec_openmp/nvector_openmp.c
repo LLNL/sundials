@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): David J. Gardner and Carol S. Woodward @ LLNL
  * -----------------------------------------------------------------
  * Acknowledgements: This NVECTOR module is based on the NVECTOR 
@@ -22,8 +18,7 @@
  * -----------------------------------------------------------------
  * This is the implementation file for an OpenMP implementation
  * of the NVECTOR module.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <omp.h>
 
@@ -425,7 +420,7 @@ void N_VDestroy_OpenMP(N_Vector v)
  * Get storage requirement for N_Vector
  */
 
-void N_VSpace_OpenMP(N_Vector v, sunindextype *lrw, sunindextype *liw)
+void N_VSpace_OpenMP(N_Vector v, long int *lrw, long int *liw)
 {
   *lrw = NV_LENGTH_OMP(v);
   *liw = 1;

@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -18,8 +14,7 @@
  * -----------------------------------------------------------------
  * This is the implementation file for a parallel MPI implementation
  * of the NVECTOR package.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -439,7 +434,7 @@ void N_VDestroy_Parallel(N_Vector v)
   return;
 }
 
-void N_VSpace_Parallel(N_Vector v, sunindextype *lrw, sunindextype *liw)
+void N_VSpace_Parallel(N_Vector v, long int *lrw, long int *liw)
 {
   MPI_Comm comm;
   int npes;

@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4396 $
- * $Date: 2015-02-26 16:59:39 -0800 (Thu, 26 Feb 2015) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Jean M. Sexton @ SMU
  *                Slaven Peles @ LLNL
  * -----------------------------------------------------------------
@@ -21,8 +17,7 @@
  * -----------------------------------------------------------------
  * This is the implementation file for a parhyp MPI implementation
  * of the NVECTOR package.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -483,7 +478,7 @@ void N_VDestroy_ParHyp(N_Vector v)
 }
 
 
-void N_VSpace_ParHyp(N_Vector v, sunindextype *lrw, sunindextype *liw)
+void N_VSpace_ParHyp(N_Vector v, long int *lrw, long int *liw)
 {
   MPI_Comm comm;
   int npes;
