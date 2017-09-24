@@ -226,8 +226,8 @@ int main(void)
       printf(" \n| SPGMR |\n");
       printf(" -------\n");
 
-      /* Call SUNSPGMR to specify the linear solver SPGMR 
-	 with left preconditioning and the default Krylov dimension */
+      /* Call SUNSPGMR to specify the linear solver SPGMR with
+         left preconditioning and the default maximum Krylov dimension */
       LS = SUNSPGMR(u, PREC_LEFT, 0);
       if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
 
@@ -244,8 +244,8 @@ int main(void)
       printf(" \n| SPBCGS |\n");
       printf(" -------\n");
 
-      /* Call SUNSPBCGS to specify the linear solver SPBCGS
-	 with left preconditioning and the maximum Krylov dimension maxl */
+      /* Call SUNSPBCGS to specify the linear solver SPBCGS with
+         left preconditioning and the default maximum Krylov dimension */
       LS = SUNSPBCGS(u, PREC_LEFT, 0);
       if(check_flag((void *)LS, "SUNSPBCGS", 0)) return(1);
 
@@ -262,8 +262,8 @@ int main(void)
       printf(" \n| SPTFQMR |\n");
       printf(" ---------\n");
 
-      /* Call SUNSPTFQMR to specify the linear solver SPTFQMR 
-	 with left preconditioning and the maximum Krylov dimension maxl */
+      /* Call SUNSPTFQMR to specify the linear solver SPTFQMR with
+         left preconditioning and the default maximum Krylov dimension */
       LS = SUNSPTFQMR(u, PREC_LEFT, 0);
       if(check_flag((void *)LS, "SUNSPTFQMR", 0)) return(1);
 
