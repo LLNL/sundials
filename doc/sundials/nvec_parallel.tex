@@ -258,7 +258,7 @@ also includes a Fortran-callable function
 to initialize this {\nvecp} module.  Here \id{COMM} is the MPI communicator,
 \id{code} is an input solver id (1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol},
 4 for {\arkode}); \id{NLOCAL} and \id{NGLOBAL} are the local and global
-vector sizes, respectively (declared so as to match C type \id{sunindextype});
+vector sizes, respectively (declared so as to match C type \id{long int});
 and IER is an error return flag equal 0 for success and -1 for failure.
 {\warn}NOTE: If the header file \id{sundials\_config.h} defines
 \id{SUNDIALS\_MPI\_COMM\_F2C} to be $1$ (meaning the {\mpi}

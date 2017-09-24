@@ -223,6 +223,6 @@ module also includes a Fortran-callable function
 \id{FNVINITOMP(code, NEQ, NUMTHREADS, IER)}, to initialize this
 module.  Here \id{code} is an input solver id
 (1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol}, 4 for {\arkode}); NEQ is
-the problem size (declared so as to match C type \id{sunindextype});
+the problem size (declared so as to match C type \id{long int});
 NUMTHREADS is the number of threads; and IER is an error return flag
 equal 0 for success and -1 for failure.
