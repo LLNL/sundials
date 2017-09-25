@@ -34,7 +34,8 @@ the basic functionality of each:
   a solver for stiff and nonstiff ODE systems with sensitivity analysis capabilities;
 
 \item {\arkode},
-  a solver for ODE systems $M dy/dt = f(t,y)$ based on additive Runge-Kutta methods;
+  a solver for ODE systems $M dy/dt = f_E(t,y) + f_I(t,y)$ based on
+  additive Runge-Kutta methods; 
 
 \item {\ida},
   a solver for differential-algebraic systems $F(t,y,\dot{y}) = 0$ based on BDF methods;

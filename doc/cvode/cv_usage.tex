@@ -1834,6 +1834,14 @@ data structure, \id{user\_data}, specified through
 \id{CVodeSetUserData} (or a \id{NULL} pointer otherwise) is passed to
 the Jacobian-times-vector setup and product functions, \id{jtsetup} and
 \id{jtimes}, each time they are called.
+
+\index{CVSPILS@{\cvspils} linear solver interface!convergence test}
+Finally, as described in Section \ref{ss:ivp_sol}, the {\cvspils}
+interface requires that iterative linear solvers stop when the norm of
+the preconditioned residual is less than $0.05 \cdot (0.1 \epsilon)$,
+where $\epsilon$ is the nonlinear solver tolerance.  The user may
+adjust this linear solver tolerance by calling the function
+\id{CVSpilsSetEpsLin}.
 %%
 %%
 \ucfunction{CVSpilsSetPreconditioner}

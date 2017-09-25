@@ -189,6 +189,9 @@ SUNLINEARSOLVER\_CUSTOM      & Custom solvers     & 2 \\
 \end{tabular}
 \end{table}
 
+
+
+
 %---------------------------------------------------------------------------
 % Table of matrix kernels
 %---------------------------------------------------------------------------
@@ -202,7 +205,7 @@ SUNLINEARSOLVER\_CUSTOM      & Custom solvers     & 2 \\
 
 \tablecaption{Description of the \id{SUNLinearSolver} operations}\label{t:sunlinsolops}
 \tablehead{\hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Usage and  Description} \\[3mm] \hline\hline}
-\tabletail{\hline}
+\tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
 \begin{xtabular}{|p{\colOne}|p{\colTwo}|}
 %%
 \id{SUNLinSolGetType} & \id{type = SUNLinSolGetType(LS);} \\ 
@@ -343,6 +346,78 @@ SUNLINEARSOLVER\_CUSTOM      & Custom solvers     & 2 \\
 \bigskip
 
 
+
+%---------------------------------------------------------------------------
+% Tables listing compatibility with matrix/vector types
+%---------------------------------------------------------------------------
+
+We note that not all {\sunlinsol} types are compatible with all
+{\sunmatrix} and {\nvector} types provided with {\sundials}.  In Table 
+\ref{t:linsol-matrix} we show the direct linear solver interfaces
+available as {\sunlinsol} modules, and the compatible matrix
+implementations.  In Table \ref{t:linsol-vector} we show the
+compatibility between all {\sunlinsol} modules and vector
+implementations.
+
+\tablecaption{{\sundials} direct linear solvers and matrix
+              implementations that can be used for each.}\label{t:linsol-matrix} 
+\tablehead{\hline \multicolumn{1}{|p{2cm}|}{{Linear Solver Interface}} &
+                  \multicolumn{1}{p{1.3cm}|}{{Dense Matrix}} & 
+                  \multicolumn{1}{p{1.3cm}|}{{Banded Matrix}} & 
+                  \multicolumn{1}{p{1.4cm}|}{{Diagonal Matrix}} & 
+                  \multicolumn{1}{p{1.4cm}|}{{Sparse Matrix}} & 
+                  \multicolumn{1}{p{1.4cm}|}{{User Supplied}} \\ \hline}
+\tabletail{\hline \multicolumn{6}{|r|}{\small\slshape continued on next page} \\ \hline}
+{\renewcommand{\arraystretch}{1.2}
+\begin{xtabular}{|l|c|c|c|c|c|}
+%   Linear Solver &  Dense   & Banded & Diagonal & Sparse & User     \\
+%   Interface     &          &        &          &        & Supplied \\ 
+    Dense         &  \cm     &        &          &        & \cm      \\ 
+    Band          &          & \cm    &          &        & \cm      \\
+    Diagonal      &          &        & \cm      &        & \cm      \\ 
+    LapackDense   &  \cm     &        &          &        & \cm      \\ 
+    LapackBand    &          & \cm    &          &        & \cm      \\
+    \klu          &          &        &          &  \cm   & \cm      \\
+    \superlumt    &          &        &          &  \cm   & \cm      \\
+    User supplied &  \cm     & \cm    & \cm      &  \cm   & \cm      \\ 
+    \hline
+\end{xtabular}}
+\bigskip
+
+
+\tablecaption{{\sundials} linear solver interfaces and vector
+             implementations that can be used for each.}\label{t:linsol-vector}
+\tablehead{\hline \multicolumn{1}{|p{2cm}|}{{Linear Solver Interface}} &
+                  \multicolumn{1}{p{1.3cm}|}{{Serial}} & 
+                  \multicolumn{1}{p{1.3cm}|}{{Parallel (MPI)}} & 
+                  \multicolumn{1}{p{1.4cm}|}{{OpenMP}} & 
+                  \multicolumn{1}{p{1.4cm}|}{{pThreads}} & 
+                  \multicolumn{1}{p{1.3cm}|}{{{\hypre} Vector}} & 
+                  \multicolumn{1}{p{1.3cm}|}{{{\petsc} Vector}} & 
+                  \multicolumn{1}{p{1.4cm}|}{{User Supplied}} \\ \hline }
+\tabletail{\hline \multicolumn{8}{|r|}{\small\slshape continued on next page} \\ \hline}
+{\renewcommand{\arraystretch}{1.2}
+\begin{xtabular}{|l|c|c|c|c|c|c|c|}
+%   Linear Solver &  Serial  & Parallel  &  OpenMP  &  pThreads  & {\hypre}    & {\petsc} & User     \\
+%   Interface     &          & (MPI)     &          &            &  Vector     & Vector   & Supplied \\ 
+    Dense         &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\ 
+    Band          &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
+    Diagonal      &  \cm     & \cm       & \cm      &  \cm       & \cm         &  \cm     & \cm      \\ 
+    LapackDense   &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
+    LapackBand    &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
+    \klu          &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
+    \superlumt    &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
+    \spgmr        &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\
+    \spfgmr       &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\
+    \spbcg        &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\
+    \sptfqmr      &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\ 
+    \pcg          &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\
+    User supplied &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\ 
+    \hline
+\end{xtabular}}
+\bigskip
+
+
 %---------------------------------------------------------------------------
 % Table of linear solver error codes
 %---------------------------------------------------------------------------
@@ -359,12 +434,11 @@ SUNLINEARSOLVER\_CUSTOM      & Custom solvers     & 2 \\
 
 \tablecaption{Description of the \id{SUNLinearSolver} error codes}\label{t:sunlinsolerr}
 \tablehead{\hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Value} & {\bf Description} \\[3mm] \hline\hline}
-\tabletail{\hline}
+\tabletail{\hline \multicolumn{3}{|r|}{\small\slshape continued on next page} \\ \hline}
 \begin{xtabular}{|p{\ColumnOne}|p{\ColumnTwo}|p{\ColumnThree}|}
 %%
 \id{SUNLS\_SUCCESS} & \id{0} & successful call or converged solve
-\\[2mm]
-\hline
+\\[1mm]
 %%
 \id{SUNLS\_MEM\_NULL} & \id{-1} & the memory argument to the function is \id{NULL}
 \\[2mm]
@@ -398,7 +472,6 @@ SUNLINEARSOLVER\_CUSTOM      & Custom solvers     & 2 \\
 \id{SUNLS\_QRSOL\_FAIL} & \id{-9} & a singular $R$ matrix was
   encountered in a QR factorization ({\sunlinsolspgmr}/{\sunlinsolspfgmr})
 \\[2mm]
-\hline
 %%
 \id{SUNLS\_RES\_REDUCED} & \id{1} &  an iterative solver reduced the
   residual, but did not converge to the desired tolerance

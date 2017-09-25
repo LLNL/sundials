@@ -132,7 +132,7 @@ SUNMATRIX\_CUSTOM     & User-provided custom matrix                       & 4 \\
 
 \tablecaption{Description of the \id{SUNMatrix} operations}\label{t:sunmatops}
 \tablehead{\hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Usage and  Description} \\[3mm] \hline\hline}
-\tabletail{\hline}
+\tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
 \begin{xtabular}{|p{\ColOne}|p{\ColTwo}|}
 %%
 \id{SUNMatGetID} & \id{id = SUNMatGetID(A);} \\ 
@@ -196,6 +196,46 @@ the matrix \id{A} -- both in storage type and dimensions.
 %%
 \end{xtabular}
 \bigskip
+
+We note that not all {\sunmatrix} types are compatible with all
+{\nvector} types provided with {\sundials}.  This is primarily due to
+the need for compatibility within the \id{SUNMatMatvec} routine;
+however, compatibility between {\sunmatrix} and {\nvector}
+implementations is more crucial when considering their interaction
+within {\sunlinsol} objects, as will be described in more detail in
+Chapter \ref{s:sunlinsol}.  More specifically, in Table 
+\ref{t:matrix-vector} we show the matrix interfaces available as
+{\sunmatrix} modules, and the compatible vector implementations.
+
+\begin{table}[htb]
+  %\xentrystretch{2.5}
+  \centering
+    \caption{{\sundials} matrix interfaces and vector 
+             implementations that can be used for each.}
+    \medskip
+    \tablefirsthead{\hline \multicolumn{1}{|p{2cm}|}{{Matrix Interface}} &
+                           \multicolumn{1}{p{1.3cm}|}{{Serial}} & 
+                           \multicolumn{1}{p{1.3cm}|}{{Parallel (MPI)}} & 
+                           \multicolumn{1}{p{1.4cm}|}{{OpenMP}} & 
+                           \multicolumn{1}{p{1.4cm}|}{{pThreads}} & 
+                           \multicolumn{1}{p{1.3cm}|}{{{\hypre} Vector}} & 
+                           \multicolumn{1}{p{1.3cm}|}{{{\petsc} Vector}} & 
+                           \multicolumn{1}{p{1.4cm}|}{{User Supplied}} \\ \hline }
+    {\renewcommand{\arraystretch}{1.2}
+    \begin{xtabular}{|l|c|c|c|c|c|c|c|}
+%   Matrix        &  Serial  & Parallel  &  OpenMP  &  pThreads  & {\hypre}    & {\petsc} & User     \\
+%   Interface     &          & (MPI)     &          &            &  Vector     & Vector   & Supplied \\ 
+    Dense         &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\ 
+    Band          &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
+    Diagonal      &  \cm     & \cm       & \cm      &  \cm       & \cm         &  \cm     & \cm      \\ 
+    Sparse        &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
+    User supplied &  \cm     & \cm       & \cm      &  \cm       & \cm         &  \cm     & \cm      \\ 
+    \hline
+    \end{xtabular}
+    }
+    \label{t:matrix-vector}
+\end{table}
+
 
 %---------------------------------------------------------------------------
 \section{The SUNMatrix\_Dense implementation}\label{ss:sunmat_dense}

@@ -204,6 +204,9 @@ of convergence failures; the default value of this limit is 10,
 but this can be changed by the user.
 \index{nonlinear system!Newton convergence test|)}
 
+% Linear convergence test
+%------------------------
+\index{linear system!convergence test|(}
 When a Krylov method is used to solve the linear system, its errors must also be
 controlled, and this also involves the local error test constant.  The
 linear iteration error in the solution vector $\delta_m$ is
@@ -211,7 +214,10 @@ approximated by the preconditioned residual vector.  Thus to ensure
 (or attempt to ensure) that the linear iteration errors do not
 interfere with the nonlinear error and local integration error
 controls, we require that the norm of the preconditioned residual
-be less than $0.05 \cdot (0.1 \epsilon)$.
+be less than $0.05 \cdot (0.1 \epsilon)$.  For highly nonlinear
+problems, it may be necessary to solve these linear systems to a
+tighter tolerance, so the value of $0.05$ may be changed by the user.
+\index{linear system!convergence test|)}
 
 % Jacobian DQ approximations
 %---------------------------
