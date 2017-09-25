@@ -159,10 +159,6 @@ SUNDIALS_EXPORT int CVDlsSetLinearSolver(void *cvode_mem,
   between Jacobian evaluations.  A negative value indicates to use
   the default.
  
-  CVDlsSetDGMax specifies the maximum change in gamma between 
-  Jacobian evaluations.  A negative value indicates to use the 
-  default.
- 
   The return value is one of:
      CVDLS_SUCCESS   if successful
      CVDLS_MEM_NULL  if the CVODE memory was NULL
@@ -170,7 +166,6 @@ SUNDIALS_EXPORT int CVDlsSetLinearSolver(void *cvode_mem,
   -----------------------------------------------------------------*/
 SUNDIALS_EXPORT int CVDlsSetJacFn(void *cvode_mem, CVDlsJacFn jac);
 SUNDIALS_EXPORT int CVDlsSetMSBJ(void *cvode_mem, int msbj);
-SUNDIALS_EXPORT int CVDlsSetDGMax(void *cvode_mem, realtype dgmax);
 
 
 /*-----------------------------------------------------------------
@@ -275,10 +270,6 @@ SUNDIALS_EXPORT int CVDlsSetLinearSolverB(void *cvode_mem,
   between Jacobian evaluations for the backward integration phase.  
   A negative value indicates to use the default.
  
-  CVDlsSetDGMax specifies the maximum change in gamma between 
-  Jacobian evaluations for the backward integration phase.  A 
-  negative value indicates to use the default.
-
   The 'which' argument is the int returned by CVodeCreateB.
  
   The return value is one of:
@@ -292,8 +283,6 @@ SUNDIALS_EXPORT int CVDlsSetJacFnBS(void *cvode_mem, int which,
                                     CVDlsJacFnBS jacBS);
 SUNDIALS_EXPORT int CVDlsSetMSBJB(void *cvode_mem, int which,
                                   int msbj);
-SUNDIALS_EXPORT int CVDlsSetDGMaxB(void *cvode_mem, int which,
-                                   realtype dgmax);
 
 #ifdef __cplusplus
 }

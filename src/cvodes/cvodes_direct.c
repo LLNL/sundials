@@ -131,7 +131,6 @@ int CVDlsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   cvdls_mem->J_data = cv_mem;
   cvdls_mem->last_flag = CVDLS_SUCCESS;
   cvdls_mem->msbj = CVD_MSBJ;
-  cvdls_mem->dgmax = CVD_DGMAX;
 
   /* Initialize counters */
   cvDlsInitializeCounters(cvdls_mem);
@@ -226,36 +225,11 @@ int CVDlsSetMSBJ(void *cvode_mem, int msbj)
     cvdls_mem->msbj = msbj;
   }
 
-  return(CVDLS_SUCCESS);
-}
-
-
-/* CVDlsSetDGMax specifies the dgmax parameter. */
-int CVDlsSetDGMax(void *cvode_mem, realtype dgmax)
-{
-  CVodeMem cv_mem;
-  CVDlsMem cvdls_mem;
-
-  /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
-  if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVDLS_MEM_NULL, "CVSDLS",
-                   "CVDlsSetDGMax", MSGD_CVMEM_NULL);
-    return(CVDLS_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-  if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVDLS_LMEM_NULL, "CVSDLS",
-                   "CVDlsSetDGMax", MSGD_LMEM_NULL);
-    return(CVDLS_LMEM_NULL);
-  }
-  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
-
-  if (dgmax < ZERO) {
-    cvdls_mem->dgmax = CVD_DGMAX;
-  } else {
-    cvdls_mem->dgmax = dgmax;
-  }
-
+  /* overwrite main integrator lsetup frequency if necessary 
+     to support msbj input */
+  if (cvdls_mem->msbj < cv_mem->cv_msbp)
+    cv_mem->cv_msbp = cvdls_mem->msbj;
+  
   return(CVDLS_SUCCESS);
 }
 
@@ -767,7 +741,7 @@ int cvDlsSetup(CVodeMem cv_mem, int convfail, N_Vector y,
   dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
   jbad = (cv_mem->cv_nst == 0) || 
     (cv_mem->cv_nst > cvdls_mem->nstlj + cvdls_mem->msbj) ||
-    ((convfail == CV_FAIL_BAD_J) && (dgamma < cvdls_mem->dgmax)) ||
+    ((convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
     (convfail == CV_FAIL_OTHER);
   jok = !jbad;
  
@@ -1180,63 +1154,6 @@ int CVDlsSetMSBJB(void *cvode_mem, int which, int msbj)
     flag = CVDlsSetMSBJ(cvodeB_mem, CVD_MSBJ);
   } else {
     flag = CVDlsSetMSBJ(cvodeB_mem, msbj);
-  }
-
-  return(flag);
-}
-
-int CVDlsSetDGMaxB(void *cvode_mem, int which, realtype dgmax)
-{
-  CVodeMem cv_mem;
-  CVadjMem ca_mem;
-  CVodeBMem cvB_mem;
-  CVDlsMemB cvdlsB_mem;
-  void *cvodeB_mem;
-  int flag;
-
-  /* Check if cvode_mem exists */
-  if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVDLS_MEM_NULL, "CVSDLS",
-                   "CVDlsSetDGMaxB", MSGD_CVMEM_NULL);
-    return(CVDLS_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
-    cvProcessError(cv_mem, CVDLS_NO_ADJ, "CVSDLS",
-                   "CVDlsSetDGMaxB", MSGD_NO_ADJ);
-    return(CVDLS_NO_ADJ);
-  } 
-  ca_mem = cv_mem->cv_adj_mem;
-
-  /* Check which */
-  if ( which >= ca_mem->ca_nbckpbs ) {
-    cvProcessError(cv_mem, CVDLS_ILL_INPUT, "CVSDLS",
-                   "CVDlsSetDGMaxB", MSGD_BAD_WHICH);
-    return(CVDLS_ILL_INPUT);
-  }
-
-  /* Find the CVodeBMem entry in the linked list corresponding to which */
-  cvB_mem = ca_mem->cvB_mem;
-  while (cvB_mem != NULL) {
-    if ( which == cvB_mem->cv_index ) break;
-    cvB_mem = cvB_mem->cv_next;
-  }
-
-  cvodeB_mem = (void *) (cvB_mem->cv_mem);
-
-  if (cvB_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVDLS_LMEMB_NULL, "CVSDLS",
-                   "CVDlsSetDGMaxB", MSGD_LMEMB_NULL);
-    return(CVDLS_LMEMB_NULL);
-  }
-  cvdlsB_mem = (CVDlsMemB) (cvB_mem->cv_lmem);
-
-  if (dgmax < ZERO) {
-    flag = CVDlsSetDGMax(cvodeB_mem, CVD_DGMAX);
-  } else {
-    flag = CVDlsSetDGMax(cvodeB_mem, dgmax);
   }
 
   return(flag);
