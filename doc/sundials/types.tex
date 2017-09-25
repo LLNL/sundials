@@ -62,3 +62,13 @@ respectively, to ensure use of the desired sizes on Linux, Mac OS X and Windows
 platforms. {\sundials} currently does not support \emph{unsigned} integer types 
 for vector and matrix indices, although these could be added in the future if there 
 is sufficient demand.
+
+A user program which uses \id{sunindextype} to handle vector and matrix indices
+will work with both index storage types except for any calls to index storage-specific
+external libraries. (Our \id{C} and \id{C++} example programs use \id{sunindextype}.)
+Users can, however, use any one of \id{int}, \id{long int}, \id{int32\_t}, \id{int64\_t} or
+\id{long long int} in their code, assuming that this usage is consistent with the typedef
+for \id{sunindextype} on their architecture). Thus, a previously existing piece of ANSI
+{\CC} code can use {\sundials} without modifying the code to use \id{sunindextype},
+so long as the {\sundials} libraries use the appropriate index storage type (for details
+see \S\ref{ss:configuration_options_nix}).
