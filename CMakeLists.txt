@@ -211,18 +211,10 @@ SHOW_VARIABLE(FCMIX_ENABLE BOOL "${DOCSTR}" OFF)
 # Check that at least one solver with a Fortran interface is built
 IF(NOT BUILD_ARKODE AND NOT BUILD_CVODE AND NOT BUILD_IDA AND NOT BUILD_KINSOL)
   IF(FCMIX_ENABLE)
-    PRINT_WARNING("Enabled packages do not support Fortran" "Disabeling FCMIX")
+    PRINT_WARNING("Enabled packages do not support Fortran" "Disabling FCMIX")
     FORCE_VARIABLE(FCMIX_ENABLE BOOL "${DOCSTR}" OFF)
   ENDIF()
   HIDE_VARIABLE(FCMIX_ENABLE)
-ENDIF()
-
-# Fortran interface does not support single or extended precision
-IF(FCMIX_ENABLE AND
-  (SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE"))
-  PRINT_WARNING("The Fortran interface is not compatible with ${SUNDIALS_PRECISION} precision"
-                "Disabling FCMIX")
-  SET(FCMIX_ENABLE OFF CACHE BOOL "FCMIX is disabled" FORCE)
 ENDIF()
 
 # ---------------------------------------------------------------
@@ -345,7 +337,7 @@ OPTION(LAPACK_ENABLE "Enable Lapack support" OFF)
 IF(LAPACK_ENABLE AND SUNDIALS_PRECISION MATCHES "EXTENDED")
   PRINT_WARNING("LAPACK is not compatible with ${SUNDIALS_PRECISION} precision"
                 "Disabling LAPACK")
-  SET(LAPACK_ENABLE OFF CACHE BOOL "LAPACK is disabled" FORCE)
+  FORCE_VARIABLE(LAPACK_ENABLE BOOL "LAPACK is disabled" OFF)
 ENDIF()
 
 # LAPACK does not support 64-bit integer index types
@@ -364,7 +356,7 @@ OPTION(SUPERLUMT_ENABLE "Enable SUPERLUMT support" OFF)
 IF(SUPERLUMT_ENABLE AND SUNDIALS_PRECISION MATCHES "EXTENDED")
   PRINT_WARNING("SuperLU_MT is not compatible with ${SUNDIALS_PRECISION} precision"
                 "Disabling SuperLU_MT")
-  SET(SUPERLUMT_ENABLE OFF CACHE BOOL "SuperLU_MT is disabled" FORCE)
+  FORCE_VARIABLE(SUPERLUMT_ENABLE BOOL "SuperLU_MT is disabled" OFF)
 ENDIF()
 
 # ---------------------------------------------------------------
@@ -377,7 +369,7 @@ IF(KLU_ENABLE AND
   (SUNDIALS_PRECISION MATCHES "SINGLE" OR SUNDIALS_PRECISION MATCHES "EXTENDED"))
   PRINT_WARNING("KLU is not compatible with ${SUNDIALS_PRECISION} precision"
                 "Disabling KLU")
-  SET(KLU_ENABLE OFF CACHE BOOL "KLU is disabled" FORCE)
+  FORCE_VARIABLE(KLU_ENABLE BOOL "KLU is disabled" OFF)
 ENDIF()
 
 # ---------------------------------------------------------------
@@ -390,12 +382,12 @@ IF(HYPRE_ENABLE AND
   (SUNDIALS_PRECISION MATCHES "SINGLE" OR SUNDIALS_PRECISION MATCHES "EXTENDED"))
   PRINT_WARNING("hypre is not compatible with ${SUNDIALS_PRECISION} precision"
                 "Disabling hypre")
-  SET(HYPRE_ENABLE OFF CACHE BOOL "hypre is disabled" FORCE)
+  FORCE_VARIABLE(HYPRE_ENABLE BOOL "hypre is disabled" OFF)
 ENDIF()
 
 # Using hypre requres building with MPI enabled
 IF(HYPRE_ENABLE AND NOT MPI_ENABLE)
-  PRINT_WARNING("MPI not enabled - Disabling hyper" 
+  PRINT_WARNING("MPI not enabled - Disabling hypre" 
                 "Set MPI_ENABLE to ON to use parhyp")
   FORCE_VARIABLE(HYPRE_ENABLE BOOL "Enable hypre support" OFF)
 ENDIF()
@@ -429,11 +421,17 @@ OPTION(EXAMPLES_ENABLE_C "Build SUNDIALS C examples" ON)
 SET(DOCSTR "Build SUNDIALS Fortran examples")
 IF(FCMIX_ENABLE)
   OPTION(EXAMPLES_ENABLE_F77 "${DOCSTR}" ON)
+  # Fortran examples do not support single or extended precision
+  IF(SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE")
+    PRINT_WARNING("F77 examples are not compatible with ${SUNDIALS_PRECISION} precision"
+                  "EXAMPLES_ENABLE_F77")
+    FORCE_VARIABLE(EXAMPLES_ENABLE_F77 BOOL "Fortran examples are disabled" OFF)
+  ENDIF()
 ELSE()
   # set back to OFF (in case was ON)
   IF(EXAMPLES_ENABLE_F77)
     PRINT_WARNING("EXAMPLES_ENABLE_F77 is ON but FCMIX is OFF"
-                  "Disabeling EXAMPLES_ENABLE_F77")
+                  "Disabling EXAMPLES_ENABLE_F77")
     FORCE_VARIABLE(EXAMPLES_ENABLE_F77 BOOL "${DOCSTR}" OFF)
   ENDIF()
   HIDE_VARIABLE(EXAMPLES_ENABLE_F77)
@@ -448,7 +446,7 @@ ELSE()
   # set back to OFF (in case was ON)
   IF(EXAMPLES_ENABLE_CXX)
     PRINT_WARNING("EXAMPLES_ENABLE_CXX is ON but BUILD_ARKODE is OFF"
-                  "Disabeling EXAMPLES_ENABLE_CXX")
+                  "Disabling EXAMPLES_ENABLE_CXX")
     FORCE_VARIABLE(EXAMPLES_ENABLE_CXX BOOL "${DOCSTR}" OFF)
   ENDIF()
   HIDE_VARIABLE(EXAMPLES_ENABLE_CXX)
@@ -459,11 +457,18 @@ ENDIF()
 SET(DOCSTR "Build ARKode F90 examples")
 IF(FCMIX_ENABLE AND BUILD_ARKODE)
   SHOW_VARIABLE(EXAMPLES_ENABLE_F90 BOOL "${DOCSTR}" OFF)
+  # Fortran90 examples do not support single or extended precision 
+  # NOTE: This check can be removed after Fortran configure file is integrated into examples
+  IF(SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE")
+    PRINT_WARNING("F90 examples are not compatible with ${SUNDIALS_PRECISION} precision"
+                  "EXAMPLES_ENABLE_F90")
+    FORCE_VARIABLE(EXAMPLES_ENABLE_F90 BOOL "Fortran90 examples are disabled" OFF)
+  ENDIF()
 ELSE()
   # set back to OFF (in case was ON)
   IF(EXAMPLES_ENABLE_F90)
     PRINT_WARNING("EXAMPLES_ENABLE_F90 is ON but FCMIX or BUILD_ARKODE is OFF"
-                  "Disabeling EXAMPLES_ENABLE_F90")
+                  "Disabling EXAMPLES_ENABLE_F90")
     FORCE_VARIABLE(EXAMPLES_ENABLE_F90 BOOL "${DOCSTR}" OFF)
   ENDIF()
   HIDE_VARIABLE(EXAMPLES_ENABLE_F90)
@@ -492,7 +497,7 @@ IF(EXAMPLES_ENABLED)
     SET(LINK_LIBRARY_TYPE "static")
   ENDIF(BUILD_SHARED_LIBS)
 
-  # Enabel installing examples by default
+  # Enable installing examples by default
   SHOW_VARIABLE(EXAMPLES_INSTALL BOOL "Install example files" ON)
 
   # If examples are to be exported, check where we should install them.
