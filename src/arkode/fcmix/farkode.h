@@ -104,7 +104,6 @@
    FARKBANDSETJAC             ARKDlsSetJacFn
    FARKSPARSESETJAC           ARKDlsSetJacFn
    FARKDLSSETMSBJ             ARKDlsSetMSBJ
-   FARKDLSSETDGMAX            ARKDlsSetDGMax
 
    FARKDLSMASSINIT            ARKDlsSetMassLinearSolver
    FARKDENSESETMASS           ARKDlsSetMassFn
@@ -1651,7 +1650,6 @@ extern "C" {
 #define FARK_STOPDIAGNOSTICS     SUNDIALS_F77_FUNC(farkstopdiagnostics,     FARKSTOPDIAGNOSTICS)
 #define FARK_DLSINIT             SUNDIALS_F77_FUNC(farkdlsinit,             FARKDLSINIT)
 #define FARK_DLSMASSINIT         SUNDIALS_F77_FUNC(farkdlsmassinit,         FARKDLSMASSINIT)
-#define FARK_DLSSETDGMAX         SUNDIALS_F77_FUNC(farkdlssetdgmax,         FARKDLSSETDGMAX)
 #define FARK_DLSSETMSBJ          SUNDIALS_F77_FUNC(farkdlssetmsbj,          FARKDLSSETMSBJ)
 #define FARK_SPILSINIT           SUNDIALS_F77_FUNC(farkspilsinit,           FARKSPILSINIT)
 #define FARK_SPILSSETEPSLIN      SUNDIALS_F77_FUNC(farkspilssetepslin,      FARKSPILSSETEPSLIN)
@@ -1733,7 +1731,6 @@ extern "C" {
 #define FARK_STOPDIAGNOSTICS     farkstopdiagnostics_
 #define FARK_DLSINIT             farkdlsinit_
 #define FARK_DLSMASSINIT         farkdlsmassinit_
-#define FARK_DLSSETDGMAX         farkdlssetdgmax_
 #define FARK_DLSSETMSBJ          farkdlssetmsbj_
 #define FARK_SPILSINIT           farkspilsinit_
 #define FARK_SPILSSETEPSLIN      farkspilssetepslin_
@@ -1840,7 +1837,6 @@ extern "C" {
 
   void FARK_DLSINIT(int *ier);
   void FARK_DLSMASSINIT(int *time_dep, int *ier);
-  void FARK_DLSSETDGMAX(realtype *dgmax, int *ier);
   void FARK_DLSSETMSBJ(int *msbj, int *ier);
 
   void FARK_SPILSINIT(int *ier);

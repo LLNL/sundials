@@ -67,8 +67,6 @@ typedef struct ARKDlsMemRec {
   
   int msbj;             /* max num steps between Jacobian evaluations   */
 
-  realtype dgmax;       /* max change in gamma between Jacobian evals   */
-  
 } *ARKDlsMem;
 
 
