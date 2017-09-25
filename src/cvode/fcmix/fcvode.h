@@ -77,7 +77,6 @@
  *   FCVDIAGSETJAC              CVDlsSetJacFn
  *   FCVSPARSESETJAC            CVDlsSetJacFn
  *   FCVDLSSETMSBJ              CVDlsSetMSBJ
- *   FCVDLSSETDGMAX             CVDlsSetDGMax
  *
  *   FCVSPILSINIT               CVSpilsSetLinearSolver
  *   FCVSPILSSETEPSLIN          CVSpilsSetEpsLin
@@ -943,7 +942,6 @@ extern "C" {
 #define FCV_SETRIN         SUNDIALS_F77_FUNC(fcvsetrin, FCVSETRIN)
 #define FCV_EWTSET         SUNDIALS_F77_FUNC(fcvewtset, FCVEWTSET)
 #define FCV_DLSINIT        SUNDIALS_F77_FUNC(fcvdlsinit, FCVDLSINIT)
-#define FCV_DLSSETDGMAX    SUNDIALS_F77_FUNC(fcvdlssetdgmax, FCVDLSSETDGMAX)
 #define FCV_DLSSETMSBJ     SUNDIALS_F77_FUNC(fcvdlssetmsbj, FCVDLSSETMSBJ)
 #define FCV_DENSESETJAC    SUNDIALS_F77_FUNC(fcvdensesetjac, FCVDENSESETJAC)
 #define FCV_BANDSETJAC     SUNDIALS_F77_FUNC(fcvbandsetjac, FCVBANDSETJAC)
@@ -976,7 +974,6 @@ extern "C" {
 #define FCV_SETRIN         fcvsetrin_
 #define FCV_EWTSET         fcvewtset_
 #define FCV_DLSINIT        fcvdlsinit_
-#define FCV_DLSSETDGMAX    fcvdlssetdgmax_
 #define FCV_DLSSETMSBJ     fcvdlssetmsbj_
 #define FCV_DENSESETJAC    fcvdensesetjac_
 #define FCV_BANDSETJAC     fcvbandsetjac_
@@ -1030,7 +1027,6 @@ extern "C" {
   void FCV_EWTSET(int *flag, int *ier);
 
   void FCV_DLSINIT(int *ier);
-  void FCV_DLSSETDGMAX(realtype *dgmax, int *ier);
   void FCV_DLSSETMSBJ(int *msbj, int *ier);
   void FCV_DENSESETJAC(int *flag, int *ier);
   void FCV_BANDSETJAC(int *flag, int *ier);

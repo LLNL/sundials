@@ -160,6 +160,7 @@ typedef struct CVodeMemRec {
                            user that t + h == t for the next internal step    */
   int cv_maxnef;        /* maximum number of error test failures              */
   int cv_maxncf;        /* maximum number of nonlinear convergence failures   */
+  int cv_msbp;          /* max no. of steps between lsetup calls              */
 
   realtype cv_hmin;     /* |h| >= hmin                                        */
   realtype cv_hmax_inv; /* |h| <= 1/hmax_inv                                  */

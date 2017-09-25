@@ -1080,7 +1080,6 @@ Disable rootfinding warnings & \id{CVodeSetNoInactiveRootWarn} & none \\
 \hline
 Jacobian function & \id{CVDlsSetJacFn} & DQ\\
 Maximum no. of steps between Jacobian updates & \id{CVDlsSetMSBJ} & 50\\
-Maximum change in $\gamma$ between Jacobian updates & \id{CVDlsSetDGMax} & 0.2\\
 \hline
 \multicolumn{3}{|c|}{\bf CVSPILS linear solver interface} \\
 \hline
@@ -1711,9 +1710,7 @@ satisfying $|\gamma/\bar{\gamma} - 1| < 0.2$.  These default values of
 50 and 0.2 may be tuned for specific problems.
 To update the time step frequency for updating $J$, {\cvdls} provides 
 \index{Jacobian approximation update!MSBJ}
-the function \id{CVDlsSetMSBJ}.
-Similarly, to update the threshold on $|\gamma/\bar{\gamma} - 1|$,
-{\cvdls} provides
+the function \id{CVDlsSetMSBJ}.  
 %%
 \index{Jacobian approximation update!MSBJ}
 \ucfunction{CVDlsSetMSBJ}
@@ -1746,43 +1743,12 @@ Similarly, to update the threshold on $|\gamma/\bar{\gamma} - 1|$,
 {
   If a negative value for \id{msbj} is supplied, the default value of
   50 will be used.
+
+  If a value less than 20 is input, this will also override the
+  default frequency at which the Newton matrix $M$ is reconstructed
+  and factored.
 }
 %%
-\index{Jacobian approximation update!DGMax}
-the function \id{CVDlsSetDGMax}.
-%%
-\index{Jacobian approximation update!DGMax}
-\ucfunction{CVDlsSetDGMax}
-{
-  flag = CVDlsSetDGMax(cvode\_mem, dgmax);
-}
-{
-  The function \ID{CVDlsSetDGMax} specifies the threshold on the
-  change in $\gamma$ to force a Jacobian update.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[dgmax] (\id{realtype})
-    threshold on change in $\gamma$.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}
-  \item[\Id{CVDLS\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{CVDLS\_MEM\_NULL}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVDLS\_LMEM\_NULL}]
-    The {\cvdls} linear solver interface has not been initialized.
-  \end{args}
-}
-{
-  If a negative value for \id{dgmax} is supplied, the default value of
-  0.2 will be used.
-}
 \index{optional input!direct linear solver interface|)}
 \index{CVDLS@{\cvdls} linear solver interface!optional input|)}
 

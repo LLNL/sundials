@@ -142,10 +142,6 @@ SUNDIALS_EXPORT int CVDlsSetLinearSolver(void *cvode_mem,
   between Jacobian evaluations.  A negative value indicates to use
   the default.
  
-  CVDlsSetDGMax specifies the maximum change in gamma between 
-  Jacobian evaluations.  A negative value indicates to use the 
-  default.
- 
   The return value is one of:
      CVDLS_SUCCESS   if successful
      CVDLS_MEM_NULL  if the CVODE memory was NULL
@@ -153,7 +149,6 @@ SUNDIALS_EXPORT int CVDlsSetLinearSolver(void *cvode_mem,
   -----------------------------------------------------------------*/
 SUNDIALS_EXPORT int CVDlsSetJacFn(void *cvode_mem, CVDlsJacFn jac);
 SUNDIALS_EXPORT int CVDlsSetMSBJ(void *cvode_mem, int msbj);
-SUNDIALS_EXPORT int CVDlsSetDGMax(void *cvode_mem, realtype dgmax);
 
 /*-----------------------------------------------------------------
   Optional outputs from the CVDLS linear solver interface
