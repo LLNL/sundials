@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision$
-# $Date$
-# ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -23,18 +20,18 @@
 # Add variable IDAS_examples with the names of the serial IDAS examples
 
 SET(IDAS_examples
-  idasAkzoNob_ASAi_dns
+  # idasAkzoNob_ASAi_dns
   idasAkzoNob_dns
   idasFoodWeb_bnd
   idasHeat2D_bnd
   idasHeat2D_kry
-  idasHessian_ASA_FSA
+  # idasHessian_ASA_FSA
   idasKrylovDemo_ls
-  idasRoberts_ASAi_dns
+  # idasRoberts_ASAi_dns
   idasRoberts_dns
-  "idasRoberts_FSA_dns\;-sensi stg t"
+  # "idasRoberts_FSA_dns\;-sensi stg t"
   idasSlCrank_dns
-  idasSlCrank_FSA_dns
+  # idasSlCrank_FSA_dns
   )
 
 # Add variable IDAS_examples_BL with the names of the serial IDAS examples
@@ -45,14 +42,14 @@ SET(IDAS_examples_BL
   
 SET(IDAS_examples_SUPERLUMT
   idasRoberts_sps
-  idasRoberts_ASAi_sps
-  "idasRoberts_FSA_sps\;-sensi stg t"
+  # idasRoberts_ASAi_sps
+  # "idasRoberts_FSA_sps\;-sensi stg t"
   )
 
 SET(IDAS_examples_KLU
   idasRoberts_klu
-  idasRoberts_ASAi_klu
-  "idasRoberts_FSA_klu\;-sensi stg t"
+  # idasRoberts_ASAi_klu
+  # "idasRoberts_FSA_klu\;-sensi stg t"
   )
 
 # Specify libraries to link against (through the target that was used to 

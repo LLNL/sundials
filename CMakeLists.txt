@@ -1263,7 +1263,7 @@ IF(EXAMPLES_ENABLE)
 
   # add IDAS examples
   IF(BUILD_IDAS)
-    #ADD_SUBDIRECTORY(examples/idas/serial)
+    ADD_SUBDIRECTORY(examples/idas/serial)
     IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/idas/C_openmp)
     ENDIF(OPENMP_FOUND)
