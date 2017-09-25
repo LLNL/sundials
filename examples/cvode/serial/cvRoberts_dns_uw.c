@@ -22,8 +22,7 @@
  * required for the WRMS norm calculations.
  * Output is printed in decades from t = .4 to t = 4.e10.
  * Run statistics (optional outputs) are printed at the end.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 
@@ -77,7 +76,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 static int g(realtype t, N_Vector y, realtype *gout, void *user_data);
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, 
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 static int ewt(N_Vector y, N_Vector w, void *user_data);
@@ -189,7 +188,7 @@ int main()
   PrintFinalStats(cvode_mem);
 
   /* Free y vector */
-  N_VDestroy_Serial(y);
+  N_VDestroy(y);
 
   /* Free integrator memory */
   CVodeFree(&cvode_mem);

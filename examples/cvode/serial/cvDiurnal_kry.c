@@ -1,5 +1,4 @@
-/*
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -26,8 +25,7 @@
  * preconditioner. A copy of the block-diagonal part of the
  * Jacobian is saved and conditionally reused within the Precond
  * routine.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -96,7 +94,7 @@
    IJKth(vdata,i,j,k) references the element in the vdata array for
    species i at mesh point (j,k), where 1 <= i <= NUM_SPECIES,
    0 <= j <= MX-1, 0 <= k <= MY-1. The vdata array is obtained via
-   the call vdata = N_VGetArrayPointer_Serial(v), where v is an N_Vector. 
+   the call vdata = N_VGetArrayPointer(v), where v is an N_Vector. 
    For each mesh point (j,k), the elements for species i and i+1 are
    contiguous within vdata.
 
@@ -195,7 +193,7 @@ int main()
   if (check_flag(&flag, "CVodeSStolerances", 1)) return(1);
 
   /* Call SUNSPGMR to specify the linear solver SUNSPGMR 
-   * with left preconditioning and the maximum Krylov dimension maxl */
+   * with left preconditioning and the default Krylov dimension */
   LS = SUNSPGMR(u, PREC_LEFT, 0);
   if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
 
@@ -222,7 +220,7 @@ int main()
   PrintFinalStats(cvode_mem);
 
   /* Free memory */
-  N_VDestroy_Serial(u);
+  N_VDestroy(u);
   FreeUserData(data);
   CVodeFree(&cvode_mem);
   SUNLinSolFree(LS);
@@ -295,7 +293,7 @@ static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy)
 
   /* Set pointer to data array in vector u. */
 
-  udata = N_VGetArrayPointer_Serial(u);
+  udata = N_VGetArrayPointer(u);
 
   /* Load initial profiles of c1 and c2 into u vector */
 
@@ -322,7 +320,7 @@ static void PrintOutput(void *cvode_mem, N_Vector u, realtype t)
   realtype hu, *udata;
   int mxh = MX/2 - 1, myh = MY/2 - 1, mx1 = MX - 1, my1 = MY - 1;
 
-  udata = N_VGetArrayPointer_Serial(u);
+  udata = N_VGetArrayPointer(u);
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);
   check_flag(&flag, "CVodeGetNumSteps", 1);
@@ -457,9 +455,9 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   int jx, jy, idn, iup, ileft, iright;
   UserData data;
 
-  data = (UserData) user_data;
-  udata = N_VGetArrayPointer_Serial(u);
-  dudata = N_VGetArrayPointer_Serial(udot);
+  data   = (UserData) user_data;
+  udata  = N_VGetArrayPointer(u);
+  dudata = N_VGetArrayPointer(udot);
 
   /* Set diurnal rate coefficients. */
 
@@ -556,9 +554,9 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
   data = (UserData) user_data;
 
-  udata = N_VGetArrayPointer_Serial(u);
-  vdata = N_VGetArrayPointer_Serial(v);
-  Jvdata = N_VGetArrayPointer_Serial(Jv);
+  udata  = N_VGetArrayPointer(u);
+  vdata  = N_VGetArrayPointer(v);
+  Jvdata = N_VGetArrayPointer(Jv);
 
   /* Set diurnal rate coefficients. */
 
@@ -703,7 +701,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
   P = data->P;
   Jbd = data->Jbd;
   pivot = data->pivot;
-  udata = N_VGetArrayPointer_Serial(u);
+  udata = N_VGetArrayPointer(u);
   
   if (jok) {
     
@@ -788,7 +786,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu, N_Vector r, N_Vector z,
   data = (UserData) user_data;
   P = data->P;
   pivot = data->pivot;
-  zdata = N_VGetArrayPointer_Serial(z);
+  zdata = N_VGetArrayPointer(z);
   
   N_VScale(ONE, r, z);
   

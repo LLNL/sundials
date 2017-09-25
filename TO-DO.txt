@@ -2,7 +2,6 @@
    - IDA serial
    - IDAS serial
    - CVODES serial
-   - KINSOL
 
 2. Update documentation on Dls and Spils interfaces for all
    integrators.  [CVODE is finished]

@@ -3,9 +3,10 @@
 %%
 
 The {\superlumt} implementation of the {\sunlinsol} module provided with
-{\sundials}, {\sunlinsolslumt}, is designed to be used with the
+{\sundials},\\
+\noindent{\sunlinsolslumt}, is designed to be used with the
 corresponding {\sunmatsparse} matrix type, and one of the serial or
-shared-memory {\nvector} implementations ({\nvecs}, {\nvecopenmp} or 
+shared-memory {\nvector} implementations ({\nvecs}, {\nvecopenmp}, or 
 {\nvecpthreads}).  While these are compatible, it is not recommended
 to use a threaded vector module with {\sunlinsolslumt} unless it is
 the {\nvecopenmp} module and the {\superlumt} library has also been
@@ -33,14 +34,14 @@ information:
   \item[last\_flag] - last error return flag from internal function evaluations,
   \item[first\_factorize] - flag indicating whether the factorization
     has ever been performed, 
-  \item[A, AC, L, U, B] - \id{SuperMatrix} pointers used in solve
-  \item[Gstat] - \id{GStat\_t} object used in solve
-  \item[perm\_r, perm\_c] - permutation arrays used in solve
-  \item[N] - size of the linear system
-  \item[num\_threads] - number of OpenMP/Pthreads threads to use
-  \item[diag\_pivot\_thresh] - threshold on diagonal pivoting
-  \item[ordering] - flag for reordering algorithm to use
-  \item[options] - pointer to {\superlumt} options structure
+  \item[A, AC, L, U, B] - \id{SuperMatrix} pointers used in solve,
+  \item[Gstat] - \id{GStat\_t} object used in solve,
+  \item[perm\_r, perm\_c] - permutation arrays used in solve,
+  \item[N] - size of the linear system,
+  \item[num\_threads] - number of OpenMP/Pthreads threads to use,
+  \item[diag\_pivot\_thresh] - threshold on diagonal pivoting,
+  \item[ordering] - flag for which reordering algorithm to use,
+  \item[options] - pointer to {\superlumt} options structure.
 \end{description}
 
 {\warn} The {\sunlinsolslumt} module is a {\sunlinsol} wrapper for
@@ -48,7 +49,7 @@ the {\superlumt} sparse matrix factorization and solver library
 written by X. Sherry Li \cite{SuperLUMT_site,Li:05,DGL:99}.  The
 package performs matrix factorization using threads to enhance
 efficiency in shared memory parallel environments.  It should be noted
-that threads are only used in the factorization step.  Therfore in
+that threads are only used in the factorization step.  In
 order to use the {\sunlinsolslumt} interface to {\superlumt}, it is
 assumed that {\superlumt} has been installed on the system prior to
 installation of {\sundials}, and that {\sundials} has been configured
@@ -57,7 +58,7 @@ for details).  Additionally, this wrapper only supports single- and
 double-precision calculations, and therefore cannot be compiled if
 {\sundials} is configured to have \id{realtype} set to \id{extended}
 (see Section \ref{s:types}).  Moreover, since the {\superlumt} library
-may be installed to support either 64-bit or 128-bit integers, it is
+may be installed to support either 32-bit or 64-bit integers, it is
 assumed that the {\superlumt} library is installed using the same
 integer precision as the {\sundials} \id{sunindextype} option.
 
@@ -70,15 +71,15 @@ ordering).  Of these ordering choices, the default value in the
 
 Since the linear systems that arise within the context of {\sundials}
 calculations will typically have identical sparsity patterns, the
-{\sunlinsolslumt} module is therfore constructed to perform the
+{\sunlinsolslumt} module is constructed to perform the
 following operations:
 \begin{itemize}
-\item The first time that the ``setup'' routine is called, this
+\item The first time that the ``setup'' routine is called, it
   performs the symbolic factorization, followed by an initial
   numerical factorization.  
-\item On subsequent calls to the ``setup'' routine, this skips the
+\item On subsequent calls to the ``setup'' routine, it skips the
   symbolic factorization, and only refactors the input matrix.
-\item In the ``solve'' call, this performs pivoting, forward and
+\item The ``solve'' call performs pivoting and forward and
   backward substitution using the stored {\superlumt} data
   structures.  We note that in this solve {\superlumt} operates on the
   native data arrays for the right-hand side and solution vectors,
@@ -120,8 +121,8 @@ user-callable routines:
 
 \item \ID{SUNSuperLUMT}
 
-  This function creates and allocates memory for a {\sunlinsolslumt}
-  object.  Its arguments are an {\nvector}, a {\sunmatrix} and a
+  This constructor function creates and allocates memory for a {\sunlinsolslumt}
+  object.  Its arguments are an {\nvector}, a {\sunmatrix}, and a
   desired number of threads (OpenMP or Pthreads, depending on how
   {\superlumt} was installed) to use during the factorization steps.
   This routine analyzes the input matrix and vector to determine the
@@ -131,14 +132,14 @@ user-callable routines:
   This routine will perform consistency checks to ensure that it is
   called with consistent {\nvector} and {\sunmatrix} implementations.
   These are currently limited to the {\sunmatsparse} matrix type
-  (using either CSR or CSC storage formats), and the {\nvecs},
-  {\nvecopenmp} and {\nvecpthreads} vector types.  As additional
+  (using either CSR or CSC storage formats) and the {\nvecs},
+  {\nvecopenmp}, and {\nvecpthreads} vector types.  As additional
   compatible matrix and vector implementations are added to
   {\sundials}, these will be included within this compatibility
   check. 
 
   If either \id{A} or \id{y} are incompatible then this routine will
-  return \id{NULL}.  The \id{num\_threads} argument is not checked,
+  return \id{NULL}.  The \id{num\_threads} argument is not checked
   and is passed directly to {\superlumt} routines.
 
   \verb|SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A, int num_threads);|
@@ -171,14 +172,14 @@ For solvers that include a Fortran interface module, the
 {\sunlinsolslumt} module also includes the Fortran-callable
 function \id{FSUNSuperLUMTInit(code, num\_threads, ier)} to initialize this
 {\sunlinsolslumt} module for a given {\sundials} solver.  Here \id{code}
-is an input solver id (1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol},
+is an integer input solver id (1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol},
 4 for {\arkode}); \id{num\_threads} is the desired number of
 OpenMP/Pthreads threads to use in the factorization; \id{ier} is an
-error return flag equal 0 for success and -1 for failure.  All of
+error return flag equal to 0 for success and -1 for failure.  All of
 these arguments should be declared so as to match C type \id{int}.
 This routine must be called \emph{after} both the {\nvector} and
 {\sunmatrix} objects have been initialized.  Additionally, when using
-{\arkode} with non-identity mass matrix, the Fortran-callable function
+{\arkode} with a non-identity mass matrix, the Fortran-callable function
 \id{FSUNMassSuperLUMTInit(num\_threads, ier)} initializes this
 {\sunlinsolslumt} module for solving mass matrix linear systems.
 

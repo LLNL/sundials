@@ -12,7 +12,7 @@ struct _SUNMatrixContent_Diagonal {
 };
 \end{verbatim}
 %%
-The entry of the \emph{content} field contain the following
+The entry of the \emph{content} field contains the following
 information:
 \begin{description}
   \item[d] - generic {\nvector} object containing the diagonal of the
@@ -22,7 +22,7 @@ information:
 \noindent The header file to be included when using this module 
 is \id{sunmatrix/sunmatrix\_diagonal.h}. \\
 
-\noindent The following two macros are provided to access the
+\noindent The following macros are provided to access the
 content of a {\sunmatdiag} matrix. The prefix \id{SM\_} in the names
 denotes that these macros are for \emph{SUNMatrix} implementations,
 and the suffix \id{\_DIAG} denotes that these are specific to
@@ -74,7 +74,7 @@ user-callable routines:
 
 \item \ID{SUNDiagonalMatrix}
 
-  This function creates and allocates memory for a diagonal \id{SUNMatrix}.
+  This constructor function creates and allocates memory for a diagonal \id{SUNMatrix}.
   Its argument is a template {\nvector} object.
 
   \verb|SUNMatrix SUNDiagonalMatrix(N_Vector tmpl);|
@@ -109,7 +109,7 @@ user-callable routines:
   checks are performed to ensure that the matrix is called with
   consistent {\nvector} implementations.  This consistency check
   merely ensures that the matrix diagonal, as well as the input 
-  {\nvector} objects \id{x} and \id{y} all have
+  {\nvector} objects \id{x} and \id{y} all have an
   identical \id{N\_Vector\_ID}.  As such, this routine may be used
   with any {\sundials}-supplied or user-supplied {\nvector}
   implementation. 
@@ -120,11 +120,12 @@ For solvers that include a Fortran interface module, the {\sunmatdiag}
 module also includes the Fortran-callable
 function \id{FSUNDiagonalMatInit(code, ier)} to initialize
 this {\sunmatdiag} module for a given {\sundials} solver.
-Here \id{code} is an input solver id (1 for {\cvode}, 2 for {\ida}, 3
+Here \id{code} is an integer input solver id (1 for {\cvode}, 2 for {\ida}, 3
 for {\kinsol}, 4 for {\arkode}); and \id{ier} is an error return flag 
-equal 0 for success and -1 for failure (declared so as to match C type
-\id{int}).  This routine must be called \emph{after} a corresponding
-{\nvector} has been initialized by a call to \id{FNVInit*}.
-Additionally, when using {\arkode} with non-identity mass matrix, the
-Fortran-callable function \id{FSUNDiagonalMassMatInit(ier)}  
-initializes this {\sunmatdiag} module for storing the mass matrix.
+equal to 0 for success and -1 for failure. Both \id{code} and \id{ier}
+are declared to match C type \id{int}. This routine must be
+called \emph{after} a corresponding {\nvector} has been initialized by
+a call to \id{FNVInit*}. Additionally, when using {\arkode} with a
+non-identity mass matrix, the Fortran-callable
+function \id{FSUNDiagonalMassMatInit(ier)} initializes this
+{\sunmatdiag} module for storing the mass matrix.

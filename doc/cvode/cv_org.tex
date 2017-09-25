@@ -43,16 +43,16 @@ specified, and is then invoked as needed during the integration.
 \index{CVODE@{\cvode} linear solver interfaces|(} 
 At present, the package includes two linear solver interfaces.  The
 {\em direct} linear solver interface, {\cvdls}, supports {\sunlinsol}
-implementations having type \id{SUNLINSOL\_DIRECT} (see Chapter
+implementations with type \id{SUNLINSOL\_DIRECT} (see Chapter
 \ref{s:sunlinsol}).  These linear solvers utilize direct methods for
-solution of linear systems stored using one of the {\sundials} generic
+the solution of linear systems stored using one of the {\sundials} generic
 {\sunmatrix} implementations (dense, banded, diagonal or sparse; see
 Chapter \ref{s:sunmatrix}).  It is assumed that the dominant cost for
 such solvers occurs in factorization of the linear system matrix $M$,
 so {\cvode} utilizes these solvers within its modified Newton
 nonlinear solve. 
 The {\em spils} linear solver interface, {\cvspils}, supports
-{\sunlinsol} implementations having type \id{SUNLINSOL\_ITERATIVE}
+{\sunlinsol} implementations with type \id{SUNLINSOL\_ITERATIVE}
 (see Chapter \ref{s:sunlinsol}).  These linear solvers utilize scaled
 preconditioned iterative methods.  It is assumed that these methods
 are implemented in a ``matrix-free'' manner, wherein only the action
@@ -64,7 +64,7 @@ linear solver modules available to {\cvode} will expand as new
 \index{CVODE@{\cvode} linear solver interfaces|)} 
 
 Within the {\cvdls} interface, the package includes algorithms for the
-approximation of dense, banded or diagonal Jacobians through
+approximation of dense, banded, or diagonal Jacobians through
 difference quotients, but the user also has the option of supplying
 the Jacobian (or an approximation to it) directly.  This user-supplied
 routine is required when using sparse Jacobian matrices, since
@@ -103,7 +103,7 @@ and provides a banded difference-quotient Jacobian-based
 preconditioner, with corresponding setup and solve routines.
 The second preconditioner module, {\cvbbdpre}, works in conjunction
 with {\nvecp} and generates a preconditioner that is a block-diagonal
-matrix with each block being a band matrix.
+matrix with each block being a banded matrix.
 
 All state information used by {\cvode} to solve a given problem is saved
 in a structure, and a pointer to that structure is returned to the

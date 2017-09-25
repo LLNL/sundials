@@ -1226,7 +1226,7 @@ IF(EXAMPLES_ENABLE)
 
   # add CVODES Examples
   IF(BUILD_CVODES)
-    #ADD_SUBDIRECTORY(examples/cvodes/serial)
+    ADD_SUBDIRECTORY(examples/cvodes/serial)
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/cvodes/parallel)
     ENDIF(MPIC_FOUND)
@@ -1237,7 +1237,7 @@ IF(EXAMPLES_ENABLE)
 
   # add IDA examples
   IF(BUILD_IDA)
-    #ADD_SUBDIRECTORY(examples/ida/serial)
+    ADD_SUBDIRECTORY(examples/ida/serial)
     IF(FCMIX_ENABLE AND F77_FOUND)
       ADD_SUBDIRECTORY(examples/ida/fcmix_serial)
       IF(OPENMP_FOUND)
@@ -1263,7 +1263,7 @@ IF(EXAMPLES_ENABLE)
 
   # add IDAS examples
   IF(BUILD_IDAS)
-    #ADD_SUBDIRECTORY(examples/idas/serial)
+    ADD_SUBDIRECTORY(examples/idas/serial)
     IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/idas/C_openmp)
     ENDIF(OPENMP_FOUND)

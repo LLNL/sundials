@@ -2,15 +2,14 @@
 % the generic sunmatrix abstraction
 %
 For problems that involve direct methods for solving linear systems,
-the {\sundials} solvers not only operate on generic vectors, but they
-also operate on generic matrices (of type \Id{SUNMatrix}), through a set of
+the {\sundials} solvers not only operate on generic vectors, but also 
+on generic matrices (of type \Id{SUNMatrix}), through a set of
 operations defined by the particular {\sunmatrix} implementation.
 Users can provide their own specific implementation of the
 {\sunmatrix} module, particularly in cases where they provide their
 own {\nvector} and/or linear solver modules, and require matrices that
-are compatible with those implementations.  Alternately, for all of
-the direct linear solvers provided within {\sundials}, we provide four
-{\sunmatrix} implementations: dense, banded, diagonal and sparse.  The
+are compatible with those implementations.  Alternately, we provide four
+{\sunmatrix} implementations: dense, banded, diagonal, and sparse.  The
 generic operations are described below, and descriptions of the
 implementations provided with {\sundials} follow.
 
@@ -74,7 +73,6 @@ int SUNMatZero(SUNMatrix A)
 %%
 Table \ref{t:sunmatops} contains a complete list of all matrix operations defined
 by the generic {\sunmatrix} module.
-
 A particular implementation of the {\sunmatrix} module must:
 \begin{itemize}
 \item Specify the {\em content} field of the \id{SUNMatrix} object.
@@ -94,8 +92,8 @@ A particular implementation of the {\sunmatrix} module must:
   acting on the newly defined \id{SUNMatrix} (e.g., a routine to print
   the content for debugging purposes).
 \item Optionally, provide accessor macros or functions as needed for
-  that particular implementation to be used to access different parts
-  in the {\em content} field of the newly defined \id{SUNMatrix}. 
+  that particular implementation to access different parts
+  of the {\em content} field of the newly defined \id{SUNMatrix}. 
 \end{itemize}
 
 Each {\sunmatrix} implementation included in {\sundials} has a unique 
@@ -112,11 +110,11 @@ It is recommended that a user-supplied {\sunmatrix} implementation use the
 \hline
 {\bf Matrix ID} & {\bf Matrix type} & {\bf ID Value} \\
 \hline
-SUNMATRIX\_DENSE      & Dense $m\times n$ matrix               & 0 \\ 
-SUNMATRIX\_BAND       & Band $m\times m$ matrix                & 1 \\
-SUNMATRIX\_DIAGONAL   & Diagonal $m\times m$ matrix            & 2 \\
-SUNMATRIX\_SPARSE     & Sparse (CSR or CSC) $m\times n$ matrix & 3 \\ 
-SUNMATRIX\_CUSTOM     & User-provided custom matrix            & 4 \\
+SUNMATRIX\_DENSE      & Dense $\id{M} \times \id{N}$ matrix               & 0 \\ 
+SUNMATRIX\_BAND       & Band $\id{M} \times \id{M}$ matrix                & 1 \\
+SUNMATRIX\_DIAGONAL   & Diagonal $\id{M} \times \id{M}$ matrix            & 2 \\
+SUNMATRIX\_SPARSE     & Sparse (CSR or CSC) $\id{M} \times \id{N}$ matrix & 3 \\ 
+SUNMATRIX\_CUSTOM     & User-provided custom matrix                       & 4 \\
 \hline
 \end{tabular}
 \end{table}
@@ -139,7 +137,7 @@ SUNMATRIX\_CUSTOM     & User-provided custom matrix            & 4 \\
 %%
 \id{SUNMatGetID} & \id{id = SUNMatGetID(A);} \\ 
 & Returns the type identifier for the matrix \id{A}. It is used to determine the
-matrix implementation type (e.g.~band, dense, sparse,\ldots) from the abstract 
+matrix implementation type (e.g.~dense, banded, sparse,\ldots) from the abstract 
 \id{SUNMatrix} interface.  This is used to assess compatibility with
 {\sundials}-provided linear solver implementations.  Returned values
 are given in the Table \ref{t:matrixIDs}. 
@@ -220,7 +218,7 @@ the matrix \id{A} -- both in storage type and dimensions.
 \section{SUNMatrix Examples}\label{ss:sunmat_examples}
 
 There are \id{SUNMatrix} examples that may be installed for each
-implementation: band, dense, diagonal and sparse.  Each implementation
+implementation: dense, banded, diagonal, and sparse.  Each implementation
 makes use of the functions in \id{test\_sunmatrix.c}. 
 These example functions show simple usage of the \id{SUNMatrix} family
 of functions.  The inputs to the examples depend on the matrix type,
@@ -238,10 +236,10 @@ appropriate number of command-line arguments.
 \item \id{Test\_SUNMatCopy}: Clones an input matrix, copies its data
       to a clone, and verifies that all values match.
 \item \id{Test\_SUNMatScaleAdd}: Given an input matrix $A$ and an
-      input identity matrix $I$, this clones and copies $A$ to a new
-      matrix $B$, computes $B = -B+B$ and verifies that the resulting
+      input identity matrix $I$, this test clones and copies $A$ to a new
+      matrix $B$, computes $B = -B+B$, and verifies that the resulting
       matrix entries equal 0.0.  Additionally, if the matrix is
-      square, clones and copies $A$ to a new matrix $D$, clones and
+      square, this test clones and copies $A$ to a new matrix $D$, clones and
       copies $I$ to a new matrix $C$, computes $D = D+I$ and
       $C = C+A$ using \id{SUNMatScaleAdd}, and then verifies that
       $C==D$.
@@ -250,7 +248,7 @@ appropriate number of command-line arguments.
       matrix $B$, computes $B = -B+I$ using \id{SUNMatScaleAddI}, and
       verifies that the resulting matrix entries equal 0.0.
 \item \id{Test\_SUNMatMatvec} Given an input matrix $A$ and input
-      vectors $x$ and $y$ such that $y=Ax$, this has different
+      vectors $x$ and $y$ such that $y=Ax$, this test has different
       behavior depending on whether $A$ is square.  If it is square,
       it clones and copies $A$ to a new matrix $B$, computes
       $B = 3B+I$ using \id{SUNMatScaleAddI}, clones $y$ to new vectors

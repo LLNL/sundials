@@ -1,5 +1,4 @@
-/*
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Chris Nguyen
  * -----------------------------------------------------------------
  * Example problem for CVODE: 2D heat equation, serial, sparse.
@@ -22,8 +21,7 @@
  * difference-quotient Jacobian. For purposes of illustration,
  * The constraints u >= 0 are posed for all components. Output is 
  * taken at t = 0, .01, .02, .04, ..., 10.24.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 //////////////////////////////////////////////////////////////////////////
 // Note: was still trying to get case MGRID=3 to work amd convert to 
@@ -167,7 +165,7 @@ int main(void)
   flag = IDASetConstraints(cvode_mem, constraints);
   if(check_flag(&flag, "IDASetConstraints", 1)) return(1);
   */
-  N_VDestroy_Serial(constraints);
+  N_VDestroy(constraints);
 
   flag = CVodeInit(cvode_mem, f, t0, uu);
   if(check_flag(&flag, "CVodeInit", 1)) return(1);
@@ -233,8 +231,8 @@ int main(void)
   CVodeFree(&cvode_mem);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
-  N_VDestroy_Serial(uu);
-  N_VDestroy_Serial(res);
+  N_VDestroy(uu);
+  N_VDestroy(res);
   free(data);
 
   return(0);
@@ -272,7 +270,7 @@ int heatres(realtype tres, N_Vector uu, N_Vector resval,
   realtype *uv, *resv, coeff;
   UserData data;
   
-  uv = N_VGetArrayPointer_Serial(uu); resv = N_VGetArrayPointer_Serial(resval);
+  uv = N_VGetArrayPointer(uu); resv = N_VGetArrayPointer(resval);
 
   data = (UserData)user_data;
   mm = data->mm;
@@ -307,7 +305,7 @@ static int jacHeat3(realtype tt, N_Vector yy, N_Vector fy, SUNMatrix JacMat,
   realtype dx =  ONE/(MGRID - ONE);
   realtype beta = RCONST(4.0)/(dx*dx);
 
-  yval = N_VGetArrayPointer_Serial(yy);
+  yval = N_VGetArrayPointer(yy);
 
   SUNMatZero(JacMat); // initialize Jacobian matrix
   
@@ -381,7 +379,7 @@ static int jacHeat(realtype tt, N_Vector yy, N_Vector fy, SUNMatrix JacMat,
   realtype beta = RCONST(4.0)/(dx*dx);
   int i,j, repeat=0;
 
-  yval = N_VGetArrayPointer_Serial(yy);
+  yval = N_VGetArrayPointer(yy);
 
   SUNMatZero(JacMat); /* initialize Jacobian matrix  */
 
@@ -631,7 +629,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector res)
   mm = data->mm;
   mm1 = mm - 1;
   
-  udata = N_VGetArrayPointer_Serial(uu);
+  udata = N_VGetArrayPointer(uu);
 
   /* Initialize uu on all grid points. */ 
   for (j = 0; j < mm; j++) {

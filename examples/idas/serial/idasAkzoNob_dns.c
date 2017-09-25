@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -22,18 +18,19 @@
  * The Netherlands, and describes a chemical process in which 2 
  * species are mixed, while carbon dioxide is continuously added.
  * See http://pitagora.dm.uniba.it/~testset/report/chemakzo.pdf  
- * 
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
  
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
  
-#include <idas/idas.h>
-#include <idas/idas_dense.h>
-#include <sundials/sundials_math.h>
-#include <nvector/nvector_serial.h>
+#include <idas/idas.h>                 /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
+#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
+#include <idas/idas_direct.h>          /* access to IDADls interface           */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Accessor macros */
 #define Ith(v,i)    NV_Ith_S(v,i-1)       /* i-th vector component */
@@ -83,9 +80,13 @@ int main()
   int flag;
   realtype time, tout, incr;
   int nout;
+  SUNMatrix A;
+  SUNLinearSolver LS;
 
   mem = NULL;
   yy = yp = NULL;
+  A = NULL;
+  LS = NULL;
 
   /* Allocate user data. */
   data = (UserData) malloc(sizeof(*data));
@@ -127,7 +128,7 @@ int main()
   rr = N_VNew_Serial(NEQ);
   res(T0, yy, yp, rr, data);
   N_VScale(-ONE, rr, yp);
-  N_VDestroy_Serial(rr);
+  N_VDestroy(rr);
   
  /* Create and initialize q0 for quadratures. */
   q = N_VNew_Serial(1);
@@ -149,9 +150,18 @@ int main()
   /* Attach user data. */
   flag = IDASetUserData(mem, data);
   if(check_flag(&flag, "IDASetUserData", 1)) return(1);
-  
-  /* Attach linear solver. */
-  flag = IDADense(mem, NEQ);
+
+  /* Create dense SUNMatrix for use in linear solves */
+  A = SUNDenseMatrix(NEQ, NEQ);
+  if(check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
+
+  /* Create dense SUNLinearSolver object */
+  LS = SUNDenseLinearSolver(yy, A);
+  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  flag = IDADlsSetLinearSolver(mem, LS, A);
+  if(check_flag(&flag, "IDADlsSetLinearSolver", 1)) return(1);
 
   /* Initialize QUADRATURE(S). */
   flag = IDAQuadInit(mem, rhsQ, q);
@@ -199,10 +209,11 @@ int main()
   PrintFinalStats(mem);
 
   IDAFree(&mem);
-
-  N_VDestroy_Serial(yy);
-  N_VDestroy_Serial(yp);
-  N_VDestroy_Serial(q);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
+  N_VDestroy(yy);
+  N_VDestroy(yp);
+  N_VDestroy(q);
 
   return(0);
 }
@@ -274,7 +285,7 @@ static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_
 static void PrintHeader(realtype rtol, realtype avtol, N_Vector y)
 {
   printf("\nidasAkzoNob_dns: Akzo Nobel chemical kinetics DAE serial example problem for IDAS\n");
-  printf("Linear solver: IDADENSE, Jacobian is computed by IDAS.\n");
+  printf("Linear solver: DENSE, Jacobian is computed by IDAS.\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n",
          rtol, avtol);
@@ -299,7 +310,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
   long int nst;
   realtype hused;
 
-  yval  = N_VGetArrayPointer_Serial(y);
+  yval  = N_VGetArrayPointer(y);
 
   retval = IDAGetLastOrder(mem, &kused);
   check_flag(&retval, "IDAGetLastOrder", 1);

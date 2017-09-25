@@ -1,5 +1,4 @@
-/*
- * -----------------------------------------------------------------
+/* --------------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * --------------------------------------------------------------------
@@ -83,8 +82,7 @@
  * Matrix Methods in Stiff ODE Systems, J. Appl. Math. & Comp., 31
  * (1989), pp. 40-91.  Also available as Lawrence Livermore National
  * Laboratory Report UCRL-95088, Rev. 1, June 1987.
- * --------------------------------------------------------------------
- */
+ * --------------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -647,7 +645,7 @@ static void FreeUserData(WebData wdata)
     destroyMat((wdata->P)[i]);
     destroyArray((wdata->pivot)[i]);
   }
-  N_VDestroy_Serial(wdata->rewt);
+  N_VDestroy(wdata->rewt);
   free(wdata);
 }
 

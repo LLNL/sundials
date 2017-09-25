@@ -22,8 +22,7 @@
  * It uses scalar relative and absolute tolerances.
  * Output is printed at t = .1, .2, ..., 1.
  * Run statistics (optional outputs) are printed at the end.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,7 +62,7 @@
    to the underlying 1-dimensional storage. 
    IJth(vdata,i,j) references the element in the vdata array for
    u at mesh point (i,j), where 1 <= i <= MX, 1 <= j <= MY.
-   The vdata array is obtained via the call vdata = N_VGetArrayPointer_Serial(v),
+   The vdata array is obtained via the call vdata = N_VGetArrayPointer(v),
    where v is an N_Vector. 
    The variables are ordered by the y index j, then by the x index i. */
 
@@ -186,7 +185,7 @@ int main(void)
 
   PrintFinalStats(cvode_mem);  /* Print some final statistics   */
 
-  N_VDestroy_Serial(u);   /* Free the u vector          */
+  N_VDestroy(u);          /* Free the u vector          */
   CVodeFree(&cvode_mem);  /* Free the integrator memory */
   SUNLinSolFree(LS);      /* Free linear solver memory  */
   SUNMatDestroy(A);       /* Free the matrix memory     */
@@ -210,8 +209,8 @@ static int f(realtype t, N_Vector u,N_Vector udot, void *user_data)
   int i, j;
   UserData data;
 
-  udata = N_VGetArrayPointer_Serial(u);
-  dudata = N_VGetArrayPointer_Serial(udot);
+  udata  = N_VGetArrayPointer(u);
+  dudata = N_VGetArrayPointer(udot);
 
   /* Extract needed constants from data */
 
@@ -311,7 +310,7 @@ static void SetIC(N_Vector u, UserData data)
 
   /* Set pointer to data array in vector u. */
 
-  udata = N_VGetArrayPointer_Serial(u);
+  udata = N_VGetArrayPointer(u);
 
   /* Load initial profile into u vector */
   

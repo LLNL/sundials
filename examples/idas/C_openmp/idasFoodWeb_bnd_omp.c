@@ -100,7 +100,7 @@
 #include <math.h>
 
 #include <idas/idas.h>
-#include <ida/ida_direct.h>
+#include <idas/idas_direct.h>
 #include <sunmatrix/sunmatrix_band.h>
 #include <sunlinsol/sunlinsol_band.h>
 #include <nvector/nvector_openmp.h>

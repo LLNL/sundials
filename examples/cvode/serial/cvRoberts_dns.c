@@ -21,8 +21,7 @@
  * It uses a scalar relative tolerance and a vector absolute
  * tolerance. Output is printed in decades from t = .4 to t = 4.e10.
  * Run statistics (optional outputs) are printed at the end.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 
@@ -195,8 +194,8 @@ int main()
   PrintFinalStats(cvode_mem);
 
   /* Free y and abstol vectors */
-  N_VDestroy_Serial(y);
-  N_VDestroy_Serial(abstol);
+  N_VDestroy(y);
+  N_VDestroy(abstol);
 
   /* Free integrator memory */
   CVodeFree(&cvode_mem);

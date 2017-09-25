@@ -6,10 +6,10 @@ The {\spfgmr} (Scaled, Preconditioned, Flexible, Generalized Minimum
 Residual \cite{Saa:93}) implementation of the {\sunlinsol} module
 provided with {\sundials}, {\sunlinsolspfgmr}, is an iterative linear
 solver that is designed to be compatible with any {\nvector}
-implementation (serial, threaded, parallel, user-supplied) that
+implementation (serial, threaded, parallel, and user-supplied) that
 supports a minimal subset of operations (\id{N\_VClone},
 \id{N\_VDotProd}, \id{N\_VScale}, \id{N\_VLinearSum}, \id{N\_VProd},
-\id{N\_VConst}, \id{N\_VDiv} and \id{N\_VDestroy}).  Unlike the other
+\id{N\_VConst}, \id{N\_VDiv}, and \id{N\_VDestroy}).  Unlike the other
 Krylov iterative linear solvers supplied with {\sundials}, FGMRES is
 specifically designed to work with a changing preconditioner
 (e.g.~from an iterative method).
@@ -46,31 +46,31 @@ struct _SUNLinearSolverContent_SPFGMR {
 These entries of the \emph{content} field contain the following
 information:
 \begin{description}
-  \item[maxl] - number of FGMRES basis vectors to use (default is 5)
-  \item[pretype] - flag for use of preconditioning (default is none)
+  \item[maxl] - number of FGMRES basis vectors to use (default is 5),
+  \item[pretype] - flag for use of preconditioning (default is none),
   \item[gstype] - flag for type of Gram-Schmidt orthogonalization
-    (default is modified Gram-Schmidt)
+    (default is modified Gram-Schmidt),
   \item[max\_restarts] - number of FGMRES restarts to allow
-    (default is 0) 
-  \item[numiters] - number of iterations from most-recent solve
-  \item[resnorm] - final linear residual norm from most-recent solve
-  \item[last\_flag] - last error return flag from internal function
-  \item[ATimes] - function pointer to perform $Av$ product
-  \item[ATData] - pointer to structure for \id{ATimes}
-  \item[Psetup] - function pointer to preconditioner setup routine
-  \item[Psolve] - function pointer to preconditioner solve routine
-  \item[PData] - pointer to structure for \id{Psetup}, \id{Psolve}
+    (default is 0),
+  \item[numiters] - number of iterations from the most-recent solve,
+  \item[resnorm] - final linear residual norm from the most-recent solve,
+  \item[last\_flag] - last error return flag from an internal function,
+  \item[ATimes] - function pointer to perform $Av$ product,
+  \item[ATData] - pointer to structure for \id{ATimes},
+  \item[Psetup] - function pointer to preconditioner setup routine,
+  \item[Psolve] - function pointer to preconditioner solve routine,
+  \item[PData] - pointer to structure for \id{Psetup} and \id{Psolve},
   \item[s1, s2] - vector pointers for supplied scaling matrices
-    (default are \id{NULL})
+    (default is \id{NULL}),
   \item[V] - the array of Krylov basis vectors
     $v_1, \ldots, v_{\text{\id{maxl}}+1}$, stored in \id{V[0]},
-    \ldots, \id{V[maxl]}. Each $v_i$ is a vector of type {\nvector}.
+    \ldots, \id{V[maxl]}. Each $v_i$ is a vector of type {\nvector}.,
   \item[Z] - the array of preconditioned Krylov basis vectors
     $z_1, \ldots, z_{\text{\id{maxl}}+1}$, stored in \id{Z[0]},
-    \ldots, \id{Z[maxl]}. Each $z_i$ is a vector of type {\nvector}.
+    \ldots, \id{Z[maxl]}. Each $z_i$ is a vector of type {\nvector}.,
   \item[Hes] - the $(\text{\id{maxl}}+1)\times\text{\id{maxl}}$
     Hessenberg matrix. It is stored row-wise so that the (i,j)th
-    element is given by \id{Hes[i][j]}. 
+    element is given by \id{Hes[i][j]}.,
   \item[givens] - a length \id{2*maxl} array which represents the
     Givens rotation matrices that arise in the FGMRES algorithm. These
     matrices are $F_0, F_1, \ldots, F_j$, where
@@ -82,16 +82,16 @@ information:
         &        &   & s_i &  c_i &   &        &   \\
         &        &   &     &      & 1 &        &   \\
         &        &   &     &      &   & \ddots &   \\
-        &        &   &     &      &   &        & 1\end{bmatrix}$
+        &        &   &     &      &   &        & 1\end{bmatrix}$,
     are represented in the \id{givens} vector as \id{givens[0] =}
     $c_0$, \id{givens[1] = } $s_0$, \id{givens[2] = } $c_1$,
     \id{givens[3] = } $s_1$, \ldots \id{givens[2j] = } $c_j$,
-    \id{givens[2j+1] = } $s_j$.
+    \id{givens[2j+1] = } $s_j$.,
   \item[xcor] - a vector which holds the scaled, preconditioned
-    correction to the initial guess 
+    correction to the initial guess,
   \item[yg] - a length \id{(maxl+1)} array of \id{realtype} values
-    used to hold ``short'' vectors (e.g. $y$ and $g$).
-  \item[vtemp] - temporary vector storage
+    used to hold ``short'' vectors (e.g. $y$ and $g$),
+  \item[vtemp] - temporary vector storage.
 \end{description}
 
 This solver is constructed to perform the following operations:
@@ -103,17 +103,17 @@ This solver is constructed to perform the following operations:
   solver parameters.
 \item Additional ``set'' routines are called by the {\sundials} solver
   that interfaces with {\sunlinsolspfgmr} to supply the 
-  \id{ATimes}, \id{PSetup} and \id{Psolve} function pointers and
+  \id{ATimes}, \id{PSetup}, and \id{Psolve} function pointers and
   \id{s1} and \id{s2} scaling vectors.
 \item In the ``initialize'' call, the remaining solver data is
-  allocated (\id{V}, \id{Hes}, \id{givens}, \id{yg} )
+  allocated (\id{V}, \id{Hes}, \id{givens}, and \id{yg} )
 \item In the ``setup'' call, any non-\id{NULL}
   \id{PSetup} function is called.  Typically, this is provided by
   the {\sundials} solver itself, that translates between the
   generic \id{PSetup} function and the
   solver-specific routine (solver-supplied or user-supplied).
-\item In the ``solve'' call the FGMRES iteration is performed.  This
-  will include scaling, preconditioning and restarts if those options
+\item In the ``solve'' call, the FGMRES iteration is performed.  This
+  will include scaling, preconditioning, and restarts if those options
   have been supplied.
 \end{itemize}
 
@@ -149,7 +149,7 @@ user-callable routines:
 
 \item \ID{SUNSPFGMR}
 
-  This function creates and allocates memory for a {\spfgmr}
+  This constructor function creates and allocates memory for a {\spfgmr}
   \id{SUNLinearSolver}.  Its arguments are an {\nvector}, a flag
   indicating to use preconditioning, and the number of Krylov basis
   vectors to use. 
@@ -157,7 +157,7 @@ user-callable routines:
   This routine will perform consistency checks to ensure that it is
   called with a consistent {\nvector} implementation (i.e.~that it
   supplies the requisite vector operations).  If \id{y} is
-  incompatible then this routine will return \id{NULL}.
+  incompatible, then this routine will return \id{NULL}.
 
   A \id{maxl} argument that is $\le0$ will result in the default
   value (5).
@@ -197,7 +197,7 @@ user-callable routines:
 
   This routine will return with one of the error codes
   \id{SUNLS\_ILL\_INPUT} (illegal \id{gstype}), \id{SUNLS\_MEM\_NULL}
-  (\id{S} is \id{NULL}) or \id{SUNLS\_SUCCESS}.
+  (\id{S} is \id{NULL}), or \id{SUNLS\_SUCCESS}.
   
   \verb|int SUNSPFGMRSetGSType(SUNLinearSolver S, int gstype);|
 
@@ -222,28 +222,26 @@ For solvers that include a Fortran interface module, the
 {\sunlinsolspfgmr} module also includes the Fortran-callable
 function \id{FSUNSPFGMRInit(code, pretype, maxl, ier)} to initialize
 this {\sunlinsolspfgmr} module for a given {\sundials} solver.
-Here \id{code} is an input solver id (1 for {\cvode}, 2 for {\ida}, 3
+Here \id{code} is an integer input solver id (1 for {\cvode}, 2 for {\ida}, 3
 for {\kinsol}, 4 for {\arkode}); \id{pretype} and \id{maxl} are the
 same as for the C function \ID{SUNSPFGMR}; \id{ier} is an error return
-flag equal 0 for success and -1 for failure.  All of these input
-arguments should be declared so as to match C type \id{int}).  This
+flag equal to 0 for success and -1 for failure.  All of these input
+arguments should be declared so as to match C type \id{int}.  This
 routine must be called \emph{after} the {\nvector} object has been
-initialized.  Additionally, when using {\arkode} with non-identity
+initialized.  Additionally, when using {\arkode} with a non-identity
 mass matrix, the Fortran-callable
 function \id{FSUNMassSPFGMRInit(pretype, maxl, ier)} initializes this 
 {\sunlinsolspfgmr} module for solving mass matrix linear systems.
 
-The \id{SUNSPFGMRSetPrecType}, \id{SUNSPFGMRSetGSType} and
+The \id{SUNSPFGMRSetPrecType}, \id{SUNSPFGMRSetGSType}, and
 \id{SUNSPFGMRSetMaxRestarts} routines also support Fortran interfaces
-for the system and mass matrix solvers:
+for the system and mass matrix solvers (all arguments should be
+commensurate with a C \id{int}): 
 \begin{itemize}
-\item \id{FSUNSPFGMRSetGSType(code, gstype, ier)} -- all arguments
-  should be commensurate with a C \id{int}
+\item \id{FSUNSPFGMRSetGSType(code, gstype, ier)}
 \item \id{FSUNMassSPFGMRSetGSType(gstype, ier)}
-\item \id{FSUNSPFGMRSetPrecType(code, pretype, ier)} -- all arguments
-  should be commensurate with a C \id{int}
+\item \id{FSUNSPFGMRSetPrecType(code, pretype, ier)}
 \item \id{FSUNMassSPFGMRSetPrecType(pretype, ier)}
-\item \id{FSUNSPFGMRSetMaxRS(code, maxrs, ier)} -- all arguments
-  should be commensurate with a C \id{int}
+\item \id{FSUNSPFGMRSetMaxRS(code, maxrs, ier)}
 \item \id{FSUNMassSPFGMRSetMaxRS(maxrs, ier)}
 \end{itemize}
