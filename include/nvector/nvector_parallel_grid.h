@@ -87,15 +87,15 @@ extern "C" {
    choice of C or Fortran major ordering held in the 'ordering' flag. */
 
 struct _N_VectorContent_Parallel_Grid {
-  int dims;                           /* vector dimensionality                 */
+  int dims;                        /* vector dimensionality                 */
   sunindextype dim_length[MAX_DIMS];  /* total array length in each dimension  */
   sunindextype dim_alength[MAX_DIMS]; /* active array length in each dimension */
   sunindextype dim_offset[MAX_DIMS];  /* offset to active data in each dim     */
   sunindextype global_length;         /* global vector length                  */
-  booleantype own_data;               /* ownership of data                     */
-  realtype *data;                     /* local data array                      */
-  MPI_Comm comm;                      /* pointer to MPI communicator           */
-  booleantype F_ordering;             /* Fortran or C ordering                 */
+  booleantype own_data;            /* ownership of data                     */
+  realtype *data;                  /* local data array                      */
+  MPI_Comm comm;                   /* pointer to MPI communicator           */
+  booleantype F_ordering;          /* Fortran or C ordering                 */
 };
 
 typedef struct _N_VectorContent_Parallel_Grid *N_VectorContent_Parallel_Grid;
@@ -335,7 +335,7 @@ SUNDIALS_EXPORT void N_VPrintAll_Parallel_Grid(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Parallel_Grid(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Parallel_Grid(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Parallel_Grid(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_Parallel_Grid(N_Vector v, long int *lrw, long int *liw);
+SUNDIALS_EXPORT void N_VSpace_Parallel_Grid(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Parallel_Grid(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Parallel_Grid(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum_Parallel_Grid(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);

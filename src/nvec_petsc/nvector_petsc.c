@@ -1,4 +1,8 @@
-/* -----------------------------------------------------------------
+/*
+ * -----------------------------------------------------------------
+ * $Revision$
+ * $Date$
+ * -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * 
  * Based on N_Vector_Parallel by Scott D. Cohen, Alan C. Hindmarsh, 
@@ -16,7 +20,8 @@
  * -----------------------------------------------------------------
  * This is the implementation file for a PETSc implementation
  * of the NVECTOR package.
- * -----------------------------------------------------------------*/
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -453,7 +458,7 @@ void N_VDestroy_Petsc(N_Vector v)
   return;
 }
 
-void N_VSpace_Petsc(N_Vector v, long int *lrw, long int *liw)
+void N_VSpace_Petsc(N_Vector v, sunindextype *lrw, sunindextype *liw)
 {
   MPI_Comm comm;
   int npes;

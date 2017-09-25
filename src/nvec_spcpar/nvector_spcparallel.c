@@ -1,4 +1,8 @@
-/* ----------------------------------------------------------------- 
+/*
+ * -----------------------------------------------------------------
+ * $Revision$
+ * $Date$
+ * ----------------------------------------------------------------- 
  * Programmer(s): Daniel R. Reynolds and Radu Serban @LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -13,7 +17,8 @@
  * -----------------------------------------------------------------
  * This is the implementation file for a spc_parallel MPI 
  * implementation of the NVECTOR package.
- * -----------------------------------------------------------------*/
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -539,11 +544,11 @@ void N_VDestroy_SpcParallel(N_Vector v)
 
 /* 
  * N_VSpace_SpcParallel returns the local space requirements for one N_Vector. 
- * The amount of realtype data is given in lrw, and integer data in liw.  
+ * The amount of realtype data is given in lrw, and sunindextype data in liw.  
  * Note: this includes ghost cell data storage as well 
  */
 
-void N_VSpace_SpcParallel(N_Vector v, long int *lrw, long int *liw)
+void N_VSpace_SpcParallel(N_Vector v, sunindextype *lrw, sunindextype *liw)
 {
   *lrw = SPV_LOCLENGTH(v);
   *liw = 11 + 3*SPV_NGROUPS(v);

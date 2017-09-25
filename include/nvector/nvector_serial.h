@@ -1,4 +1,8 @@
-/* ----------------------------------------------------------------- 
+/*
+ * -----------------------------------------------------------------
+ * $Revision$
+ * $Date$
+ * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -44,7 +48,8 @@
  *
  *     (which stores the result of the operation a*x+b*y in y)
  *     is legal.
- * -----------------------------------------------------------------*/
+ * -----------------------------------------------------------------
+ */
 
 #ifndef _NVECTOR_SERIAL_H
 #define _NVECTOR_SERIAL_H
@@ -247,7 +252,7 @@ SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_Serial(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Serial(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Serial(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Serial(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_Serial(N_Vector v, long int *lrw, long int *liw);
+SUNDIALS_EXPORT void N_VSpace_Serial(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Serial(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Serial(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum_Serial(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);

@@ -1,4 +1,8 @@
-/* ----------------------------------------------------------------- 
+/*
+ * -----------------------------------------------------------------
+ * $Revision:$
+ * $Date:$
+ * ----------------------------------------------------------------- 
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -39,7 +43,8 @@
  *
  *     (which stores the result of the operation a*x+b*y in y)
  *     is legal.
- * -----------------------------------------------------------------*/
+ * -----------------------------------------------------------------
+ */
 
 #ifndef _NVECTOR_PETSC_H
 #define _NVECTOR_PETSC_H
@@ -68,9 +73,9 @@ extern "C" {
 struct _N_VectorContent_Petsc {
   sunindextype local_length;   /* copy of local vector length  */
   sunindextype global_length;  /* copy of global vector length */
-  booleantype own_data;        /* ownership of data            */
-  Vec *pvec;                   /* pointer to PETSc vector      */
-  MPI_Comm comm;               /* copy of MPI communicator     */
+  booleantype own_data;    /* ownership of data            */
+  Vec *pvec;               /* pointer to PETSc vector      */
+  MPI_Comm comm;           /* copy of MPI communicator     */
 };
 
 typedef struct _N_VectorContent_Petsc *N_VectorContent_Petsc;
@@ -189,7 +194,7 @@ SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_Petsc(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Petsc(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Petsc(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Petsc(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_Petsc(N_Vector v, long int *lrw, long int *liw);
+SUNDIALS_EXPORT void N_VSpace_Petsc(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Petsc(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum_Petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VConst_Petsc(realtype c, N_Vector z);

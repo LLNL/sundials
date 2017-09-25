@@ -725,7 +725,7 @@ void N_VDestroy_Parallel_Grid(N_Vector v)
   return;
 }
 
-void N_VSpace_Parallel_Grid(N_Vector v, long int *lrw, long int *liw)
+void N_VSpace_Parallel_Grid(N_Vector v, sunindextype *lrw, sunindextype *liw)
 {
   MPI_Comm comm;
   int npes;

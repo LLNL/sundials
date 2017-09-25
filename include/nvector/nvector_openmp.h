@@ -1,4 +1,8 @@
-/* ----------------------------------------------------------------- 
+/*
+ * -----------------------------------------------------------------
+ * $Revision$
+ * $Date$
+ * ----------------------------------------------------------------- 
  * Programmer(s): David J. Gardner and Carol S. Woodward @ LLNL
  * -----------------------------------------------------------------
  * Acknowledgements: This NVECTOR module is based on the NVECTOR 
@@ -48,7 +52,8 @@
  *
  *     (which stores the result of the operation a*x+b*y in y)
  *     is legal.
- * -----------------------------------------------------------------*/
+ * -----------------------------------------------------------------
+ */
 
 #ifndef _NVECTOR_OPENMP_H
 #define _NVECTOR_OPENMP_H
@@ -254,7 +259,7 @@ SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_OpenMP(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_OpenMP(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_OpenMP(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_OpenMP(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_OpenMP(N_Vector v, long int *lrw, long int *liw);
+SUNDIALS_EXPORT void N_VSpace_OpenMP(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_OpenMP(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_OpenMP(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum_OpenMP(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);

@@ -1,4 +1,8 @@
-/* ----------------------------------------------------------------- 
+/*
+ * -----------------------------------------------------------------
+ * $Revision$
+ * $Date$
+ * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -14,7 +18,8 @@
  * -----------------------------------------------------------------
  * This is the implementation file for a serial implementation
  * of the NVECTOR package.
- * -----------------------------------------------------------------*/
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -393,7 +398,7 @@ void N_VDestroy_Serial(N_Vector v)
   return;
 }
 
-void N_VSpace_Serial(N_Vector v, long int *lrw, long int *liw)
+void N_VSpace_Serial(N_Vector v, sunindextype *lrw, sunindextype *liw)
 {
   *lrw = NV_LENGTH_S(v);
   *liw = 1;

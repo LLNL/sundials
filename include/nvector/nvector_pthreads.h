@@ -1,4 +1,8 @@
-/* ----------------------------------------------------------------- 
+/*
+ * -----------------------------------------------------------------
+ * $Revision$
+ * $Date$
+ * ----------------------------------------------------------------- 
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * Acknowledgements: This NVECTOR module is based on the NVECTOR 
@@ -49,7 +53,8 @@
  *
  *     (which stores the result of the operation a*x+b*y in y)
  *     is legal.
- * -----------------------------------------------------------------*/
+ * -----------------------------------------------------------------
+ */
 
 #ifndef _NVECTOR_PTHREADS_H
 #define _NVECTOR_PTHREADS_H
@@ -275,7 +280,7 @@ SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_Pthreads(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Pthreads(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Pthreads(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Pthreads(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_Pthreads(N_Vector v, long int *lrw, long int *liw);
+SUNDIALS_EXPORT void N_VSpace_Pthreads(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Pthreads(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Pthreads(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum_Pthreads(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
