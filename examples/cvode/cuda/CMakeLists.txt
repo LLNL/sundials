@@ -22,7 +22,6 @@
 
 SET(CVODE_examples
   cvAdvDiff_kry_cuda
-  cvAdvDiffReac_kry_cuda
   )
 
 # Add source directory to include directories

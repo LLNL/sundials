@@ -21,7 +21,6 @@
 # Add variable CVODE_examples with the names of the raja CVODE examples
 
 SET(CVODE_examples
-  cvAdvDiffReac_kry_raja
   cvAdvDiff_kry_raja
   )
 
