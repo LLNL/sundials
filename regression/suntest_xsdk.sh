@@ -68,11 +68,11 @@ BLASDIR=${APPDIR}/lapack/3.6.0/lib64
 LAPACKSTATUS=ON
 LAPACKDIR=${APPDIR}/lapack/3.6.0/lib64
 
-# LAPACK/BLAS does not support extended precision or 64-bit indices (UNCOMMENT LINES BELOW FOR NEW LINEAR SOLVER API)
-# if [ "$realtype" == "extended" ] || [ "$indextype" == "int64_t" ]; then
-#     LAPACKSTATUS=OFF
-#     BLASSTATUS=OFF
-# fi
+# LAPACK/BLAS does not support extended precision or 64-bit indices
+if [ "$realtype" == "quad" ] || [ "$indextype" == "64" ]; then
+    LAPACKSTATUS=OFF
+    BLASSTATUS=OFF
+fi
 
 # KLU
 KLUSTATUS=ON
@@ -90,9 +90,7 @@ SUPERLUMTSTATUS=ON
 if [ "$indextype" == "int32_t" ]; then
     SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1
 else
-    SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1
-    # REMOVE LINE ABOVE AND UNCOMMENT LINE BELOW FOR NEW LINEAR SOLVER API
-    # SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1_long_int
+    SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1_long_int
 fi
 
 # SuperLU MT does not support extended precision
@@ -164,7 +162,9 @@ cmake \
     -D CMAKE_CXX_COMPILER="/usr/bin/c++" \
     -D CMAKE_Fortran_COMPILER="/usr/bin/gfortran" \
     \
-    -D CMAKE_C_FLAGS='-Wall -std=c99 -pedantic' \
+    -D CMAKE_C_FLAGS='-g -Wall -std=c99 -pedantic' \
+    -D CMAKE_CXX_FLAGS='-g' \
+    -D CMAKE_Fortran_FLAGS='-g' \
     \
     -D MPI_ENABLE=ON \
     -D MPI_MPICC="${MPIDIR}/mpicc" \
