@@ -25,25 +25,16 @@ realtype=$1     # required, precision for realtypes
 indextype=$2    # required, integer type for indices
 buildthreads=$3 # optional, number of build threads (if empty will use all threads)
 
-# adjust input values for xSDK build
-if [ $realtype == "extended" ]; then
-    realtype="quad"
-fi
+# remove old build and install directories
+\rm -rf build_xSDK_${realtype}_${indextype}
+\rm -rf install_xSDK_${realtype}_${indextype}
 
-if [ $indextype == "int32_t" ]; then
-    indextype="32"
-else
-    indextype="64"
-fi
+# create new build and install directories
+mkdir build_xSDK_${realtype}_${indextype}
+mkdir install_xSDK_${realtype}_${indextype}
 
-# create install directory
-\rm -rf install_${realtype}_${indextype}
-mkdir install_${realtype}_${indextype}
-
-# create and move to build directory
-\rm -rf build_${realtype}_${indextype}
-mkdir build_${realtype}_${indextype}
-cd build_${realtype}_${indextype}
+# move to build directory
+cd build_xSDK_${realtype}_${indextype}
 
 # number of threads in OpenMP examples
 export OMP_NUM_THREADS=4
@@ -69,7 +60,7 @@ LAPACKSTATUS=ON
 LAPACKDIR=${APPDIR}/lapack/3.6.0/lib64
 
 # LAPACK/BLAS does not support extended precision or 64-bit indices
-if [ "$realtype" == "quad" ] || [ "$indextype" == "64" ]; then
+if [ "$realtype" == "extended" ] || [ "$indextype" == "int64_t" ]; then
     LAPACKSTATUS=OFF
     BLASSTATUS=OFF
 fi
@@ -141,12 +132,26 @@ fi
 # compile time which is useful for debugging build issues.
 # -------------------------------------------------------------------------------
 
+# set realtype for xSDK build
+if [ $realtype == "extended" ]; then
+    xsdk_realtype="quad"
+else
+    xsdk_realtype=$realtype
+fi
+
+# set indextype for xSDK build
+if [ $indextype == "int32_t" ]; then
+    xsdk_indextype="32"
+else
+    xsdk_indextype="64"
+fi
+
 echo "START CMAKE"
 cmake \
     -D CMAKE_INSTALL_PREFIX="../install_${realtype}_${indextype}" \
     \
-    -D XSDK_PRECISION=$realtype \
-    -D XSDK_INDEX_SIZE=$indextype \
+    -D XSDK_PRECISION=${xsdk_realtype} \
+    -D XSDK_INDEX_SIZE=${xsdk_indextype} \
     \
     -D XSDK_ENABLE_FORTRAN=ON \
     \

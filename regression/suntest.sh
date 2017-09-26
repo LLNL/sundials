@@ -24,13 +24,15 @@ realtype=$1     # required, precision for realtypes
 indextype=$2    # required, integer type for indices
 buildthreads=$3 # optional, number of build threads (if empty will use all threads)
 
-# create install directory
+# remove old build and install directories
+\rm -rf build_${realtype}_${indextype}
 \rm -rf install_${realtype}_${indextype}
+
+# create new build and install directories
+mkdir build_${realtype}_${indextype}
 mkdir install_${realtype}_${indextype}
 
-# create and move to build directory
-\rm -rf build_${realtype}_${indextype}
-mkdir build_${realtype}_${indextype}
+# move to build directory
 cd build_${realtype}_${indextype}
 
 # number of threads in OpenMP examples
