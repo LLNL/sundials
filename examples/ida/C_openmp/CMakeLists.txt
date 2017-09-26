@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision:  $
-# $Date:  $
-# ---------------------------------------------------------------
 # Programmer: Ting Yan @ SMU
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -46,6 +43,10 @@ SET(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 IF(LAPACK_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
 ENDIF(LAPACK_FOUND)
+
+IF(BLAS_FOUND)
+  LIST(APPEND SUNDIALS_LIBS ${BLAS_LIBRARIES})
+ENDIF(BLAS_FOUND)
 
 IF(KLU_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})

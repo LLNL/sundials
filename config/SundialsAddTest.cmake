@@ -21,7 +21,7 @@
 # fails.  Default signicance is 4 decimal points for floating values
 # and 10% for integer values.
 
-IF(EXAMPLES_ENABLE)
+IF(EXAMPLES_ENABLED)
 
   find_package(PythonInterp)
   IF(${PYTHON_VERSION_MAJOR} LESS 3)
@@ -32,7 +32,7 @@ IF(EXAMPLES_ENABLE)
   ENDIF()
 
   FIND_PROGRAM(TESTRUNNER testRunner PATHS test)
-ENDIF(EXAMPLES_ENABLE)
+ENDIF(EXAMPLES_ENABLED)
 
 macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
