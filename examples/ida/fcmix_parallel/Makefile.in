@@ -1,13 +1,15 @@
 # -----------------------------------------------------------------
-# $Revision$
-# $Date$
-# -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
-# Copyright (c) 2005, The Regents of the University of California.
+# LLNS Copyright Start
+# Copyright (c) 2014, Lawrence Livermore National Security
+# This work was performed under the auspices of the U.S. Department 
+# of Energy by Lawrence Livermore National Laboratory in part under 
+# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
 # For details, see the LICENSE file.
+# LLNS Copyright End
 # -----------------------------------------------------------------
 # Makefile for FIDA parallel examples
 #
@@ -43,7 +45,8 @@ MPIF77_LNKR  = @MPIF77_LNKR@
 MPI_LIB_DIR  = @MPI_LIB_DIR@
 MPI_LIBS     = @MPI_LIBS@
 
-BLAS_LAPACK_LIBS = @BLAS_LAPACK_LIBS@
+LAPACK_LIBS = @LAPACK_LIBS@
+BLAS_LIBS   = @BLAS_LIBS@
 
 OBJ_EXT = @OBJEXT@
 EXE_EXT = @EXEEXT@
@@ -73,7 +76,7 @@ all:
 	@for i in ${EXAMPLES} ; do \
 	  ${fortran-update} ${srcdir} $${i}.f ; \
 	  ${LIBTOOL} --mode=compile ${MPIF77} ${MPI_FLAGS} -I${MPI_INC_DIR} ${FFLAGS} -c ${builddir}/$${i}-updated.f ; \
-	  ${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/$${i}${EXE_EXT} ${builddir}/$${i}-updated${OBJ_EXT} ${MPI_FLAGS} ${F77_LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${F77_LIBS} $(BLAS_LAPACK_LIBS) ; \
+	  ${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/$${i}${EXE_EXT} ${builddir}/$${i}-updated${OBJ_EXT} ${MPI_FLAGS} ${F77_LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${F77_LIBS} $(LAPACK_LIBS) $(BLAS_LIBS) ; \
 	done
 
 install:

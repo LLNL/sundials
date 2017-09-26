@@ -12,7 +12,8 @@
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # -------------------------------------------------------------------------------
-# SUNDIALS regression testing script with all external libraries enabled
+# xsdk variant of the SUNDIALS regression testing script with all external 
+# libraries enabled
 # -------------------------------------------------------------------------------
 
 # check number of inputs
@@ -23,6 +24,17 @@ fi
 realtype=$1     # required, precision for realtypes
 indextype=$2    # required, integer type for indices
 buildthreads=$3 # optional, number of build threads (if empty will use all threads)
+
+# adjust input values for xSDK build
+if [ $realtype == "extended" ]; then
+    realtype="quad"
+fi
+
+if [ $indextype == "int32_t" ]; then
+    indextype="32"
+else
+    indextype="64"
+fi
 
 # create install directory
 \rm -rf install_${realtype}_${indextype}
@@ -56,11 +68,11 @@ BLASDIR=${APPDIR}/lapack/3.6.0/lib64
 LAPACKSTATUS=ON
 LAPACKDIR=${APPDIR}/lapack/3.6.0/lib64
 
-# LAPACK/BLAS does not support extended precision or 64-bit indices
-if [ "$realtype" == "extended" ] || [ "$indextype" == "int64_t" ]; then
-    LAPACKSTATUS=OFF
-    BLASSTATUS=OFF
-fi
+# LAPACK/BLAS does not support extended precision or 64-bit indices (UNCOMMENT LINES BELOW FOR NEW LINEAR SOLVER API)
+# if [ "$realtype" == "extended" ] || [ "$indextype" == "int64_t" ]; then
+#     LAPACKSTATUS=OFF
+#     BLASSTATUS=OFF
+# fi
 
 # KLU
 KLUSTATUS=ON
@@ -78,7 +90,9 @@ SUPERLUMTSTATUS=ON
 if [ "$indextype" == "int32_t" ]; then
     SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1
 else
-    SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1_long_int
+    SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1
+    # REMOVE LINE ABOVE AND UNCOMMENT LINE BELOW FOR NEW LINEAR SOLVER API
+    # SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1_long_int
 fi
 
 # SuperLU MT does not support extended precision
@@ -133,10 +147,10 @@ echo "START CMAKE"
 cmake \
     -D CMAKE_INSTALL_PREFIX="../install_${realtype}_${indextype}" \
     \
-    -D SUNDIALS_PRECISION=$realtype \
-    -D SUNDIALS_INDEX_TYPE=$indextype \
+    -D XSDK_PRECISION=$realtype \
+    -D XSDK_INDEX_SIZE=$indextype \
     \
-    -D FCMIX_ENABLE=ON \
+    -D XSDK_ENABLE_FORTRAN=ON \
     \
     -D EXAMPLES_ENABLE_C=ON \
     -D EXAMPLES_ENABLE_CXX=ON \
@@ -150,9 +164,7 @@ cmake \
     -D CMAKE_CXX_COMPILER="/usr/bin/c++" \
     -D CMAKE_Fortran_COMPILER="/usr/bin/gfortran" \
     \
-    -D CMAKE_C_FLAGS='-g -Wall -std=c99 -pedantic' \
-    -D CMAKE_CXX_FLAGS='-g' \
-    -D CMAKE_Fortran_FLAGS='-g' \
+    -D CMAKE_C_FLAGS='-Wall -std=c99 -pedantic' \
     \
     -D MPI_ENABLE=ON \
     -D MPI_MPICC="${MPIDIR}/mpicc" \
@@ -161,28 +173,28 @@ cmake \
     -D MPI_MPIF90="${MPIDIR}/mpif90" \
     -D MPI_RUN_COMMAND="${MPIDIR}/mpirun" \
     \
-    -D BLAS_ENABLE="${BLASSTATUS}" \
-    -D BLAS_LIBRARIES="${BLASDIR}/libblas.so" \
+    -D TPL_ENABLE_BLAS="${BLASSTATUS}" \
+    -D TPL_BLAS_LIBRARIES="${BLASDIR}/libblas.so" \
     \
-    -D LAPACK_ENABLE="${LAPACKSTATUS}" \
-    -D LAPACK_LIBRARIES="${LAPACKDIR}/liblapack.so" \
+    -D TPL_ENABLE_LAPACK="${LAPACKSTATUS}" \
+    -D TPL_LAPACK_LIBRARIES="${LAPACKDIR}/liblapack.so" \
     \
-    -D KLU_ENABLE="${KLUSTATUS}" \
-    -D KLU_INCLUDE_DIR="${KLUDIR}/include" \
-    -D KLU_LIBRARY_DIR="${KLUDIR}/lib" \
+    -D TPL_ENABLE_KLU="${KLUSTATUS}" \
+    -D TPL_KLU_INCLUDE_DIRS="${KLUDIR}/include" \
+    -D TPL_KLU_LIBRARIES="${KLUDIR}/lib/libklu.a" \
     \
-    -D HYPRE_ENABLE="${HYPRESTATUS}" \
-    -D HYPRE_INCLUDE_DIR="${HYPREDIR}/include" \
-    -D HYPRE_LIBRARY_DIR="${HYPREDIR}/lib" \
+    -D TPL_ENABLE_HYPRE="${HYPRESTATUS}" \
+    -D TPL_HYPRE_INCLUDE_DIRS="${HYPREDIR}/include" \
+    -D TPL_HYPRE_LIBRARIES="${HYPREDIR}/lib/libHYPRE.a" \
     \
-    -D PETSC_ENABLE="${PETSCSTATUS}" \
-    -D PETSC_INCLUDE_DIR="${PETSCDIR}/include" \
-    -D PETSC_LIBRARY_DIR="${PETSCDIR}/lib" \
+    -D TPL_ENABLE_PETSC="${PETSCSTATUS}" \
+    -D TPL_PETSC_INCLUDE_DIRS="${PETSCDIR}/include" \
+    -D TPL_PETSC_LIBRARIES="${PETSCDIR}/lib/libpetsc.so" \
     \
-    -D SUPERLUMT_ENABLE="${SUPERLUMTSTATUS}" \
-    -D SUPERLUMT_INCLUDE_DIR="${SUPERLUMTDIR}/SRC" \
-    -D SUPERLUMT_LIBRARY_DIR="${SUPERLUMTDIR}/lib" \
-    -D SUPERLUMT_THREAD_TYPE=Pthread \
+    -D TPL_ENABLE_SUPERLUMT="${SUPERLUMTSTATUS}" \
+    -D TPL_SUPERLUMT_INCLUDE_DIRS="${SUPERLUMTDIR}/SRC" \
+    -D TPL_SUPERLUMT_LIBRARIES="${SUPERLUMTDIR}/lib/libsuperlu_mt_PTHREAD.a" \
+    -D TPL_SUPERLUMT_THREAD_TYPE=Pthread \
     \
     ../../. 2>&1 | tee configure.log
 
