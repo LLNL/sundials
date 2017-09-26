@@ -13,9 +13,6 @@
 # ------------------------------------------------------------------
 # CMakeLists.txt file for IDA serial examples
 #
-# CSW 4/19/2014
-#    Added SUPERLUMT logic.
-
 
 # Add variable IDA_examples with the names of the serial IDA examples
 
@@ -29,10 +26,19 @@ SET(IDA_examples
   idaSlCrank_dns
   )
 
-SET(IDA_examples_SUPERLUMT
-  idaRoberts_sps
-  #idaHeat2D_sps ... not ready yet ... incorrect answer.
-  )
+IF(TESTRUNNER AND (SUNDIALS_INDEX_TYPE MATCHES "INT64_T"))
+  # Do not include SuperLUMT examples in testing when the indextype is int64_t.
+  # Answer files were generated with int32_t and minor differences in output
+  # occur causing a false positive when testing. These tests can be re-enabled
+  # when type specific answer files are added.
+  SET(IDAS_examples_SUPERLUMT
+    )
+ELSE()
+  SET(IDA_examples_SUPERLUMT
+    idaRoberts_sps
+    #idaHeat2D_sps ... not ready yet ... incorrect answer.
+    )
+ENDIF()
 
 SET(IDA_examples_KLU
   idaRoberts_klu

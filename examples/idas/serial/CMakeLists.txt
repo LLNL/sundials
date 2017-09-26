@@ -37,11 +37,20 @@ SET(IDAS_examples
 SET(IDAS_examples_BL
   )
   
-SET(IDAS_examples_SUPERLUMT
-  idasRoberts_sps
-  idasRoberts_ASAi_sps
-  "idasRoberts_FSA_sps\;-sensi stg t"
-  )
+IF(TESTRUNNER AND (SUNDIALS_INDEX_TYPE MATCHES "INT64_T"))
+  # Do not include SuperLUMT examples in testing when the indextype is int64_t.
+  # Answer files were generated with int32_t and minor differences in output
+  # occur causing a false positive when testing. These tests can be re-enabled
+  # when type specific answer files are added.
+  SET(IDAS_examples_SUPERLUMT
+    )
+ELSE()
+  SET(IDAS_examples_SUPERLUMT
+    idasRoberts_sps
+    idasRoberts_ASAi_sps
+    "idasRoberts_FSA_sps\;-sensi stg t"
+    )
+ENDIF()
 
 SET(IDAS_examples_KLU
   idasRoberts_klu
