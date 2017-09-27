@@ -155,17 +155,12 @@ SUNDIALS_EXPORT int CVDlsSetLinearSolver(void *cvode_mem,
   dense/band; no default exists for sparse (so this must be 
   user-supplied).
  
-  CVDlsSetMSBJ specifies the maximum number of steps to take 
-  between Jacobian evaluations.  A negative value indicates to use
-  the default.
- 
   The return value is one of:
      CVDLS_SUCCESS   if successful
      CVDLS_MEM_NULL  if the CVODE memory was NULL
      CVDLS_LMEM_NULL if the linear solver memory was NULL
   -----------------------------------------------------------------*/
 SUNDIALS_EXPORT int CVDlsSetJacFn(void *cvode_mem, CVDlsJacFn jac);
-SUNDIALS_EXPORT int CVDlsSetMSBJ(void *cvode_mem, int msbj);
 
 
 /*-----------------------------------------------------------------
@@ -266,10 +261,6 @@ SUNDIALS_EXPORT int CVDlsSetLinearSolverB(void *cvode_mem,
   CVDlsSetJacFnBS specifies the Jacobian function when the backward
   problem does depend on sensitivities.
 
-  CVDlsSetMSBJB specifies the maximum number of steps to take 
-  between Jacobian evaluations for the backward integration phase.  
-  A negative value indicates to use the default.
- 
   The 'which' argument is the int returned by CVodeCreateB.
  
   The return value is one of:
@@ -281,8 +272,6 @@ SUNDIALS_EXPORT int CVDlsSetJacFnB(void *cvode_mem, int which,
                                    CVDlsJacFnB jacB);
 SUNDIALS_EXPORT int CVDlsSetJacFnBS(void *cvode_mem, int which,
                                     CVDlsJacFnBS jacBS);
-SUNDIALS_EXPORT int CVDlsSetMSBJB(void *cvode_mem, int which,
-                                  int msbj);
 
 #ifdef __cplusplus
 }

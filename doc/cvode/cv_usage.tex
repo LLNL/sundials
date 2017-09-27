@@ -1134,7 +1134,6 @@ Disable rootfinding warnings & \id{CVodeSetNoInactiveRootWarn} & none \\
 \multicolumn{3}{|c|}{\bf CVDLS linear solver interface} \\
 \hline
 Jacobian function & \id{CVDlsSetJacFn} & DQ\\
-Maximum no. of steps between Jacobian updates & \id{CVDlsSetMSBJ} & 50\\
 \hline
 \multicolumn{3}{|c|}{\bf CVSPILS linear solver interface} \\
 \hline
@@ -1749,59 +1748,6 @@ The pointer \id{user\_data} may be specified through \id{CVodeSetUserData}.
   If \id{NULL} is passed to \id{jac}, this default function is used.
 
   The function type \id{CVDlsJacFn} is described in \S\ref{ss:jacFn}.
-}
-
-As described in Section \ref{ss:ivp_sol}, the
-\index{CVDLS@{\cvdls} linear solver interface!Jacobian approximation update} 
-{\cvdls} solver interface updates the Jacobian matrix $J$ and the
-system matrix $M = I - \gamma J$ (see \ref{e:Newtonmat}) as
-infrequently as possible to amortize the costs of Jacobian
-construction and system matrix factorization.  Two factors impacting
-the decision to reevaluate $J$ (and update the factorization
-of $M$) are the number of steps that have been taken since the last
-evaluation (default is 50) and if a convergence failure
-occurred with the value $\bar{\gamma}$ of $\gamma$ at the last update
-satisfying $|\gamma/\bar{\gamma} - 1| < 0.2$.  These default values of
-50 and 0.2 may be tuned for specific problems.
-To update the time step frequency for updating $J$, {\cvdls} provides 
-\index{Jacobian approximation update!MSBJ}
-the function \id{CVDlsSetMSBJ}.  
-%%
-\index{Jacobian approximation update!MSBJ}
-\ucfunction{CVDlsSetMSBJ}
-{
-  flag = CVDlsSetMSBJ(cvode\_mem, msbj);
-}
-{
-  The function \ID{CVDlsSetMSBJ} specifies the maximum number of time
-  steps between Jacobian updates.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[msbj] (id{int})
-    number of time steps between Jacobian updates.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}
-  \item[\Id{CVDLS\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{CVDLS\_MEM\_NULL}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVDLS\_LMEM\_NULL}]
-    The {\cvdls} linear solver interface has not been initialized.
-  \end{args}
-}
-{
-  If a negative value for \id{msbj} is supplied, the default value of
-  50 will be used.
-
-  If a value less than 20 is input, this will also override the
-  default frequency at which the Newton matrix $M$ is reconstructed
-  and factored.
 }
 %%
 \index{optional input!direct linear solver interface|)}

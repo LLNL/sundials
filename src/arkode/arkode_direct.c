@@ -107,7 +107,6 @@ int ARKDlsSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   arkdls_mem->jac = arkDlsDQJac;
   arkdls_mem->J_data = ark_mem;
   arkdls_mem->last_flag = ARKDLS_SUCCESS;
-  arkdls_mem->msbj = ARKD_MSBJ;
 
   /* Initialize counters */
   arkDlsInitializeCounters(arkdls_mem);
@@ -311,44 +310,6 @@ int ARKDlsSetMassFn(void *arkode_mem, ARKDlsMassFn mass)
     return(ARKDLS_ILL_INPUT);
   }
 
-  return(ARKDLS_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
- ARKDlsSetMSBJ specifies the msbj parameter.
----------------------------------------------------------------*/
-int ARKDlsSetMSBJ(void *arkode_mem, int msbj)
-{
-  ARKodeMem ark_mem;
-  ARKDlsMem arkdls_mem;
-
-  /* Return immediately if arkode_mem is NULL */
-  if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARKDLS_MEM_NULL, "ARKDLS",
-                    "ARKDlsSetMSBJ", MSGD_ARKMEM_NULL);
-    return(ARKDLS_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-
-  if (ark_mem->ark_lmem == NULL) {
-    arkProcessError(ark_mem, ARKDLS_LMEM_NULL, "ARKDLS",
-                    "ARKDlsSetMSBJ", MSGD_LMEM_NULL);
-    return(ARKDLS_LMEM_NULL);
-  }
-  arkdls_mem = (ARKDlsMem) ark_mem->ark_lmem;
-
-  if (msbj < 0) {
-    arkdls_mem->msbj = ARKD_MSBJ;
-  } else {
-    arkdls_mem->msbj = msbj;
-  }
-
-  /* overwrite main integrator lsetup frequency if necessary 
-     to support msbj input */
-  if (arkdls_mem->msbj < ark_mem->ark_msbp)
-    ark_mem->ark_msbp = arkdls_mem->msbj;
-  
   return(ARKDLS_SUCCESS);
 }
 
@@ -1046,7 +1007,7 @@ int arkDlsSetup(ARKodeMem ark_mem, int convfail, N_Vector ypred,
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
   dgamma = SUNRabs((ark_mem->ark_gamma/ark_mem->ark_gammap) - ONE);
   jbad = (ark_mem->ark_nst == 0) || 
-    (ark_mem->ark_nst > arkdls_mem->nstlj + arkdls_mem->msbj) ||
+    (ark_mem->ark_nst > arkdls_mem->nstlj + ARKD_MSBJ) ||
     ((convfail == ARK_FAIL_BAD_J) && (dgamma < ARKD_DGMAX)) ||
     (convfail == ARK_FAIL_OTHER);
   jok = !jbad;

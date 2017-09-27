@@ -68,8 +68,6 @@ typedef struct CVDlsMemRec {
 
   long int last_flag;   /* last error return flag                       */
 
-  int msbj;             /* max num steps between Jacobian evaluations   */
-
 } *CVDlsMem;
 
 /*-----------------------------------------------------------------

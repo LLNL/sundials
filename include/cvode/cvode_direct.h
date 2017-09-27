@@ -138,17 +138,12 @@ SUNDIALS_EXPORT int CVDlsSetLinearSolver(void *cvode_mem,
   dense/band; no default exists for sparse (so this must 
   be user-supplied).
  
-  CVDlsSetMSBJ specifies the maximum number of steps to take 
-  between Jacobian evaluations.  A negative value indicates to use
-  the default.
- 
   The return value is one of:
      CVDLS_SUCCESS   if successful
      CVDLS_MEM_NULL  if the CVODE memory was NULL
      CVDLS_LMEM_NULL if the linear solver memory was NULL
   -----------------------------------------------------------------*/
 SUNDIALS_EXPORT int CVDlsSetJacFn(void *cvode_mem, CVDlsJacFn jac);
-SUNDIALS_EXPORT int CVDlsSetMSBJ(void *cvode_mem, int msbj);
 
 /*-----------------------------------------------------------------
   Optional outputs from the CVDLS linear solver interface

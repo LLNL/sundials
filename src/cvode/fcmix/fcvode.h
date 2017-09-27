@@ -73,7 +73,6 @@
  *   FCVDENSESETJAC             CVDlsSetJacFn
  *   FCVBANDSETJAC              CVDlsSetJacFn
  *   FCVSPARSESETJAC            CVDlsSetJacFn
- *   FCVDLSSETMSBJ              CVDlsSetMSBJ
  *
  *   FCVDIAG                    CVDiag
  *
@@ -909,7 +908,6 @@ extern "C" {
 #define FCV_SETRIN         SUNDIALS_F77_FUNC(fcvsetrin, FCVSETRIN)
 #define FCV_EWTSET         SUNDIALS_F77_FUNC(fcvewtset, FCVEWTSET)
 #define FCV_DLSINIT        SUNDIALS_F77_FUNC(fcvdlsinit, FCVDLSINIT)
-#define FCV_DLSSETMSBJ     SUNDIALS_F77_FUNC(fcvdlssetmsbj, FCVDLSSETMSBJ)
 #define FCV_DENSESETJAC    SUNDIALS_F77_FUNC(fcvdensesetjac, FCVDENSESETJAC)
 #define FCV_BANDSETJAC     SUNDIALS_F77_FUNC(fcvbandsetjac, FCVBANDSETJAC)
 #define FCV_SPARSESETJAC   SUNDIALS_F77_FUNC(fcvsparsesetjac, FCVSPARSESETJAC)  
@@ -940,7 +938,6 @@ extern "C" {
 #define FCV_SETRIN         fcvsetrin_
 #define FCV_EWTSET         fcvewtset_
 #define FCV_DLSINIT        fcvdlsinit_
-#define FCV_DLSSETMSBJ     fcvdlssetmsbj_
 #define FCV_DENSESETJAC    fcvdensesetjac_
 #define FCV_BANDSETJAC     fcvbandsetjac_
 #define FCV_SPARSESETJAC   fcvsparsesetjac_
@@ -992,7 +989,6 @@ extern "C" {
   void FCV_EWTSET(int *flag, int *ier);
 
   void FCV_DLSINIT(int *ier);
-  void FCV_DLSSETMSBJ(int *msbj, int *ier);
   void FCV_DENSESETJAC(int *flag, int *ier);
   void FCV_BANDSETJAC(int *flag, int *ier);
   void FCV_SPARSESETJAC(int *ier);

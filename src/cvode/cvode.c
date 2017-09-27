@@ -378,7 +378,6 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_maxnef     = MXNEF;
   cv_mem->cv_maxncf     = MXNCF;
   cv_mem->cv_nlscoef    = CORTES;
-  cv_mem->cv_msbp       = MSBP;
   
   /* Initialize root finding variables */
 
@@ -2583,7 +2582,7 @@ static int cvNlsNewton(CVodeMem cv_mem, int nflag)
   if (cv_mem->cv_lsetup) {      
     callSetup = (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
       (cv_mem->cv_nst == 0) ||
-      (cv_mem->cv_nst >= cv_mem->cv_nstlp + cv_mem->cv_msbp) ||
+      (cv_mem->cv_nst >= cv_mem->cv_nstlp + MSBP) ||
       (SUNRabs(cv_mem->cv_gamrat-ONE) > DGMAX);
   } else {  
     cv_mem->cv_crate = ONE;
