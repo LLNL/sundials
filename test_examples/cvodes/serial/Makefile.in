@@ -1,13 +1,15 @@
 # -----------------------------------------------------------------
-# $Revision$
-# $Date$
-# -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
-# Copyright (c) 2002, The Regents of the University of California.
+# LLNS Copyright Start
+# Copyright (c) 2014, Lawrence Livermore National Security
+# This work was performed under the auspices of the U.S. Department 
+# of Energy by Lawrence Livermore National Laboratory in part under 
+# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
 # For details, see the LICENSE file.
+# LLNS Copyright End
 # -----------------------------------------------------------------
 # Makefile for CVODES serial examples
 #
@@ -40,7 +42,10 @@ LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
 LAPACK_ENABLED = @LAPACK_ENABLED@
-BLAS_LAPACK_LIBS = @BLAS_LAPACK_LIBS@
+LAPACK_LIBS    = @LAPACK_LIBS@
+
+BLAS_ENABLED = @BLAS_ENABLED@
+BLAS_LIBS    = @BLAS_LIBS@
 
 OBJ_EXT = @OBJEXT@
 EXE_EXT = @EXEEXT@
@@ -80,22 +85,22 @@ distclean: clean
 
 cvsminhx$(EXE_EXT): $(srcdir)/cvsminhx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsminhx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsminhx$(EXE_EXT) $(builddir)/cvsminhx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsminhx$(EXE_EXT) $(builddir)/cvsminhx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) $(LAPACK_LIBS) $(BLAS_LIBS)
 cvs2odex$(EXE_EXT): $(srcdir)/cvs2odex.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvs2odex.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvs2odex$(EXE_EXT) $(builddir)/cvs2odex$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvs2odex$(EXE_EXT) $(builddir)/cvs2odex$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) $(LAPACK_LIBS) $(BLAS_LIBS)
 cvsnegsolx$(EXE_EXT): $(srcdir)/cvsnegsolx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsnegsolx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsnegsolx$(EXE_EXT) $(builddir)/cvsnegsolx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsnegsolx$(EXE_EXT) $(builddir)/cvsnegsolx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) $(LAPACK_LIBS) $(BLAS_LIBS)
 cvsdiscx$(EXE_EXT): $(srcdir)/cvsdiscx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsdiscx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsdiscx$(EXE_EXT) $(builddir)/cvsdiscx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsdiscx$(EXE_EXT) $(builddir)/cvsdiscx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) $(LAPACK_LIBS) $(BLAS_LIBS)
 cvsfwdswitchx$(EXE_EXT): $(srcdir)/cvsfwdswitchx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsfwdswitchx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsfwdswitchx$(EXE_EXT) $(builddir)/cvsfwdswitchx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsfwdswitchx$(EXE_EXT) $(builddir)/cvsfwdswitchx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) $(LAPACK_LIBS) $(BLAS_LIBS)
 cvsicx$(EXE_EXT): $(srcdir)/cvsicx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsicx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsicx$(EXE_EXT) $(builddir)/cvsicx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsicx$(EXE_EXT) $(builddir)/cvsicx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) $(LAPACK_LIBS) $(BLAS_LIBS)
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                \

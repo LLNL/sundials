@@ -36,14 +36,12 @@
 #define Ith(v,i)    NV_Ith_S(v,i-1)       /* i-th vector component */
 
 /* Problem Constants */
-#define NEQ  6
+#define NEQ 6
+#define T0  RCONST(0.0)
+#define T1  RCONST(1e-8)  /* first time for output */
 
-#define T0      RCONST(0.0)
-
-#define T1      RCONST(1e-8)  /* first time for output */
-
-#define TF      RCONST(180.0) /* Final time. */
-#define NF      25            /* Total number of outputs. */ 
+#define TF  RCONST(180.0) /* Final time. */
+#define NF  25            /* Total number of outputs. */ 
 
 #define RTOL  RCONST(1.0e-08)
 #define ATOL  RCONST(1.0e-10)

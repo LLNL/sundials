@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision: 4341 $
-# $Date: 2015-02-03 10:53:47 -0800 (Tue, 03 Feb 2015) $
-# ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -55,6 +52,10 @@ SET(HYPRE_LIBS ${HYPRE_LIBRARIES})
 IF(LAPACK_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
 ENDIF(LAPACK_FOUND)
+
+IF(BLAS_FOUND)
+  LIST(APPEND SUNDIALS_LIBS ${BLAS_LIBRARIES})
+ENDIF(BLAS_FOUND)
 
 IF(KLU_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})

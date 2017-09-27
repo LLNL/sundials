@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Scott Cohen, Alan Hindmarsh, Radu Serban,
  *                Aaron Collier, and Slaven Peles @ LLNL
  * -----------------------------------------------------------------
@@ -15,11 +11,10 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS Copyright End
- *------------------------------------------------------------------
+ * -----------------------------------------------------------------
  * This header file contains definitions of MPI data types, which 
  * are used by MPI parallel vector implementations.
- *------------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <sundials/sundials_types.h>
 

@@ -13,25 +13,22 @@
 # ---------------------------------------------------------------
 # CMakeLists.txt file for IDAS serial examples
 #
-# LEBanks 3/25/2013
-#    Added SUPERLUMT logic.
-
 
 # Add variable IDAS_examples with the names of the serial IDAS examples
 
 SET(IDAS_examples
-  # idasAkzoNob_ASAi_dns
+  idasAkzoNob_ASAi_dns
   idasAkzoNob_dns
   idasFoodWeb_bnd
   idasHeat2D_bnd
   idasHeat2D_kry
-  # idasHessian_ASA_FSA
+  idasHessian_ASA_FSA
   idasKrylovDemo_ls
-  # idasRoberts_ASAi_dns
+  idasRoberts_ASAi_dns
   idasRoberts_dns
-  # "idasRoberts_FSA_dns\;-sensi stg t"
+  "idasRoberts_FSA_dns\;-sensi stg t"
   idasSlCrank_dns
-  # idasSlCrank_FSA_dns
+  idasSlCrank_FSA_dns
   )
 
 # Add variable IDAS_examples_BL with the names of the serial IDAS examples
@@ -40,16 +37,25 @@ SET(IDAS_examples
 SET(IDAS_examples_BL
   )
   
-SET(IDAS_examples_SUPERLUMT
-  idasRoberts_sps
-  # idasRoberts_ASAi_sps
-  # "idasRoberts_FSA_sps\;-sensi stg t"
-  )
+IF(TESTRUNNER AND (SUNDIALS_INDEX_TYPE MATCHES "INT64_T"))
+  # Do not include SuperLUMT examples in testing when the indextype is int64_t.
+  # Answer files were generated with int32_t and minor differences in output
+  # occur causing a false positive when testing. These tests can be re-enabled
+  # when type specific answer files are added.
+  SET(IDAS_examples_SUPERLUMT
+    )
+ELSE()
+  SET(IDAS_examples_SUPERLUMT
+    idasRoberts_sps
+    idasRoberts_ASAi_sps
+    "idasRoberts_FSA_sps\;-sensi stg t"
+    )
+ENDIF()
 
 SET(IDAS_examples_KLU
   idasRoberts_klu
-  # idasRoberts_ASAi_klu
-  # "idasRoberts_FSA_klu\;-sensi stg t"
+  idasRoberts_ASAi_klu
+  "idasRoberts_FSA_klu\;-sensi stg t"
   )
 
 # Specify libraries to link against (through the target that was used to 
@@ -69,6 +75,10 @@ SET(SUNDIALS_LIBS ${IDAS_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 IF(LAPACK_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
 ENDIF(LAPACK_FOUND)
+
+IF(BLAS_FOUND)
+  LIST(APPEND SUNDIALS_LIBS ${BLAS_LIBRARIES})
+ENDIF(BLAS_FOUND)
 
 IF(SUPERLUMT_FOUND)
   # quote list to retain integrity

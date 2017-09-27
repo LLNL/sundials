@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision: 4713 $
-# $Date: 2016-03-28 07:20:43 -0700 (Mon, 28 Mar 2016) $
-# ---------------------------------------------------------------
 # Programmer:  Slaven Peles @ LLNL, Jean Sexton @ SMU,
 #              Eddy Banks @ LLNL
 # ---------------------------------------------------------------
@@ -18,7 +15,7 @@
 # - Find hypre
 
 #  HYPRE_INCLUDE_DIR = cached location of HYPRE.h
-#  HYPRE_LIBRARY    = cached list of HYPRE library to link in
+#  HYPRE_LIBRARY     = cached list of HYPRE library to link in
 
 ### Find include dir
 find_path(temp_HYPRE_INCLUDE_DIR hypre.h ${HYPRE_INCLUDE_DIR})

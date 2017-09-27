@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision:  $
- * $Date: $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Ting Yan @ SMU
  *      Based on idasRoberts_FSA_dns.c and modified to use SuperLUMT
  * -----------------------------------------------------------------
@@ -36,8 +32,7 @@
  *    % idasRoberts_FSA_sps -sensi sensi_meth err_con
  * where sensi_meth is one of {sim, stg} and err_con is one of
  * {t, f}.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,12 +40,13 @@
 
 /* Header files with a description of contents used */
 
-#include <idas/idas.h>                 /* prototypes for IDAS fcts. and consts. */
-#include <idas/idas_superlumt.h>       /* prototypes for IDASuperLUMT fcts. and consts. */
-#include <sundials/sundials_sparse.h>  /* defs. of SlsMat */
-#include <nvector/nvector_serial.h>    /* defs. of serial NVECTOR functions  */
-#include <sundials/sundials_types.h>   /* def. of type realtype */
-#include <sundials/sundials_math.h>    /* definition of ABS */
+#include <idas/idas.h>                     /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>        /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix           */
+#include <sunlinsol/sunlinsol_superlumt.h> /* access to SuperLUMT linear solver    */
+#include <idas/idas_direct.h>              /* access to IDADls interface           */
+#include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>        /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Accessor macros */
 
@@ -83,7 +79,7 @@ static int res(realtype t, N_Vector y, N_Vector yp, N_Vector resval, void *user_
 
 static int Jac(realtype t, realtype cj, 
                N_Vector yy, N_Vector yp, N_Vector resvec, 
-               SlsMat JacMat, void *user_data, 
+               SUNMatrix JJ, void *user_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 static int resS(int Ns, realtype t, 
@@ -120,6 +116,8 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 int main(int argc, char *argv[])
 {
   void *ida_mem;
+  SUNMatrix A;
+  SUNLinearSolver LS;
   UserData data;
   realtype reltol, t, tout;
   N_Vector y, yp, abstol, id;
@@ -135,9 +133,11 @@ int main(int argc, char *argv[])
 
   ida_mem = NULL;
   data    = NULL;
-  y       =  NULL;
+  y       = NULL;
   yS      = NULL;
   ypS     = NULL;
+  A       = NULL;
+  LS      = NULL;
 
   /* Process arguments */
   ProcessArgs(argc, argv, &sensi, &sensi_meth, &err_con);
@@ -195,14 +195,23 @@ int main(int argc, char *argv[])
   flag = IDASetUserData(ida_mem, data);
   if (check_flag(&flag, "IDASetUserData", 1)) return(1);
 
-  /* Attach linear solver */
-  nthreads = 1;
+  /* Create sparse SUNMatrix for use in linear solves */
   nnz = NEQ * NEQ;
-  flag = IDASuperLUMT(ida_mem, nthreads, NEQ, nnz);
-  if (check_flag(&flag, "IDASuperLUMT", 1)) return(1);
+  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
+  if(check_flag((void *)A, "SUNSparseMatrix", 0)) return(1);
 
-  flag = IDASlsSetSparseJacFn(ida_mem, Jac);
-  if (check_flag(&flag, "IDASlsSetSparseJacFn", 1)) return(1);
+  /* Create SuperLUMT SUNLinearSolver object (one thread) */
+  nthreads = 1;
+  LS = SUNSuperLUMT(y, A, nthreads);
+  if(check_flag((void *)LS, "SUNSuperLUMT", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  flag = IDADlsSetLinearSolver(ida_mem, LS, A);
+  if(check_flag(&flag, "IDADlsSetLinearSolver", 1)) return(1);
+
+  /* Set the user-supplied Jacobian routine */
+  flag = IDADlsSetJacFn(ida_mem, Jac);
+  if(check_flag(&flag, "IDADlsSetJacFn", 1)) return(1);
 
   printf("\n3-species chemical kinetics problem\n");
 
@@ -213,12 +222,12 @@ int main(int argc, char *argv[])
     pbar[1] = data->p[1];
     pbar[2] = data->p[2];
 
-    yS = N_VCloneVectorArray_Serial(NS, y);
-    if (check_flag((void *)yS, "N_VCloneVectorArray_Serial", 0)) return(1);
+    yS = N_VCloneVectorArray(NS, y);
+    if (check_flag((void *)yS, "N_VCloneVectorArray", 0)) return(1);
     for (is=0;is<NS;is++) N_VConst(ZERO, yS[is]);
     
-    ypS = N_VCloneVectorArray_Serial(NS, y);
-    if (check_flag((void *)ypS, "N_VCloneVectorArray_Serial", 0)) return(1);
+    ypS = N_VCloneVectorArray(NS, y);
+    if (check_flag((void *)ypS, "N_VCloneVectorArray", 0)) return(1);
     for (is=0;is<NS;is++) N_VConst(ZERO, ypS[is]);
 
     /* 
@@ -265,7 +274,7 @@ int main(int argc, char *argv[])
 
   IDAQuadInit(ida_mem, rhsQ, yQ);
 
-  yQS = N_VCloneVectorArray_Serial(NS, yQ);
+  yQS = N_VCloneVectorArray(NS, yQ);
   for (is=0;is<NS;is++) N_VConst(ZERO, yQS[is]);  
 
   IDAQuadSensInit(ida_mem, NULL, yQS);
@@ -340,13 +349,15 @@ int main(int argc, char *argv[])
   PrintFinalStats(ida_mem, sensi);
 
   /* Free memory */
-  N_VDestroy_Serial(y);
+  N_VDestroy(y);
   if (sensi) {
-    N_VDestroyVectorArray_Serial(yS, NS);
+    N_VDestroyVectorArray(yS, NS);
   }
   free(data);
   IDAFree(&ida_mem);
-  N_VDestroy_Serial(yQ);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
+  N_VDestroy(yQ);
 
   return(0);
 }
@@ -393,41 +404,49 @@ static int res(realtype t, N_Vector yy, N_Vector yp, N_Vector resval, void *user
 
 static int Jac(realtype t, realtype cj,
                N_Vector yy, N_Vector yp, N_Vector resvec, 
-               SlsMat JacMat, void *user_data, 
+               SUNMatrix JJ, void *user_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype *yval;
-  int *colptrs;
-  int *rowvals;
-  realtype* data;
+  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(JJ);
+  sunindextype *rowvals = SUNSparseMatrix_IndexValues(JJ);
+  realtype *data = SUNSparseMatrix_Data(JJ);
+
   UserData userdata;
   realtype p1, p2, p3;
  
-  yval = N_VGetArrayPointer_Serial(yy);
-  colptrs = (*JacMat->colptrs);
-  rowvals = (*JacMat->rowvals);
-  data = JacMat->data;
+  yval = N_VGetArrayPointer(yy);
+
   userdata = (UserData) user_data;
   p1 = userdata->p[0]; p2 = userdata->p[1]; p3 = userdata->p[2];
 
-  SparseSetMatToZero(JacMat);
+  SUNMatZero(JJ);
 
   colptrs[0] = 0;
   colptrs[1] = 3;
   colptrs[2] = 6;
   colptrs[3] = 9;
 
-  data[0] = p1+cj;                        rowvals[0] = 0;
-  data[1] = -p1;                          rowvals[1] = 1;
-  data[2] = ONE;                          rowvals[2] = 2;
+  data[0] = p1+cj;
+  rowvals[0] = 0;
+  data[1] = -p1;
+  rowvals[1] = 1;
+  data[2] = ONE;
+  rowvals[2] = 2;
 
-  data[3] = -p2*yval[2];                  rowvals[3] = 0;
-  data[4] = p2*yval[2]+2*p3*yval[1]+cj;   rowvals[4] = 1;
-  data[5] = ONE;                          rowvals[5] = 2;
+  data[3] = -p2*yval[2];
+  rowvals[3] = 0;
+  data[4] = p2*yval[2]+2*p3*yval[1]+cj;
+  rowvals[4] = 1;
+  data[5] = ONE;
+  rowvals[5] = 2;
 
-  data[6] = -p2*yval[1];                  rowvals[6] = 0;
-  data[7] = p2*yval[1];                   rowvals[7] = 1;
-  data[8] = ONE;                          rowvals[8] = 2;
+  data[6] = -p2*yval[1];
+  rowvals[6] = 0;
+  data[7] = p2*yval[1];
+  rowvals[7] = 1;
+  data[8] = ONE;
+  rowvals[8] = 2;
 
   return(0);
 }
@@ -574,7 +593,7 @@ static void PrintIC(N_Vector y, N_Vector yp)
 {
   realtype* data;
 
-  data = N_VGetArrayPointer_Serial(y);
+  data = N_VGetArrayPointer(y);
   printf("\n\nConsistent IC:\n");
   printf("\ty = ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -585,7 +604,7 @@ static void PrintIC(N_Vector y, N_Vector yp)
   printf("%12.4e %12.4e %12.4e \n", data[0], data[1], data[2]);
 #endif
 
-  data = N_VGetArrayPointer_Serial(yp);
+  data = N_VGetArrayPointer(yp);
   printf("\typ= ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le %12.4Le %12.4Le \n", data[0], data[1], data[2]);
@@ -600,7 +619,7 @@ static void PrintSensIC(N_Vector y, N_Vector yp, N_Vector* yS, N_Vector* ypS)
 {
   realtype *sdata;
 
-  sdata = N_VGetArrayPointer_Serial(yS[0]);
+  sdata = N_VGetArrayPointer(yS[0]);
   printf("                  Sensitivity 1  ");
 
   printf("\n\ts1 = ");
@@ -611,7 +630,7 @@ static void PrintSensIC(N_Vector y, N_Vector yp, N_Vector* yS, N_Vector* ypS)
 #else
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
 #endif
-  sdata = N_VGetArrayPointer_Serial(ypS[0]);
+  sdata = N_VGetArrayPointer(ypS[0]);
   printf("\ts1'= ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le %12.4Le %12.4Le \n", sdata[0], sdata[1], sdata[2]);
@@ -623,7 +642,7 @@ static void PrintSensIC(N_Vector y, N_Vector yp, N_Vector* yS, N_Vector* ypS)
 
 
   printf("                  Sensitivity 2  ");
-  sdata = N_VGetArrayPointer_Serial(yS[1]);
+  sdata = N_VGetArrayPointer(yS[1]);
   printf("\n\ts2 = ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le %12.4Le %12.4Le \n", sdata[0], sdata[1], sdata[2]);
@@ -632,7 +651,7 @@ static void PrintSensIC(N_Vector y, N_Vector yp, N_Vector* yS, N_Vector* ypS)
 #else
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
 #endif
-  sdata = N_VGetArrayPointer_Serial(ypS[1]);
+  sdata = N_VGetArrayPointer(ypS[1]);
   printf("\ts2'= ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le %12.4Le %12.4Le \n", sdata[0], sdata[1], sdata[2]);
@@ -644,7 +663,7 @@ static void PrintSensIC(N_Vector y, N_Vector yp, N_Vector* yS, N_Vector* ypS)
 
 
   printf("                  Sensitivity 3  ");
-  sdata = N_VGetArrayPointer_Serial(yS[2]);
+  sdata = N_VGetArrayPointer(yS[2]);
   printf("\n\ts3 = ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le %12.4Le %12.4Le \n", sdata[0], sdata[1], sdata[2]);
@@ -653,7 +672,7 @@ static void PrintSensIC(N_Vector y, N_Vector yp, N_Vector* yS, N_Vector* ypS)
 #else
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
 #endif
-  sdata = N_VGetArrayPointer_Serial(ypS[2]);
+  sdata = N_VGetArrayPointer(ypS[2]);
   printf("\ts3'= ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le %12.4Le %12.4Le \n", sdata[0], sdata[1], sdata[2]);
@@ -676,7 +695,7 @@ static void PrintOutput(void *ida_mem, realtype t, N_Vector u)
   int qu, flag;
   realtype hu, *udata;
   
-  udata = N_VGetArrayPointer_Serial(u);
+  udata = N_VGetArrayPointer(u);
 
   flag = IDAGetNumSteps(ida_mem, &nst);
   check_flag(&flag, "IDAGetNumSteps", 1);
@@ -713,7 +732,7 @@ static void PrintSensOutput(N_Vector *uS)
 {
   realtype *sdata;
 
-  sdata = N_VGetArrayPointer_Serial(uS[0]);
+  sdata = N_VGetArrayPointer(uS[0]);
   printf("                  Sensitivity 1  ");
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -724,7 +743,7 @@ static void PrintSensOutput(N_Vector *uS)
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
 #endif
   
-  sdata = N_VGetArrayPointer_Serial(uS[1]);
+  sdata = N_VGetArrayPointer(uS[1]);
   printf("                  Sensitivity 2  ");
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -735,7 +754,7 @@ static void PrintSensOutput(N_Vector *uS)
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
 #endif
 
-  sdata = N_VGetArrayPointer_Serial(uS[2]);
+  sdata = N_VGetArrayPointer(uS[2]);
   printf("                  Sensitivity 3  ");
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)

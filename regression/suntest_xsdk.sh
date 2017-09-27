@@ -12,7 +12,8 @@
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # -------------------------------------------------------------------------------
-# SUNDIALS regression testing script with all external libraries enabled
+# xsdk variant of the SUNDIALS regression testing script with all external 
+# libraries enabled
 # -------------------------------------------------------------------------------
 
 # check number of inputs
@@ -25,15 +26,15 @@ indextype=$2    # required, integer type for indices
 buildthreads=$3 # optional, number of build threads (if empty will use all threads)
 
 # remove old build and install directories
-\rm -rf build_${realtype}_${indextype}
-\rm -rf install_${realtype}_${indextype}
+\rm -rf build_xSDK_${realtype}_${indextype}
+\rm -rf install_xSDK_${realtype}_${indextype}
 
 # create new build and install directories
-mkdir build_${realtype}_${indextype}
-mkdir install_${realtype}_${indextype}
+mkdir build_xSDK_${realtype}_${indextype}
+mkdir install_xSDK_${realtype}_${indextype}
 
 # move to build directory
-cd build_${realtype}_${indextype}
+cd build_xSDK_${realtype}_${indextype}
 
 # number of threads in OpenMP examples
 export OMP_NUM_THREADS=4
@@ -131,14 +132,28 @@ fi
 # compile time which is useful for debugging build issues.
 # -------------------------------------------------------------------------------
 
+# set realtype for xSDK build
+if [ $realtype == "extended" ]; then
+    xsdk_realtype="quad"
+else
+    xsdk_realtype=$realtype
+fi
+
+# set indextype for xSDK build
+if [ $indextype == "int32_t" ]; then
+    xsdk_indextype="32"
+else
+    xsdk_indextype="64"
+fi
+
 echo "START CMAKE"
 cmake \
     -D CMAKE_INSTALL_PREFIX="../install_${realtype}_${indextype}" \
     \
-    -D SUNDIALS_PRECISION=$realtype \
-    -D SUNDIALS_INDEX_TYPE=$indextype \
+    -D XSDK_PRECISION=${xsdk_realtype} \
+    -D XSDK_INDEX_SIZE=${xsdk_indextype} \
     \
-    -D FCMIX_ENABLE=ON \
+    -D XSDK_ENABLE_FORTRAN=ON \
     \
     -D EXAMPLES_ENABLE_C=ON \
     -D EXAMPLES_ENABLE_CXX=ON \
@@ -163,28 +178,28 @@ cmake \
     -D MPI_MPIF90="${MPIDIR}/mpif90" \
     -D MPI_RUN_COMMAND="${MPIDIR}/mpirun" \
     \
-    -D BLAS_ENABLE="${BLASSTATUS}" \
-    -D BLAS_LIBRARIES="${BLASDIR}/libblas.so" \
+    -D TPL_ENABLE_BLAS="${BLASSTATUS}" \
+    -D TPL_BLAS_LIBRARIES="${BLASDIR}/libblas.so" \
     \
-    -D LAPACK_ENABLE="${LAPACKSTATUS}" \
-    -D LAPACK_LIBRARIES="${LAPACKDIR}/liblapack.so" \
+    -D TPL_ENABLE_LAPACK="${LAPACKSTATUS}" \
+    -D TPL_LAPACK_LIBRARIES="${LAPACKDIR}/liblapack.so" \
     \
-    -D KLU_ENABLE="${KLUSTATUS}" \
-    -D KLU_INCLUDE_DIR="${KLUDIR}/include" \
-    -D KLU_LIBRARY_DIR="${KLUDIR}/lib" \
+    -D TPL_ENABLE_KLU="${KLUSTATUS}" \
+    -D TPL_KLU_INCLUDE_DIRS="${KLUDIR}/include" \
+    -D TPL_KLU_LIBRARIES="${KLUDIR}/lib/libklu.a" \
     \
-    -D HYPRE_ENABLE="${HYPRESTATUS}" \
-    -D HYPRE_INCLUDE_DIR="${HYPREDIR}/include" \
-    -D HYPRE_LIBRARY_DIR="${HYPREDIR}/lib" \
+    -D TPL_ENABLE_HYPRE="${HYPRESTATUS}" \
+    -D TPL_HYPRE_INCLUDE_DIRS="${HYPREDIR}/include" \
+    -D TPL_HYPRE_LIBRARIES="${HYPREDIR}/lib/libHYPRE.a" \
     \
-    -D PETSC_ENABLE="${PETSCSTATUS}" \
-    -D PETSC_INCLUDE_DIR="${PETSCDIR}/include" \
-    -D PETSC_LIBRARY_DIR="${PETSCDIR}/lib" \
+    -D TPL_ENABLE_PETSC="${PETSCSTATUS}" \
+    -D TPL_PETSC_INCLUDE_DIRS="${PETSCDIR}/include" \
+    -D TPL_PETSC_LIBRARIES="${PETSCDIR}/lib/libpetsc.so" \
     \
-    -D SUPERLUMT_ENABLE="${SUPERLUMTSTATUS}" \
-    -D SUPERLUMT_INCLUDE_DIR="${SUPERLUMTDIR}/SRC" \
-    -D SUPERLUMT_LIBRARY_DIR="${SUPERLUMTDIR}/lib" \
-    -D SUPERLUMT_THREAD_TYPE=Pthread \
+    -D TPL_ENABLE_SUPERLUMT="${SUPERLUMTSTATUS}" \
+    -D TPL_SUPERLUMT_INCLUDE_DIRS="${SUPERLUMTDIR}/SRC" \
+    -D TPL_SUPERLUMT_LIBRARIES="${SUPERLUMTDIR}/lib/libsuperlu_mt_PTHREAD.a" \
+    -D TPL_SUPERLUMT_THREAD_TYPE=Pthread \
     \
     ../../. 2>&1 | tee configure.log
 

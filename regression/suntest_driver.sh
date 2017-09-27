@@ -43,7 +43,7 @@ indextype=('int32_t' 'int64_t')
 # indextype=('int64_t' 'int32_t')
 
 # remove old test directories and logs
-\rm -rf suntest*/ *.log
+\rm -rf build*/ install*/ *.log
 
 # ------------------------------------------------------------------------------
 # Run regression tests
@@ -71,6 +71,17 @@ for ((i=0; i<${#realtype[@]}; i++)); do
         else
             echo "PASSED: ${realtype[i]} ${indextype[j]}" | tee -a suntest.log
         fi
+
+        # run tests using xSDK CMake options
+        ./suntest_xsdk.sh ${realtype[i]} ${indextype[j]} $buildthreads
+
+        # check return flag
+        if [ $? -ne 0 ]; then
+            let nfail+=1
+            echo "FAILED xSDK: ${realtype[i]} ${indextype[j]}" | tee -a suntest.log
+        else
+            echo "PASSED xSDK: ${realtype[i]} ${indextype[j]}" | tee -a suntest.log
+        fi               
 
     done
 done

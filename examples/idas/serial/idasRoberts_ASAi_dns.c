@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -50,22 +46,23 @@
  * where
  *   d(phi)/dt = g(t,y,p)
  *   phi(t1) = 0
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <idas/idas.h>
-#include <idas/idas_dense.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
+#include <idas/idas.h>                 /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
+#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
+#include <idas/idas_direct.h>          /* access to IDADls interface           */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Accessor macros */
 
-#define Ith(v,i)    NV_Ith_S(v,i-1)       /* i-th vector component i= 1..NEQ */
-#define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1) /* (i,j)-th matrix component i,j = 1..NEQ */
+#define Ith(v,i)    NV_Ith_S(v,i-1)         /* i-th vector component i= 1..NEQ */
+#define IJth(A,i,j) SM_ELEMENT_D(A,i-1,j-1) /* (i,j)-th matrix component i,j = 1..NEQ */
 
 /* Problem Constants */
 
@@ -106,9 +103,9 @@ typedef struct {
 
 static int res(realtype t, N_Vector yy, N_Vector yp, 
                N_Vector resval, void *user_data);
-static int Jac(sunindextype Neq, realtype t, realtype cj, 
+static int Jac(realtype t, realtype cj, 
                N_Vector yy, N_Vector yp, N_Vector resvec, 
-               DlsMat J, void *user_data, 
+               SUNMatrix J, void *user_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data);
@@ -119,10 +116,10 @@ static int resB(realtype tt,
                 N_Vector yyB, N_Vector ypB, N_Vector rrB,
                 void *user_dataB);
 
-static int JacB(sunindextype NeqB, realtype tt, realtype cjB,
+static int JacB(realtype tt, realtype cjB,
                 N_Vector yy, N_Vector yp,
                 N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-                DlsMat JB, void *user_data,
+                SUNMatrix JB, void *user_data,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 
@@ -146,6 +143,8 @@ int main(int argc, char *argv[])
   UserData data;
 
   void *ida_mem;
+  SUNMatrix A, AB;
+  SUNLinearSolver LS, LSB;
 
   realtype reltolQ, abstolQ;
   N_Vector yy, yp, q;
@@ -168,6 +167,8 @@ int main(int argc, char *argv[])
   data = NULL;
   ckpnt = NULL;
   ida_mem = NULL;
+  A = AB = NULL;
+  LS = LSB = NULL;
   yy = yp = yB = qB = NULL;
 
   /* Print problem description */
@@ -225,11 +226,21 @@ int main(int argc, char *argv[])
   flag = IDASetUserData(ida_mem, data);
   if (check_flag(&flag, "IDASetUserData", 1)) return(1);
 
-  flag = IDADense(ida_mem, NEQ);
-  if (check_flag(&flag, "IDADense", 1)) return(1);
+  /* Create dense SUNMatrix for use in linear solves */
+  A = SUNDenseMatrix(NEQ, NEQ);
+  if(check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
 
-  flag = IDADlsSetDenseJacFn(ida_mem, Jac);
-  if (check_flag(&flag, "IDADlsSetDenseJacFn", 1)) return(1);
+  /* Create dense SUNLinearSolver object */
+  LS = SUNDenseLinearSolver(yy, A);
+  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  flag = IDADlsSetLinearSolver(ida_mem, LS, A);
+  if(check_flag(&flag, "IDADlsSetLinearSolver", 1)) return(1);
+
+  /* Set the user-supplied Jacobian routine */
+  flag = IDADlsSetJacFn(ida_mem, Jac);
+  if(check_flag(&flag, "IDADlsSetJacFn", 1)) return(1);
 
   flag = IDAQuadInit(ida_mem, rhsQ, q);
   if (check_flag(&flag, "IDAQuadInit", 1)) return(1);
@@ -354,12 +365,21 @@ int main(int argc, char *argv[])
 
   flag = IDASetMaxNumStepsB(ida_mem, indexB, 1000);
 
-  flag = IDADenseB(ida_mem, indexB, NEQ);
-  if (check_flag(&flag, "IDADenseB", 1)) return(1);
+  /* Create dense SUNMatrix for use in linear solves */
+  AB = SUNDenseMatrix(NEQ, NEQ);
+  if(check_flag((void *)AB, "SUNDenseMatrix", 0)) return(1);
 
-  flag = IDADlsSetDenseJacFnB(ida_mem, indexB, JacB);
-  if (check_flag(&flag, "IDASetDenseJacB", 1)) return(1);
+  /* Create dense SUNLinearSolver object */
+  LSB = SUNDenseLinearSolver(yB, AB);
+  if(check_flag((void *)LSB, "SUNDenseLinearSolver", 0)) return(1);
 
+  /* Attach the matrix and linear solver */
+  flag = IDADlsSetLinearSolverB(ida_mem, indexB, LSB, AB);
+  if(check_flag(&flag, "IDADlsSetLinearSolverB", 1)) return(1);
+
+  /* Set the user-supplied Jacobian routine */
+  flag = IDADlsSetJacFnB(ida_mem, indexB, JacB);
+  if(check_flag(&flag, "IDADlsSetJacFnB", 1)) return(1);
 
   /* Quadrature for backward problem. */
  
@@ -464,15 +484,19 @@ int main(int argc, char *argv[])
   printf("Free memory\n\n");
 
   IDAFree(&ida_mem);
-  N_VDestroy_Serial(yy);
-  N_VDestroy_Serial(yp);
-  N_VDestroy_Serial(q);
-  N_VDestroy_Serial(yB);
-  N_VDestroy_Serial(ypB);
-  N_VDestroy_Serial(qB);
-  N_VDestroy_Serial(id);
-  N_VDestroy_Serial(yyTB1);
-  N_VDestroy_Serial(ypTB1);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
+  SUNLinSolFree(LSB);
+  SUNMatDestroy(AB);
+  N_VDestroy(yy);
+  N_VDestroy(yp);
+  N_VDestroy(q);
+  N_VDestroy(yB);
+  N_VDestroy(ypB);
+  N_VDestroy(qB);
+  N_VDestroy(id);
+  N_VDestroy(yyTB1);
+  N_VDestroy(ypTB1);
 
   if (ckpnt != NULL) free(ckpnt);
   free(data);
@@ -499,7 +523,7 @@ static int res(realtype t, N_Vector yy, N_Vector yp, N_Vector resval, void *user
 
   y1  = Ith(yy,1); y2  = Ith(yy,2); y3  = Ith(yy,3); 
   yp1 = Ith(yp,1); yp2 = Ith(yp,2);
-  rval = N_VGetArrayPointer_Serial(resval);
+  rval = N_VGetArrayPointer(resval);
 
   data = (UserData) user_data;
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
@@ -516,9 +540,9 @@ static int res(realtype t, N_Vector yy, N_Vector yp, N_Vector resval, void *user
  * Jacobian routine. Compute J(t,y). 
 */
 
-static int Jac(sunindextype Neq, realtype t, realtype cj,
+static int Jac(realtype t, realtype cj,
                N_Vector yy, N_Vector yp, N_Vector resvec, 
-               DlsMat J, void *user_data, 
+               SUNMatrix J, void *user_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y2, y3;
@@ -622,10 +646,10 @@ static int resB(realtype tt,
 }
 
 /*Jacobian for backward problem. */
-static int JacB(sunindextype NeqB, realtype tt, realtype cj,
+static int JacB(realtype tt, realtype cj,
                 N_Vector yy, N_Vector yp,
                 N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-                DlsMat JB, void *user_data,
+                SUNMatrix JB, void *user_data,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   realtype y2, y3;
