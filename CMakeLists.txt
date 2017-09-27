@@ -1425,7 +1425,7 @@ IF(EXAMPLES_ENABLED)
       ADD_SUBDIRECTORY(examples/sunlinsol/spfgmr/parallel)
       ADD_SUBDIRECTORY(examples/sunlinsol/spbcgs/parallel)
       ADD_SUBDIRECTORY(examples/sunlinsol/sptfqmr/parallel)
-      ADD_SUBDIRECTORY(examples/sunlinsol/pcg/parallel)
+      #ADD_SUBDIRECTORY(examples/sunlinsol/pcg/parallel)
   ENDIF(MPIC_FOUND)
 
   IF(HYPRE_FOUND)
