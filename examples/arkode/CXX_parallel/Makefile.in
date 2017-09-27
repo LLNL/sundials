@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------
-# Programmer(s): Daniel R. Reynolds
+# Programmer(s): Daniel R. Reynolds @ SMU
 # -----------------------------------------------------------------
 # LLNS/SMU Copyright Start
 # Copyright (c) 2015, Southern Methodist University and 
@@ -53,7 +53,8 @@ MPI_LIB_DIR = @MPI_LIB_DIR@
 MPI_LIBS    = @MPI_LIBS@
 MPI_FLAGS   = @MPI_FLAGS@
 
-BLAS_LAPACK_LIBS = @BLAS_LAPACK_LIBS@
+LAPACK_LIBS = @LAPACK_LIBS@
+BLAS_LIBS   = @BLAS_LIBS@
 
 OBJ_EXT = @OBJEXT@
 EXE_EXT = @EXEEXT@
@@ -81,7 +82,7 @@ EXECS = ${EXAMPLES:=${EXE_EXT}}
 all:
 	@for i in ${EXAMPLES} ; do \
 	  $(LIBTOOL) --mode=compile $(MPICXX) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/$${i}.cpp -o $${i}${OBJ_EXT} ; \
-	  $(LIBTOOL) --mode=link $(MPICXX) -o $(builddir)/$${i}$(EXE_EXT) $(builddir)/$${i}$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS) ; \
+	  $(LIBTOOL) --mode=link $(MPICXX) -o $(builddir)/$${i}$(EXE_EXT) $(builddir)/$${i}$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(LAPACK_LIBS) $(BLAS_LIBS) ; \
 	done
 
 install:

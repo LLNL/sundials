@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Radu Serban @ LLNL
+# Programmer:  David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
@@ -11,41 +11,43 @@
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # ---------------------------------------------------------------
-# BLAS/LAPACK tests for SUNDIALS CMake-based configuration.
+# BLAS tests for SUNDIALS CMake-based configuration. Based on 
+# SundialsLapack.cmake
+#
 
-SET(LAPACK_FOUND FALSE)
+SET(BLAS_FOUND FALSE)
 
-# If LAPACK libraries are undefined, try to find them (if we have
+# If BLAS libraries are undefined, try to find them (if we have
 # a working Fortran compiler) or look for them in the most
 # obvious place...
-if(NOT LAPACK_LIBRARIES)
+if(NOT BLAS_LIBRARIES)
   if(F77_FOUND)
-    include(FindLAPACK)
+    include(FindBLAS)
   else(F77_FOUND)
-    find_library(LAPACK_LIBRARIES
-      NAMES lapack
+    find_library(BLAS_LIBRARIES
+      NAMES blas
       PATHS /usr/lib /usr/local/lib
-      "$ENV{ProgramFiles}/LAPACK/Lib"
+      "$ENV{ProgramFiles}/BLAS/Lib"
       )
   endif(F77_FOUND)
 
   # If the xSDK flag is used, set it to what was found
-  if(LAPACK_LIBRARIES AND TPL_ENABLE_LAPACK)
-    SET(DOCSTR "Lapack library")
-    FORCE_VARIABLE(TPL_LAPACK_LIBRARIES STRING "${DOCSTR}" "${LAPACK_LIBRARIES}")
+  if(BLAS_LIBRARIES AND TPL_ENABLE_BLAS)
+    SET(DOCSTR "Blas library")
+    FORCE_VARIABLE(TPL_BLAS_LIBRARIES STRING "${DOCSTR}" "${BLAS_LIBRARIES}")
   endif()
 endif()
 
-# If we have the LAPACK libraries, test them
-if(LAPACK_LIBRARIES)
-  message(STATUS "Looking for LAPACK libraries... OK")
+# If we have the BLAS libraries, test them
+if(BLAS_LIBRARIES)
+  message(STATUS "Looking for BLAS libraries... OK")
 
-  # Create the LapackTest directory
-  set(LapackTest_DIR ${PROJECT_BINARY_DIR}/LapackTest)
-  file(MAKE_DIRECTORY ${LapackTest_DIR})
+  # Create the BlasTest directory
+  set(BlasTest_DIR ${PROJECT_BINARY_DIR}/BlasTest)
+  file(MAKE_DIRECTORY ${BlasTest_DIR})
 
   # Create a CMakeLists.txt file 
-  file(WRITE ${LapackTest_DIR}/CMakeLists.txt
+  file(WRITE ${BlasTest_DIR}/CMakeLists.txt
     "CMAKE_MINIMUM_REQUIRED(VERSION 2.4)\n"
     "PROJECT(ltest C)\n"
     "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
@@ -56,39 +58,36 @@ if(LAPACK_LIBRARIES)
     "SET(CMAKE_C_FLAGS_RELWITHDEBUGINFO \"${CMAKE_C_FLAGS_RELWITHDEBUGINFO}\")\n"
     "SET(CMAKE_C_FLAGS_MINSIZE \"${CMAKE_C_FLAGS_MINSIZE}\")\n"
     "ADD_EXECUTABLE(ltest ltest.c)\n"
-    "TARGET_LINK_LIBRARIES(ltest ${LAPACK_LIBRARIES})\n")
+    "TARGET_LINK_LIBRARIES(ltest ${BLAS_LIBRARIES})\n")
 
-  # Create a C source file which calls a Blas function (dcopy) and an Lapack function (dgetrf)
-  file(WRITE ${LapackTest_DIR}/ltest.c
+  # Create a C source file which calls a Blas function (dcopy)
+  file(WRITE ${BlasTest_DIR}/ltest.c
     "${F77_MANGLE_MACRO1}\n"
     "#define dcopy_f77 SUNDIALS_F77_FUNC(dcopy, DCOPY)\n"
-    "#define dgetrf_f77 SUNDIALS_F77_FUNC(dgetrf, DGETRF)\n"
     "extern void dcopy_f77(int *n, const double *x, const int *inc_x, double *y, const int *inc_y);\n"
-    "extern void dgetrf_f77(const int *m, const int *n, double *a, int *lda, int *ipiv, int *info);\n"
     "int main(){\n"
     "int n=1;\n"
     "double x, y;\n"
     "dcopy_f77(&n, &x, &n, &y, &n);\n"
-    "dgetrf_f77(&n, &n, &x, &n, &n, &n);\n"
     "return(0);\n"
     "}\n")
 
   # Attempt to link the "ltest" executable
-  try_compile(LTEST_OK ${LapackTest_DIR} ${LapackTest_DIR}
+  try_compile(LTEST_OK ${BlasTest_DIR} ${BlasTest_DIR}
     ltest OUTPUT_VARIABLE MY_OUTPUT)
 
   # To ensure we do not use stuff from the previous attempts, 
   # we must remove the CMakeFiles directory.
-  file(REMOVE_RECURSE ${LapackTest_DIR}/CMakeFiles)
+  file(REMOVE_RECURSE ${BlasTest_DIR}/CMakeFiles)
 
   # Process test result
   if(LTEST_OK)
-    message(STATUS "Checking if LAPACK works... OK")
-    set(LAPACK_FOUND TRUE)
+    message(STATUS "Checking if BLAS works... OK")
+    set(BLAS_FOUND TRUE)
   else(LTEST_OK)
-    message(STATUS "Checking if LAPACK works... FAILED")
+    message(STATUS "Checking if BLAS works... FAILED")
   endif(LTEST_OK)
 
-else(LAPACK_LIBRARIES)
-  message(STATUS "Looking for LAPACK libraries... FAILED")
-endif(LAPACK_LIBRARIES)
+else(BLAS_LIBRARIES)
+  message(STATUS "Looking for BLAS libraries... FAILED")
+endif(BLAS_LIBRARIES)

@@ -63,6 +63,7 @@ for ((i=0; i<${#realtype[@]}; i++)); do
 
         # run tests
         ./suntest.sh ${realtype[i]} ${indextype[j]} $buildthreads
+        ./suntest_xsdk.sh ${realtype[i]} ${indextype[j]} $buildthreads
 
         # check return flag
         if [ $? -ne 0 ]; then
