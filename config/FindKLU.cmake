@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision$
-# $Date$
-# ---------------------------------------------------------------
 # Programmer:  Steven Smith @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -16,6 +13,7 @@
 # ---------------------------------------------------------------
 # Find KLU library.
 # 
+
 # Set library prefixes for Windows
 IF(WIN32)
   set(CMAKE_FIND_LIBRARY_PREFIXES lib ${CMAKE_FIND_LIBRARY_PREFIXES})
