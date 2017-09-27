@@ -93,6 +93,98 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v3.0.0}
+
+All interfaces to matrix structures and linear solvers 
+have been reworked, and all example programs have been updated. 
+The goal of the redesign of these interfaces was to provide more encapsulation
+and ease interfacing of custom linear solvers and interoperability 
+with linear solver libraries.
+Specific changes include:
+\begin{itemize}
+\item Added generic SUNMATRIX module with three provided implementations:
+        dense, banded and sparse.  These replicate previous SUNDIALS Dls and
+        Sls matrix structures in a single object-oriented API.
+\item Added example problems demonstrating use of generic SUNMATRIX modules.
+\item Added generic SUNLINEARSOLVER module with eleven provided
+        implementations: dense, banded, LAPACK dense, LAPACK band, KLU,
+        SuperLU\_MT, SPGMR, SPBCGS, SPTFQMR, SPFGMR, PCG.  These replicate
+        previous SUNDIALS generic linear solvers in a single object-oriented
+        API.
+\item Added example problems demonstrating use of generic SUNLINEARSOLVER
+        modules.
+\item Expanded package-provided direct linear solver (Dls) interfaces and
+        scaled, preconditioned, iterative linear solver (Spils) interfaces
+        to utilize generic SUNMATRIX and SUNLINEARSOLVER objects.
+\item Removed package-specific, linear solver-specific, solver modules
+        (e.g. CVDENSE, KINBAND, IDAKLU, ARKSPGMR) since their functionality
+        is entirely replicated by the generic Dls/Spils interfaces and
+        SUNLINEARSOLVER/SUNMATRIX modules.  The exception is CVDIAG, a
+        diagonal approximate Jacobian solver available to CVODE and CVODES.
+\item Converted all SUNDIALS example problems to utilize new generic
+        SUNMATRIX and SUNLINEARSOLVER objects, along with updated Dls and
+        Spils linear solver interfaces.
+\item Added Spils interface routines to ARKode, CVODE, CVODES, IDA and
+        IDAS to allow specification of a user-provided "JTSetup" routine.
+        This change supports users who wish to set up data structures for
+        the user-provided Jacobian-times-vector ("JTimes") routine, and
+        where the cost of one JTSetup setup per Newton iteration can be
+        amortized between multiple JTimes calls.
+\end{itemize}
+
+Two additional {\nvector} implementations were added -- one for
+CUDA and one for RAJA vectors.  
+These vectors are supplied to provide very basic support for running
+on GPU architectures.  Users are advised that these vectors both move all data
+to the GPU device upon construction, and speedup will only be realized if the
+user also conducts the right-hand-side function evaluation on the device.
+In addition, these vectors assume the problem fits on one GPU.
+Further information about RAJA, users are referred to th web site, 
+https://software.llnl.gov/RAJA/.
+These additions are accompanied by additions to various interface functions
+and to user documentation.
+
+All indices for data structures were updated to a new sunindextype that
+can be configured to be a 32- or 64-bit integer data index type. 
+Sunindextype can be defined to be int64\_t or int32\_t or long long int and 
+int depending on machine support for portable types.  
+Fortran interfaces only support long int
+This new flexible capability for index types includes interfaces to 
+PETSc, hypre, SuperLU\_MT, and KLU with 
+either 64-bit or 32-bit capabilities depending how the user configures 
+SUNDIALS.
+
+Temporary vectors were removed from preconditioner setup and solve
+   routines for all packages.  It is assumed that all necessary data
+   for user-provided preconditioner operations will be allocated and
+   stored in user-provided data structures.
+
+The file include/sundials\_fconfig.h was added.  This file contains 
+SUNDIALS type information for use in Fortran programs.
+
+The build system was expanded to support many of the xSDK-compliant keys. 
+The xSDK is a movement in scientific software to provide a foundation for the
+rapid and efficient production of high-quality, 
+sustainable extreme-scale scientific applications.  More information can
+be found at, https://xsdk.info.
+
+In addition, numerous changes were made to the build system.
+Thes einclude the addition of separate BLAS\_ENABLE and BLASLIBRARIES 
+CMake variables, additional error checking during CMake configuration,
+minor bug fixes, and renaming CMake options to enable/disable examples 
+for greater clarity and an added option to enable/disable Fortran 77 examples.
+These changes included changing ENABLE\_EXAMPLES to ENABLE\_EXAMPLES\_C, 
+changing CXX\_ENABLE to EXAMPLES\_ENABLE\_CXX, changing F90\_ENABLE to 
+EXAMPLES\_ENABKE\_F90, and adding an EXAMPLES\_ENABLE\_F77 option.
+
+A bug fix was made in CVodeFree to call lfree() unconditionally 
+(if non-NULL).
+ 
+Corrections and additions were made to the examples, 
+to installation-related files,
+and to the user documentation.
+
+
 \subsection*{Changes in v2.9.0}
 
 Two additional {\nvector} implementations were added -- one for

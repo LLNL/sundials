@@ -1,3 +1,115 @@
+Changes to SUNDIALS since Release of Sept. 30, 2016.
+
+* New linear solver API and interfaces for all SUNDIALS packages and 
+  linear solvers
+ - Refactored all matrix and linear solver interfaces in SUNDIALS
+ - Implemented new interfaces in all 6 SUNDIALS Packages
+ - Corresponding updates to all example programs released with SUNDIALS
+The goal of the redesign of these interfaces was to provide more encapsulation
+and ease interfacing of custom linear solvers and interoperability 
+with linear solver libraries.
+ - Specific changes include:
+      - Added generic SUNMATRIX module with three provided implementations:
+        dense, banded and sparse.  These replicate previous SUNDIALS Dls and
+        Sls matrix structures in a single object-oriented API.
+      - Added example problems demonstrating use of generic SUNMATRIX modules.
+      - Added generic SUNLINEARSOLVER module with eleven provided
+        implementations: dense, banded, LAPACK dense, LAPACK band, KLU,
+        SuperLU_MT, SPGMR, SPBCGS, SPTFQMR, SPFGMR, PCG.  These replicate
+        previous SUNDIALS generic linear solvers in a single object-oriented
+        API.
+      - Added example problems demonstrating use of generic SUNLINEARSOLVER
+        modules.
+      - Expanded package-provided direct linear solver (Dls) interfaces and
+        scaled, preconditioned, iterative linear solver (Spils) interfaces
+        to utilize generic SUNMATRIX and SUNLINEARSOLVER objects.
+      - Removed package-specific, linear solver-specific, solver modules
+        (e.g. CVDENSE, KINBAND, IDAKLU, ARKSPGMR) since their functionality
+        is entirely replicated by the generic Dls/Spils interfaces and
+        SUNLINEARSOLVER/SUNMATRIX modules.  The exception is CVDIAG, a
+        diagonal approximate Jacobian solver available to CVODE and CVODES.
+      - Converted all SUNDIALS example problems to utilize new generic
+        SUNMATRIX and SUNLINEARSOLVER objects, along with updated Dls and
+        Spils linear solver interfaces.
+      - Added Spils interface routines to ARKode, CVODE, CVODES, IDA and
+        IDAS to allow specification of a user-provided "JTSetup" routine.
+        This change supports users who wish to set up data structures for
+        the user-provided Jacobian-times-vector ("JTimes") routine, and
+        where the cost of one JTSetup setup per Newton iteration can be
+        amortized between multiple JTimes calls.
+
+* Two new NVECTOR modules added: for CUDA and RAJA support for GPU systems
+(Information on RAJA: https://software.llnl.gov/RAJA/ )
+These vectors are supplied to provide very basic support for running
+on GPU architectures.  Users are advised that these vectors both move all data
+to the GPU device upon construction, and speedup will only be realized if the
+user also conducts the right-hand-side function evaluation on the device.
+In addition, these vectors assume the problem fits on one GPU.
+Further information about RAJA, users are referred to the web site, 
+https://software.llnl.gov/RAJA/.
+
+* Addition of sunindextype option for 32- or 64-bit integer data index types 
+within all SUNDIALS structures
+ - Sunindextype is int64_t or int32_t or long long int and int depending on 
+   machine support for portable types
+ - Fortran interfaces only support long int
+ - Includes interfaces to PETSc, hypre, SuperLU_MT, and KLU with 
+   either 64-bit or 32-bit capabilities depending how the user configures 
+   SUNDIALS
+
+ * Temporary vectors were removed from preconditioner setup and solve
+ routines for all packages.  It is assumed that all necessary data
+ for user-provided preconditioner operations will be allocated and
+ stored in user-provided data structures.
+
+* The file include/sundials\_fconfig.h was added.  This file contains 
+SUNDIALS type information for use in Fortran programs.
+
+* Added support for many xSDK-compliant build system keys
+(Information on xSDK compliance: https://xsdk.info/policies/ )
+The xSDK is a movement in scientific software to provide a foundation for the
+rapid and efficient production of high-quality, 
+sustainable extreme-scale scientific applications.  More information can
+be found at, https://xsdk.info.
+
+* In build system:
+ - Added separate BLAS_ENABLE and BLAS_LIBRARIES CMake variables
+ - Additional error checking during CMake configuration
+ - Fixed minor CMake bugs
+ - Renamed CMake options to enable/disable examples for greater clarity 
+   and added option to enable/disable Fortran 77 examples
+    - Changed ENABLE_EXAMPLES to ENABLE_EXAMPLES_C
+    - Changed CXX_ENABLE to EXAMPLES_ENABLE_CXX
+    - Changed F90_ENABLE to EXAMPLES_ENABKE_F90
+    - Added EXAMPLES_ENABLE_F77 option
+
+* Corrections and additions to all User Guides.
+
+* Added "Changes in ..." (latest version) to Intro. in all User Guides.
+
+
+ARKode:
+* Added comments to arkode_butcher.c regarding which methods should have 
+  coefficients accurate enough for use in quad precision
+* Bug Fix: Fixed a bug in arkode_butcher.c in use of RCONST
+* Bug Fix: Fixed a bug in the order of operations in the ARKode initialization
+  to ensure the mass matrix vector product is set up before the "msetup" 
+  routine is called.  This affected routine, ARKMassSuperLUMT. 
+* Fixed ARKode printf-related compiler warnings when building SUNDIALS
+  with extended precision.
+
+
+CVODE and CVODES:
+* Bug Fix: In CVodeFree, call lfree() unconditionally (if non-NULL).
+
+IDA and IDAS:
+* Bug Fix: Added missing prototype for IDASetMaxBacksIC in ida.h and idas.h
+
+
+KINSOL:
+* Bug Fix: Correct KINSOL fcmix name translation for FKIN_SPFGMR
+
+*------------------------------------------------------------------------------*
 Changes to SUNDIALS since Release of March 30, 2015.
 
 * Two new NVECTOR modules added: for parallel Hypre and PETSC.
