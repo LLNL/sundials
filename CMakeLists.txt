@@ -703,7 +703,6 @@ IF(MPI_ENABLE)
   ELSE()
     PRINT_WARNING("MPI not functional"
                   "Parallel support will not be provided")
-
   ENDIF()
 
   IF(MPIC_MPI2)
