@@ -68,8 +68,6 @@ are as follows:
     interfaces to \id{SUNBandMatrix}.
   \item \id{FSUNDENSEMATINIT} (defined by {\sunmatdense}) 
     interfaces to \id{SUNDenseMatrix}.
-  \item \id{FSUNDIAGONALMATINIT} (defined by {\sunmatdiag}) 
-    interfaces to \id{SUNDiagonalMatrix}.
   \item \id{FSUNSPARSEMATINIT} (defined by {\sunmatsparse}) 
     interfaces to \id{SUNSparseMatrix}.
   \end{itemize}
@@ -80,8 +78,6 @@ are as follows:
     interfaces to \id{SUNBandLinearSolver}.
   \item \id{FSUNDENSELINSOLINIT} (defined by {\sunlinsoldense}) 
     interfaces to \id{SUNDenseLinearSolver}.
-  \item \id{FSUNDIAGLINSOLINIT} (defined by {\sunlinsoldiag}) 
-    interfaces to \id{SUNDiagonalLinearSolver}.
   \item \id{FSUNKLUINIT} (defined by {\sunlinsolklu}) 
     interfaces to \id{SUNKLU}.
   \item \id{FSUNKLUREINIT} (defined by {\sunlinsolklu}) 
@@ -136,8 +132,6 @@ are as follows:
     interfaces to \id{CVDlsSetJacFn}.
   \item \id{FCVBANDSETJAC}
     interfaces to \id{CVDlsSetJacFn}.
-  \item \id{FCVDIAGSETJAC}
-    interfaces to \id{CVDlsSetJacFn}.
   \item \id{FCVSPARSESETJAC}
     interfaces to \id{CVDlsSetJacFn}.
   \item \id{FCVDLSSETMSBJ}
@@ -150,6 +144,8 @@ are as follows:
     interfaces to \id{CVSpilsSetJacTimes}.
   \item \id{FCVSPILSSETPREC}
     interfaces to \id{CVSpilsSetPreconditioner}.
+  \item \id{FCVDIAG}    
+    interfaces to \id{CVDiag}.
  \end{itemize}
 
 \end{itemize}
@@ -166,7 +162,6 @@ interface function which calls it (and its type within {\cvode}), are as follows
 \id{FCVEWT}     & \id{FCVEwtSet}         & \id{CVEwtFn} \\
 \id{FCVDJAC}    & \id{FCVDenseJac}       & \id{CVDlsJacFn} \\
 \id{FCVBJAC}    & \id{FCVBandJac}        & \id{CVDlsJacFn} \\
-\id{FCVDIAGJAC} & \id{FCVDiagJac}        & \id{CVDlsJacFn} \\
 \id{FCVSPJAC}   & \id{FCVSparseJac}      & \id{CVDlsJacFn} \\
 \id{FCVPSOL}    & \id{FCVPSol}           & \id{CVSpilsPrecSolveFn} \\
 \id{FCVPSET}    & \id{FCVPSet}           & \id{CVSpilsPrecSetupFn} \\
@@ -256,7 +251,6 @@ environment.
 \begin{verbatim}
       CALL FSUNBANDLINSOLINIT(...)
       CALL FSUNDENSELINSOLINIT(...)
-      CALL FSUNDIAGLINSOLINIT(...)
       CALL FSUNKLUINIT(...)
       CALL FSUNLAPACKBANDINIT(...)
       CALL FSUNLAPACKDENSEINIT(...)
@@ -551,55 +545,7 @@ sections of Chapter \ref{s:sunlinsol}.
   The int return flag \id{IER} is an error return flag which is $0$
   for success or nonzero for an error.
 
-  {\bf {\cvdls} with diagonal Jacobian matrix}
-  \index{Jacobian approximation function!diagonal!use in {\fcvode}}
-  As an option when using the {\cvdls} interface with the
-  {\sunlinsoldiag} linear solver, the user may supply a routine that
-  computes a diagonal approximation of the system Jacobian  $J =
-  \partial f / \partial y$. If supplied, it must have the following
-  form:  
-  \index{FCVDIAGJAC@\texttt{FCVDIAGJAC}}
-\begin{verbatim}
-      SUBROUTINE FCVDIAGJAC (T, Y, FY, DJAC, H, IPAR, RPAR,
-     &                       WK1, WK2, WK3, IER)
-      DIMENSION Y(*), FY(*), DJAC(*), IPAR(*), RPAR(*),
-     &          WK1(*), WK2(*), WK3(*)
-\end{verbatim}
-  Typically this routine will use only \id{T}, \id{Y}, and \id{DJAC}. 
-  It must compute the diagonal of the Jacobian and store it in the
-  array in \id{DJAC}.  The input arguments \id{T}, \id{Y}, and \id{FY}
-  contain the current values of $t$, $y$, and $f(t,y)$, respectively.
-  The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
-  and are the same as those passed to \id{FCVMALLOC}.
-  The vectors \id{WK1}, \id{WK2}, and \id{WK3} are provided as work
-  space for use in \id{FCVDIAGJAC}.   \id{IER} is an error return flag
-  which should be set to $0$ if successful, a positive value if a
-  recoverable error occurred (in which case {\cvode} will attempt to
-  correct), or a negative value if \id{FCVDIAGJAC} failed
-  unrecoverably (in which case the integration is halted). 
-
-  The arrays \id{Y}, \id{DJAC}, \id{WK1}, \id{WK2} and \id{WK3} are
-  commensurate with the size of the input \id{Y0} to \id{FCVMALLOC}.
-  
-  If the user's \id{FCVDIAGJAC} uses difference quotient approximations, it
-  may need to use the error weight array \id{EWT} and current stepsize \id{H}
-  in the calculation of suitable increments.  The array \id{EWT} can be
-  obtained by calling \id{FCVGETERRWEIGHTS} using one of the work arrays as
-  temporary storage for \id{EWT}.  It may also need the unit roundoff,
-  which can be obtained as the optional output \id{ROUT(6)}, passed from
-  the calling program to this routine using either \id{RPAR} or a common block.
-
-  If the \id{FCVDIAGJAC} routine is provided, then, following the call
-  to \id{FCVDLSINIT}, the user must make the call:
-  \index{FCVDIAGSETJAC@\texttt{FCVDIAGSETJAC}}
-\begin{verbatim}
-      CALL FCVDIAGSETJAC (FLAG, IER)
-\end{verbatim}
-  with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian
-  approximation.  The argument \id{IER} is an error return flag which is $0$ 
-  for success or non-zero if an error occurred.
-
-  
+ 
   %%-------------------------------------------------
   
   {\bf {\cvspils} iterative linear solver interface}
@@ -764,6 +710,27 @@ sections of Chapter \ref{s:sunlinsol}.
     data array, a common block or a module.
   \end{itemize}
 
+  %%-------------------------------------------------
+
+  {\bf {\cvdiag} diagonal linear solver interface}
+  \index{CVDIAG@{\cvdiag} linear solver interface!use in {\fcvode}}
+  
+  {\cvode} is also packaged with a {\cvode}-specific diagonal
+  approximate Jacobian and linear solver interface.  This choice is
+  appropriate when the Jacobian can be well approximated by a diagonal
+  matrix.  The user must make the call: 
+  \index{FCVDIAG@\texttt{FCVDIAG}}
+\begin{verbatim}
+      CALL FCVDIAG(IER)
+\end{verbatim}
+  \id{IER} is an error return flag set on $0$ on success or $-1$ if a memory 
+  failure occurred.
+
+  There are no additional user-supplied routines for the {\cvdiag} interface.
+  
+  Optional outputs specific to the {\cvdiag} case are listed in
+  Table~\ref{t:fcvode_out}.
+  
 %%====================
 \item {\bf Problem solution}
 %%====================
@@ -955,6 +922,13 @@ and \S\ref{ss:optional_output}.
 19 & \id{NPS}      & \id{CVSpilsGetNumPrecSolves} \\ 
 20 & \id{NLI}      & \id{CVSpilsGetNumLinIters} \\ 
 21 & \id{NCFL}     & \id{CVSpilsGetNumConvFails} \\
+\hline
+\multicolumn{3}{|c|}{{\cvdiag} linear solver interface}\\
+\hline
+13 & \id{LENRWLS}  & \id{CVDiagGetWorkSpace} \\ 
+14 & \id{LENIWLS}  & \id{CVDiagGetWorkSpace} \\ 
+15 & \id{LS\_FLAG} & \id{CVDiagGetLastFlag} \\ 
+16 & \id{NFELS}    & \id{CVDiagGetNumRhsEvals} \\ 
 \hline
 \multicolumn{3}{c}{}\\
 \multicolumn{3}{c}{Real output array \id{ROUT}}\\

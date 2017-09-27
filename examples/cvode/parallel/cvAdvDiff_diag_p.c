@@ -32,10 +32,8 @@
 #include <math.h>
 
 #include <cvode/cvode.h>                  /* prototypes for CVODE fcts., consts. */
+#include <cvode/cvode_diag.h>             /* prototypes for CVODE diagonal solver */
 #include <nvector/nvector_parallel.h>     /* access to MPI-parallel N_Vector     */
-#include <sunmatrix/sunmatrix_diagonal.h> /* access to band SUNMatrix            */
-#include <sunlinsol/sunlinsol_diagonal.h> /* access to band SUNLinearSolver      */
-#include <cvode/cvode_direct.h>           /* access to CVDls interface           */
 #include <sundials/sundials_types.h>      /* definition of type realtype         */
 #include <sundials/sundials_math.h>       /* definition of ABS and EXP           */
 
@@ -89,8 +87,6 @@ int main(int argc, char *argv[])
 {
   realtype dx, reltol, abstol, t, tout, umax;
   N_Vector u;
-  SUNMatrix A;
-  SUNLinearSolver LS;
   UserData data;
   void *cvode_mem;
   int iout, flag, my_pe, npes;
@@ -100,8 +96,6 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
 
   u = NULL;
-  A = NULL;
-  LS = NULL;
   data = NULL;
   cvode_mem = NULL;
 
@@ -155,20 +149,9 @@ int main(int argc, char *argv[])
   flag = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_flag(&flag, "CVodeSStolerances", 1, my_pe)) return(1);
 
-  /* Create diagonal SUNMatrix for use in linear solves */
-  A = SUNDiagonalMatrix(u);
-  if(check_flag((void *)A, "SUNDiagonalMatrix", 0, my_pe)) return(1);
-
-  /* Create diagonal linear solver */
-  LS = SUNDiagonalLinearSolver(u, A);
-
-  /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-  flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
-  if(check_flag(&flag, "CVDlsSetLinearSolver", 1, my_pe)) return(1);
-
-  /* Use a difference quotient Jacobian */
-  flag = CVDlsSetJacFn(cvode_mem, NULL);
-  if(check_flag(&flag, "CVDlsSetJacFn", 1, my_pe)) return(1);
+  /* Call CVDiag to create and attach CVODE-specific diagonal linear solver */
+  flag = CVDiag(cvode_mem);
+  if(check_flag(&flag, "CVDiag", 1, my_pe)) return(1);
 
   if (my_pe == 0) PrintIntro(npes);
 
@@ -196,8 +179,6 @@ int main(int argc, char *argv[])
   N_VDestroy_Parallel(u);        /* Free the u vector */
   CVodeFree(&cvode_mem);         /* Free the integrator memory */
   free(data);                    /* Free user data */
-  SUNLinSolFree(LS);             /* Free the linear solver memory */
-  SUNMatDestroy(A);              /* Free the matrix memory */
 
   MPI_Finalize();
 

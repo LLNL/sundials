@@ -42,12 +42,10 @@
  
     FSUNBANDMATINIT              SUNBandMatrix
     FSUNDENSEMATINIT             SUNDenseMatrix
-    FSUNDIAGONALMATINIT          SUNDiagonalMatrix
     FSUNSPARSEMATINIT            SUNSparseMatrix
 
     FSUNBANDLINSOLINIT           SUNBandLinearSolver
     FSUNDENSELINSOLINIT          SUNDenseLinearSolver
-    FSUNDIAGLINSOLINIT           SUNDiagonalLinearSolver
     FSUNKLUINIT                  SUNKLU
     FSUNKLUREINIT                SUNKLUReinit
     FSUNLAPACKBANDINIT           SUNLapackBand
@@ -74,7 +72,6 @@
  
     FIDADLSINIT                  IDADlsSetLinearSolver
     FIDADENSESETJAC              IDADlsSetJacFn
-    FIDADIAGSETJAC               IDADlsSetJacFn
     FIDABANDSETJAC               IDADlsSetJacFn
     FIDASPARSESETJAC             IDADlsSetJacFn
  
@@ -102,7 +99,6 @@
     -------------      ------------------       -----------------------
     FIDARESFUN         FIDAresfn                IDAResFn
     FIDADJAC           FIDADenseJac             IDADlsJacFn
-    FIDADIAGJAC        FIDADiagJac              IDADlsJacFn
     FIDABJAC           FIDABandJac              IDADlsJacFn
     FIDASPJAC          FIDASparseJac            IDADlsJacFn
     FIDAPSET           FIDAPSet                 IDASpilsPrecSetupFn
@@ -256,40 +252,6 @@
         R    -- array containing DAE residuals [realtype, input]
         DJAC -- 2D array containing the jacobian entries [realtype of size
                 (NEQ,NEQ), output]
-        CJ   -- scalar in the system Jacobian proportional to inverse step
-                size [realtype, input]
-        EWT  -- array containing error weight vector [realtype, input]
-        H    -- current step size [realtype, input]
-        IPAR -- array containing integer user data that was passed to
-                FIDAMALLOC [long int, input]
-        RPAR -- array containing real user data that was passed to
-                FIDAMALLOC [realtype, input]
-        WK*  -- array containing temporary workspace of same size as Y 
-                [realtype, input]
-        IER  -- return flag [int, output]:
-                   0 if successful, 
-                  >0 if a recoverable error occurred,
-                  <0 if an unrecoverable error ocurred.
- 
-  (2) User-supplied diagonal Jacobian approximation routine: FIDADIAGJAC
-
-      When using the Diagonal linear solver, the user *must* supply a 
-      routine that computes a diagonal approximation of the system Jacobian 
-      J = dF/dy' + c_j*dF/dy. This routine must have the following form:
-
-        SUBROUTINE FIDADIAGJAC(T, Y, YP, R, DJAC, CJ, EWT, H,
-       1                       IPAR, RPAR, WK1, WK2, WK3, IER)
-
-      This routine must compute the diagonal Jacobian and store it 
-      in DJAC.
-
-      The arguments are:
-        T    -- current time [realtype, input]
-        Y    -- array containing state variables [realtype, input]
-        YP   -- array containing state variable derivatives [realtype, input]
-        R    -- array containing DAE residuals [realtype, input]
-        DJAC -- array of same size as Y containing the Jacobian 
-                diagonal [realtype, output]
         CJ   -- scalar in the system Jacobian proportional to inverse step
                 size [realtype, input]
         EWT  -- array containing error weight vector [realtype, input]
@@ -498,13 +460,12 @@
  
   (5) Initialization:  FNVINITS / FNVINITP / FNVINITOMP / FNVINITPTS, 
                        FSUNBANDMATINIT / FSUNDENSEMATINIT / 
-                          FSUNDIAGONALMATINIT / FSUNSPARSEMATINIT,
+                          FSUNSPARSEMATINIT,
                        FSUNBANDLINSOLINIT / FSUNDENSELINSOLINIT / 
-                          FSUNDIAGLINSOLINIT / FSUNKLUINIT / FSUNKLUREINIT /
-                          FSUNKLUSETORDERING / FSUNLAPACKBANDINIT / 
-                          FSUNLAPACKDENSEINIT / FSUNPCGINIT / 
-                          FSUNSPBCGSINIT / FSUNSPFGMRINIT / FSUNSPGMRINIT / 
-                          FSUNSPTFQMRINIT / FSUNSUPERLUMTINIT /
+                          FSUNKLUINIT / FSUNKLUREINIT / FSUNKLUSETORDERING / 
+                          FSUNLAPACKBANDINIT / FSUNLAPACKDENSEINIT / 
+                          FSUNPCGINIT / FSUNSPBCGSINIT / FSUNSPFGMRINIT / 
+                          FSUNSPGMRINIT / FSUNSPTFQMRINIT / FSUNSUPERLUMTINIT /
                           FSUNSUPERLUMTSETORDERING,
                        FIDAMALLOC, 
                        FIDADLSINIT / FIDASPILSINIT
@@ -543,13 +504,12 @@
                   0 = success, 
                  -1 = failure.
 
-  (5.2) To initialize a band/dense/diagonal/sparse matrix structure for 
+  (5.2) To initialize a band/dense/sparse matrix structure for 
       storing the system Jacobian and for use within a direct linear solver,
       the user must make one of the following calls:
  
            CALL FSUNBANDMATINIT(3, N, MU, ML, SMU, IER)
            CALL FSUNDENSEMATINIT(3, M, N, IER)
-           CALL FSUNDIAGONALMATINIT(3, IER)
            CALL FSUNSPARSEMATINIT(3, M, N, NNZ, SPARSETYPE, IER)
 
       In each of these, one argument is an int containing the IDA solver 
@@ -579,7 +539,6 @@
 
            CALL FSUNBANDLINSOLINIT(3, IER)
            CALL FSUNDENSELINSOLINIT(3, IER)
-           CALL FSUNDIAGLINSOLINIT(3, IER)
            CALL FSUNKLUINIT(3, IER)
            CALL FSUNLAPACKBANDINIT(3, IER)
            CALL FSUNLAPACKDENSEINIT(3, IER)
@@ -684,9 +643,9 @@
  
   (5.5) If a direct linear solver was created in step (5.3) then it must be 
       attached to IDA.  If the user called any one of FSUNBANDLINSOLINIT, 
-      FSUNDENSELINSOLINIT, FSUNDIAGLINSOLINIT, FSUNKLUINIT, 
-      FSUNLAPACKBANDINIT, FSUNLAPACKDENSEINIT, or FSUNSUPERLUMTINIT, then 
-      this must be attached to the IDADLS interface using the command:
+      FSUNDENSELINSOLINIT, FSUNKLUINIT, FSUNLAPACKBANDINIT, 
+      FSUNLAPACKDENSEINIT, or FSUNSUPERLUMTINIT, then this must be 
+      attached to the IDADLS interface using the command:
 
         CALL FIDADLSINIT(IER)
 
@@ -738,15 +697,6 @@
       used; FLAG=0 specifies a reset to the internal finite difference 
       Jacobian approximation.  The int return flag IER=0 if successful, and 
       nonzero otherwise.
- 
-      When using a diagonal matrix and linear solver the user *must* provide the 
-      FIDADIAGJAC routine for the evaluation of the diagonal approximation to 
-      the Jacobian.  To indicate that this routine has been provided, after
-      the call to FIDADLSINIT, the following call must be made 
-
-        CALL FIDADIAGSETJAC(IER)
-
-      The int return flag IER=0 if successful, and nonzero otherwise.
  
       When using a sparse matrix and linear solver the user must provide the
       FIDASPJAC routine for the evaluation of the sparse approximation to 
@@ -1006,8 +956,6 @@ extern "C" {
 #define FIDA_BJAC           SUNDIALS_F77_FUNC(fidabjac, FIDABJAC)
 #define FIDA_DENSESETJAC    SUNDIALS_F77_FUNC(fidadensesetjac, FIDADENSESETJAC)
 #define FIDA_DJAC           SUNDIALS_F77_FUNC(fidadjac, FIDADJAC)
-#define FIDA_DIAGSETJAC     SUNDIALS_F77_FUNC(fidadiagsetjac, FIDADIAGSETJAC)
-#define FIDA_DIAGJAC        SUNDIALS_F77_FUNC(fidadiagjac, FIDADIAGJAC)
 #define FIDA_SPARSESETJAC   SUNDIALS_F77_FUNC(fidasparsesetjac, FIDASPARSESETJAC)
 #define FIDA_SPJAC          SUNDIALS_F77_FUNC(fidaspjac, FIDASPJAC)
 #define FIDA_SPILSSETJAC    SUNDIALS_F77_FUNC(fidaspilssetjac, FIDASPILSSETJAC)
@@ -1042,8 +990,6 @@ extern "C" {
 #define FIDA_BJAC           fidabjac_
 #define FIDA_DENSESETJAC    fidadensesetjac_
 #define FIDA_DJAC           fidadjac_
-#define FIDA_DIAGSETJAC     fidadiagsetjac_
-#define FIDA_DIAGJAC        fidadiagjac_
 #define FIDA_SPARSESETJAC   fidasparsesetjac_
 #define FIDA_SPJAC          fidaspjac_
 #define FIDA_SPILSSETJAC    fidaspilssetjac_
@@ -1087,7 +1033,6 @@ void FIDA_CALCIC(int *icopt, realtype *tout1, int *ier);
 
 void FIDA_DLSINIT(int *ier);
 void FIDA_DENSESETJAC(int *flag, int *ier);
-void FIDA_DIAGSETJAC(int *ier);
 void FIDA_BANDSETJAC(int *flag, int *ier);
 void FIDA_SPARSESETJAC(int *ier);
 
@@ -1113,10 +1058,6 @@ int FIDAresfn(realtype t, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data
 int FIDADenseJac(realtype t, realtype c_j, N_Vector yy, N_Vector yp,
                  N_Vector rr, SUNMatrix Jac, void *user_data,
                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
-
-int FIDADiagJac(realtype t, realtype c_j, N_Vector yy, N_Vector yp,
-                N_Vector rr, SUNMatrix Jac, void *user_data,
-                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 int FIDABandJac(realtype t, realtype c_j, N_Vector yy, N_Vector yp,
                 N_Vector rr, SUNMatrix Jac, void *user_data,

@@ -22,14 +22,15 @@ INSTALL(CODE "MESSAGE(\"\nInstall CVODES\n\")")
 
 # Add variable cvodes_SOURCES with the sources for the CVODES library
 SET(cvodes_SOURCES
-  cvodes.c
   cvodea.c
-  cvodes_io.c
   cvodea_io.c
-  cvodes_direct.c
-  cvodes_spils.c
+  cvodes.c
   cvodes_bandpre.c
   cvodes_bbdpre.c
+  cvodes_io.c
+  cvodes_diag.c
+  cvodes_direct.c
+  cvodes_spils.c
   )
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
@@ -51,7 +52,6 @@ SET(shared_SOURCES
 SET(sunmatrix_SOURCES
   ${sundials_SOURCE_DIR}/src/sunmat_band/sunmatrix_band.c
   ${sundials_SOURCE_DIR}/src/sunmat_dense/sunmatrix_dense.c
-  ${sundials_SOURCE_DIR}/src/sunmat_diagonal/sunmatrix_diagonal.c
   ${sundials_SOURCE_DIR}/src/sunmat_sparse/sunmatrix_sparse.c
   )
 
@@ -60,7 +60,6 @@ SET(sunmatrix_SOURCES
 SET(sunlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunlinsol_band/sunlinsol_band.c
   ${sundials_SOURCE_DIR}/src/sunlinsol_dense/sunlinsol_dense.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol_diagonal/sunlinsol_diagonal.c
   ${sundials_SOURCE_DIR}/src/sunlinsol_spbcgs/sunlinsol_spbcgs.c
   ${sundials_SOURCE_DIR}/src/sunlinsol_spfgmr/sunlinsol_spfgmr.c
   ${sundials_SOURCE_DIR}/src/sunlinsol_spgmr/sunlinsol_spgmr.c
@@ -89,10 +88,11 @@ ENDIF()
 
 # Add variable cvodes_HEADERS with the exported CVODES header files
 SET(cvodes_HEADERS
+  cvodes.h
   cvodes_bandpre.h
   cvodes_bbdpre.h
+  cvodes_diag.h
   cvodes_direct.h
-  cvodes.h
   cvodes_spils.h
   )
 

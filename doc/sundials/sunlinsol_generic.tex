@@ -364,22 +364,21 @@ implementations.
 \tablehead{\hline \multicolumn{1}{|p{2cm}|}{{Linear Solver Interface}} &
                   \multicolumn{1}{p{1.3cm}|}{{Dense Matrix}} & 
                   \multicolumn{1}{p{1.3cm}|}{{Banded Matrix}} & 
-                  \multicolumn{1}{p{1.4cm}|}{{Diagonal Matrix}} & 
                   \multicolumn{1}{p{1.4cm}|}{{Sparse Matrix}} & 
                   \multicolumn{1}{p{1.4cm}|}{{User Supplied}} \\ \hline}
-\tabletail{\hline \multicolumn{6}{|r|}{\small\slshape continued on next page} \\ \hline}
+\tabletail{\hline \multicolumn{5}{|r|}{\small\slshape continued on next page} \\ \hline}
 {\renewcommand{\arraystretch}{1.2}
-\begin{xtabular}{|l|c|c|c|c|c|}
-%   Linear Solver &  Dense   & Banded & Diagonal & Sparse & User     \\
-%   Interface     &          &        &          &        & Supplied \\ 
-    Dense         &  \cm     &        &          &        & \cm      \\ 
-    Band          &          & \cm    &          &        & \cm      \\
-    Diagonal      &          &        & \cm      &        & \cm      \\ 
-    LapackDense   &  \cm     &        &          &        & \cm      \\ 
-    LapackBand    &          & \cm    &          &        & \cm      \\
-    \klu          &          &        &          &  \cm   & \cm      \\
-    \superlumt    &          &        &          &  \cm   & \cm      \\
-    User supplied &  \cm     & \cm    & \cm      &  \cm   & \cm      \\ 
+\begin{xtabular}{|l|c|c|c|c|}
+%   Linear Solver &  Dense   & Banded & Sparse & User     \\
+%   Interface     &          &        &        & Supplied \\ 
+    Dense         &  \cm     &        &        & \cm      \\ 
+    Band          &          & \cm    &        & \cm      \\
+    Diagonal      &          &        &        & \cm      \\ 
+    LapackDense   &  \cm     &        &        & \cm      \\ 
+    LapackBand    &          & \cm    &        & \cm      \\
+    \klu          &          &        &  \cm   & \cm      \\
+    \superlumt    &          &        &  \cm   & \cm      \\
+    User supplied &  \cm     & \cm    &  \cm   & \cm      \\ 
     \hline
 \end{xtabular}}
 \bigskip
@@ -402,7 +401,6 @@ implementations.
 %   Interface     &          & (MPI)     &          &            &  Vector     & Vector   & Supplied \\ 
     Dense         &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\ 
     Band          &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
-    Diagonal      &  \cm     & \cm       & \cm      &  \cm       & \cm         &  \cm     & \cm      \\ 
     LapackDense   &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
     LapackBand    &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
     \klu          &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
@@ -502,7 +500,7 @@ converge (and the residual was not reduced)
 \\[2mm]
 %%
 \id{SUNLS\_LUFACT\_FAIL} & \id{8} & a singular matrix was encountered
-  during a LU factorization ({\sunlinsoldense}/{\sunlinsolband}/{\sunlinsoldiag})
+  during a LU factorization ({\sunlinsoldense}/{\sunlinsolband})
 \\[2mm]
 %%
 %%
@@ -518,10 +516,6 @@ converge (and the residual was not reduced)
 %---------------------------------------------------------------------------
 \section{The SUNLinearSolver\_Band implementation}\label{ss:sunlinsol_band}
 \input{sunlinsol_band}
-
-%---------------------------------------------------------------------------
-\section{The SUNLinearSolver\_Diagonal implementation}\label{ss:sunlinsol_diag}
-\input{sunlinsol_diagonal}
 
 %---------------------------------------------------------------------------
 \section{The SUNLinearSolver\_LapackDense implementation}\label{ss:sunlinsol_lapdense}

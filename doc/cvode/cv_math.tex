@@ -76,7 +76,7 @@ For the solution of the linear systems within the Newton corrections,
 {\cvode} provides several choices, including the option of an user-supplied
 linear solver module. The linear solver modules distributed with {\sundials}
 are organized in two families, a {\em direct} family comprising direct linear 
-solvers for dense, banded, diagonal or sparse matrices, and a {\em spils}
+solvers for dense, banded or sparse matrices, and a {\em spils}
 family comprising scaled preconditioned iterative (Krylov) linear
 solvers. 
 %%
@@ -91,7 +91,6 @@ The methods offered through these modules are as follows:
   solver library \cite{Li:05,DGL:99,SuperLUMT_site} (serial or threaded 
   vector modules only) [Note that users will need to download and install the 
   {\klu} or {\superlumt} packages independent of {\cvode}],
-\item diagonal approximate Jacobian solver,
 \item {\spgmr}, a scaled preconditioned GMRES (Generalized Minimal Residual method)
   solver,
 \item {\spfgmr}, a scaled preconditioned FGMRES (Flexible Generalized
@@ -109,7 +108,10 @@ because it combines established methods for stiff integration,
 nonlinear iteration, and Krylov (linear) iteration with a
 problem-specific treatment of the dominant source of stiffness, in the
 form of the user-supplied preconditioner matrix \cite{BrHi:89}.
-%%
+
+In addition, {\cvode} also provides a linear solver module which only uses
+a diagonal approximation of the Jacobian matrix. 
+
 Note that the dense, band and sparse direct linear solvers can only be 
 used with the serial and threaded vector representations.  The
 diagonal solver can be used with any vector representation.
@@ -221,8 +223,8 @@ tighter tolerance, so the value of $0.05$ may be changed by the user.
 
 % Jacobian DQ approximations
 %---------------------------
-With the direct dense, band and diagonal methods, the Jacobian may be
-supplied by a user routine, or approximated by difference quotients,
+With the direct dense and methods, the Jacobian may be supplied 
+by a user routine, or approximated by difference quotients,
 at the user's option.  In the latter case, we use the usual
 approximation
 \[ J_{ij} = [f_i(t,y+\sigma_j e_j) - f_i(t,y)]/\sigma_j \, . \]
@@ -233,8 +235,7 @@ and $W_j$ is the error weight defined in (\ref{e:errwt}).  In the dense
 case, this scheme requires $N$ evaluations of $f$, one for each column
 of $J$.  In the band case, the columns of $J$ are computed in groups,
 by the Curtis-Powell-Reid algorithm, with the number of $f$ evaluations
-equal to the bandwidth.  In the diagonal case, this scheme requires 1
-evaluation of $f$.
+equal to the bandwidth.  
 
 We note that with the sparse direct solvers, the Jacobian {\em must}
 be supplied by a user routine.

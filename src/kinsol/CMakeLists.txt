@@ -48,7 +48,6 @@ SET(shared_SOURCES
 SET(sunmatrix_SOURCES
   ${sundials_SOURCE_DIR}/src/sunmat_band/sunmatrix_band.c
   ${sundials_SOURCE_DIR}/src/sunmat_dense/sunmatrix_dense.c
-  ${sundials_SOURCE_DIR}/src/sunmat_diagonal/sunmatrix_diagonal.c
   ${sundials_SOURCE_DIR}/src/sunmat_sparse/sunmatrix_sparse.c
   )
 
@@ -57,7 +56,6 @@ SET(sunmatrix_SOURCES
 SET(sunlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunlinsol_band/sunlinsol_band.c
   ${sundials_SOURCE_DIR}/src/sunlinsol_dense/sunlinsol_dense.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol_diagonal/sunlinsol_diagonal.c
   ${sundials_SOURCE_DIR}/src/sunlinsol_spbcgs/sunlinsol_spbcgs.c
   ${sundials_SOURCE_DIR}/src/sunlinsol_spfgmr/sunlinsol_spfgmr.c
   ${sundials_SOURCE_DIR}/src/sunlinsol_spgmr/sunlinsol_spgmr.c

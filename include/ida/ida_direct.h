@@ -142,8 +142,8 @@ SUNDIALS_EXPORT int IDADlsSetLinearSolver(void *ida_mem,
  routine to be used for a direct dense linear solver.
  
  By default, a difference quotient approximation is used for 
- dense and band; no default exists for sparse or diagonal
- (so this must be user-supplied).
+ dense and band; no default exists for sparse (so this must 
+ be user-supplied).
  
  The return value is one of:
     IDADLS_SUCCESS   if successful

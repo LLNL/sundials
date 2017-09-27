@@ -378,11 +378,6 @@ int idaDlsDQJac(realtype t, realtype c_j, N_Vector y,
     retval = idaDlsDenseDQJac(t, c_j, y, yp, r, Jac, IDA_mem, tmp1);
   } else if (SUNMatGetID(Jac) == SUNMATRIX_BAND) {
     retval = idaDlsBandDQJac(t, c_j, y, yp, r, Jac, IDA_mem, tmp1, tmp2, tmp3);
-  } else if (SUNMatGetID(Jac) == SUNMATRIX_DIAGONAL) {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDADLS", 
-		    "idaDlsDQJac", 
-                    "idaDlsDQJac not implemented for SUNMATRIX_DIAGONAL");
-    retval = IDA_ILL_INPUT;
   } else if (SUNMatGetID(Jac) == SUNMATRIX_SPARSE) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDADLS", 
 		    "idaDlsDQJac", 

@@ -134,11 +134,11 @@ SUNDIALS_EXPORT int KINDlsSetLinearSolver(void *kinmem,
  * Optional inputs to the KINDLS linear solver
  * -----------------------------------------------------------------
  *
- * KINDlsSetJacFn specifies the dense/band/sparse/diagonal Jacobian 
+ * KINDlsSetJacFn specifies the dense/band/sparse Jacobian 
  * approximation routine to be used for a direct linear solver.
  *
  * By default, a difference quotient approximation is used for
- * dense/band/diagonal; no default exists for sparse (so this must 
+ * dense/band; no default exists for sparse (so this must 
  * be user-supplied).
  *
  * The return value is one of:

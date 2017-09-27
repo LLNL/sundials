@@ -149,11 +149,11 @@ SUNDIALS_EXPORT int CVDlsSetLinearSolver(void *cvode_mem,
   Optional inputs to the CVSDLS linear solver
   -----------------------------------------------------------------
  
-  CVDlsSetJacFn specifies the dense/band/sparse/diagonal Jacobian
+  CVDlsSetJacFn specifies the dense/band/sparse Jacobian
   approximation routine to be used for a direct linear solver.
   By default, a difference quotient approximation is used for 
-  dense/band/diagonal; no default exists for sparse (so this must 
-  be user-supplied).
+  dense/band; no default exists for sparse (so this must be 
+  user-supplied).
  
   CVDlsSetMSBJ specifies the maximum number of steps to take 
   between Jacobian evaluations.  A negative value indicates to use

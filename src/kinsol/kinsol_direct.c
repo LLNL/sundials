@@ -355,11 +355,6 @@ int kinDlsDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac,
     retval = kinDlsDenseDQJac(u, fu, Jac, kin_mem, tmp1, tmp2);
   } else if (SUNMatGetID(Jac) == SUNMATRIX_BAND) {
     retval = kinDlsBandDQJac(u, fu, Jac, kin_mem, tmp1, tmp2);
-  } else if (SUNMatGetID(Jac) == SUNMATRIX_DIAGONAL) {
-    KINProcessError(kin_mem, KIN_ILL_INPUT, "KINDLS",
-		    "kinDlsDQJac",
-                    "kinDlsDQJac not implemented for SUNMATRIX_DIAGONAL");
-    retval = KIN_ILL_INPUT;
   } else if (SUNMatGetID(Jac) == SUNMATRIX_SPARSE) {
     KINProcessError(kin_mem, KIN_ILL_INPUT, "KINDLS",
 		    "kinDlsDQJac",

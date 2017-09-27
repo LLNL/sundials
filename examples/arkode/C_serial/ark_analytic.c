@@ -28,7 +28,7 @@
  * than 100 the problem becomes quite stiff.
  * 
  * This program solves the problem with the DIRK method,
- * Newton iteration with the diagonal SUNLinearSolver, and a
+ * Newton iteration with the dense SUNLinearSolver, and a
  * user-supplied Jacobian routine.
  * Output is printed every 1.0 units of time (10 total).
  * Run statistics (optional outputs) are printed at the end.
@@ -39,8 +39,8 @@
 #include <math.h>
 #include <arkode/arkode.h>                 /* prototypes for ARKODE fcts., consts. */
 #include <nvector/nvector_serial.h>        /* serial N_Vector types, fcts., macros */
-#include <sunmatrix/sunmatrix_diagonal.h>  /* access to diagonal SUNMatrix         */
-#include <sunlinsol/sunlinsol_diagonal.h>  /* access to diagonal SUNLinearSolver   */
+#include <sunmatrix/sunmatrix_dense.h>     /* access to dense SUNMatrix            */
+#include <sunlinsol/sunlinsol_dense.h>     /* access to dense SUNLinearSolver      */
 #include <arkode/arkode_direct.h>          /* access to ARKDls interface           */
 #include <sundials/sundials_types.h>       /* definition of type realtype          */
 
@@ -111,11 +111,11 @@ int main()
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);  /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
 
-  /* Initialize diagonal matrix data structure and solver */
-  A = SUNDiagonalMatrix(y);
-  if (check_flag((void *)A, "SUNDiagonalMatrix", 0)) return 1;
-  LS = SUNDiagonalLinearSolver(y, A);
-  if (check_flag((void *)LS, "SUNDiagonalLinearSolver", 0)) return 1;
+  /* Initialize dense matrix data structure and solver */
+  A = SUNDenseMatrix(NEQ, NEQ);
+  if (check_flag((void *)A, "SUNDenseMatrix", 0)) return 1;
+  LS = SUNDenseLinearSolver(y, A);
+  if (check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return 1;
 
   /* Linear solver interface */
   flag = ARKDlsSetLinearSolver(arkode_mem, LS, A);        /* Attach matrix and linear solver */
@@ -218,7 +218,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 {
   realtype *rdata = (realtype *) user_data;   /* cast user_data to realtype */
   realtype lamda = rdata[0];                  /* set shortcut for stiffness parameter */
-  realtype *Jdata = N_VGetArrayPointer(SUNDiagonalMatrix_Diag(J));
+  realtype *Jdata = SUNDenseMatrix_Data(J);
   
   /* Fill in Jacobian of f: set the first entry of the data array to set the (0,0) entry */
   Jdata[0] = lamda;

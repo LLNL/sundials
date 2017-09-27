@@ -34,7 +34,6 @@
 #include <sundials/sundials_math.h>
 #include <sunmatrix/sunmatrix_band.h>
 #include <sunmatrix/sunmatrix_dense.h>
-#include <sunmatrix/sunmatrix_diagonal.h>
 #include <sunmatrix/sunmatrix_sparse.h>
 
 /*=================================================================
@@ -411,7 +410,7 @@ int CVDlsGetLastFlag(void *cvode_mem, long int *flag)
 /*-----------------------------------------------------------------
   cvDlsDQJac 
   -----------------------------------------------------------------
-  This routine is a wrapper for the Dense, Band and Diagonal 
+  This routine is a wrapper for the Dense and Band
   implementations of the difference quotient Jacobian 
   approximation routines.
   ---------------------------------------------------------------*/
@@ -436,8 +435,6 @@ int cvDlsDQJac(realtype t, N_Vector y, N_Vector fy,
     retval = cvDlsDenseDQJac(t, y, fy, Jac, cv_mem, tmp1);
   } else if (SUNMatGetID(Jac) == SUNMATRIX_BAND) {
     retval = cvDlsBandDQJac(t, y, fy, Jac, cv_mem, tmp1, tmp2);
-  } else if (SUNMatGetID(Jac) == SUNMATRIX_DIAGONAL) {
-    retval = cvDlsDiagonalDQJac(t, y, fy, Jac, cv_mem, tmp1, tmp2, tmp3);
   } else if (SUNMatGetID(Jac) == SUNMATRIX_SPARSE) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVSDLS", 
                    "cvDlsDQJac", 
@@ -451,6 +448,7 @@ int cvDlsDQJac(realtype t, N_Vector y, N_Vector fy,
   }
   return(retval);
 }
+
 
 /*-----------------------------------------------------------------
   cvDlsDenseDQJac 
@@ -524,6 +522,7 @@ int cvDlsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
 
   return(retval);
 }
+
 
 /*-----------------------------------------------------------------
   cvDlsBandDQJac
@@ -607,60 +606,6 @@ int cvDlsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
   }
   
   return(retval);
-}
-
-
-
-
-/*-----------------------------------------------------------------
-  cvDlsDiagonalDQJac
-  -----------------------------------------------------------------
-  This routine generates a diagonal difference quotient 
-  approximation to the Jacobian of f(t,y).  It assumes a diagonal 
-  SUNMatrix input (stored in a single N_Vector). 
-  -----------------------------------------------------------------*/
-int cvDlsDiagonalDQJac(realtype t, N_Vector y, N_Vector fy, 
-                       SUNMatrix Jac, CVodeMem cv_mem,
-                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-{
-  int retval;
-  realtype r;
-  N_Vector ftemp, ytemp, Jdiag, bit;
-  CVDlsMem cvdls_mem;
-  
-  /* access DlsMem interface structure */
-  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
-
-  /* Rename work vectors for use as temporary values of y and f */
-  ftemp = tmp1;
-  ytemp = tmp2;
-  bit   = tmp3;
-
-  /* Access Jacobian diagonal */
-  Jdiag = SUNDiagonalMatrix_Diag(Jac);
-  
-  /* Form ytemp with perturbation = FRACT*(func. iter. correction) */
-  r = RCONST(0.1);
-  N_VLinearSum(cv_mem->cv_h, fy, -ONE, cv_mem->cv_zn[1], ftemp);
-  N_VLinearSum(r, ftemp, ONE, y, ytemp);
-
-  /* Evaluate f at perturbed y */
-  retval = cv_mem->cv_f(t, ytemp, Jdiag, cv_mem->cv_user_data);
-  cvdls_mem->nfeDQ++;
-  if (retval != 0)  return(retval);
-
-  /* Construct M = I - gamma*J with J = diag(deltaf_i/deltay_i) */
-  N_VLinearSum(ONE, Jdiag, -ONE, fy, Jdiag);
-  N_VProd(ftemp, cv_mem->cv_ewt, ytemp);
-  /* Protect against deltay_i being at roundoff level */
-  N_VCompare(cv_mem->cv_uround, ytemp, bit);
-  N_VProd(ftemp, bit, ytemp);
-  N_VAddConst(bit, -ONE, ftemp);
-  N_VLinearSum(r, ytemp, -ONE, ftemp, ytemp);
-  N_VDiv(Jdiag, ytemp, Jdiag);
-  N_VProd(Jdiag, bit, Jdiag);
-
-  return(CVDLS_SUCCESS);
 }
 
 

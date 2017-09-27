@@ -27,7 +27,6 @@
 #include <sundials/sundials_math.h>
 #include <sunmatrix/sunmatrix_band.h>
 #include <sunmatrix/sunmatrix_dense.h>
-#include <sunmatrix/sunmatrix_diagonal.h>
 #include <sunmatrix/sunmatrix_sparse.h>
 
 /*===============================================================
@@ -742,7 +741,7 @@ int ARKDlsGetLastMassFlag(void *arkode_mem, long int *flag)
 /*---------------------------------------------------------------
  arkDlsDQJac:
 
- This routine is a wrapper for the Dense, Band and Diagonal 
+ This routine is a wrapper for the Dense and Band
  implementations of the difference quotient Jacobian 
  approximation routines.
 ---------------------------------------------------------------*/
@@ -767,8 +766,6 @@ int arkDlsDQJac(realtype t, N_Vector y, N_Vector fy,
     retval = arkDlsDenseDQJac(t, y, fy, Jac, ark_mem, tmp1);
   } else if (SUNMatGetID(Jac) == SUNMATRIX_BAND) {
     retval = arkDlsBandDQJac(t, y, fy, Jac, ark_mem, tmp1, tmp2);
-  } else if (SUNMatGetID(Jac) == SUNMATRIX_DIAGONAL) {
-    retval = arkDlsDiagonalDQJac(t, y, fy, Jac, ark_mem, tmp1);
   } else if (SUNMatGetID(Jac) == SUNMATRIX_SPARSE) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKDLS", 
 		    "arkDlsDQJac", 
@@ -940,48 +937,6 @@ int arkDlsBandDQJac(realtype t, N_Vector y, N_Vector fy,
     }
   }
   
-  return(retval);
-}
-
-
-/*---------------------------------------------------------------
- arkDlsDiagonalDQJac:
-
- This routine generates a diagonal difference quotient 
- approximation to the Jacobian of f(t,y).  It assumes a diagonal 
- SUNMatrix input (stored in a single N_Vector).
----------------------------------------------------------------*/
-int arkDlsDiagonalDQJac(realtype t, N_Vector y, N_Vector fy, 
-                        SUNMatrix Jac, ARKodeMem ark_mem, N_Vector tmp1)
-{
-  int retval;
-  realtype fract, fract_inv;
-  N_Vector ytemp, Jdiag;
-  ARKDlsMem arkdls_mem;
-  
-  /* access DlsMem interface structure */
-  arkdls_mem = (ARKDlsMem) ark_mem->ark_lmem;
-
-  /* Set shortcut names to temporary work and output vectors */
-  ytemp = tmp1;
-  Jdiag = SUNDiagonalMatrix_Diag(Jac);
-
-  /* Form y with perturbation */
-  fract = SUNRpowerR(UNIT_ROUNDOFF, RCONST(0.25));
-  fract_inv = ONE/fract;
-  N_VConst(fract, ytemp);
-  N_VDiv(ytemp, ark_mem->ark_ewt, ytemp);
-  N_VLinearSum(ONE, y, ONE, ytemp, ytemp);  /* ytemp = y + fract/ewt */
-
-  /* Evaluate f at perturbed y */
-  retval = ark_mem->ark_fi(t, ytemp, Jdiag, ark_mem->ark_user_data);
-  arkdls_mem->nfeDQ++;
-  if (retval != 0)  return(retval);
-
-  /* Finish off difference */
-  N_VLinearSum(fract_inv, Jdiag, -fract_inv, fy, Jdiag);
-  N_VProd(ark_mem->ark_ewt, Jdiag, Jdiag);   /* Jdiag = ewt/fract.*(ftemp - f) */
-
   return(retval);
 }
 

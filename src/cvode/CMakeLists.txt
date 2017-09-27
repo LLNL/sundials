@@ -31,11 +31,12 @@ ENDIF(MPI_MPICC)
 # Add variable cvode_SOURCES with the sources for the CVODE library
 SET(cvode_SOURCES
   cvode.c
-  cvode_io.c
-  cvode_direct.c        
-  cvode_spils.c
   cvode_bandpre.c
   cvode_bbdpre.c
+  cvode_diag.c        
+  cvode_direct.c        
+  cvode_io.c
+  cvode_spils.c
   )
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
@@ -57,7 +58,6 @@ SET(shared_SOURCES
 SET(sunmatrix_SOURCES
   ${sundials_SOURCE_DIR}/src/sunmat_band/sunmatrix_band.c
   ${sundials_SOURCE_DIR}/src/sunmat_dense/sunmatrix_dense.c
-  ${sundials_SOURCE_DIR}/src/sunmat_diagonal/sunmatrix_diagonal.c
   ${sundials_SOURCE_DIR}/src/sunmat_sparse/sunmatrix_sparse.c
   )
 
@@ -66,7 +66,6 @@ SET(sunmatrix_SOURCES
 SET(sunlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunlinsol_band/sunlinsol_band.c
   ${sundials_SOURCE_DIR}/src/sunlinsol_dense/sunlinsol_dense.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol_diagonal/sunlinsol_diagonal.c
   ${sundials_SOURCE_DIR}/src/sunlinsol_spbcgs/sunlinsol_spbcgs.c
   ${sundials_SOURCE_DIR}/src/sunlinsol_spfgmr/sunlinsol_spfgmr.c
   ${sundials_SOURCE_DIR}/src/sunlinsol_spgmr/sunlinsol_spgmr.c
@@ -99,10 +98,11 @@ ENDIF()
 
 # Add variable cvode_HEADERS with the exported CVODE header files
 SET(cvode_HEADERS
+  cvode.h
   cvode_bandpre.h
   cvode_bbdpre.h
+  cvode_diag.h
   cvode_direct.h
-  cvode.h
   cvode_spils.h
   )
 

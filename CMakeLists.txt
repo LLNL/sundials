@@ -949,11 +949,9 @@ ADD_SUBDIRECTORY(src/sundials)
 ADD_SUBDIRECTORY(src/nvec_ser)
 ADD_SUBDIRECTORY(src/sunmat_dense)
 ADD_SUBDIRECTORY(src/sunmat_band)
-ADD_SUBDIRECTORY(src/sunmat_diagonal)
 ADD_SUBDIRECTORY(src/sunmat_sparse)
 ADD_SUBDIRECTORY(src/sunlinsol_band)
 ADD_SUBDIRECTORY(src/sunlinsol_dense)
-ADD_SUBDIRECTORY(src/sunlinsol_diagonal)
 IF(KLU_FOUND)
   ADD_SUBDIRECTORY(src/sunlinsol_klu)
 ENDIF(KLU_FOUND)
@@ -1300,16 +1298,14 @@ IF(EXAMPLES_ENABLE)
   # Always add the nvector serial examples
   ADD_SUBDIRECTORY(examples/nvector/serial)
 
-  # # Always add the serial sunmatrix dense/band/diagonal/sparse examples
+  # # Always add the serial sunmatrix dense/band/sparse examples
   ADD_SUBDIRECTORY(examples/sunmatrix/dense)
   ADD_SUBDIRECTORY(examples/sunmatrix/band)
-  ADD_SUBDIRECTORY(examples/sunmatrix/diagonal/serial)
   ADD_SUBDIRECTORY(examples/sunmatrix/sparse)
 
-  # # Always add the serial sunlinearsolver dense/band/diagonal/spils examples
+  # # Always add the serial sunlinearsolver dense/band/spils examples
   ADD_SUBDIRECTORY(examples/sunlinsol/band)
   ADD_SUBDIRECTORY(examples/sunlinsol/dense)
-  ADD_SUBDIRECTORY(examples/sunlinsol/diagonal/serial)
   IF(KLU_FOUND)
     ADD_SUBDIRECTORY(examples/sunlinsol/klu)
   ENDIF(KLU_FOUND)
@@ -1328,8 +1324,6 @@ IF(EXAMPLES_ENABLE)
 
   IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/nvector/parallel)
-      ADD_SUBDIRECTORY(examples/sunmatrix/diagonal/parallel)
-      ADD_SUBDIRECTORY(examples/sunlinsol/diagonal/parallel)
       ADD_SUBDIRECTORY(examples/sunlinsol/spgmr/parallel)
       ADD_SUBDIRECTORY(examples/sunlinsol/spfgmr/parallel)
       ADD_SUBDIRECTORY(examples/sunlinsol/spbcgs/parallel)

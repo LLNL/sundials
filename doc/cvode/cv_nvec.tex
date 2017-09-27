@@ -28,38 +28,37 @@ interested reader.
 \centering
 \caption{List of vector functions usage by {\cvode} code modules}\label{t:nvecuse}
 \medskip
-\begin{tabular}{|r|c|c|c|c|c|c|c|c|} \hline
+\begin{tabular}{|r|c|c|c|c|c|c|c|} \hline
                                              & 
 \begin{sideways}{\cvode}      \end{sideways} & 
 \begin{sideways}{\cvdls}      \end{sideways} & 
 \begin{sideways}{\cvdiag}     \end{sideways} & 
 \begin{sideways}{\cvspils}    \end{sideways} &
-\begin{sideways}{\cvsls}      \end{sideways} &
 \begin{sideways}{\cvbandpre}  \end{sideways} &
 \begin{sideways}{\cvbbdpre}   \end{sideways} &
 \begin{sideways}{\fcvode}     \end{sideways} \\ \hline\hline
-%                         CVODE  DLS  DIAG  SPILS  SLS  BPRE   BBD   FCVODE
-\id{N\_VGetVectorID}     &     &     &     &     &     &     &     &     \\ \hline
-\id{N\_VClone}           & \cm &     & \cm & \cm &     &     &     &     \\ \hline
-\id{N\_VCloneEmpty}      &     &     &     &     &     &     &     & \cm \\ \hline
-\id{N\_VDestroy}         & \cm &     & \cm & \cm &     &     &     &     \\ \hline
-\id{N\_VSpace}           & \cm &     &     &     &     &     &     &     \\ \hline
-\id{N\_VGetArrayPointer} &     & \cm &     &     & \cm & \cm & \cm & \cm \\ \hline
-\id{N\_VSetArrayPointer} &     & \cm &     &     &     &     &     & \cm \\ \hline
-\id{N\_VLinearSum}       & \cm & \cm & \cm & \cm &     &     &     &     \\ \hline
-\id{N\_VConst}           & \cm &     &     & \cm &     &     &     &     \\ \hline
-\id{N\_VProd}            & \cm &     & \cm & \cm &     &     &     &     \\ \hline
-\id{N\_VDiv}             & \cm &     & \cm & \cm &     &     &     &     \\ \hline
-\id{N\_VScale}           & \cm & \cm & \cm & \cm & \cm & \cm & \cm &     \\ \hline
-\id{N\_VAbs}             & \cm &     &     &     &     &     &     &     \\ \hline
-\id{N\_VInv}             & \cm &     & \cm &     &     &     &     &     \\ \hline
-\id{N\_VAddConst}        & \cm &     & \cm &     &     &     &     &     \\ \hline
-\id{N\_VDotProd}         &     &     &     & \cm &     &     &     &     \\ \hline
-\id{N\_VMaxNorm}         & \cm &     &     &     &     &     &     &     \\ \hline
-\id{N\_VWrmsNorm}        & \cm & \cm &     & \cm &     & \cm & \cm &     \\ \hline
-\id{N\_VMin}             & \cm &     &     &     &     &     &     &     \\ \hline
-\id{N\_VCompare}         &     &     & \cm &     &     &     &     &     \\ \hline
-\id{N\_VInvTest}         &     &     & \cm &     &     &     &     &     \\ \hline
+%                         CVODE  DLS  DIAG  SPILS  BPRE   BBD   FCVODE
+\id{N\_VGetVectorID}     &     &     &     &     &     &     &     \\ \hline
+\id{N\_VClone}           & \cm &     & \cm & \cm &     &     &     \\ \hline
+\id{N\_VCloneEmpty}      &     &     &     &     &     &     & \cm \\ \hline
+\id{N\_VDestroy}         & \cm &     & \cm & \cm &     &     &     \\ \hline
+\id{N\_VSpace}           & \cm &     &     &     &     &     &     \\ \hline
+\id{N\_VGetArrayPointer} &     & \cm &     &     & \cm & \cm & \cm \\ \hline
+\id{N\_VSetArrayPointer} &     & \cm &     &     &     &     & \cm \\ \hline
+\id{N\_VLinearSum}       & \cm & \cm & \cm & \cm &     &     &     \\ \hline
+\id{N\_VConst}           & \cm &     &     & \cm &     &     &     \\ \hline
+\id{N\_VProd}            & \cm &     & \cm & \cm &     &     &     \\ \hline
+\id{N\_VDiv}             & \cm &     & \cm & \cm &     &     &     \\ \hline
+\id{N\_VScale}           & \cm & \cm & \cm & \cm & \cm & \cm &     \\ \hline
+\id{N\_VAbs}             & \cm &     &     &     &     &     &     \\ \hline
+\id{N\_VInv}             & \cm &     & \cm &     &     &     &     \\ \hline
+\id{N\_VAddConst}        & \cm &     & \cm &     &     &     &     \\ \hline
+\id{N\_VDotProd}         &     &     &     & \cm &     &     &     \\ \hline
+\id{N\_VMaxNorm}         & \cm &     &     &     &     &     &     \\ \hline
+\id{N\_VWrmsNorm}        & \cm & \cm &     & \cm & \cm & \cm &     \\ \hline
+\id{N\_VMin}             & \cm &     &     &     &     &     &     \\ \hline
+\id{N\_VCompare}         &     &     & \cm &     &     &     &     \\ \hline
+\id{N\_VInvTest}         &     &     & \cm &     &     &     &     \\ \hline
 \end{tabular}
 \end{table}
 

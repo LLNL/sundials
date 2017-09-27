@@ -46,7 +46,7 @@ At present, the package includes two linear solver interfaces.  The
 implementations with type \id{SUNLINSOL\_DIRECT} (see Chapter
 \ref{s:sunlinsol}).  These linear solvers utilize direct methods for
 the solution of linear systems stored using one of the {\sundials} generic
-{\sunmatrix} implementations (dense, banded, diagonal or sparse; see
+{\sunmatrix} implementations (dense, banded or sparse; see
 Chapter \ref{s:sunmatrix}).  It is assumed that the dominant cost for
 such solvers occurs in factorization of the linear system matrix $M$,
 so {\cvode} utilizes these solvers within its modified Newton
@@ -60,13 +60,17 @@ of the matrix-vector product $Mv$ is required.  Since {\cvode} can
 operate on any valid {\sunlinsol} implementation of
 \id{SUNLINSOL\_DIRECT} or \id{SUNLINSOL\_ITERATIVE} types, the set of
 linear solver modules available to {\cvode} will expand as new
-{\sunlinsol} modules are developed.  
+{\sunlinsol} modules are developed.
+
+Additionally, {\cvode} includes the {\em diagonal} linear solver
+interface, {\cvdiag}, that creates an internally generated diagonal
+approximation to the Jacobian.
 \index{CVODE@{\cvode} linear solver interfaces|)} 
 
 Within the {\cvdls} interface, the package includes algorithms for the
-approximation of dense, banded, or diagonal Jacobians through
-difference quotients, but the user also has the option of supplying
-the Jacobian (or an approximation to it) directly.  This user-supplied
+approximation of dense or banded Jacobians through difference 
+quotients, but the user also has the option of supplying the Jacobian
+(or an approximation to it) directly.  This user-supplied 
 routine is required when using sparse Jacobian matrices, since
 standard difference quotient approximations do not leverage the
 inherent sparsity of the problem.

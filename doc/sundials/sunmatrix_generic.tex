@@ -8,8 +8,8 @@ operations defined by the particular {\sunmatrix} implementation.
 Users can provide their own specific implementation of the
 {\sunmatrix} module, particularly in cases where they provide their
 own {\nvector} and/or linear solver modules, and require matrices that
-are compatible with those implementations.  Alternately, we provide four
-{\sunmatrix} implementations: dense, banded, diagonal, and sparse.  The
+are compatible with those implementations.  Alternately, we provide three
+{\sunmatrix} implementations: dense, banded, and sparse.  The
 generic operations are described below, and descriptions of the
 implementations provided with {\sundials} follow.
 
@@ -112,9 +112,8 @@ It is recommended that a user-supplied {\sunmatrix} implementation use the
 \hline
 SUNMATRIX\_DENSE      & Dense $\id{M} \times \id{N}$ matrix               & 0 \\ 
 SUNMATRIX\_BAND       & Band $\id{M} \times \id{M}$ matrix                & 1 \\
-SUNMATRIX\_DIAGONAL   & Diagonal $\id{M} \times \id{M}$ matrix            & 2 \\
-SUNMATRIX\_SPARSE     & Sparse (CSR or CSC) $\id{M} \times \id{N}$ matrix & 3 \\ 
-SUNMATRIX\_CUSTOM     & User-provided custom matrix                       & 4 \\
+SUNMATRIX\_SPARSE     & Sparse (CSR or CSC) $\id{M} \times \id{N}$ matrix & 2 \\ 
+SUNMATRIX\_CUSTOM     & User-provided custom matrix                       & 3 \\
 \hline
 \end{tabular}
 \end{table}
@@ -227,7 +226,6 @@ Chapter \ref{s:sunlinsol}.  More specifically, in Table
 %   Interface     &          & (MPI)     &          &            &  Vector     & Vector   & Supplied \\ 
     Dense         &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\ 
     Band          &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
-    Diagonal      &  \cm     & \cm       & \cm      &  \cm       & \cm         &  \cm     & \cm      \\ 
     Sparse        &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
     User supplied &  \cm     & \cm       & \cm      &  \cm       & \cm         &  \cm     & \cm      \\ 
     \hline
@@ -246,10 +244,6 @@ Chapter \ref{s:sunlinsol}.  More specifically, in Table
 \input{sunmatrix_band}
 
 %---------------------------------------------------------------------------
-\section{The SUNMatrix\_Diagonal implementation}\label{ss:sunmat_diag}
-\input{sunmatrix_diag}
-
-%---------------------------------------------------------------------------
 \section{The SUNMatrix\_Sparse implementation}\label{ss:sunmat_sparse}
 \input{sunmatrix_sparse}
 
@@ -258,7 +252,7 @@ Chapter \ref{s:sunlinsol}.  More specifically, in Table
 \section{SUNMatrix Examples}\label{ss:sunmat_examples}
 
 There are \id{SUNMatrix} examples that may be installed for each
-implementation: dense, banded, diagonal, and sparse.  Each implementation
+implementation: dense, banded, and sparse.  Each implementation
 makes use of the functions in \id{test\_sunmatrix.c}. 
 These example functions show simple usage of the \id{SUNMatrix} family
 of functions.  The inputs to the examples depend on the matrix type,

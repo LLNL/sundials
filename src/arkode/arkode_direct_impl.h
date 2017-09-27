@@ -112,8 +112,6 @@ int arkDlsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
 int arkDlsBandDQJac(realtype t, N_Vector y, N_Vector fy, 
                     SUNMatrix Jac, ARKodeMem ark_mem, N_Vector tmp1, 
                     N_Vector tmp2);
-int arkDlsDiagonalDQJac(realtype t, N_Vector y, N_Vector fy, 
-                        SUNMatrix Jac, ARKodeMem ark_mem, N_Vector tmp1);
 
 /* generic linit/lsetup/lsolve/lfree interface routines for ARKode to call */
 int arkDlsInitialize(ARKodeMem ark_mem);

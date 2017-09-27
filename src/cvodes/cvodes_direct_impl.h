@@ -99,10 +99,6 @@ int cvDlsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
 int cvDlsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
                    CVodeMem cv_mem, N_Vector tmp1, N_Vector tmp2);
   
-int cvDlsDiagonalDQJac(realtype t, N_Vector y, N_Vector fy, 
-                       SUNMatrix Jac, CVodeMem cv_mem,
-                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-
 /* generic linit/lsetup/lsolve/lfree interface routines for CVode to call */
 int cvDlsInitialize(CVodeMem cv_mem);
 

@@ -44,17 +44,14 @@
 
    FSUNBANDMATINIT            SUNBandMatrix
    FSUNDENSEMATINIT           SUNDenseMatrix
-   FSUNDIAGONALMATINIT        SUNDiagonalMatrix
    FSUNSPARSEMATINIT          SUNSparseMatrix
 
    FSUNBANDMASSMATINIT        SUNBandMatrix
    FSUNDENSEMASSMATINIT       SUNDenseMatrix
-   FSUNDIAGONALMASSMATINIT    SUNDiagonalMatrix
    FSUNSPARSEMASSMATINIT      SUNSparseMatrix
 
    FSUNBANDLINSOLINIT         SUNBandLinearSolver
    FSUNDENSELINSOLINIT        SUNDenseLinearSolver
-   FSUNDIAGLINSOLINIT         SUNDiagonalLinearSolver
    FSUNKLUINIT                SUNKLU
    FSUNKLUREINIT              SUNKLUReinit
    FSUNLAPACKBANDINIT         SUNLapackBand
@@ -68,7 +65,6 @@
 
    FSUNMASSBANDLINSOLINIT     SUNBandLinearSolver
    FSUNMASSDENSELINSOLINIT    SUNDenseLinearSolver
-   FSUNMASSDIAGLINSOLINIT     SUNDiagonalLinearSolver
    FSUNMASSKLUINIT            SUNKLU
    FSUNMASSKLUREINIT          SUNKLUReinit
    FSUNMASSLAPACKBANDINIT     SUNLapackBand
@@ -100,7 +96,6 @@
 
    FARKDLSINIT                ARKDlsSetLinearSolver
    FARKDENSESETJAC            ARKDlsSetJacFn
-   FARKDIAGSETJAC             ARKDlsSetJacFn
    FARKBANDSETJAC             ARKDlsSetJacFn
    FARKSPARSESETJAC           ARKDlsSetJacFn
    FARKDLSSETMSBJ             ARKDlsSetMSBJ
@@ -144,10 +139,8 @@
    FARKDMASS          FARKDenseMass            ARKDlsMassFn
    FARKBJAC           FARKBandJac              ARKDlsJacFn
    FARKBMASS          FARKBandMass             ARKDlsMassFn
-   FARKDIAGJAC        FARKDiagJac              ARKDlsJacFn
-   FARKDIAGMASS       FARKDiagMass             ARKDlsMassFn
-   FARKSPJAC          FARKSparseJac            ARKSlsJacFn
-   FARKSPMASS         FARKSparseMass           ARKSlsMassFn
+   FARKSPJAC          FARKSparseJac            ARKDlsJacFn
+   FARKSPMASS         FARKSparseMass           ARKDlsMassFn
    FARKPSET           FARKPSet                 ARKSpilsPrecSetupFn
    FARKPSOL           FARKPSol                 ARKSpilsPrecSolveFn
    FARKMASSPSET       FARKMassPSet             ARKSpilsMassPrecSetupFn
@@ -316,41 +309,6 @@
                [realtype, input]
        IER  -- return flag [int, output]:
                   0 if successful,
-                 >0 if a recoverable error occurred,
-                 <0 if an unrecoverable error ocurred.
- 
- (2) Optional user-supplied diagonal Jacobian approximation routine: 
-     FARKDIAGJAC
-
-     As an option when using the Diagonal linear solver, the user may 
-     supply a routine that computes a diagonal approximation of the 
-     system Jacobian J = dfi(t,y)/dy. If supplied, it must have the 
-     following form:
-
-       SUBROUTINE FARKDIAGJAC(T, Y, FY, DJAC, H, IPAR, RPAR, 
-      &                       WK1, WK2, WK3, IER)
-
-     Typically this routine will use only T, Y, and DJAC. It 
-     is assumed that the user knows the length of the Y, FY and DJAC 
-     arrays.  The user must load the NEQ array DJAC with the diagonal 
-     of the Jacobian matrix at the current (t,y).  Store in DJAC(k) 
-     the Jacobian element J(k,k)  with k = 1 ... NEQ.
-
-     The arguments are:
-       T    -- current time [realtype, input]
-       Y    -- array containing state variables [realtype, input]
-       FY   -- array containing state derivatives [realtype, input]
-       DJAC -- 1D array containing the jacobian entries [realtype of 
-               size (NEQ), output]
-       H    -- current step size [realtype, input]
-       IPAR -- array containing integer user data that was passed to
-               FARKMALLOC [long int, input]
-       RPAR -- array containing real user data that was passed to
-               FARKMALLOC [realtype, input]
-       WK*  -- array containing temporary workspace of same size as Y 
-               [realtype, input]
-       IER  -- return flag [int, output]:
-                  0 if successful, 
                  >0 if a recoverable error occurred,
                  <0 if an unrecoverable error ocurred.
  
@@ -581,36 +539,6 @@
                   >0 if a recoverable error occurred,
                   <0 if an unrecoverable error ocurred.
  
- (4) Optional user-supplied diagonal mass matrix routine: FARKDIAGMASS
-
-     Required when using the Diagonal mass matrix linear solver, the user 
-     must supply a routine that computes the system mass matrix 
-     M.  This routine must have the following form: 
-
-       SUBROUTINE FARKDIAGMASS(NEQ, T, DMASS, IPAR, RPAR, WK1, 
-      &                        WK2, WK3, IER)
-
-     Typically this routine will use only NEQ, T, and DMASS. It 
-     must load the NEQ array DMASS with the diagonal of the system mass 
-     matrix at the current (t).  Store in DMASS(k) the mass matrix 
-     element M(k,k)  with k = 1 ... NEQ.
-
-     The arguments are:
-       NEQ   -- number of rows in the matrix [long int, input]
-       T     -- current time [realtype, input]
-       DMASS -- 1D array containing the mass matrix entries [realtype 
-                of size (NEQ), output]
-       IPAR  -- array containing integer user data that was passed to
-                FARKMALLOC [long int, input]
-       RPAR  -- array containing real user data that was passed to
-                FARKMALLOC [realtype, input]
-       WK*   -- array containing temporary workspace of same size as Y 
-                [realtype, input]
-       IER   -- return flag [int, output]:
-                   0 if successful, 
-                  >0 if a recoverable error occurred,
-                  <0 if an unrecoverable error ocurred.
- 
  (4s) User-supplied sparse mass matrix routine: FARKSPMASS
 
      Required when using the KLU or SuperLUMT mass matrix linear solvers, 
@@ -828,25 +756,22 @@
  -----------------------------------------------------------------------------
 
  (9) Initialization:  FNVINITS / FNVINITP / FNVINITOMP / FNVINITPTS, 
-                      FSUNBANDMATINIT / FSUNDENSEMATINIT / 
-                         FSUNDIAGONALMATINIT / FSUNSPARSEMATINIT,
-                      FSUNBANDMASSMATINIT / FSUNDENSEMASSMATINIT
-                         FSUNDIAGONALMASSMATINIT / FSUNSPARSEMASSMATINIT,
+                      FSUNBANDMATINIT / FSUNDENSEMATINIT / FSUNSPARSEMATINIT,
+                      FSUNBANDMASSMATINIT / FSUNDENSEMASSMATINIT /
+                         FSUNSPARSEMASSMATINIT,
                       FSUNBANDLINSOLINIT / FSUNDENSELINSOLINIT / 
-                         FSUNDIAGLINSOLINIT / FSUNKLUINIT / FSUNKLUREINIT /
-                         FSUNKLUSETORDERING / FSUNLAPACKBANDINIT / 
-                         FSUNLAPACKDENSEINIT / FSUNPCGINIT / 
-                         FSUNSPBCGSINIT / FSUNSPFGMRINIT / FSUNSPGMRINIT / 
-                         FSUNSPTFQMRINIT / FSUNSUPERLUMTINIT /
+                         FSUNKLUINIT / FSUNKLUREINIT / FSUNKLUSETORDERING / 
+                         FSUNLAPACKBANDINIT / FSUNLAPACKDENSEINIT / 
+                         FSUNPCGINIT / FSUNSPBCGSINIT / FSUNSPFGMRINIT / 
+                         FSUNSPGMRINIT / FSUNSPTFQMRINIT / FSUNSUPERLUMTINIT /
                          FSUNSUPERLUMTSETORDERING,
                       FSUNMASSBANDLINSOLINIT / FSUNMASSDENSELINSOLINIT /
-                         FSUNMASSDIAGLINSOLINIT / FSUNMASSKLUINIT / 
-                         FSUNMASSKLUREINIT / FSUNMASSKLUSETORDERING / 
-                         FSUNMASSLAPACKBANDINIT / FSUNMASSLAPACKDENSEINIT / 
-                         FSUNMASSPCGINIT / FSUNMASSSPBCGSINIT / 
-                         FSUNMASSSPFGMRINIT / FSUNMASSSPGMRINIT / 
-                         FSUNMASSSPTFQMRINIT / FSUNMASSSUPERLUMTINIT /
-                         FSUNMASSSUPERLUMTSETORDERING,
+                         FSUNMASSKLUINIT / FSUNMASSKLUREINIT / 
+                         FSUNMASSKLUSETORDERING / FSUNMASSLAPACKBANDINIT / 
+                         FSUNMASSLAPACKDENSEINIT / FSUNMASSPCGINIT / 
+                         FSUNMASSSPBCGSINIT / FSUNMASSSPFGMRINIT / 
+                         FSUNMASSSPGMRINIT / FSUNMASSSPTFQMRINIT / 
+                         FSUNMASSSUPERLUMTINIT / FSUNMASSSUPERLUMTSETORDERING,
                       FARKMALLOC,
                       FARKDLSINIT / FARKSPILSINIT,
                       FARKREINIT, FARKRESIZE
@@ -882,13 +807,12 @@
                   0 = success, 
                  -1 = failure.
 
- (9.2) To initialize a band/dense/diagonal/sparse matrix structure for 
+ (9.2) To initialize a band/dense/sparse matrix structure for 
      storing the system Jacobian and for use within a direct linear solver,
      the user must make one of the following calls:
  
           CALL FSUNBANDMATINIT(4, N, MU, ML, SMU, IER)
           CALL FSUNDENSEMATINIT(4, M, N, IER)
-          CALL FSUNDIAGONALMATINIT(4, IER)
           CALL FSUNSPARSEMATINIT(4, M, N, NNZ, SPARSETYPE, IER)
 
      In each of these, one argument is an int containing the ARKODE solver 
@@ -912,13 +836,12 @@
                   0 = success, 
                  -1 = failure.
 
- (9.3) To initialize a band/dense/diagonal/sparse matrix structure for 
+ (9.3) To initialize a band/dense/sparse matrix structure for 
      storing the mass matrix and for use within a direct mass matrix linear 
      solver, the user must make one of the following calls:
   
           CALL FSUNBANDMASSMATINIT(N, MU, ML, SMU, IER)
           CALL FSUNDENSEMASSMATINIT(M, N, IER)
-          CALL FSUNDIAGONALMASSMATINIT(IER)
           CALL FSUNSPARSEMASSMATINIT(M, N, NNZ, SPARSETYPE, IER)
 
      The arguments have the same meanings as with the Jacobian matrix 
@@ -930,7 +853,6 @@
 
           CALL FSUNBANDLINSOLINIT(4, IER)
           CALL FSUNDENSELINSOLINIT(4, IER)
-          CALL FSUNDIAGLINSOLINIT(4, IER)
           CALL FSUNKLUINIT(4, IER)
           CALL FSUNLAPACKBANDINIT(4, IER)
           CALL FSUNLAPACKDENSEINIT(4, IER)
@@ -983,7 +905,6 @@
 
           CALL FSUNMASSBANDLINSOLINIT(IER)
           CALL FSUNMASSDENSELINSOLINIT(IER)
-          CALL FSUNMASSDIAGLINSOLINIT(IER)
           CALL FSUNMASSKLUINIT(IER)
           CALL FSUNMASSLAPACKBANDINIT(IER)
           CALL FSUNMASSLAPACKDENSEINIT(IER)
@@ -1074,9 +995,9 @@
 
  (9.7) If a direct linear solver was created in step (7.4) then it must be 
      attached to ARKode.  If the user called any one of FSUNBANDLINSOLINIT, 
-     FSUNDENSELINSOLINIT, FSUNDIAGLINSOLINIT, FSUNKLUINIT, 
-     FSUNLAPACKBANDINIT, FSUNLAPACKDENSEINIT, or FSUNSUPERLUMTINIT, then 
-     this must be attached to the ARKDLS interface using the command:
+     FSUNDENSELINSOLINIT, FSUNKLUINIT, FSUNLAPACKBANDINIT, 
+     FSUNLAPACKDENSEINIT, or FSUNSUPERLUMTINIT, then this must be 
+     attached to the ARKDLS interface using the command:
 
        CALL FARKDLSINIT(IER)
 
@@ -1100,9 +1021,9 @@
  (9.8) If a mass matrix linear solver was created in step (7.5) then it 
      must be attached to ARKode.  If the user called any one of 
      FSUNMASSBANDLINSOLINIT, FSUNMASSDENSELINSOLINIT, 
-     FSUNMASSDIAGLINSOLINIT, FSUNMASSKLUINIT, FSUNMASSLAPACKBANDINIT, 
-     FSUNMASSLAPACKDENSEINIT, or FSUNMASSSUPERLUMTINIT, then this must be 
-     attached to the ARKDLS interface using the command:
+     FSUNMASSKLUINIT, FSUNMASSLAPACKBANDINIT, FSUNMASSLAPACKDENSEINIT, 
+     or FSUNMASSSUPERLUMTINIT, then this must be attached to the 
+     ARKDLS interface using the command:
 
        CALL FARKDLSMASSINIT(TIME_DEP, IER)
 
@@ -1180,17 +1101,6 @@
      Jacobian approximation.  The int return flag IER=0 if successful, and 
      nonzero otherwise.
  
-     If the user program includes the FARKDIAGJAC routine for the evaluation 
-     of the diagonal approximation to the Jacobian, then after the call to 
-     FARKDLSINIT, the following call must be made 
-
-       CALL FARKDIAGSETJAC(FLAG, IER)
-
-     with the int FLAG=1 to specify that FARKDIAGJAC is provided and should 
-     be used; FLAG=0 specifies a reset to the internal finite difference 
-     Jacobian approximation.  The int return flag IER=0 if successful, and 
-     nonzero otherwise.
- 
      When using a sparse matrix and linear solver the user must provide the
      FARKSPJAC routine for the evaluation of the sparse approximation to 
      the Jacobian.  To indicate that this routine has been provided, after 
@@ -1234,17 +1144,16 @@
      modules rely, may be found in the header files for each module, 
      farkbp.h or farkbbd.h, respectively.
 
- (9.18) When using a band / dense / sparse / diagonal mass matrix and 
+ (9.18) When using a band / dense / sparse mass matrix and 
      corresponding linear solver the user must provide the FARKBMASS / 
-     FARKDMASS / FARKSPMASS / FARKDIAGMASS routine for the evaluation of 
-     the approximation to the mass matrix.  To indicate that the 
+     FARKDMASS / FARKSPMASS routine for the evaluation of the 
+     approximation to the mass matrix.  To indicate that the 
      appropriate routine has been provided, after the call to 
      FARKDLSMASSINIT, one of the following calls must be made 
 
        CALL FARKBANDSETMASS(IER)
        CALL FARKDENSESETMASS(IER)
        CALL FARKSPARSESETMASS(IER)
-       CALL FARKDIAGSETMASS(IER)
 
      The int return flag IER=0 if successful, nonzero otherwise.
 
@@ -1672,9 +1581,6 @@ extern "C" {
 #define FARK_SPARSESETJAC        SUNDIALS_F77_FUNC(farksparsesetjac,        FARKSPARSESETJAC)
 #define FARK_SPJAC               SUNDIALS_F77_FUNC(farkspjac,               FARKSPJAC)
 
-#define FARK_DIAGSETJAC          SUNDIALS_F77_FUNC(farkdiagsetjac,          FARKDIAGSETJAC)
-#define FARK_DIAGJAC             SUNDIALS_F77_FUNC(farkdiagjac,             FARKDIAGJAC)
-
 #define FARK_DENSESETMASS        SUNDIALS_F77_FUNC(farkdensesetmass,        FARKDENSESETMASS)
 #define FARK_DMASS               SUNDIALS_F77_FUNC(farkdmass,               FARKDMASS)
 
@@ -1683,9 +1589,6 @@ extern "C" {
 
 #define FARK_SPARSESETMASS       SUNDIALS_F77_FUNC(farksparsesetmass,       FARKSPARSESETMASS)
 #define FARK_SPMASS              SUNDIALS_F77_FUNC(farkspmass,              FARKSPMASS)
-
-#define FARK_DIAGSETMASS         SUNDIALS_F77_FUNC(farkdiagsetmass,         FARKDIAGSETMASS)
-#define FARK_DIAGMASS            SUNDIALS_F77_FUNC(farkdiagmass,            FARKDIAGMASS)
 
 #define FARK_SPILSSETJAC         SUNDIALS_F77_FUNC(farkspilssetjac,         FARKSPILSSETJAC)
 #define FARK_JTSETUP             SUNDIALS_F77_FUNC(farkjtsetup,             FARKJTSETUP)
@@ -1753,9 +1656,6 @@ extern "C" {
 #define FARK_SPARSESETJAC        farksparsesetjac_
 #define FARK_SPJAC               farkspjac_
 
-#define FARK_DIAGSETJAC          farkdiagsetjac_
-#define FARK_DIAGJAC             farkdiagjac_
-
 #define FARK_DENSESETMASS        farkdensesetmass_
 #define FARK_DMASS               farkdmass_
 
@@ -1764,9 +1664,6 @@ extern "C" {
 
 #define FARK_SPARSESETMASS       farksparsesetmass_
 #define FARK_SPMASS              farkspmass_
-
-#define FARK_DIAGSETMASS         farkdiagsetmass_
-#define FARK_DIAGMASS            farkdiagmass_
 
 
 #define FARK_SPILSSETJAC         farkspilssetjac_
@@ -1860,12 +1757,10 @@ extern "C" {
   void FARK_DENSESETJAC(int *flag, int *ier);
   void FARK_BANDSETJAC(int *flag, int *ier);
   void FARK_SPARSESETJAC(int *ier);
-  void FARK_DIAGSETJAC(int *flag, int *ier);
 
   void FARK_DENSESETMASS(int *ier);
   void FARK_BANDSETMASS(int *ier);
   void FARK_SPARSESETMASS(int *ier);
-  void FARK_DIAGSETMASS(int *ier);
 
 
   void FARK_SPILSSETJAC(int *flag, int *ier);
@@ -1894,10 +1789,7 @@ extern "C" {
 		    SUNMatrix J, void *user_data, N_Vector vtemp1, 
 		    N_Vector vtemp2, N_Vector vtemp3);
 
-  int FARKDiagJac(realtype t, N_Vector y, N_Vector fy, 
-                  SUNMatrix J, void *user_data, N_Vector vtemp1, 
-                  N_Vector vtemp2, N_Vector vtemp3);
-
+  
   int FARKDenseMass(realtype t, SUNMatrix M, void *user_data, 
                     N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
@@ -1906,9 +1798,6 @@ extern "C" {
   
   int FARKSparseMass(realtype t, SUNMatrix M, void *user_data, 
                     N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
-  
-  int FARKDiagMass(realtype t, SUNMatrix M, void *user_data, 
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
 
   int FARKPSet(realtype tn, N_Vector y, N_Vector fy, booleantype jok,

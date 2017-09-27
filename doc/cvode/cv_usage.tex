@@ -113,10 +113,6 @@ interfaces and linear solver modules available for use with
     which is used with the banded linear solver module,
     {\sunlinsolband}; 
     
-  \item \Id{sunlinsol/sunlinsol\_diagonal.h},
-    which is used with the diagonal linear solver module,
-    {\sunlinsoldiag}; 
-    
   \item \Id{sunlinsol/sunlinsol\_lapackdense.h},
     which is used with the LAPACK dense linear solver interface module,
     {\sunlinsollapdense}; 
@@ -158,6 +154,8 @@ interfaces and linear solver modules available for use with
     which is used with the scaled, preconditioned CG Krylov linear
     solver module, {\sunlinsolpcg};
   \end{itemize}
+\item \Id{cvode/cvode\_diag.h}, 
+  which is used with the {\cvdiag} diagonal linear solver interface.
 \end{itemize}
 
 The header files for the {\sunlinsoldense} and {\sunlinsollapdense}
@@ -177,12 +175,6 @@ sparse linear solvers include the file
 \id{sunmatrix/sunmatrix\_sparse.h}, which defines the {\sunmatsparse}
 matrix module, as well as various functions and macros acting on such
 matrices.
-
-The header file for the {\sunlinsoldiag} diagonal linear solver
-includes the file \\
-\noindent\id{sunmatrix/sunmatrix\_diagonal.h}, which defines
-the {\sunmatdiag} matrix module, as well as various functions and
-macros acting on such matrices.
 
 The header files for the Krylov iterative solvers include the file
 \id{sundials/sundials\_iterative.h}, which enumerates the kind of
@@ -329,6 +321,12 @@ serial or threaded environment.
 
   \id{ier = }\Id{CVSpilsSetLinearSolver}\id{(...);}
 
+  Alternately, if the {\cvode}-specific diagonal linear solver module,
+  {\cvdiag}, is desired, initialize the linear solver module and
+  attach it to {\cvode} with the call
+
+  \id{ier = }\Id{CVDiag}\id{(...);}
+  
 \item
   {\bf Set linear solver interface optional inputs}
 
@@ -701,15 +699,19 @@ unsuccessful.
 %%==============================================================================
 
 As previously explained, a Newton iteration requires the solution of
-linear systems of the form (\ref{e:Newton}).  There are two {\cvode} linear
-solver interfaces currently available for this task: {\cvdls} and {\cvspils}.
+linear systems of the form (\ref{e:Newton}).  There are three {\cvode} linear
+solver interfaces currently available for this task: {\cvdls},
+{\cvdiag} and {\cvspils}.
 
 The first corresponds to the use of Direct Linear Solvers, and
 utilizes {\sunmatrix} objects to store the Jacobian
 $J = \partial{f}/\partial{y}$, the Newton matrix $M = I-\gamma J$, and
 factorizations used throughout the solution process.
 
-The second corresponds to the use of Scaled, Preconditioned, Iterative
+The {\cvdiag} linear solver is also a direct linear solver, but it
+only uses a diagonal approximation to $J$.
+
+The third corresponds to the use of Scaled, Preconditioned, Iterative
 Linear Solvers, utilizing matrix-free Krylov methods to solve the
 Newton linear systems of equations.  With most of these methods,
 preconditioning can be done on the left only, on the right only, on
@@ -725,23 +727,30 @@ matrix), such that the product $P_1 P_2$ approximates the Newton matrix
 $M = I - \gamma J$ of (\ref{e:Newtonmat}).
 
 \index{CVODE@{\cvode} linear solvers!selecting one|(}
-To specify a linear solver to {\cvode}, after the call to \id{CVodeCreate}
-but before any calls to \id{CVode}, the user's program must create the
-appropriate {\sunlinsol} object and call either of the functions
-\Id{CVDlsSetLinearSolver} or \Id{CVSpilsSetLinearSolver}, as documented below. 
-The first argument passed to these functions is the {\cvode}
-memory pointer returned by \id{CVodeCreate}; the second argument
-passed to these functions is the desired {\sunlinsol} object to use
-for solving Newton systems.  A call to one of these functions
-initializes the appropriate {\cvode} linear solver interface, linking
-this to the main {\cvode} integrator, and allows the user to specify
-parameters which are specific to a particular solver interface.
+To specify a generic linear solver to {\cvode}, after the call to
+\id{CVodeCreate} but before any calls to \id{CVode}, the user's
+program must create the appropriate {\sunlinsol} object and call
+either of the functions \Id{CVDlsSetLinearSolver} or
+\Id{CVSpilsSetLinearSolver}, as documented below.  The first argument
+passed to these functions is the {\cvode} memory pointer returned by
+\id{CVodeCreate}; the second argument passed to these functions is the
+desired {\sunlinsol} object to use for solving Newton systems.  A call
+to one of these functions initializes the appropriate {\cvode} linear
+solver interface, linking this to the main {\cvode} integrator, and
+allows the user to specify parameters which are specific to a
+particular solver interface. 
 %%
-The use of each of the linear solvers involves certain constants and
-possibly some macros, that are likely to be needed in the user code.
-These are available in the corresponding header file associated with
-the specific {\sunmatrix} or {\sunlinsol} module in question, as
-described in Chapters \ref{s:sunmatrix} and \ref{s:sunlinsol}. 
+The use of each of the generic linear solvers involves certain
+constants and possibly some macros, that are likely to be needed in
+the user code.  These are available in the corresponding header file
+associated with the specific {\sunmatrix} or {\sunlinsol} module in
+question, as described in Chapters \ref{s:sunmatrix} and
+\ref{s:sunlinsol}.
+
+To instead specify the {\cvode}-specific diagonal linear solver
+interface, the user's program must call \Id{CVDiag}, as documented
+below.  The first argument passed to this function is the {\cvode}
+memory pointer returned by \id{CVodeCreate}
 \index{CVODE@{\cvode} linear solver interfaces!selecting one|)}
 
 \index{CVODE@{\cvode} linear solver interfaces!CVDLS@{\cvdls}}
@@ -842,6 +851,51 @@ described in Chapters \ref{s:sunmatrix} and \ref{s:sunlinsol}.
   limitations for each {\sunlinsol} object (i.e.~required {\nvector}
   routines) are described in Chapter \ref{s:sunlinsol}.
 }
+%%
+%%
+%%
+\index{CVODE@{\cvode} linear solver interfaces!CVDIAG@{\cvdiag}}
+\index{CVDIAG@{\cvdiag} linear solver!selection of}
+\index{CVDIAG@{\cvdiag} linear solver!Jacobian approximation used by}
+\index{Jacobian approximation function!diagonal!difference quotient}
+\ucfunction{CVDiag}
+{
+  flag = CVDiag(cvode\_mem);
+}
+{
+  The function \ID{CVDiag} selects the {\cvdiag} linear solver. 
+
+  The user's main program must include the \id{cvode\_diag.h} header file.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[CVDIAG\_ILL\_INPUT]
+  \item[\Id{CVDIAG\_SUCCESS}]
+    The {\cvdiag} initialization was successful.
+  \item[\Id{CVDIAG\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVDIAG\_ILL\_INPUT}]
+    The {\cvdiag} solver is not compatible with the current {\nvector} module.
+  \item[\Id{CVDIAG\_MEM\_FAIL}]
+    A memory allocation request failed.
+  \end{args}
+}
+{
+  The {\cvdiag} solver is the simplest of all of the current {\cvode}
+  linear solver interfaces.  The {\cvdiag} solver uses an approximate
+  diagonal Jacobian formed by way of a difference quotient. The user
+  does {\em not} have the option of supplying a function to compute an
+  approximate diagonal Jacobian.
+}
+%%
+%%
+%%
 
 
 
@@ -1038,7 +1092,8 @@ these optional input parameters from their default values.
 Table \ref{t:optional_input} lists all optional input functions in {\cvode} which 
 are then described in detail in the remainder of this section, begining with those
 for the main {\cvode} solver and continuing with those for the linear
-solver interfaces.  For the most casual use of {\cvode}, the reader
+solver interfaces.  Note that the diagonal linear solver module has no
+optional inputs.  For the most casual use of {\cvode}, the reader
 can skip to \S\ref{ss:user_fct_sim}. 
 
 We note that, on an error return, all of the optional input functions send an
@@ -2111,7 +2166,7 @@ preconditioner.
 
 \begin{table}
 \centering
-\caption{Optional outputs from {\cvode}, {\cvdls}, and {\cvspils}}
+\caption{Optional outputs from {\cvode}, {\cvdls}, {\cvdiag}, and {\cvspils}}
 \label{t:optional_output}
 \medskip
 \begin{tabular}{|p{\colAA}|p{\colBB}|}
@@ -2150,6 +2205,13 @@ No. of Jacobian evaluations & \id{CVDlsGetNumJacEvals} \\
 No. of r.h.s. calls for finite diff. Jacobian evals. & \id{CVDlsGetNumRhsEvals} \\ 
 Last return from a linear solver function & \id{CVDlsGetLastFlag} \\ 
 Name of constant associated with a return flag & \id{CVDlsGetReturnFlagName} \\
+\hline
+\multicolumn{2}{|c|}{\bf CVDIAG linear solver interface} \\
+\hline
+Size of {\cvdiag} real and integer workspaces & \id{CVDiagGetWorkSpace} \\
+No. of r.h.s. calls for finite diff. Jacobian evals. & \id{CVDiagGetNumRhsEvals} \\ 
+Last return from a {\cvdiag} function & \id{CVDiagGetLastFlag} \\ 
+Name of constant associated with a return flag & \id{CVDiagGetReturnFlagName} \\
 \hline
 \multicolumn{2}{|c|}{\bf CVSPILS linear solver interface} \\
 \hline
@@ -3416,6 +3478,148 @@ the name of an optional output from the main solver, a suffix \id{LS}
 
 
 %%==============================================================================
+\subsubsection{Diagonal linear solver interface optional output functions}
+\label{sss:optout_diag}
+%%==============================================================================
+\index{optional output!diagonal linear solver interface|(}
+\index{CVDIAG@{\cvdiag} linear solver interface!optional output|(}
+The following optional outputs are available from the {\cvdiag} module:
+workspace requirements, number of calls to the right-hand side routine for 
+finite-difference Jacobian approximation, and last return value from a 
+{\cvdiag} function.
+Note that, where the name of an output would otherwise conflict with
+the name of an optional output from the main solver, a suffix \id{LS}
+(for Linear Solver) has been added here (e.g.  \id{lenrwLS}).
+%%
+%%
+\index{CVDIAG@{\cvdiag} linear solver interface!memory requirements} 
+\index{memory requirements!CVDIAG@{\cvdiag} linear solver interface}
+\ucfunction{CVDiagGetWorkSpace}
+{
+  flag = CVDiagGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
+}
+{
+  The function \ID{CVDiagGetWorkSpace} returns the
+  {\cvdiag} real and integer workspace sizes.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[lenrwLS] (\id{long int})
+    the number of \id{realtype} values in the {\cvdiag} workspace.
+  \item[leniwLS] (\id{long int})
+    the number of integer values in the {\cvdiag} workspace.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVDIAG\_LMEM\_NULL]
+  \item[\Id{CVDIAG\_SUCCESS}] 
+    The optional output valus have been successfully set.
+  \item[\Id{CVDIAG\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVDIAG\_LMEM\_NULL}]
+    The {\cvdiag} linear solver has not been initialized.
+  \end{args}
+}
+{
+  In terms of the problem size $N$, the actual size of the real workspace
+  is roughly $3 N$ \id{realtype} words.
+}
+%%
+%%
+\ucfunction{CVDiagGetNumRhsEvals}
+{
+  flag = CVDiagGetNumRhsEvals(cvode\_mem, \&nfevalsLS);
+}
+{
+  The function \ID{CVDiagGetNumRhsEvals} returns the
+  number of calls made to the user-supplied right-hand side function due to the 
+  finite difference Jacobian approximation.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[nfevalsLS] (\id{long int})
+    the number of calls made to the user-supplied right-hand side function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVDIAG\_LMEM\_NULL]
+  \item[\Id{CVDIAG\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{CVDIAG\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVDIAG\_LMEM\_NULL}]
+    The {\cvdiag} linear solver has not been initialized.
+  \end{args}
+}
+{
+  The number of diagonal approximate Jacobians formed is
+  equal to the number of calls made to the linear solver setup function
+  (see \id{CVodeGetNumLinSolvSetups}).
+}
+%%
+%%
+\ucfunction{CVDiagGetLastFlag}
+{
+  flag = CVDiagGetLastFlag(cvode\_mem, \&lsflag);
+}
+{
+  The function \ID{CVDiagGetLastFlag} returns the
+  last return value from a {\cvdiag} routine. 
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[lsflag] (\id{long int})
+    the value of the last return flag from a {\cvdiag} function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVDIAG\_LMEM\_NULL]
+  \item[\Id{CVDIAG\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{CVDIAG\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVDIAG\_LMEM\_NULL}]
+    The {\cvdiag} linear solver has not been initialized.
+  \end{args}
+}
+{
+  If the {\cvdiag} setup function failed (\id{CVode} returned \id{CV\_LSETUP\_FAIL}),
+  the value of \id{lsflag} is equal to \id{CVDIAG\_INV\_FAIL}, indicating that a
+  diagonal element with value zero was encountered.
+  The same value is also returned if the {\cvdiag} solve function failed
+  (\id{CVode} returned \id{CV\_LSOLVE\_FAIL}).
+}
+%%
+%%
+\ucfunction{CVDiagGetReturnFlagName}
+{
+  name = CVDiagGetReturnFlagName(lsflag);
+}
+{
+  The function \ID{CVDiagGetReturnFlagName} returns the
+  name of the {\cvdiag} constant corresponding to \id{lsflag}.
+}
+{
+  The only argument, of type \id{long int}, is a return flag from a {\cvdiag} function.
+}
+{
+  The return value is a string containing the name of the corresponding constant.
+}
+{}
+\index{CVDIAG@{\cvdiag} linear solver interface!optional output|)}
+\index{optional output!diagonal linear solver interface|)}
+
+
+%%==============================================================================
 \subsection{CVODE reinitialization function}\label{sss:cvreinit}
 %%==============================================================================
 \index{reinitialization}
@@ -3824,16 +4028,6 @@ provide a function of type \Id{CVDlsJacFn} defined as follows:
   \id{SM\_ELEMENT\_B} macro.  As in the dense case, these macros all
   number rows and columns starting from $0$.  The {\sunmatband} type
   and accessor macros are documented in \S\ref{ss:sunmat_band}.
-
-  {\bf diagonal}:\\
-  A user-supplied diagonal Jacobian function must load the \id{N} by
-  \id{N} diagonal matrix \id{Jac} with an approximation to the
-  Jacobian matrix $J(t,y)$ at the point (\id{t}, \id{y}).  The
-  accessor macro \Id{SM\_DATA\_DIAG} allows the user to access the
-  underlying {\nvector} that holds the diagonal of \id{Jac}.  The user
-  may then use implementation-specific {\nvector} operations to read
-  and write the diagonal matrix elements. The {\sunmatdiag} type
-  and accessor macros are documented in \S\ref{ss:sunmat_diag}.
 
   {\bf sparse}:\\
   A user-supplied sparse Jacobian function must load the \id{N} by \id{N}

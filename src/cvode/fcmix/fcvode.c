@@ -34,6 +34,7 @@
 #include <sundials/sundials_matrix.h>
 #include <cvode/cvode_direct.h>
 #include <cvode/cvode_spils.h>
+#include <cvode/cvode_diag.h>
 
 
 /***************************************************************************/
@@ -314,6 +315,19 @@ void FCV_SPILSINIT(int *ier) {
 
 /***************************************************************************/
 
+void FCV_DIAG(int *ier)
+{
+  if (CV_cvodemem == NULL) {
+    *ier = -1;
+    return;
+  }
+  *ier = CVDiag(CV_cvodemem);
+  CV_ls = CV_LS_DIAG;
+  return;
+}
+
+/***************************************************************************/
+
 void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
 {
   /* 
@@ -376,6 +390,11 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
     CVSpilsGetNumPrecSolves(CV_cvodemem, &CV_iout[18]);           /* NPS */
     CVSpilsGetNumLinIters(CV_cvodemem, &CV_iout[19]);             /* NLI */
     CVSpilsGetNumConvFails(CV_cvodemem, &CV_iout[20]);            /* NCFL */
+    break;
+  case CV_LS_DIAG:
+    CVDiagGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);  /* LENRWLS,LENIWLS */
+    CVDiagGetLastFlag(CV_cvodemem, &CV_iout[14]);                 /* LSTF */
+    CVDiagGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);              /* NFELS */
   }
 }
 

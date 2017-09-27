@@ -59,9 +59,8 @@
 #include <sunlinsol/sunlinsol_dense.h>    /* access to dense SUNLinearSolver          */
 #include <sunmatrix/sunmatrix_band.h>     /* access to band SUNMatrix                 */
 #include <sunlinsol/sunlinsol_band.h>     /* access to band SUNLinearSolver           */
-#include <sunmatrix/sunmatrix_diagonal.h> /* access to diag SUNMatrix                 */
-#include <sunlinsol/sunlinsol_diagonal.h> /* access to diag SUNLinearSolver           */
 #include <cvode/cvode_direct.h>           /* access to CVDls interface                */
+#include <cvode/cvode_diag.h>             /* access to CVDIAG linear solver           */
 #include <sundials/sundials_types.h>      /* definition of realtype                   */
 #include <sundials/sundials_math.h>       /* contains the macros ABS, SUNSQR, and EXP */
 
@@ -668,25 +667,9 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
     case DIAG : 
       printf("Diagonal Jacobian\n");
 
-      /* Create diagonal SUNMatrix for use in linear solves */
-      A = SUNDiagonalMatrix(y);
-      if(check_flag((void *)A, "SUNDiagonalMatrix", 0)) return(1);
-
-      /* Create diagonal SUNLinearSolver object for use by CVode */
-      LS = SUNDiagonalLinearSolver(y, A);
-      if(check_flag((void *)LS, "SUNDiagonalLinearSolver", 0)) return(1);
-      
-      /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-      flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
-      if(check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
-
-      /* Use a difference quotient Jacobian */
-      flag = CVDlsSetJacFn(cvode_mem, NULL);
-      if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
-
-      /* Recompute the Jacobian at every time step */
-      flag = CVDlsSetMSBJ(cvode_mem, 0);
-      if(check_flag(&flag, "CVDlsSetMSBJ", 1)) return(1);
+      /* Call CVDiag to create/attach the CVODE-specific diagonal solver */
+      flag = CVDiag(cvode_mem);
+      if(check_flag(&flag, "CVDiag", 1)) return(1);
       break;
 
     case BAND_USER : 
@@ -779,12 +762,20 @@ static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
   printf(" Number of error test failures            = %4ld \n\n",netf);
   
   if (miter != FUNC) {
-    flag = CVDlsGetNumJacEvals(cvode_mem, &nje);
-    check_flag(&flag, "CVDlsGetNumJacEvals", 1);
-    flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
-    check_flag(&flag, "CVDlsGetNumRhsEvals", 1);
-    flag = CVDlsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-    check_flag(&flag, "CVDlsGetWorkSpace", 1);
+    if (miter != DIAG) {
+      flag = CVDlsGetNumJacEvals(cvode_mem, &nje);
+      check_flag(&flag, "CVDlsGetNumJacEvals", 1);
+      flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
+      check_flag(&flag, "CVDlsGetNumRhsEvals", 1);
+      flag = CVDlsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+      check_flag(&flag, "CVDlsGetWorkSpace", 1);
+    } else {
+      nje = nsetups;
+      flag = CVDiagGetNumRhsEvals(cvode_mem, &nfeLS);
+      check_flag(&flag, "CVDiagGetNumRhsEvals", 1);
+      flag = CVDiagGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+      check_flag(&flag, "CVDiagGetWorkSpace", 1);
+    }
     printf(" Linear solver real workspace length      = %4ld \n", lenrwLS);
     printf(" Linear solver integer workspace length   = %4ld \n", leniwLS);
     printf(" Number of Jacobian evaluations           = %4ld \n", nje);

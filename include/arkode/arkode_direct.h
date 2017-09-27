@@ -171,12 +171,12 @@ SUNDIALS_EXPORT int ARKDlsSetMassLinearSolver(void *arkode_mem,
 /*---------------------------------------------------------------
  Optional inputs to the ARKDLS linear solver interface:
 
- ARKDlsSetJacFn specifies the dense/band/sparse/diagonal Jacobian
+ ARKDlsSetJacFn specifies the dense/band/sparse Jacobian
  approximation routine to be used for a direct linear solver.
 
  By default, a difference quotient approximation is used for 
- dense/band/diagonal; no default exists for sparse (so this must 
- be user-supplied).
+ dense/band; no default exists for sparse (so this must be 
+ user-supplied).
 
  ARKDlsSetMassFn specifies the mass matrix approximation routine 
  to be used for a direct linear solver.  As this must have already

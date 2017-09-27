@@ -47,12 +47,10 @@
  *
  *   FSUNBANDMATINIT            SUNBandMatrix
  *   FSUNDENSEMATINIT           SUNDenseMatrix
- *   FSUNDIAGONALMATINIT        SUNDiagonalMatrix
  *   FSUNSPARSEMATINIT          SUNSparseMatrix
  *
  *   FSUNBANDLINSOLINIT         SUNBandLinearSolver
  *   FSUNDENSELINSOLINIT        SUNDenseLinearSolver
- *   FSUNDIAGLINSOLINIT         SUNDiagonalLinearSolver
  *   FSUNKLUINIT                SUNKLU
  *   FSUNKLUREINIT              SUNKLUReinit
  *   FSUNLAPACKBANDINIT         SUNLapackBand
@@ -74,9 +72,10 @@
  *   FCVDLSINIT                 CVDlsSetLinearSolver
  *   FCVDENSESETJAC             CVDlsSetJacFn
  *   FCVBANDSETJAC              CVDlsSetJacFn
- *   FCVDIAGSETJAC              CVDlsSetJacFn
  *   FCVSPARSESETJAC            CVDlsSetJacFn
  *   FCVDLSSETMSBJ              CVDlsSetMSBJ
+ *
+ *   FCVDIAG                    CVDiag
  *
  *   FCVSPILSINIT               CVSpilsSetLinearSolver
  *   FCVSPILSSETEPSLIN          CVSpilsSetEpsLin
@@ -100,8 +99,7 @@
  *   FCVFUN             FCVf                     CVRhsFn
  *   FCVDJAC            FCVDenseJac              CVDlsJacFn
  *   FCVBJAC            FCVBandJac               CVDlsJacFn
- *   FCVDIAGJAC         FCVDiagJac               CVDlsJacFn
- *   FCVSPJAC           FCVSparseJac             CVSlsJacFn
+ *   FCVSPJAC           FCVSparseJac             CVDlsJacFn
  *   FCVPSET            FCVPSet                  CVSpilsPrecSetupFn
  *   FCVPSOL            FCVPSol                  CVSpilsPrecSolveFn
  *   FCVJTSETUP         FCVJTSetup               CVSpilsJacTimesSetupFn
@@ -257,41 +255,6 @@
  *                 >0 if a recoverable error occurred,
  *                 <0 if an unrecoverable error ocurred.
  *
- * 
- * (2) Optional user-supplied diagonal Jacobian approximation routine: 
- *   FCVDIAGJAC
- *
- *   As an option when using the DIAGONAL linear solver, the user may 
- *   supply a routine that computes a diagonal approximation of the 
- *   system Jacobian J = dfi(t,y)/dy. If supplied, it must have the 
- *   following form:
- *
- *       SUBROUTINE FCVDIAGJAC(T, Y, FY, DJAC, H, IPAR, RPAR, 
- *      1                      WK1, WK2, WK3, IER)
- *
- *   Typically this routine will use only T, Y, and DJAC. It 
- *   is assumed that the user knows the length of the Y, FY and DJAC 
- *   arrays.  The user must load the NEQ array DJAC with the diagonal 
- *   of the Jacobian matrix at the current (t,y).  Store in DJAC(k) 
- *   the Jacobian element J(k,k)  with k = 1 ... NEQ.
- *
- *   The arguments are:
- *       T    -- current time [realtype, input]
- *       Y    -- array containing state variables [realtype, input]
- *       FY   -- array containing state derivatives [realtype, input]
- *       DJAC -- 1D array containing the jacobian entries [realtype of 
- *               size (NEQ), output]
- *       H    -- current step size [realtype, input]
- *       IPAR -- array containing integer user data that was passed to
- *               FCVMALLOC [long int, input]
- *       RPAR -- array containing real user data that was passed to
- *               FCVMALLOC [realtype, input]
- *       WK*  -- array containing temporary workspace of same size as Y 
- *               [realtype, input]
- *       IER  -- return flag [int, output]:
- *                  0 if successful, 
- *                 >0 if a recoverable error occurred,
- *                 <0 if an unrecoverable error ocurred.
  * 
  * (2s) User-supplied sparse Jacobian approximation routine: FCVSPJAC
  *
@@ -481,9 +444,9 @@
  *
  * (5) Initialization:  FNVINITS / FNVINITP / FNVINITOMP / FNVINITPTS, 
  *                      FSUNBANDMATINIT / FSUNDENSEMATINIT / 
- *                         FSUNDIAGONALMATINIT / FSUNSPARSEMATINIT,
+ *                         FSUNSPARSEMATINIT,
  *                      FSUNBANDLINSOLINIT / FSUNDENSELINSOLINIT / 
- *                         FSUNDIAGLINSOLINIT / FSUNKLUINIT / FSUNKLUREINIT /
+ *                         FSUNKLUINIT / FSUNKLUREINIT /
  *                         FSUNKLUSETORDERING / FSUNLAPACKBANDINIT / 
  *                         FSUNLAPACKDENSEINIT / FSUNPCGINIT / 
  *                         FSUNSPBCGSINIT / FSUNSPFGMRINIT / FSUNSPGMRINIT / 
@@ -524,13 +487,12 @@
  *	          0 = success, 
  *		 -1 = failure.
  *
- * (5.2) To initialize a band/dense/diagonal/sparse matrix structure for 
+ * (5.2) To initialize a band/dense/sparse matrix structure for 
  *   storing the system Jacobian and for use within a direct linear solver,
  *   the user must make one of the following calls:
  * 
  *          CALL FSUNBANDMATINIT(1, N, MU, ML, SMU, IER)
  *          CALL FSUNDENSEMATINIT(1, M, N, IER)
- *          CALL FSUNDIAGONALMATINIT(1, IER)
  *          CALL FSUNSPARSEMATINIT(1, M, N, NNZ, SPARSETYPE, IER)
  *
  *   In each of these, one argument is an int containing the CVODE solver 
@@ -555,12 +517,11 @@
  *		 -1 = failure.
  *
  * (5.3) To initialize a linear solver structure for solving linear systems 
- *   arising from implicit or IMEX treatment of the IVP, the user must make 
+ *   arising from implicit treatment of the IVP, the user must make 
  *   one of the following calls:
  *
  *          CALL FSUNBANDLINSOLINIT(1, IER)
  *          CALL FSUNDENSELINSOLINIT(1, IER)
- *          CALL FSUNDIAGLINSOLINIT(1, IER)
  *          CALL FSUNKLUINIT(1, IER)
  *          CALL FSUNLAPACKBANDINIT(1, IER)
  *          CALL FSUNLAPACKDENSEINIT(1, IER)
@@ -646,7 +607,7 @@
  * 
  *   The optional outputs are:
  *           LENRW   = IOUT( 1) from CVodeGetWorkSpace
-*           LENIW   = IOUT( 2) from CVodeGetWorkSpace
+ *           LENIW   = IOUT( 2) from CVodeGetWorkSpace
  *           NST     = IOUT( 3) from CVodeGetNumSteps
  *           NFE     = IOUT( 4) from CVodeGetNumRhsEvals
  *           NETF    = IOUT( 5) from CVodeGetNumErrTestFails
@@ -666,11 +627,11 @@
  *           UROUND  = ROUT( 6) from UNIT_ROUNDOFF
  *   See the CVODE manual for details. 
  *
- * (5.5) If a direct linear solver was created in step (7.4) then it must be 
+ * (5.5) If a direct linear solver was created in step (5.3) then it must be 
  *   attached to CVode.  If the user called any one of FSUNBANDLINSOLINIT, 
- *   FSUNDENSELINSOLINIT, FSUNDIAGLINSOLINIT, FSUNKLUINIT, 
- *   FSUNLAPACKBANDINIT, FSUNLAPACKDENSEINIT, or FSUNSUPERLUMTINIT, then 
- *   this must be attached to the CVDLS interface using the command:
+ *   FSUNDENSELINSOLINIT, FSUNKLUINIT, FSUNLAPACKBANDINIT, 
+ *   FSUNLAPACKDENSEINIT, or FSUNSUPERLUMTINIT, then this must be 
+ *   attached to the CVDLS interface using the command:
  *
  *       CALL FCVDLSINIT(IER)
  *
@@ -679,12 +640,23 @@
  *                  0 = SUCCESS,
  *                 -1 = failure (see printed message for failure details).
  *
- * (5.5) If an iterative linear solver was created in step (7.4) then it must 
+ * (5.5) If an iterative linear solver was created in step (5.3) then it must 
  *   be attached to CVode.  If the user called any one of FSUNPCGINIT, 
  *   FSUNSPBCGSINIT, FSUNSPFGMRINIT, FSUNSPGMRINIT, or FSUNSPTFQMRINIT, 
  *   then this must be attached to the CVSPILS interface using the command:
  *
  *       CALL FCVSPILSINIT(IER)
+ *
+ *   The arguments are:
+ *	IER  = return completion flag [int, output]:
+ *                  0 = SUCCESS,
+ *                 -1 = failure (see printed message for failure details).
+ *
+ * (5.5) If the user instead wishes to use a diagonal approximate Jacobian for 
+ *   solving the Newton systems, then it must be created and attached to CVode.  
+ *   This choice is appropriate when the Jacobian can be well approximated by
+ *   a diagonal matrix.  The user must make the call:
+ *       CALL FCVDIAG(IER)
  *
  *   The arguments are:
  *	IER  = return completion flag [int, output]:
@@ -719,17 +691,6 @@
  *
  *   with the int FLAG=1 to specify that FCVDJAC is provided and should be 
  *   used; FLAG=0 specifies a reset to the internal finite difference 
- *   Jacobian approximation.  The int return flag IER=0 if successful, and 
- *   nonzero otherwise.
- * 
- *   If the user program includes the FCVDIAGJAC routine for the evaluation 
- *   of the diagonal approximation to the Jacobian, then after the call to 
- *   FCVDLSINIT, the following call must be made 
- *
- *       CALL FCVDIAGSETJAC(FLAG, IER)
- *
- *   with the int FLAG=1 to specify that FCVDIAGJAC is provided and should 
- *   be used; FLAG=0 specifies a reset to the internal finite difference 
  *   Jacobian approximation.  The int return flag IER=0 if successful, and 
  *   nonzero otherwise.
  * 
@@ -848,6 +809,12 @@
  *        NPS      = IOUT(19) from CVSpilsGetNumPrecSolves
  *        NLI      = IOUT(20) from CVSpilsGetNumLinIters
  *        NCFL     = IOUT(21) from CVSpilsGetNumConvFails
+ *
+ *   Optional outputs specific to the DIAG case are:
+ *        LENRWLS  = IOUT(13) from CVDiagGetWorkSpace
+ *        LENIWLS  = IOUT(14) from CVDiagGetWorkSpace
+ *        LSTF     = IOUT(15) from CVDiagGetLastFlag
+ *        NFELS    = IOUT(16) from CVDiagGetNumRhsEvals
  * 
  *   See the CVODE manual for more detailed descriptions of any of the 
  *   above.
@@ -945,18 +912,17 @@ extern "C" {
 #define FCV_DLSSETMSBJ     SUNDIALS_F77_FUNC(fcvdlssetmsbj, FCVDLSSETMSBJ)
 #define FCV_DENSESETJAC    SUNDIALS_F77_FUNC(fcvdensesetjac, FCVDENSESETJAC)
 #define FCV_BANDSETJAC     SUNDIALS_F77_FUNC(fcvbandsetjac, FCVBANDSETJAC)
-#define FCV_DIAGSETJAC     SUNDIALS_F77_FUNC(fcvdiagsetjac, FCVDIAGSETJAC)  
 #define FCV_SPARSESETJAC   SUNDIALS_F77_FUNC(fcvsparsesetjac, FCVSPARSESETJAC)  
 #define FCV_SPILSINIT      SUNDIALS_F77_FUNC(fcvspilsinit, FCVSPILSINIT)
 #define FCV_SPILSSETJAC    SUNDIALS_F77_FUNC(fcvspilssetjac, FCVSPILSSETJAC)
 #define FCV_SPILSSETPREC   SUNDIALS_F77_FUNC(fcvspilssetprec, FCVSPILSSETPREC)
+#define FCV_DIAG           SUNDIALS_F77_FUNC(fcvdiag, FCVDIAG)
 #define FCV_CVODE          SUNDIALS_F77_FUNC(fcvode, FCVODE)
 #define FCV_DKY            SUNDIALS_F77_FUNC(fcvdky, FCVDKY)
 #define FCV_FREE           SUNDIALS_F77_FUNC(fcvfree, FCVFREE)
 #define FCV_FUN            SUNDIALS_F77_FUNC(fcvfun, FCVFUN)
 #define FCV_DJAC           SUNDIALS_F77_FUNC(fcvdjac, FCVDJAC)
 #define FCV_BJAC           SUNDIALS_F77_FUNC(fcvbjac, FCVBJAC)
-#define FCV_DIAGJAC        SUNDIALS_F77_FUNC(fcvdiagjac, FCVDIAGJAC)
 #define FCV_SPJAC          SUNDIALS_F77_FUNC(fcvspjac, FCVSPJAC)
 #define FCV_PSOL           SUNDIALS_F77_FUNC(fcvpsol, FCVPSOL)
 #define FCV_PSET           SUNDIALS_F77_FUNC(fcvpset, FCVPSET)
@@ -977,18 +943,17 @@ extern "C" {
 #define FCV_DLSSETMSBJ     fcvdlssetmsbj_
 #define FCV_DENSESETJAC    fcvdensesetjac_
 #define FCV_BANDSETJAC     fcvbandsetjac_
-#define FCV_DIAGSETJAC     fcvdiagsetjac_
 #define FCV_SPARSESETJAC   fcvsparsesetjac_
 #define FCV_SPILSINIT      fcvspilsinit_
 #define FCV_SPILSSETJAC    fcvspilssetjac_
 #define FCV_SPILSSETPREC   fcvspilssetprec_
+#define FCV_DIAG           fcvdiag_
 #define FCV_CVODE          fcvode_
 #define FCV_DKY            fcvdky_
 #define FCV_FREE           fcvfree_
 #define FCV_FUN            fcvfun_
 #define FCV_DJAC           fcvdjac_
 #define FCV_BJAC           fcvbjac_
-#define FCV_DIAGJAC        fcvdiagjac_
 #define FCV_SPJAC          fcvspjac_
 #define FCV_PSOL           fcvpsol_
 #define FCV_PSET           fcvpset_
@@ -1030,13 +995,14 @@ extern "C" {
   void FCV_DLSSETMSBJ(int *msbj, int *ier);
   void FCV_DENSESETJAC(int *flag, int *ier);
   void FCV_BANDSETJAC(int *flag, int *ier);
-  void FCV_DIAGSETJAC(int *flag, int *ier);
   void FCV_SPARSESETJAC(int *ier);
 
   void FCV_SPILSINIT(int *ier);
   void FCV_SPILSSETJAC(int *flag, int *ier);
   void FCV_SPILSSETPREC(int *flag, int *ier);
   
+  void FCV_DIAG(int *ier);
+
   void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier);
 
   void FCV_DKY(realtype *t, int *k, realtype *dky, int *ier);
@@ -1059,10 +1025,6 @@ extern "C" {
                  SUNMatrix J, void *user_data,
                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
-  int FCVDiagJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-                 void *user_data, N_Vector vtemp1,
-                 N_Vector vtemp2, N_Vector vtemp3);
-
   int FCVSparseJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 		   void *user_data, N_Vector vtemp1,
 		   N_Vector vtemp2, N_Vector vtemp3);
@@ -1097,7 +1059,8 @@ extern "C" {
 
   /* Linear solver IDs */
 
-  enum { CV_LS_ITERATIVE = 0, CV_LS_DIRECT = 1, CV_LS_CUSTOM = 2 };
+  enum { CV_LS_ITERATIVE = 0, CV_LS_DIRECT = 1,
+         CV_LS_DIAG = 2, CV_LS_CUSTOM = 3 };
 
 #ifdef __cplusplus
 }
