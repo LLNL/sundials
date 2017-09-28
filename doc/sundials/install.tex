@@ -378,14 +378,30 @@ a typical configuration on a Linux system and are provided as illustration only.
   this option. Exported {\sundials} header files and libraries will be 
   installed under subdirectories \id{include} and \id{lib} of 
   \id{CMAKE\_INSTALL\_PREFIX}, respectively.
+\item[\id{CUDA\_ENABLE}] -
+  Build the {\sundials} {\cuda} vector module.
+  \\
+  Default: OFF
 \item[\id{EXAMPLES\_ENABLE\_C}] -
   Build the {\sundials} {\CC} examples
   \\
   Default: ON
+\item[\id{EXAMPLES\_ENABLE\_CUDA}] -
+  Build the {\sundials} {\cuda} examples
+  \\
+  Default: OFF
+  \\
+  Note: You need to enable {\cuda} support to build these examples.
 \item[\id{EXAMPLES\_ENABLE\_CXX}] -
   Build the {\sundials} {\CPP} examples
   \\
   Default: OFF
+\item[\id{EXAMPLES\_ENABLE\_RAJA}] -
+  Build the {\sundials} {\raja} examples
+  \\
+  Default: OFF
+  \\
+  Note: You need to enable {\cuda} and {\raja} support to build these examples.
 \item[\id{EXAMPLES\_ENABLE\_F77}] -
   Build the {\sundials} Fortran77 examples
   \\
@@ -526,6 +542,12 @@ a typical configuration on a Linux system and are provided as illustration only.
   Enable Pthreads support (build the Pthreads nvector).
   \\
   Default: OFF 
+\item[\id{RAJA\_ENABLE}] - 
+  Enable {\raja} support.
+  \\
+  Default: OFF 
+  \\
+  Note: You need to enable {\cuda} in order to build {\raja} vector module.
 \item[\id{SUNDIALS\_INDEX\_TYPE}] - 
   Integer type used for indices {\sundials}, options are: \id{int32\_t} or \id{int64\_t}
   \\
@@ -841,6 +863,27 @@ National Laboratory website: {\tt http://computation.llnl.gov/projects/hypre}.
 To enable \textit{hypre}, set  \id{HYPRE\_ENABLE} to \id{ON}, set \id{HYPRE\_INCLUDE\_DIR}
 to the \id{include} path of the \textit{hypre} installation, and set the variable
 \id{HYPRE\_LIBRARY\_DIR} to the \id{lib} path of the \textit{hypre} installation.
+
+\subsubsection*{Building with CUDA}
+{\sundials} {\cuda} modules and examples are tested with version 8.0 of the 
+{\cuda} toolkit. To build them, you need to install the Toolkit and compatible
+NVIDIA drivers. Both are available for download from NVIDIA website:
+{\tt https://developer.nvidia.com/cuda-downloads}. To enable {\cuda}, 
+set \id{CUDA\_ENABLE} to \id{ON}. If you
+installed {\cuda} in a nonstandard location, you may be prompted to set
+variable \id{CUDA\_TOOLKIT\_ROOT\_DIR} with your {\cuda} Toolkit installation
+path. To enable cuda examples, set \id{EXAMPLES\_ENABLE\_CUDA} to \id{ON}.
+
+\subsubsection*{Building with RAJA}
+To build {\sundials} {\raja} modules you need to enable {\sundials} {\cuda}
+support, first. You also need {\cuda}-enabled {\raja} installation on your
+system. {\raja} is free software, developed by Lawrence Livermore
+National Laboratory, and can be obtained from {\tt https://github.com/LLNL/RAJA}.
+Next you need to set \id{RAJA\_ENABLE} to \id{ON}, to enable building {\raja}
+vector module, and  \id{EXAMPLES\_ENABLE\_RAJA} to \id{ON} to build {\raja}
+examples. If you install {\raja} to a nonstandard location you will be 
+prompted to set variable \id{RAJA\_DIR} with path to {\raja} CMake configuration
+file. {\sundials} was tested with {\raja} version 0.3.
 
 %%===============================================================================
 \section{Building and Running Examples}
