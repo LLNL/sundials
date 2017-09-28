@@ -21,7 +21,6 @@ SET(KINSOL_examples
   kinFoodWeb_kry
   kinKrylovDemo_ls
   kinLaplace_bnd
-  #kinLaplace_kry
   kinLaplace_picard_bnd
   kinRoberts_fp
   kinRoboKin_dns
