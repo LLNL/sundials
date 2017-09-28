@@ -6,7 +6,7 @@ Changes to SUNDIALS since Release of Sept. 30, 2016.
  - Implemented new interfaces in all 6 SUNDIALS Packages
  - Corresponding updates to all example programs released with SUNDIALS
 The goal of the redesign of these interfaces was to provide more encapsulation
-and ease interfacing of custom linear solvers and interoperability 
+and ease in interfacing custom linear solvers and interoperability 
 with linear solver libraries.
  - Specific changes include:
       - Added generic SUNMATRIX module with three provided implementations:
@@ -45,7 +45,7 @@ on GPU architectures.  Users are advised that these vectors both move all data
 to the GPU device upon construction, and speedup will only be realized if the
 user also conducts the right-hand-side function evaluation on the device.
 In addition, these vectors assume the problem fits on one GPU.
-Further information about RAJA, users are referred to the web site, 
+For further information about RAJA, users are referred to the web site, 
 https://software.llnl.gov/RAJA/.
 
 * Addition of sunindextype option for 32- or 64-bit integer data index types 
@@ -70,7 +70,7 @@ SUNDIALS type information for use in Fortran programs.
 The xSDK is a movement in scientific software to provide a foundation for the
 rapid and efficient production of high-quality, 
 sustainable extreme-scale scientific applications.  More information can
-be found at, https://xsdk.info.
+be found at https://xsdk.info.
 
 * In build system:
  - Added separate BLAS_ENABLE and BLAS_LIBRARIES CMake variables
@@ -100,14 +100,14 @@ ARKode:
 
 
 CVODE and CVODES:
-* Bug Fix: In CVodeFree, call lfree() unconditionally (if non-NULL).
+* Bug Fix: In CVodeFree, now call lfree() unconditionally (if non-NULL).
 
 IDA and IDAS:
 * Bug Fix: Added missing prototype for IDASetMaxBacksIC in ida.h and idas.h
 
 
 KINSOL:
-* Bug Fix: Correct KINSOL fcmix name translation for FKIN_SPFGMR
+* Bug Fix: Corrected KINSOL fcmix name translation for FKIN_SPFGMR
 
 *------------------------------------------------------------------------------*
 Changes to SUNDIALS since Release of March 30, 2015.
