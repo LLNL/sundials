@@ -21,7 +21,7 @@ This will extract source files under a directory {\em solver}\id{-x.y.z}.
 
 Starting with version \id{2.6.0} of {\sundials}, CMake is the only supported method
 of installation.
-The explanations on the installation procedure begins with a few common observations:
+The explanations of the installation procedure begins with a few common observations:
 %%
 \begin{itemize}
 
@@ -284,7 +284,7 @@ a typical configuration on a Linux system and are provided as illustration only.
 \item[\id{BUILD\_SHARED\_LIBS}] - 
   Build shared libraries
   \\
-  Default: OFF 
+  Default: ON
 \item[\id{BUILD\_STATIC\_LIBS}] - 
   Build static libraries
   \\
@@ -415,7 +415,7 @@ a typical configuration on a Linux system and are provided as illustration only.
   \\
   Default: /usr/local/examples
   \\
-  Note: The actual default value for this option will an \id{examples}
+  Note: The actual default value for this option will be an \id{examples}
   subdirectory created under \id{CMAKE\_INSTALL\_PREFIX}.
 \item[\id{FCMIX\_ENABLE}] - 
   Enable Fortran-C support   
@@ -477,8 +477,9 @@ a typical configuration on a Linux system and are provided as illustration only.
   Note: This option is triggered only if MPI is enabled
   (\id{MPI\_ENABLE} is ON) and {\CPP} examples are enabled
   (\id{EXAMPLES\_ENABLE\_CXX} is ON). All {\sundials}
-  solvers can be used from {\CPP} applications by default
-  without setting any additional configuration options.
+  solvers can be used from {\CPP} MPI applications by default
+  without setting any additional configuration options other than
+  \id{MPI\_ENABLE}.
 \item[\id{MPI\_MPIF77}] - 
   \id{mpif77} program
   \\
@@ -500,6 +501,8 @@ a typical configuration on a Linux system and are provided as illustration only.
   Specify run command for MPI  
   \\
   Default: mpirun 
+  Note: This option is triggered only if MPI is enabled
+  (\id{MPI\_ENABLE} is ON).
   %% \\
   %% Note: This can either be set to \id{mpirun} for OpenMPI or \id{srun} if jobs are
   %% managed by \id{SLURM} - Simple Linux Utility for Resource Management as exists on
@@ -669,7 +672,7 @@ corresponding {\sundials} options if applicable.
   \\
   {\sundials} equivalent: N/A
   \\
-  Note: Enabling xSDK defaults also set \id{CMAKE\_BUILD\_TYPE} to \id{Debug}
+  Note: Enabling xSDK defaults also sets \id{CMAKE\_BUILD\_TYPE} to \id{Debug}
 \item[\id{XSDK\_ENABLE\_FORTRAN}] -
   Enable {\sundials} Fortran interface
   \\
@@ -677,7 +680,7 @@ corresponding {\sundials} options if applicable.
   \\
   {\sundials} equivalent: \id{FCMIX\_ENABLE}
 \item[\id{XSDK\_INDEX\_SIZE}] -
-  Integer size (bits) used for indices {\sundials}, options are: \id{32} or \id{64}
+  Integer size (bits) used for indices in {\sundials}, options are: \id{32} or \id{64}
   \\
   Default: \id{32}
   \\
@@ -763,7 +766,8 @@ variable can be set to the desired library. Example:
 \end{verbatim}
 {\warn}If enabling LAPACK and allowing CMake to automatically locate
 the LAPACK library, it is not necessary to also enable BLAS as CMake
-will find the corresponding BLAS library when searching for LAPACK.
+will find the corresponding BLAS library and include it when searching
+for LAPACK.
 
 
 \subsubsection*{Building with LAPACK}
@@ -773,7 +777,7 @@ If the directory containing the LAPACK library is in the
 \id{LAPACK\_LIBRARIES} variable accordingly, otherwise CMake will
 attempt to find the LAPACK library in standard system locations. To
 explicitly tell CMake what library to use, the \id{LAPACK\_LIBRARIES}
-variable can be set to the desired libraries. {\warn}Note when setting
+variable can be set to the desired libraries. {\warn}When setting
 the LAPACK location explicitly the location of the corresponding BLAS
 library will also need to be set. Example:
 \begin{verbatim}
@@ -791,7 +795,8 @@ library will also need to be set. Example:
 \end{verbatim}
 {\warn}If enabling LAPACK and allowing CMake to automatically locate
 the LAPACK library, it is not necessary to also enable BLAS as CMake
-will find the corresponding BLAS library when searching for LAPACK.
+will find the corresponding BLAS library and include it when searching
+for LAPACK.
 
 
 \subsubsection*{Building with KLU}
