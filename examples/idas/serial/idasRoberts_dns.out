@@ -2,7 +2,7 @@
 idasRoberts_dns: Robertson kinetics DAE serial example problem for IDA.
                Three equation chemical kinetics problem.
 
-Linear solver: IDADENSE, with user-supplied Jacobian.
+Linear solver: DENSE, with user-supplied Jacobian.
 Tolerance parameters:  rtol = 0.0001   atol = 1e-08 1e-06 1e-06 
 Initial conditions y0 = (1 0 0)
 Constraints and id not used.
@@ -18,14 +18,14 @@ Constraints and id not used.
 4.0000e+02   4.5044e-01   3.2218e-06   5.4956e-01 |  95  4   3.3201e+01
 4.0000e+03   1.8320e-01   8.9444e-07   8.1680e-01 | 126  3   3.1458e+02
 4.0000e+04   3.8992e-02   1.6221e-07   9.6101e-01 | 161  5   2.5058e+03
-4.0000e+05   4.9369e-03   1.9842e-08   9.9506e-01 | 202  3   2.6370e+04
-4.0000e+06   5.1674e-04   2.0684e-09   9.9948e-01 | 250  3   1.7186e+05
+4.0000e+05   4.9369e-03   1.9842e-08   9.9506e-01 | 202  3   2.6371e+04
+4.0000e+06   5.1674e-04   2.0684e-09   9.9948e-01 | 250  3   1.7187e+05
 2.0788e+07   1.0000e-04   4.0004e-10   9.9990e-01 | 280  5   1.0513e+06
     rootsfound[] =  -1   0
 4.0000e+07   5.2009e-05   2.0805e-10   9.9995e-01 | 293  4   2.3655e+06
-4.0000e+08   5.2012e-06   2.0805e-11   9.9999e-01 | 325  4   2.6809e+07
-4.0000e+09   5.1850e-07   2.0740e-12   1.0000e-00 | 348  3   7.4307e+08
-4.0000e+10   4.8641e-08   1.9456e-13   1.0000e-00 | 362  2   7.5482e+09
+4.0000e+08   5.2012e-06   2.0805e-11   9.9999e-01 | 325  4   2.6808e+07
+4.0000e+09   5.1850e-07   2.0740e-12   1.0000e+00 | 348  3   7.4305e+08
+4.0000e+10   4.8641e-08   1.9456e-13   1.0000e+00 | 362  2   7.5480e+09
 
 Final Run Statistics: 
 

@@ -1,6 +1,6 @@
 
-idaSlCrank_dns: Slider-Crank DAE serial example problem for IDAS
-Linear solver: IDADENSE, Jacobian is computed by IDAS.
+idaSlCrank_dns: Slider-Crank DAE serial example problem for IDA
+Linear solver: DENSE, Jacobian is computed by IDA.
 Tolerance parameters:  rtol = 1e-06   atol = 1e-06
 -----------------------------------------------------------------------
   t            y1          y2           y3      | nst  k      h
