@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision: 4713 $
-# $Date: 2016-03-28 07:20:43 -0700 (Mon, 28 Mar 2016) $
-# ---------------------------------------------------------------
 # Programmer:  Slaven Peles @ LLNL, Jean Sexton @ SMU
 #              Eddy Banks @ LLNL
 # ---------------------------------------------------------------
@@ -17,6 +14,7 @@
 # ---------------------------------------------------------------
 # Hypre tests for SUNDIALS CMake-based configuration.
 # 
+
 ### This is only set if running GUI - simply return first time enabled
 IF(HYPRE_DISABLED)
   SET(HYPRE_DISABLED FALSE CACHE INTERNAL "GUI - now enabled" FORCE)

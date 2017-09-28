@@ -21,7 +21,7 @@ This will extract source files under a directory {\em solver}\id{-x.y.z}.
 
 Starting with version \id{2.6.0} of {\sundials}, CMake is the only supported method
 of installation.
-The explanations on the installation procedure begins with a few common observations:
+The explanations of the installation procedure begins with a few common observations:
 %%
 \begin{itemize}
 
@@ -83,7 +83,7 @@ In addition, CMake also provides a GUI front end and which allows an interactive
 installation process.
 
 The {\sundials} build process requires CMake version \id{2.8.1} or
-higher and a working compiler.  On Unix-like operating systems, it
+higher and a working {\CC} compiler.  On Unix-like operating systems, it
 also requires Make (and \id{curses}, including its development libraries,
 for the GUI front end to CMake, \id{ccmake}), while on Windows it
 requires Visual Studio.  While many Linux distributions offer CMake,
@@ -242,6 +242,21 @@ configuration is provide below. Note that the default values shown are for
 a typical configuration on a Linux system and are provided as illustration only.
 
 \begin{description}
+\item[\id{BLAS\_ENABLE}] - 
+  Enable BLAS support
+  \\
+  Default: OFF
+  \\
+  Note: Setting this option to ON will trigger additional CMake
+  options. See additional information on building with BLAS enabled
+  in \ref{ss:externallibs}.
+\item[\id{BLAS\_LIBRARIES}] - 
+  BLAS library
+  \\
+  Default: /usr/lib/libblas.so
+  \\
+  Note: CMake will search for libraries in your \id{LD\_LIBRARY\_PATH} prior
+  to searching default system paths.
 \item[\id{BUILD\_ARKODE}] - 
   Build the ARKODE library 
   \\
@@ -269,16 +284,22 @@ a typical configuration on a Linux system and are provided as illustration only.
 \item[\id{BUILD\_SHARED\_LIBS}] - 
   Build shared libraries
   \\
-  Default: OFF 
+  Default: ON
 \item[\id{BUILD\_STATIC\_LIBS}] - 
   Build static libraries
   \\
   Default: ON 
 \item[\id{CMAKE\_BUILD\_TYPE}] -  
   Choose the type of build, options are: 
-  None (CMAKE\_C\_FLAGS used) Debug Release RelWithDebInfo MinSizeRel
+  \id{None} (CMAKE\_C\_FLAGS used), \id{Debug}, \id{Release},
+  \id{RelWithDebInfo}, and \id{MinSizeRel}
   \\
   Default:
+  \\
+  Note: Specifying a build type will trigger the corresponding
+  build type specific compiler flag options below which will be
+  appended to the flags set by
+  CMAKE\_{\textless}language{\textgreater}\_FLAGS. 
 \item[\id{CMAKE\_C\_COMPILER}] - 
   C compiler
   \\
@@ -288,41 +309,66 @@ a typical configuration on a Linux system and are provided as illustration only.
   \\
   Default:
 \item[\id{CMAKE\_C\_FLAGS\_DEBUG}] -      
-  Flags used by the compiler during debug builds
+  Flags used by the C compiler during debug builds
   \\
   Default: -g 
 \item[\id{CMAKE\_C\_FLAGS\_MINSIZEREL}] -  
-  Flags used by the compiler during release minsize builds
+  Flags used by the C compiler during release minsize builds
   \\
   Default: -Os -DNDEBUG 
 \item[\id{CMAKE\_C\_FLAGS\_RELEASE}] -    
-  Flags used by the compiler during release builds
+  Flags used by the C compiler during release builds
   \\
   Default: -O3 -DNDEBUG 
+\item[\id{CMAKE\_CXX\_COMPILER}] - 
+  {\CPP} compiler
+  \\
+  Default: /usr/bin/c++
+  \\
+  Note: A {\CPP} compiler (and all related options) are only are
+  triggered if {\CPP} examples are enabled (\id{EXAMPLES\_ENABLE\_CXX}
+  is ON). All {\sundials} solvers can be used from {\CPP} applications 
+  by default without setting any additional configuration options.
+\item[\id{CMAKE\_CXX\_FLAGS}] -
+  Flags for {\CPP} compiler
+  \\
+  Default:
+\item[\id{CMAKE\_CXX\_FLAGS\_DEBUG}] -
+  Flags used by the {\CPP} compiler during debug builds
+  \\
+  Default: -g 
+\item[\id{CMAKE\_CXX\_FLAGS\_MINSIZEREL}] -
+  Flags used by the {\CPP} compiler during release minsize builds
+  \\
+  Default: -Os -DNDEBUG 
+\item[\id{CMAKE\_CXX\_FLAGS\_RELEASE}] -
+  Flags used by the {\CPP} compiler during release builds
+  \\
+  Default: -O3 -DNDEBUG
 \item[\id{CMAKE\_Fortran\_COMPILER}] - 
   Fortran compiler
   \\
   Default: /usr/bin/gfortran
   \\
   Note: Fortran support (and all related options) are triggered only if
-  either Fortran-C support is enabled (\id{FCMIX\_ENABLE} is ON) or
-  Blas/Lapack support is enabled (\id{LAPACK\_ENABLE} is ON).
+  either Fortran-C support is (\id{FCMIX\_ENABLE} is ON) or
+  BLAS/LAPACK support is enabled (\id{BLAS\_ENABLE} or \id{LAPACK\_ENABLE} is ON).
 \item[\id{CMAKE\_Fortran\_FLAGS}] - 
   Flags for Fortran compiler
   \\
   Default:
 \item[\id{CMAKE\_Fortran\_FLAGS\_DEBUG}] - 
-  Flags used by the compiler during debug builds
+  Flags used by the Fortran compiler during debug builds
   \\
-  Default:
+  Default: -g
 \item[\id{CMAKE\_Fortran\_FLAGS\_MINSIZEREL}] - 
-  Flags used by the compiler during release minsize builds
+  Flags used by the Fortran compiler during release minsize builds
   \\
-  Default:
+  Default: -Os
 \item[\id{CMAKE\_Fortran\_FLAGS\_RELEASE}] - 
-  Flags used by the compiler during release builds
+  Flags used by the Fortran compiler during release builds
   \\
-  Default:
+  Default: -O3
 \item[\id{CMAKE\_INSTALL\_PREFIX}] -   
   Install path prefix, prepended onto install directories
   \\
@@ -332,18 +378,30 @@ a typical configuration on a Linux system and are provided as illustration only.
   this option. Exported {\sundials} header files and libraries will be 
   installed under subdirectories \id{include} and \id{lib} of 
   \id{CMAKE\_INSTALL\_PREFIX}, respectively.
-\item[\id{EXAMPLES\_ENABLE}] -   
-  Build the {\sundials} examples
+\item[\id{EXAMPLES\_ENABLE\_C}] -
+  Build the {\sundials} {\CC} examples
   \\
   Default: ON
+\item[\id{EXAMPLES\_ENABLE\_CXX}] -
+  Build the {\sundials} {\CPP} examples
   \\
+  Default: OFF
+\item[\id{EXAMPLES\_ENABLE\_F77}] -
+  Build the {\sundials} Fortran77 examples
+  \\
+  Default: ON (if \id{FCMIX\_ENABLE} is ON)
+\item[\id{EXAMPLES\_ENABLE\_F90}] -
+  Build the {\sundials} Fortran90 examples
+  \\
+  Default: OFF
 \item[\id{EXAMPLES\_INSTALL}] - 
   Install example files
   \\
   Default: ON
   \\
-  Note: This option is triggered only if building example programs
-  is enabled (\id{EXAMPLES\_ENABLE} ON). If the user requires
+  Note: This option is triggered when any of the {\sundials}
+  example programs are enabled \\
+  (\id{EXAMPLES\_ENABLE\_$<$language$>$} is ON). If the user requires
   installation of example programs then the sources and sample output files
   for all {\sundials} modules that are currently enabled will be exported to
   the directory specified by \id{EXAMPLES\_INSTALL\_PATH}. A CMake configuration
@@ -357,44 +415,51 @@ a typical configuration on a Linux system and are provided as illustration only.
   \\
   Default: /usr/local/examples
   \\
-  Note: The actual default value for this option will an \id{examples}
+  Note: The actual default value for this option will be an \id{examples}
   subdirectory created under \id{CMAKE\_INSTALL\_PREFIX}.
 \item[\id{FCMIX\_ENABLE}] - 
   Enable Fortran-C support   
   \\
   Default: OFF 
 \item[\id{HYPRE\_ENABLE}] - 
-  Enable hypre support
+  Enable \textit{hypre} support
   \\
   Default: OFF 
+  \\
+  Note: See additional information on building with \textit{hypre} enabled in
+  \ref{ss:externallibs}. 
 \item[\id{HYPRE\_INCLUDE\_DIR}] - 
-  Path to hypre header files
-\item[\id{HYPRE\_LIBRARY}] - 
-  Path to hypre installed library
+  Path to \textit{hypre} header files
+\item[\id{HYPRE\_LIBRARY\_DIR}] - 
+  Path to \textit{hypre} installed library files
 \item[\id{KLU\_ENABLE}] - 
   Enable KLU support
   \\
   Default: OFF 
+  \\
+  Note: See additional information on building with KLU enabled in
+  \ref{ss:externallibs}. 
 \item[\id{KLU\_INCLUDE\_DIR}] - 
   Path to SuiteSparse header files
 \item[\id{KLU\_LIBRARY\_DIR}] - 
   Path to SuiteSparse installed library files
 \item[\id{LAPACK\_ENABLE}] -  
-  Enable Lapack support
+  Enable LAPACK support
   \\
   Default: OFF
   \\
-  Note: Setting this option to ON will trigger the two additional options
-  see below.
+  Note: Setting this option to ON will trigger additional CMake
+  options. See additional information on building with LAPACK enabled
+  in \ref{ss:externallibs}.
 \item[\id{LAPACK\_LIBRARIES}] - 
-  Lapack (and Blas) libraries
+  LAPACK (and BLAS) libraries
   \\
   Default: /usr/lib/liblapack.so;/usr/lib/libblas.so
   \\
-  Note: CMake will search for these libraries in your \id{LD\_LIBRARY\_PATH} prior
+  Note: CMake will search for libraries in your \id{LD\_LIBRARY\_PATH} prior
   to searching default system paths.
 \item[\id{MPI\_ENABLE}] -  
-  Enable MPI support
+  Enable MPI support (build the parallel nvector).
   \\
   Default: OFF 
   \\
@@ -404,61 +469,231 @@ a typical configuration on a Linux system and are provided as illustration only.
   \id{mpicc} program
   \\
   Default: 
-\item[\id{MPI\_RUN\_COMMAND}] -  
-  Specify run command for MPI  
+\item[\id{MPI\_MPICXX}] - 
+  \id{mpicxx} program
   \\
-  Default: mpirun 
+  Default: 
   \\
-  Note: This can either be set to \id{mpirun} for OpenMPI or \id{srun} if jobs are
-  managed by \id{SLURM} - Simple Linux Utility for Resource Management as exists on
-  LLNL's high performance computing clusters. 
+  Note: This option is triggered only if MPI is enabled
+  (\id{MPI\_ENABLE} is ON) and {\CPP} examples are enabled
+  (\id{EXAMPLES\_ENABLE\_CXX} is ON). All {\sundials}
+  solvers can be used from {\CPP} MPI applications by default
+  without setting any additional configuration options other than
+  \id{MPI\_ENABLE}.
 \item[\id{MPI\_MPIF77}] - 
   \id{mpif77} program
   \\
   Default: 
   \\
-  Note: This option is triggered only if using MPI compiler scripts
-  (\id{MPI\_USE\_MPISCRIPTS} is ON) and Fortran-C support is enabled
-  (\id{FCMIx\_ENABLE} is ON).
-\item[\id{OPENMP\_ENABLE}] -  
-  Enable OpenMP support
+  Note: This option is triggered only if MPI is enabled
+  (\id{MPI\_ENABLE} is ON) and Fortran-C support is enabled
+  (\id{FCMIX\_ENABLE} is ON). 
+\item[\id{MPI\_MPIF90}] - 
+  \id{mpif90} program
+  \\
+  Default: 
+  \\
+  Note: This option is triggered only if MPI is enabled
+  (\id{MPI\_ENABLE} is ON), Fortran-C support is enabled
+  (\id{FCMIX\_ENABLE} is ON), and Fortran90 examples are enabled
+  (\id{EXAMPLES\_ENABLE\_F90} is ON).
+\item[\id{MPI\_RUN\_COMMAND}] -  
+  Specify run command for MPI  
+  \\
+  Default: mpirun 
+  Note: This option is triggered only if MPI is enabled
+  (\id{MPI\_ENABLE} is ON).
+  %% \\
+  %% Note: This can either be set to \id{mpirun} for OpenMPI or \id{srun} if jobs are
+  %% managed by \id{SLURM} - Simple Linux Utility for Resource Management as exists on
+  %% LLNL's high performance computing clusters. 
+\item[\id{OPENMP\_ENABLE}] -
+  Enable OpenMP support (build the OpenMP nvector).
   \\
   Default: OFF 
-  \\
-  Turn on support for the OpenMP based nvector.
 \item[\id{PETSC\_ENABLE}] - 
   Enable PETSc support
   \\
   Default: OFF 
-\item[\id{PETSC\_INCLUDE\_DIR}] - 
+  \\
+  Note: See additional information on building with PETSc enabled
+  in \ref{ss:externallibs}.
+\item[\id{PETSC\_INCLUDE\_DIR}] -
   Path to PETSc header files
 \item[\id{PETSC\_LIBRARY\_DIR}] - 
   Path to PETSc installed library files
 \item[\id{PTHREAD\_ENABLE}] -  
-  Enable Pthreads support
+  Enable Pthreads support (build the Pthreads nvector).
   \\
   Default: OFF 
+\item[\id{SUNDIALS\_INDEX\_TYPE}] - 
+  Integer type used for indices {\sundials}, options are: \id{int32\_t} or \id{int64\_t}
   \\
-  Turn on support for the Pthreads based nvector.
+  Default: \id{int64\_t}
 \item[\id{SUNDIALS\_PRECISION}] -   
-  Precision used in {\sundials}, options are: double, single or extended
+  Precision used in {\sundials}, options are: \id{double}, \id{single}, or \id{extended}
   \\
-  Default: double 
+  Default: \id{double}
 \item[\id{SUPERLUMT\_ENABLE}] - 
-  Enable SUPERLU\_MT support   
+  Enable SuperLU\_MT support   
   \\
   Default: OFF 
+  \\
+  Note: See additional information on building with SuperLU\_MT enabled
+  in \ref{ss:externallibs}.
 \item[\id{SUPERLUMT\_INCLUDE\_DIR}] - 
   Path to SuperLU\_MT header files (typically SRC directory)
 \item[\id{SUPERLUMT\_LIBRARY\_DIR}] - 
   Path to SuperLU\_MT installed library files
 \item[\id{SUPERLUMT\_THREAD\_TYPE}] - 
   Must be set to Pthread or OpenMP
+  \\
+  Default: Pthread
 \item[\id{USE\_GENERIC\_MATH}] -   
   Use generic (stdc) math libraries
   \\
   Default: ON 
 \end{description}
+
+\subsubsection*{xSDK Configuration Options}
+
+{\sundials} supports CMake configuration options defined by the
+Extreme-scale Scientific Software Development Kit (xSDK) community
+policies (see {\tt https://xsdk.info} for more information). xSDK
+CMake options are unused by default but may be activated by setting
+\id{USE\_XSDK\_DEFAULTS} to ON.
+
+{\warn} When xSDK options are active, they will overwrite the
+corresponding {\sundials} option and may have different default values
+(see details below). As such the equivalent {\sundials} options should
+not be used when configuring with xSDK options. In the GUI front end
+to CMake (\id{ccmake}), setting \id{USE\_XSDK\_DEFAULTS} to ON will
+hide the corresponding {\sundials} options as advanced CMake variables.
+During configuration, messages are output detailing
+which xSDK flags are active and the equivalent {\sundials} options
+that are replaced. Below is a complete list xSDK options and the
+corresponding {\sundials} options if applicable.
+
+\begin{description}
+\item[\id{TPL\_BLAS\_LIBRARIES}] - 
+  BLAS library
+  \\
+  Default: /usr/lib/libblas.so
+  \\
+  {\sundials} equivalent: \id{BLAS\_LIBRARIES}
+  \\
+  Note: CMake will search for libraries in your \id{LD\_LIBRARY\_PATH} prior
+  to searching default system paths.
+\item[\id{TPL\_ENABLE\_BLAS}] - 
+  Enable BLAS support
+  \\
+  Default: OFF
+  \\
+  {\sundials} equivalent: \id{BLAS\_ENABLE}
+\item[\id{TPL\_ENABLE\_HYPRE}] - 
+  Enable \textit{hypre} support
+  \\
+  Default: OFF
+  \\
+  {\sundials} equivalent: \id{HYPRE\_ENABLE}
+\item[\id{TPL\_ENABLE\_KLU}] - 
+  Enable KLU support
+  \\
+  Default: OFF
+  \\
+  {\sundials} equivalent: \id{KLU\_ENABLE}
+\item[\id{TPL\_ENABLE\_PETSC}] - 
+  Enable PETSc support
+  \\
+  Default: OFF
+  \\
+  {\sundials} equivalent: \id{PETSC\_ENABLE}
+\item[\id{TPL\_ENABLE\_LAPACK}] - 
+  Enable LAPACK support
+  \\
+  Default: OFF
+  \\
+  {\sundials} equivalent: \id{LAPACK\_ENABLE}
+\item[\id{TPL\_ENABLE\_SUPERLUMT}] - 
+  Enable SuperLU\_MT support
+  \\
+  Default: OFF
+  \\
+  {\sundials} equivalent: \id{SUPERLUMT\_ENABLE}
+\item[\id{TPL\_HYPRE\_INCLUDE\_DIRS}] - 
+  Path to \textit{hypre} header files
+  \\
+  {\sundials} equivalent: \id{HYPRE\_INCLUDE\_DIR}
+\item[\id{TPL\_HYPRE\_LIBRARIES}] - 
+  \textit{hypre} library
+  \\
+  {\sundials} equivalent: N/A
+\item[\id{TPL\_KLU\_INCLUDE\_DIRS}] - 
+  Path to KLU header files
+  \\
+  {\sundials} equivalent: \id{KLU\_INCLUDE\_DIR}
+\item[\id{TPL\_KLU\_LIBRARIES}] - 
+  KLU library
+  \\
+  {\sundials} equivalent: N/A
+\item[\id{TPL\_LAPACK\_LIBRARIES}] - 
+  LAPACK (and BLAS) libraries
+  \\
+  Default: /usr/lib/liblapack.so;/usr/lib/libblas.so
+  \\
+  {\sundials} equivalent: \id{LAPACK\_LIBRARIES}
+  \\
+  Note: CMake will search for libraries in your \id{LD\_LIBRARY\_PATH} prior
+  to searching default system paths.
+\item[\id{TPL\_PETSC\_INCLUDE\_DIRS}] - 
+  Path to PETSc header files
+  \\
+  {\sundials} equivalent: \id{PETSC\_INCLUDE\_DIR}
+\item[\id{TPL\_PETSC\_LIBRARIES}] - 
+  PETSc library
+  \\
+  {\sundials} equivalent: N/A
+\item[\id{TPL\_SUPERLUMT\_INCLUDE\_DIRS}] - 
+  Path to SuperLU\_MT header files
+  \\
+  {\sundials} equivalent: \id{SUPERLUMT\_INCLUDE\_DIR}
+\item[\id{TPL\_SUPERLUMT\_LIBRARIES}] - 
+  SuperLU\_MT library
+  \\
+  {\sundials} equivalent: N/A
+\item[\id{TPL\_SUPERLUMT\_THREAD\_TYPE}] - 
+  SuperLU\_MT library thread type
+  \\
+  {\sundials} equivalent: \id{SUPERLUMT\_THREAD\_TYPE}
+\item[\id{USE\_XSDK\_DEFAULTS}] - 
+  Enable xSDK default configuration settings
+  \\
+  Default: OFF
+  \\
+  {\sundials} equivalent: N/A
+  \\
+  Note: Enabling xSDK defaults also sets \id{CMAKE\_BUILD\_TYPE} to \id{Debug}
+\item[\id{XSDK\_ENABLE\_FORTRAN}] -
+  Enable {\sundials} Fortran interface
+  \\
+  Default: OFF
+  \\
+  {\sundials} equivalent: \id{FCMIX\_ENABLE}
+\item[\id{XSDK\_INDEX\_SIZE}] -
+  Integer size (bits) used for indices in {\sundials}, options are: \id{32} or \id{64}
+  \\
+  Default: \id{32}
+  \\
+  {\sundials} equivalent: \id{SUNDIALS\_INDEX\_TYPE}
+\item[\id{XSDK\_PRECISION}] -
+  Precision used in {\sundials}, options are: \id{double}, \id{single}, or \id{quad}
+  \\
+  Default: \id{double}
+  \\
+  {\sundials} equivalent: \id{SUNDIALS\_PRECISION}
+\end{description}
+
+
 
 %%===============================================================================
 
@@ -499,29 +734,69 @@ example sources under subdirectories of
 \end{verbatim}
 
 %%===============================================================================
-\subsection{Working with external Libraries}
+\subsection{Working with external Libraries} \label{ss:externallibs}
 
-The {\sundials} Suite contains many options to enable implementation flexibility
+The {\sundials} suite contains many options to enable implementation flexibility
 when developing solutions. The following are some notes addressing specific configurations
 when using the supported third party libraries.
 
-\subsubsection*{Building with LAPACK and BLAS}
-To enable LAPACK and BLAS libraries, set the \id{LAPACK\_ENABLE} option to \id{ON}.
-If the directory containing the LAPACK and BLAS libraries is in the \id{LD\_LIBRARY\_PATH} environment
-variable, CMake will set the \id{LAPACK\_LIBRARIES} variable accordingly, otherwise CMake
-will attemp to find the LAPACK and BLAS libraries in standard system locations.
-To explicitly tell CMake what libraries to use, the \id{LAPACK\_LIBRARIES} varible can be
-set to the desired libraries.  Example: 
+\subsubsection*{Building with BLAS}
+{\sundials} does not utilize BLAS directly but it may be needed by other
+external libraries that {\sundials} can be build with (e.g. LAPACK,
+PETSc, SuperLU\_MT, etc.). To enable BLAS, set the \id{BLAS\_ENABLE}
+option to \id{ON}. If the directory containing the BLAS library is in
+the \id{LD\_LIBRARY\_PATH} environment variable, CMake will set the
+\id{BLAS\_LIBRARIES} variable accordingly, otherwise CMake will
+attempt to find the BLAS library in standard system locations. To
+explicitly tell CMake what libraries to use, the \id{BLAS\_LIBRARIES}
+variable can be set to the desired library. Example:
 \begin{verbatim}
    % cmake \
    > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
    > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
-   > -DLAPACK_LIBRARIES=/mypath/lib/liblapack.so;/mypath/lib/libblas.so \
+   > -DBLAS_ENABLE=ON \
+   > -DBLAS_LIBRARIES=/myblaspath/lib/libblas.so \
+   > -DSUPERLUMT_ENABLE=ON \
+   > -DSUPERLUMT_INCLUDE_DIR=/mysuperlumtpath/SRC
+   > -DSUPERLUMT_LIBRARY_DIR=/mysuperlumtpath/lib
    > /home/myname/sundials/srcdir
    %
    % make install
    % 
 \end{verbatim}
+{\warn}If enabling LAPACK and allowing CMake to automatically locate
+the LAPACK library, it is not necessary to also enable BLAS as CMake
+will find the corresponding BLAS library and include it when searching
+for LAPACK.
+
+
+\subsubsection*{Building with LAPACK}
+To enable LAPACK, set the \id{LAPACK\_ENABLE} option to \id{ON}.
+If the directory containing the LAPACK library is in the
+\id{LD\_LIBRARY\_PATH} environment variable, CMake will set the
+\id{LAPACK\_LIBRARIES} variable accordingly, otherwise CMake will
+attempt to find the LAPACK library in standard system locations. To
+explicitly tell CMake what library to use, the \id{LAPACK\_LIBRARIES}
+variable can be set to the desired libraries. {\warn}When setting
+the LAPACK location explicitly the location of the corresponding BLAS
+library will also need to be set. Example:
+\begin{verbatim}
+   % cmake \
+   > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
+   > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
+   > -DBLAS_ENABLE=ON \
+   > -DBLAS_LIBRARIES=/mylapackpath/lib/libblas.so \
+   > -DLAPACK_ENABLE=ON \
+   > -DLAPACK_LIBRARIES=/mylapackpath/lib/liblapack.so \
+   > /home/myname/sundials/srcdir
+   %
+   % make install
+   % 
+\end{verbatim}
+{\warn}If enabling LAPACK and allowing CMake to automatically locate
+the LAPACK library, it is not necessary to also enable BLAS as CMake
+will find the corresponding BLAS library and include it when searching
+for LAPACK.
 
 
 \subsubsection*{Building with KLU}
@@ -557,20 +832,23 @@ To enable PETSc, set  \id{PETSC\_ENABLE} to \id{ON}, set \id{PETSC\_INCLUDE\_DIR
 to the \id{include} path of the PETSc installation, and set the variable
 \id{PETSC\_LIBRARY\_DIR} to the \id{lib} path of the PETSc installation.
 
-\subsubsection*{Building with hypre}
-The hypre libraries are available for download from the Lawrence Livermore
-National Laboratory website:\newline
-{\tt http://computation.llnl.gov/projects/hypre-scalable-linear-solvers-multigrid-methods}. 
-{\sundials} has been tested with hypre version 2.11.1. 
-To enable hypre, set  \id{HYPRE\_ENABLE} to \id{ON}, set \id{HYPRE\_INCLUDE\_DIR}
-to the \id{include} path of the hypre installation, and set the variable
-\id{HYPRE\_LIBRARY} to the \id{lib} path of the hypre installation.
+
+\subsubsection*{Building with \textit{hypre}}
+The \textit{hypre} libraries are available for download from the Lawrence Livermore
+National Laboratory website: {\tt http://computation.llnl.gov/projects/hypre}.
+%{\tt http://computation.llnl.gov/projects/hypre-scalable-linear-solvers-multigrid-methods}.
+{\sundials} has been tested with \textit{hypre} version 2.11.1. 
+To enable \textit{hypre}, set  \id{HYPRE\_ENABLE} to \id{ON}, set \id{HYPRE\_INCLUDE\_DIR}
+to the \id{include} path of the \textit{hypre} installation, and set the variable
+\id{HYPRE\_LIBRARY\_DIR} to the \id{lib} path of the \textit{hypre} installation.
 
 %%===============================================================================
 \section{Building and Running Examples}
 %%===============================================================================
-Each of the {\sundials} solvers is distributed with a set of examples demonstrating basic usage.
-To build and install the examples, set both \id{EXAMPLES\_ENABLE} and \id{EXAMPLES\_INSTALL} to \id{ON}.
+Each of the {\sundials} solvers is distributed with a set of examples
+demonstrating basic usage. To build and install the examples, set at
+least of the \id{EXAMPLES\_ENABLE\_$<$language$>$} options to ON, and
+set \id{EXAMPLES\_INSTALL} to \id{ON}.
 Specify the installation path for the examples with the variable \id{EXAMPLES\_INSTALL\_PATH}. CMake will generate
 \id{CMakeLists.txt} configuration files (and \id{Makefile} files if on Linux/Unix) that reference the
 {\em installed} {\sundials} headers and libraries.

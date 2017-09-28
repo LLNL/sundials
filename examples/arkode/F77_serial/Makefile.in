@@ -48,7 +48,10 @@ F77_LDFLAGS  = @F77_LDFLAGS@
 F77_LIBS     = @F77_LIBS@
 
 LAPACK_ENABLED = @LAPACK_ENABLED@
-BLAS_LAPACK_LIBS = @BLAS_LAPACK_LIBS@
+LAPACK_LIBS    = @LAPACK_LIBS@
+
+BLAS_ENABLED = @BLAS_ENABLED@
+BLAS_LIBS    = @BLAS_LIBS@
 
 OBJ_EXT = @OBJEXT@
 EXE_EXT = @EXEEXT@
@@ -84,13 +87,13 @@ all:
 	@for i in ${EXAMPLES} ; do \
 	  ${fortran-update} ${srcdir} $${i}.f ; \
 	  ${LIBTOOL} --mode=compile ${F77} ${FFLAGS} -c ${builddir}/$${i}-updated.f ; \
-	  ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/$${i}${EXE_EXT} ${builddir}/$${i}-updated${OBJ_EXT} ${F77_LDFLAGS} ${SUNDIALS_LIBS} ${F77_LIBS} ${BLAS_LAPACK_LIBS} ; \
+	  ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/$${i}${EXE_EXT} ${builddir}/$${i}-updated${OBJ_EXT} ${F77_LDFLAGS} ${SUNDIALS_LIBS} ${F77_LIBS} ${LAPACK_LIBS} ${BLAS_LIBS} ; \
 	done
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
 	for i in ${EXAMPLES_BL} ; do \
 	  ${fortran-update} ${srcdir} $${i}.f ; \
 	  ${LIBTOOL} --mode=compile ${F77} ${FFLAGS} -c ${builddir}/$${i}-updated.f ; \
-	  ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/$${i}${EXE_EXT} ${builddir}/$${i}-updated${OBJ_EXT} ${F77_LDFLAGS} ${SUNDIALS_LIBS} ${F77_LIBS} ${BLAS_LAPACK_LIBS} ; \
+	  ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/$${i}${EXE_EXT} ${builddir}/$${i}-updated${OBJ_EXT} ${F77_LDFLAGS} ${SUNDIALS_LIBS} ${F77_LIBS} ${LAPACK_LIBS} ${BLAS_LIBS} ; \
 	done ; \
 	fi
 

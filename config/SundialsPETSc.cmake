@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision:  $
-# $Date:  $
-# ---------------------------------------------------------------
 # Programmer:  Eddy Banks @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -16,6 +13,7 @@
 # ---------------------------------------------------------------
 # PETSc tests for SUNDIALS CMake-based configuration.
 # 
+
 ### This is only set if running GUI - simply return first time enabled
 IF(PETSC_DISABLED)
   SET(PETSC_DISABLED FALSE CACHE INTERNAL "GUI - now enabled" FORCE)
