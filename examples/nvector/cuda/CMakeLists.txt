@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision$
-# $Date$
-# ---------------------------------------------------------------
 # Programmer:  Slaven Peles @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -28,10 +25,7 @@ SET(nvector_examples_dependencies
 )
 
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(. .. ${CUDA_TOOLKIT_ROOT_DIR}/samples/common/inc) # ${MKL_ROOT_DIR}/include)
-
-set(CMAKE_CXX_FLAGS "-O3 -Wall") # -DMKL_ILP64 -fopenmp -m64")
-
+INCLUDE_DIRECTORIES(. .. ${CUDA_TOOLKIT_ROOT_DIR}/samples/common/inc)
 
 # Specify libraries to link against (through the target that was used to 
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
@@ -43,8 +37,7 @@ ELSE(LINK_LIBRARY_TYPE MATCHES "static")
 ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 
 # Set-up linker flags and link libraries
-#SET(MKL_LIBS "-Wl,--no-as-needed -L${MKL_ROOT_DIR}/lib/intel64 -lmkl_intel_ilp64 -lmkl_core -lmkl_gnu_thread -ldl -lgomp -lpthread")
-SET(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS}) # "-L${CUDA_TOOLKIT_ROOT_DIR}/lib64 -lcublas" ${MKL_LIBS} 
+SET(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each nvector example
 
@@ -58,14 +51,10 @@ FOREACH(example ${nvector_cuda_examples})
     ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
   ENDIF(WIN32)
 
-#  CUDA_ADD_EXECUTABLE(${example} ${example}.cpp run_test.cu nvector_cuda_test_refs.cpp ../../../src/sundials/sundials_nvector.c) # ../test_nvector.c ../../../src/sundials/sundials_nvector.c)
-#  CUDA_ADD_EXECUTABLE(${example} ${example}.cu nvector_cuda_test_refs.cpp ../test_nvector.c ../../../src/sundials/sundials_nvector.c ../../../src/sundials/sundials_math.c)
   CUDA_ADD_EXECUTABLE(${example} ${example}.cu ../test_nvector.c ../../../src/sundials/sundials_nvector.c ../../../src/sundials/sundials_math.c)
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-#   SUNDIALS_ADD_TEST( ${example} ${example})
-#   SUNDIALS_ADD_TEST( ${example}_1000000_0 ${example} TEST_ARGS 1000000 0)
-   SUNDIALS_ADD_TEST( ${example}_10000_0 ${example} TEST_ARGS 10000 0)
+  SUNDIALS_ADD_TEST( ${example}_10000_0 ${example} TEST_ARGS 10000 0)
 
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CUDA_LIBRARIES})
 
