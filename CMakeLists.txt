@@ -429,8 +429,7 @@ ELSE()
   HIDE_VARIABLE(EXAMPLES_ENABLE_F77)
 ENDIF()
 
-# C++ examples (off by default) are an option only if ARKode is
-# built and examples are enabled
+# C++ examples (off by default) are an option only if ARKode is enabled
 SET(DOCSTR "Build ARKode C++ examples")
 IF(BUILD_ARKODE)
   SHOW_VARIABLE(EXAMPLES_ENABLE_CXX BOOL "${DOCSTR}" OFF)
@@ -445,7 +444,7 @@ ELSE()
 ENDIF()
 
 # F90 examples (off by default) are an option only if ARKode is
-# built, examples are enabled, and the Fortran interface is enabled
+# built and the Fortran interface is enabled
 SET(DOCSTR "Build ARKode F90 examples")
 IF(FCMIX_ENABLE AND BUILD_ARKODE)
   SHOW_VARIABLE(EXAMPLES_ENABLE_F90 BOOL "${DOCSTR}" OFF)
@@ -467,15 +466,36 @@ ELSE()
 ENDIF()
 
 # CUDA examples (off by default)
-SET(DOCSTR "Build CUDA examples")
-SHOW_VARIABLE(EXAMPLES_ENABLE_CUDA BOOL "${DOCSTR}" OFF)
+SET(DOCSTR "Build SUNDIALS CUDA examples")
+IF(CUDA_ENABLE)
+  SHOW_VARIABLE(EXAMPLES_ENABLE_CUDA BOOL "${DOCSTR}" OFF)
+ELSE()
+  IF(EXAMPLES_ENABLE_CUDA)
+    PRINT_WARNING("EXAMPLES_ENABLE_CUDA is ON but CUDA_ENABLE is OFF"
+                  "Disabling EXAMPLES_ENABLE_CUDA")
+    FORCE_VARIABLE(EXAMPLES_ENABLE_CUDA BOOL "${DOCSTR}" OFF)
+  ENDIF()
+ENDIF()
 
 # RAJA examples (off by default)
-SET(DOCSTR "Build RAJA examples")
-SHOW_VARIABLE(EXAMPLES_ENABLE_RAJA BOOL "${DOCSTR}" OFF)
+SET(DOCSTR "Build SUNDIALS RAJA examples")
+IF(RAJA_ENABLE)
+  SHOW_VARIABLE(EXAMPLES_ENABLE_RAJA BOOL "${DOCSTR}" OFF)
+ELSE()
+  IF(EXAMPLES_ENABLE_RAJA)
+    PRINT_WARNING("EXAMPLES_ENABLE_RAJA is ON but RAJA_ENABLE is OFF"
+                  "Disabling EXAMPLES_ENABLE_RAJA")
+    FORCE_VARIABLE(EXAMPLES_ENABLE_RAJA BOOL "${DOCSTR}" OFF)
+  ENDIF()
+ENDIF()
 
 # If any of the above examples are enabled set EXAMPLES_ENABLED to TRUE
-IF(EXAMPLES_ENABLE_C OR EXAMPLES_ENABLE_F77 OR EXAMPLES_ENABLE_CXX OR EXAMPLES_ENABLE_F90)
+IF(EXAMPLES_ENABLE_C OR
+    EXAMPLES_ENABLE_F77 OR
+    EXAMPLES_ENABLE_CXX OR
+    EXAMPLES_ENABLE_F90 OR
+    EXAMPLES_ENABLE_CUDA OR
+    EXAMPLES_ENABLE_RAJA)
   SET(EXAMPLES_ENABLED TRUE)
 ELSE()
   SET(EXAMPLES_ENABLED FALSE)
