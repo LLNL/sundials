@@ -332,10 +332,8 @@ void N_VDestroy_Cuda(N_Vector v)
 {
   Vector<realtype, sunindextype>* x = static_cast<Vector<realtype, sunindextype>*>(v->content);
   if (x != NULL) {
-    if (!x->isClone()) {
-      delete x;
-      v->content = NULL;
-    }
+    delete x;
+    v->content = NULL;
   }
   
   free(v->ops); v->ops = NULL;

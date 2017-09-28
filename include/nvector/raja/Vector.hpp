@@ -17,6 +17,9 @@
 
 /**
  * Vector class
+ *
+ * Manages vector data layout for RAJA implementation of N_Vector.
+ *
  */
 
 #ifndef _NVECTOR_RAJA_HPP_
@@ -34,7 +37,7 @@ template <typename T, typename I>
 class Vector : public _N_VectorContent_Raja
 {
 public:
-    Vector(I N) : size_(N), mem_size_(N*sizeof(T)), isClone_(false)
+    Vector(I N) : size_(N), mem_size_(N*sizeof(T))
     {
         allocate();
     }
@@ -42,8 +45,7 @@ public:
     /// Copy constructor does not copy values
     explicit Vector(const Vector& v) 
     : size_(v.size()), 
-      mem_size_(size_*sizeof(T)), 
-      isClone_(true) ///< temporary, will be removed!
+      mem_size_(size_*sizeof(T))
     {
         allocate();
     }
@@ -77,11 +79,6 @@ public:
     int size() const
     {
         return size_;
-    }
-    
-    bool isClone()
-    {
-        return isClone_;
     }
     
     T* host()
@@ -123,7 +120,6 @@ private:
     I mem_size_;
     T* h_vec_;
     T* d_vec_;
-    bool isClone_;    ///< temporary, will be removed! 
 };
 
 

@@ -46,8 +46,7 @@ public:
     Vector(I N)
     : size_(N),
       mem_size_(N*sizeof(T)),
-      ownPartitioning_(true),
-      isClone_(false)
+      ownPartitioning_(true)
     {
         // Set partitioning
         partStream_ = new StreamPartitioning<T, I>(N, 256);
@@ -62,8 +61,7 @@ public:
       mem_size_(size_*sizeof(T)),
       partStream_(v.partStream_),
       partReduce_(v.partReduce_),
-      ownPartitioning_(false),
-      isClone_(true)
+      ownPartitioning_(false)
     {
         allocate();
     }
@@ -101,11 +99,6 @@ public:
     int size() const
     {
         return size_;
-    }
-
-    bool isClone()
-    {
-        return isClone_;
     }
 
     T* host()
@@ -160,7 +153,6 @@ private:
     StreamPartitioning<T, I>* partStream_;
     ReducePartitioning<T, I>* partReduce_;
     bool ownPartitioning_;
-    bool isClone_;
 };
 
 

@@ -343,10 +343,8 @@ void N_VDestroy_Raja(N_Vector v)
 {
   sunrajavec::Vector<realtype, sunindextype>* x = static_cast<sunrajavec::Vector<realtype, sunindextype>*>(v->content);
   if (x != NULL) {
-    if (!x->isClone()) {
-      delete x;
-      v->content = NULL;
-    }
+    delete x;
+    v->content = NULL;
   }
 
   free(v->ops); v->ops = NULL;
