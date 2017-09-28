@@ -117,7 +117,7 @@ writing in C|)}
 All interfaces to matrix structures and linear solvers 
 have been reworked, and all example programs have been updated. 
 The goal of the redesign of these interfaces was to provide more encapsulation
-and ease interfacing of custom linear solvers and interoperability 
+and ease in interfacing custom linear solvers and interoperability 
 with linear solver libraries.
 Specific changes include:
 \begin{itemize}
@@ -158,7 +158,7 @@ on GPU architectures.  Users are advised that these vectors both move all data
 to the GPU device upon construction, and speedup will only be realized if the
 user also conducts the right-hand-side function evaluation on the device.
 In addition, these vectors assume the problem fits on one GPU.
-Further information about RAJA, users are referred to the web site, 
+Further information about RAJA, users are referred to th web site, 
 https://software.llnl.gov/RAJA/.
 These additions are accompanied by additions to various interface functions
 and to user documentation.
@@ -167,7 +167,8 @@ All indices for data structures were updated to a new sunindextype that
 can be configured to be a 32- or 64-bit integer data index type. 
 Sunindextype can be defined to be int64\_t or int32\_t or long long int and 
 int depending on machine support for portable types.  
-Fortran interfaces only support long int
+The Fortran interfaces continue to use long\_int for indices, except for 
+their sparse matrix interface that now uses the new sunindextype.
 This new flexible capability for index types includes interfaces to 
 PETSc, hypre, SuperLU\_MT, and KLU with 
 either 64-bit or 32-bit capabilities depending how the user configures 
@@ -188,13 +189,13 @@ sustainable extreme-scale scientific applications.  More information can
 be found at, https://xsdk.info.
 
 In addition, numerous changes were made to the build system.
-Thes einclude the addition of separate BLAS\_ENABLE and BLASLIBRARIES 
+These include the addition of separate BLAS\_ENABLE and BLAS\_LIBRARIES 
 CMake variables, additional error checking during CMake configuration,
 minor bug fixes, and renaming CMake options to enable/disable examples 
 for greater clarity and an added option to enable/disable Fortran 77 examples.
 These changes included changing ENABLE\_EXAMPLES to ENABLE\_EXAMPLES\_C, 
 changing CXX\_ENABLE to EXAMPLES\_ENABLE\_CXX, changing F90\_ENABLE to 
-EXAMPLES\_ENABKE\_F90, and adding an EXAMPLES\_ENABLE\_F77 option.
+EXAMPLES\_ENABLE\_F90, and adding an EXAMPLES\_ENABLE\_F77 option.
 
 A bug fix was made in CVodeFree to call lfree() unconditionally 
 (if non-NULL).
@@ -202,6 +203,7 @@ A bug fix was made in CVodeFree to call lfree() unconditionally
 Corrections and additions were made to the examples, 
 to installation-related files,
 and to the user documentation.
+
 
 \subsection*{Changes in v2.9.0}
 

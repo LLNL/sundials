@@ -50,8 +50,10 @@ https://software.llnl.gov/RAJA/.
 
 * Addition of sunindextype option for 32- or 64-bit integer data index types 
 within all SUNDIALS structures
- - Sunindextype is int64_t or int32_t or long long int and int depending on 
+ - Sunindextype can be int64_t or int32_t or long long int and int depending on 
    machine support for portable types
+ - The Fortran interfaces continue to use long\_int for indices, except for 
+   their sparse matrix interface that now uses the new sunindextype.
  - Includes interfaces to PETSc, hypre, SuperLU_MT, and KLU with 
    either 64-bit or 32-bit capabilities depending how the user configures 
    SUNDIALS
@@ -91,9 +93,10 @@ ARKode:
 * Added comments to arkode_butcher.c regarding which methods should have 
   coefficients accurate enough for use in quad precision
 * Bug Fix: Fixed a bug in arkode_butcher.c in use of RCONST
-* Bug Fix: Fixed a bug in the order of operations in the ARKode initialization
+* Bug Fix: Fixed a bug in in the arkInitialSetup utility routine in the 
+  order of operations when setting up and using mass matrices
   to ensure the mass matrix vector product is set up before the "msetup" 
-  routine is called.  This affected routine, ARKMassSuperLUMT. 
+  routine is called.
 * Fixed ARKode printf-related compiler warnings when building SUNDIALS
   with extended precision.
 
