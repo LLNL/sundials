@@ -802,7 +802,7 @@ if(CUDA_ENABLE)
     #message("CUDA found!")
     set(CUDA_NVCC_FLAGS "-lineinfo")
   else()
-    message(STATUS "CUDA not found! Related modules will not be built.")
+    message(STATUS "Disabling CUDA support, could not find CUDA.")
   endif()
 endif(CUDA_ENABLE)
 
@@ -810,41 +810,36 @@ endif(CUDA_ENABLE)
 # Find RAJA
 # -------------------------------------------------------------
 
-# disable RAJA if a working C++ compiler is not found
+# disable RAJA if CUDA is not enabled/working
+IF(RAJA_ENABLE AND (NOT CUDA_FOUND))
+  PRINT_WARNING("CUDA is required for RAJA support" "Please enable CUDA and RAJA")
+  FORCE_VARIABLE(RAJA_ENABLE BOOL "RAJA disabled" OFF)
+ENDIF()
+
+# Check if C++11 compiler is available
 IF(RAJA_ENABLE)
-  # Check if CUDA found
-  IF(NOT CUDA_FOUND)
-    PRINT_WARNING("CUDA required for RAJA support" "Please enable CUDA and RAJA")
-    FORCE_VARIABLE(RAJA_ENABLE BOOL "RAJA disabled" OFF)
-  ENDIF()
-  
-  # Check if C++11 compiler is available
   include(CheckCXXCompilerFlag)
   CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+
   IF(COMPILER_SUPPORTS_CXX11)
-    # Do nothing
-  ELSE(COMPILER_SUPPORTS_CXX11)
+    set(CMAKE_CXX_STANDARD 11)
+  ELSE()
     PRINT_WARNING("C++11 compliant compiler required for RAJA support" "Disabling RAJA")
     FORCE_VARIABLE(RAJA_ENABLE BOOL "RAJA disabled" OFF)
-  ENDIF(COMPILER_SUPPORTS_CXX11)
+  ENDIF()
 ENDIF()
 
 if(RAJA_ENABLE)
-  set(CMAKE_CXX_STANDARD 11)
-  
   # Look for CMake configuration file in RAJA installation
   find_package(RAJA CONFIGS)
   if (RAJA_FOUND)
     #message("RAJA found!")
+    include_directories(${RAJA_INCLUDE_DIR})
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${RAJA_NVCC_FLAGS})
   else()
-    PRINT_WARNING("RAJA configuration not found" "Please provide path to RAJA CMake configuration file.")
+    PRINT_WARNING("RAJA configuration not found" "Please set RAJA_DIR to provide path to RAJA CMake configuration file.")
   endif()
-  
-  include_directories(${RAJA_INCLUDE_DIR})
-  set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${RAJA_NVCC_FLAGS})
-	
 endif(RAJA_ENABLE)
-
 
 # ===============================================================
 # Find (and test) external packages
