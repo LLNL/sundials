@@ -43,6 +43,7 @@ web pages.
     doc/arkode/ARKode_example.tex
     doc/arkode/ARKode.tex
     doc/sundials/ug.tex
+    doc/sundials/biblio.bib
     html/main.html (This is no longer maintained as of at least 2016)
     scripts/tarscript
     sundialsTB/install_STB.m (This is no longer maintained as of 2016)
