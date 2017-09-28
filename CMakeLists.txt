@@ -466,6 +466,14 @@ ELSE()
   HIDE_VARIABLE(EXAMPLES_ENABLE_F90)
 ENDIF()
 
+# CUDA examples (off by default)
+SET(DOCSTR "Build CUDA examples")
+SHOW_VARIABLE(EXAMPLES_ENABLE_CUDA BOOL "${DOCSTR}" OFF)
+
+# RAJA examples (off by default)
+SET(DOCSTR "Build RAJA examples")
+SHOW_VARIABLE(EXAMPLES_ENABLE_RAJA BOOL "${DOCSTR}" OFF)
+
 # If any of the above examples are enabled set EXAMPLES_ENABLED to TRUE
 IF(EXAMPLES_ENABLE_C OR EXAMPLES_ENABLE_F77 OR EXAMPLES_ENABLE_CXX OR EXAMPLES_ENABLE_F90)
   SET(EXAMPLES_ENABLED TRUE)
@@ -783,19 +791,33 @@ endif(CUDA_ENABLE)
 # -------------------------------------------------------------
 
 # disable RAJA if a working C++ compiler is not found
-IF(RAJA_ENABLE AND (NOT CXX_FOUND))
-  PRINT_WARNING("C++ compiler required for RAJA support" "Disabling RAJA")
-  FORCE_VARIABLE(RAJA_ENABLE BOOL "RAJA disabled" OFF)
+IF(RAJA_ENABLE)
+  # Check if CUDA found
+  IF(NOT CUDA_FOUND)
+    PRINT_WARNING("CUDA required for RAJA support" "Please enable CUDA and RAJA")
+    FORCE_VARIABLE(RAJA_ENABLE BOOL "RAJA disabled" OFF)
+  ENDIF()
+  
+  # Check if C++11 compiler is available
+  include(CheckCXXCompilerFlag)
+  CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+  IF(COMPILER_SUPPORTS_CXX11)
+    # Do nothing
+  ELSE(COMPILER_SUPPORTS_CXX11)
+    PRINT_WARNING("C++11 compliant compiler required for RAJA support" "Disabling RAJA")
+    FORCE_VARIABLE(RAJA_ENABLE BOOL "RAJA disabled" OFF)
+  ENDIF(COMPILER_SUPPORTS_CXX11)
 ENDIF()
 
 if(RAJA_ENABLE)
   set(CMAKE_CXX_STANDARD 11)
   
-  find_package(RAJA REQUIRED)
+  # Look for CMake configuration file in RAJA installation
+  find_package(RAJA CONFIGS)
   if (RAJA_FOUND)
     #message("RAJA found!")
   else()
-    message(STATUS "RAJA not found! Related modules will not be built.")
+    PRINT_WARNING("RAJA configuration not found" "Please provide path to RAJA CMake configuration file.")
   endif()
   
   include_directories(${RAJA_INCLUDE_DIR})
@@ -1325,13 +1347,17 @@ IF(EXAMPLES_ENABLED)
       ENDIF()
     ENDIF()
     # cuda examples
-    IF(CUDA_ENABLE AND CUDA_FOUND)
-      ADD_SUBDIRECTORY(examples/cvode/cuda)
-    ENDIF()
+    IF(EXAMPLES_ENABLE_CUDA)
+      IF(CUDA_ENABLE AND CUDA_FOUND)
+        ADD_SUBDIRECTORY(examples/cvode/cuda)
+      ENDIF()
+    ENDIF(EXAMPLES_ENABLE_CUDA)
     # raja examples 
-    IF(RAJA_ENABLE AND RAJA_FOUND)
-      ADD_SUBDIRECTORY(examples/cvode/raja)
-    ENDIF()
+    IF(EXAMPLES_ENABLE_RAJA)
+      IF(RAJA_ENABLE AND RAJA_FOUND)
+        ADD_SUBDIRECTORY(examples/cvode/raja)
+      ENDIF()
+    ENDIF(EXAMPLES_ENABLE_RAJA)
   ENDIF(BUILD_CVODE)
   
   # add CVODES Examples
