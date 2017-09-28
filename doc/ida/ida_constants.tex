@@ -91,6 +91,7 @@ description of their meaning.
 \multicolumn{3}{c}{\bf {\idadls} linear solver modules}\\
 \hline\\
 
+%% CSW: We should make these generic to the solver and not have error labels specific to the integrators.
 \id{IDADLS\_SUCCESS}    &  0 & Successful function return. \\
 \id{IDADLS\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
 \id{IDADLS\_LMEM\_NULL} & -2 & The {\idadls} linear solver has not been initialized.\\
@@ -98,6 +99,7 @@ description of their meaning.
 \id{IDADLS\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
 \id{IDADLS\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
 \id{IDADLS\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
+\id{IDADLS\_SUNMAT\_FAIL}     & -7 & An error occurred with the current {\sunmatrix} module. \\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\idasls} linear solver module}\\
