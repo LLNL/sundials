@@ -1,11 +1,11 @@
 #!/bin/bash
 # -------------------------------------------------------------------------------
-# Programmer(s): David J. Gardner @ LLNL 
+# Programmer(s): David J. Gardner @ LLNL
 # -------------------------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
@@ -147,6 +147,8 @@ cmake \
     \
     -D OPENMP_ENABLE=ON \
     -D PTHREAD_ENABLE=ON \
+    -D CUDA_ENABLE=OFF \
+    -D RAJA_ENABLE=OFF \
     \
     -D CMAKE_C_COMPILER="/usr/bin/cc" \
     -D CMAKE_CXX_COMPILER="/usr/bin/c++" \
