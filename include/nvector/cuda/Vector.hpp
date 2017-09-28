@@ -20,6 +20,9 @@
 
 /**
  * Vector class
+ *
+ * Manages vector data layout for CUDA implementation of N_Vector.
+ *
  */
 
 #ifndef _NVECTOR_HPP_
@@ -44,9 +47,7 @@ public:
     : size_(N),
       mem_size_(N*sizeof(T)),
       ownPartitioning_(true),
-      isClone_(false),
-      ownHostData_(true),
-      ownDevData_(true)
+      isClone_(false)
     {
         // Set partitioning
         partStream_ = new StreamPartitioning<T, I>(N, 256);
@@ -62,9 +63,7 @@ public:
       partStream_(v.partStream_),
       partReduce_(v.partReduce_),
       ownPartitioning_(false),
-      isClone_(true), ///< temporary, will be removed!
-      ownHostData_(true),
-      ownDevData_(true)
+      isClone_(true)
     {
         allocate();
     }
@@ -93,16 +92,10 @@ public:
 
     void clear()
     {
-      if(ownHostData_)
-      {
-        free(h_vec_);
-      }
-      if (ownDevData_)
-      {
-        cudaError_t err = cudaFree(d_vec_);
-        if(err != cudaSuccess)
-          std::cout << "Failed to free device vector (error code " << err << ")!\n";
-      }
+      free(h_vec_);
+      cudaError_t err = cudaFree(d_vec_);
+      if(err != cudaSuccess)
+        std::cout << "Failed to free device vector (error code " << err << ")!\n";
     }
 
     int size() const
@@ -167,9 +160,7 @@ private:
     StreamPartitioning<T, I>* partStream_;
     ReducePartitioning<T, I>* partReduce_;
     bool ownPartitioning_;
-    bool isClone_;    ///< temporary, will be removed!
-    bool ownHostData_;
-    bool ownDevData_;
+    bool isClone_;
 };
 
 
