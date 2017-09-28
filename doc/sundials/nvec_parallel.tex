@@ -10,8 +10,8 @@ the data array {\em data}.
 %%
 \begin{verbatim} 
 struct _N_VectorContent_Parallel {
-  long int local_length;
-  long int global_length;
+  sunindextype local_length;
+  sunindextype global_length;
   booleantype own_data;
   realtype *data;
   MPI_Comm comm;
@@ -122,8 +122,8 @@ user-callable routines:
 
 \begin{verbatim}
 N_Vector N_VNew_Parallel(MPI_Comm comm, 
-                         long int local_length, 
-                         long int global_length);
+                         sunindextype local_length, 
+                         sunindextype global_length);
 \end{verbatim}
   
 %%--------------------------------------
@@ -136,8 +136,8 @@ N_Vector N_VNew_Parallel(MPI_Comm comm,
 
 \begin{verbatim}
 N_Vector N_VNewEmpty_Parallel(MPI_Comm comm, 
-                              long int local_length, 
-                              long int global_length);
+                              sunindextype local_length, 
+                              sunindextype global_length);
 \end{verbatim}
 
   
@@ -152,8 +152,8 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
 
 \begin{verbatim}
 N_Vector N_VMake_Parallel(MPI_Comm comm, 
-                          long int local_length,
-                          long int global_length,
+                          sunindextype local_length,
+                          sunindextype global_length,
                           realtype *v_data);
 \end{verbatim}
 
@@ -198,7 +198,7 @@ N_Vector *N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w);
 
  
  
- \verb|long int N_VGetLength_Parallel(N_Vector v);|
+ \verb|sunindextype N_VGetLength_Parallel(N_Vector v);|
 
 %%--------------------------------------
 
@@ -208,7 +208,7 @@ N_Vector *N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w);
 
  
  
- \verb|long int N_VGetLocalLength_Parallel(N_Vector v);|
+ \verb|sunindextype N_VGetLocalLength_Parallel(N_Vector v);|
 
 %%--------------------------------------
 
