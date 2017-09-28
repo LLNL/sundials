@@ -10,53 +10,53 @@ tar=$*
 echo "   --- Add cvode module to $tarfile"
 
 if [ $doc = "T" ]; then
-#$tar $tarfile $distrobase/doc/cvode/cv_guide.ps
 $tar $tarfile $distrobase/doc/cvode/cv_guide.pdf
-#$tar $tarfile $distrobase/doc/cvode/cv_examples.ps
 $tar $tarfile $distrobase/doc/cvode/cv_examples.pdf
 fi
 
 $tar $tarfile $distrobase/include/cvode/cvode.h
-$tar $tarfile $distrobase/include/cvode/cvode_direct.h
-$tar $tarfile $distrobase/include/cvode/cvode_spils.h
 $tar $tarfile $distrobase/include/cvode/cvode_bandpre.h
 $tar $tarfile $distrobase/include/cvode/cvode_bbdpre.h
+$tar $tarfile $distrobase/include/cvode/cvode_diag.h
+$tar $tarfile $distrobase/include/cvode/cvode_direct.h
+$tar $tarfile $distrobase/include/cvode/cvode_spils.h
 
 $tar $tarfile $distrobase/src/cvode/LICENSE
 $tar $tarfile $distrobase/src/cvode/README
 $tar $tarfile $distrobase/src/cvode/CMakeLists.txt
 
 $tar $tarfile $distrobase/src/cvode/cvode.c
-$tar $tarfile $distrobase/src/cvode/cvode_io.c
-$tar $tarfile $distrobase/src/cvode/cvode_direct.c
-$tar $tarfile $distrobase/src/cvode/cvode_spils.c
 $tar $tarfile $distrobase/src/cvode/cvode_bandpre.c
-$tar $tarfile $distrobase/src/cvode/cvode_bbdpre.c
-$tar $tarfile $distrobase/src/cvode/cvode_impl.h
-$tar $tarfile $distrobase/src/cvode/cvode_direct_impl.h
-$tar $tarfile $distrobase/src/cvode/cvode_spils_impl.h
 $tar $tarfile $distrobase/src/cvode/cvode_bandpre_impl.h
+$tar $tarfile $distrobase/src/cvode/cvode_bbdpre.c
 $tar $tarfile $distrobase/src/cvode/cvode_bbdpre_impl.h
+$tar $tarfile $distrobase/src/cvode/cvode_diag.c
+$tar $tarfile $distrobase/src/cvode/cvode_diag_impl.h
+$tar $tarfile $distrobase/src/cvode/cvode_direct.c
+$tar $tarfile $distrobase/src/cvode/cvode_direct_impl.h
+$tar $tarfile $distrobase/src/cvode/cvode_impl.h
+$tar $tarfile $distrobase/src/cvode/cvode_io.c
+$tar $tarfile $distrobase/src/cvode/cvode_spils.c
+$tar $tarfile $distrobase/src/cvode/cvode_spils_impl.h
 
 echo "   --- Add fcvode module to $tarfile"
 
 $tar $tarfile $distrobase/src/cvode/fcmix/CMakeLists.txt
 
-$tar $tarfile $distrobase/src/cvode/fcmix/fcvode.c
-$tar $tarfile $distrobase/src/cvode/fcmix/fcvewt.c
-$tar $tarfile $distrobase/src/cvode/fcmix/fcvpreco.c
-$tar $tarfile $distrobase/src/cvode/fcmix/fcvjtimes.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvband.c
-$tar $tarfile $distrobase/src/cvode/fcmix/fcvdense.c
-$tar $tarfile $distrobase/src/cvode/fcmix/fcvdiag.c
-$tar $tarfile $distrobase/src/cvode/fcmix/fcvbp.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvbbd.c
-$tar $tarfile $distrobase/src/cvode/fcmix/fcvroot.c
-$tar $tarfile $distrobase/src/cvode/fcmix/fcvsparse.c
-$tar $tarfile $distrobase/src/cvode/fcmix/fcvode.h
-$tar $tarfile $distrobase/src/cvode/fcmix/fcvbp.h
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvbbd.h
+$tar $tarfile $distrobase/src/cvode/fcmix/fcvbp.c
+$tar $tarfile $distrobase/src/cvode/fcmix/fcvbp.h
+$tar $tarfile $distrobase/src/cvode/fcmix/fcvdense.c
+$tar $tarfile $distrobase/src/cvode/fcmix/fcvewt.c
+$tar $tarfile $distrobase/src/cvode/fcmix/fcvjtimes.c
+$tar $tarfile $distrobase/src/cvode/fcmix/fcvode.c
+$tar $tarfile $distrobase/src/cvode/fcmix/fcvode.h
+$tar $tarfile $distrobase/src/cvode/fcmix/fcvpreco.c
+$tar $tarfile $distrobase/src/cvode/fcmix/fcvroot.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvroot.h
+$tar $tarfile $distrobase/src/cvode/fcmix/fcvsparse.c
 
 echo "   --- Add cvode examples to $tarfile"
 

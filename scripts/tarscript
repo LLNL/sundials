@@ -43,13 +43,13 @@ function print_usage
 # VERSION NUMBERS
 #---------------------------------------------------------
 
-SUN_VER="2.7.0"
-CV_VER="2.9.0"
-CVS_VER="2.9.0"
-IDA_VER="2.9.0"
-IDAS_VER="1.3.0"
-KIN_VER="2.9.0"
-ARK_VER="1.1.0"
+SUN_VER="3.0.0"
+CV_VER="3.0.0"
+CVS_VER="3.0.0"
+IDA_VER="3.0.0"
+IDAS_VER="2.0.0"
+KIN_VER="3.0.0"
+ARK_VER="2.0.0"
 
 #---------------------------------------------------------
 # Test if the script is executed from within its directory
@@ -216,6 +216,8 @@ cp -r $sundialsdir/test $tmpdir/
 
 cp -r $sundialsdir/include/sundials $tmpdir/include/
 cp -r $sundialsdir/include/nvector $tmpdir/include/
+cp -r $sundialsdir/include/sunmatrix $tmpdir/include/
+cp -r $sundialsdir/include/sunlinsol $tmpdir/include/
 
 cp -r $sundialsdir/src/sundials $tmpdir/src/
 cp -r $sundialsdir/src/nvec_ser $tmpdir/src/
@@ -224,12 +226,28 @@ cp -r $sundialsdir/src/nvec_parhyp $tmpdir/src/
 cp -r $sundialsdir/src/nvec_petsc $tmpdir/src/
 cp -r $sundialsdir/src/nvec_openmp $tmpdir/src/
 cp -r $sundialsdir/src/nvec_pthreads $tmpdir/src/
+cp -r $sundialsdir/src/sunmat_band $tmpdir/src/
+cp -r $sundialsdir/src/sunmat_dense $tmpdir/src/
+cp -r $sundialsdir/src/sunmat_sparse $tmpdir/src/
+cp -r $sundialsdir/src/sunlinsol_band $tmpdir/src/
+cp -r $sundialsdir/src/sunlinsol_dense $tmpdir/src/
+cp -r $sundialsdir/src/sunlinsol_klu $tmpdir/src/
+cp -r $sundialsdir/src/sunlinsol_lapackband $tmpdir/src/
+cp -r $sundialsdir/src/sunlinsol_lapackdense $tmpdir/src/
+cp -r $sundialsdir/src/sunlinsol_pcg $tmpdir/src/
+cp -r $sundialsdir/src/sunlinsol_spbcgs $tmpdir/src/
+cp -r $sundialsdir/src/sunlinsol_spfgmr $tmpdir/src/
+cp -r $sundialsdir/src/sunlinsol_spgmr $tmpdir/src/
+cp -r $sundialsdir/src/sunlinsol_sptfqmr $tmpdir/src/
+cp -r $sundialsdir/src/sunlinsol_superlumt $tmpdir/src/
 
 cp -r $sundialsdir/doc/sundials $tmpdir/doc/
 
 cp -r $sundialsdir/bin $tmpdir/
 
 cp -r $sundialsdir/examples/nvector $tmpdir/examples/
+cp -r $sundialsdir/examples/sunmatrix $tmpdir/examples/
+cp -r $sundialsdir/examples/sunlinsol $tmpdir/examples/
 cp -r $sundialsdir/examples/templates $tmpdir/examples/
 
 #cd $tmpdir

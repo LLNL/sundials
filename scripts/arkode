@@ -50,8 +50,6 @@ $tar $tarfile $distrobase/src/arkode/fcmix/farkbp.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkbp.h
 $tar $tarfile $distrobase/src/arkode/fcmix/farkdense.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkdensemass.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farkdiag.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farkdiagmass.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkewt.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkexpstab.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkjtimes.c

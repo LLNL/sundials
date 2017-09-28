@@ -10,70 +10,42 @@ tar=$*
 echo "   --- Add kinsol module to $tarfile"
 
 if [ $doc = "T" ]; then
-#$tar $tarfile $distrobase/doc/kinsol/kin_guide.ps
 $tar $tarfile $distrobase/doc/kinsol/kin_guide.pdf
-#$tar $tarfile $distrobase/doc/kinsol/kin_examples.ps
 $tar $tarfile $distrobase/doc/kinsol/kin_examples.pdf
 fi
 
 $tar $tarfile $distrobase/include/kinsol/kinsol.h
-$tar $tarfile $distrobase/include/kinsol/kinsol_spfgmr.h
-$tar $tarfile $distrobase/include/kinsol/kinsol_spgmr.h
-$tar $tarfile $distrobase/include/kinsol/kinsol_spbcgs.h
-$tar $tarfile $distrobase/include/kinsol/kinsol_sptfqmr.h
-$tar $tarfile $distrobase/include/kinsol/kinsol_dense.h
-$tar $tarfile $distrobase/include/kinsol/kinsol_direct.h
-$tar $tarfile $distrobase/include/kinsol/kinsol_band.h
-$tar $tarfile $distrobase/include/kinsol/kinsol_lapack.h
-$tar $tarfile $distrobase/include/kinsol/kinsol_spils.h
 $tar $tarfile $distrobase/include/kinsol/kinsol_bbdpre.h
-$tar $tarfile $distrobase/include/kinsol/kinsol_sparse.h
-$tar $tarfile $distrobase/include/kinsol/kinsol_klu.h
-$tar $tarfile $distrobase/include/kinsol/kinsol_superlumt.h
+$tar $tarfile $distrobase/include/kinsol/kinsol_direct.h
+$tar $tarfile $distrobase/include/kinsol/kinsol_spils.h
 
 $tar $tarfile $distrobase/src/kinsol/LICENSE
 $tar $tarfile $distrobase/src/kinsol/README
 $tar $tarfile $distrobase/src/kinsol/CMakeLists.txt
 
 $tar $tarfile $distrobase/src/kinsol/kinsol.c
+$tar $tarfile $distrobase/src/kinsol/kinsol_bbdpre.c
+$tar $tarfile $distrobase/src/kinsol/kinsol_bbdpre_impl.h
+$tar $tarfile $distrobase/src/kinsol/kinsol_direct.c
+$tar $tarfile $distrobase/src/kinsol/kinsol_direct_impl.h
+$tar $tarfile $distrobase/src/kinsol/kinsol_impl.h
 $tar $tarfile $distrobase/src/kinsol/kinsol_io.c
 $tar $tarfile $distrobase/src/kinsol/kinsol_spils.c
-$tar $tarfile $distrobase/src/kinsol/kinsol_spfgmr.c
-$tar $tarfile $distrobase/src/kinsol/kinsol_spgmr.c
-$tar $tarfile $distrobase/src/kinsol/kinsol_spbcgs.c
-$tar $tarfile $distrobase/src/kinsol/kinsol_sptfqmr.c
-$tar $tarfile $distrobase/src/kinsol/kinsol_direct.c
-$tar $tarfile $distrobase/src/kinsol/kinsol_dense.c
-$tar $tarfile $distrobase/src/kinsol/kinsol_band.c
-$tar $tarfile $distrobase/src/kinsol/kinsol_klu.c
-$tar $tarfile $distrobase/src/kinsol/kinsol_superlumt.c
-$tar $tarfile $distrobase/src/kinsol/kinsol_lapack.c
-$tar $tarfile $distrobase/src/kinsol/kinsol_bbdpre.c
-$tar $tarfile $distrobase/src/kinsol/kinsol_impl.h
 $tar $tarfile $distrobase/src/kinsol/kinsol_spils_impl.h
-$tar $tarfile $distrobase/src/kinsol/kinsol_direct_impl.h
-$tar $tarfile $distrobase/src/kinsol/kinsol_bbdpre_impl.h
-$tar $tarfile $distrobase/src/kinsol/kinsol_sparse.c
-$tar $tarfile $distrobase/src/kinsol/kinsol_sparse_impl.h
 
 echo "   --- Add fkinsol module to $tarfile"
 
 $tar $tarfile $distrobase/src/kinsol/fcmix/CMakeLists.txt
 
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinsol.c
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkindense.c
 $tar $tarfile $distrobase/src/kinsol/fcmix/fkinband.c
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinlapack.c
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinlapdense.c
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinlapband.c
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinsparse.c
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinklu.c
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinsuperlumt.c
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinpreco.c
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinjtimes.c
 $tar $tarfile $distrobase/src/kinsol/fcmix/fkinbbd.c
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinsol.h
 $tar $tarfile $distrobase/src/kinsol/fcmix/fkinbbd.h
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkindense.c
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinjtimes.c
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinpreco.c
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinsol.c
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinsol.h
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinsparse.c
 
 echo "   --- Add kinsol examples to $tarfile"
 
