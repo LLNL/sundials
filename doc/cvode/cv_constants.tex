@@ -104,6 +104,19 @@ description of their meaning.
 \id{CVDLS\_SUNMAT\_FAIL}     & -7 & An error occurred with the current {\sunmatrix} module. \\
 
 \\\hline
+\multicolumn{3}{c}{\bf {\cvdiag} linear solver module}\\
+\hline\\
+
+\id{CVDIAG\_SUCCESS}      &  0 & Successful function return. \\
+\id{CVDIAG\_MEM\_NULL}    & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
+\id{CVDIAG\_LMEM\_NULL}   & -2 & The {\cvdiag} linear solver has not been initialized.\\
+\id{CVDIAG\_ILL\_INPUT}   & -3 & The {\cvdiag} solver is not compatible with the current {\nvector} module.\\
+\id{CVDIAG\_MEM\_FAIL}    & -4 & A memory allocation request failed.\\
+\id{CVDIAG\_INV\_FAIL}    & -5 & A diagonal element of the Jacobian was 0. \\
+\id{CVDIAG\_RHSFUNC\_UNRECVR} & -6 & The right-hand side function failed in an unrecoverable manner. \\
+\id{CVDIAG\_RHSFUNC\_RECVR}   & -7 & The right-hand side function had a recoverable error. \\
+
+\\\hline
 \multicolumn{3}{c}{\bf {\cvspils} linear solver modules}\\
 \hline\\
 
