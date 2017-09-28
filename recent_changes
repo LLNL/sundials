@@ -52,7 +52,6 @@ https://software.llnl.gov/RAJA/.
 within all SUNDIALS structures
  - Sunindextype is int64_t or int32_t or long long int and int depending on 
    machine support for portable types
- - Fortran interfaces only support long int
  - Includes interfaces to PETSc, hypre, SuperLU_MT, and KLU with 
    either 64-bit or 32-bit capabilities depending how the user configures 
    SUNDIALS
