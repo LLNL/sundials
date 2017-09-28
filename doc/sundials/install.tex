@@ -399,7 +399,7 @@ a typical configuration on a Linux system and are provided as illustration only.
   \\
   Default: ON
   \\
-  Note: This option is triggered when building any of the {\sundials}
+  Note: This option is triggered when any of the {\sundials}
   example programs are enabled \\
   (\id{EXAMPLES\_ENABLE\_$<$language$>$} is ON). If the user requires
   installation of example programs then the sources and sample output files
@@ -452,7 +452,7 @@ a typical configuration on a Linux system and are provided as illustration only.
   options. See additional information on building with LAPACK enabled
   in \ref{ss:externallibs}.
 \item[\id{LAPACK\_LIBRARIES}] - 
-  LAPACK (and BLAS) library
+  LAPACK (and BLAS) libraries
   \\
   Default: /usr/lib/liblapack.so;/usr/lib/libblas.so
   \\
@@ -563,13 +563,13 @@ policies (see {\tt https://xsdk.info} for more information). xSDK
 CMake options are unused by default but may be activated by setting
 \id{USE\_XSDK\_DEFAULTS} to ON.
 
-{\warn} When xSDK options are active, they will overwrite the the
+{\warn} When xSDK options are active, they will overwrite the
 corresponding {\sundials} option and may have different default values
 (see details below). As such the equivalent {\sundials} options should
 not be used when configuring with xSDK options. In the GUI front end
 to CMake (\id{ccmake}), setting \id{USE\_XSDK\_DEFAULTS} to ON will
-make the corresponding {\sundials} options advanced variables that are
-hidden by default. During configuration, messages are output detailing
+hide the corresponding {\sundials} options as advanced CMake variables.
+During configuration, messages are output detailing
 which xSDK flags are active and the equivalent {\sundials} options
 that are replaced. Below is a complete list xSDK options and the
 corresponding {\sundials} options if applicable.
@@ -637,7 +637,7 @@ corresponding {\sundials} options if applicable.
   \\
   {\sundials} equivalent: N/A
 \item[\id{TPL\_LAPACK\_LIBRARIES}] - 
-  LAPACK (and BLAS) library
+  LAPACK (and BLAS) libraries
   \\
   Default: /usr/lib/liblapack.so;/usr/lib/libblas.so
   \\
@@ -741,7 +741,7 @@ when developing solutions. The following are some notes addressing specific conf
 when using the supported third party libraries.
 
 \subsubsection*{Building with BLAS}
-{\sundials} does not utilize BLAS directly but it may be need by other
+{\sundials} does not utilize BLAS directly but it may be needed by other
 external libraries that {\sundials} can be build with (e.g. LAPACK,
 PETSc, SuperLU\_MT, etc.). To enable BLAS, set the \id{BLAS\_ENABLE}
 option to \id{ON}. If the directory containing the BLAS library is in
