@@ -10,57 +10,36 @@ tar=$*
 echo "   --- Add cvodes module to $tarfile"
 
 if [ $doc = "T" ]; then
-#$tar $tarfile $distrobase/doc/cvodes/cvs_guide.ps
 $tar $tarfile $distrobase/doc/cvodes/cvs_guide.pdf
-#$tar $tarfile $distrobase/doc/cvodes/cvs_examples.ps
 $tar $tarfile $distrobase/doc/cvodes/cvs_examples.pdf
 fi
 
 $tar $tarfile $distrobase/include/cvodes/cvodes.h
-$tar $tarfile $distrobase/include/cvodes/cvodes_direct.h
-$tar $tarfile $distrobase/include/cvodes/cvodes_dense.h
-$tar $tarfile $distrobase/include/cvodes/cvodes_band.h
-$tar $tarfile $distrobase/include/cvodes/cvodes_klu.h
-$tar $tarfile $distrobase/include/cvodes/cvodes_lapack.h
-$tar $tarfile $distrobase/include/cvodes/cvodes_diag.h
-$tar $tarfile $distrobase/include/cvodes/cvodes_spgmr.h
-$tar $tarfile $distrobase/include/cvodes/cvodes_spbcgs.h
-$tar $tarfile $distrobase/include/cvodes/cvodes_sptfqmr.h
-$tar $tarfile $distrobase/include/cvodes/cvodes_spils.h
-$tar $tarfile $distrobase/include/cvodes/cvodes_sparse.h
-$tar $tarfile $distrobase/include/cvodes/cvodes_superlumt.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_bandpre.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_bbdpre.h
+$tar $tarfile $distrobase/include/cvodes/cvodes_diag.h
+$tar $tarfile $distrobase/include/cvodes/cvodes_direct.h
+$tar $tarfile $distrobase/include/cvodes/cvodes_spils.h
 
 $tar $tarfile $distrobase/src/cvodes/LICENSE
 $tar $tarfile $distrobase/src/cvodes/README
 $tar $tarfile $distrobase/src/cvodes/CMakeLists.txt
 
-$tar $tarfile $distrobase/src/cvodes/cvodes.c
 $tar $tarfile $distrobase/src/cvodes/cvodea.c
-$tar $tarfile $distrobase/src/cvodes/cvodes_io.c
-$tar $tarfile $distrobase/src/cvodes/cvodes_klu.c
 $tar $tarfile $distrobase/src/cvodes/cvodea_io.c
-$tar $tarfile $distrobase/src/cvodes/cvodes_direct.c
-$tar $tarfile $distrobase/src/cvodes/cvodes_dense.c
-$tar $tarfile $distrobase/src/cvodes/cvodes_band.c
-$tar $tarfile $distrobase/src/cvodes/cvodes_lapack.c
-$tar $tarfile $distrobase/src/cvodes/cvodes_diag.c
-$tar $tarfile $distrobase/src/cvodes/cvodes_spils.c
-$tar $tarfile $distrobase/src/cvodes/cvodes_sparse.c
-$tar $tarfile $distrobase/src/cvodes/cvodes_spgmr.c
-$tar $tarfile $distrobase/src/cvodes/cvodes_spbcgs.c
-$tar $tarfile $distrobase/src/cvodes/cvodes_sptfqmr.c
-$tar $tarfile $distrobase/src/cvodes/cvodes_superlumt.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_bandpre.c
-$tar $tarfile $distrobase/src/cvodes/cvodes_bbdpre.c
-$tar $tarfile $distrobase/src/cvodes/cvodes_impl.h
-$tar $tarfile $distrobase/src/cvodes/cvodes_direct_impl.h
-$tar $tarfile $distrobase/src/cvodes/cvodes_diag_impl.h
-$tar $tarfile $distrobase/src/cvodes/cvodes_spils_impl.h
-$tar $tarfile $distrobase/src/cvodes/cvodes_sparse_impl.h
 $tar $tarfile $distrobase/src/cvodes/cvodes_bandpre_impl.h
+$tar $tarfile $distrobase/src/cvodes/cvodes_bbdpre.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_bbdpre_impl.h
+$tar $tarfile $distrobase/src/cvodes/cvodes.c
+$tar $tarfile $distrobase/src/cvodes/cvodes_diag.c
+$tar $tarfile $distrobase/src/cvodes/cvodes_diag_impl.h
+$tar $tarfile $distrobase/src/cvodes/cvodes_direct.c
+$tar $tarfile $distrobase/src/cvodes/cvodes_direct_impl.h
+$tar $tarfile $distrobase/src/cvodes/cvodes_impl.h
+$tar $tarfile $distrobase/src/cvodes/cvodes_io.c
+$tar $tarfile $distrobase/src/cvodes/cvodes_spils.c
+$tar $tarfile $distrobase/src/cvodes/cvodes_spils_impl.h
 
 echo "   --- Add cvodes examples to $tarfile"
 
