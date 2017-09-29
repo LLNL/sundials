@@ -59,7 +59,7 @@ FOREACH(example ${nvector_cuda_examples})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CUDA_LIBRARIES})
 
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c ../test_nvector.c ../test_nvector.h ../../../src/sundials/sundials_nvector.c DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/cuda)
+    INSTALL(FILES ${example}.cu ../test_nvector.c ../test_nvector.h ../../../src/sundials/sundials_nvector.c DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/cuda)
   ENDIF(EXAMPLES_INSTALL)
 ENDFOREACH(example ${nvector_cuda_examples})
 
