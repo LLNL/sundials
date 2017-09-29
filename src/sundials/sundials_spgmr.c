@@ -218,7 +218,7 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
   /* Apply left preconditioner and left scaling to V[0] = r_0. */
   
   if (preOnLeft) {
-    ier = psolve(P_data, V[0], vtemp, PREC_LEFT);
+    ier = psolve(P_data, V[0], vtemp, delta, PREC_LEFT);
     (*nps)++;
     if (ier != 0)
       return((ier < 0) ? SPGMR_PSOLVE_FAIL_UNREC : SPGMR_PSOLVE_FAIL_REC);
@@ -282,7 +282,7 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
 
       if (preOnRight) {
         N_VScale(ONE, vtemp, V[l_plus_1]);
-        ier = psolve(P_data, V[l_plus_1], vtemp, PREC_RIGHT);
+        ier = psolve(P_data, V[l_plus_1], vtemp, delta, PREC_RIGHT);
         (*nps)++;
         if (ier != 0)
           return((ier < 0) ? SPGMR_PSOLVE_FAIL_UNREC : SPGMR_PSOLVE_FAIL_REC);
@@ -297,7 +297,7 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
       /* Apply left preconditioning: vtemp = P1_inv A P2_inv s2_inv V[l]. */
 
       if (preOnLeft) {
-        ier = psolve(P_data, V[l_plus_1], vtemp, PREC_LEFT);
+        ier = psolve(P_data, V[l_plus_1], vtemp, delta, PREC_LEFT);
         (*nps)++;
         if (ier != 0)
           return((ier < 0) ? SPGMR_PSOLVE_FAIL_UNREC : SPGMR_PSOLVE_FAIL_REC);
@@ -363,7 +363,7 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
       
       if (scale2) N_VDiv(xcor, s2, xcor);
       if (preOnRight) {
-        ier = psolve(P_data, xcor, vtemp, PREC_RIGHT);
+        ier = psolve(P_data, xcor, vtemp, delta, PREC_RIGHT);
         (*nps)++;
         if (ier != 0)
           return((ier < 0) ? SPGMR_PSOLVE_FAIL_UNREC : SPGMR_PSOLVE_FAIL_REC);
@@ -414,7 +414,7 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
     
     if (scale2) N_VDiv(xcor, s2, xcor);
     if (preOnRight) {
-      ier = psolve(P_data, xcor, vtemp, PREC_RIGHT);
+      ier = psolve(P_data, xcor, vtemp, delta, PREC_RIGHT);
       (*nps)++;
       if (ier != 0)
         return((ier < 0) ? SPGMR_PSOLVE_FAIL_UNREC : SPGMR_PSOLVE_FAIL_REC);

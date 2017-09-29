@@ -43,13 +43,6 @@
 
 /* 
  * -----------------------------------------------------------------
- * Readibility Constants
- * -----------------------------------------------------------------
- */
-#define nbckpbs        (IDAADJ_mem->ia_nbckpbs)
-
-/* 
- * -----------------------------------------------------------------
  * Optional input functions for ASA
  * -----------------------------------------------------------------
  */
@@ -107,7 +100,7 @@ int IDASetUserDataB(void *ida_mem, int which, void *user_dataB)
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Check the value of which */
-  if ( which >= nbckpbs ) {
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASetUserDataB", MSGAM_BAD_WHICH);
     return(IDA_ILL_INPUT);
   }
@@ -148,7 +141,7 @@ int IDASetMaxOrdB(void *ida_mem, int which, int maxordB)
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Check the value of which */
-  if ( which >= nbckpbs ) {
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASetMaxOrdB", MSGAM_BAD_WHICH);
     return(IDA_ILL_INPUT);
   }
@@ -187,7 +180,7 @@ int IDASetMaxNumStepsB(void *ida_mem, int which, long int mxstepsB)
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Check the value of which */
-  if ( which >= nbckpbs ) {
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASetMaxNumStepsB", MSGAM_BAD_WHICH);
     return(IDA_ILL_INPUT);
   }
@@ -226,7 +219,7 @@ int IDASetInitStepB(void *ida_mem, int which, realtype hinB)
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Check the value of which */
-  if ( which >= nbckpbs ) {
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASetInitStepB", MSGAM_BAD_WHICH);
     return(IDA_ILL_INPUT);
   }
@@ -265,7 +258,7 @@ int IDASetMaxStepB(void *ida_mem, int which, realtype hmaxB)
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Check the value of which */
-  if ( which >= nbckpbs ) {
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASetMaxStepB", MSGAM_BAD_WHICH);
     return(IDA_ILL_INPUT);
   }
@@ -304,7 +297,7 @@ int IDASetSuppressAlgB(void *ida_mem, int which,  booleantype suppressalgB)
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Check the value of which */
-  if ( which >= nbckpbs ) {
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASetSuppressAlgB", MSGAM_BAD_WHICH);
     return(IDA_ILL_INPUT);
   }
@@ -343,7 +336,7 @@ int IDASetIdB(void *ida_mem, int which,  N_Vector idB)
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Check the value of which */
-  if ( which >= nbckpbs ) {
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASetIdB", MSGAM_BAD_WHICH);
     return(IDA_ILL_INPUT);
   }
@@ -382,7 +375,7 @@ int IDASetConstraintsB(void *ida_mem, int which,  N_Vector constraintsB)
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Check the value of which */
-  if ( which >= nbckpbs ) {
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASetConstraintsB", MSGAM_BAD_WHICH);
     return(IDA_ILL_INPUT);
   }
@@ -426,7 +419,7 @@ int IDASetQuadErrConB(void *ida_mem, int which, int errconQB)
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Check the value of which */
-  if ( which >= nbckpbs ) {
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASetQuadErrConB", MSGAM_BAD_WHICH);
     return(IDA_ILL_INPUT);
   }
@@ -481,7 +474,7 @@ SUNDIALS_EXPORT void *IDAGetAdjIDABmem(void *ida_mem, int which)
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Check the value of which */
-  if ( which >= nbckpbs ) {
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
     IDAProcessError(IDA_mem, 0, "IDAA", "IDAGetAdjIDABmem", MSGAM_BAD_WHICH);
     return(NULL);
   }
@@ -711,7 +704,7 @@ int IDAGetConsistentICB(void *ida_mem, int which, N_Vector yyB0_mod, N_Vector yp
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Check the value of which */
-  if ( which >= nbckpbs ) {
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDAGetConsistentICB", MSGAM_BAD_WHICH);
     return(IDA_ILL_INPUT);
   }

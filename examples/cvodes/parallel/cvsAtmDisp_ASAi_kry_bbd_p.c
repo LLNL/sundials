@@ -1,10 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
- * Programmer(s): Lukas Jager and Radu Serban @ LLNL
- *                Updated by Daniel R. Reynolds @ SMU
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *                Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Parallel Krylov adjoint sensitivity example problem.
  * -----------------------------------------------------------------
@@ -16,8 +13,9 @@
 #include <limits.h>
 
 #include <cvodes/cvodes.h>
-#include <cvodes/cvodes_spgmr.h> 
+#include <cvodes/cvodes_spils.h> 
 #include <cvodes/cvodes_bbdpre.h>
+#include <sunlinsol/sunlinsol_spgmr.h> 
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
@@ -215,6 +213,7 @@ int main(int argc, char *argv[])
   sunindextype neq, l_neq;
 
   void *cvode_mem;
+  SUNLinearSolver LS;
   N_Vector y, q;
   realtype abstol, reltol, abstolQ, reltolQ;
   sunindextype mudq, mldq, mukeep, mlkeep;
@@ -278,8 +277,9 @@ int main(int argc, char *argv[])
   reltol = RTOL;   
   flag = CVodeSStolerances(cvode_mem, reltol, abstol);
 
-  /* attach linear solver */
-  flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
+  /* create and attach linear solver */
+  LS = SUNSPGMR(y, PREC_LEFT, 0);
+  flag = CVSpilsSetLinearSolver(cvode_mem, LS);
   
   /* Attach preconditioner and linear solver modules */
   mudq = mldq = d->l_m[0]+1;
@@ -339,7 +339,7 @@ int main(int argc, char *argv[])
   flag = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
 
   /* Attach preconditioner and linear solver modules */
-  flag = CVSpgmrB(cvode_mem, indexB, PREC_LEFT, 0); 
+  flag = CVSpilsSetLinearSolverB(cvode_mem, indexB, LS);
   mudqB = mldqB = d->l_m[0]+1;
   mukeepB = mlkeepB = 2;  
   flag = CVBBDPrecInitB(cvode_mem, indexB, l_neq, mudqB, mldqB, 
@@ -382,6 +382,7 @@ int main(int argc, char *argv[])
   N_VDestroy_Parallel(yB);
 
   CVodeFree(&cvode_mem);
+  SUNLinSolFree(LS);
 
   MPI_Finalize();
 
@@ -1016,10 +1017,10 @@ static void PrintHeader()
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int lenrw, leniw ;
-  long int lenrwSPGMR, leniwSPGMR;
+  long int lenrw, leniw;
+  long int lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
-  long int nli, npe, nps, ncfl, nfeSPGMR;
+  long int nli, npe, nps, ncfl, nfeLS;
   int flag;
 
   flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
@@ -1030,18 +1031,18 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
 
-  flag = CVSpilsGetWorkSpace(cvode_mem, &lenrwSPGMR, &leniwSPGMR);
+  flag = CVSpilsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
   flag = CVSpilsGetNumLinIters(cvode_mem, &nli);
   flag = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
   flag = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
   flag = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
-  flag = CVSpilsGetNumRhsEvals(cvode_mem, &nfeSPGMR);
+  flag = CVSpilsGetNumRhsEvals(cvode_mem, &nfeLS);
 
   printf("\nFinal Statistics.. \n\n");
-  printf("lenrw   = %6ld     leniw = %6ld\n", lenrw,      leniw);
-  printf("llrw    = %6ld     lliw  = %6ld\n", lenrwSPGMR, leniwSPGMR);
+  printf("lenrw   = %6ld     leniw = %6ld\n", lenrw, leniw);
+  printf("llrw    = %6ld     lliw  = %6ld\n", lenrwLS, leniwLS);
   printf("nst     = %6ld\n"                  , nst);
-  printf("nfe     = %6ld     nfel  = %6ld\n"  , nfe, nfeSPGMR);
+  printf("nfe     = %6ld     nfel  = %6ld\n"  , nfe, nfeLS);
   printf("nni     = %6ld     nli   = %6ld\n"  , nni, nli);
   printf("nsetups = %6ld     netf  = %6ld\n"  , nsetups, netf);
   printf("npe     = %6ld     nps   = %6ld\n"  , npe, nps);

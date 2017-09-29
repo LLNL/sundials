@@ -59,7 +59,7 @@ At top right:    c1, c2 =    3.334e-07    4.163e+11
 Final Statistics: 
 
 lenrw   =  3058     leniw   =   160
-lenrwls =  2046     leniwls =    80
+lenrwls =  2450     leniwls =   106
 nst     =  7432     nfe     =     0
 nfe     = 78033     nfels   = 83813
 nni     = 40719     nli     = 83813
@@ -67,7 +67,7 @@ nsetups =   450     netf    =    30
 npe     =   125     nps     = 122360
 ncfn    =     0     ncfl    =     0
 
-In ARKBBDPRE: real/integer local work space sizes = 600, 50
+In ARKBBDPRE: real/integer local work space sizes = 1300, 192
              no. flocal evals. = 2750
 
 
@@ -128,7 +128,7 @@ At top right:    c1, c2 =    1.656e-25    4.163e+11
 Final Statistics: 
 
 lenrw   =  3058     leniw   =   160
-lenrwls =  2046     leniwls =    80
+lenrwls =  2450     leniwls =   106
 nst     =  7430     nfe     =     0
 nfe     = 78034     nfels   = 101865
 nni     = 40725     nli     = 101865
@@ -136,5 +136,5 @@ nsetups =   451     netf    =    31
 npe     =   125     nps     = 139198
 ncfn    =     0     ncfl    =     0
 
-In ARKBBDPRE: real/integer local work space sizes = 600, 50
+In ARKBBDPRE: real/integer local work space sizes = 1300, 192
              no. flocal evals. = 2750

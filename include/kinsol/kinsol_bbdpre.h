@@ -1,24 +1,26 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *                Alan Hindmarsh, Radu Serban, and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
- * Programmer(s): Alan Hindmarsh, Radu Serban, and Aaron Collier @ LLNL
- * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2017, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
  * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
  * All rights reserved.
  * For details, see the LICENSE file.
- * LLNS Copyright End
+ * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
  * This is the header file for the KINBBDPRE module, for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
- * matrix with banded blocks, for use with KINSol, KINSp*,
- * and the parallel implementaion of the NVECTOR module.
+ * matrix with banded blocks, for use with the KINSPILS interface,
+ * and the MPI-parallel implementaion of the NVECTOR module.
  *
  * Summary:
  *
@@ -44,22 +46,32 @@
  *   ...
  *   MPI_Init(&argc,&argv);
  *   ...
+ *   void *kin_mem;
+ *   ...
  *   tmpl = N_VNew_Parallel(...);
  *   ...
  *   kin_mem = KINCreate();
  *   flag = KINInit(kin_mem,...,tmpl);
  *   ...
- *   flag = KINSptfqmr(kin_mem,...);
- *         -or-
- *   flag = KINSpbcg(kin_mem,...);
- *         -or-
- *   flag = KINSpgmr(kin_mem,...);
+ *   SUNLinearSolver LS = SUNSPBCGS(tmpl, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNSPFGMR(tmpl, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNSPGMR(tmpl, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNSPTFQMR(tmpl, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNPCG(tmpl, pretype, maxl);
+ *   ...
+ *   ier = KINSpilsSetLinearSolver(cvode_mem, LS);
  *   ...
  *   flag = KINBBDPrecInit(kin_mem,...);
  *   ...
  *   KINSol(kin_mem,...);
  *   ...
  *   KINFree(&kin_mem);
+ *   ...
+ *   SUNLinSolFree(LS);
  *   ...
  *   N_VDestroy_Parallel(tmpl);
  *   ...
@@ -141,7 +153,8 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef int (*KINCommFn)(sunindextype Nlocal, N_Vector u, void *user_data);
+typedef int (*KINCommFn)(sunindextype Nlocal, N_Vector u,
+                         void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -213,8 +226,10 @@ typedef int (*KINLocalFn)(sunindextype Nlocal, N_Vector uu,
  */
 
 SUNDIALS_EXPORT int KINBBDPrecInit(void *kinmem, sunindextype Nlocal, 
-                                   sunindextype mudq, sunindextype mldq,
-                                   sunindextype mukeep, sunindextype mlkeep,
+                                   sunindextype mudq,
+                                   sunindextype mldq,
+                                   sunindextype mukeep,
+                                   sunindextype mlkeep,
                                    realtype dq_rel_uu, 
                                    KINLocalFn gloc, KINCommFn gcomm);
 
@@ -228,8 +243,11 @@ SUNDIALS_EXPORT int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINBBDPrecGetWorkSpace(void *kinmem, long int *lenrwBBDP, long int *leniwBBDP);
-SUNDIALS_EXPORT int KINBBDPrecGetNumGfnEvals(void *kinmem, long int *ngevalsBBDP);
+SUNDIALS_EXPORT int KINBBDPrecGetWorkSpace(void *kinmem,
+                                           long int *lenrwBBDP,
+                                           long int *leniwBBDP);
+SUNDIALS_EXPORT int KINBBDPrecGetNumGfnEvals(void *kinmem,
+                                             long int *ngevalsBBDP);
 
 #ifdef __cplusplus
 }

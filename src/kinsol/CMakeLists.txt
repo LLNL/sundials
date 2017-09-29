@@ -1,18 +1,20 @@
 # ---------------------------------------------------------------
-# $Revision$
-# $Date$
+# Programmer(s):  Daniel R. Reynolds @ SMU
+#                 Radu Serban @ LLNL
 # ---------------------------------------------------------------
-# Programmer:  Radu Serban @ LLNL
-# ---------------------------------------------------------------
-# LLNS Copyright Start
-# Copyright (c) 2014, Lawrence Livermore National Security
+# LLNS/SMU Copyright Start
+# Copyright (c) 2017, Southern Methodist University and 
+# Lawrence Livermore National Security
+#
 # This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
-# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-# Produced at the Lawrence Livermore National Laboratory.
+# of Energy by Southern Methodist University and Lawrence Livermore 
+# National Laboratory under Contract DE-AC52-07NA27344.
+# Produced at Southern Methodist University and the Lawrence 
+# Livermore National Laboratory.
+#
 # All rights reserved.
 # For details, see the LICENSE file.
-# LLNS Copyright End
+# LLNS/SMU Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the KINSOL library
 
@@ -23,96 +25,73 @@ SET(kinsol_SOURCES
   kinsol.c
   kinsol_io.c
   kinsol_direct.c
-  kinsol_band.c
-  kinsol_dense.c
-  kinsol_sparse.c
   kinsol_spils.c
-  kinsol_spbcgs.c
-  kinsol_spfgmr.c
-  kinsol_spgmr.c
-  kinsol_sptfqmr.c
   kinsol_bbdpre.c
   )
-
-IF(KLU_FOUND)
-    LIST(APPEND kinsol_SOURCES kinsol_klu.c)
-ENDIF()
-
-IF(SUPERLUMT_FOUND)
-    LIST(APPEND kinsol_SOURCES kinsol_superlumt.c)
-ENDIF()
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the KINSOL library
 SET(shared_SOURCES
-  sundials_nvector.c
-  sundials_math.c
-  sundials_direct.c
-  sundials_band.c
-  sundials_dense.c
-  sundials_iterative.c
-  sundials_sparse.c
-  sundials_spbcgs.c
-  sundials_spfgmr.c
-  sundials_spgmr.c
-  sundials_sptfqmr.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_matrix.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_band.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_dense.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_direct.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_iterative.c
+  ${sundials_SOURCE_DIR}/src/nvec_ser/nvector_serial.c
   )
 
-# Add prefix with complete path to the common SUNDIALS sources
-ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
+# Add variable sunmatrix_SOURCES with the common SUNMatrix sources which will
+# also be included in the KINSOL library
+SET(sunmatrix_SOURCES
+  ${sundials_SOURCE_DIR}/src/sunmat_band/sunmatrix_band.c
+  ${sundials_SOURCE_DIR}/src/sunmat_dense/sunmatrix_dense.c
+  ${sundials_SOURCE_DIR}/src/sunmat_sparse/sunmatrix_sparse.c
+  )
+
+# Add variable sunlinsol_SOURCES with the common SUNLinearSolver sources which will
+# also be included in the KINSOL library
+SET(sunlinsol_SOURCES
+  ${sundials_SOURCE_DIR}/src/sunlinsol_band/sunlinsol_band.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_dense/sunlinsol_dense.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_spbcgs/sunlinsol_spbcgs.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_spfgmr/sunlinsol_spfgmr.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_spgmr/sunlinsol_spgmr.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_sptfqmr/sunlinsol_sptfqmr.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_pcg/sunlinsol_pcg.c
+  )
+
+IF(KLU_FOUND)
+  LIST(APPEND sunlinsol_SOURCES
+    ${sundials_SOURCE_DIR}/src/sunlinsol_klu/sunlinsol_klu.c
+    )
+ENDIF()
+
+IF(SUPERLUMT_FOUND)
+  LIST(APPEND sunlinsol_SOURCES
+    ${sundials_SOURCE_DIR}/src/sunlinsol_superlumt/sunlinsol_superlumt.c
+    )
+ENDIF()
+
+IF(LAPACK_FOUND)
+  LIST(APPEND sunlinsol_SOURCES
+    ${sundials_SOURCE_DIR}/src/sunlinsol_lapackband/sunlinsol_lapackband.c
+    ${sundials_SOURCE_DIR}/src/sunlinsol_lapackdense/sunlinsol_lapackdense.c
+    )
+ENDIF()
 
 # Add variable kinsol_HEADERS with the exported KINSOL header files
 SET(kinsol_HEADERS
-  kinsol_band.h
   kinsol_bbdpre.h
-  kinsol_dense.h
   kinsol_direct.h
   kinsol.h
-  kinsol_spbcgs.h
-  kinsol_spfgmr.h
-  kinsol_spgmr.h
   kinsol_spils.h
-  kinsol_sptfqmr.h
   )
-
-IF(KLU_FOUND)
-    LIST(APPEND kinsol_HEADERS kinsol_klu.h kinsol_sparse.h)
-ENDIF()
-
-IF(SUPERLUMT_FOUND)
-    LIST(APPEND kinsol_HEADERS kinsol_superlumt.h kinsol_sparse.h)
-ENDIF()
 
 # Add prefix with complete path to the KINSOL header files
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/kinsol/ kinsol_HEADERS)
-
-# If Blas/Lapack support was enabled, set-up additional file lists
-IF(LAPACK_FOUND)
-  SET(kinsol_BL_SOURCES kinsol_lapack.c)
-  SET(kinsol_BL_HEADERS kinsol_lapack.h)
-  ADD_PREFIX(${sundials_SOURCE_DIR}/include/kinsol/ kinsol_BL_HEADERS)
-ELSE(LAPACK_FOUND)
-  SET(kinsol_BL_SOURCES "")
-  SET(kinsol_BL_HEADERS "")
-ENDIF(LAPACK_FOUND)
-
-IF(SUPERLUMT_FOUND)
-  SET(kinsol_SLU_SOURCES kinsol_superlumt.c)
-  SET(kinsol_SLU_HEADERS kinsol_superlumt.h)
-  ADD_PREFIX(${sundials_SOURCE_DIR}/include/kinsol/ kinsol_SLU_HEADERS)
-ELSE(SUPERLUMT_FOUND)
-  SET(kinsol_SLU_SOURCES "")
-  SET(kinsol_SLU_HEADERS "")
-ENDIF(SUPERLUMT_FOUND)
-
-IF(KLU_FOUND)
-  SET(kinsol_KLU_SOURCES kinsol_klu.c)
-  SET(kinsol_KLU_HEADERS kinsol_klu.h)
-  ADD_PREFIX(${sundials_SOURCE_DIR}/include/kinsol/ kinsol_KLU_HEADERS)
-ELSE(KLU_FOUND)
-  SET(kinsol_KLU_SOURCES "")
-  SET(kinsol_KLU_HEADERS "")
-ENDIF(KLU_FOUND)
 
 # Add source directories to include directories for access to
 # implementation only header files.
@@ -127,7 +106,7 @@ IF(BUILD_STATIC_LIBS)
 
   # Add the build target for the static KINSOL library
   ADD_LIBRARY(sundials_kinsol_static STATIC
-    ${kinsol_SOURCES} ${kinsol_BL_SOURCES} ${kinsol_SLU_SOURCES} ${kinsol_KLU_SOURCES} ${shared_SOURCES})
+    ${kinsol_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_kinsol_static
@@ -143,7 +122,7 @@ IF(BUILD_SHARED_LIBS)
 
   # Add the build target for the KINSOL library
   ADD_LIBRARY(sundials_kinsol_shared SHARED
-    ${kinsol_SOURCES} ${kinsol_BL_SOURCES} ${kinsol_SLU_SOURCES} ${kinsol_KLU_SOURCES} ${shared_SOURCES})
+    ${kinsol_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_kinsol_shared
@@ -159,7 +138,7 @@ IF(BUILD_SHARED_LIBS)
 ENDIF(BUILD_SHARED_LIBS)
 
 # Install the KINSOL header files
-INSTALL(FILES ${kinsol_HEADERS} ${kinsol_BL_HEADERS} ${kinsol_SLU_HEADERS} ${kinsol_KLU_HEADERS} DESTINATION include/kinsol)
+INSTALL(FILES ${kinsol_HEADERS} DESTINATION include/kinsol)
 
 # Install the KINSOL implementation header file
 INSTALL(FILES kinsol_impl.h DESTINATION include/kinsol)

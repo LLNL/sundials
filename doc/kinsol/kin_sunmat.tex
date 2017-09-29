@@ -1,0 +1,48 @@
+%===================================================================================
+\chapter{Description of the SUNMatrix module}\label{s:sunmatrix}
+%===================================================================================
+\index{SUNMatrix@\texttt{SUNMatrix} module}
+\input{sunmatrix_generic}
+
+
+%---------------------------------------------------------------------------
+\section{SUNMatrix functions used by KINSOL}
+
+In Table \ref{t:sunmatuse} below, we list the matrix functions in the 
+{\sunmatrix} module used within the {\kinsol} package.
+The table also shows, for each function, which of the code modules uses
+the function. Neither the main {\kinsol} integrator or the {\kinspils}
+interface call {\sunmatrix} functions directly, so the table columns
+are specific to the {\kindls} direct solver interface and the
+{\kinbbdpre} preconditioner module.
+
+At this point, we should emphasize that the {\kinsol} user does not need
+to know anything about the usage of matrix functions by the {\kinsol}
+code modules in order to use {\kinsol}. The information is presented as
+an implementation detail for the interested reader.
+
+\begin{table}[htb]
+\centering
+\caption{List of matrix functions usage by {\kinsol} code modules}\label{t:sunmatuse}
+\medskip
+\begin{tabular}{|r|c|c|} \hline
+                                             & 
+\begin{sideways}{\kindls}      \end{sideways} & 
+\begin{sideways}{\kinbbdpre}   \end{sideways} \\ \hline\hline
+%                             DLS         BBD
+\id{SUNMatGetID}         &    \cm    &           \\ \hline
+\id{SUNMatDestroy}       &           &    \cm    \\ \hline
+\id{SUNMatZero}          &    \cm    &    \cm    \\ \hline
+\id{SUNMatSpace}         &           & $\dagger$ \\ \hline
+\end{tabular}
+\end{table}
+
+The matrix functions listed in Table \ref{t:sunmatops} with
+a $\dagger$ symbol are optionally used, in that these are only called
+if they are implemented in the {\sunmatrix} module that is being used
+(i.e.~their function pointers are non-\id{NULL}).  The matrix
+functions listed in Table \ref{t:sunmatops} that are {\em not} used by 
+{\kinsol} are: \id{SUNMatCopy}, \id{SUNMatClone}, \id{SUNMatScaleAdd},
+\id{SUNMatScaleAddI} and \id{SUNMatMatvec}. Therefore a user-supplied
+{\sunmatrix} module for {\kinsol} could omit these functions.
+

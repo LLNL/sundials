@@ -6,7 +6,7 @@
 Solution method: Modified Newton with band linear solver
 Problem size: 31 x 31 =  961
 
-Computed solution (||F|| = 1.37621e-12):
+Computed solution (||F|| = 1.3498e-12):
 
             0.03125  0.12500  0.21875  0.31250  0.40625  0.50000  0.59375  0.68750  0.78125  0.87500  0.96875  
 
@@ -29,4 +29,4 @@ nbcfails =      0    nbacktr =      0
 nje      =      1    nfeB    =     63 
 
 lenrw    =   4822    leniw   =     27 
-lenrwB   = 150877    leniwB  =    961 
+lenrwB   =      0    leniwB  =    966 

@@ -50,6 +50,7 @@ F77_LIBS    = @F77_LIBS@
 
 LINKFLAGS = -Wl,-rpath,@libdir@
 
+INCLUDES = -I${includedir}
 LIBRARIES = -l@SOLVER_FLIB@ -l@SOLVER_LIB@ -lsundials_fnvecpthreads -lsundials_nvecpthreads ${LIBS}
 LIBRARIES_BLAS   = @BLAS_LIBS@
 LIBRARIES_LAPACK = @LAPACK_LIBS@
@@ -66,14 +67,14 @@ OBJECTS = ${EXAMPLES:=.o}
 .SUFFIXES : .o .f
 
 .f.o :
-	${F77} ${FFLAGS} -c $<
+	${F77} ${FFLAGS} ${INCLUDES} -c $<
 
 # -----------------------------------------------------------------------------------------
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_LAPACK} ${LIBRARIES_BLAS} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC} ${LINKFLAGS}" ; \
-	  ${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_LAPACK} ${LIBRARIES_BLAS} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC} ${LINKFLAGS} ; \
+	  echo "${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_LAPACK} ${LIBRARIES_BLAS} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC} ${LINKFLAGS}" ; \
+	  ${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_LAPACK} ${LIBRARIES_BLAS} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC} ${LINKFLAGS} ; \
 	done
 
 clean:

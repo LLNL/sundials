@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, Carol Woodward,
  *                John Loffeld, and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -76,15 +73,6 @@
 #include "kinsol_impl.h"
 #include "kinsol_spils_impl.h"
 #include <sundials/sundials_math.h>
-
-/* 
- * =================================================================
- * MACRO DEFINITIONS
- * =================================================================
- */
-
-/* Macro: loop */
-#define loop for(;;)
 
 /* 
  * =================================================================
@@ -281,7 +269,6 @@ void *KINCreate(void)
   kin_mem->kin_eta_alpha        = TWO;        /* default for KIN_ETACHOICE2  */
   kin_mem->kin_eta_gamma        = POINT9;     /* default for KIN_ETACHOICE2  */
   kin_mem->kin_MallocDone       = FALSE;
-  kin_mem->kin_setupNonNull     = FALSE;
   kin_mem->kin_eval_omega       = TRUE;
   kin_mem->kin_omega            = ZERO;       /* default to using min/max    */
   kin_mem->kin_omega_min        = OMEGA_MIN;
@@ -299,10 +286,6 @@ void *KINCreate(void)
 
   return((void *) kin_mem);
 }
-
-#define errfp (kin_mem->kin_errfp)
-#define liw   (kin_mem->kin_liw)
-#define lrw   (kin_mem->kin_lrw)
 
 /*
  * Function : KINInit
@@ -380,89 +363,6 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
   return(KIN_SUCCESS);
 }
 
-/*
- * -----------------------------------------------------------------
- * Readability constants
- * -----------------------------------------------------------------
- */
-
-#define func             (kin_mem->kin_func)
-#define user_data        (kin_mem->kin_user_data)
-#define printfl          (kin_mem->kin_printfl)
-#define mxiter           (kin_mem->kin_mxiter)
-#define noInitSetup      (kin_mem->kin_noInitSetup)
-#define retry_nni        (kin_mem->kin_retry_nni)
-#define msbset           (kin_mem->kin_msbset)
-#define etaflag          (kin_mem->kin_etaflag)
-#define eta              (kin_mem->kin_eta)
-#define ealpha           (kin_mem->kin_eta_alpha)
-#define egamma           (kin_mem->kin_eta_gamma)
-#define noMinEps         (kin_mem->kin_noMinEps)
-#define mxnewtstep       (kin_mem->kin_mxnewtstep)
-#define mxnstepin        (kin_mem->kin_mxnstepin)
-#define mxnbcf           (kin_mem->kin_mxnbcf)
-#define relfunc          (kin_mem->kin_sqrt_relfunc)
-#define fnormtol         (kin_mem->kin_fnormtol)
-#define scsteptol        (kin_mem->kin_scsteptol)
-#define constraints      (kin_mem->kin_constraints)
-
-#define uround           (kin_mem->kin_uround)
-#define nni              (kin_mem->kin_nni)
-#define nfe              (kin_mem->kin_nfe)
-#define nbcf             (kin_mem->kin_nbcf)  
-#define nbktrk           (kin_mem->kin_nbktrk)
-#define ncscmx           (kin_mem->kin_ncscmx)
-#define stepl            (kin_mem->kin_stepl)
-#define stepmul          (kin_mem->kin_stepmul)
-#define sthrsh           (kin_mem->kin_sthrsh)
-#define linit            (kin_mem->kin_linit)
-#define lsetup           (kin_mem->kin_lsetup)
-#define lsolve           (kin_mem->kin_lsolve) 
-#define lfree            (kin_mem->kin_lfree)
-#define constraintsSet   (kin_mem->kin_constraintsSet) 
-#define jacCurrent       (kin_mem->kin_jacCurrent)          
-#define nnilset          (kin_mem->kin_nnilset)
-#define lmem             (kin_mem->kin_lmem)        
-#define inexact_ls       (kin_mem->kin_inexact_ls)
-#define setupNonNull     (kin_mem->kin_setupNonNull)
-#define fval             (kin_mem->kin_fval)      
-#define fnorm            (kin_mem->kin_fnorm)
-#define f1norm           (kin_mem->kin_f1norm)
-#define etaflag          (kin_mem->kin_etaflag)
-#define callForcingTerm  (kin_mem->kin_callForcingTerm)
-#define uu               (kin_mem->kin_uu)
-#define uscale           (kin_mem->kin_uscale)
-#define fscale           (kin_mem->kin_fscale)
-#define sJpnorm          (kin_mem->kin_sJpnorm)
-#define sFdotJp          (kin_mem->kin_sFdotJp)
-#define unew             (kin_mem->kin_unew)
-#define pp               (kin_mem->kin_pp)
-#define vtemp1           (kin_mem->kin_vtemp1)
-#define vtemp2           (kin_mem->kin_vtemp2)
-#define eps              (kin_mem->kin_eps)
-#define liw1             (kin_mem->kin_liw1)
-#define lrw1             (kin_mem->kin_lrw1)
-
-#define noResMon         (kin_mem->kin_noResMon)
-#define fnorm_sub        (kin_mem->kin_fnorm_sub)
-#define msbset_sub       (kin_mem->kin_msbset_sub)
-#define nnilset_sub      (kin_mem->kin_nnilset_sub)
-#define update_fnorm_sub (kin_mem->kin_update_fnorm_sub)
-#define eval_omega       (kin_mem->kin_eval_omega)
-#define omega            (kin_mem->kin_omega)
-#define omega_min        (kin_mem->kin_omega_min)
-#define omega_max        (kin_mem->kin_omega_max)
-
-#define fold             (kin_mem->kin_fold_aa)
-#define gold             (kin_mem->kin_gold_aa)
-#define df               (kin_mem->kin_df_aa)
-#define dg               (kin_mem->kin_dg_aa)
-#define Q                (kin_mem->kin_q_aa)
-#define maa              (kin_mem->kin_m_aa)
-#define aamem            (kin_mem->kin_aamem_aa)
-#define setstop          (kin_mem->kin_setstop_aa)
-#define strategy         (kin_mem->kin_globalstrategy)
-
 /* 
  * -----------------------------------------------------------------
  * Main solver function
@@ -523,16 +423,16 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
 
   /* load input arguments */
 
-  uu = u;
-  uscale = u_scale;
-  fscale = f_scale;
-  strategy = strategy_in;
+  kin_mem->kin_uu = u;
+  kin_mem->kin_uscale = u_scale;
+  kin_mem->kin_fscale = f_scale;
+  kin_mem->kin_globalstrategy = strategy_in;
 
   /* CSW:  
      Call fixed point solver if requested.  Note that this should probably
      be forked off to a FPSOL solver instead of kinsol in the future. */
-  if ( strategy == KIN_FP ) {
-    if (uu == NULL) {
+  if ( kin_mem->kin_globalstrategy == KIN_FP ) {
+    if (kin_mem->kin_uu == NULL) {
       KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSol", MSG_UU_NULL);
       return(KIN_ILL_INPUT);
     }
@@ -542,11 +442,11 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
       return(KIN_ILL_INPUT);
     }
 
-    if (printfl > 0)
-      KINPrintInfo(kin_mem, PRNT_TOL, "KINSOL", "KINSol", INFO_TOL, scsteptol, fnormtol);
+    if (kin_mem->kin_printfl > 0)
+      KINPrintInfo(kin_mem, PRNT_TOL, "KINSOL", "KINSol", INFO_TOL, kin_mem->kin_scsteptol, kin_mem->kin_fnormtol);
 
-    nfe = nnilset = nnilset_sub = nni = nbcf = nbktrk = 0;
-    ret = KINFP(kin_mem, &nni, kin_mem->kin_R_aa, kin_mem->kin_gamma_aa, &fmax);
+    kin_mem->kin_nfe = kin_mem->kin_nnilset = kin_mem->kin_nnilset_sub = kin_mem->kin_nni = kin_mem->kin_nbcf = kin_mem->kin_nbktrk = 0;
+    ret = KINFP(kin_mem, &(kin_mem->kin_nni), kin_mem->kin_R_aa, kin_mem->kin_gamma_aa, &fmax);
 
     switch(ret) {
     case KIN_SYSFUNC_FAIL:
@@ -564,53 +464,53 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
   ret = KINSolInit(kin_mem);
   if (ret != KIN_SUCCESS) return(ret);
 
-  ncscmx = 0;
+  kin_mem->kin_ncscmx = 0;
 
   /* Note: The following logic allows the choice of whether or not
      to force a call to the linear solver setup upon a given call to
      KINSol */
 
-  if (noInitSetup) sthrsh = ONE;
-  else             sthrsh = TWO;
+  if (kin_mem->kin_noInitSetup) kin_mem->kin_sthrsh = ONE;
+  else                          kin_mem->kin_sthrsh = TWO;
 
   /* if eps is to be bounded from below, set the bound */
 
-  if (inexact_ls && !noMinEps) epsmin = POINT01 * fnormtol;
+  if (kin_mem->kin_inexact_ls && !(kin_mem->kin_noMinEps)) epsmin = POINT01 * kin_mem->kin_fnormtol;
 
 
   /* if omega is zero at this point, make sure it will be evaluated
      at each iteration based on the provided min/max bounds and the
      current function norm. */
-  if (omega == ZERO) eval_omega = TRUE;
-  else               eval_omega = FALSE;
+  if (kin_mem->kin_omega == ZERO) kin_mem->kin_eval_omega = TRUE;
+  else               kin_mem->kin_eval_omega = FALSE;
  
 
   /* CSW:  
      Call fixed point solver for Picard method if requested.  
      Note that this should probably be forked off to a part of an 
      FPSOL solver instead of kinsol in the future. */
-  if ( strategy == KIN_PICARD ) {
+  if ( kin_mem->kin_globalstrategy == KIN_PICARD ) {
 
-    kin_mem->kin_gval = N_VClone(unew);
-    lrw += lrw1;
-    ret = KINPicardAA(kin_mem, &nni, kin_mem->kin_R_aa, kin_mem->kin_gamma_aa, &fmax);
+    kin_mem->kin_gval = N_VClone(kin_mem->kin_unew);
+    kin_mem->kin_lrw += kin_mem->kin_lrw1;
+    ret = KINPicardAA(kin_mem, &(kin_mem->kin_nni), kin_mem->kin_R_aa, kin_mem->kin_gamma_aa, &fmax);
 
     return(ret);
   }
 
 
-  loop{
+  for(;;){
 
-    retry_nni = FALSE;
+    kin_mem->kin_retry_nni = FALSE;
 
-    nni++;
+    kin_mem->kin_nni++;
 
     /* calculate the epsilon (stopping criteria for iterative linear solver)
        for this iteration based on eta from the routine KINForcingTerm */
 
-    if (inexact_ls) {
-      eps = (eta + uround) * fnorm;
-      if(!noMinEps) eps = SUNMAX(epsmin, eps);
+    if (kin_mem->kin_inexact_ls) {
+      kin_mem->kin_eps = (kin_mem->kin_eta + kin_mem->kin_uround) * kin_mem->kin_fnorm;
+      if(!(kin_mem->kin_noMinEps)) kin_mem->kin_eps = SUNMAX(epsmin, kin_mem->kin_eps);
     }
 
     repeat_nni:
@@ -619,7 +519,7 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
 
     sflag = 0;
 
-    if (strategy == KIN_NONE) {
+    if (kin_mem->kin_globalstrategy == KIN_NONE) {
 
       /* Full Newton Step*/
 
@@ -635,7 +535,7 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
         break;
       }
 
-    } else if (strategy == KIN_LINESEARCH) {
+    } else if (kin_mem->kin_globalstrategy == KIN_LINESEARCH) {
 
       /* Line Search */
 
@@ -652,48 +552,48 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
       }
 
       /* if too many beta condition failures, then stop iteration */
-      if (nbcf > mxnbcf) {
+      if (kin_mem->kin_nbcf > kin_mem->kin_mxnbcf) {
         ret = KIN_LINESEARCH_BCFAIL;
         break;
       }
 
     }
 
-    if ( (strategy != KIN_PICARD) && (strategy != KIN_FP) ) {
+    if ( (kin_mem->kin_globalstrategy != KIN_PICARD) && (kin_mem->kin_globalstrategy != KIN_FP) ) {
       
       /* evaluate eta by calling the forcing term routine */
-      if (callForcingTerm) KINForcingTerm(kin_mem, fnormp);
+      if (kin_mem->kin_callForcingTerm) KINForcingTerm(kin_mem, fnormp);
 
-      fnorm = fnormp;
+      kin_mem->kin_fnorm = fnormp;
 
       /* call KINStop to check if tolerances where met by this iteration */
       ret = KINStop(kin_mem, maxStepTaken, sflag); 
 
       if (ret == RETRY_ITERATION) {
-	retry_nni = TRUE;
+	kin_mem->kin_retry_nni = TRUE;
 	goto repeat_nni;
       }
     }
 
     /* update uu after the iteration */
-    N_VScale(ONE, unew, uu);
+    N_VScale(ONE, kin_mem->kin_unew, kin_mem->kin_uu);
 
-    f1norm = f1normp;
+    kin_mem->kin_f1norm = f1normp;
 
     /* print the current nni, fnorm, and nfe values if printfl > 0 */
 
-    if (printfl>0)
-      KINPrintInfo(kin_mem, PRNT_NNI, "KINSOL", "KINSol", INFO_NNI, nni, nfe, fnorm);
+    if (kin_mem->kin_printfl > 0)
+      KINPrintInfo(kin_mem, PRNT_NNI, "KINSOL", "KINSol", INFO_NNI, kin_mem->kin_nni, kin_mem->kin_nfe, kin_mem->kin_fnorm);
 
     if (ret != CONTINUE_ITERATIONS) break; 
 
-    fflush(errfp);
+    fflush(kin_mem->kin_errfp);
     
   }  /* end of loop; return */
 
 
 
-  if (printfl > 0)
+  if (kin_mem->kin_printfl > 0)
     KINPrintInfo(kin_mem, PRNT_RETVAL, "KINSOL", "KINSol", INFO_RETVAL, ret);
 
   switch(ret) {
@@ -755,7 +655,7 @@ void KINFree(void **kinmem)
 
   /* call lfree if non-NULL */
 
-  if (lfree != NULL) lfree(kin_mem);
+  if (kin_mem->kin_lfree != NULL) kin_mem->kin_lfree(kin_mem);
 
   free(*kinmem);
   *kinmem = NULL;
@@ -812,157 +712,157 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
   /* allocate unew, fval, pp, vtemp1 and vtemp2. */  
   /* allocate df, dg, q, for Anderson Acceleration, Broyden and EN */
  
-  unew = N_VClone(tmpl);
-  if (unew == NULL) return(FALSE);
+  kin_mem->kin_unew = N_VClone(tmpl);
+  if (kin_mem->kin_unew == NULL) return(FALSE);
 
-  fval = N_VClone(tmpl);
-  if (fval == NULL) {
-    N_VDestroy(unew);
+  kin_mem->kin_fval = N_VClone(tmpl);
+  if (kin_mem->kin_fval == NULL) {
+    N_VDestroy(kin_mem->kin_unew);
     return(FALSE);
   }
 
-  pp = N_VClone(tmpl);
-  if (pp == NULL) {
-    N_VDestroy(unew);
-    N_VDestroy(fval);
+  kin_mem->kin_pp = N_VClone(tmpl);
+  if (kin_mem->kin_pp == NULL) {
+    N_VDestroy(kin_mem->kin_unew);
+    N_VDestroy(kin_mem->kin_fval);
     return(FALSE);
   }
 
-  vtemp1 = N_VClone(tmpl);
-  if (vtemp1 == NULL) {
-    N_VDestroy(unew);
-    N_VDestroy(fval);
-    N_VDestroy(pp);
+  kin_mem->kin_vtemp1 = N_VClone(tmpl);
+  if (kin_mem->kin_vtemp1 == NULL) {
+    N_VDestroy(kin_mem->kin_unew);
+    N_VDestroy(kin_mem->kin_fval);
+    N_VDestroy(kin_mem->kin_pp);
     return(FALSE);
   }
 
-  vtemp2 = N_VClone(tmpl);
-  if (vtemp2 == NULL) {
-    N_VDestroy(unew);
-    N_VDestroy(fval);
-    N_VDestroy(pp);
-    N_VDestroy(vtemp1);
+  kin_mem->kin_vtemp2 = N_VClone(tmpl);
+  if (kin_mem->kin_vtemp2 == NULL) {
+    N_VDestroy(kin_mem->kin_unew);
+    N_VDestroy(kin_mem->kin_fval);
+    N_VDestroy(kin_mem->kin_pp);
+    N_VDestroy(kin_mem->kin_vtemp1);
     return(FALSE);
   }
 
   /* update solver workspace lengths */
 
-  liw += 5*liw1;
-  lrw += 5*lrw1;
+  kin_mem->kin_liw += 5*kin_mem->kin_liw1;
+  kin_mem->kin_lrw += 5*kin_mem->kin_lrw1;
 
-  if (maa) {
-    kin_mem->kin_R_aa = (realtype *) malloc((maa*maa) * sizeof(realtype));
+  if (kin_mem->kin_m_aa) {
+    kin_mem->kin_R_aa = (realtype *) malloc((kin_mem->kin_m_aa*kin_mem->kin_m_aa) * sizeof(realtype));
     if (kin_mem->kin_R_aa == NULL) {
       KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
-      N_VDestroy(unew);
-      N_VDestroy(fval);
-      N_VDestroy(pp);
-      N_VDestroy(vtemp1);
-      N_VDestroy(vtemp2);
+      N_VDestroy(kin_mem->kin_unew);
+      N_VDestroy(kin_mem->kin_fval);
+      N_VDestroy(kin_mem->kin_pp);
+      N_VDestroy(kin_mem->kin_vtemp1);
+      N_VDestroy(kin_mem->kin_vtemp2);
       return(KIN_MEM_FAIL);
     }
-    kin_mem->kin_gamma_aa = (realtype *)malloc(maa * sizeof(realtype));
+    kin_mem->kin_gamma_aa = (realtype *)malloc(kin_mem->kin_m_aa * sizeof(realtype));
     if (kin_mem->kin_gamma_aa == NULL) {
       KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
-      N_VDestroy(unew);
-      N_VDestroy(fval);
-      N_VDestroy(pp);
-      N_VDestroy(vtemp1);
-      N_VDestroy(vtemp2);
+      N_VDestroy(kin_mem->kin_unew);
+      N_VDestroy(kin_mem->kin_fval);
+      N_VDestroy(kin_mem->kin_pp);
+      N_VDestroy(kin_mem->kin_vtemp1);
+      N_VDestroy(kin_mem->kin_vtemp2);
       free(kin_mem->kin_R_aa);
       return(KIN_MEM_FAIL);
     }
-    kin_mem->kin_ipt_map = (int *)malloc(maa * sizeof(int));
+    kin_mem->kin_ipt_map = (int *)malloc(kin_mem->kin_m_aa * sizeof(int));
     if (kin_mem->kin_ipt_map == NULL) {
       KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
-      N_VDestroy(unew);
-      N_VDestroy(fval);
-      N_VDestroy(pp);
-      N_VDestroy(vtemp1);
-      N_VDestroy(vtemp2);
+      N_VDestroy(kin_mem->kin_unew);
+      N_VDestroy(kin_mem->kin_fval);
+      N_VDestroy(kin_mem->kin_pp);
+      N_VDestroy(kin_mem->kin_vtemp1);
+      N_VDestroy(kin_mem->kin_vtemp2);
       free(kin_mem->kin_R_aa);
       free(kin_mem->kin_gamma_aa);
       return(KIN_MEM_FAIL);
     }
   } 
 
-  if (maa) {
-    fold = N_VClone(tmpl);
-    if (fold == NULL) {
-      N_VDestroy(unew);
-      N_VDestroy(fval);
-      N_VDestroy(pp);
-      N_VDestroy(vtemp1);
-      N_VDestroy(vtemp2);
+  if (kin_mem->kin_m_aa) {
+    kin_mem->kin_fold_aa = N_VClone(tmpl);
+    if (kin_mem->kin_fold_aa == NULL) {
+      N_VDestroy(kin_mem->kin_unew);
+      N_VDestroy(kin_mem->kin_fval);
+      N_VDestroy(kin_mem->kin_pp);
+      N_VDestroy(kin_mem->kin_vtemp1);
+      N_VDestroy(kin_mem->kin_vtemp2);
       free(kin_mem->kin_R_aa);
       free(kin_mem->kin_gamma_aa);
       free(kin_mem->kin_ipt_map);
       return(FALSE);
     }
-    gold = N_VClone(tmpl);
-    if (gold == NULL) {
-      N_VDestroy(unew);
-      N_VDestroy(fval);
-      N_VDestroy(pp);
-      N_VDestroy(vtemp1);
-      N_VDestroy(vtemp2);
-      N_VDestroy(fold);
+    kin_mem->kin_gold_aa = N_VClone(tmpl);
+    if (kin_mem->kin_gold_aa == NULL) {
+      N_VDestroy(kin_mem->kin_unew);
+      N_VDestroy(kin_mem->kin_fval);
+      N_VDestroy(kin_mem->kin_pp);
+      N_VDestroy(kin_mem->kin_vtemp1);
+      N_VDestroy(kin_mem->kin_vtemp2);
+      N_VDestroy(kin_mem->kin_fold_aa);
       return(FALSE);
     }
-    df = N_VCloneVectorArray(maa,tmpl);
-    if (df == NULL) {
-      N_VDestroy(unew);
-      N_VDestroy(fval);
-      N_VDestroy(pp);
-      N_VDestroy(vtemp1);
-      N_VDestroy(vtemp2);
+    kin_mem->kin_df_aa = N_VCloneVectorArray(kin_mem->kin_m_aa,tmpl);
+    if (kin_mem->kin_df_aa == NULL) {
+      N_VDestroy(kin_mem->kin_unew);
+      N_VDestroy(kin_mem->kin_fval);
+      N_VDestroy(kin_mem->kin_pp);
+      N_VDestroy(kin_mem->kin_vtemp1);
+      N_VDestroy(kin_mem->kin_vtemp2);
       free(kin_mem->kin_R_aa);
       free(kin_mem->kin_gamma_aa);
       free(kin_mem->kin_ipt_map);
-      N_VDestroy(fold);
-      N_VDestroy(gold);
+      N_VDestroy(kin_mem->kin_fold_aa);
+      N_VDestroy(kin_mem->kin_gold_aa);
       return(FALSE);
     }
-    dg = N_VCloneVectorArray(maa,tmpl);
-    if (dg == NULL) {
-      N_VDestroy(unew);
-      N_VDestroy(fval);
-      N_VDestroy(pp);
-      N_VDestroy(vtemp1);
-      N_VDestroy(vtemp2);
+    kin_mem->kin_dg_aa = N_VCloneVectorArray(kin_mem->kin_m_aa,tmpl);
+    if (kin_mem->kin_dg_aa == NULL) {
+      N_VDestroy(kin_mem->kin_unew);
+      N_VDestroy(kin_mem->kin_fval);
+      N_VDestroy(kin_mem->kin_pp);
+      N_VDestroy(kin_mem->kin_vtemp1);
+      N_VDestroy(kin_mem->kin_vtemp2);
       free(kin_mem->kin_R_aa);
       free(kin_mem->kin_gamma_aa);
       free(kin_mem->kin_ipt_map);
-      N_VDestroy(fold);
-      N_VDestroy(gold);
-      N_VDestroyVectorArray(df, maa);
+      N_VDestroy(kin_mem->kin_fold_aa);
+      N_VDestroy(kin_mem->kin_gold_aa);
+      N_VDestroyVectorArray(kin_mem->kin_df_aa, kin_mem->kin_m_aa);
       return(FALSE);
     }
 
     /* update solver workspace lengths */
 
-    liw += 2*maa*liw1+2;
-    lrw += 2*maa*lrw1+2;
+    kin_mem->kin_liw += 2*kin_mem->kin_m_aa*kin_mem->kin_liw1+2;
+    kin_mem->kin_lrw += 2*kin_mem->kin_m_aa*kin_mem->kin_lrw1+2;
 
-    if (aamem) {
-      Q = N_VCloneVectorArray(maa,tmpl);
-      if (Q == NULL) {
-	N_VDestroy(unew);
-	N_VDestroy(fval);
-	N_VDestroy(pp);
-	N_VDestroy(vtemp1);
-	N_VDestroy(vtemp2);
+    if (kin_mem->kin_aamem_aa) {
+      kin_mem->kin_q_aa = N_VCloneVectorArray(kin_mem->kin_m_aa,tmpl);
+      if (kin_mem->kin_q_aa == NULL) {
+	N_VDestroy(kin_mem->kin_unew);
+	N_VDestroy(kin_mem->kin_fval);
+	N_VDestroy(kin_mem->kin_pp);
+	N_VDestroy(kin_mem->kin_vtemp1);
+	N_VDestroy(kin_mem->kin_vtemp2);
 	free(kin_mem->kin_R_aa);
 	free(kin_mem->kin_gamma_aa);
 	free(kin_mem->kin_ipt_map);
-	N_VDestroy(fold);
-	N_VDestroy(gold);
-	N_VDestroyVectorArray(df, maa);
-	N_VDestroyVectorArray(dg, maa);
+	N_VDestroy(kin_mem->kin_fold_aa);
+	N_VDestroy(kin_mem->kin_gold_aa);
+	N_VDestroyVectorArray(kin_mem->kin_df_aa, kin_mem->kin_m_aa);
+	N_VDestroyVectorArray(kin_mem->kin_dg_aa, kin_mem->kin_m_aa);
 	return(FALSE);
       }
-      liw += maa*liw1;
-      lrw += maa*lrw1;
+      kin_mem->kin_liw += kin_mem->kin_m_aa*kin_mem->kin_liw1;
+      kin_mem->kin_lrw += kin_mem->kin_m_aa*kin_mem->kin_lrw1;
     }
   }
   return(TRUE);
@@ -977,44 +877,44 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
 
 static void KINFreeVectors(KINMem kin_mem)
 {
-  if (unew != NULL)   N_VDestroy(unew);
-  if (fval != NULL)   N_VDestroy(fval);
-  if (pp != NULL)     N_VDestroy(pp);
-  if (vtemp1 != NULL) N_VDestroy(vtemp1);
-  if (vtemp2 != NULL) N_VDestroy(vtemp2);
+  if (kin_mem->kin_unew != NULL)   N_VDestroy(kin_mem->kin_unew);
+  if (kin_mem->kin_fval != NULL)   N_VDestroy(kin_mem->kin_fval);
+  if (kin_mem->kin_pp != NULL)     N_VDestroy(kin_mem->kin_pp);
+  if (kin_mem->kin_vtemp1 != NULL) N_VDestroy(kin_mem->kin_vtemp1);
+  if (kin_mem->kin_vtemp2 != NULL) N_VDestroy(kin_mem->kin_vtemp2);
 
   if ( (kin_mem->kin_globalstrategy == KIN_PICARD) && (kin_mem->kin_gval != NULL) ) 
     N_VDestroy(kin_mem->kin_gval);
 
-  if ( ((strategy == KIN_PICARD) || (strategy == KIN_FP)) && (maa > 0) ) {
+  if ( ((kin_mem->kin_globalstrategy == KIN_PICARD) || (kin_mem->kin_globalstrategy == KIN_FP)) && (kin_mem->kin_m_aa > 0) ) {
     free(kin_mem->kin_R_aa);
     free(kin_mem->kin_gamma_aa);
     free(kin_mem->kin_ipt_map);
   }
 
-  if (maa)
+  if (kin_mem->kin_m_aa)
   {
-     if (fold != NULL) N_VDestroy(fold);
-     if (gold != NULL) N_VDestroy(gold);
-     N_VDestroyVectorArray(df,maa);
-     N_VDestroyVectorArray(dg,maa);
-     lrw -= (2*maa*lrw1+2);
-     liw -= (2*maa*liw1+2);
-     if (aamem)
+     if (kin_mem->kin_fold_aa != NULL) N_VDestroy(kin_mem->kin_fold_aa);
+     if (kin_mem->kin_gold_aa != NULL) N_VDestroy(kin_mem->kin_gold_aa);
+     N_VDestroyVectorArray(kin_mem->kin_df_aa,kin_mem->kin_m_aa);
+     N_VDestroyVectorArray(kin_mem->kin_dg_aa,kin_mem->kin_m_aa);
+     kin_mem->kin_lrw -= (2*kin_mem->kin_m_aa*kin_mem->kin_lrw1+2);
+     kin_mem->kin_liw -= (2*kin_mem->kin_m_aa*kin_mem->kin_liw1+2);
+     if (kin_mem->kin_aamem_aa)
      {
-        N_VDestroyVectorArray(Q,maa);
-        lrw -= maa*lrw1;
-        liw -= maa*liw1;
+        N_VDestroyVectorArray(kin_mem->kin_q_aa,kin_mem->kin_m_aa);
+        kin_mem->kin_lrw -= kin_mem->kin_m_aa*kin_mem->kin_lrw1;
+        kin_mem->kin_liw -= kin_mem->kin_m_aa*kin_mem->kin_liw1;
      }
   }
 
-  lrw -= 5*lrw1;
-  liw -= 5*liw1;
+  kin_mem->kin_lrw -= 5*kin_mem->kin_lrw1;
+  kin_mem->kin_liw -= 5*kin_mem->kin_liw1;
 
   if (kin_mem->kin_constraintsSet) {
-    if (constraints != NULL) N_VDestroy(constraints);
-    lrw -= lrw1;
-    liw -= liw1;
+    if (kin_mem->kin_constraints != NULL) N_VDestroy(kin_mem->kin_constraints);
+    kin_mem->kin_lrw -= kin_mem->kin_lrw1;
+    kin_mem->kin_liw -= kin_mem->kin_liw1;
   }
 
   return;
@@ -1052,38 +952,38 @@ static int KINSolInit(KINMem kin_mem)
   
   /* check for illegal input parameters */
 
-  if (uu == NULL) {
+  if (kin_mem->kin_uu == NULL) {
     KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSolInit", MSG_UU_NULL);
     return(KIN_ILL_INPUT);
   }
 
-  if ( (strategy != KIN_NONE) && (strategy != KIN_LINESEARCH) && 
-       (strategy != KIN_PICARD) && (strategy != KIN_FP) ) {
+  if ( (kin_mem->kin_globalstrategy != KIN_NONE) && (kin_mem->kin_globalstrategy != KIN_LINESEARCH) && 
+       (kin_mem->kin_globalstrategy != KIN_PICARD) && (kin_mem->kin_globalstrategy != KIN_FP) ) {
     KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSolInit", MSG_BAD_GLSTRAT);
     return(KIN_ILL_INPUT);
   }
 
-  if (uscale == NULL)  {
+  if (kin_mem->kin_uscale == NULL)  {
     KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSolInit", MSG_BAD_USCALE);
     return(KIN_ILL_INPUT);
   }
 
-  if (N_VMin(uscale) <= ZERO){
+  if (N_VMin(kin_mem->kin_uscale) <= ZERO){
     KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSolInit", MSG_USCALE_NONPOSITIVE);
     return(KIN_ILL_INPUT);
   }
 
-  if (fscale == NULL)  {
+  if (kin_mem->kin_fscale == NULL)  {
     KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSolInit", MSG_BAD_FSCALE);
     return(KIN_ILL_INPUT);
   }
 
-  if (N_VMin(fscale) <= ZERO){
+  if (N_VMin(kin_mem->kin_fscale) <= ZERO){
     KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSolInit", MSG_FSCALE_NONPOSITIVE);
     return(KIN_ILL_INPUT);
   }
 
-  if ( (constraints != NULL) && ( (strategy == KIN_PICARD) || (strategy == KIN_FP) ) ) {
+  if ( (kin_mem->kin_constraints != NULL) && ( (kin_mem->kin_globalstrategy == KIN_PICARD) || (kin_mem->kin_globalstrategy == KIN_FP) ) ) {
     KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSolInit", MSG_CONSTRAINTS_NOTOK);
     return(KIN_ILL_INPUT);
   }
@@ -1091,12 +991,12 @@ static int KINSolInit(KINMem kin_mem)
 
   /* set the constraints flag */
 
-  if (constraints == NULL) 
-    constraintsSet = FALSE;
+  if (kin_mem->kin_constraints == NULL) 
+    kin_mem->kin_constraintsSet = FALSE;
   else {
-    constraintsSet = TRUE;
-    if ((constraints->ops->nvconstrmask  == NULL) ||
-	(constraints->ops->nvminquotient == NULL)) {
+    kin_mem->kin_constraintsSet = TRUE;
+    if ((kin_mem->kin_constraints->ops->nvconstrmask  == NULL) ||
+	(kin_mem->kin_constraints->ops->nvminquotient == NULL)) {
       KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSolInit", MSG_BAD_NVECTOR);
       return(KIN_ILL_INPUT);
     }
@@ -1104,8 +1004,8 @@ static int KINSolInit(KINMem kin_mem)
 
   /* check the initial guess uu against the constraints */
 
-  if (constraintsSet) {
-    if (!N_VConstrMask(constraints, uu, vtemp1)) {
+  if (kin_mem->kin_constraintsSet) {
+    if (!N_VConstrMask(kin_mem->kin_constraints, kin_mem->kin_uu, kin_mem->kin_vtemp1)) {
       KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSolInit", MSG_INITIAL_CNSTRNT);
       return(KIN_ILL_INPUT);
     }
@@ -1113,49 +1013,49 @@ static int KINSolInit(KINMem kin_mem)
   
   /* all error checking is complete at this point */
 
-  if (printfl > 0)
-    KINPrintInfo(kin_mem, PRNT_TOL, "KINSOL", "KINSolInit", INFO_TOL, scsteptol, fnormtol);
+  if (kin_mem->kin_printfl > 0)
+    KINPrintInfo(kin_mem, PRNT_TOL, "KINSOL", "KINSolInit", INFO_TOL, kin_mem->kin_scsteptol, kin_mem->kin_fnormtol);
 
   /* calculate the default value for mxnewtstep (maximum Newton step) */
 
-  if (mxnstepin == ZERO) mxnewtstep = THOUSAND * N_VWL2Norm(uu, uscale);
-  else                   mxnewtstep = mxnstepin;
-  if (mxnewtstep < ONE) mxnewtstep = ONE;
+  if (kin_mem->kin_mxnstepin == ZERO) kin_mem->kin_mxnewtstep = THOUSAND * N_VWL2Norm(kin_mem->kin_uu, kin_mem->kin_uscale);
+  else                                kin_mem->kin_mxnewtstep = kin_mem->kin_mxnstepin;
 
+  if (kin_mem->kin_mxnewtstep < ONE) kin_mem->kin_mxnewtstep = ONE;
 
   /* additional set-up for inexact linear solvers */
 
-  if (inexact_ls) {
+  if (kin_mem->kin_inexact_ls) {
 
     /* set up the coefficients for the eta calculation */
 
-    callForcingTerm = (etaflag != KIN_ETACONSTANT);
+    kin_mem->kin_callForcingTerm = (kin_mem->kin_etaflag != KIN_ETACONSTANT);
 
     /* this value is always used for choice #1 */
 
-    if (etaflag == KIN_ETACHOICE1) ealpha = (ONE + SUNRsqrt(FIVE)) * HALF;
+    if (kin_mem->kin_etaflag == KIN_ETACHOICE1) kin_mem->kin_eta_alpha = (ONE + SUNRsqrt(FIVE)) * HALF;
 
     /* initial value for eta set to 0.5 for other than the 
        KIN_ETACONSTANT option */
 
-    if (etaflag != KIN_ETACONSTANT) eta = HALF;
+    if (kin_mem->kin_etaflag != KIN_ETACONSTANT) kin_mem->kin_eta = HALF;
 
     /* disable residual monitoring if using an inexact linear solver */
 
-    noResMon = TRUE;
+    kin_mem->kin_noResMon = TRUE;
 
   } else {
 
-    callForcingTerm = FALSE;
+    kin_mem->kin_callForcingTerm = FALSE;
 
   }
 
   /* initialize counters */
 
-  nfe = nnilset = nnilset_sub = nni = nbcf = nbktrk = 0;
+  kin_mem->kin_nfe = kin_mem->kin_nnilset = kin_mem->kin_nnilset_sub = kin_mem->kin_nni = kin_mem->kin_nbcf = kin_mem->kin_nbktrk = 0;
 
   /* see if the initial guess uu satisfies the nonlinear system */
-  retval = func(uu, fval, user_data); nfe++;
+  retval = kin_mem->kin_func(kin_mem->kin_uu, kin_mem->kin_fval, kin_mem->kin_user_data); kin_mem->kin_nfe++;
 
   if (retval < 0) {
     KINProcessError(kin_mem, KIN_SYSFUNC_FAIL, "KINSOL", "KINSolInit", 
@@ -1167,19 +1067,19 @@ static int KINSolInit(KINMem kin_mem)
     return(KIN_FIRST_SYSFUNC_ERR);
   }
 
-  fmax = KINScFNorm(kin_mem, fval, fscale);
-  if (fmax <= (POINT01 * fnormtol)) {
-    kin_mem->kin_fnorm = N_VWL2Norm(fval, fscale);
+  fmax = KINScFNorm(kin_mem, kin_mem->kin_fval, kin_mem->kin_fscale);
+  if (fmax <= (POINT01 * kin_mem->kin_fnormtol)) {
+    kin_mem->kin_fnorm = N_VWL2Norm(kin_mem->kin_fval, kin_mem->kin_fscale);
     return(KIN_INITIAL_GUESS_OK);
   }
 
-  if (printfl > 1)
+  if (kin_mem->kin_printfl > 1)
     KINPrintInfo(kin_mem, PRNT_FMAX, "KINSOL", "KINSolInit", INFO_FMAX, fmax);
   
   /* initialize the linear solver if linit != NULL */
 
-  if (linit != NULL) {
-    retval = linit(kin_mem);
+  if (kin_mem->kin_linit != NULL) {
+    retval = kin_mem->kin_linit(kin_mem);
     if (retval != 0) {
       KINProcessError(kin_mem, KIN_LINIT_FAIL, "KINSOL", "KINSolInit", MSG_LINIT_FAIL);
       return(KIN_LINIT_FAIL);
@@ -1188,13 +1088,13 @@ static int KINSolInit(KINMem kin_mem)
 
   /* initialize the L2 (Euclidean) norms of f for the linear iteration steps */
 
-  fnorm = N_VWL2Norm(fval, fscale);
-  f1norm = HALF * fnorm * fnorm;
-  fnorm_sub = fnorm;
+  kin_mem->kin_fnorm = N_VWL2Norm(kin_mem->kin_fval, kin_mem->kin_fscale);
+  kin_mem->kin_f1norm = HALF * kin_mem->kin_fnorm * kin_mem->kin_fnorm;
+  kin_mem->kin_fnorm_sub = kin_mem->kin_fnorm;
 
-  if (printfl > 0)
+  if (kin_mem->kin_printfl > 0)
     KINPrintInfo(kin_mem, PRNT_NNI, "KINSOL", "KINSolInit", 
-		 INFO_NNI, nni, nfe, fnorm);
+		 INFO_NNI, kin_mem->kin_nni, kin_mem->kin_nfe, kin_mem->kin_fnorm);
 
   /* problem has now been successfully initialized */
 
@@ -1221,44 +1121,44 @@ static int KINLinSolDrv(KINMem kin_mem)
   N_Vector x, b;
   int retval;
 
-  if ((nni - nnilset) >= msbset) {
-    sthrsh = TWO;
-    update_fnorm_sub = TRUE;
+  if ((kin_mem->kin_nni - kin_mem->kin_nnilset) >= kin_mem->kin_msbset) {
+    kin_mem->kin_sthrsh = TWO;
+    kin_mem->kin_update_fnorm_sub = TRUE;
   }
 
-  loop{
+  for(;;){
 
-    jacCurrent = FALSE;
+    kin_mem->kin_jacCurrent = FALSE;
 
-    if ((sthrsh > ONEPT5) && setupNonNull) {
-      retval = lsetup(kin_mem);
-      jacCurrent = TRUE;
-      nnilset = nni;
-      nnilset_sub = nni;
+    if ((kin_mem->kin_sthrsh > ONEPT5) && (kin_mem->kin_lsetup != NULL)) {
+      retval = kin_mem->kin_lsetup(kin_mem);
+      kin_mem->kin_jacCurrent = TRUE;
+      kin_mem->kin_nnilset = kin_mem->kin_nni;
+      kin_mem->kin_nnilset_sub = kin_mem->kin_nni;
       if (retval != 0) return(KIN_LSETUP_FAIL);
     }
 
     /* rename vectors for readability */
 
-    b = unew;
-    x = pp;
+    b = kin_mem->kin_unew;
+    x = kin_mem->kin_pp;
 
     /* load b with the current value of -fval */
 
-    N_VScale(-ONE, fval, b);
+    N_VScale(-ONE, kin_mem->kin_fval, b);
 
     /* call the generic 'lsolve' routine to solve the system Jx = b */
 
-    retval = lsolve(kin_mem, x, b, &sJpnorm, &sFdotJp);
+    retval = kin_mem->kin_lsolve(kin_mem, x, b, &(kin_mem->kin_sJpnorm), &(kin_mem->kin_sFdotJp));
 
     if (retval == 0)                          return(KIN_SUCCESS);
     else if (retval < 0)                      return(KIN_LSOLVE_FAIL);
-    else if ((!setupNonNull) || (jacCurrent)) return(KIN_LINSOLV_NO_RECOVERY);
+    else if ((kin_mem->kin_lsetup == NULL) || (kin_mem->kin_jacCurrent)) return(KIN_LINSOLV_NO_RECOVERY);
 
     /* loop back only if the linear solver setup is in use 
        and Jacobian information is not current */
 
-    sthrsh = TWO;
+    kin_mem->kin_sthrsh = TWO;
 
   }
 }
@@ -1281,33 +1181,33 @@ static int KINFullNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
   int ircvr, retval;
 
   *maxStepTaken = FALSE;
-  pnorm = N_VWL2Norm(pp, uscale);
+  pnorm = N_VWL2Norm(kin_mem->kin_pp, kin_mem->kin_uscale);
   ratio = ONE;
-  if (pnorm > mxnewtstep) {
-    ratio = mxnewtstep / pnorm;
-    N_VScale(ratio, pp, pp);
-    pnorm = mxnewtstep;
+  if (pnorm > kin_mem->kin_mxnewtstep) {
+    ratio = kin_mem->kin_mxnewtstep / pnorm;
+    N_VScale(ratio, kin_mem->kin_pp, kin_mem->kin_pp);
+    pnorm = kin_mem->kin_mxnewtstep;
   }
 
-  if (printfl > 0)
+  if (kin_mem->kin_printfl > 0)
     KINPrintInfo(kin_mem, PRNT_PNORM, "KINSOL", "KINFullNewton", INFO_PNORM, pnorm);
 
   /* If constraints are active, then constrain the step accordingly */
 
-  stepl = pnorm;
-  stepmul = ONE;
-  if (constraintsSet) {
+  kin_mem->kin_stepl = pnorm;
+  kin_mem->kin_stepmul = ONE;
+  if (kin_mem->kin_constraintsSet) {
     retval = KINConstraint(kin_mem);
     if (retval == CONSTR_VIOLATED) {
       /* Apply stepmul set in KINConstraint */
-      ratio *= stepmul;
-      N_VScale(stepmul, pp, pp);
-      pnorm *= stepmul;
-      stepl = pnorm;
-      if (printfl > 0)
+      ratio *= kin_mem->kin_stepmul;
+      N_VScale(kin_mem->kin_stepmul, kin_mem->kin_pp, kin_mem->kin_pp);
+      pnorm *= kin_mem->kin_stepmul;
+      kin_mem->kin_stepl = pnorm;
+      if (kin_mem->kin_printfl > 0)
         KINPrintInfo(kin_mem, PRNT_PNORM, "KINSOL", "KINFullNewton", INFO_PNORM, pnorm);
-      if (pnorm <= scsteptol) {
-        N_VLinearSum(ONE, uu, ONE, pp, unew);
+      if (pnorm <= kin_mem->kin_scsteptol) {
+        N_VLinearSum(ONE, kin_mem->kin_uu, ONE, kin_mem->kin_pp, kin_mem->kin_unew);
         return(STEP_TOO_SMALL);}
     }
   }
@@ -1319,10 +1219,10 @@ static int KINFullNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
   for (ircvr = 1; ircvr <= MAX_RECVR; ircvr++) {
 
     /* compute the iterate unew = uu + pp */
-    N_VLinearSum(ONE, uu, ONE, pp, unew);
+    N_VLinearSum(ONE, kin_mem->kin_uu, ONE, kin_mem->kin_pp, kin_mem->kin_unew);
 
     /* evaluate func(unew) and its norm, and return */
-    retval = func(unew, fval, user_data); nfe++;
+    retval = kin_mem->kin_func(kin_mem->kin_unew, kin_mem->kin_fval, kin_mem->kin_user_data); kin_mem->kin_nfe++;
 
     /* if func was successful, accept pp */
     if (retval == 0) {fOK = TRUE; break;}
@@ -1332,9 +1232,9 @@ static int KINFullNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
     /* func failed recoverably; cut step in half and try again */
     ratio *= HALF;
-    N_VScale(HALF, pp, pp);
+    N_VScale(HALF, kin_mem->kin_pp, kin_mem->kin_pp);
     pnorm *= HALF;
-    stepl = pnorm;
+    kin_mem->kin_stepl = pnorm;
   }
 
   /* If func() failed recoverably MAX_RECVR times, give up */
@@ -1343,18 +1243,18 @@ static int KINFullNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
   /* Evaluate function norms */
 
-  *fnormp = N_VWL2Norm(fval,fscale);
+  *fnormp = N_VWL2Norm(kin_mem->kin_fval, kin_mem->kin_fscale);
   *f1normp = HALF * (*fnormp) * (*fnormp);
 
   /* scale sFdotJp and sJpnorm by ratio for later use in KINForcingTerm */
 
-  sFdotJp *= ratio;
-  sJpnorm *= ratio;
+  kin_mem->kin_sFdotJp *= ratio;
+  kin_mem->kin_sJpnorm *= ratio;
  
-  if (printfl > 1) 
+  if (kin_mem->kin_printfl > 1) 
     KINPrintInfo(kin_mem, PRNT_FNORM, "KINSOL", "KINFullNewton", INFO_FNORM, *fnormp);
 
-  if (pnorm > (POINT99 * mxnewtstep)) *maxStepTaken = TRUE; 
+  if (pnorm > (POINT99 * kin_mem->kin_mxnewtstep)) *maxStepTaken = TRUE; 
 
   return(KIN_SUCCESS);
 }
@@ -1429,36 +1329,36 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
   /* Compute length of Newton step */
 
-  pnorm = N_VWL2Norm(pp, uscale);
-  rlmax = mxnewtstep / pnorm;
-  stepl = pnorm;
+  pnorm = N_VWL2Norm(kin_mem->kin_pp, kin_mem->kin_uscale);
+  rlmax = kin_mem->kin_mxnewtstep / pnorm;
+  kin_mem->kin_stepl = pnorm;
 
   /* If the full Newton step is too large, set it to the maximum allowable value */
 
-  if(pnorm > mxnewtstep ) {
-    ratio = mxnewtstep / pnorm;
-    N_VScale(ratio, pp, pp);
-    pnorm = mxnewtstep;
+  if(pnorm > kin_mem->kin_mxnewtstep ) {
+    ratio = kin_mem->kin_mxnewtstep / pnorm;
+    N_VScale(ratio, kin_mem->kin_pp, kin_mem->kin_pp);
+    pnorm = kin_mem->kin_mxnewtstep;
     rlmax = ONE;
-    stepl = pnorm;
+    kin_mem->kin_stepl = pnorm;
   }
 
   /* If constraint checking is activated, check and correct violations */
 
-  stepmul = ONE;
+  kin_mem->kin_stepmul = ONE;
 
-  if(constraintsSet){
+  if(kin_mem->kin_constraintsSet){
     retval = KINConstraint(kin_mem);
     if(retval == CONSTR_VIOLATED){
       /* Apply stepmul set in KINConstraint */
-      N_VScale(stepmul, pp, pp);
-      ratio *= stepmul;
-      pnorm *= stepmul;
+      N_VScale(kin_mem->kin_stepmul, kin_mem->kin_pp, kin_mem->kin_pp);
+      ratio *= kin_mem->kin_stepmul;
+      pnorm *= kin_mem->kin_stepmul;
       rlmax = ONE;
-      stepl = pnorm;
-      if (printfl > 0) KINPrintInfo(kin_mem, PRNT_PNORM1, "KINSOL", "KINLineSearch", INFO_PNORM1, pnorm);
-      if (pnorm <= scsteptol) {
-        N_VLinearSum(ONE, uu, ONE, pp, unew);
+      kin_mem->kin_stepl = pnorm;
+      if (kin_mem->kin_printfl > 0) KINPrintInfo(kin_mem, PRNT_PNORM1, "KINSOL", "KINLineSearch", INFO_PNORM1, pnorm);
+      if (pnorm <= kin_mem->kin_scsteptol) {
+        N_VLinearSum(ONE, kin_mem->kin_uu, ONE, kin_mem->kin_pp, kin_mem->kin_unew);
         return(STEP_TOO_SMALL);}
     }
   }
@@ -1470,10 +1370,10 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
   for (ircvr = 1; ircvr <= MAX_RECVR; ircvr++) {
 
     /* compute the iterate unew = uu + pp */
-    N_VLinearSum(ONE, uu, ONE, pp, unew);
+    N_VLinearSum(ONE, kin_mem->kin_uu, ONE, kin_mem->kin_pp, kin_mem->kin_unew);
 
     /* evaluate func(unew) and its norm, and return */
-    retval = func(unew, fval, user_data); nfe++;
+    retval = kin_mem->kin_func(kin_mem->kin_unew, kin_mem->kin_fval, kin_mem->kin_user_data); kin_mem->kin_nfe++;
 
     /* if func was successful, accept pp */
     if (retval == 0) {fOK = TRUE; break;}
@@ -1482,11 +1382,11 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
     else if (retval < 0) return(KIN_SYSFUNC_FAIL);
 
     /* func failed recoverably; cut step in half and try again */
-    N_VScale(HALF, pp, pp);
+    N_VScale(HALF, kin_mem->kin_pp, kin_mem->kin_pp);
     ratio *= HALF;
     pnorm *= HALF;
     rlmax = ONE;
-    stepl = pnorm;
+    kin_mem->kin_stepl = pnorm;
 
   }
 
@@ -1496,28 +1396,28 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
   /* Evaluate function norms */
 
-  *fnormp = N_VWL2Norm(fval, fscale);
+  *fnormp = N_VWL2Norm(kin_mem->kin_fval, kin_mem->kin_fscale);
   *f1normp = HALF * (*fnormp) * (*fnormp) ;
 
   /* Estimate the line search value rl (lambda) to satisfy both ALPHA and BETA conditions */
 
-  slpi = sFdotJp * ratio;
-  rlength = KINScSNorm(kin_mem, pp, uu);
-  rlmin = scsteptol / rlength;
+  slpi = kin_mem->kin_sFdotJp * ratio;
+  rlength = KINScSNorm(kin_mem, kin_mem->kin_pp, kin_mem->kin_uu);
+  rlmin = (kin_mem->kin_scsteptol) / rlength;
   rl = ONE;
 
-  if (printfl > 2)
-    KINPrintInfo(kin_mem, PRNT_LAM, "KINSOL", "KINLineSearch", INFO_LAM, rlmin, f1norm, pnorm);
+  if (kin_mem->kin_printfl > 2)
+    KINPrintInfo(kin_mem, PRNT_LAM, "KINSOL", "KINLineSearch", INFO_LAM, rlmin, kin_mem->kin_f1norm, pnorm);
 
   /* Loop until the ALPHA condition is satisfied. Terminate if rl becomes too small */
 
-  loop {
+  for(;;) {
     
     /* Evaluate test quantity */
 
-    alpha_cond = f1norm + (alpha * slpi * rl);
+    alpha_cond = kin_mem->kin_f1norm + (alpha * slpi * rl);
 
-    if (printfl > 2)
+    if (kin_mem->kin_printfl > 2)
       KINPrintInfo(kin_mem, PRNT_ALPHA, "KINSOL", "KINLinesearch", 
                    INFO_ALPHA, *fnormp, *f1normp, alpha_cond, rl);
 
@@ -1529,13 +1429,13 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
     if (firstBacktrack) {
 
-      rltmp = -slpi / (TWO * ((*f1normp) - f1norm - slpi));
+      rltmp = -slpi / (TWO * ((*f1normp) - kin_mem->kin_f1norm - slpi));
       firstBacktrack = FALSE;
 
     } else {
 
-      tmp1 = (*f1normp) - f1norm - (rl * slpi);
-      tmp2 = f1nprv - f1norm - (rlprev * slpi);
+      tmp1 = (*f1normp) - kin_mem->kin_f1norm - (rl * slpi);
+      tmp2 = f1nprv - kin_mem->kin_f1norm - (rlprev * slpi);
       rl_a = ((ONE / (rl * rl)) * tmp1) - ((ONE / (rlprev * rlprev)) * tmp2);
       rl_b = ((-rlprev / (rl * rl)) * tmp1) + ((rl / (rlprev * rlprev)) * tmp2);
       tmp1 = ONE / (rl - rlprev);
@@ -1543,7 +1443,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
       rl_b *= tmp1;
       disc = (rl_b * rl_b) - (THREE * rl_a * slpi);
 
-      if (SUNRabs(rl_a) < uround) {        /* cubic is actually just a quadratic (rl_a ~ 0) */
+      if (SUNRabs(rl_a) < kin_mem->kin_uround) {        /* cubic is actually just a quadratic (rl_a ~ 0) */
         rltmp = -slpi / (TWO * rl_b);
       } else {                         /* real cubic */
         rltmp = (-rl_b + SUNRsqrt(disc)) / (THREE * rl_a);
@@ -1561,12 +1461,12 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
     /* Update unew and re-evaluate function */
 
-    N_VLinearSum(ONE, uu, rl, pp, unew);
+    N_VLinearSum(ONE, kin_mem->kin_uu, rl, kin_mem->kin_pp, kin_mem->kin_unew);
 
-    retval = func(unew, fval, user_data); nfe++;
+    retval = kin_mem->kin_func(kin_mem->kin_unew, kin_mem->kin_fval, kin_mem->kin_user_data); kin_mem->kin_nfe++;
     if (retval != 0) return(KIN_SYSFUNC_FAIL);
 
-    *fnormp = N_VWL2Norm(fval, fscale);
+    *fnormp = N_VWL2Norm(kin_mem->kin_fval, kin_mem->kin_fscale);
     *f1normp = HALF * (*fnormp) * (*fnormp) ;
 
     /* Check if rl (lambda) is too small */
@@ -1575,7 +1475,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
       /* unew sufficiently distinct from uu cannot be found.
          copy uu into unew (step remains unchanged) and 
          return STEP_TOO_SMALL */
-      N_VScale(ONE, uu, unew);
+      N_VScale(ONE, kin_mem->kin_uu, kin_mem->kin_unew);
       return(STEP_TOO_SMALL);
     }
 
@@ -1584,13 +1484,13 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
   /* ALPHA condition is satisfied. Now check the BETA condition */
 
-  beta_cond = f1norm + (beta * slpi * rl);
+  beta_cond = kin_mem->kin_f1norm + (beta * slpi * rl);
 
   if ((*f1normp) < beta_cond) {
 
     /* BETA condition not satisfied */
 
-    if ((rl == ONE) && (pnorm < mxnewtstep)) {
+    if ((rl == ONE) && (pnorm < kin_mem->kin_mxnewtstep)) {
 
       do {
 
@@ -1599,16 +1499,16 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
         rl = SUNMIN((TWO * rl), rlmax);
         nbktrk_l++;
 
-        N_VLinearSum(ONE, uu, rl, pp, unew);
-        retval = func(unew, fval, user_data); nfe++;
+        N_VLinearSum(ONE, kin_mem->kin_uu, rl, kin_mem->kin_pp, kin_mem->kin_unew);
+        retval = kin_mem->kin_func(kin_mem->kin_unew, kin_mem->kin_fval, kin_mem->kin_user_data); kin_mem->kin_nfe++;
         if (retval != 0) return(KIN_SYSFUNC_FAIL);
-        *fnormp = N_VWL2Norm(fval, fscale);
+        *fnormp = N_VWL2Norm(kin_mem->kin_fval, kin_mem->kin_fscale);
         *f1normp = HALF * (*fnormp) * (*fnormp);
 
-        alpha_cond = f1norm + (alpha * slpi * rl);
-        beta_cond = f1norm + (beta * slpi * rl);
+        alpha_cond = kin_mem->kin_f1norm + (alpha * slpi * rl);
+        beta_cond = kin_mem->kin_f1norm + (beta * slpi * rl);
 
-        if (printfl > 2)
+        if (kin_mem->kin_printfl > 2)
           KINPrintInfo(kin_mem, PRNT_BETA, "KINSOL", "KINLineSearch", 
                        INFO_BETA, *f1normp, beta_cond, rl);
 
@@ -1628,16 +1528,16 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
         rl = rllo + rlinc;
         nbktrk_l++;
 
-        N_VLinearSum(ONE, uu, rl, pp, unew);
-        retval = func(unew, fval, user_data); nfe++;
+        N_VLinearSum(ONE, kin_mem->kin_uu, rl, kin_mem->kin_pp, kin_mem->kin_unew);
+        retval = kin_mem->kin_func(kin_mem->kin_unew, kin_mem->kin_fval, kin_mem->kin_user_data); kin_mem->kin_nfe++;
         if (retval != 0) return(KIN_SYSFUNC_FAIL);
-        *fnormp = N_VWL2Norm(fval, fscale);
+        *fnormp = N_VWL2Norm(kin_mem->kin_fval, kin_mem->kin_fscale);
         *f1normp = HALF * (*fnormp) * (*fnormp);
 
-        alpha_cond = f1norm + (alpha * slpi * rl);
-        beta_cond = f1norm + (beta * slpi * rl);
+        alpha_cond = kin_mem->kin_f1norm + (alpha * slpi * rl);
+        beta_cond = kin_mem->kin_f1norm + (beta * slpi * rl);
 
-        if (printfl > 2)
+        if (kin_mem->kin_printfl > 2)
           KINPrintInfo(kin_mem, PRNT_ALPHABETA, "KINSOL", "KINLineSearch", 
                        INFO_ALPHABETA, *f1normp, alpha_cond, beta_cond, rl);
 
@@ -1656,15 +1556,15 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 	   and alpha_cond not satisfied, so set unew to last u value
 	   that satisfied the alpha condition and continue */
 
-        N_VLinearSum(ONE, uu, rllo, pp, unew);
-        retval = func(unew, fval, user_data); nfe++;
+        N_VLinearSum(ONE, kin_mem->kin_uu, rllo, kin_mem->kin_pp, kin_mem->kin_unew);
+        retval = kin_mem->kin_func(kin_mem->kin_unew, kin_mem->kin_fval, kin_mem->kin_user_data); kin_mem->kin_nfe++;
         if (retval != 0) return(KIN_SYSFUNC_FAIL);
-        *fnormp = N_VWL2Norm(fval, fscale);
+        *fnormp = N_VWL2Norm(kin_mem->kin_fval, kin_mem->kin_fscale);
         *f1normp = HALF * (*fnormp) * (*fnormp);   
 
 	/* increment beta-condition failures counter */
 
-        nbcf++;
+        kin_mem->kin_nbcf++;
 
       }
 
@@ -1674,17 +1574,17 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
   /* Update number of backtracking operations */
 
-  nbktrk += nbktrk_l;
+  kin_mem->kin_nbktrk += nbktrk_l;
 
-  if (printfl > 1)
+  if (kin_mem->kin_printfl > 1)
     KINPrintInfo(kin_mem, PRNT_ADJ, "KINSOL", "KINLineSearch", INFO_ADJ, nbktrk_l);
 
   /* scale sFdotJp and sJpnorm by rl * ratio for later use in KINForcingTerm */
 
-  sFdotJp = sFdotJp * rl * ratio;
-  sJpnorm = sJpnorm * rl * ratio;
+  kin_mem->kin_sFdotJp = kin_mem->kin_sFdotJp * rl * ratio;
+  kin_mem->kin_sJpnorm = kin_mem->kin_sJpnorm * rl * ratio;
 
-  if ((rl * pnorm) > (POINT99 * mxnewtstep)) *maxStepTaken = TRUE;
+  if ((rl * pnorm) > (POINT99 * kin_mem->kin_mxnewtstep)) *maxStepTaken = TRUE;
 
   return(KIN_SUCCESS);
 }
@@ -1703,23 +1603,23 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
 static int KINConstraint(KINMem kin_mem)
 {
-  N_VLinearSum(ONE, uu, ONE, pp, vtemp1);
+  N_VLinearSum(ONE, kin_mem->kin_uu, ONE, kin_mem->kin_pp, kin_mem->kin_vtemp1);
 
   /* if vtemp1[i] violates constraint[i] then vtemp2[i] = 1
      else vtemp2[i] = 0 (vtemp2 is the mask vector) */
 
-  if(N_VConstrMask(constraints, vtemp1, vtemp2)) return(KIN_SUCCESS);
+  if(N_VConstrMask(kin_mem->kin_constraints, kin_mem->kin_vtemp1, kin_mem->kin_vtemp2)) return(KIN_SUCCESS);
 
   /* vtemp1[i] = SUNRabs(pp[i]) */
 
-  N_VAbs(pp, vtemp1);
+  N_VAbs(kin_mem->kin_pp, kin_mem->kin_vtemp1);
 
   /* consider vtemp1[i] only if vtemp2[i] = 1 (constraint violated) */
 
-  N_VProd(vtemp2, vtemp1, vtemp1);
+  N_VProd(kin_mem->kin_vtemp2, kin_mem->kin_vtemp1, kin_mem->kin_vtemp1);
 
-  N_VAbs(uu, vtemp2);
-  stepmul = POINT9 * N_VMinQuotient(vtemp2, vtemp1);
+  N_VAbs(kin_mem->kin_uu, kin_mem->kin_vtemp2);
+  kin_mem->kin_stepmul = POINT9 * N_VMinQuotient(kin_mem->kin_vtemp2, kin_mem->kin_vtemp1);
 
   return(CONSTR_VIOLATED);
 }
@@ -1749,13 +1649,13 @@ static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int sflag)
 
   if (sflag == STEP_TOO_SMALL) {
 
-    if (setupNonNull && !jacCurrent) {
+    if ((kin_mem->kin_lsetup != NULL) && !(kin_mem->kin_jacCurrent)) {
       /* If the Jacobian is out of date, update it and retry */
-      sthrsh = TWO;
+      kin_mem->kin_sthrsh = TWO;
       return(RETRY_ITERATION);
     } else {
       /* Give up */
-      if (strategy == KIN_NONE)  return(KIN_STEP_LT_STPTOL);
+      if (kin_mem->kin_globalstrategy == KIN_NONE)  return(KIN_STEP_LT_STPTOL);
       else                       return(KIN_LINESEARCH_NONCONV);
     }
 
@@ -1763,25 +1663,25 @@ static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int sflag)
 
   /* Check tolerance on scaled function norm at the current iterate */
 
-  fmax = KINScFNorm(kin_mem, fval, fscale);
+  fmax = KINScFNorm(kin_mem, kin_mem->kin_fval, kin_mem->kin_fscale);
 
-  if (printfl > 1) 
+  if (kin_mem->kin_printfl > 1) 
     KINPrintInfo(kin_mem, PRNT_FMAX, "KINSOL", "KINStop", INFO_FMAX, fmax);
 
-  if (fmax <= fnormtol) return(KIN_SUCCESS);
+  if (fmax <= kin_mem->kin_fnormtol) return(KIN_SUCCESS);
 
   /* Check if the scaled distance between the last two steps is too small */
   /* NOTE: pp used as work space to store this distance */
 
-  delta = pp;
-  N_VLinearSum(ONE, unew, -ONE, uu, delta);
-  rlength = KINScSNorm(kin_mem, delta, unew);
+  delta = kin_mem->kin_pp;
+  N_VLinearSum(ONE, kin_mem->kin_unew, -ONE, kin_mem->kin_uu, delta);
+  rlength = KINScSNorm(kin_mem, delta, kin_mem->kin_unew);
 
-  if (rlength <= scsteptol) {
+  if (rlength <= kin_mem->kin_scsteptol) {
 
-    if (setupNonNull && !jacCurrent) {
+    if ((kin_mem->kin_lsetup != NULL) && !(kin_mem->kin_jacCurrent)) {
       /* If the Jacobian is out of date, update it and retry */
-      sthrsh = TWO;
+      kin_mem->kin_sthrsh = TWO;
       return(CONTINUE_ITERATIONS);
     } else {
       /* give up */
@@ -1792,56 +1692,56 @@ static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int sflag)
 
   /* Check if the maximum number of iterations is reached */
 
-  if (nni >= mxiter) return(KIN_MAXITER_REACHED);
+  if (kin_mem->kin_nni >= kin_mem->kin_mxiter) return(KIN_MAXITER_REACHED);
 
   /* Check for consecutive number of steps taken of size mxnewtstep
      and if not maxStepTaken, then set ncscmx to 0 */
  
-  if (maxStepTaken) ncscmx++;
-  else              ncscmx = 0;
+  if (maxStepTaken) kin_mem->kin_ncscmx++;
+  else              kin_mem->kin_ncscmx = 0;
  
-  if (ncscmx == 5) return(KIN_MXNEWT_5X_EXCEEDED);
+  if (kin_mem->kin_ncscmx == 5) return(KIN_MXNEWT_5X_EXCEEDED);
 
   /* Proceed according to the type of linear solver used */
 
-  if (inexact_ls) {
+  if (kin_mem->kin_inexact_ls) {
 
     /* We're doing inexact Newton.
        Load threshold for reevaluating the Jacobian. */
 
-    sthrsh = rlength;
+    kin_mem->kin_sthrsh = rlength;
 
-  } else if (!noResMon) {
+  } else if (!(kin_mem->kin_noResMon)) {
 
     /* We're doing modified Newton and the user did not disable residual monitoring.
        Check if it is time to monitor residual. */
 
-    if ((nni - nnilset_sub) >= msbset_sub) {
+    if ((kin_mem->kin_nni - kin_mem->kin_nnilset_sub) >= kin_mem->kin_msbset_sub) {
 
       /* Residual monitoring needed */
 
-      nnilset_sub = nni;
+      kin_mem->kin_nnilset_sub = kin_mem->kin_nni;
 
       /* If indicated, estimate new OMEGA value */
-      if (eval_omega) {
-        omexp = SUNMAX(ZERO,(fnorm/fnormtol)-ONE);
-        omega = (omexp > TWELVE)? omega_max : SUNMIN(omega_min*SUNRexp(omexp), omega_max);
+      if (kin_mem->kin_eval_omega) {
+        omexp = SUNMAX(ZERO,((kin_mem->kin_fnorm)/(kin_mem->kin_fnormtol))-ONE);
+        kin_mem->kin_omega = (omexp > TWELVE)? kin_mem->kin_omega_max : SUNMIN(kin_mem->kin_omega_min * SUNRexp(omexp), kin_mem->kin_omega_max);
       }   
       /* Check if making satisfactory progress */
 
-      if (fnorm > omega*fnorm_sub) {
+      if (kin_mem->kin_fnorm > kin_mem->kin_omega * kin_mem->kin_fnorm_sub) {
         /* Insufficient progress */
-	if (setupNonNull && !jacCurrent) {
+	if ((kin_mem->kin_lsetup != NULL) && !(kin_mem->kin_jacCurrent)) {
           /* If the Jacobian is out of date, update it and retry */
-	  sthrsh = TWO;
+	  kin_mem->kin_sthrsh = TWO;
           return(CONTINUE_ITERATIONS);
 	} else {
           /* Otherwise, we cannot do anything, so just return. */
         }
       } else {
         /* Sufficient progress */
-	fnorm_sub = fnorm;
-	sthrsh = ONE;
+	kin_mem->kin_fnorm_sub = kin_mem->kin_fnorm;
+	kin_mem->kin_sthrsh = ONE;
       }
 
     } else {
@@ -1849,9 +1749,9 @@ static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int sflag)
       /* Residual monitoring not needed */
 
       /* Reset sthrsh */
-      if (retry_nni || update_fnorm_sub) fnorm_sub = fnorm;
-      if (update_fnorm_sub) update_fnorm_sub = FALSE;
-      sthrsh = ONE;
+      if (kin_mem->kin_retry_nni || kin_mem->kin_update_fnorm_sub) kin_mem->kin_fnorm_sub = kin_mem->kin_fnorm;
+      if (kin_mem->kin_update_fnorm_sub) kin_mem->kin_update_fnorm_sub = FALSE;
+      kin_mem->kin_sthrsh = ONE;
 
     }
 
@@ -1891,31 +1791,31 @@ static void KINForcingTerm(KINMem kin_mem, realtype fnormp)
 
   /* choice #1 forcing term */
 
-  if (etaflag == KIN_ETACHOICE1) {
+  if (kin_mem->kin_etaflag == KIN_ETACHOICE1) {
 
     /* compute the norm of f + Jp , scaled L2 norm */
 
-    linmodel_norm = SUNRsqrt((fnorm * fnorm) + (TWO * sFdotJp) + (sJpnorm * sJpnorm));
+    linmodel_norm = SUNRsqrt((kin_mem->kin_fnorm * kin_mem->kin_fnorm) + (TWO * kin_mem->kin_sFdotJp) + (kin_mem->kin_sJpnorm * kin_mem->kin_sJpnorm));
 
     /* form the safeguarded for choice #1 */ 
 
-    eta_safe = SUNRpowerR(eta, ealpha); 
-    eta = SUNRabs(fnormp - linmodel_norm) / fnorm;
+    eta_safe = SUNRpowerR(kin_mem->kin_eta, kin_mem->kin_eta_alpha); 
+    kin_mem->kin_eta = SUNRabs(fnormp - linmodel_norm) / kin_mem->kin_fnorm;
   }
 
   /* choice #2 forcing term */
 
-  if (etaflag == KIN_ETACHOICE2) {
-    eta_safe = egamma * SUNRpowerR(eta, ealpha); 
-    eta = egamma * SUNRpowerR((fnormp / fnorm), ealpha); 
+  if (kin_mem->kin_etaflag == KIN_ETACHOICE2) {
+    eta_safe = kin_mem->kin_eta_gamma * SUNRpowerR(kin_mem->kin_eta, kin_mem->kin_eta_alpha); 
+    kin_mem->kin_eta = kin_mem->kin_eta_gamma * SUNRpowerR((fnormp / kin_mem->kin_fnorm), kin_mem->kin_eta_alpha); 
   }
 
   /* apply safeguards */
  
   if(eta_safe < POINT1) eta_safe = ZERO;
-  eta = SUNMAX(eta, eta_safe);
-  eta = SUNMAX(eta, eta_min);
-  eta = SUNMIN(eta, eta_max);
+  kin_mem->kin_eta = SUNMAX(kin_mem->kin_eta, eta_safe);
+  kin_mem->kin_eta = SUNMAX(kin_mem->kin_eta, eta_min);
+  kin_mem->kin_eta = SUNMIN(kin_mem->kin_eta, eta_max);
 
   return; 
 }
@@ -1939,8 +1839,8 @@ static void KINForcingTerm(KINMem kin_mem, realtype fnormp)
 
 static realtype KINScFNorm(KINMem kin_mem, N_Vector v, N_Vector scale)
 {
-  N_VProd(scale, v, vtemp1);
-  return(N_VMaxNorm(vtemp1));
+  N_VProd(scale, v, kin_mem->kin_vtemp1);
+  return(N_VMaxNorm(kin_mem->kin_vtemp1));
 }
 
 /*
@@ -1954,12 +1854,12 @@ static realtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u)
 {
   realtype length;
 
-  N_VInv(uscale, vtemp1);
-  N_VAbs(u, vtemp2);
-  N_VLinearSum(ONE, vtemp1, ONE, vtemp2, vtemp1);
-  N_VDiv(v, vtemp1, vtemp1);
+  N_VInv(kin_mem->kin_uscale, kin_mem->kin_vtemp1);
+  N_VAbs(u, kin_mem->kin_vtemp2);
+  N_VLinearSum(ONE, kin_mem->kin_vtemp1, ONE, kin_mem->kin_vtemp2, kin_mem->kin_vtemp1);
+  N_VDiv(v, kin_mem->kin_vtemp1, kin_mem->kin_vtemp1);
 
-  length = N_VMaxNorm(vtemp1);
+  length = N_VMaxNorm(kin_mem->kin_vtemp1);
 
   return(length);
 }
@@ -2144,8 +2044,6 @@ void KINProcessError(KINMem kin_mem,
  * It sends the error message to the stream pointed to by kin_errfp 
  */
 
-#define errfp    (kin_mem->kin_errfp)
-
 void KINErrHandler(int error_code, const char *module,
                    const char *function, char *msg, void *data)
 {
@@ -2162,9 +2060,9 @@ void KINErrHandler(int error_code, const char *module,
     sprintf(err_type,"ERROR");
 
 #ifndef NO_FPRINTF_OUTPUT
-  if (errfp != NULL) {
-    fprintf(errfp,"\n[%s %s]  %s\n",module,err_type,function);
-    fprintf(errfp,"  %s\n\n",msg);
+  if (kin_mem->kin_errfp != NULL) {
+    fprintf(kin_mem->kin_errfp,"\n[%s %s]  %s\n",module,err_type,function);
+    fprintf(kin_mem->kin_errfp,"  %s\n\n",msg);
   }
 #endif
 
@@ -2196,7 +2094,7 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R,
   delta = kin_mem->kin_vtemp1;
   gval = kin_mem->kin_gval;
   ret = CONTINUE_ITERATIONS;
-  fmax = fnormtol + ONE;
+  fmax = kin_mem->kin_fnormtol + ONE;
   iter = 0;
   epsmin = ZERO;
   fnormp = -ONE;
@@ -2204,38 +2102,38 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R,
   N_VConst(ZERO, gval);
 
   /* if eps is to be bounded from below, set the bound */
-  if (inexact_ls && !noMinEps) epsmin = POINT01 * fnormtol;
+  if (kin_mem->kin_inexact_ls && !(kin_mem->kin_noMinEps)) epsmin = POINT01 * kin_mem->kin_fnormtol;
 
   while (ret == CONTINUE_ITERATIONS) {
 
     iter++;
 
     /* Update the forcing term for the inexact linear solves */
-    if (inexact_ls) {
-      eps = (eta + uround) * fnorm;
-      if(!noMinEps) eps = SUNMAX(epsmin, eps);
+    if (kin_mem->kin_inexact_ls) {
+      kin_mem->kin_eps = (kin_mem->kin_eta + kin_mem->kin_uround) * kin_mem->kin_fnorm;
+      if(!(kin_mem->kin_noMinEps)) kin_mem->kin_eps = SUNMAX(epsmin, kin_mem->kin_eps);
     }
 
     /* evaluate g = uu - L^{-1}func(uu) and return if failed.  
        For Picard, assume that the fval vector has been filled 
        with an eval of the nonlinear residual prior to this call. */
-    retval = KINPicardFcnEval(kin_mem, gval, uu, fval);
+    retval = KINPicardFcnEval(kin_mem, gval, kin_mem->kin_uu, kin_mem->kin_fval);
 
     if (retval < 0) {
       ret = KIN_SYSFUNC_FAIL;
       break;
     }
 
-    if (maa == 0) { 
-      N_VScale(ONE, gval, unew);
+    if (kin_mem->kin_m_aa == 0) { 
+      N_VScale(ONE, gval, kin_mem->kin_unew);
     }
     else {  /* use Anderson, if desired */
-      N_VScale(ONE, uu, unew);
-      AndersonAcc(kin_mem, gval, delta, unew, uu, (int)(iter-1), R, gamma);
+      N_VScale(ONE, kin_mem->kin_uu, kin_mem->kin_unew);
+      AndersonAcc(kin_mem, gval, delta, kin_mem->kin_unew, kin_mem->kin_uu, (int)(iter-1), R, gamma);
     }
 
     /* Fill the Newton residual based on the new solution iterate */
-    retval = func(unew, fval, user_data); nfe++;
+    retval = kin_mem->kin_func(kin_mem->kin_unew, kin_mem->kin_fval, kin_mem->kin_user_data); kin_mem->kin_nfe++;
     
     if (retval < 0) {
       ret = KIN_SYSFUNC_FAIL;
@@ -2243,41 +2141,41 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R,
     }
 
     /* Evaluate function norms */
-    fnormp = N_VWL2Norm(fval,fscale);
-    fmax = KINScFNorm(kin_mem, fval, fscale); /* measure  || F(x) ||_max */
-    fnorm = fmax;
+    fnormp = N_VWL2Norm(kin_mem->kin_fval, kin_mem->kin_fscale);
+    fmax = KINScFNorm(kin_mem, kin_mem->kin_fval, kin_mem->kin_fscale); /* measure  || F(x) ||_max */
+    kin_mem->kin_fnorm = fmax;
     *fmaxptr = fmax;
     
-    if (printfl > 1) 
+    if (kin_mem->kin_printfl > 1) 
       KINPrintInfo(kin_mem, PRNT_FMAX, "KINSOL", "KINPicardAA", INFO_FMAX, fmax);
 
     /* print the current iter, fnorm, and nfe values if printfl > 0 */
-    if (printfl>0)
-      KINPrintInfo(kin_mem, PRNT_NNI, "KINSOL", "KINPicardAA", INFO_NNI, iter, nfe, fnorm);
+    if (kin_mem->kin_printfl > 0)
+      KINPrintInfo(kin_mem, PRNT_NNI, "KINSOL", "KINPicardAA", INFO_NNI, iter, kin_mem->kin_nfe, kin_mem->kin_fnorm);
 
     /* Check if the maximum number of iterations is reached */
-    if (iter >= mxiter) {
+    if (iter >= kin_mem->kin_mxiter) {
       ret = KIN_MAXITER_REACHED;
     }
-    if (fmax <= fnormtol) { 
+    if (fmax <= kin_mem->kin_fnormtol) { 
       ret = KIN_SUCCESS;
     }
 
     /* Update with new iterate. */
-    N_VScale(ONE, unew, uu);
+    N_VScale(ONE, kin_mem->kin_unew, kin_mem->kin_uu);
 
     if (ret == CONTINUE_ITERATIONS) { 
       /* evaluate eta by calling the forcing term routine */
-      if (callForcingTerm) KINForcingTerm(kin_mem, fnormp);
+      if (kin_mem->kin_callForcingTerm) KINForcingTerm(kin_mem, fnormp);
     }
 
-    fflush(errfp);
+    fflush(kin_mem->kin_errfp);
     
   }  /* end of loop; return */
 
   *iterp = iter;
 
-  if (printfl > 0)
+  if (kin_mem->kin_printfl > 0)
     KINPrintInfo(kin_mem, PRNT_RETVAL, "KINSOL", "KINPicardAA", INFO_RETVAL, ret);
 
   return(ret); 
@@ -2301,27 +2199,27 @@ static int KINPicardFcnEval(KINMem kin_mem, N_Vector gval, N_Vector uval, N_Vect
 {
   int retval;
 
-  if ((nni - nnilset) >= msbset) {
-    sthrsh = TWO;
-    update_fnorm_sub = TRUE;
+  if ((kin_mem->kin_nni - kin_mem->kin_nnilset) >= kin_mem->kin_msbset) {
+    kin_mem->kin_sthrsh = TWO;
+    kin_mem->kin_update_fnorm_sub = TRUE;
   }
 
-  loop{
+  for(;;){
 
-    jacCurrent = FALSE;
+    kin_mem->kin_jacCurrent = FALSE;
 
-    if ((sthrsh > ONEPT5) && setupNonNull) {
-      retval = lsetup(kin_mem);
-      jacCurrent = TRUE;
-      nnilset = nni;
-      nnilset_sub = nni;
+    if ((kin_mem->kin_sthrsh > ONEPT5) && (kin_mem->kin_lsetup != NULL)) {
+      retval = kin_mem->kin_lsetup(kin_mem);
+      kin_mem->kin_jacCurrent = TRUE;
+      kin_mem->kin_nnilset = kin_mem->kin_nni;
+      kin_mem->kin_nnilset_sub = kin_mem->kin_nni;
       if (retval != 0) return(KIN_LSETUP_FAIL);
     }
 
     /* call the generic 'lsolve' routine to solve the system Lx = -fval
        Note that we are using gval to hold x. */
     N_VScale(-ONE, fval1, fval1);
-    retval = lsolve(kin_mem, gval, fval1, &sJpnorm, &sFdotJp);
+    retval = kin_mem->kin_lsolve(kin_mem, gval, fval1, &(kin_mem->kin_sJpnorm), &(kin_mem->kin_sFdotJp));
 
     if (retval == 0) {
       /* Update gval = uval + gval since gval = -L^{-1}F(uu)  */
@@ -2329,12 +2227,12 @@ static int KINPicardFcnEval(KINMem kin_mem, N_Vector gval, N_Vector uval, N_Vect
       return(KIN_SUCCESS);
     }
     else if (retval < 0)                      return(KIN_LSOLVE_FAIL);
-    else if ((!setupNonNull) || (jacCurrent)) return(KIN_LINSOLV_NO_RECOVERY);
+    else if ((kin_mem->kin_lsetup == NULL) || (kin_mem->kin_jacCurrent)) return(KIN_LINSOLV_NO_RECOVERY);
 
     /* loop back only if the linear solver setup is in use
        and matrix information is not current */
 
-    sthrsh = TWO;
+    kin_mem->kin_sthrsh = TWO;
   }
 
 }
@@ -2358,7 +2256,7 @@ static int KINFP(KINMem kin_mem, long int *iterp,
   
   delta = kin_mem->kin_vtemp1;
   ret = CONTINUE_ITERATIONS;
-  fmax = fnormtol + ONE;
+  fmax = kin_mem->kin_fnormtol + ONE;
   iter = 0;
 
   while (ret == CONTINUE_ITERATIONS) {
@@ -2366,38 +2264,38 @@ static int KINFP(KINMem kin_mem, long int *iterp,
     iter++;
 
     /* evaluate func(uu) and return if failed */
-    retval = func(uu, fval, user_data); nfe++;
+    retval = kin_mem->kin_func(kin_mem->kin_uu, kin_mem->kin_fval, kin_mem->kin_user_data); kin_mem->kin_nfe++;
 
     if (retval < 0) {
       ret = KIN_SYSFUNC_FAIL;
       break;
     }
 
-    if (maa == 0) { 
-      N_VScale(ONE, fval, unew);
+    if (kin_mem->kin_m_aa == 0) { 
+      N_VScale(ONE, kin_mem->kin_fval, kin_mem->kin_unew);
     }
     else {  /* use Anderson, if desired */
-      AndersonAcc(kin_mem, fval, delta, unew, uu, (int)(iter-1), R, gamma);
+      AndersonAcc(kin_mem, kin_mem->kin_fval, delta, kin_mem->kin_unew, kin_mem->kin_uu, (int)(iter-1), R, gamma);
     }
 
-    N_VLinearSum(ONE, unew, -ONE, uu, delta);
-    fmax = KINScFNorm(kin_mem, delta, fscale); /* measure  || g(x)-x || */
+    N_VLinearSum(ONE, kin_mem->kin_unew, -ONE, kin_mem->kin_uu, delta);
+    fmax = KINScFNorm(kin_mem, delta, kin_mem->kin_fscale); /* measure  || g(x)-x || */
     
-    if (printfl > 1) 
+    if (kin_mem->kin_printfl > 1) 
       KINPrintInfo(kin_mem, PRNT_FMAX, "KINSOL", "KINFP", INFO_FMAX, fmax);
     
-    fnorm = fmax;
+    kin_mem->kin_fnorm = fmax;
     *fmaxptr = fmax;
 
     /* print the current iter, fnorm, and nfe values if printfl > 0 */
-    if (printfl>0)
-      KINPrintInfo(kin_mem, PRNT_NNI, "KINSOL", "KINFP", INFO_NNI, iter, nfe, fnorm);
+    if (kin_mem->kin_printfl > 0)
+      KINPrintInfo(kin_mem, PRNT_NNI, "KINSOL", "KINFP", INFO_NNI, iter, kin_mem->kin_nfe, kin_mem->kin_fnorm);
 
     /* Check if the maximum number of iterations is reached */
-    if (iter >= mxiter) {
+    if (iter >= kin_mem->kin_mxiter) {
       ret = KIN_MAXITER_REACHED;
     }
-    if (fmax <= fnormtol) { 
+    if (fmax <= kin_mem->kin_fnormtol) { 
       ret = KIN_SUCCESS;
     }
     
@@ -2405,16 +2303,16 @@ static int KINFP(KINMem kin_mem, long int *iterp,
       /* Only update solution if taking a next iteration.  */
       /* CSW  Should put in a conditional to send back the newest iterate or
 	 the one consistent with the fval */
-      N_VScale(ONE, unew, uu);
+      N_VScale(ONE, kin_mem->kin_unew, kin_mem->kin_uu);
     }
 
-    fflush(errfp);
+    fflush(kin_mem->kin_errfp);
     
   }  /* end of loop; return */
 
   *iterp = iter;
 
-  if (printfl > 0)
+  if (kin_mem->kin_printfl > 0)
     KINPrintInfo(kin_mem, PRNT_RETVAL, "KINSOL", "KINFP", INFO_RETVAL, ret);
 
   return(ret); 
@@ -2443,83 +2341,83 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
   realtype a, b, temp, c, s;
 
   ipt_map = kin_mem->kin_ipt_map;
-  i_pt = iter-1 - ((iter-1)/maa)*maa;
+  i_pt = iter-1 - ((iter-1)/kin_mem->kin_m_aa)*kin_mem->kin_m_aa;
   N_VLinearSum(ONE, gval, -1.0, xold, fv);
   if (iter > 0) {
     /* compute dg_new = gval -gval_old*/
-    N_VLinearSum(ONE, gval, -1.0, gold, dg[i_pt]);
+    N_VLinearSum(ONE, gval, -1.0, kin_mem->kin_gold_aa, kin_mem->kin_dg_aa[i_pt]);
     /* compute df_new = fval - fval_old */
-    N_VLinearSum(ONE, fv, -1.0, fold, df[i_pt]);
+    N_VLinearSum(ONE, fv, -1.0, kin_mem->kin_fold_aa, kin_mem->kin_df_aa[i_pt]);
   }
 
-  N_VScale(ONE, gval, gold);
-  N_VScale(ONE, fv, fold);
+  N_VScale(ONE, gval, kin_mem->kin_gold_aa);
+  N_VScale(ONE, fv, kin_mem->kin_fold_aa);
 
   if (iter == 0) {
     N_VScale(ONE, gval, x);
   }
   else {
     if (iter == 1) {
-      R[0] = sqrt(N_VDotProd(df[i_pt],df[i_pt]));
+      R[0] = sqrt(N_VDotProd(kin_mem->kin_df_aa[i_pt], kin_mem->kin_df_aa[i_pt]));
       alfa = 1/R[0];
-      N_VScale(alfa,df[i_pt],Q[i_pt]);
+      N_VScale(alfa, kin_mem->kin_df_aa[i_pt], kin_mem->kin_q_aa[i_pt]);
       ipt_map[0] = 0;
     }
-    else if (iter <= maa) {
-      N_VScale(ONE,df[i_pt],vtemp2);
+    else if (iter <= kin_mem->kin_m_aa) {
+      N_VScale(ONE, kin_mem->kin_df_aa[i_pt], kin_mem->kin_vtemp2);
       for (j=0; j < (iter-1); j++) {
         ipt_map[j] = j;
-        R[(iter-1)*maa+j] = N_VDotProd(Q[j],vtemp2);
-        N_VLinearSum(ONE,vtemp2,-R[(iter-1)*maa+j],Q[j],vtemp2);
+        R[(iter-1)*kin_mem->kin_m_aa+j] = N_VDotProd(kin_mem->kin_q_aa[j], kin_mem->kin_vtemp2);
+        N_VLinearSum(ONE,kin_mem->kin_vtemp2, -R[(iter-1)*kin_mem->kin_m_aa+j], kin_mem->kin_q_aa[j], kin_mem->kin_vtemp2);
       }
-      R[(iter-1)*maa+iter-1] = sqrt(N_VDotProd(vtemp2,vtemp2));
-      N_VScale((1/R[(iter-1)*maa+iter-1]),vtemp2,Q[i_pt]);
+      R[(iter-1)*kin_mem->kin_m_aa+iter-1] = sqrt(N_VDotProd(kin_mem->kin_vtemp2, kin_mem->kin_vtemp2));
+      N_VScale((1/R[(iter-1)*kin_mem->kin_m_aa+iter-1]), kin_mem->kin_vtemp2, kin_mem->kin_q_aa[i_pt]);
       ipt_map[iter-1] = iter-1;
     }
     else {
       /* Delete left-most column vector from QR factorization */
-      for (i=0; i < maa-1; i++) {
-        a = R[(i+1)*maa + i];
-        b = R[(i+1)*maa + i+1];
+      for (i=0; i < kin_mem->kin_m_aa-1; i++) {
+        a = R[(i+1)*kin_mem->kin_m_aa + i];
+        b = R[(i+1)*kin_mem->kin_m_aa + i+1];
         temp = sqrt(a*a + b*b);
         c = a / temp;
         s = b / temp;
-        R[(i+1)*maa + i] = temp;
-        R[(i+1)*maa + i+1] = 0.0;
+        R[(i+1)*kin_mem->kin_m_aa + i] = temp;
+        R[(i+1)*kin_mem->kin_m_aa + i+1] = 0.0;
 	/* OK to re-use temp */
-        if (i < maa-1) {
-          for (j = i+2; j < maa; j++) {
-            a = R[j*maa + i];
-            b = R[j*maa + i+1];
+        if (i < kin_mem->kin_m_aa-1) {
+          for (j = i+2; j < kin_mem->kin_m_aa; j++) {
+            a = R[j*kin_mem->kin_m_aa + i];
+            b = R[j*kin_mem->kin_m_aa + i+1];
             temp = c * a + s * b;
-            R[j*maa + i+1] = -s*a + c*b;
-            R[j*maa + i] = temp;
+            R[j*kin_mem->kin_m_aa + i+1] = -s*a + c*b;
+            R[j*kin_mem->kin_m_aa + i] = temp;
 	  }
 	}
-        N_VLinearSum(c, Q[i], s, Q[i+1], vtemp2);
-        N_VLinearSum(-s, Q[i], c, Q[i+1], Q[i+1]);
-        N_VScale(ONE, vtemp2, Q[i]);
+        N_VLinearSum(c, kin_mem->kin_q_aa[i], s, kin_mem->kin_q_aa[i+1], kin_mem->kin_vtemp2);
+        N_VLinearSum(-s, kin_mem->kin_q_aa[i], c, kin_mem->kin_q_aa[i+1], kin_mem->kin_q_aa[i+1]);
+        N_VScale(ONE, kin_mem->kin_vtemp2, kin_mem->kin_q_aa[i]);
       }
 
       /* Shift R to the left by one. */
-      for (i = 1; i < maa; i++) {
-        for (j = 0; j < maa-1; j++) {
-          R[(i-1)*maa + j] = R[i*maa + j];
+      for (i = 1; i < kin_mem->kin_m_aa; i++) {
+        for (j = 0; j < kin_mem->kin_m_aa-1; j++) {
+          R[(i-1)*kin_mem->kin_m_aa + j] = R[i*kin_mem->kin_m_aa + j];
         }
       }
 
       /* Add the new df vector */
-      N_VScale(ONE,df[i_pt],vtemp2);
-      for (j=0; j < (maa-1); j++) {
-        R[(maa-1)*maa+j] = N_VDotProd(Q[j],vtemp2);
-        N_VLinearSum(ONE,vtemp2,-R[(maa-1)*maa+j],Q[j],vtemp2);
+      N_VScale(ONE, kin_mem->kin_df_aa[i_pt], kin_mem->kin_vtemp2);
+      for (j=0; j < (kin_mem->kin_m_aa-1); j++) {
+        R[(kin_mem->kin_m_aa-1)*kin_mem->kin_m_aa+j] = N_VDotProd(kin_mem->kin_q_aa[j], kin_mem->kin_vtemp2);
+        N_VLinearSum(ONE, kin_mem->kin_vtemp2, -R[(kin_mem->kin_m_aa-1)*kin_mem->kin_m_aa+j], kin_mem->kin_q_aa[j],kin_mem->kin_vtemp2);
       }
-      R[(maa-1)*maa+maa-1] = sqrt(N_VDotProd(vtemp2,vtemp2));
-      N_VScale((1/R[(maa-1)*maa+maa-1]),vtemp2,Q[maa-1]);
+      R[(kin_mem->kin_m_aa-1)*kin_mem->kin_m_aa+kin_mem->kin_m_aa-1] = sqrt(N_VDotProd(kin_mem->kin_vtemp2, kin_mem->kin_vtemp2));
+      N_VScale((1/R[(kin_mem->kin_m_aa-1)*kin_mem->kin_m_aa+kin_mem->kin_m_aa-1]), kin_mem->kin_vtemp2, kin_mem->kin_q_aa[kin_mem->kin_m_aa-1]);
 
       /* Update the iteration map */
       j = 0;
-      for (i=i_pt+1; i < maa; i++)
+      for (i=i_pt+1; i < kin_mem->kin_m_aa; i++)
         ipt_map[j++] = i;
       for (i=0; i < (i_pt+1); i++)
         ipt_map[j++] = i;
@@ -2527,16 +2425,16 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
 
     /* Solve least squares problem and update solution */
     lAA = iter;
-    if (maa < iter) lAA = maa;
+    if (kin_mem->kin_m_aa < iter) lAA = kin_mem->kin_m_aa;
     N_VScale(ONE, gval, x);
     for (i=0; i < lAA; i++)
-      gamma[i] = N_VDotProd(fv,Q[i]);
+      gamma[i] = N_VDotProd(fv, kin_mem->kin_q_aa[i]);
     for (i=lAA-1; i > -1; i--) {
       for (j=i+1; j < lAA; j++) {
-        gamma[i] = gamma[i]-R[j*maa+i]*gamma[j]; 
+        gamma[i] = gamma[i]-R[j*kin_mem->kin_m_aa+i]*gamma[j]; 
       }
-      gamma[i] = gamma[i]/R[i*maa+i];
-      N_VLinearSum(ONE,x,-gamma[i],dg[ipt_map[i]],x);
+      gamma[i] = gamma[i]/R[i*kin_mem->kin_m_aa+i];
+      N_VLinearSum(ONE, x, -gamma[i], kin_mem->kin_dg_aa[ipt_map[i]], x);
     }
   }
 

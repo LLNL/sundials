@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and
+ * Copyright (c) 2017, Southern Methodist University and
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department
@@ -24,17 +24,16 @@
 
  The FARKBP Interface Package is a package of C functions which,
  together with the FARKODE Interface Package, support the use of
- the ARKODE solver and N_VSerial vector module with the ARKBANDPRE
- preconditioner module, for the solution of ODE systems in a mixed
- Fortran/C setting.  The combination of ARKODE and ARKBANDPRE
- solves the linear systems arising from the solution of the
- implicit portions of the ODE system
+ the ARKODE solver and serial, OpenMP or PThreads vector module
+ with the ARKBANDPRE preconditioner module, for the solution of
+ ODE systems in a mixed Fortran/C setting.  The combination of
+ ARKODE and ARKBANDPRE solves the linear systems arising from the
+ solution of the implicit portions of the ODE system
        dy/dt = fe(t,y) + fi(t,y)
- using a Krylov iterative linear solver (SPGMR, SPTFQMR, SPBCG,
- SPFGMR or PCG), and with a banded preconditioner.  This
- preconditioner can be constructed using either a user-supplied
- routine, or automatically via finite differencing.
-
+ using a Krylov iterative linear solver via the ARKSPILS
+ interface, and with a banded difference quotient Jacobian-based
+ preconditioner.
+ 
  The user-callable functions in this package, with the
  corresponding ARKODE and ARKBBDPRE functions, are as follows:
 
@@ -43,12 +42,12 @@
    FARKBPINIT           ARKBandPrecInit
    FARKBPOPT            (accesses optional outputs)
    -------------        ---------------------------
-
+ 
  In addition to the Fortran implicit right-hand side function
- FARKIFUN, the user may (optionally) supply a routine FARKJTIMES
- that is called by the C interface function FARKJtimes of type
- ARKSpilsJtimesFn.
-
+ FARKIFUN, the user may (optionally) supply routines FARKJTSETUP
+ and FARKJTIMES that are called by the C interface function
+ FARKJTSetup of type ARKSpilsJTSetupFn and the interface function
+ FARKJtimes of type ARKSpilsJtimesFn.
 
  Important notes on portability:
 
@@ -66,8 +65,8 @@
            Usage of the FARKODE/FARKBP Interface Packages
 
  The usage of the combined interface packages FARKODE and FARKBP
- requires calls to seven to ten interface functions, and one or
- two user-supplied routines which define the problem to be solved
+ requires calls to a variety of interface functions, and one or
+ more user-supplied routines which define the problem to be solved
  and indirectly define the preconditioner.  These function calls
  and user routines are summarized separately below.
 
@@ -76,7 +75,7 @@
 
  (1) User-supplied implicit right-hand side routine: FARKIFUN
      If any portion of the ODE system should be treated
-     implicitly (and hence would require a linear solver at all),
+     implicitly (and hence would require a linear solve),
      the user must supply the following Fortran routine:
 
        SUBROUTINE FARKIFUN(T, Y, YDOT, IPAR, RPAR, IER)
@@ -97,16 +96,38 @@
                   0 if successful,
                  >0 if a recoverable error occurred,
                  <0 if an unrecoverable error ocurred.
-
- (2) Optional user-supplied Jacobian-vector product: FARKJTIMES
+ 
+ (2) Optional user-supplied Jacobian-vector setup and product 
+     functions: FARKJTSETUP and FARKJTIMES
 
      As an option, the user may supply a routine that computes
      the product of the system Jacobian  J = dfi(t,y)/dy and a
-     given vector v.  If supplied, it must have the following
-     form:
+     given vector v.  If supplied, a 'setup' routine to prepare
+     any user data structures must exist, and have the form:
+ 
+       SUBROUTINE FARKJTSETUP(T, Y, FY, H, IPAR, RPAR, IER)
 
-       SUBROUTINE FARKJTIMES(V, FJV, T, Y, FY, H, IPAR, RPAR,
-      &                      WORK, IER)
+     Typically this routine will use only T and Y.  It must perform any
+     relevant preparations for subsequent calls to the user-provided
+     FARKJTIMES routine (see below).
+
+     The arguments are:
+       T    -- current time [realtype, input]
+       Y    -- array containing state variables [realtype, input]
+       FY   -- array containing state derivatives [realtype, input]
+       H    -- current step size [realtype, input]
+       IPAR -- array containing integer user data that was passed to
+               FARKMALLOC [long int, input]
+       RPAR -- array containing real user data that was passed to
+               FARKMALLOC [realtype, input]
+       IER  -- return flag [int, output]:
+                  0 if successful,
+                  nonzero if an error.
+ 
+     The accompanying Jacobian matrix-vector product routine must
+     have the following form:
+
+       SUBROUTINE FARKJTIMES(V, FJV, T, Y, FY, H, IPAR, RPAR, WORK, IER)
 
      Typically this routine will use only NEQ, T, Y, V, and FJV.
      It must compute the product vector J*v where the vector V,
@@ -129,22 +150,51 @@
                   0 if successful,
                   nonzero if an error.
 
- (3) Initialization:  FNVINITS, FARKMALLOC, linear solver
-     initialization, and FARKBPINIT.
+ (3) Initialization:  FNVINITS / FNVINITOMP / FNVINITPTS,
+     generic linear solver initialization, FARKMALLOC, FARKSPILSINIT,
+     and FARKBPINIT.
+ 
+ (3.1) To initialize the vector specification, the user must make
+     one of the following calls:
 
- (3.1) To initialize the serial vector specification, the user
-      must make the following call:
-
-        CALL FNVINITS(4, NEQ, IER)
+       (serial)
+          CALL FNVINITS(4, NEQ, IER)
+       (OpenMP threaded)
+          CALL FNVINITOMP(4, NEQ, NUM_THREADS, IER)
+       (PThreads threaded)
+          CALL FNVINITPTS(4, NEQ, NUM_THREADS, IER)
 
      where the first argument is an int containing the ARKODE
      solver ID (4). The other arguments are:
         NEQ = size of vectors [long int, input]
+        NUM_THREADS = number of threads
+        IER = return completion flag [int, output]:
+	          0 = success, 
+		 -1 = failure.
+ 
+ (3.2) To initialize a generic iterative linear solver structure for 
+     solving linear systems arising from implicit or IMEX treatment 
+     of the IVP, the user must make one of the following calls:
+
+          CALL FSUNPCGINIT(4, PRETYPE, MAXL, IER)
+          CALL FSUNSPBCGSINIT(4, PRETYPE, MAXL, IER)
+          CALL FSUNSPFGMRINIT(4, PRETYPE, MAXL, IER)
+          CALL FSUNSPGMRINIT(4, PRETYPE, MAXL, IER)
+          CALL FSUNSPTFQMRINIT(4, PRETYPE, MAXL, IER)
+
+     In each of these, one argument is an int containing the ARKODE solver 
+     ID (4). 
+
+     The other arguments are:
+
+        PRETYPE = type of preconditioning to perform (0=none, 1=left, 
+           2=right, 3=both) [int, input]
+        MAXL = maximum Krylov subspace dimension [int, input]
 	IER = return completion flag [int, output]:
 	          0 = success,
 		 -1 = failure.
 
- (3.2) To set various problem and solution parameters and
+ (3.3) To set various problem and solution parameters and
      allocate internal memory, make the following call:
 
        CALL FARKMALLOC(T0, Y0, IMEX, IATOL, RTOL, ATOL, IOUT,
@@ -182,160 +232,17 @@
      with COMMON blocks to pass data betwen user-provided
      routines.
 
- (3.3) Attach one of the 3 SPILS linear solvers.
+ (3.4) Create the ARKSPILS interface to attach the generic
+     iterative linear solver to ARKode, by making the following call:
 
- (3.3A) To specify the SPGMR (Scaled Preconditioned GMRES)
-     linear solver make the following call:
-
-       CALL FARKSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
+       CALL FARKSPILSINIT(IER)
 
      The arguments are:
-        IPRETYPE = preconditioner type [int, input]:
-              0 = none
-              1 = left only
-              2 = right only
-              3 = both sides
-	IGSTYPE = Gram-schmidt process type [int, input]:
-              1 = modified G-S
-              2 = classical G-S.
-	MAXL = maximum Krylov subspace dimension [int; input];
-	      0 = default
-	DELT = convergence tolerance factor [realtype, input];
-	      0.0 = default.
 	IER = error return flag [int, output]:
 	       0 = success;
 	      <0 = an error occured
 
-     If a sequence of problems of the same size is being solved
-     using the SPGMR linear solver, then following the call to
-     FARKREINIT, a call to the FARKSPGMRREINIT routine is needed
-     if any of IPRETYPE, IGSTYPE, DELT is being changed.  In that
-     case, call FARKSPGMRREINIT as follows:
-
-       CALL FARKSPGMRREINIT(IPRETYPE, IGSTYPE, DELT, IER)
-
-     The arguments have the same meanings as for FARKSPGMR.  If
-     MAXL is being changed, then the user should call FARKSPGMR
-     instead.
-
- (3.3B) To specify the SPBCG (Scaled Preconditioned Bi-CGSTAB)
-     linear solver make the following call:
-
-       CALL FARKSPBCG(IPRETYPE, MAXL, DELT, IER)
-
-     The arguments are:
-       IPRETYPE = preconditioner type [int, input]:
-              0 = none
-              1 = left only
-              2 = right only
-              3 = both sides
-       MAXL = maximum Krylov subspace dimension [int, input];
-              0 = default.
-       DELT = convergence tolerance factor [realtype, input];
-              0.0 = default.
-       IER = error return flag [int, output]:
-              0 = success;
-	     <0 = an error occured
-
-     If a sequence of problems of the same size is being solved
-     using the SPBCG linear solver, then following the call to
-     FARKREINIT, a call to the FARKSPBCGREINIT routine is needed
-     if any of its arguments is being changed.  The call is:
-
-       CALL FARKSPBCGREINIT(IPRETYPE, MAXL, DELT, IER)
-
-     The arguments have the same meanings as for FARKSPBCG.
-
- (3.3C) To specify the SPTFQMR (Scaled Preconditioned TFQMR)
-     linear solver make the following call:
-
-       CALL FARKSPTFQMR(IPRETYPE, MAXL, DELT, IER)
-
-     The arguments are:
-       IPRETYPE = preconditioner type [int, input]:
-              0 = none
-              1 = left only
-              2 = right only
-              3 = both sides
-       MAXL = maximum Krylov subspace dimension [int, input];
-              0 = default.
-       DELT = convergence tolerance factor [realtype, input]
-	      0.0 = default.
-       IER = error return flag [int, output]:
-              0 = success;
-	     <0 = an error occured
-
-     If a sequence of problems of the same size is being solved
-     using the SPTFQMR linear solver, then following the call to
-     FARKREINIT, a call to the FARKSPTFQMRREINIT routine is
-     needed if any of its arguments is being changed.  The call
-     is:
-
-       CALL FARKSPTFQMRREINIT(IPRETYPE, MAXL, DELT, IER)
-
-     The arguments have the same meanings as for FARKSPTFQMR.
-
- (3.3D) To specify the SPFGMR (Scaled Preconditioned Flexible GMRES)
-     linear solver make the following call:
-
-       CALL FARKSPFGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
-
-     The arguments are:
-        IPRETYPE = preconditioner type [int, input]:
-              0 = none
-              1 = left only
-              2 = right only
-              3 = both sides
-	IGSTYPE = Gram-schmidt process type [int, input]:
-              1 = modified G-S
-              2 = classical G-S.
-	MAXL = maximum Krylov subspace dimension [int; input];
-	      0 = default
-	DELT = convergence tolerance factor [realtype, input];
-	      0.0 = default.
-	IER = error return flag [int, output]:
-	       0 = success;
-	      <0 = an error occured
-
-     If a sequence of problems of the same size is being solved
-     using the SPFGMR linear solver, then following the call to
-     FARKREINIT, a call to the FARKSPFGMRREINIT routine is needed
-     if any of IPRETYPE, IGSTYPE, DELT is being changed.  In that
-     case, call FARKSPFGMRREINIT as follows:
-
-       CALL FARKSPFGMRREINIT(IPRETYPE, IGSTYPE, DELT, IER)
-
-     The arguments have the same meanings as for FARKSPFGMR.  If
-     MAXL is being changed, then the user should call FARKSPFGMR
-     instead.
-
- (3.3E) To specify the PCG (Preconditioned Conjugate Gradient)
-     linear solver make the following call:
-
-       CALL FARKPCG(IPRETYPE, MAXL, DELT, IER)
-
-     The arguments are:
-       IPRETYPE = preconditioner type [int, input]:
-              0 = none
-              1 = use preconditioning
-       MAXL = maximum Krylov subspace dimension [int, input];
-              0 = default.
-       DELT = convergence tolerance factor [realtype, input];
-              0.0 = default.
-       IER = error return flag [int, output]:
-              0 = success;
-	     <0 = an error occured
-
-     If a sequence of problems of the same size is being solved
-     using the PCG linear solver, then following the call to
-     FARKREINIT, a call to the FARKPCGREINIT routine is needed
-     if any of its arguments is being changed.  The call is:
-
-       CALL FARKPCGREINIT(IPRETYPE, MAXL, DELT, IER)
-
-     The arguments have the same meanings as for FARKPCG.
-
- (3.4) To allocate memory and initialize data associated with the
+ (3.5) To allocate memory and initialize data associated with the
       ARKBANDPRE preconditioner, make the following call:
 
         CALL FARKBPINIT(NEQ, MU, ML, IER)
@@ -343,25 +250,25 @@
       The arguments are:
         NEQ = problem size [long int, input]
         MU = upper half-bandwidth of the band matrix that is
-	     retained as an approximation of the Jacobian
-	     [long int, input]
+             retained as an approximation of the Jacobian
+             [long int, input]
         ML = lower half-bandwidth of the band matrix approximant
-	     to the Jacobian [long int, input]
+             to the Jacobian [long int, input]
         IER = return completion flag [int, output]:
                     0 = success
                    <0 = an error occurred
 
- (3.5) To specify whether the Krylov linear solver should use the
-     supplied FARKJTIMES or the internal finite difference
-     approximation, make the call
+ (3.6) To specify whether the Krylov linear solver should use the
+     supplied FARKJTSETUP and FARKJTIMES routines, or the internal
+     finite difference approximation, make the call
 
         CALL FARKSPILSSETJAC(FLAG, IER)
 
-     with the int FLAG=1 to specify that FARKJTIMES is provided
-     (FLAG=0 specifies to use and internal finite difference
-     approximation to this product).  The int return flag IER=0
-     if successful, and nonzero otherwise.
-
+     with the int FLAG=1 to specify that FARKJTSETUP and FARKJTIMES 
+     are provided (FLAG=0 specifies to use and internal finite 
+     difference approximation to this product).  The int return
+     flag IER=0 if successful, and nonzero otherwise.
+ 
  (4) The integrator: FARKODE
 
      Carrying out the integration is accomplished by making calls
@@ -396,15 +303,15 @@
  (5) Optional outputs: FARKBPOPT
 
      Optional outputs specific to the SP* linear solvers are:
-        LENRWLS = IOUT(14) from ARKSp*GetWorkSpace (real space)
-        LENIWLS = IOUT(15) from ARKSp*GetWorkSpace (int space)
-        LSTF    = IOUT(16) from ARKSp*GetLastFlag
-        NFELS   = IOUT(17) from ARKSp*GetRhsEvals
-        NJTV    = IOUT(18) from ARKSp*GetJtimesEvals
-        NPE     = IOUT(19) from ARKSp*GetPrecEvals
-        NPS     = IOUT(20) from ARKSp*GetPrecSolves
-        NLI     = IOUT(21) from ARKSp*GetLinIters
-        NCFL    = IOUT(22) from ARKSp*GetConvFails
+        LENRWLS = IOUT(14) from ARKSpilsGetWorkSpace
+        LENIWLS = IOUT(15) from ARKSpilsGetWorkSpace
+        LSTF    = IOUT(16) from ARKSpilsGetLastFlag
+        NFELS   = IOUT(17) from ARKSpilsGetNumRhsEvals
+        NJTV    = IOUT(18) from ARKSpilsGetNumJtimesEvals
+        NPE     = IOUT(19) from ARKSpilsGetNumPrecEvals
+        NPS     = IOUT(20) from ARKSpilsGetNumPrecSolves
+        NLI     = IOUT(21) from ARKSpilsGetNumLinIters
+        NCFL    = IOUT(22) from ARKSpilsGetNumConvFails
      See the ARKODE manual for descriptions.
 
      To obtain the optional outputs associated with the
@@ -440,8 +347,8 @@
  (7) Memory freeing: FARKFREE
 
      To free the internal memory created by the calls to
-     FARKMALLOC, FNVINITS or FNVINITP, and FARKBPINIT, make the
-     call:
+     FARKMALLOC, FNVINITS / FNVINITOMP / FNVINITPTS,
+     FARKSPILSINIT and FARKBPINIT, make the call:
 
        CALL FARKFREE()
 
@@ -462,7 +369,7 @@ extern "C" {
 #if defined(SUNDIALS_F77_FUNC)
 
 #define FARK_BPINIT    SUNDIALS_F77_FUNC(farkbpinit, FARKBPINIT)
-#define FARK_BPOPT     SUNDIALS_F77_FUNC(farkbpopt, FARKBPOPT)
+#define FARK_BPOPT     SUNDIALS_F77_FUNC(farkbpopt,  FARKBPOPT)
 
 #else
 

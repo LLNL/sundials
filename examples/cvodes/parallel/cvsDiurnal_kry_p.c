@@ -1,9 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
- * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
+ * Programmer(s): Daniel R. Reynolds
+ *                S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
  * -----------------------------------------------------------------
  * Example problem:
@@ -32,7 +30,7 @@
  * neq = 2*MX*MY.
  *
  * The solution is done with the BDF/GMRES method (i.e. using the
- * CVSPGMR linear solver) and the block-diagonal part of the
+ * SUNSPGMR linear solver) and the block-diagonal part of the
  * Newton matrix as a left preconditioner. A copy of the
  * block-diagonal part of the Jacobian is saved and conditionally
  * reused within the preconditioner routine.
@@ -52,12 +50,13 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <cvodes/cvodes.h>             /* prototypes for CVODE fcts. */
-#include <cvodes/cvodes_spgmr.h>       /* prototypes and constants for CVSPGMR solver */
-#include <nvector/nvector_parallel.h>  /* definition N_Vector  */
-#include <sundials/sundials_dense.h>   /* prototypes for small dense matrix fcts. */
-#include <sundials/sundials_types.h>   /* definitions of realtype, booleantype */
-#include <sundials/sundials_math.h>    /* definition of macros SUNSQR and EXP */
+#include <cvodes/cvodes.h>              /* prototypes for CVODE fcts. */
+#include <cvodes/cvodes_spils.h>        /* prototypes and constants for CVSpils interface */
+#include <sunlinsol/sunlinsol_spgmr.h>  /* prototypes and constants for SUNSPGMR solver */
+#include <nvector/nvector_parallel.h>   /* definition N_Vector  */
+#include <sundials/sundials_dense.h>    /* prototypes for small dense matrix fcts. */
+#include <sundials/sundials_types.h>    /* definitions of realtype, booleantype */
+#include <sundials/sundials_math.h>     /* definition of macros SUNSQR and EXP */
 
 #include <mpi.h>                       /* MPI constants and types */
 
@@ -165,13 +164,11 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *user_data, 
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+                   realtype gamma, void *user_data);
 
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
-                  N_Vector r, N_Vector z, 
-                  realtype gamma, realtype delta,
-                  int lr, void *user_data, N_Vector vtemp);
+                  N_Vector r, N_Vector z, realtype gamma, 
+                  realtype delta, int lr, void *user_data);
 
 
 /* Private function to check function return values */
@@ -186,6 +183,7 @@ int main(int argc, char *argv[])
   realtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
+  SUNLinearSolver LS;
   void *cvode_mem;
   int iout, flag, my_pe, npes;
   sunindextype neq, local_N;
@@ -193,6 +191,7 @@ int main(int argc, char *argv[])
 
   u = NULL;
   data = NULL;
+  LS = NULL;
   cvode_mem = NULL;
 
   /* Set problem size neq */
@@ -246,10 +245,14 @@ int main(int argc, char *argv[])
   flag = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_flag(&flag, "CVodeSStolerances", 1, my_pe)) return(1);
 
-  /* Call CVSpgmr to specify the linear solver CVSPGMR 
-     with left preconditioning and the maximum Krylov dimension maxl */
-  flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
-  if (check_flag(&flag, "CVSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
+  /* Create SPGMR solver structure -- use left preconditioning 
+     and the default Krylov dimension maxl */
+  LS = SUNSPGMR(u, PREC_LEFT, 0);
+  if (check_flag((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  
+  /* Attach the linear solver to the CVSpils interface */
+  flag = CVSpilsSetLinearSolver(cvode_mem, LS);
+  if(check_flag(&flag, "CVSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Set preconditioner setup and solve routines Precond and PSolve, 
      and the pointer to the user-defined block data */
@@ -273,6 +276,7 @@ int main(int argc, char *argv[])
   N_VDestroy_Parallel(u);
   FreeUserData(data);
   CVodeFree(&cvode_mem);
+  SUNLinSolFree(LS);
 
   MPI_Finalize();
 
@@ -475,9 +479,9 @@ static void PrintFinalStats(void *cvode_mem)
   check_flag(&flag, "CVSpilsGetNumRhsEvals", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
-  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw,   leniw);
-  printf("lenrwls = %5ld     leniwls = %5ld\n", lenrwLS, leniwLS);
-  printf("nst     = %5ld\n"                  , nst);
+  printf("lenrw   = %5ld     leniw   = %5ld\n"  , lenrw, leniw);
+  printf("lenrwls = %5ld     leniwls = %5ld\n"  , lenrwLS, leniwLS);
+  printf("nst     = %5ld\n"                     , nst);
   printf("nfe     = %5ld     nfels   = %5ld\n"  , nfe, nfeLS);
   printf("nni     = %5ld     nli     = %5ld\n"  , nni, nli);
   printf("nsetups = %5ld     netf    = %5ld\n"  , nsetups, netf);
@@ -814,8 +818,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 /* Preconditioner setup routine. Generate and preprocess P. */
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *user_data, 
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+                   realtype gamma, void *user_data)
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
@@ -903,9 +906,8 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 
 /* Preconditioner solve routine */
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
-                  N_Vector r, N_Vector z, 
-                  realtype gamma, realtype delta,
-                  int lr, void *user_data, N_Vector vtemp)
+                  N_Vector r, N_Vector z, realtype gamma, 
+                  realtype delta, int lr, void *user_data)
 {
   realtype **(*P)[MYSUB];
   sunindextype nvmxsub;

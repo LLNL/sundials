@@ -1,9 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
- * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *                S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
  * --------------------------------------------------------------------
  * Example problem:
@@ -32,7 +30,7 @@
  * neq = 2*MX*MY.
  *
  * The solution is done with the BDF/GMRES method (i.e. using the
- * CVSPGMR linear solver) and a block-diagonal matrix with banded
+ * SUNSPGMR linear solver) and a block-diagonal matrix with banded
  * blocks as a preconditioner, using the CVBBDPRE module.
  * Each block is generated using difference quotients, with
  * half-bandwidths mudq = mldq = 2*MXSUB, but the retained banded
@@ -55,14 +53,15 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <cvodes/cvodes.h>            /* prototypes for CVODE fcts. */
-#include <cvodes/cvodes_spgmr.h>      /* prototypes and constants for CVSPGMR solver */
-#include <cvodes/cvodes_bbdpre.h>     /* prototypes for CVBBDPRE module */
-#include <nvector/nvector_parallel.h> /* definition N_Vector */
-#include <sundials/sundials_types.h>  /* definitions of realtype, booleantype */
-#include <sundials/sundials_math.h>   /* definition of macros SUNSQR and EXP */
+#include <cvodes/cvodes.h>              /* prototypes for CVODE fcts. */
+#include <cvodes/cvodes_spils.h>        /* prototypes and constants for CVSpils interface */
+#include <cvodes/cvodes_bbdpre.h>       /* prototypes for CVBBDPRE module */
+#include <sunlinsol/sunlinsol_spgmr.h>  /* prototypes and constants for SUNSPGMR solver */
+#include <nvector/nvector_parallel.h>   /* definition N_Vector */
+#include <sundials/sundials_types.h>    /* definitions of realtype, booleantype */
+#include <sundials/sundials_math.h>     /* definition of macros SUNSQR and EXP */
 
-#include <mpi.h>                      /* MPI constants and types */
+#include <mpi.h>                        /* MPI constants and types */
 
 
 /* Problem Constants */
@@ -163,6 +162,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 int main(int argc, char *argv[])
 {
   UserData data;
+  SUNLinearSolver LS;
   void *cvode_mem;
   realtype abstol, reltol, t, tout;
   N_Vector u;
@@ -171,6 +171,7 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
 
   data = NULL;
+  LS = NULL;
   cvode_mem = NULL;
   u = NULL;
 
@@ -226,10 +227,14 @@ int main(int argc, char *argv[])
   flag = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_flag(&flag, "CVodeSStolerances", 1, my_pe)) return(1);
 
-  /* Call CVSpgmr to specify the linear solver CVSPGMR with left
-     preconditioning and the default maximum Krylov dimension maxl  */
-  flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
-  if(check_flag(&flag, "CVBBDSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
+  /* Create SPGMR solver structure -- use left preconditioning 
+     and the default Krylov dimension maxl */
+  LS = SUNSPGMR(u, PREC_LEFT, 0);
+  if (check_flag((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  
+  /* Attach the linear solver to the CVSpils interface */
+  flag = CVSpilsSetLinearSolver(cvode_mem, LS);
+  if(check_flag(&flag, "CVSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Initialize BBD preconditioner */
   mudq = mldq = NVARS*MXSUB;
@@ -244,7 +249,8 @@ int main(int argc, char *argv[])
   /* Loop over jpre (= PREC_LEFT, PREC_RIGHT), and solve the problem */
   for (jpre = PREC_LEFT; jpre <= PREC_RIGHT; jpre++) {
 
-  /* On second run, re-initialize u, the integrator, CVBBDPRE, and CVSPGMR */
+  /* On second run, re-initialize u, the integrator, CVBBDPRE, 
+     and preconditioning type */
 
   if (jpre == PREC_RIGHT) {
 
@@ -256,8 +262,8 @@ int main(int argc, char *argv[])
     flag = CVBBDPrecReInit(cvode_mem, mudq, mldq, ZERO);
     if(check_flag(&flag, "CVBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVSpilsSetPrecType(cvode_mem, PREC_RIGHT);
-    check_flag(&flag, "CVSpilsSetPrecType", 1, my_pe);
+    flag = SUNSPGMRSetPrecType(LS, PREC_RIGHT);
+    check_flag(&flag, "SUNSPGMRSetPrecType", 1, my_pe);
 
     if (my_pe == 0) {
       printf("\n\n-------------------------------------------------------");
@@ -290,6 +296,7 @@ int main(int argc, char *argv[])
   N_VDestroy_Parallel(u);
   free(data);
   CVodeFree(&cvode_mem);
+  SUNLinSolFree(LS);
 
   MPI_Finalize();
 
@@ -482,9 +489,9 @@ static void PrintFinalStats(void *cvode_mem)
   check_flag(&flag, "CVSpilsGetNumRhsEvals", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
-  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw,   leniw);
-  printf("lenrwls = %5ld     leniwls = %5ld\n", lenrwLS, leniwLS);
-  printf("nst     = %5ld\n"                  , nst);
+  printf("lenrw   = %5ld     leniw   = %5ld\n"  , lenrw, leniw);
+  printf("lenrwls = %5ld     leniwls = %5ld\n"  , lenrwLS, leniwLS);
+  printf("nst     = %5ld\n"                     , nst);
   printf("nfe     = %5ld     nfels   = %5ld\n"  , nfe, nfeLS);
   printf("nni     = %5ld     nli     = %5ld\n"  , nni, nli);
   printf("nsetups = %5ld     netf    = %5ld\n"  , nsetups, netf);

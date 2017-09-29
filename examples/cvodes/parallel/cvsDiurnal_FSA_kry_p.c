@@ -1,9 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
- * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *                S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
  * -----------------------------------------------------------------
  * Example problem:
@@ -32,7 +30,7 @@
  * is neq = 2*MX*MY.
  *
  * The solution with CVODES is done with the BDF/GMRES method (i.e.
- * using the CVSPGMR linear solver) and the block-diagonal part of
+ * using the SUNSPGMR linear solver) and the block-diagonal part of
  * the Newton matrix as a left preconditioner. A copy of the
  * block-diagonal part of the Jacobian is saved and conditionally
  * reused within the Precond routine.
@@ -53,7 +51,7 @@
  * Note: This version uses MPI for user routines, and the CVODES
  *       solver. In what follows, N is the number of processors,
  *       N = NPEX*NPEY (see constants below) and it is assumed that
- *       the MPI script mpirun is used to run a paralles
+ *       the MPI script mpirun is used to run a parallel
  *       application.
  * If no sensitivities are desired:
  *    % mpirun -np N cvsDiurnal_FSA_kry_p -nosensi
@@ -69,12 +67,13 @@
 #include <math.h>
 #include <string.h>
 
-#include <cvodes/cvodes.h>            /* main CVODES header file */
-#include <cvodes/cvodes_spgmr.h>      /* defs. for CVSPGMR fcts. and constants */
-#include <nvector/nvector_parallel.h> /* defs of par. NVECTOR fcts. and macros */
-#include <sundials/sundials_dense.h>  /* generic DENSE solver used in prec. */
-#include <sundials/sundials_math.h>   /* contains macros SQR and EXP */
-#include <sundials/sundials_types.h>  /* def. of realtype */
+#include <cvodes/cvodes.h>              /* main CVODES header file */
+#include <cvodes/cvodes_spils.h>        /* defs. for CVSPILS fcts. and constants */
+#include <sunlinsol/sunlinsol_spgmr.h>  /* defs. for SUNSPGMR fcts. and constants */
+#include <nvector/nvector_parallel.h>   /* defs of par. NVECTOR fcts. and macros */
+#include <sundials/sundials_dense.h>    /* generic DENSE solver used in prec. */
+#include <sundials/sundials_math.h>     /* contains macros SQR and EXP */
+#include <sundials/sundials_types.h>    /* def. of realtype */
 
 #include <mpi.h>
 
@@ -158,13 +157,11 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *user_data, 
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+                   realtype gamma, void *user_data);
 
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
-                  N_Vector r, N_Vector z, 
-                  realtype gamma, realtype delta,
-                  int lr, void *user_data, N_Vector vtemp);
+                  N_Vector r, N_Vector z, realtype gamma, 
+                  realtype delta, int lr, void *user_data);
 
 /* Private Helper Functions */
 
@@ -180,9 +177,8 @@ static void BSend(MPI_Comm comm, int my_pe, int isubx,
                   int isuby, sunindextype dsizex, 
                   sunindextype dsizey, realtype udata[]);
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
-                      int isubx, int isuby,
-                      sunindextype dsizex, sunindextype dsizey,
-                      realtype uext[], realtype buffer[]);
+                      int isubx, int isuby, sunindextype dsizex,
+                      sunindextype dsizey, realtype uext[], realtype buffer[]);
 static void BRecvWait(MPI_Request request[], int isubx, int isuby,
                       sunindextype dsizex, realtype uext[], realtype buffer[]);
 static void ucomm(realtype t, N_Vector u, UserData data);
@@ -205,6 +201,7 @@ int main(int argc, char *argv[])
   realtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
+  SUNLinearSolver LS;
   void *cvode_mem;
   int iout, flag, my_pe, npes;
   sunindextype neq, local_N;
@@ -218,6 +215,7 @@ int main(int argc, char *argv[])
 
   u = NULL;
   data = NULL;
+  LS = NULL;
   cvode_mem = NULL;
   pbar = NULL;
   plist = NULL;
@@ -277,9 +275,14 @@ int main(int argc, char *argv[])
   flag = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_flag(&flag, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
 
-  /* Attach linear solver CVSPGMR */
-  flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
-  if (check_flag(&flag, "CVSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
+  /* Create SPGMR solver structure -- use left preconditioning 
+     and the default Krylov dimension maxl */
+  LS = SUNSPGMR(u, PREC_LEFT, 0);
+  if (check_flag((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  
+  /* Attach linear solver to CVSpils interface */
+  flag = CVSpilsSetLinearSolver(cvode_mem, LS);
+  if (check_flag(&flag, "CVSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve);
   if (check_flag(&flag, "CVSpilsSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
@@ -369,6 +372,7 @@ int main(int argc, char *argv[])
   }
   FreeUserData(data);
   CVodeFree(&cvode_mem);
+  SUNLinSolFree(LS);
 
   MPI_Finalize();
 
@@ -410,8 +414,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *user_data, 
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+                   realtype gamma, void *user_data)
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
@@ -506,9 +509,8 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
  */
 
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
-                  N_Vector r, N_Vector z, 
-                  realtype gamma, realtype delta,
-                  int lr, void *user_data, N_Vector vtemp)
+                  N_Vector r, N_Vector z, realtype gamma, 
+                  realtype delta, int lr, void *user_data)
 {
   realtype **(*P)[MYSUB];
   sunindextype *(*pivot)[MYSUB], nvmxsub;

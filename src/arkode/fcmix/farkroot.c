@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -86,12 +86,9 @@ int FARKrootfunc(realtype t, N_Vector y,
   FARKUserData ARK_userdata;
 
   ydata = N_VGetArrayPointer(y);
-
   ARK_userdata = (FARKUserData) user_data;
-
   FARK_ROOTFN(&t, ydata, gout, ARK_userdata->ipar, 
 	      ARK_userdata->rpar, &ier);
-
   return(ier);
 }
 

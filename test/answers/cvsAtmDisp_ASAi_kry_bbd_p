@@ -13,7 +13,7 @@ Begin forward integration... done.   G = 4.791513e+03
 Final Statistics.. 
 
 lenrw   =  65786     leniw =    372
-llrw    =  65656     lliw  =    160
+llrw    =  78782     lliw  =    202
 nst     =    174
 nfe     =    179     nfel  =    310
 nni     =    175     nli   =    310
@@ -26,7 +26,7 @@ Begin backward integration... done.
 Final Statistics.. 
 
 lenrw   = 131316     leniw =    372
-llrw    =  65656     lliw  =    160
+llrw    =  78782     lliw  =    202
 nst     =    118
 nfe     =    135     nfel  =    277
 nni     =    131     nli   =    277

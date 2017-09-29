@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
  * Programmer(s): Jean M. Sexton @ SMU
  *                Slaven Peles @ LLNL
  * -----------------------------------------------------------------
@@ -144,7 +141,7 @@ int main(int argc, char *argv[])
   data->hdcoef = RCONST(1.0)/(dx*dx);
   data->hacoef = RCONST(0.5)/(RCONST(2.0)*dx);
 
-  /* Initialize solutin vector. */
+  /* Initialize solution vector. */
   SetIC(Uij, dx, local_N, my_base);
   HYPRE_IJVectorAssemble(Uij);
   HYPRE_IJVectorGetObject(Uij, (void**) &Upar);

@@ -1,0 +1,11 @@
+
+Band linear solver test: size 10, bandwidths 2 3
+
+    PASSED test -- SUNLinSolInitialize 
+    PASSED test -- SUNLinSolSetup 
+    PASSED test -- SUNLinSolSolve 
+    PASSED test -- SUNLinSolGetType 
+    PASSED test -- SUNLinSolLastFlag (0) 
+    PASSED test -- SUNLinSolSpace, lenrw = 0, leniw = 12
+SUCCESS: SUNLinSol module passed all tests 
+ 

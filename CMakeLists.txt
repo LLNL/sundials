@@ -3,8 +3,8 @@
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
@@ -39,7 +39,7 @@ SET(PACKAGE_STRING "SUNDIALS 2.7.0")
 SET(PACKAGE_TARNAME "sundials")
 SET(PACKAGE_VERSION "2.7.0")
 
-# 
+#
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Prohibit in-source build
@@ -80,6 +80,9 @@ SET(cpodeslib_SOVERSION "0")
 
 SET(nveclib_VERSION "2.7.0")
 SET(nveclib_SOVERSION "2")
+
+SET(sunmatrixlib_VERSION "1.0.0")
+SET(sunmatrixlib_SOVERSION "1")
 
 # Specify the location of additional CMAKE modules
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/config)
@@ -189,6 +192,17 @@ SHOW_VARIABLE(SUNDIALS_PRECISION STRING "${DOCSTR}" "double")
 STRING(TOUPPER ${SUNDIALS_PRECISION} SUNDIALS_PRECISION)
 SET(PRECISION_LEVEL "#define SUNDIALS_${SUNDIALS_PRECISION}_PRECISION 1")
 
+# prepare substitution variable FPRECISION_LEVEL for sundials_fconfig.h
+IF(SUNDIALS_PRECISION MATCHES "SINGLE")
+  SET(FPRECISION_LEVEL "4")
+ENDIF(SUNDIALS_PRECISION MATCHES "SINGLE")
+IF(SUNDIALS_PRECISION MATCHES "DOUBLE")
+  SET(FPRECISION_LEVEL "8")
+ENDIF(SUNDIALS_PRECISION MATCHES "DOUBLE")
+IF(SUNDIALS_PRECISION MATCHES "EXTENDED")
+  SET(FPRECISION_LEVEL "16")
+ENDIF(SUNDIALS_PRECISION MATCHES "EXTENDED")
+
 # ---------------------------------------------------------------
 # Option to specify index type
 # ---------------------------------------------------------------
@@ -199,6 +213,14 @@ SHOW_VARIABLE(SUNDIALS_INDEX_TYPE STRING "${DOCSTR}" "int64_t")
 # prepare substitution variable INDEX_TYPE for sundials_config.h
 STRING(TOUPPER ${SUNDIALS_INDEX_TYPE} SUNDIALS_INDEX_TYPE)
 SET(INDEX_TYPE "#define SUNDIALS_${SUNDIALS_INDEX_TYPE} 1")
+
+# prepare substitution variable FINDEX_TYPE for sundials_fconfig.h
+IF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
+  SET(FINDEX_TYPE "4")
+ENDIF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
+IF(SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
+  SET(FINDEX_TYPE "8")
+ENDIF(SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
 
 # ---------------------------------------------------------------
 # Enable Fortran interface?
@@ -257,7 +279,7 @@ ENDIF(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
 IF(UNIX)
   OPTION(USE_GENERIC_MATH "Use generic (std-c) math libraries" ON)
   IF(USE_GENERIC_MATH)
-    # executables will be linked against -lm 
+    # executables will be linked against -lm
     SET(EXTRA_LINK_LIBS -lm)
     # prepare substitution variable for sundials_config.h
     SET(SUNDIALS_USE_GENERIC_MATH TRUE)
@@ -333,11 +355,11 @@ IF(LAPACK_ENABLE AND SUNDIALS_PRECISION MATCHES "EXTENDED")
 ENDIF()
 
 # LAPACK does not support 64-bit integer index types
-# IF(LAPACK_ENABLE AND SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
-#   PRINT_WARNING("LAPACK is not compatible with ${SUNDIALS_INDEX_TYPE} integers"
-#                 "Disabling LAPACK")
-#   SET(LAPACK_ENABLE OFF CACHE BOOL "LAPACK is disabled" FORCE)
-# ENDIF()
+IF(LAPACK_ENABLE AND SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
+  PRINT_WARNING("LAPACK is not compatible with ${SUNDIALS_INDEX_TYPE} integers"
+                "Disabling LAPACK")
+  SET(LAPACK_ENABLE OFF CACHE BOOL "LAPACK is disabled" FORCE)
+ENDIF()
 
 # ---------------------------------------------------------------
 # Enable SuperLU_MT support?
@@ -525,7 +547,7 @@ IF(EXAMPLES_ENABLED)
 
     SHOW_VARIABLE(EXAMPLES_INSTALL_PATH PATH
       "Output directory for installing example files" "${CMAKE_INSTALL_PREFIX}/examples")
-    
+
     IF(NOT EXAMPLES_INSTALL_PATH)
       PRINT_WARNING("The example installation path is empty"
                     "Example installation path was reset to its default value")
@@ -611,9 +633,9 @@ ENDIF()
 # ---------------------------------------------------------------
 # Check if we need an alternate way of specifying the Fortran
 # name-mangling scheme if we were unable to infer it using a
-# compiler. 
+# compiler.
 # Ask the user to specify the case and number of appended underscores
-# corresponding to the Fortran name-mangling scheme of symbol names 
+# corresponding to the Fortran name-mangling scheme of symbol names
 # that do not themselves contain underscores (recall that this is all
 # we really need for the interfaces to LAPACK).
 # Note: the default scheme is lower case - one underscore
@@ -625,9 +647,9 @@ IF(BLAS_ENABLE OR LAPACK_ENABLE AND NOT F77SCHEME_FOUND)
     "case of Fortran function names (lower/upper)"
     "lower")
   # Specify the number of appended underscores for the Fortran name-mangling scheme
-  SHOW_VARIABLE(SUNDIALS_F77_FUNC_UNDERSCORES STRING 
+  SHOW_VARIABLE(SUNDIALS_F77_FUNC_UNDERSCORES STRING
     "number of underscores appended to Fortran function names"
-    "one")  
+    "one")
   # Based on the given case and number of underscores,
   # set the C preprocessor macro definition
   IF(${SUNDIALS_F77_FUNC_CASE} MATCHES "lower")
@@ -661,7 +683,7 @@ ENDIF(BLAS_ENABLE OR LAPACK_ENABLE AND NOT F77SCHEME_FOUND)
 
 # ---------------------------------------------------------------
 # If we have a name-mangling scheme (either automatically
-# inferred or provided by the user), set the SUNDIALS 
+# inferred or provided by the user), set the SUNDIALS
 # compiler preprocessor macro definitions.
 # ---------------------------------------------------------------
 
@@ -688,7 +710,7 @@ IF(F77SCHEME_FOUND)
   IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MYSUB__")
     SET(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) NAME ## __")
   ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MYSUB__")
-  # Symbols with underscores 
+  # Symbols with underscores
   IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "my_sub")
     SET(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) name")
   ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "my_sub")
@@ -960,20 +982,20 @@ ENDIF()
 IF(KLU_ENABLE)
 
   SHOW_VARIABLE(KLU_INCLUDE_DIR PATH "KLU include directory"
-    "${KLU_INCLUDE_DIR}") 
+    "${KLU_INCLUDE_DIR}")
   SHOW_VARIABLE(KLU_LIBRARY_DIR PATH
     "Klu library directory" "${KLU_LIBRARY_DIR}")
 
   INCLUDE(SundialsKLU)
 
-  IF(KLU_FOUND) 
+  IF(KLU_FOUND)
     # sundials_config.h symbol
     SET(SUNDIALS_KLU TRUE)
     INCLUDE_DIRECTORIES(${KLU_INCLUDE_DIR})
   ENDIF(KLU_FOUND)
 
-  IF(KLU_LIBRARIES AND NOT KLU_FOUND) 
-    PRINT_WARNING("KLU not functional - support will not be provided" 
+  IF(KLU_LIBRARIES AND NOT KLU_FOUND)
+    PRINT_WARNING("KLU not functional - support will not be provided"
                   "Double check spelling of include path and specified libraries (search is case sensitive)")
   ENDIF(KLU_LIBRARIES AND NOT KLU_FOUND)
 
@@ -993,20 +1015,20 @@ ENDIF(KLU_ENABLE)
 
 IF(HYPRE_ENABLE)
   SHOW_VARIABLE(HYPRE_INCLUDE_DIR PATH "HYPRE include directory"
-    "${HYPRE_INCLUDE_DIR}") 
+    "${HYPRE_INCLUDE_DIR}")
   SHOW_VARIABLE(HYPRE_LIBRARY_DIR PATH
     "HYPRE library directory" "${HYPRE_LIBRARY_DIR}")
 
   INCLUDE(SundialsHypre)
 
-  IF(HYPRE_FOUND) 
+  IF(HYPRE_FOUND)
     # sundials_config.h symbol
     SET(SUNDIALS_HYPRE TRUE)
     INCLUDE_DIRECTORIES(${HYPRE_INCLUDE_DIR})
   ENDIF(HYPRE_FOUND)
 
-  IF(HYPRE_LIBRARIES AND NOT HYPRE_FOUND) 
-    PRINT_WARNING("HYPRE not functional - support will not be provided" 
+  IF(HYPRE_LIBRARIES AND NOT HYPRE_FOUND)
+    PRINT_WARNING("HYPRE not functional - support will not be provided"
                   "Found hypre library, test code does not work")
   ENDIF(HYPRE_LIBRARIES AND NOT HYPRE_FOUND)
   
@@ -1026,20 +1048,20 @@ ENDIF()
 
 IF(PETSC_ENABLE)
   SHOW_VARIABLE(PETSC_INCLUDE_DIR PATH "PETSc include directory"
-    "${PETSC_INCLUDE_DIR}") 
+    "${PETSC_INCLUDE_DIR}")
   SHOW_VARIABLE(PETSC_LIBRARY_DIR PATH
     "PETSc library directory" "${PETSC_LIBRARY_DIR}")
 
   INCLUDE(SundialsPETSc)
 
-  IF(PETSC_FOUND) 
+  IF(PETSC_FOUND)
     # sundials_config.h symbol
     SET(SUNDIALS_PETSC TRUE)
     INCLUDE_DIRECTORIES(${PETSC_INCLUDE_DIR})
   ENDIF(PETSC_FOUND)
 
-  IF(PETSC_LIBRARIES AND NOT PETSC_FOUND) 
-    PRINT_WARNING("PETSC not functional - support will not be provided" 
+  IF(PETSC_LIBRARIES AND NOT PETSC_FOUND)
+    PRINT_WARNING("PETSC not functional - support will not be provided"
                   "Double check spelling specified libraries (search is case sensitive)")
   ENDIF(PETSC_LIBRARIES AND NOT PETSC_FOUND)
 
@@ -1066,6 +1088,10 @@ CONFIGURE_FILE(
   ${PROJECT_SOURCE_DIR}/include/sundials/sundials_config.in
   ${PROJECT_BINARY_DIR}/include/sundials/sundials_config.h
   )
+CONFIGURE_FILE(
+  ${PROJECT_SOURCE_DIR}/include/sundials/sundials_fconfig.in
+  ${PROJECT_BINARY_DIR}/include/sundials/sundials_fconfig.h
+  )
 
 # Add the include directory in the source tree and the one in
 # the binary tree (for the header file sundials_config.h)
@@ -1079,6 +1105,26 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR}/include)
 
 ADD_SUBDIRECTORY(src/sundials)
 ADD_SUBDIRECTORY(src/nvec_ser)
+ADD_SUBDIRECTORY(src/sunmat_dense)
+ADD_SUBDIRECTORY(src/sunmat_band)
+ADD_SUBDIRECTORY(src/sunmat_sparse)
+ADD_SUBDIRECTORY(src/sunlinsol_band)
+ADD_SUBDIRECTORY(src/sunlinsol_dense)
+IF(KLU_FOUND)
+  ADD_SUBDIRECTORY(src/sunlinsol_klu)
+ENDIF(KLU_FOUND)
+IF(SUPERLUMT_FOUND)
+  ADD_SUBDIRECTORY(src/sunlinsol_superlumt)
+ENDIF(SUPERLUMT_FOUND)
+IF(LAPACK_FOUND)
+  ADD_SUBDIRECTORY(src/sunlinsol_lapackband)
+  ADD_SUBDIRECTORY(src/sunlinsol_lapackdense)
+ENDIF(LAPACK_FOUND)
+ADD_SUBDIRECTORY(src/sunlinsol_spgmr)
+ADD_SUBDIRECTORY(src/sunlinsol_spfgmr)
+ADD_SUBDIRECTORY(src/sunlinsol_spbcgs)
+ADD_SUBDIRECTORY(src/sunlinsol_sptfqmr)
+ADD_SUBDIRECTORY(src/sunlinsol_pcg)
 IF(MPIC_FOUND)
   ADD_SUBDIRECTORY(src/nvec_par)
 ENDIF(MPIC_FOUND)
@@ -1088,15 +1134,15 @@ IF(HYPRE_FOUND)
 ENDIF(HYPRE_FOUND)
 
 IF(OPENMP_FOUND)
-  ADD_SUBDIRECTORY(src/nvec_openmp)	
+  ADD_SUBDIRECTORY(src/nvec_openmp)
 ENDIF(OPENMP_FOUND)
 
 IF(PTHREADS_FOUND)
-  ADD_SUBDIRECTORY(src/nvec_pthreads)   
+  ADD_SUBDIRECTORY(src/nvec_pthreads)
 ENDIF(PTHREADS_FOUND)
 
 IF(PETSC_FOUND)
-  ADD_SUBDIRECTORY(src/nvec_petsc)   
+  ADD_SUBDIRECTORY(src/nvec_petsc)
 ENDIF(PETSC_FOUND)
 
 IF(CUDA_FOUND)
@@ -1109,7 +1155,7 @@ ENDIF(RAJA_FOUND)
 
 # ARKODE library
 
-IF(BUILD_ARKODE)	
+IF(BUILD_ARKODE)
   ADD_SUBDIRECTORY(src/arkode)
   IF(FCMIX_ENABLE AND F77_FOUND)
     ADD_SUBDIRECTORY(src/arkode/fcmix)
@@ -1118,7 +1164,7 @@ ENDIF(BUILD_ARKODE)
 
 # CVODE library
 
-IF(BUILD_CVODE)	
+IF(BUILD_CVODE)
   ADD_SUBDIRECTORY(src/cvode)
   IF(FCMIX_ENABLE AND F77_FOUND)
     ADD_SUBDIRECTORY(src/cvode/fcmix)
@@ -1127,13 +1173,13 @@ ENDIF(BUILD_CVODE)
 
 # CVODES library
 
-IF(BUILD_CVODES)	
+IF(BUILD_CVODES)
   ADD_SUBDIRECTORY(src/cvodes)
 ENDIF(BUILD_CVODES)
 
 # IDA library
 
-IF(BUILD_IDA)	
+IF(BUILD_IDA)
   ADD_SUBDIRECTORY(src/ida)
   IF(FCMIX_ENABLE AND F77_FOUND)
     ADD_SUBDIRECTORY(src/ida/fcmix)
@@ -1142,13 +1188,13 @@ ENDIF(BUILD_IDA)
 
 # IDAS library
 
-IF(BUILD_IDAS)	
+IF(BUILD_IDAS)
   ADD_SUBDIRECTORY(src/idas)
 ENDIF(BUILD_IDAS)
 
 # KINSOL library
 
-IF(BUILD_KINSOL)	
+IF(BUILD_KINSOL)
   ADD_SUBDIRECTORY(src/kinsol)
   IF(FCMIX_ENABLE AND F77_FOUND)
     ADD_SUBDIRECTORY(src/kinsol/fcmix)
@@ -1157,7 +1203,7 @@ ENDIF(BUILD_KINSOL)
 
 # CPODES library
 
-IF(BUILD_CPODES)	
+IF(BUILD_CPODES)
   ADD_SUBDIRECTORY(src/cpodes)
 ENDIF(BUILD_CPODES)
 
@@ -1167,7 +1213,7 @@ ENDIF(BUILD_CPODES)
 
 # If building and installing the examples is enabled, include
 # the subdirectories for those examples that will be built.
-# Also, if we will generate exported example Makefiles, set 
+# Also, if we will generate exported example Makefiles, set
 # variables needed in generating them from templates.
 
 # For now, TestRunner is not being distributed.
@@ -1336,7 +1382,7 @@ IF(EXAMPLES_ENABLED)
       ENDIF()
     ENDIF()   
   ENDIF(BUILD_ARKODE)
-  
+
   # add CVODE examples
   IF(BUILD_CVODE)
     # C examples
@@ -1374,7 +1420,7 @@ IF(EXAMPLES_ENABLED)
       ENDIF()
     ENDIF(EXAMPLES_ENABLE_RAJA)
   ENDIF(BUILD_CVODE)
-  
+
   # add CVODES Examples
   IF(BUILD_CVODES)
     # C examples
@@ -1388,7 +1434,7 @@ IF(EXAMPLES_ENABLED)
       ENDIF()
     ENDIF()
   ENDIF(BUILD_CVODES)
-  
+
   # add IDA examples
   IF(BUILD_IDA)
     # C examples
@@ -1420,7 +1466,7 @@ IF(EXAMPLES_ENABLED)
       ENDIF()
     ENDIF()
   ENDIF(BUILD_IDA)
-  
+
   # add IDAS examples
   IF(BUILD_IDAS)
     # C examples
@@ -1472,10 +1518,39 @@ IF(EXAMPLES_ENABLED)
   # Always add the nvector serial examples
   ADD_SUBDIRECTORY(examples/nvector/serial)
 
+  # # Always add the serial sunmatrix dense/band/sparse examples
+  ADD_SUBDIRECTORY(examples/sunmatrix/dense)
+  ADD_SUBDIRECTORY(examples/sunmatrix/band)
+  ADD_SUBDIRECTORY(examples/sunmatrix/sparse)
+
+  # # Always add the serial sunlinearsolver dense/band/spils examples
+  ADD_SUBDIRECTORY(examples/sunlinsol/band)
+  ADD_SUBDIRECTORY(examples/sunlinsol/dense)
+  IF(KLU_FOUND)
+    ADD_SUBDIRECTORY(examples/sunlinsol/klu)
+  ENDIF(KLU_FOUND)
+  IF(SUPERLUMT_FOUND)
+    ADD_SUBDIRECTORY(examples/sunlinsol/superlumt)
+  ENDIF(SUPERLUMT_FOUND)
+  IF(LAPACK_FOUND)
+    ADD_SUBDIRECTORY(examples/sunlinsol/lapackband)
+    ADD_SUBDIRECTORY(examples/sunlinsol/lapackdense)
+  ENDIF(LAPACK_FOUND)
+  ADD_SUBDIRECTORY(examples/sunlinsol/spgmr/serial)
+  ADD_SUBDIRECTORY(examples/sunlinsol/spfgmr/serial)
+  ADD_SUBDIRECTORY(examples/sunlinsol/spbcgs/serial)
+  ADD_SUBDIRECTORY(examples/sunlinsol/sptfqmr/serial)
+  ADD_SUBDIRECTORY(examples/sunlinsol/pcg/serial)
+
   IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/nvector/parallel)
-  ENDIF()
-  
+      ADD_SUBDIRECTORY(examples/sunlinsol/spgmr/parallel)
+      ADD_SUBDIRECTORY(examples/sunlinsol/spfgmr/parallel)
+      ADD_SUBDIRECTORY(examples/sunlinsol/spbcgs/parallel)
+      ADD_SUBDIRECTORY(examples/sunlinsol/sptfqmr/parallel)
+      #ADD_SUBDIRECTORY(examples/sunlinsol/pcg/parallel)
+  ENDIF(MPIC_FOUND)
+
   IF(HYPRE_FOUND)
       ADD_SUBDIRECTORY(examples/nvector/parhyp)
   ENDIF()
@@ -1487,11 +1562,11 @@ IF(EXAMPLES_ENABLED)
   IF(OPENMP_FOUND)
       ADD_SUBDIRECTORY(examples/nvector/C_openmp)
   ENDIF()
-  
+
   IF(PETSC_FOUND)
       ADD_SUBDIRECTORY(examples/nvector/petsc)
   ENDIF()
-  
+
   IF(CUDA_FOUND)
       ADD_SUBDIRECTORY(examples/nvector/cuda)
   ENDIF(CUDA_FOUND)

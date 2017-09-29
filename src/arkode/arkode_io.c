@@ -2243,48 +2243,6 @@ int ARKodeGetNumLinSolvSetups(void *arkode_mem, long int *nlinsetups)
 
 
 /*---------------------------------------------------------------
- ARKodeGetNumMassSolves:
-
- Returns the current number of calls to the mass matrix solver.
----------------------------------------------------------------*/
-int ARKodeGetNumMassSolves(void *arkode_mem, long int *nMassSolves)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-		    "ARKodeGetNumMassSolves", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-
-  *nMassSolves = ark_mem->ark_mass_solves;
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
- ARKodeGetNumMassMultiplies:
-
- Returns the current number of calls to the mass matrix product.
----------------------------------------------------------------*/
-int ARKodeGetNumMassMultiplies(void *arkode_mem, long int *nMassMult)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-		    "ARKodeGetNumMassMult", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-
-  *nMassMult = ark_mem->ark_mass_mult;
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
  ARKodeGetNumErrTestFails:
 
  Returns the current number of error test failures
@@ -2459,7 +2417,7 @@ int ARKodeGetTolScaleFactor(void *arkode_mem, realtype *tolsfact)
 /*---------------------------------------------------------------
  ARKodeGetErrWeights:
 
- This routine returns the current weight vector.
+ This routine returns the current error weight vector.
 ---------------------------------------------------------------*/
 int ARKodeGetErrWeights(void *arkode_mem, N_Vector eweight)
 {
@@ -2472,6 +2430,27 @@ int ARKodeGetErrWeights(void *arkode_mem, N_Vector eweight)
   ark_mem = (ARKodeMem) arkode_mem;
 
   N_VScale(ONE, ark_mem->ark_ewt, eweight);
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+ ARKodeGetResWeights:
+
+ This routine returns the current residual weight vector.
+---------------------------------------------------------------*/
+int ARKodeGetResWeights(void *arkode_mem, N_Vector rweight)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+		    "ARKodeGetResWeights", MSGARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  N_VScale(ONE, ark_mem->ark_rwt, rweight);
 
   return(ARK_SUCCESS);
 }

@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -15,10 +15,10 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * The C function FARKPSet is to interface between the ARKSP*
- * modules and the user-supplied preconditioner setup routine 
- * FARKPSET. Note the use of the generic name FARK_PSET in the 
- * code below.
+ * The C functions FARKPSet and FARKPSol are to interface between 
+ * the ARKSPILS module and the user-supplied preconditioner 
+ * setup/solve routines FARKPSET and FARKPSOL. Note the use of 
+ * the generic names FARK_PSET and FARK_PSOL in the code below.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -38,14 +38,12 @@ extern "C" {
   extern void FARK_PSET(realtype *T, realtype *Y, realtype *FY,
 			booleantype *JOK, booleantype *JCUR,
 			realtype *GAMMA, realtype *H,
-			long int *IPAR, realtype *RPAR, 
-			realtype *W1, realtype *W2, 
-			realtype *W3, int *IER);
+			long int *IPAR, realtype *RPAR, int *IER);
   extern void FARK_PSOL(realtype *T, realtype *Y, realtype *FY,
 			realtype *R, realtype *Z, 
 			realtype *GAMMA, realtype *DELTA,
-			int *LR, long int *IPAR, realtype *RPAR,
-			realtype *WRK, int *IER);
+			int *LR, long int *IPAR, realtype *RPAR, 
+                        int *IER);
 
 #ifdef __cplusplus
 }
@@ -72,25 +70,20 @@ void FARK_SPILSSETPREC(int *flag, int *ier)
    farkode.h for further details */
 int FARKPSet(realtype t, N_Vector y, N_Vector fy, 
 	     booleantype jok, booleantype *jcurPtr, 
-	     realtype gamma, void *user_data, N_Vector vtemp1, 
-	     N_Vector vtemp2, N_Vector vtemp3)
+	     realtype gamma, void *user_data)
 {
   int ier = 0;
-  realtype *ydata, *fydata, *v1data, *v2data, *v3data;
+  realtype *ydata, *fydata;
   realtype h;
   FARKUserData ARK_userdata;
 
   ARKodeGetLastStep(ARK_arkodemem, &h);
   ydata  = N_VGetArrayPointer(y);
   fydata = N_VGetArrayPointer(fy);
-  v1data = N_VGetArrayPointer(vtemp1);
-  v2data = N_VGetArrayPointer(vtemp2);
-  v3data = N_VGetArrayPointer(vtemp3);
   ARK_userdata = (FARKUserData) user_data;
 
   FARK_PSET(&t, ydata, fydata, &jok, jcurPtr, &gamma, &h,
-	    ARK_userdata->ipar, ARK_userdata->rpar,
-	    v1data, v2data, v3data, &ier);
+	    ARK_userdata->ipar, ARK_userdata->rpar, &ier);
   return(ier);
 }
 
@@ -101,21 +94,20 @@ int FARKPSet(realtype t, N_Vector y, N_Vector fy,
    farkode.h for further details */
 int FARKPSol(realtype t, N_Vector y, N_Vector fy, N_Vector r, 
 	     N_Vector z, realtype gamma, realtype delta,
-	     int lr, void *user_data, N_Vector vtemp)
+	     int lr, void *user_data)
 {
   int ier = 0;
-  realtype *ydata, *fydata, *vtdata, *rdata, *zdata;
+  realtype *ydata, *fydata, *rdata, *zdata;
   FARKUserData ARK_userdata;
 
   ydata  = N_VGetArrayPointer(y);
   fydata = N_VGetArrayPointer(fy);
-  vtdata = N_VGetArrayPointer(vtemp);
   rdata  = N_VGetArrayPointer(r);
   zdata  = N_VGetArrayPointer(z);
   ARK_userdata = (FARKUserData) user_data;
 
   FARK_PSOL(&t, ydata, fydata, rdata, zdata, &gamma, &delta, &lr, 
-	    ARK_userdata->ipar, ARK_userdata->rpar, vtdata, &ier);
+	    ARK_userdata->ipar, ARK_userdata->rpar, &ier);
   return(ier);
 }
 

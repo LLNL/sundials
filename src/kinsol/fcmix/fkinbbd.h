@@ -1,5 +1,4 @@
-/*
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -15,8 +14,7 @@
  * -----------------------------------------------------------------
  * This is the Fortran interface include file for the BBD
  * preconditioner module KINBBDPRE.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 /*******************************************************************************
 
@@ -176,7 +174,7 @@
                        input values in IOPT[] array are to be used for
                        input: 0 = no and 1 = yes.
          IOPT        = array for integer optional inputs and outputs (declare
-                       as INTEGER*8 according to C type long int)
+                       as INTEGER*8
          ROPT        = array of real optional inputs and outputs
          IER         = return completion flag. Values are 0 = success, and
                        -1 = failure.

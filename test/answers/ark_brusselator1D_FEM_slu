@@ -113,7 +113,9 @@
 Final Solver Statistics:
    Internal solver steps = 95 (attempted = 95)
    Total RHS evals:  Fe = 0,  Fi = 1615
+   Total mass matrix setups = 1
    Total mass matrix solves = 289
+   Total mass times evals = 1706
    Total linear solver setups = 32
    Total number of Jacobian evaluations = 12
    Total number of Newton iterations = 1136
