@@ -116,13 +116,14 @@ __global__ void jtvKernel(const realtype *vdata, realtype *Jvdata,
 
 }
 
-/* Type : UserData (contains model and discretization parameters) */
-
-typedef struct {
+/* Type : _UserData (contains model and discretization parameters) */
+struct _UserData {
   sunindextype MX, MY, NEQ;
   realtype dx, dy, XMAX, YMAX;
   realtype hdcoef, hacoef, vdcoef;
-} *UserData;
+};
+
+typedef _UserData *UserData;
 
 /* Problem setup and initialization functions */
 static UserData SetUserData(int argc, char** argv);
