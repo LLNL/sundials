@@ -246,10 +246,10 @@
   (4.1) To initialize the parallel machine environment, the user must make 
       the following call:
 
-         CALL FNVINITP(COMM, 3, NLOCAL, NGLOBAL, IER)
+         CALL FNVINITP(COMM, 2, NLOCAL, NGLOBAL, IER)
 
       where the second argument is an int containing the IDA
-      solver ID (3). The other arguments are:
+      solver ID (2). The other arguments are:
         COMM = the MPI communicator [int, input]
         NLOCAL = local vector size on this processor 
            [long int, input]
@@ -269,14 +269,14 @@
       solving linear systems within the Newton solver, the user must make one 
       of the following calls:
 
-          CALL FSUNPCGINIT(3, PRETYPE, MAXL, IER)
-          CALL FSUNSPBCGSINIT(3, PRETYPE, MAXL, IER)
-          CALL FSUNSPFGMRINIT(3, PRETYPE, MAXL, IER)
-          CALL FSUNSPGMRINIT(3, PRETYPE, MAXL, IER)
-          CALL FSUNSPTFQMRINIT(3, PRETYPE, MAXL, IER)
+          CALL FSUNPCGINIT(2, PRETYPE, MAXL, IER)
+          CALL FSUNSPBCGSINIT(2, PRETYPE, MAXL, IER)
+          CALL FSUNSPFGMRINIT(2, PRETYPE, MAXL, IER)
+          CALL FSUNSPGMRINIT(2, PRETYPE, MAXL, IER)
+          CALL FSUNSPTFQMRINIT(2, PRETYPE, MAXL, IER)
 
       In each of these, one argument is an int containing the IDA solver 
-      ID (3). 
+      ID (2). 
 
       The other arguments are:
 
