@@ -60,6 +60,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_direct.h
 $tar $tarfile $distrobase/include/sundials/sundials_sparse.h
 $tar $tarfile $distrobase/include/sundials/sundials_band.h
 $tar $tarfile $distrobase/include/sundials/sundials_lapack.h
+$tar $tarfile $distrobase/include/sundials/sundials_mpi_types.h
 $tar $tarfile $distrobase/include/sundials/sundials_spgmr.h
 $tar $tarfile $distrobase/include/sundials/sundials_spfgmr.h
 $tar $tarfile $distrobase/include/sundials/sundials_spbcgs.h
