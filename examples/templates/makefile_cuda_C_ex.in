@@ -11,7 +11,7 @@
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # -----------------------------------------------------------------
-# Makefile for @SOLVER@ serial examples.
+# Makefile for @SOLVER@ serial examples
 #
 # This file is generated from a template using various variables
 # set at configuration time. It can be used as a template for
@@ -46,11 +46,20 @@ LIBS     = @LIBS@
 
 LINKFLAGS = -Wl,-rpath,@libdir@
 
-INCLUDES = -I${includedir}
-LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecserial ${LIBS}
-LIBRARIES_BL = @BLAS_LAPACK_LIBS@
-LIBRARIES_SLUMT = @SUPERLUMT_LIBS@
-LIBRARIES_KLU = @KLU_LIBRARY@ @AMD_LIBRARY@ @COLAMD_LIBRARY@ @BTF_LIBRARY@
+LIBRARIES_BLAS   = @BLAS_LIBS@
+LIBRARIES_LAPACK = @LAPACK_LIBS@
+
+INCLUDES_SLUMT   = @SUPERLUMT_INCLUDE_DIR@
+LIBRARIES_SLUMT  = @SUPERLUMT_LIBS@
+
+INCLUDES_KLU     = @KLU_INCLUDE_DIR@
+LIBRARIES_KLU    = @KLU_LIBS@
+
+INCLUDES_PETSC   = @PETSC_INCLUDE_DIR@
+LIBRARIES_PETSC  = @PETSC_LIBRARIES@
+
+INCLUDES  = -I${includedir} -I${INCLUDES_SLUMT} -I${INCLUDES_KLU} -I${INCLUDES_PETSC}
+LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecserial ${LIBS} ${LIBRARIES_BLAS} ${LIBRARIES_LAPACK} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC}
 
 EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
 EXAMPLES_DEPENDENCIES = @EXAMPLES_DEPENDENCIES@
@@ -69,8 +78,8 @@ OBJECTS_DEPENDENCIES = ${EXAMPLES_DEPENDENCIES:=.o}
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${CC} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LINKFLAGS}" ; \
-	  ${CC} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LINKFLAGS} ; \
+	  echo "${CC} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LINKFLAGS}" ; \
+	  ${CC} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LINKFLAGS} ; \
 	done
 
 ${OBJECTS}: ${OBJECTS_DEPENDENCIES}
@@ -81,4 +90,3 @@ clean:
 	rm -f ${EXAMPLES}
 
 # -----------------------------------------------------------------------------------------
-
