@@ -16,26 +16,29 @@ $tar $tarfile $distrobase/CMakeLists.txt
 
 echo "   --- Add configuration files to $tarfile"
 
-$tar $tarfile $distrobase/config/SundialsAddTest.cmake
-$tar $tarfile $distrobase/config/SundialsFortran.cmake
-$tar $tarfile $distrobase/config/SundialsFortran90.cmake
-$tar $tarfile $distrobase/config/SundialsCXX.cmake
-$tar $tarfile $distrobase/config/SundialsHypre.cmake
-$tar $tarfile $distrobase/config/SundialsLapack.cmake
-$tar $tarfile $distrobase/config/SundialsKLU.cmake
-$tar $tarfile $distrobase/config/SundialsSuperLUMT.cmake
-$tar $tarfile $distrobase/config/SundialsKLU.cmake
-$tar $tarfile $distrobase/config/SundialsMPIC.cmake
-$tar $tarfile $distrobase/config/SundialsMPICXX.cmake
-$tar $tarfile $distrobase/config/SundialsMPIF.cmake
-$tar $tarfile $distrobase/config/SundialsMPIF90.cmake
-$tar $tarfile $distrobase/config/SundialsPETSc.cmake
-$tar $tarfile $distrobase/config/FindMPI.cmake
 $tar $tarfile $distrobase/config/FindHypre.cmake
 $tar $tarfile $distrobase/config/FindKLU.cmake
-$tar $tarfile $distrobase/config/FindSUPERLUMT.cmake
+$tar $tarfile $distrobase/config/FindMPI.cmake
 $tar $tarfile $distrobase/config/FindPETSc.cmake
-$tar $tarfile $distrobase/config/FindKLU.cmake
+$tar $tarfile $distrobase/config/FindSUPERLUMT.cmake
+$tar $tarfile $distrobase/config/SundialsAddTest.cmake
+$tar $tarfile $distrobase/config/SundialsBlas.cmake
+$tar $tarfile $distrobase/config/SundialsCMakeMacros.cmake
+$tar $tarfile $distrobase/config/SundialsCXX.cmake
+$tar $tarfile $distrobase/config/SundialsDeprecated.cmake
+$tar $tarfile $distrobase/config/SundialsFortran90.cmake
+$tar $tarfile $distrobase/config/SundialsFortran.cmake
+$tar $tarfile $distrobase/config/SundialsHypre.cmake
+$tar $tarfile $distrobase/config/SundialsKLU.cmake
+$tar $tarfile $distrobase/config/SundialsLapack.cmake
+$tar $tarfile $distrobase/config/SundialsMPIC.cmake
+$tar $tarfile $distrobase/config/SundialsMPICXX.cmake
+$tar $tarfile $distrobase/config/SundialsMPIF90.cmake
+$tar $tarfile $distrobase/config/SundialsMPIF.cmake
+$tar $tarfile $distrobase/config/SundialsPETSc.cmake
+$tar $tarfile $distrobase/config/SundialsSuperLUMT.cmake
+$tar $tarfile $distrobase/config/SundialsXSDK.cmake
+
 
 # 03/06/2015 LEBanks - comment out, but don't remove yet...may want to recreate some of this logic in CMake 
 #$tar $tarfile $distrobase/bin/sundials-config.in
@@ -331,6 +334,10 @@ $tar $tarfile $distrobase/examples/sunlinsol/spbcgs/parallel/test_sunlinsol_spbc
 $tar $tarfile $distrobase/examples/sunlinsol/spbcgs/parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunlinsol/spbcgs/serial/test_sunlinsol_spbcgs_serial.c
 $tar $tarfile $distrobase/examples/sunlinsol/spbcgs/serial/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunlinsol/spfgmr/parallel/test_sunlinsol_spfgmr_parallel.c
+$tar $tarfile $distrobase/examples/sunlinsol/spfgmr/parallel/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunlinsol/spfgmr/serial/test_sunlinsol_spfgmr_serial.c
+$tar $tarfile $distrobase/examples/sunlinsol/spfgmr/serial/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunlinsol/spgmr/parallel/test_sunlinsol_spgmr_parallel.c
 $tar $tarfile $distrobase/examples/sunlinsol/spgmr/parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunlinsol/spgmr/serial/test_sunlinsol_spgmr_serial.c
