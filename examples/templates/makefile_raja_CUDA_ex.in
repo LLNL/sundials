@@ -63,6 +63,9 @@ OBJECTS_DEPENDENCIES = ${EXAMPLES_DEPENDENCIES:=.o}
 
 .SUFFIXES : .o .cu
 
+.c.o :
+	${NVCC} ${CPPFLAGS} ${CXXFLAGS} ${INCLUDES} -c $<
+
 .cu.o :
 	${NVCC} ${CPPFLAGS} ${CXXFLAGS} ${INCLUDES} -c $<
 
