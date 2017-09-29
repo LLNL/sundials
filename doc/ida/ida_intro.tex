@@ -421,21 +421,11 @@ Chapter \ref{s:sunmatrix} gives a brief overview of the generic
   Chapter \ref{s:sunlinsol} gives a brief overview of the generic
   {\sunlinsol} module shared among the various components of
   {\sundials}.  This chapter contains details on the {\sunlinsol}
-  implementations provided with {\sundials}: 
-  a dense implementation (\S\ref{ss:sunlinsol_dense}),
-  a banded implementation (\S\ref{ss:sunlinsol_band}),
-  a GMRES implementation (\S\ref{ss:sunlinsol_spgmr}),
-  a FGMRES implementation (\S\ref{ss:sunlinsol_spfgmr}),
-  a Bi-CGStab implementation (\S\ref{ss:sunlinsol_spbcgs}),
-  a TFQMR implementation (\S\ref{ss:sunlinsol_sptfqmr}),
-  and a PCG implementation (\S\ref{ss:sunlinsol_pcg}).  The chapter
+  implementations provided with {\sundials}.
+  The chapter
   also contains details on the {\sunlinsol} implementations provided
   with {\sundials} that interface with external linear solver
-  libraries:
-  a dense LAPACK interface (\S\ref{ss:sunlinsol_lapdense}),
-  a banded LAPACK interface (\S\ref{ss:sunlinsol_lapband}),
-  a sparse {\klu} interface (\S\ref{ss:sunlinsol_klu}),
-  and a sparse {\superlumt} interface (\S\ref{ss:sunlinsol_klu}).
+  libraries.
 %% \item
 %%   Chapter \ref{s:new_linsolv} describes the interfaces to the linear
 %%   solver modules, so that a user can provide his/her own such module.
