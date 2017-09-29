@@ -13,8 +13,8 @@ and a boolean flag {\em own\_parvector} indicating ownership of the
 %%
 \begin{verbatim}
 struct _N_VectorContent_ParHyp {
-  long int local_length;
-  long int global_length;
+  sunindextype local_length;
+  sunindextype global_length;
   booleantype own_parvector;
   MPI_Comm comm;
   hypre_ParVector *x;
@@ -57,8 +57,8 @@ The module {\nvecph} provides the following additional user-callable routines:
 
 \begin{verbatim}
 N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, 
-                            long int local_length, 
-                            long int global_length);
+                            sunindextype local_length, 
+                            sunindextype global_length);
 \end{verbatim}
 
   
@@ -166,7 +166,7 @@ N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w);
 % to initialize this {\nvecph} module.  Here \id{COMM} is the MPI communicator,
 % \id{code} is an input solver id (1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol},
 % 4 for {\arkode}); \id{NLOCAL} and \id{NGLOBAL} are the local and global
-% vector sizes, respectively (declared so as to match C type \id{long int});
+% vector sizes, respectively (declared so as to match C type \id{sunindextype});
 % and IER is an error return flag equal 0 for success and -1 for failure.
 % 
 % {\warn}Note: If the header file \id{sundials\_config.h} defines

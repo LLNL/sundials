@@ -162,6 +162,8 @@ cmake \
     \
     -D OPENMP_ENABLE=ON \
     -D PTHREAD_ENABLE=ON \
+    -D CUDA_ENABLE=OFF \
+    -D RAJA_ENABLE=OFF \
     \
     -D CMAKE_C_COMPILER="/usr/bin/cc" \
     -D CMAKE_CXX_COMPILER="/usr/bin/c++" \

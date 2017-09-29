@@ -72,6 +72,10 @@ $tar $tarfile $distrobase/include/nvector/nvector_parhyp.h
 $tar $tarfile $distrobase/include/nvector/nvector_petsc.h
 $tar $tarfile $distrobase/include/nvector/nvector_pthreads.h
 $tar $tarfile $distrobase/include/nvector/nvector_openmp.h
+$tar $tarfile $distrobase/include/nvector/cuda/ThreadPartitioning.hpp
+$tar $tarfile $distrobase/include/nvector/cuda/Vector.hpp
+$tar $tarfile $distrobase/include/nvector/cuda/VectorKernels.cuh
+$tar $tarfile $distrobase/include/nvector/raja/Vector.hpp
 
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_dense.h
@@ -265,6 +269,16 @@ $tar $tarfile $distrobase/src/sunlinsol_superlumt/sunlinsol_superlumt.c
 $tar $tarfile $distrobase/src/sunlinsol_superlumt/fsunlinsol_superlumt.h
 $tar $tarfile $distrobase/src/sunlinsol_superlumt/fsunlinsol_superlumt.c
 
+echo "   --- Add nveccuda module to $tarfile"
+
+$tar $tarfile $distrobase/src/nvec_cuda/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvec_cuda/nvector_cuda.cu
+
+echo "   --- Add nvecraja module to $tarfile"
+
+$tar $tarfile $distrobase/src/nvec_raja/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvec_raja/nvector_raja.cu
+
 echo "   --- Add nvector examples to $tarfile"
 
 $tar $tarfile $distrobase/examples/nvector/serial/test_nvector_serial.c
@@ -279,6 +293,10 @@ $tar $tarfile $distrobase/examples/nvector/C_openmp/test_nvector_openmp.c
 $tar $tarfile $distrobase/examples/nvector/C_openmp/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/pthreads/test_nvector_pthreads.c
 $tar $tarfile $distrobase/examples/nvector/pthreads/CMakeLists.txt
+$tar $tarfile $distrobase/examples/nvector/cuda/test_nvector_cuda.cu
+$tar $tarfile $distrobase/examples/nvector/cuda/CMakeLists.txt
+$tar $tarfile $distrobase/examples/nvector/raja/test_nvector_raja.cu
+$tar $tarfile $distrobase/examples/nvector/raja/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/test_nvector.c
 $tar $tarfile $distrobase/examples/nvector/test_nvector.h
 

@@ -11,7 +11,7 @@
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # -----------------------------------------------------------------
-# Makefile for @SOLVER@ parhyp examples
+# Makefile for @SOLVER@ CUDA examples
 #
 # This file is generated from a template using various variables
 # set at configuration time. It can be used as a template for

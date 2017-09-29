@@ -317,28 +317,20 @@ OPTION(MPI_ENABLE "Enable MPI support" OFF)
 # ---------------------------------------------------------------
 OPTION(OPENMP_ENABLE "Enable OpenMP support" OFF)
 
-IF(OPENMP_ENABLE)
-  FIND_PACKAGE(OpenMP)
-  IF(NOT OPENMP_FOUND)
-    message(STATUS "Disabling OpenMP support, could not determine compiler flags")
-  ENDIF(NOT OPENMP_FOUND)
-ENDIF(OPENMP_ENABLE)
-
 # ---------------------------------------------------------------
 # Enable Pthread support?
 # ---------------------------------------------------------------
 OPTION(PTHREAD_ENABLE "Enable Pthreads support" OFF)
 
-IF(PTHREAD_ENABLE)
-  FIND_PACKAGE(Threads)
-  IF(CMAKE_USE_PTHREADS_INIT)
-    message(STATUS "Using Pthreads")
-    SET(PTHREADS_FOUND TRUE)
-    # SGS
-  ELSE()
-    message(STATUS "Disabling Pthreads support, could not determine compiler flags")
-  endif()
-ENDIF(PTHREAD_ENABLE)
+# -------------------------------------------------------------
+# Enable CUDA support?
+# -------------------------------------------------------------
+OPTION(CUDA_ENABLE "Enable CUDA support" OFF)
+
+# -------------------------------------------------------------
+# Enable RAJA support?
+# -------------------------------------------------------------
+OPTION(RAJA_ENABLE "Enable RAJA support" OFF)
 
 
 # ===============================================================
@@ -459,8 +451,7 @@ ELSE()
   HIDE_VARIABLE(EXAMPLES_ENABLE_F77)
 ENDIF()
 
-# C++ examples (off by default) are an option only if ARKode is
-# built and examples are enabled
+# C++ examples (off by default) are an option only if ARKode is enabled
 SET(DOCSTR "Build ARKode C++ examples")
 IF(BUILD_ARKODE)
   SHOW_VARIABLE(EXAMPLES_ENABLE_CXX BOOL "${DOCSTR}" OFF)
@@ -475,7 +466,7 @@ ELSE()
 ENDIF()
 
 # F90 examples (off by default) are an option only if ARKode is
-# built, examples are enabled, and the Fortran interface is enabled
+# built and the Fortran interface is enabled
 SET(DOCSTR "Build ARKode F90 examples")
 IF(FCMIX_ENABLE AND BUILD_ARKODE)
   SHOW_VARIABLE(EXAMPLES_ENABLE_F90 BOOL "${DOCSTR}" OFF)
@@ -496,8 +487,37 @@ ELSE()
   HIDE_VARIABLE(EXAMPLES_ENABLE_F90)
 ENDIF()
 
+# CUDA examples (off by default)
+SET(DOCSTR "Build SUNDIALS CUDA examples")
+IF(CUDA_ENABLE)
+  SHOW_VARIABLE(EXAMPLES_ENABLE_CUDA BOOL "${DOCSTR}" OFF)
+ELSE()
+  IF(EXAMPLES_ENABLE_CUDA)
+    PRINT_WARNING("EXAMPLES_ENABLE_CUDA is ON but CUDA_ENABLE is OFF"
+                  "Disabling EXAMPLES_ENABLE_CUDA")
+    FORCE_VARIABLE(EXAMPLES_ENABLE_CUDA BOOL "${DOCSTR}" OFF)
+  ENDIF()
+ENDIF()
+
+# RAJA examples (off by default)
+SET(DOCSTR "Build SUNDIALS RAJA examples")
+IF(RAJA_ENABLE)
+  SHOW_VARIABLE(EXAMPLES_ENABLE_RAJA BOOL "${DOCSTR}" OFF)
+ELSE()
+  IF(EXAMPLES_ENABLE_RAJA)
+    PRINT_WARNING("EXAMPLES_ENABLE_RAJA is ON but RAJA_ENABLE is OFF"
+                  "Disabling EXAMPLES_ENABLE_RAJA")
+    FORCE_VARIABLE(EXAMPLES_ENABLE_RAJA BOOL "${DOCSTR}" OFF)
+  ENDIF()
+ENDIF()
+
 # If any of the above examples are enabled set EXAMPLES_ENABLED to TRUE
-IF(EXAMPLES_ENABLE_C OR EXAMPLES_ENABLE_F77 OR EXAMPLES_ENABLE_CXX OR EXAMPLES_ENABLE_F90)
+IF(EXAMPLES_ENABLE_C OR
+    EXAMPLES_ENABLE_F77 OR
+    EXAMPLES_ENABLE_CXX OR
+    EXAMPLES_ENABLE_F90 OR
+    EXAMPLES_ENABLE_CUDA OR
+    EXAMPLES_ENABLE_RAJA)
   SET(EXAMPLES_ENABLED TRUE)
 ELSE()
   SET(EXAMPLES_ENABLED FALSE)
@@ -598,9 +618,11 @@ ENDIF()
 # ---------------------------------------------------------------
 # A C++ compiler is needed if:
 # (a) C++ ARKODE examples are enabled
+# (b) CUDA is enabled
+# (c) RAJA is enabled
 # ---------------------------------------------------------------
 
-IF(EXAMPLES_ENABLE_CXX)
+IF(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE)
   INCLUDE(SundialsCXX)
   IF(NOT CXX_FOUND)
     PRINT_WARNING("C++ compiler not functional"
@@ -759,6 +781,87 @@ ENDIF(MPI_ENABLE)
 #   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMPICH_SKIP_MPICXX -DOMPI_SKIP_MPICXX -DLAM_BUILDING")
 # ENDIF(MPICXX_FOUND)
 
+# -------------------------------------------------------------
+# Find OpenMP
+# -------------------------------------------------------------
+
+IF(OPENMP_ENABLE)
+  FIND_PACKAGE(OpenMP)
+  IF(NOT OPENMP_FOUND)
+    message(STATUS "Disabling OpenMP support, could not determine compiler flags")
+  ENDIF(NOT OPENMP_FOUND)
+ENDIF(OPENMP_ENABLE)
+
+# -------------------------------------------------------------
+# Find PThreads
+# -------------------------------------------------------------
+
+IF(PTHREAD_ENABLE)
+  FIND_PACKAGE(Threads)
+  IF(CMAKE_USE_PTHREADS_INIT)
+    message(STATUS "Using Pthreads")
+    SET(PTHREADS_FOUND TRUE)
+    # SGS    
+  ELSE()
+    message(STATUS "Disabling Pthreads support, could not determine compiler flags")
+  endif()
+ENDIF(PTHREAD_ENABLE)
+
+# -------------------------------------------------------------
+# Find CUDA
+# -------------------------------------------------------------
+
+# disable CUDA if a working C++ compiler is not found
+IF(CUDA_ENABLE AND (NOT CXX_FOUND))
+  PRINT_WARNING("C++ compiler required for CUDA support" "Disabling CUDA")
+  FORCE_VARIABLE(CUDA_ENABLE BOOL "CUDA disabled" OFF)
+ENDIF()
+
+if(CUDA_ENABLE)
+  find_package(CUDA)
+  
+  if (CUDA_FOUND)
+    #message("CUDA found!")
+    set(CUDA_NVCC_FLAGS "-lineinfo")
+  else()
+    message(STATUS "Disabling CUDA support, could not find CUDA.")
+  endif()
+endif(CUDA_ENABLE)
+
+# -------------------------------------------------------------
+# Find RAJA
+# -------------------------------------------------------------
+
+# disable RAJA if CUDA is not enabled/working
+IF(RAJA_ENABLE AND (NOT CUDA_FOUND))
+  PRINT_WARNING("CUDA is required for RAJA support" "Please enable CUDA and RAJA")
+  FORCE_VARIABLE(RAJA_ENABLE BOOL "RAJA disabled" OFF)
+ENDIF()
+
+# Check if C++11 compiler is available
+IF(RAJA_ENABLE)
+  include(CheckCXXCompilerFlag)
+  CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+
+  IF(COMPILER_SUPPORTS_CXX11)
+    set(CMAKE_CXX_STANDARD 11)
+  ELSE()
+    PRINT_WARNING("C++11 compliant compiler required for RAJA support" "Disabling RAJA")
+    FORCE_VARIABLE(RAJA_ENABLE BOOL "RAJA disabled" OFF)
+  ENDIF()
+ENDIF()
+
+if(RAJA_ENABLE)
+  # Look for CMake configuration file in RAJA installation
+  find_package(RAJA CONFIGS)
+  if (RAJA_FOUND)
+    #message("RAJA found!")
+    include_directories(${RAJA_INCLUDE_DIR})
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${RAJA_NVCC_FLAGS})
+  else()
+    PRINT_WARNING("RAJA configuration not found" "Please set RAJA_DIR to provide path to RAJA CMake configuration file.")
+  endif()
+endif(RAJA_ENABLE)
 
 # ===============================================================
 # Find (and test) external packages
@@ -1042,6 +1145,14 @@ IF(PETSC_FOUND)
   ADD_SUBDIRECTORY(src/nvec_petsc)
 ENDIF(PETSC_FOUND)
 
+IF(CUDA_FOUND)
+  ADD_SUBDIRECTORY(src/nvec_cuda)   
+ENDIF(CUDA_FOUND)
+
+IF(RAJA_FOUND)
+  ADD_SUBDIRECTORY(src/nvec_raja)   
+ENDIF(RAJA_FOUND)
+
 # ARKODE library
 
 IF(BUILD_ARKODE)
@@ -1296,6 +1407,18 @@ IF(EXAMPLES_ENABLED)
         ADD_SUBDIRECTORY(examples/cvode/fcmix_parallel)
       ENDIF()
     ENDIF()
+    # cuda examples
+    IF(EXAMPLES_ENABLE_CUDA)
+      IF(CUDA_ENABLE AND CUDA_FOUND)
+        ADD_SUBDIRECTORY(examples/cvode/cuda)
+      ENDIF()
+    ENDIF(EXAMPLES_ENABLE_CUDA)
+    # raja examples 
+    IF(EXAMPLES_ENABLE_RAJA)
+      IF(RAJA_ENABLE AND RAJA_FOUND)
+        ADD_SUBDIRECTORY(examples/cvode/raja)
+      ENDIF()
+    ENDIF(EXAMPLES_ENABLE_RAJA)
   ENDIF(BUILD_CVODE)
 
   # add CVODES Examples
@@ -1444,6 +1567,14 @@ IF(EXAMPLES_ENABLED)
       ADD_SUBDIRECTORY(examples/nvector/petsc)
   ENDIF()
 
+  IF(CUDA_FOUND)
+      ADD_SUBDIRECTORY(examples/nvector/cuda)
+  ENDIF(CUDA_FOUND)
+  
+  IF(RAJA_FOUND)
+      ADD_SUBDIRECTORY(examples/nvector/raja)
+  ENDIF(RAJA_FOUND)
+  
 ENDIF(EXAMPLES_ENABLED)
 
 # ---------------------------------------------------------------
