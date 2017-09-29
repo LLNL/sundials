@@ -13,29 +13,18 @@
 # -----------------------------------------------------------------
 # CMakeLists.txt for @SOLVER@ CUDA examples
 #
-# This file is generated from a template using  various variables
+# This file is generated from a template using various variables
 # set at configuration time. It can be used as a template for
 # other user CMakeLists configuration files.
-#
-# Note: if the solver was successfully configured with Blas/Lapack
-# support, the Blas/Lapack libraries are specified through the 
-# variable LAPACK_LIBRARIES. Otherwise, this variable should contain
-# an empty string or LAPACK_LIBRARIES-NOTFOUND. If this variable 
-# contains a valid library entry, we add it to each example traget
-# whether they use the Lapack module or not. This is done in order
-# to address the case in which the SUNDIALS libraries are shared 
-# objects. In that case, the solver library references Lapack 
-# symbols which must be always resolved by linking against the
-# Blas/Lapack libraries. If only static SUNDIALS libraries have 
-# been built, it is not required to link the Blas/Lapack libraries
-# for examples that do not use that module...
 #
 # -----------------------------------------------------------------
 
 cmake_minimum_required(VERSION 2.8)
 
 # Specify project name
-PROJECT(@SOLVER@_serial_examples C)
+PROJECT(@SOLVER@_CUDA_cuda_examples)
+
+find_package(CUDA)
 
 MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
@@ -65,7 +54,7 @@ FIND_LIBRARY(SUNDIALS_SOLVER_LIB
 
 # Find the NVECTOR library
 FIND_LIBRARY(SUNDIALS_NVEC_LIB
-  sundials_nvecserial ${SUNDIALS_LIB_DIR}
+  sundials_nveccuda ${SUNDIALS_LIB_DIR}
   DOC "NVECTOR library")
 
 # Set additional libraries
@@ -107,7 +96,7 @@ ENDIF(PETSC_LIBRARIES)
 
 # Build each example one by one
 FOREACH(example ${examples})
-  ADD_EXECUTABLE(${example} ${example}.c ${examples_dependencies})
+  CUDA_ADD_EXECUTABLE(${example} ${example}.cu ${examples_dependencies})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
 ENDFOREACH(example ${examples})
  

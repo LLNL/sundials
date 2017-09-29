@@ -60,7 +60,7 @@ FOREACH(example ${CVODE_examples})
   SUNDIALS_ADD_TEST(${example} ${example})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/cuda)
+    INSTALL(FILES ${example}.cu ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/cuda)
   ENDIF(EXAMPLES_INSTALL)
 ENDFOREACH(example ${CVODE_examples})
 
@@ -91,13 +91,17 @@ IF(EXAMPLES_INSTALL)
   STRING (REPLACE ";" " " TMP_STR ${EXAMPLES})
   SET(EXAMPLES ${TMP_STR})
 
+  #LIST2STRING(${CUDA_NVCC_FLAGS} SUN_CUDA_FLAGS)
+  STRING (REPLACE ";" "  " SUN_CUDA_FLAGS ${CUDA_NVCC_FLAGS})
+  #SET(EXAMPLES ${TMP_STR})
+
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_cuda_C_ex.in
+      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_cuda_CUDA_ex.in
       ${PROJECT_BINARY_DIR}/examples/cvode/cuda/CMakeLists.txt
       @ONLY
       )
@@ -115,7 +119,7 @@ IF(EXAMPLES_INSTALL)
   IF(UNIX)
     # generate Makefile and place it in the binary dir
     CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_cuda_C_ex.in
+      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_cuda_CUDA_ex.in
       ${PROJECT_BINARY_DIR}/examples/cvode/cuda/Makefile_ex
       @ONLY
       )

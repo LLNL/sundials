@@ -187,7 +187,8 @@ function to be called or macro to be referenced.
   To set the vector \id{y0} of initial values, use the appropriate
   functions defined by the particular {\nvector} implementation.
 
-  For native {\sundials} vector implementations, use a call 
+  For native {\sundials} vector implementations
+  (except the {\cuda} and {\raja}-based ones), use a call 
   of the form \id{y0 = N\_VMake\_***(..., ydata)} if the \id{realtype} array 
   \id{ydata} containing the initial values of $y$ already exists.
   Otherwise, create a new vector by making a call of the form
@@ -203,6 +204,16 @@ function to be called or macro to be referenced.
   \id{N\_VGetArrayPointer\_***(...)} are not available for these vector wrappers.
   See \S\ref{ss:nvec_parhyp} and \S\ref{ss:nvec_petsc} for details.
   
+  For the {\cuda}- and {\raja}-based vector implementations use a call of the form
+  \id{y0 = N\_VMake\_***(..., c)} where \id{c} is a pointer to a \id{suncudavec}
+  or \id{sunrajavec} vector class if this class already exists.  Otherwise, 
+  create a new vector 
+  by making a call of the form \id{y0 = N\_VNew\_***(...)}, and then set its 
+  elements by accessing the underlying data with a call of the form
+  \id{N\_VGetDeviceArrayPointer\_***} or \id{N\_VGetHostArrayPointer\_***}.
+  Note that the vector class will allocate memory on both the host and device
+  when instantiated.  See \S\ref{ss:nvec_cuda}-\ref{ss:nvec_raja} for details.
+
 %   If a \id{realtype} array \id{ydata} containing the initial values of $y$
 %   already exists, it may be possible to do this either with a call of the form
 %   \id{y0 = N\_VMake\_***(..., ydata);}

@@ -61,7 +61,8 @@ LIBRARIES_KLU    = @KLU_LIBS@
 INCLUDES_PETSC   = @PETSC_INCLUDE_DIR@
 LIBRARIES_PETSC  = @PETSC_LIBRARIES@
 
-INCLUDES = -I${includedir} -I${INCLUDES_SLUMT} -I${INCLUDES_KLU} -I${INCLUDES_PETSC}
+TMP_INCS = ${includedir} ${INCLUDES_SLUMT} ${INCLUDES_KLU} ${INCLUDES_PETSC}
+INCLUDES = $(addprefix -I, ${TMP_INCS})
 LIBRARIES = -l@SOLVER_FLIB@ -l@SOLVER_LIB@ -lsundials_fnvecserial -lsundials_nvecserial ${LIBS} ${LIBRARIES_BLAS} ${LIBRARIES_LAPACK} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC}
 
 EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
@@ -88,4 +89,3 @@ clean:
 	rm -f ${EXAMPLES}
 
 # -----------------------------------------------------------------------------------------
-

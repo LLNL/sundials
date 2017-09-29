@@ -22,6 +22,7 @@ SET(nvector_raja_examples
 SET(nvector_examples_dependencies
   test_nvector
   sundials_nvector
+  sundials_math
 )
 
 # Add source directory to include directories
@@ -59,7 +60,7 @@ FOREACH(example ${nvector_raja_examples})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CUDA_LIBRARIES})
 
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c ../test_nvector.c ../test_nvector.h ../../../src/sundials/sundials_nvector.c DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/raja)
+    INSTALL(FILES ${example}.cu ../test_nvector.c ../test_nvector.h ../../../src/sundials/sundials_nvector.c ../../../src/sundials/sundials_math.c DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/raja)
   ENDIF(EXAMPLES_INSTALL)
 ENDFOREACH(example ${nvector_raja_examples})
 
@@ -79,7 +80,7 @@ IF(EXAMPLES_INSTALL)
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_raja_CXX_ex.in
+      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_raja_CUDA_ex.in
       ${PROJECT_BINARY_DIR}/examples/nvector/raja/CMakeLists.txt
       @ONLY
       )
@@ -97,7 +98,7 @@ IF(EXAMPLES_INSTALL)
   IF(UNIX)
     # generate Makefile and place it in the binary dir
     CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_raja_CXX_ex.in
+      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_raja_CUDA_ex.in
       ${PROJECT_BINARY_DIR}/examples/nvector/raja/Makefile_ex
       @ONLY
       )

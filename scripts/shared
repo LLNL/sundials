@@ -360,6 +360,8 @@ $tar $tarfile $distrobase/examples/templates/cmakelists_pthreads_C_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_pthreads_F77_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_F90_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_parallel_F90_ex.in
+$tar $tarfile $distrobase/examples/templates/cmakelists_cuda_CUDA_ex.in
+$tar $tarfile $distrobase/examples/templates/cmakelists_raja_CUDA_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_C_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_F77_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_CXX_ex.in
@@ -374,6 +376,8 @@ $tar $tarfile $distrobase/examples/templates/makefile_pthreads_C_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_pthreads_F77_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_serial_F90_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_F90_ex.in
+$tar $tarfile $distrobase/examples/templates/makefile_cuda_CUDA_ex.in
+$tar $tarfile $distrobase/examples/templates/makefile_raja_CUDA_ex.in
 
 # 3/3/2015:LEBanks - Don't add to release yet. Many tests will fail, which can be confusing to users
 #echo "   --- Add regression test files to $tarfile"
