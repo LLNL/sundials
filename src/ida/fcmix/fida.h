@@ -481,16 +481,16 @@
       data, the user must make one of the following calls:
 
         (serial)   
-           CALL FNVINITS(3, NEQ, IER)
+           CALL FNVINITS(2, NEQ, IER)
         (MPI parallel)
-           CALL FNVINITP(COMM, 3, NLOCAL, NGLOBAL, IER)
+           CALL FNVINITP(COMM, 2, NLOCAL, NGLOBAL, IER)
         (OpenMP threaded)
-           CALL FNVINITOMP(3, NEQ, NUM_THREADS, IER)
+           CALL FNVINITOMP(2, NEQ, NUM_THREADS, IER)
         (PThreads threaded)
-           CALL FNVINITPTS(3, NEQ, NUM_THREADS, IER)
+           CALL FNVINITPTS(2, NEQ, NUM_THREADS, IER)
 
       In each of these, one argument is an int containing the IDA solver 
-      ID (3). 
+      ID (2). 
 
       The other arguments are:
          NEQ = size of vectors [long int, input]
@@ -508,12 +508,12 @@
       storing the system Jacobian and for use within a direct linear solver,
       the user must make one of the following calls:
  
-           CALL FSUNBANDMATINIT(3, N, MU, ML, SMU, IER)
-           CALL FSUNDENSEMATINIT(3, M, N, IER)
-           CALL FSUNSPARSEMATINIT(3, M, N, NNZ, SPARSETYPE, IER)
+           CALL FSUNBANDMATINIT(2, N, MU, ML, SMU, IER)
+           CALL FSUNDENSEMATINIT(2, M, N, IER)
+           CALL FSUNSPARSEMATINIT(2, M, N, NNZ, SPARSETYPE, IER)
 
       In each of these, one argument is an int containing the IDA solver 
-      ID (3). 
+      ID (2). 
 
       The other arguments are:
 
@@ -537,37 +537,37 @@
       arising from solution to the DAE, the user must make one of the 
       following calls:
 
-           CALL FSUNBANDLINSOLINIT(3, IER)
-           CALL FSUNDENSELINSOLINIT(3, IER)
-           CALL FSUNKLUINIT(3, IER)
-           CALL FSUNLAPACKBANDINIT(3, IER)
-           CALL FSUNLAPACKDENSEINIT(3, IER)
-           CALL FSUNPCGINIT(3, PRETYPE, MAXL, IER)
-           CALL FSUNSPBCGSINIT(3, PRETYPE, MAXL, IER)
-           CALL FSUNSPFGMRINIT(3, PRETYPE, MAXL, IER)
-           CALL FSUNSPGMRINIT(3, PRETYPE, MAXL, IER)
-           CALL FSUNSPTFQMRINIT(3, PRETYPE, MAXL, IER)
-           CALL FSUNSUPERLUMTINIT(3, NUM_THREADS, IER)
+           CALL FSUNBANDLINSOLINIT(2, IER)
+           CALL FSUNDENSELINSOLINIT(2, IER)
+           CALL FSUNKLUINIT(2, IER)
+           CALL FSUNLAPACKBANDINIT(2, IER)
+           CALL FSUNLAPACKDENSEINIT(2, IER)
+           CALL FSUNPCGINIT(2, PRETYPE, MAXL, IER)
+           CALL FSUNSPBCGSINIT(2, PRETYPE, MAXL, IER)
+           CALL FSUNSPFGMRINIT(2, PRETYPE, MAXL, IER)
+           CALL FSUNSPGMRINIT(2, PRETYPE, MAXL, IER)
+           CALL FSUNSPTFQMRINIT(2, PRETYPE, MAXL, IER)
+           CALL FSUNSUPERLUMTINIT(2, NUM_THREADS, IER)
 
       Or once these have been initialized, their solver parameters may be
       modified via calls to the functions
 
-           CALL FSUNKLUSETORDERING(3, ORD_CHOICE, IER)
-           CALL FSUNSUPERLUMTSETORDERING(3, ORD_CHOICE, IER)
+           CALL FSUNKLUSETORDERING(2, ORD_CHOICE, IER)
+           CALL FSUNSUPERLUMTSETORDERING(2, ORD_CHOICE, IER)
 
-           CALL FSUNPCGSETPRECTYPE(3, PRETYPE, IER)
-           CALL FSUNPCGSETMAXL(3, MAXL, IER)
-           CALL FSUNSPBCGSSETPRECTYPE(3, PRETYPE, IER)
-           CALL FSUNSPBCGSSETMAXL(3, MAXL, IER)
-           CALL FSUNSPFGMRSETGSTYPE(3, GSTYPE, IER)
-           CALL FSUNSPFGMRSETPRECTYPE(3, PRETYPE, IER)
-           CALL FSUNSPGMRSETGSTYPE(3, GSTYPE, IER)
-           CALL FSUNSPGMRSETPRECTYPE(3, PRETYPE, IER)
-           CALL FSUNSPTFQMRSETPRECTYPE(3, PRETYPE, IER)
-           CALL FSUNSPTFQMRSETMAXL(3, MAXL, IER)
+           CALL FSUNPCGSETPRECTYPE(2, PRETYPE, IER)
+           CALL FSUNPCGSETMAXL(2, MAXL, IER)
+           CALL FSUNSPBCGSSETPRECTYPE(2, PRETYPE, IER)
+           CALL FSUNSPBCGSSETMAXL(2, MAXL, IER)
+           CALL FSUNSPFGMRSETGSTYPE(2, GSTYPE, IER)
+           CALL FSUNSPFGMRSETPRECTYPE(2, PRETYPE, IER)
+           CALL FSUNSPGMRSETGSTYPE(2, GSTYPE, IER)
+           CALL FSUNSPGMRSETPRECTYPE(2, PRETYPE, IER)
+           CALL FSUNSPTFQMRSETPRECTYPE(2, PRETYPE, IER)
+           CALL FSUNSPTFQMRSETMAXL(2, MAXL, IER)
 
       In all of the above, one argument is an int containing the IDA solver 
-      ID (3). 
+      ID (2). 
 
       The other arguments are:
 
@@ -808,7 +808,7 @@
       full refactorization or if the number of nonzeros in the Jacobian 
       matrix changes, the user should make the call
 
-         CALL FSUNKLUREINIT(3, NNZ, REINIT_TYPE, IER)
+         CALL FSUNKLUREINIT(2, NNZ, REINIT_TYPE, IER)
 
       The arguments are:
          NNZ = the maximum number of nonzeros [int; input]
