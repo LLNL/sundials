@@ -20,8 +20,8 @@ class Vector {
   ...
 };
 \end{verbatim}
-The class memebers are vector size (length), size of the vector data memory block, pointers
-to vector data on the host and on the device, pointers to classes \id{SteramPartitioning}
+The class members are vector size (length), size of the vector data memory block, pointers
+to vector data on the host and on the device, pointers to classes \id{StreamPartitioning}
 and \id{ReducePartitioning}, which handle thread partitioning for streaming and 
 reduction vector kernels, respectively, and the boolean flag that signals if the
 vector owns thread partitioning. The class \id{Vector} inherits from empty structure

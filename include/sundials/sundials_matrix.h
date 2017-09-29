@@ -136,7 +136,7 @@ struct _generic_SUNMatrix {
  *   B have different types and/or dimensions.
  *
  * SUNMatScaleAddI
- *   Performs the operation A = c*A + I.  Returns an error if A is '
+ *   Performs the operation A = c*A + I.  Returns an error if A is 
  *   not a square matrix.
  *
  * SUNMatMatvec
