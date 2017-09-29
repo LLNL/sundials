@@ -125,7 +125,7 @@ solver modules available for use with {\ida} are:
     module, {\sunlinsolslumt}; 
   \end{itemize}
 
-\item \Id{cvode/cvode\_spils.h}, 
+\item \Id{ida/ida\_spils.h}, 
   which is used with the {\idaspils} iterative linear solver interface to
   access iterative solvers with the following header files:
   \begin{itemize}
@@ -1738,7 +1738,7 @@ flag = IDASetConstraints(ida\_mem, constraints);
 \subsubsection{Direct linear solver interface optional input functions}
 \label{sss:optin_dls}
 \index{optional input!direct linear solver interface|(}
-\index{IDADLS@{\cvdls} linear solver interface!optional input|(}
+\index{IDADLS@{\idadls} linear solver interface!optional input|(}
 The \index{IDADLS@{\idadls} linear solver interface!Jacobian approximation used by}
 {\idadls} solver interface needs a function to compute an approximation to
 the Jacobian matrix $J(t,y,\dot{y})$.  This function must be of type \id{IDADlsJacFn}. 
@@ -1953,7 +1953,7 @@ adjust this linear solver tolerance by calling the function
   reduced from the Newton iteration test constant.
 }
 {
-  \begin{args}[cvode\_mem]
+  \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[eplifac] (\id{realtype}) linear convergence safety factor $(
