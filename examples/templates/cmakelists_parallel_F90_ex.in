@@ -1,10 +1,15 @@
 # -----------------------------------------------------------------
 # Programmer: Daniel R. Reynolds @ SMU
 # -----------------------------------------------------------------
-# Copyright (c) 2013, The Regents of the University of California.
+# LLNS Copyright Start
+# Copyright (c) 2014, Lawrence Livermore National Security
+# This work was performed under the auspices of the U.S. Department 
+# of Energy by Lawrence Livermore National Laboratory in part under 
+# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
 # For details, see the LICENSE file.
+# LLNS Copyright End
 # -----------------------------------------------------------------
 # CMakeLists.txt for @SOLVER@ Fortran parallel examples
 #
@@ -80,8 +85,15 @@ SET(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")
 # Set other libraries libraries
 SET(BLAS_LIBRARIES @BLAS_LIBS@ CACHE STRING "Blas libraries")
 SET(LAPACK_LIBRARIES @LAPACK_LIBS@ CACHE STRING "Lapack libraries")
+
+INCLUDE_DIRECTORIES(@SUPERLUMT_INCLUDE_DIR@)
 SET(SUPERLUMT_LIBRARIES @SUPERLUMT_LIBRARIES@ CACHE STRING "SuperLUMT libraries")
+
+INCLUDE_DIRECTORIES(@KLU_INCLUDE_DIR@)
 SET(KLU_LIBRARIES @KLU_LIBRARIES@ CACHE STRING "KLU libraries")
+
+INCLUDE_DIRECTORIES(@PETSC_INCLUDE_DIR@)
+SET(PETSC_LIBRARIES @PETSC_LIBRARIES@ CACHE STRING "PETSC libraries")
 
 # List of all libraries
 SET(SUNDIALS_LIBS 
@@ -102,6 +114,10 @@ ENDIF(SUPERLUMT_LIBRARIES)
 IF(KLU_LIBRARIES)
   LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
 ENDIF(KLU_LIBRARIES)
+
+IF(PETSC_LIBRARIES)
+  LIST(APPEND SUNDIALS_LIBS ${PETSC_LIBRARIES})
+ENDIF(PETSC_LIBRARIES)
 
 # Build each example one by one
 FOREACH(example ${examples})

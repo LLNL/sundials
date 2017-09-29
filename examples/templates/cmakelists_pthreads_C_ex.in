@@ -1,10 +1,15 @@
 # -----------------------------------------------------------------
 # Programmer: Radu Serban @ LLNL
 # -----------------------------------------------------------------
-# Copyright (c) 2007, The Regents of the University of California.
+# LLNS Copyright Start
+# Copyright (c) 2014, Lawrence Livermore National Security
+# This work was performed under the auspices of the U.S. Department 
+# of Energy by Lawrence Livermore National Laboratory in part under 
+# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
 # For details, see the LICENSE file.
+# LLNS Copyright End
 # -----------------------------------------------------------------
 # CMakeLists.txt for @SOLVER@ serial examples
 #
@@ -36,6 +41,7 @@ MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
 # Set the names of the examples to be built
 SET(examples @EXAMPLES@ @EXAMPLES_BL@)
+LIST(REMOVE_DUPLICATES examples)
 
 # Set names of examples specific dependency source files
 SET(examples_dependencies @EXAMPLES_DEPENDENCIES@)
@@ -65,9 +71,18 @@ FIND_LIBRARY(SUNDIALS_NVEC_LIB
 # Set additional libraries
 SET(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")
 
-# Set Blas/Lapack libraries
+# Set other libraries libraries
 SET(BLAS_LIBRARIES @BLAS_LIBS@ CACHE STRING "Blas libraries")
 SET(LAPACK_LIBRARIES @LAPACK_LIBS@ CACHE STRING "Lapack libraries")
+
+INCLUDE_DIRECTORIES(@SUPERLUMT_INCLUDE_DIR@)
+SET(SUPERLUMT_LIBRARIES @SUPERLUMT_LIBRARIES@ CACHE STRING "SuperLUMT libraries")
+
+INCLUDE_DIRECTORIES(@KLU_INCLUDE_DIR@)
+SET(KLU_LIBRARIES @KLU_LIBRARIES@ CACHE STRING "KLU libraries")
+
+INCLUDE_DIRECTORIES(@PETSC_INCLUDE_DIR@)
+SET(PETSC_LIBRARIES @PETSC_LIBRARIES@ CACHE STRING "PETSC libraries")
 
 # List of all libraries
 SET(SUNDIALS_LIBS ${SUNDIALS_SOLVER_LIB} ${SUNDIALS_NVEC_LIB} ${SUNDIALS_EXTRA_LIB})
@@ -78,9 +93,20 @@ IF(BLAS_LIBRARIES)
   LIST(APPEND SUNDIALS_LIBS ${BLAS_LIBRARIES})
 ENDIF(BLAS_LIBRARIES)
 
+IF(SUPERLUMT_LIBRARIES)
+  LIST(APPEND SUNDIALS_LIBS ${SUPERLUMT_LIBRARIES})
+ENDIF(SUPERLUMT_LIBRARIES)
+
+IF(KLU_LIBRARIES)
+  LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
+ENDIF(KLU_LIBRARIES)
+
+IF(PETSC_LIBRARIES)
+  LIST(APPEND SUNDIALS_LIBS ${PETSC_LIBRARIES})
+ENDIF(PETSC_LIBRARIES)
+
 # Build each example one by one
 FOREACH(example ${examples})
   ADD_EXECUTABLE(${example} ${example}.c ${examples_dependencies})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
 ENDFOREACH(example ${examples})
- 

@@ -1586,3 +1586,8 @@ INSTALL(
   FILES ${PROJECT_BINARY_DIR}/include/sundials/sundials_config.h
   DESTINATION include/sundials
   )
+
+INSTALL(
+  FILES ${PROJECT_BINARY_DIR}/include/sundials/sundials_fconfig.h
+  DESTINATION include/sundials
+  )

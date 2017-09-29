@@ -73,7 +73,7 @@ for ((i=0; i<${#realtype[@]}; i++)); do
         fi
 
         # print test label for Jenkins section collapsing
-        echo -e "TEST: ./suntest.sh ${realtype[i]} ${indextype[j]} $buildthreads \n"
+        echo -e "TEST: ./suntest_xsdk.sh ${realtype[i]} ${indextype[j]} $buildthreads \n"
 
         # run tests using xSDK CMake options
         ./suntest_xsdk.sh ${realtype[i]} ${indextype[j]} $buildthreads
@@ -81,9 +81,9 @@ for ((i=0; i<${#realtype[@]}; i++)); do
         # check return flag
         if [ $? -ne 0 ]; then
             let nfail+=1
-            echo "FAILED xSDK: ${realtype[i]} ${indextype[j]}" | tee -a suntest.log
+            echo "FAILED: xSDK ${realtype[i]} ${indextype[j]}" | tee -a suntest.log
         else
-            echo "PASSED xSDK: ${realtype[i]} ${indextype[j]}" | tee -a suntest.log
+            echo "PASSED: xSDK ${realtype[i]} ${indextype[j]}" | tee -a suntest.log
         fi               
 
     done
