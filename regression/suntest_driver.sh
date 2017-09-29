@@ -72,6 +72,9 @@ for ((i=0; i<${#realtype[@]}; i++)); do
             echo "PASSED: ${realtype[i]} ${indextype[j]}" | tee -a suntest.log
         fi
 
+        # print test label for Jenkins section collapsing
+        echo -e "TEST: ./suntest.sh ${realtype[i]} ${indextype[j]} $buildthreads \n"
+
         # run tests using xSDK CMake options
         ./suntest_xsdk.sh ${realtype[i]} ${indextype[j]} $buildthreads
 
