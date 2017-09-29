@@ -315,6 +315,16 @@
         In the above routines, 3 is the KINSOL solver ID and IER is the return
         return completion flag (0 = success and -1 = failure).
   
+        To attach the dense linear solver structure the user must call
+        the following:
+
+          CALL FKINDLSINIT(IER)
+
+        The arguments are:
+            IER  = return completion flag [int, output]:
+                    0 = SUCCESS,
+                   -1 = failure (see printed message for failure details).
+
         If the user program includes the FKDJAC routine for the evaluation
         of the dense approximation to the system Jacobian, the following call
         must be made:
@@ -352,6 +362,16 @@
         In the above routines, 3 is the KINSOL solver ID and IER is the return
         return completion flag (0 = success and -1 = failure).
   
+        To attach the banded linear solver structure the user must call
+        the following:
+
+          CALL FKINDLSINIT(IER)
+
+        The arguments are:
+            IER  = return completion flag [int, output]:
+                    0 = SUCCESS,
+                   -1 = failure (see printed message for failure details).
+
         If the user program includes the FKBJAC routine for the evaluation
         of the band approximation to the system Jacobian, the following call
         must be made:
@@ -391,6 +411,16 @@
         In the above routines, 3 is the KINSOL solver ID, NUM_THREADS is the number
         of threads, and IER is the return completion flag (0 = success and
         -1 = failure).
+
+        To attach the sparse linear solver structure the user must call
+        the following:
+
+          CALL FKINDLSINIT(IER)
+
+        The arguments are:
+            IER  = return completion flag [int, output]:
+                    0 = SUCCESS,
+                   -1 = failure (see printed message for failure details).
   
         When using a sparse solver the user must provide the FKINSPJAC routine for the 
         evalution of the sparse approximation to the Jacobian. To indicate that this
@@ -401,7 +431,7 @@
   
         The int return flag IER=0 if successful, and nonzero otherwise.
   
-        The KINSOL KLU solver will reuse much of the factorization information from one
+        The KLU solver will reuse much of the factorization information from one
         nonlinear iteration to the next.  If at any time the user wants to force a full
         refactorization or if the number of nonzeros in the Jacobian matrix changes, the
         user should make the call:
@@ -416,9 +446,9 @@
             only symbolic and numeric factorizations will be completed. 
 
         At this time, there is no reinitialization capability for the SUNDIALS
-        interfaces to the SuperLUMT solver.
+        interface to the SuperLUMT solver.
 
-        Once these the solvers been initialized, their solver parameters may be
+        Once these the solvers have been initialized, their solver parameters may be
         modified via calls to the functions:
 
            CALL FSUNKLUSETORDERING(3, ORD_CHOICE, IER)
@@ -426,7 +456,7 @@
 
         In the above routines, 3 is the KINSOL solver ID and ORD_CHOICE is an integer
         denoting ordering choice (see SUNKLUSetOrdering and SUNSuperLUMTSetOrdering
-        documentation for details) and IER is the return completion flag (0 = success
+        documentation for details), and IER is the return completion flag (0 = success
         and -1 = failure).
 
         Optional outputs specific to the KLU case are:
@@ -439,52 +469,63 @@
           NJES    = IOUT(10) from KINSlsGetNumJacEvals
         See the KINSOL manual for descriptions.
   
- (6.5) SPTFQMR treatment of the linear systems:
+ (6.4) Scaled Preconditioned Iterative linear Solvers (SPILS):
 
-       For the Scaled Preconditioned TFQMR solution of the linear systems,
-       the user must make the call:
+       To initialize a SPILS treatment of the linear system, the user must call one
+       of the following:
 
-         CALL FKINSPTFQMR(MAXL, IER)
+         CALL FSUNPCGINIT(3, PRETYPE, MAXL, IER)
+         CALL FSUNSPBCGSINIT(3, PRETYPE, MAXL, IER)
+         CALL FSUNSPFGMRINIT(3, PRETYPE, MAXL, IER)
+         CALL FSUNSPGMRINIT(3, PRETYPE, MAXL, IER)
+         CALL FSUNSPTFQMRINIT(3, PRETYPE, MAXL, IER)
 
-       In the above routine, the arguments are as follows:
-         MAXL     = maximum Krylov subspace dimension; 0 indicates default.
-         IER      = return completion flag.  Values are 0 = succes, and
-                    -1 = failure.
+       The integer 3 is the KINSOL solver ID and the other arguments are:
+         PRETYPE = type of preconditioning to perform (0=none, 1=left,
+                   2=right, 3=both) [int, input]
+         MAXL    = maximum Krylov subspace dimension [int, input]
+         IER     = return completion flag [int, output]:
+                    0 = success, 
+                   -1 = failure.
 
-       Note: See printed message for details in case of failure.
+        To attach the iterative linear solver structure the user must call
+        the following:
 
- (6.6) SPBCG treatment of the linear systems:
+          CALL FKINSPILSINIT(IER)
 
-       For the Scaled Preconditioned Bi-CGSTAB solution of the linear systems,
-       the user must make the call:
+        The arguments are:
+            IER  = return completion flag [int, output]:
+                    0 = SUCCESS,
+                   -1 = failure (see printed message for failure details).
 
-         CALL FKINSPBCG(MAXL, IER)
+       Once these the solvers have been initialized, their solver parameters may be
+       modified via calls to the functions:
 
-       In the above routine, the arguments are as follows:
-         MAXL     = maximum Krylov subspace dimension; 0 indicates default.
-         IER      = return completion flag.  Values are 0 = succes, and
-                    -1 = failure.
+         CALL FSUNPCGSETPRECTYPE(3, PRETYPE, IER)
+         CALL FSUNPCGSETMAXL(3, MAXL, IER)
 
-       Note: See printed message for details in case of failure.
+         CALL FSUNSPBCGSSETPRECTYPE(3, PRETYPE, IER)
+         CALL FSUNSPBCGSSETMAXL(3, MAXL, IER)
 
- (6.7) SPGMR and SPFGMR treatment of the linear systems:
+         CALL FSUNSPFGMRSETGSTYPE(3, GSTYPE, IER)
+         CALL FSUNSPFGMRSETPRECTYPE(3, PRETYPE, IER)
 
-       For the Scaled Preconditioned GMRES or Scaled Preconditioned Flexible 
-       GMRES solution of the linear systems, the user must make one of the calls:
+         CALL FSUNSPGMRSETGSTYPE(3, GSTYPE, IER)
+         CALL FSUNSPGMRSETPRECTYPE(3, PRETYPE, IER)
 
-         CALL FKINSPGMR(MAXL, MAXLRST, IER)
-         CALL FKINSPFGMR(MAXL, MAXLRST, IER)
+         CALL FSUNSPTFQMRSETPRECTYPE(3, PRETYPE, IER)
+         CALL FSUNSPTFQMRSETMAXL(3, MAXL, IER)
 
-       In the above routine, the arguments are as follows:
-         MAXL     = maximum Krylov subspace dimension; 0 indicates default.
-         MAXLRST  = maximum number of linear system restarts; 0 indicates
-                    default (SPGMR and SPFGMR only).
-         IER      = return completion flag.  Values are 0 = succes, and
-                    -1 = failure.
+       The integer 3 is the KINSOL solver ID and the other arguments are:
+         PRETYPE = type of preconditioning to perform (0=none, 1=left, 
+                   2=right, 3=both) [int, input]
+         GSTYPE  = choice of Gram-Schmidt orthogonalization algorithm 
+                   (0=modified, 1=classical) [int, input]
+         IER     = return completion flag [int, output]:
+                    0 = success, 
+                   -1 = failure.       
 
-       Note: See printed message for details in case of failure.
-
- (6.8) Specifying user-provided functions for the iterative linear solvers
+ (6.5) Specifying user-provided functions for the iterative linear solvers (SPILS)
 
        If the user program includes the FKJTIMES routine for the evaluation
        of the Jacobian-vector product, the following call must be made:
@@ -504,25 +545,24 @@
        specifies using FKPSET and FKPSOL. The user-supplied routines FKPSET
        and FKPSOL must be of the form:
 
-         SUBROUTINE FKPSET (UU, USCALE, FVAL, FSCALE, VTEMP1, VTEMP2, IER)
-         DIMENSION UU(*), USCALE(*), FVAL(*), FSCALE(*), VTEMP1(*), VTEMP2(*)
+         SUBROUTINE FKPSET (UU, USCALE, FVAL, FSCALE, IER)
+         DIMENSION UU(*), USCALE(*), FVAL(*), FSCALE(*)
 
        It must perform any evaluation of Jacobian-related data and
        preprocessing needed for the solution of the preconditioned linear
        systems by FKPSOL. The variables UU through FSCALE are for use in the
        preconditioning setup process. Typically, the system function FKFUN is
        called, so that FVAL will have been updated. UU is the current solution
-       iterate. VTEMP1 and VTEMP2 are available for work space. If scaling is
-       being used, USCALE and FSCALE are available for those operatins
-       requiring scaling. NEQ is the (global) problem size.
+       iterate. If scaling is being used, USCALE and FSCALE are available for
+       those operatins requiring scaling.
 
        On return, set IER = 0 if FKPSET was successful, set IER = 1 if
        an error occurred.
 
-         SUBROUTINE FKPSOL (UU, USCALE, FVAL, FSCALE, VTEM, FTEM, IER)
-         DIMENSION UU(*), USCALE(*), FVAL(*), FSCALE(*), VTEM(*), FTEM(*)
+         SUBROUTINE FKPSOL (UU, USCALE, FVAL, FSCALE, VTEM, IER)
+         DIMENSION UU(*), USCALE(*), FVAL(*), FSCALE(*), VTEM(*)
 
-       Typically this routine will use only UU, FVAL, VTEM and FTEM.
+       Typically this routine will use only UU, FVAL, and VTEM.
        It must solve the preconditioned linear system Pz = r, where
        r = VTEM is input, and store the solution z in VTEM as well. Here
        P is the right preconditioner. If scaling is being used, the
