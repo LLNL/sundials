@@ -34,9 +34,9 @@
 #include <math.h>
 
 #include <cvode/cvode.h>
-#include <cvode/cvode_spgmr.h>
+#include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver        */
+#include <cvode/cvode_spils.h>         /* access to CVSpils interface            */
 #include <nvector/nvector_raja.h>
-#include <nvector/raja/Vector.hpp>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 
@@ -96,12 +96,14 @@ int main(int argc, char** argv)
   realtype reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
+  SUNLinearSolver LS;
   void *cvode_mem;
   int iout, flag;
   long int nst;
 
   u = NULL;
   data = NULL;
+  LS = NULL;
   cvode_mem = NULL;
 
   /* Set model parameters */
@@ -138,13 +140,17 @@ int main(int argc, char** argv)
   flag = CVodeSetUserData(cvode_mem, data);
   if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
-  /* Call CVSpgmr to specify the linear solver CVSPGMR 
-   * without preconditioning and the maximum Krylov dimension maxl */
-  flag = CVSpgmr(cvode_mem, PREC_NONE, 0);
-  if(check_flag(&flag, "CVSpgmr", 1)) return(1);
+  /* Create SPGMR solver structure without preconditioning
+   * and the maximum Krylov dimension maxl */
+  LS = SUNSPGMR(u, PREC_NONE, 0);
+  if(check_flag(&flag, "SUNSPGMR", 1)) return(1);
 
-  /* set the JAcobian-times-vector function */
-  flag = CVSpilsSetJacTimesVecFn(cvode_mem, jtv);
+  /* Set CVSpils linear solver to LS */
+  flag = CVSpilsSetLinearSolver(cvode_mem, LS);
+  if(check_flag(&flag, "CVSpilsSetLinearSolver", 1)) return(1);
+
+  /* Set the Jacobian-times-vector function */
+  flag = CVSpilsSetJacTimes(cvode_mem, NULL, jtv);
   if(check_flag(&flag, "CVSpilsSetJacTimesVecFn", 1)) return(1);
 
   /* In loop over output points: call CVode, print results, test for errors */
@@ -220,7 +226,7 @@ static void SetIC(N_Vector u, UserData data)
   realtype *udata = N_VGetHostArrayPointer_Raja(u);
 
   sunindextype i, j, tid;
-  realtype x, y;//, dx, dy;
+  realtype x, y;
 
 
   /* Load initial profile into u vector */
