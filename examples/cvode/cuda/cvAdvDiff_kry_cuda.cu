@@ -59,7 +59,7 @@
  * CUDA kernels
  */
 
-__global__ void residualKernel(const realtype *u, realtype *udot,
+__global__ void fKernel(const realtype *u, realtype *udot,
                                sunindextype MX, sunindextype MY,
                                realtype hordc, realtype horac, realtype verdc)
 {
@@ -326,7 +326,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   unsigned block = 256;
   unsigned grid = (MX*MY + block - 1) / block;
 
-  residualKernel<<<grid,block>>>(udata, dudata, MX, MY, hordc, horac, verdc);
+  fKernel<<<grid,block>>>(udata, dudata, MX, MY, hordc, horac, verdc);
 
   return(0);
 }
