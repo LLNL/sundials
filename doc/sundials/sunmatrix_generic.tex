@@ -190,7 +190,8 @@ flag denoting success/failure of the operation.
 \id{SUNMatMatvec} & \id{ier = SUNMatMatvec(A, x, y);} \\
 & Performs the matrix-vector product operation, $y = Ax$. It should
 only be called with vectors \id{x} and \id{y} that are compatible with
-the matrix \id{A} -- both in storage type and dimensions.
+the matrix \id{A} -- both in storage type and dimensions.  The return
+value is an integer flag denoting success/failure of the operation.
 \\[2mm]
 %%
 \end{xtabular}

@@ -14,8 +14,8 @@ The table also shows, for each function, which of the code modules uses
 the function.  In general, the main {\cvode} integrator considers
 three categories of linear solvers, \emph{direct}, \emph{iterative}
 and \emph{custom}, with interfaces accessible in the {\cvode} header
-files \id{cvode\_direct.h} ({\cvdls}), \id{cvode\_spils.h}
-({\cvspils}) and \id{cvode\_customls.h} ({\cvcls}), respectively.
+files \id{cvode/cvode\_direct.h} ({\cvdls}), \id{cvode/cvode\_spils.h}
+({\cvspils}) and \id{cvode/cvode\_customls.h} ({\cvcls}), respectively.
 Hence, the the table columns reference the use of {\sunlinsol}
 functions by each of these solver interfaces.
 
@@ -54,6 +54,6 @@ The linear solver functions listed in Table \ref{t:sunlinsolops} with
 a $\dagger$ symbol are optionally used, in that these are only called
 if they are implemented in the {\sunlinsol} module that is being used
 (i.e.~their function pointers are non-\id{NULL}).  Also, although
-{\cvode} does not call the \id{SUNLinSolLastFlag} directly, this
+{\cvode} does not call \id{SUNLinSolLastFlag} directly, this
 routine is available for users to query linear solver issues directly.
 

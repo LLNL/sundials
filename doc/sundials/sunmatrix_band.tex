@@ -60,7 +60,7 @@ parts of this \emph{content} field is given below:
 %%
 \begin{figure}
 \centerline{\includegraphics[width=4.5 in]{bandmat}}
-\caption[Diagram of the storage for a banded matrix of type \id{DlsMat}]
+\caption[Diagram of the storage for a {\sunmatband} object]
   {Diagram of the storage for the {\sunmatband} module. Here \id{A} is an
   $\id{N} \times \id{N}$ band matrix with upper and lower half-bandwidths \id{mu}
   and \id{ml}, respectively. The rows and columns of \id{A} are
@@ -132,7 +132,7 @@ the \emph{banded} version.
   A\_data} sets the data array of \id{A} to be \id{A\_data} by storing
   the pointer \id{A\_data}. 
   
-  Similarlly, the assignment \id{A\_cols = SM\_COLS\_B(A)} sets \id{A\_cols} to be     
+  Similarly, the assignment \id{A\_cols = SM\_COLS\_B(A)} sets \id{A\_cols} to be     
   a pointer to the array of column pointers for the banded \id{SUNMatrix} \id{A}. 
   The assignment \id{SM\_COLS\_B(A) = A\_cols} sets the column pointer
   array of \id{A} to be \id{A\_cols} by storing the pointer \id{A\_cols}.                   

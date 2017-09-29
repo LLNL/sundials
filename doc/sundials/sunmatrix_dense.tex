@@ -47,7 +47,7 @@ the \emph{dense} version.
 
 \item \ID{SM\_CONTENT\_D}
     
-  This routine gives access to the contents of the
+  This macro gives access to the contents of the
   dense \id{SUNMatrix}.
   
   The assignment \id{A\_cont} $=$ \id{SM\_CONTENT\_D(A)} sets
@@ -88,7 +88,7 @@ the \emph{dense} version.
   sets the data array of \id{A} to be \id{A\_data} by storing the
   pointer \id{A\_data}.
   
-  Similarlly, the assignment \id{A\_cols = SM\_COLS\_D(A)} sets \id{A\_cols} to be     
+  Similarly, the assignment \id{A\_cols = SM\_COLS\_D(A)} sets \id{A\_cols} to be     
   a pointer to the array of column pointers for the dense \id{SUNMatrix} \id{A}. 
   The assignment \id{SM\_COLS\_D(A) = A\_cols} sets the column pointer
   array of \id{A} to be \id{A\_cols} by storing the pointer \id{A\_cols}.                   
@@ -102,7 +102,7 @@ the \emph{dense} version.
 
 \item \ID{SM\_COLUMN\_D} and \ID{SM\_ELEMENT\_D}
                                                             
-  These macros gives access to the individual columns and entries of
+  These macros give access to the individual columns and entries of
   the data array of a dense \id{SUNMatrix}.
 
   The assignment \id{col\_j = SM\_COLUMN\_D(A,j)} sets \id{col\_j} to be
