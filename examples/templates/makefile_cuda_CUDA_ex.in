@@ -26,6 +26,8 @@ exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
+NVCC     = @CUDA_NVCC_EXECUTABLE@
+NVCCFLAGS = @SUN_CUDA_FLAGS@
 CPP      = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX      = @CXX@
@@ -48,7 +50,7 @@ INCLUDES_PETSC   = @PETSC_INCLUDE_DIR@
 LIBRARIES_PETSC  = @PETSC_LIBRARIES@
 
 INCLUDES = -I${includedir} -I${INCLUDES_SLUMT} -I${INCLUDES_KLU} -I${INCLUDES_PETSC}
-LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecserial ${LIBS} ${LIBRARIES_BLAS} ${LIBRARIES_LAPACK} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC}
+LIBRARIES = -l@SOLVER_LIB@ -lsundials_nveccuda ${LIBS} ${LIBRARIES_BLAS} ${LIBRARIES_LAPACK} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC}
 
 EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
 
@@ -56,17 +58,17 @@ OBJECTS = ${EXAMPLES:=.o}
 
 # -----------------------------------------------------------------------------------------
 
-.SUFFIXES : .o .cpp
+.SUFFIXES : .o .cu
 
-.cpp.o :
-	${CXX} ${CPPFLAGS} ${CXXFLAGS} ${INCLUDES} -c $<
+.cu.o :
+	${NVCC} ${CPPFLAGS} ${NVCCFLAGS} ${INCLUDES} -c $<
 
 # -----------------------------------------------------------------------------------------
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${CXX} -o $${i} $${i}.o ${CXXFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LINKFLAGS}" ; \
-	  ${CXX} -o $${i} $${i}.o ${CXXFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LINKFLAGS} ; \
+	  echo "${NVCC} -o $${i} $${i}.o ${NVCCFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LINKFLAGS}" ; \
+	  ${NVCC} -o $${i} $${i}.o ${NVCCFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LINKFLAGS} ; \
 	done
 
 clean:

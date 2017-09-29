@@ -79,7 +79,7 @@ IF(EXAMPLES_INSTALL)
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_raja_CXX_ex.in
+      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_raja_CUDA_ex.in
       ${PROJECT_BINARY_DIR}/examples/nvector/raja/CMakeLists.txt
       @ONLY
       )
@@ -97,7 +97,7 @@ IF(EXAMPLES_INSTALL)
   IF(UNIX)
     # generate Makefile and place it in the binary dir
     CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_raja_CXX_ex.in
+      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_raja_CUDA_ex.in
       ${PROJECT_BINARY_DIR}/examples/nvector/raja/Makefile_ex
       @ONLY
       )
