@@ -1,11 +1,11 @@
 % This is a shared SUNDIALS TEX file with description of
 % the CUDA nvector implementation
 %
-The {\nveccuda} module is an experimental implementation of {\nvector} in {\cuda} language. 
-It allows for {\sundials} vector kernels to run on GPU devices. It is intended for users 
+The {\nveccuda} module is an experimental implementation of {\nvector} in the {\cuda} language. 
+The module allows for {\sundials} vector kernels to run on GPU devices. It is intended for users 
 who are already familiar with {\cuda} and GPU programming. Building this vector 
-module requires CUDA compiler and, by extension, C++ compiler. Class \id{Vector} 
-in namespace \id{suncudavec} manages vector data layout. 
+module requires a CUDA compiler and, by extension, a C++ compiler. The class \id{Vector} 
+in namespace \id{suncudavec} manages vector data layout: 
 \begin{verbatim} 
 template <class T, class I>
 class Vector {
@@ -21,20 +21,20 @@ class Vector {
 };
 \end{verbatim}
 The class memebers are vector size (length), size of the vector data memory block, pointers
-to vector data on the host and on the device, pointers to classes \id{SteramPartitioning}
+to vector data on the host and on the device, pointers to classes \id{StreamPartitioning}
 and \id{ReducePartitioning}, which handle thread partitioning for streaming and 
-reduction vector kernels, respectively, and the boolean flag that signals if the
-vector owns thread partitioning. The class \id{Vector} inherits from empty structure
+reduction vector kernels, respectively, and a boolean flag that signals if the
+vector owns the thread partitioning. The class \id{Vector} inherits from the empty structure
 \begin{verbatim} 
 struct _N_VectorContent_Cuda {
 };
 \end{verbatim}
-to interface the C++ class with {\nvector} C code. When instantiated, the class
-\id{Vector} will allocate memory on both, host and device. Due to rapid
-progress in of {\cuda} development, we expect that \id{suncudavec::Vector}
-class will change frequently in the future {\sundials} releases. The code is
+to interface the C++ class with the {\nvector} C code. When instantiated, the class
+\id{Vector} will allocate memory on both the host and the device. Due to the rapid
+progress of {\cuda} development, we expect that the \id{suncudavec::Vector}
+class will change frequently in future {\sundials} releases. The code is
 structured so that it can tolerate significant changes in the 
-\id{suncudavec::Vector} class without requiring changes to user API.
+\id{suncudavec::Vector} class without requiring changes to the user API.
 
 %%
 %%--------------------------------------------
@@ -57,7 +57,7 @@ will be added in subsequent {\sundials} releases.
 The {\nveccuda} module provides separate functions to access data on the host
 and on the device. It also provides methods for copying from the host to 
 the device and vice versa. Usage examples of {\nveccuda} are provided in
-example programs for {\cvode} \cite{cvode_ex}.
+some example programs for {\cvode} \cite{cvode_ex}.
 
 The names of vector operations are obtained from those in 
 Table \ref{t:nvecops} by appending the suffix \id{\_Cuda} (e.g. \id{N\_VDestroy\_Cuda}).
@@ -72,7 +72,7 @@ The module {\nveccuda}  provides the following additional user-callable routines
 \item \ID{N\_VNew\_Cuda}
  
   This function creates and allocates memory for a {\cuda} \id{N\_Vector}.
-  The memory is allocated on both, host and device. Its only argument is the 
+  The memory is allocated on both host and device. Its only argument is the 
   vector length. 
 
 \begin{verbatim}
@@ -152,7 +152,7 @@ N_Vector *N_VCloneEmptyVectorArray_Cuda(int count, N_Vector w);
 
 \item \ID{N\_VGetHostArrayPointer\_Cuda}
  
- This function returns pointer to the vector data on the host.
+ This function returns a pointer to the vector data on the host.
 
  \verb|realtype *N_VGetHostArrayPointer_Cuda(N_Vector v);|
 
@@ -161,7 +161,7 @@ N_Vector *N_VCloneEmptyVectorArray_Cuda(int count, N_Vector w);
 
 \item \ID{N\_VGetDeviceArrayPointer\_Cuda}
  
- This function returns pointer to the vector data on the device.
+ This function returns a pointer to the vector data on the device.
 
  \verb|realtype *N_VGetDeviceArrayPointer_Cuda(N_Vector v);|
 
