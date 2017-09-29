@@ -3,6 +3,10 @@
 tarfile=$1
 distrobase=$2
 
+echo ">>>>>>"
+echo $distrobase
+echo ">>>>>>"
+
 shift 2
 tar=$*
 
@@ -50,6 +54,7 @@ echo "   --- Add shared module to $tarfile"
 $tar $tarfile $distrobase/include/sundials/sundials_config.in
 $tar $tarfile $distrobase/include/sundials/sundials_fconfig.in
 $tar $tarfile $distrobase/include/sundials/sundials_types.h
+$tar $tarfile $distrobase/include/sundials/sundials_mpi_types.h
 $tar $tarfile $distrobase/include/sundials/sundials_matrix.h
 $tar $tarfile $distrobase/include/sundials/sundials_linearsolver.h
 $tar $tarfile $distrobase/include/sundials/sundials_math.h
@@ -76,6 +81,8 @@ $tar $tarfile $distrobase/include/nvector/nvector_parhyp.h
 $tar $tarfile $distrobase/include/nvector/nvector_petsc.h
 $tar $tarfile $distrobase/include/nvector/nvector_pthreads.h
 $tar $tarfile $distrobase/include/nvector/nvector_openmp.h
+$tar $tarfile $distrobase/include/nvector/nvector_cuda.h
+$tar $tarfile $distrobase/include/nvector/nvector_raja.h
 $tar $tarfile $distrobase/include/nvector/cuda/ThreadPartitioning.hpp
 $tar $tarfile $distrobase/include/nvector/cuda/Vector.hpp
 $tar $tarfile $distrobase/include/nvector/cuda/VectorKernels.cuh
@@ -83,12 +90,12 @@ $tar $tarfile $distrobase/include/nvector/raja/Vector.hpp
 
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_dense.h
-$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_diagonal.h
+#$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_diagonal.h
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_sparse.h
 
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_band.h
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_dense.h
-$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_diagonal.h
+#$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_diagonal.h
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_klu.h
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_lapackband.h
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_lapackdense.h
@@ -160,6 +167,16 @@ $tar $tarfile $distrobase/src/nvec_pthreads/CMakeLists.txt
 $tar $tarfile $distrobase/src/nvec_pthreads/nvector_pthreads.c
 $tar $tarfile $distrobase/src/nvec_pthreads/fnvector_pthreads.c
 $tar $tarfile $distrobase/src/nvec_pthreads/fnvector_pthreads.h
+
+echo "   --- Add nveccuda module to $tarfile"
+
+$tar $tarfile $distrobase/src/nvec_cuda/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvec_cuda/nvector_cuda.cu
+
+echo "   --- Add nvecraja module to $tarfile"
+
+$tar $tarfile $distrobase/src/nvec_raja/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvec_raja/nvector_raja.cu
 
 echo "   --- Add sunmatband module to $tarfile"
 
@@ -273,16 +290,6 @@ $tar $tarfile $distrobase/src/sunlinsol_superlumt/sunlinsol_superlumt.c
 $tar $tarfile $distrobase/src/sunlinsol_superlumt/fsunlinsol_superlumt.h
 $tar $tarfile $distrobase/src/sunlinsol_superlumt/fsunlinsol_superlumt.c
 
-echo "   --- Add nveccuda module to $tarfile"
-
-$tar $tarfile $distrobase/src/nvec_cuda/CMakeLists.txt
-$tar $tarfile $distrobase/src/nvec_cuda/nvector_cuda.cu
-
-echo "   --- Add nvecraja module to $tarfile"
-
-$tar $tarfile $distrobase/src/nvec_raja/CMakeLists.txt
-$tar $tarfile $distrobase/src/nvec_raja/nvector_raja.cu
-
 echo "   --- Add nvector examples to $tarfile"
 
 $tar $tarfile $distrobase/examples/nvector/serial/test_nvector_serial.c
@@ -343,6 +350,13 @@ $tar $tarfile $distrobase/examples/sunlinsol/spgmr/parallel/test_sunlinsol_spgmr
 $tar $tarfile $distrobase/examples/sunlinsol/spgmr/parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunlinsol/spgmr/serial/test_sunlinsol_spgmr_serial.c
 $tar $tarfile $distrobase/examples/sunlinsol/spgmr/serial/CMakeLists.txt
+
+$tar $tarfile $distrobase/examples/sunlinsol/spfgmr/parallel/test_sunlinsol_spfgmr_parallel.c
+$tar $tarfile $distrobase/examples/sunlinsol/spfgmr/parallel/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunlinsol/spfgmr/serial/test_sunlinsol_spfgmr_serial.c
+$tar $tarfile $distrobase/examples/sunlinsol/spfgmr/serial/CMakeLists.txt
+
+
 $tar $tarfile $distrobase/examples/sunlinsol/sptfqmr/parallel/test_sunlinsol_sptfqmr_parallel.c
 $tar $tarfile $distrobase/examples/sunlinsol/sptfqmr/parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunlinsol/sptfqmr/serial/test_sunlinsol_sptfqmr_serial.c

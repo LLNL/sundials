@@ -43,13 +43,13 @@ function print_usage
 # VERSION NUMBERS
 #---------------------------------------------------------
 
-SUN_VER="3.0.0"
-CV_VER="3.0.0"
-CVS_VER="3.0.0"
-IDA_VER="3.0.0"
-IDAS_VER="2.0.0"
-KIN_VER="3.0.0"
-ARK_VER="2.0.0"
+SUN_VER="3.0.0-beta"
+CV_VER="3.0.0-beta"
+CVS_VER="3.0.0-beta"
+IDA_VER="3.0.0-beta"
+IDAS_VER="2.0.0-beta"
+KIN_VER="3.0.0-beta"
+ARK_VER="2.0.0-beta"
 
 #---------------------------------------------------------
 # Test if the script is executed from within its directory
@@ -226,6 +226,8 @@ cp -r $sundialsdir/src/nvec_parhyp $tmpdir/src/
 cp -r $sundialsdir/src/nvec_petsc $tmpdir/src/
 cp -r $sundialsdir/src/nvec_openmp $tmpdir/src/
 cp -r $sundialsdir/src/nvec_pthreads $tmpdir/src/
+cp -r $sundialsdir/src/nvec_cuda $tmpdir/src/
+cp -r $sundialsdir/src/nvec_raja $tmpdir/src/
 cp -r $sundialsdir/src/sunmat_band $tmpdir/src/
 cp -r $sundialsdir/src/sunmat_dense $tmpdir/src/
 cp -r $sundialsdir/src/sunmat_sparse $tmpdir/src/
