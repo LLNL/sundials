@@ -1,19 +1,18 @@
 #!/bin/bash
 # -------------------------------------------------------------------------------
-# Programmer(s): David J. Gardner @ LLNL 
+# Programmer(s): David J. Gardner @ LLNL
 # -------------------------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # -------------------------------------------------------------------------------
-# xsdk variant of the SUNDIALS regression testing script with all external 
-# libraries enabled
+# SUNDIALS regression testing script with all external libraries enabled
 # -------------------------------------------------------------------------------
 
 # check number of inputs
@@ -26,15 +25,15 @@ indextype=$2    # required, integer type for indices
 buildthreads=$3 # optional, number of build threads (if empty will use all threads)
 
 # remove old build and install directories
-\rm -rf build_xSDK_${realtype}_${indextype}
-\rm -rf install_xSDK_${realtype}_${indextype}
+\rm -rf build_noextlib_${realtype}_${indextype}
+\rm -rf install_noextlib_${realtype}_${indextype}
 
 # create new build and install directories
-mkdir build_xSDK_${realtype}_${indextype}
-mkdir install_xSDK_${realtype}_${indextype}
+mkdir build_noextlib_${realtype}_${indextype}
+mkdir install_noextlib_${realtype}_${indextype}
 
 # move to build directory
-cd build_xSDK_${realtype}_${indextype}
+cd build_noextlib_${realtype}_${indextype}
 
 # number of threads in OpenMP examples
 export OMP_NUM_THREADS=4
@@ -52,73 +51,6 @@ APPDIR=/usr/casc/sundials/apps/rh6
 # MPI
 MPIDIR=${APPDIR}/openmpi/1.8.8/bin
 
-# LAPACK / BLAS
-BLASSTATUS=ON
-BLASDIR=${APPDIR}/lapack/3.6.0/lib64
-
-LAPACKSTATUS=ON
-LAPACKDIR=${APPDIR}/lapack/3.6.0/lib64
-
-# LAPACK/BLAS does not support extended precision or 64-bit indices
-if [ "$realtype" == "extended" ] || [ "$indextype" == "int64_t" ]; then
-    LAPACKSTATUS=OFF
-    BLASSTATUS=OFF
-fi
-
-# KLU
-KLUSTATUS=ON
-KLUDIR=${APPDIR}/suitesparse/4.5.3
-
-# KLU does not support single or extended precision
-if [ "$realtype" == "single" ] || [ "$realtype" == "extended" ]; then
-    KLUSTATUS=OFF
-fi
-
-# SuperLU_MT
-SUPERLUMTSTATUS=ON
-
-# SuperLU MT index type must be set a build time
-if [ "$indextype" == "int32_t" ]; then
-    SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1
-else
-    SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1_long_int
-fi
-
-# SuperLU MT does not support extended precision
-if [ "$realtype" == "extended" ]; then
-    SUPERLUMTSTATUS=OFF
-fi
-
-# hypre
-HYPRESTATUS=ON
-
-# hypre index type must be set a build time
-if [ "$indextype" == "int32_t" ]; then
-    HYPREDIR=${APPDIR}/hypre/2.11.1
-else
-    HYPREDIR=${APPDIR}/hypre/2.11.1_long_int
-fi
-
-# only testing hypre with double precision at this time
-if [ "$realtype" != "double" ]; then
-    HYPRESTATUS=OFF
-fi
-
-# PETSc
-PETSCSTATUS=ON
-
-# PETSc index type must be set a build time
-if [ "$indextype" == "int32_t" ]; then
-    PETSCDIR=${APPDIR}/petsc/3.7.2
-else
-    PETSCDIR=${APPDIR}/petsc/3.7.2_long_int
-fi
-
-# only testing PETSc with double precision at this time
-if [ "$realtype" != "double" ]; then
-    PETSCSTATUS=OFF
-fi
-
 # -------------------------------------------------------------------------------
 # Configure SUNDIALS with CMake
 #
@@ -132,28 +64,14 @@ fi
 # compile time which is useful for debugging build issues.
 # -------------------------------------------------------------------------------
 
-# set realtype for xSDK build
-if [ $realtype == "extended" ]; then
-    xsdk_realtype="quad"
-else
-    xsdk_realtype=$realtype
-fi
-
-# set indextype for xSDK build
-if [ $indextype == "int32_t" ]; then
-    xsdk_indextype="32"
-else
-    xsdk_indextype="64"
-fi
-
 echo "START CMAKE"
 cmake \
-    -D CMAKE_INSTALL_PREFIX="../install_xSDK_${realtype}_${indextype}" \
+    -D CMAKE_INSTALL_PREFIX="../install_noextlib_${realtype}_${indextype}" \
     \
-    -D XSDK_PRECISION=${xsdk_realtype} \
-    -D XSDK_INDEX_SIZE=${xsdk_indextype} \
+    -D SUNDIALS_PRECISION=$realtype \
+    -D SUNDIALS_INDEX_TYPE=$indextype \
     \
-    -D XSDK_ENABLE_FORTRAN=ON \
+    -D FCMIX_ENABLE=ON \
     \
     -D EXAMPLES_ENABLE_C=ON \
     -D EXAMPLES_ENABLE_CXX=ON \
@@ -180,28 +98,12 @@ cmake \
     -D MPI_MPIF90="${MPIDIR}/mpif90" \
     -D MPI_RUN_COMMAND="${MPIDIR}/mpirun" \
     \
-    -D TPL_ENABLE_BLAS="${BLASSTATUS}" \
-    -D TPL_BLAS_LIBRARIES="${BLASDIR}/libblas.so" \
-    \
-    -D TPL_ENABLE_LAPACK="${LAPACKSTATUS}" \
-    -D TPL_LAPACK_LIBRARIES="${LAPACKDIR}/liblapack.so" \
-    \
-    -D TPL_ENABLE_KLU="${KLUSTATUS}" \
-    -D TPL_KLU_INCLUDE_DIRS="${KLUDIR}/include" \
-    -D TPL_KLU_LIBRARIES="${KLUDIR}/lib/libklu.a" \
-    \
-    -D TPL_ENABLE_HYPRE="${HYPRESTATUS}" \
-    -D TPL_HYPRE_INCLUDE_DIRS="${HYPREDIR}/include" \
-    -D TPL_HYPRE_LIBRARIES="${HYPREDIR}/lib/libHYPRE.a" \
-    \
-    -D TPL_ENABLE_PETSC="${PETSCSTATUS}" \
-    -D TPL_PETSC_INCLUDE_DIRS="${PETSCDIR}/include" \
-    -D TPL_PETSC_LIBRARIES="${PETSCDIR}/lib/libpetsc.so" \
-    \
-    -D TPL_ENABLE_SUPERLUMT="${SUPERLUMTSTATUS}" \
-    -D TPL_SUPERLUMT_INCLUDE_DIRS="${SUPERLUMTDIR}/SRC" \
-    -D TPL_SUPERLUMT_LIBRARIES="${SUPERLUMTDIR}/lib/libsuperlu_mt_PTHREAD.a" \
-    -D TPL_SUPERLUMT_THREAD_TYPE=Pthread \
+    -D BLAS_ENABLE=OFF \
+    -D LAPACK_ENABLE=OFF \
+    -D KLU_ENABLE=OFF \
+    -D HYPRE_ENABLE=OFF \
+    -D PETSC_ENABLE=OFF \
+    -D SUPERLUMT_ENABLE=OFF \
     \
     ../../. 2>&1 | tee configure.log
 

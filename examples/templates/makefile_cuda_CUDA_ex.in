@@ -35,7 +35,7 @@ CXXFLAGS = @CXXFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
-LINKFLAGS = -Wl,-rpath,@libdir@
+#LINKFLAGS = -Wl,-rpath,@libdir@
 
 LIBRARIES_BLAS   = @BLAS_LIBS@
 LIBRARIES_LAPACK = @LAPACK_LIBS@
@@ -62,6 +62,9 @@ OBJECTS_DEPENDENCIES = ${EXAMPLES_DEPENDENCIES:=.o}
 # -----------------------------------------------------------------------------------------
 
 .SUFFIXES : .o .cu
+
+.c.o :
+	${NVCC} ${CPPFLAGS} ${NVCCFLAGS} ${INCLUDES} -c $<
 
 .cu.o :
 	${NVCC} ${CPPFLAGS} ${NVCCFLAGS} ${INCLUDES} -c $<
