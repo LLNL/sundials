@@ -39,7 +39,7 @@
  * on a uniform spatial grid.
  *
  * This program solves the problem with the DIRK method, using a
- * Newton iteration with the ARKBAND band linear solver, and a
+ * Newton iteration with the band linear solver, and a
  * user-supplied Jacobian routine.  This example uses the OpenMP 
  * vector kernel, and employs OpenMP threading within the 
  * right-hand side and Jacobian construction functions.
@@ -53,8 +53,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <arkode/arkode.h>            /* prototypes for ARKode fcts., consts. */
-#include <nvector/nvector_openmp.h>   /* OpenMP N_Vector types, fcts., macros */
-#include <arkode/arkode_band.h>       /* prototype for ARKBand solver */
+#include <nvector/nvector_openmp.h>   /* access to OpenMP N_Vector */
+#include <sunmatrix/sunmatrix_band.h> /* access to band SUNMatrix */
+#include <sunlinsol/sunlinsol_band.h> /* access to band SUNLinearSolver */
+#include <arkode/arkode_direct.h>     /* access to ARKDls interface */
 #include <sundials/sundials_types.h>  /* def. of type 'realtype' */
 #include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc. */
 #ifdef _OPENMP
@@ -90,14 +92,13 @@ typedef struct {
 
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(sunindextype N, sunindextype mu, sunindextype ml,
-               realtype t, N_Vector y, N_Vector fy, 
-               DlsMat J, void *user_data,
+static int Jac(realtype t, N_Vector y, N_Vector fy, 
+               SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private helper functions  */
-static int LaplaceMatrix(realtype c, DlsMat Jac, UserData udata);
-static int ReactionJac(realtype c, N_Vector y, DlsMat Jac, UserData udata);
+static int LaplaceMatrix(realtype c, SUNMatrix Jac, UserData udata);
+static int ReactionJac(realtype c, N_Vector y, SUNMatrix Jac, UserData udata);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
@@ -129,6 +130,8 @@ int main(int argc, char *argv[])
   N_Vector umask = NULL;        /* empty mask vectors for viewing solution components */
   N_Vector vmask = NULL;
   N_Vector wmask = NULL;
+  SUNMatrix A = NULL;           /* empty matrix for linear solver */
+  SUNLinearSolver LS = NULL;    /* empty linear solver structure */
   void *arkode_mem = NULL;      /* empty ARKode memory structure */
   realtype pi, t, dTout, tout, u, v, w;
   FILE *FID, *UFID, *VFID, *WFID;
@@ -140,11 +143,11 @@ int main(int argc, char *argv[])
   if (check_flag((void *) udata, "malloc", 2)) return 1;
 
   /* set the number of threads to use */
-  num_threads = 1; /* default value */
+  num_threads = 1;                       /* default value */
 #ifdef _OPENMP
   num_threads = omp_get_max_threads();   /* overwrite with OMP_NUM_THREADS environment variable */
 #endif
-  if (argc > 1)   /* overwrite with command line value, if supplied */
+  if (argc > 1)                          /* overwrite with command line value, if supplied */
     num_threads = strtol(argv[1], NULL, 0);
 
   /* store the inputs in the UserData structure */
@@ -170,7 +173,7 @@ int main(int argc, char *argv[])
 	 udata->du, udata->dv, udata->dw);
   printf("    reltol = %.1"ESYM",  abstol = %.1"ESYM"\n\n", reltol, abstol);
 
-  /* Initialize data structures */
+  /* Initialize vector data structures */
   y = N_VNew_OpenMP(NEQ, num_threads);      /* Create vector for solution */
   if (check_flag((void *)y, "N_VNew_OpenMP", 0)) return 1;
   udata->dx = RCONST(1.0)/(N-1);            /* set spatial mesh spacing */
@@ -207,6 +210,12 @@ int main(int argc, char *argv[])
   if (check_flag((void *) data, "N_VGetArrayPointer", 0)) return 1;
   for (i=0; i<N; i++)  data[IDX(i,2)] = RCONST(1.0);
 
+  /* Initialize matrix and linear solver data structures */
+  A = SUNBandMatrix(NEQ, 4, 4, 8);
+  if (check_flag((void *)A, "SUNBandMatrix", 0)) return 1;
+  LS = SUNBandLinearSolver(y, A);
+  if (check_flag((void *)LS, "SUNBandLinearSolver", 0)) return 1;
+  
   /* Create the solver memory */
   arkode_mem = ARKodeCreate();
   if (check_flag((void *)arkode_mem, "ARKodeCreate", 0)) return 1;
@@ -225,10 +234,10 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
 
   /* Linear solver specification */
-  flag = ARKBand(arkode_mem, NEQ, 4, 4);          /* Specify the band linear solver */
-  if (check_flag(&flag, "ARKBand", 1)) return 1;
-  flag = ARKDlsSetBandJacFn(arkode_mem, Jac);     /* Set the Jacobian routine */
-  if (check_flag(&flag, "ARKDlsSetBandJacFn", 1)) return 1;
+  flag = ARKDlsSetLinearSolver(arkode_mem, LS, A);          /* Attach matrix and linear solver */
+  if (check_flag(&flag, "ARKDlsSetLinearSolver", 1)) return 1;
+  flag = ARKDlsSetJacFn(arkode_mem, Jac);                   /* Set the Jacobian routine */
+  if (check_flag(&flag, "ARKDlsSetJacFn", 1)) return 1;
 
   /* output spatial mesh to disk */
   FID=fopen("bruss_mesh.txt","w");
@@ -320,12 +329,14 @@ int main(int argc, char *argv[])
   printf("   Total number of error test failures = %li\n\n", netf);
 
   /* Clean up and return with successful completion */
+  free(udata);                  /* Free user data */
+  ARKodeFree(&arkode_mem);      /* Free integrator memory */
+  SUNLinSolFree(LS);            /* Free linear solver */
+  SUNMatDestroy(A);             /* Free matrix */
   N_VDestroy_OpenMP(y);         /* Free vectors */
   N_VDestroy_OpenMP(umask);
   N_VDestroy_OpenMP(vmask);
   N_VDestroy_OpenMP(wmask);
-  free(udata);                  /* Free user data */
-  ARKodeFree(&arkode_mem);      /* Free integrator memory */
   return 0;
 }
 
@@ -390,13 +401,12 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(sunindextype M, sunindextype mu, sunindextype ml,
-               realtype t, N_Vector y, N_Vector fy, 
-               DlsMat J, void *user_data,
+static int Jac(realtype t, N_Vector y, N_Vector fy, 
+               SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  UserData udata = (UserData) user_data;     /* access problem data */
-  SetToZero(J);                              /* Initialize Jacobian to zero */
+  UserData udata = (UserData) user_data;  /* access problem data */
+  SUNMatZero(J);                          /* Initialize Jacobian to zero */
 
   /* Fill in the Laplace matrix */
   if (LaplaceMatrix(RCONST(1.0), J, udata)) {
@@ -419,26 +429,29 @@ static int Jac(sunindextype M, sunindextype mu, sunindextype ml,
 
 /* Routine to compute the stiffness matrix from (L*y), scaled by the factor c.
    We add the result into Jac and do not erase what was already there */
-static int LaplaceMatrix(realtype c, DlsMat Jac, UserData udata)
+static int LaplaceMatrix(realtype c, SUNMatrix Jac, UserData udata)
 {
   sunindextype N = udata->N;            /* set shortcuts */
   realtype dx = udata->dx;
   sunindextype i;
+  realtype uconst = c*udata->du/dx/dx;
+  realtype vconst = c*udata->dv/dx/dx;
+  realtype wconst = c*udata->dw/dx/dx;
   
   /* iterate over intervals, filling in Jacobian entries */
 #pragma omp parallel for default(shared) private(i) schedule(static) num_threads(udata->nthreads)
   for (i=1; i<N-1; i++) {
 
     /* Jacobian of (L*y) at this node */
-    BAND_ELEM(Jac,IDX(i,0),IDX(i-1,0)) += c*udata->du/dx/dx;
-    BAND_ELEM(Jac,IDX(i,1),IDX(i-1,1)) += c*udata->dv/dx/dx;
-    BAND_ELEM(Jac,IDX(i,2),IDX(i-1,2)) += c*udata->dw/dx/dx;
-    BAND_ELEM(Jac,IDX(i,0),IDX(i,0)) += -c*RCONST(2.0)*udata->du/dx/dx;
-    BAND_ELEM(Jac,IDX(i,1),IDX(i,1)) += -c*RCONST(2.0)*udata->dv/dx/dx;
-    BAND_ELEM(Jac,IDX(i,2),IDX(i,2)) += -c*RCONST(2.0)*udata->dw/dx/dx;
-    BAND_ELEM(Jac,IDX(i,0),IDX(i+1,0)) += c*udata->du/dx/dx;
-    BAND_ELEM(Jac,IDX(i,1),IDX(i+1,1)) += c*udata->dv/dx/dx;
-    BAND_ELEM(Jac,IDX(i,2),IDX(i+1,2)) += c*udata->dw/dx/dx;
+    SM_ELEMENT_B(Jac,IDX(i,0),IDX(i-1,0)) += uconst;
+    SM_ELEMENT_B(Jac,IDX(i,1),IDX(i-1,1)) += vconst;
+    SM_ELEMENT_B(Jac,IDX(i,2),IDX(i-1,2)) += wconst;
+    SM_ELEMENT_B(Jac,IDX(i,0),IDX(i,0)) -= RCONST(2.0)*uconst;
+    SM_ELEMENT_B(Jac,IDX(i,1),IDX(i,1)) -= RCONST(2.0)*vconst;
+    SM_ELEMENT_B(Jac,IDX(i,2),IDX(i,2)) -= RCONST(2.0)*wconst;
+    SM_ELEMENT_B(Jac,IDX(i,0),IDX(i+1,0)) += uconst;
+    SM_ELEMENT_B(Jac,IDX(i,1),IDX(i+1,1)) += vconst;
+    SM_ELEMENT_B(Jac,IDX(i,2),IDX(i+1,2)) += wconst;
   }
 
   return 0;
@@ -448,7 +461,7 @@ static int LaplaceMatrix(realtype c, DlsMat Jac, UserData udata)
 
 /* Routine to compute the Jacobian matrix from R(y), scaled by the factor c.
    We add the result into Jac and do not erase what was already there */
-static int ReactionJac(realtype c, N_Vector y, DlsMat Jac, UserData udata)
+static int ReactionJac(realtype c, N_Vector y, SUNMatrix Jac, UserData udata)
 {
   sunindextype N = udata->N;                   /* set shortcuts */
   realtype ep = udata->ep;
@@ -467,18 +480,18 @@ static int ReactionJac(realtype c, N_Vector y, DlsMat Jac, UserData udata)
     w = Ydata[IDX(i,2)];
 
     /* all vars wrt u */
-    BAND_ELEM(Jac,IDX(i,0),IDX(i,0)) += c*(RCONST(2.0)*u*v-(w+RCONST(1.0)));
-    BAND_ELEM(Jac,IDX(i,1),IDX(i,0)) += c*(w - RCONST(2.0)*u*v);
-    BAND_ELEM(Jac,IDX(i,2),IDX(i,0)) += c*(-w);
+    SM_ELEMENT_B(Jac,IDX(i,0),IDX(i,0)) += c*(RCONST(2.0)*u*v-(w+RCONST(1.0)));
+    SM_ELEMENT_B(Jac,IDX(i,1),IDX(i,0)) += c*(w - RCONST(2.0)*u*v);
+    SM_ELEMENT_B(Jac,IDX(i,2),IDX(i,0)) += c*(-w);
 
     /* all vars wrt v */
-    BAND_ELEM(Jac,IDX(i,0),IDX(i,1)) += c*(u*u);
-    BAND_ELEM(Jac,IDX(i,1),IDX(i,1)) += c*(-u*u);
+    SM_ELEMENT_B(Jac,IDX(i,0),IDX(i,1)) += c*(u*u);
+    SM_ELEMENT_B(Jac,IDX(i,1),IDX(i,1)) += c*(-u*u);
 
     /* all vars wrt w */
-    BAND_ELEM(Jac,IDX(i,0),IDX(i,2)) += c*(-u);
-    BAND_ELEM(Jac,IDX(i,1),IDX(i,2)) += c*(u);
-    BAND_ELEM(Jac,IDX(i,2),IDX(i,2)) += c*(-RCONST(1.0)/ep - u);
+    SM_ELEMENT_B(Jac,IDX(i,0),IDX(i,2)) += c*(-u);
+    SM_ELEMENT_B(Jac,IDX(i,1),IDX(i,2)) += c*(u);
+    SM_ELEMENT_B(Jac,IDX(i,2),IDX(i,2)) += c*(-RCONST(1.0)/ep - u);
 
   }
 

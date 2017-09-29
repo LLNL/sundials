@@ -19,7 +19,7 @@ Operations on the vector are threaded using OpenMP.
 %%
 \begin{verbatim} 
 struct _N_VectorContent_OpenMP {
-  long int length;
+  sunindextype length;
   booleantype own_data;
   realtype *data;
   int num_threads;
@@ -110,7 +110,7 @@ The module {\nvecopenmp} provides the following additional user-callable routine
   This function creates and allocates memory for a OpenMP \id{N\_Vector}.
   Arguments are the vector length and number of threads.
 
-  \verb|N_Vector N_VNew_OpenMP(long int vec_length, int num_threads);|
+  \verb|N_Vector N_VNew_OpenMP(sunindextype vec_length, int num_threads);|
 
 %%--------------------------------------
 
@@ -120,7 +120,7 @@ The module {\nvecopenmp} provides the following additional user-callable routine
 
   
 
-  \verb|N_Vector N_VNewEmpty_OpenMP(long int vec_length, int num_threads);|
+  \verb|N_Vector N_VNewEmpty_OpenMP(sunindextype vec_length, int num_threads);|
 
 %%--------------------------------------
 
@@ -131,7 +131,7 @@ The module {\nvecopenmp} provides the following additional user-callable routine
 
  (This function does {\em not} allocate memory for \id{v\_data} itself.)
 
- \verb|N_Vector N_VMake_OpenMP(long int vec_length, realtype *v_data, int num_threads);|
+ \verb|N_Vector N_VMake_OpenMP(sunindextype vec_length, realtype *v_data, int num_threads);|
 
 %%--------------------------------------
 
@@ -174,7 +174,7 @@ The module {\nvecopenmp} provides the following additional user-callable routine
 
  
  
- \verb|long int N_VGetLength_OpenMP(N_Vector v);|
+ \verb|sunindextype N_VGetLength_OpenMP(N_Vector v);|
 
 %%--------------------------------------
 

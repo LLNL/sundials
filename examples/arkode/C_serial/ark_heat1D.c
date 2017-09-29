@@ -32,7 +32,7 @@
  *
  * This program solves the problem with either an ERK or DIRK
  * method.  For the DIRK method, we use a Newton iteration with 
- * the PCG linear solver, and a user-supplied Jacobian-vector 
+ * the SUNPCG linear solver, and a user-supplied Jacobian-vector 
  * product routine.
  *
  * 100 outputs are printed at equal intervals, and run statistics 
@@ -45,9 +45,10 @@
 #include <math.h>
 #include <arkode/arkode.h>            /* prototypes for ARKode fcts., consts. */
 #include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
-#include <arkode/arkode_pcg.h>        /* prototype for ARKPcg solver */
-#include <sundials/sundials_types.h>  /* def. of type 'realtype' */
-#include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc. */
+#include <sunlinsol/sunlinsol_pcg.h>  /* access to PCG SUNLinearSolver        */
+#include <arkode/arkode_spils.h>      /* access to ARKSpils interface         */
+#include <sundials/sundials_types.h>  /* defs. of realtype, sunindextype, etc */
+#include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc.               */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -69,7 +70,7 @@ typedef struct {
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
-            N_Vector fy, void *user_data, N_Vector tmp);
+               N_Vector fy, void *user_data, N_Vector tmp);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
@@ -90,9 +91,10 @@ int main() {
   sunindextype i;
 
   /* general problem variables */
-  int flag;                 /* reusable error-checking flag */
-  N_Vector y = NULL;             /* empty vector for storing solution */
-  void *arkode_mem = NULL;        /* empty ARKode memory structure */
+  int flag;                    /* reusable error-checking flag */
+  N_Vector y = NULL;           /* empty vector for storing solution */
+  SUNLinearSolver LS = NULL;   /* empty linear solver object */
+  void *arkode_mem = NULL;     /* empty ARKode memory structure */
   FILE *FID, *UFID;
   realtype t, dTout, tout;
   int iout;
@@ -106,7 +108,7 @@ int main() {
 
   /* Initial problem output */
   printf("\n1D Heat PDE test problem:\n");
-  printf("  N = %li\n", udata->N);
+  printf("  N = %li\n", (long int) udata->N);
   printf("  diffusion coefficient:  k = %"GSYM"\n", udata->k);
 
   /* Initialize data structures */
@@ -133,11 +135,15 @@ int main() {
   flag = ARKodeSStolerances(arkode_mem, rtol, atol);      /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
 
-  /* Linear solver specification */
-  flag = ARKPcg(arkode_mem, 0, N);                        /* Specify the PCG solver */
-  if (check_flag(&flag, "ARKPcg", 1)) return 1;
-  flag = ARKSpilsSetJacTimesVecFn(arkode_mem, Jac);       /* Set the Jacobian routine */
-  if (check_flag(&flag, "ARKSpilsSetJacTimesVecFn", 1)) return 1;
+  /* Initialize PCG solver -- no preconditioning, with up to N iterations  */
+  LS = SUNPCG(y, 0, N);
+  if (check_flag((void *)LS, "SUNPCG", 0)) return 1;
+  
+  /* Linear solver interface -- set user-supplied J*v routine (no 'jtsetup' required) */
+  flag = ARKSpilsSetLinearSolver(arkode_mem, LS);        /* Attach linear solver to ARKode */
+  if (check_flag(&flag, "ARKSpilsSetLinearSolver", 1)) return 1;
+  flag = ARKSpilsSetJacTimes(arkode_mem, NULL, Jac);     /* Set the Jacobian routine */
+  if (check_flag(&flag, "ARKSpilsSetJacTimes", 1)) return 1;
 
   /* Specify linearly implicit RHS, with non-time-dependent Jacobian */
   flag = ARKodeSetLinear(arkode_mem, 0);
@@ -218,9 +224,10 @@ int main() {
   printf("   Total number of error test failures = %li\n", netf);
 
   /* Clean up and return with successful completion */
-  N_VDestroy_Serial(y);        /* Free vectors */
+  N_VDestroy(y);               /* Free vectors */
   free(udata);                 /* Free user data */
   ARKodeFree(&arkode_mem);     /* Free integrator memory */
+  SUNLinSolFree(LS);           /* Free linear solver */
   return 0;
 }
 

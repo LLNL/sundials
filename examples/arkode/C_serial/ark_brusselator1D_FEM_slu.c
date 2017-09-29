@@ -54,7 +54,7 @@
  * and the mass matrix, M.
  *
  * This program solves the problem with the DIRK method, using a
- * Newton iteration with the ARKSUPERLUMT sparse linear solver.
+ * Newton iteration with the SuperLU_MT SUNLinearSolver.
  *
  * 100 outputs are printed at equal time intervals, and run 
  * statistics are printed at the end.
@@ -64,12 +64,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <arkode/arkode.h>             /* prototypes for ARKode fcts., consts. */
-#include <nvector/nvector_serial.h>    /* serial N_Vector types, fcts., macros */
-#include <arkode/arkode_superlumt.h>   /* prototype for ARKSuperLUMT solver */
-#include <sundials/sundials_types.h>   /* def. of type 'realtype' */
-#include <sundials/sundials_math.h>    /* def. of SUNRsqrt, etc. */
-#include <sundials/sundials_sparse.h>  /* defs. of SlsMat and SlsMat routines */
+#include <arkode/arkode.h>                  /* prototypes for ARKode fcts., consts. */
+#include <nvector/nvector_serial.h>         /* serial N_Vector types, fcts., macros */
+#include <sunmatrix/sunmatrix_sparse.h>     /* access to sparse SUNMatrix           */
+#include <sunlinsol/sunlinsol_superlumt.h>  /* access to SuperLU_MT SUNLinearSolver */
+#include <arkode/arkode_direct.h>           /* access to ARKDls interface           */
+#include <sundials/sundials_types.h>        /* defs. of realtype, sunindextype, etc */
+#include <sundials/sundials_math.h>         /* def. of SUNRsqrt, etc.               */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -111,16 +112,16 @@
 
 /* user data structure */
 typedef struct {  
-  int N;         /* number of intervals     */
-  realtype *x;   /* mesh node locations     */
-  realtype a;    /* constant forcing on u   */
-  realtype b;    /* steady-state value of w */
-  realtype du;   /* diffusion coeff for u   */
-  realtype dv;   /* diffusion coeff for v   */
-  realtype dw;   /* diffusion coeff for w   */
-  realtype ep;   /* stiffness parameter     */
-  N_Vector tmp;  /* temporary vector        */
-  SlsMat R;      /* temporary storage       */
+  sunindextype N;   /* number of intervals     */
+  realtype *x;      /* mesh node locations     */
+  realtype a;       /* constant forcing on u   */
+  realtype b;       /* steady-state value of w */
+  realtype du;      /* diffusion coeff for u   */
+  realtype dv;      /* diffusion coeff for v   */
+  realtype dw;      /* diffusion coeff for w   */
+  realtype ep;      /* stiffness parameter     */
+  N_Vector tmp;     /* temporary vector        */
+  SUNMatrix R;      /* temporary storage       */
 } *UserData;
 
 
@@ -128,15 +129,14 @@ typedef struct {
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int f_diff(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int f_rx(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int MassMatrix(realtype t, SlsMat M, void *user_data, 
+static int MassMatrix(realtype t, SUNMatrix M, void *user_data, 
 		      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int Jac(realtype t, N_Vector y, N_Vector fy, 
-               SlsMat J, void *user_data,
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private helper functions  */
-static int LaplaceMatrix(SlsMat Jac, UserData udata);
-static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata);
+static int LaplaceMatrix(SUNMatrix Jac, UserData udata);
+static int ReactionJac(N_Vector y, SUNMatrix Jac, UserData udata);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
   int Nvar = 3;                 /* number of solution fields */
   UserData udata = NULL;
   realtype *data;
-  int N = 201;                  /* spatial mesh size */
+  sunindextype N = 201;         /* spatial mesh size */
   realtype a = 0.6;             /* problem parameters */
   realtype b = 2.0;
   realtype du = 0.025;
@@ -160,7 +160,8 @@ int main(int argc, char *argv[]) {
   realtype ep = 1.0e-5;         /* stiffness parameter */
   realtype reltol = 1.0e-6;     /* tolerances */
   realtype abstol = 1.0e-10;
-  int i, NEQ, NNZ, num_threads;
+  sunindextype i, NEQ, NNZ;
+  int num_threads;
 
   /* general problem variables */
   int flag;                     /* reusable error-checking flag */
@@ -168,12 +169,16 @@ int main(int argc, char *argv[]) {
   N_Vector umask = NULL;
   N_Vector vmask = NULL;
   N_Vector wmask = NULL;
+  SUNMatrix A = NULL;           /* empty matrix object for solver */
+  SUNMatrix M = NULL;           /* empty mass matrix object */
+  SUNLinearSolver LS = NULL;    /* empty linear solver object */
+  SUNLinearSolver MLS = NULL;   /* empty mass matrix solver object */
   void *arkode_mem = NULL;
   FILE *FID, *UFID, *VFID, *WFID;
   realtype h, z, t, dTout, tout, u, v, w, pi;
   int iout;
   long int nst, nst_a, nfe, nfi, nsetups, nje, nni, ncfn;
-  long int netf, nms, nMv;
+  long int netf, nmset, nms, nMv;
 
   /* if a command-line argument was supplied, set num_threads */
   num_threads = 1;
@@ -201,7 +206,7 @@ int main(int argc, char *argv[]) {
 
   /* Initial problem output */
   printf("\n1D FEM Brusselator PDE test problem:\n");
-  printf("    N = %i,  NEQ = %i\n", udata->N, NEQ);
+  printf("    N = %li,  NEQ = %li\n", (long int) udata->N, (long int) NEQ);
   printf("    num_threads = %i\n", num_threads);
   printf("    problem parameters:  a = %"GSYM",  b = %"GSYM",  ep = %"GSYM"\n",
 	 udata->a, udata->b, udata->ep);
@@ -277,15 +282,29 @@ int main(int argc, char *argv[]) {
   flag = ARKodeResStolerance(arkode_mem, abstol);           /* Specify residual tolerance */
   if (check_flag(&flag, "ARKodeResStolerance", 1)) return 1;
 
-  /* Linear solver specification */
+  /* Initialize sparse matrix data structure and SuperLU_MT solvers (system and mass) */
   NNZ = 15*NEQ;
-  flag = ARKSuperLUMT(arkode_mem, num_threads, NEQ, NNZ);   /* SuperLUMT sparse solver */
-  if (check_flag(&flag, "ARKSuperLUMT", 1)) return 1;
-  flag = ARKSlsSetSparseJacFn(arkode_mem, Jac);             /* Set the Jacobian routine */
-  if (check_flag(&flag, "ARKSlsSetSparseJacFn", 1)) return 1;
-  flag = ARKMassSuperLUMT(arkode_mem, num_threads,          /* Mass matrix linear solver */
-			  NEQ, NNZ, MassMatrix);
-  if (check_flag(&flag, "ARKMassSuperLUMT", 1)) return 1;
+  A = SUNSparseMatrix(NEQ, NEQ, NNZ, CSC_MAT);
+  if (check_flag((void *)A, "SUNSparseMatrix", 0)) return 1;
+  LS = SUNSuperLUMT(y, A, num_threads);
+  if (check_flag((void *)LS, "SUNSuperLUMT", 0)) return 1;
+  M = SUNSparseMatrix(NEQ, NEQ, NNZ, CSC_MAT);
+  if (check_flag((void *)M, "SUNSparseMatrix", 0)) return 1;
+  MLS = SUNSuperLUMT(y, M, num_threads);
+  if (check_flag((void *)MLS, "SUNSuperLUMT", 0)) return 1;
+  
+  /* Attach the matrix, linear solver, and Jacobian construction routine to ARKode */
+  flag = ARKDlsSetLinearSolver(arkode_mem, LS, A);        /* Attach matrix and LS */
+  if (check_flag(&flag, "ARKDlsSetLinearSolver", 1)) return 1;
+  flag = ARKDlsSetJacFn(arkode_mem, Jac);                 /* Supply Jac routine */
+  if (check_flag(&flag, "ARKDlsSetJacFn", 1)) return 1;
+
+  /* Attach the mass matrix, linear solver and construction routines to ARKode;
+     notify ARKode that the mass matrix is not time-dependent */
+  flag = ARKDlsSetMassLinearSolver(arkode_mem, MLS, M, FALSE);   /* Attach matrix and LS */
+  if (check_flag(&flag, "ARKDlsSetMassLinearSolver", 1)) return 1;
+  flag = ARKDlsSetMassFn(arkode_mem, MassMatrix);                /* Supply M routine */
+  if (check_flag(&flag, "ARKDlsSetMassFn", 1)) return 1;
 
   /* output mesh to disk */
   FID=fopen("bruss_FEM_mesh.txt","w");
@@ -361,17 +380,21 @@ int main(int argc, char *argv[]) {
   check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1);
   flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
   check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1);
-  flag = ARKodeGetNumMassSolves(arkode_mem, &nms);
-  check_flag(&flag, "ARKodeGetNumMassSolves", 1);
-  flag = ARKodeGetNumMassMultiplies(arkode_mem, &nMv);
-  check_flag(&flag, "ARKodeGetNumMassMultiplies", 1);
-  flag = ARKSlsGetNumJacEvals(arkode_mem, &nje);
-  check_flag(&flag, "ARKSlsGetNumJacEvals", 1);
+  flag = ARKDlsGetNumMassSetups(arkode_mem, &nmset);
+  check_flag(&flag, "ARKDlsGetNumMassSetups", 1);
+  flag = ARKDlsGetNumMassSolves(arkode_mem, &nms);
+  check_flag(&flag, "ARKDlsGetNumMassSolves", 1);
+  flag = ARKDlsGetNumMassMult(arkode_mem, &nMv);
+  check_flag(&flag, "ARKDlsGetNumMassMult", 1);
+  flag = ARKDlsGetNumJacEvals(arkode_mem, &nje);
+  check_flag(&flag, "ARKDlsGetNumJacEvals", 1);
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
   printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfe, nfi);
+  printf("   Total mass matrix setups = %li\n", nmset);
   printf("   Total mass matrix solves = %li\n", nms);
+  printf("   Total mass times evals = %li\n", nMv);
   printf("   Total linear solver setups = %li\n", nsetups);
   printf("   Total number of Jacobian evaluations = %li\n", nje);
   printf("   Total number of Newton iterations = %li\n", nni);
@@ -379,15 +402,19 @@ int main(int argc, char *argv[]) {
   printf("   Total number of error test failures = %li\n", netf);
 
   /* Clean up and return with successful completion */
-  N_VDestroy_Serial(y);            /* Free vectors */
-  N_VDestroy_Serial(umask);
-  N_VDestroy_Serial(vmask);
-  N_VDestroy_Serial(wmask);
-  SparseDestroyMat(udata->R);      /* Free user data */
-  N_VDestroy_Serial(udata->tmp);
+  N_VDestroy(y);                   /* Free vectors */
+  N_VDestroy(umask);
+  N_VDestroy(vmask);
+  N_VDestroy(wmask);
+  SUNMatDestroy(udata->R);         /* Free user data */
+  N_VDestroy(udata->tmp);
   free(udata->x);
   free(udata);
   ARKodeFree(&arkode_mem);         /* Free integrator memory */
+  SUNLinSolFree(LS);               /* Free linear solvers */
+  SUNLinSolFree(MLS);
+  SUNMatDestroy(A);                /* Free matrices */
+  SUNMatDestroy(M);
   return 0;
 }
 
@@ -427,13 +454,13 @@ static int f_diff(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
   UserData udata = (UserData) user_data;
 
   /* shortcuts to number of intervals, background values */
-  int N = udata->N;
+  sunindextype N = udata->N;
   realtype du = udata->du;
   realtype dv = udata->dv;
   realtype dw = udata->dw;
 
   /* local variables */
-  int i;
+  sunindextype i;
   realtype ul, ur, vl, vr, wl, wr;
   realtype xl, xr, f1;
   booleantype left, right;
@@ -508,13 +535,13 @@ static int f_rx(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
   UserData udata = (UserData) user_data;
 
   /* shortcuts to number of intervals, background values */
-  int N = udata->N;
+  sunindextype N = udata->N;
   realtype a  = udata->a;
   realtype b  = udata->b;
   realtype ep = udata->ep;
 
   /* local variables */
-  int i;
+  sunindextype i;
   realtype ul, ur, vl, vr, wl, wr;
   realtype u, v, w, xl, xr, f1, f2, f3;
   booleantype left, right;
@@ -648,17 +675,17 @@ static int f_rx(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
 
 
 /* Interface routine to compute the Jacobian of the full RHS function, f(y) */
-static int Jac(realtype t, N_Vector y, N_Vector fy, 
-               SlsMat J, void *user_data,
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3) {
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3) {
 
   /* temporary variables */
   int ier;
   UserData udata = (UserData) user_data;
-  int N = udata->N;
+  sunindextype N = udata->N;
 
   /* ensure that Jac is the correct size */
-  if ((J->M != N*3) || (J->N != N*3)) {
+  if ( (SUNSparseMatrix_Rows(J) != N*3) ||
+       (SUNSparseMatrix_Columns(J) != N*3) ) {
     printf("Jacobian calculation error: matrix is the wrong size!\n");
     return 1;
   }
@@ -672,7 +699,9 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
 
   /* Create empty reaction Jacobian matrix (if not done already) */
   if (udata->R == NULL) {
-    udata->R = SparseNewMat(J->M, J->N, J->NNZ, CSC_MAT);
+    udata->R = SUNSparseMatrix(SUNSparseMatrix_Rows(J),
+                               SUNSparseMatrix_Columns(J),
+                               SUNSparseMatrix_NNZ(J), CSC_MAT);
     if (udata->R == NULL) {
       printf("Jac: error in allocating R matrix!\n");
       return 1;
@@ -687,7 +716,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
   }
 
   /* Add R to J */
-  ier = SparseAddMat(J,udata->R);
+  ier = SUNMatScaleAdd(ONE, J, udata->R);
   if (ier != 0) {
     printf("Jac: error in adding sparse matrices = %i!\n",ier);
     return 1;
@@ -699,23 +728,24 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
 
 
 /* Routine to compute the mass matrix multiplying y_t. */
-static int MassMatrix(realtype t, SlsMat M, void *user_data, 
+static int MassMatrix(realtype t, SUNMatrix M, void *user_data, 
 		      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3) {
 
   /* user data structure */
   UserData udata = (UserData) user_data;
 
   /* set shortcuts */
-  int N = udata->N;
-  int i, nz=0;
-  int *colptrs = *M->colptrs;
-  int *rowvals = *M->rowvals;
+  sunindextype N = udata->N;
+  sunindextype i, nz=0;
+  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(M);
+  sunindextype *rowvals = SUNSparseMatrix_IndexValues(M);
+  realtype *data = SUNSparseMatrix_Data(M);
 
   /* local data */
   realtype xl, xr, f1, f2, f3, dtmp;
 
   /* clear out mass matrix */
-  SparseSetMatToZero(M);
+  SUNMatZero(M);
 
   /* iterate over columns, filling in matrix entries */
   for (i=0; i<N; i++) {
@@ -730,7 +760,7 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
       f1 = ChiL(xl,xr,X1(xl,xr)) * ChiR(xl,xr,X1(xl,xr));
       f2 = ChiL(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
       f3 = ChiL(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
-      M->data[nz] = Quad(f1,f2,f3,xl,xr);
+      data[nz] = Quad(f1,f2,f3,xl,xr);
       rowvals[nz++] = IDX(i-1,0);
     }
     /*    this u trial function */
@@ -751,7 +781,7 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
       f3 = ChiR(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
       dtmp += Quad(f1,f2,f3,xl,xr);
     }
-    M->data[nz] = dtmp;
+    data[nz] = dtmp;
     rowvals[nz++] = IDX(i,0);
     /*    right u trial function */
     if (i<N-1) {
@@ -760,7 +790,7 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
       f1 = ChiL(xl,xr,X1(xl,xr)) * ChiR(xl,xr,X1(xl,xr));
       f2 = ChiL(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
       f3 = ChiL(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
-      M->data[nz] = Quad(f1,f2,f3,xl,xr);
+      data[nz] = Quad(f1,f2,f3,xl,xr);
       rowvals[nz++] = IDX(i+1,0);
     }
 
@@ -775,7 +805,7 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
       f1 = ChiL(xl,xr,X1(xl,xr)) * ChiR(xl,xr,X1(xl,xr));
       f2 = ChiL(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
       f3 = ChiL(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
-      M->data[nz] = Quad(f1,f2,f3,xl,xr);
+      data[nz] = Quad(f1,f2,f3,xl,xr);
       rowvals[nz++] = IDX(i-1,1);
     }
     /*    this v trial function */
@@ -796,7 +826,7 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
       f3 = ChiR(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
       dtmp += Quad(f1,f2,f3,xl,xr);
     }
-    M->data[nz] = dtmp;
+    data[nz] = dtmp;
     rowvals[nz++] = IDX(i,1);
     /*    right v trial function */
     if (i<N-1) {
@@ -805,7 +835,7 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
       f1 = ChiL(xl,xr,X1(xl,xr)) * ChiR(xl,xr,X1(xl,xr));
       f2 = ChiL(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
       f3 = ChiL(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
-      M->data[nz] = Quad(f1,f2,f3,xl,xr);
+      data[nz] = Quad(f1,f2,f3,xl,xr);
       rowvals[nz++] = IDX(i+1,1);
     }
 
@@ -820,7 +850,7 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
       f1 = ChiL(xl,xr,X1(xl,xr)) * ChiR(xl,xr,X1(xl,xr));
       f2 = ChiL(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
       f3 = ChiL(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
-      M->data[nz] = Quad(f1,f2,f3,xl,xr);
+      data[nz] = Quad(f1,f2,f3,xl,xr);
       rowvals[nz++] = IDX(i-1,2);
     }
     /*    this w trial function */
@@ -841,7 +871,7 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
       f3 = ChiR(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
       dtmp += Quad(f1,f2,f3,xl,xr);
     }
-    M->data[nz] = dtmp;
+    data[nz] = dtmp;
     rowvals[nz++] = IDX(i,2);
     /*    right w trial function */
     if (i<N-1) {
@@ -850,7 +880,7 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
       f1 = ChiL(xl,xr,X1(xl,xr)) * ChiR(xl,xr,X1(xl,xr));
       f2 = ChiL(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
       f3 = ChiL(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
-      M->data[nz] = Quad(f1,f2,f3,xl,xr);
+      data[nz] = Quad(f1,f2,f3,xl,xr);
       rowvals[nz++] = IDX(i+1,2);
     }
 
@@ -873,21 +903,22 @@ static int MassMatrix(realtype t, SlsMat M, void *user_data,
 
 
 /* Routine to compute the Laplace matrix */
-static int LaplaceMatrix(SlsMat L, UserData udata)
+static int LaplaceMatrix(SUNMatrix L, UserData udata)
 {
 
   /* set shortcuts, local variables */
-  int N = udata->N;
+  sunindextype N = udata->N;
   realtype du = udata->du;
   realtype dv = udata->dv;
   realtype dw = udata->dw;
-  int i, nz=0;
+  sunindextype i, nz=0;
   realtype xl, xr;
-  int *colptrs = *L->colptrs;
-  int *rowvals = *L->rowvals;
+  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(L);
+  sunindextype *rowvals = SUNSparseMatrix_IndexValues(L);
+  realtype *data = SUNSparseMatrix_Data(L);
   
   /* clear out matrix */
-  SparseSetMatToZero(L);
+  SUNMatZero(L);
 
   /* iterate over columns, filling in Laplace matrix entries */
   for (i=0; i<N; i++) {
@@ -898,22 +929,22 @@ static int LaplaceMatrix(SlsMat L, UserData udata)
     if (i>1) {
       xl = udata->x[i-1];
       xr = udata->x[i];
-      L->data[nz] = (-du) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
+      data[nz] = (-du) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
       rowvals[nz++] = IDX(i-1,0);
     }
     if (i<N-1 && i>0) {
       xl = udata->x[i-1];
       xr = udata->x[i];
-      L->data[nz] = (-du) * Quad(ONE,ONE,ONE,xl,xr) * ChiR_x(xl,xr) * ChiR_x(xl,xr);
+      data[nz] = (-du) * Quad(ONE,ONE,ONE,xl,xr) * ChiR_x(xl,xr) * ChiR_x(xl,xr);
       xl = udata->x[i];
       xr = udata->x[i+1];
-      L->data[nz] += (-du) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiL_x(xl,xr);
+      data[nz] += (-du) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiL_x(xl,xr);
       rowvals[nz++] = IDX(i,0);
     }
     if (i<N-2) {
       xl = udata->x[i];
       xr = udata->x[i+1];
-      L->data[nz] = (-du) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
+      data[nz] = (-du) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
       rowvals[nz++] = IDX(i+1,0);
     }
 
@@ -923,22 +954,22 @@ static int LaplaceMatrix(SlsMat L, UserData udata)
     if (i>1) {
       xl = udata->x[i-1];
       xr = udata->x[i];
-      L->data[nz] = (-dv) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
+      data[nz] = (-dv) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
       rowvals[nz++] = IDX(i-1,1);
     }
     if (i>0 && i<N-1) {
       xl = udata->x[i];
       xr = udata->x[i+1];
-      L->data[nz] = (-dv) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiL_x(xl,xr);
+      data[nz] = (-dv) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiL_x(xl,xr);
       xl = udata->x[i-1];
       xr = udata->x[i];
-      L->data[nz] += (-dv) * Quad(ONE,ONE,ONE,xl,xr) * ChiR_x(xl,xr) * ChiR_x(xl,xr);
+      data[nz] += (-dv) * Quad(ONE,ONE,ONE,xl,xr) * ChiR_x(xl,xr) * ChiR_x(xl,xr);
       rowvals[nz++] = IDX(i,1);
     }
     if (i<N-2) {
       xl = udata->x[i];
       xr = udata->x[i+1];
-      L->data[nz] = (-dv) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
+      data[nz] = (-dv) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
       rowvals[nz++] = IDX(i+1,1);
     }
 
@@ -948,22 +979,22 @@ static int LaplaceMatrix(SlsMat L, UserData udata)
     if (i>1) {
       xl = udata->x[i-1];
       xr = udata->x[i];
-      L->data[nz] = (-dw) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
+      data[nz] = (-dw) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
       rowvals[nz++] = IDX(i-1,2);
     }
     if (i>0 && i<N-1) {
       xl = udata->x[i];
       xr = udata->x[i+1];
-      L->data[nz] = (-dw) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiL_x(xl,xr);
+      data[nz] = (-dw) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiL_x(xl,xr);
       xl = udata->x[i-1];
       xr = udata->x[i];
-      L->data[nz] += (-dw) * Quad(ONE,ONE,ONE,xl,xr) * ChiR_x(xl,xr) * ChiR_x(xl,xr);
+      data[nz] += (-dw) * Quad(ONE,ONE,ONE,xl,xr) * ChiR_x(xl,xr) * ChiR_x(xl,xr);
       rowvals[nz++] = IDX(i,2);
     }
     if (i<N-2) {
       xl = udata->x[i];
       xr = udata->x[i+1];
-      L->data[nz] = (-dw) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
+      data[nz] = (-dw) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
       rowvals[nz++] = IDX(i+1,2);
     }
 
@@ -978,13 +1009,14 @@ static int LaplaceMatrix(SlsMat L, UserData udata)
 
 
 /* Routine to compute the Jacobian matrix from R(y) */
-static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
+static int ReactionJac(N_Vector y, SUNMatrix Jac, UserData udata)
 {
   /* set shortcuts, local variables */
-  int N = udata->N;
-  int i, nz=0;
-  int *colptrs = *Jac->colptrs;
-  int *rowvals = *Jac->rowvals;
+  sunindextype N = udata->N;
+  sunindextype i, nz=0;
+  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(Jac);
+  sunindextype *rowvals = SUNSparseMatrix_IndexValues(Jac);
+  realtype *data = SUNSparseMatrix_Data(Jac);
   realtype ep = udata->ep;
   realtype ul, uc, ur, vl, vc, vr, wl, wc, wr;
   realtype u1l, u2l, u3l, v1l, v2l, v3l, w1l, w2l, w3l;
@@ -1006,7 +1038,7 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
   dQdf1r = dQdf2r = dQdf3r = ChiL1r = ChiL2r = ChiL3r = ChiR1r = ChiR2r = ChiR3r = 0.0;
 
   /* clear out matrix */
-  SparseSetMatToZero(Jac);
+  SUNMatZero(Jac);
 
   /* iterate over columns, filling in reaction Jacobian */
   for (i=0; i<N; i++) {
@@ -1091,21 +1123,21 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df1 = (-(w1l+ONE) + TWO*v1l*u1l) * ChiL1l * ChiR1l;
       df2 = (-(w2l+ONE) + TWO*v2l*u2l) * ChiL2l * ChiR2l;
       df3 = (-(w3l+ONE) + TWO*v3l*u3l) * ChiL3l * ChiR3l;
-      Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
+      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
       rowvals[nz++] = IDX(i-1,0);
 
       /*  dR_vl/duc */
       df1 = (w1l - TWO*v1l*u1l) * ChiL1l * ChiR1l;
       df2 = (w2l - TWO*v2l*u2l) * ChiL2l * ChiR2l;
       df3 = (w3l - TWO*v3l*u3l) * ChiL3l * ChiR3l;
-      Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
+      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
       rowvals[nz++] = IDX(i-1,1);
 
       /*  dR_wl/duc */
       df1 = (-w1l) * ChiL1l * ChiR1l;
       df2 = (-w2l) * ChiL2l * ChiR2l;
       df3 = (-w3l) * ChiL3l * ChiR3l;
-      Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
+      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
       rowvals[nz++] = IDX(i-1,2);
     }
     if (i>0 && i<N-1) {
@@ -1113,36 +1145,36 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df1 = (-(w1r+ONE) + TWO*v1r*u1r) * ChiL1r * ChiL1r;
       df2 = (-(w2r+ONE) + TWO*v2r*u2r) * ChiL2r * ChiL2r;
       df3 = (-(w3r+ONE) + TWO*v3r*u3r) * ChiL3r * ChiL3r;
-      Jac->data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
+      data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
 
       df1 = (-(w1l+ONE) + TWO*v1l*u1l) * ChiR1l * ChiR1l;
       df2 = (-(w2l+ONE) + TWO*v2l*u2l) * ChiR2l * ChiR2l;
       df3 = (-(w3l+ONE) + TWO*v3l*u3l) * ChiR3l * ChiR3l;
-      Jac->data[nz] += dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
+      data[nz] += dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
       rowvals[nz++] = IDX(i,0);
 
       /*  dR_vc/duc */
       df1 = (w1l - TWO*v1l*u1l) * ChiR1l * ChiR1l;
       df2 = (w2l - TWO*v2l*u2l) * ChiR2l * ChiR2l;
       df3 = (w3l - TWO*v3l*u3l) * ChiR3l * ChiR3l;
-      Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
+      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
 
       df1 = (w1r - TWO*v1r*u1r) * ChiL1r * ChiL1r;
       df2 = (w2r - TWO*v2r*u2r) * ChiL2r * ChiL2r;
       df3 = (w3r - TWO*v3r*u3r) * ChiL3r * ChiL3r;
-      Jac->data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
+      data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
       rowvals[nz++] = IDX(i,1);
 
       /*  dR_wc/duc */
       df1 = (-w1r) * ChiL1r * ChiL1r;
       df2 = (-w2r) * ChiL2r * ChiL2r;
       df3 = (-w3r) * ChiL3r * ChiL3r;
-      Jac->data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
+      data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
 
       df1 = (-w1l) * ChiR1l * ChiR1l;
       df2 = (-w2l) * ChiR2l * ChiR2l;
       df3 = (-w3l) * ChiR3l * ChiR3l;
-      Jac->data[nz] += dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
+      data[nz] += dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
       rowvals[nz++] = IDX(i,2);
     }
     if (i<N-2) {
@@ -1150,21 +1182,21 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df1 = (-(w1r+ONE) + TWO*v1r*u1r) * ChiL1r * ChiR1r;
       df2 = (-(w2r+ONE) + TWO*v2r*u2r) * ChiL2r * ChiR2r;
       df3 = (-(w3r+ONE) + TWO*v3r*u3r) * ChiL3r * ChiR3r;
-      Jac->data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
+      data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
       rowvals[nz++] = IDX(i+1,0);
 
       /*  dR_vr/duc */
       df1 = (w1r - TWO*v1r*u1r) * ChiL1r * ChiR1r;
       df2 = (w2r - TWO*v2r*u2r) * ChiL2r * ChiR2r;
       df3 = (w3r - TWO*v3r*u3r) * ChiL3r * ChiR3r;
-      Jac->data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
+      data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
       rowvals[nz++] = IDX(i+1,1);
 
       /*  dR_wr/duc */
       df1 = (-w1r) * ChiL1r * ChiR1r;
       df2 = (-w2r) * ChiL2r * ChiR2r;
       df3 = (-w3r) * ChiL3r * ChiR3r;
-      Jac->data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
+      data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
       rowvals[nz++] = IDX(i+1,2);
     }
 
@@ -1177,14 +1209,14 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df1 = (u1l*u1l) * ChiL1l * ChiR1l;
       df2 = (u2l*u2l) * ChiL2l * ChiR2l;
       df3 = (u3l*u3l) * ChiL3l * ChiR3l;
-      Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
+      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
       rowvals[nz++] = IDX(i-1,0);
 
       /*  dR_vl/dvc */
       df1 = (-u1l*u1l) * ChiL1l * ChiR1l;
       df2 = (-u2l*u2l) * ChiL2l * ChiR2l;
       df3 = (-u3l*u3l) * ChiL3l * ChiR3l;
-      Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
+      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
       rowvals[nz++] = IDX(i-1,1);
     }
     if (i>0 && i<N-1) {
@@ -1192,24 +1224,24 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df1 = (u1l*u1l) * ChiR1l * ChiR1l;
       df2 = (u2l*u2l) * ChiR2l * ChiR2l;
       df3 = (u3l*u3l) * ChiR3l * ChiR3l;
-      Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
+      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
 
       df1 = (u1r*u1r) * ChiL1r * ChiL1r;
       df2 = (u2r*u2r) * ChiL2r * ChiL2r;
       df3 = (u3r*u3r) * ChiL3r * ChiL3r;
-      Jac->data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
+      data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
       rowvals[nz++] = IDX(i,0);
 
       /*  dR_vc/dvc */
       df1 = (-u1l*u1l) * ChiR1l * ChiR1l;
       df2 = (-u2l*u2l) * ChiR2l * ChiR2l;
       df3 = (-u3l*u3l) * ChiR3l * ChiR3l;
-      Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
+      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
 
       df1 = (-u1r*u1r) * ChiL1r * ChiL1r;
       df2 = (-u2r*u2r) * ChiL2r * ChiL2r;
       df3 = (-u3r*u3r) * ChiL3r * ChiL3r;
-      Jac->data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
+      data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
       rowvals[nz++] = IDX(i,1);
     }
     if (i<N-2) {
@@ -1217,14 +1249,14 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df1 = (u1r*u1r) * ChiL1r * ChiR1r;
       df2 = (u2r*u2r) * ChiL2r * ChiR2r;
       df3 = (u3r*u3r) * ChiL3r * ChiR3r;
-      Jac->data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
+      data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
       rowvals[nz++] = IDX(i+1,0);
 
       /*  dR_vr/dvc */
       df1 = (-u1r*u1r) * ChiL1r * ChiR1r;
       df2 = (-u2r*u2r) * ChiL2r * ChiR2r;
       df3 = (-u3r*u3r) * ChiL3r * ChiR3r;
-      Jac->data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
+      data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
       rowvals[nz++] = IDX(i+1,1);
     }
 
@@ -1237,21 +1269,21 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df1 = (-u1l) * ChiL1l * ChiR1l;
       df2 = (-u2l) * ChiL2l * ChiR2l;
       df3 = (-u3l) * ChiL3l * ChiR3l;
-      Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
+      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
       rowvals[nz++] = IDX(i-1,0);
 
       /*  dR_vl/dwc */
       df1 = (u1l) * ChiL1l * ChiR1l;
       df2 = (u2l) * ChiL2l * ChiR2l;
       df3 = (u3l) * ChiL3l * ChiR3l;
-      Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
+      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
       rowvals[nz++] = IDX(i-1,1);
 
       /*  dR_wl/dwc */
       df1 = (-ONE/ep - u1l) * ChiL1l * ChiR1l;
       df2 = (-ONE/ep - u2l) * ChiL2l * ChiR2l;
       df3 = (-ONE/ep - u3l) * ChiL3l * ChiR3l;
-      Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
+      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
       rowvals[nz++] = IDX(i-1,2);
     }
     if (i>0 && i<N-1) {
@@ -1259,36 +1291,36 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df1 = (-u1l) * ChiR1l * ChiR1l;
       df2 = (-u2l) * ChiR2l * ChiR2l;
       df3 = (-u3l) * ChiR3l * ChiR3l;
-      Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
+      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
 
       df1 = (-u1r) * ChiL1r * ChiL1r;
       df2 = (-u2r) * ChiL2r * ChiL2r;
       df3 = (-u3r) * ChiL3r * ChiL3r;
-      Jac->data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
+      data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
       rowvals[nz++] = IDX(i,0);
 
       /*  dR_vc/dwc */
       df1 = (u1l) * ChiR1l * ChiR1l;
       df2 = (u2l) * ChiR2l * ChiR2l;
       df3 = (u3l) * ChiR3l * ChiR3l;
-      Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
+      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
 
       df1 = (u1r) * ChiL1r * ChiL1r;
       df2 = (u2r) * ChiL2r * ChiL2r;
       df3 = (u3r) * ChiL3r * ChiL3r;
-      Jac->data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
+      data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
       rowvals[nz++] = IDX(i,1);
 
       /*  dR_wc/dwc */
       df1 = (-ONE/ep - u1l) * ChiR1l * ChiR1l;
       df2 = (-ONE/ep - u2l) * ChiR2l * ChiR2l;
       df3 = (-ONE/ep - u3l) * ChiR3l * ChiR3l;
-      Jac->data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
+      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
 
       df1 = (-ONE/ep - u1r) * ChiL1r * ChiL1r;
       df2 = (-ONE/ep - u2r) * ChiL2r * ChiL2r;
       df3 = (-ONE/ep - u3r) * ChiL3r * ChiL3r;
-      Jac->data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
+      data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
       rowvals[nz++] = IDX(i,2);
     }
     if (i<N-2) {
@@ -1296,21 +1328,21 @@ static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
       df1 = (-u1r) * ChiL1r * ChiR1r;
       df2 = (-u2r) * ChiL2r * ChiR2r;
       df3 = (-u3r) * ChiL3r * ChiR3r;
-      Jac->data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
+      data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
       rowvals[nz++] = IDX(i+1,0);
 
       /*  dR_vr/dwc */
       df1 = (u1r) * ChiL1r * ChiR1r;
       df2 = (u2r) * ChiL2r * ChiR2r;
       df3 = (u3r) * ChiL3r * ChiR3r;
-      Jac->data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
+      data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
       rowvals[nz++] = IDX(i+1,1);
 
       /*  dR_wr/dwc */
       df1 = (-ONE/ep - u1r) * ChiL1r * ChiR1r;
       df2 = (-ONE/ep - u2r) * ChiL2r * ChiR2r;
       df3 = (-ONE/ep - u3r) * ChiL3r * ChiR3r;
-      Jac->data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
+      data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
       rowvals[nz++] = IDX(i+1,2);
     }
 

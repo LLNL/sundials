@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -136,9 +133,6 @@ int CVDiag(void *cvode_mem)
   }
 
   last_flag = CVDIAG_SUCCESS;
-
-  /* Set flag setupNonNull = TRUE */
-  setupNonNull = TRUE;
 
   /* Allocate memory for M, bit, and bitcomp */
     

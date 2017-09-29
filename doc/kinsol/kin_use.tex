@@ -80,7 +80,7 @@ and data types can be used. The header file that is always required is:
 \end{itemize}
 %
 \id{kinsol.h} also includes \Id{sundials\_types.h}, 
-which defines the types \id{realtype} and \id{booleantype}
+which defines the types \id{realtype}, \id{sunindextype}, and \id{booleantype}
 and constants \id{FALSE} and \id{TRUE}.
 
 The calling program must also include an {\nvector} implementation header file,
@@ -175,7 +175,7 @@ specific name of the function to be called or macro to be referenced.
   This generally includes the problem size \id{N}, and may include
   the local vector length \id{Nlocal}.
 
-  Note: The variables \id{N} and \id{Nlocal} should be of type \id{long int}.
+  Note: The variables \id{N} and \id{Nlocal} should be of type \id{sunindextype}.
 
 \item
   {\bf Set vector with initial guess}
@@ -492,7 +492,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[N] (\id{long int})
+  \item[N] (\id{sunindextype})
     problem dimension.
   \end{args}
 }
@@ -564,11 +564,11 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[N] (\id{long int})
+  \item[N] (\id{sunindextype})
     problem dimension.
-  \item[mupper] (\id{long int})
+  \item[mupper] (\id{sunindextype})
     upper half-bandwidth of the problem Jacobian (or of the approximation of it).
-  \item[mlower] (\id{long int})
+  \item[mlower] (\id{sunindextype})
     lower half-bandwidth of the problem Jacobian (or of the approximation of it).
   \end{args}
 }
@@ -3552,7 +3552,7 @@ of \S\ref{s:skeleton_sol}), the user may provide a function of type
 \ID{KINDlsDenseJacFn} defined by
 \usfunction{KINDlsDenseJacFn}
 {
-  typedef int (*KINDlsDenseJacFn)(&long int N, N\_Vector u, N\_Vector fu,\\
+  typedef int (*KINDlsDenseJacFn)(&sunindextype N, N\_Vector u, N\_Vector fu,\\
                                   &DlsMat J, void *user\_data,\\ 
                                   &N\_Vector tmp1, N\_Vector tmp2);
 }
@@ -3621,7 +3621,7 @@ of \S\ref{s:skeleton_sol}), the user may provide a function of type
   The unit roundoff can be accessed as \id{UNIT\_ROUNDOFF} defined in
   \id{sundials\_types.h}.
 
-  For the sake of uniformity, the argument \id{N} is of type \id{long int},
+  For the sake of uniformity, the argument \id{N} is of type \id{sunindextype},
   even in the case that the Lapack dense solver is to be used.
 }
 \index{Jacobian approximation function!dense!user-supplied|)}
@@ -3638,8 +3638,8 @@ of \S\ref{s:skeleton_sol}), the user may provide a function of type
 \ID{KINDlsBandJacFn} defined by:
 \usfunction{KINDlsBandJacFn}
 {
- typedef int (*KINDlsBandJacFn)(&long int N, long int mupper,\\
-                                &long int mlower, N\_Vector u, N\_Vector fu,\\
+ typedef int (*KINDlsBandJacFn)(&sunindextype N, sunindextype mupper,\\
+                                &sunindextype mlower, N\_Vector u, N\_Vector fu,\\
                                 &DlsMat J, void *user\_data,\\
                                 &N\_Vector tmp1, N\_Vector tmp2);
 }
@@ -3719,7 +3719,7 @@ of \S\ref{s:skeleton_sol}), the user may provide a function of type
   \id{sundials\_types.h}.
 
   For the sake of uniformity, the arguments \id{N}, \id{mlower}, and \id{mupper} are
-  of type \id{long int}, even in the case that the Lapack band solver is to be used.
+  of type \id{sunindextype}, even in the case that the Lapack band solver is to be used.
 }
 \index{half-bandwidths|)}
 \index{Jacobian approximation function!band!user-supplied|)}
@@ -4049,7 +4049,7 @@ then used by \id{Gloc}, which should not do any communication.
 %%
 \usfunction{KINLocalFn}
 {
-  typedef void (*KINLocalFn)(&long int Nlocal, N\_Vector u, \\
+  typedef void (*KINLocalFn)(&sunindextype Nlocal, N\_Vector u, \\
                              &N\_Vector gval, void *user\_data);
 }
 {
@@ -4085,7 +4085,7 @@ then used by \id{Gloc}, which should not do any communication.
 %%
 \usfunction{KINCommFn}
 {
-  typedef void (*KINCommFn)(long int Nlocal, N\_Vector u, void *user\_data);
+  typedef void (*KINCommFn)(sunindextype Nlocal, N\_Vector u, void *user\_data);
 }
 {
   This \id{Gcomm} function performs all interprocess communications necessary 
@@ -4235,15 +4235,15 @@ is described in more detail below.
   \begin{args}[dq\_rel\_u]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[Nlocal] (\id{long int})
+  \item[Nlocal] (\id{sunindextype})
     local vector length.
-  \item[mudq] (\id{long int})
+  \item[mudq] (\id{sunindextype})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mldq] (\id{long int})
+  \item[mldq] (\id{sunindextype})
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mukeep] (\id{long int})
+  \item[mukeep] (\id{sunindextype})
     upper half-bandwidth of the retained banded approximate Jacobian block.
-  \item[mlkeep] (\id{long int})
+  \item[mlkeep] (\id{sunindextype})
     lower half-bandwidth of the retained banded approximate Jacobian block.
   \item[dq\_rel\_u] (\id{realtype})
     the relative increment in components of \id{u} used in the difference quotient

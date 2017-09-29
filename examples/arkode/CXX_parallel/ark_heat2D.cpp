@@ -53,7 +53,8 @@
 #include <math.h>
 #include "arkode/arkode.h"            // prototypes for ARKode fcts., consts. 
 #include "nvector/nvector_parallel.h" // parallel N_Vector types, fcts., macros 
-#include "arkode/arkode_pcg.h"        // prototype for ARKPcg solver 
+#include "sunlinsol/sunlinsol_pcg.h"  // access to PCG SUNLinearSolver
+#include "arkode/arkode_spils.h"      // access to ARKSpils interface
 #include "sundials/sundials_types.h"  // def. of type 'realtype' 
 #include "mpi.h"                      // MPI header file
 
@@ -108,11 +109,10 @@ typedef struct {
 // User-supplied Functions Called by the Solver 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int PSet(realtype t, N_Vector y, N_Vector fy, booleantype jok, 
-		booleantype *jcurPtr, realtype gamma, void *user_data,
-		N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+		booleantype *jcurPtr, realtype gamma, void *user_data);
 static int PSol(realtype t, N_Vector y, N_Vector fy, N_Vector r, 
 		N_Vector z, realtype gamma, realtype delta, int lr, 
-		void *user_data, N_Vector tmp);
+		void *user_data);
 
 // Private functions 
 //    checks function return values 
@@ -147,6 +147,7 @@ int main(int argc, char* argv[]) {
   int flag;                      // reusable error-checking flag 
   int myid;                      // MPI process ID
   N_Vector y = NULL;             // empty vector for storing solution 
+  SUNLinearSolver LS = NULL;     // empty linear solver memory structure
   void *arkode_mem = NULL;       // empty ARKode memory structure 
 
   // initialize MPI
@@ -185,7 +186,7 @@ int main(int argc, char* argv[]) {
     cout << "   nyl (proc 0) = " << udata->nyl << "\n\n";
   }
 
-  // Initialize data structures 
+  // Initialize vector data structures 
   N = (udata->nxl)*(udata->nyl);
   Ntot = nx*ny;
   y = N_VNew_Parallel(udata->comm, N, Ntot);         // Create parallel vector for solution 
@@ -195,7 +196,13 @@ int main(int argc, char* argv[]) {
   if (check_flag((void *) udata->h, "N_VNew_Parallel", 0)) return 1;
   udata->d = N_VNew_Parallel(udata->comm, N, Ntot);  // Create vector for Jacobian diagonal
   if (check_flag((void *) udata->d, "N_VNew_Parallel", 0)) return 1;
-  arkode_mem = ARKodeCreate();                       // Create the solver memory 
+
+  // Initialize linear solver data structure
+  LS = SUNPCG(y, 1, 20);
+  if (check_flag((void *) LS, "SUNPCG", 0)) return 1;
+
+  // Initialize ARKode data structure
+  arkode_mem = ARKodeCreate();
   if (check_flag((void *) arkode_mem, "ARKodeCreate", 0)) return 1;
 
   // fill in the heat source array
@@ -220,8 +227,8 @@ int main(int argc, char* argv[]) {
   flag = ARKodeSStolerances(arkode_mem, rtol, atol);      // Specify tolerances 
   if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
 
-  // Linear solver specification 
-  flag = ARKPcg(arkode_mem, 1, 20);                           // Specify the PCG solver 
+  // Linear solver interface
+  flag = ARKSpilsSetLinearSolver(arkode_mem, LS);             // Attach linear solver
   if (check_flag(&flag, "ARKPcg", 1)) return 1;
   flag = ARKSpilsSetPreconditioner(arkode_mem, PSet, PSol);   // Specify the Preconditoner
   if (check_flag(&flag, "ARKSpilsSetPreconditioner", 1)) return 1;
@@ -324,12 +331,13 @@ int main(int argc, char* argv[]) {
   }
 
   // Clean up and return with successful completion 
-  N_VDestroy_Parallel(y);        // Free vectors 
+  ARKodeFree(&arkode_mem);     // Free integrator memory 
+  SUNLinSolFree(LS);           // Free linear solver
+  N_VDestroy_Parallel(y);      // Free vectors 
   N_VDestroy_Parallel(udata->h);
   N_VDestroy_Parallel(udata->d);
   FreeUserData(udata);         // Free user data 
   delete udata;       
-  ARKodeFree(&arkode_mem);     // Free integrator memory 
   flag = MPI_Finalize();       // Finalize MPI
   return 0;
 }
@@ -434,29 +442,28 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 // Preconditioner setup routine (fills inverse of Jacobian diagonal)
 static int PSet(realtype t, N_Vector y, N_Vector fy, booleantype jok, 
-		booleantype *jcurPtr, realtype gamma, void *user_data,
-		N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+		booleantype *jcurPtr, realtype gamma, void *user_data)
 {
   UserData *udata = (UserData *) user_data;      // variable shortcuts 
   realtype kx = udata->kx;
   realtype ky = udata->ky;
   realtype dx = udata->dx;
   realtype dy = udata->dy;
-  realtype *diag = N_VGetArrayPointer(tmp1);  // access data arrays 
+  realtype *diag = N_VGetArrayPointer(udata->d);  // access data arrays 
   if (check_flag((void *) diag, "N_VGetArrayPointer", 0)) return -1;
 
-  // set all entries of tmp1 to the diagonal values of interior
+  // set all entries of d to the diagonal values of interior
   // (since boundary RHS is 0, set boundary diagonals to the same)
   realtype c = ONE + gamma*TWO*(kx/dx/dx + ky/dy/dy);
-  N_VConst(c, tmp1);
-  N_VInv(tmp1, udata->d);      // set d to inverse of diagonal
+  N_VConst(c, udata->d);
+  N_VInv(udata->d, udata->d);  // invert diagonal
   return 0;                    // Return with success 
 }
 
 // Preconditioner solve routine
 static int PSol(realtype t, N_Vector y, N_Vector fy, N_Vector r, 
 		N_Vector z, realtype gamma, realtype delta, int lr, 
-		void *user_data, N_Vector tmp)
+		void *user_data)
 {
   UserData *udata = (UserData *) user_data;  // access user_data structure
   N_VProd(r, udata->d, z);                   // perform Jacobi iteration

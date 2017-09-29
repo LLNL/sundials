@@ -37,6 +37,18 @@ MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 # Set the names of the examples to be built
 SET(examples @EXAMPLES@ @EXAMPLES_BL@)
 
+# Set names of examples specific dependency source files
+SET(examples_dependencies @EXAMPLES_DEPENDENCIES@)
+
+# Specify path to SUNDIALS header files
+SET(SUNDIALS_INC_DIR
+  @includedir@
+  CACHE STRING
+  "Location of SUNDIALS header files")
+
+# Add path to SUNDIALS header files
+INCLUDE_DIRECTORIES(${SUNDIALS_INC_DIR})
+
 # Set search path for SUNDIALS libraries 
 SET(SUNDIALS_LIB_DIR @libdir@)
 

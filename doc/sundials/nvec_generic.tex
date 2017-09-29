@@ -36,7 +36,7 @@ struct _generic_N_Vector_Ops {
   N_Vector    (*nvclone)(N_Vector);
   N_Vector    (*nvcloneempty)(N_Vector);
   void        (*nvdestroy)(N_Vector);
-  void        (*nvspace)(N_Vector, long int *, long int *);
+  void        (*nvspace)(N_Vector, sunindextype *, sunindextype *);
   realtype*   (*nvgetarraypointer)(N_Vector);
   void        (*nvsetarraypointer)(realtype *, N_Vector);
   void        (*nvlinearsum)(realtype, N_Vector, realtype, N_Vector, N_Vector); 
@@ -386,6 +386,14 @@ is returned.
 %---------------------------------------------------------------------------
 \section{The NVECTOR\_PETSC implementation}\label{ss:nvec_petsc}
 \input{nvec_petsc}
+
+%---------------------------------------------------------------------------
+\section{The NVECTOR\_CUDA implementation}\label{ss:nvec_cuda}
+\input{nvec_cuda}
+
+%---------------------------------------------------------------------------
+\section{The NVECTOR\_RAJA implementation}\label{ss:nvec_raja}
+\input{nvec_raja}
 
 %---------------------------------------------------------------------------
 

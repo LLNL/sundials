@@ -29,8 +29,7 @@
  * 
  * The legal types for realtype are float, double and long double.
  *
- * The constants SUNDIALS_SIGNED_64BIT_TYPE, SUNDIALS_UNSIGNED_64BIT_TYPE,
- * SUNDIALS_SIGNED_32BIT_TYPE and SUNDIALS_UNSIGNED_32BIT_TYPE indicate 
+ * The constants SUNDIALS_INT64_T and SUNDIALS_INT32_T indicate 
  * the underlying data type of sunindextype -- the integer data type
  * used for vector and matrix indices. 
  * 

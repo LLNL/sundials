@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -41,21 +37,23 @@
  * Reference: D.B. Ozyurt and P.I. Barton, SISC 26(5) 1725-1743, 2005.
  *
  * Error handling was suppressed for code readibility reasons.
-*/
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
 
-#include <idas/idas.h>
-#include <idas/idas_dense.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_math.h>
+#include <idas/idas.h>                 /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
+#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
+#include <idas/idas_direct.h>          /* access to IDADls interface           */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Accessor macros */
 
 #define Ith(v,i)    NV_Ith_S(v,i-1)       /* i-th vector component i= 1..NEQ */
-#define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1) /* (i,j)-th matrix component i,j = 1..NEQ */
 
 /* Problem Constants */
 #define NEQ      3             /* number of equations                  */
@@ -117,6 +115,8 @@ static int rhsQBS2(realtype tt, N_Vector yy, N_Vector yp,
                    N_Vector *yyS, N_Vector *ypS, N_Vector yyB, N_Vector ypB,
                    N_Vector rhsBQS, void *user_dataB);
 
+static int check_flag(void *flagvalue, const char *funcname, int opt);
+
 
 int main(int argc, char *argv[])
 {
@@ -128,7 +128,8 @@ int main(int argc, char *argv[])
   int flag, nckp, indexB1, indexB2;
   realtype G, Gm, Gp, dp1, dp2, grdG_fwd[2], grdG_bck[2], grdG_cntr[2], H11, H22;
   realtype rtolFD, atolFD;
-
+  SUNMatrix A, AB1, AB2;
+  SUNLinearSolver LS, LSB1, LSB2;
 
   /* Print problem description */
   printf("\nAdjoint Sensitivity Example for Chemical Kinetics\n");
@@ -153,12 +154,12 @@ int main(int argc, char *argv[])
   q = N_VNew_Serial(1);
   N_VConst(ZERO, q);
 
-  yyS = N_VCloneVectorArray_Serial(NP, yy);
-  ypS = N_VCloneVectorArray_Serial(NP, yp);
+  yyS = N_VCloneVectorArray(NP, yy);
+  ypS = N_VCloneVectorArray(NP, yp);
   N_VConst(ZERO, yyS[0]); N_VConst(ZERO, yyS[1]);
   N_VConst(ZERO, ypS[0]); N_VConst(ZERO, ypS[1]);
 
-  qS = N_VCloneVectorArray_Serial(NP, q);
+  qS = N_VCloneVectorArray(NP, q);
   N_VConst(ZERO, qS[0]);
 
   ida_mem = IDACreate();
@@ -168,7 +169,19 @@ int main(int argc, char *argv[])
 
   /* Forward problem's setup. */
   flag = IDASStolerances(ida_mem, RTOL, ATOL);
-  flag = IDADense(ida_mem, NEQ);
+
+  /* Create dense SUNMatrix for use in linear solves */
+  A = SUNDenseMatrix(NEQ, NEQ);
+  if(check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
+
+  /* Create dense SUNLinearSolver object */
+  LS = SUNDenseLinearSolver(yy, A);
+  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  flag = IDADlsSetLinearSolver(ida_mem, LS, A);
+  if(check_flag(&flag, "IDADlsSetLinearSolver", 1)) return(1);
+
   flag = IDASetUserData(ida_mem, data);
   flag = IDASetMaxNumSteps(ida_mem, 1500);
 
@@ -242,7 +255,19 @@ int main(int argc, char *argv[])
   flag = IDASStolerancesB(ida_mem, indexB1, RTOLA, ATOLA);   
   flag = IDASetUserDataB(ida_mem, indexB1, data);
   flag = IDASetMaxNumStepsB(ida_mem, indexB1, 5000);
-  flag = IDADenseB(ida_mem, indexB1, 2*NEQ);
+
+  /* Create dense SUNMatrix for use in linear solves */
+  AB1 = SUNDenseMatrix(2*NEQ, 2*NEQ);
+  if(check_flag((void *)AB1, "SUNDenseMatrix", 0)) return(1);
+
+  /* Create dense SUNLinearSolver object */
+  LSB1 = SUNDenseLinearSolver(yyB1, AB1);
+  if(check_flag((void *)LSB1, "SUNDenseLinearSolver", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  flag = IDADlsSetLinearSolverB(ida_mem, indexB1, LSB1, AB1);
+  if(check_flag(&flag, "IDADlsSetLinearSolverB", 1)) return(1);
+
   flag = IDAQuadInitBS(ida_mem, indexB1, rhsQBS1, qB1);
 
   /******************************
@@ -271,7 +296,19 @@ int main(int argc, char *argv[])
   flag = IDASStolerancesB(ida_mem, indexB2, RTOLA, ATOLA);   
   flag = IDASetUserDataB(ida_mem, indexB2, data);
   flag = IDASetMaxNumStepsB(ida_mem, indexB2, 2500);
-  flag = IDADenseB(ida_mem, indexB2, 2*NEQ);
+
+  /* Create dense SUNMatrix for use in linear solves */
+  AB2 = SUNDenseMatrix(2*NEQ, 2*NEQ);
+  if(check_flag((void *)AB2, "SUNDenseMatrix", 0)) return(1);
+
+  /* Create dense SUNLinearSolver object */
+  LSB2 = SUNDenseLinearSolver(yyB2, AB2);
+  if(check_flag((void *)LSB2, "SUNDenseLinearSolver", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  flag = IDADlsSetLinearSolverB(ida_mem, indexB2, LSB2, AB2);
+  if(check_flag(&flag, "IDADlsSetLinearSolverB", 1)) return(1);
+
   flag = IDAQuadInitBS(ida_mem, indexB2, rhsQBS2, qB2);
 
   /* Integrate backward problems. */
@@ -311,6 +348,13 @@ int main(int argc, char *argv[])
 #endif  
 
   IDAFree(&ida_mem);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
+  SUNLinSolFree(LSB1);
+  SUNMatDestroy(AB1);
+  SUNLinSolFree(LSB2);
+  SUNMatDestroy(AB2);
+
 
   /*********************************
   * Use Finite Differences to verify
@@ -348,7 +392,19 @@ int main(int argc, char *argv[])
   atolFD = RCONST(1.0e-14);
 
   flag = IDASStolerances(ida_mem, rtolFD, atolFD);
-  flag = IDADense(ida_mem, NEQ);
+
+  /* Create dense SUNMatrix for use in linear solves */
+  A = SUNDenseMatrix(NEQ, NEQ);
+  if(check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
+
+  /* Create dense SUNLinearSolver object */
+  LS = SUNDenseLinearSolver(yy, A);
+  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  flag = IDADlsSetLinearSolver(ida_mem, LS, A);
+  if(check_flag(&flag, "IDADlsSetLinearSolver", 1)) return(1);
+
   flag = IDASetUserData(ida_mem, data);
   flag = IDASetMaxNumSteps(ida_mem, 10000);
 
@@ -441,22 +497,23 @@ int main(int argc, char *argv[])
 #endif  
 
   IDAFree(&ida_mem);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
 
-  N_VDestroy_Serial(yyB1);
-  N_VDestroy_Serial(ypB1);
-  N_VDestroy_Serial(qB1);
+  N_VDestroy(yyB1);
+  N_VDestroy(ypB1);
+  N_VDestroy(qB1);
 
-  N_VDestroy_Serial(yyB2);
-  N_VDestroy_Serial(ypB2);
-  N_VDestroy_Serial(qB2);
+  N_VDestroy(yyB2);
+  N_VDestroy(ypB2);
+  N_VDestroy(qB2);
 
-
-  N_VDestroy_Serial(yy);
-  N_VDestroy_Serial(yp);
-  N_VDestroy_Serial(q);
-  N_VDestroyVectorArray_Serial(yyS, NP);
-  N_VDestroyVectorArray_Serial(ypS, NP);
-  N_VDestroyVectorArray_Serial(qS, NP);
+  N_VDestroy(yy);
+  N_VDestroy(yp);
+  N_VDestroy(q);
+  N_VDestroyVectorArray(yyS, NP);
+  N_VDestroyVectorArray(ypS, NP);
+  N_VDestroyVectorArray(qS, NP);
 
   free(data);
   return 0;
@@ -472,7 +529,7 @@ static int res(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_
 
   y1  = Ith(yy,1); y2  = Ith(yy,2); y3  = Ith(yy,3); 
   yp1 = Ith(yp,1); yp2 = Ith(yp,2); yp3 = Ith(yp,3);
-  rval = N_VGetArrayPointer_Serial(rr);
+  rval = N_VGetArrayPointer(rr);
 
   data = (UserData) user_data;
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
@@ -770,3 +827,41 @@ static int rhsQBS2(realtype tt,
 
   return(0);
 }
+
+/* 
+ * Check function return value.
+ *    opt == 0 means SUNDIALS function allocates memory so check if
+ *             returned NULL pointer
+ *    opt == 1 means SUNDIALS function returns a flag so check if
+ *             flag >= 0
+ *    opt == 2 means function allocates memory so check if returned
+ *             NULL pointer 
+ */
+
+static int check_flag(void *flagvalue, const char *funcname, int opt)
+{
+  int *errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL) {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+	    funcname);
+    return(1); }
+
+  /* Check if flag < 0 */
+  else if (opt == 1) {
+    errflag = (int *) flagvalue;
+    if (*errflag < 0) {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
+	      funcname, *errflag);
+      return(1); }}
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL) {
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
+	    funcname);
+    return(1); }
+
+  return(0);
+}
+

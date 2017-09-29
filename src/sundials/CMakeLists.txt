@@ -25,7 +25,9 @@ SET(sundials_HEADERS
   sundials_direct.h
   sundials_fnvector.h
   sundials_iterative.h
+  sundials_linearsolver.h
   sundials_math.h
+  sundials_matrix.h
   sundials_nvector.h
   sundials_pcg.h
   sundials_sparse.h

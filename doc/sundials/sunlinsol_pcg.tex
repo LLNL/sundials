@@ -1,0 +1,240 @@
+%% This is a shared SUNDIALS TEX file with a description of the
+%% pcg sunlinsol implementation
+%%
+
+The {\pcg} (Preconditioned Conjugate Gradient \cite{HeSt:52})
+implementation of the {\sunlinsol} module provided with {\sundials},
+{\sunlinsolpcg}, is an iterative linear solver that is designed to be
+compatible with any {\nvector} implementation (serial, threaded,
+parallel, and user-supplied) that supports a minimal subset of operations
+(\id{N\_VClone}, \id{N\_VDotProd}, \id{N\_VScale}, \id{N\_VLinearSum},
+\id{N\_VProd}, and \id{N\_VDestroy}).  Unlike the {\spgmr} and {\spfgmr}
+algorithms, {\pcg} requires a fixed amount of memory that does not
+increase with the number of allowed iterations.
+
+Unlike all of the other iterative linear solvers supplied with
+{\sundials}, {\pcg} should only be used on \emph{symmetric} linear
+systems (e.g.~mass matrix linear systems encountered in
+{\arkode}). As a result, the explanation of the role of scaling and
+preconditioning matrices given in general must be modified in this
+scenario.  The {\pcg} algorithm solves a linear system $Ax = b$ where  
+$A$ is a symmetric ($A^T=A$), real-valued matrix.  Preconditioning is
+allowed, and is applied in a symmetric fashion on both the right and
+left.  Scaling is also allowed and is applied symmetrically.  We
+denote the preconditioner and scaling matrices as follows:
+\begin{itemize}
+\item $P$ is the preconditioner (assumed symmetric),
+\item $S$ is a diagonal matrix of scale factors.
+\end{itemize}
+The matrices $A$ and $P$ are not required explicitly; only routines
+that provide $A$ and $P^{-1}$ as operators are required.  The diagonal
+of the matrix $S$ is held in a single {\nvector}, supplied by the user.
+
+In this notation, {\pcg} applies the underlying CG algorithm to the
+equivalent transformed system 
+\begin{equation}
+  \label{eq:transformed_linear_systemPCG}
+  \tilde{A} \tilde{x} = \tilde{b}
+\end{equation}
+where
+\begin{align}
+  \notag
+  \tilde{A} &= S P^{-1} A P^{-1} S,\\
+  \label{eq:transformed_linear_system_componentsPCG}
+  \tilde{b} &= S P^{-1} b,\\
+  \notag
+  \tilde{x} &= S^{-1} P x.
+\end{align} 
+The scaling matrix must be chosen so that the vectors $SP^{-1}b$ and
+$S^{-1}Px$ have dimensionless components.
+
+The stopping test for the PCG iterations is on the L2 norm of the
+scaled preconditioned residual:
+\begin{align*}
+  &\| \tilde{b} - \tilde{A} \tilde{x} \|_2  <  \delta\\
+  \Leftrightarrow\quad &\\
+  &\| S P^{-1} b - S P^{-1} A x \|_2  <  \delta\\
+  \Leftrightarrow\quad &\\
+  &\| P^{-1} b - P^{-1} A x \|_S  <  \delta
+\end{align*}
+where $\| v \|_S = \sqrt{v^T S^T S v}$, with an input tolerance $\delta$.
+
+The {\sunlinsolpcg} module defines the {\em content} field of a
+\id{SUNLinearSolver} to be the following structure:
+%%
+\begin{verbatim} 
+struct _SUNLinearSolverContent_PCG {
+  int maxl;
+  int pretype;
+  int numiters;
+  realtype resnorm;
+  long int last_flag;
+  ATimesFn ATimes;
+  void* ATData;
+  PSetupFn Psetup;
+  PSolveFn Psolve;
+  void* PData;
+  N_Vector s;
+  N_Vector r;
+  N_Vector p;
+  N_Vector z;
+  N_Vector Ap;
+};
+\end{verbatim}
+%%
+These entries of the \emph{content} field contain the following
+information:
+\begin{description}
+  \item[maxl] - number of {\pcg} iterations to allow (default is 5),
+  \item[pretype] - flag for use of preconditioning (default is none),
+  \item[numiters] - number of iterations from the most-recent solve,
+  \item[resnorm] - final linear residual norm from the most-recent solve,
+  \item[last\_flag] - last error return flag from an internal function,
+  \item[ATimes] - function pointer to perform $Av$ product,
+  \item[ATData] - pointer to structure for \id{ATimes},
+  \item[Psetup] - function pointer to preconditioner setup routine,
+  \item[Psolve] - function pointer to preconditioner solve routine,
+  \item[PData] - pointer to structure for \id{Psetup} and \id{Psolve},
+  \item[s] - vector pointer for supplied scaling matrix
+    (default is \id{NULL}),
+  \item[r] - a {\nvector} which holds the preconditioned linear system
+    residual,
+  \item[p, z, Ap] - {\nvector}s used for workspace by the
+    {\pcg} algorithm. 
+\end{description}
+
+This solver is constructed to perform the following operations:
+\begin{itemize}
+\item During construction all {\nvector} solver data is allocated,
+  with vectors cloned from a template {\nvector} that is input, and
+  default solver parameters are set.
+\item User-facing ``set'' routines may be called to modify default
+  solver parameters.
+\item Additional ``set'' routines are called by the {\sundials} solver
+  that interfaces with {\sunlinsolpcg} to supply the 
+  \id{ATimes}, \id{PSetup}, and \id{Psolve} function pointers and
+  \id{s} scaling vector.
+\item In the ``initialize'' call, the solver parameters are checked
+  for validity.
+\item In the ``setup'' call, any non-\id{NULL} \id{PSetup} function is
+  called.  Typically, this is provided by the {\sundials} solver
+  itself, that translates between the generic \id{PSetup} function and
+  the solver-specific routine (solver-supplied or user-supplied).
+\item In the ``solve'' call the {\pcg} iteration is performed.  This
+  will include scaling and preconditioning if those options have been
+  supplied.
+\end{itemize}
+
+\noindent The header file to be included when using this module 
+is \id{sunlinsol/sunlinsol\_pcg.h}. \\
+%%
+%%----------------------------------------------
+%%
+The {\sunlinsolpcg} module defines implementations of all
+``iterative'' linear solver operations listed in Table
+\ref{t:sunlinsolops}:
+\begin{itemize}
+\item \id{SUNLinSolGetType\_PCG}
+\item \id{SUNLinSolInitialize\_PCG}
+\item \id{SUNLinSolSetATimes\_PCG}
+\item \id{SUNLinSolSetPreconditioner\_PCG}
+\item \id{SUNLinSolSetScalingVectors\_PCG} -- since {\pcg} only
+  supports symmetric scaling, the second {\nvector} argument to this
+  function is ignored
+\item \id{SUNLinSolSetup\_PCG}
+\item \id{SUNLinSolSolve\_PCG}
+\item \id{SUNLinSolNumIters\_PCG}
+\item \id{SUNLinSolResNorm\_PCG}
+\item \id{SUNLinSolResid\_PCG}
+\item \id{SUNLinSolLastFlag\_PCG}
+\item \id{SUNLinSolSpace\_PCG}
+\item \id{SUNLinSolFree\_PCG}
+\end{itemize}
+The module {\sunlinsolpcg} provides the following additional
+user-callable routines: 
+%%
+\begin{itemize}
+
+%%--------------------------------------
+
+\item \ID{SUNPCG}
+
+  This constructor function creates and allocates memory for a {\pcg}
+  \id{SUNLinearSolver}.  Its arguments are an {\nvector}, a flag
+  indicating to use preconditioning, and the number of linear
+  iterations to allow. 
+
+  This routine will perform consistency checks to ensure that it is
+  called with a consistent {\nvector} implementation (i.e.~that it
+  supplies the requisite vector operations).  If \id{y} is
+  incompatible then this routine will return \id{NULL}.
+
+  A \id{maxl} argument that is $\le0$ will result in the default
+  value (5).
+
+  Since the {\pcg} algorithm is designed to only support symmetric
+  preconditioning, then any of the \id{pretype} inputs \id{PREC\_LEFT}
+  (1), \id{PREC\_RIGHT} (2), or \id{PREC\_BOTH} (3) will result in use
+  of the symmetric preconditioner;  any other integer input will
+  result in the default (no preconditioning).
+
+  \verb|SUNLinearSolver SUNPCG(N_Vector y, int pretype, int maxl);|
+
+%%--------------------------------------
+
+\item \ID{SUNPCGSetPrecType}
+
+  This function updates the flag indicating use of preconditioning.
+  As above, any one of the input values, \id{PREC\_LEFT} (1),
+  \id{PREC\_RIGHT} (2), or \id{PREC\_BOTH} (3) will enable
+  preconditioning; \id{PREC\_NONE} (0) disables preconditioning.
+
+  This routine will return with one of the error codes
+  \id{SUNLS\_ILL\_INPUT} (illegal \id{pretype}), \id{SUNLS\_MEM\_NULL}
+  (\id{S} is \id{NULL}), or \id{SUNLS\_SUCCESS}.
+  
+  \verb|int SUNPCGSetPrecType(SUNLinearSolver S, int pretype);|
+
+%%--------------------------------------
+
+\item \ID{SUNPCGSetMaxl}
+
+  This function updates the number of linear solver iterations to
+  allow. 
+
+  A \id{maxl} argument that is $\le0$ will result in the default
+  value (5).
+
+  This routine will return with one of the error codes
+  \id{SUNLS\_MEM\_NULL} (\id{S} is \id{NULL}) or \id{SUNLS\_SUCCESS}.
+  
+  \verb|int SUNPCGSetMaxl(SUNLinearSolver S, int maxl);|
+
+\end{itemize}
+%%
+%%------------------------------------
+%%
+For solvers that include a Fortran interface module, the
+{\sunlinsolpcg} module also includes the Fortran-callable
+function \id{FSUNPCGInit(code, pretype, maxl, ier)} to initialize
+this {\sunlinsolpcg} module for a given {\sundials} solver.
+Here \id{code} is an integer input solver id (1 for {\cvode}, 2 for {\ida}, 3
+for {\kinsol}, 4 for {\arkode}); \id{pretype} and \id{maxl} are the
+same as for the C function \ID{SUNPCG}; \id{ier} is an error return
+flag equal to 0 for success and -1 for failure.  All of these input
+arguments should be declared so as to match C type \id{int}.  This
+routine must be called \emph{after} the {\nvector} object has been
+initialized.  Additionally, when using {\arkode} with a non-identity
+mass matrix, the Fortran-callable function 
+\id{FSUNMassPCGInit(pretype, maxl, ier)} initializes this
+{\sunlinsolpcg} module for solving mass matrix linear systems.
+
+The \id{SUNPCGSetPrecType} and \id{SUNPCGSetMaxl} routines also
+support Fortran interfaces for the system and mass matrix solvers (all
+arguments should be commensurate with a C \id{int}):
+\begin{itemize}
+\item \id{FSUNPCGSetPrecType(code, pretype, ier)}
+\item \id{FSUNMassPCGSetPrecType(pretype, ier)}
+\item \id{FSUNPCGSetMaxl(code, maxl, ier)}
+\item \id{FSUNMassPCGSetMaxl(maxl, ier)}
+\end{itemize}

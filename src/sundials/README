@@ -11,6 +11,8 @@ capabilities), and KINSOL (for nonlinear algebraic systems).
 The various solvers of this family share many subordinate modules contained
 in this module:
 - generic NVECTOR module
+- generic SUNMatrix module
+- generic SUNLinearSolver module
 - generic linear solver modules (band, dense, lapack, sparse, pcg, spfgmr, spgmr, spbcg, sptfqmr)
 - definitions of SUNDIALS types (realtype, booleantype)
 - common math functions (RpowerI, SUNRpowerR, SUNRsqrt, SUNRabs,...)

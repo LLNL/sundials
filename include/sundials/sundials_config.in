@@ -44,10 +44,10 @@
 @PRECISION_LEVEL@
 
 /* Define type of vector indices in SUNDIALS 'sunindextype'. 
- * Depending on user choice of indextype, one of the following 
- * four macros will be defined:
- *     #define SUNDIALS_SIGNED_64BIT_TYPE 1
- *     #define SUNDIALS_SIGNED_32BIT_TYPE 1
+ * Depending on user choice of index type, one of the following 
+ * two macros will be defined:
+ *     #define SUNDIALS_INT64_T 1
+ *     #define SUNDIALS_INT32_T 1
  */
 @INDEX_TYPE@
 

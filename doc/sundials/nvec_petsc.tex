@@ -9,8 +9,8 @@ the wrapped {\petsc} vector.
 %%
 \begin{verbatim} 
 struct _N_VectorContent_Petsc {
-  long int local_length;
-  long int global_length;
+  sunindextype local_length;
+  sunindextype global_length;
   booleantype own_data;
   Vec *pvec;
   MPI_Comm comm;
@@ -54,8 +54,8 @@ The module {\nvecpetsc}  provides the following additional user-callable routine
 
 \begin{verbatim}
 N_Vector N_VNewEmpty_Petsc(MPI_Comm comm, 
-                           long int local_length, 
-                           long int global_length);
+                           sunindextype local_length, 
+                           sunindextype global_length);
 \end{verbatim}
 
   

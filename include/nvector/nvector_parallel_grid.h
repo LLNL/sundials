@@ -44,6 +44,7 @@
 
 #include <mpi.h>
 #include <sundials/sundials_nvector.h>
+#include <sundials/sundials_mpi_types.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -60,23 +61,13 @@ extern "C" {
 #define MAX_DIMS 6
 
 
-/* define MPI data types and output formatting specifiers */
-
+/* define output formatting specifiers */
 #if defined(SUNDIALS_SINGLE_PRECISION)
-
-#define PGVEC_REAL_MPI_TYPE MPI_FLOAT
 #define DOUT "g"
-
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-
-#define PGVEC_REAL_MPI_TYPE MPI_DOUBLE
 #define DOUT "lg"
-
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-
-#define PGVEC_REAL_MPI_TYPE MPI_LONG_DOUBLE
 #define DOUT "Lg"
-
 #endif
 
 #define PGVEC_INTEGER_MPI_TYPE MPI_LONG

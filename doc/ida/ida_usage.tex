@@ -80,7 +80,7 @@ and data types can be used. The header file that is always required is:
 \end{itemize}
 %%
 Note that \id{ida.h} includes \Id{sundials\_types.h}, 
-which defines the types \id{realtype} and \id{booleantype}
+which defines the types \id{realtype}, \id{sunindextype}, and \id{booleantype}
 and the constants \id{FALSE} and \id{TRUE}.
 
 The calling program must also include an {\nvector} implementation header file,
@@ -168,7 +168,7 @@ or macro to be referenced.
   This generally includes the problem size \id{N}, and may include
   the local vector length \id{Nlocal}.
 
-  Note: The variables \id{N} and \id{Nlocal} should be of type \id{long int}.
+  Note: The variables \id{N} and \id{Nlocal} should be of type \id{sunindextype}.
 
 \item
   {\bf Set vectors of initial values}
@@ -715,7 +715,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[N] (\id{long int})
+  \item[N] (\id{sunindextype})
     problem dimension.
   \end{args}
 }
@@ -786,11 +786,11 @@ described separately in Chapter \ref{s:gen_linsolv}.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[N] (\id{long int})
+  \item[N] (\id{sunindextype})
     problem dimension.
-  \item[mupper] (\id{long int})
+  \item[mupper] (\id{sunindextype})
     upper half-bandwidth of the problem Jacobian (or of the approximation of it).
-  \item[mlower] (\id{long int})
+  \item[mlower] (\id{sunindextype})
     lower half-bandwidth of the problem Jacobian (or of the approximation of it).
   \end{args}
 }
@@ -4761,7 +4761,7 @@ Step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), the user may
 provide a function of type \ID{IDADlsDenseJacFn} defined by
 \usfunction{IDADlsDenseJacFn}
 {
-  typedef int (*IDADlsDenseJac&Fn)(long int Neq, realtype tt, realtype cj,\\
+  typedef int (*IDADlsDenseJac&Fn)(sunindextype Neq, realtype tt, realtype cj,\\
                              &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\ 
                              &DlsMat Jac, void *user\_data,  \\
                              &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
@@ -4846,7 +4846,7 @@ provide a function of type \ID{IDADlsDenseJacFn} defined by
   \S\ref{sss:optout_main}. The unit roundoff can be accessed as
   \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 
-  For the sake of uniformity, the argument \id{Neq} is of type \id{long int},
+  For the sake of uniformity, the argument \id{Neq} is of type \id{sunindextype},
   even in the case that the Lapack dense solver is to be used.
 }
 \index{Jacobian approximation function!dense!user-supplied|)}
@@ -4863,8 +4863,8 @@ used (i.e. either \Id{IDABand} or \Id{IDALapackBand} is called in Step
 function of type \ID{IDADlsBandJacFn} defined as follows:
 \usfunction{IDADlsBandJacFn}
 {
- typedef int (*IDADlsBandJacFn&)(long int Neq, long int mupper,\\
-                             &long int mlower, realtype tt, realtype cj,\\ 
+ typedef int (*IDADlsBandJacFn&)(sunindextype Neq, sunindextype mupper,\\
+                             &sunindextype mlower, realtype tt, realtype cj,\\ 
                              &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\
                              &DlsMat Jac, void *user\_data, \\
                              &N\_Vector tmp1, N\_Vector tmp2,N\_Vector tmp3);
@@ -4959,7 +4959,7 @@ function of type \ID{IDADlsBandJacFn} defined as follows:
   \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 
   For the sake of uniformity, the arguments \id{Neq}, \id{mlower}, and \id{mupper} are
-  of type \id{long int}, even in the case that the Lapack band solver is to be used.
+  of type \id{sunindextype}, even in the case that the Lapack band solver is to be used.
 }
 \index{half-bandwidths|)}
 \index{Jacobian approximation function!band!user-supplied|)}
@@ -5370,7 +5370,7 @@ then used by \id{Gres}, which should not do any communication.
 %%
 \usfunction{IDABBDLocalFn}
 {
-  typedef int (*IDABBDLocalFn)(&long int Nlocal, realtype tt,  \\
+  typedef int (*IDABBDLocalFn)(&sunindextype Nlocal, realtype tt,  \\
                                 &N\_Vector yy, N\_Vector yp, N\_Vector gval, \\
                                 &void *user\_data);
 }
@@ -5410,7 +5410,7 @@ then used by \id{Gres}, which should not do any communication.
 %%
 \usfunction{IDABBDCommFn}
 {
-  typedef int (*IDABBDCommFn)(&long int Nlocal, realtype tt,  \\
+  typedef int (*IDABBDCommFn)(&sunindextype Nlocal, realtype tt,  \\
                                &N\_Vector yy, N\_Vector yp, void *user\_data);
 }
 {
@@ -5573,15 +5573,15 @@ described next.
   \begin{args}[dq\_rel\_yy]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[Nlocal] (\id{long int})
+  \item[Nlocal] (\id{sunindextype})
     local vector dimension.
-  \item[mudq] (\id{long int})
+  \item[mudq] (\id{sunindextype})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mldq] (\id{long int})
+  \item[mldq] (\id{sunindextype})
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mukeep] (\id{long int})
+  \item[mukeep] (\id{sunindextype})
     upper half-bandwidth of the retained banded approximate Jacobian block.
-  \item[mlkeep] (\id{long int})
+  \item[mlkeep] (\id{sunindextype})
     lower half-bandwidth of the retained banded approximate Jacobian block.
   \item[dq\_rel\_yy] (\id{realtype})
     the relative increment in components of \id{y} used in the difference quotient
@@ -5654,9 +5654,9 @@ used in the difference-quotient Jacobian approximations, the relative increment
   \begin{args}[dq\_rel\_yy]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[mudq] (\id{long int})
+  \item[mudq] (\id{sunindextype})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mldq] (\id{long int})
+  \item[mldq] (\id{sunindextype})
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
   \item[dq\_rel\_yy] (\id{realtype})
     the relative increment in components of \id{y} used in the difference quotient

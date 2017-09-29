@@ -1,7 +1,4 @@
 /*-----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds, Jean Sexton @ SMU
  *                Slaven Peles @ LLNL
  *---------------------------------------------------------------
@@ -45,7 +42,7 @@
  * neq = 2*MX*MY.
  *
  * The solution is done with the DIRK/GMRES method (i.e. using the
- * ARKSPGMR linear solver) and the block-diagonal part of the
+ * SUNSPGMR linear solver) and the block-diagonal part of the
  * Newton matrix as a left preconditioner. A copy of the
  * block-diagonal part of the Jacobian is saved and conditionally
  * reused within the preconditioner routine.
@@ -57,16 +54,17 @@
  * This example uses Hypre vector and MPI parallelization. User is 
  * expected to be familiar with the Hypre library. 
  * 
- * Execution: mpiexec -n N ark_diurnal_kry_p   with N = NPEX*NPEY
+ * Execution: mpiexec -n N ark_diurnal_kry_ph  with N = NPEX*NPEY
  * (see constants below).
  *---------------------------------------------------------------*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <arkode/arkode.h>             /* prototypes for ARKODE fcts. */
-#include <arkode/arkode_spgmr.h>       /* prototypes & constants for ARKSPGMR  */
 #include <nvector/nvector_parhyp.h>    /* declaration of N_Vector  */
+#include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver  */
 #include <sundials/sundials_dense.h>   /* prototypes for small dense fcts. */
+#include <arkode/arkode_spils.h>         /* access to ARKSpils interface     */
 #include <sundials/sundials_types.h>   /* definitions of realtype, booleantype */
 #include <sundials/sundials_math.h>    /* definition of macros SUNSQR and EXP */
 #include <mpi.h>                       /* MPI constants and types */
@@ -174,12 +172,11 @@ static void fcalc(realtype t, realtype udata[], realtype dudata[],
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *user_data, 
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+                   realtype gamma, void *user_data);
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
                   N_Vector r, N_Vector z, 
                   realtype gamma, realtype delta,
-                  int lr, void *user_data, N_Vector vtemp);
+                  int lr, void *user_data);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
@@ -191,6 +188,7 @@ int main(int argc, char *argv[])
   realtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
+  SUNLinearSolver LS;
   void *arkode_mem;
   int iout, flag, my_pe, npes;
   MPI_Comm comm;
@@ -201,10 +199,8 @@ int main(int argc, char *argv[])
 
   u = NULL;
   data = NULL;
+  LS = NULL;
   arkode_mem = NULL;
-
-  /* Set problem size neq */
-  /* neq = NVARS*MX*MY;   */
 
   /* Get processor number and total number of pe's */
   MPI_Init(&argc, &argv);
@@ -244,6 +240,11 @@ int main(int argc, char *argv[])
   /* Set tolerances */
   abstol = ATOL; reltol = RTOL;
 
+  /* Create SPGMR solver structure -- use left preconditioning 
+     and the default Krylov dimension maxl */
+  LS = SUNSPGMR(u, PREC_LEFT, 0);
+  if (check_flag((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  
   /* Call ARKodeCreate to create the solver memory */
   arkode_mem = ARKodeCreate();
   if (check_flag((void *)arkode_mem, "ARKodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
@@ -267,10 +268,9 @@ int main(int argc, char *argv[])
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
   if (check_flag(&flag, "ARKodeSStolerances", 1, my_pe)) return(1);
 
-  /* Call ARKSpgmr to specify the linear solver ARKSPGMR 
-     with left preconditioning and the default Krylov dimension maxl */
-  flag = ARKSpgmr(arkode_mem, PREC_LEFT, 0);
-  if (check_flag(&flag, "ARKSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
+  /* Attach SPGMR solver structure to ARKSpils interface */
+  flag = ARKSpilsSetLinearSolver(arkode_mem, LS);
+  if (check_flag(&flag, "ARKSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Set preconditioner setup and solve routines Precond and PSolve, 
      and the pointer to the user-defined block data */
@@ -295,6 +295,7 @@ int main(int argc, char *argv[])
   HYPRE_IJVectorDestroy(Uij); /* Free the underlying hypre vector */
   FreeUserData(data);
   ARKodeFree(&arkode_mem);
+  SUNLinSolFree(LS);
   MPI_Finalize();
   return(0);
 }
@@ -496,7 +497,7 @@ static void PrintFinalStats(void *arkode_mem)
   check_flag(&flag, "ARKSpilsGetNumRhsEvals", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
-  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw,   leniw);
+  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
   printf("lenrwls = %5ld     leniwls = %5ld\n", lenrwLS, leniwLS);
   printf("nst     = %5ld     nfe     = %5ld\n", nst, nfe);
   printf("nfi     = %5ld     nfels   = %5ld\n", nfi, nfeLS);
@@ -846,8 +847,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *user_data, 
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+                   realtype gamma, void *user_data)
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
@@ -941,7 +941,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
                   N_Vector r, N_Vector z, 
                   realtype gamma, realtype delta,
-                  int lr, void *user_data, N_Vector vtemp)
+                  int lr, void *user_data)
 {
   realtype **(*P)[MYSUB];
   int nvmxsub;

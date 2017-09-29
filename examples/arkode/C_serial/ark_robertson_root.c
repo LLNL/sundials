@@ -32,8 +32,8 @@
  * 
  * This program solves the problem with one of the solvers, ERK, 
  * DIRK or ARK.  For DIRK and ARK, implicit subsystems are solved 
- * using a Newton iteration with the ARKDENSE dense linear solver, 
- * and a user-supplied Jacobian routine.
+ * using a Newton iteration with the dense SUNLinearSolver, and a  
+ * user-supplied Jacobian routine.
  *
  * 100 outputs are printed at equal intervals, and run statistics 
  * are printed at the end.
@@ -42,11 +42,12 @@
 /* Header files */
 #include <stdio.h>
 #include <math.h>
-#include <arkode/arkode.h>            /* prototypes for ARKode fcts., consts. */
-#include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
-#include <arkode/arkode_dense.h>      /* prototype for ARKDense solver */
-#include <sundials/sundials_dense.h>  /* defs. of DlsMat and DENSE_ELEM */
-#include <sundials/sundials_types.h>  /* def. of type 'realtype' */
+#include <arkode/arkode.h>              /* prototypes for ARKode fcts., consts. */
+#include <nvector/nvector_serial.h>     /* serial N_Vector types, fcts., macros */
+#include <sunmatrix/sunmatrix_dense.h>  /* access to dense SUNMatrix            */
+#include <sunlinsol/sunlinsol_dense.h>  /* access to dense SUNLinearSolver      */
+#include <arkode/arkode_direct.h>       /* access to ARKDls interface           */
+#include <sundials/sundials_types.h>    /* defs. of 'realtype', 'sunindextype'  */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -60,11 +61,9 @@
 
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(sunindextype N, realtype t,
-               N_Vector y, N_Vector fy, DlsMat J, void *user_data,
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int g(realtype t, N_Vector y,
-          realtype *gout, void *user_data);
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, 
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int g(realtype t, N_Vector y, realtype *gout, void *user_data);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
@@ -90,6 +89,8 @@ int main()
   /* general problem variables */
   N_Vector y = NULL;             /* empty vector for storing solution */
   N_Vector atols = NULL;         /* empty vector for absolute tolerances */
+  SUNMatrix A = NULL;            /* empty matrix for linear solver */
+  SUNLinearSolver LS = NULL;     /* empty linear solver object */
   void *arkode_mem = NULL;       /* empty ARKode memory structure */
 
   /* set up the initial conditions */
@@ -143,11 +144,17 @@ int main()
   flag = ARKodeRootInit(arkode_mem, 2, g);
   if (check_flag(&flag, "ARKodeRootInit", 1)) return 1;
 
-  /* Linear solver specification */
-  flag = ARKDense(arkode_mem, NEQ);                /* Specify dense linear solver */
-  if (check_flag(&flag, "ARKDense", 1)) return 1;
-  flag = ARKDlsSetDenseJacFn(arkode_mem, Jac);     /* Set the Jacobian routine */
-  if (check_flag(&flag, "ARKDlsSetDenseJacFn", 1)) return 1;
+  /* Initialize dense matrix data structure and solver */
+  A = SUNDenseMatrix(NEQ, NEQ);
+  if (check_flag((void *)A, "SUNDenseMatrix", 0)) return 1;
+  LS = SUNDenseLinearSolver(y, A);
+  if (check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return 1;
+
+  /* Linear solver interface */
+  flag = ARKDlsSetLinearSolver(arkode_mem, LS, A);        /* Attach matrix and linear solver */
+  if (check_flag(&flag, "ARKDlsSetLinearSolver", 1)) return 1;
+  flag = ARKDlsSetJacFn(arkode_mem, Jac);                 /* Set the Jacobian routine */
+  if (check_flag(&flag, "ARKDlsSetJacFn", 1)) return 1;
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt","w");
@@ -227,8 +234,10 @@ int main()
   printf("   Total number of error test failures = %li\n", netf);
 
   /* Clean up and return with successful completion */
-  N_VDestroy_Serial(y);        /* Free y vector */
+  N_VDestroy(y);               /* Free y vector */
   ARKodeFree(&arkode_mem);     /* Free integrator memory */
+  SUNLinSolFree(LS);           /* Free linear solver */
+  SUNMatDestroy(A);            /* Free A matrix */
   return 0;
 }
 
@@ -252,24 +261,23 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(sunindextype N, realtype t,
-               N_Vector y, N_Vector fy, DlsMat J, void *user_data,
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, 
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype v = NV_Ith_S(y,1);    /* access current solution */
   realtype w = NV_Ith_S(y,2);
-  SetToZero(J);                  /* initialize Jacobian to zero */
+  SUNMatZero(J);                 /* initialize Jacobian to zero */
 
   /* Fill in the Jacobian of the ODE RHS function */
-  DENSE_ELEM(J,0,0) = -0.04;
-  DENSE_ELEM(J,0,1) = 1.e4*w;
-  DENSE_ELEM(J,0,2) = 1.e4*v;
+  SM_ELEMENT_D(J,0,0) = -0.04;
+  SM_ELEMENT_D(J,0,1) = 1.e4*w;
+  SM_ELEMENT_D(J,0,2) = 1.e4*v;
 
-  DENSE_ELEM(J,1,0) = 0.04;
-  DENSE_ELEM(J,1,1) = -1.e4*w - 6.e7*v;
-  DENSE_ELEM(J,1,2) = -1.e4*v;
+  SM_ELEMENT_D(J,1,0) = 0.04;
+  SM_ELEMENT_D(J,1,1) = -1.e4*w - 6.e7*v;
+  SM_ELEMENT_D(J,1,2) = -1.e4*v;
 
-  DENSE_ELEM(J,2,1) = 6.e7*v;
+  SM_ELEMENT_D(J,2,1) = 6.e7*v;
 
   return 0;                      /* Return with success */
 }

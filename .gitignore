@@ -5,14 +5,17 @@
 /.settings
 /.cproject
 /.autotools
-/*.kdev4
-/.directory
+*.kdev4
+*.directory
 /.pydevproject
 
 # /test/
 /test/output
 
-## Emacs ##
+# misc
+*.orig
+*.nvvp
+*.ptp-sync*
 *~
 
 ## OS X ##

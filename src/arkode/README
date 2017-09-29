@@ -20,7 +20,6 @@ scaled preconditioned Flexible GMRES (SPFGMR), scaled preconditioned
 conjugate gradient, scaled preconditioned BiCGStab (SPBCG), 
 and scaled preconditioned TFQMR (SPTFQMR). When ARKODE is used with 
 the parallel NVECTOR module, only the Krylov linear solvers are available. 
-(An approximate diagonal Jacobian option is available with both versions.)  
 For the serial version, there is a banded preconditioner module called 
 ARKBANDPRE available for use with the Krylov solvers, while for the 
 parallel version there is a preconditioner module called ARKBBDPRE 

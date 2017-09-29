@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and
+ * Copyright (c) 2017, Southern Methodist University and
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department
@@ -18,9 +18,8 @@
  * This is the implementation file for the Fortran interface to
  * the ARKODE package.  See farkode.h for usage.
  * NOTE: some routines are necessarily stored elsewhere to avoid
- * linking problems.  Therefore, see also farkpreco.c, farkpsol.c,
- * farkjtimes.c, farkadapt.c and farkexpstab.c for all the
- * available options.
+ * linking problems.  Therefore, see also the other C files in
+ * this folder for all of the available options.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -28,15 +27,16 @@
 #include <string.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_band.h>
-#include <arkode/arkode_dense.h>
-#include <arkode/arkode_klu.h>
-#include <arkode/arkode_superlumt.h>
-#include <arkode/arkode_spgmr.h>
-#include <arkode/arkode_spbcgs.h>
-#include <arkode/arkode_sptfqmr.h>
-#include <arkode/arkode_spfgmr.h>
-#include <arkode/arkode_pcg.h>
+#include <sundials/sundials_matrix.h>
+#include <arkode/arkode_direct.h>
+#include <arkode/arkode_spils.h>
+
+/*=============================================================*/
+
+/* Constants and default values (in case of illegal inputs) */
+#define  ABSTOL  RCONST(1.0e-9)
+#define  RELTOL  RCONST(1.0e-4)
+#define  ZERO    RCONST(0.0)
 
 /*=============================================================*/
 
@@ -105,10 +105,10 @@ void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
   ARK_arkodemem = NULL;
   Vatol = NULL;
 
-  /* initialize global constants to zero */
+  /* initialize global constants to disable each option */
   ARK_nrtfn = 0;
-  ARK_ls = 0;
-  ARK_mass_ls = 0;
+  ARK_ls = -1;
+  ARK_mass_ls = -1;
 
   /* Create ARKODE object */
   ARK_arkodemem = ARKodeCreate();
@@ -164,12 +164,12 @@ void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
   }
 
   /* Set tolerances -- if <= 0, keep as defaults */
-  reltol=1.e-4;
-  abstol=1.e-9;
-  if (*rtol > 0.0)  reltol = *rtol;
+  reltol = RELTOL;
+  abstol = ABSTOL;
+  if (*rtol > ZERO)  reltol = *rtol;
   switch (*iatol) {
   case 1:
-    if (*atol > 0.0)  abstol = *atol;
+    if (*atol > ZERO)  abstol = *atol;
     *ier = ARKodeSStolerances(ARK_arkodemem, reltol, abstol);
     break;
   case 2:
@@ -181,7 +181,7 @@ void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
       return;
     }
     N_VSetArrayPointer(atol, Vatol);
-    if (N_VMin(Vatol) <= 0.0)  N_VConst(abstol, Vatol);
+    if (N_VMin(Vatol) <= ZERO)  N_VConst(abstol, Vatol);
     *ier = ARKodeSVtolerances(ARK_arkodemem, reltol, Vatol);
     N_VDestroy(Vatol);
     break;
@@ -250,12 +250,12 @@ void FARK_REINIT(realtype *t0, realtype *y0, int *imex, int *iatol,
   }
 
   /* Set tolerances */
-  reltol=1.e-4;
-  abstol=1.e-9;
-  if (*rtol > 0.0)  reltol = *rtol;
+  reltol = RELTOL;
+  abstol = ABSTOL;
+  if (*rtol > ZERO)  reltol = *rtol;
   switch (*iatol) {
   case 1:
-    if (*atol > 0.0)  abstol = *atol;
+    if (*atol > ZERO)  abstol = *atol;
     *ier = ARKodeSStolerances(ARK_arkodemem, reltol, abstol);
     break;
   case 2:
@@ -265,7 +265,7 @@ void FARK_REINIT(realtype *t0, realtype *y0, int *imex, int *iatol,
       return;
     }
     N_VSetArrayPointer(atol, Vatol);
-    if (N_VMin(Vatol) <= 0.0)  N_VConst(abstol, Vatol);
+    if (N_VMin(Vatol) <= ZERO)  N_VConst(abstol, Vatol);
     *ier = ARKodeSVtolerances(ARK_arkodemem, reltol, Vatol);
     N_VDestroy(Vatol);
     break;
@@ -491,10 +491,10 @@ void FARK_SETRESTOLERANCE(int *itol, realtype *atol, int *ier) {
   *ier = 0;
 
   /* Set tolerance, based on itol argument */
-  abstol=1.e-9;
+  abstol = ABSTOL;
   switch (*itol) {
   case 1:
-    if (*atol > 0.0)  abstol = *atol;
+    if (*atol > ZERO)  abstol = *atol;
     *ier = ARKodeResStolerance(ARK_arkodemem, abstol);
     break;
   case 2:
@@ -505,7 +505,7 @@ void FARK_SETRESTOLERANCE(int *itol, realtype *atol, int *ier) {
       return;
     }
     N_VSetArrayPointer(atol, Vatol);
-    if (N_VMin(Vatol) <= 0.0)  N_VConst(abstol, Vatol);
+    if (N_VMin(Vatol) <= ZERO)  N_VConst(abstol, Vatol);
     *ier = ARKodeResVtolerance(ARK_arkodemem, Vatol);
     N_VDestroy(Vatol);
     break;
@@ -560,398 +560,79 @@ void FARK_STOPDIAGNOSTICS(int *ier) {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKDense; see farkode.h for
-   further details */
-void FARK_DENSE(long int *neq, int *ier) {
-  *ier = ARKDense(ARK_arkodemem, *neq);
-  ARK_ls = ARK_LS_DENSE;
+/* Fortran interface to C routine ARKDlsSetLinearSolver; see
+   farkode.h for further details */
+void FARK_DLSINIT(int *ier) {
+  if ( (ARK_arkodemem == NULL) || (F2C_ARKODE_linsol == NULL) ||
+       (F2C_ARKODE_matrix == NULL) ) {
+    *ier = -1;
+    return;
+  }
+  *ier = ARKDlsSetLinearSolver(ARK_arkodemem, F2C_ARKODE_linsol,
+                               F2C_ARKODE_matrix);
+  ARK_ls = ARK_LS_DIRECT;
   return;
 }
 
-/* Fortran interface to C routine ARKMassDense; see farkode.h
-   for further details */
-void FARK_MASSDENSE(long int *neq, int *ier) {
-  *ier = ARKMassDense(ARK_arkodemem, *neq, NULL);
-  ARK_mass_ls = ARK_LS_DENSE;
-  return;
-}
-
-/*=============================================================*/
-
-/* Fortran interface to C routine ARKBand; see farkode.h for
-   further details */
-void FARK_BAND(long int *neq, long int *mupper,
-	       long int *mlower, int *ier) {
-  *ier = ARKBand(ARK_arkodemem, *neq, *mupper, *mlower);
-  ARK_ls = ARK_LS_BAND;
-  return;
-}
-
-/* Fortran interface to C routine ARKMassBand; see farkode.h
-   for further details */
-void FARK_MASSBAND(long int *neq, long int *mupper,
-		   long int *mlower, int *ier) {
-  *ier = ARKMassBand(ARK_arkodemem, *neq, *mupper,
-		     *mlower, NULL);
-  ARK_mass_ls = ARK_LS_BAND;
+/* Fortran interface to C routine ARKDlsSetMassLinearSolver; see
+   farkode.h for further details */
+void FARK_DLSMASSINIT(int *time_dep, int *ier) {
+  if ( (ARK_arkodemem == NULL) || (F2C_ARKODE_mass_sol == NULL) ||
+       (F2C_ARKODE_mass_matrix == NULL) ) {
+    *ier = -1;
+    return;
+  }
+  *ier = ARKDlsSetMassLinearSolver(ARK_arkodemem, F2C_ARKODE_mass_sol,
+                                   F2C_ARKODE_mass_matrix, *time_dep);
+  ARK_mass_ls = ARK_LS_DIRECT;
   return;
 }
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKSpgmr and it's associated
-   "set" routines; see farkode.h for further details */
-void FARK_SPGMR(int *pretype, int *gstype, int *maxl,
-		realtype *delt, int *ier) {
-
-  *ier = ARKSpgmr(ARK_arkodemem, *pretype, *maxl);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetGSType(ARK_arkodemem, *gstype);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetEpsLin(ARK_arkodemem, *delt);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  ARK_ls = ARK_LS_SPGMR;
+/* Fortran interface to C routine ARKSpilsSetLinearSolver; see 
+   farkode.h for further details */
+void FARK_SPILSINIT(int *ier) {
+  if ( (ARK_arkodemem == NULL) || (F2C_ARKODE_linsol == NULL) ) {
+    *ier = -1;
+    return;
+  }
+  *ier = ARKSpilsSetLinearSolver(ARK_arkodemem, F2C_ARKODE_linsol);
+  ARK_ls = ARK_LS_ITERATIVE;
   return;
 }
 
-/* Fortran interface to C routine ARKMassSpgmr and it's
-   associated "set" routines; see farkode.h for further details */
-void FARK_MASSSPGMR(int *pretype, int *gstype, int *maxl,
-		    realtype *delt, int *ier) {
-
-  *ier = ARKMassSpgmr(ARK_arkodemem, *pretype, *maxl, NULL, NULL);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetMassGSType(ARK_arkodemem, *gstype);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetMassEpsLin(ARK_arkodemem, *delt);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  ARK_mass_ls = ARK_LS_SPGMR;
+/* Fortran interface to C routine ARKSpilsSetMassLinearSolver; see 
+   farkode.h for further details */
+void FARK_SPILSMASSINIT(int *time_dep, int *ier) {
+  if ( (ARK_arkodemem == NULL) || (F2C_ARKODE_mass_sol == NULL) ) {
+    *ier = -1;
+    return;
+  }
+  *ier = ARKSpilsSetMassLinearSolver(ARK_arkodemem, 
+                                     F2C_ARKODE_mass_sol, 
+                                     *time_dep);
+  ARK_mass_ls = ARK_LS_ITERATIVE;
   return;
 }
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKSpbcg and it's associated
-   "set" routines; see farkode.h for further details */
-void FARK_SPBCG(int *pretype, int *maxl, realtype *delt, int *ier) {
-
-  *ier = ARKSpbcg(ARK_arkodemem, *pretype, *maxl);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetEpsLin(ARK_arkodemem, *delt);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  ARK_ls = ARK_LS_SPBCG;
-  return;
-}
-
-/* Fortran interface to C routine ARKMassSpbcg and it's associated
-   "set" routines; see farkode.h for further details */
-void FARK_MASSSPBCG(int *pretype, int *maxl,
-		    realtype *delt, int *ier) {
-
-  *ier = ARKMassSpbcg(ARK_arkodemem, *pretype, *maxl, NULL, NULL);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetMassEpsLin(ARK_arkodemem, *delt);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  ARK_mass_ls = ARK_LS_SPBCG;
-  return;
-}
-
-/*=============================================================*/
-
-/* Fortran interface to C routine ARKSptfqmr and it's associated
-   "set" routines; see farkode.h for further details */
-void FARK_SPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier) {
-
-  *ier = ARKSptfqmr(ARK_arkodemem, *pretype, *maxl);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetEpsLin(ARK_arkodemem, *delt);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  ARK_ls = ARK_LS_SPTFQMR;
-  return;
-}
-
-/* Fortran interface to C routine ARKMassSptfqmr and it's associated
-   "set" routines; see farkode.h for further details */
-void FARK_MASSSPTFQMR(int *pretype, int *maxl,
-		      realtype *delt, int *ier) {
-
-  *ier = ARKMassSptfqmr(ARK_arkodemem, *pretype, *maxl, NULL, NULL);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetMassEpsLin(ARK_arkodemem, *delt);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  ARK_mass_ls = ARK_LS_SPTFQMR;
-  return;
-}
-
-/*=============================================================*/
-
-/* Fortran interface to C routine ARKSpfgmr and it's associated
-   "set" routines; see farkode.h for further details */
-void FARK_SPFGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier) {
-
-  *ier = ARKSpfgmr(ARK_arkodemem, *pretype, *maxl);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetGSType(ARK_arkodemem, *gstype);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetEpsLin(ARK_arkodemem, *delt);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  ARK_ls = ARK_LS_SPFGMR;
-  return;
-}
-
-/* Fortran interface to C routine ARKMassSpfgmr and it's associated
-   "set" routines; see farkode.h for further details */
-void FARK_MASSSPFGMR(int *pretype, int *gstype, int *maxl,
-		     realtype *delt, int *ier) {
-
-  *ier = ARKMassSpfgmr(ARK_arkodemem, *pretype, *maxl, NULL, NULL);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetMassGSType(ARK_arkodemem, *gstype);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetMassEpsLin(ARK_arkodemem, *delt);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  ARK_mass_ls = ARK_LS_SPFGMR;
-  return;
-}
-
-/*=============================================================*/
-
-/* Fortran interface to C routine ARKPcg and it's associated
-   "set" routines; see farkode.h for further details */
-void FARK_PCG(int *pretype, int *maxl, realtype *delt, int *ier) {
-
-  *ier = ARKPcg(ARK_arkodemem, *pretype, *maxl);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetEpsLin(ARK_arkodemem, *delt);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  ARK_ls = ARK_LS_PCG;
-  return;
-}
-
-/* Fortran interface to C routine ARKMassPcg and it's associated
-   "set" routines; see farkode.h for further details */
-void FARK_MASSPCG(int *pretype, int *maxl,
-		  realtype *delt, int *ier) {
-
-  *ier = ARKMassPcg(ARK_arkodemem, *pretype, *maxl, NULL, NULL);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetMassEpsLin(ARK_arkodemem, *delt);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  ARK_mass_ls = ARK_LS_PCG;
-  return;
-}
-
-/*=============================================================*/
-
-/* Fortran interface to C "set" routines for the ARKSpgmr solver;
+/* Fortran interfaces to C "set" routines for the ARKSpils solver;
    see farkode.h for further details */
-void FARK_SPGMRREINIT(int *pretype, int *gstype,
-		      realtype *delt, int *ier) {
-
-  *ier = ARKSpilsSetPrecType(ARK_arkodemem, *pretype);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetGSType(ARK_arkodemem, *gstype);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetEpsLin(ARK_arkodemem, *delt);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  ARK_ls = ARK_LS_SPGMR;
+void FARK_SPILSSETEPSLIN(realtype *eplifac, int *ier) {
+  if (ARK_ls == ARK_LS_ITERATIVE)
+    *ier = ARKSpilsSetEpsLin(ARK_arkodemem, *eplifac);
+  else
+    *ier = 1;
   return;
 }
 
-/* Fortran interface to C "set" routines for the ARKMassSpgmr solver;
-   see farkode.h for further details */
-void FARK_MASSSPGMRREINIT(int *pretype, int *gstype,
-			  realtype *delt, int *ier) {
-
-  *ier = ARKSpilsSetMassPrecType(ARK_arkodemem, *pretype);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetMassGSType(ARK_arkodemem, *gstype);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetMassEpsLin(ARK_arkodemem, *delt);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  ARK_mass_ls = ARK_LS_SPGMR;
-  return;
-}
-
-/*=============================================================*/
-
-/* Fortran interface to C "set" routines for the ARKSpbcg solver;
-   see farkode.h for further details */
-void FARK_SPBCGREINIT(int *pretype, int *maxl,
-		      realtype *delt, int *ier) {
-
-  *ier = ARKSpilsSetPrecType(ARK_arkodemem, *pretype);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetMaxl(ARK_arkodemem, *maxl);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetEpsLin(ARK_arkodemem, *delt);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  ARK_ls = ARK_LS_SPBCG;
-  return;
-}
-
-/* Fortran interface to C "set" routines for the ARKMassSpbcg solver;
-   see farkode.h for further details */
-void FARK_MASSSPBCGREINIT(int *pretype, int *maxl,
-			  realtype *delt, int *ier) {
-
-  *ier = ARKSpilsSetMassPrecType(ARK_arkodemem, *pretype);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetMassMaxl(ARK_arkodemem, *maxl);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetMassEpsLin(ARK_arkodemem, *delt);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  ARK_mass_ls = ARK_LS_SPBCG;
-  return;
-}
-
-/*=============================================================*/
-
-/* Fortran interface to C "set" routines for the ARKSptfqmr
-   solver; see farkode.h for further details */
-void FARK_SPTFQMRREINIT(int *pretype, int *maxl,
-			realtype *delt, int *ier) {
-
-  *ier = ARKSpilsSetPrecType(ARK_arkodemem, *pretype);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetMaxl(ARK_arkodemem, *maxl);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetEpsLin(ARK_arkodemem, *delt);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  ARK_ls = ARK_LS_SPTFQMR;
-  return;
-}
-
-/* Fortran interface to C "set" routines for the ARKMassSptfqmr
-   solver; see farkode.h for further details */
-void FARK_MASSSPTFQMRREINIT(int *pretype, int *maxl,
-			    realtype *delt, int *ier) {
-
-  *ier = ARKSpilsSetMassPrecType(ARK_arkodemem, *pretype);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetMassMaxl(ARK_arkodemem, *maxl);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetMassEpsLin(ARK_arkodemem, *delt);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  ARK_mass_ls = ARK_LS_SPTFQMR;
-  return;
-}
-
-/*=============================================================*/
-
-/* Fortran interface to C "set" routines for the ARKSpfgmr solver;
-   see farkode.h for further details */
-void FARK_SPFGMRREINIT(int *pretype, int *gstype,
-		       realtype *delt, int *ier) {
-
-  *ier = ARKSpilsSetPrecType(ARK_arkodemem, *pretype);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetGSType(ARK_arkodemem, *gstype);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetEpsLin(ARK_arkodemem, *delt);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  ARK_ls = ARK_LS_SPFGMR;
-  return;
-}
-
-/* Fortran interface to C "set" routines for the ARKMassSpfgmr solver;
-   see farkode.h for further details */
-void FARK_MASSSPFGMRREINIT(int *pretype, int *gstype,
-			   realtype *delt, int *ier) {
-
-  *ier = ARKSpilsSetMassPrecType(ARK_arkodemem, *pretype);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetMassGSType(ARK_arkodemem, *gstype);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetMassEpsLin(ARK_arkodemem, *delt);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  ARK_mass_ls = ARK_LS_SPFGMR;
-  return;
-}
-
-/*=============================================================*/
-
-/* Fortran interface to C "set" routines for the ARKPcg solver;
-   see farkode.h for further details */
-void FARK_PCGREINIT(int *pretype, int *maxl,
-		    realtype *delt, int *ier) {
-
-  *ier = ARKSpilsSetPrecType(ARK_arkodemem, *pretype);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetMaxl(ARK_arkodemem, *maxl);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetEpsLin(ARK_arkodemem, *delt);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  ARK_ls = ARK_LS_PCG;
-  return;
-}
-
-/* Fortran interface to C "set" routines for the ARKMassPcg solver;
-   see farkode.h for further details */
-void FARK_MASSPCGREINIT(int *pretype, int *maxl,
-			realtype *delt, int *ier) {
-
-  *ier = ARKSpilsSetMassPrecType(ARK_arkodemem, *pretype);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetMassMaxl(ARK_arkodemem, *maxl);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  *ier = ARKSpilsSetMassEpsLin(ARK_arkodemem, *delt);
-  if (*ier != ARKSPILS_SUCCESS) return;
-
-  ARK_mass_ls = ARK_LS_PCG;
+void FARK_SPILSSETMASSEPSLIN(realtype *eplifac, int *ier) {
+  if (ARK_mass_ls == ARK_LS_ITERATIVE)
+    *ier = ARKSpilsSetMassEpsLin(ARK_arkodemem, *eplifac);
+  else
+    *ier = 1;
   return;
 }
 
@@ -991,34 +672,22 @@ void FARK_ARKODE(realtype *tout, realtype *t, realtype *y,
   ARKodeGetTolScaleFactor(ARK_arkodemem,
 			  &ARK_rout[4]);    /* TOLSFAC */
   ARKodeGetNonlinSolvStats(ARK_arkodemem,
-                          &ARK_iout[10],    /* NNI     */
-                          &ARK_iout[11]);   /* NCFN    */
-
+                           &ARK_iout[10],   /* NNI     */
+                           &ARK_iout[11]);  /* NCFN    */
+  
   /* If root finding is on, load those outputs as well */
   if (ARK_nrtfn != 0)
     ARKodeGetNumGEvals(ARK_arkodemem, &ARK_iout[12]);  /* NGE */
 
   /* Attach linear solver outputs */
   switch(ARK_ls) {
-  case ARK_LS_DENSE:
-  case ARK_LS_BAND:
-  case ARK_LS_LAPACKDENSE:
-  case ARK_LS_LAPACKBAND:
+  case ARK_LS_DIRECT:
     ARKDlsGetWorkSpace(ARK_arkodemem, &ARK_iout[13], &ARK_iout[14]);  /* LENRWLS, LENIWLS */
     ARKDlsGetLastFlag(ARK_arkodemem, &ARK_iout[15]);                  /* LSTF  */
     ARKDlsGetNumRhsEvals(ARK_arkodemem, &ARK_iout[16]);               /* NFELS */
     ARKDlsGetNumJacEvals(ARK_arkodemem, &ARK_iout[17]);               /* NJE   */
     break;
-  case ARK_LS_KLU:
-  case ARK_LS_SUPERLUMT:
-    ARKSlsGetLastFlag(ARK_arkodemem, &ARK_iout[15]);                  /* LSTF  */
-    ARKSlsGetNumJacEvals(ARK_arkodemem, &ARK_iout[17]);               /* NJE   */
-    break;
-  case ARK_LS_SPGMR:
-  case ARK_LS_SPBCG:
-  case ARK_LS_SPTFQMR:
-  case ARK_LS_SPFGMR:
-  case ARK_LS_PCG:
+  case ARK_LS_ITERATIVE:
     ARKSpilsGetWorkSpace(ARK_arkodemem, &ARK_iout[13], &ARK_iout[14]); /* LENRWLS, LENIWLS */
     ARKSpilsGetLastFlag(ARK_arkodemem, &ARK_iout[15]);                 /* LSTF  */
     ARKSpilsGetNumRhsEvals(ARK_arkodemem, &ARK_iout[16]);              /* NFELS */
@@ -1031,24 +700,14 @@ void FARK_ARKODE(realtype *tout, realtype *t, realtype *y,
 
   /* Attach mass matrix linear solver outputs */
   switch(ARK_mass_ls) {
-  case ARK_LS_DENSE:
-  case ARK_LS_BAND:
-  case ARK_LS_LAPACKDENSE:
-  case ARK_LS_LAPACKBAND:
+  case ARK_LS_DIRECT:
     ARKDlsGetMassWorkSpace(ARK_arkodemem, &ARK_iout[22], &ARK_iout[23]);  /* LENRWMS, LENIWMS */
     ARKDlsGetLastMassFlag(ARK_arkodemem, &ARK_iout[24]);                  /* LSTMF */
-    ARKDlsGetNumMassEvals(ARK_arkodemem, &ARK_iout[25]);                  /* NME   */
+    ARKDlsGetNumMassSetups(ARK_arkodemem, &ARK_iout[25]);                 /* NMSETUP */
+    ARKDlsGetNumMassSolves(ARK_arkodemem, &ARK_iout[26]);                 /* NMSOLVES */
+    ARKDlsGetNumMassMult(ARK_arkodemem, &ARK_iout[27]);                   /* NMMULTS */
     break;
-  case ARK_LS_KLU:
-  case ARK_LS_SUPERLUMT:
-    ARKSlsGetLastMassFlag(ARK_arkodemem, &ARK_iout[24]);                  /* LSTMF */
-    ARKSlsGetNumMassEvals(ARK_arkodemem, &ARK_iout[25]);                  /* NME   */
-    break;
-  case ARK_LS_SPGMR:
-  case ARK_LS_SPBCG:
-  case ARK_LS_SPTFQMR:
-  case ARK_LS_SPFGMR:
-  case ARK_LS_PCG:
+  case ARK_LS_ITERATIVE:
     ARKSpilsGetMassWorkSpace(ARK_arkodemem, &ARK_iout[22], &ARK_iout[23]); /* LENRWMS, LENIWMS */
     ARKSpilsGetLastMassFlag(ARK_arkodemem, &ARK_iout[24]);                 /* LSTMF */
     ARKSpilsGetNumMassPrecEvals(ARK_arkodemem, &ARK_iout[25]);             /* NMPE  */
@@ -1103,6 +762,27 @@ void FARK_GETERRWEIGHTS(realtype *eweight, int *ier) {
 
 /*=============================================================*/
 
+/* Fortran interface to C routine ARKodeGetResWeights; see 
+   farkode.h for further details */
+void FARK_GETRESWEIGHTS(realtype *rweight, int *ier) {
+
+  /* store pointer existing F2C_ARKODE_vec data array */
+  realtype *f2c_data = N_VGetArrayPointer(F2C_ARKODE_vec);
+
+  /* attach output data array to F2C_ARKODE_vec */
+  N_VSetArrayPointer(rweight, F2C_ARKODE_vec);
+
+  /* call ARKodeGetResWeights */
+  *ier = 0;
+  *ier = ARKodeGetResWeights(ARK_arkodemem, F2C_ARKODE_vec);
+
+  /* reattach F2C_ARKODE_vec to previous data array */
+  N_VSetArrayPointer(f2c_data, F2C_ARKODE_vec);
+  return;
+}
+
+/*=============================================================*/
+
 /* Fortran interface to C routine ARKodeGetEstLocalErrors; see
    farkode.h for further details */
 void FARK_GETESTLOCALERR(realtype *ele, int *ier) {
@@ -1130,12 +810,36 @@ void FARK_FREE() {
 
   ARKodeMem ark_mem;
   ark_mem = (ARKodeMem) ARK_arkodemem;
-  free(ark_mem->ark_user_data); ark_mem->ark_user_data = NULL;
 
+  /* free DLS/SPILS interface */
+  if (ark_mem->ark_lfree)
+    ark_mem->ark_lfree(ark_mem);
+  ark_mem->ark_lmem = NULL;
+
+  /* free mass DLS/SPILS interface */
+  if (ark_mem->ark_mfree)
+    ark_mem->ark_mfree(ark_mem);
+  ark_mem->ark_mass_mem = NULL;
+
+  /* free user_data structure */
+  if (ark_mem->ark_user_data)
+    free(ark_mem->ark_user_data);
+  ark_mem->ark_user_data = NULL;
+
+  /* free main integrator memory structure */
   ARKodeFree(&ARK_arkodemem);
 
+  /* free interface vector / matrices / linear solvers */
   N_VSetArrayPointer(NULL, F2C_ARKODE_vec);
   N_VDestroy(F2C_ARKODE_vec);
+  if (F2C_ARKODE_matrix)
+    SUNMatDestroy(F2C_ARKODE_matrix);
+  if (F2C_ARKODE_mass_matrix)
+    SUNMatDestroy(F2C_ARKODE_mass_matrix);
+  if (F2C_ARKODE_linsol)
+    SUNLinSolFree(F2C_ARKODE_linsol);
+  if (F2C_ARKODE_mass_sol)
+    SUNLinSolFree(F2C_ARKODE_mass_sol);
   return;
 }
 

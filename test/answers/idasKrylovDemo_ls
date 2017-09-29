@@ -9,7 +9,7 @@ idasKrylovDemo_ls: Heat equation, serial example problem for IDA
 
 Tolerance parameters:  rtol = 0   atol = 0.001
 Constraints set to force all solution components >= 0. 
-Linear solver: IDASPGMR, preconditioner using diagonal elements. 
+Linear solver: SPGMR, preconditioner using diagonal elements. 
 
    Output Summary (umax = max-norm of solution) 
 
@@ -34,7 +34,7 @@ Linear convergence failures    = 0
 ======================================================================
 
  ------- 
-| SPBCG |
+| SPBCGS |
  -------
 
 idasKrylovDemo_ls: Heat equation, serial example problem for IDA
@@ -44,7 +44,7 @@ idasKrylovDemo_ls: Heat equation, serial example problem for IDA
 
 Tolerance parameters:  rtol = 0   atol = 0.001
 Constraints set to force all solution components >= 0. 
-Linear solver: IDASPBCG, preconditioner using diagonal elements. 
+Linear solver: SPBCG, preconditioner using diagonal elements. 
 
    Output Summary (umax = max-norm of solution) 
 
@@ -57,10 +57,10 @@ Linear solver: IDASPBCG, preconditioner using diagonal elements.
   0.16   4.48774e-02  4   27   33   44    33    44   2.05e-02   10  77
   0.32   1.75557e-03  3   33   41   70    41    70   4.10e-02   11 111
   0.64   2.47770e-05  1   38   48   82    48    82   1.64e-01   13 130
-  1.28   2.91813e-21  1   40   50   82    50    82   6.55e-01   15 132
-  2.56   1.01637e-20  1   41   51   82    51    82   1.31e+00   16 133
-  5.12   2.41823e-20  1   42   52   82    52    82   2.62e+00   17 134
- 10.24   4.91079e-20  1   43   53   82    53    82   5.24e+00   18 135
+  1.28   2.57209e-22  1   40   50   82    50    82   6.55e-01   15 132
+  2.56   3.19445e-22  1   41   51   82    51    82   1.31e+00   16 133
+  5.12   7.19965e-22  1   42   52   82    52    82   2.62e+00   17 134
+ 10.24   1.87591e-21  1   43   53   82    53    82   5.24e+00   18 135
 
 Error test failures            = 0
 Nonlinear convergence failures = 0
@@ -79,7 +79,7 @@ idasKrylovDemo_ls: Heat equation, serial example problem for IDA
 
 Tolerance parameters:  rtol = 0   atol = 0.001
 Constraints set to force all solution components >= 0. 
-Linear solver: IDASPTFQMR, preconditioner using diagonal elements. 
+Linear solver: SPTFQMR, preconditioner using diagonal elements. 
 
    Output Summary (umax = max-norm of solution) 
 
@@ -91,11 +91,11 @@ Linear solver: IDASPTFQMR, preconditioner using diagonal elements.
   0.08   2.16481e-01  3   23   27   57    27    57   1.02e-02    9  96
   0.16   4.51083e-02  4   27   33   84    33    84   2.05e-02   10 133
   0.32   1.78483e-03  4   34   42  139    42   139   4.10e-02   11 204
-  0.64   4.11641e-04  1   39   51  183    51   183   1.47e-01   13 262
-  1.28   4.73503e-04  1   41   54  200    54   200   5.90e-01   15 284
-  2.56   3.39401e-05  1   43   56  203    56   203   1.18e+00   16 290
-  5.12   4.48261e-21  1   45   58  203    58   203   2.36e+00   17 292
- 10.24   2.83021e-20  1   46   59  203    59   203   4.72e+00   18 293
+  0.64   3.99803e-04  1   39   51  182    51   182   1.47e-01   13 261
+  1.28   4.56475e-04  1   41   54  198    54   198   5.90e-01   15 281
+  2.56   7.30003e-05  1   43   56  200    56   200   1.18e+00   16 285
+  5.12   1.27643e-20  1   44   57  200    57   200   2.36e+00   17 286
+ 10.24   3.22610e-20  1   45   58  200    58   200   4.72e+00   18 287
 
 Error test failures            = 0
 Nonlinear convergence failures = 0

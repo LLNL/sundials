@@ -130,7 +130,9 @@ typedef struct CPSpilsMemRec {
 
 /* Atimes and PSolve routines called by generic solver */
 int cpSpilsAtimes(void *cp_mem, N_Vector v, N_Vector z);
-int cpSpilsPSolve(void *cp_mem, N_Vector r, N_Vector z, int lr);
+/* int cpSpilsPSolve(void *cp_mem, N_Vector r, N_Vector z, int lr); */
+int cpSpilsPSolve(void *cp_mem, N_Vector r, N_Vector z, N_Vector w,
+                  realtype tol, int lr);
 
 /* Difference quotient approximations for Jac times vector */
 int cpSpilsDQjtvExpl(realtype t, N_Vector y, N_Vector fy, 

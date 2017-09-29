@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -127,11 +124,9 @@ int CVDiag(void *cvode_mem)
 
   last_flag = CVDIAG_SUCCESS;
 
-  /* Set flag setupNonNull = TRUE */
-  setupNonNull = TRUE;
-
+  
   /* Allocate memory for M, bit, and bitcomp */
-    
+   
   M = N_VClone(vec_tmpl);
   if (M == NULL) {
     cvProcessError(cv_mem, CVDIAG_MEM_FAIL, "CVDIAG", "CVDiag", MSGDG_MEM_FAIL);
