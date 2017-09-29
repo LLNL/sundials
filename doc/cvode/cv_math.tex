@@ -206,9 +206,6 @@ of convergence failures; the default value of this limit is 10,
 but this can be changed by the user.
 \index{nonlinear system!Newton convergence test|)}
 
-% Linear convergence test
-%------------------------
-\index{linear system!convergence test|(}
 When a Krylov method is used to solve the linear system, its errors must also be
 controlled, and this also involves the local error test constant.  The
 linear iteration error in the solution vector $\delta_m$ is
@@ -216,14 +213,11 @@ approximated by the preconditioned residual vector.  Thus to ensure
 (or attempt to ensure) that the linear iteration errors do not
 interfere with the nonlinear error and local integration error
 controls, we require that the norm of the preconditioned residual
-be less than $0.05 \cdot (0.1 \epsilon)$.  For highly nonlinear
-problems, it may be necessary to solve these linear systems to a
-tighter tolerance, so the value of $0.05$ may be changed by the user.
-\index{linear system!convergence test|)}
+be less than $0.05 \cdot (0.1 \epsilon)$.
 
 % Jacobian DQ approximations
 %---------------------------
-With the direct dense and methods, the Jacobian may be supplied 
+With the direct dense and band methods, the Jacobian may be supplied
 by a user routine, or approximated by difference quotients,
 at the user's option.  In the latter case, we use the usual
 approximation
@@ -235,7 +229,7 @@ and $W_j$ is the error weight defined in (\ref{e:errwt}).  In the dense
 case, this scheme requires $N$ evaluations of $f$, one for each column
 of $J$.  In the band case, the columns of $J$ are computed in groups,
 by the Curtis-Powell-Reid algorithm, with the number of $f$ evaluations
-equal to the bandwidth.  
+equal to the bandwidth.
 
 We note that with the sparse direct solvers, the Jacobian {\em must}
 be supplied by a user routine.
@@ -366,7 +360,7 @@ left preconditioner is included in the linear system residual whose
 norm is being tested in the Krylov algorithm.  As a rule, however, if
 the preconditioner is the product of two matrices, we recommend that
 preconditioning be done either on the left only or the right only,
-rather than using one factor on each side.  
+rather than using one factor on each side. 
 
 Typical preconditioners used with {\cvode} are based on approximations
 to the system Jacobian, $J = \partial f / \partial y$.  Since the

@@ -90,8 +90,6 @@ are as follows:
     interfaces to \id{SUNPCG}.
   \item \id{FSUNSPBCGSINIT} (defined by {\sunlinsolspbcgs}) 
     interfaces to \id{SUNSPBCGS}.
-  \item \id{FSUNBANDLINSOLINIT} (defined by {\sunlinsolband}) 
-    interfaces to \id{SUNBandLinearSolver}.
   \item \id{FSUNSPFGMRINIT} (defined by {\sunlinsolspfgmr}) 
     interfaces to \id{SUNSPFGMR}.
   \item \id{FSUNSPGMRINIT} (defined by {\sunlinsolspgmr}) 
@@ -502,8 +500,8 @@ sections of Chapter \ref{s:sunlinsol}.
 
   {\bf {\cvdls} with sparse Jacobian matrix}
   \index{Jacobian approximation function!sparse!use in {\fcvode}}
-  As an option when using the {\cvdls} interface with
-  {\sunlinsolklu} or {\sunlinsolslumt} linear solvers, the user must
+  When using the {\cvdls} interface with {\sunlinsolklu} or
+  {\sunlinsolslumt} linear solvers, the user must 
   supply the \id{FCVSPJAC} routine that computes a
   compressed-sparse-column or compressed-sparse-row if using KLU
   approximation of the system Jacobian $J = \partial f / \partial y$.
@@ -549,7 +547,7 @@ sections of Chapter \ref{s:sunlinsol}.
   {\bf {\cvspils} iterative linear solver interface}
   \index{CVSPILS@{\cvspils} linear solver interface!use in {\fcvode}}
   
-  To attach an iterative {\sunlinsol} object to the {\cvdls}
+  To attach an iterative {\sunlinsol} object to the {\cvspils}
   interface, then following the call to initialize the {\sunlinsol}
   object in step \ref{i:fcv_linsol_init} above, the user must make the
   call:
@@ -567,8 +565,8 @@ sections of Chapter \ref{s:sunlinsol}.
   {\bf Functions used by {\cvspils}}
 
   Optional user-supplied routines \id{FCVJTIMES} and \id{FCVJTSETUP}
-  (see below), can be provided for Jacobian-vector products.  If it
-  is, then, following the call to \id{FCVSPILSINIT}, the user must
+  (see below), can be provided for Jacobian-vector products.  If they
+  are, then, following the call to \id{FCVSPILSINIT}, the user must 
   make the call:
   \index{FCVSPILSSETJAC@\texttt{FCVSPILSSETJAC}}
 \begin{verbatim}
@@ -630,7 +628,7 @@ sections of Chapter \ref{s:sunlinsol}.
 \end{verbatim}
   Typically this routine will use only \id{T} and \id{Y}.  It should
   compute any necessary data for subsequent calls to \id{FCVJTIMES}.  On return, set
-  \id{IER = 0} if \id{FCVJTIMES} was successful, and nonzero otherwise.
+  \id{IER = 0} if \id{FCVJTSETUP} was successful, and nonzero otherwise.
   The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
   and are the same as those passed to \id{FCVMALLOC}.
 
@@ -789,7 +787,7 @@ sections of Chapter \ref{s:sunlinsol}.
   Following this call, if the choice of linear solver is being changed
   then a user must make a call to create the alternate {\sunlinsol}
   module and then attach it to the {\cvdls} or {\cvspils} interface,
-  as shown above.  If linear solver parameters are being modified,
+  as shown above.  If only linear solver parameters are being modified,
   then these calls may be made without re-attaching to the {\cvdls} or
   {\cvspils} interface. 
 
@@ -1084,8 +1082,6 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 
 \item \textcolor{gray}{\bf {\nvector} module initialization}
 
-\item \textcolor{gray}{\bf {\sunmatrix} module initialization}
-
 \item {\bf {\sunlinsol} module initialization}
 
   Initialize one of the iterative {\sunlinsol} modules, by calling one
@@ -1099,7 +1095,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 \item {\bf Linear solver interface specification}
 
   First, initialize the {\cvspils} iterative linear solver interface
-  by calling one of \id{FCVSPILSINIT}.
+  by calling \id{FCVSPILSINIT}.
 
   Then, to initialize the {\cvbandpre} preconditioner, make the following call:
   \index{FCVBPINIT@\texttt{FCVBPINIT}}
@@ -1205,8 +1201,6 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 
 \item \textcolor{gray}{\bf {\nvector} module initialization}
 
-\item \textcolor{gray}{\bf {\sunmatrix} module initialization}
-
 \item {\bf {\sunlinsol} module initialization}
 
   Initialize one of the iterative {\sunlinsol} modules, by calling one
@@ -1220,7 +1214,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 \item {\bf Linear solver interface specification}
 
   First, initialize the {\cvspils} iterative linear solver interface
-  by calling one of \id{FCVSPILSINIT}.
+  by calling \id{FCVSPILSINIT}.
 
   Then, to initialize the {\cvbbdpre} preconditioner, make the following call:
   \index{FCVBBDINIT@\texttt{FCVBBDINIT}}
@@ -1277,13 +1271,13 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 \item {\bf Problem reinitialization}
   
   If a sequence of problems of the same size is being solved using the same
-  linear solver ({\spgmr}, {\spbcg}, or {\sptfqmr})  in combination with the
-  {\cvbbdpre} preconditioner, then the {\cvode} package can be re-initialized
-  for the second and subsequent problems by calling \id{FCVREINIT},
-  following which a call to \id{FCVBBDINIT} may or may not be needed.
-  If the input arguments are the same, no \id{FCVBBDINIT} call is needed.
-  If there is a change in input arguments other than \id{MU} or \id{ML},
-  then the user program should make the call 
+  linear solver in combination with the {\cvbbdpre} preconditioner,
+  then the {\cvode} package can be re-initialized for the second and
+  subsequent problems by calling \id{FCVREINIT}, following which a
+  call to \id{FCVBBDINIT} may or may not be needed.  If the input
+  arguments are the same, no \id{FCVBBDINIT} call is needed. If there
+  is a change in input arguments other than \id{MU} or \id{ML}, then
+  the user program should make the call  
   \index{FCVBBDREINIT@\texttt{FCVBBDREINIT}}
 \begin{verbatim}
        CALL FCVBBDREINIT(NLOCAL, MUDQ, MLDQ, DQRELY, IER)
