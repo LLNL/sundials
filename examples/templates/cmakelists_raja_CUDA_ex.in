@@ -104,6 +104,6 @@ ENDIF(PETSC_LIBRARIES)
 
 # Build each example one by one
 FOREACH(example ${examples})
-  CUDA_ADD_EXECUTABLE(${example} ${example}.cu)
+  CUDA_ADD_EXECUTABLE(${example} ${example}.cu ${examples_dependencies})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} -L@RAJA_LIB_DIR@ -lRAJA)
 ENDFOREACH(example ${examples})
