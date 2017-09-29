@@ -448,13 +448,7 @@ The structure of this document is as follows:
   Chapter \ref{s:nvector} gives a brief overview of the generic
   {\nvector} module shared among the various components of
   {\sundials}, and details on the {\nvector} implementations
-  provided with {\sundials}: 
-  a serial implementation
-  (\S\ref{ss:nvec_ser}), a distributed memory parallel implementation 
-  based on {\mpi} \index{MPI}
-  (\S\ref{ss:nvec_par}), and two thread-parallel implementations 
-  based on openMP \index{openMP} (\S\ref{ss:nvec_openmp}) 
-  and Pthreads \index{Pthreads} (\S\ref{ss:nvec_pthreads}), respectively.
+  provided with {\sundials}.
 \item
   Chapter \ref{s:sunmatrix} gives a brief overview of the generic
   {\sunmatrix} module shared among the various components of
@@ -467,21 +461,11 @@ The structure of this document is as follows:
   Chapter \ref{s:sunlinsol} gives a brief overview of the generic
   {\sunlinsol} module shared among the various components of
   {\sundials}.  This chapter contains details on the {\sunlinsol}
-  implementations provided with {\sundials}: 
-  a dense implementation (\S\ref{ss:sunlinsol_dense}),
-  a banded implementation (\S\ref{ss:sunlinsol_band}),
-  a GMRES implementation (\S\ref{ss:sunlinsol_spgmr}),
-  a FGMRES implementation (\S\ref{ss:sunlinsol_spfgmr}),
-  a Bi-CGStab implementation (\S\ref{ss:sunlinsol_spbcgs}),
-  a TFQMR implementation (\S\ref{ss:sunlinsol_sptfqmr}),
-  and a PCG implementation (\S\ref{ss:sunlinsol_pcg}).  The chapter
+  implementations provided with {\sundials}.
+  The chapter
   also contains details on the {\sunlinsol} implementations provided
   with {\sundials} that interface with external linear solver
-  libraries:
-  a dense LAPACK interface (\S\ref{ss:sunlinsol_lapdense}),
-  a banded LAPACK interface (\S\ref{ss:sunlinsol_lapband}),
-  a sparse {\klu} interface (\S\ref{ss:sunlinsol_klu}),
-  and a sparse {\superlumt} interface (\S\ref{ss:sunlinsol_klu}).
+  libraries.
 %% \item
 %%   Chapter \ref{s:new_linsolv} describes the interfaces to the linear
 %%   solver modules, so that a user can provide his/her own such module.
