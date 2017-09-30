@@ -177,6 +177,14 @@ user-callable routines:
   (1), \id{PREC\_RIGHT} (2), or \id{PREC\_BOTH} (3) will result in use
   of the symmetric preconditioner;  any other integer input will
   result in the default (no preconditioning).
+  Although some {\sundials} solvers are designed to only work
+  with left preconditioning ({\ida} and {\idas}) and others with only
+  right preconditioning ({\kinsol}), {\pcg} should \emph{only} be used
+  with these packages when the linear systems are known to
+  be \emph{symmetric}.  Since the scaling of matrix rows and columns
+  must be identical in a symmetric matrix, symmetric preconditioning
+  should work appropriately even for packages designed with one-sided
+  preconditioning in mind.
 
   \verb|SUNLinearSolver SUNPCG(N_Vector y, int pretype, int maxl);|
 
