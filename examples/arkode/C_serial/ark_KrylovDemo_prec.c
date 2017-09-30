@@ -73,7 +73,7 @@
  * right. In each case, both the modified and classical Gram-Schmidt
  * options are tested.
  * In the series of runs, ARKodeInit, SUNSPGMR and 
- * ARKDlsSetLinearSolver are called only for the first run, whereas 
+ * ARKSpilsSetLinearSolver are called only for the first run, whereas 
  * ARKodeReInit, SUNSPGMRSetPrecType, and SUNSPGMRSetGSType are called
  * for each of the remaining three runs.
  *
