@@ -266,7 +266,6 @@ int SUNLinSolSetup_SPTFQMR(SUNLinearSolver S, SUNMatrix A)
   /* Set shortcuts to SPTFQMR memory structures */
   if (S == NULL) return(SUNLS_MEM_NULL);
   PSetupFn Psetup = SPTFQMR_CONTENT(S)->Psetup;
-  void* ATData = SPTFQMR_CONTENT(S)->ATData;
   void* PData = SPTFQMR_CONTENT(S)->PData;
   
   /* no solver-specific setup is required, but if user-supplied 

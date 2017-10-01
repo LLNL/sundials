@@ -384,9 +384,7 @@ int cvDlsDQJac(realtype t, N_Vector y, N_Vector fy,
 {
   int retval;
   CVodeMem cv_mem;
-  CVDlsMem cvdls_mem;
   cv_mem = (CVodeMem) cvode_mem;
-  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
   /* verify that Jac is non-NULL */
   if (Jac == NULL) {

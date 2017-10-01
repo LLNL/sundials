@@ -256,7 +256,6 @@ int SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A)
   /* Set shortcuts to SPBCGS memory structures */
   if (S == NULL) return(SUNLS_MEM_NULL);
   PSetupFn Psetup = SPBCGS_CONTENT(S)->Psetup;
-  void* ATData = SPBCGS_CONTENT(S)->ATData;
   void* PData = SPBCGS_CONTENT(S)->PData;
   
   /* no solver-specific setup is required, but if user-supplied 

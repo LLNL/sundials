@@ -313,7 +313,6 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
   /* local variables */
   realtype *v, *z, *s;
   sunindextype i, N;
-  int ierr;
   UserData *ProbData;
   
   /* access user data structure and vector data */

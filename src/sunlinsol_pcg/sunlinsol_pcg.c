@@ -239,7 +239,6 @@ int SUNLinSolSetup_PCG(SUNLinearSolver S, SUNMatrix nul)
   /* Set shortcuts to PCG memory structures */
   if (S == NULL) return(SUNLS_MEM_NULL);
   PSetupFn Psetup = PCG_CONTENT(S)->Psetup;
-  void* ATData = PCG_CONTENT(S)->ATData;
   void* PData = PCG_CONTENT(S)->PData;
   
   /* no solver-specific setup is required, but if user-supplied 

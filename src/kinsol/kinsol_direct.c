@@ -339,10 +339,7 @@ int kinDlsDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac,
 {
   int retval;
   KINMem kin_mem;
-  KINDlsMem kindls_mem;
-
   kin_mem = (KINMem) kinmem;
-  kindls_mem = (KINDlsMem) kin_mem->kin_lmem;
 
   /* verify that Jac is non-NULL */
   if (Jac == NULL) {

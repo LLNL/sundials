@@ -380,9 +380,7 @@ int idaDlsDQJac(realtype t, realtype c_j, N_Vector y,
 {
   int retval;
   IDAMem IDA_mem;
-  IDADlsMem idadls_mem;
   IDA_mem = (IDAMem) ida_mem;
-  idadls_mem = (IDADlsMem) IDA_mem->ida_lmem;
 
   /* verify that Jac is non-NULL */
   if (Jac == NULL) {
@@ -692,7 +690,6 @@ int idaDlsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
                 N_Vector vt1, N_Vector vt2, N_Vector vt3)
 {
   int retval;
-  sunindextype retfac;
   IDADlsMem idadls_mem;
 
   /* Return immediately if IDA_mem or IDA_mem->ida_lmem are NULL */
@@ -1065,7 +1062,6 @@ static int idaDlsJacBWrapper(realtype tt, realtype c_jB, N_Vector yyB,
   IDAMem IDA_mem;
   IDABMem IDAB_mem;
   IDADlsMemB idadlsB_mem;
-  sunindextype NeqB;
   int flag;
 
   /* Is ida_mem allright? */
@@ -1086,7 +1082,7 @@ static int idaDlsJacBWrapper(realtype tt, realtype c_jB, N_Vector yyB,
 
   /* Get current backward problem. */
   if (IDAADJ_mem->ia_bckpbCrt == NULL) {
-    IDAProcessError(IDAB_mem->IDA_mem, IDADLS_LMEMB_NULL, 
+    IDAProcessError(IDA_mem, IDADLS_LMEMB_NULL, 
                     "IDASDLS", "idaDlsJacBWrapper", MSGD_LMEMB_NULL);
     return(IDADLS_LMEMB_NULL);
   }
@@ -1155,7 +1151,7 @@ static int idaDlsJacBSWrapper(realtype tt, realtype c_jB, N_Vector yyB,
 
   /* Get current backward problem. */
   if (IDAADJ_mem->ia_bckpbCrt == NULL) {
-    IDAProcessError(IDAB_mem->IDA_mem, IDADLS_LMEMB_NULL, 
+    IDAProcessError(IDA_mem, IDADLS_LMEMB_NULL, 
                     "IDASDLS", "idaDlsJacBSWrapper", MSGD_LMEMB_NULL);
     return(IDADLS_LMEMB_NULL);
   }

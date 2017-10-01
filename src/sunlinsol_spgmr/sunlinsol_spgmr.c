@@ -321,7 +321,6 @@ int SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A)
   /* Set shortcuts to SPGMR memory structures */
   if (S == NULL) return(SUNLS_MEM_NULL);
   PSetupFn Psetup = SPGMR_CONTENT(S)->Psetup;
-  void* ATData = SPGMR_CONTENT(S)->ATData;
   void* PData = SPGMR_CONTENT(S)->PData;
   
   /* no solver-specific setup is required, but if user-supplied 
