@@ -2371,11 +2371,6 @@ The call to the \id{IDAGetDky} function has the following form:
 %%
 %%===================================================================================
 %%
-
-
-%CSW Start here for updating...
-%%%%%
-
 \subsection{Optional output functions}\label{ss:optional_output}
 
 {\ida} provides an extensive list of functions that can be used to obtain
@@ -2446,7 +2441,7 @@ Name of constant associated with a return flag & \id{IDAGetReturnFlagName} \\
 Number of backtrack operations & \id{IDAGetNumBacktrackops} \\
 Corrected initial conditions & \id{IDAGetConsistentIC} \\ 
 \hline
-\multicolumn{2}{|c|}{\bf IDADLS linear solver} \\
+\multicolumn{2}{|c|}{\bf IDADLS linear solver interface} \\
 \hline
 Size of real and integer workspace & \id{IDADlsGetWorkSpace} \\
 No. of Jacobian evaluations & \id{IDADlsGetNumJacEvals} \\
@@ -2454,19 +2449,14 @@ No. of residual calls for finite diff. Jacobian evals. & \id{IDADlsGetNumResEval
 Last return from a linear solver function & \id{IDADlsGetLastFlag} \\ 
 Name of constant associated with a return flag & \id{IDADlsGetReturnFlagName} \\
 \hline
-\multicolumn{2}{|c|}{\bf IDASLS linear solver} \\
-\hline
-No. of Jacobian evaluations & \id{IDASlsGetNumJacEvals} \\
-Last return from a linear solver function & \id{IDASlsGetLastFlag} \\
-Name of constant associated with a return flag & \id{IDASlsGetReturnFlagName} \\
-\hline
-\multicolumn{2}{|c|}{\bf IDASPILS linear solvers} \\
+\multicolumn{2}{|c|}{\bf IDASPILS linear solver interface} \\
 \hline
 Size of real and integer workspace & \id{IDASpilsGetWorkSpace} \\
 No. of linear iterations & \id{IDASpilsGetNumLinIters} \\
 No. of linear convergence failures & \id{IDASpilsGetNumConvFails} \\
 No. of preconditioner evaluations & \id{IDASpilsGetNumPrecEvals} \\
 No. of preconditioner solves & \id{IDASpilsGetNumPrecSolves} \\
+No. of Jacobian-vector setup evaluations & \id{IDASpilsGetNumJTSetupEvals} \\
 No. of Jacobian-vector product evaluations & \id{IDASpilsGetNumJtimesEvals} \\
 No. of residual calls for finite diff. Jacobian-vector evals. & \id{IDASpilsGetNumResEvals} \\
 Last return from a linear solver function & \id{IDASpilsGetLastFlag} \\
@@ -3245,33 +3235,29 @@ There are two optional output functions associated with rootfinding.
 %%
 %%==================================================================================
 %%
-\subsubsection{Dense/band direct linear solvers optional output functions}
+\subsubsection{Direct linear solver interface optional output functions}
 \label{sss:optout_dls}
-\index{optional output!dense linear solver|(}
-\index{optional output!band linear solver|(}
-\index{IDADENSE@{\idadense} linear solver!optional output|(}
-\index{IDABAND@{\idaband} linear solver!optional output|(}
+\index{optional output!direct linear solver interface|(}
+\index{IDADLS@{\idadls} linear solver interface!optional output|(}
 The following optional outputs are available from the {\idadls} modules:
 workspace requirements, number of calls to the Jacobian routine, number of 
 calls to the residual routine for finite-difference Jacobian approximation,
 and last return value from an {\idadls} function.
 Note that, where the name of an output would otherwise conflict with
 the name of an optional output from the main solver, a suffix \id{LS}
-(for Linear Solver) has been added here (e.g.  \id{lenrwLS}).
+(for Linear Solver) has been added (e.g. \id{lenrwLS}).
 %%
 %%
-\index{IDADENSE@{\idadense} linear solver!memory requirements} 
-\index{IDABAND@{\idaband} linear solver!memory requirements} 
-\index{memory requirements!IDADENSE@{\idadense} linear solver}
-\index{memory requirements!IDABAND@{\idaband} linear solver}
+\index{IDADLS@{\idadls} linear solver interface!memory requirements}
+\index{memory requirements!IDADLS@{\idadls} linear solver interface}
+
 \ucfunction{IDADlsGetWorkSpace}
 {
   flag = IDADlsGetWorkSpace(ida\_mem, \&lenrwLS, \&leniwLS);
 }
 {
   The function \ID{IDADlsGetWorkSpace} returns the sizes of the real and
-  integer workspaces used by an {\idadls} linear solver ({\idadense} or
-  {\idaband}). 
+  integer workspaces used by the {\idadls} linear solver interface.
 }
 {
   \begin{args}[ida\_mem]
@@ -3295,13 +3281,11 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \end{args}
 }
 {
-  For the {\idadense} linear solver, in terms of the problem size $N$,
-  the actual size of the real workspace is $2N^2$ \id{realtype} words,
-  while the actual size of the integer workspace is $N$ integer words.
-  For the {\idaband} linear solver, in terms of $N$ 
-  and Jacobian half-bandwidths, the actual size of the real workspace is
-  $N\,(2$ \id{mupper}$+ 3$ \id{mlower} $+ 2)$ \id{realtype} words,
-  while the actual size of the integer workspace is $N$ integer words.
+  The workspace requirements reported by this routine correspond only
+  to memory allocated within this interface and to memory allocated by
+  the {\sunlinsol} object attached to it.  The template Jacobian
+  matrix allocated by the user outside of {\idadls} is not included in
+  this report.
 }
 %%
 %%
@@ -3311,8 +3295,8 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 {
   The function \ID{IDADlsGetNumJacEvals} returns the
-  cumulative number of calls to the {\idadls} (dense or banded) 
-  Jacobian approximation function.
+  cumulative number of calls to the {\idadls} Jacobian approximation 
+  function.
 }
 {
   \begin{args}[njevals]
@@ -3343,7 +3327,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 {
   The function \ID{IDADlsGetNumResEvals} returns the
   cumulative number of calls to the user residual function due to the 
-  finite difference (dense or band) Jacobian approximation.
+  finite difference Jacobian approximation.
 }
 {
   \begin{args}[nrevalsLS]
@@ -3365,8 +3349,8 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \end{args}
 }
 {
-  The value \id{nrevalsLS} is incremented only if the default 
-  internal difference quotient function is used.
+  The value \id{nrevalsLS} is incremented only if one of the default 
+  internal difference quotient functions (dense or banded) is used.
 }
 %%
 \ucfunction{IDADlsGetLastFlag}
@@ -3397,11 +3381,11 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \end{args}
 }
 {
-  If the {\idadense} setup function failed (i.e., \id{IDASolve} returned
-  \id{IDA\_LSETUP\_FAIL}), the value \id{lsflag} is equal to the column index
-  (numbered from one) at which a zero diagonal element was encountered during
-  the LU factorization of the (dense or band) Jacobian matrix.
-  For all other failures, the value of \id{lsflag} is negative.
+  If the {\sunlinsoldense} or {\sunlinsolband} setup function failed
+  (\id{IDASolve} returned \id{IDA\_LSETUP\_FAIL}), then the value of
+  \id{lsflag} is equal to the column index (numbered from one) at
+  which a zero diagonal element was encountered during the LU
+  factorization of the (dense or banded) Jacobian matrix.
 }
 %%
 \ucfunction{IDADlsGetReturnFlagName}
@@ -3422,150 +3406,51 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 {}
 %%
-\index{IDABAND@{\idaband} linear solver!optional output|)}
-\index{IDADENSE@{\idadense} linear solver!optional output|)}
-\index{optional output!band linear solver|)}
-\index{optional output!dense linear solver|)}
-
+\index{IDADLS@{\idadls} linear solver interface!optional output|)}
+\index{optional output!direct linear solver interface|)}
 %%
-%%==================================================================================
-%%
-
-\subsubsection{Sparse direct linear solvers optional output functions}\label{sss:optout_sls}
-\index{optional output!sparse linear solver|(}
-\index{IDAKLU@{\idaklu} linear solver!optional output|(}
-\index{IDASUPERLUMT@{\idasuperlumt} linear solver!optional output|(}
-The following optional outputs are available from the {\idasls} modules:
-number of calls to the Jacobian routine and last return value from an
-{\idasls} function.
-%%
-%%
-\ucfunction{IDASlsGetNumJacEvals}
-{
-  flag = IDASlsGetNumJacEvals(ida\_mem, \&njevals);
-}
-{
-  The function \ID{IDASlsGetNumJacEvals} returns the
-  cumulative number of calls to the {\idasls} sparse
-  Jacobian approximation function.
-}
-{
-  \begin{args}[njevals]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[njevals] (\id{long int})
-    the cumulative number of calls to the Jacobian function (total so far).
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDASLS\_LMEM\_NULL]
-  \item[IDASLS\_SUCCESS] 
-    The optional output value has been successfully set.
-  \item[\Id{IDASLS\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDASLS\_LMEM\_NULL}]
-    The {\idasls} linear solver has not been initialized.
-  \end{args}
-}
-{}
-%%
-%%
-\ucfunction{IDASlsGetLastFlag}
-{
-  flag = IDASlsGetLastFlag(ida\_mem, \&lsflag);
-}
-{
-  The function \ID{IDASlsGetLastFlag} returns the
-  last return value from an {\idasls} routine. 
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[lsflag] (\id{long int})
-    the value of the last return flag from an {\idasls} function.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDASLS\_LMEM\_NULL]
-  \item[\Id{IDASLS\_SUCCESS}] 
-    The optional output value has been successfully set.
-  \item[\Id{IDASLS\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDASLS\_LMEM\_NULL}]
-    The {\idasls} linear solver has not been initialized.
-  \end{args}
-}
-{
-}
-%%
-\ucfunction{IDASlsGetReturnFlagName}
-{
-  name = IDASlsGetReturnFlagName(lsflag);
-}
-{
-  The function \ID{IDASlsGetReturnFlagName} returns the
-  name of the {\idasls} constant corresponding to \id{lsflag}.
-}
-{
-  The only argument, of type \id{long int}, is a return flag from an {\idasls} function.
-}
-{
-  The return value is a string containing the name of the corresponding constant.
-}
-{}
-%%
-\index{IDASUPERLUMT@{\idasuperlumt} linear solver!optional output|)}
-\index{IDAKLU@{\idaklu} linear solver!optional output|)}
-\index{optional output!sparse linear solver|)}
-
-%
-%%==================================================================================
-%
-\subsubsection{Iterative linear solvers optional output functions}\label{sss:optout_spils}
-\index{optional output!iterative linear solver|(}
-\index{IDASPGMR@{\idaspgmr} linear solver!optional output|(}
-\index{IDASPBCG@{\idaspbcg} linear solver!optional output|(}
-\index{IDASPTFQMR@{\idasptfqmr} linear solver!optional output|(} 
-The following optional outputs are available from the {\idaspils} modules:
-workspace requirements, number of linear iterations,
-number of linear convergence failures, number of calls to the preconditioner
-setup and solve routines, number of calls to the Jacobian-vector product routine,
-number of calls to the residual routine for finite-difference  Jacobian-vector
-product approximation, and last return value from a linear solver function.
+%%==============================================================================
+\subsubsection{Iterative linear solver interface optional output functions}
+\label{sss:optout_spils}
+%%==============================================================================
+\index{optional output!iterative linear solver interface|(}
+\index{IDASPILS@{\idaspils} linear solver interface!optional output|(} 
+The following optional outputs are available from the {\idaspils}
+modules: workspace requirements, number of linear iterations, number of
+linear convergence failures, number of calls to the preconditioner
+setup and solve routines, number of calls to the Jacobian-vector
+setup and product routines, number of calls to the residual
+routine for finite-difference Jacobian-vector product approximation,
+and last return value from a linear solver function.
 Note that, where the name of an output would otherwise conflict with
 the name of an optional output from the main solver, a suffix \id{LS}
-(for Linear Solver) has been added here (e.g.  \id{lenrwLS}).
+(for Linear Solver) has been added (e.g.  \id{lenrwLS}).
 %%
 %%
-\index{IDASPGMR@{\idaspgmr} linear solver!memory requirements}
-\index{IDASPBCG@{\idaspbcg} linear solver!memory requirements}
-\index{IDASPTFQMR@{\idasptfqmr} linear solver!memory requirements} 
-\index{memory requirements!IDASPGMR@{\idaspgmr} linear solver}
+\index{IDASPILS@{\idaspils} linear solver interface!memory requirements} 
+\index{memory requirements!IDASPILS@{\idaspils} linear solver interface}
 \ucfunction{IDASpilsGetWorkSpace}
 {
   flag = IDASpilsGetWorkSpace(ida\_mem, \&lenrwLS, \&leniwLS);
 }
 {
-  The function \ID{IDASpilsGetWorkSpace} returns the global sizes of
-  the {\idaspils} real and integer workspaces.
+  The function \ID{IDASpilsGetWorkSpace} returns the global sizes of the
+  {\idaspils} real and integer workspaces.
 }
 {
-  \begin{args}[lenrwLS]
+  \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[lenrwLS] (\id{long int})
-    global number of real values in the {\idaspils} workspace.
+    the number of \id{realtype} values in the {\idaspils} workspace.
   \item[leniwLS] (\id{long int})
-    global number of integer values in the {\idaspils} workspace.
+    the number of integer values in the {\idaspils} workspace.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDASPILS\_LMEM\_NULL]
-  \item[IDASPILS\_SUCCESS] 
+  \item[\Id{IDASPILS\_SUCCESS}] 
     The optional output value has been successfully set.
   \item[\Id{IDASPILS\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
@@ -3574,14 +3459,12 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \end{args}
 }
 {
-  In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
-  the actual size of the real workspace is roughly:\\
-  $N*($ \id{maxl} $+ 5) +$ \id{maxl} $*($ \id{maxl} $ + 4) + 1$
-  \id{realtype} words for {\idaspgmr},\\
-  $10*N$ \id{realtype} words for {\idaspbcg},\\
-  and $13*N$ \id{realtype} words for {\idasptfqmr}.
+  The workspace requirements reported by this routine correspond only
+  to memory allocated within this interface and to memory allocated by
+  the {\sunlinsol} object attached to it.
 
-  In a parallel setting, the above values are global, summed over all processors.
+  In a parallel setting, the above values are global (i.e., summed over all
+  processors).
 }
 %%
 %%
@@ -3594,7 +3477,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   cumulative number of linear iterations.
 }
 {
-  \begin{args}[nliters]
+  \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[nliters] (\id{long int})
@@ -3624,7 +3507,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   cumulative number of linear convergence failures.
 }
 {
-  \begin{args}[nlcfails]
+  \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[nlcfails] (\id{long int})
@@ -3655,7 +3538,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   calls made to \id{psetup}.
 }
 {
-  \begin{args}[npevals]
+  \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[npevals] (\id{long int})
@@ -3686,7 +3569,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   solve function, \id{psolve}.
 }
 {
-  \begin{args}[npsolves]
+  \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[npsolves] (\id{long int})
@@ -3697,6 +3580,37 @@ the name of an optional output from the main solver, a suffix \id{LS}
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDASPILS\_LMEM\_NULL]
   \item[IDASPILS\_SUCCESS] 
+    The optional output value has been successfully set.
+  \item[\Id{IDASPILS\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPILS\_LMEM\_NULL}]
+    The {\idaspils} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{IDASpilsGetNumJTSetupEvals}
+{
+  flag = IDASpilsGetNumJTSetupEvals(ida\_mem, \&njtsetup);
+}
+{
+  The function \ID{IDASpilsGetNumJTSetupEvals} returns the
+  cumulative number of calls made to the Jacobian-vector setup
+  function \id{jtsetup}. 
+}
+{
+  \begin{args}
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[njtsetup] (\id{long int})
+    the current number of calls to \id{jtsetup}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}
+  \item[\Id{IDASPILS\_SUCCESS}] 
     The optional output value has been successfully set.
   \item[\Id{IDASPILS\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
@@ -3801,41 +3715,25 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 {
   If the {\idaspils} setup function failed (\id{IDASolve} returned
-  \id{IDA\_LSETUP\_FAIL}), \id{lsflag} will be \id{SPGMR\_PSET\_FAIL\_UNREC},
-  \id{SPBCG\_PSET\_FAIL\_UNREC}, or \id{SPTFQMR\_PSET\_FAIL\_UNREC}.
+  \id{IDA\_LSETUP\_FAIL}), \id{lsflag} will be \id{SUNLS\_PSET\_FAIL\_UNREC},
+  \id{SUNLS\_ASET\_FAIL\_UNREC}, or \id{SUNLS\_PACKAGE\_FAIL\_UNREC}.
 
-  If the {\idaspgmr} solve function failed (\id{IDASolve} returned 
+  If the {\idaspils} solve function failed (\id{IDA} returned
   \id{IDA\_LSOLVE\_FAIL}), \id{lsflag} contains the error return flag from
-  \id{SpgmrSolve} and will be one of:
-  \id{SPGMR\_MEM\_NULL}, indicating that the {\spgmr} memory is \id{NULL};
-  \id{SPGMR\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the 
+  the {\sunlinsol} object, which will be one of:
+  \id{SUNLS\_MEM\_NULL}, indicating that the {\sunlinsol} memory is \id{NULL};
+  \id{SUNLS\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the 
   $J*v$ function;
-  \id{SPGMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
+  \id{SUNLS\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
   function \id{psolve} failed unrecoverably;
-  \id{SPGMR\_GS\_FAIL}, indicating a failure in the Gram-Schmidt procedure;
-  or \id{SPGMR\_QRSOL\_FAIL}, indicating that the matrix $R$ was found to 
-  be singular during the QR solve phase.
-
-  If the {\idaspbcg} solve function failed (\id{IDASolve} returned 
-  \id{IDA\_LSOLVE\_FAIL}), \id{lsflag} contains the error return flag from
-  \id{SpbcgSolve} and will be one of:
-  \id{SPBCG\_MEM\_NULL}, indicating that the {\spbcg} memory is \id{NULL};
-  \id{SPBCG\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the 
-  $J*v$ function; or
-  \id{SPBCG\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
-  function \id{psolve} failed unrecoverably.
-
-  If the {\idasptfqmr} solve function failed (\id{IDASolve} returned 
-  \id{IDA\_LSOLVE\_FAIL}), \id{lsflag} contains the error flag from
-  \id{SptfqmrSolve} and will be one of:
-  \id{SPTFQMR\_MEM\_NULL}, indicating that the {\sptfqmr} memory is \id{NULL};
-  \id{SPTFQMR\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in 
-  the $J*v$ function; or
-  \id{SPTFQMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
-  function \id{psolve} failed unrecoverably.
-
-
+  \id{SUNLS\_GS\_FAIL}, indicating a failure in the Gram-Schmidt
+  procedure ({\spgmr} and {\spfgmr} only); 
+  \id{SUNLS\_QRSOL\_FAIL}, indicating that the matrix $R$ was found to be
+  singular during the QR solve phase ({\spgmr} and {\spfgmr} only); or
+  \id{SUNLS\_PACKAGE\_FAIL\_UNREC}, indicating an unrecoverable
+  failure in an external iterative linear solver package.
 }
+%%
 %%
 \ucfunction{IDASpilsGetReturnFlagName}
 {
@@ -3852,12 +3750,8 @@ the name of an optional output from the main solver, a suffix \id{LS}
   The return value is a string containing the name of the corresponding constant.
 }
 {}
-%%
-\index{IDASPTFQMR@{\idasptfqmr} linear solver!optional output|)}
-\index{IDASPBCG@{\idaspbcg} linear solver!optional output|)} 
-\index{IDASPGMR@{\idaspgmr} linear solver!optional output|)} 
-\index{optional output!iterative linear solver|)}
-
+\index{IDASPILS@{\idaspils} linear solver interface!optional output|)} 
+\index{optional output!iterative linear solver interface|)}
 %%===================================================================================
 
 \subsection{IDA reinitialization function}\label{sss:idareinit}
@@ -3880,7 +3774,10 @@ specified in the last call to \id{IDAInit}.  In addition, the same
 will be reused for the new problem.
 
 If there are changes to the linear solver specifications, make the
-appropriate \id{IDA***} calls, as described in \S\ref{sss:lin_solv_init}.
+appropriate calls to either the linear solver objects themselves, or
+to the {\idadls} or {\idaspils} interface routines, as described in
+\S\ref{sss:lin_solv_init}.
+
 If there are changes to any optional inputs, make the appropriate
 \id{IDASet***} calls, as described in \S\ref{ss:optional_input}.
 Otherwise, all solver inputs set previously remain in effect.
@@ -3952,7 +3849,7 @@ is to be a jump in the dependent variable vector.
 The user-supplied functions consist of one function defining the DAE residual,
 (optionally) a function that handles error and warning messages, 
 (optionally) a function that provides the error weight vector,
-(optionally) a function that provides Jacobian-related information for the linear 
+(optionally) one or two functions that provide Jacobian-related information for the linear 
 solver (if Newton iteration is chosen), and (optionally) one or two functions 
 that define the preconditioner for use in any of the Krylov iteration algorithms.
 %%
@@ -4138,29 +4035,27 @@ the user must supply a {\CC} function of type \ID{IDARootFn}, defined as follows
 %%
 %%--------------
 %%
-\subsection{Jacobian information (direct method with dense Jacobian)}
+\subsection{Jacobian information (direct method Jacobian)}
 \label{ss:djacFn}
-\index{Jacobian approximation function!dense!user-supplied|(}
-If the direct linear solver with dense treatment of the Jacobian is
-used (i.e. either \Id{IDADense} or \Id{IDALapackDense} is called in
-Step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), the user may
-provide a function of type \ID{IDADlsDenseJacFn} defined by
-\usfunction{IDADlsDenseJacFn}
+\index{Jacobian approximation function!user-supplied|(}
+If the direct linear solver interface  is used (i.e. 
+\Id{IDADlsSetLinearSolver} is called in the step described in 
+\S\ref{ss:skeleton_sim}), the user may
+provide a function of type \ID{IDADlsJacFn} defined as follows:
+%%
+\usfunction{IDADlsJacFn}
 {
-  typedef int (*IDADlsDenseJac&Fn)(sunindextype Neq, realtype tt, realtype cj,\\
+  typedef int (*IDADlsJacFn)(&realtype tt, realtype cj,\\
                              &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\ 
-                             &DlsMat Jac, void *user\_data,  \\
+                             &SUNMatrix Jac, void *user\_data,  \\
                              &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
 {
-  This function computes the dense Jacobian $J$ of the DAE system (or an
+  This function computes the Jacobian matrix $J$ of the DAE system (or an
   approximation to it), defined by Eq. (\ref{e:DAE_Jacobian}).
-  
 }
 {
   \begin{args}[user\_data]
-  \item[Neq]
-    is the problem size (number of equations).
   \item[tt]
     is the current value of the independent variable $t$.
   \item[cj]
@@ -4173,7 +4068,7 @@ provide a function of type \ID{IDADlsDenseJacFn} defined by
   \item[rr]
     is the current value of the residual vector $F(t,y,\dot{y})$.
   \item[Jac]
-    is the output (approximate) Jacobian matrix,
+    is the output (approximate) Jacobian matrix (of type \id{SUNMatrix}),
     $J = \partial{F}/\partial{y} + cj ~ \partial{F}/\partial{\dot{y}}$.  
   \item[user\_data]
     is a pointer to user data, the same as the \id{user\_data}      
@@ -4182,11 +4077,12 @@ provide a function of type \ID{IDADlsDenseJacFn} defined by
   \item[tmp2]
   \item[tmp3]
     are pointers to memory allocated for variables of type \id{N\_Vector} 
-    which can be used by \id{IDADlsDenseJacFn} as temporary storage or work space.
+    which can be used by \id{IDADlsJacFn} function 
+    as temporary storage or work space.
   \end{args}
 }
 {
-  An \id{IDADlsDenseJacFn} function type should return $0$ if successful,
+  An \id{IDADlsJacFn} should return $0$ if successful,
   a positive value if a recoverable error occurred, or a negative value
   if a nonrecoverable error occurred. 
 
@@ -4195,250 +4091,109 @@ provide a function of type \ID{IDADlsDenseJacFn} defined by
   and hence changing $\alpha$ in (\ref{e:DAE_Jacobian}).
 }
 {
+  Information regarding the structure of the specific {\sunmatrix}
+  structure (e.g.~number of rows, upper/lower bandwidth, sparsity
+  type) may be obtained through using the implementation-specific
+  {\sunmatrix} interface functions (see Chapter \ref{s:sunmatrix} for
+  details).
+
+  Prior to calling the user-supplied Jacobian function, the Jacobian
+  matrix $J(t,y)$ is zeroed out, so only nonzero elements need to be
+  loaded into \id{Jac}.
+
+  If the user's \id{IDADlsJacFn} function uses difference
+  quotient approximations, it may need to access quantities not in the
+  call list. These quantities may include the current stepsize, the error weights, etc.
+  To obtain these, the user will need to add a pointer to \id{ida\_mem} 
+  to \id{user\_data} and then use the \id{IDAGet*} functions described in
+  \S\ref{sss:optout_main}. The unit roundoff can be accessed as
+  \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+
+  {\bf dense:}\\
   A user-supplied dense Jacobian function must load the \id{Neq} $\times$ \id{Neq}
   dense matrix \id{Jac} with an approximation to the Jacobian matrix $J(t,y,\dot{y})$
-  at the point (\id{tt}, \id{yy}, \id{yp}).  Only nonzero elements need to be loaded
-  into \id{Jac} because \id{Jac} is set to the zero matrix before the call
-  to the Jacobian function. The type of \id{Jac} is \Id{DlsMat} 
-  (described below and in \S\ref{s:dls}). 
-  
-  The accessor macros \Id{DENSE\_ELEM} and \Id{DENSE\_COL} allow the user to
-  read and write dense matrix elements without making explicit
-  references to the underlying representation of the \id{DlsMat}
-  type. \id{DENSE\_ELEM(Jac, i, j)} references the (\id{i}, \id{j})-th
-  element of the dense matrix \id{Jac} (\id{i}, \id{j}$= 0\ldots$ \id{Neq}$-1$).
-  This macro is for use in small problems in which efficiency of access is not a
-  major concern.  Thus, in terms of indices $m$ and $n$ running from $1$ to
-  \id{Neq}, the Jacobian element $J_{m,n}$ can be loaded with the statement
-  \id{DENSE\_ELEM(Jac, m-1, n-1) =} $J_{m,n}$.  Alternatively,
-  \id{DENSE\_COL(Jac, j)} returns a pointer to the storage for
-  the \id{j}th column of \id{Jac} (\id{j}$= 0\ldots$ \id{Neq}$-1$), and the 
-  elements of the \id{j}-th column
-  are then accessed via ordinary array indexing.  Thus $J_{m,n}$ can be 
-  loaded with the statements \id{col\_n = DENSE\_COL(Jac, n-1);}
-  \id{col\_n[m-1] =} $J_{m,n}$.  For large problems, it is more 
-  efficient to use \id{DENSE\_COL} than to use \id{DENSE\_ELEM}. 
-  Note that both of these macros number rows and columns
-  starting from $0$, not $1$.  
+  at the point (\id{tt}, \id{yy}, \id{yp}).  The accessor macros \Id{SM\_ELEMENT\_D}
+  and \Id{SM\_COLUMN\_D} allow the user to read and write dense matrix
+  elements without making explicit references to the underlying
+  representation of the {\sunmatdense} type.
+  \id{SM\_ELEMENT\_D(J, i, j)} references the (\id{i}, \id{j})-th
+  element of the dense matrix \id{Jac} (with \id{i}, \id{j }$= 0\ldots
+  \id{N}-1$). This macro is meant for small problems for which efficiency
+  of access is not a major concern.  Thus, in terms of the indices $m$
+  and $n$ ranging from $1$ to $N$, the Jacobian element $J_{m,n}$ can
+  be set using the statement \id{SM\_ELEMENT\_D(J, m-1, n-1) =}
+  $J_{m,n}$.  Alternatively, \id{SM\_COLUMN\_D(J, j)} returns a
+  pointer to the first element of the \id{j}-th column of \id{Jac}
+  (with \id{j }$= 0\ldots \id{N}-1$), and the elements of the \id{j}-th column
+  can then be accessed using ordinary array indexing.  Consequently,
+  $J_{m,n}$ can be loaded using the statements
+  \id{col\_n = SM\_COLUMN\_D(J, n-1);} \id{col\_n[m-1] =} $J_{m,n}$.
+  For large problems, it is more efficient to use \id{SM\_COLUMN\_D}
+  than to use \id{SM\_ELEMENT\_D}.  Note that both of these macros
+  number rows and columns starting from $0$.  The {\sunmatdense} type
+  and accessor macros are documented in \S\ref{ss:sunmat_dense}.
 
-  The \id{DlsMat} type and the accessor macros \id{DENSE\_ELEM} and 
-  \id{DENSE\_COL} are documented in \S\ref{s:dls}.
+  {\bf banded}:\\
+  A user-supplied banded Jacobian function must load the \id{Neq} $\times$ \id{Neq}
+  banded matrix \id{Jac} with an approximation to the Jacobian matrix $J(t,y,\dot{y})$
+  at the point (\id{tt}, \id{yy}, \id{yp}).
+  The accessor macros \Id{SM\_ELEMENT\_B},
+  \Id{SM\_COLUMN\_B}, and \Id{SM\_COLUMN\_ELEMENT\_B} allow the user
+  to read and write banded matrix elements without making specific
+  references to the underlying representation of the {\sunmatband}
+  type.  \id{SM\_ELEMENT\_B(J, i, j)} references the (\id{i},
+  \id{j})-th element of the banded matrix \id{Jac}, counting from $0$.
+  This macro is meant for use in small problems for which efficiency
+  of access is not a major concern.  Thus, in terms of the indices $m$
+  and $n$ ranging from $1$ to $\id{N}$ with $(m,n)$ within the band defined
+  by \id{mupper} and \id{mlower}, the Jacobian element $J_{m,n}$ can
+  be loaded using the statement \id{SM\_ELEMENT\_B(J, m-1, n-1) =}
+  $J_{m,n}$. The elements within the band are those with \id{-mupper}
+  $\le$ \id{m-n} $\le$ \id{mlower}. Alternatively,
+  \id{SM\_COLUMN\_B(J, j)} returns a pointer to the diagonal element
+  of the \id{j}-th column of \id{Jac}, and if we assign this address
+  to \id{realtype *col\_j}, then the \id{i}-th element of the
+  \id{j}-th column is given by
+  \id{SM\_COLUMN\_ELEMENT\_B(col\_j, i, j)}, counting from $0$.  Thus,
+  for $(m,n)$ within the band, $J_{m,n}$ can be loaded by setting
+  \id{col\_n = SM\_COLUMN\_B(J, n-1);}
+  \id{SM\_COLUMN\_ELEMENT\_B(col\_n, m-1, n-1) =} $J_{m,n}$.  The
+  elements of the \id{j}-th column can also be accessed via ordinary
+  array indexing, but this approach requires knowledge of the
+  underlying storage for a band matrix of type {\sunmatband}.   
+  The array \id{col\_n} can be indexed from $-$\id{mupper} to
+  \id{mlower}. For large problems, it is more efficient to use
+  \id{SM\_COLUMN\_B} and \id{SM\_COLUMN\_ELEMENT\_B} than to use the
+  \id{SM\_ELEMENT\_B} macro.  As in the dense case, these macros all
+  number rows and columns starting from $0$.  The {\sunmatband} type
+  and accessor macros are documented in \S\ref{ss:sunmat_band}.
 
-  If the user's \id{IDADlsDenseJacFn} function uses difference
-  quotient approximations, it may need to access quantities not in the
-  call list. These include the current stepsize, the error weights, etc.
-  To obtain these, the user will need to add a pointer to \id{ida\_mem} 
-  to \id{user\_data} and then use the \id{IDAGet*} functions described in
-  \S\ref{sss:optout_main}. The unit roundoff can be accessed as
-  \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
-
-  For the sake of uniformity, the argument \id{Neq} is of type \id{sunindextype},
-  even in the case that the Lapack dense solver is to be used.
+  {\bf sparse}:\\
+  A user-supplied sparse Jacobian function must load the \id{Neq} $\times$ \id{Neq}
+  compressed-sparse-column or compressed-sparse-row matrix \id{Jac}
+  with an approximation to the Jacobian matrix $J(t,y,\dot{y})$
+  at the point (\id{tt}, \id{yy}, \id{yp}).
+  Storage for \id{Jac} already exists on entry to
+  this function, although the user should ensure that sufficient space
+  is allocated in \id{Jac} to hold the nonzero values to be set; if
+  the existing space is insufficient the user may reallocate the data
+  and index arrays as needed.  The amount of allocated space in a
+  {\sunmatsparse} object may be accessed using the macro
+  \Id{SM\_NNZ\_S} or the routine \Id{SUNSparseMatrix\_NNZ}.  The
+  {\sunmatsparse} type and accessor macros are documented in 
+  \S\ref{ss:sunmat_sparse}. 
 }
-\index{Jacobian approximation function!dense!user-supplied|)}
+\index{Jacobian approximation function!user-supplied|)}
 %%
 %%--------------
-%%
-\subsection{Jacobian information (direct method with banded Jacobian)}
-\label{ss:bjacFn}
-\index{Jacobian approximation function!band!user-supplied|(}
-\index{half-bandwidths|(}
-If the direct linear solver with banded treatment of the Jacobian is
-used (i.e. either \Id{IDABand} or \Id{IDALapackBand} is called in Step
-\ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), the user may provide a
-function of type \ID{IDADlsBandJacFn} defined as follows:
-\usfunction{IDADlsBandJacFn}
-{
- typedef int (*IDADlsBandJacFn&)(sunindextype Neq, sunindextype mupper,\\
-                             &sunindextype mlower, realtype tt, realtype cj,\\ 
-                             &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\
-                             &DlsMat Jac, void *user\_data, \\
-                             &N\_Vector tmp1, N\_Vector tmp2,N\_Vector tmp3);
-}
-{
-  This function computes the banded Jacobian $J$ of the DAE system (or a banded
-  approximation to it), defined by Eq. (\ref{e:DAE_Jacobian}).
-
-}
-{
-  \begin{args}[user\_data]
-  \item[Neq]
-    is the problem size.
-  \item[mupper]
-  \item[mlower]
-    are the upper and lower half bandwidth of the Jacobian.
-  \item[tt]
-    is the current value of the independent variable.
-  \item[yy]
-    is the current value of the dependent variable vector, $y(t)$.
-  \item[yp]
-    is the current value of $\dot{y}(t)$.
-  \item[rr]
-    is the current value of the residual vector $F(t,y,\dot{y})$.
-  \item[cj]
-    is the scalar in the system Jacobian, proportional to the inverse of the
-    step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
-  \item[Jac]
-    is the output (approximate) Jacobian matrix,
-    $J = \partial{F}/\partial{y} + cj ~ \partial{F}/\partial{\dot{y}}$.
-    \item[user\_data]
-    is a pointer to user data, the same as the \id{user\_data}      
-    parameter passed to \id{IDASetUserData}.   
-  \item[tmp1]
-  \item[tmp2]
-  \item[tmp3]
-    are pointers to memory allocated for variables of type \id{N\_Vector} 
-    which can be used by \id{IDADlsBandJacFn} as temporary storage or work space.    
-  \end{args}
-}
-{
-  A \id{IDADlsBandJacFn} function type should return $0$ if successful,
-  a positive value if a recoverable error occurred, or a negative value
-  if a nonrecoverable error occurred. 
-
-  In the case of a recoverable eror return, 
-  the integrator will attempt to recover by reducing the stepsize,
-  and hence changing $\alpha$ in (\ref{e:DAE_Jacobian}).
-}
-{
-  A user-supplied band Jacobian function must load the band matrix \id{Jac}
-  of type \Id{DlsMat} with the elements of the Jacobian $J(t,y,\dot{y})$ at the
-  point (\id{tt}, \id{yy}, \id{yp}).  Only nonzero elements need to be loaded into
-  \id{Jac} because \id{Jac} is preset to zero before the call to the
-  Jacobian function.  
-
-  The accessor macros \Id{BAND\_ELEM}, \Id{BAND\_COL}, and \Id{BAND\_COL\_ELEM} 
-  allow the user to read and write band matrix elements without making specific 
-  references to the underlying representation of the \id{DlsMat} type.
-  \id{BAND\_ELEM(Jac, i, j)} references the (\id{i}, \id{j})th element of the 
-  band matrix \id{Jac}, counting from $0$.
-  This macro is for use in small problems in which efficiency of access is not
-  a major concern.  Thus, in terms of indices $m$ and $n$ running from $1$ to
-  \id{Neq} with $(m,n)$ within the band defined by \id{mupper} and
-  \id{mlower}, the Jacobian element $J_{m,n}$ can be loaded with the 
-  statement \id{BAND\_ELEM(Jac, m-1, n-1) =} $J_{m,n}$. The elements within
-  the band are those with \id{-mupper} $\le$ \id{m-n} $\le$ \id{mlower}.
-  Alternatively, \id{BAND\_COL(Jac, j)} returns a pointer to the diagonal element
-  of the \id{j}th column of \id{Jac}, and if we assign this address to 
-  \id{realtype *col\_j}, then the \id{i}th element of the \id{j}th column is
-  given by \id{BAND\_COL\_ELEM(col\_j, i, j)}, counting from $0$.
-  Thus for $(m,n)$ within the band, $J_{m,n}$ can be loaded by setting 
-  \id{col\_n = BAND\_COL(Jac, n-1);} \id{BAND\_COL\_ELEM(col\_n, m-1, n-1) =} $J_{m,n}$.
-  The elements of the \id{j}th column can also be accessed
-  via ordinary array indexing, but this approach requires knowledge of
-  the underlying storage for a band matrix of type \id{DlsMat}.  
-  The array \id{col\_n} can be indexed from $-$\id{mupper} to \id{mlower}.
-  For large problems, it is more efficient to use the combination of
-  \id{BAND\_COL} and \id{BAND\_COL\_ELEM} than to use the
-  \id{BAND\_ELEM}.  As in the dense case, these macros all number rows
-  and columns starting from $0$, not $1$.  
-
-  The \id{DlsMat} type and the accessor macros \id{BAND\_ELEM}, \id{BAND\_COL}, and
-  \id{BAND\_COL\_ELEM} are documented in \S\ref{s:dls}.
-
-  If the user's \id{IDADlsBandJacFn} function uses difference quotient
-  approximations, it may need to access quantities not in the call
-  list. These include the current stepsize, the error weights, etc.
-  To obtain these, the user will need to add a pointer to \id{ida\_mem} 
-  to \id{user\_data} and then use the \id{IDAGet*} functions described in
-  \S\ref{sss:optout_main}. The unit roundoff can be accessed as
-  \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
-
-  For the sake of uniformity, the arguments \id{Neq}, \id{mlower}, and \id{mupper} are
-  of type \id{sunindextype}, even in the case that the Lapack band solver is to be used.
-}
-\index{half-bandwidths|)}
-\index{Jacobian approximation function!band!user-supplied|)}
-%%
-%%----------------
-%%
-\subsection{Jacobian information (direct method with sparse Jacobian)}
-\label{ss:sjacFn}
-\index{Jacobian approximation function!sparse!user-supplied|(}
-If the direct linear solver with sparse treatment of the Jacobian is
-used (i.e. either \Id{IDAKLU} or \Id{IDASuperLUMT} is called in Step
-\ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), the user must provide a
-function of type \ID{IDASlsSparseJacFn} defined as follows:
-\usfunction{IDASlsSparseJacFn}
-{
- typedef int (*IDASlsSparseJ&acFn)(realtype t, realtype c\_j,\\ 
-                             &N\_Vector y, N\_Vector yp, N\_Vector r, \\
-                             &SlsMat Jac, void *user\_data, \\
-                             &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
-}
-{
-  This function computes the sparse Jacobian $J$ of the DAE system (or an
-  approximation to it), defined by Eq. (\ref{e:DAE_Jacobian}).
-
-}
-{
-  \begin{args}[user\_data]
-  \item[t]
-    is the current value of the independent variable.
-  \item[y]
-    is the current value of the dependent variable vector, $y(t)$.
-  \item[yp]
-    is the current value of $\dot{y}(t)$.
-  \item[r]
-    is the current value of the residual vector $F(t,y,\dot{y})$.
-  \item[c\_j]
-    is the scalar in the system Jacobian, proportional to the inverse of the
-    step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
-  \item[Jac]
-    is the output (approximate) Jacobian matrix,
-    $J = \partial{F}/\partial{y} + cj ~ \partial{F}/\partial{\dot{y}}$.
-  \item[user\_data]
-    is a pointer to user data, the same as the \id{user\_data}      
-    parameter passed to \id{IDASetUserData}.   
-  \item[tmp1]
-  \item[tmp2]
-  \item[tmp3]
-    are pointers to memory allocated for variables of type \id{N\_Vector} 
-    which can be used by \id{IDASlsSparseJacFn} as temporary storage or work space.    
-  \end{args}
-}
-{
-  A \id{IDASlsSparseJacFn} function type should return $0$ if successful,
-  a positive value if a recoverable error occurred, or a negative value
-  if a nonrecoverable error occurred. 
-
-  In the case of a recoverable error return, 
-  the integrator will attempt to recover by reducing the stepsize,
-  and hence changing $\alpha$ in (\ref{e:DAE_Jacobian}).
-}
-{
-  A user-supplied sparse Jacobian function must load the
-  compressed-sparse-column matrix \id{Jac} with the elements of the
-  Jacobian $J(t,y,\dot{y})$ at the point (\id{t}, \id{y}, \id{yp}).
-  Storage for \id{Jac} already exists on entry to this function,
-  although the user should ensure that sufficient space is allocated
-  in \id{Jac} to hold the nonzero values to be set; if the existing
-  space is insufficient the user may reallocate the data and row index
-  arrays as needed.  The type of \id{Jac} is \id{SlsMat}, and the
-  amount of allocated space is available within the \id{SlsMat}
-  structure as \id{NNZ}.  The \id{SlsMat} type is further documented
-  in the Section \S\ref{s:sls}. 
- 
-  If the user's \id{IDASlsSparseJacFn} function uses difference quotient
-  approximations to set the specific nonzero matrix entries, then it
-  may need to access quantities not in the argument list. These
-  include the current step size, the error weights, etc.  
-  To obtain these, the user will need to add a pointer to \id{ida\_mem} 
-  to \id{user\_data} and then use the \id{IDAGet*} functions described in
-  \S\ref{sss:optout_main}. The unit roundoff can be accessed as
-  \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
-}
-\index{Jacobian approximation function!sparse!user-supplied|)}
-%%
-%%----------------
 %%
 \subsection{Jacobian information (matrix-vector product)}
 \label{ss:jtimesFn}
 \index{Jacobian approximation function!Jacobian times vector!user-supplied|(}
-If one of the Krylov iterative linear solvers {\spgmr}, {\spbcg}, or {\sptfqmr} is
-selected (\id{IDASp*} is called in step \ref{i:lin_solver} of
-\S\ref{ss:skeleton_sim}), the user may provide a function
-of type \ID{IDASpilsJacTimesVecFn}, described below,
+If the {\idaspils} solver interface is selected
+(i.e., \id{IDASpilsSetLinearSolver} is called in the steps described in
+\S\ref{ss:skeleton_sim}), the user may
+provide a function of type \Id{IDASpilsJacTimesVecFn} in the following form,
 to compute matrix-vector products $Jv$. If such a function is not supplied,
 the default is a difference quotient approximation to these products.
 %
@@ -4482,7 +4237,7 @@ the default is a difference quotient approximation to these products.
   \end{args}
 }
 {
-  The value to be returned by the Jacobian-times-vector function should be 0 if
+  The value returned by the Jacobian-times-vector function should be 0 if
   successful.  A nonzero value indicates that a nonrecoverable error occurred. 
 
   If the user's \id{IDASpilsJacTimesVecFn} function uses difference quotient
@@ -4498,13 +4253,71 @@ the default is a difference quotient approximation to these products.
 %%
 %%--------------
 %%
+\subsection{Jacobian information (matrix-vector setup)}
+\label{ss:jtsetupFn}
+\index{Jacobian approximation function!Jacobian-vector setup!user-supplied|(}
+If the user's Jacobian-times-vector requires that any Jacobian-related data
+be preprocessed or evaluated, then this needs to be done in a
+user-supplied function of type \Id{IDASpilsJacTimesSetupFn}, defined as follows:
+%
+\usfunction{IDASpilsJacTimesSetupFn}
+{
+  typedef int (*IDASpilsJacTimesSetupFn)(&realtype tt, N\_Vector yy, \\
+                                       &N\_Vector yp, N\_Vector rr, \\
+                                       &realtype cj, void *user\_data);
+}
+{
+  This function preprocesses and/or evaluates Jacobian-related data needed
+  by the Jacobian-times-vector routine.
+}
+{
+  \begin{args}[user\_data]
+  \item[tt]
+    is the current value of the independent variable.
+  \item[yy]
+    is the current value of the dependent variable vector, $y(t)$.
+  \item[yp]
+    is the current value of $\dot{y}(t)$.
+  \item[rr]
+    is the current value of the residual vector $F(t,y,\dot{y})$.
+  \item[cj]
+    is the scalar in the system Jacobian, proportional to the inverse of the
+    step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
+  \item[user\_data]
+    is a pointer to user data, the same as the \id{user\_data}      
+    parameter passed to \id{IDASetUserData}.   
+  \end{args}
+}
+{
+  The value returned by the Jacobian-vector setup function
+  should be $0$ if successful, positive for a recoverable error (in
+  which case the step will be retried), or negative for an
+  unrecoverable error (in which case the integration is halted). 
+} 
+{
+  Each call to the Jacobian-vector setup function is preceded by a call to
+  the \id{IDARhsFn} user function with the same \id{(t,y, yp)} arguments.  
+  Thus, the setup function can use any auxiliary data that is computed
+  and saved during the evaluation of the DAE residual. 
+  
+  If the user's \id{IDASpilsJacTimesVecFn} function uses difference quotient
+  approximations, it may need to access quantities not in the call
+  list. These include the current stepsize, the error weights, etc.
+  To obtain these, the user will need to add a pointer to \id{ida\_mem} 
+  to \id{user\_data} and then use the \id{IDAGet*} functions described in
+  \S\ref{sss:optout_main}. The unit roundoff can be accessed as
+  \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+}
+{}
+\index{Jacobian approximation function!Jacobian-vector setup!user-supplied|)}
+%%
+%%--------------
+%%
 \subsection{Preconditioning (linear system solution)}
 \label{ss:psolveFn}
 \index{preconditioning!user-supplied}
-\index{IDASPGMR@{\idaspgmr} linear solver!preconditioner solve function}
-\index{IDASPBCG@{\idaspbcg} linear solver!preconditioner solve function}
-\index{IDASPTFQMR@{\idasptfqmr} linear solver!preconditioner solve function}
-If preconditioning is used, then the user must provide a {\CC} function to
+\index{IDASPLS@{\idaspils} linear solver interface!preconditioner solve function}
+If preconditioning is used, then the user must provide a function to
 solve the linear system $Pz = r$ where $P$ is a left preconditioner
 matrix which approximates (at least crudely) the Jacobian matrix 
 $J = \partial{F}/\partial{y} + cj ~ \partial{F}/\partial{\dot{y}}$.
@@ -4517,7 +4330,7 @@ This function must be of type \ID{IDASpilsPrecSolveFn}, defined as follows:
                                      &N\_Vector yp, N\_Vector rr, \\
                                      &N\_Vector rvec, N\_Vector zvec, \\ 
                                      &realtype cj, realtype delta, \\
-                                     &void *user\_data, N\_Vector tmp);
+                                     &void *user\_data);
 }
 {
   This function solves the preconditioning system $Pz = r$.
@@ -4550,9 +4363,6 @@ This function must be of type \ID{IDASpilsPrecSolveFn}, defined as follows:
   \item[user\_data]
     is a pointer to user data, the same as the \id{user\_data}      
     parameter passed to the function \id{IDASetUserData}.
-  \item[tmp]
-    is a pointer to memory allocated for a variable of type    
-    \id{N\_Vector} which can be used for work space.
   \end{args}
 }
 {
@@ -4568,26 +4378,21 @@ This function must be of type \ID{IDASpilsPrecSolveFn}, defined as follows:
 \subsection{Preconditioning (Jacobian data)}
 \label{ss:precondFn}
 \index{preconditioning!user-supplied}
-\index{IDASPGMR@{\idaspgmr} linear solver!preconditioner setup function}
-\index{IDASPBCG@{\idaspbcg} linear solver!preconditioner setup function}
-\index{IDASPTFQMR@{\idasptfqmr} linear solver!preconditioner setup function}
+\index{IDASPILS@{\idaspils} linear solver interface!preconditioner setup function}
 If the user's preconditioner requires that any Jacobian-related data
 be evaluated or preprocessed, then this needs to be done in a
-user-supplied {\CC} function of type \ID{IDASpilsPrecSetupFn}, defined as follows:
+user-supplied function of type \ID{IDASpilsPrecSetupFn}, defined as follows:
 \usfunction{IDASpilsPrecSetupFn}
 {
   typedef int (*IDASpilsPrecSetupFn)(&realtype tt, N\_Vector yy, \\
                                      &N\_Vector yp, N\_Vector rr, \\
-                                     &realtype cj, void *user\_data,\\
-                                     &N\_Vector tmp1, N\_Vector tmp2,\\
-                                     &N\_Vector tmp3);
+                                     &realtype cj, void *user\_data);
 }
 {
   This function evaluates and/or preprocesses Jacobian-related data needed
   by the preconditioner.
 }
 {
-  The arguments of an \id{IDASpilsPrecSetupFn} are as follows:
   \begin{args}[user\_data]
   \item[tt]
     is the current value of the independent variable.
@@ -4603,15 +4408,10 @@ user-supplied {\CC} function of type \ID{IDASpilsPrecSetupFn}, defined as follow
   \item[user\_data]
     is a pointer to user data, the same as the \id{user\_data}      
     parameter passed to the function \id{IDASetUserData}.
-  \item[tmp1]
-  \item[tmp2]
-  \item[tmp3]
-    are pointers to memory allocated for variables of type \id{N\_Vector} which
-    can be used by \id{IDASpilsPrecSetupFn} as temporary storage or work space.
   \end{args}
 }
 {
-  The value to be returned by the preconditioner setup function is a flag
+  The value returned by the preconditioner setup function is a flag
   indicating whether it was successful.  This value should be $0$ if successful, 
   positive for a recoverable error (in which case the step will be retried),     
   negative for an unrecoverable error (in which case the integration is halted). 
@@ -4663,7 +4463,7 @@ included in a software module within the {\ida} package. This module
 works with the parallel vector module {\nvecp} and 
 generates a preconditioner that is a block-diagonal matrix with each
 block being a band matrix. The blocks need not have the same number of
-super- and sub-diagonals and these numbers may vary from block to
+super- and sub-diagonals, and these numbers may vary from block to
 block. This Band-Block-Diagonal Preconditioner module is called
 {\idabbdpre}.
 
@@ -4869,19 +4669,25 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   \textcolor{gray}{\bf Create {\ida} object}
 
 \item
-  \textcolor{gray}{\bf Allocate internal memory}
+  \textcolor{gray}{\bf Initialize {\ida} solver}
+
+\item
+  \textcolor{gray}{\bf Specify integration tolerances}
 
 \item
   \textcolor{gray}{\bf Set optional inputs}
 
-\item \label{i:bbdpre_attach}
-  {\bf Attach iterative linear solver, one of:}
+\item
+  {\bf Create linear solver object}
 
-  \begin{itemize}
-  \item[(a) ] \id{flag = IDASpgmr(ida\_mem, maxl);}
-  \item[(b) ] \id{flag = IDASpbcg(ida\_mem, maxl);}
-  \item[(c) ] \id{flag = IDASptfqmr(ida\_mem, maxl);}
-  \end{itemize}
+  When creating the iterative linear solver object, specify the typeuse of 
+  left preconditioning (\id{PREC\_LEFT}) as IDA only supports left preconditioning.
+
+\item
+  \textcolor{gray}{\bf Set linear solver optional inputs}
+
+\item \label{i:bbdpre_attach}
+  {\bf Attach iterative linear solver module}
 
 \item \label{i:bbdpre_init}
   {\bf Initialize the {\idabbdpre} preconditioner module}
@@ -4901,10 +4707,11 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   functions described above.
 
 \item
-  \textcolor{gray}{\bf Set linear solver optional inputs}
+  \textcolor{gray}{\bf Set linear solver interface optional inputs}
 
   Note that the user should not overwrite the preconditioner setup function
-  or solve function through calls to {\idaspils} optional input functions.
+  or solve function through calls to id{IDASpilsSetPreconditioner} 
+  optional input function.
 
 \item
   \textcolor{gray}{\bf Correct initial values}
@@ -4928,6 +4735,9 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 \item
   \textcolor{gray}{\bf Free solver memory}
   
+\item
+  \textcolor{gray}{\bf Free linear solver memory}
+
 \item 
   \textcolor{gray}{\bf Finalize MPI}
 
@@ -4994,7 +4804,7 @@ described next.
   \item[\Id{IDASPILS\_LMEM\_NULL}]
     An {\idaspils} linear solver memory was not attached.
   \item[\Id{IDASPILS\_ILL\_INPUT}]
-    The supplied vector implementation was not compatible with block band preconditioner.
+    The supplied vector implementation was not compatible with the block band preconditioner.
   \end{args}
 }
 {
@@ -5018,14 +4828,18 @@ described next.
 
 
 The {\idabbdpre} module also provides a reinitialization function to allow
-for a sequence of problems of the same size with {\idaspgmr}/{\idabbdpre},
-{\idaspbcg}/{\idabbdpre}, or {\idasptfqmr}/{\idabbdpre}, provided there is no
+for a sequence of problems of the same size, with the same linear solver choice,
+provided there is no
 change in \id{local\_N}, \id{mukeep}, or \id{mlkeep}.
 After solving one problem, and after calling \id{IDAReInit} to re-initialize 
 {\ida} for a subsequent problem, a call to \id{IDABBDPrecReInit} can be made
 to change any of the following: the half-bandwidths \id{mudq} and \id{mldq} 
 used in the difference-quotient Jacobian approximations, the relative increment 
 \id{dq\_rel\_yy}, or one of the user-supplied functions \id{Gres} and \id{Gcomm}.
+If there is a change in any of the linear solver inputs, an additional call
+to the ``Set'' routines provided by the {\sunlinsol} module, and/or
+one or more of the corresponding \id{IDASpilsSet***} functions, must
+also be made (in the proper order).
 %%
 %%
 %%
@@ -5110,11 +4924,19 @@ the {\idabbdpre} module:
   \end{args}
 }
 {
-  In terms of the local vector dimension $N_l$, and
-  \id{smu} = $\min ( N_l - 1 ,$ \id{mukeep} $+$ \id{mlkeep}$)$,
-  the actual size of the real workspace is
-  $N_l \,(2$ \id{mlkeep} $+$ \id{mukeep} $+$ \id{smu} $+2)$ \id{realtype} words.
-  The actual size of the integer workspace is $N_l$ integer words.
+%%  In terms of the local vector dimension $N_l$, and
+%%  \id{smu} = $\min ( N_l - 1 ,$ \id{mukeep} $+$ \id{mlkeep}$)$,
+%%  the actual size of the real workspace is
+%%  $N_l \,(2$ \id{mlkeep} $+$ \id{mukeep} $+$ \id{smu} $+2)$ \id{realtype} words.
+%%  The actual size of the integer workspace is $N_l$ integer words.
+%%
+  The workspace requirements reported by this routine correspond only
+  to memory allocated within the {\idabbdpre} module (the banded
+  matrix approximation, banded {\sunlinsol} object, temporary vectors).
+  These values are local to each process.
+
+  The workspaces referred to here exist in addition to those given by the
+  corresponding function \id{IDASpilsGetWorkSpace}.
 }
 %%
 %%
