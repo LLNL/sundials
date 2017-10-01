@@ -2528,8 +2528,8 @@ a call of the form
 \PYG{n}{y0} \PYG{o}{=} \PYG{n}{N\PYGZus{}VNew\PYGZus{}}\PYG{o}{*}\PYG{o}{*}\PYG{o}{*}\PYG{p}{(}\PYG{p}{.}\PYG{p}{.}\PYG{p}{.}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
 
-and then set its elements by accessing the underlying data with a
-call of the form
+and then set its elements by accessing the underlying data where it
+is located with a call of the form
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{n}{ydata} \PYG{o}{=} \PYG{n}{N\PYGZus{}VGetArrayPointer\PYGZus{}}\PYG{o}{*}\PYG{o}{*}\PYG{o}{*}\PYG{p}{(}\PYG{n}{y0}\PYG{p}{)}\PYG{p}{;}
@@ -2550,8 +2550,8 @@ where \code{yvec} is a HYPRE or PETSc vector.  Note that calls like
 \code{N\_VNew\_***(...)} and \code{N\_VGetArrayPointer\_***(...)} are not
 available for these vector wrappers.  See the sections
 {\hyperref[nvectors/NVector_ParHyp:nvectors-parhyp]{\emph{\DUspan{}{The NVECTOR\_PARHYP Module}}}} and {\hyperref[nvectors/NVector_PETSc:nvectors-nvpetsc]{\emph{\DUspan{}{The NVECTOR\_PETSC Module}}}} for details.
-For the CUDA- and RAJA-based vector implementations use a call of
-the form
+If using either the CUDA- or RAJA-based vector implementations use
+a call of the form
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{n}{y0} \PYG{o}{=} \PYG{n}{N\PYGZus{}VMake\PYGZus{}}\PYG{o}{*}\PYG{o}{*}\PYG{o}{*}\PYG{p}{(}\PYG{p}{.}\PYG{p}{.}\PYG{p}{.}\PYG{p}{,} \PYG{n}{c}\PYG{p}{)}\PYG{p}{;}
@@ -18243,7 +18243,7 @@ in namespace \code{suncudavec} manages vector data layout.
 \end{Verbatim}
 
 The class members are vector size (length), size of the vector data memory block, pointers
-to vector data on the host and on the device, pointers to classes \code{StreamPartitioning}
+to vector data on the host and the device, pointers to classes \code{StreamPartitioning}
 and \code{ReducePartitioning}, which handle thread partitioning for streaming and
 reduction vector kernels, respectively, and the boolean flag that signals if the
 vector owns thread partitioning. The class \code{Vector} inherits from empty structure
@@ -21262,8 +21262,8 @@ Each \code{SUNLinearSolver} implementation included in SUNDIALS has a ``type''
 identifier specified in enumeration and shown in Table {\hyperref[sunlinsol/SUNLinSol_Description:sunlinsol-linsolids]{\emph{\DUspan{}{Identifiers associated with linear solver kernels supplied with SUNDIALS}}}}.
 It is recommended that a user-supplied \code{SUNLinearSolver} implementation set
 this identifier based on the SUNDIALS solver interface they intend
-to use: ``Dls'' interfaces require \code{SUNLINEARSOLVER\_DIRECT}
-\code{SUNLinearSolver} objects, ``Spils'' interfaces require
+to use: ``Dls'' interfaces require the \code{SUNLINEARSOLVER\_DIRECT}
+\code{SUNLinearSolver} objects, ``Spils'' interfaces require the
 \code{SUNLINEARSOLVER\_ITERATIVE} objects.
 
 
