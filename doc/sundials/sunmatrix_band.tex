@@ -175,7 +175,9 @@ the \emph{banded} version.
 
   \verb|#define SM_COLUMN_ELEMENT_B(col_j,i,j) (col_j[(i)-(j)])|
 
-  \verb|#define SM_ELEMENT_B(A,i,j) ( (SM_CONTENT_B(A)->cols)[j][(i)-(j)+SM_SUBAND_B(A)] )|
+  \verb|#define SM_ELEMENT_B(A,i,j)|
+
+  \hspace{1in} \verb|( (SM_CONTENT_B(A)->cols)[j][(i)-(j)+SM_SUBAND_B(A)] )|
 
 \end{itemize}
 %%

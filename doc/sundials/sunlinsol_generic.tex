@@ -168,8 +168,8 @@ Each {\sunlinsol} implementation included in {\sundials} has a ``type''
 identifier specified in enumeration and shown in Table \ref{t:linsolIDs}.
 It is recommended that a user-supplied {\sunlinsol} implementation set
 this identifier based on the {\sundials} solver interface they intend
-to use: ``Dls'' interfaces require \ID{SUNLINEARSOLVER\_DIRECT}
-{\sunlinsol} objects and ``Spils'' interfaces require 
+to use: ``Dls'' interfaces require the \ID{SUNLINEARSOLVER\_DIRECT}
+{\sunlinsol} objects and ``Spils'' interfaces require the 
 \ID{SUNLINEARSOLVER\_ITERATIVE} objects. 
 
 \begin{table}
@@ -395,7 +395,8 @@ object.
 {
   \begin{args}
   \item[P\_data]
-    is a pointer to client data, the same as that supplied to \id{SUNLinSolSetPreconditioner}.
+    is a pointer to client data, the same pointer as that supplied to the routine 
+    \id{SUNLinSolSetPreconditioner}.
   \end{args}
 }
 {  
@@ -432,7 +433,7 @@ object.
 {
   \begin{args}
   \item[P\_data]
-    is a pointer to client data, the same as that supplied to \id{SUNLinSolSetPreconditioner}.
+    is a pointer to client data, the same pointer as that supplied to the routine \id{SUNLinSolSetPreconditioner}.
   \item[r]
     is the right-hand side vector for the preconditioner system
   \item[z]

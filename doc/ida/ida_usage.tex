@@ -234,12 +234,14 @@ specific name of the function to be called or macro to be referenced.
   \id{N\_VGetArrayPointer(...)} are not available for these vector wrappers.
   See \S\ref{ss:nvec_parhyp} and \S\ref{ss:nvec_petsc} for details.
 
-  For the {\cuda}- and {\raja}-based vector implementations use a call of the form
+  If using either the {\cuda}- or {\raja}-based vector implementations 
+  use a call of the form
   \id{y0 = N\_VMake\_***(..., c)} where \id{c} is a pointer to a \id{suncudavec}
   or \id{sunrajavec} vector class if this class already exists.  Otherwise, 
   create a new vector 
   by making a call of the form \id{y0 = N\_VNew\_***(...)}, and then set its 
-  elements by accessing the underlying data with a call of the form
+  elements by accessing the underlying data where it is located 
+  with a call of the form
   \id{N\_VGetDeviceArrayPointer\_***} or \id{N\_VGetHostArrayPointer\_***}.
   Note that the vector class will allocate memory on both the host and device
   when instantiated.  See \S\ref{ss:nvec_cuda}-\ref{ss:nvec_raja} for details.
@@ -1790,7 +1792,7 @@ The pointer \id{user\_data} may be specified through \id{IDASetUserData}.
   this default function is used.  An error will occur if no \id{jac}
   is supplied when using a sparse matrix.
 
-  The function type \id{IDADlsJacFn} is described in \S\ref{ss:jacFn}.
+  The function type \id{IDADlsJacFn} is described in \S\ref{ss:djacFn}.
 }
 %%
 \index{optional input!direct linear solver interface|)}
@@ -1805,9 +1807,9 @@ The pointer \id{user\_data} may be specified through \id{IDASetUserData}.
 \index{optional input!iterative linear solver|(}
 \index{IDASPILS@{\idaspils} linear solver interface!optional input|(}
 \index{preconditioning!user-supplied|(}
-If preconditioning is to be done with the {\idaspils} linear solver interface, 
+If the user will be doing preconditioning with the {\idaspils} linear solver interface, 
 then the user must supply a preconditioner solve function \id{psolve} and specify
-its name through a call to \id{IDASpilsSetPreconditioner}.
+its name through a call to the routine \id{IDASpilsSetPreconditioner}.
 \index{IDASPILS@{\idaspils} linear solver interface!preconditioner solve function}
 %%
 The evaluation and preprocessing of any Jacobian-related data needed
@@ -1870,7 +1872,7 @@ adjust this linear solver tolerance by calling the function
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[psetup] (\id{IDASpilsPrecSetupFn})
-    user-defined preconditioner setup function.  Pass \id{NULL} if no
+    user-defined function to set up the preconditioner.  Pass \id{NULL} if no
     setup is necessary.
   \item[psolve] (\id{IDASpilsPrecSolveFn})
     user-defined preconditioner solve function.
@@ -1912,7 +1914,7 @@ adjust this linear solver tolerance by calling the function
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[jtsetup] (\id{IDASpilsJacTimesSetupFn})
-    user-defined Jacobian-vector setup function.
+    user-defined function to set up the Jacobian-vector product.
     Pass \id{NULL} if no setup is necessary.
   \item[jtimes] (\id{IDASpilsJacTimesVecFn})
     user-defined Jacobian-vector product function.
@@ -3727,7 +3729,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \id{SUNLS\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
   function \id{psolve} failed unrecoverably;
   \id{SUNLS\_GS\_FAIL}, indicating a failure in the Gram-Schmidt
-  procedure ({\spgmr} and {\spfgmr} only); 
+  procedure (generated only in {\spgmr} or {\spfgmr}); 
   \id{SUNLS\_QRSOL\_FAIL}, indicating that the matrix $R$ was found to be
   singular during the QR solve phase ({\spgmr} and {\spfgmr} only); or
   \id{SUNLS\_PACKAGE\_FAIL\_UNREC}, indicating an unrecoverable
@@ -4156,7 +4158,7 @@ provide a function of type \ID{IDADlsJacFn} defined as follows:
   \id{j}-th column is given by
   \id{SM\_COLUMN\_ELEMENT\_B(col\_j, i, j)}, counting from $0$.  Thus,
   for $(m,n)$ within the band, $J_{m,n}$ can be loaded by setting
-  \id{col\_n = SM\_COLUMN\_B(J, n-1);}
+  \id{col\_n = SM\_COLUMN\_B(J, n-1);} and 
   \id{SM\_COLUMN\_ELEMENT\_B(col\_n, m-1, n-1) =} $J_{m,n}$.  The
   elements of the \id{j}-th column can also be accessed via ordinary
   array indexing, but this approach requires knowledge of the
@@ -4267,7 +4269,7 @@ user-supplied function of type \Id{IDASpilsJacTimesSetupFn}, defined as follows:
                                        &realtype cj, void *user\_data);
 }
 {
-  This function preprocesses and/or evaluates Jacobian-related data needed
+  This function preprocesses and/or evaluates Jacobian data needed
   by the Jacobian-times-vector routine.
 }
 {
@@ -4680,7 +4682,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 \item
   {\bf Create linear solver object}
 
-  When creating the iterative linear solver object, specify the typeuse of 
+  When creating the iterative linear solver object, specify the use of 
   left preconditioning (\id{PREC\_LEFT}) as IDA only supports left preconditioning.
 
 \item
