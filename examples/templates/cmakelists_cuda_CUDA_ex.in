@@ -24,6 +24,10 @@ cmake_minimum_required(VERSION 2.8)
 # Specify project name
 PROJECT(@SOLVER@_CUDA_cuda_examples)
 
+# Set the location of the CUDA toolkit used to build SUNDIALS
+set(CUDA_TOOLKIT_ROOT_DIR @CUDA_TOOLKIT_ROOT_DIR@)
+
+# Get the CUDA toolkit used to build sundials
 find_package(CUDA)
 
 MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
