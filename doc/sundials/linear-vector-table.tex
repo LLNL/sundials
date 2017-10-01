@@ -18,19 +18,18 @@ their own solvers should they so desire.
              implementations that can be used for each.}
     \medskip
     \tablefirsthead{\hline \multicolumn{1}{|p{2cm}|}{{Linear Solver Interface}} &
-                           \multicolumn{1}{p{0.7cm}|}{{Serial}} & 
-                           \multicolumn{1}{p{1.0cm}|}{{Parallel (MPI)}} & 
-                           \multicolumn{1}{p{1.3cm}|}{{OpenMP}} & 
-                           \multicolumn{1}{p{1.3cm}|}{{pThreads}} & 
+                           \multicolumn{1}{p{0.9cm}|}{{Serial}} & 
+                           \multicolumn{1}{p{1.2cm}|}{{Parallel (MPI)}} & 
+                           \multicolumn{1}{p{1.4cm}|}{{OpenMP}} & 
+                           \multicolumn{1}{p{1.5cm}|}{{pThreads}} & 
                            \multicolumn{1}{p{0.9cm}|}{{{\hypre} Vec.}} & 
                            \multicolumn{1}{p{0.9cm}|}{{{\petsc} Vec.}} & 
-                           \multicolumn{1}{p{0.8cm}|}{{{\cuda}}} & 
+                           \multicolumn{1}{p{0.9cm}|}{{{\cuda}}} & 
                            \multicolumn{1}{p{0.8cm}|}{{{\raja}}} & 
-                           \multicolumn{1}{p{1.2cm}|}{{User Suppl.}} \\ \hline }
-    {\renewcommand{\arraystretch}{1.2}
+                           \multicolumn{1}{p{1.1cm}|}{{User Suppl.}} \\ \hline }
+%    {\renewcommand{\arraystretch}{1.2}
+    \scalebox{0.9}{
     \begin{xtabular}{|l|c|c|c|c|c|c|c|c|c|}
-%   Linear Solver &  Serial  & Parallel  &  OpenMP  &  pThreads  & {\hypre}    & {\petsc} & {\cuda}  & {\raja}  & User     \\
-%   Interface     &          & (MPI)     &          &            & Vec.        & Vec.     &          &          & Suppl.   \\ 
     Dense         &  \cm     &           &  \cm     &  \cm       &             &          &          &          & \cm      \\
     Band          &  \cm     &           &  \cm     &  \cm       &             &          &          &          & \cm      \\
     LapackDense   &  \cm     &           &  \cm     &  \cm       &             &          &          &          & \cm      \\
@@ -46,5 +45,6 @@ their own solvers should they so desire.
     \hline
     \end{xtabular}
     }
+%    }
     \label{t:solver-vector}
 \end{table}
