@@ -91,10 +91,6 @@ IF(EXAMPLES_INSTALL)
   STRING (REPLACE ";" " " TMP_STR ${EXAMPLES})
   SET(EXAMPLES ${TMP_STR})
 
-  #LIST2STRING(${CUDA_NVCC_FLAGS} SUN_CUDA_FLAGS)
-  STRING (REPLACE ";" "  " SUN_CUDA_FLAGS ${CUDA_NVCC_FLAGS})
-  #SET(EXAMPLES ${TMP_STR})
-
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
   # be used as a template for the user's own programs.

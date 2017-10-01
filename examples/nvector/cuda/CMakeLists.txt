@@ -41,7 +41,6 @@ ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 SET(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each nvector example
-
 FOREACH(example ${nvector_cuda_examples})
 
   IF(WIN32)
