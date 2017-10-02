@@ -33,26 +33,25 @@ determine the equivalent types for their architecture and compiler,
 and then take care that all arguments passed through this {\F}/{\CC}
 interface are declared of the appropriate type.
 
-\textbf{Integers}: {\sundials} uses both \id{int} and \id{long int} types:
+\textbf{Integers}: {\sundials} uses configurable \id{sunindextype} type as the
+integer type for vector and matrix indices. The \id{sunindextype} can
+be configured to be 32- or 64-bit signed integer by setting variable
+\id{SUNDIALS\_INDEX\_TYPE} at compile time (See Appendix \ref{c:install}).
+The default value is \id{int64\_t}.
+A {\F} user should set this variable based on integer type used for
+vector and matrix indices in her {\F} code. The corresponding {\F}
+types are:
+
 \begin{itemize}
 \item {} 
-\id{int} -- equivalent to an \id{INTEGER} or \id{INTEGER*4} in {\F}
+\id{int32\_t} -- equivalent to an \id{INTEGER} or \id{INTEGER*4} in {\F}
 
 \item {} 
-\id{long int} -- this will depend on the computer architecture:
-\begin{itemize}
-\item {} 
-32-bit architecture -- equivalent to an \id{INTEGER} or \id{INTEGER*4} in {\F}
-
-\item {} 
-64-bit architecture -- equivalent to an \id{INTEGER*8} in {\F}
-
-\end{itemize}
-
+\id{int64\_t} -- equivalent to an \id{INTEGER*8} in {\F}
 \end{itemize}
 
 \textbf{Real numbers}:  As discussed in Appendix \ref{c:install}, at compilation
-{\sundials} allows the configuration option  \id{-{-}with-precision},
+{\sundials} allows the configuration option \id{SUNDIALS\_PRECISION},
 that accepts values of \id{single}, \id{double} or \id{extended} (the
 default is \id{double}).  This choice dictates the size of a
 \id{realtype} variable.  The corresponding {\F} types for these
