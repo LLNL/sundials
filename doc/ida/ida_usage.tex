@@ -26,6 +26,9 @@ check Chapters \ref{s:sunmatrix} and \ref{s:sunlinsol} to verify
 compatability between these modules.  In addition to that
 documentation, we note that the preconditioner module {\idabbdpre}
 can only be used with {\nvecp}.
+It is not recommended to use a threaded vector module with SuperLU\_MT
+unless it is the {\nvecopenmp} module, and SuperLU\_MT is also compiled
+with openMP.
 
 {\ida} uses various constants for both input and output.  These are
 defined as needed in this chapter, but for convenience are also listed
@@ -827,7 +830,7 @@ question, as described in Chapters \ref{s:sunmatrix} and
     The {\idaspils} initialization was successful.
   \item[\Id{IDASPILS\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{idaSPILS\_ILL\_INPUT}]
+  \item[\Id{IDASPILS\_ILL\_INPUT}]
     The {\idaspils} solver is not compatible with the \id{LS} object
     or is incompatible with the current {\nvector} module.
   \item[\Id{IDASPILS\_MEM\_FAIL}]
