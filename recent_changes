@@ -81,7 +81,7 @@ be found at https://xsdk.info.
    and added option to enable/disable Fortran 77 examples
     - Changed ENABLE_EXAMPLES to ENABLE_EXAMPLES_C
     - Changed CXX_ENABLE to EXAMPLES_ENABLE_CXX
-    - Changed F90_ENABLE to EXAMPLES_ENABKE_F90
+    - Changed F90_ENABLE to EXAMPLES_ENABLE_F90
     - Added EXAMPLES_ENABLE_F77 option
 
 * Corrections and additions to all User Guides.
@@ -110,6 +110,9 @@ IDA and IDAS:
 
 KINSOL:
 * Bug Fix: Corrected KINSOL fcmix name translation for FKIN_SPFGMR
+* Renamed KINLocalFn and KINCommFn to KINBBDLocalFn and KINBBDCommFn
+  respectively in the BBD preconditioner module for consistency with
+  other SUNDIALS solvers.
 
 *------------------------------------------------------------------------------*
 Changes to SUNDIALS since Release of March 30, 2015.

@@ -42,8 +42,8 @@
  required by this package, each with the corresponding interface function which
  calls it (and its type within KINBBDPRE):
 
-   FKLOCFN  : called by the interface function FKINgloc of type KINLocalFn
-   FKCOMMFN : called by the interface function FKINgcomm of type KINCommFn
+   FKLOCFN  : called by the interface function FKINgloc of type KINBBDLocalFn
+   FKCOMMFN : called by the interface function FKINgcomm of type KINBBDCommFn
 
  Note: The names of all user-supplied routines here are fixed, in order to
  maximize portability for the resulting mixed-language program.
