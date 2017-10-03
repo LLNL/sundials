@@ -4321,7 +4321,7 @@ user-supplied function of type \Id{IDASpilsJacTimesSetupFn}, defined as follows:
 \subsection{Preconditioning (linear system solution)}
 \label{ss:psolveFn}
 \index{preconditioning!user-supplied}
-\index{IDASPLS@{\idaspils} linear solver interface!preconditioner solve function}
+\index{IDASPILS@{\idaspils} linear solver interface!preconditioner solve function}
 If preconditioning is used, then the user must provide a function to
 solve the linear system $Pz = r$ where $P$ is a left preconditioner
 matrix which approximates (at least crudely) the Jacobian matrix 
@@ -4686,7 +4686,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   {\bf Create linear solver object}
 
   When creating the iterative linear solver object, specify the use of 
-  left preconditioning (\id{PREC\_LEFT}) as IDA only supports left preconditioning.
+  left preconditioning (\id{PREC\_LEFT}) as {\ida} only supports left preconditioning.
 
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
