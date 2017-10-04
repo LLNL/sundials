@@ -808,14 +808,14 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, sunindextype local_len
  * --------------------------------------------------------------------*/
 int Test_N_VConst(N_Vector X, sunindextype local_length, int myid)
 {
-  int      fails = 0, failure = 0;
+  int      i, fails = 0, failure = 0;
   double   start_time, stop_time;
 
-  /* fill vector data */
-  /* unclear what is the purpose of this -- commenting out */
-//  for(i=0; i < local_length; i++){
-//    set_element(X, i, ZERO);
-//  }
+  /* fill vector data with zeros to prevent passing in the case where
+     the input vector is a vector of ones */
+  for(i=0; i < local_length; i++){
+    set_element(X, i, ZERO);
+  }
 
   start_time = get_time();
   N_VConst(ONE,X);
