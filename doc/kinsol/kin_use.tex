@@ -183,7 +183,7 @@ solver is used, the header \id{sundials/sundials\_dense.h} is included for
 access to the underlying generic dense matrix arithmetic routines.
 
 %--------------------------------------------------------------------
-\section{A skeleton of the user's main program}\label{s:skeleton_sol}
+\section{A skeleton of the user's main program}\label{ss:skeleton_sol}
 %--------------------------------------------------------------------
 
 The following is a skeleton of the user's main program (or calling
@@ -373,7 +373,7 @@ user to set up and solve a nonlinear problem. Some of these are required.
 However, starting with \S\ref{ss:optional_input}, the functions listed involve
 optional inputs/outputs or restarting, and those paragraphs can be
 skipped for a casual use of {\kinsol}. In any case, refer to
-\S\ref{s:skeleton_sol} for the correct order of these calls.
+\S\ref{ss:skeleton_sol} for the correct order of these calls.
 
 The return flag (when present) for each of these routines is a
 negative integer if an error occurred, and non-negative otherwise.
@@ -487,7 +487,7 @@ both the left and the right, or not at all.  The exceptions to this
 rule are {\spfgmr} that supports right preconditioning only and
 {\pcg} that performs symmetric preconditioning.  For the specification
 of a preconditioner, see the iterative linear solver sections 
-in \S\ref{ss:optional_input} and \S\ref{ss:user_fct_sim}.
+in \S\ref{ss:optional_input} and \S\ref{ss:user_fct_sol}.
 A preconditioner matrix $P$ must approximate the Jacobian $J$, at least
 crudely.  
 
@@ -499,7 +499,7 @@ If preconditioning is done, user-supplied functions define the right
 preconditioner matrix $P$, which should approximate the system
 Jacobian matrix $J$.  For the specification
 of a preconditioner, see the iterative linear solver sections 
-in \S\ref{ss:optional_input} and \S\ref{ss:user_fct_sim}.
+in \S\ref{ss:optional_input} and \S\ref{ss:user_fct_sol}.
 A preconditioner matrix $P$ must approximate the Jacobian $J$, at least
 crudely.  
 
@@ -1962,8 +1962,6 @@ each time it is called.
   function \id{KINSpilsDQJtimes}.
   If \id{NULL} is passed as \id{jtimes}, this default function is used.
 
-  The function type \id{KINSpilsJacTimesSetupFn} is described in \S\ref{ss:jtsetupFn}.
-
   The function type \id{KINSpilsJacTimesVecFn} is described in \S\ref{ss:jtimesFn}.
 }
 %%
@@ -2905,7 +2903,7 @@ The function type \id{KINInfoHandlerFn} is defined as follows:
 
 If the direct linear solver interface is used (i.e. 
 (\Id{KINDlsSetLinearSolver} is called in teh step describd in 
-\S\ref{s:skeleton_sol}), the user may provide a function of type 
+\S\ref{ss:skeleton_sol}), the user may provide a function of type 
 \ID{KINDlsJacFn} defined as follows
 %%
 \usfunction{KINDlsJacFn}
@@ -3264,9 +3262,9 @@ accuracy in the blocks.
 
 \index{KINBBDPRE@{\kinbbdpre} preconditioner!user-supplied functions|(}
 The {\kinbbdpre} module calls two user-provided functions to construct $P$: 
-a required function \id{Gloc} (of type \id{KINLocalFn}) which
+a required function \id{Gloc} (of type \id{KINBBDLocalFn}) which
 approximates the nonlinear system function function $G(u) \approx F(u)$ and which 
-is computed locally, and an optional function \id{Gcomm} (of type \id{KINCommFn}) 
+is computed locally, and an optional function \id{Gcomm} (of type \id{KINBBDCommFn}) 
 which performs all interprocess communication necessary to evaluate 
 the approximate function $G$.  
 These are in addition to the user-supplied nonlinear system function that 
@@ -3279,9 +3277,9 @@ that are communicated by \id{Gcomm} from the other processes, and that are
 then used by \id{Gloc}, which should not do any communication.
 %%
 %%
-\usfunction{KINLocalFn}
+\usfunction{KINBBDLocalFn}
 {
-  typedef void (*KINLocalFn)(&sunindextype Nlocal, N\_Vector u, \\
+  typedef void (*KINBBDLocalFn)(&sunindextype Nlocal, N\_Vector u, \\
                              &N\_Vector gval, void *user\_data);
 }
 {
@@ -3302,7 +3300,7 @@ then used by \id{Gloc}, which should not do any communication.
   \end{args}
 }
 {
-  A \id{KINLocalFn} function type does not have a return value.
+  A \id{KINBBDLocalFn} function type does not have a return value.
 }
 {
   This function must assume that all interprocess communication of data needed to 
@@ -3315,9 +3313,9 @@ then used by \id{Gloc}, which should not do any communication.
 }
 %%
 %%
-\usfunction{KINCommFn}
+\usfunction{KINBBDCommFn}
 {
-  typedef void (*KINCommFn)(sunindextype Nlocal, N\_Vector u, void *user\_data);
+  typedef void (*KINBBDCommFn)(sunindextype Nlocal, N\_Vector u, void *user\_data);
 }
 {
   This \id{Gcomm} function performs all interprocess communications necessary 
@@ -3335,7 +3333,7 @@ then used by \id{Gloc}, which should not do any communication.
   \end{args}
 }
 {
-  A \id{KINCommFn} function type does not have a return value.
+  A \id{KINBBDCommFn} function type does not have a return value.
 }
 {
   The \id{Gcomm} function is expected to save communicated data in space defined
@@ -3362,7 +3360,7 @@ function prototypes.\index{header files}
 
 The following is a summary of the usage of this module and describes the sequence
 of calls in the user main program. Steps that are unchanged from the user main
-program presented in \S\ref{s:skeleton_sol} are grayed out.
+program presented in \S\ref{ss:skeleton_sol} are grayed out.
 %%
 %%
 \index{User main program!KINBBDPRE@{\kinbbdpre} usage}
@@ -3482,9 +3480,9 @@ is described in more detail below.
     the relative increment in components of \id{u} used in the difference quotient
     approximations.  The default is \id{dq\_rel\_u}$ = \sqrt{\text{unit roundoff}}$,
     which can be specified by passing \id{dq\_rel\_u}$ = 0.0$.
-  \item[Gloc] (\id{KINLocalFn})
+  \item[Gloc] (\id{KINBBDLocalFn})
     the {\CC} function which computes the approximation $G(u) \approx F(u)$. 
-  \item[Gcomm] (\id{KINCommFn})
+  \item[Gcomm] (\id{KINBBDCommFn})
     the optional {\CC} function which performs all interprocess communication required for
     the computation of $G(u)$.
   \end{args}

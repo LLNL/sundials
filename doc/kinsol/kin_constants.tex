@@ -92,22 +92,9 @@ description of their meaning.
 \id{KINDLS\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
 \id{KINDLS\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
 \id{KINDLS\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
+\id{KINDLS\_SUNMAT\_FAIL}     & -7 & An error occurred with the current {\sunmatrix} module. \\
 
-\\\hline
-\multicolumn{3}{c}{\bf {\kinsls} linear solver module}\\
-\hline\\
-
-\id{KINSLS\_SUCCESS}    &  0 & Successful function return. \\
-\id{KINSLS\_MEM\_NULL}  & -1 & The \id{kin\_mem} argument was \id{NULL}.\\
-\id{KINSLS\_LMEM\_NULL} & -2 & The {\kinsls} linear solver has not been initialized.\\
-\id{KINSLS\_ILL\_INPUT} & -3 & The {\kinsls} solver is not compatible with the current {\nvector} module or other input is invalid.\\
-\id{KINSLS\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-\id{KINSLS\_JAC\_NOSET}  & -5 & The Jacobian evaluation routine was not been set before the linear solver setup routine was called.\\
-\id{KINSLS\_PACKAGE\_FAIL}  & -6 & An external package call return a failure error code.\\
-\id{KINSLS\_JACFUNC\_UNRECVR} & -7 & The Jacobian function failed in an unrecoverable manner. \\
-\id{KINSLS\_JACFUNC\_RECVR}   & -8 & The Jacobian function had a recoverable error. \\
-
-\\\hline
+\\ \hline
 \multicolumn{3}{c}{\bf {\kinspils} linear solver modules}\\
 \hline\\
 
@@ -117,7 +104,8 @@ description of their meaning.
 \id{KINSPILS\_ILL\_INPUT} & -3 & The {\kinspils} solver is not compatible with the current {\nvector} module, or an input value was illegal.\\
 \id{KINSPILS\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
 \id{KINSPILS\_PMEM\_NULL} & -5 & The preconditioner module has not been initialized. \\
+\id{KINSPILS\_SUNLS\_FAIL}& -6 & An error occurred with the current {\sunlinsol} module. \\
 
-\input{spils_constants}
+%\input{spils_constants}
 
 \end{xtabular*} 
