@@ -1,21 +1,20 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see the LICENSE file.
- *------------------------------------------------------------------
+ * -----------------------------------------------------------------
  * SUNDIALS configuration header file
- *------------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
-/* Define SUNDIALS version number */
-#define SUNDIALS_PACKAGE_VERSION "@PACKAGE_VERSION@"
+/* Define SUNDIALS version numbers */
+#define SUNDIALS_VERSION "@PACKAGE_VERSION@"
+#define SUNDIALS_VERSION_MAJOR @PACKAGE_VERSION_MAJOR@
+#define SUNDIALS_VERSION_MINOR @PACKAGE_VERSION_MINOR@
+#define SUNDIALS_VERSION_PATCH @PACKAGE_VERSION_PATCH@
+#define SUNDIALS_VERSION_LABEL "@PACKAGE_VERSION_LABEL@"
 
 /* FCMIX: Define Fortran name-mangling macro for C identifiers.
  * Depending on the inferred scheme, one of the following six
