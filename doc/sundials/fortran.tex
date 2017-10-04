@@ -33,13 +33,17 @@ determine the equivalent types for their architecture and compiler,
 and then take care that all arguments passed through this {\F}/{\CC}
 interface are declared of the appropriate type.
 
-\textbf{Integers}: {\sundials} uses configurable \id{sunindextype} type as the
-integer type for vector and matrix indices. The \id{sunindextype} can
-be configured to be 32- or 64-bit signed integer by setting variable
+\textbf{Integers}: While {\sundials} uses the configurable 
+\id{sunindextype} type as the
+integer type for vector and matrix indices for its C code,
+the {\F} interfaces are more restricted.  The \id{sunindextype} 
+is only used for index values and pointers when filling sparse matrices.
+As for C, the \id{sunindextype} can
+be configured to be a 32- or 64-bit signed integer by setting the variable
 \id{SUNDIALS\_INDEX\_TYPE} at compile time (See Appendix \ref{c:install}).
 The default value is \id{int64\_t}.
-A {\F} user should set this variable based on integer type used for
-vector and matrix indices in her {\F} code. The corresponding {\F}
+A {\F} user should set this variable based on the integer type used for
+vector and matrix indices in their {\F} code. The corresponding {\F}
 types are:
 
 \begin{itemize}
@@ -49,6 +53,13 @@ types are:
 \item {} 
 \id{int64\_t} -- equivalent to an \id{INTEGER*8} in {\F}
 \end{itemize}
+In general, for the {\F} interfaces in {\sundials}, flags of type \id{int},
+vector and matrix lengths, counters, and arguments to \id{*SETIN()} functions
+all have \id{long int} type, and \id{sunindextype} 
+is only used for index values and pointers when filling sparse matrices.
+Note that if an F90 (or higher) user wants to find out the value of \id{sunindextype},
+they can include \id{sundials\_fconfig.h}.
+
 
 \textbf{Real numbers}:  As discussed in Appendix \ref{c:install}, at compilation
 {\sundials} allows the configuration option \id{SUNDIALS\_PRECISION},
