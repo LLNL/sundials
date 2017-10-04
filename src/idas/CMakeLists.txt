@@ -43,6 +43,7 @@ SET(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/sundials/sundials_dense.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_direct.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_iterative.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_version.c
   ${sundials_SOURCE_DIR}/src/nvec_ser/nvector_serial.c
   )
 

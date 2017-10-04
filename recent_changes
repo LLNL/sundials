@@ -73,6 +73,9 @@ rapid and efficient production of high-quality,
 sustainable extreme-scale scientific applications.  More information can
 be found at https://xsdk.info.
 
+* Added functions SUNDIALSGetVersion and SUNDIALSGetVersionNumber to
+get SUNDIALS release version information at runtime.
+
 * In build system:
  - Added separate BLAS_ENABLE and BLAS_LIBRARIES CMake variables
  - Additional error checking during CMake configuration

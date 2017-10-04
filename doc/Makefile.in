@@ -43,6 +43,7 @@ nvec_cuda.tex \
 nvec_raja.tex \
 spils_constants.tex \
 sun_org.tex \
+sundials_version.tex \
 sunmatrix_generic.tex \
 sunmatrix_band.tex \
 sunmatrix_dense.tex \
