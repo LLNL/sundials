@@ -53,10 +53,9 @@ A test for convergence is made before the iteration continues.
 For solving the linear system given in step 2(a), {\kinsol} provides
 several choices, including the option of a user-supplied
 linear solver module. The linear solver modules distributed with {\sundials}
-are organized in three families, a {\em direct} family comprising direct linear 
-solvers for dense or banded matrices, a {\em sparse} family comprising
-direct linear solvers for matrices stored in compressed-sparse-column
-format, and a {\em spils} family comprising scaled preconditioned
+are organized in two families, a {\em direct} family comprising direct linear 
+solvers for dense, banded, or sparse matrices and a {\em spils} 
+family comprising scaled preconditioned
 iterative (Krylov) linear solvers. 
 %%
 The methods offered through these modules are as follows:
@@ -69,26 +68,27 @@ The methods offered through these modules are as follows:
   library \cite{DaPa:10,KLU_site}, or the thread-enabled SuperLU\_MT sparse
   solver library \cite{Li:05,DGL:99,SuperLUMT_site} (serial or threaded 
   vector modules only) [Note that users will need to download and install the 
-  KLU or SuperLU\_MT packages independent of {\kinsol}],
+  {\klu} or {\superlumt} packages independent of {\kinsol}],
 \item {\spgmr}, a scaled preconditioned GMRES (Generalized Minimal Residual method)
-  solver without restarts,
+  solver,
 \item {\spfgmr}, a scaled preconditioned FGMRES (Flexible Generalized 
-  Minimal Residual method) solver without restarts,
+  Minimal Residual method) solver,
 \item {\spbcg}, a scaled preconditioned Bi-CGStab (Bi-Conjugate Gradient Stable
-  method) solver, or
+  method) solver, 
 \item {\sptfqmr}, a scaled preconditioned TFQMR (Transpose-Free Quasi-Minimal
-  Residual method) solver.
+  Residual method) solver, or
+\item {\pcg}, a scaled preconditioned CG (Conjugate Gradient method) solver.
 \end{itemize}
 When using one of the direct linear solvers, the linear system in 2(a) is 
 solved exactly, thus resulting in a Modified Newton method (the Jacobian matrix 
 is normally out of date; see below\footnote{{\kinsol} allows the user to enforce 
 a Jacobian evaluation at each iteration thus allowing for an Exact Newton iteration.}). 
 %%
-Note that the direct linear solvers (dense, band, and sparse) can only
+Note that the dense, band, and sparse direct linear solvers can only
 be used with the serial and threaded vector representations.
 
 On the other hand, when using any of the iterative linear solvers
-(GMRES, FGMRES, Bi-CGStab, or TFQMR), the linear system in 2(a) is solved only
+(GMRES, FGMRES, Bi-CGStab, TFQMR, CG), the linear system in 2(a) is solved only
 approximately, thus resulting in an Inexact Newton method.  Here right
 preconditioning is available by way of the preconditioning setup and
 solve routines supplied by the user, in which case the iterative
@@ -291,7 +291,7 @@ $\eta$ does not decrease too quickly~\cite{EiWa:96}.
 
 \subsubsection*{Difference quotient Jacobian approximations}
 %%
-With the direct dense and band methods, the Jacobian may be supplied
+With the direct linear solver interface, the Jacobian may be supplied
 by a user routine, or approximated by difference quotients,
 at the user's option.  In the latter case, we use the usual
 approximation
@@ -311,7 +311,7 @@ The parameter $U$ above can (optionally) be replaced by a
 user-specified value, \id{relfunc}.
 
 We note that with the sparse direct solvers, the Jacobian {\em must}
-be supplied by a user routine in compressed-sparse-column format,
+be supplied by a user routine,
 i.e. it is not approximated internally within {\kinsol}.
 
 In the case of a Krylov method, Jacobian information is needed 
