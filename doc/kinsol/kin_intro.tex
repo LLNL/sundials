@@ -11,7 +11,7 @@ of these with sensitivity analysis capabilities.
 {\kinsol}\index{KINSOL@{\kinsol}!brief description of} is a
 general-purpose nonlinear system solver based on Newton-Krylov
 solver technology.  A fixed point iteration is also included with the release
-of {\kinsol} v.2.8.0.
+of {\kinsol} v.2.8.0 and higher.
 
 %---------------------------------
 \section{Historical Background}\label{ss:history}
@@ -42,25 +42,31 @@ system methods and tolerances, and has a more modular design to provide
 flexibility for future enhancements.
 \index{KINSOL@{\kinsol}!relationship to NKSOL}
 
-At present, {\kinsol} contains four Krylov methods: the GMRES
-(Generalized Minimal RESidual)~\cite{SaSc:86}, 
-FGMRES (Flexible Generalized Minimal RESidual)~\cite{Saa:93},
-Bi-CGStab (Bi-Conjugate Gradient Stabilized)~\cite{Van:92}, and TFQMR
-(Transpose-Free Quasi-Minimal Residual)~\cite{Fre:93} linear
-iterative methods. As Krylov methods, these require almost no
-matrix storage as compared to direct methods. However, the
-algorithms allow for a user-supplied preconditioner matrix,
-and for most problems preconditioning is essential for an
-efficient solution. For very large nonlinear algebraic systems,
+At present, {\kinsol} may utilize a variety of Krylov methods provided
+in {\sundials}. These methods include the 
+GMRES (Generalized Minimal RESidual)~\cite{SaSc:86},
+FGMRES (Flexible Generalized Minimum RESidual)~\cite{Saa:93},
+Bi-CGStab (Bi-Conjugate Gradient Stabilized)~\cite{Van:92}, TFQMR
+(Transpose-Free Quasi-Minimal Residual)~\cite{Fre:93}, and PCG
+(Preconditioned Conjugate Gradient)~\cite{HeSt:52} linear iterative
+methods.  As Krylov methods, these require little  
+matrix storage for solving the Newton equations as compared to direct 
+methods. However, the algorithms allow for a user-supplied preconditioner
+matrix, and, for most problems, preconditioning is essential for an
+efficient solution.  For very large nonlinear algebraic systems,
 the Krylov methods are preferable over direct linear solver methods,
-and are often the only feasible choice. Among the three Krylov
-methods in {\kinsol}, we recommend GMRES as the best overall
+and are often the only feasible choice. Among the Krylov
+methods in {\sundials}, we recommend GMRES as the best overall
 choice. However, users are encouraged to compare all three,
 especially if encountering convergence failures with GMRES.
 Bi-CGStab and TFQMR have an advantage in storage requirements,
 in that the number of workspace vectors they require is fixed,
 while that number for GMRES depends on the desired Krylov
-subspace size.
+subspace size.   FGMRES
+has an advantage in that it is designed to support preconditioners
+that vary between iterations (e.g.~iterative methods).  PCG exhibits
+rapid convergence and minimal workspace vectors, but only works for
+symmetric linear systems.
 
 For the sake of completeness in functionality, direct linear
 system solvers are included in {\kinsol}.  These include methods
@@ -74,7 +80,7 @@ SuperLU\_MT~\cite{Li:05,DGL:99,SuperLUMT_site}.
 In the process of translating NKSOL into {\CC}, the overall
 {\kinsol} organization has been changed considerably. One key
 feature of the {\kinsol} organization is that a separate module
-devoted to vector operations has been created.  This module
+devoted to vector operations was created.  This module
 facilitated extension to multiprosessor environments with minimal
 impact on the rest of the solver. The vector module design is
 shared across the {\sundials} suite. This {\nvector} module is
@@ -108,7 +114,7 @@ interfacing the solver to applications written in {\F}.
 All interfaces to matrix structures and linear solvers 
 have been reworked, and all example programs have been updated. 
 The goal of the redesign of these interfaces was to provide more encapsulation
-and ease in interfacing custom linear solvers and interoperability 
+and ease in the interfacing of custom linear solvers and interoperability 
 with linear solver libraries.
 Specific changes include:
 \begin{itemize}
@@ -116,9 +122,10 @@ Specific changes include:
         dense, banded and sparse.  These replicate previous SUNDIALS Dls and
         Sls matrix structures in a single object-oriented API.
 \item Added example problems demonstrating use of generic SUNMATRIX modules.
-\item Added generic SUNLINEARSOLVER module with eleven provided
-        implementations: dense, banded, LAPACK dense, LAPACK band, KLU,
-        SuperLU\_MT, SPGMR, SPBCGS, SPTFQMR, SPFGMR, PCG.  These replicate
+\item Added generic \id{SUNLinearSolver} module with eleven provided
+        implementations: {\sundials} native dense, {\sundials} native banded, 
+        LAPACK dense, LAPACK band, KLU,
+        SuperLU\_MT, SPGMR, SPBCGS, SPTFQMR, SPFGMR, and PCG.  These replicate
         previous SUNDIALS generic linear solvers in a single object-oriented
         API.
 \item Added example problems demonstrating use of generic SUNLINEARSOLVER
@@ -433,7 +440,7 @@ more expert user with a nonlinear system may want to (a) use a package
 preconditioner (\S\ref{sss:kinbbdpre}), (b) supply his/her own Jacobian or
 preconditioner routines (\S\ref{ss:user_fct_sol}), (c) supply a new
 {\nvector} module (Chapter~\ref{s:nvector}), or even (d) supply a different
-linear solver module (\S\ref{ss:kinsol_org} and Chapter~\ref{s:new_linsolv}).
+linear solver module (\S\ref{ss:kinsol_org} and Chapter~\ref{s:sun_linsol}).
 
 The structure of this document is as follows:
 \begin{itemize}
@@ -456,11 +463,28 @@ The structure of this document is as follows:
   shared among the various components of {\sundials}, and details on the four 
   {\nvector} implementations provided with {\sundials}. 
 \item
-  Chapter \ref{s:new_linsolv} describes the interfaces to the linear solver
-  modules, so that a user can provide his/her own such module.
+Chapter \ref{s:sunmatrix} gives a brief overview of the generic
+  {\sunmatrix} module shared among the various components of
+  {\sundials}, and details on the {\sunmatrix} implementations
+  provided with {\sundials}: 
+  a dense implementation (\S\ref{ss:sunmat_dense}),
+  a banded implementation (\S\ref{ss:sunmat_band}) and
+  a sparse implementation (\S\ref{ss:sunmat_sparse}).
 \item
-  Chapter \ref{s:gen_linsolv} describes in detail the generic linear solvers
-  shared by all {\sundials} solvers.
+  Chapter \ref{s:sunlinsol} gives a brief overview of the generic
+  {\sunlinsol} module shared among the various components of
+  {\sundials}.  This chapter contains details on the {\sunlinsol}
+  implementations provided with {\sundials}.
+  The chapter
+  also contains details on the {\sunlinsol} implementations provided
+  with {\sundials} that interface with external linear solver
+  libraries.
+%% \item
+%%   Chapter \ref{s:new_linsolv} describes the interfaces to the linear solver
+%%   modules, so that a user can provide his/her own such module.
+%% \item
+%%   Chapter \ref{s:gen_linsolv} describes in detail the generic linear solvers
+%%   shared by all {\sundials} solvers.
 \item
   Finally, in the appendices, we provide detailed instructions for the installation
   of {\kinsol}, within the structure of {\sundials} (Appendix \ref{c:install}), as well
