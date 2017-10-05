@@ -81,7 +81,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   CVSpilsMem cvspils_mem;
   CVBBDPrecData pdata;
   sunindextype muk, mlk, storage_mu, lrw1, liw1;
-  long int lrw, liw;;
+  long int lrw, liw;
   int flag;
 
   if (cvode_mem == NULL) {
