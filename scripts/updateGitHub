@@ -15,8 +15,8 @@
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # ------------------------------------------------------------------------------
-# MaKe GITHUB distribution commit from sundials release tar file.
-# Run from any machine that has access to github.
+# Update SUNDIALS GitHub distribution with a commit from sundials release tar 
+# file. Run from any machine that has access to github.
 # ------------------------------------------------------------------------------
 
 help ()
@@ -50,40 +50,41 @@ DISTFILE=$1
 DISTDIR=`basename $DISTFILE .tar.gz`
 VERSION=`echo $DISTDIR | sed 's/sundials-/v/g'`
 
+# names of directories for working and cloning the GitHub repo
 WORKDIR="sundials-github"
 REPODIR="sundials-github-repo"
 
-mkdir sundials-github
-if [ $? -ne 0 ]
-then
+# create WORKDIR, exit with an error if it exists already
+mkdir $WORKDIR
+if [ $? -ne 0 ]; then
   echo "Error: Subdirectory sundials-github already exists"
-  exit
+  exit -1
 fi
 
-# Untar sundials distribution
+# untar sundials distribution into WORKDIR
 \tar xzf $DISTFILE -C $WORKDIR
 
-# Change into working directory
+# change into working directory
 cd $WORKDIR
 
-# Clone github repo
+# clone github repo (with ssh) into REPODIR
 git clone git@github.com:LLNL/sundials.git $REPODIR
-if [ $? -ne 0 ]
-then
+if [ $? -ne 0 ]; then
   echo "Error: GitHub clone failed! Make sure to authenticate in a web browser first."
-  exit
+  exit -1
 fi
 
-# Remove everything from the local github repo except for '.git'
+# remove everything from the local github repo except for '.git'
 rm -fr $REPODIR/*
-# Add sundials distribution files to local github repo
+
+# add sundials distribution files to local github repo
 cp -r $DISTDIR/* $REPODIR
 
-# Change into the github repo directory and commit/tag the new code
+# change into the github repo directory and commit/tag the new code
 cd $REPODIR
 git add .
-git commit -m "Release $VERSION"
-git tag -a $VERSION -m "Release $VERSION"
+git commit -m "SUNDIALS Release $VERSION"
+git tag -a $VERSION -m "SUNDIALS Release $VERSION"
 
 echo ""
 echo "*** DO THE FOLLOWING TO COMPLETE THE GITHUB UPDATE ***"
