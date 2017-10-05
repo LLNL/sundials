@@ -1,0 +1,93 @@
+#!/bin/sh
+# ------------------------------------------------------------------------------
+# Programmer(s): David J. Gardner @ LLNL
+# ------------------------------------------------------------------------------
+# Acknowledgement(s): This script is based on the mkgithub script for the hypre
+#                     library written by Rob Falgout @ LLNL
+# ------------------------------------------------------------------------------
+# LLNS Copyright Start
+# Copyright (c) 2014, Lawrence Livermore National Security
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
+# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# LLNS Copyright End
+# ------------------------------------------------------------------------------
+# MaKe GITHUB distribution commit from sundials release tar file.
+# Run from any machine that has access to github.
+# ------------------------------------------------------------------------------
+
+help ()
+{
+  cat <<EOF
+
+   $0 -help | <release tar file>
+
+   where:
+
+      -help        Displays this message.
+
+   Example usage: $0 sundials-2.7.0.tar.gz
+                  $0 sundials-3.0.0-beta-1.tar.gz
+
+EOF
+}
+
+# check number of inputs
+if [ $# -ne 1 ]; then
+  help
+  exit -1
+fi
+
+case $1 in
+    -h|-help)
+        help
+        exit;;
+esac
+DISTFILE=$1
+DISTDIR=`basename $DISTFILE .tar.gz`
+VERSION=`echo $DISTDIR | sed 's/sundials-/v/g'`
+
+WORKDIR="sundials-github"
+REPODIR="sundials-github-repo"
+
+mkdir sundials-github
+if [ $? -ne 0 ]
+then
+  echo "Error: Subdirectory sundials-github already exists"
+  exit
+fi
+
+# Untar sundials distribution
+\tar xzf $DISTFILE -C $WORKDIR
+
+# Change into working directory
+cd $WORKDIR
+
+# Clone github repo
+git clone git@github.com:LLNL/sundials.git $REPODIR
+if [ $? -ne 0 ]
+then
+  echo "Error: GitHub clone failed! Make sure to authenticate in a web browser first."
+  exit
+fi
+
+# Remove everything from the local github repo except for '.git'
+rm -fr $REPODIR/*
+# Add sundials distribution files to local github repo
+cp -r $DISTDIR/* $REPODIR
+
+# Change into the github repo directory and commit/tag the new code
+cd $REPODIR
+git add .
+git commit -m "Release $VERSION"
+git tag -a $VERSION -m "Release $VERSION"
+
+echo ""
+echo "*** DO THE FOLLOWING TO COMPLETE THE GITHUB UPDATE ***"
+echo ""
+echo "Review the new commit in $WORKDIR/$REPODIR"
+echo "Do 'git push' and 'git push --tags'"
+echo ""
