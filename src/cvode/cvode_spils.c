@@ -776,7 +776,6 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
   -----------------------------------------------------------------*/
 int cvSpilsInitialize(CVodeMem cv_mem)
 {
-  int retval;
   CVSpilsMem cvspils_mem;
 
   /* Return immediately if cv_mem or cv_mem->cv_lmem are NULL */
@@ -879,7 +878,7 @@ int cvSpilsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                  N_Vector ynow, N_Vector fnow)
 {
-  realtype bnorm, res_norm;
+  realtype bnorm;
   CVSpilsMem cvspils_mem;
   int nli_inc, retval;
   
@@ -917,6 +916,11 @@ int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   retval = SUNLinSolSetScalingVectors(cvspils_mem->LS,
                                       weight,
                                       weight);
+  if (retval != SUNLS_SUCCESS) {
+    cvProcessError(cv_mem, CVSPILS_SUNLS_FAIL, "CVSPILS", "cvSpilsSolve", 
+                    "Error in calling SUNLinSolSetScalingVectors");
+    return(CVSPILS_SUNLS_FAIL);
+  }
 
   /* If a user-provided jtsetup routine is supplied, call that here */
   if (cvspils_mem->jtsetup) {
@@ -936,8 +940,7 @@ int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   N_VScale(ONE, cvspils_mem->x, b);
 
   /* Retrieve solver statistics */
-  res_norm = SUNLinSolResNorm(cvspils_mem->LS);
-  nli_inc  = SUNLinSolNumIters(cvspils_mem->LS);
+  nli_inc = SUNLinSolNumIters(cvspils_mem->LS);
   
   /* Increment counters nli and ncfl */
   cvspils_mem->nli += nli_inc;

@@ -80,10 +80,10 @@ int main(int argc, char *argv[])
     /* A matrix column */
     colj = SUNDenseMatrix_Column(A, j);
     for (k=0; k<rows; k++)
-      colj[k] = random() / (pow(2.0,31.0) - 1.0) / cols;
+      colj[k] = rand() / (pow(2.0,31.0) - 1.0) / cols;
 
     /* x entry */
-    xdata[j] = random() / (pow(2.0,31.0) - 1.0);
+    xdata[j] = rand() / (pow(2.0,31.0) - 1.0);
     
   }
   

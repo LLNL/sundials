@@ -92,10 +92,10 @@ int main(int argc, char *argv[])
     kstart = (j<uband) ? -j : -uband;
     kend = (j>cols-1-lband) ? cols-1-j: lband;
     for (k=kstart; k<=kend; k++)
-      colj[k] = random() / (pow(2.0,31.0) - 1.0);
+      colj[k] = rand() / (pow(2.0,31.0) - 1.0);
 
     /* x entry */
-    xdata[j] = random() / (pow(2.0,31.0) - 1.0);
+    xdata[j] = rand() / (pow(2.0,31.0) - 1.0);
     
   }
 

@@ -1612,6 +1612,11 @@ int arkSpilsSolve(ARKodeMem ark_mem, N_Vector b, N_Vector ynow,
   retval = SUNLinSolSetScalingVectors(arkspils_mem->LS,
                                       ark_mem->ark_ewt,
                                       ark_mem->ark_rwt);
+  if (retval != SUNLS_SUCCESS) {
+    arkProcessError(ark_mem, ARKSPILS_SUNLS_FAIL, "ARKSPILS", "arkSpilsSolve", 
+                    "Error in calling SUNLinSolSetScalingVectors");
+    return(ARKSPILS_SUNLS_FAIL);
+  }
 
   /* Store previous nps value in nps_inc */
   nps_inc = arkspils_mem->nps;

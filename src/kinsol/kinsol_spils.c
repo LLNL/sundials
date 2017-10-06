@@ -778,6 +778,11 @@ int kinSpilsInitialize(KINMem kin_mem)
   retval = SUNLinSolSetScalingVectors(kinspils_mem->LS,
                                       kin_mem->kin_fscale,
                                       kin_mem->kin_fscale);
+  if (retval != SUNLS_SUCCESS) {
+    KINProcessError(kin_mem, KINSPILS_SUNLS_FAIL, "KINSPILS", "kinSpilsInitialize", 
+		    "Error in calling SUNLinSolSetScalingVectors");
+    return(KINSPILS_SUNLS_FAIL);
+  }
 
   /* Call LS initialize routine */
   kinspils_mem->last_flag = SUNLinSolInitialize(kinspils_mem->LS);

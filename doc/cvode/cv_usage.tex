@@ -29,6 +29,9 @@ documentation, we note that the {\cvbandpre} preconditioning module is
 only compatible with the {\nvecs}, {\nvecopenmp}, and {\nvecpthreads}
 vector implementations, and the preconditioner module {\cvbbdpre}
 can only be used with {\nvecp}.
+It is not recommended to use a threaded vector module with SuperLU\_MT
+unless it is the {\nvecopenmp} module, and SuperLU\_MT is also compiled
+with openMP.
 
 {\cvode} uses various constants for both input and output.  These are
 defined as needed in this chapter, but for convenience are also listed
@@ -2190,6 +2193,11 @@ Name of constant associated with a return flag & \id{CVSpilsGetReturnFlagName} \
 \hline
 \end{tabular}
 \end{table}
+
+%%==============================================================================
+%% SUNDIALS-wide functions for getting version information
+\input{sundials_version}
+%%==============================================================================
 
 %%==============================================================================
 \subsubsection{Main solver optional output functions}\label{sss:optout_main}

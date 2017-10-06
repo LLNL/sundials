@@ -279,12 +279,13 @@ SUNMatrix SUNSparseFromBandMatrix(SUNMatrix Ad, realtype droptol, int sparsetype
 
 int SUNSparseMatrix_Realloc(SUNMatrix A)
 {
+  sunindextype nzmax; 
+
   /* check for valid matrix type */
   if (SUNMatGetID(A) != SUNMATRIX_SPARSE)
     return 1;
 
   /* get total number of nonzeros (return with failure if illegal) */
-  sunindextype nzmax; 
   nzmax = (SM_INDEXPTRS_S(A))[SM_NP_S(A)];
   if (nzmax < 0)
     return 1;

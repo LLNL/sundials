@@ -81,6 +81,13 @@ int main()
   SUNMatrix A;
   SUNLinearSolver LS;
 
+  /* Consistent IC for  y, y'. */
+  const realtype y01 = RCONST(0.444);
+  const realtype y02 = RCONST(0.00123);
+  const realtype y03 = RCONST(0.0);
+  const realtype y04 = RCONST(0.007);
+  const realtype y05 = RCONST(0.0);
+
   mem = NULL;
   yy = yp = NULL;
   A = NULL;
@@ -106,13 +113,7 @@ int main()
   yp = N_VNew_Serial(NEQ);
   if (check_flag((void *)yp, "N_VNew_Serial", 0)) return(1);
 
-  /* Consistent IC for  y, y'. */
-  const realtype y01 = RCONST(0.444);
-  const realtype y02 = RCONST(0.00123);
-  const realtype y03 = RCONST(0.0);
-  const realtype y04 = RCONST(0.007);
-  const realtype y05 = RCONST(0.0);
-
+  /* Set IC */
   Ith(yy,1) = y01;
   Ith(yy,2) = y02;
   Ith(yy,3) = y03;

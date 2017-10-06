@@ -389,7 +389,6 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
   /* local variables */
   realtype *v, *z, *s1, *s2;
   sunindextype i, N;
-  int ierr;
   UserData *ProbData;
   
   /* access user data structure and vector data */
@@ -449,7 +448,7 @@ int PSolve(void* Data, N_Vector r_vec, N_Vector z_vec, realtype tol, int lr)
 /* uniform random number generator */
 static realtype urand()
 {
-  return (random() / (pow(RCONST(2.0),RCONST(31.0)) - ONE));
+  return (rand() / (pow(RCONST(2.0),RCONST(31.0)) - ONE));
 }
 
 /* Check function return value based on "opt" input:

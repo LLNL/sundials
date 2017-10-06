@@ -64,7 +64,7 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
                    sunindextype mudq, sunindextype mldq,
                    sunindextype mukeep, sunindextype mlkeep,
                    realtype dq_rel_uu, 
-                   KINLocalFn gloc, KINCommFn gcomm)
+                   KINBBDLocalFn gloc, KINBBDCommFn gcomm)
 {
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;

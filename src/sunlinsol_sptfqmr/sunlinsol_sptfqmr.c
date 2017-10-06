@@ -198,9 +198,11 @@ SUNLinearSolver_Type SUNLinSolGetType_SPTFQMR(SUNLinearSolver S)
 
 int SUNLinSolInitialize_SPTFQMR(SUNLinearSolver S)
 {
+  SUNLinearSolverContent_SPTFQMR content;
+
   /* set shortcut to SPTFQMR memory structure */
   if (S == NULL) return(SUNLS_MEM_NULL);  
-  SUNLinearSolverContent_SPTFQMR content = SPTFQMR_CONTENT(S);
+  content = SPTFQMR_CONTENT(S);
 
   /* ensure valid options */
   if ( (content->pretype != PREC_LEFT) && 
@@ -262,12 +264,13 @@ int SUNLinSolSetScalingVectors_SPTFQMR(SUNLinearSolver S,
 int SUNLinSolSetup_SPTFQMR(SUNLinearSolver S, SUNMatrix A)
 {
   int ier;
+  PSetupFn Psetup;
+  void* PData;
 
   /* Set shortcuts to SPTFQMR memory structures */
   if (S == NULL) return(SUNLS_MEM_NULL);
-  PSetupFn Psetup = SPTFQMR_CONTENT(S)->Psetup;
-  void* ATData = SPTFQMR_CONTENT(S)->ATData;
-  void* PData = SPTFQMR_CONTENT(S)->PData;
+  Psetup = SPTFQMR_CONTENT(S)->Psetup;
+  PData = SPTFQMR_CONTENT(S)->PData;
   
   /* no solver-specific setup is required, but if user-supplied 
      Psetup routine exists, call that here */

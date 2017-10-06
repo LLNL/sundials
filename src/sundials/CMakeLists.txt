@@ -36,6 +36,7 @@ SET(sundials_HEADERS
   sundials_spgmr.h
   sundials_sptfqmr.h
   sundials_types.h
+  sundials_version.h
   )
 
 # append header file with sundials MPI type macros if using MPI

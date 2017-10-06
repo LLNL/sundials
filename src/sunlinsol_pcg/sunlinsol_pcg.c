@@ -235,12 +235,13 @@ int SUNLinSolSetScalingVectors_PCG(SUNLinearSolver S, N_Vector s,
 int SUNLinSolSetup_PCG(SUNLinearSolver S, SUNMatrix nul)
 {
   int ier;
+  PSetupFn Psetup;
+  void* PData;
 
   /* Set shortcuts to PCG memory structures */
   if (S == NULL) return(SUNLS_MEM_NULL);
-  PSetupFn Psetup = PCG_CONTENT(S)->Psetup;
-  void* ATData = PCG_CONTENT(S)->ATData;
-  void* PData = PCG_CONTENT(S)->PData;
+  Psetup = PCG_CONTENT(S)->Psetup;
+  PData = PCG_CONTENT(S)->PData;
   
   /* no solver-specific setup is required, but if user-supplied 
      Psetup routine exists, call that here */

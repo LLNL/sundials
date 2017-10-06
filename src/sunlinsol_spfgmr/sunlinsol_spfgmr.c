@@ -211,10 +211,11 @@ SUNLinearSolver_Type SUNLinSolGetType_SPFGMR(SUNLinearSolver S)
 int SUNLinSolInitialize_SPFGMR(SUNLinearSolver S)
 {
   int k;
+  SUNLinearSolverContent_SPFGMR content;
 
   /* set shortcut to SPFGMR memory structure */
   if (S == NULL) return(SUNLS_MEM_NULL);  
-  SUNLinearSolverContent_SPFGMR content = SPFGMR_CONTENT(S);
+  content = SPFGMR_CONTENT(S);
 
   /* ensure valid options */
   if (content->max_restarts < 0) 
@@ -328,12 +329,13 @@ int SUNLinSolSetScalingVectors_SPFGMR(SUNLinearSolver S, N_Vector s1,
 int SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
 {
   int ier;
+  PSetupFn Psetup;
+  void* PData;
 
   /* Set shortcuts to SPFGMR memory structures */
   if (S == NULL) return(SUNLS_MEM_NULL);
-  PSetupFn Psetup = SPFGMR_CONTENT(S)->Psetup;
-  void* ATData = SPFGMR_CONTENT(S)->ATData;
-  void* PData = SPFGMR_CONTENT(S)->PData;
+  Psetup = SPFGMR_CONTENT(S)->Psetup;
+  PData = SPFGMR_CONTENT(S)->PData;
   
   /* no solver-specific setup is required, but if user-supplied 
      Psetup routine exists, call that here */

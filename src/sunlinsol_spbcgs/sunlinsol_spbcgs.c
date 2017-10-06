@@ -252,12 +252,13 @@ int SUNLinSolSetScalingVectors_SPBCGS(SUNLinearSolver S, N_Vector s1,
 int SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A)
 {
   int ier;
+  PSetupFn Psetup;
+  void* PData;
 
   /* Set shortcuts to SPBCGS memory structures */
   if (S == NULL) return(SUNLS_MEM_NULL);
-  PSetupFn Psetup = SPBCGS_CONTENT(S)->Psetup;
-  void* ATData = SPBCGS_CONTENT(S)->ATData;
-  void* PData = SPBCGS_CONTENT(S)->PData;
+  Psetup = SPBCGS_CONTENT(S)->Psetup;
+  PData = SPBCGS_CONTENT(S)->PData;
   
   /* no solver-specific setup is required, but if user-supplied 
      Psetup routine exists, call that here */

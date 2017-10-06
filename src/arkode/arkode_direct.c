@@ -712,9 +712,7 @@ int arkDlsDQJac(realtype t, N_Vector y, N_Vector fy,
 {
   int retval;
   ARKodeMem ark_mem;
-  ARKDlsMem arkdls_mem;
   ark_mem = (ARKodeMem) arkode_mem;
-  arkdls_mem = (ARKDlsMem) ark_mem->ark_lmem;
 
   /* verify that Jac is non-NULL */
   if (Jac == NULL) {
