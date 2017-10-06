@@ -46,7 +46,18 @@ case $1 in
         help
         exit;;
 esac
+
+# move to location where tarscript places tarballs
+cd ../..
+
+# check that tar file exists
 DISTFILE=$1
+if [ ! -e $DISTFILE ]; then
+  echo "Error: tar file not found"
+  exit -1
+fi
+
+# parse tar file name and set version number
 DISTDIR=`basename $DISTFILE .tar.gz`
 VERSION=`echo $DISTDIR | sed 's/sundials-/v/g'`
 
