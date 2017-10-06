@@ -1,0 +1,76 @@
+# -----------------------------------------------------------------
+# $Revision: 4074 $
+# $Date: 2014-04-23 14:13:52 -0700 (Wed, 23 Apr 2014) $
+# -----------------------------------------------------------------
+# Programmer: Daniel R. Reynolds @ SMU
+# -----------------------------------------------------------------
+# Copyright (c) 2014, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for @SOLVER@ Fortran pthreads examples
+#
+# This file is generated from a template using various variables
+# set at configuration time. It can be used as a template for
+# other user Makefiles.
+#
+# Note: if the solver was successfully configured with Blas/Lapack
+# support, the Blas/Lapack libraries are specified through the 
+# variable LIBRARIES_BL. Otherwise, this variable should contain
+# an empty string. We include LIBRARIES_BL in the link line for
+# all examples, whether they use the Lapack module or not, to
+# address the case in which the SUNDIALS libraries are shared 
+# objects. In that case, the solver library references Lapack 
+# symbols which must be always resolved by linking against the
+# Blas/Lapack libraries. If only static SUNDIALS libraries have 
+# been built, it is not required to link the Blas/Lapack libraries
+# for examples that do not use that module...
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+F77         = @F77@
+FFLAGS      = @FFLAGS@
+F77_LNKR    = @F77_LNKR@
+F77_LDFLAGS = @F77_LDFLAGS@ @CMAKE_THREAD_LIBS_INIT@
+F77_LIBS    = @F77_LIBS@
+
+LINKFLAGS = -Wl,-rpath,@libdir@
+
+LIBRARIES = -l@SOLVER_FLIB@ -l@SOLVER_LIB@ -lsundials_fnvecpthreads -lsundials_nvecpthreads ${LIBS}
+LIBRARIES_BL = @BLAS_LAPACK_LIBS@
+LIBRARIES_SLUMT = @SUPERLUMT_LIBS@
+LIBRARIES_KLU = @KLU_LIBS@
+LIBRARIES_PETSC = @PETSC_LIBRARIES@
+
+EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
+
+OBJECTS = ${EXAMPLES:=.o}
+
+# -----------------------------------------------------------------------------------------
+
+.SUFFIXES : .o .f
+
+.f.o :
+	${F77} ${FFLAGS} -c $<
+
+# -----------------------------------------------------------------------------------------
+
+all: ${OBJECTS}
+	@for i in ${EXAMPLES} ; do \
+	  echo "${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC} ${LINKFLAGS}" ; \
+	  ${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC} ${LINKFLAGS} ; \
+	done
+
+clean:
+	rm -f ${OBJECTS}
+	rm -f ${EXAMPLES}
+
+# -----------------------------------------------------------------------------------------
+

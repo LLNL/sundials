@@ -1,0 +1,90 @@
+# -----------------------------------------------------------------
+# $Revision: 4456 $
+# $Date: 2015-03-28 20:22:03 -0700 (Sat, 28 Mar 2015) $
+# -----------------------------------------------------------------
+# Programmer: Radu Serban @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2007, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for @SOLVER@ parhyp examples
+#
+# This file is generated from a template using various variables
+# set at configuration time. It can be used as a template for
+# other user Makefiles.
+#
+# Note: if the solver was successfully configured with Blas/Lapack
+# support, the Blas/Lapack libraries are specified through the 
+# variable LIBRARIES_BL. Otherwise, this variable should contain
+# an empty string. We include LIBRARIES_BL in the link line for
+# all examples, even the parhyp ones which obviously cannot 
+# use the Lapack linear solver modules simply to address the case 
+# in which the SUNDIALS libraries are shared objects. In that case, 
+# the solver library references Lapack  symbols which must be 
+# always resolved by linking against the Blas/Lapack libraries. 
+# If only static SUNDIALS libraries have been built, it is not 
+# required to link the Blas/Lapack libraries for the parhyp 
+# examples...
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+CPP         = @CPP@
+CPPFLAGS    = @CPPFLAGS@
+CC          = @CC@
+CFLAGS      = @CFLAGS@ @OpenMP_C_FLAGS@
+LDFLAGS     = @LDFLAGS@ @OpenMP_C_FLAGS@
+LIBS        = @LIBS@
+LINKFLAGS = -Wl,-rpath,@libdir@
+MPICC       = @MPICC@
+MPI_INC_DIR = @MPI_INC_DIR@
+MPI_LIB_DIR = @MPI_LIB_DIR@
+MPI_LIBS    = @MPI_LIBS@
+MPI_FLAGS   = @MPI_FLAGS@
+HYPRE_INC_DIR = @HYPRE_INCLUDE_DIR@
+HYPRE_LIB_DIR = @HYPRE_LIB_DIR@
+HYPRE_LIBS    = @HYPRE_LIBRARIES@
+HYPRE_FLAGS   = @HYPRE_FLAGS@
+
+INCLUDES = -I${includedir} -I${MPI_INC_DIR} -I${HYPRE_INC_DIR}
+LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecparhyp ${LIBS}
+LIBRARIES_BL = @BLAS_LAPACK_LIBS@
+LIBRARIES_SLUMT = @SUPERLUMT_LIBS@
+LIBRARIES_KLU = @KLU_LIBS@
+
+EXAMPLES = @EXAMPLES@
+EXAMPLES_DEPENDENCIES = @EXAMPLES_DEPENDENCIES@
+
+OBJECTS = ${EXAMPLES:=.o}
+OBJECTS_DEPENDENCIES = ${EXAMPLES_DEPENDENCIES:=.o}
+
+# -----------------------------------------------------------------------------------------
+
+.SUFFIXES : .o .c
+
+.c.o :
+	${MPICC} ${CPPFLAGS} ${CFLAGS} ${MPI_FLAGS} ${INCLUDES} -c $<
+
+# -----------------------------------------------------------------------------------------
+
+all: ${OBJECTS}
+	@for i in ${EXAMPLES} ; do \
+	  echo "${MPICC} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${HYPRE_LIBS} ${LINKFLAGS}" ; \
+	  ${MPICC} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${HYPRE_LIBS} ${LINKFLAGS} ; \
+	done
+
+${OBJECTS}: ${OBJECTS_DEPENDENCIES}
+
+clean:
+	rm -f ${OBJECTS_DEPENDENCIES}
+	rm -f ${OBJECTS}
+	rm -f ${EXAMPLES}
+
+# -----------------------------------------------------------------------------------------

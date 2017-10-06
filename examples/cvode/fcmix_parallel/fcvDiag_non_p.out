@@ -1,0 +1,31 @@
+Diagonal test problem:
+
+ NEQ =   8
+ parameter alpha =    1.250
+ ydot_i = -alpha*i * y_i (i = 1,...,NEQ)
+ RTOL, ATOL =    0.1E-04   0.1E-09
+ Method is ADAMS/FUNCTIONAL
+ Number of processors =   4
+
+
+ t =   0.10D+00     no. steps =    14   no. f-s =    32
+ t =   0.20D+00     no. steps =    22   no. f-s =    40
+ t =   0.30D+00     no. steps =    29   no. f-s =    47
+ t =   0.40D+00     no. steps =    37   no. f-s =    55
+ t =   0.50D+00     no. steps =    44   no. f-s =    62
+ t =   0.60D+00     no. steps =    51   no. f-s =    69
+ t =   0.70D+00     no. steps =    59   no. f-s =    78
+ t =   0.80D+00     no. steps =    66   no. f-s =    85
+ t =   0.90D+00     no. steps =    74   no. f-s =    93
+ t =   0.10D+01     no. steps =    81   no. f-s =   100
+
+Max. absolute error is   0.41E-07
+
+
+Final statistics:
+
+ number of steps =    81
+ number of f evals. =   100
+ number of nonlinear iters. =    96
+ number of nonlinear conv. failures =   0
+ number of error test failures =   3

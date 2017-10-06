@@ -1,0 +1,37 @@
+
+Slider-Crank example for IDAS:
+
+Forward integration ... done!
+
+Final Run Statistics: 
+
+Number of steps                    = 234
+Number of residual evaluations     = 1194
+Number of Jacobian evaluations     = 48
+Number of nonlinear iterations     = 714
+Number of error test failures      = 0
+Number of nonlinear conv. failures = 1
+--------------------------------------------
+  G =       3.3366156512592133
+--------------------------------------------
+
+-------------F O R W A R D------------------
+   dG/dp:    3.3346e-01  -3.6375e-01
+--------------------------------------------
+
+
+
+   Checking using Finite Differences 
+
+---------------BACKWARD------------------
+   dG/dp:    3.3345e-01  -3.6375e-01
+-----------------------------------------
+
+---------------FORWARD-------------------
+   dG/dp:    3.3345e-01  -3.6375e-01
+-----------------------------------------
+
+--------------CENTERED-------------------
+   dG/dp:    3.3345e-01  -3.6375e-01
+-----------------------------------------
+

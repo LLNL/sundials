@@ -1,0 +1,77 @@
+# -----------------------------------------------------------------
+# $Revision: 4944 $
+# $Date: 2016-09-21 21:48:35 -0700 (Wed, 21 Sep 2016) $
+# -----------------------------------------------------------------
+# Programmer: Daniel R. Reynolds @ SMU
+# -----------------------------------------------------------------
+# Copyright (c) 2013, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for @SOLVER@ serial examples.
+#
+# This file is generated from a template using various variables
+# set at configuration time. It can be used as a template for
+# other user Makefiles.
+#
+# Note: if the solver was successfully configured with Blas/Lapack
+# support, the Blas/Lapack libraries are specified through the 
+# variable LIBRARIES_BL. Otherwise, this variable should contain
+# an empty string. We include LIBRARIES_BL in the link line for
+# all examples, whether they use the Lapack module or not, to
+# address the case in which the SUNDIALS libraries are shared 
+# objects. In that case, the solver library references Lapack 
+# symbols which must be always resolved by linking against the
+# Blas/Lapack libraries. If only static SUNDIALS libraries have 
+# been built, it is not required to link the Blas/Lapack libraries
+# for examples that do not use that module...
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+CPP      = @CPP@
+CPPFLAGS = @CPPFLAGS@
+CXX      = @CXX@
+CXXFLAGS   = @CXXFLAGS@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
+
+LINKFLAGS = -Wl,-rpath,@libdir@
+
+INCLUDES = -I${includedir}
+LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecserial ${LIBS}
+LIBRARIES_BL = @BLAS_LAPACK_LIBS@
+LIBRARIES_SLUMT = @SUPERLUMT_LIBS@
+LIBRARIES_KLU = @KLU_LIBS@
+
+EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
+
+OBJECTS = ${EXAMPLES:=.o}
+
+# -----------------------------------------------------------------------------------------
+
+.SUFFIXES : .o .cpp
+
+.cpp.o :
+	${CXX} ${CPPFLAGS} ${CXXFLAGS} ${INCLUDES} -c $<
+
+# -----------------------------------------------------------------------------------------
+
+all: ${OBJECTS}
+	@for i in ${EXAMPLES} ; do \
+	  echo "${CXX} -o $${i} $${i}.o ${CXXFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LINKFLAGS}" ; \
+	  ${CXX} -o $${i} $${i}.o ${CXXFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LINKFLAGS} ; \
+	done
+
+clean:
+	rm -f ${OBJECTS}
+	rm -f ${EXAMPLES}
+
+# -----------------------------------------------------------------------------------------
+

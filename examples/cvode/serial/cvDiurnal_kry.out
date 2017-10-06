@@ -1,0 +1,63 @@
+ 
+2-species diurnal advection-diffusion problem
+
+t = 7.20e+03   no. steps = 219   order = 5   stepsize = 1.59e+02
+c1 (bot.left/middle/top rt.) =    1.047e+04     2.964e+04     1.119e+04
+c2 (bot.left/middle/top rt.) =    2.527e+11     7.154e+11     2.700e+11
+
+t = 1.44e+04   no. steps = 251   order = 5   stepsize = 3.77e+02
+c1 (bot.left/middle/top rt.) =    6.659e+06     5.316e+06     7.301e+06
+c2 (bot.left/middle/top rt.) =    2.582e+11     2.057e+11     2.833e+11
+
+t = 2.16e+04   no. steps = 277   order = 5   stepsize = 2.75e+02
+c1 (bot.left/middle/top rt.) =    2.665e+07     1.036e+07     2.931e+07
+c2 (bot.left/middle/top rt.) =    2.993e+11     1.028e+11     3.313e+11
+
+t = 2.88e+04   no. steps = 301   order = 5   stepsize = 3.87e+02
+c1 (bot.left/middle/top rt.) =    8.702e+06     1.292e+07     9.650e+06
+c2 (bot.left/middle/top rt.) =    3.380e+11     5.029e+11     3.751e+11
+
+t = 3.60e+04   no. steps = 343   order = 3   stepsize = 2.34e+01
+c1 (bot.left/middle/top rt.) =    1.404e+04     2.029e+04     1.561e+04
+c2 (bot.left/middle/top rt.) =    3.387e+11     4.894e+11     3.765e+11
+
+t = 4.32e+04   no. steps = 421   order = 4   stepsize = 5.26e+02
+c1 (bot.left/middle/top rt.) =   -4.385e-06    -1.528e-06    -4.905e-06
+c2 (bot.left/middle/top rt.) =    3.382e+11     1.355e+11     3.804e+11
+
+t = 5.04e+04   no. steps = 445   order = 3   stepsize = 1.98e+02
+c1 (bot.left/middle/top rt.) =    4.461e-07     1.869e-07     4.842e-07
+c2 (bot.left/middle/top rt.) =    3.358e+11     4.930e+11     3.864e+11
+
+t = 5.76e+04   no. steps = 462   order = 5   stepsize = 2.35e+02
+c1 (bot.left/middle/top rt.) =    3.204e-09     1.203e-09     3.555e-09
+c2 (bot.left/middle/top rt.) =    3.320e+11     9.650e+11     3.909e+11
+
+t = 6.48e+04   no. steps = 474   order = 5   stepsize = 6.02e+02
+c1 (bot.left/middle/top rt.) =   -1.066e-09    -3.409e-10    -1.206e-09
+c2 (bot.left/middle/top rt.) =    3.313e+11     8.922e+11     3.963e+11
+
+t = 7.20e+04   no. steps = 486   order = 5   stepsize = 6.02e+02
+c1 (bot.left/middle/top rt.) =    2.614e-09     9.722e-10     2.904e-09
+c2 (bot.left/middle/top rt.) =    3.330e+11     6.186e+11     4.039e+11
+
+t = 7.92e+04   no. steps = 498   order = 5   stepsize = 6.02e+02
+c1 (bot.left/middle/top rt.) =    4.649e-11     1.729e-11     5.161e-11
+c2 (bot.left/middle/top rt.) =    3.334e+11     6.669e+11     4.120e+11
+
+t = 8.64e+04   no. steps = 510   order = 5   stepsize = 6.02e+02
+c1 (bot.left/middle/top rt.) =   -8.856e-14    -3.348e-14    -9.785e-14
+c2 (bot.left/middle/top rt.) =    3.352e+11     9.107e+11     4.163e+11
+
+
+Final Statistics.. 
+
+lenrw   =  2089     leniw   =    50
+lenrwLS =  2046     leniwLS =    10
+nst     =   510
+nfe     =   675     nfeLS   =   641
+nni     =   671     nli     =   641
+nsetups =    94     netf    =    36
+npe     =     9     nps     =  1243
+ncfn    =     0     ncfl    =     0
+

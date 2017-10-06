@@ -1,0 +1,82 @@
+# -----------------------------------------------------------------
+# $Revision: 4824 $
+# $Date: 2016-07-24 16:39:04 -0700 (Sun, 24 Jul 2016) $
+# -----------------------------------------------------------------
+# Programmer: Daniel R. Reynolds @ SMU
+# -----------------------------------------------------------------
+# Copyright (c) 2013, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for @SOLVER@ parallel examples
+#
+# This file is generated from a template using various variables
+# set at configuration time. It can be used as a template for
+# other user Makefiles.
+#
+# Note: if the solver was successfully configured with Blas/Lapack
+# support, the Blas/Lapack libraries are specified through the 
+# variable LIBRARIES_BL. Otherwise, this variable should contain
+# an empty string. We include LIBRARIES_BL in the link line for
+# all examples, even the parallel ones which obviously cannot 
+# use the Lapack linear solver modules simply to address the case 
+# in which the SUNDIALS libraries are shared objects. In that case, 
+# the solver library references Lapack  symbols which must be 
+# always resolved by linking against the Blas/Lapack libraries. 
+# If only static SUNDIALS libraries have been built, it is not 
+# required to link the Blas/Lapack libraries for the parallel 
+# examples...
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+CPP         = @CPP@
+CPPFLAGS    = @CPPFLAGS@ -DMPICH_SKIP_MPICXX -DOMPI_SKIP_MPICXX -DLAM_BUILDING
+CXX         = @CXX@
+CXXFLAGS    = @CXXFLAGS@
+LDFLAGS     = @LDFLAGS@
+LIBS        = @LIBS@
+MPICXX      = @MPICXX@
+MPI_INC_DIR = @MPI_INC_DIR@
+MPI_LIB_DIR = @MPI_LIB_DIR@
+MPI_LIBS    = @MPI_LIBS@
+MPI_FLAGS   = @MPI_FLAGS@
+
+LINKFLAGS = -Wl,-rpath,@libdir@
+
+INCLUDES = -I${includedir} -I${MPI_INC_DIR}
+LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecparallel ${LIBS}
+LIBRARIES_BL = @BLAS_LAPACK_LIBS@
+LIBRARIES_SLUMT = @SUPERLUMT_LIBS@
+LIBRARIES_KLU = @KLU_LIBS@
+
+EXAMPLES = @EXAMPLES@
+
+OBJECTS = ${EXAMPLES:=.o}
+
+# -----------------------------------------------------------------------------------------
+
+.SUFFIXES : .o .cpp
+
+.cpp.o :
+	${MPICXX} ${CPPFLAGS} ${CXXFLAGS} ${MPI_FLAGS} ${INCLUDES} -c $<
+
+# -----------------------------------------------------------------------------------------
+
+all: ${OBJECTS}
+	@for i in ${EXAMPLES} ; do \
+	  echo "${MPICXX} -o $${i} $${i}.o ${MPI_FLAGS} ${CXXFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LINKFLAGS}" ; \
+	  ${MPICXX} -o $${i} $${i}.o ${MPI_FLAGS} ${CXXFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LINKFLAGS} ; \
+	done
+
+clean:
+	rm -f ${OBJECTS}
+	rm -f ${EXAMPLES}
+
+# -----------------------------------------------------------------------------------------
