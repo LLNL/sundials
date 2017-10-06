@@ -7328,6 +7328,83 @@ alternate solver options that will be more optimal for their
 particular problem of interest.
 
 
+\subsubsection{SUNDIALS version information}
+\label{c_interface/User_callable:sundials-version-information}\label{c_interface/User_callable:cinterface-sunversioninfo}
+The following functions provide a way to get SUNDIALS version
+information at runtime.
+\index{SUNDIALSGetVersion (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{c_interface/User_callable:c.SUNDIALSGetVersion}\pysiglinewithargsret{int \bfcode{SUNDIALSGetVersion}}{char\emph{ *version}, int\emph{ len}}{}
+This routine fills a string with SUNDIALS version information.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{version} -- character array to hold the SUNDIALS version information.
+
+\item {} 
+\emph{len} -- allocated length of the \emph{version} character array.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+0 if successful
+
+\item {} 
+-1 if the input string is too short to store the SUNDIALS version
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} An array of 25 characters should be sufficient to hold
+the version information.
+
+\end{fulllineitems}
+
+\index{SUNDIALSGetVersionNumber (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{c_interface/User_callable:c.SUNDIALSGetVersionNumber}\pysiglinewithargsret{int \bfcode{SUNDIALSGetVersionNumber}}{int\emph{ *major}, int\emph{ *minor}, int\emph{ *patch}, char\emph{ *label}, int\emph{ len}}{}
+This routine The function sets integers for the SUNDIALS major,
+minor, and patch release numbers and fills a string with the
+release label if applicable.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{major} -- SUNDIALS release major version number.
+
+\item {} 
+\emph{minor} -- SUNDIALS release minor version number.
+
+\item {} 
+\emph{patch} -- SUNDIALS release patch version number.
+
+\item {} 
+\emph{label} -- string to hold the SUNDIALS release label.
+
+\item {} 
+\emph{len} -- allocated length of the \emph{label} character array.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+0 if successful
+
+\item {} 
+-1 if the input string is too short to store the SUNDIALS label
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} An array of 10 characters should be sufficient to hold
+the label information. If a label is not used in the release
+version, no information is copied to \emph{label}.
+
+\end{fulllineitems}
 \subsubsection{Main solver optional output functions}
 \label{c_interface/User_callable:main-solver-optional-output-functions}\label{c_interface/User_callable:cinterface-arkodemainoutputs}
 \begin{tabulary}{\linewidth}{|L|L|}
@@ -26773,7 +26850,8 @@ Header files
 \code{sundials/sundials\_matrix.h},
 \code{sundials/sundials\_math.h},
 \code{sundials/sundials\_nvector.h},
-\code{sundials/sundials\_types.h}
+\code{sundials/sundials\_types.h},
+\code{sundials/sundials\_version.h}
 \\
 \hline
 NVECTOR\_SERIAL

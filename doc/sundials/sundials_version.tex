@@ -21,15 +21,15 @@ information at runtime.
 }
 {
   \begin{args}[version]
-  \item[version] (\id{char *}) string to hold the {\sundials} version information.
-  \item[len]     (\id{int})    length of \id{version}.
+  \item[version] (\id{char *}) character array to hold the {\sundials} version information.
+  \item[len]     (\id{int})    allocated length of the \id{version} character array.
   \end{args}
 }
 {
   If successful, \id{SUNDIALSGetVersion} returns 0 and
   \id{version} contains the {\sundials} version
   information. Otherwise, it returns $-1$ and \id{version} is not
-  set.
+  set (the input character array is too short).
 }
 {
   A string of 25 characters should be sufficient to hold the version information.
@@ -47,22 +47,23 @@ information at runtime.
 }
 {
   \begin{args}[length]
-  \item[major] (\id{int})    {\sundials} release major version number
-  \item[minor] (\id{int})    {\sundials} release minor version number
-  \item[patch] (\id{int})    {\sundials} release patch version number
-  \item[label] (\id{char *}) string to hold the {\sundials} release label
-  \item[len]   (\id{int})    length of \id{label}
+  \item[major] (\id{int})    {\sundials} release major version number.
+  \item[minor] (\id{int})    {\sundials} release minor version number.
+  \item[patch] (\id{int})    {\sundials} release patch version number.
+  \item[label] (\id{char *}) character array to hold the {\sundials} release label.
+  \item[len]   (\id{int})    allocated length of the \id{label} character array.
   \end{args}
 }
 {
   If successful, \id{SUNDIALSGetVersion} returns 0 and the
   \id{major}, \id{minor}, \id{patch}, and \id{label} values are
-  set. Otherwise, it returns $-1$ and the values are not set.
+  set. Otherwise, it returns $-1$ and the values are not set (the
+  input character array is too short).
 }
 {
   A string of 10 characters should be sufficient to hold the label
-  information. If a label is not used in the release version, an empty
-  string is returned in \id{label}.
+  information. If a label is not used in the release version, no
+  information is copied to \id{label}.
 }
 \index{optional output!version|)}
 
