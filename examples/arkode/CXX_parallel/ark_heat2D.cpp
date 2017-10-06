@@ -53,9 +53,20 @@
 #include <math.h>
 #include "arkode/arkode.h"            // prototypes for ARKode fcts., consts. 
 #include "nvector/nvector_parallel.h" // parallel N_Vector types, fcts., macros 
-#include "arkode/arkode_pcg.h"        // prototype for ARKPcg solver 
+#include "sunlinsol/sunlinsol_pcg.h"  // access to PCG SUNLinearSolver
+#include "arkode/arkode_spils.h"      // access to ARKSpils interface
 #include "sundials/sundials_types.h"  // def. of type 'realtype' 
 #include "mpi.h"                      // MPI header file
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
 
 using namespace std;
 
@@ -67,14 +78,14 @@ using namespace std;
 
 // user data structure 
 typedef struct {
-  long int nx;          // global number of x grid points 
-  long int ny;          // global number of y grid points
-  long int is;          // global x indices of this subdomain
-  long int ie;
-  long int js;          // global y indices of this subdomain
-  long int je;
-  long int nxl;         // local number of x grid points 
-  long int nyl;         // local number of y grid points 
+  sunindextype nx;          // global number of x grid points 
+  sunindextype ny;          // global number of y grid points
+  sunindextype is;          // global x indices of this subdomain
+  sunindextype ie;
+  sunindextype js;          // global y indices of this subdomain
+  sunindextype je;
+  sunindextype nxl;         // local number of x grid points 
+  sunindextype nyl;         // local number of y grid points 
   realtype dx;          // x-directional mesh spacing 
   realtype dy;          // y-directional mesh spacing 
   realtype kx;          // x-directional diffusion coefficient 
@@ -98,11 +109,10 @@ typedef struct {
 // User-supplied Functions Called by the Solver 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int PSet(realtype t, N_Vector y, N_Vector fy, booleantype jok, 
-		booleantype *jcurPtr, realtype gamma, void *user_data,
-		N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+		booleantype *jcurPtr, realtype gamma, void *user_data);
 static int PSol(realtype t, N_Vector y, N_Vector fy, N_Vector r, 
 		N_Vector z, realtype gamma, realtype delta, int lr, 
-		void *user_data, N_Vector tmp);
+		void *user_data);
 
 // Private functions 
 //    checks function return values 
@@ -123,20 +133,21 @@ int main(int argc, char* argv[]) {
   realtype T0 = RCONST(0.0);   // initial time 
   realtype Tf = RCONST(0.3);   // final time 
   int Nt = 20;                 // total number of output times 
-  long int nx = 60;            // spatial mesh size
-  long int ny = 120;
+  sunindextype nx = 60;            // spatial mesh size
+  sunindextype ny = 120;
   realtype kx = 0.5;           // heat conductivity coefficients
   realtype ky = 0.75;
   realtype rtol = 1.e-5;       // relative and absolute tolerances
   realtype atol = 1.e-10;
   UserData *udata = NULL;
   realtype *data;
-  long int N, Ntot, i, j;
+  sunindextype N, Ntot, i, j;
 
   // general problem variables 
   int flag;                      // reusable error-checking flag 
   int myid;                      // MPI process ID
   N_Vector y = NULL;             // empty vector for storing solution 
+  SUNLinearSolver LS = NULL;     // empty linear solver memory structure
   void *arkode_mem = NULL;       // empty ARKode memory structure 
 
   // initialize MPI
@@ -175,7 +186,7 @@ int main(int argc, char* argv[]) {
     cout << "   nyl (proc 0) = " << udata->nyl << "\n\n";
   }
 
-  // Initialize data structures 
+  // Initialize vector data structures 
   N = (udata->nxl)*(udata->nyl);
   Ntot = nx*ny;
   y = N_VNew_Parallel(udata->comm, N, Ntot);         // Create parallel vector for solution 
@@ -185,7 +196,13 @@ int main(int argc, char* argv[]) {
   if (check_flag((void *) udata->h, "N_VNew_Parallel", 0)) return 1;
   udata->d = N_VNew_Parallel(udata->comm, N, Ntot);  // Create vector for Jacobian diagonal
   if (check_flag((void *) udata->d, "N_VNew_Parallel", 0)) return 1;
-  arkode_mem = ARKodeCreate();                       // Create the solver memory 
+
+  // Initialize linear solver data structure
+  LS = SUNPCG(y, 1, 20);
+  if (check_flag((void *) LS, "SUNPCG", 0)) return 1;
+
+  // Initialize ARKode data structure
+  arkode_mem = ARKodeCreate();
   if (check_flag((void *) arkode_mem, "ARKodeCreate", 0)) return 1;
 
   // fill in the heat source array
@@ -210,8 +227,8 @@ int main(int argc, char* argv[]) {
   flag = ARKodeSStolerances(arkode_mem, rtol, atol);      // Specify tolerances 
   if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
 
-  // Linear solver specification 
-  flag = ARKPcg(arkode_mem, 1, 20);                           // Specify the PCG solver 
+  // Linear solver interface
+  flag = ARKSpilsSetLinearSolver(arkode_mem, LS);             // Attach linear solver
   if (check_flag(&flag, "ARKPcg", 1)) return 1;
   flag = ARKSpilsSetPreconditioner(arkode_mem, PSet, PSol);   // Specify the Preconditoner
   if (check_flag(&flag, "ARKSpilsSetPreconditioner", 1)) return 1;
@@ -225,7 +242,8 @@ int main(int argc, char* argv[]) {
   sprintf(outname, "heat2d_subdomain.%03i.txt", udata->myid);
   FILE *UFID = fopen(outname,"w");
   fprintf(UFID, "%li  %li  %li  %li  %li  %li\n", 
-	  udata->nx, udata->ny, udata->is, udata->ie, udata->js, udata->je);
+	  (long int) udata->nx, (long int) udata->ny, (long int) udata->is,
+          (long int) udata->ie, (long int) udata->js, (long int) udata->je);
   fclose(UFID);
 
   // Open output streams for results, access data array 
@@ -234,7 +252,7 @@ int main(int argc, char* argv[]) {
   data = N_VGetArrayPointer(y);
 
   // output initial condition to disk 
-  for (i=0; i<N; i++)  fprintf(UFID," %.16e", data[i]);
+  for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM, data[i]);
   fprintf(UFID,"\n");
 
   /* Main time-stepping loop: calls ARKode to perform the integration, then
@@ -246,7 +264,7 @@ int main(int argc, char* argv[]) {
   if (outproc) {
     cout << "        t      ||u||_rms\n";
     cout << "   ----------------------\n";
-    printf("  %10.6f  %10.6f\n", t, urms);
+    printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, urms);
   }
   int iout;
   for (iout=0; iout<Nt; iout++) {
@@ -254,7 +272,7 @@ int main(int argc, char* argv[]) {
     flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);         // call integrator 
     if (check_flag(&flag, "ARKode", 1)) break;
     urms = sqrt(N_VDotProd(y,y)/nx/ny);
-    if (outproc)  printf("  %10.6f  %10.6f\n", t, urms);        // print solution stats 
+    if (outproc)  printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, urms);        // print solution stats 
     if (flag >= 0) {                                            // successful solve: update output time
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;
@@ -265,7 +283,7 @@ int main(int argc, char* argv[]) {
     }
 
     // output results to disk 
-    for (i=0; i<N; i++)  fprintf(UFID," %.16e", data[i]);
+    for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[i]);
     fprintf(UFID,"\n");
   }
   if (outproc)  cout << "   ----------------------\n";
@@ -313,12 +331,13 @@ int main(int argc, char* argv[]) {
   }
 
   // Clean up and return with successful completion 
-  N_VDestroy_Parallel(y);        // Free vectors 
+  ARKodeFree(&arkode_mem);     // Free integrator memory 
+  SUNLinSolFree(LS);           // Free linear solver
+  N_VDestroy_Parallel(y);      // Free vectors 
   N_VDestroy_Parallel(udata->h);
   N_VDestroy_Parallel(udata->d);
   FreeUserData(udata);         // Free user data 
   delete udata;       
-  ARKodeFree(&arkode_mem);     // Free integrator memory 
   flag = MPI_Finalize();       // Finalize MPI
   return 0;
 }
@@ -332,8 +351,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   N_VConst(0.0, ydot);                           // Initialize ydot to zero 
   UserData *udata = (UserData *) user_data;      // access problem data 
-  long int nxl = udata->nxl;                     // set variable shortcuts 
-  long int nyl = udata->nyl;
+  sunindextype nxl = udata->nxl;                     // set variable shortcuts 
+  sunindextype nyl = udata->nyl;
   realtype kx = udata->kx;
   realtype ky = udata->ky;
   realtype dx = udata->dx;
@@ -351,7 +370,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   realtype c1 = kx/dx/dx;
   realtype c2 = ky/dy/dy;
   realtype c3 = -TWO*(c1 + c2);
-  long int i, j;
+  sunindextype i, j;
   for (j=1; j<nyl-1; j++)                        // diffusive terms
     for (i=1; i<nxl-1; i++)
       Ydot[IDX(i,j,nxl)] = c1*(Y[IDX(i-1,j,nxl)] + Y[IDX(i+1,j,nxl)])
@@ -423,29 +442,28 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 // Preconditioner setup routine (fills inverse of Jacobian diagonal)
 static int PSet(realtype t, N_Vector y, N_Vector fy, booleantype jok, 
-		booleantype *jcurPtr, realtype gamma, void *user_data,
-		N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+		booleantype *jcurPtr, realtype gamma, void *user_data)
 {
   UserData *udata = (UserData *) user_data;      // variable shortcuts 
   realtype kx = udata->kx;
   realtype ky = udata->ky;
   realtype dx = udata->dx;
   realtype dy = udata->dy;
-  realtype *diag = N_VGetArrayPointer(tmp1);  // access data arrays 
+  realtype *diag = N_VGetArrayPointer(udata->d);  // access data arrays 
   if (check_flag((void *) diag, "N_VGetArrayPointer", 0)) return -1;
 
-  // set all entries of tmp1 to the diagonal values of interior
+  // set all entries of d to the diagonal values of interior
   // (since boundary RHS is 0, set boundary diagonals to the same)
   realtype c = ONE + gamma*TWO*(kx/dx/dx + ky/dy/dy);
-  N_VConst(c, tmp1);
-  N_VInv(tmp1, udata->d);      // set d to inverse of diagonal
+  N_VConst(c, udata->d);
+  N_VInv(udata->d, udata->d);  // invert diagonal
   return 0;                    // Return with success 
 }
 
 // Preconditioner solve routine
 static int PSol(realtype t, N_Vector y, N_Vector fy, N_Vector r, 
 		N_Vector z, realtype gamma, realtype delta, int lr, 
-		void *user_data, N_Vector tmp)
+		void *user_data)
 {
   UserData *udata = (UserData *) user_data;  // access user_data structure
   N_VProd(r, udata->d, z);                   // perform Jacobi iteration

@@ -1,22 +1,19 @@
 # ---------------------------------------------------------------
-# $Revision: 4511 $
-# $Date: 2015-06-29 16:48:09 -0700 (Mon, 29 Jun 2015) $
-# ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
-# Copyright (c) 2008, The Regents of the University of California.
+# LLNS Copyright Start
+# Copyright (c) 2014, Lawrence Livermore National Security
+# This work was performed under the auspices of the U.S. Department 
+# of Energy by Lawrence Livermore National Laboratory in part under 
+# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
 # For details, see the LICENSE file.
+# LLNS Copyright End
 # ---------------------------------------------------------------
 # MPI-C tests for SUNDIALS CMake-based configuration.
 #
 # 
-
-# make sure valid mpi_run_command. If not, then warn and return
-If(MPI_RUN_COMMAND AND NOT MPI_RUN_COMMAND STREQUAL "mpirun" AND NOT MPI_RUN_COMMAND STREQUAL "srun")
-    PRINT_WARNING("Unknown mpi run command: ${MPI_RUN_COMMAND}" "Please enter mpirun or srun")
-ENDIF(MPI_RUN_COMMAND AND NOT MPI_RUN_COMMAND STREQUAL "mpirun" AND NOT MPI_RUN_COMMAND STREQUAL "srun")
 
 set(MPIC_FOUND FALSE)
 set(MPIC_MPI2 FALSE)

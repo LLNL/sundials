@@ -1,14 +1,11 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4075 $
- * $Date: 2014-04-24 10:46:58 -0700 (Thu, 24 Apr 2014) $
- * ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
+ *                David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
@@ -17,8 +14,7 @@
  * -----------------------------------------------------------------
  * Fortran/C interface routines for KINSOL/KINBAND, for the case
  * of a user-supplied Jacobian approximation routine.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,7 +22,8 @@
 #include "fkinsol.h"     /* standard interfaces and global vars.*/
 #include "kinsol_impl.h" /* definition of KINMem type           */
 
-#include <kinsol/kinsol_band.h>
+#include <kinsol/kinsol_direct.h>
+#include <sunmatrix/sunmatrix_band.h>
 
 /*
  * ----------------------------------------------------------------
@@ -38,10 +35,11 @@
 extern "C" {
 #endif
 
-extern void FK_BJAC(long int*, long int*, long int*, long int*,
-                    realtype*, realtype*,
-                    realtype*,
-                    realtype*, realtype*, int*);
+extern void FK_BJAC(long int* N, long int* MU, long int* ML,
+                    long int* EBAND,
+                    realtype* UU, realtype* FU,
+                    realtype* BJAC,
+                    realtype* WK1, realtype* WK2, int* IER);
 
 #ifdef __cplusplus
 }
@@ -56,10 +54,10 @@ extern void FK_BJAC(long int*, long int*, long int*, long int*,
 void FKIN_BANDSETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = KINDlsSetBandJacFn(KIN_kinmem, NULL);
+    *ier = KINDlsSetJacFn(KIN_kinmem, NULL);
   }
   else {
-    *ier = KINDlsSetBandJacFn(KIN_kinmem, FKINBandJac);
+    *ier = KINDlsSetJacFn(KIN_kinmem, FKINBandJac);
   }
 
   return;
@@ -77,13 +75,12 @@ void FKIN_BANDSETJAC(int *flag, int *ier)
  * ----------------------------------------------------------------
  */
 
-int FKINBandJac(long int N, long int mupper, long int mlower,
-                N_Vector uu, N_Vector fval, 
-                DlsMat J, void *user_data,
+int FKINBandJac(N_Vector uu, N_Vector fval,
+                SUNMatrix J, void *user_data,
                 N_Vector vtemp1, N_Vector vtemp2)
 {
   realtype *uu_data, *fval_data, *jacdata, *v1_data, *v2_data;
-  long int eband;
+  long int N, mupper, mlower, smu, eband;
   int ier;
 
   /* Initialize all pointers to NULL */
@@ -101,8 +98,12 @@ int FKINBandJac(long int N, long int mupper, long int mlower,
   v1_data   = N_VGetArrayPointer(vtemp1);
   v2_data   = N_VGetArrayPointer(vtemp2);
 
-  eband = (J->s_mu) + mlower + 1;
-  jacdata = BAND_COL(J,0) - mupper;
+  N       = SUNBandMatrix_Columns(J);
+  mupper  = SUNBandMatrix_UpperBandwidth(J);
+  mlower  = SUNBandMatrix_LowerBandwidth(J);
+  smu     = SUNBandMatrix_StoredUpperBandwidth(J);
+  eband   = smu + mlower + 1;
+  jacdata = SUNBandMatrix_Column(J,0) - mupper;
 
   /* Call user-supplied routine */
   FK_BJAC(&N, &mupper, &mlower, &eband,

@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4834 $
- * $Date: 2016-08-01 16:59:05 -0700 (Mon, 01 Aug 2016) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example problem:
@@ -25,19 +21,19 @@
  * It uses scalar relative and absolute tolerances.
  * Output is printed at t = .1, .2, ..., 1.
  * Run statistics (optional outputs) are printed at the end.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-/* Header files with a description of contents used */
-
-#include <cvodes/cvodes.h>           /* prototypes for CVODE fcts. and consts. */
-#include <cvodes/cvodes_lapack.h>    /* prototype for CVLapackBand */
-#include <nvector/nvector_serial.h>  /* serial N_Vector types, fcts., and macros */
-#include <sundials/sundials_math.h>  /* definition of ABS and EXP */
+#include <cvodes/cvodes.h>                   /* prototypes for CVODE fcts., consts.  */
+#include <nvector/nvector_serial.h>          /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_band.h>        /* access to band SUNMatrix             */
+#include <sunlinsol/sunlinsol_lapackband.h>  /* access to band SUNLinearSolver       */
+#include <cvodes/cvodes_direct.h>            /* access to CVDls interface            */
+#include <sundials/sundials_types.h>         /* definition of type realtype          */
+#include <sundials/sundials_math.h>          /* definition of ABS and EXP            */
 
 /* Problem Constants */
 
@@ -65,7 +61,7 @@
    to the underlying 1-dimensional storage. 
    IJth(vdata,i,j) references the element in the vdata array for
    u at mesh point (i,j), where 1 <= i <= MX, 1 <= j <= MY.
-   The vdata array is obtained via the macro call vdata = N_VGetArrayPointer_Serial(v),
+   The vdata array is obtained via the call vdata = N_VGetArrayPointer(v),
    where v is an N_Vector. 
    The variables are ordered by the y index j, then by the x index i. */
 
@@ -91,9 +87,8 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 /* Functions Called by the Solver */
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
-static int Jac(long int N, long int mu, long int ml,
-               realtype t, N_Vector u, N_Vector fu, 
-               DlsMat J, void *user_data,
+static int Jac(realtype t, N_Vector u, N_Vector fu, 
+               SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
@@ -107,12 +102,16 @@ int main(void)
   realtype dx, dy, reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
+  SUNMatrix A;
+  SUNLinearSolver LS;
   void *cvode_mem;
   int iout, flag;
   long int nst;
 
   u = NULL;
   data = NULL;
+  A = NULL;
+  LS = NULL;
   cvode_mem = NULL;
 
   /* Create a serial vector */
@@ -153,15 +152,25 @@ int main(void)
   flag = CVodeSetUserData(cvode_mem, data);
   if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
-  /* Call CVLapackBand to specify the CVBAND band linear solver */
-  flag = CVLapackBand(cvode_mem, NEQ, MY, MY);
-  if(check_flag(&flag, "CVLapackBand", 1)) return(1);
+  /* Create banded SUNMatrix for use in linear solves -- since this will be factored, 
+     set the storage bandwidth to be the sum of upper and lower bandwidths */
+  A = SUNBandMatrix(NEQ, MY, MY, 2*MY);
+  if(check_flag((void *)A, "SUNBandMatrix", 0)) return(1);
+
+  /* Create SUNLapackBand solver object for use by CVode */
+  LS = SUNLapackBand(u, A);
+  if(check_flag((void *)LS, "SUNLapackBand", 0)) return(1);
+  
+  /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
+  flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
+  if(check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine Jac */
-  flag = CVDlsSetBandJacFn(cvode_mem, Jac);
-  if(check_flag(&flag, "CVDlsSetBandJacFn", 1)) return(1);
+  flag = CVDlsSetJacFn(cvode_mem, Jac);
+  if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   /* In loop over output points: call CVode, print results, test for errors */
+
   umax = N_VMaxNorm(u);
   PrintHeader(reltol, abstol, umax);
   for(iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
@@ -175,7 +184,7 @@ int main(void)
 
   PrintFinalStats(cvode_mem);  /* Print some final statistics   */
 
-  N_VDestroy_Serial(u);   /* Free the u vector */
+  N_VDestroy(u);          /* Free the u vector */
   CVodeFree(&cvode_mem);  /* Free the integrator memory */
   free(data);             /* Free the user data */
 
@@ -197,8 +206,8 @@ static int f(realtype t, N_Vector u,N_Vector udot, void *user_data)
   int i, j;
   UserData data;
 
-  udata = N_VGetArrayPointer_Serial(u);
-  dudata = N_VGetArrayPointer_Serial(udot);
+  udata  = N_VGetArrayPointer(u);
+  dudata = N_VGetArrayPointer(udot);
 
   /* Extract needed constants from data */
 
@@ -235,9 +244,8 @@ static int f(realtype t, N_Vector u,N_Vector udot, void *user_data)
 
 /* Jacobian routine. Compute J(t,u). */
 
-static int Jac(long int N, long int mu, long int ml,
-               realtype t, N_Vector u, N_Vector fu, 
-               DlsMat J, void *user_data,
+static int Jac(realtype t, N_Vector u, N_Vector fu, 
+               SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   int i, j, k;
@@ -263,15 +271,15 @@ static int Jac(long int N, long int mu, long int ml,
   for (j=1; j <= MY; j++) {
     for (i=1; i <= MX; i++) {
       k = j-1 + (i-1)*MY;
-      kthCol = BAND_COL(J,k);
+      kthCol = SUNBandMatrix_Column(J,k);
 
       /* set the kth column of J */
 
-      BAND_COL_ELEM(kthCol,k,k) = -TWO*(verdc+hordc);
-      if (i != 1)  BAND_COL_ELEM(kthCol,k-MY,k) = hordc + horac;
-      if (i != MX) BAND_COL_ELEM(kthCol,k+MY,k) = hordc - horac;
-      if (j != 1)  BAND_COL_ELEM(kthCol,k-1,k)  = verdc;
-      if (j != MY) BAND_COL_ELEM(kthCol,k+1,k)  = verdc;
+      SM_COLUMN_ELEMENT_B(kthCol,k,k) = -TWO*(verdc+hordc);
+      if (i != 1)  SM_COLUMN_ELEMENT_B(kthCol,k-MY,k) = hordc + horac;
+      if (i != MX) SM_COLUMN_ELEMENT_B(kthCol,k+MY,k) = hordc - horac;
+      if (j != 1)  SM_COLUMN_ELEMENT_B(kthCol,k-1,k)  = verdc;
+      if (j != MY) SM_COLUMN_ELEMENT_B(kthCol,k+1,k)  = verdc;
     }
   }
 
@@ -299,7 +307,7 @@ static void SetIC(N_Vector u, UserData data)
 
   /* Set pointer to data array in vector u. */
 
-  udata = N_VGetArrayPointer_Serial(u);
+  udata = N_VGetArrayPointer(u);
 
   /* Load initial profile into u vector */
   

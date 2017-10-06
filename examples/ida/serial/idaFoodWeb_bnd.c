@@ -1,14 +1,10 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4853 $
- * $Date: 2016-08-03 16:27:46 -0700 (Wed, 03 Aug 2016) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example program for IDA: Food web problem.
  *
- * This example program (serial version) uses the IDABAND linear 
+ * This example program (serial version) uses the banded linear 
  * solver, and IDACalcIC for initial condition calculation.
  *
  * The mathematical problem solved in this example is a DAE system
@@ -62,7 +58,7 @@
  * The PDEs are discretized by central differencing on a MX by MY
  * mesh.
  *
- * The DAE system is solved by IDA using the IDABAND linear solver.
+ * The DAE system is solved by IDA using the banded linear solver.
  * Output is printed at t = 0, .001, .01, .1, .4, .7, 1.
  * -----------------------------------------------------------------
  * References:
@@ -80,18 +76,18 @@
  *     Consistent Initial Condition Calculation for Differential-
  *     Algebraic Systems, SIAM J. Sci. Comput., 19 (1998),
  *     pp. 1495-1512.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>
-#include <ida/ida_band.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_dense.h>
-#include <sundials/sundials_types.h>
+#include <ida/ida.h>                   /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix             */
+#include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver       */
+#include <ida/ida_direct.h>            /* access to IDADls interface           */
+#include <sundials/sundials_types.h>   /* definition of type realtype          */
 
 /* Problem Constants. */
 
@@ -136,7 +132,7 @@
 /* Type: UserData.  Contains problem constants, etc. */
 
 typedef struct {
-  long int Neq, ns, np, mx, my;
+  sunindextype Neq, ns, np, mx, my;
   realtype dx, dy, **acoef;
   realtype cox[NUM_SPECIES], coy[NUM_SPECIES], bcoef[NUM_SPECIES];
   N_Vector rates;
@@ -152,13 +148,13 @@ static int resweb(realtype time, N_Vector cc, N_Vector cp, N_Vector resval,
 static void InitUserData(UserData webdata);
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata);
-static void PrintHeader(long int mu, long int ml, realtype rtol, realtype atol);
+static void PrintHeader(sunindextype mu, sunindextype ml, realtype rtol, realtype atol);
 static void PrintOutput(void *mem, N_Vector c, realtype t);
 static void PrintFinalStats(void *mem);
 static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate, UserData webdata);
 static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                      UserData webdata);
-static realtype dotprod(long int size, realtype *x1, realtype *x2);
+static realtype dotprod(sunindextype size, realtype *x1, realtype *x2);
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /*
@@ -173,12 +169,16 @@ int main()
   UserData webdata;
   N_Vector cc, cp, id;
   int iout, retval;
-  long int mu, ml;
+  sunindextype mu, ml;
   realtype rtol, atol, t0, tout, tret;
+  SUNMatrix A;
+  SUNLinearSolver LS;
 
   mem = NULL;
   webdata = NULL;
   cc = cp = id = NULL;
+  A = NULL;
+  LS = NULL;
 
   /* Allocate and initialize user data block webdata. */
 
@@ -224,11 +224,18 @@ int main()
   retval = IDASStolerances(mem, rtol, atol);
   if(check_flag(&retval, "IDASStolerances", 1)) return(1);
 
-  /* Call IDABand to specify the IDA linear solver. */
-
+  /* Create banded SUNMatrix for use in linear solves */
   mu = ml = NSMX;
-  retval = IDABand(mem, NEQ, mu, ml);
-  if(check_flag(&retval, "IDABand", 1)) return(1);
+  A = SUNBandMatrix(NEQ, mu, ml, mu+ml);
+  if(check_flag((void *)A, "SUNBandMatrix", 0)) return(1);
+
+  /* Create banded SUNLinearSolver object */
+  LS = SUNBandLinearSolver(cc, A);
+  if(check_flag((void *)LS, "SUNBandLinearSolver", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  retval = IDADlsSetLinearSolver(mem, LS, A);
+  if(check_flag(&retval, "IDADlsSetLinearSolver", 1)) return(1);
 
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
@@ -261,14 +268,16 @@ int main()
   /* Free memory */
 
   IDAFree(&mem);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
 
-  N_VDestroy_Serial(cc);
-  N_VDestroy_Serial(cp);
-  N_VDestroy_Serial(id);
+  N_VDestroy(cc);
+  N_VDestroy(cp);
+  N_VDestroy(id);
 
 
   destroyMat(webdata->acoef);
-  N_VDestroy_Serial(webdata->rates);
+  N_VDestroy(webdata->rates);
   free(webdata);
 
   return(0);
@@ -297,14 +306,14 @@ int main()
 static int resweb(realtype tt, N_Vector cc, N_Vector cp, 
                   N_Vector res,  void *user_data)
 {
-  long int jx, jy, is, yloc, loc, np;
+  sunindextype jx, jy, is, yloc, loc, np;
   realtype *resv, *cpv;
   UserData webdata;
   
   webdata = (UserData)user_data;
   
-  cpv = N_VGetArrayPointer_Serial(cp);
-  resv = N_VGetArrayPointer_Serial(res);
+  cpv = N_VGetArrayPointer(cp);
+  resv = N_VGetArrayPointer(res);
   np = webdata->np;
   
   /* Call Fweb to set res to vector of right-hand sides. */
@@ -393,13 +402,13 @@ static void InitUserData(UserData webdata)
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata)
 {
-  long int loc, yloc, is, jx, jy, np;
+  sunindextype loc, yloc, is, jx, jy, np;
   realtype xx, yy, xyfactor;
   realtype *ccv, *cpv, *idv;
   
-  ccv = N_VGetArrayPointer_Serial(cc);
-  cpv = N_VGetArrayPointer_Serial(cp);
-  idv = N_VGetArrayPointer_Serial(id);
+  ccv = N_VGetArrayPointer(cc);
+  cpv = N_VGetArrayPointer(cp);
+  idv = N_VGetArrayPointer(id);
   np = webdata->np;
   
   /* Loop over grid, load cc values and id values. */
@@ -444,7 +453,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(long int mu, long int ml, realtype rtol, realtype atol)
+static void PrintHeader(sunindextype mu, sunindextype ml, realtype rtol, realtype atol)
 {
   printf("\nidaFoodWeb_bnd: Predator-prey DAE serial example problem for IDA \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
@@ -457,7 +466,7 @@ static void PrintHeader(long int mu, long int ml, realtype rtol, realtype atol)
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: IDABAND,  Band parameters mu = %ld, ml = %ld\n",mu,ml);
+  printf("Linear solver: BAND,  Band parameters mu = %ld, ml = %ld\n", (long int) mu, (long int) ml);
   printf("CalcIC called to correct initial predator concentrations.\n\n");
   printf("-----------------------------------------------------------\n");
   printf("  t        bottom-left  top-right");
@@ -553,7 +562,7 @@ static void PrintFinalStats(void *mem)
 static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate,  
                  UserData webdata)
 { 
-  long int jx, jy, is, idyu, idyl, idxu, idxl;
+  sunindextype jx, jy, is, idyu, idyl, idxu, idxl;
   realtype xx, yy, *cxy, *ratesxy, *cratexy, dcyli, dcyui, dcxli, dcxui;
   
   /* Loop over grid points, evaluate interaction vector (length ns),
@@ -621,9 +630,9 @@ static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
  * dotprod: dot product routine for realtype arrays, for use by WebRates.    
  */
 
-static realtype dotprod(long int size, realtype *x1, realtype *x2)
+static realtype dotprod(sunindextype size, realtype *x1, realtype *x2)
 {
-  long int i;
+  sunindextype i;
   realtype *xx1, *xx2, temp = ZERO;
   
   xx1 = x1; xx2 = x2;

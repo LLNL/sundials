@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4923 $
- * $Date: 2016-09-19 14:35:51 -0700 (Mon, 19 Sep 2016) $
+ * $Revision$
+ * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -283,7 +283,7 @@ typedef struct CVodeMemRec {
 			      user that t + h == t for the next internal step */
   int cv_maxnef;           /* maximum number of error test failures           */
   int cv_maxncf;           /* maximum number of nonlinear conv. failures      */
-
+  
   realtype cv_hmin;        /* |h| >= hmin                                     */
   realtype cv_hmax_inv;    /* |h| <= 1/hmax_inv                               */
   realtype cv_etamax;      /* eta <= etamax                                   */
@@ -325,12 +325,12 @@ typedef struct CVodeMemRec {
     Space requirements for CVODES 
     -----------------------------*/
 
-  long int cv_lrw1;        /* no. of realtype words in 1 N_Vector y           */ 
-  long int cv_liw1;        /* no. of integer words in 1 N_Vector y            */ 
-  long int cv_lrw1Q;       /* no. of realtype words in 1 N_Vector yQ          */ 
-  long int cv_liw1Q;       /* no. of integer words in 1 N_Vector yQ           */ 
-  long int cv_lrw;         /* no. of realtype words in CVODES work vectors    */
-  long int cv_liw;         /* no. of integer words in CVODES work vectors     */
+  sunindextype cv_lrw1;        /* no. of realtype words in 1 N_Vector y           */ 
+  sunindextype cv_liw1;        /* no. of integer words in 1 N_Vector y            */ 
+  sunindextype cv_lrw1Q;       /* no. of realtype words in 1 N_Vector yQ          */ 
+  sunindextype cv_liw1Q;       /* no. of integer words in 1 N_Vector yQ           */ 
+  long int cv_lrw;             /* no. of realtype words in CVODES work vectors    */
+  long int cv_liw;             /* no. of integer words in CVODES work vectors     */
 
   /*----------------
     Step size ratios
@@ -375,13 +375,13 @@ typedef struct CVodeMemRec {
   realtype cv_hu;              /* last successful h value used                */
   realtype cv_saved_tq5;       /* saved value of tq[5]                        */
   booleantype cv_jcur;         /* is Jacobian info for linear solver current? */
+  int cv_convfail;             /* flag storing previous solver failure mode   */
   realtype cv_tolsf;           /* tolerance scale factor                      */
   int cv_qmax_alloc;           /* qmax used when allocating mem               */
   int cv_qmax_allocQ;          /* qmax used when allocating quad. mem         */
   int cv_qmax_allocS;          /* qmax used when allocating sensi. mem        */
   int cv_qmax_allocQS;         /* qmax used when allocating quad. sensi. mem  */
   int cv_indx_acor;            /* index of zn vector in which acor is saved   */
-  booleantype cv_setupNonNull; /* Does setup do something?                    */
 
   /*--------------------------------------------------------------------
     Flags turned ON by CVodeInit, CVodeSensMalloc, and CVodeQuadMalloc 

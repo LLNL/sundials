@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4834 $
- * $Date: 2016-08-01 16:59:05 -0700 (Mon, 01 Aug 2016) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Carol S. Woodward @ LLNL.  Adapted from the file
  *    kinRoboKin_dns.c by Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -25,11 +21,13 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <kinsol/kinsol.h>
-#include <kinsol/kinsol_superlumt.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
+#include <kinsol/kinsol.h>                 /* access to KINSOL func., consts.   */
+#include <nvector/nvector_serial.h>        /* access to serial N_Vector         */
+#include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix        */
+#include <kinsol/kinsol_direct.h>          /* access to KINDls interface        */
+#include <sunlinsol/sunlinsol_superlumt.h> /* access to SuperLUMT linear solver */
+#include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype   */
+#include <sundials/sundials_math.h>        /* access to SUNRsqrt                */
 
 /* Problem Constants */
 
@@ -46,9 +44,8 @@
 #define Ith(v,i)    NV_Ith_S(v,i-1)
 
 static int func(N_Vector y, N_Vector f, void *user_data);
-static int jac(N_Vector y, N_Vector f,
-               SlsMat J, void *user_data,
-               N_Vector tmp1, N_Vector tmp2);
+static int jac(N_Vector y, N_Vector f, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2);
 static void PrintOutput(N_Vector y);
 static void PrintFinalStats(void *kmem);
 static int check_flag(void *flagvalue, const char *funcname, int opt);
@@ -65,11 +62,15 @@ int main()
   N_Vector y, scale, constraints;
   int mset, flag, i;
   void *kmem;
+  SUNMatrix J;
+  SUNLinearSolver LS;
 
   int nnz, num_threads;
 
   y = scale = constraints = NULL;
   kmem = NULL;
+  J = NULL;
+  LS = NULL;
 
   printf("\nRobot Kinematics Example\n");
   printf("8 variables; -1 <= x_i <= 1\n");
@@ -109,17 +110,24 @@ int main()
   scsteptol = STOL;
   flag = KINSetScaledStepTol(kmem, scsteptol);
   if (check_flag(&flag, "KINSetScaledStepTol", 1)) return(1);
+  
+  /* Create sparse SUNMatrix */
+  nnz = 56; /* number of nonzeros in the Jacobian */
+  J = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
+  if(check_flag((void *)J, "SUNSparseMatrix", 0)) return(1);
 
-  /* Attach SuperLU_MT linear solver */
-  /* Set the number of nonzeros in the Jacobian */
-  nnz = 56;
-  /* Set the number fo threads to use */
-  num_threads = 2;
-  flag = KINSuperLUMT(kmem, num_threads, NEQ, nnz);
-  if (check_flag(&flag, "KINSuperLUMT", 1)) return(1);
+  /* Create SuperLUMT solver object */
+  num_threads = 2; /* number fo threads to use */
+  LS = SUNSuperLUMT(y, J, num_threads);
+  if(check_flag((void *)LS, "SUNSuperLUMT", 0)) return(1);
 
-  flag = KINSlsSetSparseJacFn(kmem, jac);
-  if (check_flag(&flag, "KINSlsSetSparseJacFn", 1)) return(1);
+  /* Attach the SuperLU_MT linear solver */
+  flag = KINDlsSetLinearSolver(kmem, LS, J);
+  if(check_flag(&flag, "KINDlsSetLinearSolver", 1)) return(1);
+
+  /* Set the Jacobian function */
+  flag = KINDlsSetJacFn(kmem, jac);
+  if (check_flag(&flag, "KINDlsSetJacFn", 1)) return(1);
 
   /* Indicate exact Newton */
 
@@ -156,6 +164,8 @@ int main()
   N_VDestroy_Serial(scale);
   N_VDestroy_Serial(constraints);
   KINFree(&kmem);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(J);
 
   return(0);
 }
@@ -239,15 +249,14 @@ static int func(N_Vector y, N_Vector f, void *user_data)
  * System Jacobian
  */
 
-static int jac(N_Vector y, N_Vector f,
-               SlsMat J, void *user_data,
-               N_Vector tmp1, N_Vector tmp2)
+static int jac(N_Vector y, N_Vector f, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2)
 {
   realtype *yd;
   realtype x1, x2, x3, x4, x5, x6, x7, x8;
-  int *colptrs = *J->colptrs;
-  int *rowvals = *J->rowvals;
-  realtype *data = J->data;
+  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(J);
+  sunindextype *rowvals = SUNSparseMatrix_IndexValues(J);
+  realtype *data = SUNSparseMatrix_Data(J);
 
   yd = N_VGetArrayPointer_Serial(y);
 
@@ -260,7 +269,7 @@ static int jac(N_Vector y, N_Vector f,
   x7 = yd[6];
   x8 = yd[7];
 
-  SparseSetMatToZero(J);
+  SUNMatZero(J);
   
   colptrs[0] = 0;
   colptrs[1] = 7;
@@ -302,15 +311,15 @@ static int jac(N_Vector y, N_Vector f,
   IJth(J,1,7) = 1.0;
   */
 
-  J->data[0] = - 0.1238 + 0.004731*x3;
+  data[0] = - 0.1238 + 0.004731*x3;
   rowvals[0] = 0;
-  J->data[7] = - 0.001637 - 0.3578*x3;
+  data[7] = - 0.001637 - 0.3578*x3;
   rowvals[7] = 0;
-  J->data[14] = 0.004731*x1 - 0.3578*x2;
+  data[14] = 0.004731*x1 - 0.3578*x2;
   rowvals[14] = 0;
-  J->data[19] = - 0.9338;
+  data[19] = - 0.9338;
   rowvals[19] = 0;
-  J->data[31] = 1.0;
+  data[31] = 1.0;
   rowvals[31] = 0;
 
   /*
@@ -325,15 +334,15 @@ static int jac(N_Vector y, N_Vector f,
   IJth(J,2,7) = -1.0;
   */
 
-  J->data[1] = 0.2638 + 0.2238*x3;
+  data[1] = 0.2638 + 0.2238*x3;
   rowvals[1] = 1;
-  J->data[8] = - 0.07745 + 0.7623*x3;
+  data[8] = - 0.07745 + 0.7623*x3;
   rowvals[8] = 1;
-  J->data[15] = 0.2238*x1 + 0.7623*x2;
+  data[15] = 0.2238*x1 + 0.7623*x2;
   rowvals[15] = 1;
-  J->data[20] = - 0.6734;
+  data[20] = - 0.6734;
   rowvals[20] = 1;
-  J->data[32] = -1.0;
+  data[32] = -1.0;
   rowvals[32] = 1;
 
 
@@ -347,13 +356,13 @@ static int jac(N_Vector y, N_Vector f,
   IJth(J,3,8) = x6;
   */
 
-  J->data[2] = 0.3578;
+  data[2] = 0.3578;
   rowvals[2] = 2;
-  J->data[9] = 0.004731;
+  data[9] = 0.004731;
   rowvals[9] = 2;
-  J->data[27] = x8;
+  data[27] = x8;
   rowvals[27] = 2;
-  J->data[36] = x6;
+  data[36] = x6;
   rowvals[36] = 2;
 
 
@@ -365,9 +374,9 @@ static int jac(N_Vector y, N_Vector f,
   IJth(J,4,2) = 0.2238;
   */
 
-  J->data[3] = - 0.7623;
+  data[3] = - 0.7623;
   rowvals[3] = 3;
-  J->data[10] = 0.2238;
+  data[10] = 0.2238;
   rowvals[10] = 3;
 
   /*
@@ -378,9 +387,9 @@ static int jac(N_Vector y, N_Vector f,
   IJth(J,5,2) = 2.0*x2;
   */
 
-  J->data[4] = 2.0*x1;
+  data[4] = 2.0*x1;
   rowvals[4] = 4;
-  J->data[11] = 2.0*x2;
+  data[11] = 2.0*x2;
   rowvals[11] = 4;
 
   /*
@@ -391,9 +400,9 @@ static int jac(N_Vector y, N_Vector f,
   IJth(J,6,4) = 2.0*x4;
   */
 
-  J->data[16] = 2.0*x3;
+  data[16] = 2.0*x3;
   rowvals[16] = 5;
-  J->data[21] = 2.0*x4;
+  data[21] = 2.0*x4;
   rowvals[21] = 5;
 
   /*
@@ -404,9 +413,9 @@ static int jac(N_Vector y, N_Vector f,
   IJth(J,7,6) = 2.0*x6;
   */
 
-  J->data[24] = 2.0*x5;
+  data[24] = 2.0*x5;
   rowvals[24] = 6;
-  J->data[28] = 2.0*x6;
+  data[28] = 2.0*x6;
   rowvals[28] = 6;
 
   /*
@@ -416,9 +425,9 @@ static int jac(N_Vector y, N_Vector f,
   IJth(J,8,7) = 2.0*x7;
   IJth(J,8,8) = 2.0*x8;
   */
-  J->data[33] = 2.0*x7;
+  data[33] = 2.0*x7;
   rowvals[33] = 7;
-  J->data[37] = 2.0*x8;
+  data[37] = 2.0*x8;
   rowvals[37] = 7;
 
   
@@ -435,38 +444,38 @@ static int jac(N_Vector y, N_Vector f,
   } 
   */
 
-  J->data[5] = -1.0;
+  data[5] = -1.0;
   rowvals[5] = 8;
-  J->data[12] = -1.0;
+  data[12] = -1.0;
   rowvals[12] = 9;
-  J->data[17] = -1.0;
+  data[17] = -1.0;
   rowvals[17] = 10;
-  J->data[22] = -1.0;
+  data[22] = -1.0;
   rowvals[22] = 11;
-  J->data[25] = -1.0;
+  data[25] = -1.0;
   rowvals[25] = 12;
-  J->data[29] = -1.0;
+  data[29] = -1.0;
   rowvals[29] = 13;
-  J->data[34] = -1.0;
+  data[34] = -1.0;
   rowvals[34] = 14;
-  J->data[38] = -1.0;
+  data[38] = -1.0;
   rowvals[38] = 15;
 
-  J->data[40] = 1.0;
+  data[40] = 1.0;
   rowvals[40] = 8;
-  J->data[41] = 1.0;
+  data[41] = 1.0;
   rowvals[41] = 9;
-  J->data[42] = 1.0;
+  data[42] = 1.0;
   rowvals[42] = 10;
-  J->data[43] = 1.0;
+  data[43] = 1.0;
   rowvals[43] = 11;
-  J->data[44] = 1.0;
+  data[44] = 1.0;
   rowvals[44] = 12;
-  J->data[45] = 1.0;
+  data[45] = 1.0;
   rowvals[45] = 13;
-  J->data[46] = 1.0;
+  data[46] = 1.0;
   rowvals[46] = 14;
-  J->data[47] = 1.0;
+  data[47] = 1.0;
   rowvals[47] = 15;
 
 
@@ -481,38 +490,38 @@ static int jac(N_Vector y, N_Vector f,
   }
   */
 
-  J->data[6] = 1.0;
+  data[6] = 1.0;
   rowvals[6] = 16;
-  J->data[13] = 1.0;
+  data[13] = 1.0;
   rowvals[13] = 17;
-  J->data[18] = 1.0;
+  data[18] = 1.0;
   rowvals[18] = 18;
-  J->data[23] = 1.0;
+  data[23] = 1.0;
   rowvals[23] = 19;
-  J->data[26] = 1.0;
+  data[26] = 1.0;
   rowvals[26] = 20;
-  J->data[30] = 1.0;
+  data[30] = 1.0;
   rowvals[30] = 21;
-  J->data[35] = 1.0;
+  data[35] = 1.0;
   rowvals[35] = 22;
-  J->data[39] = 1.0;
+  data[39] = 1.0;
   rowvals[39] = 23;
 
-  J->data[48] = 1.0;
+  data[48] = 1.0;
   rowvals[48] = 16;
-  J->data[49] = 1.0;
+  data[49] = 1.0;
   rowvals[49] = 17;
-  J->data[50] = 1.0;
+  data[50] = 1.0;
   rowvals[50] = 18;
-  J->data[51] = 1.0;
+  data[51] = 1.0;
   rowvals[51] = 19;
-  J->data[52] = 1.0;
+  data[52] = 1.0;
   rowvals[52] = 20;
-  J->data[53] = 1.0;
+  data[53] = 1.0;
   rowvals[53] = 21;
-  J->data[54] = 1.0;
+  data[54] = 1.0;
   rowvals[54] = 22;
-  J->data[55] = 1.0;
+  data[55] = 1.0;
   rowvals[55] = 23;
 
   return(0);
@@ -561,8 +570,8 @@ static void PrintFinalStats(void *kmem)
   flag = KINGetNumFuncEvals(kmem, &nfe);
   check_flag(&flag, "KINGetNumFuncEvals", 1);
 
-  flag = KINSlsGetNumJacEvals(kmem, &nje);
-  check_flag(&flag, "KINSlsGetNumJacEvals", 1);
+  flag = KINDlsGetNumJacEvals(kmem, &nje);
+  check_flag(&flag, "KINDlsGetNumJacEvals", 1);
 
   printf("\nFinal Statistics.. \n");
   printf("nni    = %5ld    nfe   = %5ld \n", nni, nfe);

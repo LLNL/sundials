@@ -1,6 +1,20 @@
-c     ----------------------------------------------------------------
-c     $Revision: 4392 $
-c     $Date: 2015-02-25 17:22:27 -0800 (Wed, 25 Feb 2015) $
+C     ----------------------------------------------------------------
+C     Programmer(s): Daniel R. Reynolds @ SMU
+C                 Steve Smith, Eddy Banks and Alan C. Hindmarsh @ LLNL      
+C     ----------------------------------------------------------------
+C     LLNS/SMU Copyright Start
+C     Copyright (c) 2017, Southern Methodist University and 
+C     Lawrence Livermore National Security
+C
+C     This work was performed under the auspices of the U.S. Department 
+C     of Energy by Southern Methodist University and Lawrence Livermore 
+C     National Laboratory under Contract DE-AC52-07NA27344.
+C     Produced at Southern Methodist University and the Lawrence 
+C     Livermore National Laboratory.
+C
+C     All rights reserved.
+C     For details, see the LICENSE file.
+C     LLNS/SMU Copyright End
 c     ----------------------------------------------------------------
 c     This simple example problem for FIDA, due to Robertson, is from 
 c     chemical kinetics, and consists of the following three equations:
@@ -25,8 +39,7 @@ c
       implicit none
 c
 c The following declaration specification should match C type long int.
-      integer*8 neq
-      integer*8 iout(25), ipar
+      integer*8 neq, iout(25), ipar
       integer ier, ierroot, info(2)
       double precision rout(10), rpar
       integer iatol, nout, jout, itask
@@ -88,10 +101,36 @@ c Initialize rootfinding problem
          stop
       endif
 c
-c Attach dense linear solver
+c Attach dense matrix and linear solver
 c
-      call fidadense(neq, ier)
+      call fsundensematinit(2, neq, neq, ier)
+      if (ier .ne. 0) then
+         write(6,30) ier
+ 30      format(///' SUNDIALS_ERROR: FSUNDENSEMATINIT IER = ', i5)
+         call fidafree
+         stop
+      endif
+      call fsundenselinsolinit(2, ier)
+      if (ier .ne. 0) then
+         write(6,33) ier
+ 33      format(///' SUNDIALS_ERROR: FSUNDENSELINSOLINIT IER = ', i5)
+         call fidafree
+         stop
+      endif
+      call fidadlsinit(ier)
+      if (ier .ne. 0) then
+         write(6,35) ier
+ 35      format(///' SUNDIALS_ERROR: FIDADLSINIT returned IER = ', i5)
+         call fidafree
+         stop
+      endif
       call fidadensesetjac(1, ier)
+      if (ier .ne. 0) then
+         write(6,37) ier
+ 37      format(///' SUNDIALS_ERROR: FIDADENSESETJAC IER = ', i5)
+         call fidafree
+         stop
+      endif
 c
 c Print header
 c
@@ -121,7 +160,7 @@ c
         if (ier .eq. 2) then
           call fidarootinfo(2, info, ierroot)
           if (ierroot .lt. 0) then
-            write(6,55) ier
+            write(6,55) ierroot
  55         format(///' SUNDIALS_ERROR: FIDAROOTINFO returned IER = ',
      1             i5)
             call fidarootfree
@@ -158,7 +197,7 @@ c
       implicit none
 c
 c The following declaration specification should match C type long int.
-      integer*4 ipar(*)
+      integer*8 ipar(*)
       integer reserr
       double precision tres, rpar(*)
       double precision y(*), yp(*), res(*)
@@ -181,7 +220,7 @@ c
       implicit none
 c
 c The following declaration specification should match C type long int.
-      integer*4 neq, ipar(*)
+      integer*8 neq, ipar(*)
       integer djacerr
       double precision t, h, cj, rpar(*)
       double precision y(*), yp(*), r(*), ewt(*), jac(neq,neq)
@@ -209,7 +248,7 @@ c Fortran routine for rootfinding
       implicit none
 c
 c The following declaration specification should match C type long int.
-      integer*4 ipar(*)
+      integer*8 ipar(*)
       integer ier
       double precision t, y(*), yp(*), g(*), rpar(*)
 c

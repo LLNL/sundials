@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4378 $
- * $Date: 2015-02-19 10:55:14 -0800 (Thu, 19 Feb 2015) $
- * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -56,7 +53,7 @@
  *   T = independent variable value t  [input]
  *   Y = dependent variable vector y  [input]
  *   G = function values g(t,y)  [output]
- *   IPAR, RPAR = user (integer and real) data [input/output]
+ *   IPAR, RPAR = user (long int and realtype) data [input/output]
  *   IER = return flag (0 for success, a non-zero value if an error occurred.)
  *
  * 2. After calling FCVMALLOC but prior to calling FCVODE, the user must

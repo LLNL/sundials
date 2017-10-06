@@ -1,14 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision:  $
- * $Date:  $
- * -----------------------------------------------------------------
- * Programmer(s): Ting Yan @ SMU
+ * Programmer(s): Daniel R. Reynolds and Ting Yan @ SMU
  * -----------------------------------------------------------------
  * Example program for IDAS: Food web problem, OpenMP, GMRES, 
  * user-supplied preconditioner
  *
- * This example program uses the IDASPGMR as the linear 
+ * This example program uses SUNSPGMR as the linear 
  * solver, and IDACalcIC for initial condition calculation.
  *
  * The mathematical problem solved in this example is a DAE system
@@ -62,7 +59,7 @@
  * The PDEs are discretized by central differencing on a MX by MY
  * mesh.
  *
- * The DAE system is solved by IDAS using the IDABAND linear solver.
+ * The DAE system is solved by IDAS using the SUNSPGMR linear solver.
  * Output is printed at t = 0, .001, .01, .1, .4, .7, 1.
  *
  * Optionally, we can set the number of threads from environment 
@@ -72,12 +69,12 @@
  *
  * Execution:
  *
- * If the user want to use the default value or the number of threads 
- * from environment value:
+ * To use the default value for the number of threads from 
+ * the OMP_NUM_THREADS environment value:
  *      % ./idasFoodWeb_kry_omp 
- * If the user want to specify the number of threads to use
+ * To specify the number of threads at the command line, use
  *      % ./idasFoodWeb_kry_omp num_threads
- * where num_threads is the number of threads the user want to use 
+ * where num_threads is the desired number of threads. 
  *
  * -----------------------------------------------------------------
  * References:
@@ -103,7 +100,8 @@
 #include <math.h>
 
 #include <idas/idas.h>
-#include <idas/idas_spgmr.h>
+#include <idas/idas_spils.h>
+#include <sunlinsol/sunlinsol_spgmr.h>
 #include <nvector/nvector_openmp.h>
 #include <sundials/sundials_dense.h>
 #include <sundials/sundials_types.h>
@@ -156,11 +154,11 @@
 /* Type: UserData.  Contains problem constants, etc. */
 
 typedef struct {
-  long int Neq, ns, np, mx, my;
+  sunindextype Neq, ns, np, mx, my;
   realtype dx, dy, **acoef;
   realtype cox[NUM_SPECIES], coy[NUM_SPECIES], bcoef[NUM_SPECIES];
   realtype **PP[MX][MY];
-  long int *pivot[MX][MY];
+  sunindextype *pivot[MX][MY];
   N_Vector rates;
   N_Vector ewt;
   void *ida_mem;
@@ -172,29 +170,25 @@ typedef struct {
 static int resweb(realtype time, N_Vector cc, N_Vector cp, N_Vector resval, 
                   void *user_data);
 
-static int Precond(realtype tt,
-		   N_Vector cc, N_Vector cp, N_Vector rr, 
-		   realtype cj, void *user_data,
-		   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Precond(realtype tt, N_Vector cc, N_Vector cp,
+                   N_Vector rr, realtype cj, void *user_data);
 
-static int PSolve(realtype tt, 
-		  N_Vector cc, N_Vector cp, N_Vector rr,
-		  N_Vector rvec, N_Vector zvec,
-		  realtype cj, realtype delta, void *user_data,
-		  N_Vector tmp);
+static int PSolve(realtype tt, N_Vector cc, N_Vector cp,
+                  N_Vector rr, N_Vector rvec, N_Vector zvec,
+		  realtype cj, realtype delta, void *user_data);
 
 /* Prototypes for private Helper Functions. */
 
 static void InitUserData(UserData webdata);
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata);
-static void PrintHeader(long int maxl, realtype rtol, realtype atol);
-static void PrintOutput(void *mem, N_Vector c, realtype t);
-static void PrintFinalStats(void *mem);
+static void PrintHeader(sunindextype maxl, realtype rtol, realtype atol);
+static void PrintOutput(void *ida_mem, N_Vector c, realtype t);
+static void PrintFinalStats(void *ida_mem);
 static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate, UserData webdata);
 static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                      UserData webdata);
-static realtype dotprod(long int size, realtype *x1, realtype *x2);
+static realtype dotprod(sunindextype size, realtype *x1, realtype *x2);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /*
@@ -205,15 +199,17 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 int main(int argc, char *argv[])
 { 
-  void *mem;
+  void *ida_mem;
+  SUNLinearSolver LS;
   UserData webdata;
   N_Vector cc, cp, id;
   int iout, jx, jy, flag;
-  long int maxl;
+  sunindextype maxl;
   realtype rtol, atol, t0, tout, tret;
   int num_threads;
 
-  mem = NULL;
+  ida_mem = NULL;
+  LS = NULL;
   webdata = NULL;
   cc = cp = id = NULL;
 
@@ -233,7 +229,7 @@ int main(int argc, char *argv[])
   webdata->ewt = N_VNew_OpenMP(NEQ, num_threads);
   for (jx = 0; jx < MX; jx++) {
     for (jy = 0; jy < MY; jy++) {
-      (webdata->pivot)[jx][jy] = newLintArray(NUM_SPECIES);
+      (webdata->pivot)[jx][jy] = newIndexArray(NUM_SPECIES);
       (webdata->PP)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
     }
   }
@@ -262,51 +258,55 @@ int main(int argc, char *argv[])
 
   /* Call IDACreate and IDAMalloc to initialize IDA. */
   
-  mem = IDACreate();
-  if(check_flag((void *)mem, "IDACreate", 0)) return(1);
+  ida_mem = IDACreate();
+  if(check_flag((void *)ida_mem, "IDACreate", 0)) return(1);
 
-  flag = IDASetUserData(mem, webdata);
+  flag = IDASetUserData(ida_mem, webdata);
   if(check_flag(&flag, "IDASetUserData", 1)) return(1);
 
-  flag = IDASetId(mem, id);
+  flag = IDASetId(ida_mem, id);
   if(check_flag(&flag, "IDASetId", 1)) return(1);
 
-  flag = IDAInit(mem, resweb, t0, cc, cp);
+  flag = IDAInit(ida_mem, resweb, t0, cc, cp);
   if(check_flag(&flag, "IDAInit", 1)) return(1);
 
-  flag = IDASStolerances(mem, rtol, atol);
+  flag = IDASStolerances(ida_mem, rtol, atol);
   if(check_flag(&flag, "IDASStolerances", 1)) return(1);
 
-  webdata->ida_mem = mem;
+  webdata->ida_mem = ida_mem;
 
-  /* Call IDASpgmr to specify the IDA linear solver. */
+  /* Create SUNSPGMR linear solver, attach to IDA, and set 
+     preconditioning routines. */
 
-  maxl = 16;                    /* max dimension of the Krylov subspace */
-  flag = IDASpgmr(mem, maxl);
-  if(check_flag(&flag, "IDASpgmr", 1)) return(1);
+  maxl = 16;                               /* max dimension of the Krylov subspace */
+  LS = SUNSPGMR(cc, PREC_LEFT, maxl);      /* IDA only allows left preconditioning */
+  if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
 
-  flag = IDASpilsSetPreconditioner(mem, Precond, PSolve);
+  flag = IDASpilsSetLinearSolver(ida_mem, LS);
+  if(check_flag(&flag, "IDASpilsSetLinearSolver", 1)) return(1);
+
+  flag = IDASpilsSetPreconditioner(ida_mem, Precond, PSolve);
   if(check_flag(&flag, "IDASpilsSetPreconditioner", 1)) return(1);
 
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
   tout = RCONST(0.001);
-  flag = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
+  flag = IDACalcIC(ida_mem, IDA_YA_YDP_INIT, tout);
   if(check_flag(&flag, "IDACalcIC", 1)) return(1);
   
   /* Print heading, basic parameters, and initial values. */
 
   PrintHeader(maxl, rtol, atol);
-  PrintOutput(mem, cc, ZERO);
+  PrintOutput(ida_mem, cc, ZERO);
   
   /* Loop over iout, call IDASolve (normal mode), print selected output. */
   
   for (iout = 1; iout <= NOUT; iout++) {
     
-    flag = IDASolve(mem, tout, &tret, cc, cp, IDA_NORMAL);
+    flag = IDASolve(ida_mem, tout, &tret, cc, cp, IDA_NORMAL);
     if(check_flag(&flag, "IDASolve", 1)) return(flag);
     
-    PrintOutput(mem, cc, tret);
+    PrintOutput(ida_mem, cc, tret);
     
     if (iout < 3) tout *= TMULT; else tout += TADD;
     
@@ -314,12 +314,13 @@ int main(int argc, char *argv[])
   
   /* Print final statistics and free memory. */  
   
-  PrintFinalStats(mem);
+  PrintFinalStats(ida_mem);
   printf("num_threads = %i\n\n", num_threads);
 
   /* Free memory */
 
-  IDAFree(&mem);
+  IDAFree(&ida_mem);
+  SUNLinSolFree(LS);
 
   N_VDestroy_OpenMP(cc);
   N_VDestroy_OpenMP(cp);
@@ -363,7 +364,7 @@ int main(int argc, char *argv[])
 static int resweb(realtype tt, N_Vector cc, N_Vector cp, 
                   N_Vector res,  void *user_data)
 {
-  long int jx, jy, is, yloc, loc, np;
+  sunindextype jx, jy, is, yloc, loc, np;
   realtype *resv, *cpv;
   UserData webdata;
   
@@ -397,17 +398,15 @@ static int resweb(realtype tt, N_Vector cc, N_Vector cp,
 }
 
 
-static int Precond(realtype tt, 
-		   N_Vector cc, N_Vector cp, N_Vector rr, 
-		   realtype cj, void *user_data,
-		   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Precond(realtype tt, N_Vector cc, N_Vector cp,
+                   N_Vector rr, realtype cj, void *user_data)
 {
   int flag;
   realtype uround, xx, yy, del_x, del_y;
   realtype **Pxy, *ratesxy, *Pxycol, *cxy, *cpxy, *ewtxy, cctmp;
   realtype inc, fac, sqru, perturb_rates[NUM_SPECIES];
   int is, js, jx, jy, ret;
-  void *mem;
+  void *ida_mem;
   N_Vector ewt;
   realtype hh;
   UserData webdata;
@@ -419,11 +418,11 @@ static int Precond(realtype tt,
   uround = UNIT_ROUNDOFF;
   sqru = SUNRsqrt(uround);
 
-  mem = webdata->ida_mem;
+  ida_mem = webdata->ida_mem;
   ewt = webdata->ewt;
-  flag = IDAGetErrWeights(mem, ewt);
+  flag = IDAGetErrWeights(ida_mem, ewt);
   if(check_flag(&flag, "IDAGetErrWeights", 1)) return(1);
-  flag = IDAGetCurrentStep(mem, &hh);
+  flag = IDAGetCurrentStep(ida_mem, &hh);
   if(check_flag(&flag, "IDAGetCurrentStep", 1)) return(1);
 
   for (jy = 0; jy < MY; jy++) {
@@ -466,14 +465,12 @@ static int Precond(realtype tt,
 }
 
 
-static int PSolve(realtype tt, 
-		  N_Vector cc, N_Vector cp, N_Vector rr, 
-		  N_Vector rvec, N_Vector zvec,
-		  realtype cj, realtype dalta, 
-		  void *user_data, N_Vector tmp) 
+static int PSolve(realtype tt, N_Vector cc, N_Vector cp,
+                  N_Vector rr, N_Vector rvec, N_Vector zvec,
+		  realtype cj, realtype dalta, void *user_data) 
 {
   realtype **Pxy, *zxy;
-  long int *pivot;
+  sunindextype *pivot;
   int jx, jy;
   UserData webdata;
   
@@ -560,7 +557,7 @@ static void InitUserData(UserData webdata)
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata)
 {
-  long int loc, yloc, is, jx, jy, np;
+  sunindextype loc, yloc, is, jx, jy, np;
   realtype xx, yy, xyfactor;
   realtype *ccv, *cpv, *idv;
   
@@ -611,9 +608,9 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(long int maxl, realtype rtol, realtype atol)
+static void PrintHeader(sunindextype maxl, realtype rtol, realtype atol)
 {
-  printf("\nidasFoodWeb_kry_omp: Predator-prey DAE OpenMP example problem for IDAS \n\n");
+  printf("\nidasFoodWeb_kry_omp: Predator-prey DAE OpenMP example problem using Krylov solver for IDAS \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
   printf("     Mesh dimensions: %d x %d", MX, MY);
   printf("     System size: %d\n", NEQ);
@@ -624,7 +621,7 @@ static void PrintHeader(long int maxl, realtype rtol, realtype atol)
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: IDASpgmr,  Spgmr parameters maxl = %ld\n",maxl);
+  printf("Linear solver: SUNSPGMR, maxl = %ld\n",(long int) maxl);
   printf("CalcIC called to correct initial predator concentrations.\n\n");
   printf("-----------------------------------------------------------\n");
   printf("  t        bottom-left  top-right");
@@ -639,17 +636,17 @@ static void PrintHeader(long int maxl, realtype rtol, realtype atol)
  * are printed for the bottom left and top right grid points only.  
  */
 
-static void PrintOutput(void *mem, N_Vector c, realtype t)
+static void PrintOutput(void *ida_mem, N_Vector c, realtype t)
 {
   int i, kused, flag;
   long int nst;
   realtype *c_bl, *c_tr, hused;
 
-  flag = IDAGetLastOrder(mem, &kused);
+  flag = IDAGetLastOrder(ida_mem, &kused);
   check_flag(&flag, "IDAGetLastOrder", 1);
-  flag = IDAGetNumSteps(mem, &nst);
+  flag = IDAGetNumSteps(ida_mem, &nst);
   check_flag(&flag, "IDAGetNumSteps", 1);
-  flag = IDAGetLastStep(mem, &hused);
+  flag = IDAGetLastStep(ida_mem, &hused);
   check_flag(&flag, "IDAGetLastStep", 1);
   
   c_bl = IJ_Vptr(c,0,0);
@@ -679,24 +676,24 @@ static void PrintOutput(void *mem, N_Vector c, realtype t)
  * PrintFinalStats: Print final run data contained in iopt.              
  */
 
-static void PrintFinalStats(void *mem)
+static void PrintFinalStats(void *ida_mem)
 { 
   long int nst, nre, sli, netf, nps, npevals, nrevalsLS;
   int flag;
 
-  flag = IDAGetNumSteps(mem, &nst);
+  flag = IDAGetNumSteps(ida_mem, &nst);
   check_flag(&flag, "IDAGetNumSteps", 1);
-  flag = IDASpilsGetNumLinIters(mem, &sli);
+  flag = IDASpilsGetNumLinIters(ida_mem, &sli);
   check_flag(&flag, "IDAGetNumNonlinSolvIters", 1);
-  flag = IDAGetNumResEvals(mem, &nre);
+  flag = IDAGetNumResEvals(ida_mem, &nre);
   check_flag(&flag, "IDAGetNumResEvals", 1);
-  flag = IDAGetNumErrTestFails(mem, &netf);
+  flag = IDAGetNumErrTestFails(ida_mem, &netf);
   check_flag(&flag, "IDAGetNumErrTestFails", 1);
-  flag = IDASpilsGetNumPrecSolves(mem, &nps);
+  flag = IDASpilsGetNumPrecSolves(ida_mem, &nps);
   check_flag(&flag, "IDAGetNumNonlinSolvConvFails", 1);
-  flag = IDASpilsGetNumPrecEvals(mem, &npevals);
+  flag = IDASpilsGetNumPrecEvals(ida_mem, &npevals);
   check_flag(&flag, "IDADlsGetNumJacEvals", 1);
-  flag = IDASpilsGetNumResEvals(mem, &nrevalsLS);
+  flag = IDASpilsGetNumResEvals(ida_mem, &nrevalsLS);
   check_flag(&flag, "IDADlsGetNumResEvals", 1);
 
   printf("-----------------------------------------------------------\n");
@@ -720,7 +717,7 @@ static void PrintFinalStats(void *mem)
 static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate,  
                  UserData webdata)
 { 
-  long int jx, jy, is, idyu, idyl, idxu, idxl;
+  sunindextype jx, jy, is, idyu, idyl, idxu, idxl;
   realtype xx, yy, *cxy, *ratesxy, *cratexy, dcyli, dcyui, dcxli, dcxui;
   
   /* Loop over grid points, evaluate interaction vector (length ns),
@@ -789,9 +786,9 @@ static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
  * dotprod: dot product routine for realtype arrays, for use by WebRates.    
  */
 
-static realtype dotprod(long int size, realtype *x1, realtype *x2)
+static realtype dotprod(sunindextype size, realtype *x1, realtype *x2)
 {
-  long int i;
+  sunindextype i;
   realtype *xx1, *xx2, temp = ZERO;
   
   xx1 = x1; xx2 = x2;

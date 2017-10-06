@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision:  $
-# $Date:  $
-# ---------------------------------------------------------------
 # Programmer: Ting Yan @ SMU
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -47,6 +44,10 @@ IF(LAPACK_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
 ENDIF(LAPACK_FOUND)
 
+IF(BLAS_FOUND)
+  LIST(APPEND SUNDIALS_LIBS ${BLAS_LIBRARIES})
+ENDIF(BLAS_FOUND)
+
 IF(KLU_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
 ENDIF(KLU_FOUND)
@@ -68,7 +69,9 @@ SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
 FOREACH(example ${IDA_examples})
   ADD_EXECUTABLE(${example} ${example}.c)
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-  SUNDIALS_ADD_TEST(${example} ${example} TEST_ARGS 4)
+  IF (NOT ${example} MATCHES "idaFoodWeb_kry_omp")
+    SUNDIALS_ADD_TEST(${example} ${example} TEST_ARGS 4)
+  ENDIF()
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/C_openmp)

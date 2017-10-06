@@ -1,14 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4388 $
- * $Date: 2015-02-25 15:50:00 -0800 (Wed, 25 Feb 2015) $
- * ----------------------------------------------------------------- 
  * Programmer(s): Steven Smith @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
@@ -155,5 +152,3 @@ void FNV_INITPTS_S(int *code, int *Ns, int *ier)
     *ier = -1;
   }
 }
-
-

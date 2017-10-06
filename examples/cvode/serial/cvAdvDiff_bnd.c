@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4834 $
- * $Date: 2016-08-01 16:59:05 -0700 (Mon, 01 Aug 2016) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -21,26 +17,24 @@
  * central differencing, and with boundary values eliminated,
  * leaving an ODE system of size NEQ = MX*MY.
  * This program solves the problem with the BDF method, Newton
- * iteration with the CVBAND band linear solver, and a user-supplied
+ * iteration with the SUNBAND linear solver, and a user-supplied
  * Jacobian routine.
  * It uses scalar relative and absolute tolerances.
  * Output is printed at t = .1, .2, ..., 1.
  * Run statistics (optional outputs) are printed at the end.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-/* Header files with a description of contents used in cvbanx.c */
-
-#include <cvode/cvode.h>             /* prototypes for CVODE fcts., consts. */
-#include <cvode/cvode_band.h>        /* prototype for CVBand */
-#include <nvector/nvector_serial.h>  /* serial N_Vector types, fcts., macros */
-#include <sundials/sundials_band.h>  /* definitions of type DlsMat and macros */
-#include <sundials/sundials_types.h> /* definition of type realtype */
-#include <sundials/sundials_math.h>  /* definition of ABS and EXP */
+#include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts.  */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix             */
+#include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver       */
+#include <cvode/cvode_direct.h>        /* access to CVDls interface            */
+#include <sundials/sundials_types.h>   /* definition of type realtype          */
+#include <sundials/sundials_math.h>    /* definition of ABS and EXP            */
 
 /* Problem Constants */
 
@@ -68,7 +62,7 @@
    to the underlying 1-dimensional storage. 
    IJth(vdata,i,j) references the element in the vdata array for
    u at mesh point (i,j), where 1 <= i <= MX, 1 <= j <= MY.
-   The vdata array is obtained via the macro call vdata = N_VGetArrayPointer_Serial(v),
+   The vdata array is obtained via the call vdata = N_VGetArrayPointer(v),
    where v is an N_Vector. 
    The variables are ordered by the y index j, then by the x index i. */
 
@@ -94,9 +88,8 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 /* Functions Called by the Solver */
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
-static int Jac(long int N, long int mu, long int ml,
-               realtype t, N_Vector u, N_Vector fu, 
-               DlsMat J, void *user_data,
+static int Jac(realtype t, N_Vector u, N_Vector fu, 
+               SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
@@ -110,12 +103,16 @@ int main(void)
   realtype dx, dy, reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
+  SUNMatrix A;
+  SUNLinearSolver LS;
   void *cvode_mem;
   int iout, flag;
   long int nst;
 
   u = NULL;
   data = NULL;
+  A = NULL;
+  LS = NULL;
   cvode_mem = NULL;
 
   /* Create a serial vector */
@@ -156,13 +153,22 @@ int main(void)
   flag = CVodeSetUserData(cvode_mem, data);
   if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
-  /* Call CVBand to specify the CVBAND band linear solver */
-  flag = CVBand(cvode_mem, NEQ, MY, MY);
-  if(check_flag(&flag, "CVBand", 1)) return(1);
+  /* Create banded SUNMatrix for use in linear solves -- since this will be factored, 
+     set the storage bandwidth to be the sum of upper and lower bandwidths */
+  A = SUNBandMatrix(NEQ, MY, MY, 2*MY);
+  if(check_flag((void *)A, "SUNBandMatrix", 0)) return(1);
+
+  /* Create banded SUNLinearSolver object for use by CVode */
+  LS = SUNBandLinearSolver(u, A);
+  if(check_flag((void *)LS, "SUNBandLinearSolver", 0)) return(1);
+  
+  /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
+  flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
+  if(check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine Jac */
-  flag = CVDlsSetBandJacFn(cvode_mem, Jac);
-  if(check_flag(&flag, "CVDlsSetBandJacFn", 1)) return(1);
+  flag = CVDlsSetJacFn(cvode_mem, Jac);
+  if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   /* In loop over output points: call CVode, print results, test for errors */
 
@@ -179,9 +185,11 @@ int main(void)
 
   PrintFinalStats(cvode_mem);  /* Print some final statistics   */
 
-  N_VDestroy_Serial(u);   /* Free the u vector */
+  N_VDestroy(u);          /* Free the u vector          */
   CVodeFree(&cvode_mem);  /* Free the integrator memory */
-  free(data);             /* Free the user data */
+  SUNLinSolFree(LS);      /* Free linear solver memory  */
+  SUNMatDestroy(A);       /* Free the matrix memory     */
+  free(data);             /* Free the user data         */
 
   return(0);
 }
@@ -201,8 +209,8 @@ static int f(realtype t, N_Vector u,N_Vector udot, void *user_data)
   int i, j;
   UserData data;
 
-  udata = N_VGetArrayPointer_Serial(u);
-  dudata = N_VGetArrayPointer_Serial(udot);
+  udata  = N_VGetArrayPointer(u);
+  dudata = N_VGetArrayPointer(udot);
 
   /* Extract needed constants from data */
 
@@ -239,42 +247,42 @@ static int f(realtype t, N_Vector u,N_Vector udot, void *user_data)
 
 /* Jacobian routine. Compute J(t,u). */
 
-static int Jac(long int N, long int mu, long int ml,
-               realtype t, N_Vector u, N_Vector fu, 
-               DlsMat J, void *user_data,
+static int Jac(realtype t, N_Vector u, N_Vector fu, 
+               SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  long int i, j, k;
+  sunindextype i, j, k;
   realtype *kthCol, hordc, horac, verdc;
   UserData data;
   
   /*
-    The components of f = udot that depend on u(i,j) are
-    f(i,j), f(i-1,j), f(i+1,j), f(i,j-1), f(i,j+1), with
-      df(i,j)/du(i,j) = -2 (1/dx^2 + 1/dy^2)
-      df(i-1,j)/du(i,j) = 1/dx^2 + .25/dx  (if i > 1)
-      df(i+1,j)/du(i,j) = 1/dx^2 - .25/dx  (if i < MX)
-      df(i,j-1)/du(i,j) = 1/dy^2           (if j > 1)
-      df(i,j+1)/du(i,j) = 1/dy^2           (if j < MY)
-  */
+   * The components of f = udot that depend on u(i,j) are
+   * f(i,j), f(i-1,j), f(i+1,j), f(i,j-1), f(i,j+1), with
+   *   df(i,j)/du(i,j) = -2 (1/dx^2 + 1/dy^2)
+   *   df(i-1,j)/du(i,j) = 1/dx^2 + .25/dx  (if i > 1)
+   *   df(i+1,j)/du(i,j) = 1/dx^2 - .25/dx  (if i < MX)
+   *   df(i,j-1)/du(i,j) = 1/dy^2           (if j > 1)
+   *   df(i,j+1)/du(i,j) = 1/dy^2           (if j < MY)
+   */
 
   data = (UserData) user_data;
   hordc = data->hdcoef;
   horac = data->hacoef;
   verdc = data->vdcoef;
-  
+
+  /* set non-zero Jacobian entries */
   for (j=1; j <= MY; j++) {
     for (i=1; i <= MX; i++) {
       k = j-1 + (i-1)*MY;
-      kthCol = BAND_COL(J,k);
+      kthCol = SUNBandMatrix_Column(J,k);
 
       /* set the kth column of J */
 
-      BAND_COL_ELEM(kthCol,k,k) = -TWO*(verdc+hordc);
-      if (i != 1)  BAND_COL_ELEM(kthCol,k-MY,k) = hordc + horac;
-      if (i != MX) BAND_COL_ELEM(kthCol,k+MY,k) = hordc - horac;
-      if (j != 1)  BAND_COL_ELEM(kthCol,k-1,k)  = verdc;
-      if (j != MY) BAND_COL_ELEM(kthCol,k+1,k)  = verdc;
+      SM_COLUMN_ELEMENT_B(kthCol,k,k) = -TWO*(verdc+hordc);
+      if (i != 1)  SM_COLUMN_ELEMENT_B(kthCol,k-MY,k) = hordc + horac;
+      if (i != MX) SM_COLUMN_ELEMENT_B(kthCol,k+MY,k) = hordc - horac;
+      if (j != 1)  SM_COLUMN_ELEMENT_B(kthCol,k-1,k)  = verdc;
+      if (j != MY) SM_COLUMN_ELEMENT_B(kthCol,k+1,k)  = verdc;
     }
   }
 
@@ -302,7 +310,7 @@ static void SetIC(N_Vector u, UserData data)
 
   /* Set pointer to data array in vector u. */
 
-  udata = N_VGetArrayPointer_Serial(u);
+  udata = N_VGetArrayPointer(u);
 
   /* Load initial profile into u vector */
   
@@ -323,12 +331,10 @@ static void PrintHeader(realtype reltol, realtype abstol, realtype umax)
   printf("Mesh dimensions = %d X %d\n", MX, MY);
   printf("Total system size = %d\n", NEQ);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("Tolerance parameters: reltol = %Lg   abstol = %Lg\n\n",
-         reltol, abstol);
+  printf("Tolerance parameters: reltol = %Lg   abstol = %Lg\n\n", reltol, abstol);
   printf("At t = %Lg      max.norm(u) =%14.6Le \n", T0, umax);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("Tolerance parameters: reltol = %g   abstol = %g\n\n",
-         reltol, abstol);
+  printf("Tolerance parameters: reltol = %g   abstol = %g\n\n", reltol, abstol);
   printf("At t = %g      max.norm(u) =%14.6e \n", T0, umax);
 #else
   printf("Tolerance parameters: reltol = %g   abstol = %g\n\n", reltol, abstol);
@@ -381,7 +387,7 @@ static void PrintFinalStats(void *cvode_mem)
   printf("\nFinal Statistics:\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n",
 	 nst, nfe, nsetups, nfeLS, nje);
-  printf("nni = %-6ld ncfn = %-6ld netf = %ld\n \n",
+  printf("nni = %-6ld ncfn = %-6ld netf = %ld\n",
 	 nni, ncfn, netf);
 
   return;

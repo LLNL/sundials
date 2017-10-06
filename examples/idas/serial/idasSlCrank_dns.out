@@ -1,6 +1,6 @@
 
 idasSlCrank_dns: Slider-Crank DAE serial example problem for IDAS
-Linear solver: IDADENSE, Jacobian is computed by IDAS.
+Linear solver: DENSE, Jacobian is computed by IDAS.
 Tolerance parameters:  rtol = 1e-06   atol = 1e-07
 -----------------------------------------------------------------------
   t         y1          y2           y3      | nst  k      h
@@ -41,6 +41,6 @@ Number of nonlinear iterations     = 676
 Number of error test failures      = 1
 Number of nonlinear conv. failures = 0
 --------------------------------------------
-  G =       3.3366160663212514
+  G =       3.3366160663047912
 --------------------------------------------
 

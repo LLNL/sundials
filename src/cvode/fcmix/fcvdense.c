@@ -1,21 +1,23 @@
 /*
- * -----------------------------------------------------------------
- * $Revision: 4294 $
- * $Date: 2014-12-15 13:18:40 -0800 (Mon, 15 Dec 2014) $
  * ----------------------------------------------------------------- 
- * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *                Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2017, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
  * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
  * All rights reserved.
  * For details, see the LICENSE file.
- * LLNS Copyright End
+ * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
- * Fortran/C interface routines for CVODE/CVDENSE, for the case
+ * Fortran/C interface routines for CVODE/CVDLS, for the case
  * of a user-supplied Jacobian approximation routine.
  * -----------------------------------------------------------------
  */
@@ -26,7 +28,8 @@
 #include "fcvode.h"     /* actual fn. names, prototypes and global vars.*/
 #include "cvode_impl.h" /* definition of CVodeMem type                  */
 
-#include <cvode/cvode_dense.h>
+#include <cvode/cvode_direct.h>
+#include <sunmatrix/sunmatrix_dense.h>
 
 /***************************************************************************/
 
@@ -35,13 +38,10 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FCV_DJAC(long int*,                        /* N          */
-                       realtype*, realtype*, realtype*,  /* T, Y, FY   */
-                       realtype*,                        /* DJAC       */
-                       realtype*,                        /* H          */ 
-                       long int*, realtype*,             /* IPAR, RPAR */
-                       realtype*, realtype*, realtype*,  /* V1, V2, V3 */
-                       int *ier);                        /* IER        */
+  extern void FCV_DJAC(long int *N, realtype *T, realtype *Y,
+                       realtype *FY, realtype *DJAC, realtype *H,
+                       long int *IPAR, realtype *RPAR, realtype *V1, 
+                       realtype *V2, realtype *V3, int *ier);
 #ifdef __cplusplus
 }
 #endif
@@ -51,9 +51,9 @@ extern "C" {
 void FCV_DENSESETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = CVDlsSetDenseJacFn(CV_cvodemem, NULL);
+    *ier = CVDlsSetJacFn(CV_cvodemem, NULL);
   } else {
-    *ier = CVDlsSetDenseJacFn(CV_cvodemem, FCVDenseJac);
+    *ier = CVDlsSetJacFn(CV_cvodemem, FCVDenseJac);
   }
 }
 
@@ -61,18 +61,17 @@ void FCV_DENSESETJAC(int *flag, int *ier)
 
 /* C function CVDenseJac interfaces between CVODE and a Fortran subroutine
    FCVDJAC for solution of a linear system with dense Jacobian approximation.
-   Addresses of arguments are passed to FCVDJAC, using the macro 
-   DENSE_COL from DENSE and the routine N_VGetArrayPointer from NVECTOR.
-   Auxiliary data is assumed to be communicated by Common. */
+   Addresses of arguments are passed to FCVDJAC, using accessor functions 
+   from the SUNDenseMatrix and N_Vector modules. */
 
-int FCVDenseJac(long int N, realtype t, 
-                N_Vector y, N_Vector fy, 
-                DlsMat J, void *user_data,
-                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+int FCVDenseJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+                void *user_data, N_Vector vtemp1, N_Vector vtemp2,
+                N_Vector vtemp3)
 {
   int ier;
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
   realtype h;
+  long int N;
   FCVUserData CV_userdata;
 
   CVodeGetLastStep(CV_cvodemem, &h);
@@ -83,13 +82,14 @@ int FCVDenseJac(long int N, realtype t,
   v2data  = N_VGetArrayPointer(vtemp2);
   v3data  = N_VGetArrayPointer(vtemp3);
 
-  jacdata = DENSE_COL(J,0);
+  N = SUNDenseMatrix_Columns(J);
+  jacdata = SUNDenseMatrix_Column(J,0);
 
   CV_userdata = (FCVUserData) user_data;
 
   FCV_DJAC(&N, &t, ydata, fydata, jacdata, &h, 
-           CV_userdata->ipar, CV_userdata->rpar, v1data, v2data, v3data, &ier); 
-
+           CV_userdata->ipar, CV_userdata->rpar, v1data,
+           v2data, v3data, &ier); 
   return(ier);
 }
 

@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4834 $
- * $Date: 2016-08-01 16:59:05 -0700 (Mon, 01 Aug 2016) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Carol Woodward @ LLNL
  * -----------------------------------------------------------------
  * Example problem:
@@ -26,12 +22,9 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <kinsol/kinsol.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
-
-/* Problem Constants */
+#include <kinsol/kinsol.h>           /* access to KINSOL func., consts. */
+#include <nvector/nvector_serial.h>  /* access to serial N_Vector       */
+#include <sundials/sundials_types.h> /* defs. of realtype, sunindextype */
 
 /* Problem Constants */
 
@@ -166,7 +159,11 @@ int main()
   flag = KINGetFuncNorm(kmem, &fnorm);
   if (check_flag(&flag, "KINGetfuncNorm", 1)) return(1);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("\nComputed solution (||F|| = %Lg):\n\n",fnorm);
+#else
   printf("\nComputed solution (||F|| = %g):\n\n",fnorm);
+#endif  
   PrintOutput(y);
 
   PrintFinalStats(kmem);

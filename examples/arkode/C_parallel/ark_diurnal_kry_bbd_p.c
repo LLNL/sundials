@@ -41,7 +41,7 @@
  * neq = 2*MX*MY.
  *
  * The solution is done with the DIRK/GMRES method (i.e. using the
- * ARKSPGMR linear solver) and a block-diagonal matrix with banded
+ * SUNSPGMR linear solver) and a block-diagonal matrix with banded
  * blocks as a preconditioner, using the ARKBBDPRE module.
  * Each block is generated using difference quotients, with
  * half-bandwidths mudq = mldq = 2*MXSUB, but the retained banded
@@ -61,13 +61,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <arkode/arkode.h>            /* prototypes for ARKODE fcts. */
-#include <arkode/arkode_spgmr.h>      /* prototypes and constants for ARKSPGMR */
-#include <arkode/arkode_bbdpre.h>     /* prototypes for ARKBBDPRE module */
-#include <nvector/nvector_parallel.h> /* def. of N_Vector, macro NV_DATA_P */
-#include <sundials/sundials_types.h>  /* definitions of realtype, booleantype */
-#include <sundials/sundials_math.h>   /* definition of macros SUNSQR and EXP */
-#include <mpi.h>                      /* MPI constants and types */
+#include <arkode/arkode.h>              /* prototypes for ARKODE fcts.      */
+#include <nvector/nvector_parallel.h>   /* access to MPI-parallel N_Vector  */
+#include <sunlinsol/sunlinsol_spgmr.h>  /* access to SPGMR SUNLinearSolver  */
+#include <arkode/arkode_spils.h>        /* access to ARKSpils interface     */
+#include <arkode/arkode_bbdpre.h>       /* access to ARKBBDPRE module       */
+#include <sundials/sundials_types.h>    /* SUNDIALS type definitions        */
+#include <sundials/sundials_math.h>     /* definition of macros SUNSQR, EXP */
+#include <mpi.h>                        /* MPI constants and types          */
 
 
 /* Problem Constants */
@@ -117,30 +118,30 @@ typedef struct {
   realtype q4, om, dx, dy, hdco, haco, vdco;
   realtype uext[NVARS*(MXSUB+2)*(MYSUB+2)];
   int my_pe, isubx, isuby;
-  long int nvmxsub, nvmxsub2, Nlocal;
+  sunindextype nvmxsub, nvmxsub2, Nlocal;
   MPI_Comm comm;
 } *UserData;
 
 /* Prototypes of private helper functions */
-static void InitUserData(int my_pe, long int local_N, MPI_Comm comm,
+static void InitUserData(int my_pe, sunindextype local_N, MPI_Comm comm,
                          UserData data);
 static void SetInitialProfiles(N_Vector u, UserData data);
-static void PrintIntro(int npes, long int mudq, long int mldq,
-		       long int mukeep, long int mlkeep);
+static void PrintIntro(int npes, sunindextype mudq, sunindextype mldq,
+		       sunindextype mukeep, sunindextype mlkeep);
 static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t);
 static void PrintFinalStats(void *arkode_mem);
 static void BSend(MPI_Comm comm, 
                   int my_pe, int isubx, int isuby, 
-                  long int dsizex, long int dsizey,
+                  sunindextype dsizex, sunindextype dsizey,
                   realtype uarray[]);
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-		      long int dsizex, long int dsizey,
+		      sunindextype dsizex, sunindextype dsizey,
 		      realtype uext[], realtype buffer[]);
 static void BRecvWait(MPI_Request request[], 
                       int isubx, int isuby, 
-                      long int dsizex, realtype uext[],
+                      sunindextype dsizex, realtype uext[],
                       realtype buffer[]);
 static void fucomm(realtype t, N_Vector u, void *user_data);
 
@@ -148,7 +149,7 @@ static void fucomm(realtype t, N_Vector u, void *user_data);
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 /* Prototype of functions called by the ARKBBDPRE module */
-static int flocal(long int Nlocal, realtype t, N_Vector u,
+static int flocal(sunindextype Nlocal, realtype t, N_Vector u,
                   N_Vector udot, void *user_data);
 
 /* Private function to check function return values */
@@ -159,14 +160,16 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 int main(int argc, char *argv[])
 {
   UserData data;
+  SUNLinearSolver LS;
   void *arkode_mem;
   realtype abstol, reltol, t, tout;
   N_Vector u;
   int iout, my_pe, npes, flag, jpre;
-  long int neq, local_N, mudq, mldq, mukeep, mlkeep;
+  sunindextype neq, local_N, mudq, mldq, mukeep, mlkeep;
   MPI_Comm comm;
 
   data = NULL;
+  LS = NULL;
   arkode_mem = NULL;
   u = NULL;
 
@@ -202,6 +205,11 @@ int main(int argc, char *argv[])
   abstol = ATOL;
   reltol = RTOL;
 
+  /* Create SPGMR solver structure -- use left preconditioning 
+     and the default Krylov dimension maxl */
+  LS = SUNSPGMR(u, PREC_LEFT, 0);
+  if (check_flag((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  
   /* Call ARKodeCreate to create the solver memory */
   arkode_mem = ARKodeCreate();
   if(check_flag((void *)arkode_mem, "ARKodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
@@ -225,17 +233,16 @@ int main(int argc, char *argv[])
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
   if (check_flag(&flag, "ARKodeSStolerances", 1, my_pe)) return(1);
 
-  /* Call ARKSpgmr to specify the linear solver ARKSPGMR with left
-     preconditioning and the default Krylov dimension maxl */
-  flag = ARKSpgmr(arkode_mem, PREC_LEFT, 0);
-  if(check_flag(&flag, "ARKBBDSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
+  /* Attach SPGMR solver structure to ARKSpils interface */
+  flag = ARKSpilsSetLinearSolver(arkode_mem, LS);
+  if (check_flag(&flag, "ARKSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Initialize BBD preconditioner */
   mudq = mldq = NVARS*MXSUB;
   mukeep = mlkeep = NVARS;
   flag = ARKBBDPrecInit(arkode_mem, local_N, mudq, mldq, 
 			mukeep, mlkeep, ZERO, flocal, NULL);
-  if(check_flag(&flag, "ARKBBDPrecAlloc", 1, my_pe)) MPI_Abort(comm, 1);
+  if(check_flag(&flag, "ARKBBDPrecInit", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Print heading */
   if (my_pe == 0) PrintIntro(npes, mudq, mldq, mukeep, mlkeep);
@@ -243,7 +250,8 @@ int main(int argc, char *argv[])
   /* Loop over jpre (= PREC_LEFT, PREC_RIGHT), and solve the problem */
   for (jpre=PREC_LEFT; jpre<=PREC_RIGHT; jpre++) {
 
-    /* On second run, re-initialize u, the integrator, ARKBBDPRE, and ARKSPGMR */
+    /* On second run, re-initialize u, the integrator, ARKBBDPRE, 
+       and preconditioning type */
     if (jpre == PREC_RIGHT) {
 
       SetInitialProfiles(u, data);
@@ -254,8 +262,8 @@ int main(int argc, char *argv[])
       flag = ARKBBDPrecReInit(arkode_mem, mudq, mldq, ZERO);
       if(check_flag(&flag, "ARKBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-      flag = ARKSpilsSetPrecType(arkode_mem, PREC_RIGHT);
-      check_flag(&flag, "ARKSpilsSetPrecType", 1, my_pe);
+      flag = SUNSPGMRSetPrecType(LS, PREC_RIGHT);
+      check_flag(&flag, "SUNSPGMRSetPrecType", 1, my_pe);
 
       if (my_pe == 0) {
 	printf("\n\n-------------------------------------------------------");
@@ -285,6 +293,7 @@ int main(int argc, char *argv[])
   N_VDestroy_Parallel(u);
   free(data);
   ARKodeFree(&arkode_mem);
+  SUNLinSolFree(LS);
   MPI_Finalize();
   return(0);
 }
@@ -292,7 +301,7 @@ int main(int argc, char *argv[])
 /*********************** Private Helper Functions ************************/
 
 /* Load constants in data */
-static void InitUserData(int my_pe, long int local_N, MPI_Comm comm,
+static void InitUserData(int my_pe, sunindextype local_N, MPI_Comm comm,
                          UserData data)
 {
   int isubx, isuby;
@@ -324,7 +333,7 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 {
   int isubx, isuby;
   int lx, ly, jx, jy;
-  long int offset;
+  sunindextype offset;
   realtype dx, dy, x, y, cx, cy, xmid, ymid;
   realtype *uarray;
 
@@ -359,16 +368,16 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 }
 
 /* Print problem introduction */
-static void PrintIntro(int npes, long int mudq, long int mldq,
-		       long int mukeep, long int mlkeep)
+static void PrintIntro(int npes, sunindextype mudq, sunindextype mldq,
+		       sunindextype mukeep, sunindextype mlkeep)
 {
   printf("\n2-species diurnal advection-diffusion problem\n");
   printf("  %d by %d mesh on %d processors\n", MX, MY, npes);
   printf("  Using ARKBBDPRE preconditioner module\n");
   printf("    Difference-quotient half-bandwidths are");
-  printf(" mudq = %ld,  mldq = %ld\n", mudq, mldq);
+  printf(" mudq = %ld,  mldq = %ld\n", (long int) mudq, (long int) mldq);
   printf("    Retained band block half-bandwidths are");
-  printf(" mukeep = %ld,  mlkeep = %ld", mukeep, mlkeep);
+  printf(" mukeep = %ld,  mlkeep = %ld", (long int) mukeep, (long int) mlkeep);
   return;
 }
 
@@ -377,7 +386,8 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t)
 {
   int flag, npelast;
-  long int i0, i1, nst;
+  sunindextype i0, i1;
+  long int nst;
   realtype hu, *uarray, tempu[2];
   MPI_Status status;
 
@@ -429,9 +439,9 @@ static void PrintFinalStats(void *arkode_mem)
 {
   long int lenrw, leniw ;
   long int lenrwLS, leniwLS;
-  long int lenrwBBDP, leniwBBDP, ngevalsBBDP;
+  long int lenrwBBDP, leniwBBDP;
   long int nst, nfe, nfi, nsetups, nni, ncfn, netf;
-  long int nli, npe, nps, ncfl, nfeLS;
+  long int nli, npe, nps, ncfl, nfeLS, ngevalsBBDP;
   int flag;
 
   flag = ARKodeGetWorkSpace(arkode_mem, &lenrw, &leniw);
@@ -477,18 +487,18 @@ static void PrintFinalStats(void *arkode_mem)
   flag = ARKBBDPrecGetNumGfnEvals(arkode_mem, &ngevalsBBDP);
   check_flag(&flag, "ARKBBDPrecGetNumGfnEvals", 1, 0);
   printf("In ARKBBDPRE: real/integer local work space sizes = %ld, %ld\n",
-	 lenrwBBDP, leniwBBDP);  
+	 lenrwBBDP, leniwBBDP);
   printf("             no. flocal evals. = %ld\n",ngevalsBBDP);
 }
  
 /* Routine to send boundary data to neighboring PEs */
 static void BSend(MPI_Comm comm, 
                   int my_pe, int isubx, int isuby, 
-                  long int dsizex, long int dsizey,
+                  sunindextype dsizex, sunindextype dsizey,
                   realtype uarray[])
 {
   int i, ly;
-  long int offsetu, offsetbuf;
+  sunindextype offsetu, offsetbuf;
   realtype bufleft[NVARS*MYSUB], bufright[NVARS*MYSUB];
 
   /* If isuby > 0, send data from bottom x-line of u */
@@ -532,10 +542,10 @@ static void BSend(MPI_Comm comm,
    2) request should have 4 entries, and should be passed in both calls also. */
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-		      long int dsizex, long int dsizey,
+		      sunindextype dsizex, sunindextype dsizey,
 		      realtype uext[], realtype buffer[])
 {
-  long int offsetue;
+  sunindextype offsetue;
   /* Have bufleft and bufright use the same buffer */
   realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
 
@@ -572,11 +582,11 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[],
    2) request should have 4 entries, and should be passed in both calls also. */
 static void BRecvWait(MPI_Request request[], 
                       int isubx, int isuby, 
-                      long int dsizex, realtype uext[],
+                      sunindextype dsizex, realtype uext[],
                       realtype buffer[])
 {
   int i, ly;
-  long int dsizex2, offsetue, offsetbuf;
+  sunindextype dsizex2, offsetue, offsetbuf;
   realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
   MPI_Status status;
 
@@ -625,7 +635,7 @@ static void fucomm(realtype t, N_Vector u, void *user_data)
   realtype *uarray, *uext, buffer[2*NVARS*MYSUB];
   MPI_Comm comm;
   int my_pe, isubx, isuby;
-  long int nvmxsub, nvmysub;
+  sunindextype nvmxsub, nvmysub;
   MPI_Request request[4];
 
   data = (UserData) user_data;
@@ -672,7 +682,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 /* flocal routine.  Compute f(t,y).  This routine assumes that all
    inter-processor communication of data needed to calculate f has already
    been done, and this data is in the work array uext.                    */
-static int flocal(long int Nlocal, realtype t, N_Vector u,
+static int flocal(sunindextype Nlocal, realtype t, N_Vector u,
                   N_Vector udot, void *user_data)
 {
   realtype *uext;
@@ -682,7 +692,7 @@ static int flocal(long int Nlocal, realtype t, N_Vector u,
   realtype q4coef, dely, verdco, hordco, horaco;
   int i, lx, ly, jy;
   int isubx, isuby;
-  long int nvmxsub, nvmxsub2, offsetu, offsetue;
+  sunindextype nvmxsub, nvmxsub2, offsetu, offsetue;
   UserData data;
   realtype *uarray, *duarray;
 

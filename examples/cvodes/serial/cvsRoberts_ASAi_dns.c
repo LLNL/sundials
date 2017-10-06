@@ -1,14 +1,10 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4834 $
- * $Date: 2016-08-01 16:59:05 -0700 (Mon, 01 Aug 2016) $
- * ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
@@ -54,22 +50,23 @@
  * where
  *   d(phi)/dt = g(t,y,p)
  *   phi(t1) = 0
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <cvodes/cvodes.h>
-#include <cvodes/cvodes_dense.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
+#include <cvodes/cvodes.h>             /* prototypes for CVODE fcts., consts.  */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
+#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
+#include <cvodes/cvodes_direct.h>      /* access to CVDls interface            */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Accessor macros */
 
-#define Ith(v,i)    NV_Ith_S(v,i-1)       /* i-th vector component, i=1..NEQ */
-#define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1) /* (i,j)-th matrix el., i,j=1..NEQ */
+#define Ith(v,i)    NV_Ith_S(v,i-1)         /* i-th vector component, i=1..NEQ */
+#define IJth(A,i,j) SM_ELEMENT_D(A,i-1,j-1) /* (i,j)-th matrix el., i,j=1..NEQ */
 
 /* Problem Constants */
 
@@ -107,19 +104,15 @@ typedef struct {
 /* Prototypes of user-supplied functions */
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(long int N, realtype t,
-               N_Vector y, N_Vector fy, 
-               DlsMat J, void *user_data, 
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data);
 static int ewt(N_Vector y, N_Vector w, void *user_data);
 
 static int fB(realtype t, N_Vector y, 
               N_Vector yB, N_Vector yBdot, void *user_dataB);
-static int JacB(long int NB, realtype t,
-                N_Vector y, N_Vector yB, N_Vector fyB,
-                DlsMat JB, void *user_dataB,
-                N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+static int JacB(realtype t, N_Vector y, N_Vector yB, N_Vector fyB, SUNMatrix JB,
+                void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 static int fQB(realtype t, N_Vector y, N_Vector yB, 
                N_Vector qBdot, void *user_dataB);
 
@@ -141,6 +134,8 @@ int main(int argc, char *argv[])
 {
   UserData data;
 
+  SUNMatrix A, AB;
+  SUNLinearSolver LS, LSB;
   void *cvode_mem;
 
   realtype reltolQ, abstolQ;
@@ -161,6 +156,8 @@ int main(int argc, char *argv[])
   CVadjCheckPointRec *ckpnt;
 
   data = NULL;
+  A = AB = NULL;
+  LS = LSB = NULL;
   cvode_mem = NULL;
   ckpnt = NULL;
   y = yB = qB = NULL;
@@ -201,36 +198,64 @@ int main(int argc, char *argv[])
   /* Create and allocate CVODES memory for forward run */
   printf("Create and allocate CVODES memory for forward runs\n");
 
+  /* Call CVodeCreate to create the solver memory and specify the 
+     Backward Differentiation Formula and the use of a Newton iteration */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
+  /* Call CVodeInit to initialize the integrator memory and specify the
+     user's right hand side function in y'=f(t,y), the initial time T0, and
+     the initial dependent variable vector y. */
   flag = CVodeInit(cvode_mem, f, T0, y);
   if (check_flag(&flag, "CVodeInit", 1)) return(1);
 
+  /* Call CVodeWFtolerances to specify a user-supplied function ewt that sets
+     the multiplicative error weights w_i for use in the weighted RMS norm */
   flag = CVodeWFtolerances(cvode_mem, ewt);
   if (check_flag(&flag, "CVodeWFtolerances", 1)) return(1);
 
+  /* Attach user data */
   flag = CVodeSetUserData(cvode_mem, data);
   if (check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
-  flag = CVDense(cvode_mem, NEQ);
-  if (check_flag(&flag, "CVDense", 1)) return(1);
+  /* Create dense SUNMatrix for use in linear solves */
+  A = SUNDenseMatrix(NEQ, NEQ);
+  if (check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
 
-  flag = CVDlsSetDenseJacFn(cvode_mem, Jac);
-  if (check_flag(&flag, "CVDlsSetDenseJacFn", 1)) return(1);
+  /* Create dense SUNLinearSolver object */
+  LS = SUNDenseLinearSolver(y, A);
+  if (check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
 
+  /* Attach the matrix and linear solver */
+  flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
+  if (check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
+
+  /* Set the user-supplied Jacobian routine Jac */
+  flag = CVDlsSetJacFn(cvode_mem, Jac);
+  if (check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
+
+  /* Call CVodeQuadInit to allocate initernal memory and initialize
+     quadrature integration*/
   flag = CVodeQuadInit(cvode_mem, fQ, q);
   if (check_flag(&flag, "CVodeQuadInit", 1)) return(1);
 
-  flag = CVodeQuadSStolerances(cvode_mem, reltolQ, abstolQ);
-  if (check_flag(&flag, "CVodeQuadSStolerances", 1)) return(1);
-
+  /* Call CVodeSetQuadErrCon to specify whether or not the quadrature variables
+     are to be used in the step size control mechanism within CVODES. Call
+     CVodeQuadSStolerances or CVodeQuadSVtolerances to specify the integration
+     tolerances for the quadrature variables. */
   flag = CVodeSetQuadErrCon(cvode_mem, TRUE);
   if (check_flag(&flag, "CVodeSetQuadErrCon", 1)) return(1);
 
+  /* Call CVodeQuadSStolerances to specify scalar relative and absolute
+     tolerances. */
+  flag = CVodeQuadSStolerances(cvode_mem, reltolQ, abstolQ);
+  if (check_flag(&flag, "CVodeQuadSStolerances", 1)) return(1);
+
   /* Allocate global memory */
 
-  steps = STEPS;
+  /* Call CVodeAdjInit to update CVODES memory block by allocting the internal 
+     memory needed for backward integration.*/
+  steps = STEPS; /* no. of integration steps between two consecutive ckeckpoints*/
   flag = CVodeAdjInit(cvode_mem, steps, CV_HERMITE);
   /*
   flag = CVodeAdjInit(cvode_mem, steps, CV_POLYNOMIAL);
@@ -239,7 +264,9 @@ int main(int argc, char *argv[])
 
   /* Perform forward run */
   printf("Forward integration ... ");
-  
+
+  /* Call CVodeF to integrate the forward problem over an interval in time and
+     saves checkpointing data */
   flag = CVodeF(cvode_mem, TOUT, y, &time, CV_NORMAL, &ncheck);
   if (check_flag(&flag, "CVodeF", 1)) return(1);
   flag = CVodeGetNumSteps(cvode_mem, &nst);
@@ -310,32 +337,56 @@ int main(int argc, char *argv[])
   /* Create and allocate CVODES memory for backward run */
   printf("Create and allocate CVODES memory for backward run\n");
 
+  /* Call CVodeCreateB to specify the solution method for the backward 
+     problem. */
   flag = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB);
   if (check_flag(&flag, "CVodeCreateB", 1)) return(1);
 
+  /* Call CVodeInitB to allocate internal memory and initialize the 
+     backward problem. */
   flag = CVodeInitB(cvode_mem, indexB, fB, TB1, yB);
   if (check_flag(&flag, "CVodeInitB", 1)) return(1);
 
+  /* Set the scalar relative and absolute tolerances. */
   flag = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
   if (check_flag(&flag, "CVodeSStolerancesB", 1)) return(1);
 
+  /* Attach the user data for backward problem. */
   flag = CVodeSetUserDataB(cvode_mem, indexB, data);
   if (check_flag(&flag, "CVodeSetUserDataB", 1)) return(1);
 
-  flag = CVDenseB(cvode_mem, indexB, NEQ);
-  if (check_flag(&flag, "CVDenseB", 1)) return(1);
+  /* Create dense SUNMatrix for use in linear solves */
+  AB = SUNDenseMatrix(NEQ, NEQ);
+  if (check_flag((void *)AB, "SUNDenseMatrix", 0)) return(1);
 
-  flag = CVDlsSetDenseJacFnB(cvode_mem, indexB, JacB);
-  if (check_flag(&flag, "CVDlsSetDenseJacFnB", 1)) return(1);
+  /* Create dense SUNLinearSolver object */
+  LSB = SUNDenseLinearSolver(yB, AB);
+  if (check_flag((void *)LSB, "SUNDenseLinearSolver", 0)) return(1);
 
+  /* Attach the matrix and linear solver */
+  flag = CVDlsSetLinearSolverB(cvode_mem, indexB, LSB, AB);
+  if (check_flag(&flag, "CVDlsSetLinearSolverB", 1)) return(1);
+
+  /* Set the user-supplied Jacobian routine JacB */
+  flag = CVDlsSetJacFnB(cvode_mem, indexB, JacB);
+  if (check_flag(&flag, "CVDlsSetJacFnB", 1)) return(1);
+
+  /* Call CVodeQuadInitB to allocate internal memory and initialize backward
+     quadrature integration. */
   flag = CVodeQuadInitB(cvode_mem, indexB, fQB, qB);
   if (check_flag(&flag, "CVodeQuadInitB", 1)) return(1);
 
-  flag = CVodeQuadSStolerancesB(cvode_mem, indexB, reltolB, abstolQB);
-  if (check_flag(&flag, "CVodeQuadSStolerancesB", 1)) return(1);
-
+  /* Call CVodeSetQuadErrCon to specify whether or not the quadrature variables
+     are to be used in the step size control mechanism within CVODES. Call
+     CVodeQuadSStolerances or CVodeQuadSVtolerances to specify the integration
+     tolerances for the quadrature variables. */
   flag = CVodeSetQuadErrConB(cvode_mem, indexB, TRUE);
   if (check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);
+
+  /* Call CVodeQuadSStolerancesB to specify the scalar relative and absolute tolerances
+     for the backward problem. */
+  flag = CVodeQuadSStolerancesB(cvode_mem, indexB, reltolB, abstolQB);
+  if (check_flag(&flag, "CVodeQuadSStolerancesB", 1)) return(1);
 
   /* Backward Integration */
 
@@ -343,12 +394,16 @@ int main(int argc, char *argv[])
 
   /* First get results at t = TBout1 */
 
+  /* Call CVodeB to integrate the backward ODE problem. */
   flag = CVodeB(cvode_mem, TBout1, CV_NORMAL);
   if (check_flag(&flag, "CVodeB", 1)) return(1);
 
+  /* Call CVodeGetB to get yB of the backward ODE problem. */
   flag = CVodeGetB(cvode_mem, indexB, &time, yB);
   if (check_flag(&flag, "CVodeGetB", 1)) return(1);
 
+  /* Call CVodeGetAdjY to get the interpolated value of the forward solution
+     y during a backward integration. */
   flag = CVodeGetAdjY(cvode_mem, TBout1, y);
   if (check_flag(&flag, "CVodeGetAdjY", 1)) return(1);
 
@@ -364,6 +419,8 @@ int main(int argc, char *argv[])
   flag = CVodeGetB(cvode_mem, indexB, &time, yB);
   if (check_flag(&flag, "CVodeGetB", 1)) return(1);
 
+  /* Call CVodeGetQuadB to get the quadrature solution vector after a 
+     successful return from CVodeB. */
   flag = CVodeGetQuadB(cvode_mem, indexB, &time, qB);
   if (check_flag(&flag, "CVodeGetQuadB", 1)) return(1);
 
@@ -427,10 +484,14 @@ int main(int argc, char *argv[])
   printf("Free memory\n\n");
 
   CVodeFree(&cvode_mem);
-  N_VDestroy_Serial(y); 
-  N_VDestroy_Serial(q);
-  N_VDestroy_Serial(yB);
-  N_VDestroy_Serial(qB);
+  N_VDestroy(y); 
+  N_VDestroy(q);
+  N_VDestroy(yB);
+  N_VDestroy(qB);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
+  SUNLinSolFree(LSB);
+  SUNMatDestroy(AB);
 
   if (ckpnt != NULL) free(ckpnt);
   free(data);
@@ -470,10 +531,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
  * Jacobian routine. Compute J(t,y). 
 */
 
-static int Jac(long int N, realtype t,
-               N_Vector y, N_Vector fy, 
-               DlsMat J, void *user_data, 
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y1, y2, y3;
   UserData data;
@@ -485,7 +544,7 @@ static int Jac(long int N, realtype t,
  
   IJth(J,1,1) = -p1;  IJth(J,1,2) = p2*y3;          IJth(J,1,3) = p2*y2;
   IJth(J,2,1) =  p1;  IJth(J,2,2) = -p2*y3-2*p3*y2; IJth(J,2,3) = -p2*y2;
-                      IJth(J,3,2) = 2*p3*y2;
+  IJth(J,3,1) = ZERO; IJth(J,3,2) = 2*p3*y2;        IJth(J,3,3) = ZERO;
 
   return(0);
 }
@@ -565,10 +624,8 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *user_da
  * JacB routine. Compute JB(t,y,yB). 
  */
 
-static int JacB(long int NB, realtype t,
-                N_Vector y, N_Vector yB, N_Vector fyB,
-                DlsMat JB, void *user_dataB,
-                N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
+static int JacB(realtype t, N_Vector y, N_Vector yB, N_Vector fyB, SUNMatrix JB,
+                void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   UserData data;
   realtype y1, y2, y3;
@@ -583,10 +640,9 @@ static int JacB(long int NB, realtype t,
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
 
   /* Load JB */
-  IJth(JB,1,1) = p1;     IJth(JB,1,2) = -p1; 
-  IJth(JB,2,1) = -p2*y3; IJth(JB,2,2) = p2*y3+2.0*p3*y2;
-                         IJth(JB,2,3) = RCONST(-2.0)*p3*y2;
-  IJth(JB,3,1) = -p2*y2; IJth(JB,3,2) = p2*y2;
+  IJth(JB,1,1) = p1;     IJth(JB,1,2) = -p1;             IJth(JB,1,3) = ZERO;
+  IJth(JB,2,1) = -p2*y3; IJth(JB,2,2) = p2*y3+2.0*p3*y2; IJth(JB,2,3) = RCONST(-2.0)*p3*y2;
+  IJth(JB,3,1) = -p2*y2; IJth(JB,3,2) = p2*y2;           IJth(JB,3,3) = ZERO;
 
   return(0);
 }
@@ -598,16 +654,9 @@ static int JacB(long int NB, realtype t,
 static int fQB(realtype t, N_Vector y, N_Vector yB, 
                N_Vector qBdot, void *user_dataB)
 {
-  UserData data;
   realtype y1, y2, y3;
-  realtype p1, p2, p3;
   realtype l1, l2, l3;
   realtype l21, l32, y23;
-
-  data = (UserData) user_dataB;
-
-  /* The p vector */
-  p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
 
   /* The y vector */
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);

@@ -1,6 +1,6 @@
                           SUNDIALS 
                         Shared Module
-                 Release 2.7.0, Sep 2016
+                 Release 3.0.0, Sep 2017
 
 
 The family of solvers referred to as SUNDIALS consists of solvers 
@@ -11,6 +11,8 @@ capabilities), and KINSOL (for nonlinear algebraic systems).
 The various solvers of this family share many subordinate modules contained
 in this module:
 - generic NVECTOR module
+- generic SUNMatrix module
+- generic SUNLinearSolver module
 - generic linear solver modules (band, dense, lapack, sparse, pcg, spfgmr, spgmr, spbcg, sptfqmr)
 - definitions of SUNDIALS types (realtype, booleantype)
 - common math functions (RpowerI, SUNRpowerR, SUNRsqrt, SUNRabs,...)
@@ -56,6 +58,7 @@ C. References
 D. Releases
 -----------
 
+v. 3.0.0 - Sep. 2017
 v. 2.7.0 - Sep. 2016
 v. 2.6.2 - Aug. 2015
 v. 2.6.1 - Mar. 2015

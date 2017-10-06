@@ -7,7 +7,6 @@ The following CMake command was used to configure SUNDIALS:
 
  cmake \
 -DCMAKE_BUILD_TYPE=DEBUG \
--DCXX_ENABLE=ON \
 -DBUILD_ARKODE=ON \
 -DBUILD_CVODE=ON \
 -DBUILD_CVODES=ON \
@@ -18,7 +17,10 @@ The following CMake command was used to configure SUNDIALS:
 -DEXAMPLES_INSTALL_PATH=/home/user1/sundials/build/install/examples \
 -DBUILD_SHARED_LIBS=OFF \
 -DBUILD_STATIC_LIBS=ON \
--DEXAMPLES_ENABLE=ON \
+-DEXAMPLES_ENABLE_C=ON \
+-DEXAMPLES_ENABLE_CXX=ON \
+-DEXAMPLES_ENABLE_F77=ON \
+-DEXAMPLES_ENABLE_F90=ON \
 -DEXAMPLES_INSTALL=ON \
 -DMPI_ENABLE=ON \
 -DFCMIX_ENABLE=ON \
@@ -32,7 +34,6 @@ The following CMake command was used to configure SUNDIALS:
 -DOPENMP_ENABLE=ON \
 -DPTHREAD_ENABLE=ON \
 -DFCMIX_ENABLE=ON \
--DF90_ENABLE=ON \
 -DSUPERLUMT_ENABLE=ON \
 -DSUPERLUMT_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.1/SRC \
 -DSUPERLUMT_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.1/lib \

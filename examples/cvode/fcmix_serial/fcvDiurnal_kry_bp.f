@@ -1,9 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 4294 $
-C     $Date: 2014-12-15 13:18:40 -0800 (Mon, 15 Dec 2014) $
-C     ----------------------------------------------------------------
-C     FCVODE Example Problem: 2D kinetics-transport, 
-C     precond. Krylov solver. 
+C     FCVODE Example Problem: 2D kinetics-transport, precond. Krylov
+C     solver. 
 C     
 C     An ODE system is generated from the following 2-species diurnal
 C     kinetics advection-diffusion PDE system in 2 space dimensions:
@@ -18,32 +15,32 @@ C     vary diurnally.
 C
 C     The problem is posed on the square
 C     0 .le. x .le. 20,    30 .le. y .le. 50   (all in km),
-C     with homogeneous Neumann boundary conditions, and for time t in
-C     0 .le. t .le. 86400 sec (1 day).
+C     with homogeneous Neumann boundary conditions, and for time t
+C     in 0 .le. t .le. 86400 sec (1 day).
 C
 C     The PDE system is treated by central differences on a uniform
 C     10 x 10 mesh, with simple polynomial initial profiles.
 C     The problem is solved with CVODE, with the BDF/GMRES method and
-C     using the FCVBP banded preconditioner
+C     using the FCVBP banded preconditioner.
 C     
-C     The second and third dimensions of U here must match the values of
-C     MX and MY, for consistency with the output statements below.
+C     The second and third dimensions of U here must match the values
+C     of MX and MY, for consistency with the output statements below.
 C     ----------------------------------------------------------------
 C
       IMPLICIT NONE
 C
-      INTEGER MX, MY
+      INTEGER*4 MX, MY
       PARAMETER (MX=10, MY=10)
 C
-      INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LNPE, LNLI, LNPS
-      INTEGER LNCFL, LH, LQ, METH, ITMETH, IATOL, ITASK
-      INTEGER LNETF, IER, MAXL, JPRETYPE, IGSTYPE, JOUT
-      INTEGER LLENRW, LLENIW, LLENRWLS, LLENIWLS
+      INTEGER*4 LNST, LNFE, LNSETUP, LNNI, LNCF, LNPE, LNLI, LNPS
+      INTEGER*4 LNCFL, LH, LQ, METH, ITMETH, IATOL, ITASK
+      INTEGER*4 LNETF, IER, MAXL, JPRETYPE, IGSTYPE, JOUT
+      INTEGER*4 LLENRW, LLENIW, LLENRWLS, LLENIWLS
 C The following declaration specification should match C type long int.
       INTEGER*8 NEQ, IOUT(25), IPAR(4)
-      INTEGER NST, NFE, NPSET, NPE, NPS, NNI
-      INTEGER NLI, NCFN, NCFL, NETF
-      INTEGER LENRW, LENIW, LENRWLS, LENIWLS
+      INTEGER*4 NST, NFE, NPSET, NPE, NPS, NNI
+      INTEGER*4 NLI, NCFN, NCFL, NETF
+      INTEGER*4 LENRW, LENIW, LENRWLS, LENIWLS
 C The following declaration specification should match C type long int.
       INTEGER*8 MU, ML, LENRWBP, LENIWBP, NFEBP
       DOUBLE PRECISION ATOL, AVDIM, DELT, FLOOR, RTOL, T, TOUT, TWOHR
@@ -56,7 +53,7 @@ C
      1     LNPE/18/, LNLI/20/, LNPS/19/, LNCFL/21/
       DATA LH/2/
 C
-C Load IPAR, RPAR, and initial values
+C     Load problem constants into IPAR, RPAR, and set initial values
       CALL INITKX(MX, MY, U, IPAR, RPAR)
 C
 C     Set other input arguments.
@@ -75,27 +72,41 @@ C
 C     Initialize vector specification
       CALL FNVINITS(1, NEQ, IER)
       IF (IER .NE. 0) THEN
-         WRITE(6,20) IER
- 20      FORMAT(///' SUNDIALS_ERROR: FNVINITS returned IER = ', I5)
-         STOP
+        WRITE(6,20) IER
+ 20     FORMAT(///' SUNDIALS_ERROR: FNVINITS returned IER = ', I5)
+        STOP
+      ENDIF
+C
+C     Initialize SPGMR linear solver module
+      call FSUNSPGMRINIT(1, JPRETYPE, MAXL, IER)
+      IF (IER .NE. 0) THEN
+        WRITE(6,25) IER
+ 25     FORMAT(///' SUNDIALS_ERROR: FSUNSPGMRINIT IER = ', I5)
+        STOP
+      ENDIF
+      call FSUNSPGMRSETGSTYPE(1, IGSTYPE, IER)
+      IF (IER .NE. 0) THEN
+        WRITE(6,27) IER
+ 27     FORMAT(///' SUNDIALS_ERROR: FSUNSPGMRSETGSTYPE IER = ', I5)
+        STOP
       ENDIF
 C     
 C     Initialize CVODE
       CALL FCVMALLOC(T, U, METH, ITMETH, IATOL, RTOL, ATOL,
      1               IOUT, ROUT, IPAR, RPAR, IER)
       IF (IER .NE. 0) THEN
-         WRITE(6,30) IER
- 30      FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER = ', I5)
-         STOP
+        WRITE(6,30) IER
+ 30     FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER = ', I5)
+        STOP
       ENDIF
-C     
-C     Initialize SPGMR solver
-      CALL FCVSPGMR(JPRETYPE, IGSTYPE, MAXL, DELT, IER) 
+C
+C     attach linear solver module to CVSpils interface
+      CALL FCVSPILSINIT(IER)
       IF (IER .NE. 0) THEN
-         WRITE(6,45) IER
- 45      FORMAT(///' SUNDIALS_ERROR: FCVSPGMR returned IER = ', I5)
-         CALL FCVFREE
-         STOP
+        WRITE(6,40) IER
+ 40     FORMAT(///' SUNDIALS_ERROR: FCVSPILSINIT returned IER = ',I5)
+        CALL FCVFREE
+        STOP
       ENDIF
 C     
 C     Initialize band preconditioner
@@ -103,8 +114,8 @@ C     Initialize band preconditioner
       ML = 2
       CALL FCVBPINIT(NEQ, MU, ML, IER) 
       IF (IER .NE. 0) THEN
-         WRITE(6,40) IER
- 40      FORMAT(///' SUNDIALS_ERROR: FCVBPINIT returned IER = ', I5)
+         WRITE(6,45) IER
+ 45      FORMAT(///' SUNDIALS_ERROR: FCVBPINIT returned IER = ', I5)
          CALL FCVFREE
          STOP
       ENDIF
@@ -117,12 +128,12 @@ C
 C     
          WRITE(6,50) T, IOUT(LNST), IOUT(LQ), ROUT(LH)
  50      FORMAT(/' t = ', E14.6, 5X, 'no. steps = ', I5,
-     1        '   order = ', I3, '   stepsize = ', E14.6)
+     1           '   order = ', I3, '   stepsize = ', E14.6)
          WRITE(6,55) U(1,1,1), U(1,5,5), U(1,10,10),
      1               U(2,1,1), U(2,5,5), U(2,10,10)
  55      FORMAT('  c1 (bot.left/middle/top rt.) = ', 3E14.6/
-     1        '  c2 (bot.left/middle/top rt.) = ', 3E14.6)
-C     
+     1          '  c2 (bot.left/middle/top rt.) = ', 3E14.6)
+C
          IF (IER .NE. 0) THEN
             WRITE(6,60) IER, IOUT(15)
  60         FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ', I5, /,
@@ -173,23 +184,23 @@ C     Print final statistics.
      &        ' number of f evaluations  = ', I5)
 C     
       CALL FCVFREE
-C     
+C
       STOP
       END
 
 C     ----------------------------------------------------------------
 
       SUBROUTINE INITKX(MX, MY, U0, IPAR, RPAR)
-C Routine to set problem constants and initial values
+C     Routine to set problem constants and initial values
 C
       IMPLICIT NONE
 C
-      INTEGER MX, MY
+      INTEGER*4 MX, MY
 C The following declaration specification should match C type long int.
       INTEGER*8 IPAR(*)
       DOUBLE PRECISION RPAR(*)
 C
-      INTEGER MM, JY, JX, NEQ
+      INTEGER*8 MM, JY, JX, NEQ
       DOUBLE PRECISION U0
       DIMENSION U0(2,MX,MY)
       DOUBLE PRECISION Q1, Q2, Q3, Q4, A3, A4, OM, C3, DY, HDCO
@@ -199,13 +210,13 @@ C
       DATA DKH/4.0D-6/, VEL/0.001D0/, DKV0/1.0D-8/, HALFDA/4.32D4/,
      1     PI/3.1415926535898D0/
 C
-C Problem constants
+C     Problem constants
       MM = MX * MY
       NEQ = 2 * MM
       Q1 = 1.63D-16
       Q2 = 4.66D-16
-      Q3 = 0.D0
-      Q4 = 0.D0
+      Q3 = 0.0D0
+      Q4 = 0.0D0
       A3 = 22.62D0
       A4 = 7.601D0
       OM = PI / HALFDA
@@ -215,7 +226,8 @@ C Problem constants
       HDCO = DKH / DX**2
       HACO = VEL / (2.0D0 * DX)
       VDCO = (1.0D0 / DY**2) * DKV0
-C Load constants in IPAR and RPAR
+C
+C     Load constants in IPAR and RPAR
       IPAR(1) = MX
       IPAR(2) = MY
       IPAR(3) = MM
@@ -234,7 +246,7 @@ C
       RPAR(11) = VDCO
       RPAR(12) = HACO
 C
-C Set initial profiles.
+C     Set initial profiles.
       DO 20 JY = 1, MY
         Y = 30.0D0 + (JY - 1.0D0) * DY
         CY = (0.1D0 * (Y - 40.0D0))**2
@@ -250,20 +262,21 @@ C Set initial profiles.
 C
       RETURN
       END
-      
+
 C     ----------------------------------------------------------------
 
       SUBROUTINE FCVFUN(T, U, UDOT, IPAR, RPAR, IER)
 C     Routine for right-hand side function f
+C
       IMPLICIT NONE
 C
 C The following declaration specification should match C type long int.
       INTEGER*8 IPAR(*)
-      INTEGER IER
+      INTEGER*4 IER
       DOUBLE PRECISION T, U(2,*), UDOT(2,*), RPAR(*)
 C
-      INTEGER ILEFT, IRIGHT
-      INTEGER MX, MY, MM, JY, JX, IBLOK0, IDN, IUP, IBLOK
+      INTEGER*4 ILEFT, IRIGHT
+      INTEGER*8 MX, MY, MM, JY, JX, IBLOK0, IDN, IUP, IBLOK
       DOUBLE PRECISION Q1,Q2,Q3,Q4, A3, A4, OM, C3, DY, HDCO, VDCO, HACO
       DOUBLE PRECISION C1, C2, C1DN, C2DN, C1UP, C2UP, C1LT, C2LT
       DOUBLE PRECISION C1RT, C2RT, CYDN, CYUP, HORD1, HORD2, HORAD1
@@ -287,7 +300,7 @@ C
       HDCO = RPAR(10)
       VDCO = RPAR(11)
       HACO = RPAR(12)
-C     
+C
 C     Set diurnal rate coefficients.
       S = SIN(OM * T)
       IF (S .GT. 0.0D0) THEN

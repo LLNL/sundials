@@ -1,7 +1,9 @@
                             SUNDIALS 
     SUite of Nonlinear and DIfferential/ALgebraic equation Solvers
-                   Release 2.6.2, August 2015
-      Alan Hindmarsh, Daniel Reynolds, Radu Serban, Carol Woodward
+
+David Gardner, Alan Hindmarsh, Slaven Peles, Daniel Reynolds, Radu Serban, 
+and Carol Woodward
+
            Center for Applied Scientific Computing, LLNL
 
 The family of solvers referred to as SUNDIALS consists of the following solvers:
@@ -42,6 +44,7 @@ Release history:
 |   Date   |          +----------+----------+----------+----------+---------------------+
 |          | release  |  ARKODE  |   CVODE  | CVODES   |   IDA    |   IDAS   |  KINSOL  |
 +----------+----------+----------+----------+----------+----------+---------------------+
+| Sep 2017 |   3.0.0  |  2.0.0   |  3.0.0   |  3.0.0   |  3.0.0   |  2.0.0   |  3.0.0   |
 | Sep 2016 |   2.7.0  |  1.1.0   |  2.9.0   |  2.9.0   |  2.9.0   |  1.3.0   |  2.9.0   |
 | Aug 2015 |   2.6.2  |  1.0.2   |  2.8.2   |  2.8.2   |  2.8.2   |  1.2.2   |  2.8.2   |
 | Mar 2015 |   2.6.1  |  1.0.1   |  2.8.1   |  2.8.1   |  2.8.1   |  1.2.1   |  2.8.1   |

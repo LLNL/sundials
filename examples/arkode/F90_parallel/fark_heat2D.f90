@@ -66,6 +66,7 @@ module UserData
   !      (c) free module data.
   !---------------------------------------------------------------
   implicit none
+  include "sundials/sundials_fconfig.h"
   save
 
   integer*8 :: nx          ! global number of x grid points 
@@ -80,20 +81,20 @@ module UserData
   real*8    :: dy          ! y-directional mesh spacing 
   real*8    :: kx          ! x-directional diffusion coefficient 
   real*8    :: ky          ! y-directional diffusion coefficient 
-  real*8, dimension(:,:), allocatable :: h    ! heat source vector
-  real*8, dimension(:,:), allocatable :: d    ! inverse of Jacobian diagonal
+  real(kind=REALTYPE), dimension(:,:), allocatable :: h    ! heat source vector
+  real(kind=REALTYPE), dimension(:,:), allocatable :: d    ! inverse of Jacobian diagonal
   integer :: comm                             ! communicator object
   integer :: myid                             ! MPI process ID
   integer :: nprocs                           ! total number of MPI processes
   logical :: HaveBdry(2,2)                    ! flags denoting if on physical boundary
-  real*8, dimension(:), allocatable :: Erecv  ! receive buffers for neighbor exchange
-  real*8, dimension(:), allocatable :: Wrecv
-  real*8, dimension(:), allocatable :: Nrecv
-  real*8, dimension(:), allocatable :: Srecv
-  real*8, dimension(:), allocatable :: Esend  ! send buffers for neighbor exchange
-  real*8, dimension(:), allocatable :: Wsend
-  real*8, dimension(:), allocatable :: Nsend
-  real*8, dimension(:), allocatable :: Ssend
+  real(kind=REALTYPE), dimension(:), allocatable :: Erecv  ! receive buffers for neighbor exchange
+  real(kind=REALTYPE), dimension(:), allocatable :: Wrecv
+  real(kind=REALTYPE), dimension(:), allocatable :: Nrecv
+  real(kind=REALTYPE), dimension(:), allocatable :: Srecv
+  real(kind=REALTYPE), dimension(:), allocatable :: Esend  ! send buffers for neighbor exchange
+  real(kind=REALTYPE), dimension(:), allocatable :: Wsend
+  real(kind=REALTYPE), dimension(:), allocatable :: Nsend
+  real(kind=REALTYPE), dimension(:), allocatable :: Ssend
 
 contains
 
@@ -230,7 +231,7 @@ contains
     ! declarations
     implicit none
     include "mpif.h"
-    real*8,  intent(in)  :: y(nxl,nyl)
+    real(kind=REALTYPE),  intent(in)  :: y(nxl,nyl)
     integer, intent(out) :: ierr
     integer :: reqSW, reqSE, reqSS, reqSN, reqRW, reqRE, reqRS, reqRN;
     integer :: stat(MPI_STATUS_SIZE)
@@ -451,9 +452,9 @@ contains
     implicit none
     include "mpif.h"
     integer, intent(out) :: ierr
-    real*8,  intent(in)  :: y(nxl,nyl)
-    real*8,  intent(out) :: yrms
-    real*8 :: lsum, gsum
+    real(kind=REALTYPE),  intent(in)  :: y(nxl,nyl)
+    real(kind=REALTYPE),  intent(out) :: yrms
+    real(kind=REALTYPE) :: lsum, gsum
 
     ! internals
     lsum = sum(y**2)
@@ -487,24 +488,24 @@ program driver
   ! Declarations
   ! general problem parameters
   real*8,    parameter :: pi = 3.1415926535897932d0
-  real*8,    parameter :: T0 = 0.d0     ! initial time 
-  real*8,    parameter :: Tf = 0.3d0    ! final time 
+  real(kind=REALTYPE),    parameter :: T0 = 0.d0     ! initial time 
+  real(kind=REALTYPE),    parameter :: Tf = 0.3d0    ! final time 
   integer,   parameter :: Nt = 20       ! total number of output times 
-  real*8,    parameter :: rtol = 1.d-5  ! relative and absolute tolerances
-  real*8,    parameter :: atol = 1.d-10
+  real(kind=REALTYPE),    parameter :: rtol = 1.d-5  ! relative and absolute tolerances
+  real(kind=REALTYPE),    parameter :: atol = 1.d-10
   integer*8, parameter :: nx_ = 60      ! spatial mesh size
   integer*8, parameter :: ny_ = 120
-  real*8,    parameter :: kx_ = 0.5d0   ! heat conductivity coefficients
-  real*8,    parameter :: ky_ = 0.75d0
-  real*8,    parameter :: nlscoef = 1.d-7   ! nonlinear solver tolerance factor
+  real(kind=REALTYPE),    parameter :: kx_ = 0.5d0   ! heat conductivity coefficients
+  real(kind=REALTYPE),    parameter :: ky_ = 0.75d0
+  real(kind=REALTYPE),    parameter :: nlscoef = 1.d-7   ! nonlinear solver tolerance factor
   integer,   parameter :: PCGpretype = 1    ! enable preconditioner
   integer,   parameter :: PCGmaxl = 20      ! max num. PCG iterations
-  real*8,    parameter :: PCGdelt = 0.d0    ! use default solver tolerance factor
 
   ! solution vector and other local variables
-  real*8, allocatable :: y(:,:)
-  real*8    :: rout(6), rpar, t, dTout, tout, urms
-  integer*8 :: N, Ntot, i, j, iout(22), ipar
+  real(kind=REALTYPE), allocatable :: y(:,:)
+  real(kind=REALTYPE)    :: rout(6), rpar, t, dTout, tout, urms
+  integer(kind=SUNINDEXTYPE) :: N, Ntot, i, j
+  integer*8 :: iout(22), ipar
   integer   :: flag, ioutput
   logical   :: outproc
   character*100 :: outname
@@ -565,6 +566,13 @@ program driver
   allocate(y(nxl,nyl))         ! Create parallel vector for solution 
   y = 0.d0                     ! Set initial conditions 
 
+  ! initialize PCG linear solver module
+  call FSunPCGInit(4, PCGpretype, PCGmaxl, flag)
+  if (flag /= MPI_SUCCESS) then
+     write(0,*) "Error in FSunPCGInit = ", flag
+     call MPI_Finalize(flag)
+  end if
+  
   ! Create the solver memory to use DIRK integrator, scalar tolerances
   call FARKMalloc(T0, y, 0, 1, rtol, atol, iout, rout, ipar, rpar, flag)
   if (flag /= MPI_SUCCESS) then
@@ -592,13 +600,13 @@ program driver
   end if
 
 
-  ! Linear solver specification 
-  call FARKPCG(PCGpretype, PCGmaxl, PCGdelt, flag)  ! Specify the PCG solver 
+  ! attach linear solver module to ARKSpils interface
+  call FARKSpilsInit(flag)
   if (flag < 0) then
-     write(0,*) "Error in FARKPCG = ", flag
+     write(0,*) "Error in FARKSpilsInit = ", flag
      call MPI_Finalize(flag)
   end if
-  call FARKSpilsSetPrec(1, flag)                     ! Enable preconditioning
+  call FARKSpilsSetPrec(1, flag)     ! Signal user-supplied preconditioner
   if (flag < 0) then
      write(0,*) "Error in FARKSpilsSetPrec = ", flag
      call MPI_Finalize(flag)
@@ -720,12 +728,12 @@ subroutine farkifun(t, y, ydot, ipar, rpar, ierr)
   use UserData
   implicit none
   include "mpif.h"
-  real*8,  intent(in)  :: t, rpar
-  integer, intent(in)  :: ipar
+  real(kind=REALTYPE), intent(in)  :: t, rpar
+  real(kind=REALTYPE), intent(in)  :: y(nxl,nyl)
+  real(kind=REALTYPE), intent(out) :: ydot(nxl,nyl)
+  integer*8, intent(in) :: ipar
+  real(kind=REALTYPE) :: c1, c2, c3
   integer, intent(out) :: ierr
-  real*8,  intent(in)  :: y(nxl,nyl)
-  real*8,  intent(out) :: ydot(nxl,nyl)
-  real*8    :: c1, c2, c3
   integer*8 :: i, j
   
   ! internals
@@ -811,11 +819,11 @@ subroutine farkefun(t, y, ydot, ipar, rpar, ierr)
   ! declarations
   use UserData
   implicit none
-  real*8,  intent(in)  :: t, rpar
-  integer, intent(in)  :: ipar
+  real(kind=REALTYPE), intent(in)  :: t, rpar
+  integer*8, intent(in) :: ipar
+  real(kind=REALTYPE), intent(in)  :: y(nxl,nyl)
+  real(kind=REALTYPE), intent(out) :: ydot(nxl,nyl)
   integer, intent(out) :: ierr
-  real*8,  intent(in)  :: y(nxl,nyl)
-  real*8,  intent(out) :: ydot(nxl,nyl)
   
   ! internals
 
@@ -828,19 +836,19 @@ end subroutine farkefun
 
 
 subroutine farkpset(t, y, fy, jok, jcur, gamma, hcur, ipar, &
-                    rpar, v1, v2, v3, ierr)
+                    rpar, ierr)
 !-----------------------------------------------------------------
 ! Preconditioner setup routine (fills inverse of Jacobian diagonal)
 !-----------------------------------------------------------------
   ! declarations
   use UserData
   implicit none
-  real*8,  intent(in)  :: t, gamma, hcur, rpar
-  integer, intent(in)  :: ipar, jok
+  real(kind=REALTYPE), intent(in) :: t, gamma, hcur, rpar
+  real(kind=REALTYPE), intent(in) :: y(nxl,nyl), fy(nxl,nyl)
+  integer*8, intent(in) :: ipar
+  integer, intent(in) :: jok
   integer, intent(out) :: jcur, ierr
-  real*8,  intent(in)  :: y(nxl,nyl), fy(nxl,nyl)
-  real*8               :: v1(nxl,nyl), v2(nxl,nyl), v3(nxl,nyl)
-  real*8 :: c
+  real(kind=REALTYPE) :: c
 
   ! internals
   c = 1.d0 + gamma*2.d0*(kx/dx/dx + ky/dy/dy)
@@ -856,19 +864,19 @@ end subroutine farkpset
 
 
 subroutine farkpsol(t, y, fy, r, z, gamma, delta, lr, &
-                    ipar, rpar, vt, ierr)
+                    ipar, rpar, ierr)
 !-----------------------------------------------------------------
 ! Preconditioner solve routine
 !-----------------------------------------------------------------
   ! declarations
   use UserData
   implicit none
-  real*8,  intent(in)  :: t, gamma, delta, rpar
-  integer, intent(in)  :: lr, ipar
+  real(kind=REALTYPE), intent(in)  :: t, gamma, delta, rpar
+  integer*8, intent(in) :: ipar
+  real(kind=REALTYPE), intent(in)  :: y(nxl,nyl), fy(nxl,nyl), r(nxl,nyl)
+  real(kind=REALTYPE), intent(out) :: z(nxl,nyl)
+  integer, intent(in)  :: lr
   integer, intent(out) :: ierr
-  real*8,  intent(in)  :: y(nxl,nyl), fy(nxl,nyl), r(nxl,nyl)
-  real*8,  intent(out) :: z(nxl,nyl)
-  real*8               :: vt(nxl,nyl)
 
   ! internals
   z = r*d      ! perform Jacobi iteration (whole array operation)

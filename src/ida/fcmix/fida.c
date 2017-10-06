@@ -1,41 +1,34 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4825 $
- * $Date: 2016-07-26 15:56:58 -0700 (Tue, 26 Jul 2016) $
- * ----------------------------------------------------------------- 
- * Programmer(s): Aaron Collier and Radu Serban @ LLNL
- * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
+/*----------------------------------------------------------------- 
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *                Aaron Collier and Radu Serban @ LLNL
+ *-----------------------------------------------------------------
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2017, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
  * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
  * All rights reserved.
  * For details, see the LICENSE file.
- * LLNS Copyright End
- * -----------------------------------------------------------------
+ * LLNS/SMU Copyright End
+ *-----------------------------------------------------------------
  * This is the implementation file for the Fortran interface to
  * the IDA package. See fida.h for usage.
  * NOTE: Some routines are necessarily stored elsewhere to avoid
  * linking problems.
- * -----------------------------------------------------------------
- */
+ *-----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "fida.h"            /* function names, prototypes, global variables   */
 #include "ida_impl.h"        /* definition of IDAMem type                      */
-
-#include <ida/ida_band.h>    /* prototypes for IDABAND interface routines      */
-#include <ida/ida_dense.h>   /* prototypes for IDADENSE interface routines     */
-#include <ida/ida_klu.h>     /* prototypes for IDAKLU interface routines       */
-#include <ida/ida_superlumt.h> /* prototypes for IDASUPERLUMT interface routines */
-#include <ida/ida_sptfqmr.h> /* prototypes for IDASPTFQMR interface routines   */
-#include <ida/ida_spbcgs.h>  /* prototypes for IDASPBCG interface routines     */
-#include <ida/ida_spgmr.h>   /* prototypes for IDASPGMR interface routines     */
+#include <ida/ida_direct.h>  /* prototypes for IDADLS interface routines       */
+#include <ida/ida_spils.h>   /* prototypes for IDASPILS interface routines     */
 
 /*************************************************/
 
@@ -79,8 +72,7 @@ extern "C" {
 void FIDA_MALLOC(realtype *t0, realtype *yy0, realtype *yp0,
                  int *iatol, realtype *rtol, realtype *atol,
                  long int *iout, realtype *rout, 
-                 long int *ipar, realtype *rpar,
-                 int *ier)
+                 long int *ipar, realtype *rpar, int *ier)
 {
   N_Vector Vatol;
   FIDAUserData IDA_userdata;
@@ -256,7 +248,7 @@ void FIDA_SETIIN(char key_name[], long int *ival, int *ier)
   if (!strncmp(key_name,"MAX_ORD",7))
     *ier = IDASetMaxOrd(IDA_idamem, (int) *ival);
   else if (!strncmp(key_name,"MAX_NSTEPS",10))
-    *ier = IDASetMaxNumSteps(IDA_idamem, (int) *ival);
+    *ier = IDASetMaxNumSteps(IDA_idamem, (long int) *ival);
   else if (!strncmp(key_name,"MAX_ERRFAIL",11))
     *ier = IDASetMaxErrTestFails(IDA_idamem, (int) *ival);
   else if (!strncmp(key_name,"MAX_NITERS",10))
@@ -264,7 +256,7 @@ void FIDA_SETIIN(char key_name[], long int *ival, int *ier)
   else if (!strncmp(key_name,"MAX_CONVFAIL",12))
     *ier = IDASetMaxConvFails(IDA_idamem, (int) *ival);
   else if (!strncmp(key_name,"SUPPRESS_ALG",12))
-    *ier = IDASetSuppressAlg(IDA_idamem, (int) *ival);
+    *ier = IDASetSuppressAlg(IDA_idamem, (booleantype) *ival);
   else if (!strncmp(key_name,"MAX_NSTEPS_IC",13))
     *ier = IDASetMaxNumStepsIC(IDA_idamem, (int) *ival);
   else if (!strncmp(key_name,"MAX_NITERS_IC",13)) 
@@ -272,7 +264,7 @@ void FIDA_SETIIN(char key_name[], long int *ival, int *ier)
   else if (!strncmp(key_name,"MAX_NJE_IC",10))
     *ier = IDASetMaxNumJacsIC(IDA_idamem, (int) *ival);
   else if (!strncmp(key_name,"LS_OFF_IC",9))
-    *ier = IDASetLineSearchOffIC(IDA_idamem, (int) *ival);
+    *ier = IDASetLineSearchOffIC(IDA_idamem, (booleantype) *ival);
   else {
     *ier = -99;
     printf("FIDASETIIN: Unrecognized key.\n\n");
@@ -375,204 +367,55 @@ void FIDA_CALCIC(int *icopt, realtype *tout1, int *ier)
 
 /*************************************************/
 
-void FIDA_SPTFQMR(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier)
-{
+/* Fortran interface to C routine IDADlsSetLinearSolver; see 
+   fida.h for further details */
+void FIDA_DLSINIT(int *ier) {
+  if ( (IDA_idamem == NULL) || (F2C_IDA_linsol == NULL) || 
+       (F2C_IDA_matrix == NULL) ) {
+    *ier = -1;
+    return;
+  }
+  *ier = IDADlsSetLinearSolver(IDA_idamem, F2C_IDA_linsol, 
+                               F2C_IDA_matrix);
+  IDA_ls = IDA_LS_DIRECT;
+  return;
+}
 
-  *ier = 0;
 
-  *ier = IDASptfqmr(IDA_idamem, *maxl);
-  if (*ier != IDASPILS_SUCCESS) return;
+/*************************************************/
 
-  if (*eplifac != ZERO) {
+/* Fortran interface to C routine IDASpilsSetLinearSolver; see 
+   fida.h for further details */
+void FIDA_SPILSINIT(int *ier) {
+  if ( (IDA_idamem == NULL) || (F2C_IDA_linsol == NULL) ) {
+    *ier = -1;
+    return;
+  }
+  *ier = IDASpilsSetLinearSolver(IDA_idamem, F2C_IDA_linsol);
+  IDA_ls = IDA_LS_ITERATIVE;
+  return;
+}
+
+/*************************************************/
+
+/* Fortran interfaces to C "set" routines for the IDASpils solver; 
+   see fida.h for further details */
+void FIDA_SPILSSETEPSLIN(realtype *eplifac, int *ier) {
+  if (IDA_ls == IDA_LS_ITERATIVE)
     *ier = IDASpilsSetEpsLin(IDA_idamem, *eplifac);
-    if (*ier != IDASPILS_SUCCESS) return;
-  }
+  else
+    *ier = 1;
+  return;
+}
 
-  if (*dqincfac != ZERO) {
+void FIDA_SPILSSETINCREMENTFACTOR(realtype *dqincfac, int *ier) {
+  if (IDA_ls == IDA_LS_ITERATIVE)
     *ier = IDASpilsSetIncrementFactor(IDA_idamem, *dqincfac);
-    if (*ier != IDASPILS_SUCCESS) return;
-  }
-
-  IDA_ls = IDA_LS_SPTFQMR;
-
+  else
+    *ier = 1;
   return;
 }
 
-/*************************************************/
-
-void FIDA_SPBCG(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier)
-{
-
-  *ier = 0;
-
-  *ier = IDASpbcg(IDA_idamem, *maxl);
-  if (*ier != IDASPILS_SUCCESS) return;
-
-  if (*eplifac != ZERO) {
-    *ier = IDASpilsSetEpsLin(IDA_idamem, *eplifac);
-    if (*ier != IDASPILS_SUCCESS) return;
-  }
-
-  if (*dqincfac != ZERO) {
-    *ier = IDASpilsSetIncrementFactor(IDA_idamem, *dqincfac);
-    if (*ier != IDASPILS_SUCCESS) return;
-  }
-
-  IDA_ls = IDA_LS_SPBCG;
-
-  return;
-}
-
-/*************************************************/
-
-void FIDA_SPGMR(int *maxl, int *gstype, int *maxrs,
-		realtype *eplifac, realtype *dqincfac, int *ier)
-{
-
-  *ier = 0;
-
-  *ier = IDASpgmr(IDA_idamem, *maxl);
-  if (*ier != IDASPILS_SUCCESS) return;
-
-  if (*gstype != 0) {
-    *ier = IDASpilsSetGSType(IDA_idamem, *gstype);
-    if (*ier != IDASPILS_SUCCESS) return;
-  }
-
-  if (*maxrs != 0) {
-    *ier = IDASpilsSetMaxRestarts(IDA_idamem, *maxrs);
-    if (*ier != IDASPILS_SUCCESS) return;
-  }
-
-  if (*eplifac != ZERO) {
-    *ier = IDASpilsSetEpsLin(IDA_idamem, *eplifac);
-    if (*ier != IDASPILS_SUCCESS) return;
-  }
-
-  if (*dqincfac != ZERO) {
-    *ier = IDASpilsSetIncrementFactor(IDA_idamem, *dqincfac);
-    if (*ier != IDASPILS_SUCCESS) return;
-  }
-
-  IDA_ls = IDA_LS_SPGMR;
-
-  return;
-}
-
-/*************************************************/
-
-void FIDA_DENSE(long int *neq, int *ier)
-{
-
-  *ier = 0;
-
-  *ier = IDADense(IDA_idamem, *neq);
-
-  IDA_ls = IDA_LS_DENSE;
-
-  return;
-}
-
-/*************************************************/
-
-void FIDA_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
-{
-
-  *ier = 0;
-
-  *ier = IDABand(IDA_idamem, *neq, *mupper, *mlower);
-
-  IDA_ls = IDA_LS_BAND;
-
-  return;
-}
-
-/*************************************************/
-
-void FIDA_SPTFQMRREINIT(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier)
-{
-
-  *ier = 0;
-
-  if (*maxl > 0) {
-    *ier = IDASpilsSetMaxl(IDA_idamem, *maxl);
-    if (*ier != IDASPILS_SUCCESS) return;
-  }
-
-  if (*eplifac != ZERO) {
-    *ier = IDASpilsSetEpsLin(IDA_idamem, *eplifac);
-    if (*ier != IDASPILS_SUCCESS) return;
-  }
-
-  if (*dqincfac != ZERO) {
-    *ier = IDASpilsSetIncrementFactor(IDA_idamem, *dqincfac);
-    if (*ier != IDASPILS_SUCCESS) return;
-  }
-
-  IDA_ls = IDA_LS_SPTFQMR;
-
-  return;
-}
-
-/*************************************************/
-
-void FIDA_SPBCGREINIT(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier)
-{
-
-  *ier = 0;
-
-  if (*maxl > 0) {
-    *ier = IDASpilsSetMaxl(IDA_idamem, *maxl);
-    if (*ier != IDASPILS_SUCCESS) return;
-  }
-
-  if (*eplifac != ZERO) {
-    *ier = IDASpilsSetEpsLin(IDA_idamem, *eplifac);
-    if (*ier != IDASPILS_SUCCESS) return;
-  }
-
-  if (*dqincfac != ZERO) {
-    *ier = IDASpilsSetIncrementFactor(IDA_idamem, *dqincfac);
-    if (*ier != IDASPILS_SUCCESS) return;
-  }
-
-  IDA_ls = IDA_LS_SPBCG;
-
-  return;
-}
-
-/*************************************************/
-
-void FIDA_SPGMRREINIT(int *gstype, int *maxrs, realtype *eplifac,
-		      realtype *dqincfac, int *ier)
-{
-
-  *ier = 0;
-
-  if (*gstype != 0) {
-    *ier = IDASpilsSetGSType(IDA_idamem, *gstype);
-    if (*ier != IDASPILS_SUCCESS) return;
-  }
-
-  if (*maxrs != 0) {
-    *ier = IDASpilsSetMaxRestarts(IDA_idamem, *maxrs);
-    if (*ier != IDASPILS_SUCCESS) return;
-  }
-
-  if (*eplifac != ZERO) {
-    *ier = IDASpilsSetEpsLin(IDA_idamem, *eplifac);
-    if (*ier != IDASPILS_SUCCESS) return;
-  }
-
-  if (*dqincfac != ZERO) {
-    *ier = IDASpilsSetIncrementFactor(IDA_idamem, *dqincfac);
-    if (*ier != IDASPILS_SUCCESS) return;
-  }
-
-  IDA_ls = IDA_LS_SPGMR;
-
-  return;
-}
 
 /*************************************************/
 
@@ -625,23 +468,13 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
     IDAGetNumGEvals(IDA_idamem, &IDA_iout[11]); /* NGE */
   
   switch(IDA_ls) {
-  case IDA_LS_DENSE:
-  case IDA_LS_BAND:
-  case IDA_LS_LAPACKDENSE:
-  case IDA_LS_LAPACKBAND:
+  case IDA_LS_DIRECT:
     IDADlsGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]);   /* LENRWLS, LENIWLS */
     IDADlsGetLastFlag(IDA_idamem, &IDA_iout[14]);                   /* LSTF */
     IDADlsGetNumResEvals(IDA_idamem, &IDA_iout[15]);                /* NRE */
     IDADlsGetNumJacEvals(IDA_idamem, &IDA_iout[16]);                /* NJE */
     break;
-  case IDA_LS_KLU:
-  case IDA_LS_SUPERLUMT:
-    IDASlsGetLastFlag(IDA_idamem, &IDA_iout[14]);                  /* LSTF  */
-    IDASlsGetNumJacEvals(IDA_idamem, &IDA_iout[16]);               /* NJE   */
-    break;
-  case IDA_LS_SPGMR:
-  case IDA_LS_SPBCG:
-  case IDA_LS_SPTFQMR:
+  case IDA_LS_ITERATIVE:
     IDASpilsGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]); /* LENRWLS, LENIWLS */
     IDASpilsGetLastFlag(IDA_idamem, &IDA_iout[14]);                 /* LSTF */
     IDASpilsGetNumResEvals(IDA_idamem, &IDA_iout[15]);              /* NRE */
@@ -722,22 +555,32 @@ void FIDA_FREE(void)
 
   ida_mem = (IDAMem) IDA_idamem;
 
-  free(ida_mem->ida_user_data); ida_mem->ida_user_data = NULL;
+  /* free DLS/SPILS interface */
+  if (ida_mem->ida_lfree)
+    ida_mem->ida_lfree(ida_mem);
+  ida_mem->ida_lmem = NULL;
 
+  /* free user_data structure */
+  if (ida_mem->ida_user_data)
+    free(ida_mem->ida_user_data);
+  ida_mem->ida_user_data = NULL;
+
+  /* free main integrator memory structure */
   IDAFree(&IDA_idamem);
 
-  /* Free F2C_IDA_vec */
+  /* free interface vectors / matrices / linear solvers */
   N_VSetArrayPointer(NULL, F2C_IDA_vec);
   N_VDestroy(F2C_IDA_vec);
-
-  /* Free F2C_IDA_ypvec */
   N_VSetArrayPointer(NULL, F2C_IDA_ypvec);
   N_VDestroy(F2C_IDA_ypvec);
-
-  /* Free F2C_IDA_ewtvec */
-  if (F2C_IDA_ewtvec != NULL) 
+  if (F2C_IDA_ewtvec != NULL) {
+    N_VSetArrayPointer(NULL, F2C_IDA_ewtvec);
     N_VDestroy(F2C_IDA_ewtvec);
-
+  }
+  if (F2C_IDA_matrix)
+    SUNMatDestroy(F2C_IDA_matrix);
+  if (F2C_IDA_linsol)
+    SUNLinSolFree(F2C_IDA_linsol);
   return;
 }
 

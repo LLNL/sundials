@@ -1,52 +1,54 @@
 # ---------------------------------------------------------------
-# $Revision: 4957 $
-# $Date: 2016-09-23 12:21:47 -0700 (Fri, 23 Sep 2016) $
-# ---------------------------------------------------------------
 # Programmer:  Eddy Banks @ LLNL
 # ---------------------------------------------------------------
-# Copyright (c) 2013, The Regents of the University of California.
+# LLNS Copyright Start
+# Copyright (c) 2014, Lawrence Livermore National Security
+# This work was performed under the auspices of the U.S. Department 
+# of Energy by Lawrence Livermore National Laboratory in part under 
+# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
 # For details, see the LICENSE file.
+# LLNS Copyright End
 # ---------------------------------------------------------------
 # SUPERLUMT tests for SUNDIALS CMake-based configuration.
 # 
 
 # make sure valid thread type - if not, then warn and return
 STRING(TOUPPER "${SUPERLUMT_THREAD_TYPE}" SUPERLUMT_THREAD_TYPE_UPPER)
-If(SUPERLUMT_THREAD_TYPE AND NOT SUPERLUMT_THREAD_TYPE_UPPER STREQUAL "OPENMP" AND NOT SUPERLUMT_THREAD_TYPE_UPPER STREQUAL "PTHREAD")
+If(SUPERLUMT_THREAD_TYPE AND
+    NOT SUPERLUMT_THREAD_TYPE_UPPER STREQUAL "OPENMP" AND
+    NOT SUPERLUMT_THREAD_TYPE_UPPER STREQUAL "PTHREAD")
     PRINT_WARNING("Unknown thread type: ${SUPERLUMT_THREAD_TYPE}" "Please enter Pthread or OpenMP")
-ENDIF(SUPERLUMT_THREAD_TYPE AND NOT SUPERLUMT_THREAD_TYPE_UPPER STREQUAL "OPENMP" AND NOT SUPERLUMT_THREAD_TYPE_UPPER STREQUAL "PTHREAD")
+ENDIF()
 
 # find the SUPERLUMT include directory path
 IF(SUPERLUMT_THREAD_TYPE)
-    # if have user input for thread type - set postfix of library name
-    set(POST ${SUPERLUMT_THREAD_TYPE_UPPER})
+  # if have user input for thread type - set postfix of library name
+  set(POST ${SUPERLUMT_THREAD_TYPE_UPPER})
 
-    ### Find include dir
-    find_path(temp_SUPERLUMT_INCLUDE_DIR slu_mt_ddefs.h ${SUPERLUMT_INCLUDE_DIR})
-    if (temp_SUPERLUMT_INCLUDE_DIR)
-        set(SUPERLUMT_INCLUDE_DIR ${temp_SUPERLUMT_INCLUDE_DIR})
-    endif()
-    unset(temp_SUPERLUMT_INCLUDE_DIR CACHE)
-    
-ENDIF(SUPERLUMT_THREAD_TYPE)
+  ### Find include dir
+  find_path(temp_SUPERLUMT_INCLUDE_DIR slu_mt_ddefs.h ${SUPERLUMT_INCLUDE_DIR})
+  if (temp_SUPERLUMT_INCLUDE_DIR)
+    set(SUPERLUMT_INCLUDE_DIR ${temp_SUPERLUMT_INCLUDE_DIR})
+  endif()
+  unset(temp_SUPERLUMT_INCLUDE_DIR CACHE)
+ENDIF()
 
 IF(MSVC)
   SET(CMAKE_FIND_LIBRARY_PREFIXES lib ${CMAKE_FIND_LIBRARY_PREFIXES})
 ENDIF()
 
 if(SUPERLUMT_LIBRARY)
-    get_filename_component(SUPERLUMT_LIBRARY_DIR ${SUPERLUMT_LIBRARY} PATH)
-    set(SUPERLUMT_LIBRARY_DIR ${SUPERLUMT_LIBRARY_DIR} CACHE PATH "" FORCE)
-    
+  get_filename_component(SUPERLUMT_LIBRARY_DIR ${SUPERLUMT_LIBRARY} PATH)
+  set(SUPERLUMT_LIBRARY_DIR ${SUPERLUMT_LIBRARY_DIR} CACHE PATH "" FORCE)
 else()
-    # find library with user provided directory path
-    set(SUPERLUMT_LIBRARY_NAME superlu_mt_${POST})
-    find_library(SUPERLUMT_LIBRARY ${SUPERLUMT_LIBRARY_NAME} ${SUPERLUMT_LIBRARY_DIR} NO_DEFAULT_PATH)
+  # find library with user provided directory path
+  set(SUPERLUMT_LIBRARY_NAME superlu_mt_${POST})
+  find_library(SUPERLUMT_LIBRARY ${SUPERLUMT_LIBRARY_NAME} ${SUPERLUMT_LIBRARY_DIR} NO_DEFAULT_PATH)
 endif()
 mark_as_advanced(SUPERLUMT_LIBRARY)
-    
+
 # add threading library (pthread or openmp)
 If(SUPERLUMT_THREAD_TYPE_UPPER STREQUAL "PTHREAD")
   # add pthread to libraries
@@ -70,16 +72,18 @@ mark_as_advanced(SUPERLUMT_THREAD_LIBRARY)
 set(SUPERLUMT_LIBRARIES ${SUPERLUMT_LIBRARY} ${SUPERLUMT_THREAD_LIBRARY})
 
 # If LAPACK/BLAS not enabled - find BLAS with SUPERLUMT
-if(NOT LAPACK_ENABLE)
-    set(SUPERLUMT_BLAS_LIBRARY_NAME blas_${POST})
-    
-    #unset(SUPERLUMT_BLAS_LIBRARIES CACHE)
-    FIND_LIBRARY(SUPERLUMT_BLAS_LIBRARIES ${SUPERLUMT_BLAS_LIBRARY_NAME} ${SUPERLUMT_LIBRARY_DIR} NO_DEFAULT_PATH)
-    
-    if (NOT SUPERLUMT_BLAS_LIBRARIES)
-      PRINT_WARNING("Can't find SUPERLUMT_BLAS_LIBRARY" "Try setting LAPACK_ENABLE to ON")
-    else ()
-      set(SUPERLUMT_LIBRARIES ${SUPERLUMT_LIBRARIES} ${SUPERLUMT_BLAS_LIBRARIES})
-    endif ()
-    mark_as_advanced(SUPERLUMT_BLAS_LIBRARIES)
-endif(NOT LAPACK_ENABLE)
+if(NOT BLAS_ENABLE AND NOT LAPACK_ENABLE)
+  set(SUPERLUMT_BLAS_LIBRARY_NAME blas_${POST})
+
+  #unset(SUPERLUMT_BLAS_LIBRARIES CACHE)
+  FIND_LIBRARY(SUPERLUMT_BLAS_LIBRARIES ${SUPERLUMT_BLAS_LIBRARY_NAME} ${SUPERLUMT_LIBRARY_DIR} NO_DEFAULT_PATH)
+
+  if (NOT SUPERLUMT_BLAS_LIBRARIES)
+    PRINT_WARNING("Can't find SUPERLUMT_BLAS_LIBRARY, support will not be provided."
+                  "Try setting BLAS_ENABLE or LAPACK_ENABLE to ON")
+    SET(SUPERLUMT_FOUND FALSE)
+  else ()
+    set(SUPERLUMT_LIBRARIES ${SUPERLUMT_LIBRARIES} ${SUPERLUMT_BLAS_LIBRARIES})
+  endif ()
+  mark_as_advanced(SUPERLUMT_BLAS_LIBRARIES)
+endif(NOT BLAS_ENABLE AND NOT LAPACK_ENABLE)

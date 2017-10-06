@@ -55,6 +55,7 @@
 
 #include <mpi.h>
 #include <sundials/sundials_nvector.h>
+#include <sundials/sundials_mpi_types.h>
 
 /* hypre header files */
 #include <_hypre_parcsr_mv.h>
@@ -70,18 +71,6 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-/* define MPI data types */
-
-#if defined(SUNDIALS_SINGLE_PRECISION)
-  #define PVEC_REAL_MPI_TYPE MPI_FLOAT
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  #define PVEC_REAL_MPI_TYPE MPI_DOUBLE
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-  #define PVEC_REAL_MPI_TYPE MPI_LONG_DOUBLE
-#endif
-
-#define PVEC_INTEGER_MPI_TYPE MPI_LONG
-
 /* 
  * Parallel implementation of the N_Vector 'content' structure
  * contains the global and local lengths of the vector, a pointer
@@ -89,8 +78,8 @@ extern "C" {
  * and a flag indicating ownership of the data. 
  */
 struct _N_VectorContent_ParHyp {
-  long int local_length;      /* local vector length         */
-  long int global_length;     /* global vector length        */
+  sunindextype local_length;      /* local vector length         */
+  sunindextype global_length;     /* global vector length        */
   booleantype own_parvector;  /* ownership of HYPRE vector   */
   MPI_Comm comm;              /* pointer to MPI communicator */
 
@@ -129,8 +118,8 @@ typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
  */
 
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, 
-                                            long int local_length,
-                                            long int global_length);
+                                            sunindextype local_length,
+                                            sunindextype global_length);
 
 /*
  * -----------------------------------------------------------------
@@ -207,7 +196,7 @@ SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_ParHyp(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_ParHyp(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_ParHyp(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_ParHyp(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_ParHyp(N_Vector v, long int *lrw, long int *liw);
+SUNDIALS_EXPORT void N_VSpace_ParHyp(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_ParHyp(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_ParHyp(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);

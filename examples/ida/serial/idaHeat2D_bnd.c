@@ -1,15 +1,11 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4834 $
- * $Date: 2016-08-01 16:59:05 -0700 (Mon, 01 Aug 2016) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example problem for IDA: 2D heat equation, serial, banded.
  *
  * This example solves a discretized 2D heat equation problem.
- * This version uses the band solver IDABand, and IDACalcIC.
+ * This version uses the band solver and IDACalcIC.
  *
  * The DAE system solved is a spatial discretization of the PDE
  *          du/dt = d^2u/dx^2 + d^2u/dy^2
@@ -28,17 +24,18 @@
  * u >= 0 are posed for all components. Output is taken at
  * t = 0, .01, .02, .04, ..., 10.24. (Output at t = 0 is for
  * IDACalcIC cost statistics only.)
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>
-#include <ida/ida_band.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_types.h>
+#include <ida/ida.h>                   /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix             */
+#include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver       */
+#include <ida/ida_direct.h>            /* access to IDADls interface           */
+#include <sundials/sundials_types.h>   /* definition of type realtype          */
 
 /* Problem Constants */
 
@@ -53,7 +50,7 @@
 /* Type: UserData */
 
 typedef struct {
-  long int mm;
+  sunindextype mm;
   realtype dx;
   realtype coeff;
 } *UserData;
@@ -83,12 +80,17 @@ int main(void)
   UserData data;
   N_Vector uu, up, constraints, id, res;
   int ier, iout;
-  long int mu, ml, netf, ncfn;
+  long int netf, ncfn;
+  sunindextype mu, ml;
   realtype rtol, atol, t0, t1, tout, tret;
+  SUNMatrix A;
+  SUNLinearSolver LS;
   
   mem = NULL;
   data = NULL;
   uu = up = constraints = id = res = NULL;
+  A = NULL;
+  LS = NULL;
 
   /* Create vectors uu, up, res, constraints, id. */
   uu = N_VNew_Serial(NEQ);
@@ -128,12 +130,13 @@ int main(void)
   ier = IDASetUserData(mem, data);
   if(check_flag(&ier, "IDASetUserData", 1)) return(1);
 
+  /* Set which components are algebraic or differential */
   ier = IDASetId(mem, id);
   if(check_flag(&ier, "IDASetId", 1)) return(1);
 
   ier = IDASetConstraints(mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
-  N_VDestroy_Serial(constraints);
+  N_VDestroy(constraints);
 
   ier = IDAInit(mem, heatres, t0, uu, up);
   if(check_flag(&ier, "IDAInit", 1)) return(1);
@@ -141,13 +144,21 @@ int main(void)
   ier = IDASStolerances(mem, rtol, atol);
   if(check_flag(&ier, "IDASStolerances", 1)) return(1);
 
-  /* Call IDABand to specify the linear solver. */
+  /* Create banded SUNMatrix for use in linear solves */
   mu = MGRID; ml = MGRID;
-  ier = IDABand(mem, NEQ, mu, ml);
-  if(check_flag(&ier, "IDABand", 1)) return(1);
- 
+  A = SUNBandMatrix(NEQ, mu, ml, mu+ml);
+  if(check_flag((void *)A, "SUNBandMatrix", 0)) return(1);
+
+  /* Create banded SUNLinearSolver object */
+  LS = SUNBandLinearSolver(uu, A);
+  if(check_flag((void *)LS, "SUNBandLinearSolver", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  ier = IDADlsSetLinearSolver(mem, LS, A);
+  if(check_flag(&ier, "IDADlsSetLinearSolver", 1)) return(1);
+
   /* Call IDACalcIC to correct the initial values. */
-  
+
   ier = IDACalcIC(mem, IDA_YA_YDP_INIT, t1);
   if(check_flag(&ier, "IDACalcIC", 1)) return(1);
 
@@ -176,10 +187,12 @@ int main(void)
   printf("\n netf = %ld,   ncfn = %ld \n", netf, ncfn);
 
   IDAFree(&mem);
-  N_VDestroy_Serial(uu);
-  N_VDestroy_Serial(up);
-  N_VDestroy_Serial(id);
-  N_VDestroy_Serial(res);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
+  N_VDestroy(uu);
+  N_VDestroy(up);
+  N_VDestroy(id);
+  N_VDestroy(res);
   free(data);
 
   return(0);
@@ -187,7 +200,7 @@ int main(void)
 
 /*
  *--------------------------------------------------------------------
- * FUNCTIONS CALLED BY KINSOL
+ * FUNCTIONS CALLED BY IDA
  *--------------------------------------------------------------------
  */
 
@@ -203,11 +216,11 @@ int main(void)
 int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, 
             void *user_data)
 {
-  long int mm, i, j, offset, loc;
+  sunindextype mm, i, j, offset, loc;
   realtype *uv, *upv, *resv, coeff;
   UserData data;
   
-  uv = N_VGetArrayPointer_Serial(uu); upv = N_VGetArrayPointer_Serial(up); resv = N_VGetArrayPointer_Serial(resval);
+  uv = N_VGetArrayPointer(uu); upv = N_VGetArrayPointer(up); resv = N_VGetArrayPointer(resval);
 
   data = (UserData)user_data;
   mm = data->mm;
@@ -244,14 +257,14 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector id, N_Vector res)
 {
   realtype xfact, yfact, *udata, *updata, *iddata;
-  long int mm, mm1, i, j, offset, loc;
+  sunindextype mm, mm1, i, j, offset, loc;
   
   mm = data->mm;
   mm1 = mm - 1;
   
-  udata = N_VGetArrayPointer_Serial(uu);
-  updata = N_VGetArrayPointer_Serial(up);
-  iddata = N_VGetArrayPointer_Serial(id);
+  udata = N_VGetArrayPointer(uu);
+  updata = N_VGetArrayPointer(up);
+  iddata = N_VGetArrayPointer(id);
 
   /* Initialize id to 1's. */
   N_VConst(ONE, id);
@@ -310,7 +323,7 @@ static void PrintHeader(realtype rtol, realtype atol)
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
   printf("Constraints set to force all solution components >= 0. \n");
-  printf("Linear solver: IDABAND, banded direct solver \n");
+  printf("Linear solver: BAND, banded direct solver \n");
   printf("       difference quotient Jacobian, half-bandwidths = %d \n",MGRID);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("IDACalcIC called with input boundary values = %Lg \n",BVAL);

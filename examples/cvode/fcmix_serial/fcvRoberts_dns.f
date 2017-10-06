@@ -1,8 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 4885 $
-C     $Date: 2016-09-02 08:29:03 -0700 (Fri, 02 Sep 2016) $
-C     ----------------------------------------------------------------
-C     FCVODE Example Problem: Robertson kinetics, dense user Jacobian.
+C     FCVODE Example Problem: Robertson kinetics, direct linear solver
+C                             with dense user Jacobian.
 C
 C     The following is a simple example problem, with the coding
 C     needed for its solution by CVODE. The problem is from chemical
@@ -30,16 +28,16 @@ C     ----------------------------------------------------------------
 C
       IMPLICIT NONE
 C
-      INTEGER IER, I 
-      INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNJE, LNGE
-      INTEGER METH, ITMETH, ITOL, ITASK, JOUT, NOUT, IERROOT
-      INTEGER INFO(2)
-C The following declaration specification should match C type long int.
-      INTEGER*8 IPAR, NEQ, IOUT(25)
+      INTEGER*4 IER, LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNJE, LNGE
+      INTEGER*4 METH, ITMETH, ITOL, ITASK, JOUT, NOUT, IERROOT
+      INTEGER*4 INFO(2)
+      INTEGER*4 I
+C The following declaration specification should match C type long int
+      INTEGER*8 NEQ, IPAR, IOUT(25)
       DOUBLE PRECISION RTOL, T, T0, TOUT
       DOUBLE PRECISION Y(3), ATOL(3), ROUT(10), RPAR
 C
-      DATA LNST/3/, LNFE/4/, LNETF/5/,  LNCF/6/, LNNI/7/, LNSETUP/8/, 
+      DATA LNST/3/, LNFE/4/, LNETF/5/, LNCF/6/, LNNI/7/, LNSETUP/8/,
      1     LNGE/12/, LNJE/17/
 C
       NEQ = 3
@@ -62,15 +60,35 @@ C
       WRITE(6,10) NEQ
  10   FORMAT('Dense example problem:'//
      1       ' Robertson kinetics, NEQ = ', I2//)
-C
+
+C     create serial vector
       CALL FNVINITS(1, NEQ, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
  20     FORMAT(///' SUNDIALS_ERROR: FNVINITS returned IER = ', I5)
         STOP
       ENDIF
-C
 
+C     initialize dense matrix module
+      CALL FSUNDENSEMATINIT(1, NEQ, NEQ, IER)
+      IF (IER .NE. 0) THEN
+        WRITE(6,25) IER
+ 25     FORMAT(///' SUNDIALS_ERROR: FSUNDENSEMATINIT returned IER = ',
+     1         I5)
+        STOP
+      ENDIF
+
+C     initialize dense linear solver module
+      CALL FSUNDENSELINSOLINIT(1, IER)
+      IF (IER .NE. 0) THEN
+        WRITE(6,28) IER
+ 28     FORMAT(///' SUNDIALS_ERROR: FSUNDENSELINSOLINIT returned IER = '
+     1         , I5)
+        STOP
+      ENDIF
+
+C     Call FCVMALLOC to create the solver memory and specify the 
+C     Backward Differentiation Formula and the use of a Newton iteration
       CALL FCVMALLOC(T0, Y, METH, ITMETH, ITOL, RTOL, ATOL,
      1               IOUT, ROUT, IPAR, RPAR, IER)
       IF (IER .NE. 0) THEN
@@ -78,26 +96,34 @@ C
  30     FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER = ', I5)
         STOP
       ENDIF
-C
 
+C     Call FCVROOTINIT to specify the root function g with 2 components
       CALL FCVROOTINIT(2, IER)
       IF (IER .NE. 0) THEN
-         WRITE(6,45) IER
- 45      FORMAT(///' SUNDIALS_ERROR: FCVROOTINIT returned IER = ', I5)
-         CALL FCVFREE
-         STOP
-      ENDIF
-C
-      CALL FCVDENSE(NEQ, IER)
-      IF (IER .NE. 0) THEN
-        WRITE(6,40) IER
- 40     FORMAT(///' SUNDIALS_ERROR: FCVDENSE returned IER = ', I5)
+        WRITE(6,35) IER
+ 35     FORMAT(///' SUNDIALS_ERROR: FCVROOTINIT returned IER = ', I5)
         CALL FCVFREE
         STOP
       ENDIF
-C
+
+C     attach the matrix and linear solver modules to CVDls interface
+      CALL FCVDLSINIT(IER)
+      IF (IER .NE. 0) THEN
+        WRITE(6,40) IER
+ 40     FORMAT(///' SUNDIALS_ERROR: FCVDLSINIT returned IER = ', I5)
+        CALL FCVFREE
+        STOP
+      ENDIF
+
+C     indicate a dense Jacobian function is provided
       CALL FCVDENSESETJAC(1, IER)
-C
+      IF (IER .NE. 0) THEN
+        WRITE(6,45) IER
+ 45     FORMAT(///' SUNDIALS_ERROR: FCVDENSESETJAC returned IER = ', I5)
+        CALL FCVFREE
+        STOP
+      ENDIF
+
       DO WHILE(JOUT .LT. NOUT)
 C
         CALL FCVODE(TOUT, T, Y, ITASK, IER)
@@ -106,42 +132,42 @@ C
  50     FORMAT('At t = ', E12.4, '   y = ', 3E14.6)
 C
         IF (IER .LT. 0) THEN
-           WRITE(6,60) IER, IOUT(15)
- 60        FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ', I5, /,
-     1            '                 Linear Solver returned IER = ', I5)
-           CALL FCVROOTFREE
-           CALL FCVFREE
-           STOP
+          WRITE(6,60) IER, IOUT(15)
+ 60       FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ', I5, /,
+     1           '                 Linear Solver returned IER = ', I5)
+          CALL FCVROOTFREE
+          CALL FCVFREE
+          STOP
         ENDIF
 C
         IF (IER .EQ. 2) THEN
-           CALL FCVROOTINFO(2, INFO, IERROOT)
-           IF (IERROOT .LT. 0) THEN
-              WRITE(6,65) IERROOT
- 65           FORMAT(///' SUNDIALS_ERROR: FCVROOTINFO returned IER = ',
-     1              I5)
-              CALL FCVROOTFREE
-              CALL FCVFREE
-              STOP
-           ENDIF
-           WRITE(6,70) (INFO(I), I = 1, 2)
- 70        FORMAT(5X, 'Above is a root, INFO() = ', 2I3)
-        ENDIF                   
+          CALL FCVROOTINFO(2, INFO, IERROOT)
+          IF (IERROOT .LT. 0) THEN
+            WRITE(6,65) IERROOT
+ 65         FORMAT(///' SUNDIALS_ERROR: FCVROOTINFO returned IER = ',
+     1             I5)
+            CALL FCVROOTFREE
+            CALL FCVFREE
+            STOP
+          ENDIF
+          WRITE(6,70) (INFO(I), I = 1, 2)
+ 70       FORMAT(5X, 'Above is a root, INFO() = ', 2I3)
+        ENDIF
 C
         IF (IER .EQ. 0) THEN
-           TOUT = TOUT * 10.0D0
-           JOUT = JOUT + 1
+          TOUT = TOUT * 10.0D0
+          JOUT = JOUT + 1
         ENDIF
 C
       ENDDO
 C
       CALL FCVDKY(T, 1, Y, IER)
       IF (IER .NE. 0) THEN
-         WRITE(6,80) IER
- 80      FORMAT(///' SUNDIALS_ERROR: FCVDKY returned IER = ', I4)
-         CALL FCVROOTFREE
-         CALL FCVFREE
-         STOP
+        WRITE(6,80) IER
+ 80     FORMAT(///' SUNDIALS_ERROR: FCVDKY returned IER = ', I4)
+        CALL FCVROOTFREE
+        CALL FCVFREE
+        STOP
       ENDIF
       WRITE(6,85) Y(1), Y(2), Y(3)
  85   FORMAT(/'Final value of ydot = ', 3E14.6)
@@ -165,12 +191,12 @@ C
 C     ----------------------------------------------------------------
 
       SUBROUTINE FCVFUN(T, Y, YDOT, IPAR, RPAR, IER)
-C Fortran routine for right-hand side function.
+C     Fortran routine for right-hand side function
       IMPLICIT NONE
 C
-C The following declaration specification should match C type long int.
+C The following declaration specification should match C type long int
       INTEGER*8 IPAR(*)
-      INTEGER IER
+      INTEGER*4 IER
       DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
 C
       YDOT(1) = -0.04D0 * Y(1) + 1.0D4 * Y(2) * Y(3)
@@ -185,13 +211,13 @@ C
 C     ----------------------------------------------------------------
 
       SUBROUTINE FCVROOTFN(T, Y, G, IPAR, RPAR, IER)
-C Fortran routine for root finding
+C     Fortran routine for root finding
       IMPLICIT NONE
 C
       DOUBLE PRECISION T, Y(*), G(*), RPAR(*)
-C The following declaration specification should match C type long int.
+C The following declaration specification should match C type long int
       INTEGER*8 IPAR(*)
-      INTEGER IER
+      INTEGER*4 IER
 C
       G(1) = Y(1) - 1.0D-4
       G(2) = Y(3) - 1.0D-2
@@ -205,16 +231,16 @@ C     ----------------------------------------------------------------
 
       SUBROUTINE FCVDJAC(N, T, Y, FY, JAC, H, IPAR, RPAR, 
      1                   V1, V2, V3, IER)
-C Fortran routine for dense user-supplied Jacobian.
+C     Fortran routine for dense user-supplied Jacobian
       IMPLICIT NONE
 C
-C The following declaration specification should match C type long int.
+C The following declaration specification should match C type long int
       INTEGER*8 N, IPAR(*)
-      INTEGER IER
+      INTEGER*4 IER
       DOUBLE PRECISION T, Y(*), FY(*), JAC(N,*), H, RPAR(*)
       DOUBLE PRECISION V1(*), V2(*), V3(*)
 C
-      DOUBLE PRECISION  Y1, Y2, Y3
+      DOUBLE PRECISION Y1, Y2, Y3
 C
       Y1 = Y(1)
       Y2 = Y(2)
@@ -225,7 +251,9 @@ C
       JAC(2,1) =  0.04D0
       JAC(2,2) = -1.0D4 * Y3 - 6.0D7 * Y2
       JAC(2,3) = -1.0D4 * Y2
+      JAC(3,3) = 0.0D0
       JAC(3,2) = 6.0D7 * Y2
+      JAC(3,3) = 0.0D0
 C
       IER = 0
 C

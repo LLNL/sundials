@@ -36,9 +36,11 @@ SET(FARKODE_examples_BL
 # Add variable FARKODE_examples_KLU with the names of the serial FARKODE examples
 # that use KLU
 
-SET(FARKODE_examples_KLU
-  ark_bruss1D_FEM_klu
-  )
+IF(SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
+  SET(FARKODE_examples_KLU
+    ark_bruss1D_FEM_klu
+    )
+ENDIF()
 
 # Add variable ARKODE_extras with the names of auxiliary files to install
 
@@ -70,6 +72,10 @@ SET(SUNDIALS_LIBS ${FARKODE_LIB} ${ARKODE_LIB} ${FNVECS_LIB} ${NVECS_LIB} ${EXTR
 IF(LAPACK_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
 ENDIF(LAPACK_FOUND)
+
+IF(BLAS_FOUND)
+  LIST(APPEND SUNDIALS_LIBS ${BLAS_LIBRARIES})
+ENDIF(BLAS_FOUND)
 
 IF(KLU_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})

@@ -1,24 +1,26 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4378 $
- * $Date: 2015-02-19 10:55:14 -0800 (Thu, 19 Feb 2015) $
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *                Alan Hindmarsh, Radu Serban, and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
- * Programmer(s): Alan Hindmarsh, Radu Serban, and Aaron Collier @ LLNL
- * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2017, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
  * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
  * All rights reserved.
  * For details, see the LICENSE file.
- * LLNS Copyright End
+ * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
  * This is the header file for the KINBBDPRE module, for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
- * matrix with banded blocks, for use with KINSol, KINSp*,
- * and the parallel implementaion of the NVECTOR module.
+ * matrix with banded blocks, for use with the KINSPILS interface,
+ * and the MPI-parallel implementaion of the NVECTOR module.
  *
  * Summary:
  *
@@ -44,22 +46,32 @@
  *   ...
  *   MPI_Init(&argc,&argv);
  *   ...
+ *   void *kin_mem;
+ *   ...
  *   tmpl = N_VNew_Parallel(...);
  *   ...
  *   kin_mem = KINCreate();
  *   flag = KINInit(kin_mem,...,tmpl);
  *   ...
- *   flag = KINSptfqmr(kin_mem,...);
- *         -or-
- *   flag = KINSpbcg(kin_mem,...);
- *         -or-
- *   flag = KINSpgmr(kin_mem,...);
+ *   SUNLinearSolver LS = SUNSPBCGS(tmpl, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNSPFGMR(tmpl, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNSPGMR(tmpl, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNSPTFQMR(tmpl, pretype, maxl);
+ *     -or-
+ *   SUNLinearSolver LS = SUNPCG(tmpl, pretype, maxl);
+ *   ...
+ *   ier = KINSpilsSetLinearSolver(cvode_mem, LS);
  *   ...
  *   flag = KINBBDPrecInit(kin_mem,...);
  *   ...
  *   KINSol(kin_mem,...);
  *   ...
  *   KINFree(&kin_mem);
+ *   ...
+ *   SUNLinSolFree(LS);
  *   ...
  *   N_VDestroy_Parallel(tmpl);
  *   ...
@@ -116,9 +128,9 @@ extern "C" {
 #define KINBBDPRE_FUNC_UNRECVR   -12
 /*
  * -----------------------------------------------------------------
- * Type : KINCommFn
+ * Type : KINBBDCommFn
  * -----------------------------------------------------------------
- * The user must supply a function of type KINCommFn which
+ * The user must supply a function of type KINBBDCommFn which
  * performs all inter-process communication necessary to
  * evaluate the approximate system function described above.
  *
@@ -126,33 +138,34 @@ extern "C" {
  * the solution vector u, and a pointer to the user-defined
  * data block user_data.
  *
- * The KINCommFn gcomm is expected to save communicated data in
+ * The KINBBDCommFn gcomm is expected to save communicated data in
  * space defined with the structure *user_data.
  *
- * Each call to the KINCommFn is preceded by a call to the system
+ * Each call to the KINBBDCommFn is preceded by a call to the system
  * function func at the current iterate uu. Thus functions of the
- * type KINCommFn can omit any communications done by f (func) if
- * relevant to the evaluation of the KINLocalFn function. If all
+ * type KINBBDCommFn can omit any communications done by f (func) if
+ * relevant to the evaluation of the KINBBDLocalFn function. If all
  * necessary communication was done in func, the user can pass
  * NULL for gcomm in the call to KINBBDPrecInit (see below).
  *
- * A KINCommFn function should return 0 if successful or
+ * A KINBBDCommFn function should return 0 if successful or
  * a non-zero value if an error occured.
  * -----------------------------------------------------------------
  */
 
-typedef int (*KINCommFn)(long int Nlocal, N_Vector u, void *user_data);
+typedef int (*KINBBDCommFn)(sunindextype Nlocal, N_Vector u,
+                         void *user_data);
 
 /*
  * -----------------------------------------------------------------
- * Type : KINLocalFn
+ * Type : KINBBDLocalFn
  * -----------------------------------------------------------------
  * The user must supply a function g(u) which approximates the
  * function f for the system f(u) = 0, and which is computed
  * locally (without inter-process communication). Note: The case
  * where g is mathematically identical to f is allowed.
  *
- * The implementation of this function must have type KINLocalFn
+ * The implementation of this function must have type KINBBDLocalFn
  * and take as input the local vector size Nlocal, the local
  * solution vector uu, the returned local g values vector, and a
  * pointer to the user-defined data block user_data. It is to
@@ -162,12 +175,12 @@ typedef int (*KINCommFn)(long int Nlocal, N_Vector u, void *user_data);
  * save communicated data in work space defined by the user and
  * made available to the preconditioner function for the problem.
  *
- * A KINLocalFn function should return 0 if successful or
+ * A KINBBDLocalFn function should return 0 if successful or
  * a non-zero value if an error occured.
  * -----------------------------------------------------------------
  */
 
-typedef int (*KINLocalFn)(long int Nlocal, N_Vector uu,
+typedef int (*KINBBDLocalFn)(sunindextype Nlocal, N_Vector uu,
                           N_Vector gval, void *user_data);
 
 /*
@@ -212,11 +225,13 @@ typedef int (*KINLocalFn)(long int Nlocal, N_Vector uu,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINBBDPrecInit(void *kinmem, long int Nlocal, 
-                                   long int mudq, long int mldq,
-                                   long int mukeep, long int mlkeep,
+SUNDIALS_EXPORT int KINBBDPrecInit(void *kinmem, sunindextype Nlocal, 
+                                   sunindextype mudq,
+                                   sunindextype mldq,
+                                   sunindextype mukeep,
+                                   sunindextype mlkeep,
                                    realtype dq_rel_uu, 
-                                   KINLocalFn gloc, KINCommFn gcomm);
+                                   KINBBDLocalFn gloc, KINBBDCommFn gcomm);
 
 /*
  * -----------------------------------------------------------------
@@ -228,8 +243,11 @@ SUNDIALS_EXPORT int KINBBDPrecInit(void *kinmem, long int Nlocal,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINBBDPrecGetWorkSpace(void *kinmem, long int *lenrwBBDP, long int *leniwBBDP);
-SUNDIALS_EXPORT int KINBBDPrecGetNumGfnEvals(void *kinmem, long int *ngevalsBBDP);
+SUNDIALS_EXPORT int KINBBDPrecGetWorkSpace(void *kinmem,
+                                           long int *lenrwBBDP,
+                                           long int *leniwBBDP);
+SUNDIALS_EXPORT int KINBBDPrecGetNumGfnEvals(void *kinmem,
+                                             long int *ngevalsBBDP);
 
 #ifdef __cplusplus
 }

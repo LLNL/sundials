@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4809 $
- * $Date: 2016-07-18 11:16:25 -0700 (Mon, 18 Jul 2016) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Simulation of a slider-crank mechanism modelled with 3 generalized
@@ -13,18 +9,19 @@
  *
  * The equations of motion are formulated as a system of stabilized
  * index-2 DAEs (Gear-Gupta-Leimkuhler formulation).
- *
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>
-#include <ida/ida_dense.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_math.h>
+#include <ida/ida.h>                   /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
+#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
+#include <ida/ida_direct.h>            /* access to IDADls interface           */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Problem Constants */
 
@@ -53,9 +50,11 @@ int ressc(realtype tres, N_Vector yy, N_Vector yp,
 void setIC(N_Vector yy, N_Vector yp, UserData data);
 void force(N_Vector yy, realtype *Q, UserData data);
 
+/* Prototypes of private functions */
 static void PrintHeader(realtype rtol, realtype atol, N_Vector y);
 static void PrintOutput(void *mem, realtype t, N_Vector y);
 static void PrintFinalStats(void *mem);
+static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -72,6 +71,11 @@ int main(void)
   realtype rtol, atol;
   realtype t0, tf, tout, dt, tret;
   int flag, iout;
+  SUNMatrix A;
+  SUNLinearSolver LS;
+
+  A = NULL;
+  LS = NULL;
 
   /* User data */
 
@@ -118,8 +122,17 @@ int main(void)
   flag = IDASetId(mem, id);
   flag = IDASetSuppressAlg(mem, TRUE);
 
-  /* Call IDADense and set up the linear solver. */
-  flag = IDADense(mem, NEQ);
+  /* Create dense SUNMatrix for use in linear solves */
+  A = SUNDenseMatrix(NEQ, NEQ);
+  if(check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
+
+  /* Create dense SUNLinearSolver object */
+  LS = SUNDenseLinearSolver(yy, A);
+  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  flag = IDADlsSetLinearSolver(mem, LS, A);
+  if(check_flag(&flag, "IDADlsSetLinearSolver", 1)) return(1);
 
   PrintHeader(rtol, atol, yy);
 
@@ -143,9 +156,11 @@ int main(void)
 
   free(data);
   IDAFree(&mem);
-  N_VDestroy_Serial(yy);
-  N_VDestroy_Serial(yp);
-  N_VDestroy_Serial(id);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
+  N_VDestroy(yy);
+  N_VDestroy(yp);
+  N_VDestroy(id);
 
   return(0);
   
@@ -246,9 +261,9 @@ int ressc(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
   m2 = data->m2;
   J2 = data->J2;
 
-  yval = N_VGetArrayPointer_Serial(yy); 
-  ypval = N_VGetArrayPointer_Serial(yp); 
-  rval = N_VGetArrayPointer_Serial(rr);
+  yval = N_VGetArrayPointer(yy);
+  ypval = N_VGetArrayPointer(yp);
+  rval = N_VGetArrayPointer(rr);
 
   q = yval[0];
   x = yval[1];
@@ -290,8 +305,8 @@ int ressc(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
 
 static void PrintHeader(realtype rtol, realtype atol, N_Vector y)
 {
-  printf("\nidaSlCrank_dns: Slider-Crank DAE serial example problem for IDAS\n");
-  printf("Linear solver: IDADENSE, Jacobian is computed by IDAS.\n");
+  printf("\nidaSlCrank_dns: Slider-Crank DAE serial example problem for IDA\n");
+  printf("Linear solver: DENSE, Jacobian is computed by IDA.\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n",
          rtol, atol);
@@ -315,14 +330,19 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
   long int nst;
   realtype hused;
 
-  yval  = N_VGetArrayPointer_Serial(y);
+  yval  = N_VGetArrayPointer(y);
 
   flag = IDAGetLastOrder(mem, &kused);
   flag = IDAGetNumSteps(mem, &nst);
   flag = IDAGetLastStep(mem, &hused);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%10.4Le %12.4Le %12.4Le %12.4Le %3ld  %1d %12.4Le\n", 
+         t, yval[0], yval[1], yval[2], nst, kused, hused);
+#else
   printf("%10.4e %12.4e %12.4e %12.4e %3ld  %1d %12.4e\n", 
          t, yval[0], yval[1], yval[2], nst, kused, hused);
+#endif
 }
 
 
@@ -348,3 +368,41 @@ static void PrintFinalStats(void *mem)
   printf("Number of nonlinear conv. failures = %ld\n", ncfn);
 }
 
+/*
+ * Check function return value...
+ *   opt == 0 means SUNDIALS function allocates memory so check if
+ *            returned NULL pointer
+ *   opt == 1 means SUNDIALS function returns a flag so check if
+ *            flag >= 0
+ *   opt == 2 means function allocates memory so check if returned
+ *            NULL pointer 
+ */
+
+static int check_flag(void *flagvalue, const char *funcname, int opt)
+{
+  int *errflag;
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL) {
+    fprintf(stderr, 
+            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", 
+            funcname);
+    return(1);
+  } else if (opt == 1) {
+    /* Check if flag < 0 */
+    errflag = (int *) flagvalue;
+    if (*errflag < 0) {
+      fprintf(stderr, 
+              "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", 
+              funcname, *errflag);
+      return(1); 
+    }
+  } else if (opt == 2 && flagvalue == NULL) {
+    /* Check if function returned NULL pointer - no memory allocated */
+    fprintf(stderr, 
+            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", 
+            funcname);
+    return(1);
+  }
+
+  return(0);
+}

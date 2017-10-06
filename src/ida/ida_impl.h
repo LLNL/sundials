@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4920 $
- * $Date: 2016-09-19 14:34:35 -0700 (Mon, 19 Sep 2016) $
+ * $Revision$
+ * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -72,7 +72,6 @@ typedef struct IDAMemRec {
   void          *ida_edata;          /* user pointer passed to efun           */
   
 
-  booleantype    ida_setupNonNull;   /* Does setup do something?              */
   booleantype    ida_constraintsSet; /* constraints vector present: 
                                         do constraints calc                   */
   booleantype    ida_suppressalg;    /* true means suppress algebraic vars
@@ -177,8 +176,8 @@ typedef struct IDAMemRec {
 
   /* Space requirements for IDA */
 
-  long int ida_lrw1;     /* no. of realtype words in 1 N_Vector               */
-  long int ida_liw1;     /* no. of integer words in 1 N_Vector                */
+  sunindextype ida_lrw1; /* no. of realtype words in 1 N_Vector               */
+  sunindextype ida_liw1; /* no. of integer words in 1 N_Vector                */
   long int ida_lrw;      /* number of realtype words in IDA work vectors      */
   long int ida_liw;      /* no. of integer words in IDA work vectors          */
 
@@ -274,15 +273,14 @@ typedef struct IDAMemRec {
 /*
  * -----------------------------------------------------------------
  * int (*ida_lsetup)(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,   
- *                  N_Vector resp,                                 
- *            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);  
+ *                   N_Vector resp, N_Vector tempv1, 
+ *                   N_Vector tempv2, N_Vector tempv3);  
  * -----------------------------------------------------------------
  * The job of ida_lsetup is to prepare the linear solver for       
  * subsequent calls to ida_lsolve. Its parameters are as follows:  
  *                                                                 
  * idamem - problem memory pointer of type IDAMem. See the big     
  *          typedef earlier in this file.                          
- *                                                                 
  *                                                                 
  * yyp   - the predicted y vector for the current IDA internal     
  *         step.                                                   
@@ -304,7 +302,7 @@ typedef struct IDAMemRec {
 /*
  * -----------------------------------------------------------------
  * int (*ida_lsolve)(IDAMem IDA_mem, N_Vector b, N_Vector weight,  
- *               N_Vector ycur, N_Vector ypcur, N_Vector rescur);  
+ *                   N_Vector ycur, N_Vector ypcur, N_Vector rescur);  
  * -----------------------------------------------------------------
  * ida_lsolve must solve the linear equation P x = b, where        
  * P is some approximation to the system Jacobian                  

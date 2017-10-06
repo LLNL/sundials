@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4834 $
- * $Date: 2016-08-01 16:59:05 -0700 (Mon, 01 Aug 2016) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Carol Woodward @ LLNL
  * -----------------------------------------------------------------
  * This example solves a 2D elliptic PDE
@@ -14,7 +10,7 @@
  * central differencing, and with boundary values eliminated,
  * leaving a system of size NEQ = NX*NY.
  * The nonlinear system is solved by KINSOL using the Picard
- * iteration and the BAND linear solver.
+ * iteration and the SUNBAND linear solver.
  *
  * This file is strongly based on the kinLaplace_bnd.c file 
  * developed by Radu Serban.
@@ -25,18 +21,18 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <kinsol/kinsol.h>
-#include <kinsol/kinsol_band.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
+#include <kinsol/kinsol.h>             /* access to KINSOL func., consts. */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector       */
+#include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix        */
+#include <kinsol/kinsol_direct.h>      /* access to KINDls interface      */
+#include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver  */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype */
+#include <sundials/sundials_math.h>    /* access to SUNRexp               */
 
 /* Problem Constants */
 
 #define NX   31             /* no. of points in x direction */
 #define NY   31             /* no. of points in y direction */
-/* #define NX   3 */             /* no. of points in x direction */
-/* #define NY   3 */            /* no. of points in y direction */
 #define NEQ  NX*NY          /* problem dimension */
 
 #define SKIP 3              /* no. of points skipped for printing */
@@ -52,7 +48,7 @@
    to the underlying 1-dimensional storage. 
    IJth(vdata,i,j) references the element in the vdata array for
    u at mesh point (i,j), where 1 <= i <= NX, 1 <= j <= NY.
-   The vdata array is obtained via the macro call vdata = N_VGetArrayPointer_Serial(v),
+   The vdata array is obtained via the call vdata = N_VGetArrayPointer_Serial(v),
    where v is an N_Vector. 
    The variables are ordered by the y index j, then by the x index i. */
 
@@ -61,9 +57,8 @@
 /* Private functions */
 
 static int func(N_Vector u, N_Vector f, void *user_data);
-static int jac(long int N, long int mu, long int ml, 
-	       N_Vector u, N_Vector f, DlsMat J, void *user_data,
-	       N_Vector tmp1, N_Vector tmp2);
+static int jac(N_Vector u, N_Vector f, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2);
 static void PrintOutput(N_Vector u);
 static void PrintFinalStats(void *kmem);
 static int check_flag(void *flagvalue, const char *funcname, int opt);
@@ -80,9 +75,13 @@ int main()
   N_Vector y, scale;
   int flag;
   void *kmem;
+  SUNMatrix J;
+  SUNLinearSolver LS;
 
   y = scale = NULL;
   kmem = NULL;
+  J = NULL;
+  LS = NULL;
 
   /* -------------------------
    * Print problem description
@@ -92,8 +91,7 @@ int main()
   printf("   d^2 u / dx^2 + d^2 u / dy^2 = u^3 - u + 2.0\n");
   printf(" + homogeneous Dirichlet boundary conditions\n\n");
   printf("Solution method: Anderson accelerated Picard iteration with band linear solver.\n");
-  printf("Problem size: %2ld x %2ld = %4ld\n", 
-	 (long int) NX, (long int) NY, (long int) NEQ);
+  printf("Problem size: %2ld x %2ld = %4ld\n", (long int) NX, (long int) NY, (long int) NEQ);
 
   /* --------------------------------------
    * Create vectors for solution and scales
@@ -132,13 +130,32 @@ int main()
   if (check_flag(&flag, "KINSetFuncNormTol", 1)) return(1);
 
   /* -------------------------
+   * Create band SUNMatrix
+   * ------------------------- */
+
+  J = SUNBandMatrix(NEQ, NX, NX, 2*NX);
+  if(check_flag((void *)J, "SUNBandMatrix", 0)) return(1);
+
+  /* ---------------------------
+   * Create band SUNLinearSolver
+   * --------------------------- */
+
+  LS = SUNBandLinearSolver(y, J);
+  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+
+  /* -------------------------
    * Attach band linear solver 
    * ------------------------- */
 
-  flag = KINBand(kmem, NEQ, NX, NX);
-  if (check_flag(&flag, "KINBand", 1)) return(1);
-  flag = KINDlsSetBandJacFn(kmem, jac);
-  if (check_flag(&flag, "KINDlsBandJacFn", 1)) return(1);
+  flag = KINDlsSetLinearSolver(kmem, LS, J);
+  if(check_flag(&flag, "KINDlsSetLinearSolver", 1)) return(1);
+
+  /* -------------------------
+   * Set Jacobian function
+   * ------------------------- */
+
+  flag = KINDlsSetJacFn(kmem, jac);
+  if (check_flag(&flag, "KINDlsSetJacFn", 1)) return(1);
 
   /* -------------
    * Initial guess 
@@ -172,7 +189,11 @@ int main()
   flag = KINGetFuncNorm(kmem, &fnorm);
   if (check_flag(&flag, "KINGetfuncNorm", 1)) return(1);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("\nComputed solution (||F|| = %Lg):\n\n",fnorm);
+#else
   printf("\nComputed solution (||F|| = %g):\n\n",fnorm);
+#endif  
   PrintOutput(y);
 
   PrintFinalStats(kmem);
@@ -184,6 +205,8 @@ int main()
   N_VDestroy_Serial(y);
   N_VDestroy_Serial(scale);
   KINFree(&kmem);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(J);
 
   return(0);
 }
@@ -252,10 +275,8 @@ static int func(N_Vector u, N_Vector f, void *user_data)
  * Jacobian function 
  */
 
-static int jac(long int N, long int mu, long int ml, 
-	       N_Vector u, N_Vector f, 
-	       DlsMat J, void *user_data,
-	       N_Vector tmp1, N_Vector tmp2)
+static int jac(N_Vector u, N_Vector f, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2)
 {
   realtype dx, dy;
   realtype hdc, vdc;
@@ -263,8 +284,8 @@ static int jac(long int N, long int mu, long int ml,
 
   int i, j, k;
 
-  dx = ONE/(NX+1);  
-  dy = ONE/(NY+1);
+  dx  = ONE/(NX+1);  
+  dy  = ONE/(NY+1);
   hdc = ONE/(dx*dx);
   vdc = ONE/(dy*dy);
 
@@ -279,7 +300,6 @@ static int jac(long int N, long int mu, long int ml,
      f_{i+1,j} = hdc*(u_{i,j}    -2u_{i+1,j}+u_{i+2,j})   + vdc*(u_{i+1,j-1}-2u_{i+1,j}+u_{i+1,j+1})
      f_{i,j-1} = hdc*(u_{i-1,j-1}-2u_{i,j-1}+u_{i+1,j-1}) + vdc*(u_{i,j-2}  -2u_{i,j-1}+u_{i,j})
      f_{i,j+1} = hdc*(u_{i-1,j+1}-2u_{i,j+1}+u_{i+1,j+1}) + vdc*(u_{i,j}    -2u_{i,j+1}+u_{i,j+2})
-
   */
 
   for (j=0; j <= NY-1; j++) {
@@ -288,12 +308,12 @@ static int jac(long int N, long int mu, long int ml,
       /* Evaluate diffusion coefficients */
 
       k = i + j*NX;
-      kthCol = BAND_COL(J, k);
-      BAND_COL_ELEM(kthCol,k,k) = -2.0*hdc - 2.0*vdc;
-      if ( i != (NX-1) ) BAND_COL_ELEM(kthCol,k+1,k) = hdc;
-      if ( i != 0 )      BAND_COL_ELEM(kthCol,k-1,k) = hdc;
-      if ( j != (NY-1) ) BAND_COL_ELEM(kthCol,k+NX,k) = vdc;
-      if ( j != 0 )      BAND_COL_ELEM(kthCol,k-NX,k) = vdc;
+      kthCol = SUNBandMatrix_Column(J, k);
+      SM_COLUMN_ELEMENT_B(kthCol,k,k) = -2.0*hdc - 2.0*vdc;
+      if ( i != (NX-1) ) SM_COLUMN_ELEMENT_B(kthCol,k+1,k)  = hdc;
+      if ( i != 0 )      SM_COLUMN_ELEMENT_B(kthCol,k-1,k)  = hdc;
+      if ( j != (NY-1) ) SM_COLUMN_ELEMENT_B(kthCol,k+NX,k) = vdc;
+      if ( j != 0 )      SM_COLUMN_ELEMENT_B(kthCol,k-NX,k) = vdc;
     }
   }
 
@@ -313,7 +333,7 @@ static void PrintOutput(N_Vector u)
   dx = ONE/(NX+1);
   dy = ONE/(NY+1);
 
-  udata =  N_VGetArrayPointer_Serial(u);
+  udata = N_VGetArrayPointer_Serial(u);
 
   printf("            ");
   for (i=1; i<=NX; i+= SKIP) {

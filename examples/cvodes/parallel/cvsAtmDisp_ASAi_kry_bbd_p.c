@@ -1,10 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4809 $
- * $Date: 2016-07-18 11:16:25 -0700 (Mon, 18 Jul 2016) $
- * -----------------------------------------------------------------
- * Programmer(s): Lukas Jager and Radu Serban @ LLNL
- *                Updated by Daniel R. Reynolds @ SMU
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *                Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Parallel Krylov adjoint sensitivity example problem.
  * -----------------------------------------------------------------
@@ -16,8 +13,9 @@
 #include <limits.h>
 
 #include <cvodes/cvodes.h>
-#include <cvodes/cvodes_spgmr.h> 
+#include <cvodes/cvodes_spils.h> 
 #include <cvodes/cvodes_bbdpre.h>
+#include <sunlinsol/sunlinsol_spgmr.h> 
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
@@ -168,7 +166,7 @@ typedef struct {
  */
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int f_local(long int Nlocal, realtype t, N_Vector y, 
+static int f_local(sunindextype Nlocal, realtype t, N_Vector y, 
                    N_Vector ydot, void *user_data);
 
 static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data);
@@ -176,7 +174,7 @@ static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data);
 
 static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, 
               void *user_dataB);
-static int fB_local(long int NlocalB, realtype t, 
+static int fB_local(sunindextype NlocalB, realtype t, 
                     N_Vector y, N_Vector yB, N_Vector yBdot, 
                     void *user_dataB);
 
@@ -190,9 +188,9 @@ static int fQB(realtype t, N_Vector y, N_Vector yB,
  */
 
 static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
-                    long int *neq, long int *l_neq);
+                    sunindextype *neq, sunindextype *l_neq);
 static void SetSource(ProblemData d);
-static void f_comm(long int Nlocal, realtype t, N_Vector y, void *user_data);
+static void f_comm(sunindextype Nlocal, realtype t, N_Vector y, void *user_data);
 static void Load_yext(realtype *src, ProblemData d);
 static void PrintHeader();
 static void PrintFinalStats(void *cvode_mem);
@@ -212,17 +210,18 @@ int main(int argc, char *argv[])
   int npes, npes_needed;
   int myId;
  
-  long int neq, l_neq;
+  sunindextype neq, l_neq;
 
   void *cvode_mem;
+  SUNLinearSolver LS;
   N_Vector y, q;
   realtype abstol, reltol, abstolQ, reltolQ;
-  long int mudq, mldq, mukeep, mlkeep;
+  sunindextype mudq, mldq, mukeep, mlkeep;
 
   int indexB;
   N_Vector yB, qB;
   realtype abstolB, reltolB, abstolQB, reltolQB;
-  long int mudqB, mldqB, mukeepB, mlkeepB;
+  sunindextype mudqB, mldqB, mukeepB, mlkeepB;
 
   realtype tret, *qdata, G;
 
@@ -278,8 +277,9 @@ int main(int argc, char *argv[])
   reltol = RTOL;   
   flag = CVodeSStolerances(cvode_mem, reltol, abstol);
 
-  /* attach linear solver */
-  flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
+  /* create and attach linear solver */
+  LS = SUNSPGMR(y, PREC_LEFT, 0);
+  flag = CVSpilsSetLinearSolver(cvode_mem, LS);
   
   /* Attach preconditioner and linear solver modules */
   mudq = mldq = d->l_m[0]+1;
@@ -339,7 +339,7 @@ int main(int argc, char *argv[])
   flag = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
 
   /* Attach preconditioner and linear solver modules */
-  flag = CVSpgmrB(cvode_mem, indexB, PREC_LEFT, 0); 
+  flag = CVSpilsSetLinearSolverB(cvode_mem, indexB, LS);
   mudqB = mldqB = d->l_m[0]+1;
   mukeepB = mlkeepB = 2;  
   flag = CVBBDPrecInitB(cvode_mem, indexB, l_neq, mudqB, mldqB, 
@@ -382,6 +382,7 @@ int main(int argc, char *argv[])
   N_VDestroy_Parallel(yB);
 
   CVodeFree(&cvode_mem);
+  SUNLinSolFree(LS);
 
   MPI_Finalize();
 
@@ -402,7 +403,7 @@ int main(int argc, char *argv[])
  */
 
 static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
-                    long int *neq, long int *l_neq)
+                    sunindextype *neq, sunindextype *l_neq)
 {
   int n[DIM], nd[DIM];
   int dim, size;
@@ -571,7 +572,7 @@ static void SetSource(ProblemData d)
  *------------------------------------------------------------------
  */
 
-static void f_comm(long int N_local, realtype t, N_Vector y, void *user_data)
+static void f_comm(sunindextype N_local, realtype t, N_Vector y, void *user_data)
 {
   int id, n[DIM], proc_cond[DIM], nbr[DIM][2];
   ProblemData d;
@@ -684,7 +685,7 @@ static void f_comm(long int N_local, realtype t, N_Vector y, void *user_data)
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   ProblemData d;
-  long int l_neq=1;
+  sunindextype l_neq=1;
   int dim;
 
   d = (ProblemData) user_data;
@@ -699,7 +700,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   return(0);
 }
 
-static int f_local(long int Nlocal, realtype t, N_Vector y, 
+static int f_local(sunindextype Nlocal, realtype t, N_Vector y, 
                    N_Vector ydot, void *user_data)
 {
   realtype *Ydata, *dydata, *pdata;
@@ -823,7 +824,7 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot,
               void *user_dataB)
 {
   ProblemData d;
-  long int l_neq=1;
+  sunindextype l_neq=1;
   int dim;
 
   d = (ProblemData) user_dataB;
@@ -838,7 +839,7 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot,
   return(0);
 }
 
-static int fB_local(long int NlocalB, realtype t, 
+static int fB_local(sunindextype NlocalB, realtype t, 
                     N_Vector y, N_Vector yB, N_Vector dyB, 
                     void *user_dataB)
 {
@@ -1016,10 +1017,10 @@ static void PrintHeader()
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int lenrw, leniw ;
-  long int lenrwSPGMR, leniwSPGMR;
+  long int lenrw, leniw;
+  long int lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
-  long int nli, npe, nps, ncfl, nfeSPGMR;
+  long int nli, npe, nps, ncfl, nfeLS;
   int flag;
 
   flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
@@ -1030,18 +1031,18 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
 
-  flag = CVSpilsGetWorkSpace(cvode_mem, &lenrwSPGMR, &leniwSPGMR);
+  flag = CVSpilsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
   flag = CVSpilsGetNumLinIters(cvode_mem, &nli);
   flag = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
   flag = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
   flag = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
-  flag = CVSpilsGetNumRhsEvals(cvode_mem, &nfeSPGMR);
+  flag = CVSpilsGetNumRhsEvals(cvode_mem, &nfeLS);
 
   printf("\nFinal Statistics.. \n\n");
   printf("lenrw   = %6ld     leniw = %6ld\n", lenrw, leniw);
-  printf("llrw    = %6ld     lliw  = %6ld\n", lenrwSPGMR, leniwSPGMR);
+  printf("llrw    = %6ld     lliw  = %6ld\n", lenrwLS, leniwLS);
   printf("nst     = %6ld\n"                  , nst);
-  printf("nfe     = %6ld     nfel  = %6ld\n"  , nfe, nfeSPGMR);
+  printf("nfe     = %6ld     nfel  = %6ld\n"  , nfe, nfeLS);
   printf("nni     = %6ld     nli   = %6ld\n"  , nni, nli);
   printf("nsetups = %6ld     netf  = %6ld\n"  , nsetups, netf);
   printf("npe     = %6ld     nps   = %6ld\n"  , npe, nps);

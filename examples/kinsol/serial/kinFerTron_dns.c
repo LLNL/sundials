@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4834 $
- * $Date: 2016-08-01 16:59:05 -0700 (Mon, 01 Aug 2016) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example (serial):
@@ -13,31 +9,30 @@
  *             C.A. Floudas, P.M. Pardalos et al.
  *             Kluwer Academic Publishers, 1999.
  * Test problem 4 from Section 14.1, Chapter 14: Ferraris and Tronconi
- * 
+ *
  * This problem involves a blend of trigonometric and exponential terms.
  *    0.5 sin(x1 x2) - 0.25 x2/pi - 0.5 x1 = 0
  *    (1-0.25/pi) ( exp(2 x1)-e ) + e x2 / pi - 2 e x1 = 0
  * such that
  *    0.25 <= x1 <=1.0
  *    1.5 <= x2 <= 2 pi
- * 
+ *
  * The treatment of the bound constraints on x1 and x2 is done using
  * the additional variables
  *    l1 = x1 - x1_min >= 0
  *    L1 = x1 - x1_max <= 0
  *    l2 = x2 - x2_min >= 0
  *    L2 = x2 - x2_max >= 0
- * 
+ *
  * and using the constraint feature in KINSOL to impose
  *    l1 >= 0    l2 >= 0
  *    L1 <= 0    L2 <= 0
- * 
+ *
  * The Ferraris-Tronconi test problem has two known solutions.
- * The nonlinear system is solved by KINSOL using different 
- * combinations of globalization and Jacobian update strategies 
+ * The nonlinear system is solved by KINSOL using different
+ * combinations of globalization and Jacobian update strategies
  * and with different initial guesses (leading to one or the other
  * of the known solutions).
- *
  *
  * Constraints are imposed to make all components of the solution
  * positive.
@@ -48,19 +43,21 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <kinsol/kinsol.h>
-#include <kinsol/kinsol_dense.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
+#include <kinsol/kinsol.h>             /* access to KINSOL func., consts. */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector       */
+#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix       */
+#include <kinsol/kinsol_direct.h>      /* access to KINDls interface      */
+#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype */
+#include <sundials/sundials_math.h>    /* access to SUNRexp               */
 
 /* Problem Constants */
 
 #define NVAR   2
 #define NEQ    3*NVAR
 
-#define FTOL   RCONST(1.e-5)  /* function tolerance */
-#define STOL   RCONST(1.e-5) /* step tolerance */
+#define FTOL   RCONST(1.e-5) /* function tolerance */
+#define STOL   RCONST(1.e-5) /* step tolerance     */
 
 #define ZERO   RCONST(0.0)
 #define PT25   RCONST(0.25)
@@ -105,10 +102,14 @@ int main()
   N_Vector u1, u2, u, s, c;
   int glstr, mset, flag;
   void *kmem;
+  SUNMatrix J;
+  SUNLinearSolver LS;
 
   u1 = u2 = u = NULL;
   s = c = NULL;
   kmem = NULL;
+  J = NULL;
+  LS = NULL;
   data = NULL;
 
   /* User data */
@@ -163,10 +164,17 @@ int main()
   flag = KINInit(kmem, func, u);
   if (check_flag(&flag, "KINInit", 1)) return(1);
 
-  /* Call KINDense to specify the linear solver */
+  /* Create dense SUNMatrix */
+  J = SUNDenseMatrix(NEQ, NEQ);
+  if(check_flag((void *)J, "SUNDenseMatrix", 0)) return(1);
 
-  flag = KINDense(kmem, NEQ);
-  if (check_flag(&flag, "KINDense", 1)) return(1);
+  /* Create dense SUNLinearSolver object */
+  LS = SUNDenseLinearSolver(u, J);
+  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+
+  /* Attach the matrix and linear solver to KINSOL */
+  flag = KINDlsSetLinearSolver(kmem, LS, J);
+  if(check_flag(&flag, "KINDlsSetLinearSolver", 1)) return(1);
 
   /* Print out the problem size, solution parameters, initial guess. */
   PrintHeader(fnormtol, scsteptol);
@@ -248,6 +256,8 @@ int main()
   N_VDestroy_Serial(s);
   N_VDestroy_Serial(c);
   KINFree(&kmem);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(J);
   free(data);
 
   return(0);

@@ -1,24 +1,20 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4075 $
- * $Date: 2014-04-24 10:46:58 -0700 (Thu, 24 Apr 2014) $
- * ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
+ *                David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * Fortran/C interface routines for KINSOL/KINDENSE, for the case
+ * Fortran/C interface routines for KINSOL/KINDLS, for the case
  * of a user-supplied Jacobian approximation routine.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,7 +22,8 @@
 #include "fkinsol.h"     /* prototypes of standard interfaces and global vars.*/
 #include "kinsol_impl.h" /* definition of KINMem type                         */
 
-#include <kinsol/kinsol_dense.h>
+#include <kinsol/kinsol_direct.h>
+#include <sunmatrix/sunmatrix_dense.h>
 
 /*
  * ----------------------------------------------------------------
@@ -38,8 +35,9 @@
 extern "C" {
 #endif
 
-extern void FK_DJAC(long int*, realtype*, realtype*, realtype*,
-		    realtype*, realtype*, int*);
+extern void FK_DJAC(long int* N, realtype* uudata , realtype* fdata,
+                    realtype* jacdata, realtype* v1, realtype* v2,
+                    int* ier);
 
 #ifdef __cplusplus
 }
@@ -54,10 +52,10 @@ extern void FK_DJAC(long int*, realtype*, realtype*, realtype*,
 void FKIN_DENSESETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = KINDlsSetDenseJacFn(KIN_kinmem, NULL);
+    *ier = KINDlsSetJacFn(KIN_kinmem, NULL);
   }
   else {
-    *ier = KINDlsSetDenseJacFn(KIN_kinmem, FKINDenseJac);
+    *ier = KINDlsSetJacFn(KIN_kinmem, FKINDenseJac);
   }
   return;
 }
@@ -69,16 +67,16 @@ void FKIN_DENSESETJAC(int *flag, int *ier)
  * C function FKINDenseJac interfaces between KINSOL and a Fortran
  * subroutine FKDJAC for solution of a linear system with dense
  * Jacobian approximation. Addresses are passed to FKDJAC, using
- * the macro DENSE_COL from DENSE and the routine N_VGetArrayPointer
- * from NVECTOR. Auxiliary data is assumed to be communicated by
- * Common.
+ * the SUNDenseMatrix_Columns function. Auxiliary data is assumed
+ * to be communicated by Common.
  * ----------------------------------------------------------------
  */
 
-int FKINDenseJac(long int N, N_Vector uu, N_Vector fval,
-		 DlsMat J, void *user_data, N_Vector vtemp1, N_Vector vtemp2)
+int FKINDenseJac(N_Vector uu, N_Vector fval, SUNMatrix J,
+                 void *user_data, N_Vector vtemp1, N_Vector vtemp2)
 {
   realtype *uu_data, *fval_data, *jacdata, *v1_data, *v2_data;
+  long int N;
   int ier;
 
   /* Initialize all pointers to NULL */
@@ -96,7 +94,8 @@ int FKINDenseJac(long int N, N_Vector uu, N_Vector fval,
   v1_data   = N_VGetArrayPointer(vtemp1);
   v2_data   = N_VGetArrayPointer(vtemp2);
 
-  jacdata = DENSE_COL(J,0);
+  N       = SUNDenseMatrix_Columns(J);
+  jacdata = SUNDenseMatrix_Column(J,0);
 
   /* Call user-supplied routine */
   FK_DJAC(&N, uu_data, fval_data, jacdata, v1_data, v2_data, &ier);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4272 $
- * $Date: 2014-12-02 11:19:41 -0800 (Tue, 02 Dec 2014) $
+ * $Revision$
+ * $Date$
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -37,17 +37,17 @@
  * -----------------------------------------------------
  */
 
-long int BandGBTRF(DlsMat A, long int *p)
+sunindextype BandGBTRF(DlsMat A, sunindextype *p)
 {
   return(bandGBTRF(A->cols, A->M, A->mu, A->ml, A->s_mu, p));
 }
 
-void BandGBTRS(DlsMat A, long int *p, realtype *b)
+void BandGBTRS(DlsMat A, sunindextype *p, realtype *b)
 {
   bandGBTRS(A->cols, A->M, A->s_mu, A->ml, p, b);
 }
 
-void BandCopy(DlsMat A, DlsMat B, long int copymu, long int copyml)
+void BandCopy(DlsMat A, DlsMat B, sunindextype copymu, sunindextype copyml)
 {
   bandCopy(A->cols, B->cols, A->M, A->s_mu, B->s_mu, copymu, copyml);
 }
@@ -68,10 +68,10 @@ void BandMatvec(DlsMat A, realtype *x, realtype *y)
  * -----------------------------------------------------
  */
 
-long int bandGBTRF(realtype **a, long int n, long int mu, long int ml, long int smu, long int *p)
+sunindextype bandGBTRF(realtype **a, sunindextype n, sunindextype mu, sunindextype ml, sunindextype smu, sunindextype *p)
 {
-  long int c, r, num_rows;
-  long int i, j, k, l, storage_l, storage_k, last_col_k, last_row_k;
+  sunindextype c, r, num_rows;
+  sunindextype i, j, k, l, storage_l, storage_k, last_col_k, last_row_k;
   realtype *a_c, *col_k, *diag_k, *sub_diag_k, *col_j, *kptr, *jptr;
   realtype max, temp, mult, a_kj;
   booleantype swap;
@@ -174,9 +174,9 @@ long int bandGBTRF(realtype **a, long int n, long int mu, long int ml, long int 
   return(0);
 }
 
-void bandGBTRS(realtype **a, long int n, long int smu, long int ml, long int *p, realtype *b)
+void bandGBTRS(realtype **a, sunindextype n, sunindextype smu, sunindextype ml, sunindextype *p, realtype *b)
 {
-  long int k, l, i, first_row_k, last_row_k;
+  sunindextype k, l, i, first_row_k, last_row_k;
   realtype mult, *diag_k;
   
   /* Solve Ly = Pb, store solution y in b */
@@ -206,10 +206,10 @@ void bandGBTRS(realtype **a, long int n, long int smu, long int ml, long int *p,
   }
 }
 
-void bandCopy(realtype **a, realtype **b, long int n, long int a_smu, long int b_smu, 
-              long int copymu, long int copyml)
+void bandCopy(realtype **a, realtype **b, sunindextype n, sunindextype a_smu, sunindextype b_smu, 
+              sunindextype copymu, sunindextype copyml)
 {
-  long int i, j, copySize;
+  sunindextype i, j, copySize;
   realtype *a_col_j, *b_col_j;
 
   copySize = copymu + copyml + 1;
@@ -222,9 +222,9 @@ void bandCopy(realtype **a, realtype **b, long int n, long int a_smu, long int b
   }
 }
 
-void bandScale(realtype c, realtype **a, long int n, long int mu, long int ml, long int smu)
+void bandScale(realtype c, realtype **a, sunindextype n, sunindextype mu, sunindextype ml, sunindextype smu)
 {
-  long int i, j, colSize;
+  sunindextype i, j, colSize;
   realtype *col_j;
 
   colSize = mu + ml + 1;
@@ -236,18 +236,18 @@ void bandScale(realtype c, realtype **a, long int n, long int mu, long int ml, l
   }
 }
 
-void bandAddIdentity(realtype **a, long int n, long int smu)
+void bandAddIdentity(realtype **a, sunindextype n, sunindextype smu)
 {
-  long int j;
+  sunindextype j;
  
   for(j=0; j < n; j++)
     a[j][smu] += ONE;
 }
 
-void bandMatvec(realtype **a, realtype *x, realtype *y, long int n, 
-		long int mu, long int ml, long int smu)
+void bandMatvec(realtype **a, realtype *x, realtype *y, sunindextype n, 
+		sunindextype mu, sunindextype ml, sunindextype smu)
 {
-  long int i, j, is, ie;
+  sunindextype i, j, is, ie;
   realtype *col_j;
 
   for (i=0; i<n; i++)

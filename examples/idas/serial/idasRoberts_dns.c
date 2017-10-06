@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4834 $
- * $Date: 2016-08-01 16:59:05 -0700 (Mon, 01 Aug 2016) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -21,19 +17,21 @@
  * feature to find the points at which y1 = 1e-4 or at which
  * y3 = 0.01.
  *
- * The problem is solved with IDA using IDADENSE for the linear
+ * The problem is solved with IDA using the DENSE linear
  * solver, with a user-supplied Jacobian. Output is printed at
  * t = .4, 4, 40, ..., 4e10.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <math.h>
 
-#include <idas/idas.h>
-#include <idas/idas_dense.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_math.h>
+#include <idas/idas.h>                 /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
+#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
+#include <idas/idas_direct.h>          /* access to IDADls interface           */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Problem Constants */
 
@@ -45,7 +43,7 @@
 
 /* Macro to define dense matrix elements, indexed from 1. */
 
-#define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1)
+#define IJth(A,i,j) SM_ELEMENT_D(A,i-1,j-1)
 
 /* Prototypes of functions called by IDA */
 
@@ -55,9 +53,9 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp,
 static int grob(realtype t, N_Vector yy, N_Vector yp,
                 realtype *gout, void *user_data);
 
-int jacrob(long int Neq, realtype tt,  realtype cj, 
+int jacrob(realtype tt,  realtype cj, 
            N_Vector yy, N_Vector yp, N_Vector resvec,
-           DlsMat JJ, void *user_data,
+           SUNMatrix JJ, void *user_data,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Prototypes of private functions */
@@ -81,10 +79,14 @@ int main(void)
   realtype t0, tout1, tout, tret;
   int iout, retval, retvalr;
   int rootsfound[2];
+  SUNMatrix A;
+  SUNLinearSolver LS;
 
   mem = NULL;
   yy = yp = avtol = NULL;
   yval = ypval = atval = NULL;
+  A = NULL;
+  LS = NULL;
 
   /* Allocate N-vectors. */
   yy = N_VNew_Serial(NEQ);
@@ -95,19 +97,19 @@ int main(void)
   if(check_flag((void *)avtol, "N_VNew_Serial", 0)) return(1);
 
   /* Create and initialize  y, y', and absolute tolerance vectors. */
-  yval  = N_VGetArrayPointer_Serial(yy);
+  yval  = N_VGetArrayPointer(yy);
   yval[0] = ONE;
   yval[1] = ZERO;
   yval[2] = ZERO;
 
-  ypval = N_VGetArrayPointer_Serial(yp);
+  ypval = N_VGetArrayPointer(yp);
   ypval[0]  = RCONST(-0.04);
   ypval[1]  = RCONST(0.04);
   ypval[2]  = ZERO;  
 
   rtol = RCONST(1.0e-4);
 
-  atval = N_VGetArrayPointer_Serial(avtol);
+  atval = N_VGetArrayPointer(avtol);
   atval[0] = RCONST(1.0e-8);
   atval[1] = RCONST(1.0e-6);
   atval[2] = RCONST(1.0e-6);
@@ -118,26 +120,37 @@ int main(void)
 
   PrintHeader(rtol, avtol, yy);
 
-  /* Call IDACreate and IDAMalloc to initialize IDA memory */
+  /* Call IDACreate and IDAInit to initialize IDA memory */
   mem = IDACreate();
   if(check_flag((void *)mem, "IDACreate", 0)) return(1);
   retval = IDAInit(mem, resrob, t0, yy, yp);
   if(check_flag(&retval, "IDAInit", 1)) return(1);
+  /* Call IDASVtolerances to set tolerances */
   retval = IDASVtolerances(mem, rtol, avtol);
   if(check_flag(&retval, "IDASVtolerances", 1)) return(1);
 
   /* Free avtol */
-  N_VDestroy_Serial(avtol);
+  N_VDestroy(avtol);
 
   /* Call IDARootInit to specify the root function grob with 2 components */
   retval = IDARootInit(mem, 2, grob);
   if (check_flag(&retval, "IDARootInit", 1)) return(1);
 
-  /* Call IDADense and set up the linear solver. */
-  retval = IDADense(mem, NEQ);
-  if(check_flag(&retval, "IDADense", 1)) return(1);
-  retval = IDADlsSetDenseJacFn(mem, jacrob);
-  if(check_flag(&retval, "IDADlsSetDenseJacFn", 1)) return(1);
+  /* Create dense SUNMatrix for use in linear solves */
+  A = SUNDenseMatrix(NEQ, NEQ);
+  if(check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
+
+  /* Create dense SUNLinearSolver object */
+  LS = SUNDenseLinearSolver(yy, A);
+  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  retval = IDADlsSetLinearSolver(mem, LS, A);
+  if(check_flag(&retval, "IDADlsSetLinearSolver", 1)) return(1);
+
+  /* Set the user-supplied Jacobian routine */
+  retval = IDADlsSetJacFn(mem, jacrob);
+  if(check_flag(&retval, "IDADlsSetJacFn", 1)) return(1);
 
   /* In loop, call IDASolve, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached. */
@@ -170,8 +183,10 @@ int main(void)
   /* Free memory */
 
   IDAFree(&mem);
-  N_VDestroy_Serial(yy);
-  N_VDestroy_Serial(yp);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
+  N_VDestroy(yy);
+  N_VDestroy(yp);
 
   return(0);
   
@@ -191,9 +206,9 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data
 {
   realtype *yval, *ypval, *rval;
 
-  yval = N_VGetArrayPointer_Serial(yy); 
-  ypval = N_VGetArrayPointer_Serial(yp); 
-  rval = N_VGetArrayPointer_Serial(rr);
+  yval = N_VGetArrayPointer(yy); 
+  ypval = N_VGetArrayPointer(yp); 
+  rval = N_VGetArrayPointer(rr);
 
   rval[0]  = RCONST(-0.04)*yval[0] + RCONST(1.0e4)*yval[1]*yval[2];
   rval[1]  = -rval[0] - RCONST(3.0e7)*yval[1]*yval[1] - ypval[1];
@@ -212,7 +227,7 @@ static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
 {
   realtype *yval, y1, y3;
 
-  yval = N_VGetArrayPointer_Serial(yy); 
+  yval = N_VGetArrayPointer(yy); 
   y1 = yval[0]; y3 = yval[2];
   gout[0] = y1 - RCONST(0.0001);
   gout[1] = y3 - RCONST(0.01);
@@ -224,14 +239,14 @@ static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
  * Define the Jacobian function. 
  */
 
-int jacrob(long int Neq, realtype tt,  realtype cj, 
+int jacrob(realtype tt,  realtype cj, 
            N_Vector yy, N_Vector yp, N_Vector resvec,
-           DlsMat JJ, void *user_data,
+           SUNMatrix JJ, void *user_data,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   realtype *yval;
-  
-  yval = N_VGetArrayPointer_Serial(yy);
+
+  yval = N_VGetArrayPointer(yy);
 
   IJth(JJ,1,1) = RCONST(-0.04) - cj;
   IJth(JJ,2,1) = RCONST(0.04);
@@ -260,12 +275,12 @@ static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y)
 {
   realtype *atval, *yval;
 
-  atval  = N_VGetArrayPointer_Serial(avtol);
-  yval  = N_VGetArrayPointer_Serial(y);
+  atval  = N_VGetArrayPointer(avtol);
+  yval  = N_VGetArrayPointer(y);
 
   printf("\nidasRoberts_dns: Robertson kinetics DAE serial example problem for IDA.\n");
   printf("               Three equation chemical kinetics problem.\n\n");
-  printf("Linear solver: IDADENSE, with user-supplied Jacobian.\n");
+  printf("Linear solver: DENSE, with user-supplied Jacobian.\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg %Lg %Lg \n",
          rtol, atval[0],atval[1],atval[2]);
@@ -300,7 +315,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
   long int nst;
   realtype hused;
 
-  yval  = N_VGetArrayPointer_Serial(y);
+  yval  = N_VGetArrayPointer(y);
 
   retval = IDAGetLastOrder(mem, &kused);
   check_flag(&retval, "IDAGetLastOrder", 1);

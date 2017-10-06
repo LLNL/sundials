@@ -1,9 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 4294 $
-C     $Date: 2014-12-15 13:18:40 -0800 (Mon, 15 Dec 2014) $
-C     ----------------------------------------------------------------
-C     FCVODE Example Problem: Advection-diffusion, banded user
-C     Jacobian.
+C     FCVODE Example Problem: Advection-diffusion, band linear solver
+C                             with banded user Jacobian.
 C
 C     The following is a simple example problem with a banded
 C     Jacobian. The problem is the semi-discrete form of the
@@ -25,15 +22,15 @@ C     ----------------------------------------------------------------
 C
       IMPLICIT NONE
 C
-      INTEGER MX, MY, MXMY
+      INTEGER*4 MX, MY, MXMY
       PARAMETER (MX=10, MY=5)
       PARAMETER (MXMY=MX*MY)
 C     
       DOUBLE PRECISION XMAX, YMAX
       DATA XMAX/2.0D0/, YMAX/1.0D0/
 C
-      INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNJE
-      INTEGER IER, METH, ITMETH, IATOL, ITASK, JOUT
+      INTEGER*4 LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNJE
+      INTEGER*4 IER, METH, ITMETH, IATOL, ITASK, JOUT
 C The following declaration specification should match C type long int.
       INTEGER*8 NEQ, IOUT(25), IPAR(2), MU, ML
       DOUBLE PRECISION RTOL, ATOL, T0, T, TOUT, DTOUT, UNORM 
@@ -67,27 +64,50 @@ C
         STOP
       ENDIF
 C
+C     initialize banded matrix module
+      call FSUNBANDMATINIT(1, NEQ, MU, ML, MU+ML, IER)
+      IF (IER .NE. 0) THEN
+        WRITE(6,25) IER
+ 25     FORMAT(///' SUNDIALS_ERROR: FSUNBANDEMATINIT IER = ', I5)
+        STOP
+      ENDIF
+C
+C     initialize banded linear solver module
+      call FSUNBANDLINSOLINIT(1, IER)
+      IF (IER .NE. 0) THEN
+        WRITE(6,28) IER
+ 28     FORMAT(///' SUNDIALS_ERROR: FSUNBANDLINSOLINIT IER = ', I5)
+        STOP
+      ENDIF
+C
       CALL FCVMALLOC(T0, U, METH, ITMETH, IATOL, RTOL, ATOL,
      1               IOUT, ROUT, IPAR, RPAR, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
  30     FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER = ', I5)
         STOP
-        ENDIF
+      ENDIF
 C
-      CALL FCVBAND(NEQ, MU, ML, IER)
+C     attach matrix and linear solver modules to CVDls interface
+      CALL FCVDLSINIT(IER)
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
- 40     FORMAT(///' SUNDIALS_ERROR: FCVBAND returned IER = ', I5)
+ 40     FORMAT(///' SUNDIALS_ERROR: FCVDLSINIT returned IER = ',I5)
         CALL FCVFREE
         STOP
       ENDIF
 C
       CALL FCVBANDSETJAC(1, IER)
+      IF (IER .NE. 0) THEN
+        WRITE(6,45) IER
+ 45     FORMAT(///' SUNDIALS_ERROR: FCVDENSESETJAC returned IER = ',I5)
+        CALL FCVFREE
+        STOP
+      ENDIF
 C
       CALL MAXNORM(NEQ, U, UNORM)
-      WRITE(6,45) T0, UNORM
- 45   FORMAT(' At t = ', F6.2, '  max.norm(u) = ', E14.6)
+      WRITE(6,48) T0, UNORM
+ 48   FORMAT(' At t = ', F6.2, '  max.norm(u) = ', E14.6)
 C
       TOUT = DTOUT
       DO 70 JOUT = 1, 10
@@ -132,10 +152,10 @@ C Load IPAR and RPAR with problem constants and U0 with initial values
 C
 C The following declaration specification should match C type long int.
       INTEGER*8 IPAR(*)
-      INTEGER MX, MY
+      INTEGER*4 MX, MY
       DOUBLE PRECISION XMAX, YMAX, U0(MY,MX), RPAR(*)
 C
-      INTEGER I, J
+      INTEGER*4 I, J
       DOUBLE PRECISION DX, DY, X, Y, HDCOEF, HACOEF, VDCOEF
 C
 C Problem constants
@@ -190,9 +210,9 @@ C
       DOUBLE PRECISION T, U(*), UDOT(*), RPAR(*)
 C The following declaration specification should match C type long int.
       INTEGER*8 IPAR(*)
-      INTEGER IER
+      INTEGER*4 IER
 C
-      INTEGER I, MX, IOFF, MY, J, IJ
+      INTEGER*4 I, MX, IOFF, MY, J, IJ
       DOUBLE PRECISION UIJ, UDN, UUP, ULT, URT, HDIFF, HADV, VDIFF
       DOUBLE PRECISION DX, DY, HDCOEF, HACOEF, VDCOEF
 C
@@ -244,12 +264,12 @@ C Load banded Jacobian
 C
 C The following declaration specification should match C type long int.
       INTEGER*8 N, MU, ML, MDIM, IPAR(*)
-      INTEGER IER
+      INTEGER*4 IER
       DOUBLE PRECISION T, U(*), FU(*), BJAC(MDIM,*), H, RPAR(*)
       DOUBLE PRECISION V1(*), V2(*), V3(*)
 C
-      INTEGER MBAND, MX, MY
-      INTEGER I, J, K, IOFF, MU1, MU2
+      INTEGER*4 MBAND, MX, MY
+      INTEGER*4 I, J, K, IOFF, MU1, MU2
       DOUBLE PRECISION DX, DY, HDCOEF, HACOEF, VDCOEF
 C
 C Extract constants from IPAR and RPAR

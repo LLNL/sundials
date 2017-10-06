@@ -14,9 +14,6 @@ C
 C     All rights reserved.
 C     For details, see the LICENSE file.
 C     LLNS/SMU Copyright End
-C     Copyright (c) 2013, Southern Methodist University.
-C     All rights reserved.
-C     For details, see the LICENSE file.
 C     ----------------------------------------------------------------
 C     FARKODE Example Problem: Robertson kinetics, Lapack linear solver
 C                             with dense user Jacobian.
@@ -43,6 +40,9 @@ C     Jacobian routine, and prints results at t = .4, 4., ..., 4.e10.
 C     It uses ITOL = 2 and ATOL much smaller for y2 than y1 or y3
 C     because y2 has much smaller values. At the end of the run,
 C     various counters of interest are printed.
+C
+C     Note that this problem should only work with SUNDIALS configured
+C     to use 'realtype' as 'double' and 'sunindextype' as '32bit'
 C     ----------------------------------------------------------------
 C
       IMPLICIT NONE
@@ -50,7 +50,8 @@ C
       INTEGER*4 IER, LNST, LNST_ATT, LNFE, LNFI, LNSETUP, LNNI, LNCF
       INTEGER*4 LNETF, LNJE, LNGE, METH, ITOL, ITASK, JOUT, NOUT
       INTEGER*4 IERROOT, INFO(2)
-      INTEGER*8 I, IOUT(22), IPAR, NEQ, MXSTEPS, MXNLI, PRED, MXETF
+      INTEGER*4 I, NEQ
+      INTEGER*8 IOUT(22), IPAR, MXSTEPS, MXNLI, PRED, MXETF
       DOUBLE PRECISION RTOL, T, T0, TOUT, H0, NLCONV
       DOUBLE PRECISION Y(3), ATOL(3), ROUT(6), RPAR
 C
@@ -90,7 +91,22 @@ C
         STOP
       ENDIF
 C
-
+C     initialize dense matrix module
+      call FSUNDENSEMATINIT(4, NEQ, NEQ, IER)
+      IF (IER .NE. 0) THEN
+        WRITE(6,25) IER
+ 25     FORMAT(///' SUNDIALS_ERROR: FSUNDENSEMATINIT IER = ', I5)
+        STOP
+      ENDIF
+C
+C     initialize LAPACK dense linear solver module
+      call FSUNLAPACKDENSEINIT(4, IER)
+      IF (IER .NE. 0) THEN
+        WRITE(6,28) IER
+ 28     FORMAT(///' SUNDIALS_ERROR: FSUNLAPACKDENSEINIT IER = ', I5)
+        STOP
+      ENDIF
+C
       CALL FARKMALLOC(T0, Y, METH, ITOL, RTOL, ATOL,
      1                IOUT, ROUT, IPAR, RPAR, IER)
       IF (IER .NE. 0) THEN
@@ -139,21 +155,28 @@ C
 c
       CALL FARKROOTINIT(2, IER)
       IF (IER .NE. 0) THEN
-         WRITE(6,45) IER
- 45      FORMAT(///' SUNDIALS_ERROR: FARKROOTINIT returned IER = ', I5)
+         WRITE(6,38) IER
+ 38      FORMAT(///' SUNDIALS_ERROR: FARKROOTINIT returned IER = ', I5)
          CALL FARKFREE
          STOP
       ENDIF
 C
-      CALL FARKLAPACKDENSE(NEQ, IER)
+C     attach matrix and linear solver modules to ARKDls interface
+      CALL FARKDLSINIT(IER)
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
- 40     FORMAT(///' SUNDIALS_ERROR: FARKLAPACKDENSE returned IER = ',I5)
+ 40     FORMAT(///' SUNDIALS_ERROR: FARKDLSINIT returned IER = ',I5)
         CALL FARKFREE
         STOP
       ENDIF
 C
-      CALL FARKLAPACKDENSESETJAC(1, IER)
+      CALL FARKDENSESETJAC(1, IER)
+      IF (IER .NE. 0) THEN
+        WRITE(6,45) IER
+ 45     FORMAT(///' SUNDIALS_ERROR: FARKDENSESETJAC returned IER = ',I5)
+        CALL FARKFREE
+        STOP
+      ENDIF
 C
       DO WHILE(JOUT .LT. NOUT)
 C
@@ -227,7 +250,8 @@ C     ----------------------------------------------------------------
 C Fortran routine for right-hand side function, fi
       IMPLICIT NONE
 C
-      INTEGER*4 IPAR(*), IER
+      INTEGER*8 IPAR(*)
+      INTEGER*4 IER
       DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
 C
       YDOT(1) = -0.04D0 * Y(1) + 1.0D4 * Y(2) * Y(3)
@@ -245,7 +269,8 @@ C     ----------------------------------------------------------------
 C Fortran routine for right-hand side function, fe
       IMPLICIT NONE
 C
-      INTEGER*4 IPAR(*), IER
+      INTEGER*8 IPAR(*)
+      INTEGER*4 IER
       DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
 C
       YDOT(1) = 0.D0
@@ -264,7 +289,8 @@ C Fortran routine for root finding
       IMPLICIT NONE
 C
       DOUBLE PRECISION T, Y(*), G(*), RPAR(*)
-      INTEGER*4 IPAR(*), IER
+      INTEGER*8 IPAR(*)
+      INTEGER*4 IER
 C
       G(1) = Y(1) - 1.0D-4
       G(2) = Y(3) - 1.0D-2
@@ -281,8 +307,8 @@ C     ----------------------------------------------------------------
 C Fortran routine for dense user-supplied Jacobian.
       IMPLICIT NONE
 C
-      INTEGER*4 IER
-      INTEGER*8 N, IPAR(*)
+      INTEGER*4 IER, N
+      INTEGER*8 IPAR(*)
       DOUBLE PRECISION T, Y(*), FY(*), JAC(N,*), H, RPAR(*)
       DOUBLE PRECISION V1(*), V2(*), V3(*)
 C

@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4398 $
- * $Date: 2015-02-28 14:29:35 -0800 (Sat, 28 Feb 2015) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -18,33 +14,27 @@
  * -----------------------------------------------------------------
  * This is the Fortran interface include file for the BBD
  * preconditioner module KINBBDPRE.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 /*******************************************************************************
 
                   FKINBBD Interface Package
 
  The FKINBBD Interface Package is a package of C functions which support the
- use of the KINSOL solver with the KINBBDPRE preconditioner module, for the
- solution of nonlinear systems in a mixed Fortran/C setting. The combination
- of KINSOL and KINBBDPRE solves systems f(u) = 0 with the SPGMR (scaled
- preconditioned GMRES), SPFGMR (scaled preconditioned flexible GMRES), 
- SPBCG (scaled preconditioned Bi-CGSTAB), or SPTFQMR
- (scaled preconditioned TFQMR) method for the linear systems that arise, and
- with a preconditioner that is block-diagonal with banded blocks. While KINSOL
- and KINBBDPRE are written in C, it is assumed here that the user's calling
- program and user-supplied problem-defining routines are written in Fortran.
+ use of the KINSOL solver and MPI-parallel N_Vector module, along with the 
+ KINBBDPRE preconditioner module, for the solution of nonlinear systems in a
+ mixed Fortran/C setting. The combination of KINSOL and KINBBDPRE solves systems
+ linear system arising from the solution of f(u) = 0 using a Krylov iterative
+ linear solver via the KINSPILS interface, and with a preconditioner that is
+ block-diagonal with banded blocks. While KINSOL and KINBBDPRE are written in C,
+ it is assumed here that the user's calling program and user-supplied
+ problem-defining routines are written in Fortran.
 
  The user-callable functions in this package, with the corresponding KINSOL and
  KINBBDPRE functions, are as follows:
 
    FKINBBDINIT : interfaces to KINBBDPrecInit
-   FKINBBDSPTFQMR: interfaces with KINSptfqmr
-   FKINBBDSPBCG : interfaces with KINSpbcg
-   FKINBBDSPGMR : interfaces with KINSpgmr
-   FKINBBDSPFGMR : interfaces with KINSpfgmr
-   FKINBBDOPT : accesses optional outputs
+   FKINBBDOPT  : accesses optional outputs
    FKINBBDFREE : interfaces to KINBBDPrecFree
 
  In addition to the Fortran system function FKFUN, and optional Jacobian vector
@@ -52,8 +42,8 @@
  required by this package, each with the corresponding interface function which
  calls it (and its type within KINBBDPRE):
 
-   FKLOCFN : called by the interface function FKINgloc of type KINLocalFn
-   FKCOMMFN : called by the interface function FKINgcomm of type KINCommFn
+   FKLOCFN  : called by the interface function FKINgloc of type KINBBDLocalFn
+   FKCOMMFN : called by the interface function FKINgcomm of type KINBBDCommFn
 
  Note: The names of all user-supplied routines here are fixed, in order to
  maximize portability for the resulting mixed-language program.
@@ -179,35 +169,52 @@
                        input values in IOPT[] array are to be used for
                        input: 0 = no and 1 = yes.
          IOPT        = array for integer optional inputs and outputs (declare
-                       as INTEGER*4 or INTEGER*8 according to C type long int)
+                       as INTEGER*8
          ROPT        = array of real optional inputs and outputs
          IER         = return completion flag. Values are 0 = success, and
                        -1 = failure.
 
        Note: See printed message for details in case of failure.
 
- (4.3) Attach one of the SPILS linear solvers. Make one of the 
-       following calls (see fkinsol.h) for more details.
-          CALL FKINSPGMR (MAXL, MAXLRST, IER)
-          CALL FKINSPFGMR (MAXL, MAXLRST, IER)
-          CALL FKINSPBCG (MAXL, IER)
-          CALL FKINSPTFQMR (MAXL, IER)
+ (4.3) Initialize and attach one of the SPILS linear solvers. Make one of the 
+       following calls to initialize a solver (see fkinsol.h for more details):
+
+         CALL FSUNPCGINIT(3, PRETYPE, MAXL, IER)
+         CALL FSUNSPBCGSINIT(3, PRETYPE, MAXL, IER)
+         CALL FSUNSPFGMRINIT(3, PRETYPE, MAXL, IER)
+         CALL FSUNSPGMRINIT(3, PRETYPE, MAXL, IER)
+         CALL FSUNSPTFQMRINIT(3, PRETYPE, MAXL, IER)
+
+       Then to attach the iterative linear solver structure the user must call:
+
+         CALL FKINSPILSINIT(IER)
 
  (4.4) To allocate memory and initialize data associated with the BBD
        preconditioner, make the following call:
 
-         CALL FKINBBDINIT (NLOCAL, MU, ML, IER)
+        CALL FKINBBDINIT(NLOCAL, MUDQ, MLDQ, MU, ML, IER)
 
-       The arguments are:
-         NLOCAL   = local size of vectors associated with process
-         MU, ML   = upper and lower half-bandwidths to be used during the
-                    computation of the local Jacobian blocks. These may be
-                    smaller than the true half-bandwidths of the Jacobian
-                    of the local block of g, when smaller values may provide
-                    greater efficiency.
-         IER      = return completion flag. Values are 0 = success, and
-                    -1 = failure.
-
+      The arguments are:
+        NLOCAL = local vector size on this process [long int, input]
+        MUDQ   = upper half-bandwidth to be used in the computation
+                 of the local Jacobian blocks by difference 
+                 quotients.  These may be smaller than the true 
+                 half-bandwidths of the Jacobian of the local block 
+                 of g, when smaller values may provide greater 
+                 efficiency [long int, input]
+        MLDQ   = lower half-bandwidth to be used in the computation
+                 of the local Jacobian blocks by difference 
+                 quotients [long int, input]
+        MU     = upper half-bandwidth of the band matrix that is
+                 retained as an approximation of the local Jacobian
+                 block (may be smaller than MUDQ) [long int, input]
+        ML     = lower half-bandwidth of the band matrix that is
+                 retained as an approximation of the local Jacobian
+                 block (may be smaller than MLDQ) [long int, input]
+        IER    = return completion flag [int, output]:
+                    0 = success
+                   <0 = an error occurred
+ 
  (5) To solve the system, make the following call:
 
        CALL FKINSOL (UU, GLOBALSTRAT, USCALE, FSCALE, IER)

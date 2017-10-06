@@ -1,14 +1,10 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4840 $
- * $Date: 2016-08-03 13:07:16 -0700 (Wed, 03 Aug 2016) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  *
  * This example loops through the available iterative linear solvers:
- * SPGMR, SPBCG, SPTFQMR, and SPFGMR.
+ * SPGMR, SPBCGS, SPTFQMR, and SPFGMR.
  *
  * Example (serial):
  *
@@ -85,15 +81,16 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <kinsol/kinsol.h>
-#include <kinsol/kinsol_spgmr.h>
-#include <kinsol/kinsol_spbcgs.h>
-#include <kinsol/kinsol_sptfqmr.h>
-#include <kinsol/kinsol_spfgmr.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_dense.h>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
+#include <kinsol/kinsol.h>               /* access to KINSOL func., consts.      */
+#include <nvector/nvector_serial.h>      /* access to serial N_Vector            */
+#include <kinsol/kinsol_spils.h>         /* access to KINSpils interface         */
+#include <sunlinsol/sunlinsol_spgmr.h>   /* access to SPGMR SUNLinearSolver      */
+#include <sunlinsol/sunlinsol_spbcgs.h>  /* access to SPBCGS SUNLinearSolver     */ 
+#include <sunlinsol/sunlinsol_sptfqmr.h> /* access to SPTFQMR SUNLinearSolver    */
+#include <sunlinsol/sunlinsol_spfgmr.h>  /* access to SPFGMR SUNLinearSolver     */ 
+#include <sundials/sundials_dense.h>     /* use generic dense solver in precond. */
+#include <sundials/sundials_types.h>     /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>      /* access to SUNMAX, SUNRabs, SUNRsqrt  */
 
 /* Problem Constants */
 
@@ -127,7 +124,7 @@
 /* Linear Solver Loop Constants */
 
 #define USE_SPGMR   0
-#define USE_SPBCG   1
+#define USE_SPBCGS  1
 #define USE_SPTFQMR 2
 #define USE_SPFGMR  3
 
@@ -145,7 +142,7 @@
 
 typedef struct {
   realtype **P[MX][MY];
-  long int *pivot[MX][MY];
+  sunindextype *pivot[MX][MY];
   realtype **acoef, *bcoef;
   N_Vector rates;
   realtype *cox, *coy;
@@ -160,13 +157,11 @@ static int func(N_Vector cc, N_Vector fval, void *user_data);
 
 static int PrecSetupBD(N_Vector cc, N_Vector cscale,
                        N_Vector fval, N_Vector fscale,
-                       void *user_data,
-                       N_Vector vtemp1, N_Vector vtemp2);
+                       void *user_data);
 
 static int PrecSolveBD(N_Vector cc, N_Vector cscale, 
                        N_Vector fval, N_Vector fscale, 
-                       N_Vector vv, void *user_data,
-                       N_Vector ftem);
+                       N_Vector vv, void *user_data);
 
 /* Private Helper Functions */
 
@@ -198,9 +193,11 @@ int main(void)
   UserData data;
   int flag, maxl, maxlrst;
   void *kmem;
+  SUNLinearSolver LS;
 
   cc = sc = constraints = NULL;
   kmem = NULL;
+  LS = NULL;
   data = NULL;
 
   /* Allocate memory, and set problem data, initial values, tolerances */ 
@@ -224,7 +221,7 @@ int main(void)
 
   fnormtol=FTOL; scsteptol=STOL;
 
-  /* START: Loop through SPGMR, SPBCG, SPTFQMR and SPFGMR linear solver modules */
+  /* START: Loop through SPGMR, SPBCGS, SPTFQMR and SPFGMR linear solver modules */
   for (linsolver = 0; linsolver < 4; ++linsolver) {
 
     /* (Re-)Initialize user data */
@@ -259,31 +256,40 @@ int main(void)
       printf(" \n| SPGMR |\n");
       printf(" -------\n");
 
-      /* Call KINSpgmr to specify the linear solver KINSPGMR with preconditioner
-	 routines PrecSetupBD and PrecSolveBD, and the pointer to the user block data. */
+      /* Create SUNSPGMR object with right preconditioning and the 
+         maximum Krylov dimension maxl */
       maxl = 15; 
-      maxlrst = 2;
-      flag = KINSpgmr(kmem, maxl);
-      if (check_flag(&flag, "KINSpgmr", 1)) return(1);
+      LS = SUNSPGMR(cc, PREC_RIGHT, maxl);
+      if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
 
-      flag = KINSpilsSetMaxRestarts(kmem, maxlrst);
-      if (check_flag(&flag, "KINSpilsSetMaxRestarts", 1)) return(1);
+      /* Attach the linear solver to KINSOL */
+      flag = KINSpilsSetLinearSolver(kmem, LS);
+      if (check_flag(&flag, "KINSpilsSetLinearSolver", 1)) return 1;
+
+      /* Set the maximum number of restarts */
+      maxlrst = 2;
+      flag = SUNSPGMRSetMaxRestarts(LS, maxlrst);
+      if (check_flag(&flag, "SUNSPGMRSpilsSetMaxRestarts", 1)) return(1);
 
       break;
 
-    /* (b) SPBCG */
-    case(USE_SPBCG):
+    /* (b) SPBCGS */
+    case(USE_SPBCGS):
 
       /* Print header */
-      printf(" -------");
-      printf(" \n| SPBCG |\n");
-      printf(" -------\n");
+      printf(" --------");
+      printf(" \n| SPBCGS |\n");
+      printf(" --------\n");
 
-      /* Call KINSpbcg to specify the linear solver KINSPBCG with preconditioner
-	 routines PrecSetupBD and PrecSolveBD, and the pointer to the user block data. */
+      /* Create SUNSPBCGS object with right preconditioning and the 
+         maximum Krylov dimension maxl */
       maxl = 15; 
-      flag = KINSpbcg(kmem, maxl);
-      if (check_flag(&flag, "KINSpbcg", 1)) return(1);
+      LS = SUNSPBCGS(cc, PREC_RIGHT, maxl);
+      if(check_flag((void *)LS, "SUNSPBCGS", 0)) return(1);
+
+      /* Attach the linear solver to KINSOL */
+      flag = KINSpilsSetLinearSolver(kmem, LS);
+      if (check_flag(&flag, "KINSpilsSetLinearSolver", 1)) return 1;
 
       break;
 
@@ -295,11 +301,15 @@ int main(void)
       printf(" \n| SPTFQMR |\n");
       printf(" ---------\n");
 
-      /* Call KINSptfqmr to specify the linear solver KINSPTFQMR with preconditioner
-	 routines PrecSetupBD and PrecSolveBD, and the pointer to the user block data. */
+      /* Create SUNSPTFQMR object with right preconditioning and the 
+         maximum Krylov dimension maxl */
       maxl = 25; 
-      flag = KINSptfqmr(kmem, maxl);
-      if (check_flag(&flag, "KINSptfqmr", 1)) return(1);
+      LS = SUNSPTFQMR(cc, PREC_RIGHT, maxl);
+      if(check_flag((void *)LS, "SUNSPTFQMR", 0)) return(1);
+
+      /* Attach the linear solver to KINSOL */
+      flag = KINSpilsSetLinearSolver(kmem, LS);
+      if (check_flag(&flag, "KINSpilsSetLinearSolver", 1)) return 1;
 
       break;
 
@@ -311,15 +321,20 @@ int main(void)
       printf(" \n| SPFGMR |\n");
       printf(" -------\n");
 
-      /* Call KINSpfgmr to specify the linear solver KINSPFGMR with preconditioner
-	 routines PrecSetupBD and PrecSolveBD, and the pointer to the user block data. */
+      /* Create SUNSPFGMR object with right preconditioning and the 
+         maximum Krylov dimension maxl */
       maxl = 15; 
-      maxlrst = 2;
-      flag = KINSpfgmr(kmem, maxl);
-      if (check_flag(&flag, "KINSpfgmr", 1)) return(1);
+      LS = SUNSPFGMR(cc, PREC_RIGHT, maxl);
+      if(check_flag((void *)LS, "SUNSPFGMR", 0)) return(1);
 
-      flag = KINSpilsSetMaxRestarts(kmem, maxlrst);
-      if (check_flag(&flag, "KINSpilsSetMaxRestarts", 1)) return(1);
+      /* Attach the linear solver to KINSOL */
+      flag = KINSpilsSetLinearSolver(kmem, LS);
+      if (check_flag(&flag, "KINSpilsSetLinearSolver", 1)) return 1;
+
+      /* Set the maximum number of restarts */
+      maxlrst = 2;
+      flag = SUNSPGMRSetMaxRestarts(LS, maxlrst);
+      if (check_flag(&flag, "SUNSPGMRSpilsSetMaxRestarts", 1)) return(1);
 
       break;
 
@@ -347,8 +362,9 @@ int main(void)
     PrintFinalStats(kmem, linsolver);
 
     KINFree(&kmem);
+    SUNLinSolFree(LS);
 
-  }  /* END: Loop through SPGMR, SPBCG, SPTFQMR, and SPFGMR linear solver modules */
+  }  /* END: Loop through SPGMR, SPBCGS, SPTFQMR, and SPFGMR linear solver modules */
 
   N_VDestroy_Serial(constraints);
   N_VDestroy_Serial(cc);
@@ -438,8 +454,7 @@ static int func(N_Vector cc, N_Vector fval, void *user_data)
 
 static int PrecSetupBD(N_Vector cc, N_Vector cscale,
                        N_Vector fval, N_Vector fscale,
-                       void *user_data,
-                       N_Vector vtemp1, N_Vector vtemp2)
+                       void *user_data)
 {
   realtype r, r0, uround, sqruround, xx, yy, delx, dely, csave, fac;
   realtype *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
@@ -505,11 +520,10 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
 
 static int PrecSolveBD(N_Vector cc, N_Vector cscale, 
                        N_Vector fval, N_Vector fscale, 
-                       N_Vector vv, void *user_data,
-                       N_Vector ftem)
+                       N_Vector vv, void *user_data)
 {
   realtype **Pxy, *vxy;
-  long int *piv, jx, jy;
+  sunindextype *piv, jx, jy;
   UserData data;
   
   data = (UserData)user_data;
@@ -591,7 +605,7 @@ static UserData AllocUserData(void)
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
       (data->P)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (data->pivot)[jx][jy] = newLintArray(NUM_SPECIES);
+      (data->pivot)[jx][jy] = newIndexArray(NUM_SPECIES);
     }
   }
   acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
@@ -734,8 +748,8 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
 	   maxl, maxlrst);
     break;
 
-  case(USE_SPBCG):
-    printf("Linear solver is SPBCG with maxl = %d\n", maxl);
+  case(USE_SPBCGS):
+    printf("Linear solver is SPBCGS with maxl = %d\n", maxl);
     break;
 
   case(USE_SPTFQMR):

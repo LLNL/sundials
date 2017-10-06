@@ -38,7 +38,7 @@
  * In this example, we choose lamda = -100.
  * 
  * This program solves the problem with the DIRK method,
- * Newton iteration with the ARKDENSE dense linear solver, and a
+ * Newton iteration with the dense linear solver, and a
  * user-supplied Jacobian routine.
  * Output is printed every 1.0 units of time (10 total).
  * Run statistics (optional outputs) are printed at the end.
@@ -49,22 +49,32 @@
 #include <iostream>
 #include <string.h>
 #include <math.h>
-#include <arkode/arkode.h>            // prototypes for ARKode fcts., consts.
-#include <nvector/nvector_serial.h>   // serial N_Vector types, fcts., macros
-#include <arkode/arkode_dense.h>      // prototype for ARKDense solver
-#include <sundials/sundials_dense.h>  // defs. of DlsMat and DENSE_ELEM
-#include <sundials/sundials_types.h>  // def. of type 'realtype'
+#include <arkode/arkode.h>              // prototypes for ARKode fcts., consts.
+#include <nvector/nvector_serial.h>     // access to serial N_Vector
+#include <sunmatrix/sunmatrix_dense.h>  // access to dense SUNMatrix 
+#include <sunlinsol/sunlinsol_dense.h>  // access to dense SUNLinearSolver
+#include <arkode/arkode_direct.h>       // access to ARKDls interface
+#include <sundials/sundials_types.h>    // def. of type 'realtype'
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
 
 using namespace std;
 
 // User-supplied Functions Called by the Solver
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(long int N, realtype t,
-               N_Vector y, N_Vector fy, DlsMat J, void *user_data,
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // Private function to perform matrix-matrix product
-static int dense_MM(DlsMat A, DlsMat B, DlsMat C);
+static int dense_MM(SUNMatrix A, SUNMatrix B, SUNMatrix C);
 
 // Private function to check function return values
 static int check_flag(void *flagvalue, const string funcname, int opt);
@@ -73,17 +83,19 @@ static int check_flag(void *flagvalue, const string funcname, int opt);
 int main()
 {
   // general problem parameters
-  realtype T0 = RCONST(0.0);       // initial time
-  realtype Tf = RCONST(0.05);      // final time
-  realtype dTout = RCONST(0.005);  // time between outputs
-  long int NEQ = 3;                // number of dependent vars.
-  realtype reltol = 1.0e-6;        // tolerances
-  realtype abstol = 1.0e-10;
-  realtype lamda  = -100.0;        // stiffness parameter
+  realtype T0 = RCONST(0.0);         // initial time
+  realtype Tf = RCONST(0.05);        // final time
+  realtype dTout = RCONST(0.005);    // time between outputs
+  sunindextype NEQ = 3;              // number of dependent vars.
+  realtype reltol = RCONST(1.0e-6);  // tolerances
+  realtype abstol = RCONST(1.0e-10);
+  realtype lamda  = RCONST(-100.0);  // stiffness parameter
 
   // general problem variables
   int flag;                      // reusable error-checking flag
   N_Vector y = NULL;             // empty vector for storing solution
+  SUNMatrix A = NULL;            // empty dense matrix for solver
+  SUNLinearSolver LS = NULL;     // empty dense linear solver
   void *arkode_mem = NULL;       // empty ARKode memory structure
 
   // Initial problem output
@@ -92,15 +104,23 @@ int main()
   cout << "   reltol = " << reltol << "\n";
   cout << "   abstol = " << abstol << "\n\n";
 
-  // Initialize data structures
-  y = N_VNew_Serial(NEQ);         // Create serial vector solution
+  // Initialize vector data structure and specify initial condition
+  y = N_VNew_Serial(NEQ);
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
-  NV_Ith_S(y,0) = 1.0;            // Specify initial condition
+  NV_Ith_S(y,0) = 1.0;
   NV_Ith_S(y,1) = 1.0;
   NV_Ith_S(y,2) = 1.0;
-  arkode_mem = ARKodeCreate();    // Create the solver memory
-  if (check_flag((void *)arkode_mem, "ARKodeCreate", 0)) return 1;
 
+  // Initialize dense matrix data structure and solver
+  A = SUNDenseMatrix(NEQ, NEQ);
+  if (check_flag((void *)A, "SUNDenseMatrix", 0)) return 1;
+  LS = SUNDenseLinearSolver(y, A);
+  if (check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return 1;
+
+  // Create the ARKode memory structure
+  arkode_mem = ARKodeCreate();
+  if (check_flag((void *)arkode_mem, "ARKodeCreate", 0)) return 1;
+  
   /* Call ARKodeInit to initialize the integrator memory and specify the
      right-hand side function in y'=f(t,y), the inital time T0, and
      the initial dependent variable vector y.  Note: since this
@@ -114,11 +134,11 @@ int main()
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);   // Specify tolerances
   if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
 
-  // Linear solver specification
-  flag = ARKDense(arkode_mem, NEQ);              // Specify dense linear solver
-  if (check_flag(&flag, "ARKDense", 1)) return 1;
-  flag = ARKDlsSetDenseJacFn(arkode_mem, Jac);   // Set Jacobian routine
-  if (check_flag(&flag, "ARKDlsSetDenseJacFn", 1)) return 1;
+  // Linear solver interface
+  flag = ARKDlsSetLinearSolver(arkode_mem, LS, A);         // Attach matrix and linear solver
+  if (check_flag(&flag, "ARKDlsSetLinearSolver", 1)) return 1;
+  flag = ARKDlsSetJacFn(arkode_mem, Jac);                  // Set Jacobian routine
+  if (check_flag(&flag, "ARKDlsSetJacFn", 1)) return 1;
 
   // Specify linearly implicit RHS, with non-time-dependent Jacobian
   flag = ARKodeSetLinear(arkode_mem, 0);
@@ -129,7 +149,7 @@ int main()
   fprintf(UFID,"# t y1 y2 y3\n");
 
   // output initial condition to disk 
-  fprintf(UFID," %.16e %.16e %.16e %.16e\n", 
+  fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n", 
 	  T0, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
 
   /* Main time-stepping loop: calls ARKode to perform the integration, then
@@ -140,16 +160,16 @@ int main()
   cout << "   --------------------------------------\n";
   while (Tf - t > 1.0e-15) {
 
-    flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);       // call integrator
+    flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);           // call integrator
     if (check_flag(&flag, "ARKode", 1)) break;
-    printf("  %8.4f  %8.5f  %8.5f  %8.5f\n",                  // access/print solution
+    printf("  %8.4"FSYM"  %8.5"FSYM"  %8.5"FSYM"  %8.5"FSYM"\n",  // access/print solution
            t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
-    fprintf(UFID," %.16e %.16e %.16e %.16e\n", 
+    fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n", 
 	    t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
-    if (flag >= 0) {                                          // successful solve: update time
+    if (flag >= 0) {                                              // successful solve: update time
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;
-    } else {                                                  // unsuccessful solve: break
+    } else {                                                      // unsuccessful solve: break
       fprintf(stderr,"Solver failure, stopping integration\n");
       break;
     }
@@ -189,8 +209,10 @@ int main()
   cout << "   Total number of error test failures = " << netf << "\n\n";
 
   // Clean up and return with successful completion
-  N_VDestroy_Serial(y);        // Free y vector
   ARKodeFree(&arkode_mem);     // Free integrator memory
+  SUNLinSolFree(LS);           // Free linear solver
+  SUNMatDestroy(A);            // Free A matrix
+  N_VDestroy(y);               // Free y vector
   return 0;
 }
 
@@ -226,47 +248,48 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 // Jacobian routine to compute J(t,y) = df/dy.
-static int Jac(long int N, realtype t,
-               N_Vector y, N_Vector fy, DlsMat J, void *user_data,
+static int Jac(realtype t, N_Vector y, N_Vector fy,
+               SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype *rdata = (realtype *) user_data;   // cast user_data to realtype
   realtype lam = rdata[0];                    // set shortcut for stiffness parameter
-  DlsMat V  = NewDenseMat(3,3);               // create temporary DlsMat objects
-  DlsMat D  = NewDenseMat(3,3);
-  DlsMat Vi = NewDenseMat(3,3);
+  SUNMatrix V  = SUNDenseMatrix(3,3);          // create temporary SUNMatrix objects
+  SUNMatrix D  = SUNDenseMatrix(3,3);          // create temporary SUNMatrix objects
+  SUNMatrix Vi = SUNDenseMatrix(3,3);          // create temporary SUNMatrix objects
+  sunindextype N = SUNDenseMatrix_Rows(J);
 
-  DenseScale(0.0, V);     // initialize temporary matrices to zero
-  DenseScale(0.0, D);
-  DenseScale(0.0, Vi);
+  SUNMatZero(V);        // initialize temporary matrices to zero
+  SUNMatZero(D);        // (not technically required)
+  SUNMatZero(Vi);
 
   // Fill in temporary matrices:
   //    V = [1 -1 1; -1 2 1; 0 -1 2]
-  DENSE_ELEM(V,0,0) =  1.0;
-  DENSE_ELEM(V,0,1) = -1.0;
-  DENSE_ELEM(V,0,2) =  1.0;
-  DENSE_ELEM(V,1,0) = -1.0;
-  DENSE_ELEM(V,1,1) =  2.0;
-  DENSE_ELEM(V,1,2) =  1.0;
-  DENSE_ELEM(V,2,0) =  0.0;
-  DENSE_ELEM(V,2,1) = -1.0;
-  DENSE_ELEM(V,2,2) =  2.0;
+  SM_ELEMENT_D(V,0,0) =  1.0;
+  SM_ELEMENT_D(V,0,1) = -1.0;
+  SM_ELEMENT_D(V,0,2) =  1.0;
+  SM_ELEMENT_D(V,1,0) = -1.0;
+  SM_ELEMENT_D(V,1,1) =  2.0;
+  SM_ELEMENT_D(V,1,2) =  1.0;
+  SM_ELEMENT_D(V,2,0) =  0.0;
+  SM_ELEMENT_D(V,2,1) = -1.0;
+  SM_ELEMENT_D(V,2,2) =  2.0;
 
   //    Vi = 0.25*[5 1 -3; 2 2 -2; 1 1 1]
-  DENSE_ELEM(Vi,0,0) =  0.25*5.0;
-  DENSE_ELEM(Vi,0,1) =  0.25*1.0;
-  DENSE_ELEM(Vi,0,2) = -0.25*3.0;
-  DENSE_ELEM(Vi,1,0) =  0.25*2.0;
-  DENSE_ELEM(Vi,1,1) =  0.25*2.0;
-  DENSE_ELEM(Vi,1,2) = -0.25*2.0;
-  DENSE_ELEM(Vi,2,0) =  0.25*1.0;
-  DENSE_ELEM(Vi,2,1) =  0.25*1.0;
-  DENSE_ELEM(Vi,2,2) =  0.25*1.0;
+  SM_ELEMENT_D(Vi,0,0) =  0.25*5.0;
+  SM_ELEMENT_D(Vi,0,1) =  0.25*1.0;
+  SM_ELEMENT_D(Vi,0,2) = -0.25*3.0;
+  SM_ELEMENT_D(Vi,1,0) =  0.25*2.0;
+  SM_ELEMENT_D(Vi,1,1) =  0.25*2.0;
+  SM_ELEMENT_D(Vi,1,2) = -0.25*2.0;
+  SM_ELEMENT_D(Vi,2,0) =  0.25*1.0;
+  SM_ELEMENT_D(Vi,2,1) =  0.25*1.0;
+  SM_ELEMENT_D(Vi,2,2) =  0.25*1.0;
 
   //    D = [-0.5 0 0; 0 -0.1 0; 0 0 lam]
-  DENSE_ELEM(D,0,0) = -0.5;
-  DENSE_ELEM(D,1,1) = -0.1;
-  DENSE_ELEM(D,2,2) = lam;
+  SM_ELEMENT_D(D,0,0) = -0.5;
+  SM_ELEMENT_D(D,1,1) = -0.1;
+  SM_ELEMENT_D(D,2,2) = lam;
 
   // Compute J = V*D*Vi
   if (dense_MM(D,Vi,J) != 0) {     // J = D*Vi
@@ -277,7 +300,7 @@ static int Jac(long int N, realtype t,
     cerr << "matmul error\n";
     return 1;
   }
-  DenseCopy(D, J);                 // J = D [= V*D*Vi]
+  SUNMatCopy(D, J);
 
   return 0;                        // Return with success
 }
@@ -286,29 +309,31 @@ static int Jac(long int N, realtype t,
  * Private helper functions
  *-------------------------------*/
 
-// DlsMat matrix-multiply utility routine: C = A*B.
-static int dense_MM(DlsMat A, DlsMat B, DlsMat C)
+// SUNDenseMatrix matrix-multiply utility routine: C = A*B.
+static int dense_MM(SUNMatrix A, SUNMatrix B, SUNMatrix C)
 {
   // check for legal dimensions
-  if ((A->N != B->M) || (C->M != A->M) || (C->N != B->N)) {
+  if ( (SUNDenseMatrix_Columns(A) != SUNDenseMatrix_Rows(B)) ||
+       (SUNDenseMatrix_Rows(C) != SUNDenseMatrix_Rows(A)) ||
+       (SUNDenseMatrix_Columns(C) != SUNDenseMatrix_Columns(B)) ) {
     cerr << "\n matmul error: dimension mismatch\n\n";
     return 1;
   }
 
-  realtype **adata = A->cols;     // access data and extents
-  realtype **bdata = B->cols;
-  realtype **cdata = C->cols;
-  long int m = C->M;
-  long int n = C->N;
-  long int l = A->N;
-  int i, j, k;
-  DenseScale(0.0, C);             // initialize output
+  realtype **adata = SUNDenseMatrix_Cols(A);     // access data and extents
+  realtype **bdata = SUNDenseMatrix_Cols(B);
+  realtype **cdata = SUNDenseMatrix_Cols(C);
+  sunindextype m = SUNDenseMatrix_Rows(C);
+  sunindextype n = SUNDenseMatrix_Columns(C);
+  sunindextype l = SUNDenseMatrix_Columns(A);
+  sunindextype i, j, k;
+  SUNMatZero(C);                                 // initialize output
 
   // perform multiply (not optimal, but fine for 3x3 matrices)
   for (i=0; i<m; i++)
     for (j=0; j<n; j++)
       for (k=0; k<l; k++)
-     cdata[i][j] += adata[i][k] * bdata[k][j];
+        cdata[i][j] += adata[i][k] * bdata[k][j];
 
   return 0;                       // Return with success
 }

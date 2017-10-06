@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4924 $
- * $Date: 2016-09-19 14:36:05 -0700 (Mon, 19 Sep 2016) $
- * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -84,8 +81,6 @@ typedef struct KINMemRec {
 				  and KIN_ETACHOICE2                           */
   booleantype kin_noMinEps;    /* flag controlling whether or not the value
 				  of eps is bounded below                      */
-  booleantype kin_setupNonNull;   /* flag indicating if linear solver setup
-				     routine is non-null and if setup is used  */
   booleantype kin_constraintsSet; /* flag indicating if constraints are being
 				     used                                      */
   booleantype kin_jacCurrent;     /* flag indicating if the Jacobian info. 
@@ -164,15 +159,15 @@ typedef struct KINMemRec {
   realtype *kin_gamma_aa;   /* array of size maa used in AA */
   realtype *kin_R_aa;       /* array of size maa*maa used in AA */
   int      *kin_ipt_map;    /* array of size maa used in AA */
-  long int kin_m_aa;	    /* parameter for AA, Broyden or NLEN */
+  sunindextype kin_m_aa;    /* parameter for AA, Broyden or NLEN */
   booleantype kin_aamem_aa; /* sets additional memory needed for Anderson Acc */
   booleantype kin_setstop_aa; /* determines whether user will set stopping criterion */
 
   /* space requirements for vector storage */ 
 
-  long int kin_lrw1;        /* number of realtype-sized memory blocks needed
+  sunindextype kin_lrw1;    /* number of realtype-sized memory blocks needed
 			       for a single N_Vector                           */ 
-  long int kin_liw1;        /* number of int-sized memory blocks needed for
+  sunindextype kin_liw1;    /* number of int-sized memory blocks needed for
 			       a single N_Vecotr                               */ 
   long int kin_lrw;         /* total number of realtype-sized memory blocks
 			       needed for all KINSOL work vectors              */

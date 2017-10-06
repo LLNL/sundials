@@ -1,19 +1,21 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4075 $
- * $Date: 2014-04-24 10:46:58 -0700 (Thu, 24 Apr 2014) $
- * ----------------------------------------------------------------- 
- * Programmer(s): Radu Serban and Aaron Collier @ LLNL
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *      Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2017, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
  * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
  * All rights reserved.
  * For details, see the LICENSE file.
- * LLNS Copyright End
+ * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
  * This module contains the routines necessary to interface with the
  * CVBANDPRE module and user-supplied Fortran routines.
@@ -29,9 +31,6 @@
 #include "fcvbp.h"                  /* prototypes of interfaces to CVBANDPRE        */
 
 #include <cvode/cvode_bandpre.h>    /* prototypes of CVBANDPRE functions and macros */
-#include <cvode/cvode_sptfqmr.h>    /* prototypes of CVSPTFQMR interface routines   */
-#include <cvode/cvode_spbcgs.h>     /* prototypes of CVSPBCG interface routines     */
-#include <cvode/cvode_spgmr.h>      /* prototypes of CVSPGMR interface routines     */
 
 /***************************************************************************/
 

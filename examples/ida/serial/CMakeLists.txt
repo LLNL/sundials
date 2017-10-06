@@ -1,24 +1,18 @@
-# ---------------------------------------------------------------
-# $Revision: 4958 $
-# $Date: 2016-09-23 14:02:13 -0700 (Fri, 23 Sep 2016) $
-# ---------------------------------------------------------------
+# ------------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
-# ---------------------------------------------------------------
+# ------------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
 # For details, see the LICENSE file.
 # LLNS Copyright End
-# ---------------------------------------------------------------
+# ------------------------------------------------------------------
 # CMakeLists.txt file for IDA serial examples
 #
-# CSW 4/19/2014
-#    Added SUPERLUMT logic.
-
 
 # Add variable IDA_examples with the names of the serial IDA examples
 
@@ -32,10 +26,19 @@ SET(IDA_examples
   idaSlCrank_dns
   )
 
-SET(IDA_examples_SUPERLUMT
-  idaRoberts_sps
-  #idaHeat2D_sps ... not ready yet ... incorrect answer.
-  )
+IF(TESTRUNNER AND (SUNDIALS_INDEX_TYPE MATCHES "INT64_T"))
+  # Do not include SuperLUMT examples in testing when the indextype is int64_t.
+  # Answer files were generated with int32_t and minor differences in output
+  # occur causing a false positive when testing. These tests can be re-enabled
+  # when type specific answer files are added.
+  SET(IDAS_examples_SUPERLUMT
+    )
+ELSE()
+  SET(IDA_examples_SUPERLUMT
+    idaRoberts_sps
+    #idaHeat2D_sps ... not ready yet ... incorrect answer.
+    )
+ENDIF()
 
 SET(IDA_examples_KLU
   idaRoberts_klu
@@ -65,6 +68,10 @@ SET(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 IF(LAPACK_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
 ENDIF(LAPACK_FOUND)
+
+IF(BLAS_FOUND)
+  LIST(APPEND SUNDIALS_LIBS ${BLAS_LIBRARIES})
+ENDIF(BLAS_FOUND)
 
 IF(SUPERLUMT_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${SUPERLUMT_LIBRARIES})

@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4834 $
- * $Date: 2016-08-01 16:59:05 -0700 (Mon, 01 Aug 2016) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Carol Woodward.
  *      Based on cvRoberts_dns.c and modified to use SUPERLU_MT.
  * -----------------------------------------------------------------
@@ -20,23 +16,21 @@
  * While integrating the system, we also use the rootfinding
  * feature to find the points at which y1 = 1e-4 or at which
  * y3 = 0.01. This program solves the problem with the BDF method,
- * Newton iteration with the CVSUPERLUMT sparse direct linear solver, and a
+ * Newton iteration with the SuperLUMT sparse direct linear solver, and a
  * user-supplied Jacobian routine.
  * It uses a scalar relative tolerance and a vector absolute
  * tolerance. Output is printed in decades from t = .4 to t = 4.e10.
  * Run statistics (optional outputs) are printed at the end.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 
-/* Header files with a description of contents used */
-
-#include <cvode/cvode.h>             /* prototypes for CVODE fcts., consts. */
-#include <nvector/nvector_serial.h>  /* serial N_Vector types, fcts., macros */
-#include <cvode/cvode_superlumt.h>   /* prototype for CVSUPERLUMT */
-#include <sundials/sundials_sparse.h> /* definitions SlsMat */
-#include <sundials/sundials_types.h> /* definition of type realtype */
+#include <cvode/cvode.h>                    /* prototypes for CVODE fcts., consts.  */
+#include <nvector/nvector_serial.h>         /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_sparse.h>     /* access to sparse SUNMatrix           */
+#include <sunlinsol/sunlinsol_superlumt.h>  /* access to SuperLUMT linear solver    */
+#include <cvode/cvode_direct.h>             /* access to CVDls interface            */
+#include <sundials/sundials_types.h>        /* defs. of realtype, sunindextype      */
 
 /* User-defined vector and matrix accessor macro: Ith */
 
@@ -46,15 +40,12 @@
    Ith(v,i) references the ith component of the vector v, where i is in
    the range [1..NEQ] and NEQ is defined below. The Ith macro is defined
    using the N_VIth macro in nvector.h. N_VIth numbers the components of
-   a vector starting from 0.
-*/
+   a vector starting from 0. */
 
-#define Ith(v,i)    NV_Ith_S(v,i-1)       /* Ith numbers components 1..NEQ */
+#define Ith(v,i)    NV_Ith_S(v,i-1)         /* Ith numbers components 1..NEQ */
 
 
 /* Problem Constants */
-
-#define ZERO  RCONST(0.0)
 
 #define NEQ   3                /* number of equations  */
 #define Y1    RCONST(1.0)      /* initial y components */
@@ -69,6 +60,7 @@
 #define TMULT RCONST(10.0)     /* output time factor     */
 #define NOUT  12               /* number of output times */
 
+#define ZERO  RCONST(0.0)
 
 /* Functions Called by the Solver */
 
@@ -76,9 +68,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 static int g(realtype t, N_Vector y, realtype *gout, void *user_data);
 
-static int Jac(realtype t,
-               N_Vector y, N_Vector fy, SlsMat J, void *user_data,
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, 
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private functions to output results */
 
@@ -104,11 +95,15 @@ int main()
 {
   realtype reltol, t, tout;
   N_Vector y, abstol;
+  SUNMatrix A;
+  SUNLinearSolver LS;
   void *cvode_mem;
   int flag, flagr, iout, nnz;
   int rootsfound[2];
 
   y = abstol = NULL;
+  A = NULL;
+  LS = NULL;
   cvode_mem = NULL;
 
   /* Create serial vector of length NEQ for I.C. and abstol */
@@ -149,14 +144,22 @@ int main()
   flag = CVodeRootInit(cvode_mem, 2, g);
   if (check_flag(&flag, "CVodeRootInit", 1)) return(1);
 
-  /* Call CVSuperLUMT to specify the CVSuperLUMT sparse direct linear solver */
+  /* Create sparse SUNMatrix for use in linear solves */
   nnz = NEQ * NEQ;
-  flag = CVSuperLUMT(cvode_mem, 1, NEQ, nnz);
-  if (check_flag(&flag, "CVSuperLUMT", 1)) return(1);
+  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
+  if(check_flag((void *)A, "SUNSparseMatrix", 0)) return(1);
 
-  /* Set the Jacobian routine to Jac (user-supplied) */
-  flag = CVSlsSetSparseJacFn(cvode_mem, Jac);
-  if (check_flag(&flag, "CVSlsSetSparseJacFn", 1)) return(1);
+  /* Create SuperLUMT solver object for use by CVode (one thread) */
+  LS = SUNSuperLUMT(y, A, 1);
+  if(check_flag((void *)LS, "SUNSuperLUMT", 0)) return(1);
+
+  /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
+  flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
+  if(check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
+
+  /* Set the user-supplied Jacobian routine Jac */
+  flag = CVDlsSetJacFn(cvode_mem, Jac);
+  if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   /* In loop, call CVode, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached.  */
@@ -186,11 +189,17 @@ int main()
   PrintFinalStats(cvode_mem);
 
   /* Free y and abstol vectors */
-  N_VDestroy_Serial(y);
-  N_VDestroy_Serial(abstol);
+  N_VDestroy(y);
+  N_VDestroy(abstol);
 
   /* Free integrator memory */
   CVodeFree(&cvode_mem);
+
+  /* Free the linear solver memory */
+  SUNLinSolFree(LS);
+
+  /* Free the matrix memory */
+  SUNMatDestroy(A);
 
   return(0);
 }
@@ -238,42 +247,42 @@ static int g(realtype t, N_Vector y, realtype *gout, void *user_data)
  * Jacobian routine. Compute J(t,y) = df/dy. *
  */
 
-static int Jac(realtype t,
-               N_Vector y, N_Vector fy, SlsMat JacMat, void *user_data,
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, 
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype *yval;
-  int *colptrs = *JacMat->colptrs;
-  int *rowvals = *JacMat->rowvals;
+  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(J);
+  sunindextype *rowvals = SUNSparseMatrix_IndexValues(J);
+  realtype *data = SUNSparseMatrix_Data(J);
+  
+  yval = N_VGetArrayPointer(y);
 
-  yval = N_VGetArrayPointer_Serial(y);
-
-  SparseSetMatToZero(JacMat);
+  SUNMatZero(J);
 
   colptrs[0] = 0;
   colptrs[1] = 3;
   colptrs[2] = 6;
   colptrs[3] = 9;
 
-  JacMat->data[0] = RCONST(-0.04);
+  data[0] = RCONST(-0.04);
   rowvals[0] = 0;
-  JacMat->data[1] = RCONST(0.04);
+  data[1] = RCONST(0.04);
   rowvals[1] = 1;
-  JacMat->data[2] = ZERO;
+  data[2] = ZERO;
   rowvals[2] = 2;
 
-  JacMat->data[3] = RCONST(1.0e4)*yval[2];
+  data[3] = RCONST(1.0e4)*yval[2];
   rowvals[3] = 0;
-  JacMat->data[4] = (RCONST(-1.0e4)*yval[2]) - (RCONST(6.0e7)*yval[1]);
+  data[4] = (RCONST(-1.0e4)*yval[2]) - (RCONST(6.0e7)*yval[1]);
   rowvals[4] = 1;
-  JacMat->data[5] = RCONST(6.0e7)*yval[1];
+  data[5] = RCONST(6.0e7)*yval[1];
   rowvals[5] = 2;
 
-  JacMat->data[6] = RCONST(1.0e4)*yval[1];
+  data[6] = RCONST(1.0e4)*yval[1];
   rowvals[6] = 0;
-  JacMat->data[7] = RCONST(-1.0e4)*yval[1];
+  data[7] = RCONST(-1.0e4)*yval[1];
   rowvals[7] = 1;
-  JacMat->data[8] = ZERO;
+  data[8] = ZERO;
   rowvals[8] = 2;
 
   return(0);
@@ -327,8 +336,8 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  flag = CVSlsGetNumJacEvals(cvode_mem, &nje);
-  check_flag(&flag, "CVSlsGetNumJacEvals", 1);
+  flag = CVDlsGetNumJacEvals(cvode_mem, &nje);
+  check_flag(&flag, "CVDlsGetNumJacEvals", 1);
 
   flag = CVodeGetNumGEvals(cvode_mem, &nge);
   check_flag(&flag, "CVodeGetNumGEvals", 1);

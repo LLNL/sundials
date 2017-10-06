@@ -1,10 +1,7 @@
       program fkinDiagon_kry
 c     ----------------------------------------------------------------
-c     $Revision: 4881 $
-c     $Date: 2016-09-01 15:31:14 -0700 (Thu, 01 Sep 2016) $
-c     ----------------------------------------------------------------
-c     Programmer(s): Allan Taylor, Alan Hindmarsh and
-c                    Radu Serban @ LLNL  
+c     Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
+c                    Radu Serban @ LLNL
 c     ----------------------------------------------------------------
 c     Simple diagonal test with Fortran interface, using user-supplied
 c     preconditioner setup and solve routines (supplied in Fortran).
@@ -25,7 +22,7 @@ c
       parameter(PROBSIZE=128)
 c The following declaration specification should match C type long int.
       integer*8 neq, iout(15), msbpre
-      integer ier, globalstrat, maxl, maxlrst, i
+      integer ier, globalstrat, prectype, maxl, maxlrst, i
       double precision pp, fnormtol, scsteptol
       double precision rout(2), uu(PROBSIZE), scale(PROBSIZE)
       double precision constr(PROBSIZE)
@@ -37,6 +34,7 @@ c The following declaration specification should match C type long int.
       globalstrat = 0
       fnormtol = 1.0d-5
       scsteptol = 1.0d-4
+      prectype = 2
       maxl = 10
       maxlrst = 2
       msbpre  = 5
@@ -93,23 +91,60 @@ c * * * * * * * * * * * * * * * * * * * * * *
          call fkinfree
          stop
       endif
-
+c
+c Initialize KINSOL
+c
       call fkininit(iout, rout, ier)
       if (ier .ne. 0) then
          write(6,1234) ier
  1234    format('SUNDIALS_ERROR: FKININIT returned IER = ', i4)
-         stop
-      endif
-
-      call fkinspgmr(maxl, maxlrst, ier)
-      if (ier .ne. 0) then
-         write(6,1235) ier
- 1235    format('SUNDIALS_ERROR: FKINSPGMR returned IER = ', i4)
          call fkinfree
          stop
       endif
-
+c
+c Initialize SPGMR linear solver module with right preconditioning
+c and maximum Krylov dimension maxl
+c
+      call fsunspgmrinit(3, prectype, maxl, ier)
+      if (ier .ne. 0) then
+         write(6,1235) ier
+ 1235    format('SUNDIALS_ERROR: FSUNSPGMRLINSOLINIT returned IER = ',
+     1          i4)
+         call fkinfree
+         stop
+      endif
+c
+c Attach SPGMR linear solver module to KINSOL
+c
+      call fkinspilsinit(ier)
+      if (ier .ne. 0) then
+         write(6,1236) ier
+ 1236    format('SUNDIALS_ERROR: FKINSPILSINIT returned IER = ', i4)
+         call fkinfree
+         stop
+      endif
+c
+c Set the maximum number of SPGMR restarts to maxlrst
+c
+      call fsunspgmrsetmaxrs(3, maxlrst, ier)
+      if (ier .ne. 0) then
+         write(6,1237) ier
+ 1237    format('SUNDIALS_ERROR: FSUNSPGRM_SETMATRS returned IER = ',
+     1          i4)
+         call fkinfree
+         stop
+      endif
+c
+c Set preconditioner routines
+c
       call fkinspilssetprec(1, ier)
+      if (ier .ne. 0) then
+         write(6,1238) ier
+ 1238    format('SUNDIALS_ERROR: FKINSPILSSETPREC returned IER = ',
+     1          i4)
+         call fkinfree
+         stop
+      endif
 
       write(6,1240)
  1240 format('Example program fkinDiagon_kry:'//' This FKINSOL example',
@@ -152,7 +187,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
       
 c * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 c     The function defining the system f(u) = 0 must be defined by a Fortran
-c     function of the following form.
+c     function with the following name and form.
       
       subroutine fkfun(uu, fval, ier)
 
@@ -166,8 +201,7 @@ c The following declaration specification should match C type long int.
       common /psize/ neq
 
       do 10 i = 1, neq
-         fval(i) = uu(i) * uu(i) - i * i
- 10   continue
+ 10      fval(i) = uu(i) * uu(i) - i * i
 
       ier = 0
 
@@ -180,8 +214,7 @@ c     The routine kpreco is the preconditioner setup routine. It must have
 c     that specific name be used in order that the c code can find and link
 c     to it.  The argument list must also be as illustrated below:
       
-      subroutine fkpset(udata, uscale, fdata, fscale, vtemp1, vtemp2,
-     1                  ier)
+      subroutine fkpset(udata, uscale, fdata, fscale, ier)
 
       implicit none
 
@@ -190,16 +223,15 @@ c The following declaration specification should match C type long int.
       integer*8 neq
       double precision pp
       double precision udata(*), uscale(*), fdata(*), fscale(*)
-      double precision vtemp1(*), vtemp2(*)
 
       common /pcom/ pp(128)
       common /psize/ neq
 
       do 10 i = 1, neq
-         pp(i) = 0.5d0 / (udata(i) + 5.0d0)
- 10   continue
+ 10      pp(i) = 0.5d0 / (udata(i) + 5.0d0)
+
       ier = 0
-      
+
       return
       end
       
@@ -209,7 +241,7 @@ c     The routine kpsol is the preconditioner solve routine. It must have
 c     that specific name be used in order that the c code can find and link
 c     to it.  The argument list must also be as illustrated below:
       
-      subroutine fkpsol(udata, uscale, fdata, fscale, vv, ftem, ier)
+      subroutine fkpsol(udata, uscale, fdata, fscale, vv, ier)
 
       implicit none
 
@@ -217,16 +249,15 @@ c     to it.  The argument list must also be as illustrated below:
 c The following declaration specification should match C type long int.
       integer*8 neq
       double precision pp
-      double precision udata(*), uscale(*), fdata(*), fscale(*)
-      double precision vv(*), ftem(*)
+      double precision udata(*), uscale(*), fdata(*), fscale(*), vv(*)
 
       common /pcom/ pp(128)
       common /psize/ neq
 
       do 10 i = 1, neq
-         vv(i) = vv(i) * pp(i)
- 10   continue
+ 10      vv(i) = vv(i) * pp(i)
+
       ier = 0
-      
+
       return
       end

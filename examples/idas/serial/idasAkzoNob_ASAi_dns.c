@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4834 $
- * $Date: 2016-08-01 16:59:05 -0700 (Mon, 01 Aug 2016) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -27,25 +23,28 @@
  * conditions of the following quantity:
  *   G = int_t0^t1 y1 dt
  * The sensitivity of G is the solution of the adjoint system at t0. 
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
  
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
  
-#include <idas/idas.h>
-#include <idas/idas_dense.h>
-#include <sundials/sundials_math.h>
-#include <nvector/nvector_serial.h>
+#include <idas/idas.h>                 /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
+#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
+#include <idas/idas_direct.h>          /* access to IDADls interface           */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Accessor macros */
 #define Ith(v,i)    NV_Ith_S(v,i-1)       /* i-th vector component */
 
 /* Problem Constants */
 #define NEQ 6
-#define T0 RCONST(0.0)
-#define TF RCONST(180.0)
+#define T0  RCONST(0.0)
+
+#define TF  RCONST(180.0) /* Final time. */
 
 #define RTOL  RCONST(1.0e-08)
 #define ATOL  RCONST(1.0e-10)
@@ -53,7 +52,6 @@
 #define ATOLB RCONST(1.0e-08)
 #define RTOLQ RCONST(1.0e-10)
 #define ATOLQ RCONST(1.0e-12)
-
 
 #define ZERO  RCONST(0.0)
 #define HALF  RCONST(0.5)
@@ -80,7 +78,6 @@ static int rhsQ(realtype t, N_Vector yy, N_Vector yp,
 static void PrintOutput(realtype tfinal, N_Vector yB, N_Vector ypB);
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
-
 /* Main program */
 int main()
 {
@@ -92,10 +89,20 @@ int main()
   realtype time;
   long int nst, nstB;
   int indexB;
-    
+  SUNMatrix A, AB;
+  SUNLinearSolver LS, LSB;
+
+  /* Consistent IC for  y, y'. */
+  const realtype y01 = RCONST(0.444);
+  const realtype y02 = RCONST(0.00123);
+  const realtype y03 = RCONST(0.0);
+  const realtype y04 = RCONST(0.007);
+  const realtype y05 = RCONST(0.0);
 
   mem = NULL;
   yy = yp = NULL;
+  A = AB = NULL;
+  LS = LSB = NULL;
 
   printf("\nAdjoint Sensitivity Example for Akzo-Nobel Chemical Kinetics\n");
   printf("-------------------------------------------------------------\n");
@@ -121,18 +128,13 @@ int main()
   yp = N_VNew_Serial(NEQ);
   if (check_flag((void *)yp, "N_VNew_Serial", 0)) return(1);
 
-  /* Consistent IC for  y, y'. */
-#define y01 0.444
-#define y02 0.00123
-#define y03 0.00
-#define y04 0.007
-#define y05 0.0
-  Ith(yy,1) = RCONST(y01);
-  Ith(yy,2) = RCONST(y02);
-  Ith(yy,3) = RCONST(y03);
-  Ith(yy,4) = RCONST(y04);
-  Ith(yy,5) = RCONST(y05);
-  Ith(yy,6) = data->Ks * RCONST(y01) * RCONST(y04);
+  /* Set IC */
+  Ith(yy,1) = y01;
+  Ith(yy,2) = y02;
+  Ith(yy,3) = y03;
+  Ith(yy,4) = y04;
+  Ith(yy,5) = y05;
+  Ith(yy,6) = data->Ks * y01 * y04;
 
   /* Get y' = - res(t0, y, 0) */
   N_VConst(ZERO, yp);
@@ -140,7 +142,7 @@ int main()
   rr = N_VNew_Serial(NEQ);
   res(T0, yy, yp, rr, data);
   N_VScale(-ONE, rr, yp);
-  N_VDestroy_Serial(rr);
+  N_VDestroy(rr);
   
  /* Create and initialize q0 for quadratures. */
   q = N_VNew_Serial(1);
@@ -161,10 +163,19 @@ int main()
 
   /* Attach user data. */
   flag = IDASetUserData(mem, data);
-  if(check_flag(&flag, "IDASetUser", 1)) return(1);
-  
-  /* Attach linear solver. */
-  flag = IDADense(mem, NEQ);
+  if(check_flag(&flag, "IDASetUserData", 1)) return(1);
+
+  /* Create dense SUNMatrix for use in linear solves */
+  A = SUNDenseMatrix(NEQ, NEQ);
+  if(check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
+
+  /* Create dense SUNLinearSolver object */
+  LS = SUNDenseLinearSolver(yy, A);
+  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  flag = IDADlsSetLinearSolver(mem, LS, A);
+  if(check_flag(&flag, "IDADlsSetLinearSolver", 1)) return(1);
 
   /* Initialize QUADRATURE(S). */
   flag = IDAQuadInit(mem, rhsQ, q);
@@ -194,7 +205,11 @@ int main()
   flag = IDAGetQuad(mem, &time, q);
   if (check_flag(&flag, "IDAGetQuad", 1)) return(1);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("G:          %24.16Lf \n",Ith(q,1));
+#else
   printf("G:          %24.16f \n",Ith(q,1));
+#endif  
   printf("--------------------------------------------------------\n\n");
 
 
@@ -224,8 +239,17 @@ int main()
 
   flag = IDASetMaxNumStepsB(mem, indexB, 1000);
 
-  flag = IDADenseB(mem, indexB, NEQ);
-  if (check_flag(&flag, "IDADenseB", 1)) return(1);
+  /* Create dense SUNMatrix for use in linear solves */
+  AB = SUNDenseMatrix(NEQ, NEQ);
+  if(check_flag((void *)AB, "SUNDenseMatrix", 0)) return(1);
+
+  /* Create dense SUNLinearSolver object */
+  LSB = SUNDenseLinearSolver(yB, AB);
+  if(check_flag((void *)LSB, "SUNDenseLinearSolver", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  flag = IDADlsSetLinearSolverB(mem, indexB, LSB, AB);
+  if(check_flag(&flag, "IDADlsSetLinearSolverB", 1)) return(1);
 
   printf("Backward integration ... ");
 
@@ -241,12 +265,15 @@ int main()
   PrintOutput(time, yB, ypB);
 
   IDAFree(&mem);
-
-  N_VDestroy_Serial(yy);
-  N_VDestroy_Serial(yp);
-  N_VDestroy_Serial(yB);
-  N_VDestroy_Serial(ypB);
-  N_VDestroy_Serial(q);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
+  SUNLinSolFree(LSB);
+  SUNMatDestroy(AB);
+  N_VDestroy(yy);
+  N_VDestroy(yp);
+  N_VDestroy(yB);
+  N_VDestroy(ypB);
+  N_VDestroy(q);
 
   return(0);
 }
@@ -403,7 +430,11 @@ static int resB(realtype tt,
  */
 static void PrintOutput(realtype tfinal, N_Vector yB, N_Vector ypB)
 {
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("dG/dy0: \t%12.4Le\n\t\t%12.4Le\n\t\t%12.4Le\n\t\t%12.4Le\n\t\t%12.4Le\n\t\t%12.4Le\n",
+#else
   printf("dG/dy0: \t%12.4e\n\t\t%12.4e\n\t\t%12.4e\n\t\t%12.4e\n\t\t%12.4e\n\t\t%12.4e\n",
+#endif         
          Ith(yB,1), Ith(yB,2), Ith(yB,3), Ith(yB,4), Ith(yB,5), Ith(yB,6));
   printf("--------------------------------------------------------\n\n");
 }

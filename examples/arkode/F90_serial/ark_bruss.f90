@@ -38,9 +38,8 @@
 ! 
 ! This program uses the IMEX ARK solver; here the 
 ! implicit systems are solved with a modified Newton iteration
-! with the ARKDENSE dense linear solver.  The Jacobian routine 
-! and right-hand side routines come from the file user-supplied 
-! Jacobian routine.
+! with the SUNDENSE linear solver.  The Jacobian routine and 
+! right-hand side routines are supplied.
 !
 ! Output is printed 10 times throughout the defined time interval.
 ! Run statistics (optional outputs) are printed at the end.
@@ -52,14 +51,15 @@
 program driver
   ! Declarations
   implicit none
+  include "sundials/sundials_fconfig.h"
 
   ! general problem variables
-  integer*8, parameter :: NEQ=3
-  real*8,    parameter :: T0=0.d0, Tf=10.d0
-  real*8    :: dTout, Tout, Tcur, rtol, atol, rout(6)
+  integer(kind=SUNINDEXTYPE), parameter :: NEQ=3
+  real(kind=REALTYPE), parameter :: T0=0.d0, Tf=10.d0
+  real(kind=REALTYPE) :: dTout, Tout, Tcur, rtol, atol, rout(6)
   integer   :: it, Nt, ier
   integer*8 :: iout(22)
-  real*8, dimension(NEQ) :: y
+  real(kind=REALTYPE), dimension(NEQ) :: y
 
   ! real/integer parameters to pass through to supplied functions
   !    ipar(1) -> unused
@@ -67,11 +67,12 @@ program driver
   !    rpar(2) -> "b" parameter 
   !    rpar(3) -> "ep" parameter
   integer*8 :: ipar
-  real*8    :: rpar(3)
+  real(kind=REALTYPE) :: rpar(3)
 
   ! solver parameters
-  integer*8 :: order, adapt_method
-  real*8    :: nlscoef
+  integer :: adapt_method
+  integer(kind=SUNINDEXTYPE) :: order
+  real(kind=REALTYPE) :: nlscoef, adapt_params
 
   !-----------------------
   ! set some solver parameters
@@ -102,6 +103,10 @@ program driver
      stop
   endif
 
+  ! initialize dense matrix and dense linear solver modules
+  call FSunDenseMatInit(4, NEQ, NEQ, ier)
+  call FSunDenseLinSolInit(4, ier)
+  
   ! initialize ARKode solver to use IMEX integrator, scalar tolerances
   call FARKMalloc(T0, y, 2, 1, rtol, atol, &
                   iout, rout, ipar, rpar, ier)
@@ -121,18 +126,21 @@ program driver
      write(0,*) 'Error in FARKSetIin = ',ier
      stop
   endif
-  call FARKSetAdaptivityMethod(adapt_method, 1, 0, 0, ier)
+  adapt_params = 0.d0
+  call FARKSetAdaptivityMethod(adapt_method, 1, 0, adapt_params, ier)
   if (ier < 0) then
      write(0,*) 'Error in FARKSetAdaptMethod = ',ier
      stop
   endif
 
-  ! specify use of dense linear solver
-  call FARKDense(NEQ, ier)
+  ! attach matrix and linear solver modules to ARKDls interface
+  call FARKDlsInit(ier)
   if (ier < 0) then
-     write(0,*) 'Error in FARKDense = ',ier
+     write(0,*) 'Error in FARKDlsInit = ',ier
      stop
   endif
+
+  ! notify ARKDls module of user-supplied Jacobian construction routine
   call FARKDenseSetJac(1, ier)
   if (ier < 0) then
      write(0,*) 'Error in FARKDenseSetJac = ',ier
@@ -201,13 +209,14 @@ subroutine farkifun(t, y, ydot, ipar, rpar, ier)
 
   ! Declarations
   implicit none
+  include "sundials/sundials_fconfig.h"
 
   ! Arguments
-  real*8,    intent(in)  :: t, rpar(3)
-  integer*8, intent(in)  :: ipar(1)
+  real(kind=REALTYPE), intent(in) :: t, rpar(3)
+  integer*8, intent(in) :: ipar(1)
+  real(kind=REALTYPE), intent(in)  :: y(3)
+  real(kind=REALTYPE), intent(out) :: ydot(3)
   integer,   intent(out) :: ier
-  real*8,    intent(in)  :: y(3)
-  real*8,    intent(out) :: ydot(3)
 
   ! temporary variables
   real*8 :: u, v, w, a, b, ep
@@ -236,13 +245,14 @@ subroutine farkefun(t, y, ydot, ipar, rpar, ier)
 
   ! Declarations
   implicit none
+  include "sundials/sundials_fconfig.h"
 
   ! Arguments
-  real*8,    intent(in)  :: t, rpar(3)
-  integer*8, intent(in)  :: ipar(1)
+  real(kind=REALTYPE), intent(in)  :: t, rpar(3)
+  integer*8, intent(in) :: ipar(1)
+  real(kind=REALTYPE), intent(in)  :: y(3)
+  real(kind=REALTYPE), intent(out) :: ydot(3)
   integer,   intent(out) :: ier
-  real*8,    intent(in)  :: y(3)
-  real*8,    intent(out) :: ydot(3)
 
   ! temporary variables
   real*8 :: u, v, w, a, b, ep
@@ -271,13 +281,15 @@ subroutine farkdjac(neq,t,y,fy,DJac,h,ipar,rpar,wk1,wk2,wk3,ier)
 
   ! Declarations
   implicit none
+  include "sundials/sundials_fconfig.h"
 
   ! Arguments
-  real*8,    intent(in)  :: t, h, rpar(3)
-  integer*8, intent(in)  :: neq, ipar(1)
+  real(kind=REALTYPE), intent(in) :: t, h, rpar(3)
+  integer*8, intent(in) :: ipar(1)
+  integer(kind=SUNINDEXTYPE), intent(in) :: neq
   integer,   intent(out) :: ier
-  real*8,    intent(in), dimension(neq) :: y, fy, wk1, wk2, wk3
-  real*8,    intent(out) :: DJac(neq,neq)
+  real(kind=REALTYPE), intent(in), dimension(neq) :: y, fy, wk1, wk2, wk3
+  real(kind=REALTYPE), intent(out) :: DJac(neq,neq)
 
   ! temporary variables
   real*8 :: u, v, w, a, b, ep

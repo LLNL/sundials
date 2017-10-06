@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4272 $
- * $Date: 2014-12-02 11:19:41 -0800 (Tue, 02 Dec 2014) $
+ * $Revision$
+ * $Date$
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -242,7 +242,7 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
 
   /* Apply left preconditioner and b-scaling to r_star (or really just r_0) */
   if (preOnLeft) {
-    ier = psolve(P_data, r_star, vtemp1, PREC_LEFT);
+    ier = psolve(P_data, r_star, vtemp1, delta, PREC_LEFT);
     (*nps)++;
     if (ier != 0)
       return((ier < 0) ? SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC);
@@ -267,7 +267,7 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
   else N_VScale(ONE, r_star, vtemp1);
   if (preOnRight) {
     N_VScale(ONE, vtemp1, v_);
-    ier = psolve(P_data, v_, vtemp1, PREC_RIGHT);
+    ier = psolve(P_data, v_, vtemp1, delta, PREC_RIGHT);
     (*nps)++;
     if (ier != 0) return((ier < 0) ? SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC);
   }
@@ -275,7 +275,7 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
   if (ier != 0)
     return((ier < 0) ? SPTFQMR_ATIMES_FAIL_UNREC : SPTFQMR_ATIMES_FAIL_REC);
   if (preOnLeft) {
-    ier = psolve(P_data, v_, vtemp1, PREC_LEFT);
+    ier = psolve(P_data, v_, vtemp1, delta, PREC_LEFT);
     (*nps)++;
     if (ier != 0) return((ier < 0) ? SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC);
   }
@@ -312,7 +312,7 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
     if (scale_x) N_VDiv(r_[1], sx, r_[1]);
     if (preOnRight) {
       N_VScale(ONE, r_[1], vtemp1);
-      ier = psolve(P_data, vtemp1, r_[1], PREC_RIGHT);
+      ier = psolve(P_data, vtemp1, r_[1], delta, PREC_RIGHT);
       (*nps)++;
       if (ier != 0) return((ier < 0) ? SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC);
     }
@@ -320,7 +320,7 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
     if (ier != 0)
       return((ier < 0) ? SPTFQMR_ATIMES_FAIL_UNREC : SPTFQMR_ATIMES_FAIL_REC);
     if (preOnLeft) {
-      ier = psolve(P_data, vtemp1, r_[1], PREC_LEFT);
+      ier = psolve(P_data, vtemp1, r_[1], delta, PREC_LEFT);
       (*nps)++;
       if (ier != 0) return((ier < 0) ? SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC);
     }
@@ -393,7 +393,7 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
 	if (scale_x) N_VDiv(x, sx, vtemp1);
 	else N_VScale(ONE, x, vtemp1);
 	if (preOnRight) {
-	  ier = psolve(P_data, vtemp1, vtemp2, PREC_RIGHT);
+	  ier = psolve(P_data, vtemp1, vtemp2, delta, PREC_RIGHT);
 	  (*nps)++;
 	  if (ier != 0) return((ier < 0) ? SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_UNREC);
 	  N_VScale(ONE, vtemp2, vtemp1);
@@ -402,7 +402,7 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
         if (ier != 0)
           return((ier < 0) ? SPTFQMR_ATIMES_FAIL_UNREC : SPTFQMR_ATIMES_FAIL_REC);
 	if (preOnLeft) {
-	  ier = psolve(P_data, vtemp2, vtemp1, PREC_LEFT);
+	  ier = psolve(P_data, vtemp2, vtemp1, delta, PREC_LEFT);
 	  (*nps)++;
 	  if (ier != 0) return((ier < 0) ? SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC);
 	}
@@ -413,7 +413,7 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
 	if (!b_ok) {
 	  b_ok = TRUE;
 	  if (preOnLeft) {
-	    ier = psolve(P_data, b, vtemp3, PREC_LEFT);
+	    ier = psolve(P_data, b, vtemp3, delta, PREC_LEFT);
 	    (*nps)++;
 	    if (ier != 0) return((ier < 0) ? SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC);
 	  }
@@ -455,7 +455,7 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
     else N_VScale(ONE, p_, vtemp1);
     if (preOnRight) {
       N_VScale(ONE, vtemp1, v_);
-      ier = psolve(P_data, v_, vtemp1, PREC_RIGHT);
+      ier = psolve(P_data, v_, vtemp1, delta, PREC_RIGHT);
       (*nps)++;
       if (ier != 0) return((ier < 0) ? SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC);
     }
@@ -463,7 +463,7 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
     if (ier != 0)
       return((ier < 0) ? SPTFQMR_ATIMES_FAIL_UNREC : SPTFQMR_ATIMES_FAIL_REC);
     if (preOnLeft) {
-      ier = psolve(P_data, v_, vtemp1, PREC_LEFT);
+      ier = psolve(P_data, v_, vtemp1, delta, PREC_LEFT);
       (*nps)++;
       if (ier != 0) return((ier < 0) ? SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC);
     }
@@ -483,7 +483,7 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
   if ((converged == TRUE) || (r_curr_norm < r_init_norm)) {
     if (scale_x) N_VDiv(x, sx, x);
     if (preOnRight) {
-      ier = psolve(P_data, x, vtemp1, PREC_RIGHT);
+      ier = psolve(P_data, x, vtemp1, delta, PREC_RIGHT);
       (*nps)++;
       if (ier != 0) return((ier < 0) ? SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_UNREC);
       N_VScale(ONE, vtemp1, x);

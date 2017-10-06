@@ -1,13 +1,10 @@
 # ---------------------------------------------------------------
-# $Revision: 4957 $
-# $Date: 2016-09-23 12:21:47 -0700 (Fri, 23 Sep 2016) $
-# ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
@@ -38,7 +35,7 @@ ELSE(MPI_MPICC)
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 ENDIF(MPI_MPICC)
 
-# Specify libraries to link against (through the target that was used to 
+# Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 
 IF(LINK_LIBRARY_TYPE MATCHES "static")
@@ -55,6 +52,10 @@ SET(SUNDIALS_LIBS ${CVODE_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
 IF(LAPACK_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
 ENDIF(LAPACK_FOUND)
+
+IF(BLAS_FOUND)
+  LIST(APPEND SUNDIALS_LIBS ${BLAS_LIBRARIES})
+ENDIF(BLAS_FOUND)
 
 IF(KLU_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
@@ -100,8 +101,8 @@ IF(EXAMPLES_INSTALL)
   	LIST2STRING(example EXAMPLES)
   ENDFOREACH(example_tuple ${CVODE_examples})
 
-  # Regardless of the platform we're on, we will generate and install 
-  # CMakeLists.txt file for building the examples. This file  can then 
+  # Regardless of the platform we're on, we will generate and install
+  # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
@@ -114,11 +115,11 @@ IF(EXAMPLES_INSTALL)
   # install CMakelists.txt
   INSTALL(
     FILES ${PROJECT_BINARY_DIR}/examples/cvode/parallel/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parallel 
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parallel
     )
 
-  # On UNIX-type platforms, we also  generate and install a makefile for 
-  # building the examples. This makefile can then be used as a template 
+  # On UNIX-type platforms, we also  generate and install a makefile for
+  # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
   IF(UNIX)

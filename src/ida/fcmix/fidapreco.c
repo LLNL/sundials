@@ -1,14 +1,10 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4075 $
- * $Date: 2014-04-24 10:46:58 -0700 (Thu, 24 Apr 2014) $
- * ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
@@ -18,8 +14,7 @@
  * The C function FIDAPSet is to interface between the IDASPILS
  * modules and the user-supplied preconditioner setup routine FIDAPSET.
  * Note the use of the generic name FIDA_PSET below.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,17 +30,15 @@
 extern "C" {
 #endif
 
-  extern void FIDA_PSET(realtype*, realtype*, realtype*, realtype*,
-                        realtype*, realtype*, realtype*, 
-                        long int*, realtype*,
-                        realtype*, realtype*, realtype*, 
-                        int*);
+  extern void FIDA_PSET(realtype* t,  realtype* yy,   realtype* yp,
+                        realtype* rr, realtype* c_j,  realtype* ewt,
+                        realtype* h,  long int* ipar, realtype* rpar,
+                        int* ier);
   
-  extern void FIDA_PSOL(realtype*, realtype*, realtype*, realtype*,
-                        realtype*, realtype*, realtype*, realtype*,
-                        realtype*, 
-                        long int*, realtype*,
-                        realtype*, int*);
+  extern void FIDA_PSOL(realtype* t,    realtype* yy,    realtype* yp,
+                        realtype* rr,   realtype* r,     realtype* z,
+                        realtype* c_j,  realtype* delta, realtype* ewt,
+                        long int* ipar, realtype* rpar,  int* ier);
 
 #ifdef __cplusplus
 }
@@ -81,17 +74,15 @@ void FIDA_SPILSSETPREC(int *flag, int *ier)
 /*************************************************/
 
 int FIDAPSet(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
-	     realtype c_j, void *user_data,
-	     N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+	     realtype c_j, void *user_data)
 {
-  realtype *yy_data, *yp_data, *rr_data, *ewtdata, *v1data, *v2data, *v3data;
+  realtype *yy_data, *yp_data, *rr_data, *ewtdata;
   realtype h;
   int ier;
   FIDAUserData IDA_userdata;
 
   /* Initialize all pointers to NULL */
   yy_data = yp_data = rr_data = ewtdata = NULL;
-  v1data = v2data = v3data = NULL;
 
   /* NOTE: The user-supplied routine should set ier to an
      appropriate value, but we preset the value to zero
@@ -107,16 +98,12 @@ int FIDAPSet(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
   yp_data = N_VGetArrayPointer(yp);
   rr_data = N_VGetArrayPointer(rr);
   ewtdata = N_VGetArrayPointer(F2C_IDA_ewtvec);
-  v1data = N_VGetArrayPointer(vtemp1);
-  v2data = N_VGetArrayPointer(vtemp2);
-  v3data = N_VGetArrayPointer(vtemp3);
 
   IDA_userdata = (FIDAUserData) user_data;
 
   /* Call user-supplied routine */
   FIDA_PSET(&t, yy_data, yp_data, rr_data, &c_j, ewtdata, &h,
-            IDA_userdata->ipar, IDA_userdata->rpar,
-	    v1data, v2data, v3data, &ier);
+            IDA_userdata->ipar, IDA_userdata->rpar, &ier);
 
   return(ier);
 }
@@ -125,15 +112,14 @@ int FIDAPSet(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
 
 int FIDAPSol(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
 	     N_Vector rvec, N_Vector zvec,
-	     realtype c_j, realtype delta, void *user_data,
-	     N_Vector vtemp1)
+	     realtype c_j, realtype delta, void *user_data)
 {
-  realtype *yy_data, *yp_data, *rr_data, *ewtdata, *rdata, *zdata, *v1data;
+  realtype *yy_data, *yp_data, *rr_data, *ewtdata, *rdata, *zdata;
   int ier;
   FIDAUserData IDA_userdata;
 
   /* Initialize all pointers to NULL */
-  yy_data = yp_data = rr_data = ewtdata = zdata = v1data = NULL;
+  yy_data = yp_data = rr_data = ewtdata = zdata = NULL;
 
   /* NOTE: The user-supplied routine should set ier to an
      appropriate value, but we preset the value to zero
@@ -150,15 +136,13 @@ int FIDAPSol(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
   ewtdata = N_VGetArrayPointer(F2C_IDA_ewtvec);
   rdata   = N_VGetArrayPointer(rvec);
   zdata   = N_VGetArrayPointer(zvec);
-  v1data  = N_VGetArrayPointer(vtemp1);
 
   IDA_userdata = (FIDAUserData) user_data;
 
   /* Call user-supplied routine */
   FIDA_PSOL(&t, yy_data, yp_data, rr_data, rdata, zdata,
 	    &c_j, &delta, ewtdata, 
-            IDA_userdata->ipar, IDA_userdata->rpar,
-            v1data, &ier);
+            IDA_userdata->ipar, IDA_userdata->rpar, &ier);
 
   return(ier);
 }

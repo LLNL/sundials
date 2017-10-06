@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4867 $
- * $Date: 2016-08-19 10:05:14 -0700 (Fri, 19 Aug 2016) $
+ * $Revision$
+ * $Date$
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -84,13 +84,13 @@ N_Vector_ID N_VGetVectorID_Parallel(N_Vector v)
  */
 
 N_Vector N_VNewEmpty_Parallel(MPI_Comm comm, 
-                              long int local_length,
-                              long int global_length)
+                              sunindextype local_length,
+                              sunindextype global_length)
 {
   N_Vector v;
   N_Vector_Ops ops;
   N_VectorContent_Parallel content;
-  long int n, Nsum;
+  sunindextype n, Nsum;
 
   /* Compute global length as sum of local lengths */
   n = local_length;
@@ -161,8 +161,8 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
  */
 
 N_Vector N_VNew_Parallel(MPI_Comm comm, 
-                         long int local_length,
-                         long int global_length)
+                         sunindextype local_length,
+                         sunindextype global_length)
 {
   N_Vector v;
   realtype *data;
@@ -193,8 +193,8 @@ N_Vector N_VNew_Parallel(MPI_Comm comm,
  */
 
 N_Vector N_VMake_Parallel(MPI_Comm comm, 
-                          long int local_length,
-                          long int global_length,
+                          sunindextype local_length,
+                          sunindextype global_length,
                           realtype *v_data)
 {
   N_Vector v;
@@ -286,7 +286,7 @@ void N_VDestroyVectorArray_Parallel(N_Vector *vs, int count)
  * Function to return global vector length 
  */
 
-long int N_VGetLength_Parallel(N_Vector v)
+sunindextype N_VGetLength_Parallel(N_Vector v)
 {
   return NV_GLOBLENGTH_P(v);
 }
@@ -295,7 +295,7 @@ long int N_VGetLength_Parallel(N_Vector v)
  * Function to return local vector length 
  */
 
-long int N_VGetLocalLength_Parallel(N_Vector v)
+sunindextype N_VGetLocalLength_Parallel(N_Vector v)
 {
   return NV_LOCLENGTH_P(v);
 }
@@ -306,7 +306,7 @@ long int N_VGetLocalLength_Parallel(N_Vector v)
 
 void N_VPrint_Parallel(N_Vector x)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype *xd;
 
   xd = NULL;
@@ -402,7 +402,7 @@ N_Vector N_VClone_Parallel(N_Vector w)
 {
   N_Vector v;
   realtype *data;
-  long int local_length;
+  sunindextype local_length;
 
   v = NULL;
   v = N_VCloneEmpty_Parallel(w);
@@ -439,7 +439,7 @@ void N_VDestroy_Parallel(N_Vector v)
   return;
 }
 
-void N_VSpace_Parallel(N_Vector v, long int *lrw, long int *liw)
+void N_VSpace_Parallel(N_Vector v, sunindextype *lrw, sunindextype *liw)
 {
   MPI_Comm comm;
   int npes;
@@ -467,7 +467,7 @@ void N_VSetArrayPointer_Parallel(realtype *v_data, N_Vector v)
 
 void N_VLinearSum_Parallel(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype c, *xd, *yd, *zd;
   N_Vector v1, v2;
   booleantype test;
@@ -554,7 +554,7 @@ void N_VLinearSum_Parallel(realtype a, N_Vector x, realtype b, N_Vector y, N_Vec
 
 void N_VConst_Parallel(realtype c, N_Vector z)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype *zd;
 
   zd = NULL;
@@ -569,7 +569,7 @@ void N_VConst_Parallel(realtype c, N_Vector z)
 
 void N_VProd_Parallel(N_Vector x, N_Vector y, N_Vector z)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -587,7 +587,7 @@ void N_VProd_Parallel(N_Vector x, N_Vector y, N_Vector z)
 
 void N_VDiv_Parallel(N_Vector x, N_Vector y, N_Vector z)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -605,7 +605,7 @@ void N_VDiv_Parallel(N_Vector x, N_Vector y, N_Vector z)
 
 void N_VScale_Parallel(realtype c, N_Vector x, N_Vector z)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -632,7 +632,7 @@ void N_VScale_Parallel(realtype c, N_Vector x, N_Vector z)
 
 void N_VAbs_Parallel(N_Vector x, N_Vector z)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -649,7 +649,7 @@ void N_VAbs_Parallel(N_Vector x, N_Vector z)
 
 void N_VInv_Parallel(N_Vector x, N_Vector z)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -666,7 +666,7 @@ void N_VInv_Parallel(N_Vector x, N_Vector z)
 
 void N_VAddConst_Parallel(N_Vector x, realtype b, N_Vector z)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -682,7 +682,7 @@ void N_VAddConst_Parallel(N_Vector x, realtype b, N_Vector z)
 
 realtype N_VDotProd_Parallel(N_Vector x, N_Vector y)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype sum, *xd, *yd, gsum;
   MPI_Comm comm;
 
@@ -703,7 +703,7 @@ realtype N_VDotProd_Parallel(N_Vector x, N_Vector y)
 
 realtype N_VMaxNorm_Parallel(N_Vector x)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype max, *xd, gmax;
   MPI_Comm comm;
 
@@ -726,7 +726,7 @@ realtype N_VMaxNorm_Parallel(N_Vector x)
 
 realtype N_VWrmsNorm_Parallel(N_Vector x, N_Vector w)
 {
-  long int i, N, N_global;
+  sunindextype i, N, N_global;
   realtype sum, prodi, *xd, *wd, gsum;
   MPI_Comm comm;
 
@@ -751,7 +751,7 @@ realtype N_VWrmsNorm_Parallel(N_Vector x, N_Vector w)
 
 realtype N_VWrmsNormMask_Parallel(N_Vector x, N_Vector w, N_Vector id)
 {
-  long int i, N, N_global;
+  sunindextype i, N, N_global;
   realtype sum, prodi, *xd, *wd, *idd, gsum;
   MPI_Comm comm;
 
@@ -779,7 +779,7 @@ realtype N_VWrmsNormMask_Parallel(N_Vector x, N_Vector w, N_Vector id)
 
 realtype N_VMin_Parallel(N_Vector x)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype min, *xd, gmin;
   MPI_Comm comm;
 
@@ -809,7 +809,7 @@ realtype N_VMin_Parallel(N_Vector x)
 
 realtype N_VWL2Norm_Parallel(N_Vector x, N_Vector w)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype sum, prodi, *xd, *wd, gsum;
   MPI_Comm comm;
 
@@ -833,7 +833,7 @@ realtype N_VWL2Norm_Parallel(N_Vector x, N_Vector w)
 
 realtype N_VL1Norm_Parallel(N_Vector x)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype sum, gsum, *xd;
   MPI_Comm comm;
 
@@ -854,7 +854,7 @@ realtype N_VL1Norm_Parallel(N_Vector x)
 
 void N_VCompare_Parallel(realtype c, N_Vector x, N_Vector z)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -872,7 +872,7 @@ void N_VCompare_Parallel(realtype c, N_Vector x, N_Vector z)
 
 booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype *xd, *zd, val, gval;
   MPI_Comm comm;
 
@@ -901,7 +901,7 @@ booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z)
 
 booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype temp;
   realtype *cd, *xd, *md;
   MPI_Comm comm;
@@ -937,7 +937,7 @@ booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m)
 realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
 {
   booleantype notEvenOnce;
-  long int i, N;
+  sunindextype i, N;
   realtype *nd, *dd, min;
   MPI_Comm comm;
 
@@ -1001,7 +1001,7 @@ static realtype VAllReduce_Parallel(realtype d, int op, MPI_Comm comm)
 
 static void VCopy_Parallel(N_Vector x, N_Vector z)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -1018,7 +1018,7 @@ static void VCopy_Parallel(N_Vector x, N_Vector z)
 
 static void VSum_Parallel(N_Vector x, N_Vector y, N_Vector z)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -1036,7 +1036,7 @@ static void VSum_Parallel(N_Vector x, N_Vector y, N_Vector z)
 
 static void VDiff_Parallel(N_Vector x, N_Vector y, N_Vector z)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -1054,7 +1054,7 @@ static void VDiff_Parallel(N_Vector x, N_Vector y, N_Vector z)
 
 static void VNeg_Parallel(N_Vector x, N_Vector z)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -1071,7 +1071,7 @@ static void VNeg_Parallel(N_Vector x, N_Vector z)
 
 static void VScaleSum_Parallel(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -1089,7 +1089,7 @@ static void VScaleSum_Parallel(realtype c, N_Vector x, N_Vector y, N_Vector z)
 
 static void VScaleDiff_Parallel(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -1107,7 +1107,7 @@ static void VScaleDiff_Parallel(realtype c, N_Vector x, N_Vector y, N_Vector z)
 
 static void VLin1_Parallel(realtype a, N_Vector x, N_Vector y, N_Vector z)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -1125,7 +1125,7 @@ static void VLin1_Parallel(realtype a, N_Vector x, N_Vector y, N_Vector z)
 
 static void VLin2_Parallel(realtype a, N_Vector x, N_Vector y, N_Vector z)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -1143,7 +1143,7 @@ static void VLin2_Parallel(realtype a, N_Vector x, N_Vector y, N_Vector z)
 
 static void Vaxpy_Parallel(realtype a, N_Vector x, N_Vector y)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype *xd, *yd;
 
   xd = yd = NULL;
@@ -1172,7 +1172,7 @@ static void Vaxpy_Parallel(realtype a, N_Vector x, N_Vector y)
 
 static void VScaleBy_Parallel(realtype a, N_Vector x)
 {
-  long int i, N;
+  sunindextype i, N;
   realtype *xd;
 
   xd = NULL;

@@ -45,7 +45,7 @@
  * 
  * This program solves the problem with the DIRK method, using a
  * Newton iteration.  The inner linear systems are solved using 
- * the ARKKLU linear solver.
+ * the SUNKLU linear solver.
  *
  * 100 outputs are printed at equal intervals, and run statistics 
  * are printed at the end.
@@ -55,11 +55,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <arkode/arkode.h>            /* prototypes for ARKode fcts., consts. */
-#include <arkode/arkode_klu.h>        /* prototype for ARKKLU solver */
-#include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
-#include <sundials/sundials_types.h>  /* def. of type 'realtype' */
-#include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc. */
+#include <arkode/arkode.h>               /* prototypes for ARKode fcts., consts. */
+#include <nvector/nvector_serial.h>      /* serial N_Vector types, fcts., macros */
+#include <sunmatrix/sunmatrix_sparse.h>  /* access to sparse SUNMatrix           */
+#include <sunlinsol/sunlinsol_klu.h>     /* access to KLU SUNLinearSolver        */
+#include <arkode/arkode_direct.h>        /* access to ARKDls interface           */
+#include <sundials/sundials_types.h>     /* defs. of realtype, sunindextype, etc */
+#include <sundials/sundials_math.h>      /* def. of SUNRsqrt, etc.               */
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
 
 /* accessor macros between (x,v) location and 1D NVector array */
 #define IDX(x,v) (3*(x)+v)
@@ -70,27 +82,26 @@
 
 /* user data structure */
 typedef struct {  
-  int N;         /* number of intervals     */
-  realtype dx;   /* mesh spacing            */
-  realtype a;    /* constant forcing on u   */
-  realtype b;    /* steady-state value of w */
-  realtype du;   /* diffusion coeff for u   */
-  realtype dv;   /* diffusion coeff for v   */
-  realtype dw;   /* diffusion coeff for w   */
-  realtype ep;   /* stiffness parameter     */
-  SlsMat R;      /* temporary storage       */
+  sunindextype N;  /* number of intervals     */
+  realtype dx;     /* mesh spacing            */
+  realtype a;      /* constant forcing on u   */
+  realtype b;      /* steady-state value of w */
+  realtype du;     /* diffusion coeff for u   */
+  realtype dv;     /* diffusion coeff for v   */
+  realtype dw;     /* diffusion coeff for w   */
+  realtype ep;     /* stiffness parameter     */
+  SUNMatrix R;     /* temporary storage       */
 } *UserData;
 
 
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(realtype t, N_Vector y, N_Vector fy, 
-	       SlsMat J, void *user_data, 
-	       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, 
+	       void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private function to check function return values */
-static int LaplaceMatrix(SlsMat Jac, UserData udata);
-static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata);
+static int LaplaceMatrix(SUNMatrix Jac, UserData udata);
+static int ReactionJac(N_Vector y, SUNMatrix Jac, UserData udata);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
@@ -106,7 +117,7 @@ int main()
   int Nvar = 3;
   UserData udata = NULL;
   realtype *data;
-  int N = 201;                  /* spatial mesh size */
+  sunindextype N = 201;         /* spatial mesh size */
   realtype a = 0.6;             /* problem parameters */
   realtype b = 2.0;
   realtype du = 0.025;
@@ -115,8 +126,7 @@ int main()
   realtype ep = 1.0e-5;         /* stiffness parameter */
   realtype reltol = 1.0e-6;     /* tolerances */
   realtype abstol = 1.0e-10;
-  int i;
-  long int NEQ, NNZ;
+  sunindextype NEQ, i, NNZ;
 
   /* general problem variables */
   int flag;                     /* reusable error-checking flag */
@@ -124,6 +134,8 @@ int main()
   N_Vector umask = NULL;
   N_Vector vmask = NULL;
   N_Vector wmask = NULL;
+  SUNMatrix A = NULL;           /* empty matrix object for solver */
+  SUNLinearSolver LS = NULL;    /* empty linear solver object */
   void *arkode_mem = NULL;
   realtype pi;
   FILE *FID, *UFID, *VFID, *WFID;
@@ -153,12 +165,12 @@ int main()
 
   /* Initial problem output */
   printf("\n1D Brusselator PDE test problem (KLU solver):\n");
-  printf("    N = %i,  NEQ = %li\n", udata->N, NEQ);
-  printf("    problem parameters:  a = %g,  b = %g,  ep = %g\n",
+  printf("    N = %li,  NEQ = %li\n", (long int) udata->N, (long int) NEQ);
+  printf("    problem parameters:  a = %"GSYM",  b = %"GSYM",  ep = %"GSYM"\n",
 	 udata->a, udata->b, udata->ep);
-  printf("    diffusion coefficients:  du = %g,  dv = %g,  dw = %g\n", 
+  printf("    diffusion coefficients:  du = %"GSYM",  dv = %"GSYM",  dw = %"GSYM"\n", 
 	 udata->du, udata->dv, udata->dw);
-  printf("    reltol = %.1e,  abstol = %.1e\n\n", reltol, abstol);
+  printf("    reltol = %.1"ESYM",  abstol = %.1"ESYM"\n\n", reltol, abstol);
 
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ);           /* Create serial vector for solution */
@@ -215,16 +227,22 @@ int main()
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);    /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
 
-  /* Specify the KLU sparse linear solver and Jacobian function */
+  /* Initialize sparse matrix data structure and KLU solver */
   NNZ = 5*NEQ;
-  flag = ARKKLU(arkode_mem, NEQ, NNZ, CSC_MAT);
-  if (check_flag(&flag, "ARKKLU", 1)) return 1;
-  flag = ARKSlsSetSparseJacFn(arkode_mem, Jac);
-  if (check_flag(&flag, "ARKSlsSetSparseJacFn", 1)) return 1;
+  A = SUNSparseMatrix(NEQ, NEQ, NNZ, CSC_MAT);
+  if (check_flag((void *)A, "SUNSparseMatrix", 0)) return 1;
+  LS = SUNKLU(y, A);
+  if (check_flag((void *)LS, "SUNKLU", 0)) return 1;
+  
+  /* Attach the matrix, linear solver, and Jacobian construction routine to ARKode */
+  flag = ARKDlsSetLinearSolver(arkode_mem, LS, A);        /* Attach matrix and LS */
+  if (check_flag(&flag, "ARKDlsSetLinearSolver", 1)) return 1;
+  flag = ARKDlsSetJacFn(arkode_mem, Jac);                 /* Supply Jac routine */
+  if (check_flag(&flag, "ARKDlsSetJacFn", 1)) return 1;
  
    /* output spatial mesh to disk */
   FID = fopen("bruss_mesh.txt","w");
-  for (i=0; i<N; i++)  fprintf(FID,"  %.16e\n", udata->dx*i);
+  for (i=0; i<N; i++)  fprintf(FID,"  %.16"ESYM"\n", udata->dx*i);
   fclose(FID);
 
   /* Open output stream for results, access data arrays */
@@ -235,9 +253,9 @@ int main()
   if (check_flag((void *) data, "N_VGetArrayPointer", 0)) return 1;
 
   /* output initial condition to disk */
-  for (i=0; i<N; i++)  fprintf(UFID," %.16e", data[IDX(i,0)]);
-  for (i=0; i<N; i++)  fprintf(VFID," %.16e", data[IDX(i,1)]);
-  for (i=0; i<N; i++)  fprintf(WFID," %.16e", data[IDX(i,2)]);
+  for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[IDX(i,0)]);
+  for (i=0; i<N; i++)  fprintf(VFID," %.16"ESYM"", data[IDX(i,1)]);
+  for (i=0; i<N; i++)  fprintf(WFID," %.16"ESYM"", data[IDX(i,2)]);
   fprintf(UFID,"\n");
   fprintf(VFID,"\n");
   fprintf(WFID,"\n");
@@ -258,7 +276,7 @@ int main()
     v = SUNRsqrt(v*v/N);
     w = N_VWL2Norm(y,wmask);
     w = SUNRsqrt(w*w/N);
-    printf("  %10.6f  %10.6f  %10.6f  %10.6f\n", t, u, v, w);
+    printf("  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"\n", t, u, v, w);
     if (flag >= 0) {                                       /* successful solve: update output time */
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;
@@ -268,9 +286,9 @@ int main()
     }
 
     /* output results to disk */
-    for (i=0; i<N; i++)  fprintf(UFID," %.16e", data[IDX(i,0)]);
-    for (i=0; i<N; i++)  fprintf(VFID," %.16e", data[IDX(i,1)]);
-    for (i=0; i<N; i++)  fprintf(WFID," %.16e", data[IDX(i,2)]);
+    for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[IDX(i,0)]);
+    for (i=0; i<N; i++)  fprintf(VFID," %.16"ESYM"", data[IDX(i,1)]);
+    for (i=0; i<N; i++)  fprintf(WFID," %.16"ESYM"", data[IDX(i,2)]);
     fprintf(UFID,"\n");
     fprintf(VFID,"\n");
     fprintf(WFID,"\n");
@@ -296,8 +314,8 @@ int main()
   check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1);
   flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
   check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1);
-  flag = ARKSlsGetNumJacEvals(arkode_mem, &nje);
-  check_flag(&flag, "ARKSlsGetNumJacEvals", 1);
+  flag = ARKDlsGetNumJacEvals(arkode_mem, &nje);
+  check_flag(&flag, "ARKDlsGetNumJacEvals", 1);
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
@@ -309,13 +327,15 @@ int main()
   printf("   Total number of error test failures = %li\n", netf);
 
   /* Clean up and return with successful completion */
-  N_VDestroy_Serial(y);         /* Free vectors */
-  N_VDestroy_Serial(umask);
-  N_VDestroy_Serial(vmask);
-  N_VDestroy_Serial(wmask);
-  SparseDestroyMat(udata->R);   /* Free user data */
+  N_VDestroy(y);                /* Free vectors */
+  N_VDestroy(umask);
+  N_VDestroy(vmask);
+  N_VDestroy(wmask);
+  SUNMatDestroy(udata->R);      /* Free user data */
   free(udata);
-  ARKodeFree(&arkode_mem);
+  ARKodeFree(&arkode_mem);      /* Free integrator memory */
+  SUNLinSolFree(LS);            /* Free linear solver */
+  SUNMatDestroy(A);             /* Free A matrix */
   return 0;
 }
 
@@ -327,17 +347,17 @@ int main()
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;      /* access problem data */
-  int N       = udata->N;                     /* set variable shortcuts */
-  realtype a  = udata->a;
-  realtype b  = udata->b;
-  realtype ep = udata->ep;
-  realtype du = udata->du;
-  realtype dv = udata->dv;
-  realtype dw = udata->dw;
-  realtype dx = udata->dx;
+  sunindextype N = udata->N;                     /* set variable shortcuts */
+  realtype a     = udata->a;
+  realtype b     = udata->b;
+  realtype ep    = udata->ep;
+  realtype du    = udata->du;
+  realtype dv    = udata->dv;
+  realtype dw    = udata->dw;
+  realtype dx    = udata->dx;
   realtype *Ydata=NULL, *dYdata=NULL;
   realtype uconst, vconst, wconst, u, ul, ur, v, vl, vr, w, wl, wr;
-  int i;
+  sunindextype i;
 
   Ydata = N_VGetArrayPointer(y);     /* access data arrays */
   if (check_flag((void *) Ydata, "N_VGetArrayPointer", 0)) return 1;
@@ -376,16 +396,16 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(realtype t, N_Vector y, N_Vector fy, 
-	       SlsMat J, void *user_data, 
-	       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+	       void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   /* problem data */
   UserData udata = (UserData) user_data;
-  int N = udata->N;
+  sunindextype N = udata->N;
 
   /* ensure that Jac is the correct size */
-  if ((J->M != N*3) || (J->N != N*3)) {
+  if ( (SUNSparseMatrix_Rows(J) != N*3) ||
+       (SUNSparseMatrix_Columns(J) != N*3) ) {
     printf("Jacobian calculation error: matrix is the wrong size!\n");
     return 1;
   }
@@ -396,23 +416,25 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
     return 1;
   }
 
-  /* Add in the Jacobian of the reaction terms matrix */
+  /* Create matrix for Jacobian of the reaction terms if necessary */
   if (udata->R == NULL) {
-    udata->R = SparseNewMat(J->M, J->N, J->NNZ, CSC_MAT);
+    udata->R = SUNSparseMatrix(SUNSparseMatrix_Rows(J),
+                               SUNSparseMatrix_Columns(J),
+                               SUNSparseMatrix_NNZ(J), CSC_MAT);
     if (udata->R == NULL) {
       printf("Jacobian calculation error in allocating R matrix!\n");
       return 1;
     }
   }
       
-  /* Add in the Jacobian of the reaction terms matrix */
+  /* Compute the Jacobian of the reaction terms */
   if (ReactionJac(y, udata->R, udata)) {
     printf("Jacobian calculation error in calling ReactionJac!\n");
     return 1;
   }
 
   /* Add R to J */
-  if (SparseAddMat(J,udata->R) != 0) {
+  if (SUNMatScaleAdd(ONE, J, udata->R) != 0) {
     printf("Jacobian calculation error in adding sparse matrices!\n");
     return 1;
   }
@@ -428,17 +450,17 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
  *-------------------------------*/
 
 /* Routine to compute the stiffness matrix from (L*y) */
-static int LaplaceMatrix(SlsMat Lap, UserData udata)
+static int LaplaceMatrix(SUNMatrix Lap, UserData udata)
 {
-  int N = udata->N;  /* set shortcuts */
-  int i, nz=0;
+  sunindextype N = udata->N;  /* set shortcuts */
+  sunindextype i, nz=0;
   realtype uconst, uconst2, vconst, vconst2, wconst, wconst2;
-  int *colptrs = *Lap->colptrs;
-  int *rowvals = *Lap->rowvals;
-  realtype *data = Lap->data;
+  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(Lap);
+  sunindextype *rowvals = SUNSparseMatrix_IndexValues(Lap);
+  realtype *data = SUNSparseMatrix_Data(Lap);
   
   /* clear out matrix */
-  SparseSetMatToZero(Lap);
+  SUNMatZero(Lap);
 
   /* set first column to zero */
   colptrs[IDX(0,0)] = nz;
@@ -515,20 +537,20 @@ static int LaplaceMatrix(SlsMat Lap, UserData udata)
 
 
 /* Routine to compute the Jacobian matrix from R(y) */
-static int ReactionJac(N_Vector y, SlsMat Jac, UserData udata)
+static int ReactionJac(N_Vector y, SUNMatrix Jac, UserData udata)
 {
-  int N = udata->N;                            /* set shortcuts */
-  int i, nz=0;
+  sunindextype N = udata->N;                   /* set shortcuts */
+  sunindextype i, nz=0;
   realtype u, v, w;
   realtype ep = udata->ep;
-  int *colptrs = *Jac->colptrs;
-  int *rowvals = *Jac->rowvals;
-  realtype *data = Jac->data;
+  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(Jac);
+  sunindextype *rowvals = SUNSparseMatrix_IndexValues(Jac);
+  realtype *data = SUNSparseMatrix_Data(Jac);
   realtype *Ydata = N_VGetArrayPointer(y);     /* access solution array */
   if (check_flag((void *) Ydata, "N_VGetArrayPointer", 0)) return 1;
 
   /* clear out matrix */
-  SparseSetMatToZero(Jac);
+  SUNMatZero(Jac);
 
   /* set first matrix column to zero */
   colptrs[IDX(0,0)] = 0;

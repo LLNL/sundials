@@ -1,22 +1,24 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4923 $
- * $Date: 2016-09-19 14:35:51 -0700 (Mon, 19 Sep 2016) $
- * ----------------------------------------------------------------- 
- * Programmer(s): Radu Serban @ LLNL
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2017, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
  * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
  * All rights reserved.
  * For details, see the LICENSE file.
- * LLNS Copyright End
+ * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
- * Common implementation header file for the scaled, preconditioned
- * iterative linear solvers
+ * Implementation header file for the scaled, preconditioned
+ * linear solver interface.
  * -----------------------------------------------------------------
  */
 
@@ -30,59 +32,40 @@
 extern "C" {
 #endif
 
-/*
- * =================================================================
- * C V S P I L S    I N T E R N A L    C O N S T A N T S
- * =================================================================
- */
+/*=================================================================
+  PART I:  Forward Problems
+  =================================================================*/
 
-/* Types of iterative linear solvers */
-
-#define SPILS_SPGMR   1
-#define SPILS_SPBCG   2
-#define SPILS_SPTFQMR 3
-
-/*
- * =================================================================
- * PART I:  F O R W A R D    P R O B L E M S
- * =================================================================
- */
-
-/*
- * -----------------------------------------------------------------
- * Types : CVSpilsMemRec, CVSpilsMem
- * -----------------------------------------------------------------
- * The type CVSpilsMem is pointer to a CVSpilsMemRec.
- * -----------------------------------------------------------------
- */
+/*-----------------------------------------------------------------
+  Types : CVSpilsMemRec, CVSpilsMem
+  -----------------------------------------------------------------
+  The type CVSpilsMem is pointer to a CVSpilsMemRec.
+  -----------------------------------------------------------------*/
 
 typedef struct CVSpilsMemRec {
 
-  int s_type;           /* type of scaled preconditioned iterative LS   */
+  realtype sqrtN;     /* sqrt(N)                                      */
+  realtype eplifac;   /* eplifac = user specified or EPLIN_DEFAULT    */
+  realtype deltar;    /* deltar = delt * tq4                          */
+  realtype delta;     /* delta = deltar * sqrtN                       */
 
-  int  s_pretype;       /* type of preconditioning                      */
-  int  s_gstype;        /* type of Gram-Schmidt orthogonalization       */
-  realtype s_sqrtN;     /* sqrt(N)                                      */
-  realtype s_eplifac;   /* eplifac = user specified or EPLIN_DEFAULT    */
-  realtype s_deltar;    /* deltar = delt * tq4                          */
-  realtype s_delta;     /* delta = deltar * sqrtN                       */
-  int  s_maxl;          /* maxl = maximum dimension of the Krylov space */
+  booleantype jbad;   /* heuristic suggestion for pset/jtsetup        */
+  long int nstlpre;   /* value of nst at the last pset call           */
+  long int npe;       /* npe = total number of pset calls             */
+  long int nli;       /* nli = total number of linear iterations      */
+  long int nps;       /* nps = total number of psolve calls           */
+  long int ncfl;      /* ncfl = total number of convergence failures  */
+  long int njtsetup;  /* njtsetup = total number of calls to jtsetup  */
+  long int njtimes;   /* njtimes = total number of calls to jtimes    */
+  long int nfes;      /* nfeSG = total number of calls to f for     
+                         difference quotient Jacobian-vector products */
 
-  long int s_nstlpre;   /* value of nst at the last pset call           */
-  long int s_npe;       /* npe = total number of pset calls             */
-  long int s_nli;       /* nli = total number of linear iterations      */
-  long int s_nps;       /* nps = total number of psolve calls           */
-  long int s_ncfl;      /* ncfl = total number of convergence failures  */
-  long int s_njtimes;   /* njtimes = total number of calls to jtimes    */
-  long int s_nfes;      /* nfeSG = total number of calls to f for     
-			   difference quotient Jacobian-vector products */
-
-  N_Vector s_ytemp;     /* temp vector passed to jtimes and psolve      */
-  N_Vector s_x;         /* temp vector used by CVSpilsSolve             */
-  N_Vector s_ycur;      /* CVODE current y vector in Newton Iteration   */
-  N_Vector s_fcur;      /* fcur = f(tn, ycur)                           */
-
-  void* s_spils_mem;    /* memory used by the generic solver            */
+  SUNLinearSolver LS; /* generic iterative linear solver object       */
+  
+  N_Vector ytemp;     /* temp vector passed to jtimes and psolve      */
+  N_Vector x;         /* temp vector used by CVSpilsSolve             */
+  N_Vector ycur;      /* CVODE current y vector in Newton Iteration   */
+  N_Vector fcur;      /* fcur = f(tn, ycur)                           */
 
   /* Preconditioner computation
    * (a) user-provided:
@@ -90,12 +73,11 @@ typedef struct CVSpilsMemRec {
    *     - pfree == NULL (the user dealocates memory for user_data)
    * (b) internal preconditioner module
    *     - P_data == cvode_mem
-   *     - pfree == set by the prec. module and called in CVodeFree
-   */
-  CVSpilsPrecSetupFn s_pset;
-  CVSpilsPrecSolveFn s_psolve;
-  int (*s_pfree)(CVodeMem cv_mem);
-  void *s_P_data;
+   *     - pfree == set by the prec. module and called in CVodeFree */
+  CVSpilsPrecSetupFn pset;
+  CVSpilsPrecSolveFn psolve;
+  int (*pfree)(CVodeMem cv_mem);
+  void *P_data;
 
   /* Jacobian times vector compuation
    * (a) jtimes function provided by the user:
@@ -103,71 +85,79 @@ typedef struct CVSpilsMemRec {
    *     - jtimesDQ == FALSE
    * (b) internal jtimes
    *     - j_data == cvode_mem
-   *     - jtimesDQ == TRUE
-   */
-  booleantype s_jtimesDQ;
-  CVSpilsJacTimesVecFn s_jtimes;
-  void *s_j_data;
+   *     - jtimesDQ == TRUE  */
+  booleantype jtimesDQ;
+  CVSpilsJacTimesSetupFn jtsetup;
+  CVSpilsJacTimesVecFn jtimes;
+  void *j_data;
 
-  long int s_last_flag;    /* last error flag returned by any function   */
+  long int last_flag;    /* last error flag returned by any function   */
 
 } *CVSpilsMem;
 
-/*
- * -----------------------------------------------------------------
- * Prototypes of internal functions
- * -----------------------------------------------------------------
- */
+/*-----------------------------------------------------------------
+  Prototypes of internal functions
+  -----------------------------------------------------------------*/
 
-/* Atimes and PSolve routines called by generic solver */
-
-int CVSpilsAtimes(void *cv_mem, N_Vector v, N_Vector z);
-
-int CVSpilsPSolve(void *cv_mem, N_Vector r, N_Vector z, int lr);
+/* Interface routines called by system SUNLinearSolver */
+int CVSpilsATimes(void *cv_mem, N_Vector v, N_Vector z);
+int CVSpilsPSetup(void *cv_mem);
+int CVSpilsPSolve(void *cv_mem, N_Vector r, N_Vector z,
+                  realtype tol, int lr);
 
 /* Difference quotient approximation for Jac times vector */
-
 int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
                     N_Vector y, N_Vector fy, void *data,
                     N_Vector work);
+
+/* Generic linit/lsetup/lsolve/lfree interface routines for CVode to call */
+int cvSpilsInitialize(CVodeMem cv_mem);
+int cvSpilsSetup(CVodeMem cv_mem, int convfail, N_Vector y, 
+                 N_Vector fy, booleantype *jcurPtr, 
+                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3); 
+int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
+                 N_Vector ycur, N_Vector fcur);
+int cvSpilsFree(CVodeMem cv_mem);
 
 /* Auxilliary functions */
 int cvSpilsInitializeCounters(CVSpilsMem cvspils_mem);
 
 
-/*
- * =================================================================
- * PART II:  B A C K W A R D    P R O B L E M S
- * =================================================================
- */
+/*=================================================================
+  PART II:  Backward Problems
+  =================================================================*/
 
-/*
- * -----------------------------------------------------------------
- * Types : CVSpilsMemRecB, CVSpilsMemB       
- * -----------------------------------------------------------------
- * CVSpgmrB, CVSpbcgB, and CVSptfqmr attach such a structure to the 
- * lmemB filed of CVodeBMem
- * -----------------------------------------------------------------
- */
+/*-----------------------------------------------------------------
+  Types : CVSpilsMemRecB, CVSpilsMemB       
+  -----------------------------------------------------------------
+  CVSpgmrB, CVSpbcgB, and CVSptfqmr attach such a structure to the 
+  lmemB filed of CVodeBMem
+  -----------------------------------------------------------------*/
 
 typedef struct CVSpilsMemRecB {
 
-  CVSpilsJacTimesVecFnB s_jtimesB;
-  CVSpilsJacTimesVecFnBS s_jtimesBS;
-  CVSpilsPrecSetupFnB s_psetB;
-  CVSpilsPrecSetupFnBS s_psetBS;
-  CVSpilsPrecSolveFnB s_psolveB;
-  CVSpilsPrecSolveFnBS s_psolveBS;
-  void *s_P_dataB;
+  CVSpilsJacTimesSetupFnB jtsetupB;
+  CVSpilsJacTimesSetupFnBS jtsetupBS;
+  CVSpilsJacTimesVecFnB jtimesB;
+  CVSpilsJacTimesVecFnBS jtimesBS;
+  CVSpilsPrecSetupFnB psetB;
+  CVSpilsPrecSetupFnBS psetBS;
+  CVSpilsPrecSolveFnB psolveB;
+  CVSpilsPrecSolveFnBS psolveBS;
+  void *P_dataB;
 
 } *CVSpilsMemB;
 
 
-/*
- * =================================================================
- * E R R O R   M E S S A G E S
- * =================================================================
- */
+/*-----------------------------------------------------------------
+  Prototypes of internal functions
+  -----------------------------------------------------------------*/
+
+int cvSpilsFreeB(CVodeBMem cvb_mem);
+
+/*=================================================================
+  Error Messages
+  =================================================================*/
 
 #define MSGS_CVMEM_NULL  "Integrator memory is NULL."
 #define MSGS_MEM_FAIL    "A memory request failed."
@@ -181,6 +171,7 @@ typedef struct CVSpilsMemRecB {
   
 #define MSGS_PSET_FAILED   "The preconditioner setup routine failed in an unrecoverable manner."
 #define MSGS_PSOLVE_FAILED "The preconditioner solve routine failed in an unrecoverable manner."
+#define MSGS_JTSETUP_FAILED "The Jacobian x vector setup routine failed in an unrecoverable manner."
 #define MSGS_JTIMES_FAILED "The Jacobian x vector routine failed in an unrecoverable manner."
 
 #define MSGS_NO_ADJ      "Illegal attempt to call before calling CVodeAdjMalloc."

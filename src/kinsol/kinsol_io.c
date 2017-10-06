@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4368 $
- * $Date: 2015-02-12 12:25:15 -0800 (Thu, 12 Feb 2015) $
+ * $Revision$
+ * $Date$
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL

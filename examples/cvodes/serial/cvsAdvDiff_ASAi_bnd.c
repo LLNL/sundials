@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4834 $
- * $Date: 2016-08-01 16:59:05 -0700 (Mon, 01 Aug 2016) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Adjoint sensitivity example problem:
@@ -20,7 +16,7 @@
  * central differencing, and with boundary values eliminated,
  * leaving an ODE system of size NEQ = MX*MY.
  * This program solves the problem with the BDF method, Newton
- * iteration with the CVODE band linear solver, and a user-supplied
+ * iteration with the SUNBAND linear solver, and a user-supplied
  * Jacobian routine.
  * It uses scalar relative and absolute tolerances.
  * Output is printed at t = .1, .2, ..., 1.
@@ -43,11 +39,15 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <cvodes/cvodes.h>
-#include <cvodes/cvodes_band.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
+/* Header files with a description of contents */
+
+#include <cvodes/cvodes.h>             /* prototypes for CVODES fcts., consts. */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix             */
+#include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver       */
+#include <cvodes/cvodes_direct.h>      /* access to CVDls interface            */
+#include <sundials/sundials_types.h>   /* definition of type realtype          */
+#include <sundials/sundials_math.h>    /* definition of SUNRabs and SUNRexp    */
 
 /* Problem Constants */
 
@@ -76,7 +76,7 @@
    to the underlying 1-dimensional storage. 
    IJth(vdata,i,j) references the element in the vdata array for
    u at mesh point (i,j), where 1 <= i <= MX, 1 <= j <= MY.
-   The vdata array is obtained via the macro call vdata = N_VDATA(v),
+   The vdata array is obtained via the call vdata = N_VGetArrayPointer(v),
    where v is an N_Vector. 
    The variables are ordered by the y index j, then by the x index i. */
 
@@ -93,18 +93,13 @@ typedef struct {
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
-static int Jac(long int N, long int mu, long int ml,
-               realtype t, N_Vector u, N_Vector fu, 
-               DlsMat J, void *user_data,
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3); 
+static int Jac(realtype t, N_Vector u, N_Vector fu, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3); 
 
 static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot, void *user_dataB);
 
-static int JacB(long int NB, long int muB, long int mlB,
-                realtype tB, N_Vector u, 
-                N_Vector uB, N_Vector fuB,
-                DlsMat JB, void *user_dataB,
-                N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B); 
+static int JacB(realtype tB, N_Vector u, N_Vector uB, N_Vector fuB, SUNMatrix JB,
+                void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B); 
 
 /* Prototypes of private functions */
 
@@ -123,6 +118,8 @@ int main(int argc, char *argv[])
   UserData data;
 
   void *cvode_mem;
+  SUNMatrix A, AB;
+  SUNLinearSolver LS, LSB;
 
   realtype dx, dy, reltol, abstol, t;
   N_Vector u;
@@ -137,6 +134,8 @@ int main(int argc, char *argv[])
   data = NULL;
   cvode_mem = NULL;
   u = uB = NULL;
+  LS = LSB = NULL;
+  A = AB = NULL;
 
   /* Allocate and initialize user data memory */
 
@@ -176,13 +175,21 @@ int main(int argc, char *argv[])
   flag = CVodeSStolerances(cvode_mem, reltol, abstol);
   if(check_flag(&flag, "CVodeSStolerances", 1)) return(1);
 
-  /* Call CVBand with  bandwidths ml = mu = MY, */
+  /* Create banded SUNMatrix for the forward problem */
+  A = SUNBandMatrix(NEQ, MY, MY, 2*MY);
+  if(check_flag((void *)A, "SUNBandMatrix", 0)) return(1);
 
-  flag = CVBand(cvode_mem, NEQ, MY, MY);
-  if(check_flag(&flag, "CVBand", 1)) return(1);
+  /* Create banded SUNLinearSolver for the forward problem */
+  LS = SUNBandLinearSolver(u, A);
+  if(check_flag((void *)LS, "SUNBandLinearSolver", 0)) return(1);
 
-  flag = CVDlsSetBandJacFn(cvode_mem, Jac);
-  if(check_flag(&flag, "CVDlsSetBandJacFn", 1)) return(1);
+  /* Attach the matrix and linear solver */
+  flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
+  if(check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
+
+  /* Set the user-supplied Jacobian routine for the forward problem */
+  flag = CVDlsSetJacFn(cvode_mem, Jac);
+  if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   /* Allocate global memory */
 
@@ -223,12 +230,22 @@ int main(int argc, char *argv[])
 
   flag = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
   if(check_flag(&flag, "CVodeSStolerancesB", 1)) return(1);
+ 
+  /* Create banded SUNMatrix for the backward problem */
+  AB = SUNBandMatrix(NEQ, MY, MY, 2*MY);
+  if(check_flag((void *)AB, "SUNBandMatrix", 0)) return(1);
 
-  flag = CVBandB(cvode_mem, indexB, NEQ, MY, MY);
-  if(check_flag(&flag, "CVBandB", 1)) return(1);
-  
-  flag = CVDlsSetBandJacFnB(cvode_mem, indexB, JacB);
-  if(check_flag(&flag, "CVDlsSetBandJacFnB", 1)) return(1);
+  /* Create banded SUNLinearSolver for the backward problem */
+  LSB = SUNBandLinearSolver(uB, AB);
+  if(check_flag((void *)LSB, "SUNBandLinearSolver", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  flag = CVDlsSetLinearSolverB(cvode_mem, indexB, LSB, AB);
+  if(check_flag(&flag, "CVDlsSetLinearSolverB", 1)) return(1);
+
+  /* Set the user-supplied Jacobian routine for the backward problem */
+  flag = CVDlsSetJacFnB(cvode_mem, indexB, JacB);
+  if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   /* Perform backward integration */
   printf("\nBackward integration\n");
@@ -240,9 +257,13 @@ int main(int argc, char *argv[])
 
   PrintOutput(uB, data);
 
-  N_VDestroy_Serial(u);   /* Free the u vector */
-  N_VDestroy_Serial(uB);  /* Free the uB vector */
-  CVodeFree(&cvode_mem);  /* Free the CVODE problem memory */
+  N_VDestroy(u);   /* Free the u vector                      */
+  N_VDestroy(uB);  /* Free the uB vector                     */
+  CVodeFree(&cvode_mem);  /* Free the CVODE problem memory          */
+  SUNLinSolFree(LS);      /* Free the forward linear solver memory  */
+  SUNMatDestroy(A);       /* Free the forward matrix memory         */
+  SUNLinSolFree(LSB);     /* Free the backward linear solver memory */
+  SUNMatDestroy(AB);      /* Free the backward matrix memory        */
 
   free(data);             /* Free the user data */
 
@@ -266,8 +287,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   int i, j;
   UserData data;
 
-  udata = N_VGetArrayPointer_Serial(u);
-  dudata = N_VGetArrayPointer_Serial(udot);
+  udata = N_VGetArrayPointer(u);
+  dudata = N_VGetArrayPointer(udot);
 
   /* Extract needed constants from data */
 
@@ -306,10 +327,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
  * Jac function. Jacobian of forward ODE.
  */
 
-static int Jac(long int N, long int mu, long int ml,
-               realtype t, N_Vector u, N_Vector fu, 
-               DlsMat J, void *user_data,
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jac(realtype t, N_Vector u, N_Vector fu, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   int i, j, k;
   realtype *kthCol, hordc, horac, verdc;
@@ -333,15 +352,15 @@ static int Jac(long int N, long int mu, long int ml,
   for (j=1; j <= MY; j++) {
     for (i=1; i <= MX; i++) {
       k = j-1 + (i-1)*MY;
-      kthCol = BAND_COL(J,k);
+      kthCol = SUNBandMatrix_Column(J,k);
 
       /* set the kth column of J */
 
-      BAND_COL_ELEM(kthCol,k,k) = -TWO*(verdc+hordc);
-      if (i != 1)  BAND_COL_ELEM(kthCol,k-MY,k) = hordc + horac;
-      if (i != MX) BAND_COL_ELEM(kthCol,k+MY,k) = hordc - horac;
-      if (j != 1)  BAND_COL_ELEM(kthCol,k-1,k)  = verdc;
-      if (j != MY) BAND_COL_ELEM(kthCol,k+1,k)  = verdc;
+      SM_COLUMN_ELEMENT_B(kthCol,k,k) = -TWO*(verdc+hordc);
+      if (i != 1)  SM_COLUMN_ELEMENT_B(kthCol,k-MY,k) = hordc + horac;
+      if (i != MX) SM_COLUMN_ELEMENT_B(kthCol,k+MY,k) = hordc - horac;
+      if (j != 1)  SM_COLUMN_ELEMENT_B(kthCol,k-1,k)  = verdc;
+      if (j != MY) SM_COLUMN_ELEMENT_B(kthCol,k+1,k)  = verdc;
     }
   }
 
@@ -362,8 +381,8 @@ static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot,
   realtype hdiffB, hadvB, vdiffB;
   int i, j;
 
-  uBdata = N_VGetArrayPointer_Serial(uB);
-  duBdata = N_VGetArrayPointer_Serial(uBdot);
+  uBdata = N_VGetArrayPointer(uB);
+  duBdata = N_VGetArrayPointer(uBdot);
 
   /* Extract needed constants from data */
 
@@ -402,11 +421,8 @@ static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot,
  * JacB function. Jacobian of backward ODE
  */
 
-static int JacB(long int NB, long int muB, long int mlB,
-                realtype tB, N_Vector u, 
-                N_Vector uB, N_Vector fuB,
-                DlsMat JB, void *user_dataB,
-                N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
+static int JacB(realtype tB, N_Vector u, N_Vector uB, N_Vector fuB, SUNMatrix JB,
+                void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   int i, j, k;
   realtype *kthCol, hordc, horac, verdc;
@@ -422,15 +438,15 @@ static int JacB(long int NB, long int muB, long int mlB,
   for (j=1; j <= MY; j++) {
     for (i=1; i <= MX; i++) {
       k = j-1 + (i-1)*MY;
-      kthCol = BAND_COL(JB,k);
+      kthCol = SUNBandMatrix_Column(JB,k);
 
       /* set the kth column of J */
 
-      BAND_COL_ELEM(kthCol,k,k) = TWO*(verdc+hordc);
-      if (i != 1)  BAND_COL_ELEM(kthCol,k-MY,k) = - hordc + horac;
-      if (i != MX) BAND_COL_ELEM(kthCol,k+MY,k) = - hordc - horac;
-      if (j != 1)  BAND_COL_ELEM(kthCol,k-1,k)  = - verdc;
-      if (j != MY) BAND_COL_ELEM(kthCol,k+1,k)  = - verdc;
+      SM_COLUMN_ELEMENT_B(kthCol,k,k) = TWO*(verdc+hordc);
+      if (i != 1)  SM_COLUMN_ELEMENT_B(kthCol,k-MY,k) = - hordc + horac;
+      if (i != MX) SM_COLUMN_ELEMENT_B(kthCol,k+MY,k) = - hordc - horac;
+      if (j != 1)  SM_COLUMN_ELEMENT_B(kthCol,k-1,k)  = - verdc;
+      if (j != MY) SM_COLUMN_ELEMENT_B(kthCol,k+1,k)  = - verdc;
     }
   }
 
@@ -460,7 +476,7 @@ static void SetIC(N_Vector u, UserData data)
 
   /* Set pointer to data array in vector u. */
 
-  udata = N_VGetArrayPointer_Serial(u);
+  udata = N_VGetArrayPointer(u);
 
   /* Load initial profile into u vector */
 
@@ -488,7 +504,7 @@ static void PrintOutput(N_Vector uB, UserData data)
   dx = data->dx;
   dy = data->dy;
 
-  uBdata = N_VGetArrayPointer_Serial(uB);
+  uBdata = N_VGetArrayPointer(uB);
 
   uBmax = ZERO;
   for(j=1; j<= MY; j++) {

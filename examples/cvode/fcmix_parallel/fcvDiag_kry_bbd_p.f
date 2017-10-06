@@ -1,31 +1,27 @@
 C     ----------------------------------------------------------------
-C     $Revision: 4074 $
-C     $Date: 2014-04-23 14:13:52 -0700 (Wed, 23 Apr 2014) $
-C     ----------------------------------------------------------------
-C     Diagonal ODE example.  Stiff case, with diagonal preconditioner.
+C     Diagonal ODE example. Stiff case, with diagonal preconditioner.
 C     Uses FCVODE interfaces and FCVBBD interfaces.
 C     Solves problem twice -- with left and right preconditioning.
 C     ----------------------------------------------------------------
-C     
+C
 C     Include MPI-Fortran header file for MPI_COMM_WORLD, MPI types.
-      
+
       IMPLICIT NONE
 C
       INCLUDE "mpif.h"
 C
 C The following declaration specification should match C type long int.
-      INTEGER*8 NLOCAL, NEQ, IOUT(25), IPAR(2), MUDQ, MLDQ, MU, ML
+      INTEGER*8 NLOCAL, NEQ, I, IOUT(25), IPAR(2), MUDQ, MLDQ, MU, ML
       PARAMETER (NLOCAL=10)   
 C
-      INTEGER NOUT, LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNPE
-      INTEGER LNLI, LNPS, LNCFL, MYPE, IER, NPES, METH, ITMETH
-      INTEGER LLENRW, LLENIW, LLENRWLS, LLENIWLS
-      INTEGER IATOL, ITASK, IPRE, IGS, JOUT
-      INTEGER I, NETF
+      INTEGER*4 NOUT, LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNPE
+      INTEGER*4 LNLI, LNPS, LNCFL, MYPE, IER, NPES, METH, ITMETH
+      INTEGER*4 LLENRW, LLENIW, LLENRWLS, LLENIWLS
+      INTEGER*4 IATOL, ITASK, IPRE, IGS, JOUT
 C The following declaration specification should match C type long int.
       INTEGER*8 LENRWBBD, LENIWBBD, NGEBBD
-      INTEGER NST, NFE, NPSET, NPE, NPS, NNI, NLI, NCFN, NCFL
-      INTEGER LENRW, LENIW, LENRWLS, LENIWLS
+      INTEGER*8 NST, NFE, NPSET, NPE, NPS, NNI, NLI, NCFN, NCFL, NETF
+      INTEGER*8 LENRW, LENIW, LENRWLS, LENIWLS
       DOUBLE PRECISION Y(1024), ROUT(10), RPAR(1)
       DOUBLE PRECISION ALPHA, TOUT, ERMAX, AVDIM
       DOUBLE PRECISION ATOL, ERRI, RTOL, GERMAX, DTOUT, T
@@ -55,8 +51,8 @@ C     Get NPES and MYPE.  Requires initialization of MPI.
  7       FORMAT(///' MPI_ERROR: MPI_COMM_RANK returned IER = ', I5)
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
-      ENDIF      
-C     
+      ENDIF
+C
 C     Set input arguments.
       NEQ = NPES * NLOCAL
       T = 0.0D0
@@ -97,6 +93,23 @@ C
          CALL MPI_FINALIZE(IER)
          STOP
       ENDIF
+C
+C     initialize SPGMR linear solver module
+      call FSUNSPGMRINIT(1, IPRE, 0, IER)
+      IF (IER .NE. 0) THEN
+         WRITE(6,25) IER
+ 25      FORMAT(///' SUNDIALS_ERROR: FSUNSPGMRINIT IER = ', I5)
+         CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
+         STOP
+      ENDIF
+C
+      call FSUNSPGMRSETGSTYPE(1, IGS, IER)
+      IF (IER .NE. 0) THEN
+         WRITE(6,27) IER
+ 27      FORMAT(///' SUNDIALS_ERROR: FSUNSPGMRSETGSTYPE IER = ', I5)
+         CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
+         STOP
+      ENDIF
 C     
       CALL FCVMALLOC(T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
      &               IOUT, ROUT, IPAR, RPAR, IER)
@@ -108,10 +121,11 @@ C
          STOP
       ENDIF
 C
-      CALL FCVSPGMR(IPRE, IGS, 0, 0.0D0, IER)
+C     attach linear solver module to CVSpils interface
+      CALL FCVSPILSINIT(IER)
       IF (IER .NE. 0) THEN
-         WRITE(6,36) IER
- 36      FORMAT(///' SUNDIALS_ERROR: FCVSPGMR returned IER = ', I5)
+         WRITE(6,32) IER
+ 32      FORMAT(///' SUNDIALS_ERROR: FCVSPILSINIT returned IER = ', I5)
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF
@@ -233,7 +247,7 @@ C
 C
       IPRE = 2
 C
-      CALL FCVBBDREINIT(NLOCAL, MUDQ, MLDQ, 0.0D0, IER) 
+      CALL FCVBBDREINIT(MUDQ, MLDQ, 0.0D0, IER) 
       IF (IER .NE. 0) THEN
          WRITE(6,92) IER
  92      FORMAT(///' SUNDIALS_ERROR: FCVBBDREINIT returned IER = ', I5)
@@ -241,10 +255,10 @@ C
          STOP
       ENDIF
 C
-      CALL FCVSPGMRREINIT(IPRE, IGS, 0.0D0, IER)
+      CALL FSUNSPGMRSETPRECTYPE(1, IPRE, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,93) IER
- 93      FORMAT(///' SUNDIALS_ERROR: FCVSPGMRREINIT returned IER = ',I5)
+ 93      FORMAT(///' SUNDIALS_ERROR: FSUNSPGMRSETPRECTYPE IER = ',I5)
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF
@@ -267,11 +281,11 @@ C     Routine for right-hand side function f
       IMPLICIT NONE
 C
 C The following declaration specification should match C type long int.
-      INTEGER*8 IPAR(*)
-      INTEGER IER, MYPE, I, NLOCAL
+      INTEGER*8 IPAR(*), MYPE, I, NLOCAL
+      INTEGER*4 IER
       DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
       DOUBLE PRECISION ALPHA
-C     
+C
       NLOCAL = IPAR(1)
       MYPE = IPAR(2)
       ALPHA = RPAR(1)
@@ -279,7 +293,7 @@ C
       DO I = 1, NLOCAL
          YDOT(I) = -ALPHA * (MYPE * NLOCAL + I) * Y(I)
       ENDDO
-C     
+C
       IER = 0
 C
       RETURN
@@ -293,18 +307,21 @@ C     Routine to define local approximate function g, here the same as f.
 C
 C The following declaration specification should match C type long int.
       INTEGER*8 NLOC, IPAR(*)
-      INTEGER IER
+      INTEGER*4 IER
       DOUBLE PRECISION T, YLOC(*), GLOC(*), RPAR(*)
-C     
+C
       CALL FCVFUN(T, YLOC, GLOC, IPAR, RPAR, IER)
 C
       RETURN
       END
 C
 C     ------------------------------------------------------------------------
-C      
+C
       SUBROUTINE FCVCOMMFN(NLOC, T, YLOC, IPAR, RPAR, IER)
 C     Routine to perform communication required for evaluation of g.
+      INTEGER*8 NLOC, IPAR(*)
+      INTEGER*4 IER
+      DOUBLE PRECISION T, YLOC(*), RPAR(*)
       IER = 0
       RETURN
       END

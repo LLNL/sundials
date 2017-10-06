@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4834 $
- * $Date: 2016-08-01 16:59:05 -0700 (Mon, 01 Aug 2016) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -14,7 +10,7 @@
  * population model, with predator-prey interaction and diffusion on
  * the unit square in two dimensions. The dependent variable vector
  * is the following:
- * 
+ *
  *       1   2         ns
  * c = (c , c ,  ..., c  )     (denoted by the variable cc)
  *
@@ -47,10 +43,10 @@
  * routine InitUserData.
  *
  * The boundary conditions are: normal derivative = 0, and the
- * initial guess is constant in x and y, although the final
- * solution is not.
+ * initial guess is constant in x and y, but the final solution
+ * is not.
  *
- * The PDEs are discretized by central differencing on a MX by
+ * The PDEs are discretized by central differencing on an MX by
  * MY mesh.
  *
  * The nonlinear system is solved by KINSOL using the method
@@ -74,8 +70,8 @@
  *    Lawrence Livermore National Laboratory Report  UCRL-95088,
  *    Rev. 1, June 1987, and  Journal of Applied Mathematics and
  *    Computation, Vol. 31 (May 1989), pp. 40-91. (Presents a
- *    description of the time-dependent version of this
- *    test problem.)
+ *    description of the time-dependent version of this test
+ *    problem.)
  * --------------------------------------------------------------------------
  *  Run command line: mpirun -np N -machinefile machines kinFoodWeb_kry_bbd_p
  *  where N = NPEX * NPEY is the number of processors.
@@ -86,33 +82,33 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <kinsol/kinsol.h>
-#include <kinsol/kinsol_spgmr.h>
-#include <kinsol/kinsol_bbdpre.h>
-#include <nvector/nvector_parallel.h>
-#include <sundials/sundials_dense.h>
-#include <sundials/sundials_math.h>
-#include <sundials/sundials_types.h>
+#include <kinsol/kinsol.h>             /* access to KINSOL func., consts.      */
+#include <nvector/nvector_parallel.h>  /* access to MPI parallel N_Vector      */
+#include <kinsol/kinsol_spils.h>       /* access to KINSpils interface         */
+#include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
+#include <kinsol/kinsol_bbdpre.h>      /* access to BBD preconditioner         */
+#include <sundials/sundials_dense.h>   /* use generic dense solver in precond. */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>    /* access to SUNMAX, SUNRabs, SUNRsqrt  */
 
 #include <mpi.h>
 
-
 /* Problem Constants */
 
-#define NUM_SPECIES     6  /*  must equal 2*(number of prey or predators)
-                               number of prey =  number of predators      */
+#define NUM_SPECIES     6  /* must equal 2*(number of prey or predators)
+                              number of prey = number of predators       */ 
 
 #define PI       RCONST(3.1415926535898)   /* pi */ 
 
-#define NPEX        2            /* number of processors in the x-direction */
-#define NPEY        2            /* number of processors in the y-direction */
-#define MXSUB       10           /* number of x mesh points per subgrid     */
-#define MYSUB       10           /* number of y mesh points per subgrid     */
-#define MX          (NPEX*MXSUB) /* number of grid points in x-direction    */
-#define MY          (NPEY*MYSUB) /* number of grid points in y-direction    */
+#define NPEX        2            /* number of processors in the x-direction  */
+#define NPEY        2            /* number of processors in the y-direction  */
+#define MXSUB       10           /* number of x mesh points per subgrid      */
+#define MYSUB       10           /* number of y mesh points per subgrid      */
+#define MX          (NPEX*MXSUB) /* number of mesh points in the x-direction */
+#define MY          (NPEY*MYSUB) /* number of mesh points in the y-direction */
 #define NSMXSUB     (NUM_SPECIES * MXSUB)
 #define NSMXSUB2    (NUM_SPECIES * (MXSUB+2))
-#define NEQ         (NUM_SPECIES*MX*MY)  /* number of equations in system   */ 
+#define NEQ         (NUM_SPECIES*MX*MY)  /* number of equations in the system */
 #define AA          RCONST(1.0)    /* value of coefficient AA in above eqns */
 #define EE          RCONST(10000.) /* value of coefficient EE in above eqns */
 #define GG          RCONST(0.5e-6) /* value of coefficient GG in above eqns */
@@ -122,8 +118,8 @@
 #define ALPHA       RCONST(1.0)    /* value of coefficient alpha above */
 #define AX          RCONST(1.0)    /* total range of x variable */
 #define AY          RCONST(1.0)    /* total range of y variable */
-#define FTOL        RCONST(1.e-7)  /*  ftol tolerance */
-#define STOL        RCONST(1.e-13) /*  stol tolerance */
+#define FTOL        RCONST(1.e-7)  /* ftol tolerance */
+#define STOL        RCONST(1.e-13) /* stol tolerance */
 #define THOUSAND    RCONST(1000.0) /* one thousand */
 #define ZERO        RCONST(0.0)    /* 0. */
 #define ONE         RCONST(1.0)    /* 1. */
@@ -147,30 +143,30 @@ typedef struct {
   N_Vector rates;
   realtype *cox, *coy;
   realtype ax, ay, dx, dy;
-  long int Nlocal;
+  sunindextype Nlocal;
   int mx, my, ns, np;
   realtype cext[NUM_SPECIES * (MXSUB+2)*(MYSUB+2)];
   int my_pe, isubx, isuby, nsmxsub, nsmxsub2;
   MPI_Comm comm;
 } *UserData;
 
-/* Function called by the KINSol Solver */
+/* Functions called by the KINSOL Solver */
 
 static int func(N_Vector cc, N_Vector fval, void *user_data);
 
-static int ccomm(long int Nlocal, N_Vector cc, void *data);
+static int ccomm(sunindextype Nlocal, N_Vector cc, void *data);
 
-static int func_local(long int Nlocal, N_Vector cc, N_Vector fval, void *user_data);
+static int func_local(sunindextype Nlocal, N_Vector cc, N_Vector fval, void *user_data);
 
 /* Private Helper Functions */
 
 static UserData AllocUserData(void);
-static void InitUserData(int my_pe, long int Nlocal, MPI_Comm comm, UserData data);
+static void InitUserData(int my_pe, sunindextype Nlocal, MPI_Comm comm, UserData data);
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector cc, N_Vector sc);
 static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
-                        long int mudq, long int mldq,
-			long int mukeep, long int mlkeep,
+                        sunindextype mudq, sunindextype mldq,
+                        sunindextype mukeep, sunindextype mlkeep,
                         realtype fnormtol, realtype scsteptol);
 static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc);
 static void PrintFinalStats(void *kmem);
@@ -197,20 +193,22 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 
 int main(int argc, char *argv[])
 {
-  MPI_Comm comm;
-  void *kmem;
-  UserData data;
-  N_Vector cc, sc, constraints;
   int globalstrategy;
-  long int Nlocal;
+  sunindextype Nlocal;
   realtype fnormtol, scsteptol, dq_rel_uu;
+  N_Vector cc, sc, constraints;
+  UserData data;
   int flag, maxl, maxlrst;
-  long int mudq, mldq, mukeep, mlkeep;
   int my_pe, npes, npelast = NPEX*NPEY-1;
+  void *kmem;
+  SUNLinearSolver LS;
+  sunindextype mudq, mldq, mukeep, mlkeep;
+  MPI_Comm comm;
 
-  data = NULL;
-  kmem = NULL;
   cc = sc = constraints = NULL;
+  kmem = NULL;
+  LS = NULL;
+  data = NULL;
 
   /* Get processor number and total number of pe's */
   MPI_Init(&argc, &argv);
@@ -220,14 +218,15 @@ int main(int argc, char *argv[])
 
   if (npes != NPEX*NPEY) {
     if (my_pe == 0)
-      printf("\nMPI_ERROR(0): npes=%d is not equal to NPEX*NPEY=%d\n", npes,
-             NPEX*NPEY);
+      fprintf(stderr, "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n",
+	          npes,NPEX*NPEY);
+    MPI_Finalize();
     return(1);
   }
 
   /* Allocate memory, and set problem data, initial values, tolerances */ 
 
-  /* Set local length */
+  /* Set local vector length */
   Nlocal = NUM_SPECIES*MXSUB*MYSUB;
 
   /* Allocate and initialize user data block */
@@ -235,7 +234,7 @@ int main(int argc, char *argv[])
   if (check_flag((void *)data, "AllocUserData", 2, my_pe)) MPI_Abort(comm, 1);
   InitUserData(my_pe, Nlocal, comm, data);
 
-  /* Choose global strategy */
+  /* Set global strategy flag */
   globalstrategy = KIN_NONE;
 
   /* Allocate and initialize vectors */
@@ -244,18 +243,16 @@ int main(int argc, char *argv[])
   sc = N_VNew_Parallel(comm, Nlocal, NEQ);
   if (check_flag((void *)sc, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   data->rates = N_VNew_Parallel(comm, Nlocal, NEQ);
-  if (check_flag((void *)data->rates, "N_VNew_Parallel", 0, my_pe))
-      MPI_Abort(comm, 1);
+  if (check_flag((void *)data->rates, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   constraints = N_VNew_Parallel(comm, Nlocal, NEQ);
-  if (check_flag((void *)constraints, "N_VNew_Parallel", 0, my_pe))
-      MPI_Abort(comm, 1);
+  if (check_flag((void *)constraints, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   N_VConst(ZERO, constraints);
-  
+
   SetInitialProfiles(cc, sc);
 
   fnormtol = FTOL; scsteptol = STOL;
 
-  /* Call KINCreate/KINInit to initialize KINSOL: 
+  /* Call KINCreate/KINInit to initialize KINSOL:
      nvSpec  points to machine environment data
      A pointer to KINSOL problem memory is returned and stored in kmem. */
   kmem = KINCreate();
@@ -264,22 +261,33 @@ int main(int argc, char *argv[])
   /* Vector cc passed as template vector. */
   flag = KINInit(kmem, func, cc);
   if (check_flag(&flag, "KINInit", 1, my_pe)) MPI_Abort(comm, 1);
-
   flag = KINSetUserData(kmem, data);
   if (check_flag(&flag, "KINSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
-
   flag = KINSetConstraints(kmem, constraints);
   if (check_flag(&flag, "KINSetConstraints", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = KINSetFuncNormTol(kmem, fnormtol);
+  if (check_flag(&flag, "KINSetFuncNormTol", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = KINSetScaledStepTol(kmem, scsteptol);
+  if (check_flag(&flag, "KINSetScaledStepTol", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* We no longer need the constraints vector since KINSetConstraints
      creates a private copy for KINSOL to use. */
   N_VDestroy_Parallel(constraints);
 
-  flag = KINSetFuncNormTol(kmem, fnormtol);
-  if (check_flag(&flag, "KINSetFuncNormTol", 1, my_pe)) MPI_Abort(comm, 1);
+  /* Create SUNSPGMR object with right preconditioning and the 
+     maximum Krylov dimension maxl */
+  maxl = 20; 
+  LS = SUNSPGMR(cc, PREC_RIGHT, maxl);
+  if(check_flag((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
 
-  flag = KINSetScaledStepTol(kmem, scsteptol);
-  if (check_flag(&flag, "KINSetScaledStepTol", 1, my_pe)) MPI_Abort(comm, 1);
+  /* Attach the linear solver to KINSOL */
+  flag = KINSpilsSetLinearSolver(kmem, LS);
+  if (check_flag(&flag, "KINSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
+
+  /* Set the maximum number of restarts */
+  maxlrst = 2;
+  flag = SUNSPGMRSetMaxRestarts(LS, maxlrst);
+  if (check_flag(&flag, "SUNSPGMRSpilsSetMaxRestarts", 1, my_pe)) MPI_Abort(comm, 1);
   
   /* Call KINBBDPrecInit to initialize and allocate memory for the
      band-block-diagonal preconditioner, and specify the local and
@@ -289,45 +297,34 @@ int main(int argc, char *argv[])
   mudq = mldq = 2*NUM_SPECIES - 1;
   mukeep = mlkeep = NUM_SPECIES;
 
-  /* Call KINBBDSpgmr to specify the linear solver KINSPGMR */
-  maxl = 20; maxlrst = 2;
-  flag = KINSpgmr(kmem, maxl);
-  if (check_flag(&flag, "KINSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
-
   /* Initialize BBD preconditioner */
   flag = KINBBDPrecInit(kmem, Nlocal, mudq, mldq, mukeep, mlkeep,
                         dq_rel_uu, func_local, NULL);
   if (check_flag(&flag, "KINBBDPrecInit", 1, my_pe)) MPI_Abort(comm, 1);
-
-
-  flag = KINSpilsSetMaxRestarts(kmem, maxlrst);
-  if (check_flag(&flag, "KINSpilsSetMaxRestarts", 1, my_pe)) 
-    MPI_Abort(comm, 1);
 
   /* Print out the problem size, solution parameters, initial guess. */
   if (my_pe == 0)
     PrintHeader(globalstrategy, maxl, maxlrst, mudq, mldq, mukeep,
 		mlkeep, fnormtol, scsteptol);
 
-  /* call KINSol and print output concentration profile */
+  /* Call KINSol and print output concentration profile */
   flag = KINSol(kmem,           /* KINSol memory block */
-                cc,             /* initial guesss on input; solution vector */
-                globalstrategy, /* global stragegy choice */
-                sc,             /* scaling vector, for the variable cc */
+                cc,             /* initial guess on input; solution vector */
+                globalstrategy, /* global strategy choice */
+                sc,             /* scaling vector for the variable cc */
                 sc);            /* scaling vector for function values fval */
   if (check_flag(&flag, "KINSol", 1, my_pe)) MPI_Abort(comm, 1);
 
   if (my_pe == 0) printf("\n\nComputed equilibrium species concentrations:\n");
-  if (my_pe == 0 || my_pe==npelast) PrintOutput(my_pe, comm, cc);
-  
+  if (my_pe == 0 || my_pe == npelast) PrintOutput(my_pe, comm, cc);
+
   /* Print final statistics and free memory */
-  if (my_pe == 0) 
-    PrintFinalStats(kmem);
+  if (my_pe == 0) PrintFinalStats(kmem);
 
   N_VDestroy_Parallel(cc);
   N_VDestroy_Parallel(sc);
-
   KINFree(&kmem);
+  SUNLinSolFree(LS);
   FreeUserData(data);
 
   MPI_Finalize();
@@ -353,7 +350,7 @@ int main(int argc, char *argv[])
  * between processors of data needed to calculate f. 
  */
 
-static int ccomm(long int Nlocal, N_Vector cc, void *userdata)
+static int ccomm(sunindextype Nlocal, N_Vector cc, void *userdata)
 {
 
   realtype *cdata, *cext, buffer[2*NUM_SPECIES*MYSUB];
@@ -388,7 +385,7 @@ static int ccomm(long int Nlocal, N_Vector cc, void *userdata)
  * System function for predator-prey system - calculation part 
  */
 
-static int func_local(long int Nlocal, N_Vector cc, N_Vector fval, void *user_data)
+static int func_local(sunindextype Nlocal, N_Vector cc, N_Vector fval, void *user_data)
 {
   realtype xx, yy, *cxy, *rxy, *fxy, dcydi, dcyui, dcxli, dcxri;
   realtype *cext, dely, delx, *cdata;
@@ -580,7 +577,7 @@ static UserData AllocUserData(void)
  * Load problem constants in data 
  */
 
-static void InitUserData(int my_pe, long int Nlocal, MPI_Comm comm, UserData data)
+static void InitUserData(int my_pe, sunindextype Nlocal, MPI_Comm comm, UserData data)
 {
   int i, j, np;
   realtype *a1,*a2, *a3, *a4, dx2, dy2;
@@ -690,8 +687,8 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
  */
 
 static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
-                        long int mudq, long int mldq,
-			long int mukeep, long int mlkeep,
+                        sunindextype mudq, sunindextype mldq,
+			sunindextype mukeep, sunindextype mlkeep,
                         realtype fnormtol, realtype scsteptol)
 {
     printf("\nPredator-prey test problem--  KINSol (parallel-BBD version)\n\n");
@@ -706,9 +703,9 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
            maxl, maxlrst);
     printf("Preconditioning uses band-block-diagonal matrix from KINBBDPRE\n");
     printf("  Difference quotient half-bandwidths: mudq = %ld, mldq = %ld\n",
-	   mudq, mldq);
+	   (long int) mudq, (long int) mldq);
     printf("  Retained band block half-bandwidths: mukeep = %ld, mlkeep = %ld\n",
-	   mukeep, mlkeep);
+	   (long int) mukeep, (long int) mlkeep);
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
     printf("Tolerance parameters:  fnormtol = %Lg   scsteptol = %Lg\n",
            fnormtol, scsteptol);
@@ -993,13 +990,13 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
       fprintf(stderr,
               "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
 	      id, funcname, *errflag);
-      return(1); 
+      return(1);
     }
   }
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
-    fprintf(stderr, 
+    fprintf(stderr,
             "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
 	    id, funcname);
     return(1);

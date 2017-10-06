@@ -1,6 +1,20 @@
-c     ----------------------------------------------------------------
-c     $Revision: 4885 $
-c     $Date: 2016-09-02 08:29:03 -0700 (Fri, 02 Sep 2016) $
+C     ----------------------------------------------------------------
+C     Programmer(s): Daniel R. Reynolds @ SMU
+C                    Alan C. Hindmarsh and Radu Serban @ LLNL      
+C     ----------------------------------------------------------------
+C     LLNS/SMU Copyright Start
+C     Copyright (c) 2017, Southern Methodist University and 
+C     Lawrence Livermore National Security
+C
+C     This work was performed under the auspices of the U.S. Department 
+C     of Energy by Southern Methodist University and Lawrence Livermore 
+C     National Laboratory under Contract DE-AC52-07NA27344.
+C     Produced at Southern Methodist University and the Lawrence 
+C     Livermore National Laboratory.
+C
+C     All rights reserved.
+C     For details, see the LICENSE file.
+C     LLNS/SMU Copyright End
 c     ----------------------------------------------------------------
 c     This simple example problem for FIDA, due to Robertson, is from 
 c     chemical kinetics, and consists of the following three equations:
@@ -84,10 +98,36 @@ c Initialize rootfinding problem
          stop
       endif
 c
-c Attach dense linear solver
+c Attach dense matrix and linear solver
 c
-      call fidadense(neq, ier)
+      call fsundensematinit(2, neq, neq, ier)
+      if (ier .ne. 0) then
+         write(6,30) ier
+ 30      format(///' SUNDIALS_ERROR: FSUNDENSEMATINIT IER = ', i5)
+         call fidafree
+         stop
+      endif
+      call fsundenselinsolinit(2, ier)
+      if (ier .ne. 0) then
+         write(6,33) ier
+ 33      format(///' SUNDIALS_ERROR: FSUNDENSELINSOLINIT IER = ', i5)
+         call fidafree
+         stop
+      endif
+      call fidadlsinit(ier)
+      if (ier .ne. 0) then
+         write(6,35) ier
+ 35      format(///' SUNDIALS_ERROR: FIDADLSINIT returned IER = ', i5)
+         call fidafree
+         stop
+      endif
       call fidadensesetjac(1, ier)
+      if (ier .ne. 0) then
+         write(6,37) ier
+ 37      format(///' SUNDIALS_ERROR: FIDADENSESETJAC IER = ', i5)
+         call fidafree
+         stop
+      endif
 c
 c Print header
 c

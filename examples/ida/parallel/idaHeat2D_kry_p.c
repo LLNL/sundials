@@ -1,15 +1,12 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4834 $
- * $Date: 2016-08-01 16:59:05 -0700 (Mon, 01 Aug 2016) $
- * -----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *         Allan Taylor, Alan Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example problem for IDA: 2D heat equation, parallel, GMRES.
  *
  * This example solves a discretized 2D heat equation problem.
- * This version uses the Krylov solver IDASpgmr.
+ * This version uses the Krylov solver SUNSPGMR.
  *
  * The DAE system solved is a spatial discretization of the PDE
  *          du/dt = d^2u/dx^2 + d^2u/dy^2
@@ -25,9 +22,9 @@
  * processors.
  *
  * The system is solved with IDA using the Krylov linear solver
- * IDASPGMR. The preconditioner uses the diagonal elements of the
+ * SUNSPGMR. The preconditioner uses the diagonal elements of the
  * Jacobian only. Routines for preconditioning, required by
- * IDASPGMR, are supplied here. The constraints u >= 0 are posed
+ * SUNSPGMR, are supplied here. The constraints u >= 0 are posed
  * for all components. Local error testing on the boundary values
  * is suppressed. Output is taken at t = 0, .01, .02, .04,
  * ..., 10.24.
@@ -39,7 +36,8 @@
 #include <math.h>
 
 #include <ida/ida.h>
-#include <ida/ida_spgmr.h>
+#include <ida/ida_spils.h>
+#include <sunlinsol/sunlinsol_spgmr.h>
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
@@ -63,7 +61,8 @@
                                     /* Spatial mesh is MX by MY */
 
 typedef struct {  
-  long int thispe, mx, my, ixsub, jysub, npex, npey, mxsub, mysub;
+  int thispe, npex, npey, ixsub, jysub;
+  sunindextype mx, my, mxsub, mysub;
   realtype    dx, dy, coeffx, coeffy, coeffxy;
   realtype    uext[(MXSUB+2)*(MYSUB+2)];
   N_Vector    pp;    /* vector of diagonal preconditioner elements */
@@ -72,38 +71,32 @@ typedef struct {
 
 /* User-supplied residual function and supporting routines */
 
-int resHeat(realtype tt, 
-            N_Vector uu, N_Vector up, N_Vector rr, 
-            void *user_data);
+int resHeat(realtype tt, N_Vector uu, N_Vector up,
+            N_Vector rr, void *user_data);
 
 static int rescomm(N_Vector uu, N_Vector up, void *user_data);
 
 static int reslocal(realtype tt, N_Vector uu, N_Vector up, 
                     N_Vector res,  void *user_data);
 
-static int BSend(MPI_Comm comm, long int thispe, long int ixsub, long int jysub,
-                 long int dsizex, long int dsizey, realtype uarray[]);
+static int BSend(MPI_Comm comm, int thispe, int ixsub, int jysub,
+                 sunindextype dsizex, sunindextype dsizey, realtype uarray[]);
 
-static int BRecvPost(MPI_Comm comm, MPI_Request request[], long int thispe,
-                     long int ixsub, long int jysub,
-                     long int dsizex, long int dsizey,
-                     realtype uext[], realtype buffer[]);
+static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
+                     int ixsub, int jysub, sunindextype dsizex,
+                     sunindextype dsizey, realtype uext[], realtype buffer[]);
 
-static int BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
-                     long int dsizex, realtype uext[], realtype buffer[]);
+static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
+                     sunindextype dsizex, realtype uext[], realtype buffer[]);
 
 /* User-supplied preconditioner routines */
 
-int PsolveHeat(realtype tt, 
-               N_Vector uu, N_Vector up, N_Vector rr, 
-               N_Vector rvec, N_Vector zvec,
-               realtype c_j, realtype delta, void *user_data, 
-               N_Vector tmp);
+int PsolveHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr, 
+               N_Vector rvec, N_Vector zvec, realtype c_j,
+               realtype delta, void *user_data);
 
-int PsetupHeat(realtype tt, 
-               N_Vector yy, N_Vector yp, N_Vector rr, 
-               realtype c_j, void *user_data,
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr, 
+               realtype c_j, void *user_data);
 
 /* Private function to check function return values */
 
@@ -112,11 +105,11 @@ static int InitUserData(int thispe, MPI_Comm comm, UserData data);
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
                              N_Vector res, UserData data);
 
-static void PrintHeader(long int Neq, realtype rtol, realtype atol);
+static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol);
 
-static void PrintOutput(int id, void *mem, realtype t, N_Vector uu);
+static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu);
 
-static void PrintFinalStats(void *mem);
+static void PrintFinalStats(void *ida_mem);
 
 static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 
@@ -129,14 +122,16 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 int main(int argc, char *argv[])
 {
   MPI_Comm comm;
-  void *mem;
+  void *ida_mem;
+  SUNLinearSolver LS;
   UserData data;
   int iout, thispe, ier, npes;
-  long int Neq, local_N;
+  sunindextype Neq, local_N;
   realtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
 
-  mem = NULL;
+  ida_mem = NULL;
+  LS = NULL;
   data = NULL;
   uu = up = constraints = id = res = NULL;
 
@@ -212,59 +207,63 @@ int main(int argc, char *argv[])
 
   /* Call IDACreate and IDAMalloc to initialize solution. */
 
-  mem = IDACreate();
-  if(check_flag((void *)mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
+  ida_mem = IDACreate();
+  if(check_flag((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetUserData(mem, data);
+  ier = IDASetUserData(ida_mem, data);
   if(check_flag(&ier, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetSuppressAlg(mem, TRUE);
+  ier = IDASetSuppressAlg(ida_mem, TRUE);
   if(check_flag(&ier, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetId(mem, id);
+  ier = IDASetId(ida_mem, id);
   if(check_flag(&ier, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetConstraints(mem, constraints);
+  ier = IDASetConstraints(ida_mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
   N_VDestroy_Parallel(constraints);  
 
-  ier = IDAInit(mem, resHeat, t0, uu, up);
+  ier = IDAInit(ida_mem, resHeat, t0, uu, up);
   if(check_flag(&ier, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
   
-  ier = IDASStolerances(mem, rtol, atol);
+  ier = IDASStolerances(ida_mem, rtol, atol);
   if(check_flag(&ier, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
-  /* Call IDASpgmr to specify the linear solver. */
+  /* Call SUNSPGMR and IDASetLinearSolver to specify the linear solver. */
 
-  ier = IDASpgmr(mem, 0);
-  if(check_flag(&ier, "IDASpgmr", 1, thispe)) MPI_Abort(comm, 1);
+  LS = SUNSPGMR(uu, PREC_LEFT, 0);  /* use default maxl */
+  if(check_flag((void *)LS, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat);
+  ier = IDASpilsSetLinearSolver(ida_mem, LS);
+  if(check_flag(&ier, "IDASpilsSetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
+
+  ier = IDASpilsSetPreconditioner(ida_mem, PsetupHeat, PsolveHeat);
   if(check_flag(&ier, "IDASpilsSetPreconditioner", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Print output heading (on processor 0 only) and intial solution  */
   
   if (thispe == 0) PrintHeader(Neq, rtol, atol);
-  PrintOutput(thispe, mem, t0, uu); 
+  PrintOutput(thispe, ida_mem, t0, uu); 
   
   /* Loop over tout, call IDASolve, print output. */
 
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
 
-    ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
+    ier = IDASolve(ida_mem, tout, &tret, uu, up, IDA_NORMAL);
     if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
 
-    PrintOutput(thispe, mem, tret, uu);
+    PrintOutput(thispe, ida_mem, tret, uu);
 
   }
   
   /* Print remaining counters. */
 
-  if (thispe == 0) PrintFinalStats(mem);
+  if (thispe == 0) PrintFinalStats(ida_mem);
 
   /* Free memory */
 
-  IDAFree(&mem);
+  IDAFree(&ida_mem);
+  SUNLinSolFree(LS);
 
   N_VDestroy_Parallel(id);
   N_VDestroy_Parallel(res);
@@ -302,8 +301,7 @@ int main(int argc, char *argv[])
  * of uu required to calculate the residual. 
  */
 
-int resHeat(realtype tt, 
-            N_Vector uu, N_Vector up, N_Vector rr, 
+int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr, 
             void *user_data)
 {
   int retval;
@@ -336,14 +334,12 @@ int resHeat(realtype tt,
  *
  */
 
-int PsetupHeat(realtype tt, 
-               N_Vector yy, N_Vector yp, N_Vector rr, 
-               realtype c_j, void *user_data,
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr, 
+               realtype c_j, void *user_data)
 {
   realtype *ppv, pelinv;
-  long int lx, ly, ixbegin, ixend, jybegin, jyend, locu, mxsub, mysub;
-  long int ixsub, jysub, npex, npey;
+  sunindextype lx, ly, ixbegin, ixend, jybegin, jyend, locu, mxsub, mysub;
+  int ixsub, jysub, npex, npey;
   UserData data;
 
   data = (UserData) user_data;
@@ -389,11 +385,9 @@ int PsetupHeat(realtype tt,
  * computed in PsetupHeat), returning the result in zvec.      
  */
 
-int PsolveHeat(realtype tt, 
-               N_Vector uu, N_Vector up, N_Vector rr, 
-               N_Vector rvec, N_Vector zvec,
-               realtype c_j, realtype delta, void *user_data, 
-               N_Vector tmp)
+int PsolveHeat(realtype tt, N_Vector uu, N_Vector up,
+               N_Vector rr, N_Vector rvec, N_Vector zvec,
+               realtype c_j, realtype delta, void *user_data)
 {
   UserData data;
 
@@ -422,7 +416,8 @@ static int rescomm(N_Vector uu, N_Vector up, void *user_data)
   UserData data;
   realtype *uarray, *uext, buffer[2*MYSUB];
   MPI_Comm comm;
-  long int thispe, ixsub, jysub, mxsub, mysub;
+  int thispe, ixsub, jysub;
+  sunindextype mxsub, mysub;
   MPI_Request request[4];
   
   data = (UserData) user_data;
@@ -453,15 +448,15 @@ static int rescomm(N_Vector uu, N_Vector up, void *user_data)
  * has already been done, and that this data is in the work array uext.  
  */
 
-static int reslocal(realtype tt, 
-                    N_Vector uu, N_Vector up, N_Vector rr,
+static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
                     void *user_data)
 {
   realtype *uext, *uuv, *upv, *resv;
   realtype termx, termy, termctr;
-  long int lx, ly, offsetu, offsetue, locu, locue;
-  long int ixsub, jysub, mxsub, mxsub2, mysub, npex, npey;
-  long int ixbegin, ixend, jybegin, jyend;
+  sunindextype lx, ly, offsetu, offsetue, locu, locue;
+  int ixsub, jysub, npex, npey;
+  sunindextype mxsub, mxsub2, mysub;
+  sunindextype ixbegin, ixend, jybegin, jyend;
   UserData data;
   
   /* Get subgrid indices, array sizes, extended work array uext. */
@@ -520,10 +515,10 @@ static int reslocal(realtype tt,
  * Routine to send boundary data to neighboring PEs.                     
  */
 
-static int BSend(MPI_Comm comm, long int thispe, long int ixsub, long int jysub,
-                 long int dsizex, long int dsizey, realtype uarray[])
+static int BSend(MPI_Comm comm, int thispe, int ixsub, int jysub,
+                 sunindextype dsizex, sunindextype dsizey, realtype uarray[])
 {
-  long int ly, offsetu;
+  sunindextype ly, offsetu;
   realtype bufleft[MYSUB], bufright[MYSUB];
 
   /* If jysub > 0, send data from bottom x-line of u. */
@@ -573,12 +568,11 @@ static int BSend(MPI_Comm comm, long int thispe, long int ixsub, long int jysub,
  *      both calls also. 
  */
 
-static int BRecvPost(MPI_Comm comm, MPI_Request request[], long int thispe,
-                     long int ixsub, long int jysub,
-                     long int dsizex, long int dsizey,
-                     realtype uext[], realtype buffer[])
+static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
+                     int ixsub, int jysub, sunindextype dsizex,
+                     sunindextype dsizey, realtype uext[], realtype buffer[])
 {
-  long int offsetue;
+  sunindextype offsetue;
   /* Have bufleft and bufright use the same buffer. */
   realtype *bufleft = buffer, *bufright = buffer+MYSUB;
   
@@ -620,10 +614,10 @@ static int BRecvPost(MPI_Comm comm, MPI_Request request[], long int thispe,
  *      calls also. 
  */
 
-static int BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
-                     long int dsizex, realtype uext[], realtype buffer[])
+static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
+                     sunindextype dsizex, realtype uext[], realtype buffer[])
 {
-  long int ly, dsizex2, offsetue;
+  sunindextype ly, dsizex2, offsetue;
   realtype *bufleft = buffer, *bufright = buffer+MYSUB;
   MPI_Status status;
   
@@ -701,8 +695,9 @@ static int InitUserData(int thispe, MPI_Comm comm, UserData data)
 static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id, 
                              N_Vector res, UserData data)
 {
-  long int i, iloc, j, jloc, offset, loc, ixsub, jysub;
-  long int ixbegin, ixend, jybegin, jyend;
+  int ixsub, jysub;
+  sunindextype i, iloc, j, jloc, offset, loc;
+  sunindextype ixbegin, ixend, jybegin, jyend;
   realtype xfact, yfact, *udata, *iddata, dx, dy;
   
   /* Initialize uu. */ 
@@ -756,14 +751,14 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
  * Print first lines of output and table heading
  */
 
-static void PrintHeader(long int Neq, realtype rtol, realtype atol)
+static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
 { 
   printf("\nidaHeat2D_kry_p: Heat equation, parallel example problem for IDA\n");
   printf("            Discretized heat equation on 2D unit square.\n");
   printf("            Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");
   printf("            Mesh dimensions: %d x %d", MX, MY);
-  printf("        Total system size: %ld\n\n", Neq);
+  printf("        Total system size: %ld\n\n", (long int) Neq);
   printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
   printf("        Processor array: %d x %d\n", NPEX, NPEY);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -776,7 +771,7 @@ static void PrintHeader(long int Neq, realtype rtol, realtype atol)
   printf("Constraints set to force all solution components >= 0. \n");
   printf("SUPPRESSALG = TRUE to suppress local error testing on ");
   printf("all boundary components. \n");
-  printf("Linear solver: IDASPGMR  ");
+  printf("Linear solver: SUNSPGMR  ");
   printf("Preconditioner: diagonal elements only.\n"); 
   
   /* Print output table heading and initial line of table. */
@@ -789,7 +784,7 @@ static void PrintHeader(long int Neq, realtype rtol, realtype atol)
  * PrintOutput: print max norm of solution and current solver statistics
  */
 
-static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
+static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu)
 {
   realtype hused, umax;
   long int nst, nni, nje, nre, nreLS, nli, npe, nps;
@@ -799,25 +794,25 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
 
   if (id == 0) {
 
-    ier = IDAGetLastOrder(mem, &kused);
+    ier = IDAGetLastOrder(ida_mem, &kused);
     check_flag(&ier, "IDAGetLastOrder", 1, id);
-    ier = IDAGetNumSteps(mem, &nst);
+    ier = IDAGetNumSteps(ida_mem, &nst);
     check_flag(&ier, "IDAGetNumSteps", 1, id);
-    ier = IDAGetNumNonlinSolvIters(mem, &nni);
+    ier = IDAGetNumNonlinSolvIters(ida_mem, &nni);
     check_flag(&ier, "IDAGetNumNonlinSolvIters", 1, id);
-    ier = IDAGetNumResEvals(mem, &nre);
+    ier = IDAGetNumResEvals(ida_mem, &nre);
     check_flag(&ier, "IDAGetNumResEvals", 1, id);
-    ier = IDAGetLastStep(mem, &hused);
+    ier = IDAGetLastStep(ida_mem, &hused);
     check_flag(&ier, "IDAGetLastStep", 1, id);
-    ier = IDASpilsGetNumJtimesEvals(mem, &nje);
+    ier = IDASpilsGetNumJtimesEvals(ida_mem, &nje);
     check_flag(&ier, "IDASpilsGetNumJtimesEvals", 1, id);
-    ier = IDASpilsGetNumLinIters(mem, &nli);
+    ier = IDASpilsGetNumLinIters(ida_mem, &nli);
     check_flag(&ier, "IDASpilsGetNumLinIters", 1, id);
-    ier = IDASpilsGetNumResEvals(mem, &nreLS);
+    ier = IDASpilsGetNumResEvals(ida_mem, &nreLS);
     check_flag(&ier, "IDASpilsGetNumResEvals", 1, id);
-    ier = IDASpilsGetNumPrecEvals(mem, &npe);
+    ier = IDASpilsGetNumPrecEvals(ida_mem, &npe);
     check_flag(&ier, "IDASpilsGetPrecEvals", 1, id);
-    ier = IDASpilsGetNumPrecSolves(mem, &nps);
+    ier = IDASpilsGetNumPrecSolves(ida_mem, &nps);
     check_flag(&ier, "IDASpilsGetNumPrecSolves", 1, id);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)  
@@ -838,13 +833,13 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
  * Print some final integrator statistics
  */
 
-static void PrintFinalStats(void *mem)
+static void PrintFinalStats(void *ida_mem)
 {
   long int netf, ncfn, ncfl;
 
-  IDAGetNumErrTestFails(mem, &netf);
-  IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-  IDASpilsGetNumConvFails(mem, &ncfl);
+  IDAGetNumErrTestFails(ida_mem, &netf);
+  IDAGetNumNonlinSolvConvFails(ida_mem, &ncfn);
+  IDASpilsGetNumConvFails(ida_mem, &ncfl);
 
   printf("\nError test failures            = %ld\n", netf);
   printf("Nonlinear convergence failures = %ld\n", ncfn);

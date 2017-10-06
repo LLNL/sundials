@@ -32,7 +32,7 @@
  *
  * This program solves the problem with either an ERK or DIRK
  * method.  For the DIRK method, we use a Newton iteration with 
- * the PCG linear solver, and a user-supplied Jacobian-vector 
+ * the SUNPCG linear solver, and a user-supplied Jacobian-vector 
  * product routine.
  *
  * 100 outputs are printed at equal intervals, and run statistics 
@@ -45,21 +45,32 @@
 #include <math.h>
 #include <arkode/arkode.h>            /* prototypes for ARKode fcts., consts. */
 #include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
-#include <arkode/arkode_pcg.h>        /* prototype for ARKPcg solver */
-#include <sundials/sundials_types.h>  /* def. of type 'realtype' */
-#include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc. */
+#include <sunlinsol/sunlinsol_pcg.h>  /* access to PCG SUNLinearSolver        */
+#include <arkode/arkode_spils.h>      /* access to ARKSpils interface         */
+#include <sundials/sundials_types.h>  /* defs. of realtype, sunindextype, etc */
+#include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc.               */
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
 
 /* user data structure */
 typedef struct {
-  long int N;    /* number of intervals   */
-  realtype dx;   /* mesh spacing          */
-  realtype k;    /* diffusion coefficient */
+  sunindextype N;  /* number of intervals   */
+  realtype dx;     /* mesh spacing          */
+  realtype k;      /* diffusion coefficient */
 } *UserData;
 
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
-            N_Vector fy, void *user_data, N_Vector tmp);
+               N_Vector fy, void *user_data, N_Vector tmp);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
@@ -75,14 +86,15 @@ int main() {
   realtype atol = 1.e-10;      /* absolute tolerance */
   UserData udata = NULL;
   realtype *data;
-  long int N = 201;            /* spatial mesh size */
+  sunindextype N = 201;        /* spatial mesh size */
   realtype k = 0.5;            /* heat conductivity */
-  long int i;
+  sunindextype i;
 
   /* general problem variables */
-  int flag;                 /* reusable error-checking flag */
-  N_Vector y = NULL;             /* empty vector for storing solution */
-  void *arkode_mem = NULL;        /* empty ARKode memory structure */
+  int flag;                    /* reusable error-checking flag */
+  N_Vector y = NULL;           /* empty vector for storing solution */
+  SUNLinearSolver LS = NULL;   /* empty linear solver object */
+  void *arkode_mem = NULL;     /* empty ARKode memory structure */
   FILE *FID, *UFID;
   realtype t, dTout, tout;
   int iout;
@@ -96,8 +108,8 @@ int main() {
 
   /* Initial problem output */
   printf("\n1D Heat PDE test problem:\n");
-  printf("  N = %li\n", udata->N);
-  printf("  diffusion coefficient:  k = %g\n", udata->k);
+  printf("  N = %li\n", (long int) udata->N);
+  printf("  diffusion coefficient:  k = %"GSYM"\n", udata->k);
 
   /* Initialize data structures */
   y = N_VNew_Serial(N);            /* Create serial vector for solution */
@@ -123,11 +135,15 @@ int main() {
   flag = ARKodeSStolerances(arkode_mem, rtol, atol);      /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
 
-  /* Linear solver specification */
-  flag = ARKPcg(arkode_mem, 0, N);                        /* Specify the PCG solver */
-  if (check_flag(&flag, "ARKPcg", 1)) return 1;
-  flag = ARKSpilsSetJacTimesVecFn(arkode_mem, Jac);       /* Set the Jacobian routine */
-  if (check_flag(&flag, "ARKSpilsSetJacTimesVecFn", 1)) return 1;
+  /* Initialize PCG solver -- no preconditioning, with up to N iterations  */
+  LS = SUNPCG(y, 0, N);
+  if (check_flag((void *)LS, "SUNPCG", 0)) return 1;
+  
+  /* Linear solver interface -- set user-supplied J*v routine (no 'jtsetup' required) */
+  flag = ARKSpilsSetLinearSolver(arkode_mem, LS);        /* Attach linear solver to ARKode */
+  if (check_flag(&flag, "ARKSpilsSetLinearSolver", 1)) return 1;
+  flag = ARKSpilsSetJacTimes(arkode_mem, NULL, Jac);     /* Set the Jacobian routine */
+  if (check_flag(&flag, "ARKSpilsSetJacTimes", 1)) return 1;
 
   /* Specify linearly implicit RHS, with non-time-dependent Jacobian */
   flag = ARKodeSetLinear(arkode_mem, 0);
@@ -135,7 +151,7 @@ int main() {
 
   /* output mesh to disk */
   FID=fopen("heat_mesh.txt","w");
-  for (i=0; i<N; i++)  fprintf(FID,"  %.16e\n", udata->dx*i);
+  for (i=0; i<N; i++)  fprintf(FID,"  %.16"ESYM"\n", udata->dx*i);
   fclose(FID);
 
   /* Open output stream for results, access data array */
@@ -143,7 +159,7 @@ int main() {
   data = N_VGetArrayPointer(y);
 
   /* output initial condition to disk */
-  for (i=0; i<N; i++)  fprintf(UFID," %.16e", data[i]);
+  for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[i]);
   fprintf(UFID,"\n");
 
   /* Main time-stepping loop: calls ARKode to perform the integration, then
@@ -153,12 +169,12 @@ int main() {
   tout = T0+dTout;
   printf("        t      ||u||_rms\n");
   printf("   -------------------------\n");
-  printf("  %10.6f  %10.6f\n", t, SUNRsqrt(N_VDotProd(y,y)/N));
+  printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, SUNRsqrt(N_VDotProd(y,y)/N));
   for (iout=0; iout<Nt; iout++) {
 
     flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);         /* call integrator */
     if (check_flag(&flag, "ARKode", 1)) break;
-    printf("  %10.6f  %10.6f\n", t, SUNRsqrt(N_VDotProd(y,y)/N));   /* print solution stats */
+    printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, SUNRsqrt(N_VDotProd(y,y)/N));   /* print solution stats */
     if (flag >= 0) {                                            /* successful solve: update output time */
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;
@@ -168,7 +184,7 @@ int main() {
     }
 
     /* output results to disk */
-    for (i=0; i<N; i++)  fprintf(UFID," %.16e", data[i]);
+    for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[i]);
     fprintf(UFID,"\n");
   }
   printf("   -------------------------\n");
@@ -208,9 +224,10 @@ int main() {
   printf("   Total number of error test failures = %li\n", netf);
 
   /* Clean up and return with successful completion */
-  N_VDestroy_Serial(y);        /* Free vectors */
+  N_VDestroy(y);               /* Free vectors */
   free(udata);                 /* Free user data */
   ARKodeFree(&arkode_mem);     /* Free integrator memory */
+  SUNLinSolFree(LS);           /* Free linear solver */
   return 0;
 }
 
@@ -222,12 +239,12 @@ int main() {
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;    /* access problem data */
-  long int N  = udata->N;                   /* set variable shortcuts */
+  sunindextype N  = udata->N;                   /* set variable shortcuts */
   realtype k  = udata->k;
   realtype dx = udata->dx;
   realtype *Y=NULL, *Ydot=NULL;
   realtype c1, c2;
-  long int i, isource;
+  sunindextype i, isource;
 
   Y = N_VGetArrayPointer(y);      /* access data arrays */
   if (check_flag((void *) Y, "N_VGetArrayPointer", 0)) return 1;
@@ -253,12 +270,12 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
 	       N_Vector fy, void *user_data, N_Vector tmp)
 {
   UserData udata = (UserData) user_data;     /* variable shortcuts */
-  long int N  = udata->N;
+  sunindextype N = udata->N;
   realtype k  = udata->k;
   realtype dx = udata->dx;
   realtype *V=NULL, *JV=NULL;
   realtype c1, c2;
-  long int i;
+  sunindextype i;
 
   V = N_VGetArrayPointer(v);       /* access data arrays */
   if (check_flag((void *) V, "N_VGetArrayPointer", 0)) return 1;

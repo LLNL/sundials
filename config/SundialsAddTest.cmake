@@ -21,17 +21,18 @@
 # fails.  Default signicance is 4 decimal points for floating values
 # and 10% for integer values.
 
-IF(EXAMPLES_ENABLE)
+IF(EXAMPLES_ENABLED)
 
   find_package(PythonInterp)
   IF(${PYTHON_VERSION_MAJOR} LESS 3)
-      IF(${PYTHON_VERSION_MINOR} LESS 7)
-	message( WARNING "***************************************************************************\nWARNING\nPython version must be 2.7.x or greater in order to run regression tests.\nExamples will build but 'make test' will fail.\n***************************************************************************")
-      ENDIF()
+    IF(${PYTHON_VERSION_MINOR} LESS 7)
+      PRINT_WARNING("Python version must be 2.7.x or greater to run regression tests"
+                    "Examples will build but 'make test' will fail.")
+    ENDIF()
   ENDIF()
 
   FIND_PROGRAM(TESTRUNNER testRunner PATHS test)
-ENDIF(EXAMPLES_ENABLE)
+ENDIF(EXAMPLES_ENABLED)
 
 macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
@@ -57,7 +58,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       IF(MPI_RUN_COMMAND MATCHES "srun")
 	set(RUN_COMMAND "srun -N1 -n${SUNDIALS_ADD_TEST_MPI_NPROCS} -ppdebug")
       ELSE(MPI_RUN_COMMAND MATCHES "srun")
-	set(RUN_COMMAND "mpirun -n ${SUNDIALS_ADD_TEST_MPI_NPROCS}")
+	set(RUN_COMMAND "${MPI_RUN_COMMAND} -n ${SUNDIALS_ADD_TEST_MPI_NPROCS}")
       ENDIF(MPI_RUN_COMMAND MATCHES "srun")
       
       LIST(APPEND TEST_ARGS "--runcommand=\"${RUN_COMMAND}\"")

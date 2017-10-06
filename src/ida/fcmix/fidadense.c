@@ -1,24 +1,24 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4075 $
- * $Date: 2014-04-24 10:46:58 -0700 (Thu, 24 Apr 2014) $
- * ----------------------------------------------------------------- 
- * Programmer(s): Aaron Collier @ LLNL
- * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
+/*----------------------------------------------------------------- 
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *                Aaron Collier @ LLNL
+ *-----------------------------------------------------------------
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2017, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
  * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
  * All rights reserved.
  * For details, see the LICENSE file.
- * LLNS Copyright End
- * -----------------------------------------------------------------
- * Fortran/C interface routines for IDA/IDADENSE, for the case
+ * LLNS/SMU Copyright End
+ *-----------------------------------------------------------------
+ * Fortran/C interface routines for IDA/IDADLS, for the case
  * of a user-supplied Jacobian approximation routine.
- * -----------------------------------------------------------------
- */
+ *-----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,7 +26,8 @@
 #include "fida.h"     /* actual function names, prototypes and global vars.*/
 #include "ida_impl.h" /* definition of IDAMem type                         */
 
-#include <ida/ida_dense.h>
+#include <ida/ida_direct.h>
+#include <sunmatrix/sunmatrix_dense.h>
 
 /*************************************************/
 
@@ -34,13 +35,12 @@
 extern "C" {
 #endif
 
-  extern void FIDA_DJAC(long int*, 
-                        realtype*, realtype*, realtype*, realtype*,
-                        realtype*, 
-                        realtype*, realtype*, realtype*,
-                        long int*, realtype*,
-                        realtype*, realtype*, realtype*, 
-                        int*);
+  extern void FIDA_DJAC(long int* N, realtype* T, realtype* Y,
+                        realtype* YP, realtype* R, realtype* J, 
+                        realtype* CJ, realtype* EWT, realtype* H,
+                        long int* IPAR, realtype* RPAR,
+                        realtype* V1, realtype* V2, realtype* V3, 
+                        int* IER);
 
 #ifdef __cplusplus
 }
@@ -50,14 +50,9 @@ extern "C" {
 
 void FIDA_DENSESETJAC(int *flag, int *ier)
 {
-  *ier = 0;
-
   if (*flag == 0) {
-
-    *ier = IDADlsSetDenseJacFn(IDA_idamem, NULL);
-
+    *ier = IDADlsSetJacFn(IDA_idamem, NULL);
   } else {
-
     if (F2C_IDA_ewtvec == NULL) {
       F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
       if (F2C_IDA_ewtvec == NULL) {
@@ -65,22 +60,20 @@ void FIDA_DENSESETJAC(int *flag, int *ier)
         return;
       }
     }
-
-    *ier = IDADlsSetDenseJacFn(IDA_idamem, FIDADenseJac);
+    *ier = IDADlsSetJacFn(IDA_idamem, FIDADenseJac);
   }
-
   return;
 }
 
 /*************************************************/
 
-int FIDADenseJac(long int N, realtype t, realtype c_j, 
-		 N_Vector yy, N_Vector yp, N_Vector rr,
-                 DlsMat Jac, void *user_data,
+int FIDADenseJac(realtype t, realtype c_j, N_Vector yy, N_Vector yp,
+                 N_Vector rr, SUNMatrix J, void *user_data,
 		 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   realtype *yy_data, *yp_data, *rr_data, *jacdata, *ewtdata, *v1data, *v2data, *v3data;
   realtype h;
+  long int N;
   int ier;
   FIDAUserData IDA_userdata;
 
@@ -106,13 +99,14 @@ int FIDADenseJac(long int N, realtype t, realtype c_j,
   v2data  = N_VGetArrayPointer(vtemp2);
   v3data  = N_VGetArrayPointer(vtemp3);
 
-  jacdata = DENSE_COL(Jac,0);
+  N       = SUNDenseMatrix_Columns(J);
+  jacdata = SUNDenseMatrix_Column(J,0);
 
   IDA_userdata = (FIDAUserData) user_data;
 
   /* Call user-supplied routine*/
-  FIDA_DJAC(&N, &t, yy_data, yp_data, rr_data, jacdata,
-	    &c_j, ewtdata, &h, 
+  FIDA_DJAC(&N, &t, yy_data, yp_data, rr_data,
+            jacdata, &c_j, ewtdata, &h, 
             IDA_userdata->ipar, IDA_userdata->rpar,
             v1data, v2data, v3data, &ier);
 

@@ -1,15 +1,11 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4834 $
- * $Date: 2016-08-01 16:59:05 -0700 (Mon, 01 Aug 2016) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example problem for IDA: 2D heat equation, serial, GMRES.
  *
  * This example solves a discretized 2D heat equation problem.
- * This version uses the Krylov solver IDASpgmr.
+ * This version uses the Krylov solver Spgmr.
  *
  * The DAE system solved is a spatial discretization of the PDE
  *          du/dt = d^2u/dx^2 + d^2u/dy^2
@@ -21,24 +17,24 @@
  * system of size N = M^2. Here M = 10.
  *
  * The system is solved with IDA using the Krylov linear solver
- * IDASPGMR. The preconditioner uses the diagonal elements of the
+ * SPGMR. The preconditioner uses the diagonal elements of the
  * Jacobian only. Routines for preconditioning, required by
- * IDASPGMR, are supplied here. The constraints u >= 0 are posed
+ * SPGMR, are supplied here. The constraints u >= 0 are posed
  * for all components. Output is taken at t = 0, .01, .02, .04,
  * ..., 10.24. Two cases are run -- with the Gram-Schmidt type
  * being Modified in the first case, and Classical in the second.
- * The second run uses IDAReInit and IDAReInitSpgmr.
- * -----------------------------------------------------------------
- */
+ * The second run uses IDAReInit.
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-#include <idas/idas.h>
-#include <idas/idas_spgmr.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_types.h>
+#include <idas/idas.h>                 /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <idas/idas_spils.h>           /* access to IDASpils interface         */
+#include <sunlinsol/sunlinsol_spgmr.h> /* access to spgmr SUNLinearSolver      */
+#include <sundials/sundials_types.h>   /* definition of type realtype          */
 
 /* Problem Constants */
 
@@ -53,7 +49,7 @@
 /* User data type */
 
 typedef struct {  
-  long int mm;  /* number of grid points */
+  sunindextype mm;  /* number of grid points */
   realtype dx;
   realtype coeff;
   N_Vector pp;  /* vector of prec. diag. elements */
@@ -66,14 +62,12 @@ int resHeat(realtype tres, N_Vector uu, N_Vector up,
 
 int PsetupHeat(realtype tt, 
                N_Vector uu, N_Vector up, N_Vector rr, 
-               realtype c_j, void *user_data, 
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+               realtype c_j, void *prec_data);
 
 int PsolveHeat(realtype tt, 
                N_Vector uu, N_Vector up, N_Vector rr, 
                N_Vector rvec, N_Vector zvec, 
-               realtype c_j, realtype delta, void *user_data, 
-               N_Vector tmp);
+               realtype c_j, realtype delta, void *prec_data);
 
 /* Prototypes for private functions */
 
@@ -97,10 +91,12 @@ int main()
   int ier, iout;
   realtype rtol, atol, t0, t1, tout, tret;
   long int netf, ncfn, ncfl;
+  SUNLinearSolver LS;
 
   mem = NULL;
   data = NULL;
   uu = up = constraints = res = NULL;
+  LS = NULL;
 
   /* Allocate N-vectors and the user data structure. */
 
@@ -153,7 +149,7 @@ int main()
 
   ier = IDASetConstraints(mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
-  N_VDestroy_Serial(constraints);
+  N_VDestroy(constraints);
 
   ier = IDAInit(mem, resHeat, t0, uu, up);
   if(check_flag(&ier, "IDAInit", 1)) return(1);
@@ -161,11 +157,20 @@ int main()
   ier = IDASStolerances(mem, rtol, atol);
   if(check_flag(&ier, "IDASStolerances", 1)) return(1);
 
-  /* Call IDASpgmr to specify the linear solver. */
+  /* Create the linear solver SUNSPGMR with left preconditioning
+     and the default Krylov dimension */
+  LS = SUNSPGMR(uu, PREC_LEFT, 0);
+  if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
 
-  ier = IDASpgmr(mem, 0);
-  if(check_flag(&ier, "IDASpgmr", 1)) return(1);
+  /* IDA recommends allowing up to 5 restarts (default is 0) */
+  ier = SUNSPGMRSetMaxRestarts(LS, 5);
+  if(check_flag(&ier, "SUNSPGMRSetMaxRestarts", 1)) return(1);
 
+  /* Attach the linear sovler */
+  ier = IDASpilsSetLinearSolver(mem, LS);
+  if(check_flag(&ier, "IDASpilsSetLinearSolver", 1)) return(1);
+
+  /* Set the preconditioner solve and setup functions */
   ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat);
   if(check_flag(&ier, "IDASpilsSetPreconditioner", 1)) return(1);
 
@@ -218,13 +223,13 @@ int main()
 
   SetInitialProfile(data, uu, up, res);
   
-  /* Re-initialize IDA and IDASPGMR */
+  /* Re-initialize IDA and SPGMR */
 
   ier = IDAReInit(mem, t0, uu, up);
   if(check_flag(&ier, "IDAReInit", 1)) return(1);
   
-  ier = IDASpilsSetGSType(mem, CLASSICAL_GS);
-  if(check_flag(&ier, "IDASpilsSetGSType",1)) return(1); 
+  ier = SUNSPGMRSetGSType(LS, CLASSICAL_GS);
+  if(check_flag(&ier, "SUNSPGMRSetGSType",1)) return(1); 
   
   /* Print case number, output table heading, and initial line of table. */
 
@@ -259,12 +264,13 @@ int main()
   /* Free Memory */
 
   IDAFree(&mem);
+  SUNLinSolFree(LS);
 
-  N_VDestroy_Serial(uu);
-  N_VDestroy_Serial(up);
-  N_VDestroy_Serial(res);
+  N_VDestroy(uu);
+  N_VDestroy(up);
+  N_VDestroy(res);
 
-  N_VDestroy_Serial(data->pp);
+  N_VDestroy(data->pp);
   free(data);
 
   return(0);
@@ -289,13 +295,13 @@ int resHeat(realtype tt,
             N_Vector uu, N_Vector up, N_Vector rr, 
             void *user_data)
 {
-  long int i, j, offset, loc, mm;
+  sunindextype i, j, offset, loc, mm;
   realtype *uu_data, *up_data, *rr_data, coeff, dif1, dif2;
   UserData data;
   
-  uu_data = N_VGetArrayPointer_Serial(uu); 
-  up_data = N_VGetArrayPointer_Serial(up); 
-  rr_data = N_VGetArrayPointer_Serial(rr);
+  uu_data = N_VGetArrayPointer(uu); 
+  up_data = N_VGetArrayPointer(up); 
+  rr_data = N_VGetArrayPointer(rr);
 
   data = (UserData) user_data;
   
@@ -338,16 +344,15 @@ int resHeat(realtype tt,
   
 int PsetupHeat(realtype tt, 
                N_Vector uu, N_Vector up, N_Vector rr, 
-               realtype c_j, void *user_data, 
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+               realtype c_j, void *prec_data)
 {
   
-  long int i, j, offset, loc, mm;
+  sunindextype i, j, offset, loc, mm;
   realtype *ppv, pelinv;
   UserData data;
   
-  data = (UserData) user_data;
-  ppv = N_VGetArrayPointer_Serial(data->pp);
+  data = (UserData) prec_data;
+  ppv = N_VGetArrayPointer(data->pp);
   mm = data->mm;
 
   /* Initialize the entire vector to 1., then set the interior points to the
@@ -378,11 +383,10 @@ int PsetupHeat(realtype tt,
 int PsolveHeat(realtype tt, 
                N_Vector uu, N_Vector up, N_Vector rr, 
                N_Vector rvec, N_Vector zvec, 
-               realtype c_j, realtype delta, void *user_data, 
-               N_Vector tmp)
+               realtype c_j, realtype delta, void *prec_data)
 {
   UserData data;
-  data = (UserData) user_data;
+  data = (UserData) prec_data;
   N_VProd(data->pp, rvec, zvec);
   return(0);
 }
@@ -400,13 +404,13 @@ int PsolveHeat(realtype tt,
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
                              N_Vector res)
 {
-  long int mm, mm1, i, j, offset, loc;
+  sunindextype mm, mm1, i, j, offset, loc;
   realtype xfact, yfact, *udata, *updata;
 
   mm = data->mm;
 
-  udata = N_VGetArrayPointer_Serial(uu);
-  updata = N_VGetArrayPointer_Serial(up);
+  udata = N_VGetArrayPointer(uu);
+  updata = N_VGetArrayPointer(up);
 
   /* Initialize uu on all grid points. */ 
   mm1 = mm - 1;
@@ -461,7 +465,7 @@ static void PrintHeader(realtype rtol, realtype atol)
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
   printf("Constraints set to force all solution components >= 0. \n");
-  printf("Linear solver: IDASPGMR, preconditioner using diagonal elements. \n");
+  printf("Linear solver: SPGMR, preconditioner using diagonal elements. \n");
 }
 
 /*

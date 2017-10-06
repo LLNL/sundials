@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision:  $
- * $Date:  $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Ting Yan @ SMU
  *      Based on kinFoodWeb_kry.c and parallelized with OpenMP
  * -----------------------------------------------------------------
@@ -13,10 +9,10 @@
  * population model, with predator-prey interaction and diffusion
  * on the unit square in two dimensions. The dependent variable
  * vector is the following:
- * 
+ *
  *       1   2         ns
  * c = (c , c ,  ..., c  )     (denoted by the variable cc)
- * 
+ *
  * and the PDE's are as follows:
  *
  *                    i       i
@@ -51,9 +47,9 @@
  *
  * The PDEs are discretized by central differencing on an MX by
  * MY mesh.
- * 
+ *
  * The nonlinear system is solved by KINSOL using the method
- * specified in local variable globalstrat.
+ * specified in the local variable globalstrat.
  *
  * The preconditioner matrix is a block-diagonal matrix based on
  * the partial derivatives of the interaction terms f only.
@@ -61,19 +57,19 @@
  * Constraints are imposed to make all components of the solution
  * positive.
  *
- * Optionally, we can set the number of threads from environment 
- * variable or command line. To check the current value for number
- * of threads from environment:
+ * Optionally, we can set the number of threads with an environment
+ * variable or from the command line. To check the current value
+ * for number of threads set by the environment variable:
  *      % echo $OMP_NUM_THREADS
  *
  * Execution:
  *
- * If the user want to use the default value or the number of threads 
- * from environment value:
+ * If the user wants to use the default value or the number of
+ * threads set by the environment variable use
  *      % ./kinFoodWeb_kry_omp 
- * If the user want to specify the number of threads to use
+ * If the user wants to specify the number of threads to use
  *      % ./kinFoodWeb_kry_omp num_threads
- * where num_threads is the number of threads the user want to use 
+ * where num_threads is the number of threads the user wants to use
  *
  * -----------------------------------------------------------------
  * References:
@@ -96,12 +92,13 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <kinsol/kinsol.h>
-#include <kinsol/kinsol_spgmr.h>
-#include <nvector/nvector_openmp.h>
-#include <sundials/sundials_dense.h>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
+#include <kinsol/kinsol.h>             /* access to KINSOL func., consts.      */
+#include <nvector/nvector_openmp.h>    /* access to OpenMP N_Vector            */
+#include <kinsol/kinsol_spils.h>       /* access to KINSpils interface         */
+#include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
+#include <sundials/sundials_dense.h>   /* use generic dense solver in precond. */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>    /* access to SUNMAX, SUNRabs, SUNRsqrt  */
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -130,7 +127,7 @@
 #define FTOL        RCONST(1.e-7)  /* ftol tolerance */
 #define STOL        RCONST(1.e-13) /* stol tolerance */
 #define THOUSAND    RCONST(1000.0) /* one thousand */
-#define ZERO        RCONST(0.)     /* 0. */
+#define ZERO        RCONST(0.0)    /* 0. */
 #define ONE         RCONST(1.0)    /* 1. */
 #define TWO         RCONST(2.0)    /* 2. */
 #define PREYIN      RCONST(1.0)    /* initial guess for prey concentrations. */
@@ -150,13 +147,13 @@
 
 typedef struct {
   realtype **P[MX][MY];
-  long int *pivot[MX][MY];
+  sunindextype *pivot[MX][MY];
   realtype **acoef, *bcoef;
   N_Vector rates;
   realtype *cox, *coy;
   realtype ax, ay, dx, dy;
   realtype uround, sqruround;
-  long int mx, my, ns, np;
+  sunindextype mx, my, ns, np;
   int nthreads;
 } *UserData;
 
@@ -166,13 +163,11 @@ static int func(N_Vector cc, N_Vector fval, void *user_data);
 
 static int PrecSetupBD(N_Vector cc, N_Vector cscale,
                        N_Vector fval, N_Vector fscale,
-                       void *user_data,
-                       N_Vector vtemp1, N_Vector vtemp2);
+                       void *user_data);
 
 static int PrecSolveBD(N_Vector cc, N_Vector cscale, 
                        N_Vector fval, N_Vector fscale, 
-                       N_Vector vv, void *user_data,
-                       N_Vector ftem);
+                       N_Vector vv, void *user_data);
 
 /* Private Helper Functions */
 
@@ -186,8 +181,8 @@ static void PrintOutput(N_Vector cc);
 static void PrintFinalStats(void *kmem);
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                     void *user_data);
-static realtype DotProd(long int size, realtype *x1, realtype *x2);
-static int check_flag(void *flagvalue, char *funcname, int opt);
+static realtype DotProd(sunindextype size, realtype *x1, realtype *x2);
+static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -203,10 +198,12 @@ int main(int argc, char *argv[])
   UserData data;
   int flag, maxl, maxlrst;
   void *kmem;
+  SUNLinearSolver LS;
   int num_threads;
 
   cc = sc = constraints = NULL;
   kmem = NULL;
+  LS = NULL;
   data = NULL;
 
   /* Allocate memory, and set problem data, initial values, tolerances */ 
@@ -263,15 +260,23 @@ int main(int argc, char *argv[])
      creates a private copy for KINSOL to use. */
   N_VDestroy_OpenMP(constraints);
 
-  /* Call KINSpgmr to specify the linear solver KINSPGMR with preconditioner
-     routines PrecSetupBD and PrecSolveBD. */
-  maxl = 15; 
-  maxlrst = 2;
-  flag = KINSpgmr(kmem, maxl);
-  if (check_flag(&flag, "KINSpgmr", 1)) return(1);
 
-  flag = KINSpilsSetMaxRestarts(kmem, maxlrst);
-  if (check_flag(&flag, "KINSpilsSetMaxRestarts", 1)) return(1);
+  /* Create SUNSPGMR object with right preconditioning and the 
+     maximum Krylov dimension maxl */
+  maxl = 15; 
+  LS = SUNSPGMR(cc, PREC_RIGHT, maxl);
+  if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
+
+  /* Attach the linear solver to KINSOL */
+  flag = KINSpilsSetLinearSolver(kmem, LS);
+  if (check_flag(&flag, "KINSpilsSetLinearSolver", 1)) return 1;
+
+  /* Set the maximum number of restarts */
+  maxlrst = 2;
+  flag = SUNSPGMRSetMaxRestarts(LS, maxlrst);
+  if (check_flag(&flag, "SUNSPGMRSpilsSetMaxRestarts", 1)) return(1);
+
+  /* Specify the preconditioner setup and solve routines */
   flag = KINSpilsSetPreconditioner(kmem,
 				   PrecSetupBD,
 				   PrecSolveBD);
@@ -284,7 +289,7 @@ int main(int argc, char *argv[])
   flag = KINSol(kmem,           /* KINSol memory block */
                 cc,             /* initial guess on input; solution vector */
                 globalstrategy, /* global strategy choice */
-                sc,             /* scaling vector, for the variable cc */
+                sc,             /* scaling vector for the variable cc */
                 sc);            /* scaling vector for function values fval */
   if (check_flag(&flag, "KINSol", 1)) return(1);
 
@@ -298,6 +303,7 @@ int main(int argc, char *argv[])
   N_VDestroy_OpenMP(cc);
   N_VDestroy_OpenMP(sc);
   KINFree(&kmem);
+  SUNLinSolFree(LS);
   FreeUserData(data);
 
   return(0);
@@ -323,7 +329,7 @@ int main(int argc, char *argv[])
 static int func(N_Vector cc, N_Vector fval, void *user_data)
 {
   realtype xx, yy, delx, dely, *cxy, *rxy, *fxy, dcyli, dcyui, dcxli, dcxri;
-  long int jx, jy, is, idyu, idyl, idxr, idxl;
+  sunindextype jx, jy, is, idyu, idyl, idxr, idxl;
   UserData data;
   
   data = (UserData)user_data;
@@ -383,12 +389,11 @@ static int func(N_Vector cc, N_Vector fval, void *user_data)
 
 static int PrecSetupBD(N_Vector cc, N_Vector cscale,
                        N_Vector fval, N_Vector fscale,
-                       void *user_data,
-                       N_Vector vtemp1, N_Vector vtemp2)
+                       void *user_data)
 {
   realtype r, r0, uround, sqruround, xx, yy, delx, dely, csave, fac;
   realtype *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
-  long int i, j, jx, jy, ret;
+  sunindextype i, j, jx, jy, ret;
   UserData data;
   
   data = (UserData) user_data;
@@ -411,7 +416,7 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
       cxy = IJ_Vptr(cc,jx,jy);
       scxy= IJ_Vptr(cscale,jx,jy);
       ratesxy = IJ_Vptr((data->rates),jx,jy);
-      
+
       /* Compute difference quotients of interaction rate fn. */
       for (j = 0; j < NUM_SPECIES; j++) {
         
@@ -432,7 +437,6 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
         for (i = 0; i < NUM_SPECIES; i++)
           Pxycol[i] = (perturb_rates[i] - ratesxy[i]) * fac;
         
-        
       } /* end of j loop */
       
       /* Do LU decomposition of size NUM_SPECIES preconditioner block */
@@ -443,7 +447,7 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
     
   } /* end of jy loop */
   
-  return(0);  
+  return(0);
 }
 
 /*
@@ -452,11 +456,10 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
 
 static int PrecSolveBD(N_Vector cc, N_Vector cscale, 
                        N_Vector fval, N_Vector fscale, 
-                       N_Vector vv, void *user_data,
-                       N_Vector ftem)
+                       N_Vector vv, void *user_data)
 {
   realtype **Pxy, *vxy;
-  long int *piv, jx, jy;
+  sunindextype *piv, jx, jy;
   UserData data;
   
   data = (UserData)user_data;
@@ -489,7 +492,7 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                     void *user_data)
 {
-  long int i;
+  sunindextype i;
   realtype fac;
   UserData data;
   
@@ -502,22 +505,22 @@ static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
   
 #pragma omp parallel for default(shared) private(i) 
   for (i = 0; i < NUM_SPECIES; i++)
-    ratesxy[i] = cxy[i] * ( bcoef[i] * fac + ratesxy[i] );  
+    ratesxy[i] = cxy[i] * ( bcoef[i] * fac + ratesxy[i] );
 }
 
 /*
  * Dot product routine for realtype arrays 
  */
 
-static realtype DotProd(long int size, realtype *x1, realtype *x2)
+static realtype DotProd(sunindextype size, realtype *x1, realtype *x2)
 {
-  long int i;
+  sunindextype i;
   realtype *xx1, *xx2, temp = ZERO;
   
   xx1 = x1; xx2 = x2;
   for (i = 0; i < size; i++) temp += (*xx1++) * (*xx2++);
 
-  return(temp);  
+  return(temp);
 }
 
 /*
@@ -540,9 +543,10 @@ static UserData AllocUserData(void)
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
       (data->P)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (data->pivot)[jx][jy] = newLintArray(NUM_SPECIES);
+      (data->pivot)[jx][jy] = newIndexArray(NUM_SPECIES);
     }
   }
+
   acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
   bcoef = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   cox   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
@@ -551,13 +555,13 @@ static UserData AllocUserData(void)
   return(data);
 }
 
-/* 
+/*
  * Load problem constants in data 
  */
 
 static void InitUserData(UserData data)
 {
-  long int i, j, np;
+  sunindextype i, j, np;
   realtype *a1,*a2, *a3, *a4, dx2, dy2;
 
   data->mx = MX;
@@ -602,24 +606,24 @@ static void InitUserData(UserData data)
 
     coy[i]=DPREY/dy2;
     coy[i+np]=DPRED/dy2;
-  }  
+  }
 }
 
-/* 
+/*
  * Free data memory 
  */
 
 static void FreeUserData(UserData data)
 {
   int jx, jy;
-  
+
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
       destroyMat((data->P)[jx][jy]);
       destroyArray((data->pivot)[jx][jy]);
     }
   }
-  
+
   destroyMat(acoef);
   free(bcoef);
   free(cox);
@@ -628,7 +632,7 @@ static void FreeUserData(UserData data)
   free(data);
 }
 
-/* 
+/*
  * Set initial conditions in cc 
  */
 
@@ -705,7 +709,7 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
 #endif
 }
 
-/* 
+/*
  * Print sampled values of current cc 
  */
 
@@ -748,7 +752,7 @@ static void PrintOutput(N_Vector cc)
   printf("\n\n");
 }
 
-/* 
+/*
  * Print final statistics contained in iopt 
  */
 
@@ -756,7 +760,7 @@ static void PrintFinalStats(void *kmem)
 {
   long int nni, nfe, nli, npe, nps, ncfl, nfeSG;
   int flag;
-  
+
   flag = KINGetNumNonlinSolvIters(kmem, &nni);
   check_flag(&flag, "KINGetNumNonlinSolvIters", 1);
   flag = KINGetNumFuncEvals(kmem, &nfe);
@@ -776,7 +780,7 @@ static void PrintFinalStats(void *kmem)
   printf("nni    = %5ld    nli   = %5ld\n", nni, nli);
   printf("nfe    = %5ld    nfeSG = %5ld\n", nfe, nfeSG);
   printf("nps    = %5ld    npe   = %5ld     ncfl  = %5ld\n", nps, npe, ncfl);
-  
+
 }
 
 /*
@@ -789,7 +793,7 @@ static void PrintFinalStats(void *kmem)
  *             NULL pointer 
  */
 
-static int check_flag(void *flagvalue, char *funcname, int opt)
+static int check_flag(void *flagvalue, const char *funcname, int opt)
 {
   int *errflag;
 
@@ -808,7 +812,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
       fprintf(stderr,
               "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
 	      funcname, *errflag);
-      return(1); 
+      return(1);
     }
   }
 

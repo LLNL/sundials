@@ -1,15 +1,11 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4853 $
- * $Date: 2016-08-03 16:27:46 -0700 (Wed, 03 Aug 2016) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Chris Nguyen @ LLNL
+ *                based on idaHeat2D_bnd.c and idaRoberts_klu.c
  * -----------------------------------------------------------------
- * Example problem for IDA: 2D heat equation, serial, sparse. 
- * Based on idaHeat2D_bnd.c and idaRoberts_klu.c
+ * Example problem for IDA: 2D heat equation, serial, sparse.
  *
  * This example solves a discretized 2D heat equation problem.
- * This version uses the band solver IDABand, and IDACalcIC.
+ * This version uses the KLU solver and IDACalcIC.
  *
  * The DAE system solved is a spatial discretization of the PDE
  *          du/dt = d^2u/dx^2 + d^2u/dy^2
@@ -20,27 +16,30 @@
  * equations u = 0 at the boundaries are appended, to form a DAE
  * system of size N = MGRID^2. Here MGRID = 10.
  *
- * The system is solved with IDA using the banded linear system
- * solver and default difference-quotient Jacobian. 
+ * The system is solved with IDA using the sparse linear system
+ * solver and a user supplied Jacobian. 
  * For purposes of illustration,
  * IDACalcIC is called to compute correct values at the boundary,
  * given incorrect values as input initial guesses. The constraints
  * u >= 0 are posed for all components. Output is taken at
  * t = 0, .01, .02, .04, ..., 10.24. (Output at t = 0 is for
  * IDACalcIC cost statistics only.)
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>
-#include <ida/ida_klu.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_types.h>
+#include <ida/ida.h>                       /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>        /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix           */
+#include <sunlinsol/sunlinsol_klu.h>       /* access to KLU linear solver          */
+#include <ida/ida_direct.h>                /* access to IDADls interface           */
+#include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>        /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Problem Constants */
+
 #define NOUT  11
 #define MGRID 10
 #define NEQ   MGRID*MGRID
@@ -53,26 +52,25 @@
 /* Type: UserData */
 
 typedef struct {
-  long int mm;
+  sunindextype mm;
   realtype dx;
   realtype coeff;
 } *UserData;
 
 /* Prototypes of functions called by IDA */
 
-int heatres(realtype tres, N_Vector uu, N_Vector up, 
-	    N_Vector resval, void *user_data);
+int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, void *user_data);
 
 int jacHeat(realtype tt,  realtype cj, 
 	    N_Vector yy, N_Vector yp, N_Vector resvec,
-	    SlsMat JacMat, void *user_data,
+	    SUNMatrix JJ, void *user_data,
 	    N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Exact same setup as jacHeat. Function needed for special case MGRID=3  */
 int jacHeat3(realtype tt,  realtype cj, 
-	    N_Vector yy, N_Vector yp, N_Vector resvec,
-	    SlsMat JacMat, void *user_data,
-	    N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+             N_Vector yy, N_Vector yp, N_Vector resvec,
+             SUNMatrix JJ, void *user_data,
+             N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Prototypes of private functions */
 
@@ -93,12 +91,13 @@ int main(void)
 {
   void *mem;
   UserData data;
-  N_Vector uu, up, constraints, id, res;  /* uu is u, up is du/dt */
+  N_Vector uu, up, constraints, id, res;
   int ier, iout;
   long int netf, ncfn;
   realtype rtol, atol, t0, t1, tout, tret;
-
-  int nnz; /* number of non-zeroes  */
+  SUNMatrix A;
+  SUNLinearSolver LS;
+  sunindextype nnz;
   
   mem = NULL;
   data = NULL;
@@ -113,7 +112,7 @@ int main(void)
   if(check_flag((void *)res, "N_VNew_Serial", 0)) return(1);
   constraints = N_VNew_Serial(NEQ);
   if(check_flag((void *)constraints, "N_VNew_Serial", 0)) return(1);
-  id = N_VNew_Serial(NEQ); /* differentiate between algebraic and differential */
+  id = N_VNew_Serial(NEQ);
   if(check_flag((void *)id, "N_VNew_Serial", 0)) return(1);
 
   /* Create and load problem data block. */
@@ -142,13 +141,13 @@ int main(void)
   ier = IDASetUserData(mem, data);
   if(check_flag(&ier, "IDASetUserData", 1)) return(1);
 
-  /* Sets up which components are algebraic or differential */
-  ier = IDASetId(mem, id); 
+  /* Set which components are algebraic or differential */
+  ier = IDASetId(mem, id);
   if(check_flag(&ier, "IDASetId", 1)) return(1);
 
   ier = IDASetConstraints(mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
-  N_VDestroy_Serial(constraints);
+  N_VDestroy(constraints);
 
   ier = IDAInit(mem, heatres, t0, uu, up);
   if(check_flag(&ier, "IDAInit", 1)) return(1);
@@ -156,26 +155,33 @@ int main(void)
   ier = IDASStolerances(mem, rtol, atol);
   if(check_flag(&ier, "IDASStolerances", 1)) return(1);
 
-  /* Call IDAKLU and set up the linear solver  */
+  /* Create sparse SUNMatrix for use in linear solves */
   nnz = NEQ*NEQ;
-  ier = IDAKLU(mem, NEQ, nnz, CSC_MAT);
-  if(check_flag(&ier, "IDAKLU", 1)) return(1);
-  /* check size of Jacobian matrix  */
+  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
+  if(check_flag((void*)A, "SUNSparseMtarix", 0)) return(1);
+
+  /* Create KLU SUNLinearSolver object */
+  LS = SUNKLU(uu, A);
+  if(check_flag((void *)LS, "SUNKLU", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  ier = IDADlsSetLinearSolver(mem, LS, A);
+  if(check_flag(&ier, "IDADlsSetLinearSolver", 1)) return(1);
+
+  /* Set the user-supplied Jacobian routine */
   if(MGRID >= 4){
-    ier = IDASlsSetSparseJacFn(mem, jacHeat);
-  }
-  /* special case MGRID=3  */
-  else if(MGRID==3){
-    ier = IDASlsSetSparseJacFn(mem, jacHeat3);
-  }
-  /* MGRID<=2 is pure boundary points, nothing to solve  */
-  else{
+    ier = IDADlsSetJacFn(mem, jacHeat);
+  } else if(MGRID == 3) {
+    ier = IDADlsSetJacFn(mem, jacHeat3);
+  } else {
+    /* MGRID<=2 is pure boundary points, nothing to solve */
     printf("MGRID size is too small to run.\n");
     return(1);
   }
-  if(check_flag(&ier, "IDASlsSetSparseJacFn", 1)) return(1);
+  if(check_flag(&ier, "IDADlsSetJacFn", 1)) return(1);
 
   /* Call IDACalcIC to correct the initial values. */
+
   ier = IDACalcIC(mem, IDA_YA_YDP_INIT, t1);
   if(check_flag(&ier, "IDACalcIC", 1)) return(1);
 
@@ -204,10 +210,12 @@ int main(void)
   printf("\n netf = %ld,   ncfn = %ld \n", netf, ncfn);
 
   IDAFree(&mem);
-  N_VDestroy_Serial(uu);
-  N_VDestroy_Serial(up);
-  N_VDestroy_Serial(id);
-  N_VDestroy_Serial(res);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
+  N_VDestroy(uu);
+  N_VDestroy(up);
+  N_VDestroy(id);
+  N_VDestroy(res);
   free(data);
 
   return(0);
@@ -231,11 +239,11 @@ int main(void)
 int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, 
             void *user_data)
 {
-  long int mm, i, j, offset, loc;
+  sunindextype mm, i, j, offset, loc;
   realtype *uv, *upv, *resv, coeff;
   UserData data;
   
-  uv = N_VGetArrayPointer_Serial(uu); upv = N_VGetArrayPointer_Serial(up); resv = N_VGetArrayPointer_Serial(resval);
+  uv = N_VGetArrayPointer(uu); upv = N_VGetArrayPointer(up); resv = N_VGetArrayPointer(resval);
 
   data = (UserData)user_data;
   mm = data->mm;
@@ -260,18 +268,18 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval,
 
 /* Jacobian matrix setup for MGRID=3  */
 int jacHeat3(realtype tt,  realtype cj, 
-           N_Vector yy, N_Vector yp, N_Vector resvec,
-	   SlsMat JacMat, void *user_data,
-           N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
+             N_Vector yy, N_Vector yp, N_Vector resvec,
+             SUNMatrix JJ, void *user_data,
+             N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   realtype dx =  ONE/(MGRID - ONE);
   realtype beta = RCONST(4.0)/(dx*dx) + cj;
   
-  int *colptrs   = (*JacMat->colptrs);
-  int *rowvals   = (*JacMat->rowvals);
-  realtype *data = JacMat->data;
+  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(JJ);
+  sunindextype *rowvals = SUNSparseMatrix_IndexValues(JJ);
+  realtype *data = SUNSparseMatrix_Data(JJ);
 
-  SparseSetMatToZero(JacMat); /* initialize Jacobian matrix */
+  SUNMatZero(JJ);
 
   /*
    * set up number of elements in each column 
@@ -323,22 +331,22 @@ int jacHeat3(realtype tt,  realtype cj,
 
 /* Jacobian matrix setup for MGRID>=4  */
 int jacHeat(realtype tt,  realtype cj, 
-           N_Vector yy, N_Vector yp, N_Vector resvec,
-	   SlsMat JacMat, void *user_data,
-           N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
+            N_Vector yy, N_Vector yp, N_Vector resvec,
+            SUNMatrix JJ, void *user_data,
+            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   realtype *yval;
   realtype dx =  ONE/(MGRID - ONE);
   realtype beta = RCONST(4.0)/(dx*dx) + cj;
   int i,j, repeat=0;
 
-  int *colptrs   = (*JacMat->colptrs);
-  int *rowvals   = (*JacMat->rowvals);
-  realtype *data = JacMat->data;
+  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(JJ);
+  sunindextype *rowvals = SUNSparseMatrix_IndexValues(JJ);
+  realtype *data = SUNSparseMatrix_Data(JJ);
 
-  yval = N_VGetArrayPointer_Serial(yy);
+  yval = N_VGetArrayPointer(yy);
 
-  SparseSetMatToZero(JacMat); /* initialize Jacobian matrix  */
+  SUNMatZero(JJ);
 
   /* 
    *-----------------------------------------------
@@ -565,8 +573,6 @@ int jacHeat(realtype tt,  realtype cj,
   for(i=0;i<(MGRID-2);i++) rowvals[TOTAL-2*(MGRID-2)  +2*i] = MGRID*MGRID-MGRID+1+i;  
   rowvals[TOTAL-1] = MGRID*MGRID-1;
 
-  /*SparsePrintMat(JacMat);*/
- 
   return(0);
 }
 
@@ -585,14 +591,14 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector id, N_Vector res)
 {
   realtype xfact, yfact, *udata, *updata, *iddata;
-  long int mm, mm1, i, j, offset, loc;
+  sunindextype mm, mm1, i, j, offset, loc;
   
   mm = data->mm;
   mm1 = mm - 1;
   
-  udata = N_VGetArrayPointer_Serial(uu);
-  updata = N_VGetArrayPointer_Serial(up);
-  iddata = N_VGetArrayPointer_Serial(id);
+  udata = N_VGetArrayPointer(uu);
+  updata = N_VGetArrayPointer(up);
+  iddata = N_VGetArrayPointer(id);
 
   /* Initialize id to 1's. */
   N_VConst(ONE, id);
@@ -651,7 +657,7 @@ static void PrintHeader(realtype rtol, realtype atol)
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
   printf("Constraints set to force all solution components >= 0. \n");
-  printf("Linear solver: IDAKLU, sparse direct solver \n");
+  printf("Linear solver: KLU, sparse direct solver \n");
   printf("       difference quotient Jacobian\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("IDACalcIC called with input boundary values = %Lg \n",BVAL);
@@ -689,10 +695,9 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
   check_flag(&ier, "IDAGetNumResEvals", 1);
   ier = IDAGetLastStep(mem, &hused);
   check_flag(&ier, "IDAGetLastStep", 1);
-  ier = IDASlsGetNumJacEvals(mem, &nje);
-  check_flag(&ier, "IDASlsGetNumJacEvals", 1);
+  ier = IDADlsGetNumJacEvals(mem, &nje);
+  check_flag(&ier, "IDADlsGetNumJacEvals", 1);
 
- 
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
   printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %9.2Le \n",
          t, umax, kused, nst, nni, nje, nre, hused);

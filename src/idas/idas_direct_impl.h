@@ -1,135 +1,126 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4749 $
- * $Date: 2016-04-23 18:42:38 -0700 (Sat, 23 Apr 2016) $
- * ----------------------------------------------------------------- 
- * Programmer: Radu Serban @ LLNL
- * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
+/*----------------------------------------------------------------- 
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *                Radu Serban @ LLNL
+ *-----------------------------------------------------------------
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2017, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
  * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
  * All rights reserved.
  * For details, see the LICENSE file.
- * LLNS Copyright End
- * -----------------------------------------------------------------
- * Implementation header file for the IDADLS linear solvers.
- * -----------------------------------------------------------------
- */
+ * LLNS/SMU Copyright End
+ *-----------------------------------------------------------------
+ * Implementation header file for the IDADLS linear solver 
+ * interface
+ *-----------------------------------------------------------------*/
 
 #ifndef _IDASDLS_IMPL_H
 #define _IDASDLS_IMPL_H
 
 #include <idas/idas_direct.h>
+#include "idas_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-/*
- * =================================================================
- * I D A S D I R E C T    I N T E R N A L    C O N S T A N T S
- * =================================================================
- */
+/*=================================================================
+  PART I:  Forward Problems
+  =================================================================*/
 
-/*
- * =================================================================
- * PART I:  F O R W A R D    P R O B L E M S
- * =================================================================
- */
+/*-----------------------------------------------------------------
+  Types : IDADlsMemRec, IDADlsMem                             
 
-/*
- * -----------------------------------------------------------------
- * Types : IDADlsMemRec, IDADlsMem                             
- * -----------------------------------------------------------------
- * IDADlsMem is pointer to a IDADlsMemRec structure.
- * -----------------------------------------------------------------
- */
-
+  IDADlsMem is pointer to a IDADlsMemRec structure.
+  -----------------------------------------------------------------*/
 typedef struct IDADlsMemRec {
 
-  int d_type;               /* Type of Jacobians (DENSE or BAND)             */
+  booleantype jacDQ;    /* TRUE if using internal DQ Jacobian approx.    */
+  IDADlsJacFn jac;      /* dense Jacobian routine to be called           */
+  void *J_data;         /* J_data is passed to jac              */
 
-  long int d_n;             /* problem dimension                             */
+  SUNLinearSolver LS;   /* generic direct linear solver object           */
 
-  long int d_ml;            /* b_ml = lower bandwidth of savedJ              */
-  long int d_mu;            /* b_mu = upper bandwidth of savedJ              */ 
-  long int d_smu;           /* upper bandwith of M = MIN(N-1,b_mu+b_ml)      */
+  SUNMatrix J;          /* J = dF/dy + cj*dF/dy'                         */
 
-  booleantype d_jacDQ;      /* TRUE if using internal DQ Jacobian approx.    */
-  IDADlsDenseJacFn d_djac;  /* dense Jacobian routine to be called           */
-  IDADlsBandJacFn d_bjac;   /* band Jacobian routine to be called            */
-  void *d_J_data;           /* J_data is passed to djac or bjac              */
-
-  DlsMat d_J;               /* J = dF/dy + cj*dF/dy'                         */
-
-  int *d_pivots;            /* pivots = int pivot array for PM = LU          */
-  long int *d_lpivots;      /* lpivots = long int pivot array for PM = LU    */
+  N_Vector x;           /* solution vector used by SUNLinearSolver       */
   
-  long int d_nje;           /* nje = no. of calls to jac                     */
+  long int nje;         /* nje = no. of calls to jac                     */
 
-  long int d_nreDQ;         /* no. of calls to res due to DQ Jacobian approx.*/
+  long int nreDQ;       /* no. of calls to res due to DQ Jacobian approx.*/
 
-  long int d_last_flag;     /* last error return flag                        */
+  long int last_flag;   /* last error return flag                        */
   
 } *IDADlsMem;
 
-/*
- * -----------------------------------------------------------------
- * Prototypes of internal functions
- * -----------------------------------------------------------------
- */
+/*---------------------------------------------------------------
+  Prototypes of internal functions
+  ---------------------------------------------------------------*/
   
-int idaDlsDenseDQJac(long int N, realtype tt, realtype c_j,
-                     N_Vector yy, N_Vector yp, N_Vector rr, 
-                     DlsMat Jac, void *data,
-                     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-  
-int idaDlsBandDQJac(long int N, long int mupper, long int mlower,
-                    realtype tt, realtype c_j, 
-                    N_Vector yy, N_Vector yp, N_Vector rr,
-                    DlsMat Jac, void *data,
-                    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+/* difference-quotient Jacobian approximation routines */
+int idaDlsDQJac(realtype tt, realtype c_j, N_Vector yy, 
+                N_Vector yp, N_Vector rr, SUNMatrix Jac, 
+                void *data, N_Vector tmp1, N_Vector tmp2, 
+                N_Vector tmp3);
+int idaDlsDenseDQJac(realtype tt, realtype c_j, N_Vector yy, 
+                     N_Vector yp, N_Vector rr, SUNMatrix Jac,
+                     IDAMem IDA_mem, N_Vector tmp1);
+ int idaDlsBandDQJac(realtype tt, realtype c_j, N_Vector yy,
+                     N_Vector yp, N_Vector rr, SUNMatrix Jac,
+                    IDAMem IDA_mem, N_Vector tmp1,
+                    N_Vector tmp2, N_Vector tmp3);
+
+/* generic linit/lsetup/lsolve/lfree interface routines for IDA to call */
+int idaDlsInitialize(IDAMem IDA_mem);
+
+int idaDlsSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
+                N_Vector resp, N_Vector vtemp1,
+                N_Vector vtemp2, N_Vector vtemp3); 
+
+int idaDlsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
+                N_Vector ycur, N_Vector ypcur, N_Vector rescur);
+
+int idaDlsFree(IDAMem IDA_mem);
 
 /* Auxilliary functions */
-
 int idaDlsInitializeCounters(IDADlsMem idadls_mem);
 
 
-/*
- * =================================================================
- * PART II:  B A C K W A R D    P R O B L E M S
- * =================================================================
- */
+  
+/*=================================================================
+  PART II:  Backward Problems
+  =================================================================*/
 
-/*
- * -----------------------------------------------------------------
- * Types : IDADlsMemRecB, IDADlsMemB       
- * -----------------------------------------------------------------
- * An IDADLS linear solver's specification function attaches such
- * a structure to the lmemB filed of IDABMem
- * -----------------------------------------------------------------
- */
-
+/*-----------------------------------------------------------------
+  Types : IDADlsMemRecB, IDADlsMemB       
+  -----------------------------------------------------------------
+  An IDADLS linear solver's specification function attaches such
+  a structure to the lmemB filed of IDABMem
+  -----------------------------------------------------------------*/
 typedef struct IDADlsMemRecB {
 
-  int d_typeB;
-
-  IDADlsDenseJacFnB d_djacB;
-  IDADlsDenseJacFnBS d_djacBS;
-  IDADlsBandJacFnB d_bjacB;
-  IDADlsBandJacFnBS d_bjacBS;
-
+  IDADlsJacFnB jacB;
+  IDADlsJacFnBS jacBS;
+  
 } *IDADlsMemB;
 
 
-/*
- * =================================================================
- * E R R O R   M E S S A G E S
- * =================================================================
- */
+/*-----------------------------------------------------------------
+  Prototypes of internal functions
+  -----------------------------------------------------------------*/
+
+int idaDlsFreeB(IDABMem IDAB_mem);
+
+
+/*=================================================================
+  Error Messages
+  =================================================================*/
 
 #define MSGD_IDAMEM_NULL "Integrator memory is NULL."
 #define MSGD_BAD_NVECTOR "A required vector operation is not implemented."
@@ -137,6 +128,7 @@ typedef struct IDADlsMemRecB {
 #define MSGD_MEM_FAIL "A memory request failed."
 #define MSGD_LMEM_NULL "Linear solver memory is NULL."
 #define MSGD_JACFUNC_FAILED "The Jacobian routine failed in an unrecoverable manner."
+#define MSGD_MATZERO_FAILED "The SUNMatZero routine failed in an unrecoverable manner."
 
 #define MSGD_CAMEM_NULL "idaadj_mem = NULL illegal."
 #define MSGD_LMEMB_NULL "Linear solver memory is NULL for the backward integration."

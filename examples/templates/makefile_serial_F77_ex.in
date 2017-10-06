@@ -1,13 +1,15 @@
 # -----------------------------------------------------------------
-# $Revision: 4958 $
-# $Date: 2016-09-23 14:02:13 -0700 (Fri, 23 Sep 2016) $
-# -----------------------------------------------------------------
 # Programmer: Radu Serban @ LLNL
 # -----------------------------------------------------------------
-# Copyright (c) 2007, The Regents of the University of California.
+# LLNS Copyright Start
+# Copyright (c) 2014, Lawrence Livermore National Security
+# This work was performed under the auspices of the U.S. Department 
+# of Energy by Lawrence Livermore National Laboratory in part under 
+# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
 # For details, see the LICENSE file.
+# LLNS Copyright End
 # -----------------------------------------------------------------
 # Makefile for @SOLVER@ Fortran serial examples
 #
@@ -15,17 +17,18 @@
 # set at configuration time. It can be used as a template for
 # other user Makefiles.
 #
-# Note: if the solver was successfully configured with Blas/Lapack
-# support, the Blas/Lapack libraries are specified through the 
-# variable LIBRARIES_BL. Otherwise, this variable should contain
-# an empty string. We include LIBRARIES_BL in the link line for
-# all examples, whether they use the Lapack module or not, to
-# address the case in which the SUNDIALS libraries are shared 
-# objects. In that case, the solver library references Lapack 
-# symbols which must be always resolved by linking against the
-# Blas/Lapack libraries. If only static SUNDIALS libraries have 
-# been built, it is not required to link the Blas/Lapack libraries
-# for examples that do not use that module...
+# Note: if the solver was successfully configured with Blas or
+# Lapack support, the Blas/Lapack libraries are specified through
+# the variable LIBRARIES_BLAS or LIBRARIES_LAPACK. Otherwise, these
+# variables should contain an empty string. We include
+# LIBRARIES_BLAS and LIBRARIES_LAPACK in the link line for all
+# examples, whether they use the Blas/Lapack or not, to address the
+# case in which the SUNDIALS libraries are shared objects. In that
+# case, the solver library references Blas/Lapack symbols which
+# must be always resolved by linking against the Blas/Lapack
+# libraries. If only static SUNDIALS libraries have been built, it
+# is not required to link the Blas/Lapack libraries for examples
+# that do not use that module...
 # -----------------------------------------------------------------
 
 SHELL = @SHELL@
@@ -43,11 +46,21 @@ F77_LIBS    = @F77_LIBS@
 
 LINKFLAGS = -Wl,-rpath,@libdir@
 
-LIBRARIES = -l@SOLVER_FLIB@ -l@SOLVER_LIB@ -lsundials_fnvecserial -lsundials_nvecserial ${LIBS}
-LIBRARIES_BL = @BLAS_LAPACK_LIBS@
-LIBRARIES_SLUMT = @SUPERLUMT_LIBS@
-LIBRARIES_KLU = @KLU_LIBS@
-LIBRARIES_PETSC = @PETSC_LIBRARIES@
+LIBRARIES_BLAS   = @BLAS_LIBS@
+LIBRARIES_LAPACK = @LAPACK_LIBS@
+
+INCLUDES_SLUMT   = @SUPERLUMT_INCLUDE_DIR@
+LIBRARIES_SLUMT  = @SUPERLUMT_LIBS@
+
+INCLUDES_KLU     = @KLU_INCLUDE_DIR@
+LIBRARIES_KLU    = @KLU_LIBS@
+
+INCLUDES_PETSC   = @PETSC_INCLUDE_DIR@
+LIBRARIES_PETSC  = @PETSC_LIBRARIES@
+
+TMP_INCS = ${includedir} ${INCLUDES_SLUMT} ${INCLUDES_KLU} ${INCLUDES_PETSC}
+INCLUDES = $(addprefix -I, ${TMP_INCS})
+LIBRARIES = -l@SOLVER_FLIB@ -l@SOLVER_LIB@ -lsundials_fnvecserial -lsundials_nvecserial ${LIBS} ${LIBRARIES_BLAS} ${LIBRARIES_LAPACK} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC}
 
 EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
 
@@ -58,14 +71,14 @@ OBJECTS = ${EXAMPLES:=.o}
 .SUFFIXES : .o .f
 
 .f.o :
-	${F77} ${FFLAGS} -c $<
+	${F77} ${FFLAGS} ${INCLUDES} -c $<
 
 # -----------------------------------------------------------------------------------------
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC} ${LINKFLAGS}" ; \
-	  ${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC} ${LINKFLAGS} ; \
+	  echo "${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LINKFLAGS}" ; \
+	  ${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LINKFLAGS} ; \
 	done
 
 clean:
@@ -73,4 +86,3 @@ clean:
 	rm -f ${EXAMPLES}
 
 # -----------------------------------------------------------------------------------------
-

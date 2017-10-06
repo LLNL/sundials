@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4869 $
- * $Date: 2016-08-19 10:34:20 -0700 (Fri, 19 Aug 2016) $
+ * $Revision$
+ * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): David J. Gardner and Carol S. Woodward @ LLNL
  * -----------------------------------------------------------------
@@ -76,7 +76,7 @@ extern "C" {
    the data */
 
 struct _N_VectorContent_OpenMP {
-  long int length;
+  sunindextype length;
   booleantype own_data;
   realtype *data;
   int num_threads;
@@ -93,7 +93,7 @@ typedef struct _N_VectorContent_OpenMP *N_VectorContent_OpenMP;
  * are assumed:
  *
  * N_Vector v;
- * long int i;
+ * sunindextype i;
  *
  * (1) NV_CONTENT_OMP
  *
@@ -172,7 +172,7 @@ typedef struct _N_VectorContent_OpenMP *N_VectorContent_OpenMP;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNew_OpenMP(long int vec_length, int num_threads);
+SUNDIALS_EXPORT N_Vector N_VNew_OpenMP(sunindextype vec_length, int num_threads);
 
 /*
  * -----------------------------------------------------------------
@@ -183,7 +183,7 @@ SUNDIALS_EXPORT N_Vector N_VNew_OpenMP(long int vec_length, int num_threads);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNewEmpty_OpenMP(long int vec_length, int num_threads);
+SUNDIALS_EXPORT N_Vector N_VNewEmpty_OpenMP(sunindextype vec_length, int num_threads);
 
 /*
  * -----------------------------------------------------------------
@@ -194,7 +194,7 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_OpenMP(long int vec_length, int num_threads
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VMake_OpenMP(long int vec_length, realtype *v_data, int num_threads);
+SUNDIALS_EXPORT N_Vector N_VMake_OpenMP(sunindextype vec_length, realtype *v_data, int num_threads);
 
 /*
  * -----------------------------------------------------------------
@@ -237,7 +237,7 @@ SUNDIALS_EXPORT void N_VDestroyVectorArray_OpenMP(N_Vector *vs, int count);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT long int N_VGetLength_OpenMP(N_Vector v);
+SUNDIALS_EXPORT sunindextype N_VGetLength_OpenMP(N_Vector v);
 
 /*
  * -----------------------------------------------------------------
@@ -259,7 +259,7 @@ SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_OpenMP(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_OpenMP(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_OpenMP(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_OpenMP(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_OpenMP(N_Vector v, long int *lrw, long int *liw);
+SUNDIALS_EXPORT void N_VSpace_OpenMP(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_OpenMP(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_OpenMP(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum_OpenMP(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);

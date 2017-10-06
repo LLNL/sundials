@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 4869 $
- * $Date: 2016-08-19 10:34:20 -0700 (Fri, 19 Aug 2016) $
+ * $Revision$
+ * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------
@@ -78,7 +78,7 @@ extern "C" {
    ownership of the data */
 
 struct _N_VectorContent_Pthreads {
-  long int length;
+  sunindextype length;
   booleantype own_data;
   realtype *data;
   int num_threads;
@@ -89,8 +89,8 @@ typedef struct _N_VectorContent_Pthreads *N_VectorContent_Pthreads;
 
 /* structure to allow threads to share data */
 struct _Pthreads_Data{
-  long int start;                /* starting index for loop  */ 
-  long int end;                  /* ending index for loop    */
+  sunindextype start;                /* starting index for loop  */ 
+  sunindextype end;                  /* ending index for loop    */
   realtype c1, c2;               /* scaler values            */
   realtype *v1, *v2, *v3;        /* vector data              */
   realtype *global_val;          /* shared global variable   */
@@ -109,7 +109,7 @@ typedef struct _Pthreads_Data Pthreads_Data;
  * are assumed:
  *
  * N_Vector v;
- * long int i;
+ * sunindextype i;
  *
  * (1) NV_CONTENT_PT
  *
@@ -193,7 +193,7 @@ typedef struct _Pthreads_Data Pthreads_Data;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNew_Pthreads(long int vec_length, int n_threads);
+SUNDIALS_EXPORT N_Vector N_VNew_Pthreads(sunindextype vec_length, int n_threads);
 
 /*
  * -----------------------------------------------------------------
@@ -204,7 +204,7 @@ SUNDIALS_EXPORT N_Vector N_VNew_Pthreads(long int vec_length, int n_threads);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNewEmpty_Pthreads(long int vec_length, int n_threads);
+SUNDIALS_EXPORT N_Vector N_VNewEmpty_Pthreads(sunindextype vec_length, int n_threads);
 
 /*
  * -----------------------------------------------------------------
@@ -215,7 +215,7 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_Pthreads(long int vec_length, int n_threads
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VMake_Pthreads(long int vec_length, int n_threads, realtype *v_data);
+SUNDIALS_EXPORT N_Vector N_VMake_Pthreads(sunindextype vec_length, int n_threads, realtype *v_data);
 
 /*
  * -----------------------------------------------------------------
@@ -258,7 +258,7 @@ SUNDIALS_EXPORT void N_VDestroyVectorArray_Pthreads(N_Vector *vs, int count);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT long int N_VGetLength_Pthreads(N_Vector v);
+SUNDIALS_EXPORT sunindextype N_VGetLength_Pthreads(N_Vector v);
 
 /*
  * -----------------------------------------------------------------
@@ -280,7 +280,7 @@ SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_Pthreads(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Pthreads(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Pthreads(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Pthreads(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_Pthreads(N_Vector v, long int *lrw, long int *liw);
+SUNDIALS_EXPORT void N_VSpace_Pthreads(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Pthreads(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Pthreads(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum_Pthreads(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);

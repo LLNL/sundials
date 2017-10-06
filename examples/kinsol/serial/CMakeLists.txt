@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision: 4901 $
-# $Date: 2016-09-14 07:45:54 -0700 (Wed, 14 Sep 2016) $
-# ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -60,6 +57,10 @@ SET(SUNDIALS_LIBS ${KINSOL_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 IF(LAPACK_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
 ENDIF(LAPACK_FOUND)
+
+IF(BLAS_FOUND)
+  LIST(APPEND SUNDIALS_LIBS ${BLAS_LIBRARIES})
+ENDIF(BLAS_FOUND)
 
 IF(SUPERLUMT_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${SUPERLUMT_LIBRARIES})

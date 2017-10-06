@@ -1,14 +1,10 @@
-/*
- * -----------------------------------------------------------------
- * $Revision:  $
- * $Date:  $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Ting Yan @ SMU
- * -----------------------------------------------------------------
+ * ----------------------------------------------------------------
  * Example program for IDA: Food web problem, OpenMP, GMRES, 
  * user-supplied preconditioner
  *
- * This example program uses the IDASPGMR as the linear 
+ * This example program uses the SPGMR as the linear 
  * solver, and IDACalcIC for initial condition calculation.
  *
  * The mathematical problem solved in this example is a DAE system
@@ -62,7 +58,7 @@
  * The PDEs are discretized by central differencing on a MX by MY
  * mesh.
  *
- * The DAE system is solved by IDA using the IDABAND linear solver.
+ * The DAE system is solved by IDA using the SPGMR linear solver.
  * Output is printed at t = 0, .001, .01, .1, .4, .7, 1.
  * -----------------------------------------------------------------
  * References:
@@ -80,19 +76,19 @@
  *     Consistent Initial Condition Calculation for Differential-
  *     Algebraic Systems, SIAM J. Sci. Comput., 19 (1998),
  *     pp. 1495-1512.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>
-#include <ida/ida_spgmr.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_dense.h>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
+#include <ida/ida.h>                   /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <ida/ida_spils.h>             /* access to IDASpils interface         */
+#include <sunlinsol/sunlinsol_spgmr.h> /* access to spgmr SUNLinearSolver      */
+#include <sundials/sundials_dense.h>   /* use generic dense solver in precond. */
+#include <sundials/sundials_types.h>   /* definition of type realtype          */
+#include <sundials/sundials_math.h>    /* macros SUNRabs, SUNRsqrt, etc.       */
 
 /* Problem Constants. */
 
@@ -137,11 +133,11 @@
 /* Type: UserData.  Contains problem constants, etc. */
 
 typedef struct {
-  long int Neq, ns, np, mx, my;
+  sunindextype Neq, ns, np, mx, my;
   realtype dx, dy, **acoef;
   realtype cox[NUM_SPECIES], coy[NUM_SPECIES], bcoef[NUM_SPECIES];
   realtype **PP[MX][MY];
-  long int *pivot[MX][MY];
+  sunindextype *pivot[MX][MY];
   N_Vector rates;
   N_Vector ewt;
   void *ida_mem;
@@ -154,27 +150,25 @@ static int resweb(realtype time, N_Vector cc, N_Vector cp, N_Vector resval,
 
 static int Precond(realtype tt,
 		   N_Vector cc, N_Vector cp, N_Vector rr, 
-		   realtype cj, void *user_data,
-		   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+		   realtype cj, void *user_data);
 
 static int PSolve(realtype tt, 
 		  N_Vector cc, N_Vector cp, N_Vector rr,
 		  N_Vector rvec, N_Vector zvec,
-		  realtype cj, realtype delta, void *user_data,
-		  N_Vector tmp);
+		  realtype cj, realtype delta, void *user_data);
 
 /* Prototypes for private Helper Functions. */
 
 static void InitUserData(UserData webdata);
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata);
-static void PrintHeader(long int maxl, realtype rtol, realtype atol);
+static void PrintHeader(sunindextype maxl, realtype rtol, realtype atol);
 static void PrintOutput(void *mem, N_Vector c, realtype t);
 static void PrintFinalStats(void *mem);
 static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate, UserData webdata);
 static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                      UserData webdata);
-static realtype dotprod(long int size, realtype *x1, realtype *x2);
+static realtype dotprod(sunindextype size, realtype *x1, realtype *x2);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /*
@@ -189,12 +183,14 @@ int main()
   UserData webdata;
   N_Vector cc, cp, id;
   int iout, jx, jy, flag;
-  long int maxl;
+  sunindextype maxl;
   realtype rtol, atol, t0, tout, tret;
+  SUNLinearSolver LS;
 
   mem = NULL;
   webdata = NULL;
   cc = cp = id = NULL;
+  LS = NULL;
 
   /* Allocate and initialize user data block webdata. */
 
@@ -204,7 +200,7 @@ int main()
   webdata->ewt = N_VNew_Serial(NEQ);
   for (jx = 0; jx < MX; jx++) {
     for (jy = 0; jy < MY; jy++) {
-      (webdata->pivot)[jx][jy] = newLintArray(NUM_SPECIES);
+      (webdata->pivot)[jx][jy] = newIndexArray(NUM_SPECIES);
       (webdata->PP)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
     }
   }
@@ -249,12 +245,21 @@ int main()
 
   webdata->ida_mem = mem;
 
-  /* Call IDASpgmr to specify the IDA linear solver. */
+  /* Create the linear solver SUNSPGMR with left preconditioning
+     and maximum Krylov dimension maxl */
+  maxl = 16;
+  LS = SUNSPGMR(cc, PREC_LEFT, maxl);
+  if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
 
-  maxl = 16;                    /* max dimension of the Krylov subspace */
-  flag = IDASpgmr(mem, maxl);
-  if(check_flag(&flag, "IDASpgmr", 1)) return(1);
+  /* IDA recommends allowing up to 5 restarts (default is 0) */
+  flag = SUNSPGMRSetMaxRestarts(LS, 5);
+  if(check_flag(&flag, "SUNSPGMRSetMaxRestarts", 1)) return(1);
 
+  /* Attach the linear sovler */
+  flag = IDASpilsSetLinearSolver(mem, LS);
+  if(check_flag(&flag, "IDASpilsSetLinearSolver", 1)) return(1);
+
+  /* Set the preconditioner solve and setup functions */
   flag = IDASpilsSetPreconditioner(mem, Precond, PSolve);
   if(check_flag(&flag, "IDASpilsSetPreconditioner", 1)) return(1);
 
@@ -289,15 +294,16 @@ int main()
   /* Free memory */
 
   IDAFree(&mem);
+  SUNLinSolFree(LS);
 
-  N_VDestroy_Serial(cc);
-  N_VDestroy_Serial(cp);
-  N_VDestroy_Serial(id);
+  N_VDestroy(cc);
+  N_VDestroy(cp);
+  N_VDestroy(id);
 
 
   destroyMat(webdata->acoef);
-  N_VDestroy_Serial(webdata->rates);
-  N_VDestroy_Serial(webdata->ewt);
+  N_VDestroy(webdata->rates);
+  N_VDestroy(webdata->ewt);
   for (jx = 0; jx < MX; jx++) {
     for (jy = 0; jy < MY; jy ++) {
       destroyArray((webdata->pivot)[jx][jy]);
@@ -332,14 +338,14 @@ int main()
 static int resweb(realtype tt, N_Vector cc, N_Vector cp, 
                   N_Vector res,  void *user_data)
 {
-  long int jx, jy, is, yloc, loc, np;
+  sunindextype jx, jy, is, yloc, loc, np;
   realtype *resv, *cpv;
   UserData webdata;
   
   webdata = (UserData)user_data;
   
-  cpv = NV_DATA_S(cp);
-  resv = NV_DATA_S(res);
+  cpv = N_VGetArrayPointer(cp);
+  resv = N_VGetArrayPointer(res);;
   np = webdata->np;
   
   /* Call Fweb to set res to vector of right-hand sides. */
@@ -368,8 +374,7 @@ static int resweb(realtype tt, N_Vector cc, N_Vector cp,
 
 static int Precond(realtype tt, 
 		   N_Vector cc, N_Vector cp, N_Vector rr, 
-		   realtype cj, void *user_data,
-		   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+		   realtype cj, void *user_data)
 {
   int flag;
   realtype uround, xx, yy, del_x, del_y;
@@ -439,10 +444,10 @@ static int PSolve(realtype tt,
 		  N_Vector cc, N_Vector cp, N_Vector rr, 
 		  N_Vector rvec, N_Vector zvec,
 		  realtype cj, realtype dalta, 
-		  void *user_data, N_Vector tmp) 
+		  void *user_data) 
 {
   realtype **Pxy, *zxy;
-  long int *pivot;
+  sunindextype *pivot;
   int jx, jy;
   UserData webdata;
   
@@ -528,13 +533,13 @@ static void InitUserData(UserData webdata)
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata)
 {
-  long int loc, yloc, is, jx, jy, np;
+  sunindextype loc, yloc, is, jx, jy, np;
   realtype xx, yy, xyfactor;
   realtype *ccv, *cpv, *idv;
   
-  ccv = NV_DATA_S(cc);
-  cpv = NV_DATA_S(cp);
-  idv = NV_DATA_S(id);
+  ccv = N_VGetArrayPointer(cc);
+  cpv = N_VGetArrayPointer(cp) ;
+  idv = N_VGetArrayPointer(id);
   np = webdata->np;
   
   /* Loop over grid, load cc values and id values. */
@@ -579,7 +584,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(long int maxl, realtype rtol, realtype atol)
+static void PrintHeader(sunindextype maxl, realtype rtol, realtype atol)
 {
   printf("\nidaFoodWeb_kry: Predator-prey DAE serial example problem for IDA \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
@@ -592,7 +597,7 @@ static void PrintHeader(long int maxl, realtype rtol, realtype atol)
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: IDASpgmr,  Spgmr parameters maxl = %ld\n",maxl);
+  printf("Linear solver: SPGMR,  SPGMR parameters maxl = %ld\n",(long int) maxl);
   printf("CalcIC called to correct initial predator concentrations.\n\n");
   printf("-----------------------------------------------------------\n");
   printf("  t        bottom-left  top-right");
@@ -688,7 +693,7 @@ static void PrintFinalStats(void *mem)
 static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate,  
                  UserData webdata)
 { 
-  long int jx, jy, is, idyu, idyl, idxu, idxl;
+  sunindextype jx, jy, is, idyu, idyl, idxu, idxl;
   realtype xx, yy, *cxy, *ratesxy, *cratexy, dcyli, dcyui, dcxli, dcxui;
   
   /* Loop over grid points, evaluate interaction vector (length ns),
@@ -756,9 +761,9 @@ static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
  * dotprod: dot product routine for realtype arrays, for use by WebRates.    
  */
 
-static realtype dotprod(long int size, realtype *x1, realtype *x2)
+static realtype dotprod(sunindextype size, realtype *x1, realtype *x2)
 {
-  long int i;
+  sunindextype i;
   realtype *xx1, *xx2, temp = ZERO;
   
   xx1 = x1; xx2 = x2;

@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4834 $
- * $Date: 2016-08-01 16:59:05 -0700 (Mon, 01 Aug 2016) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Carol Woodward @ LLNL  (based on idaRoberts_dns.c)
  * -----------------------------------------------------------------
  * This simple example problem for IDA, due to Robertson, 
@@ -20,19 +16,21 @@
  * feature to find the points at which y1 = 1e-4 or at which
  * y3 = 0.01.
  *
- * The problem is solved with IDA using IDAKLU for the linear
+ * The problem is solved with IDA using the KLU linear
  * solver, with a user-supplied Jacobian. Output is printed at
  * t = .4, 4, 40, ..., 4e10.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <math.h>
 
-#include <ida/ida.h>
-#include <ida/ida_klu.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_math.h>
+#include <ida/ida.h>                       /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>        /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix           */
+#include <sunlinsol/sunlinsol_klu.h>       /* access to KLU linear solver          */
+#include <ida/ida_direct.h>                /* access to IDADls interface           */
+#include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>        /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Problem Constants */
 
@@ -50,14 +48,14 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp,
 static int grob(realtype t, N_Vector yy, N_Vector yp,
                 realtype *gout, void *user_data);
 
-int jacrobCSC(realtype tt,  realtype cj, 
-              N_Vector yy, N_Vector yp, N_Vector resvec, 
-              SlsMat JacMat, void *user_data,
+int jacrobCSC(realtype tt,  realtype cj,
+              N_Vector yy, N_Vector yp, N_Vector resvec,
+              SUNMatrix JJ, void *user_data,
               N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
-int jacrobCSR(realtype tt,  realtype cj, 
-              N_Vector yy, N_Vector yp, N_Vector resvec, 
-              SlsMat JacMat, void *user_data,
+int jacrobCSR(realtype tt,  realtype cj,
+              N_Vector yy, N_Vector yp, N_Vector resvec,
+              SUNMatrix JJ, void *user_data,
               N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Prototypes of private functions */
@@ -81,12 +79,15 @@ int main(void)
   realtype t0, tout1, tout, tret;
   int iout, retval, retvalr;
   int rootsfound[2];
-
-  int nnz;
+  SUNMatrix A;
+  SUNLinearSolver LS;
+  sunindextype nnz;
 
   mem = NULL;
   yy = yp = avtol = NULL;
   yval = ypval = atval = NULL;
+  A = NULL;
+  LS = NULL;
 
   /* Allocate N-vectors. */
   yy = N_VNew_Serial(NEQ);
@@ -97,19 +98,19 @@ int main(void)
   if(check_flag((void *)avtol, "N_VNew_Serial", 0)) return(1);
 
   /* Create and initialize  y, y', and absolute tolerance vectors. */
-  yval  = N_VGetArrayPointer_Serial(yy);
+  yval  = N_VGetArrayPointer(yy);
   yval[0] = ONE;
   yval[1] = ZERO;
   yval[2] = ZERO;
 
-  ypval = N_VGetArrayPointer_Serial(yp);
+  ypval = N_VGetArrayPointer(yp);
   ypval[0]  = RCONST(-0.04);
   ypval[1]  = RCONST(0.04);
   ypval[2]  = ZERO;  
 
   rtol = RCONST(1.0e-4);
 
-  atval = N_VGetArrayPointer_Serial(avtol);
+  atval = N_VGetArrayPointer(avtol);
   atval[0] = RCONST(1.0e-8);
   atval[1] = RCONST(1.0e-6);
   atval[2] = RCONST(1.0e-6);
@@ -120,30 +121,42 @@ int main(void)
 
   PrintHeader(rtol, avtol, yy);
 
-  /* Call IDACreate and IDAMalloc to initialize IDA memory */
+  /* Call IDACreate and IDAInit to initialize IDA memory */
   mem = IDACreate();
   if(check_flag((void *)mem, "IDACreate", 0)) return(1);
   retval = IDAInit(mem, resrob, t0, yy, yp);
   if(check_flag(&retval, "IDAInit", 1)) return(1);
+  /* Call IDASVtolerances to set tolerances */
   retval = IDASVtolerances(mem, rtol, avtol);
   if(check_flag(&retval, "IDASVtolerances", 1)) return(1);
 
   /* Free avtol */
-  N_VDestroy_Serial(avtol);
+  N_VDestroy(avtol);
 
   /* Call IDARootInit to specify the root function grob with 2 components */
   retval = IDARootInit(mem, 2, grob);
   if (check_flag(&retval, "IDARootInit", 1)) return(1);
 
-  /* Call IDAKLU and set up the linear solver. */
+  /* Create sparse SUNMatrix for use in linear solves */
   nnz = NEQ * NEQ;
-  retval = IDAKLU(mem, NEQ, nnz, CSR_MAT);
-  if(check_flag(&retval, "IDAKLU", 1)) return(1);
-  retval = IDASlsSetSparseJacFn(mem, jacrobCSR);
-  if(check_flag(&retval, "IDASlsSetSparseJacFn", 1)) return(1);
+  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSR_MAT);
+  if(check_flag((void *)A, "SUNSparseMatrix", 0)) return(1);
+
+  /* Create KLU SUNLinearSolver object */
+  LS = SUNKLU(yy, A);
+  if(check_flag((void *)LS, "SUNKLU", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  retval = IDADlsSetLinearSolver(mem, LS, A);
+  if(check_flag(&retval, "IDADlsSetLinearSolver", 1)) return(1);
+
+  /* Set the user-supplied Jacobian routine */
+  retval = IDADlsSetJacFn(mem, jacrobCSR);
+  if(check_flag(&retval, "IDADlsSetJacFn", 1)) return(1);
 
   /* In loop, call IDASolve, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached. */
+
   iout = 0; tout = tout1;
   while(1) {
 
@@ -172,8 +185,10 @@ int main(void)
   /* Free memory */
 
   IDAFree(&mem);
-  N_VDestroy_Serial(yy);
-  N_VDestroy_Serial(yp);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
+  N_VDestroy(yy);
+  N_VDestroy(yp);
 
   return(0);
   
@@ -193,9 +208,9 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data
 {
   realtype *yval, *ypval, *rval;
 
-  yval = N_VGetArrayPointer_Serial(yy); 
-  ypval = N_VGetArrayPointer_Serial(yp); 
-  rval = N_VGetArrayPointer_Serial(rr);
+  yval = N_VGetArrayPointer(yy); 
+  ypval = N_VGetArrayPointer(yp); 
+  rval = N_VGetArrayPointer(rr);
 
   rval[0]  = RCONST(-0.04)*yval[0] + RCONST(1.0e4)*yval[1]*yval[2];
   rval[1]  = -rval[0] - RCONST(3.0e7)*yval[1]*yval[1] - ypval[1];
@@ -214,7 +229,7 @@ static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
 {
   realtype *yval, y1, y3;
 
-  yval = N_VGetArrayPointer_Serial(yy); 
+  yval = N_VGetArrayPointer(yy); 
   y1 = yval[0]; y3 = yval[2];
   gout[0] = y1 - RCONST(0.0001);
   gout[1] = y3 - RCONST(0.01);
@@ -228,21 +243,17 @@ static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
 
 int jacrobCSC(realtype tt,  realtype cj, 
               N_Vector yy, N_Vector yp, N_Vector resvec,
-              SlsMat JacMat, void *user_data,
+              SUNMatrix JJ, void *user_data,
               N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   realtype *yval;
-  int* colptrs;
-  int* rowvals;
-  realtype* data;
-  
-  yval = N_VGetArrayPointer_Serial(yy);
-  colptrs = (*JacMat->colptrs);
-  rowvals = (*JacMat->rowvals);
-  data    = JacMat->data;
-  
-  
-  SparseSetMatToZero(JacMat);
+  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(JJ);
+  sunindextype *rowvals = SUNSparseMatrix_IndexValues(JJ);
+  realtype *data = SUNSparseMatrix_Data(JJ);
+
+  yval = N_VGetArrayPointer(yy);
+
+  SUNMatZero(JJ);
 
   colptrs[0] = 0;
   colptrs[1] = 3;
@@ -281,21 +292,17 @@ int jacrobCSC(realtype tt,  realtype cj,
  */
 int jacrobCSR(realtype tt,  realtype cj, 
               N_Vector yy, N_Vector yp, N_Vector resvec,
-              SlsMat JacMat, void *user_data,
+              SUNMatrix JJ, void *user_data,
               N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   realtype *yval;
-  int* rowptrs;
-  int* colvals;
-  realtype* data;
+  sunindextype *rowptrs = SUNSparseMatrix_IndexPointers(JJ);
+  sunindextype *colvals = SUNSparseMatrix_IndexValues(JJ);
+  realtype *data = SUNSparseMatrix_Data(JJ);
   
-  yval = N_VGetArrayPointer_Serial(yy);
-  rowptrs = (*JacMat->rowptrs);
-  colvals = (*JacMat->colvals);
-  data    = JacMat->data;
+  yval = N_VGetArrayPointer(yy);  
   
-  
-  SparseSetMatToZero(JacMat);
+  SUNMatZero(JJ);
 
   rowptrs[0] = 0;
   rowptrs[1] = 3;
@@ -343,12 +350,12 @@ static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y)
 {
   realtype *atval, *yval;
 
-  atval  = N_VGetArrayPointer_Serial(avtol);
-  yval  = N_VGetArrayPointer_Serial(y);
+  atval  = N_VGetArrayPointer(avtol);
+  yval  = N_VGetArrayPointer(y);
 
   printf("\nidaRoberts_klu: Robertson kinetics DAE serial example problem for IDA.\n");
   printf("               Three equation chemical kinetics problem.\n\n");
-  printf("Linear solver: IDAKLU, with user-supplied Jacobian.\n");
+  printf("Linear solver: KLU, with user-supplied Jacobian.\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg %Lg %Lg \n",
          rtol, atval[0],atval[1],atval[2]);
@@ -383,7 +390,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
   long int nst;
   realtype hused;
 
-  yval  = N_VGetArrayPointer_Serial(y);
+  yval  = N_VGetArrayPointer(y);
 
   retval = IDAGetLastOrder(mem, &kused);
   check_flag(&retval, "IDAGetLastOrder", 1);
@@ -395,7 +402,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
   printf("%10.4Le %12.4Le %12.4Le %12.4Le | %3ld  %1d %12.4Le\n", 
          t, yval[0], yval[1], yval[2], nst, kused, hused);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("%10.4e %12.4e %12.4e %12.4e | %3ld  %d %12.4e\n", 
+  printf("%10.4e %12.4e %12.4e %12.4e | %3ld  %1d %12.4e\n", 
          t, yval[0], yval[1], yval[2], nst, kused, hused);
 #else
   printf("%10.4e %12.4e %12.4e %12.4e | %3ld  %1d %12.4e\n", 
@@ -416,31 +423,26 @@ static void PrintRootInfo(int root_f1, int root_f2)
 static void PrintFinalStats(void *mem)
 {
   int retval;
-  long int nst, nni, nje, nre, nreLS, netf, ncfn, nge;
+  long int nst, nni, nje, nre, netf, ncfn, nge;
 
   retval = IDAGetNumSteps(mem, &nst);
   check_flag(&retval, "IDAGetNumSteps", 1);
   retval = IDAGetNumResEvals(mem, &nre);
   check_flag(&retval, "IDAGetNumResEvals", 1);
-  retval = IDASlsGetNumJacEvals(mem, &nje);
-  check_flag(&retval, "IDASlsGetNumJacEvals", 1);
+  retval = IDADlsGetNumJacEvals(mem, &nje);
+  check_flag(&retval, "IDADlsGetNumJacEvals", 1);
   retval = IDAGetNumNonlinSolvIters(mem, &nni);
   check_flag(&retval, "IDAGetNumNonlinSolvIters", 1);
   retval = IDAGetNumErrTestFails(mem, &netf);
   check_flag(&retval, "IDAGetNumErrTestFails", 1);
   retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
   check_flag(&retval, "IDAGetNumNonlinSolvConvFails", 1);
-  /*  
-      retval = IDASlsGetNumResEvals(mem, &nreLS);
-      check_flag(&retval, "IDASlsGetNumResEvals", 1);
-  */
-  nreLS = 0;
   retval = IDAGetNumGEvals(mem, &nge);
   check_flag(&retval, "IDAGetNumGEvals", 1);
 
   printf("\nFinal Run Statistics: \n\n");
   printf("Number of steps                    = %ld\n", nst);
-  printf("Number of residual evaluations     = %ld\n", nre+nreLS);
+  printf("Number of residual evaluations     = %ld\n", nre);
   printf("Number of Jacobian evaluations     = %ld\n", nje);
   printf("Number of nonlinear iterations     = %ld\n", nni);
   printf("Number of error test failures      = %ld\n", netf);

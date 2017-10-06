@@ -1,16 +1,14 @@
-/* * -----------------------------------------------------------------
- * $Revision:
- * $Date:
- * -----------------------------------------------------------------
- * Programmer(s): Cosmin Petra and Radu Serban @ LLNL
+/* -----------------------------------------------------------------
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *                Cosmin Petra and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example program for IDAS: Brusselator, parallel, GMRES, IDABBD
  * preconditioner, ASA
  *
- * This example program for IDAS uses IDASPGMR as the linear solver.
+ * This example program for IDAS uses SUNSPGMR as the linear solver.
  * It is written for a parallel computer system and uses the
  * IDABBDPRE band-block-diagonal preconditioner module for the
- * IDASPGMR package.
+ * IDASPILS interface.
  *
  * The mathematical problem solved in this example is a DAE system
  * that arises from a system of partial differential equations after
@@ -68,10 +66,10 @@
 #include <math.h>
 
 #include <idas/idas.h>
-#include <idas/idas_spgmr.h>
+#include <idas/idas_spils.h>
 #include <idas/idas_bbdpre.h>
+#include <sunlinsol/sunlinsol_spgmr.h>
 #include <nvector/nvector_parallel.h>
-#include <sundials/sundials_dense.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 
@@ -130,29 +128,26 @@ typedef struct {
   realtype rhs[NUM_SPECIES];
   MPI_Comm comm;
   realtype rates[2];
-  long int n_local;
+  sunindextype n_local;
 } *UserData;
 
 /* Prototypes for functions called by the IDA Solver. */
-static int res(realtype tt, 
-               N_Vector uv, N_Vector uvp, N_Vector rr, 
-               void *user_data);
+static int res(realtype tt, N_Vector uv, N_Vector uvp,
+               N_Vector rr, void *user_data);
 
-static int reslocal(long int Nlocal, realtype tt, 
+static int reslocal(sunindextype Nlocal, realtype tt, 
                     N_Vector uv, N_Vector uvp, N_Vector res, 
                     void *user_data);
 
-static int rescomm(long int Nlocal, realtype tt,
-                   N_Vector uv, N_Vector uvp, 
-                   void *user_data);
+static int rescomm(sunindextype Nlocal, realtype tt,
+                   N_Vector uv, N_Vector uvp, void *user_data);
 
 /* Prototypes for supporting functions */
 static void BSend(MPI_Comm comm, int thispe, int ixsub, int jysub,
                   int dsizex, int dsizey, realtype carray[]);
 
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
-                      int ixsub, int jysub,
-                      int dsizex, int dsizey,
+                      int ixsub, int jysub, int dsizex, int dsizey,
                       realtype cext[], realtype buffer[]);
 
 static void BRecvWait(MPI_Request request[], int ixsub, int jysub,
@@ -163,12 +158,11 @@ static void ReactRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesx
 
 /*                  ADJOINT                        */
 
-static int resB(realtype tt, 
-                N_Vector yy, N_Vector yp,
+static int resB(realtype tt, N_Vector yy, N_Vector yp,
                 N_Vector yyB, N_Vector ypB, N_Vector rrB,
                 void *user_dataB);
 
-static int resBlocal(long int Nlocal, realtype tt, 
+static int resBlocal(sunindextype Nlocal, realtype tt, 
                      N_Vector uv, N_Vector uvp, 
                      N_Vector yyB, N_Vector ypB, 
                      N_Vector res, void *user_dataB);
@@ -184,9 +178,9 @@ static void SetInitialProfilesB(N_Vector uv, N_Vector uvp,
                                N_Vector uvB, N_Vector uvpB,
                                 N_Vector residB, UserData data);
 
-static void PrintHeader(int SystemSize, int maxl, 
-                        long int mudq, long int mldq, 
-                        long int mukeep, long int mlkeep,
+static void PrintHeader(sunindextype SystemSize, int maxl, 
+                        sunindextype mudq, sunindextype mldq, 
+                        sunindextype mukeep, sunindextype mlkeep,
                         realtype rtol, realtype atol);
 
 static void PrintOutput(void *mem, N_Vector uv, realtype time,
@@ -210,9 +204,11 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 int main(int argc, char *argv[])
 {
   MPI_Comm comm;
-  void *mem;
+  void *ida_mem;
+  SUNLinearSolver LS;
+  SUNLinearSolver LS_B;
   UserData data;
-  long int SystemSize, local_N, mudq, mldq, mukeep, mlkeep;
+  sunindextype SystemSize, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, tout, tret;
   N_Vector uv, uvp, resid, id, uvB, uvpB, residB, qB;
   int thispe, npes, maxl, retval;
@@ -221,7 +217,9 @@ int main(int argc, char *argv[])
 
   uv = uvp = resid = id = NULL;
   data = NULL;
-  mem = NULL;
+  LS = NULL;
+  LS_B = NULL;
+  ida_mem = NULL;
 
   /* Set communicator, and get processor number and total number of PE's. */
 
@@ -272,44 +270,47 @@ int main(int argc, char *argv[])
   atol = ATOL;
   
   /* Call IDACreate and IDAInit to initialize solution */
-  mem = IDACreate();
-  if(check_flag((void *)mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
+  ida_mem = IDACreate();
+  if(check_flag((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
-  retval = IDASetUserData(mem, data);
+  retval = IDASetUserData(ida_mem, data);
   if(check_flag(&retval, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
 
-  retval = IDASetId(mem, id);
+  retval = IDASetId(ida_mem, id);
   if(check_flag(&retval, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
 
-  retval = IDAInit(mem, res, t0, uv, uvp);
+  retval = IDAInit(ida_mem, res, t0, uv, uvp);
   if(check_flag(&retval, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
   
-  retval = IDASStolerances(mem, rtol, atol);
+  retval = IDASStolerances(ida_mem, rtol, atol);
   if(check_flag(&retval, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
-  /* Call IDASpgmr to specify the IDAS LINEAR SOLVER IDASPGMR */
-  maxl = 16;
-  retval = IDASpgmr(mem, maxl);
-  if(check_flag(&retval, "IDASpgmr", 1, thispe)) MPI_Abort(comm, 1);
+  /* Call SUNSPGMR and IDASpilsSetLinearSolver to specify the IDAS linear solver */
+  maxl = 16;                               /* max dimension of the Krylov subspace */
+  LS = SUNSPGMR(uv, PREC_LEFT, maxl);      /* IDA only allows left preconditioning */
+  if(check_flag((void *)LS, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
+  retval = IDASpilsSetLinearSolver(ida_mem, LS);
+  if(check_flag(&retval, "IDASpilsSetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
+  
 
   /* Call IDABBDPrecInit to initialize the band-block-diagonal preconditioner.
      The half-bandwidths for the difference quotient evaluation are exact
      for the system Jacobian, but only a 5-diagonal band matrix is retained. */
   mudq = mldq = NSMXSUB;
   mukeep = mlkeep = 2;
-  retval = IDABBDPrecInit(mem, local_N, mudq, mldq, mukeep, mlkeep, 
+  retval = IDABBDPrecInit(ida_mem, local_N, mudq, mldq, mukeep, mlkeep, 
                           ZERO, reslocal, NULL);
   if(check_flag(&retval, "IDABBDPrecInit", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Initialize adjoint module. */
-  retval = IDAAdjInit(mem, STEPS, IDA_POLYNOMIAL);
+  retval = IDAAdjInit(ida_mem, STEPS, IDA_POLYNOMIAL);
   if(check_flag(&retval, "IDAAdjInit", 1, thispe)) MPI_Abort(comm, 1);
 
 
   /* Call IDACalcIC (with default options) to correct the initial values. */
   tout = RCONST(0.001);
-  retval = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
+  retval = IDACalcIC(ida_mem, IDA_YA_YDP_INIT, tout);
   if(check_flag(&retval, "IDACalcIC", 1, thispe)) MPI_Abort(comm, 1);
 
   if (thispe == 0) printf("\nStarting integration of the FORWARD problem\n\n");  
@@ -319,18 +320,18 @@ int main(int argc, char *argv[])
                                mudq, mldq, mukeep, mlkeep,
                                rtol, atol);
   /* Call IDAS in tout loop, normal mode, and print selected output. */
-  retval = IDASolveF(mem, TEND, &tret, uv, uvp, IDA_NORMAL, &nckpnt);
+  retval = IDASolveF(ida_mem, TEND, &tret, uv, uvp, IDA_NORMAL, &nckpnt);
   if(check_flag(&retval, "IDASolveF", 1, thispe)) MPI_Abort(comm, 1);
 
 
-  PrintOutput(mem, uv, tret, data, comm);
+  PrintOutput(ida_mem, uv, tret, data, comm);
 
   /* Print each PE's portion of the solution in a separate file. */
-  /* PrintSol(mem, uv, uvp, data, comm); */
+  /* PrintSol(ida_mem, uv, uvp, data, comm); */
 
   /* On PE 0, print final set of statistics. */  
   if (thispe == 0)  {
-    PrintFinalStats(mem);
+    PrintFinalStats(ida_mem);
   }
 
   /*******************************************************
@@ -344,37 +345,41 @@ int main(int argc, char *argv[])
   qB = N_VNew_Parallel(comm, local_N, SystemSize);
 
 
-  retval = IDACreateB(mem, &indexB);
+  retval = IDACreateB(ida_mem, &indexB);
 
   /*Get consistent IC */
   SetInitialProfilesB(uv, uvp, uvB, uvpB, residB, data);
 
-  retval = IDAInitB(mem, indexB, resB, TEND, uvB, uvpB);
+  retval = IDAInitB(ida_mem, indexB, resB, TEND, uvB, uvpB);
   if(check_flag(&retval, "IDAInitB", 1, thispe)) MPI_Abort(comm, 1);
 
-  retval = IDASetUserDataB(mem, indexB, data);
+  retval = IDASetUserDataB(ida_mem, indexB, data);
   if(check_flag(&retval, "IDASetUserDataB", 1, thispe)) MPI_Abort(comm, 1);
 
-  retval = IDASetIdB(mem, indexB, id);
+  retval = IDASetIdB(ida_mem, indexB, id);
   if(check_flag(&retval, "IDASetIdBIDAInitB", 1, thispe)) MPI_Abort(comm, 1);
 
-  retval = IDASStolerancesB(mem, indexB, rtol, atol);
+  retval = IDASStolerancesB(ida_mem, indexB, rtol, atol);
   if(check_flag(&retval, "IDASStolerancesB", 1, thispe)) MPI_Abort(comm, 1);
 
-  /* Call IDASpgmr to specify the IDAS LINEAR SOLVER IDASPGMR */
+  /* Call SUNSPGMR and IDASpilsSetLinearSolverB to specify the IDAS linear solver */
   maxl = 16;
-  retval = IDASpgmrB(mem, indexB, maxl);
+  LS_B = SUNSPGMR(uv, PREC_LEFT, maxl);
+  if(check_flag((void *)LS_B, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
+
+  retval = IDASpilsSetLinearSolverB(ida_mem, indexB, LS_B);
+  if(check_flag(&retval, "IDASpilsSetLinearSolverB", 1, thispe)) MPI_Abort(comm, 1);
 
   mudq = mldq = NSMXSUB;
   mukeep = mlkeep = 2;
-  retval = IDABBDPrecInitB(mem, indexB, local_N, mudq, mldq, mukeep, mlkeep, 
+  retval = IDABBDPrecInitB(ida_mem, indexB, local_N, mudq, mldq, mukeep, mlkeep, 
                           ZERO, resBlocal, NULL);
   if(check_flag(&retval, "IDABBDPrecInitB", 1, thispe)) MPI_Abort(comm, 1);
   
-  retval = IDASolveB(mem, TBEGIN, IDA_NORMAL);
+  retval = IDASolveB(ida_mem, TBEGIN, IDA_NORMAL);
   if(check_flag(&retval, "IDASolveB", 1, thispe)) MPI_Abort(comm, 1);
 
-  retval = IDAGetB(mem, indexB, &tret, uvB, uvpB);
+  retval = IDAGetB(ida_mem, indexB, &tret, uvB, uvpB);
   if(check_flag(&retval, "IDAGetB", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Print each PE's portion of solution in a separate file. */
@@ -382,7 +387,7 @@ int main(int argc, char *argv[])
 
   /* On PE 0, print final set of statistics. */  
   if (thispe == 0)  {
-    PrintFinalStats(IDAGetAdjIDABmem(mem, indexB));
+    PrintFinalStats(IDAGetAdjIDABmem(ida_mem, indexB));
   }
 
 
@@ -395,7 +400,9 @@ int main(int argc, char *argv[])
   N_VDestroy_Parallel(uvpB);
   N_VDestroy_Parallel(residB);
 
-  IDAFree(&mem);
+  IDAFree(&ida_mem);
+  SUNLinSolFree(LS);
+  SUNLinSolFree(LS_B);
 
   free(data);
 
@@ -614,15 +621,15 @@ static void SetInitialProfilesB(N_Vector uv, N_Vector uvp,
  * and table headerr
  */
 
-static void PrintHeader(int SystemSize, int maxl, 
-                        long int mudq, long int mldq, 
-                        long int mukeep, long int mlkeep,
+static void PrintHeader(sunindextype SystemSize, int maxl, 
+                        sunindextype mudq, sunindextype mldq, 
+                        sunindextype mukeep, sunindextype mlkeep,
                         realtype rtol, realtype atol)
 {
   printf("\n BRUSSELATOR: chemically reacting system\n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
   printf("     Mesh dimensions: %d x %d\n", MX, MY);
-  printf("Total system size: %d\n",SystemSize);
+  printf("Total system size: %ld\n",(long int) SystemSize);
   printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
   printf("     Processor array: %d x %d\n", NPEX, NPEY);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -632,10 +639,10 @@ static void PrintHeader(int SystemSize, int maxl,
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: IDASPGMR     Max. Krylov dimension maxl: %d\n", maxl);
+  printf("Linear solver: SUNSPGMR     Max. Krylov dimension maxl: %d\n", maxl);
   printf("Preconditioner: band-block-diagonal (IDABBDPRE), with parameters\n");
   printf("     mudq = %ld,  mldq = %ld,  mukeep = %ld,  mlkeep = %ld\n",
-         mudq, mldq, mukeep, mlkeep);
+         (long int) mudq, (long int) mldq, (long int) mukeep, (long int) mlkeep);
 
   printf("-----------------------------------------------------------\n");
   printf("  t        bottom-left  top-right");
@@ -650,7 +657,7 @@ static void PrintHeader(int SystemSize, int maxl,
  * are printed for the bottom left and top right grid points only.
  */
 
-static void PrintOutput(void *mem, N_Vector uv, realtype tt,
+static void PrintOutput(void *ida_mem, N_Vector uv, realtype tt,
                         UserData data, MPI_Comm comm)
 {
   MPI_Status status;
@@ -678,11 +685,11 @@ static void PrintOutput(void *mem, N_Vector uv, realtype tt,
     if (npelast != 0)
       MPI_Recv(&clast[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
     
-    flag = IDAGetLastOrder(mem, &kused);
+    flag = IDAGetLastOrder(ida_mem, &kused);
     check_flag(&flag, "IDAGetLastOrder", 1, thispe);
-    flag = IDAGetNumSteps(mem, &nst);
+    flag = IDAGetNumSteps(ida_mem, &nst);
     check_flag(&flag, "IDAGetNumSteps", 1, thispe);
-    flag = IDAGetLastStep(mem, &hused);
+    flag = IDAGetLastStep(ida_mem, &hused);
     check_flag(&flag, "IDAGetLastStep", 1, thispe);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -707,7 +714,7 @@ static void PrintOutput(void *mem, N_Vector uv, realtype tt,
 
 }
 
-static void PrintSol(void* mem, N_Vector uv, N_Vector uvp, 
+static void PrintSol(void* ida_mem, N_Vector uv, N_Vector uvp, 
                      UserData data, MPI_Comm comm)
 {
   FILE* fout;
@@ -750,7 +757,11 @@ static void PrintSol(void* mem, N_Vector uv, N_Vector uvp,
         
       uvxy  = IJ_Vptr(uv, ix, jy);
       /* uvxy = (&NV_Ith_P(uv, (i)*NUM_SPECIES + (j)*NSMXSUB*npex )); */
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+      fprintf(fout, "%Lg\n%Lg\n", uvxy[0], uvxy[1]);
+#else
       fprintf(fout, "%g\n%g\n", uvxy[0], uvxy[1]);
+#endif      
     }
   }    
   fclose(fout);
@@ -788,7 +799,11 @@ static void PrintAdjSol(N_Vector uvB, N_Vector uvpB, UserData data)
     for (ix=0; ix<mxsub; ix++) {
 
       uvxy  = IJ_Vptr(uvB, ix, jy);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+      fprintf(fout, "%Lg\n%Lg\n", uvxy[0], uvxy[1]);
+#else
       fprintf(fout, "%g\n%g\n", uvxy[0], uvxy[1]);
+#endif      
     }
   }    
   fclose(fout);
@@ -800,34 +815,34 @@ static void PrintAdjSol(N_Vector uvB, N_Vector uvpB, UserData data)
  * PrintFinalStats: Print final run data contained in iopt.              
  */
 
-static void PrintFinalStats(void *mem)
+static void PrintFinalStats(void *ida_mem)
 {
   long int nst, nre, nreLS, netf, ncfn, nni, ncfl, nli, npe, nps, nge;
   int flag;
 
-  flag = IDAGetNumSteps(mem, &nst);
+  flag = IDAGetNumSteps(ida_mem, &nst);
   check_flag(&flag, "IDAGetNumSteps", 1, 0);
-  flag = IDAGetNumResEvals(mem, &nre);
+  flag = IDAGetNumResEvals(ida_mem, &nre);
   check_flag(&flag, "IDAGetNumResEvals", 1, 0);
-  flag = IDAGetNumErrTestFails(mem, &netf);
+  flag = IDAGetNumErrTestFails(ida_mem, &netf);
   check_flag(&flag, "IDAGetNumErrTestFails", 1, 0);
-  flag = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  flag = IDAGetNumNonlinSolvConvFails(ida_mem, &ncfn);
   check_flag(&flag, "IDAGetNumNonlinSolvConvFails", 1, 0);
-  flag = IDAGetNumNonlinSolvIters(mem, &nni);
+  flag = IDAGetNumNonlinSolvIters(ida_mem, &nni);
   check_flag(&flag, "IDAGetNumNonlinSolvIters", 1, 0);
 
-  flag = IDASpilsGetNumConvFails(mem, &ncfl);
+  flag = IDASpilsGetNumConvFails(ida_mem, &ncfl);
   check_flag(&flag, "IDASpilsGetNumConvFails", 1, 0);
-  flag = IDASpilsGetNumLinIters(mem, &nli);
+  flag = IDASpilsGetNumLinIters(ida_mem, &nli);
   check_flag(&flag, "IDASpilsGetNumLinIters", 1, 0);
-  flag = IDASpilsGetNumPrecEvals(mem, &npe);
+  flag = IDASpilsGetNumPrecEvals(ida_mem, &npe);
   check_flag(&flag, "IDASpilsGetNumPrecEvals", 1, 0);
-  flag = IDASpilsGetNumPrecSolves(mem, &nps);
+  flag = IDASpilsGetNumPrecSolves(ida_mem, &nps);
   check_flag(&flag, "IDASpilsGetNumPrecSolves", 1, 0);
-  flag = IDASpilsGetNumResEvals(mem, &nreLS);
+  flag = IDASpilsGetNumResEvals(ida_mem, &nreLS);
   check_flag(&flag, "IDASpilsGetNumResEvals", 1, 0);
 
-  flag = IDABBDPrecGetNumGfnEvals(mem, &nge);
+  flag = IDABBDPrecGetNumGfnEvals(ida_mem, &nge);
   check_flag(&flag, "IDABBDPrecGetNumGfnEvals", 1, 0);
 
   printf("-----------------------------------------------------------\n");
@@ -908,7 +923,7 @@ static int res(realtype tt,
 {
   int retval;
   UserData data;
-  long int Nlocal;
+  sunindextype Nlocal;
   
   data = (UserData) user_data;
   
@@ -933,7 +948,7 @@ static int res(realtype tt,
  * and receive-waiting, in routines BRecvPost, BSend, BRecvWait.         
  */
 
-static int rescomm(long int Nlocal, realtype tt, 
+static int rescomm(sunindextype Nlocal, realtype tt, 
                    N_Vector uv, N_Vector uvp,
                    void *user_data)
 {
@@ -1149,7 +1164,7 @@ static void BSend(MPI_Comm comm, int my_pe, int ixsub, int jysub,
  * for use by the preconditioner setup routine.                          
  */
 
-static int reslocal(long int Nlocal, realtype tt, 
+static int reslocal(sunindextype Nlocal, realtype tt, 
                     N_Vector uv, N_Vector uvp, N_Vector rr,
                     void *user_data)
 {
@@ -1316,7 +1331,7 @@ static int resB(realtype tt, N_Vector yy, N_Vector yp,
 {
   UserData data;
   int retval;
-  long int Nlocal;
+  sunindextype Nlocal;
   
   data = (UserData) user_dataB;
 
@@ -1333,7 +1348,7 @@ static int resB(realtype tt, N_Vector yy, N_Vector yp,
 
 
 
-static int resBlocal(long int Nlocal, realtype tt, 
+static int resBlocal(sunindextype Nlocal, realtype tt, 
                      N_Vector uv, N_Vector uvp,
                      N_Vector uvB, N_Vector uvpB, N_Vector rrB,
                      void *user_dataB)
