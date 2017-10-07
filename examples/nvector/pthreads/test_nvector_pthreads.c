@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -18,8 +14,7 @@
  * This is the testing routine to check the POSIX Threads (Pthreads) 
  * NVECTOR module implementation which uses a LOCAL data struct to 
  * share data between threads. 
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,11 +30,11 @@
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
-  int      fails = 0;  /* counter for test failures */
-  int      nthreads;   /* number of threads         */
-  sunindextype veclen;     /* vector length             */
-  N_Vector W, X, Y, Z; /* test vectors              */
-  int      print_timing;
+  int          fails = 0;    /* counter for test failures */
+  int          nthreads;     /* number of threads         */
+  sunindextype veclen;       /* vector length             */
+  N_Vector     W, X, Y, Z;   /* test vectors              */
+  int          print_timing;
 
   /* check inputs, set vector length, and number of threads */
   if (argc < 4){

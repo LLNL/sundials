@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4137 $
- * $Date: 2014-06-15 12:26:15 -0700 (Sun, 15 Jun 2014) $
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -17,8 +13,7 @@
  * -----------------------------------------------------------------
  * This is the testing routine to check the NVECTOR Parallel module 
  * implementation. 
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,16 +43,15 @@ static int Test_N_VGetVectorID(N_Vector W, int myid);
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
-  int      fails = 0;                   /* counter for test failures */
-  sunindextype local_length, global_length; /* vector lengths            */
-  N_Vector W;
-  N_Vector X, Y, Z;                     /* test vectors              */
-  MPI_Comm comm;                        /* MPI Communicator          */
-  int      nprocs, myid;                /* Number of procs, proc id  */
-  sunindextype veclen;                      /* vector length             */
-  int      print_timing;
-  HYPRE_Int *partitioning;      /* Vector Partitioning */
-  HYPRE_ParVector Xhyp;         /* Instantiate hypre parallel vector */
+  int              fails = 0;                   /* counter for test failures */
+  sunindextype     local_length, global_length; /* vector lengths            */
+  N_Vector         W, X, Y, Z;                  /* test vectors              */
+  MPI_Comm         comm;                        /* MPI Communicator          */
+  int              nprocs, myid;                /* Number of procs, proc id  */
+  sunindextype     veclen;                      /* vector length             */
+  int              print_timing;
+  HYPRE_Int       *partitioning;                /* Vector Partitioning       */
+  HYPRE_ParVector  Xhyp;                        /* Instantiate hypre parallel vector */
 
   /* check input and set vector length */
   if (argc < 3) {

@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 
   /* check input and set vector length */
   if (argc < 3){
-    printf("ERROR: ONE (1) Input required: vector length, print timing \n");
+    printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
     return(-1);
   }
 

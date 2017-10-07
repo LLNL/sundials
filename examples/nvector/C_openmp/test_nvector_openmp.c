@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -15,10 +11,9 @@
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * This is the testing routine to check the open MP NVECTOR module
+ * This is the testing routine to check the OpenMP NVECTOR module
  * implementation. 
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>

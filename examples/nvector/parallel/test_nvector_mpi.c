@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -17,8 +13,7 @@
  * -----------------------------------------------------------------
  * This is the testing routine to check the NVECTOR Parallel module 
  * implementation. 
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,11 +34,11 @@
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
-  int      fails = 0;                   /* counter for test failures */
+  int          fails = 0;                   /* counter for test failures */
   sunindextype local_length, global_length; /* vector lengths            */
-  N_Vector W, X, Y, Z;                  /* test vectors              */
-  MPI_Comm comm;                        /* MPI Communicator          */
-  int      nprocs, myid;                /* Number of procs, proc id  */
+  N_Vector     W, X, Y, Z;                  /* test vectors              */
+  MPI_Comm     comm;                        /* MPI Communicator          */
+  int          nprocs, myid;                /* Number of procs, proc id  */
 
   /* Get processor number and total number of processes */
   MPI_Init(&argc, &argv);
