@@ -69,8 +69,8 @@ void FCV_BBDINIT(long int *Nloc, long int *mudq, long int *mldq,
      FCVcfn     is a pointer to the CVCommFn function 
   */
 
-  *ier = CVBBDPrecInit(CV_cvodemem, *Nloc, *mudq, *mldq, *mu, *ml, 
-                       *dqrely, FCVgloc, FCVcfn);
+  *ier = CVBBDPrecInit(CV_cvodemem, *Nloc, *mudq, *mldq, *mu, *ml, *dqrely,
+                       (CVLocalFn) FCVgloc, (CVCommFn) FCVcfn);
 
   return; 
 }
