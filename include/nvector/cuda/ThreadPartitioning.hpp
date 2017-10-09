@@ -41,7 +41,7 @@ public:
   {
   }
 
-  I grid() const
+  unsigned grid() const
   {
     return grid_;
   }
@@ -53,7 +53,7 @@ public:
 
 private:
   unsigned block_;
-  I grid_;
+  unsigned grid_;
 };
 
 
@@ -86,7 +86,7 @@ public:
     {
       err = cudaFree(d_buffer_);
       if(err != cudaSuccess)
-        std::cout << "Failed to free device vector (error code " << err << ")!\n";
+        std::cerr << "Failed to free device vector (error code " << err << ")!\n";
     }
   }
 
@@ -99,7 +99,7 @@ public:
     return 0;
   }
 
-  I grid() const
+  unsigned grid() const
   {
     return grid_;
   }
@@ -143,7 +143,7 @@ public:
   {
     cudaError_t err = cudaMemcpy(h_buffer_, d_buffer_, n*sizeof(T), cudaMemcpyDeviceToHost);
     if(err != cudaSuccess)
-      std::cout << "Failed to copy vector from device to host (error code " << err << ")!\n";
+      std::cerr << "Failed to copy vector from device to host (error code " << err << ")!\n";
   }
 
 private:
@@ -152,27 +152,27 @@ private:
     bufferSize_ = grid_ * sizeof(T);
     h_buffer_ = static_cast<T*>(malloc(bufferSize_));
     if(h_buffer_ == NULL)
-      std::cout << "Failed to allocate host vector!\n";
+      std::cerr << "Failed to allocate host vector!\n";
 
     cudaError_t err;
     err = cudaMalloc((void**) &d_buffer_, bufferSize_);
     if(err != cudaSuccess)
-      std::cout << "Failed to allocate device vector (error code " << err << ")!\n";
+      std::cerr << "Failed to allocate device vector (error code " << err << ")!\n";
 
     return 0;
   }
 
 private:
   unsigned block_;
-  I grid_;
+  unsigned grid_;
   unsigned shMemSize_;
   T* d_buffer_;
   T* h_buffer_;
-  I bufferSize_;
+  unsigned bufferSize_;
 
 };
 
 
-} // namespace nvec
+} // namespace suncudavec
 
 #endif // _THREAD_PARTITIONING_HPP_

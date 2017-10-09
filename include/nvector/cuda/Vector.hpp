@@ -82,10 +82,10 @@ public:
         cudaError_t err;
         h_vec_ = static_cast<T*>(malloc(mem_size_));
         if(h_vec_ == NULL)
-            std::cout << "Failed to allocate host vector!\n";
+            std::cerr << "Failed to allocate host vector!\n";
         err = cudaMalloc((void**) &d_vec_, mem_size_);
         if(err != cudaSuccess)
-            std::cout << "Failed to allocate device vector (error code " << err << ")!\n";
+            std::cerr << "Failed to allocate device vector (error code " << err << ")!\n";
     }
 
     void clear()
@@ -93,7 +93,7 @@ public:
       free(h_vec_);
       cudaError_t err = cudaFree(d_vec_);
       if(err != cudaSuccess)
-        std::cout << "Failed to free device vector (error code " << err << ")!\n";
+        std::cerr << "Failed to free device vector (error code " << err << ")!\n";
     }
 
     int size() const
@@ -125,14 +125,14 @@ public:
     {
         cudaError_t err = cudaMemcpy(d_vec_, h_vec_, mem_size_, cudaMemcpyHostToDevice);
         if(err != cudaSuccess)
-            std::cout << "Failed to copy vector from host to device (error code " << err << ")!\n";
+            std::cerr << "Failed to copy vector from host to device (error code " << err << ")!\n";
     }
 
     void copyFromDev()
     {
         cudaError_t err = cudaMemcpy(h_vec_, d_vec_, mem_size_, cudaMemcpyDeviceToHost);
         if(err != cudaSuccess)
-            std::cout << "Failed to copy vector from device to host (error code " << err << ")!\n";
+            std::cerr << "Failed to copy vector from device to host (error code " << err << ")!\n";
     }
 
     StreamPartitioning<T, I>& partStream() const
