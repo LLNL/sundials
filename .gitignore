@@ -16,6 +16,7 @@
 /test/output
 
 # misc
+*.backup
 *.orig
 *.nvvp
 *.ptp-sync*
