@@ -707,18 +707,18 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   
   if (jok) {
     
-    /* jok = TRUE: Copy Jbd to P */
+    /* jok = SUNTRUE: Copy Jbd to P */
     
     for (jy=0; jy < MY; jy++)
       for (jx=0; jx < MX; jx++)
         denseCopy(Jbd[jx][jy], P[jx][jy], NUM_SPECIES, NUM_SPECIES);
     
-    *jcurPtr = FALSE;
+    *jcurPtr = SUNFALSE;
     
   }
   
   else {
-    /* jok = FALSE: Generate Jbd from scratch and copy to P */
+    /* jok = SUNFALSE: Generate Jbd from scratch and copy to P */
     
     /* Make local copies of problem variables, for efficiency. */
     
@@ -749,7 +749,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
       }
     }
     
-    *jcurPtr = TRUE;
+    *jcurPtr = SUNTRUE;
     
   }
   

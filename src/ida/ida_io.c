@@ -221,7 +221,7 @@ int IDASetStopTime(void *ida_mem, realtype tstop)
   }
 
   IDA_mem->ida_tstop = tstop;
-  IDA_mem->ida_tstopset = TRUE;
+  IDA_mem->ida_tstopset = SUNTRUE;
 
   return(IDA_SUCCESS);
 }
@@ -340,7 +340,7 @@ int IDASetId(void *ida_mem, N_Vector id)
       IDA_mem->ida_lrw -= IDA_mem->ida_lrw1;
       IDA_mem->ida_liw -= IDA_mem->ida_liw1;
     }
-    IDA_mem->ida_idMallocDone = FALSE;    
+    IDA_mem->ida_idMallocDone = SUNFALSE;    
     return(IDA_SUCCESS);
   }
 
@@ -348,7 +348,7 @@ int IDASetId(void *ida_mem, N_Vector id)
     IDA_mem->ida_id = N_VClone(id);
     IDA_mem->ida_lrw += IDA_mem->ida_lrw1;
     IDA_mem->ida_liw += IDA_mem->ida_liw1;
-    IDA_mem->ida_idMallocDone = TRUE;
+    IDA_mem->ida_idMallocDone = SUNTRUE;
   }
 
   /* Load the id vector */
@@ -378,8 +378,8 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
       IDA_mem->ida_lrw -= IDA_mem->ida_lrw1;
       IDA_mem->ida_liw -= IDA_mem->ida_liw1;
     }
-    IDA_mem->ida_constraintsMallocDone = FALSE;
-    IDA_mem->ida_constraintsSet = FALSE;
+    IDA_mem->ida_constraintsMallocDone = SUNFALSE;
+    IDA_mem->ida_constraintsSet = SUNFALSE;
     return(IDA_SUCCESS);
   }
 
@@ -406,14 +406,14 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
     IDA_mem->ida_constraints = N_VClone(constraints);
     IDA_mem->ida_lrw += IDA_mem->ida_lrw1;
     IDA_mem->ida_liw += IDA_mem->ida_liw1;
-    IDA_mem->ida_constraintsMallocDone = TRUE;
+    IDA_mem->ida_constraintsMallocDone = SUNTRUE;
   }
 
   /* Load the constraints vector */
 
   N_VScale(ONE, constraints, IDA_mem->ida_constraints);
 
-  IDA_mem->ida_constraintsSet = TRUE;
+  IDA_mem->ida_constraintsSet = SUNTRUE;
 
   return(IDA_SUCCESS);
 }

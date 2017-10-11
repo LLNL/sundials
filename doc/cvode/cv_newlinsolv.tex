@@ -29,7 +29,7 @@ specification function makes any memory allocation.   For any of the functions
 that are {\it not} provided, the corresponding field should be set to \id{NULL}.
 The linear solver specification function must also set the value of
 the field \id{cv\_setupNonNull} in the {\cvode} memory block --- to
-\id{TRUE} if \id{lsetup} is used, or \id{FALSE} otherwise.
+\id{SUNTRUE} if \id{lsetup} is used, or \id{SUNFALSE} otherwise.
 
 Typically, the linear solver will require a block of memory specific
 to the solver, and a principal function of the specification function
@@ -168,12 +168,12 @@ The type definition of \id{lsetup} is
   
    \item[jcurPtr]
      is a pointer to a boolean to be filled in by \id{lsetup}.  
-     The function should set \id{*jcurPtr = TRUE} if its Jacobian 
+     The function should set \id{*jcurPtr = SUNTRUE} if its Jacobian 
      data is current after the call, and should set         
-     \id{*jcurPtr = FALSE} if its Jacobian data is not current.   
+     \id{*jcurPtr = SUNFALSE} if its Jacobian data is not current.   
      If \id{lsetup} calls for re-evaluation of         
      Jacobian data (based on \id{convfail} and {\cvode} state      
-     data), it should return \id{*jcurPtr = TRUE} unconditionally;
+     data), it should return \id{*jcurPtr = SUNTRUE} unconditionally;
      otherwise an infinite loop can result.                
     
    \item[vtemp1] 

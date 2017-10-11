@@ -337,7 +337,7 @@ int CPodeSetStopTime(void *cpode_mem, realtype tstop)
   cp_mem = (CPodeMem) cpode_mem;
 
   cp_mem->cp_tstop = tstop;
-  cp_mem->cp_tstopset = TRUE;
+  cp_mem->cp_tstopset = SUNTRUE;
 
   return(CP_SUCCESS);
 }
@@ -602,19 +602,19 @@ int CPodeSetQuadErrCon(void *cpode_mem, booleantype errconQ,
 
   /* Ckeck if quadrature was initialized? */
 
-  if (cp_mem->cp_quadMallocDone == FALSE) {
+  if (cp_mem->cp_quadMallocDone == SUNFALSE) {
     cpProcessError(cp_mem, CP_NO_QUAD, "CPODES", "CPodeSetQuadErrCon", MSGCP_NO_QUAD); 
     return(CP_NO_QUAD);
   }
 
   /* Check inputs */
 
-  if(errconQ == FALSE) {
+  if(errconQ == SUNFALSE) {
     if (cp_mem->cp_VabstolQMallocDone) {
       N_VDestroy(cp_mem->cp_VabstolQ);
       lrw -= lrw1Q;
       liw -= liw1Q;
-      cp_mem->cp_VabstolQMallocDone = FALSE;
+      cp_mem->cp_VabstolQMallocDone = SUNFALSE;
     }
     return(CP_SUCCESS);
   }
@@ -650,14 +650,14 @@ int CPodeSetQuadErrCon(void *cpode_mem, booleantype errconQ,
     N_VDestroy(cp_mem->cp_VabstolQ);
     lrw -= lrw1Q;
     liw -= liw1Q;
-    cp_mem->cp_VabstolQMallocDone = FALSE;
+    cp_mem->cp_VabstolQMallocDone = SUNFALSE;
   }
 
   if ( (tol_typeQ == CP_SV) && !(cp_mem->cp_VabstolQMallocDone) ) {
     cp_mem->cp_VabstolQ = N_VClone(cp_mem->cp_tempvQ);
     lrw += lrw1Q;
     liw += liw1Q;
-    cp_mem->cp_VabstolQMallocDone = TRUE;
+    cp_mem->cp_VabstolQMallocDone = SUNTRUE;
   }
 
   /* Copy tolerances into memory */
@@ -856,7 +856,7 @@ int CPodeGetNumStabLimOrderReds(void *cpode_mem, long int *nslred)
   }
   cp_mem = (CPodeMem) cpode_mem;
 
-  if (cp_mem->cp_sldeton==FALSE)
+  if (cp_mem->cp_sldeton==SUNFALSE)
     *nslred = 0;
   else
     *nslred = cp_mem->cp_nor;
@@ -1280,7 +1280,7 @@ int CPodeGetQuadNumFunEvals(void *cpode_mem, long int *nqevals)
 
   cp_mem = (CPodeMem) cpode_mem;
 
-  if (cp_mem->cp_quadr==FALSE) {
+  if (cp_mem->cp_quadr==SUNFALSE) {
     cpProcessError(cp_mem, CP_NO_QUAD, "CPODES", "CPodeGetQuadNumFunEvals", MSGCP_NO_QUAD); 
     return(CP_NO_QUAD);
   }
@@ -1301,7 +1301,7 @@ int CPodeGetQuadErrWeights(void *cpode_mem, N_Vector eQweight)
 
   cp_mem = (CPodeMem) cpode_mem;
 
-  if (cp_mem->cp_quadr==FALSE) {
+  if (cp_mem->cp_quadr==SUNFALSE) {
     cpProcessError(cp_mem, CP_NO_QUAD, "CPODES", "CPodeGetQuadErrWeights", MSGCP_NO_QUAD); 
     return(CP_NO_QUAD);
   }

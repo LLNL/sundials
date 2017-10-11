@@ -63,7 +63,7 @@ int ARKodeSetDefaults(void *arkode_mem)
   ark_mem->ark_dense_q          = QDENSE_DEF;     /* dense output order */
   ark_mem->ark_expstab          = arkExpStab;     /* explicit stability fn */
   ark_mem->ark_estab_data       = ark_mem;        /* explicit stability data */
-  ark_mem->ark_fixedstep        = FALSE;          /* default to use adaptive steps */
+  ark_mem->ark_fixedstep        = SUNFALSE;          /* default to use adaptive steps */
   ark_mem->ark_hadapt           = NULL;           /* step adaptivity fn */
   ark_mem->ark_hadapt_data      = NULL;           /* step adaptivity data */
   ark_mem->ark_hadapt_cfl       = CFLFAC;         /* explicit stability factor */
@@ -72,7 +72,7 @@ int ARKodeSetDefaults(void *arkode_mem)
   ark_mem->ark_hadapt_growth    = GROWTH;         /* step adaptivity growth factor */
   ark_mem->ark_hadapt_lbound    = HFIXED_LB;      /* step adaptivity no-change lower bound */
   ark_mem->ark_hadapt_ubound    = HFIXED_UB;      /* step adaptivity no-change upper bound */
-  ark_mem->ark_hadapt_pq        = FALSE;          /* use embedding order */
+  ark_mem->ark_hadapt_pq        = SUNFALSE;          /* use embedding order */
   ark_mem->ark_hadapt_imethod   = 0;              /* PID controller */
   ark_mem->ark_hadapt_k1        = AD0_K1;         /* step adaptivity parameter */
   ark_mem->ark_hadapt_k2        = AD0_K2;         /* step adaptivity parameter */
@@ -83,16 +83,16 @@ int ARKodeSetDefaults(void *arkode_mem)
   ark_mem->ark_ritol            = ARK_SS;         /* scalar-scalar residual tolerances */
   ark_mem->ark_Sabstol          = 1.e-9;          /* solution absolute tolerance */
   ark_mem->ark_SRabstol         = 1.e-9;          /* residual absolute tolerance */
-  ark_mem->ark_user_efun        = FALSE;          /* no user-supplied ewt function */
+  ark_mem->ark_user_efun        = SUNFALSE;          /* no user-supplied ewt function */
   ark_mem->ark_efun             = arkEwtSet;      /* built-in ewt function */
   ark_mem->ark_e_data           = NULL;           /* ewt function data */
-  ark_mem->ark_user_rfun        = FALSE;          /* no user-supplied rwt function */
+  ark_mem->ark_user_rfun        = SUNFALSE;          /* no user-supplied rwt function */
   ark_mem->ark_rfun             = arkRwtSet;      /* built-in rwt function */
   ark_mem->ark_e_data           = NULL;           /* rwt function data */
-  ark_mem->ark_linear           = FALSE;          /* nonlinear problem */
-  ark_mem->ark_linear_timedep   = TRUE;           /* dfi/dy depends on t */
-  ark_mem->ark_explicit         = FALSE;          /* fi(t,y) will be used */
-  ark_mem->ark_implicit         = FALSE;          /* fe(t,y) will be used */
+  ark_mem->ark_linear           = SUNFALSE;          /* nonlinear problem */
+  ark_mem->ark_linear_timedep   = SUNTRUE;           /* dfi/dy depends on t */
+  ark_mem->ark_explicit         = SUNFALSE;          /* fi(t,y) will be used */
+  ark_mem->ark_implicit         = SUNFALSE;          /* fe(t,y) will be used */
   ark_mem->ark_ehfun            = arkErrHandler;  /* default error handler fn */
   ark_mem->ark_eh_data          = ark_mem;        /* error handler data */
   ark_mem->ark_errfp            = stderr;         /* output stream for errors */
@@ -101,7 +101,7 @@ int ARKodeSetDefaults(void *arkode_mem)
   ark_mem->ark_hin              = ZERO;           /* determine initial step on-the-fly */
   ark_mem->ark_hmin             = ZERO;           /* no minimum step size */
   ark_mem->ark_hmax_inv         = ZERO;           /* no maximum step size */
-  ark_mem->ark_tstopset         = FALSE;          /* no stop time set */
+  ark_mem->ark_tstopset         = SUNFALSE;          /* no stop time set */
   ark_mem->ark_tstop            = ZERO;           /* no fixed stop time */
   ark_mem->ark_maxcor           = MAXCOR;         /* max nonlinear iters/stage */
   ark_mem->ark_maxnef           = MAXNEF;         /* max error test fails */
@@ -115,10 +115,10 @@ int ARKodeSetDefaults(void *arkode_mem)
   ark_mem->ark_rdiv             = RDIV;           /* nonlinear divergence tolerance */
   ark_mem->ark_dgmax            = DGMAX;          /* max step change before recomputing J or P */
   ark_mem->ark_msbp             = MSBP;           /* max steps between updates to J or P */
-  ark_mem->ark_use_fp           = FALSE;          /* use Newton solver */
+  ark_mem->ark_use_fp           = SUNFALSE;          /* use Newton solver */
   ark_mem->ark_fp_m             = FP_ACCEL_M;     /* num Anderson acceleration vectors */
   ark_mem->ark_diagfp           = NULL;           /* no solver diagnostics file */
-  ark_mem->ark_report           = FALSE;          /* don't report solver diagnostics */
+  ark_mem->ark_report           = SUNFALSE;          /* don't report solver diagnostics */
   ark_mem->ark_stages           = 0;              /* no stages */
   ark_mem->ark_istage           = 0;              /* current stage */
   for (i=0; i<ARK_S_MAX; i++) {                   /* no Butcher table */
@@ -391,9 +391,9 @@ int ARKodeSetDiagnostics(void *arkode_mem, FILE *diagfp)
 
   ark_mem->ark_diagfp = diagfp;
   if (diagfp != NULL) {
-    ark_mem->ark_report = TRUE;
+    ark_mem->ark_report = SUNTRUE;
   } else {
-    ark_mem->ark_report = FALSE;
+    ark_mem->ark_report = SUNFALSE;
   }
 
   return(ARK_SUCCESS);
@@ -517,7 +517,7 @@ int ARKodeSetLinear(void *arkode_mem, int timedepend)
   }
 
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_mem->ark_linear = TRUE;
+  ark_mem->ark_linear = SUNTRUE;
   ark_mem->ark_linear_timedep = (timedepend == 1);
   ark_mem->ark_dgmax = RCONST(100.0)*UNIT_ROUNDOFF;
 
@@ -542,8 +542,8 @@ int ARKodeSetNonlinear(void *arkode_mem)
   }
 
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_mem->ark_linear = FALSE;
-  ark_mem->ark_linear_timedep = TRUE;
+  ark_mem->ark_linear = SUNFALSE;
+  ark_mem->ark_linear_timedep = SUNTRUE;
   ark_mem->ark_dgmax = DGMAX;
 
   return(ARK_SUCCESS);
@@ -569,7 +569,7 @@ int ARKodeSetFixedPoint(void *arkode_mem, long int fp_m)
   }
 
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_mem->ark_use_fp = TRUE;
+  ark_mem->ark_use_fp = SUNTRUE;
   if (fp_m < 0) {
     ark_mem->ark_fp_m = FP_ACCEL_M;
   } else {
@@ -597,7 +597,7 @@ int ARKodeSetNewton(void *arkode_mem)
   }
 
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_mem->ark_use_fp = FALSE;
+  ark_mem->ark_use_fp = SUNFALSE;
 
   return(ARK_SUCCESS);
 }
@@ -627,8 +627,8 @@ int ARKodeSetExplicit(void *arkode_mem)
   }
 
   /* set the relevant parameters */
-  ark_mem->ark_explicit = TRUE;
-  ark_mem->ark_implicit = FALSE;
+  ark_mem->ark_explicit = SUNTRUE;
+  ark_mem->ark_implicit = SUNFALSE;
 
   return(ARK_SUCCESS);
 }
@@ -658,8 +658,8 @@ int ARKodeSetImplicit(void *arkode_mem)
   }
 
   /* set the relevant parameters */
-  ark_mem->ark_implicit = TRUE;
-  ark_mem->ark_explicit = FALSE;
+  ark_mem->ark_implicit = SUNTRUE;
+  ark_mem->ark_explicit = SUNFALSE;
 
   return(ARK_SUCCESS);
 }
@@ -694,8 +694,8 @@ int ARKodeSetImEx(void *arkode_mem)
   }
 
   /* set the relevant parameters */
-  ark_mem->ark_explicit = FALSE;
-  ark_mem->ark_implicit = FALSE;
+  ark_mem->ark_explicit = SUNFALSE;
+  ark_mem->ark_implicit = SUNFALSE;
 
   return(ARK_SUCCESS);
 }
@@ -763,7 +763,7 @@ int ARKodeSetERKTable(void *arkode_mem, int s, int q, int p,
 
   /* set embedding (if applicable), otherwise set as fixed-step method */
   if (bembed == NULL) {
-    ark_mem->ark_fixedstep = TRUE;
+    ark_mem->ark_fixedstep = SUNTRUE;
   } else {
     for (i=0; i<s; i++) 
       ark_mem->ark_b2e[i] = bembed[i];
@@ -842,7 +842,7 @@ int ARKodeSetIRKTable(void *arkode_mem, int s, int q, int p,
 
   /* set embedding (if applicable), otherwise set as fixed-step method */
   if (bembed == NULL) {
-    ark_mem->ark_fixedstep = TRUE;
+    ark_mem->ark_fixedstep = SUNTRUE;
   } else {
     for (i=0; i<s; i++) 
       ark_mem->ark_b2i[i] = bembed[i];
@@ -933,7 +933,7 @@ int ARKodeSetARKTables(void *arkode_mem, int s, int q, int p,
 
   /* set embeddings (if applicable), otherwise set as fixed-step method */
   if ((b2e == NULL) || (b2i == NULL)) {
-    ark_mem->ark_fixedstep = TRUE;
+    ark_mem->ark_fixedstep = SUNTRUE;
   } else {
     for (i=0; i<s; i++) {
       ark_mem->ark_b2e[i] = b2e[i];
@@ -1317,7 +1317,7 @@ int ARKodeSetStopTime(void *arkode_mem, realtype tstop)
   }
 
   ark_mem->ark_tstop    = tstop;
-  ark_mem->ark_tstopset = TRUE;
+  ark_mem->ark_tstopset = SUNTRUE;
 
   return(ARK_SUCCESS);
 }
@@ -1349,10 +1349,10 @@ int ARKodeSetFixedStep(void *arkode_mem, realtype hfixed)
 
   /* set ark_mem entry */
   if (hfixed != ZERO) {
-    ark_mem->ark_fixedstep = TRUE;
+    ark_mem->ark_fixedstep = SUNTRUE;
     ark_mem->ark_hin = hfixed;
   } else {
-    ark_mem->ark_fixedstep = FALSE;
+    ark_mem->ark_fixedstep = SUNFALSE;
   }
     
   return(ARK_SUCCESS);

@@ -189,8 +189,8 @@ typedef struct KINMemRec {
 
   booleantype kin_inexact_ls; /* flag set by the linear solver module
 				 (in linit) indicating whether this is an
-				 iterative linear solver (TRUE), or a direct
-				 linear solver (FALSE)                         */
+				 iterative linear solver (SUNTRUE), or a direct
+				 linear solver (SUNFALSE)                         */
 
   void *kin_lmem;         /* pointer to linear solver memory block             */
 
@@ -261,7 +261,7 @@ typedef struct KINMemRec {
  * but system memory allocation should be done by the subroutine
  * that actually initializes the environment for liner solver
  * package. If the linear system is to be preconditioned, then the
- * variable setupNonNull (type booleantype) should be set to TRUE
+ * variable setupNonNull (type booleantype) should be set to SUNTRUE
  * (predefined constant) and the kin_lsetup routine should be
  * appropriately defined.
  *

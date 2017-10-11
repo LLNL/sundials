@@ -716,7 +716,7 @@ int IDABBDPrecInitB(void *ida_mem, int which, sunindextype NlocalB,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDASPILS_NO_ADJ, "IDASBBDPRE",
                     "IDABBDPrecInitB", MSGS_NO_ADJ);
     return(IDASPILS_NO_ADJ);
@@ -786,7 +786,7 @@ int IDABBDPrecReInitB(void *ida_mem, int which, sunindextype mudqB,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDASPILS_NO_ADJ, "IDASBBDPRE",
                     "IDABBDPrecReInitB",  MSGS_NO_ADJ);
     return(IDASPILS_NO_ADJ);
@@ -854,7 +854,7 @@ static int IDAAglocal(sunindextype NlocalB, realtype tt, N_Vector yyB,
   idabbdB_mem = (IDABBDPrecDataB) IDAB_mem->ida_pmem;
 
   /* Get forward solution from interpolation. */
-  if (IDAADJ_mem->ia_noInterp == FALSE) {
+  if (IDAADJ_mem->ia_noInterp == SUNFALSE) {
     flag = IDAADJ_mem->ia_getY(IDA_mem, tt, IDAADJ_mem->ia_yyTmp,
                                IDAADJ_mem->ia_ypTmp, NULL, NULL);
     if (flag != IDA_SUCCESS) {
@@ -896,7 +896,7 @@ static int IDAAgcomm(sunindextype NlocalB, realtype tt,
   if (idabbdB_mem->gcommB == NULL) return(0);
 
   /* Get forward solution from interpolation. */
-  if (IDAADJ_mem->ia_noInterp == FALSE) {
+  if (IDAADJ_mem->ia_noInterp == SUNFALSE) {
     flag = IDAADJ_mem->ia_getY(IDA_mem, tt, IDAADJ_mem->ia_yyTmp,
                                IDAADJ_mem->ia_ypTmp, NULL, NULL);
     if (flag != IDA_SUCCESS) {

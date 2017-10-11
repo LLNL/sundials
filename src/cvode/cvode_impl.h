@@ -77,7 +77,7 @@ typedef struct CVodeMemRec {
   realtype cv_reltol;        /* relative tolerance                            */
   realtype cv_Sabstol;       /* scalar absolute tolerance                     */
   N_Vector cv_Vabstol;       /* vector absolute tolerance                     */
-  booleantype cv_user_efun;  /* TRUE if user sets efun                        */
+  booleantype cv_user_efun;  /* SUNTRUE if user sets efun                        */
   CVEwtFn cv_efun;           /* function to set ewt                           */
   void *cv_e_data;           /* user pointer passed to efun                   */
 
@@ -356,12 +356,12 @@ typedef struct CVodeMemRec {
  * fpred - f(tn, ypred).
  *
  * jcurPtr - a pointer to a boolean to be filled in by cv_lsetup.
- *           The function should set *jcurPtr=TRUE if its Jacobian
+ *           The function should set *jcurPtr=SUNTRUE if its Jacobian
  *           data is current after the call and should set
- *           *jcurPtr=FALSE if its Jacobian data is not current.
+ *           *jcurPtr=SUNFALSE if its Jacobian data is not current.
  *           Note: If cv_lsetup calls for re-evaluation of
  *           Jacobian data (based on convfail and CVODE state
- *           data), it should return *jcurPtr=TRUE always;
+ *           data), it should return *jcurPtr=SUNTRUE always;
  *           otherwise an infinite loop can result.
  *
  * vtemp1 - temporary N_Vector provided for use by cv_lsetup.

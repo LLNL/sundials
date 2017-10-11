@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
      are to be used in the step size control mechanism within CVODES. Call
      CVodeQuadSStolerances or CVodeQuadSVtolerances to specify the integration
      tolerances for the quadrature variables. */
-  flag = CVodeSetQuadErrCon(cvode_mem, TRUE);
+  flag = CVodeSetQuadErrCon(cvode_mem, SUNTRUE);
   if (check_flag(&flag, "CVodeSetQuadErrCon", 1)) return(1);
 
   /* Call CVodeQuadSStolerances to specify scalar relative and absolute
@@ -388,7 +388,7 @@ int main(int argc, char *argv[])
      are to be used in the step size control mechanism within CVODES. Call
      CVodeQuadSStolerances or CVodeQuadSVtolerances to specify the integration
      tolerances for the quadrature variables. */
-  flag = CVodeSetQuadErrConB(cvode_mem, indexB, TRUE);
+  flag = CVodeSetQuadErrConB(cvode_mem, indexB, SUNTRUE);
   if (check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);
 
   /* Call CVodeQuadSStolerancesB to specify the scalar relative and absolute tolerances

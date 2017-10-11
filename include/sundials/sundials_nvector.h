@@ -242,8 +242,8 @@ struct _generic_N_Vector {
  * N_VInvTest
  *   Performs the operation z[i] = 1/x[i] with a test for 
  *   x[i] == 0.0 before inverting x[i].
- *   This routine returns TRUE if all components of x are non-zero 
- *   (successful inversion) and returns FALSE otherwise.
+ *   This routine returns SUNTRUE if all components of x are non-zero 
+ *   (successful inversion) and returns SUNFALSE otherwise.
  *
  * N_VConstrMask
  *   Performs the operation : 
@@ -254,8 +254,8 @@ struct _generic_N_Vector {
  *      If c[i] = +1.0, then x[i] must be >= 0.0.
  *      If c[i] = -1.0, then x[i] must be <= 0.0.
  *      If c[i] = -2.0, then x[i] must be <  0.0.
- *   This routine returns a boolean FALSE if any element failed
- *   the constraint test, TRUE if all passed. It also sets a
+ *   This routine returns a boolean SUNFALSE if any element failed
+ *   the constraint test, SUNTRUE if all passed. It also sets a
  *   mask vector m, with elements equal to 1.0 where the
  *   corresponding constraint test failed, and equal to 0.0
  *   where the constraint test passed.

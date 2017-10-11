@@ -956,7 +956,7 @@ SUNDIALS_EXPORT void CVodeQuadSensFree(void *cvode_mem);
  *                         | [10]
  *                         |
  * CVodeSetStabLimDet      | flag to turn on/off stability limit
- *                         | detection (TRUE = on, FALSE = off).
+ *                         | detection (SUNTRUE = on, FALSE = off).
  *                         | When BDF is used and order is 3 or
  *                         | greater, CVsldet is called to detect
  *                         | stability limit.  If limit is detected,

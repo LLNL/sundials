@@ -89,7 +89,7 @@ and data types can be used. The header file that is always required is:
 %%
 Note that \id{cvode.h} includes \Id{sundials\_types.h}, 
 which defines the types \id{realtype}, \id{sunindextype}, and \id{booleantype}
-and the constants \id{FALSE} and \id{TRUE}.
+and the constants \id{SUNFALSE} and \id{SUNTRUE}.
 
 The calling program must also include an {\nvector} implementation header file,
 of the form \id{nvector/nvector\_***.h}.  See Chapter \ref{s:nvector}
@@ -1135,7 +1135,7 @@ Maximum order for BDF method & \id{CVodeSetMaxOrd} & 5 \\
 Maximum order for Adams method & \id{CVodeSetMaxOrd} & 12  \\
 Maximum no. of internal steps before $t_{\mbox{\scriptsize out}}$ & \id{CVodeSetMaxNumSteps} & 500 \\
 Maximum no. of warnings for $t_n+h=t_n$ & \id{CVodeSetMaxHnilWarns} & 10 \\
-Flag to activate stability limit detection & \id{CVodeSetStabLimDet} & {\tt FALSE} \\
+Flag to activate stability limit detection & \id{CVodeSetStabLimDet} & {\tt SUNFALSE} \\
 Initial step size & \id{CVodeSetInitStep} & estimated \\
 Minimum absolute step size & \id{CVodeSetMinStep} & 0.0 \\
 Maximum absolute step size & \id{CVodeSetMaxStep} & $\infty$ \\
@@ -1398,7 +1398,7 @@ flag = CVodeSetstabLimDet(cvode\_mem, stldet);
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[stldet] (\id{booleantype})
-    flag controlling stability limit detection (\id{TRUE} = on; \id{FALSE} = off).
+    flag controlling stability limit detection (\id{SUNTRUE} = on; \id{SUNFALSE} = off).
   \end{args}
 }
 {
@@ -1413,7 +1413,7 @@ flag = CVodeSetstabLimDet(cvode\_mem, stldet);
   \end{args}
 }
 {
-  The default value is \id{FALSE}. If \id{stldet = TRUE} when BDF is used
+  The default value is \id{SUNFALSE}. If \id{stldet = SUNTRUE} when BDF is used
   and the method order is greater than or equal to 3, then an internal function, \id{CVsldet},
   is called to detect a possible stability limit. If such a limit is detected, then the order is
   reduced.
@@ -3228,7 +3228,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 {
   The function \ID{CVSpilsGetNumPrecEvals} returns the
   number of preconditioner evaluations, i.e., the number of 
-  calls made to \id{psetup} with \id{jok = FALSE}.
+  calls made to \id{psetup} with \id{jok = SUNFALSE}.
 }
 {
   \begin{args}[cvode\_mem]
@@ -4223,17 +4223,17 @@ user-supplied function of type \Id{CVSpilsPrecSetupFn}, defined as follows:
     is an input flag indicating whether the Jacobian-related   
     data needs to be updated. The \id{jok} argument provides for 
     the reuse of Jacobian data in the preconditioner solve function.
-    \id{jok = FALSE} means that the Jacobian-related data   
+    \id{jok = SUNFALSE} means that the Jacobian-related data   
     must be recomputed from scratch.                                 
-    \id{jok = TRUE}  means that the Jacobian data, if saved from 
+    \id{jok = SUNTRUE}  means that the Jacobian data, if saved from 
     the previous call to this function, can be reused      
     (with the current value of \id{gamma}).            
-    A call with \id{jok = TRUE} can only occur after   
-    a call with \id{jok = FALSE}.
+    A call with \id{jok = SUNTRUE} can only occur after   
+    a call with \id{jok = SUNFALSE}.
   \item[jcurPtr]
     is a pointer to a flag which should be
-    set to \id{TRUE} if Jacobian data was recomputed, or set
-    to \id{FALSE} if Jacobian data was not           
+    set to \id{SUNTRUE} if Jacobian data was recomputed, or set
+    to \id{SUNFALSE} if Jacobian data was not           
     recomputed, but saved data was still reused.
   \item[gamma]
     is the scalar $\gamma$ appearing in the Newton matrix $M = I - \gamma J$.

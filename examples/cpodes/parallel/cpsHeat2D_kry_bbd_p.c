@@ -662,7 +662,7 @@ static void PrintHeader(long int Neq, realtype rtol, realtype atol)
     printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
     printf("Constraints set to force all solution components >= 0. \n");
-    printf("SUPPRESSALG = TRUE to suppress local error testing on");
+    printf("SUPPRESSALG = SUNTRUE to suppress local error testing on");
     printf(" all boundary components. \n");
     printf("Linear solver: IDASPGMR.    ");
     printf("Preconditioner: IDABBDPRE - Banded-block-diagonal.\n"); 

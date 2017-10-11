@@ -145,7 +145,7 @@ int IDAAdjInit(void *ida_mem, long int steps, int interp)
   IDAADJ_mem->ia_nsteps = steps;
 
   /* Allocate space for the array of Data Point structures. */
-  if (IDAAdataMalloc(IDA_mem) == FALSE) {
+  if (IDAAdataMalloc(IDA_mem) == SUNFALSE) {
     free(IDAADJ_mem); IDAADJ_mem = NULL;
     IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDAA", "IDAAdjInit", MSGAM_MEM_FAIL);
     return(IDA_MEM_FAIL);
@@ -171,19 +171,19 @@ int IDAAdjInit(void *ida_mem, long int steps, int interp)
   }
 
  /* The interpolation module has not been initialized yet */
-  IDAADJ_mem->ia_mallocDone = FALSE;
+  IDAADJ_mem->ia_mallocDone = SUNFALSE;
 
   /* By default we will store but not interpolate sensitivities
-   *  - storeSensi will be set in IDASolveF to FALSE if FSA is not enabled
+   *  - storeSensi will be set in IDASolveF to SUNFALSE if FSA is not enabled
    *    or if the user forced this through IDAAdjSetNoSensi 
-   *  - interpSensi will be set in IDASolveB to TRUE if storeSensi is TRUE 
+   *  - interpSensi will be set in IDASolveB to SUNTRUE if storeSensi is SUNTRUE 
    *    and if at least one backward problem requires sensitivities 
-   *  - noInterp will be set in IDACalcICB to TRUE before the call to
-   *    IDACalcIC and FALSE after.*/
+   *  - noInterp will be set in IDACalcICB to SUNTRUE before the call to
+   *    IDACalcIC and SUNFALSE after.*/
 
-  IDAADJ_mem->ia_storeSensi  = TRUE;
-  IDAADJ_mem->ia_interpSensi = FALSE;
-  IDAADJ_mem->ia_noInterp    = FALSE;
+  IDAADJ_mem->ia_storeSensi  = SUNTRUE;
+  IDAADJ_mem->ia_interpSensi = SUNFALSE;
+  IDAADJ_mem->ia_noInterp    = SUNFALSE;
 
   /* Initialize backward problems. */
   IDAADJ_mem->IDAB_mem = NULL;
@@ -191,13 +191,13 @@ int IDAAdjInit(void *ida_mem, long int steps, int interp)
   IDAADJ_mem->ia_nbckpbs = 0;
 
   /* Flags for tracking the first calls to IDASolveF and IDASolveF. */
-  IDAADJ_mem->ia_firstIDAFcall = TRUE;
-  IDAADJ_mem->ia_tstopIDAFcall = FALSE;
-  IDAADJ_mem->ia_firstIDABcall = TRUE;
+  IDAADJ_mem->ia_firstIDAFcall = SUNTRUE;
+  IDAADJ_mem->ia_tstopIDAFcall = SUNFALSE;
+  IDAADJ_mem->ia_firstIDABcall = SUNTRUE;
 
   /* Adjoint module initialized and allocated. */
-  IDA_mem->ida_adj = TRUE;
-  IDA_mem->ida_adjMallocDone = TRUE;
+  IDA_mem->ida_adj = SUNTRUE;
+  IDA_mem->ida_adjMallocDone = SUNTRUE;
 
   return(IDA_SUCCESS);
 } 
@@ -222,7 +222,7 @@ int IDAAdjReInit(void *ida_mem)
   IDA_mem = (IDAMem)ida_mem;
 
   /* Was ASA previously initialized? */
-  if(IDA_mem->ida_adjMallocDone == FALSE) {
+  if(IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDAAdjReInit",  MSGAM_NO_ADJ);
     return(IDA_NO_ADJ);
   }
@@ -238,9 +238,9 @@ int IDAAdjReInit(void *ida_mem)
   IDAADJ_mem->ia_ckpntData = NULL;
 
   /* Flags for tracking the first calls to IDASolveF and IDASolveF. */
-  IDAADJ_mem->ia_firstIDAFcall = TRUE;
-  IDAADJ_mem->ia_tstopIDAFcall = FALSE;
-  IDAADJ_mem->ia_firstIDABcall = TRUE;
+  IDAADJ_mem->ia_firstIDAFcall = SUNTRUE;
+  IDAADJ_mem->ia_tstopIDAFcall = SUNFALSE;
+  IDAADJ_mem->ia_firstIDABcall = SUNTRUE;
 
   return(IDA_SUCCESS);
 } 
@@ -354,7 +354,7 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized ? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDASolveF",  MSGAM_NO_ADJ);
     return(IDA_NO_ADJ);
   }
@@ -389,14 +389,14 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
 
   /* If tstop is enabled, store some info */
   if (IDA_mem->ida_tstopset) {
-    IDAADJ_mem->ia_tstopIDAFcall = TRUE;
+    IDAADJ_mem->ia_tstopIDAFcall = SUNTRUE;
     IDAADJ_mem->ia_tstopIDAF = IDA_mem->ida_tstop;
   }
   
   /* We will call IDASolve in IDA_ONE_STEP mode, regardless
      of what itask is, so flag if we need to return */
-/*   if (itask == IDA_ONE_STEP) iret = TRUE;
- *   else                       iret = FALSE;
+/*   if (itask == IDA_ONE_STEP) iret = SUNTRUE;
+ *   else                       iret = SUNFALSE;
  */
 
   /* On the first step:
@@ -417,7 +417,7 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
 
     if (!IDAADJ_mem->ia_mallocDone) {
       /* Do we need to store sensitivities? */
-      if (!IDA_mem->ida_sensi) IDAADJ_mem->ia_storeSensi = FALSE;
+      if (!IDA_mem->ida_sensi) IDAADJ_mem->ia_storeSensi = SUNFALSE;
 
       /* Allocate space for interpolation data */
       allocOK = IDAADJ_mem->ia_malloc(IDA_mem);
@@ -433,13 +433,13 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
           IDAADJ_mem->ia_YS[i] = IDA_mem->ida_phiS[i];
       }
 
-      IDAADJ_mem->ia_mallocDone = TRUE;
+      IDAADJ_mem->ia_mallocDone = SUNTRUE;
     }
 
     dt_mem[0]->t = IDAADJ_mem->ck_mem->ck_t0;
     IDAADJ_mem->ia_storePnt(IDA_mem, dt_mem[0]);
 
-    IDAADJ_mem->ia_firstIDAFcall = FALSE;
+    IDAADJ_mem->ia_firstIDAFcall = SUNFALSE;
 
   } else if ( (IDA_mem->ida_tn-tout)*IDA_mem->ida_hh >= ZERO ) {
 
@@ -448,7 +448,7 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
     *tret = tout;
     flag = IDAGetSolution(IDA_mem, tout, yret, ypret);
     *ncheckPtr = IDAADJ_mem->ia_nckpnts;
-    IDAADJ_mem->ia_newData = TRUE;
+    IDAADJ_mem->ia_newData = SUNTRUE;
     IDAADJ_mem->ia_ckpntData = IDAADJ_mem->ck_mem;
     IDAADJ_mem->ia_np = IDA_mem->ida_nst % IDAADJ_mem->ia_nsteps + 1;
 
@@ -480,7 +480,7 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
       IDAADJ_mem->ck_mem = tmp;
       IDAADJ_mem->ia_nckpnts++;
       
-      IDA_mem->ida_forceSetup = TRUE;
+      IDA_mem->ida_forceSetup = SUNTRUE;
       
       /* Reset i=0 and load dt_mem[0] */
       dt_mem[0]->t = IDAADJ_mem->ck_mem->ck_t0;
@@ -519,7 +519,7 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
   *ncheckPtr = IDAADJ_mem->ia_nckpnts;
 
   /* Data is available for the last interval */
-  IDAADJ_mem->ia_newData = TRUE;
+  IDAADJ_mem->ia_newData = SUNTRUE;
   IDAADJ_mem->ia_ckpntData = IDAADJ_mem->ck_mem;
   IDAADJ_mem->ia_np = IDA_mem->ida_nst % IDAADJ_mem->ia_nsteps + 1;
 
@@ -550,7 +550,7 @@ int IDACreateB(void *ida_mem, int *which)
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized ? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDACreateB",  MSGAM_NO_ADJ);
     return(IDA_NO_ADJ);
   }
@@ -597,8 +597,8 @@ int IDACreateB(void *ida_mem, int *which)
   new_IDAB_mem->ida_yy       = NULL;
   new_IDAB_mem->ida_yp       = NULL;
 
-  new_IDAB_mem->ida_res_withSensi = FALSE;
-  new_IDAB_mem->ida_rhsQ_withSensi = FALSE;
+  new_IDAB_mem->ida_res_withSensi = SUNFALSE;
+  new_IDAB_mem->ida_rhsQ_withSensi = SUNFALSE;
   
   /* Attach the new object to the beginning of the linked list IDAADJ_mem->IDAB_mem. */
   new_IDAB_mem->ida_next = IDAADJ_mem->IDAB_mem;
@@ -632,7 +632,7 @@ int IDAInitB(void *ida_mem, int which, IDAResFnB resB,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized ? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDAInitB",  MSGAM_NO_ADJ);
     return(IDA_NO_ADJ);
   }
@@ -667,7 +667,7 @@ int IDAInitB(void *ida_mem, int which, IDAResFnB resB,
 
   /* Copy residual function in IDAB_mem. */
   IDAB_mem->ida_res = resB;
-  IDAB_mem->ida_res_withSensi = FALSE;
+  IDAB_mem->ida_res_withSensi = SUNFALSE;
 
   /* Initialized the initial time field. */
   IDAB_mem->ida_t0 = tB0;
@@ -698,7 +698,7 @@ int IDAInitBS(void *ida_mem, int which, IDAResFnBS resS,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized ? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDAInitBS",  MSGAM_NO_ADJ);
     return(IDA_NO_ADJ);
   }
@@ -739,7 +739,7 @@ int IDAInitBS(void *ida_mem, int which, IDAResFnBS resS,
   if (flag != IDA_SUCCESS) return(flag);
 
   /* Copy residual function pointer in IDAB_mem. */
-  IDAB_mem->ida_res_withSensi = TRUE;
+  IDAB_mem->ida_res_withSensi = SUNTRUE;
   IDAB_mem->ida_resS = resS;
 
   /* Allocate space and initialize the yy and yp vectors. */
@@ -770,7 +770,7 @@ int IDAReInitB(void *ida_mem, int which,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized ? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDAReInitB",  MSGAM_NO_ADJ);
     return(IDA_NO_ADJ);
   }
@@ -821,7 +821,7 @@ int IDASStolerancesB(void *ida_mem, int which,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDASStolerancesB",  MSGAM_NO_ADJ);
     return(IDA_NO_ADJ);
   }
@@ -864,7 +864,7 @@ int IDASVtolerancesB(void *ida_mem, int which,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDASVtolerancesB",  MSGAM_NO_ADJ);
     return(IDA_NO_ADJ);
   }
@@ -907,7 +907,7 @@ int IDAQuadSStolerancesB(void *ida_mem, int which,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDAQuadSStolerancesB",  MSGAM_NO_ADJ);
     return(IDA_NO_ADJ);
   }
@@ -948,7 +948,7 @@ int IDAQuadSVtolerancesB(void *ida_mem, int which,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDAQuadSVtolerancesB",  MSGAM_NO_ADJ);
     return(IDA_NO_ADJ);
   }
@@ -989,7 +989,7 @@ int IDAQuadInitB(void *ida_mem, int which, IDAQuadRhsFnB rhsQB, N_Vector yQB0)
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDAQuadInitB",  MSGAM_NO_ADJ);
     return(IDA_NO_ADJ);
   }
@@ -1013,7 +1013,7 @@ int IDAQuadInitB(void *ida_mem, int which, IDAQuadRhsFnB rhsQB, N_Vector yQB0)
   flag = IDAQuadInit(ida_memB, IDAArhsQ, yQB0);
   if (IDA_SUCCESS != flag) return flag;
 
-  IDAB_mem->ida_rhsQ_withSensi = FALSE;
+  IDAB_mem->ida_rhsQ_withSensi = SUNFALSE;
   IDAB_mem->ida_rhsQ = rhsQB;
 
   return(flag);
@@ -1036,7 +1036,7 @@ int IDAQuadInitBS(void *ida_mem, int which,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized ? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDAQuadInitBS",  MSGAM_NO_ADJ);
     return(IDA_NO_ADJ);
   }
@@ -1065,7 +1065,7 @@ int IDAQuadInitBS(void *ida_mem, int which,
   if (flag != IDA_SUCCESS) return(flag);
 
   /* Copy RHS function pointer in IDAB_mem and enable quad sensitivities. */
-  IDAB_mem->ida_rhsQ_withSensi = TRUE;
+  IDAB_mem->ida_rhsQ_withSensi = SUNTRUE;
   IDAB_mem->ida_rhsQS = rhsQS;
 
   return(IDA_SUCCESS);
@@ -1086,7 +1086,7 @@ int IDAQuadReInitB(void *ida_mem, int which, N_Vector yQB0)
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDAQuadInitB",  MSGAM_NO_ADJ);
     return(IDA_NO_ADJ);
   }
@@ -1140,7 +1140,7 @@ int IDACalcICB(void *ida_mem, int which, realtype tout1,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDACalcICB",  MSGAM_NO_ADJ);
     return(IDA_NO_ADJ);
   }
@@ -1172,12 +1172,12 @@ int IDACalcICB(void *ida_mem, int which, realtype tout1,
   
   /* Set noInterp flag to true, so IDAARes will use user provided values for
      y and y' and will not call the interpolation routine(s). */
-  IDAADJ_mem->ia_noInterp = TRUE;
+  IDAADJ_mem->ia_noInterp = SUNTRUE;
   
   flag = IDACalcIC(ida_memB, IDA_YA_YDP_INIT, tout1);
 
   /* Set interpolation on in IDAARes. */
-  IDAADJ_mem->ia_noInterp = FALSE;
+  IDAADJ_mem->ia_noInterp = SUNFALSE;
 
   return(flag);
 }
@@ -1211,7 +1211,7 @@ int IDACalcICBS(void *ida_mem, int which, realtype tout1,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDACalcICBS",  MSGAM_NO_ADJ);
     return(IDA_NO_ADJ);
   }
@@ -1262,12 +1262,12 @@ int IDACalcICBS(void *ida_mem, int which, realtype tout1,
   
   /* Set noInterp flag to true, so IDAARes will use user provided values for
      y and y' and will not call the interpolation routine(s). */
-  IDAADJ_mem->ia_noInterp = TRUE;
+  IDAADJ_mem->ia_noInterp = SUNTRUE;
   
   flag = IDACalcIC(ida_memB, IDA_YA_YDP_INIT, tout1);
 
   /* Set interpolation on in IDAARes. */
-  IDAADJ_mem->ia_noInterp = FALSE;
+  IDAADJ_mem->ia_noInterp = SUNFALSE;
 
   return(flag);
 }
@@ -1311,7 +1311,7 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized ? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDASolveB",  MSGAM_NO_ADJ);
     return(IDA_NO_ADJ);
   }
@@ -1358,7 +1358,7 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
 
       if ( tmp_IDAB_mem->ida_res_withSensi || 
            tmp_IDAB_mem->ida_rhsQ_withSensi )
-        IDAADJ_mem->ia_interpSensi = TRUE;
+        IDAADJ_mem->ia_interpSensi = SUNTRUE;
 
       /* Advance in list. */
       tmp_IDAB_mem = tmp_IDAB_mem->ida_next;      
@@ -1369,7 +1369,7 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
       return(IDA_ILL_INPUT);
     }
 
-    IDAADJ_mem->ia_firstIDABcall = FALSE;
+    IDAADJ_mem->ia_firstIDABcall = SUNFALSE;
   }
 
   /* Check for valid itask */
@@ -1396,7 +1396,7 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
 
   ck_mem = IDAADJ_mem->ck_mem;
 
-  gotCkpnt = FALSE;
+  gotCkpnt = SUNFALSE;
 
   for(;;) {
     tmp_IDAB_mem = IDAB_mem;
@@ -1404,12 +1404,12 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
       tBn = tmp_IDAB_mem->IDA_mem->ida_tn;
 
       if ( sign*(tBn-ck_mem->ck_t0) > ZERO ) {
-        gotCkpnt = TRUE;
+        gotCkpnt = SUNTRUE;
         break;
       }
 
       if ( (itaskB == IDA_NORMAL) && (tBn == ck_mem->ck_t0) && (sign*(tBout-ck_mem->ck_t0) >= ZERO) ) {
-        gotCkpnt = TRUE;
+        gotCkpnt = SUNTRUE;
         break;
       }
 
@@ -1441,13 +1441,13 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
     while (tmp_IDAB_mem != NULL) {
 
       /* Decide if current backward problem is "active" in this check point */
-      isActive = TRUE;
+      isActive = SUNTRUE;
 
       tBn = tmp_IDAB_mem->IDA_mem->ida_tn;
 
-      if ( (tBn == ck_mem->ck_t0) && (sign*(tBout-ck_mem->ck_t0) < ZERO ) ) isActive = FALSE;
-      if ( (tBn == ck_mem->ck_t0) && (itaskB == IDA_ONE_STEP) ) isActive = FALSE;
-      if ( sign*(tBn - ck_mem->ck_t0) < ZERO ) isActive = FALSE;
+      if ( (tBn == ck_mem->ck_t0) && (sign*(tBout-ck_mem->ck_t0) < ZERO ) ) isActive = SUNFALSE;
+      if ( (tBn == ck_mem->ck_t0) && (itaskB == IDA_ONE_STEP) ) isActive = SUNFALSE;
+      if ( sign*(tBn - ck_mem->ck_t0) < ZERO ) isActive = SUNFALSE;
 
       if ( isActive ) {
         /* Store the address of current backward problem memory 
@@ -1487,12 +1487,12 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
     if (itaskB == IDA_ONE_STEP) break;
 
     /* If all backward problems have succesfully reached tBout, return now */
-    reachedTBout = TRUE;
+    reachedTBout = SUNTRUE;
 
     tmp_IDAB_mem = IDAB_mem;
     while(tmp_IDAB_mem != NULL) {
       if ( sign*(tmp_IDAB_mem->ida_tout - tBout) > ZERO ) {
-        reachedTBout = FALSE;
+        reachedTBout = SUNFALSE;
         break;
       }
       tmp_IDAB_mem = tmp_IDAB_mem->ida_next;
@@ -1531,7 +1531,7 @@ SUNDIALS_EXPORT int IDAGetB(void* ida_mem, int which, realtype *tret,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDAGetB",  MSGAM_NO_ADJ);
     return(IDA_NO_ADJ);
   }
@@ -1585,7 +1585,7 @@ int IDAGetQuadB(void *ida_mem, int which, realtype *tret, N_Vector qB)
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDAGetQuadB",  MSGAM_NO_ADJ);
     return(IDA_NO_ADJ);
   }
@@ -1793,7 +1793,7 @@ static booleantype IDAAckpntAllocVectors(IDAMem IDA_mem, CkpntMem ck_mem)
     ck_mem->ck_phi[j] = N_VClone(IDA_mem->ida_tempv1);
     if(ck_mem->ck_phi[j] == NULL) {    
       for(jj=0; jj<j; jj++) N_VDestroy(ck_mem->ck_phi[jj]);
-      return(FALSE);
+      return(SUNFALSE);
     }
   }
 
@@ -1807,7 +1807,7 @@ static booleantype IDAAckpntAllocVectors(IDAMem IDA_mem, CkpntMem ck_mem)
         for(jj=0; jj<ck_mem->ck_phi_alloc; jj++)
           N_VDestroy(ck_mem->ck_phi[jj]);
 
-        return(FALSE);
+        return(SUNFALSE);
       }
     }
   }
@@ -1828,7 +1828,7 @@ static booleantype IDAAckpntAllocVectors(IDAMem IDA_mem, CkpntMem ck_mem)
         for (jj=0; jj<ck_mem->ck_phi_alloc; jj++)
           N_VDestroy(ck_mem->ck_phi[jj]);
 
-        return(FALSE);
+        return(SUNFALSE);
       }
     }
   }
@@ -1853,11 +1853,11 @@ static booleantype IDAAckpntAllocVectors(IDAMem IDA_mem, CkpntMem ck_mem)
         for (jj=0; jj<ck_mem->ck_phi_alloc; jj++)
           N_VDestroy(ck_mem->ck_phi[jj]);
 
-        return(FALSE);
+        return(SUNFALSE);
       }
     }
   }
-  return(TRUE);
+  return(SUNTRUE);
 }
 
 /* 
@@ -1913,7 +1913,7 @@ static booleantype IDAAdataMalloc(IDAMem IDA_mem)
   IDAADJ_mem->dt_mem = NULL;
 
   dt_mem = (DtpntMem *)malloc((IDAADJ_mem->ia_nsteps+1)*sizeof(struct DtpntMemRec *));
-  if (dt_mem==NULL) return(FALSE);
+  if (dt_mem==NULL) return(SUNFALSE);
 
   for (i=0; i<=IDAADJ_mem->ia_nsteps; i++) {
     
@@ -1926,13 +1926,13 @@ static booleantype IDAAdataMalloc(IDAMem IDA_mem)
         free(dt_mem[j]);
 
       free(dt_mem);
-      return(FALSE);
+      return(SUNFALSE);
     }
     dt_mem[i]->content = NULL;
   }
   /* Attach the allocated dt_mem to IDAADJ_mem. */
   IDAADJ_mem->dt_mem = dt_mem;
-  return(TRUE);
+  return(SUNTRUE);
 }
 
 /*
@@ -2019,7 +2019,7 @@ static int IDAAdataStore(IDAMem IDA_mem, CkpntMem ck_mem)
 
   /* New data is now available. */
   IDAADJ_mem->ia_ckpntData = ck_mem;
-  IDAADJ_mem->ia_newData = TRUE;
+  IDAADJ_mem->ia_newData = SUNTRUE;
   IDAADJ_mem->ia_np  = i;
 
   return(IDA_SUCCESS);
@@ -2116,7 +2116,7 @@ static int IDAAckpntGet(IDAMem IDA_mem, CkpntMem ck_mem)
     }
 
     /* Force a call to setup */
-    IDA_mem->ida_forceSetup = TRUE;
+    IDA_mem->ida_forceSetup = SUNTRUE;
   }
 
   return(IDA_SUCCESS);
@@ -2146,18 +2146,18 @@ static booleantype IDAAhermiteMalloc(IDAMem IDA_mem)
   long int i, ii=0;
   booleantype allocOK;
 
-  allocOK = TRUE;
+  allocOK = SUNTRUE;
 
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Allocate space for the vectors yyTmp and ypTmp. */
   IDAADJ_mem->ia_yyTmp = N_VClone(IDA_mem->ida_tempv1);
   if (IDAADJ_mem->ia_yyTmp == NULL) {
-    return(FALSE);
+    return(SUNFALSE);
   }
   IDAADJ_mem->ia_ypTmp = N_VClone(IDA_mem->ida_tempv1);
   if (IDAADJ_mem->ia_ypTmp == NULL) {
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   /* Allocate space for sensitivities temporary vectors. */
@@ -2167,7 +2167,7 @@ static booleantype IDAAhermiteMalloc(IDAMem IDA_mem)
     if (IDAADJ_mem->ia_yySTmp == NULL) {
       N_VDestroy(IDAADJ_mem->ia_yyTmp);
       N_VDestroy(IDAADJ_mem->ia_ypTmp);
-      return(FALSE);
+      return(SUNFALSE);
     }
 
     IDAADJ_mem->ia_ypSTmp = N_VCloneVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_tempv1);
@@ -2175,7 +2175,7 @@ static booleantype IDAAhermiteMalloc(IDAMem IDA_mem)
       N_VDestroy(IDAADJ_mem->ia_yyTmp);
       N_VDestroy(IDAADJ_mem->ia_ypTmp);
       N_VDestroyVectorArray(IDAADJ_mem->ia_yySTmp, IDA_mem->ida_Ns);
-      return(FALSE);
+      return(SUNFALSE);
 
     }
   }
@@ -2190,7 +2190,7 @@ static booleantype IDAAhermiteMalloc(IDAMem IDA_mem)
     content = (HermiteDataMem) malloc(sizeof(struct HermiteDataMemRec));
     if (content == NULL) {
       ii = i;
-      allocOK = FALSE;
+      allocOK = SUNFALSE;
       break;
     }
 
@@ -2198,7 +2198,7 @@ static booleantype IDAAhermiteMalloc(IDAMem IDA_mem)
     if (content->y == NULL) {
       free(content); content = NULL;
       ii = i;
-      allocOK = FALSE;
+      allocOK = SUNFALSE;
       break;
     }
 
@@ -2207,7 +2207,7 @@ static booleantype IDAAhermiteMalloc(IDAMem IDA_mem)
       N_VDestroy(content->y);
       free(content); content = NULL;
       ii = i;
-      allocOK = FALSE;
+      allocOK = SUNFALSE;
       break;
     }
 
@@ -2219,7 +2219,7 @@ static booleantype IDAAhermiteMalloc(IDAMem IDA_mem)
         N_VDestroy(content->yd);
         free(content); content = NULL;
         ii = i;
-        allocOK = FALSE;
+        allocOK = SUNFALSE;
         break;
       }
 
@@ -2230,7 +2230,7 @@ static booleantype IDAAhermiteMalloc(IDAMem IDA_mem)
         N_VDestroyVectorArray(content->yS, IDA_mem->ida_Ns);
         free(content); content = NULL;
         ii = i;
-        allocOK = FALSE;
+        allocOK = SUNFALSE;
         break;
       }
     }
@@ -2507,18 +2507,18 @@ static booleantype IDAApolynomialMalloc(IDAMem IDA_mem)
   long int i, ii=0;
   booleantype allocOK;
 
-  allocOK = TRUE;
+  allocOK = SUNTRUE;
 
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Allocate space for the vectors yyTmp and ypTmp */
   IDAADJ_mem->ia_yyTmp = N_VClone(IDA_mem->ida_tempv1);
   if (IDAADJ_mem->ia_yyTmp == NULL) {
-    return(FALSE);
+    return(SUNFALSE);
   }
   IDAADJ_mem->ia_ypTmp = N_VClone(IDA_mem->ida_tempv1);
   if (IDAADJ_mem->ia_ypTmp == NULL) {
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   if (IDAADJ_mem->ia_storeSensi) {
@@ -2527,7 +2527,7 @@ static booleantype IDAApolynomialMalloc(IDAMem IDA_mem)
     if (IDAADJ_mem->ia_yySTmp == NULL) {
       N_VDestroy(IDAADJ_mem->ia_yyTmp);
       N_VDestroy(IDAADJ_mem->ia_ypTmp);
-      return(FALSE);
+      return(SUNFALSE);
     }
 
     IDAADJ_mem->ia_ypSTmp = N_VCloneVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_tempv1);
@@ -2535,7 +2535,7 @@ static booleantype IDAApolynomialMalloc(IDAMem IDA_mem)
       N_VDestroy(IDAADJ_mem->ia_yyTmp);
       N_VDestroy(IDAADJ_mem->ia_ypTmp);
       N_VDestroyVectorArray(IDAADJ_mem->ia_yySTmp, IDA_mem->ida_Ns);
-      return(FALSE);
+      return(SUNFALSE);
 
     }
   }
@@ -2549,7 +2549,7 @@ static booleantype IDAApolynomialMalloc(IDAMem IDA_mem)
     content = (PolynomialDataMem) malloc(sizeof(struct PolynomialDataMemRec));
     if (content == NULL) {
       ii = i;
-      allocOK = FALSE;
+      allocOK = SUNFALSE;
       break;
     }
 
@@ -2557,7 +2557,7 @@ static booleantype IDAApolynomialMalloc(IDAMem IDA_mem)
     if (content->y == NULL) {
       free(content); content = NULL;
       ii = i;
-      allocOK = FALSE;
+      allocOK = SUNFALSE;
       break;
     }
 
@@ -2570,7 +2570,7 @@ static booleantype IDAApolynomialMalloc(IDAMem IDA_mem)
         N_VDestroy(content->y);
         free(content); content = NULL;
         ii = i;
-        allocOK = FALSE;
+        allocOK = SUNFALSE;
       }
     } else {
       /* Not the first data point. */
@@ -2585,7 +2585,7 @@ static booleantype IDAApolynomialMalloc(IDAMem IDA_mem)
         if (content->yd) N_VDestroy(content->yd);
         free(content); content = NULL;
         ii = i;
-        allocOK = FALSE;
+        allocOK = SUNFALSE;
         break;
       }
       
@@ -2597,7 +2597,7 @@ static booleantype IDAApolynomialMalloc(IDAMem IDA_mem)
           N_VDestroyVectorArray(content->yS, IDA_mem->ida_Ns);
           free(content); content = NULL;
           ii = i;
-          allocOK = FALSE;
+          allocOK = SUNFALSE;
         }
       } else {
         content->ySd = NULL;
@@ -2981,7 +2981,7 @@ static int IDAAGettnSolutionYpS(IDAMem IDA_mem, N_Vector *ypS)
  *
  * Finds the index in the array of data point strctures such that
  *     dt_mem[indx-1].t <= t < dt_mem[indx].t
- * If indx is changed from the previous invocation, then newpoint = TRUE
+ * If indx is changed from the previous invocation, then newpoint = SUNTRUE
  *
  * If t is beyond the leftmost limit, but close enough, indx=0.
  *
@@ -3003,7 +3003,7 @@ static int IDAAfindIndex(IDAMem ida_mem, realtype t,
   IDAADJ_mem = IDA_mem->ida_adj_mem;
   dt_mem = IDAADJ_mem->dt_mem;
 
-  *newpoint = FALSE;
+  *newpoint = SUNFALSE;
 
   /* Find the direction of integration */
   sign = (IDAADJ_mem->ia_tfinal - IDAADJ_mem->ia_tinitial > ZERO) ? 1 : -1;
@@ -3011,8 +3011,8 @@ static int IDAAfindIndex(IDAMem ida_mem, realtype t,
   /* If this is the first time we use new data */
   if (IDAADJ_mem->ia_newData) {
     ilast     = IDAADJ_mem->ia_np-1;
-    *newpoint = TRUE;
-    IDAADJ_mem->ia_newData   = FALSE;
+    *newpoint = SUNTRUE;
+    IDAADJ_mem->ia_newData   = SUNFALSE;
   }
 
   /* Search for indx starting from ilast */
@@ -3022,7 +3022,7 @@ static int IDAAfindIndex(IDAMem ida_mem, realtype t,
   if ( to_left ) {
     /* look for a new indx to the left */
 
-    *newpoint = TRUE;
+    *newpoint = SUNTRUE;
     
     *indx = ilast;
     for(;;) {
@@ -3046,7 +3046,7 @@ static int IDAAfindIndex(IDAMem ida_mem, realtype t,
   } else if ( to_right ) {
     /* look for a new indx to the right */
 
-    *newpoint = TRUE;
+    *newpoint = SUNTRUE;
 
     *indx = ilast;
     for(;;) {
@@ -3119,7 +3119,7 @@ static int IDAAres(realtype tt,
   IDAB_mem = IDAADJ_mem->ia_bckpbCrt;
 
   /* Get forward solution from interpolation. */
-  if( IDAADJ_mem->ia_noInterp == FALSE) {
+  if( IDAADJ_mem->ia_noInterp == SUNFALSE) {
     if (IDAADJ_mem->ia_interpSensi)
       flag = IDAADJ_mem->ia_getY(ida_mem, tt, IDAADJ_mem->ia_yyTmp, IDAADJ_mem->ia_ypTmp, IDAADJ_mem->ia_yySTmp, IDAADJ_mem->ia_ypSTmp);
     else
@@ -3171,7 +3171,7 @@ static int IDAArhsQ(realtype tt,
   retval = IDA_SUCCESS;
 
   /* Get forward solution from interpolation. */
-  if (IDAADJ_mem->ia_noInterp == FALSE) {
+  if (IDAADJ_mem->ia_noInterp == SUNFALSE) {
     if (IDAADJ_mem->ia_interpSensi) {
       flag = IDAADJ_mem->ia_getY(IDA_mem, tt, IDAADJ_mem->ia_yyTmp, IDAADJ_mem->ia_ypTmp, IDAADJ_mem->ia_yySTmp, IDAADJ_mem->ia_ypSTmp);
     } else {

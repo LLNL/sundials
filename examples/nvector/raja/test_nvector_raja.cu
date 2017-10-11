@@ -143,7 +143,7 @@ booleantype has_data(N_Vector X)
 {
   sunrajavec::Vector<double, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
 
-  return (xv == NULL ? FALSE : TRUE);
+  return (xv == NULL ? SUNFALSE : SUNTRUE);
 }
 
 void set_element(N_Vector X, sunindextype i, realtype val)

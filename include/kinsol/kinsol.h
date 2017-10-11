@@ -291,15 +291,15 @@ SUNDIALS_EXPORT void *KINCreate(void);
  * KINSetNoInitSetup      | flag controlling whether or not the
  *                        | KINSol routine makes an initial call
  *                        | to the linear solver setup routine (lsetup)
- *                        | (possible values are TRUE and FALSE)
+ *                        | (possible values are SUNTRUE and FALSE)
  *                        | [FALSE]
  *                        |
  * KINSetNoResMon         | flag controlling whether or not the nonlinear
  *                        | residual monitoring scheme is used to control
- *                        | Jacobian updating (possible values are TRUE
+ *                        | Jacobian updating (possible values are SUNTRUE
  *                        | and FALSE)
  *                        | [FALSE if using direct linear solver]
- *                        | [TRUE if using inexact linear solver]
+ *                        | [SUNTRUE if using inexact linear solver]
  *                        |
  * KINSetMaxSetupCalls    | mbset, number of nonlinear iteraions, such 
  *                        | that a call to the linear solver setup routine
@@ -378,7 +378,7 @@ SUNDIALS_EXPORT void *KINCreate(void);
  *                        |
  *                        |          eps = MAX{0.01*fnormtol, eps}
  *                        |
- *                        |  TRUE  do not constrain value of eps
+ *                        |  SUNTRUE  do not constrain value of eps
  *                        | [FALSE]
  *                        |
  * KINSetMaxNewtonStep    | maximum scaled length of Newton step

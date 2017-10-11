@@ -34,7 +34,7 @@ extern "C" {
 
 typedef struct KINDlsMemRec {
 
-  booleantype jacDQ;   /* TRUE if using internal DQ Jacobian approx.   */
+  booleantype jacDQ;   /* SUNTRUE if using internal DQ Jacobian approx.   */
   KINDlsJacFn jac;     /* Jacobian routine to be called                */
   void *J_data;        /* J_data is passed to jac                      */
   

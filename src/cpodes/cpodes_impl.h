@@ -71,7 +71,7 @@ typedef struct CPodeMemRec {
   realtype cp_reltol;          /* relative tolerance                          */
   realtype cp_Sabstol;         /* scalar absolute tolerance                   */
   N_Vector cp_Vabstol;         /* vector absolute tolerance                   */
-  booleantype cp_user_efun;    /* TRUE if user sets efun                      */
+  booleantype cp_user_efun;    /* SUNTRUE if user sets efun                      */
   CPEwtFn cp_efun;             /* function to set ewt                         */
   void *cp_e_data;             /* data pointer passed to efun                 */
 
@@ -429,12 +429,12 @@ typedef struct CPodeMemRec {
  * fctP     - f(yP) or F(tn, yP, ypP).
  *
  * jcurPtr  - a pointer to a boolean to be filled in by cp_lsetup.
- *            The function should set *jcurPtr=TRUE if its Jacobian
+ *            The function should set *jcurPtr=SUNTRUE if its Jacobian
  *            data is current after the call and should set
- *            *jcurPtr=FALSE if its Jacobian data is not current.
+ *            *jcurPtr=SUNFALSE if its Jacobian data is not current.
  *            Note: If cp_lsetup calls for re-evaluation of
  *            Jacobian data (based on convfail and CPODES state
- *            data), it should return *jcurPtr=TRUE always;
+ *            data), it should return *jcurPtr=SUNTRUE always;
  *            otherwise an infinite loop can result.
  *
  *    NOTE: jcurPtr is IGNORED for implicit-form ODE

@@ -37,7 +37,7 @@ extern "C" {
   -----------------------------------------------------------------*/
 typedef struct IDADlsMemRec {
 
-  booleantype jacDQ;    /* TRUE if using internal DQ Jacobian approx.    */
+  booleantype jacDQ;    /* SUNTRUE if using internal DQ Jacobian approx.    */
   IDADlsJacFn jac;      /* Jacobian routine to be called                 */
   void *J_data;         /* J_data is passed to jac                       */
 

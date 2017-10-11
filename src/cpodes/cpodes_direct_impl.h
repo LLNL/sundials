@@ -58,7 +58,7 @@ typedef struct {
   int d_mu;               /* upper bandwidth of Jacobian                  */ 
   int d_smu;              /* upper bandwith of M = MIN(N-1,d_mu+d_ml)     */
 
-  booleantype d_jacDQ;    /* TRUE if using internal DQ Jacobian approx.   */
+  booleantype d_jacDQ;    /* SUNTRUE if using internal DQ Jacobian approx.   */
 
   CPDlsDenseJacExplFn d_djacE; /* dense Jacobian routine (CP_EXPL)        */
   CPDlsDenseJacImplFn d_djacI; /* dense Jacobian routine (CP_IMPL)        */
@@ -99,7 +99,7 @@ typedef struct {
   int d_nc;                 /* number of constraints                       */
   int d_ny;                 /* number of states                            */
 
-  booleantype d_jacPDQ;     /* TRUE if using internal DQ Jacobian approx.  */
+  booleantype d_jacPDQ;     /* SUNTRUE if using internal DQ Jacobian approx.  */
 
   CPDlsDenseProjJacFn d_jacP; /* Jacobian routine to be called             */
 

@@ -77,10 +77,10 @@ typedef struct KINSpilsMemRec {
   /* Jacobian times vector compuation
      (a) jtimes function provided by the user:
          - jdata == user_data
-         - jtimesDQ == FALSE
+         - jtimesDQ == SUNFALSE
      (b) internal jtimes
          - jdata == kin_mem
-         - jtimesDQ == TRUE */
+         - jtimesDQ == SUNTRUE */
   booleantype jtimesDQ;
   KINSpilsJacTimesVecFn jtimes;
   void *jdata;

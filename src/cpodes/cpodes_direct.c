@@ -122,10 +122,10 @@ int CPDlsSetDenseJacFnExpl(void *cpode_mem, CPDlsDenseJacExplFn jac)
   cpdls_mem = (CPDlsMem) lmem;
 
   if (jac != NULL) {
-    jacDQ = FALSE;
+    jacDQ = SUNFALSE;
     djacE = jac;
   } else {
-    jacDQ = TRUE;
+    jacDQ = SUNTRUE;
   }
 
   return(CPDLS_SUCCESS);
@@ -150,10 +150,10 @@ int CPDlsSetDenseJacFnImpl(void *cpode_mem, CPDlsDenseJacImplFn jac)
   cpdls_mem = (CPDlsMem) lmem;
 
   if (jac != NULL) {
-    jacDQ = FALSE;
+    jacDQ = SUNFALSE;
     djacI = jac;
   } else {
-    jacDQ = TRUE;
+    jacDQ = SUNTRUE;
   }
 
   return(CPDLS_SUCCESS);
@@ -179,10 +179,10 @@ int CPDlsSetBandJacFnExpl(void *cpode_mem, CPDlsBandJacExplFn jac)
   cpdls_mem = (CPDlsMem) lmem;
 
   if (jac != NULL) {
-    jacDQ = FALSE;
+    jacDQ = SUNFALSE;
     bjacE = jac;
   } else {
-    jacDQ = TRUE;
+    jacDQ = SUNTRUE;
   }
 
   return(CPDLS_SUCCESS);
@@ -208,10 +208,10 @@ int CPDlsSetBandJacFnImpl(void *cpode_mem, CPDlsBandJacImplFn jac)
   cpdls_mem = (CPDlsMem) lmem;
 
   if (jac != NULL) {
-    jacDQ = FALSE;
+    jacDQ = SUNFALSE;
     bjacI = jac;
   } else {
-    jacDQ = TRUE;
+    jacDQ = SUNTRUE;
   }
 
   return(CPDLS_SUCCESS);
@@ -422,10 +422,10 @@ int CPDlsProjSetDenseJacFn(void *cpode_mem, CPDlsDenseProjJacFn jacP)
   cpdlsP_mem = (CPDlsProjMem) lmemP;
 
   if (jacP != NULL) {
-    jacPDQ = FALSE;
+    jacPDQ = SUNFALSE;
     djacP = (CPDlsDenseProjJacFn) jacP;
   } else {
-    jacPDQ = TRUE;
+    jacPDQ = SUNTRUE;
   }
 
   return(CPDLS_SUCCESS);

@@ -7,7 +7,7 @@ fidaHeat2D_kry_bbd_p: Heat equation, parallel example problem for FIDA
 Subgrid dimensions:  5 x  5           Processor array:  2 x  2
 Tolerance parameters: rtol = 0.00E+00   atol = 0.10E-02
 Constraints set to force all solution components >= 0.
-SUPPRESSALG = TRUE to remove boundary components from the error test.
+SUPPRESSALG = SUNTRUE to remove boundary components from the error test.
 Linear solver: SPGMR.    Preconditioner: BBDPRE - Banded-block-diagonal.
 
 

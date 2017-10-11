@@ -84,7 +84,7 @@ and data types can be used. The header file that is always required is:
 %
 \id{kinsol.h} also includes \Id{sundials\_types.h}, 
 which defines the types \id{realtype}, \id{sunindextype}, and \id{booleantype}
-and constants \id{FALSE} and \id{TRUE}.
+and constants \id{SUNFALSE} and \id{SUNTRUE}.
 
 The calling program must also include an {\nvector} implementation header file,
 of the form \id{nvector/nvector\_***.h}.  See Chapter \ref{s:nvector} for the appropriate
@@ -819,8 +819,8 @@ Pointer to an info file & \id{KINSetInfoFile} & \id{stdout} \\
 Data for problem-defining function & \id{KINSetUserData} & \id{NULL} \\
 Verbosity level of output & \id{KINSetPrintLevel} & 0 \\
 Max. number of nonlinear iterations & \id{KINSetNumMaxIters} & 200 \\
-No initial matrix setup & \id{KINSetNoInitSetup} & \id{FALSE} \\
-No residual monitoring${}^{*}$ & \id{KINSetNoResMon} & \id{FALSE} \\
+No initial matrix setup & \id{KINSetNoInitSetup} & \id{SUNFALSE} \\
+No residual monitoring${}^{*}$ & \id{KINSetNoResMon} & \id{SUNFALSE} \\
 Max. iterations without matrix setup & \id{KINSetMaxSetupCalls} & 10 \\
 Max. iterations without residual check${}^{*}$ & \id{KINSetMaxSubSetupCalls} & 5 \\
 Form of $\eta$ coefficient & \id{KINSetEtaForm} &  \id{KIN\_ETACHOICE1}\\
@@ -828,7 +828,7 @@ Constant value of $\eta$ & \id{KINSetEtaConstValue} &  0.1 \\
 Values of $\gamma$ and $\alpha$ & \id{KINSetEtaParams} & 0.9 and 2.0 \\
 Values of $\omega_{min}$ and $\omega_{max}$${}^{*}$ & \id{KINSetResMonParams} & 0.00001 and 0.9 \\
 Constant value of $\omega$${}^{*}$ & \id{KINSetResMonConstValue} & 0.9 \\
-Lower bound on $\epsilon$ & \id{KINSetNoMinEps} & \id{FALSE} \\
+Lower bound on $\epsilon$ & \id{KINSetNoMinEps} & \id{SUNFALSE} \\
 Max. scaled length of Newton step & \id{KINSetMaxNewtonStep} & $1000 \| D_u u_0 \|_2$ \\
 Max. number of $\beta$-condition failures & \id{KINSetMaxBetaFails} & 10 \\
 Rel. error for D.Q. $Jv$ & \id{KINSetRelErrFunc} & $\sqrt{\text{uround}}$ \\
@@ -1147,7 +1147,7 @@ flag = KINSetNoInitSetup(kin\_mem, noInitSetup);
     pointer to the {\kinsol} memory block.
   \item[noInitSetup] (\id{booleantype})
     flag controlling whether an initial call to the preconditioner or Jacobian
-    setup function is made (pass \id{FALSE}) or not made (pass \id{TRUE}).
+    setup function is made (pass \id{SUNFALSE}) or not made (pass \id{SUNTRUE}).
   \end{args}
 }
 {
@@ -1160,7 +1160,7 @@ flag = KINSetNoInitSetup(kin\_mem, noInitSetup);
   \end{args}
 }
 {
-  The default value for \id{noInitSetup} is \id{FALSE}, meaning that an initial call
+  The default value for \id{noInitSetup} is \id{SUNFALSE}, meaning that an initial call
   to the preconditioner or Jacobian setup function will be made.
 
   A call to this function is useful when solving a sequence of problems, in which
@@ -1182,8 +1182,8 @@ flag = KINSetNoResMon(kin\_mem, noNNIResMon);
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[noNNIResMon] (\id{booleantype})
-    flag controlling whether residual monitoring is used (pass \id{FALSE})
-    or not used (pass \id{TRUE}).
+    flag controlling whether residual monitoring is used (pass \id{SUNFALSE})
+    or not used (pass \id{SUNTRUE}).
 
   \end{args}
 }
@@ -1197,7 +1197,7 @@ flag = KINSetNoResMon(kin\_mem, noNNIResMon);
   \end{args}
 }
 {
-  When using a direct solver, the default value for \id{noNNIResMon} is \id{FALSE},
+  When using a direct solver, the default value for \id{noNNIResMon} is \id{SUNFALSE},
   meaning that the nonlinear residual will be monitored.
 
   {\warn}Residual monitoring is only available for use with the direct linear solver
@@ -1478,7 +1478,7 @@ flag = KINSetNoMinEps(kin\_mem, noMinEps);
   \end{args}
 }
 {
-  The default value for \id{noMinEps} is \id{FALSE}, meaning that a
+  The default value for \id{noMinEps} is \id{SUNFALSE}, meaning that a
   positive minimum value, equal to $0.01$*\id{fnormtol}, is applied to
   $\epsilon$.  (See \id{KINSetFuncNormTol} below.)
 }
@@ -3070,10 +3070,10 @@ supplied, the default is a difference quotient approximation of these products.
     \id{jtimes} function, indicating whether the iterate vector \id{u} has been
     updated since the last call to \id{jtimes}.  This is useful if the \id{jtimes}
     function computes and saves Jacobian data that depends on \id{u} for use in
-    computing $J(u)v$.  The input value of \id{new\_u} is \id{TRUE} following an
+    computing $J(u)v$.  The input value of \id{new\_u} is \id{SUNTRUE} following an
     update by {\kinsol}, and in that case any saved Jacobian data depending on
     \id{u} should be recomputed.  The \id{jtimes} routine should then set \id{new\_u}
-    to \id{FALSE}, so that on subsequent calls to \id{jtimes} with the same \id{u},
+    to \id{SUNFALSE}, so that on subsequent calls to \id{jtimes} with the same \id{u},
     the saved data can be reused.
   \item[user\_data]
     is a pointer to user data, the same as the \id{user\_data}      

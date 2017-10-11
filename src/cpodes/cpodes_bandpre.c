@@ -297,18 +297,18 @@ int CPBandPrecGetNumRhsEvals(void *cpode_mem, long int *nfevalsBP)
  *
  * jok     is an input flag indicating whether Jacobian-related
  *         data needs to be recomputed, as follows:
- *           jok == FALSE means recompute Jacobian-related data
+ *           jok == SUNFALSE means recompute Jacobian-related data
  *                  from scratch.
- *           jok == TRUE means that Jacobian data from the
+ *           jok == SUNTRUE means that Jacobian data from the
  *                  previous cpBandPrecSetupExpl call will be reused
  *                  (with the current value of gamma).
- *         A cpBandPrecSetupExpl call with jok == TRUE should only
- *         occur after a call with jok == FALSE.
+ *         A cpBandPrecSetupExpl call with jok == SUNTRUE should only
+ *         occur after a call with jok == SUNFALSE.
  *
  * *jcurPtr is a pointer to an output integer flag which is
  *          set by cpBandPrecsetupExpl as follows:
- *            *jcurPtr = TRUE if Jacobian data was recomputed.
- *            *jcurPtr = FALSE if Jacobian data was not recomputed,
+ *            *jcurPtr = SUNTRUE if Jacobian data was recomputed.
+ *            *jcurPtr = SUNFALSE if Jacobian data was not recomputed,
  *                       but saved data was reused.
  *
  * gamma   is the scalar appearing in the Newton matrix.
@@ -342,14 +342,14 @@ static int cpBandPrecSetupExpl(realtype t, N_Vector y, N_Vector fy,
 
   if (jok) {
 
-    /* If jok = TRUE, use saved copy of J. */
-    *jcurPtr = FALSE;
+    /* If jok = SUNTRUE, use saved copy of J. */
+    *jcurPtr = SUNFALSE;
     BandCopy(savedJ, savedP, mu, ml);
 
   } else {
 
-    /* If jok = FALSE, call cpBandPDQJac for new J value. */
-    *jcurPtr = TRUE;
+    /* If jok = SUNFALSE, call cpBandPDQJac for new J value. */
+    *jcurPtr = SUNTRUE;
     retval = cpBandPDQJacExpl(pdata, t, y, fy, tmp1, tmp2);
     if (retval < 0) {
       cpProcessError(cp_mem, -1, "CPBANDPRE", "cpBandPrecSetupExpl", MSGBP_FUNC_FAILED);

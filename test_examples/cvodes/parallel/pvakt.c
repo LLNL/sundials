@@ -231,8 +231,8 @@ int main(int argc, char *argv[])
   }
 
   /* Test if matlab output is requested */
-  if (argc > 1) output = TRUE;
-  else          output = FALSE;
+  if (argc > 1) output = SUNTRUE;
+  else          output = SUNFALSE;
 
   /* Allocate and set problem data structure */
   d = (ProblemData) malloc(sizeof *d);
@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
   reltolQ = RTOL_Q;
   flag = CVodeQuadInit(cvode_mem, fQ, q);
   flag = CVodeQuadSStolerances(cvode_mem, reltolQ, abstolQ);
-  flag = CVodeSetQuadErrCon(cvode_mem, TRUE);
+  flag = CVodeSetQuadErrCon(cvode_mem, SUNTRUE);
 
   /* Allocate space for the adjoint calculation */
   flag = CVodeAdjInit(cvode_mem, STEPS, CV_HERMITE);
@@ -325,7 +325,7 @@ int main(int argc, char *argv[])
   reltolQB = RTOL_QB;
   flag = CVodeQuadInitB(cvode_mem, indexB, fQB, qB);
   flag = CVodeQuadSStolerancesB(cvode_mem, indexB, reltolQB, abstolQB);
-  flag = CVodeSetQuadErrConB(cvode_mem, indexB, TRUE);
+  flag = CVodeSetQuadErrConB(cvode_mem, indexB, SUNTRUE);
 
   /* Integrate backwards */
   if (myId == 0) printf("Begin backward integration... ");

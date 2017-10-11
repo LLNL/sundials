@@ -407,18 +407,18 @@ static booleantype SMCompatible_Band(SUNMatrix A, SUNMatrix B)
 {
   /* both matrices must be SUNMATRIX_BAND */
   if (SUNMatGetID(A) != SUNMATRIX_BAND)
-    return FALSE;
+    return SUNFALSE;
   if (SUNMatGetID(B) != SUNMATRIX_BAND)
-    return FALSE;
+    return SUNFALSE;
 
   /* both matrices must have the same number of columns
      (note that we do not check for identical bandwidth) */
   if (SM_ROWS_B(A) != SM_ROWS_B(B))
-    return FALSE;
+    return SUNFALSE;
   if (SM_COLUMNS_B(A) != SM_COLUMNS_B(B))
-    return FALSE;
+    return SUNFALSE;
 
-  return TRUE;
+  return SUNTRUE;
 }
 
 
@@ -426,18 +426,18 @@ static booleantype SMCompatible2_Band(SUNMatrix A, N_Vector x, N_Vector y)
 {
   /*   matrix must be SUNMATRIX_BAND */
   if (SUNMatGetID(A) != SUNMATRIX_BAND)
-    return FALSE;
+    return SUNFALSE;
 
   /*   vectors must be one of {SERIAL, OPENMP, PTHREADS} */ 
   if ( (N_VGetVectorID(x) != SUNDIALS_NVEC_SERIAL) &&
        (N_VGetVectorID(x) != SUNDIALS_NVEC_OPENMP) &&
        (N_VGetVectorID(x) != SUNDIALS_NVEC_PTHREADS) )
-    return FALSE;
+    return SUNFALSE;
 
   /* Optimally we would verify that the dimensions of A, x and y agree, 
    but since there is no generic 'length' routine for N_Vectors we cannot */
 
-  return TRUE;
+  return SUNTRUE;
 }
 
 

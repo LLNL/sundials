@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
   retval = IDASensEEtolerances(ida_mem);
   if(check_flag(&retval, "IDASensEEtolerances", 1, thispe)) MPI_Abort(comm, 1);
 
-  retval = IDASetSensErrCon(ida_mem, TRUE);
+  retval = IDASetSensErrCon(ida_mem, SUNTRUE);
   if (check_flag(&retval, "IDASetSensErrCon", 1, thispe)) MPI_Abort(comm, 1);
 
   pbar[0] = data->eps[0];

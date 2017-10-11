@@ -46,7 +46,7 @@ extern "C" {
 ---------------------------------------------------------------*/
 typedef struct ARKDlsMemRec {
 
-  booleantype jacDQ;    /* TRUE if using internal DQ Jacobian approx.   */
+  booleantype jacDQ;    /* SUNTRUE if using internal DQ Jacobian approx.   */
   ARKDlsJacFn jac;      /* Jacobian routine to be called                */
   void *J_data;         /* user data is passed to jac                   */
 

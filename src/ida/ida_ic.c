@@ -124,7 +124,7 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
 
   /* Check if problem was malloc'ed */
   
-  if(IDA_mem->ida_MallocDone == FALSE) {
+  if(IDA_mem->ida_MallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_MALLOC, "IDA", "IDACalcIC", MSG_NO_MALLOC);
     return(IDA_NO_MALLOC);
   }
@@ -133,7 +133,7 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
 
   ier = IDAInitialSetup(IDA_mem);
   if(ier != IDA_SUCCESS) return(IDA_ILL_INPUT);
-  IDA_mem->ida_SetupDone = TRUE;
+  IDA_mem->ida_SetupDone = SUNTRUE;
 
   /* Check legality of input arguments, and set IDA memory copies. */
 
@@ -387,7 +387,7 @@ static int IDANewtonIC(IDAMem IDA_mem)
   if(retval > 0) return(IC_FAIL_RECOV);
 
   /* Compute the norm of the step; return now if this is small. */
-  fnorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delta, IDA_mem->ida_ewt, FALSE);
+  fnorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delta, IDA_mem->ida_ewt, SUNFALSE);
   if(IDA_mem->ida_sysindex == 0)
     fnorm *= IDA_mem->ida_tscale * SUNRabs(IDA_mem->ida_cj);
   if(fnorm <= IDA_mem->ida_epsNewt)
@@ -568,7 +568,7 @@ static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
   if(retval > 0) return(IC_FAIL_RECOV);
 
   /* Compute the WRMS-norm; rescale if index = 0. */
-  *fnorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delnew, IDA_mem->ida_ewt, FALSE);
+  *fnorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delnew, IDA_mem->ida_ewt, SUNFALSE);
   if(IDA_mem->ida_sysindex == 0)
     (*fnorm) *= IDA_mem->ida_tscale * SUNRabs(IDA_mem->ida_cj);
 

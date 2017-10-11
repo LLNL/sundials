@@ -149,7 +149,7 @@ N_Vector N_VNewEmpty_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc,
 
   /* Attach empty data array to content structure */
   content->data     = NULL;
-  content->own_data = FALSE;
+  content->own_data = SUNFALSE;
 
   /* Attach content and ops to generic N_Vector */
   v->content = content;
@@ -189,7 +189,7 @@ N_Vector N_VNew_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc,
     }
     /* Attach data */
     VAttach_Data(v,data);
-    SPV_OWN_DATA(v) = TRUE;
+    SPV_OWN_DATA(v) = SUNTRUE;
   }
 
   return(v);
@@ -217,7 +217,7 @@ N_Vector N_VMake_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc,
   /* Attach data if it has nonzero size*/
   if ( SPV_LOCLENGTH(v) > 0 ) {
     VAttach_Data(v,data);
-    SPV_OWN_DATA(v) = FALSE;
+    SPV_OWN_DATA(v) = SUNFALSE;
   }
   
   return(v);
@@ -471,7 +471,7 @@ N_Vector N_VCloneEmpty_SpcParallel(N_Vector w)
 
   /* Attach empty data array to content structure */
   content->data     = NULL;
-  content->own_data = FALSE;
+  content->own_data = SUNFALSE;
 
   /* Attach content and ops to generic N_Vector */
   v->content = content;
@@ -510,7 +510,7 @@ N_Vector N_VClone_SpcParallel(N_Vector w)
     }
     /* Attach data */
     VAttach_Data(v,data);
-    SPV_OWN_DATA(v) = TRUE;
+    SPV_OWN_DATA(v) = SUNTRUE;
   }
 
   return(v);
@@ -524,7 +524,7 @@ void N_VDestroy_SpcParallel(N_Vector v)
 {
   N_VectorContent_SpcParallel content;
 
-  if ( SPV_OWN_DATA(v) == TRUE ) 
+  if ( SPV_OWN_DATA(v) == SUNTRUE ) 
     if (SPV_DATA(v) != NULL) {
       free(SPV_DATA(v));
       SPV_DATA(v) = NULL;
@@ -1425,8 +1425,8 @@ void N_VCompare_SpcParallel(realtype c, N_Vector x, N_Vector z)
 
 /*
  * N_VInvTest_SpcParallel computes z[i] = 1/x[i] with a test for x[i] == 0 
- * before inverting x[i].  This routine returns TRUE if all components 
- * of x are nonzero (successful inversion) and returns FALSE otherwise. 
+ * before inverting x[i].  This routine returns SUNTRUE if all components 
+ * of x are nonzero (successful inversion) and returns SUNFALSE otherwise. 
  */
 
 booleantype N_VInvTest_SpcParallel(N_Vector x, N_Vector z)
@@ -1474,13 +1474,13 @@ booleantype N_VInvTest_SpcParallel(N_Vector x, N_Vector z)
   /* Obtain global return value from local values */
   MPI_Allreduce(&val, &gval, 1, PVEC_REAL_MPI_TYPE, MPI_MIN, comm);
 
-  if (gval == ZERO)  return(FALSE);
-  else               return(TRUE);
+  if (gval == ZERO)  return(SUNFALSE);
+  else               return(SUNTRUE);
 }
 
 /* 
- * N_VConstrMask_SpcParallel returns a boolean FALSE if any element fails 
- * the constraint test, and TRUE if all passed.  The constraint test 
+ * N_VConstrMask_SpcParallel returns a boolean SUNFALSE if any element fails 
+ * the constraint test, and SUNTRUE if all passed.  The constraint test 
  * is as follows: 
  *       if c[i] =  2.0, then x[i] must be >  0.0
  *       if c[i] =  1.0, then x[i] must be >= 0.0
@@ -1514,7 +1514,7 @@ booleantype N_VConstrMask_SpcParallel(N_Vector c, N_Vector x, N_Vector m)
   comm = SPV_COMM(x);
 
   /* Initialize output variable */
-  test = TRUE;
+  test = SUNTRUE;
   for(ig=0; ig<Ngrp; ig++) {
     xd = SPV_GDATA(x,ig);
     cd = SPV_GDATA(c,ig);
@@ -1532,14 +1532,14 @@ booleantype N_VConstrMask_SpcParallel(N_Vector c, N_Vector x, N_Vector m)
             if (cd[loc] == ZERO) continue;
             if (cd[loc] > ONEPT5 || cd[loc] < -ONEPT5) {
               if (xd[loc]*cd[loc] <= ZERO) {
-                test = FALSE; 
+                test = SUNFALSE; 
                 md[loc] = ONE; 
               }
               continue;
             }
             if (cd[loc] > HALF || cd[loc] < -HALF) {
               if (xd[loc]*cd[loc] < ZERO) {
-                test = FALSE;
+                test = SUNFALSE;
                 md[loc] = ONE;
               }
             }
@@ -1582,7 +1582,7 @@ realtype N_VMinQuotient_SpcParallel(N_Vector x, N_Vector y)
   comm = SPV_COMM(x);
 
   /* Initialize output value, minimum */
-  notEvenOnce = TRUE;
+  notEvenOnce = SUNTRUE;
   min = BIG_REAL;
   for(ig=0; ig<Ngrp; ig++) {
     xd = SPV_GDATA(x,ig);
@@ -1601,7 +1601,7 @@ realtype N_VMinQuotient_SpcParallel(N_Vector x, N_Vector y)
               if (!notEvenOnce) min = SUNMIN(min, xd[loc] / yd[loc]);
               else {
                 min = xd[loc] / yd[loc] ;
-                notEvenOnce = FALSE;
+                notEvenOnce = SUNFALSE;
               }
             }
           }

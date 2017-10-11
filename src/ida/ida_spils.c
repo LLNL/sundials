@@ -104,7 +104,7 @@ int IDASpilsSetLinearSolver(void *ida_mem, SUNLinearSolver LS)
   idaspils_mem->LS = LS;
   
   /* Set defaults for Jacobian-related fields */
-  idaspils_mem->jtimesDQ = TRUE;
+  idaspils_mem->jtimesDQ = SUNTRUE;
   idaspils_mem->jtsetup  = NULL;
   idaspils_mem->jtimes   = IDASpilsDQJtimes;
   idaspils_mem->jdata    = IDA_mem;
@@ -327,10 +327,10 @@ int IDASpilsSetJacTimes(void *ida_mem,
   /* store function pointers for user-supplied routines in IDASpils 
      interface (NULL jtimes implies use of DQ default) */
   if (jtimes != NULL) {
-    idaspils_mem->jtimesDQ = FALSE;
+    idaspils_mem->jtimesDQ = SUNFALSE;
     idaspils_mem->jtimes   = jtimes;
   } else {
-    idaspils_mem->jtimesDQ = TRUE;
+    idaspils_mem->jtimesDQ = SUNTRUE;
   }
   idaspils_mem->jtsetup = jtsetup;
 

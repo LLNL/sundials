@@ -167,7 +167,7 @@ N_Vector N_VNewEmpty_Pthreads(sunindextype length, int num_threads)
 
   content->length      = length;
   content->num_threads = num_threads;
-  content->own_data    = FALSE;
+  content->own_data    = SUNFALSE;
   content->data        = NULL;
 
   /* Attach content and ops */
@@ -199,7 +199,7 @@ N_Vector N_VNew_Pthreads(sunindextype length, int num_threads)
     if(data == NULL) { N_VDestroy_Pthreads(v); return(NULL); }
 
     /* Attach data */
-    NV_OWN_DATA_PT(v) = TRUE;
+    NV_OWN_DATA_PT(v) = SUNTRUE;
     NV_DATA_PT(v)     = data;
 
   }
@@ -221,7 +221,7 @@ N_Vector N_VMake_Pthreads(sunindextype length, int num_threads, realtype *v_data
 
   if (length > 0) {
     /* Attach data */
-    NV_OWN_DATA_PT(v) = FALSE;
+    NV_OWN_DATA_PT(v) = SUNFALSE;
     NV_DATA_PT(v)     = v_data;
   }
 
@@ -396,7 +396,7 @@ N_Vector N_VCloneEmpty_Pthreads(N_Vector w)
 
   content->length      = NV_LENGTH_PT(w);
   content->num_threads = NV_NUM_THREADS_PT(w);
-  content->own_data    = FALSE;
+  content->own_data    = SUNFALSE;
   content->data        = NULL;
 
   /* Attach content and ops */
@@ -432,7 +432,7 @@ N_Vector N_VClone_Pthreads(N_Vector w)
     if(data == NULL) { N_VDestroy_Pthreads(v); return(NULL); }
 
     /* Attach data */
-    NV_OWN_DATA_PT(v) = TRUE;
+    NV_OWN_DATA_PT(v) = SUNTRUE;
     NV_DATA_PT(v)     = data;
 
   }
@@ -446,7 +446,7 @@ N_Vector N_VClone_Pthreads(N_Vector w)
 
 void N_VDestroy_Pthreads(N_Vector v)
 {
-  if (NV_OWN_DATA_PT(v) == TRUE) {
+  if (NV_OWN_DATA_PT(v) == SUNTRUE) {
     free(NV_DATA_PT(v));
     NV_DATA_PT(v) = NULL;
   }
@@ -2049,9 +2049,9 @@ booleantype N_VInvTest_Pthreads(N_Vector x, N_Vector z)
   free(thread_data);
 
   if (val > ZERO)
-    return (FALSE);
+    return (SUNFALSE);
   else
-    return (TRUE);
+    return (SUNTRUE);
 }
 
 
@@ -2147,9 +2147,9 @@ booleantype N_VConstrMask_Pthreads(N_Vector c, N_Vector x, N_Vector m)
   free(thread_data);
 
   if (val > ZERO)
-    return(FALSE);
+    return(SUNFALSE);
   else 
-    return(TRUE);
+    return(SUNTRUE);
 }
 
 

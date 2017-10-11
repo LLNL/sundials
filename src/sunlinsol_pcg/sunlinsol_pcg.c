@@ -292,7 +292,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
 
   /* Initialize counters and convergence flag */
   *nli = 0;
-  converged = FALSE;
+  converged = SUNFALSE;
 
   /* set booleantype flags for internal solver options */
   UsePrec = ( (pretype == PREC_BOTH) || 
@@ -366,7 +366,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
     else N_VScale(ONE, r, Ap);
     *res_norm = rho = SUNRsqrt(N_VDotProd(Ap, Ap));
     if (rho <= delta) {
-      converged = TRUE;
+      converged = SUNTRUE;
       break;
     }
 
@@ -393,7 +393,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
   }
 
   /* Main loop finished, return with result */
-  if (converged == TRUE) {
+  if (converged == SUNTRUE) {
     LASTFLAG(S) = SUNLS_SUCCESS;
   } else if (rho < r0_norm) {
     LASTFLAG(S) = SUNLS_RES_REDUCED;

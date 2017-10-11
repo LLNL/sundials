@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
   flag = CPLapackDense(cpode_mem, N);
 
   flag = CPodeProjInit(cpode_mem, CP_PROJ_L2NORM, CP_CNSTR_NONLIN, cfun, ctols);
-  flag = CPodeSetProjTestCnstr(cpode_mem, TRUE);
+  flag = CPodeSetProjTestCnstr(cpode_mem, SUNTRUE);
   flag = CPLapackDenseProj(cpode_mem, 1, N, CPDLS_QRP);
 
   /* Integrate to TF */

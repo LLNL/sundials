@@ -85,11 +85,11 @@ int CVodeSetCSDerivs(void *cvode_mem, void *f_cs, void *f_data_im)
   }
 
   if (f_data_im == NULL) {
-    cvcs_mem->cvcs_type1  = TRUE;
+    cvcs_mem->cvcs_type1  = SUNTRUE;
     cvcs_mem->cvcs_f_cs1  = (RhsCSFn1) f_cs;
     cvcs_mem->cvcs_f_cs2  = NULL;
   } else {
-    cvcs_mem->cvcs_type1  = FALSE;
+    cvcs_mem->cvcs_type1  = SUNFALSE;
     cvcs_mem->cvcs_f_cs1  = NULL;
     cvcs_mem->cvcs_f_cs2  = (RhsCSFn2) f_cs;
   }
@@ -172,7 +172,7 @@ int CVodeSetSensCSRhs(void *cvode_mem, realtype *p_im)
   }
 
   cv_mem->cv_ifS      = ONESENS;
-  cv_mem->cv_fSDQ     = FALSE;
+  cv_mem->cv_fSDQ     = SUNFALSE;
   cv_mem->cv_fS1      = CVSensRhsCS;
   cv_mem->cv_fS_data  = cvode_mem;
 

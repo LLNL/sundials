@@ -118,15 +118,15 @@ extern "C" {
           data needs to be recomputed, as follows:
             jok == FALSE means recompute Jacobian-related data
                    from scratch.
-            jok == TRUE  means that Jacobian data, if saved from
+            jok == SUNTRUE  means that Jacobian data, if saved from
                    the previous PrecSetup call, can be reused
                    (with the current value of gamma).
-          A Precset call with jok == TRUE can only occur after
+          A Precset call with jok == SUNTRUE can only occur after
           a call with jok == FALSE.
  
   jcurPtr is a pointer to an output integer flag which is
           to be set by PrecSetup as follows:
-          Set *jcurPtr = TRUE if Jacobian data was recomputed.
+          Set *jcurPtr = SUNTRUE if Jacobian data was recomputed.
           Set *jcurPtr = FALSE if Jacobian data was not recomputed,
                          but saved data was reused.
  

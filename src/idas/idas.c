@@ -448,7 +448,7 @@ void *IDACreate(void)
   IDA_mem->ida_res         = NULL;
   IDA_mem->ida_user_data   = NULL;
   IDA_mem->ida_itol        = IDA_NN;
-  IDA_mem->ida_user_efun   = FALSE;
+  IDA_mem->ida_user_efun   = SUNFALSE;
   IDA_mem->ida_efun        = NULL;
   IDA_mem->ida_edata       = NULL;
   IDA_mem->ida_ehfun       = IDAErrHandler;
@@ -462,11 +462,11 @@ void *IDACreate(void)
   IDA_mem->ida_maxnef      = MXNEF;
   IDA_mem->ida_maxncf      = MXNCF;
   IDA_mem->ida_maxcor      = MAXIT;
-  IDA_mem->ida_suppressalg = FALSE;
+  IDA_mem->ida_suppressalg = SUNFALSE;
   IDA_mem->ida_id          = NULL;
   IDA_mem->ida_constraints = NULL;
-  IDA_mem->ida_constraintsSet = FALSE;
-  IDA_mem->ida_tstopset    = FALSE;
+  IDA_mem->ida_constraintsSet = SUNFALSE;
+  IDA_mem->ida_tstopset    = SUNFALSE;
 
   /* set the saved value maxord_alloc */
   IDA_mem->ida_maxord_alloc = MAXORD_DEFAULT;
@@ -477,39 +477,39 @@ void *IDACreate(void)
   IDA_mem->ida_maxnj   = MAXNJ;
   IDA_mem->ida_maxnit  = MAXNI;
   IDA_mem->ida_maxbacks  = MAXBACKS;
-  IDA_mem->ida_lsoff   = FALSE;
+  IDA_mem->ida_lsoff   = SUNFALSE;
   IDA_mem->ida_steptol = SUNRpowerR(IDA_mem->ida_uround, TWOTHIRDS);
 
   /* Set default values for quad. optional inputs */
-  IDA_mem->ida_quadr      = FALSE;
+  IDA_mem->ida_quadr      = SUNFALSE;
   IDA_mem->ida_rhsQ       = NULL;
-  IDA_mem->ida_errconQ    = FALSE;
+  IDA_mem->ida_errconQ    = SUNFALSE;
   IDA_mem->ida_itolQ      = IDA_NN;
 
   /* Set default values for sensi. optional inputs */
-  IDA_mem->ida_sensi        = FALSE;
+  IDA_mem->ida_sensi        = SUNFALSE;
   IDA_mem->ida_user_dataS   = (void *)IDA_mem;
   IDA_mem->ida_resS         = IDASensResDQ;
-  IDA_mem->ida_resSDQ       = TRUE;
+  IDA_mem->ida_resSDQ       = SUNTRUE;
   IDA_mem->ida_DQtype       = IDA_CENTERED;
   IDA_mem->ida_DQrhomax     = ZERO;
   IDA_mem->ida_p            = NULL;
   IDA_mem->ida_pbar         = NULL;
   IDA_mem->ida_plist        = NULL;
-  IDA_mem->ida_errconS      = FALSE;
+  IDA_mem->ida_errconS      = SUNFALSE;
   IDA_mem->ida_maxcorS      = MAXIT;
   IDA_mem->ida_itolS        = IDA_EE;
 
   /* Defaults for sensi. quadr. optional inputs. */
-  IDA_mem->ida_quadr_sensi  = FALSE;
+  IDA_mem->ida_quadr_sensi  = SUNFALSE;
   IDA_mem->ida_user_dataQS  = (void *)IDA_mem;
   IDA_mem->ida_rhsQS        = IDAQuadSensRhsInternalDQ;
-  IDA_mem->ida_rhsQSDQ      = TRUE;
-  IDA_mem->ida_errconQS     = FALSE;
+  IDA_mem->ida_rhsQSDQ      = SUNTRUE;
+  IDA_mem->ida_errconQS     = SUNFALSE;
   IDA_mem->ida_itolQS       = IDA_EE;
 
   /* Set defaults for ASA. */
-  IDA_mem->ida_adj     = FALSE;
+  IDA_mem->ida_adj     = SUNFALSE;
   IDA_mem->ida_adj_mem = NULL;
 
   /* Initialize lrw and liw */
@@ -518,23 +518,23 @@ void *IDACreate(void)
 
   /* No mallocs have been done yet */
 
-  IDA_mem->ida_VatolMallocDone       = FALSE;
-  IDA_mem->ida_constraintsMallocDone = FALSE;
-  IDA_mem->ida_idMallocDone          = FALSE;
-  IDA_mem->ida_MallocDone            = FALSE;
+  IDA_mem->ida_VatolMallocDone       = SUNFALSE;
+  IDA_mem->ida_constraintsMallocDone = SUNFALSE;
+  IDA_mem->ida_idMallocDone          = SUNFALSE;
+  IDA_mem->ida_MallocDone            = SUNFALSE;
 
-  IDA_mem->ida_VatolQMallocDone      = FALSE;
-  IDA_mem->ida_quadMallocDone        = FALSE;
+  IDA_mem->ida_VatolQMallocDone      = SUNFALSE;
+  IDA_mem->ida_quadMallocDone        = SUNFALSE;
 
-  IDA_mem->ida_VatolSMallocDone      = FALSE;
-  IDA_mem->ida_SatolSMallocDone      = FALSE;
-  IDA_mem->ida_sensMallocDone        = FALSE;
+  IDA_mem->ida_VatolSMallocDone      = SUNFALSE;
+  IDA_mem->ida_SatolSMallocDone      = SUNFALSE;
+  IDA_mem->ida_sensMallocDone        = SUNFALSE;
 
-  IDA_mem->ida_VatolQSMallocDone      = FALSE;
-  IDA_mem->ida_SatolQSMallocDone      = FALSE;
-  IDA_mem->ida_quadSensMallocDone     = FALSE;
+  IDA_mem->ida_VatolQSMallocDone      = SUNFALSE;
+  IDA_mem->ida_SatolQSMallocDone      = SUNFALSE;
+  IDA_mem->ida_quadSensMallocDone     = SUNFALSE;
 
-  IDA_mem->ida_adjMallocDone          = FALSE;
+  IDA_mem->ida_adjMallocDone          = SUNFALSE;
 
   /* Return pointer to IDA memory block */
   return((void *)IDA_mem);
@@ -626,9 +626,9 @@ int IDAInit(void *ida_mem, IDAResFn res,
   IDA_mem->ida_lfree  = NULL;
   IDA_mem->ida_lmem   = NULL;
 
-  /* Set forceSetup to FALSE */
+  /* Set forceSetup to SUNFALSE */
 
-  IDA_mem->ida_forceSetup = FALSE;
+  IDA_mem->ida_forceSetup = SUNFALSE;
 
   /* Initialize the phi array */
 
@@ -669,11 +669,11 @@ int IDAInit(void *ida_mem, IDAResFn res,
 
   /* Initial setup not done yet */
 
-  IDA_mem->ida_SetupDone = FALSE;
+  IDA_mem->ida_SetupDone = SUNFALSE;
 
   /* Problem memory has been successfully allocated */
 
-  IDA_mem->ida_MallocDone = TRUE;
+  IDA_mem->ida_MallocDone = SUNTRUE;
 
   return(IDA_SUCCESS);
 }
@@ -709,7 +709,7 @@ int IDAReInit(void *ida_mem,
 
   /* Check if problem was malloc'ed */
   
-  if (IDA_mem->ida_MallocDone == FALSE) {
+  if (IDA_mem->ida_MallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_MALLOC, "IDAS", "IDAReInit", MSG_NO_MALLOC);
     return(IDA_NO_MALLOC);
   }
@@ -730,9 +730,9 @@ int IDAReInit(void *ida_mem,
 
   IDA_mem->ida_tn  = t0;
 
-  /* Set forceSetup to FALSE */
+  /* Set forceSetup to SUNFALSE */
 
-  IDA_mem->ida_forceSetup = FALSE;
+  IDA_mem->ida_forceSetup = SUNFALSE;
 
   /* Initialize the phi array */
 
@@ -758,7 +758,7 @@ int IDAReInit(void *ida_mem,
 
   /* Initial setup not done yet */
 
-  IDA_mem->ida_SetupDone = FALSE;
+  IDA_mem->ida_SetupDone = SUNFALSE;
       
   /* Problem has been successfully re-initialized */
 
@@ -793,7 +793,7 @@ int IDASStolerances(void *ida_mem, realtype reltol, realtype abstol)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_MallocDone == FALSE) {
+  if (IDA_mem->ida_MallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_MALLOC, "IDAS", "IDASStolerances", MSG_NO_MALLOC);
     return(IDA_NO_MALLOC);
   }
@@ -815,7 +815,7 @@ int IDASStolerances(void *ida_mem, realtype reltol, realtype abstol)
 
   IDA_mem->ida_itol = IDA_SS;
 
-  IDA_mem->ida_user_efun = FALSE;
+  IDA_mem->ida_user_efun = SUNFALSE;
   IDA_mem->ida_efun = IDAEwtSet;
   IDA_mem->ida_edata = NULL; /* will be set to ida_mem in InitialSetup */ 
 
@@ -833,7 +833,7 @@ int IDASVtolerances(void *ida_mem, realtype reltol, N_Vector abstol)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_MallocDone == FALSE) {
+  if (IDA_mem->ida_MallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_MALLOC, "IDAS", "IDASVtolerances", MSG_NO_MALLOC);
     return(IDA_NO_MALLOC);
   }
@@ -856,7 +856,7 @@ int IDASVtolerances(void *ida_mem, realtype reltol, N_Vector abstol)
     IDA_mem->ida_Vatol = N_VClone(IDA_mem->ida_ewt);
     IDA_mem->ida_lrw += IDA_mem->ida_lrw1;
     IDA_mem->ida_liw += IDA_mem->ida_liw1;
-    IDA_mem->ida_VatolMallocDone = TRUE;
+    IDA_mem->ida_VatolMallocDone = SUNTRUE;
   }
 
   IDA_mem->ida_rtol = reltol;
@@ -864,7 +864,7 @@ int IDASVtolerances(void *ida_mem, realtype reltol, N_Vector abstol)
 
   IDA_mem->ida_itol = IDA_SV;
 
-  IDA_mem->ida_user_efun = FALSE;
+  IDA_mem->ida_user_efun = SUNFALSE;
   IDA_mem->ida_efun = IDAEwtSet;
   IDA_mem->ida_edata = NULL; /* will be set to ida_mem in InitialSetup */ 
 
@@ -882,14 +882,14 @@ int IDAWFtolerances(void *ida_mem, IDAEwtFn efun)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_MallocDone == FALSE) {
+  if (IDA_mem->ida_MallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_MALLOC, "IDAS", "IDAWFtolerances", MSG_NO_MALLOC);
     return(IDA_NO_MALLOC);
   }
 
   IDA_mem->ida_itol = IDA_WF;
 
-  IDA_mem->ida_user_efun = TRUE;
+  IDA_mem->ida_user_efun = SUNTRUE;
   IDA_mem->ida_efun = efun;
   IDA_mem->ida_edata = NULL; /* will be set to user_data in InitialSetup */
 
@@ -949,8 +949,8 @@ int IDAQuadInit(void *ida_mem, IDAQuadRhsFn rhsQ, N_Vector yQ0)
   IDA_mem->ida_netfQ = 0;
 
   /* Quadrature integration turned ON */
-  IDA_mem->ida_quadr = TRUE;
-  IDA_mem->ida_quadMallocDone = TRUE;
+  IDA_mem->ida_quadr = SUNTRUE;
+  IDA_mem->ida_quadMallocDone = SUNTRUE;
 
   /* Quadrature initialization was successfull */
   return(IDA_SUCCESS);
@@ -984,7 +984,7 @@ int IDAQuadReInit(void *ida_mem, N_Vector yQ0)
   IDA_mem = (IDAMem) ida_mem;
 
   /* Ckeck if quadrature was initialized */
-  if (IDA_mem->ida_quadMallocDone == FALSE) {
+  if (IDA_mem->ida_quadMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_QUAD, "IDAS", "IDAQuadReInit", MSG_NO_QUAD);
     return(IDA_NO_QUAD);
   }
@@ -1000,7 +1000,7 @@ int IDAQuadReInit(void *ida_mem, N_Vector yQ0)
   IDA_mem->ida_netfQ = 0;
 
   /* Quadrature integration turned ON */
-  IDA_mem->ida_quadr = TRUE;
+  IDA_mem->ida_quadr = SUNTRUE;
 
   /* Quadrature re-initialization was successfull */
   return(IDA_SUCCESS);
@@ -1034,7 +1034,7 @@ int IDAQuadSStolerances(void *ida_mem, realtype reltolQ, realtype abstolQ)
   IDA_mem = (IDAMem) ida_mem;
 
   /* Ckeck if quadrature was initialized */
-  if (IDA_mem->ida_quadMallocDone == FALSE) {
+  if (IDA_mem->ida_quadMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_QUAD, "IDAS", "IDAQuadSStolerances", MSG_NO_QUAD);
     return(IDA_NO_QUAD);
   }
@@ -1072,7 +1072,7 @@ int IDAQuadSVtolerances(void *ida_mem, realtype reltolQ, N_Vector abstolQ)
   IDA_mem = (IDAMem) ida_mem;
 
   /* Ckeck if quadrature was initialized */
-  if (IDA_mem->ida_quadMallocDone == FALSE) {
+  if (IDA_mem->ida_quadMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_QUAD, "IDAS", "IDAQuadSVtolerances", MSG_NO_QUAD);
     return(IDA_NO_QUAD);
   }
@@ -1098,11 +1098,11 @@ int IDAQuadSVtolerances(void *ida_mem, realtype reltolQ, N_Vector abstolQ)
   IDA_mem->ida_rtolQ = reltolQ;
 
   /* clone the absolute tolerances vector (if necessary) */
-  if (FALSE == IDA_mem->ida_VatolQMallocDone) {
+  if (SUNFALSE == IDA_mem->ida_VatolQMallocDone) {
     IDA_mem->ida_VatolQ = N_VClone(abstolQ);
     IDA_mem->ida_lrw += IDA_mem->ida_lrw1Q;
     IDA_mem->ida_liw += IDA_mem->ida_liw1Q;
-    IDA_mem->ida_VatolQMallocDone = TRUE;
+    IDA_mem->ida_VatolQMallocDone = SUNTRUE;
   }
 
   N_VScale(ONE, abstolQ, IDA_mem->ida_VatolQ);
@@ -1166,11 +1166,11 @@ int IDASensInit(void *ida_mem, int Ns, int ism,
   if (fS != NULL) {
     IDA_mem->ida_resS    = fS;
     IDA_mem->ida_user_dataS  = IDA_mem->ida_user_data;
-    IDA_mem->ida_resSDQ  = FALSE;
+    IDA_mem->ida_resSDQ  = SUNFALSE;
   } else {
     IDA_mem->ida_resS       = IDASensResDQ;
     IDA_mem->ida_user_dataS = ida_mem;
-    IDA_mem->ida_resSDQ     = TRUE;
+    IDA_mem->ida_resSDQ     = SUNTRUE;
   }
 
   /* Allocate the vectors (using yS0[0] as a template) */
@@ -1206,8 +1206,8 @@ int IDASensInit(void *ida_mem, int Ns, int ism,
   }
 
   /* Sensitivities will be computed */
-  IDA_mem->ida_sensi = TRUE;
-  IDA_mem->ida_sensMallocDone = TRUE;
+  IDA_mem->ida_sensi = SUNTRUE;
+  IDA_mem->ida_sensMallocDone = SUNTRUE;
 
   /* Sensitivity initialization was successfull */
   return(IDA_SUCCESS);
@@ -1243,7 +1243,7 @@ int IDASensReInit(void *ida_mem, int ism, N_Vector *yS0, N_Vector *ypS0)
   IDA_mem = (IDAMem) ida_mem;
 
   /* Was sensitivity initialized? */
-  if (IDA_mem->ida_sensMallocDone == FALSE) {
+  if (IDA_mem->ida_sensMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDASensReInit", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   } 
@@ -1290,7 +1290,7 @@ int IDASensReInit(void *ida_mem, int ism, N_Vector *yS0, N_Vector *ypS0)
   }
 
   /* Sensitivities will be computed */
-  IDA_mem->ida_sensi = TRUE;
+  IDA_mem->ida_sensi = SUNTRUE;
 
   /* Sensitivity re-initialization was successfull */
   return(IDA_SUCCESS);
@@ -1329,7 +1329,7 @@ int IDASensSStolerances(void *ida_mem, realtype reltolS, realtype *abstolS)
 
   /* Was sensitivity initialized? */
 
-  if (IDA_mem->ida_sensMallocDone == FALSE) {
+  if (IDA_mem->ida_sensMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDASensSStolerances", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   } 
@@ -1362,7 +1362,7 @@ int IDASensSStolerances(void *ida_mem, realtype reltolS, realtype *abstolS)
     IDA_mem->ida_SatolS = NULL;
     IDA_mem->ida_SatolS = (realtype *)malloc(IDA_mem->ida_Ns*sizeof(realtype));
     IDA_mem->ida_lrw += IDA_mem->ida_Ns;
-    IDA_mem->ida_SatolSMallocDone = TRUE;
+    IDA_mem->ida_SatolSMallocDone = SUNTRUE;
   }
 
   for (is=0; is<IDA_mem->ida_Ns; is++)
@@ -1386,7 +1386,7 @@ int IDASensSVtolerances(void *ida_mem,  realtype reltolS, N_Vector *abstolS)
 
   /* Was sensitivity initialized? */
 
-  if (IDA_mem->ida_sensMallocDone == FALSE) {
+  if (IDA_mem->ida_sensMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDASensSVtolerances", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   } 
@@ -1413,11 +1413,11 @@ int IDASensSVtolerances(void *ida_mem,  realtype reltolS, N_Vector *abstolS)
   IDA_mem->ida_itolS = IDA_SV;
   IDA_mem->ida_rtolS = reltolS ;
 
-  if ( FALSE == IDA_mem->ida_VatolSMallocDone ) {
+  if ( SUNFALSE == IDA_mem->ida_VatolSMallocDone ) {
     IDA_mem->ida_VatolS = N_VCloneVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_tempv1);
     IDA_mem->ida_lrw += IDA_mem->ida_Ns*IDA_mem->ida_lrw1;
     IDA_mem->ida_liw += IDA_mem->ida_Ns*IDA_mem->ida_liw1;
-    IDA_mem->ida_VatolSMallocDone = TRUE;
+    IDA_mem->ida_VatolSMallocDone = SUNTRUE;
   }
   
   for (is=0; is<IDA_mem->ida_Ns; is++)    
@@ -1438,7 +1438,7 @@ int IDASensEEtolerances(void *ida_mem)
 
   /* Was sensitivity initialized? */
 
-  if (IDA_mem->ida_sensMallocDone == FALSE) {
+  if (IDA_mem->ida_sensMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDASensEEtolerances", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   } 
@@ -1482,12 +1482,12 @@ int IDAQuadSensInit(void *ida_mem, IDAQuadSensRhsFn rhsQS, N_Vector *yQS0)
 
   /* Error checking complete. */
   if (rhsQS == NULL) {
-    IDA_mem->ida_rhsQSDQ = TRUE;
+    IDA_mem->ida_rhsQSDQ = SUNTRUE;
     IDA_mem->ida_rhsQS = IDAQuadSensRhsInternalDQ;
 
     IDA_mem->ida_user_dataQS = ida_mem;
   } else {
-    IDA_mem->ida_rhsQSDQ = FALSE;
+    IDA_mem->ida_rhsQSDQ = SUNFALSE;
     IDA_mem->ida_rhsQS = rhsQS;
 
     IDA_mem->ida_user_dataQS = IDA_mem->ida_user_data;
@@ -1503,8 +1503,8 @@ int IDAQuadSensInit(void *ida_mem, IDAQuadSensRhsFn rhsQS, N_Vector *yQS0)
   IDA_mem->ida_netfQS = 0;
 
   /* Everything allright, set the flags and return with success. */
-  IDA_mem->ida_quadr_sensi = TRUE;
-  IDA_mem->ida_quadSensMallocDone = TRUE;
+  IDA_mem->ida_quadr_sensi = SUNTRUE;
+  IDA_mem->ida_quadSensMallocDone = SUNTRUE;
 
   return(IDA_SUCCESS);
 }
@@ -1550,7 +1550,7 @@ int IDAQuadSensReInit(void *ida_mem, N_Vector *yQS0)
   IDA_mem->ida_netfQS = 0;
 
   /* Everything allright, set the flags and return with success. */
-  IDA_mem->ida_quadr_sensi = TRUE;
+  IDA_mem->ida_quadr_sensi = SUNTRUE;
 
   return(IDA_SUCCESS);
 }
@@ -1622,7 +1622,7 @@ int IDAQuadSensSStolerances(void *ida_mem, realtype reltolQS, realtype *abstolQS
   if ( !(IDA_mem->ida_SatolQSMallocDone) ) {
     IDA_mem->ida_SatolQS = (realtype *)malloc(IDA_mem->ida_Ns*sizeof(realtype));
     IDA_mem->ida_lrw += IDA_mem->ida_Ns;
-    IDA_mem->ida_SatolQSMallocDone = TRUE;
+    IDA_mem->ida_SatolQSMallocDone = SUNTRUE;
   }
 
   for (is=0; is<IDA_mem->ida_Ns; is++)
@@ -1680,7 +1680,7 @@ int IDAQuadSensSVtolerances(void *ida_mem, realtype reltolQS, N_Vector *abstolQS
     IDA_mem->ida_VatolQS = N_VCloneVectorArray(IDA_mem->ida_Ns, abstolQS[0]);
     IDA_mem->ida_lrw += IDA_mem->ida_Ns*IDA_mem->ida_lrw1Q;
     IDA_mem->ida_liw += IDA_mem->ida_Ns*IDA_mem->ida_liw1Q;
-    IDA_mem->ida_VatolQSMallocDone = TRUE;
+    IDA_mem->ida_VatolQSMallocDone = SUNTRUE;
   }
   
   for (is=0; is<IDA_mem->ida_Ns; is++)    
@@ -1734,8 +1734,8 @@ int IDASensToggleOff(void *ida_mem)
   IDA_mem = (IDAMem) ida_mem;
 
   /* Disable sensitivities */
-  IDA_mem->ida_sensi = FALSE;
-  IDA_mem->ida_quadr_sensi = FALSE;
+  IDA_mem->ida_sensi = SUNFALSE;
+  IDA_mem->ida_quadr_sensi = SUNFALSE;
 
   return(IDA_SUCCESS);
 }
@@ -1888,7 +1888,7 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
   for(i=0; i<nrt; i++) IDA_mem->ida_rootdir[i] = 0;
 
   /* Set default values for gactive (all active) */
-  for(i=0; i<nrt; i++) IDA_mem->ida_gactive[i] = TRUE;
+  for(i=0; i<nrt; i++) IDA_mem->ida_gactive[i] = SUNTRUE;
 
   IDA_mem->ida_lrw += 3*nrt;
   IDA_mem->ida_liw += 3*nrt;
@@ -1959,7 +1959,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Check if problem was malloc'ed */
-  if (IDA_mem->ida_MallocDone == FALSE) {
+  if (IDA_mem->ida_MallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_MALLOC, "IDAS", "IDASolve", MSG_NO_MALLOC);
     return(IDA_NO_MALLOC);
   }
@@ -2013,10 +2013,10 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
   if (IDA_mem->ida_nst == 0) {       /* This is the first call */
 
     /* Check inputs to IDA for correctness and consistency */
-    if (IDA_mem->ida_SetupDone == FALSE) {
+    if (IDA_mem->ida_SetupDone == SUNFALSE) {
       ier = IDAInitialSetup(IDA_mem);
       if (ier != IDA_SUCCESS) return(ier);
-      IDA_mem->ida_SetupDone = TRUE;
+      IDA_mem->ida_SetupDone = SUNTRUE;
     }
 
     /* On first call, check for tout - tn too small, set initial hh,
@@ -2307,10 +2307,10 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
        * of the root function. */
 
       if (IDA_mem->ida_nst==1) {
-        inactive_roots = FALSE;
+        inactive_roots = SUNFALSE;
         for (ir=0; ir<IDA_mem->ida_nrtfn; ir++) { 
           if (!IDA_mem->ida_gactive[ir]) {
-            inactive_roots = TRUE;
+            inactive_roots = SUNTRUE;
             break;
           }
         }
@@ -2499,7 +2499,7 @@ int IDAGetQuadDky(void *ida_mem, realtype t, int k, N_Vector dkyQ)
   IDA_mem = (IDAMem) ida_mem; 
 
   /* Ckeck if quadrature was initialized */
-  if (IDA_mem->ida_quadr != TRUE) {
+  if (IDA_mem->ida_quadr != SUNTRUE) {
     IDAProcessError(IDA_mem, IDA_NO_QUAD, "IDAS", "IDAGetQuadDky", MSG_NO_QUAD);
     return(IDA_NO_QUAD);
   }
@@ -2591,7 +2591,7 @@ int IDAGetSens(void *ida_mem, realtype *ptret, N_Vector *yySout)
   }
 
   /* Is the sensibility enabled? */
-  if (IDA_mem->ida_sensi==FALSE) {
+  if (IDA_mem->ida_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetSens", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
@@ -2625,7 +2625,7 @@ int IDAGetSensDky(void *ida_mem, realtype t, int k, N_Vector *dkySout)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_sensi==FALSE) {
+  if (IDA_mem->ida_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetSensDky", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
@@ -2700,7 +2700,7 @@ int IDAGetSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyS)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_sensi==FALSE) {
+  if (IDA_mem->ida_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetSensDky1", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
@@ -2798,7 +2798,7 @@ int IDAGetQuadSens(void *ida_mem, realtype *ptret, N_Vector *yyQSout)
   }
 
   /* Is the sensibility enabled? */
-  if (IDA_mem->ida_quadr_sensi==FALSE) {
+  if (IDA_mem->ida_quadr_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetQuadSens", MSG_NO_QUADSENSI);
     return(IDA_NO_SENS);
   }
@@ -2832,12 +2832,12 @@ int IDAGetQuadSensDky(void *ida_mem, realtype t, int k, N_Vector *dkyQSout)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_sensi==FALSE) {
+  if (IDA_mem->ida_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetQuadSensDky", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
 
-  if (IDA_mem->ida_quadr_sensi==FALSE) {
+  if (IDA_mem->ida_quadr_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_QUADSENS, "IDAS", "IDAGetQuadSensDky", MSG_NO_QUADSENSI);
     return(IDA_NO_QUADSENS);
   }
@@ -2879,12 +2879,12 @@ int IDAGetQuadSens1(void *ida_mem, realtype *ptret, int is, N_Vector yyQSret)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_sensi==FALSE) {
+  if (IDA_mem->ida_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetQuadSens1", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
 
-  if (IDA_mem->ida_quadr_sensi==FALSE) {
+  if (IDA_mem->ida_quadr_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_QUADSENS, "IDAS", "IDAGetQuadSens1", MSG_NO_QUADSENSI);
     return(IDA_NO_QUADSENS);
   }
@@ -2927,12 +2927,12 @@ int IDAGetQuadSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyQS)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_sensi==FALSE) {
+  if (IDA_mem->ida_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetQuadSensDky1", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
 
-  if (IDA_mem->ida_quadr_sensi==FALSE) {
+  if (IDA_mem->ida_quadr_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_QUADSENS, "IDAS", "IDAGetQuadSensDky1", MSG_NO_QUADSENSI);
     return(IDA_NO_QUADSENS);
   }
@@ -3069,8 +3069,8 @@ void IDAQuadFree(void *ida_mem)
 
   if(IDA_mem->ida_quadMallocDone) {
     IDAQuadFreeVectors(IDA_mem);
-    IDA_mem->ida_quadMallocDone = FALSE;
-    IDA_mem->ida_quadr = FALSE;
+    IDA_mem->ida_quadMallocDone = SUNFALSE;
+    IDA_mem->ida_quadr = SUNFALSE;
   }
 }
 
@@ -3091,8 +3091,8 @@ void IDASensFree(void *ida_mem)
 
   if(IDA_mem->ida_sensMallocDone) {
     IDASensFreeVectors(IDA_mem);
-    IDA_mem->ida_sensMallocDone = FALSE;
-    IDA_mem->ida_sensi = FALSE;
+    IDA_mem->ida_sensMallocDone = SUNFALSE;
+    IDA_mem->ida_sensi = SUNFALSE;
   }
 }
 
@@ -3112,8 +3112,8 @@ void IDAQuadSensFree(void* ida_mem)
 
   if (IDA_mem->ida_quadSensMallocDone) {
     IDAQuadSensFreeVectors(IDA_mem);
-    IDA_mem->ida_quadSensMallocDone=FALSE;
-    IDA_mem->ida_quadr_sensi = FALSE;
+    IDA_mem->ida_quadSensMallocDone=SUNFALSE;
+    IDA_mem->ida_quadr_sensi = SUNFALSE;
   }
 }
 
@@ -3127,7 +3127,7 @@ void IDAQuadSensFree(void* ida_mem)
  * IDACheckNvector
  *
  * This routine checks if all required vector operations are present.
- * If any of them is missing it returns FALSE.
+ * If any of them is missing it returns SUNFALSE.
  */
 
 static booleantype IDACheckNvector(N_Vector tmpl)
@@ -3143,9 +3143,9 @@ static booleantype IDACheckNvector(N_Vector tmpl)
      (tmpl->ops->nvaddconst     == NULL) ||
      (tmpl->ops->nvwrmsnorm     == NULL) ||
      (tmpl->ops->nvmin          == NULL))
-    return(FALSE);
+    return(SUNFALSE);
   else
-    return(TRUE);
+    return(SUNTRUE);
 }
 
 /* 
@@ -3160,8 +3160,8 @@ static booleantype IDACheckNvector(N_Vector tmpl)
  * This routine allocates the IDA vectors ewt, tempv1, tempv2, and
  * phi[0], ..., phi[maxord].
  * If all memory allocations are successful, IDAAllocVectors returns 
- * TRUE. Otherwise all allocated memory is freed and IDAAllocVectors 
- * returns FALSE.
+ * SUNTRUE. Otherwise all allocated memory is freed and IDAAllocVectors 
+ * returns SUNFALSE.
  * This routine also sets the optional outputs lrw and liw, which are
  * (respectively) the lengths of the real and integer work spaces
  * allocated here.
@@ -3174,19 +3174,19 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
   /* Allocate ewt, ee, delta, tempv1, tempv2 */
   
   IDA_mem->ida_ewt = N_VClone(tmpl);
-  if (IDA_mem->ida_ewt == NULL) return(FALSE);
+  if (IDA_mem->ida_ewt == NULL) return(SUNFALSE);
 
   IDA_mem->ida_ee = N_VClone(tmpl);
   if (IDA_mem->ida_ee == NULL) {
     N_VDestroy(IDA_mem->ida_ewt);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   IDA_mem->ida_delta = N_VClone(tmpl);
   if (IDA_mem->ida_delta == NULL) {
     N_VDestroy(IDA_mem->ida_ewt);
     N_VDestroy(IDA_mem->ida_ee);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   IDA_mem->ida_tempv1 = N_VClone(tmpl);
@@ -3194,7 +3194,7 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
     N_VDestroy(IDA_mem->ida_ewt);
     N_VDestroy(IDA_mem->ida_ee);
     N_VDestroy(IDA_mem->ida_delta);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   IDA_mem->ida_tempv2= N_VClone(tmpl);
@@ -3203,7 +3203,7 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
     N_VDestroy(IDA_mem->ida_ee);
     N_VDestroy(IDA_mem->ida_delta);
     N_VDestroy(IDA_mem->ida_tempv1);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   IDA_mem->ida_savres = IDA_mem->ida_tempv1;
@@ -3222,7 +3222,7 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
       N_VDestroy(IDA_mem->ida_tempv2);
       for (i=0; i < j; i++)
         N_VDestroy(IDA_mem->ida_phi[i]);
-      return(FALSE);
+      return(SUNFALSE);
     }
   }
 
@@ -3233,7 +3233,7 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
   /* Store the value of maxord used here */
   IDA_mem->ida_maxord_alloc = IDA_mem->ida_maxord;
 
-  return(TRUE);
+  return(SUNTRUE);
 }
 
 /*
@@ -3283,11 +3283,11 @@ static void IDAFreeVectors(IDAMem IDA_mem)
 /*
  * IDAQuadAllocVectors
  *
- * NOTE: Space for ewtQ is allocated even when errconQ=FALSE, 
+ * NOTE: Space for ewtQ is allocated even when errconQ=SUNFALSE, 
  * although in this case, ewtQ is never used. The reason for this
  * decision is to allow the user to re-initialize the quadrature
- * computation with errconQ=TRUE, after an initialization with
- * errconQ=FALSE, without new memory allocation within 
+ * computation with errconQ=SUNTRUE, after an initialization with
+ * errconQ=SUNFALSE, without new memory allocation within 
  * IDAQuadReInit.
  */
 
@@ -3298,14 +3298,14 @@ static booleantype IDAQuadAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
   /* Allocate yyQ */
   IDA_mem->ida_yyQ = N_VClone(tmpl);
   if (IDA_mem->ida_yyQ == NULL) {
-    return (FALSE);
+    return (SUNFALSE);
   }
 
   /* Allocate ypQ */
   IDA_mem->ida_ypQ = N_VClone(tmpl);
   if (IDA_mem->ida_ypQ == NULL) {
     N_VDestroy(IDA_mem->ida_yyQ);
-    return (FALSE);
+    return (SUNFALSE);
   }
 
   /* Allocate ewtQ */
@@ -3313,7 +3313,7 @@ static booleantype IDAQuadAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
   if (IDA_mem->ida_ewtQ == NULL) {
     N_VDestroy(IDA_mem->ida_yyQ);
     N_VDestroy(IDA_mem->ida_ypQ);
-    return (FALSE);
+    return (SUNFALSE);
   }
 
   /* Allocate eeQ */
@@ -3322,7 +3322,7 @@ static booleantype IDAQuadAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
     N_VDestroy(IDA_mem->ida_yyQ);
     N_VDestroy(IDA_mem->ida_ypQ);
     N_VDestroy(IDA_mem->ida_ewtQ);
-    return (FALSE);
+    return (SUNFALSE);
   }
 
   for (j=0; j <= IDA_mem->ida_maxord; j++) {
@@ -3333,14 +3333,14 @@ static booleantype IDAQuadAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
       N_VDestroy(IDA_mem->ida_ewtQ);
       N_VDestroy(IDA_mem->ida_eeQ);
       for (i=0; i < j; i++) N_VDestroy(IDA_mem->ida_phiQ[i]);
-      return(FALSE);
+      return(SUNFALSE);
     }
   }
 
   IDA_mem->ida_lrw += (IDA_mem->ida_maxord+4)*IDA_mem->ida_lrw1Q;
   IDA_mem->ida_liw += (IDA_mem->ida_maxord+4)*IDA_mem->ida_liw1Q;
 
-  return(TRUE);
+  return(SUNTRUE);
 }
 
 
@@ -3373,7 +3373,7 @@ static void IDAQuadFreeVectors(IDAMem IDA_mem)
     IDA_mem->ida_liw -= IDA_mem->ida_liw1Q;
   }
 
-  IDA_mem->ida_VatolQMallocDone = FALSE;
+  IDA_mem->ida_VatolQMallocDone = SUNFALSE;
 }
 
 /*
@@ -3393,20 +3393,20 @@ static booleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
 
   IDA_mem->ida_tmpS3 = N_VClone(tmpl);
   if (IDA_mem->ida_tmpS3==NULL) {
-    return(FALSE);
+    return(SUNFALSE);
   }
   
   IDA_mem->ida_ewtS = N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl);
   if (IDA_mem->ida_ewtS==NULL) {
     N_VDestroy(IDA_mem->ida_tmpS3);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   IDA_mem->ida_eeS = N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl);
   if (IDA_mem->ida_eeS==NULL) {
     N_VDestroy(IDA_mem->ida_tmpS3);
     N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   IDA_mem->ida_yyS = N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl);
@@ -3414,7 +3414,7 @@ static booleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
     N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns);
     N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns);
     N_VDestroy(IDA_mem->ida_tmpS3);
-    return(FALSE);
+    return(SUNFALSE);
   }
   
   IDA_mem->ida_ypS = N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl);
@@ -3423,7 +3423,7 @@ static booleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
     N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns);
     N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns);
     N_VDestroy(IDA_mem->ida_tmpS3);
-    return(FALSE);
+    return(SUNFALSE);
   }
   
   IDA_mem->ida_deltaS = N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl);
@@ -3433,7 +3433,7 @@ static booleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
     N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns);
     N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns);
     N_VDestroy(IDA_mem->ida_tmpS3);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   /* Update solver workspace lengths */
@@ -3454,7 +3454,7 @@ static booleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
       N_VDestroyVectorArray(IDA_mem->ida_yyS, IDA_mem->ida_Ns);
       N_VDestroyVectorArray(IDA_mem->ida_ypS, IDA_mem->ida_Ns);
       N_VDestroyVectorArray(IDA_mem->ida_deltaS, IDA_mem->ida_Ns);
-      return(FALSE);
+      return(SUNFALSE);
     }
   }
 
@@ -3474,7 +3474,7 @@ static booleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
     N_VDestroyVectorArray(IDA_mem->ida_ypS, IDA_mem->ida_Ns);
     N_VDestroyVectorArray(IDA_mem->ida_deltaS, IDA_mem->ida_Ns);
     for (j=0; j<=maxcol; j++) N_VDestroyVectorArray(IDA_mem->ida_phiS[j], IDA_mem->ida_Ns);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   IDA_mem->ida_plist = NULL;
@@ -3487,14 +3487,14 @@ static booleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
     N_VDestroyVectorArray(IDA_mem->ida_ypS, IDA_mem->ida_Ns);
     N_VDestroyVectorArray(IDA_mem->ida_deltaS, IDA_mem->ida_Ns);
     free(IDA_mem->ida_pbar); IDA_mem->ida_pbar = NULL;
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   /* Update solver workspace lengths */
   IDA_mem->ida_lrw += IDA_mem->ida_Ns;
   IDA_mem->ida_liw += IDA_mem->ida_Ns;
 
-  return(TRUE);
+  return(SUNTRUE);
 }
 
 /*
@@ -3528,12 +3528,12 @@ static void IDASensFreeVectors(IDAMem IDA_mem)
     N_VDestroyVectorArray(IDA_mem->ida_VatolS, IDA_mem->ida_Ns);
     IDA_mem->ida_lrw -= IDA_mem->ida_Ns*IDA_mem->ida_lrw1;
     IDA_mem->ida_liw -= IDA_mem->ida_Ns*IDA_mem->ida_liw1;
-    IDA_mem->ida_VatolSMallocDone = FALSE;
+    IDA_mem->ida_VatolSMallocDone = SUNFALSE;
   } 
   if (IDA_mem->ida_SatolSMallocDone) {
     free(IDA_mem->ida_SatolS); IDA_mem->ida_SatolS = NULL;
     IDA_mem->ida_lrw -= IDA_mem->ida_Ns;
-    IDA_mem->ida_SatolSMallocDone = FALSE;
+    IDA_mem->ida_SatolSMallocDone = SUNFALSE;
   }
 
 }
@@ -3553,14 +3553,14 @@ static booleantype IDAQuadSensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
   /* Allocate yQS */
   IDA_mem->ida_yyQS = N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl);
   if (IDA_mem->ida_yyQS == NULL) {
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   /* Allocate ewtQS */
   IDA_mem->ida_ewtQS = N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl);
   if (IDA_mem->ida_ewtQS == NULL) {
     N_VDestroyVectorArray(IDA_mem->ida_yyQS, IDA_mem->ida_Ns);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   /* Allocate tempvQS */
@@ -3568,7 +3568,7 @@ static booleantype IDAQuadSensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
   if (IDA_mem->ida_tempvQS == NULL) {
     N_VDestroyVectorArray(IDA_mem->ida_yyQS, IDA_mem->ida_Ns);
     N_VDestroyVectorArray(IDA_mem->ida_ewtQS, IDA_mem->ida_Ns);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   IDA_mem->ida_eeQS =  N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl);
@@ -3576,7 +3576,7 @@ static booleantype IDAQuadSensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
     N_VDestroyVectorArray(IDA_mem->ida_yyQS, IDA_mem->ida_Ns);
     N_VDestroyVectorArray(IDA_mem->ida_ewtQS, IDA_mem->ida_Ns);
     N_VDestroyVectorArray(IDA_mem->ida_tempvQS, IDA_mem->ida_Ns);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   IDA_mem->ida_savrhsQ = N_VClone(tmpl);
@@ -3599,7 +3599,7 @@ static booleantype IDAQuadSensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
       N_VDestroy(IDA_mem->ida_savrhsQ);
       for (i=0; i<j; i++)
         N_VDestroyVectorArray(IDA_mem->ida_phiQS[i], IDA_mem->ida_Ns);
-      return(FALSE);
+      return(SUNFALSE);
     }
   }
 
@@ -3607,7 +3607,7 @@ static booleantype IDAQuadSensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
   IDA_mem->ida_lrw += (maxcol + 5)*IDA_mem->ida_Ns*IDA_mem->ida_lrw1Q;
   IDA_mem->ida_liw += (maxcol + 5)*IDA_mem->ida_Ns*IDA_mem->ida_liw1Q;
 
-  return(TRUE);
+  return(SUNTRUE);
 }
 
 
@@ -3643,8 +3643,8 @@ static void IDAQuadSensFreeVectors(IDAMem IDA_mem)
     free(IDA_mem->ida_SatolQS); IDA_mem->ida_SatolQS = NULL;
     IDA_mem->ida_lrw -= IDA_mem->ida_Ns;
   }
-  IDA_mem->ida_VatolQSMallocDone = FALSE;
-  IDA_mem->ida_SatolQSMallocDone = FALSE;
+  IDA_mem->ida_VatolQSMallocDone = SUNFALSE;
+  IDA_mem->ida_SatolQSMallocDone = SUNFALSE;
 }
 
 
@@ -3735,7 +3735,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
       }
     }
   } else {
-    IDA_mem->ida_errconQ = FALSE;
+    IDA_mem->ida_errconQ = SUNFALSE;
   }
 
   if (IDA_mem->ida_sensi) {
@@ -3753,7 +3753,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
       return(IDA_ILL_INPUT);
     }
   } else {
-    IDA_mem->ida_errconS = FALSE;
+    IDA_mem->ida_errconS = SUNFALSE;
   }
 
   if (IDA_mem->ida_quadr_sensi) {
@@ -3812,7 +3812,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
       }
     }
   } else {
-    IDA_mem->ida_errconQS = FALSE;
+    IDA_mem->ida_errconQS = SUNFALSE;
   }
 
   /* Check to see if y0 satisfies constraints. */
@@ -4240,7 +4240,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
           return(IDA_ILL_INPUT);
         }
         *tret = IDA_mem->ida_tretlast = IDA_mem->ida_tstop;
-        IDA_mem->ida_tstopset = FALSE;
+        IDA_mem->ida_tstopset = SUNFALSE;
         return(IDA_TSTOP_RETURN);
       }
       if ((IDA_mem->ida_tn + IDA_mem->ida_hh - IDA_mem->ida_tstop)*IDA_mem->ida_hh > ZERO) 
@@ -4277,7 +4277,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
           return(IDA_ILL_INPUT);
         }
         *tret = IDA_mem->ida_tretlast = IDA_mem->ida_tstop;
-        IDA_mem->ida_tstopset = FALSE;
+        IDA_mem->ida_tstopset = SUNFALSE;
         return(IDA_TSTOP_RETURN);
       }
       if ((IDA_mem->ida_tn + IDA_mem->ida_hh - IDA_mem->ida_tstop)*IDA_mem->ida_hh > ZERO) 
@@ -4335,7 +4335,7 @@ static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
         if (SUNRabs(IDA_mem->ida_tn - IDA_mem->ida_tstop) <= troundoff) {
           /* ier = */ IDAGetSolution(IDA_mem, IDA_mem->ida_tstop, yret, ypret);
           *tret = IDA_mem->ida_tretlast = IDA_mem->ida_tstop;
-          IDA_mem->ida_tstopset = FALSE;
+          IDA_mem->ida_tstopset = SUNFALSE;
           return(IDA_TSTOP_RETURN);
         }
         if ((IDA_mem->ida_tn + IDA_mem->ida_hh - IDA_mem->ida_tstop)*IDA_mem->ida_hh > ZERO) 
@@ -4352,7 +4352,7 @@ static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
         if (SUNRabs(IDA_mem->ida_tn - IDA_mem->ida_tstop) <= troundoff) {
           /* ier = */ IDAGetSolution(IDA_mem, IDA_mem->ida_tstop, yret, ypret);
           *tret = IDA_mem->ida_tretlast = IDA_mem->ida_tstop;
-          IDA_mem->ida_tstopset = FALSE;
+          IDA_mem->ida_tstopset = SUNFALSE;
           return(IDA_TSTOP_RETURN);
         }
         if ((IDA_mem->ida_tn + IDA_mem->ida_hh - IDA_mem->ida_tstop)*IDA_mem->ida_hh > ZERO) 
@@ -4855,14 +4855,14 @@ static int IDANls(IDAMem IDA_mem)
   /* Are we computing sensitivities with the IDA_SIMULTANEOUS approach? */
   sensi_sim = (IDA_mem->ida_sensi && (IDA_mem->ida_ism==IDA_SIMULTANEOUS));
 
-  callSetup = FALSE;
+  callSetup = SUNFALSE;
 
   /* Initialize if the first time called */
   if (IDA_mem->ida_nst == 0){
     IDA_mem->ida_cjold = IDA_mem->ida_cj;
     IDA_mem->ida_ss = TWENTY;
     IDA_mem->ida_ssS = TWENTY;
-    if (IDA_mem->ida_lsetup) callSetup = TRUE;
+    if (IDA_mem->ida_lsetup) callSetup = SUNTRUE;
   }
 
   IDA_mem->ida_mm = IDA_mem->ida_tempv2;
@@ -4873,8 +4873,8 @@ static int IDANls(IDAMem IDA_mem)
     IDA_mem->ida_cjratio = IDA_mem->ida_cj / IDA_mem->ida_cjold;
     temp1 = (ONE - XRATE) / (ONE + XRATE);
     temp2 = ONE/temp1;
-    if (IDA_mem->ida_cjratio < temp1 || IDA_mem->ida_cjratio > temp2) callSetup = TRUE;
-    if (IDA_mem->ida_forceSetup) callSetup = TRUE;
+    if (IDA_mem->ida_cjratio < temp1 || IDA_mem->ida_cjratio > temp2) callSetup = SUNTRUE;
+    if (IDA_mem->ida_forceSetup) callSetup = SUNTRUE;
     if (IDA_mem->ida_cj != IDA_mem->ida_cjlast) {
       IDA_mem->ida_ss = HUNDRED;
       IDA_mem->ida_ssS = HUNDRED;
@@ -4905,7 +4905,7 @@ static int IDANls(IDAMem IDA_mem)
     /* If indicated, call linear solver setup function and reset parameters. */
     if (callSetup){
       IDA_mem->ida_nsetups++;
-      IDA_mem->ida_forceSetup = FALSE;
+      IDA_mem->ida_forceSetup = SUNFALSE;
       
       retval = IDA_mem->ida_lsetup(IDA_mem, IDA_mem->ida_yy, IDA_mem->ida_yp,
                                    IDA_mem->ida_delta, IDA_mem->ida_tempv1,
@@ -4926,7 +4926,7 @@ static int IDANls(IDAMem IDA_mem)
     tryAgain = (retval>0) && (IDA_mem->ida_lsetup) && (!callSetup);
 
     if (tryAgain){
-      callSetup = TRUE;
+      callSetup = SUNTRUE;
       continue;
     }
     else break;
@@ -4948,7 +4948,7 @@ static int IDANls(IDAMem IDA_mem)
       N_VDiv(IDA_mem->ida_tempv1, IDA_mem->ida_ewt, IDA_mem->ida_tempv1);                /* a * c * wt */
       N_VLinearSum(ONE, IDA_mem->ida_yy, -PT1, IDA_mem->ida_tempv1, IDA_mem->ida_tempv1);/* y - 0.1 * a * c * wt */
       N_VProd(IDA_mem->ida_tempv1, IDA_mem->ida_mm, IDA_mem->ida_tempv1);               /*  v = mm*(y-.1*a*c*wt) */
-      vnorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_tempv1, IDA_mem->ida_ewt, FALSE); /*  ||v|| */
+      vnorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_tempv1, IDA_mem->ida_ewt, SUNFALSE); /*  ||v|| */
       
       /* If vector v of constraint corrections is small
          in norm, correct and accept this step */      
@@ -5057,7 +5057,7 @@ static int IDANewtonIter(IDAMem IDA_mem)
     N_VLinearSum(ONE, IDA_mem->ida_yy, -ONE, IDA_mem->ida_delta, IDA_mem->ida_yy);
     N_VLinearSum(ONE, IDA_mem->ida_ee, -ONE, IDA_mem->ida_delta, IDA_mem->ida_ee);
     N_VLinearSum(ONE, IDA_mem->ida_yp, -IDA_mem->ida_cj,  IDA_mem->ida_delta, IDA_mem->ida_yp);
-    delnrm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delta, IDA_mem->ida_ewt, FALSE);
+    delnrm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delta, IDA_mem->ida_ewt, SUNFALSE);
 
     /* Apply deltaS to yys, ypS, and ees, and get update norm(delta). */
     if (sensi_sim) {
@@ -5066,7 +5066,7 @@ static int IDANewtonIter(IDAMem IDA_mem)
         N_VLinearSum(ONE, IDA_mem->ida_yyS[is], -ONE, IDA_mem->ida_deltaS[is], IDA_mem->ida_yyS[is]);
         N_VLinearSum(ONE, IDA_mem->ida_ypS[is], -IDA_mem->ida_cj,  IDA_mem->ida_deltaS[is], IDA_mem->ida_ypS[is]);
       }
-      delnrm = IDASensWrmsNormUpdate(IDA_mem, delnrm, IDA_mem->ida_deltaS, IDA_mem->ida_ewtS, FALSE);
+      delnrm = IDASensWrmsNormUpdate(IDA_mem, delnrm, IDA_mem->ida_deltaS, IDA_mem->ida_ewtS, SUNFALSE);
     }
 
     /* Test for convergence, first directly, then with rate estimate. */
@@ -5183,7 +5183,7 @@ static int IDASensNls(IDAMem IDA_mem)
   booleantype callSetup, tryAgain;
   int is, retval;
 
-  callSetup = FALSE;
+  callSetup = SUNFALSE;
 
   /* Begin the main loop. This loop is traversed at most twice. 
      The second pass only occurs when the first pass had a recoverable
@@ -5220,7 +5220,7 @@ static int IDASensNls(IDAMem IDA_mem)
     tryAgain = (retval>0) && (IDA_mem->ida_lsetup) && (!callSetup);
 
     if (tryAgain) {
-      callSetup = TRUE;
+      callSetup = SUNTRUE;
       continue;
     }
     else break;
@@ -5308,7 +5308,7 @@ static int IDASensNewtonIter(IDAMem IDA_mem)
 
     }
 
-    delSnrm = IDASensWrmsNorm(IDA_mem, IDA_mem->ida_deltaS, IDA_mem->ida_ewtS, FALSE);
+    delSnrm = IDASensWrmsNorm(IDA_mem, IDA_mem->ida_deltaS, IDA_mem->ida_ewtS, SUNFALSE);
 
     if (mnewt == 0) {
       if (delSnrm <= IDA_mem->ida_toldel)
@@ -5501,7 +5501,7 @@ static int IDAQuadTestError(IDAMem IDA_mem, realtype ck,
   realtype errQ_k, errQ_km1, errQ_km2;
   realtype terr_k, terr_km1, terr_km2;
   N_Vector tempv;
-  booleantype check_for_reduction = FALSE;
+  booleantype check_for_reduction = SUNFALSE;
 
   /* Rename ypQ */
   tempv = IDA_mem->ida_ypQ;
@@ -5511,7 +5511,7 @@ static int IDAQuadTestError(IDAMem IDA_mem, realtype ck,
   errQ_k = IDA_mem->ida_sigma[IDA_mem->ida_kk] * enormQ;
   if (errQ_k > *err_k) {
     *err_k = errQ_k;
-    check_for_reduction = TRUE;
+    check_for_reduction = SUNTRUE;
   }
   terr_k = (IDA_mem->ida_kk+1) * (*err_k);
   
@@ -5522,13 +5522,13 @@ static int IDAQuadTestError(IDAMem IDA_mem, realtype ck,
     errQ_km1 = IDA_mem->ida_sigma[IDA_mem->ida_kk-1] * N_VWrmsNorm(tempv, IDA_mem->ida_ewtQ);
     if (errQ_km1 > *err_km1) {
       *err_km1 = errQ_km1;
-      check_for_reduction = TRUE;
+      check_for_reduction = SUNTRUE;
     }
     terr_km1 = IDA_mem->ida_kk * (*err_km1);
 
     /* Has an order decrease already been decided in IDATestError? */
     if (IDA_mem->ida_knew != IDA_mem->ida_kk)
-      check_for_reduction = FALSE;
+      check_for_reduction = SUNFALSE;
 
     if (check_for_reduction) {
 
@@ -5584,7 +5584,7 @@ static int IDASensTestError(IDAMem IDA_mem, realtype ck,
   realtype errS_k, errS_km1, errS_km2;
   realtype terr_k, terr_km1, terr_km2;
   N_Vector *tempv;
-  booleantype check_for_reduction = FALSE;
+  booleantype check_for_reduction = SUNFALSE;
   int is;
 
   /* Rename deltaS */
@@ -5595,7 +5595,7 @@ static int IDASensTestError(IDAMem IDA_mem, realtype ck,
   errS_k  = IDA_mem->ida_sigma[IDA_mem->ida_kk] * enormS;
   if (errS_k > *err_k) {
     *err_k = errS_k;
-    check_for_reduction = TRUE;
+    check_for_reduction = SUNTRUE;
   }
   terr_k = (IDA_mem->ida_kk+1) * (*err_k);
   
@@ -5608,13 +5608,13 @@ static int IDASensTestError(IDAMem IDA_mem, realtype ck,
       IDASensWrmsNorm(IDA_mem, tempv, IDA_mem->ida_ewtS, IDA_mem->ida_suppressalg);
     if (errS_km1 > *err_km1) {
       *err_km1 = errS_km1;
-      check_for_reduction = TRUE;
+      check_for_reduction = SUNTRUE;
     }
     terr_km1 = IDA_mem->ida_kk * (*err_km1);
 
     /* Has an order decrease already been decided in IDATestError? */
     if (IDA_mem->ida_knew != IDA_mem->ida_kk)
-      check_for_reduction = FALSE;
+      check_for_reduction = SUNFALSE;
 
     if (check_for_reduction) {
 
@@ -5674,7 +5674,7 @@ static int IDAQuadSensTestError(IDAMem IDA_mem, realtype ck,
   realtype errQS_k, errQS_km1, errQS_km2;
   realtype terr_k, terr_km1, terr_km2;
   N_Vector *tempv;
-  booleantype check_for_reduction = FALSE;
+  booleantype check_for_reduction = SUNFALSE;
   int is;
 
   tempv = IDA_mem->ida_yyQS;
@@ -5684,7 +5684,7 @@ static int IDAQuadSensTestError(IDAMem IDA_mem, realtype ck,
 
   if (errQS_k > *err_k) {
     *err_k = errQS_k;
-    check_for_reduction = TRUE;
+    check_for_reduction = SUNTRUE;
   }
   terr_k = (IDA_mem->ida_kk+1) * (*err_k);
   
@@ -5700,13 +5700,13 @@ static int IDAQuadSensTestError(IDAMem IDA_mem, realtype ck,
 
     if (errQS_km1 > *err_km1) {
       *err_km1 = errQS_km1;
-      check_for_reduction = TRUE;
+      check_for_reduction = SUNTRUE;
     }
     terr_km1 = IDA_mem->ida_kk * (*err_km1);
 
     /* Has an order decrease already been decided in IDATestError? */
     if (IDA_mem->ida_knew != IDA_mem->ida_kk)
-      check_for_reduction = FALSE;
+      check_for_reduction = SUNFALSE;
 
     if (check_for_reduction) {
       if ( IDA_mem->ida_kk > 2 ) {
@@ -6143,12 +6143,12 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
  * IDAWrmsNorm
  *
  *  Returns the WRMS norm of vector x with weights w.
- *  If mask = TRUE, the weight vector w is masked by id, i.e.,
+ *  If mask = SUNTRUE, the weight vector w is masked by id, i.e.,
  *      nrm = N_VWrmsNormMask(x,w,id);
  *  Otherwise,
  *      nrm = N_VWrmsNorm(x,w);
  * 
- * mask = FALSE       when the call is made from the nonlinear solver.
+ * mask = SUNFALSE       when the call is made from the nonlinear solver.
  * mask = suppressalg otherwise.
  */
 
@@ -6301,11 +6301,11 @@ static int IDARcheck1(IDAMem IDA_mem)
   IDA_mem->ida_nge = 1;
   if (retval != 0) return(IDA_RTFUNC_FAIL);
 
-  zroot = FALSE;
+  zroot = SUNFALSE;
   for (i = 0; i < IDA_mem->ida_nrtfn; i++) {
     if (SUNRabs(IDA_mem->ida_glo[i]) == ZERO) {
-      zroot = TRUE;
-      IDA_mem->ida_gactive[i] = FALSE;
+      zroot = SUNTRUE;
+      IDA_mem->ida_gactive[i] = SUNFALSE;
     }
   }
   if (!zroot) return(IDA_SUCCESS);
@@ -6325,7 +6325,7 @@ static int IDARcheck1(IDAMem IDA_mem)
   for (i = 0; i < IDA_mem->ida_nrtfn; i++) {
     if (!IDA_mem->ida_gactive[i] &&
         SUNRabs(IDA_mem->ida_ghi[i]) != ZERO) {
-      IDA_mem->ida_gactive[i] = TRUE;
+      IDA_mem->ida_gactive[i] = SUNTRUE;
       IDA_mem->ida_glo[i] = IDA_mem->ida_ghi[i];
     }
   }
@@ -6368,13 +6368,13 @@ static int IDARcheck2(IDAMem IDA_mem)
   IDA_mem->ida_nge++;
   if (retval != 0) return(IDA_RTFUNC_FAIL);
 
-  zroot = FALSE;
+  zroot = SUNFALSE;
   for (i = 0; i < IDA_mem->ida_nrtfn; i++)
     IDA_mem->ida_iroots[i] = 0;
   for (i = 0; i < IDA_mem->ida_nrtfn; i++) {
     if (!IDA_mem->ida_gactive[i]) continue;
     if (SUNRabs(IDA_mem->ida_glo[i]) == ZERO) {
-      zroot = TRUE;
+      zroot = SUNTRUE;
       IDA_mem->ida_iroots[i] = 1;
     }
   }
@@ -6398,12 +6398,12 @@ static int IDARcheck2(IDAMem IDA_mem)
 
   /* Check for close roots (error return), for a new zero at tlo+smallh,
   and for a g_i that changed from zero to nonzero. */
-  zroot = FALSE;
+  zroot = SUNFALSE;
   for (i = 0; i < IDA_mem->ida_nrtfn; i++) {
     if (!IDA_mem->ida_gactive[i]) continue;
     if (SUNRabs(IDA_mem->ida_ghi[i]) == ZERO) {
       if (IDA_mem->ida_iroots[i] == 1) return(CLOSERT);
-      zroot = TRUE;
+      zroot = SUNTRUE;
       IDA_mem->ida_iroots[i] = 1;
     } else {
       if (IDA_mem->ida_iroots[i] == 1)
@@ -6457,7 +6457,7 @@ static int IDARcheck3(IDAMem IDA_mem)
   for(i=0; i<IDA_mem->ida_nrtfn; i++) {
     if(!IDA_mem->ida_gactive[i] &&
        IDA_mem->ida_grout[i] != ZERO)
-      IDA_mem->ida_gactive[i] = TRUE;
+      IDA_mem->ida_gactive[i] = SUNTRUE;
   }
   IDA_mem->ida_tlo = IDA_mem->ida_trout;
   for (i = 0; i < IDA_mem->ida_nrtfn; i++)
@@ -6501,10 +6501,10 @@ static int IDARcheck3(IDAMem IDA_mem)
  *
  * gactive  = array specifying whether a component of g should
  *            or should not be monitored. gactive[i] is initially
- *            set to TRUE for all i=0,...,nrtfn-1, but it may be
- *            reset to FALSE if at the first step g[i] is 0.0
+ *            set to SUNTRUE for all i=0,...,nrtfn-1, but it may be
+ *            reset to SUNFALSE if at the first step g[i] is 0.0
  *            both at the I.C. and at a small perturbation of them.
- *            gactive[i] is then set back on TRUE only after the 
+ *            gactive[i] is then set back on SUNTRUE only after the 
  *            corresponding g function moves away from 0.0.
  *
  * nge      = cumulative counter for gfun calls.
@@ -6559,20 +6559,20 @@ static int IDARootfind(IDAMem IDA_mem)
 
   /* First check for change in sign in ghi or for a zero in ghi. */
   maxfrac = ZERO;
-  zroot = FALSE;
-  sgnchg = FALSE;
+  zroot = SUNFALSE;
+  sgnchg = SUNFALSE;
   for (i = 0;  i < IDA_mem->ida_nrtfn; i++) {
     if(!IDA_mem->ida_gactive[i]) continue;
     if (SUNRabs(IDA_mem->ida_ghi[i]) == ZERO) {
       if(IDA_mem->ida_rootdir[i]*IDA_mem->ida_glo[i] <= ZERO) {
-        zroot = TRUE;
+        zroot = SUNTRUE;
       }
     } else {
       if ( (IDA_mem->ida_glo[i]*IDA_mem->ida_ghi[i] < ZERO) &&
            (IDA_mem->ida_rootdir[i]*IDA_mem->ida_glo[i] <= ZERO) ) {
         gfrac = SUNRabs(IDA_mem->ida_ghi[i]/(IDA_mem->ida_ghi[i] - IDA_mem->ida_glo[i]));
         if (gfrac > maxfrac) {
-          sgnchg = TRUE;
+          sgnchg = SUNTRUE;
           maxfrac = gfrac;
           imax = i;
         }
@@ -6650,21 +6650,21 @@ static int IDARootfind(IDAMem IDA_mem)
     /* Check to see in which subinterval g changes sign, and reset imax.
        Set side = 1 if sign change is on low side, or 2 if on high side.  */  
     maxfrac = ZERO;
-    zroot = FALSE;
-    sgnchg = FALSE;
+    zroot = SUNFALSE;
+    sgnchg = SUNFALSE;
     sideprev = side;
     for (i = 0;  i < IDA_mem->ida_nrtfn; i++) {
       if(!IDA_mem->ida_gactive[i]) continue;
       if (SUNRabs(IDA_mem->ida_grout[i]) == ZERO) {
         if(IDA_mem->ida_rootdir[i]*IDA_mem->ida_glo[i] <= ZERO)
-          zroot = TRUE;
+          zroot = SUNTRUE;
       } else {
         if ( (IDA_mem->ida_glo[i]*IDA_mem->ida_grout[i] < ZERO) &&
              (IDA_mem->ida_rootdir[i]*IDA_mem->ida_glo[i] <= ZERO) ) {
           gfrac = SUNRabs(IDA_mem->ida_grout[i] /
                           (IDA_mem->ida_grout[i] - IDA_mem->ida_glo[i]));
           if (gfrac > maxfrac) {
-            sgnchg = TRUE;
+            sgnchg = SUNTRUE;
             maxfrac = gfrac;
             imax = i;
           }

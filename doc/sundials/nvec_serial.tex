@@ -190,10 +190,10 @@ The module {\nvecs} provides the following additional user-callable routines:
 \item
   {\warn}\id{N\_VNewEmpty\_Serial}, \id{N\_VMake\_Serial}, 
   and \id{N\_VCloneVectorArrayEmpty\_Serial} set the field 
-  {\em own\_data} $=$ \id{FALSE}. 
+  {\em own\_data} $=$ \id{SUNFALSE}. 
   \id{N\_VDestroy\_Serial} and \id{N\_VDestroyVectorArray\_Serial}
   will not attempt to free the pointer {\em data} for any \id{N\_Vector} with
-  {\em own\_data} set to \id{FALSE}. In such a case, it is the user's responsibility to
+  {\em own\_data} set to \id{SUNFALSE}. In such a case, it is the user's responsibility to
   deallocate the {\em data} pointer.
                                      
 \item

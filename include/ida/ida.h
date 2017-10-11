@@ -292,7 +292,7 @@ SUNDIALS_EXPORT void *IDACreate(void);
  *                      | suppress algebraic variables in the     
  *                      | local error tests:                      
  *                      | FALSE = do not suppress;                 
- *                      | TRUE = do suppress;                     
+ *                      | SUNTRUE = do suppress;                     
  *                      | [FALSE]                                 
  *                      | NOTE: if suppressed algebraic variables 
  *                      | is selected, the nvector 'id' must be   

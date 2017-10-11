@@ -220,7 +220,7 @@ int IDASetStopTime(void *ida_mem, realtype tstop)
   }
 
   IDA_mem->ida_tstop = tstop;
-  IDA_mem->ida_tstopset = TRUE;
+  IDA_mem->ida_tstopset = SUNTRUE;
 
   return(IDA_SUCCESS);
 }
@@ -339,7 +339,7 @@ int IDASetId(void *ida_mem, N_Vector id)
       IDA_mem->ida_lrw -= IDA_mem->ida_lrw1;
       IDA_mem->ida_liw -= IDA_mem->ida_liw1;
     }
-    IDA_mem->ida_idMallocDone = FALSE;    
+    IDA_mem->ida_idMallocDone = SUNFALSE;    
     return(IDA_SUCCESS);
   }
 
@@ -347,7 +347,7 @@ int IDASetId(void *ida_mem, N_Vector id)
     IDA_mem->ida_id = N_VClone(id);
     IDA_mem->ida_lrw += IDA_mem->ida_lrw1;
     IDA_mem->ida_liw += IDA_mem->ida_liw1;
-    IDA_mem->ida_idMallocDone = TRUE;
+    IDA_mem->ida_idMallocDone = SUNTRUE;
   }
 
   /* Load the id vector */
@@ -377,8 +377,8 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
       IDA_mem->ida_lrw -= IDA_mem->ida_lrw1;
       IDA_mem->ida_liw -= IDA_mem->ida_liw1;
     }
-    IDA_mem->ida_constraintsMallocDone = FALSE;
-    IDA_mem->ida_constraintsSet = FALSE;
+    IDA_mem->ida_constraintsMallocDone = SUNFALSE;
+    IDA_mem->ida_constraintsSet = SUNFALSE;
     return(IDA_SUCCESS);
   }
 
@@ -405,14 +405,14 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
     IDA_mem->ida_constraints = N_VClone(constraints);
     IDA_mem->ida_lrw += IDA_mem->ida_lrw1;
     IDA_mem->ida_liw += IDA_mem->ida_liw1;
-    IDA_mem->ida_constraintsMallocDone = TRUE;
+    IDA_mem->ida_constraintsMallocDone = SUNTRUE;
   }
 
   /* Load the constraints vector */
 
   N_VScale(ONE, constraints, IDA_mem->ida_constraints);
 
-  IDA_mem->ida_constraintsSet = TRUE;
+  IDA_mem->ida_constraintsSet = SUNTRUE;
 
   return(IDA_SUCCESS);
 }
@@ -649,7 +649,7 @@ int IDASetQuadErrCon(void *ida_mem, booleantype errconQ)
   }  
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_quadMallocDone == FALSE) {
+  if (IDA_mem->ida_quadMallocDone == SUNFALSE) {
     IDAProcessError(NULL, IDA_NO_QUAD, "IDAS", "IDASetQuadErrCon", MSG_NO_QUAD);    
     return(IDA_NO_QUAD);
   }
@@ -743,7 +743,7 @@ int IDASetSensParams(void *ida_mem, realtype *p, realtype *pbar, int *plist)
 
   /* Was sensitivity initialized? */
 
-  if (IDA_mem->ida_sensMallocDone == FALSE) {
+  if (IDA_mem->ida_sensMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDASetSensParams", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
@@ -804,13 +804,13 @@ int IDASetQuadSensErrCon(void *ida_mem, booleantype errconQS)
   IDA_mem = (IDAMem) ida_mem;
 
   /* Was sensitivity initialized? */
-  if (IDA_mem->ida_sensMallocDone == FALSE) {
+  if (IDA_mem->ida_sensMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDASetQuadSensErrCon", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
 
   /* Was quadrature sensitivity initialized? */
-  if (IDA_mem->ida_quadSensMallocDone == FALSE) {
+  if (IDA_mem->ida_quadSensMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_QUADSENS, "IDAS", "IDASetQuadSensErrCon", MSG_NO_SENSI);
     return(IDA_NO_QUADSENS);
   }
@@ -1262,7 +1262,7 @@ int IDAGetQuadNumRhsEvals(void *ida_mem, long int *nrQevals)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_quadr==FALSE) {
+  if (IDA_mem->ida_quadr==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_QUAD, "IDAS", "IDAGetQuadNumRhsEvals", MSG_NO_QUAD); 
     return(IDA_NO_QUAD);
   }
@@ -1285,7 +1285,7 @@ int IDAGetQuadNumErrTestFails(void *ida_mem, long int *nQetfails)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_quadr==FALSE) {
+  if (IDA_mem->ida_quadr==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_QUAD, "IDAS", "IDAGetQuadNumErrTestFails", MSG_NO_QUAD); 
     return(IDA_NO_QUAD);
   }
@@ -1308,7 +1308,7 @@ int IDAGetQuadErrWeights(void *ida_mem, N_Vector eQweight)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_quadr==FALSE) {
+  if (IDA_mem->ida_quadr==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_QUAD, "IDAS", "IDAGetQuadErrWeights", MSG_NO_QUAD); 
     return(IDA_NO_QUAD);
   }
@@ -1332,7 +1332,7 @@ int IDAGetQuadStats(void *ida_mem, long int *nrQevals, long int *nQetfails)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_quadr==FALSE) {
+  if (IDA_mem->ida_quadr==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_QUAD, "IDAS", "IDAGetQuadStats", MSG_NO_QUAD); 
     return(IDA_NO_QUAD);
   }
@@ -1363,7 +1363,7 @@ int IDAGetQuadSensNumRhsEvals(void *ida_mem, long int *nrhsQSevals)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_quadr_sensi == FALSE) {
+  if (IDA_mem->ida_quadr_sensi == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_QUADSENS, "IDAS", "IDAGetQuadSensNumRhsEvals", MSG_NO_QUADSENSI); 
     return(IDA_NO_QUADSENS);
   }
@@ -1386,7 +1386,7 @@ int IDAGetQuadSensNumErrTestFails(void *ida_mem, long int *nQSetfails)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_quadr_sensi == FALSE) {
+  if (IDA_mem->ida_quadr_sensi == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_QUADSENS, "IDAS", "IDAGetQuadSensNumErrTestFails", MSG_NO_QUADSENSI); 
     return(IDA_NO_QUADSENS);
   }
@@ -1410,7 +1410,7 @@ int IDAGetQuadSensErrWeights(void *ida_mem, N_Vector *eQSweight)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_quadr_sensi == FALSE) {
+  if (IDA_mem->ida_quadr_sensi == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_QUADSENS, "IDAS", "IDAGetQuadSensErrWeights", MSG_NO_QUADSENSI); 
     return(IDA_NO_QUADSENS);
   }
@@ -1436,7 +1436,7 @@ int IDAGetQuadSensStats(void *ida_mem, long int *nrhsQSevals, long int *nQSetfai
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_quadr_sensi == FALSE) {
+  if (IDA_mem->ida_quadr_sensi == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_QUADSENS, "IDAS", "IDAGetQuadSensStats", MSG_NO_QUADSENSI); 
     return(IDA_NO_QUADSENS);
   }
@@ -1469,7 +1469,7 @@ int IDAGetSensConsistentIC(void *ida_mem, N_Vector *yyS0, N_Vector *ypS0)
 
   IDA_mem = (IDAMem) ida_mem; 
 
-  if (IDA_mem->ida_sensi==FALSE) {
+  if (IDA_mem->ida_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetSensConsistentIC", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
@@ -1505,7 +1505,7 @@ int IDAGetSensNumResEvals(void *ida_mem, long int *nrSevals)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_sensi==FALSE) {
+  if (IDA_mem->ida_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetSensNumResEvals", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
@@ -1528,7 +1528,7 @@ int IDAGetNumResEvalsSens(void *ida_mem, long int *nrevalsS)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_sensi==FALSE) {
+  if (IDA_mem->ida_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetNumResEvalsSens", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
@@ -1551,7 +1551,7 @@ int IDAGetSensNumErrTestFails(void *ida_mem, long int *nSetfails)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_sensi==FALSE) {
+  if (IDA_mem->ida_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetSensNumErrTestFails", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
@@ -1574,7 +1574,7 @@ int IDAGetSensNumLinSolvSetups(void *ida_mem, long int *nlinsetupsS)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_sensi==FALSE) {
+  if (IDA_mem->ida_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetSensNumLinSolvSetups", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
@@ -1598,7 +1598,7 @@ int IDAGetSensErrWeights(void *ida_mem, N_Vector_S eSweight)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_sensi==FALSE) {
+  if (IDA_mem->ida_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetSensErrWeights", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
@@ -1623,7 +1623,7 @@ int IDAGetSensStats(void *ida_mem, long int *nrSevals, long int *nrevalsS,
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_sensi==FALSE) {
+  if (IDA_mem->ida_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetSensStats", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
@@ -1649,7 +1649,7 @@ int IDAGetSensNumNonlinSolvIters(void *ida_mem, long int *nSniters)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_sensi==FALSE) {
+  if (IDA_mem->ida_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetSensNumNonlinSolvIters", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
@@ -1672,7 +1672,7 @@ int IDAGetSensNumNonlinSolvConvFails(void *ida_mem, long int *nSncfails)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_sensi==FALSE) {
+  if (IDA_mem->ida_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetSensNumNonlinSolvConvFails", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
@@ -1695,7 +1695,7 @@ int IDAGetSensNonlinSolvStats(void *ida_mem, long int *nSniters, long int *nSncf
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (IDA_mem->ida_sensi==FALSE) {
+  if (IDA_mem->ida_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetSensNonlinSolvStats", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }

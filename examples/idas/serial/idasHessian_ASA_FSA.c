@@ -188,17 +188,17 @@ int main(int argc, char *argv[])
   /* Quadrature's setup. */
   flag = IDAQuadInit(ida_mem, rhsQ, q);
   flag = IDAQuadSStolerances(ida_mem, RTOL, ATOL);
-  flag = IDASetQuadErrCon(ida_mem, TRUE);
+  flag = IDASetQuadErrCon(ida_mem, SUNTRUE);
 
   /* Sensitivity's setup. */
   flag = IDASensInit(ida_mem, NP, IDA_SIMULTANEOUS, resS, yyS, ypS);
   flag = IDASensEEtolerances(ida_mem);
-  flag = IDASetSensErrCon(ida_mem, TRUE);
+  flag = IDASetSensErrCon(ida_mem, SUNTRUE);
 
   /* Setup of quadrature's sensitivities */
   flag = IDAQuadSensInit(ida_mem, rhsQS, qS);
   flag = IDAQuadSensEEtolerances(ida_mem);
-  flag = IDASetQuadSensErrCon(ida_mem, TRUE); 
+  flag = IDASetQuadSensErrCon(ida_mem, SUNTRUE); 
   
   /* Initialize ASA. */
   flag = IDAAdjInit(ida_mem, 100, IDA_HERMITE);
@@ -410,7 +410,7 @@ int main(int argc, char *argv[])
 
   flag = IDAQuadInit(ida_mem, rhsQ, q);
   flag = IDAQuadSStolerances(ida_mem, rtolFD, atolFD);
-  flag = IDASetQuadErrCon(ida_mem, TRUE);
+  flag = IDASetQuadErrCon(ida_mem, SUNTRUE);
 
   flag = IDASolve(ida_mem, tf, &time, yy, yp, IDA_NORMAL);
   flag = IDAGetQuad(ida_mem, &time, q);

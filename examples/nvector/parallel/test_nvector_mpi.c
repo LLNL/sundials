@@ -132,9 +132,9 @@ booleantype has_data(N_Vector X)
 {
   realtype *Xdata = N_VGetArrayPointer(X);
   if (Xdata == NULL)
-    return FALSE;
+    return SUNFALSE;
   else
-    return TRUE;
+    return SUNTRUE;
 }
 
 void set_element(N_Vector X, sunindextype i, realtype val)

@@ -49,7 +49,7 @@ extern "C" {
 
 typedef struct CVDlsMemRec {
 
-  booleantype jacDQ;    /* TRUE if using internal DQ Jacobian approx.   */
+  booleantype jacDQ;    /* SUNTRUE if using internal DQ Jacobian approx.   */
   CVDlsJacFn jac;       /* Jacobian routine to be called                */
   void *J_data;         /* user data is passed to jac                   */
 

@@ -157,7 +157,7 @@ int CVSpilsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS)
   cvspils_mem->LS = LS;
   
   /* Set defaults for Jacobian-related fields */
-  cvspils_mem->jtimesDQ = TRUE;
+  cvspils_mem->jtimesDQ = SUNTRUE;
   cvspils_mem->jtsetup = NULL;
   cvspils_mem->jtimes = CVSpilsDQJtimes;
   cvspils_mem->j_data = cv_mem;
@@ -172,7 +172,7 @@ int CVSpilsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS)
   cvSpilsInitializeCounters(cvspils_mem);
 
   /* Set default values for the rest of the SPILS parameters */
-  cvspils_mem->jbad = TRUE;
+  cvspils_mem->jbad = SUNTRUE;
   cvspils_mem->eplifac = CVSPILS_EPLIN;
   cvspils_mem->last_flag = CVSPILS_SUCCESS;
 
@@ -330,10 +330,10 @@ int CVSpilsSetJacTimes(void *cvode_mem,
   /* store function pointers for user-supplied routines in CVSpils 
      interface (NULL jtimes implies use of DQ default) */
   if (jtimes != NULL) {
-    cvspils_mem->jtimesDQ = FALSE;
+    cvspils_mem->jtimesDQ = SUNFALSE;
     cvspils_mem->jtimes   = jtimes;
   } else {
-    cvspils_mem->jtimesDQ = TRUE;
+    cvspils_mem->jtimesDQ = SUNTRUE;
   }
   cvspils_mem->jtsetup = jtsetup;
 
@@ -913,14 +913,14 @@ int cvSpilsSetup(CVodeMem cv_mem, int convfail, N_Vector y,
      pass the heuristic suggestions above to the user code(s) */
   retval = SUNLinSolSetup(cvspils_mem->LS, NULL);
 
-  /* If user set jcur to TRUE, increment npe and save nst value */
+  /* If user set jcur to SUNTRUE, increment npe and save nst value */
   if (*jcurPtr) {
     cvspils_mem->npe++;
     cvspils_mem->nstlpre = cv_mem->cv_nst;
   }
   
   /* Update jcur flag if we suggested an update */
-  if (cvspils_mem->jbad) *jcurPtr = TRUE;
+  if (cvspils_mem->jbad) *jcurPtr = SUNTRUE;
 
   return(retval);
 }
@@ -1143,7 +1143,7 @@ int CVSpilsSetLinearSolverB(void *cvode_mem, int which,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVSSPILS",
                    "CVSpilsSetLinearSolverB", MSGS_NO_ADJ);
     return(CVSPILS_NO_ADJ);
@@ -1223,7 +1223,7 @@ int CVSpilsSetEpsLinB(void *cvode_mem, int which, realtype eplifacB)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVSSPILS",
                    "CVSpilsSetEpsLinB", MSGS_NO_ADJ);
     return(CVSPILS_NO_ADJ);
@@ -1273,7 +1273,7 @@ int CVSpilsSetPreconditionerB(void *cvode_mem, int which,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVSSPILS",
                    "CVSpilsSetPreconditionerB", MSGS_NO_ADJ);
     return(CVSPILS_NO_ADJ);
@@ -1338,7 +1338,7 @@ int CVSpilsSetPreconditionerBS(void *cvode_mem, int which,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVSSPILS",
                    "CVSpilsSetPreconditionerBS", MSGS_NO_ADJ);
     return(CVSPILS_NO_ADJ);
@@ -1403,7 +1403,7 @@ int CVSpilsSetJacTimesB(void *cvode_mem, int which,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVSSPILS",
                    "CVSpilsSetJacTimesB", MSGS_NO_ADJ);
     return(CVSPILS_NO_ADJ);
@@ -1468,7 +1468,7 @@ int CVSpilsSetJacTimesSetupFnBS(void *cvode_mem, int which,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVSSPILS",
                    "CVSpilsSetJacTimesBS", MSGS_NO_ADJ);
     return(CVSPILS_NO_ADJ);
@@ -1537,7 +1537,7 @@ static int cvSpilsPrecSetupBWrapper(realtype t, N_Vector yB, N_Vector fyB,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVSSPILS",
                    "cvSpilsPrecSetupBWrapper", MSGS_NO_ADJ);
     return(CVSPILS_NO_ADJ);
@@ -1595,7 +1595,7 @@ static int cvSpilsPrecSetupBSWrapper(realtype t, N_Vector yB, N_Vector fyB,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVSSPILS",
                    "cvSpilsPrecSetupBSWrapper", MSGS_NO_ADJ);
     return(CVSPILS_NO_ADJ);
@@ -1659,7 +1659,7 @@ static int cvSpilsPrecSolveBWrapper(realtype t, N_Vector yB, N_Vector fyB,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVSSPILS",
                    "cvSpilsPrecSolveBWrapper", MSGS_NO_ADJ);
     return(CVSPILS_NO_ADJ);
@@ -1719,7 +1719,7 @@ static int cvSpilsPrecSolveBSWrapper(realtype t, N_Vector yB, N_Vector fyB,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVSSPILS",
                    "cvSpilsPrecSolveBSWrapper", MSGS_NO_ADJ);
     return(CVSPILS_NO_ADJ);
@@ -1781,7 +1781,7 @@ static int cvSpilsJacTimesSetupBWrapper(realtype t, N_Vector yB,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVSSPILS",
                    "cvSpilsJacTimesSetupBWrapper", MSGS_NO_ADJ);
     return(CVSPILS_NO_ADJ);
@@ -1839,7 +1839,7 @@ static int cvSpilsJacTimesSetupBSWrapper(realtype t, N_Vector yB,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVSSPILS",
                    "cvSpilsJacTimesSetupBSWrapper", MSGS_NO_ADJ);
     return(CVSPILS_NO_ADJ);
@@ -1902,7 +1902,7 @@ static int cvSpilsJacTimesVecBWrapper(N_Vector vB, N_Vector JvB, realtype t,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVSSPILS",
                    "cvSpilsJacTimesVecBWrapper", MSGS_NO_ADJ);
     return(CVSPILS_NO_ADJ);
@@ -1961,7 +1961,7 @@ static int cvSpilsJacTimesVecBSWrapper(N_Vector vB, N_Vector JvB, realtype t,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVSSPILS",
                    "cvSpilsJacTimesVecBSWrapper", MSGS_NO_ADJ);
     return(CVSPILS_NO_ADJ);

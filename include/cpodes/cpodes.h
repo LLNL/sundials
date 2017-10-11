@@ -792,7 +792,7 @@ SUNDIALS_EXPORT int CPodeCalcIC(void *cpode_mem);
  *                         | [10]
  *                         |
  * CPodeSetStabLimDet      | flag to turn on/off stability limit
- *                         | detection (TRUE = on, FALSE = off).
+ *                         | detection (SUNTRUE = on, FALSE = off).
  *                         | When BDF is used and order is 3 or
  *                         | greater, CPsldet is called to detect
  *                         | stability limit.  If limit is detected,
@@ -836,7 +836,7 @@ SUNDIALS_EXPORT int CPodeCalcIC(void *cpode_mem);
  *                         |
  * CPodeSetProjUpdateErrEst| toggles ON/OFF projection of the
  *                         | error estimate.
- *                         | [TRUE]
+ *                         | [SUNTRUE]
  *                         |
  * CPodeSetProjFrequency   | frequency with which the projection
  *                         | step is performed. A value of 1 
@@ -845,7 +845,7 @@ SUNDIALS_EXPORT int CPodeCalcIC(void *cpode_mem);
  *                         | A value of 0 will disable projection.
  *                         | [1]
  *                         |
- * CPodeSetProjTestCnstr   | if TRUE, the internal projection 
+ * CPodeSetProjTestCnstr   | if SUNTRUE, the internal projection 
  *                         | function will be performed only if
  *                         | the constraint violation is larger
  *                         | than the prescribed tolerances. 

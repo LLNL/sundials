@@ -332,9 +332,9 @@ $z_i = 1.0$ if $| x_i | \ge c$ and $z_i = 0.0$ otherwise.
 of the components of the \id{N\_Vector} \id{x}, with prior testing
 for zero values:
 $z_i = 1.0 /  x_i  , \: i=0,\ldots,n-1$.
-This routine returns a boolean assigned to \id{TRUE} if all 
+This routine returns a boolean assigned to \id{SUNTRUE} if all 
 components of \id{x} are
-nonzero (successful inversion) and returns \id{FALSE} otherwise.  
+nonzero (successful inversion) and returns \id{SUNFALSE} otherwise.  
 \\[2mm]
 %%
 \id{N\_VConstrMask} & \id{t = N\_VConstrMask(c, x, m);} \\
@@ -344,8 +344,8 @@ $x_i \ge 0$ if $c_i=1$,
 $x_i \le 0$ if $c_i=-1$,
 $x_i < 0$ if $c_i=-2$.
 There is no constraint on $x_i$ if $c_i=0$.
-This routine returns a boolean assigned to \id{FALSE} if any element failed
-the constraint test and assigned to \id{TRUE} if all passed.  It also sets a
+This routine returns a boolean assigned to \id{SUNFALSE} if any element failed
+the constraint test and assigned to \id{SUNTRUE} if all passed.  It also sets a
 mask vector \id{m}, with elements equal to $1.0$ where the constraint 
 test failed, and $0.0$ where the test passed.
 This routine is used only for constraint checking.

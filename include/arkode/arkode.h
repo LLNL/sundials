@@ -477,7 +477,7 @@ SUNDIALS_EXPORT void *ARKodeCreate();
  ARKodeSetNonlinear       | specifies that the implicit portion of 
                           | the problem is nonlinear.  Used to undo
                           | a previous call to ARKodeSetLinear.
-                          | [TRUE]
+                          | [SUNTRUE]
                           |
  ARKodeSetFixedPoint      | specifies that the implicit portion of 
                           | the problem should use the accelerated 
@@ -488,7 +488,7 @@ SUNDIALS_EXPORT void *ARKodeCreate();
                           | the problem should use the modified Newton 
                           | solver.  Used to undo a previous call to
                           | ARKodeSetFixedPoint.
-                          | [TRUE]
+                          | [SUNTRUE]
                           |
  ARKodeSetExplicit        | specifies that implicit portion of 
                           | problem is disabled, and to use an 
@@ -503,7 +503,7 @@ SUNDIALS_EXPORT void *ARKodeCreate();
  ARKodeSetImEx            | specifies that problem has both 
                           | implicit and explicit parts, and to 
                           | use an ARK method.
-                          | [TRUE]
+                          | [SUNTRUE]
                           |
  ARKodeSetERKTable        | specifies to use a customized Butcher 
                           | table for the explicit portion of the 

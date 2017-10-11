@@ -202,9 +202,9 @@ booleantype has_data(N_Vector X)
   hypre_ParVector *Xvec = N_VGetVector_ParHyp(X);
   realtype *Xdata = Xvec == NULL ? NULL : hypre_VectorData(hypre_ParVectorLocalVector(Xvec));
   if (Xdata == NULL)
-    return FALSE;
+    return SUNFALSE;
   else
-    return TRUE;
+    return SUNTRUE;
 }
 
 

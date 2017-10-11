@@ -140,7 +140,7 @@ booleantype has_data(N_Vector X)
 {
   suncudavec::Vector<realtype, sunindextype>* xv = suncudavec::extract<realtype, sunindextype>(X);
 
-  return (xv == NULL ? FALSE : TRUE);
+  return (xv == NULL ? SUNFALSE : SUNTRUE);
 }
 
 void set_element(N_Vector X, sunindextype i, realtype val)

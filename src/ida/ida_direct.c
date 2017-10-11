@@ -105,7 +105,7 @@ int IDADlsSetLinearSolver(void *ida_mem, SUNLinearSolver LS,
   idadls_mem->J = A;
 
   /* Initialize Jacobian-related data */
-  idadls_mem->jacDQ     = TRUE;
+  idadls_mem->jacDQ     = SUNTRUE;
   idadls_mem->jac       = idaDlsDQJac;
   idadls_mem->J_data    = IDA_mem;
   idadls_mem->last_flag = IDADLS_SUCCESS;
@@ -156,11 +156,11 @@ int IDADlsSetJacFn(void *ida_mem, IDADlsJacFn jac)
   idadls_mem = (IDADlsMem) IDA_mem->ida_lmem;
 
   if (jac != NULL) {
-    idadls_mem->jacDQ  = FALSE;
+    idadls_mem->jacDQ  = SUNFALSE;
     idadls_mem->jac    = jac;
     idadls_mem->J_data = IDA_mem->ida_user_data;
   } else {
-    idadls_mem->jacDQ  = TRUE;
+    idadls_mem->jacDQ  = SUNTRUE;
     idadls_mem->jac    = idaDlsDQJac;
     idadls_mem->J_data = IDA_mem;
   }
