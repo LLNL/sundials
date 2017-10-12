@@ -134,6 +134,16 @@ $tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_bbd_p.out
 $tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_p.f
 $tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_p.out
 
+$tar $tarfile $distrobase/examples/cvode/cuda/README
+$tar $tarfile $distrobase/examples/cvode/cuda/CMakeLists.txt
+$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda.cu
+$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda.out
+
+$tar $tarfile $distrobase/examples/cvode/raja/README
+$tar $tarfile $distrobase/examples/cvode/raja/CMakeLists.txt
+$tar $tarfile $distrobase/examples/cvode/raja/cvAdvDiff_kry_raja.cu
+$tar $tarfile $distrobase/examples/cvode/raja/cvAdvDiff_kry_raja.out
+
 # 3/3/2015:LEBanks - Don't add to release yet. Many tests will fail, which can be confusing to users
 #echo "   --- Add regression test files to $tarfile"
 #$tar $tarfile $distrobase/test/answers/cvAdvDiff_bnd
