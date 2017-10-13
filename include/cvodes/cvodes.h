@@ -956,12 +956,12 @@ SUNDIALS_EXPORT void CVodeQuadSensFree(void *cvode_mem);
  *                         | [10]
  *                         |
  * CVodeSetStabLimDet      | flag to turn on/off stability limit
- *                         | detection (SUNTRUE = on, FALSE = off).
+ *                         | detection (SUNTRUE = on, SUNFALSE = off).
  *                         | When BDF is used and order is 3 or
  *                         | greater, CVsldet is called to detect
  *                         | stability limit.  If limit is detected,
  *                         | the order is reduced.
- *                         | [FALSE]
+ *                         | [SUNFALSE]
  *                         |
  * CVodeSetInitStep        | initial step size.
  *                         | [estimated by CVODES]
@@ -1053,7 +1053,7 @@ SUNDIALS_EXPORT int CVodeSetNoInactiveRootWarn(void *cvode_mem);
  *                      | the error control?
  *                      | If yes, tolerances for quadrature are
  *                      | required (see CVodeQuad**tolerances) 
- *                      | [errconQ = FALSE]
+ *                      | [errconQ = SUNFALSE]
  *                      |
  * -----------------------------------------------------------------
  * If successful, these functions return CV_SUCCESS. If an argument
@@ -1096,7 +1096,7 @@ SUNDIALS_EXPORT int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ);
  *                            |
  * CVodeSetSensErrCon         | are sensitivity variables considered in
  *                            | the error control?
- *                            | [FALSE]
+ *                            | [SUNFALSE]
  *                            |
  * CVodeSetSensMaxNonlinIters | Maximum number of nonlinear solver
  *                            | iterations at one solution.
@@ -1126,7 +1126,7 @@ SUNDIALS_EXPORT int CVodeSetSensParams(void *cvode_mem, realtype *p, realtype *p
  *                        | considered in the error control?
  *                        | If yes, tolerances for quadrature
  *                        | sensitivity variables are required.
- *                        | [errconQS = FALSE]
+ *                        | [errconQS = SUNFALSE]
  *                        |
  * -----------------------------------------------------------------
  * If successful, these functions return CV_SUCCESS. If an argument

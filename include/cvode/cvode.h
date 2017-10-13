@@ -303,12 +303,12 @@ SUNDIALS_EXPORT void *CVodeCreate(int lmm, int iter);
  *                         | [10]
  *                         |
  * CVodeSetStabLimDet      | flag to turn on/off stability limit
- *                         | detection (SUNTRUE = on, FALSE = off).
+ *                         | detection (SUNTRUE = on, SUNFALSE = off).
  *                         | When BDF is used and order is 3 or
  *                         | greater, CVsldet is called to detect
  *                         | stability limit.  If limit is detected,
  *                         | the order is reduced.
- *                         | [FALSE]
+ *                         | [SUNFALSE]
  *                         |
  * CVodeSetInitStep        | initial step size.
  *                         | [estimated by CVODE]

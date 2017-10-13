@@ -67,14 +67,14 @@ typedef struct IDAMemRec {
   realtype       ida_rtol;           /* relative tolerance                    */
   realtype       ida_Satol;          /* scalar absolute tolerance             */  
   N_Vector       ida_Vatol;          /* vector absolute tolerance             */  
-  booleantype    ida_user_efun;      /* SUNTRUE if user provides efun            */
+  booleantype    ida_user_efun;      /* SUNTRUE if user provides efun         */
   IDAEwtFn       ida_efun;           /* function to set ewt                   */
   void          *ida_edata;          /* user pointer passed to efun           */
   
 
   booleantype    ida_constraintsSet; /* constraints vector present: 
                                         do constraints calc                   */
-  booleantype    ida_suppressalg;    /* true means suppress algebraic vars
+  booleantype    ida_suppressalg;    /* SUNTRUE means suppress algebraic vars
                                         in local error tests                  */
 
   /* Divided differences array and associated minor arrays */
@@ -192,7 +192,7 @@ typedef struct IDAMemRec {
   /* Flags to verify correct calling sequence */
 
   booleantype ida_SetupDone;  /* set to SUNFALSE by IDAMalloc and IDAReInit
-                                 set to SUNTRUE by IDACalcIC or IDASolve         */
+                                 set to SUNTRUE by IDACalcIC or IDASolve      */
 
   booleantype ida_VatolMallocDone;
   booleantype ida_constraintsMallocDone;

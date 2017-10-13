@@ -1170,7 +1170,7 @@ int IDACalcICB(void *ida_mem, int which, realtype tout1,
   N_VScale(ONE, yy0, IDAADJ_mem->ia_yyTmp);
   N_VScale(ONE, yp0, IDAADJ_mem->ia_ypTmp);
   
-  /* Set noInterp flag to true, so IDAARes will use user provided values for
+  /* Set noInterp flag to SUNTRUE, so IDAARes will use user provided values for
      y and y' and will not call the interpolation routine(s). */
   IDAADJ_mem->ia_noInterp = SUNTRUE;
   
@@ -1260,7 +1260,7 @@ int IDACalcICBS(void *ida_mem, int which, realtype tout1,
     N_VScale(ONE, ypS0[is], IDAADJ_mem->ia_ypSTmp[is]);
   }
   
-  /* Set noInterp flag to true, so IDAARes will use user provided values for
+  /* Set noInterp flag to SUNTRUE, so IDAARes will use user provided values for
      y and y' and will not call the interpolation routine(s). */
   IDAADJ_mem->ia_noInterp = SUNTRUE;
   

@@ -291,9 +291,9 @@ SUNDIALS_EXPORT void *IDACreate(void);
  * IDASetSuppressAlg    | flag to indicate whether or not to      
  *                      | suppress algebraic variables in the     
  *                      | local error tests:                      
- *                      | FALSE = do not suppress;                 
+ *                      | SUNFALSE = do not suppress;                 
  *                      | SUNTRUE = do suppress;                     
- *                      | [FALSE]                                 
+ *                      | [SUNFALSE]                                 
  *                      | NOTE: if suppressed algebraic variables 
  *                      | is selected, the nvector 'id' must be   
  *                      | supplied for identification of those    
@@ -516,7 +516,7 @@ SUNDIALS_EXPORT int IDAWFtolerances(void *ida_mem, IDAEwtFn efun);
  *                        |                                        
  * IDASetLineSearchOffIC  | a boolean flag to turn off the        
  *                        | linesearch algorithm.                 
- *                        | [FALSE]                               
+ *                        | [SUNFALSE]                               
  *                        |                                        
  * IDASetStepToleranceIC  | positive lower bound on the norm of   
  *                        | a Newton step.                        

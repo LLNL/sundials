@@ -176,7 +176,7 @@ SUNDIALS_EXPORT int IDAPETScSetIncrementFactor(void *ida_mem, realtype dqincfac)
  *     by IDAPETScKSP. TODO: Currently disabled.                                                 
  * IDAPETScGetNumPrecEvals returns the number of preconditioner   
  *     evaluations, i.e. the number of calls made to PrecSetup    
- *     with jok==FALSE. TODO: Currently disabled.                                     
+ *     with jok==SUNFALSE. TODO: Currently disabled.                                     
  * IDAPETScGetNumPrecSolves returns the number of calls made to   
  *     PrecSolve. TODO: Currently disabled.                 
  * IDAPETScGetNumLinIters returns the number of linear iterations.

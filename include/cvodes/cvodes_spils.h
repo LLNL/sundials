@@ -126,18 +126,18 @@ extern "C" {
  
   jok     is an input flag indicating whether Jacobian-related
           data needs to be recomputed, as follows:
-            jok == FALSE means recompute Jacobian-related data
+            jok == SUNFALSE means recompute Jacobian-related data
                    from scratch.
             jok == SUNTRUE  means that Jacobian data, if saved from
                    the previous PrecSetup call, can be reused
                    (with the current value of gamma).
           A Precset call with jok == SUNTRUE can only occur after
-          a call with jok == FALSE.
+          a call with jok == SUNFALSE.
  
   jcurPtr is a pointer to an output integer flag which is
           to be set by PrecSetup as follows:
           Set *jcurPtr = SUNTRUE if Jacobian data was recomputed.
-          Set *jcurPtr = FALSE if Jacobian data was not recomputed,
+          Set *jcurPtr = SUNFALSE if Jacobian data was not recomputed,
                          but saved data was reused.
  
   gamma   is the scalar appearing in the Newton matrix.
@@ -347,7 +347,7 @@ SUNDIALS_EXPORT int CVSpilsSetJacTimes(void *cvode_mem,
  
   CVSpilsGetNumPrecEvals returns the number of preconditioner
                   evaluations, i.e. the number of calls made
-                  to PrecSetup with jok==FALSE.
+                  to PrecSetup with jok==SUNFALSE.
  
   CVSpilsGetNumPrecSolves returns the number of calls made to
                   PrecSolve.

@@ -792,12 +792,12 @@ SUNDIALS_EXPORT int CPodeCalcIC(void *cpode_mem);
  *                         | [10]
  *                         |
  * CPodeSetStabLimDet      | flag to turn on/off stability limit
- *                         | detection (SUNTRUE = on, FALSE = off).
+ *                         | detection (SUNTRUE = on, SUNFALSE = off).
  *                         | When BDF is used and order is 3 or
  *                         | greater, CPsldet is called to detect
  *                         | stability limit.  If limit is detected,
  *                         | the order is reduced.
- *                         | [FALSE]
+ *                         | [SUNFALSE]
  *                         |
  * CPodeSetInitStep        | initial step size.
  *                         | [estimated by CPODES]
@@ -851,7 +851,7 @@ SUNDIALS_EXPORT int CPodeCalcIC(void *cpode_mem);
  *                         | than the prescribed tolerances. 
  *                         | Otherwise, the tolerances are ignored
  *                         | and projection is always performed.
- *                         | [FALSE]
+ *                         | [SUNFALSE]
  *                         | 
  * CPodeSetProjLsetupFreq  | frequency with which the linear
  *                         | solver setup function is called
@@ -872,7 +872,7 @@ SUNDIALS_EXPORT int CPodeCalcIC(void *cpode_mem);
  *                         | the error control?
  *                         | If yes, set tolerances for quadrature
  *                         | integration. 
- *                         | [errconQ = FALSE]
+ *                         | [errconQ = SUNFALSE]
  *                         | [no tolerances]
  *                         | 
  * ---------------------------------------------------------------- 
