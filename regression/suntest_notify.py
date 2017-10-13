@@ -56,7 +56,9 @@ def main():
             log.write(args.testurl)
 
     # determine notification recipient
-    if ((args.testname == 'master') or (args.testname == 'develop')):
+    if ((args.testname == 'master')
+        or (args.testname == 'develop')
+        or ('release' in args.testname)):
         # SUNDIALS developers list
         recipient = "sundials-devs@llnl.gov"
     else:
