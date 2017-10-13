@@ -166,11 +166,11 @@ Temporary vectors were removed from preconditioner setup and solve
    for user-provided preconditioner operations will be allocated and
    stored in user-provided data structures.
 
-The file include/sundials\_fconfig.h was added.  This file contains 
-SUNDIALS type information for use in Fortran programs.
+The file \id{include/sundials\_fconfig.h} was added. This file contains 
+{\sundials} type information for use in Fortran programs.
 
-Added functions SUNDIALSGetVersion and SUNDIALSGetVersionNumber to
-get SUNDIALS release version information at runtime.
+Added functions \id{SUNDIALSGetVersion} and \id{SUNDIALSGetVersionNumber} to
+get {\sundials} release version information at runtime.
 
 The build system was expanded to support many of the xSDK-compliant keys. 
 The xSDK is a movement in scientific software to provide a foundation for the
@@ -179,15 +179,15 @@ sustainable extreme-scale scientific applications.  More information can
 be found at, https://xsdk.info.
 
 In addition, numerous changes were made to the build system.
-These include the addition of separate BLAS\_ENABLE and BLAS\_LIBRARIES 
+These include the addition of separate \id{BLAS\_ENABLE} and \id{BLAS\_LIBRARIES} 
 CMake variables, additional error checking during CMake configuration,
 minor bug fixes, and renaming CMake options to enable/disable examples 
 for greater clarity and an added option to enable/disable Fortran 77 examples.
-These changes included changing ENABLE\_EXAMPLES to ENABLE\_EXAMPLES\_C, 
-changing CXX\_ENABLE to EXAMPLES\_ENABLE\_CXX, changing F90\_ENABLE to 
-EXAMPLES\_ENABLE\_F90, and adding an EXAMPLES\_ENABLE\_F77 option.
+These changes included changing \id{EXAMPLES\_ENABLE} to \id{EXAMPLES\_ENABLE\_C}, 
+changing \id{CXX\_ENABLE} to \id{EXAMPLES\_ENABLE\_CXX}, changing \id{F90\_ENABLE} to 
+\id{EXAMPLES\_ENABLE\_F90}, and adding an \id{EXAMPLES\_ENABLE\_F77} option.
 
-A bug fix was made in CVodeFree to call lfree() unconditionally 
+A bug fix was made in \id{CVodeFree} to call \id{lfree} unconditionally 
 (if non-NULL).
  
 Corrections and additions were made to the examples, 

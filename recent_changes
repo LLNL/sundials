@@ -82,7 +82,7 @@ get SUNDIALS release version information at runtime.
  - Fixed minor CMake bugs
  - Renamed CMake options to enable/disable examples for greater clarity 
    and added option to enable/disable Fortran 77 examples
-    - Changed ENABLE_EXAMPLES to ENABLE_EXAMPLES_C
+    - Changed EXAMPLES_ENABLE to EXAMPLES_ENABLE_C
     - Changed CXX_ENABLE to EXAMPLES_ENABLE_CXX
     - Changed F90_ENABLE to EXAMPLES_ENABLE_F90
     - Added EXAMPLES_ENABLE_F77 option

@@ -142,15 +142,15 @@ rapid and efficient production of high-quality,
 sustainable extreme-scale scientific applications.  More information can
 be found at, https://xsdk.info.
 
-Added functions SUNDIALSGetVersion and SUNDIALSGetVersionNumber to
-get SUNDIALS release version information at runtime.
+Added functions \id{SUNDIALSGetVersion} and \id{SUNDIALSGetVersionNumber} to
+get {\sundials} release version information at runtime.
 
 In addition, numerous changes were made to the build system.
-Thes einclude the addition of separate \id{BLAS\_ENABLE} and \id{BLAS\_LIBRARIES} 
+These include the addition of separate \id{BLAS\_ENABLE} and \id{BLAS\_LIBRARIES} 
 CMake variables, additional error checking during CMake configuration,
 minor bug fixes, and renaming CMake options to enable/disable examples 
 for greater clarity and an added option to enable/disable Fortran 77 examples.
-These changes included changing \id{ENABLE\_EXAMPLES} to \id{ENABLE\_EXAMPLES\_C}, 
+These changes included changing \id{EXAMPLES\_ENABLE} to \id{EXAMPLES\_ENABLE\_C}, 
 changing \id{CXX\_ENABLE} to \id{EXAMPLES\_ENABLE\_CXX}, changing \id{F90\_ENABLE} to 
 \id{EXAMPLES\_ENABLE\_F90}, and adding an \id{EXAMPLES\_ENABLE\_F77} option.
 
