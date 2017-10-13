@@ -161,10 +161,14 @@ PETSc, hypre, SuperLU\_MT, and KLU with
 either 64-bit or 32-bit capabilities depending how the user configures 
 SUNDIALS.
 
+To avoid potential namespace conflicts, the macros defining \id{booleantype}
+values \id{TRUE} and \id{FALSE} have been changed to \id{SUNTRUE} and
+\id{SUNFALSE} respectively.
+
 Temporary vectors were removed from preconditioner setup and solve
-   routines for all packages.  It is assumed that all necessary data
-   for user-provided preconditioner operations will be allocated and
-   stored in user-provided data structures.
+routines for all packages.  It is assumed that all necessary data
+for user-provided preconditioner operations will be allocated and
+stored in user-provided data structures.
 
 The file include/sundials\_fconfig.h was added.  This file contains 
 SUNDIALS type information for use in Fortran programs.

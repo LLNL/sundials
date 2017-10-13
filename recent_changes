@@ -58,10 +58,13 @@ within all SUNDIALS structures
    either 64-bit or 32-bit capabilities depending how the user configures 
    SUNDIALS
 
- * Temporary vectors were removed from preconditioner setup and solve
- routines for all packages.  It is assumed that all necessary data
- for user-provided preconditioner operations will be allocated and
- stored in user-provided data structures.
+* To avoid potential namespace conflicts, the macros defining booleantype
+values TRUE and FALSE have been changed to SUNTRUE and SUNFALSE respectively.
+
+* Temporary vectors were removed from preconditioner setup and solve
+routines for all packages.  It is assumed that all necessary data
+for user-provided preconditioner operations will be allocated and
+stored in user-provided data structures.
 
 * The file include/sundials\_fconfig.h was added.  This file contains 
 SUNDIALS type information for use in Fortran programs.
