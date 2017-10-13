@@ -173,19 +173,19 @@ int CVBoomerAMGInit(void *cvode_mem, int ilower, int iupper, int jlower, int jup
  *
  * jok     is an input flag indicating whether Jacobian-related
  *         data needs to be recomputed, as follows:
- *           jok == FALSE means recompute Jacobian-related data
+ *           jok == SUNFALSE means recompute Jacobian-related data
  *                  from scratch.
- *           jok == TRUE  means that Jacobian data from the
+ *           jok == SUNTRUE  means that Jacobian data from the
  *                  previous CVBoomerAMGon call can be reused
  *                  (with the current value of gamma).
- *         A CVBoomerAMG call with jok == TRUE should only occur
- *         after a call with jok == FALSE.
+ *         A CVBoomerAMG call with jok == SUNTRUE should only occur
+ *         after a call with jok == SUNFALSE.
  *         Currently this argument is superflous, since we cannot store a previous J
  *
  * jcurPtr is a pointer to an output integer flag which is
  *         set by CVBoomerAMGon as follows:
- *           *jcurPtr = TRUE if Jacobian data was recomputed.
- *           *jcurPtr = FALSE if Jacobian data was not recomputed,
+ *           *jcurPtr = SUNTRUE if Jacobian data was recomputed.
+ *           *jcurPtr = SUNFALSE if Jacobian data was not recomputed,
  *                      but saved data was reused.
  *
  * gamma   is the scalar appearing in the Newton matrix.
@@ -224,7 +224,7 @@ int CVBoomerAMGSetup(realtype t, N_Vector y, N_Vector fy,
 
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
-  *jcurPtr = TRUE;
+  *jcurPtr = SUNTRUE;
   
   /*Consider recomputing P in some Solve iterations if BoomerAMGSetup is much more
   expensive than computing P*/
@@ -367,9 +367,9 @@ int CVSpilsSetParCsrJacFn(void *cvode_mem, CVParCsrJacFn jparcsr)
 
   if (jparcsr != NULL) {
     pdata->jacfn  = jparcsr;
-/*    jtimesDQ = FALSE;*/
+/*    jtimesDQ = SUNFALSE;*/
   }/* else {
-    jtimesDQ = TRUE;
+    jtimesDQ = SUNTRUE;
   }*/
 
   return(CVSPILS_SUCCESS);
@@ -397,9 +397,9 @@ int CVParCsrSetSpilsJacTimesVecFn(void *cvode_mem, CVSpilsJacTimesVecFn jparcsr)
 
   if (jparcsr != NULL) {
     cvspils_mem->s_jtimes  = jparcsr;
-    cvspils_mem->s_jtimesDQ = FALSE;
+    cvspils_mem->s_jtimesDQ = SUNFALSE;
   }/* else {
-    jtimesDQ = TRUE;
+    jtimesDQ = SUNTRUE;
   }*/
 
   return(CVSPILS_SUCCESS);

@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
   ier = IDASetUserData(ida_mem, data);
   if(check_flag(&ier, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetSuppressAlg(ida_mem, TRUE);
+  ier = IDASetSuppressAlg(ida_mem, SUNTRUE);
   if(check_flag(&ier, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASetId(ida_mem, id);
@@ -774,7 +774,7 @@ static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol,
     printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
     printf("Constraints set to force all solution components >= 0. \n");
-    printf("SUPPRESSALG = TRUE to suppress local error testing on");
+    printf("SUPPRESSALG = SUNTRUE to suppress local error testing on");
     printf(" all boundary components. \n");
     printf("Linear solver: SUNSPGMR.    ");
     printf("Preconditioner: IDABBDPRE - Banded-block-diagonal.\n"); 
@@ -895,16 +895,16 @@ static void PrintFinalStats(void *ida_mem)
 static void ProcessArgs(int argc, char *argv[], int my_pe,
                         booleantype *sensi, int *sensi_meth, booleantype *err_con)
 {
-  *sensi = FALSE;
+  *sensi = SUNFALSE;
   *sensi_meth = -1;
-  *err_con = FALSE;
+  *err_con = SUNFALSE;
 
   if (argc < 2) WrongArgs(my_pe, argv[0]);
 
   if (strcmp(argv[1],"-nosensi") == 0)
-    *sensi = FALSE;
+    *sensi = SUNFALSE;
   else if (strcmp(argv[1],"-sensi") == 0)
-    *sensi = TRUE;
+    *sensi = SUNTRUE;
   else
     WrongArgs(my_pe, argv[0]);
   
@@ -921,9 +921,9 @@ static void ProcessArgs(int argc, char *argv[], int my_pe,
       WrongArgs(my_pe, argv[0]);
 
     if (strcmp(argv[3],"t") == 0)
-      *err_con = TRUE;
+      *err_con = SUNTRUE;
     else if (strcmp(argv[3],"f") == 0)
-      *err_con = FALSE;
+      *err_con = SUNFALSE;
     else
       WrongArgs(my_pe, argv[0]);
   }

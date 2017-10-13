@@ -13,7 +13,7 @@
  * LLNS Copyright End
  * -----------------------------------------------------------------
  * This header file exports three types: realtype, sunindextype and 
- * booleantype, as well as the constants TRUE and FALSE.
+ * booleantype, as well as the constants SUNTRUE and SUNFALSE.
  *
  * Users should include the header file sundials_types.h in every
  * program file and use the exported name realtype instead of
@@ -130,15 +130,15 @@ typedef int sunindextype;
  *------------------------------------------------------------------
  * Type : booleantype
  *------------------------------------------------------------------
- * Constants : FALSE and TRUE
+ * Constants : SUNFALSE and SUNTRUE
  *------------------------------------------------------------------
  * ANSI C does not have a built-in boolean data type. Below is the
  * definition for a new type called booleantype. The advantage of
  * using the name booleantype (instead of int) is an increase in
  * code readability. It also allows the programmer to make a
  * distinction between int and boolean data. Variables of type
- * booleantype are intended to have only the two values FALSE and
- * TRUE which are defined below to be equal to 0 and 1,
+ * booleantype are intended to have only the two values SUNFALSE and
+ * SUNTRUE which are defined below to be equal to 0 and 1,
  * respectively.
  *------------------------------------------------------------------
  */
@@ -147,12 +147,12 @@ typedef int sunindextype;
 #define booleantype int
 #endif
 
-#ifndef FALSE
-#define FALSE 0
+#ifndef SUNFALSE
+#define SUNFALSE 0
 #endif
 
-#ifndef TRUE
-#define TRUE 1
+#ifndef SUNTRUE
+#define SUNTRUE 1
 #endif
 
 

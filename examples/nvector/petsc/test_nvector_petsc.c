@@ -158,9 +158,9 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 booleantype has_data(N_Vector X)
 {
   if(N_VGetVector_Petsc(X) == NULL)
-    return FALSE;
+    return SUNFALSE;
   else
-    return TRUE;
+    return SUNTRUE;
 }
 
 void set_element(N_Vector X, sunindextype i, realtype val)

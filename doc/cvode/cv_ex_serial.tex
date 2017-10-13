@@ -464,14 +464,14 @@ matrix.  It is generated and factored in the \id{Precond} routine
 matrices that include the interaction Jacobian elements and the diagonal
 contribution of the diffusion Jacobian elements.  The block-diagonal part of
 the Jacobian itself, $J_{bd}$, is saved in separate storage each time it is
-generated, on calls to \id{Precond} with \id{jok}\id{ == FALSE}.
-On calls with \id{jok}\id{ == TRUE}, signifying that saved Jacobian data
+generated, on calls to \id{Precond} with \id{jok}\id{ == SUNFALSE}.
+On calls with \id{jok}\id{ == SUNTRUE}, signifying that saved Jacobian data
 can be reused, the preconditioner $P = I - \gamma J_{bd}$ is formed from the
 saved matrix $J_{bd}$ and factored.  (A call to \id{Precond} with
-\id{jok}\id{ == TRUE} can only occur after a prior call with
-\id{jok}\id{ == FALSE}.)  The \id{Precond} routine must also set the value
-of \id{jcur}, i.e. \id{*jcurPtr}, to \id{TRUE} when $J_{bd}$ is re-evaluated,
-and \id{FALSE} otherwise, to inform {\cvspils} of the status of Jacobian data.
+\id{jok}\id{ == SUNTRUE} can only occur after a prior call with
+\id{jok}\id{ == SUNFALSE}.)  The \id{Precond} routine must also set the value
+of \id{jcur}, i.e. \id{*jcurPtr}, to \id{SUNTRUE} when $J_{bd}$ is re-evaluated,
+and \id{SUNFALSE} otherwise, to inform {\cvspils} of the status of Jacobian data.
 
 We need to take a brief detour to explain one last important aspect of
 this program.  While the generic {\sunlinsoldense} linear solver

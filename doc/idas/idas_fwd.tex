@@ -804,7 +804,7 @@ remainder of this section.
 \hline
 Sensitivity scaling factors & \id{IDASetSensParams} & \id{NULL} \\
 DQ approximation method & \id{IDASetSensDQMethod} & centered,0.0 \\
-Error control strategy & \id{IDASetSensErrCon} & \id{FALSE} \\
+Error control strategy & \id{IDASetSensErrCon} & \id{SUNFALSE} \\
 Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 3 \\
 \hline
 \end{tabular}
@@ -915,8 +915,8 @@ Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 3 \\
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
   \item[errconS] (\id{booleantype})
-    specifies whether sensitivity variables are included (\id{TRUE}) or not
-    (\id{FALSE}) in the error control mechanism.
+    specifies whether sensitivity variables are included (\id{SUNTRUE}) or not
+    (\id{SUNFALSE}) in the error control mechanism.
   \end{args}
 }
 {
@@ -929,10 +929,10 @@ Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 3 \\
   \end{args}
 }
 {
-  By default, \id{errconS} is set to \id{FALSE}. 
-  If \id{errconS}$=$\id{TRUE} then both state variables and
+  By default, \id{errconS} is set to \id{SUNFALSE}. 
+  If \id{errconS}$=$\id{SUNTRUE} then both state variables and
   sensitivity variables are included in the error tests. 
-  If \id{errconS}$=$\id{FALSE} then the sensitivity variables are excluded from the 
+  If \id{errconS}$=$\id{SUNFALSE} then the sensitivity variables are excluded from the 
   error tests. Note that, in any event, all variables are considered in the convergence 
   tests.
 }
@@ -1925,8 +1925,8 @@ of sensitivity-dependent quadrature equations.
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
   \item[errconQS] (\id{booleantype})
-    specifies whether sensitivity quadrature variables are included (\id{TRUE}) or not
-    (\id{FALSE}) in the error control mechanism. 
+    specifies whether sensitivity quadrature variables are included (\id{SUNTRUE}) or not
+    (\id{SUNFALSE}) in the error control mechanism. 
   \end{args}
 }
 {
@@ -1943,7 +1943,7 @@ of sensitivity-dependent quadrature equations.
   \end{args}
 }
 {
-  By default, \id{errconQS} is set to \id{FALSE}. 
+  By default, \id{errconQS} is set to \id{SUNFALSE}. 
 
   {\warn}It is illegal to call \id{IDASetQuadSensErrCon} before a call 
   to \id{IDAQuadSensInit}.
@@ -2171,7 +2171,7 @@ performance information related to quadrature integration.
   {\warn}The user must allocate memory for \id{eQSweight}.
 
   If quadratures were not included in the error control mechanism (through a 
-  call to \id{IDASetQuadSensErrCon} with \id{errconQS=TRUE}), 
+  call to \id{IDASetQuadSensErrCon} with \id{errconQS=SUNTRUE}), 
   \id{IDAGetQuadSensErrWeights} does not set the \id{eQSweight} vector.
 }
 %%

@@ -104,7 +104,7 @@ int KINDlsSetLinearSolver(void *kinmem, SUNLinearSolver LS,
   kindls_mem->J = A;
 
   /* Initialize Jacobian-related data */
-  kindls_mem->jacDQ     = TRUE;
+  kindls_mem->jacDQ     = SUNTRUE;
   kindls_mem->jac       = kinDlsDQJac;
   kindls_mem->J_data    = kin_mem;
   kindls_mem->last_flag = KINDLS_SUCCESS;
@@ -146,11 +146,11 @@ int KINDlsSetJacFn(void *kinmem, KINDlsJacFn jac)
   kindls_mem = (KINDlsMem) kin_mem->kin_lmem;
 
   if (jac != NULL) {
-    kindls_mem->jacDQ  = FALSE;
+    kindls_mem->jacDQ  = SUNFALSE;
     kindls_mem->jac    = jac;
     kindls_mem->J_data = kin_mem->kin_user_data;
   } else {
-    kindls_mem->jacDQ  = TRUE;
+    kindls_mem->jacDQ  = SUNTRUE;
     kindls_mem->jac    = kinDlsDQJac;
     kindls_mem->J_data = kin_mem;
   }

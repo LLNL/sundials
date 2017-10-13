@@ -268,9 +268,9 @@ static void cvmInitCVODESdata()
 
   cvmData->Nd        = 0;
   cvmData->Nc        = 0;
-  cvmData->asa       = FALSE;
+  cvmData->asa       = SUNFALSE;
 
-  cvmData->errMsg    = TRUE;
+  cvmData->errMsg    = SUNTRUE;
 
   return;
 }
@@ -289,9 +289,9 @@ static void cvmInitPbData(cvmPbData pb)
   pb->YQ = NULL;
   pb->YS = NULL;
 
-  pb->Quadr  = FALSE;
-  pb->Fsa    = FALSE;
-  pb->Mon    = FALSE;
+  pb->Quadr  = SUNFALSE;
+  pb->Fsa    = SUNFALSE;
+  pb->Mon    = SUNFALSE;
 
   pb->LS = LS_DENSE;
   pb->PM = PM_NONE;
@@ -710,7 +710,7 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
   /* Process the options structure */
 
-  status = get_IntgrOptions(options, fwdPb, TRUE, lmm,
+  status = get_IntgrOptions(options, fwdPb, SUNTRUE, lmm,
                             &maxord, &sld, &errmsg, &mxsteps,
                             &itol, &reltol, &Sabstol, &Vabstol,
                             &hin, &hmax, &hmin, &tstop, &rhs_s);
@@ -817,7 +817,7 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
     if (status != CV_SUCCESS) goto error_return;
   }
 
-  /* set stability limit detection (default is FALSE) */
+  /* set stability limit detection (default is SUNFALSE) */
   status = CVodeSetStabLimDet(cvode_mem, sld);
   if (status != CV_SUCCESS) goto error_return;
 
@@ -825,9 +825,9 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
   if ( !mxIsEmpty(mtlb_Gfct) && (Ng > 0) ) {
     status = CVodeRootInit(cvode_mem, Ng, mxW_CVodeGfct);
     if (status != CV_SUCCESS) goto error_return;
-    rootSet = TRUE;
+    rootSet = SUNTRUE;
   } else {
-    rootSet = FALSE;
+    rootSet = SUNFALSE;
   }
 
   /*
@@ -838,7 +838,7 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
   if (iter == CV_NEWTON) {
 
-    status = get_LinSolvOptions(options, fwdPb, TRUE,
+    status = get_LinSolvOptions(options, fwdPb, SUNTRUE,
                                 &mupper, &mlower,
                                 &mudq, &mldq, &dqrely,
                                 &ptype, &gstype, &maxl);
@@ -1066,7 +1066,7 @@ static int CVM_QuadInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
   /* Process the options structure */
 
-  status = get_QuadOptions(options, fwdPb, TRUE,
+  status = get_QuadOptions(options, fwdPb, SUNTRUE,
                            Nq, &rhs_s,
                            &errconQ, 
                            &itolQ, &reltolQ, &SabstolQ, &VabstolQ);
@@ -1123,7 +1123,7 @@ static int CVM_QuadInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
   /* Quadratures will be integrated */
 
-  quadr = TRUE;
+  quadr = SUNTRUE;
 
   /* Successful return */
 
@@ -1205,12 +1205,12 @@ static int CVM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
     if ( mxIsEmpty(prhs[1]) ) {
       rhsS = NULL;
-      fS_DQ = TRUE;
+      fS_DQ = SUNTRUE;
     } else {
       mxDestroyArray(mtlb_SRHSfct);
       mtlb_SRHSfct = mxDuplicateArray(prhs[1]);
       rhsS = mxW_CVodeSensRhs;
-      fS_DQ = FALSE;
+      fS_DQ = SUNFALSE;
     }
 
     /* Extract sensitivity initial condition */
@@ -1353,7 +1353,7 @@ static int CVM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
   status = CVodeSetSensErrCon(cvode_mem, errconS);
   if (status != CV_SUCCESS) goto error_return;
 
-  fsa = TRUE;
+  fsa = SUNTRUE;
 
   /* Successful return */
 
@@ -1390,7 +1390,7 @@ static int CVM_SensToggleOff(int nlhs, mxArray *plhs[], int nrhs, const mxArray 
     return(-1);
   }
 
-  fsa = FALSE;
+  fsa = SUNFALSE;
 
   status = 0;
   plhs[0] = mxCreateDoubleScalar((double)status);
@@ -1455,7 +1455,7 @@ static int CVM_AdjInitialization(int action, int nlhs, mxArray *plhs[], int nrhs
 
   }
 
-  asa = TRUE;
+  asa = SUNTRUE;
   
   /* Successful return */
 
@@ -1545,7 +1545,7 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   if (cvmData->fwdPb->Mon) {
     mxW_CVodeMonitor(2, 0.0, NULL, NULL, NULL, cvmData->fwdPb);
-    cvmData->fwdPb->Mon = FALSE;
+    cvmData->fwdPb->Mon = SUNFALSE;
   }
 
   /* 
@@ -1644,11 +1644,11 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
     /* Find current backward problem */
 
-    found_bck = FALSE;
+    found_bck = SUNFALSE;
     bckPb = cvmData->bckPb;
     while (bckPb != NULL) {
       if (indexB == idxB) {
-        found_bck = TRUE;
+        found_bck = SUNTRUE;
         break;
       }
       bckPb = bckPb->next;
@@ -1692,7 +1692,7 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   /* Process the options structure */
 
-  status = get_IntgrOptions(options, bckPb, FALSE, lmmB,
+  status = get_IntgrOptions(options, bckPb, SUNFALSE, lmmB,
                             &maxordB, &sldB, &errmsgB, &mxstepsB,
                             &itolB, &reltolB, &SabstolB, &VabstolB,
                             &hinB, &hmaxB, &hminB, &tstopB, &rhs_s);
@@ -1800,7 +1800,7 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   if (iterB == CV_NEWTON) {
 
-    status = get_LinSolvOptions(options, bckPb, FALSE,
+    status = get_LinSolvOptions(options, bckPb, SUNFALSE,
                                 &mupperB, &mlowerB,
                                 &mudqB, &mldqB, &dqrelyB,
                                 &ptypeB, &gstypeB, &maxlB);
@@ -1971,11 +1971,11 @@ static int CVM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
 
   /* Find current backward problem */
 
-  found_bck = FALSE;
+  found_bck = SUNFALSE;
   bckPb = cvmData->bckPb;
   while (bckPb != NULL) {
     if (indexB == idxB) {
-      found_bck = TRUE;
+      found_bck = SUNTRUE;
       break;
     }
     bckPb = bckPb->next;
@@ -2045,7 +2045,7 @@ static int CVM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
 
   /* Process the options structure */
 
-  status = get_QuadOptions(options, bckPb, FALSE,
+  status = get_QuadOptions(options, bckPb, SUNFALSE,
                            NqB, &rhs_s,
                            &errconQB, 
                            &itolQB, &reltolQB, &SabstolQB, &VabstolQB);
@@ -2101,7 +2101,7 @@ static int CVM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
     
   }
 
-  quadrB = TRUE;
+  quadrB = SUNTRUE;
 
   /* Successful return */
 
@@ -2228,7 +2228,7 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     if (mon) {
       cvmErrHandler(+999, "CVODES", "CVode",
                     "Monitoring disabled in ONE_STEP mode.", NULL);
-      mon = FALSE;
+      mon = SUNFALSE;
     }
 
   } else {
@@ -2477,12 +2477,12 @@ static int CVM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
    * -------------------------------------------------------
    */
 
-  any_quadrB = FALSE;
-  any_monB   = FALSE;
+  any_quadrB = SUNFALSE;
+  any_monB   = SUNFALSE;
   bckPb = cvmData->bckPb;
   while(bckPb != NULL) {
-    if (quadrB) any_quadrB = TRUE;
-    if (monB)   any_monB   = TRUE;
+    if (quadrB) any_quadrB = SUNTRUE;
+    if (monB)   any_monB   = SUNTRUE;
     bckPb = bckPb->next;
   }
   
@@ -2568,10 +2568,10 @@ static int CVM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
                     "Monitoring disabled in itask=CV_ONE_STEP", NULL);
       bckPb = cvmData->bckPb;
       while(bckPb != NULL) {
-        monB = FALSE;
+        monB = SUNFALSE;
         bckPb = bckPb->next;
       }
-      any_monB = FALSE;
+      any_monB = SUNFALSE;
     }
 
   }
@@ -3326,11 +3326,11 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   /* Find current backward problem */
 
-  found_bck = FALSE;
+  found_bck = SUNFALSE;
   bckPb = cvmData->bckPb;
   while (bckPb != NULL) {
     if (indexB == idxB) {
-      found_bck = TRUE;
+      found_bck = SUNTRUE;
       break;
     }
     bckPb = bckPb->next;

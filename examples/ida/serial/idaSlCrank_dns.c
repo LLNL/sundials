@@ -120,7 +120,7 @@ int main(void)
   flag = IDASStolerances(mem, rtol, atol);
   flag = IDASetUserData(mem, data);
   flag = IDASetId(mem, id);
-  flag = IDASetSuppressAlg(mem, TRUE);
+  flag = IDASetSuppressAlg(mem, SUNTRUE);
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ);

@@ -149,7 +149,7 @@ int CPodeCalcIC(void *cpode_mem)
   cp_mem = (CPodeMem) cpode_mem;
 
   /* Check if cpode_mem was allocated */
-  if (cp_mem->cp_MallocDone == FALSE) {
+  if (cp_mem->cp_MallocDone == SUNFALSE) {
     cpProcessError(cp_mem, CP_NO_MALLOC, "CPODES", "CPodeCalcIC", MSGCP_NO_MALLOC);
     return(CP_NO_MALLOC);
   }
@@ -430,7 +430,7 @@ static int cpicProjNonlinear(CPodeMem cp_mem)
 
   /* Initializations */
   m = 0;
-  callSetup = TRUE;
+  callSetup = SUNTRUE;
   crate = ONE;
   pnorm = ZERO;
   pnorm_p = ZERO;
@@ -442,12 +442,12 @@ static int cpicProjNonlinear(CPodeMem cp_mem)
      * 1. Evaluate Jacobian (if requested)
      */
 
-    jacCurrent = FALSE;    
+    jacCurrent = SUNFALSE;    
     if (lsetupP_exists && callSetup) {
       retval = lsetupP(cp_mem, yy0, ctemp, tempvP1, tempvP2, tempv);
       if (retval != 0) return(CP_PLSETUP_FAIL);
-      jacCurrent = TRUE;
-      callSetup = FALSE;
+      jacCurrent = SUNTRUE;
+      callSetup = SUNFALSE;
       crate = ONE;
       m = 0;
     }
@@ -468,7 +468,7 @@ static int cpicProjNonlinear(CPodeMem cp_mem)
     /* If lsolveP had a recoverable error, with up-to-date Jacobian, return */
     if (retval > 0) {
       if (!lsetupP_exists || jacCurrent) return(CP_NO_RECOVERY);
-      callSetup = TRUE;
+      callSetup = SUNTRUE;
       continue;
     }
 
@@ -486,7 +486,7 @@ static int cpicProjNonlinear(CPodeMem cp_mem)
     
     /* Attempt (at most icprj_maxrcvr times) to evaluate 
        constraint function at the new iterate */
-    cOK = FALSE;
+    cOK = SUNFALSE;
     for (ircvr=0; ircvr<icprj_maxrcvr; ircvr++) {
       
       /* compute new iterate */
@@ -496,7 +496,7 @@ static int cpicProjNonlinear(CPodeMem cp_mem)
       retval = cfun(tn, yy0_new, ctemp, cp_mem->cp_user_data);
       
       /* if successful, accept current acorP */
-      if (retval == 0) {cOK = TRUE; break;}
+      if (retval == 0) {cOK = SUNTRUE; break;}
       
       /* if function failed unrecoverably, give up */
       if (retval < 0) return(CP_CNSTRFUNC_FAIL);
@@ -567,7 +567,7 @@ static int cpicProjNonlinear(CPodeMem cp_mem)
       if (!lsetupP_exists || jacCurrent) return(CP_PROJ_FAILURE);
 
       /* Otherwise, attempt to recover by re-evaluating the Jacobian */
-      callSetup = TRUE;
+      callSetup = SUNTRUE;
       retval = cfun(tn, yy0, ctemp, cp_mem->cp_user_data);
       continue;
 

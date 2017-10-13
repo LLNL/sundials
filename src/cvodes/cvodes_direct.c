@@ -125,7 +125,7 @@ int CVDlsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   cvdls_mem->LS = LS;
   
   /* Initialize Jacobian-related data */
-  cvdls_mem->jacDQ = TRUE;
+  cvdls_mem->jacDQ = SUNTRUE;
   cvdls_mem->jac = cvDlsDQJac;
   cvdls_mem->J_data = cv_mem;
   cvdls_mem->last_flag = CVDLS_SUCCESS;
@@ -184,11 +184,11 @@ int CVDlsSetJacFn(void *cvode_mem, CVDlsJacFn jac)
   cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
   if (jac != NULL) {
-    cvdls_mem->jacDQ  = FALSE;
+    cvdls_mem->jacDQ  = SUNFALSE;
     cvdls_mem->jac    = jac;
     cvdls_mem->J_data = cv_mem->cv_user_data;
   } else {
-    cvdls_mem->jacDQ  = TRUE;
+    cvdls_mem->jacDQ  = SUNTRUE;
     cvdls_mem->jac    = cvDlsDQJac;
     cvdls_mem->J_data = cv_mem;
   }
@@ -652,9 +652,9 @@ int cvDlsSetup(CVodeMem cv_mem, int convfail, N_Vector y,
     (convfail == CV_FAIL_OTHER);
   jok = !jbad;
  
-  /* If jok = TRUE, use saved copy of J */
+  /* If jok = SUNTRUE, use saved copy of J */
   if (jok) {
-    *jcurPtr = FALSE;
+    *jcurPtr = SUNFALSE;
     retval = SUNMatCopy(cvdls_mem->savedJ, cvdls_mem->A);
     if (retval) {
       cvProcessError(cv_mem, CVDLS_SUNMAT_FAIL, "CVSDLS", 
@@ -663,11 +663,11 @@ int cvDlsSetup(CVodeMem cv_mem, int convfail, N_Vector y,
       return(-1);
     }
 
-  /* If jok = FALSE, call jac routine for new J value */
+  /* If jok = SUNFALSE, call jac routine for new J value */
   } else {
     cvdls_mem->nje++;
     cvdls_mem->nstlj = cv_mem->cv_nst;
-    *jcurPtr = TRUE;
+    *jcurPtr = SUNTRUE;
     retval = SUNMatZero(cvdls_mem->A);
     if (retval) {
       cvProcessError(cv_mem, CVDLS_SUNMAT_FAIL, "CVSDLS", 
@@ -833,7 +833,7 @@ int CVDlsSetLinearSolverB(void *cvode_mem, int which,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVDLS_NO_ADJ, "CVSDLS",
                    "CVDlsSetLinearSolverB", MSGD_NO_ADJ);
     return(CVDLS_NO_ADJ);
@@ -907,7 +907,7 @@ int CVDlsSetJacFnB(void *cvode_mem, int which, CVDlsJacFnB jacB)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVDLS_NO_ADJ, "CVSDLS",
                    "CVDlsSetJacFnB", MSGD_NO_ADJ);
     return(CVDLS_NO_ADJ);
@@ -967,7 +967,7 @@ int CVDlsSetJacFnBS(void *cvode_mem, int which, CVDlsJacFnBS jacBS)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVDLS_NO_ADJ, "CVSDLS",
                    "CVDlsSetJacFnBS", MSGD_NO_ADJ);
     return(CVDLS_NO_ADJ);
@@ -1051,7 +1051,7 @@ static int cvDlsJacBWrapper(realtype t, N_Vector yB, N_Vector fyB,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVDLS_NO_ADJ, "CVSDLS",
                    "cvDlsJacBWrapper", MSGD_NO_ADJ);
     return(CVDLS_NO_ADJ);
@@ -1109,7 +1109,7 @@ static int cvDlsJacBSWrapper(realtype t, N_Vector yB, N_Vector fyB,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVDLS_NO_ADJ, "CVSDLS",
                    "cvDlsJacBSWrapper", MSGD_NO_ADJ);
     return(CVDLS_NO_ADJ);

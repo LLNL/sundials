@@ -86,7 +86,7 @@ and data types can be used. The header file that is always required is:
 %%
 Note that \id{ida.h} includes \Id{sundials\_types.h}, 
 which defines the types \id{realtype}, \id{sunindextype}, and \id{booleantype}
-and the constants \id{FALSE} and \id{TRUE}.
+and the constants \id{SUNFALSE} and \id{SUNTRUE}.
 
 The calling program must also include an {\nvector} implementation header file,
 of the form \id{nvector/nvector\_***.h}.  See Chapter \ref{s:nvector} for the appropriate
@@ -1181,7 +1181,7 @@ Maximum no. of nonlinear iterations & \id{IDASetMaxNonlinIters} & 4 \\
 Maximum no. of convergence failures & \id{IDASetMaxConvFails} & 10 \\
 Maximum no. of error test failures & \id{IDASetMaxErrTestFails} & 7 \\
 Coeff. in the nonlinear convergence test & \id{IDASetNonlinConvCoef} & 0.33 \\
-Suppress alg. vars. from error test & \id{IDASetSuppressAlg} & \id{FALSE} \\
+Suppress alg. vars. from error test & \id{IDASetSuppressAlg} & \id{SUNFALSE} \\
 Variable types (differential/algebraic) & \id{IDASetId} & \id{NULL} \\
 Inequality constraints on solution & \id{IDASetConstraints} & \id{NULL} \\
 Direction of zero-crossing & \id{IDASetRootDirection} & both \\
@@ -1194,7 +1194,7 @@ Maximum no. of steps & \id{IDASetMaxNumStepsIC} & 5 \\
 Maximum no. of Jacobian/precond. evals. & \id{IDASetMaxNumJacsIC} & 4 \\
 Maximum no. of Newton iterations & \id{IDASetMaxNumItersIC} & 10 \\
 Max. linesearch backtracks per Newton iter. & \id{IDASetMaxBacksIC} & 100 \\
-Turn off linesearch & \id{IDASetLineSearchOffIC} & \id{FALSE} \\
+Turn off linesearch & \id{IDASetLineSearchOffIC} & \id{SUNFALSE} \\
 Lower bound on Newton step & \id{IDASetStepToleranceIC} &  uround$^{2/3}$ \\ 
 \hline
 \multicolumn{3}{|c|}{\bf IDADLS linear solver interface} \\
@@ -1634,8 +1634,8 @@ flag = IDASetSuppressAlg(ida\_mem, suppressalg);
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[suppressalg] (\id{booleantype})
-    indicates whether to suppress (\id{TRUE}) or not
-    (\id{FALSE}) the algebraic variables in the local error test.
+    indicates whether to suppress (\id{SUNTRUE}) or not
+    (\id{SUNFALSE}) the algebraic variables in the local error test.
   \end{args}
 }
 {
@@ -1648,12 +1648,12 @@ flag = IDASetSuppressAlg(ida\_mem, suppressalg);
   \end{args}
 }
 {
-  The default value is \id{FALSE}.
+  The default value is \id{SUNFALSE}.
 
-  If \id{suppressalg}$=$\id{TRUE} is selected, then the \id{id} vector
+  If \id{suppressalg}$=$\id{SUNTRUE} is selected, then the \id{id} vector
   must be set (through \id{IDASetId}) to specify the algebraic components.
 
-  In general, the use of this option (with \id{suppressalg = TRUE}) is
+  In general, the use of this option (with \id{suppressalg = SUNTRUE}) is
   {\em discouraged} when solving DAE systems of index 1, whereas it is
   generally {\em encouraged} for systems of index 2 or more.
   See pp.~146-147 of Ref.~\cite{BCP:96} for more on this issue.
@@ -2181,7 +2181,7 @@ flag = IDASetLineSearchOffIC(ida\_mem, lsoff);
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[lsoff] (\id{booleantype})
-    a flag to turn off (\id{TRUE}) or keep (\id{FALSE}) the linesearch
+    a flag to turn off (\id{SUNTRUE}) or keep (\id{SUNFALSE}) the linesearch
     algorithm.
   \end{args}
 }
@@ -2195,7 +2195,7 @@ flag = IDASetLineSearchOffIC(ida\_mem, lsoff);
   \end{args}
 }
 {
-  The default value is \id{FALSE}.
+  The default value is \id{SUNFALSE}.
 }
 %%
 %%

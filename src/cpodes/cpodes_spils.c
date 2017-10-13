@@ -309,10 +309,10 @@ int CPSpilsSetJacTimesVecFnExpl(void *cpode_mem, CPSpilsJacTimesVecExplFn jtimes
   cpspils_mem = (CPSpilsMem) lmem;
 
   if (jtimes != NULL) {
-    jtimesDQ = FALSE;
+    jtimesDQ = SUNFALSE;
     cpspils_mem->s_jtvE = jtimes;
   } else {
-    jtimesDQ = TRUE;
+    jtimesDQ = SUNTRUE;
   }
 
   return(CPSPILS_SUCCESS);
@@ -338,10 +338,10 @@ int CPSpilsSetJacTimesVecFnImpl(void *cpode_mem, CPSpilsJacTimesVecImplFn jtimes
   cpspils_mem = (CPSpilsMem) lmem;
 
   if (jtimes != NULL) {
-    jtimesDQ = FALSE;
+    jtimesDQ = SUNFALSE;
     cpspils_mem->s_jtvI = jtimes;
   } else {
-    jtimesDQ = TRUE;
+    jtimesDQ = SUNTRUE;
   }
 
   return(CPSPILS_SUCCESS);

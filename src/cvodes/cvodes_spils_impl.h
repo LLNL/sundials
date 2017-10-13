@@ -82,10 +82,10 @@ typedef struct CVSpilsMemRec {
   /* Jacobian times vector compuation
    * (a) jtimes function provided by the user:
    *     - j_data == user_data
-   *     - jtimesDQ == FALSE
+   *     - jtimesDQ == SUNFALSE
    * (b) internal jtimes
    *     - j_data == cvode_mem
-   *     - jtimesDQ == TRUE  */
+   *     - jtimesDQ == SUNTRUE  */
   booleantype jtimesDQ;
   CVSpilsJacTimesSetupFn jtsetup;
   CVSpilsJacTimesVecFn jtimes;

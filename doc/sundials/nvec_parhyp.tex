@@ -145,10 +145,10 @@ N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w);
 \item
   {\warn}\id{N\_VNewEmpty\_ParHyp}, \id{N\_VMake\_ParHyp}, 
   and \id{N\_VCloneVectorArrayEmpty\_ParHyp} set the field 
-  {\em own\_parvector} to \id{FALSE}. 
+  {\em own\_parvector} to \id{SUNFALSE}. 
   \id{N\_VDestroy\_ParHyp} and \id{N\_VDestroyVectorArray\_ParHyp}
   will not attempt to delete an underlying {\hypre} vector for any \id{N\_Vector} 
-  with {\em own\_parvector} set to \id{FALSE}. In such a case, it is the 
+  with {\em own\_parvector} set to \id{SUNFALSE}. In such a case, it is the 
   user's responsibility to delete the underlying vector.
 
 \item

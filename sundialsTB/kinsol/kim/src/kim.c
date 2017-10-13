@@ -148,7 +148,7 @@ static void kimInitKINSOLdata()
   kimData->LS = LS_DENSE;
   kimData->PM = PM_NONE;
 
-  kimData->errMsg = TRUE;
+  kimData->errMsg = SUNTRUE;
 
   /* Initialize Matlab mex arrays to empty */
 
@@ -383,7 +383,7 @@ static int KIM_Initialization(int nlhs, mxArray *plhs[], int nrhs, const mxArray
   status = KINSetErrHandlerFn(kin_mem, kimErrHandler, NULL);
   if (status != KIN_SUCCESS) goto error_return;
 
-  /* If verbose was set to TRUE */
+  /* If verbose was set to SUNTRUE */
   if (verbose) {
     /* Set print level to its highest value */
     status = KINSetPrintLevel(kin_mem,3);

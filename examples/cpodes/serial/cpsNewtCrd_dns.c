@@ -149,7 +149,7 @@ int main()
   /* Set-up the internal projection */
   
   flag = CPodeProjInit(cpode_mem, CP_PROJ_L2NORM, CP_CNSTR_NONLIN, cfun, ctols);
-  flag = CPodeSetProjTestCnstr(cpode_mem, TRUE);
+  flag = CPodeSetProjTestCnstr(cpode_mem, SUNTRUE);
   flag = CPDenseProj(cpode_mem, Nc, Neq, CPDLS_LU);
 
   /* Integrate in ONE_STEP mode, while monitoring events */
@@ -224,7 +224,7 @@ int main()
   /* Set-up the internal projection */
   
   flag = CPodeProjInit(cpode_mem, CP_PROJ_L2NORM, CP_CNSTR_NONLIN, cfun, ctols);
-  flag = CPodeSetProjTestCnstr(cpode_mem, TRUE);
+  flag = CPodeSetProjTestCnstr(cpode_mem, SUNTRUE);
   flag = CPDenseProj(cpode_mem, Nc, Neq, CPDLS_LU);
 
   /* Integrate in ONE_STEP mode, while monitoring events */

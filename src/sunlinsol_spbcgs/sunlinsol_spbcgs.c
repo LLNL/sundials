@@ -313,7 +313,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   /* Initialize counters and convergence flag */
   *nli = 0;
-  converged = FALSE;
+  converged = SUNFALSE;
 
   /* set booleantype flags for internal solver options */
   preOnLeft  = ( (PRETYPE(S) == PREC_LEFT) || 
@@ -494,7 +494,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
     *res_norm = rho = SUNRsqrt(N_VDotProd(r, r));
     if (rho <= delta) {
-      converged = TRUE;
+      converged = SUNTRUE;
       break;
     }
 
@@ -514,7 +514,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   /* Main loop finished */
 
-  if ((converged == TRUE) || (rho < r_norm)) {
+  if ((converged == SUNTRUE) || (rho < r_norm)) {
 
     /* Apply the x-scaling and right preconditioner: x = P2_inv sx_inv x */
 
@@ -529,7 +529,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       N_VScale(ONE, vtemp, x);
     }
 
-    if (converged == TRUE) 
+    if (converged == SUNTRUE) 
       LASTFLAG(S) = SUNLS_SUCCESS;
     else 
       LASTFLAG(S) = SUNLS_RES_REDUCED;

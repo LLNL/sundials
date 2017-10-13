@@ -212,7 +212,7 @@ int main(int argc, char *argv[])
   ier = IDASetUserData(mem, data);
   if(check_flag(&ier, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetSuppressAlg(mem, TRUE);
+  ier = IDASetSuppressAlg(mem, SUNTRUE);
   if(check_flag(&ier, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASetId(mem, id);
@@ -525,7 +525,7 @@ static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
   printf("Constraints set to force all solution components >= 0. \n");
-  printf("SUPPRESSALG = TRUE to suppress local error testing on ");
+  printf("SUPPRESSALG = SUNTRUE to suppress local error testing on ");
   printf("all boundary components. \n");
   printf("Linear solver: IDASPGMR  ");
   printf("Preconditioner: diagonal elements only.\n"); 

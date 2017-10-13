@@ -75,10 +75,10 @@ typedef struct ARKSpilsMemRec {
   /* Jacobian times vector compuation
     (a) jtimes function provided by the user:
         - j_data == user_data
-        - jtimesDQ == FALSE
+        - jtimesDQ == SUNFALSE
     (b) internal jtimes
         - j_data == arkode_mem
-        - jtimesDQ == TRUE   */
+        - jtimesDQ == SUNTRUE   */
   booleantype jtimesDQ;
   ARKSpilsJacTimesSetupFn jtsetup;
   ARKSpilsJacTimesVecFn jtimes;

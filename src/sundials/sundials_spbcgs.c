@@ -169,7 +169,7 @@ int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
   vtemp  = mem->vtemp;
 
   *nli = *nps = 0;    /* Initialize counters */
-  converged = FALSE;  /* Initialize converged flag */
+  converged = SUNFALSE;  /* Initialize converged flag */
 
   if ((pretype != PREC_LEFT) && (pretype != PREC_RIGHT) && (pretype != PREC_BOTH)) pretype = PREC_NONE;
 
@@ -323,7 +323,7 @@ int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
 
     *res_norm = rho = SUNRsqrt(N_VDotProd(r, r));
     if (rho <= delta) {
-      converged = TRUE;
+      converged = SUNTRUE;
       break;
     }
 
@@ -343,7 +343,7 @@ int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
 
   /* Main loop finished */
 
-  if ((converged == TRUE) || (rho < r_norm)) {
+  if ((converged == SUNTRUE) || (rho < r_norm)) {
 
     /* Apply the x-scaling and right preconditioner: x = P2_inv sx_inv x */
 
@@ -355,7 +355,7 @@ int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
       N_VScale(ONE, vtemp, x);
     }
 
-    if (converged == TRUE) return(SPBCG_SUCCESS);
+    if (converged == SUNTRUE) return(SPBCG_SUCCESS);
     else return(SPBCG_RES_REDUCED);
   }
   else return(SPBCG_CONV_FAIL);

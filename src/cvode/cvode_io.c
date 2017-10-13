@@ -372,7 +372,7 @@ int CVodeSetStopTime(void *cvode_mem, realtype tstop)
   }
 
   cv_mem->cv_tstop = tstop;
-  cv_mem->cv_tstopset = TRUE;
+  cv_mem->cv_tstopset = SUNTRUE;
 
   return(CV_SUCCESS);
 }
@@ -679,7 +679,7 @@ int CVodeGetNumStabLimOrderReds(void *cvode_mem, long int *nslred)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (cv_mem->cv_sldeton==FALSE)
+  if (cv_mem->cv_sldeton==SUNFALSE)
     *nslred = 0;
   else
     *nslred = cv_mem->cv_nor;

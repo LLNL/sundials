@@ -120,7 +120,7 @@ int IDADlsSetLinearSolver(void *ida_mem, SUNLinearSolver LS,
   idadls_mem->J = A;
 
   /* Initialize Jacobian-related data */
-  idadls_mem->jacDQ     = TRUE;
+  idadls_mem->jacDQ     = SUNTRUE;
   idadls_mem->jac       = idaDlsDQJac;
   idadls_mem->J_data    = IDA_mem;
   idadls_mem->last_flag = IDADLS_SUCCESS;
@@ -171,11 +171,11 @@ int IDADlsSetJacFn(void *ida_mem, IDADlsJacFn jac)
   idadls_mem = (IDADlsMem) IDA_mem->ida_lmem;
 
   if (jac != NULL) {
-    idadls_mem->jacDQ  = FALSE;
+    idadls_mem->jacDQ  = SUNFALSE;
     idadls_mem->jac    = jac;
     idadls_mem->J_data = IDA_mem->ida_user_data;
   } else {
-    idadls_mem->jacDQ  = TRUE;
+    idadls_mem->jacDQ  = SUNTRUE;
     idadls_mem->jac    = idaDlsDQJac;
     idadls_mem->J_data = IDA_mem;
   }
@@ -844,7 +844,7 @@ int IDADlsSetLinearSolverB(void *ida_mem, int which,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDADLS_NO_ADJ, "IDASDLS",
                     "IDADlsSetLinearSolverB",  MSGD_NO_ADJ);
     return(IDADLS_NO_ADJ);
@@ -920,7 +920,7 @@ int IDADlsSetJacFnB(void *ida_mem, int which, IDADlsJacFnB jacB)
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDADLS_NO_ADJ, "IDASDLS",
                     "IDADlsSetJacFnB",  MSGD_NO_ADJ);
     return(IDADLS_NO_ADJ);
@@ -982,7 +982,7 @@ int IDADlsSetJacFnBS(void *ida_mem, int which, IDADlsJacFnBS jacBS)
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDADLS_NO_ADJ, "IDASDLS",
                     "IDADlsSetJacFnBS",  MSGD_NO_ADJ);
     return(IDADLS_NO_ADJ);
@@ -1073,7 +1073,7 @@ static int idaDlsJacBWrapper(realtype tt, realtype c_jB, N_Vector yyB,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDADLS_NO_ADJ, "IDASDLS",
                     "idaDlsJacBWrapper",  MSGD_NO_ADJ);
     return(IDADLS_NO_ADJ);
@@ -1097,7 +1097,7 @@ static int idaDlsJacBWrapper(realtype tt, realtype c_jB, N_Vector yyB,
   idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
   /* Forward solution from interpolation */
-  if (IDAADJ_mem->ia_noInterp == FALSE) {
+  if (IDAADJ_mem->ia_noInterp == SUNFALSE) {
     flag = IDAADJ_mem->ia_getY(IDA_mem, tt, IDAADJ_mem->ia_yyTmp,
                                IDAADJ_mem->ia_ypTmp, NULL, NULL);
     if (flag != IDA_SUCCESS) {
@@ -1142,7 +1142,7 @@ static int idaDlsJacBSWrapper(realtype tt, realtype c_jB, N_Vector yyB,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
-  if (IDA_mem->ida_adjMallocDone == FALSE) {
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDADLS_NO_ADJ, "IDASDLS",
                     "idaDlsJacBSWrapper",  MSGD_NO_ADJ);
     return(IDADLS_NO_ADJ);
@@ -1166,7 +1166,7 @@ static int idaDlsJacBSWrapper(realtype tt, realtype c_jB, N_Vector yyB,
   idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
   /* Get forward solution from interpolation. */
-  if( IDAADJ_mem->ia_noInterp == FALSE) {
+  if( IDAADJ_mem->ia_noInterp == SUNFALSE) {
     if (IDAADJ_mem->ia_interpSensi)
       flag = IDAADJ_mem->ia_getY(IDA_mem, tt, IDAADJ_mem->ia_yyTmp,
                                  IDAADJ_mem->ia_ypTmp, IDAADJ_mem->ia_yySTmp,

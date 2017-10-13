@@ -218,7 +218,7 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   content->local_length  = local_length;
   content->global_length = global_length;
   content->comm          = comm;
-  content->own_parvector = FALSE;
+  content->own_parvector = SUNFALSE;
   content->x             = NULL;
   
   /* Attach content and ops */
@@ -248,7 +248,7 @@ N_Vector N_VMake_ParHyp(hypre_ParVector *x)
   if (v == NULL) 
     return(NULL);
 
-  NV_OWN_PARVEC_PH(v)   = FALSE;
+  NV_OWN_PARVEC_PH(v)   = SUNFALSE;
   NV_HYPRE_PARVEC_PH(v) = x;
 
   return(v);
@@ -431,7 +431,7 @@ N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
   content->local_length  = NV_LOCLENGTH_PH(w);
   content->global_length = NV_GLOBLENGTH_PH(w);
   content->comm          = NV_COMM_PH(w);
-  content->own_parvector = FALSE;
+  content->own_parvector = SUNFALSE;
   content->x             = NULL;
   
   /* Attach content and ops */
@@ -464,14 +464,14 @@ N_Vector N_VClone_ParHyp(N_Vector w)
   hypre_SeqVectorSetDataOwner(hypre_ParVectorLocalVector(vx), 1);
   
   NV_HYPRE_PARVEC_PH(v) = vx;
-  NV_OWN_PARVEC_PH(v) = TRUE;
+  NV_OWN_PARVEC_PH(v) = SUNTRUE;
   
   return(v);
 }
 
 void N_VDestroy_ParHyp(N_Vector v)
 {
-  if ((NV_OWN_PARVEC_PH(v) == TRUE)) {
+  if ((NV_OWN_PARVEC_PH(v) == SUNTRUE)) {
     hypre_ParVectorDestroy(NV_HYPRE_PARVEC_PH(v));
   }
   
@@ -935,9 +935,9 @@ booleantype N_VInvTest_ParHyp(N_Vector x, N_Vector z)
   gval = VAllReduce_ParHyp(val, 3, comm);
 
   if (gval == ZERO)
-    return(FALSE);
+    return(SUNFALSE);
   else
-    return(TRUE);
+    return(SUNTRUE);
 }
 
 booleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x, N_Vector m)
@@ -978,9 +978,9 @@ booleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x, N_Vector m)
   temp = VAllReduce_ParHyp(temp, 3, comm);
 
   if (temp == ONE) 
-    return(TRUE);
+    return(SUNTRUE);
   else 
-    return(FALSE);
+    return(SUNFALSE);
 }
 
 realtype N_VMinQuotient_ParHyp(N_Vector num, N_Vector denom)
@@ -997,7 +997,7 @@ realtype N_VMinQuotient_ParHyp(N_Vector num, N_Vector denom)
   dd = NV_DATA_PH(denom);
   comm = NV_COMM_PH(num);
 
-  notEvenOnce = TRUE;
+  notEvenOnce = SUNTRUE;
   min = BIG_REAL;
 
   for (i = 0; i < N; i++) {
@@ -1006,7 +1006,7 @@ realtype N_VMinQuotient_ParHyp(N_Vector num, N_Vector denom)
       if (!notEvenOnce) min = SUNMIN(min, nd[i]/dd[i]);
       else {
         min = nd[i]/dd[i];
-        notEvenOnce = FALSE;
+        notEvenOnce = SUNFALSE;
       }
     }
   }

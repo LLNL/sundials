@@ -117,10 +117,10 @@ int main(int argc, char *argv[])
 
   /* Sensitivity-related settings */
 
-  sensi = TRUE;           /* sensitivity ON */
+  sensi = SUNTRUE;           /* sensitivity ON */
   meth = CV_SIMULTANEOUS; /* simultaneous corrector method */
-  errconS = TRUE;         /* full error control */
-  fsDQ = FALSE;           /* user-provided sensitvity RHS */
+  errconS = SUNTRUE;         /* full error control */
+  fsDQ = SUNFALSE;           /* user-provided sensitvity RHS */
 
   Ns = 3;
 
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
   data->p[1] = RCONST(2.0e4);
   data->p[2] = RCONST(2.9e7);
 
-  sensi = FALSE;
+  sensi = SUNFALSE;
 
   flag = CVodeSensToggleOff(cvode_mem);
   flag = CVodeReInit(cvode_mem, f, T0, y0, CV_SV, reltol, abstol);
@@ -180,8 +180,8 @@ int main(int argc, char *argv[])
   data->p[1] = RCONST(3.0e4);
   data->p[2] = RCONST(2.8e7);
 
-  sensi = TRUE;
-  fsDQ = TRUE;
+  sensi = SUNTRUE;
+  fsDQ = SUNTRUE;
 
   flag = CVodeSetSensRhs1Fn(cvode_mem, NULL, NULL);
   flag = CVodeSensReInit(cvode_mem, meth, yS0);
@@ -196,9 +196,9 @@ int main(int argc, char *argv[])
     Reinitialize and run CVODES
   */
 
-  sensi = TRUE;
-  errconS = FALSE;
-  fsDQ = FALSE;
+  sensi = SUNTRUE;
+  errconS = SUNFALSE;
+  fsDQ = SUNFALSE;
   meth = CV_STAGGERED;
 
   flag = CVodeSetSensErrCon(cvode_mem, errconS);
@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
     Reinitialize and run CVODES
   */
   
-  sensi = FALSE;
+  sensi = SUNFALSE;
 
   CVodeSensFree(cvode_mem);
   flag = CVodeReInit(cvode_mem, f, T0, y0, CV_SV, reltol, abstol);

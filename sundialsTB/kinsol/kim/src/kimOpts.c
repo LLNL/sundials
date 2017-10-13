@@ -85,13 +85,13 @@ int get_SolverOptions(const mxArray *options,
   *fnormtol = 0.0;
   *scsteptol = 0.0;
 
-  *noInitSetup = FALSE;
-  *noMinEps = FALSE;
+  *noInitSetup = SUNFALSE;
+  *noMinEps = SUNFALSE;
 
   *constraints = NULL;
 
-  *verbose = FALSE;
-  *errmsg = TRUE;
+  *verbose = SUNFALSE;
+  *errmsg = SUNTRUE;
 
   /* Return now if options was empty */
 
@@ -179,8 +179,8 @@ int get_SolverOptions(const mxArray *options,
       kimErrHandler(-999, "KINSOL", "KINInit", "ErrorMessages is not a logical scalar.", NULL);
       return(-1);
     }
-    if (mxIsLogicalScalarTrue(opt)) *errmsg = TRUE;
-    else                            *errmsg = FALSE;
+    if (mxIsLogicalScalarTrue(opt)) *errmsg = SUNTRUE;
+    else                            *errmsg = SUNFALSE;
   }
 
   opt = mxGetField(options,0,"Verbose");
@@ -189,8 +189,8 @@ int get_SolverOptions(const mxArray *options,
       kimErrHandler(-999, "KINSOL", "KINInit", "Verbose is not a logical scalar.", NULL);
       return(-1);
     }
-    if (mxIsLogicalScalarTrue(opt)) *verbose = TRUE;
-    else                            *verbose = FALSE;
+    if (mxIsLogicalScalarTrue(opt)) *verbose = SUNTRUE;
+    else                            *verbose = SUNFALSE;
   }
 
   opt = mxGetField(options,0,"InitialSetup");
@@ -199,8 +199,8 @@ int get_SolverOptions(const mxArray *options,
       kimErrHandler(-999, "KINSOL", "KINInit", "InitialSetup is not a logical scalar.", NULL);
       return(-1);
     }
-    if (mxIsLogicalScalarTrue(opt)) *noInitSetup = FALSE;
-    else                            *noInitSetup = TRUE;
+    if (mxIsLogicalScalarTrue(opt)) *noInitSetup = SUNFALSE;
+    else                            *noInitSetup = SUNTRUE;
   }
 
 
@@ -210,8 +210,8 @@ int get_SolverOptions(const mxArray *options,
       kimErrHandler(-999, "KINSOL", "KINInit", "MinBoundEps is not a logical scalar.", NULL);
       return(-1);
     }
-    if (mxIsLogicalScalarTrue(opt)) *noMinEps = FALSE;
-    else                            *noMinEps = TRUE;
+    if (mxIsLogicalScalarTrue(opt)) *noMinEps = SUNFALSE;
+    else                            *noMinEps = SUNTRUE;
   }
 
   /* Constraints */

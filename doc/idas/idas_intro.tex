@@ -85,34 +85,35 @@ in extended {\F}.
 All interfaces to matrix structures and linear solvers 
 have been reworked, and all example programs have been updated. 
 The goal of the redesign of these interfaces was to provide more encapsulation
-and ease interfacing of custom linear solvers and interoperability 
+and to ease interfacing of custom linear solvers and interoperability 
 with linear solver libraries.
 Specific changes include:
 \begin{itemize}
-\item Added generic SUNMATRIX module with three provided implementations:
+\item Added generic {\sunmatrix} module with three provided implementations:
         dense, banded and sparse.  These replicate previous SUNDIALS Dls and
         Sls matrix structures in a single object-oriented API.
-\item Added example problems demonstrating use of generic SUNMATRIX modules.
-\item Added generic SUNLINEARSOLVER module with eleven provided
-        implementations: dense, banded, LAPACK dense, LAPACK band, KLU,
-        SuperLU\_MT, SPGMR, SPBCGS, SPTFQMR, SPFGMR, PCG.  These replicate
+\item Added example problems demonstrating use of generic {\sunmatrix} modules.
+\item Added generic \id{SUNLinearSolver} module with eleven provided
+        implementations: {\sundials} native dense, {\sundials} native banded, 
+        LAPACK dense, LAPACK band, KLU,
+        SuperLU\_MT, SPGMR, SPBCGS, SPTFQMR, SPFGMR, and PCG.  These replicate
         previous SUNDIALS generic linear solvers in a single object-oriented
         API.
-\item Added example problems demonstrating use of generic SUNLINEARSOLVER
+\item Added example problems demonstrating use of generic \id{SUNLinearSolver}
         modules.
 \item Expanded package-provided direct linear solver (Dls) interfaces and
         scaled, preconditioned, iterative linear solver (Spils) interfaces
-        to utilize generic SUNMATRIX and SUNLINEARSOLVER objects.
+        to utilize generic {\sunmatrix} and \id{SUNLinearSolver} objects.
 \item Removed package-specific, linear solver-specific, solver modules
-        (e.g. CVDENSE, KINBAND, IDAKLU, ARKSPGMR) since their functionality
+        (e.g. \id{CVDENSE}, \id{KINBAND}, \id{IDAKLU}, \id{ARKSPGMR}) since their functionality
         is entirely replicated by the generic Dls/Spils interfaces and
-        SUNLINEARSOLVER/SUNMATRIX modules.  The exception is CVDIAG, a
-        diagonal approximate Jacobian solver available to CVODE and CVODES.
-\item Converted all SUNDIALS example problems to utilize new generic
-        SUNMATRIX and SUNLINEARSOLVER objects, along with updated Dls and
+        \id{SUNLinearSolver/SUNMATRIX} modules.  The exception is \id{CVDIAG}, a
+        diagonal approximate Jacobian solver available to {\cvode} and {\cvodes}.
+\item Converted all {\sundials} example problems and files to utilize the new generic
+        {\sunmatrix} and \id{SUNLinearSolver} objects, along with updated Dls and
         Spils linear solver interfaces.
-\item Added Spils interface routines to ARKode, CVODE, CVODES, IDA and
-        IDAS to allow specification of a user-provided "JTSetup" routine.
+\item Added Spils interface routines to {\arkode}, {\cvode}, {\cvodes}, {\ida},
+        and {\idas} to allow specification of a user-provided "JTSetup" routine.
         This change supports users who wish to set up data structures for
         the user-provided Jacobian-times-vector ("JTimes") routine, and
         where the cost of one JTSetup setup per Newton iteration can be
@@ -142,10 +143,14 @@ PETSc, hypre, SuperLU\_MT, and KLU with
 either 32-bit or 64-bit capabilities depending how the user configures 
 {\sundials}.
 
+To avoid potential namespace conflicts, the macros defining \id{booleantype}
+values \id{TRUE} and \id{FALSE} have been changed to \id{SUNTRUE} and
+\id{SUNFALSE} respectively.
+
 Temporary vectors were removed from preconditioner setup and solve
-   routines for all packages.  It is assumed that all necessary data
-   for user-provided preconditioner operations will be allocated and
-   stored in user-provided data structures.
+routines for all packages.  It is assumed that all necessary data
+for user-provided preconditioner operations will be allocated and
+stored in user-provided data structures.
 
 The file \id{include/sundials\_fconfig.h} was added. This file contains 
 {\sundials} type information for use in Fortran programs.

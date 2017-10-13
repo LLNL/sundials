@@ -93,7 +93,7 @@ int main()
 
   /* Case 1: ignore negative solution components */
   printf("Ignore negative solution components\n\n");
-  check_negative = FALSE;
+  check_negative = SUNFALSE;
   /* In loop, call CVode in CV_NORMAL mode */
   iout = 0;  tout = T1;
   while(1) {
@@ -108,7 +108,7 @@ int main()
 
   /* Case 2: intercept negative solution components */
   printf("Intercept negative solution components\n\n");
-  check_negative = TRUE;
+  check_negative = SUNTRUE;
   /* Reinitialize solver */
   Ith(y,1) = Y1;
   Ith(y,2) = Y2;

@@ -185,7 +185,7 @@ int main()
   flag = IDAQuadSStolerances(mem, RTOLQ, ATOLQ);
   if (check_flag(&flag, "IDAQuadSStolerances", 1)) return(1);
 
-  flag = IDASetQuadErrCon(mem, TRUE);
+  flag = IDASetQuadErrCon(mem, SUNTRUE);
   if (check_flag(&flag, "IDASetQuadErrCon", 1)) return(1);
  
   /* Prepare ADJOINT. */

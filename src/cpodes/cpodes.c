@@ -245,7 +245,7 @@ void *CPodeCreate(int lmm_type, int nls_type)
   cp_mem->cp_tol_type = CP_NN;
 
   /* Set default values for integrator optional inputs */
-  cp_mem->cp_user_efun  = FALSE;
+  cp_mem->cp_user_efun  = SUNFALSE;
   cp_mem->cp_efun       = cpEwtSet;
   cp_mem->cp_e_data     = NULL;
   cp_mem->cp_ehfun      = cpErrHandler;
@@ -254,11 +254,11 @@ void *CPodeCreate(int lmm_type, int nls_type)
   cp_mem->cp_qmax       = maxord;
   cp_mem->cp_mxstep     = MXSTEP_DEFAULT;
   cp_mem->cp_mxhnil     = MXHNIL_DEFAULT;
-  cp_mem->cp_sldeton    = FALSE;
+  cp_mem->cp_sldeton    = SUNFALSE;
   cp_mem->cp_hin        = ZERO;
   cp_mem->cp_hmin       = HMIN_DEFAULT;
   cp_mem->cp_hmax_inv   = HMAX_INV_DEFAULT;
-  cp_mem->cp_tstopset   = FALSE;
+  cp_mem->cp_tstopset   = SUNFALSE;
   cp_mem->cp_maxcor     = NLS_MAXCOR;
   cp_mem->cp_maxnef     = MXNEF;
   cp_mem->cp_maxncf     = MXNCF;
@@ -270,26 +270,26 @@ void *CPodeCreate(int lmm_type, int nls_type)
   cp_mem->cp_lsolve = NULL;
   cp_mem->cp_lfree  = NULL;
   cp_mem->cp_lmem   = NULL;
-  cp_mem->cp_lsetup_exists = FALSE;
+  cp_mem->cp_lsetup_exists = SUNFALSE;
 
   /* Initialize projection variables */
-  cp_mem->cp_proj_enabled  = FALSE;
+  cp_mem->cp_proj_enabled  = SUNFALSE;
   cp_mem->cp_proj_type     = CP_PROJ_INTERNAL;
   cp_mem->cp_cnstr_type    = CP_CNSTR_NONLIN;
   cp_mem->cp_cfun          = NULL;
   cp_mem->cp_pfun          = NULL;
   cp_mem->cp_prjcoef       = PRJ_TEST_COEF;
   cp_mem->cp_maxcorP       = PRJ_MAXCOR;
-  cp_mem->cp_project_err   = TRUE;
-  cp_mem->cp_test_cnstr    = FALSE;
+  cp_mem->cp_project_err   = SUNTRUE;
+  cp_mem->cp_test_cnstr    = SUNFALSE;
   cp_mem->cp_proj_freq     = 1;
   cp_mem->cp_lsetupP_freq  = PRJ_MSBLS;
   cp_mem->cp_maxnpf        = MXNPF;
 
   /* Initialize quadrature variables */
-  cp_mem->cp_quadr    = FALSE;
+  cp_mem->cp_quadr    = SUNFALSE;
   cp_mem->cp_qfun     = NULL;
-  cp_mem->cp_errconQ  = FALSE;
+  cp_mem->cp_errconQ  = SUNFALSE;
 
   /* Set the linear solver addresses to NULL. */
   cp_mem->cp_linitP  = NULL;
@@ -297,10 +297,10 @@ void *CPodeCreate(int lmm_type, int nls_type)
   cp_mem->cp_lsolveP = NULL;
   cp_mem->cp_lfreeP  = NULL;
   cp_mem->cp_lmemP   = NULL;
-  cp_mem->cp_lsetupP_exists = FALSE;
+  cp_mem->cp_lsetupP_exists = SUNFALSE;
 
   /* Initialize root finding variables */
-  cp_mem->cp_doRootfinding = FALSE;
+  cp_mem->cp_doRootfinding = SUNFALSE;
   cp_mem->cp_nrtfn         = 0;
   cp_mem->cp_glo           = NULL;
   cp_mem->cp_ghi           = NULL;
@@ -319,12 +319,12 @@ void *CPodeCreate(int lmm_type, int nls_type)
   cp_mem->cp_liw = 40;
 
   /* No mallocs have been done yet */
-  cp_mem->cp_MallocDone         = FALSE;
-  cp_mem->cp_VabstolMallocDone  = FALSE;
-  cp_mem->cp_projMallocDone     = FALSE;
-  cp_mem->cp_quadMallocDone     = FALSE;
-  cp_mem->cp_VabstolQMallocDone = FALSE;
-  cp_mem->cp_rootMallocDone     = FALSE;
+  cp_mem->cp_MallocDone         = SUNFALSE;
+  cp_mem->cp_VabstolMallocDone  = SUNFALSE;
+  cp_mem->cp_projMallocDone     = SUNFALSE;
+  cp_mem->cp_quadMallocDone     = SUNFALSE;
+  cp_mem->cp_VabstolQMallocDone = SUNFALSE;
+  cp_mem->cp_rootMallocDone     = SUNFALSE;
 
   /* Return pointer to CPODES memory block */
 
@@ -357,7 +357,7 @@ int CPodeInitExpl(void *cpode_mem, CPRhsFn f, realtype t0, N_Vector y0)
   cp_mem = (CPodeMem) cpode_mem;
 
   /* Check that CPODES was not already initialized */
-  if (cp_mem->cp_MallocDone == TRUE) {
+  if (cp_mem->cp_MallocDone == SUNTRUE) {
     cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeInitExpl", MSGCP_MALLOC_DONE);
     return(CP_ILL_INPUT);
   }
@@ -408,7 +408,7 @@ int CPodeInitExpl(void *cpode_mem, CPRhsFn f, realtype t0, N_Vector y0)
   cpCompleteInitialization(cp_mem);
 
   /* Problem has been successfully initialized */
-  cp_mem->cp_MallocDone = TRUE;
+  cp_mem->cp_MallocDone = SUNTRUE;
 
   return(CP_SUCCESS);
 }
@@ -437,7 +437,7 @@ int CPodeInitImpl(void *cpode_mem, CPResFn f, realtype t0, N_Vector y0, N_Vector
   cp_mem = (CPodeMem) cpode_mem;
 
   /* Check that CPODES was not already initialized */
-  if (cp_mem->cp_MallocDone == TRUE) {
+  if (cp_mem->cp_MallocDone == SUNTRUE) {
     cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeInitImpl", MSGCP_MALLOC_DONE);
     return(CP_ILL_INPUT);
   }
@@ -499,7 +499,7 @@ int CPodeInitImpl(void *cpode_mem, CPResFn f, realtype t0, N_Vector y0, N_Vector
   cpCompleteInitialization(cp_mem);
 
   /* Problem has been successfully initialized */
-  cp_mem->cp_MallocDone = TRUE;
+  cp_mem->cp_MallocDone = SUNTRUE;
 
   return(CP_SUCCESS);
 }
@@ -529,7 +529,7 @@ int CPodeReInitExpl(void *cpode_mem, realtype t0, N_Vector y0)
   cp_mem = (CPodeMem) cpode_mem;
 
   /* Check if cpode_mem was allocated */
-  if (cp_mem->cp_MallocDone == FALSE) {
+  if (cp_mem->cp_MallocDone == SUNFALSE) {
     cpProcessError(cp_mem, CP_NO_MALLOC, "CPODES", "CPodeReInitExpl", MSGCP_NO_MALLOC);
     return(CP_NO_MALLOC);
   }
@@ -581,7 +581,7 @@ int CPodeReInitImpl(void *cpode_mem, realtype t0, N_Vector y0, N_Vector yp0)
   cp_mem = (CPodeMem) cpode_mem;
 
   /* Check if cpode_mem was allocated */
-  if (cp_mem->cp_MallocDone == FALSE) {
+  if (cp_mem->cp_MallocDone == SUNFALSE) {
     cpProcessError(cp_mem, CP_NO_MALLOC, "CPODES", "CPodeReInitImpl", MSGCP_NO_MALLOC);
     return(CP_NO_MALLOC);
   }
@@ -654,7 +654,7 @@ static void cpCompleteInitialization(CPodeMem cp_mem)
   cp_mem->cp_nce      = 0;
   cp_mem->cp_nstlprj  = 0;
   cp_mem->cp_nsetupsP = 0;
-  cp_mem->cp_first_proj = TRUE;
+  cp_mem->cp_first_proj = SUNTRUE;
 
   /* Initialize other integrator optional outputs */
   cp_mem->cp_h0u     = ZERO;
@@ -710,7 +710,7 @@ int CPodeSStolerances(void *cpode_mem, realtype reltol, realtype abstol)
   }
   cp_mem = (CPodeMem) cpode_mem;
 
-  if (cp_mem->cp_MallocDone == FALSE) {
+  if (cp_mem->cp_MallocDone == SUNFALSE) {
     cpProcessError(cp_mem, CP_NO_MALLOC, "CPODES", "CPodeSStolerances", MSGCP_NO_MALLOC);
     return(CP_NO_MALLOC);
   }
@@ -734,7 +734,7 @@ int CPodeSStolerances(void *cpode_mem, realtype reltol, realtype abstol)
 
   cp_mem->cp_tol_type = CP_SS;
 
-  cp_mem->cp_user_efun = FALSE;
+  cp_mem->cp_user_efun = SUNFALSE;
   cp_mem->cp_efun = cpEwtSet;
   cp_mem->cp_e_data = NULL; /* will be set to cpode_mem in InitialSetup */
 
@@ -752,7 +752,7 @@ int CPodeSVtolerances(void *cpode_mem, realtype reltol, N_Vector abstol)
   }
   cp_mem = (CPodeMem) cpode_mem;
 
-  if (cp_mem->cp_MallocDone == FALSE) {
+  if (cp_mem->cp_MallocDone == SUNFALSE) {
     cpProcessError(cp_mem, CP_NO_MALLOC, "CPODES", "CPodeSVtolerances", MSGCP_NO_MALLOC);
     return(CP_NO_MALLOC);
   }
@@ -775,7 +775,7 @@ int CPodeSVtolerances(void *cpode_mem, realtype reltol, N_Vector abstol)
     cp_mem->cp_Vabstol = N_VClone(cp_mem->cp_ewt);
     lrw += lrw1;
     liw += liw1;
-    cp_mem->cp_VabstolMallocDone = TRUE;
+    cp_mem->cp_VabstolMallocDone = SUNTRUE;
   }
 
   cp_mem->cp_reltol = reltol;
@@ -783,7 +783,7 @@ int CPodeSVtolerances(void *cpode_mem, realtype reltol, N_Vector abstol)
 
   cp_mem->cp_tol_type = CP_SV;
 
-  cp_mem->cp_user_efun = FALSE;
+  cp_mem->cp_user_efun = SUNFALSE;
   cp_mem->cp_efun = cpEwtSet;
   cp_mem->cp_e_data = NULL; /* will be set to cpode_mem in InitialSetup */
 
@@ -801,14 +801,14 @@ int CPodeWFtolerances(void *cpode_mem, CPEwtFn efun)
   }
   cp_mem = (CPodeMem) cpode_mem;
 
-  if (cp_mem->cp_MallocDone == FALSE) {
+  if (cp_mem->cp_MallocDone == SUNFALSE) {
     cpProcessError(cp_mem, CP_NO_MALLOC, "CPODES", "CPodeWFtolerances", MSGCP_NO_MALLOC);
     return(CP_NO_MALLOC);
   }
 
   cp_mem->cp_tol_type = CP_WF;
 
-  cp_mem->cp_user_efun = TRUE;
+  cp_mem->cp_user_efun = SUNTRUE;
   cp_mem->cp_efun = efun;
   cp_mem->cp_e_data = NULL; /* will be set to user_data in InitialSetup */
 
@@ -837,7 +837,7 @@ int CPodeProjInit(void *cpode_mem, int proj_norm,
   cp_mem = (CPodeMem) cpode_mem;
 
   /* Check if cpode_mem was allocated */
-  if (cp_mem->cp_MallocDone == FALSE) {
+  if (cp_mem->cp_MallocDone == SUNFALSE) {
     cpProcessError(cp_mem, CP_NO_MALLOC, "CPODES", "CPodeProjInit", MSGCP_NO_MALLOC);
     return(CP_NO_MALLOC);
   }
@@ -868,7 +868,7 @@ int CPodeProjInit(void *cpode_mem, int proj_norm,
       cpProcessError(cp_mem, CP_MEM_FAIL, "CPODES", "CPodeProjInit", MSGCP_MEM_FAIL);
       return(CP_MEM_FAIL);
     }
-    cp_mem->cp_projMallocDone = TRUE;
+    cp_mem->cp_projMallocDone = SUNTRUE;
   }
 
   /* Set variable values in CPODES memory block */
@@ -882,7 +882,7 @@ int CPodeProjInit(void *cpode_mem, int proj_norm,
 
   /* internal projection is now enabled */
   cp_mem->cp_proj_type = CP_PROJ_INTERNAL;
-  cp_mem->cp_proj_enabled = TRUE;
+  cp_mem->cp_proj_enabled = SUNTRUE;
 
   return(CP_SUCCESS);
 }
@@ -905,7 +905,7 @@ int CPodeProjDefine(void *cpode_mem, CPProjFn pfun)
 
   /* user-defined projection is now enabled */
   cp_mem->cp_proj_type = CP_PROJ_USER;
-  cp_mem->cp_proj_enabled = TRUE;
+  cp_mem->cp_proj_enabled = SUNTRUE;
 
   return(CP_SUCCESS);
 }
@@ -959,8 +959,8 @@ int CPodeQuadInit(void *cpode_mem, CPQuadFn qfun, N_Vector q0)
   cp_mem->cp_netfQ = 0;
 
   /* Quadrature integration turned ON */
-  cp_mem->cp_quadr = TRUE;
-  cp_mem->cp_quadMallocDone = TRUE;
+  cp_mem->cp_quadr = SUNTRUE;
+  cp_mem->cp_quadMallocDone = SUNTRUE;
 
   /* Quadrature initialization was successfull */
   return(CP_SUCCESS);
@@ -993,7 +993,7 @@ int CPodeQuadReInit(void *cpode_mem, N_Vector q0)
   cp_mem = (CPodeMem) cpode_mem;
 
   /* Ckeck if quadrature was initialized? */
-  if (cp_mem->cp_quadMallocDone == FALSE) {
+  if (cp_mem->cp_quadMallocDone == SUNFALSE) {
     cpProcessError(cp_mem, CP_NO_QUAD, "CPODES", "CPodeQuadReInit", MSGCP_NO_QUAD);
     return(CP_NO_QUAD);
   }
@@ -1006,7 +1006,7 @@ int CPodeQuadReInit(void *cpode_mem, N_Vector q0)
   cp_mem->cp_netfQ = 0;
 
   /* Quadrature integration turned ON */
-  cp_mem->cp_quadr = TRUE;
+  cp_mem->cp_quadr = SUNTRUE;
 
   /* Quadrature re-initialization was successfull */
   return(CP_SUCCESS);
@@ -1180,7 +1180,7 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
   cp_mem = (CPodeMem) cpode_mem;
 
   /* Check if cpode_mem was allocated */
-  if (cp_mem->cp_MallocDone == FALSE) {
+  if (cp_mem->cp_MallocDone == SUNFALSE) {
     cpProcessError(cp_mem, CP_NO_MALLOC, "CPODES", "CPode", MSGCP_NO_MALLOC);
     return(CP_NO_MALLOC);
   }
@@ -1399,7 +1399,7 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
           return(CP_ILL_INPUT);
         }
         tretlast = *tret = tstop;
-        tstopset = FALSE;
+        tstopset = SUNFALSE;
         return(CP_TSTOP_RETURN);
       }
       
@@ -1542,7 +1542,7 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
       if ( SUNRabs(tn - tstop) <= troundoff) {
         (void) cpGetSolution(cp_mem, tstop, yout, ypout);
         tretlast = *tret = tstop;
-        tstopset = FALSE;
+        tstopset = SUNFALSE;
         istate = CP_TSTOP_RETURN;
         break;
       }
@@ -1679,7 +1679,7 @@ int CPodeGetQuadDky(void *cpode_mem, realtype t, int k, N_Vector dkyQ)
   }
   cp_mem = (CPodeMem) cpode_mem;  
 
-  if(quadr != TRUE) {
+  if(quadr != SUNTRUE) {
     cpProcessError(cp_mem, CP_NO_QUAD, "CPODES", "CPodeGetQuadDky", MSGCP_NO_QUAD);
     return(CP_NO_QUAD);
   }
@@ -1775,8 +1775,8 @@ void CPodeQuadFree(void *cpode_mem)
 
   if(quadMallocDone) {
     cpQuadFree(cp_mem);
-    quadMallocDone = FALSE;
-    quadr = FALSE;
+    quadMallocDone = SUNFALSE;
+    quadr = SUNFALSE;
   }
 }
 
@@ -1796,7 +1796,7 @@ void CPodeQuadFree(void *cpode_mem)
 /*
  * cpCheckNvector
  * This routine checks if all required vector operations are present.
- * If any of them is missing it returns FALSE.
+ * If any of them is missing it returns SUNFALSE.
  */
 
 static booleantype cpCheckNvector(N_Vector tmpl)
@@ -1814,9 +1814,9 @@ static booleantype cpCheckNvector(N_Vector tmpl)
      (tmpl->ops->nvmaxnorm   == NULL) ||
      (tmpl->ops->nvwrmsnorm  == NULL) ||
      (tmpl->ops->nvmin       == NULL))
-    return(FALSE);
+    return(SUNFALSE);
   else
-    return(TRUE);
+    return(SUNTRUE);
 }
 
 /*
@@ -1825,8 +1825,8 @@ static booleantype cpCheckNvector(N_Vector tmpl)
  * This routine allocates the CPODES vectors ewt, acor, tempv, ftemp,
  * and zn[0], ..., zn[maxord]. If tol_type=CP_SV, it also allocates 
  * space for Vabstol. If all memory allocations are successful, 
- * cpAllocVectors returns TRUE. Otherwise all allocated memory is 
- * freed and cpAllocVectors returns FALSE. This routine also sets the 
+ * cpAllocVectors returns SUNTRUE. Otherwise all allocated memory is 
+ * freed and cpAllocVectors returns SUNFALSE. This routine also sets the 
  * optional outputs lrw and liw, which are (respectively) the lengths 
  * of the real and integer work spaces allocated here.
  */
@@ -1838,19 +1838,19 @@ static booleantype cpAllocVectors(CPodeMem cp_mem, N_Vector tmpl)
   /* Allocate ewt, acor, tempv, ftemp */
   
   ewt = N_VClone(tmpl);
-  if (ewt == NULL) return(FALSE);
+  if (ewt == NULL) return(SUNFALSE);
 
   acor = N_VClone(tmpl);
   if (acor == NULL) {
     N_VDestroy(ewt);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   tempv = N_VClone(tmpl);
   if (tempv == NULL) {
     N_VDestroy(ewt);
     N_VDestroy(acor);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   ftemp = N_VClone(tmpl);
@@ -1858,7 +1858,7 @@ static booleantype cpAllocVectors(CPodeMem cp_mem, N_Vector tmpl)
     N_VDestroy(tempv);
     N_VDestroy(ewt);
     N_VDestroy(acor);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   /* Allocate zn[0] ... zn[qmax] */
@@ -1871,7 +1871,7 @@ static booleantype cpAllocVectors(CPodeMem cp_mem, N_Vector tmpl)
       N_VDestroy(tempv);
       N_VDestroy(ftemp);
       for (i=0; i < j; i++) N_VDestroy(zn[i]);
-      return(FALSE);
+      return(SUNFALSE);
     }
   }
 
@@ -1882,7 +1882,7 @@ static booleantype cpAllocVectors(CPodeMem cp_mem, N_Vector tmpl)
   /* Store the value of qmax used here */
   cp_mem->cp_qmax_alloc = qmax;
 
-  return(TRUE);
+  return(SUNTRUE);
 }
 
 /*  
@@ -1923,19 +1923,19 @@ static booleantype cpProjAlloc(CPodeMem cp_mem, N_Vector c_tmpl, N_Vector s_tmpl
   /* Vectors cloned from c_tmpl (length M) */
 
   ctol = N_VClone(c_tmpl);
-  if (ctol == NULL) return(FALSE);
+  if (ctol == NULL) return(SUNFALSE);
 
   ctemp = N_VClone(c_tmpl);
   if (ctemp == NULL) {
     N_VDestroy(ctol);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   tempvP1 = N_VClone(c_tmpl);
   if (tempvP1 == NULL) {
     N_VDestroy(ctol);
     N_VDestroy(ctemp);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   tempvP2 = N_VClone(c_tmpl);
@@ -1943,7 +1943,7 @@ static booleantype cpProjAlloc(CPodeMem cp_mem, N_Vector c_tmpl, N_Vector s_tmpl
     N_VDestroy(ctol);
     N_VDestroy(ctemp);
     N_VDestroy(tempvP1);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   /* Vectors cloned from s_tmpl (length N) */
@@ -1954,7 +1954,7 @@ static booleantype cpProjAlloc(CPodeMem cp_mem, N_Vector c_tmpl, N_Vector s_tmpl
     N_VDestroy(ctemp);
     N_VDestroy(tempvP1);
     N_VDestroy(tempvP2);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   yC = N_VClone(s_tmpl);
@@ -1964,7 +1964,7 @@ static booleantype cpProjAlloc(CPodeMem cp_mem, N_Vector c_tmpl, N_Vector s_tmpl
     N_VDestroy(tempvP1);
     N_VDestroy(tempvP2);
     N_VDestroy(acorP);
-    return(FALSE);
+    return(SUNFALSE);
   }
   
   errP = N_VClone(s_tmpl);
@@ -1975,11 +1975,11 @@ static booleantype cpProjAlloc(CPodeMem cp_mem, N_Vector c_tmpl, N_Vector s_tmpl
     N_VDestroy(tempvP2);
     N_VDestroy(acorP);
     N_VDestroy(yC);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   
-  return(TRUE);
+  return(SUNTRUE);
 }
 
 /*
@@ -2005,11 +2005,11 @@ static void cpProjFree(CPodeMem cp_mem)
 /*
  * cpQuadAlloc allocates memory for the quadrature integration
  *
- * NOTE: Space for ewtQ is allocated even when errconQ=FALSE, 
+ * NOTE: Space for ewtQ is allocated even when errconQ=SUNFALSE, 
  * although in this case, ewtQ is never used. The reason for this
  * decision is to allow the user to re-initialize the quadrature
- * computation with errconQ=TRUE, after an initialization with
- * errconQ=FALSE, without new memory allocation within 
+ * computation with errconQ=SUNTRUE, after an initialization with
+ * errconQ=SUNFALSE, without new memory allocation within 
  * CPodeQuadReInit.
  */
 
@@ -2020,14 +2020,14 @@ static booleantype cpQuadAlloc(CPodeMem cp_mem, N_Vector q_tmpl)
   /* Allocate ewtQ */
   ewtQ = N_VClone(q_tmpl);
   if (ewtQ == NULL) {
-    return(FALSE);
+    return(SUNFALSE);
   }
   
   /* Allocate acorQ */
   acorQ = N_VClone(q_tmpl);
   if (acorQ == NULL) {
     N_VDestroy(ewtQ);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   /* Allocate yQ */
@@ -2035,7 +2035,7 @@ static booleantype cpQuadAlloc(CPodeMem cp_mem, N_Vector q_tmpl)
   if (yQ == NULL) {
     N_VDestroy(ewtQ);
     N_VDestroy(acorQ);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   /* Allocate tempvQ */
@@ -2044,7 +2044,7 @@ static booleantype cpQuadAlloc(CPodeMem cp_mem, N_Vector q_tmpl)
     N_VDestroy(ewtQ);
     N_VDestroy(acorQ);
     N_VDestroy(yQ);
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   /* Allocate zQn[0] ... zQn[maxord] */
@@ -2057,7 +2057,7 @@ static booleantype cpQuadAlloc(CPodeMem cp_mem, N_Vector q_tmpl)
       N_VDestroy(yQ);
       N_VDestroy(tempvQ);
       for (i=0; i < j; i++) N_VDestroy(znQ[i]);
-      return(FALSE);
+      return(SUNFALSE);
     }
   }
 
@@ -2068,7 +2068,7 @@ static booleantype cpQuadAlloc(CPodeMem cp_mem, N_Vector q_tmpl)
   lrw += (qmax + 5)*lrw1Q;
   liw += (qmax + 5)*liw1Q;
 
-  return(TRUE);
+  return(SUNTRUE);
 }
 
 /*
@@ -2097,7 +2097,7 @@ static void cpQuadFree(CPodeMem cp_mem)
     liw -= liw1Q;
   }
 
-  cp_mem->cp_VabstolQMallocDone = FALSE;
+  cp_mem->cp_VabstolQMallocDone = SUNFALSE;
 }
 
 /*  
@@ -2139,7 +2139,7 @@ static int cpInitialSetup(CPodeMem cp_mem)
     }
   }
 
-  if (!quadr) errconQ = FALSE;
+  if (!quadr) errconQ = SUNFALSE;
 
   /* Check if lsolve function exists (if needed) and call linit function (if it exists) */
   if (nls_type == CP_NEWTON) {
@@ -2368,14 +2368,14 @@ static int cpHinExpl(CPodeMem cp_mem, realtype hlb, realtype hub, int sign, real
 
   /* Outer loop */
 
-  hnewOK = FALSE;
+  hnewOK = SUNFALSE;
   hs = hg;         /* safeguard against 'uninitialized variable' warning */
 
   for(count1 = 1; count1 <= H_MAXITERS; count1++) {
 
     /* Attempts to estimate ypp */
 
-    hgOK = FALSE;
+    hgOK = SUNFALSE;
 
     for (count2 = 1; count2 <= H_MAXITERS; count2++) {
       hgs = hg*sign;
@@ -2383,7 +2383,7 @@ static int cpHinExpl(CPodeMem cp_mem, realtype hlb, realtype hub, int sign, real
       /* If fun() or qfun() failed unrecoverably, give up */
       if (retval < 0) return(retval);
       /* If successful, we can use ypp */
-      if (retval == CP_SUCCESS) {hgOK = TRUE; break;}
+      if (retval == CP_SUCCESS) {hgOK = SUNTRUE; break;}
       /* fun() or qfun() failed recoverably; cut step size and test it again */
       hg *= PT2;
     }
@@ -2414,13 +2414,13 @@ static int cpHinExpl(CPodeMem cp_mem, realtype hlb, realtype hub, int sign, real
     
     /* Accept hnew if it does not differ from hg by more than a factor of 2 */
     if ((hrat > HALF) && (hrat < TWO)) {
-      hnewOK = TRUE;
+      hnewOK = SUNTRUE;
     }
 
     /* After one pass, if ypp seems to be bad, use fall-back value. */
     if ((count1 > 1) && (hrat > TWO)) {
       hnew = hg;
-      hnewOK = TRUE;
+      hnewOK = SUNTRUE;
     }
 
     /* Send this value back through f() */
@@ -2604,7 +2604,7 @@ static int cpStep(CPodeMem cp_mem)
 
     doProjection = proj_enabled && (proj_freq > 0) && 
       ( (nst==0) || (nst >= nstlprj + proj_freq) );
-    applyProj = FALSE;
+    applyProj = SUNFALSE;
 
 #ifdef CPODES_DEBUG
     printf("%d\n",doProjection);

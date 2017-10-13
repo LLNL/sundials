@@ -151,7 +151,7 @@ typedef int (*KINSpilsPrecSolveFn)(N_Vector uu, N_Vector uscale,
    new_uu  flag (reset by user) indicating if the iterate uu
            has been updated in the interim - Jacobian needs
            to be updated/reevaluated, if appropriate, unless
-           new_uu = FALSE [input/output]
+           new_uu = SUNFALSE [input/output]
  
    user_data  pointer to user data, the same as the user_data
               parameter passed to the KINSetUserData function.

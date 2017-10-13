@@ -320,7 +320,7 @@ SUNDIALS_EXPORT int IDASpilsSetIncrementFactor(void *ida_mem,
 
   IDASpilsGetNumPrecEvals returns the number of preconditioner   
       evaluations, i.e. the number of calls made to PrecSetup    
-      with jok==FALSE.                                           
+      with jok==SUNFALSE.                                           
 
   IDASpilsGetNumPrecSolves returns the number of calls made to   
       PrecSolve.                                                 

@@ -141,10 +141,10 @@ N_Vector *N_VCloneEmptyVectorArray_Petsc(int count, N_Vector w);
                                                                
 \item
   {\warn}The functions \id{N\_VNewEmpty\_Petsc}, \id{N\_VMake\_Petsc}, and
-  \id{N\_VCloneVectorArrayEmpty\_Petsc} set the field {\em own\_data} to \id{FALSE}.   
+  \id{N\_VCloneVectorArrayEmpty\_Petsc} set the field {\em own\_data} to \id{SUNFALSE}.   
   \id{N\_VDestroy\_Petsc} and \id{N\_VDestroyVectorArray\_Petsc}
   will not attempt to free the pointer {\em pvec} for any \id{N\_Vector} with
-  {\em own\_data} set to \id{FALSE}. In such a case, it is the user's responsibility to
+  {\em own\_data} set to \id{SUNFALSE}. In such a case, it is the user's responsibility to
   deallocate the {\em pvec} pointer.
 
 \item

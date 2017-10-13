@@ -62,7 +62,7 @@ typedef struct IDASpilsMemRec {
   N_Vector ypcur;    /* current yp vector in Newton iteration        */
   N_Vector rcur;     /* rcur = F(tn, ycur, ypcur)                    */
 
-  SUNLinearSolver LS; /* generic iterative linear solver object       */
+  SUNLinearSolver LS; /* generic iterative linear solver object      */
 
   long int last_flag; /* last error return flag                      */
 
@@ -81,10 +81,10 @@ typedef struct IDASpilsMemRec {
   /* Jacobian times vector compuation
    * (a) jtimes function provided by the user:
    *     - jdata == user_data
-   *     - jtimesDQ == FALSE
+   *     - jtimesDQ == SUNFALSE
    * (b) internal jtimes
    *     - jdata == ida_mem
-   *     - jtimesDQ == TRUE */
+   *     - jtimesDQ == SUNTRUE */
   booleantype jtimesDQ;
   IDASpilsJacTimesSetupFn jtsetup;
   IDASpilsJacTimesVecFn jtimes;
