@@ -50,13 +50,13 @@ https://software.llnl.gov/RAJA/.
 
 * Addition of sunindextype option for 32- or 64-bit integer data index types 
 within all SUNDIALS structures
- - Sunindextype can be int64_t or int32_t or long long int and int depending on 
-   machine support for portable types
+ - sunindextype is defined to be int32_t or int62_t when portable types are
+   supported, otherwise it is defined as int or long int.
  - The Fortran interfaces continue to use long\_int for indices, except for 
    their sparse matrix interface that now uses the new sunindextype.
  - Includes interfaces to PETSc, hypre, SuperLU_MT, and KLU with 
-   either 64-bit or 32-bit capabilities depending how the user configures 
-   SUNDIALS
+   either 32-bit or 64-bit capabilities depending how the user configures 
+   SUNDIALS.
 
  * Temporary vectors were removed from preconditioner setup and solve
  routines for all packages.  It is assumed that all necessary data

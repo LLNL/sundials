@@ -119,13 +119,13 @@ and to user documentation.
 
 All indices for data structures were updated to a new \id{sunindextype} that
 can be configured to be a 32- or 64-bit integer data index type. 
-Sunindextype can be defined to be int64\_t or int32\_t or long long int and 
-int depending on machine support for portable types. 
-The Fortran interfaces continue to use long int for indices, except for 
+\id{sunindextype} is defined to be \id{int32\_t} or \id{int64\_t} when portable types are
+supported, otherwise it is defined as \id{int} or \id{long int}.
+The Fortran interfaces continue to use \id{long int} for indices, except for 
 their sparse matrix interface that now uses the new \id{sunindextype}.
 This new flexible capability for index types includes interfaces to 
 PETSc, hypre, SuperLU\_MT, and KLU with 
-either 64-bit or 32-bit capabilities depending how the user configures 
+either 32-bit or 64-bit capabilities depending how the user configures 
 {\sundials}.
 
 Temporary vectors were removed from preconditioner setup and solve
