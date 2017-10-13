@@ -190,7 +190,7 @@ typedef struct KINMemRec {
   booleantype kin_inexact_ls; /* flag set by the linear solver module
 				 (in linit) indicating whether this is an
 				 iterative linear solver (SUNTRUE), or a direct
-				 linear solver (SUNFALSE)                         */
+				 linear solver (SUNFALSE)                       */
 
   void *kin_lmem;         /* pointer to linear solver memory block             */
 

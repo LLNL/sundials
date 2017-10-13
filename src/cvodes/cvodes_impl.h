@@ -80,46 +80,46 @@ typedef struct CVodeBMemRec *CVodeBMem;
   
 typedef struct CVodeMemRec {
     
-  realtype cv_uround;         /* machine unit roundoff                        */   
+  realtype cv_uround;         /* machine unit roundoff                         */   
 
   /*-------------------------- 
     Problem Specification Data 
     --------------------------*/
 
-  CVRhsFn cv_f;               /* y' = f(t,y(t))                               */
-  void *cv_user_data;         /* user pointer passed to f                     */
+  CVRhsFn cv_f;               /* y' = f(t,y(t))                                */
+  void *cv_user_data;         /* user pointer passed to f                      */
 
-  int cv_lmm;                 /* lmm = ADAMS or BDF                           */
-  int cv_iter;                /* iter = FUNCTIONAL or NEWTON                  */
+  int cv_lmm;                 /* lmm = ADAMS or BDF                            */
+  int cv_iter;                /* iter = FUNCTIONAL or NEWTON                   */
 
-  int cv_itol;                /* itol = CV_SS, CV_SV, or CV_WF, or CV_NN      */
-  realtype cv_reltol;         /* relative tolerance                           */
-  realtype cv_Sabstol;        /* scalar absolute tolerance                    */
-  N_Vector cv_Vabstol;        /* vector absolute tolerance                    */
-  booleantype cv_user_efun;   /* SUNTRUE if user sets efun                       */
-  CVEwtFn cv_efun;            /* function to set ewt                          */
-  void *cv_e_data;            /* user pointer passed to efun                  */
+  int cv_itol;                /* itol = CV_SS, CV_SV, or CV_WF, or CV_NN       */
+  realtype cv_reltol;         /* relative tolerance                            */
+  realtype cv_Sabstol;        /* scalar absolute tolerance                     */
+  N_Vector cv_Vabstol;        /* vector absolute tolerance                     */
+  booleantype cv_user_efun;   /* SUNTRUE if user sets efun                     */
+  CVEwtFn cv_efun;            /* function to set ewt                           */
+  void *cv_e_data;            /* user pointer passed to efun                   */
 
   /*-----------------------
     Quadrature Related Data 
     -----------------------*/
 
-  booleantype cv_quadr;       /* SUNTRUE if integrating quadratures              */
+  booleantype cv_quadr;       /* SUNTRUE if integrating quadratures            */
 
-  CVQuadRhsFn cv_fQ;          /* q' = fQ(t, y(t))                             */
+  CVQuadRhsFn cv_fQ;          /* q' = fQ(t, y(t))                              */
 
-  booleantype cv_errconQ;     /* SUNTRUE if quadrs. are included in error test   */
+  booleantype cv_errconQ;     /* SUNTRUE if quadrs. are included in error test */
 
-  int cv_itolQ;               /* itolQ = CV_SS or CV_SV                       */
-  realtype cv_reltolQ;        /* relative tolerance for quadratures           */
-  realtype cv_SabstolQ;       /* scalar absolute tolerance for quadratures    */
-  N_Vector cv_VabstolQ;       /* vector absolute tolerance for quadratures    */
+  int cv_itolQ;               /* itolQ = CV_SS or CV_SV                        */
+  realtype cv_reltolQ;        /* relative tolerance for quadratures            */
+  realtype cv_SabstolQ;       /* scalar absolute tolerance for quadratures     */
+  N_Vector cv_VabstolQ;       /* vector absolute tolerance for quadratures     */
 
   /*------------------------
     Sensitivity Related Data 
     ------------------------*/
 
-  booleantype cv_sensi;       /* SUNTRUE if computing sensitivities              */
+  booleantype cv_sensi;       /* SUNTRUE if computing sensitivities           */
 
   int cv_Ns;                  /* Number of sensitivities                      */
 
@@ -128,7 +128,7 @@ typedef struct CVodeMemRec {
   CVSensRhsFn cv_fS;          /* fS = (df/dy)*yS + (df/dp)                    */
   CVSensRhs1Fn cv_fS1;        /* fS1 = (df/dy)*yS_i + (df/dp)                 */
   void *cv_fS_data;           /* data pointer passed to fS                    */
-  booleantype cv_fSDQ;        /* SUNTRUE if using internal DQ functions          */
+  booleantype cv_fSDQ;        /* SUNTRUE if using internal DQ functions       */
   int cv_ifS;                 /* ifS = ALLSENS or ONESENS                     */
 
   realtype *cv_p;             /* parameters in f(t,y,p)                       */
@@ -137,7 +137,7 @@ typedef struct CVodeMemRec {
   int cv_DQtype;              /* central/forward finite differences           */
   realtype cv_DQrhomax;       /* cut-off value for separate/simultaneous FD   */
 
-  booleantype cv_errconS;     /* SUNTRUE if yS are considered in err. control    */
+  booleantype cv_errconS;     /* SUNTRUE if yS are considered in err. control */
 
   int cv_itolS;
   realtype cv_reltolS;        /* relative tolerance for sensitivities         */
@@ -148,13 +148,13 @@ typedef struct CVodeMemRec {
     Quadrature Sensitivity Related Data 
     -----------------------------------*/
 
-  booleantype cv_quadr_sensi; /* SUNTRUE if computing sensitivties of quadrs.    */
+  booleantype cv_quadr_sensi; /* SUNTRUE if computing sensitivties of quadrs. */
 
   CVQuadSensRhsFn cv_fQS;     /* fQS = (dfQ/dy)*yS + (dfQ/dp)                 */
   void *cv_fQS_data;          /* data pointer passed to fQS                   */
-  booleantype cv_fQSDQ;       /* SUNTRUE if using internal DQ functions          */
+  booleantype cv_fQSDQ;       /* SUNTRUE if using internal DQ functions       */
 
-  booleantype cv_errconQS;    /* SUNTRUE if yQS are considered in err. con.      */
+  booleantype cv_errconQS;    /* SUNTRUE if yQS are considered in err. con.   */
 
   int cv_itolQS;
   realtype cv_reltolQS;       /* relative tolerance for yQS                   */
@@ -445,7 +445,7 @@ typedef struct CVodeMemRec {
     Adjoint sensitivity data
     ------------------------*/
 
-  booleantype cv_adj;             /* SUNTRUE if performing ASA                   */
+  booleantype cv_adj;             /* SUNTRUE if performing ASA                */
 
   struct CVadjMemRec *cv_adj_mem; /* Pointer to adjoint memory structure      */
 

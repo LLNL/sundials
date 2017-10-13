@@ -71,7 +71,7 @@ typedef struct CPodeMemRec {
   realtype cp_reltol;          /* relative tolerance                          */
   realtype cp_Sabstol;         /* scalar absolute tolerance                   */
   N_Vector cp_Vabstol;         /* vector absolute tolerance                   */
-  booleantype cp_user_efun;    /* SUNTRUE if user sets efun                      */
+  booleantype cp_user_efun;    /* SUNTRUE if user sets efun                   */
   CPEwtFn cp_efun;             /* function to set ewt                         */
   void *cp_e_data;             /* data pointer passed to efun                 */
 
@@ -254,12 +254,12 @@ typedef struct CPodeMemRec {
     Space requirements for CPODES 
     ----------------------------*/
 
-  long int cp_lrw1;            /* no. of realtype words in 1 state N_Vector   */ 
-  long int cp_liw1;            /* no. of integer words in 1 state N_Vector    */ 
-  long int cp_lrw2;            /* no. of realtype words in 1 cnstr. N_Vector  */ 
-  long int cp_liw2;            /* no. of integer words in 1 cnstr. N_Vector   */ 
-  long int cp_lrw;             /* no. of realtype words in CPODES work vectors*/
-  long int cp_liw;             /* no. of integer words in CPODES work vectors */
+  long int cp_lrw1;            /* no. of realtype words in 1 state N_Vector    */ 
+  long int cp_liw1;            /* no. of integer words in 1 state N_Vector     */ 
+  long int cp_lrw2;            /* no. of realtype words in 1 cnstr. N_Vector   */ 
+  long int cp_liw2;            /* no. of integer words in 1 cnstr. N_Vector    */ 
+  long int cp_lrw;             /* no. of realtype words in CPODES work vectors */
+  long int cp_liw;             /* no. of integer words in CPODES work vectors  */
 
   /*---------------------------------------
     Implicit Integration Linear Solver Data 
@@ -343,23 +343,23 @@ typedef struct CPodeMemRec {
     Rootfinding Data
     ----------------*/
 
-  booleantype cp_doRootfinding;/* Is rootfinding enabled?                     */
-  CPRootFn cp_gfun;            /* Function g for roots sought                 */
-  int cp_nrtfn;                /* number of components of g                   */
-  booleantype *cp_gactive;     /* flags for active/inactive g functions       */
-  int *cp_iroots;              /* array for root information                  */
-  int *cp_rootdir;             /* array specifying direction of zero-crossing */
+  booleantype cp_doRootfinding;/* Is rootfinding enabled?                      */
+  CPRootFn cp_gfun;            /* Function g for roots sought                  */
+  int cp_nrtfn;                /* number of components of g                    */
+  booleantype *cp_gactive;     /* flags for active/inactive g functions        */
+  int *cp_iroots;              /* array for root information                   */
+  int *cp_rootdir;             /* array specifying direction of zero-crossing  */
 
-  realtype cp_tlo;             /* nearest endpoint of interval in root search */
-  realtype cp_thi;             /* farthest endpoint of interval in root search*/
-  realtype cp_trout;           /* t value returned by rootfinding routine     */
-  realtype *cp_glo;            /* saved array of g values at t = tlo          */
-  realtype *cp_ghi;            /* saved array of g values at t = thi          */
-  realtype *cp_grout;          /* array of g values at t = trout              */
-  realtype cp_toutc;           /* copy of tout (if NORMAL mode)               */
-  int cp_taskc;                /* copy of parameter task                      */
-  int cp_irfnd;                /* flag showing whether last step had a root   */
-  long int cp_nge;             /* counter for g evaluations                   */
+  realtype cp_tlo;             /* nearest endpoint of interval in root search  */
+  realtype cp_thi;             /* farthest endpoint of interval in root search */
+  realtype cp_trout;           /* t value returned by rootfinding routine      */
+  realtype *cp_glo;            /* saved array of g values at t = tlo           */
+  realtype *cp_ghi;            /* saved array of g values at t = thi           */
+  realtype *cp_grout;          /* array of g values at t = trout               */
+  realtype cp_toutc;           /* copy of tout (if NORMAL mode)                */
+  int cp_taskc;                /* copy of parameter task                       */
+  int cp_irfnd;                /* flag showing whether last step had a root    */
+  long int cp_nge;             /* counter for g evaluations                    */
 
   /*------------------------------
     Consistent IC calculation data

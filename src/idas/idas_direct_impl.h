@@ -41,21 +41,21 @@ extern "C" {
   -----------------------------------------------------------------*/
 typedef struct IDADlsMemRec {
 
-  booleantype jacDQ;    /* SUNTRUE if using internal DQ Jacobian approx.    */
-  IDADlsJacFn jac;      /* dense Jacobian routine to be called           */
-  void *J_data;         /* J_data is passed to jac              */
+  booleantype jacDQ;    /* SUNTRUE if using internal DQ Jacobian approx.  */
+  IDADlsJacFn jac;      /* dense Jacobian routine to be called            */
+  void *J_data;         /* J_data is passed to jac                        */
 
-  SUNLinearSolver LS;   /* generic direct linear solver object           */
+  SUNLinearSolver LS;   /* generic direct linear solver object            */
 
-  SUNMatrix J;          /* J = dF/dy + cj*dF/dy'                         */
+  SUNMatrix J;          /* J = dF/dy + cj*dF/dy'                          */
 
-  N_Vector x;           /* solution vector used by SUNLinearSolver       */
+  N_Vector x;           /* solution vector used by SUNLinearSolver        */
   
-  long int nje;         /* nje = no. of calls to jac                     */
+  long int nje;         /* nje = no. of calls to jac                      */
 
-  long int nreDQ;       /* no. of calls to res due to DQ Jacobian approx.*/
+  long int nreDQ;       /* no. of calls to res due to DQ Jacobian approx. */
 
-  long int last_flag;   /* last error return flag                        */
+  long int last_flag;   /* last error return flag                         */
   
 } *IDADlsMem;
 

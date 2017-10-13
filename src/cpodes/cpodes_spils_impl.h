@@ -81,9 +81,9 @@ typedef struct CPSpilsMemRec {
   N_Vector s_ypcur;     /* CPODES current y' vector in Newton Iteration */
   N_Vector s_fcur;      /* fcur = f(tn, ycur)                           */
 
-  void* s_spils_mem;    /* memory used by the generic solver             */
+  void* s_spils_mem;    /* memory used by the generic solver            */
 
-  int s_last_flag;      /* last error flag returned by any function      */
+  int s_last_flag;      /* last error flag returned by any function     */
 
   /* Preconditioner computation
    * (a) user-provided:

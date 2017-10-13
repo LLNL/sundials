@@ -229,16 +229,16 @@ typedef struct ARKodeMemRec {
   N_Vector     ark_Vabstol;    /* vector absolute solution tolerance    */
   realtype     ark_SRabstol;   /* scalar absolute residual tolerance    */
   N_Vector     ark_VRabstol;   /* vector absolute residual tolerance    */
-  booleantype  ark_user_efun;  /* SUNTRUE if user sets efun                */
+  booleantype  ark_user_efun;  /* SUNTRUE if user sets efun             */
   ARKEwtFn     ark_efun;       /* function to set ewt                   */
   void        *ark_e_data;     /* user pointer passed to efun           */
-  booleantype  ark_user_rfun;  /* SUNTRUE if user sets rfun                */
+  booleantype  ark_user_rfun;  /* SUNTRUE if user sets rfun             */
   ARKRwtFn     ark_rfun;       /* function to set rwt                   */
   void        *ark_r_data;     /* user pointer passed to rfun           */
-  booleantype  ark_linear;     /* SUNTRUE if fi is linear                  */
-  booleantype  ark_linear_timedep;  /* SUNTRUE if dfi/dy depends on t      */
-  booleantype  ark_explicit;   /* SUNTRUE if fi is disabled                */
-  booleantype  ark_implicit;   /* SUNTRUE if fe is disabled                */
+  booleantype  ark_linear;     /* SUNTRUE if fi is linear               */
+  booleantype  ark_linear_timedep;  /* SUNTRUE if dfi/dy depends on t   */
+  booleantype  ark_explicit;   /* SUNTRUE if fi is disabled             */
+  booleantype  ark_implicit;   /* SUNTRUE if fe is disabled             */
 
   /*-----------------
     Stored RHS arrays
@@ -251,7 +251,7 @@ typedef struct ARKodeMemRec {
     -------------------------*/
   N_Vector ark_ewt;     /* error weight vector                               */
   N_Vector ark_rwt;     /* residual weight vector                            */
-  booleantype ark_rwt_is_ewt;     /* SUNTRUE if rwt is a pointer to ewt         */
+  booleantype ark_rwt_is_ewt;     /* SUNTRUE if rwt is a pointer to ewt      */
   N_Vector ark_y;       /* y is used as temporary storage by the solver
 			   The memory is provided by the user to ARKode
 			   where the vector is named yout.                   */
