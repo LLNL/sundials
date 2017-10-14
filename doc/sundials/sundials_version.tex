@@ -16,7 +16,7 @@ information at runtime.
   flag = SUNDIALSGetVersion(version, len);
 }
 {
-  The function \ID{SUNDIALSGetVersion} fills a string with {\sundials}
+  The function \ID{SUNDIALSGetVersion} fills a character array with {\sundials}
   version information.
 }
 {
@@ -32,18 +32,20 @@ information at runtime.
   set (the input character array is too short).
 }
 {
-  A string of 25 characters should be sufficient to hold the version information.
+  A string of 25 characters should be sufficient to hold the version
+  information. Any trailing characters in the \id{version} array are
+  removed.
 }
 %%
 %%
 \ucfunction{SUNDIALSGetVersionNumber}
 {
-  flag = SUNDIALSGetVersionNumber(\&major, \&minor, \&patch, label, length);
+  flag = SUNDIALSGetVersionNumber(\&major, \&minor, \&patch, label, len);
 }
 {
   The function \ID{SUNDIALSGetVersionNumber} set integers for the
   {\sundials} major, minor, and patch release numbers and fills a
-  string with the release label if applicable.
+  character array with the release label if applicable.
 }
 {
   \begin{args}[length]
@@ -55,7 +57,7 @@ information at runtime.
   \end{args}
 }
 {
-  If successful, \id{SUNDIALSGetVersion} returns 0 and the
+  If successful, \id{SUNDIALSGetVersionNumber} returns 0 and the
   \id{major}, \id{minor}, \id{patch}, and \id{label} values are
   set. Otherwise, it returns $-1$ and the values are not set (the
   input character array is too short).
@@ -63,7 +65,8 @@ information at runtime.
 {
   A string of 10 characters should be sufficient to hold the label
   information. If a label is not used in the release version, no
-  information is copied to \id{label}.
+  information is copied to \id{label}. Any trailing characters in the
+  \id{label} array are removed. 
 }
 \index{optional output!version|)}
 
