@@ -97,7 +97,8 @@ Approved for public release; further dissemination unlimited
 \expandafter\def\csname PYG@tok@gr\endcsname{\def\PYG@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
 \expandafter\def\csname PYG@tok@cm\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
 \expandafter\def\csname PYG@tok@vg\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\expandafter\def\csname PYG@tok@m\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@vi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
+\expandafter\def\csname PYG@tok@vm\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
 \expandafter\def\csname PYG@tok@mh\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
 \expandafter\def\csname PYG@tok@cs\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}\def\PYG@bc##1{\setlength{\fboxsep}{0pt}\colorbox[rgb]{1.00,0.94,0.94}{\strut ##1}}}
 \expandafter\def\csname PYG@tok@ge\endcsname{\let\PYG@it=\textit}
@@ -119,16 +120,20 @@ Approved for public release; further dissemination unlimited
 \expandafter\def\csname PYG@tok@nf\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.49}{##1}}}
 \expandafter\def\csname PYG@tok@si\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.44,0.63,0.82}{##1}}}
 \expandafter\def\csname PYG@tok@s2\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\expandafter\def\csname PYG@tok@vi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
 \expandafter\def\csname PYG@tok@nt\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.45}{##1}}}
 \expandafter\def\csname PYG@tok@nv\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
 \expandafter\def\csname PYG@tok@s1\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@dl\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@ch\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
+\expandafter\def\csname PYG@tok@m\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
 \expandafter\def\csname PYG@tok@gp\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
 \expandafter\def\csname PYG@tok@sh\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 \expandafter\def\csname PYG@tok@ow\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@sx\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
 \expandafter\def\csname PYG@tok@bp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@c1\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
+\expandafter\def\csname PYG@tok@fm\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.49}{##1}}}
+\expandafter\def\csname PYG@tok@o\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
 \expandafter\def\csname PYG@tok@kc\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@c\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
 \expandafter\def\csname PYG@tok@mf\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
@@ -140,7 +145,7 @@ Approved for public release; further dissemination unlimited
 \expandafter\def\csname PYG@tok@kd\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@mi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
 \expandafter\def\csname PYG@tok@kn\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\expandafter\def\csname PYG@tok@o\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PYG@tok@cpf\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
 \expandafter\def\csname PYG@tok@kr\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@s\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 \expandafter\def\csname PYG@tok@kp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
@@ -148,6 +153,7 @@ Approved for public release; further dissemination unlimited
 \expandafter\def\csname PYG@tok@kt\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.56,0.13,0.00}{##1}}}
 \expandafter\def\csname PYG@tok@sc\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 \expandafter\def\csname PYG@tok@sb\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@sa\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 \expandafter\def\csname PYG@tok@k\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@se\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 \expandafter\def\csname PYG@tok@sd\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
@@ -281,6 +287,7 @@ preconditioner routines.
 
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
+
 \subsection{Changes in v2.0.0}
 \label{Introduction:changes-in-v2-0-0}
 All interfaces to matrix structures and linear solvers have been
@@ -350,25 +357,30 @@ functions and to user documentation.
 
 All indices for data structures were updated to a new \code{sunindextype}
 that can be configured to be a 32- or 64-bit integer data index type.
-\code{sunindextype} can be defined to be \code{int64\_t} or \code{int32\_t}, or
-\code{long long int} and \code{int} depending on machine support for
-portable types.  The Fortran interfaces continue to use \code{long\_int} for
+\code{sunindextype} is defined to be \code{int32\_t} or \code{int64\_t} when
+portable types are supported, otherwise it is defined as \code{int} or
+\code{long int}. The Fortran interfaces continue to use \code{long int} for
 indices, except for their sparse matrix interface that now uses the
 new \code{sunindextype}.  This new flexible capability for index types
 includes interfaces to PETSc, \emph{hypre}, SuperLU\_MT, and KLU with either
-64-bit or 32-bit capabilities depending how the user configures
+32-bit or 64-bit capabilities depending how the user configures
 SUNDIALS.
 
+To avoid potential namespace conflicts, the macros defining
+\code{booleantype} values \code{TRUE} and \code{FALSE} have been changed to
+\code{SUNTRUE} and \code{SUNFALSE} respectively.
+
 Temporary vectors were removed from preconditioner setup and solve
-routines for all packages.  It is assumed that all necessary data for
-user-provided preconditioner operations will be allocated and stored
-in user-provided data structures.
+routines for all packages.  It is assumed that all necessary data
+for user-provided preconditioner operations will be allocated and
+stored in user-provided data structures.
 
 The file \code{include/sundials\_fconfig.h} was added.  This file contains
 SUNDIALS type information for use in Fortran programs.
 
 Added functions SUNDIALSGetVersion and SUNDIALSGetVersionNumber to get
 SUNDIALS release version information at runtime.
+
 The build system was expanded to support many of the xSDK-compliant keys.
 The xSDK is a movement in scientific software to provide a foundation for the
 rapid and efficient production of high-quality,
@@ -386,6 +398,7 @@ changing \code{CXX\_ENABLE} to \code{EXAMPLES\_ENABLE\_CXX}, changing \code{F90\
 
 Corrections and additions were made to the examples, to
 installation-related files, and to the user documentation.
+
 
 \subsection{Changes in v1.1.0}
 \label{Introduction:changes-in-v1-1-0}
@@ -988,6 +1001,7 @@ evaluations of \(f_I\), one for each column of \(J\).  In the
 band case, the columns of \(J\) are computed in groups, using the
 Curtis-Powell-Reid algorithm, with the number of \(f_I\)
 evaluations equal to the bandwidth.
+
 We note that with the sparse direct solvers, the Jacobian \emph{must}
 be supplied by a user routine.
 
@@ -2247,6 +2261,7 @@ are located in the subdirectories
 
 \item {} 
 \code{incdir/include/nvector}
+
 \item {} 
 \code{incdir/include/sunmatrix}
 
@@ -2319,14 +2334,15 @@ without modifying the code to use \code{realtype}, so long as the
 SUNDIALS libraries have been compiled using the same precision (for
 details see the section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}}).
 
+
 \subsection{Integer types used for vector and matrix indices}
 \label{c_interface/General:integer-types-used-for-vector-and-matrix-indices}
-The type \code{sunindextype} can be either a 64- or 32-bit \emph{signed} integer.
+The type \code{sunindextype} can be either a 32- or 64-bit \emph{signed} integer.
 The default is the portable \code{int64\_t} type, and the user can change it
 to \code{int32\_t} at the configuration stage. The configuration system
 will detect if the compiler does not support portable types, and will
-replace \code{int64\_t} and \code{int32\_t} with \code{long long} and \code{int},
-respectively, to ensure use of the desired sizes on Linux, Mac OS X and Windows
+replace \code{int32\_t} and \code{int64\_t} with \code{int} and \code{long int},
+respectively, to ensure use of the desired sizes on Linux, Mac OS X, and Windows
 platforms. SUNDIALS currently does not support \emph{unsigned} integer types
 for vector and matrix indices, although these could be added in the future if there
 is sufficient demand.
@@ -2357,8 +2373,8 @@ prototypes.
 
 Note that \code{arkode.h} includes \code{sundials\_types.h} directly, which
 defines the types \code{realtype},  \code{sunindextype} and \code{booleantype}
-and the constants \code{FALSE} and \code{TRUE}, so a user program does not
-need to include \code{sundials\_types.h} directly.
+and the constants \code{SUNFALSE} and \code{SUNTRUE}, so a user program does
+not need to include \code{sundials\_types.h} directly.
 
 The calling program must also include an NVECTOR implementation
 header file, of the form \code{nvector/nvector\_***.h}.  See the section
@@ -2552,6 +2568,7 @@ where \code{yvec} is a HYPRE or PETSc vector.  Note that calls like
 \code{N\_VNew\_***(...)} and \code{N\_VGetArrayPointer\_***(...)} are not
 available for these vector wrappers.  See the sections
 {\hyperref[nvectors/NVector_ParHyp:nvectors-parhyp]{\emph{\DUspan{}{The NVECTOR\_PARHYP Module}}}} and {\hyperref[nvectors/NVector_PETSc:nvectors-nvpetsc]{\emph{\DUspan{}{The NVECTOR\_PETSC Module}}}} for details.
+
 If using either the CUDA- or RAJA-based vector implementations use
 a call of the form
 
@@ -2576,6 +2593,7 @@ or
 Note that the vector class will allocate memory on both the host
 and device when instantiated.  See the sections
 {\hyperref[nvectors/NVector_CUDA:nvectors-cuda]{\emph{\DUspan{}{The NVECTOR\_CUDA Module}}}} and {\hyperref[nvectors/NVector_RAJA:nvectors-raja]{\emph{\DUspan{}{The NVECTOR\_RAJA Module}}}} for details.
+
 \item {} 
 Create ARKode object
 
@@ -2724,6 +2742,7 @@ defined by the NVECTOR implementation:
 Free solver memory
 
 Call \code{ARKodeFree(\&arkode\_mem)} to free the memory allocated for ARKode.
+
 \item {} 
 Free linear solver and matrix memory
 
@@ -3725,7 +3744,7 @@ header file  \code{arkode/arkode\_direct.h}.
 \item {} 
 \emph{time\_dep} -- flag denoting whether the mass matrix depends on
 the independent variable (\(M = M(t)\)) or not (\(M
-\ne M(t)\)).  Use \code{TRUE} to indicate time-dependence of the
+\ne M(t)\)).  Use \code{SUNTRUE} to indicate time-dependence of the
 mass matrix.
 
 \end{itemize}
@@ -3755,7 +3774,7 @@ solve process, so if additional storage is required within the
 matrix), ensure that the input object is allocated with sufficient
 size.
 
-If called with \emph{time\_dep} set to \code{FALSE}, then the mass matrix is
+If called with \emph{time\_dep} set to \code{SUNFALSE}, then the mass matrix is
 only computed and factored once, with the results reused throughout
 the entire ARKode simulation.
 
@@ -3796,7 +3815,7 @@ solver interface.  Its use requires inclusion of the header file
 \item {} 
 \emph{time\_dep} -- flag denoting whether the mass matrix depends on
 the independent variable (\(M = M(t)\)) or not (\(M
-\ne M(t)\)).  Use \code{TRUE} to indicate time-dependence of the
+\ne M(t)\)).  Use \code{SUNTRUE} to indicate time-dependence of the
 mass matrix.
 
 \end{itemize}
@@ -3820,7 +3839,7 @@ module.
 
 \end{description}
 
-\textbf{Notes:}  If called with \emph{time\_dep} set to \code{FALSE}, then the
+\textbf{Notes:}  If called with \emph{time\_dep} set to \code{SUNFALSE}, then the
 mass matrix-vector-product (if supplied) is only set up once, and
 the mass matrix preconditioner (if supplied) is only set up once,
 with the results reused throughout the entire ARKode simulation.
@@ -4842,21 +4861,21 @@ Specify implicit/explicit problem
  & 
 {\hyperref[c_interface/User_callable:c.ARKodeSetImEx]{\emph{\code{ARKodeSetImEx()}}}}
  & 
-\code{TRUE}
+\code{SUNTRUE}
 \\
 \hline
 Specify explicit problem
  & 
 {\hyperref[c_interface/User_callable:c.ARKodeSetExplicit]{\emph{\code{ARKodeSetExplicit()}}}}
  & 
-\code{FALSE}
+\code{SUNFALSE}
 \\
 \hline
 Specify implicit problem
  & 
 {\hyperref[c_interface/User_callable:c.ARKodeSetImplicit]{\emph{\code{ARKodeSetImplicit()}}}}
  & 
-\code{FALSE}
+\code{SUNFALSE}
 \\
 \hline
 Set additive RK tables
@@ -5948,28 +5967,28 @@ Specify use of the fixed-point stage solver
  & 
 {\hyperref[c_interface/User_callable:c.ARKodeSetFixedPoint]{\emph{\code{ARKodeSetFixedPoint()}}}}
  & 
-\code{FALSE}
+\code{SUNFALSE}
 \\
 \hline
 Specify use of the Newton stage solver
  & 
 {\hyperref[c_interface/User_callable:c.ARKodeSetNewton]{\emph{\code{ARKodeSetNewton()}}}}
  & 
-\code{TRUE}
+\code{SUNTRUE}
 \\
 \hline
 Specify linearly implicit \(f_I\)
  & 
 {\hyperref[c_interface/User_callable:c.ARKodeSetLinear]{\emph{\code{ARKodeSetLinear()}}}}
  & 
-\code{FALSE}
+\code{SUNFALSE}
 \\
 \hline
 Specify nonlinearly implicit \(f_I\)
  & 
 {\hyperref[c_interface/User_callable:c.ARKodeSetNonlinear]{\emph{\code{ARKodeSetNonlinear()}}}}
  & 
-\code{TRUE}
+\code{SUNTRUE}
 \\
 \hline
 Implicit predictor method
@@ -6591,7 +6610,6 @@ The function type {\hyperref[c_interface/User_supplied:c.ARKDlsJacFn]{\emph{\cod
 
 \end{fulllineitems}
 
-
 \index{ARKDlsSetMassFn (C function)}
 
 \begin{fulllineitems}
@@ -6631,7 +6649,6 @@ matrices, \emph{mass} must be non-\code{NULL}.
 
 The function type {\hyperref[c_interface/User_supplied:c.ARKDlsMassFn]{\emph{\code{ARKDlsMassFn()}}}} is described in the section
 {\hyperref[c_interface/User_supplied:cinterface-usersupplied]{\emph{\DUspan{}{User-supplied functions}}}}.
-
 
 \end{fulllineitems}
 
@@ -6758,7 +6775,6 @@ Mass matrix preconditioning functions
 \\
 \hline\end{tabulary}
 
-
 \index{ARKSpilsSetJacTimes (C function)}
 
 \begin{fulllineitems}
@@ -6768,6 +6784,7 @@ Specifies the Jacobian-times-vector setup and product functions.
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
 \emph{arkode\_mem} -- pointer to the ARKode memory block.
+
 \item {} 
 \emph{jtsetup} -- user-defined Jacobian-vector setup function.
 Pass \code{NULL} if no setup is necessary.
@@ -6789,6 +6806,7 @@ Pass \code{NULL} if no setup is necessary.
 
 \item {} 
 \emph{ARKSPILS\_ILL\_INPUT} if an input has an illegal value.
+
 \item {} 
 \emph{ARKSPILS\_SUNLS\_FAIL} if an error occurred when setting up
 the Jacobian-vector product in the \code{SUNLinearSolver}
@@ -6887,6 +6905,7 @@ Specifies the user-supplied preconditioner setup and solve functions.
 
 \item {} 
 \emph{ARKSPILS\_ILL\_INPUT} if an input has an illegal value.
+
 \item {} 
 \emph{ARKSPILS\_SUNLS\_FAIL} if an error occurred when setting up
 preconditioning in the \code{SUNLinearSolver} object used
@@ -6898,6 +6917,7 @@ by the ARKSPILS interface.
 
 \textbf{Notes:} The default is \code{NULL} for both arguments (i.e. no
 preconditioning).
+
 This function must be called \emph{after} the ARKSPILS system solver
 interface has been initialized through a call to
 {\hyperref[c_interface/User_callable:c.ARKSpilsSetLinearSolver]{\emph{\code{ARKSpilsSetLinearSolver()}}}}.
@@ -6939,6 +6959,7 @@ Pass \code{NULL} if no setup is necessary.
 
 \item {} 
 \emph{ARKSPILS\_ILL\_INPUT} if an input has an illegal value.
+
 \item {} 
 \emph{ARKSPILS\_SUNLS\_FAIL} if an error occurred when setting up
 the mass-matrix-vector product in the \code{SUNLinearSolver}
@@ -7004,7 +7025,6 @@ matrix solver interface has been initialized through a call to
 Passing a value \emph{eplifac} of 0.0 indicates to use the default value
 of 0.05.
 
-
 \end{fulllineitems}
 
 \index{ARKSpilsSetMassPreconditioner (C function)}
@@ -7038,6 +7058,7 @@ Specifies the mass matrix preconditioner setup and solve functions.
 
 \item {} 
 \emph{ARKSPILS\_ILL\_INPUT} if an input has an illegal value.
+
 \item {} 
 \emph{ARKSPILS\_SUNLS\_FAIL} if an error occurred when setting up
 preconditioning in the \code{SUNLinearSolver} object used
@@ -7057,7 +7078,6 @@ preconditioning).
 Both of the function types {\hyperref[c_interface/User_supplied:c.ARKSpilsMassPrecSetupFn]{\emph{\code{ARKSpilsMassPrecSetupFn()}}}} and
 {\hyperref[c_interface/User_supplied:c.ARKSpilsMassPrecSolveFn]{\emph{\code{ARKSpilsMassPrecSolveFn()}}}} are described in the section
 {\hyperref[c_interface/User_supplied:cinterface-usersupplied]{\emph{\DUspan{}{User-supplied functions}}}}.
-
 
 \end{fulllineitems}
 
@@ -7407,6 +7427,9 @@ the label information. If a label is not used in the release
 version, no information is copied to \emph{label}.
 
 \end{fulllineitems}
+
+
+
 \subsubsection{Main solver optional output functions}
 \label{c_interface/User_callable:main-solver-optional-output-functions}\label{c_interface/User_callable:cinterface-arkodemainoutputs}
 \begin{tabulary}{\linewidth}{|L|L|}
@@ -8867,7 +8890,7 @@ processors).
 \begin{fulllineitems}
 \phantomsection\label{c_interface/User_callable:c.ARKSpilsGetNumPrecEvals}\pysiglinewithargsret{int \bfcode{ARKSpilsGetNumPrecEvals}}{void*\emph{ arkode\_mem}, long int*\emph{ npevals}}{}
 Returns the total number of preconditioner evaluations,
-i.e. the number of calls made to \emph{psetup} with \emph{jok} = \code{FALSE}.
+i.e. the number of calls made to \emph{psetup} with \emph{jok} = \code{SUNFALSE}.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
@@ -8969,6 +8992,7 @@ Returns the cumulative number of linear convergence failures.
 
 \item {} 
 \emph{nlcfails} -- the current number of linear convergence failures.
+
 \end{itemize}
 
 \item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
@@ -9312,6 +9336,7 @@ Returns the cumulative number of mass matrix solver convergence failures.
 
 \item {} 
 \emph{nmcfails} -- the current number of mass matrix solver convergence failures.
+
 \end{itemize}
 
 \item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
@@ -9427,6 +9452,7 @@ ARKSPILS mass matrix solver function.
 \textbf{Notes:} The values of \emph{msflag} for each of the various solvers
 will match those described above for the function
 {\hyperref[c_interface/User_callable:c.ARKSpilsGetLastFlag]{\emph{\code{ARKSpilsGetLastFlag()}}}}.
+
 \end{fulllineitems}
 
 
@@ -10360,7 +10386,6 @@ This function computes the Jacobian matrix \(J =
 \frac{\partial f_I}{\partial y}\) (or an approximation to it).
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-
 \item {} 
 \emph{t} -- the current value of the independent variable.
 
@@ -10518,6 +10543,7 @@ This function computes the product \(Jv =
 
 \item {} 
 \emph{Jv} -- the output vector computed.
+
 \item {} 
 \emph{t} -- the current value of the independent variable.
 
@@ -10526,7 +10552,6 @@ This function computes the product \(Jv =
 
 \item {} 
 \emph{fy} -- the current value of the vector \(f_I(t,y)\).
-
 
 \item {} 
 \emph{user\_data} -- a pointer to user data, the same as the
@@ -10574,7 +10599,6 @@ This function preprocesses and/or evaluates any Jacobian-related
 data needed by the Jacobian-times-vector routine.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-
 \item {} 
 \emph{t} -- the current value of the independent variable.
 
@@ -10587,7 +10611,6 @@ data needed by the Jacobian-times-vector routine.
 \item {} 
 \emph{user\_data} -- a pointer to user data, the same as the
 \emph{user\_data} parameter that was passed to {\hyperref[c_interface/User_callable:c.ARKodeSetUserData]{\emph{\code{ARKodeSetUserData()}}}}.
-
 
 \end{itemize}
 
@@ -10675,7 +10698,6 @@ preconditioner (\emph{lr} = 2).
 \emph{user\_data} -- a pointer to user data, the same as the
 \emph{user\_data} parameter that was passed to {\hyperref[c_interface/User_callable:c.ARKodeSetUserData]{\emph{\code{ARKodeSetUserData()}}}}.
 
-
 \end{itemize}
 
 \end{description}
@@ -10717,15 +10739,15 @@ data needed by the preconditioner.
 \emph{jok} -- is an input flag indicating whether the Jacobian-related
 data needs to be updated. The \emph{jok} argument provides for the
 reuse of Jacobian data in the preconditioner solve function. When
-\emph{jok} = \code{FALSE}, the Jacobian-related data should be recomputed
-from scratch. When \emph{jok} = \code{TRUE} the Jacobian data, if saved from the
+\emph{jok} = \code{SUNFALSE}, the Jacobian-related data should be recomputed
+from scratch. When \emph{jok} = \code{SUNTRUE} the Jacobian data, if saved from the
 previous call to this function, can be reused (with the current
-value of \emph{gamma}). A call with \emph{jok} = \code{TRUE} can only occur
-after a call with \emph{jok} = \code{FALSE}.
+value of \emph{gamma}). A call with \emph{jok} = \code{SUNTRUE} can only occur
+after a call with \emph{jok} = \code{SUNFALSE}.
 
 \item {} 
 \emph{jcurPtr} -- is a pointer to a flag which should be set to
-\code{TRUE} if Jacobian data was recomputed, or set to \code{FALSE} if
+\code{SUNTRUE} if Jacobian data was recomputed, or set to \code{SUNFALSE} if
 Jacobian data was not recomputed, but saved data was still reused.
 
 \item {} 
@@ -10735,7 +10757,6 @@ matrix given by \(A=M-\gamma J\).
 \item {} 
 \emph{user\_data} -- a pointer to user data, the same as the
 \emph{user\_data} parameter that was passed to {\hyperref[c_interface/User_callable:c.ARKodeSetUserData]{\emph{\code{ARKodeSetUserData()}}}}.
-
 
 \end{itemize}
 
@@ -10901,7 +10922,6 @@ This function computes the product \(M*v\) (or an approximation to it).
 \emph{user\_data} -- a pointer to user data, the same as the
 \emph{user\_data} parameter that was passed to {\hyperref[c_interface/User_callable:c.ARKodeSetUserData]{\emph{\code{ARKodeSetUserData()}}}}.
 
-
 \end{itemize}
 
 \end{description}
@@ -10930,7 +10950,6 @@ This function preprocesses and/or evaluates any mass-matrix-related
 data needed by the mass-matrix-times-vector routine.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-
 \item {} 
 \emph{t} -- the current value of the independent variable.
 
@@ -10996,7 +11015,6 @@ preconditioner (\emph{lr} = 2).
 \emph{user\_data} -- a pointer to user data, the same as the
 \emph{user\_data} parameter that was passed to {\hyperref[c_interface/User_callable:c.ARKodeSetUserData]{\emph{\code{ARKodeSetUserData()}}}}.
 
-
 \end{itemize}
 
 \end{description}
@@ -11032,7 +11050,6 @@ data needed by the preconditioner.
 \item {} 
 \emph{user\_data} -- a pointer to user data, the same as the
 \emph{user\_data} parameter that was passed to {\hyperref[c_interface/User_callable:c.ARKodeSetUserData]{\emph{\code{ARKodeSetUserData()}}}}.
-
 
 \end{itemize}
 
@@ -11151,6 +11168,7 @@ skeleton program presented in {\hyperref[c_interface/Skeleton:cinterface-skeleto
 \begin{enumerate}
 \item {} 
 \emph{Initialize multi-threaded environment (if appropriate)}
+
 \item {} 
 \emph{Set problem dimensions}
 
@@ -11988,6 +12006,7 @@ SUNDIALS \code{sunindextype} variable.
 
 \item {} 
 64-bit architecture -- equivalent to an \code{INTEGER*8} in Fortran
+
 \end{itemize}
 
 \item {} 
@@ -12055,6 +12074,7 @@ documentation, for simplified access.
 \item {} 
 \code{FNVINITPTS()} (defined by NVECTOR\_PTHREADS) interfaces to
 {\hyperref[nvectors/NVector_Pthreads:c.N_VNewEmpty_Pthreads]{\emph{\code{N\_VNewEmpty\_Pthreads()}}}}.
+
 \item {} 
 \code{FNVINITPH()} (defined by NVECTOR\_PARHYP) interfaces to
 {\hyperref[nvectors/NVector_ParHyp:c.N_VNewEmpty_ParHyp]{\emph{\code{N\_VNewEmpty\_ParHyp()}}}}.
@@ -12077,6 +12097,7 @@ to {\hyperref[sunmatrix/SUNMatrix_Dense:c.SUNDenseMatrix]{\emph{\code{SUNDenseMa
 to {\hyperref[sunmatrix/SUNMatrix_Sparse:c.SUNSparseMatrix]{\emph{\code{SUNSparseMatrix()}}}}.
 
 \end{itemize}
+
 
 \subsubsection{Interface to the SUNLINSOL modules}
 \label{f_interface/Routines:interface-to-the-sunlinsol-modules}\begin{itemize}
@@ -12543,6 +12564,8 @@ must make a call of the form
 
 in which the specific arguments are as described in the
 appropriate section of the Chapter {\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{Vector Data Structures}}}}.
+
+
 \subsubsection{SUNMATRIX module initialization}
 \label{f_interface/Usage:sunmatrix-module-initialization}\label{f_interface/Usage:finterface-sunmatrix}
 In the case of using either an implicit or ImEx method, the solution
@@ -13481,7 +13504,6 @@ Interfaces with the {\hyperref[c_interface/User_callable:c.ARKDlsSetLinearSolver
 specify use of the direct linear solver interface.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-
 \item {} 
 \emph{IER} (\code{int}, output) -- return flag (0 if success, -1 if a memory allocation
 error occurred, -2 for an illegal input).
@@ -13584,7 +13606,6 @@ Jacobian approximation.
 \end{description}
 
 \end{fulllineitems}
-
 
 
 As an option when using the ARKDLS interface with SUNLINSOL\_BAND or
@@ -13693,7 +13714,6 @@ Jacobian approximation.
 \end{description}
 
 \end{fulllineitems}
-
 
 
 When using the ARKDLS interface with the SUNLINSOL\_KLU or
@@ -14026,7 +14046,6 @@ to a C interface routine of type
 \emph{IPAR} (\code{long int}, input) -- array containing integer user data that was passed to
 {\hyperref[f_interface/Usage:f/_/FARKMALLOC]{\emph{\code{FARKMALLOC()}}}}.
 
-
 \item {} 
 \emph{RPAR} (\code{realtype}, input) -- array containing real user data that was passed to
 {\hyperref[f_interface/Usage:f/_/FARKMALLOC]{\emph{\code{FARKMALLOC()}}}}.
@@ -14037,6 +14056,7 @@ to a C interface routine of type
 \end{itemize}
 
 \end{description}
+
 \textbf{Notes:}
 Typically this routine will use only \emph{T} and \emph{Y}, and store
 the results in either the arrays \emph{IPAR} and \emph{RPAR}, or in a Fortran
@@ -14088,7 +14108,6 @@ system: 1 = left preconditioner, 2 = right preconditioner.
 \emph{RPAR} (\code{realtype}, input/output) -- array containing real user data that was passed to
 {\hyperref[f_interface/Usage:f/_/FARKMALLOC]{\emph{\code{FARKMALLOC()}}}}.
 
-
 \item {} 
 \emph{IER}  (\code{int}, output) -- return flag  (0 if success, \textgreater{}0 if a recoverable
 failure, \textless{}0 if a non-recoverable failure).
@@ -14107,6 +14126,7 @@ approximation to the matrix  \(M(T) - \gamma J\), where
 GAMMA, and \(J = \frac{\partial f_I}{\partial y}\).
 
 \end{fulllineitems}
+
 
 If the user's preconditioner requires that any Jacobian related data be evaluated
 or preprocessed, then the following routine can be used for the evaluation and
@@ -14149,7 +14169,6 @@ Jacobian data was recomputed (1=yes, 0=no).
 \item {} 
 \emph{RPAR} (\code{realtype}, input/output) -- array containing real user data that was passed to
 {\hyperref[f_interface/Usage:f/_/FARKMALLOC]{\emph{\code{FARKMALLOC()}}}}.
-
 
 \item {} 
 \emph{IER}  (\code{int}, output) -- return flag  (0 if success, \textgreater{}0 if a recoverable
@@ -14312,7 +14331,6 @@ for the mass matrix calculation.
 \end{fulllineitems}
 
 
-
 When using the ARKDLS interface with the SUNLINSOL\_BAND or
 SUNLINSOL\_LAPACKBAND mass matrix linear solver modules, the user must
 supply a routine that computes the banded mass matrix \(M(t)\).  This
@@ -14396,7 +14414,6 @@ matrix calculation.
 \end{description}
 
 \end{fulllineitems}
-
 
 
 When using the ARKDLS interface with the SUNLINSOL\_KLU or
@@ -14685,6 +14702,7 @@ Interface to the function {\hyperref[c_interface/User_callable:c.ARKSpilsSetMass
 specify use of the user-supplied preconditioner setup and solve
 functions, {\hyperref[f_interface/Usage:f/_/FARKMASSPSET]{\emph{\code{FARKMASSPSET()}}}} and {\hyperref[f_interface/Usage:f/_/FARKMASSPSOL]{\emph{\code{FARKMASSPSOL()}}}},
 respectively.
+
 This routine must be called \emph{after} {\hyperref[f_interface/Usage:f/_/FARKSPILSMASSINIT]{\emph{\code{FARKSPILSMASSINIT()}}}}.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -14725,7 +14743,6 @@ integer user data that was passed to {\hyperref[f_interface/Usage:f/_/FARKMALLOC
 \item {} 
 \emph{RPAR} (\code{realtype}, input/output) -- array containing real
 user data that was passed to {\hyperref[f_interface/Usage:f/_/FARKMALLOC]{\emph{\code{FARKMALLOC()}}}}.
-
 
 \item {} 
 \emph{IER}  (\code{int}, output) -- return flag  (0 if success, \textgreater{}0 if
@@ -14777,7 +14794,6 @@ integer user data that was passed to {\hyperref[f_interface/Usage:f/_/FARKMALLOC
 \item {} 
 \emph{RPAR} (\code{realtype}, input/output) -- array containing real
 user data that was passed to {\hyperref[f_interface/Usage:f/_/FARKMALLOC]{\emph{\code{FARKMALLOC()}}}}.
-
 
 \item {} 
 \emph{IER}  (\code{int}, output) -- return flag  (0 if success, \textgreater{}0 if
@@ -14971,7 +14987,6 @@ alternate SUNLINSOL module and then attach it to the ARKDLS or
 ARKSPILS interface, as shown above.  If only linear solver parameters
 are being modified, then these calls may be made without re-attaching
 to the ARKDLS or ARKSPILS interface.
-
 
 
 \subsubsection{Resizing the ODE system}
@@ -15787,6 +15802,7 @@ are unchanged from the main program described in the section
 
 \item {} 
 \emph{NVECTOR module initialization}
+
 \item {} 
 SUNLINSOL module initialization
 
@@ -16927,9 +16943,9 @@ zero values:
 \begin{gather}
 \begin{split}z_i = 1.0/x_i, \quad i=1,\ldots,n.\end{split}\notag
 \end{gather}
-This routine returns a boolean assigned to \code{TRUE} if all
+This routine returns a boolean assigned to \code{SUNTRUE} if all
 components of \emph{x} are nonzero (successful inversion) and returns
-\code{FALSE} otherwise.
+\code{SUNFALSE} otherwise.
 
 Usage:
 
@@ -16952,8 +16968,8 @@ x_i < 0 \;\text{if}\; c_i = -2, \\
 x_i \le 0 \;\text{if}\; c_i = -1.\end{split}\notag
 \end{gather}
 There is no constraint on \(x_i\) if \(c_i = 0\). This
-routine returns a boolean assigned to \code{FALSE} if any element
-failed the constraint test and assigned to \code{TRUE} if all
+routine returns a boolean assigned to \code{SUNFALSE} if any element
+failed the constraint test and assigned to \code{SUNTRUE} if all
 passed. It also sets a mask vector \emph{m}, with elements equal to 1.0
 where the constraint test failed, and 0.0 where the test
 passed. This routine is used only for constraint checking.
@@ -17195,9 +17211,9 @@ is to use \code{NV\_Ith\_S(v,i)} within the loop.
 \item {} 
 {\hyperref[nvectors/NVector_Serial:c.N_VNewEmpty_Serial]{\emph{\code{N\_VNewEmpty\_Serial()}}}}, {\hyperref[nvectors/NVector_Serial:c.N_VMake_Serial]{\emph{\code{N\_VMake\_Serial()}}}}, and
 {\hyperref[nvectors/NVector_Serial:c.N_VCloneVectorArrayEmpty_Serial]{\emph{\code{N\_VCloneVectorArrayEmpty\_Serial()}}}} set the field \emph{own\_data}
-to \code{FALSE}.  The functions \code{N\_VDestroy\_Serial()} and
+to \code{SUNFALSE}.  The functions \code{N\_VDestroy\_Serial()} and
 {\hyperref[nvectors/NVector_Serial:c.N_VDestroyVectorArray_Serial]{\emph{\code{N\_VDestroyVectorArray\_Serial()}}}} will not attempt to free the
-pointer data for any \code{N\_Vector} with \emph{own\_data} set to \code{FALSE}.
+pointer data for any \code{N\_Vector} with \emph{own\_data} set to \code{SUNFALSE}.
 In such a case, it is the user's responsibility to deallocate the
 data pointer.
 
@@ -17474,10 +17490,10 @@ is to use \code{NV\_Ith\_P(v,i)} within the loop.
 \item {} 
 {\hyperref[nvectors/NVector_Parallel:c.N_VNewEmpty_Parallel]{\emph{\code{N\_VNewEmpty\_Parallel()}}}}, {\hyperref[nvectors/NVector_Parallel:c.N_VMake_Parallel]{\emph{\code{N\_VMake\_Parallel()}}}}, and
 {\hyperref[nvectors/NVector_Parallel:c.N_VCloneVectorArrayEmpty_Parallel]{\emph{\code{N\_VCloneVectorArrayEmpty\_Parallel()}}}} set the field \emph{own\_data} to
-\code{FALSE}. The routines \code{N\_VDestroy\_Parallel()} and
+\code{SUNFALSE}. The routines \code{N\_VDestroy\_Parallel()} and
 {\hyperref[nvectors/NVector_Parallel:c.N_VDestroyVectorArray_Parallel]{\emph{\code{N\_VDestroyVectorArray\_Parallel()}}}} will not attempt to free the
 pointer data for any \code{N\_Vector} with \emph{own\_data} set to
-\code{FALSE}. In such a case, it is the user's responsibility to
+\code{SUNFALSE}. In such a case, it is the user's responsibility to
 deallocate the data pointer.
 
 \item {} 
@@ -17745,9 +17761,9 @@ is to use \code{NV\_Ith\_OMP(v,i)} within the loop.
 \item {} 
 {\hyperref[nvectors/NVector_OpenMP:c.N_VNewEmpty_OpenMP]{\emph{\code{N\_VNewEmpty\_OpenMP()}}}}, {\hyperref[nvectors/NVector_OpenMP:c.N_VMake_OpenMP]{\emph{\code{N\_VMake\_OpenMP()}}}}, and
 {\hyperref[nvectors/NVector_OpenMP:c.N_VCloneVectorArrayEmpty_OpenMP]{\emph{\code{N\_VCloneVectorArrayEmpty\_OpenMP()}}}} set the field \emph{own\_data}
-to \code{FALSE}.  The functions \code{N\_VDestroy\_OpenMP()} and
+to \code{SUNFALSE}.  The functions \code{N\_VDestroy\_OpenMP()} and
 {\hyperref[nvectors/NVector_OpenMP:c.N_VDestroyVectorArray_OpenMP]{\emph{\code{N\_VDestroyVectorArray\_OpenMP()}}}} will not attempt to free the
-pointer data for any \code{N\_Vector} with \emph{own\_data} set to \code{FALSE}.
+pointer data for any \code{N\_Vector} with \emph{own\_data} set to \code{SUNFALSE}.
 In such a case, it is the user's responsibility to deallocate the
 data pointer.
 
@@ -18006,9 +18022,9 @@ is to use \code{NV\_Ith\_S(v,i)} within the loop.
 \item {} 
 {\hyperref[nvectors/NVector_Pthreads:c.N_VNewEmpty_Pthreads]{\emph{\code{N\_VNewEmpty\_Pthreads()}}}}, {\hyperref[nvectors/NVector_Pthreads:c.N_VMake_Pthreads]{\emph{\code{N\_VMake\_Pthreads()}}}}, and
 {\hyperref[nvectors/NVector_Pthreads:c.N_VCloneVectorArrayEmpty_Pthreads]{\emph{\code{N\_VCloneVectorArrayEmpty\_Pthreads()}}}} set the field \emph{own\_data}
-to \code{FALSE}.  The functions \code{N\_VDestroy\_Pthreads()} and
+to \code{SUNFALSE}.  The functions \code{N\_VDestroy\_Pthreads()} and
 {\hyperref[nvectors/NVector_Pthreads:c.N_VDestroyVectorArray_Pthreads]{\emph{\code{N\_VDestroyVectorArray\_Pthreads()}}}} will not attempt to free the
-pointer data for any \code{N\_Vector} with \emph{own\_data} set to \code{FALSE}.
+pointer data for any \code{N\_Vector} with \emph{own\_data} set to \code{SUNFALSE}.
 In such a case, it is the user's responsibility to deallocate the
 data pointer.
 
@@ -18149,10 +18165,10 @@ appropriate HYPRE functions.
 \item {} 
 {\hyperref[nvectors/NVector_ParHyp:c.N_VNewEmpty_ParHyp]{\emph{\code{N\_VNewEmpty\_ParHyp()}}}}, {\hyperref[nvectors/NVector_ParHyp:c.N_VMake_ParHyp]{\emph{\code{N\_VMake\_ParHyp()}}}}, and
 {\hyperref[nvectors/NVector_ParHyp:c.N_VCloneVectorArrayEmpty_ParHyp]{\emph{\code{N\_VCloneVectorArrayEmpty\_ParHyp()}}}} set the field \emph{own\_parvector}
-to \code{FALSE}.  The functions \code{N\_VDestroy\_ParHyp()} and
+to \code{SUNFALSE}.  The functions \code{N\_VDestroy\_ParHyp()} and
 {\hyperref[nvectors/NVector_ParHyp:c.N_VDestroyVectorArray_ParHyp]{\emph{\code{N\_VDestroyVectorArray\_ParHyp()}}}} will not attempt to delete an
 underlying HYPRE vector for any \code{N\_Vector} with \emph{own\_parvector}
-set to \code{FALSE}.  In such a case, it is the user's responsibility
+set to \code{SUNFALSE}.  In such a case, it is the user's responsibility
 to delete the underlying vector.
 
 \item {} 
@@ -18281,10 +18297,10 @@ and then access components using appropriate PETSc functions.
 \item {} 
 The functions {\hyperref[nvectors/NVector_PETSc:c.N_VNewEmpty_Petsc]{\emph{\code{N\_VNewEmpty\_Petsc()}}}}, {\hyperref[nvectors/NVector_PETSc:c.N_VMake_Petsc]{\emph{\code{N\_VMake\_Petsc()}}}},
 and {\hyperref[nvectors/NVector_PETSc:c.N_VCloneVectorArrayEmpty_Petsc]{\emph{\code{N\_VCloneVectorArrayEmpty\_Petsc()}}}} set the field
-\emph{own\_data} to \code{FALSE}. The routines \code{N\_VDestroy\_Petsc()} and
+\emph{own\_data} to \code{SUNFALSE}. The routines \code{N\_VDestroy\_Petsc()} and
 {\hyperref[nvectors/NVector_PETSc:c.N_VDestroyVectorArray_Petsc]{\emph{\code{N\_VDestroyVectorArray\_Petsc()}}}} will not attempt to free the
 pointer \code{pvec} for any \code{N\_Vector} with \emph{own\_data} set to
-\code{FALSE}. In such a case, it is the user's responsibility to
+\code{SUNFALSE}. In such a case, it is the user's responsibility to
 deallocate the \code{pvec} pointer.
 
 \item {} 
@@ -18294,6 +18310,7 @@ check for consistent internal representations of these vectors. It is
 the user's responsibility to ensure that such routines are called
 with \code{N\_Vector} arguments that were all created with the same
 internal representations.
+
 \end{itemize}
 
 
@@ -19305,6 +19322,7 @@ the operation:
 \begin{split}B_{i,j} = A_{i,j}, \quad i=1,\ldots,m, \; j=1,\ldots,n.\end{split}\notag
 \end{gather}
 Usage:
+
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{n}{ier} \PYG{o}{=} \PYG{n}{SUNMatCopy}\PYG{p}{(}\PYG{n}{A}\PYG{p}{,}\PYG{n}{B}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
@@ -19673,6 +19691,7 @@ Implementation:
 
 \end{fulllineitems}
 
+
 The SUNMATRIX\_DENSE module defines dense implementations of all matrix
 operations listed in the section {\hyperref[sunmatrix/SUNMatrix_Operations:sunmatrix-ops]{\emph{\DUspan{}{Description of the SUNMATRIX operations}}}}. Their names are obtained
 from those in that section by appending the suffix \code{\_Dense}
@@ -19749,6 +19768,7 @@ be indexed over the range \code{0} to \code{M-1}.
 
 \end{fulllineitems}
 
+
 \textbf{Notes}
 \begin{itemize}
 \item {} 
@@ -19815,6 +19835,7 @@ this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKode=4.
 
 \end{fulllineitems}
 
+
 Additionally, when using ARKode with a non-identity mass matrix, the
 Fortran-callable function {\hyperref[sunmatrix/SUNMatrix_Dense:f/_/FSUNDenseMassMatInit]{\emph{\code{FSUNDenseMassMatInit()}}}} initializes
 this SUNMATRIX\_DENSE module for storing the mass matrix.
@@ -19840,6 +19861,8 @@ matrix in ARKode.
 \end{description}
 
 \end{fulllineitems}
+
+
 
 \section{The SUNMATRIX\_BAND Module}
 \label{sunmatrix/SUNMatrix_Band::doc}\label{sunmatrix/SUNMatrix_Band:sunmatrix-band}\label{sunmatrix/SUNMatrix_Band:the-sunmatrix-band-module}
@@ -20172,6 +20195,7 @@ Implementation:
 
 \end{fulllineitems}
 
+
 The SUNMATRIX\_BAND module defines banded implementations of all matrix
 operations listed in the section {\hyperref[sunmatrix/SUNMatrix_Operations:sunmatrix-ops]{\emph{\DUspan{}{Description of the SUNMATRIX operations}}}}. Their names are
 obtained from those in that section by appending the suffix \code{\_Band}
@@ -20349,6 +20373,7 @@ this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKode=4.
 
 \end{fulllineitems}
 
+
 Additionally, when using ARKode with a non-identity mass matrix, the
 Fortran-callable function {\hyperref[sunmatrix/SUNMatrix_Band:f/_/FSUNBandMassMatInit]{\emph{\code{FSUNBandMassMatInit()}}}} initializes
 this SUNMATRIX\_BAND module for storing the mass matrix.
@@ -20380,6 +20405,8 @@ matrix in ARKode.
 \end{description}
 
 \end{fulllineitems}
+
+
 
 \section{The SUNMATRIX\_SPARSE Module}
 \label{sunmatrix/SUNMatrix_Sparse:sunmatrix-sparse}\label{sunmatrix/SUNMatrix_Sparse::doc}\label{sunmatrix/SUNMatrix_Sparse:the-sunmatrix-sparse-module}
@@ -20724,6 +20751,7 @@ Implementation:
 
 \end{fulllineitems}
 
+
 The SUNMATRIX\_SPARSE module defines sparse implementations of all matrix
 operations listed in the section {\hyperref[sunmatrix/SUNMatrix_Operations:sunmatrix-ops]{\emph{\DUspan{}{Description of the SUNMATRIX operations}}}}. Their names are
 obtained from those in that section by appending the suffix \code{\_Sparse}
@@ -20793,7 +20821,6 @@ The function returns \code{NULL} if any requirements are violated, or if
 the matrix storage request cannot be satisfied.
 
 \end{fulllineitems}
-
 
 \index{SUNSparseMatrix\_Realloc (C function)}
 
@@ -20892,6 +20919,7 @@ CSC format this is the location of the first entry of each column.
 
 \end{fulllineitems}
 
+
 \begin{notice}{note}{Note:}
 Within the \code{SUNMatMatvec\_Sparse} routine, internal
 consistency checks are performed to ensure that the matrix
@@ -20938,6 +20966,7 @@ this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKode=4.
 \end{description}
 
 \end{fulllineitems}
+
 
 Additionally, when using ARKode with a non-identity mass matrix, the
 Fortran-callable function {\hyperref[sunmatrix/SUNMatrix_Sparse:f/_/FSUNSparseMassMatInit]{\emph{\code{FSUNSparseMassMatInit()}}}} initializes
@@ -21037,6 +21066,7 @@ verifies that \(y=z\).
 called, and outputs the results to \code{stdout}.
 
 \end{itemize}
+
 
 \section{SUNMATRIX functions required by ARKode}
 \label{sunmatrix/ARKode_requirements:sunmatrix-arkode}\label{sunmatrix/ARKode_requirements:sunmatrix-functions-required-by-arkode}\label{sunmatrix/ARKode_requirements::doc}
@@ -21273,6 +21303,7 @@ is defined as
   \PYG{k+kt}{int}                  \PYG{p}{(}\PYG{o}{*}\PYG{n}{free}\PYG{p}{)}\PYG{p}{(}\PYG{n}{SUNLinearSolver}\PYG{p}{)}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
+
 The generic \code{SUNLinearSolver} module defines and implements the
 linear solver operations acting on \code{SUNLinearSolver} objects.
 These routines are in fact only wrappers for the linear solver operations
@@ -21380,6 +21411,8 @@ Custom solvers
 \\
 \hline\end{tabulary}
 
+
+
 \section{Description of the SUNLinearSolver operations}
 \label{sunlinsol/SUNLinSol_Operations:sunlinsol-ops}\label{sunlinsol/SUNLinSol_Operations::doc}\label{sunlinsol/SUNLinSol_Operations:description-of-the-sunlinearsolver-operations}
 For each of the \code{SUNLinearSolver} operations, we give the name,
@@ -21415,6 +21448,7 @@ returning one of the generic error codes listed in section
 {\hyperref[sunlinsol/SUNLinSol_ErrorCodes:sunlinsol-errorcodes]{\emph{\DUspan{}{Error Codes returned from SUNLinearSolver implementations}}}}.
 
 Usage:
+
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{n}{ier} \PYG{o}{=} \PYG{n}{SUNLinSolInitialize}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
@@ -21656,6 +21690,8 @@ Usage:
 
 \end{fulllineitems}
 
+
+
 \section{Description of the client-supplied SUNLinearSolver routines}
 \label{sunlinsol/SUNLinSol_Operations:sunlinsol-supplied}\label{sunlinsol/SUNLinSol_Operations:description-of-the-client-supplied-sunlinearsolver-routines}
 The SUNDIALS packages provide the \emph{ATimes}, \emph{Pset} and \emph{Psol} routines
@@ -21716,6 +21752,8 @@ routine may reattempt the solution after updating preconditioner
 data.
 
 \end{fulllineitems}
+
+
 
 \section{Compatibility of SUNLinearSolver modules}
 \label{sunlinsol/SUNLinSol_Compatibility:compatibility-of-sunlinearsolver-modules}\label{sunlinsol/SUNLinSol_Compatibility::doc}\label{sunlinsol/SUNLinSol_Compatibility:sunlinsol-compatibility}
@@ -21969,6 +22007,7 @@ return \code{NULL}.
 
 \end{fulllineitems}
 
+
 For solvers that include a Fortran interface module, the
 SUNLINSOL\_DENSE module also includes the Fortran-callable
 function {\hyperref[sunlinsol/SUNLinSol_Dense:f/_/FSUNDenseLinSolInit]{\emph{\code{FSUNDenseLinSolInit()}}}} to initialize
@@ -21996,6 +22035,7 @@ this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKode=4.
 \end{description}
 
 \end{fulllineitems}
+
 
 Additionally, when using ARKode with a non-identity mass matrix, the
 Fortran-callable function {\hyperref[sunlinsol/SUNLinSol_Dense:f/_/FSUNMassDenseLinSolInit]{\emph{\code{FSUNMassDenseLinSolInit()}}}}
@@ -22601,6 +22641,7 @@ field of a \code{SUNLinearSolver} to be the following structure:
                                  \PYG{k+kt}{double}\PYG{o}{*}\PYG{p}{,} \PYG{n}{sun\PYGZus{}klu\PYGZus{}common}\PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
+
 These entries of the \emph{content} field contain the following
 information:
 \begin{itemize}
@@ -22968,7 +23009,7 @@ SUNLINSOL\_SUPERLUMT module defines the \emph{content} field of a
   \PYG{k+kt}{int}          \PYG{n}{num\PYGZus{}threads}\PYG{p}{;}
   \PYG{n}{realtype}     \PYG{n}{diag\PYGZus{}pivot\PYGZus{}thresh}\PYG{p}{;}
   \PYG{k+kt}{int}          \PYG{n}{ordering}\PYG{p}{;}
-  \PYG{k+kt}{superlumt\PYGZus{}options\PYGZus{}t} \PYG{o}{*}\PYG{n}{options}\PYG{p}{;}
+  \PYG{n}{superlumt\PYGZus{}options\PYGZus{}t} \PYG{o}{*}\PYG{n}{options}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
 
@@ -23188,6 +23229,7 @@ OpenMP/Pthreads threads to use in the factorization.
 \end{description}
 
 \end{fulllineitems}
+
 
 Additionally, when using ARKode with a non-identity mass matrix, the
 Fortran-callable function {\hyperref[sunlinsol/SUNLinSol_SuperLUMT:f/_/FSUNMassSuperLUMTInit]{\emph{\code{FSUNMassSuperLUMTInit()}}}}
@@ -23574,7 +23616,6 @@ preconditioning to use: none=0, left=1, right=2, both=3.
 \end{itemize}
 
 \end{description}
-
 
 \end{fulllineitems}
 
@@ -24435,6 +24476,7 @@ preconditioning to use: none=0, left=1, right=2, both=3.
 \end{itemize}
 
 \end{description}
+
 \end{fulllineitems}
 
 
@@ -24811,7 +24853,6 @@ preconditioning to use: none=0, left=1, right=2, both=3.
 
 \end{description}
 
-
 \end{fulllineitems}
 
 
@@ -24844,6 +24885,7 @@ preconditioning to use: none=0, left=1, right=2, both=3.
 \end{description}
 
 \end{fulllineitems}
+
 
 The {\hyperref[sunlinsol/SUNLinSol_SPTFQMR:c.SUNSPTFQMRSetPrecType]{\emph{\code{SUNSPTFQMRSetPrecType()}}}} and
 {\hyperref[sunlinsol/SUNLinSol_SPTFQMR:c.SUNSPTFQMRSetMaxl]{\emph{\code{SUNSPTFQMRSetMaxl()}}}} routines also support Fortran interfaces
@@ -25228,6 +25270,7 @@ symmetric preconditioning: no=0, yes=1.
 
 \end{fulllineitems}
 
+
 Additionally, when using ARKode with a non-identity
 mass matrix, the Fortran-callable function
 {\hyperref[sunlinsol/SUNLinSol_PCG:f/_/FSUNMassPCGInit]{\emph{\code{FSUNMassPCGInit()}}}} initializes this
@@ -25258,6 +25301,7 @@ symmetric preconditioning: no=0, yes=1.
 \end{description}
 
 \end{fulllineitems}
+
 
 The {\hyperref[sunlinsol/SUNLinSol_PCG:c.SUNPCGSetPrecType]{\emph{\code{SUNPCGSetPrecType()}}}} and {\hyperref[sunlinsol/SUNLinSol_PCG:c.SUNPCGSetMaxl]{\emph{\code{SUNPCGSetMaxl()}}}}
 routines also support Fortran interfaces for the system and mass
@@ -25693,9 +25737,9 @@ level SUNDIALS directory with appropriate source, build and install
 directories:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }mkdir \PYG{o}{(}...\PYG{o}{)}/INSTDIR
-\PYG{n+nv}{\PYGZdl{} }mkdir \PYG{o}{(}...\PYG{o}{)}/BUILDDIR
-\PYG{n+nv}{\PYGZdl{} }\PYG{n+nb}{cd} \PYG{o}{(}...\PYG{o}{)}/BUILDDIR
+\PYGZdl{} mkdir \PYG{o}{(}...\PYG{o}{)}/INSTDIR
+\PYGZdl{} mkdir \PYG{o}{(}...\PYG{o}{)}/BUILDDIR
+\PYGZdl{} \PYG{n+nb}{cd} \PYG{o}{(}...\PYG{o}{)}/BUILDDIR
 \end{Verbatim}
 
 \index{cmake-gui}
@@ -25788,7 +25832,7 @@ To build the default configuration using the curses GUI, from the
 BUILDDIR enter the \code{ccmake} command and point to the SRCDIR:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }ccmake \PYG{o}{(}...\PYG{o}{)}/SRCDIR
+\PYGZdl{} ccmake \PYG{o}{(}...\PYG{o}{)}/SRCDIR
 \end{Verbatim}
 
 Similarly, to build the default configuration using the wxWidgets GUI,
@@ -25796,7 +25840,7 @@ from the BUILDDIR enter the \code{cmake-gui} command and point to the
 SRCDIR:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }cmake\PYGZhy{}gui \PYG{o}{(}...\PYG{o}{)}/SRCDIR
+\PYGZdl{} cmake\PYGZhy{}gui \PYG{o}{(}...\PYG{o}{)}/SRCDIR
 \end{Verbatim}
 
 The default curses configuration screen is shown in
@@ -25826,19 +25870,19 @@ makefiles including all dependencies and all rules to build SUNDIALS
 on this system.  Back at the command prompt, you can now run:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }make
+\PYGZdl{} make
 \end{Verbatim}
 
 or for a faster parallel build (e.g. using 4 threads), you can run
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }make \PYGZhy{}j 4
+\PYGZdl{} make \PYGZhy{}j \PYG{l+m}{4}
 \end{Verbatim}
 
 To install SUNDIALS in the installation directory specified in the configuration, simply run:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }make install
+\PYGZdl{} make install
 \end{Verbatim}
 
 \index{cmake}
@@ -25850,11 +25894,11 @@ CMake variable settings with the \code{cmake} command.  The following
 will build the default configuration:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }cmake \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/home/myname/sundials/instdir \PYG{l+s+se}{\PYGZbs{}}
+\PYGZdl{} cmake \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/home/myname/sundials/instdir \PYG{l+s+se}{\PYGZbs{}}
 \PYGZgt{}  \PYGZhy{}DEXAMPLES\PYGZus{}INSTALL\PYGZus{}PATH\PYG{o}{=}/home/myname/sundials/instdir/examples \PYG{l+s+se}{\PYGZbs{}}
 \PYGZgt{}  ../srcdir
-\PYG{n+nv}{\PYGZdl{} }make
-\PYG{n+nv}{\PYGZdl{} }make install
+\PYGZdl{} make
+\PYGZdl{} make install
 \end{Verbatim}
 
 
@@ -25886,6 +25930,7 @@ CMake will search for libraries in your
 \code{LD\_LIBRARY\_PATH} prior to searching default system
 paths.
 \end{notice}
+
 \item[{\index{BUILD\_ARKODE (CMake option)}BUILD\_ARKODE}] \leavevmode
 Build the ARKODE library
 
@@ -25932,6 +25977,7 @@ Choose the type of build, options are:
 \code{RelWithDebInfo}, and \code{MinSizeRel}
 
 Default:
+
 \begin{notice}{note}{Note:}
 Specifying a build type will trigger the corresponding
 build type specific compiler flag options below which
@@ -26057,6 +26103,7 @@ Default: \code{OFF}
 Build the SUNDIALS C examples
 
 Default: \code{ON}
+
 \item[{\index{EXAMPLES\_ENABLE\_CUDA (CMake option)}EXAMPLES\_ENABLE\_CUDA}] \leavevmode
 Build the SUNDIALS CUDA examples
 
@@ -26138,6 +26185,7 @@ Default: \code{OFF}
 Flag to enable \emph{hypre} support
 
 Default: \code{OFF}
+
 \begin{notice}{note}{Note:}
 See additional information on building with \emph{hypre}
 enabled in  {\hyperref[Install:installation-cmake-externallibraries]{\emph{\DUspan{}{Working with external Libraries}}}}.
@@ -26157,6 +26205,7 @@ Default: none
 Enable KLU support
 
 Default: \code{OFF}
+
 \begin{notice}{note}{Note:}
 See additional information on building with KLU
 enabled in {\hyperref[Install:installation-cmake-externallibraries]{\emph{\DUspan{}{Working with external Libraries}}}}.
@@ -26284,6 +26333,7 @@ Default: none
 Enable Pthreads support (build the Pthreads NVector)
 
 Default: \code{OFF}
+
 \item[{\index{RAJA\_ENABLE (CMake option)}RAJA\_ENABLE}] \leavevmode
 Enable RAJA support (build the RAJA NVector).
 
@@ -26309,6 +26359,7 @@ Default: \code{double}
 Enable SuperLU\_MT support
 
 Default: \code{OFF}
+
 \begin{notice}{note}{Note:}
 See additional information on building with
 SuperLU\_MT enabled in {\hyperref[Install:installation-cmake-externallibraries]{\emph{\DUspan{}{Working with external Libraries}}}}.
@@ -26334,6 +26385,7 @@ Default: Pthread
 Use generic (\code{stdc}) math libraries
 
 Default: \code{ON}
+
 \end{description}
 
 
@@ -26613,6 +26665,7 @@ set. Example:
 
 \PYGZpc{} make install
 \end{Verbatim}
+
 \begin{notice}{note}{Note:}
 If enabling LAPACK and allowing CMake to automatically
 locate the LAPACK library, it is not necessary to also
@@ -26677,6 +26730,8 @@ SUNDIALS has been tested with \emph{hypre} version 2.11.1.
 To enable \emph{hypre}, set  \code{HYPRE\_ENABLE} to \code{ON}, set \code{HYPRE\_INCLUDE\_DIR}
 to the \code{include} path of the \emph{hypre} installation, and set the variable
 \code{HYPRE\_LIBRARY\_DIR} to the \code{lib} path of the \emph{hypre} installation.
+
+
 \subsubsection{Building with CUDA}
 \label{Install:installation-cmake-externallibraries-cuda}\label{Install:building-with-cuda}
 SUNDIALS CUDA modules and examples are tested with version 8.0 of the
@@ -26795,7 +26850,7 @@ and set the SUNDIALS libraries as dependencies for your project.
 Using the CMake SUNDIALS build system, the command
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }make install
+\PYGZdl{} make install
 \end{Verbatim}
 
 will install the libraries under \code{LIBDIR} and the public header
@@ -26836,6 +26891,7 @@ and would be useful, for example, if the functions declared in
 \endfoot
 
 \endlastfoot
+
 
 Shared
  & 
@@ -27263,7 +27319,6 @@ Solver returns at a specified output time.
 
 \item[{\index{ARK\_ONE\_STEP}ARK\_ONE\_STEP  (2):}] \leavevmode
 Solver returns after each successful step.
-
 
 \end{description}
 
