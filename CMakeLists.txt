@@ -95,6 +95,9 @@ SET(nveclib_SOVERSION "3")
 SET(sunmatrixlib_VERSION "1.0.0")
 SET(sunmatrixlib_SOVERSION "1")
 
+SET(sunlinsollib_VERSION "1.0.0")
+SET(sunlinsollib_SOVERSION "1")
+
 # Specify the location of additional CMAKE modules
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/config)
 
