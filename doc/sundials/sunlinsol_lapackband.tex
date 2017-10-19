@@ -63,12 +63,18 @@ This solver is constructed to perform the following operations:
 \end{itemize}
 
 
-\noindent The header file to be included when using this module 
-is \id{sunlinsol/sunlinsol\_lapackband.h}. \\
+\noindent The header file to include when using this module 
+is \id{sunlinsol/sunlinsol\_lapackband.h}. The installed module
+library to link to is
+\id{libsundials\_sunlinsollapackband.\textit{lib}}
+where \id{\em.lib} is typically \id{.so} for shared libraries and
+\id{.a} for static libraries. \\
+
 %%
 %%----------------------------------------------
 %%
-The {\sunlinsollapband} module defines band implementations of all
+
+\noindent The {\sunlinsollapband} module defines band implementations of all
 ``direct'' linear solver operations listed in
 Table \ref{t:sunlinsolops}:
 \begin{itemize}

@@ -70,8 +70,11 @@ parts of this \emph{content} field is given below:
   linear solver.}\label{f:sunbandmat}
 \end{figure}
 
-\noindent The header file to be included when using this module 
-is \id{sunmatrix/sunmatrix\_band.h}. \\
+\noindent The header file to include when using this module 
+is \id{sunmatrix/sunmatrix\_band.h}. The {\sunmatband} module
+is accessible from all {\sundials} solvers \textit{without}
+linking to the \\
+\id{libsundials\_sunmatrixband} module library. \\
 
 \noindent The following macros are provided to access the
 content of a {\sunmatband} matrix. The prefix \id{SM\_} in the names

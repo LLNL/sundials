@@ -1,3 +1,4 @@
+# -*- mode: makefile -*-
 # -----------------------------------------------------------------
 # Programmer: Slaven Peles @ LLNL
 # -----------------------------------------------------------------
@@ -16,7 +17,6 @@
 # This file is generated from a template using various variables
 # set at configuration time. It can be used as a template for
 # other user Makefiles.
-#
 # -----------------------------------------------------------------
 
 SHELL = @SHELL@
@@ -38,25 +38,13 @@ CUDALIBS = @CUDA_CUDART_LIBRARY@
 
 LINKFLAGS = -Xlinker ,-rpath,@libdir@
 
-LIBRARIES_BLAS   = @BLAS_LIBS@
-LIBRARIES_LAPACK = @LAPACK_LIBS@
-
-INCLUDES_SLUMT   = @SUPERLUMT_INCLUDE_DIR@
-LIBRARIES_SLUMT  = @SUPERLUMT_LIBS@
-
-INCLUDES_KLU     = @KLU_INCLUDE_DIR@
-LIBRARIES_KLU    = @KLU_LIBS@
-
-INCLUDES_PETSC   = @PETSC_INCLUDE_DIR@
-LIBRARIES_PETSC  = @PETSC_LIBRARIES@
-
-TMP_INCS = ${includedir} ${INCLUDES_SLUMT} ${INCLUDES_KLU} ${INCLUDES_PETSC}
+TMP_INCS = ${includedir}
 INCLUDES = $(addprefix -I, ${TMP_INCS})
 
 TMP_LIBRARIES_SUNDIALS = @SOLVER_LIB@ sundials_nveccuda
 LIBRARIES_SUNDIALS = ${addprefix -l, ${TMP_LIBRARIES_SUNDIALS}}
 
-LIBRARIES = ${LIBRARIES_SUNDIALS} ${LIBS} ${LIBRARIES_BLAS} ${LIBRARIES_LAPACK} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC}
+LIBRARIES = ${LIBRARIES_SUNDIALS} ${LIBS}
 
 EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
 EXAMPLES_DEPENDENCIES = @EXAMPLES_DEPENDENCIES@

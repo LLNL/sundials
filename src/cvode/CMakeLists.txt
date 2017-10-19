@@ -74,29 +74,6 @@ SET(sunlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunlinsol_pcg/sunlinsol_pcg.c
   )
 
-IF(KLU_FOUND)
-  LIST(APPEND sunlinsol_SOURCES
-    ${sundials_SOURCE_DIR}/src/sunlinsol_klu/sunlinsol_klu.c
-    )
-ENDIF()
-
-IF(SUPERLUMT_FOUND)
-  LIST(APPEND sunlinsol_SOURCES
-    ${sundials_SOURCE_DIR}/src/sunlinsol_superlumt/sunlinsol_superlumt.c
-    )
-ENDIF()
-
-IF(LAPACK_FOUND)
-  LIST(APPEND sunlinsol_SOURCES
-    ${sundials_SOURCE_DIR}/src/sunlinsol_lapackband/sunlinsol_lapackband.c
-    ${sundials_SOURCE_DIR}/src/sunlinsol_lapackdense/sunlinsol_lapackdense.c
-    )
-ENDIF()
-
-# IF(HYPRE_FOUND)
-#      LIST(APPEND cvode_SOURCES cvode_hypamgpre.c)
-# ENDIF()
-
 # Add variable cvode_HEADERS with the exported CVODE header files
 SET(cvode_HEADERS
   cvode.h
@@ -106,10 +83,6 @@ SET(cvode_HEADERS
   cvode_direct.h
   cvode_spils.h
   )
-
-# IF(HYPRE_FOUND)
-#      LIST(APPEND cvode_HEADERS cvode_hypamgpre.h)
-# ENDIF()
 
 # Add prefix with complete path to the CVODE header files
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/cvode/ cvode_HEADERS)

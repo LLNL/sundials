@@ -91,12 +91,17 @@ This solver is constructed to perform the following operations:
   supplied.
 \end{itemize}
 
-\noindent The header file to be included when using this module 
-is \id{sunlinsol/sunlinsol\_sptfqmr.h}. \\
+\noindent The header file to include when using this module 
+is \id{sunlinsol/sunlinsol\_sptfqmr.h}. The {\sunlinsolsptfqmr} module
+is accessible from all {\sundials} solvers \textit{without}
+linking to the \\
+\id{libsundials\_sunlinsolsptfqmr} module library. \\
+
 %%
 %%----------------------------------------------
 %%
-The {\sunlinsolsptfqmr} module defines implementations of all
+
+\noindent The {\sunlinsolsptfqmr} module defines implementations of all
 ``iterative'' linear solver operations listed in Table
 \ref{t:sunlinsolops}:
 \begin{itemize}

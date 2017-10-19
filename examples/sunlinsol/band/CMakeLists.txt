@@ -81,6 +81,11 @@ IF(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER_LIB "sundials_sunlinsolband")
   SET(LIBS "${LIBS} -lsundials_sunmatrixband")
+
+  # Set the link directory for the band sunmatrix library 
+  # The generated CMakeLists.txt does not use find_library() locate it
+  SET(EXTRA_LIBS_DIR "${libdir}")
+
   LIST2STRING(sunlinsol_band_examples EXAMPLES)
   LIST2STRING(sunlinsol_band_dependencies EXAMPLES_DEPENDENCIES)
 

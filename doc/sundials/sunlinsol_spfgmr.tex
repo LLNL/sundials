@@ -117,12 +117,17 @@ This solver is constructed to perform the following operations:
   have been supplied.
 \end{itemize}
 
-\noindent The header file to be included when using this module 
-is \id{sunlinsol/sunlinsol\_spfgmr.h}. \\
+\noindent The header file to include when using this module 
+is \id{sunlinsol/sunlinsol\_spfgmr.h}. The {\sunlinsolspfgmr} module
+is accessible from all {\sundials} solvers \textit{without}
+linking to the \\
+\id{libsundials\_sunlinsolspfgmr} module library. \\
+
 %%
 %%----------------------------------------------
 %%
-The {\sunlinsolspfgmr} module defines implementations of all
+
+\noindent The {\sunlinsolspfgmr} module defines implementations of all
 ``iterative'' linear solver operations listed in Table
 \ref{t:sunlinsolops}:
 \begin{itemize}

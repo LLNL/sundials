@@ -34,8 +34,11 @@ information:
     may be accessed via \id{cols[j][i]}.
 \end{description}
 
-\noindent The header file to be included when using this module 
-is \id{sunmatrix/sunmatrix\_dense.h}. \\
+\noindent The header file to include when using this module 
+is \id{sunmatrix/sunmatrix\_dense.h}. The {\sunmatdense} module
+is accessible from all {\sundials} solvers \textit{without}
+linking to the \\
+\id{libsundials\_sunmatrixdense} module library. \\
 
 \noindent The following macros are provided to access the
 content of a {\sunmatdense} matrix. The prefix \id{SM\_} in the names

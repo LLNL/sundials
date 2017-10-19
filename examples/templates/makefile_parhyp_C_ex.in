@@ -1,3 +1,4 @@
+# -*- mode: makefile -*-
 # -----------------------------------------------------------------
 # Programmer: Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -13,22 +14,9 @@
 # -----------------------------------------------------------------
 # Makefile for @SOLVER@ hypre examples
 #
-# This file is generated from a template using various variables
+# This file is generated from a template using variables
 # set at configuration time. It can be used as a template for
 # other user Makefiles.
-#
-# Note: if the solver was successfully configured with Blas or
-# Lapack support, the Blas/Lapack libraries are specified through
-# the variable LIBRARIES_BLAS or LIBRARIES_LAPACK. Otherwise, these
-# variables should contain an empty string. We include
-# LIBRARIES_BLAS and LIBRARIES_LAPACK in the link line for all
-# examples, whether they use the Blas/Lapack or not, to address the
-# case in which the SUNDIALS libraries are shared objects. In that
-# case, the solver library references Blas/Lapack symbols which
-# must be always resolved by linking against the Blas/Lapack
-# libraries. If only static SUNDIALS libraries have been built, it
-# is not required to link the Blas/Lapack libraries for examples
-# that do not use that module...
 # -----------------------------------------------------------------
 
 SHELL = @SHELL@
@@ -38,12 +26,12 @@ exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-CPP         = @CPP@
-CPPFLAGS    = @CPPFLAGS@
-CC          = @CC@
-CFLAGS      = @CFLAGS@ @OpenMP_C_FLAGS@
-LDFLAGS     = @LDFLAGS@ @OpenMP_C_FLAGS@
-LIBS        = @LIBS@
+CPP      = @CPP@
+CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
+CFLAGS   = @CFLAGS@ @OpenMP_C_FLAGS@
+LDFLAGS  = @LDFLAGS@ @OpenMP_C_FLAGS@
+LIBS     = @LIBS@
 
 LINKFLAGS = -Wl,-rpath,@libdir@
 
@@ -53,24 +41,17 @@ MPI_LIB_DIR = @MPI_LIB_DIR@
 MPI_LIBS    = @MPI_LIBS@
 MPI_FLAGS   = @MPI_FLAGS@
 
-LIBRARIES_BLAS   = @BLAS_LIBS@
-LIBRARIES_LAPACK = @LAPACK_LIBS@
+# -----------------------------------------------------------------------------------------
 
-INCLUDES_SLUMT   = @SUPERLUMT_INCLUDE_DIR@
-LIBRARIES_SLUMT  = @SUPERLUMT_LIBS@
+INCLUDES_HYPRE  = @HYPRE_INCLUDE_DIR@
+LIBRARIES_HYPRE = @HYPRE_LIBRARIES@
+LINKFLAGS_HYPRE = ${LINKFLAGS}:@HYPRE_LIBRARY_DIR@
 
-INCLUDES_KLU     = @KLU_INCLUDE_DIR@
-LIBRARIES_KLU    = @KLU_LIBS@
-
-INCLUDES_PETSC   = @PETSC_INCLUDE_DIR@
-LIBRARIES_PETSC  = @PETSC_LIBRARIES@
-
-INCLUDES_HYPRE   = @HYPRE_INCLUDE_DIR@
-LIBRARIES_HYPRE  = @HYPRE_LIBRARIES@
-
-TMP_INCS = ${includedir} ${MPI_INC_DIR} ${INCLUDES_SLUMT} ${INCLUDES_KLU} ${INCLUDES_PETSC} ${INCLUDES_HYPRE}
+TMP_INCS = ${includedir} ${MPI_INC_DIR} ${INCLUDES_HYPRE}
 INCLUDES = $(addprefix -I, ${TMP_INCS})
-LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecparhyp ${LIBS} ${LIBRARIES_BLAS} ${LIBRARIES_LAPACK} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC} ${LIBRARIES_HYPRE}
+LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecparhyp ${LIBS} ${LIBRARIES_HYPRE}
+
+# -----------------------------------------------------------------------------------------
 
 EXAMPLES = @EXAMPLES@
 EXAMPLES_DEPENDENCIES = @EXAMPLES_DEPENDENCIES@
@@ -89,8 +70,8 @@ OBJECTS_DEPENDENCIES = ${EXAMPLES_DEPENDENCIES:=.o}
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${MPICC} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LINKFLAGS}" ; \
-	  ${MPICC} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LINKFLAGS} ; \
+	  echo "${MPICC} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LINKFLAGS_HYPRE}" ; \
+	  ${MPICC} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LINKFLAGS_HYPRE} ; \
 	done
 
 ${OBJECTS}: ${OBJECTS_DEPENDENCIES}

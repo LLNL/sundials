@@ -146,8 +146,11 @@ Similarly, in CSR format, the same matrix could be stored as
   space.}\label{f:sparsemat} 
 \end{figure}
 
-\noindent The header file to be included when using this module 
-is \id{sunmatrix/sunmatrix\_sparse.h}. \\
+\noindent The header file to include when using this module 
+is \id{sunmatrix/sunmatrix\_sparse.h}. The {\sunmatsparse} module
+is accessible from all {\sundials} solvers \textit{without}
+linking to the \\
+\id{libsundials\_sunmatrixsparse} module library. \\
 
 \noindent The following macros are provided to access the
 content of a {\sunmatsparse} matrix. The prefix \id{SM\_} in the names

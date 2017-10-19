@@ -57,12 +57,18 @@ This solver is constructed to perform the following operations:
   cost).
 \end{itemize}
 
-\noindent The header file to be included when using this module 
-is \id{sunlinsol/sunlinsol\_lapackdense.h}. \\
+\noindent The header file to include when using this module 
+is \id{sunlinsol/sunlinsol\_lapackdense.h}. The installed module
+library to link to is
+\id{libsundials\_sunlinsollapackdense.\textit{lib}}
+where \id{\em.lib} is typically \id{.so} for shared libraries and
+\id{.a} for static libraries. \\
+
 %%
 %%----------------------------------------------
 %%
-The {\sunlinsollapdense} module defines dense implementations of all
+
+\noindent The {\sunlinsollapdense} module defines dense implementations of all
 ``direct'' linear solver operations listed in
 Table \ref{t:sunlinsolops}:
 \begin{itemize}

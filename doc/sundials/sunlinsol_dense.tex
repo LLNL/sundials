@@ -40,12 +40,17 @@ This solver is constructed to perform the following operations:
   cost).
 \end{itemize}
 
-\noindent The header file to be included when using this module 
-is \id{sunlinsol/sunlinsol\_dense.h}. \\
+\noindent The header file to include when using this module 
+is \id{sunlinsol/sunlinsol\_dense.h}. The {\sunlinsoldense} module
+is accessible from all {\sundials} solvers \textit{without}
+linking to the \\
+\id{libsundials\_sunlinsoldense} module library. \\
+
 %%
 %%----------------------------------------------
 %%
-The {\sunlinsoldense} module defines dense implementations of all
+
+\noindent The {\sunlinsoldense} module defines dense implementations of all
 ``direct'' linear solver operations listed in
 Table \ref{t:sunlinsolops}:
 \begin{itemize}
