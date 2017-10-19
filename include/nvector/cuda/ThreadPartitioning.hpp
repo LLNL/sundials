@@ -30,10 +30,10 @@ class StreamPartitioning
 {
 public:
   StreamPartitioning(I N, unsigned block)
-  : block_(block),
-    grid_((N + block - 1) / block)
-  {
-  }
+: block_(block),
+  grid_((N + block - 1) / block)
+{
+}
 
   explicit StreamPartitioning(StreamPartitioning<T, I>& p)
   : block_(p.block_),
@@ -62,12 +62,12 @@ class ReducePartitioning
 {
 public:
   ReducePartitioning(I N, unsigned block)
-  : block_(block),
-    grid_((N + (block_ * 2 - 1)) / (block_ * 2)),
-    shMemSize_(block_*sizeof(T))
-  {
+: block_(block),
+  grid_((N + (block_ * 2 - 1)) / (block_ * 2)),
+  shMemSize_(block_*sizeof(T))
+{
     allocateBuffer();
-  }
+}
 
   explicit ReducePartitioning(StreamPartitioning<T, I>& p)
   : block_(p.block_),
