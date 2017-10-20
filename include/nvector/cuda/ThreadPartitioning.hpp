@@ -90,7 +90,7 @@ public:
     }
   }
 
-  int setPartitioning(I N, I& grid, unsigned& block, unsigned& shMemSize)
+  int setPartitioning(I N, unsigned& grid, unsigned& block, unsigned& shMemSize)
   {
     block = block_;
     grid  = (N + (block * 2 - 1)) / (block * 2);
