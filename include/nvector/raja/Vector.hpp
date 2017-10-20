@@ -38,9 +38,9 @@ class Vector : public _N_VectorContent_Raja
 {
 public:
   Vector(I N) : size_(N), mem_size_(N*sizeof(T))
-{
+  {
     allocate();
-}
+  }
 
   /// Copy constructor does not copy values
   explicit Vector(const Vector& v)

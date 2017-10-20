@@ -44,16 +44,16 @@ class Vector : public _N_VectorContent_Cuda
 {
 public:
   Vector(I N)
-: size_(N),
-  mem_size_(N*sizeof(T)),
-  ownPartitioning_(true)
-{
+  : size_(N),
+    mem_size_(N*sizeof(T)),
+    ownPartitioning_(true)
+  {
     // Set partitioning
     partStream_ = new StreamPartitioning<T, I>(N, 256);
     partReduce_ = new ReducePartitioning<T, I>(N, 256);
 
     allocate();
-}
+  }
 
   /// Copy constructor does not copy values
   explicit Vector(const Vector& v)
@@ -136,14 +136,14 @@ public:
   }
 
   StreamPartitioning<T, I>& partStream() const
-        {
+  {
     return *partStream_;
-        }
+  }
 
   ReducePartitioning<T, I>& partReduce() const
-        {
+  {
     return *partReduce_;
-        }
+  }
 
 private:
   I size_;
