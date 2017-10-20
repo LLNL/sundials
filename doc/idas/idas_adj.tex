@@ -68,7 +68,7 @@ are grayed out.
   \textcolor{gray}{\bf Create {\idas} object for the forward problem}
 
 \item
-  \textcolor{gray}{\bf Allocate internal memory for the forward problem}
+  \textcolor{gray}{\bf Initialize {\idas} solver for the forward problem}
 
 \item
   \textcolor{gray}{\bf Specify integration tolerances for forward problem}
@@ -77,7 +77,10 @@ are grayed out.
   \textcolor{gray}{\bf Set optional inputs for the forward problem}
 
 \item
-  \textcolor{gray}{\bf Attach linear solver module for the forward problem}
+  \textcolor{gray}{\bf Create matrix object for the forward problem}
+
+\item
+  \textcolor{gray}{\bf Create linear solver object for the forward problem}
 
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs for the forward problem}
@@ -166,17 +169,26 @@ are grayed out.
   by \id{IDACreateB} (see \S\ref{ss:optional_input_b}).
 
 
-\item \label{i:lin_solverB}
-  {\bf Attach linear solver module for the backward problem}
+\item \label{i:matrixB}
+  {\bf Create matrix object for the backward problem}
 
-  Initialize the linear solver module 
-  for the backward problem by calling the appropriate wrapper
-  function: \id{IDADenseB}, \id{IDABandB}, \id{IDALapackDenseB}, \id{IDALapackBandB},
-  \id{IDAKLUB}, \id{IDASuperLUMTB}, \id{IDASpgmrB}, \id{IDASpbcgB}, or
-  \id{IDASptfqmrB} (see \S\ref{sss:lin_solv_b}).  
+  Create the template Jacobian matrix for the backward problem by
+  using the appropriate functions defined by the particular {\sunmatrix}
+  implementation desired. 
+  
+  Note that it is not required to use the same matrix type for both the forward 
+  and the backward problems. 
+
+\item \label{i:lin_solverB}
+  {\bf Create linear solver object for the backward problem}
+
+  Create the linear solver object for the backward problem by
+  using the appropriate functions defined by the particular {\sunlinsol}
+  implementation desired. 
+  
   Note that it is not required to use the same linear solver module for both the forward 
   and the backward problems; for example, the forward problem could be solved
-  with the {\idadense} linear solver and the backward problem with {\idaspgmr}.
+  with the {\idadls} linear solver module and the backward problem with {\idaspils} linear solver module.
 
 \item \label{i:quadB}
   {\bf Initialize quadrature calculation}
@@ -215,6 +227,9 @@ are grayed out.
   be done for this problem, a call to \id{IDAAdjFree} (see \S\ref{sss:idaadjinit})
   may be made to free and deallocate the memory allocated for the backward problems,
   followed by a call to \id{IDAAdjInit}.
+
+\item
+  {\bf Free linear solver and matrix memory for the backward problem}
 
 \item
   \textcolor{gray}{\bf Finalize MPI, if used}
@@ -836,37 +851,40 @@ call to \id{IDAInitB} or \id{IDAInitBS}.
 
 \index{IDAS@{\idas} linear solvers!usage with adjoint module|(}
 All {\idas} linear solver modules available for forward problems
-provide additional specification functions for backward problems.  The
-initialization functions described in \S\ref{sss:lin_solv_init} cannot
-be directly used since the optional user-defined Jacobian-related
-functions have different prototypes for the backward problem than for
-the forward problem (see \S\ref{ss:user_fct_adj}).
-\index{IDAS@{\idas} linear solvers!usage with adjoint module|)} 
+area vailable for the backward problem.  They should be created as 
+for the forward problem then attached to the memory struicture for the backward
+problem.
+%% provide additional specification functions for backward problems.  The
+%% initialization functions described in \S\ref{sss:lin_solv_init} cannot
+%% be directly used since the optional user-defined Jacobian-related
+%% functions have different prototypes for the backward problem than for
+%% the forward problem (see \S\ref{ss:user_fct_adj}).
+%% \index{IDAS@{\idas} linear solvers!usage with adjoint module|)} 
 
-The following wrapper functions can be used to initialize one of the linear
-solver modules for the backward problem. Their arguments are identical to those
-of the functions in \S\ref{sss:lin_solv_init} with the exception of the additional
-second argument, \id{which}, the identifier of the backward problem.
-\begin{verbatim}
-  flag = IDADenseB(ida_mem, which, nB);
-  flag = IDABandB(ida_mem, which, nB, mupperB, mlowerB);
-  flag = IDALapackDenseB(ida_mem, which, nB);
-  flag = IDALapackBandB(ida_mem, which, nB, mupperB, mlowerB);
-  flag = IDAKLUB(ida_mem, which, nB, nnzB, sparsetype);
-  flag = IDASuperLUMTB(ida_mem, which, num_threads, nB, nnzB);
-  flag = IDASpgmrB(ida_mem, which, maxlB);
-  flag = IDASpbcgB(ida_mem, which, maxlB);
-  flag = IDASptfqmrB(ida_mem, which, maxlB);
-\end{verbatim}
+%% The following wrapper functions can be used to initialize one of the linear
+%% solver modules for the backward problem. Their arguments are identical to those
+%% of the functions in \S\ref{sss:lin_solv_init} with the exception of the additional
+%% second argument, \id{which}, the identifier of the backward problem.
+%% \begin{verbatim}
+%%   flag = IDADenseB(ida_mem, which, nB);
+%%   flag = IDABandB(ida_mem, which, nB, mupperB, mlowerB);
+%%   flag = IDALapackDenseB(ida_mem, which, nB);
+%%   flag = IDALapackBandB(ida_mem, which, nB, mupperB, mlowerB);
+%%   flag = IDAKLUB(ida_mem, which, nB, nnzB, sparsetype);
+%%   flag = IDASuperLUMTB(ida_mem, which, num_threads, nB, nnzB);
+%%   flag = IDASpgmrB(ida_mem, which, maxlB);
+%%   flag = IDASpbcgB(ida_mem, which, maxlB);
+%%   flag = IDASptfqmrB(ida_mem, which, maxlB);
+%% \end{verbatim}
 
-Their return value \id{flag} (of type \id{int}) can have any of the return values of their counterparts.
-%%
-If the \id{ida\_mem} argument was \id{NULL}, 
-\id{flag} will be \id{IDADLS\_MEM\_NULL}, \id{IDASLS\_MEM\_NULL} or
-\id{IDASPILS\_MEM\_NULL}. 
-%%
-Also, if \id{which} is not a valid identifier, the functions will return 
-\id{IDADLS\_ILL\_INPUT}, \id{IDASLS\_ILL\_INPUT} or \id{IDASPILS\_ILL\_INPUT}.
+%% Their return value \id{flag} (of type \id{int}) can have any of the return values of their counterparts.
+%% %%
+%% If the \id{ida\_mem} argument was \id{NULL}, 
+%% \id{flag} will be \id{IDADLS\_MEM\_NULL}, \id{IDASLS\_MEM\_NULL} or
+%% \id{IDASPILS\_MEM\_NULL}. 
+%% %%
+%% Also, if \id{which} is not a valid identifier, the functions will return 
+%% \id{IDADLS\_ILL\_INPUT}, \id{IDASLS\_ILL\_INPUT} or \id{IDASPILS\_ILL\_INPUT}.
 
 
 %%---------------------------------------------------------------------

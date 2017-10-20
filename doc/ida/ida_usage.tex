@@ -66,6 +66,11 @@ these are {\em instdir}\id{/lib} and {\em instdir}\id{/include},
 respectively, where {\em instdir} is the directory where {\sundials}
 was installed (see Appendix \ref{c:install}).
 
+Note that an application cannot link to both the {\ida} and {\idas} libraries
+because both contain user-callable functions with the same names (to ensure that {\idas}
+is backward compatible with {\ida}). Therefore, applications that contain both
+DAE problems and DAEs with sensitivity analysis, should use {\idas}.
+
 %%===================================================================================
 \section{Data types}\label{s:types}
 %%===================================================================================
@@ -745,7 +750,6 @@ the user code.  These are available in the corresponding header file
 associated with the specific {\sunmatrix} or {\sunlinsol} module in
 question, as described in Chapters \ref{s:sunmatrix} and
 \ref{s:sunlinsol}.
-
 \index{IDA@{\ida} linear solver interfaces!selecting one|)}
 
 \index{IDA@{\ida} linear solver interfaces!IDADLS@{\idadls}}
@@ -4063,6 +4067,7 @@ provide a function of type \ID{IDADlsJacFn} defined as follows:
 {
   This function computes the Jacobian matrix $J$ of the DAE system (or an
   approximation to it), defined by Eq. (\ref{e:DAE_Jacobian}).
+  
 }
 {
   \begin{args}[user\_data]

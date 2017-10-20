@@ -29,24 +29,31 @@ the DAE solver {\ida}~\cite{ida_ug} on which {\idas} is based, the
 sensitivity-enabled ODE solver {\cvodes}~\cite{cvodes_ug,SeHi:05}, and
 also the nonlinear system solver {\kinsol}~\cite{kinsol_ug}.
 
-The Newton/Krylov methods in {\idas} are:
-the GMRES (Generalized Minimal RESidual)~\cite{SaSc:86},
-Bi-CGStab (Bi-Conjugate Gradient Stabilized)~\cite{Van:92}, and
-TFQMR (Transpose-Free Quasi-Minimal Residual) linear iterative 
-methods~\cite{Fre:93}.  As Krylov methods, these require almost no 
-matrix storage for solving the Newton equations as compared to direct
+At present, {\idas} may utilize a variety of Krylov methods provided
+in {\sundials} that can be used in conjuction with Newton iteration:
+these include the GMRES (Generalized Minimal RESidual)~\cite{SaSc:86},
+FGMRES (Flexible Generalized Minimum RESidual)~\cite{Saa:93},
+Bi-CGStab (Bi-Conjugate Gradient Stabilized)~\cite{Van:92}, TFQMR
+(Transpose-Free Quasi-Minimal Residual)~\cite{Fre:93}, and PCG
+(Preconditioned Conjugate Gradient)~\cite{HeSt:52} linear iterative
+methods.  As Krylov methods, these require little  
+matrix storage for solving the Newton equations as compared to direct 
 methods. However, the algorithms allow for a user-supplied preconditioner
-matrix, and for most problems preconditioning is essential for an
+matrix, and, for most problems, preconditioning is essential for an
 efficient solution.
 
 For very large DAE systems, the Krylov methods are preferable over
 direct linear solver methods, and are often the only feasible choice.
-Among the three Krylov methods in {\idas}, we recommend GMRES as the
+Among the Krylov methods in {\sundials}, we recommend GMRES as the
 best overall choice.  However, users are encouraged to compare all
-three, especially if encountering convergence failures with GMRES.
+options, especially if encountering convergence failures with GMRES.
 Bi-CGFStab and TFQMR have an advantage in storage requirements, in
 that the number of workspace vectors they require is fixed, while that
-number for GMRES depends on the desired Krylov subspace size.
+number for GMRES depends on the desired Krylov subspace size.  FGMRES
+has an advantage in that it is designed to support preconditioners
+that vary between iterations (e.g.~iterative methods).  PCG exhibits
+rapid convergence and minimal workspace vectors, but only works for
+symmetric linear systems.
 
 \index{IDAS@{\idas}!relationship to {\ida}|(}
 {\idas} is written with a functionality that is a superset of that
@@ -152,17 +159,17 @@ routines for all packages.  It is assumed that all necessary data
 for user-provided preconditioner operations will be allocated and
 stored in user-provided data structures.
 
-The file \id{include/sundials\_fconfig.h} was added. This file contains 
+The file \id{include/sundials\_fconfig.h} was added.  This file contains 
 {\sundials} type information for use in Fortran programs.
-
-Added functions \id{SUNDIALSGetVersion} and \id{SUNDIALSGetVersionNumber} to
-get {\sundials} release version information at runtime.
 
 The build system was expanded to support many of the xSDK-compliant keys. 
 The xSDK is a movement in scientific software to provide a foundation for the
 rapid and efficient production of high-quality, 
 sustainable extreme-scale scientific applications.  More information can
 be found at, https://xsdk.info.
+
+Added functions \id{SUNDIALSGetVersion} and \id{SUNDIALSGetVersionNumber} to
+get {\sundials} release version information at runtime.
 
 In addition, numerous changes were made to the build system.
 These include the addition of separate \id{BLAS\_ENABLE} and \id{BLAS\_LIBRARIES} 
@@ -173,7 +180,7 @@ These changes included changing \id{EXAMPLES\_ENABLE} to \id{EXAMPLES\_ENABLE\_C
 changing \id{CXX\_ENABLE} to \id{EXAMPLES\_ENABLE\_CXX}, changing \id{F90\_ENABLE} to 
 \id{EXAMPLES\_ENABLE\_F90}, and adding an \id{EXAMPLES\_ENABLE\_F77} option.
 
-A bug fix was done to add a missing prototype for \id{IDASetMaxBacksIC}
+A bug fix was done to add a missing prototype for \id{IDASetMaxBacksIC} 
 in \id{ida.h}.
  
 Corrections and additions were made to the examples, 
@@ -354,11 +361,28 @@ The structure of this document is as follows:
   {\sundials}, as well as details on the {\nvector}
   implementations provided with {\sundials}. 
 \item
-  Chapter \ref{s:new_linsolv} describes the specifications of linear
-  solver modules as supplied by the user.
+Chapter \ref{s:sunmatrix} gives a brief overview of the generic
+  {\sunmatrix} module shared among the various components of
+  {\sundials}, and details on the {\sunmatrix} implementations
+  provided with {\sundials}: 
+  a dense implementation (\S\ref{ss:sunmat_dense}),
+  a banded implementation (\S\ref{ss:sunmat_band}) and
+  a sparse implementation (\S\ref{ss:sunmat_sparse}).
 \item
-  Chapter \ref{s:gen_linsolv} describes in detail the generic linear solvers shared 
-  by all {\sundials} solvers.
+  Chapter \ref{s:sunlinsol} gives a brief overview of the generic
+  {\sunlinsol} module shared among the various components of
+  {\sundials}.  This chapter contains details on the {\sunlinsol}
+  implementations provided with {\sundials}.
+  The chapter
+  also contains details on the {\sunlinsol} implementations provided
+  with {\sundials} that interface with external linear solver
+  libraries.
+%% \item
+%%   Chapter \ref{s:new_linsolv} describes the interfaces to the linear
+%%   solver modules, so that a user can provide his/her own such module.
+%% \item
+%%   Chapter \ref{s:gen_linsolv} describes in detail the generic linear
+%%   solvers shared by all {\sundials} solvers.
 \item
   Finally, in the appendices, we provide detailed instructions for the installation
   of {\idas}, within the structure of {\sundials} (Appendix \ref{c:install}), as
@@ -367,11 +391,11 @@ The structure of this document is as follows:
   (Appendix \ref{c:constants}).
 \end{itemize}
 
-The reader should be aware of the following notational conventions
+Finally, the reader should be aware of the following notational conventions
 in this user guide:  program listings and identifiers (such as \id{IDAInit}) 
 within textual explanations appear in typewriter type style; 
 fields in {\CC} structures (such as {\em content}) appear in italics;
-and packages or modules, such as {\idadense}, are written in all capitals. 
+and packages or modules, such as {\idadls}, are written in all capitals. 
 Usage and installation instructions that constitute important warnings
 are marked with a triangular symbol {\warn} in the margin.
 

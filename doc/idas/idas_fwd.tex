@@ -56,13 +56,13 @@ sensitivity analysis} \begin{Steps}
   \textcolor{gray}{\bf Set problem dimensions etc.}
 
 \item
-  \textcolor{gray}{\bf Set initial values}
+  \textcolor{gray}{\bf Set vectors of initial values}
  
 \item
   \textcolor{gray}{\bf Create {\idas} object}
 
 \item
-  \textcolor{gray}{\bf Allocate internal memory}
+  \textcolor{gray}{\bf Initialize {\idas} solver}
 
 \item
   \textcolor{gray}{\bf Specify integration tolerances}
@@ -71,7 +71,10 @@ sensitivity analysis} \begin{Steps}
   \textcolor{gray}{\bf Set optional inputs}
 
 \item
-  \textcolor{gray}{\bf Attach linear solver module}
+  \textcolor{gray}{\bf Create matrix object}
+
+\item
+  \textcolor{gray}{\bf Create linear solver object}
 
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
@@ -201,6 +204,9 @@ sensitivity analysis} \begin{Steps}
   \Id{IDAGetSensDky} or \Id{IDAGetSensDky1} (see \S\ref{ss:sensi_get}).
 
 \item
+ \textcolor{gray}{\bf Get optional outputs}
+
+\item
   \textcolor{gray}{\bf Deallocate memory for solutions vector}
 
 \item 
@@ -225,6 +231,9 @@ sensitivity analysis} \begin{Steps}
   
 \item
   \textcolor{gray}{\bf Free vector specification memory}
+
+\item 
+  \textcolor{gray}{\bf Free linear solver and matrix memory}
 
 \item 
   \textcolor{gray}{\bf Finalize MPI, if used}
@@ -1462,13 +1471,19 @@ this situation. Steps that are unchanged from the skeleton program presented in
   \textcolor{gray}{\bf Create {\idas} object}
 
 \item
-  \textcolor{gray}{\bf Allocate internal memory}
+  \textcolor{gray}{\bf Initialize {\idas} solver}
+
+\item
+  \textcolor{gray}{\bf Specify integration tolerances}
 
 \item
   \textcolor{gray}{\bf Set optional inputs}
 
 \item
-  \textcolor{gray}{\bf Attach linear solver module}
+  \textcolor{gray}{\bf Create matrix object}
+
+\item
+  \textcolor{gray}{\bf Create linear solver object}
 
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
@@ -1544,6 +1559,12 @@ this situation. Steps that are unchanged from the skeleton program presented in
 \item
   \textcolor{gray}{\bf Free solver memory}
 
+\item
+  \textcolor{gray}{\bf Free vector specification memory}
+
+\item
+  \textcolor{gray}{\bf Free linear solver and matrix memory}
+  
 \item 
   \textcolor{gray}{\bf Finalize MPI, if used}
   
