@@ -725,14 +725,14 @@ inline T dotProd(const Vector<T,I>& x, const Vector<T,I>& y)
 {
   // Set partitioning
   ReducePartitioning<T, I>& p = x.partReduce();
-  I grid                      = p.grid();
+  unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
 
   math_kernels::dotProdKernel<T,I><<< grid, block, shMemSize >>>(x.device(), y.device(), p.devBuffer(), x.size());
 
-  I n = grid;
-  I nmax = 2*block;
+  unsigned n = grid;
+  unsigned nmax = 2*block;
   while (n > nmax)
   {
     // Recompute partitioning
@@ -759,14 +759,14 @@ inline T maxNorm(const Vector<T,I>& x)
 {
   // Set partitioning
   ReducePartitioning<T, I>& p = x.partReduce();
-  I grid                      = p.grid();
+  unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
 
   math_kernels::maxNormKernel<T,I><<< grid, block, shMemSize >>>(x.device(), p.devBuffer(), x.size());
 
-  I n = grid;
-  I nmax = 2*block;
+  unsigned n = grid;
+  unsigned nmax = 2*block;
   while (n > nmax)
   {
     // Recompute partitioning
@@ -794,14 +794,14 @@ inline T wrmsNorm(const Vector<T,I>& x, const Vector<T,I>& w)
 {
   // Set partitioning
   ReducePartitioning<T, I>& p = x.partReduce();
-  I grid                      = p.grid();
+  unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
 
   math_kernels::wrmsNormKernel<T,I><<< grid, block, shMemSize >>>(x.device(), w.device(), p.devBuffer(), x.size());
 
-  I n = grid;
-  I nmax = 2*block;
+  unsigned n = grid;
+  unsigned nmax = 2*block;
   while (n > nmax)
   {
     // Recompute partitioning
@@ -828,14 +828,14 @@ inline T wrmsNormMask(const Vector<T,I>& x, const Vector<T,I>& w, const Vector<T
 {
   // Set partitioning
   ReducePartitioning<T, I>& p = x.partReduce();
-  I grid                      = p.grid();
+  unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
 
   math_kernels::wrmsNormMaskKernel<T,I><<< grid, block, shMemSize >>>(x.device(), w.device(), id.device(), p.devBuffer(), x.size());
 
-  I n = grid;
-  I nmax = 2*block;
+  unsigned n = grid;
+  unsigned nmax = 2*block;
   while (n > nmax)
   {
     // Recompute partitioning
@@ -864,14 +864,14 @@ inline T findMin(const Vector<T,I>& x)
 
   // Set partitioning
   ReducePartitioning<T, I>& p = x.partReduce();
-  I grid                      = p.grid();
+  unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
 
   math_kernels::findMinKernel<T,I><<< grid, block, shMemSize >>>(maxVal, x.device(), p.devBuffer(), x.size());
 
-  I n = grid;
-  I nmax = 2*block;
+  unsigned n = grid;
+  unsigned nmax = 2*block;
   while (n > nmax)
   {
     // Recompute partitioning
@@ -900,14 +900,14 @@ inline T wL2Norm(const Vector<T,I>& x, const Vector<T,I>& y)
 {
   // Set partitioning
   ReducePartitioning<T, I>& p = x.partReduce();
-  I grid                      = p.grid();
+  unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
 
   math_kernels::wrmsNormKernel<T,I><<< grid, block, shMemSize >>>(x.device(), y.device(), p.devBuffer(), x.size());
 
-  I n = grid;
-  I nmax = 2*block;
+  unsigned n = grid;
+  unsigned nmax = 2*block;
   while (n > nmax)
   {
     // Recompute partitioning
@@ -935,14 +935,14 @@ inline T L1Norm(const Vector<T,I>& x)
 {
   // Set partitioning
   ReducePartitioning<T, I>& p = x.partReduce();
-  I grid                      = p.grid();
+  unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
 
   math_kernels::L1NormKernel<T,I><<< grid, block, shMemSize >>>(x.device(), p.devBuffer(), x.size());
 
-  I n = grid;
-  I nmax = 2*block;
+  unsigned n = grid;
+  unsigned nmax = 2*block;
   while (n > nmax)
   {
     // Recompute partitioning
@@ -970,14 +970,14 @@ inline bool invTest(const Vector<T,I>& x, Vector<T,I>& z)
 {
   // Set partitioning
   ReducePartitioning<T, I>& p = x.partReduce();
-  I grid                      = p.grid();
+  unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
 
   math_kernels::invTestKernel<T,I><<< grid, block, shMemSize >>>(x.device(), z.device(), p.devBuffer(), x.size());
 
-  I n = grid;
-  I nmax = 2*block;
+  unsigned n = grid;
+  unsigned nmax = 2*block;
   while (n > nmax)
   {
     // Recompute partitioning
@@ -1005,14 +1005,14 @@ inline bool constrMask(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>& 
 {
   // Set partitioning
   ReducePartitioning<T, I>& p = x.partReduce();
-  I grid                      = p.grid();
+  unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
 
   math_kernels::constrMaskKernel<T,I><<< grid, block, shMemSize >>>(c.device(), x.device(), m.device(), p.devBuffer(), x.size());
 
-  I n = grid;
-  I nmax = 2*block;
+  unsigned n = grid;
+  unsigned nmax = 2*block;
   while (n > nmax)
   {
     // Recompute partitioning
@@ -1043,15 +1043,15 @@ inline T minQuotient(const Vector<T,I>& num, const Vector<T,I>& den)
 
   // Set partitioning
   ReducePartitioning<T, I>& p = num.partReduce();
-  I grid                      = p.grid();
+  unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
 
   math_kernels::minQuotientKernel<T,I><<< grid, block, shMemSize >>>(maxVal, num.device(), den.device(), p.devBuffer(), num.size());
 
   // All quotients are computed by now. Find the minimum.
-  I n = grid;
-  I nmax = 2*block;
+  unsigned n = grid;
+  unsigned nmax = 2*block;
   while (n > nmax)
   {
     // Recompute partitioning
