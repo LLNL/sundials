@@ -478,7 +478,7 @@ implementations.
                   \multicolumn{1}{p{1.4cm}|}{{Sparse Matrix}} & 
                   \multicolumn{1}{p{1.4cm}|}{{User Supplied}} \\ \hline}
 \tabletail{\hline \multicolumn{5}{|r|}{\small\slshape continued on next page} \\ \hline}
-{\renewcommand{\arraystretch}{1.2}
+\begin{center}
 \begin{xtabular}{|l|c|c|c|c|}
 %   Linear Solver &  Dense   & Banded & Sparse & User     \\
 %   Interface     &          &        &        & Supplied \\ 
@@ -490,7 +490,8 @@ implementations.
     \superlumt    &          &        &  \cm   & \cm      \\
     User supplied &  \cm     & \cm    &  \cm   & \cm      \\ 
     \hline
-\end{xtabular}}
+\end{xtabular}
+\end{center}
 \bigskip
 
 %% \tablecaption{{\sundials} linear solver modules and vector
@@ -554,71 +555,69 @@ Table \ref{t:sunlinsolerr}.
 \\[1mm]
 %%
 \id{SUNLS\_MEM\_NULL} & \id{-1} & the memory argument to the function is \id{NULL}
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_ILL\_INPUT} & \id{-2} & an illegal input has been provided to the function 
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_MEM\_FAIL} & \id{-3} & failed memory access or allocation
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_ATIMES\_FAIL\_UNREC} & \id{-4} & an unrecoverable failure
   occurred in the \id{ATimes} routine
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_PSET\_FAIL\_UNREC} & \id{-5} & an unrecoverable failure
   occurred in the \id{Pset} routine
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_PSOLVE\_FAIL\_UNREC} & \id{-6} & an unrecoverable failure
   occurred in the \id{Psolve} routine
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_PACKAGE\_FAIL\_UNREC} & \id{-7} & an unrecoverable failure
   occurred in an external linear solver package
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_GS\_FAIL} & \id{-8} & a failure occurred during
   Gram-Schmidt orthogonalization ({\sunlinsolspgmr}/{\sunlinsolspfgmr})
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_QRSOL\_FAIL} & \id{-9} & a singular $R$ matrix was
   encountered in a QR factorization ({\sunlinsolspgmr}/{\sunlinsolspfgmr})
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_RES\_REDUCED} & \id{1} &  an iterative solver reduced the
   residual, but did not converge to the desired tolerance
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_CONV\_FAIL} & \id{2} &  an iterative solver did not
 converge (and the residual was not reduced)
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_ATIMES\_FAIL\_REC} & \id{3} & a recoverable failure occurred
   in the \id{ATimes} routine
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_PSET\_FAIL\_REC} & \id{4} & a recoverable failure occurred
   in the \id{Pset} routine
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_PSOLVE\_FAIL\_REC} & \id{5} & a recoverable failure occurred
   in the \id{Psolve} routine
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_PACKAGE\_FAIL\_REC} & \id{6} &  a recoverable failure
   occurred in an external linear solver package
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_QRFACT\_FAIL} & \id{7} & a singular matrix was encountered
   during a QR factorization ({\sunlinsolspgmr}/{\sunlinsolspfgmr})
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_LUFACT\_FAIL} & \id{8} & a singular matrix was encountered
   during a LU factorization ({\sunlinsoldense}/{\sunlinsolband})
-\\[2mm]
-%%
-%%
+\\
 \end{xtabular}
 \bigskip
 
