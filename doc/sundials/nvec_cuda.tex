@@ -1,8 +1,8 @@
 % This is a shared SUNDIALS TEX file with description of
 % the CUDA nvector implementation
 %
-The {\nveccuda} module is an experimental implementation of {\nvector} in the {\cuda} language. 
-The module allows for {\sundials} vector kernels to run on GPU devices. It is intended for users 
+The {\nveccuda} module is an experimental {\nvector} implementation in the {\cuda} language.
+The module allows for {\sundials} vector kernels to run on GPU devices. It is intended for users
 who are already familiar with {\cuda} and GPU programming. Building this vector 
 module requires a CUDA compiler and, by extension, a C++ compiler. The class \id{Vector} 
 in namespace \id{suncudavec} manages vector data layout: 
@@ -40,11 +40,15 @@ structured so that it can tolerate significant changes in the
 %%
 %%--------------------------------------------
 
-The header file to be included when using this module is \id{nvector\_cuda.h}.
+The header file to be included when using this module is \id{nvector\_cuda.h}
+and the installed module library to link to is
+\id{libsundials\_nveccuda.\textit{lib}}
+where \id{\em.lib} is typically \id{.so} for shared libraries and \id{.a}
+for static libraries.
+
 Unlike other native {\sundials} vector types, {\nveccuda} does not provide macros 
 to access its member variables.
-Note that {\nveccuda} requires {\sundials} to be built with {\mpi} support.
-
+%Note that {\nveccuda} requires {\sundials} to be built with {\mpi} support.
 
 %%
 %%--------------------------------------------

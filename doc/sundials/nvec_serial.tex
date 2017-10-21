@@ -19,9 +19,13 @@ struct _N_VectorContent_Serial {
 %%--------------------------------------------
 %%
 
-The header file to be included when using this module is \id{nvector\_serial.h}.
+The header file to be included when using this module is \id{nvector\_serial.h}
+and the installed module library to link to is
+\id{libsundials\_nvecserial.\textit{lib}}
+where \id{\em.lib} is typically \id{.so} for shared libraries and \id{.a}
+for static libraries.
 
-The following five macros are provided to access the content of an {\nvecs}
+The following macros are provided to access the content of an {\nvecs}
 vector. The suffix \id{\_S} in the names denotes the serial version.
 %%
 \begin{itemize}

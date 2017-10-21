@@ -19,7 +19,12 @@ struct _N_VectorContent_Petsc {
 %%
 %%--------------------------------------------
 
-The header file to be included when using this module is \id{nvector\_petsc.h}.
+The header file to be included when using this module is \id{nvector\_petsc.h}
+and the installed module library to link to is
+\id{libsundials\_nvecpetsc.\textit{lib}}
+where \id{\em.lib} is typically \id{.so} for shared libraries and \id{.a}
+for static libraries.
+
 Unlike native {\sundials} vector types, {\nvecpetsc} does not provide macros 
 to access its member variables.
 Note that {\nvecpetsc} requires {\sundials} to be built with {\mpi} support.

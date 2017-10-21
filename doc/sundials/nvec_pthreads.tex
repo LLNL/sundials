@@ -29,9 +29,13 @@ struct _N_VectorContent_Pthreads {
 %%
 %%--------------------------------------------
 
-The header file to be included when using this module is \id{nvector\_pthreads.h}.
+The header file to be included when using this module is \id{nvector\_pthreads.h}
+and the installed module library to link to is
+\id{libsundials\_nvecpthreads.\textit{lib}}
+where \id{\em.lib} is typically \id{.so} for shared libraries and \id{.a}
+for static libraries.
 
-The following six macros are provided to access the content of an {\nvecpthreads}
+The following macros are provided to access the content of an {\nvecpthreads}
 vector. The suffix \id{\_PT} in the names denotes the Pthreads version.
 %%
 \begin{itemize}

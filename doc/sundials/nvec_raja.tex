@@ -1,7 +1,7 @@
 % This is a shared SUNDIALS TEX file with description of
 % the CUDA nvector implementation
 %
-The {\nvecraja} module is an experimental implementation of {\nvector} using the {\raja} 
+The {\nvecraja} module is an experimental {\nvector} implementation using the {\raja} 
 hardware abstraction layer, https://software.llnl.gov/RAJA/. In this implementation, {\raja}
 allows for {\sundials} vector kernels to run on GPU devices. The module is intended for users 
 who are already familiar with {\raja} and GPU programming. Building this vector 
@@ -37,11 +37,15 @@ structured so that it can tolerate significant changes in the
 %%
 %%--------------------------------------------
 
-The header file to be included when using this module is \id{nvector\_raja.h}.
+The header file to be included when using this module is \id{nvector\_raja.h}
+and the installed module library to link to is
+\id{libsundials\_nvecraja.\textit{lib}}
+where \id{\em.lib} is typically \id{.so} for shared libraries
+and \id{.a} for static libraries.
+
 Unlike other native {\sundials} vector types, {\nvecraja} does not provide macros 
 to access its member variables.
-Note that {\nvecraja} requires {\sundials} to be built with {\mpi} support.
-
+%Note that {\nvecraja} requires {\sundials} to be built with {\mpi} support.
 
 %%
 %%--------------------------------------------
