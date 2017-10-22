@@ -324,6 +324,25 @@ serial or threaded environment.
   change optional inputs specific to that linear solver.
   See \S\ref{sss:optin_dls} and \S\ref{sss:optin_spils} for details.
 
+\item\label{i:lin_solver_interface} 
+  {\bf Attach linear solver module}
+
+  If a Newton iteration is chosen, initialize the {\idadls} or
+  {\idaspils} linear solver interface by attaching the linear solver
+  object (and matrix object, if applicable)
+  with one of the following calls (for details see \S\ref{sss:lin_solv_init}):
+
+  \id{ier = }\Id{IDADlsSetLinearSolver}\id{(...);}
+
+  \id{ier = }\Id{IDASpilsSetLinearSolver}\id{(...);}
+
+\item
+  {\bf Set linear solver interface optional inputs}
+
+  Call \id{IDADlsSet*} or \id{IDASpilsSet*} functions to change optional
+  inputs specific to that linear solver interface. 
+  See \S\ref{ss:optional_input} for details.
+
 \item 
   {\bf Correct initial values}
 
