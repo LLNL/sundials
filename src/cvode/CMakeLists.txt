@@ -20,14 +20,6 @@
 
 INSTALL(CODE "MESSAGE(\"\nInstall CVODE\n\")")
 
-IF(MPI_MPICC)
-  # use MPI_MPICC as the compiler
-  SET(CMAKE_C_COMPILER ${MPI_MPICC})
-ELSE(MPI_MPICC)
-  # add MPI_INCLUDE_PATH to include directories
-  INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-ENDIF(MPI_MPICC)
-
 # Add variable cvode_SOURCES with the sources for the CVODE library
 SET(cvode_SOURCES
   cvode.c
