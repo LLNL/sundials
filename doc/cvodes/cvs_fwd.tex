@@ -57,13 +57,13 @@ forward sensitivity analysis beyond those for IVP solution
   \textcolor{gray}{\bf Set problem dimensions etc.}
 
 \item
-  \textcolor{gray}{\bf Set initial values}
+  \textcolor{gray}{\bf Set vector of initial values}
  
 \item
   \textcolor{gray}{\bf Create {\cvodes} object}
 
 \item
-  \textcolor{gray}{\bf Allocate internal memory}
+  \textcolor{gray}{\bf Initialize {\cvodes}}
 
 \item
   \textcolor{gray}{\bf Specify integration tolerances}
@@ -72,10 +72,16 @@ forward sensitivity analysis beyond those for IVP solution
   \textcolor{gray}{\bf Set optional inputs}
 
 \item
-  \textcolor{gray}{\bf Attach linear solver module}
+  \textcolor{gray}{\bf Create matrix object}
+
+\item
+  \textcolor{gray}{\bf Create linear solver object}
 
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
+
+\item
+  \textcolor{gray}{\bf Attach linear solver module}
 
 \item
   \textcolor{gray}{\bf Initialize quadrature problem, if not sensitivity-dependent}
@@ -126,7 +132,7 @@ forward sensitivity analysis beyond those for IVP solution
       function, the results will be more accurate if order of magnitude information is provided.
 
       Set \id{pbar}, an array of \id{Ns} positive scaling factors. Typically,
-      if $p_i \ne 0$, the value ${\bar p}_i = |p_{\text{plist}_j}|$ can be used.
+      if $p_i \ne 0$, the value ${\bar p}_i = |p_{\text{plist}_i}|$ can be used.
 
       If \id{pbar} is not specified, {\cvodes} will use ${\bar p}_i = 1.0$.
 
@@ -170,8 +176,8 @@ forward sensitivity analysis beyond those for IVP solution
 \item
   {\bf Set sensitivity tolerances}
 
-  Call \id{CVodeSensSStolerances} or \id{CVodeSensSVtolerances} or
-  \id{CVodeEEtolerances} (see \S\ref{sss:cvfwdtolerances}).
+  Call \id{CVodeSensSStolerances}, \id{CVodeSensSVtolerances} or
+  \id{CVodeEEtolerances}. (See \S\ref{sss:cvfwdtolerances}).
 
 \item
   {\bf Set sensitivity analysis optional inputs}
@@ -197,6 +203,9 @@ forward sensitivity analysis beyond those for IVP solution
   (see \S\ref{ss:sensi_get}).
 
 \item
+  \textcolor{gray}{\bf Get optional outputs}
+
+\item
   \textcolor{gray}{\bf Deallocate memory for solution vector}
 
 \item 
@@ -217,8 +226,14 @@ forward sensitivity analysis beyond those for IVP solution
   \textcolor{gray}{\bf Free solver memory}
   
 \item
-  \textcolor{gray}{\bf Free solution vector specification memory}
+  \textcolor{gray}{\bf Free vector specification memory}
 
+\item 
+  \textcolor{gray}{\bf Free linear solver and matrix memory}
+
+\item 
+  \textcolor{gray}{\bf Finalize MPI, if used}
+  
 \end{Steps}
 
 %-------------------------------------------------------------------------------
@@ -253,7 +268,6 @@ The form of the call to each of these routines is as follows:
 
   \item[Ns] (\id{int}) 
     the number of sensitivities to be computed.
-
   \item[ism] (\id{int})
     \index{forward sensitivity analysis!correction strategies}
     a flag used to select the sensitivity solution method.  Its value can be
@@ -272,7 +286,6 @@ The form of the call to each of these routines is as follows:
   \item[fS] (\Id{CVSensRhsFn})
     is the {\CC} function which computes all sensitivity ODE right-hand sides at the same time.
     For full details see \S\ref{s:user_fct_fwd}.
-
   \item[yS0] (\id{N\_Vector *}) 
     a pointer to an array of \id{Ns} vectors containing the initial 
     values of the sensitivities.
@@ -1635,13 +1648,19 @@ this situation. Steps that are unchanged from the skeleton program presented in
   \textcolor{gray}{\bf Create {\cvodes} object}
 
 \item
-  \textcolor{gray}{\bf Allocate internal memory}
+  \textcolor{gray}{\bf Initialize {\cvodes}}
+
+\item
+  \textcolor{gray}{\bf Specify integration tolerances}
 
 \item
   \textcolor{gray}{\bf Set optional inputs}
 
 \item
-  \textcolor{gray}{\bf Attach linear solver module}
+  \textcolor{gray}{\bf Create matrix object}
+
+\item
+  \textcolor{gray}{\bf Create linear solver object}
 
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
@@ -1713,6 +1732,12 @@ this situation. Steps that are unchanged from the skeleton program presented in
 
 \item
   {\bf Deallocate memory for sensitivity-dependent quadrature variables}
+  
+\item
+  \textcolor{gray}{\bf Free vector specification memory}
+
+\item
+  \textcolor{gray}{\bf Free linear solver and matrix memory}
   
 \item
   {\bf Free solver memory}

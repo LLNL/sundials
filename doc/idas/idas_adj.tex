@@ -867,7 +867,7 @@ call to \id{IDAInitB} or \id{IDAInitBS}.
 All {\idas} linear solver modules available for forward problems
 are available for the backward problem.  They should be created as 
 for the forward problem then attached to the memory structure for the backward
-problem using one of teh following functions.
+problem using one of the following functions.
 
 \index{IDAS@{\idas} linear solver interfaces!IDADLS@{\idadls}}
 \ucfunction{IDADlsSetLinearSolverB}
@@ -1292,7 +1292,7 @@ has not been called, or \Id{IDA\_ILL\_INPUT} if \id{which} was an invalid identi
 %%==================================================================================
 %%
 \subsubsection{Direct linear solver interface optional input functions}
-\index{optional input!dense linear solver interface|(}
+\index{optional input!direct linear solver interface|(}
 \index{IDADLS@{\idadls} linear solver interface!optional input|(}
 If using a direct linear solver interface for the Jacobian of the backward problem,
 the linear solver will need to be attached to the memory structure through
@@ -1338,7 +1338,7 @@ with the second used when the backward problem depends on the forwrad sensitivit
   The function type \id{IDADlsJacFnB} is described in \S\ref{ss:djacFn}.
 }
 %%
-\index{Jacobian approximation function!dense!user-supplied (backward)}
+\index{Jacobian approximation function!direct!user-supplied (backward)}
 \ucfunction{IDADlsSetJacFnBS}
 {
   flag = IDADlsSetJacFnBS(ida\_mem, which, jacBS);
@@ -1385,7 +1385,7 @@ with the second used when the backward problem depends on the forwrad sensitivit
 
 \subsubsection{SPILS linear solvers}
 \index{optional input!iterative linear solver|(}
-\index{IDASPILS@{\idaspils} linear solver!optional input|(}
+\index{IDASPILS@{\idaspils} linear solver interface!optional input|(}
 Optional inputs for the {\idaspils} linear solver module can be set for the backward
 problem through the following functions:
 %%
@@ -1493,7 +1493,7 @@ problem through the following functions:
     pointer to the {\idas} memory block.
   \item[which] (\id{int})
     the identifier of the backward problem.
-  \item[jtsetup] (\id{IDASpilsJacTimesSetupFnB})
+  \item[jtsetupB] (\id{IDASpilsJacTimesSetupFnB})
     user-defined function to set up the Jacobian-vector product.
     Pass \id{NULL} if no setup is necessary.
   \item[jtimesB] (\id{IDASpilsJacTimesVecFnB})
@@ -1654,7 +1654,7 @@ problem through the following functions:
   Passing a value \id{dqincfacB}$ = 0.0$ also indicates using the default value.
 }
 
-\index{IDASPILS@{\idaspils} linear solver!optional input|)}
+\index{IDASPILS@{\idaspils} linear solver interface!optional input|)}
 \index{optional input!iterative linear solver|)}
 
 %---------------------------------------------------------------------------
@@ -2308,7 +2308,7 @@ The user must provide an \id{fQBS} function of type \ID{IDAQuadRhsFnBS} defined 
 \subsection{Jacobian information for the backward problem 
   (direct method Jacobian)}\label{ss:djacFn_b}
 
-If the direct linear solver interface  is used for teh backward problem (i.e. 
+If the direct linear solver interface  is used for the backward problem (i.e. 
 \Id{IDADlsSetLinearSolverB} is called in the step described in 
 \S\ref{ss:skeleton_adj}), the user may
 provide a function of type \ID{IDADlsJacFnB} or \ID{IDADlsJacFnBS} 
@@ -2354,7 +2354,7 @@ provide a function of type \ID{IDADlsJacFnB} or \ID{IDADlsJacFnBS}
   \item[tmp2B]
   \item[tmp3B]
     are pointers to memory allocated for variables of type \id{N\_Vector} 
-    which can be used by \id{IDADlsJacFnB} function 
+    which can be used by the \id{IDADlsJacFnB} function 
     as temporary storage or work space.
   \end{args}
 }
@@ -2746,9 +2746,7 @@ user-supplied function of type \Id{IDASpilsJacTimesSetupFnB}, defined as follows
 \subsection{Preconditioning for the backward problem
   (linear system solution)}\label{ss:psolve_b}
 \index{preconditioning!user-supplied}
-\index{IDASPGMR@{\idaspgmr} linear solver!preconditioner solve function}
-\index{IDASPBCG@{\idaspbcg} linear solver!preconditioner solve function}
-\index{IDASPTFQMR@{\idasptfqmr} linear solver!preconditioner solve function}
+\index{IDASPILS@{\idaspils} linear solver!preconditioner solve function}
 If preconditioning is used during integration of the backward problem, 
 then the user must provide a {\CC} function to solve the linear system 
 $Pz = r$, where $P$ is a left preconditioner matrix.
@@ -2866,9 +2864,7 @@ This function must have one of the following two forms:
 \subsection{Preconditioning for the backward problem
   (Jacobian data)}\label{ss:psetup_b}
 \index{preconditioning!user-supplied}
-\index{IDASPGMR@{\idaspgmr} linear solver!preconditioner setup function}
-\index{IDASPBCG@{\idaspbcg} linear solver!preconditioner setup function}
-\index{IDASPTFQMR@{\idasptfqmr} linear solver!preconditioner setup function}
+\index{IDASPILS@{\idaspils} linear solver!preconditioner setup function}
 If the user's preconditioner requires that any Jacobian-related data
 be preprocessed or evaluated, then this needs to be done in a
 user-supplied {\CC} function of one of the following two types:

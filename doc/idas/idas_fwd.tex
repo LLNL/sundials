@@ -50,7 +50,8 @@ forward sensitivity analysis beyond those for IVP solution
 sensitivity analysis} \begin{Steps}
   
 \item 
-  \textcolor{gray}{\bf Initialize parallel or multi-threaded environment}
+  \textcolor{gray}{\bf Initialize parallel or multi-threaded environment,
+  if appropriate}
 
 \item
   \textcolor{gray}{\bf Set problem dimensions etc.}
@@ -62,7 +63,7 @@ sensitivity analysis} \begin{Steps}
   \textcolor{gray}{\bf Create {\idas} object}
 
 \item
-  \textcolor{gray}{\bf Initialize {\idas} solver}
+  \textcolor{gray}{\bf Initialize {\idas}}
 
 \item
   \textcolor{gray}{\bf Specify integration tolerances}
@@ -210,7 +211,7 @@ sensitivity analysis} \begin{Steps}
  \textcolor{gray}{\bf Get optional outputs}
 
 \item
-  \textcolor{gray}{\bf Deallocate memory for solutions vector}
+  \textcolor{gray}{\bf Deallocate memory for solution vector}
 
 \item 
   {\bf Deallocate memory for sensitivity vectors}
@@ -219,8 +220,6 @@ sensitivity analysis} \begin{Steps}
   in \id{yS0} and \id{ypS0}:
 
   \id{N\_VDestroyVectorArray\_***(yS0, Ns);}
-
-  and similarly for \id{ypS0}.
 
   If \id{yS} was created from \id{realtype} arrays \id{yS\_i}, it is the
   user's responsibility to also free the space for the arrays \id{yS\_i},
@@ -242,7 +241,6 @@ sensitivity analysis} \begin{Steps}
   \textcolor{gray}{\bf Finalize MPI, if used}
   
 \end{Steps}
-
 
 %-------------------------------------------------------------------------------
 \section{User-callable routines for forward sensitivity analysis}

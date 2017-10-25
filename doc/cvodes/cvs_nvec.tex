@@ -12,28 +12,13 @@ In Table \ref{t:nvecuse} below, we list the vector functions in the
 {\nvector} module used within the {\cvodes} package.
 The table also shows, for each function, which of the code modules uses
 the function. The {\cvodes} column shows function usage within the main
-integrator module, while the remaining sevem columns show function usage
-within each of the eight {\cvodes} linear solvers, the {\cvbandpre} and
+integrator module, while the remaining columns show function usage
+within each of the {\cvodes} linear solver interfaces, the {\cvbandpre} and
 {\cvbbdpre} preconditioner modules, and the {\cvodes} adjoint sensitivity
-module (denoted here by {\cvodea}).  Here {\cvdls} stands for {\cvdense} and
-{\cvband}; {\cvspils} stands for {\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr};
-and {\cvsls} stands for {\cvklu} and {\cvsuperlumt}.
-
-There is one subtlety in the {\cvspils} column hidden by the table, explained
-here for the case of the {\cvspgmr} module. 
-The \id{N\_VDotProd} function is called both within the interface file
-\id{cvodes\_spgmr.c} and within the implementation
-files \id{sundials\_spgmr.c} and \id{sundials\_iterative.c} for the generic
-{\spgmr} solver upon which the {\cvspgmr} solver is built.  Also, although
-\id{N\_VDiv} and \id{N\_VProd} are not called within the interface file
-\id{cvodes\_spgmr.c}, they are called within the implementation file
-\id{sundials\_spgmr.c}, and so are required by the {\cvspgmr} solver module.
-Analogous statements apply to the {\cvspbcg} and {\cvsptfqmr} modules,
-except that they do not use \id{sundials\_iterative.c}.
-This issue does not arise for the other 
-three {\cvodes} linear solvers because the generic {\dense} and {\band} solvers 
-(used in the implementation of {\cvdense} and {\cvband}) do not make calls to 
-any vector functions and {\cvdiag} is not implemented using a generic diagonal solver. 
+module (denoted here by {\cvodea}).  Here
+{\cvdls} stands for the direct linear solver interface in {\cvodes};
+{\cvspils} stands for the scaled, preconditioned, iterative linear
+solver interface in {\cvodes}.
 
 At this point, we should emphasize that the {\cvodes} user does not need to know 
 anything about the usage of vector functions by the {\cvodes} code modules in order 
@@ -50,38 +35,37 @@ interested reader.
 \begin{sideways}{\cvdls}      \end{sideways} &
 \begin{sideways}{\cvdiag}     \end{sideways} &
 \begin{sideways}{\cvspils}    \end{sideways} &
-\begin{sideways}{\cvsls}      \end{sideways} &
 \begin{sideways}{\cvbandpre}  \end{sideways} &
 \begin{sideways}{\cvbbdpre}   \end{sideways} &
 \begin{sideways}{\cvodea}     \end{sideways} \\ \hline\hline
-%                            CVODES DLS  DIAG  SPILS  SLS  BPRE   BBD  CVODEA
-\id{N\_VGetVectorID}        &     &     &     &     &     &     &     &     \\ \hline
-\id{N\_VClone}              & \cm &     & \cm & \cm &     &     &     & \cm \\ \hline
-\id{N\_VDestroy}            & \cm &     & \cm & \cm &     &     &     & \cm \\ \hline
-\id{N\_VCloneVectorArray}   & \cm &     &     &     &     &     &     & \cm \\ \hline
-\id{N\_VDestroyVectorArray} & \cm &     &     &     &     &     &     & \cm \\ \hline
-\id{N\_VSpace}              & \cm &     &     &     &     &     &     &     \\ \hline
-\id{N\_VGetArrayPointer}    &     & \cm &     &     & \cm & \cm & \cm &     \\ \hline
-\id{N\_VSetArrayPointer}    &     & \cm &     &     &     &     &     &     \\ \hline
-\id{N\_VLinearSum}          & \cm & \cm & \cm & \cm &     &     &     & \cm \\ \hline
-\id{N\_VConst}              & \cm &     &     & \cm &     &     &     &     \\ \hline
-\id{N\_VProd}               & \cm &     & \cm & \cm &     &     &     &     \\ \hline
-\id{N\_VDiv}                & \cm &     & \cm & \cm &     &     &     &     \\ \hline
-\id{N\_VScale}              & \cm & \cm & \cm & \cm & \cm & \cm & \cm & \cm \\ \hline
-\id{N\_VAbs}                & \cm &     &     &     &     &     &     &     \\ \hline
-\id{N\_VInv}                & \cm &     & \cm &     &     &     &     &     \\ \hline
-\id{N\_VAddConst}           & \cm &     & \cm &     &     &     &     &     \\ \hline
-\id{N\_VDotProd}            &     &     &     & \cm &     &     &     &     \\ \hline
-\id{N\_VMaxNorm}            & \cm &     &     &     &     &     &     &     \\ \hline
-\id{N\_VWrmsNorm}           & \cm & \cm &     & \cm &     & \cm & \cm &     \\ \hline
-\id{N\_VMin}                & \cm &     &     &     &     &     &     &     \\ \hline
-\id{N\_VCompare}            &     &     & \cm &     &     &     &     &     \\ \hline
-\id{N\_VInvTest}            &     &     & \cm &     &     &     &     &     \\ \hline
+%                            CVODES DLS  DIAG  SPILS BPRE   BBD  CVODEA
+\id{N\_VGetVectorID}        &     &     &     &     &     &     &     \\ \hline
+\id{N\_VClone}              & \cm &     & \cm & \cm &     &     & \cm \\ \hline
+\id{N\_VDestroy}            & \cm &     & \cm & \cm &     &     & \cm \\ \hline
+\id{N\_VCloneVectorArray}   & \cm &     &     &     &     &     & \cm \\ \hline
+\id{N\_VDestroyVectorArray} & \cm &     &     &     &     &     & \cm \\ \hline
+\id{N\_VSpace}              & \cm &     &     &     &     &     &     \\ \hline
+\id{N\_VGetArrayPointer}    &     & \cm &     &     & \cm & \cm &     \\ \hline
+\id{N\_VSetArrayPointer}    &     & \cm &     &     &     &     &     \\ \hline
+\id{N\_VLinearSum}          & \cm & \cm & \cm & \cm &     &     & \cm \\ \hline
+\id{N\_VConst}              & \cm &     &     & \cm &     &     &     \\ \hline
+\id{N\_VProd}               & \cm &     & \cm & \cm &     &     &     \\ \hline
+\id{N\_VDiv}                & \cm &     & \cm & \cm &     &     &     \\ \hline
+\id{N\_VScale}              & \cm & \cm & \cm & \cm & \cm & \cm & \cm \\ \hline
+\id{N\_VAbs}                & \cm &     &     &     &     &     &     \\ \hline
+\id{N\_VInv}                & \cm &     & \cm &     &     &     &     \\ \hline
+\id{N\_VAddConst}           & \cm &     & \cm &     &     &     &     \\ \hline
+\id{N\_VDotProd}            &     &     &     & \cm &     &     &     \\ \hline
+\id{N\_VMaxNorm}            & \cm &     &     &     &     &     &     \\ \hline
+\id{N\_VWrmsNorm}           & \cm & \cm &     & \cm & \cm & \cm &     \\ \hline
+\id{N\_VMin}                & \cm &     &     &     &     &     &     \\ \hline
+\id{N\_VCompare}            &     &     & \cm &     &     &     &     \\ \hline
+\id{N\_VInvTest}            &     &     & \cm &     &     &     &     \\ \hline
 %
 \end{tabular}
 \end{table}
 
 The vector functions listed in Table \ref{t:nvecops} that are {\em not} used by
 {\cvodes} are: \id{N\_VWL2Norm}, \id{N\_VL1Norm}, \id{N\_VWrmsNormMask},
-\id{N\_VConstrMask}, \id{N\_VCloneEmpty}, and \id{N\_VMinQuotient}. Therefore a user-supplied
+\id{N\_VConstrMask}, \id{N\_VCloneEmpty}, and \id{N\_VMinQuotient}. Therefore, a user-supplied
 {\nvector} module for {\cvodes} could omit these six kernels.
