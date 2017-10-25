@@ -405,14 +405,6 @@ ENDIF()
 # ---------------------------------------------------------------
 OPTION(HYPRE_ENABLE "Enable hypre support" OFF)
 
-# As of version 2.11.2 hypre does not support single or extended precision
-IF(HYPRE_ENABLE AND
-  (SUNDIALS_PRECISION MATCHES "SINGLE" OR SUNDIALS_PRECISION MATCHES "EXTENDED"))
-  PRINT_WARNING("hypre is not compatible with ${SUNDIALS_PRECISION} precision"
-                "Disabling hypre")
-  FORCE_VARIABLE(HYPRE_ENABLE BOOL "hypre is disabled" OFF)
-ENDIF()
-
 # Using hypre requres building with MPI enabled
 IF(HYPRE_ENABLE AND NOT MPI_ENABLE)
   PRINT_WARNING("MPI not enabled - Disabling hypre" 
