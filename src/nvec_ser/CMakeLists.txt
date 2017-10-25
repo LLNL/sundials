@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision$
-# $Date$
-# ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -23,12 +20,14 @@ SET(nvecserial_SOURCES nvector_serial.c)
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the NVECSERIAL library
-SET(shared_SOURCES sundials_math.c)
-ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
+SET(shared_SOURCES
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
+  )
 
 # Add variable nvecserial_HEADERS with the exported NVECSERIAL header files
-SET(nvecserial_HEADERS nvector_serial.h)
-ADD_PREFIX(${sundials_SOURCE_DIR}/include/nvector/ nvecserial_HEADERS)
+SET(nvecserial_HEADERS
+  ${sundials_SOURCE_DIR}/include/nvector/nvector_serial.h
+  )
 
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(.)
@@ -54,6 +53,11 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Install the NVECSERIAL library
 IF(BUILD_SHARED_LIBS)
   ADD_LIBRARY(sundials_nvecserial_shared SHARED ${nvecserial_SOURCES} ${shared_SOURCES})
+
+  IF(UNIX)
+    TARGET_LINK_LIBRARIES(sundials_nvecserial_shared m)
+  ENDIF()
+
   SET_TARGET_PROPERTIES(sundials_nvecserial_shared
     PROPERTIES OUTPUT_NAME sundials_nvecserial CLEAN_DIRECT_OUTPUT 1)
   SET_TARGET_PROPERTIES(sundials_nvecserial_shared
@@ -67,20 +71,27 @@ INSTALL(FILES ${nvecserial_HEADERS} DESTINATION include/nvector)
 # If FCMIX is enabled, build and install the FNVECSERIAL library
 IF(FCMIX_ENABLE AND F77_FOUND)
   SET(fnvecserial_SOURCES fnvector_serial.c)
+
   IF(BUILD_STATIC_LIBS)
     ADD_LIBRARY(sundials_fnvecserial_static STATIC ${fnvecserial_SOURCES})
     SET_TARGET_PROPERTIES(sundials_fnvecserial_static
       PROPERTIES OUTPUT_NAME sundials_fnvecserial CLEAN_DIRECT_OUTPUT 1)
     INSTALL(TARGETS sundials_fnvecserial_static DESTINATION lib)
   ENDIF(BUILD_STATIC_LIBS)
+
   IF(BUILD_SHARED_LIBS)
     ADD_LIBRARY(sundials_fnvecserial_shared ${fnvecserial_SOURCES})
+
+    # fnvecserial depends on nvecserial
+    TARGET_LINK_LIBRARIES(sundials_fnvecserial_shared sundials_nvecserial_shared)
+
     SET_TARGET_PROPERTIES(sundials_fnvecserial_shared
       PROPERTIES OUTPUT_NAME sundials_fnvecserial CLEAN_DIRECT_OUTPUT 1)
     SET_TARGET_PROPERTIES(sundials_fnvecserial_shared 
       PROPERTIES VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION})
     INSTALL(TARGETS sundials_fnvecserial_shared DESTINATION lib)
   ENDIF(BUILD_SHARED_LIBS)
+
 ENDIF(FCMIX_ENABLE AND F77_FOUND)
 
 #

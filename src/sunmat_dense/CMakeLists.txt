@@ -24,12 +24,16 @@ SET(sunmatrixdense_SOURCES sunmatrix_dense.c)
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the SUNMATRIXDENSE library
-SET(shared_SOURCES sundials_math.c)
-ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
+SET(shared_SOURCES
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_matrix.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
+  )
 
 # Add variable sunmatrixdense_HEADERS with the exported SUNMATRIXDENSE header files
-SET(sunmatrixdense_HEADERS sunmatrix_dense.h)
-ADD_PREFIX(${sundials_SOURCE_DIR}/include/sunmatrix/ sunmatrixdense_HEADERS)
+SET(sunmatrixdense_HEADERS 
+  ${sundials_SOURCE_DIR}/include/sunmatrix/sunmatrix_dense.h
+  )
 
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(.)
@@ -55,6 +59,11 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Install the SUNMATRIXDENSE library
 IF(BUILD_SHARED_LIBS)
   ADD_LIBRARY(sundials_sunmatrixdense_shared SHARED ${sunmatrixdense_SOURCES} ${shared_SOURCES})
+
+  IF(UNIX)
+    TARGET_LINK_LIBRARIES(sundials_sunmatrixdense_shared m)
+  ENDIF()
+
   SET_TARGET_PROPERTIES(sundials_sunmatrixdense_shared
     PROPERTIES OUTPUT_NAME sundials_sunmatrixdense CLEAN_DIRECT_OUTPUT 1)
   SET_TARGET_PROPERTIES(sundials_sunmatrixdense_shared
@@ -68,20 +77,27 @@ INSTALL(FILES ${sunmatrixdense_HEADERS} DESTINATION include/sunmatrix)
 # If FCMIX is enabled, build and install the FSUNMATRIXDENSE library
 IF(FCMIX_ENABLE AND F77_FOUND)
   SET(fsunmatrixdense_SOURCES fsunmatrix_dense.c)
+
   IF(BUILD_STATIC_LIBS)
     ADD_LIBRARY(sundials_fsunmatrixdense_static STATIC ${fsunmatrixdense_SOURCES})
     SET_TARGET_PROPERTIES(sundials_fsunmatrixdense_static
       PROPERTIES OUTPUT_NAME sundials_fsunmatrixdense CLEAN_DIRECT_OUTPUT 1)
     INSTALL(TARGETS sundials_fsunmatrixdense_static DESTINATION lib)
   ENDIF(BUILD_STATIC_LIBS)
+
   IF(BUILD_SHARED_LIBS)
     ADD_LIBRARY(sundials_fsunmatrixdense_shared ${fsunmatrixdense_SOURCES})
+
+    # fsunmatrixdense depends on sunmatrixdense
+    TARGET_LINK_LIBRARIES(sundials_fsunmatrixdense_shared sundials_sunmatrixdense_shared)
+
     SET_TARGET_PROPERTIES(sundials_fsunmatrixdense_shared
       PROPERTIES OUTPUT_NAME sundials_fsunmatrixdense CLEAN_DIRECT_OUTPUT 1)
     SET_TARGET_PROPERTIES(sundials_fsunmatrixdense_shared 
       PROPERTIES VERSION ${sunmatrixlib_VERSION} SOVERSION ${sunmatrixlib_SOVERSION})
     INSTALL(TARGETS sundials_fsunmatrixdense_shared DESTINATION lib)
   ENDIF(BUILD_SHARED_LIBS)
+
 ENDIF(FCMIX_ENABLE AND F77_FOUND)
 
 #
