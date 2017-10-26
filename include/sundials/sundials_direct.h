@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -18,8 +14,7 @@
  * This header file contains definitions and declarations for use by
  * generic direct linear solvers for Ax = b. It defines types for
  * dense and banded matrices and corresponding accessor macros.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #ifndef _SUNDIALS_DIRECT_H
 #define _SUNDIALS_DIRECT_H
@@ -309,14 +304,14 @@ SUNDIALS_EXPORT void SetToZero(DlsMat A);
  * Functions: PrintMat
  * -----------------------------------------------------------------
  * This function prints the M-by-N (dense or band) matrix A to
- * standard output as it would normally appear on paper.
+ * outfile as it would normally appear on paper.
  * It is intended as debugging tools with small values of M and N.
  * The elements are printed using the %g/%lg/%Lg option. 
  * A blank line is printed before and after the matrix.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void PrintMat(DlsMat A);
+SUNDIALS_EXPORT void PrintMat(DlsMat A, FILE *outfile);
 
 
 /*
