@@ -804,7 +804,7 @@ c
      &     '           Processor array: ', i2, ' x ', i2, /,
      &     'Tolerance parameters: rtol = ', e8.2, '   atol = ',
      &     e8.2, /, 'Constraints set to force all solution',
-     &     ' components >= 0.', /, 'SUPPRESSALG = TRUE to remove',
+     &     ' components >= 0.', /, 'SUPPRESSALG = SUNTRUE to remove',
      &     ' boundary components from the error test.', /,
      &     'Linear solver: SPGMR.    Preconditioner: BBDPRE - ',
      &     'Banded-block-diagonal.')

@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 
   /* check input and set vector length */
   if (argc < 3){
-    printf("ERROR: ONE (1) Input required: vector length, print timing \n");
+    printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
     return(-1);
   }
 
@@ -143,7 +143,7 @@ booleantype has_data(N_Vector X)
 {
   sunrajavec::Vector<double, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
 
-  return (xv == NULL ? FALSE : TRUE);
+  return (xv == NULL ? SUNFALSE : SUNTRUE);
 }
 
 void set_element(N_Vector X, sunindextype i, realtype val)

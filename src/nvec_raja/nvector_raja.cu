@@ -14,20 +14,17 @@
  * -----------------------------------------------------------------
  */
 
-//#include <limits>
-
 #include <nvector/raja/Vector.hpp>
 #include <RAJA/RAJA.hpp>
 
-//#define abs(x) ((x)<0 ? -(x) : (x))
-
-// Need better solution than defines
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
 #define ONE    RCONST(1.0)
 #define ONEPT5 RCONST(1.5)
 
 extern "C" {
+
+using namespace sunrajavec;
 
 static constexpr sunindextype zeroIdx = 0;
 
@@ -102,7 +99,7 @@ N_Vector N_VNew_Raja(sunindextype length)
   v = N_VNewEmpty_Raja(length);
   if (v == NULL) return(NULL);
 
-  v->content = new sunrajavec::Vector<realtype, sunindextype>(length);
+  v->content = new Vector<realtype, sunindextype>(length);
 
   return(v);
 }
@@ -111,7 +108,7 @@ N_Vector N_VNew_Raja(sunindextype length)
 N_Vector N_VMake_Raja(N_VectorContent_Raja c)
 {
   N_Vector v;
-  sunrajavec::Vector<realtype, sunindextype>* x = static_cast<sunrajavec::Vector<realtype, sunindextype>*>(c);
+  Vector<realtype, sunindextype>* x = static_cast<Vector<realtype, sunindextype>*>(c);
   sunindextype length = x->size();
 
   v = NULL;
@@ -198,7 +195,7 @@ void N_VDestroyVectorArray_Raja(N_Vector *vs, int count)
  */
 sunindextype N_VGetLength_Raja(N_Vector v)
 {
-  sunrajavec::Vector<realtype, sunindextype>* xd = static_cast<sunrajavec::Vector<realtype, sunindextype>*>(v->content);
+  Vector<realtype, sunindextype>* xd = static_cast<Vector<realtype, sunindextype>*>(v->content);
   return xd->size();
 }
 
@@ -208,7 +205,7 @@ sunindextype N_VGetLength_Raja(N_Vector v)
 
 realtype *N_VGetHostArrayPointer_Raja(N_Vector x)
 {
-  sunrajavec::Vector<realtype, sunindextype>* xv = static_cast<sunrajavec::Vector<realtype, sunindextype>*>(x->content);
+  Vector<realtype, sunindextype>* xv = static_cast<Vector<realtype, sunindextype>*>(x->content);
   return (xv->host());
 }
 
@@ -218,7 +215,7 @@ realtype *N_VGetHostArrayPointer_Raja(N_Vector x)
 
 realtype *N_VGetDeviceArrayPointer_Raja(N_Vector x)
 {
-  sunrajavec::Vector<realtype, sunindextype>* xv = static_cast<sunrajavec::Vector<realtype, sunindextype>*>(x->content);
+  Vector<realtype, sunindextype>* xv = static_cast<Vector<realtype, sunindextype>*>(x->content);
   return (xv->device());
 }
 
@@ -228,7 +225,7 @@ realtype *N_VGetDeviceArrayPointer_Raja(N_Vector x)
 
 void N_VCopyToDevice_Raja(N_Vector x)
 {
-  sunrajavec::Vector<realtype, sunindextype>* xv = static_cast<sunrajavec::Vector<realtype, sunindextype>*>(x->content);
+  Vector<realtype, sunindextype>* xv = static_cast<Vector<realtype, sunindextype>*>(x->content);
   xv->copyToDev();
 }
 
@@ -238,7 +235,7 @@ void N_VCopyToDevice_Raja(N_Vector x)
 
 void N_VCopyFromDevice_Raja(N_Vector x)
 {
-  sunrajavec::Vector<realtype, sunindextype>* xv = static_cast<sunrajavec::Vector<realtype, sunindextype>*>(x->content);
+  Vector<realtype, sunindextype>* xv = static_cast<Vector<realtype, sunindextype>*>(x->content);
   xv->copyFromDev();
 }
 
@@ -249,8 +246,8 @@ void N_VCopyFromDevice_Raja(N_Vector x)
 
 void N_VPrint_Raja(N_Vector X)
 {
-  const realtype *xd = sunrajavec::getDevData<realtype, sunindextype>(X);
-  const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
+  const realtype *xd = getDevData<realtype, sunindextype>(X);
+  const sunindextype N = getSize<realtype, sunindextype>(X);
   sunindextype i;
 
   for (i = 0; i < N; ++i) {
@@ -327,8 +324,8 @@ N_Vector N_VCloneEmpty_Raja(N_Vector w)
 N_Vector N_VClone_Raja(N_Vector w)
 {
   N_Vector v;
-  sunrajavec::Vector<realtype, sunindextype>* wdat = static_cast<sunrajavec::Vector<realtype, sunindextype>*>(w->content);
-  sunrajavec::Vector<realtype, sunindextype>* vdat = new sunrajavec::Vector<realtype, sunindextype>(*wdat);
+  Vector<realtype, sunindextype>* wdat = static_cast<Vector<realtype, sunindextype>*>(w->content);
+  Vector<realtype, sunindextype>* vdat = new Vector<realtype, sunindextype>(*wdat);
   v = NULL;
   v = N_VCloneEmpty_Raja(w);
   if (v == NULL) return(NULL);
@@ -341,7 +338,7 @@ N_Vector N_VClone_Raja(N_Vector w)
 
 void N_VDestroy_Raja(N_Vector v)
 {
-  sunrajavec::Vector<realtype, sunindextype>* x = static_cast<sunrajavec::Vector<realtype, sunindextype>*>(v->content);
+  Vector<realtype, sunindextype>* x = static_cast<Vector<realtype, sunindextype>*>(v->content);
   if (x != NULL) {
     delete x;
     v->content = NULL;
@@ -355,14 +352,14 @@ void N_VDestroy_Raja(N_Vector v)
 
 void N_VSpace_Raja(N_Vector X, sunindextype *lrw, sunindextype *liw)
 {
-    *lrw = sunrajavec::getSize<realtype, sunindextype>(X);
+    *lrw = getSize<realtype, sunindextype>(X);
     *liw = 1;
 }
 
 void N_VConst_Raja(realtype c, N_Vector Z)
 {
-  const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(Z);
-  realtype *zdata = sunrajavec::getDevData<realtype, sunindextype>(Z);
+  const sunindextype N = getSize<realtype, sunindextype>(Z);
+  realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
   RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
      zdata[i] = c;
@@ -371,10 +368,10 @@ void N_VConst_Raja(realtype c, N_Vector Z)
 
 void N_VLinearSum_Raja(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector Z)
 {
-  const realtype *xdata = sunrajavec::getDevData<realtype, sunindextype>(X);
-  const realtype *ydata = sunrajavec::getDevData<realtype, sunindextype>(Y);
-  const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
-  realtype *zdata = sunrajavec::getDevData<realtype, sunindextype>(Z);
+  const realtype *xdata = getDevData<realtype, sunindextype>(X);
+  const realtype *ydata = getDevData<realtype, sunindextype>(Y);
+  const sunindextype N = getSize<realtype, sunindextype>(X);
+  realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
   RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
      zdata[i] = a*xdata[i] + b*ydata[i];
@@ -383,10 +380,10 @@ void N_VLinearSum_Raja(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector 
 
 void N_VProd_Raja(N_Vector X, N_Vector Y, N_Vector Z)
 {
-  const realtype *xdata = sunrajavec::getDevData<realtype, sunindextype>(X);
-  const realtype *ydata = sunrajavec::getDevData<realtype, sunindextype>(Y);
-  const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
-  realtype *zdata = sunrajavec::getDevData<realtype, sunindextype>(Z);
+  const realtype *xdata = getDevData<realtype, sunindextype>(X);
+  const realtype *ydata = getDevData<realtype, sunindextype>(Y);
+  const sunindextype N = getSize<realtype, sunindextype>(X);
+  realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
   RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
      zdata[i] = xdata[i] * ydata[i];
@@ -395,10 +392,10 @@ void N_VProd_Raja(N_Vector X, N_Vector Y, N_Vector Z)
 
 void N_VDiv_Raja(N_Vector X, N_Vector Y, N_Vector Z)
 {
-  const realtype *xdata = sunrajavec::getDevData<realtype, sunindextype>(X);
-  const realtype *ydata = sunrajavec::getDevData<realtype, sunindextype>(Y);
-  const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
-  realtype *zdata = sunrajavec::getDevData<realtype, sunindextype>(Z);
+  const realtype *xdata = getDevData<realtype, sunindextype>(X);
+  const realtype *ydata = getDevData<realtype, sunindextype>(Y);
+  const sunindextype N = getSize<realtype, sunindextype>(X);
+  realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
   RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
      zdata[i] = xdata[i] / ydata[i];
@@ -407,9 +404,9 @@ void N_VDiv_Raja(N_Vector X, N_Vector Y, N_Vector Z)
 
 void N_VScale_Raja(realtype c, N_Vector X, N_Vector Z)
 {
-  const realtype *xdata = sunrajavec::getDevData<realtype, sunindextype>(X);
-  const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
-  realtype *zdata = sunrajavec::getDevData<realtype, sunindextype>(Z);
+  const realtype *xdata = getDevData<realtype, sunindextype>(X);
+  const sunindextype N = getSize<realtype, sunindextype>(X);
+  realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
   RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
      zdata[i] = c * xdata[i];
@@ -418,9 +415,9 @@ void N_VScale_Raja(realtype c, N_Vector X, N_Vector Z)
 
 void N_VAbs_Raja(N_Vector X, N_Vector Z)
 {
-  const realtype *xdata = sunrajavec::getDevData<realtype, sunindextype>(X);
-  const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
-  realtype *zdata = sunrajavec::getDevData<realtype, sunindextype>(Z);
+  const realtype *xdata = getDevData<realtype, sunindextype>(X);
+  const sunindextype N = getSize<realtype, sunindextype>(X);
+  realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
   RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
      zdata[i] = abs(xdata[i]);
@@ -429,9 +426,9 @@ void N_VAbs_Raja(N_Vector X, N_Vector Z)
 
 void N_VInv_Raja(N_Vector X, N_Vector Z)
 {
-  const realtype *xdata = sunrajavec::getDevData<realtype, sunindextype>(X);
-  const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
-  realtype *zdata = sunrajavec::getDevData<realtype, sunindextype>(Z);
+  const realtype *xdata = getDevData<realtype, sunindextype>(X);
+  const sunindextype N = getSize<realtype, sunindextype>(X);
+  realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
   RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
      zdata[i] = RCONST(1.0) / xdata[i];
@@ -440,9 +437,9 @@ void N_VInv_Raja(N_Vector X, N_Vector Z)
 
 void N_VAddConst_Raja(N_Vector X, realtype b, N_Vector Z)
 {
-  const realtype *xdata = sunrajavec::getDevData<realtype, sunindextype>(X);
-  const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
-  realtype *zdata = sunrajavec::getDevData<realtype, sunindextype>(Z);
+  const realtype *xdata = getDevData<realtype, sunindextype>(X);
+  const sunindextype N = getSize<realtype, sunindextype>(X);
+  realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
   RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
      zdata[i] = xdata[i] + b;
@@ -451,9 +448,9 @@ void N_VAddConst_Raja(N_Vector X, realtype b, N_Vector Z)
 
 realtype N_VDotProd_Raja(N_Vector X, N_Vector Y)
 {
-  const realtype *xdata = sunrajavec::getDevData<realtype, sunindextype>(X);
-  const realtype *ydata = sunrajavec::getDevData<realtype, sunindextype>(Y);
-  const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
+  const realtype *xdata = getDevData<realtype, sunindextype>(X);
+  const realtype *ydata = getDevData<realtype, sunindextype>(Y);
+  const sunindextype N = getSize<realtype, sunindextype>(X);
 
   RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
   RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
@@ -465,8 +462,8 @@ realtype N_VDotProd_Raja(N_Vector X, N_Vector Y)
 
 realtype N_VMaxNorm_Raja(N_Vector X)
 {
-  const realtype *xdata = sunrajavec::getDevData<realtype, sunindextype>(X);
-  const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
+  const realtype *xdata = getDevData<realtype, sunindextype>(X);
+  const sunindextype N = getSize<realtype, sunindextype>(X);
 
   RAJA::ReduceMax<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
   RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
@@ -478,9 +475,9 @@ realtype N_VMaxNorm_Raja(N_Vector X)
 
 realtype N_VWrmsNorm_Raja(N_Vector X, N_Vector W)
 {
-  const realtype *xdata = sunrajavec::getDevData<realtype, sunindextype>(X);
-  const realtype *wdata = sunrajavec::getDevData<realtype, sunindextype>(W);
-  const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
+  const realtype *xdata = getDevData<realtype, sunindextype>(X);
+  const realtype *wdata = getDevData<realtype, sunindextype>(W);
+  const sunindextype N = getSize<realtype, sunindextype>(X);
 
   RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
   RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
@@ -492,10 +489,10 @@ realtype N_VWrmsNorm_Raja(N_Vector X, N_Vector W)
 
 realtype N_VWrmsNormMask_Raja(N_Vector X, N_Vector W, N_Vector ID)
 {
-  const realtype *xdata = sunrajavec::getDevData<realtype, sunindextype>(X);
-  const realtype *wdata = sunrajavec::getDevData<realtype, sunindextype>(W);
-  const realtype *iddata = sunrajavec::getDevData<realtype, sunindextype>(ID);
-  const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
+  const realtype *xdata = getDevData<realtype, sunindextype>(X);
+  const realtype *wdata = getDevData<realtype, sunindextype>(W);
+  const realtype *iddata = getDevData<realtype, sunindextype>(ID);
+  const sunindextype N = getSize<realtype, sunindextype>(X);
 
   RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
   RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
@@ -507,8 +504,8 @@ realtype N_VWrmsNormMask_Raja(N_Vector X, N_Vector W, N_Vector ID)
 
 realtype N_VMin_Raja(N_Vector X)
 {
-  const realtype *xdata = sunrajavec::getDevData<realtype, sunindextype>(X);
-  const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
+  const realtype *xdata = getDevData<realtype, sunindextype>(X);
+  const sunindextype N = getSize<realtype, sunindextype>(X);
 
   RAJA::ReduceMin<RAJA::cuda_reduce<128>, realtype> gpu_result(std::numeric_limits<realtype>::max());
   RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
@@ -520,9 +517,9 @@ realtype N_VMin_Raja(N_Vector X)
 
 realtype N_VWL2Norm_Raja(N_Vector X, N_Vector W)
 {
-  const realtype *xdata = sunrajavec::getDevData<realtype, sunindextype>(X);
-  const realtype *wdata = sunrajavec::getDevData<realtype, sunindextype>(W);
-  const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
+  const realtype *xdata = getDevData<realtype, sunindextype>(X);
+  const realtype *wdata = getDevData<realtype, sunindextype>(W);
+  const sunindextype N = getSize<realtype, sunindextype>(X);
 
   RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
   RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
@@ -534,8 +531,8 @@ realtype N_VWL2Norm_Raja(N_Vector X, N_Vector W)
 
 realtype N_VL1Norm_Raja(N_Vector X)
 {
-  const realtype *xdata = sunrajavec::getDevData<realtype, sunindextype>(X);
-  const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
+  const realtype *xdata = getDevData<realtype, sunindextype>(X);
+  const sunindextype N = getSize<realtype, sunindextype>(X);
 
   RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
   RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
@@ -547,9 +544,9 @@ realtype N_VL1Norm_Raja(N_Vector X)
 
 void N_VCompare_Raja(realtype c, N_Vector X, N_Vector Z)
 {
-  const realtype *xdata = sunrajavec::getDevData<realtype, sunindextype>(X);
-  const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(X);
-  realtype *zdata = sunrajavec::getDevData<realtype, sunindextype>(Z);
+  const realtype *xdata = getDevData<realtype, sunindextype>(X);
+  const sunindextype N = getSize<realtype, sunindextype>(X);
+  realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
   RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
      zdata[i] = abs(xdata[i]) >= c ? ONE : ZERO;
@@ -558,9 +555,9 @@ void N_VCompare_Raja(realtype c, N_Vector X, N_Vector Z)
 
 booleantype N_VInvTest_Raja(N_Vector x, N_Vector z)
 {
-  const realtype *xdata = sunrajavec::getDevData<realtype, sunindextype>(x);
-  const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(x);
-  realtype *zdata = sunrajavec::getDevData<realtype, sunindextype>(z);
+  const realtype *xdata = getDevData<realtype, sunindextype>(x);
+  const sunindextype N = getSize<realtype, sunindextype>(x);
+  realtype *zdata = getDevData<realtype, sunindextype>(z);
 
   RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(ZERO);
   RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
@@ -576,10 +573,10 @@ booleantype N_VInvTest_Raja(N_Vector x, N_Vector z)
 
 booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m)
 {
-  const realtype *cdata = sunrajavec::getDevData<realtype, sunindextype>(c);
-  const realtype *xdata = sunrajavec::getDevData<realtype, sunindextype>(x);
-  const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(x);
-  realtype *mdata = sunrajavec::getDevData<realtype, sunindextype>(m);
+  const realtype *cdata = getDevData<realtype, sunindextype>(c);
+  const realtype *xdata = getDevData<realtype, sunindextype>(x);
+  const sunindextype N = getSize<realtype, sunindextype>(x);
+  realtype *mdata = getDevData<realtype, sunindextype>(m);
 
   RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(ZERO);
   RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
@@ -594,9 +591,9 @@ booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m)
 
 realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom)
 {
-  const realtype *ndata = sunrajavec::getDevData<realtype, sunindextype>(num);
-  const realtype *ddata = sunrajavec::getDevData<realtype, sunindextype>(denom);
-  const sunindextype N = sunrajavec::getSize<realtype, sunindextype>(num);
+  const realtype *ndata = getDevData<realtype, sunindextype>(num);
+  const realtype *ddata = getDevData<realtype, sunindextype>(denom);
+  const sunindextype N = getSize<realtype, sunindextype>(num);
 
   RAJA::ReduceMin<RAJA::cuda_reduce<128>, realtype> gpu_result(std::numeric_limits<realtype>::max());
   RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {

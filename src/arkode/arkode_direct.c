@@ -103,7 +103,7 @@ int ARKDlsSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   arkdls_mem->LS = LS;
   
   /* Initialize Jacobian-related data */
-  arkdls_mem->jacDQ = TRUE;
+  arkdls_mem->jacDQ = SUNTRUE;
   arkdls_mem->jac = arkDlsDQJac;
   arkdls_mem->J_data = ark_mem;
   arkdls_mem->last_flag = ARKDLS_SUCCESS;
@@ -189,7 +189,7 @@ int ARKDlsSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   ark_mem->ark_msolve_type = 1;
   
   /* notify arkode of non-identity mass matrix */
-  ark_mem->ark_mass_matrix = TRUE;
+  ark_mem->ark_mass_matrix = SUNTRUE;
 
   /* Get memory for ARKDlsMassMemRec */
   arkdls_mem = NULL;
@@ -266,11 +266,11 @@ int ARKDlsSetJacFn(void *arkode_mem, ARKDlsJacFn jac)
   arkdls_mem = (ARKDlsMem) ark_mem->ark_lmem;
 
   if (jac != NULL) {
-    arkdls_mem->jacDQ  = FALSE;
+    arkdls_mem->jacDQ  = SUNFALSE;
     arkdls_mem->jac    = jac;
     arkdls_mem->J_data = ark_mem->ark_user_data;
   } else {
-    arkdls_mem->jacDQ  = TRUE;
+    arkdls_mem->jacDQ  = SUNTRUE;
     arkdls_mem->jac    = arkDlsDQJac;
     arkdls_mem->J_data = ark_mem;
   }
@@ -1010,9 +1010,9 @@ int arkDlsSetup(ARKodeMem ark_mem, int convfail, N_Vector ypred,
     (convfail == ARK_FAIL_OTHER);
   jok = !jbad;
  
-  /* If jok = TRUE, use saved copy of J */
+  /* If jok = SUNTRUE, use saved copy of J */
   if (jok) {
-    *jcurPtr = FALSE;
+    *jcurPtr = SUNFALSE;
     retval = SUNMatCopy(arkdls_mem->savedJ, arkdls_mem->A);
     if (retval) {
       arkProcessError(ark_mem, ARKDLS_SUNMAT_FAIL, "ARKDLS", 
@@ -1021,11 +1021,11 @@ int arkDlsSetup(ARKodeMem ark_mem, int convfail, N_Vector ypred,
       return(-1);
     }
 
-  /* If jok = FALSE, call jac routine for new J value */
+  /* If jok = SUNFALSE, call jac routine for new J value */
   } else {
     arkdls_mem->nje++;
     arkdls_mem->nstlj = ark_mem->ark_nst;
-    *jcurPtr = TRUE;
+    *jcurPtr = SUNTRUE;
     retval = SUNMatZero(arkdls_mem->A);
     if (retval) {
       arkProcessError(ark_mem, ARKDLS_SUNMAT_FAIL, "ARKDLS", 

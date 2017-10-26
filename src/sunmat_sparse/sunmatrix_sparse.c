@@ -530,19 +530,19 @@ int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
 
   /* determine if A already contains values on the diagonal (hence 
      no memory allocation necessary) */
-  newmat=FALSE;
+  newmat=SUNFALSE;
   for (j=0; j < SUNMIN(SM_COLUMNS_S(A),SM_ROWS_S(A)); j++) {
     /* scan column (row if CSR) of A, searching for diagonal value */
-    found = FALSE;
+    found = SUNFALSE;
     for (i=(SM_INDEXPTRS_S(A))[j]; i<(SM_INDEXPTRS_S(A))[j+1]; i++) {
       if ((SM_INDEXVALS_S(A))[i] == j) {
-        found = TRUE;
+        found = SUNTRUE;
         break;
       }
     }
     /* if no diagonal found, signal new matrix */
     if (!found) {
-      newmat=TRUE;
+      newmat=SUNTRUE;
       break;
     }
   }
@@ -698,7 +698,7 @@ int SUNMatScaleAdd_Sparse(realtype c, SUNMatrix A, SUNMatrix B)
   x = (realtype *) malloc(M * sizeof(realtype));
 
   /* determine if A already contains the sparsity pattern of B */
-  newmat=FALSE;
+  newmat=SUNFALSE;
   for (j=0; j<N; j++) {
 
     /* clear work array */
@@ -715,7 +715,7 @@ int SUNMatScaleAdd_Sparse(realtype c, SUNMatrix A, SUNMatrix B)
     /* if any entry of w is negative, A doesn't contain B's sparsity */
     for (i=0; i<M; i++)
       if (w[i] < 0) {
-        newmat = TRUE;
+        newmat = SUNTRUE;
         break;
       }
     if (newmat) break;
@@ -880,17 +880,17 @@ static booleantype SMCompatible_Sparse(SUNMatrix A, SUNMatrix B)
   /* both matrices must be sparse */
   if ( (SUNMatGetID(A) != SUNMATRIX_SPARSE) ||
        (SUNMatGetID(B) != SUNMATRIX_SPARSE) )
-    return FALSE;
+    return SUNFALSE;
 
   /* both matrices must have the same shape and sparsity type */
   if (SUNSparseMatrix_Rows(A) != SUNSparseMatrix_Rows(B))
-    return FALSE;
+    return SUNFALSE;
   if (SUNSparseMatrix_Columns(A) != SUNSparseMatrix_Columns(B))
-    return FALSE;
+    return SUNFALSE;
   if (SM_SPARSETYPE_S(A) != SM_SPARSETYPE_S(B))
-    return FALSE;
+    return SUNFALSE;
 
-  return TRUE;
+  return SUNTRUE;
 }
 
 
@@ -906,12 +906,12 @@ static booleantype SMCompatible2_Sparse(SUNMatrix A, N_Vector x, N_Vector y)
   if ( (N_VGetVectorID(x) != SUNDIALS_NVEC_SERIAL) &&
        (N_VGetVectorID(x) != SUNDIALS_NVEC_OPENMP) &&
        (N_VGetVectorID(x) != SUNDIALS_NVEC_PTHREADS) )
-    return FALSE;
+    return SUNFALSE;
 
   /* Optimally we would verify that the dimensions of A, x and y agree, 
    but since there is no generic 'length' routine for N_Vectors we cannot */
 
-  return TRUE;
+  return SUNTRUE;
 }
 
 

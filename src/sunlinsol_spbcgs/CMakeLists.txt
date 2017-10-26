@@ -25,13 +25,16 @@ SET(sunlinsolspbcgs_SOURCES sunlinsol_spbcgs.c)
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the SUNLINSOLSPBCGS library
 SET(shared_SOURCES
-  sundials_math.c
-  sundials_iterative.c)
-ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_iterative.c
+  )
 
 # Add variable sunlinsolspbcgs_HEADERS with the exported SUNLINSOLSPBCGS header files
-SET(sunlinsolspbcgs_HEADERS sunlinsol_spbcgs.h)
-ADD_PREFIX(${sundials_SOURCE_DIR}/include/sunlinsol/ sunlinsolspbcgs_HEADERS)
+SET(sunlinsolspbcgs_HEADERS 
+  ${sundials_SOURCE_DIR}/include/sunlinsol/sunlinsol_spbcgs.h
+  )
 
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(.)
@@ -57,6 +60,11 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Install the SUNLINSOLSPBCGS library
 IF(BUILD_SHARED_LIBS)
   ADD_LIBRARY(sundials_sunlinsolspbcgs_shared SHARED ${sunlinsolspbcgs_SOURCES} ${shared_SOURCES})
+
+  IF(UNIX)
+    TARGET_LINK_LIBRARIES(sundials_sunlinsolspbcgs_shared m)
+  ENDIF()
+
   SET_TARGET_PROPERTIES(sundials_sunlinsolspbcgs_shared
     PROPERTIES OUTPUT_NAME sundials_sunlinsolspbcgs CLEAN_DIRECT_OUTPUT 1)
   SET_TARGET_PROPERTIES(sundials_sunlinsolspbcgs_shared
@@ -70,20 +78,29 @@ INSTALL(FILES ${sunlinsolspbcgs_HEADERS} DESTINATION include/sunlinsol)
 # If FCMIX is enabled, build and install the FSUNLINSOLSPBCGS library
 IF(FCMIX_ENABLE AND F77_FOUND)
   SET(fsunlinsolspbcgs_SOURCES fsunlinsol_spbcgs.c)
+
   IF(BUILD_STATIC_LIBS)
     ADD_LIBRARY(sundials_fsunlinsolspbcgs_static STATIC ${fsunlinsolspbcgs_SOURCES})
     SET_TARGET_PROPERTIES(sundials_fsunlinsolspbcgs_static
       PROPERTIES OUTPUT_NAME sundials_fsunlinsolspbcgs CLEAN_DIRECT_OUTPUT 1)
     INSTALL(TARGETS sundials_fsunlinsolspbcgs_static DESTINATION lib)
   ENDIF(BUILD_STATIC_LIBS)
+
   IF(BUILD_SHARED_LIBS)
     ADD_LIBRARY(sundials_fsunlinsolspbcgs_shared ${fsunlinsolspbcgs_SOURCES})
+
+    # fsunlinsolspbcgs depdens on fnvecserial and sunlinsolspbcgs
+    TARGET_LINK_LIBRARIES(sundials_fsunlinsolspbcgs_shared
+      sundials_fnvecserial_shared
+      sundials_sunlinsolspbcgs_shared)
+
     SET_TARGET_PROPERTIES(sundials_fsunlinsolspbcgs_shared
       PROPERTIES OUTPUT_NAME sundials_fsunlinsolspbcgs CLEAN_DIRECT_OUTPUT 1)
     SET_TARGET_PROPERTIES(sundials_fsunlinsolspbcgs_shared 
       PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
     INSTALL(TARGETS sundials_fsunlinsolspbcgs_shared DESTINATION lib)
   ENDIF(BUILD_SHARED_LIBS)
+
 ENDIF(FCMIX_ENABLE AND F77_FOUND)
 
 #

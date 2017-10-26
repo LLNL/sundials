@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): David J. Gardner and Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * Acknowledgements: These testing routines are based on an
@@ -26,8 +22,7 @@
  *       to get a pointer to the data component of an N_Vector. This 
  *       assumes the internal data is stored in a contiguous 
  *       realtype array.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
@@ -211,7 +206,7 @@ int Test_N_VClone(N_Vector W, sunindextype local_length, int myid)
   /* check cloned vector */
   if (X == NULL) {
     printf(">>> FAILED test -- N_VClone, Proc %d \n", myid);
-    printf("    After N_VCloneEmpty, X == NULL \n \n");
+    printf("    After N_VClone, X == NULL \n \n");
     return(1);
   } 
 
@@ -227,7 +222,7 @@ int Test_N_VClone(N_Vector W, sunindextype local_length, int myid)
   failure = check_ans(ONE, X, local_length);
   if (failure) {
     printf(">>> FAILED test -- N_VClone, Proc %d \n", myid);
-    printf("    Failed N_VConst check \n \n");
+    printf("    Failed N_VClone check \n \n");
     N_VDestroy(X);
     return(1);
   }    

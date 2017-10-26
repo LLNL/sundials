@@ -423,18 +423,18 @@ int CVBBDPrecGetNumGfnEvals(void *cvode_mem,
  
   jok     is an input flag indicating whether Jacobian-related
           data needs to be recomputed, as follows:
-            jok == FALSE means recompute Jacobian-related data
+            jok == SUNFALSE means recompute Jacobian-related data
                    from scratch.
-            jok == TRUE  means that Jacobian data from the
+            jok == SUNTRUE  means that Jacobian data from the
                    previous cvBBDPrecSetup call can be reused
                    (with the current value of gamma).
-          A cvBBDPrecSetup call with jok == TRUE should only occur
-          after a call with jok == FALSE.
+          A cvBBDPrecSetup call with jok == SUNTRUE should only occur
+          after a call with jok == SUNFALSE.
  
   jcurPtr is a pointer to an output integer flag which is
           set by cvBBDPrecSetup as follows:
-            *jcurPtr = TRUE if Jacobian data was recomputed.
-            *jcurPtr = FALSE if Jacobian data was not recomputed,
+            *jcurPtr = SUNTRUE if Jacobian data was recomputed.
+            *jcurPtr = SUNFALSE if Jacobian data was not recomputed,
                        but saved data was reused.
  
   gamma   is the scalar appearing in the Newton matrix.
@@ -459,9 +459,9 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   pdata = (CVBBDPrecData) bbd_data;
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
-  /* If jok = TRUE, use saved copy of J */
+  /* If jok = SUNTRUE, use saved copy of J */
   if (jok) {
-    *jcurPtr = FALSE;
+    *jcurPtr = SUNFALSE;
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
     if (retval < 0) {
       cvProcessError(cv_mem, -1, "CVBBDPRE", 
@@ -475,7 +475,7 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   /* Otherwise call CVBBDDQJac for new J value */
   } else {
 
-    *jcurPtr = TRUE;
+    *jcurPtr = SUNTRUE;
     retval = SUNMatZero(pdata->savedJ);
     if (retval < 0) {
       cvProcessError(cv_mem, -1, "CVBBDPRE", 

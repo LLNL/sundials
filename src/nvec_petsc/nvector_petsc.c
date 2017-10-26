@@ -196,7 +196,7 @@ N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
   content->local_length  = local_length;
   content->global_length = global_length;
   content->comm          = comm;
-  content->own_data      = FALSE;
+  content->own_data      = SUNFALSE;
   content->pvec          = NULL;
 
   /* Attach content and ops */
@@ -229,7 +229,7 @@ N_Vector N_VMake_Petsc(Vec *pvec)
      return(NULL);
 
   /* Attach data */
-  NV_OWN_DATA_PTC(v) = FALSE;
+  NV_OWN_DATA_PTC(v) = SUNFALSE;
   NV_PVEC_PTC(v)     = pvec;
 
   return(v);
@@ -396,7 +396,7 @@ N_Vector N_VCloneEmpty_Petsc(N_Vector w)
   content->local_length  = NV_LOCLENGTH_PTC(w);
   content->global_length = NV_GLOBLENGTH_PTC(w);
   content->comm          = NV_COMM_PTC(w);
-  content->own_data      = FALSE;
+  content->own_data      = SUNFALSE;
   content->pvec          = NULL;
 
   /* Attach content and ops */
@@ -435,7 +435,7 @@ N_Vector N_VClone_Petsc(N_Vector w)
   }
     
   /* Attach data */
-  NV_OWN_DATA_PTC(v) = TRUE;
+  NV_OWN_DATA_PTC(v) = SUNTRUE;
   NV_PVEC_PTC(v)     = pvec;
 
   return(v);
@@ -443,7 +443,7 @@ N_Vector N_VClone_Petsc(N_Vector w)
 
 void N_VDestroy_Petsc(N_Vector v)
 {
-  if (NV_OWN_DATA_PTC(v) == TRUE) {
+  if (NV_OWN_DATA_PTC(v) == SUNTRUE) {
     VecDestroy((NV_PVEC_PTC(v)));
     NV_PVEC_PTC(v) = NULL;
   }
@@ -781,9 +781,9 @@ booleantype N_VInvTest_Petsc(N_Vector x, N_Vector z)
   val = VAllReduce_Petsc(val, 3, comm);
 
   if (val == ZERO)
-    return(FALSE);
+    return(SUNFALSE);
   else
-    return(TRUE);
+    return(SUNTRUE);
 }
 
 booleantype N_VConstrMask_Petsc(N_Vector c, N_Vector x, N_Vector m)
@@ -822,14 +822,14 @@ booleantype N_VConstrMask_Petsc(N_Vector c, N_Vector x, N_Vector m)
   minval = VAllReduce_Petsc(minval, 3, comm);
 
   if (minval == ONE) 
-    return(TRUE);
+    return(SUNTRUE);
   else
-    return(FALSE);
+    return(SUNFALSE);
 }
 
 realtype N_VMinQuotient_Petsc(N_Vector num, N_Vector denom)
 {
-  booleantype notEvenOnce = TRUE;
+  booleantype notEvenOnce = SUNTRUE;
   sunindextype i; 
   sunindextype N    = NV_LOCLENGTH_PTC(num);
   MPI_Comm comm = NV_COMM_PTC(num);
@@ -852,7 +852,7 @@ realtype N_VMinQuotient_Petsc(N_Vector num, N_Vector denom)
         minval = SUNMIN(minval, nr/dr);
       else {
         minval = nr/dr;
-        notEvenOnce = FALSE;
+        notEvenOnce = SUNFALSE;
       }
     }
   }

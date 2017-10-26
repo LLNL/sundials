@@ -31,6 +31,16 @@
 #include <sundials/sundials_math.h>
 #include "test_sunlinsol.h"
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
 /* constants */
 #define FIVE      RCONST(5.0)
 #define THOUSAND  RCONST(1000.0)
@@ -141,7 +151,7 @@ int main(int argc, char *argv[])
   printf("  Gram-Schmidt orthogonalization type = %i\n", gstype);
   printf("  Preconditioning type = %i\n", pretype);
   printf("  Maximum Krylov subspace dimension = %i\n", maxl);
-  printf("  Solver Tolerance = %lg\n", tol);
+  printf("  Solver Tolerance = %"GSYM"\n", tol);
   printf("  timing output flag = %i\n\n", print_timing);
   
   /* Create vectors */

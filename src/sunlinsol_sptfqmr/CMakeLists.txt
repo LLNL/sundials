@@ -25,13 +25,16 @@ SET(sunlinsolsptfqmr_SOURCES sunlinsol_sptfqmr.c)
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the SUNLINSOLSPTFQMR library
 SET(shared_SOURCES
-  sundials_math.c
-  sundials_iterative.c)
-ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_iterative.c
+  )
 
 # Add variable sunlinsolsptfqmr_HEADERS with the exported SUNLINSOLSPTFQMR header files
-SET(sunlinsolsptfqmr_HEADERS sunlinsol_sptfqmr.h)
-ADD_PREFIX(${sundials_SOURCE_DIR}/include/sunlinsol/ sunlinsolsptfqmr_HEADERS)
+SET(sunlinsolsptfqmr_HEADERS 
+  ${sundials_SOURCE_DIR}/include/sunlinsol/sunlinsol_sptfqmr.h
+  )
 
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(.)
@@ -57,6 +60,11 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Install the SUNLINSOLSPTFQMR library
 IF(BUILD_SHARED_LIBS)
   ADD_LIBRARY(sundials_sunlinsolsptfqmr_shared SHARED ${sunlinsolsptfqmr_SOURCES} ${shared_SOURCES})
+
+  IF(UNIX)
+    TARGET_LINK_LIBRARIES(sundials_sunlinsolsptfqmr_shared m)
+  ENDIF()
+
   SET_TARGET_PROPERTIES(sundials_sunlinsolsptfqmr_shared
     PROPERTIES OUTPUT_NAME sundials_sunlinsolsptfqmr CLEAN_DIRECT_OUTPUT 1)
   SET_TARGET_PROPERTIES(sundials_sunlinsolsptfqmr_shared
@@ -70,14 +78,22 @@ INSTALL(FILES ${sunlinsolsptfqmr_HEADERS} DESTINATION include/sunlinsol)
 # If FCMIX is enabled, build and install the FSUNLINSOLSPTFQMR library
 IF(FCMIX_ENABLE AND F77_FOUND)
   SET(fsunlinsolsptfqmr_SOURCES fsunlinsol_sptfqmr.c)
+
   IF(BUILD_STATIC_LIBS)
     ADD_LIBRARY(sundials_fsunlinsolsptfqmr_static STATIC ${fsunlinsolsptfqmr_SOURCES})
     SET_TARGET_PROPERTIES(sundials_fsunlinsolsptfqmr_static
       PROPERTIES OUTPUT_NAME sundials_fsunlinsolsptfqmr CLEAN_DIRECT_OUTPUT 1)
     INSTALL(TARGETS sundials_fsunlinsolsptfqmr_static DESTINATION lib)
   ENDIF(BUILD_STATIC_LIBS)
+
   IF(BUILD_SHARED_LIBS)
     ADD_LIBRARY(sundials_fsunlinsolsptfqmr_shared ${fsunlinsolsptfqmr_SOURCES})
+
+    # fsunlinsolsptfqmr depends on fnvecserial and sunlinsolsptfqmr
+    TARGET_LINK_LIBRARIES(sundials_fsunlinsolsptfqmr_shared
+      sundials_fnvecserial_shared
+      sundials_sunlinsolsptfqmr_shared)
+
     SET_TARGET_PROPERTIES(sundials_fsunlinsolsptfqmr_shared
       PROPERTIES OUTPUT_NAME sundials_fsunlinsolsptfqmr CLEAN_DIRECT_OUTPUT 1)
     SET_TARGET_PROPERTIES(sundials_fsunlinsolsptfqmr_shared 

@@ -322,17 +322,17 @@ static booleantype SMCompatible_Dense(SUNMatrix A, SUNMatrix B)
 {
   /* both matrices must be SUNMATRIX_DENSE */
   if (SUNMatGetID(A) != SUNMATRIX_DENSE)
-    return FALSE;
+    return SUNFALSE;
   if (SUNMatGetID(B) != SUNMATRIX_DENSE)
-    return FALSE;
+    return SUNFALSE;
 
   /* both matrices must have the same shape */
   if (SM_ROWS_D(A) != SM_ROWS_D(B))
-    return FALSE;
+    return SUNFALSE;
   if (SM_COLUMNS_D(A) != SM_COLUMNS_D(B))
-    return FALSE;
+    return SUNFALSE;
 
-  return TRUE;
+  return SUNTRUE;
 }
 
 
@@ -342,11 +342,11 @@ static booleantype SMCompatible2_Dense(SUNMatrix A, N_Vector x, N_Vector y)
   if ( (N_VGetVectorID(x) != SUNDIALS_NVEC_SERIAL) &&
        (N_VGetVectorID(x) != SUNDIALS_NVEC_OPENMP) &&
        (N_VGetVectorID(x) != SUNDIALS_NVEC_PTHREADS) )
-    return FALSE;
+    return SUNFALSE;
 
   /* Optimally we would verify that the dimensions of A, x and y agree, 
    but since there is no generic 'length' routine for N_Vectors we cannot */
 
-  return TRUE;
+  return SUNTRUE;
 }
 

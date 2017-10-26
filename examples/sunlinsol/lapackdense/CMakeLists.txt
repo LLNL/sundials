@@ -48,7 +48,13 @@ ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 
 # Set-up linker flags and link libraries
 
-SET(SUNDIALS_LIBS ${NVEC_LIB} ${SUNMAT_LIB} ${SUNLINSOL_LIB} ${EXTRA_LINK_LIBS} ${LAPACK_LIBRARIES})
+SET(SUNDIALS_LIBS ${NVEC_LIB} ${SUNMAT_LIB} ${SUNLINSOL_LIB} ${EXTRA_LINK_LIBS})
+
+LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
+
+IF(BLAS_FOUND)
+  LIST(APPEND SUNDIALS_LIBS ${BLAS_LIBRARIES})
+ENDIF(BLAS_FOUND)
 
 # Add the build and install targets for each sunlinsol example
 
@@ -80,9 +86,14 @@ IF(EXAMPLES_INSTALL)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER_LIB "sundials_sunlinsollapackdense")
-  SET(LIBS "${LIBS} -lsundials_sunmatrixdense")
-  LIST2STRING(sunlinsol_lapackdense_examples EXAMPLES)
-  LIST2STRING(sunlinsol_lapackdense_dependencies EXAMPLES_DEPENDENCIES)
+  SET(LIBS "${LIBS} -lsundials_sunmatrixdense -lsundials_sunmatrixband")
+
+  # Set the link directory for the dense and band sunmatrix libraries
+  # The generated CMakeLists.txt does not use find_library() locate them
+  SET(EXTRA_LIBS_DIR "${libdir}")
+
+  LIST2STRING(sunlinsol_lapackdense_examples EXAMPLES_BL)
+  LIST2STRING(sunlinsol_lapackdense_dependencies EXAMPLES_DEPENDENCIES_BL)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

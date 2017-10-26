@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
   flag = IDAQuadSStolerances(ida_mem, reltolQ, abstolQ);
   if (check_flag(&flag, "IDAQuadSStolerances", 1)) return(1);
 
-  flag = IDASetQuadErrCon(ida_mem, TRUE);
+  flag = IDASetQuadErrCon(ida_mem, SUNTRUE);
   if (check_flag(&flag, "IDASetQuadErrCon", 1)) return(1);
 
   /* Allocate global memory */
@@ -389,7 +389,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "IDAQuadSStolerancesB", 1)) return(1);
 
   /* Include quadratures in error control. */
-  flag = IDASetQuadErrConB(ida_mem, indexB, TRUE);
+  flag = IDASetQuadErrConB(ida_mem, indexB, SUNTRUE);
   if (check_flag(&flag, "IDASetQuadErrConB", 1)) return(1);
 
 

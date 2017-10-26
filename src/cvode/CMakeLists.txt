@@ -20,14 +20,6 @@
 
 INSTALL(CODE "MESSAGE(\"\nInstall CVODE\n\")")
 
-IF(MPI_MPICC)
-  # use MPI_MPICC as the compiler
-  SET(CMAKE_C_COMPILER ${MPI_MPICC})
-ELSE(MPI_MPICC)
-  # add MPI_INCLUDE_PATH to include directories
-  INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-ENDIF(MPI_MPICC)
-
 # Add variable cvode_SOURCES with the sources for the CVODE library
 SET(cvode_SOURCES
   cvode.c
@@ -74,29 +66,6 @@ SET(sunlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunlinsol_pcg/sunlinsol_pcg.c
   )
 
-IF(KLU_FOUND)
-  LIST(APPEND sunlinsol_SOURCES
-    ${sundials_SOURCE_DIR}/src/sunlinsol_klu/sunlinsol_klu.c
-    )
-ENDIF()
-
-IF(SUPERLUMT_FOUND)
-  LIST(APPEND sunlinsol_SOURCES
-    ${sundials_SOURCE_DIR}/src/sunlinsol_superlumt/sunlinsol_superlumt.c
-    )
-ENDIF()
-
-IF(LAPACK_FOUND)
-  LIST(APPEND sunlinsol_SOURCES
-    ${sundials_SOURCE_DIR}/src/sunlinsol_lapackband/sunlinsol_lapackband.c
-    ${sundials_SOURCE_DIR}/src/sunlinsol_lapackdense/sunlinsol_lapackdense.c
-    )
-ENDIF()
-
-# IF(HYPRE_FOUND)
-#      LIST(APPEND cvode_SOURCES cvode_hypamgpre.c)
-# ENDIF()
-
 # Add variable cvode_HEADERS with the exported CVODE header files
 SET(cvode_HEADERS
   cvode.h
@@ -106,10 +75,6 @@ SET(cvode_HEADERS
   cvode_direct.h
   cvode_spils.h
   )
-
-# IF(HYPRE_FOUND)
-#      LIST(APPEND cvode_HEADERS cvode_hypamgpre.h)
-# ENDIF()
 
 # Add prefix with complete path to the CVODE header files
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/cvode/ cvode_HEADERS)
@@ -144,6 +109,10 @@ IF(BUILD_SHARED_LIBS)
   # Add the build target for the CVODE library
   ADD_LIBRARY(sundials_cvode_shared SHARED 
     ${cvode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES})
+
+  IF(UNIX)
+    TARGET_LINK_LIBRARIES(sundials_cvode_shared m)
+  ENDIF()
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_cvode_shared

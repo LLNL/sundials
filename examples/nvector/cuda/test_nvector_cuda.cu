@@ -1,5 +1,4 @@
-/*
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -14,8 +13,7 @@
  * -----------------------------------------------------------------
  * This is the testing routine to check the NVECTOR CUDA module 
  * implementation. 
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,7 +39,7 @@ int main(int argc, char *argv[])
 
   /* check input and set vector length */
   if (argc < 3){
-    printf("ERROR: ONE (1) Input required: vector length, print timing \n");
+    printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
     return(-1);
   }
 
@@ -142,7 +140,7 @@ booleantype has_data(N_Vector X)
 {
   suncudavec::Vector<realtype, sunindextype>* xv = suncudavec::extract<realtype, sunindextype>(X);
 
-  return (xv == NULL ? FALSE : TRUE);
+  return (xv == NULL ? SUNFALSE : SUNTRUE);
 }
 
 void set_element(N_Vector X, sunindextype i, realtype val)

@@ -84,6 +84,14 @@ if(BLAS_LIBRARIES)
   if(LTEST_OK)
     message(STATUS "Checking if BLAS works... OK")
     set(BLAS_FOUND TRUE)
+
+    # get path to BLAS library to use in generated makefiles for examples
+    # check length to protect against BLAS_LIBRARIES having multiple entries
+    list(LENGTH BLAS_LIBRARIES len)
+    if(len EQUAL 1)
+      get_filename_component(BLAS_LIBRARY_DIR ${BLAS_LIBRARIES} PATH)
+    endif()
+
   else(LTEST_OK)
     message(STATUS "Checking if BLAS works... FAILED")
   endif(LTEST_OK)

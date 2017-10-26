@@ -249,15 +249,15 @@ booleantype has_data(SUNMatrix A)
 {
   realtype *Adata = SUNDenseMatrix_Data(A);
   if (Adata == NULL)
-    return FALSE;
+    return SUNFALSE;
   else
-    return TRUE;
+    return SUNTRUE;
 }
 
 booleantype is_square(SUNMatrix A)
 {
   if (SUNDenseMatrix_Rows(A) == SUNDenseMatrix_Columns(A))
-    return TRUE;
+    return SUNTRUE;
   else
-    return FALSE;
+    return SUNFALSE;
 }

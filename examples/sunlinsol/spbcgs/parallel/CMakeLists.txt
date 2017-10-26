@@ -53,7 +53,6 @@ IF(MPI_MPICC)
 ELSE(MPI_MPICC)
   # add MPI_INCLUDE_PATH to include directories
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-  TARGET_LINK_LIBRARIES(${example} MPI_LIBRARIES)
 ENDIF(MPI_MPICC)
 
 # Add the build and install targets for each sunlinsol example
@@ -71,6 +70,9 @@ FOREACH(example ${sunlinsol_spbcgs_examples})
   SUNDIALS_ADD_TEST( ${example}_100_2_50_3_0 ${example} MPI_NPROCS 4 TEST_ARGS 100 2 50 1e-3 0)
 
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+  IF(NOT MPI_MPICC)
+    TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARIES})
+  ENDIF()
 
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c ../../test_sunlinsol.h ../../test_sunlinsol.c ../../../../src/sundials/sundials_matrix.c ../../../../src/sundials/sundials_linearsolver.c ../../../../src/sundials/sundials_nvector.c DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spbcgs/parallel)

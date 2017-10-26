@@ -1,3 +1,4 @@
+# -*- mode: makefile -*-
 # -----------------------------------------------------------------
 # Programmer: Slaven Peles @ LLNL
 # -----------------------------------------------------------------
@@ -16,7 +17,6 @@
 # This file is generated from a template using various variables
 # set at configuration time. It can be used as a template for
 # other user Makefiles.
-#
 # -----------------------------------------------------------------
 
 SHELL = @SHELL@
@@ -26,37 +26,27 @@ exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-NVCC     = @CUDA_NVCC_EXECUTABLE@
+NVCC      = @CUDA_NVCC_EXECUTABLE@
 NVCCFLAGS =
 RAJAFLAGS = -std=c++11 --expt-extended-lambda 
+
 CPP      = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX      = @CXX@
 CXXFLAGS = @CXXFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
+
+LINKFLAGS = -Xlinker ,-rpath,@libdir@
+
 CUDALIBS = @CUDA_CUDART_LIBRARY@
 RAJALIBDIR = @RAJA_LIB_DIR@
 
 INCLUDES_RAJA = @RAJA_INCLUDE_DIR@
 
-LINKFLAGS = -Xlinker ,-rpath,@libdir@
-
-LIBRARIES_BLAS   = @BLAS_LIBS@
-LIBRARIES_LAPACK = @LAPACK_LIBS@
-
-INCLUDES_SLUMT   = @SUPERLUMT_INCLUDE_DIR@
-LIBRARIES_SLUMT  = @SUPERLUMT_LIBS@
-
-INCLUDES_KLU     = @KLU_INCLUDE_DIR@
-LIBRARIES_KLU    = @KLU_LIBS@
-
-INCLUDES_PETSC   = @PETSC_INCLUDE_DIR@
-LIBRARIES_PETSC  = @PETSC_LIBRARIES@
-
-TMP_INCS = ${includedir} ${INCLUDES_SLUMT} ${INCLUDES_KLU} ${INCLUDES_PETSC} ${INCLUDES_RAJA}
+TMP_INCS = ${includedir} ${INCLUDES_RAJA}
 INCLUDES = $(addprefix -I, ${TMP_INCS})
-LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecraja -lRAJA ${CUDALIBS} ${LIBS} ${LIBRARIES_BLAS} ${LIBRARIES_LAPACK} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC}
+LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecraja -lRAJA ${CUDALIBS} ${LIBS}
 
 EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
 EXAMPLES_DEPENDENCIES = @EXAMPLES_DEPENDENCIES@

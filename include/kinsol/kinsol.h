@@ -291,15 +291,15 @@ SUNDIALS_EXPORT void *KINCreate(void);
  * KINSetNoInitSetup      | flag controlling whether or not the
  *                        | KINSol routine makes an initial call
  *                        | to the linear solver setup routine (lsetup)
- *                        | (possible values are TRUE and FALSE)
- *                        | [FALSE]
+ *                        | (possible values are SUNTRUE and SUNFALSE)
+ *                        | [SUNFALSE]
  *                        |
  * KINSetNoResMon         | flag controlling whether or not the nonlinear
  *                        | residual monitoring scheme is used to control
- *                        | Jacobian updating (possible values are TRUE
- *                        | and FALSE)
- *                        | [FALSE if using direct linear solver]
- *                        | [TRUE if using inexact linear solver]
+ *                        | Jacobian updating (possible values are SUNTRUE
+ *                        | and SUNFALSE)
+ *                        | [SUNFALSE if using direct linear solver]
+ *                        | [SUNTRUE if using inexact linear solver]
  *                        |
  * KINSetMaxSetupCalls    | mbset, number of nonlinear iteraions, such 
  *                        | that a call to the linear solver setup routine
@@ -373,13 +373,13 @@ SUNDIALS_EXPORT void *KINCreate(void);
  *                        | of eps is bounded below by 0.01*fnormtol
  *                        | (see KINSetFuncNormTol)
  *                        |
- *                        |  FALSE  constrain value of eps by setting
- *                        |         to the following:
+ *                        |  SUNFALSE  constrain value of eps by setting
+ *                        |            to the following:
  *                        |
- *                        |          eps = MAX{0.01*fnormtol, eps}
+ *                        |            eps = MAX{0.01*fnormtol, eps}
  *                        |
- *                        |  TRUE  do not constrain value of eps
- *                        | [FALSE]
+ *                        |  SUNTRUE   do not constrain value of eps
+ *                        | [SUNFALSE]
  *                        |
  * KINSetMaxNewtonStep    | maximum scaled length of Newton step
  *                        | (reset to value of one if user-supplied

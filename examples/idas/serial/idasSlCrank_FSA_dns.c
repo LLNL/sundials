@@ -146,7 +146,7 @@ int main(void)
   flag = IDASStolerances(mem, RTOLF, ATOLF);
   flag = IDASetUserData(mem, data);
   flag = IDASetId(mem, id);
-  flag = IDASetSuppressAlg(mem, TRUE);
+  flag = IDASetSuppressAlg(mem, SUNTRUE);
   flag = IDASetMaxNumSteps(mem, 20000);
 
   /* Create dense SUNMatrix for use in linear solves */
@@ -165,18 +165,18 @@ int main(void)
   pbar[0] = data->params[0];pbar[1] = data->params[1];
   flag = IDASetSensParams(mem, data->params, pbar, NULL);
   flag = IDASensEEtolerances(mem);
-  IDASetSensErrCon(mem, TRUE);
+  IDASetSensErrCon(mem, SUNTRUE);
   
   N_VConst(ZERO, q);
   flag = IDAQuadInit(mem, rhsQ, q);
   flag = IDAQuadSStolerances(mem, RTOLQ, ATOLQ);
-  flag = IDASetQuadErrCon(mem, TRUE);
+  flag = IDASetQuadErrCon(mem, SUNTRUE);
   
   N_VConst(ZERO, qS[0]);
   flag = IDAQuadSensInit(mem, rhsQS, qS);
   atolS[0] = atolS[1] = ATOLQ;
   flag = IDAQuadSensSStolerances(mem, RTOLQ, atolS);
-  flag = IDASetQuadSensErrCon(mem, TRUE);  
+  flag = IDASetQuadSensErrCon(mem, SUNTRUE);  
   
 
   /* Perform forward run */
@@ -224,7 +224,7 @@ int main(void)
   flag = IDASStolerances(mem, RTOLFD, ATOLFD);
   flag = IDASetUserData(mem, data);
   flag = IDASetId(mem, id);
-  flag = IDASetSuppressAlg(mem, TRUE);
+  flag = IDASetSuppressAlg(mem, SUNTRUE);
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ);
@@ -241,7 +241,7 @@ int main(void)
   N_VConst(ZERO, q);
   IDAQuadInit(mem, rhsQ, q);
   IDAQuadSStolerances(mem, RTOLQ, ATOLQ);
-  IDASetQuadErrCon(mem, TRUE);
+  IDASetQuadErrCon(mem, SUNTRUE);
 
   IDASolve(mem, TEND, &tret, yy, yp, IDA_NORMAL);
 

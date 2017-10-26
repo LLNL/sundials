@@ -42,7 +42,7 @@ SET(PACKAGE_TARNAME "sundials")
 SET(PACKAGE_VERSION_MAJOR "3")
 SET(PACKAGE_VERSION_MINOR "0")
 SET(PACKAGE_VERSION_PATCH "0")
-SET(PACKAGE_VERSION_LABEL "beta-2")
+SET(PACKAGE_VERSION_LABEL "")
 
 IF(PACKAGE_VERSION_LABEL)
   SET(PACKAGE_VERSION "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}-${PACKAGE_VERSION_LABEL}")
@@ -94,6 +94,9 @@ SET(nveclib_SOVERSION "3")
 
 SET(sunmatrixlib_VERSION "1.0.0")
 SET(sunmatrixlib_SOVERSION "1")
+
+SET(sunlinsollib_VERSION "1.0.0")
+SET(sunlinsollib_SOVERSION "1")
 
 # Specify the location of additional CMAKE modules
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/config)
@@ -401,14 +404,6 @@ ENDIF()
 # Enable hypre Vector support?
 # ---------------------------------------------------------------
 OPTION(HYPRE_ENABLE "Enable hypre support" OFF)
-
-# As of version 2.11.2 hypre does not support single or extended precision
-IF(HYPRE_ENABLE AND
-  (SUNDIALS_PRECISION MATCHES "SINGLE" OR SUNDIALS_PRECISION MATCHES "EXTENDED"))
-  PRINT_WARNING("hypre is not compatible with ${SUNDIALS_PRECISION} precision"
-                "Disabling hypre")
-  FORCE_VARIABLE(HYPRE_ENABLE BOOL "hypre is disabled" OFF)
-ENDIF()
 
 # Using hypre requres building with MPI enabled
 IF(HYPRE_ENABLE AND NOT MPI_ENABLE)

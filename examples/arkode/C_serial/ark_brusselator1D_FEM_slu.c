@@ -301,7 +301,7 @@ int main(int argc, char *argv[]) {
 
   /* Attach the mass matrix, linear solver and construction routines to ARKode;
      notify ARKode that the mass matrix is not time-dependent */
-  flag = ARKDlsSetMassLinearSolver(arkode_mem, MLS, M, FALSE);   /* Attach matrix and LS */
+  flag = ARKDlsSetMassLinearSolver(arkode_mem, MLS, M, SUNFALSE);   /* Attach matrix and LS */
   if (check_flag(&flag, "ARKDlsSetMassLinearSolver", 1)) return 1;
   flag = ARKDlsSetMassFn(arkode_mem, MassMatrix);                /* Supply M routine */
   if (check_flag(&flag, "ARKDlsSetMassFn", 1)) return 1;
@@ -476,8 +476,8 @@ static int f_diff(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
   for (i=0; i<N-1; i++) {
 
     /* set booleans to determine whether equations exist on the left/right */
-    left  = (i==0)     ? FALSE : TRUE;
-    right = (i==(N-2)) ? FALSE : TRUE;
+    left  = (i==0)     ? SUNFALSE : SUNTRUE;
+    right = (i==(N-2)) ? SUNFALSE : SUNTRUE;
 
     /* set nodal value shortcuts (interval index aligns with left node) */
     ul = Ydata[IDX(i,0)];
@@ -557,8 +557,8 @@ static int f_rx(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
   for (i=0; i<N-1; i++) {
 
     /* set booleans to determine whether equations exist on the left/right */
-    left  = (i==0)     ? FALSE : TRUE;
-    right = (i==(N-2)) ? FALSE : TRUE;
+    left  = (i==0)     ? SUNFALSE : SUNTRUE;
+    right = (i==(N-2)) ? SUNFALSE : SUNTRUE;
 
     /* set nodal value shortcuts (interval index aligns with left node) */
     ul = Ydata[IDX(i,0)];

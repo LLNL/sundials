@@ -382,7 +382,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   /* Initialize counters and convergence flag */
   *nli = 0;
-  converged = FALSE;
+  converged = SUNFALSE;
 
   /* set booleantype flags for internal solver options */
   preOnLeft  = ( (SPGMR_CONTENT(S)->pretype == PREC_LEFT) || 
@@ -523,7 +523,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       rotation_product *= givens[2*l+1];
       *res_norm = rho = SUNRabs(rotation_product*r_norm);
       
-      if (rho <= delta) { converged = TRUE; break; }
+      if (rho <= delta) { converged = SUNTRUE; break; }
       
       /* Normalize V[l+1] with norm value from the Gram-Schmidt routine */
       N_VScale(ONE/Hes[l_plus_1][l], V[l_plus_1], V[l_plus_1]);

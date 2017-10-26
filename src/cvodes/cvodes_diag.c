@@ -91,7 +91,7 @@ static int CVDiagFree(CVodeMem cv_mem);
  * respectively.  It allocates memory for a structure of type
  * CVDiagMemRec and sets the cv_lmem field in (*cvode_mem) to the
  * address of this structure.  It sets setupNonNull in (*cvode_mem) to
- * TRUE.  Finally, it allocates memory for M, bit, and bitcomp.
+ * SUNTRUE.  Finally, it allocates memory for M, bit, and bitcomp.
  * The CVDiag return value is SUCCESS = 0, LMEM_FAIL = -1, or 
  * LIN_ILL_INPUT=-2.
  * -----------------------------------------------------------------
@@ -377,8 +377,8 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     return(1);
   }
 
-  /* Set jcur = TRUE, save gamma in gammasv, and return */
-  *jcurPtr = TRUE;
+  /* Set jcur = SUNTRUE, save gamma in gammasv, and return */
+  *jcurPtr = SUNTRUE;
   gammasv = gamma;
   last_flag = CVDIAG_SUCCESS;
   return(0);
@@ -481,7 +481,7 @@ int CVDiagB(void *cvode_mem, int which)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVDIAG_NO_ADJ, "CVSDIAG", "CVDiagB", MSGDG_NO_ADJ);
     return(CVDIAG_NO_ADJ);
   } 

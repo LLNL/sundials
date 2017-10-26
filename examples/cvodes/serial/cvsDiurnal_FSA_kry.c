@@ -462,18 +462,18 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
 
   if (jok) {
 
-  /* jok = TRUE: Copy Jbd to P */
+  /* jok = SUNTRUE: Copy Jbd to P */
 
     for (jz=0; jz < MZ; jz++)
       for (jx=0; jx < MX; jx++)
         denseCopy(Jbd[jx][jz], P[jx][jz], NUM_SPECIES, NUM_SPECIES);
 
-  *jcurPtr = FALSE;
+  *jcurPtr = SUNFALSE;
 
   }
 
   else {
-  /* jok = FALSE: Generate Jbd from scratch and copy to P */
+  /* jok = SUNFALSE: Generate Jbd from scratch and copy to P */
 
   /* Make local copies of problem variables, for efficiency. */
 
@@ -504,7 +504,7 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
       }
     }
 
-  *jcurPtr = TRUE;
+  *jcurPtr = SUNTRUE;
 
   }
 
@@ -577,16 +577,16 @@ static int PSolve(realtype tn, N_Vector y, N_Vector fy,
 static void ProcessArgs(int argc, char *argv[], 
                         booleantype *sensi, int *sensi_meth, booleantype *err_con)
 {
-  *sensi = FALSE;
+  *sensi = SUNFALSE;
   *sensi_meth = -1;
-  *err_con = FALSE;
+  *err_con = SUNFALSE;
 
   if (argc < 2) WrongArgs(argv[0]);
 
   if (strcmp(argv[1],"-nosensi") == 0)
-    *sensi = FALSE;
+    *sensi = SUNFALSE;
   else if (strcmp(argv[1],"-sensi") == 0)
-    *sensi = TRUE;
+    *sensi = SUNTRUE;
   else
     WrongArgs(argv[0]);
   
@@ -605,9 +605,9 @@ static void ProcessArgs(int argc, char *argv[],
       WrongArgs(argv[0]);
 
     if (strcmp(argv[3],"t") == 0)
-      *err_con = TRUE;
+      *err_con = SUNTRUE;
     else if (strcmp(argv[3],"f") == 0)
-      *err_con = FALSE;
+      *err_con = SUNFALSE;
     else
       WrongArgs(argv[0]);
   }

@@ -315,18 +315,18 @@ int CVBandPrecGetNumRhsEvals(void *cvode_mem, long int *nfevalsBP)
  
   jok     is an input flag indicating whether Jacobian-related
           data needs to be recomputed, as follows:
-            jok == FALSE means recompute Jacobian-related data
+            jok == SUNFALSE means recompute Jacobian-related data
                    from scratch.
-            jok == TRUE means that Jacobian data from the
+            jok == SUNTRUE means that Jacobian data from the
                    previous PrecSetup call will be reused
                    (with the current value of gamma).
-          A cvBandPrecSetup call with jok == TRUE should only
-          occur after a call with jok == FALSE.
+          A cvBandPrecSetup call with jok == SUNTRUE should only
+          occur after a call with jok == SUNFALSE.
  
   *jcurPtr is a pointer to an output integer flag which is
            set by cvBandPrecSetup as follows:
-             *jcurPtr = TRUE if Jacobian data was recomputed.
-             *jcurPtr = FALSE if Jacobian data was not recomputed,
+             *jcurPtr = SUNTRUE if Jacobian data was recomputed.
+             *jcurPtr = SUNFALSE if Jacobian data was not recomputed,
                         but saved data was reused.
  
   gamma   is the scalar appearing in the Newton matrix.
@@ -352,8 +352,8 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
   if (jok) {
 
-    /* If jok = TRUE, use saved copy of J. */
-    *jcurPtr = FALSE;
+    /* If jok = SUNTRUE, use saved copy of J. */
+    *jcurPtr = SUNFALSE;
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
     if (retval < 0) {
       cvProcessError(cv_mem, -1, "CVBANDPRE", 
@@ -366,8 +366,8 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
   } else {
 
-    /* If jok = FALSE, call CVBandPDQJac for new J value. */
-    *jcurPtr = TRUE;
+    /* If jok = SUNFALSE, call CVBandPDQJac for new J value. */
+    *jcurPtr = SUNTRUE;
     retval = SUNMatZero(pdata->savedJ);
     if (retval < 0) {
       cvProcessError(cv_mem, -1, "CVBANDPRE", 
@@ -570,7 +570,7 @@ int CVBandPrecInitB(void *cvode_mem, int which, sunindextype nB,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVSBANDPRE",
                    "CVBandPrecInitB", MSGBP_NO_ADJ);
     return(CVSPILS_NO_ADJ);

@@ -521,7 +521,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
      if (ier != 0) return(1);
    }
 
-  *jcurPtr = TRUE;
+  *jcurPtr = SUNTRUE;
   return(0);
 }
 
@@ -737,7 +737,7 @@ static int PrecondB(realtype t, N_Vector c,
      if (ier != 0) return(1);
    }
 
-  *jcurPtr = TRUE;
+  *jcurPtr = SUNTRUE;
   return(0);
 }
 

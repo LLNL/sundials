@@ -26,7 +26,7 @@ int SUNDIALSGetVersion(char *version, int len)
     return(-1);
   }
   
-  strcpy(version, SUNDIALS_VERSION);
+  strncpy(version, SUNDIALS_VERSION, len);
   return(0);
 }
 
@@ -42,7 +42,7 @@ int SUNDIALSGetVersionNumber(int *major, int *minor, int *patch,
   *major = SUNDIALS_VERSION_MAJOR;
   *minor = SUNDIALS_VERSION_MINOR;
   *patch = SUNDIALS_VERSION_PATCH;
-  strcpy(label, SUNDIALS_VERSION_LABEL);
+  strncpy(label, SUNDIALS_VERSION_LABEL, len);
 
   return(0);
 }

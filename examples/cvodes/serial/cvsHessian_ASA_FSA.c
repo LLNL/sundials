@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
   flag = CVodeQuadSStolerances(cvode_mem, reltol, abstolQ);
   if(check_flag(&flag, "CVodeQuadSStolerances", 1)) return(1);
 
-  flag = CVodeSetQuadErrCon(cvode_mem, TRUE);
+  flag = CVodeSetQuadErrCon(cvode_mem, SUNTRUE);
   if(check_flag(&flag, "CVodeSetQuadErrCon", 1)) return(1);
 
   flag = CVodeSensInit(cvode_mem, Np, CV_SIMULTANEOUS, fS, yS);
@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
   flag = CVodeSensEEtolerances(cvode_mem);
   if(check_flag(&flag, "CVodeSensEEtolerances", 1)) return(1);
 
-  flag = CVodeSetSensErrCon(cvode_mem, TRUE);
+  flag = CVodeSetSensErrCon(cvode_mem, SUNTRUE);
   if(check_flag(&flag, "CVodeSetSensErrCon", 1)) return(1);
 
   flag = CVodeQuadSensInit(cvode_mem, fQS, yQS);
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
   flag = CVodeQuadSensEEtolerances(cvode_mem);
   if(check_flag(&flag, "CVodeQuadSensEEtolerances", 1)) return(1);
 
-  flag = CVodeSetQuadSensErrCon(cvode_mem, TRUE);
+  flag = CVodeSetQuadSensErrCon(cvode_mem, SUNTRUE);
   if(check_flag(&flag, "CVodeSetQuadSensErrCon", 1)) return(1);
 
   /* Initialize ASA */
@@ -319,7 +319,7 @@ int main(int argc, char *argv[])
   flag = CVodeQuadSStolerancesB(cvode_mem, indexB1, reltol, abstolQB);
   if(check_flag(&flag, "CVodeQuadSStolerancesB", 1)) return(1);
 
-  flag = CVodeSetQuadErrConB(cvode_mem, indexB1, TRUE);
+  flag = CVodeSetQuadErrConB(cvode_mem, indexB1, SUNTRUE);
   if(check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);
 
   /* Create a dense SUNMatrix */
@@ -356,7 +356,7 @@ int main(int argc, char *argv[])
   flag = CVodeQuadSStolerancesB(cvode_mem, indexB2, reltol, abstolQB);
   if(check_flag(&flag, "CVodeQuadSStolerancesB", 1)) return(1);
 
-  flag = CVodeSetQuadErrConB(cvode_mem, indexB2, TRUE);
+  flag = CVodeSetQuadErrConB(cvode_mem, indexB2, SUNTRUE);
   if(check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);
 
   /* Create a dense SUNMatrix */
@@ -475,7 +475,7 @@ int main(int argc, char *argv[])
   flag = CVodeQuadSStolerances(cvode_mem, reltol, abstolQ);
   if(check_flag(&flag, "CVodeQuadSStolerances", 1)) return(1);
 
-  flag = CVodeSetQuadErrCon(cvode_mem, TRUE);
+  flag = CVodeSetQuadErrCon(cvode_mem, SUNTRUE);
   if(check_flag(&flag, "CVodeSetQuadErrCon", 1)) return(1);
 
   data->p1 += dp;

@@ -81,10 +81,10 @@ typedef struct IDASpilsMemRec {
   /* Jacobian times vector compuation
      (a) jtimes function provided by the user:
          - jdata == user_data
-         - jtimesDQ == FALSE
+         - jtimesDQ == SUNFALSE
      (b) internal jtimes
          - jdata == ida_mem
-         - jtimesDQ == TRUE */
+         - jtimesDQ == SUNTRUE */
   booleantype jtimesDQ;
   IDASpilsJacTimesSetupFn jtsetup;
   IDASpilsJacTimesVecFn jtimes;

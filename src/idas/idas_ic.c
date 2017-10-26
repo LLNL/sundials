@@ -142,7 +142,7 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
 
   /* Check if problem was malloc'ed */
   
-  if(IDA_mem->ida_MallocDone == FALSE) {
+  if(IDA_mem->ida_MallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_MALLOC, "IDAS", "IDACalcIC", MSG_NO_MALLOC);
     return(IDA_NO_MALLOC);
   }
@@ -151,7 +151,7 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
 
   ier = IDAInitialSetup(IDA_mem);
   if(ier != IDA_SUCCESS) return(IDA_ILL_INPUT);
-  IDA_mem->ida_SetupDone = TRUE;
+  IDA_mem->ida_SetupDone = SUNTRUE;
 
   /* Check legality of input arguments, and set IDA memory copies. */
 
@@ -234,7 +234,7 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
   ypnorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_yp0, IDA_mem->ida_ewt, IDA_mem->ida_suppressalg);
 
   if (sensi_sim) 
-    ypnorm = IDASensWrmsNormUpdate(IDA_mem, ypnorm, IDA_mem->ida_ypS0, IDA_mem->ida_ewtS, FALSE);
+    ypnorm = IDASensWrmsNormUpdate(IDA_mem, ypnorm, IDA_mem->ida_ypS0, IDA_mem->ida_ewtS, SUNFALSE);
 
   if(ypnorm > HALF/hic) hic = HALF/ypnorm;
   if(tout1 < IDA_mem->ida_tn) hic = -hic;
@@ -424,7 +424,7 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
   N_VDestroy(IDA_mem->ida_yy0);
   N_VDestroy(IDA_mem->ida_yp0);
 
-  /* Here sensi is TRUE, so deallocate sensitivity temporary vectors. */
+  /* Here sensi is SUNTRUE, so deallocate sensitivity temporary vectors. */
   N_VDestroyVectorArray(IDA_mem->ida_yyS0, IDA_mem->ida_Ns);
   N_VDestroyVectorArray(IDA_mem->ida_ypS0, IDA_mem->ida_Ns);
 
@@ -596,7 +596,7 @@ static int IDANewtonIC(IDAMem IDA_mem)
   if(retval > 0) return(IC_FAIL_RECOV);
 
   /* Compute the norm of the step. */
-  fnorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delta, IDA_mem->ida_ewt, FALSE);
+  fnorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delta, IDA_mem->ida_ewt, SUNFALSE);
 
   /* Call the lsolve function to get correction vectors deltaS. */
   if (sensi_sim) {
@@ -609,7 +609,7 @@ static int IDANewtonIC(IDAMem IDA_mem)
     }
     /* Update the norm of delta. */
     fnorm = IDASensWrmsNormUpdate(IDA_mem, fnorm, IDA_mem->ida_deltaS,
-                                  IDA_mem->ida_ewtS, FALSE);
+                                  IDA_mem->ida_ewtS, SUNFALSE);
   }
 
   /* Test for convergence. Return now if the norm is small. */
@@ -823,7 +823,7 @@ static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
   if(retval > 0) return(IC_FAIL_RECOV);
 
   /* Compute the WRMS-norm. */
-  *fnorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delnew, IDA_mem->ida_ewt, FALSE);
+  *fnorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delnew, IDA_mem->ida_ewt, SUNFALSE);
 
 
   /* Are we computing SENSITIVITIES with the IDA_SIMULTANEOUS approach? */
@@ -862,7 +862,7 @@ static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
       
     /* Include sensitivities in norm. */
     *fnorm = IDASensWrmsNormUpdate(IDA_mem, *fnorm, IDA_mem->ida_delnewS,
-                                   IDA_mem->ida_ewtS, FALSE);
+                                   IDA_mem->ida_ewtS, SUNFALSE);
   }
 
   /* Rescale norm if index = 0. */
@@ -1073,7 +1073,7 @@ static int IDASensNewtonIC(IDAMem IDA_mem)
   }
     /* Compute the norm of the step and return if it is small enough */
   fnorm = IDASensWrmsNorm(IDA_mem, IDA_mem->ida_deltaS,
-                          IDA_mem->ida_ewtS, FALSE);
+                          IDA_mem->ida_ewtS, SUNFALSE);
   if(IDA_mem->ida_sysindex == 0)
     fnorm *= IDA_mem->ida_tscale * SUNRabs(IDA_mem->ida_cj);
   if(fnorm <= IDA_mem->ida_epsNewt) return(IDA_SUCCESS);
@@ -1241,7 +1241,7 @@ static int IDASensfnorm(IDAMem IDA_mem, realtype *fnorm)
   }
 
   /* Compute the WRMS-norm; rescale if index = 0. */
-  *fnorm = IDASensWrmsNorm(IDA_mem, IDA_mem->ida_delnewS, IDA_mem->ida_ewtS, FALSE);
+  *fnorm = IDASensWrmsNorm(IDA_mem, IDA_mem->ida_delnewS, IDA_mem->ida_ewtS, SUNFALSE);
   if(IDA_mem->ida_sysindex == 0)
     (*fnorm) *= IDA_mem->ida_tscale * SUNRabs(IDA_mem->ida_cj);
 

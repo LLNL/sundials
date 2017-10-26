@@ -473,9 +473,9 @@ SUNDIALS_EXPORT void *IDACreate(void);
  * IDASetSuppressAlg    | flag to indicate whether or not to      
  *                      | suppress algebraic variables in the     
  *                      | local error tests:                      
- *                      | FALSE = do not suppress;                 
- *                      | TRUE = do suppress;                     
- *                      | [FALSE]                                 
+ *                      | SUNFALSE = do not suppress;                 
+ *                      | SUNTRUE = do suppress;                     
+ *                      | [SUNFALSE]                                 
  *                      | NOTE: if suppressed algebraic variables 
  *                      | is selected, the nvector 'id' must be   
  *                      | supplied for identification of those    
@@ -698,7 +698,7 @@ SUNDIALS_EXPORT int IDAWFtolerances(void *ida_mem, IDAEwtFn efun);
  *                        |                                        
  * IDASetLineSearchOffIC  | a boolean flag to turn off the        
  *                        | linesearch algorithm.                 
- *                        | [FALSE]                               
+ *                        | [SUNFALSE]                               
  *                        |                                        
  * IDASetStepToleranceIC  | positive lower bound on the norm of   
  *                        | a Newton step.                        
@@ -769,7 +769,7 @@ SUNDIALS_EXPORT int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g);
  *                      | the error control?
  *                      | If yes, set tolerances for quadrature
  *                      | integration. 
- *                      | [errconQ = FALSE]
+ *                      | [errconQ = SUNFALSE]
  *                      |
  * -----------------------------------------------------------------
  * If successful, the function return IDA_SUCCESS. If an argument
@@ -867,7 +867,7 @@ SUNDIALS_EXPORT int IDAQuadSVtolerances(void *ida_mem, realtype reltolQ, N_Vecto
  *                          |                                         
  * IDASetSensErrCon         | are sensitivity variables considered in 
  *                          | the error control?                      
- *                          | [TRUE]                                  
+ *                          | [SUNTRUE]                                  
  *                          |                                         
  * IDASetSensMaxNonlinIters | Maximum number of nonlinear solver  
  *                          | iterations for sensitivity systems  

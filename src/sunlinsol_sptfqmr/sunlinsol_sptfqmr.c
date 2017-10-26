@@ -331,8 +331,8 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   /* Initialize counters and convergence flag */
   temp_val = r_curr_norm = -ONE;
   *nli = 0;
-  converged = FALSE;
-  b_ok = FALSE;
+  converged = SUNFALSE;
+  b_ok = SUNFALSE;
 
   /* set booleantype flags for internal solver options */
   preOnLeft  = ( (SPTFQMR_CONTENT(S)->pretype == PREC_LEFT) || 
@@ -508,7 +508,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       /* Exit inner loop if iteration has converged based upon approximation
 	 to norm of current residual */
       if (r_curr_norm <= delta) {
-	converged = TRUE;
+	converged = SUNTRUE;
 	break;
       }
 
@@ -558,7 +558,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 	else N_VScale(ONE, vtemp1, vtemp2);
 	/* Only precondition and scale b once (result saved for reuse) */
 	if (!b_ok) {
-	  b_ok = TRUE;
+	  b_ok = SUNTRUE;
 	  if (preOnLeft) {
 	    ier = psolve(P_data, b, vtemp3, delta, PREC_LEFT);
 	    if (ier != 0) {
@@ -576,7 +576,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 	/* Exit inner loop if inequality condition is satisfied 
 	   (meaning exit if we have converged) */
 	if (r_curr_norm <= delta) {
-	  converged = TRUE;
+	  converged = SUNTRUE;
 	  break;
 	}
 
@@ -585,7 +585,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     }  /* END inner loop */
 
     /* If converged, then exit outer loop as well */
-    if (converged == TRUE) break;
+    if (converged == SUNTRUE) break;
 
     /* rho[1] = r_star^T*r_[1] */
     rho[1] = N_VDotProd(r_star, r[1]);
@@ -639,7 +639,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   /* Determine return value */
   /* If iteration converged or residual was reduced, then return current iterate (x) */
-  if ((converged == TRUE) || (r_curr_norm < r_init_norm)) {
+  if ((converged == SUNTRUE) || (r_curr_norm < r_init_norm)) {
     if (scale_x) N_VDiv(x, sx, x);
     if (preOnRight) {
       ier = psolve(P_data, x, vtemp1, delta, PREC_RIGHT);
@@ -650,7 +650,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       }
       N_VScale(ONE, vtemp1, x);
     }
-    if (converged == TRUE) 
+    if (converged == SUNTRUE) 
       LASTFLAG(S) = SUNLS_SUCCESS;
     else 
       LASTFLAG(S) = SUNLS_RES_REDUCED;

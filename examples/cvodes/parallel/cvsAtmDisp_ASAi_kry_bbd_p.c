@@ -248,8 +248,8 @@ int main(int argc, char *argv[])
   }
 
   /* Test if matlab output is requested */
-  if (argc > 1) output = TRUE;
-  else          output = FALSE;
+  if (argc > 1) output = SUNTRUE;
+  else          output = SUNFALSE;
 
   /* Allocate and set problem data structure */
   d = (ProblemData) malloc(sizeof *d);
@@ -293,7 +293,7 @@ int main(int argc, char *argv[])
   reltolQ = RTOL_Q;
   flag = CVodeQuadInit(cvode_mem, fQ, q);
   flag = CVodeQuadSStolerances(cvode_mem, reltolQ, abstolQ);
-  flag = CVodeSetQuadErrCon(cvode_mem, TRUE);
+  flag = CVodeSetQuadErrCon(cvode_mem, SUNTRUE);
 
   /* Allocate space for the adjoint calculation */
   flag = CVodeAdjInit(cvode_mem, STEPS, CV_HERMITE);
@@ -309,8 +309,6 @@ int main(int argc, char *argv[])
   MPI_Allreduce(&qdata[0], &G, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   if (myId == 0) printf("  G = %Le\n",G);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  if (myId == 0) printf("  G = %e\n",G);
 #else
   if (myId == 0) printf("  G = %e\n",G);
 #endif
@@ -350,7 +348,7 @@ int main(int argc, char *argv[])
   reltolQB = RTOL_QB;
   flag = CVodeQuadInitB(cvode_mem, indexB, fQB, qB);
   flag = CVodeQuadSStolerancesB(cvode_mem, indexB, reltolQB, abstolQB);
-  flag = CVodeSetQuadErrConB(cvode_mem, indexB, TRUE);
+  flag = CVodeSetQuadErrConB(cvode_mem, indexB, SUNTRUE);
 
   /* Integrate backwards */
   if (myId == 0) printf("Begin backward integration... ");
@@ -1098,8 +1096,6 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
     x[0] = xmin[0] + (m_start[0]+i[0]) * dx[0];
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     fprintf(fid,"x%d(%d,1) = %Le; \n",  myId, i[0]+1, x[0]);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-    fprintf(fid,"x%d(%d,1) = %le; \n",  myId, i[0]+1, x[0]);
 #else
     fprintf(fid,"x%d(%d,1) = %e; \n",  myId, i[0]+1, x[0]);
 #endif
@@ -1109,8 +1105,6 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
     x[1] = xmin[1] + (m_start[1]+i[1]) * dx[1];
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     fprintf(fid,"y%d(%d,1) = %Le; \n",  myId, i[1]+1, x[1]);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-    fprintf(fid,"y%d(%d,1) = %le; \n",  myId, i[1]+1, x[1]);
 #else
     fprintf(fid,"y%d(%d,1) = %e; \n",  myId, i[1]+1, x[1]);
 #endif
@@ -1121,8 +1115,6 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
     x[2] = xmin[2] + (m_start[2]+i[2]) * dx[2];
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     fprintf(fid,"z%d(%d,1) = %Le; \n",  myId, i[2]+1, x[2]);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-    fprintf(fid,"z%d(%d,1) = %le; \n",  myId, i[2]+1, x[2]);
 #else
     fprintf(fid,"z%d(%d,1) = %e; \n",  myId, i[2]+1, x[2]);
 #endif
@@ -1143,9 +1135,6 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
         fprintf(fid,"p%d(%d,%d,%d) = %Le; \n", myId, i[1]+1, i[0]+1, i[2]+1, p);
         fprintf(fid,"g%d(%d,%d,%d) = %Le; \n", myId, i[1]+1, i[0]+1, i[2]+1, g);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-        fprintf(fid,"p%d(%d,%d,%d) = %le; \n", myId, i[1]+1, i[0]+1, i[2]+1, p);
-        fprintf(fid,"g%d(%d,%d,%d) = %le; \n", myId, i[1]+1, i[0]+1, i[2]+1, g);
 #else
         fprintf(fid,"p%d(%d,%d,%d) = %e; \n", myId, i[1]+1, i[0]+1, i[2]+1, p);
         fprintf(fid,"g%d(%d,%d,%d) = %e; \n", myId, i[1]+1, i[0]+1, i[2]+1, g);
@@ -1157,9 +1146,6 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
       fprintf(fid,"p%d(%d,%d) = %Le; \n", myId, i[1]+1, i[0]+1, p);
       fprintf(fid,"g%d(%d,%d) = %Le; \n", myId, i[1]+1, i[0]+1, g);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-      fprintf(fid,"p%d(%d,%d) = %e; \n", myId, i[1]+1, i[0]+1, p);
-      fprintf(fid,"g%d(%d,%d) = %e; \n", myId, i[1]+1, i[0]+1, g);
 #else
       fprintf(fid,"p%d(%d,%d) = %e; \n", myId, i[1]+1, i[0]+1, p);
       fprintf(fid,"g%d(%d,%d) = %e; \n", myId, i[1]+1, i[0]+1, g);

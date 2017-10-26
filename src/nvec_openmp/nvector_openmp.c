@@ -129,7 +129,7 @@ N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads)
 
   content->length   = length;
   content->num_threads = num_threads;
-  content->own_data = FALSE;
+  content->own_data = SUNFALSE;
   content->data     = NULL;
 
   /* Attach content and ops */
@@ -161,7 +161,7 @@ N_Vector N_VNew_OpenMP(sunindextype length, int num_threads)
     if(data == NULL) { N_VDestroy_OpenMP(v); return(NULL); }
 
     /* Attach data */
-    NV_OWN_DATA_OMP(v) = TRUE;
+    NV_OWN_DATA_OMP(v) = SUNTRUE;
     NV_DATA_OMP(v)     = data;
 
   }
@@ -183,7 +183,7 @@ N_Vector N_VMake_OpenMP(sunindextype length, realtype *v_data, int num_threads)
 
   if (length > 0) {
     /* Attach data */
-    NV_OWN_DATA_OMP(v) = FALSE;
+    NV_OWN_DATA_OMP(v) = SUNFALSE;
     NV_DATA_OMP(v)     = v_data;
   }
 
@@ -358,7 +358,7 @@ N_Vector N_VCloneEmpty_OpenMP(N_Vector w)
 
   content->length   = NV_LENGTH_OMP(w);
   content->num_threads   = NV_NUM_THREADS_OMP(w);
-  content->own_data = FALSE;
+  content->own_data = SUNFALSE;
   content->data     = NULL;
 
   /* Attach content and ops */
@@ -394,7 +394,7 @@ N_Vector N_VClone_OpenMP(N_Vector w)
     if(data == NULL) { N_VDestroy_OpenMP(v); return(NULL); }
 
     /* Attach data */
-    NV_OWN_DATA_OMP(v) = TRUE;
+    NV_OWN_DATA_OMP(v) = SUNTRUE;
     NV_DATA_OMP(v)     = data;
 
   }
@@ -409,7 +409,7 @@ N_Vector N_VClone_OpenMP(N_Vector w)
 
 void N_VDestroy_OpenMP(N_Vector v)
 {
-  if (NV_OWN_DATA_OMP(v) == TRUE) {
+  if (NV_OWN_DATA_OMP(v) == SUNTRUE) {
     free(NV_DATA_OMP(v));
     NV_DATA_OMP(v) = NULL;
   }
@@ -981,9 +981,9 @@ booleantype N_VInvTest_OpenMP(N_Vector x, N_Vector z)
   }
 
   if (val > ZERO)
-    return (FALSE);
+    return (SUNFALSE);
   else
-    return (TRUE);
+    return (SUNTRUE);
 }
 
 
@@ -1020,8 +1020,8 @@ booleantype N_VConstrMask_OpenMP(N_Vector c, N_Vector x, N_Vector m)
     }
   }
 
-  if (temp == ONE) return (TRUE);
-  else return(FALSE);
+  if (temp == ONE) return (SUNTRUE);
+  else return(SUNFALSE);
 }
 
 

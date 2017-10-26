@@ -24,12 +24,16 @@ SET(sunmatrixsparse_SOURCES sunmatrix_sparse.c)
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the SUNMATRIXSPARSE library
-SET(shared_SOURCES sundials_math.c)
-ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
+SET(shared_SOURCES
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_matrix.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
+  )
 
 # Add variable sunmatrixsparse_HEADERS with the exported SUNMATRIXSPARSE header files
-SET(sunmatrixsparse_HEADERS sunmatrix_sparse.h)
-ADD_PREFIX(${sundials_SOURCE_DIR}/include/sunmatrix/ sunmatrixsparse_HEADERS)
+SET(sunmatrixsparse_HEADERS
+  ${sundials_SOURCE_DIR}/include/sunmatrix/sunmatrix_sparse.h
+  )
 
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(.)
@@ -55,6 +59,11 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Install the SUNMATRIXSPARSE library
 IF(BUILD_SHARED_LIBS)
   ADD_LIBRARY(sundials_sunmatrixsparse_shared SHARED ${sunmatrixsparse_SOURCES} ${shared_SOURCES})
+
+  IF(UNIX)
+    TARGET_LINK_LIBRARIES(sundials_sunmatrixsparse_shared m)
+  ENDIF()
+
   SET_TARGET_PROPERTIES(sundials_sunmatrixsparse_shared
     PROPERTIES OUTPUT_NAME sundials_sunmatrixsparse CLEAN_DIRECT_OUTPUT 1)
   SET_TARGET_PROPERTIES(sundials_sunmatrixsparse_shared
@@ -68,20 +77,27 @@ INSTALL(FILES ${sunmatrixsparse_HEADERS} DESTINATION include/sunmatrix)
 # If FCMIX is enabled, build and install the FSUNMATRIXSPARSE library
 IF(FCMIX_ENABLE AND F77_FOUND)
   SET(fsunmatrixsparse_SOURCES fsunmatrix_sparse.c)
+
   IF(BUILD_STATIC_LIBS)
     ADD_LIBRARY(sundials_fsunmatrixsparse_static STATIC ${fsunmatrixsparse_SOURCES})
     SET_TARGET_PROPERTIES(sundials_fsunmatrixsparse_static
       PROPERTIES OUTPUT_NAME sundials_fsunmatrixsparse CLEAN_DIRECT_OUTPUT 1)
     INSTALL(TARGETS sundials_fsunmatrixsparse_static DESTINATION lib)
   ENDIF(BUILD_STATIC_LIBS)
+
   IF(BUILD_SHARED_LIBS)
     ADD_LIBRARY(sundials_fsunmatrixsparse_shared ${fsunmatrixsparse_SOURCES})
+
+    # fsunmatrixdense depends on sunmatrixsparse
+    TARGET_LINK_LIBRARIES(sundials_fsunmatrixsparse_shared sundials_sunmatrixsparse_shared)
+
     SET_TARGET_PROPERTIES(sundials_fsunmatrixsparse_shared
       PROPERTIES OUTPUT_NAME sundials_fsunmatrixsparse CLEAN_DIRECT_OUTPUT 1)
     SET_TARGET_PROPERTIES(sundials_fsunmatrixsparse_shared 
       PROPERTIES VERSION ${sunmatrixlib_VERSION} SOVERSION ${sunmatrixlib_SOVERSION})
     INSTALL(TARGETS sundials_fsunmatrixsparse_shared DESTINATION lib)
   ENDIF(BUILD_SHARED_LIBS)
+
 ENDIF(FCMIX_ENABLE AND F77_FOUND)
 
 #

@@ -240,7 +240,7 @@ int SUNLinSolInitialize_SuperLUMT(SUNLinearSolver S)
 
 int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A)
 {
-  sunindextype retval;
+  int_t retval;
   int panel_size, relax, lwork;
   double drop_tol;
   fact_t fact;
@@ -265,15 +265,15 @@ int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A)
 			 SUNSparseMatrix_Columns(A),
                          SUNSparseMatrix_NNZ(A), 
                          SUNSparseMatrix_Data(A), 
-                         SUNSparseMatrix_IndexValues(A), 
-                         SUNSparseMatrix_IndexPointers(A), 
+                         (int_t*) SUNSparseMatrix_IndexValues(A), 
+                         (int_t*) SUNSparseMatrix_IndexPointers(A), 
 			 SLU_NC, SLU_D, SLU_GE);
 
   /* On first decomposition, set up reusable pieces */ 
   if (FIRSTFACTORIZE(S)) {
 
     /* Get column permutation vector perm_c[], according to ordering */
-    get_perm_c(ORDERING(S), SM_A(S), PERMC(S));
+    get_perm_c(ORDERING(S), SM_A(S), (int_t *) PERMC(S));
     refact = NO;
     FIRSTFACTORIZE(S) = 0;
 
@@ -290,12 +290,12 @@ int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A)
      Subsequent calls will re-initialize options.  Apply perm_c to 
      columns of original A to form AC */
   pxgstrf_init(NUMTHREADS(S), fact, trans, refact, panel_size, relax, 
-	       DIAGPIVOTTHRESH(S), usepr, drop_tol, PERMC(S), PERMR(S), 
+	       DIAGPIVOTTHRESH(S), usepr, drop_tol, (int_t *) PERMC(S), (int_t *) PERMR(S), 
                work, lwork, SM_A(S), SM_AC(S), OPTIONS(S), GSTAT(S));
 
   /* Compute the LU factorization of A.
      The following routine will create num_threads threads. */
-  pxgstrf(OPTIONS(S), SM_AC(S), PERMR(S), SM_L(S), SM_U(S),
+  pxgstrf(OPTIONS(S), SM_AC(S), (int_t *) PERMR(S), SM_L(S), SM_U(S),
           GSTAT(S), &retval);
   if (retval != 0) {
     LASTFLAG(S) = (retval < 0) ? 
@@ -311,7 +311,7 @@ int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A)
 int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
                              N_Vector b, realtype tol)
 {
-  sunindextype retval;
+  int_t retval;
   realtype *xdata;
   DNformat *Bstore;
   trans_t trans;
@@ -331,7 +331,7 @@ int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   
   /* Call SuperLUMT to solve the linear system using L and U */
   trans = (SUNSparseMatrix_SparseType(A) == CSC_MAT) ? NOTRANS : TRANS;
-  xgstrs(trans, SM_L(S), SM_U(S), PERMR(S), PERMC(S), SM_B(S), GSTAT(S), &retval);
+  xgstrs(trans, SM_L(S), SM_U(S), (int_t *) PERMR(S), (int_t *) PERMC(S), SM_B(S), GSTAT(S), &retval);
   if (retval != 0) {
     LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;
     return(LASTFLAG(S));

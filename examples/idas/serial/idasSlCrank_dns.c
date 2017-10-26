@@ -127,7 +127,7 @@ int main(void)
   flag = IDASStolerances(mem, RTOLF, ATOLF);
   flag = IDASetUserData(mem, data);
   flag = IDASetId(mem, id);
-  flag = IDASetSuppressAlg(mem, TRUE);
+  flag = IDASetSuppressAlg(mem, SUNTRUE);
   flag = IDASetMaxNumSteps(mem, 20000);
 
   /* Create dense SUNMatrix for use in linear solves */
@@ -145,7 +145,7 @@ int main(void)
   N_VConst(ZERO, q);
   flag = IDAQuadInit(mem, rhsQ, q);
   flag = IDAQuadSStolerances(mem, RTOLQ, ATOLQ);
-  flag = IDASetQuadErrCon(mem, TRUE);
+  flag = IDASetQuadErrCon(mem, SUNTRUE);
 
   PrintHeader(RTOLF, ATOLF, yy);
 
