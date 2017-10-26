@@ -137,7 +137,7 @@ N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
   ierr = MPI_Allreduce(&n, &Nsum, 1, PVEC_INTEGER_MPI_TYPE, MPI_SUM, comm);
   CHKERRABORT(comm,ierr);
   if (Nsum != global_length) {
-    printf(BAD_N);
+    fprintf(stderr, BAD_N);
     return(NULL);
   } 
 
