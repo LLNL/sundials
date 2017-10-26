@@ -53,7 +53,7 @@
 /*===============================================================
              Private Functions Prototypes
 ===============================================================*/
-static void arkPrintMem(ARKodeMem ark_mem) SUNDIALS_UNUSED;
+static void arkPrintMem(ARKodeMem ark_mem, FILE *outfile) SUNDIALS_UNUSED;
 static booleantype arkCheckNvector(N_Vector tmpl);
 static booleantype arkAllocVectors(ARKodeMem ark_mem, 
 				   N_Vector tmpl);
@@ -2124,286 +2124,286 @@ void arkErrHandler(int error_code, const char *module,
 
  This routine outputs the ark_mem structure to stdout.
 ---------------------------------------------------------------*/
-static void arkPrintMem(ARKodeMem ark_mem)
+static void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
 {
   int i, j;
 
   /* output integer quantities */
-  printf("ark_itol = %i\n", ark_mem->ark_itol);
-  printf("ark_ritol = %i\n", ark_mem->ark_ritol);
-  printf("ark_q = %i\n", ark_mem->ark_q);
-  printf("ark_p = %i\n", ark_mem->ark_p);
-  printf("ark_istage = %i\n", ark_mem->ark_istage);
-  printf("ark_stages = %i\n", ark_mem->ark_stages);
-  printf("ark_dense_q = %i\n", ark_mem->ark_dense_q);
-  printf("ark_mnewt = %i\n", ark_mem->ark_mnewt);
-  printf("ark_hadapt_imethod = %i\n", ark_mem->ark_hadapt_imethod);
-  printf("ark_maxcor = %i\n", ark_mem->ark_maxcor);
-  printf("ark_mxhnil = %i\n", ark_mem->ark_mxhnil);
-  printf("ark_maxnef = %i\n", ark_mem->ark_maxnef);
-  printf("ark_maxncf = %i\n", ark_mem->ark_maxncf);
-  printf("ark_small_nef = %i\n", ark_mem->ark_small_nef);
-  printf("ark_msbp = %i\n", ark_mem->ark_msbp);
-  printf("ark_predictor = %i\n", ark_mem->ark_predictor);
-  printf("ark_nhnil = %i\n", ark_mem->ark_nhnil);
-  printf("ark_lsolve_type = %i\n", ark_mem->ark_lsolve_type);
-  printf("ark_msolve_type = %i\n", ark_mem->ark_msolve_type);
-  printf("ark_nrtfn = %i\n", ark_mem->ark_nrtfn);
+  fprintf(outfile, "ark_itol = %i\n", ark_mem->ark_itol);
+  fprintf(outfile, "ark_ritol = %i\n", ark_mem->ark_ritol);
+  fprintf(outfile, "ark_q = %i\n", ark_mem->ark_q);
+  fprintf(outfile, "ark_p = %i\n", ark_mem->ark_p);
+  fprintf(outfile, "ark_istage = %i\n", ark_mem->ark_istage);
+  fprintf(outfile, "ark_stages = %i\n", ark_mem->ark_stages);
+  fprintf(outfile, "ark_dense_q = %i\n", ark_mem->ark_dense_q);
+  fprintf(outfile, "ark_mnewt = %i\n", ark_mem->ark_mnewt);
+  fprintf(outfile, "ark_hadapt_imethod = %i\n", ark_mem->ark_hadapt_imethod);
+  fprintf(outfile, "ark_maxcor = %i\n", ark_mem->ark_maxcor);
+  fprintf(outfile, "ark_mxhnil = %i\n", ark_mem->ark_mxhnil);
+  fprintf(outfile, "ark_maxnef = %i\n", ark_mem->ark_maxnef);
+  fprintf(outfile, "ark_maxncf = %i\n", ark_mem->ark_maxncf);
+  fprintf(outfile, "ark_small_nef = %i\n", ark_mem->ark_small_nef);
+  fprintf(outfile, "ark_msbp = %i\n", ark_mem->ark_msbp);
+  fprintf(outfile, "ark_predictor = %i\n", ark_mem->ark_predictor);
+  fprintf(outfile, "ark_nhnil = %i\n", ark_mem->ark_nhnil);
+  fprintf(outfile, "ark_lsolve_type = %i\n", ark_mem->ark_lsolve_type);
+  fprintf(outfile, "ark_msolve_type = %i\n", ark_mem->ark_msolve_type);
+  fprintf(outfile, "ark_nrtfn = %i\n", ark_mem->ark_nrtfn);
   if (ark_mem->ark_iroots != NULL) 
     for (i=0; i<ark_mem->ark_nrtfn; i++)
-      printf("ark_iroots[%i] = %i\n", i, ark_mem->ark_iroots[i]);
+      fprintf(outfile, "ark_iroots[%i] = %i\n", i, ark_mem->ark_iroots[i]);
   if (ark_mem->ark_rootdir != NULL) 
     for (i=0; i<ark_mem->ark_nrtfn; i++)
-      printf("ark_rootdir[%i] = %i\n", i, ark_mem->ark_rootdir[i]);
-  printf("ark_taskc = %i\n", ark_mem->ark_taskc);
-  printf("ark_irfnd = %i\n", ark_mem->ark_irfnd);
-  printf("ark_mxgnull = %i\n", ark_mem->ark_mxgnull);
+      fprintf(outfile, "ark_rootdir[%i] = %i\n", i, ark_mem->ark_rootdir[i]);
+  fprintf(outfile, "ark_taskc = %i\n", ark_mem->ark_taskc);
+  fprintf(outfile, "ark_irfnd = %i\n", ark_mem->ark_irfnd);
+  fprintf(outfile, "ark_mxgnull = %i\n", ark_mem->ark_mxgnull);
 
   /* output long integer quantities */
-  printf("ark_mxstep = %li\n", ark_mem->ark_mxstep);
-  printf("ark_nst = %li\n", ark_mem->ark_nst);
-  printf("ark_nst_acc = %li\n", ark_mem->ark_nst_acc);
-  printf("ark_nst_exp = %li\n", ark_mem->ark_nst_exp);
-  printf("ark_nst_attempts = %li\n", ark_mem->ark_nst_attempts);
-  printf("ark_nfe = %li\n", ark_mem->ark_nfe);
-  printf("ark_nfi = %li\n", ark_mem->ark_nfi);
-  printf("ark_ncfn = %li\n", ark_mem->ark_ncfn);
-  printf("ark_netf = %li\n", ark_mem->ark_netf);
-  printf("ark_nni = %li\n", ark_mem->ark_nni);
-  printf("ark_nsetups = %li\n", ark_mem->ark_nsetups);
-  printf("ark_lrw1 = %li\n", (long int) ark_mem->ark_lrw1);
-  printf("ark_liw1 = %li\n", (long int) ark_mem->ark_liw1);
-  printf("ark_lrw = %li\n", (long int) ark_mem->ark_lrw);
-  printf("ark_liw = %li\n", (long int) ark_mem->ark_liw);
-  printf("ark_fp_m = %li\n", ark_mem->ark_fp_m);
+  fprintf(outfile, "ark_mxstep = %li\n", ark_mem->ark_mxstep);
+  fprintf(outfile, "ark_nst = %li\n", ark_mem->ark_nst);
+  fprintf(outfile, "ark_nst_acc = %li\n", ark_mem->ark_nst_acc);
+  fprintf(outfile, "ark_nst_exp = %li\n", ark_mem->ark_nst_exp);
+  fprintf(outfile, "ark_nst_attempts = %li\n", ark_mem->ark_nst_attempts);
+  fprintf(outfile, "ark_nfe = %li\n", ark_mem->ark_nfe);
+  fprintf(outfile, "ark_nfi = %li\n", ark_mem->ark_nfi);
+  fprintf(outfile, "ark_ncfn = %li\n", ark_mem->ark_ncfn);
+  fprintf(outfile, "ark_netf = %li\n", ark_mem->ark_netf);
+  fprintf(outfile, "ark_nni = %li\n", ark_mem->ark_nni);
+  fprintf(outfile, "ark_nsetups = %li\n", ark_mem->ark_nsetups);
+  fprintf(outfile, "ark_lrw1 = %li\n", (long int) ark_mem->ark_lrw1);
+  fprintf(outfile, "ark_liw1 = %li\n", (long int) ark_mem->ark_liw1);
+  fprintf(outfile, "ark_lrw = %li\n", (long int) ark_mem->ark_lrw);
+  fprintf(outfile, "ark_liw = %li\n", (long int) ark_mem->ark_liw);
+  fprintf(outfile, "ark_fp_m = %li\n", ark_mem->ark_fp_m);
   if (ark_mem->ark_fp_imap != NULL)
     for (i=0; i<ark_mem->ark_fp_m; i++)
-      printf("ark_fp_imap[%i] = %li\n", i, ark_mem->ark_fp_imap[i]);
-  printf("ark_nstlp = %li\n", ark_mem->ark_nstlp);
-  printf("ark_nge = %li\n", ark_mem->ark_nge);
+      fprintf(outfile, "ark_fp_imap[%i] = %li\n", i, ark_mem->ark_fp_imap[i]);
+  fprintf(outfile, "ark_nstlp = %li\n", ark_mem->ark_nstlp);
+  fprintf(outfile, "ark_nge = %li\n", ark_mem->ark_nge);
 
   /* output boolean quantities */
-  printf("ark_user_efun = %i\n", ark_mem->ark_user_efun);
-  printf("ark_user_linear = %i\n", ark_mem->ark_linear);
-  printf("ark_user_linear_timedep = %i\n", ark_mem->ark_linear_timedep);
-  printf("ark_user_explicit = %i\n", ark_mem->ark_explicit);
-  printf("ark_user_implicit = %i\n", ark_mem->ark_implicit);
-  printf("ark_tstopset = %i\n", ark_mem->ark_tstopset);
-  printf("ark_hadapt_pq = %i\n", ark_mem->ark_hadapt_pq);
-  printf("ark_report = %i\n", ark_mem->ark_report);
-  printf("ark_use_fp = %i\n", ark_mem->ark_use_fp);
-  printf("ark_mass_matrix = %i\n", ark_mem->ark_mass_matrix);
-  printf("ark_jcur = %i\n", ark_mem->ark_jcur);
-  printf("ark_VabstolMallocDone = %i\n", ark_mem->ark_VabstolMallocDone);
-  printf("ark_MallocDone = %i\n", ark_mem->ark_MallocDone);
-  printf("ark_resized = %i\n", ark_mem->ark_resized);
-  printf("ark_firststage = %i\n", ark_mem->ark_firststage);
+  fprintf(outfile, "ark_user_efun = %i\n", ark_mem->ark_user_efun);
+  fprintf(outfile, "ark_user_linear = %i\n", ark_mem->ark_linear);
+  fprintf(outfile, "ark_user_linear_timedep = %i\n", ark_mem->ark_linear_timedep);
+  fprintf(outfile, "ark_user_explicit = %i\n", ark_mem->ark_explicit);
+  fprintf(outfile, "ark_user_implicit = %i\n", ark_mem->ark_implicit);
+  fprintf(outfile, "ark_tstopset = %i\n", ark_mem->ark_tstopset);
+  fprintf(outfile, "ark_hadapt_pq = %i\n", ark_mem->ark_hadapt_pq);
+  fprintf(outfile, "ark_report = %i\n", ark_mem->ark_report);
+  fprintf(outfile, "ark_use_fp = %i\n", ark_mem->ark_use_fp);
+  fprintf(outfile, "ark_mass_matrix = %i\n", ark_mem->ark_mass_matrix);
+  fprintf(outfile, "ark_jcur = %i\n", ark_mem->ark_jcur);
+  fprintf(outfile, "ark_VabstolMallocDone = %i\n", ark_mem->ark_VabstolMallocDone);
+  fprintf(outfile, "ark_MallocDone = %i\n", ark_mem->ark_MallocDone);
+  fprintf(outfile, "ark_resized = %i\n", ark_mem->ark_resized);
+  fprintf(outfile, "ark_firststage = %i\n", ark_mem->ark_firststage);
   if (ark_mem->ark_gactive != NULL)
     for (i=0; i<ark_mem->ark_nrtfn; i++)
-      printf("ark_gactive[%i] = %i\n", i, ark_mem->ark_gactive[i]);
+      fprintf(outfile, "ark_gactive[%i] = %i\n", i, ark_mem->ark_gactive[i]);
 
   /* output realtype quantities */
-  printf("ark_uround = %"RSYM"\n", ark_mem->ark_uround);
-  printf("ark_reltol = %"RSYM"\n", ark_mem->ark_reltol);
-  printf("ark_Sabstol = %"RSYM"\n", ark_mem->ark_Sabstol);
-  printf("ark_tstop = %"RSYM"\n", ark_mem->ark_tstop);
-  printf("ark_Ae = \n");
+  fprintf(outfile, "ark_uround = %"RSYM"\n", ark_mem->ark_uround);
+  fprintf(outfile, "ark_reltol = %"RSYM"\n", ark_mem->ark_reltol);
+  fprintf(outfile, "ark_Sabstol = %"RSYM"\n", ark_mem->ark_Sabstol);
+  fprintf(outfile, "ark_tstop = %"RSYM"\n", ark_mem->ark_tstop);
+  fprintf(outfile, "ark_Ae = \n");
   for (i=0; i<ARK_S_MAX; i++) {
-    printf("    ");
+    fprintf(outfile, "    ");
     for (j=0; j<ARK_S_MAX; j++)
-      printf("%"RSYM"  ", ARK_A(ark_mem->ark_Ae,i,j));
-    printf("\n");
+      fprintf(outfile, "%"RSYM"  ", ARK_A(ark_mem->ark_Ae,i,j));
+    fprintf(outfile, "\n");
   }
-  printf("ark_Ai = \n");
+  fprintf(outfile, "ark_Ai = \n");
   for (i=0; i<ARK_S_MAX; i++) {
-    printf("    ");
+    fprintf(outfile, "    ");
     for (j=0; j<ARK_S_MAX; j++)
-      printf("%"RSYM"  ", ARK_A(ark_mem->ark_Ai,i,j));
-    printf("\n");
+      fprintf(outfile, "%"RSYM"  ", ARK_A(ark_mem->ark_Ai,i,j));
+    fprintf(outfile, "\n");
   }
-  printf("ark_ce = ");
+  fprintf(outfile, "ark_ce = ");
   for (i=0; i<ARK_S_MAX; i++) 
-    printf("%"RSYM"  ", ark_mem->ark_ce[i]);
-  printf("\n");
-  printf("ark_ci = ");
+    fprintf(outfile, "%"RSYM"  ", ark_mem->ark_ce[i]);
+  fprintf(outfile, "\n");
+  fprintf(outfile, "ark_ci = ");
   for (i=0; i<ARK_S_MAX; i++) 
-    printf("%"RSYM"  ", ark_mem->ark_ci[i]);
-  printf("\n");
-  printf("ark_be = ");
+    fprintf(outfile, "%"RSYM"  ", ark_mem->ark_ci[i]);
+  fprintf(outfile, "\n");
+  fprintf(outfile, "ark_be = ");
   for (i=0; i<ARK_S_MAX; i++) 
-    printf("%"RSYM"  ", ark_mem->ark_be[i]);
-  printf("\n");
-  printf("ark_bi = ");
+    fprintf(outfile, "%"RSYM"  ", ark_mem->ark_be[i]);
+  fprintf(outfile, "\n");
+  fprintf(outfile, "ark_bi = ");
   for (i=0; i<ARK_S_MAX; i++) 
-    printf("%"RSYM"  ", ark_mem->ark_bi[i]);
-  printf("\n");
-  printf("ark_b2e = ");
+    fprintf(outfile, "%"RSYM"  ", ark_mem->ark_bi[i]);
+  fprintf(outfile, "\n");
+  fprintf(outfile, "ark_b2e = ");
   for (i=0; i<ARK_S_MAX; i++) 
-    printf("%"RSYM"  ", ark_mem->ark_b2e[i]);
-  printf("\n");
-  printf("ark_b2i = ");
+    fprintf(outfile, "%"RSYM"  ", ark_mem->ark_b2e[i]);
+  fprintf(outfile, "\n");
+  fprintf(outfile, "ark_b2i = ");
   for (i=0; i<ARK_S_MAX; i++) 
-    printf("%"RSYM"  ", ark_mem->ark_b2i[i]);
-  printf("\n");
-  printf("ark_hin = %"RSYM"\n", ark_mem->ark_hin);
-  printf("ark_h = %"RSYM"\n", ark_mem->ark_h);
-  printf("ark_hprime = %"RSYM"\n", ark_mem->ark_hprime);
-  printf("ark_next_h = %"RSYM"\n", ark_mem->ark_next_h);
-  printf("ark_eta = %"RSYM"\n", ark_mem->ark_eta);
-  printf("ark_tn = %"RSYM"\n", ark_mem->ark_tn);
-  printf("ark_tretlast = %"RSYM"\n", ark_mem->ark_tretlast);
-  printf("ark_gamma = %"RSYM"\n", ark_mem->ark_gamma);
-  printf("ark_gammap = %"RSYM"\n", ark_mem->ark_gammap);
-  printf("ark_gamrat = %"RSYM"\n", ark_mem->ark_gamrat);
-  printf("ark_crate = %"RSYM"\n", ark_mem->ark_crate);
-  printf("ark_eRNrm = %"RSYM"\n", ark_mem->ark_eRNrm);
-  printf("ark_nlscoef = %"RSYM"\n", ark_mem->ark_nlscoef);
-  printf("ark_fixedstep = %i\n", ark_mem->ark_fixedstep);
-  printf("ark_hadapt_ehist =  %"RSYM"  %"RSYM"  %"RSYM"\n",
+    fprintf(outfile, "%"RSYM"  ", ark_mem->ark_b2i[i]);
+  fprintf(outfile, "\n");
+  fprintf(outfile, "ark_hin = %"RSYM"\n", ark_mem->ark_hin);
+  fprintf(outfile, "ark_h = %"RSYM"\n", ark_mem->ark_h);
+  fprintf(outfile, "ark_hprime = %"RSYM"\n", ark_mem->ark_hprime);
+  fprintf(outfile, "ark_next_h = %"RSYM"\n", ark_mem->ark_next_h);
+  fprintf(outfile, "ark_eta = %"RSYM"\n", ark_mem->ark_eta);
+  fprintf(outfile, "ark_tn = %"RSYM"\n", ark_mem->ark_tn);
+  fprintf(outfile, "ark_tretlast = %"RSYM"\n", ark_mem->ark_tretlast);
+  fprintf(outfile, "ark_gamma = %"RSYM"\n", ark_mem->ark_gamma);
+  fprintf(outfile, "ark_gammap = %"RSYM"\n", ark_mem->ark_gammap);
+  fprintf(outfile, "ark_gamrat = %"RSYM"\n", ark_mem->ark_gamrat);
+  fprintf(outfile, "ark_crate = %"RSYM"\n", ark_mem->ark_crate);
+  fprintf(outfile, "ark_eRNrm = %"RSYM"\n", ark_mem->ark_eRNrm);
+  fprintf(outfile, "ark_nlscoef = %"RSYM"\n", ark_mem->ark_nlscoef);
+  fprintf(outfile, "ark_fixedstep = %i\n", ark_mem->ark_fixedstep);
+  fprintf(outfile, "ark_hadapt_ehist =  %"RSYM"  %"RSYM"  %"RSYM"\n",
 	 ark_mem->ark_hadapt_ehist[0], ark_mem->ark_hadapt_ehist[1], ark_mem->ark_hadapt_ehist[2]);
-  printf("ark_hadapt_hhist =  %"RSYM"  %"RSYM"  %"RSYM"\n",
+  fprintf(outfile, "ark_hadapt_hhist =  %"RSYM"  %"RSYM"  %"RSYM"\n",
 	 ark_mem->ark_hadapt_hhist[0], ark_mem->ark_hadapt_hhist[1], ark_mem->ark_hadapt_hhist[2]);
-  printf("ark_hadapt_cfl = %"RSYM"\n", ark_mem->ark_hadapt_cfl);
-  printf("ark_hadapt_safety = %"RSYM"\n", ark_mem->ark_hadapt_safety);
-  printf("ark_hadapt_bias = %"RSYM"\n", ark_mem->ark_hadapt_bias);
-  printf("ark_hadapt_growth = %"RSYM"\n", ark_mem->ark_hadapt_growth);
-  printf("ark_hadapt_lbound = %"RSYM"\n", ark_mem->ark_hadapt_lbound);
-  printf("ark_hadapt_ubound = %"RSYM"\n", ark_mem->ark_hadapt_ubound);
-  printf("ark_hadapt_k1 = %"RSYM"\n", ark_mem->ark_hadapt_k1);
-  printf("ark_hadapt_k2 = %"RSYM"\n", ark_mem->ark_hadapt_k2);
-  printf("ark_hadapt_k3 = %"RSYM"\n", ark_mem->ark_hadapt_k3);
-  printf("ark_hmin = %"RSYM"\n", ark_mem->ark_hmin);
-  printf("ark_hmax_inv = %"RSYM"\n", ark_mem->ark_hmax_inv);
-  printf("ark_etamax = %"RSYM"\n", ark_mem->ark_etamax);
-  printf("ark_etamx1 = %"RSYM"\n", ark_mem->ark_etamx1);
-  printf("ark_etamxf = %"RSYM"\n", ark_mem->ark_etamxf);
-  printf("ark_etacf = %"RSYM"\n", ark_mem->ark_etacf);
-  printf("ark_crdown = %"RSYM"\n", ark_mem->ark_crdown);
-  printf("ark_rdiv = %"RSYM"\n", ark_mem->ark_rdiv);
-  printf("ark_dgmax = %"RSYM"\n", ark_mem->ark_dgmax);
+  fprintf(outfile, "ark_hadapt_cfl = %"RSYM"\n", ark_mem->ark_hadapt_cfl);
+  fprintf(outfile, "ark_hadapt_safety = %"RSYM"\n", ark_mem->ark_hadapt_safety);
+  fprintf(outfile, "ark_hadapt_bias = %"RSYM"\n", ark_mem->ark_hadapt_bias);
+  fprintf(outfile, "ark_hadapt_growth = %"RSYM"\n", ark_mem->ark_hadapt_growth);
+  fprintf(outfile, "ark_hadapt_lbound = %"RSYM"\n", ark_mem->ark_hadapt_lbound);
+  fprintf(outfile, "ark_hadapt_ubound = %"RSYM"\n", ark_mem->ark_hadapt_ubound);
+  fprintf(outfile, "ark_hadapt_k1 = %"RSYM"\n", ark_mem->ark_hadapt_k1);
+  fprintf(outfile, "ark_hadapt_k2 = %"RSYM"\n", ark_mem->ark_hadapt_k2);
+  fprintf(outfile, "ark_hadapt_k3 = %"RSYM"\n", ark_mem->ark_hadapt_k3);
+  fprintf(outfile, "ark_hmin = %"RSYM"\n", ark_mem->ark_hmin);
+  fprintf(outfile, "ark_hmax_inv = %"RSYM"\n", ark_mem->ark_hmax_inv);
+  fprintf(outfile, "ark_etamax = %"RSYM"\n", ark_mem->ark_etamax);
+  fprintf(outfile, "ark_etamx1 = %"RSYM"\n", ark_mem->ark_etamx1);
+  fprintf(outfile, "ark_etamxf = %"RSYM"\n", ark_mem->ark_etamxf);
+  fprintf(outfile, "ark_etacf = %"RSYM"\n", ark_mem->ark_etacf);
+  fprintf(outfile, "ark_crdown = %"RSYM"\n", ark_mem->ark_crdown);
+  fprintf(outfile, "ark_rdiv = %"RSYM"\n", ark_mem->ark_rdiv);
+  fprintf(outfile, "ark_dgmax = %"RSYM"\n", ark_mem->ark_dgmax);
   if (ark_mem->ark_fp_R != NULL) {
-    printf("ark_fp_R =  ");
+    fprintf(outfile, "ark_fp_R =  ");
     for (i=0; i<ark_mem->ark_fp_m*ark_mem->ark_fp_m; i++)
-      printf("%"RSYM"  ", ark_mem->ark_fp_R[i]);
-    printf("\n");
+      fprintf(outfile, "%"RSYM"  ", ark_mem->ark_fp_R[i]);
+    fprintf(outfile, "\n");
   }
   if (ark_mem->ark_fp_gamma != NULL) {
-    printf("ark_fp_gamma =  ");
+    fprintf(outfile, "ark_fp_gamma =  ");
     for (i=0; i<ark_mem->ark_fp_m; i++)
-      printf("%"RSYM"  ", ark_mem->ark_fp_gamma[i]);
-    printf("\n");
+      fprintf(outfile, "%"RSYM"  ", ark_mem->ark_fp_gamma[i]);
+    fprintf(outfile, "\n");
   }
-  printf("ark_h0u = %"RSYM"\n", ark_mem->ark_h0u);
-  printf("ark_tnew = %"RSYM"\n", ark_mem->ark_tnew);
-  printf("ark_hold = %"RSYM"\n", ark_mem->ark_hold);
-  printf("ark_tolsf = %"RSYM"\n", ark_mem->ark_tolsf);
-  printf("ark_tlo = %"RSYM"\n", ark_mem->ark_tlo);
-  printf("ark_thi = %"RSYM"\n", ark_mem->ark_thi);
-  printf("ark_trout = %"RSYM"\n", ark_mem->ark_trout);
+  fprintf(outfile, "ark_h0u = %"RSYM"\n", ark_mem->ark_h0u);
+  fprintf(outfile, "ark_tnew = %"RSYM"\n", ark_mem->ark_tnew);
+  fprintf(outfile, "ark_hold = %"RSYM"\n", ark_mem->ark_hold);
+  fprintf(outfile, "ark_tolsf = %"RSYM"\n", ark_mem->ark_tolsf);
+  fprintf(outfile, "ark_tlo = %"RSYM"\n", ark_mem->ark_tlo);
+  fprintf(outfile, "ark_thi = %"RSYM"\n", ark_mem->ark_thi);
+  fprintf(outfile, "ark_trout = %"RSYM"\n", ark_mem->ark_trout);
   if (ark_mem->ark_glo != NULL) 
     for (i=0; i<ark_mem->ark_nrtfn; i++)
-      printf("ark_glo[%i] = %"RSYM"\n", i, ark_mem->ark_glo[i]);
+      fprintf(outfile, "ark_glo[%i] = %"RSYM"\n", i, ark_mem->ark_glo[i]);
   if (ark_mem->ark_ghi != NULL) 
     for (i=0; i<ark_mem->ark_nrtfn; i++)
-      printf("ark_ghi[%i] = %"RSYM"\n", i, ark_mem->ark_ghi[i]);
+      fprintf(outfile, "ark_ghi[%i] = %"RSYM"\n", i, ark_mem->ark_ghi[i]);
   if (ark_mem->ark_grout != NULL) 
     for (i=0; i<ark_mem->ark_nrtfn; i++)
-      printf("ark_grout[%i] = %"RSYM"\n", i, ark_mem->ark_grout[i]);
-  printf("ark_toutc = %"RSYM"\n", ark_mem->ark_toutc);
-  printf("ark_ttol = %"RSYM"\n", ark_mem->ark_ttol);
+      fprintf(outfile, "ark_grout[%i] = %"RSYM"\n", i, ark_mem->ark_grout[i]);
+  fprintf(outfile, "ark_toutc = %"RSYM"\n", ark_mem->ark_toutc);
+  fprintf(outfile, "ark_ttol = %"RSYM"\n", ark_mem->ark_ttol);
 
 #ifdef DEBUG_OUTPUT
   /* output vector quantities */  
   if (ark_mem->ark_Vabstol != NULL) {
-    printf("ark_Vapbsol:\n");
+    fprintf(outfile, "ark_Vapbsol:\n");
     N_VPrint_Serial(ark_mem->ark_Vabstol);
   }
   for (i=0; i<ARK_S_MAX; i++) 
     if (ark_mem->ark_Fe[i] != NULL) {
-      printf("ark_Fe[%i]:\n", i);
+      fprintf(outfile, "ark_Fe[%i]:\n", i);
       N_VPrint_Serial(ark_mem->ark_Fe[i]);
     }
   for (i=0; i<ARK_S_MAX; i++) 
     if (ark_mem->ark_Fi[i] != NULL) {
-      printf("ark_Fi[%i]:\n", i);
+      fprintf(outfile, "ark_Fi[%i]:\n", i);
       N_VPrint_Serial(ark_mem->ark_Fi[i]);
     }
   if (ark_mem->ark_ewt != NULL) {
-    printf("ark_ewt:\n");
+    fprintf(outfile, "ark_ewt:\n");
     N_VPrint_Serial(ark_mem->ark_ewt);
   }
   if (!ark_mem->ark_rwt_is_ewt && ark_mem->ark_rwt != NULL) {
-    printf("ark_rwt:\n");
+    fprintf(outfile, "ark_rwt:\n");
     N_VPrint_Serial(ark_mem->ark_rwt);
   }
   if (ark_mem->ark_y != NULL) {
-    printf("ark_y:\n");
+    fprintf(outfile, "ark_y:\n");
     N_VPrint_Serial(ark_mem->ark_y);
   }
   if (ark_mem->ark_ycur != NULL) {
-    printf("ark_ycur:\n");
+    fprintf(outfile, "ark_ycur:\n");
     N_VPrint_Serial(ark_mem->ark_ycur);
   }
   if (ark_mem->ark_sdata != NULL) {
-    printf("ark_sdata:\n");
+    fprintf(outfile, "ark_sdata:\n");
     N_VPrint_Serial(ark_mem->ark_sdata);
   }
   if (ark_mem->ark_tempv != NULL) {
-    printf("ark_tempv:\n");
+    fprintf(outfile, "ark_tempv:\n");
     N_VPrint_Serial(ark_mem->ark_tempv);
   }
   if (ark_mem->ark_acor != NULL) {
-    printf("ark_acor:\n");
+    fprintf(outfile, "ark_acor:\n");
     N_VPrint_Serial(ark_mem->ark_acor);
   }
   if (ark_mem->ark_ftemp != NULL) {
-    printf("ark_ftemp:\n");
+    fprintf(outfile, "ark_ftemp:\n");
     N_VPrint_Serial(ark_mem->ark_ftemp);
   }
   if (ark_mem->ark_fold != NULL) {
-    printf("ark_fold:\n");
+    fprintf(outfile, "ark_fold:\n");
     N_VPrint_Serial(ark_mem->ark_fold);
   }
   if (ark_mem->ark_fnew != NULL) {
-    printf("ark_fnew:\n");
+    fprintf(outfile, "ark_fnew:\n");
     N_VPrint_Serial(ark_mem->ark_fnew);
   }
   if (ark_mem->ark_yold != NULL) {
-    printf("ark_yold:\n");
+    fprintf(outfile, "ark_yold:\n");
     N_VPrint_Serial(ark_mem->ark_yold);
   }
   if (ark_mem->ark_ynew != NULL) {
-    printf("ark_ynew:\n");
+    fprintf(outfile, "ark_ynew:\n");
     N_VPrint_Serial(ark_mem->ark_ynew);
   }
   if (ark_mem->ark_fp_df != NULL) 
     for (i=0; i<ark_mem->ark_fp_m; i++)
       if (ark_mem->ark_fp_df[i] != NULL) {
-	printf("ark_fp_df[%i]:\n", i);
+	fprintf(outfile, "ark_fp_df[%i]:\n", i);
 	N_VPrint_Serial(ark_mem->ark_fp_df[i]);
       }
   if (ark_mem->ark_fp_dg != NULL) 
     for (i=0; i<ark_mem->ark_fp_m; i++)
       if (ark_mem->ark_fp_dg[i] != NULL) {
-	printf("ark_fp_dg[%i]:\n", i);
+	fprintf(outfile, "ark_fp_dg[%i]:\n", i);
 	N_VPrint_Serial(ark_mem->ark_fp_dg[i]);
       }
   if (ark_mem->ark_fp_q != NULL) 
     for (i=0; i<ark_mem->ark_fp_m; i++)
       if (ark_mem->ark_fp_q[i] != NULL) {
-	printf("ark_fp_q[%i]:\n", i);
+	fprintf(outfile, "ark_fp_q[%i]:\n", i);
 	N_VPrint_Serial(ark_mem->ark_fp_q[i]);
       }
   if (ark_mem->ark_fp_fval != NULL) {
-    printf("ark_fp_fval:\n");
+    fprintf(outfile, "ark_fp_fval:\n");
     N_VPrint_Serial(ark_mem->ark_fp_fval);
   }
   if (ark_mem->ark_fp_fold != NULL) {
-    printf("ark_fp_fold:\n");
+    fprintf(outfile, "ark_fp_fold:\n");
     N_VPrint_Serial(ark_mem->ark_fp_fold);
   }
   if (ark_mem->ark_fp_gold != NULL) {
-    printf("ark_fp_gold:\n");
+    fprintf(outfile, "ark_fp_gold:\n");
     N_VPrint_Serial(ark_mem->ark_fp_gold);
   }
 #endif
