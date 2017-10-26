@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision: 4075 $
-# $Date: 2014-04-24 10:46:58 -0700 (Thu, 24 Apr 2014) $
-# ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -15,6 +12,7 @@
 # LLNS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the parhyp NVECTOR library
+# ---------------------------------------------------------------
 
 INSTALL(CODE "MESSAGE(\"\nInstall NVECTOR_PARHYP\n\")")
 
@@ -63,6 +61,14 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Install the NVECPARHYP library
 IF(BUILD_SHARED_LIBS)
   ADD_LIBRARY(sundials_nvecparhyp_shared SHARED ${nvecparhyp_SOURCES} ${shared_SOURCES})
+
+  IF(UNIX)
+    TARGET_LINK_LIBRARIES(sundials_nvecparhyp_shared m)
+  ENDIF()
+
+  # nvecparhyp depends on hypre
+  TARGET_LINK_LIBRARIES(sundials_nvecparhyp_shared ${HYPRE_LIBRARIES})
+
   SET_TARGET_PROPERTIES(sundials_nvecparhyp_shared
     PROPERTIES OUTPUT_NAME sundials_nvecparhyp CLEAN_DIRECT_OUTPUT 1)
   SET_TARGET_PROPERTIES(sundials_nvecparhyp_shared 

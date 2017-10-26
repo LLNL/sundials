@@ -78,9 +78,9 @@ SUPERLUMTSTATUS=ON
 
 # SuperLU MT index type must be set a build time
 if [ "$indextype" == "int32_t" ]; then
-    SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1
+    SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1_fpic
 else
-    SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1_long_int
+    SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1_long_int_fpic
 fi
 
 # SuperLU MT does not support extended precision
@@ -93,9 +93,9 @@ HYPRESTATUS=ON
 
 # hypre index type must be set a build time
 if [ "$indextype" == "int32_t" ]; then
-    HYPREDIR=${APPDIR}/hypre/2.11.1
+    HYPREDIR=${APPDIR}/hypre/2.11.1_fpic
 else
-    HYPREDIR=${APPDIR}/hypre/2.11.1_long_int
+    HYPREDIR=${APPDIR}/hypre/2.11.1_long_int_fpic
 fi
 
 # only testing hypre with double precision at this time
@@ -118,7 +118,7 @@ if [ "$realtype" != "double" ]; then
     PETSCSTATUS=OFF
 fi
 
-# -------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Configure SUNDIALS with CMake
 #
 # NOTE: Helpful options for debugging CMake
@@ -129,7 +129,11 @@ fi
 #
 # The CMake option '-D CMAKE_VERBOSE_MAKEFILE=ON' enables additional output during
 # compile time which is useful for debugging build issues.
-# -------------------------------------------------------------------------------
+#
+# Setting the shared linker flags to
+# '-D CMAKE_SHARED_LINKER_FLAGS="-Wl,--no-undefined"'
+# is useful for finding undefined references when building shared libraries
+# ------------------------------------------------------------------------------
 
 echo "START CMAKE"
 cmake \

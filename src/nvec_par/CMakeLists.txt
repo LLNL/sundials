@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision$
-# $Date$
-# ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -31,12 +28,14 @@ SET(nvecparallel_SOURCES nvector_parallel.c)
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the NVECPARALLEL library
-SET(shared_SOURCES sundials_math.c)
-ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
+SET(shared_SOURCES 
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
+  )
 
 # Add variable nvecparallel_HEADERS with the exported NVECPARALLEL header files
-SET(nvecparallel_HEADERS nvector_parallel.h)
-ADD_PREFIX(${sundials_SOURCE_DIR}/include/nvector/ nvecparallel_HEADERS)
+SET(nvecparallel_HEADERS 
+  ${sundials_SOURCE_DIR}/include/nvector/nvector_parallel.h
+  )
 
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(.)
@@ -62,6 +61,11 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Install the NVECPARALLEL library
 IF(BUILD_SHARED_LIBS)
   ADD_LIBRARY(sundials_nvecparallel_shared SHARED ${nvecparallel_SOURCES} ${shared_SOURCES})
+
+  IF(UNIX)
+    TARGET_LINK_LIBRARIES(sundials_nvecparallel_shared m)
+  ENDIF()
+
   SET_TARGET_PROPERTIES(sundials_nvecparallel_shared
     PROPERTIES OUTPUT_NAME sundials_nvecparallel CLEAN_DIRECT_OUTPUT 1)
   SET_TARGET_PROPERTIES(sundials_nvecparallel_shared 
@@ -75,20 +79,27 @@ INSTALL(FILES ${nvecparallel_HEADERS} DESTINATION include/nvector)
 # If FCMIX is enabled and MPI-F77 works, build and install the FNVECPARALLEL library
 IF(FCMIX_ENABLE AND MPIF_FOUND)
   SET(fnvecparallel_SOURCES fnvector_parallel.c)
+
   IF(BUILD_STATIC_LIBS)
     ADD_LIBRARY(sundials_fnvecparallel_static STATIC ${fnvecparallel_SOURCES})
     SET_TARGET_PROPERTIES(sundials_fnvecparallel_static
       PROPERTIES OUTPUT_NAME sundials_fnvecparallel CLEAN_DIRECT_OUTPUT 1)
     INSTALL(TARGETS sundials_fnvecparallel_static DESTINATION lib)
   ENDIF(BUILD_STATIC_LIBS)
+
   IF(BUILD_SHARED_LIBS)
     ADD_LIBRARY(sundials_fnvecparallel_shared SHARED ${fnvecparallel_SOURCES})
+
+    # fnvecparallel depends on nvecparallel
+    TARGET_LINK_LIBRARIES(sundials_fnvecparallel_shared sundials_nvecparallel_shared)
+
     SET_TARGET_PROPERTIES(sundials_fnvecparallel_shared
       PROPERTIES OUTPUT_NAME sundials_fnvecparallel CLEAN_DIRECT_OUTPUT 1)
     SET_TARGET_PROPERTIES(sundials_fnvecparallel_shared
       PROPERTIES VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION})
     INSTALL(TARGETS sundials_fnvecparallel_shared DESTINATION lib)
   ENDIF(BUILD_SHARED_LIBS)
+
 ENDIF(FCMIX_ENABLE AND MPIF_FOUND)
 #
 MESSAGE(STATUS "Added NVECTOR_PARALLEL module")

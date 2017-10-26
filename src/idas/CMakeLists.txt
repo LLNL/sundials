@@ -109,6 +109,10 @@ IF(BUILD_SHARED_LIBS)
   ADD_LIBRARY(sundials_idas_shared SHARED 
     ${idas_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES})
 
+  IF(UNIX)
+    TARGET_LINK_LIBRARIES(sundials_idas_shared m)
+  ENDIF()
+
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_idas_shared
     PROPERTIES OUTPUT_NAME sundials_idas CLEAN_DIRECT_OUTPUT 1)

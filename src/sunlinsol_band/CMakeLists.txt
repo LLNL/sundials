@@ -24,12 +24,15 @@ SET(sunlinsolband_SOURCES sunlinsol_band.c)
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the SUNLINSOLBAND library
-SET(shared_SOURCES sundials_math.c sundials_band.c)
-ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
+SET(shared_SOURCES
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_band.c
+  )
 
 # Add variable sunlinsolband_HEADERS with the exported SUNLINSOLBAND header files
-SET(sunlinsolband_HEADERS sunlinsol_band.h)
-ADD_PREFIX(${sundials_SOURCE_DIR}/include/sunlinsol/ sunlinsolband_HEADERS)
+SET(sunlinsolband_HEADERS 
+  ${sundials_SOURCE_DIR}/include/sunlinsol/sunlinsol_band.h
+  )
 
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(.)
@@ -55,6 +58,10 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Install the SUNLINSOLBAND library
 IF(BUILD_SHARED_LIBS)
   ADD_LIBRARY(sundials_sunlinsolband_shared SHARED ${sunlinsolband_SOURCES} ${shared_SOURCES})
+
+  # sunlinsolband depends on sunmatrixband
+  TARGET_LINK_LIBRARIES(sundials_sunlinsolband_shared sundials_sunmatrixband_shared)
+
   SET_TARGET_PROPERTIES(sundials_sunlinsolband_shared
     PROPERTIES OUTPUT_NAME sundials_sunlinsolband CLEAN_DIRECT_OUTPUT 1)
   SET_TARGET_PROPERTIES(sundials_sunlinsolband_shared
@@ -68,20 +75,30 @@ INSTALL(FILES ${sunlinsolband_HEADERS} DESTINATION include/sunlinsol)
 # If FCMIX is enabled, build and install the FSUNLINSOLBAND library
 IF(FCMIX_ENABLE AND F77_FOUND)
   SET(fsunlinsolband_SOURCES fsunlinsol_band.c)
+
   IF(BUILD_STATIC_LIBS)
     ADD_LIBRARY(sundials_fsunlinsolband_static STATIC ${fsunlinsolband_SOURCES})
     SET_TARGET_PROPERTIES(sundials_fsunlinsolband_static
       PROPERTIES OUTPUT_NAME sundials_fsunlinsolband CLEAN_DIRECT_OUTPUT 1)
     INSTALL(TARGETS sundials_fsunlinsolband_static DESTINATION lib)
   ENDIF(BUILD_STATIC_LIBS)
+
   IF(BUILD_SHARED_LIBS)
     ADD_LIBRARY(sundials_fsunlinsolband_shared ${fsunlinsolband_SOURCES})
+
+    # fsunlinsolband depends on fnvecserial, fsunmatrixband, sunlinsolband
+    TARGET_LINK_LIBRARIES(sundials_fsunlinsolband_shared
+      sundials_fnvecserial_shared
+      sundials_fsunmatrixband_shared
+      sundials_sunlinsolband_shared)
+
     SET_TARGET_PROPERTIES(sundials_fsunlinsolband_shared
       PROPERTIES OUTPUT_NAME sundials_fsunlinsolband CLEAN_DIRECT_OUTPUT 1)
     SET_TARGET_PROPERTIES(sundials_fsunlinsolband_shared 
       PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
     INSTALL(TARGETS sundials_fsunlinsolband_shared DESTINATION lib)
   ENDIF(BUILD_SHARED_LIBS)
+
 ENDIF(FCMIX_ENABLE AND F77_FOUND)
 
 #

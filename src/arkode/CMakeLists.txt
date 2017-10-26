@@ -108,6 +108,10 @@ IF(BUILD_SHARED_LIBS)
   ADD_LIBRARY(sundials_arkode_shared SHARED 
     ${arkode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES})
 
+  IF(UNIX)
+    TARGET_LINK_LIBRARIES(sundials_arkode_shared m)
+  ENDIF()
+
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_arkode_shared
     PROPERTIES OUTPUT_NAME sundials_arkode CLEAN_DIRECT_OUTPUT 1)
