@@ -1,5 +1,4 @@
-/*
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): Slaven Peles @ LLNL                               
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -11,8 +10,7 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS Copyright End
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <nvector/raja/Vector.hpp>
 #include <RAJA/RAJA.hpp>
@@ -244,7 +242,7 @@ void N_VCopyFromDevice_Raja(N_Vector x)
  * Function to print the a serial vector
  */
 
-void N_VPrint_Raja(N_Vector X)
+void N_VPrint_Raja(N_Vector X, FILE *outfile)
 {
   const realtype *xd = getDevData<realtype, sunindextype>(X);
   const sunindextype N = getSize<realtype, sunindextype>(X);
@@ -252,14 +250,14 @@ void N_VPrint_Raja(N_Vector X)
 
   for (i = 0; i < N; ++i) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf("%35.32Lg\n", xd[i]);
+    fprintf(outfile, "%35.32Lg\n", xd[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("%19.16g\n", xd[i]);
+    fprintf(outfile, "%19.16g\n", xd[i]);
 #else
-    printf("%11.8g\n", xd[i]);
+    fprintf(outfile, "%11.8g\n", xd[i]);
 #endif
   }
-  printf("\n");
+  fprintf(outfile, "\n");
 
   return;
 }

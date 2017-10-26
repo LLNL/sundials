@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * 
  * Based on N_Vector_Parallel by Scott D. Cohen, Alan C. Hindmarsh, 
@@ -20,8 +16,7 @@
  * -----------------------------------------------------------------
  * This is the implementation file for a PETSc implementation
  * of the NVECTOR package.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -316,15 +311,30 @@ Vec *N_VGetVector_Petsc(N_Vector v)
 }
 
 /* ---------------------------------------------------------------- 
- * Function to print a parallel vector 
+ * Function to print a the local data in a PETSc parallel vector 
  */
 
-void N_VPrint_Petsc(N_Vector x)
+void N_VPrint_Petsc(N_Vector x, FILE *outfile)
 {
+  sunindextype i;
+  sunindextype N = NV_LOCLENGTH_PTC(x);
   Vec *xv = NV_PVEC_PTC(x);
-  MPI_Comm comm = NV_COMM_PTC(x);
-  
-  VecView(*xv, PETSC_VIEWER_STDOUT_(comm));
+  PetscScalar *xd;
+
+  VecGetArray(*xv, &xd);
+
+  for (i = 0; i < N; i++) {
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(outfile, "%Lg\n", xd[i]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    fprintf(outfile, "%g\n", xd[i]);
+#else
+    fprintf(outfile, "%g\n", xd[i]);
+#endif
+  }
+  fprintf(outfile, "\n");
+
+  VecRestoreArray(*xv, &xd);
 
   return;
 }

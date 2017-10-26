@@ -189,10 +189,10 @@ N_Vector *N_VCloneEmptyVectorArray_Raja(int count, N_Vector w);
 
 \item \ID{N\_VPrint\_Raja}
   
-  This function prints the content of a wrapped {\raja} vector to stdout.
+  This function prints the content of a {\raja} vector to \id{outfile}.
  
     
-  \verb|void N_VPrint_Raja(N_Vector v);|
+  \verb|void N_VPrint_Raja(N_Vector v, FILE *outfile);|
 
 
 \end{itemize}

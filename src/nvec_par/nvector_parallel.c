@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -18,8 +14,7 @@
  * -----------------------------------------------------------------
  * This is the implementation file for a parallel MPI implementation
  * of the NVECTOR package.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -301,10 +296,10 @@ sunindextype N_VGetLocalLength_Parallel(N_Vector v)
 }
 
 /* ---------------------------------------------------------------- 
- * Function to print a parallel vector 
+ * Function to print the local data in a parallel vector 
  */
 
-void N_VPrint_Parallel(N_Vector x)
+void N_VPrint_Parallel(N_Vector x, FILE* outfile)
 {
   sunindextype i, N;
   realtype *xd;
@@ -316,14 +311,14 @@ void N_VPrint_Parallel(N_Vector x)
 
   for (i = 0; i < N; i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf("%Lg\n", xd[i]);
+    fprintf(outfile, "%Lg\n", xd[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("%g\n", xd[i]);
+    fprintf(outfile, "%g\n", xd[i]);
 #else
-    printf("%g\n", xd[i]);
+    fprintf(outfile, "%g\n", xd[i]);
 #endif
   }
-  printf("\n");
+  fprintf(outfile, "\n");
 
   return;
 }

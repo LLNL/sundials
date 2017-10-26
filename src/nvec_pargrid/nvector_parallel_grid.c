@@ -351,7 +351,7 @@ void N_VDestroyVectorArray_Parallel_Grid(N_Vector *vs, int count)
  * Function to print the active portion of a parallel grid vector 
  */
 
-void N_VPrint_Parallel_Grid(N_Vector x)
+void N_VPrint_Parallel_Grid(N_Vector x, FILE *outfile)
 {
   sunindextype i, i0, i1, i2, i3, i4, i5;
   sunindextype N[MAX_DIMS], n[MAX_DIMS], o[MAX_DIMS];
@@ -373,16 +373,16 @@ void N_VPrint_Parallel_Grid(N_Vector x)
      and data ordering */
   if (dims == 1) 
     for (i0=o[0]; i0<o[0]+n[0]; i0++) 
-      printf("%li : %"DOUT"\n", i0-o[0], xd[i0]);
+      fprintf(outfile, "%li : %"DOUT"\n", i0-o[0], xd[i0]);
   if (dims == 2) {
     if (Forder) {
       for (i1=o[1]; i1<o[1]+n[1]; i1++) 
 	for (i0=o[0]; i0<o[0]+n[0]; i0++) 
-	  printf("%li, %li : %"DOUT"\n", i0-o[0], i1-o[1], xd[i1*N[0]+i0]);
+	  fprintf(outfile, "%li, %li : %"DOUT"\n", i0-o[0], i1-o[1], xd[i1*N[0]+i0]);
     } else {
       for (i0=o[0]; i0<o[0]+n[0]; i0++) 
 	for (i1=o[1]; i1<o[1]+n[1]; i1++) 
-	  printf("%li, %li : %"DOUT"\n", i0-o[0], i1-o[1], xd[i0*N[1]+i1]);
+	  fprintf(outfile, "%li, %li : %"DOUT"\n", i0-o[0], i1-o[1], xd[i0*N[1]+i1]);
     }
   }
   if (dims == 3) {
@@ -391,7 +391,7 @@ void N_VPrint_Parallel_Grid(N_Vector x)
 	for (i1=o[1]; i1<o[1]+n[1]; i1++) 
 	  for (i0=o[0]; i0<o[0]+n[0]; i0++) {
 	    i = (i2*N[1] + i1)*N[0] + i0;
-	    printf("%li, %li, %li : %"DOUT"\n", 
+	    fprintf(outfile, "%li, %li, %li : %"DOUT"\n", 
 		   i0-o[0], i1-o[1], i2-o[2], xd[i]);
 	  } 
     } else {
@@ -399,7 +399,7 @@ void N_VPrint_Parallel_Grid(N_Vector x)
 	for (i1=o[1]; i1<o[1]+n[1]; i1++) 
 	  for (i2=o[2]; i2<o[2]+n[2]; i2++) {
 	    i = (i0*N[1] + i1)*N[2] + i2;
-	    printf("%li, %li, %li : %"DOUT"\n", 
+	    fprintf(outfile, "%li, %li, %li : %"DOUT"\n", 
 		   i0-o[0], i1-o[1], i2-o[2], xd[i]);
 	  }
     }
@@ -411,7 +411,7 @@ void N_VPrint_Parallel_Grid(N_Vector x)
 	  for (i1=o[1]; i1<o[1]+n[1]; i1++) 
 	    for (i0=o[0]; i0<o[0]+n[0]; i0++) {
 	      i = ((i3*N[2] + i2)*N[1] + i1)*N[0] + i0;
-	      printf("%li, %li, %li, %li : %"DOUT"\n", 
+	      fprintf(outfile, "%li, %li, %li, %li : %"DOUT"\n", 
 		     i0-o[0], i1-o[1], i2-o[2], i3-o[3], xd[i]);
 	    }
     } else {
@@ -420,7 +420,7 @@ void N_VPrint_Parallel_Grid(N_Vector x)
 	  for (i2=o[2]; i2<o[2]+n[2]; i2++) 
 	    for (i3=o[3]; i3<o[3]+n[3]; i3++) {
 	      i = ((i0*N[1] + i1)*N[2] + i2)*N[3] + i3;
-	      printf("%li, %li, %li, %li : %"DOUT"\n", 
+	      fprintf(outfile, "%li, %li, %li, %li : %"DOUT"\n", 
 		     i0-o[0], i1-o[1], i2-o[2], i3-o[3], xd[i]);
 	    }
     }
@@ -433,7 +433,7 @@ void N_VPrint_Parallel_Grid(N_Vector x)
 	    for (i1=o[1]; i1<o[1]+n[1]; i1++) 
 	      for (i0=o[0]; i0<o[0]+n[0]; i0++) {
 		i = (((i4*N[3] + i3)*N[2] + i2)*N[1] + i1)*N[0] + i0;
-		printf("%li, %li, %li, %li, %li : %"DOUT"\n", 
+		fprintf(outfile, "%li, %li, %li, %li, %li : %"DOUT"\n", 
 		       i0-o[0], i1-o[1], i2-o[2], i3-o[3], i4-o[4], xd[i]);
 	      }
     } else {
@@ -443,7 +443,7 @@ void N_VPrint_Parallel_Grid(N_Vector x)
 	    for (i3=o[3]; i3<o[3]+n[3]; i3++) 
 	      for (i4=o[4]; i4<o[4]+n[4]; i4++) {
 		i = (((i0*N[1] + i1)*N[2] + i2)*N[3] + i3)*N[4] + i4;
-		printf("%li, %li, %li, %li, %li : %"DOUT"\n", 
+		fprintf(outfile, "%li, %li, %li, %li, %li : %"DOUT"\n", 
 		       i0-o[0], i1-o[1], i2-o[2], i3-o[3], i4-o[4], xd[i]);
 	      }
     }
@@ -457,7 +457,7 @@ void N_VPrint_Parallel_Grid(N_Vector x)
 	      for (i1=o[1]; i1<o[1]+n[1]; i1++) 
 		for (i0=o[0]; i0<o[0]+n[0]; i0++) {
 		  i = ((((i5*N[4] + i4)*N[3] + i3)*N[2] + i2)*N[1] + i1)*N[0] + i0;
-		  printf("%li, %li, %li, %li, %li, %li : %"DOUT"\n", 
+		  fprintf(outfile, "%li, %li, %li, %li, %li, %li : %"DOUT"\n", 
 			 i0-o[0], i1-o[1], i2-o[2], i3-o[3], i4-o[4], i5-o[5], xd[i]);
 		}
     } else {
@@ -468,13 +468,13 @@ void N_VPrint_Parallel_Grid(N_Vector x)
 	    for (i4=o[4]; i4<o[4]+n[4]; i4++) 
 	      for (i5=o[5]; i5<o[5]+n[5]; i5++) {
 		i = ((((i0*N[1] + i1)*N[2] + i2)*N[3] + i3)*N[4] + i4)*N[5] + i5;
-		printf("%li, %li, %li, %li, %li, %li : %"DOUT"\n", 
+		fprintf(outfile, "%li, %li, %li, %li, %li, %li : %"DOUT"\n", 
 		       i0-o[0], i1-o[1], i2-o[2], i3-o[3], i4-o[4], i5-o[5], xd[i]);
 	      }
     }
   }
   
-  printf("\n");
+  fprintf(outfile, "\n");
   return;
 }
 
@@ -482,7 +482,7 @@ void N_VPrint_Parallel_Grid(N_Vector x)
  * Function to print all data in a parallel grid vector 
  */
 
-void N_VPrintAll_Parallel_Grid(N_Vector x)
+void N_VPrintAll_Parallel_Grid(N_Vector x, FILE *outfile)
 {
   sunindextype i, i0, i1, i2, i3, i4, i5;
   sunindextype N[MAX_DIMS], o[MAX_DIMS];
@@ -503,16 +503,16 @@ void N_VPrintAll_Parallel_Grid(N_Vector x)
      and data ordering */
   if (dims == 1) 
     for (i0=0; i0<N[0]; i0++) 
-      printf("%li : %"DOUT"\n", i0-o[0], xd[i0]);
+      fprintf(outfile, "%li : %"DOUT"\n", i0-o[0], xd[i0]);
   if (dims == 2) {
     if (Forder) {
       for (i1=0; i1<N[1]; i1++) 
 	for (i0=0; i0<N[0]; i0++) 
-	  printf("%li, %li : %"DOUT"\n", i0-o[0], i1-o[1], xd[i1*N[0]+i0]);
+	  fprintf(outfile, "%li, %li : %"DOUT"\n", i0-o[0], i1-o[1], xd[i1*N[0]+i0]);
     } else {
       for (i0=0; i0<N[0]; i0++) 
 	for (i1=0; i1<N[1]; i1++) 
-	  printf("%li, %li : %"DOUT"\n", i0-o[0], i1-o[1], xd[i0*N[1]+i1]);
+	  fprintf(outfile, "%li, %li : %"DOUT"\n", i0-o[0], i1-o[1], xd[i0*N[1]+i1]);
     }
   }
   if (dims == 3) {
@@ -521,7 +521,7 @@ void N_VPrintAll_Parallel_Grid(N_Vector x)
 	for (i1=0; i1<N[1]; i1++) 
 	  for (i0=0; i0<N[0]; i0++) {
 	    i = (i2*N[1] + i1)*N[0] + i0;
-	    printf("%li, %li, %li : %"DOUT"\n", 
+	    fprintf(outfile, "%li, %li, %li : %"DOUT"\n", 
 		   i0-o[0], i1-o[1], i2-o[2], xd[i]);
 	  } 
     } else {
@@ -529,7 +529,7 @@ void N_VPrintAll_Parallel_Grid(N_Vector x)
 	for (i1=0; i1<N[1]; i1++) 
 	  for (i2=0; i2<N[2]; i2++) {
 	    i = (i0*N[1] + i1)*N[2] + i2;
-	    printf("%li, %li, %li : %"DOUT"\n", 
+	    fprintf(outfile, "%li, %li, %li : %"DOUT"\n", 
 		   i0-o[0], i1-o[1], i2-o[2], xd[i]);
 	  }
     }
@@ -541,7 +541,7 @@ void N_VPrintAll_Parallel_Grid(N_Vector x)
 	  for (i1=0; i1<N[1]; i1++) 
 	    for (i0=0; i0<N[0]; i0++) {
 	      i = ((i3*N[2] + i2)*N[1] + i1)*N[0] + i0;
-	      printf("%li, %li, %li, %li : %"DOUT"\n", 
+	      fprintf(outfile, "%li, %li, %li, %li : %"DOUT"\n", 
 		     i0-o[0], i1-o[1], i2-o[2], i3-o[3], xd[i]);
 	    }
     } else {
@@ -550,7 +550,7 @@ void N_VPrintAll_Parallel_Grid(N_Vector x)
 	  for (i2=0; i2<N[2]; i2++) 
 	    for (i3=0; i3<N[3]; i3++) {
 	      i = ((i0*N[1] + i1)*N[2] + i2)*N[3] + i3;
-	      printf("%li, %li, %li, %li : %"DOUT"\n", 
+	      fprintf(outfile, "%li, %li, %li, %li : %"DOUT"\n", 
 		     i0-o[0], i1-o[1], i2-o[2], i3-o[3], xd[i]);
 	    }
     }
@@ -563,7 +563,7 @@ void N_VPrintAll_Parallel_Grid(N_Vector x)
 	    for (i1=0; i1<N[1]; i1++) 
 	      for (i0=0; i0<N[0]; i0++) {
 		i = (((i4*N[3] + i3)*N[2] + i2)*N[1] + i1)*N[0] + i0;
-		printf("%li, %li, %li, %li, %li : %"DOUT"\n", 
+		fprintf(outfile, "%li, %li, %li, %li, %li : %"DOUT"\n", 
 		       i0-o[0], i1-o[1], i2-o[2], i3-o[3], i4-o[4], xd[i]);
 	      }
     } else {
@@ -573,7 +573,7 @@ void N_VPrintAll_Parallel_Grid(N_Vector x)
 	    for (i3=0; i3<N[3]; i3++) 
 	      for (i4=0; i4<N[4]; i4++) {
 		i = (((i0*N[1] + i1)*N[2] + i2)*N[3] + i3)*N[4] + i4;
-		printf("%li, %li, %li, %li, %li : %"DOUT"\n", 
+		fprintf(outfile, "%li, %li, %li, %li, %li : %"DOUT"\n", 
 		       i0-o[0], i1-o[1], i2-o[2], i3-o[3], i4-o[4], xd[i]);
 	      }
     }
@@ -587,7 +587,7 @@ void N_VPrintAll_Parallel_Grid(N_Vector x)
 	      for (i1=0; i1<N[1]; i1++) 
 		for (i0=0; i0<N[0]; i0++) {
 		  i = ((((i5*N[4] + i4)*N[3] + i3)*N[2] + i2)*N[1] + i1)*N[0] + i0;
-		  printf("%li, %li, %li, %li, %li, %li : %"DOUT"\n", 
+		  fprintf(outfile, "%li, %li, %li, %li, %li, %li : %"DOUT"\n", 
 			 i0-o[0], i1-o[1], i2-o[2], i3-o[3], i4-o[4], i5-o[5], xd[i]);
 		}
     } else {
@@ -598,13 +598,13 @@ void N_VPrintAll_Parallel_Grid(N_Vector x)
 	    for (i4=0; i4<N[4]; i4++) 
 	      for (i5=0; i5<N[5]; i5++) {
 		i = ((((i0*N[1] + i1)*N[2] + i2)*N[3] + i3)*N[4] + i4)*N[5] + i5;
-		printf("%li, %li, %li, %li, %li, %li : %"DOUT"\n", 
+		fprintf(outfile, "%li, %li, %li, %li, %li, %li : %"DOUT"\n", 
 		       i0-o[0], i1-o[1], i2-o[2], i3-o[3], i4-o[4], i5-o[5], xd[i]);
 	      }
     }
   }
   
-  printf("\n");
+  fprintf(outfile, "\n");
   return;
 }
 

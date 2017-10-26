@@ -309,22 +309,22 @@ SUNDIALS_EXPORT void N_VDestroyVectorArray_Parallel_Grid(N_Vector *vs,
  * Function : N_VPrint_Parallel_Grid
  * -----------------------------------------------------------------
  * This function prints the content of a parallel grid vector to 
- * stdout.
+ * outfile.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void N_VPrint_Parallel_Grid(N_Vector v);
+SUNDIALS_EXPORT void N_VPrint_Parallel_Grid(N_Vector v, FILE *outfile);
 
 /*
  * -----------------------------------------------------------------
  * Function : N_VPrintAll_Parallel_Grid
  * -----------------------------------------------------------------
  * This function prints the content of a parallel grid vector to 
- * stdout, including all grid zone values.
+ * outfile, including all grid zone values.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void N_VPrintAll_Parallel_Grid(N_Vector v);
+SUNDIALS_EXPORT void N_VPrintAll_Parallel_Grid(N_Vector v, FILE *outfile);
 
 /*
  * -----------------------------------------------------------------

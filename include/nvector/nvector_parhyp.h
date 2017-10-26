@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4378 $
- * $Date: 2015-02-19 10:55:14 -0800 (Thu, 19 Feb 2015) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Jean M. Sexton @ SMU
  *                Slaven Peles @ LLNL
  * ----------------------------------------------------------------- 
@@ -47,8 +43,7 @@
  *
  *     (which stores the result of the operation a*x+b*y in y)
  *     is legal.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #ifndef _NVECTOR_PARHYP_H
 #define _NVECTOR_PARHYP_H
@@ -180,11 +175,11 @@ SUNDIALS_EXPORT hypre_ParVector *N_VGetVector_ParHyp(N_Vector v);
  * -----------------------------------------------------------------
  * Function : N_VPrint_ParHyp
  * -----------------------------------------------------------------
- * This function prints the content of a parallel vector to stdout.
+ * This function prints the content of a parallel vector to outfile.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void N_VPrint_ParHyp(N_Vector v);
+SUNDIALS_EXPORT void N_VPrint_ParHyp(N_Vector v, FILE *outfile);
 
 /*
  * -----------------------------------------------------------------

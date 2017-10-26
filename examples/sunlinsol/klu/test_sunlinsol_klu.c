@@ -121,11 +121,11 @@ int main(int argc, char *argv[])
     printf("\nA =\n");
     SUNSparseMatrix_Print(A,stdout);
     printf("\nx (original) =\n");
-    N_VPrint_Serial(y);
+    N_VPrint_Serial(y,stdout);
     printf("\nb =\n");
-    N_VPrint_Serial(b);
+    N_VPrint_Serial(b,stdout);
     printf("\nx (computed) =\n");
-    N_VPrint_Serial(x);
+    N_VPrint_Serial(x,stdout);
   } else {
     printf("SUCCESS: SUNLinSol module passed all tests \n \n");
   }

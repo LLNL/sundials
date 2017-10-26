@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision:$
- * $Date:$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -43,8 +39,7 @@
  *
  *     (which stores the result of the operation a*x+b*y in y)
  *     is legal.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #ifndef _NVECTOR_PETSC_H
 #define _NVECTOR_PETSC_H
@@ -178,11 +173,11 @@ SUNDIALS_EXPORT Vec *N_VGetVector_Petsc(N_Vector v);
  * -----------------------------------------------------------------
  * Function : N_VPrint_Petsc
  * -----------------------------------------------------------------
- * This function prints the content of a parallel vector to stdout.
+ * This function prints the content of a parallel vector to outfile.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void N_VPrint_Petsc(N_Vector v);
+SUNDIALS_EXPORT void N_VPrint_Petsc(N_Vector v, FILE *outfile);
 
 /*
  * -----------------------------------------------------------------

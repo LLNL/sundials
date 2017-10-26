@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): Daniel R. Reynolds and Radu Serban @LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -17,8 +13,7 @@
  * -----------------------------------------------------------------
  * This is the implementation file for a spc_parallel MPI 
  * implementation of the NVECTOR package.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -333,12 +328,11 @@ void N_VDestroyVectorArray_SpcParallel(N_Vector *vs, int count)
 }
 
 /* ---------------------------------------------------------------- 
- * Function to print a parallel vector to stdout or to a file
+ * Function to print a SPCPARALLEL vector to outfile
  */
 
-void N_VPrint_SpcParallel(N_Vector v, char *fname)
+void N_VPrint_SpcParallel(N_Vector v, FILE *outfile)
 {
-  FILE *fp;
   int ig, Ngrp, is, Ns;
   sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
   sunindextype Yblock, Zblock, Xblock, loc;
@@ -355,12 +349,6 @@ void N_VPrint_SpcParallel(N_Vector v, char *fname)
   NGy  = SPV_YGHOST(v);
   NGz  = SPV_ZGHOST(v);
 
-  /* open output file */
-  if (fname[0] == '\0')
-    fp = stdout;
-  else
-    fp = fopen(fname, "w");
-
   for (ig=0; ig<Ngrp; ig++) {
     vd = SPV_GDATA(v,ig);
     Ns = SPV_NSPECIES(v,ig);
@@ -372,7 +360,7 @@ void N_VPrint_SpcParallel(N_Vector v, char *fname)
           Xblock = i * Ns;
           for (is=0; is<Ns; is++) {
             loc = Zblock + Yblock + Xblock + is;
-            fprintf(fp, "(%d,%ld,%ld,%ld,%d) = %e\n", 
+            fprintf(outfile, "(%d,%ld,%ld,%ld,%d) = %e\n", 
                     ig, i-NGx+1, j-NGy+1, k-NGz+1, is, vd[loc]);
           }
         }
@@ -380,7 +368,7 @@ void N_VPrint_SpcParallel(N_Vector v, char *fname)
     }
   }
 
-  if (fname[0] != '\0') fclose(fp);
+  return;
 }
 
 /*

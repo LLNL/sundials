@@ -130,9 +130,9 @@ int main(int argc, char *argv[])
     printf("\nI =\n");
     SUNBandMatrix_Print(I,stdout);
     printf("\nx =\n");
-    N_VPrint_Serial(x);
+    N_VPrint_Serial(x,stdout);
     printf("\ny =\n");
-    N_VPrint_Serial(y);
+    N_VPrint_Serial(y,stdout);
   } else {
     printf("SUCCESS: SUNMatrix module passed all tests \n \n");
   }

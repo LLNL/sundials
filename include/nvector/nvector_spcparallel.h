@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): Daniel R. Reynolds and Radu Serban @LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -14,8 +10,7 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS Copyright End
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #ifndef _NVECTOR_SPCPARALLEL_H
 #define _NVECTOR_SPCPARALLEL_H
@@ -240,11 +235,11 @@ SUNDIALS_EXPORT void N_VDestroyVectorArray_SpcParallel(N_Vector *vs, int count);
  * Function : N_VPrint_SpcParallel
  * -----------------------------------------------------------------
  * This function prints the content of an SPCPARALLEL vector 
- * to a file or to stdout (if fname=="")
+ * to outfile
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void N_VPrint_SpcParallel(N_Vector v, char *fname);
+SUNDIALS_EXPORT void N_VPrint_SpcParallel(N_Vector v, FILE *outfile);
 
 /*
  * -----------------------------------------------------------------

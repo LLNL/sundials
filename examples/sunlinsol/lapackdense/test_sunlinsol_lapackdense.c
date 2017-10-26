@@ -129,9 +129,9 @@ int main(int argc, char *argv[])
     printf("\nA (factored) =\n");
     SUNDenseMatrix_Print(A,stdout);
     printf("\nx (original) =\n");
-    N_VPrint_Serial(y);
+    N_VPrint_Serial(y,stdout);
     printf("\nx (computed) =\n");
-    N_VPrint_Serial(x);
+    N_VPrint_Serial(x,stdout);
   } else {
     printf("SUCCESS: SUNLinSol module passed all tests \n \n");
   }
