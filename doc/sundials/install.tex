@@ -761,6 +761,9 @@ example sources under subdirectories of
 The {\sundials} suite contains many options to enable implementation flexibility
 when developing solutions. The following are some notes addressing specific configurations
 when using the supported third party libraries.
+When building {\sundials} as a shared library external libraries any
+used with {\sundials} must also be build as a shared library or as a
+static library compiled with the \id{-fPIC} flag.{\warn}
 
 \subsubsection*{Building with BLAS}
 {\sundials} does not utilize BLAS directly but it may be needed by other
