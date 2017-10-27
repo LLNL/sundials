@@ -91,7 +91,7 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
   n = local_length;
   MPI_Allreduce(&n, &Nsum, 1, PVEC_INTEGER_MPI_TYPE, MPI_SUM, comm);
   if (Nsum != global_length) {
-    printf(BAD_N);
+    fprintf(stderr, BAD_N);
     return(NULL);
   } 
 
