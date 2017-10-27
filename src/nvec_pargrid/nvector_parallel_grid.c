@@ -109,12 +109,12 @@ N_Vector N_VNewEmpty_Parallel_Grid(MPI_Comm comm,
 
   /* ensure that 0 < dims <= MAX_DIMS */
   if (dims > MAX_DIMS) {
-    printf("N_VNew_Parallel_Grid error -- dims must be at most %i\n\n",
+    fprintf(stderr, "N_VNew_Parallel_Grid error -- dims must be at most %i\n\n",
 	   MAX_DIMS);
     return(NULL);
   }
   if (dims <= 0) {
-    printf("N_VNew_Parallel_Grid error -- dims must be at least 1\n\n");
+    fprintf(stderr, "N_VNew_Parallel_Grid error -- dims must be at least 1\n\n");
     return(NULL);
   }
 
@@ -125,7 +125,7 @@ N_Vector N_VNewEmpty_Parallel_Grid(MPI_Comm comm,
   /* Compute global length as sum of local lengths */
   MPI_Allreduce(&n, &Nsum, 1, PGVEC_INTEGER_MPI_TYPE, MPI_SUM, comm);
   if (Nsum != global_length) {
-    printf(BAD_N);
+    fprintf(stderr, BAD_N);
     return(NULL);
   } 
 
@@ -191,8 +191,8 @@ N_Vector N_VNewEmpty_Parallel_Grid(MPI_Comm comm,
   for (i=0; i<MAX_DIMS; i++) 
     if (content->dim_alength[i]+content->dim_offset[i] > content->dim_length[i])
       {
-	printf("N_VNewEmpty_Parallel_Grid: illegal inputs for dimension %i:\n",i);
-	printf("  total length (%li) must exceed active length (%li) plus offset (%li)\n",
+	fprintf(stderr, "N_VNewEmpty_Parallel_Grid: illegal inputs for dimension %i:\n",i);
+	fprintf(stderr, "  total length (%li) must exceed active length (%li) plus offset (%li)\n",
 	       content->dim_length[i],content->dim_alength[i],content->dim_offset[i]);
 	return NULL;
       }
