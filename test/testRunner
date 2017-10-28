@@ -1,6 +1,25 @@
 #! /usr/bin/env python
-
-# Author: Steven Smith based on code from : Chris White
+# ---------------------------------------------------------------
+# Programmer:  Steven Smith @ LLNL
+# ---------------------------------------------------------------
+# Acknowledgement: Based on code from Chris White @ LLNL
+# ---------------------------------------------------------------
+# LLNS Copyright Start
+# Copyright (c) 2014, Lawrence Livermore National Security
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
+# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# LLNS Copyright End
+# ---------------------------------------------------------------
+# Sundials test runner for with CTest. Note examples must be 
+# enabled to use the test runner (e.g. EXAMPLES_ENABLE_C=ON). 
+#
+# All output from the test runner output will be collected in
+# <build directory>/Testing/Temporary/LastTest.log
+# ---------------------------------------------------------------
 
 import exceptions
 import os
@@ -27,8 +46,8 @@ def main():
     parser.add_argument('--runargs', dest='runArgs', type=str,
                         help='command line arguments passed to test executable')
 
-    parser.add_argument('--floatprecision', dest='floatPrecision', type=float,
-                        help='precision for floating point failure comparison')
+    parser.add_argument('--floatprecision', dest='floatPrecision', type=int,
+                        help='precision for floating point failure comparison (number of digits')
 
     parser.add_argument('--integerpercentage', dest='integerPercentage', type=int,
                         help='integer percentage difference for failure comparison')
@@ -47,11 +66,12 @@ def main():
         print "runCommand=%s"%(args.runCommand)
         print "runArgs=%s"%(args.runArgs)
 
+    # regression test name and output directory 
     testName = args.testName
+    outDir   = args.outputDir
 
-    testDir = os.path.dirname(sys.argv[0])
-    outDir = args.outputDir
-
+    # path to Sundials test and answer directory
+    testDir    = os.path.dirname(sys.argv[0])
     answersDir = os.path.join(testDir, "answers")
     
     if(args.verbose):
@@ -59,17 +79,22 @@ def main():
         print "outDir %s"%outDir
         print "answersDir %s"%answersDir
 
+    # create output directory if necessary
     if not os.path.exists(outDir):
         os.makedirs(outDir)
     elif not os.path.isdir(outDir):
         error("Output directory exists but is not a directory, it must be deleted.", outDir)
         sys.exit(1)
 
+    # get testing information
     testInfos = getInfo(testName, testDir)
+
+    # initialize testing result to success
     success = True
+
     for testInfo in testInfos:
         if(args.verbose):
-            error("testInfo.arguments = ",testInfo.arguments)
+            print "testInfo.arguments = ",testInfo.arguments
 
         # If running under another program (e.g. mpirun)
         if(args.runCommand):
@@ -142,9 +167,10 @@ def main():
     sys.exit(0)
 
 def compare(outPath, answerPath, testInfo):
-    #Note: This functions strips all lines of leading and trailing whitespace and blank lines.  Then it
-    #      compares the output against the checked in answer file. It allows fuzziness in floating points
-    #      and integers, as described in the testInfo file.
+    # Note: This functions strips all lines of leading and trailing whitespace
+    # and blank lines. Then it compares the output against the answer file. It
+    # allows fuzziness in floating points and integers, as described in the
+    # testInfo file.
     outFile = open(outPath, 'r')
     try:
         outLines = stripLines(outFile.readlines())
@@ -158,7 +184,9 @@ def compare(outPath, answerPath, testInfo):
     diffCount = 0
 
     if len(outLines) != len(answerLines):
-        error("Line count is not equal (blank lines ignored):\n" + str(len(outLines)) + ":" + outPath + "\n" + str(len(answerLines)) + ":" + answerPath)
+        error("Line count is not equal (blank lines ignored):\n"
+              + str(len(outLines)) + ":" + outPath + "\n"
+              + str(len(answerLines)) + ":" + answerPath)
         return False
 
     for i, outLine in enumerate(outLines):
@@ -204,12 +232,14 @@ def compareLines(outLine, answerLine, testInfo):
     return True
 
 def isInt(value):
+    # Check if string can be converted to int
     try:
         return True, int(value)
     except exceptions.ValueError:
         return False, 0
 
 def intCompare(answer, value, percentage):
+    # Check if error between value and answer is greater than the allowed percentage
     if answer == value:
         return True
     if percentage != 0:
@@ -220,12 +250,14 @@ def intCompare(answer, value, percentage):
     return False
 
 def isFloat(value):
+    # Check if string can be converted to float
     try:
         return True, float(value)
     except exceptions.ValueError:
         return False, 0
 
 def floatCompare(answer, value, precision):
+    # Check if two floating point numbers are the same to a given number of digits
     if precision == 0:
         if answer == value:
             return True
@@ -278,10 +310,13 @@ def getInfo(testName, testDir):
                 continue
             lineInfo = line.split(':', 3)
             if lineInfo[0].strip().lower() == loweredTestName:
-                testInfos.append(TestInfo(int(lineInfo[1].strip()), int(lineInfo[2].strip()), lineInfo[3].strip()))
+                testInfos.append(TestInfo(int(lineInfo[1].strip()),
+                                          int(lineInfo[2].strip()),
+                                          lineInfo[3].strip()))
 
     if len(testInfos) == 0:
-        #Note: If no info found in testInfo file then run test without arguments and do default comparisions
+        # Note: If no info is found in the testInfo file then run the test 
+        # without arguments and use the default comparisions values
         testInfos.append(TestInfo(4,10,""))
     return testInfos
 

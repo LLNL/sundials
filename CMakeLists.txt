@@ -12,14 +12,13 @@
 # LLNS Copyright End
 # ---------------------------------------------------------------
 # Top level CMakeLists.txt for SUNDIALS (for cmake build system)
-
+# ---------------------------------------------------------------
 
 # ---------------------------------------------------------------
 # Initial commands
 # ---------------------------------------------------------------
 
 # Require a fairly recent cmake version
-
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.1)
 
 # Set CMake policy to allow examples to build
@@ -1231,8 +1230,17 @@ ENDIF(BUILD_CPODES)
 INCLUDE(SundialsAddTest)
 HIDE_VARIABLE(TESTRUNNER)
 IF(EXAMPLES_ENABLED)
+
   IF(TESTRUNNER)
+    
+    # enable regression testing
     ENABLE_TESTING()
+
+    # check if this is a development version to select which tests to run
+    IF(EXISTS "${CMAKE_SOURCE_DIR}/README_DEV")
+      SET(SUNDIALS_DEVTESTS TRUE)
+    ENDIF()
+
   ENDIF(TESTRUNNER)
 
   # set variables used in generating CMake and Makefiles for examples
