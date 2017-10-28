@@ -17,17 +17,19 @@
 # Copyright (c) 2013, Southern Methodist University.
 # All rights reserved.
 # For details, see the LICENSE file.
-# -----------------------------------------------------------------
+# ---------------------------------------------------------------
 # CMakeLists.txt file for the ARKODE parallel F90 examples
-# -----------------------------------------------------------------
+# ---------------------------------------------------------------
 
-# Add variable FARKODE_examples with the names of the parallel ARKODE examples
+# Example lists are tuples "name\;nodes\;tasks\;type" where the
+# type is develop for examples excluded from 'make test' in releases
+
+# Examples using SUNDIALS linear solvers
 SET(FARKODE_examples
-  "fark_heat2D\;1\;2"
+  "fark_heat2D\;1\;2\;develop"
   )
 
-# Add variable FARKODE_extras with the names of auxiliary files to install
-# "name\;nodes\;tasks"
+# Auxiliary files to install
 SET(FARKODE_extras
   plot_heat2D.py
   )
@@ -68,14 +70,17 @@ FOREACH(example_tuple ${FARKODE_examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 number_of_nodes)
   list(GET example_tuple 2 number_of_tasks)
+  list(GET example_tuple 3 example_type)
 
   # example source files
   ADD_EXECUTABLE(${example} ${example}.f90)
 
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
   
-  # add to regression tests
-  SUNDIALS_ADD_TEST(${example} ${example} MPI_NPROCS ${number_of_tasks})
+  # add example to regression tests
+  SUNDIALS_ADD_TEST(${example} ${example}
+    MPI_NPROCS ${number_of_tasks}
+    EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
@@ -102,17 +107,14 @@ IF(EXAMPLES_INSTALL)
   # Install the extra files
   FOREACH(extrafile ${FARKODE_extras})
     INSTALL(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F90_parallel)
-  ENDFOREACH(extrafile ${FARKODE_extras})
+  ENDFOREACH()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER "ARKODE")
   SET(SOLVER_LIB "sundials_arkode")
   SET(SOLVER_FLIB "sundials_farkode")
 
-  FOREACH(example_tuple ${FARKODE_examples})
-    list(GET example_tuple 0 example)
-    LIST2STRING(example EXAMPLES)
-  ENDFOREACH(example_tuple ${FARKODE_examples})
+  EXAMPLES2STRING(FARKODE_examples EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

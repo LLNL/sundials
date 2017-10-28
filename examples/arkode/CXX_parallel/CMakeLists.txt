@@ -21,9 +21,12 @@
 # CMakeLists.txt file for ARKODE C++ parallel examples
 # -----------------------------------------------------------------
 
-# Add variable ARKODE_examples with the names of the parallel ARKODE examples
+# Example lists are tuples "name\;nodes\;tasks\;type" where the
+# type is develop for examples excluded from 'make test' in releases
+
+# Examples using SUNDIALS linear solvers
 SET(ARKODE_examples
-  ark_heat2D
+  "ark_heat2D\;\;\;develop"
   )
 
 # Auxiliary files to install
@@ -58,14 +61,23 @@ ENDIF()
 SET(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
-FOREACH(example ${ARKODE_examples})
+FOREACH(example_tuple ${ARKODE_examples})
 
+  # parse the example tuple
+  list(GET example_tuple 0 example)
+  list(GET example_tuple 1 number_of_nodes)
+  list(GET example_tuple 2 number_of_tasks)
+  list(GET example_tuple 3 example_type)
+
+  # example source files
   ADD_EXECUTABLE(${example} ${example}.cpp)
 
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-  # add to regression tests
-  SUNDIALS_ADD_TEST(${example} ${example})
+  # add example to regression tests
+  SUNDIALS_ADD_TEST(${example} ${example}
+    MPI_NPROCS ${number_of_tasks}
+    EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
@@ -80,7 +92,7 @@ FOREACH(example ${ARKODE_examples})
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_parallel)
   ENDIF()
 
-ENDFOREACH(example ${ARKODE_examples})
+ENDFOREACH(example_tuple ${ARKODE_examples})
 
 
 # create Makfile and CMakeLists.txt for examples
@@ -92,13 +104,13 @@ IF(EXAMPLES_INSTALL)
   # Install the extra files
   FOREACH(extrafile ${ARKODE_extras})
     INSTALL(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_parallel)
-  ENDFOREACH(extrafile ${ARKODE_extras})
+  ENDFOREACH()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER "ARKODE")
   SET(SOLVER_LIB "sundials_arkode")
 
-  LIST2STRING(ARKODE_examples EXAMPLES)
+  EXAMPLES2STRING(ARKODE_examples EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then

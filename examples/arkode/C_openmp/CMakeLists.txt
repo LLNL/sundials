@@ -17,21 +17,25 @@
 # Copyright (c) 2013, Southern Methodist University.
 # All rights reserved.
 # For details, see the LICENSE file.
-# -----------------------------------------------------------------
+# ---------------------------------------------------------------
 # CMakeLists.txt file for ARKODE OpenMP examples
+# ---------------------------------------------------------------
+
+# Example lists are tuples "name\;args\;type" where the type is
+# 'develop' for examples excluded from 'make test' in releases
 
 # Only include tests if OpenMP is enabled
 IF(OPENMP_FOUND)
 
   # Examples using SUNDIALS linear solvers
-  SET(ARKODE_examples_OMP
-    ark_brusselator1D_omp
-  )
+  SET(ARKODE_examples
+    "ark_brusselator1D_omp\;4\;develop"
+    )
 
   # Auxiliary files to install
   SET(ARKODE_extras_OMP
     plot_brusselator1D.py
-  )
+    )
 
 ENDIF(OPENMP_FOUND)
 
@@ -53,7 +57,12 @@ SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
 
 # Add the build and install targets for each ARKODE example
-FOREACH(example ${ARKODE_examples_OMP})
+FOREACH(example_tuple ${ARKODE_examples})
+
+  # parse the example tuple
+  LIST(GET example_tuple 0 example)
+  LIST(GET example_tuple 1 example_args)
+  LIST(GET example_tuple 2 example_type)
 
   # example source files
   ADD_EXECUTABLE(${example} ${example}.c)
@@ -61,7 +70,9 @@ FOREACH(example ${ARKODE_examples_OMP})
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
   # add to regression tests
-  SUNDIALS_ADD_TEST(${example} ${example} TEST_ARGS 4)
+  SUNDIALS_ADD_TEST(${example} ${example}
+    TEST_ARGS ${example_args}
+    EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
@@ -72,7 +83,7 @@ FOREACH(example ${ARKODE_examples_OMP})
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_openmp)
   ENDIF()
 
-ENDFOREACH(example ${ARKODE_examples_OMP})
+ENDFOREACH(example_tuple ${ARKODE_examples})
 
 
 # create Makfile and CMakeLists.txt for examples
@@ -84,13 +95,13 @@ IF(EXAMPLES_INSTALL)
   # Install the extra files
   FOREACH(extrafile ${ARKODE_extras_OMP})
     INSTALL(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_openmp)
-  ENDFOREACH(extrafile ${ARKODE_extras_OMP})
+  ENDFOREACH()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER "ARKODE")
   SET(SOLVER_LIB "sundials_arkode")
 
-  LIST2STRING(ARKODE_examples_OMP EXAMPLES)
+  EXAMPLES2STRING(ARKODE_examples EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
