@@ -16,9 +16,12 @@
 # CMakeLists.txt file for CVODE raja examples
 # ---------------------------------------------------------------
 
+# Example lists are tuples "name\;type" where the type is
+# 'develop' for examples excluded from 'make test' in releases
+
 # Examples using SUNDIALS linear solvers
 SET(CVODE_examples
-  cvAdvDiff_kry_raja
+  "cvAdvDiff_kry_raja\;develop"
   )
 
 # Add source directory to include directories
@@ -39,7 +42,11 @@ SET(SUNDIALS_LIBS ${CVODE_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS} -L${RAJA_LIB_PATH
 
 
 # Add the build and install targets for each CVODE example
-FOREACH(example ${CVODE_examples})
+FOREACH(example_tuple ${CVODE_examples})
+
+  # parse the example tuple
+  list(GET example_tuple 0 example)
+  list(GET example_tuple 1 example_type)
   
   set_source_files_properties(${example}.cu PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
 
@@ -48,17 +55,19 @@ FOREACH(example ${CVODE_examples})
   
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-  # add to regression tests
-  SUNDIALS_ADD_TEST(${example} ${example})
+  # add example to regression tests
+  SUNDIALS_ADD_TEST(${example} ${example} EXAMPLE_TYPE ${example_type})
   
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+
+  # install example source and out files
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.cu ${example}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/raja)
   ENDIF()
 
-ENDFOREACH(example ${CVODE_examples})
+ENDFOREACH(example_tuple ${CVODE_examples})
 
 
 # create Makfile and CMakeLists.txt for examples
@@ -71,7 +80,7 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER "CVODE")
   SET(SOLVER_LIB "sundials_cvode")
 
-  LIST2STRING(CVODE_examples EXAMPLES)
+  EXAMPLES2STRING(CVODE_examples EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
