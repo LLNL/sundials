@@ -11,56 +11,56 @@
 # All rights reserved.
 # For details, see the LICENSE file.
 # LLNS Copyright End
-# ------------------------------------------------------------------
+# ---------------------------------------------------------------
 # CMakeLists.txt file for CVODES serial examples
-# ------------------------------------------------------------------
+# ---------------------------------------------------------------
 
-# Example lists are lists of tuples where the first element is the
-# example name and the optional second argument is test arguments
+# Example lists are tuples "name\;args\;type" where the type is
+# 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
 SET(CVODES_examples
-  cvsAdvDiff_ASAi_bnd
-  cvsAdvDiff_bnd
-  "cvsAdvDiff_FSA_non\;-sensi stg t"
-  "cvsAdvDiff_FSA_non\;-sensi sim t"
-  cvsDirectDemo_ls
-  "cvsDiurnal_FSA_kry\;-sensi stg t"
-  "cvsDiurnal_FSA_kry\;-sensi sim t"
-  cvsDiurnal_kry_bp
-  cvsDiurnal_kry
-  cvsFoodWeb_ASAi_kry
-  cvsFoodWeb_ASAp_kry
-  cvsHessian_ASA_FSA
-  cvsKrylovDemo_ls
-  cvsKrylovDemo_prec
-  cvsRoberts_ASAi_dns
-  cvsRoberts_dns
-  cvsRoberts_dns_uw
-  "cvsRoberts_FSA_dns\;-sensi stg1 t"
+  "cvsAdvDiff_ASAi_bnd\;\;develop"
+  "cvsAdvDiff_bnd\;\;develop"
+  "cvsAdvDiff_FSA_non\;-sensi stg t\;develop"
+  "cvsAdvDiff_FSA_non\;-sensi sim t\;develop"
+  "cvsDirectDemo_ls\;\;develop"
+  "cvsDiurnal_FSA_kry\;-sensi stg t\;develop"
+  "cvsDiurnal_FSA_kry\;-sensi sim t\;develop"
+  "cvsDiurnal_kry_bp\;\;develop"
+  "cvsDiurnal_kry\;\;develop"
+  "cvsFoodWeb_ASAi_kry\;\;develop"
+  "cvsFoodWeb_ASAp_kry\;\;develop"
+  "cvsHessian_ASA_FSA\;\;develop"
+  "cvsKrylovDemo_ls\;\;develop"
+  "cvsKrylovDemo_prec\;\;develop"
+  "cvsRoberts_ASAi_dns\;\;develop"
+  "cvsRoberts_dns\;\;develop"
+  "cvsRoberts_dns_uw\;\;develop"
+  "cvsRoberts_FSA_dns\;-sensi stg1 t\;develop"
   )
 
 # Examples using LAPACK linear solvers
 SET(CVODES_examples_BL
-  cvsAdvDiff_bndL
-  cvsRoberts_dnsL
+  "cvsAdvDiff_bndL\;\;develop"
+  "cvsRoberts_dnsL\;\;develop"
   )
 
 # Examples using KLU linear solver
 SET(CVODES_examples_KLU
-  cvsRoberts_klu
-  cvsRoberts_ASAi_klu
-  "cvsRoberts_FSA_klu\;-sensi stg1 t"
+  "cvsRoberts_klu\;\;develop"
+  "cvsRoberts_ASAi_klu\;\;develop"
+  "cvsRoberts_FSA_klu\;-sensi stg1 t\;develop"
   )
 
 # Examples using SuperLU_MT linear solver
 SET(CVODES_examples_SUPERLUMT
-  cvsRoberts_sps
-  cvsRoberts_ASAi_sps
-  "cvsRoberts_FSA_sps\;-sensi stg1 t"
+  "cvsRoberts_sps\;\;develop"
+  "cvsRoberts_ASAi_sps\;\;develop"
+  "cvsRoberts_FSA_sps\;-sensi stg1 t\;develop"
   )
 
-# Specify libraries to link against (through the target that was used to 
+# Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(CVODES_LIB sundials_cvodes_static)
@@ -80,8 +80,10 @@ SET(ADDED_EXECUTABLES "")
 # Add the build and install targets for each example
 FOREACH(example_tuple ${CVODES_examples})
 
-  # first item is example
-  list(GET example_tuple 0 example)
+  # parse the example tuple
+  LIST(GET example_tuple 0 example)
+  LIST(GET example_tuple 1 example_args)
+  LIST(GET example_tuple 2 example_type)
 
   # check if example has already been added, only need to add an examples
   # once for testing with different inputs
@@ -93,17 +95,18 @@ FOREACH(example_tuple ${CVODES_examples})
     LIST(APPEND ADDED_EXECUTABLES ${example})
     ADD_EXECUTABLE(${example} ${example}.c)
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-  ENDIF(index EQUAL -1)
-
-  # Check if an optional 2nd argument is used and add test to regression tests
-  LIST(LENGTH example_tuple n)
-  IF(n EQUAL 2)
-    LIST(GET example_tuple 1 test_args)
-    STRING(REGEX REPLACE " " "_" test_name ${example}_${test_args})
-    SUNDIALS_ADD_TEST(${test_name} ${example} TEST_ARGS ${test_args})
-  ELSE()
-    SUNDIALS_ADD_TEST(${example} ${example})
   ENDIF()
+
+  IF("${example_args}" STREQUAL "")
+    SET(test_name ${example})
+  ELSE()
+    STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  ENDIF()
+
+  # add example to regression tests
+  SUNDIALS_ADD_TEST(${test_name} ${example}
+    TEST_ARGS ${example_args}
+    EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
@@ -142,15 +145,22 @@ IF(LAPACK_FOUND)
     LIST(APPEND SUNLINSOLLAPACK_LIBS ${BLAS_LIBRARIES})
   ENDIF(BLAS_FOUND)
 
-  FOREACH(example ${CVODES_examples_BL})
+  FOREACH(example_tuple ${CVODES_examples_BL})
+
+    # parse the example tuple
+    LIST(GET example_tuple 0 example)
+    LIST(GET example_tuple 1 example_args)
+    LIST(GET example_tuple 2 example_type)
 
     # example source files
     ADD_EXECUTABLE(${example} ${example}.c)
 
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-    # add to regression tests
-    SUNDIALS_ADD_TEST(${example} ${example})
+    # add example to regression tests
+    SUNDIALS_ADD_TEST(${example} ${example}
+      TEST_ARGS ${example_args}
+      EXAMPLE_TYPE ${example_type})
 
     # libraries to link against
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
@@ -164,7 +174,7 @@ IF(LAPACK_FOUND)
         DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
     ENDIF()
 
-  ENDFOREACH(example ${CVODES_examples_BL})
+  ENDFOREACH(example_tuple ${CVODES_examples_BL})
 
 ENDIF(LAPACK_FOUND)
 
@@ -186,9 +196,11 @@ IF(KLU_FOUND)
 
   FOREACH(example_tuple ${CVODES_examples_KLU})
 
-    # first item is example
+    # parse the example tuple
     LIST(GET example_tuple 0 example)
-  
+    LIST(GET example_tuple 1 example_args)
+    LIST(GET example_tuple 2 example_type)
+
     # check if example has already been added, only need to add an examples
     # once for testing with different inputs
     LIST(FIND ADDED_EXECUTABLES ${example} index)
@@ -200,17 +212,18 @@ IF(KLU_FOUND)
       ADD_EXECUTABLE(${example} ${example}.c)
       SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
     ENDIF(index EQUAL -1)
-  
-    # Check if an optional 2nd argument is used and add test to regression tests
-    LIST(LENGTH example_tuple n)
-    IF(n EQUAL 2)
-      LIST(GET example_tuple 1 test_args)
-      STRING(REGEX REPLACE " " "_" test_name ${example}_${test_args})
-      SUNDIALS_ADD_TEST(${test_name} ${example} TEST_ARGS ${test_args})
+
+    IF("${example_args}" STREQUAL "")
+      SET(test_name ${example})
     ELSE()
-      SUNDIALS_ADD_TEST(${example} ${example})
+      STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
     ENDIF()
-  
+
+    # add example to regression tests
+    SUNDIALS_ADD_TEST(${test_name} ${example}
+      TEST_ARGS ${example_args}
+      EXAMPLE_TYPE ${example_type})
+
     # libraries to link against
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
 
@@ -250,9 +263,11 @@ IF(SUPERLUMT_FOUND)
 
   FOREACH(example_tuple ${CVODES_examples_SUPERLUMT})
 
-    # first item is example
+    # parse the example tuple
     LIST(GET example_tuple 0 example)
-  
+    LIST(GET example_tuple 1 example_args)
+    LIST(GET example_tuple 2 example_type)
+
     # check if example has already been added, only need to add an examples
     # once for testing with different inputs
     LIST(FIND ADDED_EXECUTABLES ${example} index)
@@ -264,17 +279,18 @@ IF(SUPERLUMT_FOUND)
       ADD_EXECUTABLE(${example} ${example}.c)
       SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
     ENDIF(index EQUAL -1)
-  
-    # Check if an optional 2nd argument is used and add test to regression tests
-    LIST(LENGTH example_tuple n)
-    IF(n EQUAL 2)
-      LIST(GET example_tuple 1 test_args)
-      STRING(REGEX REPLACE " " "_" test_name ${example}_${test_args})
-      SUNDIALS_ADD_TEST(${test_name} ${example} TEST_ARGS ${test_args})
+
+    IF("${example_args}" STREQUAL "")
+      SET(test_name ${example})
     ELSE()
-      SUNDIALS_ADD_TEST(${example} ${example})
+      STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
     ENDIF()
-  
+
+    # add example to regression tests
+    SUNDIALS_ADD_TEST(${test_names} ${example}
+      TEST_ARGS ${example_args}
+      EXAMPLE_TYPE ${example_type})
+
     # libraries to link against
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLUMT_LIBS})
 
@@ -302,43 +318,28 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER "CVODES")
   SET(SOLVER_LIB "sundials_cvodes")
 
-  FOREACH(example_tuple ${CVODES_examples})
-    list(GET example_tuple 0 example)
-    list(APPEND TMP_EXAMPLES ${example})
-  ENDFOREACH()
-  list(REMOVE_DUPLICATES TMP_EXAMPLES)
-  LIST2STRING(TMP_EXAMPLES EXAMPLES)
+  EXAMPLES2STRING(CVODES_examples EXAMPLES)
 
   IF(LAPACK_FOUND)
-    LIST2STRING(CVODES_examples_BL EXAMPLES_BL)
+    EXAMPLES2STRING(CVODES_examples_BL EXAMPLES_BL)
   ELSE()
     SET(EXAMPLES_BL "")
   ENDIF()
 
   IF(KLU_FOUND)
-    FOREACH(example_tuple ${CVODES_examples_KLU})
-      list(GET example_tuple 0 example)
-      list(APPEND TMP_EXAMPLES_KLU ${example})
-    ENDFOREACH()
-    list(REMOVE_DUPLICATES TMP_EXAMPLES_KLU)
+    EXAMPLES2STRING(CVODES_examples_KLU EXAMPLES_KLU)
   ELSE()
     SET(EXAMPLES_KLU "")
   ENDIF()
-  LIST2STRING(TMP_EXAMPLES_KLU EXAMPLES_KLU)
 
   IF(SUPERLUMT_FOUND)
-    FOREACH(example_tuple ${CVODES_examples_SUPERLUMT})
-      list(GET example_tuple 0 example)
-      list(APPEND TMP_EXAMPLES_SLUMT ${example})
-    ENDFOREACH()
-    list(REMOVE_DUPLICATES TMP_EXAMPLES_SLUMT)
+    EXAMPLES2STRING(CVODES_examples_SUPERLUMT EXAMPLES_SLUMT)
   ELSE()
     SET(EXAMPLES_SLUMTU "")
   ENDIF()
-  LIST2STRING(TMP_EXAMPLES_SLUMT EXAMPLES_SLUMT)
 
-  # Regardless of the platform we're on, we will generate and install 
-  # CMakeLists.txt file for building the examples. This file  can then 
+  # Regardless of the platform we're on, we will generate and install
+  # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
@@ -351,11 +352,11 @@ IF(EXAMPLES_INSTALL)
   # install CMakelists.txt
   INSTALL(
     FILES ${PROJECT_BINARY_DIR}/examples/cvodes/serial/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial 
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial
     )
 
-  # On UNIX-type platforms, we also  generate and install a makefile for 
-  # building the examples. This makefile can then be used as a template 
+  # On UNIX-type platforms, we also  generate and install a makefile for
+  # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
   IF(UNIX)
