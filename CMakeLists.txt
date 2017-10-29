@@ -576,6 +576,11 @@ ELSE(EXAMPLES_ENABLED)
   
 ENDIF(EXAMPLES_ENABLED)
 
+# ---------------------------------------------------------------
+# Include development examples in regression tests?
+# ---------------------------------------------------------------
+OPTION(SUNDIALS_DEVTESTS "Include development tests in make test" OFF)
+MARK_AS_ADVANCED(FORCE SUNDIALS_DEVTESTS)
 
 # ===============================================================
 # Add any other necessary compiler flags & definitions
@@ -1229,19 +1234,13 @@ ENDIF(BUILD_CPODES)
 
 INCLUDE(SundialsAddTest)
 HIDE_VARIABLE(TESTRUNNER)
+
 IF(EXAMPLES_ENABLED)
 
+  # enable regression testing with 'make test'
   IF(TESTRUNNER)
-    
-    # enable regression testing
     ENABLE_TESTING()
-
-    # check if this is a development version to select which tests to run
-    IF(EXISTS "${CMAKE_SOURCE_DIR}/README_DEV")
-      SET(SUNDIALS_DEVTESTS TRUE)
-    ENDIF()
-
-  ENDIF(TESTRUNNER)
+  ENDIF()
 
   # set variables used in generating CMake and Makefiles for examples
   IF(EXAMPLES_INSTALL)

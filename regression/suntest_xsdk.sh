@@ -203,6 +203,7 @@ cmake \
     -D TPL_SUPERLUMT_LIBRARIES="${SUPERLUMTDIR}/lib/libsuperlu_mt_PTHREAD.a" \
     -D TPL_SUPERLUMT_THREAD_TYPE=Pthread \
     \
+    -D SUNDIALS_DEVTESTS=ON \
     ../../. 2>&1 | tee configure.log
 
 # check cmake return code

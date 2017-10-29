@@ -105,6 +105,7 @@ cmake \
     -D PETSC_ENABLE=OFF \
     -D SUPERLUMT_ENABLE=OFF \
     \
+    -D SUNDIALS_DEVTESTS=ON \
     ../../. 2>&1 | tee configure.log
 
 # check cmake return code

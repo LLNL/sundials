@@ -192,6 +192,7 @@ cmake \
     -D SUPERLUMT_LIBRARY_DIR="${SUPERLUMTDIR}/lib" \
     -D SUPERLUMT_THREAD_TYPE=Pthread \
     \
+    -D SUNDIALS_DEVTESTS=ON \
     ../../. 2>&1 | tee configure.log
 
 # check cmake return code
