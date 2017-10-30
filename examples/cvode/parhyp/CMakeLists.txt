@@ -3,8 +3,8 @@
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
@@ -35,7 +35,7 @@ ELSE()
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 ENDIF()
 
-# Specify libraries to link against (through the target that was used to 
+# Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(CVODE_LIB sundials_cvode_static)
@@ -47,17 +47,16 @@ ENDIF()
 
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${CVODE_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
-SET(HYPRE_LIBS ${HYPRE_LIBRARIES})
 
 
 # Add the build and install targets for each example
 FOREACH(example_tuple ${CVODE_examples})
 
   # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 number_of_nodes)
-  list(GET example_tuple 2 number_of_tasks)
-  list(GET example_tuple 3 example_type)
+  LIST(GET example_tuple 0 example)
+  LIST(GET example_tuple 1 number_of_nodes)
+  LIST(GET example_tuple 2 number_of_tasks)
+  LIST(GET example_tuple 3 example_type)
 
   # example source files
   ADD_EXECUTABLE(${example} ${example}.c)
@@ -70,7 +69,7 @@ FOREACH(example_tuple ${CVODE_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${HYPRE_LIBS})
+  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${HYPRE_LIBRARIES})
 
   IF(NOT MPI_MPICC)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
@@ -85,6 +84,7 @@ FOREACH(example_tuple ${CVODE_examples})
 
 ENDFOREACH(example_tuple ${CVODE_examples})
 
+
 IF(EXAMPLES_INSTALL)
 
   # Install the README file
@@ -96,8 +96,8 @@ IF(EXAMPLES_INSTALL)
 
   EXAMPLES2STRING(CVODE_examples EXAMPLES)
 
-  # Regardless of the platform we're on, we will generate and install 
-  # CMakeLists.txt file for building the examples. This file  can then 
+  # Regardless of the platform we're on, we will generate and install
+  # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
@@ -110,11 +110,11 @@ IF(EXAMPLES_INSTALL)
   # install CMakelists.txt
   INSTALL(
     FILES ${PROJECT_BINARY_DIR}/examples/cvode/parhyp/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parhyp 
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parhyp
     )
 
-  # On UNIX-type platforms, we also  generate and install a makefile for 
-  # building the examples. This makefile can then be used as a template 
+  # On UNIX-type platforms, we also  generate and install a makefile for
+  # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
   IF(UNIX)

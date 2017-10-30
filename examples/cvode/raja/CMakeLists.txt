@@ -5,8 +5,8 @@
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
@@ -27,7 +27,7 @@ SET(CVODE_examples
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(. ${CUDA_TOOLKIT_ROOT_DIR}/samples/common/inc ${RAJA_INCLUDE_PATH})
 
-# Specify libraries to link against (through the target that was used to 
+# Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(CVODE_LIB sundials_cvode_static)
@@ -45,19 +45,19 @@ SET(SUNDIALS_LIBS ${CVODE_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS} -L${RAJA_LIB_PATH
 FOREACH(example_tuple ${CVODE_examples})
 
   # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_type)
-  
+  LIST(GET example_tuple 0 example)
+  LIST(GET example_tuple 1 example_type)
+
   set_source_files_properties(${example}.cu PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
 
   # add example source files
   CUDA_ADD_EXECUTABLE(${example} ${example}.cu)
-  
+
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(${example} ${example} EXAMPLE_TYPE ${example_type})
-  
+
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
 
@@ -82,8 +82,8 @@ IF(EXAMPLES_INSTALL)
 
   EXAMPLES2STRING(CVODE_examples EXAMPLES)
 
-  # Regardless of the platform we're on, we will generate and install 
-  # CMakeLists.txt file for building the examples. This file  can then 
+  # Regardless of the platform we're on, we will generate and install
+  # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
@@ -96,11 +96,11 @@ IF(EXAMPLES_INSTALL)
   # install CMakelists.txt
   INSTALL(
     FILES ${PROJECT_BINARY_DIR}/examples/cvode/raja/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/raja 
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/raja
     )
 
-  # On UNIX-type platforms, we also  generate and install a makefile for 
-  # building the examples. This makefile can then be used as a template 
+  # On UNIX-type platforms, we also  generate and install a makefile for
+  # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
   IF(UNIX)
@@ -112,8 +112,8 @@ IF(EXAMPLES_INSTALL)
       )
     # install the configured Makefile_ex as Makefile
     INSTALL(
-      FILES ${PROJECT_BINARY_DIR}/examples/cvode/raja/Makefile_ex 
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/raja 
+      FILES ${PROJECT_BINARY_DIR}/examples/cvode/raja/Makefile_ex
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/raja
       RENAME Makefile
       )
   ENDIF(UNIX)

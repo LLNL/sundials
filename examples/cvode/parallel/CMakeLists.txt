@@ -53,10 +53,10 @@ SET(SUNDIALS_LIBS ${CVODE_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
 FOREACH(example_tuple ${CVODE_examples})
 
   # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 number_of_nodes)
-  list(GET example_tuple 2 number_of_tasks)
-  list(GET example_tuple 3 example_type)
+  LIST(GET example_tuple 0 example)
+  LIST(GET example_tuple 1 number_of_nodes)
+  LIST(GET example_tuple 2 number_of_tasks)
+  LIST(GET example_tuple 3 example_type)
 
   # example source files
   ADD_EXECUTABLE(${example} ${example}.c)

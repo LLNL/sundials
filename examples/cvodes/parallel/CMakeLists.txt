@@ -62,11 +62,11 @@ SET(ADDED_EXECUTABLES "")
 # Add the build and install targets for each example
 FOREACH(example_tuple ${CVODES_examples})
 
-  # first item is example
-  list(GET example_tuple 0 example)
+  # parse the example tuple
+  LIST(GET example_tuple 0 example)
   LIST(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 number_of_nodes)
-  list(GET example_tuple 3 number_of_tasks)
+  LIST(GET example_tuple 2 number_of_nodes)
+  LIST(GET example_tuple 3 number_of_tasks)
   LIST(GET example_tuple 4 example_type)
 
   # check if example has already been added, only need to add an examples
