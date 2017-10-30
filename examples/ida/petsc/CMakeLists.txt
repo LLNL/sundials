@@ -99,10 +99,10 @@ IF(EXAMPLES_INSTALL)
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_petsc_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/ida/petsc/CMakeLists.txt
-      @ONLY
-      )
+    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_petsc_C_ex.in
+    ${PROJECT_BINARY_DIR}/examples/ida/petsc/CMakeLists.txt
+    @ONLY
+    )
 
   # install CMakelists.txt
   INSTALL(

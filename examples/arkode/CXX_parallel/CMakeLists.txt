@@ -119,10 +119,10 @@ IF(EXAMPLES_INSTALL)
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_CXX_ex.in
-      ${PROJECT_BINARY_DIR}/examples/arkode/CXX_parallel/CMakeLists.txt
-      @ONLY
-      )
+    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_CXX_ex.in
+    ${PROJECT_BINARY_DIR}/examples/arkode/CXX_parallel/CMakeLists.txt
+    @ONLY
+    )
 
   # install CMakelists.txt
   INSTALL(

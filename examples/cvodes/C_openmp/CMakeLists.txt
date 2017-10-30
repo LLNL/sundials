@@ -109,10 +109,10 @@ IF(EXAMPLES_INSTALL)
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_openmp_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/cvodes/C_openmp/CMakeLists.txt
-      @ONLY
-      )
+    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_openmp_C_ex.in
+    ${PROJECT_BINARY_DIR}/examples/cvodes/C_openmp/CMakeLists.txt
+    @ONLY
+    )
 
   # install CMakelists.txt
   INSTALL(
