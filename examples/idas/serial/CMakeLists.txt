@@ -15,42 +15,44 @@
 # CMakeLists.txt file for IDAS serial examples
 # ---------------------------------------------------------------
 
-# Example lists are lists of tuples where the first element is the
-# example name and the optional second argument is test arguments
+# Example lists are tuples "name\;args\;type" where the type is
+# 'develop' for examples excluded from 'make test' in releases
 
+# Examples using SUNDIALS linear solvers
 SET(IDAS_examples
-  idasAkzoNob_ASAi_dns
-  idasAkzoNob_dns
-  idasFoodWeb_bnd
-  idasHeat2D_bnd
-  idasHeat2D_kry
-  idasHessian_ASA_FSA
-  idasKrylovDemo_ls
-  idasRoberts_ASAi_dns
-  idasRoberts_dns
-  "idasRoberts_FSA_dns\;-sensi stg t"
-  idasSlCrank_dns
-  idasSlCrank_FSA_dns
+  "idasAkzoNob_ASAi_dns\;\;develop"
+  "idasAkzoNob_dns\;\;develop"
+  "idasFoodWeb_bnd\;\;develop"
+  "idasHeat2D_bnd\;\;develop"
+  "idasHeat2D_kry\;\;develop"
+  "idasHessian_ASA_FSA\;\;develop"
+  "idasKrylovDemo_ls\;\;develop"
+  "idasRoberts_ASAi_dns\;\;develop"
+  "idasRoberts_dns\;\;develop"
+  "idasRoberts_FSA_dns\;-sensi stg t\;develop"
+  "idasSlCrank_dns\;\;develop"
+  "idasSlCrank_FSA_dns\;\;develop"
   )
 
 # Examples using LAPACK linear solvers
 SET(IDAS_examples_BL
   )
 
-# Examples using SuperLU_MT  
+# Examples using SuperLU_MT linear solver
 SET(IDAS_examples_SUPERLUMT
-  idasRoberts_sps
-  idasRoberts_ASAi_sps
-  "idasRoberts_FSA_sps\;-sensi stg t"
+  "idasRoberts_sps\;\;develop"
+  "idasRoberts_ASAi_sps\;\;develop"
+  "idasRoberts_FSA_sps\;-sensi stg t\;develop"
   )
 
+# Example using KLU linear solver
 SET(IDAS_examples_KLU
-  idasRoberts_klu
-  idasRoberts_ASAi_klu
-  "idasRoberts_FSA_klu\;-sensi stg t"
+  "idasRoberts_klu\;\;develop"
+  "idasRoberts_ASAi_klu\;\;develop"
+  "idasRoberts_FSA_klu\;-sensi stg t\;develop"
   )
 
-# Specify libraries to link against (through the target that was used to 
+# Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(IDAS_LIB sundials_idas_static)
@@ -71,7 +73,9 @@ SET(ADDED_EXECUTABLES "")
 FOREACH(example_tuple ${IDAS_examples})
 
   # first item is example
-  list(GET example_tuple 0 example)
+  LIST(GET example_tuple 0 example)
+  LIST(GET example_tuple 1 example_args)
+  LIST(GET example_tuple 2 example_type)
 
   # check if example has already been added, only need to add an examples
   # once for testing with different inputs
@@ -85,15 +89,16 @@ FOREACH(example_tuple ${IDAS_examples})
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
   ENDIF(index EQUAL -1)
 
-  # Check if an optional 2nd argument is used and add test to regression tests
-  LIST(LENGTH example_tuple n)
-  IF(n EQUAL 2)
-    LIST(GET example_tuple 1 test_args)
-    STRING(REGEX REPLACE " " "_" test_name ${example}_${test_args})
-    SUNDIALS_ADD_TEST(${test_name} ${example} TEST_ARGS ${test_args})
+  IF("${example_args}" STREQUAL "")
+    SET(test_name ${example})
   ELSE()
-    SUNDIALS_ADD_TEST(${example} ${example})
+    STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
   ENDIF()
+
+  # add example to regression tests
+  SUNDIALS_ADD_TEST(${test_name} ${example}
+    TEST_ARGS ${example_args}
+    EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
@@ -132,15 +137,22 @@ IF(LAPACK_FOUND)
     LIST(APPEND SUNLINSOLLAPACK_LIBS ${BLAS_LIBRARIES})
   ENDIF(BLAS_FOUND)
 
-  FOREACH(example ${IDAS_examples_BL})
+  FOREACH(example_tuple ${IDAS_examples_BL})
+
+    # parse the example tuple
+    LIST(GET example_tuple 0 example)
+    LIST(GET example_tuple 1 example_args)
+    LIST(GET example_tuple 2 example_type)
 
     # example source files
     ADD_EXECUTABLE(${example} ${example}.c)
 
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-    # add to regression tests
-    SUNDIALS_ADD_TEST(${example} ${example})
+    # add example to regression tests
+    SUNDIALS_ADD_TEST(${example} ${example}
+      TEST_ARGS ${example_args}
+      EXAMPLE_TYPE ${example_type})
 
     # libraries to link against
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
@@ -154,7 +166,7 @@ IF(LAPACK_FOUND)
         DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
     ENDIF()
 
-  ENDFOREACH(example ${IDAS_examples_BL})
+  ENDFOREACH(example_tuple ${IDAS_examples_BL})
 
 ENDIF(LAPACK_FOUND)
 
@@ -176,9 +188,11 @@ IF(KLU_FOUND)
 
   FOREACH(example_tuple ${IDAS_examples_KLU})
 
-    # first item is example
+    # parse the example tuple
     LIST(GET example_tuple 0 example)
-  
+    LIST(GET example_tuple 1 example_args)
+    LIST(GET example_tuple 2 example_type)
+
     # check if example has already been added, only need to add an examples
     # once for testing with different inputs
     LIST(FIND ADDED_EXECUTABLES ${example} index)
@@ -190,17 +204,18 @@ IF(KLU_FOUND)
       ADD_EXECUTABLE(${example} ${example}.c)
       SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
     ENDIF(index EQUAL -1)
-  
-    # Check if an optional 2nd argument is used and add test to regression tests
-    LIST(LENGTH example_tuple n)
-    IF(n EQUAL 2)
-      LIST(GET example_tuple 1 test_args)
-      STRING(REGEX REPLACE " " "_" test_name ${example}_${test_args})
-      SUNDIALS_ADD_TEST(${test_name} ${example} TEST_ARGS ${test_args})
+
+    IF("${example_args}" STREQUAL "")
+      SET(test_name ${example})
     ELSE()
-      SUNDIALS_ADD_TEST(${example} ${example})
+      STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
     ENDIF()
-  
+
+    # add example to regression tests
+    SUNDIALS_ADD_TEST(${test_name} ${example}
+      TEST_ARGS ${example_args}
+      EXAMPLE_TYPE ${example_type})
+
     # libraries to link against
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
 
@@ -240,9 +255,11 @@ IF(SUPERLUMT_FOUND)
 
   FOREACH(example_tuple ${IDAS_examples_SUPERLUMT})
 
-    # first item is example
+    # parse the example tuple
     LIST(GET example_tuple 0 example)
-  
+    LIST(GET example_tuple 1 example_args)
+    LIST(GET example_tuple 2 example_type)
+
     # check if example has already been added, only need to add an examples
     # once for testing with different inputs
     LIST(FIND ADDED_EXECUTABLES ${example} index)
@@ -255,25 +272,25 @@ IF(SUPERLUMT_FOUND)
       SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
     ENDIF(index EQUAL -1)
 
+    IF("${example_args}" STREQUAL "")
+      SET(test_name ${example})
+    ELSE()
+      STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    ENDIF()
 
     # Do not include SuperLUMT examples in testing when the indextype is int64_t.
     # Answer files were generated with int32_t and minor differences in output
     # occur causing a false positive when testing. These tests can be re-enabled
     # when type specific answer files are added.
     IF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
- 
-      # Check if an optional 2nd argument is used and add test to regression tests
-      LIST(LENGTH example_tuple n)
-      IF(n EQUAL 2)
-        LIST(GET example_tuple 1 test_args)
-        STRING(REGEX REPLACE " " "_" test_name ${example}_${test_args})        
-        SUNDIALS_ADD_TEST(${test_name} ${example} TEST_ARGS ${test_args})
-      ELSE()
-        SUNDIALS_ADD_TEST(${example} ${example})
-      ENDIF()
+
+      # add example to regression tests
+      SUNDIALS_ADD_TEST(${test_names} ${example}
+        TEST_ARGS ${example_args}
+        EXAMPLE_TYPE ${example_type})
 
     ENDIF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
-  
+
     # libraries to link against
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLUMT_LIBS})
 
@@ -301,38 +318,28 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER "IDAS")
   SET(SOLVER_LIB "sundials_idas")
 
-  FOREACH(example_tuple ${IDAS_examples})
-    list(GET example_tuple 0 example)
-    LIST2STRING(example EXAMPLES)
-  ENDFOREACH()
+  EXAMPLES2STRING(IDAS_examples EXAMPLES)
 
   IF(LAPACK_FOUND)
-    LIST2STRING(IDAS_examples_BL EXAMPLES_BL)
+    EXAMPLES2STRING(IDAS_examples_BL EXAMPLES_BL)
   ELSE()
     SET(EXAMPLES_BL "")
   ENDIF()
 
   IF(KLU_FOUND)
-    FOREACH(example_tuple ${IDAS_examples_KLU})
-      list(GET example_tuple 0 example)
-      LIST2STRING(example EXAMPLES_KLU)
-    ENDFOREACH()
+    EXAMPLES2STRING(IDAS_examples_KLU EXAMPLES_KLU)
   ELSE()
     SET(EXAMPLES_KLU "")
   ENDIF()
 
   IF(SUPERLUMT_FOUND)
-    FOREACH(example_tuple ${IDAS_examples_SUPERLUMT})
-      list(GET example_tuple 0 example)
-      LIST2STRING(example EXAMPLES_SLUMT)
-    ENDFOREACH()
+    EXAMPLES2STRING(IDAS_examples_SUPERLUMT EXAMPLES_SLUMT)
   ELSE()
     SET(EXAMPLES_SLUMTU "")
   ENDIF()
 
-
-  # Regardless of the platform we're on, we will generate and install 
-  # CMakeLists.txt file for building the examples. This file  can then 
+  # Regardless of the platform we're on, we will generate and install
+  # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
@@ -345,11 +352,11 @@ IF(EXAMPLES_INSTALL)
   # install CMakelists.txt
   INSTALL(
     FILES ${PROJECT_BINARY_DIR}/examples/idas/serial/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial 
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial
     )
 
-  # On UNIX-type platforms, we also  generate and install a makefile for 
-  # building the examples. This makefile can then be used as a template 
+  # On UNIX-type platforms, we also  generate and install a makefile for
+  # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
   IF(UNIX)
