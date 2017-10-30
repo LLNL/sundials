@@ -14,19 +14,20 @@
 # CMakeLists.txt file for IDA parallel examples
 # ---------------------------------------------------------------
 
-# Add variable IDA_examples with the names of the parallel IDA examples
-# "name\;nodes\;tasks"
+# Example lists are tuples "name\;nodes\;tasks\;type" where the
+# type is develop for examples excluded from 'make test' in releases
+
+# Examples using SUNDIALS linear solvers
 SET(IDA_examples
-  "idaFoodWeb_kry_bbd_p\;1\;4"
-  "idaFoodWeb_kry_p\;1\;4"
-  "idaHeat2D_kry_bbd_p\;1\;4"
-  "idaHeat2D_kry_p\;1\;4"
+  "idaFoodWeb_kry_bbd_p\;1\;4\;develop"
+  "idaFoodWeb_kry_p\;1\;4\;develop"
+  "idaHeat2D_kry_bbd_p\;1\;4\;develop"
+  "idaHeat2D_kry_p\;1\;4\;develop"
   )
 
 # Check whether we use MPI compiler scripts.
 # If yes, then change the C compiler to the MPICC script.
 # If not, then add the MPI include directory for MPI headers.
-
 IF(MPI_MPICC)
   # use MPI_MPICC as the compiler
   SET(CMAKE_C_COMPILER ${MPI_MPICC})
@@ -54,14 +55,17 @@ FOREACH(example_tuple ${IDA_examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 number_of_nodes)
   list(GET example_tuple 2 number_of_tasks)
+  list(GET example_tuple 3 example_type)
 
   # example source files
   ADD_EXECUTABLE(${example} ${example}.c)
 
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-  # add to regression tests
-  SUNDIALS_ADD_TEST(${example} ${example} MPI_NPROCS ${number_of_tasks})
+  # add example to regression tests
+  SUNDIALS_ADD_TEST(${example} ${example}
+    MPI_NPROCS ${number_of_tasks}
+    EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
@@ -89,10 +93,7 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER "IDA")
   SET(SOLVER_LIB "sundials_ida")
 
-  FOREACH(example_tuple ${IDA_examples})
-    list(GET example_tuple 0 example)
-    LIST2STRING(example EXAMPLES)
-  ENDFOREACH(example_tuple ${IDA_examples})
+  EXAMPLES2STRING(IDA_examples EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then
