@@ -287,7 +287,7 @@ IF(SUPERLUMT_FOUND)
     ENDIF()
 
     # add example to regression tests
-    SUNDIALS_ADD_TEST(${test_names} ${example}
+    SUNDIALS_ADD_TEST(${test_name} ${example}
       TEST_ARGS ${example_args}
       EXAMPLE_TYPE ${example_type})
 
