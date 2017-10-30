@@ -46,6 +46,8 @@ ENDIF()
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
+LIST(APPEND SUNDIALS_LIBS ${PETSC_LIBRARIES})
+
 IF(MPI_MPICC)
   # use MPI_MPICC as the compiler
   SET(CMAKE_C_COMPILER ${MPI_MPICC})
@@ -76,7 +78,7 @@ FOREACH(example_tuple ${nvector_petsc_examples})
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${PETSC_LIBRARIES})
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
 
     IF(NOT MPI_MPICC)
       TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARIES})
