@@ -60,21 +60,35 @@ FOREACH(example_tuple ${IDAS_examples})
   LIST(GET example_tuple 1 example_args)
   LIST(GET example_tuple 2 example_type)
 
-  # example source files
-  ADD_EXECUTABLE(${example} ${example}.c)
+  # check if this example has already been added, only need to add
+  # example source files once for testing with different inputs
+  IF(NOT TARGET ${example})
+    # example source files
+    ADD_EXECUTABLE(${example} ${example}.c)
 
-  SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    # folder to organize targets in an IDE
+    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-  IF(NOT ${example} MATCHES "idasFoodWeb_kry_omp") # LEB NOTE: This goes away with TestRunner fix for OpenMP
+    # libraries to link against
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+  ENDIF()
+
+  # check if example args are provided and set the test name
+  # IF("${example_args}" STREQUAL "")
+  #   SET(test_name ${example})
+  # ELSE()
+  #   STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  # ENDIF()
+
+  # LEB NOTE: This goes away with TestRunner fix for OpenMP
+  IF(NOT ${example} MATCHES "idasFoodWeb_kry_omp") 
     # add example to regression tests
     SUNDIALS_ADD_TEST(${example} ${example}
       TEST_ARGS ${example_args}
       EXAMPLE_TYPE ${example_type})
   ENDIF()
 
-  # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
-
+  # install example source and .out files
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c ${example}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/C_openmp)

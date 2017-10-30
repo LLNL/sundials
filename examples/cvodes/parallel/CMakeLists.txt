@@ -55,9 +55,6 @@ ENDIF()
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${CVODES_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
 
-# SGS is there a way to query CMAKE variable to get added executables
-# rather than keeping our own list?
-SET(ADDED_EXECUTABLES "")
 
 # Add the build and install targets for each example
 FOREACH(example_tuple ${CVODES_examples})
@@ -69,18 +66,24 @@ FOREACH(example_tuple ${CVODES_examples})
   LIST(GET example_tuple 3 number_of_tasks)
   LIST(GET example_tuple 4 example_type)
 
-  # check if example has already been added, only need to add an examples
-  # once for testing with different inputs
-  LIST(FIND ADDED_EXECUTABLES ${example} index)
-
-  # if the example has not been added yet, add it to the list
-  # and add the example source files
-  IF(index EQUAL -1)
-    LIST(APPEND ADDED_EXECUTABLES ${example})
+  # check if this example has already been added, only need to add
+  # example source files once for testing with different inputs
+  IF(NOT TARGET ${example})
+    # example source files
     ADD_EXECUTABLE(${example} ${example}.c)
-    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-  ENDIF(index EQUAL -1)
 
+    # folder to organize targets in an IDE
+    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+
+    # libraries to link against
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+
+    IF(NOT MPI_MPICC)
+      TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
+    ENDIF()
+  ENDIF()
+
+  # check if example args are provided and set the test name
   IF("${example_args}" STREQUAL "")
     SET(test_name ${example})
   ELSE()
@@ -93,17 +96,10 @@ FOREACH(example_tuple ${CVODES_examples})
     MPI_NPROCS ${number_of_tasks}
     EXAMPLE_TYPE ${example_type})
 
-  # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
-
-  IF(NOT MPI_MPICC)
-    TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
-  ENDIF()
-
-  # find all outfile files for this example
+  # find all .out files for this example
   FILE(GLOB example_out ${example}.out*)
 
-  # install example source and out files
+  # install example source and .out files
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c ${example_out}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/parallel)

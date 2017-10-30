@@ -59,20 +59,25 @@ FOREACH(example_tuple ${CVODES_examples_OMP})
   LIST(GET example_tuple 1 example_args)
   LIST(GET example_tuple 2 example_type)
 
-  # example source files
-  ADD_EXECUTABLE(${example} ${example}.c)
+  # check if this example has already been added, only need to add
+  # example source files once for testing with different inputs
+  IF(NOT TARGET ${example})
+    # example source files
+    ADD_EXECUTABLE(${example} ${example}.c)
 
-  SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    # folder to organize targets in an IDE
+    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    
+    # libraries to link against
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+  ENDIF()
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(${example} ${example}
     TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type})
 
-  # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
-
-  # install example source and out files
+  # install example source and .out files
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c ${example}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/C_openmp)

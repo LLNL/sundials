@@ -65,9 +65,6 @@ ENDIF()
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${IDAS_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
-# SGS is there a way to query CMAKE variable to get added executables
-# rather than keeping our own list?
-SET(ADDED_EXECUTABLES "")
 
 # Add the build and install targets for each example
 FOREACH(example_tuple ${IDAS_examples})
@@ -77,18 +74,20 @@ FOREACH(example_tuple ${IDAS_examples})
   LIST(GET example_tuple 1 example_args)
   LIST(GET example_tuple 2 example_type)
 
-  # check if example has already been added, only need to add an examples
-  # once for testing with different inputs
-  LIST(FIND ADDED_EXECUTABLES ${example} index)
-
-  # if the example has not been added yet, add it to the list
-  # and add the example source files
-  IF(index EQUAL -1)
-    LIST(APPEND ADDED_EXECUTABLES ${example})
+  # check if this example has already been added, only need to add
+  # example source files once for testing with different inputs
+  IF(NOT TARGET ${example})
+    # example source files
     ADD_EXECUTABLE(${example} ${example}.c)
-    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-  ENDIF(index EQUAL -1)
 
+    # folder to organize targets in an IDE
+    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+
+    # libraries to link against
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+  ENDIF()
+
+  # check if example args are provided and set the test name
   IF("${example_args}" STREQUAL "")
     SET(test_name ${example})
   ELSE()
@@ -100,13 +99,10 @@ FOREACH(example_tuple ${IDAS_examples})
     TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type})
 
-  # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
-
-  # find all outfile files for this example
+  # find all .out files for this example
   FILE(GLOB example_out ${example}.out*)
 
-  # install example source and out files
+  # install example source and .out files
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c ${example_out}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
@@ -144,23 +140,35 @@ IF(LAPACK_FOUND)
     LIST(GET example_tuple 1 example_args)
     LIST(GET example_tuple 2 example_type)
 
-    # example source files
-    ADD_EXECUTABLE(${example} ${example}.c)
+    # check if this example has already been added, only need to add
+    # example source files once for testing with different inputs
+    IF(NOT TARGET ${example})
+      # example source files
+      ADD_EXECUTABLE(${example} ${example}.c)
 
-    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+      # folder to organize targets in an IDE
+      SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+
+      # libraries to link against
+      TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
+    ENDIF()
+
+    # check if example args are provided and set the test name
+    # IF("${example_args}" STREQUAL "")
+    #   SET(test_name ${example})
+    # ELSE()
+    #   STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    # ENDIF()
 
     # add example to regression tests
     SUNDIALS_ADD_TEST(${example} ${example}
       TEST_ARGS ${example_args}
       EXAMPLE_TYPE ${example_type})
 
-    # libraries to link against
-    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
-
-    # find all outfile files for this example
+    # find all .out files for this example
     FILE(GLOB example_out ${example}.out*)
 
-    # install example source and out files
+    # install example source and .out files
     IF(EXAMPLES_INSTALL)
       INSTALL(FILES ${example}.c ${example_out}
         DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
@@ -184,8 +192,6 @@ IF(KLU_FOUND)
   # KLU libraries
   LIST(APPEND SUNLINSOLKLU_LIBS ${KLU_LIBRARIES})
 
-  SET(ADDED_EXECUTABLES "")
-
   FOREACH(example_tuple ${IDAS_examples_KLU})
 
     # parse the example tuple
@@ -193,18 +199,20 @@ IF(KLU_FOUND)
     LIST(GET example_tuple 1 example_args)
     LIST(GET example_tuple 2 example_type)
 
-    # check if example has already been added, only need to add an examples
-    # once for testing with different inputs
-    LIST(FIND ADDED_EXECUTABLES ${example} index)
-
-    # if the example has not been added yet, add it to the list
-    # and add the example source files
-    IF(index EQUAL -1)
-      LIST(APPEND ADDED_EXECUTABLES ${example})
+    # check if this example has already been added, only need to add
+    # example source files once for testing with different inputs
+    IF(NOT TARGET ${example})
+      # example source files
       ADD_EXECUTABLE(${example} ${example}.c)
+      
+      # folder to organize targets in an IDE
       SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-    ENDIF(index EQUAL -1)
+      
+      # libraries to link against
+      TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
+    ENDIF()
 
+    # check if example args are provided and set the test name
     IF("${example_args}" STREQUAL "")
       SET(test_name ${example})
     ELSE()
@@ -216,13 +224,10 @@ IF(KLU_FOUND)
       TEST_ARGS ${example_args}
       EXAMPLE_TYPE ${example_type})
 
-    # libraries to link against
-    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
-
-    # find all outfile files for this example
+    # find all .out files for this example
     FILE(GLOB example_out ${example}.out*)
 
-    # install example source and out files
+    # install example source and .out files
     IF(EXAMPLES_INSTALL)
       INSTALL(FILES ${example}.c ${example_out}
         DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
@@ -251,8 +256,6 @@ IF(SUPERLUMT_FOUND)
     LIST(APPEND SUNLINSOLSLUMT_LIBS ${BLAS_LIBRARIES})
   ENDIF(BLAS_FOUND)
 
-  SET(ADDED_EXECUTABLES "")
-
   FOREACH(example_tuple ${IDAS_examples_SUPERLUMT})
 
     # parse the example tuple
@@ -260,18 +263,20 @@ IF(SUPERLUMT_FOUND)
     LIST(GET example_tuple 1 example_args)
     LIST(GET example_tuple 2 example_type)
 
-    # check if example has already been added, only need to add an examples
-    # once for testing with different inputs
-    LIST(FIND ADDED_EXECUTABLES ${example} index)
-
-    # if the example has not been added yet, add it to the list
-    # and add the example source files
-    IF(index EQUAL -1)
-      LIST(APPEND ADDED_EXECUTABLES ${example})
+    # check if this example has already been added, only need to add
+    # example source files once for testing with different inputs
+    IF(NOT TARGET ${example})
+      # example source files
       ADD_EXECUTABLE(${example} ${example}.c)
+      
+      # folder to organize targets in an IDE
       SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-    ENDIF(index EQUAL -1)
+      
+      # libraries to link against
+      TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLUMT_LIBS})
+    ENDIF()
 
+    # check if example args are provided and set the test name
     IF("${example_args}" STREQUAL "")
       SET(test_name ${example})
     ELSE()
@@ -291,13 +296,10 @@ IF(SUPERLUMT_FOUND)
 
     ENDIF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
 
-    # libraries to link against
-    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLUMT_LIBS})
-
-    # find all outfile files for this example
+    # find all .out files for this example
     FILE(GLOB example_out ${example}.out*)
 
-    # install example source and out files
+    # install example source and .out files
     IF(EXAMPLES_INSTALL)
       INSTALL(FILES ${example}.c ${example_out}
         DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
