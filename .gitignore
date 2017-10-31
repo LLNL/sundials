@@ -9,10 +9,14 @@
 *.directory
 /.pydevproject
 
+# temporary directory used for uploading releases to GitHub
+/scripts/sundials-github
+
 # /test/
 /test/output
 
 # misc
+*.backup
 *.orig
 *.nvvp
 *.ptp-sync*

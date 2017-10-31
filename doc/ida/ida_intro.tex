@@ -5,7 +5,7 @@
 {\ida} is part of a software family called {\sundials}: 
 SUite of Nonlinear and DIfferential/ALgebraic equation Solvers~\cite{HBGLSSW:05}. 
 This suite consists of {\cvode}, {\arkode}, {\kinsol}, and {\ida}, and variants
-of these with sensitivity analysis capabilities.
+of these with sensitivity analysis capabilities, {\cvodes} and {\idas}.
 
 {\ida} is a general purpose solver for the initial value problem (IVP) for
 systems of differential-algebraic equations (DAEs).  The name IDA
@@ -24,24 +24,31 @@ equation (ODE) solvers {\cvode}~\cite{cvode_ug,CoHi:96} and
 {\pvode}~\cite{ByHi:98,ByHi:99}, and also the nonlinear system solver 
 {\kinsol}~\cite{kinsol_ug}.
 
-The Newton/Krylov methods in {\ida} are:
-the GMRES (Generalized Minimal RESidual)~\cite{SaSc:86},
-Bi-CGStab (Bi-Conjugate Gradient Stabilized)~\cite{Van:92}, and
-TFQMR (Transpose-Free Quasi-Minimal Residual) linear iterative 
-methods~\cite{Fre:93}.  As Krylov methods, these require almost no 
-matrix storage for solving the Newton equations as compared to direct
+At present, {\ida} may utilize a variety of Krylov methods provided
+in {\sundials} that can be used in conjuction with Newton iteration:
+these include the GMRES (Generalized Minimal RESidual)~\cite{SaSc:86},
+FGMRES (Flexible Generalized Minimum RESidual)~\cite{Saa:93},
+Bi-CGStab (Bi-Conjugate Gradient Stabilized)~\cite{Van:92}, TFQMR
+(Transpose-Free Quasi-Minimal Residual)~\cite{Fre:93}, and PCG
+(Preconditioned Conjugate Gradient)~\cite{HeSt:52} linear iterative
+methods.  As Krylov methods, these require little  
+matrix storage for solving the Newton equations as compared to direct 
 methods. However, the algorithms allow for a user-supplied preconditioner
-matrix, and for most problems preconditioning is essential for an
+matrix, and, for most problems, preconditioning is essential for an
 efficient solution.
 
 For very large DAE systems, the Krylov methods are preferable over
 direct linear solver methods, and are often the only feasible choice.
-Among the three Krylov methods in {\ida}, we recommend GMRES as the
+Among the Krylov methods in {\sundials}, we recommend GMRES as the
 best overall choice.  However, users are encouraged to compare all
-three, especially if encountering convergence failures with GMRES.
+options, especially if encountering convergence failures with GMRES.
 Bi-CGFStab and TFQMR have an advantage in storage requirements, in
 that the number of workspace vectors they require is fixed, while that
-number for GMRES depends on the desired Krylov subspace size.
+number for GMRES depends on the desired Krylov subspace size.  FGMRES
+has an advantage in that it is designed to support preconditioners
+that vary between iterations (e.g.~iterative methods).  PCG exhibits
+rapid convergence and minimal workspace vectors, but only works for
+symmetric linear systems.
 
 \index{IDA@{\ida}!motivation for writing in C|(}
 There are several motivations for choosing the {\CC} language for {\ida}.
@@ -57,6 +64,107 @@ in extended {\F}.
 
 
 \section{Changes from previous versions}
+
+\subsection*{Changes in v3.0.0}
+
+All interfaces to matrix structures and linear solvers 
+have been reworked, and all example programs have been updated. 
+The goal of the redesign of these interfaces was to provide more encapsulation
+and to ease interfacing of custom linear solvers and interoperability 
+with linear solver libraries.
+Specific changes include:
+\begin{itemize}
+\item Added generic {\sunmatrix} module with three provided implementations:
+        dense, banded and sparse.  These replicate previous SUNDIALS Dls and
+        Sls matrix structures in a single object-oriented API.
+\item Added example problems demonstrating use of generic {\sunmatrix} modules.
+\item Added generic \id{SUNLinearSolver} module with eleven provided
+        implementations: {\sundials} native dense, {\sundials} native banded, 
+        LAPACK dense, LAPACK band, KLU,
+        SuperLU\_MT, SPGMR, SPBCGS, SPTFQMR, SPFGMR, and PCG.  These replicate
+        previous SUNDIALS generic linear solvers in a single object-oriented
+        API.
+\item Added example problems demonstrating use of generic \id{SUNLinearSolver}
+        modules.
+\item Expanded package-provided direct linear solver (Dls) interfaces and
+        scaled, preconditioned, iterative linear solver (Spils) interfaces
+        to utilize generic {\sunmatrix} and \id{SUNLinearSolver} objects.
+\item Removed package-specific, linear solver-specific, solver modules
+        (e.g. \id{CVDENSE}, \id{KINBAND}, \id{IDAKLU}, \id{ARKSPGMR}) since their functionality
+        is entirely replicated by the generic Dls/Spils interfaces and
+        \id{SUNLinearSolver/SUNMATRIX} modules.  The exception is \id{CVDIAG}, a
+        diagonal approximate Jacobian solver available to {\cvode} and {\cvodes}.
+\item Converted all {\sundials} example problems and files to utilize the new generic
+        {\sunmatrix} and \id{SUNLinearSolver} objects, along with updated Dls and
+        Spils linear solver interfaces.
+\item Added Spils interface routines to {\arkode}, {\cvode}, {\cvodes}, {\ida},
+        and {\idas} to allow specification of a user-provided "JTSetup" routine.
+        This change supports users who wish to set up data structures for
+        the user-provided Jacobian-times-vector ("JTimes") routine, and
+        where the cost of one JTSetup setup per Newton iteration can be
+        amortized between multiple JTimes calls.
+\end{itemize}
+
+Two additional {\nvector} implementations were added -- one for
+CUDA and one for RAJA vectors.  
+These vectors are supplied to provide very basic support for running
+on GPU architectures.  Users are advised that these vectors both move all data
+to the GPU device upon construction, and speedup will only be realized if the
+user also conducts the right-hand-side function evaluation on the device.
+In addition, these vectors assume the problem fits on one GPU.
+Further information about RAJA, users are referred to the web site, 
+https://software.llnl.gov/RAJA/.
+These additions are accompanied by additions to various interface functions
+and to user documentation.
+
+All indices for data structures were updated to a new \id{sunindextype} that
+can be configured to be a 32- or 64-bit integer data index type. 
+\id{sunindextype} is defined to be \id{int32\_t} or \id{int64\_t} when portable types are
+supported, otherwise it is defined as \id{int} or \id{long int}.
+The Fortran interfaces continue to use \id{long int} for indices, except for 
+their sparse matrix interface that now uses the new \id{sunindextype}.
+This new flexible capability for index types includes interfaces to 
+PETSc, hypre, SuperLU\_MT, and KLU with 
+either 32-bit or 64-bit capabilities depending how the user configures 
+{\sundials}.
+
+To avoid potential namespace conflicts, the macros defining \id{booleantype}
+values \id{TRUE} and \id{FALSE} have been changed to \id{SUNTRUE} and
+\id{SUNFALSE} respectively.
+
+Temporary vectors were removed from preconditioner setup and solve
+routines for all packages.  It is assumed that all necessary data
+for user-provided preconditioner operations will be allocated and
+stored in user-provided data structures.
+
+The file \id{include/sundials\_fconfig.h} was added.  This file contains 
+{\sundials} type information for use in Fortran programs.
+
+The build system was expanded to support many of the xSDK-compliant keys. 
+The xSDK is a movement in scientific software to provide a foundation for the
+rapid and efficient production of high-quality, 
+sustainable extreme-scale scientific applications.  More information can
+be found at, https://xsdk.info.
+
+Added functions \id{SUNDIALSGetVersion} and \id{SUNDIALSGetVersionNumber} to
+get {\sundials} release version information at runtime.
+
+In addition, numerous changes were made to the build system.
+These include the addition of separate \id{BLAS\_ENABLE} and \id{BLAS\_LIBRARIES} 
+CMake variables, additional error checking during CMake configuration,
+minor bug fixes, and renaming CMake options to enable/disable examples 
+for greater clarity and an added option to enable/disable Fortran 77 examples.
+These changes included changing \id{EXAMPLES\_ENABLE} to \id{EXAMPLES\_ENABLE\_C}, 
+changing \id{CXX\_ENABLE} to \id{EXAMPLES\_ENABLE\_CXX}, changing \id{F90\_ENABLE} to 
+\id{EXAMPLES\_ENABLE\_F90}, and adding an \id{EXAMPLES\_ENABLE\_F77} option.
+
+A bug fix was done to add a missing prototype for \id{IDASetMaxBacksIC} 
+in \id{ida.h}.
+ 
+Corrections and additions were made to the examples, 
+to installation-related files,
+and to the user documentation.
+
 
 \subsection*{Changes in v2.9.0}
 
@@ -308,19 +416,30 @@ The structure of this document is as follows:
 \item
   Chapter \ref{s:nvector} gives a brief overview of the generic {\nvector} module 
   shared among the various components of {\sundials}, as well as details on the 
-  {\nvector} implementations provided with {\sundials}: 
-  a serial implementation
-  (\S\ref{ss:nvec_ser}), a distributed memory parallel implementation 
-  based on {\mpi} \index{MPI}
-  (\S\ref{ss:nvec_par}), and two thread-parallel implementations 
-  based on openMP \index{openMP} (\S\ref{ss:nvec_openmp}) 
-  and Pthreads \index{Pthreads} (\S\ref{ss:nvec_pthreads}), respectively.
+  {\nvector} implementations provided with {\sundials}.
 \item
-  Chapter \ref{s:new_linsolv} describes the interfaces to the linear solver
-  modules, so that a user can provide his/her own such module.
+Chapter \ref{s:sunmatrix} gives a brief overview of the generic
+  {\sunmatrix} module shared among the various components of
+  {\sundials}, and details on the {\sunmatrix} implementations
+  provided with {\sundials}: 
+  a dense implementation (\S\ref{ss:sunmat_dense}),
+  a banded implementation (\S\ref{ss:sunmat_band}) and
+  a sparse implementation (\S\ref{ss:sunmat_sparse}).
 \item
-  Chapter \ref{s:gen_linsolv} describes in detail the generic linear solvers shared 
-  by all {\sundials} solvers.
+  Chapter \ref{s:sunlinsol} gives a brief overview of the generic
+  {\sunlinsol} module shared among the various components of
+  {\sundials}.  This chapter contains details on the {\sunlinsol}
+  implementations provided with {\sundials}.
+  The chapter
+  also contains details on the {\sunlinsol} implementations provided
+  with {\sundials} that interface with external linear solver
+  libraries.
+%% \item
+%%   Chapter \ref{s:new_linsolv} describes the interfaces to the linear
+%%   solver modules, so that a user can provide his/her own such module.
+%% \item
+%%   Chapter \ref{s:gen_linsolv} describes in detail the generic linear
+%%   solvers shared by all {\sundials} solvers.
 \item
   Finally, in the appendices, we provide detailed instructions for the installation
   of {\ida}, within the structure of {\sundials} (Appendix \ref{c:install}), as well
@@ -332,7 +451,7 @@ Finally, the reader should be aware of the following notational conventions
 in this user guide:  program listings and identifiers (such as \id{IDAInit}) 
 within textual explanations appear in typewriter type style; 
 fields in {\CC} structures (such as {\em content}) appear in italics;
-and packages or modules, such as {\idadense}, are written in all capitals. 
+and packages or modules, such as {\idadls}, are written in all capitals. 
 Usage and installation instructions that constitute important warnings
 are marked with a triangular symbol {\warn} in the margin.
 

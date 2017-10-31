@@ -122,7 +122,7 @@ N_Vector N_VNewEmpty_Serial(sunindextype length)
   if (content == NULL) { free(ops); free(v); return(NULL); }
 
   content->length   = length;
-  content->own_data = FALSE;
+  content->own_data = SUNFALSE;
   content->data     = NULL;
 
   /* Attach content and ops */
@@ -154,7 +154,7 @@ N_Vector N_VNew_Serial(sunindextype length)
     if(data == NULL) { N_VDestroy_Serial(v); return(NULL); }
 
     /* Attach data */
-    NV_OWN_DATA_S(v) = TRUE;
+    NV_OWN_DATA_S(v) = SUNTRUE;
     NV_DATA_S(v)     = data;
 
   }
@@ -176,7 +176,7 @@ N_Vector N_VMake_Serial(sunindextype length, realtype *v_data)
 
   if (length > 0) {
     /* Attach data */
-    NV_OWN_DATA_S(v) = FALSE;
+    NV_OWN_DATA_S(v) = SUNFALSE;
     NV_DATA_S(v)     = v_data;
   }
 
@@ -346,7 +346,7 @@ N_Vector N_VCloneEmpty_Serial(N_Vector w)
   if (content == NULL) { free(ops); free(v); return(NULL); }
 
   content->length   = NV_LENGTH_S(w);
-  content->own_data = FALSE;
+  content->own_data = SUNFALSE;
   content->data     = NULL;
 
   /* Attach content and ops */
@@ -377,7 +377,7 @@ N_Vector N_VClone_Serial(N_Vector w)
     if(data == NULL) { N_VDestroy_Serial(v); return(NULL); }
 
     /* Attach data */
-    NV_OWN_DATA_S(v) = TRUE;
+    NV_OWN_DATA_S(v) = SUNTRUE;
     NV_DATA_S(v)     = data;
 
   }
@@ -387,7 +387,7 @@ N_Vector N_VClone_Serial(N_Vector w)
 
 void N_VDestroy_Serial(N_Vector v)
 {
-  if (NV_OWN_DATA_S(v) == TRUE) {
+  if (NV_OWN_DATA_S(v) == SUNTRUE) {
     free(NV_DATA_S(v));
     NV_DATA_S(v) = NULL;
   }
@@ -799,10 +799,10 @@ booleantype N_VInvTest_Serial(N_Vector x, N_Vector z)
   xd = NV_DATA_S(x);
   zd = NV_DATA_S(z);
 
-  no_zero_found = TRUE;
+  no_zero_found = SUNTRUE;
   for (i = 0; i < N; i++) {
     if (xd[i] == ZERO) 
-      no_zero_found = FALSE;
+      no_zero_found = SUNFALSE;
     else
       zd[i] = ONE/xd[i];
   }
@@ -823,17 +823,17 @@ booleantype N_VConstrMask_Serial(N_Vector c, N_Vector x, N_Vector m)
   cd = NV_DATA_S(c);
   md = NV_DATA_S(m);
 
-  test = TRUE;
+  test = SUNTRUE;
 
   for (i = 0; i < N; i++) {
     md[i] = ZERO;
     if (cd[i] == ZERO) continue;
     if (cd[i] > ONEPT5 || cd[i] < -ONEPT5) {
-      if ( xd[i]*cd[i] <= ZERO) { test = FALSE; md[i] = ONE; }
+      if ( xd[i]*cd[i] <= ZERO) { test = SUNFALSE; md[i] = ONE; }
       continue;
     }
     if ( cd[i] > HALF || cd[i] < -HALF) {
-      if (xd[i]*cd[i] < ZERO ) { test = FALSE; md[i] = ONE; }
+      if (xd[i]*cd[i] < ZERO ) { test = SUNFALSE; md[i] = ONE; }
     }
   }
 
@@ -852,7 +852,7 @@ realtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom)
   nd = NV_DATA_S(num);
   dd = NV_DATA_S(denom);
 
-  notEvenOnce = TRUE;
+  notEvenOnce = SUNTRUE;
   min = BIG_REAL;
 
   for (i = 0; i < N; i++) {
@@ -861,7 +861,7 @@ realtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom)
       if (!notEvenOnce) min = SUNMIN(min, nd[i]/dd[i]);
       else {
 	min = nd[i]/dd[i];
-        notEvenOnce = FALSE;
+        notEvenOnce = SUNFALSE;
       }
     }
   }

@@ -72,7 +72,7 @@ int CPodeRootInit(void *cpode_mem, int nrtfn, CPRootFn gfun)
 
   /* If called with nrtfn <= 0, then disable rootfinding and return */
   if (nrtfn <= 0) {
-    cp_mem->cp_doRootfinding = FALSE;
+    cp_mem->cp_doRootfinding = SUNFALSE;
     return(CP_SUCCESS);
   }
 
@@ -87,7 +87,7 @@ int CPodeRootInit(void *cpode_mem, int nrtfn, CPRootFn gfun)
    * currently held memory resources */
   if ( (cp_mem->cp_rootMallocDone) && (nrtfn != cp_mem->cp_nrtfn) ) {
     cpRootFree(cp_mem);
-    cp_mem->cp_rootMallocDone = FALSE;
+    cp_mem->cp_rootMallocDone = SUNFALSE;
   }
 
   /* Allocate necessary memory and return */
@@ -97,7 +97,7 @@ int CPodeRootInit(void *cpode_mem, int nrtfn, CPRootFn gfun)
       cpProcessError(cp_mem, CP_MEM_FAIL, "CPODES", "CPodeRootInit", MSGCP_MEM_FAIL);
       return(CP_MEM_FAIL);
     }
-    cp_mem->cp_rootMallocDone = TRUE;
+    cp_mem->cp_rootMallocDone = SUNTRUE;
   }
 
   /* Set variable values in CPODES memory block */
@@ -108,11 +108,11 @@ int CPodeRootInit(void *cpode_mem, int nrtfn, CPRootFn gfun)
    * and for gactive (all active) */
   for(i=0; i<nrtfn; i++) {
     cp_mem->cp_rootdir[i] = 0;
-    cp_mem->cp_gactive[i] = TRUE;
+    cp_mem->cp_gactive[i] = SUNTRUE;
   }
 
   /* Rootfinding is now enabled */
-  cp_mem->cp_doRootfinding = TRUE;
+  cp_mem->cp_doRootfinding = SUNTRUE;
 
   return(CP_SUCCESS);
 }
@@ -210,11 +210,11 @@ int cpRcheck1(CPodeMem cp_mem)
   nge = 1;
   if (retval != 0) return(CP_RTFUNC_FAIL);
 
-  zroot = FALSE;
+  zroot = SUNFALSE;
   for (i = 0; i < nrtfn; i++) {
     if (SUNRabs(glo[i]) == ZERO) {
-      zroot = TRUE;
-      gactive[i] = FALSE;
+      zroot = SUNTRUE;
+      gactive[i] = SUNFALSE;
     }
   }
   if (!zroot) return(CP_SUCCESS);
@@ -241,7 +241,7 @@ int cpRcheck1(CPodeMem cp_mem)
 
   for (i = 0; i < nrtfn; i++) {
     if (!gactive[i] && SUNRabs(glo[i]) != ZERO) {
-      gactive[i] = TRUE;
+      gactive[i] = SUNTRUE;
     }
   }
 
@@ -287,12 +287,12 @@ int cpRcheck2(CPodeMem cp_mem)
   /* Check if any active g function is exactly ZERO at tlo.
    * If not, simply return CP_SUCCESS. */
 
-  zroot = FALSE;
+  zroot = SUNFALSE;
   for (i = 0; i < nrtfn; i++) iroots[i] = 0;
   for (i = 0; i < nrtfn; i++) {
     if (!gactive[i]) continue;
     if (SUNRabs(glo[i]) == ZERO) {
-      zroot = TRUE;
+      zroot = SUNTRUE;
       iroots[i] = 1;
     }
   }
@@ -319,12 +319,12 @@ int cpRcheck2(CPodeMem cp_mem)
    * Make inactive those that were also ZERO at tlo.
    * Report a root for those that only became ZERO at tlo+smallh. */
 
-  zroot = FALSE;
+  zroot = SUNFALSE;
   for (i = 0; i < nrtfn; i++) {
     if (SUNRabs(glo[i]) == ZERO) {
       if (!gactive[i]) continue;
-      if (iroots[i] == 1) { iroots[i] = 0; gactive[i] = FALSE; }
-      else                { iroots[i] = 1; zroot = TRUE; }
+      if (iroots[i] == 1) { iroots[i] = 0; gactive[i] = SUNFALSE; }
+      else                { iroots[i] = 1; zroot = SUNTRUE; }
     }
   }
 
@@ -379,7 +379,7 @@ int cpRcheck3(CPodeMem cp_mem)
   /* If any of the inactive components moved away from zero,
    * activate them now. Next, replace tlo with trout. */
   for(i=0; i<nrtfn; i++) {
-    if(!gactive[i] && grout[i] != ZERO) gactive[i] = TRUE;
+    if(!gactive[i] && grout[i] != ZERO) gactive[i] = SUNTRUE;
   }
   tlo = trout;
   for (i = 0; i < nrtfn; i++) glo[i] = grout[i];
@@ -417,10 +417,10 @@ int cpRcheck3(CPodeMem cp_mem)
  *
  * gactive  = array specifying whether a component of g should
  *            or should not be monitored. gactive[i] is initially
- *            set to TRUE for all i=0,...,nrtfn-1, but it may be
- *            reset to FALSE if at the first step g[i] is 0.0
+ *            set to SUNTRUE for all i=0,...,nrtfn-1, but it may be
+ *            reset to SUNFALSE if at the first step g[i] is 0.0
  *            both at the I.C. and at a small perturbation of them.
- *            gactive[i] is then set back on TRUE only after the 
+ *            gactive[i] is then set back on SUNTRUE only after the 
  *            corresponding g function moves away from 0.0.
  *
  * rootdir  = array specifying the direction of zero-crossings.
@@ -498,7 +498,7 @@ static int cpRootfind(CPodeMem cp_mem, realtype ttol)
    * secant method otherwise) and select the one closest to tlo.
    */
 
-  zroot = FALSE;
+  zroot = SUNFALSE;
 
   tmid = thi;
   
@@ -507,7 +507,7 @@ static int cpRootfind(CPodeMem cp_mem, realtype ttol)
     if(!gactive[i]) continue;
 
     if ( (glo[i]*ghi[i] <= ZERO) && (rootdir[i]*glo[i] <= ZERO) ) {
-      zroot = TRUE;
+      zroot = SUNTRUE;
       if (ghi[i] == ZERO) {
         my_tmid = thi - HALF * (thi-tlo); 
       } else {
@@ -565,14 +565,14 @@ static int cpRootfind(CPodeMem cp_mem, realtype ttol)
     thi_saved  = thi;
 
     thi = tmid;
-    zroot = FALSE;
+    zroot = SUNFALSE;
 
     for (i = 0;  i < nrtfn; i++) {
 
       if(!gactive[i]) continue;
 
       if ( (glo[i]*grout[i] <= ZERO) && (rootdir[i]*glo[i] <= ZERO) ) {
-        zroot = TRUE;
+        zroot = SUNTRUE;
         if (grout[i] == ZERO) {
           my_tmid = thi - HALF * (thi-tlo); 
         } else {
@@ -675,7 +675,7 @@ static booleantype cpRootAlloc(CPodeMem cp_mem, int nrt)
   ghi = (realtype *) malloc(nrt*sizeof(realtype));
   if (ghi == NULL) {
     free(glo); glo = NULL;
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   grout = NULL;
@@ -683,7 +683,7 @@ static booleantype cpRootAlloc(CPodeMem cp_mem, int nrt)
   if (grout == NULL) {
     free(glo); glo = NULL;
     free(ghi); ghi = NULL;
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   iroots = NULL;
@@ -692,7 +692,7 @@ static booleantype cpRootAlloc(CPodeMem cp_mem, int nrt)
     free(glo); glo = NULL; 
     free(ghi); ghi = NULL;
     free(grout); grout = NULL;
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   rootdir = NULL;
@@ -717,7 +717,7 @@ static booleantype cpRootAlloc(CPodeMem cp_mem, int nrt)
   lrw += 3*nrt;
   liw += 3*nrt;
 
-  return(TRUE);
+  return(SUNTRUE);
 }
 
 

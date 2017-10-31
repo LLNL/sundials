@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Scott Cohen, Alan Hindmarsh, Radu Serban,
  *                Aaron Collier, and Slaven Peles @ LLNL
  * -----------------------------------------------------------------
@@ -15,9 +11,9 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS Copyright End
- *------------------------------------------------------------------
+ * -----------------------------------------------------------------
  * This header file exports three types: realtype, sunindextype and 
- * booleantype, as well as the constants TRUE and FALSE.
+ * booleantype, as well as the constants SUNTRUE and SUNFALSE.
  *
  * Users should include the header file sundials_types.h in every
  * program file and use the exported name realtype instead of
@@ -47,8 +43,7 @@
  * then RCONST(1.0) expands to 1.0L. There is never a need to
  * explicitly cast 1.0 to (realtype). The macro can be used for 
  * literal constants only. It cannot be used for expressions. 
- *------------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
   
 #ifndef _SUNDIALSTYPES_H
 #define _SUNDIALSTYPES_H
@@ -107,7 +102,7 @@ typedef long double realtype;
  * Defines integer type to be used for vector and matrix indices.
  * User can build sundials to use 32- or 64-bit signed integers.
  * If compiler does not support portable data types, 'int' is used
- * in place of 32- and 'long long' is used in place of 64-bit 
+ * in place of 32- and 'long int' is used in place of 64-bit 
  * integer.
  *------------------------------------------------------------------
  */
@@ -117,7 +112,7 @@ typedef long double realtype;
 #if __STDC_VERSION__ >= 199901L
 typedef int64_t sunindextype;
 #else
-typedef long long sunindextype;
+typedef long int sunindextype;
 #endif
 
 #elif defined(SUNDIALS_INT32_T)
@@ -135,15 +130,15 @@ typedef int sunindextype;
  *------------------------------------------------------------------
  * Type : booleantype
  *------------------------------------------------------------------
- * Constants : FALSE and TRUE
+ * Constants : SUNFALSE and SUNTRUE
  *------------------------------------------------------------------
  * ANSI C does not have a built-in boolean data type. Below is the
  * definition for a new type called booleantype. The advantage of
  * using the name booleantype (instead of int) is an increase in
  * code readability. It also allows the programmer to make a
  * distinction between int and boolean data. Variables of type
- * booleantype are intended to have only the two values FALSE and
- * TRUE which are defined below to be equal to 0 and 1,
+ * booleantype are intended to have only the two values SUNFALSE and
+ * SUNTRUE which are defined below to be equal to 0 and 1,
  * respectively.
  *------------------------------------------------------------------
  */
@@ -152,12 +147,12 @@ typedef int sunindextype;
 #define booleantype int
 #endif
 
-#ifndef FALSE
-#define FALSE 0
+#ifndef SUNFALSE
+#define SUNFALSE 0
 #endif
 
-#ifndef TRUE
-#define TRUE 1
+#ifndef SUNTRUE
+#define SUNTRUE 1
 #endif
 
 

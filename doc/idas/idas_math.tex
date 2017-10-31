@@ -5,12 +5,12 @@
 {\idas} solves the initial-value problem (IVP) for a DAE system of the
 general form
 \begin{equation}\label{e:DAE}
-  F(t,y, \dot y) = 0 \, ,
-  \quad y(t_0) = y_0 \, ,~ {\dot y}(t_0) = \dot y_0 \, ,
+  F(t,y,\dot{y}) = 0 \, ,
+  \quad y(t_0) = y_0 \, ,~ \dot{y}(t_0) = \dot{y}_0 \, ,
 \end{equation}
-where $y$, $\dot y$, and $F$ are vectors in ${\bf R}^N$, $t$ is the independent
-variable, $\dot y = dy/dt$, and initial values $y_0$, $\dot y_0$ are given.
-(Often $t$ is time, but it certainly need not be.)
+where $y$, $\dot{y}$, and $F$ are vectors in ${\bf R}^N$, $t$ is the independent
+variable, $\dot{y} = dy/dt$, and initial values $y_0$, $\dot{y}_0$ 
+are given.  (Often $t$ is time, but it certainly need not be.)
 
 Additionally, if (\ref{e:DAE}) depends on some parameters $p \in {\bf R}^{N_p}$,
 i.e.
@@ -35,23 +35,23 @@ respect to the parameters $p$.
 % Initial condition calculation
 %------------------------------
 Prior to integrating a DAE initial-value problem, an important requirement 
-is that the pair of vectors $y_0$ and $\dot y_0$ are both initialized to
-satisfy the DAE residual $F(t_0,y_0, \dot y_0) = 0$.
+is that the pair of vectors $y_0$ and $\dot{y}_0$ are both initialized to
+satisfy the DAE residual $F(t_0,y_0, \dot{y}_0) = 0$.
 For a class of problems that includes so-called
 semi-explicit index-one systems, {\idas} provides a routine that computes
 consistent initial conditions from a user's initial guess~\cite{BHP:98}.  
 For this, the user must identify sub-vectors of $y$
 (not necessarily contiguous), denoted $y_d$ and $y_a$, which are its
 differential and algebraic parts, respectively, such that $F$ depends
-on $\dot y_d$ but not on any components of $\dot y_a$.  The assumption that
+on $\dot{y}_d$ but not on any components of $\dot{y}_a$.  The assumption that
 the system is ``index one'' means that for a given $t$ and $y_d$, the
-system $F(t, y, \dot y) = 0$ defines $y_a$ uniquely.  In this case, a solver
-within {\idas} computes $y_a$ and $\dot y_d$ at $t = t_0$, given $y_d$ and an
+system $F(t,y,\dot{y}) = 0$ defines $y_a$ uniquely.  In this case, a solver
+within {\idas} computes $y_a$ and $\dot{y}_d$ at $t = t_0$, given $y_d$ and an
 initial guess for $y_a$.  A second available option with this solver
-also computes all of $y(t_0)$ given $\dot y(t_0)$; this is intended mainly
-for quasi-steady-state problems, where $\dot y(t_0) = 0$ is given.
-In both cases, {\idas} solves the system $F(t_0, y_0, \dot y_0) = 0$ for the
-unknown components of $y_0$ and $\dot y_0$, using Newton iteration
+also computes all of $y(t_0)$ given $\dot{y}(t_0)$; this is intended mainly
+for quasi-steady-state problems, where $\dot{y}(t_0) = 0$ is given.
+In both cases, {\ida} solves the system $F(t_0,y_0, \dot{y}_0) = 0$ for the
+unknown components of $y_0$ and $\dot{y}_0$, using Newton iteration
 augmented with a line search global strategy.  In doing this, it makes
 use of the existing machinery that is to be used for solving the
 linear systems during the integration, in combination with certain
@@ -69,10 +69,10 @@ form~\cite{BCP:96}.
 The method order ranges from 1 to 5, with the BDF of order $q$
 given by the multistep formula
 \begin{equation}\label{e:BDF}
-  \sum_{i=0}^q \alpha_{n,i}y_{n-i} = h_n \dot y_n \, ,
+  \sum_{i=0}^q \alpha_{n,i}y_{n-i} = h_n \dot{y}_n \, ,
 \end{equation}
-where $y_n$ and $\dot y_n$ are the computed approximations to $y(t_n)$
-and $\dot y(t_n)$, respectively, and the step size is $h_n = t_n - t_{n-1}$.  
+where $y_n$ and $\dot{y}_n$ are the computed approximations to $y(t_n)$
+and $\dot{y}(t_n)$, respectively, and the step size is $h_n = t_n - t_{n-1}$.  
 The coefficients $\alpha_{n,i}$ are uniquely determined by the order
 $q$, and the history of the step sizes.  The application of the BDF
 (\ref{e:BDF}) to the DAE system (\ref{e:DAE}) results in a nonlinear
@@ -95,7 +95,7 @@ Here $J$ is some approximation to the system Jacobian
 \begin{equation}\label{e:DAE_Jacobian}
   J = \frac{\partial G}{\partial y}
   = \frac{\partial F}{\partial y} + 
-  \alpha\frac{\partial F}{\partial \dot y} \, ,
+  \alpha\frac{\partial F}{\partial \dot{y}} \, ,
 \end{equation}
 where $\alpha = \alpha_{n,0}/h_n$.  The scalar $\alpha$ changes 
 whenever the step size or method order changes.
@@ -103,11 +103,9 @@ whenever the step size or method order changes.
 For the solution of the linear systems within the Newton corrections, 
 {\idas} provides several choices, including the option of an user-supplied
 linear solver module. The linear solver modules distributed with {\sundials}
-are organized in three families, a {\em direct} family comprising direct linear 
-solvers for dense or banded matrices, a {\em sparse} family comprising
-direct linear solvers for matrices stored in compressed-sparse-column
-format, and a {\em spils} family comprising scaled preconditioned
-iterative (Krylov) linear solvers. 
+are organized in two families, a {\em direct} family comprising direct linear 
+solvers for dense, banded, or sparse matrices and a {\em spils} family comprising
+scaled preconditioned iterative (Krylov) linear solvers. 
 %%
 The methods offered through these modules are as follows:
 \begin{itemize}
@@ -119,13 +117,16 @@ The methods offered through these modules are as follows:
   library \cite{DaPa:10,KLU_site}, or the thread-enabled SuperLU\_MT sparse
   solver library \cite{Li:05,DGL:99,SuperLUMT_site} (serial or threaded 
   vector modules only) [Note that users will need to download and install the 
-  KLU or SuperLU\_MT packages independent of {\idas}],
+  {\klu} or {\superlumt} packages independent of {\idas}],
 \item {\spgmr}, a scaled preconditioned GMRES (Generalized Minimal Residual method)
   solver without restarts,
+\item {\spfgmr}, a scaled preconditioned FGMRES (Flexible Generalized
+  Minimal Residual method) solver,
 \item {\spbcg}, a scaled preconditioned Bi-CGStab (Bi-Conjugate Gradient Stable
-  method) solver, or
+  method) solver,
 \item {\sptfqmr}, a scaled preconditioned TFQMR (Transpose-Free Quasi-Minimal
-  Residual method) solver.
+  Residual method) solver, or
+\item {\pcg}, a scaled preconditioned CG (Conjugate Gradient method) solver.
 \end{itemize}
 For large stiff systems, where direct methods are not feasible, the
 combination of a BDF integrator and any of the preconditioned Krylov
@@ -137,8 +138,8 @@ form of the user-supplied preconditioner matrix \cite{BrHi:89}.
 For the {\em spils} linear solvers,  preconditioning is allowed
 only on the left (see \S\ref{s:preconditioning}).
 %%
-Note that the direct linear solvers (dense, band, and sparse) can only be 
-used with serial or threaded vector representations.
+Note that the dense, band, and sparse direct linear solvers can only be 
+used with serial and threaded vector representations.
 
 % WRMS Norm
 %----------
@@ -153,7 +154,7 @@ user, namely
  W_i = 1 / [ \mbox{\sc rtol} \cdot |y_i| + \mbox{\sc atol}_i ] \, .
 \end{equation}
 Because $1/W_i$ represents a tolerance in the component $y_i$, a vector
-whose norm is 1 is regarded as ``small''.  For brevity, we will
+whose norm is 1 is regarded as ``small.''  For brevity, we will
 usually drop the subscript WRMS on norms in what follows.
 \index{weighted root-mean-square norm|)}
 
@@ -178,6 +179,11 @@ The above strategy balances the high cost of frequent matrix evaluations
 and preprocessing with the slow convergence due to infrequent updates.
 To reduce storage costs on an update, Jacobian information is always
 reevaluated from scratch.
+
+We note that with the sparse direct solvers, the Jacobian {\em must}
+be supplied by a user routine in compressed-sparse-column format, as
+this is not approximated automatically within {\idas}.
+
 
 % Newton convergence test
 %------------------------
@@ -228,24 +234,20 @@ cases, the Jacobian $J$ defined in (\ref{e:DAE_Jacobian})
 can be either supplied by the user or have {\idas} compute one internally 
 by difference quotients. In the latter case, we use the approximation
 \begin{gather*}
-  J_{ij} = [F_i(t,y+\sigma_j e_j, \dot y + \alpha\sigma_j e_j) - 
-            F_i(t,y, \dot y)]/\sigma_j \, , \text{ with}\\
-  \sigma_j = \sqrt{U} \max \left\{ |y_j|, |h \dot y_j|,1/W_j \right\}
-             \mbox{sign}(h \dot y_j) \, ,
+  J_{ij} = [F_i(t,y+\sigma_j e_j,\dot{y}+\alpha\sigma_j e_j) - 
+            F_i(t,y,\dot{y})]/\sigma_j \, , \text{ with}\\
+  \sigma_j = \sqrt{U} \max \left\{ |y_j|, |h\dot{y}_j|,1/W_j \right\}
+             \mbox{sign}(h \dot{y}_j) \, ,
 \end{gather*}
 where $U$ is the unit roundoff, $h$ is the current step size, and $W_j$ is 
 the error weight for the component $y_j$ defined by (\ref{e:errwt}).
 In the {\spgmr}/{\spbcg}/{\sptfqmr} case, if a routine for $Jv$ is not
 supplied, such products are approximated by
 \begin{equation*}
-Jv = [F(t,y+\sigma v, \dot y +\alpha\sigma v) - F(t,y, \dot y)]/\sigma \, ,
+Jv = [F(t,y+\sigma v,\dot{y}+\alpha\sigma v) - F(t,y,\dot{y})]/\sigma \, ,
 \end{equation*}
 where the increment $\sigma$ is $1/\|v\|$.  As an option, the user can
 specify a constant factor that is inserted into this expression for $\sigma$.
-
-We note that with the sparse direct solvers, the Jacobian {\em must}
-be supplied by a user routine in compressed-sparse-column format.
-
 
 % Error control
 %--------------
@@ -383,7 +385,7 @@ reaction-transport systems).
 
 Typical preconditioners used with {\idas} are based on approximations to the Newton 
 iteration matrix of the systems involved; in other words, 
-$P \approx \frac{\partial F}{\partial y} + \alpha\frac{\partial F}{\partial \dot y}$,
+$P \approx \frac{\partial F}{\partial y} + \alpha\frac{\partial F}{\partial \dot{y}}$,
 where $\alpha$ is a scalar inversely proportional to the integration step size $h$.
 Because the Krylov iteration occurs within a Newton iteration and further
 also within a time integration, and since each of these iterations has
@@ -401,7 +403,7 @@ no preconditioning.
 \section{Rootfinding}\label{s:rootfinding}
 %------------------------
 
-\index{rootfinding}
+\index{Rootfinding}
 The {\idas} solver has been augmented to include a rootfinding
 feature.  This means that, while integrating the Initial Value Problem
 (\ref{e:DAE}), {\idas} can also find the roots of a set of user-defined
@@ -505,7 +507,7 @@ This can be done at the ``user level'' by simply exposing to {\idas} the extende
 DAE system (\ref{e:DAE_p})+(\ref{e:QUAD}). However, in the context of an implicit 
 integration solver, this approach is not desirable since the nonlinear solver 
 module will require the Jacobian (or Jacobian-vector product) of this extended DAE.
-Moreover, since the additional states $z$ do not enter the right-hand side of
+Moreover, since the additional states, $z$, do not enter the right-hand side of
 the ODE (\ref{e:QUAD}) and therefore the residual of the extended DAE system
 does not depend on $z$, it is much more efficient to treat the ODE system (\ref{e:QUAD})
 separately from the original DAE system (\ref{e:DAE_p}) by ``taking out'' the additional
@@ -654,7 +656,7 @@ corrector method.
 
 An important observation is that the staggered corrector method, combined with 
 a Krylov linear solver, effectively results in a staggered direct method. 
-Indeed, the Krylov solver requires only the action of the matrix $J$ on a vector
+Indeed, the Krylov solver requires only the action of the matrix $J$ on a vector,
 and this can be provided with the current Jacobian information. Therefore, the
 modified Newton procedure (\ref{e:stgr_iterations}) will theoretically converge 
 after one iteration.

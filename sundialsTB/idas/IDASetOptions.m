@@ -151,7 +151,7 @@ function options = IDASetOptions(varargin)
 %
 %SensDependent - Backward problem depending on sensitivities [ {false} | true ]
 %   Specifies whether the backward problem right-hand side depends on 
-%   forward sensitivites. If TRUE, the residual function provided for
+%   forward sensitivites. If SUNTRUE, the residual function provided for
 %   this backward problem must have the appropriate type (see IDAResFnB).
 %
 %ErrorMessages - Post error/warning messages [ {true} | false ]

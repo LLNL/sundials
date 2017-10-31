@@ -53,12 +53,12 @@ correct precision (for details see \S\ref{ss:configuration_options_nix}).
 
 \subsection{Integer types used for vector and matrix indices}
 
-The type \id{sunindextype} can be either a 64- or 32-bit \emph{signed} integer.
+The type \id{sunindextype} can be either a 32- or 64-bit \emph{signed} integer.
 The default is the portable \id{int64\_t} type, and the user can change it
 to \id{int32\_t} at the configuration stage. The configuration system
 will detect if the compiler does not support portable types, and will
-replace \id{int64\_t} and \id{int32\_t} with \id{long long} and \id{int},
-respectively, to ensure use of the desired sizes on Linux, Mac OS X and Windows
+replace \id{int32\_t} and \id{int64\_t} with \id{int} and \id{long int},
+respectively, to ensure use of the desired sizes on Linux, Mac OS X, and Windows
 platforms. {\sundials} currently does not support \emph{unsigned} integer types 
 for vector and matrix indices, although these could be added in the future if there 
 is sufficient demand.

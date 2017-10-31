@@ -33,10 +33,11 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <cvode/cvode.h>             /* prototypes for CVODE fcts., consts. */
-#include <cvode/cvode_spgmr.h>       /* prototypes & constants for CVSPGMR */
-#include <sundials/sundials_types.h> /* definition of type realtype */
-#include <sundials/sundials_math.h>  /* definition of ABS and EXP */
+#include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts. */
+#include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver     */
+#include <cvode/cvode_spils.h>         /* access to CVSpils interface */
+#include <sundials/sundials_types.h>   /* definition of type realtype */
+#include <sundials/sundials_math.h>    /* definition of ABS and EXP   */
 
 #include <nvector/nvector_cuda.h>
 
@@ -58,10 +59,12 @@
  * CUDA kernels
  */
 
-__global__ void residualKernel(const double *u, double *udot, sunindextype MX, sunindextype MY, double hordc, double horac, double verdc)
+__global__ void fKernel(const realtype *u, realtype *udot,
+                               sunindextype MX, sunindextype MY,
+                               realtype hordc, realtype horac, realtype verdc)
 {
   realtype uij, udn, uup, ult, urt, hdiff, hadv, vdiff;
-  int i, j, tid;
+  sunindextype i, j, tid;
 
   /* Loop over all grid points. */
   tid = blockDim.x * blockIdx.x + threadIdx.x;
@@ -86,9 +89,11 @@ __global__ void residualKernel(const double *u, double *udot, sunindextype MX, s
 
 }
 
-__global__ void jtvKernel(const double *vdata, double *Jvdata, sunindextype MX, sunindextype MY, double hordc, double horac, double verdc)
+__global__ void jtvKernel(const realtype *vdata, realtype *Jvdata,
+                          sunindextype MX, sunindextype MY,
+                          realtype hordc, realtype horac, realtype verdc)
 {
-  int i, j, tid;
+  sunindextype i, j, tid;
 
   /* Loop over all grid points. */
   tid = blockDim.x * blockIdx.x + threadIdx.x;
@@ -111,13 +116,14 @@ __global__ void jtvKernel(const double *vdata, double *Jvdata, sunindextype MX, 
 
 }
 
-/* Type : UserData (contains model and discretization parameters) */
-
-typedef struct {
+/* Type : _UserData (contains model and discretization parameters) */
+struct _UserData {
   sunindextype MX, MY, NEQ;
   realtype dx, dy, XMAX, YMAX;
   realtype hdcoef, hacoef, vdcoef;
-} *UserData;
+};
+
+typedef _UserData *UserData;
 
 /* Problem setup and initialization functions */
 static UserData SetUserData(int argc, char** argv);
@@ -149,12 +155,14 @@ int main(int argc, char** argv)
   realtype reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
+  SUNLinearSolver LS;
   void *cvode_mem;
   int iout, flag;
   long int nst;
 
   u = NULL;
   data = NULL;
+  LS = NULL;
   cvode_mem = NULL;
 
   /* Set model parameters */
@@ -190,13 +198,17 @@ int main(int argc, char** argv)
   flag = CVodeSetUserData(cvode_mem, data);
   if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
-  /* Call CVSpgmr to specify the linear solver CVSPGMR 
-   * without preconditioning and the maximum Krylov dimension maxl */
-  flag = CVSpgmr(cvode_mem, PREC_NONE, 0);
-  if(check_flag(&flag, "CVSpgmr", 1)) return(1);
+  /* Create SPGMR solver structure without preconditioning
+   * and the maximum Krylov dimension maxl */
+  LS = SUNSPGMR(u, PREC_NONE, 0);
+  if(check_flag(&flag, "SUNSPGMR", 1)) return(1);
 
-  /* set the JAcobian-times-vector function */
-  flag = CVSpilsSetJacTimesVecFn(cvode_mem, jtv);
+  /* Set CVSpils linear solver to LS */
+  flag = CVSpilsSetLinearSolver(cvode_mem, LS);
+  if(check_flag(&flag, "CVSpilsSetLinearSolver", 1)) return(1);
+
+  /* Set the JAcobian-times-vector function */
+  flag = CVSpilsSetJacTimes(cvode_mem, NULL, jtv);
   if(check_flag(&flag, "CVSpilsSetJacTimesVecFn", 1)) return(1);
 
   /* In loop over output points: call CVode, print results, test for errors */
@@ -315,7 +327,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   unsigned block = 256;
   unsigned grid = (MX*MY + block - 1) / block;
 
-  residualKernel<<<grid,block>>>(udata, dudata, MX, MY, hordc, horac, verdc);
+  fKernel<<<grid,block>>>(udata, dudata, MX, MY, hordc, horac, verdc);
 
   return(0);
 }

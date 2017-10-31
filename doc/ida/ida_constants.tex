@@ -101,31 +101,32 @@ description of their meaning.
 \id{IDADLS\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
 \id{IDADLS\_SUNMAT\_FAIL}     & -7 & An error occurred with the current {\sunmatrix} module. \\
 
-\\\hline
-\multicolumn{3}{c}{\bf {\idasls} linear solver module}\\
-\hline\\
+%% \\\hline
+%% \multicolumn{3}{c}{\bf {\idasls} linear solver module}\\
+%% \hline\\
 
-\id{IDASLS\_SUCCESS}    &  0 & Successful function return. \\
-\id{IDASLS\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
-\id{IDASLS\_LMEM\_NULL} & -2 & The {\idasls} linear solver has not been initialized.\\
-\id{IDASLS\_ILL\_INPUT} & -3 & The {\idasls} solver is not compatible with the current {\nvector} module or other input is invalid.\\
-\id{IDASLS\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-\id{IDASLS\_JAC\_NOSET}  & -5 & The Jacobian evaluation routine was not been set before the linear solver setup routine was called.\\
-\id{IDASLS\_PACKAGE\_FAIL}  & -6 & An external package call return a failure error code.\\
-\id{IDASLS\_JACFUNC\_UNRECVR} & -7 & The Jacobian function failed in an unrecoverable manner. \\
-\id{IDASLS\_JACFUNC\_RECVR}   & -8 & The Jacobian function had a recoverable error. \\
+%% \id{IDASLS\_SUCCESS}    &  0 & Successful function return. \\
+%% \id{IDASLS\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
+%% \id{IDASLS\_LMEM\_NULL} & -2 & The {\idasls} linear solver has not been initialized.\\
+%% \id{IDASLS\_ILL\_INPUT} & -3 & The {\idasls} solver is not compatible with the current {\nvector} module or other input is invalid.\\
+%% \id{IDASLS\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+%% \id{IDASLS\_JAC\_NOSET}  & -5 & The Jacobian evaluation routine was not been set before the linear solver setup routine was called.\\
+%% \id{IDASLS\_PACKAGE\_FAIL}  & -6 & An external package call return a failure error code.\\
+%% \id{IDASLS\_JACFUNC\_UNRECVR} & -7 & The Jacobian function failed in an unrecoverable manner. \\
+%% \id{IDASLS\_JACFUNC\_RECVR}   & -8 & The Jacobian function had a recoverable error. \\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\idaspils} linear solver modules}\\
 \hline\\
 
-\id{IDASPILS\_SUCCESS}    &  0 & Successful function return. \\
-\id{IDASPILS\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
-\id{IDASPILS\_LMEM\_NULL} & -2 & The {\idaspils} linear solver has not been initialized.\\
-\id{IDASPILS\_ILL\_INPUT} & -3 & The {\idaspils} solver is not compatible with the current {\nvector} module.\\
-\id{IDASPILS\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-\id{IDASPILS\_PMEM\_NULL} & -5 & The preconditioner module has not been initialized. \\
+\id{IDASPILS\_SUCCESS}     &  0 & Successful function return. \\
+\id{IDASPILS\_MEM\_NULL}   & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
+\id{IDASPILS\_LMEM\_NULL}  & -2 & The {\idaspils} linear solver has not been initialized.\\
+\id{IDASPILS\_ILL\_INPUT}  & -3 & The {\idaspils} solver is not compatible with the current {\nvector} module, or an input value was illegal.\\
+\id{IDASPILS\_MEM\_FAIL}   & -4 & A memory allocation request failed.\\
+\id{IDASPILS\_PMEM\_NULL}  & -5 & The preconditioner module has not been initialized. \\
+\id{IDASPILS\_SUNLS\_FAIL} & -6 & An error occurred with the current {\sunlinsol} module. \\
 
-\input{spils_constants}
+%\input{spils_constants}
 
 \end{xtabular*} 

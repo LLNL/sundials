@@ -24,12 +24,14 @@ SET(sunlinsolklu_SOURCES sunlinsol_klu.c)
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the SUNLINSOLKLU library
-SET(shared_SOURCES sundials_math.c)
-ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
+SET(shared_SOURCES
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
+  )
 
 # Add variable sunlinsolklu_HEADERS with the exported SUNLINSOLKLU header files
-SET(sunlinsolklu_HEADERS sunlinsol_klu.h)
-ADD_PREFIX(${sundials_SOURCE_DIR}/include/sunlinsol/ sunlinsolklu_HEADERS)
+SET(sunlinsolklu_HEADERS
+  ${sundials_SOURCE_DIR}/include/sunlinsol/sunlinsol_klu.h
+  )
 
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(.)
@@ -55,6 +57,12 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Install the SUNLINSOLKLU library
 IF(BUILD_SHARED_LIBS)
   ADD_LIBRARY(sundials_sunlinsolklu_shared SHARED ${sunlinsolklu_SOURCES} ${shared_SOURCES})
+
+  # sunlinsolklu depends on sunmatrixsparse and KLU
+  TARGET_LINK_LIBRARIES(sundials_sunlinsolklu_shared
+    sundials_sunmatrixsparse_shared
+    ${KLU_LIBRARIES})
+
   SET_TARGET_PROPERTIES(sundials_sunlinsolklu_shared
     PROPERTIES OUTPUT_NAME sundials_sunlinsolklu CLEAN_DIRECT_OUTPUT 1)
   SET_TARGET_PROPERTIES(sundials_sunlinsolklu_shared
@@ -68,27 +76,41 @@ INSTALL(FILES ${sunlinsolklu_HEADERS} DESTINATION include/sunlinsol)
 # If FCMIX is enabled and building with 64-bit indices, then build and install 
 # the FSUNLINSOLKLU library
 IF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
+
   PRINT_WARNING("The Fortran interface to KLU is not compatible with ${SUNDIALS_INDEX_TYPE} integers"
                 "Fortran interfaces to KLU will not be built")
-ELSE()
+
+ELSE(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
+
   IF(FCMIX_ENABLE AND F77_FOUND)
     SET(fsunlinsolklu_SOURCES fsunlinsol_klu.c)
+
     IF(BUILD_STATIC_LIBS)
       ADD_LIBRARY(sundials_fsunlinsolklu_static STATIC ${fsunlinsolklu_SOURCES})
       SET_TARGET_PROPERTIES(sundials_fsunlinsolklu_static
         PROPERTIES OUTPUT_NAME sundials_fsunlinsolklu CLEAN_DIRECT_OUTPUT 1)
       INSTALL(TARGETS sundials_fsunlinsolklu_static DESTINATION lib)
     ENDIF(BUILD_STATIC_LIBS)
+
     IF(BUILD_SHARED_LIBS)
       ADD_LIBRARY(sundials_fsunlinsolklu_shared ${fsunlinsolklu_SOURCES})
+
+      # fsunlinsolklu depends on fnvecserial, fsunmatrixsparse, sunlinsolklu
+      TARGET_LINK_LIBRARIES(sundials_fsunlinsolklu_shared
+        sundials_fnvecserial_shared
+        sundials_fsunmatrixsparse_shared
+        sundials_sunlinsolklu_shared)
+
       SET_TARGET_PROPERTIES(sundials_fsunlinsolklu_shared
         PROPERTIES OUTPUT_NAME sundials_fsunlinsolklu CLEAN_DIRECT_OUTPUT 1)
       SET_TARGET_PROPERTIES(sundials_fsunlinsolklu_shared 
         PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
       INSTALL(TARGETS sundials_fsunlinsolklu_shared DESTINATION lib)
     ENDIF(BUILD_SHARED_LIBS)
+
   ENDIF(FCMIX_ENABLE AND F77_FOUND)
-ENDIF()
+
+ENDIF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
 
 #
 MESSAGE(STATUS "Added SUNLINSOL_KLU module")

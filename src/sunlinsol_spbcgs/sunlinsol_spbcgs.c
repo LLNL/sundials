@@ -252,12 +252,13 @@ int SUNLinSolSetScalingVectors_SPBCGS(SUNLinearSolver S, N_Vector s1,
 int SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A)
 {
   int ier;
+  PSetupFn Psetup;
+  void* PData;
 
   /* Set shortcuts to SPBCGS memory structures */
   if (S == NULL) return(SUNLS_MEM_NULL);
-  PSetupFn Psetup = SPBCGS_CONTENT(S)->Psetup;
-  void* ATData = SPBCGS_CONTENT(S)->ATData;
-  void* PData = SPBCGS_CONTENT(S)->PData;
+  Psetup = SPBCGS_CONTENT(S)->Psetup;
+  PData = SPBCGS_CONTENT(S)->PData;
   
   /* no solver-specific setup is required, but if user-supplied 
      Psetup routine exists, call that here */
@@ -312,7 +313,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   /* Initialize counters and convergence flag */
   *nli = 0;
-  converged = FALSE;
+  converged = SUNFALSE;
 
   /* set booleantype flags for internal solver options */
   preOnLeft  = ( (PRETYPE(S) == PREC_LEFT) || 
@@ -493,7 +494,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
     *res_norm = rho = SUNRsqrt(N_VDotProd(r, r));
     if (rho <= delta) {
-      converged = TRUE;
+      converged = SUNTRUE;
       break;
     }
 
@@ -513,7 +514,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   /* Main loop finished */
 
-  if ((converged == TRUE) || (rho < r_norm)) {
+  if ((converged == SUNTRUE) || (rho < r_norm)) {
 
     /* Apply the x-scaling and right preconditioner: x = P2_inv sx_inv x */
 
@@ -528,7 +529,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       N_VScale(ONE, vtemp, x);
     }
 
-    if (converged == TRUE) 
+    if (converged == SUNTRUE) 
       LASTFLAG(S) = SUNLS_SUCCESS;
     else 
       LASTFLAG(S) = SUNLS_RES_REDUCED;

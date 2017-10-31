@@ -57,13 +57,13 @@ forward sensitivity analysis beyond those for IVP solution
   \textcolor{gray}{\bf Set problem dimensions etc.}
 
 \item
-  \textcolor{gray}{\bf Set initial values}
+  \textcolor{gray}{\bf Set vector of initial values}
  
 \item
   \textcolor{gray}{\bf Create {\cvodes} object}
 
 \item
-  \textcolor{gray}{\bf Allocate internal memory}
+  \textcolor{gray}{\bf Initialize {\cvodes}}
 
 \item
   \textcolor{gray}{\bf Specify integration tolerances}
@@ -72,10 +72,16 @@ forward sensitivity analysis beyond those for IVP solution
   \textcolor{gray}{\bf Set optional inputs}
 
 \item
-  \textcolor{gray}{\bf Attach linear solver module}
+  \textcolor{gray}{\bf Create matrix object}
+
+\item
+  \textcolor{gray}{\bf Create linear solver object}
 
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
+
+\item
+  \textcolor{gray}{\bf Attach linear solver module}
 
 \item
   \textcolor{gray}{\bf Initialize quadrature problem, if not sensitivity-dependent}
@@ -126,7 +132,7 @@ forward sensitivity analysis beyond those for IVP solution
       function, the results will be more accurate if order of magnitude information is provided.
 
       Set \id{pbar}, an array of \id{Ns} positive scaling factors. Typically,
-      if $p_i \ne 0$, the value ${\bar p}_i = |p_{\text{plist}_j}|$ can be used.
+      if $p_i \ne 0$, the value ${\bar p}_i = |p_{\text{plist}_i}|$ can be used.
 
       If \id{pbar} is not specified, {\cvodes} will use ${\bar p}_i = 1.0$.
 
@@ -170,8 +176,8 @@ forward sensitivity analysis beyond those for IVP solution
 \item
   {\bf Set sensitivity tolerances}
 
-  Call \id{CVodeSensSStolerances} or \id{CVodeSensSVtolerances} or
-  \id{CVodeEEtolerances} (see \S\ref{sss:cvfwdtolerances}).
+  Call \id{CVodeSensSStolerances}, \id{CVodeSensSVtolerances} or
+  \id{CVodeEEtolerances}. (See \S\ref{sss:cvfwdtolerances}).
 
 \item
   {\bf Set sensitivity analysis optional inputs}
@@ -197,6 +203,9 @@ forward sensitivity analysis beyond those for IVP solution
   (see \S\ref{ss:sensi_get}).
 
 \item
+  \textcolor{gray}{\bf Get optional outputs}
+
+\item
   \textcolor{gray}{\bf Deallocate memory for solution vector}
 
 \item 
@@ -217,8 +226,14 @@ forward sensitivity analysis beyond those for IVP solution
   \textcolor{gray}{\bf Free solver memory}
   
 \item
-  \textcolor{gray}{\bf Free solution vector specification memory}
+  \textcolor{gray}{\bf Free vector specification memory}
 
+\item 
+  \textcolor{gray}{\bf Free linear solver and matrix memory}
+
+\item 
+  \textcolor{gray}{\bf Finalize MPI, if used}
+  
 \end{Steps}
 
 %-------------------------------------------------------------------------------
@@ -253,7 +268,6 @@ The form of the call to each of these routines is as follows:
 
   \item[Ns] (\id{int}) 
     the number of sensitivities to be computed.
-
   \item[ism] (\id{int})
     \index{forward sensitivity analysis!correction strategies}
     a flag used to select the sensitivity solution method.  Its value can be
@@ -272,7 +286,6 @@ The form of the call to each of these routines is as follows:
   \item[fS] (\Id{CVSensRhsFn})
     is the {\CC} function which computes all sensitivity ODE right-hand sides at the same time.
     For full details see \S\ref{s:user_fct_fwd}.
-
   \item[yS0] (\id{N\_Vector *}) 
     a pointer to an array of \id{Ns} vectors containing the initial 
     values of the sensitivities.
@@ -866,7 +879,7 @@ remainder of this section.
 \hline
 Sensitivity scaling factors & \id{CVodeSetSensParams} & \id{NULL} \\
 DQ approximation method & \id{CVodeSetSensDQMethod} & centered/0.0 \\
-Error control strategy & \id{CVodeSetSensErrCon} & \id{FALSE} \\
+Error control strategy & \id{CVodeSetSensErrCon} & \id{SUNFALSE} \\
 Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
 \hline
 \end{tabular}
@@ -977,8 +990,8 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[errconS] (\id{booleantype})
-    specifies whether sensitivity variables are to be included (\id{TRUE}) or not
-    (\id{FALSE}) in the error control mechanism.
+    specifies whether sensitivity variables are to be included (\id{SUNTRUE}) or not
+    (\id{SUNFALSE}) in the error control mechanism.
   \end{args}
 }
 {
@@ -991,10 +1004,10 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
   \end{args}
 }
 {
-  By default, \id{errconS} is set to \id{FALSE}. 
-  If \id{errconS}$=$\id{TRUE} then both state variables and
+  By default, \id{errconS} is set to \id{SUNFALSE}. 
+  If \id{errconS}$=$\id{SUNTRUE} then both state variables and
   sensitivity variables are included in the error tests. 
-  If \id{errconS}$=$\id{FALSE} then the sensitivity variables are excluded from the 
+  If \id{errconS}$=$\id{SUNFALSE} then the sensitivity variables are excluded from the 
   error tests. Note that, in any event, all variables are considered in the convergence 
   tests.
 }
@@ -1635,13 +1648,19 @@ this situation. Steps that are unchanged from the skeleton program presented in
   \textcolor{gray}{\bf Create {\cvodes} object}
 
 \item
-  \textcolor{gray}{\bf Allocate internal memory}
+  \textcolor{gray}{\bf Initialize {\cvodes}}
+
+\item
+  \textcolor{gray}{\bf Specify integration tolerances}
 
 \item
   \textcolor{gray}{\bf Set optional inputs}
 
 \item
-  \textcolor{gray}{\bf Attach linear solver module}
+  \textcolor{gray}{\bf Create matrix object}
+
+\item
+  \textcolor{gray}{\bf Create linear solver object}
 
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
@@ -1713,6 +1732,12 @@ this situation. Steps that are unchanged from the skeleton program presented in
 
 \item
   {\bf Deallocate memory for sensitivity-dependent quadrature variables}
+  
+\item
+  \textcolor{gray}{\bf Free vector specification memory}
+
+\item
+  \textcolor{gray}{\bf Free linear solver and matrix memory}
   
 \item
   {\bf Free solver memory}
@@ -2101,7 +2126,7 @@ of sensitivity-dependent quadrature equations.
     pointer to the {\cvodes} memory block.
   \item[errconQS] (\id{booleantype})
     specifies whether sensitivity quadrature variables are to be included
-    (\id{TRUE}) or not (\id{FALSE}) in the error control mechanism. 
+    (\id{SUNTRUE}) or not (\id{SUNFALSE}) in the error control mechanism. 
   \end{args}
 }
 {
@@ -2118,7 +2143,7 @@ of sensitivity-dependent quadrature equations.
   \end{args}
 }
 {
-  By default, \id{errconQS} is set to \id{FALSE}. 
+  By default, \id{errconQS} is set to \id{SUNFALSE}. 
 
   {\warn}It is illegal to call \id{CVodeSetQuadSensErrCon} before a call 
   to \id{CVodeQuadSensInit}.
@@ -2346,7 +2371,7 @@ performance information related to quadrature integration.
   {\warn}The user must allocate memory for \id{eQSweight}.
 
   If quadratures were not included in the error control mechanism (through a 
-  call to \id{CVodeSetQuadSensErrCon} with \id{errconQS = TRUE}), then
+  call to \id{CVodeSetQuadSensErrCon} with \id{errconQS = SUNTRUE}), then
   this function does not set the \id{eQSweight} array.
 }
 %%

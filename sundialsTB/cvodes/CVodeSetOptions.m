@@ -184,7 +184,7 @@ function options = CVodeSetOptions(varargin)
 %
 %SensDependent - Backward problem depending on sensitivities [ {false} | true ]
 %   Specifies whether the backward problem right-hand side depends on 
-%   forward sensitivites. If TRUE, the right-hand side function provided for
+%   forward sensitivites. If SUNTRUE, the right-hand side function provided for
 %   this backward problem must have the appropriate type (see CVRhsFnB).
 %
 %ErrorMessages - Post error/warning messages [ {true} | false ]

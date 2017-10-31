@@ -60,7 +60,9 @@ void FARK_BBDINIT(long int *Nloc, long int *mudq,
   /* Notes: FARKgloc is a pointer to the ARKLocalFn function,
      and FARKcfn is a pointer to the ARKCommFn function */
   *ier = ARKBBDPrecInit(ARK_arkodemem, *Nloc, *mudq, *mldq,
-			*mu, *ml, *dqrely, FARKgloc, FARKcfn);
+			*mu, *ml, *dqrely, 
+                        (ARKLocalFn) FARKgloc,
+                        (ARKCommFn) FARKcfn);
   return;
 }
 

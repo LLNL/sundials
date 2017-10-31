@@ -1,3 +1,4 @@
+# -*- mode: makefile -*-
 # -----------------------------------------------------------------
 # Programmer: Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -16,19 +17,6 @@
 # This file is generated from a template using various variables
 # set at configuration time. It can be used as a template for
 # other user Makefiles.
-#
-# Note: if the solver was successfully configured with Blas or
-# Lapack support, the Blas/Lapack libraries are specified through
-# the variable LIBRARIES_BLAS or LIBRARIES_LAPACK. Otherwise, these
-# variables should contain an empty string. We include
-# LIBRARIES_BLAS and LIBRARIES_LAPACK in the link line for all
-# examples, whether they use the Blas/Lapack or not, to address the
-# case in which the SUNDIALS libraries are shared objects. In that
-# case, the solver library references Blas/Lapack symbols which
-# must be always resolved by linking against the Blas/Lapack
-# libraries. If only static SUNDIALS libraries have been built, it
-# is not required to link the Blas/Lapack libraries for examples
-# that do not use that module...
 # -----------------------------------------------------------------
 
 SHELL = @SHELL@
@@ -44,20 +32,18 @@ CC          = @CC@
 CFLAGS      = @CFLAGS@
 LDFLAGS     = @LDFLAGS@
 LIBS        = @LIBS@
+
 LINKFLAGS = -Wl,-rpath,@libdir@
+
 MPICC       = @MPICC@
 MPI_INC_DIR = @MPI_INC_DIR@
 MPI_LIB_DIR = @MPI_LIB_DIR@
 MPI_LIBS    = @MPI_LIBS@
 MPI_FLAGS   = @MPI_FLAGS@
 
-INCLUDES = -I${includedir} -I${MPI_INC_DIR}
+TMP_INCS  = ${includedir} ${MPI_INC_DIR}
+INCLUDES  = $(addprefix -I, ${TMP_INCS})
 LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecparallel ${LIBS}
-LIBRARIES_BLAS   = @BLAS_LIBS@
-LIBRARIES_LAPACK = @LAPACK_LIBS@
-LIBRARIES_SLUMT  = @SUPERLUMT_LIBS@
-LIBRARIES_KLU    = @KLU_LIBS@
-LIBRARIES_PETSC  = @PETSC_LIBRARIES@
 
 EXAMPLES = @EXAMPLES@
 EXAMPLES_DEPENDENCIES = @EXAMPLES_DEPENDENCIES@
@@ -76,8 +62,8 @@ OBJECTS_DEPENDENCIES = ${EXAMPLES_DEPENDENCIES:=.o}
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${MPICC} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBRARIES_LAPACK} ${LIBRARIES_BLAS} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC} ${LINKFLAGS}" ; \
-	  ${MPICC} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBRARIES_LAPACK} ${LIBRARIES_BLAS} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC} ${LINKFLAGS} ; \
+	  echo "${MPICC} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LINKFLAGS}" ; \
+	  ${MPICC} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LINKFLAGS} ; \
 	done
 
 ${OBJECTS}: ${OBJECTS_DEPENDENCIES}

@@ -28,16 +28,27 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 
 # Project SUNDIALS (initially only C supported)
-
+# sets PROJECT_SOURCE_DIR and PROJECT_BINARY_DIR variables
 PROJECT(sundials C)
 
 # Set some variables with info on the SUNDIALS project
-
 SET(PACKAGE_BUGREPORT "woodward6@llnl.gov")
 SET(PACKAGE_NAME "SUNDIALS")
-SET(PACKAGE_STRING "SUNDIALS 2.7.0")
+SET(PACKAGE_STRING "SUNDIALS 3.0.0")
 SET(PACKAGE_TARNAME "sundials")
-SET(PACKAGE_VERSION "2.7.0")
+
+# set SUNDIALS version numbers 
+# (use "" for the version label if none is needed)
+SET(PACKAGE_VERSION_MAJOR "3")
+SET(PACKAGE_VERSION_MINOR "0")
+SET(PACKAGE_VERSION_PATCH "0")
+SET(PACKAGE_VERSION_LABEL "")
+
+IF(PACKAGE_VERSION_LABEL)
+  SET(PACKAGE_VERSION "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}-${PACKAGE_VERSION_LABEL}")
+ELSE()
+  SET(PACKAGE_VERSION "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}")
+ENDIF()
 
 #
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -57,32 +68,35 @@ MARK_AS_ADVANCED(CLEAR
 
 # Specify the VERSION and SOVERSION for shared libraries
 
-SET(arkodelib_VERSION "1.1.0")
-SET(arkodelib_SOVERSION "1")
+SET(arkodelib_VERSION "2.0.0")
+SET(arkodelib_SOVERSION "2")
 
-SET(cvodelib_VERSION "2.9.0")
-SET(cvodelib_SOVERSION "2")
+SET(cvodelib_VERSION "3.0.0")
+SET(cvodelib_SOVERSION "3")
 
-SET(cvodeslib_VERSION "2.9.0")
-SET(cvodeslib_SOVERSION "2")
+SET(cvodeslib_VERSION "3.0.0")
+SET(cvodeslib_SOVERSION "3")
 
-SET(idalib_VERSION "2.9.0")
-SET(idalib_SOVERSION "2")
+SET(idalib_VERSION "3.0.0")
+SET(idalib_SOVERSION "3")
 
-SET(idaslib_VERSION "1.3.0")
-SET(idaslib_SOVERSION "1")
+SET(idaslib_VERSION "2.0.0")
+SET(idaslib_SOVERSION "2")
 
-SET(kinsollib_VERSION "2.9.0")
-SET(kinsollib_SOVERSION "2")
+SET(kinsollib_VERSION "3.0.0")
+SET(kinsollib_SOVERSION "3")
 
 SET(cpodeslib_VERSION "0.0.0")
 SET(cpodeslib_SOVERSION "0")
 
-SET(nveclib_VERSION "2.7.0")
-SET(nveclib_SOVERSION "2")
+SET(nveclib_VERSION "3.0.0")
+SET(nveclib_SOVERSION "3")
 
 SET(sunmatrixlib_VERSION "1.0.0")
 SET(sunmatrixlib_SOVERSION "1")
+
+SET(sunlinsollib_VERSION "1.0.0")
+SET(sunlinsollib_SOVERSION "1")
 
 # Specify the location of additional CMAKE modules
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/config)
@@ -390,14 +404,6 @@ ENDIF()
 # Enable hypre Vector support?
 # ---------------------------------------------------------------
 OPTION(HYPRE_ENABLE "Enable hypre support" OFF)
-
-# As of version 2.11.2 hypre does not support single or extended precision
-IF(HYPRE_ENABLE AND
-  (SUNDIALS_PRECISION MATCHES "SINGLE" OR SUNDIALS_PRECISION MATCHES "EXTENDED"))
-  PRINT_WARNING("hypre is not compatible with ${SUNDIALS_PRECISION} precision"
-                "Disabling hypre")
-  FORCE_VARIABLE(HYPRE_ENABLE BOOL "hypre is disabled" OFF)
-ENDIF()
 
 # Using hypre requres building with MPI enabled
 IF(HYPRE_ENABLE AND NOT MPI_ENABLE)
@@ -1584,5 +1590,10 @@ ENDIF(EXAMPLES_ENABLED)
 # install configured header file
 INSTALL(
   FILES ${PROJECT_BINARY_DIR}/include/sundials/sundials_config.h
+  DESTINATION include/sundials
+  )
+
+INSTALL(
+  FILES ${PROJECT_BINARY_DIR}/include/sundials/sundials_fconfig.h
   DESTINATION include/sundials
   )

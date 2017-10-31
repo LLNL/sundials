@@ -36,8 +36,8 @@ typedef struct KBBDPrecDataRec {
   /* passed by user to KINBBDPrecAlloc, used by pset/psolve functions */
   sunindextype mudq, mldq, mukeep, mlkeep;
   realtype rel_uu;  /* relative error for the Jacobian DQ routine */
-  KINLocalFn gloc;
-  KINCommFn gcomm;
+  KINBBDLocalFn gloc;
+  KINBBDCommFn gcomm;
 
   /* set by KINBBDPrecSetup and used by KINBBDPrecSetup and 
      KINBBDPrecSolve functions */

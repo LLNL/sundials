@@ -872,18 +872,18 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 
   if (jok) {
 
-    /* jok = TRUE: Copy Jbd to P */
+    /* jok = SUNTRUE: Copy Jbd to P */
     for (ly = 0; ly < MYSUB; ly++)
       for (lx = 0; lx < MXSUB; lx++)
         denseCopy(Jbd[lx][ly], P[lx][ly], NVARS, NVARS);
 
-  *jcurPtr = FALSE;
+  *jcurPtr = SUNFALSE;
 
   }
 
   else {
 
-    /* jok = FALSE: Generate Jbd from scratch and copy to P */
+    /* jok = SUNFALSE: Generate Jbd from scratch and copy to P */
 
     /* Make local copies of problem variables, for efficiency */
     q4coef = data->q4;
@@ -914,7 +914,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
       }
     }
 
-    *jcurPtr = TRUE;
+    *jcurPtr = SUNTRUE;
 
   }
 

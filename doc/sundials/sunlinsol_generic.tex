@@ -168,10 +168,9 @@ Each {\sunlinsol} implementation included in {\sundials} has a ``type''
 identifier specified in enumeration and shown in Table \ref{t:linsolIDs}.
 It is recommended that a user-supplied {\sunlinsol} implementation set
 this identifier based on the {\sundials} solver interface they intend
-to use: ``Dls'' interfaces require \ID{SUNLINEARSOLVER\_DIRECT}
-{\sunlinsol} objects, ``Spils'' interfaces require 
-\ID{SUNLINEARSOLVER\_ITERATIVE} objects, and ``Cls'' interfaces 
-require \ID{SUNLINEARSOLVER\_CUSTOM} objects. 
+to use: ``Dls'' interfaces require the \ID{SUNLINEARSOLVER\_DIRECT}
+{\sunlinsol} objects and ``Spils'' interfaces require the 
+\ID{SUNLINEARSOLVER\_ITERATIVE} objects. 
 
 \begin{table}
 \centering
@@ -345,7 +344,119 @@ SUNLINEARSOLVER\_CUSTOM      & Custom solvers     & 2 \\
 \end{xtabular}
 \bigskip
 
+\section{Description of the client-supplied SUNLinearSolver routines}\label{ss:sunlinsol_clientsupplied}
 
+The {\sundials} packages provide the \id{ATimes}, \id{Pset}
+and \id{Psol} routines utilized by the {\sunlinsol} modules.  These
+function types are defined in the header
+file \id{sundials/sundials\_iterative.h}, and are described here in
+case a user wishes to interact directly with an iterative {\sunlinsol}
+object. 
+
+
+
+\usfunction{ATimesFn}
+{
+  typedef int (*ATimesFn)(void *A\_data, N\_Vector v, N\_Vector z);
+}
+{
+  These functions compute the action of a matrix on a vector,
+  performing the operation $z = Av$.  Memory for \id{z} should already be
+  allocted prior to calling this function.  The vector \id{v} should
+  be left unchanged.  
+}
+{
+  \begin{args}
+  \item[A\_data]
+    is a pointer to client data, the same as that supplied to \id{SUNLinSolSetATimes}.
+  \item[v]
+    is the input vector to multiply.
+  \item[z]
+    is the output vector computed.
+  \end{args}
+}
+{  
+  This routine should return 0 if successful and a         
+  non-zero value if unsuccessful.
+}
+{
+}
+
+
+
+\usfunction{PSetupFn}
+{
+  typedef int (*PSetupFn)(void *P\_data)
+}
+{
+  These functions set up any requisite problem data in preparation
+  for calls to the corresponding \id{PSolveFn}. 
+}
+{
+  \begin{args}
+  \item[P\_data]
+    is a pointer to client data, the same pointer as that supplied to the routine 
+    \id{SUNLinSolSetPreconditioner}.
+  \end{args}
+}
+{  
+  This routine should return 0 if successful and a non-zero value if unsuccessful. 
+}
+{
+}
+
+
+\usfunction{PSolveFn}
+{
+  typedef int (*PSolveFn)(&void *P\_data, N\_Vector r, N\_Vector z, \\
+                          &realtype tol, int lr)
+}
+{
+  These functions solve the preconditioner equation $Pz = r$
+  for the vector $z$.  Memory for \id{z} should already be
+  allocted prior to calling this function.  The
+  parameter \id{P\_data} is a pointer to any information about $P$
+  which the function needs in order to do its job (set up by the
+  corresponding \id{PSetupFn}. The parameter \id{lr} is input, and
+  indicates whether $P$ is to be taken as the left preconditioner or
+  the right preconditioner: \id{lr} = 1 for left and \id{lr} = 2 for
+  right.  If preconditioning is on one side only, \id{lr} can be
+  ignored.  If the preconditioner is iterative, then it should strive
+  to solve the preconditioner equation so that 
+  \[
+      \| Pz - r \|_{\text{wrms}} < tol
+  \]
+  where the weight vector for the WRMS norm may be accessed from the
+  main package memory structure.  The vector \id{r} should not be
+  modified by the \id{PSolveFn}.  
+}
+{
+  \begin{args}
+  \item[P\_data]
+    is a pointer to client data, the same pointer as that supplied to the routine \id{SUNLinSolSetPreconditioner}.
+  \item[r]
+    is the right-hand side vector for the preconditioner system
+  \item[z]
+    is the solution vector for the preconditioner system
+  \item[tol]
+    is the desired tolerance for an iterative preconditioner
+  \item[lr]
+    is flag indicating whether the routine should perform left (1) or
+    right (2) preconditioning.
+  \end{args}
+}
+{  
+  This routine should return 0 if successful and a non-zero value if
+  unsuccessful.  On a failure, a negative return value indicates an
+  unrecoverable condition, while a positive value indicates a
+  recoverable one, in which the calling routine may reattempt the
+  solution after updating preconditioner data.
+}
+{
+}
+
+
+\section{Compatibility of SUNLinearSolver modules}\label{ss:sunlinsol_compatibility}
 
 %---------------------------------------------------------------------------
 % Tables listing compatibility with matrix/vector types
@@ -353,9 +464,9 @@ SUNLINEARSOLVER\_CUSTOM      & Custom solvers     & 2 \\
 
 We note that not all {\sunlinsol} types are compatible with all
 {\sunmatrix} and {\nvector} types provided with {\sundials}.  In Table 
-\ref{t:linsol-matrix} we show the direct linear solver interfaces
+\ref{t:linsol-matrix} we show the direct linear solvers
 available as {\sunlinsol} modules, and the compatible matrix
-implementations.  In Table \ref{t:linsol-vector} we show the
+implementations.  Recall that Table \ref{t:solver-vector} shows the
 compatibility between all {\sunlinsol} modules and vector
 implementations.
 
@@ -367,58 +478,63 @@ implementations.
                   \multicolumn{1}{p{1.4cm}|}{{Sparse Matrix}} & 
                   \multicolumn{1}{p{1.4cm}|}{{User Supplied}} \\ \hline}
 \tabletail{\hline \multicolumn{5}{|r|}{\small\slshape continued on next page} \\ \hline}
-{\renewcommand{\arraystretch}{1.2}
+\begin{center}
 \begin{xtabular}{|l|c|c|c|c|}
 %   Linear Solver &  Dense   & Banded & Sparse & User     \\
 %   Interface     &          &        &        & Supplied \\ 
     Dense         &  \cm     &        &        & \cm      \\ 
     Band          &          & \cm    &        & \cm      \\
-    Diagonal      &          &        &        & \cm      \\ 
     LapackDense   &  \cm     &        &        & \cm      \\ 
     LapackBand    &          & \cm    &        & \cm      \\
     \klu          &          &        &  \cm   & \cm      \\
     \superlumt    &          &        &  \cm   & \cm      \\
     User supplied &  \cm     & \cm    &  \cm   & \cm      \\ 
     \hline
-\end{xtabular}}
+\end{xtabular}
+\end{center}
 \bigskip
 
-
-\tablecaption{{\sundials} linear solver interfaces and vector
-             implementations that can be used for each.}\label{t:linsol-vector}
-\tablehead{\hline \multicolumn{1}{|p{2cm}|}{{Linear Solver Interface}} &
-                  \multicolumn{1}{p{1.3cm}|}{{Serial}} & 
-                  \multicolumn{1}{p{1.3cm}|}{{Parallel (MPI)}} & 
-                  \multicolumn{1}{p{1.4cm}|}{{OpenMP}} & 
-                  \multicolumn{1}{p{1.4cm}|}{{pThreads}} & 
-                  \multicolumn{1}{p{1.3cm}|}{{{\hypre} Vector}} & 
-                  \multicolumn{1}{p{1.3cm}|}{{{\petsc} Vector}} & 
-                  \multicolumn{1}{p{1.4cm}|}{{User Supplied}} \\ \hline }
-\tabletail{\hline \multicolumn{8}{|r|}{\small\slshape continued on next page} \\ \hline}
-{\renewcommand{\arraystretch}{1.2}
-\begin{xtabular}{|l|c|c|c|c|c|c|c|}
-%   Linear Solver &  Serial  & Parallel  &  OpenMP  &  pThreads  & {\hypre}    & {\petsc} & User     \\
-%   Interface     &          & (MPI)     &          &            &  Vector     & Vector   & Supplied \\ 
-    Dense         &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\ 
-    Band          &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
-    LapackDense   &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
-    LapackBand    &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
-    \klu          &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
-    \superlumt    &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
-    \spgmr        &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\
-    \spfgmr       &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\
-    \spbcg        &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\
-    \sptfqmr      &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\ 
-    \pcg          &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\
-    User supplied &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     & \cm      \\ 
-    \hline
-\end{xtabular}}
-\bigskip
+%% \tablecaption{{\sundials} linear solver modules and vector
+%%              implementations that can be used for each.}\label{t:linsol-vector}
+%% \tablehead{\hline \multicolumn{1}{|p{2cm}|}{{Linear Solver Interface}} &
+%%                   \multicolumn{1}{p{0.7cm}|}{{Serial}} & 
+%%                   \multicolumn{1}{p{1.0cm}|}{{Parallel (MPI)}} & 
+%%                   \multicolumn{1}{p{1.3cm}|}{{OpenMP}} & 
+%%                   \multicolumn{1}{p{1.3cm}|}{{pThreads}} & 
+%%                   \multicolumn{1}{p{0.9cm}|}{{{\hypre} Vec.}} & 
+%%                   \multicolumn{1}{p{0.9cm}|}{{{\petsc} Vec.}} & 
+%%                   \multicolumn{1}{p{0.8cm}|}{{{\cuda}}} & 
+%%                   \multicolumn{1}{p{0.8cm}|}{{{\raja}}} & 
+%%                   \multicolumn{1}{p{1.2cm}|}{{User Suppl.}} \\ \hline }
+%% \tabletail{\hline \multicolumn{10}{|r|}{\small\slshape continued on next page} \\ \hline}
+%% {\renewcommand{\arraystretch}{1.2}
+%% \begin{xtabular}{|l|c|c|c|c|c|c|c|c|c|}
+%% %   Linear Solver &  Serial  & Parallel  &  OpenMP  &  pThreads  & {\hypre}    & {\petsc} & {\cuda}  & {\raja}  & User     \\
+%% %   Interface     &          & (MPI)     &          &            & Vec.        & Vec.     &          &          & Suppl.   \\ 
+%%     Dense         &  \cm     &           & \cm      &  \cm       &             &          &          &          & \cm      \\ 
+%%     Band          &  \cm     &           & \cm      &  \cm       &             &          &          &          & \cm      \\
+%%     LapackDense   &  \cm     &           & \cm      &  \cm       &             &          &          &          & \cm      \\
+%%     LapackBand    &  \cm     &           & \cm      &  \cm       &             &          &          &          & \cm      \\
+%%     \klu          &  \cm     &           & \cm      &  \cm       &             &          &          &          & \cm      \\
+%%     \superlumt    &  \cm     &           & \cm      &  \cm       &             &          &          &          & \cm      \\
+%%     \spgmr        &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     &  \cm     &  \cm     & \cm      \\
+%%     \spfgmr       &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     &  \cm     &  \cm     & \cm      \\
+%%     \spbcg        &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     &  \cm     &  \cm     & \cm      \\
+%%     \sptfqmr      &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     &  \cm     &  \cm     & \cm      \\ 
+%%     \pcg          &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     &  \cm     &  \cm     & \cm      \\
+%%     User supplied &  \cm     &  \cm      &  \cm     &  \cm       & \cm         &  \cm     &  \cm     &  \cm     & \cm      \\ 
+%%     \hline
+%% \end{xtabular}}
+%% \bigskip
 
 
 %---------------------------------------------------------------------------
 % Table of linear solver error codes
 %---------------------------------------------------------------------------
+
+The functions within the {\sundials}-provided \id{SUNLinearSolver}
+implementations return a common set of error codes, shown below in the
+Table \ref{t:sunlinsolerr}. 
 
 \newlength{\ColumnOne}
 \settowidth{\ColumnOne}{\id{SUNLS\_PACKAGE\_FAIL\_UNREC}}
@@ -439,71 +555,69 @@ implementations.
 \\[1mm]
 %%
 \id{SUNLS\_MEM\_NULL} & \id{-1} & the memory argument to the function is \id{NULL}
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_ILL\_INPUT} & \id{-2} & an illegal input has been provided to the function 
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_MEM\_FAIL} & \id{-3} & failed memory access or allocation
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_ATIMES\_FAIL\_UNREC} & \id{-4} & an unrecoverable failure
   occurred in the \id{ATimes} routine
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_PSET\_FAIL\_UNREC} & \id{-5} & an unrecoverable failure
   occurred in the \id{Pset} routine
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_PSOLVE\_FAIL\_UNREC} & \id{-6} & an unrecoverable failure
   occurred in the \id{Psolve} routine
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_PACKAGE\_FAIL\_UNREC} & \id{-7} & an unrecoverable failure
   occurred in an external linear solver package
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_GS\_FAIL} & \id{-8} & a failure occurred during
   Gram-Schmidt orthogonalization ({\sunlinsolspgmr}/{\sunlinsolspfgmr})
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_QRSOL\_FAIL} & \id{-9} & a singular $R$ matrix was
   encountered in a QR factorization ({\sunlinsolspgmr}/{\sunlinsolspfgmr})
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_RES\_REDUCED} & \id{1} &  an iterative solver reduced the
   residual, but did not converge to the desired tolerance
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_CONV\_FAIL} & \id{2} &  an iterative solver did not
 converge (and the residual was not reduced)
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_ATIMES\_FAIL\_REC} & \id{3} & a recoverable failure occurred
   in the \id{ATimes} routine
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_PSET\_FAIL\_REC} & \id{4} & a recoverable failure occurred
   in the \id{Pset} routine
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_PSOLVE\_FAIL\_REC} & \id{5} & a recoverable failure occurred
   in the \id{Psolve} routine
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_PACKAGE\_FAIL\_REC} & \id{6} &  a recoverable failure
   occurred in an external linear solver package
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_QRFACT\_FAIL} & \id{7} & a singular matrix was encountered
   during a QR factorization ({\sunlinsolspgmr}/{\sunlinsolspfgmr})
-\\[2mm]
+\\[1mm]
 %%
 \id{SUNLS\_LUFACT\_FAIL} & \id{8} & a singular matrix was encountered
   during a LU factorization ({\sunlinsoldense}/{\sunlinsolband})
-\\[2mm]
-%%
-%%
+\\
 \end{xtabular}
 \bigskip
 

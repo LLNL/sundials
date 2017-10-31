@@ -19,7 +19,7 @@ At t = 1.00   max.norm(u) =  5.925586e-05   nst =  143
 Final Statistics.. 
 
 lenrw   =   589     leniw   =    50
-lenrwLS =   546     leniwLS =    10
+lenrwLS =   650     leniwLS =    22
 nst     =   143
 nfe     =   207     nfeLS   =     0
 nni     =   203     nli     =   225

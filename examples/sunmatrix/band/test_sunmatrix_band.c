@@ -252,13 +252,13 @@ booleantype has_data(SUNMatrix A)
 {
   realtype *Adata = SUNBandMatrix_Data(A);
   if (Adata == NULL)
-    return FALSE;
+    return SUNFALSE;
   else
-    return TRUE;
+    return SUNTRUE;
 }
 
 booleantype is_square(SUNMatrix A)
 {
-  return TRUE;
+  return SUNTRUE;
 }
 

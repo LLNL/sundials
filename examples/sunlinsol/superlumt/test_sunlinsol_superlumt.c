@@ -85,10 +85,10 @@ int main(int argc, char *argv[])
 
   /* Fill matrix with uniform random data in [0,1/N] */
   for (k=0; k<5*N; k++) {
-    i = random() % N;
-    j = random() % N;
+    i = rand() % N;
+    j = rand() % N;
     matdata = SUNDenseMatrix_Column(B,j);
-    matdata[i] = random() / (pow(2.0,31.0) - 1.0) / N;
+    matdata[i] = rand() / (pow(2.0,31.0) - 1.0) / N;
   }
 
   /* Add identity to matrix */
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
   /* Fill x vector with uniform random data in [0,1] */
   xdata = N_VGetArrayPointer(x);
   for (i=0; i<N; i++)
-    xdata[i] = random() / (pow(2.0,31.0) - 1.0);
+    xdata[i] = rand() / (pow(2.0,31.0) - 1.0);
 
   /* Create sparse matrix from dense, and destroy B */
   A = SUNSparseFromDenseMatrix(B, ZERO, mattype);

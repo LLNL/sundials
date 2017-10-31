@@ -190,7 +190,8 @@ flag denoting success/failure of the operation.
 \id{SUNMatMatvec} & \id{ier = SUNMatMatvec(A, x, y);} \\
 & Performs the matrix-vector product operation, $y = Ax$. It should
 only be called with vectors \id{x} and \id{y} that are compatible with
-the matrix \id{A} -- both in storage type and dimensions.
+the matrix \id{A} -- both in storage type and dimensions.  The return
+value is an integer flag denoting success/failure of the operation.
 \\[2mm]
 %%
 \end{xtabular}
@@ -206,33 +207,29 @@ Chapter \ref{s:sunlinsol}.  More specifically, in Table
 \ref{t:matrix-vector} we show the matrix interfaces available as
 {\sunmatrix} modules, and the compatible vector implementations.
 
-\begin{table}[htb]
-  %\xentrystretch{2.5}
-  \centering
-    \caption{{\sundials} matrix interfaces and vector 
-             implementations that can be used for each.}
-    \medskip
-    \tablefirsthead{\hline \multicolumn{1}{|p{2cm}|}{{Matrix Interface}} &
-                           \multicolumn{1}{p{1.3cm}|}{{Serial}} & 
-                           \multicolumn{1}{p{1.3cm}|}{{Parallel (MPI)}} & 
-                           \multicolumn{1}{p{1.4cm}|}{{OpenMP}} & 
-                           \multicolumn{1}{p{1.4cm}|}{{pThreads}} & 
-                           \multicolumn{1}{p{1.3cm}|}{{{\hypre} Vector}} & 
-                           \multicolumn{1}{p{1.3cm}|}{{{\petsc} Vector}} & 
-                           \multicolumn{1}{p{1.4cm}|}{{User Supplied}} \\ \hline }
-    {\renewcommand{\arraystretch}{1.2}
-    \begin{xtabular}{|l|c|c|c|c|c|c|c|}
-%   Matrix        &  Serial  & Parallel  &  OpenMP  &  pThreads  & {\hypre}    & {\petsc} & User     \\
-%   Interface     &          & (MPI)     &          &            &  Vector     & Vector   & Supplied \\ 
-    Dense         &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\ 
-    Band          &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
-    Sparse        &  \cm     &           & \cm      &  \cm       &             &          & \cm      \\
-    User supplied &  \cm     & \cm       & \cm      &  \cm       & \cm         &  \cm     & \cm      \\ 
+\tablecaption{{\sundials} matrix interfaces and vector 
+             implementations that can be used for each.}\label{t:matrix-vector}
+\tablehead{\hline \multicolumn{1}{|p{1.5cm}|}{{Matrix Interface}} &
+                  \multicolumn{1}{p{0.7cm}|}{{Serial}} & 
+                  \multicolumn{1}{p{1.1cm}|}{{Parallel (MPI)}} & 
+                  \multicolumn{1}{p{1.3cm}|}{{OpenMP}} & 
+                  \multicolumn{1}{p{1.3cm}|}{{pThreads}} & 
+                  \multicolumn{1}{p{0.9cm}|}{{{\hypre} Vec.}} & 
+                  \multicolumn{1}{p{0.9cm}|}{{{\petsc} Vec.}} & 
+                  \multicolumn{1}{p{0.8cm}|}{{{\cuda}}} & 
+                  \multicolumn{1}{p{0.8cm}|}{{{\raja}}} & 
+                  \multicolumn{1}{p{1.1cm}|}{{User Suppl.}} \\ \hline }
+\tabletail{\hline \multicolumn{10}{|r|}{\small\slshape continued on next page} \\ \hline}
+{\renewcommand{\arraystretch}{1.2}
+\begin{xtabular}{|l|c|c|c|c|c|c|c|c|c|}
+    Dense         &  \cm     &           & \cm      &  \cm       &             &          &          &          & \cm      \\ 
+    Band          &  \cm     &           & \cm      &  \cm       &             &          &          &          & \cm      \\
+    Sparse        &  \cm     &           & \cm      &  \cm       &             &          &          &          & \cm      \\
+    User supplied &  \cm     & \cm       & \cm      &  \cm       & \cm         &  \cm     & \cm      & \cm      & \cm      \\ 
     \hline
-    \end{xtabular}
-    }
-    \label{t:matrix-vector}
-\end{table}
+\end{xtabular}
+}
+\bigskip
 
 
 %---------------------------------------------------------------------------

@@ -87,12 +87,18 @@ following operations:
 \end{itemize}
 
 
-\noindent The header file to be included when using this module 
-is \id{sunlinsol/sunlinsol\_superlumt.h}. \\
+\noindent The header file to include when using this module 
+is \id{sunlinsol/sunlinsol\_superlumt.h}. The installed module
+library to link to is
+\id{libsundials\_sunlinsolsuperlumt.\textit{lib}}
+where \id{\em.lib} is typically \id{.so} for shared libraries and
+\id{.a} for static libraries. \\
+
 %%
 %%----------------------------------------------
 %%
-The {\sunlinsolslumt} module defines implementations of all
+
+\noindent The {\sunlinsolslumt} module defines implementations of all
 ``direct'' linear solver operations listed in
 Table \ref{t:sunlinsolops}:
 \begin{itemize}

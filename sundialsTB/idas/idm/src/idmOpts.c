@@ -93,18 +93,18 @@ int get_IntgrOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
   *hin = 0.0;
   *hmax = 0.0;
 
-  *res_s = FALSE;
+  *res_s = SUNFALSE;
 
-  *suppress = FALSE;
+  *suppress = SUNFALSE;
 
   *id = NULL;
   *cnstr = NULL;
 
   Ng = 0;
-  tstopSet = FALSE;
-  mon = FALSE;
+  tstopSet = SUNFALSE;
+  mon = SUNFALSE;
 
-  *errmsg = TRUE;
+  *errmsg = SUNTRUE;
 
   /* Return now if options was empty */
 
@@ -245,9 +245,9 @@ int get_IntgrOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
       return(-1);
     }
     if(!strcmp(bufval,"on")) {
-      *suppress = TRUE;
+      *suppress = SUNTRUE;
     } else if(!strcmp(bufval,"off")) {
-      *suppress = FALSE;
+      *suppress = SUNFALSE;
     } else {
       idmErrHandler(-999, "IDAS", fctName, "SuppressAlgVars has an illegal value.", NULL);
       return(-1);
@@ -258,7 +258,7 @@ int get_IntgrOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
 
   opt = mxGetField(options,0,"MonitorFn");
   if ( !mxIsEmpty(opt) ) {
-    mon = TRUE;
+    mon = SUNTRUE;
     mxDestroyArray(mtlb_MONfct);
     mtlb_MONfct = mxDuplicateArray(opt);
     opt = mxGetField(options,0,"MonitorData");
@@ -281,8 +281,8 @@ int get_IntgrOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
         idmErrHandler(-999, "IDAS", fctName, "ErrorMessages is not a logical scalar.", NULL);
         return(-1);
       }
-      if (mxIsLogicalScalarTrue(opt)) *errmsg = TRUE;
-      else                            *errmsg = FALSE;
+      if (mxIsLogicalScalarTrue(opt)) *errmsg = SUNTRUE;
+      else                            *errmsg = SUNFALSE;
     }
     
 
@@ -290,7 +290,7 @@ int get_IntgrOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
     opt = mxGetField(options,0,"StopTime");
     if ( !mxIsEmpty(opt) ) {
       *tstop = *mxGetPr(opt);
-      tstopSet = TRUE;
+      tstopSet = SUNTRUE;
     }
 
     /* Number of root functions */
@@ -347,8 +347,8 @@ int get_IntgrOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
         idmErrHandler(-999, "IDAS", fctName, "SensDependent is not a logical scalar.", NULL);
         return(-1);
       }
-      if (mxIsLogicalScalarTrue(opt)) *res_s = TRUE;
-      else                            *res_s = FALSE;
+      if (mxIsLogicalScalarTrue(opt)) *res_s = SUNTRUE;
+      else                            *res_s = SUNFALSE;
     }
 
   }
@@ -566,13 +566,13 @@ int get_QuadOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
   if (fwd) fctName = fwd_fctName;
   else     fctName = bck_fctName;
 
-  *errconQ = FALSE;
+  *errconQ = SUNFALSE;
   *itolQ = IDA_SS;
   *reltolQ = 1.0e-4;
   *SabstolQ = 1.0e-6;
   *VabstolQ = NULL;
 
-  *rhs_s = FALSE;
+  *rhs_s = SUNFALSE;
 
   /* Return now if options was empty */
 
@@ -588,8 +588,8 @@ int get_QuadOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
         idmErrHandler(-999, "IDAS", fctName, "SensDependent is not a logical scalar.", NULL);
         return(-1);
       }
-      if (mxIsLogicalScalarTrue(opt)) *rhs_s = TRUE;
-      else                            *rhs_s = FALSE;
+      if (mxIsLogicalScalarTrue(opt)) *rhs_s = SUNTRUE;
+      else                            *rhs_s = SUNFALSE;
     }
 
   }
@@ -606,7 +606,7 @@ int get_QuadOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
 
   if (!mxIsLogicalScalarTrue(opt)) return(0);
   
-  *errconQ = TRUE;
+  *errconQ = SUNTRUE;
 
   opt = mxGetField(options,0,"RelTol");
   if ( !mxIsEmpty(opt) ) {
@@ -677,7 +677,7 @@ int get_FSAOptions(const mxArray *options, idmPbData thisPb,
   *dqtype = IDA_CENTERED;
   *rho = 0.0;
 
-  *errconS = TRUE;
+  *errconS = SUNTRUE;
 
   *itolS = IDA_EE;
   *SabstolS = NULL;
@@ -817,8 +817,8 @@ int get_FSAOptions(const mxArray *options, idmPbData thisPb,
       idmErrHandler(-999, "IDAS", "IDASensInit/IDASensReInit", "ErrControl is not a logical scalar.", NULL);
       return(-1);
     }
-    if (mxIsLogicalScalarTrue(opt)) *errconS = TRUE;
-    else                            *errconS = FALSE;
+    if (mxIsLogicalScalarTrue(opt)) *errconS = SUNTRUE;
+    else                            *errconS = SUNFALSE;
   }
 
   /* Tolerances */

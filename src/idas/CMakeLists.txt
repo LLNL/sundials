@@ -43,6 +43,7 @@ SET(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/sundials/sundials_dense.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_direct.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_iterative.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_version.c
   ${sundials_SOURCE_DIR}/src/nvec_ser/nvector_serial.c
   )
 
@@ -65,25 +66,6 @@ SET(sunlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunlinsol_sptfqmr/sunlinsol_sptfqmr.c
   ${sundials_SOURCE_DIR}/src/sunlinsol_pcg/sunlinsol_pcg.c
   )
-
-IF(KLU_FOUND)
-  LIST(APPEND sunlinsol_SOURCES
-    ${sundials_SOURCE_DIR}/src/sunlinsol_klu/sunlinsol_klu.c
-    )
-ENDIF()
-
-IF(SUPERLUMT_FOUND)
-  LIST(APPEND sunlinsol_SOURCES
-    ${sundials_SOURCE_DIR}/src/sunlinsol_superlumt/sunlinsol_superlumt.c
-    )
-ENDIF()
-
-IF(LAPACK_FOUND)
-  LIST(APPEND sunlinsol_SOURCES
-    ${sundials_SOURCE_DIR}/src/sunlinsol_lapackband/sunlinsol_lapackband.c
-    ${sundials_SOURCE_DIR}/src/sunlinsol_lapackdense/sunlinsol_lapackdense.c
-    )
-ENDIF()
 
 # Add variable idas_HEADERS with the exported IDAS header files
 SET(idas_HEADERS
@@ -126,6 +108,10 @@ IF(BUILD_SHARED_LIBS)
   # Add the build target for the IDAS library
   ADD_LIBRARY(sundials_idas_shared SHARED 
     ${idas_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES})
+
+  IF(UNIX)
+    TARGET_LINK_LIBRARIES(sundials_idas_shared m)
+  ENDIF()
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_idas_shared

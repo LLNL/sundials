@@ -10,7 +10,7 @@ implementation (serial, threaded, parallel, and user-supplied) that
 supports a minimal subset of operations (\id{N\_VClone}, 
 \id{N\_VDotProd}, \id{N\_VScale}, \id{N\_VLinearSum}, \id{N\_VProd},
 \id{N\_VConst}, \id{N\_VDiv}, and \id{N\_VDestroy}).  Unlike the
-{\spgmr} and {\spfgmr} algorithms, {\spbcg} requires a fixed amount of
+{\spgmr} and {\spfgmr} algorithms, {\sptfqmr} requires a fixed amount of
 memory that does not increase with the number of allowed iterations.
 
 The {\sunlinsolsptfqmr} module defines the {\em content} field of a
@@ -46,7 +46,7 @@ struct _SUNLinearSolverContent_SPTFQMR {
 These entries of the \emph{content} field contain the following
 information:
 \begin{description}
-  \item[maxl] - number of TFQMR basis vectors to use (default is 5),
+  \item[maxl] - number of TFQMR iterations to allow (default is 5),
   \item[pretype] - flag for type of preconditioning to employ
     (default is none),
   \item[numiters] - number of iterations from the most-recent solve,
@@ -91,12 +91,17 @@ This solver is constructed to perform the following operations:
   supplied.
 \end{itemize}
 
-\noindent The header file to be included when using this module 
-is \id{sunlinsol/sunlinsol\_sptfqmr.h}. \\
+\noindent The header file to include when using this module 
+is \id{sunlinsol/sunlinsol\_sptfqmr.h}. The {\sunlinsolsptfqmr} module
+is accessible from all {\sundials} solvers \textit{without}
+linking to the \\
+\id{libsundials\_sunlinsolsptfqmr} module library. \\
+
 %%
 %%----------------------------------------------
 %%
-The {\sunlinsolsptfqmr} module defines implementations of all
+
+\noindent The {\sunlinsolsptfqmr} module defines implementations of all
 ``iterative'' linear solver operations listed in Table
 \ref{t:sunlinsolops}:
 \begin{itemize}
@@ -143,7 +148,7 @@ user-callable routines:
   We note that some {\sundials} solvers are designed to only work
   with left preconditioning ({\ida} and {\idas}) and others with only
   right preconditioning ({\kinsol}). While it is possible to configure
-  a {\sunlinsolspgmr} object to use any of the preconditioning options
+  a {\sunlinsolsptfqmr} object to use any of the preconditioning options
   with these solvers, this use mode is not supported and may result in
   inferior performance.
 

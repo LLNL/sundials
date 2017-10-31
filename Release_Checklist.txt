@@ -32,6 +32,8 @@ web pages.
     src/nvec_par/README
     src/nvec_pthreads/README
     src/nvec_ser/README
+    src/nvec_parhyp/README
+    src/nvec_petsc/README
     src/sundials/README 
 
 9. Update version numbers of third party libraries in Install Guide 
@@ -41,11 +43,13 @@ web pages.
     doc/arkode/ARKode_example.tex
     doc/arkode/ARKode.tex
     doc/sundials/ug.tex
-    html/main.html
+    doc/sundials/biblio.bib
+    html/main.html (This is no longer maintained as of at least 2016)
     scripts/tarscript
-    sundialsTB/install_STB.m
+    sundialsTB/install_STB.m (This is no longer maintained as of 2016)
     CMakeLists.txt
     README
+    README_DEV
   
 11. Create the tarballs
    Create the new distribution tarballs using the "tarscript" shell script 

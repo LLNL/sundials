@@ -110,7 +110,7 @@ int CVDlsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   cvdls_mem->LS = LS;
   
   /* Initialize Jacobian-related data */
-  cvdls_mem->jacDQ = TRUE;
+  cvdls_mem->jacDQ = SUNTRUE;
   cvdls_mem->jac = cvDlsDQJac;
   cvdls_mem->J_data = cv_mem;
   cvdls_mem->last_flag = CVDLS_SUCCESS;
@@ -171,11 +171,11 @@ int CVDlsSetJacFn(void *cvode_mem, CVDlsJacFn jac)
   cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
   if (jac != NULL) {
-    cvdls_mem->jacDQ  = FALSE;
+    cvdls_mem->jacDQ  = SUNFALSE;
     cvdls_mem->jac    = jac;
     cvdls_mem->J_data = cv_mem->cv_user_data;
   } else {
-    cvdls_mem->jacDQ  = TRUE;
+    cvdls_mem->jacDQ  = SUNTRUE;
     cvdls_mem->jac    = cvDlsDQJac;
     cvdls_mem->J_data = cv_mem;
   }
@@ -376,9 +376,7 @@ int cvDlsDQJac(realtype t, N_Vector y, N_Vector fy,
 {
   int retval;
   CVodeMem cv_mem;
-  CVDlsMem cvdls_mem;
   cv_mem = (CVodeMem) cvode_mem;
-  cvdls_mem = (CVDlsMem) cv_mem->cv_lmem;
 
   /* verify that Jac is non-NULL */
   if (Jac == NULL) {
@@ -646,9 +644,9 @@ int cvDlsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     (convfail == CV_FAIL_OTHER);
   jok = !jbad;
  
-  /* If jok = TRUE, use saved copy of J */
+  /* If jok = SUNTRUE, use saved copy of J */
   if (jok) {
-    *jcurPtr = FALSE;
+    *jcurPtr = SUNFALSE;
     retval = SUNMatCopy(cvdls_mem->savedJ, cvdls_mem->A);
     if (retval) {
       cvProcessError(cv_mem, CVDLS_SUNMAT_FAIL, "CVDLS", 
@@ -657,11 +655,11 @@ int cvDlsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
       return(-1);
     }
 
-  /* If jok = FALSE, call jac routine for new J value */
+  /* If jok = SUNFALSE, call jac routine for new J value */
   } else {
     cvdls_mem->nje++;
     cvdls_mem->nstlj = cv_mem->cv_nst;
-    *jcurPtr = TRUE;
+    *jcurPtr = SUNTRUE;
     retval = SUNMatZero(cvdls_mem->A);
     if (retval) {
       cvProcessError(cv_mem, CVDLS_SUNMAT_FAIL, "CVDLS", 

@@ -11,7 +11,7 @@ of these with sensitivity analysis capabilities.
 {\kinsol}\index{KINSOL@{\kinsol}!brief description of} is a
 general-purpose nonlinear system solver based on Newton-Krylov
 solver technology.  A fixed point iteration is also included with the release
-of {\kinsol} v.2.8.0.
+of {\kinsol} v.2.8.0 and higher.
 
 %---------------------------------
 \section{Historical Background}\label{ss:history}
@@ -42,25 +42,31 @@ system methods and tolerances, and has a more modular design to provide
 flexibility for future enhancements.
 \index{KINSOL@{\kinsol}!relationship to NKSOL}
 
-At present, {\kinsol} contains four Krylov methods: the GMRES
-(Generalized Minimal RESidual)~\cite{SaSc:86}, 
-FGMRES (Flexible Generalized Minimal RESidual)~\cite{Saa:93},
-Bi-CGStab (Bi-Conjugate Gradient Stabilized)~\cite{Van:92}, and TFQMR
-(Transpose-Free Quasi-Minimal Residual)~\cite{Fre:93} linear
-iterative methods. As Krylov methods, these require almost no
-matrix storage as compared to direct methods. However, the
-algorithms allow for a user-supplied preconditioner matrix,
-and for most problems preconditioning is essential for an
-efficient solution. For very large nonlinear algebraic systems,
+At present, {\kinsol} may utilize a variety of Krylov methods provided
+in {\sundials}. These methods include the 
+GMRES (Generalized Minimal RESidual)~\cite{SaSc:86},
+FGMRES (Flexible Generalized Minimum RESidual)~\cite{Saa:93},
+Bi-CGStab (Bi-Conjugate Gradient Stabilized)~\cite{Van:92}, TFQMR
+(Transpose-Free Quasi-Minimal Residual)~\cite{Fre:93}, and PCG
+(Preconditioned Conjugate Gradient)~\cite{HeSt:52} linear iterative
+methods.  As Krylov methods, these require little  
+matrix storage for solving the Newton equations as compared to direct 
+methods. However, the algorithms allow for a user-supplied preconditioner
+matrix, and, for most problems, preconditioning is essential for an
+efficient solution.  For very large nonlinear algebraic systems,
 the Krylov methods are preferable over direct linear solver methods,
-and are often the only feasible choice. Among the three Krylov
-methods in {\kinsol}, we recommend GMRES as the best overall
+and are often the only feasible choice. Among the Krylov
+methods in {\sundials}, we recommend GMRES as the best overall
 choice. However, users are encouraged to compare all three,
 especially if encountering convergence failures with GMRES.
 Bi-CGStab and TFQMR have an advantage in storage requirements,
 in that the number of workspace vectors they require is fixed,
 while that number for GMRES depends on the desired Krylov
-subspace size.
+subspace size.   FGMRES
+has an advantage in that it is designed to support preconditioners
+that vary between iterations (e.g.~iterative methods).  PCG exhibits
+rapid convergence and minimal workspace vectors, but only works for
+symmetric linear systems.
 
 For the sake of completeness in functionality, direct linear
 system solvers are included in {\kinsol}.  These include methods
@@ -74,7 +80,7 @@ SuperLU\_MT~\cite{Li:05,DGL:99,SuperLUMT_site}.
 In the process of translating NKSOL into {\CC}, the overall
 {\kinsol} organization has been changed considerably. One key
 feature of the {\kinsol} organization is that a separate module
-devoted to vector operations has been created.  This module
+devoted to vector operations was created.  This module
 facilitated extension to multiprosessor environments with minimal
 impact on the rest of the solver. The vector module design is
 shared across the {\sundials} suite. This {\nvector} module is
@@ -102,6 +108,105 @@ interfacing the solver to applications written in {\F}.
 
 
 \section{Changes from previous versions}
+
+\subsection*{Changes in v3.0.0}
+
+All interfaces to matrix structures and linear solvers 
+have been reworked, and all example programs have been updated. 
+The goal of the redesign of these interfaces was to provide more encapsulation
+and ease in the interfacing of custom linear solvers and interoperability 
+with linear solver libraries.
+Specific changes include:
+\begin{itemize}
+\item Added generic SUNMATRIX module with three provided implementations:
+        dense, banded and sparse.  These replicate previous SUNDIALS Dls and
+        Sls matrix structures in a single object-oriented API.
+\item Added example problems demonstrating use of generic SUNMATRIX modules.
+\item Added generic \id{SUNLinearSolver} module with eleven provided
+        implementations: {\sundials} native dense, {\sundials} native banded, 
+        LAPACK dense, LAPACK band, KLU,
+        SuperLU\_MT, SPGMR, SPBCGS, SPTFQMR, SPFGMR, and PCG.  These replicate
+        previous SUNDIALS generic linear solvers in a single object-oriented
+        API.
+\item Added example problems demonstrating use of generic SUNLINEARSOLVER
+        modules.
+\item Expanded package-provided direct linear solver (Dls) interfaces and
+        scaled, preconditioned, iterative linear solver (Spils) interfaces
+        to utilize generic SUNMATRIX and SUNLINEARSOLVER objects.
+\item Removed package-specific, linear solver-specific, solver modules
+        (e.g. CVDENSE, KINBAND, IDAKLU, ARKSPGMR) since their functionality
+        is entirely replicated by the generic Dls/Spils interfaces and
+        SUNLINEARSOLVER/SUNMATRIX modules.  The exception is CVDIAG, a
+        diagonal approximate Jacobian solver available to CVODE and CVODES.
+\item Converted all SUNDIALS example problems to utilize new generic
+        SUNMATRIX and SUNLINEARSOLVER objects, along with updated Dls and
+        Spils linear solver interfaces.
+\item Added Spils interface routines to ARKode, CVODE, CVODES, IDA and
+        IDAS to allow specification of a user-provided "JTSetup" routine.
+        This change supports users who wish to set up data structures for
+        the user-provided Jacobian-times-vector ("JTimes") routine, and
+        where the cost of one JTSetup setup per Newton iteration can be
+        amortized between multiple JTimes calls.
+\end{itemize}
+
+Two additional {\nvector} implementations were added -- one for
+CUDA and one for RAJA vectors.  
+These vectors are supplied to provide very basic support for running
+on GPU architectures.  Users are advised that these vectors both move all data
+to the GPU device upon construction, and speedup will only be realized if the
+user also conducts the right-hand-side function evaluation on the device.
+In addition, these vectors assume the problem fits on one GPU.
+Further information about RAJA, users are referred to th web site, 
+https://software.llnl.gov/RAJA/.
+These additions are accompanied by additions to various interface functions
+and to user documentation.
+
+All indices for data structures were updated to a new \id{sunindextype} that
+can be configured to be a 32- or 64-bit integer data index type. 
+\id{sunindextype} is defined to be \id{int32\_t} or \id{int64\_t} when portable types are
+supported, otherwise it is defined as \id{int} or \id{long int}.
+The Fortran interfaces continue to use \id{long int} for indices, except for 
+their sparse matrix interface that now uses the new \id{sunindextype}.
+This new flexible capability for index types includes interfaces to 
+PETSc, hypre, SuperLU\_MT, and KLU with 
+either 32-bit or 64-bit capabilities depending how the user configures 
+{\sundials}.
+
+To avoid potential namespace conflicts, the macros defining \id{booleantype}
+values \id{TRUE} and \id{FALSE} have been changed to \id{SUNTRUE} and
+\id{SUNFALSE} respectively.
+
+Temporary vectors were removed from preconditioner setup and solve
+routines for all packages.  It is assumed that all necessary data
+for user-provided preconditioner operations will be allocated and
+stored in user-provided data structures.
+
+The file \id{include/sundials\_fconfig.h} was added. This file contains 
+{\sundials} type information for use in Fortran programs.
+
+The build system was expanded to support many of the xSDK-compliant keys. 
+The xSDK is a movement in scientific software to provide a foundation for the
+rapid and efficient production of high-quality, 
+sustainable extreme-scale scientific applications.  More information can
+be found at, https://xsdk.info.
+
+Added functions \id{SUNDIALSGetVersion} and \id{SUNDIALSGetVersionNumber} to
+get {\sundials} release version information at runtime.
+
+In addition, numerous changes were made to the build system.
+These include the addition of separate \id{BLAS\_ENABLE} and \id{BLAS\_LIBRARIES} 
+CMake variables, additional error checking during CMake configuration,
+minor bug fixes, and renaming CMake options to enable/disable examples 
+for greater clarity and an added option to enable/disable Fortran 77 examples.
+These changes included changing \id{EXAMPLES\_ENABLE} to \id{EXAMPLES\_ENABLE\_C}, 
+changing \id{CXX\_ENABLE} to \id{EXAMPLES\_ENABLE\_CXX}, changing \id{F90\_ENABLE} to 
+\id{EXAMPLES\_ENABLE\_F90}, and adding an \id{EXAMPLES\_ENABLE\_F77} option.
+
+A bug fix was done to correct the fcmix name translation for \id{FKIN\_SPFGMR}.
+ 
+Corrections and additions were made to the examples, 
+to installation-related files,
+and to the user documentation.
 
 \subsection*{Changes in v2.9.0}
 
@@ -342,7 +447,7 @@ more expert user with a nonlinear system may want to (a) use a package
 preconditioner (\S\ref{sss:kinbbdpre}), (b) supply his/her own Jacobian or
 preconditioner routines (\S\ref{ss:user_fct_sol}), (c) supply a new
 {\nvector} module (Chapter~\ref{s:nvector}), or even (d) supply a different
-linear solver module (\S\ref{ss:kinsol_org} and Chapter~\ref{s:new_linsolv}).
+linear solver module (\S\ref{ss:kinsol_org} and Chapter~\ref{s:sunlinsol}).
 
 The structure of this document is as follows:
 \begin{itemize}
@@ -363,18 +468,30 @@ The structure of this document is as follows:
 \item
   Chapter \ref{s:nvector} gives a brief overview of the generic {\nvector} module
   shared among the various components of {\sundials}, and details on the four 
-  {\nvector} implementations provided with {\sundials}: a serial implementation
-  (\S\ref{ss:nvec_ser}), a distributed memory parallel implementation 
-  based on {\mpi} \index{MPI}
-  (\S\ref{ss:nvec_par}), and two thread-parallel implementations 
-  based on openMP \index{openMP} (\S\ref{ss:nvec_openmp}) 
-  and Pthreads \index{Pthreads} (\S\ref{ss:nvec_pthreads}), respectively.
+  {\nvector} implementations provided with {\sundials}. 
 \item
-  Chapter \ref{s:new_linsolv} describes the interfaces to the linear solver
-  modules, so that a user can provide his/her own such module.
+Chapter \ref{s:sunmatrix} gives a brief overview of the generic
+  {\sunmatrix} module shared among the various components of
+  {\sundials}, and details on the {\sunmatrix} implementations
+  provided with {\sundials}: 
+  a dense implementation (\S\ref{ss:sunmat_dense}),
+  a banded implementation (\S\ref{ss:sunmat_band}) and
+  a sparse implementation (\S\ref{ss:sunmat_sparse}).
 \item
-  Chapter \ref{s:gen_linsolv} describes in detail the generic linear solvers
-  shared by all {\sundials} solvers.
+  Chapter \ref{s:sunlinsol} gives a brief overview of the generic
+  {\sunlinsol} module shared among the various components of
+  {\sundials}.  This chapter contains details on the {\sunlinsol}
+  implementations provided with {\sundials}.
+  The chapter
+  also contains details on the {\sunlinsol} implementations provided
+  with {\sundials} that interface with external linear solver
+  libraries.
+%% \item
+%%   Chapter \ref{s:new_linsolv} describes the interfaces to the linear solver
+%%   modules, so that a user can provide his/her own such module.
+%% \item
+%%   Chapter \ref{s:gen_linsolv} describes in detail the generic linear solvers
+%%   shared by all {\sundials} solvers.
 \item
   Finally, in the appendices, we provide detailed instructions for the installation
   of {\kinsol}, within the structure of {\sundials} (Appendix \ref{c:install}), as well

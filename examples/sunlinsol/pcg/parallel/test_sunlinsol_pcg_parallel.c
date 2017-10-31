@@ -32,6 +32,16 @@
 #include "test_sunlinsol.h"
 #include "mpi.h"
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
 /* constants */
 #define FIVE      RCONST(5.0)
 #define THOUSAND  RCONST(1000.0)
@@ -147,7 +157,7 @@ int main(int argc, char *argv[])
     printf("  local/global problem sizes = %ld/%ld\n", ProbData.Nloc,
            ProbData.nprocs * ProbData.Nloc);
     printf("  Maximum Krylov subspace dimension = %i\n", maxl);
-    printf("  Solver Tolerance = %lg\n", tol);
+    printf("  Solver Tolerance = %"GSYM"\n", tol);
     printf("  timing output flag = %i\n\n", print_timing);
   }
   
@@ -348,7 +358,7 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
   if (check_flag(s, "N_VGetArrayPointer", 0)) return 1;
   Nloc = ProbData->Nloc;
   
-  // MPI equivalent of realtype type
+  /* MPI equivalent of realtype type */
   #if defined(SUNDIALS_SINGLE_PRECISION)
   #define REALTYPE_MPI_TYPE MPI_FLOAT
   #elif defined(SUNDIALS_DOUBLE_PRECISION)
@@ -434,7 +444,7 @@ int PSolve(void* Data, N_Vector r_vec, N_Vector z_vec, realtype tol, int lr)
 /* uniform random number generator */
 static realtype urand()
 {
-  return (random() / (pow(RCONST(2.0),RCONST(31.0)) - ONE));
+  return (rand() / (pow(RCONST(2.0),RCONST(31.0)) - ONE));
 }
 
 /* Check function return value based on "opt" input:

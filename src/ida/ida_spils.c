@@ -104,7 +104,7 @@ int IDASpilsSetLinearSolver(void *ida_mem, SUNLinearSolver LS)
   idaspils_mem->LS = LS;
   
   /* Set defaults for Jacobian-related fields */
-  idaspils_mem->jtimesDQ = TRUE;
+  idaspils_mem->jtimesDQ = SUNTRUE;
   idaspils_mem->jtsetup  = NULL;
   idaspils_mem->jtimes   = IDASpilsDQJtimes;
   idaspils_mem->jdata    = IDA_mem;
@@ -327,10 +327,10 @@ int IDASpilsSetJacTimes(void *ida_mem,
   /* store function pointers for user-supplied routines in IDASpils 
      interface (NULL jtimes implies use of DQ default) */
   if (jtimes != NULL) {
-    idaspils_mem->jtimesDQ = FALSE;
+    idaspils_mem->jtimesDQ = SUNFALSE;
     idaspils_mem->jtimes   = jtimes;
   } else {
-    idaspils_mem->jtimesDQ = TRUE;
+    idaspils_mem->jtimesDQ = SUNTRUE;
   }
   idaspils_mem->jtsetup = jtsetup;
 
@@ -847,7 +847,6 @@ int IDASpilsDQJtimes(realtype tt, N_Vector yy, N_Vector yp,
 ---------------------------------------------------------------*/
 int idaSpilsInitialize(IDAMem IDA_mem)
 {
-  int retval;
   IDASpilsMem idaspils_mem;
 
   /* Return immediately if IDA_mem or IDA_mem->ida_lmem are NULL */
@@ -890,7 +889,6 @@ int idaSpilsInitialize(IDAMem IDA_mem)
 int idaSpilsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r, 
                   N_Vector vt1, N_Vector vt2, N_Vector vt3)
 {
-  realtype dgamma;
   int  retval;
   IDASpilsMem idaspils_mem;
 
@@ -928,7 +926,6 @@ int idaSpilsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
 int idaSpilsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
                   N_Vector ycur, N_Vector ypcur, N_Vector rescur)
 {
-  realtype bnorm, res_norm;
   IDASpilsMem idaspils_mem;
   int nli_inc, retval;
   
@@ -963,6 +960,11 @@ int idaSpilsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 
   /* Set scaling vectors for LS to use */
   retval = SUNLinSolSetScalingVectors(idaspils_mem->LS, weight, weight);
+  if (retval != SUNLS_SUCCESS) {
+    IDAProcessError(IDA_mem, IDASPILS_SUNLS_FAIL, "IDASPILS", "idaSpilsSolve", 
+                    "Error in calling SUNLinSolSetScalingVectors");
+    return(IDASPILS_SUNLS_FAIL);
+  }
 
   /* If a user-provided jtsetup routine is supplied, call that here */
   if (idaspils_mem->jtsetup) {
@@ -981,8 +983,7 @@ int idaSpilsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
                           b, idaspils_mem->epslin);
 
   /* Retrieve solver statistics */
-  res_norm = SUNLinSolResNorm(idaspils_mem->LS);
-  nli_inc  = SUNLinSolNumIters(idaspils_mem->LS);
+  nli_inc = SUNLinSolNumIters(idaspils_mem->LS);
   
   /* Copy x (or preconditioned residual vector if no iterations required) to b */
   if (nli_inc == 0) N_VScale(ONE, SUNLinSolResid(idaspils_mem->LS), b);

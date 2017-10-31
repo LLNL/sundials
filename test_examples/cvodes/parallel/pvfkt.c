@@ -41,7 +41,7 @@
  * problem parameters Kh and Kv.
  * Any of three sensitivity methods (SIMULTANEOUS, STAGGERED, and
  * STAGGERED1) can be used and sensitivities may be included in the
- * error test or not (error control set on TRUE or FALSE
+ * error test or not (error control set on SUNTRUE or SUNFALSE
  * respectively).
  * 
  * Performance data and sampled solution values are printed at selected
@@ -457,16 +457,16 @@ int main(int argc, char *argv[])
 static void ProcessArgs(int argc, char *argv[], int my_pe,
                         booleantype *sensi, int *sensi_meth, booleantype *err_con)
 {
-  *sensi = FALSE;
+  *sensi = SUNFALSE;
   *sensi_meth = -1;
-  *err_con = FALSE;
+  *err_con = SUNFALSE;
 
   if (argc < 2) WrongArgs(my_pe, argv[0]);
 
   if (strcmp(argv[1],"-nosensi") == 0)
-    *sensi = FALSE;
+    *sensi = SUNFALSE;
   else if (strcmp(argv[1],"-sensi") == 0)
-    *sensi = TRUE;
+    *sensi = SUNTRUE;
   else
     WrongArgs(my_pe, argv[0]);
   
@@ -485,9 +485,9 @@ static void ProcessArgs(int argc, char *argv[], int my_pe,
       WrongArgs(my_pe, argv[0]);
 
     if (strcmp(argv[3],"t") == 0)
-      *err_con = TRUE;
+      *err_con = SUNTRUE;
     else if (strcmp(argv[3],"f") == 0)
-      *err_con = FALSE;
+      *err_con = SUNFALSE;
     else
       WrongArgs(my_pe, argv[0]);
   }
@@ -1288,19 +1288,19 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 
   if (jok) {
 
-  /* jok = TRUE: Copy Jbd to P */
+  /* jok = SUNTRUE: Copy Jbd to P */
 
     for (ly = 0; ly < MYSUB; ly++)
       for (lx = 0; lx < MXSUB; lx++)
         denseCopy(Jbd[lx][ly], P[lx][ly], NVARS, NVARS);
 
-  *jcurPtr = FALSE;
+  *jcurPtr = SUNFALSE;
 
   }
 
   else {
 
-  /* jok = FALSE: Generate Jbd from scratch and copy to P */
+  /* jok = SUNFALSE: Generate Jbd from scratch and copy to P */
     
   /* Make local copies of problem variables, for efficiency */
     
@@ -1334,7 +1334,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
       }
     }
     
-    *jcurPtr = TRUE;
+    *jcurPtr = SUNTRUE;
     
   }
   

@@ -25,13 +25,16 @@ SET(sunlinsolspgmr_SOURCES sunlinsol_spgmr.c)
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the SUNLINSOLSPGMR library
 SET(shared_SOURCES
-  sundials_math.c
-  sundials_iterative.c)
-ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_iterative.c
+  )
 
 # Add variable sunlinsolspgmr_HEADERS with the exported SUNLINSOLSPGMR header files
-SET(sunlinsolspgmr_HEADERS sunlinsol_spgmr.h)
-ADD_PREFIX(${sundials_SOURCE_DIR}/include/sunlinsol/ sunlinsolspgmr_HEADERS)
+SET(sunlinsolspgmr_HEADERS 
+  ${sundials_SOURCE_DIR}/include/sunlinsol/sunlinsol_spgmr.h
+  )
 
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(.)
@@ -57,6 +60,11 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Install the SUNLINSOLSPGMR library
 IF(BUILD_SHARED_LIBS)
   ADD_LIBRARY(sundials_sunlinsolspgmr_shared SHARED ${sunlinsolspgmr_SOURCES} ${shared_SOURCES})
+
+  IF(UNIX)
+    TARGET_LINK_LIBRARIES(sundials_sunlinsolspgmr_shared m)
+  ENDIF()
+
   SET_TARGET_PROPERTIES(sundials_sunlinsolspgmr_shared
     PROPERTIES OUTPUT_NAME sundials_sunlinsolspgmr CLEAN_DIRECT_OUTPUT 1)
   SET_TARGET_PROPERTIES(sundials_sunlinsolspgmr_shared
@@ -70,20 +78,29 @@ INSTALL(FILES ${sunlinsolspgmr_HEADERS} DESTINATION include/sunlinsol)
 # If FCMIX is enabled, build and install the FSUNLINSOLSPGMR library
 IF(FCMIX_ENABLE AND F77_FOUND)
   SET(fsunlinsolspgmr_SOURCES fsunlinsol_spgmr.c)
+
   IF(BUILD_STATIC_LIBS)
     ADD_LIBRARY(sundials_fsunlinsolspgmr_static STATIC ${fsunlinsolspgmr_SOURCES})
     SET_TARGET_PROPERTIES(sundials_fsunlinsolspgmr_static
       PROPERTIES OUTPUT_NAME sundials_fsunlinsolspgmr CLEAN_DIRECT_OUTPUT 1)
     INSTALL(TARGETS sundials_fsunlinsolspgmr_static DESTINATION lib)
   ENDIF(BUILD_STATIC_LIBS)
+
   IF(BUILD_SHARED_LIBS)
     ADD_LIBRARY(sundials_fsunlinsolspgmr_shared ${fsunlinsolspgmr_SOURCES})
+
+    # fsunlinsolspgmr depends on fnvecserial and sunlinsolspgmr
+    TARGET_LINK_LIBRARIES(sundials_fsunlinsolspgmr_shared
+      sundials_fnvecserial_shared
+      sundials_sunlinsolspgmr_shared)
+
     SET_TARGET_PROPERTIES(sundials_fsunlinsolspgmr_shared
       PROPERTIES OUTPUT_NAME sundials_fsunlinsolspgmr CLEAN_DIRECT_OUTPUT 1)
     SET_TARGET_PROPERTIES(sundials_fsunlinsolspgmr_shared 
       PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
     INSTALL(TARGETS sundials_fsunlinsolspgmr_shared DESTINATION lib)
   ENDIF(BUILD_SHARED_LIBS)
+
 ENDIF(FCMIX_ENABLE AND F77_FOUND)
 
 #

@@ -28,7 +28,6 @@ TEX_COMPILER = pdflatex
 
 UG_SHARED_FILES = \
 fortran.tex \
-hangcaption.sty \
 install.tex \
 license_info.tex \
 linear-vector-table.tex \
@@ -44,6 +43,7 @@ nvec_cuda.tex \
 nvec_raja.tex \
 spils_constants.tex \
 sun_org.tex \
+sundials_version.tex \
 sunmatrix_generic.tex \
 sunmatrix_band.tex \
 sunmatrix_dense.tex \

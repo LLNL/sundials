@@ -208,10 +208,11 @@ SUNLinearSolver_Type SUNLinSolGetType_SPGMR(SUNLinearSolver S)
 int SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
 {
   int k;
+  SUNLinearSolverContent_SPGMR content;
 
   /* set shortcut to SPGMR memory structure */
   if (S == NULL) return(SUNLS_MEM_NULL);  
-  SUNLinearSolverContent_SPGMR content = SPGMR_CONTENT(S);
+  content = SPGMR_CONTENT(S);
 
   /* ensure valid options */
   if (content->max_restarts < 0) 
@@ -317,12 +318,13 @@ int SUNLinSolSetScalingVectors_SPGMR(SUNLinearSolver S, N_Vector s1,
 int SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A)
 {
   int ier;
+  PSetupFn Psetup;
+  void* PData;
 
   /* Set shortcuts to SPGMR memory structures */
   if (S == NULL) return(SUNLS_MEM_NULL);
-  PSetupFn Psetup = SPGMR_CONTENT(S)->Psetup;
-  void* ATData = SPGMR_CONTENT(S)->ATData;
-  void* PData = SPGMR_CONTENT(S)->PData;
+  Psetup = SPGMR_CONTENT(S)->Psetup;
+  PData = SPGMR_CONTENT(S)->PData;
   
   /* no solver-specific setup is required, but if user-supplied 
      Psetup routine exists, call that here */
@@ -380,7 +382,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   /* Initialize counters and convergence flag */
   *nli = 0;
-  converged = FALSE;
+  converged = SUNFALSE;
 
   /* set booleantype flags for internal solver options */
   preOnLeft  = ( (SPGMR_CONTENT(S)->pretype == PREC_LEFT) || 
@@ -521,7 +523,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       rotation_product *= givens[2*l+1];
       *res_norm = rho = SUNRabs(rotation_product*r_norm);
       
-      if (rho <= delta) { converged = TRUE; break; }
+      if (rho <= delta) { converged = SUNTRUE; break; }
       
       /* Normalize V[l+1] with norm value from the Gram-Schmidt routine */
       N_VScale(ONE/Hes[l_plus_1][l], V[l_plus_1], V[l_plus_1]);

@@ -235,12 +235,13 @@ int SUNLinSolSetScalingVectors_PCG(SUNLinearSolver S, N_Vector s,
 int SUNLinSolSetup_PCG(SUNLinearSolver S, SUNMatrix nul)
 {
   int ier;
+  PSetupFn Psetup;
+  void* PData;
 
   /* Set shortcuts to PCG memory structures */
   if (S == NULL) return(SUNLS_MEM_NULL);
-  PSetupFn Psetup = PCG_CONTENT(S)->Psetup;
-  void* ATData = PCG_CONTENT(S)->ATData;
-  void* PData = PCG_CONTENT(S)->PData;
+  Psetup = PCG_CONTENT(S)->Psetup;
+  PData = PCG_CONTENT(S)->PData;
   
   /* no solver-specific setup is required, but if user-supplied 
      Psetup routine exists, call that here */
@@ -291,7 +292,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
 
   /* Initialize counters and convergence flag */
   *nli = 0;
-  converged = FALSE;
+  converged = SUNFALSE;
 
   /* set booleantype flags for internal solver options */
   UsePrec = ( (pretype == PREC_BOTH) || 
@@ -365,7 +366,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
     else N_VScale(ONE, r, Ap);
     *res_norm = rho = SUNRsqrt(N_VDotProd(Ap, Ap));
     if (rho <= delta) {
-      converged = TRUE;
+      converged = SUNTRUE;
       break;
     }
 
@@ -392,7 +393,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
   }
 
   /* Main loop finished, return with result */
-  if (converged == TRUE) {
+  if (converged == SUNTRUE) {
     LASTFLAG(S) = SUNLS_SUCCESS;
   } else if (rho < r0_norm) {
     LASTFLAG(S) = SUNLS_RES_REDUCED;

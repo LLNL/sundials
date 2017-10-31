@@ -62,8 +62,8 @@ extern void FK_COMMFN(long int* NLOC, realtype* ULOC, int* IER);
 void FKIN_BBDINIT(long int *nlocal, long int *mudq, long int *mldq,
 		  long int *mu, long int *ml, int *ier)
 {
-  *ier = KINBBDPrecInit(KIN_kinmem, *nlocal, *mudq, *mldq,
-                        *mu, *ml, ZERO, FKINgloc, FKINgcomm);
+  *ier = KINBBDPrecInit(KIN_kinmem, *nlocal, *mudq, *mldq, *mu, *ml, ZERO,
+                        (KINBBDLocalFn) FKINgloc, (KINBBDCommFn) FKINgcomm);
 
   return;
 }

@@ -191,7 +191,7 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
   vtemp  = mem->vtemp;
 
   *nli = *nps = 0;    /* Initialize counters */
-  converged = FALSE;  /* Initialize converged flag */
+  converged = SUNFALSE;  /* Initialize converged flag */
 
   if (max_restarts < 0) max_restarts = 0;
 
@@ -334,7 +334,7 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
       rotation_product *= givens[2*l+1];
       *res_norm = rho = SUNRabs(rotation_product*r_norm);
       
-      if (rho <= delta) { converged = TRUE; break; }
+      if (rho <= delta) { converged = SUNTRUE; break; }
       
       /* Normalize V[l+1] with norm value from the Gram-Schmidt routine. */
 

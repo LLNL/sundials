@@ -50,36 +50,36 @@ extern "C" {
 
 typedef struct {
 
-  int d_type;             /* SUNDIALS_DENSE or SUNDIALS_BAND              */
+  int d_type;             /* SUNDIALS_DENSE or SUNDIALS_BAND               */
 
-  int d_n;                /* problem dimension                            */
+  int d_n;                /* problem dimension                             */
 
-  int d_ml;               /* lower bandwidth of Jacobian                  */
-  int d_mu;               /* upper bandwidth of Jacobian                  */ 
-  int d_smu;              /* upper bandwith of M = MIN(N-1,d_mu+d_ml)     */
+  int d_ml;               /* lower bandwidth of Jacobian                   */
+  int d_mu;               /* upper bandwidth of Jacobian                   */ 
+  int d_smu;              /* upper bandwith of M = MIN(N-1,d_mu+d_ml)      */
 
-  booleantype d_jacDQ;    /* TRUE if using internal DQ Jacobian approx.   */
+  booleantype d_jacDQ;    /* SUNTRUE if using internal DQ Jacobian approx. */
 
-  CPDlsDenseJacExplFn d_djacE; /* dense Jacobian routine (CP_EXPL)        */
-  CPDlsDenseJacImplFn d_djacI; /* dense Jacobian routine (CP_IMPL)        */
+  CPDlsDenseJacExplFn d_djacE; /* dense Jacobian routine (CP_EXPL)         */
+  CPDlsDenseJacImplFn d_djacI; /* dense Jacobian routine (CP_IMPL)         */
 
-  CPDlsBandJacExplFn d_bjacE;  /* band Jacobian routine (CP_EXPL)         */
-  CPDlsBandJacImplFn d_bjacI;  /* band Jacobian routine (CP_IMPL)         */
+  CPDlsBandJacExplFn d_bjacE;  /* band Jacobian routine (CP_EXPL)          */
+  CPDlsBandJacImplFn d_bjacI;  /* band Jacobian routine (CP_IMPL)          */
 
-  void *d_J_data;         /* data pointer passed to djac* or bjac*        */
+  void *d_J_data;         /* data pointer passed to djac* or bjac*         */
 
-  DlsMat d_M;             /* M = I - gamma * df/dy                        */
-  DlsMat d_savedJ;        /* savedJ = old Jacobian                        */
+  DlsMat d_M;             /* M = I - gamma * df/dy                         */
+  DlsMat d_savedJ;        /* savedJ = old Jacobian                         */
 
-  long *d_pivots;         /* pivots = pivot array for PM = LU             */
+  long *d_pivots;         /* pivots = pivot array for PM = LU              */
   
-  long int d_nstlj;       /* nstlj = nst at last Jacobian eval.           */
+  long int d_nstlj;       /* nstlj = nst at last Jacobian eval.            */
 
-  long int d_nje;         /* nje = no. of calls to jac                    */
+  long int d_nje;         /* nje = no. of calls to jac                     */
 
-  long int d_nfeDQ;       /* no. of calls to f due to DQ Jacobian approx. */
+  long int d_nfeDQ;       /* no. of calls to f due to DQ Jacobian approx.  */
 
-  long int d_last_flag;   /* last error return flag                       */
+  long int d_last_flag;   /* last error return flag                        */
   
 } CPDlsMemRec, *CPDlsMem;
 
@@ -94,38 +94,38 @@ typedef struct {
   
 typedef struct {
 
-  int d_type;               /* always SUNDIALS_DENSE                       */
+  int d_type;               /* always SUNDIALS_DENSE                         */
 
-  int d_nc;                 /* number of constraints                       */
-  int d_ny;                 /* number of states                            */
+  int d_nc;                 /* number of constraints                         */
+  int d_ny;                 /* number of states                              */
 
-  booleantype d_jacPDQ;     /* TRUE if using internal DQ Jacobian approx.  */
+  booleantype d_jacPDQ;     /* SUNTRUE if using internal DQ Jacobian approx. */
 
-  CPDlsDenseProjJacFn d_jacP; /* Jacobian routine to be called             */
+  CPDlsDenseProjJacFn d_jacP; /* Jacobian routine to be called               */
 
-  void *d_JP_data;          /* data pointer passed to jacP                 */
+  void *d_JP_data;          /* data pointer passed to jacP                   */
 
-  int d_ftype;              /* factorization type (LU, QR, or SC)          */
-  int d_pnorm;              /* projection norm (L2 or WRMS)                */
+  int d_ftype;              /* factorization type (LU, QR, or SC)            */
+  int d_pnorm;              /* projection norm (L2 or WRMS)                  */
 
-  DlsMat d_G;               /* G = (dc/dy)^T, transpose of cnstr. Jacobian */
-  DlsMat d_savedG;          /* saved Jacobian (before factorization)       */
+  DlsMat d_G;               /* G = (dc/dy)^T, transpose of cnstr. Jacobian   */
+  DlsMat d_savedG;          /* saved Jacobian (before factorization)         */
 
-  int d_nr;                 /* no. of independent constraints (QRP)        */
+  int d_nr;                 /* no. of independent constraints (QRP)          */
 
-  DlsMat d_K;               /* K matrix (s.p.d., form depends on ftype)    */
-  long int *d_pivotsP;           /* pivotsP = pivot array (for ftype LU)        */
+  DlsMat d_K;               /* K matrix (s.p.d., form depends on ftype)      */
+  long int *d_pivotsP;      /* pivotsP = pivot array (for ftype LU)          */
 
-  realtype *d_beta;         /* beta array (for ftype QR)                   */
+  realtype *d_beta;         /* beta array (for ftype QR)                     */
 
-  realtype *d_wrk;          /* work array (for ftype QR or QRP)             */
-  int d_len_wrk;            /* length of work array                         */
+  realtype *d_wrk;          /* work array (for ftype QR or QRP)              */
+  int d_len_wrk;            /* length of work array                          */
 
-  long int d_nstljP;        /* nstljP = nst at last Jacobian eval.         */
+  long int d_nstljP;        /* nstljP = nst at last Jacobian eval.           */
 
-  long int d_njeP;          /* njeP = no. of calls to jacP                 */
+  long int d_njeP;          /* njeP = no. of calls to jacP                   */
 
-  long int d_nceDQ;         /* no. of calls to c due to DQ Jacobian approx.*/
+  long int d_nceDQ;         /* no. of calls to c due to DQ Jacobian approx.  */
 
 } CPDlsProjMemRec, *CPDlsProjMem;
 

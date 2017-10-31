@@ -14,9 +14,9 @@
 # LLNS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for CVODE cuda examples
+# ---------------------------------------------------------------
 
 # Add variable CVODE_examples with the names of the cuda CVODE examples
-
 SET(CVODE_examples
   cvAdvDiff_kry_cuda
   )
@@ -26,44 +26,44 @@ INCLUDE_DIRECTORIES(. ${CUDA_TOOLKIT_ROOT_DIR}/samples/common/inc)
 
 # Specify libraries to link against (through the target that was used to 
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
-
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(CVODE_LIB sundials_cvode_static)
   SET(NVECS_LIB sundials_nveccuda_static)
-ELSE(LINK_LIBRARY_TYPE MATCHES "static")
+ELSE()
   SET(CVODE_LIB sundials_cvode_shared)
   SET(NVECS_LIB sundials_nveccuda_shared)
-ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
+ENDIF()
 
 # Set-up linker flags and link libraries
-
 SET(SUNDIALS_LIBS ${CVODE_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
-IF(LAPACK_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
-ENDIF(LAPACK_FOUND)
-
-IF(KLU_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
-ENDIF(KLU_FOUND)
-
-IF(SUPERLUMT_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${SUPERLUMT_LIBRARIES})
-ENDIF(SUPERLUMT_FOUND)
 
 # Add the build and install targets for each CVODE example
-
 FOREACH(example ${CVODE_examples})
+
   set_source_files_properties(${example}.cu PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
+
+  # example source files
   CUDA_ADD_EXECUTABLE(${example} ${example}.cu)
+
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+
+  # add to regression tests
   SUNDIALS_ADD_TEST(${example} ${example})
+
+  # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+
+  # install example source and out files
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/cuda)
-  ENDIF(EXAMPLES_INSTALL)
+    INSTALL(FILES ${example}.cu ${example}.out
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/cuda)
+  ENDIF()
+
 ENDFOREACH(example ${CVODE_examples})
 
+
+# create Makfile and CMakeLists.txt for examples
 IF(EXAMPLES_INSTALL)
 
   # Install the README file
@@ -72,24 +72,8 @@ IF(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER "CVODE")
   SET(SOLVER_LIB "sundials_cvode")
+
   LIST2STRING(CVODE_examples EXAMPLES)
-
-  IF(LAPACK_FOUND)
-    LIST2STRING(CVODE_examples_BL EXAMPLES_BL)
-  ELSE(LAPACK_FOUND)
-    SET(EXAMPLES_BL "")
-  ENDIF(LAPACK_FOUND)
-
-  IF(KLU_FOUND)
-    LIST2STRING(CVODE_examples_KLU EXAMPLES)
-  ENDIF(KLU_FOUND)
-
-  IF(SUPERLUMT_FOUND)
-    LIST2STRING(CVODE_examples_SUPERLUMT EXAMPLES)
-  ENDIF(SUPERLUMT_FOUND)
-
-  STRING (REPLACE ";" " " TMP_STR ${EXAMPLES})
-  SET(EXAMPLES ${TMP_STR})
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
@@ -97,7 +81,7 @@ IF(EXAMPLES_INSTALL)
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_cuda_C_ex.in
+      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_cuda_CUDA_ex.in
       ${PROJECT_BINARY_DIR}/examples/cvode/cuda/CMakeLists.txt
       @ONLY
       )
@@ -115,7 +99,7 @@ IF(EXAMPLES_INSTALL)
   IF(UNIX)
     # generate Makefile and place it in the binary dir
     CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_cuda_C_ex.in
+      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_cuda_CUDA_ex.in
       ${PROJECT_BINARY_DIR}/examples/cvode/cuda/Makefile_ex
       @ONLY
       )

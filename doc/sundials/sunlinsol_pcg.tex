@@ -125,12 +125,17 @@ This solver is constructed to perform the following operations:
   supplied.
 \end{itemize}
 
-\noindent The header file to be included when using this module 
-is \id{sunlinsol/sunlinsol\_pcg.h}. \\
+\noindent The header file to include when using this module 
+is \id{sunlinsol/sunlinsol\_pcg.h}. The {\sunlinsolpcg} module
+is accessible from all {\sundials} solvers \textit{without}
+linking to the \\
+\id{libsundials\_sunlinsolpcg} module library. \\
+
 %%
 %%----------------------------------------------
 %%
-The {\sunlinsolpcg} module defines implementations of all
+
+\noindent The {\sunlinsolpcg} module defines implementations of all
 ``iterative'' linear solver operations listed in Table
 \ref{t:sunlinsolops}:
 \begin{itemize}
@@ -177,6 +182,14 @@ user-callable routines:
   (1), \id{PREC\_RIGHT} (2), or \id{PREC\_BOTH} (3) will result in use
   of the symmetric preconditioner;  any other integer input will
   result in the default (no preconditioning).
+  Although some {\sundials} solvers are designed to only work
+  with left preconditioning ({\ida} and {\idas}) and others with only
+  right preconditioning ({\kinsol}), {\pcg} should \emph{only} be used
+  with these packages when the linear systems are known to
+  be \emph{symmetric}.  Since the scaling of matrix rows and columns
+  must be identical in a symmetric matrix, symmetric preconditioning
+  should work appropriately even for packages designed with one-sided
+  preconditioning in mind.
 
   \verb|SUNLinearSolver SUNPCG(N_Vector y, int pretype, int maxl);|
 

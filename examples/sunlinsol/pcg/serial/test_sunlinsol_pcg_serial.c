@@ -31,6 +31,16 @@
 #include <sundials/sundials_math.h>
 #include "test_sunlinsol.h"
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
 /* constants */
 #define FIVE      RCONST(5.0)
 #define THOUSAND  RCONST(1000.0)
@@ -129,9 +139,9 @@ int main(int argc, char *argv[])
   SetTiming(print_timing);
 
   printf("\nPCG linear solver test:\n");
-  printf("  Problem size = %ld\n", ProbData.N);
+  printf("  Problem size = %ld\n", (long int) ProbData.N);
   printf("  Maximum Krylov subspace dimension = %i\n", maxl);
-  printf("  Solver Tolerance = %lg\n", tol);
+  printf("  Solver Tolerance = %"GSYM"\n", tol);
   printf("  timing output flag = %i\n\n", print_timing);
   
   /* Create vectors */
@@ -313,7 +323,6 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
   /* local variables */
   realtype *v, *z, *s;
   sunindextype i, N;
-  int ierr;
   UserData *ProbData;
   
   /* access user data structure and vector data */
@@ -373,7 +382,7 @@ int PSolve(void* Data, N_Vector r_vec, N_Vector z_vec, realtype tol, int lr)
 /* uniform random number generator */
 static realtype urand()
 {
-  return (random() / (pow(RCONST(2.0),RCONST(31.0)) - ONE));
+  return (rand() / (pow(RCONST(2.0),RCONST(31.0)) - ONE));
 }
 
 /* Check function return value based on "opt" input:

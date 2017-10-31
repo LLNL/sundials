@@ -79,9 +79,9 @@ SUPERLUMTSTATUS=ON
 
 # SuperLU MT index type must be set a build time
 if [ "$indextype" == "int32_t" ]; then
-    SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1
+    SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1_fpic
 else
-    SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1_long_int
+    SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1_long_int_fpic
 fi
 
 # SuperLU MT does not support extended precision
@@ -94,9 +94,9 @@ HYPRESTATUS=ON
 
 # hypre index type must be set a build time
 if [ "$indextype" == "int32_t" ]; then
-    HYPREDIR=${APPDIR}/hypre/2.11.1
+    HYPREDIR=${APPDIR}/hypre/2.11.1_fpic
 else
-    HYPREDIR=${APPDIR}/hypre/2.11.1_long_int
+    HYPREDIR=${APPDIR}/hypre/2.11.1_long_int_fpic
 fi
 
 # only testing hypre with double precision at this time
@@ -148,7 +148,7 @@ fi
 
 echo "START CMAKE"
 cmake \
-    -D CMAKE_INSTALL_PREFIX="../install_${realtype}_${indextype}" \
+    -D CMAKE_INSTALL_PREFIX="../install_xSDK_${realtype}_${indextype}" \
     \
     -D XSDK_PRECISION=${xsdk_realtype} \
     -D XSDK_INDEX_SIZE=${xsdk_indextype} \

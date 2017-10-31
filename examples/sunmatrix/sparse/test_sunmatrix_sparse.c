@@ -300,10 +300,10 @@ int main(int argc, char *argv[])
   /* Create/fill random dense matrix, create sparse from it */
   B = SUNDenseMatrix(matrows, matcols);
   for (k=0; k<3*matrows; k++) {
-    i = random() % matrows;
-    j = random() % matcols;
+    i = rand() % matrows;
+    j = rand() % matcols;
     matdata = SUNDenseMatrix_Column(B,j);
-    matdata[i] = random() / (pow(2.0,31.0) - 1.0);
+    matdata[i] = rand() / (pow(2.0,31.0) - 1.0);
   }
   A = SUNSparseFromDenseMatrix(B, ZERO, mattype);
   
@@ -312,7 +312,7 @@ int main(int argc, char *argv[])
   y = N_VNew_Serial(matrows);
   vecdata = N_VGetArrayPointer(x);
   for(i=0; i<matcols; i++) 
-    vecdata[i] = random() / (pow(2.0,31.0) - 1.0);
+    vecdata[i] = rand() / (pow(2.0,31.0) - 1.0);
   if (SUNMatMatvec(B, x, y) != 0) {
     printf("FAIL: SUNMatrix module Dense matvec failure \n \n");
     SUNMatDestroy(A);
@@ -495,15 +495,15 @@ booleantype has_data(SUNMatrix A)
 {
   realtype *Adata = SUNSparseMatrix_Data(A);
   if (Adata == NULL)
-    return FALSE;
+    return SUNFALSE;
   else
-    return TRUE;
+    return SUNTRUE;
 }
 
 booleantype is_square(SUNMatrix A)
 {
   if (SUNSparseMatrix_Rows(A) == SUNSparseMatrix_Columns(A))
-    return TRUE;
+    return SUNTRUE;
   else
-    return FALSE;
+    return SUNFALSE;
 }

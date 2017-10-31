@@ -493,7 +493,6 @@ static int IDABBDPrecSolve(realtype tt, N_Vector yy, N_Vector yp,
                            realtype c_j, realtype delta, void *bbd_data)
 {
   IBBDPrecData pdata;
-  realtype *zd;
   int retval;
   
   pdata = (IBBDPrecData) bbd_data;

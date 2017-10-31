@@ -128,9 +128,9 @@ extern "C" {
 #define KINBBDPRE_FUNC_UNRECVR   -12
 /*
  * -----------------------------------------------------------------
- * Type : KINCommFn
+ * Type : KINBBDCommFn
  * -----------------------------------------------------------------
- * The user must supply a function of type KINCommFn which
+ * The user must supply a function of type KINBBDCommFn which
  * performs all inter-process communication necessary to
  * evaluate the approximate system function described above.
  *
@@ -138,34 +138,34 @@ extern "C" {
  * the solution vector u, and a pointer to the user-defined
  * data block user_data.
  *
- * The KINCommFn gcomm is expected to save communicated data in
+ * The KINBBDCommFn gcomm is expected to save communicated data in
  * space defined with the structure *user_data.
  *
- * Each call to the KINCommFn is preceded by a call to the system
+ * Each call to the KINBBDCommFn is preceded by a call to the system
  * function func at the current iterate uu. Thus functions of the
- * type KINCommFn can omit any communications done by f (func) if
- * relevant to the evaluation of the KINLocalFn function. If all
+ * type KINBBDCommFn can omit any communications done by f (func) if
+ * relevant to the evaluation of the KINBBDLocalFn function. If all
  * necessary communication was done in func, the user can pass
  * NULL for gcomm in the call to KINBBDPrecInit (see below).
  *
- * A KINCommFn function should return 0 if successful or
+ * A KINBBDCommFn function should return 0 if successful or
  * a non-zero value if an error occured.
  * -----------------------------------------------------------------
  */
 
-typedef int (*KINCommFn)(sunindextype Nlocal, N_Vector u,
+typedef int (*KINBBDCommFn)(sunindextype Nlocal, N_Vector u,
                          void *user_data);
 
 /*
  * -----------------------------------------------------------------
- * Type : KINLocalFn
+ * Type : KINBBDLocalFn
  * -----------------------------------------------------------------
  * The user must supply a function g(u) which approximates the
  * function f for the system f(u) = 0, and which is computed
  * locally (without inter-process communication). Note: The case
  * where g is mathematically identical to f is allowed.
  *
- * The implementation of this function must have type KINLocalFn
+ * The implementation of this function must have type KINBBDLocalFn
  * and take as input the local vector size Nlocal, the local
  * solution vector uu, the returned local g values vector, and a
  * pointer to the user-defined data block user_data. It is to
@@ -175,12 +175,12 @@ typedef int (*KINCommFn)(sunindextype Nlocal, N_Vector u,
  * save communicated data in work space defined by the user and
  * made available to the preconditioner function for the problem.
  *
- * A KINLocalFn function should return 0 if successful or
+ * A KINBBDLocalFn function should return 0 if successful or
  * a non-zero value if an error occured.
  * -----------------------------------------------------------------
  */
 
-typedef int (*KINLocalFn)(sunindextype Nlocal, N_Vector uu,
+typedef int (*KINBBDLocalFn)(sunindextype Nlocal, N_Vector uu,
                           N_Vector gval, void *user_data);
 
 /*
@@ -231,7 +231,7 @@ SUNDIALS_EXPORT int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
                                    sunindextype mukeep,
                                    sunindextype mlkeep,
                                    realtype dq_rel_uu, 
-                                   KINLocalFn gloc, KINCommFn gcomm);
+                                   KINBBDLocalFn gloc, KINBBDCommFn gcomm);
 
 /*
  * -----------------------------------------------------------------

@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -17,8 +13,7 @@
  * -----------------------------------------------------------------
  * This is the testing routine to check the NVECTOR Serial module 
  * implementation. 
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,7 +37,7 @@ int main(int argc, char *argv[])
 
   /* check input and set vector length */
   if (argc < 3){
-    printf("ERROR: ONE (1) Input required: vector length, print timing \n");
+    printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
     return(-1);
   }
 
@@ -137,9 +132,9 @@ booleantype has_data(N_Vector X)
 {
   realtype *Xdata = N_VGetArrayPointer(X);
   if (Xdata == NULL)
-    return FALSE;
+    return SUNFALSE;
   else
-    return TRUE;
+    return SUNTRUE;
 }
 
 void set_element(N_Vector X, sunindextype i, realtype val)

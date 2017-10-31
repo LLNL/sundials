@@ -208,16 +208,16 @@ int CVodeAdjInit(void *cvode_mem, long int steps, int interp)
 
   /* The interpolation module has not been initialized yet */
 
-  ca_mem->ca_IMmallocDone = FALSE;
+  ca_mem->ca_IMmallocDone = SUNFALSE;
 
   /* By default we will store but not interpolate sensitivities
-   *  - IMstoreSensi will be set in CVodeF to FALSE if FSA is not enabled
+   *  - IMstoreSensi will be set in CVodeF to SUNFALSE if FSA is not enabled
    *    or if the user can force this through CVodeSetAdjNoSensi 
-   *  - IMinterpSensi will be set in CVodeB to TRUE if IMstoreSensi is
-   *    TRUE and if at least one backward problem requires sensitivities */
+   *  - IMinterpSensi will be set in CVodeB to SUNTRUE if IMstoreSensi is
+   *    SUNTRUE and if at least one backward problem requires sensitivities */
 
-  ca_mem->ca_IMstoreSensi = TRUE;
-  ca_mem->ca_IMinterpSensi = FALSE;
+  ca_mem->ca_IMstoreSensi = SUNTRUE;
+  ca_mem->ca_IMinterpSensi = SUNFALSE;
 
   /* ------------------------------------
    * Initialize list of backward problems
@@ -231,17 +231,17 @@ int CVodeAdjInit(void *cvode_mem, long int steps, int interp)
    * CVodeF and CVodeB not called yet
    * -------------------------------- */
 
-  ca_mem->ca_firstCVodeFcall = TRUE;
-  ca_mem->ca_tstopCVodeFcall = FALSE;
+  ca_mem->ca_firstCVodeFcall = SUNTRUE;
+  ca_mem->ca_tstopCVodeFcall = SUNFALSE;
 
-  ca_mem->ca_firstCVodeBcall = TRUE;
+  ca_mem->ca_firstCVodeBcall = SUNTRUE;
 
   /* ---------------------------------------------
    * ASA initialized and allocated
    * --------------------------------------------- */
 
-  cv_mem->cv_adj = TRUE;
-  cv_mem->cv_adjMallocDone = TRUE;
+  cv_mem->cv_adj = SUNTRUE;
+  cv_mem->cv_adjMallocDone = SUNTRUE;
 
   return(CV_SUCCESS);
 } 
@@ -274,7 +274,7 @@ int CVodeAdjReInit(void *cvode_mem)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeAdjReInit", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
@@ -293,9 +293,9 @@ int CVodeAdjReInit(void *cvode_mem)
 
   /* CVodeF and CVodeB not called yet */
  
-  ca_mem->ca_firstCVodeFcall = TRUE;
-  ca_mem->ca_tstopCVodeFcall = FALSE;
-  ca_mem->ca_firstCVodeBcall = TRUE;
+  ca_mem->ca_firstCVodeFcall = SUNTRUE;
+  ca_mem->ca_tstopCVodeFcall = SUNFALSE;
+  ca_mem->ca_firstCVodeBcall = SUNTRUE;
 
   return(CV_SUCCESS);
 }
@@ -373,7 +373,7 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeF", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
@@ -404,14 +404,14 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
 
   /* If tstop is enabled, store some info */
   if (cv_mem->cv_tstopset) {
-    ca_mem->ca_tstopCVodeFcall = TRUE;
+    ca_mem->ca_tstopCVodeFcall = SUNTRUE;
     ca_mem->ca_tstopCVodeF = cv_mem->cv_tstop;
   }
 
   /* We will call CVode in CV_ONE_STEP mode, regardless
    * of what itask is, so flag if we need to return */
-  if (itask == CV_ONE_STEP) iret = TRUE;
-  else                      iret = FALSE;
+  if (itask == CV_ONE_STEP) iret = SUNTRUE;
+  else                      iret = SUNFALSE;
 
   /* On the first step:
    *   - set tinitial
@@ -433,7 +433,7 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
     if ( !ca_mem->ca_IMmallocDone ) {
 
       /* Do we need to store sensitivities? */
-      if (!cv_mem->cv_sensi) ca_mem->ca_IMstoreSensi = FALSE;
+      if (!cv_mem->cv_sensi) ca_mem->ca_IMstoreSensi = SUNFALSE;
 
       /* Allocate space for interpolation data */
       allocOK = ca_mem->ca_IMmalloc(cv_mem);
@@ -448,14 +448,14 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
         for (i=0;i<L_MAX;i++) ca_mem->ca_YS[i] = cv_mem->cv_znS[i];
       }
 
-      ca_mem->ca_IMmallocDone = TRUE;
+      ca_mem->ca_IMmallocDone = SUNTRUE;
 
     }
 
     dt_mem[0]->t = ca_mem->ck_mem->ck_t0;
     ca_mem->ca_IMstore(cv_mem, dt_mem[0]);
 
-    ca_mem->ca_firstCVodeFcall = FALSE;
+    ca_mem->ca_firstCVodeFcall = SUNFALSE;
 
   } else if ( (cv_mem->cv_tn - tout)*cv_mem->cv_h >= ZERO ) {
 
@@ -464,7 +464,7 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
     *tret = tout;
     flag = CVodeGetDky(cv_mem, tout, 0, yout);
     *ncheckPtr = ca_mem->ca_nckpnts;
-    ca_mem->ca_IMnewData = TRUE;
+    ca_mem->ca_IMnewData = SUNTRUE;
     ca_mem->ca_ckpntData = ca_mem->ck_mem;
     ca_mem->ca_np = cv_mem->cv_nst % ca_mem->ca_nsteps + 1;
 
@@ -496,7 +496,7 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
       tmp->ck_next = ca_mem->ck_mem;
       ca_mem->ck_mem = tmp;
       ca_mem->ca_nckpnts++;
-      cv_mem->cv_forceSetup = TRUE;
+      cv_mem->cv_forceSetup = SUNTRUE;
       
       /* Reset i=0 and load dt_mem[0] */
       dt_mem[0]->t = ca_mem->ck_mem->ck_t0;
@@ -537,7 +537,7 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
   *ncheckPtr = ca_mem->ca_nckpnts;
 
   /* Data is available for the last interval */
-  ca_mem->ca_IMnewData = TRUE;
+  ca_mem->ca_IMnewData = SUNTRUE;
   ca_mem->ca_ckpntData = ca_mem->ck_mem;
   ca_mem->ca_np = cv_mem->cv_nst % ca_mem->ca_nsteps + 1;
 
@@ -568,7 +568,7 @@ int CVodeCreateB(void *cvode_mem, int lmmB, int iterB, int *which)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeCreateB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   }
@@ -619,8 +619,8 @@ int CVodeCreateB(void *cvode_mem, int lmmB, int iterB, int *which)
 
   new_cvB_mem->cv_y       = NULL;
 
-  new_cvB_mem->cv_f_withSensi = FALSE;
-  new_cvB_mem->cv_fQ_withSensi = FALSE;
+  new_cvB_mem->cv_f_withSensi = SUNFALSE;
+  new_cvB_mem->cv_fQ_withSensi = SUNFALSE;
 
   /* Attach the new object to the linked list cvB_mem */
 
@@ -658,7 +658,7 @@ int CVodeInitB(void *cvode_mem, int which,
 
   /* Was ASA initialized? */
 
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeInitB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
@@ -689,7 +689,7 @@ int CVodeInitB(void *cvode_mem, int which,
 
   /* Copy fB function in cvB_mem */
 
-  cvB_mem->cv_f_withSensi = FALSE;
+  cvB_mem->cv_f_withSensi = SUNFALSE;
   cvB_mem->cv_f = fB;
 
   /* Allocate space and initialize the y Nvector in cvB_mem */
@@ -721,7 +721,7 @@ int CVodeInitBS(void *cvode_mem, int which,
 
   /* Was ASA initialized? */
 
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeInitBS", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
@@ -752,7 +752,7 @@ int CVodeInitBS(void *cvode_mem, int which,
 
   /* Copy fBs function in cvB_mem */
 
-  cvB_mem->cv_f_withSensi = TRUE;
+  cvB_mem->cv_f_withSensi = SUNTRUE;
   cvB_mem->cv_fs = fBs;
 
   /* Allocate space and initialize the y Nvector in cvB_mem */
@@ -782,7 +782,7 @@ int CVodeReInitB(void *cvode_mem, int which,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeReInitB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   }
@@ -829,7 +829,7 @@ int CVodeSStolerancesB(void *cvode_mem, int which, realtype reltolB, realtype ab
 
   /* Was ASA initialized? */
 
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSStolerancesB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
@@ -878,7 +878,7 @@ int CVodeSVtolerancesB(void *cvode_mem, int which, realtype reltolB, N_Vector ab
 
   /* Was ASA initialized? */
 
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSVtolerancesB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
@@ -926,7 +926,7 @@ int CVodeQuadInitB(void *cvode_mem, int which,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeQuadInitB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
@@ -950,7 +950,7 @@ int CVodeQuadInitB(void *cvode_mem, int which,
   flag = CVodeQuadInit(cvodeB_mem, CVArhsQ, yQB0);
   if (flag != CV_SUCCESS) return(flag);
 
-  cvB_mem->cv_fQ_withSensi = FALSE;
+  cvB_mem->cv_fQ_withSensi = SUNFALSE;
   cvB_mem->cv_fQ = fQB;
 
   return(CV_SUCCESS);
@@ -973,7 +973,7 @@ int CVodeQuadInitBS(void *cvode_mem, int which,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeQuadInitBS", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
@@ -997,7 +997,7 @@ int CVodeQuadInitBS(void *cvode_mem, int which,
   flag = CVodeQuadInit(cvodeB_mem, CVArhsQ, yQB0);
   if (flag != CV_SUCCESS) return(flag);
 
-  cvB_mem->cv_fQ_withSensi = TRUE;
+  cvB_mem->cv_fQ_withSensi = SUNTRUE;
   cvB_mem->cv_fQs = fQBs;
 
   return(CV_SUCCESS);
@@ -1019,7 +1019,7 @@ int CVodeQuadReInitB(void *cvode_mem, int which, N_Vector yQB0)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeQuadReInitB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
@@ -1062,7 +1062,7 @@ int CVodeQuadSStolerancesB(void *cvode_mem, int which, realtype reltolQB, realty
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeQuadSStolerancesB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
@@ -1104,7 +1104,7 @@ int CVodeQuadSVtolerancesB(void *cvode_mem, int which, realtype reltolQB, N_Vect
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeQuadSStolerancesB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
@@ -1169,7 +1169,7 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
 
   /* Was ASA initialized? */
 
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   }
@@ -1218,7 +1218,7 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
       }
 
       if ( tmp_cvB_mem->cv_f_withSensi || tmp_cvB_mem->cv_fQ_withSensi )
-          ca_mem->ca_IMinterpSensi = TRUE;
+          ca_mem->ca_IMinterpSensi = SUNTRUE;
 
       tmp_cvB_mem = tmp_cvB_mem->cv_next;
 
@@ -1229,7 +1229,7 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
       return(CV_ILL_INPUT);
     }
 
-    ca_mem->ca_firstCVodeBcall = FALSE;
+    ca_mem->ca_firstCVodeBcall = SUNFALSE;
   }
 
   /* Check if itaskB is legal */
@@ -1257,7 +1257,7 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
 
   ck_mem = ca_mem->ck_mem;
 
-  gotCheckpoint = FALSE;
+  gotCheckpoint = SUNFALSE;
 
   for(;;) {
 
@@ -1266,12 +1266,12 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
       tBn = tmp_cvB_mem->cv_mem->cv_tn;
 
       if ( sign*(tBn-ck_mem->ck_t0) > ZERO ) {
-        gotCheckpoint = TRUE;
+        gotCheckpoint = SUNTRUE;
         break;
       }
 
       if ( (itaskB==CV_NORMAL) && (tBn == ck_mem->ck_t0) && (sign*(tBout-ck_mem->ck_t0) >= ZERO) ) {
-        gotCheckpoint = TRUE;
+        gotCheckpoint = SUNTRUE;
         break;
       }
 
@@ -1306,14 +1306,14 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
 
       /* Decide if current backward problem is "active" in this check point */
 
-      isActive = TRUE;
+      isActive = SUNTRUE;
 
       tBn = tmp_cvB_mem->cv_mem->cv_tn;
 
-      if ( (tBn == ck_mem->ck_t0) && (sign*(tBout-ck_mem->ck_t0) < ZERO ) ) isActive = FALSE;
-      if ( (tBn == ck_mem->ck_t0) && (itaskB==CV_ONE_STEP) ) isActive = FALSE;
+      if ( (tBn == ck_mem->ck_t0) && (sign*(tBout-ck_mem->ck_t0) < ZERO ) ) isActive = SUNFALSE;
+      if ( (tBn == ck_mem->ck_t0) && (itaskB==CV_ONE_STEP) ) isActive = SUNFALSE;
 
-      if ( sign * (tBn - ck_mem->ck_t0) < ZERO ) isActive = FALSE;
+      if ( sign * (tBn - ck_mem->ck_t0) < ZERO ) isActive = SUNFALSE;
 
       if ( isActive ) {
 
@@ -1355,12 +1355,12 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
 
     /* If all backward problems have succesfully reached tBout, return now */
 
-    reachedTBout = TRUE;
+    reachedTBout = SUNTRUE;
 
     tmp_cvB_mem = cvB_mem;
     while(tmp_cvB_mem != NULL) {
       if ( sign*(tmp_cvB_mem->cv_tout - tBout) > ZERO ) {
-        reachedTBout = FALSE;
+        reachedTBout = SUNFALSE;
         break;
       }
       tmp_cvB_mem = tmp_cvB_mem->cv_next;
@@ -1392,7 +1392,7 @@ int CVodeGetB(void *cvode_mem, int which, realtype *tret, N_Vector yB)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeGetB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
@@ -1440,7 +1440,7 @@ int CVodeGetQuadB(void *cvode_mem, int which, realtype *tret, N_Vector qB)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeGetQuadB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
@@ -1953,7 +1953,7 @@ static int CVAdataStore(CVodeMem cv_mem, CkpntMem ck_mem)
   } while ( sign*(ck_mem->ck_t1 - t) > ZERO );
 
 
-  ca_mem->ca_IMnewData = TRUE;     /* New data is now available    */
+  ca_mem->ca_IMnewData = SUNTRUE;     /* New data is now available    */
   ca_mem->ca_ckpntData = ck_mem;   /* starting at this check point */
   ca_mem->ca_np = i;               /* and we have this many points */
 
@@ -2048,7 +2048,7 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
     
     /* Force a call to setup */
 
-    cv_mem->cv_forceSetup = TRUE;
+    cv_mem->cv_forceSetup = SUNTRUE;
 
   }
 
@@ -2066,7 +2066,7 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
  *
  * Finds the index in the array of data point strctures such that
  *     dt_mem[indx-1].t <= t < dt_mem[indx].t
- * If indx is changed from the previous invocation, then newpoint = TRUE
+ * If indx is changed from the previous invocation, then newpoint = SUNTRUE
  *
  * If t is beyond the leftmost limit, but close enough, indx=0.
  *
@@ -2086,7 +2086,7 @@ static int CVAfindIndex(CVodeMem cv_mem, realtype t,
   ca_mem = cv_mem->cv_adj_mem;
   dt_mem = ca_mem->dt_mem;
 
-  *newpoint = FALSE;
+  *newpoint = SUNFALSE;
 
   /* Find the direction of integration */
   sign = (ca_mem->ca_tfinal - ca_mem->ca_tinitial > ZERO) ? 1 : -1;
@@ -2094,8 +2094,8 @@ static int CVAfindIndex(CVodeMem cv_mem, realtype t,
   /* If this is the first time we use new data */
   if (ca_mem->ca_IMnewData) {
     ilast     = ca_mem->ca_np-1;
-    *newpoint = TRUE;
-    ca_mem->ca_IMnewData   = FALSE;
+    *newpoint = SUNTRUE;
+    ca_mem->ca_IMnewData   = SUNFALSE;
   }
 
   /* Search for indx starting from ilast */
@@ -2105,7 +2105,7 @@ static int CVAfindIndex(CVodeMem cv_mem, realtype t,
   if ( to_left ) {
     /* look for a new indx to the left */
 
-    *newpoint = TRUE;
+    *newpoint = SUNTRUE;
     
     *indx = ilast;
     for(;;) {
@@ -2129,7 +2129,7 @@ static int CVAfindIndex(CVodeMem cv_mem, realtype t,
   } else if ( to_right ) {
     /* look for a new indx to the right */
 
-    *newpoint = TRUE;
+    *newpoint = SUNTRUE;
 
     *indx = ilast;
     for(;;) {
@@ -2201,7 +2201,7 @@ static booleantype CVAhermiteMalloc(CVodeMem cv_mem)
   long int i, ii=0;
   booleantype allocOK;
 
-  allocOK = TRUE;
+  allocOK = SUNTRUE;
 
   ca_mem = cv_mem->cv_adj_mem;
 
@@ -2209,14 +2209,14 @@ static booleantype CVAhermiteMalloc(CVodeMem cv_mem)
 
   ca_mem->ca_ytmp = N_VClone(cv_mem->cv_tempv);
   if (ca_mem->ca_ytmp == NULL) {
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   if (ca_mem->ca_IMstoreSensi) {
     ca_mem->ca_yStmp = N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempv);
     if (ca_mem->ca_yStmp == NULL) {
       N_VDestroy(ca_mem->ca_ytmp);
-      return(FALSE);
+      return(SUNFALSE);
     }
   }
 
@@ -2230,7 +2230,7 @@ static booleantype CVAhermiteMalloc(CVodeMem cv_mem)
     content = (HermiteDataMem) malloc(sizeof(struct HermiteDataMemRec));
     if (content == NULL) {
       ii = i;
-      allocOK = FALSE;
+      allocOK = SUNFALSE;
       break;
     }
 
@@ -2238,7 +2238,7 @@ static booleantype CVAhermiteMalloc(CVodeMem cv_mem)
     if (content->y == NULL) {
       free(content); content = NULL;
       ii = i;
-      allocOK = FALSE;
+      allocOK = SUNFALSE;
       break;
     }
 
@@ -2247,7 +2247,7 @@ static booleantype CVAhermiteMalloc(CVodeMem cv_mem)
       N_VDestroy(content->y);
       free(content); content = NULL;
       ii = i;
-      allocOK = FALSE;
+      allocOK = SUNFALSE;
       break;
     }
 
@@ -2259,7 +2259,7 @@ static booleantype CVAhermiteMalloc(CVodeMem cv_mem)
         N_VDestroy(content->yd);
         free(content); content = NULL;
         ii = i;
-        allocOK = FALSE;
+        allocOK = SUNFALSE;
         break;
       }
 
@@ -2270,7 +2270,7 @@ static booleantype CVAhermiteMalloc(CVodeMem cv_mem)
         N_VDestroyVectorArray(content->yS, cv_mem->cv_Ns);
         free(content); content = NULL;
         ii = i;
-        allocOK = FALSE;
+        allocOK = SUNFALSE;
         break;
       }
       
@@ -2532,7 +2532,7 @@ static booleantype CVApolynomialMalloc(CVodeMem cv_mem)
   long int i, ii=0;
   booleantype allocOK;
 
-  allocOK = TRUE;
+  allocOK = SUNTRUE;
 
   ca_mem = cv_mem->cv_adj_mem;
 
@@ -2540,14 +2540,14 @@ static booleantype CVApolynomialMalloc(CVodeMem cv_mem)
 
   ca_mem->ca_ytmp = N_VClone(cv_mem->cv_tempv);
   if (ca_mem->ca_ytmp == NULL) {
-    return(FALSE);
+    return(SUNFALSE);
   }
 
   if (ca_mem->ca_IMstoreSensi) {
     ca_mem->ca_yStmp = N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempv);
     if (ca_mem->ca_yStmp == NULL) {
       N_VDestroy(ca_mem->ca_ytmp);
-      return(FALSE);
+      return(SUNFALSE);
     }
   }
 
@@ -2561,7 +2561,7 @@ static booleantype CVApolynomialMalloc(CVodeMem cv_mem)
     content = (PolynomialDataMem) malloc(sizeof(struct PolynomialDataMemRec));
     if (content == NULL) {
       ii = i;
-      allocOK = FALSE;
+      allocOK = SUNFALSE;
       break;
     }
 
@@ -2569,7 +2569,7 @@ static booleantype CVApolynomialMalloc(CVodeMem cv_mem)
     if (content->y == NULL) {
       free(content); content = NULL;
       ii = i;
-      allocOK = FALSE;
+      allocOK = SUNFALSE;
       break;
     }
 
@@ -2580,7 +2580,7 @@ static booleantype CVApolynomialMalloc(CVodeMem cv_mem)
         N_VDestroy(content->y);
         free(content); content = NULL;
         ii = i;
-        allocOK = FALSE;
+        allocOK = SUNFALSE;
         break;
       }
 

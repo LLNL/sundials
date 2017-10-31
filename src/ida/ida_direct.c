@@ -105,7 +105,7 @@ int IDADlsSetLinearSolver(void *ida_mem, SUNLinearSolver LS,
   idadls_mem->J = A;
 
   /* Initialize Jacobian-related data */
-  idadls_mem->jacDQ     = TRUE;
+  idadls_mem->jacDQ     = SUNTRUE;
   idadls_mem->jac       = idaDlsDQJac;
   idadls_mem->J_data    = IDA_mem;
   idadls_mem->last_flag = IDADLS_SUCCESS;
@@ -156,11 +156,11 @@ int IDADlsSetJacFn(void *ida_mem, IDADlsJacFn jac)
   idadls_mem = (IDADlsMem) IDA_mem->ida_lmem;
 
   if (jac != NULL) {
-    idadls_mem->jacDQ  = FALSE;
+    idadls_mem->jacDQ  = SUNFALSE;
     idadls_mem->jac    = jac;
     idadls_mem->J_data = IDA_mem->ida_user_data;
   } else {
-    idadls_mem->jacDQ  = TRUE;
+    idadls_mem->jacDQ  = SUNTRUE;
     idadls_mem->jac    = idaDlsDQJac;
     idadls_mem->J_data = IDA_mem;
   }
@@ -363,9 +363,7 @@ int idaDlsDQJac(realtype t, realtype c_j, N_Vector y,
 {
   int retval;
   IDAMem IDA_mem;
-  IDADlsMem idadls_mem;
   IDA_mem = (IDAMem) ida_mem;
-  idadls_mem = (IDADlsMem) IDA_mem->ida_lmem;
 
   /* verify that Jac is non-NULL */
   if (Jac == NULL) {
@@ -672,7 +670,6 @@ int idaDlsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
                 N_Vector vt1, N_Vector vt2, N_Vector vt3)
 {
   int retval;
-  sunindextype retfac;
   IDADlsMem idadls_mem;
 
   /* Return immediately if IDA_mem or IDA_mem->ida_lmem are NULL */

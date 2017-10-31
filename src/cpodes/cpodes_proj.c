@@ -153,7 +153,7 @@ int cpDoProjection(CPodeMem cp_mem, realtype saved_t, int *npfPtr)
 #endif
 
       if (cnorm <= ONE) {
-        applyProj = FALSE;
+        applyProj = SUNFALSE;
         return(CP_SUCCESS);
       }
     }
@@ -211,11 +211,11 @@ int cpDoProjection(CPodeMem cp_mem, realtype saved_t, int *npfPtr)
 #endif
 
   /* This is not the first projection anymore */
-  first_proj = FALSE;
+  first_proj = SUNFALSE;
 
   /* If the projection was successful, return now. */
   if (flag == CP_SUCCESS) {
-    applyProj = TRUE;
+    applyProj = SUNTRUE;
     return(CP_SUCCESS);
   }
 
@@ -342,12 +342,12 @@ static int cpProjNonlinear(CPodeMem cp_mem)
 #endif
 
   /* If the linear solver provides a setup function, call it if:
-   *   - it was never called before (first_proj = TRUE), or
+   *   - it was never called before (first_proj = SUNTRUE), or
    *   - enough steps passed from last evaluation */
   if (lsetupP_exists) {
     callSetup =  (first_proj) || (nst >= nstlsetP + lsetupP_freq);
   } else {
-    callSetup = FALSE;
+    callSetup = SUNFALSE;
     crateP = ONE;
   }
 
@@ -394,7 +394,7 @@ static int cpProjNonlinear(CPodeMem cp_mem)
       nce++;
       if (retval < 0) return(CP_CNSTRFUNC_FAIL);
       if (retval > 0) return(CNSTRFUNC_RECVR);
-      callSetup = TRUE;
+      callSetup = SUNTRUE;
       continue;
     }
 

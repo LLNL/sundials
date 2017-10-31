@@ -86,7 +86,7 @@ int KINSpilsSetLinearSolver(void *kinmem, SUNLinearSolver LS)
   if (kin_mem->kin_lfree) kin_mem->kin_lfree(kin_mem);
 
   /* This is an iterative linear solver */
-  kin_mem->kin_inexact_ls = TRUE;
+  kin_mem->kin_inexact_ls = SUNTRUE;
 
   /* Set four main system linear solver function fields in kin_mem */
   kin_mem->kin_linit  = kinSpilsInitialize;
@@ -107,7 +107,7 @@ int KINSpilsSetLinearSolver(void *kinmem, SUNLinearSolver LS)
   kinspils_mem->LS = LS;
 
   /* Set defaults for Jacobian-related fields */
-  kinspils_mem->jtimesDQ = TRUE;
+  kinspils_mem->jtimesDQ = SUNTRUE;
   kinspils_mem->jtimes   = KINSpilsDQJtimes;
   kinspils_mem->jdata    = kin_mem;
 
@@ -224,10 +224,10 @@ int KINSpilsSetJacTimesVecFn(void *kinmem, KINSpilsJacTimesVecFn jtv)
   /* store function pointers for user-supplied routine in KINSpils 
      interface (NULL jtimes implies use of DQ default) */
   if (jtv != NULL) {
-    kinspils_mem->jtimesDQ = FALSE;
+    kinspils_mem->jtimesDQ = SUNFALSE;
     kinspils_mem->jtimes   = jtv;
   } else {
-    kinspils_mem->jtimesDQ = TRUE;
+    kinspils_mem->jtimesDQ = SUNTRUE;
   }
 
   /* notify iterative linear solver to call KINSpils interface routines */
@@ -778,6 +778,11 @@ int kinSpilsInitialize(KINMem kin_mem)
   retval = SUNLinSolSetScalingVectors(kinspils_mem->LS,
                                       kin_mem->kin_fscale,
                                       kin_mem->kin_fscale);
+  if (retval != SUNLS_SUCCESS) {
+    KINProcessError(kin_mem, KINSPILS_SUNLS_FAIL, "KINSPILS", "kinSpilsInitialize", 
+		    "Error in calling SUNLinSolSetScalingVectors");
+    return(KINSPILS_SUNLS_FAIL);
+  }
 
   /* Call LS initialize routine */
   kinspils_mem->last_flag = SUNLinSolInitialize(kinspils_mem->LS);
@@ -845,7 +850,7 @@ int kinSpilsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   N_VConst(ZERO, xx);
   
   /* set flag required for user Jacobian routine */
-  kinspils_mem->new_uu = TRUE;
+  kinspils_mem->new_uu = SUNTRUE;
 
   /* Call solver */
   retval = SUNLinSolSolve(kinspils_mem->LS, NULL, xx, bb, kin_mem->kin_eps);

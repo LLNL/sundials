@@ -226,6 +226,8 @@ cp -r $sundialsdir/src/nvec_parhyp $tmpdir/src/
 cp -r $sundialsdir/src/nvec_petsc $tmpdir/src/
 cp -r $sundialsdir/src/nvec_openmp $tmpdir/src/
 cp -r $sundialsdir/src/nvec_pthreads $tmpdir/src/
+cp -r $sundialsdir/src/nvec_cuda $tmpdir/src/
+cp -r $sundialsdir/src/nvec_raja $tmpdir/src/
 cp -r $sundialsdir/src/sunmat_band $tmpdir/src/
 cp -r $sundialsdir/src/sunmat_dense $tmpdir/src/
 cp -r $sundialsdir/src/sunmat_sparse $tmpdir/src/

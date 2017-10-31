@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision:  $
-# $Date:  $
-# ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -31,12 +28,14 @@ SET(nvecpetsc_SOURCES nvector_petsc.c)
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the NVECPARHYP library
-SET(shared_SOURCES sundials_math.c)
-ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
+SET(shared_SOURCES 
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
+  )
 
 # Add variable nvecpetsc_HEADERS with the exported NVECPARHYP header files
-SET(nvecpetsc_HEADERS nvector_petsc.h)
-ADD_PREFIX(${sundials_SOURCE_DIR}/include/nvector/ nvecpetsc_HEADERS)
+SET(nvecpetsc_HEADERS
+  ${sundials_SOURCE_DIR}/include/nvector/nvector_petsc.h
+  )
 
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(.)
@@ -63,6 +62,14 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Install the NVECPARHYP library
 IF(BUILD_SHARED_LIBS)
   ADD_LIBRARY(sundials_nvecpetsc_shared SHARED ${nvecpetsc_SOURCES} ${shared_SOURCES})
+
+  IF(UNIX)
+    TARGET_LINK_LIBRARIES(sundials_nvecpetsc_shared m)
+  ENDIF()
+
+  # nvecpetsc depends on PETSc
+  TARGET_LINK_LIBRARIES(sundials_nvecpetsc_shared ${PETSC_LIBRARIES})
+
   SET_TARGET_PROPERTIES(sundials_nvecpetsc_shared
     PROPERTIES OUTPUT_NAME sundials_nvecpetsc CLEAN_DIRECT_OUTPUT 1)
   SET_TARGET_PROPERTIES(sundials_nvecpetsc_shared 

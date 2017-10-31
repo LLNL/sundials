@@ -178,7 +178,7 @@ N_Vector N_VNewEmpty_Parallel_Grid(MPI_Comm comm,
   for (i=0; i<dims; i++)  content->dim_offset[i]  = dim_offset[i];
   content->global_length = global_length;
   content->comm       = comm;
-  content->own_data   = FALSE;
+  content->own_data   = SUNFALSE;
   content->F_ordering = F_ordering;
   content->data       = NULL;
 
@@ -240,7 +240,7 @@ N_Vector N_VNew_Parallel_Grid(MPI_Comm comm,
     for (i=0; i<local_length; i++)  data[i] = 0.0;
 
     /* Attach data */
-    NV_OWN_DATA_PG(v) = TRUE;
+    NV_OWN_DATA_PG(v) = SUNTRUE;
     NV_DATA_PG(v)     = data; 
 
   }
@@ -270,7 +270,7 @@ N_Vector N_VMake_Parallel_Grid(MPI_Comm comm,
 
   if (NV_DATALEN_PG(v) > 0) {
     /* Attach data */
-    NV_OWN_DATA_PG(v) = FALSE;
+    NV_OWN_DATA_PG(v) = SUNFALSE;
     NV_DATA_PG(v)     = v_data;
   }
 
@@ -669,7 +669,7 @@ N_Vector N_VCloneEmpty_Parallel_Grid(N_Vector w)
   content->dims          = NV_DIMS_PG(w);
   content->global_length = NV_GLOBLENGTH_PG(w);
   content->comm          = NV_COMM_PG(w);
-  content->own_data      = FALSE;
+  content->own_data      = SUNFALSE;
   content->data          = NULL;
   content->F_ordering    = NV_FORDER_PG(w);
   for (i=0; i<MAX_DIMS; i++)  content->dim_length[i]  = NV_ARRAYLEN_PG(w,i);
@@ -705,7 +705,7 @@ N_Vector N_VClone_Parallel_Grid(N_Vector w)
     for (i=0; i<local_length; i++)  data[i] = 0.0;
 
     /* Attach data */
-    NV_OWN_DATA_PG(v) = TRUE;
+    NV_OWN_DATA_PG(v) = SUNTRUE;
     NV_DATA_PG(v)     = data;
   }
 
@@ -714,7 +714,7 @@ N_Vector N_VClone_Parallel_Grid(N_Vector w)
 
 void N_VDestroy_Parallel_Grid(N_Vector v)
 {
-  if ((NV_OWN_DATA_PG(v) == TRUE) && (NV_DATA_PG(v) != NULL)) {
+  if ((NV_OWN_DATA_PG(v) == SUNTRUE) && (NV_DATA_PG(v) != NULL)) {
     free(NV_DATA_PG(v));
     NV_DATA_PG(v) = NULL;
   }
@@ -1337,7 +1337,7 @@ booleantype N_VInvTest_Parallel_Grid(N_Vector x, N_Vector z)
   /* check for compatibility */
   if (!VCheck_Compatible(x,z)) {
     fprintf(stderr,"N_VInvTest_Parallel_Grid error: x,z incompatible\n");
-    return(TRUE);
+    return(SUNTRUE);
   }
 
   /* access data arrays */
@@ -1369,9 +1369,9 @@ booleantype N_VInvTest_Parallel_Grid(N_Vector x, N_Vector z)
   gval = VAllReduce_Parallel_Grid(val, 3, comm);
 
   if (gval == ZERO)
-    return(FALSE);
+    return(SUNFALSE);
   else
-    return(TRUE);
+    return(SUNTRUE);
 }
 
 booleantype N_VConstrMask_Parallel_Grid(N_Vector c, N_Vector x, N_Vector m)
@@ -1385,11 +1385,11 @@ booleantype N_VConstrMask_Parallel_Grid(N_Vector c, N_Vector x, N_Vector m)
   /* check for compatibility */
   if (!VCheck_Compatible(x,c)) {
     fprintf(stderr,"N_VConstrMask_Parallel_Grid error: x,c incompatible\n");
-    return(TRUE);
+    return(SUNTRUE);
   }
   if (!VCheck_Compatible(x,m)) {
     fprintf(stderr,"N_VConstrMask_Parallel_Grid error: x,m incompatible\n");
-    return(TRUE);
+    return(SUNTRUE);
   }
 
   /* access data arrays */
@@ -1432,8 +1432,8 @@ booleantype N_VConstrMask_Parallel_Grid(N_Vector c, N_Vector x, N_Vector m)
   comm = NV_COMM_PG(x);
   temp = VAllReduce_Parallel_Grid(temp, 3, comm);
 
-  if (temp == ONE) return(TRUE);
-  else return(FALSE);
+  if (temp == ONE) return(SUNTRUE);
+  else return(SUNFALSE);
 }
 
 realtype N_VMinQuotient_Parallel_Grid(N_Vector num, N_Vector denom)
@@ -1455,7 +1455,7 @@ realtype N_VMinQuotient_Parallel_Grid(N_Vector num, N_Vector denom)
   dd = NV_DATA_PG(denom);
 
   /* perform operation on domain interior */
-  notEvenOnce = TRUE;
+  notEvenOnce = SUNTRUE;
   min = BIG_REAL;
   if (NV_FORDER_PG(num)) {
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, num) {
@@ -1464,7 +1464,7 @@ realtype N_VMinQuotient_Parallel_Grid(N_Vector num, N_Vector denom)
 	if (!notEvenOnce) min = SUNMIN(min, nd[i]/dd[i]);
 	else {
 	  min = nd[i]/dd[i];
-	  notEvenOnce = FALSE;
+	  notEvenOnce = SUNFALSE;
 	}
       }
     }
@@ -1476,7 +1476,7 @@ realtype N_VMinQuotient_Parallel_Grid(N_Vector num, N_Vector denom)
 	if (!notEvenOnce) min = SUNMIN(min, nd[i]/dd[i]);
 	else {
 	  min = nd[i]/dd[i];
-	  notEvenOnce = FALSE;
+	  notEvenOnce = SUNFALSE;
 	}
       }
     }
@@ -1506,7 +1506,7 @@ static booleantype VCheck_Compatible(N_Vector x, N_Vector y)
   M = NV_DIMS_PG(y);
   if (N != M) {
     fprintf(stderr,"VCheck_Compatible: x,y dims mismatch (%li vs %li)\n",N,M);
-    return FALSE;
+    return SUNFALSE;
   }
 
   /* check for matching data size */
@@ -1515,7 +1515,7 @@ static booleantype VCheck_Compatible(N_Vector x, N_Vector y)
     M = NV_ARRAYLEN_PG(y,i);
     if (N != M) {
       fprintf(stderr,"VCheck_Compatible: x,y size mismatch (dim %li: %li vs %li)\n",i,N,M);
-      return FALSE;
+      return SUNFALSE;
     }
   }
 
@@ -1525,7 +1525,7 @@ static booleantype VCheck_Compatible(N_Vector x, N_Vector y)
     M = NV_ACTIVELEN_PG(y,i);
     if (N != M) {
       fprintf(stderr,"VCheck_Compatible: x,y active size mismatch (dim %li: %li vs %li)\n",i,N,M);
-      return FALSE;
+      return SUNFALSE;
     }
   }
 
@@ -1535,18 +1535,18 @@ static booleantype VCheck_Compatible(N_Vector x, N_Vector y)
     M = NV_OFFSET_PG(y,i);
     if (N != M) {
       fprintf(stderr,"VCheck_Compatible: x,y offset mismatch (dim %li: %li vs %li)\n",i,N,M);
-      return FALSE;
+      return SUNFALSE;
     }
   }
 
   /* check for matching order */
   if (NV_FORDER_PG(x) != NV_FORDER_PG(y)) {
     fprintf(stderr,"VCheck_Compatible: x,y ordering mismatch\n");
-    return FALSE;
+    return SUNFALSE;
   }
 
   /* if we made it here, the arrays are compatible */
-  return TRUE;
+  return SUNTRUE;
 }
 
 static sunindextype NV_DATALEN_PG(N_Vector x) {

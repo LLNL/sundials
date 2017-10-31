@@ -35,7 +35,7 @@ this \emph{content} field is given below:
   \item[M]  - number of rows
   \item[N]  - number of columns
   \item[NNZ]  - maximum number of nonzero entries in the matrix
-    (allocated length of \id{data} and \id{rowvals} arrays)
+    (allocated length of \id{data} and \id{indexvals} arrays)
   \item[NP]  - number of index pointers (e.g. number of column pointers for 
     CSC matrix). For CSC matrices $\id{NP}=\id{N}$, and for CSR
     matrices $\id{NP}=\id{M}$. This value is set automatically based
@@ -94,10 +94,6 @@ could be stored in this structure as either
   sparsetype = CSC_MAT;
   indexvals = {1, 3, 0, 2, 0, 1, 3, 4};
   indexptrs = {0, 2, 4, 5, 8};
-  rowvals = &indexvals;
-  colptrs = &indexptrs;
-  colvals = NULL;
-  rowptrs = NULL;
 \end{verbatim}
 or 
 \begin{verbatim}
@@ -109,15 +105,24 @@ or
   sparsetype = CSC_MAT;
   indexvals = {1, 3, 0, 2, 0, 1, 3, 4, *, *};
   indexptrs = {0, 2, 4, 5, 8};
-  ...
 \end{verbatim}
 where the first has no unused space, and the second has additional
 storage (the entries marked with \texttt{*} may contain any values).
 Note in both cases that the final value in \id{indexptrs} is $8$,
-indicating the total number of nonzero entries in the matrix.  The
-work associated with operations on the sparse matrix is proportional
-to this value and so one should use the best understanding of the
-number of nonzeroes here.
+indicating the total number of nonzero entries in the matrix.
+
+Similarly, in CSR format, the same matrix could be stored as
+\begin{verbatim}
+  M = 5;
+  N = 4;
+  NNZ = 8;
+  NP = N;
+  data = {3.0, 1.0, 3.0, 2.0, 7.0, 1.0, 9.0, 5.0};
+  sparsetype = CSR_MAT;
+  indexvals = {1, 2, 0, 3, 1, 0, 3, 3};
+  indexptrs = {0, 2, 4, 5, 7, 8};
+\end{verbatim}
+
 %%
 %%--------------------------------------------
 %%
@@ -141,8 +146,11 @@ number of nonzeroes here.
   space.}\label{f:sparsemat} 
 \end{figure}
 
-\noindent The header file to be included when using this module 
-is \id{sunmatrix/sunmatrix\_sparse.h}. \\
+\noindent The header file to include when using this module 
+is \id{sunmatrix/sunmatrix\_sparse.h}. The {\sunmatsparse} module
+is accessible from all {\sundials} solvers \textit{without}
+linking to the \\
+\id{libsundials\_sunmatrixsparse} module library. \\
 
 \noindent The following macros are provided to access the
 content of a {\sunmatsparse} matrix. The prefix \id{SM\_} in the names
@@ -237,8 +245,9 @@ user-callable routines:
   This function creates and allocates memory for a sparse \id{SUNMatrix}.
   Its arguments are the number of rows and columns of the
   matrix, \id{M} and \id{N}, the maximum number of nonzeros to be
-  stored in the matrix, \id{NNZ}, and a flag indicating whether to use
-  CSR or CSC format, \id{CSR\_MAT} or \id{CSC\_MAT}.
+  stored in the matrix, \id{NNZ}, and a flag \id{sparsetype}
+  indicating whether to use CSR or CSC format (valid arguments
+  are \id{CSR\_MAT} or \id{CSC\_MAT}). 
 
   \begin{verbatim}
 SUNMatrix SUNSparseMatrix(sunindextype M, sunindextype N,
@@ -333,7 +342,7 @@ SUNMatrix SUNSparseFromBandMatrix(SUNMatrix A, realtype droptol,
 \item \ID{SUNSparseMatrix\_NNZ}
 
   This function returns the number of entries allocated for nonzero
-  storage for the sparse \id{SUNMatrix}.
+  storage for  the sparse matrix \id{SUNMatrix}.
  
   \verb|sunindextype SUNSparseMatrix_NNZ(SUNMatrix A);|
 

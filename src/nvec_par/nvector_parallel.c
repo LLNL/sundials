@@ -146,7 +146,7 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
   content->local_length  = local_length;
   content->global_length = global_length;
   content->comm          = comm;
-  content->own_data      = FALSE;
+  content->own_data      = SUNFALSE;
   content->data          = NULL;
 
   /* Attach content and ops */
@@ -180,7 +180,7 @@ N_Vector N_VNew_Parallel(MPI_Comm comm,
     if(data == NULL) { N_VDestroy_Parallel(v); return(NULL); }
 
     /* Attach data */
-    NV_OWN_DATA_P(v) = TRUE;
+    NV_OWN_DATA_P(v) = SUNTRUE;
     NV_DATA_P(v)     = data; 
 
   }
@@ -205,7 +205,7 @@ N_Vector N_VMake_Parallel(MPI_Comm comm,
 
   if (local_length > 0) {
     /* Attach data */
-    NV_OWN_DATA_P(v) = FALSE;
+    NV_OWN_DATA_P(v) = SUNFALSE;
     NV_DATA_P(v)     = v_data;
   }
 
@@ -388,7 +388,7 @@ N_Vector N_VCloneEmpty_Parallel(N_Vector w)
   content->local_length  = NV_LOCLENGTH_P(w);
   content->global_length = NV_GLOBLENGTH_P(w);
   content->comm          = NV_COMM_P(w);
-  content->own_data      = FALSE;
+  content->own_data      = SUNFALSE;
   content->data          = NULL;
 
   /* Attach content and ops */
@@ -419,7 +419,7 @@ N_Vector N_VClone_Parallel(N_Vector w)
     if(data == NULL) { N_VDestroy_Parallel(v); return(NULL); }
 
     /* Attach data */
-    NV_OWN_DATA_P(v) = TRUE;
+    NV_OWN_DATA_P(v) = SUNTRUE;
     NV_DATA_P(v)     = data;
   }
 
@@ -428,7 +428,7 @@ N_Vector N_VClone_Parallel(N_Vector w)
 
 void N_VDestroy_Parallel(N_Vector v)
 {
-  if ((NV_OWN_DATA_P(v) == TRUE) && (NV_DATA_P(v) != NULL)) {
+  if ((NV_OWN_DATA_P(v) == SUNTRUE) && (NV_DATA_P(v) != NULL)) {
     free(NV_DATA_P(v));
     NV_DATA_P(v) = NULL;
   }
@@ -894,9 +894,9 @@ booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z)
   gval = VAllReduce_Parallel(val, 3, comm);
 
   if (gval == ZERO)
-    return(FALSE);
+    return(SUNFALSE);
   else
-    return(TRUE);
+    return(SUNTRUE);
 }
 
 booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m)
@@ -930,8 +930,8 @@ booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m)
 
   temp = VAllReduce_Parallel(temp, 3, comm);
 
-  if (temp == ONE) return(TRUE);
-  else return(FALSE);
+  if (temp == ONE) return(SUNTRUE);
+  else return(SUNFALSE);
 }
 
 realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
@@ -948,7 +948,7 @@ realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
   dd = NV_DATA_P(denom);
   comm = NV_COMM_P(num);
 
-  notEvenOnce = TRUE;
+  notEvenOnce = SUNTRUE;
   min = BIG_REAL;
 
   for (i = 0; i < N; i++) {
@@ -957,7 +957,7 @@ realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
       if (!notEvenOnce) min = SUNMIN(min, nd[i]/dd[i]);
       else {
         min = nd[i]/dd[i];
-        notEvenOnce = FALSE;
+        notEvenOnce = SUNFALSE;
       }
     }
   }

@@ -49,24 +49,24 @@ extern "C" {
 
 typedef struct CVDlsMemRec {
 
-  booleantype jacDQ;    /* TRUE if using internal DQ Jacobian approx.   */
-  CVDlsJacFn jac;       /* Jacobian routine to be called                */
-  void *J_data;         /* user data is passed to jac                   */
+  booleantype jacDQ;    /* SUNTRUE if using internal DQ Jacobian approx. */
+  CVDlsJacFn jac;       /* Jacobian routine to be called                 */
+  void *J_data;         /* user data is passed to jac                    */
 
-  SUNMatrix A;          /* A = I - gamma * df/dy                        */
-  SUNMatrix savedJ;     /* savedJ = old Jacobian                        */
+  SUNMatrix A;          /* A = I - gamma * df/dy                         */
+  SUNMatrix savedJ;     /* savedJ = old Jacobian                         */
 
-  SUNLinearSolver LS;   /* generic direct linear solver object          */
+  SUNLinearSolver LS;   /* generic direct linear solver object           */
 
-  N_Vector x;           /* solution vector used by SUNLinearSolver      */
+  N_Vector x;           /* solution vector used by SUNLinearSolver       */
   
-  long int nstlj;       /* nstlj = nst at last Jacobian eval.           */
+  long int nstlj;       /* nstlj = nst at last Jacobian eval.            */
 
-  long int nje;         /* nje = no. of calls to jac                    */
+  long int nje;         /* nje = no. of calls to jac                     */
 
-  long int nfeDQ;       /* no. of calls to f due to DQ Jacobian approx. */
+  long int nfeDQ;       /* no. of calls to f due to DQ Jacobian approx.  */
 
-  long int last_flag;   /* last error return flag                       */
+  long int last_flag;   /* last error return flag                        */
 
 } *CVDlsMem;
 

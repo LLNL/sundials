@@ -87,12 +87,17 @@ This solver is constructed to perform the following operations:
   supplied.
 \end{itemize}
 
-\noindent The header file to be included when using this module 
-is \id{sunlinsol/sunlinsol\_spbcgs.h}. \\
+\noindent The header file to include when using this module 
+is \id{sunlinsol/sunlinsol\_spbcgs.h}. The {\sunlinsolspbcgs} module
+is accessible from all {\sundials} solvers \textit{without}
+linking to the \\
+\id{libsundials\_sunlinsolspbcgs} module library. \\
+
 %%
 %%----------------------------------------------
 %%
-The {\sunlinsolspbcgs} module defines implementations of all
+
+\noindent The {\sunlinsolspbcgs} module defines implementations of all
 ``iterative'' linear solver operations listed in Table
 \ref{t:sunlinsolops}:
 \begin{itemize}
@@ -138,7 +143,7 @@ user-callable routines:
   We note that some {\sundials} solvers are designed to only work
   with left preconditioning ({\ida} and {\idas}) and others with only
   right preconditioning ({\kinsol}). While it is possible to configure
-  a {\sunlinsolspgmr} object to use any of the preconditioning options
+  a {\sunlinsolspbcgs} object to use any of the preconditioning options
   with these solvers, this use mode is not supported and may result in
   inferior performance.
 

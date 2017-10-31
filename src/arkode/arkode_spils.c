@@ -104,7 +104,7 @@ int ARKSpilsSetLinearSolver(void *arkode_mem, SUNLinearSolver LS)
   arkspils_mem->LS = LS;
   
   /* Set defaults for Jacobian-related fields */
-  arkspils_mem->jtimesDQ = TRUE;
+  arkspils_mem->jtimesDQ = SUNTRUE;
   arkspils_mem->jtsetup = NULL;
   arkspils_mem->jtimes = ARKSpilsDQJtimes;
   arkspils_mem->j_data = ark_mem;
@@ -119,7 +119,7 @@ int ARKSpilsSetLinearSolver(void *arkode_mem, SUNLinearSolver LS)
   arkSpilsInitializeCounters(arkspils_mem);
 
   /* Set default values for the rest of the SPILS parameters */
-  arkspils_mem->jbad = TRUE;
+  arkspils_mem->jbad = SUNTRUE;
   arkspils_mem->eplifac = ARKSPILS_EPLIN;
   arkspils_mem->last_flag = ARKSPILS_SUCCESS;
 
@@ -225,7 +225,7 @@ int ARKSpilsSetMassLinearSolver(void *arkode_mem,
   ark_mem->ark_msolve_type = 0;
   
   /* notify arkode of non-identity mass matrix */
-  ark_mem->ark_mass_matrix = TRUE;
+  ark_mem->ark_mass_matrix = SUNTRUE;
 
   /* Get memory for ARKSpilsMassMemRec */
   arkspils_mem = NULL;
@@ -410,10 +410,10 @@ int ARKSpilsSetJacTimes(void *arkode_mem,
   /* store function pointers for user-supplied routines in ARKSpils 
      interface (NULL jtimes implies use of DQ default) */
   if (jtimes != NULL) {
-    arkspils_mem->jtimesDQ = FALSE;
+    arkspils_mem->jtimesDQ = SUNFALSE;
     arkspils_mem->jtimes   = jtimes;
   } else {
-    arkspils_mem->jtimesDQ = TRUE;
+    arkspils_mem->jtimesDQ = SUNTRUE;
   }
   arkspils_mem->jtsetup = jtsetup;
 
@@ -1553,14 +1553,14 @@ int arkSpilsSetup(ARKodeMem ark_mem, int convfail, N_Vector ypred,
      pass the heuristic suggestions above to the user code(s) */
   retval = SUNLinSolSetup(arkspils_mem->LS, NULL);
 
-  /* If user set jcur to TRUE, increment npe and save nst value */
+  /* If user set jcur to SUNTRUE, increment npe and save nst value */
   if (*jcurPtr) {
     arkspils_mem->npe++;
     arkspils_mem->nstlpre = ark_mem->ark_nst;
   }
 
   /* Update jcurPtr flag if we suggested an update */
-  if (arkspils_mem->jbad) *jcurPtr = TRUE;
+  if (arkspils_mem->jbad) *jcurPtr = SUNTRUE;
 
   return(retval);
 }
@@ -1612,6 +1612,11 @@ int arkSpilsSolve(ARKodeMem ark_mem, N_Vector b, N_Vector ynow,
   retval = SUNLinSolSetScalingVectors(arkspils_mem->LS,
                                       ark_mem->ark_ewt,
                                       ark_mem->ark_rwt);
+  if (retval != SUNLS_SUCCESS) {
+    arkProcessError(ark_mem, ARKSPILS_SUNLS_FAIL, "ARKSPILS", "arkSpilsSolve", 
+                    "Error in calling SUNLinSolSetScalingVectors");
+    return(ARKSPILS_SUNLS_FAIL);
+  }
 
   /* Store previous nps value in nps_inc */
   nps_inc = arkspils_mem->nps;

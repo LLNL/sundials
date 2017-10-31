@@ -85,6 +85,11 @@ IF(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER_LIB "sundials_sunmatrixsparse")
   SET(LIBS "${LIBS} -lsundials_sunmatrixdense -lsundials_sunmatrixband")
+
+  # Set the link directory for the dense and band sunmatrix libraries
+  # The generated CMakeLists.txt does not use find_library() locate them
+  SET(EXTRA_LIBS_DIR "${libdir}")
+
   LIST2STRING(sunmatrix_sparse_examples EXAMPLES)
   LIST2STRING(sunmatrix_sparse_dependencies EXAMPLES_DEPENDENCIES)
 

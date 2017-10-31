@@ -117,12 +117,17 @@ This solver is constructed to perform the following operations:
   have been supplied.
 \end{itemize}
 
-\noindent The header file to be included when using this module 
-is \id{sunlinsol/sunlinsol\_spfgmr.h}. \\
+\noindent The header file to include when using this module 
+is \id{sunlinsol/sunlinsol\_spfgmr.h}. The {\sunlinsolspfgmr} module
+is accessible from all {\sundials} solvers \textit{without}
+linking to the \\
+\id{libsundials\_sunlinsolspfgmr} module library. \\
+
 %%
 %%----------------------------------------------
 %%
-The {\sunlinsolspfgmr} module defines implementations of all
+
+\noindent The {\sunlinsolspfgmr} module defines implementations of all
 ``iterative'' linear solver operations listed in Table
 \ref{t:sunlinsolops}:
 \begin{itemize}
@@ -166,7 +171,12 @@ user-callable routines:
   preconditioning, then any of the \id{pretype}
   inputs \id{PREC\_LEFT} (1), \id{PREC\_RIGHT} (2), or \id{PREC\_BOTH}
   (3) will result in use of \id{PREC\_RIGHT};  any other integer input
-  will result in the default (no preconditioning).
+  will result in the default (no preconditioning).  We note that some
+  SUNDIALS solvers are designed to only work with left preconditioning
+  ({\ida} and {\idas}). While it is possible to use a
+  right-preconditioned {\sunlinsolspfgmr} object for these packages,
+  this use mode is not supported and may result in inferior
+  performance.
 
   \verb|SUNLinearSolver SUNSPFGMR(N_Vector y, int pretype, int maxl);|
 

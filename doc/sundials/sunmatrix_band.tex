@@ -60,7 +60,7 @@ parts of this \emph{content} field is given below:
 %%
 \begin{figure}
 \centerline{\includegraphics[width=4.5 in]{bandmat}}
-\caption[Diagram of the storage for a banded matrix of type \id{DlsMat}]
+\caption[Diagram of the storage for a {\sunmatband} object]
   {Diagram of the storage for the {\sunmatband} module. Here \id{A} is an
   $\id{N} \times \id{N}$ band matrix with upper and lower half-bandwidths \id{mu}
   and \id{ml}, respectively. The rows and columns of \id{A} are
@@ -70,8 +70,11 @@ parts of this \emph{content} field is given below:
   linear solver.}\label{f:sunbandmat}
 \end{figure}
 
-\noindent The header file to be included when using this module 
-is \id{sunmatrix/sunmatrix\_band.h}. \\
+\noindent The header file to include when using this module 
+is \id{sunmatrix/sunmatrix\_band.h}. The {\sunmatband} module
+is accessible from all {\sundials} solvers \textit{without}
+linking to the \\
+\id{libsundials\_sunmatrixband} module library. \\
 
 \noindent The following macros are provided to access the
 content of a {\sunmatband} matrix. The prefix \id{SM\_} in the names
@@ -132,7 +135,7 @@ the \emph{banded} version.
   A\_data} sets the data array of \id{A} to be \id{A\_data} by storing
   the pointer \id{A\_data}. 
   
-  Similarlly, the assignment \id{A\_cols = SM\_COLS\_B(A)} sets \id{A\_cols} to be     
+  Similarly, the assignment \id{A\_cols = SM\_COLS\_B(A)} sets \id{A\_cols} to be     
   a pointer to the array of column pointers for the banded \id{SUNMatrix} \id{A}. 
   The assignment \id{SM\_COLS\_B(A) = A\_cols} sets the column pointer
   array of \id{A} to be \id{A\_cols} by storing the pointer \id{A\_cols}.                   
@@ -175,7 +178,9 @@ the \emph{banded} version.
 
   \verb|#define SM_COLUMN_ELEMENT_B(col_j,i,j) (col_j[(i)-(j)])|
 
-  \verb|#define SM_ELEMENT_B(A,i,j) ( (SM_CONTENT_B(A)->cols)[j][(i)-(j)+SM_SUBAND_B(A)] )|
+  \verb|#define SM_ELEMENT_B(A,i,j)|
+
+  \hspace{1in} \verb|( (SM_CONTENT_B(A)->cols)[j][(i)-(j)+SM_SUBAND_B(A)] )|
 
 \end{itemize}
 %%
