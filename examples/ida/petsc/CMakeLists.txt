@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision: 4137 $
-# $Date: 2014-06-15 12:26:15 -0700 (Sun, 15 Jun 2014) $
-# ---------------------------------------------------------------
 # Programmer:  Slaven Peles, Eddy Banks @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -15,6 +12,7 @@
 # LLNS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for IDA PETSc examples
+# ---------------------------------------------------------------
 
 
 # Add variable IDA_examples with the names of the PETSc IDA examples
@@ -27,58 +25,57 @@ SET(IDA_examples
 # Check whether we use MPI compiler scripts.
 # If yes, then change the C compiler to the MPICC script.
 # If not, then add the MPI include directory for MPI headers.
-
 IF(MPI_MPICC)
   # use MPI_MPICC as the compiler
   SET(CMAKE_C_COMPILER ${MPI_MPICC})
-ELSE(MPI_MPICC)
+ELSE()
   # add MPI_INCLUDE_PATH to include directories
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-ENDIF(MPI_MPICC)
+ENDIF()
 
 # Specify libraries to link against (through the target that was used to 
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
-
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(IDA_LIB sundials_ida_static)
   SET(NVECP_LIB sundials_nvecpetsc_static)
-ELSE(LINK_LIBRARY_TYPE MATCHES "static")
+ELSE()
   SET(IDA_LIB sundials_ida_shared)
   SET(NVECP_LIB sundials_nvecpetsc_shared)
-ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
+ENDIF()
 
 # Set-up linker flags and link libraries
-
 SET(SUNDIALS_LIBS ${IDA_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS} ${PETSC_LIBRARIES})
-IF(LAPACK_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
-ENDIF(LAPACK_FOUND)
+SET(PETSC_LIBS ${PETSC_LIBRARIES})
 
-IF(KLU_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
-ENDIF(KLU_FOUND)
 
-IF(SUPERLUMT_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${SUPERLUMT_LIBRARIES})
-ENDIF(SUPERLUMT_FOUND)
-
-# Add the build and install targets for each IDA example
-
+# Add the build and install targets for each example
 FOREACH(example_tuple ${IDA_examples})
+
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 number_of_nodes)
   list(GET example_tuple 2 number_of_tasks)
-  # first item is example
+
+  # example source files
   ADD_EXECUTABLE(${example} ${example}.c)
+
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+
+  # add to regression tests
   SUNDIALS_ADD_TEST(${example} ${example} MPI_NPROCS ${number_of_tasks})
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+
+  # libraries to link against
+  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${PETSC_LIBS})
+
   IF(NOT MPI_MPICC)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
-  ENDIF(NOT MPI_MPICC)
+  ENDIF()
+
+  # install example
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc)
-  ENDIF(EXAMPLES_INSTALL)
+    INSTALL(FILES ${example}.c ${example}.out
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc)
+  ENDIF()
+
 ENDFOREACH(example_tuple ${IDA_examples})
 
 IF(EXAMPLES_INSTALL)
@@ -89,11 +86,11 @@ IF(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER "IDA")
   SET(SOLVER_LIB "sundials_ida")
+
   FOREACH(example_tuple ${IDA_examples})
-  	list(GET example_tuple 0 example)
-  	LIST2STRING(example EXAMPLES)
-  ENDFOREACH(example_tuple ${IDA_examples})
-  
+    list(GET example_tuple 0 example)
+    LIST2STRING(example EXAMPLES)
+  ENDFOREACH()
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

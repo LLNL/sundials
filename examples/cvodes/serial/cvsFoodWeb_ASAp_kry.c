@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * This program solves a stiff ODE system that arises from a system
@@ -46,7 +42,7 @@
  * MY mesh. The resulting ODE system is stiff.
  *
  * The ODE system is solved by CVODES using Newton iteration and
- * the CVSPGMR linear solver (scaled preconditioned GMRES).
+ * the SUNSPGMR linear solver (scaled preconditioned GMRES).
  *
  * The preconditioner matrix used is the product of two matrices:
  * (1) A matrix, only defined implicitly, based on a fixed number
@@ -79,12 +75,13 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <cvodes/cvodes.h>
-#include <cvodes/cvodes_spgmr.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_dense.h>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
+#include <cvodes/cvodes.h>             /* main integrator header file          */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
+#include <cvodes/cvodes_spils.h>       /* access to CVSpils interface          */
+#include <sundials/sundials_dense.h>   /* use generic dense solver in precond. */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>    /* contains the macros ABS, SUNSQR, EXP */
 
 #define ZERO  RCONST(0.0)
 #define ONE   RCONST(1.0)
@@ -138,7 +135,7 @@
 
 typedef struct {
   realtype **P[NGRP];
-  long int *pivot[NGRP];
+  sunindextype *pivot[NGRP];
   int ns, mxns, mp, mq, mx, my, ngrp, ngx, ngy, mxmp;
   int jgx[NGX+1], jgy[NGY+1], jigx[MX], jigy[MY];
   int jxr[NGX], jyr[NGY];
@@ -147,6 +144,7 @@ typedef struct {
   realtype fsave[NEQ];
   realtype fBsave[NEQ];
   N_Vector rewt;
+  N_Vector vtemp;
   void *cvode_mem;
   int indexB;
 } *WebData;
@@ -162,13 +160,12 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 static int Precond(realtype t, N_Vector c, N_Vector fc,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *user_data,
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+                   realtype gamma, void *user_data);
 
 static int PSolve(realtype t, N_Vector c, N_Vector fc,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
-                  int lr, void *user_data, N_Vector vtemp);
+                  int lr, void *user_data);
 
 static int fB(realtype t, N_Vector c, N_Vector cB, 
                N_Vector cBdot, void *user_data);
@@ -176,14 +173,13 @@ static int fB(realtype t, N_Vector c, N_Vector cB,
 static int PrecondB(realtype t, N_Vector c, 
                     N_Vector cB, N_Vector fcB, booleantype jok, 
                     booleantype *jcurPtr, realtype gamma,
-                    void *user_data,
-                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+                    void *user_data);
 
 static int PSolveB(realtype t, N_Vector c, 
                    N_Vector cB, N_Vector fcB, 
                    N_Vector r, N_Vector z,
                    realtype gamma, realtype delta, 
-                   int lr, void *user_data, N_Vector vtemp);
+                   int lr, void *user_data);
 
 /* Prototypes for private functions */
 
@@ -224,6 +220,7 @@ int main(int argc, char *argv[])
   N_Vector c;
   WebData wdata;
   void *cvode_mem;
+  SUNLinearSolver LS, LSB;
 
   int flag, ncheck;
 
@@ -235,6 +232,7 @@ int main(int argc, char *argv[])
   c = cB = NULL;
   wdata = NULL;
   cvode_mem = NULL;
+  LS = LSB = NULL;
 
   /* Allocate and initialize user data */
 
@@ -261,9 +259,15 @@ int main(int argc, char *argv[])
   flag = CVodeSStolerances(cvode_mem, reltol, abstol);
   if(check_flag(&flag, "CVodeSStolerances", 1)) return(1);
 
-  /* Call CVSpgmr for forward run */
-  flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
-  if(check_flag(&flag, "CVSpgmr", 1)) return(1);
+  /* Create SUNSPGMR linear solver for forward run */
+  LS = SUNSPGMR(c, PREC_LEFT, 0);
+  if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
+
+  /* Attach the linear sovler */
+  flag = CVSpilsSetLinearSolver(cvode_mem, LS);
+  if (check_flag(&flag, "CVSpilsSetLinearSolver", 1)) return 1;
+
+  /* Set the preconditioner solve and setup functions */
   flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve);
   if(check_flag(&flag, "CVSpilsSetPreconditioner", 1)) return(1);
 
@@ -311,9 +315,15 @@ int main(int argc, char *argv[])
 
   wdata->indexB = indexB;
 
-  /* Call CVSpgmr */
-  flag = CVSpgmrB(cvode_mem, indexB, PREC_LEFT, 0);
-  if(check_flag(&flag, "CVSpgmrB", 1)) return(1);
+  /* Create SUNSPGMR linear solver for backward run */
+  LSB = SUNSPGMR(cB, PREC_LEFT, 0);
+  if(check_flag((void *)LSB, "SUNSPGMR", 0)) return(1);
+
+  /* Attach the linear sovler */
+  flag = CVSpilsSetLinearSolverB(cvode_mem, indexB, LSB);
+  if (check_flag(&flag, "CVSpilsSetLinearSolverB", 1)) return 1;
+
+  /* Set the preconditioner solve and setup functions */
   flag = CVSpilsSetPreconditionerB(cvode_mem, indexB, PrecondB, PSolveB);
   if(check_flag(&flag, "CVSpilsSetPreconditionerB", 1)) return(1);
 
@@ -331,8 +341,10 @@ int main(int argc, char *argv[])
   /* Free all memory */
   CVodeFree(&cvode_mem);
 
-  N_VDestroy_Serial(c);
-  N_VDestroy_Serial(cB);
+  N_VDestroy(c);
+  N_VDestroy(cB);
+  SUNLinSolFree(LS);
+  SUNLinSolFree(LSB);
 
   FreeUserData(wdata);
 
@@ -359,8 +371,8 @@ static int f(realtype t, N_Vector c, N_Vector cdot, void *user_data)
   WebData wdata;
   
   wdata = (WebData) user_data;
-  cdata = N_VGetArrayPointer_Serial(c);
-  cdotdata = N_VGetArrayPointer_Serial(cdot);
+  cdata = N_VGetArrayPointer(c);
+  cdotdata = N_VGetArrayPointer(cdot);
   
   mxns = wdata->mxns;
   ns = wdata->ns;
@@ -418,14 +430,13 @@ static int f(realtype t, N_Vector c, N_Vector cdot, void *user_data)
  
 static int Precond(realtype t, N_Vector c, N_Vector fc,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *user_data,
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+                   realtype gamma, void *user_data)
 {
   realtype ***P;
-  long int **pivot, ier;
+  sunindextype **pivot, ier;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
   int *jxr, *jyr, ngrp, ngx, ngy, mxmp, flag;
-  long int mp;
+  sunindextype mp;
   realtype uround, fac, r, r0, save, srur;
   realtype *f1, *fsave, *cdata, *rewtdata;
   WebData wdata;
@@ -436,8 +447,8 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
   flag = CVodeGetErrWeights(wdata->cvode_mem, rewt);
   if(check_flag(&flag, "CVodeGetErrWeights", 1)) return(1);
 
-  cdata = N_VGetArrayPointer_Serial(c);
-  rewtdata = N_VGetArrayPointer_Serial(rewt);
+  cdata = N_VGetArrayPointer(c);
+  rewtdata = N_VGetArrayPointer(rewt);
 
   uround = UNIT_ROUNDOFF;
 
@@ -457,7 +468,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
      Here, fsave contains the base value of the rate vector and 
      r0 is a minimum increment factor for the difference quotient. */
 
-  f1 = N_VGetArrayPointer_Serial(vtemp1);
+  f1 = N_VGetArrayPointer(wdata->vtemp);
 
   fac = N_VWrmsNorm (fc, rewt);
   r0 = RCONST(1000.0)*SUNRabs(gamma)*uround*NEQ*fac;
@@ -495,7 +506,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
      if (ier != 0) return(1);
    }
 
-  *jcurPtr = TRUE;
+  *jcurPtr = SUNTRUE;
   return(0);
 }
 
@@ -513,10 +524,10 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
 static int PSolve(realtype t, N_Vector c, N_Vector fc,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
-                  int lr, void *user_data, N_Vector vtemp)
+                  int lr, void *user_data)
 {
   realtype   ***P;
-  long int **pivot;
+  sunindextype **pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
   WebData wdata;
 
@@ -526,7 +537,7 @@ static int PSolve(realtype t, N_Vector c, N_Vector fc,
 
   /* call GSIter for Gauss-Seidel iterations */
 
-  GSIter(gamma, z, vtemp, wdata);
+  GSIter(gamma, z, wdata->vtemp, wdata);
 
   /* Do backsolves for inverse of block-diagonal preconditioner factor */
  
@@ -545,7 +556,7 @@ static int PSolve(realtype t, N_Vector c, N_Vector fc,
     for (jx = 0; jx < mx; jx++) {
       igx = jigx[jx];
       ig = igx + igy*ngx;
-      denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer_Serial(z)[iv]));
+      denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer(z)[iv]));
       iv += mp;
     }
   }
@@ -569,9 +580,9 @@ static int fB(realtype t, N_Vector c, N_Vector cB,
   WebData wdata;
 
   wdata = (WebData) user_data;
-  cdata = N_VGetArrayPointer_Serial(c);
-  cBdata = N_VGetArrayPointer_Serial(cB);
-  cBdotdata = N_VGetArrayPointer_Serial(cBdot);
+  cdata = N_VGetArrayPointer(c);
+  cBdata = N_VGetArrayPointer(cB);
+  cBdotdata = N_VGetArrayPointer(cBdot);
 
   mxns = wdata->mxns;
   ns = wdata->ns;
@@ -621,11 +632,10 @@ static int fB(realtype t, N_Vector c, N_Vector cB,
 static int PrecondB(realtype t, N_Vector c, 
                     N_Vector cB, N_Vector fcB, booleantype jok, 
                     booleantype *jcurPtr, realtype gamma,
-                    void *user_data,
-                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+                    void *user_data)
 {
   realtype ***P;
-  long int **pivot, ier;
+  sunindextype **pivot, ier;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
   int *jxr, *jyr, mp, ngrp, ngx, ngy, mxmp, flag;
   realtype uround, fac, r, r0, save, srur;
@@ -641,8 +651,8 @@ static int PrecondB(realtype t, N_Vector c,
   flag = CVodeGetErrWeights(cvode_mem, rewt);
   if(check_flag(&flag, "CVodeGetErrWeights", 1)) return(1);
 
-  cdata = N_VGetArrayPointer_Serial(c);
-  rewtdata = N_VGetArrayPointer_Serial(rewt);
+  cdata = N_VGetArrayPointer(c);
+  rewtdata = N_VGetArrayPointer(rewt);
 
   uround = UNIT_ROUNDOFF;
 
@@ -662,7 +672,7 @@ static int PrecondB(realtype t, N_Vector c,
      Here, fsave contains the base value of the rate vector and 
      r0 is a minimum increment factor for the difference quotient. */
 
-  f1 = N_VGetArrayPointer_Serial(vtemp1);
+  f1 = N_VGetArrayPointer(wdata->vtemp);
 
   fac = N_VWrmsNorm (fcB, rewt);
   r0 = RCONST(1000.0)*SUNRabs(gamma)*uround*NEQ*fac;
@@ -700,7 +710,7 @@ static int PrecondB(realtype t, N_Vector c,
      if (ier != 0) return(1);
    }
 
-  *jcurPtr = TRUE;
+  *jcurPtr = SUNTRUE;
   return(0);
 }
 
@@ -712,12 +722,12 @@ static int PSolveB(realtype t, N_Vector c,
                    N_Vector cB, N_Vector fcB, 
                    N_Vector r, N_Vector z,
                    realtype gamma, realtype delta, 
-                   int lr, void *user_data, N_Vector vtemp)
+                   int lr, void *user_data)
 {
   realtype ***P;
-  long int **pivot;
+  sunindextype **pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx;
-  long int mp;
+  sunindextype mp;
   WebData wdata;
 
   wdata = (WebData) user_data;
@@ -726,7 +736,7 @@ static int PSolveB(realtype t, N_Vector c,
 
   /* call GSIter for Gauss-Seidel iterations (same routine but with gamma=-gamma) */
 
-  GSIter(-gamma, z, vtemp, wdata);
+  GSIter(-gamma, z, wdata->vtemp, wdata);
 
   /* Do backsolves for inverse of block-diagonal preconditioner factor */
  
@@ -745,7 +755,7 @@ static int PSolveB(realtype t, N_Vector c,
     for (jx = 0; jx < mx; jx++) {
       igx = jigx[jx];
       ig = igx + igy*ngx;
-      denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer_Serial(z)[iv]));
+      denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer(z)[iv]));
       iv += mp;
     }
   }
@@ -766,15 +776,17 @@ static int PSolveB(realtype t, N_Vector c,
 static WebData AllocUserData(void)
 {
   int i, ngrp = NGRP;
-  long int ns = NS;
+  sunindextype ns = NS;
   WebData wdata;
 
   wdata = (WebData) malloc(sizeof *wdata);
   for(i=0; i < ngrp; i++) {
     (wdata->P)[i] = newDenseMat(ns, ns);
-    (wdata->pivot)[i] = newLintArray(ns);
+    (wdata->pivot)[i] = newIndexArray(ns);
   }
-  wdata->rewt = N_VNew_Serial(NEQ);
+  wdata->rewt  = N_VNew_Serial(NEQ);
+  wdata->vtemp = N_VNew_Serial(NEQ);
+
   return(wdata);
 }
 
@@ -872,7 +884,7 @@ static void CInit(N_Vector c, WebData wdata)
   int i, ici, ioff, iyoff, jx, jy, ns, mxns;
   realtype argx, argy, x, y, dx, dy, x_factor, y_factor, *cdata;
   
-  cdata = N_VGetArrayPointer_Serial(c);
+  cdata = N_VGetArrayPointer(c);
   ns = wdata->ns;
   mxns = wdata->mxns;
   dx = wdata->dx;
@@ -907,7 +919,7 @@ static void CbInit(N_Vector c, int is, WebData wdata)
 
   realtype gu[NS];
 
-  cdata = N_VGetArrayPointer_Serial(c);
+  cdata = N_VGetArrayPointer(c);
   ns = wdata->ns;
   mxns = wdata->mxns;
 
@@ -1025,8 +1037,8 @@ static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata)
   realtype beta[NS], beta2[NS], cof1[NS], gam[NS], gam2[NS];
   realtype temp, *cox, *coy, *xd, *zd;
 
-  xd = N_VGetArrayPointer_Serial(x);
-  zd = N_VGetArrayPointer_Serial(z);
+  xd = N_VGetArrayPointer(x);
+  zd = N_VGetArrayPointer(z);
   ns = wdata->ns;
   mx = wdata->mx;
   my = wdata->my;
@@ -1207,7 +1219,7 @@ static void PrintOutput(N_Vector cB, int ns, int mxns, WebData wdata)
 
   x = y = ZERO;
 
-  cdata = N_VGetArrayPointer_Serial(cB);
+  cdata = N_VGetArrayPointer(cB);
 
   for (i=1; i <= ns; i++) {
 
@@ -1257,7 +1269,7 @@ static realtype doubleIntgr(N_Vector c, int i, WebData wdata)
   realtype intgr_xy, intgr_x;
   int jx, jy;
 
-  cdata = N_VGetArrayPointer_Serial(c);
+  cdata = N_VGetArrayPointer(c);
 
   ns   = wdata->ns;
   mx   = wdata->mx;
@@ -1317,7 +1329,8 @@ static void FreeUserData(WebData wdata)
     destroyMat((wdata->P)[i]);
     destroyArray((wdata->pivot)[i]);
   }
-  N_VDestroy_Serial(wdata->rewt);
+  N_VDestroy(wdata->rewt);
+  N_VDestroy(wdata->vtemp);
   free(wdata);
 }
 

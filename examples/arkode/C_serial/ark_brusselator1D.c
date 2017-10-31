@@ -39,7 +39,7 @@
  * on a uniform spatial grid.
  *
  * This program solves the problem with the DIRK method, using a
- * Newton iteration with the ARKBAND band linear solver, and a
+ * Newton iteration with the SUNBAND band linear solver, and a
  * user-supplied Jacobian routine.
  *
  * 100 outputs are printed at equal intervals, and run statistics 
@@ -50,12 +50,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <arkode/arkode.h>            /* prototypes for ARKode fcts., consts. */
-#include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
-#include <arkode/arkode_band.h>       /* prototype for ARKBand solver */
-#include <sundials/sundials_band.h>   /* defs. of DlsMat and BAND_ELEM */
-#include <sundials/sundials_types.h>  /* def. of type 'realtype' */
-#include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc. */
+#include <arkode/arkode.h>             /* prototypes for ARKode fcts., consts. */
+#include <nvector/nvector_serial.h>    /* serial N_Vector types, fcts., macros */
+#include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix             */
+#include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver       */
+#include <arkode/arkode_direct.h>      /* access to ARKDls interface           */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype, etc */
+#include <sundials/sundials_math.h>    /* def. of SUNRsqrt, etc.               */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -72,26 +73,24 @@
 
 /* user data structure */
 typedef struct {
-  long int N;    /* number of intervals     */
-  realtype dx;   /* mesh spacing            */
-  realtype a;    /* constant forcing on u   */
-  realtype b;    /* steady-state value of w */
-  realtype du;   /* diffusion coeff for u   */
-  realtype dv;   /* diffusion coeff for v   */
-  realtype dw;   /* diffusion coeff for w   */
-  realtype ep;   /* stiffness parameter     */
+  sunindextype N;  /* number of intervals     */
+  realtype dx;     /* mesh spacing            */
+  realtype a;      /* constant forcing on u   */
+  realtype b;      /* steady-state value of w */
+  realtype du;     /* diffusion coeff for u   */
+  realtype dv;     /* diffusion coeff for v   */
+  realtype dw;     /* diffusion coeff for w   */
+  realtype ep;     /* stiffness parameter     */
 } *UserData;
 
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(long int N, long int mu, long int ml,
-               realtype t, N_Vector y, N_Vector fy,
-               DlsMat J, void *user_data,
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private helper functions  */
-static int LaplaceMatrix(realtype c, DlsMat Jac, UserData udata);
-static int ReactionJac(realtype c, N_Vector y, DlsMat Jac, UserData udata);
+static int LaplaceMatrix(realtype c, SUNMatrix Jac, UserData udata);
+static int ReactionJac(realtype c, N_Vector y, SUNMatrix Jac, UserData udata);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
@@ -106,7 +105,7 @@ int main()
   int Nvar = 3;                 /* number of solution fields */
   UserData udata = NULL;
   realtype *data;
-  long int N = 201;             /* spatial mesh size */
+  sunindextype N = 201;         /* spatial mesh size */
   realtype a = 0.6;             /* problem parameters */
   realtype b = 2.0;
   realtype du = 0.025;
@@ -115,7 +114,7 @@ int main()
   realtype ep = 1.0e-5;         /* stiffness parameter */
   realtype reltol = 1.0e-6;     /* tolerances */
   realtype abstol = 1.0e-10;
-  long int NEQ, i;
+  sunindextype NEQ, i;
 
   /* general problem variables */
   int flag;                     /* reusable error-checking flag */
@@ -123,6 +122,8 @@ int main()
   N_Vector umask = NULL;        /* empty mask vectors for viewing solution components */
   N_Vector vmask = NULL;
   N_Vector wmask = NULL;
+  SUNMatrix A = NULL;           /* empty matrix object for solver */
+  SUNLinearSolver LS = NULL;    /* empty linear solver object */
   void *arkode_mem = NULL;      /* empty ARKode memory structure */
   realtype pi, t, dTout, tout, u, v, w;
   FILE *FID, *UFID, *VFID, *WFID;
@@ -147,7 +148,7 @@ int main()
 
   /* Initial problem output */
   printf("\n1D Brusselator PDE test problem:\n");
-  printf("    N = %li,  NEQ = %li\n", udata->N, NEQ);
+  printf("    N = %li,  NEQ = %li\n", (long int) udata->N, (long int) NEQ);
   printf("    problem parameters:  a = %"GSYM",  b = %"GSYM",  ep = %"GSYM"\n",
       udata->a, udata->b, udata->ep);
   printf("    diffusion coefficients:  du = %"GSYM",  dv = %"GSYM",  dw = %"GSYM"\n",
@@ -208,11 +209,17 @@ int main()
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);    /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
 
-  /* Linear solver specification */
-  flag = ARKBand(arkode_mem, NEQ, 4, 4);          /* Specify the band linear solver */
-  if (check_flag(&flag, "ARKBand", 1)) return 1;
-  flag = ARKDlsSetBandJacFn(arkode_mem, Jac);     /* Set the Jacobian routine */
-  if (check_flag(&flag, "ARKDlsSetBandJacFn", 1)) return 1;
+  /* Initialize band matrix data structure and solver -- A will be factored, so set smu to ml+mu */
+  A = SUNBandMatrix(NEQ, 4, 4, 8);
+  if (check_flag((void *)A, "SUNBandMatrix", 0)) return 1;
+  LS = SUNBandLinearSolver(y, A);
+  if (check_flag((void *)LS, "SUNBandLinearSolver", 0)) return 1;
+  
+  /* Linear solver interface */
+  flag = ARKDlsSetLinearSolver(arkode_mem, LS, A);        /* Attach matrix and linear solver */
+  if (check_flag(&flag, "ARKDlsSetLinearSolver", 1)) return 1;
+  flag = ARKDlsSetJacFn(arkode_mem, Jac);                 /* Set the Jacobian routine */
+  if (check_flag(&flag, "ARKDlsSetJacFn", 1)) return 1;
 
   /* output spatial mesh to disk */
   FID = fopen("bruss_mesh.txt","w");
@@ -304,12 +311,14 @@ int main()
   printf("   Total number of error test failures = %li\n\n", netf);
 
   /* Clean up and return with successful completion */
-  N_VDestroy_Serial(y);         /* Free vectors */
-  N_VDestroy_Serial(umask);
-  N_VDestroy_Serial(vmask);
-  N_VDestroy_Serial(wmask);
+  N_VDestroy(y);                /* Free vectors */
+  N_VDestroy(umask);
+  N_VDestroy(vmask);
+  N_VDestroy(wmask);
   free(udata);                  /* Free user data */
   ARKodeFree(&arkode_mem);      /* Free integrator memory */
+  SUNLinSolFree(LS);            /* Free linear solver */
+  SUNMatDestroy(A);             /* Free A matrix */
   return 0;
 }
 
@@ -321,7 +330,7 @@ int main()
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;      /* access problem data */
-  long int N  = udata->N;                     /* set variable shortcuts */
+  sunindextype N = udata->N;                  /* set variable shortcuts */
   realtype a  = udata->a;
   realtype b  = udata->b;
   realtype ep = udata->ep;
@@ -331,7 +340,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   realtype dx = udata->dx;
   realtype *Ydata=NULL, *dYdata=NULL;
   realtype uconst, vconst, wconst, u, ul, ur, v, vl, vr, w, wl, wr;
-  long int i;
+  sunindextype i;
 
   Ydata = N_VGetArrayPointer(y);     /* access data arrays */
   if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
@@ -367,13 +376,11 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(long int M, long int mu, long int ml,
-               realtype t, N_Vector y, N_Vector fy, 
-               DlsMat J, void *user_data,
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData udata = (UserData) user_data;     /* access problem data */
-  SetToZero(J);                              /* Initialize Jacobian to zero */
+  SUNMatZero(J);                             /* Initialize Jacobian to zero */
 
   /* Fill in the Laplace matrix */
   LaplaceMatrix(RCONST(1.0), J, udata);
@@ -390,23 +397,24 @@ static int Jac(long int M, long int mu, long int ml,
 
 /* Routine to compute the stiffness matrix from (L*y), scaled by the factor c.
    We add the result into Jac and do not erase what was already there */
-static int LaplaceMatrix(realtype c, DlsMat Jac, UserData udata)
+static int LaplaceMatrix(realtype c, SUNMatrix Jac, UserData udata)
 {
-  long int i;                /* set shortcuts */
-  long int N = udata->N;
+  sunindextype N = udata->N;           /* set shortcuts */
   realtype dx = udata->dx;
+  sunindextype i;
 
-  /* iterate over intervals, filling in Jacobian of (L*y) */
+  /* iterate over intervals, filling in Jacobian of (L*y) using SM_ELEMENT_B 
+     macro (see sunmatrix_band.h) */
   for (i=1; i<N-1; i++) {
-    BAND_ELEM(Jac,IDX(i,0),IDX(i-1,0)) += c*udata->du/dx/dx;
-    BAND_ELEM(Jac,IDX(i,1),IDX(i-1,1)) += c*udata->dv/dx/dx;
-    BAND_ELEM(Jac,IDX(i,2),IDX(i-1,2)) += c*udata->dw/dx/dx;
-    BAND_ELEM(Jac,IDX(i,0),IDX(i,0)) += -c*RCONST(2.0)*udata->du/dx/dx;
-    BAND_ELEM(Jac,IDX(i,1),IDX(i,1)) += -c*RCONST(2.0)*udata->dv/dx/dx;
-    BAND_ELEM(Jac,IDX(i,2),IDX(i,2)) += -c*RCONST(2.0)*udata->dw/dx/dx;
-    BAND_ELEM(Jac,IDX(i,0),IDX(i+1,0)) += c*udata->du/dx/dx;
-    BAND_ELEM(Jac,IDX(i,1),IDX(i+1,1)) += c*udata->dv/dx/dx;
-    BAND_ELEM(Jac,IDX(i,2),IDX(i+1,2)) += c*udata->dw/dx/dx;
+    SM_ELEMENT_B(Jac,IDX(i,0),IDX(i-1,0)) += c*udata->du/dx/dx;
+    SM_ELEMENT_B(Jac,IDX(i,1),IDX(i-1,1)) += c*udata->dv/dx/dx;
+    SM_ELEMENT_B(Jac,IDX(i,2),IDX(i-1,2)) += c*udata->dw/dx/dx;
+    SM_ELEMENT_B(Jac,IDX(i,0),IDX(i,0)) += -c*RCONST(2.0)*udata->du/dx/dx;
+    SM_ELEMENT_B(Jac,IDX(i,1),IDX(i,1)) += -c*RCONST(2.0)*udata->dv/dx/dx;
+    SM_ELEMENT_B(Jac,IDX(i,2),IDX(i,2)) += -c*RCONST(2.0)*udata->dw/dx/dx;
+    SM_ELEMENT_B(Jac,IDX(i,0),IDX(i+1,0)) += c*udata->du/dx/dx;
+    SM_ELEMENT_B(Jac,IDX(i,1),IDX(i+1,1)) += c*udata->dv/dx/dx;
+    SM_ELEMENT_B(Jac,IDX(i,2),IDX(i+1,2)) += c*udata->dw/dx/dx;
   }
 
   return 0;                  /* Return with success */
@@ -414,12 +422,12 @@ static int LaplaceMatrix(realtype c, DlsMat Jac, UserData udata)
 
 /* Routine to compute the Jacobian matrix from R(y), scaled by the factor c.
    We add the result into Jac and do not erase what was already there */
-static int ReactionJac(realtype c, N_Vector y, DlsMat Jac, UserData udata)
+static int ReactionJac(realtype c, N_Vector y, SUNMatrix Jac, UserData udata)
 {
-  long int N  = udata->N;                      /* set shortcuts */
-  long int i;
-  realtype u, v, w;
+  sunindextype N = udata->N;                      /* set shortcuts */
   realtype ep = udata->ep;
+  sunindextype i;
+  realtype u, v, w;
   realtype *Ydata = N_VGetArrayPointer(y);     /* access solution array */
   if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
 
@@ -431,18 +439,18 @@ static int ReactionJac(realtype c, N_Vector y, DlsMat Jac, UserData udata)
     w = Ydata[IDX(i,2)];
 
     /* all vars wrt u */
-    BAND_ELEM(Jac,IDX(i,0),IDX(i,0)) += c*(RCONST(2.0)*u*v-(w+RCONST(1.0)));
-    BAND_ELEM(Jac,IDX(i,1),IDX(i,0)) += c*(w - RCONST(2.0)*u*v);
-    BAND_ELEM(Jac,IDX(i,2),IDX(i,0)) += c*(-w);
+    SM_ELEMENT_B(Jac,IDX(i,0),IDX(i,0)) += c*(RCONST(2.0)*u*v-(w+RCONST(1.0)));
+    SM_ELEMENT_B(Jac,IDX(i,1),IDX(i,0)) += c*(w - RCONST(2.0)*u*v);
+    SM_ELEMENT_B(Jac,IDX(i,2),IDX(i,0)) += c*(-w);
 
     /* all vars wrt v */
-    BAND_ELEM(Jac,IDX(i,0),IDX(i,1)) += c*(u*u);
-    BAND_ELEM(Jac,IDX(i,1),IDX(i,1)) += c*(-u*u);
+    SM_ELEMENT_B(Jac,IDX(i,0),IDX(i,1)) += c*(u*u);
+    SM_ELEMENT_B(Jac,IDX(i,1),IDX(i,1)) += c*(-u*u);
 
     /* all vars wrt w */
-    BAND_ELEM(Jac,IDX(i,0),IDX(i,2)) += c*(-u);
-    BAND_ELEM(Jac,IDX(i,1),IDX(i,2)) += c*(u);
-    BAND_ELEM(Jac,IDX(i,2),IDX(i,2)) += c*(-RCONST(1.0)/ep - u);
+    SM_ELEMENT_B(Jac,IDX(i,0),IDX(i,2)) += c*(-u);
+    SM_ELEMENT_B(Jac,IDX(i,1),IDX(i,2)) += c*(u);
+    SM_ELEMENT_B(Jac,IDX(i,2),IDX(i,2)) += c*(-RCONST(1.0)/ep - u);
 
   }
 

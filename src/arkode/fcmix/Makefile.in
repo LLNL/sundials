@@ -1,9 +1,19 @@
 # -----------------------------------------------------------------
 # Programmer(s): Daniel R. Reynolds @ SMU
 # -----------------------------------------------------------------
-# Copyright (c) 2013, Southern Methodist University.
+# LLNS/SMU Copyright Start
+# Copyright (c) 2017, Southern Methodist University and 
+# Lawrence Livermore National Security
+#
+# This work was performed under the auspices of the U.S. Department 
+# of Energy by Southern Methodist University and Lawrence Livermore 
+# National Laboratory under Contract DE-AC52-07NA27344.
+# Produced at Southern Methodist University and the Lawrence 
+# Livermore National Laboratory.
+#
 # All rights reserved.
 # For details, see the LICENSE file.
+# LLNS/SMU Copyright End
 # ---------------------------------------------------------------
 # Makefile for FARKODE module
 #
@@ -45,14 +55,11 @@ LIB_REVISION = 0:1:0
 
 FARKODE_LIB    = libsundials_farkode.la
 
-FARKODE_SRC_FILES = farkadapt.c farkband.c farkbbd.c farkbp.c farkdense.c farkewt.c farkexpstab.c farkjtimes.c farkode.c farkpreco.c farkroot.c
-FARKODE_BL_SRC_FILES = farklapack.c farklapdense.c farklapband.c
+FARKODE_SRC_FILES = farkadapt.c farkband.c farkbandmass.c farkbbd.c farkbp.c farkdense.c farkdensemass.c farkdiag.c farkdiagmass.c farkewt.c farkexpstab.c farkjtimes.c farkmtimes.c farkode.c farkpreco.c farkmasspreco.c farkroot.c farksparse.c farksparsemass.c
 
 FARKODE_OBJ_FILES = $(FARKODE_SRC_FILES:.c=.o)
-FARKODE_BL_OBJ_FILES = $(FARKODE_BL_SRC_FILES:.c=.o)
 
 FARKODE_LIB_FILES = $(FARKODE_SRC_FILES:.c=.lo)
-FARKODE_BL_LIB_FILES = $(FARKODE_BL_SRC_FILES:.c=.lo)
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
@@ -61,17 +68,10 @@ mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 all: $(FARKODE_LIB)
 
 $(FARKODE_LIB): $(FARKODE_LIB_FILES)
-	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make lib_with_bl;                          \
-	else                                         \
-	  make lib_without_bl;                       \
-	fi
+	 make lib;
 
-lib_without_bl: $(FARKODE_LIB_FILES)
+lib: $(FARKODE_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FARKODE_LIB) $(FARKODE_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -version-info $(LIB_REVISION)
-
-lib_with_bl: $(FARKODE_LIB_FILES) $(FARKODE_BL_LIB_FILES)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FARKODE_LIB) $(FARKODE_LIB_FILES) $(FARKODE_BL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -version-info $(LIB_REVISION)
 
 install: $(FARKODE_LIB)
 	$(mkinstalldirs) $(libdir)
@@ -83,9 +83,7 @@ uninstall:
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(FARKODE_LIB)
 	rm -f $(FARKODE_LIB_FILES)
-	rm -f $(FARKODE_BL_LIB_FILES)
 	rm -f $(FARKODE_OBJ_FILES)
-	rm -f $(FARKODE_BL_OBJ_FILES)
 
 distclean: clean
 	rm -f Makefile
@@ -94,30 +92,40 @@ farkadapt.lo: $(srcdir)/farkadapt.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farkadapt.c
 farkband.lo: $(srcdir)/farkband.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farkband.c
+farkbandmass.lo: $(srcdir)/farkbandmass.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farkbandmass.c
 farkbbd.lo: $(srcdir)/farkbbd.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farkbbd.c
 farkbp.lo: $(srcdir)/farkbp.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farkbp.c
 farkdense.lo: $(srcdir)/farkdense.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farkdense.c
+farkdensemass.lo: $(srcdir)/farkdensemass.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farkdensemass.c
+farkdiag.lo: $(srcdir)/farkdiag.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farkdiag.c
+farkdiagmass.lo: $(srcdir)/farkdiagmass.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farkdiagmass.c
 farkewt.lo: $(srcdir)/farkewt.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farkewt.c
 farkexpstab.lo: $(srcdir)/farkexpstab.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farkexpstab.c
 farkjtimes.lo: $(srcdir)/farkjtimes.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farkjtimes.c
-farklapack.lo: $(srcdir)/farklapack.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farklapack.c
-farklapdense.lo: $(srcdir)/farklapdense.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farklapdense.c
-farklapband.lo: $(srcdir)/farklapband.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farklapband.c
+farkmtimes.lo: $(srcdir)/farkmtimes.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farkmtimes.c
 farkode.lo: $(srcdir)/farkode.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farkode.c
 farkpreco.lo: $(srcdir)/farkpreco.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farkpreco.c
+farkmasspreco.lo: $(srcdir)/farkmasspreco.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farkmasspreco.c
 farkroot.lo: $(srcdir)/farkroot.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farkroot.c
+farksparse.lo: $(srcdir)/farksparse.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farksparse.c
+farksparsemass.lo: $(srcdir)/farksparsemass.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farksparsemass.c
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \

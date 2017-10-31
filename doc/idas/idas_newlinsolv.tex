@@ -30,7 +30,7 @@ makes any memory allocation.   For any of the functions that are
 {\it not} provided, the corresponding field should be set to \id{NULL}.
 The linear solver specification function must also set the value of
 the field \id{ida\_setupNonNull} in the {\idas} memory block --- to
-\id{TRUE} if \id{lsetup} is used, or \id{FALSE} otherwise.
+\id{SUNTRUE} if \id{lsetup} is used, or \id{SUNFALSE} otherwise.
 
 Typically, the linear solver will require a block of memory specific
 to the solver, and a principal function of the specification function

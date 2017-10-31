@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision: 4456 $
-# $Date: 2015-03-28 20:22:03 -0700 (Sat, 28 Mar 2015) $
-# ---------------------------------------------------------------
 # Programmer:  Steven Smith @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -50,7 +47,6 @@ IF(MPI_MPICC)
 ELSE(MPI_MPICC)
   # add MPI_INCLUDE_PATH to include directories
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-  TARGET_LINK_LIBRARIES(${example} MPI_LIBRARIES)
 ENDIF(MPI_MPICC)
 
 # Add the build and install targets for each nvector example
@@ -78,6 +74,9 @@ FOREACH(example ${nvector_petsc_examples})
   
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   TARGET_LINK_LIBRARIES(${example} ${PETSC_LIBRARIES})
+  IF(NOT MPI_MPICC)
+    TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARIES})
+  ENDIF()
 
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c ../test_nvector.c ../test_nvector.h ../../../src/sundials/sundials_nvector.c DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/petsc)

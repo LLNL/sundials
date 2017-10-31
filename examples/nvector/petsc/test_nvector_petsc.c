@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4137 $
- * $Date: 2014-06-15 12:26:15 -0700 (Sun, 15 Jun 2014) $
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -17,8 +13,7 @@
  * -----------------------------------------------------------------
  * This is the testing routine to check the NVECTOR Parallel module 
  * implementation. 
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,13 +37,13 @@ static int Test_N_VMake(Vec* W, int myid);
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
-  int      fails = 0;                   /* counter for test failures */
-  long int local_length, global_length; /* vector lengths            */
-  N_Vector W, X, Y, Z;                  /* test vectors              */
-  MPI_Comm comm;                        /* MPI Communicator          */
-  int      nprocs, myid;                /* Number of procs, proc id  */
-  Vec xvec;                             /* PETSc vector              */
-  PetscErrorCode ierr;                  /* PETSc error code          */
+  int            fails = 0;                   /* counter for test failures */
+  sunindextype   local_length, global_length; /* vector lengths            */
+  N_Vector       W, X, Y, Z;                  /* test vectors              */
+  MPI_Comm       comm;                        /* MPI Communicator          */
+  int            nprocs, myid;                /* Number of procs, proc id  */
+  Vec            xvec;                        /* PETSc vector              */
+  PetscErrorCode ierr;                        /* PETSc error code          */
 
   /* Get processor number and total number of processes */
   MPI_Init(&argc, &argv);
@@ -139,10 +134,10 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Check vector
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, long int local_length)
+int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 {
   int failure = 0;
-  long int i;
+  sunindextype i;
   Vec *xv = N_VGetVector_Petsc(X);
   PetscScalar *a;
 
@@ -163,12 +158,12 @@ int check_ans(realtype ans, N_Vector X, long int local_length)
 booleantype has_data(N_Vector X)
 {
   if(N_VGetVector_Petsc(X) == NULL)
-    return FALSE;
+    return SUNFALSE;
   else
-    return TRUE;
+    return SUNTRUE;
 }
 
-void set_element(N_Vector X, long int i, realtype val)
+void set_element(N_Vector X, sunindextype i, realtype val)
 {
   PetscScalar *a;
   Vec *xv = N_VGetVector_Petsc(X);
@@ -178,7 +173,7 @@ void set_element(N_Vector X, long int i, realtype val)
   VecRestoreArray(*xv, &a);
 }
 
-realtype get_element(N_Vector X, long int i)
+realtype get_element(N_Vector X, sunindextype i)
 {
   PetscScalar *a;
   Vec *xv = N_VGetVector_Petsc(X);

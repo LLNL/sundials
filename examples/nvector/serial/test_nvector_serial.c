@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -17,8 +13,7 @@
  * -----------------------------------------------------------------
  * This is the testing routine to check the NVECTOR Serial module 
  * implementation. 
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,14 +30,14 @@
 int main(int argc, char *argv[]) 
 {
   int      fails = 0;  /* counter for test failures  */
-  long int veclen;     /* vector length              */
+  sunindextype veclen;     /* vector length              */
   N_Vector W, X, Y, Z; /* test vectors               */
   int      print_timing;
 
 
   /* check input and set vector length */
   if (argc < 3){
-    printf("ERROR: ONE (1) Input required: vector length, print timing \n");
+    printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
     return(-1);
   }
 
@@ -56,7 +51,7 @@ int main(int argc, char *argv[])
   SetTiming(print_timing);
 
 
-  printf("\nRunning with vector length %ld \n \n", veclen);
+  printf("\nRunning with vector length %ld \n \n", (long int) veclen);
 
   /* Create vectors */
   W = N_VNewEmpty_Serial(veclen);
@@ -114,10 +109,10 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Check vector
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, long int local_length)
+int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 {
   int      failure = 0;
-  long int i;
+  sunindextype i;
   realtype *Xdata;
   
   Xdata = N_VGetArrayPointer(X);
@@ -137,17 +132,17 @@ booleantype has_data(N_Vector X)
 {
   realtype *Xdata = N_VGetArrayPointer(X);
   if (Xdata == NULL)
-    return FALSE;
+    return SUNFALSE;
   else
-    return TRUE;
+    return SUNTRUE;
 }
 
-void set_element(N_Vector X, long int i, realtype val)
+void set_element(N_Vector X, sunindextype i, realtype val)
 {
   NV_Ith_S(X,i) = val;    
 }
 
-realtype get_element(N_Vector X, long int i)
+realtype get_element(N_Vector X, sunindextype i)
 {
   return NV_Ith_S(X,i);    
 }

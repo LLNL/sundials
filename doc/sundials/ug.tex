@@ -7,11 +7,10 @@
 \usepackage[nottoc]{tocbibind}
 
 \usepackage{calc}
-\usepackage{hangcaption}
+
+% Packages for adding figures
 \usepackage{subfigure}
 \usepackage{color}
-%\usepackage{epsfig}
-%\usepackage{pstricks}
 \usepackage{graphicx}
 
 % Needed for sideways
@@ -56,29 +55,29 @@
 \setlength{\topmargin}{0.0in}
 
 %----- VERSIONS AND UCRL NUMBERS OF SUNDIALS CODES
-\newcommand{\sunrelease}{v2.7.0}
+\newcommand{\sunrelease}{v3.0.0}
 
-\newcommand{\cvrelease}{v2.9.0}
+\newcommand{\cvrelease}{v3.0.0}
 \newcommand{\cvucrlug}{UCRL-SM-208108}
 \newcommand{\cvucrlex}{UCRL-SM-208110}
 
-\newcommand{\cvsrelease}{v2.9.0}
+\newcommand{\cvsrelease}{v3.0.0}
 \newcommand{\cvsucrlug}{UCRL-SM-208111}
 \newcommand{\cvsucrlex}{UCRL-SM-208115}
 
-\newcommand{\idarelease}{v2.9.0}
+\newcommand{\idarelease}{v3.0.0}
 \newcommand{\idaucrlug}{UCRL-SM-208112}
 \newcommand{\idaucrlex}{UCRL-SM-208113}
 
-\newcommand{\idasrelease}{v1.3.0}
+\newcommand{\idasrelease}{v2.0.0}
 \newcommand{\idasucrlug}{UCRL-SM-234051}
 \newcommand{\idasucrlex}{LLNL-TR-437091}
 
-\newcommand{\kinrelease}{v2.9.0}
+\newcommand{\kinrelease}{v3.0.0}
 \newcommand{\kinucrlug}{UCRL-SM-208116}
 \newcommand{\kinucrlex}{UCRL-SM-208114}
 
-\newcommand{\arkrelease}{v1.1.0}
+\newcommand{\arkrelease}{v2.0.0}
 \newcommand{\arkucrlug}{LLNL-SM-668082}
 \newcommand{\arkucrlex}{????-??-??????}
 
@@ -87,13 +86,33 @@
 \newcommand{\shared}{{\normalfont\scshape shared}}
 \newcommand{\nvector}{{\normalfont\scshape nvector}}
 \newcommand{\fnvector}{{\normalfont\scshape fnvector}}
-\newcommand{\nvecp}{{\normalfont\scshape nvector\_parallel}}
-\newcommand{\nvecpetsc}{{\normalfont\scshape nvector\_petsc}}
-\newcommand{\nvecph}{{\normalfont\scshape nvector\_parhyp}}
 \newcommand{\nvecs}{{\normalfont\scshape nvector\_serial}}
+\newcommand{\nvecp}{{\normalfont\scshape nvector\_parallel}}
 \newcommand{\nvecopenmp}{{\normalfont\scshape nvector\_openmp}}
 \newcommand{\nvecpthreads}{{\normalfont\scshape nvector\_pthreads}}
+\newcommand{\nvecph}{{\normalfont\scshape nvector\_parhyp}}
+\newcommand{\nvecpetsc}{{\normalfont\scshape nvector\_petsc}}
+\newcommand{\nveccuda}{{\normalfont\scshape nvector\_cuda}}
+\newcommand{\nvecraja}{{\normalfont\scshape nvector\_raja}}
 \newcommand{\nvecspc}{{\normalfont\scshape nvector\_spcparallel}}
+\newcommand{\sunmatrix}{{\normalfont\scshape sunmatrix}}
+\newcommand{\fsunmatrix}{{\normalfont\scshape fsunmatrix}}
+\newcommand{\sunmatband}{{\normalfont\scshape sunmatrix\_band}}
+\newcommand{\sunmatdense}{{\normalfont\scshape sunmatrix\_dense}}
+\newcommand{\sunmatsparse}{{\normalfont\scshape sunmatrix\_sparse}}
+\newcommand{\sunlinsol}{{\normalfont\scshape sunlinsol}}
+\newcommand{\fsunlinsol}{{\normalfont\scshape fsunlinsol}}
+\newcommand{\sunlinsolband}{{\normalfont\scshape sunlinsol\_band}}
+\newcommand{\sunlinsoldense}{{\normalfont\scshape sunlinsol\_dense}}
+\newcommand{\sunlinsollapband}{{\normalfont\scshape sunlinsol\_lapackband}}
+\newcommand{\sunlinsollapdense}{{\normalfont\scshape sunlinsol\_lapackdense}}
+\newcommand{\sunlinsolklu}{{\normalfont\scshape sunlinsol\_klu}}
+\newcommand{\sunlinsolslumt}{{\normalfont\scshape sunlinsol\_superlumt}}
+\newcommand{\sunlinsolspgmr}{{\normalfont\scshape sunlinsol\_spgmr}}
+\newcommand{\sunlinsolspfgmr}{{\normalfont\scshape sunlinsol\_spfgmr}}
+\newcommand{\sunlinsolspbcgs}{{\normalfont\scshape sunlinsol\_spbcgs}}
+\newcommand{\sunlinsolsptfqmr}{{\normalfont\scshape sunlinsol\_sptfqmr}}
+\newcommand{\sunlinsolpcg}{{\normalfont\scshape sunlinsol\_pcg}}
 \newcommand{\cvode}{{\normalfont\scshape cvode}}
 \newcommand{\pvode}{{\normalfont\scshape pvode}}
 \newcommand{\cvodes}{{\normalfont\scshape cvodes}}
@@ -111,10 +130,13 @@
 \newcommand{\daspkadjoint}{{\normalfont\scshape daspkadjoint}}
 \newcommand{\hypre}{\textsl{hypre}}
 \newcommand{\petsc}{{\normalfont\scshape pets}c}
+\newcommand{\cuda}{{\normalfont\scshape cuda}}
+\newcommand{\raja}{{\normalfont\scshape raja}}
 
 %----- CVODE and CVODES COMPONENTS
 \newcommand{\cvdls}{{\normalfont\scshape cvdls}}
 \newcommand{\cvsls}{{\normalfont\scshape cvsls}}
+\newcommand{\cvcls}{{\normalfont\scshape cvcls}}
 \newcommand{\cvdense}{{\normalfont\scshape cvdense}}
 \newcommand{\cvsparse}{{\normalfont\scshape cvsparse}}
 \newcommand{\cvband}{{\normalfont\scshape cvband}}
@@ -142,6 +164,7 @@
 \newcommand{\kinsptfqmr}{{\normalfont\scshape kinsptfqmr}}
 \newcommand{\kinbbdpre}{{\normalfont\scshape kinbbdpre}}
 \newcommand{\kindls}{{\normalfont\scshape kindls}}
+\newcommand{\kincls}{{\normalfont\scshape kincls}}
 \newcommand{\kinsls}{{\normalfont\scshape kinsls}}
 \newcommand{\kindense}{{\normalfont\scshape kindense}}
 \newcommand{\kinband}{{\normalfont\scshape kinband}}
@@ -155,6 +178,7 @@
 
 %----- IDA and IDAS COMPONENTS
 \newcommand{\idadls}{{\normalfont\scshape idadls}}
+\newcommand{\idacls}{{\normalfont\scshape idacls}}
 \newcommand{\idasls}{{\normalfont\scshape idasls}}
 \newcommand{\idadense}{{\normalfont\scshape idadense}}
 \newcommand{\idasparse}{{\normalfont\scshape idasparse}}
@@ -180,9 +204,10 @@
 \newcommand{\sparse}{{\normalfont\scshape sparse}}
 \newcommand{\band}{{\normalfont\scshape band}}
 \newcommand{\sls}{{\normalfont\scshape sls}}
+\newcommand{\pcg}{{\normalfont\scshape pcg}}
 \newcommand{\spgmr}{{\normalfont\scshape spgmr}}
 \newcommand{\spfgmr}{{\normalfont\scshape spfgmr}}
-\newcommand{\spbcg}{{\normalfont\scshape spbcg}}
+\newcommand{\spbcg}{{\normalfont\scshape spbcgs}}
 \newcommand{\sptfqmr}{{\normalfont\scshape sptfqmr}}
 \newcommand{\klu}{{\normalfont\scshape klu}}
 \newcommand{\superlumt}{{\normalfont\scshape superlumt}}

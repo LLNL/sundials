@@ -73,7 +73,7 @@ int main()
   Ith(ctols,2) = 1.0e-8;
   Ith(ctols,3) = 1.0e-8;
   flag = CPodeProjInit(cpode_mem, CP_PROJ_L2NORM, CP_CNSTR_NONLIN, cfun, ctols);
-  flag = CPodeSetProjTestCnstr(cpode_mem, TRUE);
+  flag = CPodeSetProjTestCnstr(cpode_mem, SUNTRUE);
   flag = CPLapackDenseProj(cpode_mem, 3, 4, CPDLS_QRP);
  
   /* COMPUTE CONSISTENT INITIAL CONDITIONS */

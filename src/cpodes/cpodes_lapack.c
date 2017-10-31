@@ -193,7 +193,7 @@ static void cplSCcomputeKD(CPodeMem cp_mem, N_Vector d);
  * and cpLapackDenseFree, respectively.  It allocates memory for a 
  * structure of type CPDlsMemRec and sets the cp_lmem field in 
  * (*cpode_mem) to the address of this structure.  It sets lsetup_exists 
- * in (*cpode_mem) to TRUE, and the d_jac field to the default 
+ * in (*cpode_mem) to SUNTRUE, and the d_jac field to the default 
  * cpDlsDenseDQJac. Finally, it allocates memory for M, pivots, and 
  * (if needed) savedJ.
  * The return value is SUCCESS = 0, or LMEM_FAIL = -1.
@@ -244,13 +244,13 @@ int CPLapackDense(void *cpode_mem, int N)
   mtype = SUNDIALS_DENSE;
 
   /* Set default Jacobian routine and Jacobian data */
-  jacDQ = TRUE;
+  jacDQ = SUNTRUE;
   djacE = NULL;
   djacI = NULL;
   J_data = NULL;
 
   last_flag = CPDLS_SUCCESS;
-  lsetup_exists = TRUE;
+  lsetup_exists = SUNTRUE;
 
   /* Set problem dimension */
   n = N;
@@ -302,7 +302,7 @@ int CPLapackDense(void *cpode_mem, int N)
  * and cpLapackBandFree, respectively.  It allocates memory for a 
  * structure of type CPLapackBandMemRec and sets the cp_lmem field in 
  * (*cpode_mem) to the address of this structure.  It sets lsetup_exists 
- * in (*cpode_mem) to be TRUE, mu to be mupper, ml to be mlower, and 
+ * in (*cpode_mem) to be SUNTRUE, mu to be mupper, ml to be mlower, and 
  * the jacE and jacI field to NULL.
  * Finally, it allocates memory for M, pivots, and (if needed) savedJ.  
  * The CPLapackBand return value is CPDLS_SUCCESS = 0, 
@@ -353,13 +353,13 @@ int CPLapackBand(void *cpode_mem, int N, int mupper, int mlower)
   mtype = SUNDIALS_BAND;
 
   /* Set default Jacobian routine and Jacobian data */
-  jacDQ = TRUE;
+  jacDQ = SUNTRUE;
   bjacE = NULL;
   bjacI = NULL;
   J_data = NULL;
 
   last_flag = CPDLS_SUCCESS;
-  lsetup_exists = TRUE;
+  lsetup_exists = SUNTRUE;
   
   /* Load problem dimension */
   n = N;
@@ -474,11 +474,11 @@ int CPLapackDenseProj(void *cpode_mem, int Nc, int Ny, int fact_type)
   }
 
   /* Set default Jacobian routine and Jacobian data */
-  jacPDQ = TRUE;
+  jacPDQ = SUNTRUE;
   djacP = NULL;
   JP_data = NULL;
 
-  lsetupP_exists = TRUE;
+  lsetupP_exists = SUNTRUE;
 
   /* Allocate memory */
   G = NULL;
@@ -723,16 +723,16 @@ static int cpLapackDenseSetup(CPodeMem cp_mem, int convfail,
     
     if (jok) {
 
-      /* If jok = TRUE, use saved copy of J */
-      *jcurPtr = FALSE;
+      /* If jok = SUNTRUE, use saved copy of J */
+      *jcurPtr = SUNFALSE;
       dcopy_f77(&(savedJ->ldata), savedJ->data, &one, M->data, &one);
 
     } else {
 
-      /* If jok = FALSE, call jac routine for new J value */
+      /* If jok = SUNFALSE, call jac routine for new J value */
       nje++;
       nstlj = nst;
-      *jcurPtr = TRUE;
+      *jcurPtr = SUNTRUE;
 
       retval = djacE(n, tn, yP, fctP, M, J_data, tmp1, tmp2, tmp3);
       if (retval == 0) {
@@ -915,16 +915,16 @@ static int cpLapackBandSetup(CPodeMem cp_mem, int convfail,
     
     if (jok) {
       
-      /* If jok = TRUE, use saved copy of J */
-      *jcurPtr = FALSE;
+      /* If jok = SUNTRUE, use saved copy of J */
+      *jcurPtr = SUNFALSE;
       dcopy_f77(&(savedJ->ldata), savedJ->data, &one, M->data, &one);
       
     } else {
       
-      /* If jok = FALSE, call jac routine for new J value */
+      /* If jok = SUNFALSE, call jac routine for new J value */
       nje++;
       nstlj = nst;
-      *jcurPtr = TRUE;
+      *jcurPtr = SUNTRUE;
 
       retval = bjacE(n, mu, ml, tn, yP, fctP, M, J_data, tmp1, tmp2, tmp3);
       if (retval == 0) {

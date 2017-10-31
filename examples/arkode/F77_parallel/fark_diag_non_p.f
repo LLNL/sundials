@@ -44,24 +44,24 @@ C
 C     Get NPES and MYPE.  Requires initialization of MPI.
       CALL MPI_INIT(IER)
       IF (IER .NE. 0) THEN
-        WRITE(6,5) IER
- 5      FORMAT(///' MPI_ERROR: MPI_INIT returned IER = ', I5)
-        STOP
-        ENDIF
+         WRITE(6,5) IER
+ 5       FORMAT(///' MPI_ERROR: MPI_INIT returned IER = ', I5)
+         STOP
+      ENDIF
       CALL MPI_COMM_SIZE(MPI_COMM_WORLD, NPES, IER)
       IF (IER .NE. 0) THEN
-        WRITE(6,6) IER
- 6      FORMAT(///' MPI_ERROR: MPI_COMM_SIZE returned IER = ', I5)
-        CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
-        STOP
-        ENDIF
+         WRITE(6,6) IER
+ 6       FORMAT(///' MPI_ERROR: MPI_COMM_SIZE returned IER = ', I5)
+         CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
+         STOP
+      ENDIF
       CALL MPI_COMM_RANK(MPI_COMM_WORLD, MYPE, IER)
       IF (IER .NE. 0) THEN
-        WRITE(6,7) IER
- 7      FORMAT(///' MPI_ERROR: MPI_COMM_RANK returned IER = ', I5)
-        CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
-        STOP
-        ENDIF
+         WRITE(6,7) IER
+ 7       FORMAT(///' MPI_ERROR: MPI_COMM_RANK returned IER = ', I5)
+         CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
+         STOP
+      ENDIF
 C
 C     Set input arguments.
       NEQ = NPES * NLOCAL
@@ -81,38 +81,38 @@ C
   10    Y(I) = 1.0D0
 C
       IF (MYPE .EQ. 0) THEN
-        WRITE(6,11) NEQ, NLOCAL, ALPHA
-  11    FORMAT('Diagonal test problem:'//' NEQ = ', I3, /
-     1       ' NLOCAL = ', I3, /
-     2       ' parameter alpha = ', F8.3)
-        WRITE(6,12)
-  12    FORMAT(' ydot_i = -alpha*i * y_i (i = 1,...,NEQ)')
-        WRITE(6,13) RTOL, ATOL
-  13    FORMAT(' RTOL, ATOL = ', 2E10.1)
-        WRITE(6,14)
-  14    FORMAT(' Method is ERK')
-        WRITE(6,15) NPES
-  15    FORMAT(' Number of processors = ', I3//)
-        ENDIF
+         WRITE(6,11) NEQ, NLOCAL, ALPHA
+  11     FORMAT('Diagonal test problem:'//' NEQ = ', I3, /
+     1        ' NLOCAL = ', I3, /
+     2        ' parameter alpha = ', F8.3)
+         WRITE(6,12)
+  12     FORMAT(' ydot_i = -alpha*i * y_i (i = 1,...,NEQ)')
+         WRITE(6,13) RTOL, ATOL
+  13     FORMAT(' RTOL, ATOL = ', 2E10.1)
+         WRITE(6,14)
+  14     FORMAT(' Method is ERK')
+         WRITE(6,15) NPES
+  15     FORMAT(' Number of processors = ', I3//)
+      ENDIF
 C
       CALL FNVINITP(MPI_COMM_WORLD, 4, NLOCAL, NEQ, IER)
 C
       IF (IER .NE. 0) THEN
-        WRITE(6,20) IER
-  20    FORMAT(///' SUNDIALS_ERROR: FNVINITP returned IER = ', I5)
-        CALL MPI_FINALIZE(IER)
-        STOP
-        ENDIF
+         WRITE(6,20) IER
+  20     FORMAT(///' SUNDIALS_ERROR: FNVINITP returned IER = ', I5)
+         CALL MPI_FINALIZE(IER)
+         STOP
+      ENDIF
 C
       CALL FARKMALLOC(T, Y, METH, IATOL, RTOL, ATOL,
-     1               IOUT, ROUT, IPAR, RPAR, IER)
+     1                IOUT, ROUT, IPAR, RPAR, IER)
 C
       IF (IER .NE. 0) THEN
-        WRITE(6,30) IER
-  30    FORMAT(///' SUNDIALS_ERROR: FARKMALLOC returned IER = ', I5)
-        CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
-        STOP
-        ENDIF
+         WRITE(6,30) IER
+  30     FORMAT(///' SUNDIALS_ERROR: FARKMALLOC returned IER = ', I5)
+         CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
+         STOP
+      ENDIF
 C
 C     Loop through tout values, call solver, print output, test for failure.
       TOUT = DTOUT
@@ -122,17 +122,17 @@ C
 C
         IF (MYPE .EQ. 0) WRITE(6,40) T, IOUT(LNST), IOUT(LNST_ATT), 
      &       IOUT(LNFE), IOUT(LNFI)
-  40    FORMAT(' t = ', D10.2, 5X, 'steps = ', I5, 
+  40    FORMAT(' t = ', D10.2, 5X, 'steps = ', I5,
      &         '  (attempted = ', I5, '),  fe = ', I5, 
      &         '  fi = ', I5)
 C
         IF (IER .NE. 0) THEN
-          WRITE(6,60) IER, IOUT(16)
-  60      FORMAT(///' SUNDIALS_ERROR: FARKODE returned IER = ', I5, /,
-     &           '                 Linear Solver returned IER = ', I5)
-          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
-          STOP
-          ENDIF
+           WRITE(6,60) IER, IOUT(16)
+  60       FORMAT(///' SUNDIALS_ERROR: FARKODE returned IER = ', I5, /,
+     &            '                 Linear Solver returned IER = ', I5)
+           CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
+           STOP
+        ENDIF
 C
         TOUT = TOUT + DTOUT
   70    CONTINUE
@@ -147,11 +147,11 @@ C     Get global max. error from MPI_REDUCE call.
       CALL MPI_REDUCE(ERMAX, GERMAX, 1, MPI_DOUBLE_PRECISION, MPI_MAX,
      1                0, MPI_COMM_WORLD, IER)
       IF (IER .NE. 0) THEN
-        WRITE(6,80) IER
-  80    FORMAT(///' MPI_ERROR: MPI_REDUCE returned IER = ', I5)
-        CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
-        STOP
-        ENDIF
+         WRITE(6,80) IER
+  80     FORMAT(///' MPI_ERROR: MPI_REDUCE returned IER = ', I5)
+         CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
+         STOP
+      ENDIF
       IF (MYPE .EQ. 0) WRITE(6,85) GERMAX
   85  FORMAT(/'Max. absolute error is ', E10.2/)
 C
@@ -178,10 +178,10 @@ C     Free the memory and finalize MPI.
       CALL FARKFREE
       CALL MPI_FINALIZE(IER)
       IF (IER .NE. 0) THEN
-        WRITE(6,95) IER
- 95     FORMAT(///' MPI_ERROR: MPI_FINALIZE returned IER = ', I5)
-        STOP
-        ENDIF
+         WRITE(6,95) IER
+ 95      FORMAT(///' MPI_ERROR: MPI_FINALIZE returned IER = ', I5)
+         STOP
+      ENDIF
 C
       STOP
       END

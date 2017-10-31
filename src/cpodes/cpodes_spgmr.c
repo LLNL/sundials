@@ -152,7 +152,7 @@ int CPSpgmr(void *cpode_mem, int pretype, int maxl)
   mxl = cpspils_mem->s_maxl = (maxl <= 0) ? CPSPILS_MAXL : maxl;
 
   /* Set defaults for Jacobian-related fileds */
-  cpspils_mem->s_jtimesDQ = TRUE;
+  cpspils_mem->s_jtimesDQ = SUNTRUE;
   cpspils_mem->s_jtvE     = NULL;
   cpspils_mem->s_jtvI     = NULL;
   cpspils_mem->s_j_data   = NULL;
@@ -171,7 +171,7 @@ int CPSpgmr(void *cpode_mem, int pretype, int maxl)
 
   cpspils_mem->s_last_flag  = CPSPILS_SUCCESS;
 
-  lsetup_exists = FALSE;
+  lsetup_exists = SUNFALSE;
 
   /* Alocate memory */
   spgmr_mem = NULL;
@@ -267,7 +267,7 @@ static int cpSpgmrInit(CPodeMem cp_mem)
   /* 
    * Check for legal combination pretype - psolve
    *
-   * Set lsetup_exists = TRUE iff there is preconditioning (pretype != PREC_NONE)
+   * Set lsetup_exists = SUNTRUE iff there is preconditioning (pretype != PREC_NONE)
    * and there is a preconditioning setup phase (pset != NULL)             
    *
    * If jtimes is NULL at this time, set it to DQ 
@@ -317,8 +317,8 @@ static int cpSpgmrInit(CPodeMem cp_mem)
  * It makes a decision as to whether or not to signal for re-evaluation
  * of Jacobian data in the pset routine, based on various state
  * variables, then it calls pset.  If we signal for re-evaluation,
- * then we reset jcur = *jcurPtr to TRUE, regardless of the pset output.
- * In any case, if jcur == TRUE, we increment npe and save nst in nstlpre.
+ * then we reset jcur = *jcurPtr to SUNTRUE, regardless of the pset output.
+ * In any case, if jcur == SUNTRUE, we increment npe and save nst in nstlpre.
  * -----------------------------------------------------------------
  */
 static int cpSpgmrSetup(CPodeMem cp_mem, int convfail, 
@@ -348,8 +348,8 @@ static int cpSpgmrSetup(CPodeMem cp_mem, int convfail,
     /* Call psetE routine and possibly reset jcur */
     retval = psetE(tn, yP, fctP, jok, jcurPtr, gamma, P_data, tmp1, tmp2, tmp3);
     if (retval == 0 ) {
-      if (jbad) *jcurPtr = TRUE;
-      /* If jcur = TRUE, increment npe and save nst value */
+      if (jbad) *jcurPtr = SUNTRUE;
+      /* If jcur = SUNTRUE, increment npe and save nst value */
       if (*jcurPtr) {
         npe++;
         nstlpre = nst;

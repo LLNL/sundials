@@ -1,7 +1,4 @@
 # -----------------------------------------------------------------
-# $Revision$
-# $Date$
-# -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
 # Copyright (c) 2002, The Regents of the University of California.
@@ -46,7 +43,7 @@ top_srcdir = $(srcdir)/../..
 
 INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include
 
-SHARED_SRC_FILES = sundials_direct.c sundials_band.c sundials_dense.c sundials_iterative.c sundials_math.c sundials_nvector.c sundials_pcg.c sundials_spfgmr.c sundials_spgmr.c sundials_spbcgs.c sundials_sptfqmr.c
+SHARED_SRC_FILES = sundials_direct.c sundials_band.c sundials_dense.c sundials_iterative.c sundials_linearsolver.c sundials_math.c sundials_matrix.c sundials_nvector.c sundials_pcg.c sundials_spfgmr.c sundials_spgmr.c sundials_spbcgs.c sundials_sptfqmr.c sundials_version.c
 
 SHARED_OBJ_FILES = $(SHARED_SRC_FILES:.c=.o)
 
@@ -71,20 +68,23 @@ lib_with_bl: $(SHARED_LIB_FILES)
 
 install:
 	$(mkinstalldirs)  $(includedir)/sundials
-	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_direct.h     $(includedir)/sundials/
-	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_band.h       $(includedir)/sundials/
-	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_dense.h      $(includedir)/sundials/
-	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_iterative.h  $(includedir)/sundials/
-	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_pcg.h        $(includedir)/sundials/
-	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_spfgmr.h     $(includedir)/sundials/
-	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_spgmr.h      $(includedir)/sundials/
-	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_spbcgs.h     $(includedir)/sundials/
-	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_sptfqmr.h    $(includedir)/sundials/
-	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_math.h       $(includedir)/sundials/
-	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_types.h      $(includedir)/sundials/
-	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_nvector.h    $(includedir)/sundials/
-	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_fnvector.h   $(includedir)/sundials/
-	$(INSTALL_HEADER) $(top_builddir)/include/sundials/sundials_config.h   $(includedir)/sundials/
+	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_direct.h        $(includedir)/sundials/
+	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_band.h          $(includedir)/sundials/
+	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_dense.h         $(includedir)/sundials/
+	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_iterative.h     $(includedir)/sundials/
+	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_pcg.h           $(includedir)/sundials/
+	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_spfgmr.h        $(includedir)/sundials/
+	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_spgmr.h         $(includedir)/sundials/
+	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_spbcgs.h        $(includedir)/sundials/
+	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_sptfqmr.h       $(includedir)/sundials/
+	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_math.h          $(includedir)/sundials/
+	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_types.h         $(includedir)/sundials/
+	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_linearsolver.h  $(includedir)/sundials/
+	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_matrix.h        $(includedir)/sundials/
+	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_nvector.h       $(includedir)/sundials/
+	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_fnvector.h      $(includedir)/sundials/
+	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_version.h       $(includedir)/sundials/
+	$(INSTALL_HEADER) $(top_builddir)/include/sundials/sundials_config.h      $(includedir)/sundials/
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
 	  $(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_lapack.h     $(includedir)/sundials/ ; \
 	fi
@@ -102,8 +102,11 @@ uninstall:
 	rm -f $(includedir)/sundials/sundials_sptfqmr.h
 	rm -f $(includedir)/sundials/sundials_math.h
 	rm -f $(includedir)/sundials/sundials_types.h
+	rm -f $(includedir)/sundials/sundials_linearsolver.h
+	rm -f $(includedir)/sundials/sundials_matrix.h
 	rm -f $(includedir)/sundials/sundials_nvector.h
 	rm -f $(includedir)/sundials/sundials_fnvector.h
+	rm -f $(includedir)/sundials/sundials_version.h
 	rm -f $(includedir)/sundials/sundials_config.h
 	$(rminstalldirs) $(includedir)/sundials
 
@@ -138,6 +141,13 @@ sundials_math.lo: $(srcdir)/sundials_math.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/sundials_math.c
 sundials_nvector.lo: $(srcdir)/sundials_nvector.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/sundials_nvector.c
+sundials_linearsolver.lo: $(srcdir)/sundials_linearsolver.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/sundials_linearsolver.c
+sundials_matrix.lo: $(srcdir)/sundials_matrix.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/sundials_matrix.c
+sundials_version.lo: $(srcdir)/sundials_version.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/sundials_version.c
+
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \

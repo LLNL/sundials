@@ -6,7 +6,7 @@ idaHeat2D_bnd: Heat equation, serial example problem for IDA
 
 Tolerance parameters:  rtol = 0   atol = 0.001
 Constraints set to force all solution components >= 0. 
-Linear solver: IDABAND, banded direct solver 
+Linear solver: BAND, banded direct solver 
        difference quotient Jacobian, half-bandwidths = 10 
 IDACalcIC called with input boundary values = 0.1 
 

@@ -19,7 +19,7 @@
 # For details, see the LICENSE file.
 # -----------------------------------------------------------------
 # CMakeLists.txt file for ARKODE parallel C examples
-
+# -----------------------------------------------------------------
 
 # Add variable ARKODE_examples with the names of the parallel ARKODE examples
 # "name\;nodes\;tasks"
@@ -36,56 +36,59 @@ SET(ARKODE_extras
 # Check whether we use MPI compiler scripts.
 # If yes, then change the C compiler to the MPICC script.
 # If not, then add the MPI include directory for MPI headers.
+
 IF(MPI_MPICC)
   # use MPI_MPICC as the compiler
   SET(CMAKE_C_COMPILER ${MPI_MPICC})
-ELSE(MPI_MPICC)
+ELSE()
   # add MPI_INCLUDE_PATH to include directories
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-ENDIF(MPI_MPICC)
+ENDIF()
 
-# Specify libraries to link against (through the target that was used to 
+# Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(ARKODE_LIB sundials_arkode_static)
   SET(NVECP_LIB sundials_nvecparallel_static)
-ELSE(LINK_LIBRARY_TYPE MATCHES "static")
+ELSE()
   SET(ARKODE_LIB sundials_arkode_shared)
   SET(NVECP_LIB sundials_nvecparallel_shared)
-ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
+ENDIF()
 
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
-IF(LAPACK_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
-ENDIF(LAPACK_FOUND)
-
-IF(KLU_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
-ENDIF(KLU_FOUND)
-
-IF(SUPERLUMT_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${SUPERLUMT_LIBRARIES})
-ENDIF(SUPERLUMT_FOUND)
 
 # Add the build and install targets for each ARKODE example
 FOREACH(example_tuple ${ARKODE_examples})
+
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 number_of_nodes)
   list(GET example_tuple 2 number_of_tasks)
-  # first item is example
+
+  # example source files
   ADD_EXECUTABLE(${example} ${example}.c)
+
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+
+  # add to regression tests
   SUNDIALS_ADD_TEST(${example} ${example} MPI_NPROCS ${number_of_tasks})
+  
+  # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+
   IF(NOT MPI_MPICC)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
-  ENDIF(NOT MPI_MPICC)
+  ENDIF()
+
+  # install example source and out files
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_parallel)
-  ENDIF(EXAMPLES_INSTALL)
+    INSTALL(FILES ${example}.c ${example}.out
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_parallel)
+  ENDIF()
+
 ENDFOREACH(example_tuple ${ARKODE_examples})
 
+# create Makfile and CMakeLists.txt for examples
 IF(EXAMPLES_INSTALL)
 
   # Install the README file
@@ -99,14 +102,15 @@ IF(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER "ARKODE")
   SET(SOLVER_LIB "sundials_arkode")
+
   FOREACH(example_tuple ${ARKODE_examples})
   	list(GET example_tuple 0 example)
   	LIST2STRING(example EXAMPLES)
   ENDFOREACH(example_tuple ${ARKODE_examples})
 
 
-  # Regardless of the platform we're on, we will generate and install 
-  # CMakeLists.txt file for building the examples. This file  can then 
+  # Regardless of the platform we're on, we will generate and install
+  # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
@@ -119,11 +123,11 @@ IF(EXAMPLES_INSTALL)
   # install CMakelists.txt
   INSTALL(
     FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_parallel/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_parallel 
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_parallel
     )
 
-  # On UNIX-type platforms, we also  generate and install a makefile for 
-  # building the examples. This makefile can then be used as a template 
+  # On UNIX-type platforms, we also  generate and install a makefile for
+  # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
   IF(UNIX)

@@ -29,11 +29,6 @@
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 
-#define lrw (cv_mem->cv_lrw)
-#define liw (cv_mem->cv_liw)
-#define lrw1 (cv_mem->cv_lrw1)
-#define liw1 (cv_mem->cv_liw1)
-
 /* 
  * =================================================================
  * CVODE optional input functions
@@ -377,7 +372,7 @@ int CVodeSetStopTime(void *cvode_mem, realtype tstop)
   }
 
   cv_mem->cv_tstop = tstop;
-  cv_mem->cv_tstopset = TRUE;
+  cv_mem->cv_tstopset = SUNTRUE;
 
   return(CV_SUCCESS);
 }
@@ -534,33 +529,6 @@ int CVodeSetNoInactiveRootWarn(void *cvode_mem)
  * =================================================================
  */
 
-/* 
- * Readability constants
- */
-
-#define nst            (cv_mem->cv_nst)
-#define nfe            (cv_mem->cv_nfe)
-#define ncfn           (cv_mem->cv_ncfn)
-#define netf           (cv_mem->cv_netf)
-#define nni            (cv_mem->cv_nni)
-#define nsetups        (cv_mem->cv_nsetups)
-#define qu             (cv_mem->cv_qu)
-#define next_q         (cv_mem->cv_next_q)
-#define ewt            (cv_mem->cv_ewt)  
-#define hu             (cv_mem->cv_hu)
-#define next_h         (cv_mem->cv_next_h)
-#define h0u            (cv_mem->cv_h0u)
-#define tolsf          (cv_mem->cv_tolsf)  
-#define acor           (cv_mem->cv_acor)
-#define lrw            (cv_mem->cv_lrw)
-#define liw            (cv_mem->cv_liw)
-#define nge            (cv_mem->cv_nge)
-#define iroots         (cv_mem->cv_iroots)
-#define nor            (cv_mem->cv_nor)
-#define sldeton        (cv_mem->cv_sldeton)
-#define tn             (cv_mem->cv_tn)
-#define efun           (cv_mem->cv_efun)
-
 /*
  * CVodeGetNumSteps
  *
@@ -578,7 +546,7 @@ int CVodeGetNumSteps(void *cvode_mem, long int *nsteps)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nsteps = nst;
+  *nsteps = cv_mem->cv_nst;
 
   return(CV_SUCCESS);
 }
@@ -600,7 +568,7 @@ int CVodeGetNumRhsEvals(void *cvode_mem, long int *nfevals)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nfevals = nfe;
+  *nfevals = cv_mem->cv_nfe;
 
   return(CV_SUCCESS);
 }
@@ -622,7 +590,7 @@ int CVodeGetNumLinSolvSetups(void *cvode_mem, long int *nlinsetups)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nlinsetups = nsetups;
+  *nlinsetups = cv_mem->cv_nsetups;
 
   return(CV_SUCCESS);
 }
@@ -644,7 +612,7 @@ int CVodeGetNumErrTestFails(void *cvode_mem, long int *netfails)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *netfails = netf;
+  *netfails = cv_mem->cv_netf;
 
   return(CV_SUCCESS);
 }
@@ -666,7 +634,7 @@ int CVodeGetLastOrder(void *cvode_mem, int *qlast)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *qlast = qu;
+  *qlast = cv_mem->cv_qu;
 
   return(CV_SUCCESS);
 }
@@ -688,7 +656,7 @@ int CVodeGetCurrentOrder(void *cvode_mem, int *qcur)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *qcur = next_q;
+  *qcur = cv_mem->cv_next_q;
 
   return(CV_SUCCESS);
 }
@@ -711,10 +679,10 @@ int CVodeGetNumStabLimOrderReds(void *cvode_mem, long int *nslred)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (sldeton==FALSE)
+  if (cv_mem->cv_sldeton==SUNFALSE)
     *nslred = 0;
   else
-    *nslred = nor;
+    *nslred = cv_mem->cv_nor;
 
   return(CV_SUCCESS);
 }
@@ -736,7 +704,7 @@ int CVodeGetActualInitStep(void *cvode_mem, realtype *hinused)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *hinused = h0u;
+  *hinused = cv_mem->cv_h0u;
 
   return(CV_SUCCESS);
 }
@@ -758,7 +726,7 @@ int CVodeGetLastStep(void *cvode_mem, realtype *hlast)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *hlast = hu;
+  *hlast = cv_mem->cv_hu;
 
   return(CV_SUCCESS);
 }
@@ -780,7 +748,7 @@ int CVodeGetCurrentStep(void *cvode_mem, realtype *hcur)
 
   cv_mem = (CVodeMem) cvode_mem;
   
-  *hcur = next_h;
+  *hcur = cv_mem->cv_next_h;
 
   return(CV_SUCCESS);
 }
@@ -802,7 +770,7 @@ int CVodeGetCurrentTime(void *cvode_mem, realtype *tcur)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *tcur = tn;
+  *tcur = cv_mem->cv_tn;
 
   return(CV_SUCCESS);
 }
@@ -824,7 +792,7 @@ int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfact)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *tolsfact = tolsf;
+  *tolsfact = cv_mem->cv_tolsf;
 
   return(CV_SUCCESS);
 }
@@ -846,7 +814,7 @@ int CVodeGetErrWeights(void *cvode_mem, N_Vector eweight)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  N_VScale(ONE, ewt, eweight);
+  N_VScale(ONE, cv_mem->cv_ewt, eweight);
 
   return(CV_SUCCESS);
 }
@@ -868,7 +836,7 @@ int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  N_VScale(ONE, acor, ele);
+  N_VScale(ONE, cv_mem->cv_acor, ele);
 
   return(CV_SUCCESS);
 }
@@ -890,8 +858,8 @@ int CVodeGetWorkSpace(void *cvode_mem, long int *lenrw, long int *leniw)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *leniw = liw;
-  *lenrw = lrw;
+  *leniw = cv_mem->cv_liw;
+  *lenrw = cv_mem->cv_lrw;
 
   return(CV_SUCCESS);
 }
@@ -916,16 +884,16 @@ int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps, long int *nfevals
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nsteps = nst;
-  *nfevals = nfe;
-  *nlinsetups = nsetups;
-  *netfails = netf;
-  *qlast = qu;
-  *qcur = next_q;
-  *hinused = h0u;
-  *hlast = hu;
-  *hcur = next_h;
-  *tcur = tn;
+  *nsteps = cv_mem->cv_nst;
+  *nfevals = cv_mem->cv_nfe;
+  *nlinsetups = cv_mem->cv_nsetups;
+  *netfails = cv_mem->cv_netf;
+  *qlast = cv_mem->cv_qu;
+  *qcur = cv_mem->cv_next_q;
+  *hinused = cv_mem->cv_h0u;
+  *hlast = cv_mem->cv_hu;
+  *hcur = cv_mem->cv_next_h;
+  *tcur = cv_mem->cv_tn;
 
   return(CV_SUCCESS);
 }
@@ -947,7 +915,7 @@ int CVodeGetNumGEvals(void *cvode_mem, long int *ngevals)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *ngevals = nge;
+  *ngevals = cv_mem->cv_nge;
 
   return(CV_SUCCESS);
 }
@@ -972,7 +940,7 @@ int CVodeGetRootInfo(void *cvode_mem, int *rootsfound)
 
   nrt = cv_mem->cv_nrtfn;
 
-  for (i=0; i<nrt; i++) rootsfound[i] = iroots[i];
+  for (i=0; i<nrt; i++) rootsfound[i] = cv_mem->cv_iroots[i];
 
   return(CV_SUCCESS);
 }
@@ -995,7 +963,7 @@ int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nniters = nni;
+  *nniters = cv_mem->cv_nni;
 
   return(CV_SUCCESS);
 }
@@ -1018,7 +986,7 @@ int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nncfails = ncfn;
+  *nncfails = cv_mem->cv_ncfn;
 
   return(CV_SUCCESS);
 }
@@ -1041,8 +1009,8 @@ int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nniters = nni;
-  *nncfails = ncfn;
+  *nniters = cv_mem->cv_nni;
+  *nncfails = cv_mem->cv_ncfn;
 
   return(CV_SUCCESS);
 }

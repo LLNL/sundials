@@ -68,6 +68,8 @@ typedef enum {
   SUNDIALS_NVEC_PTHREADS, 
   SUNDIALS_NVEC_PARHYP, 
   SUNDIALS_NVEC_PETSC,
+  SUNDIALS_NVEC_CUDA,
+  SUNDIALS_NVEC_RAJA,
   SUNDIALS_NVEC_CUSTOM
 } N_Vector_ID;
   
@@ -92,7 +94,7 @@ struct _generic_N_Vector_Ops {
   N_Vector    (*nvclone)(N_Vector);
   N_Vector    (*nvcloneempty)(N_Vector);
   void        (*nvdestroy)(N_Vector);
-  void        (*nvspace)(N_Vector, long int *, long int *);
+  void        (*nvspace)(N_Vector, sunindextype *, sunindextype *);
   realtype*   (*nvgetarraypointer)(N_Vector);
   void        (*nvsetarraypointer)(realtype *, N_Vector);
   void        (*nvlinearsum)(realtype, N_Vector, realtype, N_Vector, N_Vector); 
@@ -155,7 +157,7 @@ struct _generic_N_Vector {
  *
  * N_VSpace
  *   Returns space requirements for one N_Vector (type 'realtype' in
- *   lrw and type 'long int' in liw).
+ *   lrw and type 'sunindextype' in liw).
  *
  * N_VGetArrayPointer
  *   Returns a pointer to the data component of the given N_Vector.
@@ -240,8 +242,8 @@ struct _generic_N_Vector {
  * N_VInvTest
  *   Performs the operation z[i] = 1/x[i] with a test for 
  *   x[i] == 0.0 before inverting x[i].
- *   This routine returns TRUE if all components of x are non-zero 
- *   (successful inversion) and returns FALSE otherwise.
+ *   This routine returns SUNTRUE if all components of x are non-zero 
+ *   (successful inversion) and returns SUNFALSE otherwise.
  *
  * N_VConstrMask
  *   Performs the operation : 
@@ -252,8 +254,8 @@ struct _generic_N_Vector {
  *      If c[i] = +1.0, then x[i] must be >= 0.0.
  *      If c[i] = -1.0, then x[i] must be <= 0.0.
  *      If c[i] = -2.0, then x[i] must be <  0.0.
- *   This routine returns a boolean FALSE if any element failed
- *   the constraint test, TRUE if all passed. It also sets a
+ *   This routine returns a boolean SUNFALSE if any element failed
+ *   the constraint test, SUNTRUE if all passed. It also sets a
  *   mask vector m, with elements equal to 1.0 where the
  *   corresponding constraint test failed, and equal to 0.0
  *   where the constraint test passed.
@@ -346,7 +348,7 @@ SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace(N_Vector v, long int *lrw, long int *liw);
+SUNDIALS_EXPORT void N_VSpace(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);

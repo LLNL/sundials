@@ -1,7 +1,4 @@
 /*-----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds, Jean Sexton @ SMU
  *                Slaven Peles @ LLNL
  *---------------------------------------------------------------
@@ -45,7 +42,7 @@
  * neq = 2*MX*MY.
  *
  * The solution is done with the DIRK/GMRES method (i.e. using the
- * ARKSPGMR linear solver) and the block-diagonal part of the
+ * SUNSPGMR linear solver) and the block-diagonal part of the
  * Newton matrix as a left preconditioner. A copy of the
  * block-diagonal part of the Jacobian is saved and conditionally
  * reused within the preconditioner routine.
@@ -57,16 +54,17 @@
  * This example uses Hypre vector and MPI parallelization. User is 
  * expected to be familiar with the Hypre library. 
  * 
- * Execution: mpiexec -n N ark_diurnal_kry_p   with N = NPEX*NPEY
+ * Execution: mpiexec -n N ark_diurnal_kry_ph  with N = NPEX*NPEY
  * (see constants below).
  *---------------------------------------------------------------*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <arkode/arkode.h>             /* prototypes for ARKODE fcts. */
-#include <arkode/arkode_spgmr.h>       /* prototypes & constants for ARKSPGMR  */
 #include <nvector/nvector_parhyp.h>    /* declaration of N_Vector  */
+#include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver  */
 #include <sundials/sundials_dense.h>   /* prototypes for small dense fcts. */
+#include <arkode/arkode_spils.h>         /* access to ARKSpils interface     */
 #include <sundials/sundials_types.h>   /* definitions of realtype, booleantype */
 #include <sundials/sundials_math.h>    /* definition of macros SUNSQR and EXP */
 #include <mpi.h>                       /* MPI constants and types */
@@ -140,29 +138,30 @@ typedef struct {
 
   /* For preconditioner */
   realtype **P[MXSUB][MYSUB], **Jbd[MXSUB][MYSUB];
-  long int *pivot[MXSUB][MYSUB];
+  sunindextype *pivot[MXSUB][MYSUB];
 
 } *UserData;
 
 /* Private Helper Functions */
 static void InitUserData(int my_pe, MPI_Comm comm, UserData data);
 static void FreeUserData(UserData data);
-static void SetInitialProfiles(HYPRE_IJVector Uij, UserData data, long int local_length, 
-                               long int my_base);
+static void SetInitialProfiles(HYPRE_IJVector Uij, UserData data,
+                               sunindextype local_length, 
+                               sunindextype my_base);
 static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t);
 static void PrintFinalStats(void *arkode_mem);
 static void BSend(MPI_Comm comm, 
                   int my_pe, int isubx, int isuby, 
-                  long int dsizex, long int dsizey,
+                  sunindextype dsizex, sunindextype dsizey,
                   realtype udata[]);
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-                      long int dsizex, long int dsizey,
+                      sunindextype dsizex, sunindextype dsizey,
                       realtype uext[], realtype buffer[]);
 static void BRecvWait(MPI_Request request[], 
                       int isubx, int isuby, 
-                      long int dsizex, realtype uext[],
+                      sunindextype dsizex, realtype uext[],
                       realtype buffer[]);
 static void ucomm(realtype t, N_Vector u, UserData data);
 static void fcalc(realtype t, realtype udata[], realtype dudata[],
@@ -173,12 +172,11 @@ static void fcalc(realtype t, realtype udata[], realtype dudata[],
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *user_data, 
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+                   realtype gamma, void *user_data);
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
                   N_Vector r, N_Vector z, 
                   realtype gamma, realtype delta,
-                  int lr, void *user_data, N_Vector vtemp);
+                  int lr, void *user_data);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
@@ -190,20 +188,19 @@ int main(int argc, char *argv[])
   realtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
+  SUNLinearSolver LS;
   void *arkode_mem;
-  int iout, flag;
+  int iout, flag, my_pe, npes;
   MPI_Comm comm;
   
-  HYPRE_Int local_N, npes, my_pe;
+  HYPRE_Int local_N;
   HYPRE_ParVector Upar; /* Declare HYPRE parallel vector */
   HYPRE_IJVector  Uij;  /* Declare "IJ" interface to HYPRE vector */
 
   u = NULL;
   data = NULL;
+  LS = NULL;
   arkode_mem = NULL;
-
-  /* Set problem size neq */
-  /* neq = NVARS*MX*MY;   */
 
   /* Get processor number and total number of pe's */
   MPI_Init(&argc, &argv);
@@ -243,6 +240,11 @@ int main(int argc, char *argv[])
   /* Set tolerances */
   abstol = ATOL; reltol = RTOL;
 
+  /* Create SPGMR solver structure -- use left preconditioning 
+     and the default Krylov dimension maxl */
+  LS = SUNSPGMR(u, PREC_LEFT, 0);
+  if (check_flag((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  
   /* Call ARKodeCreate to create the solver memory */
   arkode_mem = ARKodeCreate();
   if (check_flag((void *)arkode_mem, "ARKodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
@@ -266,10 +268,9 @@ int main(int argc, char *argv[])
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
   if (check_flag(&flag, "ARKodeSStolerances", 1, my_pe)) return(1);
 
-  /* Call ARKSpgmr to specify the linear solver ARKSPGMR 
-     with left preconditioning and the default Krylov dimension maxl */
-  flag = ARKSpgmr(arkode_mem, PREC_LEFT, 0);
-  if (check_flag(&flag, "ARKSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
+  /* Attach SPGMR solver structure to ARKSpils interface */
+  flag = ARKSpilsSetLinearSolver(arkode_mem, LS);
+  if (check_flag(&flag, "ARKSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Set preconditioner setup and solve routines Precond and PSolve, 
      and the pointer to the user-defined block data */
@@ -294,6 +295,7 @@ int main(int argc, char *argv[])
   HYPRE_IJVectorDestroy(Uij); /* Free the underlying hypre vector */
   FreeUserData(data);
   ARKodeFree(&arkode_mem);
+  SUNLinSolFree(LS);
   MPI_Finalize();
   return(0);
 }
@@ -333,7 +335,7 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
     for (ly = 0; ly < MYSUB; ly++) {
       (data->P)[lx][ly] = newDenseMat(NVARS, NVARS);
       (data->Jbd)[lx][ly] = newDenseMat(NVARS, NVARS);
-      (data->pivot)[lx][ly] = newLintArray(NVARS);
+      (data->pivot)[lx][ly] = newIndexArray(NVARS);
     }
   }
 }
@@ -353,11 +355,12 @@ static void FreeUserData(UserData data)
 }
 
 /* Set initial conditions in u */
-static void SetInitialProfiles(HYPRE_IJVector Uij, UserData data, long int local_length, 
-                               long int my_base)
+static void SetInitialProfiles(HYPRE_IJVector Uij, UserData data,
+                               sunindextype local_length, 
+                               sunindextype my_base)
 {
   int isubx, isuby, lx, ly, jx, jy;
-  long int offset;
+  sunindextype offset;
   realtype dx, dy, x, y, cx, cy, xmid, ymid;
   realtype *udata;
   HYPRE_Int *iglobal;
@@ -405,7 +408,8 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
   int flag;
   realtype hu, *udata, tempu[2];
   int npelast;
-  long int i0, i1, nst;
+  sunindextype i0, i1;
+  long int nst;
   MPI_Status status;
   HYPRE_ParVector uhyp;
   
@@ -506,11 +510,11 @@ static void PrintFinalStats(void *arkode_mem)
 /* Routine to send boundary data to neighboring PEs */
 static void BSend(MPI_Comm comm, 
                   int my_pe, int isubx, int isuby, 
-                  long int dsizex, long int dsizey,
+                  sunindextype dsizex, sunindextype dsizey,
                   realtype udata[])
 {
   int i, ly;
-  long int offsetu, offsetbuf;
+  sunindextype offsetu, offsetbuf;
   realtype bufleft[NVARS*MYSUB], bufright[NVARS*MYSUB];
 
   /* If isuby > 0, send data from bottom x-line of u */
@@ -555,10 +559,10 @@ static void BSend(MPI_Comm comm,
 
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-                      long int dsizex, long int dsizey,
+                      sunindextype dsizex, sunindextype dsizey,
                       realtype uext[], realtype buffer[])
 {
-  long int offsetue;
+  sunindextype offsetue;
   /* Have bufleft and bufright use the same buffer */
   realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
 
@@ -596,11 +600,11 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[],
 
 static void BRecvWait(MPI_Request request[], 
                       int isubx, int isuby, 
-                      long int dsizex, realtype uext[],
+                      sunindextype dsizex, realtype uext[],
                       realtype buffer[])
 {
   int i, ly;
-  long int dsizex2, offsetue, offsetbuf;
+  sunindextype dsizex2, offsetue, offsetbuf;
   realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
   MPI_Status status;
 
@@ -651,7 +655,7 @@ static void ucomm(realtype t, N_Vector u, UserData data)
   realtype *udata, *uext, buffer[2*NVARS*MYSUB];
   MPI_Comm comm;
   int my_pe, isubx, isuby;
-  long int nvmxsub, nvmysub;
+  sunindextype nvmxsub, nvmysub;
   MPI_Request request[4];
   HYPRE_ParVector uhyp;
   
@@ -690,7 +694,7 @@ static void fcalc(realtype t, realtype udata[],
   realtype q4coef, dely, verdco, hordco, horaco;
   int i, lx, ly, jy;
   int isubx, isuby;
-  long int nvmxsub, nvmxsub2, offsetu, offsetue;
+  sunindextype nvmxsub, nvmxsub2, offsetu, offsetue;
 
   /* Get subgrid indices, data sizes, extended work array uext */
   isubx = data->isubx;   isuby = data->isuby;
@@ -843,13 +847,12 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *user_data, 
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+                   realtype gamma, void *user_data)
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
   int nvmxsub, ier, offset;
-  long int *(*pivot)[MYSUB];
+  sunindextype *(*pivot)[MYSUB];
   int lx, ly, jy, isuby;
   realtype *udata, **a, **j;
   HYPRE_ParVector uhyp;
@@ -869,18 +872,18 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 
   if (jok) {
 
-    /* jok = TRUE: Copy Jbd to P */
+    /* jok = SUNTRUE: Copy Jbd to P */
     for (ly = 0; ly < MYSUB; ly++)
       for (lx = 0; lx < MXSUB; lx++)
         denseCopy(Jbd[lx][ly], P[lx][ly], NVARS, NVARS);
 
-  *jcurPtr = FALSE;
+  *jcurPtr = SUNFALSE;
 
   }
 
   else {
 
-    /* jok = FALSE: Generate Jbd from scratch and copy to P */
+    /* jok = SUNFALSE: Generate Jbd from scratch and copy to P */
 
     /* Make local copies of problem variables, for efficiency */
     q4coef = data->q4;
@@ -911,7 +914,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
       }
     }
 
-    *jcurPtr = TRUE;
+    *jcurPtr = SUNTRUE;
 
   }
 
@@ -938,11 +941,11 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
                   N_Vector r, N_Vector z, 
                   realtype gamma, realtype delta,
-                  int lr, void *user_data, N_Vector vtemp)
+                  int lr, void *user_data)
 {
   realtype **(*P)[MYSUB];
   int nvmxsub;
-  long int *(*pivot)[MYSUB];
+  sunindextype *(*pivot)[MYSUB];
   int lx, ly;
   realtype *zdata, *v;
   HYPRE_ParVector zhyp;

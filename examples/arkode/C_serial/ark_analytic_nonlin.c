@@ -60,7 +60,7 @@ int main()
   realtype T0 = RCONST(0.0);     /* initial time */
   realtype Tf = RCONST(10.0);    /* final time */
   realtype dTout = RCONST(1.0);  /* time between outputs */
-  long int NEQ = 1;              /* number of dependent vars. */
+  sunindextype NEQ = 1;          /* number of dependent vars. */
   realtype reltol = 1.0e-6;      /* tolerances */
   realtype abstol = 1.0e-10;
 
@@ -141,7 +141,7 @@ int main()
   printf("   Total number of error test failures = %li\n\n", netf);
 
   /* Clean up and return with successful completion */
-  N_VDestroy_Serial(y);        /* Free y vector */
+  N_VDestroy(y);               /* Free y vector */
   ARKodeFree(&arkode_mem);     /* Free integrator memory */
   return 0;
 }

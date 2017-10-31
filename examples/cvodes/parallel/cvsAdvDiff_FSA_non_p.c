@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *                and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -96,7 +93,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 static void ProcessArgs(int argc, char *argv[], int my_pe,
                         booleantype *sensi, int *sensi_meth, booleantype *err_con);
 static void WrongArgs(int my_pe, char *name);
-static void SetIC(N_Vector u, realtype dx, long int my_length, long int my_base);
+static void SetIC(N_Vector u, realtype dx, sunindextype my_length, sunindextype my_base);
 static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u);
 static void PrintOutputS(int my_pe, N_Vector *uS);
 static void PrintFinalStats(void *cvode_mem, booleantype sensi); 
@@ -115,7 +112,7 @@ int main(int argc, char *argv[])
   UserData data;
   void *cvode_mem;
   int iout, flag, my_pe, npes;
-  long int local_N, nperpe, nrem, my_base;
+  sunindextype local_N, nperpe, nrem, my_base;
 
   realtype *pbar;
   int is, *plist;
@@ -371,16 +368,16 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 static void ProcessArgs(int argc, char *argv[], int my_pe,
                         booleantype *sensi, int *sensi_meth, booleantype *err_con)
 {
-  *sensi = FALSE;
+  *sensi = SUNFALSE;
   *sensi_meth = -1;
-  *err_con = FALSE;
+  *err_con = SUNFALSE;
 
   if (argc < 2) WrongArgs(my_pe, argv[0]);
 
   if (strcmp(argv[1],"-nosensi") == 0)
-    *sensi = FALSE;
+    *sensi = SUNFALSE;
   else if (strcmp(argv[1],"-sensi") == 0)
-    *sensi = TRUE;
+    *sensi = SUNTRUE;
   else
     WrongArgs(my_pe, argv[0]);
   
@@ -399,9 +396,9 @@ static void ProcessArgs(int argc, char *argv[], int my_pe,
       WrongArgs(my_pe, argv[0]);
 
     if (strcmp(argv[3],"t") == 0)
-      *err_con = TRUE;
+      *err_con = SUNTRUE;
     else if (strcmp(argv[3],"f") == 0)
-      *err_con = FALSE;
+      *err_con = SUNFALSE;
     else
       WrongArgs(my_pe, argv[0]);
   }
@@ -423,11 +420,11 @@ static void WrongArgs(int my_pe, char *name)
  * Set initial conditions in u vector 
  */
 
-static void SetIC(N_Vector u, realtype dx, long int my_length, 
-                  long int my_base)
+static void SetIC(N_Vector u, realtype dx, sunindextype my_length, 
+                  sunindextype my_base)
 {
   int i;
-  long int iglobal;
+  sunindextype iglobal;
   realtype x;
   realtype *udata;
 

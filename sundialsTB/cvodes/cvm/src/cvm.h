@@ -67,11 +67,11 @@ enum {PM_NONE, PM_BANDPRE, PM_BBDPRE};
 typedef struct cvmPbData_ {
 
 
-  long int n;        /* problem dimension */
+  sunindextype n;        /* problem dimension */
   N_Vector Y;        /* solution vector */
 
   booleantype Quadr; /* integrate quadratures? */
-  long int nq;       /* number of quadratures */
+  sunindextype nq;       /* number of quadratures */
   N_Vector YQ;       /* quadratures vector */
 
   booleantype Fsa;   /* integrate sensitivities? */
@@ -174,11 +174,11 @@ int mxW_CVodeSensRhs(int Ns, realtype t,
                      N_Vector tmp1, N_Vector tmp2);
 
 
-int mxW_CVodeDenseJac(long int N, realtype t,
+int mxW_CVodeDenseJac(sunindextype N, realtype t,
                       N_Vector y, N_Vector fy, 
                       DlsMat J, void *user_data,
                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-int mxW_CVodeBandJac(long int N, long int mupper, long int mlower, realtype t,
+int mxW_CVodeBandJac(sunindextype N, sunindextype mupper, sunindextype mlower, realtype t,
                      N_Vector y, N_Vector fy, 
                      DlsMat J, void *user_data,
                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -196,8 +196,8 @@ int mxW_CVodeSpilsPsol(realtype t, N_Vector y, N_Vector fy,
                        int lr, void *user_data, N_Vector tmp);
 
   
-int mxW_CVodeBBDgloc(long int Nlocal, realtype t, N_Vector y, N_Vector g, void *user_data);
-int mxW_CVodeBBDgcom(long int Nlocal, realtype t, N_Vector y, void *user_data);
+int mxW_CVodeBBDgloc(sunindextype Nlocal, realtype t, N_Vector y, N_Vector g, void *user_data);
+int mxW_CVodeBBDgcom(sunindextype Nlocal, realtype t, N_Vector y, void *user_data);
 
 void mxW_CVodeMonitor(int call, double t, 
                       N_Vector y, N_Vector yQ, N_Vector *yS,
@@ -214,11 +214,11 @@ int mxW_CVodeQUADfctB(realtype t, N_Vector y,
 int mxW_CVodeQUADfctBS(realtype t, N_Vector y,  N_Vector *yS,
                        N_Vector yB, N_Vector yQBd, void *user_dataB);
 
-int mxW_CVodeDenseJacB(long int nB, realtype t,
+int mxW_CVodeDenseJacB(sunindextype nB, realtype t,
                        N_Vector y, N_Vector yB, N_Vector fyB,
                        DlsMat JB, void *user_dataB, 
                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
-int mxW_CVodeBandJacB(long int nB, long int mupperB, long int mlowerB, realtype t,
+int mxW_CVodeBandJacB(sunindextype nB, sunindextype mupperB, sunindextype mlowerB, realtype t,
                       N_Vector y, N_Vector yB, N_Vector fyB,
                       DlsMat JB, void *user_dataB, 
                       N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
@@ -238,10 +238,10 @@ int mxW_CVodeSpilsPsolB(realtype t, N_Vector y,
                         realtype gammaB, realtype deltaB,
                         int lrB, void *user_dataB, N_Vector tmpB);
   
-int mxW_CVodeBBDglocB(long int NlocalB, realtype t, N_Vector y, 
+int mxW_CVodeBBDglocB(sunindextype NlocalB, realtype t, N_Vector y, 
                       N_Vector yB, N_Vector gB, void *user_dataB);
 
-int mxW_CVodeBBDgcomB(long int NlocalB, realtype t, N_Vector y, 
+int mxW_CVodeBBDgcomB(sunindextype NlocalB, realtype t, N_Vector y, 
                       N_Vector yB, void *user_dataB);
 
 
@@ -257,18 +257,18 @@ void mxW_CVodeMonitorB(int call, int idxB, double tB,
 
 int get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd, int lmm,
                      int *maxord, booleantype *sld, booleantype *errmsg,
-                     long int *mxsteps,
+                     sunindextype *mxsteps,
                      int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
                      double *hin, double *hmax, double *hmin, 
                      double *tstop, booleantype *rhs_s);
 
 int get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
-                       long int *mupper, long int *mlower,
-                       long int *mudq, long int *mldq, double *dqrely,
+                       sunindextype *mupper, sunindextype *mlower,
+                       sunindextype *mudq, sunindextype *mldq, double *dqrely,
                        int *ptype, int *gstype, int *maxl);
 
 int get_QuadOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
-                    long int Nq, booleantype *rhs_s,
+                    sunindextype Nq, booleantype *rhs_s,
                     booleantype *errconQ,
                     int *itolQ, double *reltolQ, double *SabstolQ, double **VabstolQ);
 

@@ -1,9 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
- * Programmer(s): Radu Serban @ LLNL
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example problem for IDAS: FSA for 2D heat equation, parallel,
  * GMRES, IDABBDPRE.
@@ -11,7 +9,7 @@
  * This example solves a discretized 2D heat equation problem and
  * performs forward sensitivity analysis with respect to the 
  * diffusion coefficients. This version uses the Krylov solver
- * IDASpgmr and BBD preconditioning.
+ * SUNSPGMR and BBD preconditioning.
  *
  * The DAE system solved is a spatial discretization of the PDE
  *          du/dt = p1 * d^2u/dx^2 + p2 * d^2u/dy^2
@@ -28,7 +26,7 @@
  * processors.
  *
  * The system is solved with IDA using the Krylov linear solver
- * IDASPGMR in conjunction with the preconditioner module IDABBDPRE.
+ * SUNSPGMR in conjunction with the preconditioner module IDABBDPRE.
  * The preconditioner uses a tridiagonal approximation
  * (half-bandwidths = 1). The constraints u >= 0 are posed for all
  * components. Local error testing on the boundary values is
@@ -42,8 +40,9 @@
 #include <math.h>
 
 #include <idas/idas.h>
-#include <idas/idas_spgmr.h>
+#include <idas/idas_spils.h>
 #include <idas/idas_bbdpre.h>
+#include <sunlinsol/sunlinsol_spgmr.h>
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_math.h>
 
@@ -70,7 +69,7 @@
 typedef struct {  
   realtype p[2];
   int thispe, mx, my, ixsub, jysub, npex, npey, mxsub, mysub;
-  long int n_local;
+  sunindextype n_local;
   realtype dx, dy, coeffx, coeffy, coeffxy;
   realtype uext[(MXSUB+2)*(MYSUB+2)];
   MPI_Comm comm;
@@ -78,13 +77,11 @@ typedef struct {
 
 /* Prototypes of user-supplied and supporting functions */
 
-static int heatres(realtype tres, 
-                   N_Vector uu, N_Vector up, N_Vector res, 
-                   void *user_data);
-static int rescomm(long int Nlocal, realtype tt, 
-                   N_Vector uu, N_Vector up, 
-                   void *user_data);
-static int reslocal(long int Nlocal, realtype tres, 
+static int heatres(realtype tres, N_Vector uu, N_Vector up,
+                   N_Vector res, void *user_data);
+static int rescomm(sunindextype Nlocal, realtype tt, 
+                   N_Vector uu, N_Vector up, void *user_data);
+static int reslocal(sunindextype Nlocal, realtype tres, 
                     N_Vector uu, N_Vector up, N_Vector res,  
                     void *user_data);
 static int BSend(MPI_Comm comm, int thispe, int ixsub,
@@ -103,15 +100,16 @@ static int InitUserData(int thispe, MPI_Comm comm, UserData data);
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
                              N_Vector res, UserData data);
 
-static void PrintHeader(int Neq, realtype rtol, realtype atol,
-                        int mudq, int mukeep,
+static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol,
+                        sunindextype mudq, sunindextype mukeep,
                         booleantype sensi, int sensi_meth, int err_con);
-static void PrintOutput(int id, void *mem, realtype t, N_Vector uu, 
+static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu, 
                         booleantype sensi, N_Vector *uuS);
-static void PrintFinalStats(void *mem);
+static void PrintFinalStats(void *ida_mem);
 
 static void ProcessArgs(int argc, char *argv[], int my_pe,
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con);
+                        booleantype *sensi, int *sensi_meth,
+                        booleantype *err_con);
 static void WrongArgs(int my_pe, char *name);
 static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 
@@ -124,10 +122,11 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 int main(int argc, char *argv[])
 {
   MPI_Comm comm;
-  void *mem;
+  void *ida_mem;
+  SUNLinearSolver LS;
   UserData data;
   int thispe, iout, ier, npes;
-  long int Neq, local_N, mudq, mldq, mukeep, mlkeep;
+  sunindextype Neq, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
 
@@ -137,7 +136,8 @@ int main(int argc, char *argv[])
   booleantype sensi, err_con;
   int sensi_meth;
 
-  mem = NULL;
+  ida_mem = NULL;
+  LS = NULL;
   data = NULL;
   uu = up = constraints = id = res = NULL;
   uuS = upS = NULL;
@@ -209,34 +209,40 @@ int main(int argc, char *argv[])
      - exclude algebraic variables from error test
      - specify additional constraints on solution components */
 
-  mem = IDACreate();
-  if(check_flag((void *)mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
+  ida_mem = IDACreate();
+  if(check_flag((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetUserData(mem, data);
+  ier = IDASetUserData(ida_mem, data);
   if(check_flag(&ier, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetSuppressAlg(mem, TRUE);
+  ier = IDASetSuppressAlg(ida_mem, SUNTRUE);
   if(check_flag(&ier, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetId(mem, id);
+  ier = IDASetId(ida_mem, id);
   if(check_flag(&ier, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetConstraints(mem, constraints);
+  ier = IDASetConstraints(ida_mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
   N_VDestroy_Parallel(constraints);
 
-  ier = IDAInit(mem, heatres, t0, uu, up);
+  ier = IDAInit(ida_mem, heatres, t0, uu, up);
   if(check_flag(&ier, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Specify state tolerances (scalar relative and absolute tolerances) */
 
-  ier = IDASStolerances(mem, rtol, atol);
+  ier = IDASStolerances(ida_mem, rtol, atol);
   if(check_flag(&ier, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
-  /* Call IDASpgmr to specify the linear solver. */
+  /* Call SUNSPGMR and IDASpilsSetLinearSolver to specify the linear solver. */
+  LS = SUNSPGMR(uu, PREC_LEFT, 0);  /* IDA recommends left-preconditioning only;
+                                       0 indicates to use default maxl value */
+  if(check_flag((void *)LS, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASpgmr(mem, 12);
-  if(check_flag(&ier, "IDASpgmr", 1, thispe)) MPI_Abort(comm, 1);
+  ier = SUNSPGMRSetMaxRestarts(LS, 5);  /* IDA recommends allowing up to 5 restarts */
+  if(check_flag(&ier, "SUNSPGMRSetMaxRestarts", 1, thispe)) MPI_Abort(comm, 1);
+
+  ier = IDASpilsSetLinearSolver(ida_mem, LS);
+  if(check_flag(&ier, "IDASpilsSetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
   
   /* Call IDABBDPrecInit to initialize BBD preconditioner. */
 
@@ -244,7 +250,7 @@ int main(int argc, char *argv[])
   mldq = MXSUB;
   mukeep = 1;
   mlkeep = 1;
-  ier = IDABBDPrecInit(mem, local_N, mudq, mldq, mukeep, mlkeep, 
+  ier = IDABBDPrecInit(ida_mem, local_N, mudq, mldq, mukeep, mlkeep, 
                        ZERO, reslocal, NULL);
   if(check_flag(&ier, "IDABBDPrecInit", 1, thispe)) MPI_Abort(comm, 1);
 
@@ -278,34 +284,34 @@ int main(int argc, char *argv[])
     /* Initialize FSA using the default internal sensitivity residual function
        (Note that this requires specifying the problem parameters -- see below) */
 
-    ier = IDASensInit(mem, NS, sensi_meth, NULL, uuS, upS);
+    ier = IDASensInit(ida_mem, NS, sensi_meth, NULL, uuS, upS);
     if(check_flag(&ier, "IDASensInit", 1, thispe)) MPI_Abort(comm, 1);
 
     /* Indicate the use of internally estimated tolerances for the sensitivity
        variables (based on the tolerances provided for the states and the 
        pbar values) */
 
-    ier = IDASensEEtolerances(mem);
+    ier = IDASensEEtolerances(ida_mem);
     if(check_flag(&ier, "IDASensEEtolerances", 1, thispe)) MPI_Abort(comm, 1);
 
     /* Specify whether the sensitivity variables are included in the error
        test or not */
 
-    ier = IDASetSensErrCon(mem, err_con);
+    ier = IDASetSensErrCon(ida_mem, err_con);
     if(check_flag(&ier, "IDASetSensErrCon", 1, thispe)) MPI_Abort(comm, 1);
 
     /* Specify the problem parameters and their order of magnitude
        (Note that we do not specify the index array plist and therefore
        IDAS will compute sensitivities w.r.t. the first NS parameters) */
 
-    ier = IDASetSensParams(mem, data->p, pbar, NULL);
+    ier = IDASetSensParams(ida_mem, data->p, pbar, NULL);
     if(check_flag(&ier, "IDASetSensParams", 1, thispe)) MPI_Abort(comm, 1);
 
     /* Compute consistent initial conditions (Note that this is required
        only if performing SA since uu and up already contain consistent 
        initial conditions for the states) */
   
-    ier = IDACalcIC(mem, IDA_YA_YDP_INIT, t1);
+    ier = IDACalcIC(ida_mem, IDA_YA_YDP_INIT, t1);
     if(check_flag(&ier, "IDACalcIC", 1, thispe)) MPI_Abort(comm, 1);
 
   }
@@ -318,24 +324,25 @@ int main(int argc, char *argv[])
   /* Loop over tout, call IDASolve, print output. */
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) { 
     
-    ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
+    ier = IDASolve(ida_mem, tout, &tret, uu, up, IDA_NORMAL);
     if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
 
     if (sensi) {
-      ier = IDAGetSens(mem, &tret, uuS);
+      ier = IDAGetSens(ida_mem, &tret, uuS);
       if(check_flag(&ier, "IDAGetSens", 1, thispe)) MPI_Abort(comm, 1);
     }
 
-    PrintOutput(thispe, mem, tret, uu, sensi, uuS);
+    PrintOutput(thispe, ida_mem, tret, uu, sensi, uuS);
     
   }
 
   /* Print final statistics */
 
-  if (thispe == 0) PrintFinalStats(mem);
+  if (thispe == 0) PrintFinalStats(ida_mem);
   
   /* Free Memory */
-  IDAFree(&mem);
+  IDAFree(&ida_mem);
+  SUNLinSolFree(LS);
   free(data);
   N_VDestroy_Parallel(id);
   N_VDestroy_Parallel(res);
@@ -374,7 +381,7 @@ static int heatres(realtype tres, N_Vector uu, N_Vector up,
 {
   int retval;
   UserData data;
-  long int Nlocal;
+  sunindextype Nlocal;
   
   data = (UserData) user_data;
   
@@ -395,7 +402,7 @@ static int heatres(realtype tres, N_Vector uu, N_Vector up,
  * communication of data in u needed to calculate G.                 
  */
 
-static int rescomm(long int Nlocal, realtype tt, 
+static int rescomm(sunindextype Nlocal, realtype tt, 
                    N_Vector uu, N_Vector up, void *user_data)
 {
   UserData data;
@@ -432,7 +439,7 @@ static int rescomm(long int Nlocal, realtype tt,
  *  has already been done, and that this data is in the work array uext.  
  */
 
-static int reslocal(long int Nlocal, realtype tres, 
+static int reslocal(sunindextype Nlocal, realtype tres, 
                     N_Vector uu, N_Vector up, N_Vector res,  
                     void *user_data)
 {
@@ -747,15 +754,15 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
  * and table heading
  */
 
-static void PrintHeader(int Neq, realtype rtol, realtype atol,
-                        int mudq, int mukeep,
+static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol,
+                        sunindextype mudq, sunindextype mukeep,
                         booleantype sensi, int sensi_meth, int err_con)
 {
     printf("\nidasHeat2D_FSA_kry_bbd_p: Heat equation, parallel example problem for IDA\n");
     printf("                     Discretized heat equation on 2D unit square.\n");
     printf("                     Zero boundary conditions, polynomial initial conditions.\n");
     printf("                     Mesh dimensions: %d x %d ; ", MX, MY);
-    printf("    Total system size: %d\n\n", Neq);
+    printf("    Total system size: %ld\n\n", (long int) Neq);
 
     printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
     printf("         Processor array: %d x %d\n", NPEX, NPEY);
@@ -767,12 +774,12 @@ static void PrintHeader(int Neq, realtype rtol, realtype atol,
     printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
     printf("Constraints set to force all solution components >= 0. \n");
-    printf("SUPPRESSALG = TRUE to suppress local error testing on");
+    printf("SUPPRESSALG = SUNTRUE to suppress local error testing on");
     printf(" all boundary components. \n");
-    printf("Linear solver: IDASPGMR.    ");
+    printf("Linear solver: SUNSPGMR.    ");
     printf("Preconditioner: IDABBDPRE - Banded-block-diagonal.\n"); 
-    printf("Difference quotient half-bandwidths = %d",mudq);
-    printf("Retained matrix half-bandwidths = %d \n\n",mukeep);
+    printf("Difference quotient half-bandwidths = %ld",(long int) mudq);
+    printf("Retained matrix half-bandwidths = %ld \n\n",(long int) mukeep);
 
     if (sensi) {
       printf("Sensitivity: YES ");
@@ -801,7 +808,7 @@ static void PrintHeader(int Neq, realtype rtol, realtype atol,
 /*
  * Print integrator statistics and max-norm of solution
  */
-static void PrintOutput(int id, void *mem, realtype t, N_Vector uu, 
+static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu, 
                         booleantype sensi, N_Vector *uuS)
 {
   realtype umax, hused;
@@ -812,25 +819,25 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu,
 
   if (id == 0) {
 
-    ier = IDAGetLastOrder(mem, &kused);
+    ier = IDAGetLastOrder(ida_mem, &kused);
     check_flag(&ier, "IDAGetLastOrder", 1, id);
-    ier = IDAGetNumSteps(mem, &nst);
+    ier = IDAGetNumSteps(ida_mem, &nst);
     check_flag(&ier, "IDAGetNumSteps", 1, id);
-    ier = IDAGetNumNonlinSolvIters(mem, &nni);
+    ier = IDAGetNumNonlinSolvIters(ida_mem, &nni);
     check_flag(&ier, "IDAGetNumNonlinSolvIters", 1, id);
-    ier = IDAGetNumResEvals(mem, &nre);
+    ier = IDAGetNumResEvals(ida_mem, &nre);
     check_flag(&ier, "IDAGetNumResEvals", 1, id);
-    ier = IDAGetLastStep(mem, &hused);
+    ier = IDAGetLastStep(ida_mem, &hused);
     check_flag(&ier, "IDAGetLastStep", 1, id);
-    ier = IDASpilsGetNumLinIters(mem, &nli);
+    ier = IDASpilsGetNumLinIters(ida_mem, &nli);
     check_flag(&ier, "IDASpilsGetNumLinIters", 1, id);
-    ier = IDASpilsGetNumResEvals(mem, &nreLS);
+    ier = IDASpilsGetNumResEvals(ida_mem, &nreLS);
     check_flag(&ier, "IDASpilsGetNumResEvals", 1, id);
-    ier = IDABBDPrecGetNumGfnEvals(mem, &nge);
+    ier = IDABBDPrecGetNumGfnEvals(ida_mem, &nge);
     check_flag(&ier, "IDABBDPrecGetNumGfnEvals", 1, id);
-    ier = IDASpilsGetNumPrecEvals(mem, &npe);
+    ier = IDASpilsGetNumPrecEvals(ida_mem, &npe);
     check_flag(&ier, "IDASpilsGetPrecEvals", 1, id);
-    ier = IDASpilsGetNumPrecSolves(mem, &nps);
+    ier = IDASpilsGetNumPrecSolves(ida_mem, &nps);
     check_flag(&ier, "IDASpilsGetNumPrecSolves", 1, id);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -868,13 +875,13 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu,
  * Print some final integrator statistics
  */
 
-static void PrintFinalStats(void *mem)
+static void PrintFinalStats(void *ida_mem)
 {
   long int netf, ncfn, ncfl;
 
-  IDAGetNumErrTestFails(mem, &netf);
-  IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-  IDASpilsGetNumConvFails(mem, &ncfl);
+  IDAGetNumErrTestFails(ida_mem, &netf);
+  IDAGetNumNonlinSolvConvFails(ida_mem, &ncfn);
+  IDASpilsGetNumConvFails(ida_mem, &ncfl);
 
   printf("\nError test failures            = %ld\n", netf);
   printf("Nonlinear convergence failures = %ld\n", ncfn);
@@ -888,16 +895,16 @@ static void PrintFinalStats(void *mem)
 static void ProcessArgs(int argc, char *argv[], int my_pe,
                         booleantype *sensi, int *sensi_meth, booleantype *err_con)
 {
-  *sensi = FALSE;
+  *sensi = SUNFALSE;
   *sensi_meth = -1;
-  *err_con = FALSE;
+  *err_con = SUNFALSE;
 
   if (argc < 2) WrongArgs(my_pe, argv[0]);
 
   if (strcmp(argv[1],"-nosensi") == 0)
-    *sensi = FALSE;
+    *sensi = SUNFALSE;
   else if (strcmp(argv[1],"-sensi") == 0)
-    *sensi = TRUE;
+    *sensi = SUNTRUE;
   else
     WrongArgs(my_pe, argv[0]);
   
@@ -914,9 +921,9 @@ static void ProcessArgs(int argc, char *argv[], int my_pe,
       WrongArgs(my_pe, argv[0]);
 
     if (strcmp(argv[3],"t") == 0)
-      *err_con = TRUE;
+      *err_con = SUNTRUE;
     else if (strcmp(argv[3],"f") == 0)
-      *err_con = FALSE;
+      *err_con = SUNFALSE;
     else
       WrongArgs(my_pe, argv[0]);
   }

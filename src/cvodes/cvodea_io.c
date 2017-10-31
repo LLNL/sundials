@@ -48,23 +48,6 @@
 
 /* 
  * -----------------------------------------------------------------
- * Readibility Constants
- * -----------------------------------------------------------------
- */
-
-#define IMtype      (ca_mem->ca_IMtype)
-#define ckpntData   (ca_mem->ca_ckpntData)
-#define nbckpbs     (ca_mem->ca_nbckpbs)
-
-#define t0_         (ck_mem->ck_t0)
-#define t1_         (ck_mem->ck_t1)
-#define nst_        (ck_mem->ck_nst)
-#define q_          (ck_mem->ck_q)
-#define h_          (ck_mem->ck_h)
-#define next_       (ck_mem->ck_next)
-
-/* 
- * -----------------------------------------------------------------
  * Optional input functions for ASA
  * -----------------------------------------------------------------
  */
@@ -82,13 +65,13 @@ int CVodeSetAdjNoSensi(void *cvode_mem)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSetAdjNoSensi", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
-  ca_mem->ca_IMstoreSensi = FALSE;
+  ca_mem->ca_IMstoreSensi = SUNFALSE;
 
   return(CV_SUCCESS);
 }
@@ -115,14 +98,14 @@ int CVodeSetIterTypeB(void *cvode_mem, int which, int iterB)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSetIterTypeB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
-  if ( which >= nbckpbs ) {
+  if ( which >= ca_mem->ca_nbckpbs ) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeSetIterTypeB", MSGCV_BAD_WHICH);
     return(CV_ILL_INPUT);
   }
@@ -155,14 +138,14 @@ int CVodeSetUserDataB(void *cvode_mem, int which, void *user_dataB)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSetUserDataB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
-  if ( which >= nbckpbs ) {
+  if ( which >= ca_mem->ca_nbckpbs ) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeSetUserDataB", MSGCV_BAD_WHICH);
     return(CV_ILL_INPUT);
   }
@@ -196,14 +179,14 @@ int CVodeSetMaxOrdB(void *cvode_mem, int which, int maxordB)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSetMaxOrdB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
-  if ( which >= nbckpbs ) {
+  if ( which >= ca_mem->ca_nbckpbs ) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeSetMaxOrdB", MSGCV_BAD_WHICH);
     return(CV_ILL_INPUT);
   }
@@ -239,14 +222,14 @@ int CVodeSetMaxNumStepsB(void *cvode_mem, int which, long int mxstepsB)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSetMaxNumStepsB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
-  if ( which >= nbckpbs ) {
+  if ( which >= ca_mem->ca_nbckpbs ) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeSetMaxNumStepsB", MSGCV_BAD_WHICH);
     return(CV_ILL_INPUT);
   }
@@ -281,14 +264,14 @@ int CVodeSetStabLimDetB(void *cvode_mem, int which, booleantype stldetB)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSetStabLimDetB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
-  if ( which >= nbckpbs ) {
+  if ( which >= ca_mem->ca_nbckpbs ) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeSetStabLimDetB", MSGCV_BAD_WHICH);
     return(CV_ILL_INPUT);
   }
@@ -323,14 +306,14 @@ int CVodeSetInitStepB(void *cvode_mem, int which, realtype hinB)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSetInitStepB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
-  if ( which >= nbckpbs ) {
+  if ( which >= ca_mem->ca_nbckpbs ) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeSetInitStepB", MSGCV_BAD_WHICH);
     return(CV_ILL_INPUT);
   }
@@ -365,14 +348,14 @@ int CVodeSetMinStepB(void *cvode_mem, int which, realtype hminB)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSetMinStepB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
-  if ( which >= nbckpbs ) {
+  if ( which >= ca_mem->ca_nbckpbs ) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeSetMinStepB", MSGCV_BAD_WHICH);
     return(CV_ILL_INPUT);
   }
@@ -407,14 +390,14 @@ int CVodeSetMaxStepB(void *cvode_mem, int which, realtype hmaxB)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSetMaxStepB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
-  if ( which >= nbckpbs ) {
+  if ( which >= ca_mem->ca_nbckpbs ) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeSetMaxStepB", MSGCV_BAD_WHICH);
     return(CV_ILL_INPUT);
   }
@@ -456,14 +439,14 @@ int CVodeSetQuadErrConB(void *cvode_mem, int which, booleantype errconQB)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSetQuadErrConB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
-  if ( which >= nbckpbs ) {
+  if ( which >= ca_mem->ca_nbckpbs ) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeSetQuadErrConB", MSGCV_BAD_WHICH);
     return(CV_ILL_INPUT);
   }
@@ -512,14 +495,14 @@ void *CVodeGetAdjCVodeBmem(void *cvode_mem, int which)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, 0, "CVODEA", "CVodeGetAdjCVodeBmem", MSGCV_NO_ADJ);
     return(NULL);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
-  if ( which >= nbckpbs ) {
+  if ( which >= ca_mem->ca_nbckpbs ) {
     cvProcessError(cv_mem, 0, "CVODEA", "CVodeGetAdjCVodeBmem", MSGCV_BAD_WHICH);
     return(NULL);
   }
@@ -558,7 +541,7 @@ int CVodeGetAdjCheckPointsInfo(void *cvode_mem, CVadjCheckPointRec *ckpnt)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeGetAdjCheckPointsInfo", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
@@ -571,14 +554,14 @@ int CVodeGetAdjCheckPointsInfo(void *cvode_mem, CVadjCheckPointRec *ckpnt)
   while (ck_mem != NULL) {
 
     ckpnt[i].my_addr = (void *) ck_mem;
-    ckpnt[i].next_addr = (void *) next_;
-    ckpnt[i].t0 = t0_;
-    ckpnt[i].t1 = t1_;
-    ckpnt[i].nstep = nst_;
-    ckpnt[i].order = q_;
-    ckpnt[i].step = h_;
+    ckpnt[i].next_addr = (void *) ck_mem->ck_next;
+    ckpnt[i].t0 = ck_mem->ck_t0;
+    ckpnt[i].t1 = ck_mem->ck_t1;
+    ckpnt[i].nstep = ck_mem->ck_nst;
+    ckpnt[i].order = ck_mem->ck_q;
+    ckpnt[i].step = ck_mem->ck_h;
 
-    ck_mem = next_;
+    ck_mem = ck_mem->ck_next;
     i++;
 
   }
@@ -610,7 +593,7 @@ int CVodeGetAdjDataPointHermite(void *cvode_mem, int which,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeGetAdjDataPointHermite", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
@@ -618,7 +601,7 @@ int CVodeGetAdjDataPointHermite(void *cvode_mem, int which,
 
   dt_mem = ca_mem->dt_mem;
 
-  if (IMtype != CV_HERMITE) {
+  if (ca_mem->ca_IMtype != CV_HERMITE) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVadjGetDataPointHermite", MSGCV_WRONG_INTERP);
     return(CV_ILL_INPUT);
   }
@@ -659,7 +642,7 @@ int CVodeGetAdjDataPointPolynomial(void *cvode_mem, int which,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeGetAdjDataPointPolynomial", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
@@ -667,7 +650,7 @@ int CVodeGetAdjDataPointPolynomial(void *cvode_mem, int which,
 
   dt_mem = ca_mem->dt_mem;
 
-  if (IMtype != CV_POLYNOMIAL) {
+  if (ca_mem->ca_IMtype != CV_POLYNOMIAL) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVadjGetDataPointPolynomial", MSGCV_WRONG_INTERP);
     return(CV_ILL_INPUT);
   }
@@ -709,13 +692,13 @@ int CVodeGetAdjCurrentCheckPoint(void *cvode_mem, void **addr)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeGetAdjCurrentCheckPoint", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
-  *addr = (void *) ckpntData;
+  *addr = (void *) ca_mem->ca_ckpntData;
 
   return(CV_SUCCESS);
 }

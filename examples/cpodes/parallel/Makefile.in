@@ -1,13 +1,15 @@
 # -----------------------------------------------------------------
-# $Revision$
-# $Date$
-# -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
-# Copyright (c) 2002, The Regents of the University of California.
+# LLNS Copyright Start
+# Copyright (c) 2014, Lawrence Livermore National Security
+# This work was performed under the auspices of the U.S. Department 
+# of Energy by Lawrence Livermore National Laboratory in part under 
+# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
 # For details, see the LICENSE file.
+# LLNS Copyright End
 # -----------------------------------------------------------------
 # Makefile for CPODES parallel examples
 #
@@ -44,7 +46,8 @@ MPI_LIB_DIR = @MPI_LIB_DIR@
 MPI_LIBS    = @MPI_LIBS@
 MPI_FLAGS   = @MPI_FLAGS@
 
-BLAS_LAPACK_LIBS = @BLAS_LAPACK_LIBS@
+LAPACK_LIBS = @LAPACK_LIBS@
+BLAS_LIBS   = @BLAS_LIBS@
 
 OBJ_EXT = @OBJEXT@
 EXE_EXT = @EXEEXT@
@@ -70,7 +73,7 @@ EXECS = ${EXAMPLES:=${EXE_EXT}}
 all:
 	@for i in ${EXAMPLES} ; do \
 	  $(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/$${i}.c -o $${i}${OBJ_EXT} ; \
-	  $(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/$${i}$(EXE_EXT) $(builddir)/$${i}$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS) ; \
+	  $(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/$${i}$(EXE_EXT) $(builddir)/$${i}$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(LAPACK_LIBS) $(BLAS_LIBS) ; \
 	done
 
 install:

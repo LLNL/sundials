@@ -21,6 +21,9 @@ C     ----------------------------------------------------------------
 C     Diagonal ODE example.  Stiff case, with diagonal preconditioner.
 C     Uses FARKODE interfaces and FARKBBD interfaces.
 C     Solves problem twice -- with left and right preconditioning.
+C
+C     Note that this problem should only work with SUNDIALS configured
+C     to use 'realtype' as 'double' and 'sunindextype' as '64bit'
 C     ----------------------------------------------------------------
 C     
 C     Include MPI-Fortran header file for MPI_COMM_WORLD, MPI types.
@@ -113,6 +116,23 @@ C
          CALL MPI_FINALIZE(IER)
          STOP
       ENDIF
+C
+C     initialize SPGMR linear solver module
+      call FSUNSPGMRINIT(4, IPRE, 0, IER)
+      IF (IER .NE. 0) THEN
+         WRITE(6,25) IER
+ 25      FORMAT(///' SUNDIALS_ERROR: FSUNSPGMRINIT IER = ', I5)
+         CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
+         STOP
+      ENDIF
+C
+      call FSUNSPGMRSETGSTYPE(4, IGS, IER)
+      IF (IER .NE. 0) THEN
+         WRITE(6,27) IER
+ 27      FORMAT(///' SUNDIALS_ERROR: FSUNSPGMRSETGSTYPE IER = ', I5)
+         CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
+         STOP
+      ENDIF
 C     
       CALL FARKMALLOC(T, Y, METH, IATOL, RTOL, ATOL,
      &                IOUT, ROUT, IPAR, RPAR, IER)
@@ -124,14 +144,16 @@ C
          STOP
       ENDIF
 C
-      CALL FARKSPGMR(IPRE, IGS, 0, 0.0D0, IER)
+C     attach linear solver module to ARKSpils interface
+      CALL FARKSPILSINIT(IER)
       IF (IER .NE. 0) THEN
-         WRITE(6,36) IER
- 36      FORMAT(///' SUNDIALS_ERROR: FARKSPGMR returned IER = ', I5)
+         WRITE(6,32) IER
+ 32      FORMAT(///' SUNDIALS_ERROR: FARKSPILSINIT returned IER = ', I5)
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF
-C     
+C
+C     initialize BBD preconditioner (build diagonal preconditioner)
       MUDQ = 0
       MLDQ = 0
       MU = 0
@@ -255,7 +277,7 @@ C
 C
       IPRE = 2
 C
-      CALL FARKBBDREINIT(NLOCAL, MUDQ, MLDQ, 0.0D0, IER) 
+      CALL FARKBBDREINIT(MUDQ, MLDQ, 0.0D0, IER) 
       IF (IER .NE. 0) THEN
          WRITE(6,92) IER
  92      FORMAT(///' SUNDIALS_ERROR: FARKBBDREINIT returned IER = ', I5)
@@ -263,10 +285,10 @@ C
          STOP
       ENDIF
 C
-      CALL FARKSPGMRREINIT(IPRE, IGS, 0.0D0, IER)
+      CALL FSUNSPGMRSETPRECTYPE(4, IPRE, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,93) IER
- 93      FORMAT(///' SUNDIALS_ERROR: FARKSPGMRREINIT returned IER =',I5)
+ 93      FORMAT(///' SUNDIALS_ERROR: FSUNSPGMRSETPRECTYPE IER =',I5)
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF

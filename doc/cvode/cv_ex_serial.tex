@@ -6,7 +6,8 @@
 
 As an initial illustration of the use of the {\cvode} package for the
 integration of IVP ODEs, we give a sample program called \id{cvRoberts\_dns.c}.
-It uses the {\cvode} dense linear solver module {\cvdense} 
+It uses the {\cvode} direct linear solver interface {\cvdls} with
+dense matrix and linear solver modules ({\sunmatdense} and {\sunlinsoldense})
 and the {\nvecs} module (which provides a serial implementation of {\nvector})
 in the solution of a 3-species chemical kinetics problem.
 
@@ -38,16 +39,21 @@ The \id{cvode.h} file provides prototypes for the {\cvode}
 functions to be called (excluding the linear solver selection
 function), and also a number of constants that are to be used in
 setting input arguments and testing the return value of \id{CVode}.
-The \id{cvode\_dense.h} file provides the prototype for the \id{CVDense} function.
+The \id{cvode\_direct.h} file provides the prototype for the
+\id{CVDlsAttachLinearSolver} function.  The \id{sunlinsol\_dense.h}
+file is the header file for the dense implementation of the
+{\sunlinsol} module and includes definitions of the
+\id{SUNLinearSolver} type.  Similarly, the \id{sunmatrix\_dense.h}
+file is the header file for the dense implementation of the
+{\sunmatrix} module, including definitions of the \id{SUNMatrix} type
+as well as macros and functions to access matrix components.  
+We have explicitly included \id{sunmatrix\_dense.h}, but this is not
+necessary because it is included by \id{sunlinsol\_dense.h}.
 The \id{nvector\_serial.h} file is the header file for the serial
 implementation of the {\nvector} module and includes definitions of the 
 \id{N\_Vector} type, a macro to access vector components, and prototypes 
 for the serial implementation specific machine environment memory allocation
 and freeing functions.
-The \id{sundials\_dense.h} file provides the definition of the dense matrix type
-\id{DlsMat (type=1)} and a macro for accessing matrix elements.
-We have explicitly included \id{sundials\_dense.h}, but this is not necessary because 
-it is included by \id{cvode\_dense.h}.
 
 This program includes two user-defined accessor macros, \id{Ith} and
 \id{IJth}, that are useful in writing the problem functions in a form
@@ -57,11 +63,12 @@ macro is used to access components of a vector of type \id{N\_Vector}
 with a serial implementation.  It is defined using the {\nvecs}
 accessor macro \id{NV\_Ith\_S} which numbers components starting with
 0. The \id{IJth} macro is used to access elements of a dense matrix of
-type \id{DlsMat}. It is defined using the {\dense} accessor macro
-\id{DENSE\_ELEM} which numbers matrix rows and columns starting with
+type \id{SUNMatrix}.  It is similarly defined using the {\sunmatdense}
+accessor macro \id{SM\_ELEMENT\_D} which numbers matrix rows and
+columns starting with 
 0. 
 The macro \id{NV\_Ith\_S} is fully described in \ugref{ss:nvec_ser}.
-The macro \id{DENSE\_ELEM} is fully described in \ugref{ss:djacFn}.
+The macro \id{SM\_ELEMENT\_D} is fully described in \ugref{ss:sunmat_dense}.
 
 Next, the program includes some problem-specific constants, which are
 isolated to this early location to make it easy to change them as needed.  
@@ -69,7 +76,8 @@ The program prologue ends with prototypes of four private helper
 functions and the three user-supplied functions that are called by {\cvode}.
 
 The \id{main} program begins with some dimensions and type declarations,
-including use of the type \id{N\_Vector}.  The next several lines
+including use of the generic types \id{N\_Vector}, \id{SUNMatrix} and
+\id{SUNLinearSolver}.  The next several lines 
 allocate memory for the \id{y} and \id{abstol} vectors using
 \id{N\_VNew\_Serial} with a length argument of \id{NEQ} ($= 3$). The
 lines following that load the initial values of the dependendent
@@ -103,10 +111,16 @@ two such functions.  Specifically, they are set to $y_1 - 0.0001$ and
 $y_3 - 0.01$, respectively.
 See \ugref{ss:cvrootinit} for a detailed description of this call.
 
-The calls to \id{CVDense} (see \ugref{sss:lin_solv_init}) and 
-\id{CVDlsSetDenseJacFn} (see \ugref{ss:optional_input}) specify the {\cvdense}
-linear solver with an analytic Jacobian supplied by the user-supplied function
-\id{Jac}.
+The call to \id{SUNDenseMatrix} (see \ugref{ss:sunmat_dense}) creates
+a \id{NEQ}$\times$\id{NEQ} dense {\sunmatrix} object to use within the
+Newton solve in {\cvode}.  The following call to
+\id{SUNDenseLinearSolver} (see \ugref{ss:sunlinsol_dense}) creates the 
+dense {\sunlinsol} object that will perform the linear solves within
+the Newton method.  These are attached to the {\cvdls} direct linear
+solver interface with the  call to \id{CVDlsSetLinearSolver} (see
+\ugref{sss:lin_solv_init}), and the subsequent call to
+\id{CVDlsSetJacFn} (see \ugref{ss:optional_input}) specifies the
+analytic Jacobian supplied by the user-supplied function \id{Jac}.
 
 The actual solution of the ODE initial value problem is accomplished in
 the loop over values of the output time \id{tout}.  In each pass of the
@@ -129,12 +143,13 @@ details of the call to \id{CVode}.
 
 Finally, the main program calls \id{PrintFinalStats} to get and print
 all of the relevant statistical quantities.  It then calls \id{NV\_Destroy}
-to free the vectors \id{y} and \id{abstol}, and \id{CVodeFree} to free the 
-{\cvode} memory block.
+to free the vectors \id{y} and \id{abstol}, \id{CVodeFree} to free the 
+{\cvode} memory block, \id{SUNLinSolFree} to free the linear solver
+memory, and \id{SUNMatDestroy} to free the matrix \id{A}.
 
 The function \id{PrintFinalStats} used here is actually suitable for
-general use in applications of {\cvode} to any problem with a dense 
-Jacobian.  It calls various \id{CVodeGet***} and \id{CVDenseGet***}
+general use in applications of {\cvode} to any problem with a direct
+linear solver.  It calls various \id{CVodeGet***} and \id{CVDlsGet***}
 functions to obtain the relevant counters, and then prints them.
 Specifically, these are: the cumulative number of steps (\id{nst}), 
 the number of \id{f} evaluations (\id{nfe}) (excluding those for
@@ -161,12 +176,12 @@ of the \id{g} function.
 The function \id{Jac} sets the nonzero elements of the Jacobian as a
 dense matrix.  (Zero elements need not be set because \id{J} is preset
 to zero.)  It uses the user-defined macro \id{IJth} to reference the
-elements of a dense matrix of type \id{DlsMat}.  Here the problem
+elements of a dense matrix of type {\sunmatrix}.  Here the problem
 size is small, so we need not worry about the inefficiency of using
-\id{NV\_Ith\_S} and \id{DENSE\_ELEM} to access \id{N\_Vector} and
-\id{DlsMat} elements.  Note that in this example, \id{Jac}
-only accesses the \id{y} and \id{J} arguments.  See \ugref{ss:djacFn}
-for a detailed description of the dense \id{Jac} function.
+\id{NV\_Ith\_S} and \id{SM\_ELEMENT\_D} to access \id{N\_Vector} and
+{\sunmatdense} elements.  Note that in this example, \id{Jac}
+only accesses the \id{y} and \id{J} arguments.  See \ugref{ss:jacFn}
+for a detailed description of the \id{Jac} function.
 
 The output generated by \id{cvRoberts\_dns} is shown below.  It shows the output
 values at the 12 preset values of \id{tout}.  It also shows the two root
@@ -208,14 +223,18 @@ $\dot{u} = f(u)$, then the system Jacobian $J = \partial f / \partial u$ is
 a band matrix with upper and lower half-bandwidths both equal to \id{MY}.
 In the example, we take \id{MX} $= 10$ and \id{MY} $= 5$.
 
-The \id{cvAdvDiff\_bnd.c} program includes files \id{cvode\_band.h} and
-\id{sundials\_band.h} in order to use the {\cvband} linear solver. The \id{cvode\_band.h}
-file contains the prototype for the \id{CVBand} routine. The \id{sundials\_band.h}
-file contains the definition for band matrix type \id{DlsMat (type=2)} and the
-\id{BAND\_COL} and \id{BAND\_COL\_ELEM} macros for accessing matrix
-elements (see \ugref{ss:band}).
-We have explicitly included \id{sundials\_band.h}, but this is not necessary because
-it is included by \id{cvode\_band.h}.  The file \id{nvector\_serial.h} is
+The \id{cvAdvDiff\_bnd.c} program includes files
+\id{sunmatrix\_band.h}, \id{sunlinsol\_band.h} and
+\id{cvode\_direct.h} in order to use the {\sunlinsolband} linear
+solver. The \id{sunmatrix\_band.h} file contains the definition of the
+banded {\sunmatrix} type, and the \id{SM\_COLUMN\_B} and
+\id{SM\_COLUMN\_ELEMENT\_B} macros for accessing banded matrix 
+elements (see \ugref{ss:sunmat_band}).  The \id{sunlinsol\_band.h}
+file contains the definition of the banded {\sunlinsol} type.  We note
+that have explicitly included \id{sunmatrix\_band.h}, but this is not
+necessary because it is included by \id{sunlinsol\_band.h}.  The
+\id{cvode\_direct.h} file contains the prototype for the
+\id{CVDlsSetLinearSolver} routine. The file \id{nvector\_serial.h} is
 included for the definition of the serial \id{N\_Vector} type.
 
 The include lines at the top of the file are followed by definitions of
@@ -245,10 +264,13 @@ The \id{main} program is straightforward.  The \id{CVodeCreate} call specifies
 the \id{CV\_BDF} method with a \id{CV\_NEWTON} iteration. Following the
 \id{CVodeInit} call, the call to \id{CVodeSStolerances} indicates scalar
 relative and absolute tolerances, and values \id{reltol} and \id{abstol} are passed.
-The call to \id{CVBand} (see \ugref{sss:lin_solv_init}) specifies the {\cvband}
-linear solver, and specifies that both half-bandwidths of the Jacobian
-are equal to \id{MY}.  
-The call to \id{CVDlsSetBandJacFn} (see \ugref{ss:optional_input}) specifies
+The call to \id{SUNBandMatrix} (see \ugref{ss:sunmat_band}) creates a
+banded {\sunmatrix} Jacobian template, and specifies that both
+half-bandwidths of the Jacobian are equal to \id{MY}.  The calls to
+\id{SUNBandLinearSolver} (see \ugref{ss:sunlinsol_band}) and
+\id{CVDlsSetLinearSolver} (see \ugref{sss:lin_solv_init}) specifies
+the {\sunlinsolband} linear solver to the {\cvdls} interface.
+The call to \id{CVDlsSetJacFn} (see \ugref{ss:optional_input}) specifies
 that a user-supplied Jacobian function \id{Jac} is to be used.
 
 The actual solution of the problem is performed by
@@ -274,7 +296,7 @@ difference-quotient Jacobians (\id{nfeLS} = 0 here),
 Jacobian evaluations (\id{nje}), and nonlinear iterations (\id{nni}).
 These optional outputs are described in \ugref{ss:optional_output}.
 Note that \id{PrintFinalStats} is suitable for general use in applications
-of {\cvode} to any problem with a banded Jacobian.
+of {\cvode} to any problem with a direct linear solver.
 
 The \id{f} function implements the central difference approximation
 (\ref{eq:cdiff}) with $u$ identically zero on the boundary. 
@@ -304,20 +326,21 @@ point, the one-dimensional index \id{k = j-1 + (i-1)*MY} is computed
 and the \id{k}th column of the Jacobian matrix $J$ is set. 
 The row index $k'$ of each component $f_{i',j'}$ that depends on
 $v_{i,j}$ must be identified in order to load the corresponding element.
-The elements are loaded with the \id{BAND\_COL\_ELEM} macro.
+The elements are loaded with the \id{SM\_COLUMN\_ELEMENT\_B} macro.
 Note that the formula for the global index $k$ implies that decreasing 
 (increasing) \id{i} by $1$ corresponds to decreasing (increasing) 
 \id{k} by \id{MY}, while decreasing (increasing) \id{j} by $1$ 
 corresponds of decreasing (increasing) \id{k} by $1$. 
-These statements are reflected in the arguments to \id{BAND\_COL\_ELEM}. 
-The first argument passed to the \id{BAND\_COL\_ELEM} macro is a pointer to
-the diagonal element in the column to be accessed. This pointer is obtained
-via a call to the \id{BAND\_COL} macro and is stored in \id{kthCol} in
+These statements are reflected in the arguments to
+\id{SM\_COLUMN\_ELEMENT\_B}.  The first argument passed to the
+\id{SM\_COLUMN\_ELEMENT\_B} macro is a pointer to the diagonal element
+in the column to be accessed. This pointer is obtained via a call to
+the \id{SM\_COLUMN\_B} macro and is stored in \id{kthCol} in 
 the \id{Jac} function. When setting the components of $J$ we must be
 careful not to index out of bounds. The guards \id{(i != 1)} etc.
-in front of the calls to \id{BAND\_COL\_ELEM} prevent illegal indexing.
-See \ugref{ss:bjacFn} for a detailed description of the banded \id{Jac}
-function.
+in front of the calls to \id{SM\_COLUMN\_ELEMENT\_B} prevent illegal
+indexing. See \ugref{ss:jacFn} for a detailed description of the
+\id{Jac} function.
 
 The output generated by \id{cvAdvDiff\_bnd} is shown below.
 
@@ -330,7 +353,8 @@ The output generated by \id{cvAdvDiff\_bnd} is shown below.
 \subsection{A Krylov example: cvDiurnal\_kry}\label{ss:cvDiurnal}
 
 We give here an example that illustrates the use of {\cvode} with the Krylov
-method {\spgmr}, in the {\cvspgmr} module, as the linear system solver.  
+method {\spgmr}, in the {\sunlinsolspgmr} module, as the linear system
+solver through the {\cvspils} interface.
 
 This program solves the semi-discretized form of a pair of
 kinetics-advection-diffusion partial differential equations, which
@@ -382,23 +406,27 @@ with standard central finite differences on a $10 \times 10$ mesh,
 giving an ODE system of size $200$.
 
 Among the initial \id{\#include} lines in this case are lines to
-include \id{cvode\_spgmr.h} and \id{sundials\_math.h}.  The first contains
-constants and function prototypes associated with the {\spgmr} method,
-including the values of the \id{pretype} argument to \id{CVSpgmr}.
-The inclusion of \id{sundials\_math.h} is done to access the \id{SUNSQR}
-macro for the square of a \id{realtype} number.
+include \id{sunlinsol\_spgmr.h} and \id{sundials\_math.h}.  The first
+contains constants and function prototypes associated with the
+{\sunlinsolspgmr} module, including the values of the \id{pretype}
+argument to \id{SUNSPGMR}. The inclusion of \id{sundials\_math.h} is
+done to access the \id{SUNSQR} macro for the square of a \id{realtype}
+number. 
 
 The \id{main} program calls \id{CVodeCreate} specifying the \id{CV\_BDF} method
 and \id{CV\_NEWTON} iteration, and then calls \id{CVodeInit}, and
 \id{CVodeSetSStolerances} specifies the scalar tolerances.
-It calls  \id{CVSpgmr} (see \ugref{sss:lin_solv_init}) to specify the {\cvspgmr} 
-linear solver with left preconditioning, and the default value (indicated by a
-zero argument) for \id{maxl}.
-The call to \id{CVSpilsSetJacTimesVecFn} specifies a user-supplied function
-for Jacobian-vector products.  Next, user-supplied preconditioner
-setup and solve functions, \id{Precond} and \id{PSolve}, are specified.
-See \ugref{ss:optional_input} for details on the \id{CVSpilsSetPreconditioner}
-function.
+It calls \id{SUNSPGMR} to create the {\spgmr} linear solver with left
+preconditioning, and the default value (indicated by a zero argument)
+for \id{maxl}.  It then calls \id{CVSpilsSetLinearSolver} (see
+\ugref{sss:lin_solv_init}) to attach this linear solver to the
+{\cvspils} interface.  The call to \id{CVSpilsSetJacTimes} specifies a
+user-supplied function for Jacobian-vector products (the \id{NULL}
+argument specifies that no Jacobian-vector setup routine is needed). 
+Next, user-supplied preconditioner setup and solve functions,
+\id{Precond} and \id{PSolve}, are specified. See
+\ugref{ss:optional_input} for details on the
+\id{CVSpilsSetPreconditioner} function.
 
 For a sequence of \id{tout} values, \id{CVode} is called in the
 \id{CV\_NORMAL} mode, sampled output is printed, and the return value is
@@ -413,10 +441,10 @@ of preconditioner setups (\id{nsetups}), of preconditioner evaluations
 (\id{npe}), and of preconditioner solves (\id{nps}), among others.  
 Also printed are the lengths of the problem-dependent real and integer
 workspaces used by the main integrator \id{CVode}, denoted \id{lenrw} and
-\id{leniw}, and those used by {\cvspgmr}, denoted \id{lenrwLS} and \id{leniwLS}.
+\id{leniw}, and those used by {\cvspils}, denoted \id{lenrwLS} and \id{leniwLS}.
 All of these optional outputs are described in \ugref{ss:optional_output}.
 The \id{PrintFinalStats} function is suitable for general use in applications
-of {\cvode} to any problem with the {\spgmr} linear solver.
+of {\cvode} to any problem with an iterative linear solver.
 
 Mathematically, the dependent variable has three dimensions: species
 number, $x$ mesh point, and $y$ mesh point.  But in {\nvecs}, a vector of
@@ -436,32 +464,31 @@ matrix.  It is generated and factored in the \id{Precond} routine
 matrices that include the interaction Jacobian elements and the diagonal
 contribution of the diffusion Jacobian elements.  The block-diagonal part of
 the Jacobian itself, $J_{bd}$, is saved in separate storage each time it is
-generated, on calls to \id{Precond} with \id{jok}\id{ == FALSE}.
-On calls with \id{jok}\id{ == TRUE}, signifying that saved Jacobian data
+generated, on calls to \id{Precond} with \id{jok}\id{ == SUNFALSE}.
+On calls with \id{jok}\id{ == SUNTRUE}, signifying that saved Jacobian data
 can be reused, the preconditioner $P = I - \gamma J_{bd}$ is formed from the
 saved matrix $J_{bd}$ and factored.  (A call to \id{Precond} with
-\id{jok}\id{ == TRUE} can only occur after a prior call with
-\id{jok}\id{ == FALSE}.)  The \id{Precond} routine must also set the value
-of \id{jcur}, i.e. \id{*jcurPtr}, to \id{TRUE} when $J_{bd}$ is re-evaluated,
-and \id{FALSE} otherwise, to inform {\cvspgmr} of the status of Jacobian data.
+\id{jok}\id{ == SUNTRUE} can only occur after a prior call with
+\id{jok}\id{ == SUNFALSE}.)  The \id{Precond} routine must also set the value
+of \id{jcur}, i.e. \id{*jcurPtr}, to \id{SUNTRUE} when $J_{bd}$ is re-evaluated,
+and \id{SUNFALSE} otherwise, to inform {\cvspils} of the status of Jacobian data.
 
 We need to take a brief detour to explain one last important aspect of
-this program.  The generic {\dense} solver contains two
-sets of functions: one for ``large'' matrices and one for ``small''
-matrices.  The large dense functions work with the type \id{DlsMat (type=1)},
-while the small dense functions work with \id{realtype **} as the
-underlying dense matrix types.  The {\cvdense} linear solver uses the
-type \id{DlsMat} for the $N \times N$ dense Jacobian and Newton
-matrices, and calls the large matrix functions.  But to avoid the
-extra layer of function calls, \id{cvDiurnal\_kry.c} uses the small dense
-functions for all operations on the $2 \times 2$ preconditioner blocks.  
-Thus it includes \id{sundials\_smalldense.h} (by way of \id{sundials\_dense.h}),
-and calls the small dense matrix functions \id{newDenseMat}, \id{newIntArray},
-\id{denseCopy}, \id{denseScale}, \id{denseAddI}, \id{denseGETRF}, and \id{denseGETRS}.
-The macro \id{IJth} defined near the top of the file is used to access
-individual elements in each preconditioner block, numbered from $1$.
-The small dense functions are available for {\cvode} user programs
-generally, and are documented in \ugref{ss:dense}.
+this program.  While the generic {\sunlinsoldense} linear solver
+module serves as the interface to dense matrix solves for the main
+{\sundials} solvers, the underlying algebraic operations operate on
+dense matrices with \id{realtype **} as the underlying dense matrix
+type.  To avoid the extra layer of function calls and dense matrix and
+linear solver data structures, \id{cvDiurnal\_kry.c} uses underling small
+dense functions for all operations on the $2 \times 2$ preconditioner blocks.  
+Thus it includes \id{sundials\_dense.h}, and calls the small dense
+matrix functions \id{newDenseMat}, \id{newIndexArray}, \id{denseCopy},
+\id{denseScale}, \id{denseAddIdentity}, \id{denseGETRF}, and
+\id{denseGETRS}. The macro \id{IJth} defined near the top of the file
+is used to access individual elements in each preconditioner block,
+numbered from $1$.  The underlying dense algebra functions are
+available for {\cvode} user programs
+generally.%, and are documented in \ugref{ss:dense}. 
 
 In addition to the functions called by {\cvode}, \id{cvDiurnal\_kry.c} includes
 definitions of several private functions.  These are: \id{AllocUserData}

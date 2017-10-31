@@ -1,18 +1,20 @@
 # ---------------------------------------------------------------
-# $Revision$
-# $Date$
+# Programmer(s):  Daniel R. Reynolds @ SMU
+#                 Radu Serban @ LLNL
 # ---------------------------------------------------------------
-# Programmer:  Radu Serban @ LLNL
-# ---------------------------------------------------------------
-# LLNS Copyright Start
-# Copyright (c) 2014, Lawrence Livermore National Security
+# LLNS/SMU Copyright Start
+# Copyright (c) 2017, Southern Methodist University and 
+# Lawrence Livermore National Security
+#
 # This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
-# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-# Produced at the Lawrence Livermore National Laboratory.
+# of Energy by Southern Methodist University and Lawrence Livermore 
+# National Laboratory under Contract DE-AC52-07NA27344.
+# Produced at Southern Methodist University and the Lawrence 
+# Livermore National Laboratory.
+#
 # All rights reserved.
 # For details, see the LICENSE file.
-# LLNS Copyright End
+# LLNS/SMU Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the CVODES library
 
@@ -20,86 +22,64 @@ INSTALL(CODE "MESSAGE(\"\nInstall CVODES\n\")")
 
 # Add variable cvodes_SOURCES with the sources for the CVODES library
 SET(cvodes_SOURCES
-  cvodes.c
   cvodea.c
-  cvodes_io.c
   cvodea_io.c
-  cvodes_direct.c
-  cvodes_band.c
-  cvodes_dense.c
-  cvodes_diag.c
-  cvodes_sparse.c
-  cvodes_spils.c
-  cvodes_spbcgs.c
-  cvodes_spgmr.c
-  cvodes_sptfqmr.c
+  cvodes.c
   cvodes_bandpre.c
   cvodes_bbdpre.c
+  cvodes_io.c
+  cvodes_diag.c
+  cvodes_direct.c
+  cvodes_spils.c
   )
-
-IF(KLU_FOUND)
-    LIST(APPEND cvodes_SOURCES cvodes_klu.c)
-ENDIF()
-
-IF(SUPERLUMT_FOUND)
-    LIST(APPEND cvodes_SOURCES cvodes_superlumt.c)
-ENDIF()
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the CVODES library
 SET(shared_SOURCES
-  sundials_nvector.c
-  sundials_math.c
-  sundials_direct.c
-  sundials_band.c
-  sundials_dense.c
-  sundials_iterative.c
-  sundials_sparse.c
-  sundials_spbcgs.c
-  sundials_spgmr.c
-  sundials_sptfqmr.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_matrix.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_band.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_dense.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_direct.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_iterative.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_version.c
+  ${sundials_SOURCE_DIR}/src/nvec_ser/nvector_serial.c
   )
 
-# Add prefix with complete path to the common SUNDIALS sources
-ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
+# Add variable sunmatrix_SOURCES with the common SUNMatrix sources which will
+# also be included in the CVODES library
+SET(sunmatrix_SOURCES
+  ${sundials_SOURCE_DIR}/src/sunmat_band/sunmatrix_band.c
+  ${sundials_SOURCE_DIR}/src/sunmat_dense/sunmatrix_dense.c
+  ${sundials_SOURCE_DIR}/src/sunmat_sparse/sunmatrix_sparse.c
+  )
+
+# Add variable sunlinsol_SOURCES with the common SUNLinearSolver sources which will
+# also be included in the CVODES library
+SET(sunlinsol_SOURCES
+  ${sundials_SOURCE_DIR}/src/sunlinsol_band/sunlinsol_band.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_dense/sunlinsol_dense.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_spbcgs/sunlinsol_spbcgs.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_spfgmr/sunlinsol_spfgmr.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_spgmr/sunlinsol_spgmr.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_sptfqmr/sunlinsol_sptfqmr.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_pcg/sunlinsol_pcg.c
+  )
 
 # Add variable cvodes_HEADERS with the exported CVODES header files
 SET(cvodes_HEADERS
-  cvodes_band.h
+  cvodes.h
   cvodes_bandpre.h
   cvodes_bbdpre.h
-  cvodes_dense.h
   cvodes_diag.h
   cvodes_direct.h
-  cvodes.h
-  cvodes_sparse.h
-  cvodes_spbcgs.h
-  cvodes_spgmr.h
   cvodes_spils.h
-  cvodes_sptfqmr.h
   )
-
-IF(KLU_FOUND)
-    LIST(APPEND cvodes_HEADERS cvodes_klu.h)
-ENDIF()
-
-IF(SUPERLUMT_FOUND)
-    LIST(APPEND cvodes_HEADERS cvodes_superlumt.h)
-ENDIF()
 
 # Add prefix with complete path to the CVODES header files
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/cvodes/ cvodes_HEADERS)
-
-# If Blas/Lapack support was enabled, set-up additional file lists
-IF(LAPACK_FOUND)
-  SET(cvodes_BL_SOURCES cvodes_lapack.c)
-  SET(cvodes_BL_HEADERS cvodes_lapack.h)
-  ADD_PREFIX(${sundials_SOURCE_DIR}/include/cvodes/ cvodes_BL_HEADERS)
-ELSE(LAPACK_FOUND)
-  SET(cvodes_BL_SOURCES "")
-  SET(cvodes_BL_HEADERS "")
-ENDIF(LAPACK_FOUND)
-
 
 # Add source directories to include directories for access to
 # implementation only header files.
@@ -114,7 +94,7 @@ IF(BUILD_STATIC_LIBS)
 
   # Add the build target for the static CVODES library
   ADD_LIBRARY(sundials_cvodes_static STATIC 
-    ${cvodes_SOURCES}  ${cvodes_BL_SOURCES}  ${shared_SOURCES})
+    ${cvodes_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_cvodes_static
@@ -130,7 +110,11 @@ IF(BUILD_SHARED_LIBS)
 
   # Add the build target for the CVODES library
   ADD_LIBRARY(sundials_cvodes_shared SHARED 
-    ${cvodes_SOURCES}  ${cvodes_BL_SOURCES}  ${shared_SOURCES})
+    ${cvodes_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES})
+
+  IF(UNIX)
+    TARGET_LINK_LIBRARIES(sundials_cvodes_shared m)
+  ENDIF()
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_cvodes_shared
@@ -146,7 +130,7 @@ IF(BUILD_SHARED_LIBS)
 ENDIF(BUILD_SHARED_LIBS)
 
 # Install the CVODES header files
-INSTALL(FILES ${cvodes_HEADERS}  ${cvodes_BL_HEADERS} DESTINATION include/cvodes)
+INSTALL(FILES ${cvodes_HEADERS} DESTINATION include/cvodes)
 
 # Install the CVODES implementation header file
 INSTALL(FILES cvodes_impl.h DESTINATION include/cvodes)

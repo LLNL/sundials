@@ -72,8 +72,8 @@ int main()
   for (i=0;i<5;i++) {
 
     printf("\n\n%.2e\n", tol);
-    GetSol(cpode_mem, yy0, tol, tout, TRUE, yref);
-    GetSol(cpode_mem, yy0, tol, tout, FALSE, yref);
+    GetSol(cpode_mem, yy0, tol, tout, SUNTRUE, yref);
+    GetSol(cpode_mem, yy0, tol, tout, SUNFALSE, yref);
     tol /= 10.0;
   }
 

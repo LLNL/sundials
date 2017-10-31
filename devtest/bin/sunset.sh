@@ -6,6 +6,9 @@ export PATH=/usr/casc/sundials/devtest/bin:$PATH
 # Python
 export PATH=/usr/apps/python/latest/bin:$PATH
 
+# git
+source /usr/apps/git/2.3.1/setup.sh
+
 # cmake
 source /usr/casc/sundials/apps/rh6/cmake/cmake-2.8.10.2/setup.sh
 

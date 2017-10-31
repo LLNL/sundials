@@ -1,21 +1,23 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
- * Programmer: Radu Serban @ LLNL
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2017, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
  * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
  * All rights reserved.
  * For details, see the LICENSE file.
- * LLNS Copyright End
+ * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
- * Common implementation header file for the CVDLS linear solvers.
+ * Implementation header file for the CVSDLS linear solver interface
  * -----------------------------------------------------------------
  */
 
@@ -23,126 +25,121 @@
 #define _CVSDLS_IMPL_H
 
 #include <cvodes/cvodes_direct.h>
+#include "cvodes_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-/*
- * =================================================================
- * C V S D I R E C T    I N T E R N A L    C O N S T A N T S
- * =================================================================
- */
+/*=================================================================
+  CVSDLS Internal Constants
+  =================================================================*/
 
-/*
- * -----------------------------------------------------------------
- * CVDLS solver constants
- * -----------------------------------------------------------------
- * CVD_MSBJ   maximum number of steps between Jacobian evaluations
- * CVD_DGMAX  maximum change in gamma between Jacobian evaluations
- * -----------------------------------------------------------------
- */
+/*-----------------------------------------------------------------
+  CVDLS solver constants
+  -----------------------------------------------------------------
+  CVD_MSBJ   maximum number of steps between Jacobian evaluations
+  CVD_DGMAX  maximum change in gamma between Jacobian evaluations
+  -----------------------------------------------------------------*/
 
 #define CVD_MSBJ  50
 #define CVD_DGMAX RCONST(0.2)
 
-/*
- * =================================================================
- * PART I:  F O R W A R D    P R O B L E M S
- * =================================================================
- */
+  
+/*=================================================================
+  PART I:  Forward Problems
+  =================================================================*/
 
-/*
- * -----------------------------------------------------------------
- * Types: CVDlsMemRec, CVDlsMem                             
- * -----------------------------------------------------------------
- * CVDlsMem is pointer to a CVDlsMemRec structure.
- * -----------------------------------------------------------------
- */
+/*-----------------------------------------------------------------
+  Types: CVDlsMemRec, CVDlsMem                             
+  -----------------------------------------------------------------
+  CVDlsMem is pointer to a CVDlsMemRec structure.
+  -----------------------------------------------------------------*/
 
 typedef struct CVDlsMemRec {
 
-  int d_type;             /* SUNDIALS_DENSE or SUNDIALS_BAND              */
+  booleantype jacDQ;    /* SUNTRUE if using internal DQ Jacobian approx. */
+  CVDlsJacFn jac;       /* Jacobian routine to be called                 */
+  void *J_data;         /* data pointer passed to jac                    */
 
-  long int d_n;           /* problem dimension                            */
+  SUNMatrix A;          /* A = I - gamma * df/dy                         */
+  SUNMatrix savedJ;     /* savedJ = old Jacobian                         */
 
-  long int d_ml;          /* lower bandwidth of Jacobian                  */
-  long int d_mu;          /* upper bandwidth of Jacobian                  */ 
-  long int d_smu;         /* upper bandwith of M = MIN(N-1,d_mu+d_ml)     */
+  SUNLinearSolver LS;   /* generic direct linear solver object           */
 
-  booleantype d_jacDQ;    /* TRUE if using internal DQ Jacobian approx.   */
-  CVDlsDenseJacFn d_djac; /* dense Jacobian routine to be called          */
-  CVDlsBandJacFn d_bjac;  /* band Jacobian routine to be called           */
-  void *d_J_data;         /* data pointer passed to djac or bjac          */
-
-  DlsMat d_M;             /* M = I - gamma * df/dy                        */
-  DlsMat d_savedJ;        /* savedJ = old Jacobian                        */
-
-  int *d_pivots;          /* pivots = int pivot array for PM = LU         */
-  long int *d_lpivots;    /* lpivots = long int pivot array for PM = LU   */
+  N_Vector x;           /* solution vector used by SUNLinearSolver       */
   
-  long int  d_nstlj;      /* nstlj = nst at last Jacobian eval.           */
+  long int nstlj;       /* nstlj = nst at last Jacobian eval.            */
 
-  long int d_nje;         /* nje = no. of calls to jac                    */
+  long int nje;         /* nje = no. of calls to jac                     */
 
-  long int d_nfeDQ;       /* no. of calls to f due to DQ Jacobian approx. */
+  long int nfeDQ;       /* no. of calls to f due to DQ Jacobian approx.  */
 
-  long int d_last_flag;   /* last error return flag                       */
-  
+  long int last_flag;   /* last error return flag                        */
+
 } *CVDlsMem;
 
-/*
- * -----------------------------------------------------------------
- * Prototypes of internal functions
- * -----------------------------------------------------------------
- */
+/*-----------------------------------------------------------------
+  Prototypes of internal functions
+  -----------------------------------------------------------------*/
 
-int cvDlsDenseDQJac(long int N, realtype t,
-                    N_Vector y, N_Vector fy, 
-                    DlsMat Jac, void *data,
-                    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+/*-----------------------------------------------------------------
+  PRIVATE FUNCTIONS 
+  -----------------------------------------------------------------*/
+
+/* difference-quotient Jacobian approximation routines */
+int cvDlsDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
+               void *data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   
-int cvDlsBandDQJac(long int N, long int mupper, long int mlower,
-                   realtype t, N_Vector y, N_Vector fy, 
-                   DlsMat Jac, void *data,
-                   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+int cvDlsDenseDQJac(realtype t, N_Vector y, N_Vector fy, 
+                    SUNMatrix Jac, CVodeMem cv_mem, N_Vector tmp1);
+  
+int cvDlsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
+                   CVodeMem cv_mem, N_Vector tmp1, N_Vector tmp2);
+  
+/* generic linit/lsetup/lsolve/lfree interface routines for CVode to call */
+int cvDlsInitialize(CVodeMem cv_mem);
+
+int cvDlsSetup(CVodeMem cv_mem, int convfail, N_Vector y, 
+               N_Vector fy, booleantype *jcurPtr, 
+               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3); 
+  
+int cvDlsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
+               N_Vector ycur, N_Vector fcur);
+
+int cvDlsFree(CVodeMem cv_mem);
 
 /* Auxilliary functions */
 int cvDlsInitializeCounters(CVDlsMem cvdls_mem);
 
 
-/*
- * =================================================================
- * PART II:  B A C K W A R D    P R O B L E M S
- * =================================================================
- */
+/*=================================================================
+  PART II:  Backward Problems
+  =================================================================*/
 
-/*
- * -----------------------------------------------------------------
- * Types : CVDlsMemRecB, CVDlsMemB       
- * -----------------------------------------------------------------
- * A CVDLS linear solver's specification function attaches such
- * a structure to the lmemB filed of CVodeBMem
- * -----------------------------------------------------------------
- */
+/*-----------------------------------------------------------------
+  Types : CVDlsMemRecB, CVDlsMemB       
+  -----------------------------------------------------------------
+  A CVDLS linear solver's specification function attaches such
+  a structure to the lmemB filed of CVodeBMem
+  -----------------------------------------------------------------*/
 
 typedef struct CVDlsMemRecB {
 
-  int d_typeB;
-
-  CVDlsDenseJacFnB d_djacB;
-  CVDlsDenseJacFnBS d_djacBS;
-  CVDlsBandJacFnB d_bjacB;
-  CVDlsBandJacFnBS d_bjacBS;
+  CVDlsJacFnB jacB;
+  CVDlsJacFnBS jacBS;
 
 } *CVDlsMemB;
 
+/*-----------------------------------------------------------------
+  Prototypes of internal functions
+  -----------------------------------------------------------------*/
 
-/*
- * =================================================================
- * E R R O R   M E S S A G E S
- * =================================================================
- */
+int cvDlsFreeB(CVodeBMem cvb_mem);
+
+/*=================================================================
+  Error Messages
+  =================================================================*/
 
 #define MSGD_CVMEM_NULL "Integrator memory is NULL."
 #define MSGD_BAD_NVECTOR "A required vector operation is not implemented."
@@ -150,7 +147,9 @@ typedef struct CVDlsMemRecB {
 #define MSGD_MEM_FAIL "A memory request failed."
 #define MSGD_LMEM_NULL "Linear solver memory is NULL."
 #define MSGD_JACFUNC_FAILED "The Jacobian routine failed in an unrecoverable manner."
-
+#define MSGD_MATCOPY_FAILED "The SUNMatCopy routine failed in an unrecoverable manner."
+#define MSGD_MATZERO_FAILED "The SUNMatZero routine failed in an unrecoverable manner."
+#define MSGD_MATSCALEADDI_FAILED "The SUNMatScaleAddI routine failed in an unrecoverable manner."
 
 #define MSGD_NO_ADJ "Illegal attempt to call before calling CVodeAdjMalloc."
 #define MSGD_BAD_WHICH "Illegal value for which."

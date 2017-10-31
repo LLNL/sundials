@@ -44,6 +44,7 @@
 
 #include <mpi.h>
 #include <sundials/sundials_nvector.h>
+#include <sundials/sundials_mpi_types.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -60,23 +61,13 @@ extern "C" {
 #define MAX_DIMS 6
 
 
-/* define MPI data types and output formatting specifiers */
-
+/* define output formatting specifiers */
 #if defined(SUNDIALS_SINGLE_PRECISION)
-
-#define PGVEC_REAL_MPI_TYPE MPI_FLOAT
 #define DOUT "g"
-
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-
-#define PGVEC_REAL_MPI_TYPE MPI_DOUBLE
 #define DOUT "lg"
-
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-
-#define PGVEC_REAL_MPI_TYPE MPI_LONG_DOUBLE
 #define DOUT "Lg"
-
 #endif
 
 #define PGVEC_INTEGER_MPI_TYPE MPI_LONG
@@ -96,15 +87,15 @@ extern "C" {
    choice of C or Fortran major ordering held in the 'ordering' flag. */
 
 struct _N_VectorContent_Parallel_Grid {
-  long int dims;                  /* vector dimensionality                 */
-  long int dim_length[MAX_DIMS];  /* total array length in each dimension  */
-  long int dim_alength[MAX_DIMS]; /* active array length in each dimension */
-  long int dim_offset[MAX_DIMS];  /* offset to active data in each dim     */
-  long int global_length;         /* global vector length                  */
-  booleantype own_data;           /* ownership of data                     */
-  realtype *data;                 /* local data array                      */
-  MPI_Comm comm;                  /* pointer to MPI communicator           */
-  booleantype F_ordering;         /* Fortran or C ordering                 */
+  int dims;                        /* vector dimensionality                 */
+  sunindextype dim_length[MAX_DIMS];  /* total array length in each dimension  */
+  sunindextype dim_alength[MAX_DIMS]; /* active array length in each dimension */
+  sunindextype dim_offset[MAX_DIMS];  /* offset to active data in each dim     */
+  sunindextype global_length;         /* global vector length                  */
+  booleantype own_data;            /* ownership of data                     */
+  realtype *data;                  /* local data array                      */
+  MPI_Comm comm;                   /* pointer to MPI communicator           */
+  booleantype F_ordering;          /* Fortran or C ordering                 */
 };
 
 typedef struct _N_VectorContent_Parallel_Grid *N_VectorContent_Parallel_Grid;
@@ -119,7 +110,7 @@ typedef struct _N_VectorContent_Parallel_Grid *N_VectorContent_Parallel_Grid;
  * are assumed:
  *
  * N_Vector v;
- * long int i[] = {i0, i1, ..., id};  [has length dims]
+ * sunindextype i[] = {i0, i1, ..., id};  [has length dims]
  *
  * (1) NV_CONTENT_PG
  *
@@ -234,12 +225,12 @@ typedef struct _N_VectorContent_Parallel_Grid *N_VectorContent_Parallel_Grid;
  */
 
 SUNDIALS_EXPORT N_Vector N_VNew_Parallel_Grid(MPI_Comm comm, 
-					      long int dims,
-					      long int *dim_length,
-					      long int *dim_alength,
-					      long int *dim_offset,
-					      long int F_ordering,
-					      long int global_length);
+					      int dims,
+					      sunindextype *dim_length,
+					      sunindextype *dim_alength,
+					      sunindextype *dim_offset,
+					      booleantype F_ordering,
+					      sunindextype global_length);
 
 /*
  * -----------------------------------------------------------------
@@ -251,12 +242,12 @@ SUNDIALS_EXPORT N_Vector N_VNew_Parallel_Grid(MPI_Comm comm,
  */
 
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_Parallel_Grid(MPI_Comm comm, 
-						   long int dims,
-						   long int *dim_length,
-						   long int *dim_alength,
-						   long int *dim_offset,
-						   long int F_ordering,
-						   long int global_length);
+						   int dims,
+						   sunindextype *dim_length,
+						   sunindextype *dim_alength,
+						   sunindextype *dim_offset,
+						   booleantype F_ordering,
+						   sunindextype global_length);
 
 /*
  * -----------------------------------------------------------------
@@ -268,12 +259,12 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_Parallel_Grid(MPI_Comm comm,
  */
 
 SUNDIALS_EXPORT N_Vector N_VMake_Parallel_Grid(MPI_Comm comm, 
-					       long int dims,
-					       long int *dim_length,
-					       long int *dim_alength,
-					       long int *dim_offset,
-					       long int F_ordering,
-					       long int global_length,
+					       int dims,
+					       sunindextype *dim_length,
+					       sunindextype *dim_alength,
+					       sunindextype *dim_offset,
+					       booleantype F_ordering,
+					       sunindextype global_length,
 					       realtype *v_data);
 
 /*
@@ -344,7 +335,7 @@ SUNDIALS_EXPORT void N_VPrintAll_Parallel_Grid(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Parallel_Grid(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Parallel_Grid(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Parallel_Grid(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_Parallel_Grid(N_Vector v, long int *lrw, long int *liw);
+SUNDIALS_EXPORT void N_VSpace_Parallel_Grid(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Parallel_Grid(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Parallel_Grid(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum_Parallel_Grid(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);

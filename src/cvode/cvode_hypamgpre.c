@@ -63,7 +63,7 @@ static int CVBoomerAMGSolve(realtype t, N_Vector y, N_Vector fy,
 /* Prototype for CVBoomerAMGFree */
 static void CVBoomerAMGFree(CVodeMem cv_mem);
                       
-static int CVParCsrCreateGammaIdentity(HYPRE_IJMatrix* id_mat, realtype gamma, long int ilower, long int iupper);
+static int CVParCsrCreateGammaIdentity(HYPRE_IJMatrix* id_mat, realtype gamma, sunindextype ilower, sunindextype iupper);
 
 /*
  * -----------------------------------------------------------------
@@ -76,7 +76,7 @@ int CVBoomerAMGInit(void *cvode_mem, int ilower, int iupper, int jlower, int jup
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
   CVBoomerAMGData pdata;
-  long int muk, mlk, storage_mu;
+  sunindextype muk, mlk, storage_mu;
   int flag;
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CVSPILS_MEM_NULL, "CVHYPRE_BOOMERAMG", "CVBoomerAMGInit", MSGBBD_MEM_NULL);
@@ -173,19 +173,19 @@ int CVBoomerAMGInit(void *cvode_mem, int ilower, int iupper, int jlower, int jup
  *
  * jok     is an input flag indicating whether Jacobian-related
  *         data needs to be recomputed, as follows:
- *           jok == FALSE means recompute Jacobian-related data
+ *           jok == SUNFALSE means recompute Jacobian-related data
  *                  from scratch.
- *           jok == TRUE  means that Jacobian data from the
+ *           jok == SUNTRUE  means that Jacobian data from the
  *                  previous CVBoomerAMGon call can be reused
  *                  (with the current value of gamma).
- *         A CVBoomerAMG call with jok == TRUE should only occur
- *         after a call with jok == FALSE.
+ *         A CVBoomerAMG call with jok == SUNTRUE should only occur
+ *         after a call with jok == SUNFALSE.
  *         Currently this argument is superflous, since we cannot store a previous J
  *
  * jcurPtr is a pointer to an output integer flag which is
  *         set by CVBoomerAMGon as follows:
- *           *jcurPtr = TRUE if Jacobian data was recomputed.
- *           *jcurPtr = FALSE if Jacobian data was not recomputed,
+ *           *jcurPtr = SUNTRUE if Jacobian data was recomputed.
+ *           *jcurPtr = SUNFALSE if Jacobian data was not recomputed,
  *                      but saved data was reused.
  *
  * gamma   is the scalar appearing in the Newton matrix.
@@ -205,9 +205,9 @@ int CVBoomerAMGInit(void *cvode_mem, int ilower, int iupper, int jlower, int jup
  */
 
 int CVBoomerAMGSetup(realtype t, N_Vector y, N_Vector fy, 
-                          booleantype jok, booleantype *jcurPtr, 
-                          realtype gamma, void *hypamg_data, 
-                          N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+                     booleantype jok, booleantype *jcurPtr, 
+                     realtype gamma, void *hypamg_data, 
+                     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   int counter=0;
   int nnz, i;
@@ -224,7 +224,7 @@ int CVBoomerAMGSetup(realtype t, N_Vector y, N_Vector fy,
 
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
-  *jcurPtr = TRUE;
+  *jcurPtr = SUNTRUE;
   
   /*Consider recomputing P in some Solve iterations if BoomerAMGSetup is much more
   expensive than computing P*/
@@ -317,7 +317,6 @@ static void CVBoomerAMGFree(CVodeMem cv_mem)
   pdata = NULL;
 }
 
-#define lmem       (cv_mem->cv_lmem)
 /*
 int JacTimes(N_Vector v, N_Vector Jv, realtype t, N_Vector y, N_Vector fy, void *user_data, N_Vector tmp)
 {
@@ -331,11 +330,11 @@ int JacTimes(N_Vector v, N_Vector Jv, realtype t, N_Vector y, N_Vector fy, void 
   }
   cv_mem = (CVodeMem) user_data->ode_mem;
 
-  if (lmem == NULL) {
+  if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", "CVSpilsSetJacTimesVecFn", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
-  cvspils_mem = (CVSpilsMem) lmem;
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
   pdata = (CVBoomerAMGData) cvspils_mem->s_P_data;
  hypre_ParCSRMatrixMatvec ( 1.0, pdata->parcsr_A, NV_HYPRE_PARVEC_PH(v), 1.0, NV_HYPRE_PARVEC_PH(Jv));
 }*/
@@ -359,18 +358,18 @@ int CVSpilsSetParCsrJacFn(void *cvode_mem, CVParCsrJacFn jparcsr)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (lmem == NULL) {
+  if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", "CVSpilsSetJacTimesVecFn", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
-  cvspils_mem = (CVSpilsMem) lmem;
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
   pdata = (CVBoomerAMGData) cvspils_mem->s_P_data;
 
   if (jparcsr != NULL) {
     pdata->jacfn  = jparcsr;
-/*    jtimesDQ = FALSE;*/
+/*    jtimesDQ = SUNFALSE;*/
   }/* else {
-    jtimesDQ = TRUE;
+    jtimesDQ = SUNTRUE;
   }*/
 
   return(CVSPILS_SUCCESS);
@@ -389,24 +388,24 @@ int CVParCsrSetSpilsJacTimesVecFn(void *cvode_mem, CVSpilsJacTimesVecFn jparcsr)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (lmem == NULL) {
+  if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", "CVSpilsSetJacTimesVecFn", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
-  cvspils_mem = (CVSpilsMem) lmem;
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
   pdata = (CVBoomerAMGData) cvspils_mem->s_P_data;
 
   if (jparcsr != NULL) {
     cvspils_mem->s_jtimes  = jparcsr;
-    cvspils_mem->s_jtimesDQ = FALSE;
+    cvspils_mem->s_jtimesDQ = SUNFALSE;
   }/* else {
-    jtimesDQ = TRUE;
+    jtimesDQ = SUNTRUE;
   }*/
 
   return(CVSPILS_SUCCESS);
 }
 
-int CVParCsrCreateGammaIdentity(HYPRE_IJMatrix* id_mat, realtype gamma, long int ilow, long int iup)
+int CVParCsrCreateGammaIdentity(HYPRE_IJMatrix* id_mat, realtype gamma, sunindextype ilow, sunindextype iup)
 {
   int nnz, i;
   double values[5];

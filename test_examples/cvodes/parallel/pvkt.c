@@ -650,8 +650,8 @@ static void PrintRow(realtype *row, FILE* f1, FILE* f2)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int lenrw, leniw ;
-  long int lenrwSPGMR, leniwSPGMR;
+  sunindextype lenrw, leniw ;
+  sunindextype lenrwSPGMR, leniwSPGMR;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeSPGMR;
   int flag;
@@ -1031,19 +1031,19 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 
   if (jok) {
 
-  /* jok = TRUE: Copy Jbd to P */
+  /* jok = SUNTRUE: Copy Jbd to P */
 
     for (ly = 0; ly < MYSUB; ly++)
       for (lx = 0; lx < MXSUB; lx++)
         denseCopy(Jbd[lx][ly], P[lx][ly], NVARS, NVARS);
 
-  *jcurPtr = FALSE;
+  *jcurPtr = SUNFALSE;
 
   }
 
   else {
 
-  /* jok = FALSE: Generate Jbd from scratch and copy to P */
+  /* jok = SUNFALSE: Generate Jbd from scratch and copy to P */
     
   /* Make local copies of problem variables, for efficiency */
     
@@ -1079,7 +1079,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
       }
     }
     
-    *jcurPtr = TRUE;
+    *jcurPtr = SUNTRUE;
     
   }
   

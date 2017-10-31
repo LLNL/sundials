@@ -1,7 +1,4 @@
 # ---------------------------------------------------------------
-# $Revision$
-# $Date$
-# ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
@@ -15,10 +12,9 @@
 # LLNS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the FCVODE parallel examples
+# ---------------------------------------------------------------
 
-
-# Add variable FCVODE_examples with the names of the parallel CVODE examples
-
+# Examples using SUNDIALS linear solvers
 SET(FCVODE_examples
   "fcvDiag_non_p\;1\;2"
   "fcvDiag_kry_bbd_p\;1\;2"
@@ -28,70 +24,65 @@ SET(FCVODE_examples
 # Check whether we use MPI compiler scripts.
 # If yes, then change the Fortran compiler to the MPIF77 script.
 # If not, then add the MPI include directory for MPI headers.
-
-IF(MPI_MPIF77 )
+IF(MPI_MPIF77)
   # use MPI_MPIF77 as the compiler
   SET(CMAKE_Fortran_COMPILER ${MPI_MPIF77})
-ELSE(MPI_MPIF77)
+ELSE()
   # add MPI_INCLUDE_PATH to include directories
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-ENDIF(MPI_MPIF77)
+ENDIF()
 
 # Specify libraries to link against (through the target that was used to 
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
-
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(CVODE_LIB sundials_cvode_static)
   SET(NVECP_LIB sundials_nvecparallel_static)
   SET(FNVECP_LIB sundials_fnvecparallel_static)
-ELSE(LINK_LIBRARY_TYPE MATCHES "static")
+ELSE()
   SET(CVODE_LIB sundials_cvode_shared)
   SET(NVECP_LIB sundials_nvecparallel_shared)
   SET(FNVECP_LIB sundials_fnvecparallel_shared)
-ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
+ENDIF()
 
 # Only static FCMIX libraries are available
-
 SET(FCVODE_LIB sundials_fcvode_static)
 
 # Set-up linker flags and link libraries
-
 SET(SUNDIALS_LIBS ${FCVODE_LIB} ${CVODE_LIB} ${FNVECP_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
-IF(LAPACK_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
-ENDIF(LAPACK_FOUND)
 
-IF(KLU_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
-ENDIF(KLU_FOUND)
 
-IF(SUPERLUMT_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${SUPERLUMT_LIBRARIES})
-ENDIF(SUPERLUMT_FOUND)
-
-IF(HYPRE_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${HYPRE_LIBRARIES})
-ENDIF(HYPRE_FOUND)
-
-# Add the build and install targets for each CVODE example
-
+# Add the build and install targets for each example
 FOREACH(example_tuple ${FCVODE_examples})
+
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 number_of_nodes)
   list(GET example_tuple 2 number_of_tasks)
-  # first item is example
+
+  # example source files
   ADD_EXECUTABLE(${example} ${example}.f)
+
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+  
+  # add to regression tests
   SUNDIALS_ADD_TEST(${example} ${example} MPI_NPROCS ${number_of_tasks})
+
+  # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+
   IF(NOT MPI_MPIF77)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
-  ENDIF(NOT MPI_MPIF77)
+  ENDIF()
+
+  # install example source and out files
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.f ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/fcmix_parallel)
-  ENDIF(EXAMPLES_INSTALL)
+    INSTALL(FILES ${example}.f ${example}.out
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/fcmix_parallel)
+  ENDIF()
+
 ENDFOREACH(example_tuple ${FCVODE_examples})
 
+
+# create Makfile and CMakeLists.txt for examples
 IF(EXAMPLES_INSTALL)
 
   # Install the README file
@@ -101,11 +92,12 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER "CVODE")
   SET(SOLVER_LIB "sundials_cvode")
   SET(SOLVER_FLIB "sundials_fcvode")
+
   FOREACH(example_tuple ${FCVODE_examples})
     list(GET example_tuple 0 example)
     LIST2STRING(example EXAMPLES)
-  ENDFOREACH(example_tuple ${FCVODE_examples})
-  
+  ENDFOREACH()
+
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
   # be used as a template for the user's own programs.

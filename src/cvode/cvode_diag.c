@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -84,7 +81,7 @@ static int CVDiagFree(CVodeMem cv_mem);
  * respectively.  It allocates memory for a structure of type
  * CVDiagMemRec and sets the cv_lmem field in (*cvode_mem) to the
  * address of this structure.  It sets setupNonNull in (*cvode_mem) to
- * TRUE.  Finally, it allocates memory for M, bit, and bitcomp.
+ * SUNTRUE.  Finally, it allocates memory for M, bit, and bitcomp.
  * The CVDiag return value is SUCCESS = 0, LMEM_FAIL = -1, or 
  * LIN_ILL_INPUT=-2.
  * -----------------------------------------------------------------
@@ -127,11 +124,9 @@ int CVDiag(void *cvode_mem)
 
   last_flag = CVDIAG_SUCCESS;
 
-  /* Set flag setupNonNull = TRUE */
-  setupNonNull = TRUE;
-
+  
   /* Allocate memory for M, bit, and bitcomp */
-    
+   
   M = N_VClone(vec_tmpl);
   if (M == NULL) {
     cvProcessError(cv_mem, CVDIAG_MEM_FAIL, "CVDIAG", "CVDiag", MSGDG_MEM_FAIL);
@@ -372,8 +367,8 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     return(1);
   }
 
-  /* Set jcur = TRUE, save gamma in gammasv, and return */
-  *jcurPtr = TRUE;
+  /* Set jcur = SUNTRUE, save gamma in gammasv, and return */
+  *jcurPtr = SUNTRUE;
   gammasv = gamma;
   last_flag = CVDIAG_SUCCESS;
   return(0);

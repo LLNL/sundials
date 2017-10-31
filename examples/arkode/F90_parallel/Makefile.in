@@ -52,7 +52,8 @@ MPIF90_LNKR  = @MPIF90_LNKR@
 MPI_LIB_DIR  = @MPI_LIB_DIR@
 MPI_LIBS     = @MPI_LIBS@
 
-BLAS_LAPACK_LIBS = @BLAS_LAPACK_LIBS@
+LAPACK_LIBS = @LAPACK_LIBS@
+BLAS_LIBS   = @BLAS_LIBS@
 
 OBJ_EXT = @OBJEXT@
 EXE_EXT = @EXEEXT@
@@ -83,7 +84,7 @@ all:
 	@for i in ${EXAMPLES} ; do \
 	  ${fortran-update} ${srcdir} $${i}.f90 ; \
 	  ${LIBTOOL} --mode=compile ${MPIF90} ${MPI_FLAGS} -I${MPI_INC_DIR} ${FFLAGS} -c ${builddir}/$${i}-updated.f90 ; \
-	  ${LIBTOOL} --mode=link ${MPIF90_LNKR} -o ${builddir}/$${i}${EXE_EXT} ${builddir}/$${i}-updated${OBJ_EXT} ${MPI_FLAGS} ${F90_LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${F90_LIBS} $(BLAS_LAPACK_LIBS) ; \
+	  ${LIBTOOL} --mode=link ${MPIF90_LNKR} -o ${builddir}/$${i}${EXE_EXT} ${builddir}/$${i}-updated${OBJ_EXT} ${MPI_FLAGS} ${F90_LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${F90_LIBS} $(LAPACK_LIBS) $(BLAS_LIBS) ; \
 	done
 
 install:

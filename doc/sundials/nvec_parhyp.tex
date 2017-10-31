@@ -13,8 +13,8 @@ and a boolean flag {\em own\_parvector} indicating ownership of the
 %%
 \begin{verbatim}
 struct _N_VectorContent_ParHyp {
-  long int local_length;
-  long int global_length;
+  sunindextype local_length;
+  sunindextype global_length;
   booleantype own_parvector;
   MPI_Comm comm;
   hypre_ParVector *x;
@@ -22,9 +22,15 @@ struct _N_VectorContent_ParHyp {
 \end{verbatim}
 %%
 %%--------------------------------------------
-The header file to be included when using this module is \id{nvector\_parhyp.h}.
+The header file to include when using this module is \id{nvector\_parhyp.h}.
+The installed module library to link to is
+\id{libsundials\_nvecparhyp.\textit{lib}}
+where \id{\em.lib} is typically \id{.so} for shared libraries and \id{.a}
+for static libraries.
+
 Unlike native {\sundials} vector types, {\nvecph} does not provide macros 
 to access its member variables.
+Note that {\nvecph} requires {\sundials} to be built with {\mpi} support.
 
 %%
 %%--------------------------------------------
@@ -35,7 +41,7 @@ listed in Table \ref{t:nvecops}, except for \id{N\_VSetArrayPointer} and
 low-level {\hypre} functions. 
 As such, this vector is not available for use with {\sundials} Fortran interfaces.
 When access to raw vector data is needed, one 
-should extract {\hypre} vector first, and then use {\hypre} 
+should extract the {\hypre} vector first, and then use {\hypre} 
 methods to access the data. Usage examples of {\nvecph} are provided in 
 the \id{cvAdvDiff\_non\_ph.c} example program for {\cvode} \cite{cvode_ex} 
 and the \id{ark\_diurnal\_kry\_ph.c} example program for {\arkode} \cite{arkode_ex}.
@@ -57,8 +63,8 @@ The module {\nvecph} provides the following additional user-callable routines:
 
 \begin{verbatim}
 N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, 
-                            long int local_length, 
-                            long int global_length);
+                            sunindextype local_length, 
+                            sunindextype global_length);
 \end{verbatim}
 
   
@@ -145,10 +151,10 @@ N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w);
 \item
   {\warn}\id{N\_VNewEmpty\_ParHyp}, \id{N\_VMake\_ParHyp}, 
   and \id{N\_VCloneVectorArrayEmpty\_ParHyp} set the field 
-  {\em own\_parvector} to \id{FALSE}. 
+  {\em own\_parvector} to \id{SUNFALSE}. 
   \id{N\_VDestroy\_ParHyp} and \id{N\_VDestroyVectorArray\_ParHyp}
   will not attempt to delete an underlying {\hypre} vector for any \id{N\_Vector} 
-  with {\em own\_parvector} set to \id{FALSE}. In such a case, it is the 
+  with {\em own\_parvector} set to \id{SUNFALSE}. In such a case, it is the 
   user's responsibility to delete the underlying vector.
 
 \item

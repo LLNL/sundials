@@ -66,7 +66,7 @@ int get_SolverOptions(const mxArray *options,
   mxArray *opt;
   char *bufval;
   int buflen, status;
-  long int i, m, n;
+  sunindextype i, m, n;
   double *tmp;
 
   /* Set default values (pass 0 values. KINSOL does the rest) */
@@ -85,13 +85,13 @@ int get_SolverOptions(const mxArray *options,
   *fnormtol = 0.0;
   *scsteptol = 0.0;
 
-  *noInitSetup = FALSE;
-  *noMinEps = FALSE;
+  *noInitSetup = SUNFALSE;
+  *noMinEps = SUNFALSE;
 
   *constraints = NULL;
 
-  *verbose = FALSE;
-  *errmsg = TRUE;
+  *verbose = SUNFALSE;
+  *errmsg = SUNTRUE;
 
   /* Return now if options was empty */
 
@@ -179,8 +179,8 @@ int get_SolverOptions(const mxArray *options,
       kimErrHandler(-999, "KINSOL", "KINInit", "ErrorMessages is not a logical scalar.", NULL);
       return(-1);
     }
-    if (mxIsLogicalScalarTrue(opt)) *errmsg = TRUE;
-    else                            *errmsg = FALSE;
+    if (mxIsLogicalScalarTrue(opt)) *errmsg = SUNTRUE;
+    else                            *errmsg = SUNFALSE;
   }
 
   opt = mxGetField(options,0,"Verbose");
@@ -189,8 +189,8 @@ int get_SolverOptions(const mxArray *options,
       kimErrHandler(-999, "KINSOL", "KINInit", "Verbose is not a logical scalar.", NULL);
       return(-1);
     }
-    if (mxIsLogicalScalarTrue(opt)) *verbose = TRUE;
-    else                            *verbose = FALSE;
+    if (mxIsLogicalScalarTrue(opt)) *verbose = SUNTRUE;
+    else                            *verbose = SUNFALSE;
   }
 
   opt = mxGetField(options,0,"InitialSetup");
@@ -199,8 +199,8 @@ int get_SolverOptions(const mxArray *options,
       kimErrHandler(-999, "KINSOL", "KINInit", "InitialSetup is not a logical scalar.", NULL);
       return(-1);
     }
-    if (mxIsLogicalScalarTrue(opt)) *noInitSetup = FALSE;
-    else                            *noInitSetup = TRUE;
+    if (mxIsLogicalScalarTrue(opt)) *noInitSetup = SUNFALSE;
+    else                            *noInitSetup = SUNTRUE;
   }
 
 
@@ -210,8 +210,8 @@ int get_SolverOptions(const mxArray *options,
       kimErrHandler(-999, "KINSOL", "KINInit", "MinBoundEps is not a logical scalar.", NULL);
       return(-1);
     }
-    if (mxIsLogicalScalarTrue(opt)) *noMinEps = FALSE;
-    else                            *noMinEps = TRUE;
+    if (mxIsLogicalScalarTrue(opt)) *noMinEps = SUNFALSE;
+    else                            *noMinEps = SUNTRUE;
   }
 
   /* Constraints */
@@ -241,8 +241,8 @@ int get_SolverOptions(const mxArray *options,
 
 
 int get_LinSolvOptions(const mxArray *options,
-                       long int *mupper, long int *mlower,
-                       long int *mudq, long int *mldq, double *dqrely,
+                       sunindextype *mupper, sunindextype *mlower,
+                       sunindextype *mudq, sunindextype *mldq, double *dqrely,
                        int *ptype, int *maxrs, int *maxl)
 {
   mxArray *opt;
@@ -304,11 +304,11 @@ int get_LinSolvOptions(const mxArray *options,
 
     opt = mxGetField(options,0,"UpperBwidth");
     if ( !mxIsEmpty(opt) )
-      *mupper = (long int)*mxGetPr(opt);
+      *mupper = (sunindextype)*mxGetPr(opt);
     
     opt = mxGetField(options,0,"LowerBwidth");
     if ( !mxIsEmpty(opt) )
-      *mlower = (long int)*mxGetPr(opt);
+      *mlower = (sunindextype)*mxGetPr(opt);
 
   }
   
@@ -394,19 +394,19 @@ int get_LinSolvOptions(const mxArray *options,
 
       opt = mxGetField(options,0,"UpperBwidth");
       if ( !mxIsEmpty(opt) )
-        *mupper = (long int)*mxGetPr(opt);
+        *mupper = (sunindextype)*mxGetPr(opt);
     
       opt = mxGetField(options,0,"LowerBwidth");
       if ( !mxIsEmpty(opt) )
-        *mlower = (long int)*mxGetPr(opt);
+        *mlower = (sunindextype)*mxGetPr(opt);
 
       opt = mxGetField(options,0,"UpperBwidthDQ");
       if ( !mxIsEmpty(opt) )
-        *mudq = (long int)*mxGetPr(opt);
+        *mudq = (sunindextype)*mxGetPr(opt);
 
       opt = mxGetField(options,0,"LowerBwidthDQ");
       if ( !mxIsEmpty(opt) )
-        *mldq = (long int)*mxGetPr(opt);
+        *mldq = (sunindextype)*mxGetPr(opt);
       
       opt = mxGetField(options,0,"GlocalFn");
       if ( !mxIsEmpty(opt) ) {

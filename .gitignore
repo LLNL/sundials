@@ -1,6 +1,3 @@
-# global ignores
-*~
-
 # /
 /.project
 /build
@@ -8,10 +5,22 @@
 /.settings
 /.cproject
 /.autotools
-/.kdev4
-/trunk.kdev4
-/.directory
+*.kdev4
+*.directory
 /.pydevproject
+
+# temporary directory used for uploading releases to GitHub
+/scripts/sundials-github
 
 # /test/
 /test/output
+
+# misc
+*.backup
+*.orig
+*.nvvp
+*.ptp-sync*
+*~
+
+## OS X ##
+.DS_Store

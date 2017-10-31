@@ -36,10 +36,10 @@ extern "C" {
    */
   
   void InitVectors();
-  N_Vector NewVector(long int n);
+  N_Vector NewVector(sunindextype n);
 
-  void PutData(N_Vector v, double *data, long int n);
-  void GetData(N_Vector v, double *data, long int n);
+  void PutData(N_Vector v, double *data, sunindextype n);
+  void GetData(N_Vector v, double *data, sunindextype n);
 
 #ifdef __cplusplus
 }

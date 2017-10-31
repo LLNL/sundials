@@ -10,7 +10,7 @@ of {\em data}.
 %%
 \begin{verbatim} 
 struct _N_VectorContent_Serial {
-  long int length;
+  sunindextype length;
   booleantype own_data;
   realtype *data;
 };
@@ -19,9 +19,13 @@ struct _N_VectorContent_Serial {
 %%--------------------------------------------
 %%
 
-The header file to be included when using this module is \id{nvector\_serial.h}.
+The header file to include when using this module is \id{nvector\_serial.h}.
+The installed module library to link to is
+\id{libsundials\_nvecserial.\textit{lib}}
+where \id{\em.lib} is typically \id{.so} for shared libraries and \id{.a}
+for static libraries.
 
-The following five macros are provided to access the content of an {\nvecs}
+The following macros are provided to access the content of an {\nvecs}
 vector. The suffix \id{\_S} in the names denotes the serial version.
 %%
 \begin{itemize}
@@ -97,7 +101,7 @@ The module {\nvecs} provides the following additional user-callable routines:
 
   
 
-  \verb|N_Vector N_VNew_Serial(long int vec_length);|
+  \verb|N_Vector N_VNew_Serial(sunindextype vec_length);|
 
 %%--------------------------------------
 
@@ -107,7 +111,7 @@ The module {\nvecs} provides the following additional user-callable routines:
 
   
 
-  \verb|N_Vector N_VNewEmpty_Serial(long int vec_length);|
+  \verb|N_Vector N_VNewEmpty_Serial(sunindextype vec_length);|
 
 %%--------------------------------------
 
@@ -118,7 +122,7 @@ The module {\nvecs} provides the following additional user-callable routines:
 
  (This function does {\em not} allocate memory for \id{v\_data} itself.)
 
- \verb|N_Vector N_VMake_Serial(long int vec_length, realtype *v_data);|
+ \verb|N_Vector N_VMake_Serial(sunindextype vec_length, realtype *v_data);|
 
 %%--------------------------------------
 
@@ -161,7 +165,7 @@ The module {\nvecs} provides the following additional user-callable routines:
 
  
  
- \verb|long int N_VGetLength_Serial(N_Vector v);|
+ \verb|sunindextype N_VGetLength_Serial(N_Vector v);|
 
 %%--------------------------------------
 
@@ -190,10 +194,10 @@ The module {\nvecs} provides the following additional user-callable routines:
 \item
   {\warn}\id{N\_VNewEmpty\_Serial}, \id{N\_VMake\_Serial}, 
   and \id{N\_VCloneVectorArrayEmpty\_Serial} set the field 
-  {\em own\_data} $=$ \id{FALSE}. 
+  {\em own\_data} $=$ \id{SUNFALSE}. 
   \id{N\_VDestroy\_Serial} and \id{N\_VDestroyVectorArray\_Serial}
   will not attempt to free the pointer {\em data} for any \id{N\_Vector} with
-  {\em own\_data} set to \id{FALSE}. In such a case, it is the user's responsibility to
+  {\em own\_data} set to \id{SUNFALSE}. In such a case, it is the user's responsibility to
   deallocate the {\em data} pointer.
                                      
 \item

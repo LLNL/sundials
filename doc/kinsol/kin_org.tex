@@ -25,10 +25,9 @@ The overall organization of the {\kinsol} package is shown in Figure
   Modules specific to {\kinsol} are distinguished by rounded boxes, while
   generic solver and auxiliary modules are in rectangular boxes.
   Grayed boxes refer to the encompassing {\sundials} structure.
-  Note that the direct linear solvers using Lapack implementations are not 
-  explicitly represented.  Note also that the KLU and SuperLU\_MT support 
-  is through interfaces
-  to packages.  Users will need to download and compile those packages independently.}
+  Note also that the LAPACK, {\klu} and {\superlumt} support is
+  through interfaces to external packages. 
+  Users will need to download and compile those packages independently.}
 \label{f:kinorg}
 \end{figure}
 The central solver module, implemented in the files
@@ -37,59 +36,51 @@ of a nonlinear algebraic system using either an Inexact Newton method or a
 line search method for the global strategy. Although this module contains logic
 for the Newton iteration, it has no knowledge of the method used to solve the
 linear systems that arise. For any given user problem, one of the linear system
-modules is specified, and is then invoked as needed.
+solve rinterfaces is specified, and is then invoked as needed.
 
-\index{KINSOL@{\kinsol} linear solvers!list of|(}
-At present, the package includes the following seven {\kinsol} linear algebra
-modules, organized into two families. The {\em direct} family of linear
-solvers provides solvers for the direct solution of linear systems with
-dense, banded, or sparse matrices and includes:
-\begin{itemize} 
-\item {\kindense}: LU factorization and backsolving with dense matrices
-  (using either an internal implementation or Blas/Lapack); 
-\item {\kinband}: LU factorization and backsolving with banded matrices
-  (using either an internal implementation or Blas/Lapack); 
-\item {\kinklu}: LU factorization and backsolving with
-  compressed-sparse-column (CSC) matrices using the KLU linear solver
-  library \cite{DaPa:10,KLU_site} (KLU to be downloaded and compiled by user independent 
-  of {\kinsol});
-\item {\kinsuperlumt}: LU factorization and backsolving with
-  compressed-sparse-column (CSC) matrices using the threaded
-  SuperLU\_MT linear solver library \cite{Li:05,DGL:99,SuperLUMT_site} 
-  (SuperLU\_MT to be downloaded and compiled by user independent 
-  of {\kinsol}).
-\end{itemize}
-The {\em spils} family of linear solvers providess scaled preconditioned
-iterative linear solvers and includes:
-\begin{itemize} 
-\item {\kinspgmr}: scaled preconditioned GMRES method;
-\item {\kinspbcg}: scaled preconditioned Bi-CGStab method;
-\item {\kinsptfqmr}: scaled preconditioned TFQMR method.
-\end{itemize}
-The set of linear solver modules distributed with {\kinsol} is intended to be expanded in the
-future as new algorithms are developed.  Note that users wishing to employ KLU or 
-SuperLU\_MT will need to download and install these libraries independent of {\sundials}.
-{\sundials} provides only the interfaces between itself and these libraries.
-\index{KINSOL@{\kinsol} linear solvers!list of|)}
+\index{KINSOL@{\kinsol} linear solver interfaces|(}
+At present, the package includes two linear solver interfaces.  The
+{\em direct} linear solver interface, {\kindls}, supports {\sunlinsol}
+implementations with type \id{SUNLINSOL\_DIRECT} (see Chapter
+\ref{s:sunlinsol}).  These linear solvers utilize direct methods for
+the solution of linear systems stored using one of the {\sundials} generic
+{\sunmatrix} implementations (dense, banded or sparse; see
+Chapter \ref{s:sunmatrix}).  
+The {\em spils} linear solver interface, {\kinspils}, supports
+{\sunlinsol} implementations with type \id{SUNLINSOL\_ITERATIVE}
+(see Chapter \ref{s:sunlinsol}).  These linear solvers utilize scaled
+preconditioned iterative methods.  It is assumed that these methods
+are implemented in a ``matrix-free'' manner, wherein only the action
+of the matrix-vector product is required.  Since {\kinsol} can
+operate on any valid {\sunlinsol} implementation of
+\id{SUNLINSOL\_DIRECT} or \id{SUNLINSOL\_ITERATIVE} types, the set of
+linear solver modules available to {\kinsol} will expand as new
+{\sunlinsol} modules are developed.
 
-In the case of the direct methods {\kindense} and {\kinband} the
-package includes an algorithm for the approximation of the Jacobian by
-difference quotients, but the user also has the option of supplying
-the Jacobian (or an approximation to it) directly.
-When using the sparse direct linear solvers {\kinklu} and
-{\kinsuperlumt}, the user must supply a routine for the Jacobian (or an
-approximation to it) in CSC format, since standard difference quotient
-approximations do not leverage the inherent sparsity of the problem.
-In the case of the Krylov methods {\kinspgmr}, {\kinspbcg} and {\kinsptfqmr},
-the package includes an algorithm for the approximation by difference quotients of the
-product between the Jacobian matrix and a vector of appropriate length. Again, the user
-has the option of providing a routine for this operation.
-For the Krylov methods, \index{preconditioning!setup and solve phases}
-the preconditioning must be supplied by the user, in two phases:
-setup (preprocessing of Jacobian data) and solve.
+Within the {\kindls} interface, the package includes algorithms for the
+approximation of dense or banded Jacobians through difference 
+quotients, but the user also has the option of supplying the Jacobian
+(or an approximation to it) directly.  This user-supplied 
+routine is required when using sparse Jacobian matrices, since
+standard difference quotient approximations do not leverage the
+inherent sparsity of the problem.
+
+Within the {\kinspils} interface, the package includes an algorithm for
+the approximation by difference quotients of the product between the Jacobian
+matrix and a vector. Again,
+the user has the option of providing routines for this operation, in
+two phases: setup (preprocessing of Jacobian data) and multiplication.
+For preconditioned iterative methods, \index{preconditioning!setup and solve phases} 
+the preconditioning must be supplied by the user, again in two phases: 
+setup and solve.  While\index{preconditioning!advice on} there is no
+default choice of preconditioner analogous to the difference-quotient
+approximation in the direct case, the references
+\cite{BrHi:89,Byr:92}, together with the example and demonstration
+programs included with {\kinsol}, offer considerable assistance in
+building preconditioners. 
 
 \index{KINSOL@{\kinsol} linear solvers!implementation details|(}
-Each {\kinsol} linear solver module consists of four routines, devoted to (1)
+Each {\kinsol} linear solver interface consists of four routines, devoted to (1)
 memory allocation and initialization, (2) setup of the matrix data
 involved, (3) solution of the system, and (4) freeing of memory.
 The setup and solution phases are separate because the evaluation of
@@ -107,7 +98,7 @@ interface built on top of a generic linear system solver ({\dense}
 etc.).  The interface deals with the use of the particular method in
 the {\kinsol} context, whereas the generic solver is independent of
 the context.  While some of the generic linear system solvers
-({\dense}, {\band}, {\spgmr}, {\spfgmr}, {\spbcg}, and {\sptfqmr}) were written
+({\dense}, {\band}, {\spgmr}, {\spfgmr}, {\spbcg}, {\sptfqmr}, and {\pcg}) were written
 with {\sundials} in mind, they are intended to be usable anywhere as
 general-purpose solvers.  This separation also allows for any generic
 solver to be replaced by an improved version, with no necessity to
@@ -117,7 +108,7 @@ revise the {\kinsol} package elsewhere.
 {\kinsol} also provides a preconditioner module called {\kinbbdpre} for use
 with any of the Krylov iterative liear solvers. It works in conjunction
 with {\nvecp} and generates a preconditioner that is
-a block-diagonal matrix with each block being a band matrix, as
+a block-diagonal matrix with each block being a banded matrix, as
 further described in \S\ref{sss:kinbbdpre}.
 
 All state information used by {\kinsol} to solve a given problem is saved

@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer: Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
  * Simulation of a slider-crank mechanism modelled with 3 generalized
@@ -21,18 +17,19 @@
  * where
  *   g(t,y,p) = 0.5*J1*v1^2 + 0.5*J2*v3^2 + 0.5*m2*v2^2
  *              
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
 
-#include <idas/idas.h>
-#include <idas/idas_dense.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_math.h>
-
+#include <idas/idas.h>                 /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
+#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
+#include <idas/idas_direct.h>          /* access to IDADls interface           */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
 
 #define Ith(v,i)    NV_Ith_S(v,i-1)       /* i-th vector component i= 1..NEQ */
 
@@ -100,6 +97,11 @@ int main(void)
   realtype dp, G, Gm[2], Gp[2];
   int flag, is;
   realtype atolS[NP];
+  SUNMatrix A;
+  SUNLinearSolver LS;
+
+  A  = NULL;
+  LS = NULL;
 
   id = N_VNew_Serial(NEQ);
   yy = N_VNew_Serial(NEQ);
@@ -108,7 +110,7 @@ int main(void)
 
   yyS= N_VCloneVectorArray(NP,yy);
   ypS= N_VCloneVectorArray(NP,yp);
-  qS = N_VCloneVectorArray_Serial(NP, q);
+  qS = N_VCloneVectorArray(NP, q);
 
   data = (UserData) malloc(sizeof *data);
 
@@ -144,28 +146,37 @@ int main(void)
   flag = IDASStolerances(mem, RTOLF, ATOLF);
   flag = IDASetUserData(mem, data);
   flag = IDASetId(mem, id);
-  flag = IDASetSuppressAlg(mem, TRUE);
+  flag = IDASetSuppressAlg(mem, SUNTRUE);
   flag = IDASetMaxNumSteps(mem, 20000);
 
-  /* Call IDADense and set up the linear solver. */
-  flag = IDADense(mem, NEQ);
+  /* Create dense SUNMatrix for use in linear solves */
+  A = SUNDenseMatrix(NEQ, NEQ);
+  if(check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
+
+  /* Create dense SUNLinearSolver object */
+  LS = SUNDenseLinearSolver(yy, A);
+  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  flag = IDADlsSetLinearSolver(mem, LS, A);
+  if(check_flag(&flag, "IDADlsSetLinearSolver", 1)) return(1);
 
   flag = IDASensInit(mem, NP, IDA_SIMULTANEOUS, NULL, yyS, ypS);
   pbar[0] = data->params[0];pbar[1] = data->params[1];
   flag = IDASetSensParams(mem, data->params, pbar, NULL);
   flag = IDASensEEtolerances(mem);
-  IDASetSensErrCon(mem, TRUE);
+  IDASetSensErrCon(mem, SUNTRUE);
   
   N_VConst(ZERO, q);
   flag = IDAQuadInit(mem, rhsQ, q);
   flag = IDAQuadSStolerances(mem, RTOLQ, ATOLQ);
-  flag = IDASetQuadErrCon(mem, TRUE);
+  flag = IDASetQuadErrCon(mem, SUNTRUE);
   
   N_VConst(ZERO, qS[0]);
   flag = IDAQuadSensInit(mem, rhsQS, qS);
   atolS[0] = atolS[1] = ATOLQ;
   flag = IDAQuadSensSStolerances(mem, RTOLQ, atolS);
-  flag = IDASetQuadSensErrCon(mem, TRUE);  
+  flag = IDASetQuadSensErrCon(mem, SUNTRUE);  
   
 
   /* Perform forward run */
@@ -197,7 +208,8 @@ int main(void)
   printf("--------------------------------------------\n\n");
 
   IDAFree(&mem);
-
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
 
 
   /* Finite differences for dG/dp */
@@ -212,14 +224,24 @@ int main(void)
   flag = IDASStolerances(mem, RTOLFD, ATOLFD);
   flag = IDASetUserData(mem, data);
   flag = IDASetId(mem, id);
-  flag = IDASetSuppressAlg(mem, TRUE);
-  /* Call IDADense and set up the linear solver. */
-  flag = IDADense(mem, NEQ);
+  flag = IDASetSuppressAlg(mem, SUNTRUE);
+
+  /* Create dense SUNMatrix for use in linear solves */
+  A = SUNDenseMatrix(NEQ, NEQ);
+  if(check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
+
+  /* Create dense SUNLinearSolver object */
+  LS = SUNDenseLinearSolver(yy, A);
+  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  flag = IDADlsSetLinearSolver(mem, LS, A);
+  if(check_flag(&flag, "IDADlsSetLinearSolver", 1)) return(1);
 
   N_VConst(ZERO, q);
   IDAQuadInit(mem, rhsQ, q);
   IDAQuadSStolerances(mem, RTOLQ, ATOLQ);
-  IDASetQuadErrCon(mem, TRUE);
+  IDASetQuadErrCon(mem, SUNTRUE);
 
   IDASolve(mem, TEND, &tret, yy, yp, IDA_NORMAL);
 
@@ -285,6 +307,8 @@ int main(void)
   Gp[1] = Ith(q,1);
 
   IDAFree(&mem);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
 
   printf("\n\n   Checking using Finite Differences \n\n");
 
@@ -317,9 +341,9 @@ int main(void)
   free(data);
 
   N_VDestroy(id);
-  N_VDestroy_Serial(yy);
-  N_VDestroy_Serial(yp);
-  N_VDestroy_Serial(q);
+  N_VDestroy(yy);
+  N_VDestroy(yp);
+  N_VDestroy(q);
   return(0);
   
 }
@@ -419,9 +443,9 @@ static int ressc(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *use
   m2 = data->m2;
   J2 = data->J2;
 
-  yval = N_VGetArrayPointer_Serial(yy); 
-  ypval = N_VGetArrayPointer_Serial(yp); 
-  rval = N_VGetArrayPointer_Serial(rr);
+  yval = N_VGetArrayPointer(yy); 
+  ypval = N_VGetArrayPointer(yp); 
+  rval = N_VGetArrayPointer(rr);
 
   q = yval[0];
   x = yval[1];

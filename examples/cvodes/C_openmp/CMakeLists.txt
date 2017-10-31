@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Ting Yan @ SMU
+# Programmer: Ting Yan @ SMU
 # ---------------------------------------------------------------
 # LLNS/SMU Copyright Start
 # Copyright (c) 2015, Southern Methodist University and 
@@ -19,57 +19,59 @@
 # For details, see the LICENSE file.
 # -----------------------------------------------------------------
 # CMakeLists.txt file for CVODES OpenMP examples
+# -----------------------------------------------------------------
 
 # Only include tests if OpenMP is enabled
 IF(OPENMP_FOUND)
 
-# Add variable CVODES_examples_OMP with the names of the openmp CVODES examples
-SET(CVODES_examples_OMP
-  cvsAdvDiff_bnd_omp
-  )
+  # Examples using SUNDIALS linear solvers
+  SET(CVODES_examples_OMP
+    cvsAdvDiff_bnd_omp
+    )
 
 ENDIF(OPENMP_FOUND)
 
 # Specify libraries to link against (through the target that was used to 
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
-
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(CVODES_LIB sundials_cvodes_static)
   SET(NVECOMP_LIB sundials_nvecopenmp_static)
-ELSE(LINK_LIBRARY_TYPE MATCHES "static")
+ELSE()
   SET(CVODES_LIB sundials_cvodes_shared)
   SET(NVECOMP_LIB sundials_nvecopenmp_shared)
-ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
+ENDIF()
 
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${CVODES_LIB} ${NVECOMP_LIB} ${EXTRA_LINK_LIBS})
-IF(LAPACK_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
-ENDIF(LAPACK_FOUND)
-
-IF(KLU_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
-ENDIF(KLU_FOUND)
-
-IF(SUPERLUMT_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${SUPERLUMT_LIBRARIES})
-ENDIF(SUPERLUMT_FOUND)
 
 # update the compilation flags to include OpenMP support
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
 
-# Add the build and install targets for each CVODES example
+# Add the build and install targets for each example
 FOREACH(example ${CVODES_examples_OMP})
+
+  # example source files
   ADD_EXECUTABLE(${example} ${example}.c)
+
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+
+  # add to regression tests
   SUNDIALS_ADD_TEST(${example} ${example} TEST_ARGS 4)
+
+  # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+
+  # install example source and out files
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/C_openmp)
-  ENDIF(EXAMPLES_INSTALL)
+    INSTALL(FILES ${example}.c ${example}.out
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/C_openmp)
+  ENDIF()
+
 ENDFOREACH(example ${CVODES_examples_OMP})
 
+
+# create Makfile and CMakeLists.txt for examples
 IF(EXAMPLES_INSTALL)
 
   # Install the README file
@@ -83,11 +85,8 @@ IF(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER "CVODES")
   SET(SOLVER_LIB "sundials_cvodes")
+
   LIST2STRING(CVODES_examples_OMP EXAMPLES)
-
-  STRING (REPLACE ";" " " TMP_STR ${EXAMPLES})
-  SET(EXAMPLES ${TMP_STR})
-
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

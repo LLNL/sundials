@@ -57,14 +57,14 @@
 
 int get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd, int lmm,
                      int *maxord, booleantype *sld, booleantype *errmsg,
-                     long int *mxsteps,
+                     sunindextype *mxsteps,
                      int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
                      double *hin, double *hmax, double *hmin, double *tstop,
                      booleantype *rhs_s)
 {
   mxArray *opt;
   int q;
-  long int i, m, n;
+  sunindextype i, m, n;
   double *tmp;
   char *fctName;
   char *fwd_fctName = "CVodeInit/CVodeReInit";
@@ -77,7 +77,7 @@ int get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd, 
   
   *maxord = (lmm == CV_ADAMS) ? 12 : 5;
   
-  *sld = FALSE;
+  *sld = SUNFALSE;
 
   *mxsteps = 0;
 
@@ -90,13 +90,13 @@ int get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd, 
   *hmax = 0.0;
   *hmin = 0.0;
 
-  *rhs_s = FALSE;
+  *rhs_s = SUNFALSE;
 
   Ng = 0;
-  tstopSet = FALSE;
-  mon = FALSE;
+  tstopSet = SUNFALSE;
+  mon = SUNFALSE;
 
-  *errmsg = TRUE;
+  *errmsg = SUNTRUE;
 
 
   /* Return now if options was empty */
@@ -221,15 +221,15 @@ int get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd, 
       cvmErrHandler(-999, "CVODES", fctName, "StabilityLimDet is not a logical scalar.", NULL);
       return(-1);
     }
-    if (mxIsLogicalScalarTrue(opt)) *sld = TRUE;
-    else                            *sld = FALSE;
+    if (mxIsLogicalScalarTrue(opt)) *sld = SUNTRUE;
+    else                            *sld = SUNFALSE;
   }
 
   /* Monitor? */
 
   opt = mxGetField(options,0,"MonitorFn");
   if ( !mxIsEmpty(opt) ) {
-    mon = TRUE;
+    mon = SUNTRUE;
     mxDestroyArray(mtlb_MONfct);
     mtlb_MONfct = mxDuplicateArray(opt);
     opt = mxGetField(options,0,"MonitorData");
@@ -252,15 +252,15 @@ int get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd, 
         cvmErrHandler(-999, "CVODES", fctName, "ErrorMessages is not a logical scalar.", NULL);
         return(-1);
       }
-      if (mxIsLogicalScalarTrue(opt)) *errmsg = TRUE;
-      else                            *errmsg = FALSE;
+      if (mxIsLogicalScalarTrue(opt)) *errmsg = SUNTRUE;
+      else                            *errmsg = SUNFALSE;
     }
 
     /* Stopping time */
     opt = mxGetField(options,0,"StopTime");
     if ( !mxIsEmpty(opt) ) {
       *tstop = *mxGetPr(opt);
-      tstopSet = TRUE;
+      tstopSet = SUNTRUE;
     }
 
     /* Number of root functions */
@@ -296,8 +296,8 @@ int get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd, 
         cvmErrHandler(-999, "CVODES", fctName, "SensDependent is not a logical scalar.", NULL);
         return(-1);
       }
-      if (mxIsLogicalScalarTrue(opt)) *rhs_s = TRUE;
-      else                            *rhs_s = FALSE;
+      if (mxIsLogicalScalarTrue(opt)) *rhs_s = SUNTRUE;
+      else                            *rhs_s = SUNFALSE;
     }
 
   }
@@ -309,8 +309,8 @@ int get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd, 
 
 
 int get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
-                       long int *mupper, long int *mlower,
-                       long int *mudq, long int *mldq, double *dqrely,
+                       sunindextype *mupper, sunindextype *mlower,
+                       sunindextype *mudq, sunindextype *mldq, double *dqrely,
                        int *ptype, int *gstype, int *maxl)
 {
   mxArray *opt;
@@ -375,11 +375,11 @@ int get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd
 
     opt = mxGetField(options,0,"UpperBwidth");
     if ( !mxIsEmpty(opt) )
-      *mupper = (long int)*mxGetPr(opt);
+      *mupper = (sunindextype)*mxGetPr(opt);
     
     opt = mxGetField(options,0,"LowerBwidth");
     if ( !mxIsEmpty(opt) )
-      *mlower = (long int)*mxGetPr(opt);
+      *mlower = (sunindextype)*mxGetPr(opt);
 
   }
 
@@ -482,11 +482,11 @@ int get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd
     
       opt = mxGetField(options,0,"UpperBwidth");
       if ( !mxIsEmpty(opt) )
-        *mupper = (long int)*mxGetPr(opt);
+        *mupper = (sunindextype)*mxGetPr(opt);
       
       opt = mxGetField(options,0,"LowerBwidth");
       if ( !mxIsEmpty(opt) )
-        *mlower = (long int)*mxGetPr(opt);
+        *mlower = (sunindextype)*mxGetPr(opt);
       
     }
 
@@ -494,11 +494,11 @@ int get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd
       
       opt = mxGetField(options,0,"UpperBwidthDQ");
       if ( !mxIsEmpty(opt) )
-        *mudq = (long int)*mxGetPr(opt);
+        *mudq = (sunindextype)*mxGetPr(opt);
 
       opt = mxGetField(options,0,"LowerBwidthDQ");
       if ( !mxIsEmpty(opt) )
-        *mldq = (long int)*mxGetPr(opt);
+        *mldq = (sunindextype)*mxGetPr(opt);
 
       opt = mxGetField(options,0,"GlocalFn");
       if ( !mxIsEmpty(opt) ) {
@@ -528,12 +528,12 @@ int get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd
 
 
 int get_QuadOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
-                    long int Nq, booleantype *rhs_s,
+                    sunindextype Nq, booleantype *rhs_s,
                     booleantype *errconQ,
                     int *itolQ, double *reltolQ, double *SabstolQ, double **VabstolQ)
 {
   mxArray *opt;
-  long int i, m, n;
+  sunindextype i, m, n;
   double *tmp;
   char *fctName;
   char *fwd_fctName = "CVodeQuadInit/CVodeQuadReInit";
@@ -542,13 +542,13 @@ int get_QuadOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
   if (fwd) fctName = fwd_fctName;
   else     fctName = bck_fctName;
 
-  *errconQ = FALSE;
+  *errconQ = SUNFALSE;
   *itolQ = CV_SS;
   *reltolQ = 1.0e-4;
   *SabstolQ = 1.0e-6;
   *VabstolQ = NULL;
 
-  *rhs_s = FALSE;
+  *rhs_s = SUNFALSE;
 
   /* Return now if options was empty */
 
@@ -564,8 +564,8 @@ int get_QuadOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
         cvmErrHandler(-999, "CVODES", fctName, "SensDependent is not a logical scalar.", NULL);
         return(-1);
       }
-      if (mxIsLogicalScalarTrue(opt)) *rhs_s = TRUE;
-      else                            *rhs_s = FALSE;
+      if (mxIsLogicalScalarTrue(opt)) *rhs_s = SUNTRUE;
+      else                            *rhs_s = SUNFALSE;
     }
 
   }
@@ -585,7 +585,7 @@ int get_QuadOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
   
   /* the remining options are interpreted only if quadratures are included in error control */
 
-  *errconQ = TRUE;
+  *errconQ = SUNTRUE;
 
   opt = mxGetField(options,0,"RelTol");
   if ( !mxIsEmpty(opt) ) {
@@ -656,7 +656,7 @@ int get_FSAOptions(const mxArray *options, cvmPbData thisPb,
   *dqtype = CV_CENTERED;
   *rho = 0.0;
 
-  *errconS = TRUE;
+  *errconS = SUNTRUE;
 
   *itolS = CV_EE;
   *SabstolS = NULL;
@@ -794,8 +794,8 @@ int get_FSAOptions(const mxArray *options, cvmPbData thisPb,
       cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit", "ErrControl is not a logical scalar.", NULL);
       return(-1);
     }
-    if (mxIsLogicalScalarTrue(opt)) *errconS = TRUE;
-    else                            *errconS = FALSE;
+    if (mxIsLogicalScalarTrue(opt)) *errconS = SUNTRUE;
+    else                            *errconS = SUNFALSE;
   }
 
   /* Tolerances */

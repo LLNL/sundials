@@ -1,31 +1,27 @@
+# -*- mode: makefile -*-
 # -----------------------------------------------------------------
-# $Revision: 4074 $
-# $Date: 2014-04-23 14:13:52 -0700 (Wed, 23 Apr 2014) $
+# Programmer(s): Daniel R. Reynolds @ SMU
+#                David J. Gardner @ LLNL
 # -----------------------------------------------------------------
-# Programmer: Daniel R. Reynolds @ SMU
-# -----------------------------------------------------------------
-# Copyright (c) 2014, The Regents of the University of California.
-# Produced at the Lawrence Livermore National Laboratory.
+# LLNS/SMU Copyright Start
+# Copyright (c) 2014, Southern Methodist University and 
+# Lawrence Livermore National Security
+#
+# This work was performed under the auspices of the U.S. Department 
+# of Energy by Southern Methodist University and Lawrence Livermore 
+# National Laboratory under Contract DE-AC52-07NA27344.
+# Produced at Southern Methodist University and the Lawrence
+# Livermore National Laboratory.
+#
 # All rights reserved.
 # For details, see the LICENSE file.
+# LLNS/SMU Copyright End
 # -----------------------------------------------------------------
 # Makefile for @SOLVER@ Fortran OpenMP examples
 #
-# This file is generated from a template using various variables
+# This file is generated from a template using variables
 # set at configuration time. It can be used as a template for
 # other user Makefiles.
-#
-# Note: if the solver was successfully configured with Blas/Lapack
-# support, the Blas/Lapack libraries are specified through the 
-# variable LIBRARIES_BL. Otherwise, this variable should contain
-# an empty string. We include LIBRARIES_BL in the link line for
-# all examples, whether they use the Lapack module or not, to
-# address the case in which the SUNDIALS libraries are shared 
-# objects. In that case, the solver library references Lapack 
-# symbols which must be always resolved by linking against the
-# Blas/Lapack libraries. If only static SUNDIALS libraries have 
-# been built, it is not required to link the Blas/Lapack libraries
-# for examples that do not use that module...
 # -----------------------------------------------------------------
 
 SHELL = @SHELL@
@@ -43,34 +39,77 @@ F77_LIBS    = @F77_LIBS@
 
 LINKFLAGS = -Wl,-rpath,@libdir@
 
+# -----------------------------------------------------------------------------------------
+
+LIBRARIES_LAPACK = -lsundials_fsunlinsollapackdense -lsundials_fsunlinsollapackband -lsundials_sunlinsollapackdense -lsundials_sunlinsollapackband @LAPACK_LIBS@ @BLAS_LIBS@
+LINKFLAGS_LAPACK = ${LINKFLAGS}:@LAPACK_LIBRARY_DIR@:@BLAS_LIBRARY_DIR@
+
+INCLUDES_KLU  = @KLU_INCLUDE_DIR@
+LIBRARIES_KLU = -lsundials_fsunlinsolklu -lsundials_sunlinsolklu @KLU_LIBS@
+LINKFLAGS_KLU = ${LINKFLAGS}:@KLU_LIBRARY_DIR@
+
+INCLUDES_SLUMT  = @SUPERLUMT_INCLUDE_DIR@
+LIBRARIES_SLUMT = -lsundials_fsunlinsolsuperlumt -lsundials_sunlinsolsuperlumt @SUPERLUMT_LIBS@ @BLAS_LIBS@
+LINKFLAGS_SLUMT = ${LINKFLAGS}:@SUPERLUMT_LIBRARY_DIR@:@BLAS_LIBRARY_DIR@
+
+TMP_INCS  = ${includedir} ${INCLUDES_SLUMT} ${INCLUDES_KLU}
+INCLUDES  = $(addprefix -I, ${TMP_INCS})
 LIBRARIES = -l@SOLVER_FLIB@ -l@SOLVER_LIB@ -lsundials_fnvecopenmp -lsundials_nvecopenmp ${LIBS}
-LIBRARIES_BL = @BLAS_LAPACK_LIBS@
-LIBRARIES_SLUMT = @SUPERLUMT_LIBS@
-LIBRARIES_KLU = @KLU_LIBS@
-LIBRARIES_PETSC = @PETSC_LIBRARIES@
 
-EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
+# -----------------------------------------------------------------------------------------
 
-OBJECTS = ${EXAMPLES:=.o}
+EXAMPLES = @EXAMPLES@
+OBJECTS  = ${EXAMPLES:=.o}
+
+# LAPACK Examples
+EXAMPLES_BL = @EXAMPLES_BL@
+OBJECTS_BL  = ${EXAMPLES_BL:=.o}
+
+# KLU Examples
+EXAMPLES_KLU = @EXAMPLES_KLU@
+OBJECTS_KLU  = ${EXAMPLES_KLU:=.o}
+
+# SuperLU_MT Examples
+EXAMPLES_SLUMT = @EXAMPLES_SLUMT@
+OBJECTS_SLUMT  = ${EXAMPLES_SLUMT:=.o}
 
 # -----------------------------------------------------------------------------------------
 
 .SUFFIXES : .o .f
 
 .f.o :
-	${F77} ${FFLAGS} -c $<
+	${F77} ${FFLAGS} ${INCLUDES} -c $<
 
 # -----------------------------------------------------------------------------------------
 
-all: ${OBJECTS}
+all: examples examples_bl examples_klu examples_slumt
+
+examples: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC} ${LINKFLAGS}" ; \
-	  ${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ${LIBRARIES_PETSC} ${LINKFLAGS} ; \
+	  echo "${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LINKFLAGS}" ; \
+	  ${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LINKFLAGS} ; \
+	done
+
+examples_bl: ${OBJECTS_BL}
+	@for i in ${EXAMPLES_BL} ; do \
+	  echo "${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_LAPACK} ${LINKFLAGS_LAPACK}" ; \
+	  ${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_LAPACK} ${LINKFLAGS_LAPACK} ; \
+	done
+
+examples_klu: ${OBJECTS_KLU}
+	@for i in ${EXAMPLES_KLU} ; do \
+	  echo "${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_KLU} ${LINKFLAGS_KLU}" ; \
+	  ${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_KLU} ${LINKFLAGS_KLU} ; \
+	done
+
+examples_slumt: ${OBJECTS_SLUMT}
+	@for i in ${EXAMPLES_SLUMT} ; do \
+	  echo "${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_SLUMT} ${LINKFLAGS_SLUMT}" ; \
+	  ${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_SLUMT} ${LINKFLAGS_SLUMT} ; \
 	done
 
 clean:
-	rm -f ${OBJECTS}
-	rm -f ${EXAMPLES}
+	rm -f ${OBJECTS} ${OBJECTS_BL} ${OBJECTS_KLU} ${OBJECTS_SLUMT}
+	rm -f ${EXAMPLES} ${EXAMPLES_BL} ${EXAMPLES_KLU} ${EXAMPLES_SLUMT}
 
 # -----------------------------------------------------------------------------------------
-

@@ -1,0 +1,48 @@
+%===================================================================================
+\chapter{Description of the SUNMatrix module}\label{s:sunmatrix}
+%===================================================================================
+\index{SUNMatrix@\texttt{SUNMatrix} module}
+\input{sunmatrix_generic}
+
+
+%---------------------------------------------------------------------------
+\section{SUNMatrix functions used by IDA}
+
+In Table \ref{t:sunmatuse} below, we list the matrix functions in the 
+{\sunmatrix} module used within the {\ida} package.
+The table also shows, for each function, which of the code modules uses
+the function. Neither the main {\ida} integrator nor the {\idaspils}
+interface call {\sunmatrix} functions directly, so the table columns
+are specific to the {\idadls} direct solver interface and the
+{\idabbdpre} preconditioner module.
+
+At this point, we should emphasize that the {\ida} user does not need
+to know anything about the usage of matrix functions by the {\ida}
+code modules in order to use {\ida}. The information is presented as
+an implementation detail for the interested reader.
+
+\begin{table}[htb]
+\centering
+\caption{List of matrix functions usage by {\ida} code modules}\label{t:sunmatuse}
+\medskip
+\begin{tabular}{|r|c|c|} \hline
+                                             & 
+\begin{sideways}{\idadls}      \end{sideways} & 
+\begin{sideways}{\idabbdpre}   \end{sideways} \\ \hline\hline
+%                             DLS         BBD
+\id{SUNMatGetID}         &    \cm    &           \\ \hline
+\id{SUNMatDestroy}       &           &    \cm    \\ \hline
+\id{SUNMatZero}          &    \cm    &    \cm    \\ \hline
+\id{SUNMatSpace}         &           & $\dagger$ \\ \hline
+\end{tabular}
+\end{table}
+
+The matrix functions listed in Table \ref{t:sunmatops} with
+a $\dagger$ symbol are optionally used, in that these are only called
+if they are implemented in the {\sunmatrix} module that is being used
+(i.e.~their function pointers are non-\id{NULL}).  The matrix
+functions listed in Table \ref{t:sunmatops} that are {\em not} used by 
+{\ida} are: \id{SUNMatCopy}, \id{SUNMatClone}, \id{SUNMatScaleAdd},
+\id{SUNMatScaleAddI} and \id{SUNMatMatvec}. Therefore a user-supplied
+{\sunmatrix} module for {\ida} could omit these functions.
+

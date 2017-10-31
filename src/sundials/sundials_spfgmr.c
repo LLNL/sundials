@@ -171,7 +171,7 @@ int SpfgmrSolve(SpfgmrMem mem, void *A_data, N_Vector x,
   vtemp  = mem->vtemp;
 
   *nli = *nps = 0;    /* Initialize counters */
-  converged = FALSE;  /* Initialize converged flag */
+  converged = SUNFALSE;  /* Initialize converged flag */
 
   /* If maxit is greater than l_max, then set maxit=l_max */
   if (maxit > l_max)  maxit = l_max;
@@ -242,7 +242,7 @@ int SpfgmrSolve(SpfgmrMem mem, void *A_data, N_Vector x,
       /*   Apply right preconditioner: vtemp = Z[l] = P_inv s2_inv V[l]. */ 
       if (preOnRight) {
         N_VScale(ONE, vtemp, V[l+1]);
-        ier = psolve(P_data, V[l+1], vtemp, PREC_RIGHT);
+        ier = psolve(P_data, V[l+1], vtemp, delta, PREC_RIGHT);
         (*nps)++;
         if (ier != 0)
           return((ier < 0) ? SPFGMR_PSOLVE_FAIL_UNREC : SPFGMR_PSOLVE_FAIL_REC);
@@ -274,7 +274,7 @@ int SpfgmrSolve(SpfgmrMem mem, void *A_data, N_Vector x,
       /* Update residual norm estimate; break if convergence test passes. */
       rotation_product *= givens[2*l+1];
       *res_norm = rho = SUNRabs(rotation_product*r_norm);
-      if (rho <= delta) { converged = TRUE; break; }
+      if (rho <= delta) { converged = SUNTRUE; break; }
       
       /* Normalize V[l+1] with norm value from the Gram-Schmidt routine. */
       N_VScale(ONE/Hes[l+1][l], V[l+1], V[l+1]);

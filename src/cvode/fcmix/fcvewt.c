@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -33,9 +30,9 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FCV_EWT(realtype*, realtype*,  /* Y, EWT */ 
-                      long int*, realtype*,  /* IPAR, RPAR */
-                      int*);                 /* IER */
+  extern void FCV_EWT(realtype *Y, realtype *EWT,
+                      long int *IPAR, realtype *RPAR,
+                      int *IER);
 #ifdef __cplusplus
 }
 #endif

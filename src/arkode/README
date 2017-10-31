@@ -1,5 +1,5 @@
                              ARKODE
-                   Release 1.1.0, September, 2016
+                   Release 2.0.0, September, 2017
                        Daniel R. Reynolds
                   Department of Mathematics, SMU
 
@@ -20,7 +20,6 @@ scaled preconditioned Flexible GMRES (SPFGMR), scaled preconditioned
 conjugate gradient, scaled preconditioned BiCGStab (SPBCG), 
 and scaled preconditioned TFQMR (SPTFQMR). When ARKODE is used with 
 the parallel NVECTOR module, only the Krylov linear solvers are available. 
-(An approximate diagonal Jacobian option is available with both versions.)  
 For the serial version, there is a banded preconditioner module called 
 ARKBANDPRE available for use with the Krylov solvers, while for the 
 parallel version there is a preconditioner module called ARKBBDPRE 
@@ -65,6 +64,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.0.0 - Sep. 2017
 v. 1.1.0 - Sep. 2016
 v. 1.0.2 - Aug. 2015
 v. 1.0.1 - Mar. 2015

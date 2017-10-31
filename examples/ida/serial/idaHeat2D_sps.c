@@ -1,16 +1,12 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh,
  *                Chris Nguyen, Radu Serban @ LLNL
+ *                based on idaHeat2D_bnd.c and idaRoberts_sps.c
  * -----------------------------------------------------------------
  * Example problem for IDA: 2D heat equation, serial, sparse.
- * Based on idaHeat2D_bnd.c and idaRoberts_sps.c
  *
  * This example solves a discretized 2D heat equation problem.
- * This version uses the sparse solver IDASuperLUMT, and IDACalcIC.
+ * This version uses the SuperLUMT solver and IDACalcIC.
  *
  * The DAE system solved is a spatial discretization of the PDE
  *          du/dt = d^2u/dx^2 + d^2u/dy^2
@@ -22,26 +18,29 @@
  * system of size N = MGRID^2. Here MGRID = 10.
  *
  * The system is solved with IDA using the sparse linear system
- * solver and default difference-quotient Jacobian. 
+ * solver and a user supplied Jacobian. 
  * For purposes of illustration,
  * IDACalcIC is called to compute correct values at the boundary,
  * given incorrect values as input initial guesses. The constraints
  * u >= 0 are posed for all components. Output is taken at
  * t = 0, .01, .02, .04, ..., 10.24. (Output at t = 0 is for
  * IDACalcIC cost statistics only.)
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>
-#include <ida/ida_superlumt.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_types.h>
+#include <ida/ida.h>                       /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>        /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix           */
+#include <sunlinsol/sunlinsol_superlumt.h> /* access to superlumt linear solver    */
+#include <ida/ida_direct.h>                /* access to IDADls interface           */
+#include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>        /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Problem Constants */
+
 #define NOUT  11
 #define MGRID 10
 #define NEQ   MGRID*MGRID
@@ -54,26 +53,25 @@
 /* Type: UserData */
 
 typedef struct {
-  long int mm;
+  sunindextype mm;
   realtype dx;
   realtype coeff;
 } *UserData;
 
 /* Prototypes of functions called by IDA */
 
-int heatres(realtype tres, N_Vector uu, N_Vector up, 
-	    N_Vector resval, void *user_data);
+int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, void *user_data);
 
 int jacHeat(realtype tt,  realtype cj, 
 	    N_Vector yy, N_Vector yp, N_Vector resvec,
-	    SlsMat JacMat, void *user_data,
+	    SUNMatrix JJ, void *user_data,
 	    N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Exact same setup as jacHeat. Function needed for special case MGRID=3  */
 int jacHeat3(realtype tt,  realtype cj, 
-	    N_Vector yy, N_Vector yp, N_Vector resvec,
-	    SlsMat JacMat, void *user_data,
-	    N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+             N_Vector yy, N_Vector yp, N_Vector resvec,
+             SUNMatrix JJ, void *user_data,
+             N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Prototypes of private functions */
 
@@ -94,12 +92,13 @@ int main(void)
 {
   void *mem;
   UserData data;
-  N_Vector uu, up, constraints, id, res;  /* uu is u, up is du/dt */
+  N_Vector uu, up, constraints, id, res;
   int ier, iout;
   long int netf, ncfn;
   realtype rtol, atol, t0, t1, tout, tret;
-
-  int nnz; /* number of non-zeroes  */
+  SUNMatrix A;
+  SUNLinearSolver LS;
+  sunindextype nnz;
   
   mem = NULL;
   data = NULL;
@@ -114,7 +113,7 @@ int main(void)
   if(check_flag((void *)res, "N_VNew_Serial", 0)) return(1);
   constraints = N_VNew_Serial(NEQ);
   if(check_flag((void *)constraints, "N_VNew_Serial", 0)) return(1);
-  id = N_VNew_Serial(NEQ); /* differentiate between algebraic and differential */
+  id = N_VNew_Serial(NEQ);
   if(check_flag((void *)id, "N_VNew_Serial", 0)) return(1);
 
   /* Create and load problem data block. */
@@ -143,13 +142,13 @@ int main(void)
   ier = IDASetUserData(mem, data);
   if(check_flag(&ier, "IDASetUserData", 1)) return(1);
 
-  /* Sets up which components are algebraic or differential */
-  ier = IDASetId(mem, id); 
+  /* Set which components are algebraic or differential */
+  ier = IDASetId(mem, id);
   if(check_flag(&ier, "IDASetId", 1)) return(1);
 
   ier = IDASetConstraints(mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
-  N_VDestroy_Serial(constraints);
+  N_VDestroy(constraints);
 
   ier = IDAInit(mem, heatres, t0, uu, up);
   if(check_flag(&ier, "IDAInit", 1)) return(1);
@@ -157,26 +156,33 @@ int main(void)
   ier = IDASStolerances(mem, rtol, atol);
   if(check_flag(&ier, "IDASStolerances", 1)) return(1);
 
-  /* Call IDAKLU and set up the linear solver  */
+  /* Create sparse SUNMatrix for use in linear solves */
   nnz = NEQ*NEQ;
-  ier = IDASuperLUMT(mem, 1, NEQ, nnz);
-  if(check_flag(&ier, "IDASuperLUMT", 1)) return(1);
-  /* check size of Jacobian matrix  */
+  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
+  if(check_flag((void*)A, "SUNSparseMtarix", 0)) return(1);
+
+  /* Create SuperLUMT SUNLinearSolver object (one thread) */
+  LS = SUNSuperLUMT(uu, A, 1);
+  if(check_flag((void *)LS, "SUNSuperLUMT", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  ier = IDADlsSetLinearSolver(mem, LS, A);
+  if(check_flag(&ier, "IDADlsSetLinearSolver", 1)) return(1);
+
+  /* Set the user-supplied Jacobian routine */
   if(MGRID >= 4){
-    ier = IDASlsSetSparseJacFn(mem, jacHeat);
-  }
-  /* special case MGRID=3  */
-  else if(MGRID==3){
-    ier = IDASlsSetSparseJacFn(mem, jacHeat3);
-  }
-  /* MGRID<=2 is pure boundary points, nothing to solve  */
-  else{
+    ier = IDADlsSetJacFn(mem, jacHeat);
+  } else if(MGRID == 3) {
+    ier = IDADlsSetJacFn(mem, jacHeat3);
+  } else {
+    /* MGRID<=2 is pure boundary points, nothing to solve */
     printf("MGRID size is too small to run.\n");
     return(1);
   }
-  if(check_flag(&ier, "IDASlsSetSparseJacFn", 1)) return(1);
+  if(check_flag(&ier, "IDADlsSetJacFn", 1)) return(1);
 
   /* Call IDACalcIC to correct the initial values. */
+
   ier = IDACalcIC(mem, IDA_YA_YDP_INIT, t1);
   if(check_flag(&ier, "IDACalcIC", 1)) return(1);
 
@@ -205,10 +211,12 @@ int main(void)
   printf("\n netf = %ld,   ncfn = %ld \n", netf, ncfn);
 
   IDAFree(&mem);
-  N_VDestroy_Serial(uu);
-  N_VDestroy_Serial(up);
-  N_VDestroy_Serial(id);
-  N_VDestroy_Serial(res);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
+  N_VDestroy(uu);
+  N_VDestroy(up);
+  N_VDestroy(id);
+  N_VDestroy(res);
   free(data);
 
   return(0);
@@ -232,14 +240,14 @@ int main(void)
 int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, 
             void *user_data)
 {
-  long int mm, i, j, offset, loc;
+  sunindextype mm, i, j, offset, loc;
   realtype *uv, *upv, *resv, coeff;
   UserData data;
   
-  uv = N_VGetArrayPointer_Serial(uu); upv = N_VGetArrayPointer_Serial(up); resv = N_VGetArrayPointer_Serial(resval);
+  uv = N_VGetArrayPointer(uu); upv = N_VGetArrayPointer(up); resv = N_VGetArrayPointer(resval);
 
   data = (UserData)user_data;
-  mm = data->mm; 
+  mm = data->mm;
   coeff = data->coeff;
   
   /* Initialize resval to uu, to take care of boundary equations. */
@@ -261,79 +269,85 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval,
 
 /* Jacobian matrix setup for MGRID=3  */
 int jacHeat3(realtype tt,  realtype cj, 
-           N_Vector yy, N_Vector yp, N_Vector resvec,
-	   SlsMat JacMat, void *user_data,
-           N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
+             N_Vector yy, N_Vector yp, N_Vector resvec,
+             SUNMatrix JJ, void *user_data,
+             N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
-  realtype *yval, dx, beta;
-  yval = N_VGetArrayPointer_Serial(yy);
-  dx =  ONE/(MGRID - ONE);
-  beta = RCONST(4.0)/(dx*dx) + cj;
+  realtype dx =  ONE/(MGRID - ONE);
+  realtype beta = RCONST(4.0)/(dx*dx) + cj;
+  
+  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(JJ);
+  sunindextype *rowvals = SUNSparseMatrix_IndexValues(JJ);
+  realtype *data = SUNSparseMatrix_Data(JJ);
 
-  SparseSetMatToZero(JacMat); /* initialize Jacobian matrix */
+  SUNMatZero(JJ);
 
   /*
    * set up number of elements in each column 
    */
-  JacMat -> colptrs[0]  = 0;
-  JacMat -> colptrs[1]  = 1;
-  JacMat -> colptrs[2]  = 3;
-  JacMat -> colptrs[3]  = 4;
-  JacMat -> colptrs[4]  = 6;
-  JacMat -> colptrs[5]  = 7;
-  JacMat -> colptrs[6]  = 9;
-  JacMat -> colptrs[7]  = 10;
-  JacMat -> colptrs[8]  = 12;
-  JacMat -> colptrs[9]  = 13;
+  colptrs[0]  = 0;
+  colptrs[1]  = 1;
+  colptrs[2]  = 3;
+  colptrs[3]  = 4;
+  colptrs[4]  = 6;
+  colptrs[5]  = 7;
+  colptrs[6]  = 9;
+  colptrs[7]  = 10;
+  colptrs[8]  = 12;
+  colptrs[9]  = 13;
   
   /*
    * set up data and row values stored 
    */
 
-  JacMat -> data[0] = ONE;
-  JacMat -> rowvals[0] = 0;  
-  JacMat -> data[1] = ONE;
-  JacMat -> rowvals[1] = 1;
-  JacMat -> data[2] = -ONE/(dx*dx);
-  JacMat -> rowvals[2] = 4;  
-  JacMat -> data[3] = ONE;
-  JacMat -> rowvals[3] = 2;
-  JacMat -> data[4] = ONE;
-  JacMat -> rowvals[4] = 3;
-  JacMat -> data[5] = -ONE/(dx*dx);
-  JacMat -> rowvals[5] = 4;  
-  JacMat -> data[6] = beta;
-  JacMat -> rowvals[6] = 4;
-  JacMat -> data[7] = -ONE/(dx*dx);
-  JacMat -> rowvals[7] = 4;
-  JacMat -> data[8] = ONE;
-  JacMat -> rowvals[8] = 5;
-  JacMat -> data[9] = ONE;
-  JacMat -> rowvals[9] = 6; 
-  JacMat -> data[10] = -ONE/(dx*dx);
-  JacMat -> rowvals[10] = 4;
-  JacMat -> data[11] = ONE;
-  JacMat -> rowvals[11] = 7;
-  JacMat -> data[12] = ONE;
-  JacMat -> rowvals[12] = 8;
+  data[0] = ONE;
+  rowvals[0] = 0;  
+  data[1] = ONE;
+  rowvals[1] = 1;
+  data[2] = -ONE/(dx*dx);
+  rowvals[2] = 4;  
+  data[3] = ONE;
+  rowvals[3] = 2;
+  data[4] = ONE;
+  rowvals[4] = 3;
+  data[5] = -ONE/(dx*dx);
+  rowvals[5] = 4;  
+  data[6] = beta;
+  rowvals[6] = 4;
+  data[7] = -ONE/(dx*dx);
+  rowvals[7] = 4;
+  data[8] = ONE;
+  rowvals[8] = 5;
+  data[9] = ONE;
+  rowvals[9] = 6; 
+  data[10] = -ONE/(dx*dx);
+  rowvals[10] = 4;
+  data[11] = ONE;
+  rowvals[11] = 7;
+  data[12] = ONE;
+  rowvals[12] = 8;
 
   return(0);
 }
 
 /* Jacobian matrix setup for MGRID>=4  */
 int jacHeat(realtype tt,  realtype cj, 
-           N_Vector yy, N_Vector yp, N_Vector resvec,
-	   SlsMat JacMat, void *user_data,
-           N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
+            N_Vector yy, N_Vector yp, N_Vector resvec,
+            SUNMatrix JJ, void *user_data,
+            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
-  realtype *yval, dx, beta;
-  int i, j, repeat;
-  yval = N_VGetArrayPointer_Serial(yy);
-  dx =  ONE/(MGRID - ONE);
-  beta = RCONST(4.0)/(dx*dx) + cj;
-  repeat=0;
+  realtype *yval;
+  realtype dx =  ONE/(MGRID - ONE);
+  realtype beta = RCONST(4.0)/(dx*dx) + cj;
+  int i,j, repeat=0;
 
-  SparseSetMatToZero(JacMat); /* initialize Jacobian matrix  */
+  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(JJ);
+  sunindextype *rowvals = SUNSparseMatrix_IndexValues(JJ);
+  realtype *data = SUNSparseMatrix_Data(JJ);
+
+  yval = N_VGetArrayPointer(yy);
+
+  SUNMatZero(JJ);
 
   /* 
    *-----------------------------------------------
@@ -342,51 +356,51 @@ int jacHeat(realtype tt,  realtype cj,
    */
   
   /**** first column block ****/
-  JacMat -> colptrs[0] = 0;
-  JacMat -> colptrs[1] = 1;
+  colptrs[0] = 0;
+  colptrs[1] = 1;
   /* count by twos in the middle  */
-  for(i=2;i<MGRID;i++) JacMat -> colptrs[i] = (JacMat -> colptrs[i-1])+2;
-  JacMat -> colptrs[MGRID] = 2*MGRID-2;
+  for(i=2;i<MGRID;i++) colptrs[i] = (colptrs[i-1])+2;
+  colptrs[MGRID] = 2*MGRID-2;
 
   /**** second column block ****/
-  JacMat -> colptrs[MGRID+1] = 2*MGRID;
-  JacMat -> colptrs[MGRID+2] = 2*MGRID+3;
+  colptrs[MGRID+1] = 2*MGRID;
+  colptrs[MGRID+2] = 2*MGRID+3;
   /* count by fours in the middle */
-  for(i=0;i<MGRID-4;i++) JacMat -> colptrs[MGRID+3+i] = (JacMat -> colptrs[MGRID+3+i-1])+4;
-  JacMat -> colptrs[2*MGRID-1] = 2*MGRID+4*(MGRID-2)-2;
-  JacMat -> colptrs[2*MGRID] = 2*MGRID+4*(MGRID-2);
+  for(i=0;i<MGRID-4;i++) colptrs[MGRID+3+i] = (colptrs[MGRID+3+i-1])+4;
+  colptrs[2*MGRID-1] = 2*MGRID+4*(MGRID-2)-2;
+  colptrs[2*MGRID] = 2*MGRID+4*(MGRID-2);
   
   /**** repeated (MGRID-4 times) middle column blocks ****/
   for(i=0;i<MGRID-4;i++){
-    JacMat -> colptrs[2*MGRID+1+repeat]   = (JacMat -> colptrs[2*MGRID+1+repeat-1])+2;
-    JacMat -> colptrs[2*MGRID+1+repeat+1] = (JacMat -> colptrs[2*MGRID+1+repeat])+4;
+    colptrs[2*MGRID+1+repeat]   = (colptrs[2*MGRID+1+repeat-1])+2;
+    colptrs[2*MGRID+1+repeat+1] = (colptrs[2*MGRID+1+repeat])+4;
     
     /* count by fives in the middle */
-    for(j=0;j<MGRID-4;j++) JacMat -> colptrs[2*MGRID+1+repeat+2+j] = 
-			  (JacMat -> colptrs[2*MGRID+1+repeat+1+j])+5;
+    for(j=0;j<MGRID-4;j++) colptrs[2*MGRID+1+repeat+2+j] = 
+			  (colptrs[2*MGRID+1+repeat+1+j])+5;
    
-    JacMat -> colptrs[2*MGRID+1+repeat+(MGRID-4)+2] = (JacMat -> colptrs[2*MGRID+1+repeat+(MGRID-4)+1])+4;
-    JacMat -> colptrs[2*MGRID+1+repeat+(MGRID-4)+3] = (JacMat -> colptrs[2*MGRID+1+repeat+(MGRID-4)+2])+2;  
+    colptrs[2*MGRID+1+repeat+(MGRID-4)+2] = (colptrs[2*MGRID+1+repeat+(MGRID-4)+1])+4;
+    colptrs[2*MGRID+1+repeat+(MGRID-4)+3] = (colptrs[2*MGRID+1+repeat+(MGRID-4)+2])+2;  
 
     repeat+=MGRID; /* shift that accounts for accumulated number of columns */
   }
   
   /**** last-1 column block ****/
-  JacMat -> colptrs[MGRID*MGRID-2*MGRID+1] = TOTAL-2*MGRID-4*(MGRID-2)+2;
-  JacMat -> colptrs[MGRID*MGRID-2*MGRID+2] = TOTAL-2*MGRID-4*(MGRID-2)+5;
+  colptrs[MGRID*MGRID-2*MGRID+1] = TOTAL-2*MGRID-4*(MGRID-2)+2;
+  colptrs[MGRID*MGRID-2*MGRID+2] = TOTAL-2*MGRID-4*(MGRID-2)+5;
   /* count by fours in the middle */
-  for(i=0;i<MGRID-4;i++) JacMat -> colptrs[MGRID*MGRID-2*MGRID+3+i] = 
-			(JacMat -> colptrs[MGRID*MGRID-2*MGRID+3+i-1])+4;
-  JacMat -> colptrs[MGRID*MGRID-MGRID-1] = TOTAL-2*MGRID;
-  JacMat -> colptrs[MGRID*MGRID-MGRID]   = TOTAL-2*MGRID+2;
+  for(i=0;i<MGRID-4;i++) colptrs[MGRID*MGRID-2*MGRID+3+i] = 
+			(colptrs[MGRID*MGRID-2*MGRID+3+i-1])+4;
+  colptrs[MGRID*MGRID-MGRID-1] = TOTAL-2*MGRID;
+  colptrs[MGRID*MGRID-MGRID]   = TOTAL-2*MGRID+2;
 
   /**** last column block ****/
-  JacMat -> colptrs[MGRID*MGRID-MGRID+1] = TOTAL-MGRID-(MGRID-2)+1;
+  colptrs[MGRID*MGRID-MGRID+1] = TOTAL-MGRID-(MGRID-2)+1;
   /* count by twos in the middle */
-  for(i=0;i<MGRID-2;i++) JacMat -> colptrs[MGRID*MGRID-MGRID+2+i] = 
-			(JacMat -> colptrs[MGRID*MGRID-MGRID+2+i-1])+2;
-  JacMat -> colptrs[MGRID*MGRID-1] = TOTAL-1;
-  JacMat -> colptrs[MGRID*MGRID]   = TOTAL;
+  for(i=0;i<MGRID-2;i++) colptrs[MGRID*MGRID-MGRID+2+i] = 
+			(colptrs[MGRID*MGRID-MGRID+2+i-1])+2;
+  colptrs[MGRID*MGRID-1] = TOTAL-1;
+  colptrs[MGRID*MGRID]   = TOTAL;
   
 
   /*
@@ -396,83 +410,83 @@ int jacHeat(realtype tt,  realtype cj,
    */
 
   /**** first column block ****/
-  JacMat -> data[0] = ONE;
+  data[0] = ONE;
   /* alternating pattern in data, separate loop for each pattern  */
-  for(i=1;i<MGRID+(MGRID-2)  ;i+=2) JacMat -> data[i] = ONE;
-  for(i=2;i<MGRID+(MGRID-2)-1;i+=2) JacMat -> data[i] = -ONE/(dx*dx);
+  for(i=1;i<MGRID+(MGRID-2)  ;i+=2) data[i] = ONE;
+  for(i=2;i<MGRID+(MGRID-2)-1;i+=2) data[i] = -ONE/(dx*dx);
 
   /**** second column block ****/
-  JacMat -> data[MGRID+MGRID-2] = ONE;
-  JacMat -> data[MGRID+MGRID-1] = -ONE/(dx*dx);
-  JacMat -> data[MGRID+MGRID]   = beta;
-  JacMat -> data[MGRID+MGRID+1] = -ONE/(dx*dx);
-  JacMat -> data[MGRID+MGRID+2] = -ONE/(dx*dx);
+  data[MGRID+MGRID-2] = ONE;
+  data[MGRID+MGRID-1] = -ONE/(dx*dx);
+  data[MGRID+MGRID]   = beta;
+  data[MGRID+MGRID+1] = -ONE/(dx*dx);
+  data[MGRID+MGRID+2] = -ONE/(dx*dx);
   /* middle data elements */
-  for(i=0;i<(MGRID-4);i++) JacMat -> data[MGRID+MGRID+3+4*i] = -ONE/(dx*dx);
-  for(i=0;i<(MGRID-4);i++) JacMat -> data[MGRID+MGRID+4+4*i] = beta;
-  for(i=0;i<(MGRID-4);i++) JacMat -> data[MGRID+MGRID+5+4*i] = -ONE/(dx*dx);
-  for(i=0;i<(MGRID-4);i++) JacMat -> data[MGRID+MGRID+6+4*i] = -ONE/(dx*dx);
-  JacMat -> data[2*MGRID+4*(MGRID-2)-5] = -ONE/(dx*dx);
-  JacMat -> data[2*MGRID+4*(MGRID-2)-4] = beta;
-  JacMat -> data[2*MGRID+4*(MGRID-2)-3] = -ONE/(dx*dx);
-  JacMat -> data[2*MGRID+4*(MGRID-2)-2] = -ONE/(dx*dx);
-  JacMat -> data[2*MGRID+4*(MGRID-2)-1] = ONE;
+  for(i=0;i<(MGRID-4);i++) data[MGRID+MGRID+3+4*i] = -ONE/(dx*dx);
+  for(i=0;i<(MGRID-4);i++) data[MGRID+MGRID+4+4*i] = beta;
+  for(i=0;i<(MGRID-4);i++) data[MGRID+MGRID+5+4*i] = -ONE/(dx*dx);
+  for(i=0;i<(MGRID-4);i++) data[MGRID+MGRID+6+4*i] = -ONE/(dx*dx);
+  data[2*MGRID+4*(MGRID-2)-5] = -ONE/(dx*dx);
+  data[2*MGRID+4*(MGRID-2)-4] = beta;
+  data[2*MGRID+4*(MGRID-2)-3] = -ONE/(dx*dx);
+  data[2*MGRID+4*(MGRID-2)-2] = -ONE/(dx*dx);
+  data[2*MGRID+4*(MGRID-2)-1] = ONE;
     
   /**** repeated (MGRID-4 times) middle column blocks ****/
   repeat=0;
   for(i=0;i<MGRID-4;i++){
-    JacMat -> data[2*MGRID+4*(MGRID-2)+repeat]   = ONE;
-    JacMat -> data[2*MGRID+4*(MGRID-2)+repeat+1] = -ONE/(dx*dx);
+    data[2*MGRID+4*(MGRID-2)+repeat]   = ONE;
+    data[2*MGRID+4*(MGRID-2)+repeat+1] = -ONE/(dx*dx);
     
-    JacMat -> data[2*MGRID+4*(MGRID-2)+repeat+2] = -ONE/(dx*dx);
-    JacMat -> data[2*MGRID+4*(MGRID-2)+repeat+3] = beta;
-    JacMat -> data[2*MGRID+4*(MGRID-2)+repeat+4] = -ONE/(dx*dx);
-    JacMat -> data[2*MGRID+4*(MGRID-2)+repeat+5] = -ONE/(dx*dx);
+    data[2*MGRID+4*(MGRID-2)+repeat+2] = -ONE/(dx*dx);
+    data[2*MGRID+4*(MGRID-2)+repeat+3] = beta;
+    data[2*MGRID+4*(MGRID-2)+repeat+4] = -ONE/(dx*dx);
+    data[2*MGRID+4*(MGRID-2)+repeat+5] = -ONE/(dx*dx);
 
     /* 5 in 5*j chosen since there are 5 elements in each column */
     /* this column loops MGRID-4 times within the outer loop */
     for(j=0;j<MGRID-4;j++){
-      JacMat -> data[2*MGRID+4*(MGRID-2)+repeat+6+5*j]  = -ONE/(dx*dx);
-      JacMat -> data[2*MGRID+4*(MGRID-2)+repeat+7+5*j]  = -ONE/(dx*dx);
-      JacMat -> data[2*MGRID+4*(MGRID-2)+repeat+8+5*j]  = beta;
-      JacMat -> data[2*MGRID+4*(MGRID-2)+repeat+9+5*j]  = -ONE/(dx*dx);
-      JacMat -> data[2*MGRID+4*(MGRID-2)+repeat+10+5*j] = -ONE/(dx*dx);
+      data[2*MGRID+4*(MGRID-2)+repeat+6+5*j]  = -ONE/(dx*dx);
+      data[2*MGRID+4*(MGRID-2)+repeat+7+5*j]  = -ONE/(dx*dx);
+      data[2*MGRID+4*(MGRID-2)+repeat+8+5*j]  = beta;
+      data[2*MGRID+4*(MGRID-2)+repeat+9+5*j]  = -ONE/(dx*dx);
+      data[2*MGRID+4*(MGRID-2)+repeat+10+5*j] = -ONE/(dx*dx);
     }
     
-    JacMat -> data[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+6] = -ONE/(dx*dx);
-    JacMat -> data[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+7] = -ONE/(dx*dx);
-    JacMat -> data[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+8] = beta;
-    JacMat -> data[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+9] = -ONE/(dx*dx);
+    data[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+6] = -ONE/(dx*dx);
+    data[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+7] = -ONE/(dx*dx);
+    data[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+8] = beta;
+    data[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+9] = -ONE/(dx*dx);
     
-    JacMat -> data[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+10] = -ONE/(dx*dx);
-    JacMat -> data[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+11] = ONE;
+    data[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+10] = -ONE/(dx*dx);
+    data[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+11] = ONE;
     
     repeat+=MGRID+4*(MGRID-2); /* shift that accounts for accumulated columns and elements */
   }
   
   /**** last-1 column block ****/
-  JacMat -> data[TOTAL-6*(MGRID-2)-4] = ONE;
-  JacMat -> data[TOTAL-6*(MGRID-2)-3] = -ONE/(dx*dx);
-  JacMat -> data[TOTAL-6*(MGRID-2)-2] = -ONE/(dx*dx);
-  JacMat -> data[TOTAL-6*(MGRID-2)-1] = beta;
-  JacMat -> data[TOTAL-6*(MGRID-2)  ] = -ONE/(dx*dx);
+  data[TOTAL-6*(MGRID-2)-4] = ONE;
+  data[TOTAL-6*(MGRID-2)-3] = -ONE/(dx*dx);
+  data[TOTAL-6*(MGRID-2)-2] = -ONE/(dx*dx);
+  data[TOTAL-6*(MGRID-2)-1] = beta;
+  data[TOTAL-6*(MGRID-2)  ] = -ONE/(dx*dx);
   /* middle data elements */
-  for(i=0;i<(MGRID-4);i++) JacMat -> data[TOTAL-6*(MGRID-2)+1+4*i] = -ONE/(dx*dx);
-  for(i=0;i<(MGRID-4);i++) JacMat -> data[TOTAL-6*(MGRID-2)+2+4*i] = -ONE/(dx*dx);
-  for(i=0;i<(MGRID-4);i++) JacMat -> data[TOTAL-6*(MGRID-2)+3+4*i] = beta;
-  for(i=0;i<(MGRID-4);i++) JacMat -> data[TOTAL-6*(MGRID-2)+4+4*i] = -ONE/(dx*dx);
-  JacMat -> data[TOTAL-2*(MGRID-2)-7] = -ONE/(dx*dx);
-  JacMat -> data[TOTAL-2*(MGRID-2)-6] = -ONE/(dx*dx);
-  JacMat -> data[TOTAL-2*(MGRID-2)-5] = beta;
-  JacMat -> data[TOTAL-2*(MGRID-2)-4] = -ONE/(dx*dx);
-  JacMat -> data[TOTAL-2*(MGRID-2)-3] = ONE;
+  for(i=0;i<(MGRID-4);i++) data[TOTAL-6*(MGRID-2)+1+4*i] = -ONE/(dx*dx);
+  for(i=0;i<(MGRID-4);i++) data[TOTAL-6*(MGRID-2)+2+4*i] = -ONE/(dx*dx);
+  for(i=0;i<(MGRID-4);i++) data[TOTAL-6*(MGRID-2)+3+4*i] = beta;
+  for(i=0;i<(MGRID-4);i++) data[TOTAL-6*(MGRID-2)+4+4*i] = -ONE/(dx*dx);
+  data[TOTAL-2*(MGRID-2)-7] = -ONE/(dx*dx);
+  data[TOTAL-2*(MGRID-2)-6] = -ONE/(dx*dx);
+  data[TOTAL-2*(MGRID-2)-5] = beta;
+  data[TOTAL-2*(MGRID-2)-4] = -ONE/(dx*dx);
+  data[TOTAL-2*(MGRID-2)-3] = ONE;
 
   /**** last column block ****/
-  JacMat -> data[TOTAL-2*(MGRID-2)-2] = ONE;
+  data[TOTAL-2*(MGRID-2)-2] = ONE;
   /* alternating pattern in data, separate loop for each pattern  */
-  for(i=TOTAL-2*(MGRID-2)-1;i<TOTAL-2;i+=2) JacMat -> data[i] = -ONE/(dx*dx);
-  for(i=TOTAL-2*(MGRID-2)  ;i<TOTAL-1;i+=2) JacMat -> data[i] = ONE;
-  JacMat -> data[TOTAL-1] = ONE;
+  for(i=TOTAL-2*(MGRID-2)-1;i<TOTAL-2;i+=2) data[i] = -ONE/(dx*dx);
+  for(i=TOTAL-2*(MGRID-2)  ;i<TOTAL-1;i+=2) data[i] = ONE;
+  data[TOTAL-1] = ONE;
   
   /*
    *-----------------------------------------------
@@ -481,87 +495,85 @@ int jacHeat(realtype tt,  realtype cj,
    */
 
   /**** first block ****/
-  JacMat -> rowvals[0] = 0;
+  rowvals[0] = 0;
   /* alternating pattern in data, separate loop for each pattern */
-  for(i=1;i<MGRID+(MGRID-2)  ;i+=2) JacMat -> rowvals[i] = (i+1)/2;
-  for(i=2;i<MGRID+(MGRID-2)-1;i+=2) JacMat -> rowvals[i] = i/2+MGRID; /* i+1 unnecessary here */
+  for(i=1;i<MGRID+(MGRID-2)  ;i+=2) rowvals[i] = (i+1)/2;
+  for(i=2;i<MGRID+(MGRID-2)-1;i+=2) rowvals[i] = i/2+MGRID; /* i+1 unnecessary here */
   
   /**** second column block ****/
-  JacMat -> rowvals[MGRID+MGRID-2] = MGRID;
-  JacMat -> rowvals[MGRID+MGRID-1] = MGRID+1;
-  JacMat -> rowvals[MGRID+MGRID]   = MGRID+1;
-  JacMat -> rowvals[MGRID+MGRID+1] = MGRID+2;
-  JacMat -> rowvals[MGRID+MGRID+2] = 2*MGRID+1;
+  rowvals[MGRID+MGRID-2] = MGRID;
+  rowvals[MGRID+MGRID-1] = MGRID+1;
+  rowvals[MGRID+MGRID]   = MGRID+1;
+  rowvals[MGRID+MGRID+1] = MGRID+2;
+  rowvals[MGRID+MGRID+2] = 2*MGRID+1;
   /* middle row values */
-  for(i=0;i<(MGRID-4);i++) JacMat -> rowvals[MGRID+MGRID+3+4*i] = MGRID+1+i;
-  for(i=0;i<(MGRID-4);i++) JacMat -> rowvals[MGRID+MGRID+4+4*i] = MGRID+2+i;
-  for(i=0;i<(MGRID-4);i++) JacMat -> rowvals[MGRID+MGRID+5+4*i] = MGRID+3+i;
-  for(i=0;i<(MGRID-4);i++) JacMat -> rowvals[MGRID+MGRID+6+4*i] = 2*MGRID+2+i;
-  JacMat -> rowvals[2*MGRID+4*(MGRID-2)-5] = MGRID+(MGRID-2)-1;
-  JacMat -> rowvals[2*MGRID+4*(MGRID-2)-4] = MGRID+(MGRID-2); /* starting from here, add two diag patterns */
-  JacMat -> rowvals[2*MGRID+4*(MGRID-2)-3] = 2*MGRID+(MGRID-2);
-  JacMat -> rowvals[2*MGRID+4*(MGRID-2)-2] = MGRID+(MGRID-2);
-  JacMat -> rowvals[2*MGRID+4*(MGRID-2)-1] = MGRID+(MGRID-2)+1;
+  for(i=0;i<(MGRID-4);i++) rowvals[MGRID+MGRID+3+4*i] = MGRID+1+i;
+  for(i=0;i<(MGRID-4);i++) rowvals[MGRID+MGRID+4+4*i] = MGRID+2+i;
+  for(i=0;i<(MGRID-4);i++) rowvals[MGRID+MGRID+5+4*i] = MGRID+3+i;
+  for(i=0;i<(MGRID-4);i++) rowvals[MGRID+MGRID+6+4*i] = 2*MGRID+2+i;
+  rowvals[2*MGRID+4*(MGRID-2)-5] = MGRID+(MGRID-2)-1;
+  rowvals[2*MGRID+4*(MGRID-2)-4] = MGRID+(MGRID-2); /* starting from here, add two diag patterns */
+  rowvals[2*MGRID+4*(MGRID-2)-3] = 2*MGRID+(MGRID-2);
+  rowvals[2*MGRID+4*(MGRID-2)-2] = MGRID+(MGRID-2);
+  rowvals[2*MGRID+4*(MGRID-2)-1] = MGRID+(MGRID-2)+1;
   
   /**** repeated (MGRID-4 times) middle column blocks ****/
   repeat=0;
   for(i=0;i<MGRID-4;i++){
-    JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat]   = MGRID+(MGRID-2)+2+MGRID*i;
-    JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+1] = MGRID+(MGRID-2)+2+MGRID*i+1;
+    rowvals[2*MGRID+4*(MGRID-2)+repeat]   = MGRID+(MGRID-2)+2+MGRID*i;
+    rowvals[2*MGRID+4*(MGRID-2)+repeat+1] = MGRID+(MGRID-2)+2+MGRID*i+1;
     
-    JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+2] = MGRID+(MGRID-2)+2+MGRID*i+1-MGRID;
-    JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+3] = MGRID+(MGRID-2)+2+MGRID*i+1;
-    JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+4] = MGRID+(MGRID-2)+2+MGRID*i+2; /* *this */
-    JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+5] = MGRID+(MGRID-2)+2+MGRID*i+1+MGRID;
+    rowvals[2*MGRID+4*(MGRID-2)+repeat+2] = MGRID+(MGRID-2)+2+MGRID*i+1-MGRID;
+    rowvals[2*MGRID+4*(MGRID-2)+repeat+3] = MGRID+(MGRID-2)+2+MGRID*i+1;
+    rowvals[2*MGRID+4*(MGRID-2)+repeat+4] = MGRID+(MGRID-2)+2+MGRID*i+2; /* *this */
+    rowvals[2*MGRID+4*(MGRID-2)+repeat+5] = MGRID+(MGRID-2)+2+MGRID*i+1+MGRID;
     
     /* 5 in 5*j chosen since there are 5 elements in each column */
     /* column repeats MGRID-4 times within the outer loop */
     for(j=0;j<MGRID-4;j++){
-      JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+6+5*j]  = MGRID+(MGRID-2)+2+MGRID*i+1-MGRID+1+j;
-      JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+7+5*j]  = MGRID+(MGRID-2)+2+MGRID*i+1+j;
-      JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+8+5*j]  = MGRID+(MGRID-2)+2+MGRID*i+2+j;
-      JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+9+5*j]  = MGRID+(MGRID-2)+2+MGRID*i+2+1+j;
-      JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+10+5*j] = MGRID+(MGRID-2)+2+MGRID*i+1+MGRID+1+j;
+      rowvals[2*MGRID+4*(MGRID-2)+repeat+6+5*j]  = MGRID+(MGRID-2)+2+MGRID*i+1-MGRID+1+j;
+      rowvals[2*MGRID+4*(MGRID-2)+repeat+7+5*j]  = MGRID+(MGRID-2)+2+MGRID*i+1+j;
+      rowvals[2*MGRID+4*(MGRID-2)+repeat+8+5*j]  = MGRID+(MGRID-2)+2+MGRID*i+2+j;
+      rowvals[2*MGRID+4*(MGRID-2)+repeat+9+5*j]  = MGRID+(MGRID-2)+2+MGRID*i+2+1+j;
+      rowvals[2*MGRID+4*(MGRID-2)+repeat+10+5*j] = MGRID+(MGRID-2)+2+MGRID*i+1+MGRID+1+j;
     }
     
-    JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+6] = MGRID+(MGRID-2)+2+MGRID*i-2;
-    JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+7] = MGRID+(MGRID-2)+2+MGRID*i-2+MGRID-1;
-    JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+8] = MGRID+(MGRID-2)+2+MGRID*i-2+MGRID; /* *this+MGRID */
-    JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+9] = MGRID+(MGRID-2)+2+MGRID*i-2+2*MGRID;
+    rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+6] = MGRID+(MGRID-2)+2+MGRID*i-2;
+    rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+7] = MGRID+(MGRID-2)+2+MGRID*i-2+MGRID-1;
+    rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+8] = MGRID+(MGRID-2)+2+MGRID*i-2+MGRID; /* *this+MGRID */
+    rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+9] = MGRID+(MGRID-2)+2+MGRID*i-2+2*MGRID;
 
-    JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+10] = MGRID+(MGRID-2)+2+MGRID*i-2+MGRID;
-    JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+11] = MGRID+(MGRID-2)+2+MGRID*i-2+MGRID+1;
+    rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+10] = MGRID+(MGRID-2)+2+MGRID*i-2+MGRID;
+    rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+11] = MGRID+(MGRID-2)+2+MGRID*i-2+MGRID+1;
     
     repeat+=MGRID+4*(MGRID-2); /* shift that accounts for accumulated columns and elements */
   }  
 
   
   /**** last-1 column block ****/
-  JacMat -> rowvals[TOTAL-6*(MGRID-2)-4] = MGRID*MGRID-1-2*(MGRID-1)-1;
-  JacMat -> rowvals[TOTAL-6*(MGRID-2)-3] = MGRID*MGRID-1-2*(MGRID-1); /* starting with this as base */
-  JacMat -> rowvals[TOTAL-6*(MGRID-2)-2] = MGRID*MGRID-1-2*(MGRID-1)-MGRID;
-  JacMat -> rowvals[TOTAL-6*(MGRID-2)-1] = MGRID*MGRID-1-2*(MGRID-1);
-  JacMat -> rowvals[TOTAL-6*(MGRID-2)  ] = MGRID*MGRID-1-2*(MGRID-1)+1;
+  rowvals[TOTAL-6*(MGRID-2)-4] = MGRID*MGRID-1-2*(MGRID-1)-1;
+  rowvals[TOTAL-6*(MGRID-2)-3] = MGRID*MGRID-1-2*(MGRID-1); /* starting with this as base */
+  rowvals[TOTAL-6*(MGRID-2)-2] = MGRID*MGRID-1-2*(MGRID-1)-MGRID;
+  rowvals[TOTAL-6*(MGRID-2)-1] = MGRID*MGRID-1-2*(MGRID-1);
+  rowvals[TOTAL-6*(MGRID-2)  ] = MGRID*MGRID-1-2*(MGRID-1)+1;
   /* middle row values */
-  for(i=0;i<(MGRID-4);i++) JacMat -> rowvals[TOTAL-6*(MGRID-2)+1+4*i] = MGRID*MGRID-1-2*(MGRID-1)-MGRID+1+i;
-  for(i=0;i<(MGRID-4);i++) JacMat -> rowvals[TOTAL-6*(MGRID-2)+2+4*i] = MGRID*MGRID-1-2*(MGRID-1)+i;
-  for(i=0;i<(MGRID-4);i++) JacMat -> rowvals[TOTAL-6*(MGRID-2)+3+4*i] = MGRID*MGRID-1-2*(MGRID-1)+1+i;/*copied above */
-  for(i=0;i<(MGRID-4);i++) JacMat -> rowvals[TOTAL-6*(MGRID-2)+4+4*i] = MGRID*MGRID-1-2*(MGRID-1)+2+i;
-  JacMat -> rowvals[TOTAL-2*(MGRID-2)-7] = MGRID*MGRID-2*MGRID-2;
-  JacMat -> rowvals[TOTAL-2*(MGRID-2)-6] = MGRID*MGRID-MGRID-3;
-  JacMat -> rowvals[TOTAL-2*(MGRID-2)-5] = MGRID*MGRID-MGRID-2;
-  JacMat -> rowvals[TOTAL-2*(MGRID-2)-4] = MGRID*MGRID-MGRID-2;
-  JacMat -> rowvals[TOTAL-2*(MGRID-2)-3] = MGRID*MGRID-MGRID-1;
+  for(i=0;i<(MGRID-4);i++) rowvals[TOTAL-6*(MGRID-2)+1+4*i] = MGRID*MGRID-1-2*(MGRID-1)-MGRID+1+i;
+  for(i=0;i<(MGRID-4);i++) rowvals[TOTAL-6*(MGRID-2)+2+4*i] = MGRID*MGRID-1-2*(MGRID-1)+i;
+  for(i=0;i<(MGRID-4);i++) rowvals[TOTAL-6*(MGRID-2)+3+4*i] = MGRID*MGRID-1-2*(MGRID-1)+1+i;/*copied above*/
+  for(i=0;i<(MGRID-4);i++) rowvals[TOTAL-6*(MGRID-2)+4+4*i] = MGRID*MGRID-1-2*(MGRID-1)+2+i;
+  rowvals[TOTAL-2*(MGRID-2)-7] = MGRID*MGRID-2*MGRID-2;
+  rowvals[TOTAL-2*(MGRID-2)-6] = MGRID*MGRID-MGRID-3;
+  rowvals[TOTAL-2*(MGRID-2)-5] = MGRID*MGRID-MGRID-2;
+  rowvals[TOTAL-2*(MGRID-2)-4] = MGRID*MGRID-MGRID-2;
+  rowvals[TOTAL-2*(MGRID-2)-3] = MGRID*MGRID-MGRID-1;
 
   /* last column block */
-  JacMat -> rowvals[TOTAL-2*(MGRID-2)-2] = MGRID*MGRID-MGRID;
+  rowvals[TOTAL-2*(MGRID-2)-2] = MGRID*MGRID-MGRID;
   /* alternating pattern in data, separate loop for each pattern  */
-  for(i=0;i<(MGRID-2);i++) JacMat -> rowvals[TOTAL-2*(MGRID-2)-1+2*i] = MGRID*MGRID-2*MGRID+1+i;
-  for(i=0;i<(MGRID-2);i++) JacMat -> rowvals[TOTAL-2*(MGRID-2)  +2*i] = MGRID*MGRID-MGRID+1+i;  
-  JacMat -> rowvals[TOTAL-1] = MGRID*MGRID-1;
+  for(i=0;i<(MGRID-2);i++) rowvals[TOTAL-2*(MGRID-2)-1+2*i] = MGRID*MGRID-2*MGRID+1+i;
+  for(i=0;i<(MGRID-2);i++) rowvals[TOTAL-2*(MGRID-2)  +2*i] = MGRID*MGRID-MGRID+1+i;  
+  rowvals[TOTAL-1] = MGRID*MGRID-1;
 
-  /* SparsePrintMat(JacMat); */
- 
   return(0);
 }
 
@@ -580,14 +592,14 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector id, N_Vector res)
 {
   realtype xfact, yfact, *udata, *updata, *iddata;
-  long int mm, mm1, i, j, offset, loc;
+  sunindextype mm, mm1, i, j, offset, loc;
   
   mm = data->mm;
   mm1 = mm - 1;
   
-  udata = N_VGetArrayPointer_Serial(uu);
-  updata = N_VGetArrayPointer_Serial(up);
-  iddata = N_VGetArrayPointer_Serial(id);
+  udata = N_VGetArrayPointer(uu);
+  updata = N_VGetArrayPointer(up);
+  iddata = N_VGetArrayPointer(id);
 
   /* Initialize id to 1's. */
   N_VConst(ONE, id);
@@ -646,8 +658,8 @@ static void PrintHeader(realtype rtol, realtype atol)
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
   printf("Constraints set to force all solution components >= 0. \n");
-  printf("Linear solver: IDASuperLU, sparse direct solver \n");
-  printf("       difference quotient Jacobian \n");
+  printf("Linear solver: SuperLUMT, sparse direct solver \n");
+  printf("       difference quotient Jacobian\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("IDACalcIC called with input boundary values = %Lg \n",BVAL);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
@@ -669,7 +681,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
 {
   int ier;
   realtype umax, hused;
-  long int nst, nni, nje, nre, nreLS;
+  long int nst, nni, nje, nre;
   int kused;
 
   umax = N_VMaxNorm(uu);
@@ -684,10 +696,9 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
   check_flag(&ier, "IDAGetNumResEvals", 1);
   ier = IDAGetLastStep(mem, &hused);
   check_flag(&ier, "IDAGetLastStep", 1);
-  ier = IDASlsGetNumJacEvals(mem, &nje);
-  check_flag(&ier, "IDASlsGetNumJacEvals", 1);
+  ier = IDADlsGetNumJacEvals(mem, &nje);
+  check_flag(&ier, "IDADlsGetNumJacEvals", 1);
 
- 
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
   printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %9.2Le \n",
          t, umax, kused, nst, nni, nje, nre, hused);

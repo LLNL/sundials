@@ -106,7 +106,7 @@ int PcgSolve(PcgMem mem, void *A_data, N_Vector x, N_Vector b,
 
   /* Initialize counters and converged flag */
   *nli = *nps = 0;
-  converged = FALSE;
+  converged = SUNFALSE;
 
   /* Set preconditioning flag */
   UsePrec = ((pretype == PREC_BOTH) || (pretype == PREC_LEFT) || (pretype == PREC_RIGHT));
@@ -126,7 +126,7 @@ int PcgSolve(PcgMem mem, void *A_data, N_Vector x, N_Vector b,
 
   /* Apply preconditioner and b-scaling to r = r_0 */
   if (UsePrec) {
-    ier = psolve(P_data, r, z, PREC_LEFT);   /* z = P^{-1}r */
+    ier = psolve(P_data, r, z, delta, PREC_LEFT);   /* z = P^{-1}r */
     (*nps)++;
     if (ier != 0) return((ier < 0) ? PCG_PSOLVE_FAIL_UNREC : PCG_PSOLVE_FAIL_REC);
   }
@@ -161,13 +161,13 @@ int PcgSolve(PcgMem mem, void *A_data, N_Vector x, N_Vector b,
     /* Set rho and check convergence */
     *res_norm = rho = N_VWrmsNorm(r, w);
     if (rho <= delta) {
-      converged = TRUE;
+      converged = SUNTRUE;
       break;
     }
 
     /* Apply preconditioner:  z = P^{-1}*r */
     if (UsePrec) {
-      ier = psolve(P_data, r, z, PREC_LEFT);
+      ier = psolve(P_data, r, z, delta, PREC_LEFT);
       (*nps)++;
       if (ier != 0) return((ier < 0) ? PCG_PSOLVE_FAIL_UNREC : PCG_PSOLVE_FAIL_REC);
     }
@@ -186,7 +186,7 @@ int PcgSolve(PcgMem mem, void *A_data, N_Vector x, N_Vector b,
   }
 
   /* Main loop finished, return with result */
-  if (converged == TRUE)  return(PCG_SUCCESS);
+  if (converged == SUNTRUE)  return(PCG_SUCCESS);
   if (rho < r0_norm)      return(PCG_RES_REDUCED);
   return(PCG_CONV_FAIL);
 }

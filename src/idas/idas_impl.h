@@ -77,7 +77,7 @@ typedef struct IDAMemRec {
   realtype       ida_rtol;           /* relative tolerance                    */
   realtype       ida_Satol;          /* scalar absolute tolerance             */  
   N_Vector       ida_Vatol;          /* vector absolute tolerance             */  
-  booleantype    ida_user_efun;      /* TRUE if user provides efun            */
+  booleantype    ida_user_efun;      /* SUNTRUE if user provides efun         */
   IDAEwtFn       ida_efun;           /* function to set ewt                   */
   void          *ida_edata;          /* user pointer passed to efun           */
   
@@ -115,7 +115,7 @@ typedef struct IDAMemRec {
   int            ida_DQtype;
   realtype       ida_DQrhomax;
 
-  booleantype    ida_errconS;       /* TRUE if sensitivities in err. control  */
+  booleantype    ida_errconS;       /* SUNTRUE if sensitivities in err. control  */
 
   int            ida_itolS;
   realtype       ida_rtolS;         /* relative tolerance for sensitivities   */
@@ -126,13 +126,13 @@ typedef struct IDAMemRec {
     Quadrature Sensitivity Related Data 
     -----------------------------------*/
 
-  booleantype ida_quadr_sensi;   /* TRUE if computing sensitivities of quadrs.*/
+  booleantype ida_quadr_sensi;   /* SUNTRUE if computing sensitivities of quadrs. */
 
-  IDAQuadSensRhsFn ida_rhsQS;    /* fQS = (dfQ/dy)*yS + (dfQ/dp)              */
-  void *ida_user_dataQS;         /* data pointer passed to fQS                */
-  booleantype ida_rhsQSDQ;       /* TRUE if using internal DQ functions       */
+  IDAQuadSensRhsFn ida_rhsQS;    /* fQS = (dfQ/dy)*yS + (dfQ/dp)                  */
+  void *ida_user_dataQS;         /* data pointer passed to fQS                    */
+  booleantype ida_rhsQSDQ;       /* SUNTRUE if using internal DQ functions        */
 
-  booleantype ida_errconQS;      /* TRUE if yQS are considered in err. con.   */
+  booleantype ida_errconQS;      /* SUNTRUE if yQS are considered in err. con.    */
 
   int ida_itolQS;
   realtype ida_rtolQS;           /* relative tolerance for yQS                */
@@ -320,12 +320,12 @@ typedef struct IDAMemRec {
     Space requirements for IDAS
     ---------------------------*/
 
-  long int ida_lrw1;     /* no. of realtype words in 1 N_Vector               */
-  long int ida_liw1;     /* no. of integer words in 1 N_Vector                */
-  long int ida_lrw1Q;
-  long int ida_liw1Q;
-  long int ida_lrw;      /* number of realtype words in IDA work vectors      */
-  long int ida_liw;      /* no. of integer words in IDA work vectors          */
+  sunindextype ida_lrw1; /* no. of realtype words in 1 N_Vector               */
+  sunindextype ida_liw1; /* no. of integer words in 1 N_Vector                */
+  sunindextype ida_lrw1Q;
+  sunindextype ida_liw1Q;
+  long int     ida_lrw;  /* number of realtype words in IDA work vectors      */
+  long int     ida_liw;  /* no. of integer words in IDA work vectors          */
 
 
   /*-------------------------------------------
@@ -338,15 +338,15 @@ typedef struct IDAMemRec {
 
   /* Flags to verify correct calling sequence */
     
-  booleantype ida_SetupDone;     /* set to FALSE by IDAInit and IDAReInit
-				    set to TRUE by IDACalcIC or IDASolve       */
+  booleantype ida_SetupDone;     /* set to SUNFALSE by IDAInit and IDAReInit
+				    set to SUNTRUE by IDACalcIC or IDASolve    */
 
   booleantype ida_VatolMallocDone;
   booleantype ida_constraintsMallocDone;
   booleantype ida_idMallocDone;
 
-  booleantype ida_MallocDone;    /* set to FALSE by IDACreate
-				    set to TRUE by IDAInit
+  booleantype ida_MallocDone;    /* set to SUNFALSE by IDACreate
+				    set to SUNTRUE by IDAInit
 				    tested by IDAReInit and IDASolve           */
 
   booleantype ida_VatolQMallocDone;
@@ -395,14 +395,13 @@ typedef struct IDAMemRec {
     Saved Values
     ------------*/
 
-  booleantype    ida_setupNonNull;   /* Does setup do something?              */
-  booleantype    ida_constraintsSet; /* constraints vector present            */
-  booleantype    ida_suppressalg;    /* TRUE if suppressing algebraic vars.
-					in local error tests                  */
-  int ida_kused;         /* method order used on last successful step         */
-  realtype ida_h0u;      /* actual initial stepsize                           */
-  realtype ida_hused;    /* step size used on last successful step            */
-  realtype ida_tolsf;    /* tolerance scale factor (saved value)              */
+  booleantype    ida_constraintsSet; /* constraints vector present             */
+  booleantype    ida_suppressalg;    /* SUNTRUE if suppressing algebraic vars.
+					in local error tests                   */
+  int ida_kused;         /* method order used on last successful step          */
+  realtype ida_h0u;      /* actual initial stepsize                            */
+  realtype ida_hused;    /* step size used on last successful step             */
+  realtype ida_tolsf;    /* tolerance scale factor (saved value)               */
 
   /*----------------
     Rootfinding Data
@@ -430,7 +429,7 @@ typedef struct IDAMemRec {
     Adjoint sensitivity data
     ------------------------*/
 
-  booleantype ida_adj;              /* TRUE if performing ASA                 */
+  booleantype ida_adj;              /* SUNTRUE if performing ASA              */
 
   struct IDAadjMemRec *ida_adj_mem; /* Pointer to adjoint memory structure    */
 
@@ -770,15 +769,14 @@ struct IDAadjMemRec {
 /*
  * -----------------------------------------------------------------
  * int (*ida_lsetup)(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,   
- *                  N_Vector resp,                                 
- *            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);  
+ *                  N_Vector resp, N_Vector tempv1, 
+ *                  N_Vector tempv2, N_Vector tempv3);  
  * -----------------------------------------------------------------
  * The job of ida_lsetup is to prepare the linear solver for       
  * subsequent calls to ida_lsolve. Its parameters are as follows:  
  *                                                                 
  * idamem - problem memory pointer of type IDAMem. See the big     
  *          typedef earlier in this file.                          
- *                                                                 
  *                                                                 
  * yyp   - the predicted y vector for the current IDA internal     
  *         step.                                                   
@@ -828,6 +826,17 @@ struct IDAadjMemRec {
  * -----------------------------------------------------------------
  */                                                                 
 
+/*
+ * -----------------------------------------------------------------
+ * int (*ida_lfree)(IDAMem IDA_mem);                               
+ * -----------------------------------------------------------------
+ * ida_lfree should free up any memory allocated by the linear     
+ * solver. This routine is called once a problem has been          
+ * completed and the linear solver is no longer needed.  It should 
+ * return 0 upon success, nonzero on failure.
+ * -----------------------------------------------------------------
+ */
+  
 /*
  * =================================================================
  *   I D A S    I N T E R N A L   F U N C T I O N S

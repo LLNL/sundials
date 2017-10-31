@@ -472,38 +472,38 @@ SUNDIALS_EXPORT void *ARKodeCreate();
                           | the problem is linear, and to tighten 
                           | the linear solver tolerances while 
                           | taking only one Newton iteration.
-                          | [FALSE]
+                          | [SUNFALSE]
                           |
  ARKodeSetNonlinear       | specifies that the implicit portion of 
                           | the problem is nonlinear.  Used to undo
                           | a previous call to ARKodeSetLinear.
-                          | [TRUE]
+                          | [SUNTRUE]
                           |
  ARKodeSetFixedPoint      | specifies that the implicit portion of 
                           | the problem should use the accelerated 
                           | fixed-point solver.
-                          | [FALSE]
+                          | [SUNFALSE]
                           |
  ARKodeSetNewton          | specifies that the implicit portion of 
                           | the problem should use the modified Newton 
                           | solver.  Used to undo a previous call to
                           | ARKodeSetFixedPoint.
-                          | [TRUE]
+                          | [SUNTRUE]
                           |
  ARKodeSetExplicit        | specifies that implicit portion of 
                           | problem is disabled, and to use an 
                           | explicit RK method.
-                          | [FALSE]
+                          | [SUNFALSE]
                           |
  ARKodeSetImplicit        | specifies that explicit portion of 
                           | problem is disabled, and to use an 
                           | implicit RK method.
-                          | [FALSE]
+                          | [SUNFALSE]
                           |
  ARKodeSetImEx            | specifies that problem has both 
                           | implicit and explicit parts, and to 
                           | use an ARK method.
-                          | [TRUE]
+                          | [SUNTRUE]
                           |
  ARKodeSetERKTable        | specifies to use a customized Butcher 
                           | table for the explicit portion of the 
@@ -1224,6 +1224,9 @@ SUNDIALS_EXPORT int ARKodeGetDky(void *arkode_mem, realtype t,
  ARKodeGetErrWeights returns the current error weight vector.
                      The user must allocate space for eweight.
 
+ ARKodeGetResWeights returns the current residual weight vector.
+                     The user must allocate space for rweight.
+
  ARKodeGetEstLocalErrors returns the vector of estimated local
                          errors. The user must allocate space
                          for ele.
@@ -1281,6 +1284,8 @@ SUNDIALS_EXPORT int ARKodeGetTolScaleFactor(void *arkode_mem,
 					    realtype *tolsfac);
 SUNDIALS_EXPORT int ARKodeGetErrWeights(void *arkode_mem, 
 					N_Vector eweight);
+SUNDIALS_EXPORT int ARKodeGetResWeights(void *arkode_mem, 
+					N_Vector rweight);
 SUNDIALS_EXPORT int ARKodeGetEstLocalErrors(void *arkode_mem, 
 					    N_Vector ele);
 SUNDIALS_EXPORT int ARKodeGetNumGEvals(void *arkode_mem, 

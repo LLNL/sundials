@@ -50,19 +50,20 @@ forward sensitivity analysis beyond those for IVP solution
 sensitivity analysis} \begin{Steps}
   
 \item 
-  \textcolor{gray}{\bf Initialize parallel or multi-threaded environment}
+  \textcolor{gray}{\bf Initialize parallel or multi-threaded environment,
+  if appropriate}
 
 \item
   \textcolor{gray}{\bf Set problem dimensions etc.}
 
 \item
-  \textcolor{gray}{\bf Set initial values}
+  \textcolor{gray}{\bf Set vectors of initial values}
  
 \item
   \textcolor{gray}{\bf Create {\idas} object}
 
 \item
-  \textcolor{gray}{\bf Allocate internal memory}
+  \textcolor{gray}{\bf Initialize {\idas}}
 
 \item
   \textcolor{gray}{\bf Specify integration tolerances}
@@ -71,10 +72,16 @@ sensitivity analysis} \begin{Steps}
   \textcolor{gray}{\bf Set optional inputs}
 
 \item
-  \textcolor{gray}{\bf Attach linear solver module}
+  \textcolor{gray}{\bf Create matrix object}
+
+\item
+  \textcolor{gray}{\bf Create linear solver object}
 
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
+
+\item
+  \textcolor{gray}{\bf Attach linear solver module}
 
 \item
   \textcolor{gray}{\bf Initialize quadrature problem, if not sensitivity-dependent}
@@ -201,7 +208,10 @@ sensitivity analysis} \begin{Steps}
   \Id{IDAGetSensDky} or \Id{IDAGetSensDky1} (see \S\ref{ss:sensi_get}).
 
 \item
-  \textcolor{gray}{\bf Deallocate memory for solutions vector}
+ \textcolor{gray}{\bf Get optional outputs}
+
+\item
+  \textcolor{gray}{\bf Deallocate memory for solution vector}
 
 \item 
   {\bf Deallocate memory for sensitivity vectors}
@@ -210,8 +220,6 @@ sensitivity analysis} \begin{Steps}
   in \id{yS0} and \id{ypS0}:
 
   \id{N\_VDestroyVectorArray\_***(yS0, Ns);}
-
-  and similarly for \id{ypS0}.
 
   If \id{yS} was created from \id{realtype} arrays \id{yS\_i}, it is the
   user's responsibility to also free the space for the arrays \id{yS\_i},
@@ -227,10 +235,12 @@ sensitivity analysis} \begin{Steps}
   \textcolor{gray}{\bf Free vector specification memory}
 
 \item 
+  \textcolor{gray}{\bf Free linear solver and matrix memory}
+
+\item 
   \textcolor{gray}{\bf Finalize MPI, if used}
   
 \end{Steps}
-
 
 %-------------------------------------------------------------------------------
 \section{User-callable routines for forward sensitivity analysis}
@@ -804,7 +814,7 @@ remainder of this section.
 \hline
 Sensitivity scaling factors & \id{IDASetSensParams} & \id{NULL} \\
 DQ approximation method & \id{IDASetSensDQMethod} & centered,0.0 \\
-Error control strategy & \id{IDASetSensErrCon} & \id{FALSE} \\
+Error control strategy & \id{IDASetSensErrCon} & \id{SUNFALSE} \\
 Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 3 \\
 \hline
 \end{tabular}
@@ -915,8 +925,8 @@ Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 3 \\
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
   \item[errconS] (\id{booleantype})
-    specifies whether sensitivity variables are included (\id{TRUE}) or not
-    (\id{FALSE}) in the error control mechanism.
+    specifies whether sensitivity variables are included (\id{SUNTRUE}) or not
+    (\id{SUNFALSE}) in the error control mechanism.
   \end{args}
 }
 {
@@ -929,10 +939,10 @@ Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 3 \\
   \end{args}
 }
 {
-  By default, \id{errconS} is set to \id{FALSE}. 
-  If \id{errconS}$=$\id{TRUE} then both state variables and
+  By default, \id{errconS} is set to \id{SUNFALSE}. 
+  If \id{errconS}$=$\id{SUNTRUE} then both state variables and
   sensitivity variables are included in the error tests. 
-  If \id{errconS}$=$\id{FALSE} then the sensitivity variables are excluded from the 
+  If \id{errconS}$=$\id{SUNFALSE} then the sensitivity variables are excluded from the 
   error tests. Note that, in any event, all variables are considered in the convergence 
   tests.
 }
@@ -1462,13 +1472,19 @@ this situation. Steps that are unchanged from the skeleton program presented in
   \textcolor{gray}{\bf Create {\idas} object}
 
 \item
-  \textcolor{gray}{\bf Allocate internal memory}
+  \textcolor{gray}{\bf Initialize {\idas} solver}
+
+\item
+  \textcolor{gray}{\bf Specify integration tolerances}
 
 \item
   \textcolor{gray}{\bf Set optional inputs}
 
 \item
-  \textcolor{gray}{\bf Attach linear solver module}
+  \textcolor{gray}{\bf Create matrix object}
+
+\item
+  \textcolor{gray}{\bf Create linear solver object}
 
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
@@ -1544,6 +1560,12 @@ this situation. Steps that are unchanged from the skeleton program presented in
 \item
   \textcolor{gray}{\bf Free solver memory}
 
+\item
+  \textcolor{gray}{\bf Free vector specification memory}
+
+\item
+  \textcolor{gray}{\bf Free linear solver and matrix memory}
+  
 \item 
   \textcolor{gray}{\bf Finalize MPI, if used}
   
@@ -1925,8 +1947,8 @@ of sensitivity-dependent quadrature equations.
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
   \item[errconQS] (\id{booleantype})
-    specifies whether sensitivity quadrature variables are included (\id{TRUE}) or not
-    (\id{FALSE}) in the error control mechanism. 
+    specifies whether sensitivity quadrature variables are included (\id{SUNTRUE}) or not
+    (\id{SUNFALSE}) in the error control mechanism. 
   \end{args}
 }
 {
@@ -1943,7 +1965,7 @@ of sensitivity-dependent quadrature equations.
   \end{args}
 }
 {
-  By default, \id{errconQS} is set to \id{FALSE}. 
+  By default, \id{errconQS} is set to \id{SUNFALSE}. 
 
   {\warn}It is illegal to call \id{IDASetQuadSensErrCon} before a call 
   to \id{IDAQuadSensInit}.
@@ -2171,7 +2193,7 @@ performance information related to quadrature integration.
   {\warn}The user must allocate memory for \id{eQSweight}.
 
   If quadratures were not included in the error control mechanism (through a 
-  call to \id{IDASetQuadSensErrCon} with \id{errconQS=TRUE}), 
+  call to \id{IDASetQuadSensErrCon} with \id{errconQS=SUNTRUE}), 
   \id{IDAGetQuadSensErrWeights} does not set the \id{eQSweight} vector.
 }
 %%

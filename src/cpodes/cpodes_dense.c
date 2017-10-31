@@ -161,7 +161,7 @@ static void cpdSCcomputeKD(CPodeMem cp_mem, N_Vector d);
  * respectively.  It allocates memory for a structure of type
  * CPDlsMemRec and sets the cp_lmem field in (*cpode_mem) to the
  * address of this structure.  It sets lsetup_exists in (*cpode_mem) to
- * TRUE, and the d_jac field to the default cpDlsDenseDQJac.
+ * SUNTRUE, and the d_jac field to the default cpDlsDenseDQJac.
  * Finally, it allocates memory for M, pivots, and (if needed) savedJ.
  * The return value is SUCCESS = 0, or LMEM_FAIL = -1.
  *
@@ -212,13 +212,13 @@ int CPDense(void *cpode_mem, int N)
   mtype = SUNDIALS_DENSE;
 
   /* Set default Jacobian routine and Jacobian data */
-  jacDQ = TRUE;
+  jacDQ = SUNTRUE;
   jacE = NULL;
   jacI = NULL;
   J_data = NULL;
 
   last_flag = CPDLS_SUCCESS;
-  lsetup_exists = TRUE;
+  lsetup_exists = SUNTRUE;
 
   /* Set problem dimension */
   n = N;
@@ -234,7 +234,7 @@ int CPDense(void *cpode_mem, int N)
     free(cpdls_mem);
     return(CPDLS_MEM_FAIL);
   }
-  pivots = NewLintArray(N);
+  pivots = NewIndexArray(N);
   if (pivots == NULL) {
     cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPDENSE", "CPDense", MSGD_MEM_FAIL);
     DestroyMat(M);
@@ -315,7 +315,7 @@ int CPDenseProj(void *cpode_mem, int Nc, int Ny, int fact_type)
     return(CPDLS_MEM_FAIL);
   }
 
-  lsetupP_exists = TRUE;
+  lsetupP_exists = SUNTRUE;
 
   /* Initialize all internal pointers to NULL */
   G = NULL;
@@ -343,7 +343,7 @@ int CPDenseProj(void *cpode_mem, int Nc, int Ny, int fact_type)
 
   case CPDLS_LU:
     /* Allocate space for pivotsP and K */
-    pivotsP = NewLintArray(Nc);
+    pivotsP = NewIndexArray(Nc);
     if (pivotsP == NULL) {
       cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
       DestroyMat(savedG);
@@ -402,11 +402,11 @@ int CPDenseProj(void *cpode_mem, int Nc, int Ny, int fact_type)
   }
 
   /* Set default Jacobian routine and Jacobian data */
-  jacPDQ = TRUE;
+  jacPDQ = SUNTRUE;
   jacP = NULL;
   JP_data = NULL;
 
-  lsetupP_exists = TRUE;
+  lsetupP_exists = SUNTRUE;
 
   /* Copy inputs into memory */
   nc    = Nc;        /* number of constraints */
@@ -513,11 +513,11 @@ static int cpDenseSetup(CPodeMem cp_mem, int convfail,
     
     /* Test if it is enough to use a saved Jacobian copy */
     if (jok) {
-      *jcurPtr = FALSE;
+      *jcurPtr = SUNFALSE;
       DenseCopy(savedJ, M);
     } else {
       nstlj = nst;
-      *jcurPtr = TRUE;
+      *jcurPtr = SUNTRUE;
       retval = jacE(n, tn, yP, fctP, M, J_data, tmp1, tmp2, tmp3);
       nje++;
       if (retval < 0) {

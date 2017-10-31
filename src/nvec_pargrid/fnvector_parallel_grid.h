@@ -60,8 +60,8 @@ extern N_Vector F2C_KINSOL_vec;
 
 extern N_Vector F2C_ARKODE_vec;
 
-/* 
- * Prototypes of exported functions 
+/*
+ * Prototypes of exported functions
  *
  * FNV_INITPG    - initializes parallel grid vector operations for main problem
  * FNV_INITPG_Q  - initializes parallel grid vector operations for quadratures
@@ -75,19 +75,19 @@ extern N_Vector F2C_ARKODE_vec;
 #define MPI_Fint int
 #endif
 
-void FNV_INITPG(MPI_Fint *comm, int *code, long int *dims, long int *dim_len, 
-		long int *dim_alen, long int *dim_off, long int *F_ordering, 
+void FNV_INITPG(MPI_Fint *comm, int *code, int *dims, long int *dim_len,
+		long int *dim_alen, long int *dim_off, int *F_ordering,
 		long int *glob_len, int *ier);
-void FNV_INITPG_Q(MPI_Fint *comm, int *code, long int *dims, long int *dim_lenQ, 
-		  long int *dim_alenQ, long int *dim_offQ, long int *F_ordering, 
+void FNV_INITPG_Q(MPI_Fint *comm, int *code, int *dims, long int *dim_lenQ,
+		  long int *dim_alenQ, long int *dim_offQ, int *F_ordering,
 		  long int *glob_lenQ, int *ier);
-void FNV_INITPG_B(MPI_Fint *comm, int *code, long int *dims, long int *dim_lenB, 
-		  long int *dim_alenB, long int *dim_offB, long int *F_ordering, 
+void FNV_INITPG_B(MPI_Fint *comm, int *code, int *dims, long int *dim_lenB,
+		  long int *dim_alenB, long int *dim_offB, int *F_ordering,
 		  long int *glob_lenB, int *ier);
-void FNV_INITPG_QB(MPI_Fint *comm, int *code, long int *dims, long int *dim_lenQB, 
-		   long int *dim_alenQB, long int *dim_offQB, long int *F_ordering, 
+void FNV_INITPG_QB(MPI_Fint *comm, int *code, int *dims, long int *dim_lenQB,
+		   long int *dim_alenQB, long int *dim_offQB, int *F_ordering,
 		   long int *glob_lenQB, int *ier);
-void FNV_INITPG_S(int *code, long int *Ns, int *ier);
+void FNV_INITPG_S(int *code, int *Ns, int *ier);
 
 #ifdef __cplusplus
 }

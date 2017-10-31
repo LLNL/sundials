@@ -1,22 +1,19 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * This file (companion of nvector_sspcparallel.h) contains the 
- * implementation needed for the Fortran initialization of the 
+ * This file (companion of nvector_sspcparallel.h) contains the
+ * implementation needed for the Fortran initialization of the
  * spcparallel vector operations.
  * -----------------------------------------------------------------
  */
@@ -50,7 +47,7 @@ N_Vector F2C_ARKODE_vec;
 
 /* Fortran callable interfaces */
 
-void FNV_INITSPCP(MPI_Fint *comm, int *code, 
+void FNV_INITSPCP(MPI_Fint *comm, int *code,
                   int *Ngrp, int *Nspc,
                   long int *Nx, long int *Ny, long int *Nz,
                   long int *NGx, long int *NGy, long int *NGz,
@@ -94,7 +91,7 @@ void FNV_INITSPCP(MPI_Fint *comm, int *code,
   }
 }
 
-void FNV_INITSPCP_Q(MPI_Fint *comm, int *code, 
+void FNV_INITSPCP_Q(MPI_Fint *comm, int *code,
                     int *NgrpQ, int *NspcQ,
                     long int *NxQ, long int *NyQ, long int *NzQ,
                     long int *NGxQ, long int *NGyQ, long int *NGzQ,
@@ -126,7 +123,7 @@ void FNV_INITSPCP_Q(MPI_Fint *comm, int *code,
   }
 }
 
-void FNV_INITSPCP_B(MPI_Fint *comm, int *code, 
+void FNV_INITSPCP_B(MPI_Fint *comm, int *code,
                     int *NgrpB, int *NspcB,
                     long int *NxB, long int *NyB, long int *NzB,
                     long int *NGxB, long int *NGyB, long int *NGzB,
@@ -158,7 +155,7 @@ void FNV_INITSPCP_B(MPI_Fint *comm, int *code,
   }
 }
 
-void FNV_INITSPCP_QB(MPI_Fint *comm, int *code, 
+void FNV_INITSPCP_QB(MPI_Fint *comm, int *code,
                      int *NgrpQB, int *NspcQB,
                      long int *NxQB, long int *NyQB, long int *NzQB,
                      long int *NGxQB, long int *NGyQB, long int *NGzQB,
@@ -190,7 +187,7 @@ void FNV_INITSPCP_QB(MPI_Fint *comm, int *code,
   }
 }
 
-void FNV_INITSPCP_S(int *code, int *Ns, int *ier) 
+void FNV_INITSPCP_S(int *code, int *Ns, int *ier)
 {
   *ier = 0;
 

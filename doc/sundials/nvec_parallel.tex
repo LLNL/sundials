@@ -10,8 +10,8 @@ the data array {\em data}.
 %%
 \begin{verbatim} 
 struct _N_VectorContent_Parallel {
-  long int local_length;
-  long int global_length;
+  sunindextype local_length;
+  sunindextype global_length;
   booleantype own_data;
   realtype *data;
   MPI_Comm comm;
@@ -20,9 +20,13 @@ struct _N_VectorContent_Parallel {
 %%
 %%--------------------------------------------
 
-The header file to be included when using this module is \id{nvector\_parallel.h}.
+The header file to include when using this module is \id{nvector\_parallel.h}.
+The installed module library to link to is
+\id{libsundials\_nvecparallel.\textit{lib}}
+where \id{\em.lib} is typically \id{.so} for shared libraries and \id{.a}
+for static libraries.
 
-The following seven macros are provided to access the content of a {\nvecp}
+The following macros are provided to access the content of a {\nvecp}
 vector. The suffix \id{\_P} in the names denotes the distributed memory
 parallel version.
 \begin{itemize}
@@ -122,8 +126,8 @@ user-callable routines:
 
 \begin{verbatim}
 N_Vector N_VNew_Parallel(MPI_Comm comm, 
-                         long int local_length, 
-                         long int global_length);
+                         sunindextype local_length, 
+                         sunindextype global_length);
 \end{verbatim}
   
 %%--------------------------------------
@@ -136,8 +140,8 @@ N_Vector N_VNew_Parallel(MPI_Comm comm,
 
 \begin{verbatim}
 N_Vector N_VNewEmpty_Parallel(MPI_Comm comm, 
-                              long int local_length, 
-                              long int global_length);
+                              sunindextype local_length, 
+                              sunindextype global_length);
 \end{verbatim}
 
   
@@ -152,8 +156,8 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
 
 \begin{verbatim}
 N_Vector N_VMake_Parallel(MPI_Comm comm, 
-                          long int local_length,
-                          long int global_length,
+                          sunindextype local_length,
+                          sunindextype global_length,
                           realtype *v_data);
 \end{verbatim}
 
@@ -198,7 +202,7 @@ N_Vector *N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w);
 
  
  
- \verb|long int N_VGetLength_Parallel(N_Vector v);|
+ \verb|sunindextype N_VGetLength_Parallel(N_Vector v);|
 
 %%--------------------------------------
 
@@ -208,7 +212,7 @@ N_Vector *N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w);
 
  
  
- \verb|long int N_VGetLocalLength_Parallel(N_Vector v);|
+ \verb|sunindextype N_VGetLocalLength_Parallel(N_Vector v);|
 
 %%--------------------------------------
 
@@ -237,10 +241,10 @@ N_Vector *N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w);
 \item
   {\warn}\id{N\_VNewEmpty\_Parallel}, \id{N\_VMake\_Parallel}, 
   and \id{N\_VCloneVectorArrayEmpty\_Parallel} set the field 
-  {\em own\_data} $=$ \id{FALSE}. 
+  {\em own\_data} $=$ \id{SUNFALSE}. 
   \id{N\_VDestroy\_Parallel} and \id{N\_VDestroyVectorArray\_Parallel}
   will not attempt to free the pointer {\em data} for any \id{N\_Vector} with
-  {\em own\_data} set to \id{FALSE}. In such a case, it is the user's responsibility to
+  {\em own\_data} set to \id{SUNFALSE}. In such a case, it is the user's responsibility to
   deallocate the {\em data} pointer.
 
 \item

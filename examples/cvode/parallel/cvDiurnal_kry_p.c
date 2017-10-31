@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
  * -----------------------------------------------------------------
@@ -32,7 +29,7 @@
  * neq = 2*MX*MY.
  *
  * The solution is done with the BDF/GMRES method (i.e. using the
- * CVSPGMR linear solver) and the block-diagonal part of the
+ * SUNSPGMR linear solver) and the block-diagonal part of the
  * Newton matrix as a left preconditioner. A copy of the
  * block-diagonal part of the Jacobian is saved and conditionally
  * reused within the preconditioner routine.
@@ -52,14 +49,15 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <cvode/cvode.h>               /* prototypes for CVODE fcts. */
-#include <cvode/cvode_spgmr.h>         /* prototypes & constants for CVSPGMR  */
-#include <nvector/nvector_parallel.h>  /* def. of N_Vector  */
-#include <sundials/sundials_dense.h>   /* prototypes for small dense fcts. */
-#include <sundials/sundials_types.h>   /* definitions of realtype, booleantype */
-#include <sundials/sundials_math.h>    /* definition of macros SUNSQR and EXP */
+#include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts.    */
+#include <nvector/nvector_parallel.h>  /* access to MPI-parallel N_Vector        */
+#include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver        */
+#include <sundials/sundials_dense.h>   /* prototypes for small dense fcts.       */
+#include <cvode/cvode_spils.h>         /* access to CVSpils interface            */
+#include <sundials/sundials_types.h>   /* definitions of realtype, booleantype   */
+#include <sundials/sundials_math.h>    /* definition of macros SUNSQR and EXP    */
 
-#include <mpi.h>                       /* MPI constants and types */
+#include <mpi.h> /* MPI constants and types */
 
 /* Problem Constants */
 
@@ -130,7 +128,7 @@ typedef struct {
 
   /* For preconditioner */
   realtype **P[MXSUB][MYSUB], **Jbd[MXSUB][MYSUB];
-  long int *pivot[MXSUB][MYSUB];
+  sunindextype *pivot[MXSUB][MYSUB];
 
 } *UserData;
 
@@ -144,15 +142,15 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
 static void PrintFinalStats(void *cvode_mem);
 static void BSend(MPI_Comm comm, 
                   int my_pe, int isubx, int isuby, 
-                  long int dsizex, long int dsizey,
+                  sunindextype dsizex, sunindextype dsizey,
                   realtype udata[]);
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-		      long int dsizex, long int dsizey,
+		      sunindextype dsizex, sunindextype dsizey,
 		      realtype uext[], realtype buffer[]);
 static void BRecvWait(MPI_Request request[], 
                       int isubx, int isuby, 
-                      long int dsizex, realtype uext[],
+                      sunindextype dsizex, realtype uext[],
                       realtype buffer[]);
 static void ucomm(realtype t, N_Vector u, UserData data);
 static void fcalc(realtype t, realtype udata[], realtype dudata[],
@@ -165,13 +163,12 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *user_data, 
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+                   realtype gamma, void *user_data);
 
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
                   N_Vector r, N_Vector z, 
                   realtype gamma, realtype delta,
-                  int lr, void *user_data, N_Vector vtemp);
+                  int lr, void *user_data);
 
 
 /* Private function to check function return values */
@@ -186,13 +183,15 @@ int main(int argc, char *argv[])
   realtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
+  SUNLinearSolver LS;
   void *cvode_mem;
   int iout, flag, my_pe, npes;
-  long int neq, local_N;
+  sunindextype neq, local_N;
   MPI_Comm comm;
 
   u = NULL;
   data = NULL;
+  LS = NULL;
   cvode_mem = NULL;
 
   /* Set problem size neq */
@@ -246,10 +245,14 @@ int main(int argc, char *argv[])
   flag = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_flag(&flag, "CVodeSStolerances", 1, my_pe)) return(1);
 
-  /* Call CVSpgmr to specify the linear solver CVSPGMR 
-     with left preconditioning and the maximum Krylov dimension maxl */
-  flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
-  if (check_flag(&flag, "CVSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
+  /* Create SPGMR solver structure with left preconditioning 
+     and the default Krylov dimension maxl */
+  LS = SUNSPGMR(u, PREC_LEFT, 0);
+  if (check_flag((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+
+  /* Attach SPGMR solver structure to CVSpils interface */
+  flag = CVSpilsSetLinearSolver(cvode_mem, LS);
+  if (check_flag(&flag, "CVSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Set preconditioner setup and solve routines Precond and PSolve, 
      and the pointer to the user-defined block data */
@@ -273,6 +276,7 @@ int main(int argc, char *argv[])
   N_VDestroy_Parallel(u);
   FreeUserData(data);
   CVodeFree(&cvode_mem);
+  SUNLinSolFree(LS);
 
   MPI_Finalize();
 
@@ -317,7 +321,7 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
     for (ly = 0; ly < MYSUB; ly++) {
       (data->P)[lx][ly] = newDenseMat(NVARS, NVARS);
       (data->Jbd)[lx][ly] = newDenseMat(NVARS, NVARS);
-      (data->pivot)[lx][ly] = newLintArray(NVARS);
+      (data->pivot)[lx][ly] = newIndexArray(NVARS);
     }
   }
 }
@@ -344,12 +348,12 @@ static void FreeUserData(UserData data)
 static void SetInitialProfiles(N_Vector u, UserData data)
 {
   int isubx, isuby, lx, ly, jx, jy;
-  long int offset;
+  sunindextype offset;
   realtype dx, dy, x, y, cx, cy, xmid, ymid;
   realtype *udata;
 
   /* Set pointer to data array in vector u */
-  udata = N_VGetArrayPointer_Parallel(u);
+  udata = N_VGetArrayPointer(u);
 
   /* Get mesh spacings, and subgrid indices for this PE */
   dx = data->dx;         dy = data->dy;
@@ -386,11 +390,12 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
   int qu, flag;
   realtype hu, *udata, tempu[2];
   int npelast;
-  long int i0, i1, nst;
+  long int nst;
+  sunindextype i0, i1;
   MPI_Status status;
 
   npelast = NPEX*NPEY - 1;
-  udata = N_VGetArrayPointer_Parallel(u);
+  udata = N_VGetArrayPointer(u);
 
   /* Send c1,c2 at top right mesh point to PE 0 */
   if (my_pe == npelast) {
@@ -439,7 +444,7 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int lenrw, leniw ;
+  long int lenrw, leniw;
   long int lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
@@ -488,11 +493,11 @@ static void PrintFinalStats(void *cvode_mem)
 
 static void BSend(MPI_Comm comm, 
                   int my_pe, int isubx, int isuby, 
-                  long int dsizex, long int dsizey,
+                  sunindextype dsizex, sunindextype dsizey,
                   realtype udata[])
 {
   int i, ly;
-  long int offsetu, offsetbuf;
+  sunindextype offsetu, offsetbuf;
   realtype bufleft[NVARS*MYSUB], bufright[NVARS*MYSUB];
 
   /* If isuby > 0, send data from bottom x-line of u */
@@ -537,10 +542,10 @@ static void BSend(MPI_Comm comm,
 
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-		      long int dsizex, long int dsizey,
+		      sunindextype dsizex, sunindextype dsizey,
 		      realtype uext[], realtype buffer[])
 {
-  long int offsetue;
+  sunindextype offsetue;
   /* Have bufleft and bufright use the same buffer */
   realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
 
@@ -578,11 +583,11 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[],
 
 static void BRecvWait(MPI_Request request[], 
                       int isubx, int isuby, 
-                      long int dsizex, realtype uext[],
+                      sunindextype dsizex, realtype uext[],
                       realtype buffer[])
 {
   int i, ly;
-  long int dsizex2, offsetue, offsetbuf;
+  sunindextype dsizex2, offsetue, offsetbuf;
   realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
   MPI_Status status;
 
@@ -632,10 +637,10 @@ static void ucomm(realtype t, N_Vector u, UserData data)
   realtype *udata, *uext, buffer[2*NVARS*MYSUB];
   MPI_Comm comm;
   int my_pe, isubx, isuby;
-  long int nvmxsub, nvmysub;
+  sunindextype nvmxsub, nvmysub;
   MPI_Request request[4];
 
-  udata = N_VGetArrayPointer_Parallel(u);
+  udata = N_VGetArrayPointer(u);
 
   /* Get comm, my_pe, subgrid indices, data sizes, extended array uext */
   comm = data->comm;  my_pe = data->my_pe;
@@ -668,7 +673,7 @@ static void fcalc(realtype t, realtype udata[],
   realtype q4coef, dely, verdco, hordco, horaco;
   int i, lx, ly, jx, jy;
   int isubx, isuby;
-  long int nvmxsub, nvmxsub2, offsetu, offsetue;
+  sunindextype nvmxsub, nvmxsub2, offsetu, offsetue;
 
   /* Get subgrid indices, data sizes, extended work array uext */
   isubx = data->isubx;   isuby = data->isuby;
@@ -797,8 +802,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   realtype *udata, *dudata;
   UserData data;
 
-  udata = N_VGetArrayPointer_Parallel(u);
-  dudata = N_VGetArrayPointer_Parallel(udot);
+  udata = N_VGetArrayPointer(u);
+  dudata = N_VGetArrayPointer(udot);
   data = (UserData) user_data;
 
   /* Call ucomm to do inter-processor communication */
@@ -813,13 +818,12 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 /* Preconditioner setup routine. Generate and preprocess P. */
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *user_data, 
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+                   realtype gamma, void *user_data)
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
   int nvmxsub, ier, offset;
-  long int *(*pivot)[MYSUB];
+  sunindextype *(*pivot)[MYSUB];
   int lx, ly, jx, jy, isubx, isuby;
   realtype *udata, **a, **j;
   UserData data;
@@ -830,24 +834,24 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   P = data->P;
   Jbd = data->Jbd;
   pivot = data->pivot;
-  udata = N_VGetArrayPointer_Parallel(u);
+  udata = N_VGetArrayPointer(u);
   isubx = data->isubx;   isuby = data->isuby;
   nvmxsub = data->nvmxsub;
 
   if (jok) {
 
-  /* jok = TRUE: Copy Jbd to P */
+  /* jok = SUNTRUE: Copy Jbd to P */
     for (ly = 0; ly < MYSUB; ly++)
       for (lx = 0; lx < MXSUB; lx++)
         denseCopy(Jbd[lx][ly], P[lx][ly], NVARS, NVARS);
 
-  *jcurPtr = FALSE;
+  *jcurPtr = SUNFALSE;
 
   }
 
   else {
 
-  /* jok = FALSE: Generate Jbd from scratch and copy to P */
+  /* jok = SUNFALSE: Generate Jbd from scratch and copy to P */
 
   /* Make local copies of problem variables, for efficiency */
   q4coef = data->q4;
@@ -879,7 +883,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
       }
     }
 
-  *jcurPtr = TRUE;
+  *jcurPtr = SUNTRUE;
 
   }
 
@@ -904,11 +908,11 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
                   N_Vector r, N_Vector z, 
                   realtype gamma, realtype delta,
-                  int lr, void *user_data, N_Vector vtemp)
+                  int lr, void *user_data)
 {
   realtype **(*P)[MYSUB];
   int nvmxsub;
-  long int *(*pivot)[MYSUB];
+  sunindextype *(*pivot)[MYSUB];
   int lx, ly;
   realtype *zdata, *v;
   UserData data;
@@ -924,7 +928,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   N_VScale(RCONST(1.0), r, z);
 
   nvmxsub = data->nvmxsub;
-  zdata = N_VGetArrayPointer_Parallel(z);
+  zdata = N_VGetArrayPointer(z);
 
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {

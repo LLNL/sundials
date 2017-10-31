@@ -1,13 +1,22 @@
-/*
- * -----------------------------------------------------------------
- * $Revision:  $
- * $Date:  $
- * ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Ting Yan @ SMU
  *      Based on cvsRoberts_ASAi_dns.c and modified to use KLU
  * -----------------------------------------------------------------
- * Adjoint sensitivity example problem:
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2015, Southern Methodist University and 
+ * Lawrence Livermore National Security
  *
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence
+ * Livermore National Laboratory.
+ *
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS/SMU Copyright End
+ *-----------------------------------------------------------------
+ * Adjoint sensitivity example problem.
  * The following is a simple example problem, with the coding
  * needed for its solution by CVODES. The problem is from chemical
  * kinetics, and consists of the following three rate equations.
@@ -46,24 +55,22 @@
  * where
  *   d(phi)/dt = g(t,y,p)
  *   phi(t1) = 0
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 
-/* Header files with a description of contents used */
-#include <cvodes/cvodes.h>              /* prototypes for CVODES fcts. and consts. */
-#include <cvodes/cvodes_klu.h>          /* prototypes for CVKLU fcts. and constants */
-#include <sundials/sundials_sparse.h>   /* definitions SlsMat */
-#include <nvector/nvector_serial.h>     /* defs. of serial NVECTOR fcts. and macros */
-#include <sundials/sundials_types.h>    /* def. of type realtype */
-#include <sundials/sundials_math.h>     /* definition of ABS */
+#include <cvodes/cvodes.h>              /* prototypes for CVODE fcts., consts.  */
+#include <nvector/nvector_serial.h>     /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_sparse.h> /* access to sparse SUNMatrix           */
+#include <sunlinsol/sunlinsol_klu.h>    /* access to KLU SUNLinearSolver        */
+#include <cvodes/cvodes_direct.h>       /* access to CVDls interface            */
+#include <sundials/sundials_types.h>    /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>     /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Accessor macros */
 /* These macros are defined in order to write code with which exactly matched
-   the mathematical problem description given above.
-*/
+   the mathematical problem description given above. */
 
 #define Ith(v,i)    NV_Ith_S(v,i-1)       /* i-th vector component, i=1..NEQ */
 
@@ -103,18 +110,15 @@ typedef struct {
 /* Prototypes of user-supplied functions */
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(realtype t,
-               N_Vector y, N_Vector fy, SlsMat JacMat, void *user_data, 
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data);
 static int ewt(N_Vector y, N_Vector w, void *user_data);
 
 static int fB(realtype t, N_Vector y, 
               N_Vector yB, N_Vector yBdot, void *user_dataB);
-static int JacB(realtype t,
-                N_Vector y, N_Vector yB, N_Vector fyB,
-                SlsMat JacMatB, void *user_dataB,
-                N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+static int JacB(realtype t, N_Vector y, N_Vector yB, N_Vector fyB, SUNMatrix JB,
+                void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 static int fQB(realtype t, N_Vector y, N_Vector yB, 
                N_Vector qBdot, void *user_dataB);
 
@@ -136,6 +140,8 @@ int main(int argc, char *argv[])
 {
   UserData data;
 
+  SUNMatrix A, AB;
+  SUNLinearSolver LS, LSB;
   void *cvode_mem;
 
   realtype reltolQ, abstolQ;
@@ -156,6 +162,8 @@ int main(int argc, char *argv[])
   CVadjCheckPointRec *ckpnt;
 
   data = NULL;
+  A = AB = NULL;
+  LS = LSB = NULL;
   cvode_mem = NULL;
   ckpnt = NULL;
   y = yB = qB = NULL;
@@ -208,7 +216,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "CVodeInit", 1)) return(1);
 
   /* Call CVodeWFtolerances to specify a user-supplied function ewt that sets
-     the multiplicative error weights W_i for use in the weighted RMS norm */
+     the multiplicative error weights w_i for use in the weighted RMS norm */
   flag = CVodeWFtolerances(cvode_mem, ewt);
   if (check_flag(&flag, "CVodeWFtolerances", 1)) return(1);
 
@@ -216,14 +224,22 @@ int main(int argc, char *argv[])
   flag = CVodeSetUserData(cvode_mem, data);
   if (check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
-  /* Call CVKLU to specify the CVKLU sparse direct linear solver */
-  nnz = NEQ * NEQ;              /* max no. of nonzeros entries in the Jac */
-  flag = CVKLU(cvode_mem, NEQ, nnz, CSC_MAT);
-  if (check_flag(&flag, "CVKLU", 1)) return(1);
+  /* Create sparse SUNMatrix for use in linear solves */
+  nnz = NEQ * NEQ; /* max no. of nonzeros entries in the Jac */
+  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
+  if (check_flag((void *)A, "SUNSparseMatrix", 0)) return(1);
 
-  /* Set the Jacobian routine to Jac (user-supplied) */
-  flag = CVSlsSetSparseJacFn(cvode_mem, Jac);
-  if (check_flag(&flag, "CVSlsSetSparseJacFn", 1)) return(1);
+  /* Create KLU SUNLinearSolver object */
+  LS = SUNKLU(y, A);
+  if (check_flag((void *)LS, "SUNKLU", 0)) return(1);
+
+  /* Attach the matrix and linear solver for the forward problem */
+  flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
+  if (check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
+
+  /* Set the user-supplied Jacobian routine for the forward problem */
+  flag = CVDlsSetJacFn(cvode_mem, Jac);
+  if (check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   /* Call CVodeQuadInit to allocate initernal memory and initialize
      quadrature integration*/
@@ -234,7 +250,7 @@ int main(int argc, char *argv[])
      are to be used in the step size control mechanism within CVODES. Call
      CVodeQuadSStolerances or CVodeQuadSVtolerances to specify the integration
      tolerances for the quadrature variables. */
-  flag = CVodeSetQuadErrCon(cvode_mem, TRUE);
+  flag = CVodeSetQuadErrCon(cvode_mem, SUNTRUE);
   if (check_flag(&flag, "CVodeSetQuadErrCon", 1)) return(1);
 
   /* Call CVodeQuadSStolerances to specify scalar relative and absolute
@@ -246,8 +262,7 @@ int main(int argc, char *argv[])
 
   /* Call CVodeAdjInit to update CVODES memory block by allocting the internal 
      memory needed for backward integration.*/
-  steps = STEPS;             /* no. of integration steps between two
-                               consecutive ckeckpoints*/
+  steps = STEPS; /* no. of integration steps between two consecutive ckeckpoints*/
   flag = CVodeAdjInit(cvode_mem, steps, CV_HERMITE);
   /*
   flag = CVodeAdjInit(cvode_mem, steps, CV_POLYNOMIAL);
@@ -347,14 +362,21 @@ int main(int argc, char *argv[])
   flag = CVodeSetUserDataB(cvode_mem, indexB, data);
   if (check_flag(&flag, "CVodeSetUserDataB", 1)) return(1);
 
-  /* Call CVKLUB to initialize the CVKLU sparse linear solver for the backward 
-     problem. */
-  flag = CVKLUB(cvode_mem, indexB, NEQ, nnz, CSC_MAT);
-  if (check_flag(&flag, "CVKLUB", 1)) return(1);
+/* Create sparse SUNMatrix for use in linear solves */
+  AB = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
+  if (check_flag((void *)A, "SUNSparseMatrix", 0)) return(1);
 
-  /* Set the Jacobian routine to Jac (user-supplied) for the backward problem */
-  flag = CVSlsSetSparseJacFnB(cvode_mem, indexB, JacB);
-  if (check_flag(&flag, "CVSlsSetSparseJacFnB", 1)) return(1);
+  /* Create KLU SUNLinearSolver object */
+  LSB = SUNKLU(yB, AB);
+  if (check_flag((void *)LSB, "SUNKLU", 0)) return(1);
+
+  /* Attach the matrix and linear solver for the backward problem */
+  flag = CVDlsSetLinearSolverB(cvode_mem, indexB, LSB, AB);
+  if (check_flag(&flag, "CVDlsSetLinearSolverB", 1)) return(1);
+
+  /* Set the user-supplied Jacobian routine for the backward problem */
+  flag = CVDlsSetJacFnB(cvode_mem, indexB, JacB);
+  if (check_flag(&flag, "CVDlsSetJacFnB", 1)) return(1);
 
   /* Call CVodeQuadInitB to allocate internal memory and initialize backward
      quadrature integration. */
@@ -365,7 +387,7 @@ int main(int argc, char *argv[])
      are to be used in the step size control mechanism within CVODES. Call
      CVodeQuadSStolerances or CVodeQuadSVtolerances to specify the integration
      tolerances for the quadrature variables. */
-  flag = CVodeSetQuadErrConB(cvode_mem, indexB, TRUE);
+  flag = CVodeSetQuadErrConB(cvode_mem, indexB, SUNTRUE);
   if (check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);
 
   /* Call CVodeQuadSStolerancesB to specify the scalar relative and absolute tolerances
@@ -469,10 +491,14 @@ int main(int argc, char *argv[])
   printf("Free memory\n\n");
 
   CVodeFree(&cvode_mem);
-  N_VDestroy_Serial(y); 
-  N_VDestroy_Serial(q);
-  N_VDestroy_Serial(yB);
-  N_VDestroy_Serial(qB);
+  N_VDestroy(y); 
+  N_VDestroy(q);
+  N_VDestroy(yB);
+  N_VDestroy(qB);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
+  SUNLinSolFree(LSB);
+  SUNMatDestroy(AB);
 
   if (ckpnt != NULL) free(ckpnt);
   free(data);
@@ -512,42 +538,48 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
  * Jacobian routine. Compute J(t,y). 
 */
 
-static int Jac(realtype t,
-               N_Vector y, N_Vector fy, SlsMat JacMat, void *user_data, 
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype *yval;
-  int* colptrs;
-  int* rowvals;
-  realtype* data;
+  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(J);
+  sunindextype *rowvals = SUNSparseMatrix_IndexValues(J);
+  realtype *data = SUNSparseMatrix_Data(J);
   UserData userdata;
   realtype p1, p2, p3;
  
-  yval = N_VGetArrayPointer_Serial(y);
-  colptrs = (*JacMat->colptrs);
-  rowvals = (*JacMat->rowvals);
-  data = JacMat->data;
+  yval = N_VGetArrayPointer(y);
+
   userdata = (UserData) user_data;
   p1 = userdata->p[0]; p2 = userdata->p[1]; p3 = userdata->p[2];
 
-  SparseSetMatToZero(JacMat);
+  SUNMatZero(J);
   
   colptrs[0] = 0;
   colptrs[1] = 3;
   colptrs[2] = 6;
   colptrs[3] = 9;
 
-  data[0] = -p1;                          rowvals[0] = 0;
-  data[1] = p1;                           rowvals[1] = 1;
-  data[2] = ZERO;                         rowvals[2] = 2;
+  data[0] = -p1;
+  rowvals[0] = 0;
+  data[1] = p1;
+  rowvals[1] = 1;
+  data[2] = ZERO;
+  rowvals[2] = 2;
 
-  data[3] = p2*yval[2];                   rowvals[3] = 0;
-  data[4] = -p2*yval[2]-2*p3*yval[1];     rowvals[4] = 1;
-  data[5] = 2*yval[1];                    rowvals[5] = 2;
+  data[3] = p2*yval[2];
+  rowvals[3] = 0;
+  data[4] = -p2*yval[2]-2*p3*yval[1];
+  rowvals[4] = 1;
+  data[5] = 2*yval[1];
+  rowvals[5] = 2;
   
-  data[6] = p2*yval[1];                   rowvals[6] = 0;
-  data[7] = -p2*yval[1];                  rowvals[7] = 1;
-  data[8] = ZERO;                         rowvals[8] = 2;
+  data[6] = p2*yval[1];
+  rowvals[6] = 0;
+  data[7] = -p2*yval[1];
+  rowvals[7] = 1;
+  data[8] = ZERO;
+  rowvals[8] = 2;
 
   return(0);
 }
@@ -604,7 +636,7 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *user_da
   /* The p vector */
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
 
-  /* The y vector */ 
+  /* The y vector */
   y2 = Ith(y,2); y3 = Ith(y,3);
   
   /* The lambda vector */
@@ -628,44 +660,48 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *user_da
 
 static int JacB(realtype t,
                 N_Vector y, N_Vector yB, N_Vector fyB,
-                SlsMat JacMatB, void *user_dataB,
+                SUNMatrix JB, void *user_dataB,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   realtype *yvalB;
-  int* colptrsB;
-  int* rowvalsB;
-  realtype* dataB;
+  sunindextype *colptrsB = SUNSparseMatrix_IndexPointers(JB);
+  sunindextype *rowvalsB = SUNSparseMatrix_IndexValues(JB);
+  realtype *dataB = SUNSparseMatrix_Data(JB);
   UserData userdata;
   realtype p1, p2, p3;
 
-  yvalB = N_VGetArrayPointer_Serial(y);
-  colptrsB = (*JacMatB->colptrs);
-  rowvalsB = (*JacMatB->rowvals);
-  dataB = JacMatB->data;
-  userdata = (UserData) user_dataB;
+  yvalB = N_VGetArrayPointer(y);
 
-  /* The p vector */
+  userdata = (UserData) user_dataB;
   p1 = userdata->p[0]; p2 = userdata->p[1]; p3 = userdata->p[2];
 
-  SparseSetMatToZero(JacMatB);
+  SUNMatZero(JB);
   
-  /* Load JB */
   colptrsB[0] = 0;
   colptrsB[1] = 3;
   colptrsB[2] = 6;
   colptrsB[3] = 9;
 
-  dataB[0] = p1;                           rowvalsB[0] = 0;
-  dataB[1] = -p2*yvalB[2];                 rowvalsB[1] = 1;
-  dataB[2] = -p2*yvalB[1];                 rowvalsB[2] = 2;
+  dataB[0] = p1;
+  rowvalsB[0] = 0;
+  dataB[1] = -p2*yvalB[2];
+  rowvalsB[1] = 1;
+  dataB[2] = -p2*yvalB[1];
+  rowvalsB[2] = 2;
 
-  dataB[3] =-p1;                           rowvalsB[3] = 0;
-  dataB[4] = p2*yvalB[2]+2*p3*yvalB[1];    rowvalsB[4] = 1;
-  dataB[5] = p2*yvalB[1];                  rowvalsB[5] = 2;
+  dataB[3] =-p1;
+  rowvalsB[3] = 0;
+  dataB[4] = p2*yvalB[2]+2*p3*yvalB[1];
+  rowvalsB[4] = 1;
+  dataB[5] = p2*yvalB[1];
+  rowvalsB[5] = 2;
   
-  dataB[6] = ZERO;                         rowvalsB[6] = 0;
-  dataB[7] = RCONST(-2.0)*p3*yvalB[1];     rowvalsB[7] = 1;
-  dataB[8] = ZERO;                         rowvalsB[8] = 2;
+  dataB[6] = ZERO;
+  rowvalsB[6] = 0;
+  dataB[7] = RCONST(-2.0)*p3*yvalB[1];
+  rowvalsB[7] = 1;
+  dataB[8] = ZERO;
+  rowvalsB[8] = 2;
 
   return(0);
 }

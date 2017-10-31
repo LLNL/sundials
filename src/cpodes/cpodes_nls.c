@@ -344,7 +344,7 @@ static int cpNlsNewtonExpl(CPodeMem cp_mem, int nflag)
       (nst == 0) || (nst >= nstlset + NLS_MSBLS) || (SUNRabs(gamrat-ONE) > DGMAX);
   } else {  
     crate = ONE;
-    callSetup = FALSE;
+    callSetup = SUNFALSE;
   }
   
   /* Begin the main loop. This loop is traversed at most twice. 
@@ -369,7 +369,7 @@ static int cpNlsNewtonExpl(CPodeMem cp_mem, int nflag)
 #endif
 
       nsetups++;
-      callSetup = FALSE;
+      callSetup = SUNFALSE;
       gamrat = crate = ONE; 
       gammap = gamma;
       nstlset = nst;
@@ -398,7 +398,7 @@ static int cpNlsNewtonExpl(CPodeMem cp_mem, int nflag)
        in which convfail=CP_FAIL_BAD_J.  Otherwise return.                 */
 
     if ( (ier > 0) && (lsetup_exists) && (!jcur) ) {
-      callSetup = TRUE;
+      callSetup = SUNTRUE;
       convfail = CP_FAIL_BAD_J;
       continue;
     }
@@ -508,7 +508,7 @@ static int cpNewtonIterationExpl(CPodeMem cp_mem)
       printf("            Accumulated correction norm = %lg\n", acnrm);
 #endif      
 
-      jcur = FALSE;
+      jcur = SUNFALSE;
       return(CP_SUCCESS); /* Nonlinear system was solved successfully */
     }
     
@@ -682,7 +682,7 @@ static int cpNlsNewtonImpl(CPodeMem cp_mem, int nflag)
   if (lsetup_exists) {
     callSetup = (nst == 0) || (SUNRabs(gamrat-ONE) > DGMAX) || (nst >= nstlset + NLS_MSBLS);
   } else {
-    callSetup = FALSE;
+    callSetup = SUNFALSE;
     crate = ONE;
   }
 
@@ -724,7 +724,7 @@ static int cpNlsNewtonImpl(CPodeMem cp_mem, int nflag)
 
     /* On a recoverable failure, if setup was not called, reattempt loop */
     if ( (retval > 0) && lsetup_exists && !callSetup ) {
-      callSetup = TRUE;
+      callSetup = SUNTRUE;
       continue;
     }
 

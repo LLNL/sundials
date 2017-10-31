@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -24,7 +20,7 @@
  * The PDE system is treated by central differences on a uniform
  * 10 x 10 mesh, with simple polynomial initial profiles.
  * The problem is solved with CVODES, with the BDF/GMRES method
- * (i.e. using the CVSPGMR linear solver) and the block-diagonal
+ * (i.e. using the SUNSPGMR linear solver) and the block-diagonal
  * part of the Newton matrix as a left preconditioner. A copy of
  * the block-diagonal part of the Jacobian is saved and
  * conditionally reused within the Precond routine.
@@ -44,20 +40,20 @@
  *    % cvsDiurnal_FSA_kry -sensi sensi_meth err_con
  * where sensi_meth is one of {sim, stg, stg1} and err_con is one of
  * {t, f}.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
-#include <cvodes/cvodes.h>            /* main CVODES header file */
-#include <cvodes/cvodes_spgmr.h>      /* use CVSPGMR linear */
-#include <nvector/nvector_serial.h>   /* definitions N_Vector */
-#include <sundials/sundials_dense.h>  /* use generic DENSE solver for prec. */
-#include <sundials/sundials_types.h>  /* definition of realtype */
-#include <sundials/sundials_math.h>   /* contains macros SUNSQR and EXP */
+#include <cvodes/cvodes.h>             /* main CVODES header file              */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
+#include <cvodes/cvodes_spils.h>       /* access to CVSpils interface          */
+#include <sundials/sundials_dense.h>   /* use generic dense solver in precond. */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>    /* contains the macros ABS, SUNSQR, EXP */
 
 /* Problem Constants */
 
@@ -108,7 +104,7 @@
    IJKth(vdata,i,j,k) references the element in the vdata array for
    species i at mesh point (j,k), where 1 <= i <= NUM_SPECIES,
    0 <= j <= MX-1, 0 <= k <= MZ-1. The vdata array is obtained via
-   the call vdata = N_VGetArrayPointer_Serial(v), where v is an N_Vector. 
+   the call vdata = N_VGetArrayPointer(v), where v is an N_Vector. 
    For each mesh point (j,k), the elements for species i and i+1 are
    contiguous within vdata.
 
@@ -127,7 +123,7 @@
 typedef struct {
   realtype *p;
   realtype **P[MX][MZ], **Jbd[MX][MZ];
-  long int *pivot[MX][MZ];
+  sunindextype *pivot[MX][MZ];
   realtype q4, om, dx, dz, hdco, haco, vdco;
 } *UserData;
 
@@ -137,13 +133,12 @@ typedef struct {
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
-                   booleantype *jcurPtr, realtype gamma, void *user_data,
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+                   booleantype *jcurPtr, realtype gamma, void *user_data);
 
 static int PSolve(realtype tn, N_Vector y, N_Vector fy,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
-                  int lr, void *user_data, N_Vector vtemp);
+                  int lr, void *user_data);
 
 /* Prototypes of private functions */
 
@@ -168,6 +163,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 int main(int argc, char *argv[])
 {
   void *cvode_mem;
+  SUNLinearSolver LS;
   UserData data;
   realtype abstol, reltol, t, tout;
   N_Vector y;
@@ -185,6 +181,7 @@ int main(int argc, char *argv[])
   y = NULL;
   data = NULL;
   cvode_mem = NULL;
+  LS = NULL;
 
   /* Process arguments */
   ProcessArgs(argc, argv, &sensi, &sensi_meth, &err_con);
@@ -220,10 +217,16 @@ int main(int argc, char *argv[])
   flag = CVodeSStolerances(cvode_mem, reltol, abstol);
   if(check_flag(&flag, "CVodeSStolerances", 1)) return(1);
 
-  /* Attach CVSPGMR linear solver */
-  flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
-  if(check_flag(&flag, "CVSpgmr", 1)) return(1);
+  /* Create the SUNSPGMR linear solver with left
+     preconditioning and the default Krylov dimension */
+  LS = SUNSPGMR(y, PREC_LEFT, 0);
+  if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
 
+  /* Attach the linear sovler */
+  flag = CVSpilsSetLinearSolver(cvode_mem, LS);
+  if (check_flag(&flag, "CVSpilsSetLinearSolver", 1)) return 1;
+
+  /* Set the preconditioner solve and setup functions */
   flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve);
   if(check_flag(&flag, "CVSpilsSetPreconditioner", 1)) return(1);
 
@@ -240,8 +243,8 @@ int main(int argc, char *argv[])
     if(check_flag((void *)pbar, "malloc", 2)) return(1);
     for(is=0; is<NS; is++) pbar[is] = data->p[plist[is]];
 
-    uS = N_VCloneVectorArray_Serial(NS, y);
-    if(check_flag((void *)uS, "N_VCloneVectorArray_Serial", 0)) return(1);
+    uS = N_VCloneVectorArray(NS, y);
+    if(check_flag((void *)uS, "N_VCloneVectorArray", 0)) return(1);
     for(is=0;is<NS;is++)
       N_VConst(ZERO,uS[is]);
 
@@ -300,14 +303,15 @@ int main(int argc, char *argv[])
   PrintFinalStats(cvode_mem, sensi);
 
   /* Free memory */
-  N_VDestroy_Serial(y);
+  N_VDestroy(y);
   if (sensi) {
-    N_VDestroyVectorArray_Serial(uS, NS);
+    N_VDestroyVectorArray(uS, NS);
     free(pbar);
     free(plist);
   }
   FreeUserData(data);
   CVodeFree(&cvode_mem);
+  SUNLinSolFree(LS);
 
   return(0);
 }
@@ -334,8 +338,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   realtype Q1, Q2, C3, A3, A4, KH, VEL, KV0;
 
   data = (UserData) user_data;
-  ydata = N_VGetArrayPointer_Serial(y);
-  dydata = N_VGetArrayPointer_Serial(ydot);
+  ydata = N_VGetArrayPointer(y);
+  dydata = N_VGetArrayPointer(ydot);
 
   /* Load problem coefficients and parameters */
 
@@ -429,12 +433,11 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
  */
 
 static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
-                   booleantype *jcurPtr, realtype gamma, void *user_data,
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+                   booleantype *jcurPtr, realtype gamma, void *user_data)
 {
   realtype c1, c2, czdn, czup, diag, zdn, zup, q4coef, delz, verdco, hordco;
   realtype **(*P)[MZ], **(*Jbd)[MZ];
-  long int *(*pivot)[MZ];
+  sunindextype *(*pivot)[MZ];
   int ier, jx, jz;
   realtype *ydata, **a, **j;
   UserData data;
@@ -445,7 +448,7 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
   P = data->P;
   Jbd = data->Jbd;
   pivot = data->pivot;
-  ydata = N_VGetArrayPointer_Serial(y);
+  ydata = N_VGetArrayPointer(y);
 
   /* Load problem coefficients and parameters */
   Q1 = data->p[0];
@@ -459,18 +462,18 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
 
   if (jok) {
 
-  /* jok = TRUE: Copy Jbd to P */
+  /* jok = SUNTRUE: Copy Jbd to P */
 
     for (jz=0; jz < MZ; jz++)
       for (jx=0; jx < MX; jx++)
         denseCopy(Jbd[jx][jz], P[jx][jz], NUM_SPECIES, NUM_SPECIES);
 
-  *jcurPtr = FALSE;
+  *jcurPtr = SUNFALSE;
 
   }
 
   else {
-  /* jok = FALSE: Generate Jbd from scratch and copy to P */
+  /* jok = SUNFALSE: Generate Jbd from scratch and copy to P */
 
   /* Make local copies of problem variables, for efficiency. */
 
@@ -501,7 +504,7 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
       }
     }
 
-  *jcurPtr = TRUE;
+  *jcurPtr = SUNTRUE;
 
   }
 
@@ -531,10 +534,10 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
 static int PSolve(realtype tn, N_Vector y, N_Vector fy,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
-                  int lr, void *user_data, N_Vector vtemp)
+                  int lr, void *user_data)
 {
   realtype **(*P)[MZ];
-  long int *(*pivot)[MZ];
+  sunindextype *(*pivot)[MZ];
   int jx, jz;
   realtype *zdata, *v;
   UserData data;
@@ -544,7 +547,7 @@ static int PSolve(realtype tn, N_Vector y, N_Vector fy,
   data = (UserData) user_data;
   P = data->P;
   pivot = data->pivot;
-  zdata = N_VGetArrayPointer_Serial(z);
+  zdata = N_VGetArrayPointer(z);
 
   N_VScale(ONE, r, z);
 
@@ -574,16 +577,16 @@ static int PSolve(realtype tn, N_Vector y, N_Vector fy,
 static void ProcessArgs(int argc, char *argv[], 
                         booleantype *sensi, int *sensi_meth, booleantype *err_con)
 {
-  *sensi = FALSE;
+  *sensi = SUNFALSE;
   *sensi_meth = -1;
-  *err_con = FALSE;
+  *err_con = SUNFALSE;
 
   if (argc < 2) WrongArgs(argv[0]);
 
   if (strcmp(argv[1],"-nosensi") == 0)
-    *sensi = FALSE;
+    *sensi = SUNFALSE;
   else if (strcmp(argv[1],"-sensi") == 0)
-    *sensi = TRUE;
+    *sensi = SUNTRUE;
   else
     WrongArgs(argv[0]);
   
@@ -602,9 +605,9 @@ static void ProcessArgs(int argc, char *argv[],
       WrongArgs(argv[0]);
 
     if (strcmp(argv[3],"t") == 0)
-      *err_con = TRUE;
+      *err_con = SUNTRUE;
     else if (strcmp(argv[3],"f") == 0)
-      *err_con = FALSE;
+      *err_con = SUNFALSE;
     else
       WrongArgs(argv[0]);
   }
@@ -635,7 +638,7 @@ static UserData AllocUserData(void)
     for (jz=0; jz < MZ; jz++) {
       (data->P)[jx][jz] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
       (data->Jbd)[jx][jz] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (data->pivot)[jx][jz] = newLintArray(NUM_SPECIES);
+      (data->pivot)[jx][jz] = newIndexArray(NUM_SPECIES);
     }
   }
 
@@ -712,7 +715,7 @@ static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz)
 
   /* Set pointer to data array in vector y. */
 
-  ydata = N_VGetArrayPointer_Serial(y);
+  ydata = N_VGetArrayPointer(y);
 
   /* Load initial profiles of c1 and c2 into y vector */
 
@@ -741,7 +744,7 @@ static void PrintOutput(void *cvode_mem, realtype t, N_Vector y)
   realtype hu;
   realtype *ydata;
 
-  ydata = N_VGetArrayPointer_Serial(y);
+  ydata = N_VGetArrayPointer(y);
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);
   check_flag(&flag, "CVodeGetNumSteps", 1);
@@ -784,7 +787,7 @@ static void PrintOutputS(N_Vector *uS)
 {
   realtype *sdata;
 
-  sdata = N_VGetArrayPointer_Serial(uS[0]);
+  sdata = N_VGetArrayPointer(uS[0]);
 
   printf("                                ----------------------------------------\n"); 
   printf("                                Sensitivity 1  ");
@@ -804,7 +807,7 @@ static void PrintOutputS(N_Vector *uS)
   printf("%12.4e %12.4e \n", IJKth(sdata,2,0,0), IJKth(sdata,2,MX-1,MZ-1));
 #endif
 
-  sdata = N_VGetArrayPointer_Serial(uS[1]);
+  sdata = N_VGetArrayPointer(uS[1]);
 
   printf("                                ----------------------------------------\n"); 
   printf("                                Sensitivity 2  ");

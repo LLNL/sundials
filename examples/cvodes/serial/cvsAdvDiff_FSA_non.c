@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *              and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -40,8 +36,7 @@
  *    % cvsAdvDiff_FSA_non -sensi sensi_meth err_con
  * where sensi_meth is one of {sim, stg, stg1} and err_con is one of
  * {t, f}.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -167,8 +162,8 @@ int main(int argc, char *argv[])
     if(check_flag((void *)pbar, "malloc", 2)) return(1);
     for(is=0; is<NS; is++) pbar[is] = data->p[plist[is]];
 
-    uS = N_VCloneVectorArray_Serial(NS, u);
-    if(check_flag((void *)uS, "N_VCloneVectorArray_Serial", 0)) return(1);
+    uS = N_VCloneVectorArray(NS, u);
+    if(check_flag((void *)uS, "N_VCloneVectorArray", 0)) return(1);
     for(is=0;is<NS;is++)
       N_VConst(ZERO, uS[is]);
 
@@ -225,9 +220,9 @@ int main(int argc, char *argv[])
   PrintFinalStats(cvode_mem, sensi);
 
   /* Free memory */
-  N_VDestroy_Serial(u);
+  N_VDestroy(u);
   if (sensi) {
-    N_VDestroyVectorArray_Serial(uS, NS);
+    N_VDestroyVectorArray(uS, NS);
     free(plist);
     free(pbar);
   }
@@ -256,8 +251,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   int i;
   UserData data;
 
-  udata = N_VGetArrayPointer_Serial(u);
-  dudata = N_VGetArrayPointer_Serial(udot);
+  udata = N_VGetArrayPointer(u);
+  dudata = N_VGetArrayPointer(udot);
 
   /* Extract needed problem constants from data */
   data = (UserData) user_data;
@@ -301,16 +296,16 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 static void ProcessArgs(int argc, char *argv[], 
                         booleantype *sensi, int *sensi_meth, booleantype *err_con)
 {
-  *sensi = FALSE;
+  *sensi = SUNFALSE;
   *sensi_meth = -1;
-  *err_con = FALSE;
+  *err_con = SUNFALSE;
 
   if (argc < 2) WrongArgs(argv[0]);
 
   if (strcmp(argv[1],"-nosensi") == 0)
-    *sensi = FALSE;
+    *sensi = SUNFALSE;
   else if (strcmp(argv[1],"-sensi") == 0)
-    *sensi = TRUE;
+    *sensi = SUNTRUE;
   else
     WrongArgs(argv[0]);
   
@@ -329,9 +324,9 @@ static void ProcessArgs(int argc, char *argv[],
       WrongArgs(argv[0]);
 
     if (strcmp(argv[3],"t") == 0)
-      *err_con = TRUE;
+      *err_con = SUNTRUE;
     else if (strcmp(argv[3],"f") == 0)
-      *err_con = FALSE;
+      *err_con = SUNFALSE;
     else
       WrongArgs(argv[0]);
   }
@@ -358,7 +353,7 @@ static void SetIC(N_Vector u, realtype dx)
   realtype *udata;
 
   /* Set pointer to data array and get local length of u. */
-  udata = N_VGetArrayPointer_Serial(u);
+  udata = N_VGetArrayPointer(u);
 
   /* Load initial profile into u vector */
   for (i=0; i<NEQ; i++) {

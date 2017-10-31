@@ -19,75 +19,69 @@
 # For details, see the LICENSE file.
 # -----------------------------------------------------------------
 # CMakeLists.txt file for KINSOL OpenMP examples
+# -----------------------------------------------------------------
 
 # Only include tests if OpenMP is enabled
 IF(OPENMP_FOUND)
 
-# Add variable KINSOL_examples_OMP with the names of the openmp KINSOL examples
-SET(KINSOL_examples_OMP
-  kinFoodWeb_kry_omp
-  )
+  # Examples using SUNDIALS linear solvers
+  SET(KINSOL_examples
+    kinFoodWeb_kry_omp
+    )
 
 ENDIF(OPENMP_FOUND)
 
 # Specify libraries to link against (through the target that was used to 
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
-
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(KINSOL_LIB sundials_kinsol_static)
   SET(NVECOMP_LIB sundials_nvecopenmp_static)
-ELSE(LINK_LIBRARY_TYPE MATCHES "static")
+ELSE()
   SET(KINSOL_LIB sundials_kinsol_shared)
   SET(NVECOMP_LIB sundials_nvecopenmp_shared)
-ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
+ENDIF()
 
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${KINSOL_LIB} ${NVECOMP_LIB} ${EXTRA_LINK_LIBS})
-IF(LAPACK_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
-ENDIF(LAPACK_FOUND)
-
-IF(KLU_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
-ENDIF(KLU_FOUND)
-
-IF(SUPERLUMT_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${SUPERLUMT_LIBRARIES})
-ENDIF(SUPERLUMT_FOUND)
 
 # update the compilation flags to include OpenMP support
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
 
-# Add the build and install targets for each KINSOL example
-FOREACH(example ${KINSOL_examples_OMP})
+# Add the build and install targets for each example
+FOREACH(example ${KINSOL_examples})
+
+  # example source files
   ADD_EXECUTABLE(${example} ${example}.c)
+
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+
+  # add to regression tests
   #SUNDIALS_ADD_TEST(${example} ${example} TEST_ARGS 4) # No test until TestRunner modified for OpenMP
+
+  # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+
+  # install example source and out files
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/C_openmp)
-  ENDIF(EXAMPLES_INSTALL)
+    INSTALL(FILES ${example}.c ${example}.out
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/C_openmp)
+  ENDIF()
+
 ENDFOREACH(example ${KINSOL_examples_OMP})
 
+
+# create Makfile and CMakeLists.txt for examples
 IF(EXAMPLES_INSTALL)
 
   # Install the README file
   INSTALL(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/C_openmp)
 
-  # Install the extra files
-  FOREACH(extrafile ${KINSOL_extras_OMP})
-    INSTALL(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/C_openmp)
-  ENDFOREACH(extrafile ${KINSOL_extras_OMP})
-
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER "KINSOL")
   SET(SOLVER_LIB "sundials_kinsol")
-  LIST2STRING(KINSOL_examples_OMP EXAMPLES)
 
-  STRING (REPLACE ";" " " TMP_STR ${EXAMPLES})
-  SET(EXAMPLES ${TMP_STR})
-
+  LIST2STRING(KINSOL_examples EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

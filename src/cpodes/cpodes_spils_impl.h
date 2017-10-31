@@ -81,9 +81,9 @@ typedef struct CPSpilsMemRec {
   N_Vector s_ypcur;     /* CPODES current y' vector in Newton Iteration */
   N_Vector s_fcur;      /* fcur = f(tn, ycur)                           */
 
-  void* s_spils_mem;    /* memory used by the generic solver             */
+  void* s_spils_mem;    /* memory used by the generic solver            */
 
-  int s_last_flag;      /* last error flag returned by any function      */
+  int s_last_flag;      /* last error flag returned by any function     */
 
   /* Preconditioner computation
    * (a) user-provided:
@@ -107,10 +107,10 @@ typedef struct CPSpilsMemRec {
   /* Jacobian times vector compuation
    * (a) jtimes function provided by the user:
    *     - j_data == user_data
-   *     - jtimesDQ == FALSE
+   *     - jtimesDQ == SUNFALSE
    * (b) internal jtimes
    *     - j_data == cpode_mem
-   *     - jtimesDQ == TRUE
+   *     - jtimesDQ == SUNTRUE
    */
 
   booleantype s_jtimesDQ;
@@ -130,7 +130,9 @@ typedef struct CPSpilsMemRec {
 
 /* Atimes and PSolve routines called by generic solver */
 int cpSpilsAtimes(void *cp_mem, N_Vector v, N_Vector z);
-int cpSpilsPSolve(void *cp_mem, N_Vector r, N_Vector z, int lr);
+/* int cpSpilsPSolve(void *cp_mem, N_Vector r, N_Vector z, int lr); */
+int cpSpilsPSolve(void *cp_mem, N_Vector r, N_Vector z, N_Vector w,
+                  realtype tol, int lr);
 
 /* Difference quotient approximations for Jac times vector */
 int cpSpilsDQjtvExpl(realtype t, N_Vector y, N_Vector fy, 

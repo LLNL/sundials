@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 
   void *cvode_mem;
 
-  long int Neq;
+  sunindextype Neq;
   realtype reltol, abstol;
   N_Vector y0, y;
 
@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
 
   flag = CVodeSensInit1(cvode_mem, Ns, CV_SIMULTANEOUS, fS, yS0);
   flag = CVodeSensEEtolerances(cvode_mem);
-  flag = CVodeSetSensErrCon(cvode_mem, TRUE);
+  flag = CVodeSetSensErrCon(cvode_mem, SUNTRUE);
 
   /* Note that, by not calling CVodeSetSensParams, we will use
      the default pbar values which means that CVODES will use 

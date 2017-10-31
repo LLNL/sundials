@@ -34,16 +34,16 @@ nfail=0
 # NOTE: may need to create answer files for different realtypes
 # NOTE: master branch will ignore indextype
 realtype=('double')
-indextype=('signed_64bit')
+indextype=('int32_t' 'int64_t')
 
 # real and index types to test
 # NOTE: remove above realtype and indextype arrays and uncomment the 
 # following arrays this after this file is merged from master to develop
 # realtype=('single' 'double' 'extended')
-# indextype=('signed_32bit' 'signed_64bit' 'unsigned_32bit' 'unsigned_64bit')
+# indextype=('int64_t' 'int32_t')
 
 # remove old test directories and logs
-\rm -rf suntest*/ *.log
+\rm -rf build*/ install*/ *.log
 
 # ------------------------------------------------------------------------------
 # Run regression tests
@@ -58,6 +58,22 @@ echo "--------------------------------------------------" | tee -a suntest.log
 for ((i=0; i<${#realtype[@]}; i++)); do
     for ((j=0; j<${#indextype[@]}; j++)); do
 
+        # ======================================================================
+        # print test label for Jenkins section collapsing
+        echo -e "TEST: ./suntest_noextlibs.sh ${realtype[i]} ${indextype[j]} $buildthreads \n"
+      
+        # run tests
+        ./suntest_noextlibs.sh ${realtype[i]} ${indextype[j]} $buildthreads
+
+        # check return flag
+        if [ $? -ne 0 ]; then
+            let nfail+=1
+            echo "FAILED: NoExtLibs ${realtype[i]} ${indextype[j]}" | tee -a suntest.log
+        else
+            echo "PASSED: NoExtLibs ${realtype[i]} ${indextype[j]}" | tee -a suntest.log
+        fi
+
+        # ======================================================================
         # print test label for Jenkins section collapsing
         echo -e "TEST: ./suntest.sh ${realtype[i]} ${indextype[j]} $buildthreads \n"
 
@@ -71,6 +87,21 @@ for ((i=0; i<${#realtype[@]}; i++)); do
         else
             echo "PASSED: ${realtype[i]} ${indextype[j]}" | tee -a suntest.log
         fi
+
+        # ======================================================================
+        # print test label for Jenkins section collapsing
+        echo -e "TEST: ./suntest_xsdk.sh ${realtype[i]} ${indextype[j]} $buildthreads \n"
+
+        # run tests using xSDK CMake options
+        ./suntest_xsdk.sh ${realtype[i]} ${indextype[j]} $buildthreads
+
+        # check return flag
+        if [ $? -ne 0 ]; then
+            let nfail+=1
+            echo "FAILED: xSDK ${realtype[i]} ${indextype[j]}" | tee -a suntest.log
+        else
+            echo "PASSED: xSDK ${realtype[i]} ${indextype[j]}" | tee -a suntest.log
+        fi               
 
     done
 done

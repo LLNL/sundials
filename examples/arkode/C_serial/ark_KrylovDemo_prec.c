@@ -58,7 +58,7 @@
  *
  * The resulting ODE system is stiff.
  *
- * The ODE system is solved using Newton iteration and the ARKSPGMR
+ * The ODE system is solved using Newton iteration and the SUNSPGMR
  * linear solver (scaled preconditioned GMRES).
  *
  * The preconditioner matrix used is the product of two matrices:
@@ -72,9 +72,10 @@
  * The product preconditoner is applied on the left and on the
  * right. In each case, both the modified and classical Gram-Schmidt
  * options are tested.
- * In the series of runs, ARKodeInit and ARKSpgmr are called only
- * for the first run, whereas ARKodeReInit, ARKSpilsSetPrecType and
- * ARKSpilsSetGSType are called for each of the remaining three runs.
+ * In the series of runs, ARKodeInit, SUNSPGMR and 
+ * ARKSpilsSetLinearSolver are called only for the first run, whereas 
+ * ARKodeReInit, SUNSPGMRSetPrecType, and SUNSPGMRSetGSType are called
+ * for each of the remaining three runs.
  *
  * A problem description, performance statistics at selected output
  * times, and final statistics are written to standard output.
@@ -83,12 +84,12 @@
  * but there should be no such messages.
  *
  * Note: This program requires the dense linear solver functions
- * newDenseMat, newLintArray, denseAddIdentity, denseGETRF, denseGETRS, 
+ * newDenseMat, newIndexArray, denseAddIdentity, denseGETRF, denseGETRS, 
  * destroyMat and destroyArray.
  *
  * Note: This program assumes the sequential implementation for the
- * type N_Vector and uses the N_VGetArrayPointer_Serial to gain access 
- * to the contiguous array of components of an N_Vector.
+ * type N_Vector and uses the N_VGetArrayPointer function to gain
+ * access to the contiguous array of components of an N_Vector.
  *-------------------------------------------------------------------
  * Reference: Peter N. Brown and Alan C. Hindmarsh, Reduced Storage
  * Matrix Methods in Stiff ODE Systems, J. Appl. Math. & Comp., 31
@@ -100,12 +101,13 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <arkode/arkode.h>           /* main integrator header file */
-#include <arkode/arkode_spgmr.h>     /* prototypes & constants for ARKSPGMR solver */
-#include <nvector/nvector_serial.h>  /* serial N_Vector types, fct. and macros */
-#include <sundials/sundials_dense.h> /* use generic DENSE solver in preconditioning */
-#include <sundials/sundials_types.h> /* definition of realtype */
-#include <sundials/sundials_math.h>  /* contains the macros ABS and SUNSQR */
+#include <arkode/arkode.h>              /* main integrator header file                 */
+#include <sunlinsol/sunlinsol_spgmr.h>  /* access to SPGMR SUNLinearSolver             */
+#include <arkode/arkode_spils.h>        /* access to ARKSpils interface                */
+#include <nvector/nvector_serial.h>     /* serial N_Vector types, fct. and macros      */
+#include <sundials/sundials_dense.h>    /* use generic DENSE solver in preconditioning */
+#include <sundials/sundials_types.h>    /* definition of realtype                      */
+#include <sundials/sundials_math.h>     /* contains the macros ABS and SUNSQR          */
 
 /* Constants */
 
@@ -168,7 +170,7 @@
 
 typedef struct {
   realtype **P[NGRP];
-  long int *pivot[NGRP];
+  sunindextype *pivot[NGRP];
   int ns, mxns;
   int mp, mq, mx, my, ngrp, ngx, ngy, mxmp;
   int jgx[NGX+1], jgy[NGY+1], jigx[MX], jigy[MY];
@@ -176,6 +178,7 @@ typedef struct {
   realtype acoef[NS][NS], bcoef[NS], diff[NS];
   realtype cox[NS], coy[NS], dx, dy, srur;
   realtype fsave[NEQ];
+  N_Vector tmp;
   N_Vector rewt;
   void *arkode_mem;
 } *WebData;
@@ -196,7 +199,7 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
 		     realtype rate[], WebData wdata);
 static void fblock (realtype t, realtype cdata[], int jx, int jy,
 		    realtype cdotdata[], WebData wdata);
-static void GSIter(realtype gamma, N_Vector z, N_Vector x,WebData wdata);
+static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata);
 
 /* Small Vector Kernels */
 
@@ -210,15 +213,11 @@ static void v_zero(realtype u[], int n);
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
-static int Precond(realtype tn, N_Vector c, N_Vector fc,
-		   booleantype jok, booleantype *jcurPtr, realtype gamma,
-		   void *user_data, N_Vector vtemp1, N_Vector vtemp2,
-                   N_Vector vtemp3);
+static int Precond(realtype tn, N_Vector c, N_Vector fc, booleantype jok, 
+                   booleantype *jcurPtr, realtype gamma, void *user_data);
 
-static int PSolve(realtype tn, N_Vector c, N_Vector fc,
-                  N_Vector r, N_Vector z,
-                  realtype gamma, realtype delta,
-                  int lr, void *user_data, N_Vector vtemp);
+static int PSolve(realtype tn, N_Vector c, N_Vector fc, N_Vector r, N_Vector z,
+                  realtype gamma, realtype delta, int lr, void *user_data);
 
 /* Private function to check function return values */
 
@@ -231,6 +230,7 @@ int main()
   realtype abstol=ATOL, reltol=RTOL, t, tout;
   N_Vector c;
   WebData wdata;
+  SUNLinearSolver LS;
   void *arkode_mem;
   booleantype firstrun;
   int jpre, gstype, flag;
@@ -238,6 +238,7 @@ int main()
 
   c = NULL;
   wdata = NULL;
+  LS = NULL;
   arkode_mem = NULL;
 
   /* Initializations */
@@ -276,19 +277,22 @@ int main()
         if(check_flag(&flag, "ARKodeInit", 1)) return(1);
 
         flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
-        if (check_flag(&flag, "ARKodeSStolerances", 1)) return(1);
+        if(check_flag(&flag, "ARKodeSStolerances", 1)) return(1);
 
-	flag = ARKodeSetMaxNumSteps(arkode_mem, 1000);
-	if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) return(1);
+        flag = ARKodeSetMaxNumSteps(arkode_mem, 1000);
+        if(check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) return(1);
 
-	flag = ARKodeSetNonlinConvCoef(arkode_mem, 1.e-3);
-	if (check_flag(&flag, "ARKodeSetNonlinConvCoef", 1)) return(1);
+        flag = ARKodeSetNonlinConvCoef(arkode_mem, 1.e-3);
+        if(check_flag(&flag, "ARKodeSetNonlinConvCoef", 1)) return(1);
 
-        flag = ARKSpgmr(arkode_mem, jpre, MAXL);
-        if(check_flag(&flag, "ARKSpgmr", 1)) return(1);
+        LS = SUNSPGMR(c, jpre, MAXL);
+        if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
 
-        flag = ARKSpilsSetGSType(arkode_mem, gstype);
-        if(check_flag(&flag, "ARKSpilsSetGSType", 1)) return(1);
+        flag = ARKSpilsSetLinearSolver(arkode_mem, LS);
+        if(check_flag(&flag, "ARKSpilsSetLinearSolver", 1)) return 1;
+
+        flag = SUNSPGMRSetGSType(LS, gstype);
+        if(check_flag(&flag, "SUNSPGMRSetGSType", 1)) return(1);
 
         flag = ARKSpilsSetEpsLin(arkode_mem, DELT);
         if(check_flag(&flag, "ARKSpilsSetEpsLin", 1)) return(1);
@@ -301,10 +305,10 @@ int main()
         flag = ARKodeReInit(arkode_mem, NULL, f, T0, c);
         if(check_flag(&flag, "ARKodeReInit", 1)) return(1);
 
-        flag = ARKSpilsSetPrecType(arkode_mem, jpre);
-        check_flag(&flag, "ARKSpilsSetPrecType", 1);
-        flag = ARKSpilsSetGSType(arkode_mem, gstype);
-        if(check_flag(&flag, "ARKSpilsSetGSType", 1)) return(1);
+        flag = SUNSPGMRSetPrecType(LS, jpre);
+        check_flag(&flag, "SUNSPGMRSetPrecType", 1);
+        flag = SUNSPGMRSetGSType(LS, gstype);
+        if(check_flag(&flag, "SUNSPGMRSetGSType", 1)) return(1);
 
       }
       
@@ -329,7 +333,8 @@ int main()
 
   /* Free all memory */
   ARKodeFree(&arkode_mem);
-  N_VDestroy_Serial(c);
+  N_VDestroy(c);
+  SUNLinSolFree(LS);
   FreeUserData(wdata);
 
   return(0);
@@ -338,15 +343,16 @@ int main()
 static WebData AllocUserData(void)
 {
   int i, ngrp = NGRP;
-  long int ns = NS;
+  sunindextype ns = NS;
   WebData wdata;
   
   wdata = (WebData) malloc(sizeof *wdata);
   for(i=0; i < ngrp; i++) {
     (wdata->P)[i] = newDenseMat(ns, ns);
-    (wdata->pivot)[i] = newLintArray(ns);
+    (wdata->pivot)[i] = newIndexArray(ns);
   }
   wdata->rewt = N_VNew_Serial(NEQ);
+  wdata->tmp = N_VNew_Serial(NEQ);
   return(wdata);
 }
 
@@ -619,10 +625,10 @@ static void PrintFinalStats(void *arkode_mem)
   check_flag(&flag, "ARKSpilsGetNumRhsEvals", 1);
 
   printf("\n\n Final statistics for this run:\n\n");
-  printf(" ARKode real workspace length           = %4ld \n", lenrw);
-  printf(" ARKode integer workspace length        = %4ld \n", leniw);
-  printf(" ARKSPGMR real workspace length         = %4ld \n", lenrwLS);
-  printf(" ARKSPGMR integer workspace length      = %4ld \n", leniwLS);
+  printf(" ARKode real workspace length          = %4ld \n", lenrw);
+  printf(" ARKode integer workspace length       = %4ld \n", leniw);
+  printf(" SUNSPGMR real workspace length        = %4ld \n", lenrwLS);
+  printf(" SUNSPGMR integer workspace length     = %4ld \n", leniwLS);
   printf(" Number of steps                       = %4ld \n", nst);
   printf(" Number of f-s (explicit)              = %4ld \n", nfe);
   printf(" Number of f-s (implicit)              = %4ld \n", nfi);
@@ -757,17 +763,15 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
  of a block-diagonal preconditioner. The blocks are of size mp, and
  there are ngrp=ngx*ngy blocks computed in the block-grouping scheme.
 */ 
-static int Precond(realtype t, N_Vector c, N_Vector fc,
-		   booleantype jok, booleantype *jcurPtr, realtype gamma,
-		   void *user_data, N_Vector vtemp1, N_Vector vtemp2,
-                   N_Vector vtemp3)
+static int Precond(realtype t, N_Vector c, N_Vector fc, booleantype jok,
+                   booleantype *jcurPtr, realtype gamma, void *user_data)
 {
   realtype ***P;
   int ier;
-  long int **pivot;
+  sunindextype **pivot;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
   int *jxr, *jyr, ngrp, ngx, ngy, mxmp, flag;
-  long int mp;
+  sunindextype mp;
   realtype uround, fac, r, r0, save, srur;
   realtype *f1, *fsave, *cdata, *rewtdata;
   WebData wdata;
@@ -800,7 +804,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
      Here, fsave contains the base value of the rate vector and 
      r0 is a minimum increment factor for the difference quotient. */
   
-  f1 = N_VGetArrayPointer(vtemp1);
+  f1 = N_VGetArrayPointer(wdata->tmp);
   
   fac = N_VWrmsNorm (fc, rewt);
   r0 = RCONST(1000.0)*SUNRabs(gamma)*uround*NEQ*fac;
@@ -838,7 +842,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
     if (ier != 0) return(1);
   }
   
-  *jcurPtr = TRUE;
+  *jcurPtr = SUNTRUE;
   return(0);
 }
 
@@ -870,15 +874,13 @@ static void fblock(realtype t, realtype cdata[], int jx, int jy,
   Then it computes ((I - gamma*Jr)-inverse)*z, using LU factors of the
   blocks in P, and pivot information in pivot, and returns the result in z.
 */
-static int PSolve(realtype tn, N_Vector c, N_Vector fc,
-                  N_Vector r, N_Vector z,
-                  realtype gamma, realtype delta,
-                  int lr, void *user_data, N_Vector vtemp)
+static int PSolve(realtype tn, N_Vector c, N_Vector fc, N_Vector r, N_Vector z,
+                  realtype gamma, realtype delta, int lr, void *user_data)
 {
   realtype   ***P;
-  long int **pivot;
+  sunindextype **pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx;
-  long int mp;
+  sunindextype mp;
   WebData wdata;
   
   wdata = (WebData) user_data;
@@ -887,7 +889,7 @@ static int PSolve(realtype tn, N_Vector c, N_Vector fc,
   
   /* call GSIter for Gauss-Seidel iterations */
   
-  GSIter(gamma, z, vtemp, wdata);
+  GSIter(gamma, z, wdata->tmp, wdata);
   
   /* Do backsolves for inverse of block-diagonal preconditioner factor */
   

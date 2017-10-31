@@ -148,7 +148,7 @@ static void kimInitKINSOLdata()
   kimData->LS = LS_DENSE;
   kimData->PM = PM_NONE;
 
-  kimData->errMsg = TRUE;
+  kimData->errMsg = SUNTRUE;
 
   /* Initialize Matlab mex arrays to empty */
 
@@ -316,7 +316,7 @@ static int KIM_Initialization(int nlhs, mxArray *plhs[], int nrhs, const mxArray
   N_Vector NVconstraints;
 
   int ptype;
-  long int mudq, mldq, mupper, mlower;
+  sunindextype mudq, mldq, mupper, mlower;
   int maxl, maxrs;
   double dqrely;
 
@@ -341,7 +341,7 @@ static int KIM_Initialization(int nlhs, mxArray *plhs[], int nrhs, const mxArray
   
   /* Problem dimension */
 
-  N = (long int) mxGetScalar(prhs[1]);
+  N = (sunindextype) mxGetScalar(prhs[1]);
 
   /* Solver Options (may be empty) */
 
@@ -383,7 +383,7 @@ static int KIM_Initialization(int nlhs, mxArray *plhs[], int nrhs, const mxArray
   status = KINSetErrHandlerFn(kin_mem, kimErrHandler, NULL);
   if (status != KIN_SUCCESS) goto error_return;
 
-  /* If verbose was set to TRUE */
+  /* If verbose was set to SUNTRUE */
   if (verbose) {
     /* Set print level to its highest value */
     status = KINSetPrintLevel(kin_mem,3);
@@ -672,11 +672,11 @@ static int KIM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     "ncfl",
   };
 
-  long int nfe, nni, nbcf, nbops;
+  sunindextype nfe, nni, nbcf, nbops;
   double fnorm, step;
 
-  long int njeD, nfeD;
-  long int nli, npe, nps, ncfl;
+  sunindextype njeD, nfeD;
+  sunindextype nli, npe, nps, ncfl;
 
   mxArray *mx_ls;
   int nfields;

@@ -1,14 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision:  $
- * $Date:  $
- * -----------------------------------------------------------------
- * Programmer(s): Ting Yan @ SMU
- *      Based on idasFoodWeb_bnd.c and parallelized with OpenMP
+ * Programmer(s): Daniel R. Reynolds and Ting Yan @ SMU
+ *      Based on idaFoodWeb_bnd.c and parallelized with OpenMP
  * -----------------------------------------------------------------
  * Example program for IDAS: Food web problem.
  *
- * This example program (OpenMP version) uses the IDABAND linear 
+ * This example program (OpenMP version) uses the SUNBAND linear 
  * solver, and IDACalcIC for initial condition calculation.
  *
  * The mathematical problem solved in this example is a DAE system
@@ -62,7 +59,7 @@
  * The PDEs are discretized by central differencing on a MX by MY
  * mesh.
  *
- * The DAE system is solved by IDAS using the IDABAND linear solver.
+ * The DAE system is solved by IDAS using the SUNBAND linear solver.
  * Output is printed at t = 0, .001, .01, .1, .4, .7, 1.
  *
  * Optionally, we can set the number of threads from environment 
@@ -72,12 +69,12 @@
  *
  * Execution:
  *
- * If the user want to use the default value or the number of threads 
- * from environment value:
+ * To use the default value for the number of threads from 
+ * the OMP_NUM_THREADS environment value:
  *      % ./idasFoodWeb_bnd_omp 
- * If the user want to specify the number of threads to use
+ * To specify the number of threads at the command line, use
  *      % ./idasFoodWeb_bnd_omp num_threads
- * where num_threads is the number of threads the user want to use 
+ * where num_threads is the desired number of threads. 
  *
  * -----------------------------------------------------------------
  * References:
@@ -103,9 +100,11 @@
 #include <math.h>
 
 #include <idas/idas.h>
-#include <idas/idas_band.h>
+#include <idas/idas_direct.h>
+#include <sunmatrix/sunmatrix_band.h>
+#include <sunlinsol/sunlinsol_band.h>
 #include <nvector/nvector_openmp.h>
-#include <sundials/sundials_dense.h>
+#include <sundials/sundials_direct.h>
 #include <sundials/sundials_types.h>
 
 #ifdef _OPENMP
@@ -155,7 +154,7 @@
 /* Type: UserData.  Contains problem constants, etc. */
 
 typedef struct {
-  long int Neq, ns, np, mx, my;
+  sunindextype Neq, ns, np, mx, my;
   realtype dx, dy, **acoef;
   realtype cox[NUM_SPECIES], coy[NUM_SPECIES], bcoef[NUM_SPECIES];
   N_Vector rates;
@@ -172,13 +171,13 @@ static int resweb(realtype time, N_Vector cc, N_Vector cp, N_Vector resval,
 static void InitUserData(UserData webdata);
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata);
-static void PrintHeader(long int mu, long int ml, realtype rtol, realtype atol);
-static void PrintOutput(void *mem, N_Vector c, realtype t);
-static void PrintFinalStats(void *mem);
+static void PrintHeader(sunindextype mu, sunindextype ml, realtype rtol, realtype atol);
+static void PrintOutput(void *ida_mem, N_Vector c, realtype t);
+static void PrintFinalStats(void *ida_mem);
 static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate, UserData webdata);
 static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                      UserData webdata);
-static realtype dotprod(long int size, realtype *x1, realtype *x2);
+static realtype dotprod(sunindextype size, realtype *x1, realtype *x2);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /*
@@ -189,15 +188,19 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 int main(int argc, char *argv[])
 { 
-  void *mem;
+  void *ida_mem;
+  SUNMatrix A;
+  SUNLinearSolver LS;
   UserData webdata;
   N_Vector cc, cp, id;
   int iout, retval;
-  long int mu, ml;
+  sunindextype mu, ml, smu;
   realtype rtol, atol, t0, tout, tret;
   int num_threads;
 
-  mem = NULL;
+  ida_mem = NULL;
+  A = NULL;
+  LS = NULL;
   webdata = NULL;
   cc = cp = id = NULL;
 
@@ -239,46 +242,51 @@ int main(int argc, char *argv[])
 
   /* Call IDACreate and IDAMalloc to initialize IDA. */
   
-  mem = IDACreate();
-  if(check_flag((void *)mem, "IDACreate", 0)) return(1);
+  ida_mem = IDACreate();
+  if(check_flag((void *)ida_mem, "IDACreate", 0)) return(1);
 
-  retval = IDASetUserData(mem, webdata);
+  retval = IDASetUserData(ida_mem, webdata);
   if(check_flag(&retval, "IDASetUserData", 1)) return(1);
 
-  retval = IDASetId(mem, id);
+  retval = IDASetId(ida_mem, id);
   if(check_flag(&retval, "IDASetId", 1)) return(1);
 
-  retval = IDAInit(mem, resweb, t0, cc, cp);
+  retval = IDAInit(ida_mem, resweb, t0, cc, cp);
   if(check_flag(&retval, "IDAInit", 1)) return(1);
 
-  retval = IDASStolerances(mem, rtol, atol);
+  retval = IDASStolerances(ida_mem, rtol, atol);
   if(check_flag(&retval, "IDASStolerances", 1)) return(1);
 
-  /* Call IDABand to specify the IDA linear solver. */
+  /* Setup band matrix and linear solver, and attach to IDA. */
 
   mu = ml = NSMX;
-  retval = IDABand(mem, NEQ, mu, ml);
-  if(check_flag(&retval, "IDABand", 1)) return(1);
+  smu = mu+ml;
+  A = SUNBandMatrix(NEQ, mu, ml, smu);
+  if(check_flag((void *)A, "SUNBandMatrix", 0)) return(1);
+  LS = SUNBandLinearSolver(cc, A);
+  if(check_flag((void *)LS, "SUNBandLinearSolver", 0)) return(1);
+  retval = IDADlsSetLinearSolver(ida_mem, LS, A);
+  if(check_flag(&retval, "IDADlsSetLinearSolver", 1)) return(1);
 
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
   tout = RCONST(0.001);
-  retval = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
+  retval = IDACalcIC(ida_mem, IDA_YA_YDP_INIT, tout);
   if(check_flag(&retval, "IDACalcIC", 1)) return(1);
   
   /* Print heading, basic parameters, and initial values. */
 
   PrintHeader(mu, ml, rtol, atol);
-  PrintOutput(mem, cc, ZERO);
+  PrintOutput(ida_mem, cc, ZERO);
   
   /* Loop over iout, call IDASolve (normal mode), print selected output. */
   
   for (iout = 1; iout <= NOUT; iout++) {
     
-    retval = IDASolve(mem, tout, &tret, cc, cp, IDA_NORMAL);
+    retval = IDASolve(ida_mem, tout, &tret, cc, cp, IDA_NORMAL);
     if(check_flag(&retval, "IDASolve", 1)) return(retval);
     
-    PrintOutput(mem, cc, tret);
+    PrintOutput(ida_mem, cc, tret);
     
     if (iout < 3) tout *= TMULT; else tout += TADD;
     
@@ -286,12 +294,14 @@ int main(int argc, char *argv[])
   
   /* Print final statistics and free memory. */  
   
-  PrintFinalStats(mem);
+  PrintFinalStats(ida_mem);
   printf("num_threads = %i\n\n", num_threads);
 
   /* Free memory */
 
-  IDAFree(&mem);
+  IDAFree(&ida_mem);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
 
   N_VDestroy_OpenMP(cc);
   N_VDestroy_OpenMP(cp);
@@ -328,7 +338,7 @@ int main(int argc, char *argv[])
 static int resweb(realtype tt, N_Vector cc, N_Vector cp, 
                   N_Vector res,  void *user_data)
 {
-  long int jx, jy, is, yloc, loc, np;
+  sunindextype jx, jy, is, yloc, loc, np;
   realtype *resv, *cpv;
   UserData webdata;
   
@@ -343,7 +353,7 @@ static int resweb(realtype tt, N_Vector cc, N_Vector cp,
   
   /* Loop over all grid points, setting residual values appropriately
      for differential or algebraic components.                        */
-#pragma omp parallel for default(shared) private(jy, yloc, jx, loc, is) schedule(static) 
+#pragma omp parallel for default(shared) private(jy, yloc, jx, loc, is) schedule(static) num_threads(webdata->nthreads)
   for (jy = 0; jy < MY; jy++) {
     yloc = NSMX * jy;
     for (jx = 0; jx < MX; jx++) {
@@ -424,7 +434,7 @@ static void InitUserData(UserData webdata)
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata)
 {
-  long int loc, yloc, is, jx, jy, np;
+  sunindextype loc, yloc, is, jx, jy, np;
   realtype xx, yy, xyfactor;
   realtype *ccv, *cpv, *idv;
   
@@ -475,7 +485,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(long int mu, long int ml, realtype rtol, realtype atol)
+static void PrintHeader(sunindextype mu, sunindextype ml, realtype rtol, realtype atol)
 {
   printf("\nidasFoodWeb_bnd_omp: Predator-prey DAE OpenMP example problem for IDAS \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
@@ -488,7 +498,8 @@ static void PrintHeader(long int mu, long int ml, realtype rtol, realtype atol)
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: IDABAND,  Band parameters mu = %ld, ml = %ld\n",mu,ml);
+  printf("Linear solver: SUNBAND,  Band parameters mu = %ld, ml = %ld\n",
+         (long int) mu, (long int) ml);
   printf("CalcIC called to correct initial predator concentrations.\n\n");
   printf("-----------------------------------------------------------\n");
   printf("  t        bottom-left  top-right");
@@ -503,17 +514,17 @@ static void PrintHeader(long int mu, long int ml, realtype rtol, realtype atol)
  * are printed for the bottom left and top right grid points only.  
  */
 
-static void PrintOutput(void *mem, N_Vector c, realtype t)
+static void PrintOutput(void *ida_mem, N_Vector c, realtype t)
 {
   int i, kused, flag;
   long int nst;
   realtype *c_bl, *c_tr, hused;
 
-  flag = IDAGetLastOrder(mem, &kused);
+  flag = IDAGetLastOrder(ida_mem, &kused);
   check_flag(&flag, "IDAGetLastOrder", 1);
-  flag = IDAGetNumSteps(mem, &nst);
+  flag = IDAGetNumSteps(ida_mem, &nst);
   check_flag(&flag, "IDAGetNumSteps", 1);
-  flag = IDAGetLastStep(mem, &hused);
+  flag = IDAGetLastStep(ida_mem, &hused);
   check_flag(&flag, "IDAGetLastStep", 1);
   
   c_bl = IJ_Vptr(c,0,0);
@@ -543,24 +554,24 @@ static void PrintOutput(void *mem, N_Vector c, realtype t)
  * PrintFinalStats: Print final run data contained in iopt.              
  */
 
-static void PrintFinalStats(void *mem)
+static void PrintFinalStats(void *ida_mem)
 { 
   long int nst, nre, nreLS, nni, nje, netf, ncfn;
   int flag;
 
-  flag = IDAGetNumSteps(mem, &nst);
+  flag = IDAGetNumSteps(ida_mem, &nst);
   check_flag(&flag, "IDAGetNumSteps", 1);
-  flag = IDAGetNumNonlinSolvIters(mem, &nni);
+  flag = IDAGetNumNonlinSolvIters(ida_mem, &nni);
   check_flag(&flag, "IDAGetNumNonlinSolvIters", 1);
-  flag = IDAGetNumResEvals(mem, &nre);
+  flag = IDAGetNumResEvals(ida_mem, &nre);
   check_flag(&flag, "IDAGetNumResEvals", 1);
-  flag = IDAGetNumErrTestFails(mem, &netf);
+  flag = IDAGetNumErrTestFails(ida_mem, &netf);
   check_flag(&flag, "IDAGetNumErrTestFails", 1);
-  flag = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  flag = IDAGetNumNonlinSolvConvFails(ida_mem, &ncfn);
   check_flag(&flag, "IDAGetNumNonlinSolvConvFails", 1);
-  flag = IDADlsGetNumJacEvals(mem, &nje);
+  flag = IDADlsGetNumJacEvals(ida_mem, &nje);
   check_flag(&flag, "IDADlsGetNumJacEvals", 1);
-  flag = IDADlsGetNumResEvals(mem, &nreLS);
+  flag = IDADlsGetNumResEvals(ida_mem, &nreLS);
   check_flag(&flag, "IDADlsGetNumResEvals", 1);
 
   printf("-----------------------------------------------------------\n");
@@ -584,7 +595,7 @@ static void PrintFinalStats(void *mem)
 static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate,  
                  UserData webdata)
 { 
-  long int jx, jy, is, idyu, idyl, idxu, idxl;
+  sunindextype jx, jy, is, idyu, idyl, idxu, idxl;
   realtype xx, yy, *cxy, *ratesxy, *cratexy, dcyli, dcyui, dcxli, dcxui;
   
   /* Loop over grid points, evaluate interaction vector (length ns),
@@ -607,7 +618,7 @@ static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate,
       WebRates(xx, yy, cxy, ratesxy, webdata);
       
       /* Loop over species, do differencing, load crate segment. */
-#pragma omp parallel for default(shared) private(is, dcyli, dcyui, dcxli, dcxui) schedule(static)
+#pragma omp parallel for default(shared) private(is, dcyli, dcyui, dcxli, dcxui) schedule(static) num_threads(webdata->nthreads)
       for (is = 0; is < NUM_SPECIES; is++) {
         
         /* Differencing in y. */
@@ -653,9 +664,9 @@ static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
  * dotprod: dot product routine for realtype arrays, for use by WebRates.    
  */
 
-static realtype dotprod(long int size, realtype *x1, realtype *x2)
+static realtype dotprod(sunindextype size, realtype *x1, realtype *x2)
 {
-  long int i;
+  sunindextype i;
   realtype *xx1, *xx2, temp = ZERO;
   
   xx1 = x1; xx2 = x2;

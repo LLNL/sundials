@@ -1,20 +1,22 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
+ * Programmer(s): Daniel Reynolds @ SMU
+ *                Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
+ *                   and Dan Shumaker @ LLNL
  * -----------------------------------------------------------------
- * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
- *                and Dan Shumaker @ LLNL
- * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2017, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
  * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
  * All rights reserved.
  * For details, see the LICENSE file.
- * LLNS Copyright End
+ * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
  * Implementation header file for the main CVODE integrator.
  * -----------------------------------------------------------------
@@ -75,7 +77,7 @@ typedef struct CVodeMemRec {
   realtype cv_reltol;        /* relative tolerance                            */
   realtype cv_Sabstol;       /* scalar absolute tolerance                     */
   N_Vector cv_Vabstol;       /* vector absolute tolerance                     */
-  booleantype cv_user_efun;  /* TRUE if user sets efun                        */
+  booleantype cv_user_efun;  /* SUNTRUE if user sets efun                     */
   CVEwtFn cv_efun;           /* function to set ewt                           */
   void *cv_e_data;           /* user pointer passed to efun                   */
 
@@ -184,10 +186,10 @@ typedef struct CVodeMemRec {
     Space requirements for CVODE 
     ----------------------------*/
 
-  long int cv_lrw1;        /* no. of realtype words in 1 N_Vector             */ 
-  long int cv_liw1;        /* no. of integer words in 1 N_Vector              */ 
-  long int cv_lrw;         /* no. of realtype words in CVODE work vectors     */
-  long int cv_liw;         /* no. of integer words in CVODE work vectors      */
+  sunindextype cv_lrw1;        /* no. of realtype words in 1 N_Vector             */ 
+  sunindextype cv_liw1;        /* no. of integer words in 1 N_Vector              */ 
+  long int cv_lrw;             /* no. of realtype words in CVODE work vectors     */
+  long int cv_liw;             /* no. of integer words in CVODE work vectors      */
 
   /*------------------
     Linear Solver Data 
@@ -223,7 +225,6 @@ typedef struct CVodeMemRec {
   realtype cv_tolsf;           /* tolerance scale factor                      */
   int cv_qmax_alloc;           /* value of qmax used when allocating memory   */
   int cv_indx_acor;            /* index of the zn vector with saved acor      */
-  booleantype cv_setupNonNull; /* does setup do anything?                     */
 
   booleantype cv_VabstolMallocDone;
   booleantype cv_MallocDone;  
@@ -355,12 +356,12 @@ typedef struct CVodeMemRec {
  * fpred - f(tn, ypred).
  *
  * jcurPtr - a pointer to a boolean to be filled in by cv_lsetup.
- *           The function should set *jcurPtr=TRUE if its Jacobian
+ *           The function should set *jcurPtr=SUNTRUE if its Jacobian
  *           data is current after the call and should set
- *           *jcurPtr=FALSE if its Jacobian data is not current.
+ *           *jcurPtr=SUNFALSE if its Jacobian data is not current.
  *           Note: If cv_lsetup calls for re-evaluation of
  *           Jacobian data (based on convfail and CVODE state
- *           data), it should return *jcurPtr=TRUE always;
+ *           data), it should return *jcurPtr=SUNTRUE always;
  *           otherwise an infinite loop can result.
  *
  * vtemp1 - temporary N_Vector provided for use by cv_lsetup.

@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision:  $
- * $Date:  $
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): Ting Yan @ SMU
  *      Based on idasRoberts_ASAi_dns.c and modified to use KLU
  * -----------------------------------------------------------------
@@ -41,18 +37,18 @@
  * where
  *   d(phi)/dt = g(t,y,p)
  *   phi(t1) = 0
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <idas/idas.h>
-#include <idas/idas_klu.h>
-#include <sundials/sundials_sparse.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
+#include <idas/idas.h>                     /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>        /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix           */
+#include <sunlinsol/sunlinsol_klu.h>       /* access to KLU linear solver          */
+#include <idas/idas_direct.h>              /* access to IDADls interface           */
+#include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>        /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Accessor macros */
 
@@ -99,7 +95,7 @@ static int res(realtype t, N_Vector yy, N_Vector yp,
                N_Vector resval, void *user_data);
 static int Jac(realtype t, realtype cj, 
                N_Vector yy, N_Vector yp, N_Vector resvec, 
-               SlsMat JacMat, void *user_data, 
+               SUNMatrix JJ, void *user_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data);
@@ -113,7 +109,7 @@ static int resB(realtype tt,
 static int JacB(realtype tt, realtype cjB,
                 N_Vector yy, N_Vector yp,
                 N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-                SlsMat JacMatB, void *user_data,
+                SUNMatrix JB, void *user_data,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 
@@ -137,6 +133,8 @@ int main(int argc, char *argv[])
   UserData data;
 
   void *ida_mem;
+  SUNMatrix A, AB;
+  SUNLinearSolver LS, LSB;
 
   realtype reltolQ, abstolQ;
   N_Vector yy, yp, q;
@@ -160,6 +158,8 @@ int main(int argc, char *argv[])
   ckpnt = NULL;
   ida_mem = NULL;
   yy = yp = yB = qB = NULL;
+  A = AB = NULL;
+  LS = LSB = NULL;
 
   /* Print problem description */
   printf("\nAdjoint Sensitivity Example for Chemical Kinetics\n");
@@ -216,20 +216,30 @@ int main(int argc, char *argv[])
   flag = IDASetUserData(ida_mem, data);
   if (check_flag(&flag, "IDASetUserData", 1)) return(1);
 
+  /* Create sparse SUNMatrix for use in linear solves */
   nnz = NEQ * NEQ;
-  flag = IDAKLU(ida_mem, NEQ, nnz, CSC_MAT);
-  if (check_flag(&flag, "IDAKLU", 1)) return(1);
+  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
+  if(check_flag((void *)A, "SUNSparseMatrix", 0)) return(1);
 
-  flag = IDASlsSetSparseJacFn(ida_mem, Jac);
-  if (check_flag(&flag, "IDASlsSetSparseJacFn", 1)) return(1);
+  /* Create KLU SUNLinearSolver object (one thread) */
+  LS = SUNKLU(yy, A);
+  if(check_flag((void *)LS, "SUNKLU", 0)) return(1);
 
+  /* Attach the matrix and linear solver */
+  flag = IDADlsSetLinearSolver(ida_mem, LS, A);
+  if(check_flag(&flag, "IDADlsSetLinearSolver", 1)) return(1);
+
+  /* Set the user-supplied Jacobian routine */
+  flag = IDADlsSetJacFn(ida_mem, Jac);
+  if(check_flag(&flag, "IDADlsSetJacFn", 1)) return(1);
+  
   flag = IDAQuadInit(ida_mem, rhsQ, q);
   if (check_flag(&flag, "IDAQuadInit", 1)) return(1);
 
   flag = IDAQuadSStolerances(ida_mem, reltolQ, abstolQ);
   if (check_flag(&flag, "IDAQuadSStolerances", 1)) return(1);
 
-  flag = IDASetQuadErrCon(ida_mem, TRUE);
+  flag = IDASetQuadErrCon(ida_mem, SUNTRUE);
   if (check_flag(&flag, "IDASetQuadErrCon", 1)) return(1);
 
   /* Allocate global memory */
@@ -346,12 +356,21 @@ int main(int argc, char *argv[])
 
   flag = IDASetMaxNumStepsB(ida_mem, indexB, 1000);
 
-  flag = IDAKLUB(ida_mem, indexB, NEQ, nnz, CSC_MAT);
-  if (check_flag(&flag, "IDAKLUB", 1)) return(1);
+  /* Create sparse SUNMatrix for use in linear solves */
+  AB = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
+  if(check_flag((void *)AB, "SUNSparseMatrix", 0)) return(1);
 
-  flag = IDASlsSetSparseJacFnB(ida_mem, indexB, JacB);
-  if (check_flag(&flag, "IDASlsSetSparseJacB", 1)) return(1);
+  /* Create KLU SUNLinearSolver object (one thread) */
+  LSB = SUNKLU(yB, AB);
+  if(check_flag((void *)LSB, "SUNKLU", 0)) return(1);
 
+  /* Attach the matrix and linear solver */
+  flag = IDADlsSetLinearSolverB(ida_mem, indexB, LSB, AB);
+  if(check_flag(&flag, "IDADlsSetLinearSolverB", 1)) return(1);
+
+  /* Set the user-supplied Jacobian routine */
+  flag = IDADlsSetJacFnB(ida_mem, indexB, JacB);
+  if(check_flag(&flag, "IDADlsSetJacFnB", 1)) return(1);
 
   /* Quadrature for backward problem. */
  
@@ -369,7 +388,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "IDAQuadSStolerancesB", 1)) return(1);
 
   /* Include quadratures in error control. */
-  flag = IDASetQuadErrConB(ida_mem, indexB, TRUE);
+  flag = IDASetQuadErrConB(ida_mem, indexB, SUNTRUE);
   if (check_flag(&flag, "IDASetQuadErrConB", 1)) return(1);
 
 
@@ -456,15 +475,19 @@ int main(int argc, char *argv[])
   printf("Free memory\n\n");
 
   IDAFree(&ida_mem);
-  N_VDestroy_Serial(yy);
-  N_VDestroy_Serial(yp);
-  N_VDestroy_Serial(q);
-  N_VDestroy_Serial(yB);
-  N_VDestroy_Serial(ypB);
-  N_VDestroy_Serial(qB);
-  N_VDestroy_Serial(id);
-  N_VDestroy_Serial(yyTB1);
-  N_VDestroy_Serial(ypTB1);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
+  SUNLinSolFree(LSB);
+  SUNMatDestroy(AB);
+  N_VDestroy(yy);
+  N_VDestroy(yp);
+  N_VDestroy(q);
+  N_VDestroy(yB);
+  N_VDestroy(ypB);
+  N_VDestroy(qB);
+  N_VDestroy(id);
+  N_VDestroy(yyTB1);
+  N_VDestroy(ypTB1);
 
   if (ckpnt != NULL) free(ckpnt);
   free(data);
@@ -491,7 +514,7 @@ static int res(realtype t, N_Vector yy, N_Vector yp, N_Vector resval, void *user
 
   y1  = Ith(yy,1); y2  = Ith(yy,2); y3  = Ith(yy,3); 
   yp1 = Ith(yp,1); yp2 = Ith(yp,2);
-  rval = N_VGetArrayPointer_Serial(resval);
+  rval = N_VGetArrayPointer(resval);
 
   data = (UserData) user_data;
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
@@ -510,41 +533,52 @@ static int res(realtype t, N_Vector yy, N_Vector yp, N_Vector resval, void *user
 
 static int Jac(realtype t, realtype cj,
                N_Vector yy, N_Vector yp, N_Vector resvec, 
-               SlsMat JacMat, void *user_data, 
+               SUNMatrix JJ, void *user_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype *yval;
-  int *colptrs;
-  int *rowvals;
-  realtype* data;
+  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(JJ);
+  sunindextype *rowvals = SUNSparseMatrix_IndexValues(JJ);
+  realtype *data = SUNSparseMatrix_Data(JJ);
+
   UserData userdata;
   realtype p1, p2, p3;
  
-  yval = N_VGetArrayPointer_Serial(yy);
-  colptrs = (*JacMat->colptrs);
-  rowvals = (*JacMat->rowvals);
-  data = JacMat->data;
+  yval = N_VGetArrayPointer(yy);
+
   userdata = (UserData) user_data;
   p1 = userdata->p[0]; p2 = userdata->p[1]; p3 = userdata->p[2];
 
-  SparseSetMatToZero(JacMat);
+  SUNMatZero(JJ);
 
   colptrs[0] = 0;
   colptrs[1] = 3;
   colptrs[2] = 6;
   colptrs[3] = 9;
 
-  data[0] = p1+cj;                        rowvals[0] = 0;
-  data[1] = -p1;                          rowvals[1] = 1;
-  data[2] = ONE;                          rowvals[2] = 2;
+  /* column 0 */
+  data[0] = p1+cj;
+  rowvals[0] = 0;
+  data[1] = -p1;
+  rowvals[1] = 1;
+  data[2] = ONE;
+  rowvals[2] = 2;
 
-  data[3] = -p2*yval[2];                  rowvals[3] = 0;
-  data[4] = p2*yval[2]+2*p3*yval[1]+cj;   rowvals[4] = 1;
-  data[5] = ONE;                          rowvals[5] = 2;
+  /* column 1 */
+  data[3] = -p2*yval[2];
+  rowvals[3] = 0;
+  data[4] = p2*yval[2]+2*p3*yval[1]+cj;
+  rowvals[4] = 1;
+  data[5] = ONE;
+  rowvals[5] = 2;
 
-  data[6] = -p2*yval[1];                  rowvals[6] = 0;
-  data[7] = p2*yval[1];                   rowvals[7] = 1;
-  data[8] = ONE;                          rowvals[8] = 2;
+  /* column 2 */
+  data[6] = -p2*yval[1];
+  rowvals[6] = 0;
+  data[7] = p2*yval[1];
+  rowvals[7] = 1;
+  data[8] = ONE;
+  rowvals[8] = 2;
 
   return(0);
 }
@@ -629,42 +663,52 @@ static int resB(realtype tt,
 static int JacB(realtype tt, realtype cjB,
                 N_Vector yy, N_Vector yp,
                 N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-                SlsMat JacMatB, void *user_data,
+                SUNMatrix JB, void *user_data,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   realtype *yvalB;
-  int* colptrsB;
-  int* rowvalsB;
-  realtype* dataB;
+  sunindextype *colptrsB = SUNSparseMatrix_IndexPointers(JB);
+  sunindextype *rowvalsB = SUNSparseMatrix_IndexValues(JB);
+  realtype *dataB = SUNSparseMatrix_Data(JB);
+
   UserData userdata;
   realtype p1, p2, p3;
  
-  yvalB = N_VGetArrayPointer_Serial(yy);
-  colptrsB = (*JacMatB->colptrs);
-  rowvalsB = (*JacMatB->rowvals);
-  dataB = JacMatB->data;
+  yvalB = N_VGetArrayPointer(yy);
+
   userdata = (UserData) user_data;
   p1 = userdata->p[0]; p2 = userdata->p[1]; p3 = userdata->p[2];
 
-  SparseSetMatToZero(JacMatB);
+  SUNMatZero(JB);
 
   colptrsB[0] = 0;
   colptrsB[1] = 3;
   colptrsB[2] = 6;
   colptrsB[3] = 9;
 
-  dataB[0] = -p1+cjB;                          rowvalsB[0] = 0;
-  dataB[1] = p2*yvalB[2];                      rowvalsB[1] = 1;
-  dataB[2] = p2*yvalB[1];                      rowvalsB[2] = 2;
+  /* column 0 */
+  dataB[0] = -p1+cjB;
+  rowvalsB[0] = 0;
+  dataB[1] = p2*yvalB[2];
+  rowvalsB[1] = 1;
+  dataB[2] = p2*yvalB[1];
+  rowvalsB[2] = 2;
 
-  dataB[3] = p1;;                              rowvalsB[3] = 0;
+  /* column 1 */
+  dataB[3] = p1;
+  rowvalsB[3] = 0;
   dataB[4] = -(p2*yvalB[2]+RCONST(2.0)*p3*yvalB[1])+cjB;
   rowvalsB[4] = 1;
-  dataB[5] = -p2*yvalB[1];                     rowvalsB[5] = 2;
-     
-  dataB[6] = -ONE;                             rowvalsB[6] = 0;
-  dataB[7] = -ONE;                             rowvalsB[7] = 1;
-  dataB[8] = -ONE;                             rowvalsB[8] = 2;
+  dataB[5] = -p2*yvalB[1];
+  rowvalsB[5] = 2;
+
+  /* column 2 */    
+  dataB[6] = -ONE;
+  rowvalsB[6] = 0;
+  dataB[7] = -ONE;
+  rowvalsB[7] = 1;
+  dataB[8] = -ONE;
+  rowvalsB[8] = 2;
 
   return(0);
 }

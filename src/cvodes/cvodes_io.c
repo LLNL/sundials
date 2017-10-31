@@ -375,7 +375,7 @@ int CVodeSetStopTime(void *cvode_mem, realtype tstop)
   }
 
   cv_mem->cv_tstop = tstop;
-  cv_mem->cv_tstopset = TRUE;
+  cv_mem->cv_tstopset = SUNTRUE;
 
   return(CV_SUCCESS);
 }
@@ -631,7 +631,7 @@ int CVodeSetSensParams(void *cvode_mem, realtype *p, realtype *pbar, int *plist)
 
   /* Was sensitivity initialized? */
 
-  if (cv_mem->cv_SensMallocDone == FALSE) {
+  if (cv_mem->cv_SensMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeSetSensParams", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
@@ -687,14 +687,14 @@ int CVodeSetQuadSensErrCon(void *cvode_mem, booleantype errconQS)
 
   /* Was sensitivity initialized? */
 
-  if (cv_mem->cv_SensMallocDone == FALSE) {
+  if (cv_mem->cv_SensMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeSetQuadSensTolerances", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   } 
 
   /* Ckeck if quadrature sensitivity was initialized? */
 
-  if (cv_mem->cv_QuadSensMallocDone == FALSE) {
+  if (cv_mem->cv_QuadSensMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_QUADSENS, "CVODES", "CVodeSetQuadSensErrCon", MSGCV_NO_QUADSENSI); 
     return(CV_NO_QUAD);
   }
@@ -709,33 +709,6 @@ int CVodeSetQuadSensErrCon(void *cvode_mem, booleantype errconQS)
  * CVODES optional output functions
  * =================================================================
  */
-
-/* 
- * Readability constants
- */
-
-#define nst            (cv_mem->cv_nst)
-#define nfe            (cv_mem->cv_nfe)
-#define ncfn           (cv_mem->cv_ncfn)
-#define netf           (cv_mem->cv_netf)
-#define nni            (cv_mem->cv_nni)
-#define nsetups        (cv_mem->cv_nsetups)
-#define qu             (cv_mem->cv_qu)
-#define next_q         (cv_mem->cv_next_q)
-#define ewt            (cv_mem->cv_ewt)  
-#define hu             (cv_mem->cv_hu)
-#define next_h         (cv_mem->cv_next_h)
-#define h0u            (cv_mem->cv_h0u)
-#define tolsf          (cv_mem->cv_tolsf)  
-#define acor           (cv_mem->cv_acor)
-#define lrw            (cv_mem->cv_lrw)
-#define liw            (cv_mem->cv_liw)
-#define nge            (cv_mem->cv_nge)
-#define iroots         (cv_mem->cv_iroots)
-#define nor            (cv_mem->cv_nor)
-#define sldeton        (cv_mem->cv_sldeton)
-#define tn             (cv_mem->cv_tn)
-#define efun           (cv_mem->cv_efun)
 
 /*
  * CVodeGetNumSteps
@@ -754,7 +727,7 @@ int CVodeGetNumSteps(void *cvode_mem, long int *nsteps)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nsteps = nst;
+  *nsteps = cv_mem->cv_nst;
 
   return(CV_SUCCESS);
 }
@@ -776,7 +749,7 @@ int CVodeGetNumRhsEvals(void *cvode_mem, long int *nfevals)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nfevals = nfe;
+  *nfevals = cv_mem->cv_nfe;
 
   return(CV_SUCCESS);
 }
@@ -798,7 +771,7 @@ int CVodeGetNumLinSolvSetups(void *cvode_mem, long int *nlinsetups)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nlinsetups = nsetups;
+  *nlinsetups = cv_mem->cv_nsetups;
 
   return(CV_SUCCESS);
 }
@@ -820,7 +793,7 @@ int CVodeGetNumErrTestFails(void *cvode_mem, long int *netfails)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *netfails = netf;
+  *netfails = cv_mem->cv_netf;
 
   return(CV_SUCCESS);
 }
@@ -842,7 +815,7 @@ int CVodeGetLastOrder(void *cvode_mem, int *qlast)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *qlast = qu;
+  *qlast = cv_mem->cv_qu;
 
   return(CV_SUCCESS);
 }
@@ -864,7 +837,7 @@ int CVodeGetCurrentOrder(void *cvode_mem, int *qcur)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *qcur = next_q;
+  *qcur = cv_mem->cv_next_q;
 
   return(CV_SUCCESS);
 }
@@ -887,10 +860,10 @@ int CVodeGetNumStabLimOrderReds(void *cvode_mem, long int *nslred)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (sldeton==FALSE)
+  if (cv_mem->cv_sldeton==SUNFALSE)
     *nslred = 0;
   else
-    *nslred = nor;
+    *nslred = cv_mem->cv_nor;
 
   return(CV_SUCCESS);
 }
@@ -912,7 +885,7 @@ int CVodeGetActualInitStep(void *cvode_mem, realtype *hinused)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *hinused = h0u;
+  *hinused = cv_mem->cv_h0u;
 
   return(CV_SUCCESS);
 }
@@ -934,7 +907,7 @@ int CVodeGetLastStep(void *cvode_mem, realtype *hlast)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *hlast = hu;
+  *hlast = cv_mem->cv_hu;
 
   return(CV_SUCCESS);
 }
@@ -956,7 +929,7 @@ int CVodeGetCurrentStep(void *cvode_mem, realtype *hcur)
 
   cv_mem = (CVodeMem) cvode_mem;
   
-  *hcur = next_h;
+  *hcur = cv_mem->cv_next_h;
 
   return(CV_SUCCESS);
 }
@@ -978,7 +951,7 @@ int CVodeGetCurrentTime(void *cvode_mem, realtype *tcur)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *tcur = tn;
+  *tcur = cv_mem->cv_tn;
 
   return(CV_SUCCESS);
 }
@@ -1000,7 +973,7 @@ int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfact)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *tolsfact = tolsf;
+  *tolsfact = cv_mem->cv_tolsf;
 
   return(CV_SUCCESS);
 }
@@ -1022,7 +995,7 @@ int CVodeGetErrWeights(void *cvode_mem, N_Vector eweight)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  N_VScale(ONE, ewt, eweight);
+  N_VScale(ONE, cv_mem->cv_ewt, eweight);
 
   return(CV_SUCCESS);
 }
@@ -1044,7 +1017,7 @@ int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  N_VScale(ONE, acor, ele);
+  N_VScale(ONE, cv_mem->cv_acor, ele);
 
   return(CV_SUCCESS);
 }
@@ -1066,8 +1039,8 @@ int CVodeGetWorkSpace(void *cvode_mem, long int *lenrw, long int *leniw)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *leniw = liw;
-  *lenrw = lrw;
+  *leniw = cv_mem->cv_liw;
+  *lenrw = cv_mem->cv_lrw;
 
   return(CV_SUCCESS);
 }
@@ -1092,16 +1065,16 @@ int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps, long int *nfevals
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nsteps = nst;
-  *nfevals = nfe;
-  *nlinsetups = nsetups;
-  *netfails = netf;
-  *qlast = qu;
-  *qcur = next_q;
-  *hinused = h0u;
-  *hlast = hu;
-  *hcur = next_h;
-  *tcur = tn;
+  *nsteps = cv_mem->cv_nst;
+  *nfevals = cv_mem->cv_nfe;
+  *nlinsetups = cv_mem->cv_nsetups;
+  *netfails = cv_mem->cv_netf;
+  *qlast = cv_mem->cv_qu;
+  *qcur = cv_mem->cv_next_q;
+  *hinused = cv_mem->cv_h0u;
+  *hlast = cv_mem->cv_hu;
+  *hcur = cv_mem->cv_next_h;
+  *tcur = cv_mem->cv_tn;
 
   return(CV_SUCCESS);
 }
@@ -1123,7 +1096,7 @@ int CVodeGetNumGEvals(void *cvode_mem, long int *ngevals)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *ngevals = nge;
+  *ngevals = cv_mem->cv_nge;
 
   return(CV_SUCCESS);
 }
@@ -1148,7 +1121,7 @@ int CVodeGetRootInfo(void *cvode_mem, int *rootsfound)
 
   nrt = cv_mem->cv_nrtfn;
 
-  for (i=0; i<nrt; i++) rootsfound[i] = iroots[i];
+  for (i=0; i<nrt; i++) rootsfound[i] = cv_mem->cv_iroots[i];
 
   return(CV_SUCCESS);
 }
@@ -1171,7 +1144,7 @@ int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nniters = nni;
+  *nniters = cv_mem->cv_nni;
 
   return(CV_SUCCESS);
 }
@@ -1194,7 +1167,7 @@ int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nncfails = ncfn;
+  *nncfails = cv_mem->cv_ncfn;
 
   return(CV_SUCCESS);
 }
@@ -1217,8 +1190,8 @@ int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nniters = nni;
-  *nncfails = ncfn;
+  *nniters = cv_mem->cv_nni;
+  *nncfails = cv_mem->cv_ncfn;
 
   return(CV_SUCCESS);
 }
@@ -1229,16 +1202,6 @@ int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
  * Quadrature optional output functions
  * =================================================================
  */
-
-/* 
- * Readability constants
- */
-
-#define quadr          (cv_mem->cv_quadr)
-#define nfQe           (cv_mem->cv_nfQe)
-#define netfQ          (cv_mem->cv_netfQ)
-#define ewtQ           (cv_mem->cv_ewtQ)
-#define errconQ        (cv_mem->cv_errconQ)
 
 /*-----------------------------------------------------------------*/
 
@@ -1253,12 +1216,12 @@ int CVodeGetQuadNumRhsEvals(void *cvode_mem, long int *nfQevals)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (quadr==FALSE) {
+  if (cv_mem->cv_quadr==SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_QUAD, "CVODES", "CVodeGetQuadNumRhsEvals", MSGCV_NO_QUAD); 
     return(CV_NO_QUAD);
   }
 
-  *nfQevals = nfQe;
+  *nfQevals = cv_mem->cv_nfQe;
 
   return(CV_SUCCESS);
 }
@@ -1276,12 +1239,12 @@ int CVodeGetQuadNumErrTestFails(void *cvode_mem, long int *nQetfails)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (quadr==FALSE) {
+  if (cv_mem->cv_quadr==SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_QUAD, "CVODES", "CVodeGetQuadNumErrTestFails", MSGCV_NO_QUAD); 
     return(CV_NO_QUAD);
   }
 
-  *nQetfails = netfQ;
+  *nQetfails = cv_mem->cv_netfQ;
 
   return(CV_SUCCESS);
 }
@@ -1299,12 +1262,12 @@ int CVodeGetQuadErrWeights(void *cvode_mem, N_Vector eQweight)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (quadr==FALSE) {
+  if (cv_mem->cv_quadr==SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_QUAD, "CVODES", "CVodeGetQuadErrWeights", MSGCV_NO_QUAD); 
     return(CV_NO_QUAD);
   }
 
-  if(errconQ) N_VScale(ONE, ewtQ, eQweight);
+  if(cv_mem->cv_errconQ) N_VScale(ONE, cv_mem->cv_ewtQ, eQweight);
 
   return(CV_SUCCESS);
 }
@@ -1322,13 +1285,13 @@ int CVodeGetQuadStats(void *cvode_mem, long int *nfQevals, long int *nQetfails)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (quadr==FALSE) {
+  if (cv_mem->cv_quadr==SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_QUAD, "CVODES", "CVodeGetQuadStats", MSGCV_NO_QUAD); 
     return(CV_NO_QUAD);
   }
 
-  *nfQevals = nfQe;
-  *nQetfails = netfQ;
+  *nfQevals = cv_mem->cv_nfQe;
+  *nQetfails = cv_mem->cv_netfQ;
 
   return(CV_SUCCESS);
 }
@@ -1338,16 +1301,6 @@ int CVodeGetQuadStats(void *cvode_mem, long int *nfQevals, long int *nQetfails)
  * Quadrature FSA optional output functions
  * =================================================================
  */
-
-/* 
- * Readability constants
- */
-
-#define quadr_sensi    (cv_mem->cv_quadr_sensi)
-#define nfQSe          (cv_mem->cv_nfQSe)
-#define netfQS         (cv_mem->cv_netfQS)
-#define ewtQS          (cv_mem->cv_ewtQS)
-#define errconQS       (cv_mem->cv_errconQS)
 
 /*-----------------------------------------------------------------*/
 
@@ -1362,12 +1315,12 @@ int CVodeGetQuadSensNumRhsEvals(void *cvode_mem, long int *nfQSevals)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (quadr_sensi == FALSE) {
+  if (cv_mem->cv_quadr_sensi == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_QUADSENS, "CVODES", "CVodeGetQuadSensNumRhsEvals", MSGCV_NO_QUADSENSI); 
     return(CV_NO_QUADSENS);
   }
 
-  *nfQSevals = nfQSe;
+  *nfQSevals = cv_mem->cv_nfQSe;
 
   return(CV_SUCCESS);
 }
@@ -1385,12 +1338,12 @@ int CVodeGetQuadSensNumErrTestFails(void *cvode_mem, long int *nQSetfails)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (quadr_sensi == FALSE) {
+  if (cv_mem->cv_quadr_sensi == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_QUADSENS, "CVODES", "CVodeGetQuadSensNumErrTestFails", MSGCV_NO_QUADSENSI); 
     return(CV_NO_QUADSENS);
   }
 
-  *nQSetfails = netfQS;
+  *nQSetfails = cv_mem->cv_netfQS;
 
   return(CV_SUCCESS);
 }
@@ -1409,15 +1362,15 @@ int CVodeGetQuadSensErrWeights(void *cvode_mem, N_Vector *eQSweight)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (quadr_sensi == FALSE) {
+  if (cv_mem->cv_quadr_sensi == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_QUADSENS, "CVODES", "CVodeGetQuadSensErrWeights", MSGCV_NO_QUADSENSI); 
     return(CV_NO_QUADSENS);
   }
   Ns = cv_mem->cv_Ns;
 
-  if (errconQS)
+  if (cv_mem->cv_errconQS)
     for (is=0; is<Ns; is++)
-      N_VScale(ONE, ewtQS[is], eQSweight[is]);
+      N_VScale(ONE, cv_mem->cv_ewtQS[is], eQSweight[is]);
 
   return(CV_SUCCESS);
 }
@@ -1435,13 +1388,13 @@ int CVodeGetQuadSensStats(void *cvode_mem, long int *nfQSevals, long int *nQSetf
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (quadr_sensi == FALSE) {
+  if (cv_mem->cv_quadr_sensi == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_QUADSENS, "CVODES", "CVodeGetQuadSensStats", MSGCV_NO_QUADSENSI); 
     return(CV_NO_QUADSENS);
   }
 
-  *nfQSevals = nfQSe;
-  *nQSetfails = netfQS;
+  *nfQSevals = cv_mem->cv_nfQSe;
+  *nQSetfails = cv_mem->cv_netfQS;
 
   return(CV_SUCCESS);
 }
@@ -1452,23 +1405,6 @@ int CVodeGetQuadSensStats(void *cvode_mem, long int *nfQSevals, long int *nQSetf
  * FSA optional output functions
  * =================================================================
  */
-
-/* 
- * Readability constants
- */
-
-#define sensi          (cv_mem->cv_sensi)
-#define ism            (cv_mem->cv_ism)
-#define ewtS           (cv_mem->cv_ewtS)
-#define nfSe           (cv_mem->cv_nfSe)
-#define nfeS           (cv_mem->cv_nfeS)
-#define nniS           (cv_mem->cv_nniS)
-#define ncfnS          (cv_mem->cv_ncfnS)
-#define netfS          (cv_mem->cv_netfS)
-#define nsetupsS       (cv_mem->cv_nsetupsS)
-#define nniS1          (cv_mem->cv_nniS1)
-#define ncfnS1         (cv_mem->cv_ncfnS1)
-#define ncfS1          (cv_mem->cv_ncfS1)
 
 /*-----------------------------------------------------------------*/
 
@@ -1483,12 +1419,12 @@ int CVodeGetSensNumRhsEvals(void *cvode_mem, long int *nfSevals)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (sensi==FALSE) {
+  if (cv_mem->cv_sensi==SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetSensNumRhsEvals", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 
-  *nfSevals = nfSe;
+  *nfSevals = cv_mem->cv_nfSe;
 
   return(CV_SUCCESS);
 }
@@ -1506,12 +1442,12 @@ int CVodeGetNumRhsEvalsSens(void *cvode_mem, long int *nfevalsS)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (sensi==FALSE) {
+  if (cv_mem->cv_sensi==SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetNumRhsEvalsSens", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 
-  *nfevalsS = nfeS;
+  *nfevalsS = cv_mem->cv_nfeS;
 
   return(CV_SUCCESS);
 }
@@ -1529,12 +1465,12 @@ int CVodeGetSensNumErrTestFails(void *cvode_mem, long int *nSetfails)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (sensi==FALSE) {
+  if (cv_mem->cv_sensi==SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetSensNumErrTestFails", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 
-  *nSetfails = netfS;
+  *nSetfails = cv_mem->cv_netfS;
 
   return(CV_SUCCESS);
 }
@@ -1552,12 +1488,12 @@ int CVodeGetSensNumLinSolvSetups(void *cvode_mem, long int *nlinsetupsS)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (sensi==FALSE) {
+  if (cv_mem->cv_sensi==SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetSensNumLinSolvSetups", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 
-  *nlinsetupsS = nsetupsS;
+  *nlinsetupsS = cv_mem->cv_nsetupsS;
 
   return(CV_SUCCESS);
 }
@@ -1576,7 +1512,7 @@ int CVodeGetSensErrWeights(void *cvode_mem, N_Vector *eSweight)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (sensi==FALSE) {
+  if (cv_mem->cv_sensi==SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetSensErrWeights", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
@@ -1584,7 +1520,7 @@ int CVodeGetSensErrWeights(void *cvode_mem, N_Vector *eSweight)
   Ns = cv_mem->cv_Ns;
 
   for (is=0; is<Ns; is++)
-    N_VScale(ONE, ewtS[is], eSweight[is]);
+    N_VScale(ONE, cv_mem->cv_ewtS[is], eSweight[is]);
 
   return(CV_SUCCESS);
 }
@@ -1603,15 +1539,15 @@ int CVodeGetSensStats(void *cvode_mem, long int *nfSevals, long int *nfevalsS,
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (sensi==FALSE) {
+  if (cv_mem->cv_sensi==SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetSensStats", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 
-  *nfSevals = nfSe;
-  *nfevalsS = nfeS;
-  *nSetfails = netfS;
-  *nlinsetupsS = nsetupsS;
+  *nfSevals = cv_mem->cv_nfSe;
+  *nfevalsS = cv_mem->cv_nfeS;
+  *nSetfails = cv_mem->cv_netfS;
+  *nlinsetupsS = cv_mem->cv_nsetupsS;
 
   return(CV_SUCCESS);
 }
@@ -1629,12 +1565,12 @@ int CVodeGetSensNumNonlinSolvIters(void *cvode_mem, long int *nSniters)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (sensi==FALSE) {
+  if (cv_mem->cv_sensi==SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetSensNumNonlinSolvIters", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 
-  *nSniters = nniS;
+  *nSniters = cv_mem->cv_nniS;
 
   return(CV_SUCCESS);
 }
@@ -1652,12 +1588,12 @@ int CVodeGetSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSncfails)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (sensi==FALSE) {
+  if (cv_mem->cv_sensi==SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetSensNumNonlinSolvConvFails", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 
-  *nSncfails = ncfnS;
+  *nSncfails = cv_mem->cv_ncfnS;
 
   return(CV_SUCCESS);
 }
@@ -1678,13 +1614,13 @@ int CVodeGetStgrSensNumNonlinSolvIters(void *cvode_mem, long int *nSTGR1niters)
 
   Ns = cv_mem->cv_Ns;
 
-  if (sensi==FALSE) {
+  if (cv_mem->cv_sensi==SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetStgrSensNumNonlinSolvIters", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 
-  if(ism==CV_STAGGERED1) 
-    for(is=0; is<Ns; is++) nSTGR1niters[is] = nniS1[is];
+  if(cv_mem->cv_ism==CV_STAGGERED1) 
+    for(is=0; is<Ns; is++) nSTGR1niters[is] = cv_mem->cv_nniS1[is];
 
   return(CV_SUCCESS);
 }
@@ -1705,13 +1641,13 @@ int CVodeGetStgrSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSTGR1ncfa
 
   Ns = cv_mem->cv_Ns;
 
-  if (sensi==FALSE) {
+  if (cv_mem->cv_sensi==SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetStgrSensNumNonlinSolvConvFails", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 
-  if(ism==CV_STAGGERED1) 
-    for(is=0; is<Ns; is++) nSTGR1ncfails[is] = ncfnS1[is];
+  if(cv_mem->cv_ism==CV_STAGGERED1) 
+    for(is=0; is<Ns; is++) nSTGR1ncfails[is] = cv_mem->cv_ncfnS1[is];
 
   return(CV_SUCCESS);
 }
@@ -1730,13 +1666,13 @@ int CVodeGetSensNonlinSolvStats(void *cvode_mem, long int *nSniters,
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (sensi==FALSE) {
+  if (cv_mem->cv_sensi==SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetSensNonlinSolvStats", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 
-  *nSniters = nniS;
-  *nSncfails = ncfnS;
+  *nSniters = cv_mem->cv_nniS;
+  *nSncfails = cv_mem->cv_ncfnS;
 
   return(CV_SUCCESS);
 }

@@ -1,7 +1,4 @@
 # -----------------------------------------------------------------
-# $Revision$
-# $Date$
-# -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
 # Copyright (c) 2002, The Regents of the University of California.
@@ -41,8 +38,6 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
-LAPACK_ENABLED = @LAPACK_ENABLED@
-
 top_srcdir = $(srcdir)/../..
 
 INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include
@@ -51,23 +46,17 @@ LIB_REVISION = 1:0:0
 
 CVODE_LIB    = libsundials_cvode.la
 
-CVODE_SRC_FILES = cvode.c cvode_io.c cvode_direct.c cvode_band.c cvode_dense.c cvode_diag.c cvode_spils.c cvode_spbcgs.c cvode_spgmr.c cvode_sptfqmr.c cvode_bandpre.c cvode_bbdpre.c
-CVODE_BL_SRC_FILES = cvode_lapack.c
+CVODE_SRC_FILES = cvode.c cvode_io.c cvode_direct.c cvode_spils.c cvode_bandpre.c cvode_bbdpre.c
 
 CVODE_OBJ_FILES = $(CVODE_SRC_FILES:.c=.o)
-CVODE_BL_OBJ_FILES = $(CVODE_BL_SRC_FILES:.c=.o)
 
 CVODE_LIB_FILES = $(CVODE_SRC_FILES:.c=.lo)
-CVODE_BL_LIB_FILES = $(CVODE_BL_SRC_FILES:.c=.lo)
 
-SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
-                   $(top_builddir)/src/sundials/sundials_dense.lo \
-                   $(top_builddir)/src/sundials/sundials_direct.lo \
+SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_direct.lo \
                    $(top_builddir)/src/sundials/sundials_iterative.lo \
-                   $(top_builddir)/src/sundials/sundials_spgmr.lo \
-                   $(top_builddir)/src/sundials/sundials_spbcgs.lo \
-                   $(top_builddir)/src/sundials/sundials_sptfqmr.lo \
                    $(top_builddir)/src/sundials/sundials_math.lo \
+                   $(top_builddir)/src/sundials/sundials_matrix.lo \
+                   $(top_builddir)/src/sundials/sundials_linearsolver.lo \
                    $(top_builddir)/src/sundials/sundials_nvector.lo
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
@@ -78,17 +67,10 @@ rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
 all: $(CVODE_LIB)
 
 $(CVODE_LIB): shared $(CVODE_LIB_FILES)
-	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make lib_with_bl;                          \
-	else                                         \
-	  make lib_without_bl;                       \
-	fi
+	make cvodelib
 
-lib_without_bl: shared $(CVODE_LIB_FILES)
+cvodelib: shared $(CVODE_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(CVODE_LIB) $(CVODE_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
-
-lib_with_bl: shared $(CVODE_LIB_FILES) $(CVODE_BL_LIB_FILES)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(CVODE_LIB) $(CVODE_LIB_FILES)  $(CVODE_BL_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
 
 install: $(CVODE_LIB)
 	$(mkinstalldirs) $(includedir)/cvode
@@ -96,32 +78,16 @@ install: $(CVODE_LIB)
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(CVODE_LIB) $(libdir)
 	$(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode.h         $(includedir)/cvode/
 	$(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode_direct.h  $(includedir)/cvode/
-	$(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode_dense.h   $(includedir)/cvode/
-	$(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode_band.h    $(includedir)/cvode/
-	$(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode_diag.h    $(includedir)/cvode/
 	$(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode_spils.h   $(includedir)/cvode/
-	$(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode_spbcgs.h  $(includedir)/cvode/
-	$(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode_spgmr.h   $(includedir)/cvode/
-	$(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode_sptfqmr.h $(includedir)/cvode/
 	$(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode_bandpre.h $(includedir)/cvode/
 	$(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode_bbdpre.h  $(includedir)/cvode/
 	$(INSTALL_HEADER) $(top_srcdir)/src/cvode/cvode_impl.h        $(includedir)/cvode/
-	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  $(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode_lapack.h  $(includedir)/cvode/ ; \
-	fi
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(CVODE_LIB)
 	rm -f $(includedir)/cvode/cvode.h
 	rm -f $(includedir)/cvode/cvode_direct.h
-	rm -f $(includedir)/cvode/cvode_dense.h
-	rm -f $(includedir)/cvode/cvode_band.h
-	rm -f $(includedir)/cvode/cvode_diag.h
-	rm -f $(includedir)/cvode/cvode_lapack.h
 	rm -f $(includedir)/cvode/cvode_spils.h
-	rm -f $(includedir)/cvode/cvode_spbcgs.h
-	rm -f $(includedir)/cvode/cvode_spgmr.h
-	rm -f $(includedir)/cvode/cvode_sptfqmr.h
 	rm -f $(includedir)/cvode/cvode_bandpre.h
 	rm -f $(includedir)/cvode/cvode_bbdpre.h
 	rm -f $(includedir)/cvode/cvode_impl.h
@@ -135,9 +101,7 @@ shared:
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(CVODE_LIB)
 	rm -f $(CVODE_LIB_FILES)
-	rm -f $(CVODE_BL_LIB_FILES)
 	rm -f $(CVODE_OBJ_FILES)
-	rm -f $(CVODE_BL_OBJ_FILES)
 
 distclean: clean
 	rm -f Makefile
@@ -148,22 +112,8 @@ cvode_io.lo: $(srcdir)/cvode_io.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cvode_io.c
 cvode_direct.lo: $(srcdir)/cvode_direct.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cvode_direct.c
-cvode_dense.lo: $(srcdir)/cvode_dense.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cvode_dense.c
-cvode_band.lo: $(srcdir)/cvode_band.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cvode_band.c
-cvode_diag.lo: $(srcdir)/cvode_diag.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cvode_diag.c
-cvode_lapack.lo: $(srcdir)/cvode_lapack.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cvode_lapack.c
 cvode_spils.lo: $(srcdir)/cvode_spils.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cvode_spils.c
-cvode_spbcgs.lo: $(srcdir)/cvode_spbcgs.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cvode_spbcgs.c
-cvode_spgmr.lo: $(srcdir)/cvode_spgmr.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cvode_spgmr.c
-cvode_sptfqmr.lo: $(srcdir)/cvode_sptfqmr.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cvode_sptfqmr.c
 cvode_bandpre.lo: $(srcdir)/cvode_bandpre.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cvode_bandpre.c
 cvode_bbdpre.lo: $(srcdir)/cvode_bbdpre.c

@@ -112,7 +112,7 @@ static int cpBandFree(CPodeMem cp_mem);
  * respectively.  It allocates memory for a structure of type
  * CPDlsMemRec and sets the cp_lmem field in (*cpode_mem) to the
  * address of this structure.  It sets lsetup_exists in (*cpode_mem) to be
- * TRUE, d_mu to be mupper, d_ml to be mlower, and initializes the d_bjacE
+ * SUNTRUE, d_mu to be mupper, d_ml to be mlower, and initializes the d_bjacE
  * and d_bjacI to NULL.
  * Finally, it allocates memory for M, savedJ, and pivot.  The CPBand
  * return value is SUCCESS = 0, LMEM_FAIL = -1, or LIN_ILL_INPUT = -2.
@@ -163,13 +163,13 @@ int CPBand(void *cpode_mem, int N, int mupper, int mlower)
   mtype = SUNDIALS_BAND;
 
   /* Set default Jacobian routine and Jacobian data */
-  jacDQ = TRUE;
+  jacDQ = SUNTRUE;
   jacE = NULL;
   jacI = NULL;
   J_data = NULL;
 
   last_flag = CPDLS_SUCCESS;
-  lsetup_exists = TRUE;
+  lsetup_exists = SUNTRUE;
   
   /* Load problem dimension */
   n = N;
@@ -198,7 +198,7 @@ int CPBand(void *cpode_mem, int N, int mupper, int mlower)
     free(cpdls_mem);
     return(CPDLS_MEM_FAIL);
   }  
-  pivots = NewLintArray(N);
+  pivots = NewIndexArray(N);
   if (pivots == NULL) {
     cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPBAND", "CPBand", MSGD_MEM_FAIL);
     DestroyMat(M);
@@ -313,16 +313,16 @@ static int cpBandSetup(CPodeMem cp_mem, int convfail,
     
     if (jok) {
       
-      /* If jok = TRUE, use saved copy of J */
-      *jcurPtr = FALSE;
+      /* If jok = SUNTRUE, use saved copy of J */
+      *jcurPtr = SUNFALSE;
       BandCopy(savedJ, M, mu, ml);
       
     } else {
       
-      /* If jok = FALSE, call jac routine for new J value */
+      /* If jok = SUNFALSE, call jac routine for new J value */
       nje++;
       nstlj = nst;
-      *jcurPtr = TRUE;
+      *jcurPtr = SUNTRUE;
 
       retval = jacE(n, mu, ml, tn, yP, fctP, M, J_data, tmp1, tmp2, tmp3);
       if (retval == 0) {

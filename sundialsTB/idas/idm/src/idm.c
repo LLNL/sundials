@@ -292,9 +292,9 @@ static void idmInitIDASdata()
 
   idmData->Nd        = 0;
   idmData->Nc        = 0;
-  idmData->asa       = FALSE;
+  idmData->asa       = SUNFALSE;
 
-  idmData->errMsg    = TRUE;
+  idmData->errMsg    = SUNTRUE;
 
   return;
 }
@@ -317,9 +317,9 @@ static void idmInitPbData(idmPbData pb)
   pb->YYS = NULL;
   pb->YPS = NULL;
 
-  pb->Quadr = FALSE;
-  pb->Fsa   = FALSE;
-  pb->Mon   = FALSE;
+  pb->Quadr = SUNFALSE;
+  pb->Fsa   = SUNFALSE;
+  pb->Mon   = SUNFALSE;
 
   pb->LS = LS_DENSE;
   pb->PM = PM_NONE;
@@ -590,7 +590,7 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
   double t0, *yy0, *yp0;
 
   int maxord;
-  long int mxsteps;
+  sunindextype mxsteps;
 
   int itol;
   realtype reltol, Sabstol, *Vabstol;
@@ -601,9 +601,9 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
   booleantype suppress;
 
-  long int mupper, mlower;
+  sunindextype mupper, mlower;
   int gstype, maxl;
-  long int mudq, mldq;
+  sunindextype mudq, mldq;
   double dqrely;
 
   double *id, *cnstr;
@@ -712,7 +712,7 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
   /* Process the options structure */
 
-  status = get_IntgrOptions(options, fwdPb, TRUE,
+  status = get_IntgrOptions(options, fwdPb, SUNTRUE,
                             &maxord, &mxsteps,
                             &itol, &reltol, &Sabstol, &Vabstol,
                             &hin, &hmax, &tstop,
@@ -827,9 +827,9 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
   if ( !mxIsEmpty(mtlb_Gfct) && (Ng > 0) ) {
     status = IDARootInit(ida_mem, Ng, mxW_IDAGfct);
     if (status != IDA_SUCCESS) goto error_return;
-    rootSet = TRUE;
+    rootSet = SUNTRUE;
   } else {
-    rootSet = FALSE;
+    rootSet = SUNFALSE;
   }
 
   /* ID vector specified? */
@@ -857,7 +857,7 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
    * ----------------------------------------
    */
 
-  status = get_LinSolvOptions(options, fwdPb, TRUE,
+  status = get_LinSolvOptions(options, fwdPb, SUNTRUE,
                               &mupper, &mlower,
                               &mudq, &mldq, &dqrely,
                               &gstype, &maxl);
@@ -1063,7 +1063,7 @@ static int IDM_QuadInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
   /* Process the options structure */
 
-  status = get_QuadOptions(options, fwdPb, TRUE,
+  status = get_QuadOptions(options, fwdPb, SUNTRUE,
                            Nq, &rhs_s,
                            &errconQ, 
                            &itolQ, &reltolQ, &SabstolQ, &VabstolQ);
@@ -1120,7 +1120,7 @@ static int IDM_QuadInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
   /* Quadratures will be integrated */
 
-  quadr = TRUE;
+  quadr = SUNTRUE;
 
   /* Successful return */
 
@@ -1204,12 +1204,12 @@ static int IDM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
     if ( mxIsEmpty(prhs[1]) ) {
       resS = NULL;
-      fS_DQ = TRUE;
+      fS_DQ = SUNTRUE;
     } else {
       mxDestroyArray(mtlb_SRESfct);
       mtlb_SRESfct = mxDuplicateArray(prhs[1]);
       resS = mxW_IDASensRes;
-      fS_DQ = FALSE;
+      fS_DQ = SUNFALSE;
     }
 
     /* Extract sensitivity initial conditions */
@@ -1368,7 +1368,7 @@ static int IDM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
   status = IDASetSensErrCon(ida_mem, errconS);
   if (status != IDA_SUCCESS) goto error_return;
 
-  fsa = TRUE;
+  fsa = SUNTRUE;
 
   /* Successful return */
 
@@ -1405,7 +1405,7 @@ static int IDM_SensToggleOff(int nlhs, mxArray *plhs[], int nrhs, const mxArray 
     return(-1);
   }
 
-  fsa = FALSE;
+  fsa = SUNFALSE;
 
   status = 0;
   plhs[0] = mxCreateDoubleScalar((double)status);
@@ -1471,7 +1471,7 @@ static int IDM_AdjInitialization(int action, int nlhs, mxArray *plhs[], int nrhs
 
   }
 
-  asa = TRUE;
+  asa = SUNTRUE;
 
   /* Successful return */
 
@@ -1517,7 +1517,7 @@ static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
   double tB0, *yyB0, *ypB0;
 
   int maxordB;
-  long int mxstepsB;
+  sunindextype mxstepsB;
 
   int itolB;
   realtype reltolB, SabstolB, *VabstolB;
@@ -1529,9 +1529,9 @@ static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   booleantype suppressB;
 
-  long int mupperB, mlowerB;
+  sunindextype mupperB, mlowerB;
   int gstypeB, maxlB;
-  long int mudqB, mldqB;
+  sunindextype mudqB, mldqB;
   double dqrelyB;
 
   double *idB, *cnstrB;
@@ -1557,7 +1557,7 @@ static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   if (idmData->fwdPb->Mon) {
     mxW_IDAMonitor(2, 0.0, NULL, NULL, NULL, idmData->fwdPb);
-    idmData->fwdPb->Mon = FALSE;
+    idmData->fwdPb->Mon = SUNFALSE;
   }
 
   /* 
@@ -1617,11 +1617,11 @@ static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
     /* Find current backward problem */
 
-    found_bck = FALSE;
+    found_bck = SUNFALSE;
     bckPb = idmData->bckPb;
     while (bckPb != NULL) {
       if (indexB == idxB) {
-        found_bck = TRUE;
+        found_bck = SUNTRUE;
         break;
       }
       bckPb = bckPb->next;
@@ -1674,7 +1674,7 @@ static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   /* Process the options structure */
 
-  status = get_IntgrOptions(options, bckPb, FALSE,
+  status = get_IntgrOptions(options, bckPb, SUNFALSE,
                             &maxordB, &mxstepsB,
                             &itolB, &reltolB, &SabstolB, &VabstolB,
                             &hinB, &hmaxB, &tstopB,
@@ -1788,7 +1788,7 @@ static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
    * ----------------------------------------
    */
 
-  status = get_LinSolvOptions(options, bckPb, FALSE,
+  status = get_LinSolvOptions(options, bckPb, SUNFALSE,
                               &mupperB, &mlowerB,
                               &mudqB, &mldqB, &dqrelyB,
                               &gstypeB, &maxlB);
@@ -1938,11 +1938,11 @@ static int IDM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
 
   /* Find current backward problem */
 
-  found_bck = FALSE;
+  found_bck = SUNFALSE;
   bckPb = idmData->bckPb;
   while (bckPb != NULL) {
     if (indexB == idxB) {
-      found_bck = TRUE;
+      found_bck = SUNTRUE;
       break;
     }
     bckPb = bckPb->next;
@@ -2015,7 +2015,7 @@ static int IDM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
 
   /* Process the options structure */
 
-  status = get_QuadOptions(options, bckPb, FALSE,
+  status = get_QuadOptions(options, bckPb, SUNFALSE,
                            NqB, &rhs_s,
                            &errconQB, 
                            &itolQB, &reltolQB, &SabstolQB, &VabstolQB);
@@ -2071,7 +2071,7 @@ static int IDM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
     
   }
 
-  quadrB = TRUE;
+  quadrB = SUNTRUE;
 
   /* Successful return */
 
@@ -2171,7 +2171,7 @@ static int IDM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   int itask, is, Ntout, itout, s_idx;
   double *tout, tret, h;
   double *tdata, *yydata, *yQdata, *yySdata;
-  long int nst;
+  sunindextype nst;
 
   int status, ida_status;
 
@@ -2261,7 +2261,7 @@ static int IDM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     if (mon) {
       idmErrHandler(+999, "IDAS", "IDASolve",
                     "Monitoring disabled in ONE_STEP mode.", NULL);
-      mon = FALSE;
+      mon = SUNFALSE;
     }
 
   } else {
@@ -2517,12 +2517,12 @@ static int IDM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
    * -------------------------------------------------------
    */
 
-  any_quadrB = FALSE;
-  any_monB   = FALSE;
+  any_quadrB = SUNFALSE;
+  any_monB   = SUNFALSE;
   bckPb = idmData->bckPb;
   while(bckPb != NULL) {
-    if (quadrB) any_quadrB = TRUE;
-    if (monB)   any_monB   = TRUE;
+    if (quadrB) any_quadrB = SUNTRUE;
+    if (monB)   any_monB   = SUNTRUE;
     bckPb = bckPb->next;
   }
   
@@ -2608,10 +2608,10 @@ static int IDM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
                     "Monitoring disabled in itask=ONE_STEP", NULL);
       bckPb = idmData->bckPb;
       while(bckPb != NULL) {
-        monB = FALSE;
+        monB = SUNFALSE;
         bckPb = bckPb->next;
       }
-      any_monB = FALSE;
+      any_monB = SUNFALSE;
     }
 
   }
@@ -2649,7 +2649,7 @@ static int idmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB)
   double tretB, hB;
   double *tdata, *ydata, *yQdata;
   int itout;
-  long int nstB;
+  sunindextype nstB;
 
   int status, ida_status;
 
@@ -2909,19 +2909,19 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     "ncfnS",
   };
 
-  long int nst, nfe, nsetups, nni, ncfn, netf, nge;
+  sunindextype nst, nfe, nsetups, nni, ncfn, netf, nge;
   int qlast, qcur;
   double h0used, hlast, hcur, tcur;
   int *rootsfound;
 
-  long int njeD, nfeD;
-  long int njeB, nfeB;
-  long int nli, npe, nps, ncfl, njeSG, nfeSG;
+  sunindextype njeD, nfeD;
+  sunindextype njeB, nfeB;
+  sunindextype nli, npe, nps, ncfl, njeSG, nfeSG;
 
-  long int nfQe, netfQ;
+  sunindextype nfQe, netfQ;
 
-  long int nrSe, nfeS, netfS, nsetupsS;
-  long int nniS, ncfnS;
+  sunindextype nrSe, nfeS, netfS, nsetupsS;
+  sunindextype nniS, ncfnS;
 
   int i, status;
   mxArray *mxS_root, *mxS_ls, *mxS_quad, *mxS_fsa;
@@ -3175,15 +3175,15 @@ static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   void *ida_memB;
 
-  long int nst, nfe, nsetups, nni, ncfn, netf;
+  sunindextype nst, nfe, nsetups, nni, ncfn, netf;
   int qlast, qcur;
   double h0used, hlast, hcur, tcur;
 
-  long int njeD, nfeD;
-  long int njeB, nfeB;
-  long int nli, npe, nps, ncfl, njeSG, nfeSG;
+  sunindextype njeD, nfeD;
+  sunindextype njeB, nfeB;
+  sunindextype nli, npe, nps, ncfl, njeSG, nfeSG;
 
-  long int nfQe, netfQ;
+  sunindextype nfQe, netfQ;
 
   int status;
   mxArray *mxS_ls, *mxS_quad;
@@ -3198,11 +3198,11 @@ static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   /* Find current backward problem */
 
-  found_bck = FALSE;
+  found_bck = SUNFALSE;
   bckPb = idmData->bckPb;
   while (bckPb != NULL) {
     if (indexB == idxB) {
-      found_bck = TRUE;
+      found_bck = SUNTRUE;
       break;
     }
     bckPb = bckPb->next;

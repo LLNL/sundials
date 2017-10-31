@@ -309,10 +309,10 @@ int CPSpilsSetJacTimesVecFnExpl(void *cpode_mem, CPSpilsJacTimesVecExplFn jtimes
   cpspils_mem = (CPSpilsMem) lmem;
 
   if (jtimes != NULL) {
-    jtimesDQ = FALSE;
+    jtimesDQ = SUNFALSE;
     cpspils_mem->s_jtvE = jtimes;
   } else {
-    jtimesDQ = TRUE;
+    jtimesDQ = SUNTRUE;
   }
 
   return(CPSPILS_SUCCESS);
@@ -338,10 +338,10 @@ int CPSpilsSetJacTimesVecFnImpl(void *cpode_mem, CPSpilsJacTimesVecImplFn jtimes
   cpspils_mem = (CPSpilsMem) lmem;
 
   if (jtimes != NULL) {
-    jtimesDQ = FALSE;
+    jtimesDQ = SUNFALSE;
     cpspils_mem->s_jtvI = jtimes;
   } else {
-    jtimesDQ = TRUE;
+    jtimesDQ = SUNTRUE;
   }
 
   return(CPSPILS_SUCCESS);
@@ -700,7 +700,9 @@ int cpSpilsAtimes(void *cpode_mem, N_Vector v, N_Vector z)
  * -----------------------------------------------------------------
  */
 
-int cpSpilsPSolve(void *cpode_mem, N_Vector r, N_Vector z, int lr)
+/* int cpSpilsPSolve(void *cpode_mem, N_Vector r, N_Vector z, int lr) */
+int cpSpilsPSolve(void *cpode_mem, N_Vector r, N_Vector z,
+                  N_Vector w, realtype tol, int lr)
 {
   CPodeMem   cp_mem;
   CPSpilsMem cpspils_mem;
@@ -711,9 +713,11 @@ int cpSpilsPSolve(void *cpode_mem, N_Vector r, N_Vector z, int lr)
 
   /* This call is counted in nps within the CPSp***Solve routine */
   if (ode_type == CP_EXPL) {
-    retval = pslvE(tn, ycur, fcur, r, z, gamma, delta, lr, P_data, ytemp);
+    /* retval = pslvE(tn, ycur, fcur, r, z, gamma, delta, lr, P_data, ytemp); */
+    retval = pslvE(tn, ycur, fcur, r, z, gamma, tol, lr, P_data, ytemp);
   } else {
-    retval = pslvI(tn, ycur, ypcur, fcur, r, z, gamma, delta, P_data, ytemp);
+    /* retval = pslvI(tn, ycur, ypcur, fcur, r, z, gamma, delta, P_data, ytemp); */
+    retval = pslvI(tn, ycur, ypcur, fcur, r, z, gamma, tol, P_data, ytemp);
   }
 
   return(retval);     

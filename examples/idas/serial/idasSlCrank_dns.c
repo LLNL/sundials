@@ -1,15 +1,11 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer: Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
  * Simulation of a slider-crank mechanism modelled with 3 generalized
  * coordinates: crank angle, connecting bar angle, and slider location.
- * The mechanism moves under the action of a constant horizontal 
- * force applied to the connecting rod and a spring-damper connecting 
- * the crank and connecting rod.
+ * The mechanism moves under the action of a constant horizontal force
+ * applied to the connecting rod and a spring-damper connecting the crank
+ * and connecting rod.
  *
  * The equations of motion are formulated as a system of stabilized
  * index-2 DAEs (Gear-Gupta-Leimkuhler formulation).
@@ -23,14 +19,16 @@
  */
 
 #include <stdio.h>
-#include <math.h>
 #include <stdlib.h>
+#include <math.h>
 
-#include <idas/idas.h>
-#include <idas/idas_dense.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_math.h>
-
+#include <idas/idas.h>                 /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
+#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
+#include <idas/idas_direct.h>          /* access to IDADls interface           */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
 
 #define Ith(v,i)    NV_Ith_S(v,i-1)       /* i-th vector component i= 1..NEQ */
 
@@ -71,10 +69,12 @@ static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_
 static void setIC(N_Vector yy, N_Vector yp, UserData data);
 static void force(N_Vector yy, realtype *Q, UserData data);
 
+/* Prototypes of private functions */
 static void PrintHeader(realtype rtol, realtype avtol, N_Vector y);
 static void PrintOutput(void *mem, realtype t, N_Vector y);
 static void PrintFinalStats(void *mem);
 static int check_flag(void *flagvalue, const char *funcname, int opt);
+
 /*
  *--------------------------------------------------------------------
  * Main Program
@@ -89,6 +89,11 @@ int main(void)
   N_Vector yy, yp, id, q;
   realtype tret, tout;
   int flag;
+  SUNMatrix A;
+  SUNLinearSolver LS;
+
+  A = NULL;
+  LS = NULL;
 
   id = N_VNew_Serial(NEQ);
   yy = N_VNew_Serial(NEQ);
@@ -122,16 +127,25 @@ int main(void)
   flag = IDASStolerances(mem, RTOLF, ATOLF);
   flag = IDASetUserData(mem, data);
   flag = IDASetId(mem, id);
-  flag = IDASetSuppressAlg(mem, TRUE);
+  flag = IDASetSuppressAlg(mem, SUNTRUE);
   flag = IDASetMaxNumSteps(mem, 20000);
 
-  /* Call IDADense and set up the linear solver. */
-  flag = IDADense(mem, NEQ);
+  /* Create dense SUNMatrix for use in linear solves */
+  A = SUNDenseMatrix(NEQ, NEQ);
+  if(check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
+
+  /* Create dense SUNLinearSolver object */
+  LS = SUNDenseLinearSolver(yy, A);
+  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+
+  /* Attach the matrix and linear solver */
+  flag = IDADlsSetLinearSolver(mem, LS, A);
+  if(check_flag(&flag, "IDADlsSetLinearSolver", 1)) return(1);
 
   N_VConst(ZERO, q);
   flag = IDAQuadInit(mem, rhsQ, q);
   flag = IDAQuadSStolerances(mem, RTOLQ, ATOLQ);
-  flag = IDASetQuadErrCon(mem, TRUE);
+  flag = IDASetQuadErrCon(mem, SUNTRUE);
 
   PrintHeader(RTOLF, ATOLF, yy);
 
@@ -152,7 +166,7 @@ int main(void)
     
     if (tret > TEND) break;
   }
-  
+
   PrintFinalStats(mem);
 
   IDAGetQuad(mem, &tret, q);
@@ -169,6 +183,8 @@ int main(void)
   /* Free memory */
 
   free(data);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
   N_VDestroy(id);
   N_VDestroy_Serial(yy);
   N_VDestroy_Serial(yp);
@@ -272,9 +288,9 @@ static int ressc(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *use
   m2 = data->m2;
   J2 = data->J2;
 
-  yval = N_VGetArrayPointer_Serial(yy); 
-  ypval = N_VGetArrayPointer_Serial(yp); 
-  rval = N_VGetArrayPointer_Serial(rr);
+  yval = N_VGetArrayPointer(yy);
+  ypval = N_VGetArrayPointer(yp);
+  rval = N_VGetArrayPointer(rr);
 
   q = yval[0];
   x = yval[1];
@@ -339,7 +355,7 @@ static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_
 static void PrintHeader(realtype rtol, realtype avtol, N_Vector y)
 {
   printf("\nidasSlCrank_dns: Slider-Crank DAE serial example problem for IDAS\n");
-  printf("Linear solver: IDADENSE, Jacobian is computed by IDAS.\n");
+  printf("Linear solver: DENSE, Jacobian is computed by IDAS.\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n",
          rtol, avtol);
@@ -355,7 +371,6 @@ static void PrintHeader(realtype rtol, realtype avtol, N_Vector y)
   printf("      | nst  k      h\n");
   printf("-----------------------------------------------------------------------\n");
 }
-
 
 static void PrintOutput(void *mem, realtype t, N_Vector y)
 {
@@ -407,31 +422,41 @@ static void PrintFinalStats(void *mem)
   printf("Number of nonlinear conv. failures = %ld\n", ncfn);
 }
 
+/*
+ * Check function return value...
+ *   opt == 0 means SUNDIALS function allocates memory so check if
+ *            returned NULL pointer
+ *   opt == 1 means SUNDIALS function returns a flag so check if
+ *            flag >= 0
+ *   opt == 2 means function allocates memory so check if returned
+ *            NULL pointer 
+ */
+
 static int check_flag(void *flagvalue, const char *funcname, int opt)
 {
   int *errflag;
-
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
-    return(1); }
-
-  /* Check if flag < 0 */
-  else if (opt == 1) {
+    fprintf(stderr, 
+            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", 
+            funcname);
+    return(1);
+  } else if (opt == 1) {
+    /* Check if flag < 0 */
     errflag = (int *) flagvalue;
     if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-	      funcname, *errflag);
-      return(1); }}
-
-  /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
-    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
-    return(1); }
+      fprintf(stderr, 
+              "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", 
+              funcname, *errflag);
+      return(1); 
+    }
+  } else if (opt == 2 && flagvalue == NULL) {
+    /* Check if function returned NULL pointer - no memory allocated */
+    fprintf(stderr, 
+            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", 
+            funcname);
+    return(1);
+  }
 
   return(0);
 }
-
-

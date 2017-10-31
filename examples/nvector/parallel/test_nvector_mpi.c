@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -17,8 +13,7 @@
  * -----------------------------------------------------------------
  * This is the testing routine to check the NVECTOR Parallel module 
  * implementation. 
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,11 +34,11 @@
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
-  int      fails = 0;                   /* counter for test failures */
-  long int local_length, global_length; /* vector lengths            */
-  N_Vector W, X, Y, Z;                  /* test vectors              */
-  MPI_Comm comm;                        /* MPI Communicator          */
-  int      nprocs, myid;                /* Number of procs, proc id  */
+  int          fails = 0;                   /* counter for test failures */
+  sunindextype local_length, global_length; /* vector lengths            */
+  N_Vector     W, X, Y, Z;                  /* test vectors              */
+  MPI_Comm     comm;                        /* MPI Communicator          */
+  int          nprocs, myid;                /* Number of procs, proc id  */
 
   /* Get processor number and total number of processes */
   MPI_Init(&argc, &argv);
@@ -114,10 +109,10 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Check vector
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, long int local_length)
+int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 {
   int      failure = 0;
-  long int i;
+  sunindextype i;
   realtype *Xdata;
   
   Xdata = N_VGetArrayPointer(X);
@@ -137,17 +132,17 @@ booleantype has_data(N_Vector X)
 {
   realtype *Xdata = N_VGetArrayPointer(X);
   if (Xdata == NULL)
-    return FALSE;
+    return SUNFALSE;
   else
-    return TRUE;
+    return SUNTRUE;
 }
 
-void set_element(N_Vector X, long int i, realtype val)
+void set_element(N_Vector X, sunindextype i, realtype val)
 {
   NV_Ith_P(X,i) = val;    
 }
 
-realtype get_element(N_Vector X, long int i)
+realtype get_element(N_Vector X, sunindextype i)
 {
   return NV_Ith_P(X,i);    
 }

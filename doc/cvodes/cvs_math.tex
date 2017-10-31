@@ -7,10 +7,10 @@
 {\cvodes} solves ODE initial value problems (IVPs) in real $N$-space, which we
 write in the abstract form
 \begin{equation}\label{e:ivp} 
-  {\dot y} = f(t,y) \, ,\quad y(t_0) = y_0 \, ,
+  \dot{y} = f(t,y) \, ,\quad y(t_0) = y_0 \, ,
 \end{equation}
 where $y \in \mbox{\bf R}^N$.
-Here we use ${\dot y}$ to denote $dy/dt$.  While we use $t$ to denote
+Here we use $\dot{y}$ to denote $dy/dt$.  While we use $t$ to denote
 the independent variable, and usually this is time, it certainly need
 not be.  {\cvodes} solves both stiff and non-stiff systems.  Roughly
 speaking, stiffness is characterized by the presence of at least one
@@ -21,7 +21,7 @@ Additionally, if (\ref{e:ivp}) depends on some parameters $p \in {\bf R}^{N_p}$,
 i.e.
 \begin{equation}\label{e:ivp_p}
 \begin{split}
-&{\dot y}  = f(t,\,y,\,p) \\
+&{\dot{y}}  = f(t,\,y,\,p) \\
 &y(t_0)  = y_0(p) \, ,
 \end{split}
 \end{equation}
@@ -42,12 +42,12 @@ The methods used in {\cvodes} are variable-order, variable-step multistep
 methods, based on formulas of the form
 \begin{equation}\label{e:lmm}
  \sum_{i = 0}^{K_1} \alpha_{n,i} y^{n-i} + 
-     h_n \sum_{i = 0}^{K_2} \beta_{n,i} {{\dot y}}^{n-i} = 0 \, .
+     h_n \sum_{i = 0}^{K_2} \beta_{n,i} {\dot{y}}^{n-i} = 0 \, .
 \end{equation}
 Here the $y^n$ are computed approximations to $y(t_n)$, and
-$h_n = t_n - t_{n-1}$ is the step size.  The user of {\cvodes} must
-appropriately choose one of two multistep methods.  For non-stiff problems,
-{\cvodes} includes the Adams-Moulton formulas \index{Adams method},
+$h_n = t_n - t_{n-1}$ is the step size.  The user of {\cvode} must choose
+appropriately one of two multistep methods.  For nonstiff problems,
+{\cvode} includes the Adams-Moulton formulas\index{Adams method},
 characterized by $K_1 = 1$
 and $K_2 = q$ above, where the order $q$ varies between $1$ and $12$.
 For stiff problems, {\cvodes} includes the Backward Differentiation
@@ -65,10 +65,10 @@ For either choice of formula, the nonlinear system
 \begin{equation}\label{e:nonlinear}
   G(y^n) \equiv y^n - h_n \beta_{n,0} f(t_n,y^n) - a_n = 0 \, ,
 \end{equation}
-where $a_n\equiv\sum_{i>0}(\alpha_{n,i}y^{n-i}+h_n\beta_{n,i}{{\dot y}}^{n-i})$, 
+where $a_n\equiv\sum_{i>0}(\alpha_{n,i}y^{n-i}+h_n\beta_{n,i} {\dot{y}}^{n-i})$, 
 must be solved (approximately) at each integration step.  For this, {\cvodes}
 offers the choice of either {\em functional iteration}, suitable only
-for non-stiff systems, and various versions of {\em Newton iteration}.
+for nonstiff systems, and various versions of {\em Newton iteration}.
 Functional iteration, given by
 \[ y^{n(m+1)} = h_n \beta_{n,0} f(t_n,y^{n(m)}) + a_n \, , \]
 involves evaluations of $f$ only.  In contrast, Newton iteration requires
@@ -90,14 +90,10 @@ computed explicitly from the available history data.
 For the solution of the linear systems within the Newton corrections, 
 {\cvodes} provides several choices, including the option of an user-supplied
 linear solver module. The linear solver modules distributed with {\sundials}
-are organized in three families, a {\em direct} family comprising direct linear 
-solvers for dense or banded matrices, a {\em sparse} family comprising
-direct linear solvers for matrices stored in compressed-sparse-column
-format, and a {\em spils} family comprising
-scaled preconditioned iterative (Krylov) linear solvers. 
-%%
-In addition, {\cvodes} also provides a linear solver module which only uses
-a diagonal approximation of the Jacobian matrix. 
+are organized in two families, a {\em direct} family comprising direct linear 
+solvers for dense, banded or sparse matrices, and a {\em spils}
+family comprising scaled preconditioned iterative (Krylov) linear
+solvers. 
 %%
 The methods offered through these modules are as follows:
 \begin{itemize}
@@ -109,37 +105,43 @@ The methods offered through these modules are as follows:
   library \cite{DaPa:10,KLU_site}, or the thread-enabled SuperLU\_MT sparse
   solver library \cite{Li:05,DGL:99,SuperLUMT_site} (serial or threaded 
   vector modules only) [Note that users will need to download and install the 
-  KLU or SuperLU\_MT packages independent of {\cvodes}],
-\item a diagonal approximate Jacobian solver,
+  {\klu} or {\superlumt} packages independent of {\cvodes}],
 \item {\spgmr}, a scaled preconditioned GMRES (Generalized Minimal Residual method)
-      solver without restarts,
+  solver,
+\item {\spfgmr}, a scaled preconditioned FGMRES (Flexible Generalized
+  Minimal Residual method) solver,
 \item {\spbcg}, a scaled preconditioned Bi-CGStab (Bi-Conjugate Gradient Stable
-      method) solver, or
+  method) solver,
 \item {\sptfqmr}, a scaled preconditioned TFQMR (Transpose-Free Quasi-Minimal
-       Residual method) solver.
+  Residual method) solver, or
+\item {\pcg}, a scaled preconditioned CG (Conjugate Gradient method) solver.
 \end{itemize}
 For large stiff systems, where direct methods are not feasible, the
-combination of a BDF integrator and any of the preconditioned Krylov
-methods ({\spgmr}, {\spbcg}, or {\sptfqmr}) yields a powerful tool
+combination of a BDF integrator and a preconditioned Krylov
+method yields a powerful tool
 because it combines established methods for stiff integration,
 nonlinear iteration, and Krylov (linear) iteration with a
 problem-specific treatment of the dominant source of stiffness, in the
 form of the user-supplied preconditioner matrix \cite{BrHi:89}.
-%%
-Note that the direct linear solvers (dense, band, and sparse) can only be 
-used with serial and threaded vector representations.
+
+In addition, {\cvode} also provides a linear solver module which only uses
+a diagonal approximation of the Jacobian matrix. 
+
+Note that the dense, band and sparse direct linear solvers can only be 
+used with the serial and threaded vector representations.  The
+diagonal solver can be used with any vector representation.
 
 % WRMS Norm
 %----------
 \index{weighted root-mean-square norm|(}
-In the process of controlling errors at various levels, {\cvodes} uses
-a weighted root-mean-square norm, denoted
-$\|\cdot\|_{\mbox{\scriptsize WRMS}}$, for all error-like quantities.
-The multiplicative weights used are based on the current solution and
-on the relative and absolute tolerances input by the user, namely
+In the process of controlling errors at various levels, {\cvodes} uses a
+weighted root-mean-square norm, denoted $\|\cdot\|_{\mbox{\scriptsize WRMS}}$,
+for all error-like quantities.  The multiplicative weights used are
+based on the current solution and on the relative and absolute
+tolerances input by the user, namely
 \index{tolerances}
 \begin{equation}\label{e:errwt}
- W_i = 1 / [ \mbox{\sc rtol} \cdot |y_i| + \mbox{\sc atol}_i ] \, .
+ W_i = 1 / [\mbox{\sc rtol} \cdot |y_i| + \mbox{\sc atol}_i ] \, .
 \end{equation}
 Because $1/W_i$ represents a tolerance in the component $y_i$, a vector
 whose norm is 1 is regarded as ``small.''  For brevity, we will
@@ -150,15 +152,15 @@ usually drop the subscript WRMS on norms in what follows.
 %-----------------
 \index{nonlinear system!Newton iteration|(}
 In the cases of a direct solver (dense, band, sparse, or diagonal), the
-iteration is a modified Newton iteration since the iteration matrix
-$M$ is fixed throughout the nonlinear iterations.  However, for any
-of the Krylov methods, it is an Inexact Newton iteration, in which $M$
-is applied in a matrix-free manner, with matrix-vector products $Jv$
+iteration is a Modified Newton iteration, in that the iteration matrix
+$M$ is fixed throughout the nonlinear iterations.  However, for any of
+the Krylov methods, it is an Inexact Newton iteration, in which $M$ is
+applied in a matrix-free manner, with matrix-vector products $Jv$
 obtained by either difference quotients or a user-supplied routine.
-The matrix $M$ (for the direct solvers) or preconditioner matrix $P$
-(Krylov cases) is updated as infrequently as possible to balance the
-high costs of matrix operations against other costs.  Specifically,
-this matrix update occurs when:
+The matrix $M$ (direct cases) or preconditioner matrix $P$ (Krylov
+cases) is updated as infrequently as possible to balance the high costs
+of matrix operations against other costs.  Specifically, this matrix
+update occurs when:
 \begin{itemize}
 \item starting the problem,
 \item more than 20 steps have been taken since the last update,
@@ -167,18 +169,18 @@ satisfies $|\gamma/\bar{\gamma} - 1| > 0.3$,
 \item a non-fatal convergence failure just occurred, or
 \item an error test failure just occurred.
 \end{itemize}
-When forced by a convergence failure, an update of $M$ or $P$ may
-involve a reevaluation of $J$ (in $M$) or of Jacobian data
-(in $P$) if Jacobian error was the likely cause of
+When forced by a convergence failure, an update of $M$ or $P$ may or
+may not involve a reevaluation of $J$ (in $M$) or of Jacobian data
+(in $P$), depending on whether Jacobian error was the likely cause of
 the failure.  More generally, the decision is made to reevaluate $J$
 (or instruct the user to reevaluate Jacobian data in $P$) when:
 \begin{itemize}
 \item starting the problem,
 \item more than 50 steps have been taken since the last evaluation,
 \item a convergence failure occurred with an outdated matrix, and
-the value $\bar{\gamma}$ ($\gamma$ at the last update)
+the value $\bar{\gamma}$ of $\gamma$ at the last update
 satisfies $|\gamma/\bar{\gamma} - 1| < 0.2$, or
-\item a convergence failure occurred that forced a reduction of the step size.
+\item a convergence failure occurred that forced a step size reduction.
 \end{itemize}
 \index{nonlinear system!Newton iteration|)}
 
@@ -210,8 +212,8 @@ Therefore the convergence (stopping) test is
 \begin{equation*}
   R \|\delta_m \| < 0.1 \epsilon \, .
 \end{equation*}
-We allow at most 3 iterations, but this limit can be changed by the
-user.  We also declare the iteration diverged if any $\|\delta_m\| /
+We allow at most 3 iterations (but this limit can be changed by the
+user).  We also declare the iteration diverged if any $\|\delta_m\| /
 \|\delta_{m-1}\| > 2$ with $m > 1$. If convergence fails with $J$ or
 $P$ current, we are forced to reduce the step size, and we replace
 $h_n$ by $h_n/4$.  The integration is halted after a preset number
@@ -219,8 +221,8 @@ of convergence failures; the default value of this limit is 10,
 but this can be changed by the user.
 \index{nonlinear system!Newton convergence test|)}
 
-When a Krylov method is used to solve the linear system, its errors must also
-be controlled, and this also involves the local error test constant.  The
+When a Krylov method is used to solve the linear system, its errors must also be
+controlled, and this also involves the local error test constant.  The
 linear iteration error in the solution vector $\delta_m$ is
 approximated by the preconditioned residual vector.  Thus to ensure
 (or attempt to ensure) that the linear iteration errors do not
@@ -236,19 +238,19 @@ at the user's option.  In the latter case, we use the usual
 approximation
 \[ J_{ij} = [f_i(t,y+\sigma_j e_j) - f_i(t,y)]/\sigma_j \, . \]
 The increments $\sigma_j$ are given by
-\[ \sigma_j = \max\left\{\sqrt{U} \; |y_j| , \sigma_0/W_j \right\} \, , \]
+\[ \sigma_j = \max\left\{\sqrt{U} \; |y_j| , \sigma_0 / W_j \right\} \, , \]
 where $U$ is the unit roundoff, $\sigma_0$ is a dimensionless value,
 and $W_j$ is the error weight defined in (\ref{e:errwt}).  In the dense
 case, this scheme requires $N$ evaluations of $f$, one for each column
-of $J$.  In the band case, the columns of $J$ are computed in groups
+of $J$.  In the band case, the columns of $J$ are computed in groups,
 by the Curtis-Powell-Reid algorithm, with the number of $f$ evaluations
 equal to the bandwidth.
 
 We note that with the sparse direct solvers, the Jacobian {\em must}
-be supplied by a user routine in compressed-sparse-column format.
+be supplied by a user routine.
 
-In the case of a Krylov method, preconditioning may be used on the left, on
-the right, or both, with user-supplied routines for the preconditioning
+In the case of a Krylov method, preconditioning may be used on the left, on the
+right, or both, with user-supplied routines for the preconditioning
 setup and solve operations, and optionally also for the required
 matrix-vector products $Jv$.  If a routine for $Jv$ is not supplied,
 these products are computed as
@@ -260,7 +262,7 @@ The increment $\sigma$ is $1/\|v\|$, so that $\sigma v$ has norm 1.
 % Error test
 %-----------
 \index{error control!step size selection|(}
-A critical part of {\cvodes}, that makes it an ODE ``solver'' rather than
+A critical part of {\cvodes} --- making it an ODE ``solver'' rather than
 just an ODE method, is its control of local error.  At every step, the
 local error is estimated and required to satisfy tolerance conditions,
 and the step is redone with reduced step size whenever that error test
@@ -293,13 +295,13 @@ failures, and limited below to 0.1 after three.  After seven failures,
 %-------------------
 \index{error control!order selection|(}
 In addition to adjusting the step size to meet the local error test,
-{\cvodes} periodically adjusts the order, with the goal of maximizing the
-step size.  The integration starts out at order 1, but the order is varied
+{\cvode} periodically adjusts the order, with the goal of maximizing the
+step size.  The integration starts out at order 1 and varies the order
 dynamically after that.  The basic idea is to pick the order $q$ for
 which a polynomial of order $q$ best fits the discrete data involved
 in the multistep method.  However, if either a convergence failure or
-an error test failure occurred on the step just completed, no change is made
-to the step size or order.  At the current order $q$, selecting a
+an error test failure occurred on the step just completed, no change
+in step size or order is done.  At the current order $q$, selecting a
 new step size is done exactly as when the error test fails, giving a
 tentative step size ratio
 \[ h'/h = (\epsilon / 6 \|\Delta_n\| )^{1/(q+1)} \equiv \eta_q \, . \]
@@ -337,12 +339,9 @@ calling program after each step.  There are also options to force
 {\cvodes} not to integrate past a given stopping point 
 $t = t_{\mbox{\scriptsize stop}}$.
 
-
-
 %------------------------
 \section{Preconditioning}\label{s:preconditioning}
 %------------------------
-
 \index{preconditioning!advice on|(}
 When using a Newton method to solve the nonlinear system (\ref{e:nonlinear}),
 {\cvodes} makes repeated use of a linear solver to solve linear systems of the form
@@ -365,11 +364,11 @@ difficult.  Good choices are often problem-dependent (for example, see
 \cite{BrHi:89} for an extensive study of preconditioners for
 reaction-transport systems).
 
-The {\cvodes} solver allow for preconditioning either
-side, or on both sides, although we know of no situation where
-preconditioning on both sides is clearly superior to
+Most of the iterative linear solvers supplied with {\sundials} allow
+for preconditioning either side, or on both sides, although we know of
+no situation where preconditioning on both sides is clearly superior to
 preconditioning on one side only (with the product $P_L P_R$).
-Moreover, for a given preconditioner matrix, the merits of left vs. right
+Moreover, for a given preconditioner matrix, the merits of left vs.~right
 preconditioning are unclear in general, and the user should experiment
 with both choices.  Performance will differ because the inverse of the
 left preconditioner is included in the linear system residual whose
@@ -382,10 +381,10 @@ Typical preconditioners used with {\cvodes} are based on approximations
 to the system Jacobian, $J = \partial f / \partial y$.  Since the
 Newton iteration matrix involved is $M = I - \gamma J$, any
 approximation $\bar{J}$ to $J$ yields a matrix that is of potential
-use as a preconditioner, namely $P = I - \gamma \bar{J}$.
-Because the Krylov iteration occurs within a Newton iteration and further
-also within a time integration, and since each of these iterations has
-its own test for convergence, the preconditioner may use a very crude
+use as a preconditioner, namely $P = I - \gamma \bar{J}$.  Because the
+Krylov iteration occurs within a Newton iteration and further also
+within a time integration, and since each of these iterations has its
+own test for convergence, the preconditioner may use a very crude
 approximation, as long as it captures the dominant numerical
 feature(s) of the system.  We have found that the combination of a
 preconditioner with the Newton-Krylov iteration, using even a fairly
@@ -400,16 +399,16 @@ no preconditioning.
 \section{BDF stability limit detection}\label{s:bdf_stab}
 %------------------------
 
-\index{stability limit detection}
+\index{Stability limit detection}
 {\cvodes} includes an algorithm, {\stald} (STAbility Limit Detection),
 which provides protection against potentially unstable behavior of the 
 BDF multistep integration methods in certain situations, as described below.
-
+                                                                                                                                                                                                                                                                   
 When the BDF option is selected, {\cvodes} uses Backward Differentiation 
 Formula methods of orders 1 to 5.  At order 1 or 2, the BDF
 method is A-stable, meaning that for any complex constant $\lambda$ in
-the open left half-plane the method is unconditionally stable (for
-any step size) for the standard scalar model problem ${\dot y} = \lambda y$.
+the open left half-plane, the method is unconditionally stable (for
+any step size) for the standard scalar model problem $\dot{y} = \lambda y$.
 For an ODE system, this means that, roughly speaking, as long as all
 modes in the system are stable, the method is also stable for any
 choice of step size, at least in the sense of a local linear stability
@@ -433,8 +432,8 @@ so the potential for unstable behavior grows with order.
 System eigenvalues that are likely to run into this instability are
 ones that correspond to weakly damped oscillations.  A pure undamped
 oscillation corresponds to an eigenvalue on the imaginary axis.
-Problems with modes of that kind call for different considerations
-since the oscillation generally must be followed by the solver, but
+Problems with modes of that kind call for different considerations,
+since the oscillation generally must be followed by the solver, and
 this requires step sizes ($h \sim 1/\nu$, where $\nu$ is the frequency) 
 that are stable for BDF anyway.  But for a weakly damped oscillatory mode,
 the oscillation in the solution is eventually damped to the noise level, 
@@ -444,9 +443,10 @@ be of great value.
 
 In terms of partial differential equations, the typical problems for
 which the stability limit detection option is appropriate are
-ODE systems resulting from semi-discretized PDEs (i.e., PDEs
-discretized in space) with advection and diffusion, but with advection dominating
-over diffusion. Diffusion alone produces pure decay modes, while advection tends to
+ODE systems resulting from semi-discretized PDEs (i.e., PDEs discretized 
+in space) with advection and diffusion, but with advection dominating 
+over diffusion.
+Diffusion alone produces pure decay modes, while advection tends to
 produce undamped oscillatory modes.  A mix of the two with advection
 dominant will have weakly damped oscillatory modes.
 
@@ -458,7 +458,7 @@ algorithms in {\cvodes} for choosing step size and order based on
 estimated local truncation errors.  The {\stald} algorithm works directly
 with history data that is readily available in {\cvodes}.  If it concludes
 that the step size is in fact stability-limited, it dictates a
-reduction in the method order regardless of the outcome of the
+reduction in the method order, regardless of the outcome of the
 error-based algorithm.  The {\stald} algorithm has been tested in
 combination with the {\vode} solver on linear advection-dominated
 advection-diffusion problems \cite{Hin:95}, where it works well.  The
@@ -471,17 +471,19 @@ have ranged from 2\% to 7\% of the total, depending on the size and
 complexity of the problem, with lower relative costs for larger
 problems.)  Therefore, it should be activated only when there is
 reasonable expectation of modes in the user's system for which it is
-appropriate.  In particular, if a {\cvodes} solution with this option
-turned off appears to take an inordinately large number of steps for
-orders between 3 and 5 for no apparent reason in terms of the solution time scale,
+appropriate.  In particular, if a {\cvode} solution with this option
+turned off appears to take an inordinately large number of steps at
+orders 3-5 for no apparent reason in terms of the solution time scale,
 then there is a good chance that step sizes are being limited by
-stability, and that turning on the option will improve efficiency.
+stability, and that turning on the option will improve the efficiency
+of the solution. 
+
 
 %------------------------
 \section{Rootfinding}\label{ss:rootfinding}
 %------------------------
 
-\index{rootfinding}
+\index{Rootfinding}
 The {\cvodes} solver has been augmented to include a rootfinding
 feature.  This means that, while integrating the Initial Value Problem
 (\ref{e:ivp}), {\cvodes} can also find the roots of a set of user-defined

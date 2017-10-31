@@ -1,13 +1,20 @@
 # -----------------------------------------------------------------
-# $Revision$
-# $Date$
+# Programmer(s): Daniel R. Reynolds @ SMU
+#                Aaron Collier @ LLNL
 # -----------------------------------------------------------------
-# Programmer(s): Aaron Collier @ LLNL
-# -----------------------------------------------------------------
-# Copyright (c) 2005, The Regents of the University of California.
-# Produced at the Lawrence Livermore National Laboratory.
+# LLNS/SMU Copyright Start
+# Copyright (c) 2017, Southern Methodist University and 
+# Lawrence Livermore National Security
+#
+# This work was performed under the auspices of the U.S. Department 
+# of Energy by Southern Methodist University and Lawrence Livermore 
+# National Laboratory under Contract DE-AC52-07NA27344.
+# Produced at Southern Methodist University and the Lawrence 
+# Livermore National Laboratory.
+#
 # All rights reserved.
 # For details, see the LICENSE file.
+# LLNS/SMU Copyright End
 # -----------------------------------------------------------------
 # Makefile for FIDA module
 #
@@ -49,14 +56,11 @@ LIB_REVISION = 1:0:0
 
 FIDA_LIB = libsundials_fida.la
 
-FIDA_SRC_FILES = fida.c fidaband.c fidadense.c fidajtimes.c fidapreco.c fidaewt.c fidaroot.c fidabbd.c 
-FIDA_BL_SRC_FILES = fidalapack.c fidalapdense.c fidalapband.c
+FIDA_SRC_FILES = fida.c fidaband.c fidadense.c fidadiag.c fidajtimes.c fidapreco.c fidaewt.c fidaroot.c fidabbd.c 
 
 FIDA_OBJ_FILES = $(FIDA_SRC_FILES:.c=.o)
-FIDA_BL_OBJ_FILES = $(FIDA_BL_SRC_FILES:.c=.o)
 
 FIDA_LIB_FILES = $(FIDA_SRC_FILES:.c=.lo)
-FIDA_BL_LIB_FILES = $(FIDA_BL_SRC_FILES:.c=.lo)
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
@@ -65,17 +69,10 @@ mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 all: $(FIDA_LIB)
 
 $(FIDA_LIB): $(FIDA_LIB_FILES)
-	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make lib_with_bl;                          \
-	else                                         \
-	  make lib_without_bl;                       \
-	fi
+	make lib;
 
-lib_without_bl: $(FIDA_LIB_FILES)
+lib: $(FIDA_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FIDA_LIB) $(FIDA_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -version-info $(LIB_REVISION)
-
-lib_with_bl: $(FIDA_LIB_FILES) $(FIDA_BL_LIB_FILES)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FIDA_LIB) $(FIDA_LIB_FILES) $(FIDA_BL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -version-info $(LIB_REVISION)
 
 install: $(FIDA_LIB)
 	$(mkinstalldirs) $(libdir)
@@ -87,9 +84,7 @@ uninstall:
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(FIDA_LIB)
 	rm -f $(FIDA_LIB_FILES)
-	rm -f $(FIDA_BL_LIB_FILES)
 	rm -f $(FIDA_OBJ_FILES)
-	rm -f $(FIDA_BL_OBJ_FILES)
 
 distclean: clean
 	rm -f Makefile
@@ -102,12 +97,8 @@ fidaband.lo: $(srcdir)/fidaband.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fidaband.c
 fidadense.lo: $(srcdir)/fidadense.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fidadense.c
-fidalapack.lo: $(srcdir)/fidalapack.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fidalapack.c
-fidalapband.lo: $(srcdir)/fidalapband.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fidalapband.c
-fidalapdense.lo: $(srcdir)/fidalapdense.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fidalapdense.c
+fidadiag.lo: $(srcdir)/fidadiag.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fidadiag.c
 fidajtimes.lo: $(srcdir)/fidajtimes.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fidajtimes.c
 fidapreco.lo: $(srcdir)/fidapreco.c

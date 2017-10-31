@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -35,9 +32,9 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FCV_ROOTFN(realtype *, realtype*, realtype*,  /* T, Y, G    */
-                         long int*, realtype*,              /* IPAR, RPAR */
-                         int *ier);                         /* IER        */
+  extern void FCV_ROOTFN(realtype *T, realtype *Y, realtype *G,
+                         long int *IPAR, realtype *RPAR,
+                         int *ier);
 #ifdef __cplusplus
 }
 #endif

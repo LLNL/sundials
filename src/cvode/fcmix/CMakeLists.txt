@@ -11,31 +11,54 @@ SET(fcvode_SOURCES
   fcvode.c
   fcvpreco.c
   fcvroot.c
+  fcvsparse.c
   )
 
-IF(LAPACK_FOUND)
-  SET(fcvode_BL_SOURCES fcvlapack.c fcvlapband.c fcvlapdense.c)
-ELSE(LAPACK_FOUND)
-  SET(fcvode_BL_SOURCES "")
-ENDIF(LAPACK_FOUND)
+# Add variable shared_SOURCES with the common SUNDIALS sources which will
+# also be included in the CVODE library
+SET(shared_SOURCES
+  ${sundials_SOURCE_DIR}/src/nvec_ser/fnvector_serial.c
+  )
 
-IF(KLU_FOUND OR SUPERLUMT_FOUND)
-  SET(fcvode_SPARSE_SOURCES fcvsparse.c)
-ELSE(SPARSE_FOUND)
-  SET(fcvode_SPARSE_SOURCES "")
-ENDIF(KLU_FOUND OR SUPERLUMT_FOUND)
+# Add variable sunmatrix_SOURCES with the common SUNMatrix sources which will
+# also be included in the CVODE library
+SET(sunmatrix_SOURCES
+  ${sundials_SOURCE_DIR}/src/sunmat_band/fsunmatrix_band.c
+  ${sundials_SOURCE_DIR}/src/sunmat_dense/fsunmatrix_dense.c
+  ${sundials_SOURCE_DIR}/src/sunmat_sparse/fsunmatrix_sparse.c
+  )
+
+# Add variable sunlinsol_SOURCES with the common SUNLinearSolver sources which will
+# also be included in the CVODE library
+SET(sunlinsol_SOURCES
+  ${sundials_SOURCE_DIR}/src/sunlinsol_band/fsunlinsol_band.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_dense/fsunlinsol_dense.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_spbcgs/fsunlinsol_spbcgs.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_spfgmr/fsunlinsol_spfgmr.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_spgmr/fsunlinsol_spgmr.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_sptfqmr/fsunlinsol_sptfqmr.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol_pcg/fsunlinsol_pcg.c
+  )
 
 IF(KLU_FOUND)
-  SET(fcvode_KLU_SOURCES fcvklu.c)
-ELSE(KLU_FOUND)
-  SET(fcvode_KLU_SOURCES "")
-ENDIF(KLU_FOUND)
+  LIST(APPEND sunlinsol_SOURCES
+    ${sundials_SOURCE_DIR}/src/sunlinsol_klu/fsunlinsol_klu.c
+    )
+ENDIF()
 
 IF(SUPERLUMT_FOUND)
-  SET(fcvode_SUPERLUMT_SOURCES fcvsuperlumt.c)
-ELSE(SUPERLUMT_FOUND)
-  SET(fcvode_SUPERLUMT_SOURCES "")
-ENDIF(SUPERLUMT_FOUND)
+  LIST(APPEND sunlinsol_SOURCES
+    ${sundials_SOURCE_DIR}/src/sunlinsol_superlumt/fsunlinsol_superlumt.c
+    )
+ENDIF()
+
+IF(LAPACK_FOUND)
+  LIST(APPEND sunlinsol_SOURCES
+    ${sundials_SOURCE_DIR}/src/sunlinsol_lapackband/fsunlinsol_lapackband.c
+    ${sundials_SOURCE_DIR}/src/sunlinsol_lapackdense/fsunlinsol_lapackdense.c
+    )
+ENDIF()
+
 
 # Add source directories to include directories for access to
 # implementation only header files (both for fcvode and cvode)
@@ -50,7 +73,8 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 # coming from inexistent user-provided functions)
 
 # Add the build target for the FCVODE library
-ADD_LIBRARY(sundials_fcvode_static STATIC ${fcvode_SOURCES} ${fcvode_BL_SOURCES} ${fcvode_SPARSE_SOURCES} ${fcvode_KLU_SOURCES} ${fcvode_SUPERLUMT_SOURCES})
+ADD_LIBRARY(sundials_fcvode_static STATIC
+  ${fcvode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES})
 
 # Set the library name and make sure it is not deleted
 SET_TARGET_PROPERTIES(sundials_fcvode_static
