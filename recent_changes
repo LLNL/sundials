@@ -1,3 +1,8 @@
+Changes to SUNDIALS since Release of Oct. 26, 2017.
+
+* Added FILE *outfile argument to NVECTOR print functions to specify where to
+  write vector data.
+
 Changes to SUNDIALS since Release of Sept. 30, 2016.
 
 * New linear solver API and interfaces for all SUNDIALS packages and 
@@ -50,7 +55,7 @@ https://software.llnl.gov/RAJA/.
 
 * Addition of sunindextype option for 32- or 64-bit integer data index types 
 within all SUNDIALS structures
- - sunindextype is defined to be int32_t or int62_t when portable types are
+ - sunindextype is defined to be int32_t or int64_t when portable types are
    supported, otherwise it is defined as int or long int.
  - The Fortran interfaces continue to use long\_int for indices, except for 
    their sparse matrix interface that now uses the new sunindextype.
