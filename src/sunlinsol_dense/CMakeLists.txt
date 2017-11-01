@@ -24,12 +24,15 @@ SET(sunlinsoldense_SOURCES sunlinsol_dense.c)
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the SUNLINSOLDENSE library
-SET(shared_SOURCES sundials_math.c sundials_dense.c)
-ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
+SET(shared_SOURCES
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_dense.c
+  )
 
 # Add variable sunlinsoldense_HEADERS with the exported SUNLINSOLDENSE header files
-SET(sunlinsoldense_HEADERS sunlinsol_dense.h)
-ADD_PREFIX(${sundials_SOURCE_DIR}/include/sunlinsol/ sunlinsoldense_HEADERS)
+SET(sunlinsoldense_HEADERS 
+  ${sundials_SOURCE_DIR}/include/sunlinsol/sunlinsol_dense.h
+  )
 
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(.)
@@ -55,6 +58,9 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Install the SUNLINSOLDENSE library
 IF(BUILD_SHARED_LIBS)
   ADD_LIBRARY(sundials_sunlinsoldense_shared SHARED ${sunlinsoldense_SOURCES} ${shared_SOURCES})
+
+  TARGET_LINK_LIBRARIES(sundials_sunlinsoldense_shared sundials_sunmatrixdense_shared)
+
   SET_TARGET_PROPERTIES(sundials_sunlinsoldense_shared
     PROPERTIES OUTPUT_NAME sundials_sunlinsoldense CLEAN_DIRECT_OUTPUT 1)
   SET_TARGET_PROPERTIES(sundials_sunlinsoldense_shared
@@ -68,20 +74,30 @@ INSTALL(FILES ${sunlinsoldense_HEADERS} DESTINATION include/sunlinsol)
 # If FCMIX is enabled, build and install the FSUNLINSOLDENSE library
 IF(FCMIX_ENABLE AND F77_FOUND)
   SET(fsunlinsoldense_SOURCES fsunlinsol_dense.c)
+
   IF(BUILD_STATIC_LIBS)
     ADD_LIBRARY(sundials_fsunlinsoldense_static STATIC ${fsunlinsoldense_SOURCES})
     SET_TARGET_PROPERTIES(sundials_fsunlinsoldense_static
       PROPERTIES OUTPUT_NAME sundials_fsunlinsoldense CLEAN_DIRECT_OUTPUT 1)
     INSTALL(TARGETS sundials_fsunlinsoldense_static DESTINATION lib)
   ENDIF(BUILD_STATIC_LIBS)
+
   IF(BUILD_SHARED_LIBS)
     ADD_LIBRARY(sundials_fsunlinsoldense_shared ${fsunlinsoldense_SOURCES})
+
+    # fsunlinsoldense depends on fnvecserial, fsunmatrixdense, sunlinsoldense
+    TARGET_LINK_LIBRARIES(sundials_fsunlinsoldense_shared
+      sundials_fnvecserial_shared
+      sundials_fsunmatrixdense_shared
+      sundials_sunlinsoldense_shared)
+
     SET_TARGET_PROPERTIES(sundials_fsunlinsoldense_shared
       PROPERTIES OUTPUT_NAME sundials_fsunlinsoldense CLEAN_DIRECT_OUTPUT 1)
     SET_TARGET_PROPERTIES(sundials_fsunlinsoldense_shared 
       PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
     INSTALL(TARGETS sundials_fsunlinsoldense_shared DESTINATION lib)
   ENDIF(BUILD_SHARED_LIBS)
+
 ENDIF(FCMIX_ENABLE AND F77_FOUND)
 
 #

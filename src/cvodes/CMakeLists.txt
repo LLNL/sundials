@@ -112,6 +112,10 @@ IF(BUILD_SHARED_LIBS)
   ADD_LIBRARY(sundials_cvodes_shared SHARED 
     ${cvodes_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES})
 
+  IF(UNIX)
+    TARGET_LINK_LIBRARIES(sundials_cvodes_shared m)
+  ENDIF()
+
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_cvodes_shared
     PROPERTIES OUTPUT_NAME sundials_cvodes CLEAN_DIRECT_OUTPUT 1)
