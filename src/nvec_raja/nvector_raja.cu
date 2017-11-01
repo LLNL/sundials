@@ -12,6 +12,9 @@
  * LLNS Copyright End
  * -----------------------------------------------------------------*/
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #include <nvector/raja/Vector.hpp>
 #include <RAJA/RAJA.hpp>
 

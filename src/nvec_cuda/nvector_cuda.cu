@@ -15,6 +15,9 @@
  * of the NVECTOR package.
  * -----------------------------------------------------------------*/
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #include <nvector/cuda/Vector.hpp>
 #include <nvector/cuda/VectorKernels.cuh>
 
