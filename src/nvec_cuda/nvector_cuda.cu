@@ -242,7 +242,7 @@ void N_VCopyFromDevice_Cuda(N_Vector x)
 
 void N_VPrint_Cuda(N_Vector x)
 {
-  N_VPrintFile_Cuda(x, stdout)
+  N_VPrintFile_Cuda(x, stdout);
 }
 
 /* ----------------------------------------------------------------------------
