@@ -85,7 +85,10 @@ FOREACH(example_tuple ${FARKODE_examples})
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
   # add example to regression tests
-  SUNDIALS_ADD_TEST(${example} ${example} EXAMPLE_TYPE ${example_type})
+  SUNDIALS_ADD_TEST(${example} ${example}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${example}.out
+    EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
@@ -137,7 +140,10 @@ IF(LAPACK_FOUND)
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
     # add example to regression tests
-    SUNDIALS_ADD_TEST(${example} ${example} EXAMPLE_TYPE ${example_type})
+    SUNDIALS_ADD_TEST(${example} ${example}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type})
 
     # libraries to link against
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
@@ -182,7 +188,10 @@ IF(KLU_FOUND)
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
     # add example to regression tests
-    SUNDIALS_ADD_TEST(${example} ${example} EXAMPLE_TYPE ${example_type})
+    SUNDIALS_ADD_TEST(${example} ${example}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type})
 
     # libraries to link against
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
@@ -232,7 +241,10 @@ IF(SUPERLUMT_FOUND)
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
     # add example to regression tests
-    SUNDIALS_ADD_TEST(${example} ${example} EXAMPLE_TYPE ${example_type})
+    SUNDIALS_ADD_TEST(${example} ${example}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type})
 
     # libraries to link against
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLUMT_LIBS})

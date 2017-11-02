@@ -73,6 +73,8 @@ FOREACH(example_tuple ${ARKODE_examples})
   # add to regression tests
   SUNDIALS_ADD_TEST(${example} ${example}
     TEST_ARGS ${example_args}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${example}.out
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
