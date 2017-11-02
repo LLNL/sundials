@@ -133,9 +133,9 @@ int main(int argc, char *argv[])
     printf("\nA (factored) =\n");
     SUNBandMatrix_Print(A,stdout);
     printf("\nx (original) =\n");
-    N_VPrint_Serial(y,stdout);
+    N_VPrint_Serial(y);
     printf("\nx (computed) =\n");
-    N_VPrint_Serial(x,stdout);
+    N_VPrint_Serial(x);
   } else {
     printf("SUCCESS: SUNLinSol module passed all tests \n \n");
   }

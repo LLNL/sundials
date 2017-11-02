@@ -236,12 +236,20 @@ void N_VCopyFromDevice_Cuda(N_Vector x)
   xv->copyFromDev();
 }
 
-
 /* ----------------------------------------------------------------------------
- * Function to print the a CUDA-based vector
+ * Function to print the a CUDA-based vector to stdout
  */
 
-void N_VPrint_Cuda(N_Vector x, FILE *outfile)
+void N_VPrint_Cuda(N_Vector x)
+{
+  N_VPrintFile_Cuda(x, stdout)
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to print the a CUDA-based vector to outfile
+ */
+
+void N_VPrintFile_Cuda(N_Vector x, FILE *outfile)
 {
   sunindextype i;
   Vector<realtype, sunindextype>* xd = static_cast<Vector<realtype, sunindextype>*>(x->content);

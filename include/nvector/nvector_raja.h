@@ -87,6 +87,7 @@ typedef struct _N_VectorContent_Raja *N_VectorContent_Raja;
  *    N_VGetHostArrayPointer_Raja
  *    N_VGetDeviceArrayPointer_Raja
  *    N_VPrint_Raja
+ *    N_VPrintFile_Raja
  * -----------------------------------------------------------------
  */
 
@@ -209,11 +210,21 @@ SUNDIALS_EXPORT void N_VCopyFromDevice_Raja(N_Vector v);
  * -----------------------------------------------------------------
  * Function : N_VPrint_Raja
  * -----------------------------------------------------------------
+ * This function prints the content of a RAJA vector to stdout.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT void N_VPrint_Raja(N_Vector v);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VPrintFile_Raja
+ * -----------------------------------------------------------------
  * This function prints the content of a RAJA vector to outfile.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void N_VPrint_Raja(N_Vector v, FILE *outfile);
+SUNDIALS_EXPORT void N_VPrintFile_Raja(N_Vector v, FILE *outfile);
 
 /*
  * -----------------------------------------------------------------

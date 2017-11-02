@@ -156,6 +156,7 @@ typedef struct _N_VectorContent_OpenMP *N_VectorContent_OpenMP;
  * OTHER:
  *    N_VGetLength_OpenMP
  *    N_VPrint_OpenMP
+ *    N_VPrintFile_OpenMP
  * -----------------------------------------------------------------
  */
 
@@ -238,11 +239,21 @@ SUNDIALS_EXPORT sunindextype N_VGetLength_OpenMP(N_Vector v);
  * -----------------------------------------------------------------
  * Function : N_VPrint_OpenMP
  * -----------------------------------------------------------------
+ * This function prints the content of a OpenMP vector to stdout.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT void N_VPrint_OpenMP(N_Vector v);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VPrintFile_OpenMP
+ * -----------------------------------------------------------------
  * This function prints the content of a OpenMP vector to outfile.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void N_VPrint_OpenMP(N_Vector v, FILE *outfile);
+SUNDIALS_EXPORT void N_VPrintFile_OpenMP(N_Vector v, FILE *outfile);
 
 /*
  * -----------------------------------------------------------------

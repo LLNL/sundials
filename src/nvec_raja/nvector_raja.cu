@@ -240,12 +240,20 @@ void N_VCopyFromDevice_Raja(N_Vector x)
   xv->copyFromDev();
 }
 
-
 /* ----------------------------------------------------------------------------
- * Function to print the a serial vector
+ * Function to print the a serial vector to stdout
  */
 
-void N_VPrint_Raja(N_Vector X, FILE *outfile)
+void N_VPrint_Raja(N_Vector X)
+{
+  N_VPrintFile_Raja(X, stdout);
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to print the a serial vector to outfile
+ */
+
+void N_VPrintFile_Raja(N_Vector X, FILE *outfile)
 {
   const realtype *xd = getDevData<realtype, sunindextype>(X);
   const sunindextype N = getSize<realtype, sunindextype>(X);

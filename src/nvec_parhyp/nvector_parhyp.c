@@ -337,7 +337,17 @@ hypre_ParVector* N_VGetVector_ParHyp(N_Vector v)
  * TODO: Consider using a HYPRE function for this.
  */
 
-void N_VPrint_ParHyp(N_Vector x, FILE *outfile)
+void N_VPrint_ParHyp(N_Vector x)
+{
+  N_VPrintFile_ParHyp(x, stdout);
+}
+
+/* ---------------------------------------------------------------- 
+ * Function to print a parhyp vector.
+ * TODO: Consider using a HYPRE function for this.
+ */
+
+void N_VPrintFile_ParHyp(N_Vector x, FILE *outfile)
 {
   sunindextype i, N;
   realtype *xd;

@@ -89,6 +89,7 @@ typedef struct _N_VectorContent_Petsc *N_VectorContent_Petsc;
  * OTHER:
  *    N_VGetVector_Petsc
  *    N_VPrint_Petsc
+ *    N_VPrintFile_Petsc
  * -----------------------------------------------------------------
  */
 
@@ -173,11 +174,22 @@ SUNDIALS_EXPORT Vec *N_VGetVector_Petsc(N_Vector v);
  * -----------------------------------------------------------------
  * Function : N_VPrint_Petsc
  * -----------------------------------------------------------------
- * This function prints the content of a parallel vector to outfile.
+ * This function prints the content of a parallel vector to stdout.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void N_VPrint_Petsc(N_Vector v, FILE *outfile);
+SUNDIALS_EXPORT void N_VPrint_Petsc(N_Vector v);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VPrintFile_Petsc
+ * -----------------------------------------------------------------
+ * This function prints the local content of a parallel vector to
+ * outfile.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT void N_VPrintFile_Petsc(N_Vector v, FILE *outfile);
 
 /*
  * -----------------------------------------------------------------

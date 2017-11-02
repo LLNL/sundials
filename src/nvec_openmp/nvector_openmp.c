@@ -262,12 +262,20 @@ sunindextype N_VGetLength_OpenMP(N_Vector v)
   return NV_LENGTH_OMP(v);
 }
 
- 
 /* ----------------------------------------------------------------------------
- * Function to print a vector 
+ * Function to print a vector to stdout
  */
  
-void N_VPrint_OpenMP(N_Vector x, FILE *outfile)
+void N_VPrint_OpenMP(N_Vector x)
+{
+  N_VPrintFile_OpenMP(x, stdout);
+}
+ 
+/* ----------------------------------------------------------------------------
+ * Function to print a vector to outfile
+ */
+ 
+void N_VPrintFile_OpenMP(N_Vector x, FILE *outfile)
 {
   sunindextype i, N;
   realtype *xd;

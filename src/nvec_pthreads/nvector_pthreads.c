@@ -300,12 +300,20 @@ sunindextype N_VGetLength_Pthreads(N_Vector v)
   return NV_LENGTH_PT(v);
 }
 
- 
 /* ----------------------------------------------------------------------------
- * Function to print a vector 
+ * Function to print a vector to stdout
  */
  
-void N_VPrint_Pthreads(N_Vector x, FILE *outfile)
+void N_VPrint_Pthreads(N_Vector x)
+{
+  N_VPrintFile_Pthreads(x, stdout);
+}
+ 
+/* ----------------------------------------------------------------------------
+ * Function to print a vector to outfile
+ */
+ 
+void N_VPrintFile_Pthreads(N_Vector x, FILE *outfile)
 {
   sunindextype i, N;
   realtype *xd;

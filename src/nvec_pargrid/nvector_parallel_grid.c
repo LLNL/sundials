@@ -351,7 +351,16 @@ void N_VDestroyVectorArray_Parallel_Grid(N_Vector *vs, int count)
  * Function to print the active portion of a parallel grid vector 
  */
 
-void N_VPrint_Parallel_Grid(N_Vector x, FILE *outfile)
+void N_VPrint_Parallel_Grid(N_Vector x)
+{
+  N_VPrintFile_Parallel_Grid(x, stdout);
+}
+
+/* ---------------------------------------------------------------- 
+ * Function to print the active portion of a parallel grid vector 
+ */
+
+void N_VPrintFile_Parallel_Grid(N_Vector x, FILE *outfile)
 {
   sunindextype i, i0, i1, i2, i3, i4, i5;
   sunindextype N[MAX_DIMS], n[MAX_DIMS], o[MAX_DIMS];
@@ -482,7 +491,16 @@ void N_VPrint_Parallel_Grid(N_Vector x, FILE *outfile)
  * Function to print all data in a parallel grid vector 
  */
 
-void N_VPrintAll_Parallel_Grid(N_Vector x, FILE *outfile)
+void N_VPrintAll_Parallel_Grid(N_Vector x)
+{
+  N_VPrintAllFile_Parallel_Grid(x, stdout);
+}
+
+/* ---------------------------------------------------------------- 
+ * Function to print all data in a parallel grid vector 
+ */
+
+void N_VPrintAllFile_Parallel_Grid(N_Vector x, FILE *outfile)
 {
   sunindextype i, i0, i1, i2, i3, i4, i5;
   sunindextype N[MAX_DIMS], o[MAX_DIMS];

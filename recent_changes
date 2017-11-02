@@ -1,7 +1,7 @@
 Changes to SUNDIALS since Release of Oct. 26, 2017.
 
-* Added FILE *outfile argument to NVECTOR print functions to specify where to
-  write vector data.
+* Added NVECTOR print functions that write vector data to a specified
+  file (e.g., N_VPrintFile_Serial).
 
 Changes to SUNDIALS since Release of Sept. 30, 2016.
 

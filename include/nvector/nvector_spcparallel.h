@@ -38,15 +38,15 @@ extern "C" {
 struct _N_VectorContent_SpcParallel {
   int Ngrp;              /* number of variable groups               */
   int *Nspc;             /* number of species in each group         */
-  sunindextype Nx;           /* local x-mesh vector length              */
-  sunindextype Ny;           /* local y-mesh vector length              */
-  sunindextype Nz;           /* local z-mesh vector length              */
-  sunindextype NGx;          /* x-width of ghost boundary               */
-  sunindextype NGy;          /* y-width of ghost boundary               */
-  sunindextype NGz;          /* z-width of ghost boundary               */
-  sunindextype *n1;          /* local vector lengths for each group     */
-  sunindextype n;            /* local vector length                     */
-  sunindextype N;            /* global vector length                    */
+  sunindextype Nx;       /* local x-mesh vector length              */
+  sunindextype Ny;       /* local y-mesh vector length              */
+  sunindextype Nz;       /* local z-mesh vector length              */
+  sunindextype NGx;      /* x-width of ghost boundary               */
+  sunindextype NGy;      /* y-width of ghost boundary               */
+  sunindextype NGz;      /* z-width of ghost boundary               */
+  sunindextype *n1;      /* local vector lengths for each group     */
+  sunindextype n;        /* local vector length                     */
+  sunindextype N;        /* global vector length                    */
   realtype *data;        /* local data array                        */
   realtype **gdata;      /* pointers in data at start of group data */
   booleantype own_data;  /* flag for ownership of data              */
@@ -142,6 +142,7 @@ typedef struct _N_VectorContent_SpcParallel *N_VectorContent_SpcParallel;
  *    N_VDestroyVectorArray_SpcParallel    
  * OTHER:
  *    N_VPrint_SpcParallel
+ *    N_VPrintFile_SpcParallel
  * -----------------------------------------------------------------
  */
 
@@ -235,11 +236,22 @@ SUNDIALS_EXPORT void N_VDestroyVectorArray_SpcParallel(N_Vector *vs, int count);
  * Function : N_VPrint_SpcParallel
  * -----------------------------------------------------------------
  * This function prints the content of an SPCPARALLEL vector 
+ * to stdout
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT void N_VPrint_SpcParallel(N_Vector v);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VPrintFile_SpcParallel
+ * -----------------------------------------------------------------
+ * This function prints the content of an SPCPARALLEL vector 
  * to outfile
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void N_VPrint_SpcParallel(N_Vector v, FILE *outfile);
+SUNDIALS_EXPORT void N_VPrintFile_SpcParallel(N_Vector v, FILE *outfile);
 
 /*
  * -----------------------------------------------------------------

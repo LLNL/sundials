@@ -296,10 +296,19 @@ sunindextype N_VGetLocalLength_Parallel(N_Vector v)
 }
 
 /* ---------------------------------------------------------------- 
- * Function to print the local data in a parallel vector 
+ * Function to print the local data in a parallel vector to stdout
  */
 
-void N_VPrint_Parallel(N_Vector x, FILE* outfile)
+void N_VPrint_Parallel(N_Vector x)
+{
+  N_VPrintFile_Parallel(x, stdout);
+}
+
+/* ---------------------------------------------------------------- 
+ * Function to print the local data in a parallel vector to outfile
+ */
+
+void N_VPrintFile_Parallel(N_Vector x, FILE* outfile)
 {
   sunindextype i, N;
   realtype *xd;

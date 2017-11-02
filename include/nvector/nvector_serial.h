@@ -149,6 +149,7 @@ typedef struct _N_VectorContent_Serial *N_VectorContent_Serial;
  * OTHER:
  *    N_VGetLength_Serial
  *    N_VPrint_Serial
+ *    N_VPrintFile_Serial
  * -----------------------------------------------------------------
  */
 
@@ -231,11 +232,21 @@ SUNDIALS_EXPORT sunindextype N_VGetLength_Serial(N_Vector v);
  * -----------------------------------------------------------------
  * Function : N_VPrint_Serial
  * -----------------------------------------------------------------
+ * This function prints the content of a serial vector to stdout.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT void N_VPrint_Serial(N_Vector v);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VPrintFile_Serial
+ * -----------------------------------------------------------------
  * This function prints the content of a serial vector to outfile.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void N_VPrint_Serial(N_Vector v, FILE *outfile);
+SUNDIALS_EXPORT void N_VPrintFile_Serial(N_Vector v, FILE *outfile);
 
 /*
  * -----------------------------------------------------------------

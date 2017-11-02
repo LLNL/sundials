@@ -126,9 +126,9 @@ int main(int argc, char *argv[])
       SUNDenseMatrix_Print(I,stdout);
     }
     printf("\nx =\n");
-    N_VPrint_Serial(x,stdout);
+    N_VPrint_Serial(x);
     printf("\ny =\n");
-    N_VPrint_Serial(y,stdout);
+    N_VPrint_Serial(y);
   } else {
     printf("SUCCESS: SUNMatrix module passed all tests \n \n");
   }

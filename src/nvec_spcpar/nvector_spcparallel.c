@@ -328,10 +328,19 @@ void N_VDestroyVectorArray_SpcParallel(N_Vector *vs, int count)
 }
 
 /* ---------------------------------------------------------------- 
+ * Function to print a SPCPARALLEL vector to stdout
+ */
+
+void N_VPrint_SpcParallel(N_Vector v)
+{
+  N_VPrintFile_SpcParallel(v, stdout);
+}
+
+/* ---------------------------------------------------------------- 
  * Function to print a SPCPARALLEL vector to outfile
  */
 
-void N_VPrint_SpcParallel(N_Vector v, FILE *outfile)
+void N_VPrintFile_SpcParallel(N_Vector v, FILE *outfile)
 {
   int ig, Ngrp, is, Ns;
   sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;

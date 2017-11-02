@@ -177,6 +177,7 @@ typedef struct _Pthreads_Data Pthreads_Data;
  * OTHER:
  *    N_VGetLength_Pthreads
  *    N_VPrint_Pthreads
+ *    N_VPrintFile_Pthreads
  * -----------------------------------------------------------------
  */
 
@@ -259,11 +260,21 @@ SUNDIALS_EXPORT sunindextype N_VGetLength_Pthreads(N_Vector v);
  * -----------------------------------------------------------------
  * Function : N_VPrint_Pthreads
  * -----------------------------------------------------------------
+ * This function prints the content of a pthreads vector to stdout.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT void N_VPrint_Pthreads(N_Vector v);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VPrintFile_Pthreads
+ * -----------------------------------------------------------------
  * This function prints the content of a pthreads vector to outfile.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void N_VPrint_Pthreads(N_Vector v, FILE *outfile);
+SUNDIALS_EXPORT void N_VPrintFile_Pthreads(N_Vector v, FILE *outfile);
 
 /*
  * -----------------------------------------------------------------

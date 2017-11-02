@@ -187,11 +187,17 @@ The module {\nvecpthreads} provides the following additional user-callable routi
 
 \item \ID{N\_VPrint\_Pthreads}
 
- This function prints the content of a Pthreads vector to \id{outfile}.
+ This function prints the content of a Pthreads vector to \id{stdout}.
+ 
+ \verb|void N_VPrint_Pthreads(N_Vector v);|
 
+%%--------------------------------------
+
+\item \ID{N\_VPrintFile\_Pthreads}
+
+ This function prints the content of a Pthreads vector to \id{outfile}.
  
- 
- \verb|void N_VPrint_Pthreads(N_Vector v, FILE *outfile);|
+ \verb|void N_VPrintFile_Pthreads(N_Vector v, FILE *outfile);|
 
 \end{itemize}
 %%

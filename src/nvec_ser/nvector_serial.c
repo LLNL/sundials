@@ -255,12 +255,20 @@ sunindextype N_VGetLength_Serial(N_Vector v)
   return NV_LENGTH_S(v);
 }
 
- 
 /* ----------------------------------------------------------------------------
- * Function to print the a serial vector 
+ * Function to print the a serial vector to stdout
  */
  
-void N_VPrint_Serial(N_Vector x, FILE* outfile)
+void N_VPrint_Serial(N_Vector x)
+{
+  N_VPrintFile_Serial(x, stdout);
+}
+ 
+/* ----------------------------------------------------------------------------
+ * Function to print the a serial vector to outfile
+ */
+ 
+void N_VPrintFile_Serial(N_Vector x, FILE* outfile)
 {
   sunindextype i, N;
   realtype *xd;

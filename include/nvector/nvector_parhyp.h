@@ -100,6 +100,7 @@ typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
  *    N_VGetVector_ParHyp
  * OTHER:
  *    N_VPrint_ParHyp
+ *    N_VPrintFile_ParHyp
  * -----------------------------------------------------------------
  */
 
@@ -175,11 +176,23 @@ SUNDIALS_EXPORT hypre_ParVector *N_VGetVector_ParHyp(N_Vector v);
  * -----------------------------------------------------------------
  * Function : N_VPrint_ParHyp
  * -----------------------------------------------------------------
- * This function prints the content of a parallel vector to outfile.
+ * This function prints the local content of a parallel vector to
+ * stdout.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void N_VPrint_ParHyp(N_Vector v, FILE *outfile);
+SUNDIALS_EXPORT void N_VPrint_ParHyp(N_Vector v);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VPrintFile_ParHyp
+ * -----------------------------------------------------------------
+ * This function prints the local content of a parallel vector to
+ * outfile.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT void N_VPrintFile_ParHyp(N_Vector v, FILE *outfile);
 
 /*
  * -----------------------------------------------------------------
