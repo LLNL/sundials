@@ -30,16 +30,20 @@ import re
 
 def main():
     parser = argparse.ArgumentParser(description='Sundials test runner for use in ctest.')
+
+    # Required inputs
     parser.add_argument('--testname', dest='testName', type=str, required=True,
                         help='name of the test')
     parser.add_argument('--executablename', dest='executableName', type=str, required=True,
                         help='executable, including path')
-    parser.add_argument('--answersdir', dest='answersDir', type=str, required=True,
-                        help='path to answers directory')
-    parser.add_argument('--answerfile', dest='answerFile', type=str, required=False,
-                        help='answer file, filename only specify path using --answersdir')
     parser.add_argument('--outputdir', dest='outputDir', type=str, required=True,
                         help='path to output directory')
+
+    # Optional inputs
+    parser.add_argument('--answerdir', dest='answerDir', type=str, required=False,
+                        help='path to answers directory')
+    parser.add_argument('--answerfile', dest='answerFile', type=str, required=False,
+                        help='answer file, filename only specify path using --answerdir')
 
     parser.add_argument('--runcommand', dest='runCommand', type=str,
                         help='command used to run test executable, eg. mpirun')
@@ -48,9 +52,11 @@ def main():
 
     parser.add_argument('--floatprecision', dest='floatPrecision', type=int,
                         help='precision for floating point failure comparison (number of digits')
-
     parser.add_argument('--integerpercentage', dest='integerPercentage', type=int,
                         help='integer percentage difference for failure comparison')
+
+    parser.add_argument('--nodiff', dest='CheckDiff', action='store_false',
+                        help='do not diff the output file against answer file, only check the test return value')
 
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
                         help='run verbosely')
@@ -60,24 +66,30 @@ def main():
     if(args.verbose):
         print "testName=%s"%(args.testName)
         print "executableName=%s"%(args.executableName)
-        print "answersDir=%s"%(args.answersDir)
+        print "answerDir=%s"%(args.answerDir)
         print "answerFile=%s"%(args.answerFile)
         print "outputDir=%s"%(args.outputDir)
         print "runCommand=%s"%(args.runCommand)
         print "runArgs=%s"%(args.runArgs)
 
     # regression test name and output directory 
-    testName = args.testName
-    outDir   = args.outputDir
+    testName  = args.testName
+    outDir    = args.outputDir
 
-    # path to Sundials test and answer directory
-    testDir    = os.path.dirname(sys.argv[0])
-    answersDir = os.path.join(testDir, "answers")
+    # path to Sundials test directory
+    testDir = os.path.dirname(sys.argv[0])
+
+    # path to Sundials answer directory
+    if (args.answerDir):
+        answerDir = args.answerDir
+    else:
+        answerDir = os.path.join(testDir, "answers")
     
     if(args.verbose):
-        print "testDir %s"%testDir
+        print "testName %s"%testDir
         print "outDir %s"%outDir
-        print "answersDir %s"%answersDir
+        print "testDir %s"%testDir
+        print "answerDir %s"%answerDir
 
     # create output directory if necessary
     if not os.path.exists(outDir):
@@ -93,6 +105,7 @@ def main():
     success = True
 
     for testInfo in testInfos:
+
         if(args.verbose):
             print "testInfo.arguments = ",testInfo.arguments
 
@@ -122,9 +135,9 @@ def main():
 
         outPath = os.path.join(outDir, args.testName)
 
-        answerPath = os.path.join(answersDir, answerFileName)
+        answerPath = os.path.join(answerDir, answerFileName)
 
-        # if user supplies precision info overide default choices
+        # if user supplies precision info overide the default choices
         if(args.floatPrecision):
             testInfo.floatPrecision=args.floatPrecision
 
@@ -144,19 +157,28 @@ def main():
             if(args.verbose):
                 print "Running command : " + ' '.join(testCommand)
                         
+            # run the test
             process = subprocess.Popen(testCommand, stdout=outFile, stderr=outFile)
             process.wait()
+            
+            # check test return value
             if process.returncode != 0:
                 error("Exited with error code " + str(process.returncode) + ".", testName)
                 success = False
-            if not os.path.exists(answerPath):
-                error("Answer file did not exist.", answerPath)
-                success = False
-            if not os.path.isfile(answerPath):
-                error("Answer file existed but was not a file.", answerPath)
-                success = False
-            if not compare(outPath, answerPath, testInfo):
-                success = False
+
+            # compare test output against the answer file output
+            if (args.CheckDiff):
+                if(args.verbose):
+                    print "Comparing test output to answer file."
+
+                if not os.path.exists(answerPath):
+                    error("Answer file did not exist.", answerPath)
+                    success = False
+                if not os.path.isfile(answerPath):
+                    error("Answer file existed but was not a file.", answerPath)
+                    success = False
+                if not compare(outPath, answerPath, testInfo):
+                    success = False
         finally:
             outFile.close()
 

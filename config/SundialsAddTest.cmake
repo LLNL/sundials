@@ -41,16 +41,18 @@ ENDIF(EXAMPLES_ENABLED)
 macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
   # macro options
-  set(options "")
+  # NODIFF = do not diff the test output against an answer file
+  set(options "NODIFF")
 
   # macro keyword inputs followed by a single value
   # MPI_NPROCS         = number of mpi tasks to use in parallel tests
-  # ANSWER_FILE        = name of answer file if different from the test name
   # FLOAT_PRECISION    = precision for floating point failure comparision (num digits)
   # INTEGER_PRECENTAGE = integer percentage difference for failure comparison
+  # ANSWER_DIR         = path to the directory containing the test answer file
+  # ANSWER_FILE        = name of test answer file
   # EXAMPLE_TYPE       = release or develop examples
-  set(oneValueArgs "MPI_NPROCS" "ANSWER_FILE" "FLOAT_PRECISION" "INTEGER_PERCENTAGE"
-    "EXAMPLE_TYPE")
+  set(oneValueArgs "MPI_NPROCS" "FLOAT_PRECISION" "INTEGER_PERCENTAGE"
+    "ANSWER_DIR" "ANSWER_FILE" "EXAMPLE_TYPE")
 
   # macro keyword inputs followed by multiple values
   # TEST_ARGS = command line arguments to pass to the test executable
@@ -65,9 +67,13 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   # command line arguments for the test runner script
   set(TEST_ARGS  "-v" "--testname=${NAME}" 
     "--executablename=$<TARGET_FILE:${EXECUTABLE}>"
-    "--answersdir=${CMAKE_SOURCE_DIR}/test/answers"
     "--outputdir=${CMAKE_BINARY_DIR}/Testing/output"
     )
+
+  # only check the return value, do not diff the output and answer files
+  IF(NOT ${SUNDIALS_DEVTESTS} OR ${SUNDIALS_ADD_TEST_NODIFF})
+    LIST(APPEND TEST_ARGS "--nodiff")
+  ENDIF()
 
   # set the number of mpi tasks to use in parallel tests
   IF("${SUNDIALS_ADD_TEST_MPI_NPROCS}" STREQUAL "")
@@ -93,19 +99,25 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
     LIST(APPEND TEST_ARGS "--runargs=\"${USER_ARGS}\"")
   ENDIF()
 
-  # set the tests answer file name
+  # set the test answer directory name (default is test/answers)
+  IF("${SUNDIALS_ADD_TEST_ANSWER_DIR}" STREQUAL "")
+  ELSE()
+    LIST(APPEND TEST_ARGS "--answerdir=${SUNDIALS_ADD_TEST_ANSWER_DIR}")
+  ENDIF()
+
+  # set the test answer file name (default is test_name_test_agrs)
   IF("${SUNDIALS_ADD_TEST_ANSWER_FILE}" STREQUAL "")
   ELSE()
     LIST(APPEND TEST_ARGS "--answerfile=${SUNDIALS_ADD_TEST_ANSWER_FILE}")
   ENDIF()
 
-  # set the precision for floating point failure comparison (number of digits)
+  # set the precision for floating point failure comparison (number of digits, default 4)
   IF("${SUNDIALS_ADD_TEST_FLOAT_PRECISION}" STREQUAL "")
   ELSE()
     LIST(APPEND TEST_ARGS "--floatprecision=${SUNDIALS_ADD_TEST_FLOAT_PRECISION}")
   ENDIF()
 
-  # set the integer percentage difference for failure comparison
+  # set the integer percentage difference for failure comparison (default 10%)
   IF("${SUNDIALS_ADD_TEST_INTEGER_PERCENTAGE}" STREQUAL "")
   ELSE()
     LIST(APPEND TEST_ARGS "--integerpercentage=${SUNDIALS_ADD_TEST_INTEGER_PERCENTAGE}")
