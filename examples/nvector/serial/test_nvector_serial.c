@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
     printf("SUCCESS: NVector module passed all tests \n \n");
   }
 
-  return(0);
+  return(fails);
 }
 
 /* ----------------------------------------------------------------------

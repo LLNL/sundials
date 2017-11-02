@@ -101,7 +101,8 @@ FOREACH(example_tuple ${nvector_parallel_examples})
   SUNDIALS_ADD_TEST(${test_name} ${example}
     TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_tasks}
-    EXAMPLE_TYPE ${example_type})
+    EXAMPLE_TYPE ${example_type}
+    NODIFF)
 
   # install example source files
   IF(EXAMPLES_INSTALL)

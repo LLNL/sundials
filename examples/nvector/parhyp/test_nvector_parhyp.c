@@ -24,7 +24,6 @@
 #include "test_nvector.h"
 
 #include <mpi.h>
-#include <omp.h>
 
 #if defined( SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
 #include <time.h>
@@ -44,6 +43,7 @@ static int Test_N_VGetVectorID(N_Vector W, int myid);
 int main(int argc, char *argv[]) 
 {
   int              fails = 0;                   /* counter for test failures */
+  int              globfails = 0;               /* counter for test failures */
   sunindextype     local_length, global_length; /* vector lengths            */
   N_Vector         W, X, Y, Z;                  /* test vectors              */
   MPI_Comm         comm;                        /* MPI Communicator          */
@@ -52,6 +52,7 @@ int main(int argc, char *argv[])
   int              print_timing;
   HYPRE_Int       *partitioning;                /* Vector Partitioning       */
   HYPRE_ParVector  Xhyp;                        /* Instantiate hypre parallel vector */
+  int              mpierr;                      /* mpi error flag            */
 
   /* check input and set vector length */
   if (argc < 3) {
@@ -74,7 +75,7 @@ int main(int argc, char *argv[])
   /* printf("\nRunning with vector length %ld \n \n", veclen); */
   /* Get processor number and total number of processes */
   MPI_Init(&argc, &argv);
-  /* omp_set_num_threads(4); */
+
   comm = MPI_COMM_WORLD;
   MPI_Comm_size(comm, &nprocs);
   MPI_Comm_rank(comm, &myid);
@@ -161,11 +162,15 @@ int main(int argc, char *argv[])
      }
   }
 
+  /* check if any other process failed */
+  mpierr = MPI_Allreduce(&fails, &globfails, 1, MPI_INT, MPI_MAX, comm);
+
   /* Free hypre template vector */
   HYPRE_ParVectorDestroy(Xhyp);
   
   MPI_Finalize();
-  return(0);
+
+  return(globfails);
 }
 
 /* ----------------------------------------------------------------------
