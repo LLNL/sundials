@@ -43,6 +43,7 @@
 #include <sunlinsol/sunlinsol_dense.h>     /* access to dense SUNLinearSolver      */
 #include <arkode/arkode_direct.h>          /* access to ARKDls interface           */
 #include <sundials/sundials_types.h>       /* definition of type realtype          */
+#include <sundials/sundials_math.h>
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -62,6 +63,8 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
+/* Private function to check computed solution */
+static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol);
 
 /* Main Program */
 int main()
@@ -187,12 +190,16 @@ int main()
   printf("   Total number of linear solver convergence failures = %li\n", ncfn);
   printf("   Total number of error test failures = %li\n\n", netf);
 
-  /* Clean up and return with successful completion */
+  /* check the solution error */
+  flag = check_ans(y, t, reltol, abstol);
+
+  /* Clean up and return */
   N_VDestroy(y);            /* Free y vector */
   ARKodeFree(&arkode_mem);  /* Free integrator memory */
   SUNLinSolFree(LS);        /* Free linear solver */
   SUNMatDestroy(A);         /* Free A matrix */
-  return 0;
+ 
+  return flag;
 }
 
 /*-------------------------------
@@ -224,6 +231,27 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   Jdata[0] = lamda;
 
   return 0;                                   /* return with success */
+}
+
+/* check the computed solution */
+static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
+{
+  int      passfail = 0;  /* answer pass (0) or fail (1) flag */  
+  realtype *yd;           /* vector data                      */
+  realtype ya;            /* answer data                      */
+  realtype err, ewt;      /* error and error weight           */
+
+  /* get solution data */
+  yd = NV_DATA_S(y);
+  
+  /* compute solution error */
+  ya  = atan(t);
+  ewt = ONE/(rtol * SUNRabs(ya) + atol);
+  err = ewt * SUNRabs(*yd - ya);
+
+  passfail = (err < ONE) ? 0 : 1; 
+
+  return(passfail);
 }
 
 /*-------------------------------
