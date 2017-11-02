@@ -246,10 +246,10 @@ static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
   
   /* compute solution error */
   ya  = atan(t);
-  ewt = ONE/(rtol * SUNRabs(ya) + atol);
+  ewt = RCONST(1.0)/(rtol * SUNRabs(ya) + atol);
   err = ewt * SUNRabs(*yd - ya);
 
-  passfail = (err < ONE) ? 0 : 1; 
+  passfail = (err < RCONST(1.0)) ? 0 : 1; 
 
   return(passfail);
 }
