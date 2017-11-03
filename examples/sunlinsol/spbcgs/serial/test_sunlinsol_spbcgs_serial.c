@@ -380,7 +380,7 @@ int main(int argc, char *argv[])
   N_VDestroy(ProbData.s1);
   N_VDestroy(ProbData.s2);
 
-  return(0);
+  return(fails);
 }
 
 

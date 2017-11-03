@@ -309,7 +309,7 @@ int main(int argc, char *argv[])
   N_VDestroy(ProbData.d);
   N_VDestroy(ProbData.s);
 
-  return(0);
+  return(fails);
 }
 
 

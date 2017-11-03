@@ -111,7 +111,8 @@ FOREACH(example_tuple ${sunlinsol_superlumt_examples})
   # add example to regression tests
   SUNDIALS_ADD_TEST(${test_name} ${example}
     TEST_ARGS ${example_args}
-    EXAMPLE_TYPE ${example_type})
+    EXAMPLE_TYPE ${example_type}
+    NODIFF)
 
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c

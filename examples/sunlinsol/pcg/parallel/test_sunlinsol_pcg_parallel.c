@@ -106,6 +106,8 @@ sunindextype local_problem_size;
 int main(int argc, char *argv[]) 
 {
   int             fails=0;          /* counter for test failures */
+  int             globfails = 0;    /* counter for test failures */
+  int             mpierr;           /* mpi error flag            */
   SUNLinearSolver LS;               /* linear solver object      */
   N_Vector        xhat, x, b;       /* test vectors              */
   UserData        ProbData;         /* problem data structure    */
@@ -319,6 +321,8 @@ int main(int argc, char *argv[])
   else if (ProbData.myid == 0)
     printf("SUCCESS: SUNPCG module, problem 4, passed all tests\n\n");
 
+  /* check if any other process failed */
+  mpierr = MPI_Allreduce(&fails, &globfails, 1, MPI_INT, MPI_MAX, ProbData.comm);
   
   /* Free solver and vectors */
   SUNLinSolFree(LS);
@@ -329,7 +333,7 @@ int main(int argc, char *argv[])
   N_VDestroy(ProbData.s);
 
   MPI_Finalize();
-  return(0);
+  return(globfails);
 }
 
 

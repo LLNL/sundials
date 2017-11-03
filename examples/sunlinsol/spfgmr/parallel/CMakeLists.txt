@@ -105,6 +105,13 @@ FOREACH(example_tuple ${sunlinsol_spfgmr_examples})
   ENDIF()
 
   # add example to regression tests
+  SUNDIALS_ADD_TEST(${test_name} ${example}
+    TEST_ARGS ${example_args}
+    MPI_NPROCS ${number_of_tasks}
+    EXAMPLE_TYPE ${example_type}
+    NODIFF)
+
+  # add example to regression tests
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c
       ../../test_sunlinsol.h
