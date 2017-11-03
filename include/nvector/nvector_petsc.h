@@ -189,7 +189,7 @@ SUNDIALS_EXPORT void N_VPrint_Petsc(N_Vector v);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void N_VPrintFile_Petsc(N_Vector v, FILE *outfile);
+SUNDIALS_EXPORT void N_VPrintFile_Petsc(N_Vector v, const char fname[]);
 
 /*
  * -----------------------------------------------------------------

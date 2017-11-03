@@ -311,7 +311,8 @@ Vec *N_VGetVector_Petsc(N_Vector v)
 }
 
 /* ---------------------------------------------------------------- 
- * Function to print the data in a PETSc parallel vector 
+ * Function to print the global data in a PETSc parallel vector to
+ * stdout
  */
 
 void N_VPrint_Petsc(N_Vector x)
@@ -325,10 +326,32 @@ void N_VPrint_Petsc(N_Vector x)
 }
 
 /* ---------------------------------------------------------------- 
- * Function to print the local data in a PETSc parallel vector 
+ * Function to print the global data in a PETSc parallel vector to
+ * fname
  */
 
-void N_VPrintFile_Petsc(N_Vector x, FILE *outfile)
+void N_VPrintFile_Petsc(N_Vector x, const char fname[])
+{
+  Vec *xv = NV_PVEC_PTC(x);
+  MPI_Comm comm = NV_COMM_PTC(x);
+  PetscViewer viewer;
+
+  PetscViewerASCIIOpen(comm, fname, &viewer);
+
+  VecView(*xv, viewer);
+
+  PetscViewerDestroy(&viewer);
+
+  return;
+}
+
+/* ---------------------------------------------------------------- 
+ * Function to print the local data in a PETSc parallel vector to
+ * outfile
+ */
+
+/*
+void N_VPrintFileLocal_Petsc(N_Vector x, FILE *outfile)
 {
   sunindextype i;
   sunindextype N = NV_LOCLENGTH_PTC(x);
@@ -352,6 +375,7 @@ void N_VPrintFile_Petsc(N_Vector x, FILE *outfile)
 
   return;
 }
+*/
 
 /*
  * -----------------------------------------------------------------
