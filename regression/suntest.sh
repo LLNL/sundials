@@ -139,6 +139,13 @@ echo "START CMAKE"
 cmake \
     -D CMAKE_INSTALL_PREFIX="../install_${realtype}_${indextype}" \
     \
+    -D BUILD_ARKODE=ON \
+    -D BUILD_CVODE=ON \
+    -D BUILD_CVODES=ON \
+    -D BUILD_IDA=ON \
+    -D BUILD_IDAS=ON \
+    -D BUILD_KINSOL=ON \
+    \
     -D SUNDIALS_PRECISION=$realtype \
     -D SUNDIALS_INDEX_TYPE=$indextype \
     \
