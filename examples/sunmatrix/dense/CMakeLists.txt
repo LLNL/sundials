@@ -94,7 +94,8 @@ FOREACH(example_tuple ${sunmatrix_dense_examples})
   # add example to regression tests
   SUNDIALS_ADD_TEST(${test_name} ${example}
     TEST_ARGS ${example_args}
-    EXAMPLE_TYPE ${example_type})
+    EXAMPLE_TYPE ${example_type}
+    NODIFF)
 
   # install example source files
   IF(EXAMPLES_INSTALL)
