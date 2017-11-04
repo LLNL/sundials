@@ -38,18 +38,18 @@ SET(IDAS_examples
 SET(IDAS_examples_BL
   )
 
-# Examples using SuperLU_MT linear solver
-SET(IDAS_examples_SUPERLUMT
-  "idasRoberts_sps\;\;develop"
-  "idasRoberts_ASAi_sps\;\;develop"
-  "idasRoberts_FSA_sps\;-sensi stg t\;develop"
-  )
-
 # Example using KLU linear solver
 SET(IDAS_examples_KLU
   "idasRoberts_klu\;\;develop"
   "idasRoberts_ASAi_klu\;\;develop"
   "idasRoberts_FSA_klu\;-sensi stg t\;develop"
+  )
+
+# Examples using SuperLU_MT linear solver
+SET(IDAS_examples_SUPERLUMT
+  "idasRoberts_sps\;\;develop"
+  "idasRoberts_ASAi_sps\;\;develop"
+  "idasRoberts_FSA_sps\;-sensi stg t\;develop"
   )
 
 # Specify libraries to link against (through the target that was used to
@@ -97,6 +97,8 @@ FOREACH(example_tuple ${IDAS_examples})
   # add example to regression tests
   SUNDIALS_ADD_TEST(${test_name} ${example}
     TEST_ARGS ${example_args}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type})
 
   # find all .out files for this example
@@ -163,6 +165,8 @@ IF(LAPACK_FOUND)
     # add example to regression tests
     SUNDIALS_ADD_TEST(${example} ${example}
       TEST_ARGS ${example_args}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
       EXAMPLE_TYPE ${example_type})
 
     # find all .out files for this example
@@ -222,6 +226,8 @@ IF(KLU_FOUND)
     # add example to regression tests
     SUNDIALS_ADD_TEST(${test_name} ${example}
       TEST_ARGS ${example_args}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${test_name}.out
       EXAMPLE_TYPE ${example_type})
 
     # find all .out files for this example
@@ -292,6 +298,8 @@ IF(SUPERLUMT_FOUND)
       # add example to regression tests
       SUNDIALS_ADD_TEST(${test_name} ${example}
         TEST_ARGS ${example_args}
+        ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+        ANSWER_FILE ${test_name}.out
         EXAMPLE_TYPE ${example_type})
 
     ENDIF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
