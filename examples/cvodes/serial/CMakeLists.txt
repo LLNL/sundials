@@ -105,6 +105,8 @@ FOREACH(example_tuple ${CVODES_examples})
   # add example to regression tests
   SUNDIALS_ADD_TEST(${test_name} ${example}
     TEST_ARGS ${example_args}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type})
 
   # find all .out files for this example
@@ -171,6 +173,8 @@ IF(LAPACK_FOUND)
     # add example to regression tests
     SUNDIALS_ADD_TEST(${test_name} ${example}
       TEST_ARGS ${example_args}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${test_name}.out
       EXAMPLE_TYPE ${example_type})
 
     # find all .out files for this example
@@ -230,6 +234,8 @@ IF(KLU_FOUND)
     # add example to regression tests
     SUNDIALS_ADD_TEST(${test_name} ${example}
       TEST_ARGS ${example_args}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${test_name}.out
       EXAMPLE_TYPE ${example_type})
 
     # find all .out files for this example
@@ -294,6 +300,8 @@ IF(SUPERLUMT_FOUND)
     # add example to regression tests
     SUNDIALS_ADD_TEST(${test_name} ${example}
       TEST_ARGS ${example_args}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${test_name}.out
       EXAMPLE_TYPE ${example_type})
 
     # find all .out files for this example
