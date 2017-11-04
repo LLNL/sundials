@@ -64,6 +64,8 @@ FOREACH(example_tuple ${IDA_examples})
   # add example to regression tests
   SUNDIALS_ADD_TEST(${example} ${example}
     MPI_NPROCS ${number_of_tasks}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${example}.out
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
