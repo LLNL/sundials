@@ -403,26 +403,6 @@ $tar $tarfile $distrobase/examples/templates/makefile_parallel_F90_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_cuda_CUDA_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_raja_CUDA_ex.in
 
-# 3/3/2015:LEBanks - Don't add to release yet. Many tests will fail, which can be confusing to users
-#echo "   --- Add regression test files to $tarfile"
-#$tar $tarfile $distrobase/test/testRunner
-#$tar $tarfile $distrobase/test/answers/test_nvector_mpi
-#$tar $tarfile $distrobase/test/answers/test_nvector_mpi_1000_0
-#$tar $tarfile $distrobase/test/answers/test_nvector_mpi_4
-#$tar $tarfile $distrobase/test/answers/test_nvector_mpi_4_1000_0
-#$tar $tarfile $distrobase/test/answers/test_nvector_openmp_10000_1_0
-#$tar $tarfile $distrobase/test/answers/test_nvector_openmp_10000_2_0
-#$tar $tarfile $distrobase/test/answers/test_nvector_openmp_10000_4_0
-#$tar $tarfile $distrobase/test/answers/test_nvector_openmp_1000_1_0
-#$tar $tarfile $distrobase/test/answers/test_nvector_openmp_1000_2_0
-#$tar $tarfile $distrobase/test/answers/test_nvector_openmp_1000_4_0
-#$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_10000_1_0
-#$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_10000_2_0
-#$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_10000_4_0
-#$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_1000_1_0
-#$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_1000_2_0
-#$tar $tarfile $distrobase/test/answers/test_nvector_pthreads_1000_4_0
-#$tar $tarfile $distrobase/test/answers/test_nvector_serial_1000_0
-#$tar $tarfile $distrobase/test/answers/test_nvector_serial_10000_0
+echo "   --- Add testing files to $tarfile"
 
-
+$tar $tarfile $distrobase/test/testRunner
