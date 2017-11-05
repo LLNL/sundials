@@ -40,7 +40,7 @@ IF(SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
 
   # Examples using KLU linear solver
   SET(FARKODE_examples_KLU
-    "ark_bruss1D_FEM_klu\;"
+    "ark_bruss1D_FEM_klu\;develop"
     )
 
   # Examples using SuperLU_MT linear solver

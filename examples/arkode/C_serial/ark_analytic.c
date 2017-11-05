@@ -233,27 +233,6 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   return 0;                                   /* return with success */
 }
 
-/* check the computed solution */
-static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
-{
-  int      passfail = 0;  /* answer pass (0) or fail (1) flag */  
-  realtype *yd;           /* vector data                      */
-  realtype ya;            /* answer data                      */
-  realtype err, ewt;      /* error and error weight           */
-
-  /* get solution data */
-  yd = NV_DATA_S(y);
-  
-  /* compute solution error */
-  ya  = atan(t);
-  ewt = RCONST(1.0)/(rtol * SUNRabs(ya) + atol);
-  err = ewt * SUNRabs(*yd - ya);
-
-  passfail = (err < RCONST(1.0)) ? 0 : 1; 
-
-  return(passfail);
-}
-
 /*-------------------------------
  * Private helper functions
  *-------------------------------*/
@@ -293,5 +272,26 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
   return 0;
 }
 
+/* check the computed solution */
+static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
+{
+  int      passfail=0;     /* answer pass (0) or fail (1) flag     */  
+  realtype ans, err, ewt;  /* answer data, error, and error weight */
+  realtype ONE=RCONST(1.0);
+
+  /* compute solution error */
+  ans  = atan(t);
+  ewt = ONE / (rtol * SUNRabs(ans) + atol);
+  err = ewt * SUNRabs(NV_Ith_S(y,0) - ans);
+
+  /* is the solution within the tolerances? */
+  passfail = (err < ONE) ? 0 : 1; 
+
+  if (passfail) {
+    fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%g \n\n", err);
+  }
+
+  return(passfail);
+}
 
 /*---- end of file ----*/

@@ -64,6 +64,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector y);
 static void PrintRootInfo(int root_f1, int root_f2);
 static void PrintFinalStats(void *mem);
 static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_ans(N_Vector y, realtype t, realtype rtol, N_Vector atol);
 
 /*
  *--------------------------------------------------------------------
@@ -129,9 +130,6 @@ int main(void)
   retval = IDASVtolerances(mem, rtol, avtol);
   if(check_flag(&retval, "IDASVtolerances", 1)) return(1);
 
-  /* Free avtol */
-  N_VDestroy(avtol);
-
   /* Call IDARootInit to specify the root function grob with 2 components */
   retval = IDARootInit(mem, 2, grob);
   if (check_flag(&retval, "IDARootInit", 1)) return(1);
@@ -180,15 +178,18 @@ int main(void)
 
   PrintFinalStats(mem);
 
-  /* Free memory */
+  /* check the solution error */
+  retval = check_ans(yy, tret, rtol, avtol);
 
+  /* Free memory */
   IDAFree(&mem);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
+  N_VDestroy(avtol);
   N_VDestroy(yy);
   N_VDestroy(yp);
 
-  return(0);
+  return(retval);
   
 }
 
@@ -414,4 +415,49 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
   }
 
   return(0);
+}
+
+/* compare the solution at the final time 4e10s to a reference solution computed
+   using a relative tolerance of 1e-8 and absoltue tolerance of 1e-14 */
+static int check_ans(N_Vector y, realtype t, realtype rtol, N_Vector atol)
+{
+  int      passfail=0;        /* answer pass (0) or fail (1) flag */  
+  N_Vector ref;               /* reference solution vector        */
+  N_Vector ewt;               /* error weight vector              */
+  realtype err;               /* wrms error                       */
+
+  /* create reference solution and error weight vectors */
+  ref = N_VClone(y);
+  ewt = N_VClone(y);
+
+  /* set the reference solution data */
+  NV_Ith_S(ref,0) = RCONST(5.2083474251394888e-08);
+  NV_Ith_S(ref,1) = RCONST(2.0833390772616859e-13);
+  NV_Ith_S(ref,2) = RCONST(9.9999994791631752e-01);
+
+  /* compute the error weight vector, loosen atol */
+  N_VAbs(ref, ewt);
+  N_VLinearSum(rtol, ewt, RCONST(10.0), atol, ewt);
+  if (N_VMin(ewt) <= ZERO) {
+    fprintf(stderr, "\nSUNDIALS_ERROR: check_ans failed - ewt <= 0\n\n");
+    return(-1);
+  }
+  N_VInv(ewt, ewt);   
+
+  /* compute the solution error */
+  N_VLinearSum(ONE, y, -ONE, ref, ref);
+  err = N_VWrmsNorm(ref, ewt);
+
+  /* is the solution within the tolerances? */
+  passfail = (err < ONE) ? 0 : 1; 
+
+  if (passfail) {
+    fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%g \n\n", err);
+  }
+
+  /* Free vectors */
+  N_VDestroy(ref);
+  N_VDestroy(ewt);
+
+  return(passfail);
 }

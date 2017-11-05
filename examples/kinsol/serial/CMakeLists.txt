@@ -25,7 +25,7 @@ SET(KINSOL_examples
   "kinKrylovDemo_ls\;develop"
   "kinLaplace_bnd\;develop"
   "kinLaplace_picard_bnd\;develop"
-  "kinRoberts_fp\;develop"
+  "kinRoberts_fp\;"
   "kinRoboKin_dns\;develop"
   )
 

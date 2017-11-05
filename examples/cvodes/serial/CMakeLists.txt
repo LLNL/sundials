@@ -35,7 +35,7 @@ SET(CVODES_examples
   "cvsKrylovDemo_ls\;\;develop"
   "cvsKrylovDemo_prec\;\;develop"
   "cvsRoberts_ASAi_dns\;\;develop"
-  "cvsRoberts_dns\;\;develop"
+  "cvsRoberts_dns\;\;"
   "cvsRoberts_dns_uw\;\;develop"
   "cvsRoberts_FSA_dns\;-sensi stg1 t\;develop"
   )

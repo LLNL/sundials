@@ -28,7 +28,7 @@ SET(IDAS_examples
   "idasHessian_ASA_FSA\;\;develop"
   "idasKrylovDemo_ls\;\;develop"
   "idasRoberts_ASAi_dns\;\;develop"
-  "idasRoberts_dns\;\;develop"
+  "idasRoberts_dns\;\;"
   "idasRoberts_FSA_dns\;-sensi stg t\;develop"
   "idasSlCrank_dns\;\;develop"
   "idasSlCrank_FSA_dns\;\;develop"

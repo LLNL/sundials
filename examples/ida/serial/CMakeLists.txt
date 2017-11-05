@@ -25,7 +25,7 @@ SET(IDA_examples
   "idaHeat2D_kry\;develop"
   "idaFoodWeb_kry\;develop"
   "idaKrylovDemo_ls\;develop"
-  "idaRoberts_dns\;develop"
+  "idaRoberts_dns\;"
   "idaSlCrank_dns\;develop"
   )
 

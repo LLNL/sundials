@@ -28,14 +28,14 @@
 # Examples using SUNDIALS linear solvers
 SET(ARKODE_examples
   "ark_analytic\;"
-  "ark_analytic_nonlin\;"
+  "ark_analytic_nonlin\;develop"
   "ark_brusselator\;develop"
   "ark_brusselator_fp\;develop"
   "ark_brusselator1D\;develop"
   "ark_heat1D\;develop"
   "ark_heat1D_adapt\;develop"
   "ark_KrylovDemo_prec\;develop"
-  "ark_robertson\;develop"
+  "ark_robertson\;"
   "ark_robertson_root\;develop"
   )
 

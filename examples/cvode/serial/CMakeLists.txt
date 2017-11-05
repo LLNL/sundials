@@ -26,7 +26,7 @@ SET(CVODE_examples
   "cvDiurnal_kry\;develop"
   "cvKrylovDemo_ls\;develop"
   "cvKrylovDemo_prec\;develop"
-  "cvRoberts_dns\;develop"
+  "cvRoberts_dns\;"
   "cvRoberts_dns_uw\;develop"
   #cvAdvDiffReac_kry\;develop"
   )
