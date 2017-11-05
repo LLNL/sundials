@@ -14,8 +14,8 @@
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # ---------------------------------------------------------------
-# Sundials test runner for with CTest. Note examples must be 
-# enabled to use the test runner (e.g. EXAMPLES_ENABLE_C=ON). 
+# Sundials test runner for CTest. Note examples must be enabled
+# to use the test runner (e.g. EXAMPLES_ENABLE_C=ON). 
 #
 # All output from the test runner output will be collected in
 # <build directory>/Testing/Temporary/LastTest.log
