@@ -299,4 +299,8 @@ IF(EXAMPLES_INSTALL)
       )
   ENDIF(UNIX)
 
+  # add test_install target
+  SUNDIALS_ADD_TEST_INSTALL(kinsol kinRoberts_fp
+    EXAMPLE_DIR ${EXAMPLES_INSTALL_PATH}/kinsol/serial)
+
 ENDIF(EXAMPLES_INSTALL)

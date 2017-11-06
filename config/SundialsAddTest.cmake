@@ -36,13 +36,15 @@ IF(EXAMPLES_ENABLED)
 
   # look for the testRunner script in the test directory
   FIND_PROGRAM(TESTRUNNER testRunner PATHS test)
+
 ENDIF(EXAMPLES_ENABLED)
 
-macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
+
+MACRO(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
   # macro options
   # NODIFF = do not diff the test output against an answer file
-  set(options "NODIFF")
+  SET(options "NODIFF")
 
   # macro keyword inputs followed by a single value
   # MPI_NPROCS         = number of mpi tasks to use in parallel tests
@@ -51,21 +53,24 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   # ANSWER_DIR         = path to the directory containing the test answer file
   # ANSWER_FILE        = name of test answer file
   # EXAMPLE_TYPE       = release or develop examples
-  set(oneValueArgs "MPI_NPROCS" "FLOAT_PRECISION" "INTEGER_PERCENTAGE"
+  SET(oneValueArgs "MPI_NPROCS" "FLOAT_PRECISION" "INTEGER_PERCENTAGE"
     "ANSWER_DIR" "ANSWER_FILE" "EXAMPLE_TYPE")
 
   # macro keyword inputs followed by multiple values
   # TEST_ARGS = command line arguments to pass to the test executable
-  set(multiValueArgs "TEST_ARGS")
+  SET(multiValueArgs "TEST_ARGS")
 
   # parse inputs and create variables SUNDIALS_ADD_TEST_<keyword>
-  CMAKE_PARSE_ARGUMENTS(SUNDIALS_ADD_TEST "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  CMAKE_PARSE_ARGUMENTS(SUNDIALS_ADD_TEST
+    "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   # SGS add check to make sure parallel is integer
   # SGS add check for float and integer precision
 
   # command line arguments for the test runner script
-  set(TEST_ARGS  "-v" "--testname=${NAME}" 
+  SET(TEST_ARGS
+    "--verbose"
+    "--testname=${NAME}" 
     "--executablename=$<TARGET_FILE:${EXECUTABLE}>"
     "--outputdir=${CMAKE_BINARY_DIR}/Testing/output"
     )
@@ -81,9 +86,9 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
     IF(MPI_ENABLE)
       IF(MPI_RUN_COMMAND MATCHES "srun")
-	set(RUN_COMMAND "srun -N1 -n${SUNDIALS_ADD_TEST_MPI_NPROCS} -ppdebug")
+	SET(RUN_COMMAND "srun -N1 -n${SUNDIALS_ADD_TEST_MPI_NPROCS} -ppdebug")
       ELSE(MPI_RUN_COMMAND MATCHES "srun")
-	set(RUN_COMMAND "${MPI_RUN_COMMAND} -n ${SUNDIALS_ADD_TEST_MPI_NPROCS}")
+	SET(RUN_COMMAND "${MPI_RUN_COMMAND} -n ${SUNDIALS_ADD_TEST_MPI_NPROCS}")
       ENDIF(MPI_RUN_COMMAND MATCHES "srun")
       
       LIST(APPEND TEST_ARGS "--runcommand=\"${RUN_COMMAND}\"")
@@ -95,7 +100,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   # set the test input args
   IF("${SUNDIALS_ADD_TEST_TEST_ARGS}" STREQUAL "")
   ELSE()
-    string (REPLACE ";" " " USER_ARGS "${SUNDIALS_ADD_TEST_TEST_ARGS}")
+    STRING (REPLACE ";" " " USER_ARGS "${SUNDIALS_ADD_TEST_TEST_ARGS}")
     LIST(APPEND TEST_ARGS "--runargs=\"${USER_ARGS}\"")
   ENDIF()
 
@@ -129,4 +134,45 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
     ADD_TEST(NAME ${NAME} COMMAND ${PYTHON_EXECUTABLE} ${TESTRUNNER} ${TEST_ARGS})
   ENDIF()
 
-endmacro()
+ENDMACRO()
+
+
+MACRO(SUNDIALS_ADD_TEST_INSTALL SOLVER EXECUTABLE)
+
+  # macro options
+  SET(options )
+
+  # macro keyword inputs followed by a single value
+  # EXAMPLE_DIR = path to the directory containing the installed example
+  SET(oneValueArgs "EXAMPLE_DIR")
+
+  # macro keyword inputs followed by multiple values
+  SET(multiValueArgs )
+
+  # parse inputs and create variables SUNDIALS_ADD_TEST_<keyword>
+  CMAKE_PARSE_ARGUMENTS(SUNDIALS_ADD_TEST_INSTALL
+    "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  # create testing directory for this solver
+  FILE(MAKE_DIRECTORY ${TEST_INSTALL_DIR}/${SOLVER})
+
+  # command line arguments for the test runner script
+  set(TEST_ARGS
+    "--testname=${EXECUTABLE}" 
+    "--executablename=./${EXECUTABLE}"
+    "--outputdir=${TEST_INSTALL_DIR}/${SOLVER}"
+    "--builddir=${SUNDIALS_ADD_TEST_INSTALL_EXAMPLE_DIR}"
+    "--buildcmd=${CMAKE_COMMAND}"
+    "--nodiff"
+    )
+  
+  # add test_install target for this solver
+  ADD_CUSTOM_TARGET(${SOLVER}_test_install
+    COMMAND ${PYTHON_EXECUTABLE} ${TESTRUNNER} ${TEST_ARGS}
+    COMMENT "Running ${SOLVER} installation tests"
+    WORKING_DIRECTORY ${TEST_INSTALL_DIR}/${SOLVER})
+
+  # make test_install depend on solver_test_install
+  ADD_DEPENDENCIES(test_install ${SOLVER}_test_install)
+
+ENDMACRO()

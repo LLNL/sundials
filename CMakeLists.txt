@@ -559,6 +559,17 @@ IF(EXAMPLES_ENABLED)
       SET(EXAMPLES_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/examples" CACHE STRING
         "Output directory for installing example files" FORCE)
     ENDIF(NOT EXAMPLES_INSTALL_PATH)
+    
+    # create test_install target and directory for running smoke tests after
+    # installation
+    ADD_CUSTOM_TARGET(test_install)
+
+    SET(TEST_INSTALL_DIR ${PROJECT_BINARY_DIR}/Testing_Install)
+
+    IF(NOT EXISTS ${TEST_INSTALL_DIR})
+      FILE(MAKE_DIRECTORY ${TEST_INSTALL_DIR})
+    ENDIF()
+
 
   ELSE(EXAMPLES_INSTALL)
 
@@ -1591,7 +1602,7 @@ IF(EXAMPLES_ENABLED)
 ENDIF(EXAMPLES_ENABLED)
 
 # ---------------------------------------------------------------
-# Install configuration header file
+# Install configuration header files and license file
 # ---------------------------------------------------------------
 
 # install configured header file
@@ -1600,7 +1611,13 @@ INSTALL(
   DESTINATION include/sundials
   )
 
+# install configured header file for Fortran 90
 INSTALL(
   FILES ${PROJECT_BINARY_DIR}/include/sundials/sundials_fconfig.h
   DESTINATION include/sundials
   )
+
+# install license file
+INSTALL(
+  FILES ${PROJECT_SOURCE_DIR}/LICENSE
+  DESTINATION .)

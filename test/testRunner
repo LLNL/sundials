@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # ---------------------------------------------------------------
-# Programmer:  Steven Smith @ LLNL
+# Programmer(s): Steven Smith @ LLNL
+#                David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # Acknowledgement: Based on code from Chris White @ LLNL
 # ---------------------------------------------------------------
@@ -40,9 +41,9 @@ def main():
                         help='path to output directory')
 
     # Optional inputs
-    parser.add_argument('--answerdir', dest='answerDir', type=str, required=False,
+    parser.add_argument('--answerdir', dest='answerDir', type=str,
                         help='path to answers directory')
-    parser.add_argument('--answerfile', dest='answerFile', type=str, required=False,
+    parser.add_argument('--answerfile', dest='answerFile', type=str,
                         help='answer file, filename only specify path using --answerdir')
 
     parser.add_argument('--runcommand', dest='runCommand', type=str,
@@ -58,6 +59,11 @@ def main():
     parser.add_argument('--nodiff', dest='CheckDiff', action='store_false',
                         help='do not diff the output file against answer file, only check the test return value')
 
+    parser.add_argument('--builddir', dest='buildDir', type=str,
+                        help='path to the example CMakeLists.txt file')
+    parser.add_argument('--buildcmd', dest='buildCmd', type=str,
+                        help='CMake command used to build the example')
+
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
                         help='run verbosely')
 
@@ -71,6 +77,8 @@ def main():
         print "outputDir=%s"%(args.outputDir)
         print "runCommand=%s"%(args.runCommand)
         print "runArgs=%s"%(args.runArgs)
+        print "buildDir=%s"%(args.buildDir)
+        print "buildCmd=%s"%(args.buildCmd)
 
     # regression test name and output directory 
     testName  = args.testName
@@ -98,11 +106,51 @@ def main():
         error("Output directory exists but is not a directory, it must be deleted.", outDir)
         sys.exit(1)
 
-    # get testing information
-    testInfos = getInfo(testName, testDir)
-
     # initialize testing result to success
     success = True
+
+    # configure/build the example if necessary
+    if (args.buildCmd):
+
+        # configure/build output file
+        outPath = os.path.join(outDir, args.testName+".build")
+        outFile = open(outPath, 'w')
+
+        # configure/build commands
+        cmakeCommand = [args.buildCmd] + [args.buildDir]
+        makeCommand  = ["make"] + [args.testName]
+
+        try:
+            # configure the example
+            process = subprocess.Popen(cmakeCommand, stdout=outFile, stderr=outFile)
+            process.wait()
+
+            # check the return value
+            if process.returncode != 0:
+                error("cmake exited with error code " + str(process.returncode)
+                      + "for ", args.buildDir)
+                success = False
+                
+            # build the example
+            process = subprocess.Popen(makeCommand, stdout=outFile, stderr=outFile)
+            process.wait()
+
+            # check the return value
+            if process.returncode != 0:
+                error("make exited with error code " + str(process.returncode)
+                      + "for ", args.testName)
+                success = False
+
+        finally:
+            outFile.close()
+
+    # exit if configure/build failed
+    if not success:
+        print "Test failed."
+        sys.exit(1)
+
+    # get testing information
+    testInfos = getInfo(testName, testDir)
 
     for testInfo in testInfos:
 
@@ -133,7 +181,7 @@ def main():
         if(args.answerFile):
             answerFileName = args.answerFile
 
-        outPath = os.path.join(outDir, args.testName)
+        outPath = os.path.join(outDir, args.testName+".out")
 
         answerPath = os.path.join(answerDir, answerFileName)
 

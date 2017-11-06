@@ -307,4 +307,8 @@ IF(EXAMPLES_INSTALL)
       )
   ENDIF(UNIX)
 
+  # add test_install target
+  SUNDIALS_ADD_TEST_INSTALL(ida idaRoberts_dns
+    EXAMPLE_DIR ${EXAMPLES_INSTALL_PATH}/ida/serial)
+
 ENDIF(EXAMPLES_INSTALL)
