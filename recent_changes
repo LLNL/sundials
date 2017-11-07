@@ -1,5 +1,8 @@
 Changes to SUNDIALS since Release of Oct. 26, 2017.
 
+* Added NVECTOR print functions that write vector data to a specified
+  file (e.g., N_VPrintFile_Serial).
+
 * Added 'make test' and 'make test_install' options to the build system for
   testing SUNDIALS after building with 'make' and installing with 'make install'
   respectively.

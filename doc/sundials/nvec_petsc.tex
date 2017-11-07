@@ -124,11 +124,17 @@ N_Vector *N_VCloneEmptyVectorArray_Petsc(int count, N_Vector w);
 
 \item \ID{N\_VPrint\_Petsc}
   
-  This function prints the content of a wrapped {\petsc} vector to stdout.
- 
+  This function prints the global content of a wrapped {\petsc} vector to \id{stdout}.
     
   \verb|void N_VPrint_Petsc(N_Vector v);|
 
+%%--------------------------------------
+
+\item \ID{N\_VPrintFile\_Petsc}
+  
+  This function prints the global content of a wrapped {\petsc} vector to \id{fname}.
+
+  \verb|void N_VPrintFile_Petsc(N_Vector v, const char fname[]);|
 
 \end{itemize}
 %%

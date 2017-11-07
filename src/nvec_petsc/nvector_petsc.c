@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * 
  * Based on N_Vector_Parallel by Scott D. Cohen, Alan C. Hindmarsh, 
@@ -20,8 +16,7 @@
  * -----------------------------------------------------------------
  * This is the implementation file for a PETSc implementation
  * of the NVECTOR package.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -142,7 +137,7 @@ N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
   ierr = MPI_Allreduce(&n, &Nsum, 1, PVEC_INTEGER_MPI_TYPE, MPI_SUM, comm);
   CHKERRABORT(comm,ierr);
   if (Nsum != global_length) {
-    printf(BAD_N);
+    fprintf(stderr, BAD_N);
     return(NULL);
   } 
 
@@ -316,7 +311,8 @@ Vec *N_VGetVector_Petsc(N_Vector v)
 }
 
 /* ---------------------------------------------------------------- 
- * Function to print a parallel vector 
+ * Function to print the global data in a PETSc parallel vector to
+ * stdout
  */
 
 void N_VPrint_Petsc(N_Vector x)
@@ -328,6 +324,58 @@ void N_VPrint_Petsc(N_Vector x)
 
   return;
 }
+
+/* ---------------------------------------------------------------- 
+ * Function to print the global data in a PETSc parallel vector to
+ * fname
+ */
+
+void N_VPrintFile_Petsc(N_Vector x, const char fname[])
+{
+  Vec *xv = NV_PVEC_PTC(x);
+  MPI_Comm comm = NV_COMM_PTC(x);
+  PetscViewer viewer;
+
+  PetscViewerASCIIOpen(comm, fname, &viewer);
+
+  VecView(*xv, viewer);
+
+  PetscViewerDestroy(&viewer);
+
+  return;
+}
+
+/* ---------------------------------------------------------------- 
+ * Function to print the local data in a PETSc parallel vector to
+ * outfile
+ */
+
+/*
+void N_VPrintFileLocal_Petsc(N_Vector x, FILE *outfile)
+{
+  sunindextype i;
+  sunindextype N = NV_LOCLENGTH_PTC(x);
+  Vec *xv = NV_PVEC_PTC(x);
+  PetscScalar *xd;
+
+  VecGetArray(*xv, &xd);
+
+  for (i = 0; i < N; i++) {
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(outfile, "%Lg\n", xd[i]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    fprintf(outfile, "%g\n", xd[i]);
+#else
+    fprintf(outfile, "%g\n", xd[i]);
+#endif
+  }
+  fprintf(outfile, "\n");
+
+  VecRestoreArray(*xv, &xd);
+
+  return;
+}
+*/
 
 /*
  * -----------------------------------------------------------------

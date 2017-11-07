@@ -55,8 +55,8 @@ Approved for public release; further dissemination unlimited
 \clearpage
 }
 
-\title{User Documentation for ARKode v2.0.0\\
-       (SUNDIALS v3.0.0)}
+\title{User Documentation for ARKode v2.1.0\\
+       (SUNDIALS v3.1.0)}
 \author{
   Daniel R. Reynolds$^1$, David J. Gardner$^2$, \\
   Alan C. Hindmarsh$^2$, Carol S. Woodward$^2$ \\
@@ -97,8 +97,7 @@ Approved for public release; further dissemination unlimited
 \expandafter\def\csname PYG@tok@gr\endcsname{\def\PYG@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
 \expandafter\def\csname PYG@tok@cm\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
 \expandafter\def\csname PYG@tok@vg\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\expandafter\def\csname PYG@tok@vi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\expandafter\def\csname PYG@tok@vm\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
+\expandafter\def\csname PYG@tok@m\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
 \expandafter\def\csname PYG@tok@mh\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
 \expandafter\def\csname PYG@tok@cs\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}\def\PYG@bc##1{\setlength{\fboxsep}{0pt}\colorbox[rgb]{1.00,0.94,0.94}{\strut ##1}}}
 \expandafter\def\csname PYG@tok@ge\endcsname{\let\PYG@it=\textit}
@@ -120,20 +119,16 @@ Approved for public release; further dissemination unlimited
 \expandafter\def\csname PYG@tok@nf\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.49}{##1}}}
 \expandafter\def\csname PYG@tok@si\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.44,0.63,0.82}{##1}}}
 \expandafter\def\csname PYG@tok@s2\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@vi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
 \expandafter\def\csname PYG@tok@nt\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.45}{##1}}}
 \expandafter\def\csname PYG@tok@nv\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
 \expandafter\def\csname PYG@tok@s1\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\expandafter\def\csname PYG@tok@dl\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\expandafter\def\csname PYG@tok@ch\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
-\expandafter\def\csname PYG@tok@m\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
 \expandafter\def\csname PYG@tok@gp\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
 \expandafter\def\csname PYG@tok@sh\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 \expandafter\def\csname PYG@tok@ow\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@sx\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
 \expandafter\def\csname PYG@tok@bp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@c1\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
-\expandafter\def\csname PYG@tok@fm\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.49}{##1}}}
-\expandafter\def\csname PYG@tok@o\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
 \expandafter\def\csname PYG@tok@kc\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@c\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
 \expandafter\def\csname PYG@tok@mf\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
@@ -145,7 +140,7 @@ Approved for public release; further dissemination unlimited
 \expandafter\def\csname PYG@tok@kd\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@mi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
 \expandafter\def\csname PYG@tok@kn\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\expandafter\def\csname PYG@tok@cpf\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
+\expandafter\def\csname PYG@tok@o\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
 \expandafter\def\csname PYG@tok@kr\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@s\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 \expandafter\def\csname PYG@tok@kp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
@@ -153,7 +148,6 @@ Approved for public release; further dissemination unlimited
 \expandafter\def\csname PYG@tok@kt\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.56,0.13,0.00}{##1}}}
 \expandafter\def\csname PYG@tok@sc\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 \expandafter\def\csname PYG@tok@sb\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\expandafter\def\csname PYG@tok@sa\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 \expandafter\def\csname PYG@tok@k\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@se\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 \expandafter\def\csname PYG@tok@sd\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
@@ -290,6 +284,10 @@ preconditioner routines.
 
 \subsection{Changes in v2.1.0}
 \label{Introduction:changes-in-v2-1-0}
+
+Added NVECTOR print functions that write vector data to a specified
+file (e.g. \code{N\_VPrintFile\_Serial}).
+
 Added \code{make test} and \code{make test\_install} options to the build
 system for testing SUNDIALS after building with \code{make} and
 installing with \code{make install} respectively.
@@ -17202,6 +17200,13 @@ This function returns the number of vector elements.
 \begin{fulllineitems}
 \phantomsection\label{nvectors/NVector_Serial:c.N_VPrint_Serial}\pysiglinewithargsret{void \bfcode{N\_VPrint\_Serial}}{N\_Vector\emph{ v}}{}
 This function prints the content of a serial vector to \code{stdout}.
+\end{fulllineitems}
+
+\index{N\_VPrintFile\_Serial (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Serial:c.N_VPrintFile_Serial}\pysiglinewithargsret{void \bfcode{N\_VPrintFile\_Serial}}{N\_Vector\emph{ v}, FILE\emph{ *outfile}}{}
+This function prints the content of a serial vector to \code{outfile}.
 
 \end{fulllineitems}
 
@@ -17480,7 +17485,15 @@ This function returns the local vector length.
 
 \begin{fulllineitems}
 \phantomsection\label{nvectors/NVector_Parallel:c.N_VPrint_Parallel}\pysiglinewithargsret{void \bfcode{N\_VPrint\_Parallel}}{N\_Vector\emph{ v}}{}
-This function prints the content of a parallel vector to \code{stdout}.
+This function prints the local content of a parallel vector to \code{stdout}.
+
+\end{fulllineitems}
+
+\index{N\_VPrintFile\_Parallel (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Parallel:c.N_VPrintFile_Parallel}\pysiglinewithargsret{void \bfcode{N\_VPrintFile\_Parallel}}{N\_Vector\emph{ v}, FILE\emph{ *outfile}}{}
+This function prints the local content of a parallel vector to \code{outfile}.
 
 \end{fulllineitems}
 
@@ -17751,7 +17764,15 @@ This function returns the number of vector elements.
 
 \begin{fulllineitems}
 \phantomsection\label{nvectors/NVector_OpenMP:c.N_VPrint_OpenMP}\pysiglinewithargsret{void \bfcode{N\_VPrint\_OpenMP}}{N\_Vector\emph{ v}}{}
-This function prints the content of a OpenMP vector to \code{stdout}.
+This function prints the content of an OpenMP vector to \code{stdout}.
+
+\end{fulllineitems}
+
+\index{N\_VPrintFile\_OpenMP (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_OpenMP:c.N_VPrintFile_OpenMP}\pysiglinewithargsret{void \bfcode{N\_VPrintFile\_OpenMP}}{N\_Vector\emph{ v}, FILE\emph{ *outfile}}{}
+This function prints the content of an OpenMP vector to \code{outfile}.
 
 \end{fulllineitems}
 
@@ -18013,6 +18034,13 @@ This function returns the number of vector elements.
 \begin{fulllineitems}
 \phantomsection\label{nvectors/NVector_Pthreads:c.N_VPrint_Pthreads}\pysiglinewithargsret{void \bfcode{N\_VPrint\_Pthreads}}{N\_Vector\emph{ v}}{}
 This function prints the content of a Pthreads vector to \code{stdout}.
+\end{fulllineitems}
+
+\index{N\_VPrintFile\_Pthreads (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Pthreads:c.N_VPrintFile_Pthreads}\pysiglinewithargsret{void \bfcode{N\_VPrintFile\_Pthreads}}{N\_Vector\emph{ v}, FILE\emph{ *outfile}}{}
+This function prints the content of a Pthreads vector to \code{outfile}.
 
 \end{fulllineitems}
 
@@ -18155,7 +18183,15 @@ variables of type \code{N\_Vector} created with
 
 \begin{fulllineitems}
 \phantomsection\label{nvectors/NVector_ParHyp:c.N_VPrint_ParHyp}\pysiglinewithargsret{void \bfcode{N\_VPrint\_ParHyp}}{N\_Vector\emph{ v}}{}
-This function prints the content of a parhyp vector to \code{stdout}.
+This function prints the local content of a parhyp vector to \code{stdout}.
+
+\end{fulllineitems}
+
+\index{N\_VPrintFile\_ParHyp (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VPrintFile_ParHyp}\pysiglinewithargsret{void \bfcode{N\_VPrintFile\_ParHyp}}{N\_Vector\emph{ v}, FILE\emph{ *outfile}}{}
+This function prints the local content of a parhyp vector to \code{outfile}.
 
 \end{fulllineitems}
 
@@ -18285,7 +18321,15 @@ variables of type \code{N\_Vector} created with
 
 \begin{fulllineitems}
 \phantomsection\label{nvectors/NVector_PETSc:c.N_VPrint_Petsc}\pysiglinewithargsret{void \bfcode{N\_VPrint\_Petsc}}{N\_Vector\emph{ v}}{}
-This function prints the content of a wrapped PETSc vector to \code{stdout}.
+This function prints the global content of a wrapped PETSc vector to \code{stdout}.
+
+\end{fulllineitems}
+
+\index{N\_VPrintFile\_Petsc (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VPrintFile_Petsc}\pysiglinewithargsret{void \bfcode{N\_VPrintFile\_Petsc}}{N\_Vector\emph{ v}, const char\emph{ fname{[}{]}}}{}
+This function prints the global content of a wrapped PETSc vector to \code{fname}.
 
 \end{fulllineitems}
 
@@ -18489,7 +18533,15 @@ This function copies vector data from the device to the host.
 
 \begin{fulllineitems}
 \phantomsection\label{nvectors/NVector_CUDA:c.N_VPrint_Cuda}\pysiglinewithargsret{void \bfcode{N\_VPrint\_Cuda}}{N\_Vector\emph{ v}}{}
-This function prints the content of a wrapped CUDA vector to \code{stdout}.
+This function prints the content of a CUDA vector to \code{stdout}.
+
+\end{fulllineitems}
+
+\index{N\_VPrintFile\_Cuda (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VPrintFile_Cuda}\pysiglinewithargsret{void \bfcode{N\_VPrintFile\_Cuda}}{N\_Vector\emph{ v}, FILE\emph{ *outfile}}{}
+This function prints the content of a CUDA vector to \code{outfile}.
 
 \end{fulllineitems}
 
@@ -18678,7 +18730,15 @@ This function copies vector data from the device to the host.
 
 \begin{fulllineitems}
 \phantomsection\label{nvectors/NVector_RAJA:c.N_VPrint_Raja}\pysiglinewithargsret{void \bfcode{N\_VPrint\_Raja}}{N\_Vector\emph{ v}}{}
-This function prints the content of a wrapped RAJA vector to \code{stdout}.
+This function prints the content of a RAJA vector to \code{stdout}.
+
+\end{fulllineitems}
+
+\index{N\_VPrintFile\_Raja (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_RAJA:c.N_VPrintFile_Raja}\pysiglinewithargsret{void \bfcode{N\_VPrintFile\_Raja}}{N\_Vector\emph{ v}, FILE\emph{ *outfile}}{}
+This function prints the content of a RAJA vector to \code{outfile}.
 
 \end{fulllineitems}
 
@@ -23015,7 +23075,7 @@ SUNLINSOL\_SUPERLUMT module defines the \emph{content} field of a
   \PYG{k+kt}{int}          \PYG{n}{num\PYGZus{}threads}\PYG{p}{;}
   \PYG{n}{realtype}     \PYG{n}{diag\PYGZus{}pivot\PYGZus{}thresh}\PYG{p}{;}
   \PYG{k+kt}{int}          \PYG{n}{ordering}\PYG{p}{;}
-  \PYG{n}{superlumt\PYGZus{}options\PYGZus{}t} \PYG{o}{*}\PYG{n}{options}\PYG{p}{;}
+  \PYG{k+kt}{superlumt\PYGZus{}options\PYGZus{}t} \PYG{o}{*}\PYG{n}{options}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
 
@@ -25743,9 +25803,9 @@ level SUNDIALS directory with appropriate source, build and install
 directories:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZdl{} mkdir \PYG{o}{(}...\PYG{o}{)}/INSTDIR
-\PYGZdl{} mkdir \PYG{o}{(}...\PYG{o}{)}/BUILDDIR
-\PYGZdl{} \PYG{n+nb}{cd} \PYG{o}{(}...\PYG{o}{)}/BUILDDIR
+\PYG{n+nv}{\PYGZdl{} }mkdir \PYG{o}{(}...\PYG{o}{)}/INSTDIR
+\PYG{n+nv}{\PYGZdl{} }mkdir \PYG{o}{(}...\PYG{o}{)}/BUILDDIR
+\PYG{n+nv}{\PYGZdl{} }\PYG{n+nb}{cd} \PYG{o}{(}...\PYG{o}{)}/BUILDDIR
 \end{Verbatim}
 
 \index{cmake-gui}
@@ -25838,7 +25898,7 @@ To build the default configuration using the curses GUI, from the
 BUILDDIR enter the \code{ccmake} command and point to the SRCDIR:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZdl{} ccmake \PYG{o}{(}...\PYG{o}{)}/SRCDIR
+\PYG{n+nv}{\PYGZdl{} }ccmake \PYG{o}{(}...\PYG{o}{)}/SRCDIR
 \end{Verbatim}
 
 Similarly, to build the default configuration using the wxWidgets GUI,
@@ -25846,7 +25906,7 @@ from the BUILDDIR enter the \code{cmake-gui} command and point to the
 SRCDIR:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZdl{} cmake\PYGZhy{}gui \PYG{o}{(}...\PYG{o}{)}/SRCDIR
+\PYG{n+nv}{\PYGZdl{} }cmake\PYGZhy{}gui \PYG{o}{(}...\PYG{o}{)}/SRCDIR
 \end{Verbatim}
 
 The default curses configuration screen is shown in
@@ -25876,19 +25936,19 @@ makefiles including all dependencies and all rules to build SUNDIALS
 on this system.  Back at the command prompt, you can now run:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZdl{} make
+\PYG{n+nv}{\PYGZdl{} }make
 \end{Verbatim}
 
 or for a faster parallel build (e.g. using 4 threads), you can run
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZdl{} make \PYGZhy{}j \PYG{l+m}{4}
+\PYG{n+nv}{\PYGZdl{} }make \PYGZhy{}j 4
 \end{Verbatim}
 
 To install SUNDIALS in the installation directory specified in the configuration, simply run:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZdl{} make install
+\PYG{n+nv}{\PYGZdl{} }make install
 \end{Verbatim}
 
 \index{cmake}
@@ -25900,11 +25960,11 @@ CMake variable settings with the \code{cmake} command.  The following
 will build the default configuration:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZdl{} cmake \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/home/myname/sundials/instdir \PYG{l+s+se}{\PYGZbs{}}
+\PYG{n+nv}{\PYGZdl{} }cmake \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/home/myname/sundials/instdir \PYG{l+s+se}{\PYGZbs{}}
 \PYGZgt{}  \PYGZhy{}DEXAMPLES\PYGZus{}INSTALL\PYGZus{}PATH\PYG{o}{=}/home/myname/sundials/instdir/examples \PYG{l+s+se}{\PYGZbs{}}
 \PYGZgt{}  ../srcdir
-\PYGZdl{} make
-\PYGZdl{} make install
+\PYG{n+nv}{\PYGZdl{} }make
+\PYG{n+nv}{\PYGZdl{} }make install
 \end{Verbatim}
 
 
@@ -26873,7 +26933,7 @@ and set the SUNDIALS libraries as dependencies for your project.
 Using the CMake SUNDIALS build system, the command
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZdl{} make install
+\PYG{n+nv}{\PYGZdl{} }make install
 \end{Verbatim}
 
 will install the libraries under \code{LIBDIR} and the public header

@@ -87,17 +87,17 @@ void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
   /* Check for required vector operations */
   if(F2C_ARKODE_vec->ops->nvgetarraypointer == NULL) {
     *ier = -1;
-    printf("Error: getarraypointer vector operation is not implemented.\n\n");
+    fprintf(stderr, "Error: getarraypointer vector operation is not implemented.\n\n");
     return;
   }
   if(F2C_ARKODE_vec->ops->nvsetarraypointer == NULL) {
     *ier = -1;
-    printf("Error: setarraypointer vector operation is not implemented.\n\n");
+    fprintf(stderr, "Error: setarraypointer vector operation is not implemented.\n\n");
     return;
   }
   if(F2C_ARKODE_vec->ops->nvcloneempty == NULL) {
     *ier = -1;
-    printf("Error: cloneempty vector operation is not implemented.\n\n");
+    fprintf(stderr, "Error: cloneempty vector operation is not implemented.\n\n");
     return;
   }
 
@@ -381,7 +381,7 @@ void FARK_SETIIN(char key_name[], long int *ival, int *ier) {
     *ier = ARKodeSetMaxStepsBetweenLSet(ARK_arkodemem, (int) *ival);
   else {
     *ier = -99;
-    printf("FARKSETIIN: Unrecognized key.\n\n");
+    fprintf(stderr, "FARKSETIIN: Unrecognized key.\n\n");
   }
   return;
 }
@@ -427,7 +427,7 @@ void FARK_SETRIN(char key_name[], realtype *rval, int *ier) {
     *ier = ARKodeSetFixedStep(ARK_arkodemem, *rval);
   else {
     *ier = -99;
-    printf("FARKSETRIN: Unrecognized key: %s\n\n",key_name);
+    fprintf(stderr, "FARKSETRIN: Unrecognized key: %s\n\n",key_name);
   }
   return;
 }

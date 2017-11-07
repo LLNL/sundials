@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): David J. Gardner and Carol S. Woodward @ LLNL
  * -----------------------------------------------------------------
  * Acknowledgements: This NVECTOR module is based on the NVECTOR 
@@ -52,8 +48,7 @@
  *
  *     (which stores the result of the operation a*x+b*y in y)
  *     is legal.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #ifndef _NVECTOR_OPENMP_H
 #define _NVECTOR_OPENMP_H
@@ -161,6 +156,7 @@ typedef struct _N_VectorContent_OpenMP *N_VectorContent_OpenMP;
  * OTHER:
  *    N_VGetLength_OpenMP
  *    N_VPrint_OpenMP
+ *    N_VPrintFile_OpenMP
  * -----------------------------------------------------------------
  */
 
@@ -248,6 +244,16 @@ SUNDIALS_EXPORT sunindextype N_VGetLength_OpenMP(N_Vector v);
  */
 
 SUNDIALS_EXPORT void N_VPrint_OpenMP(N_Vector v);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VPrintFile_OpenMP
+ * -----------------------------------------------------------------
+ * This function prints the content of a OpenMP vector to outfile.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT void N_VPrintFile_OpenMP(N_Vector v, FILE *outfile);
 
 /*
  * -----------------------------------------------------------------
