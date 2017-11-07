@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -18,8 +14,7 @@
  * -----------------------------------------------------------------
  * This is the implementation file for a serial implementation
  * of the NVECTOR package.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -260,12 +255,20 @@ sunindextype N_VGetLength_Serial(N_Vector v)
   return NV_LENGTH_S(v);
 }
 
- 
 /* ----------------------------------------------------------------------------
- * Function to print the a serial vector 
+ * Function to print the a serial vector to stdout
  */
  
 void N_VPrint_Serial(N_Vector x)
+{
+  N_VPrintFile_Serial(x, stdout);
+}
+ 
+/* ----------------------------------------------------------------------------
+ * Function to print the a serial vector to outfile
+ */
+ 
+void N_VPrintFile_Serial(N_Vector x, FILE* outfile)
 {
   sunindextype i, N;
   realtype *xd;
@@ -277,14 +280,14 @@ void N_VPrint_Serial(N_Vector x)
 
   for (i = 0; i < N; i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf("%35.32Lg\n", xd[i]);
+    fprintf(outfile, "%35.32Lg\n", xd[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("%19.16g\n", xd[i]);
+    fprintf(outfile, "%19.16g\n", xd[i]);
 #else
-    printf("%11.8g\n", xd[i]);
+    fprintf(outfile, "%11.8g\n", xd[i]);
 #endif
   }
-  printf("\n");
+  fprintf(outfile, "\n");
 
   return;
 }

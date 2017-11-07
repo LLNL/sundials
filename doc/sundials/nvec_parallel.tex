@@ -218,10 +218,17 @@ N_Vector *N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w);
 
 \item \ID{N\_VPrint\_Parallel}
   
-  This function prints the content of a parallel vector to stdout.
- 
+  This function prints the local content of a parallel vector to \id{stdout}.
     
   \verb|void N_VPrint_Parallel(N_Vector v);|
+
+%%--------------------------------------
+
+\item \ID{N\_VPrintFile\_Parallel}
+  
+  This function prints the local content of a parallel vector to \id{outfile}.
+    
+  \verb|void N_VPrintFile_Parallel(N_Vector v, FILE *outfile);|
 
 
 \end{itemize}

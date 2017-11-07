@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -18,8 +14,7 @@
  * -----------------------------------------------------------------
  * This is the implementation file for a parallel MPI implementation
  * of the NVECTOR package.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -96,7 +91,7 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
   n = local_length;
   MPI_Allreduce(&n, &Nsum, 1, PVEC_INTEGER_MPI_TYPE, MPI_SUM, comm);
   if (Nsum != global_length) {
-    printf(BAD_N);
+    fprintf(stderr, BAD_N);
     return(NULL);
   } 
 
@@ -301,10 +296,19 @@ sunindextype N_VGetLocalLength_Parallel(N_Vector v)
 }
 
 /* ---------------------------------------------------------------- 
- * Function to print a parallel vector 
+ * Function to print the local data in a parallel vector to stdout
  */
 
 void N_VPrint_Parallel(N_Vector x)
+{
+  N_VPrintFile_Parallel(x, stdout);
+}
+
+/* ---------------------------------------------------------------- 
+ * Function to print the local data in a parallel vector to outfile
+ */
+
+void N_VPrintFile_Parallel(N_Vector x, FILE* outfile)
 {
   sunindextype i, N;
   realtype *xd;
@@ -316,14 +320,14 @@ void N_VPrint_Parallel(N_Vector x)
 
   for (i = 0; i < N; i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf("%Lg\n", xd[i]);
+    fprintf(outfile, "%Lg\n", xd[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("%g\n", xd[i]);
+    fprintf(outfile, "%g\n", xd[i]);
 #else
-    printf("%g\n", xd[i]);
+    fprintf(outfile, "%g\n", xd[i]);
 #endif
   }
-  printf("\n");
+  fprintf(outfile, "\n");
 
   return;
 }
