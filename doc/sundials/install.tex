@@ -888,12 +888,28 @@ examples. If you installed {\raja} to a nonstandard location you will be
 prompted to set the variable \id{RAJA\_DIR} with the path to the {\raja} CMake configuration
 file. {\sundials} was tested with {\raja} version 0.3.
 
+\subsection{Testing the build and installation}
+
+If {\sundials} was configured with
+\id{EXAMPLES\_ENABLE\_$<$language$>$} options to \id{ON}, then a set of
+regression tests can be run after building with the \id{make} command
+by running: 
+\begin{verbatim}
+  % make test
+\end{verbatim}
+Additionally, if \id{EXAMPLES\_INSTALL} was also set to \id{ON}, then
+a set of smoke tests can be run after installing with the \id{make install} 
+command by running:
+\begin{verbatim}
+  % make test_install
+\end{verbatim}
+
 %%===============================================================================
 \section{Building and Running Examples}
 %%===============================================================================
 Each of the {\sundials} solvers is distributed with a set of examples
 demonstrating basic usage. To build and install the examples, set at
-least of the \id{EXAMPLES\_ENABLE\_$<$language$>$} options to ON, and
+least of the \id{EXAMPLES\_ENABLE\_$<$language$>$} options to \id{ON}, and
 set \id{EXAMPLES\_INSTALL} to \id{ON}.
 Specify the installation path for the examples with the variable \id{EXAMPLES\_INSTALL\_PATH}. CMake will generate
 \id{CMakeLists.txt} configuration files (and \id{Makefile} files if on Linux/Unix) that reference the

@@ -26764,6 +26764,23 @@ prompted to set the variable \code{RAJA\_DIR} with the path to the RAJA
 CMake configuration file. SUNDIALS was tested with RAJA version 0.3.
 
 
+\subsection{Testing the build and installation}
+\label{Install:testing-build-and-install}\label{Install:installation-cmake-testing}
+If SUNDIALS was configured with
+\code{EXAMPLES\_ENABLE\_$<$language$>$} options to \code{ON}, then a
+set of regression tests can be run after building with the \code{make}
+command by running: 
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZdl{} make test
+\end{Verbatim}
+Additionally, if \code{EXAMPLES\_INSTALL} was also set to \code{ON}, then
+a set of smoke tests can be run after installing with the \code{make install}
+command by running:
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZdl{} make test\_install
+\end{Verbatim}
+
+
 \subsection{Building and Running Examples}
 \label{Install:building-and-running-examples}\label{Install:installation-cmake-buildrunexamples}
 Each of the SUNDIALS solvers is distributed with a set of examples
